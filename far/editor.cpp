@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.138 25.12.2001 $ */
+/* Revision: 1.139 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 VVM
+    ! Проверить на успешную запись перед сбросом флага изменений.
   25.12.2001 SVS
     + При изменении размеров консоли перед прорисовкой редактора вызовем
       ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL).
@@ -1179,7 +1181,11 @@ end:
   /*$ 10.08.2000 skv
     Modified->TextChanged
   */
-  TextChanged(0);
+  /* 28.12.2001 VVM
+    ! Проверить на успешную запись */
+  if (RetCode==SAVEFILE_SUCCESS)
+    TextChanged(0);
+  /* VVM $ */
   /* skv$*/
   Show();
   return RetCode;
