@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.141 14.12.2004 $ */
+/* Revision: 1.142 20.12.2004 $ */
 
 /*
 Modify:
+  20.12.2004 WARP
+    - Ѕыли проблемы с установкой FILE_ATTRIBUTE_COMPRESSED по сети (назначение - FAT32).
   14.12.2004 WARP
     - Ќеверно считалось общее количество файлов в папках в новом диалоге копировани€.
   13.12.2004 WARP
@@ -2320,7 +2322,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
 
-      if(!(ShellCopy::Flags&FCOPY_SKIPSETATTRFLD) && (SetAttr&(~FILE_ATTRIBUTE_DIRECTORY)) != 0 /*SetAttr != SrcData.dwFileAttributes && SetAttr != FILE_ATTRIBUTE_DIRECTORY && */) // только 0x10 нужен!
+      if( !(ShellCopy::Flags & FCOPY_SKIPSETATTRFLD) &&
+           ((SetAttr & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY) )
       {
         // не будем выставл€ть компрессию, если мылимс€ в каталог
         // с выставленным FILE_ATTRIBUTE_ENCRYPTED (а он уже будет выставлен после CreateDirectory)
