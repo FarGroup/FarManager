@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.81 12.04.2001 $ */
+/* Revision: 1.82 16.04.2001 $ */
 
 /*
 Modify:
+  16.04.2001 SVS
+   + Tab в списке хистори - аналог Enter
+   ! Перерисовка в автодополнении должна идти после DN_EDITCHANGE (imho)
   12.04.2001 SVS
    + DM_ADDHISTORY - добавить строку в историю
    + DIF_MANUALADDHISTORY - добавлять в историю только "ручками"
@@ -2343,6 +2346,7 @@ int Dialog::ProcessKey(int Key)
 
         if (edt->ProcessKey(Key))
         {
+          int RedrawNeed=FALSE;
           /* $ 26.07.2000 SVS
              AutoComplite: Если установлен DIF_HISTORY
                  и разрешено автозавершение!.
@@ -2409,7 +2413,7 @@ int Dialog::ProcessKey(int Key)
                  Небольшой глючек с AutoComplete
               */
               edt->SetCurPos(CurPos); // SelEnd
-              Redraw();
+              RedrawNeed=TRUE;
             }
             if(Item[FocusPos].Flags & DIF_VAREDIT)
               free(PStr);
@@ -2417,6 +2421,8 @@ int Dialog::ProcessKey(int Key)
           /* SVS 03.12.2000 $ */
           Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
           /* SVS $ */
+          if(RedrawNeed)
+            Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
           return(TRUE);
         }
         /* SVS 21.08.2000 $ */
@@ -3362,6 +3368,14 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         HistoryMenu.Redraw();
         continue;
       }
+
+      // Tab в списке хистори - аналог Enter
+      if (Key==KEY_TAB)
+      {
+        HistoryMenu.ProcessKey(KEY_ENTER);
+        continue;
+      }
+
       HistoryMenu.ProcessInput();
     }
 
