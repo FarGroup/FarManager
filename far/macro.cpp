@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.21 19.01.2001 $ */
+/* Revision: 1.22 21.01.2001 $ */
 
 /*
 Modify:
+  21.01.2001 SVS
+    - ошибка в назначении клавиши - учитывался текущий контекст макроса, а
+      не стартовый при окончании записи макроса.
   19.01.2001 SVS
     + Зарезервировано: MFLAGS_REUSEMACRO - повторное использование макросов
       Это чуть позже, когда будет механизм линеризации...
@@ -794,7 +797,7 @@ DWORD KeyMacro::AssignMacroKey()
   /* 02 */ DI_EDIT,5,3,28,3,1,0,0,1,"",
   };
   MakeDialogItems(MacroAssignDlgData,MacroAssignDlg);
-  struct DlgParam Param={this,0,Mode};
+  struct DlgParam Param={this,0,StartMode};
 
   Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,34,6);
