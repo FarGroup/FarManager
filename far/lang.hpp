@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.137 18.12.2003 $ */
+/* Revision: 1.138 28.02.2004 $ */
 
 /*
 Modify:
+  28.02.2004 SVS
+    + MConfigAutoUpdateRemoteDrive
   18.12.2003 SVS
     + MFileFilterReset, MConfigDialogsMouseButton, MFileFilterSizeInMBytes, MFileFilterSizeInGBytes
   11.11.2003 SVS
@@ -542,6 +544,7 @@ enum
   MConfigReverseSort,
   MConfigAutoUpdateLimit,
   MConfigAutoUpdateLimit2,
+  MConfigAutoUpdateRemoteDrive,
   MConfigShowColumns,
   MConfigShowStatus,
   MConfigShowTotal,

@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.47 13.11.2003 $ */
+/* Revision: 1.48 28.02.2004 $ */
 
 /*
 Modify:
+  28.02.2004 SVS
+    + Opt.AutoUpdateRemoteDrive - управление автоапдейтом сетевых дисков
   13.11.2003 SVS
     + _ALGO()
   09.10.2003 SVS
@@ -665,17 +667,30 @@ void FileList::UpdateColorItems(void)
 
 void FileList::CreateChangeNotification(int CheckTree)
 {
-  char AnsiName[NM];
-  OemToChar(CurDir,AnsiName);
+  char RootDir[4]=" :\\";
+  DWORD DriveType=DRIVE_REMOTE;
+
   CloseChangeNotification();
-  SetFileApisTo(APIS2ANSI);
-  hListChange=FindFirstChangeNotification(AnsiName,CheckTree,
-                      FILE_NOTIFY_CHANGE_FILE_NAME|
-                      FILE_NOTIFY_CHANGE_DIR_NAME|
-                      FILE_NOTIFY_CHANGE_ATTRIBUTES|
-                      FILE_NOTIFY_CHANGE_SIZE|
-                      FILE_NOTIFY_CHANGE_LAST_WRITE);
-  SetFileApisTo(APIS2OEM);
+
+  if(IsLocalPath(CurDir))
+  {
+    RootDir[0]=*CurDir;
+    DriveType=GetDriveType(RootDir);
+  }
+
+  if(Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE))
+  {
+    char AnsiName[NM];
+    OemToChar(CurDir,AnsiName);
+    SetFileApisTo(APIS2ANSI);
+    hListChange=FindFirstChangeNotification(AnsiName,CheckTree,
+                        FILE_NOTIFY_CHANGE_FILE_NAME|
+                        FILE_NOTIFY_CHANGE_DIR_NAME|
+                        FILE_NOTIFY_CHANGE_ATTRIBUTES|
+                        FILE_NOTIFY_CHANGE_SIZE|
+                        FILE_NOTIFY_CHANGE_LAST_WRITE);
+    SetFileApisTo(APIS2OEM);
+  }
 }
 
 

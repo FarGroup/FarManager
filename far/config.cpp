@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.166 09.01.2004 $ */
+/* Revision: 1.167 27.02.2004 $ */
 
 /*
 Modify:
+  27.02.2004 SVS
+    + Opt.AutoUpdateRemoteDrive
+    ! ¬место фразы "Evaluation copy, please register." просто задисаблим контролы,
+      типа пора воспользоватьс€ нормальной обработкой... - раз уж такое возможно,
+      то... это лучше смотритс€.
   09.01.2004 SVS
     + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
     - ¬рем€ бездействи€ в системных параметрах не мен€етс€.
@@ -655,20 +660,21 @@ void SystemSettings()
 #define DLG_PANEL_AUTOUPDATELIMIT     7
 #define DLG_PANEL_AUTOUPDATELIMIT2    8
 #define DLG_PANEL_AUTOUPDATELIMITVAL  9
+#define DLG_PANEL_AUTOUPDATEREMOTE   10
 
-#define DLG_PANEL_SHOWCOLUMNTITLES   11
-#define DLG_PANEL_SHOWPANELSTATUS    12
-#define DLG_PANEL_SHOWPANELTOTALS    13
-#define DLG_PANEL_SHOWPANELFREE      14
-#define DLG_PANEL_SHOWPANELSCROLLBAR 15
-#define DLG_PANEL_SHOWSCREENSNUMBER  16
-#define DLG_PANEL_SHOWSORTMODE       17
-#define DLG_PANEL_OK                 19
+#define DLG_PANEL_SHOWCOLUMNTITLES   12
+#define DLG_PANEL_SHOWPANELSTATUS    13
+#define DLG_PANEL_SHOWPANELTOTALS    14
+#define DLG_PANEL_SHOWPANELFREE      15
+#define DLG_PANEL_SHOWPANELSCROLLBAR 16
+#define DLG_PANEL_SHOWSCREENSNUMBER  17
+#define DLG_PANEL_SHOWSORTMODE       18
+#define DLG_PANEL_OK                 20
 
 void PanelSettings()
 {
   static struct DialogData CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,52,20,0,0,0,0,(char *)MConfigPanelTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,52,21,0,0,0,0,(char *)MConfigPanelTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigHidden,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigHighlight,
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAutoChange,
@@ -678,17 +684,18 @@ void PanelSettings()
   /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigAutoUpdateLimit,
   /* 08 */DI_TEXT,9,9,0,0,0,0,0,0,(char *)MConfigAutoUpdateLimit2,
   /* 09 */DI_EDIT,9,9,15,8,0,0,0,0,"",
-  /* 10 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigShowColumns,
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigShowStatus,
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowTotal,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowFree,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowScrollbar,
-  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
-  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigShowSortMode,
-  /* 18 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 20 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigAutoUpdateRemoteDrive,
+  /* 11 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigShowColumns,
+  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigShowStatus,
+  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowTotal,
+  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowFree,
+  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigShowScrollbar,
+  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigShowScreensNumber,
+  /* 18 */DI_CHECKBOX,5,18,0,0,0,0,0,0,(char *)MConfigShowSortMode,
+  /* 19 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 20 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 21 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -709,16 +716,21 @@ void PanelSettings()
   CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X1+=strlen(MSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].X2+=strlen(MSG(MConfigAutoUpdateLimit2))+1;
   CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Selected=Opt.AutoUpdateLimit!=0;
+
   if (!RegVer)
   {
-    CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Type=DI_TEXT;
-    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Type=DI_TEXT;
-    sprintf(CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Data," *  %s",MSG(MRegOnlyShort));
-    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT2].Data[0]=0;
+    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT2].Flags|=DIF_DISABLE;
+    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Flags|=DIF_DISABLE;
     CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Data[0]=0;
+    CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Flags|=DIF_DISABLE;
+    CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive=1;
+    CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Flags|=DIF_DISABLE;
   }
   else
+  {
+    CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected=Opt.AutoUpdateRemoteDrive;
     ultoa(Opt.AutoUpdateLimit,CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Data,10);
+  }
 
   if(Opt.AutoUpdateLimit==0)
     CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Flags|=DIF_DISABLE;
@@ -726,7 +738,7 @@ void PanelSettings()
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("PanelSettings");
-    Dlg.SetPosition(-1,-1,56,22);
+    Dlg.SetPosition(-1,-1,56,23);
     Dlg.SetAutomation(DLG_PANEL_AUTOUPDATELIMIT,DLG_PANEL_AUTOUPDATELIMITVAL,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_PANEL_OK)
@@ -753,6 +765,7 @@ void PanelSettings()
   Opt.ShowPanelScrollbar=CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected;
   Opt.ShowScreensNumber=CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected;
   Opt.ShowSortMode=CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected;
+  Opt.AutoUpdateRemoteDrive=CfgDlg[DLG_PANEL_AUTOUPDATEREMOTE].Selected;
 //  FrameManager->RefreshFrame();
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
@@ -815,12 +828,13 @@ void InterfaceSettings()
 
   if (!RegVer)
   {
-    CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Type=DI_TEXT;
-    sprintf(CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Data," *  %s",MSG(MRegOnlyShort));
+    CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Flags|=DIF_DISABLE;
+    CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock=0;
   }
+  else
+    CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock;
 
   CfgDlg[DLG_INTERF_CLOCK].Selected=Opt.Clock;
-  CfgDlg[DLG_INTERF_VIEWEREDITORCLOCK].Selected=Opt.ViewerEditorClock;
   CfgDlg[DLG_INTERF_MOUSE].Selected=Opt.Mouse;
   CfgDlg[DLG_INTERF_MOUSEPMCLICKRULE].Selected=Opt.PanelMiddleClickRule;
   if(!Opt.Mouse)
@@ -1076,6 +1090,7 @@ void SetDizConfig()
 #define DLG_VIEW_SAVESHORTPOS 8
 #define DLG_VIEW_AUTODETECT  9
 #define DLG_VIEW_TABSIZE    10
+#define DLG_VIEW_TABSIZE2   11
 #define DLG_VIEW_SCROLLBAR  12
 #define DLG_VIEW_ARROWS     13
 #define DLG_VIEW_PERSBLOCKS 14
@@ -1124,14 +1139,15 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   CfgDlg[DLG_VIEW_SCROLLBAR].Selected=ViOpt.ShowScrollbar;
   CfgDlg[DLG_VIEW_ARROWS].Selected=ViOpt.ShowArrows;
   CfgDlg[DLG_VIEW_PERSBLOCKS].Selected=ViOpt.PersistentBlocks;
-  sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",ViOpt.TabSize);
 
   if (!RegVer)
   {
-    CfgDlg[DLG_VIEW_TABSIZE].Type=CfgDlg[10].Type=DI_TEXT;
-    sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data," *  %s",MSG(MRegOnlyShort));
-    *CfgDlg[10].Data=0;
+    CfgDlg[DLG_VIEW_TABSIZE].Flags|=DIF_DISABLE;
+    CfgDlg[DLG_VIEW_TABSIZE2].Flags|=DIF_DISABLE;
+    *CfgDlg[DLG_VIEW_TABSIZE].Data=0;
   }
+  else
+    sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",ViOpt.TabSize);
 
   int DialogHeight=20;
   if (Local)
@@ -1252,17 +1268,18 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   */
   CfgDlg[13].Selected=EdOpt.AutoDetectTable&&DistrTableExist();
   /* IS $ */
-  sprintf(CfgDlg[17].Data,"%d",EdOpt.TabSize);
   CfgDlg[14].Selected=EdOpt.CursorBeyondEOL;
   CfgDlg[15].Selected=Opt.EditorReadOnlyLock & 1;
   CfgDlg[16].Selected=Opt.EditorReadOnlyLock & 2;
 
   if (!RegVer)
   {
-    CfgDlg[17].Type=CfgDlg[18].Type=DI_TEXT;
-    sprintf(CfgDlg[17].Data," *  %s",MSG(MRegOnlyShort));
+    CfgDlg[17].Flags|=DIF_DISABLE;
+    CfgDlg[18].Flags|=DIF_DISABLE;
     *CfgDlg[18].Data=0;
   }
+  else
+    sprintf(CfgDlg[17].Data,"%d",EdOpt.TabSize);
 
   int DialogHeight=24;
   if (Local)
@@ -1455,6 +1472,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"InactivityExitTime",&Opt.InactivityExitTime,15, 0},
   {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS, 0},
   {1, REG_DWORD,  NKeySystem,"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
+  {1, REG_DWORD,  NKeySystem,"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
   {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FindOpt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
   {0, REG_DWORD,  NKeySystem,"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
   /* $ 17.09.2003 KM */

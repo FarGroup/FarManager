@@ -1772,6 +1772,12 @@ $ #Panel settings dialog#
     systems. The value of 0 means "update always". To force an
     update of the panels, press Ctrl-R.
 
+  #Network drives#          This option enables panel autorefresh
+  #autorefresh#             when state of filesystem on network
+                          drives is being changed. It can be useful
+                          to disable this option on slow network
+                          connections
+
   #Show column titles#      Enable display of ~file panel~@FilePanel@ column titles.
 
   #Show status line#        Enable display of file panel status line.

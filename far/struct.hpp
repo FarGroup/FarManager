@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.114 09.02.2004 $ */
+/* Revision: 1.115 28.02.2004 $ */
 
 /*
 Modify:
+  28.02.2004 SVS
+    + Opt.AutoUpdateRemoteDrive - управление автоапдейтом сетевых дисков
   15.01.2004 SVS
     + Opt.ExcludeCmdHistory - в историю только то, что вводили с клавиатуры
   07.01.2004 SVS
@@ -712,6 +714,8 @@ struct Options
   struct PanelOptions LeftPanel;
   struct PanelOptions RightPanel;
   DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
+  int AutoUpdateRemoteDrive;
+
   char Language[80];
   int SmallIcon;
   char RegRoot[NM];
