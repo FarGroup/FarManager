@@ -5,10 +5,13 @@ options.cpp
 
 */
 
-/* Revision: 1.22 08.12.2004 $ */
+/* Revision: 1.23 14.12.2004 $ */
 
 /*
 Modify:
+  14.12.2004 SVS
+    ! Alt-Del в терминальном сеансе Win2K AS перехватывается самим терминалом.
+      Добавим в меню "Файлы" команду "Уничтожение".
   08.12.2004 SVS
     - BugZ#1197 - Открытие главного меню мышкой
   11.07.2003 SVS
@@ -119,6 +122,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     (char *)MMenuMove,0,KEY_F6,
     (char *)MMenuCreateFolder,0,KEY_F7,
     (char *)MMenuDelete,0,KEY_F8,
+    (char *)MMenuWipe,0,KEY_ALTDEL,
     "",LIF_SEPARATOR,0,
     (char *)MMenuAdd,0,KEY_SHIFTF1,
     (char *)MMenuExtract,0,KEY_SHIFTF2,
@@ -405,34 +409,37 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
         case 5:  // Delete
           FrameManager->ProcessKey(KEY_F8);
           break;
-        case 7:  // Add to archive
+        case 6:  // Wipe
+          FrameManager->ProcessKey(KEY_ALTDEL);
+          break;
+        case 8:  // Add to archive
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
           break;
-        case 8:  // Extract files
+        case 9:  // Extract files
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
           break;
-        case 9:  // Archive commands
+        case 10:  // Archive commands
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
           break;
-        case 11: // File attributes
+        case 12: // File attributes
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
           break;
-        case 12: // Apply command
+        case 13: // Apply command
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
           break;
-        case 13: // Describe files
+        case 14: // Describe files
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
           break;
-        case 15: // Select group
+        case 16: // Select group
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
           break;
-        case 16: // Unselect group
+        case 17: // Unselect group
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
           break;
-        case 17: // Invert selection
+        case 18: // Invert selection
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
           break;
-        case 18: // Restore selection
+        case 19: // Restore selection
           CtrlObject->Cp()->ActivePanel->RestoreSelection();
           break;
       }

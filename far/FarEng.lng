@@ -1123,6 +1123,7 @@
 "&Rename or move     F6"
 "&Make folder        F7"
 "&Delete             F8"
+"&Wipe               Alt-Del"
 "Add &to archive     Shift-F1"
 "E&xtract files      Shift-F2"
 "Arc&hive commands   Shift-F3"

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.149 13.12.2004 $ */
+/* Revision: 1.150 14.12.2004 $ */
 
 /*
 Modify:
+  14.12.2004 SVS
+    + MMenuWipe
   13.12.2004 WARP
     + MCopyProcessedTotal
   02.11.2004 SVS
@@ -1486,6 +1488,7 @@ enum
   MMenuMove,
   MMenuCreateFolder,
   MMenuDelete,
+  MMenuWipe,
   MMenuAdd,
   MMenuExtract,
   MMenuArchiveCommands,

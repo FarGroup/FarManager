@@ -1078,6 +1078,11 @@ $ #Menus: files menu#
 
    #Delete#             Delete files and folders.
 
+   #Wipe#               Wipe files and folders. Before file deletion
+                      its data are overwritten with zeroes, after
+                      which the file is truncated and renamed to
+                      a temporary name.
+
    #Add to archive#     Add selected files to an archive.
 
    #Extract files#      Extract selected files from an archive.
