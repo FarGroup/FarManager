@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.36 03.10.2001 $ */
+/* Revision: 1.37 05.10.2001 $ */
 
 /*
 Modify:
+  05.10.2001 SVS
+    ! Opt.ExceptRules и бедагер
   03.10.2001 SVS
     ! если под дебагером, то отключаем исключения однозначно, иначе - смотря
       что указал юзвер.
@@ -183,9 +185,13 @@ int _cdecl main(int Argc, char *Argv[])
 
   // если под дебагером, то отключаем исключения однозначно,
   //  иначе - смотря что указал юзвер.
+#if defined(_DEBUGEXC)
+  Opt.ExceptRules=-1;
+#else
   if(!pIsDebuggerPresent)
     pIsDebuggerPresent=(PISDEBUGGERPRESENT)GetProcAddress(GetModuleHandle("KERNEL32"),"IsDebuggerPresent");
   Opt.ExceptRules=(pIsDebuggerPresent && pIsDebuggerPresent()?0:-1);
+#endif
 //  Opt.ExceptRules=-1;
 //_SVS(SysLog("Opt.ExceptRules=%d",Opt.ExceptRules));
 

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.56 01.10.2001 $ */
+/* Revision: 1.57 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    ! Небольшое ограничение области действия Dialog
   01.10.2001 VVM
     ! Проверять нада переменные на NULL
   01.10.2001 VVM
@@ -473,12 +475,15 @@ FindFiles::FindFiles()
 
     while (1)
     {
-      Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
+      int ExitCode;
+      {
+        Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
 
-      Dlg.SetHelp("FindFile");
-      Dlg.SetPosition(-1,-1,76,21);
-      Dlg.Process();
-      int ExitCode=Dlg.GetExitCode();
+        Dlg.SetHelp("FindFile");
+        Dlg.SetPosition(-1,-1,76,21);
+        Dlg.Process();
+        ExitCode=Dlg.GetExitCode();
+      }
       if (ExitCode!=20)
       {
         free(TableItem);

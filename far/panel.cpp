@@ -5,10 +5,14 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.63 03.10.2001 $ */
+/* Revision: 1.64 05.10.2001 $ */
 
 /*
 Modify:
+  05.10.2001 SVS
+    ! ƒл€ начала выставим нужные значени€ в Panel::SetCurPath()
+      дл€ пассивной панели, а уж потом...
+    ! ѕеренос функции Panel::MakeListFile() в fnparse.cpp - там ей место
   03.10.2001 IS
     + перерисуем строчку меню при показе панели
   01.10.2001 IS
@@ -947,70 +951,6 @@ void Panel::FastFindShow(int FindX,int FindY)
 }
 
 
-int  Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
-{
-  FILE *ListFile;
-  strcpy(ListFileName,Opt.TempPath);
-  strcat(ListFileName,FarTmpXXXXXX);
-  if (mktemp(ListFileName)==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
-  //if (FarMkTemp(ListFileName,"Far")==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
-  {
-    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
-    return(FALSE);
-  }
-  char FileName[NM*2],ShortName[NM];
-  int FileAttr;
-  GetSelName(NULL,FileAttr);
-  while (GetSelName(FileName,FileAttr,ShortName))
-  {
-    if (ShortNames)
-      strcpy(FileName,ShortName);
-
-    if(Modifers && *Modifers)
-    {
-      if(strchr(Modifers,'F')) // 'F' - использовать полный путь;
-      {
-        char TempFileName[NM*2];
-        strcpy(TempFileName,CurDir);
-        sprintf(TempFileName,"%s%s%s",CurDir,(CurDir[strlen(CurDir)-1] != '\\'?"\\":""),FileName);
-        if (ShortNames)
-          ConvertNameToShort(TempFileName,TempFileName);
-        strcpy(FileName,TempFileName);
-      }
-      if(strchr(Modifers,'Q')) // 'Q' - заключать имена с пробелами в кавычки;
-        QuoteSpaceOnly(FileName);
-      if(strchr(Modifers,'A')) // 'A' - использовать ANSI кодировку.
-        OemToChar(FileName,FileName);
-
-      if(strchr(Modifers,'S')) // 'S' - использовать '/' вместо '\' в пут€х файлов;
-      {
-        int I,Len=strlen(FileName);
-        for(I=0; I < Len; ++I)
-          if(FileName[I] == '\\')
-            FileName[I]='/';
-      }
-    }
-//_D(SysLog("%s[%s] %s",__FILE__,Modifers,FileName));
-    if (fprintf(ListFile,"%s\r\n",FileName)==EOF)
-    {
-      fclose(ListFile);
-      remove(ListFileName);
-      Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
-      return(FALSE);
-    }
-  }
-  if (fclose(ListFile)==EOF)
-  {
-    clearerr(ListFile);
-    fclose(ListFile);
-    remove(ListFileName);
-    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
-    return(FALSE);
-  }
-  return(TRUE);
-}
-
-
 void Panel::SetFocus()
 {
   if (CtrlObject->Cp()->ActivePanel!=this)
@@ -1218,13 +1158,28 @@ void Panel::InitCurDir(char *CurDir)
      пассивной панели. Ёто необходимо программам запускаемым
      из FAR.
 */
+/* $ 05.10.2001 SVS
+   ! ƒавайте дл€ начала выставим нужные значени€ дл€ пассивной панели,
+     а уж потом...
+     ј то фигн€ кака€-то получаетс€...
+*/
 int  Panel::SetCurPath()
 {
+  char UpDir[NM],Drive[4],*ChPtr;
+
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+  if (AnotherPanel->GetType()!=PLUGIN_PANEL)
+  {
+    if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
+        toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
+    {
+      sprintf(Drive,"=%c:\x0",AnotherPanel->CurDir[0]);
+      SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
+    }
+  }
+
   if (GetMode()==PLUGIN_PANEL)
     return TRUE;
-
-  BOOL RetVal=FALSE;
-  char UpDir[NM],Drive[4],*ChPtr;
 
   strcpy(UpDir,CurDir);
   if ((ChPtr=strrchr(UpDir,'\\'))!=NULL)
@@ -1245,19 +1200,9 @@ int  Panel::SetCurPath()
     SetEnvironmentVariable(Drive,CurDir);
   }
 
-  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-  if (AnotherPanel->GetType()==PLUGIN_PANEL)
-    return TRUE;
-
-  if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
-      toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
-  {
-    sprintf(Drive,"=%c:\x0",AnotherPanel->CurDir[0]);
-    SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
-  }
-
   return TRUE;
 }
+/* SVS $ */
 /* KM $ */
 
 

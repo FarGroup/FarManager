@@ -933,6 +933,8 @@
 
 " Search "
 "Cannot create list file"
+"(cannot create temporary file for list)"
+"(cannot write data in file)"
 
 "%d files"
 "Move %s"

@@ -1938,3 +1938,11 @@
 	".\int64.hpp"\
 	".\plugin.hpp"\
 	".\struct.hpp"\
+
+
+.\mktemp.c : \
+	".\headers.hpp"\
+
+
+.\strncpy.c : \
+	".\headers.hpp"\

@@ -19,6 +19,9 @@ lang.hpp
 
 /*
 Modify:
+  05.10.2001 SVS
+    + MCannotCreateListWrite, MCannotCreateListTemp - уточним - из-за чего
+      не смогли создать файл список - только что нарвался на неприятку :-(
   03.10.2001 SVS
     ! удалим MExcUnload за ненадобностью
   18.09.2001 SVS
@@ -1162,6 +1165,8 @@ enum
 
   MSearchFileTitle,
   MCannotCreateListFile,
+  MCannotCreateListTemp,
+  MCannotCreateListWrite,
 
   MDragFiles,
   MDragMove,

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.147 01.10.2001 $ */
+/* Revision: 1.148 07.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  07.10.2001 SVS 1.148
+    + По просьбам трудящихся - добавлен "|| defined(__WATCOMC__)"
   01.10.2001 SVS 1.147
     - GetRepasePointInfo -> GetRepa_R_sePointInfo
   26.09.2001 SVS 1.146
@@ -1856,7 +1858,7 @@ enum OPERATION_MODES {
   OPM_DESCR=32
 };
 
-#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
+#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__) || defined(__WATCOMC__)
 #ifdef __cplusplus
 extern "C"{
 #endif

@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.06 09.09.2001 $ */
+/* Revision: 1.07 05.10.2001 $ */
 
 /*
 Modify:
+  05.10.2001 SVS
+    ! Снова гавеное увеличение размера СТРОКИ - LastCmdStr ;-(
   09.09.2001 IS
     + SetPersistentBlocks
   13.08.2001 SKV
@@ -42,7 +44,7 @@ class CommandLine:public ScreenObject
     void GetPrompt(char *DestStr);
     Edit CmdStr;
     char CurDir[NM];
-    char LastCmdStr[256];
+    char LastCmdStr[512];
     int LastCmdPartLength;
     SaveScreen *BackgroundScreen;
   public:

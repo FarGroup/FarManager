@@ -5,14 +5,20 @@ dialog.cpp
 
 */
 
-/* Revision: 1.162 04.10.2001 $ */
+/* Revision: 1.163 04.10.2001 $ */
 
 /*
 Modify:
   04.10.2001 SVS
-    - ƒл€ DI_USERCONTROL не высвечивалс€ курсор
+   ! ”Ѕ≈ƒ»“≈Ћ№Ќјя ѕ–ќ—№Ѕј!!!
+     ‘ункции Dialog::DefDlgProc и Dialog::SendDlgMessage должны быть всегда
+     в конце этого файла. ≈сли что-то добавл€ть - то перед Dialog::DefDlgProc()
+     ќбоснование: ћне так удобнее ;-)
+   - DN_GOTFOCUS -> DM_SETFOCUS - получаем цикл с падением
+  04.10.2001 SVS
+   - ƒл€ DI_USERCONTROL не высвечивалс€ курсор
   27.09.2001 IS
-    - Ћевый размер при использовании strncpy
+   - Ћевый размер при использовании strncpy
   16.09.2001 SVS
    ! ќтключаемые исключени€
   08.09.2001 VVM
@@ -1493,7 +1499,10 @@ void Dialog::GetDialogObjectsData()
   for (I=0; I < ItemCount; I++)
   {
     if((CurItem=Item+I)->ObjPtr)
-      switch(CurItem->Type)
+    {
+      int Type=CurItem->Type;
+      DWORD IFlags=CurItem->Flags;
+      switch(Type)
       {
         case DI_EDIT:
         case DI_FIXEDIT:
@@ -1504,8 +1513,7 @@ void Dialog::GetDialogObjectsData()
           int PtrLength;
           Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
           // подготовим данные
-          if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
-             (CurItem->Flags&DIF_VAREDIT))
+          if((Type==DI_EDIT || Type==DI_COMBOBOX) && (IFlags&DIF_VAREDIT))
           {
             PtrData  =(char *)CurItem->Ptr.PtrData;
             PtrLength=CurItem->Ptr.PtrLength;
@@ -1519,9 +1527,9 @@ void Dialog::GetDialogObjectsData()
           // получим данные
           EditPtr->GetString(PtrData,PtrLength);
 
-          if (ExitCode>=0 &&
-              (CurItem->Flags & DIF_HISTORY) &&
-              !(CurItem->Flags & DIF_MANUALADDHISTORY) && // при мануале не добавл€ем
+          if (ExitCode >=0 &&
+              (IFlags & DIF_HISTORY) &&
+              !(IFlags & DIF_MANUALADDHISTORY) && // при мануале не добавл€ем
               CurItem->History &&
               Opt.DialogsEditHistory)
             AddToEditHistory(PtrData,CurItem->History);
@@ -1537,9 +1545,7 @@ void Dialog::GetDialogObjectsData()
             ! ƒл€ DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
              (DI_FIXEDIT допускаетс€ дл€ случа€ если нету маски)
           */
-          if((CurItem->Flags&DIF_EDITEXPAND) &&
-              CurItem->Type != DI_PSWEDIT &&
-              CurItem->Type != DI_FIXEDIT)
+          if((IFlags&DIF_EDITEXPAND) && Type != DI_PSWEDIT && Type != DI_FIXEDIT)
              ExpandEnvironmentStr(PtrData, PtrData,PtrLength-1);
           /* SVS $ */
           /* SVS $ */
@@ -1555,7 +1561,8 @@ void Dialog::GetDialogObjectsData()
 
         /**/
       }
-   }
+    }
+  }
 }
 
 
@@ -3858,11 +3865,10 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
   struct MenuItem HistoryItem;
   int ItemsCount;
   int LastSelected = 0;
+  int EditX1,EditY1,EditX2,EditY2;
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
-
   {
-    int EditX1,EditY1,EditX2,EditY2;
 
     // создание пустого вертикального меню
     VMenu HistoryMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
@@ -4420,6 +4426,87 @@ void Dialog::CloseDialog()
 
 /* DJ $ */
 
+/* $ 17.05.2001 DJ
+   установка help topic'а и прочие радости, временно перетащенные сюда
+   из Modal
+*/
+
+void Dialog::SetHelp (const char *Topic)
+{
+  if (HelpTopic)
+    delete[] HelpTopic;
+  HelpTopic=NULL;
+
+  if(Topic && *Topic)
+  {
+    HelpTopic = new char [strlen (Topic)+1];
+    if(HelpTopic)
+      strcpy (HelpTopic, Topic);
+  }
+}
+
+void Dialog::ShowHelp()
+{
+  if (HelpTopic && *HelpTopic)
+    Help Hlp (HelpTopic);
+}
+
+void Dialog::ClearDone()
+{
+  EndLoop=0;
+}
+
+void Dialog::SetExitCode(int Code)
+{
+  ExitCode=Code;
+  EndLoop = TRUE;
+  //CloseDialog();
+}
+
+/* DJ $ */
+
+/* $ 19.05.2001 DJ
+   возвращаем наше название дл€ меню по F12
+*/
+
+int Dialog::GetTypeAndName (char *Type, char *Name)
+{
+  strcpy (Type, MSG(MDialogType));
+  strcpy (Name, GetDialogTitle());
+  return MODALTYPE_DIALOG;
+}
+
+/* DJ $ */
+
+int Dialog::GetMacroMode()
+{
+  return MACRO_DIALOG;
+}
+
+int Dialog::FastHide()
+{
+  return Opt.AllCtrlAltShiftRule & CASR_DIALOG;
+}
+
+void Dialog::ResizeConsole()
+{
+  COORD c;
+  Resized=true;
+  Hide();
+  c.X=ScrX+1; c.Y=ScrY+1;
+  Dialog::SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(long)&c);
+  c.X=c.Y=-1;
+  Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
+};
+
+void Dialog::OnDestroy()
+{
+  if (Resized){
+    FrameManager->GetBottomFrame()->UnlockRefresh();
+    Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
+  }
+};
+
 //////////////////////////////////////////////////////////////////////////
 /* $ 28.07.2000 SVS
    функци€ обработки диалога (по умолчанию)
@@ -4893,6 +4980,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_SETFOCUS:
 //      if(!Dialog::IsFocused(Dlg->Item[Param1].Type))
 //        return FALSE;
+      if(Dlg->FocusPos == Param1) // уже и так установлено все!
+        return TRUE;
       if(Dlg->ChangeFocus2(Dlg->FocusPos,Param1) == Param1)
       {
         Dlg->ShowDialog();
@@ -5551,85 +5640,5 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 }
 /* SVS $ */
 
-/* $ 17.05.2001 DJ
-   установка help topic'а и прочие радости, временно перетащенные сюда
-   из Modal
-*/
-
-void Dialog::SetHelp (const char *Topic)
-{
-  if (HelpTopic)
-    delete[] HelpTopic;
-  HelpTopic=NULL;
-
-  if(Topic && *Topic)
-  {
-    HelpTopic = new char [strlen (Topic)+1];
-    if(HelpTopic)
-      strcpy (HelpTopic, Topic);
-  }
-}
-
-void Dialog::ShowHelp()
-{
-  if (HelpTopic && *HelpTopic)
-    Help Hlp (HelpTopic);
-}
-
-void Dialog::ClearDone()
-{
-  EndLoop=0;
-}
-
-void Dialog::SetExitCode(int Code)
-{
-  ExitCode=Code;
-  EndLoop = TRUE;
-  //CloseDialog();
-}
-
-/* DJ $ */
-
-/* $ 19.05.2001 DJ
-   возвращаем наше название дл€ меню по F12
-*/
-
-int Dialog::GetTypeAndName (char *Type, char *Name)
-{
-  strcpy (Type, MSG(MDialogType));
-  strcpy (Name, GetDialogTitle());
-  return MODALTYPE_DIALOG;
-}
-
-/* DJ $ */
-
-int Dialog::GetMacroMode()
-{
-  return MACRO_DIALOG;
-}
-
-int Dialog::FastHide()
-{
-  return Opt.AllCtrlAltShiftRule & CASR_DIALOG;
-}
-
-void Dialog::ResizeConsole()
-{
-  COORD c;
-  Resized=true;
-  Hide();
-  c.X=ScrX+1; c.Y=ScrY+1;
-  Dialog::SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(long)&c);
-  c.X=c.Y=-1;
-  Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
-};
-
-void Dialog::OnDestroy()
-{
-  if (Resized){
-    FrameManager->GetBottomFrame()->UnlockRefresh();
-    Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
-  }
-};
 
 //////////////////////////////////////////////////////////////////////////

@@ -456,6 +456,10 @@ SOURCE=.\strmix.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\strncpy.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\syslog.cpp
 # End Source File
 # Begin Source File

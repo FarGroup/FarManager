@@ -8,10 +8,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.60 04.10.2001 $ */
+/* Revision: 1.61 05.10.2001 $ */
 
 /*
 Modify:
+  05.10.2001 SVS
+    - IsProcessAssignMacroKey в диалоге назначени€ макроса присваивались
+      €вно, из-за чего не работали CAS F12 CtrlTab после назначени€ макроса
+      в результатах поисковика.
   04.10.2001 SVS
     - лок/унлок после диалога параметров макроса.
   26.09.2001 SVS
@@ -1204,14 +1208,14 @@ DWORD KeyMacro::AssignMacroKey()
   struct DlgParam Param={this,0,StartMode};
 //_SVS(SysLog("StartMode=%d",StartMode));
 
-  IsProcessAssignMacroKey=TRUE;
+  IsProcessAssignMacroKey++;
   Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,34,6);
   Dlg.SetHelp("KeyMacro");
   FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
   Dlg.Process();
   FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
-  IsProcessAssignMacroKey=FALSE;
+  IsProcessAssignMacroKey--;
   /* $ 30.01.2001 SVS
      «абыл сделать проверку на код возврата из диалога назначени€
   */

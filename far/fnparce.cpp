@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.04 25.07.2001 $ */
+/* Revision: 1.05 05.10.2001 $ */
 
 /*
 Modify:
+  05.10.2001 SVS
+    ! Перенос функции Panel::MakeListFile() из panel.cpp - здесь ей место
   25.07.2001 IS
     ! для !` не ставим ведущую точку.
   29.06.2001 IS
@@ -32,6 +34,8 @@ Modify:
 #include "cmdline.hpp"
 #include "filepanels.hpp"
 #include "dialog.hpp"
+#include "global.hpp"
+#include "lang.hpp"
 
 static void ReplaceVariables(char *Str);
 
@@ -549,4 +553,68 @@ void ReplaceVariables(char *Str)
   */
   free(DlgData);
   /* SVS $ */
+}
+
+int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
+{
+  FILE *ListFile;
+
+  strcpy(ListFileName,Opt.TempPath);
+  strcat(ListFileName,FarTmpXXXXXX);
+  if (mktemp(ListFileName)==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
+  {
+    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
+    return(FALSE);
+  }
+
+  char FileName[NM*2],ShortName[NM];
+  int FileAttr;
+  GetSelName(NULL,FileAttr);
+  while (GetSelName(FileName,FileAttr,ShortName))
+  {
+    if (ShortNames)
+      strcpy(FileName,ShortName);
+
+    if(Modifers && *Modifers)
+    {
+      if(strchr(Modifers,'F')) // 'F' - использовать полный путь;
+      {
+        char TempFileName[NM*2];
+        strcpy(TempFileName,CurDir);
+        sprintf(TempFileName,"%s%s%s",CurDir,(CurDir[strlen(CurDir)-1] != '\\'?"\\":""),FileName);
+        if (ShortNames)
+          ConvertNameToShort(TempFileName,TempFileName);
+        strcpy(FileName,TempFileName);
+      }
+      if(strchr(Modifers,'Q')) // 'Q' - заключать имена с пробелами в кавычки;
+        QuoteSpaceOnly(FileName);
+      if(strchr(Modifers,'A')) // 'A' - использовать ANSI кодировку.
+        OemToChar(FileName,FileName);
+
+      if(strchr(Modifers,'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+      {
+        int I,Len=strlen(FileName);
+        for(I=0; I < Len; ++I)
+          if(FileName[I] == '\\')
+            FileName[I]='/';
+      }
+    }
+//_D(SysLog("%s[%s] %s",__FILE__,Modifers,FileName));
+    if (fprintf(ListFile,"%s\r\n",FileName)==EOF)
+    {
+      fclose(ListFile);
+      remove(ListFileName);
+      Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
+      return(FALSE);
+    }
+  }
+  if (fclose(ListFile)==EOF)
+  {
+    clearerr(ListFile);
+    fclose(ListFile);
+    remove(ListFileName);
+    Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
+    return(FALSE);
+  }
+  return(TRUE);
 }

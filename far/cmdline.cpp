@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.41 27.09.2001 $ */
+/* Revision: 1.42 05.10.2001 $ */
 
 /*
 Modify:
+  05.10.2001 SVS
+    ! Ќемного оптимизации (с сокращение повтор€ющегос€ кода)
   27.09.2001 IS
     - Ћевый размер при использовании strncpy
   26.09.2001 VVM
@@ -174,60 +176,66 @@ void CommandLine::SetCurPos(int Pos)
 
 int CommandLine::ProcessKey(int Key)
 {
-  char Str[512];
+  char Str[2048], *PStr;
 
   if (Key==KEY_CTRLEND && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
-    char Command[1024];
     if (LastCmdPartLength==-1)
       strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
-    strcpy(Command,LastCmdStr);
-    int CurCmdPartLength=strlen(Command);
-    CtrlObject->CmdHistory->GetSimilar(Command,LastCmdPartLength);
+    strcpy(Str,LastCmdStr);
+    int CurCmdPartLength=strlen(Str);
+    CtrlObject->CmdHistory->GetSimilar(Str,LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
       LastCmdPartLength=CurCmdPartLength;
       strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
     }
-    CmdStr.SetString(Command);
+    CmdStr.SetString(Str);
     Show();
     return(TRUE);
   }
 
+  if(Key == KEY_UP)
+  {
+    if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
+      return(FALSE);
+    Key=KEY_CTRLE;
+  }
+  else if(Key == KEY_DOWN)
+  {
+    if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
+      return(FALSE);
+    Key=KEY_CTRLX;
+  }
+
   switch(Key)
   {
-    case KEY_UP:
-      if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
-        return(FALSE);
     case KEY_CTRLE:
-      {
-        char Str[1024];
-        CtrlObject->CmdHistory->GetPrev(Str);
-        CmdStr.SetString(Str);
-        CmdStr.SetLeftPos(0);
-        CmdStr.Show();
-      }
-      LastCmdPartLength=-1;
-      return(TRUE);
-    case KEY_DOWN:
-      if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
-        return(FALSE);
     case KEY_CTRLX:
-      {
-        char Str[1024];
+      if(Key == KEY_CTRLE)
+        CtrlObject->CmdHistory->GetPrev(Str);
+      else
         CtrlObject->CmdHistory->GetNext(Str);
-        CmdStr.SetString(Str);
-        CmdStr.SetLeftPos(0);
-        CmdStr.Show();
+    case KEY_ESC:
+      if(Key == KEY_ESC)
+      {
+        /* $ 24.09.2000 SVS
+           ≈сли задано поведение по "Ќесохранению при Esc", то позицию в
+           хистори не мен€ем и ставим в первое положение.
+        */
+        if(Opt.CmdHistoryRule)
+          CtrlObject->CmdHistory->SetFirst();
+        PStr="";
       }
-      LastCmdPartLength=-1;
+      else
+        PStr=Str;
+      SetString(PStr);
       return(TRUE);
     case KEY_F2:
       ProcessUserMenu(0);
       return(TRUE);
     case KEY_ALTF8:
       {
-        char Str[1024];
         int Type;
         /* $ 19.09.2000 SVS
            - ѕри выборе из History (по Alt-F8) плагин не получал управление!
@@ -261,14 +269,13 @@ int CommandLine::ProcessKey(int Key)
       return(TRUE);
     case KEY_ALTF10:
       {
-        char NewFolder[NM];
         {
-          FolderTree Tree(NewFolder,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4);
+          FolderTree Tree(Str,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4);
         }
-        if (*NewFolder)
+        if (*Str)
         {
           Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-          ActivePanel->SetCurDir(NewFolder,TRUE);
+          ActivePanel->SetCurDir(Str,TRUE);
           ActivePanel->Show();
           if (ActivePanel->GetType()==TREE_PANEL)
             ActivePanel->ProcessKey(KEY_ENTER);
@@ -288,7 +295,6 @@ int CommandLine::ProcessKey(int Key)
       return(TRUE);
     case KEY_ALTF12:
       {
-        char Str[1024];
         int Type,SelectType;
         if ((SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"HistoryFolders",Str,Type))==1 || SelectType==2)
         {
@@ -321,19 +327,6 @@ int CommandLine::ProcessKey(int Key)
         if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)Str))
           CmdExecute(Str,FALSE,Key==KEY_SHIFTENTER,FALSE);
       }
-      return(TRUE);
-    case KEY_ESC:
-      /* $ 24.09.2000 SVS
-         ≈сли задано поведение по "Ќесохранению при Esc", то позицию в
-         хистори не мен€ем и ставим в первое положение.
-      */
-      if(Opt.CmdHistoryRule)
-        CtrlObject->CmdHistory->SetFirst();
-      /* SVS $ */
-      CmdStr.SetString("");
-      CmdStr.SetLeftPos(0);
-      CmdStr.Show();
-      LastCmdPartLength=-1;
       return(TRUE);
 
     /* дополнительные клавиши дл€ выделени€ в ком строке.

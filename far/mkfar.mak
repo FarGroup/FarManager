@@ -213,6 +213,7 @@ FAROBJ=\
    $(OBJPATH)\frame.obj\
    $(OBJPATH)\xlat.obj\
    $(OBJPATH)\farexcpt.obj\
+   $(OBJPATH)\strncpy.obj\
    $(OBJPATH)\main.obj
 
 Dep_fardexe = BccW32.cfg\
