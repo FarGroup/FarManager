@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.20 06.08.2004 $ */
+/* Revision: 1.21 23.12.2004 $ */
 
 /*
 Modify:
+  23.12.2004 WARP
+    ! Заменим в GetRegKey strcpy на xstrncpy. На случай атомной войны.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   06.07.2004 SVS
@@ -181,7 +183,7 @@ int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *
   }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
-    strcpy(ValueData,Default);
+    xstrncpy (ValueData,Default, DataSize-1);
     return(FALSE);
   }
   return(TRUE);
