@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.25 23.08.2000 $ */
+/* Revision: 1.26 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+   ! Критическая ошибка - с фокусов не порядки...
+     перестарался с ChangeFocus()
   23.08.2000 SVS
    ! Уточнения категорий DMSG_* -> DM_ (месаг) & DN_ (нотифи)
    + DM_KEY        - послать/получить клавишу(ы)
@@ -1915,14 +1918,14 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 {
   int Type,OrigFocusPos=FocusPos;
-  int FucusPosNeed=-1;
+//  int FucusPosNeed=-1;
   // В функцию обработки диалога здесь передаем сообщение,
   //   что элемент - LostFocus() - теряет фокус ввода.
-  if(CheckDialogMode(DMODE_INITOBJECTS))
-    FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,FocusPos,0);
-  if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
-    FocusPos=FucusPosNeed;
-  else
+//  if(CheckDialogMode(DMODE_INITOBJECTS))
+//    FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,FocusPos,0);
+//  if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
+//    FocusPos=FucusPosNeed;
+//  else
   {
     while (1)
     {
@@ -1945,12 +1948,12 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
     }
   }
 
-  Dialog::FocusPos=FocusPos;
+//  Dialog::FocusPos=FocusPos;
   // В функцию обработки диалога здесь передаем сообщение,
   //   что элемент GotFocus() - получил фокус ввода.
   // Игнорируем возвращаемое функцией диалога значение
-  if(CheckDialogMode(DMODE_INITOBJECTS))
-    DlgProc((HANDLE)this,DN_GOTFOCUS,FocusPos,0);
+//  if(CheckDialogMode(DMODE_INITOBJECTS))
+//    DlgProc((HANDLE)this,DN_GOTFOCUS,FocusPos,0);
   return(FocusPos);
 }
 
