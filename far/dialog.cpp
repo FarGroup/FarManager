@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.59 08.12.2000 $ */
+/* Revision: 1.60 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 SVS
+   ! Дополнение цветов (пропустил :-)
+   + Отмена реакции хоткеев для DIF_DISABLE
   08.12.2000 SVS
    ! DM_SET(GET)TEXT - Param2 указатель на структуру FarDialogItemData
   06.12.2000 SVS
@@ -1212,10 +1215,14 @@ void Dialog::ShowDialog(int ID)
         if (CurItem->Flags & DIF_SETCOLOR)
           Attr=(CurItem->Flags & DIF_COLORMASK);
         else
-          Attr=(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+          Attr=(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
+                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT));
 
         Attr=MAKEWORD(FarColorToReal(Attr),
-             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT)); // HiText
+             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
+                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))); // HiText
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
 
         SetColor(Attr&0xFF);
@@ -1261,15 +1268,23 @@ void Dialog::ShowDialog(int ID)
           SetCursorType(0,10);
           Attr=MAKEWORD(
              (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
-               FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGSELECTEDBUTTON:COL_DIALOGSELECTEDBUTTON), // TEXT
-             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON)); // HiText
+               FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGSELECTEDBUTTON):
+                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGSELECTEDBUTTON)), // TEXT
+             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON):
+                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTSELECTEDBUTTON))); // HiText
         }
         else
         {
           Attr=MAKEWORD(
              (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
-               FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGBUTTON:COL_DIALOGBUTTON), // TEXT
-             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGHIGHLIGHTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)); // HiText
+               FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBUTTON):
+                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBUTTON)), // TEXT
+             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBUTTON):
+                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBUTTON))); // HiText
         }
         /* SVS $ */
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
@@ -3062,7 +3077,8 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
   int I;
   for (I=0;I<ItemCount;I++)
   {
-    if (!IsEdit(Item[I].Type) && (Item[I].Flags & DIF_SHOWAMPERSAND)==0)
+    if (!IsEdit(Item[I].Type) &&
+        (Item[I].Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE))==0)
       if (IsKeyHighlighted(Item[I].Data,Key,Translate))
       {
         int DisableSelect=FALSE;

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.06 24.11.2000 $ */
+/* Revision: 1.07 14.12.2000 $ */
 
 /*
 Modify:
+  14.12.2000 SVS
+    ! Показываем недостающие атрибуты, но делаем их недоступными.
   24.11.2000 SVS
     + Правило на счет установки атрибутов на каталоги
   16.11.2000 SVS
@@ -263,26 +265,32 @@ void ShellSetFileAttributes(Panel *SrcPanel)
     {
       if ((FileSystemFlags & FS_FILE_COMPRESSION)==0)
       {
-        AttrDlg[8].Type=DI_TEXT;
+        AttrDlg[8].Flags|=DIF_DISABLE;
+//        AttrDlg[8].Type=DI_TEXT;
         // хотелка - не показывать про компрессию
         //strcat(AttrDlg[8].Data,MSG(MSetAttrNTFSOnly));
-        AttrDlg[8].Data[0]=0;
+//        AttrDlg[8].Data[0]=0;
 
-        MultAttrDlg[8].Type=DI_TEXT;
-        MultAttrDlg[14].Type=DI_TEXT;
+        MultAttrDlg[8].Flags|=DIF_DISABLE;
+        MultAttrDlg[14].Flags|=DIF_DISABLE;
+//        MultAttrDlg[8].Type=DI_TEXT;
+//        MultAttrDlg[14].Type=DI_TEXT;
         // хотелка - не показывать про компрессию
         //MultAttrDlg[13].X1+=4;
         //strcat(MultAttrDlg[13].Data,MSG(MSetAttrNTFSOnly));
-        MultAttrDlg[14].Data[0]=0;
+//        MultAttrDlg[14].Data[0]=0;
       }
       if ((FileSystemFlags & FS_FILE_ENCRYPTION)==0)
       {
-        AttrDlg[9].Type=DI_TEXT;
-        AttrDlg[9].Data[0]=0;
+        //AttrDlg[9].Type=DI_TEXT;
+        //AttrDlg[9].Data[0]=0;
+        AttrDlg[9].Flags|=DIF_DISABLE;
 
-        MultAttrDlg[9].Type=DI_TEXT;
-        MultAttrDlg[15].Type=DI_TEXT;
-        MultAttrDlg[15].Data[0]=0;
+        MultAttrDlg[9].Flags|=DIF_DISABLE;
+        MultAttrDlg[15].Flags|=DIF_DISABLE;
+//        MultAttrDlg[9].Type=DI_TEXT;
+//        MultAttrDlg[15].Type=DI_TEXT;
+//        MultAttrDlg[15].Data[0]=0;
       }
     }
   }
