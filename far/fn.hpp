@@ -7,12 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.114 15.11.2001 $ */
+/* Revision: 1.115 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 SVS
+    + ReplaceStrings - замена подстроки
   15.11.2001 OT
-    Исправление поведения cd c:\ на активном панельном плагине
+    - Исправление поведения cd c:\ на активном панельном плагине
   06.11.2001 SVS
     + EnumRegValue() - перечисление Values у ключа
     ! Немного const для функции работы с реестром
@@ -368,6 +370,7 @@ void _cdecl CheckReg(void *Param);
 int IsFolderNotEmpty(char *Name);
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
+int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-1);
 #define RemoveHighlights(Str) RemoveChar(Str,'&')
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);

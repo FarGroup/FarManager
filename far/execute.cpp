@@ -5,12 +5,16 @@ execute.cpp
 
 */
 
-/* Revision: 1.06 15.11.2001 $ */
+/* Revision: 1.07 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 SVS
+    + GetExistAppPaths() - получить если надо путь из App Paths
+    ! Функция IsCommandExeGUI() вторым параметром возврпащает полный путь
+      к наденному файлу
   15.11.2001 OT
-    Исправление поведения cd c:\ на активном панельном плагине
+    - Исправление поведения cd c:\ на активном панельном плагине
   14.11.2001 SVS
     - Последствия исправлений BugZ#90 - панели не обновлялись
   12.11.2001 SVS
@@ -42,6 +46,87 @@ Modify:
 #include "fn.hpp"
 #include "rdrwdsk.hpp"
 
+// Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
+// ГУЯХ PE-модуля
+DWORD IsCommandPEExeGUI(const char *FileName)
+{
+  char NameFile[NM];
+  HANDLE hFile;
+  DWORD IsPEGUI=0;
+
+  OemToChar(FileName, NameFile);
+  SetFileApisToANSI();
+  if((hFile=CreateFile(NameFile,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
+  {
+    DWORD FileSizeLow, FileSizeHigh, ReadSize;
+    IMAGE_DOS_HEADER dos_head;
+
+    FileSizeLow=GetFileSize(hFile,&FileSizeHigh);
+
+    if(ReadFile(hFile,&dos_head,sizeof(IMAGE_DOS_HEADER),&ReadSize,NULL) &&
+       dos_head.e_magic == IMAGE_DOS_SIGNATURE)
+    {
+      /*  Если значение слова по смещению 18h (OldEXE - MZ) >= 40h,
+      то значение слова в 3Ch является смещением заголовка Windows. */
+      if (dos_head.e_lfarlc >= 0x40)
+      {
+        DWORD signature;
+        #include <pshpack1.h>
+        struct __HDR
+        {
+           DWORD signature;
+           IMAGE_FILE_HEADER _head;
+           IMAGE_OPTIONAL_HEADER opt_head;
+           // IMAGE_SECTION_HEADER section_header[];  /* actual number in NumberOfSections */
+        } header, *pheader;
+        #include <poppack.h>
+
+        if(SetFilePointer(hFile,dos_head.e_lfanew,NULL,FILE_BEGIN) != -1)
+        {
+          // читаем очередной заголовок
+          if(ReadFile(hFile,&header,sizeof(struct __HDR),&ReadSize,NULL))
+          {
+            BOOL isLE=FALSE;
+            signature=header.signature;
+            pheader=&header;
+
+            if(signature == IMAGE_NT_SIGNATURE) // PE
+            {
+              IsPEGUI=header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
+            }
+            else if((WORD)signature == IMAGE_OS2_SIGNATURE) // NE
+            {
+              ; // NE,  хмм...  а как определить что оно ГУЕВОЕ?
+            }
+          }
+          else
+          {
+            ; // обломс вышел с чтением следующего заголовка ;-(
+          }
+        }
+        else
+        {
+          ; // видимо улетиели куда нить в трубу, т.к. dos_head.e_lfanew
+            // указал слишком в неправдоподное место (например это чистой
+            // воды DOS-файл
+        }
+      }
+      else
+      {
+        ; // Это конечно EXE, но не виндовое EXE
+      }
+    }
+    else
+    {
+      ; // это не исполняемый файл - у него нету заголовка MZ
+        // например, NLM-модуль или ошибка чтения :-)
+    }
+    CloseHandle(hFile);
+  }
+  SetFileApisToOEM();
+  return IsPEGUI;
+}
+
 char* GetShellAction(char *FileName)
 {
   char Value[80],*ExtPtr;
@@ -65,7 +150,59 @@ char* GetShellAction(char *FileName)
   return(*Action==0 ? NULL:Action);
 }
 
-DWORD IsCommandExeGUI(char *Command)
+// В строке Command заменть исполняемый модуль на полный путь, который
+// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+// Сначала смотрим в HKCU, затем - в HKLM
+// Return: Это ГУЯ?
+DWORD GetExistAppPaths(const char *Command,char *Dest,int DestSize)
+{
+  HKEY hKey;
+  char FullKeyName[4096];
+  char TempStr[4096];
+  char FileName[4096],*EndName, *Ptr;
+  HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
+  DWORD GUIType;
+  int I;
+
+  if (*Command=='\"')
+  {
+    OemToChar(Command+1,FileName);
+    if ((EndName=strchr(FileName,'\"'))!=NULL)
+      *EndName=0;
+  }
+  else
+  {
+    OemToChar(Command,FileName);
+    if ((EndName=strpbrk(FileName," \t/"))!=NULL)
+      *EndName=0;
+  }
+
+  for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+  {
+    sprintf(FullKeyName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
+    Ptr=strrchr(FullKeyName,'.');
+    if(!Ptr)
+      strcat(FullKeyName,".exe");
+    OemToChar(FullKeyName, FullKeyName);
+
+    if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+    {
+      DWORD Type, DataSize=sizeof(FullKeyName);
+      RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullKeyName,&DataSize);
+      RegCloseKey(hKey);
+      QuoteSpaceOnly(FullKeyName);
+      GUIType=IsCommandPEExeGUI(FullKeyName);
+      strncpy(TempStr,Command,sizeof(TempStr)-1);
+      ReplaceStrings(TempStr,FileName,FullKeyName);
+      strncpy(Dest,TempStr,DestSize);
+      return GUIType;
+    }
+  }
+  return 0;
+}
+
+// Фунция возвращает тип файла и полный путь к нему (если он нашелся)
+DWORD IsCommandExeGUI(char *Command,char *FindName)
 {
   char FileName[4096],FullName[4096],*EndName,*FilePart;
   if (*Command=='\"')
@@ -103,10 +240,15 @@ DWORD IsCommandExeGUI(char *Command)
     if(GetFileAttributes(FullName)!=-1)break;
   /* skv$*/
 
-    if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
+    if (SearchPath(NULL,FileName,".exe",sizeof(FindName),FindName,&FilePart))
     {
+// ВНИМАНИЕ!!!!!!!!!!
+// ОЧЕНЬ спорный кусок!!!!!!
+#if 1
+      GUIType=IsCommandPEExeGUI(FindName);
+#else
       SHFILEINFO sfi;
-      DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
+      DWORD ExeType=SHGetFileInfo(FindName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
       GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
               /* $ 13.07.2000 IG
                  в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
@@ -114,6 +256,7 @@ DWORD IsCommandExeGUI(char *Command)
               */
               HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
               /* IG $ */
+#endif
     }
 /*$ 18.09.2000 skv
     little trick.
@@ -125,14 +268,12 @@ DWORD IsCommandExeGUI(char *Command)
   return(GUIType);
 }
 
-
-
 int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 {
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   char ExecLine[1024],CommandName[NM];
-  char OldTitle[512];
+  char OldTitle[512],NewCmdStr[4096];
   int ExitCode;
   /* $ 13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
@@ -180,11 +321,14 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
       }*/
   /* KM $ */
 
-  char *CmdPtr=CmdStr;
+  char *CmdPtr=strcpy(NewCmdStr,CmdStr);
 //  while (isspace(*CmdPtr))
 //    CmdPtr++;
 
-  DWORD GUIType=IsCommandExeGUI(CmdPtr);
+  // Сначала посомтрим по правилам функции SearchPath
+  DWORD GUIType=IsCommandExeGUI(NewCmdStr,NewCmdStr);
+  if(!GUIType) // ... если не нашли - лезим в реестр в "App Paths"
+    GUIType=GetExistAppPaths(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1);
 
   if (DirectRun && !SeparateWindow)
     strcpy(ExecLine,CmdPtr);

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.28 26.10.2001 $ */
+/* Revision: 1.29 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 SVS
+    + ReplaceStrings - замена подстроки
   26.10.2001 SVS
     ! В HiStrlen() НУЖНО! проверить Str на NULL
   23.10.2001 SVS
@@ -780,6 +782,34 @@ char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize)
   memmove(Str+Pos+InsLen, Str+Pos, strlen(Str+Pos)+1);
   memcpy(Str+Pos, InsStr, InsLen);
   return Str;
+}
+
+// Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
+// Если Count < 0 - заменять "до полной победы"
+// Return - количество замен
+int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count)
+{
+  int I=0, J=0;
+  int LenReplStr=strlen(ReplStr);
+  int LenFindStr=strlen(FindStr);
+
+  while(I <= strlen(Str)-LenFindStr)
+  {
+    if(memcmp(Str+I, FindStr, LenFindStr) == 0)
+    {
+      if(LenReplStr > LenFindStr)
+        memmove(Str+I+(LenReplStr-LenFindStr),Str+I,strlen(Str+I)+1); // >>
+      else if(LenReplStr < LenFindStr)
+        memmove(Str+I,Str+I+(LenFindStr-LenReplStr),strlen(Str+I+(LenFindStr-LenReplStr))+1); //??
+      memcpy(Str+I,ReplStr,LenReplStr);
+      I += LenReplStr;
+      if(Count > 0 && ++J == Count)
+        break;
+    }
+    else
+      I++;
+  }
+  return J;
 }
 
 /*
