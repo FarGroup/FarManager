@@ -170,7 +170,11 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     return(FALSE);
   *Type=ArcType;
 
-  FileSize.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.HighPart);
+  #ifdef __BORLANDC__
+    FileSize.u.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.u.HighPart);
+  #else
+    FileSize.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.HighPart);
+  #endif
 
   NextPosition.QuadPart=0;
   return(TRUE);
@@ -189,7 +193,13 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {
       if (ArcType==BZ_FORMAT)
       {
-        Item->PackSize=Item->FindData.nFileSizeLow=FileSize.LowPart;
+        Item->PackSize=Item->FindData.nFileSizeLow=
+          #ifdef __BORLANDC__
+            FileSize.u.LowPart
+          #else
+            FileSize.LowPart
+          #endif
+          ;
         strcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
@@ -219,13 +229,25 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
     return(GETARC_READERROR);
 
-  Item->PackSize=FileSize.LowPart;
+  Item->PackSize=
+    #ifdef __BORLANDC__
+      FileSize.u.LowPart
+    #else
+      FileSize.LowPart
+    #endif
+    ;
 
   if (ArcType==Z_FORMAT)
   {
     strcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
-    Item->FindData.nFileSizeLow=FileSize.LowPart;
+    Item->FindData.nFileSizeLow=
+      #ifdef __BORLANDC__
+        FileSize.u.LowPart
+      #else
+        FileSize.LowPart
+      #endif
+      ;
     return(GETARC_SUCCESS);
   }
 
@@ -266,15 +288,21 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
   TARHeader TAR_hdr;
   DWORD ReadSize;
-  BOOL SkipItem=FALSE;
+  BOOL SkipItem;//=FALSE;
   char *LongName = NULL;
   do
   {
+  #ifdef __BORLANDC__
+    NextPosition.u.LowPart=SetFilePointer(ArcHandle,NextPosition.u.LowPart,
+      &NextPosition.u.HighPart,FILE_BEGIN);
+    if (NextPosition.u.LowPart==0xFFFFFFFF && GetLastError() != NO_ERROR)
+      return(GETARC_READERROR);
+  #else
     NextPosition.LowPart=SetFilePointer(ArcHandle,NextPosition.LowPart,
-  		&NextPosition.HighPart,FILE_BEGIN);
-
+      &NextPosition.HighPart,FILE_BEGIN);
     if (NextPosition.LowPart==0xFFFFFFFF && GetLastError() != NO_ERROR)
       return(GETARC_READERROR);
+  #endif
 
     if (NextPosition.QuadPart>FileSize.QuadPart)
       return(GETARC_UNEXPEOF);
@@ -307,17 +335,26 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     LARGE_INTEGER PrevPosition=NextPosition;
     // for LNKTYPE - only sizeof(TAR_hdr)
     NextPosition.QuadPart+=sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0:Item->PackSize);
-
+#ifdef __BORLANDC__
+    if (NextPosition.u.LowPart & 511)
+      NextPosition.u.LowPart+=512-(NextPosition.u.LowPart & 511);
+#else
     if (NextPosition.LowPart & 511)
       NextPosition.LowPart+=512-(NextPosition.LowPart & 511);
+#endif
 
     if (PrevPosition.QuadPart>=NextPosition.QuadPart)
       return(GETARC_BROKEN);
 
     if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
     {
+#ifdef __BORLANDC__
+      SetFilePointer (ArcHandle,PrevPosition.u.LowPart+sizeof(TAR_hdr),
+        &PrevPosition.u.HighPart,FILE_BEGIN);
+#else
       SetFilePointer (ArcHandle,PrevPosition.LowPart+sizeof(TAR_hdr),
         &PrevPosition.HighPart,FILE_BEGIN);
+#endif
       // we can't have two LONGNAME records in a row without a file between them
       if (LongName != NULL)
         return GETARC_BROKEN;

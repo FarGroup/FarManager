@@ -24,7 +24,7 @@ void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData)
 int GetRegKey(const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize)
 {
   int Ret;
-  if(!(Ret=GetRegKey(HKEY_CURRENT_USER, Key,ValueName,ValueData,Default,DataSize)))
+  if(0==(Ret=GetRegKey(HKEY_CURRENT_USER, Key,ValueName,ValueData,Default,DataSize)))
     Ret=GetRegKey(HKEY_LOCAL_MACHINE,Key,ValueName,ValueData,Default,DataSize);
   return Ret;
 }
