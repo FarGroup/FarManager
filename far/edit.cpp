@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.51 07.10.2001 $ */
+/* Revision: 1.52 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    - Ну разве так можно? Иван и ты, апологет персистентных блоков (?) не
+      заметил такой фигни? Для [Ctrl]ShiftEnter и Ctrl*Bracket блоки должны
+      удаляться только(!) если они не постоянные.
   07.10.2001 VVM
     + CTRL+SHIFT+ENTER вставляет файл с пассивной панели.
   14.09.2001 SKV
@@ -783,7 +787,8 @@ int Edit::ProcessKey(int Key)
             SelStart=PrevSelStart;
             SelEnd=PrevSelEnd;
           }
-          DeleteBlock();
+          if (!PersistentBlocks)
+            DeleteBlock();
           /* tran 03.07.2000 $ */
           /* $ 12.11.2000 KM
              Некоторые изменения вставки имени файла в строку ввода с маской.
@@ -832,7 +837,8 @@ int Edit::ProcessKey(int Key)
             SelStart=PrevSelStart;
             SelEnd=PrevSelEnd;
           }
-          DeleteBlock();
+          if (!PersistentBlocks)
+            DeleteBlock();
           /* tran 03.07.2000 $ */
           /* $ 10.07.2001 IS
              Вставляем строку с учетом текущей кодировки символов

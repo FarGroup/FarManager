@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.32 26.09.2001 $ */
+/* Revision: 1.33 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    ! подсократим "лишний" код
   26.09.2001 SVS
     - Ѕага: ѕри старте неверно выставлен текущий каталог
   25.07.2001 SVS
@@ -183,10 +185,12 @@ void ControlObject::Init()
 
   Plugins.LoadPlugins();
   FrameManager->InsertFrame(FPanels);
+  /*
   char StartCurDir[NM];
   Cp()->ActivePanel->GetCurDir(StartCurDir);
   chdir(StartCurDir);
   Cp()->ActivePanel->SetFocus();
+  */
 //  _SVS(SysLog("ActivePanel->GetCurDir='%s'",StartCurDir));
 //  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog("AnotherPanel->GetCurDir='%s'",PPP));
 }

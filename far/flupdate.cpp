@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.16 02.10.2001 $ */
+/* Revision: 1.17 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    ! сначала проапдейтим пассивную панель, а потом активную.
   02.10.2001 SVS
     - UpdateColorItems() предназначена не для плагиновых панелей!
   01.10.2001 SVS
@@ -435,9 +437,6 @@ int FileList::UpdateIfChanged(int Force)
     if (PanelMode==NORMAL_PANEL && hListChange!=NULL)
       if (WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0)
       {
-        Update(UPDATE_KEEP_SELECTION);
-        if(!Force)
-          Show();
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         if (AnotherPanel->GetType()==INFO_PANEL)
         {
@@ -445,6 +444,9 @@ int FileList::UpdateIfChanged(int Force)
           if(!Force)
             AnotherPanel->Redraw();
         }
+        Update(UPDATE_KEEP_SELECTION);
+        if(!Force)
+          Show();
         return(TRUE);
       }
   }

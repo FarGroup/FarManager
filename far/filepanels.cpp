@@ -5,10 +5,15 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.23 07.09.2001 $ */
+/* Revision: 1.24 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    ! вместо "левая-правая" применим понятие "активная-пассивная" - так будет
+      правильнее для ситуации "каталог создан не на той панели"
+    ! KEY_CTRLUP и KEY_CTRLDOWN так же передадим в CmdLine (для будущего
+      скроллирования юзвер-скрина)
   07.09.2001 VVM
     ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево.
   13.08.2001 OT
@@ -296,7 +301,9 @@ int  FilePanels::ProcessKey(int Key)
   if (!Key)
     return(TRUE);
 
-  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT) && (CtrlObject->CmdLine->GetLength()>0 ||
+  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT ||
+       Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN) &&
+      (CtrlObject->CmdLine->GetLength()>0 ||
       !LeftPanel->IsVisible() && !RightPanel->IsVisible()))
   {
     CtrlObject->CmdLine->ProcessKey(Key);
@@ -375,8 +382,10 @@ int  FilePanels::ProcessKey(int Key)
             NewType=QVIEW_PANEL;
           else
             NewType=TREE_PANEL;
+
         if (ActivePanel->GetType()==NewType)
           AnotherPanel=ActivePanel;
+
         if (!AnotherPanel->ProcessPluginEvent(FE_CLOSE,NULL))
         {
           if (AnotherPanel->GetType()==NewType)
@@ -789,8 +798,8 @@ void FilePanels::OnChangeFocus(int f)
     /*$ 22.06.2001 SKV
       + update панелей при получении фокуса
     */
-    LeftPanel->UpdateIfChanged(1);
-    RightPanel->UpdateIfChanged(1);
+    CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(1);
+    ActivePanel->UpdateIfChanged(1);
     /* SKV$*/
     Redraw();
     Frame::OnChangeFocus(1);

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.64 05.10.2001 $ */
+/* Revision: 1.65 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    ! Немного оптимизации в SetCurPath()
   05.10.2001 SVS
     ! Для начала выставим нужные значения в Panel::SetCurPath()
       для пассивной панели, а уж потом...
@@ -1167,13 +1169,15 @@ int  Panel::SetCurPath()
 {
   char UpDir[NM],Drive[4],*ChPtr;
 
+  strcpy(Drive,"=A:");
+
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=PLUGIN_PANEL)
   {
     if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
         toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
     {
-      sprintf(Drive,"=%c:\x0",AnotherPanel->CurDir[0]);
+      toupper(Drive[1]=AnotherPanel->CurDir[0]);
       SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
     }
   }
@@ -1196,10 +1200,9 @@ int  Panel::SetCurPath()
 
   if (isalpha(CurDir[0]) && CurDir[1]==':')
   {
-    sprintf(Drive,"=%c:\x0",CurDir[0]);
+    toupper(Drive[1]=CurDir[0]);
     SetEnvironmentVariable(Drive,CurDir);
   }
-
   return TRUE;
 }
 /* SVS $ */

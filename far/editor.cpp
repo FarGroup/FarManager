@@ -6,10 +6,17 @@ editor.cpp
 
 */
 
-/* Revision: 1.125 21.10.2001 $ */
+/* Revision: 1.126 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    ! обработка вставки имени файла и пути вынесена на уровень редактора, т.к.
+      при выделеном блоке в несколько строк получаем лабуду.
+    ! Корректно выставим последовательность отмены действий - DeleteBlock()
+      сам умеет выставлять ундо
+    - Аналогичная ситуация с Ctrl-F - при выделенном не персистентном блоке
+      сам блок не удаляется.
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   19.10.2001 OT
@@ -2709,6 +2716,30 @@ int Editor::ProcessKey(int Key)
       Edit::DisableEditOut(FALSE);
       Show();
       return(TRUE);
+
+    case KEY_CTRLBRACKET:
+    case KEY_CTRLBACKBRACKET:
+    case KEY_CTRLSHIFTBRACKET:
+    case KEY_CTRLSHIFTBACKBRACKET:
+
+    case KEY_CTRLSHIFTENTER:
+    case KEY_SHIFTENTER:
+      if (!LockMode)
+      {
+        Pasting++;
+        TextChanged(1);
+        if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+        {
+          MarkingBlock=MarkingVBlock=FALSE;
+          DeleteBlock();
+        }
+        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+        CurLine->EditLine.ProcessKey(Key);
+        Pasting--;
+        Show();
+      }
+      return(TRUE);
     /* $ 11.04.2001 SVS
        Добавлена обработка Ctrl-Q
     */
@@ -2717,13 +2748,13 @@ int Editor::ProcessKey(int Key)
       {
         Pasting++;
         TextChanged(1);
-        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
-                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
         if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
         {
           MarkingBlock=MarkingVBlock=FALSE;
           DeleteBlock();
         }
+        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
         CurLine->EditLine.ProcessCtrlQ();
         Pasting--;
         Show();
@@ -2754,13 +2785,13 @@ int Editor::ProcessKey(int Key)
           Pasting++;
           //_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),NULL));
           TextChanged(1);
-          AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
-                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
           if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
           {
             MarkingBlock=MarkingVBlock=FALSE;
             DeleteBlock();
           }
+          //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+          //              CurLine->EditLine.GetCurPos(),UNDO_EDIT);
           Paste(TStr);
           if (!EdOpt.PersistentBlocks)
             UnmarkBlock();
@@ -2775,8 +2806,20 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLF:
       if(!LockMode)
       {
-        if(EditorControl(ECTL_INSERTTEXT, FileName))
-           Show();
+        Pasting++;
+        TextChanged(1);
+        if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+        {
+          MarkingBlock=MarkingVBlock=FALSE;
+          DeleteBlock();
+        }
+        //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+        //                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+        Paste(FileName);
+        if (!EdOpt.PersistentBlocks)
+          UnmarkBlock();
+        Pasting--;
+        Show();
       }
       return (TRUE);
     /* IS $ */
