@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.58 12.07.2002 $ */
+/* Revision: 1.59 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    ! В юзвер-меню теперь можно вводить хоткей ала '&'
   12.07.2002 VVM
     ! Везде длина команды для меню - 4096, а при чтении файла 512 было.
   18.05.2002 SVS
@@ -519,6 +521,9 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
         FuncNum=1;
       sprintf(HotKey,"F%d",FuncNum);
     }
+    else if(*HotKey == '&')
+      strcat(HotKey,"&");
+
     /* $ 14.10.2000 VVM
        + Разделитель меню, если Метка пуста, а ХотКей="-"
     */
@@ -536,7 +541,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-20.*s",(*HotKey?"&":""),HotKey,ScrX-12,Label);
       int AddHotKey = (*HotKey) && (!FuncNum);
-      sprintf(MenuText,"%s%-3.3s %-20.*s%s",AddHotKey?"&":"",HotKey,ScrX-12,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
+      sprintf(MenuText,"%s%-*.*s %-20.*s%s",(AddHotKey?"&":""),(*HotKey=='&'?4:3),(*HotKey=='&'?4:3),HotKey,ScrX-12,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
       /* VVM $ */
       MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
@@ -577,6 +582,9 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
         FuncNum=1;
       sprintf(HotKey,"F%d",FuncNum);
     }
+    else if(*HotKey == '&')
+      strcat(HotKey,"&");
+
     /* $ 14.10.2000 VVM
        + Разделитель меню, если Метка пуста, а ХотКей="-"
     */
@@ -600,7 +608,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
       int AddHotKey = (*HotKey) && (!FuncNum);
-      sprintf(MenuText,"%s%-3.3s %-*.*s%s",AddHotKey?"&":"",HotKey,MaxLen,MaxLen,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
+      sprintf(MenuText,"%s%-*.*s %-*.*s%s",(AddHotKey?"&":""),(*HotKey=='&'?4:3),(*HotKey=='&'?4:3),HotKey,MaxLen,MaxLen,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
       /* VVM $ */
 
     /* tran 20.07.2000 $ */

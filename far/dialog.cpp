@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.262 17.09.2002 $ */
+/* Revision: 1.263 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    - BugZ#648 - ѕроблемы в диалоге выбора цветов.
+    ! ѕредобработка KEY_ENTER в DI_LISTBOX
+    + флаги DMODE_NODRAWSHADOW и DMODE_NODRAWPANEL
   17.09.2002 SVS
     ! ≈сли у DI_SINGLEBOX (DI_DOUBLEBOX) координаты X1==X2 или Y1==Y2, то
       рисуетс€ соответствующа€ лини€ (вертикальна€ или горизонтальна€)
@@ -2332,11 +2336,13 @@ void Dialog::ShowDialog(int ID)
     /* $ 28.07.2000 SVS
        перед прорисовкой подложки окна диалога...
     */
-    if(!DialogMode.Check(DMODE_SMALLDIALOG))
+    if(!DialogMode.Check(DMODE_SMALLDIALOG|DMODE_NODRAWSHADOW))
+      Shadow();              // "наводим" тень
+
+    if(!DialogMode.Check(DMODE_NODRAWPANEL))
     {
       Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
           DialogMode.Check(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
-      Shadow();              // "наводим" тень
       SetScreen(X1,Y1,X2,Y2,' ',Attr);
     }
     /* SVS $ */
@@ -2919,6 +2925,7 @@ int Dialog::ProcessKey(int Key)
       case KEY_PGDN:     case KEY_NUMPAD3:
       case KEY_MSWHEEL_UP:
       case KEY_MSWHEEL_DOWN:
+      case KEY_ENTER:
         VMenu *List=Item[FocusPos].ListPtr;
         int CurListPos=List->GetSelectPos();
         int CheckedListItem=List->GetSelection(-1);
@@ -2932,7 +2939,8 @@ int Dialog::ProcessKey(int Key)
           if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
             ShowDialog(FocusPos); // FocusPos
         }
-        return(TRUE);
+        if(Key != KEY_ENTER)
+          return(TRUE);
     }
   }
 
@@ -3004,7 +3012,7 @@ int Dialog::ProcessKey(int Key)
 
     case KEY_ENTER:
     {
-      if ((Item[FocusPos].Flags & DIF_EDITOR) && !(Item[FocusPos].Flags & DIF_READONLY))
+      if (IsEdit(Item[FocusPos].Type) &&  (Item[FocusPos].Flags & DIF_EDITOR) && !(Item[FocusPos].Flags & DIF_READONLY))
       {
         int EditorLastPos;
         for (EditorLastPos=I=FocusPos;I<ItemCount;I++)
@@ -3150,17 +3158,19 @@ int Dialog::ProcessKey(int Key)
                 MinPos=I;
               }
           }
-          if (MinDist<1000)
+        }
+        if (MinDist<1000)
+        {
+          ChangeFocus2(FocusPos,MinPos);
+          if (Item[MinPos].Flags & DIF_MOVESELECT)
           {
-            ChangeFocus2(FocusPos,MinPos);
-            if (Item[MinPos].Flags & DIF_MOVESELECT)
-              Do_ProcessSpace();
-            else
-            {
-              ShowDialog();
-            }
-            return(TRUE);
+            Do_ProcessSpace();
           }
+          else
+          {
+            ShowDialog();
+          }
+          return(TRUE);
         }
       }
     }

@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.63 10.09.2002 $ */
+/* Revision: 1.64 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    + флаги DMODE_NODRAWSHADOW и DMODE_NODRAWPANEL
   10.09.2002 SVS
     ! DialogItem приведем к FarDialogItem
     + некоторое количество приватных функций (куски повторяющегося код
@@ -239,6 +241,8 @@ Modify:
 #define DMODE_ENDLOOP       0x00020000 // Конец цикла обработки диалога?
 #define DMODE_MOUSELIST     0x00040000 // Мышь должна реагировать на нефокусный лист?
 #define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
+#define DMODE_NODRAWSHADOW  0x00100000 // не рисовать тень?
+#define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
 // Флаги для функции ConvertItem

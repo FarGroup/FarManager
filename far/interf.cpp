@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.68 17.09.2002 $ */
+/* Revision: 1.69 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 SVS
+    ! Про двойные '&' в меню
   17.09.2002 SVS
     + DrawLine()
   27.08.2002 SVS
@@ -857,7 +859,7 @@ void VText(const char *Str)
 
 void HiText(const char *Str,int HiColor)
 {
-  char TextStr[300];
+  char TextStr[600];
   int SaveColor;
   char *ChPtr;
   strncpy(TextStr,Str,sizeof(TextStr)-1);
@@ -865,21 +867,40 @@ void HiText(const char *Str,int HiColor)
     Text(TextStr);
   else
   {
-    *ChPtr=0;
-    Text(TextStr);
-    if (ChPtr[1])
+    /*
+       &&      = '&'
+       &&&     = '&'
+                  ^H
+       &&&&    = '&&'
+       &&&&&   = '&&'
+                  ^H
+       &&&&&&  = '&&&'
+    */
+    int I=0;
+    char *ChPtr2=ChPtr;
+    while(*ChPtr2++ == '&')
+      ++I;
+
+    if(I&1) // нечет?
     {
-      /* $ 23.07.2000 SVS
-         Немного оптимизации :-)
-      */
-      char Chr[2];
-      SaveColor=CurColor;
-      SetColor(HiColor);
-      Chr[0]=ChPtr[1]; Chr[1]=0;
-      Text(Chr);
-      SetColor(SaveColor);
-      Text(ChPtr+2);
-      /* SVS $ */
+      *ChPtr=0;
+      Text(TextStr);
+      if (ChPtr[1])
+      {
+        char Chr[2];
+        SaveColor=CurColor;
+        SetColor(HiColor);
+        Chr[0]=ChPtr[1]; Chr[1]=0;
+        Text(Chr);
+        SetColor(SaveColor);
+        ReplaceStrings(ChPtr+1,"&&","&",-1);
+        Text(ChPtr+2);
+      }
+    }
+    else
+    {
+      ReplaceStrings(ChPtr,"&&","&",-1);
+      Text(TextStr);
     }
   }
 }

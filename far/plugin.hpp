@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.216 27.08.2002 $ */
+/* Revision: 1.217 20.09.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  20.09.2002 SVS
+    + флаги FDLG_NODRAWSHADOW и FDLG_NODRAWPANEL
   27.08.2002 SVS
     ! Убираем EditorInfo.WindowPos
     + "Очень не помешал бы у DM_SETCHECK еще один способ типа: BSTATE_TOGGLE"
@@ -1160,8 +1162,10 @@ struct FarDialogItemData
 enum {
   FDLG_WARNING             = 0x00000001,
   FDLG_SMALLDIALOG         = 0x00000002,
+  FDLG_NODRAWSHADOW        = 0x00000004,
+  FDLG_NODRAWPANEL         = 0x00000008,
 #ifdef FAR_USE_INTERNALS
-  FDLG_NONMODAL            = 0x00000004,
+  FDLG_NONMODAL            = 0x00000010,
 #endif // END FAR_USE_INTERNALS
 };
 

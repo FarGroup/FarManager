@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.142 10.09.2002 $ */
+/* Revision: 1.143 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SVS
+    + флаги FDLG_NODRAWSHADOW и FDLG_NODRAWPANEL
   10.09.2002 SVS
     ! Добавим обработку исключений про диалоги - если флаг PSIF_DIALOG
       установлен - инициируем выгрузку плагина.
@@ -1180,6 +1182,10 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       FarDialog.SetDialogMode(DMODE_WARNINGSTYLE);
     if(Flags & FDLG_SMALLDIALOG)
       FarDialog.SetDialogMode(DMODE_SMALLDIALOG);
+    if(Flags & FDLG_NODRAWSHADOW)
+      FarDialog.SetDialogMode(DMODE_NODRAWSHADOW);
+    if(Flags & FDLG_NODRAWPANEL)
+      FarDialog.SetDialogMode(DMODE_NODRAWPANEL);
     if(Flags & FDLG_NONMODAL)
       FarDialog.SetCanLoseFocus(TRUE);
     //FarDialog.SetOwnsItems(TRUE);
