@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.57 18.05.2002 $ */
+/* Revision: 1.58 12.07.2002 $ */
 
 /*
 Modify:
+  12.07.2002 VVM
+    ! Везде длина команды для меню - 4096, а при чтении файла 512 было.
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   15.05.2002 SKV
@@ -1215,7 +1217,7 @@ void MenuRegToFile(char *MenuKey,FILE *MenuFile)
 
 void MenuFileToReg(char *MenuKey,FILE *MenuFile)
 {
-  char MenuStr[512];
+  char MenuStr[4096];
   int KeyNumber=-1,CommandNumber;
   while (fgets(MenuStr,sizeof(MenuStr),MenuFile)!=NULL)
   {
