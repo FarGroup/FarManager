@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.80 11.12.2001 $ */
+/* Revision: 1.81 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 VVM
+    - bugz#162 (* вызвав плагин для поиска в архиве и ничего там не найдя, FAR забыл,
+         что поиск продолжается всё в том же каталоге и ещё раз вписал имя
+         каталога в список результатов поиска. *)
   11.12.2001 VVM
     - Не рисуем диалог при активном скрин-сэйвере
   03.12.2001 DJ
@@ -1539,10 +1543,21 @@ void FindFiles::ArchiveSearch(char *ArcName)
     FindFileArcIndex = AddArcListItem(ArcName);
     ArcList[FindFileArcIndex].hPlugin = hArc;
     ArcList[FindFileArcIndex].Flags = Info.Flags;
-    *LastDirName = 0;
-    PreparePluginList((void *)1);
-    CtrlObject->Plugins.ClosePlugin(ArcList[FindFileArcIndex].hPlugin);
-    ArcList[FindFileArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+    /* $ 11.12.2001 VVM
+      - Запомним каталог перед поиском в архиве.
+        И если ничего не нашли - не рисуем его снова */
+    {
+      char SaveDirName[NM];
+      int SaveListCount = FindListCount;
+      strncpy(SaveDirName, LastDirName, NM);
+      *LastDirName = 0;
+      PreparePluginList((void *)1);
+      CtrlObject->Plugins.ClosePlugin(ArcList[FindFileArcIndex].hPlugin);
+      ArcList[FindFileArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+      if (SaveListCount == FindListCount)
+        strncpy(LastDirName, SaveDirName, NM);
+    }
+    /* VVM $ */
   }
   FindFileArcIndex = SaveArcIndex;
   SearchMode=SaveSearchMode;
