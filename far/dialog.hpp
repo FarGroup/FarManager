@@ -10,14 +10,16 @@ dialog.hpp
 
 */
 
-/* Revision: 1.34 11.07.2001 $ */ 
+/* Revision: 1.35 12.07.2001 $ */
 
 /*
 Modify:
+  12.07.2001 OT
+   - Исправление ситуации (после 816) F11->F4->Esc-> :(
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+   ! Перенос CtrlAltShift в Manager
   09.07.2001 OT
-    Исправление MacroMode для диалогов
+   - Исправление MacroMode для диалогов
   23.06.2001 KM
    + Функции программного открытия/закрытия комбобокса и хистори
      и получения статуса открытости/закрытости комбобокса и хистори.
@@ -261,7 +263,7 @@ class Dialog: public Frame
       + DialogMode - Флаги текущего режима диалога
     */
     int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
-    DWORD DialogMode;		// Флаги текущего режима диалога
+    DWORD DialogMode;       // Флаги текущего режима диалога
     /* SVS $ */
     /* $ 11.08.2000 SVS
       + Данные, специфические для конкретного экземпляра диалога
@@ -498,6 +500,9 @@ class Dialog: public Frame
     int FastHide();
     void ResizeConsole();
     void OnDestroy();
+
+    bool Resized;
+
 
 };
 

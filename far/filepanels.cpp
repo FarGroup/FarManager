@@ -5,12 +5,14 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.18 11.07.2001 $ */ 
+/* Revision: 1.19 12.07.2001 $ */
 
 /*
 Modify:
+  12.07.2001 OT
+    - Не инициализировались панель Tree Info, QView
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   10.07.2001 SKV
     + keybar
   22.06.2001 SKV
@@ -131,6 +133,13 @@ void FilePanels::Init()
       if (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)
         PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
+  if (Opt.LeftPanel.Visible&&(Opt.LeftPanel.Type==TREE_PANEL||Opt.LeftPanel.Type==QVIEW_PANEL||Opt.LeftPanel.Type==INFO_PANEL)){
+    LeftPanel->Show();
+  }
+  if (Opt.RightPanel.Visible&&(Opt.RightPanel.Type==TREE_PANEL||Opt.RightPanel.Type==QVIEW_PANEL||Opt.RightPanel.Type==INFO_PANEL)){
+    RightPanel->Show();
+  }
+
   SetKeyBar(&MainKeyBar);
   MainKeyBar.SetOwner(this);
 }

@@ -5,12 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.136 11.07.2001 $ */
+/* Revision: 1.137 12.07.2001 $ */
 
 /*
 Modify:
+  12.07.2001 OT
+   - Исправление ситуации (после 816) F11->F4->Esc-> :(
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+   ! Перенос CtrlAltShift в Manager
   10.07.2001 SVS
    + Обработка KEY_MACROXLAT
   09.07.2001 OT
@@ -583,6 +585,7 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  Resized=false;
   _tran(SysLog("[%p] Dialog::Dialog()",this));
 
   if(!PHisLocked)
@@ -1239,15 +1242,15 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
   if (IsEdit(Type))
   {
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
-      CurItem->X2=Rect->Right;
+      CurItem->X2=(unsigned char)Rect->Right;
       CurItem->Y2=0;
       DialogEdit->SetPosition(X1+Rect->Left, Y1+Rect->Top,
                                    X1+Rect->Right,Y1+Rect->Top);
   }
   else if (Type==DI_LISTBOX)
   {
-      CurItem->X2=Rect->Right;
-      CurItem->Y2=Rect->Bottom;
+      CurItem->X2=(unsigned char)Rect->Right;
+      CurItem->Y2=(unsigned char)Rect->Bottom;
       CurItem->ListPtr->SetPosition(X1+Rect->Left, Y1+Rect->Top,
                                     X1+Rect->Right,Y1+Rect->Bottom);
   }
@@ -1256,8 +1259,8 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
     case DI_DOUBLEBOX:
     case DI_SINGLEBOX:
     case DI_USERCONTROL:
-      CurItem->X2=Rect->Right;
-      CurItem->Y2=Rect->Bottom;
+      CurItem->X2=(unsigned char)Rect->Right;
+      CurItem->Y2=(unsigned char)Rect->Bottom;
       break;
   }
 
@@ -2359,7 +2362,7 @@ int Dialog::ProcessKey(int Key)
     case KEY_MULTIPLY:
       if (Type==DI_CHECKBOX)
       {
-        int CHKState=
+        unsigned int CHKState=
            (Key == KEY_ADD?1:
             (Key == KEY_SUBTRACT?0:
              ((Key == KEY_MULTIPLY)?2:
@@ -2966,12 +2969,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
         {
           if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
-		  {
-		    if (MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2)
+          {
+            if (MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2)
               Item[I].ListPtr->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
             else
               ProcessKey(KEY_ENTER);
-		  }
+          }
         }
         return TRUE;
       }
@@ -3034,8 +3037,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if(Item[I].Type == DI_USERCONTROL)
         {
           // для user-типа подготовим координаты мыши
-          MouseEvent->dwMousePosition.X-=Rect.left;
-          MouseEvent->dwMousePosition.Y-=Rect.top;
+          MouseEvent->dwMousePosition.X-=(short)Rect.left;
+          MouseEvent->dwMousePosition.Y-=(short)Rect.top;
         }
 
 //_SVS(SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s' Dbl=%d",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data,MouseEvent->dwEventFlags==DOUBLE_CLICK));
@@ -4017,7 +4020,7 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos)
   }
   else
   {
-    if(AmpPos >= strlen(Str))
+    if(AmpPos >= (int)strlen(Str))
       return FALSE;
     Str=Str+AmpPos;
     AmpPos=0;
@@ -4025,7 +4028,7 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos)
       AmpPos++;
   }
 //_SVS(SysLog("'%s' (%d)",Str+AmpPos,AmpPos));
-  int UpperStrKey=LocalUpper(Str[AmpPos]);
+  int UpperStrKey=LocalUpper((int)Str[AmpPos]);
   /* $ 08.11.2000 SVS
      Изменен пересчет кодов клавиш для hotkey (используются сканкоды)
   */
@@ -4034,9 +4037,9 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos)
   if (Key < 256)
   {
     int KeyToKey=LocalKeyToKey(Key);
-    return(UpperStrKey == LocalUpper(Key) ||
+    return(UpperStrKey == (int)LocalUpper(Key) ||
       Translate &&
-      (!Opt.HotkeyRules && UpperStrKey==LocalUpper(KeyToKey) ||
+      (!Opt.HotkeyRules && UpperStrKey==(int)LocalUpper(KeyToKey) ||
         Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey));
   }
 
@@ -4054,9 +4057,9 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos)
   //          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
   //          AltKey==':'  || AltKey=='"' || AltKey=='~'))
       {
-        return(UpperStrKey==LocalUpper(AltKey) ||
+        return(UpperStrKey==(int)LocalUpper(AltKey) ||
                Translate &&
-               (!Opt.HotkeyRules && UpperStrKey==LocalUpper(AltKeyToKey) ||
+               (!Opt.HotkeyRules && UpperStrKey==(int)LocalUpper(AltKeyToKey) ||
                   Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
       }
     }
@@ -4649,7 +4652,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         else
           Param2&=1;
         CurItem->Selected=Param2;
-        if(CurItem->Selected != Param2 && Dlg->CheckDialogMode(DMODE_SHOW))
+        if(CurItem->Selected != (unsigned int)Param2 && Dlg->CheckDialogMode(DMODE_SHOW))
         {
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();
@@ -5328,12 +5331,15 @@ void Dialog::ResizeConsole()
 {
   COORD c={-1,-1};
   Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
+  Resized=true;
 };
 
 void Dialog::OnDestroy()
 {
-  FrameManager->GetBottomFrame()->UnlockRefresh();
-  Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
+  if (Resized){
+    FrameManager->GetBottomFrame()->UnlockRefresh();
+    Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
+  }
 };
 
 //////////////////////////////////////////////////////////////////////////
