@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.61 10.11.2004 $ */
+/* Revision: 1.62 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   10.11.2004 SVS
     + В HMenu и TreeList добавлена обработка MCODE_*
   01.11.2004 SVS
@@ -887,6 +889,10 @@ int TreeList::ProcessKey(int Key)
       return CurFile==0;
     case MCODE_C_SELECTED:
       return FALSE;
+    case MCODE_V_ITEMCOUNT:
+      return TreeCount;
+    case MCODE_V_CURPOS:
+      return CurFile+1;
 /*
     case MCODE_F_MENU_CHECKHOTKEY:
     {

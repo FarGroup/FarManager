@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.138 27.08.2004 $ */
+/* Revision: 1.139 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   27.08/2004 VVM
     - Некорректное исправление от 20.07.2004
       Перестало работать корректировка выделения при добавлении в пустой список.
@@ -1178,6 +1180,10 @@ int VMenu::ProcessKey(int Key)
       return SelectPos==0;
     case MCODE_C_SELECTED:
       return ItemCount > 0 && SelectPos >= 0;
+    case MCODE_V_ITEMCOUNT:
+      return ItemCount;
+    case MCODE_V_CURPOS:
+      return SelectPos+1;
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = eStackAsString(1);

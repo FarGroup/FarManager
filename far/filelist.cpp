@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.212 11.11.2004 $ */
+/* Revision: 1.213 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   11.11.2004 SVS
     ! Вместо кода "Вставить * путь" применена новая функция _MakePath1
     + Добавлена корректная обработка KEY_CTRLSHIFTENTER
@@ -1061,6 +1063,10 @@ int FileList::ProcessKey(int Key)
       return CurFile==0;
     case MCODE_C_SELECTED:
       return GetRealSelCount()>1;
+    case MCODE_V_ITEMCOUNT:
+      return FileCount;
+    case MCODE_V_CURPOS:
+      return CurFile+1;
   }
 
   if (IsVisible())

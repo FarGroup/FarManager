@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.165 03.11.2004 $ */
+/* Revision: 1.166 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   03.11.2004 WARP
     - Невполне адекватный фикс для BugZ#971
   06.08.2004 SKV
@@ -1733,6 +1735,10 @@ int Viewer::ProcessKey(int Key)
       return LastPage || ViewFile==NULL;
     case MCODE_C_BOF:
       return !FilePos || ViewFile==NULL;
+    case MCODE_V_ITEMCOUNT:
+      return FileSize;
+    case MCODE_V_CURPOS:
+      return FilePos+1;
     case MCODE_V_VIEWERSTATE:
     {
       DWORD MacroViewerState=0;

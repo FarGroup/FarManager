@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.34 10.12.2002 $ */
+/* Revision: 1.35 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Manager::GetTopModal() - возвращает top-модал или сам фрейм, если у фрейма нету модалов
   10.12.2002 SVS
     + ManagerClass_Dump() - друг класса!
   26.09.2002 SVS
@@ -292,6 +294,9 @@ class Manager
     BOOL InModalEV(){return ModalEVCount!=0;}
     /* SKV $ */
     void ResizeAllFrame();
+
+    // возвращает top-модал или сам фрейм, если у фрейма нету модалов
+    Frame* GetTopModal();
 };
 
 extern Manager *FrameManager;

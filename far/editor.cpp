@@ -10,6 +10,8 @@ editor.cpp
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS, MCODE_V_EDITORCURLINE, MCODE_V_EDITORCURPOS, MCODE_V_EDITORLINES
   13.10.2004 SVS
     - Проблемы с выделением и работой плагинов
   07.10.2004 SVS
@@ -1831,6 +1833,13 @@ int Editor::ProcessKey(int Key)
       return !CurLine->Prev && CurPos==0;
     case MCODE_C_SELECTED:
       return BlockStart || VBlockStart?TRUE:FALSE;
+    case MCODE_V_EDITORCURPOS:
+      return CurLine->EditLine.GetTabCurPos()+1;
+    case MCODE_V_EDITORCURLINE:
+      return NumLine+1;
+    case MCODE_V_ITEMCOUNT:
+    case MCODE_V_EDITORLINES:
+      return NumLastLine;
   }
 
   if (Key==KEY_ALTD)

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.308 06.08.2004 $ */
+/* Revision: 1.309 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   05.08.2004 SVS
@@ -3178,6 +3180,10 @@ int Dialog::ProcessKey(int Key)
         return CheckHighlights(*str);
       return FALSE;
     }
+    case MCODE_V_ITEMCOUNT:
+      return ItemCount;
+    case MCODE_V_CURPOS:
+      return FocusPos+1;
   }
 
   // BugZ#488 - Shift=enter

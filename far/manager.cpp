@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.88 04.06.2004 $ */
+/* Revision: 1.89 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Manager::GetTopModal() - возвращает top-модал или сам фрейм, если у фрейма нету модалов
   04.06.2004 SVS
     ! Щёб KEY_APPS|KEY_CTRL|KEY_ALT не какал в regmon при каждом нажатии клавиш... изменим условие
   17.05.2004 SVS
@@ -1715,3 +1717,17 @@ void Manager::RemoveSemiModalBackFrame(Frame* frame)
   }
 }
 */
+
+    // возвращает top-модал или сам фрейм, если у фрейма нету модалов
+Frame* Manager::GetTopModal()
+{
+  Frame *f=CurrentFrame, *fo=NULL;
+  while(f)
+  {
+    fo=f;
+    f=f->GetTopModal();
+  }
+  if(!f)
+    f=fo;
+  return f;
+}

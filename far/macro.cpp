@@ -5,10 +5,23 @@ macro.cpp
 
 */
 
-/* Revision: 1.131 10.11.2004 $ */
+/* Revision: 1.132 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + [A|P]Panel.UNCPath
+    ! [A|P]Panel.Count переименован в [A|P]Panel.ItemCount
+    + В дополнении к [A|P]Panel.ItemCount 2 новых слова:
+        "ItemCount" - число элементов в текущем объекте
+        "CurPos" - текущий индекс в текущем объекте (начиная с 1)
+    + Три обособленных, для редактора:
+        "Editor.CurLine"  - текущая строка в редакторе (начиная с 1)
+        "Editor.Lines"    - количество строк
+        "Editor.CurPos"   - текущая позиция курсора в строке (начиная с 1)
+    ! В связи с введением Manager::GetTopModal() пересмотрена обработка
+      некоторых обобщенных слов.
+    - Падение ФАРа при регистрации в функции KeyMacro::CheckAll()
   10.11.2004 SVS
     + [A|P]Panel.Count, [A|P]Panel.CurPos
     ! для менюх найдем LastModal, иначе фигня... тут, кстати, тоже засада, т.к....
@@ -510,8 +523,8 @@ struct TMacroKeywords MKeywords[] ={
 
   {2,  "APanel.Type",        MCODE_V_APANEL_TYPE,0},
   {2,  "PPanel.Type",        MCODE_V_PPANEL_TYPE,0},
-  {2,  "APanel.Count",       MCODE_V_APANEL_COUNT,0},
-  {2,  "PPanel.Count",       MCODE_V_PPANEL_COUNT,0},
+  {2,  "APanel.ItemCount",   MCODE_V_APANEL_ITEMCOUNT,0},
+  {2,  "PPanel.ItemCount",   MCODE_V_PPANEL_ITEMCOUNT,0},
   {2,  "APanel.CurPos",      MCODE_V_APANEL_CURPOS,0},
   {2,  "PPanel.CurPos",      MCODE_V_PPANEL_CURPOS,0},
   {2,  "APanel.Current",     MCODE_V_APANEL_CURRENT,0},
@@ -520,6 +533,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.SelCount",    MCODE_V_PPANEL_SELCOUNT,0},
   {2,  "APanel.Path",        MCODE_V_APANEL_PATH,0},
   {2,  "PPanel.Path",        MCODE_V_PPANEL_PATH,0},
+  {2,  "APanel.UNCPath",     MCODE_V_APANEL_UNCPATH,0},
+  {2,  "PPanel.UNCPath",     MCODE_V_PPANEL_UNCPATH,0},
   {2,  "APanel.Width",       MCODE_V_APANEL_WIDTH,0},
   {2,  "PPanel.Width",       MCODE_V_PPANEL_WIDTH,0},
 
@@ -528,6 +543,11 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "CmdLine.Empty",      MCODE_C_CMDLINE_EMPTY,0},
   {2,  "CmdLine.Selected",   MCODE_C_CMDLINE_SELECTED,0},
 
+  {2,  "ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
+  {2,  "CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
+  {2,  "Editor.CurLine",     MCODE_V_EDITORCURLINE,0},  // текущая линия в редакторе (в дополнении к Count)
+  {2,  "Editor.Lines",       MCODE_V_EDITORLINES,0},
+  {2,  "Editor.CurPos",      MCODE_V_EDITORCURPOS,0},
   {2,  "Editor.State",       MCODE_V_EDITORSTATE,0},
   {2,  "Viewer.State",       MCODE_V_VIEWERSTATE,0},
   {2,  "Dlg.ItemType",       MCODE_V_DLGITEMTYPE,0},
@@ -729,6 +749,9 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   if(Buffer)
   {
     int I;
+#ifdef FAR_MACROVARS
+    ReadMacros(-1,Buffer,TEMP_BUFFER_SIZE);
+#endif
     for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
       if(!ReadMacros(I,Buffer,TEMP_BUFFER_SIZE))
         break;
@@ -1029,6 +1052,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_C_BOF:
         case MCODE_C_EOF:
         {
+#if 0
           int CurMMode=CtrlObject->Macro.GetMode();
           if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
           {
@@ -1047,6 +1071,11 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           else
             if(CurFrame)
               Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
+#else
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+            Cond=f->ProcessKey(CheckCode);
+#endif
           break;
         }
 
@@ -1081,6 +1110,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 
         case MCODE_C_SELECTED:    // Selected?
         {
+#if 1
           int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MACRO_SHELL));
           if (CurFrame && CurFrame->GetType()==NeedType)
           {
@@ -1091,6 +1121,11 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
               CurSelected=CurFrame->ProcessKey(MCODE_C_SELECTED);
             Cond=CurSelected?1:0;
           }
+#else
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+            Cond=f->ProcessKey(CheckCode);
+#endif
           break;
         }
 
@@ -1118,7 +1153,15 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           if(CurFrame->GetType() == MACRO_SHELL)
             Cond=CtrlObject->CmdLine->GetLength()==0;
           else
+          {
+#if 0
             Cond=CurFrame->ProcessKey(MCODE_C_EMPTY);
+#else
+            Frame *f=FrameManager->GetTopModal();
+            if(f)
+              Cond=f->ProcessKey(CheckCode);
+#endif
+          }
           break;
 
         case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
@@ -1247,6 +1290,14 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
+        case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
+        case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
+        {
+          if(_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,FileName,sizeof(FileName)-1,""))
+            Cond = FileName;
+          break;
+        }
+
         //FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
         case MCODE_V_APANEL_TYPE: // APanel.Type
         case MCODE_V_PPANEL_TYPE: // PPanel.Type
@@ -1257,10 +1308,10 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
-        case MCODE_V_APANEL_COUNT: // APanel.Count
-        case MCODE_V_PPANEL_COUNT: // PPanel.Count
+        case MCODE_V_APANEL_ITEMCOUNT: // APanel.ItemCount
+        case MCODE_V_PPANEL_ITEMCOUNT: // PPanel.ItemCount
         {
-          Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_ITEMCOUNT ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
             Cond=SelPanel->GetFileCount();
           break;
@@ -1269,20 +1320,30 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         case MCODE_V_APANEL_CURPOS: // APanel.CurPos
         case MCODE_V_PPANEL_CURPOS: // PPanel.CurPos
         {
-          Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURPOS ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
             Cond=SelPanel->GetCurrentPos();
           break;
         }
 
+        case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
+        case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
+        {
+          Frame *f=FrameManager->GetTopModal();
+          if(f)
+            Cond=f->ProcessKey(CheckCode);
+        }
         // *****************
 
-        case MCODE_V_EDITORSTATE: // Editor.State
+        case MCODE_V_EDITORCURLINE: // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
+        case MCODE_V_EDITORSTATE:   // Editor.State
+        case MCODE_V_EDITORLINES:   // Editor.Lines
+        case MCODE_V_EDITORCURPOS:  // Editor.CurPos
         {
           if(CtrlObject->Macro.GetMode()==MACRO_EDITOR &&
              CtrlObject->Plugins.CurEditor &&
              CtrlObject->Plugins.CurEditor->IsVisible())
-            Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(MCODE_V_EDITORSTATE);
+            Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(CheckCode);
           break;
         }
 
@@ -3422,6 +3483,10 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 // получить название моды по коду
 char* KeyMacro::GetSubKey(int Mode)
 {
+#ifdef FAR_MACROVARS
+  if(Mode == -1)
+    return "Vars";
+#endif
   return (char *)((Mode >= MACRO_OTHER && Mode < MACRO_LAST)?MKeywords[Mode].Name:"");
 }
 
@@ -3551,9 +3616,13 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
     if(!CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
       return FALSE;
 
+  FilePanels *Cp=CtrlObject->Cp();
+  if(!Cp)
+    return FALSE;
+
   // проверки панели и типа файла
-  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+  Panel *ActivePanel=Cp->ActivePanel;
+  Panel *PassivePanel=Cp->GetAnotherPanel(Cp->ActivePanel);
   if(ActivePanel && PassivePanel)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
   {
 

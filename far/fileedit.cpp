@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.159 04.11.2004 $ */
+/* Revision: 1.160 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   04.11.2004 SVS
     ! убираем *_EDITPATH
   17.09.2004 SVS
@@ -987,6 +989,14 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       MacroEditState|=FEdit->EdOpt.PersistentBlocks?0x00000400:0;
       return MacroEditState;
     }
+
+    if(Key == MCODE_V_EDITORCURPOS)
+      return FEdit->CurLine->EditLine.GetTabCurPos()+1;
+    if(Key == MCODE_V_EDITORCURLINE)
+      return FEdit->NumLine+1;
+    if(Key == MCODE_V_ITEMCOUNT || Key == MCODE_V_EDITORLINES)
+      return FEdit->NumLastLine;
+
     return(FEdit->ProcessKey(Key));
   }
   /* DJ $ */

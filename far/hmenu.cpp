@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.13 10.11.2004 $ */
+/* Revision: 1.14 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   10.11.2004 SVS
     + В HMenu и TreeList добавлена обработка MCODE_*
   11.12.2002 SVS
@@ -131,6 +133,10 @@ int HMenu::ProcessKey(int Key)
       return SelectPos==0;
     case MCODE_C_SELECTED:
       return ItemCount > 0 && SelectPos >= 0;
+    case MCODE_V_ITEMCOUNT:
+      return ItemCount;
+    case MCODE_V_CURPOS:
+      return SelectPos+1;
 /*
     case MCODE_F_MENU_CHECKHOTKEY:
     {

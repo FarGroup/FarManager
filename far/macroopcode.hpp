@@ -5,10 +5,20 @@ OpCode дл€ макросов
 
 */
 
-/* Revision: 1.05 10.11.2004 $ */
+/* Revision: 1.06 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + [A|P]Panel.UNCPath
+    ! [A|P]Panel.Count переименован в [A|P]Panel.ItemCount
+    + ¬ дополнении к [A|P]Panel.ItemCount 2 новых слова:
+        "ItemCount" - число элементов в текущем объекте
+        "CurPos" - текущий индекс в текущем объекте (начина€ с 1)
+    + “ри обособленных, дл€ редактора:
+        "Editor.CurLine"  - текуща€ строка в редакторе (начина€ с 1)
+        "Editor.Lines"    - количество строк
+        "Editor.CurPos"   - текуща€ позици€ курсора в строке (начина€ с 1)
   10.11.2004 SVS
     + [A|P]Panel.Count, [A|P]Panel.CurPos
   09.11.2004 SVS
@@ -162,14 +172,21 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_SELCOUNT,          // PPanel.SelCount - пассивна€ панель: число выделенных элементов
   MCODE_V_APANEL_PATH,              // APanel.Path - активна€ панель:  путь на панели
   MCODE_V_PPANEL_PATH,              // PPanel.Path - пассивна€ панель: путь на панели
+  MCODE_V_APANEL_UNCPATH,           // APanel.UNCPath - активна€ панель:  UNC-путь на панели
+  MCODE_V_PPANEL_UNCPATH,           // PPanel.UNCPath - пассивна€ панель: UNC-путь на панели
   MCODE_V_APANEL_WIDTH,             // APanel.Path - активна€ панель:  путь на панели
   MCODE_V_PPANEL_WIDTH,             // PPanel.Path - пассивна€ панель: путь на панели
   MCODE_V_APANEL_TYPE,              // тип активной панели
   MCODE_V_PPANEL_TYPE,              // тип пассивной панели
-  MCODE_V_APANEL_COUNT,             // APanel.Count - активна€ панель:  число элементов
-  MCODE_V_PPANEL_COUNT,             // PPanel.Count - пассивна€ панель: число элементов
+  MCODE_V_APANEL_ITEMCOUNT,         // APanel.ItemCount - активна€ панель:  число элементов
+  MCODE_V_PPANEL_ITEMCOUNT,         // PPanel.ItemCount - пассивна€ панель: число элементов
   MCODE_V_APANEL_CURPOS,            // APanel.CurPos - активна€ панель:  текущий индекс
   MCODE_V_PPANEL_CURPOS,            // PPanel.CurPos - пассивна€ панель: текущий индекс
+  MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
+  MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте
+  MCODE_V_EDITORLINES,              // Editor.Lines - количество строк в редакторе
+  MCODE_V_EDITORCURLINE,            // Editor.CurLine - текуща€ лини€ в редакторе (в дополнении к Count)
+  MCODE_V_EDITORCURPOS,             // Editor.CurPos - текуща€ поз. в редакторе
   MCODE_V_EDITORSTATE,              // Editor.State
   MCODE_V_VIEWERSTATE,              // Viewer.State
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType

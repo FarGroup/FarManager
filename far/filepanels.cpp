@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.57 06.08.2004 $ */
+/* Revision: 1.58 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -582,6 +584,8 @@ int  FilePanels::ProcessKey(int Key)
     case MCODE_C_EOF:
     case MCODE_C_BOF:
     case MCODE_C_SELECTED:
+    case MCODE_V_ITEMCOUNT:
+    case MCODE_V_CURPOS:
       return ActivePanel->ProcessKey(Key);
   }
 

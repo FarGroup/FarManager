@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.126 11.11.2004 $ */
+/* Revision: 1.127 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   11.11.2004 SVS
     ! Вместо кода "Вставить * путь" применена новая функция _MakePath1
   09.11.2004 SVS
@@ -893,6 +895,10 @@ int Edit::ProcessKey(int Key)
       return CurPos >= StrSize;
     case MCODE_C_BOF:
       return CurPos==0;
+    case MCODE_V_ITEMCOUNT:
+      return StrSize;
+    case MCODE_V_CURPOS:
+      return CursorPos+1;
   }
 
   int I;
