@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.208 04.11.2004 $ */
+/* Revision: 1.209 08.11.2004 $ */
 
 /*
 Modify:
+  08.11.2004 WARP
+    ! »справлени€ в раксраске и работе панелей
   04.11.2004 SVS
     ! убираем *_EDITPATH
   02.11.2004 SVS
@@ -3082,19 +3084,26 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 */
 void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  int CurColumn=0,ColumnsWidth,I;
+  int CurColumn=1,ColumnsWidth,I;
   int PanelX=MouseEvent->dwMousePosition.X-X1-1;
+
+  int Level = 0;
+
   for (ColumnsWidth=I=0;I<ViewSettings.ColumnCount;I++)
   {
-    if ((ViewSettings.ColumnType[I] & 0xff)==NAME_COLUMN)
+    if ( Level == ColumnsInGlobal )
+    {
       CurColumn++;
+      Level = 0;
+    }
     ColumnsWidth+=ViewSettings.ColumnWidth[I];
     if (ColumnsWidth>=PanelX)
       break;
     ColumnsWidth++;
+    Level++;
   }
-  if (CurColumn==0)
-    CurColumn=1;
+//  if (CurColumn==0)
+//    CurColumn=1;
   int OldCurFile=CurFile;
   CurFile=CurTopFile+MouseEvent->dwMousePosition.Y-Y1-1-Opt.ShowColumnTitles;
   if (CurColumn>1)

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.41 01.11.2004 $ */
+/* Revision: 1.42 08.11.2004 $ */
 
 /*
 Modify:
+  08.11.2004 WARP
+    + GetShowColor()
   01.11.2004 SVS
     + ColumnsInGlobal
   24.05.2004 SVS
@@ -241,6 +243,7 @@ class FileList:public Panel
     void ShowFileList(int Fast);
     void ShowList(int ShowStatus,int StartColumn);
     void SetShowColor(int Position);
+    int GetShowColor(int Position);
     void ShowSelectedSize();
     void ShowTotalSize(struct OpenPluginInfo &Info);
     int ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr);

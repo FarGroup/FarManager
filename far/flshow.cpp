@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.42 01.11.2004 $ */
+/* Revision: 1.43 08.11.2004 $ */
 
 /*
 Modify:
+  08.11.2004 WARP
+    ! Исправления в раксраске и работе панелей
   01.11.2004 SVS
     - Неотрисовка статуса
     - Кривизна с выбором цвета глобальной колонки
@@ -413,7 +415,7 @@ void FileList::ShowFileList(int Fast)
 }
 
 
-void FileList::SetShowColor(int Position)
+int FileList::GetShowColor(int Position)
 {
   DWORD ColorAttr=COL_PANELTEXT;
 
@@ -455,9 +457,14 @@ void FileList::SetShowColor(int Position)
     }
   }
 
-  SetColor(ColorAttr);
+  return ColorAttr;
 }
 
+
+void FileList::SetShowColor (int Position)
+{
+        SetColor (GetShowColor(Position));
+}
 
 void FileList::ShowSelectedSize()
 {
@@ -778,18 +785,18 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
     if ( !Remainder )
     {
       for (int k = 0; k < GlobalColumns-1; k++)
-          {
-            for (int j = 0; j < ColumnsInGlobal; j++)
-                {
-                  if ( (ViewSettings.ColumnType[k*ColumnsInGlobal+j] & 0xFF) !=
-               (ViewSettings.ColumnType[(k+1)*ColumnsInGlobal+j] & 0xFF) )
-            UnEqual = true;
-        }
+      {
+         for (int j = 0; j < ColumnsInGlobal; j++)
+         {
+           if ( (ViewSettings.ColumnType[k*ColumnsInGlobal+j] & 0xFF) !=
+              (ViewSettings.ColumnType[(k+1)*ColumnsInGlobal+j] & 0xFF) )
+           UnEqual = true;
+         }
       }
 
       if ( !UnEqual )
         break;
-        }
+    }
 
     ColumnsInGlobal++;
   }
@@ -797,6 +804,8 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
   return(GlobalColumns);
 }
 
+
+extern void GetColor(int PaletteIndex);
 
 void FileList::ShowList(int ShowStatus,int StartColumn)
 {
@@ -859,7 +868,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           StatusShown=TRUE;
           SetShowColor(ListPos);
         }
-        if (!ShowStatus && (Level == ColumnsInGlobal))
+        if ( !ShowStatus )
            SetShowColor(ListPos);
 
         if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
@@ -984,19 +993,26 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (LeftBracket)
                 {
                   GotoXY(CurX-1,CurY);
+
                   if ( Level == 1 )
-                    SetColor(COL_PANELTEXT);
+                    SetColor (COL_PANELBOX);
+
                   Text(openBracket);
-                  if (!ShowStatus)
-                    SetShowColor(ListPos);
+
+                  if ( Level == 1 )
+                    SetColor (COL_PANELTEXT);
                 }
                 if (RightBracket)
                 {
                   if ( Level == ColumnsInGlobal )
-                    SetColor(COL_PANELTEXT);
+                    SetColor(COL_PANELBOX);
+
                   GotoXY(NameX,CurY);
                   Text(closeBracket);
                   ShowDivider=FALSE;
+
+                  if ( Level == ColumnsInGlobal )
+                    SetColor(COL_PANELTEXT);
                 }
                 /* IS $ */
               }
@@ -1162,14 +1178,26 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         GotoXY(CurX+ColumnWidth+1,CurY);
       else
       {
-        if ( Level == ColumnsInGlobal )
-                SetColor(COL_PANELBOX);
+        if ( !ShowStatus )
+        {
+          SetColor (GetShowColor (ListPos));
+
+          if ( Level == ColumnsInGlobal )
+             SetColor (COL_PANELBOX);
+                }
+
+                if ( K == ColumnCount-1 )
+          SetColor(COL_PANELBOX);
 
         GotoXY(CurX+ColumnWidth,CurY);
+
         if (K==ColumnCount-1)
           BoxText((WORD)(CurX+ColumnWidth==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[1]-0x0B0]:VerticalLine[1]):0x20));
         else
           BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0])));
+
+        if ( !ShowStatus )
+                SetColor (COL_PANELTEXT);
       }
 
       if(!ShowStatus)
