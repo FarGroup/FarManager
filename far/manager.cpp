@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.11 06.05.2001 $ */
+/* Revision: 1.12 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    ! приведены в порядок CloseAll() и ExitAll()
   06.05.2001 DJ
     ! перетрях #include
     + ReplaceCurrentFrame()
@@ -83,62 +85,46 @@ Manager::~Manager()
 */
 BOOL Manager::ExitAll()
 {
-/*  int I, J;
-  for (I=0;I<ModalCount;I++)
+  // FrameList [0] - это панели, и им KEY_ESC посылать не нужно и бесполезно
+  for (int I=FrameCount-1; I>=1; I--)
   {
-    Modal *CurModal=ModalList[I];
-    CurModal->ClearDone();
-    CurModal->Show();
-    CurModal->ProcessKey(KEY_ESC);
-    if (!CurModal->Done())
+    Frame *CurFrame=FrameList[I];
+    CurFrame->Show();
+    CurFrame->ProcessKey(KEY_ESC);
+    if (CurFrame->GetExitCode() != XC_QUIT)
     {
-      CurModal->ShowConsoleTitle();
-      ModalPos=I;
-      NextModal(0);
+      FramePos = I;
+      SetCurrentFrame (CurFrame);
       return FALSE;
     }
     else
     {
-     delete CurModal;
-     if(ModalCount>1) for (J=I+1;J<ModalCount;J++) ModalList[J-1]=ModalList[J];
-     ModalCount--;
-     I--;
+     delete CurFrame;
+     FrameCount--;
     }
-  }  */
+  }
   return TRUE;
 }
 /* IS $ */
 
 void Manager::CloseAll()
 {
-#if 0
-  int I;
-  EnableSwitch=FALSE;
-  for (I=0;I<ModalCount;I++)
+  for (int I=0;I<FrameCount;I++)
   {
-    Modal *CurModal=ModalList[I];
-    CurModal->ClearDone();
-    // ~ CurModal->SetEnableSwitch(FALSE);
-    CurModal->Show();
-    CurModal->ProcessKey(KEY_ESC);
-    if (!CurModal->Done())
-    {
-      //CurModal->ShowConsoleTitle();
-      //CurModal->Process();
-      ActiveModal=CurModal;
-      return ; //(FALSE);
-    }
-    delete CurModal;
+    Frame *CurFrame=FrameList[I];
+    CurFrame->SetCanLoseFocus(FALSE);
+    CurFrame->Show();
+    CurFrame->ProcessKey(KEY_ESC);
+    delete CurFrame;
   }
   /* $ 13.07.2000 SVS
      Здесь было "delete ModalList;", но перераспределение массива ссылок
      идет через realloc...
   */
-  free(ModalList);
+  free(FrameList);
   /* SVS $ */
-  ModalList=NULL;
-  ModalCount=ModalPos=0;
-#endif
+  FrameList=NULL;
+  FrameCount=FramePos=0;
 }
 
 BOOL Manager::IsAnyFrameModified(int Activate)
@@ -506,15 +492,13 @@ void Manager::ExitMainLoop(int Ask)
 int  Manager::ProcessKey(int Key)
 {
     int ret=FALSE;
-    BOOL es;
     char kn[32];
     KeyToText(Key,kn);
     SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn);
 
     if ( CurrentFrame)
     {
-      es=CurrentFrame->GetEnableSwitch();
-      SysLog("Manager::ProcessKey(), es=%i, to CurrentFrame 0x%p, '%s'",es,CurrentFrame, CurrentFrame->GetTypeName());;
+      SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName());;
       switch(Key)
         {
             case KEY_F11:
@@ -522,17 +506,17 @@ int  Manager::ProcessKey(int Key)
                 SysLog(-1);
                 return TRUE;
             case KEY_F12:
-                if ( es )
+                if (CurrentFrame->GetCanLoseFocus())
                     SelectFrame();
                 SysLog(-1);
                 return TRUE;
             case KEY_CTRLTAB:
-                if ( es )
+                if (CurrentFrame->GetCanLoseFocus())
                     NextFrame(1);
                 SysLog(-1);
                 return TRUE;
             case KEY_CTRLSHIFTTAB:
-                if ( es )
+                if (CurrentFrame->GetCanLoseFocus())
                     NextFrame(-1);
                 SysLog(-1);
                 return TRUE;

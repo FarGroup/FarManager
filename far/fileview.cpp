@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.24 06.05.2001 $ */
+/* Revision: 1.25 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    - кейбар не обновлялся
   06.05.2001 DJ
     ! перетрях #include
     + обработка F6 под NWZ
@@ -111,6 +113,9 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
 {
   ViewKeyBar.SetOwner(this);
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
+  /* $ 07.05.2001 DJ */
+  KeyBarVisible = Opt.ShowKeyBarViewer;
+  /* DJ $ */
   View.SetPluginData(PluginData);
   /* $ 07.08.2000 SVS
   */
@@ -119,7 +124,7 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
 
   DisableHistory=disableHistory; ///
   strcpy(Name,name); ///
-  SetEnableSwitch(EnableSwitch);
+  SetCanLoseFocus(EnableSwitch);
 
   /* $ 07.08.2000 SVS
     ! Код, касаемый KeyBar вынесен в отдельную функцию */
@@ -246,7 +251,7 @@ int FileViewer::ProcessKey(int Key)
        + выход по ctrl-f10 с установкой курсора на файл */
     case KEY_CTRLF10:
       {
-        if(GetEnableSwitch())
+        if(GetCanLoseFocus())
         {
           char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp,FileName[NM];
           View.GetFileName(FileName);
@@ -293,6 +298,9 @@ int FileViewer::ProcessKey(int Key)
       else
         ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
       Show();
+      /* $ 07.05.2001 DJ */
+      KeyBarVisible = Opt.ShowKeyBarViewer;
+      /* DJ $ */
       return (TRUE);
     /* tran 15.07.2000 $ */
     /* $ 24.08.2000 SVS
@@ -340,8 +348,13 @@ int FileViewer::ProcessKey(int Key)
         /* $ 06.05.2001 DJ
            обработка F6 под NWZ
         */
-        FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, TRUE, 
+        FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, TRUE,
           -2, FilePos, FALSE);
+        /* $ 07.05.2001 DJ
+           сохраняем NamesList
+        */
+        ShellEditor->SetNamesList (View.GetNamesList());
+        /* DJ */
         CtrlObject->FrameManager->ReplaceCurrentFrame(ShellEditor);
         /* DJ $ */
         ShowTime(2);

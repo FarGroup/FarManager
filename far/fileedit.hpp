@@ -7,10 +7,13 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.07 07.05.2001 $ */
+/* Revision: 1.08 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    + добавлен NameList (пока только для передачи обратно во вьюер при
+      повторном нажатии F6)
   06.05.2001 DJ
     ! перетрях #include
   07.05.2001 ОТ
@@ -35,6 +38,8 @@ Modify:
 #include "editor.hpp"
 #include "keybar.hpp"
 
+class NamesList;
+
 class FileEditor:public Frame
 {
   private:
@@ -44,6 +49,10 @@ class FileEditor:public Frame
 
     Editor FEdit;
     KeyBar EditKeyBar;
+
+    /* $ 07.05.2001 DJ */
+    NamesList *EditNamesList;
+    /* DJ $ */
     char FileName[NM];
     char FullFileName[NM];
     char StartDir[NM];
@@ -56,6 +65,9 @@ class FileEditor:public Frame
     FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine,int StartChar,char *Title,
                int X1,int Y1,int X2,int Y2);
+    /* $ 07.05.2001 DJ */
+    virtual ~FileEditor();
+    /* DJ $ */
     void Init(char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData);
     /* $ 07.08.2000 SVS
@@ -68,7 +80,7 @@ class FileEditor:public Frame
     int GetTypeAndName(char *Type,char *Name);
     void ShowConsoleTitle();
     int IsFileChanged() {return(FEdit.IsFileChanged());};
-    int IsFileModified() {return(FEdit.IsFileModified());};
+    virtual int IsFileModified() {return(FEdit.IsFileModified());};
     /* $ 28.06.2000 tran
        NT Console resize - resize editor */
     virtual void SetScreenPosition();
@@ -77,6 +89,9 @@ class FileEditor:public Frame
     virtual int GetType() { return MODALTYPE_EDITOR; }
 
     virtual void OnChangeFocus(int i); ///
+
+    /* $ 07.05.2001 DJ */
+    void SetNamesList (NamesList *Names);
 };
 
 #endif	// __FILEEDITOR_HPP__

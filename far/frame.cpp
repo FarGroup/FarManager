@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.02 07.05.2001 $ */
+/* Revision: 1.03 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    ! причешем идентификаторы
   06.05.2001 DJ
     ! перетрях #include
   07.05.2001 OT
@@ -26,7 +28,7 @@ Modify:
 
 Frame::Frame()
 {
-  EnableSwitch=FALSE;
+  CanLoseFocus=FALSE;
   ExitCode=-1;
   KeyBarVisible=MacroMode=0;
   ModalKeyBar=NULL;

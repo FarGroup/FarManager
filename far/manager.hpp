@@ -32,8 +32,6 @@ Modify:
 
 class Frame;
 
-#include "farconst.hpp"
-
 class Manager
 {
   private:
@@ -53,7 +51,6 @@ class Manager
   public:
     Frame *CurrentFrame;  // текущий модал,
                           // присутсвует в списке, но может быть не активным
-    int    EnableSwitch;  // разрешено ли переключение из модала
 
   private:
     void ActivateNextFrame();

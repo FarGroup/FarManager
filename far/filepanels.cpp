@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+   - чтоб кейбар обновлялся
   06.05.2001 DJ
    ! перетрях #include
   06.05.2001 ОТ
@@ -53,6 +55,9 @@ FilePanels::FilePanels()
   LastLeftFilePanel=0;
   LastRightFilePanel=0;
   MacroMode = MACRO_SHELL;
+  /* $ 07.05.2001 DJ */
+  KeyBarVisible = Opt.ShowKeyBar;
+  /* DJ $ */
 //  SetKeyBar(&MainKeyBar);
 //  SysLog("MainKeyBar=0x%p",&MainKeyBar);
 }
@@ -73,7 +78,7 @@ void FilePanels::Init()
   RightPanel->SetShowShortNamesMode(Opt.RightPanel.ShowShortNames);
   LeftPanel->SetSelectedFirstMode(Opt.LeftSelectedFirst);
   RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
-  SetEnableSwitch(TRUE);
+  SetCanLoseFocus(TRUE);
 
   if (Opt.LeftPanel.Focus)
     ActivePanel=LeftPanel;
@@ -241,14 +246,6 @@ int  FilePanels::ProcessKey(int Key)
 
   switch(Key)
   {
-/*///
-    case KEY_CTRLTAB:
-      CtrlObject.ModalManager.NextModal(1);
-      break;
-    case KEY_CTRLSHIFTTAB:
-      CtrlObject.ModalManager.NextModal(-1);
-      break;
-*///
     case KEY_TAB:
       if (ActivePanel==LeftPanel)
       {
@@ -297,6 +294,9 @@ int  FilePanels::ProcessKey(int Key)
       break;
     case KEY_CTRLB:
       Opt.ShowKeyBar=!Opt.ShowKeyBar;
+      /* $ 07.05.2001 DJ */
+      KeyBarVisible = Opt.ShowKeyBar;
+      /* DJ $ */
       SetScreenPositions();
       break;
     case KEY_CTRLL:

@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.17 06.05.2001 $ */
+/* Revision: 1.18 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    + GetNamesList()
   06.05.2001 DJ
     ! перетрях #include
   30.04.2001 DJ
@@ -256,6 +258,10 @@ class Viewer:public ScreenObject
     /* $ 30.04.2001 DJ */
     int GetAnsiMode() const { return VM.AnsiMode; }
     int GetHexMode() const { return VM.Hex; }
+    /* DJ $ */
+
+    /* $ 07.05.2001 DJ */
+    NamesList *GetNamesList() { return &ViewNamesList; }
     /* DJ $ */
 };
 

@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.37 06.05.2001 $ */
+/* Revision: 1.38 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    + добавлен NameList (пока только дл€ передачи обратно во вьюер при
+      повторном нажатии F6)
+    - кейбар не обновл€лс€
   06.05.2001 DJ
     ! перетр€х #include
     + обработка F6
@@ -118,6 +122,7 @@ Modify:
 #include "dialog.hpp"
 #include "fileview.hpp"
 #include "manager.hpp"
+#include "namelist.hpp"
 
 FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
@@ -144,12 +149,16 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
                       char *PluginData)
 {
+  /* $ 07.05.2001 DJ */
+  EditNamesList = NULL;
+  KeyBarVisible = TRUE;
+  /* DJ $ */
   if (*Name==0)
     return;
   FEdit.SetPluginData(PluginData);
   FEdit.SetHostFileEditor(this);
   SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch);///
-  SetEnableSwitch(EnableSwitch);
+  SetCanLoseFocus(EnableSwitch);
   GetCurrentDirectory(sizeof(StartDir),StartDir);
   strcpy(FileName,Name);
   if (sizeof(FullFileName)<=ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName))) {
@@ -251,7 +260,7 @@ void FileEditor::InitKeyBar(void)
 {
   /* $ 29.06.2000 tran
      добавил названи€ всех функциональных клавиш */
-  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableSwitch ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
+  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),CanLoseFocus ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
   char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
   char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
   char *FEditCtrlKeys[]={MSG(MEditCtrlF1),MSG(MEditCtrlF2),MSG(MEditCtrlF3),MSG(MEditCtrlF4),MSG(MEditCtrlF5),MSG(MEditCtrlF6),MSG(MEditCtrlF7),MSG(MEditCtrlF8),MSG(MEditCtrlF9),MSG(MEditCtrlF10),MSG(MEditCtrlF11),MSG(MEditCtrlF12)};
@@ -283,6 +292,26 @@ void FileEditor::InitKeyBar(void)
   FEdit.SetEditKeyBar(&EditKeyBar);
 }
 /* SVS $ */
+
+/* $ 07.05.2001 DJ
+   в деструкторе грохаем EditNamesList, если он был создан, а в SetNamesList()
+   создаем EditNamesList и копируем туда значени€
+*/
+
+FileEditor::~FileEditor()
+{
+  if (EditNamesList)
+    delete EditNamesList;
+}
+
+void FileEditor::SetNamesList (NamesList *Names)
+{
+  if (EditNamesList == NULL)
+    EditNamesList = new NamesList;
+  Names->MoveData (EditNamesList);
+}
+
+/* DJ $ */
 
 void FileEditor::Show()
 {
@@ -394,7 +423,7 @@ int FileEditor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_F6:
-      if (GetEnableSwitch() &&
+      if (GetCanLoseFocus() &&
           (FEdit.IsFileChanged() || GetFileAttributes(FullFileName)!=0xFFFFFFFF))
       {
         long FilePos=FEdit.GetCurPos();
@@ -406,7 +435,12 @@ int FileEditor::ProcessKey(int Key)
           /* $ 06.05.2001 DJ
              обработка F6 под NWZ
           */
-          FileViewer *Viewer = new FileViewer (FullFileName, TRUE, FALSE, FALSE, FilePos);
+          /* $ 07.05.2001 DJ
+             сохран€ем NamesList
+          */
+          FileViewer *Viewer = new FileViewer (FullFileName, TRUE, FALSE,
+            FALSE, FilePos, NULL, EditNamesList);
+          /* DJ $ */
           CtrlObject->FrameManager->ReplaceCurrentFrame (Viewer);
           /* DJ $ */
         }
@@ -419,7 +453,7 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_CTRLF10:
       {
-        if(GetEnableSwitch())
+        if(GetCanLoseFocus())
         {
           /* $ 01.03.2001 IS
                - Ѕаг: не учитывалось, закрылс€ ли файл на самом деле
@@ -551,8 +585,7 @@ int FileEditor::ProcessQuitKey()
       break;
     if (SaveCode==1)
     {
-///            SetExitCode(0);
-      Frame::SetExitCode (XC_QUIT);///
+      SetExitCode (XC_QUIT);
       break;
     }
     if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),

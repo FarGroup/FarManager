@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.20 06.05.2001 $ */
+/* Revision: 1.21 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    ! поддержка mouse wheel
+    - кейбар не обновлялся
   06.05.2001 DJ
     ! перетрях #include
   26.04.2001 DJ
@@ -121,6 +124,9 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   else
     HelpMask=NULL;
   /* SVS $ */
+  /* $ 07.05.2001 DJ */
+  KeyBarVisible = TRUE;
+  /* DJ $ */
   TopLevel=TRUE;
   TopScreen=new SaveScreen;
   HelpData=NULL;
@@ -174,6 +180,9 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   }
   else
     HelpMask=NULL;
+  /* $ 07.05.2001 DJ */
+  KeyBarVisible = TRUE;
+  /* DJ $ */
   TopLevel=FALSE;
   HelpData=NULL;
   Help::PrevFullScreen=PrevFullScreen;
@@ -912,6 +921,21 @@ int Help::ProcessKey(int Key)
       else
         ProcessKey(KEY_TAB);
       return(TRUE);
+    /* $ 07.05.2001 DJ
+      + Обработка KEY_MSWHEEL_XXXX */
+    case KEY_MSWHEEL_UP:
+      {
+        for (int i=0; i<Opt.MsWheelDelta; i++)
+          ProcessKey(KEY_UP);
+        return(TRUE);
+      }
+    case KEY_MSWHEEL_DOWN:
+      {
+        for (int i=0; i<Opt.MsWheelDelta; i++)
+          ProcessKey(KEY_DOWN);
+        return(TRUE);
+      }
+    /* DJ $ */
     case KEY_PGUP:
       CurX=CurY=0;
       TopStr-=Y2-Y1-2-FixSize;

@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.01 06.05.2001 */
+/* Revision: 1.02 07.05.2001 */
 
 /*
   Modify:
+    07.05.2001 DJ
+      ! причешем идентификаторы
     06.05.2001 DJ
       ! перетрях #include
     05.05.2001 DJ
@@ -35,19 +37,20 @@ enum { MODALTYPE_VIRTUAL,
 class Frame: public ScreenObject
 {
   protected:
-    int  EnableSwitch;
+    int  CanLoseFocus;
     int  ExitCode;
+    int  KeyBarVisible;
     KeyBar *ModalKeyBar;
 
   public:
     Frame();
 
-    int  GetEnableSwitch() {return(EnableSwitch);};
-    void SetEnableSwitch(int Mode) {EnableSwitch=Mode;};
+    int  GetCanLoseFocus() { return(CanLoseFocus); };
+    void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };
     int  GetExitCode() { return ExitCode; };
     void SetExitCode(int Code) { ExitCode=Code; };
 
-    virtual int IsFileModified() {return(FALSE);};
+    virtual BOOL IsFileModified() {return(FALSE);};
     virtual char *GetTypeName() {return "Modal";};
     virtual int GetTypeAndName(char *Type,char *Name) {return(MODALTYPE_VIRTUAL);};
     virtual int GetType() { return MODALTYPE_VIRTUAL; }
@@ -59,7 +62,6 @@ class Frame: public ScreenObject
     void SetKeyBar(KeyBar *ModalKeyBar);
     void UpdateKeyBar();
     virtual void RedrawKeyBar() { Frame::UpdateKeyBar(); };
-    int  KeyBarVisible;
 
     int MacroMode;
 };
