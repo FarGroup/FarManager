@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.07 25.07.2000 $ */
+/* Revision: 1.08 28.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 SVS
+    ! В связи с появлением SendDlgMessage в классе Dialog
+      вносим некоторые изменения!
   25.07.2000 SVS
     + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
   23.07.2000 SVS
@@ -191,21 +194,23 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 // Функция FarDefDlgProc обработки диалога по умолчанию
 long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
-  if(hDlg)
-    return Dialog::DefDlgProc((Dialog*)hDlg,Msg,Param1,Param2);
-  return NULL;
+  if(hDlg)  // исключаем лишний вызов для hDlg=0
+    return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+  return 0;
 }
 
+/* $ 28.07.2000 SVS
+    ! В связи с появлением SendDlgMessage в классе Dialog
+      вносим некоторые изменения!
+*/
 // Посылка сообщения диалогу
 long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
-  if(hDlg)
-  {
-    Dialog* Dlg=(Dialog*)hDlg;
-    return Dialog::DefDlgProc((Dialog*)hDlg,Msg,Param1,Param2);
-  }
+  if(hDlg) // исключаем лишний вызов для hDlg=0
+    return Dialog::SendDlgMessage(hDlg,Msg,Param1,Param2);
   return 0;
 }
+/* SVS $ */
 
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)

@@ -2,13 +2,21 @@
 vmenu.cpp
 
 Обычное вертикальное меню
+  а так же:
+    * список в DI_COMBOBOX
+    * ...
 
 */
 
-/* Revision: 1.06 23.07.2000 $ */
+/* Revision: 1.07 28.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 SVS
+   + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
+     атрибутами:
+     SetColors();
+     GetColors();
   23.07.2000 SVS
    + Куча рамарок в исходниках :-)
    ! AlwaysScrollBar изменен на ListBoxControl
@@ -96,6 +104,11 @@ VMenu::VMenu(char *Title,		// заголовок меню
     if (Item[I].Selected)
       SelectPos=I;
   }
+  /* $ 28.07.2000 SVS
+     Установим цвет по умолчанию
+  */
+  SetColors(NULL);
+  /* SVS $*/
   if (CtrlObject!=NULL)
   {
     PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -192,7 +205,10 @@ void VMenu::Show()
   CallCount--;
 }
 
-
+/* $ 28.07.2000 SVS
+   Переработка функции с учетом VMenu::Colors[] -
+      заменены константы на VMenu::Colors[]
+*/
 void VMenu::DisplayObject()
 {
   if (!UpdateRequired)
@@ -212,7 +228,7 @@ void VMenu::DisplayObject()
     */
     if (BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX)
     {
-      Box(X1,Y1,X2,Y2,COL_MENUBOX,BoxType);
+      Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
       if(!ListBoxControl)
       {
         MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
@@ -221,32 +237,33 @@ void VMenu::DisplayObject()
     }
     else
     {
-      SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT);
+      SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[0]);
       if(!ListBoxControl)
       {
         MakeShadow(X1,Y2+2,X2+3,Y2+2);
         MakeShadow(X2+3,Y1,X2+4,Y2+2);
       }
       if (BoxType!=NO_BOX)
-        Box(X1,Y1,X2,Y2,COL_MENUBOX,BoxType);
+        Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
     }
     /* SVS $*/
   }
   if (*Title)
   {
     GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1);
-    SetColor(COL_MENUTITLE);
+    SetColor(VMenu::Colors[2]);
     mprintf(" %s ",Title);
   }
   if (*BottomTitle)
   {
     GotoXY(X1+(X2-X1-1-strlen(BottomTitle))/2,Y2);
-    SetColor(COL_MENUTITLE);
+    SetColor(VMenu::Colors[2]);
     mprintf(" %s ",BottomTitle);
   }
   SetCursorType(0,10);
   ShowMenu();
 }
+/* SVS $ */
 
 
 int VMenu::AddItem(struct MenuItem *NewItem)
@@ -278,6 +295,10 @@ int VMenu::AddItem(struct MenuItem *NewItem)
 }
 
 
+/* $ 28.07.2000 SVS
+   Переработка функции с учетом VMenu::Colors[] -
+      заменены константы на VMenu::Colors[]
+*/
 void VMenu::ShowMenu()
 {
   char TmpStr[256],*BoxChar;
@@ -311,7 +332,7 @@ void VMenu::ShowMenu()
     if (I<ItemCount)
       if (Item[I].Separator)
       {
-        SetColor(COL_MENUBOX);
+        SetColor(VMenu::Colors[1]);
         memset(&TmpStr[1],'─',X2-X1-1);
         switch(BoxType)
         {
@@ -354,14 +375,14 @@ void VMenu::ShowMenu()
       }
       else
       {
-        SetColor(DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX);
+        SetColor(VMenu::Colors[1]);
         Text(BoxChar);
         GotoXY(X2,Y);
         Text(BoxChar);
         if (Item[I].Selected)
-          SetColor(DialogStyle ? COL_DIALOGMENUSELECTEDTEXT:COL_MENUSELECTEDTEXT);
+          SetColor(VMenu::Colors[6]);
         else
-          SetColor(DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT);
+          SetColor(VMenu::Colors[3]);
         GotoXY(X1+1,Y);
         char Check=' ';
         if (Item[I].Checked)
@@ -371,16 +392,11 @@ void VMenu::ShowMenu()
             Check=Item[I].Checked;
         sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].Name);
         int Col;
-        if (DialogStyle)
-          if (Item[I].Selected)
-            Col=COL_DIALOGMENUSELECTEDHIGHLIGHT;
-          else
-            Col=COL_DIALOGMENUHIGHLIGHT;
+
+        if (Item[I].Selected)
+            Col=VMenu::Colors[7];
         else
-          if (Item[I].Selected)
-            Col=COL_MENUSELECTEDHIGHLIGHT;
-          else
-            Col=COL_MENUHIGHLIGHT;
+            Col=VMenu::Colors[4];
         if (ShowAmpersand)
           Text(TmpStr);
         else
@@ -389,12 +405,12 @@ void VMenu::ShowMenu()
       }
     else
     {
-      SetColor(DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX);
+      SetColor(VMenu::Colors[1]);
       Text(BoxChar);
       GotoXY(X2,Y);
       Text(BoxChar);
       GotoXY(X1+1,Y);
-      SetColor(DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT);
+      SetColor(VMenu::Colors[3]);
       mprintf("%*s",X2-X1-1,"");
     }
   }
@@ -409,13 +425,14 @@ void VMenu::ShowMenu()
   */
   if ((ListBoxControl || Opt.ShowMenuScrollbar) && (Y2-Y1-1)<ItemCount )
   {
-    SetColor(DialogStyle ? COL_DIALOGMENUSCROLLBAR: COL_MENUSCROLLBAR);
+    SetColor(VMenu::Colors[8]);
     ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
   }
   /* 18.07.2000 SVS $ */
   /* SVS $ */
   /* tran $ */
 }
+/* 28.07.2000 SVS $ */
 
 
 int VMenu::ProcessKey(int Key)
@@ -772,4 +789,38 @@ void VMenu::AssignHighlights(int Reverse)
   }
   ShowAmpersand=FALSE;
 }
+
+/* $ 28.07.2000 SVS
+
+*/
+void VMenu::SetColors(short *Colors)
+{
+  int I;
+  if(Colors)
+    for(I=0; I < sizeof(VMenu::Colors)/sizeof(VMenu::Colors[0]); ++I)
+      VMenu::Colors[I]=Colors[I];
+  else
+  {
+    VMenu::Colors[0]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT;
+    VMenu::Colors[1]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX;
+    VMenu::Colors[2]=COL_MENUTITLE;
+    VMenu::Colors[3]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT;
+    VMenu::Colors[4]=DialogStyle ? COL_DIALOGMENUHIGHLIGHT:COL_MENUHIGHLIGHT;
+    VMenu::Colors[5]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX;
+    VMenu::Colors[6]=DialogStyle ? COL_DIALOGMENUSELECTEDTEXT:COL_MENUSELECTEDTEXT;
+    VMenu::Colors[7]=DialogStyle ? COL_DIALOGMENUSELECTEDHIGHLIGHT:COL_MENUSELECTEDHIGHLIGHT;
+    VMenu::Colors[8]=DialogStyle ? COL_DIALOGMENUSCROLLBAR: COL_MENUSCROLLBAR;
+  }
+}
+
+void VMenu::GetColors(short *Colors)
+{
+  int I;
+  for(I=0; I < sizeof(VMenu::Colors)/sizeof(VMenu::Colors[0]); ++I)
+  {
+    Colors[I]=VMenu::Colors[I];
+  }
+}
+
+/* SVS $*/
 

@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.09 26.07.2000 $ */
+/* Revision: 1.10 28.07.2000 $ */
 
 /*
 Modify:
+   28.07.2000 SVS
+    ! В функции ApplyColor() SelColor может быть и реальным цветом.
+    + Переменная класса ColorUnChanged (для диалога)
+    ! SetObjectColor имеет дополнительный параметр для установки ColorUnChanged
   26.08.2000 tran
     + DropDownBox стиль
   26.07.2000 SVS
@@ -76,6 +80,11 @@ Edit::Edit()
   EditBeyondEnd=TRUE;
   Color=F_LIGHTGRAY|B_BLACK;
   SelColor=F_WHITE|B_BLACK;
+  /* $ 28.07.2000 SVS
+     Дополнительная переменная для обработки в диалогах
+  */
+  ColorUnChanged=COL_DIALOGEDITUNCHANGED;
+  /* SVS $*/
   EndType=EOL_NONE;
   MarkingBlock=FALSE;
   EditorMode=FALSE;
@@ -252,7 +261,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
   {
     if (ClearFlag && LeftPos<StrSize)
     {
-      SetColor(COL_DIALOGEDITUNCHANGED);
+      SetColor(ColorUnChanged);
       Text(&ShowStr[LeftPos]);
       SetColor(Color);
       int BlankLength=EditLength-(StrSize-LeftPos);
@@ -926,12 +935,16 @@ int Edit::InsertKey(int Key)
   return(TRUE);
 }
 
-
-void Edit::SetObjectColor(int Color,int SelColor)
+/* $ 28.07.2000 SVS
+   ! имеет дополнительный параметр для установки ColorUnChanged
+*/
+void Edit::SetObjectColor(int Color,int SelColor,int ColorUnChanged)
 {
   Edit::Color=Color;
   Edit::SelColor=SelColor;
+  Edit::ColorUnChanged=ColorUnChanged;
 }
+/* SVS $ */
 
 
 void Edit::GetString(char *Str,int MaxSize)
@@ -1444,7 +1457,7 @@ int Edit::GetColor(struct ColorItem *col,int Item)
 
 void Edit::ApplyColor()
 {
-  int Col,I;
+  int Col,I,SelColor0;
   for (Col=0;Col<ColorCount;Col++)
   {
     struct ColorItem *CurItem=ColorList+Col;
@@ -1461,9 +1474,16 @@ void Edit::ApplyColor()
       if (Length>0 && Length<sizeof(TextData))
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData);
+        /* $ 28.07.2000 SVS
+           SelColor может быть и реальным цветом.
+        */
+        SelColor0=SelColor;
+        if(SelColor >= COL_FIRSTPALETTECOLOR)
+          SelColor0=Palette[SelColor-COL_FIRSTPALETTECOLOR];
         for (I=0;I<Length;I++)
-          if (TextData[I].Attributes!=Palette[SelColor-COL_FIRSTPALETTECOLOR])
+          if (TextData[I].Attributes!=SelColor0)
             TextData[I].Attributes=CurItem->Color;
+        /* SVS $ */
         ScrBuf.Write(Start,Y1,TextData,Length);
       }
     }

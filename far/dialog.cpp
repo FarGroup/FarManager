@@ -5,10 +5,35 @@ dialog.cpp
 
 */
 
-/* Revision: 1.08 26.07.2000 $ */
+/* Revision: 1.09 28.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 SVS
+   ! Переметр Edit *EditLine в функции FindInEditForAC нафиг ненужен!
+   - Небольшой баг с автозавершением:
+       ...Есть в хистори на F7 - "templates". Жму F7, нажимаю shift+t=T и ...
+       получаю маленькую t. В итоге большую добился только набиранием её
+       после маленькой и стиранием оной...
+   - Если плагин не выставил ни одного эелемента с фокусом,
+     то придется самому об этом позаботиться, и выставить
+     фокус на первом вразумительном элементе ;-)
+   + AutoComplite: Для DI_COMBOBOX.
+   ! SelectFromComboBox имеет дополнительный параметр с тем, чтобы
+     позиционировать item в меню со списком в соответсвии со строкой ввода
+   ! FindInEditHistory -> FindInEditForAC
+     Поиск как в истории, так и в ComboBox`е (чтобы не пладить кода)
+   + Функция IsFocused, определяющая - "Может ли элемент диалога
+     иметь фокус ввода"
+   + Функция ConvertItem - преобразования из внутреннего представления
+     в FarDialogItem и обратно
+   + Некоторое количество сообщений:
+        DMSG_INITDIALOG, DMSG_ENTERIDLE, DMSG_HELP, DMSG_PAINT,
+        DMSG_SETREDRAW, DMSG_DRAWITEM, DMSG_GETDLGITEM, DMSG_KILLFOCUS,
+        DMSG_GOTFOCUS, DMSG_SETFOCUS, DMSG_GETTEXTLENGTH, DMSG_GETTEXT,
+        DMSG_CTLCOLORDIALOG, DMSG_CTLCOLORDLGITEM, DMSG_CTLCOLORDLGLIST,
+        DMSG_SETTEXTLENGTH, DMSG_SETTEXT, DMSG_CHANGEITEM, DMSG_HOTKEY,
+        DMSG_CLOSE,
   26.07.2000 SVS
    + Ну наконец-то - долгожданный нередактируемый ComboBox
   26.07.2000 SVS
@@ -54,7 +79,8 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 /* Public:
    Конструктор класса Dialog
 */
-Dialog::Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc,long Param)
+Dialog::Dialog(struct DialogItem *Item,int ItemCount,
+               FARDIALOGPROC DlgProc,long InitParam)
 {
   CreateObjects=FALSE;
   InitObjects=FALSE;
@@ -62,10 +88,11 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc,long 
   WarningStyle=0;
   lastKey=0;
 
-  if(!DlgProc)
+  if(!DlgProc) // функция должна быть всегда!!!
     DlgProc=(FARDIALOGPROC)Dialog::DefDlgProc;
   Dialog::DlgProc=DlgProc;
 
+  Dialog::InitParam=InitParam;
   Dialog::Item=Item;
   Dialog::ItemCount=ItemCount;
 
@@ -155,7 +182,13 @@ void Dialog::DisplayObject()
 
   if (!InitObjects)      // самодостаточный вариант, когда
   {                      //  элементы инициализируются при первом вызове.
+    /* $ 28.07.2000 SVS
+       Укажем процедуре, что у нас все Ок!
+    */
+    DlgProc((HANDLE)this,DMSG_INITDIALOG,InitDialogObjects(),InitParam);
+    // еще разок, т.к. данные могли быть изменены
     InitDialogObjects();
+    /* SVS $ */
     InitObjects=TRUE;    // все объекты проинициализированы!
   }
 
@@ -166,7 +199,11 @@ void Dialog::DisplayObject()
 /* Public:
    Инициализация элементов диалога.
 */
-void Dialog::InitDialogObjects()
+/* $ 28.07.2000 SVS
+   Теперь InitDialogObjects возвращает ID элемента
+   с фокусом ввода
+*/
+int Dialog::InitDialogObjects()
 {
   int I, J, TitleSet;
   int Length,StartX;
@@ -265,8 +302,9 @@ void Dialog::InitDialogObjects()
       /* SVS $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
-      DialogEdit->SetObjectColor(WarningStyle ? COL_WARNDIALOGEDIT:COL_DIALOGEDIT,COL_DIALOGEDITSELECTED);
-
+      DialogEdit->SetObjectColor(
+         FarColorToReal(WarningStyle ? COL_WARNDIALOGEDIT:COL_DIALOGEDIT),
+         FarColorToReal(COL_DIALOGEDITSELECTED));
       if (CurItem->Type==DI_PSWEDIT)
         DialogEdit->SetPasswordMode(TRUE);
 
@@ -314,8 +352,22 @@ void Dialog::InitDialogObjects()
       DialogEdit->FastShow();
     }
   }
+
+  /* $ 28.07.2000 SVS
+     - Если плагин не выставил ни одного эелемента с фокусом,
+       то придется самому об этом позаботиться, и выставить
+       фокус на первом вразумительном элементе ;-)
+  */
+  for (I=0;I<ItemCount;I++)
+    if (Item[I].Focus)
+      break;
+  if(I == ItemCount)
+    I=ChangeFocus(0,1,0);
+  /* SVS $ */
+
   // все объекты созданы
   CreateObjects=TRUE;
+  return I;
 }
 
 
@@ -370,21 +422,50 @@ void Dialog::ShowDialog()
   struct DialogItem *CurItem;
   int X,Y;
   int I;
+  unsigned long Attr;
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  SetScreen(X1,Y1,X2,Y2,' ',WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+  /* $ 28.07.2000 SVS
+     Перед прорисовкой диалога посылаем сообщение в обработчик
+  */
+  DlgProc((HANDLE)this,DMSG_PAINT,0,0);
+  /* SVS $ */
+
+  /* $ 28.07.2000 SVS
+     перед прорисовкой подложки окна диалога...
+  */
+  Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDIALOG,0,WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+  SetScreen(X1,Y1,X2,Y2,' ',Attr);
+  /* SVS $ */
 
   for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
 
+    /* $ 28.07.2000 SVS
+       Перед прорисовкой каждого элемента посылаем сообщение
+       посредством функции SendDlgMessage - в ней делается все!
+    */
+    Dialog::SendDlgMessage((HANDLE)this,DMSG_DRAWITEM,I,0);
+    /* SVS $ */
+    /* $ 28.07.2000 SVS
+       перед прорисовкой каждого элемента диалога выясним атритубы отрисовки
+    */
     switch(CurItem->Type)
     {
       case DI_SINGLEBOX:
       case DI_DOUBLEBOX:
+        Attr=MAKELONG(
+          MAKEWORD(FarColorToReal(WarningStyle ? COL_WARNDIALOGBOXTITLE:COL_DIALOGBOXTITLE), // Title LOBYTE
+                 FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT)),// HiText HIBYTE
+          MAKEWORD(FarColorToReal(WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX), // Box LOBYTE
+                 0)                                               // HIBYTE
+        );
+        Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,Attr);
+
         Box(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,
-            WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX,
+            LOBYTE(HIWORD(Attr)),
             (CurItem->Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
 
         if (*CurItem->Data)
@@ -398,9 +479,9 @@ void Dialog::ShowDialog()
           if (CurItem->Flags & DIF_LEFTTEXT && X1+CurItem->X1+1 < XB)
             XB=X1+CurItem->X1+1;
 
-          SetColor(WarningStyle ? COL_WARNDIALOGBOXTITLE:COL_DIALOGBOXTITLE);
+          SetColor(Attr&0xFF);
           GotoXY(XB,Y1+CurItem->Y1);
-          HiText(Title,WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT);
+          HiText(Title,HIBYTE(LOWORD(Attr)));
         }
         break;
 
@@ -415,13 +496,21 @@ void Dialog::ShowDialog()
         else
           Y=CurItem->Y1;
 
+
         if (CurItem->Flags & DIF_SETCOLOR)
-          SetColor(CurItem->Flags & DIF_COLORMASK);
+          Attr=CurItem->Flags & DIF_COLORMASK;
         else
           if (CurItem->Flags & DIF_BOXCOLOR)
-            SetColor(WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX);
+            Attr=WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX;
           else
-            SetColor(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+            Attr=WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT;
+
+        Attr=MAKELONG(
+           MAKEWORD(FarColorToReal(Attr),
+                   FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT)), // HIBYTE HiText
+             0);
+        Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,Attr);
+        SetColor(Attr&0xFF);
 
         if (CurItem->Flags & DIF_SEPARATOR)
         {
@@ -437,22 +526,23 @@ void Dialog::ShowDialog()
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
           Text(CurItem->Data);
         else
-          HiText(CurItem->Data,WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT);
+          HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
 
         break;
 
       case DI_VTEXT:
         if (CurItem->Flags & DIF_BOXCOLOR)
-          SetColor(WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX);
+          Attr=WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX;
         else
           if (CurItem->Flags & DIF_SETCOLOR)
-            SetColor(CurItem->Flags & DIF_COLORMASK);
+            Attr=(CurItem->Flags & DIF_COLORMASK);
           else
-            SetColor(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+            Attr=(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
 
+        Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,FarColorToReal(Attr));
+        SetColor(Attr&0xFF);
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
         VText(CurItem->Data);
-
         break;
 
       /* $ 18.07.2000 SVS
@@ -464,6 +554,17 @@ void Dialog::ShowDialog()
       case DI_COMBOBOX:
       {
         Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
+
+        Attr=EditPtr->GetObjectColor();
+        Attr=MAKEWORD(FarColorToReal(Attr&0xFF),FarColorToReal(HIWORD(Attr)));
+        Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
+           MAKEWORD(FarColorToReal(EditPtr->GetObjectColorUnChanged()), // EditLine - UnChanched Color
+           FarColorToReal(COL_DIALOGTEXT) // HistoryLetter
+           ));
+        Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,Attr);
+
+        EditPtr->SetObjectColor(Attr&0xFF,HIBYTE(LOWORD(Attr)),LOBYTE(HIWORD(Attr)));
+
         if (CurItem->Focus)
         {
           SetCursorType(1,-1);
@@ -481,10 +582,8 @@ void Dialog::ShowDialog()
 
           EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
           //Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-          Text(EditX2+1,EditY1,COL_DIALOGTEXT,"");
+          Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),"");
         }
-        // для DI_COMBOBOX здесь должна быть обработка флага DIF_DROPDOWNLIST
-        // это когда Edit будет иметь не просто ReadOnly, а ...
         break;
         /* SVS $ */
       }
@@ -492,9 +591,15 @@ void Dialog::ShowDialog()
       case DI_CHECKBOX:
       case DI_RADIOBUTTON:
         if (CurItem->Flags & DIF_SETCOLOR)
-          SetColor(CurItem->Flags & DIF_COLORMASK);
+          Attr=(CurItem->Flags & DIF_COLORMASK);
         else
-          SetColor(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+          Attr=(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+
+        Attr=MAKEWORD(FarColorToReal(Attr),
+             FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT)); // HiText
+        Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,Attr);
+
+        SetColor(Attr&0xFF);
 
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
 
@@ -506,7 +611,7 @@ void Dialog::ShowDialog()
           else
             mprintf("(%c) ",CurItem->Selected ? '\07':' ');
 
-        HiText(CurItem->Data,WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT);
+        HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
 
         if (CurItem->Focus)
         {
@@ -522,17 +627,23 @@ void Dialog::ShowDialog()
         if (CurItem->Focus)
         {
           SetCursorType(0,10);
-          SetColor(WarningStyle ? COL_WARNDIALOGSELECTEDBUTTON:COL_DIALOGSELECTEDBUTTON);
-          HiText(CurItem->Data,WarningStyle ? COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON);
+          Attr=MAKEWORD(
+             FarColorToReal(WarningStyle ? COL_WARNDIALOGSELECTEDBUTTON:COL_DIALOGSELECTEDBUTTON), // TEXT
+             FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON)); // HiText
         }
         else
         {
-          SetColor(WarningStyle ? COL_WARNDIALOGBUTTON:COL_DIALOGBUTTON);
-          HiText(CurItem->Data,WarningStyle ? COL_WARNDIALOGHIGHLIGHTBUTTON:COL_DIALOGHIGHLIGHTBUTTON);
+          Attr=MAKEWORD(
+             FarColorToReal(WarningStyle ? COL_WARNDIALOGBUTTON:COL_DIALOGBUTTON), // TEXT
+             FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)); // HiText
         }
+        Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDLGITEM,I,Attr);
+        SetColor(Attr&0xFF);
+        HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
 
         break;
     } // end switch(...
+    /* 28.07.2000 SVS $ */
   } // end for (I=...
 }
 
@@ -542,11 +653,20 @@ void Dialog::ShowDialog()
 */
 int Dialog::ProcessKey(int Key)
 {
-  int FocusPos=0,I;
+  int FocusPos=0,I,J;
   char Str[1024];
+  char *PtrStr;
+  Edit *CurEditLine;
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
+  {
+    /* $ 28.07.2000 SVS
+       Передадим этот факт в обработчик :-)
+    */
+    DlgProc((HANDLE)this,DMSG_ENTERIDLE,0,0);
+    /* SVS $ */
     return(FALSE);
+  }
 
   for (I=0;I<ItemCount;I++)
     if (Item[I].Focus)
@@ -567,11 +687,22 @@ int Dialog::ProcessKey(int Key)
   switch(Key)
   {
     case KEY_F1:
-      ShowHelp();
+      /* $ 28.07.2000 SVS
+         Перед выводом диалога посылаем сообщение в обработчик
+         и если вернули что надо, то выводим подсказку
+      */
+      PtrStr=(char*)DlgProc((HANDLE)this,DMSG_HELP,FocusPos,(long)&HelpTopic[0]);
+      if(PtrStr && *PtrStr)
+      {
+        SetHelp(PtrStr);
+        ShowHelp();
+      }
+      /* SVS $ */
       return(TRUE);
 
     case KEY_TAB:
     case KEY_SHIFTTAB:
+// Здесь с фокусом ОООЧЕНЬ ТУМАННО!!!
       if (Item[FocusPos].Flags & DIF_EDITOR)
       {
         I=FocusPos;
@@ -587,8 +718,7 @@ int Dialog::ProcessKey(int Key)
                  ((Edit *)Item[I].ObjPtr)->GetLength()==0)
             I--;
       }
-      Item[FocusPos].Focus=0;
-      Item[I].Focus=1;
+      ChangeFocus2(FocusPos,I);
       ShowDialog();
       return(TRUE);
 
@@ -628,6 +758,13 @@ int Dialog::ProcessKey(int Key)
             Str[CurPos]=0;
           ((Edit *)(Item[I].ObjPtr))->SetCurPos(0);
           ((Edit *)(Item[I-1].ObjPtr))->SetString(Str);
+          /* $ 28.07.2000 SVS
+            При изменении состояния каждого элемента посылаем сообщение
+            посредством функции SendDlgMessage - в ней делается все!
+          */
+          Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,I-1,0);
+          Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,I,0);
+          /* SVS $ */
         }
         if (EditorLastPos>FocusPos)
         {
@@ -683,6 +820,12 @@ int Dialog::ProcessKey(int Key)
       if (Type==DI_CHECKBOX)
       {
         Item[FocusPos].Selected=!Item[FocusPos].Selected;
+        /* $ 28.07.2000 SVS
+          При изменении состояния каждого элемента посылаем сообщение
+           посредством функции SendDlgMessage - в ней делается все!
+        */
+        Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,FocusPos,0);
+        /* SVS $ */
         ShowDialog();
         return(TRUE);
       }
@@ -694,15 +837,36 @@ int Dialog::ProcessKey(int Key)
             break;
         do
         {
-          Item[I++].Selected=0;
+          /* $ 28.07.2000 SVS
+            При изменении состояния каждого элемента посылаем сообщение
+            посредством функции SendDlgMessage - в ней делается все!
+          */
+          J=Item[I].Selected;
+          Item[I].Selected=0;
+          if(J)
+            Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,I,0);
+          ++I;
+          /* SVS $ */
         } while (I<ItemCount && Item[I].Type==DI_RADIOBUTTON && (Item[I].Flags & DIF_GROUP)==0);
         Item[FocusPos].Selected=1;
+        /* $ 28.07.2000 SVS
+          При изменении состояния каждого элемента посылаем сообщение
+          посредством функции SendDlgMessage - в ней делается все!
+        */
+        Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,FocusPos,0);
+        /* SVS $ */
         ShowDialog();
         return(TRUE);
       }
       if (IsEdit(Type))
       {
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        /* $ 28.07.2000 SVS
+          При изменении состояния каждого элемента посылаем сообщение
+          посредством функции SendDlgMessage - в ней делается все!
+        */
+        Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,FocusPos,0);
+        /* SVS $ */
         return(TRUE);
       }
       return(TRUE);
@@ -714,11 +878,16 @@ int Dialog::ProcessKey(int Key)
         return(TRUE);
       }
       for (I=0;I<ItemCount;I++)
-        if (IsEdit(Item[I].Type) || Item[I].Type==DI_BUTTON ||
-            Item[I].Type==DI_CHECKBOX || Item[I].Type==DI_RADIOBUTTON)
+        if (IsFocused(Item[I].Type))
         {
-          Item[FocusPos].Focus=0;
-          Item[I].Focus=1;
+          ChangeFocus2(FocusPos,I);
+          /* $ 28.07.2000 SVS
+            При изменении состояния каждого элемента посылаем сообщение
+            посредством функции SendDlgMessage - в ней делается все!
+          */
+          Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,FocusPos,0);
+          Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,I,0);
+          /* SVS $ */
           ShowDialog();
           return(TRUE);
         }
@@ -747,8 +916,7 @@ int Dialog::ProcessKey(int Key)
           }
           if (MinDist<1000)
           {
-            Item[FocusPos].Focus=0;
-            Item[MinPos].Focus=1;
+            ChangeFocus2(FocusPos,MinPos);
             if (Item[MinPos].Flags & DIF_MOVESELECT)
               ProcessKey(KEY_SPACE);
             else
@@ -766,6 +934,7 @@ int Dialog::ProcessKey(int Key)
         I=ChangeFocus(FocusPos,(Key==KEY_LEFT || Key==KEY_UP) ? -1:1,FALSE);
         Item[FocusPos].Focus=0;
         Item[I].Focus=1;
+        ChangeFocus2(FocusPos,I);
         if (Item[I].Flags & DIF_EDITOR)
           ((Edit *)(Item[I].ObjPtr))->SetCurPos(PrevPos);
         if (Item[I].Flags & DIF_MOVESELECT)
@@ -787,8 +956,7 @@ int Dialog::ProcessKey(int Key)
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton)
           {
-            Item[FocusPos].Focus=0;
-            Item[I].Focus=1;
+            ChangeFocus2(FocusPos,I);
             ShowDialog();
             return(TRUE);
           }
@@ -802,6 +970,7 @@ int Dialog::ProcessKey(int Key)
 
     case KEY_CTRLUP:
     case KEY_CTRLDOWN:
+      CurEditLine=((Edit *)(Item[FocusPos].ObjPtr));
       if (IsEdit(Type) &&
            (Item[FocusPos].Flags & DIF_HISTORY) &&
            Opt.DialogsEditHistory &&
@@ -811,17 +980,19 @@ int Dialog::ProcessKey(int Key)
          для выделения нужного пункта в истории.
       */
       {
-        Edit *ed=((Edit *)(Item[FocusPos].ObjPtr));
-        ed->GetString(Str,sizeof(Str));
-        SelectFromEditHistory(ed,(char *)Item[FocusPos].Selected,Str);
+        CurEditLine->GetString(Str,sizeof(Str));
+        SelectFromEditHistory(CurEditLine,(char *)Item[FocusPos].Selected,Str);
       }
       /* SVS $ */
       /* $ 18.07.2000 SVS
          + обработка DI_COMBOBOX - выбор из списка!
       */
       else if(Type == DI_COMBOBOX && Item[FocusPos].Selected)
-        SelectFromComboBox((Edit *)(Item[FocusPos].ObjPtr),
-                      (struct FarListItem *)Item[FocusPos].Selected);
+      {
+        CurEditLine->GetString(Str,sizeof(Str));
+        SelectFromComboBox(CurEditLine,
+                      (struct FarListItem *)Item[FocusPos].Selected,Str);
+      }
       /* SVS $ */
       return(TRUE);
 
@@ -844,6 +1015,12 @@ int Dialog::ProcessKey(int Key)
                 }
                 else
                   break;
+              /* $ 28.07.2000 SVS
+                При изменении состояния каждого элемента посылаем сообщение
+                посредством функции SendDlgMessage - в ней делается все!
+              */
+              Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,FocusPos,0);
+              /* SVS $ */
               ShowDialog();
               return(TRUE);
 
@@ -869,6 +1046,12 @@ int Dialog::ProcessKey(int Key)
                   memmove(&Str[SelStart],&Str[SelEnd],Length-SelEnd+1);
                   edt->SetString(Str);
                   edt->SetCurPos(SelStart);
+                  /* $ 28.07.2000 SVS
+                    При изменении состояния каждого элемента посылаем сообщение
+                    посредством функции SendDlgMessage - в ней делается все!
+                  */
+                  Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,FocusPos,0);
+                  /* SVS $ */
                   ShowDialog();
                   return(TRUE);
                 }
@@ -896,9 +1079,9 @@ int Dialog::ProcessKey(int Key)
              AutoComplite: Если установлен DIF_HISTORY
                  и разрешено автозавершение!.
           */
-          if(Opt.AutoComplete &&
-             Key < 256 && (Item[FocusPos].Flags & DIF_HISTORY) &&
-             Key != KEY_BS && Key != KEY_DEL)
+          if(Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL &&
+             ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX)
+            )
           {
             Edit *cb=((Edit *)(Item[FocusPos].ObjPtr));
             int SelStart, SelEnd, IX;
@@ -914,11 +1097,17 @@ int Dialog::ProcessKey(int Key)
 
             SelEnd=strlen(Str);
             //find the string in the list
-            if (FindInEditHistory(cb,(char *)Item[FocusPos].Selected,Str))
+            if (FindInEditForAC(Type == DI_COMBOBOX,(void *)Item[FocusPos].Selected,Str))
             {
               cb->SetString(Str);
               cb->Select(SelEnd,sizeof(Str)); //select the appropriate text
               cb->SetCurPos(SelEnd);
+              /* $ 28.07.2000 SVS
+                При изменении состояния каждого элемента посылаем сообщение
+                посредством функции SendDlgMessage - в ней делается все!
+              */
+              Dialog::SendDlgMessage((HANDLE)this,DMSG_CHANGEITEM,FocusPos,0);
+              /* SVS $ */
               Redraw();
             }
           }
@@ -975,8 +1164,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           if (EditLine->ProcessMouse(MouseEvent))
           {
             EditLine->SetClearFlag(0);
-            Item[FocusPos].Focus=0;
-            Item[I].Focus=1;
+            ChangeFocus2(FocusPos,I);
             ShowDialog();
             return(TRUE);
           }
@@ -992,8 +1180,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                  || Item[I].Type == DI_COMBOBOX))
             /* SVS $ */
             {
-              Item[FocusPos].Focus=0;
-              Item[I].Focus=1;
+              ChangeFocus2(FocusPos,I);
               ProcessKey(KEY_CTRLDOWN);
               return(TRUE);
             }
@@ -1003,8 +1190,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             MsY==Y1+Item[I].Y1 &&
             MsX < X1+Item[I].X1+HiStrlen(Item[I].Data))
         {
-          Item[FocusPos].Focus=0;
-          Item[I].Focus=1;
+          ChangeFocus2(FocusPos,I);
           ShowDialog();
           while (IsMouseButtonPressed())
             ;
@@ -1012,8 +1198,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               MouseX >  X1+Item[I].X1+HiStrlen(Item[I].Data)+4 ||
               MouseY != Y1+Item[I].Y1)
           {
-            Item[FocusPos].Focus=1;
-            Item[I].Focus=0;
+            ChangeFocus2(FocusPos,I);
             ShowDialog();
             return(TRUE);
           }
@@ -1026,8 +1211,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             MsY==Y1+Item[I].Y1 &&
             MsX < (X1+Item[I].X1+HiStrlen(Item[I].Data)+4-((Item[I].Flags & DIF_MOVESELECT)!=0)))
         {
-          Item[FocusPos].Focus=0;
-          Item[I].Focus=1;
+          ChangeFocus2(FocusPos,I);
           ProcessKey(KEY_SPACE);
           return(TRUE);
         }
@@ -1042,37 +1226,111 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
      KEY_TAB, KEY_SHIFTTAB, KEY_UP, KEY_DOWN,
    а так же Alt-HotKey)
 */
+/* $ 28.07.2000 SVS
+   Довесок для сообщений DMSG_KILLFOCUS & DMSG_SETFOCUS
+*/
 int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 {
-  int Type;
+  int Type,OrigFocusPos=FocusPos;
+  int FucusPosNeed=-1;
   // В функцию обработки диалога здесь передаем сообщение,
   //   что элемент - LostFocus() - теряет фокус ввода.
-  // Если функция диалога вернула FALSE, то это значит, что
-  //   передавать фокус "не хотим" и вываливаемся отсель...
-  // ...
-  //
-  while (1)
+  if(InitObjects)
+    FucusPosNeed=DlgProc((HANDLE)this,DMSG_KILLFOCUS,FocusPos,0);
+  if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
+    FocusPos=FucusPosNeed;
+  else
   {
-    FocusPos+=Step;
-    if (FocusPos>=ItemCount)
-      FocusPos=0;
-    if (FocusPos<0)
-      FocusPos=ItemCount-1;
+    while (1)
+    {
+      FocusPos+=Step;
+      if (FocusPos>=ItemCount)
+        FocusPos=0;
+      if (FocusPos<0)
+        FocusPos=ItemCount-1;
 
-    Type=Item[FocusPos].Type;
+      Type=Item[FocusPos].Type;
 
-    if (Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type))
-      break;
-    if (Type==DI_RADIOBUTTON && (!SkipGroup || Item[FocusPos].Selected))
-      break;
+      if (Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type))
+        break;
+      if (Type==DI_RADIOBUTTON && (!SkipGroup || Item[FocusPos].Selected))
+        break;
+
+      // убираем зацикливание с последующим подвисанием :-)
+      if(OrigFocusPos == FocusPos)
+        break;
+    }
   }
+
   // В функцию обработки диалога здесь передаем сообщение,
   //   что элемент GotFocus() - получил фокус ввода.
   // Игнорируем возвращаемое функцией диалога значение
-  // ...
-  //
+  if(InitObjects)
+    DlgProc((HANDLE)this,DMSG_GOTFOCUS,FocusPos,0);
   return(FocusPos);
 }
+
+/* $ 28.07.2000 SVS
+   Private:
+   Изменяет фокус ввода между двумя элементами.
+   Вынесен отдельно с тем, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
+*/
+int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
+{
+  int FucusPosNeed=-1;
+  if(InitObjects)
+    FucusPosNeed=DlgProc((HANDLE)this,DMSG_KILLFOCUS,KillFocusPos,0);
+  if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
+    SetFocusPos=FucusPosNeed;
+
+  Item[KillFocusPos].Focus=0;
+  Item[SetFocusPos].Focus=1;
+
+  if(InitObjects)
+    DlgProc((HANDLE)this,DMSG_GOTFOCUS,SetFocusPos,0);
+  return(SetFocusPos);
+}
+/* SVS $ */
+/* $ 28.07.2000 SVS
+   Public, Static:
+   + функция ConvertItem - обратное преобразование элементов диалога из
+   внутреннего представления во внешние
+*/
+void Dialog::ConvertItem(int FromPlugin,
+                         struct FarDialogItem *Item,struct DialogItem *Data,
+                         int Count)
+{
+  int I;
+  if(!FromPlugin)
+    for (I=0; I < Count; I++)
+    {
+      Item[I].Type=Data[I].Type;
+      Item[I].X1=Data[I].X1;
+      Item[I].Y1=Data[I].Y1;
+      Item[I].X2=Data[I].X2;
+      Item[I].Y2=Data[I].Y2;
+      Item[I].Focus=Data[I].Focus;
+      Item[I].Selected=Data[I].Selected;
+      Item[I].Flags=Data[I].Flags;
+      Item[I].DefaultButton=Data[I].DefaultButton;
+      strcpy(Item[I].Data,Data[I].Data);
+    }
+  else
+    for (I=0; I < Count; I++)
+    {
+      Data[I].Type=Item[I].Type;
+      Data[I].X1=Item[I].X1;
+      Data[I].Y1=Item[I].Y1;
+      Data[I].X2=Item[I].X2;
+      Data[I].Y2=Item[I].Y2;
+      Data[I].Focus=Item[I].Focus;
+      Data[I].Selected=Item[I].Selected;
+      Data[I].Flags=Item[I].Flags;
+      Data[I].DefaultButton=Item[I].DefaultButton;
+      strcpy(Data[I].Data,Item[I].Data);
+    }
+}
+/* SVS $ */
 
 /* Public, Static:
    преобразует данные об элементах диалога во внутреннее
@@ -1118,28 +1376,65 @@ int Dialog::IsEdit(int Type)
 }
 /* SVS $ */
 
+/* $ 28.07.2000 SVS
+   Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
+*/
+int Dialog::IsFocused(int Type)
+{
+  return(Type==DI_EDIT ||
+         Type==DI_FIXEDIT ||
+         Type==DI_PSWEDIT ||
+         Type==DI_COMBOBOX ||
+         Type==DI_BUTTON ||
+         Type==DI_CHECKBOX ||
+         Type==DI_RADIOBUTTON ||
+         Type==DI_LISTBOX);
+}
+/* SVS $ */
 
 /* $ 26.07.2000 SVS
    AutoComplite: Поиск входжение подстроки в истории
 */
-int Dialog::FindInEditHistory(Edit *EditLine,char *HistoryName,char *FindStr)
+/* $ 28.07.2000 SVS
+   ! Переметр Edit *EditLine нафиг ненужен!
+*/
+int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
 {
-  char RegKey[80],KeyValue[80],Str[1024];
+  char Str[1024];
   int I;
 
-  sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
-  // просмотр пунктов истории
-  for (I=0; I < 16; I++)
+  if(!TypeFind)
   {
-    sprintf(KeyValue,fmtLine,I);
-    GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
-//MessageBox(0,Str,FindStr,0);
-    if (!memicmp(Str,FindStr,strlen(FindStr)))
-      break;
+    char RegKey[80],KeyValue[80];
+    sprintf(RegKey,fmtSavedDialogHistory,(char*)HistoryName);
+    // просмотр пунктов истории
+    for (I=0; I < 16; I++)
+    {
+      sprintf(KeyValue,fmtLine,I);
+      GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
+      if (!LocalStrnicmp(Str,FindStr,strlen(FindStr)))
+        break;
+    }
+    if (I == 16)
+      return FALSE;
+    /* $ 28.07.2000 SVS
+       Введенные буковки не затрагиваем, а дополняем недостающее.
+    */
+    strcat(FindStr,&Str[strlen(FindStr)]);
+    /* SVS $ */
   }
-  if (I == 16)
-    return FALSE;
-  strcpy(FindStr,Str);
+  else
+  {
+    struct FarListItem *ListItems=(struct FarListItem *)HistoryName;
+    for (I=0;ListItems[I].Text[0];I++)
+    {
+      if (!LocalStrnicmp(ListItems[I].Text,FindStr,strlen(FindStr)))
+        break;
+    }
+    if (!ListItems[I].Text[0])
+      return FALSE;
+    strcat(FindStr,&ListItems[I].Text[strlen(FindStr)]);
+  }
   return TRUE;
 }
 /*  SVS $ */
@@ -1207,6 +1502,15 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *IStr)
     if (ItemsCount==0)
       return;
 
+    /* $ 28.07.2000 SVS
+       Перед отрисовкой спросим об изменении цветовых атрибутов
+    */
+    short Colors[9];
+    HistoryMenu.GetColors(Colors);
+    if(DlgProc((HANDLE)this,DMSG_CTLCOLORDLGLIST,
+                    sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
+      HistoryMenu.SetColors(Colors);
+    /* SVS $ */
     HistoryMenu.Show();
     while (!HistoryMenu.Done())
     {
@@ -1371,6 +1675,13 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
       if (IsKeyHighlighted(Item[I].Data,Key,Translate))
       {
         int DisableSelect=FALSE;
+        /* $ 28.07.2000 SVS
+           Сообщим о случивщемся факте процедуре обработки диалога
+        */
+        if(!DlgProc((HANDLE)this,DMSG_HOTKEY,I,Key))
+          break; // сказали не продолжать обработку...
+        /* SVS $ */
+
         if (I>0 && Item[I].Type==DI_TEXT && IsEdit(Item[I-1].Type) &&
             Item[I].Y1==Item[I-1].Y1 && Item[I].Y1!=Item[I+1].Y1)
         {
@@ -1413,12 +1724,13 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 */
 void Dialog::SelectFromComboBox(
          Edit *EditLine,                   // строка редактирования
-         struct FarListItem *ListItems)    // список строк
+         struct FarListItem *ListItems,    // список строк
+         char *IStr)
 {
   char Str[512];
   struct MenuItem ComboBoxItem;
   int EditX1,EditY1,EditX2,EditY2;
-  int I;
+  int I,Dest;
   {
     // создание пустого вертикального меню
     //  с обязательным показом ScrollBar
@@ -1439,10 +1751,19 @@ void Dialog::SelectFromComboBox(
     /* Последний пункт списка - ограничититель - в нем Tetx[0]
        должен быть равен '\0'
     */
-    for (I=0;ListItems[I].Text[0];I++)
+    for (Dest=I=0;ListItems[I].Text[0];I++)
     {
-      // int Checked;
-      ComboBoxItem.Selected=ListItems[I].Selected;
+      /* $ 28.07.2000 SVS
+         Выставим Selected при полном совпадении строки ввода и списка
+      */
+      if(IStr && *IStr)
+      {
+        if((ComboBoxItem.Selected=(!Dest && !strcmp(IStr,ListItems[I].Text))?TRUE:FALSE) == TRUE)
+           Dest++;
+      }
+      else
+         ComboBoxItem.Selected=ListItems[I].Selected;
+      /* SVS $ */
       strcpy(ComboBoxItem.Name,ListItems[I].Text);
       strcpy(ComboBoxItem.UserData,ListItems[I].Text);
       ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
@@ -1451,6 +1772,16 @@ void Dialog::SelectFromComboBox(
     }
     if (ItemsCount==0)
       return;
+
+    /* $ 28.07.2000 SVS
+       Перед отрисовкой спросим об изменении цветовых атрибутов
+    */
+    short Colors[9];
+    ComboBoxMenu.GetColors(Colors);
+    if(DlgProc((HANDLE)this,DMSG_CTLCOLORDLGLIST,
+                    sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
+      ComboBoxMenu.SetColors(Colors);
+    /* SVS $ */
 
     ComboBoxMenu.Show();
     while (!ComboBoxMenu.Done())
@@ -1476,16 +1807,439 @@ void Dialog::SelectFromComboBox(
 }
 /* SVS $ */
 
-/* $ 23.07.2000 SVS
+/* $ 28.07.2000 SVS
    функция обработки диалога (по умолчанию)
+   Вот именно эта функция и является последним рубежом обработки диалога.
+   Т.е. здесь должна быть ВСЯ обработка ВСЕХ сообщений!!!
 */
 long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
+  Dialog* Dlg=(Dialog*)hDlg;
+  struct DialogItem *CurItem;
+  char *Ptr, Str[1024];
+  int Len, Type, I;
+
+  if(!Dlg)
+    return 0;
+
   switch(Msg)
   {
-    case WM_INITDIALOG:
+    /* Сообщение DMSG_INITDIALOG посылается процедуре обработки диалога
+       после того, как были проинициализированы все управляющие элементы
+       диалога, но до того, как они стали видимы. В ответ на данное сообщение
+       процедура обработки диалога инициализирует каждый элемент в некоторое
+       корректное начально состояние. Например, она может заполнить блок
+       списка элементами, которые потом просмотрит пользователь...
+       Param1 = ID элемента, который получит фокус ввода по умолчанию.
+       Param2 = Специфические данные, переденные функции DialogEx.
+       Return = TRUE -  если процедура обработки диалога сама установила
+                        фокус ввода на конкретный элемент.
+                FALSE - будет установлен фокус ввода на элемент, указанный
+                        в Param1
+    */
+    case DMSG_INITDIALOG:
       return TRUE;
+
+    case DMSG_CLOSE:
+      return TRUE;
+
+    /* Сообщение DMSG_KILLFOCUS передается процедуре обработки диалога
+       непосредственно перед потерей клавиатурного фокуса элементом
+       диалога.
+       Param1 = ID элемента, теряющего фокус ввода.
+       Param2 = 0
+       Return = -1 - "Согласен с потерей фокуса".
+               >=0 - номер ЖЕЛАЕМОГО элемента, которому хотим передать фокус.
+    */
+    case DMSG_KILLFOCUS:
+      return -1;
+
+    /* Сообщение DMSG_GOTFOCUS посылается процедуре обработки диалога
+       после того, как элемент диалога получил клавиатурный фокус ввода.
+       Это есть нотификационное сообщение!
+       Param1 = ID элемента получившего фокус ввода.
+       Param2 = 0
+       Return = 0
+    */
+    case DMSG_GOTFOCUS:
+      return 0;
+
+    /* Сообщение DMSG_HELP передается в обработчик диалога перед выводом
+       темы помощи. Это сообщение позволяет управлять показом темы помощи
+       на уровне отдельного элемента диалога.
+       Param1 = ID элемента диалога, имеющий фокус ввода (текущий элемент)
+       Param2 = Адрес строки темы подсказки, связанной с данным диалогом,
+                который предполагается показать.
+       Return = Адрес строки темы подсказки, связанной с данным диалогом,
+                который будет выведен.
+                Если вернули NULL, то тема помощи выводиться не будет.
+    */
+    case DMSG_HELP:
+      return Param2;
+
+    /* Сообщение DMSG_PAINT посылается перед прорисовкой всего диалога.
+       Param1 = 0
+       Param2 = 0
+       Return = 0
+    */
+    case DMSG_PAINT:
+      return 0;
+
+    /* Сообщение DMSG_CTLCOLORDIALOG посылается в функцию обработки диалога
+       перед прорисовкой подложки окна диалога.
+       Сообщение приходит сразу после DMSG_PAINT.
+       Param1 = 0
+       Param2 = Атрибуты (цвет_фона+цвет_текста), с использованием которых
+                обработчик диалога хочет отрисовать подложку диалога.
+       Return = Атрибуты (цвет_фона+цвет_текста), с использованием которых
+                обработчик диалога должен отрисовать подложку диалога.
+    */
+    case DMSG_CTLCOLORDIALOG:
+      return Param2;
+
+    /* Сообщение DMSG_CTLCOLORDLGITEM посылается процедуре обработки диалога
+       перед отрисовкой конкретного элемента диалога. В ответ на это сообщение
+       процедура обработки диалога может установить свои атрибуты (цвет текста
+       и фона) для заданного элемента.
+       Param1 = ID эелемента, который будет отрисован.
+       Param2 = Атрибуты (цвет_фона+цвет_текста), с использованием которых
+                обработчик диалога хочет отрисовать элемент.
+       Return = Атрибуты (цвет_фона+цвет_текста), с использованием которых
+                будет отрисован элемент.
+    */
+    case DMSG_CTLCOLORDLGITEM:
+      return Param2;
+
+    /* Сообщение DMSG_CTLCOLORDLGLIST посылается процедуре обработки диалога
+       перед отрисовкой списка (DI_COMBOBOX, DI_LISTBOX, DIF_HISTORY). В ответ
+       на это сообщение процедура обработки диалога может установить свои
+       атрибуты (цвет текста и фона) для заданного элемента.
+       Param1 = Количество элементов передаваемого массива атрибутов.
+       Param2 = Указатель на массив атрибутов (цвет_фона+цвет_текста), с
+                использованием которых обработчик диалога хочет отрисовать
+                список:
+                ListColorBody=0,      // подложка
+                ListColorBox=1,       // рамка
+                ListColorTitle=2,     // заголовок - верхний и нижний
+                ListColorText=3,      // Текст пункта
+                ListColorHilite=4,    // HotKey
+                ListColorSeparator=5, // separator
+                ListColorSelected=6,  // Выбранный
+                ListColorHSelect=7,   // Выбранный - HotKey
+                ListColorScrollBar=8  // ScrollBar
+       Return = TRUE - если атрибуты изменены
+                FALSE - оставить все как есть.
+    */
+    case DMSG_CTLCOLORDLGLIST:
+      return FALSE;
+
+    /* Сообщение DMSG_ENTERIDLE посылается в процедуру обработки диалога,
+       который входит в холостое состояние. Диалоговое окно входит в
+       состояние ожидания, когда нет никаких сообщений.
+       Param1 = 0
+       Param2 = 0
+       Return = 0
+    */
+    case DMSG_ENTERIDLE:
+      return 0;
   }
-  return FALSE;
+
+  // предварительно проверим...
+  if(Param1 >= Dlg->ItemCount)
+    return 0;
+
+  CurItem=&Dlg->Item[Param1];
+  Type=CurItem->Type;
+
+  Ptr=CurItem->Data;
+
+  switch(Msg)
+  {
+    /* Сообщение DMSG_DRAWITEM посылается обработчику диалога перед отрисовкой
+       элемента диалога.
+       Param1 = ID элемента диалога, который будет отрисован.
+       Param2 = Указатель на структуру FarDialogItem, описывающую элемент для
+                отрисовки.
+       Return = 0
+    */
+    case DMSG_DRAWITEM:
+      return 0;
+
+    /* Сообщение DMSG_HOTKEY посылается в обработчик диалога, когда
+       пользователь нажал Alt-буква.
+       Param1 = ID элемента диалога, на который падет выбор.
+       Param2 = Внутренний код клавиши.
+       Return = TRUE - согласен - продолжаем обработку
+                FALSE - не продолжать процесс далее.
+    */
+    case DMSG_HOTKEY:
+      return TRUE;
+
+    /* Сообщение DMSG_CHANGEITEM оповещает обработчик об изменении состояния
+       элемента диалога - ввели символ в окне редактирования, переключили
+       CheckBox (RadioButton),...
+       Param1 = ID элемента диалога.
+       Param2 = 0
+       Return = 0
+    */
+    case DMSG_CHANGEITEM:
+      return 0;
+  }
+
+  return 0;
 }
 /* SVS $ */
+
+/* $ 28.07.2000 SVS
+   Посылка сообщения диалогу
+   Некоторые сообщения эта функция обрабатывает сама, не передавая управление
+   обработчику диалога.
+*/
+long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  Dialog* Dlg=(Dialog*)hDlg;
+  struct DialogItem *CurItem;
+  char *Ptr, Str[1024];
+  int Len, Type, I;
+  struct FarDialogItem PluginDialogItem;
+
+  if(!Dlg)
+    return 0;
+  // предварительно проверим...
+  if(Param1 >= Dlg->ItemCount)
+    return 0;
+
+  CurItem=&Dlg->Item[Param1];
+  Type=CurItem->Type;
+  Ptr=CurItem->Data;
+
+  switch(Msg)
+  {
+    /* Сообщение DMSG_SETTEXT посылается стандартному обработчику диалога для
+       установки строки ввода или заголовка элементов DI_CHECKBOX, DI_TEXT,...
+       в новое значение.
+       Param1 = ID требуемого элемента диалога.
+       Param2 = Адрес строки, содержащей текст. Значение этого параметра равное
+                NULL игнорируется.
+       Return = Размер установленных данных +1 для символа "конец строки" ('\0')
+    */
+    case DMSG_SETTEXT:
+      if(Param2) // если здесь NULL, то это еще один способ получить размер
+      {
+        switch(Type)
+        {
+          case DI_BUTTON:
+          case DI_TEXT:
+          case DI_VTEXT:
+          case DI_SINGLEBOX:
+          case DI_DOUBLEBOX:
+          case DI_CHECKBOX:
+          case DI_RADIOBUTTON:
+            strcpy(Ptr,(char *)Param2);
+            break;
+
+          case DI_COMBOBOX:
+          case DI_EDIT:
+          case DI_PSWEDIT:
+          case DI_FIXEDIT:
+            ((Edit *)(CurItem->ObjPtr))->SetString((char *)Param2);
+            ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+            break;
+
+          case DI_LISTBOX: // пока не трогаем - не реализован
+            return 0;
+
+          default:  // подразумеваем, что остались
+            return 0;
+        }
+        Dlg->InitDialogObjects(); // переинициализируем элементы диалога
+        return strlen((char *)Param2)+1;
+      }
+      return 0;
+
+    /* Сообщение DMSG_SETTEXTLENGTH посылается стандартному обработчику
+       диалога для установки максимального размера редактируемой строки
+       строки...
+       Param1 = ID элемента диалога (воздействует только на DI_COMBOBOX -
+                без флага DIF_DROPDOWNLIST, DI_EDIT, DI_PSWEDIT, DI_FIXEDIT)
+       Param2 = Требуемый размер
+       Return = Предыдущее значение размера редактируемой строки
+                или 0 в случае ошибки.
+    */
+    case DMSG_SETTEXTLENGTH:
+      if(IsEdit(Type) && !(CurItem->Flags & DIF_DROPDOWNLIST))
+      {
+        Param1=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
+        ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
+        Dlg->InitDialogObjects(); // переинициализируем элементы диалога
+        return Param1;
+      }
+      return 0;
+
+    /* Сообщение DMSG_CHANGEITEM оповещает обработчик об изменении состояния
+       элемента диалога - ввели символ в окне редактирования, переключили
+       CheckBox (RadioButton),...
+       Param1 = ID элемента диалога.
+       Param2 = 0
+       Return = 0
+       Здесь это сообшение формирует запрос к функции диалога!
+    */
+    case DMSG_CHANGEITEM:
+    /* Сообщение DMSG_DRAWITEM посылается обработчику диалога перед отрисовкой
+       элемента диалога.
+       Param1 = ID элемента диалога, который будет отрисован.
+       Param2 = Указатель на структуру FarDialogItem, описывающую элемент для
+                отрисовки.
+       Return = 0
+       Здесь это сообшение формирует запрос к функции диалога!
+    */
+    case DMSG_DRAWITEM:
+      // преобразуем данные для!
+      Dialog::ConvertItem(0,&PluginDialogItem,CurItem,1);
+      Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
+      Dialog::ConvertItem(1,&PluginDialogItem,CurItem,1);
+      return 0;
+
+    /* Плагин посылает сообщение DMSG_SETREDRAW стандартному обработчику
+       диалога для перерисовки все диалогово окна.
+       Param1 = 0
+       Param2 = 0
+       Return = 0
+    */
+    case DMSG_SETREDRAW:
+      if(Dlg->InitObjects)
+        Dlg->Show();
+      return 0;
+
+    /* Сообщение DMSG_SETFOCUS устанавливает клавиатурный фокус на заданный
+       элемент диалога.
+       Param1 = ID элемента, который должен получить фокус ввода.
+       Param2 = 0
+       Return = FALSE - это элемент не может иметь фокус ввода
+                TRUE  - фокус ввода успешно установлен (с оговоркой!)
+    */
+    case DMSG_SETFOCUS:
+      if(!Dialog::IsFocused(Type))
+        return FALSE;
+      Dlg->ChangeFocus(Param1,1,0);
+      return TRUE;
+
+    /* Сообщение DMSG_GETTEXT позволяет получить содержимое строк ввода или
+       заголовков элементов DI_CHECKBOX, DI_TEXT,...
+       Param1 = ID требуемого элемента
+       Param2 = Укзатель на строку приемник.
+                Если Param2 = NULL - это еще один способ получить размер
+                данных (см. DMSG_GETTEXTLENGTH)
+       Return = Размер данных +1 для символа "конец строки" ('\0')
+    */
+    case DMSG_GETTEXT:
+      if(Param2) // если здесь NULL, то это еще один способ получить размер
+      {
+        switch(Type)
+        {
+          case DI_BUTTON:
+            Len=strlen(Ptr);
+            if (!(CurItem->Flags & DIF_NOBRACKETS))
+            {
+              Ptr+=2;
+              Len-=4;
+            }
+            memmove((char *)Param2,Ptr,Len);
+            ((char *)Param2)[Len]=0;
+            break;
+
+          case DI_TEXT:
+          case DI_VTEXT:
+          case DI_SINGLEBOX:
+          case DI_DOUBLEBOX:
+          case DI_CHECKBOX:
+          case DI_RADIOBUTTON:
+            strcpy((char *)Param2,Ptr);
+            break;
+
+          case DI_COMBOBOX:
+          case DI_EDIT:
+          case DI_PSWEDIT:
+          case DI_FIXEDIT:
+            ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
+            strcpy((char *)Param2,Str);
+            break;
+
+          case DI_LISTBOX: // пока не трогаем - не реализован
+            *(char *)Param2='\0';
+            break;
+
+          default:  // подразумеваем, что остались
+            *(char *)Param2='\0';
+            break;
+        }
+        return strlen((char *)Param2)+1;
+      }
+      // здесь умышленно не ставим return, т.к. хотим получить размер
+      // следовательно сразу должен идти "case DMSG_GETTEXTLENGTH"!!!
+
+    /* Сообщение DMSG_GETTEXTLENGTH посылается стандартному обработчику диалога для получения размера строки...
+       Param1 = ID требуемого элемента
+       Param2 = 0
+       Return = Размер данных (с учетом конечного нуля)
+    */
+    case DMSG_GETTEXTLENGTH:
+      Len=strlen(Ptr)+1;
+      switch(Type)
+      {
+        case DI_BUTTON:
+          if (!(CurItem->Flags & DIF_NOBRACKETS))
+            Len-=4;
+          break;
+
+        case DI_TEXT:
+        case DI_VTEXT:
+        case DI_SINGLEBOX:
+        case DI_DOUBLEBOX:
+        case DI_CHECKBOX:
+        case DI_RADIOBUTTON:
+          break;
+
+        case DI_COMBOBOX:
+        case DI_EDIT:
+        case DI_PSWEDIT:
+        case DI_FIXEDIT:
+          Len=((Edit *)(CurItem->ObjPtr))->GetLength();
+
+        case DI_LISTBOX: // пока не трогаем - не реализован
+          Len=0;
+          break;
+
+        default:
+          Len=0;
+          break;
+      }
+      return Len;
+
+    /* Сообщение DMSG_GETDLGITEM посылается стандартному обработчику
+       диалога для получения полной информации о заданном элементе.
+       Param1 = ID элемента диалога
+       Param2 = Указатель на структуру FarDialogItem
+       Return = TRUE - данные скопированы!
+    */
+    case DMSG_GETDLGITEM:
+      if(Param2)
+      {
+        Dialog::ConvertItem(0,(struct FarDialogItem *)Param2,CurItem,1);
+        if(IsEdit(Type))
+        {
+          ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
+          strcpy((char *)Param2,Str);
+        }
+        else
+          strcpy(((struct FarDialogItem *)Param2)->Data,CurItem->Data);
+        return TRUE;
+      }
+      return FALSE;
+  }
+
+  // Все, что сами не отрабатываем - посылаем на обработку обработчику.
+  return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+}
+/* SVS $ */
+

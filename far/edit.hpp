@@ -7,10 +7,17 @@ edit.hpp
 
 */
 
-/* Revision: 1.03 25.07.2000 $ */
+/* Revision: 1.04 28.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 SVS
+    + Получение максимального значения строки для потребностей
+       Dialod API - GetMaxLength()
+    + Функция получения текущих Color,SelColor
+    + Переменная класса ColorUnChanged (для диалога)
+    + Функция GetObjectColorUnChanged получения текущего ColorUnChanged
+    ! SetObjectColor имеет дополнительный параметр для установки ColorUnChanged
   25.07.2000 tran
     + DropDownBox style
   21.07.2000 tran
@@ -37,7 +44,11 @@ class Edit:public ScreenObject
     int    ColorCount;
     int    StrSize;
     int    CurPos;
-    int    Color,SelColor;
+    /* $ 28.07.2000 SVS
+      + ColorUnChanged (для диалога)
+    */
+    int    Color,SelColor,ColorUnChanged;
+    /* SVS $ */
     int    LeftPos;
     int    ConvertTabs;
     int    CursorPos;
@@ -63,7 +74,14 @@ class Edit:public ScreenObject
     void  FastShow();
     int   ProcessKey(int Key);
     int   ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void  SetObjectColor(int Color,int SelColor=0xf);
+    /* $ 28.07.2000 SVS
+       ! Функция установки текущих Color,SelColor и ColorUnChanged!
+    */
+    void  SetObjectColor(int Color,int SelColor=0xf,int ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+    //   + Функция получения текущих Color,SelColor
+    long  GetObjectColor() {return MAKELONG(Color,SelColor);}
+    int   GetObjectColorUnChanged() {return ColorUnChanged;}
+    /* SVS $*/
     void  GetString(char *Str,int MaxSize);
     char* GetStringAddr();
     void  SetString(char *Str);
@@ -84,6 +102,11 @@ class Edit:public ScreenObject
     void  SetTabCurPos(int NewPos);
     void  SetPasswordMode(int Mode) {PasswordMode=Mode;};
     void  SetMaxLength(int Length) {MaxLength=Length;};
+    /* $ 28.07.2000 SVS
+       Получение максимального значения строки для потребностей Dialod API
+    */
+    int   GetMaxLength() {return MaxLength;};
+    /* SVS $ */
     void  SetOvertypeMode(int Mode) {Overtype=Mode;};
     int   GetOvertypeMode() {return(Overtype);};
     void  SetConvertTabs(int Mode) {ConvertTabs=Mode;};

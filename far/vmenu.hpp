@@ -4,13 +4,19 @@
 vmenu.hpp
 
 Обычное вертикальное меню
+  а так же:
+    * список в DI_COMBOBOX
+    * ...
 
 */
 
-/* Revision: 1.02 22.07.2000 $ */
+/* Revision: 1.03 28.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 SVS
+   + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
+     атрибутами:
   22.07.2000 SVS
    !  AlwaysScrollBar изменен на ListBoxControl
   18.07.2000 SVS
@@ -23,14 +29,26 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+/* $ 28.07.2000 SVS
+   Цветовые атрибуты - индексы в массиве цветов
+*/
+enum{
+  VMenuColorBody=0,      // подложка
+  VMenuColorBox=1,       // рамка
+  VMenuColorTitle=2,     // заголовок - верхний и нижний
+  VMenuColorText=3,      // Текст пункта
+  VMenuColorHilite=4,    // HotKey
+  VMenuColorSeparator=5, // separator
+  VMenuColorSelected=6,  // Выбранный
+  VMenuColorHSelect=7,   // Выбранный - HotKey
+  VMenuColorScrollBar=8  // ScrollBar
+};
+/* SVS */
+
 class VMenu:public Modal
 {
   private:
-    void DisplayObject();
-    void ShowMenu();
     SaveScreen *SaveScr;
-    struct MenuItem *Item;
-    int ItemCount;
     char Title[100];
     char BottomTitle[100];
     int SelectPos,TopPos;
@@ -48,6 +66,20 @@ class VMenu:public Modal
     */
     int ListBoxControl;
     /* SVS $ */
+
+  protected:
+    struct MenuItem *Item;
+    int ItemCount;
+    /* $ 28.07.2000 SVS
+       Цветовые атрибуты
+    */
+    short Colors[9];
+    /* SVS */
+
+  private:
+    void DisplayObject();
+    void ShowMenu();
+
   public:
     /* $ 18.07.2000 SVS
        ! изменен вызов конструктора с учетом необходимости scrollbar в
@@ -59,24 +91,30 @@ class VMenu:public Modal
     VMenu(char *Title,struct MenuData *Data,int ItemCount,int MaxHeight=0,int isListBoxControl=FALSE);
     /* SVS $ */
     ~VMenu();
-    void DeleteItems();
     void FastShow() {ShowMenu();}
     void Show();
     void Hide();
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    int AddItem(struct MenuItem *NewItem);
+
     void SetBottomTitle(char *BottomTitle);
-    void SetDialogStyle(int Style) {DialogStyle=Style;};
+    void SetDialogStyle(int Style) {DialogStyle=Style;SetColors(NULL);};
     void SetUpdateRequired(int SetUpdate) {UpdateRequired=SetUpdate;};
     void SetBoxType(int BoxType);
     void SetFlags(unsigned int Flags);
-    int GetUserData(void *Data,int Size,int Position=-1);
-    int GetSelection(int Position=-1);
-    void SetSelection(int Selection,int Position=-1);
-    int GetSelectPos();
-    int GetItemCount() {return(ItemCount);};
+
     void AssignHighlights(int Reverse);
+    void SetColors(short *Colors=NULL);
+    void GetColors(short *Colors);
+
+    int  ProcessKey(int Key);
+    int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+
+    void DeleteItems();
+    int  AddItem(struct MenuItem *NewItem);
+    int  GetItemCount() {return(ItemCount);};
+    int  GetUserData(void *Data,int Size,int Position=-1);
+    int  GetSelectPos();
+    int  GetSelection(int Position=-1);
+    void SetSelection(int Selection,int Position=-1);
 };
 
 #endif	// __VMENU_HPP__

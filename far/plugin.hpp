@@ -6,10 +6,19 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.10 25.07.2000 $ */
+/* Revision: 1.11 28.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 SVS
+    + Введен новый элемент DI_LISTBOX (зарезервировано место)
+    + Сообщения для обработки диалога, имееющий место быть :-)
+        DMSG_INITDIALOG, DMSG_ENTERIDLE, DMSG_HELP, DMSG_PAINT,
+        DMSG_SETREDRAW, DMSG_DRAWITEM, DMSG_GETDLGITEM, DMSG_KILLFOCUS,
+        DMSG_GOTFOCUS, DMSG_SETFOCUS, DMSG_GETTEXTLENGTH, DMSG_GETTEXT,
+        DMSG_CTLCOLORDIALOG, DMSG_CTLCOLORDLGITEM, DMSG_CTLCOLORDLGLIST,
+        DMSG_SETTEXTLENGTH, DMSG_SETTEXT, DMSG_CHANGEITEM, DMSG_HOTKEY,
+        DMSG_CLOSE,
   25.07.2000 SVS
     ! Некоторое упорядочение в FarStandardFunctions
     + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
@@ -193,7 +202,10 @@ typedef char* (WINAPI *FARAPIGETMSG)(
 
 /* $ 18.07.2000 SVS
   + Введены новые элементы (зарезервированы!)
-    DI_LISTBOX, DI_COMBOBOX и флаг DIF_DROPDOWNLIST
+    DI_COMBOBOX и флаг DIF_DROPDOWNLIST
+*/
+/* $ 28.07.2000 SVS
+  + Введен новый элемент DI_LISTBOX (пока зарезервирован!!!)
 */
 enum DialogItemTypes {
   DI_TEXT,
@@ -207,7 +219,9 @@ enum DialogItemTypes {
   DI_CHECKBOX,
   DI_RADIOBUTTON,
   DI_COMBOBOX,
+  DI_LISTBOX,
 };
+/* 28.07.2000 SVS $*/
 
 enum FarDialogItemFlags {
   DIF_COLORMASK       =    0xff,
@@ -226,6 +240,34 @@ enum FarDialogItemFlags {
   DIF_DROPDOWNLIST    =0x100000,
 };
 /* SVS $ */
+
+
+/* $ 28.07.2000 SVS
+   Сообщения для обработки диалога, имееющий место быть :-)
+*/
+enum DialogMessages{
+  DMSG_INITDIALOG=0,
+  DMSG_CLOSE,
+  DMSG_ENTERIDLE,
+  DMSG_HELP,
+  DMSG_PAINT,
+  DMSG_SETREDRAW,
+  DMSG_DRAWITEM,
+  DMSG_GETDLGITEM,
+  DMSG_KILLFOCUS,
+  DMSG_GOTFOCUS,
+  DMSG_SETFOCUS,
+  DMSG_CHANGEITEM,
+  DMSG_GETTEXTLENGTH,
+  DMSG_SETTEXTLENGTH,
+  DMSG_GETTEXT,
+  DMSG_SETTEXT,
+  DMSG_CTLCOLORDIALOG,
+  DMSG_CTLCOLORDLGITEM,
+  DMSG_CTLCOLORDLGLIST,
+  DMSG_HOTKEY,
+};
+/* SVS $*/
 
 /* $ 18.07.2000 SVS
    Список Items для DI_COMBOBOX & DI_LISTBOX
