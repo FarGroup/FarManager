@@ -1508,6 +1508,8 @@ $ #Internal editor#
    #RightCtrl-<N>#           Set a bookmark at the current position
                            (N must be '0'..'9')
    #LeftCtrl-<N>#            Go to bookmark <N>
+   #Shift-Enter#             Insert the name of the file being edited
+                           at the current cursor position.
 
     Notes:
 
