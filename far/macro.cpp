@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.51 25.07.2001 $ */
+/* Revision: 1.52 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 SVS
+    ! Убираем костыль про коммит(), ибо он себя изжил...
   25.07.2001 SVS
     ! Во время назначения макроса выставлям флаг IsProcessAssignMacroKey
   25.07.2001 SVS
@@ -584,8 +586,8 @@ done:
     LockScr=NULL;
     Executing=FALSE;
     ReleaseTempBuffer();
-    FrameManager->RefreshFrame();
-    FrameManager->PluginCommit();
+    //FrameManager->RefreshFrame();
+    //FrameManager->PluginCommit();
     return(FALSE);
   }
 
