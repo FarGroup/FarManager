@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.08 23.01.2001 $ */
+/* Revision: 1.09 28.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001 SVS
+    ! Снова про... WriteInput (с учетом данных на VK_F16)
   24.01.2001 SVS
     ! Вернем взад содержимое WriteInput
   23.01.2001 SVS
@@ -194,8 +196,8 @@ int GetInputRecord(INPUT_RECORD *rec)
 {
   static int LastEventIdle=FALSE;
   DWORD ReadCount;
-  unsigned int LoopCount=0,CalcKey;
-  unsigned int ReadKey=0;
+  DWORD LoopCount=0,CalcKey;
+  DWORD ReadKey=0;
   int NotMacros=FALSE;
 
   if (CtrlObject!=NULL)
@@ -582,16 +584,22 @@ int WriteInput(int Key,DWORD Flags)
 {
   if(Flags&SKEY_VK_KEYS)
   {
-    INPUT_RECORD rec;
+    INPUT_RECORD Rec;
     DWORD WriteCount;
-    int VirtKey,ControlState;
-    if(TranslateKeyToVK(Key,VirtKey,ControlState,&rec))
-      return WriteConsoleInput(hConInp,&rec,1,&WriteCount);
-    return 0;
+
+    Rec.EventType=KEY_EVENT;
+    Rec.Event.KeyEvent.bKeyDown=1;
+    Rec.Event.KeyEvent.wRepeatCount=1;
+    Rec.Event.KeyEvent.wVirtualKeyCode=Rec.Event.KeyEvent.wVirtualScanCode=Key;
+    if (Key>255)
+      Key=0;
+    Rec.Event.KeyEvent.uChar.UnicodeChar=Rec.Event.KeyEvent.uChar.AsciiChar=Key;
+    Rec.Event.KeyEvent.dwControlKeyState=0;
+    return WriteConsoleInput(hConInp,&Rec,1,&WriteCount);
   }
   else if(KeyQueue)
   {
-    return KeyQueue->Put(Key|(Flags&SKEY_NOTMACROS?0x80000000:0));
+    return KeyQueue->Put(((DWORD)Key)|(Flags&SKEY_NOTMACROS?0x80000000:0));
   }
   else
     return 0;
