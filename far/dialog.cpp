@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.102 21.05.2001 $ */
+/* Revision: 1.103 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+   - Проблемы с горячими клавишами в меню.
   21.05.2001 DJ
    + обработка смены фокуса
   21.05.2001 SVS
@@ -3670,11 +3672,22 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
 /* $ 20.02.2001 SVS
    Пересмотр алгоритма IsKeyHighlighted с добавками Alt- на
    сколько это возможно*/
-int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
+int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos)
 {
-  if ((Str=strchr(Str,'&'))==NULL)
-    return(FALSE);
-  int UpperStrKey=LocalUpper(Str[1]);
+  if(AmpPos == -1)
+  {
+    if ((Str=strchr(Str,'&'))==NULL)
+      return(FALSE);
+    AmpPos=1;
+  }
+  else
+  {
+    if(AmpPos >= strlen(Str))
+      return FALSE;
+    Str=Str+AmpPos;
+    AmpPos=0;
+  }
+  int UpperStrKey=LocalUpper(Str[AmpPos]);
   /* $ 08.11.2000 SVS
      Изменен пересчет кодов клавиш для hotkey (используются сканкоды)
   */

@@ -14,6 +14,9 @@ dialog.hpp
 
 /*
 Modify:
+  23.05.2001 SVS
+   - Проблемы с горячими клавишами в меню. Добавлен 4-й параметр в
+     IsKeyHighlighted - позиция амперсанта (по умолчанию = -1)
   19.05.2001 DJ
    + OwnsItems
   17.05.2001 DJ
@@ -386,7 +389,7 @@ class Dialog: public Frame
     /* SVS $ */
     static void DataToItem(struct DialogData *Data,struct DialogItem *Item,
                            int Count);
-    static int IsKeyHighlighted(char *Str,int Key,int Translate);
+    static int IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos=-1);
     /* $ 23.07.2000 SVS
        функция обработки диалога (по умолчанию)
     */

@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.24 22.05.2001 $ */
+/* Revision: 1.25 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    - ѕроблемы с гор€чими клавишами в меню.
   22.05.2001 SVS
     ! Ќе трогаем оригинал на предмет вставки '&', все делаем только при
       прорисовке.
@@ -845,7 +847,7 @@ int VMenu::ProcessKey(int Key)
       }
     default:
       for (I=0;I<ItemCount;I++)
-        if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE))
+        if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE,Item[I].AmpPos))
         {
           Item[SelectPos].Flags&=~LIF_SELECTED;
           Item[I].Flags|=LIF_SELECTED;
@@ -860,7 +862,7 @@ int VMenu::ProcessKey(int Key)
         }
       if (!EndLoop)
         for (I=0;I<ItemCount;I++)
-          if (Dialog::IsKeyHighlighted(Item[I].Name,Key,TRUE))
+          if (Dialog::IsKeyHighlighted(Item[I].Name,Key,TRUE,Item[I].AmpPos))
             {
               Item[SelectPos].Flags&=~LIF_SELECTED;
               Item[I].Flags|=LIF_SELECTED;
