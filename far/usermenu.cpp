@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.39 20.08.2001 $ */
+/* Revision: 1.40 20.08.2001 $ */
 
 /*
 Modify:
+  20.08.2001 VVM
+    ! Хоткей в метке работает при Fx (возвращаем, как було)
+    ! Ошибка при выравнивании указателя подменю.
+    + При вложенных меню показывает заголовки предыдущих
   20.08.2001 VVM
     ! Локальное меню не сохранялось при создании.
     + Введена доп.переменная - MenuNeedRefresh
@@ -481,10 +485,15 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
     }
     else
     {
-      if(FuncNum>0) // Для Fx ограничим хоткеи
-        sprintf(MenuText,"%-3.3s& %-20.*s",HotKey,ScrX-12,Label);
-      else
-        sprintf(MenuText,"%s%-3.3s %-20.*s",(*HotKey?"&":""),HotKey,ScrX-12,Label);
+      /* $ 20.08.2001 VVM
+        ! Хоткей в метке работает при Fx (возвращаем, как було)
+        ! Ошибка при выравнивании указателя подменю. */
+//      if(FuncNum>0) // Для Fx ограничим хоткеи
+//        sprintf(MenuText,"%-3.3s& %-20.*s",HotKey,ScrX-12,Label);
+//      else
+//        sprintf(MenuText,"%s%-3.3s %-20.*s",(*HotKey?"&":""),HotKey,ScrX-12,Label);
+      sprintf(MenuText,"%-3.3s %-20.*s%s",HotKey,ScrX-12,Label,((strchr(Label, '&')!=NULL)?" ":""));
+      /* VVM $ */
       MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
     } /* else */
@@ -538,10 +547,15 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
     {
     /* $ 20.07.2000 tran
        %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
-      if(FuncNum>0) // Для Fx ограничим хоткеи
-        sprintf(MenuText,"%-3.3s& %-*.*s",HotKey,MaxLen,MaxLen,Label);
-      else
-        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
+      /* $ 20.08.2001 VVM
+        ! Хоткей в метке работает при Fx (возвращаем, как було)
+        ! Ошибка при выравнивании указателя подменю. */
+//      if(FuncNum>0) // Для Fx ограничим хоткеи
+//        sprintf(MenuText,"%-3.3s& %-*.*s",HotKey,MaxLen,MaxLen,Label);
+//      else
+//        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
+      sprintf(MenuText,"%-3.3s %-*.*s%s",HotKey,MaxLen,MaxLen,Label,((strchr(Label, '&')!=NULL)?" ":""));
+      /* VVM $ */
 
     /* tran 20.07.2000 $ */
       if (SubMenu)
@@ -759,14 +773,26 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 
     if (SubMenu)
     {
-      char SubMenuKey[512],SubMenuLabel[128];
+      /* $ 20.08.2001 VVM
+        + При вложенных меню показывает заголовки предыдущих */
+      char SubMenuKey[512],SubMenuLabel[128],SubMenuTitle[512];
       sprintf(SubMenuKey,"%s\\Item%d",MenuKey,ExitCode);
-      if(!GetRegKey(SubMenuKey,"Label",SubMenuLabel,"",sizeof(SubMenuLabel)))
-        SubMenuLabel[0]=0;
+      SubMenuTitle[0]=0;
+      if(GetRegKey(SubMenuKey,"Label",SubMenuLabel,"",sizeof(SubMenuLabel)))
+      {
+        char *HotKeyInLabel = strchr(SubMenuLabel, '&');
+        if (HotKeyInLabel)
+          strcpy(HotKeyInLabel, HotKeyInLabel+1);
+        if (Title && *Title)
+          sprintf(SubMenuTitle, "%s\\%s", Title, SubMenuLabel);
+        else
+          strcpy(SubMenuTitle, SubMenuLabel);
+      } /* if */
+      /* VVM $ */
 /* $ 14.07.2000 VVM
    ! Если закрыли подменю, то остаться. Инече передать управление выше
 */
-      MenuPos=ProcessSingleMenu(SubMenuKey,0,SubMenuLabel);
+      MenuPos=ProcessSingleMenu(SubMenuKey,0,SubMenuTitle);
       if (MenuPos!=EC_CLOSE_LEVEL)
         return(MenuPos);
 /* VVM $ */
