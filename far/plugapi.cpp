@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.164 11.11.2003 $ */
+/* Revision: 1.165 25.11.2003 $ */
 
 /*
 Modify:
+  25.11.2003 SVS
+    ! принудительно выставим заголовок для меню.
   11.11.2003 SVS
     + FMENU_CHANGECONSOLETITLE - изменять заголовок консоли для менюх
     + Доп проверки на вшивость в FarControl()
@@ -1141,6 +1143,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       FarMenu.AssignHighlights(FALSE);
     if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
       FarMenu.AssignHighlights(TRUE);
+    FarMenu.SetTitle(Title);
     FarMenu.Show();
     while (!FarMenu.Done() && !CloseFARMenu)
     {

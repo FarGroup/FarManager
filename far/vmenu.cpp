@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.123 05.11.2003 $ */
+/* Revision: 1.124 25.11.2003 $ */
 
 /*
 Modify:
+  25.11.2003 SVS
+    ! ConsoleTitle должен создаваться по мере надобности, а не в конструкторе
   05.11.2003 SVS
     + VMENU_CHANGECONSOLETITLE, OldTitle
   27.10.2003 SVS
@@ -486,6 +488,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   CallCount=0;
   TopPos=0;
   SaveScr=NULL;
+  OldTitle=NULL;
 
   GetCursorType(PrevCursorVisible,PrevCursorSize);
 
@@ -553,13 +556,6 @@ VMenu::VMenu(const char *Title,       // заголовок меню
         PrevMacroMode!=MACRO_DIALOG)
       CtrlObject->Macro.SetMode(MACRO_MENU);
   }
-  if(VMFlags.Check(VMENU_CHANGECONSOLETITLE) && *VMenu::Title)
-  {
-    OldTitle=new ConsoleTitle;
-    SetFarTitle(VMenu::Title);
-  }
-  else
-    OldTitle=NULL;
 
   if (!VMFlags.Check(VMENU_LISTBOX))
     FrameManager->ModalizeFrame(this);

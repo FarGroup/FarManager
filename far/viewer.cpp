@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.155 19.11.2003 $ */
+/* Revision: 1.156 25.11.2003 $ */
 
 /*
 Modify:
+  25.11.2003 SVS
+    ! По IS: перерисуем экран перед выдачей сообщения о ненайденном.
+      Это уберет лишний месагбокс
   19.11.2003 IS
     ! Использование параметра размера буфера у GetNextName/GetPrevName
     ! MoveData работает со ссылкой, а не указателем
@@ -3165,6 +3168,7 @@ void Viewer::Search(int Next,int FirstChar)
   }
   else
   {
+    Show();
     /* $ 27.01.2003 VVM
        + После окончания поиска спросим о переходе поиска в начало/конец */
     if (SearchFlags.Check(SEARCH_MODE2))
