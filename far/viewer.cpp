@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.44 28.01.2001 $ */
+/* Revision: 1.45 29.01.2001 $ */
 
 /*
 Modify:
+  29.01.2001 IS
+   - баг - затирался StructSize в ViewerInfo
   28.01.2001
    - Путем проверки ViewFile на NULL в ProcessKey  избавляемся от падения
   23.01.2001 SVS
@@ -2447,7 +2449,11 @@ int Viewer::ViewerControl(int Command,void *Param)
       struct ViewerInfo *Info=(struct ViewerInfo *)Param;
       if(Info)
       {
-        memset(Info,0,Info->StructSize);
+        /* $ 29.01.2001 IS
+          - баг - затирался StructSize
+        */
+        memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
+        /* IS */
         Info->ViewerID=Viewer::ViewerID;
         Info->FileName=FullFileName;
         Info->WindowSizeX=ObjWidth;
