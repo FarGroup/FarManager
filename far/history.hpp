@@ -7,10 +7,14 @@ history.hpp
 
 */
 
-/* Revision: 1.06 15.11.2001 $ */
+/* Revision: 1.07 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 VVM
+    + AddToHistory - новый параметр
+      SaveForbid - принудительно запретить запись добавляемой строки.
+      Используется на панели плагина
   15,11,2001 SVS
     + Тип истории.
   08.11.2001 SVS
@@ -63,7 +67,7 @@ class History
     History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
 
   public:
-    void AddToHistory(char *Str,char *Title=NULL,int Type=0);
+    void AddToHistory(char *Str,char *Title=NULL,int Type=0,int SaveForbid=0);
     void ReadHistory();
     void SaveHistory();
     int  Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle=NULL);

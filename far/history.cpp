@@ -5,10 +5,14 @@ history.cpp
 
 */
 
-/* Revision: 1.16 15.11.2001 $ */
+/* Revision: 1.17 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 VVM
+    + AddToHistory - новый параметр
+      SaveForbid - принудительно запретить запись добавляемой строки.
+      Используется на панели плагина
   15,11,2001 SVS
     + Тип истории.
   08.11.2001 SVS
@@ -76,11 +80,11 @@ History::History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int 
 }
 
 
-void History::AddToHistory(char *Str,char *Title,int Type)
+void History::AddToHistory(char *Str,char *Title,int Type,int SaveForbid)
 {
   if (!EnableAdd)
     return;
-  if (*EnableSave)
+  if (*EnableSave && !SaveForbid)
   {
     struct HistoryRecord SaveLastStr[HISTORY_COUNT];
     unsigned int SaveLastPtr=LastPtr,SaveCurLastPtr=CurLastPtr;

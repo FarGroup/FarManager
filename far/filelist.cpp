@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.124 15.01.2002 $ */
+/* Revision: 1.125 16.02.2002 $ */
 
 /*
 Modify:
+  16.02.2002 VVM
+    + На панели плагина историю папок не сохраняем в реестре. Один хрен потом перейти не можем.
   15.01.2002 SVS
     - BugZ#235 - F4 F6 Gray+ - не создавался NameList при вызове редактора
   14.01.2002 IS
@@ -2005,7 +2007,11 @@ BOOL FileList::ChangeDir(char *NewDir)
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-    CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),Info.Format,1);
+    /* $ 16.01.2002 VVM
+      + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
+    CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),Info.Format,1,
+                               (Info.Flags & OPIF_REALNAMES)?0:1);
+    /* VVM $ */
 
     /* $ 25.04.01 DJ
        при неудаче SetDirectory не сбрасываем выделение
