@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.20 13.02.2001 $ */
+/* Revision: 1.21 23.03.2001 $ */
 
 /*
 Modify:
+  23.03.2001 SVS
+   ! У функции ConvertItem() новый параметр InternalCall - сейчас
+     используется только для DN_EDITCHANGE
   13.02.2001 SVS
    + Дополнительный параметр у FindInEditForAC, SelectFromEditHistory,
      AddToEditHistory и SelectFromComboBox - MaxLen - максимальный размер
@@ -258,7 +261,7 @@ class Dialog:public Modal
         в FarDialogItem и обратно
     */
     static void ConvertItem(int FromPlugin,struct FarDialogItem *Item,struct DialogItem *Data,
-                           int Count);
+                           int Count,BOOL InternalCall=FALSE);
     /* SVS $ */
     static void DataToItem(struct DialogData *Data,struct DialogItem *Item,
                            int Count);

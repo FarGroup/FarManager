@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.78 22.03.2001 $ */
+/* Revision: 1.79 23.03.2001 $ */
 
 /*
 Modify:
+  23.03.2001 SVS
+   ! У функции ConvertItem() новый параметр InternalCall - сейчас
+     используется только для DN_EDITCHANGE
   22.03.2001 SVS
    - немного подправлен механизЪм DN_EDITCHANGE
   05.03.2001 SVS
@@ -2792,7 +2795,7 @@ void Dialog::SelectOnEntry(int Pos)
 */
 void Dialog::ConvertItem(int FromPlugin,
                          struct FarDialogItem *Item,struct DialogItem *Data,
-                         int Count)
+                         int Count,BOOL InternalCall)
 {
   int I;
   if(!Item || !Data)
@@ -2814,22 +2817,24 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->Selected=Data->Selected;
       Item->Flags=Data->Flags;
       Item->DefaultButton=Data->DefaultButton;
-      if(Dialog::IsEdit(Data->Type))
+      if(InternalCall)
       {
-        // Заполним значения
-        if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
-           (Data->Flags&DIF_VAREDIT))
+        if(Dialog::IsEdit(Data->Type) && (EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
         {
-          PtrData  =(char *)Data->Ptr.PtrData;
-          PtrLength=Data->Ptr.PtrLength;
-        }
-        else
-        {
-          PtrData  =Data->Data;
-          PtrLength=sizeof(Data->Data);
-        }
-        if((EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
+          // Заполним значения
+          if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
+             (Data->Flags&DIF_VAREDIT))
+          {
+            PtrData  =(char *)Data->Ptr.PtrData;
+            PtrLength=Data->Ptr.PtrLength;
+          }
+          else
+          {
+            PtrData  =Data->Data;
+            PtrLength=sizeof(Data->Data);
+          }
           EditPtr->GetString(PtrData,PtrLength);
+        }
       }
       {
           TRY{
@@ -2862,23 +2867,26 @@ void Dialog::ConvertItem(int FromPlugin,
            ;
          }
       }
-      /*
-      if(Dialog::IsEdit(Data->Type))
+      /* Этот кусок будет работать после тчательной проверки.
+      Он позволит менять данные в ответ на DN_EDITCHANGE
+      if(InternalCall)
       {
-        // обновим
-        if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
-           (Data->Flags&DIF_VAREDIT))
+        if(Dialog::IsEdit(Data->Type) && (EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
         {
-          PtrData  =(char *)Data->Ptr.PtrData;
-          PtrLength=Data->Ptr.PtrLength;
-        }
-        else
-        {
-          PtrData  =Data->Data;
-          PtrLength=sizeof(Data->Data);
-        }
-        if((EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
+          // обновим
+          if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
+             (Data->Flags&DIF_VAREDIT))
+          {
+            PtrData  =(char *)Data->Ptr.PtrData;
+            PtrLength=Data->Ptr.PtrLength;
+          }
+          else
+          {
+            PtrData  =Data->Data;
+            PtrLength=sizeof(Data->Data);
+          }
           EditPtr->SetString(PtrData);
+        }
       }
       */
     }
@@ -3849,9 +3857,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_EDITCHANGE:
     {
-      Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
+      Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
       if((I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem)) == TRUE)
-        Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
+        Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
       return I;
     }
 
