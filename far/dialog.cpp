@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.71 13.02.2001 $ */
+/* Revision: 1.72 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+   - Бага в SelectFromComboBox
   13.02.2001 SVS
    ! HISTORY_COUNT - константа для размера истории.
    + Дополнительный параметр у FindInEditForAC, SelectFromEditHistory,
@@ -3063,7 +3065,6 @@ void Dialog::SelectFromComboBox(
         {
           strncpy(ComboBoxItem.Name,ListItems[I].Ptr.PtrData,sizeof(ComboBoxItem.Name)-1);
           strcpy(ComboBoxItem.UserData,ListItems[I].Ptr.PtrData);
-          ComboBoxItem.UserDataSize=strlen(ListItems[I].Ptr.PtrData);
         }
         else
         {
@@ -3092,18 +3093,24 @@ void Dialog::SelectFromComboBox(
     /* SVS $ */
 
     ComboBoxMenu.Show();
-  //  Dest=ComboBoxMenu.GetSelectPos();
+
+    Dest=ComboBoxMenu.GetSelectPos();
     while (!ComboBoxMenu.Done())
     {
       int Key=ComboBoxMenu.ReadInput();
+/*
       // здесь можно добавить что-то свое, например,
-  //    I=ComboBoxMenu.GetSelectPos();
-  //    if(I != Dest)
-  //    {
-  //      Dest=I;
-  //      DlgProc((HANDLE)this,DN_LISTCHANGE,,(long)List);
-  //    }
+      I=ComboBoxMenu.GetSelectPos();
+      if(I != Dest)
+      {
+        if(!DlgProc((HANDLE)this,DN_LISTCHANGE,((FocusPos<<16)|I),(long)List))
+          ComboBoxMenu.SetSelectPos(Dest,Dest<I?-1:1);
+        else
+          Dest=I;
+      }
+*/
       //  обработку multiselect ComboBox
+
       ComboBoxMenu.ProcessInput();
     }
 
@@ -3114,7 +3121,7 @@ void Dialog::SelectFromComboBox(
     for (I=0; I < List->ItemsNumber; I++)
       ListItems[I].Flags&=~LIF_SELECTED;
     ListItems[ExitCode].Flags|=LIF_SELECTED;
-    ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
+    ComboBoxMenu.GetUserData(Str,MaxLen,ExitCode);
 
     EditLine->SetString(Str);
     EditLine->SetLeftPos(0);

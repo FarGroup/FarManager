@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.57 14.02.2001 $ */
+/* Revision: 1.58 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+   ! ShowSeparator - дополнительный параметр - тип сепаратора
+   + MakeSeparator - создание разделителя в памяти
   14.02.2001 SKV
    ! Параметр setpal для InitConsole, с default значением 1.
      Переинитить ли палитру.
@@ -191,6 +194,8 @@ void Text(int X, int Y, int Color, int MsgId);
 void Text(int MsgId);
 void VText(char *Str);
 void HiText(char *Str,int HiColor);
+void ShowSeparator(int Length,int Type=1);
+char* MakeSeparator(int Length,char *DestStr,int Type=1);
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
 void SetColor(int Color);
@@ -360,7 +365,6 @@ void CenterStr(char *Src,char *Dest,int Length);
 char *GetCommaWord(char *Src,char *Word);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner);
-void ShowSeparator(int Length);
 void UseSameRegKey();
 void CloseSameRegKey();
 

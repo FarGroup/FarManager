@@ -5,10 +5,16 @@ interf.cpp
 
 */
 
-/* Revision: 1.16 14.02.2001 $ */
+/* Revision: 1.17 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+   ! ShowSeparator - дополнительный параметр - тип сепаратора
+   + MakeSeparator - создание разделителя в памяти
+   ! Символы, зависимые от кодовой страницы
+     /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+     переведены в коды.
   14.02.2001 SKV
     ! параметр setpal в InitConsole.
   02.02.2001 VVM
@@ -631,8 +637,8 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
   char OutStr[512];
   static char ChrBox[2][6]={
-    {'─','│','┌','└','┘','┐'},
-    {'═','║','╔','╚','╝','╗'},
+    {0xC4,0xB3,0xDA,0xC0,0xD9,0xBF},
+    {0xCD,0xBA,0xC9,0xC8,0xBC,0xBB},
   };
 
   if (x1>=x2 || y1>=y2)
@@ -729,22 +735,38 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
   if (ThumbPos>=Length)
     ThumbPos=Length-1;
   GotoXY(X1,Y1);
-  memset(OutStr,'░',Length);
-  OutStr[ThumbPos]='▓';
+  memset(OutStr,0xB0,Length);
+  OutStr[ThumbPos]=0xB2;
   OutStr[Length]=0;
-  vmprintf("%s",OutStr);
+  vmprintf("%c%s%c",0x1E,OutStr,0x1F);
 }
 
-void ShowSeparator(int Length)
+void ShowSeparator(int Length,int Type)
 {
   if (Length>1)
   {
     char Separator[1024];
-    memset(Separator,'─',Length);
-    Separator[0]='╟';
-    Separator[Length-1]='╢';
-    Separator[Length]=0;
+    MakeSeparator(Length,Separator,Type);
     BoxText(Separator);
   }
+}
+
+// "Нарисовать" сепаратор в памяти.
+char* MakeSeparator(int Length,char *DestStr,int Type)
+{
+  if (Length>1 && DestStr)
+  {
+    static unsigned char BoxType[3][2]={
+      {0x20,0x20},
+      {0xC7,0xB6},
+      {0xC3,0xB4},
+    };
+    Type%=3;
+    memset(DestStr,0xC4,Length);
+    DestStr[0]=BoxType[Type][0];
+    DestStr[Length-1]=BoxType[Type][1];
+    DestStr[Length]=0;
+  }
+  return DestStr;
 }
 

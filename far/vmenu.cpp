@@ -5,42 +5,50 @@ vmenu.cpp
   а так же:
     * список в DI_COMBOBOX
     * ...
-
 */
 
-/* Revision: 1.12 11.02.2001 $ */
+/* Revision: 1.13 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+    + Добавлена функция SetSelectPos() - переместить курсор с учетом
+      Disabled & Separator
+    ! Изменения в клавишнике и "мышнике" :-) с учетом введения SetSelectPos()
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
+    ! Оптимизирован механизм отображения сепаратора - сначала формируем в
+      памяти, потом выводим в виртуальный буфер
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   11.12.2000 tran
-   + прокрутка мышью не должна врапить меню
+    + прокрутка мышью не должна врапить меню
   20.09.2000 SVS
-   + Функция GetItemPtr - получить указатель на нужный Item.
+    + Функция GetItemPtr - получить указатель на нужный Item.
   29.08.2000 tran 1.09
-   - BUG с не записью \0 в конец строки в GetUserData
+    - BUG с не записью \0 в конец строки в GetUserData
   01.08.2000 SVS
-   + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
-     самостоятельно или из другой функции ;-)
-   - Bug в конструкторе, если передали NULL для Title
-   ! ListBoxControl -> VMFlags
-   + функция удаления N пунктов меню
-   + функция обработки меню (по умолчанию)
-   + функция посылки сообщений меню
-   ! Изменен вызов конструктора для указания функции-обработчика и родителя!
+    + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
+      самостоятельно или из другой функции ;-)
+    - Bug в конструкторе, если передали NULL для Title
+    ! ListBoxControl -> VMFlags
+    + функция удаления N пунктов меню
+    + функция обработки меню (по умолчанию)
+    + функция посылки сообщений меню
+    ! Изменен вызов конструктора для указания функции-обработчика и родителя!
   28.07.2000 SVS
-   + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
-     атрибутами:
-     SetColors();
-     GetColors();
+    + Добавлены цветовые атрибуты (в переменных) и функции, связанные с
+      атрибутами:
+      SetColors();
+      GetColors();
   23.07.2000 SVS
-   + Куча рамарок в исходниках :-)
-   ! AlwaysScrollBar изменен на ListBoxControl
-   ! Тень рисуется только для меню, для ListBoxControl она ненужна
+    + Куча рамарок в исходниках :-)
+    ! AlwaysScrollBar изменен на ListBoxControl
+    ! Тень рисуется только для меню, для ListBoxControl она ненужна
   18.07.2000 SVS
-   ! изменен вызов конструктора (пареметр isAlwaysScrollBar) с учетом
-     необходимости scrollbar в DI_COMBOBOX (и в будущем - DI_LISTBOX)
+    ! изменен вызов конструктора (пареметр isAlwaysScrollBar) с учетом
+      необходимости scrollbar в DI_COMBOBOX (и в будущем - DI_LISTBOX)
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -323,11 +331,13 @@ void VMenu::DisplayObject()
 */
 void VMenu::ShowMenu(int IsParent)
 {
-  char TmpStr[256],*BoxChar;
+  char TmpStr[1024];
+  unsigned char BoxChar[2],BoxChar2[2];
   int Y,I;
   if (ItemCount==0 || X2<=X1 || Y2<=Y1)
     return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+  BoxChar2[1]=BoxChar[1]=0;
 
   if(!IsParent && (VMenu::VMFlags&VMENU_LISTBOX))
   {
@@ -340,15 +350,15 @@ void VMenu::ShowMenu(int IsParent)
   switch(BoxType)
   {
     case NO_BOX:
-      BoxChar=" ";
+      *BoxChar=' ';
       break;
     case SINGLE_BOX:
     case SHORT_SINGLE_BOX:
-      BoxChar="│";
+      *BoxChar=0x0B3;
       break;
     case DOUBLE_BOX:
     case SHORT_DOUBLE_BOX:
-      BoxChar="║";
+      *BoxChar=0x0BA;
       break;
   }
   if (SelectPos<ItemCount)
@@ -363,53 +373,35 @@ void VMenu::ShowMenu(int IsParent)
     if (I<ItemCount)
       if (Item[I].Separator)
       {
-        SetColor(VMenu::Colors[1]);
-        memset(&TmpStr[1],'─',X2-X1-1);
-        switch(BoxType)
-        {
-          case NO_BOX:
-            Text(" ");
-            GotoXY(X2,Y);
-            Text(" ");
-            break;
-          case SINGLE_BOX:
-          case SHORT_SINGLE_BOX:
-            Text("├");
-            GotoXY(X2,Y);
-            Text("┤");
-            break;
-          case DOUBLE_BOX:
-          case SHORT_DOUBLE_BOX:
-            ShowSeparator(X2-X1+1);
-            break;
-        }
-        memset(TmpStr,'─',X2-X1-1);
-        TmpStr[X2-X1-1]=0;
-        if (I>0 && I<ItemCount-1 && X2-X1-1>3)
-          for (int J=0;TmpStr[J+3]!=0;J++)
+        int SepWidth=X2-X1+1;
+        char *Ptr=TmpStr+1;
+        MakeSeparator(SepWidth,TmpStr,
+          BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
+
+        if (I>0 && I<ItemCount-1 && SepWidth>3)
+          for (int J=0;Ptr[J+3]!=0;J++)
           {
             if (Item[I-1].Name[J]==0)
               break;
-            if (Item[I-1].Name[J]=='│')
+            if (Item[I-1].Name[J]==0x0B3)
             {
               int Correction=0;
               if (!ShowAmpersand && memchr(Item[I-1].Name,'&',J)!=NULL)
                 Correction=1;
-              if (strlen(Item[I+1].Name)>=J && Item[I+1].Name[J]=='│')
-                TmpStr[J-Correction+2]='┼';
+              if (strlen(Item[I+1].Name)>=J && Item[I+1].Name[J]==0x0B3)
+                Ptr[J-Correction+2]=0x0C5;
               else
-                TmpStr[J-Correction+2]='┴';
+                Ptr[J-Correction+2]=0x0C1;
             }
           }
-        GotoXY(X1+1,Y);
-        Text(TmpStr);
+        Text(X1,Y,VMenu::Colors[1],TmpStr);
       }
       else
       {
         SetColor(VMenu::Colors[1]);
-        Text(BoxChar);
+        Text((char*)BoxChar);
         GotoXY(X2,Y);
-        Text(BoxChar);
+        Text((char*)BoxChar);
         if (Item[I].Selected)
           SetColor(VMenu::Colors[6]);
         else
@@ -418,7 +410,7 @@ void VMenu::ShowMenu(int IsParent)
         char Check=' ';
         if (Item[I].Checked)
           if (Item[I].Checked==1)
-            Check='√';
+            Check=0x0FB;
           else
             Check=Item[I].Checked;
         sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].Name);
@@ -437,9 +429,9 @@ void VMenu::ShowMenu(int IsParent)
     else
     {
       SetColor(VMenu::Colors[1]);
-      Text(BoxChar);
+      Text((char*)BoxChar);
       GotoXY(X2,Y);
-      Text(BoxChar);
+      Text((char*)BoxChar);
       GotoXY(X1+1,Y);
       SetColor(VMenu::Colors[3]);
       mprintf("%*s",X2-X1-1,"");
@@ -595,69 +587,35 @@ int VMenu::ProcessKey(int Key)
     case KEY_HOME:
     case KEY_CTRLHOME:
     case KEY_CTRLPGUP:
-      Item[SelectPos].Selected=0;
-      Item[0].Selected=1;
-      SelectPos=0;
+      SelectPos=SetSelectPos(0,1);
       ShowMenu(TRUE);
       break;
     case KEY_END:
     case KEY_CTRLEND:
     case KEY_CTRLPGDN:
-      Item[SelectPos].Selected=0;
-      Item[ItemCount-1].Selected=1;
-      SelectPos=ItemCount-1;
+      SelectPos=SetSelectPos(ItemCount-1,-1);
       ShowMenu(TRUE);
       break;
     case KEY_PGUP:
-      Item[SelectPos].Selected=0;
-      SelectPos-=Y2-Y1-1;
-      if (SelectPos<0)
-        SelectPos=0;
-      if (Item[SelectPos].Separator && SelectPos>0)
-        SelectPos--;
-      Item[SelectPos].Selected=1;
+      if((I=SelectPos-(Y2-Y1-1)) < 0)
+        I=0;
+      SelectPos=SetSelectPos(I,1);
       ShowMenu(TRUE);
       break;
     case KEY_PGDN:
-      Item[SelectPos].Selected=0;
-      SelectPos+=Y2-Y1-1;
-      if (SelectPos>=ItemCount)
-        SelectPos=ItemCount-1;
-      if (Item[SelectPos].Separator && SelectPos<ItemCount-1)
-        SelectPos++;
-      Item[SelectPos].Selected=1;
+      if((I=SelectPos+(Y2-Y1-1)) >= ItemCount)
+        I=ItemCount-1;
+      SelectPos=SetSelectPos(I,-1);
       ShowMenu(TRUE);
       break;
     case KEY_LEFT:
     case KEY_UP:
-      Item[SelectPos].Selected=0;
-      do {
-        if (--SelectPos<0)
-          if (WrapMode)
-            SelectPos=ItemCount-1;
-          else
-          {
-            SelectPos=0;
-            break;
-          }
-      } while (Item[SelectPos].Separator);
-      Item[SelectPos].Selected=1;
+      SelectPos=SetSelectPos(SelectPos-1,-1);
       ShowMenu(TRUE);
       break;
     case KEY_RIGHT:
     case KEY_DOWN:
-      Item[SelectPos].Selected=0;
-      do {
-        if (++SelectPos==ItemCount)
-          if (WrapMode)
-            SelectPos=0;
-          else
-          {
-            SelectPos=ItemCount-1;
-            break;
-          }
-      } while (Item[SelectPos].Separator);
-      Item[SelectPos].Selected=1;
+      SelectPos=SetSelectPos(SelectPos+1,1);
       ShowMenu(TRUE);
       break;
     case KEY_TAB:
@@ -702,6 +660,45 @@ int VMenu::ProcessKey(int Key)
   }
   CallCount--;
   return(TRUE);
+}
+
+// переместить курсор с учетом Disabled & Separator
+int VMenu::SetSelectPos(int Pos,int Direct)
+{
+  int OrigPos=Pos, Pass=0;
+
+  do{
+    if (Pos<0)
+    {
+      if (WrapMode)
+        Pos=ItemCount-1;
+      else
+        Pos=0;
+    }
+
+    if (Pos>=ItemCount)
+    {
+      if (WrapMode)
+        Pos=0;
+      else
+        Pos=ItemCount-1;
+    }
+
+    if(!Item[Pos].Separator && !Item[Pos].Disabled)
+      break;
+
+    Pos+=Direct;
+
+    if(Pass)
+      return SelectPos;
+
+    if(OrigPos == Pos) // круг пройден - ничего не найдено :-(
+      Pass++;
+  } while (1);
+
+  Item[SelectPos].Selected=0;
+  Item[Pos].Selected=1;
+  return Pos;
 }
 
 
@@ -763,10 +760,20 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if (MsY>SbY1 && MsY<SbY2)
     {
       int SbHeight=Y2-Y1-2;
-
-      Item[SelectPos].Selected=0;
-      SelectPos=(ItemCount-1)*(MsY-Y1)/(SbHeight);
-      Item[SelectPos].Selected=1;
+      int Delta;
+      MsPos=(ItemCount-1)*(MsY-Y1)/(SbHeight);
+      if(MsPos >= ItemCount)
+      {
+        MsPos=ItemCount-1;
+        Delta=-1;
+      }
+      if(MsPos < 0)
+      {
+        MsPos=0;
+        Delta=1;
+      }
+      if(!Item[MsPos].Separator && !Item[MsPos].Disabled)
+        SelectPos=SetSelectPos(MsPos,Delta); //??
       ShowMenu(TRUE);
       return(TRUE);
     }
@@ -800,7 +807,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* tran 06.07.2000 $ */
   {
     MsPos=TopPos+MsY-Y1-1;
-    if (MsPos<ItemCount && !Item[MsPos].Separator)
+    if (MsPos<ItemCount && !Item[MsPos].Separator && !Item[MsPos].Disabled)
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
       {
@@ -927,7 +934,6 @@ int VMenu::GetSelectPos()
 {
   return(SelectPos);
 }
-
 
 void VMenu::AssignHighlights(int Reverse)
 {

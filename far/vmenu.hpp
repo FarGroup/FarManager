@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.05 20.09.2000 $ */
+/* Revision: 1.06 20.02.2001 $ */
 
 /*
 Modify:
+  20.01.2001 SVS
+   + SetSelectPos() - установить позицию курсора!
   20.09.2000 SVS
    + Функция GetItemPtr - получить указатель на нужный Item.
   01.08.2000 SVS
@@ -156,6 +158,7 @@ class VMenu:public Modal
     int  GetItemCount() {return(ItemCount);};
     int  GetUserData(void *Data,int Size,int Position=-1);
     int  GetSelectPos();
+    int  SetSelectPos(int Pos,int Direct);
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);
 
