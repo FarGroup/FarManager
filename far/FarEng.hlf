@@ -315,13 +315,19 @@ name.
 
   Internal/external viewer                                    #Alt-F3#
 
-  Invokes internal viewer if external viewer is default and external viewer
-if internal is default.
+  Вызывает в зависимости от типа файла
+~ассоциированную программу просмотра~@FileAssoc@ или внешнюю программу
+просмотра, указанную в ~настройках~@ViewerSettings@, если по умолчанию
+используется внутренняя, или внутреннюю, если по умолчанию используется
+внешняя.
 
   Internal/external editor                                    #Alt-F4#
 
-  Invokes internal editor if external editor is default and external
-editor if internal is default.
+  Вызывает в зависимости от типа файла
+~ассоциированную программу просмотра~@FileAssoc@ или внешнюю программу
+просмотра, указанную в ~настройках~@ViewerSettings@, если по умолчанию
+используется внутренняя, или внутреннюю, если по умолчанию используется
+внешняя.
 
   Print files                                                 #Alt-F5#
 
@@ -371,7 +377,14 @@ details.
     ~выбора дисков~@DriveDlg@.
 
   Change to the root folder                                   #Ctrl-\#
+
   Change folder, enter an archive (also a SFX archive)     #Ctrl-PgDn#
+
+  Если курсор указывает на каталог, то производится смена текущего каталога
+на указываемый. Если курсор указывает на файл, то в зависимости от типа файла
+или выполняется ~ассоциированная команда~@FileAssoc@, или происходит вход в
+архив.
+
   Change to the parent folder                              #Ctrl-PgUp#
 
     На Ctrl-PgUp в корневом каталоге влияет опция
@@ -1211,14 +1224,22 @@ it will be used instead of the main menu saved in the registry.
 
 @FileAssoc
 $ #File associations#
-    FAR allows up to three commands to be associated with a particular
+    FAR allows up to six commands to be associated with a particular
 file type, defined by wildcard mask:
 
-   #Execute command#      Performed if Enter is pressed
+   #Execute command#               Performed if Enter is pressed
 
-   #View command#         Performed if F3 is pressed
+   #Команда запуска по Ctrl-PgDn#  Performed if Ctrl-PgDn is pressed
 
-   #Edit command#         Performed if F4 is pressed
+   #View command#                  Performed if F3 is pressed
+
+   #Альтернативная команда#        Performed if Alt-F3 is pressed
+   #просмотра#
+
+   #Edit command#                  Performed if F4 is pressed
+
+   #Альтернативная команда#        Performed if Alt-F4 is pressed
+   #редактирования#
 
     The association can be described in the #Description of the association#
 field.

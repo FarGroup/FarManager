@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.69 01.08.2001 $ */
+/* Revision: 1.70 02.08.2001 $ */
 
 /*
 Modify:
+  02.08.2001 IS
+    + Новые строчки для диалога редактирования ассоциаций файлов:
+      MFileAssocAltExec, MFileAssocAltView, MFileAssocAltEdit
   01.08.2001 SVS
     ! Сообщения, связанные с хелпом перенесены в одно место!
     + MDocumentsHelpTitle
@@ -775,8 +778,11 @@ enum
   MFileAssocMasks,
   MFileAssocDescr,
   MFileAssocExec,
+  MFileAssocAltExec,
   MFileAssocView,
+  MFileAssocAltView,
   MFileAssocEdit,
+  MFileAssocAltEdit,
 
   MViewF1,
   MViewF2,

@@ -5,10 +5,14 @@ filetype.cpp
 
 */
 
-/* Revision: 1.25 26.07.2001 $ */
+/* Revision: 1.26 02.08.2001 $ */
 
 /*
 Modify:
+  02.08.2001 IS
+    ! Все строковые константы, относящиеся к ассоциациям, хранятся в одном
+      месте.
+    + Работа с новыми строчками в ассоциациях: alt-f3, alt-f4, ctrl-pgdn
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -99,6 +103,23 @@ static int GetDescriptionWidth();
 
 static unsigned char VerticalLine=0x0B3;
 
+/* $ 02.08.2001 IS
+     Тут храним строковые константы для ассоциаций
+*/
+struct FileTypeStrings
+{
+  char *Help,
+  *TypeFmt, *Execute, *Desc, *Mask, *View, *Edit,
+  *AltExec, *AltView, *AltEdit;
+};
+const FileTypeStrings FTS=
+{
+  "FileAssoc",
+  "Associations\\Type%d","Execute","Description","Mask","View","Edit",
+  "AltExec","AltView","AltEdit"
+};
+/* IS $ */
+
 /* $ 25.04.2001 DJ
    обработка @ в IF EXIST: функция, которая извлекает команду из строки
    с IF EXIST с учетом @ и возвращает TRUE, если условие IF EXIST
@@ -149,8 +170,8 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   for (int I=0;;I++)
   {
     char RegKey[80],Mask[512];
-    sprintf(RegKey,"Associations\\Type%d",I);
-    if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
+    sprintf(RegKey,FTS.TypeFmt,I);
+    if (!GetRegKey(RegKey,FTS.Mask,Mask,"",sizeof(Mask)))
       break;
     if(FMask.Set(Mask, FMF_SILENT))
     {
@@ -160,14 +181,25 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         switch(Mode)
         {
           case FILETYPE_EXEC:
-            GetRegKey(RegKey,"Execute",NewCommand,"",sizeof(NewCommand));
+            GetRegKey(RegKey,FTS.Execute,NewCommand,"",sizeof(NewCommand));
             break;
           case FILETYPE_VIEW:
-            GetRegKey(RegKey,"View",NewCommand,"",sizeof(NewCommand));
+            GetRegKey(RegKey,FTS.View,NewCommand,"",sizeof(NewCommand));
             break;
           case FILETYPE_EDIT:
-            GetRegKey(RegKey,"Edit",NewCommand,"",sizeof(NewCommand));
+            GetRegKey(RegKey,FTS.Edit,NewCommand,"",sizeof(NewCommand));
             break;
+          /* $ 02.08.2001 IS новые команды: alt-f3, alt-f4, ctrl-pgdn */
+          case FILETYPE_ALTEXEC:
+            GetRegKey(RegKey,FTS.AltExec,NewCommand,"",sizeof(NewCommand));
+            break;
+          case FILETYPE_ALTVIEW:
+            GetRegKey(RegKey,FTS.AltView,NewCommand,"",sizeof(NewCommand));
+            break;
+          case FILETYPE_ALTEDIT:
+            GetRegKey(RegKey,FTS.AltEdit,NewCommand,"",sizeof(NewCommand));
+            break;
+          /* IS $ */
           default:
             *NewCommand=0; // обнулим на всякий пожарный
         }
@@ -176,7 +208,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         {
           strcpy(Command,NewCommand);
           strcpy(Commands[CommandCount],Command);
-          GetRegKey(RegKey,"Description",Descriptions[CommandCount],"",sizeof(Descriptions[0]));
+          GetRegKey(RegKey,FTS.Desc,Descriptions[CommandCount],"",sizeof(Descriptions[0]));
           CommandCount++;
         }
       }
@@ -188,7 +220,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   {
     struct MenuItem TypesMenuItem;
     VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
-    TypesMenu.SetHelp("FileAssoc");
+    TypesMenu.SetHelp(FTS.Help);
     TypesMenu.SetFlags(VMENU_WRAPMODE);
     TypesMenu.SetPosition(-1,-1,0,0);
 
@@ -451,7 +483,7 @@ void EditFileTypes(int MenuPos)
   int NumLine=0;
 
   VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
-  TypesMenu.SetHelp("FileAssoc");
+  TypesMenu.SetHelp(FTS.Help);
   TypesMenu.SetFlags(VMENU_WRAPMODE);
   TypesMenu.SetPosition(-1,-1,0,0);
   TypesMenu.SetBottomTitle(MSG(MAssocBottom));
@@ -461,16 +493,16 @@ void EditFileTypes(int MenuPos)
   while (1)
   {
     char RegKey[80],Mask[512],MenuText[512];
-    sprintf(RegKey,"Associations\\Type%d",NumLine);
+    sprintf(RegKey,FTS.TypeFmt,NumLine);
     memset(&TypesMenuItem,0,sizeof(TypesMenuItem));
-    if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
+    if (!GetRegKey(RegKey,FTS.Mask,Mask,"",sizeof(Mask)))
       break;
     if (DizWidth==0)
       *MenuText=0;
     else
     {
       char Title[256],Description[128];
-      GetRegKey(RegKey,"Description",Description,"",sizeof(Description));
+      GetRegKey(RegKey,FTS.Desc,Description,"",sizeof(Description));
       if (*Description)
         strcpy(Title,Description);
       else
@@ -546,54 +578,67 @@ void EditFileTypes(int MenuPos)
 int DeleteTypeRecord(int DeletePos)
 {
   char RecText[200],ItemName[200],RegKey[80];
-  sprintf(RegKey,"Associations\\Type%d",DeletePos);
-  GetRegKey(RegKey,"Mask",RecText,"",sizeof(RecText));
+  sprintf(RegKey,FTS.TypeFmt,DeletePos);
+  GetRegKey(RegKey,FTS.Mask,RecText,"",sizeof(RecText));
   sprintf(ItemName,"\"%s\"",RecText);
   if (Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),
               ItemName,MSG(MDelete),MSG(MCancel))!=0)
     return(FALSE);
-  DeleteKeyRecord("Associations\\Type%d",DeletePos);
+  DeleteKeyRecord(FTS.TypeFmt,DeletePos);
   return(TRUE);
 }
 
 
+/* $ 02.08.2001 IS
+   Обработаем новые строчки (для alt-f3, alt-f4, ctrl-pgdn)
+*/
 int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 {
   const char *HistoryName="Masks";
+
   static struct DialogData EditDlgData[]={
-    DI_DOUBLEBOX,3,1,72,15,0,0,0,0,(char *)MFileAssocTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFileAssocMasks,
-    DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
-    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MFileAssocDescr,
-    DI_EDIT,5,5,70,3,0,0,0,0,"",
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_TEXT,5,7,0,0,0,0,0,0,(char *)MFileAssocExec,
-    DI_EDIT,5,8,70,3,0,0,0,0,"",
-    DI_TEXT,5,9,0,0,0,0,0,0,(char *)MFileAssocView,
-    DI_EDIT,5,10,70,3,0,0,0,0,"",
-    DI_TEXT,5,11,0,0,0,0,0,0,(char *)MFileAssocEdit,
-    DI_EDIT,5,12,70,3,0,0,0,0,"",
-    DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+/* 00 */ DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(char *)MFileAssocTitle,
+/* 01 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFileAssocMasks,
+/* 02 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
+/* 03 */ DI_TEXT,5,4,0,0,0,0,0,0,(char *)MFileAssocDescr,
+/* 04 */ DI_EDIT,5,5,70,3,0,0,0,0,"",
+/* 05 */ DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+/* 06 */ DI_TEXT,5,7,0,0,0,0,0,0,(char *)MFileAssocExec,
+/* 07 */ DI_EDIT,5,8,70,3,0,0,0,0,"",
+/* 08 */ DI_TEXT,5,9,0,0,0,0,0,0,(char *)MFileAssocAltExec,
+/* 09 */ DI_EDIT,5,10,70,3,0,0,0,0,"",
+/* 10 */ DI_TEXT,5,11,0,0,0,0,0,0,(char *)MFileAssocView,
+/* 11 */ DI_EDIT,5,12,70,3,0,0,0,0,"",
+/* 12 */ DI_TEXT,5,13,0,0,0,0,0,0,(char *)MFileAssocAltView,
+/* 13 */ DI_EDIT,5,14,70,3,0,0,0,0,"",
+/* 14 */ DI_TEXT,5,15,0,0,0,0,0,0,(char *)MFileAssocEdit,
+/* 15 */ DI_EDIT,5,16,70,3,0,0,0,0,"",
+/* 16 */ DI_TEXT,5,17,0,0,0,0,0,0,(char *)MFileAssocAltEdit,
+/* 17 */ DI_EDIT,5,18,70,3,0,0,0,0,"",
+/* 18 */ DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+/* 19 */ DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+/* 20 */ DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(EditDlgData,EditDlg);
 
   char RegKey[80];
-  sprintf(RegKey,"Associations\\Type%d",EditPos);
+  sprintf(RegKey,FTS.TypeFmt,EditPos);
   if (!NewRec)
   {
-    GetRegKey(RegKey,"Mask",EditDlg[2].Data,"",sizeof(EditDlg[2].Data));
-    GetRegKey(RegKey,"Description",EditDlg[4].Data,"",sizeof(EditDlg[4].Data));
-    GetRegKey(RegKey,"Execute",EditDlg[7].Data,"",sizeof(EditDlg[7].Data));
-    GetRegKey(RegKey,"View",EditDlg[9].Data,"",sizeof(EditDlg[9].Data));
-    GetRegKey(RegKey,"Edit",EditDlg[11].Data,"",sizeof(EditDlg[11].Data));
+    GetRegKey(RegKey,FTS.Mask,EditDlg[2].Data,"",sizeof(EditDlg[2].Data));
+    GetRegKey(RegKey,FTS.Desc,EditDlg[4].Data,"",sizeof(EditDlg[4].Data));
+    GetRegKey(RegKey,FTS.Execute,EditDlg[7].Data,"",sizeof(EditDlg[7].Data));
+    GetRegKey(RegKey,FTS.AltExec,EditDlg[9].Data,"",sizeof(EditDlg[9].Data));
+    GetRegKey(RegKey,FTS.View,EditDlg[11].Data,"",sizeof(EditDlg[11].Data));
+    GetRegKey(RegKey,FTS.AltView,EditDlg[13].Data,"",sizeof(EditDlg[13].Data));
+    GetRegKey(RegKey,FTS.Edit,EditDlg[15].Data,"",sizeof(EditDlg[15].Data));
+    GetRegKey(RegKey,FTS.AltEdit,EditDlg[17].Data,"",sizeof(EditDlg[17].Data));
   }
 
   {
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
-    Dlg.SetHelp("FileAssoc");
-    Dlg.SetPosition(-1,-1,76,17);
+    Dlg.SetHelp(FTS.Help);
+    Dlg.SetPosition(-1,-1,76,22);
     /* $ 06.07.2001 IS
        Проверяем вводимую маску файлов на корректность
     */
@@ -602,7 +647,7 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
     {
       Dlg.ClearDone();
       Dlg.Process();
-      if (Dlg.GetExitCode()!=13 || *EditDlg[2].Data==0)
+      if (Dlg.GetExitCode()!=19 || *EditDlg[2].Data==0)
         return(FALSE);
       if(FMask.Set(EditDlg[2].Data, 0))
         break;
@@ -611,16 +656,19 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
   }
 
   if (NewRec)
-    InsertKeyRecord("Associations\\Type%d",EditPos,TotalRecords);
-  SetRegKey(RegKey,"Mask",EditDlg[2].Data);
-  SetRegKey(RegKey,"Description",EditDlg[4].Data);
-  SetRegKey(RegKey,"Execute",EditDlg[7].Data);
-  SetRegKey(RegKey,"View",EditDlg[9].Data);
-  SetRegKey(RegKey,"Edit",EditDlg[11].Data);
+    InsertKeyRecord(FTS.TypeFmt,EditPos,TotalRecords);
+  SetRegKey(RegKey,FTS.Mask,EditDlg[2].Data);
+  SetRegKey(RegKey,FTS.Desc,EditDlg[4].Data);
+  SetRegKey(RegKey,FTS.Execute,EditDlg[7].Data);
+  SetRegKey(RegKey,FTS.AltExec,EditDlg[9].Data);
+  SetRegKey(RegKey,FTS.View,EditDlg[11].Data);
+  SetRegKey(RegKey,FTS.AltView,EditDlg[13].Data);
+  SetRegKey(RegKey,FTS.Edit,EditDlg[15].Data);
+  SetRegKey(RegKey,FTS.AltEdit,EditDlg[17].Data);
 
   return(TRUE);
 }
-
+/* IS $ */
 
 int GetDescriptionWidth()
 {
@@ -628,10 +676,10 @@ int GetDescriptionWidth()
   while (1)
   {
     char RegKey[80],Mask[512],Description[128];
-    sprintf(RegKey,"Associations\\Type%d",NumLine);
-    if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
+    sprintf(RegKey,FTS.TypeFmt,NumLine);
+    if (!GetRegKey(RegKey,FTS.Mask,Mask,"",sizeof(Mask)))
       break;
-    GetRegKey(RegKey,"Description",Description,"",sizeof(Description));
+    GetRegKey(RegKey,FTS.Desc,Description,"",sizeof(Description));
     int CurWidth=HiStrlen(Description);
     if (CurWidth>Width)
       Width=CurWidth;

@@ -557,8 +557,11 @@
 "A file &mask or several file masks:"
 "&Description of the association:"
 "E&xecute command (used for Enter):"
+"Execute command (used for Ctrl-PgDn):"
 "&View command (used for F3):"
+"View command (used for Alt-F3):"
 "&Edit command (used for F4):"
+"Edit command (used for Alt-F4):"
 
 // viewer functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Help"

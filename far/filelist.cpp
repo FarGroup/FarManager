@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.81 01.08.2001 $ */
+/* Revision: 1.82 02.08.2001 $ */
 
 /*
 Modify:
+  02.08.2001 IS
+    + Обработаем ассоциации файлов для alt-f3/f4,  ctrl-pgdn
   01.08.2001 SVS
     + HelpBeginLink, HelpFormatLink - формат для создания линков на темы помощи.
   26.07.2001 VVM
@@ -1234,7 +1236,19 @@ int FileList::ProcessKey(int Key)
           {
             int EnableExternal=((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.UseExternalEditor ||
                 Key==KEY_ALTF4 && !Opt.UseExternalEditor) && *Opt.ExternalEditor;
-            if (Key==KEY_ALTF4 || Key==KEY_CTRLSHIFTF4 || !ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_EDIT,PluginMode))
+            /* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
+            BOOL Processed=FALSE;
+            if(Key==KEY_ALTF4 &&
+               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_ALTEDIT,
+               PluginMode))
+               Processed=TRUE;
+            else if(Key==KEY_F4 &&
+               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_EDIT,
+               PluginMode))
+               Processed=TRUE;
+
+            if (!Processed || Key==KEY_CTRLSHIFTF4)
+            /* IS $ */
               if (EnableExternal)
                 ProcessExternal(Opt.ExternalEditor,FileName,ShortFileName,0);
               else
@@ -1290,7 +1304,19 @@ int FileList::ProcessKey(int Key)
           {
             int EnableExternal=(Key==KEY_F3 && Opt.UseExternalViewer ||
                 Key==KEY_ALTF3 && !Opt.UseExternalViewer) && *Opt.ExternalViewer;
-            if (Key==KEY_ALTF3 || Key==KEY_CTRLSHIFTF3 || !ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_VIEW,PluginMode))
+            /* $ 02.08.2001 IS обработаем ассоциации для alt-f3 */
+            BOOL Processed=FALSE;
+            if(Key==KEY_ALTF3 &&
+               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_ALTVIEW,
+               PluginMode))
+               Processed=TRUE;
+            else if(Key==KEY_F3 &&
+               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_VIEW,
+               PluginMode))
+               Processed=TRUE;
+
+            if (!Processed || Key==KEY_CTRLSHIFTF3)
+            /* IS $ */
               if (EnableExternal)
                 ProcessExternal(Opt.ExternalViewer,FileName,ShortFileName,PluginMode);
               else
@@ -1675,6 +1701,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
   char FileName[NM],ShortFileName[NM],*ExtPtr;
   if (CurFile>=FileCount)
     return;
+
   CurPtr=ListData+CurFile;
   strcpy(FileName,CurPtr->Name);
   strcpy(ShortFileName,*CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
@@ -1758,6 +1785,19 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       if (SetCurPath())
       {
         HANDLE hOpen=NULL;
+        /* $ 02.08.2001 IS обработаем ассоциации для ctrl-pgdn */
+
+        if(!EnableExec &&     // не запускаем и не в отдельном окне,
+           !SeparateWindow && // следовательно это Ctrl-PgDn
+           ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_ALTEXEC,
+           PluginMode)
+          )
+        {
+          if (PluginMode)
+            DeleteFileWithFolder(FileName);
+          return;
+        }
+        /* IS $ */
         if (SeparateWindow || (hOpen=OpenFilePlugin(FileName,TRUE))==INVALID_HANDLE_VALUE ||
             hOpen==(HANDLE)-2)
         {

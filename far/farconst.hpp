@@ -7,10 +7,13 @@ farconst.hpp
 
 */
 
-/* Revision: 1.47 01.08.2001 $ */
+/* Revision: 1.48 02.08.2001 $ */
 
 /*
 Modify:
+  02.08.2001 IS
+    + Для ассоциаций файлов:
+      FILETYPE_ALTEXEC, FILETYPE_ALTVIEW, FILETYPE_ALTEDIT
   01.08.2001 SVS
     + HelpBeginLink, HelpFormatLink - формат для создания линков на темы помощи.
   31.07.2001 SVS
@@ -150,7 +153,19 @@ inline int iseol(int x)  { return x=='\r' || x=='\n'; }
 enum {NO_BOX,SINGLE_BOX,SHORT_SINGLE_BOX,DOUBLE_BOX,SHORT_DOUBLE_BOX};
 enum {MSG_WARNING=1,MSG_ERRORTYPE=2,MSG_KEEPBACKGROUND=4,MSG_DOWN=8,
       MSG_LEFTALIGN=16};
-enum {FILETYPE_EXEC,FILETYPE_VIEW,FILETYPE_EDIT};
+
+/* $ 02.08.2001 IS
+     Новые константы для alt-f3, alt-f4 и ctrl-pgdn
+*/
+enum {
+  FILETYPE_EXEC,    // Enter
+  FILETYPE_VIEW,    // F3
+  FILETYPE_EDIT,    // F4
+  FILETYPE_ALTEXEC, // Ctrl-PgDn
+  FILETYPE_ALTVIEW, // Alt-F3
+  FILETYPE_ALTEDIT  // Alt-F4
+};
+/* IS $ */
 
 enum {DIZ_NOT_UPDATE,DIZ_UPDATE_IF_DISPLAYED,DIZ_UPDATE_ALWAYS};
 
