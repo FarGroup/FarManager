@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.206 06.08.2004 $ */
+/* Revision: 1.207 02.11.2004 $ */
 
 /*
 Modify:
+  02.11.2004 SVS
+    - При быстром нажатии на колесо мыши на панелях второе нажатие терялось.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -2961,7 +2963,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     ! новшество от Василия - опционально
   */
   if ((MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
-      && (!MouseEvent->dwEventFlags)
+      && (MouseEvent->dwEventFlags != MOUSE_MOVED)
       && Opt.PanelMiddleClickRule)
   /* IS $ */
   {
