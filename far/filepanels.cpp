@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.20 18.07.2001 $ */ 
+/* Revision: 1.21 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 SKV
+    ! Frame::OnChangeFocus(1)->OnChangeFocus(1)
   18.07.2001 OT
     VFMenu
   12.07.2001 OT
@@ -839,5 +841,11 @@ int FilePanels::FastHide()
 
 void FilePanels::Refresh()
 {
-  Frame::OnChangeFocus(1);
+  /*$ 31.07.2001 SKV
+    Вызовем так, а не Frame::OnChangeFocus,
+    который из этого и позовётся.
+  */
+  //Frame::OnChangeFocus(1);
+  OnChangeFocus(1);
+  /* SKV$*/
 }
