@@ -30,7 +30,7 @@ RSC=rc.exe
 LINK32=link.exe
 BSC32=bscmake.exe
 
-# Пути
+# ╧єЄш
 FARINCLUDE=.\Include
 
 !IF  "$(CFG)" == "far - Win32 Release"
@@ -52,7 +52,7 @@ CODDIR=$(OUTDIR)\cod
 DEF_FILE= \
 	".\far.def"
 
-# Сюды добавлять то, что должно быть в проекте, в смысле сорцы
+# ╤■ф√ фюсрты Є№ Єю, ўЄю фюыцэю с√Є№ т яЁюхъЄх, т ёь√ёых ёюЁЎ√
 LINK32_OBJS= \
 	"$(INTDIR)\FileMasksProcessor.obj" \
 	"$(INTDIR)\FileMasksWithExclude.obj" \
@@ -156,6 +156,8 @@ LINK32_OBJS= \
 	"$(INTDIR)\cmem.obj" \
 	"$(INTDIR)\far.res"
 
+LINK32_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib
+
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
 
 BSC32_SBRS= \
@@ -169,7 +171,7 @@ USEDEBUG=NDEBUG
 
 CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /Zp4 /MT /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
-LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
 
 !ELSE
 !MESSAGE far - Win32 Debug.
@@ -178,7 +180,7 @@ USEDEBUG=_DEBUG
 
 CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
-LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
+LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
 
 !ENDIF
 
@@ -204,7 +206,7 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 
 
 # ************************************************************************
-# зависимости
+# чртшёшьюёЄш
 # ************************************************************************
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -229,7 +231,7 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 	$(RSC) $(RSC_PROJ) far.rc
 
 # ************************************************************************
-# Зависимости для публичных файлов
+# ╟ртшёшьюёЄш фы  яєсышўэ√ї Їрщыют
 # ************************************************************************
 "$(FARINCLUDE)\farcolor.hpp" : colors.hpp
    @awk -f plugins.awk -v p1=1 -v p2=70  ".\colors.hpp" > "$(FARINCLUDE)\farcolor.hpp"
@@ -250,7 +252,7 @@ ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hp
 !ENDIF
 
 # ************************************************************************
-# Очистка
+# ╬ўшёЄър
 # ************************************************************************
 CLEAN :
     -@del /q /f "$(INTDIR)\*.*"          > nul

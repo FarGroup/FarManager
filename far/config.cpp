@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.127 26.02.2002 $ */
+/* Revision: 1.128 28.02.2002 $ */
 
 /*
 Modify:
+  28.02.2002 SVS
+    ! RestoreCP ставим по умолчанию в 1. - уже не смешно, блин ;-\
   26.02.2002 SVS
     - BugZ#323 - Не создается палитра.
   26.02.2002 SVS
@@ -1313,7 +1315,7 @@ static struct FARConfig{
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
 
-  {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,0, 0},
+  {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 

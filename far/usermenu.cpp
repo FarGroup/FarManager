@@ -5,10 +5,15 @@ User menu и есть
 
 */
 
-/* Revision: 1.51 15.02.2002 $ */
+/* Revision: 1.52 28.02.2002 $ */
 
 /*
 Modify:
+  28.02.2002 SVS
+    - BugZ#282 - отрисовка после вызова вьювера из меню с последующим
+      переключением в редактор.
+      Прорисовки ком.строки и панелей только в случае если они видимы
+      (FrameManager->IsPanelsActive())
   15.02.2002 VVM
     ! Поскольку сепаратор в меню может иметь лэйб - поле надо очищать :)
   14.01.2002 IS
@@ -399,7 +404,7 @@ void ProcessUserMenu(int EditMenu)
      не перерисовываем панель, если пользователь ничего не сделал
      в меню
   */
-  if (ExitCode == EC_COMMAND_SELECTED || MenuModified)
+  if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
   {
     CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
     CtrlObject->Cp()->ActivePanel->Redraw();
@@ -918,7 +923,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
     }
     if(OldCmdLine) // восстановим сохраненную командную строку
     {
-       CtrlObject->CmdLine->SetString(OldCmdLine);
+       CtrlObject->CmdLine->SetString(OldCmdLine,FrameManager->IsPanelsActive());
        CtrlObject->CmdLine->Select(OldCmdLineSelStart,OldCmdLineSelEnd);
        free(OldCmdLine);
        OldCmdLine=NULL;

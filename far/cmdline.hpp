@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.10 24.12.2001 $ */
+/* Revision: 1.11 28.02.2002 $ */
 
 /*
 Modify:
+  28.02.2002 SVS
+    ! SetString() имеет доп. параметр - надобность в прорисовке новой строки
   24.12.2001 SVS
     ! В ProcessOSCommands учтем вариант запуска с SeparateWindow!=0
       (решает багу BugZ#197)
@@ -62,7 +64,7 @@ class CommandLine:public ScreenObject
     void SetCurDir(const char *CurDir);
     void GetString(char *Str,int MaxSize);
     const char *GetStringAddr();
-    void SetString(const char *Str);
+    void SetString(const char *Str,BOOL Redraw=TRUE);
     int GetLength() {return(CmdStr.GetLength());};
     void ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,
                     int DirectRun=FALSE);

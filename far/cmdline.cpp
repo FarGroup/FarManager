@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.49 14.12.2001 $ */
+/* Revision: 1.50 28.02.2002 $ */
 
 /*
 Modify:
+  28.02.2002 SVS
+    ! SetString() имеет доп. параметр - надобность в прорисовке новой строки
   14.12.2001 IS
     + GetStringAddr();
   06.12.2001 SVS
@@ -436,12 +438,13 @@ const char *CommandLine::GetStringAddr()
 }
 /* IS $ */
 
-void CommandLine::SetString(const char *Str)
+void CommandLine::SetString(const char *Str,BOOL Redraw)
 {
   LastCmdPartLength=-1;
   CmdStr.SetString(Str);
   CmdStr.SetLeftPos(0);
-  CmdStr.Show();
+  if(Redraw)
+    CmdStr.Show();
 }
 
 
