@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.22 12.04.2001 $ */
+/* Revision: 1.23 12.04.2001 $ */
 
 /*
 Modify:
+  12.04.2001 SVS
+   ! функция AddToEditHistory теперь возвращает результат операции
+     добавления строки в историю
   12.04.2001 SVS
    + CheckDialogCoord() - проверка и корректировка координат диалога
   23.03.2001 SVS
@@ -216,7 +219,7 @@ class Dialog:public Modal
     */
     int FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen);
     /* SVS $ */
-    void AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen);
+    int AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen);
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
     /* $ 08.09.2000 SVS

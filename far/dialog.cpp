@@ -10,6 +10,11 @@ dialog.cpp
 /*
 Modify:
   12.04.2001 SVS
+   + DM_ADDHISTORY - добавить строку в историю
+   + DIF_MANUALADDHISTORY - добавлять в историю только "ручками"
+   ! функция AddToEditHistory теперь возвращает результат операции
+     добавления строки в историю
+  12.04.2001 SVS
    ! Дополнительная проверка для DM_SETDLGITEM на смену типа котрола.
      Нефига пока менять - ядро еще не готово к метаморфозам. Потом как нить.
    + CheckDialogCoord() - проверка и корректировка координат диалога
@@ -336,20 +341,20 @@ Modify:
      "Locked%d" и "Line%d" сделаны поименованными.
    + Функция обработки диалога (по умолчанию) DefDlgProc() - забито место :-)
   19.07.2000 SVS
-    ! "...В редакторе команд меню нажмите home shift+end del
-      блок не удаляется..."
-      DEL у итемов, имеющих DIF_EDITOR, работал без учета выделения...
+   ! "...В редакторе команд меню нажмите home shift+end del
+     блок не удаляется..."
+     DEL у итемов, имеющих DIF_EDITOR, работал без учета выделения...
   18.07.2000 SVS
-    + Обработка элемента DI_COMBOBOX (пока все еще редактируемого)
-    + Функция-обработчик выбора из списка - SelectFromComboBox
+   + Обработка элемента DI_COMBOBOX (пока все еще редактируемого)
+   + Функция-обработчик выбора из списка - SelectFromComboBox
   11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+   ! Изменения для возможности компиляции под BC & VC
   05.07.2000 SVS
-    + добавлена проверка на флаг DIF_EDITEXPAND - расширение переменных
-      среды в элементе диалога DI_EDIT
+   + добавлена проверка на флаг DIF_EDITEXPAND - расширение переменных
+     среды в элементе диалога DI_EDIT
   25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+   ! Подготовка Master Copy
+   ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"
@@ -867,6 +872,8 @@ int Dialog::InitDialogObjects(int ID)
         }
       }
       /* SVS $ */
+      if((CurItem->Flags&DIF_MANUALADDHISTORY) && !(CurItem->Flags&DIF_HISTORY))
+        CurItem->Flags&=~DIF_MANUALADDHISTORY; // сбросим нафиг.
 
       /* $ 18.03.2000 SVS
          Если это ComBoBox и данные не установлены, то берем из списка
@@ -1005,6 +1012,7 @@ void Dialog::GetDialogObjectsData()
 
           if (ExitCode>=0 &&
               (CurItem->Flags & DIF_HISTORY) &&
+              !(CurItem->Flags & DIF_MANUALADDHISTORY) && // при мануале не добавляем
               CurItem->History &&
               Opt.DialogsEditHistory)
             AddToEditHistory(PtrData,CurItem->History,PtrLength);
@@ -3388,16 +3396,16 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
 /* Private:
    Работа с историей - добавление и reorder списка
 */
-void Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
+int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
 {
   int LastLine=HISTORY_COUNT-1,FirstLine=HISTORY_COUNT, I, Locked;
   char *Str;
 
   if (*AddStr==0)
-    return;
+    return FALSE;
 
   if((Str=(char*)malloc(MaxLen+1)) == NULL)
-    return;
+    return FALSE;
 
   char RegKey[80],SrcKeyValue[80],DestKeyValue[80];
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
@@ -3451,6 +3459,7 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
     SetRegKey(RegKey,FirstLineKeyValue,AddStr);
   }
   free(Str);
+  return TRUE;
 }
 
 
@@ -3811,6 +3820,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
   switch(Msg)
   {
+    case DM_ADDHISTORY:
+      if(Param2 &&
+         (Type==DI_EDIT || Type==DI_FIXEDIT) &&
+         (CurItem->Flags & DIF_HISTORY))
+      {
+        return Dlg->AddToEditHistory((char*)Param2,CurItem->History,strlen((char*)Param2)+1);
+      }
+      return FALSE;
     /* $ 23.10.2000 SVS
        Получить/установить позицию в строках редактирования
     */
