@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.122 19.06.2001 $ */
+/* Revision: 1.123 19.06.2001 $ */
 
 /*
 Modify:
+  19.06.2001 SVS
+   + DN_DRAGGED
   19.06.2001 SVS
    ! Операция автозавершения не работает во время записи и исполнения макроса.
    - устранение потенциальной проблемы (выход за границу массива) при выборе
@@ -1959,7 +1961,11 @@ int Dialog::ProcessKey(int Key)
         case KEY_ENTER:
         case KEY_CTRLF5:
             SkipDialogMode(DMODE_DRAGGED); // закончим движение!
-            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED))
+            {
+              DlgProc((HANDLE)this,DN_DRAGGED,1,0);
+              Show();
+            }
             break;
         case KEY_ESC:
             Hide();
@@ -1969,13 +1975,18 @@ int Dialog::ProcessKey(int Key)
             Y1=OldY1;
             Y2=OldY2;
             SkipDialogMode(DMODE_DRAGGED);
-            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED))
+            {
+              DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
+              Show();
+            }
             break;
     }
     /* SVS $ */
     if(CheckDialogMode(DMODE_ALTDRAGGED))
     {
       SkipDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+      DlgProc((HANDLE)this,DN_DRAGGED,1,0);
       Show();
     }
     return (TRUE);
@@ -1986,11 +1997,14 @@ int Dialog::ProcessKey(int Key)
   if (Key == KEY_CTRLF5 && CheckDialogMode(DMODE_ISCANMOVE))
   /* SVS 10.08.2000 $*/
   {
-    // включаем флаг и запоминаем координаты
-    SetDialogMode(DMODE_DRAGGED);
-    OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
-    //# GetText(0,0,3,0,LV);
-    Show();
+    if(DlgProc((HANDLE)this,DN_DRAGGED,0,0)) // если разрешили перемещать!
+    {
+      // включаем флаг и запоминаем координаты
+      SetDialogMode(DMODE_DRAGGED);
+      OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
+      //# GetText(0,0,3,0,LV);
+      Show();
+    }
     return (TRUE);
   }
   /* tran 31.07.2000 $ */
@@ -3043,7 +3057,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       /* $ 10.08.2000 SVS
          Двигаем, если разрешено! (IsCanMove)
       */
-      if (CheckDialogMode(DMODE_ISCANMOVE))
+      if (CheckDialogMode(DMODE_ISCANMOVE) && DlgProc((HANDLE)this,DN_DRAGGED,0,0))
       {
         /* $ 03.08.2000 tran
            ну раз попадаем - то будем перемещать */
@@ -3097,12 +3111,14 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 Y1=OldY1;
                 Y2=OldY2;
                 SkipDialogMode(DMODE_DRAGGED);
+                DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
                 Show();
                 break;
             }
             else  // release key, drop dialog
             {
                 SkipDialogMode(DMODE_DRAGGED);
+                DlgProc((HANDLE)this,DN_DRAGGED,1,0);
                 Show();
                 break;
             }
@@ -4110,6 +4126,9 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_HELP:
       return Param2; // что передали, то и...
+
+    case DN_DRAGGED:
+      return TRUE; // согласен с перемещалкой.
 
     case DN_DRAWDIALOG:
     {

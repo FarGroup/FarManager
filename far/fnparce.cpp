@@ -5,10 +5,13 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.00 18.06.2001 $ */
+/* Revision: 1.01 19.06.2001 $ */
 
 /*
 Modify:
+  19.06.2001 SVS
+    ! Исключим лишний прогон функции SubstFileName() - проверим, а есть ли
+      символы '!' в строке.
   18.06.2001 SVS
     + Created - вынесен в отдельный модуль... для удобства :-)
 */
@@ -40,6 +43,14 @@ int SubstFileName(char *Str,            // результирующая строка
                   int   IgnoreInput,    // TRUE - не исполнять "!?<title>?<init>!"
                   char *CmdLineDir)     // Каталог исполнения
 {
+  /* $ 19.06.2001 SVS
+    ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
+    нужно будет либо убрать эту проверку либо изменить условие (последнее
+    предпочтительнее!)
+  */
+  if(!strchr(Str,'!'))
+    return FALSE;
+  /* SVS $ */
   char TmpStr[8192],*CurStr,*ChPtr;
   char AnotherName[NM],AnotherShortName[NM];
   char NameOnly[NM],ShortNameOnly[NM];

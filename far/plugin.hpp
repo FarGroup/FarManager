@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.117 14.06.2001 $ */
+/* Revision: 1.118 19.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  19.06.2001 SVS
+   + DN_DRAGGED
   14.06.2001 SVS
    + Дополнение к ACTL_*WINDOW* - WTYPE_* - типы окон
      2AT: если что-то не так - изменяй.
@@ -705,7 +707,7 @@ enum FarMessagesProc{
   DN_KILLFOCUS,
   DN_LISTCHANGE,
   DN_MOUSECLICK,
-
+  DN_DRAGGED,
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,
