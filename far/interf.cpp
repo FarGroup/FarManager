@@ -5,7 +5,7 @@ interf.cpp
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 06.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     - NT Console resize bug
       adding resize support in GetInputRecord for modal window like
       Viewer, Editor, Help
+  06.07.2000 SVS
+    - Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
 */
 
 #include "headers.hpp"
@@ -656,8 +658,12 @@ int GetInputRecord(INPUT_RECORD *rec)
       Modal * CurModal=CtrlObject->ModalManager.ActiveModal;
       if (CurModal)
       {
-        CtrlObject->SetScreenPositions();
-        CurModal->SetScreenPosition();
+        /* 06.07.2000 SVS
+          Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
+        */
+        // CtrlObject->SetScreenPositions();
+        // CurModal->SetScreenPosition();
+        /* SVS $ */
       }
     }
     /* tran $ */
