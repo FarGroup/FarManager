@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.128 27.07.2001 $ */
+/* Revision: 1.129 31.07.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  31.07.2001 IS
+   + Внедрение const (FARAPIGETMSG)
   27.07.2001 SVS
    + DM_ALLKEYMODE - для нужд MacroBrowse (пока только для него :-)
   16.07.2001 SVS
@@ -620,7 +622,7 @@ typedef int (WINAPI *FARAPIMESSAGE)(
 );
 
 
-typedef char* (WINAPI *FARAPIGETMSG)(
+typedef const char* (WINAPI *FARAPIGETMSG)(
   int PluginNumber,
   int MsgId
 );

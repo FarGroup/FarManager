@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.98 25.07.2001 $ */
+/* Revision: 1.99 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 IS
+    ! Внедрение const (FarGetMsgFn)
   25.07.2001 SVS
     ! Осмысленный параметр у InitConsole.
   11.07.2001 SVS
@@ -557,7 +559,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
            const struct FarMenuItem *Item, int ItemsNumber);
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            const char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
-char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
+const char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,
            const char *HelpTopic,const char * const *Items,int ItemsNumber,
            int ButtonsNumber);
