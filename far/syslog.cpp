@@ -5,10 +5,16 @@ syslog.cpp
 
 */
 
-/* Revision: 1.21 10.01.2002 $ */
+/* Revision: 1.22 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    + Пара новых функций для отладочных мероприятий
+       _FARKEY_ToName() - формирует строку из HEX-кода клавиши и названия онной
+       _VK_KEY_ToName() - то же самое. но для виртуального кода.
+    ! ECTLToName переимована в _ECTL_ToName
+    + _FCTL_ToName()
   10.01.2002 SVS
     + SYSLOG_ECTL
   24.12.2001 SVS
@@ -367,5 +373,270 @@ CleverSysLog::~CleverSysLog()
 {
 #if defined(SYSLOG)
   SysLog(-1);
+#endif
+}
+
+const char *_ECTL_ToName(int Command)
+{
+#if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
+#define DEF_ECTL_(m) { m , #m }
+  static struct ECTLName{
+    int Msg;
+    const char *Name;
+  } ECTL[]={
+    DEF_ECTL_(ECTL_GETSTRING),      DEF_ECTL_(ECTL_SETSTRING),
+    DEF_ECTL_(ECTL_INSERTSTRING),   DEF_ECTL_(ECTL_DELETESTRING),
+    DEF_ECTL_(ECTL_DELETECHAR),     DEF_ECTL_(ECTL_INSERTTEXT),
+    DEF_ECTL_(ECTL_GETINFO),        DEF_ECTL_(ECTL_SETPOSITION),
+    DEF_ECTL_(ECTL_SELECT),         DEF_ECTL_(ECTL_REDRAW),
+    DEF_ECTL_(ECTL_EDITORTOOEM),    DEF_ECTL_(ECTL_OEMTOEDITOR),
+    DEF_ECTL_(ECTL_TABTOREAL),      DEF_ECTL_(ECTL_REALTOTAB),
+    DEF_ECTL_(ECTL_EXPANDTABS),     DEF_ECTL_(ECTL_SETTITLE),
+    DEF_ECTL_(ECTL_READINPUT),      DEF_ECTL_(ECTL_PROCESSINPUT),
+    DEF_ECTL_(ECTL_ADDCOLOR),       DEF_ECTL_(ECTL_GETCOLOR),
+    DEF_ECTL_(ECTL_SAVEFILE),       DEF_ECTL_(ECTL_QUIT),
+    DEF_ECTL_(ECTL_SETKEYBAR),      DEF_ECTL_(ECTL_PROCESSKEY),
+    DEF_ECTL_(ECTL_SETPARAM),       DEF_ECTL_(ECTL_GETBOOKMARKS),
+  };
+  int I;
+  for(I=0; I < sizeof(ECTL)/sizeof(ECTL[0]); ++I)
+    if(ECTL[I].Msg == Command)
+      return ECTL[I].Name;
+  return "(Unknown)";
+#else
+  return "";
+#endif
+}
+
+const char *_FCTL_ToName(int Command)
+{
+#if defined(SYSLOG)
+#define DEF_FCTL_(m) { m , #m }
+  static struct FCTLName{
+    int Msg;
+    const char *Name;
+  } FCTL[]={
+     DEF_FCTL_(FCTL_CLOSEPLUGIN),           DEF_FCTL_(FCTL_GETPANELINFO),
+     DEF_FCTL_(FCTL_GETANOTHERPANELINFO),   DEF_FCTL_(FCTL_UPDATEPANEL),
+     DEF_FCTL_(FCTL_UPDATEANOTHERPANEL),    DEF_FCTL_(FCTL_REDRAWPANEL),
+     DEF_FCTL_(FCTL_REDRAWANOTHERPANEL),    DEF_FCTL_(FCTL_SETANOTHERPANELDIR),
+     DEF_FCTL_(FCTL_GETCMDLINE),            DEF_FCTL_(FCTL_SETCMDLINE),
+     DEF_FCTL_(FCTL_SETSELECTION),          DEF_FCTL_(FCTL_SETANOTHERSELECTION),
+     DEF_FCTL_(FCTL_SETVIEWMODE),           DEF_FCTL_(FCTL_SETANOTHERVIEWMODE),
+     DEF_FCTL_(FCTL_INSERTCMDLINE),         DEF_FCTL_(FCTL_SETUSERSCREEN),
+     DEF_FCTL_(FCTL_SETPANELDIR),           DEF_FCTL_(FCTL_SETCMDLINEPOS),
+     DEF_FCTL_(FCTL_GETCMDLINEPOS),         DEF_FCTL_(FCTL_SETSORTMODE),
+     DEF_FCTL_(FCTL_SETANOTHERSORTMODE),    DEF_FCTL_(FCTL_SETSORTORDER),
+     DEF_FCTL_(FCTL_SETANOTHERSORTORDER),   DEF_FCTL_(FCTL_GETCMDLINESELECTEDTEXT),
+     DEF_FCTL_(FCTL_SETCMDLINESELECTION),   DEF_FCTL_(FCTL_GETCMDLINESELECTION),
+  };
+  int I;
+  for(I=0; I < sizeof(FCTL)/sizeof(FCTL[0]); ++I)
+    if(FCTL[I].Msg == Command)
+      return FCTL[I].Name;
+  return "(Unknown)";
+#else
+  return "";
+#endif
+}
+
+
+const char *_FARKEY_ToName(int Key)
+{
+#if defined(SYSLOG)
+  static char Name[512];
+  if(KeyToText(Key,Name,0))
+  {
+    InsertQuote(Name);
+    sprintf(Name+strlen(Name)," [0x%08X]",Key);
+    return Name;
+  }
+  sprintf(Name,"[0x%08X]",Key);
+  return Name;
+#else
+  return "";
+#endif
+}
+
+#if defined(SYSLOG)
+#define DEF_VK(k) { VK_##k , #k }
+#define VK_XBUTTON1       0x05    /* NOT contiguous with L & RBUTTON */
+#define VK_XBUTTON2       0x06    /* NOT contiguous with L & RBUTTON */
+#define VK_CONVERT        0x1C
+#define VK_NONCONVERT     0x1D
+#define VK_ACCEPT         0x1E
+#define VK_MODECHANGE     0x1F
+#define VK_SLEEP          0x5F
+
+#define VK_BROWSER_BACK        0xA6
+#define VK_BROWSER_FORWARD     0xA7
+#define VK_BROWSER_REFRESH     0xA8
+#define VK_BROWSER_STOP        0xA9
+#define VK_BROWSER_SEARCH      0xAA
+#define VK_BROWSER_FAVORITES   0xAB
+#define VK_BROWSER_HOME        0xAC
+
+#define VK_VOLUME_MUTE         0xAD
+#define VK_VOLUME_DOWN         0xAE
+#define VK_VOLUME_UP           0xAF
+#define VK_MEDIA_NEXT_TRACK    0xB0
+#define VK_MEDIA_PREV_TRACK    0xB1
+#define VK_MEDIA_STOP          0xB2
+#define VK_MEDIA_PLAY_PAUSE    0xB3
+#define VK_LAUNCH_MAIL         0xB4
+#define VK_LAUNCH_MEDIA_SELECT 0xB5
+#define VK_LAUNCH_APP1         0xB6
+#define VK_LAUNCH_APP2         0xB7
+
+/*
+ * 0xB8 - 0xB9 : reserved
+ */
+
+#define VK_OEM_1          0xBA   // ';:' for US
+#define VK_OEM_PLUS       0xBB   // '+' any country
+#define VK_OEM_COMMA      0xBC   // ',' any country
+#define VK_OEM_MINUS      0xBD   // '-' any country
+#define VK_OEM_PERIOD     0xBE   // '.' any country
+#define VK_OEM_2          0xBF   // '/?' for US
+#define VK_OEM_3          0xC0   // '`~' for US
+
+/*
+ * 0xC1 - 0xD7 : reserved
+ */
+
+/*
+ * 0xD8 - 0xDA : unassigned
+ */
+
+#define VK_OEM_4          0xDB  //  '[{' for US
+#define VK_OEM_5          0xDC  //  '\|' for US
+#define VK_OEM_6          0xDD  //  ']}' for US
+#define VK_OEM_7          0xDE  //  ''"' for US
+#define VK_OEM_8          0xDF
+
+/*
+ * 0xE0 : reserved
+ */
+
+/*
+ * Various extended or enhanced keyboards
+ */
+#define VK_OEM_AX         0xE1  //  'AX' key on Japanese AX kbd
+#define VK_OEM_102        0xE2  //  "<>" or "\|" on RT 102-key kbd.
+#define VK_ICO_HELP       0xE3  //  Help key on ICO
+#define VK_ICO_00         0xE4  //  00 key on ICO
+
+#define VK_PROCESSKEY     0xE5
+#define VK_ICO_CLEAR      0xE6
+
+#define VK_PACKET         0xE7
+
+/*
+ * 0xE8 : unassigned
+ */
+
+/*
+ * Nokia/Ericsson definitions
+ */
+#define VK_OEM_RESET      0xE9
+#define VK_OEM_JUMP       0xEA
+#define VK_OEM_PA1        0xEB
+#define VK_OEM_PA2        0xEC
+#define VK_OEM_PA3        0xED
+#define VK_OEM_WSCTRL     0xEE
+#define VK_OEM_CUSEL      0xEF
+#define VK_OEM_ATTN       0xF0
+#define VK_OEM_FINISH     0xF1
+#define VK_OEM_COPY       0xF2
+#define VK_OEM_AUTO       0xF3
+#define VK_OEM_ENLW       0xF4
+#define VK_OEM_BACKTAB    0xF5
+
+#define VK_ATTN           0xF6
+#define VK_CRSEL          0xF7
+#define VK_EXSEL          0xF8
+#define VK_EREOF          0xF9
+#define VK_PLAY           0xFA
+#define VK_ZOOM           0xFB
+#define VK_NONAME         0xFC
+#define VK_PA1            0xFD
+#define VK_OEM_CLEAR      0xFE
+
+
+struct VirtKeyDef{
+  WORD vk;
+  char *n;
+} vk_def[]={
+  DEF_VK(LBUTTON),     DEF_VK(RBUTTON),    DEF_VK(CANCEL),    DEF_VK(MBUTTON),
+  DEF_VK(XBUTTON1),    DEF_VK(XBUTTON2),
+  DEF_VK(BACK),        DEF_VK(TAB),        DEF_VK(CLEAR),     DEF_VK(RETURN),
+  DEF_VK(SHIFT),       DEF_VK(CONTROL),    DEF_VK(MENU),      DEF_VK(PAUSE),
+  DEF_VK(CAPITAL),     DEF_VK(ESCAPE),
+  DEF_VK(CONVERT),     DEF_VK(NONCONVERT), DEF_VK(ACCEPT),    DEF_VK(MODECHANGE),
+  DEF_VK(SPACE),       DEF_VK(PRIOR),
+  DEF_VK(NEXT),        DEF_VK(END),        DEF_VK(HOME),      DEF_VK(LEFT),
+  DEF_VK(UP),          DEF_VK(RIGHT),      DEF_VK(DOWN),      DEF_VK(SELECT),
+  DEF_VK(PRINT),       DEF_VK(EXECUTE),    DEF_VK(SNAPSHOT),  DEF_VK(INSERT),
+  DEF_VK(DELETE),      DEF_VK(HELP),       DEF_VK(LWIN),      DEF_VK(RWIN),
+  DEF_VK(APPS),        DEF_VK(SLEEP),
+  DEF_VK(NUMPAD0),     DEF_VK(NUMPAD1),    DEF_VK(NUMPAD2),
+  DEF_VK(NUMPAD3),     DEF_VK(NUMPAD4),    DEF_VK(NUMPAD5),   DEF_VK(NUMPAD6),
+  DEF_VK(NUMPAD7),     DEF_VK(NUMPAD8),    DEF_VK(NUMPAD9),   DEF_VK(MULTIPLY),
+  DEF_VK(ADD),         DEF_VK(SEPARATOR),  DEF_VK(SUBTRACT),  DEF_VK(DECIMAL),
+  DEF_VK(DIVIDE),
+  DEF_VK(F1),          DEF_VK(F2),         DEF_VK(F3),        DEF_VK(F4),
+  DEF_VK(F5),          DEF_VK(F6),         DEF_VK(F7),        DEF_VK(F8),
+  DEF_VK(F9),          DEF_VK(F10),        DEF_VK(F11),       DEF_VK(F12),
+  DEF_VK(F13),         DEF_VK(F14),        DEF_VK(F15),       DEF_VK(F16),
+  DEF_VK(F17),         DEF_VK(F18),        DEF_VK(F19),       DEF_VK(F20),
+  DEF_VK(F21),         DEF_VK(F22),        DEF_VK(F23),       DEF_VK(F24),
+  DEF_VK(NUMLOCK),     DEF_VK(SCROLL),     DEF_VK(LSHIFT),
+  DEF_VK(RSHIFT),      DEF_VK(LCONTROL),   DEF_VK(RCONTROL),  DEF_VK(LMENU),
+  DEF_VK(RMENU),
+  DEF_VK(ATTN),        DEF_VK(CRSEL),      DEF_VK(EXSEL),     DEF_VK(EREOF),
+  DEF_VK(PLAY),        DEF_VK(ZOOM),       DEF_VK(NONAME),    DEF_VK(PA1),
+  DEF_VK(OEM_CLEAR),   DEF_VK(OEM_1),      DEF_VK(OEM_PLUS),  DEF_VK(OEM_COMMA),
+  DEF_VK(OEM_MINUS),   DEF_VK(OEM_PERIOD), DEF_VK(OEM_2),     DEF_VK(OEM_3),
+  DEF_VK(OEM_4),       DEF_VK(OEM_5),      DEF_VK(OEM_6),     DEF_VK(OEM_7),
+  DEF_VK(OEM_8),       DEF_VK(PROCESSKEY), DEF_VK(OEM_RESET), DEF_VK(OEM_JUMP),
+  DEF_VK(OEM_PA1),     DEF_VK(OEM_PA2),    DEF_VK(OEM_PA3),   DEF_VK(OEM_WSCTRL),
+  DEF_VK(OEM_CUSEL),   DEF_VK(OEM_ATTN),   DEF_VK(OEM_FINISH),DEF_VK(OEM_COPY),
+  DEF_VK(OEM_AUTO),    DEF_VK(OEM_ENLW),   DEF_VK(OEM_BACKTAB),
+};
+#endif
+
+
+const char *_VK_KEY_ToName(int VkKey)
+{
+#if defined(SYSLOG)
+  static char Name[512];
+  int I;
+
+  Name[0]=0;
+  if(VkKey >= '0' && VkKey <= '9' || VkKey >= 'A' && VkKey <= 'Z')
+  {
+    sprintf(Name,"VK_%c",VkKey);
+    InsertQuote(Name);
+    sprintf(Name+strlen(Name)," [0x%04X]",VkKey);
+    return Name;
+  }
+  else
+  {
+    for(I=0; I < sizeof(vk_def)/sizeof(vk_def[0]); ++I)
+    {
+      if(VkKey == vk_def[I].vk)  // c || KeyCode
+      {
+        strcpy(Name,"VK_");
+        strcat(Name,vk_def[I].n);
+        InsertQuote(Name);
+        sprintf(Name+strlen(Name)," [0x%04X]",VkKey);
+        return Name;
+      }
+    }
+  }
+  sprintf(Name,"[0x%04X]",VkKey);
+  return Name;
+#else
+  return "";
 #endif
 }

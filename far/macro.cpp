@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.69 16.01.2002 $ */
+/* Revision: 1.70 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! технологический патч - про сислоги
   16.01.2002 SVS
     - ќтвал некоторых клавиш (объ€снение в описалове)
   14.01.2002 SVS
@@ -571,7 +573,7 @@ int KeyMacro::ProcessKey(int Key)
     if (!Executing) // Ёто еще не режим исполнени€?
     {
       DWORD CurFlags;
-//_SVS(SysLog(">Key=0x%08X",Key));
+//_SVS(SysLog(">Key=%s",_FARKEY_ToName(Key)));
       if((Key&0x00FFFFFF) > 0x01 && (Key&0x00FFFFFF) < 0xFF)
       {
 //        Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
@@ -580,12 +582,12 @@ int KeyMacro::ProcessKey(int Key)
           Key=LocalKeyToKey(Key&0x000000FF)|(Key&(~0x000000FF));
       }
 
-//_SVS(SysLog("<Key=0x%08X",Key));
+//_SVS(SysLog("<Key=%s",_FARKEY_ToName(Key)));
       int I=GetIndex(Key,
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=Macros[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
-//_SVS(SysLog("KeyMacro: %d (I=%d Key=0x%08X,0x%08X)",__LINE__,I,Key,Macros[I].Key));
+//_SVS(SysLog("KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(Macros[I].Key)));
         if(!CheckAll(CurFlags))
           return FALSE;
 
@@ -870,7 +872,7 @@ done:
         goto begin;
       }
   }
-//_SVS(SysLog("%s.%s.Key=0x%08X ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(Macros[ExecMacroPos].Flags&MFLAGS_MODEMASK),Key,ExecMacroPos,ExecKeyPos));
+//_SVS(SysLog("%s.%s.Key=%s ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(Macros[ExecMacroPos].Flags&MFLAGS_MODEMASK),_FARKEY_ToName(Key),ExecMacroPos,ExecKeyPos));
   return(Key);
 }
 
@@ -1122,7 +1124,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
   }
   else if(Msg == DM_KEY && (Param2&KEY_END_SKEY) < KEY_END_FKEY)
   {
-//_SVS(SysLog("Macro: Key=0x%08X",Param2));
+//_SVS(SysLog("Macro: Key=%s",_FARKEY_ToName(Param2)));
     // <ќбработка особых клавиш: F1 & Enter>
     // Esc & (Enter и предыдущий Enter) - не обрабатываем
     if(Param2 == KEY_ESC ||

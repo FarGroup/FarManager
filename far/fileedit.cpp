@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.88 04.02.2002 $ */
+/* Revision: 1.89 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! Технологический патч - про сислоги
   04.02.2002 SVS
     - проблемы с текущим каталогом
   28.01.2002 OT
@@ -253,6 +255,8 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
                        char *PluginData,int ToSaveAs, int OpenModeExstFile)
 {
+  _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
+  _KEYMACRO(SysLog(1));
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
   Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,
@@ -265,6 +269,8 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
             int X1,int Y1,int X2,int Y2,int DisableHistory, BOOL DeleteOnClose,
             int OpenModeExstFile)
 {
+  _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
+  _KEYMACRO(SysLog(1));
   /* $ 02.11.2001 IS
        отрицательные координаты левого верхнего угла заменяются на нулевые
   */
@@ -278,6 +284,25 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
        FALSE,DeleteOnClose,OpenModeExstFile);
 }
 
+/* $ 07.05.2001 DJ
+   в деструкторе грохаем EditNamesList, если он был создан, а в SetNamesList()
+   создаем EditNamesList и копируем туда значения
+*/
+/*
+  Вызов деструкторов идет так:
+    FileEditor::~FileEditor()
+    Editor::~Editor()
+    ...
+*/
+FileEditor::~FileEditor()
+{
+  _OT(SysLog("[%p] FileEditor::~FileEditor()",this));
+  if (EditNamesList)
+    delete EditNamesList;
+
+  _KEYMACRO(SysLog(-1));
+  _KEYMACRO(SysLog("FileEditor::~FileEditor()"));
+}
 
 void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
@@ -532,18 +557,6 @@ void FileEditor::InitKeyBar(void)
   FEdit.SetEditKeyBar(&EditKeyBar);
 }
 /* SVS $ */
-
-/* $ 07.05.2001 DJ
-   в деструкторе грохаем EditNamesList, если он был создан, а в SetNamesList()
-   создаем EditNamesList и копируем туда значения
-*/
-
-FileEditor::~FileEditor()
-{
-  _OT(SysLog("[%p] FileEditor::~FileEditor()",this));
-  if (EditNamesList)
-    delete EditNamesList;
-}
 
 void FileEditor::SetNamesList (NamesList *Names)
 {
@@ -908,7 +921,7 @@ int FileEditor::ProcessKey(int Key)
          return(FEdit.ProcessKey(Key));
       /* DJ $ */
       _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
-      _KEYMACRO(SysLog("Key=0x%08X Macro.IsExecuting()=%d",Key,CtrlObject->Macro.IsExecuting()));
+      _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
       if (CtrlObject->Macro.IsExecuting() ||
         !ProcessEditorInput(FrameManager->GetLastInputRecord()))
       {
@@ -1131,7 +1144,7 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
   int RetCode;
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessEditorInput()"));
-  _KEYMACRO(if(Rec->EventType == KEY_EVENT)SysLog("VKey=0x%04X",Rec->Event.KeyEvent.wVirtualKeyCode));
+  _KEYMACRO(if(Rec->EventType == KEY_EVENT)SysLog("%cVKey=%s",(Rec->Event.KeyEvent.bKeyDown?0x19:0x18),_VK_KEY_ToName(Rec->Event.KeyEvent.wVirtualKeyCode)));
 
   CtrlObject->Plugins.CurEditor=this;
   RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
@@ -1157,5 +1170,7 @@ BOOL FileEditor::SetFileName(const char *NewFileName)
 
 int FileEditor::EditorControl(int Command,void *Param)
 {
+  _ECTLLOG(CleverSysLog SL("FileEditor::EditorControl()"));
+  _ECTLLOG(SysLog("Command=%s (%d) Param=0x%08X",_ECTL_ToName(Command),Command,Param));
   return FEdit.EditorControl(Command,Param);
 }

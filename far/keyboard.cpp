@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.62 04.02.2002 $ */
+/* Revision: 1.63 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! технологический патч - про сислоги
+    + SpecKeyName - доступно только при отладке (SysLog)
   04.02.2002 SVS
     + IsNavKey(), IsShiftKey()
   29.01.2002 SVS
@@ -330,6 +333,18 @@ static struct TFKey3 ModifKeyName[]={
 //  { KEY_RSHIFT ,6 ,"RShift"},
 };
 
+#if defined(SYSLOG)
+static struct TFKey3 SpecKeyName[]={
+  { KEY_CONSOLE_BUFFER_RESIZE,19, "ConsoleBufferResize"},
+  { KEY_FOCUS_CHANGED        ,12, "FocusChanged"},
+  { KEY_LOCKSCREEN           ,10, "LockScreen"},
+  { KEY_DRAGCOPY             , 8, "DragCopy"},
+  { KEY_DRAGMOVE             , 8, "DragMove"},
+  { KEY_NONE                 , 4, "None"},
+  { KEY_IDLE                 , 4, "Idle"},
+};
+#endif
+
 /* ----------------------------------------------------------------- */
 
 /* tran 31.08.2000 $
@@ -384,7 +399,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
       rec->EventType=0;
-      _KEYMACRO(SysLog("MacroKey1 =0x%08X",MacroKey));
+      _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
@@ -396,7 +411,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
       rec->EventType=0;
-      _KEYMACRO(SysLog("MacroKey2 =0x%08X",MacroKey));
+      _KEYMACRO(SysLog("MacroKey2 =%s",_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
@@ -666,7 +681,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 
   ReturnAltValue=FALSE;
   CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
-//_SVS(SysLog("1) CalcKey=0x%08X",CalcKey));
+//_SVS(SysLog("1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
   if (ReturnAltValue && !NotMacros)
   {
     if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
@@ -1131,18 +1146,32 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   GetShiftKeyName(KeyText,Key,Len);
 
   for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
+  {
     if (FKey==FKeys1[I].Key)
     {
       strcat(KeyText,FKeys1[I].Name);
       break;
     }
+  }
+
   if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
   {
-    FKey=(Key&0xFF)&(~0x20);
-    if (FKey >= 'A' && FKey <= 'Z')
-      KeyText[Len]=(char)Key&0xFF;
-    else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
-      KeyText[Len]=(char)Key&0xFF;
+#if defined(SYSLOG)
+    for (I=0;I<sizeof(SpecKeyName)/sizeof(SpecKeyName[0]);I++)
+      if (FKey==SpecKeyName[I].Key)
+      {
+        strcat(KeyText,SpecKeyName[I].Name);
+        break;
+      }
+    if(I  == sizeof(SpecKeyName)/sizeof(SpecKeyName[0]))
+#endif
+    {
+      FKey=(Key&0xFF)&(~0x20);
+      if (FKey >= 'A' && FKey <= 'Z')
+        KeyText[Len]=(char)Key&0xFF;
+      else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
+        KeyText[Len]=(char)Key&0xFF;
+    }
   }
 
   if(!KeyText[0])

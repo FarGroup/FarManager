@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.108 22.01.2002 $ */
+/* Revision: 1.109 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! ” DeleteFileWithFolder параметр имеет суть const
   22.01.2002 IS
     ! ƒобавим немного интеллекта при обработке путей вида "буква:" в FarChDir.
   14.01.2002 SVS
@@ -1128,7 +1130,7 @@ int IsFolderNotEmpty(char *Name)
 }
 /* SVS $ */
 
-int DeleteFileWithFolder(char *FileName)
+int DeleteFileWithFolder(const char *FileName)
 {
   char FolderName[NM],*Slash;
   SetFileAttributes(FileName,0);

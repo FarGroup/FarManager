@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.152 05.02.2002 $ */
+/* Revision: 1.153 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! Технологический патч - про сислоги
   05.02.2002 SVS
     ! Editor::IsShiftKey() -> keyboard.cpp::IsShiftKey()
   04.02.2002 IS
@@ -1447,7 +1449,7 @@ int Editor::ProcessKey(int Key)
     return(TRUE);
 
   _KEYMACRO(CleverSysLog SL("Editor::ProcessKey()"));
-  _KEYMACRO(SysLog("Key=0x%08X",Key));
+  _KEYMACRO(SysLog("Key=%s",_FARKEY_ToName(Key)));
 
   int CurPos,CurVisPos,I;
   CurPos=CurLine->EditLine.GetCurPos();
@@ -5096,41 +5098,11 @@ void Editor::VBlockShift(int Left)
 }
 
 
-#if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
-#define DEF_ECTL_(m) { m , #m }
-const char *ECTLToName(int Command)
-{
-  static struct ECTLName{
-    int Msg;
-    const char *Name;
-  } ECTL[]={
-    DEF_ECTL_(ECTL_GETSTRING),      DEF_ECTL_(ECTL_SETSTRING),
-    DEF_ECTL_(ECTL_INSERTSTRING),   DEF_ECTL_(ECTL_DELETESTRING),
-    DEF_ECTL_(ECTL_DELETECHAR),     DEF_ECTL_(ECTL_INSERTTEXT),
-    DEF_ECTL_(ECTL_GETINFO),        DEF_ECTL_(ECTL_SETPOSITION),
-    DEF_ECTL_(ECTL_SELECT),         DEF_ECTL_(ECTL_REDRAW),
-    DEF_ECTL_(ECTL_EDITORTOOEM),    DEF_ECTL_(ECTL_OEMTOEDITOR),
-    DEF_ECTL_(ECTL_TABTOREAL),      DEF_ECTL_(ECTL_REALTOTAB),
-    DEF_ECTL_(ECTL_EXPANDTABS),     DEF_ECTL_(ECTL_SETTITLE),
-    DEF_ECTL_(ECTL_READINPUT),      DEF_ECTL_(ECTL_PROCESSINPUT),
-    DEF_ECTL_(ECTL_ADDCOLOR),       DEF_ECTL_(ECTL_GETCOLOR),
-    DEF_ECTL_(ECTL_SAVEFILE),       DEF_ECTL_(ECTL_QUIT),
-    DEF_ECTL_(ECTL_SETKEYBAR),      DEF_ECTL_(ECTL_PROCESSKEY),
-    DEF_ECTL_(ECTL_SETPARAM),       DEF_ECTL_(ECTL_GETBOOKMARKS),
-  };
-  int I;
-  for(I=0; I < sizeof(ECTL)/sizeof(ECTL[0]); ++I)
-    if(ECTL[I].Msg == Command)
-      return ECTL[I].Name;
-  return "(Unknown)";
-}
-#endif
-
 int Editor::EditorControl(int Command,void *Param)
 {
   int I;
-  _ECTLLOG(CleverSysLog SL("EditorControl()"));
-  _ECTLLOG(SysLog("Command=%s (%d) Param=0x%08X",ECTLToName(Command),Command,Param));
+  _ECTLLOG(CleverSysLog SL("Editor::EditorControl()"));
+  _ECTLLOG(SysLog("Command=%s (%d) Param=0x%08X",_ECTL_ToName(Command),Command,Param));
   switch(Command)
   {
     case ECTL_GETSTRING:

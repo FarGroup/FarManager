@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.129 05.02.2002 $ */
+/* Revision: 1.130 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! У DeleteFileWithFolder параметр имеет суть const
+    + _*_ToName() - для отладочных целей
   05.02.2002 SVS
     + IsNavKey(), IsShiftKey()
   25.01.2002 SVS
@@ -409,7 +412,7 @@ int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-
 #define RemoveHighlights(Str) RemoveChar(Str,'&')
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
-int DeleteFileWithFolder(char *FileName);
+int DeleteFileWithFolder(const char *FileName);
 char* FarMSG(int MsgID);
 #define MSG(ID) FarMSG(ID)
 /* $ 29.08.2000 SVS
@@ -442,7 +445,6 @@ int ToPercent(unsigned long N1,unsigned long N2);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
 int CmpName(const char *pattern,const char *string,int skippath=TRUE);
-int CheckForEsc();
 /* $ 09.10.2000 IS
     + Новая функция для обработки имени файла
 */
@@ -845,6 +847,12 @@ void SysLog(char *fmt,...);
 void SysLog(int l,char *fmt,...); ///
 void ShowHeap();
 void CheckHeap(int NumLine);
+
+const char *_FARKEY_ToName(int Key);
+const char *_VK_KEY_ToName(int VkKey);
+const char *_ECTL_ToName(int Command);
+const char *_FCTL_ToName(int Command);
+
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
 extern "C" {
@@ -877,14 +885,12 @@ void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Bu
 
 #if defined(_DEBUG) && defined(SYSLOG_KEYMACRO)
 #define _KEYMACRO(x)  x
-const char *ECTLToName(int Command);
 #else
 #define _KEYMACRO(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_ECTL)
 #define _ECTLLOG(x)  x
-const char *ECTLToName(int Command);
 #else
 #define _ECTLLOG(x)
 #endif
@@ -1040,6 +1046,7 @@ void WaitKey(int KeyWait=-1);
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);
+int CheckForEsc();
 
 // Получить из имени диска RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);

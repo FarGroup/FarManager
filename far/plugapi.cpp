@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.114 30.01.2002 $ */
+/* Revision: 1.115 05.02.2002 $ */
 
 /*
 Modify:
+  05.02.2002 SVS
+    ! Технологический патч про отладку
   30.01.2002 DJ
     + ACTL_GETDESCSETTINGS
   22.01.2002 SVS
@@ -1684,7 +1686,9 @@ void WINAPI FarFreeDirList(const struct PluginPanelItem *PanelItem)
   /* $ 13.07.2000 SVS
     для запроса использовали realloc
   */
-  free(static_cast<void*>(const_cast<PluginPanelItem *>(PanelItem)));
+  // Что ЭТО ЗА ИЗВРАТ??????????
+  //free(static_cast<void*>(const_cast<PluginPanelItem *>(PanelItem)));
+  free((void*)PanelItem);
   /* SVS $*/
 }
 
@@ -1901,7 +1905,7 @@ int WINAPI FarEditorControl(int Command,void *Param)
     {
 #endif
       _KEYMACRO(CleverSysLog SL("FarEditorControl()"));
-      _KEYMACRO(SysLog("Command=%s (%d) Param=0x%08X Macro.IsExecuting()=%d",ECTLToName(Command),Command,Param,CtrlObject->Macro.IsExecuting()));
+      _KEYMACRO(SysLog("Command=%s (%d) Param=0x%08X Macro.IsExecuting()=%d",_ECTL_ToName(Command),Command,Param,CtrlObject->Macro.IsExecuting()));
 #if defined(SYSLOG_KEYMACRO)
     }
 #endif
