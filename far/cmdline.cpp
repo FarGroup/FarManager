@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.12 02.04.2001 $ */
+/* Revision: 1.13 11.04.2001 $ */
 
 /*
 Modify:
+  11.04.2001 SVS
+    ! Для Alt-F11 и Alt-F12 - теперь будут свои конкретные темы помощи, а не
+      абстрактное описание команд командной строки (не нужное для этих
+      историй)
   02.04.2001 VVM
     + Обработка Opt.FlagPosixSemantics
   12.03.2001 SVS
@@ -197,7 +201,7 @@ int CommandLine::ProcessKey(int Key)
       {
         char Str[1024],ItemTitle[256];
         int Type,SelectType;
-        if ((SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"CmdMenu",Str,Type,ItemTitle))==1 || SelectType==2)
+        if ((SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,Type,ItemTitle))==1 || SelectType==2)
         {
           if (SelectType!=2)
             CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
@@ -248,7 +252,7 @@ int CommandLine::ProcessKey(int Key)
       {
         char Str[1024];
         int Type,SelectType;
-        if ((SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"CmdMenu",Str,Type))==1 || SelectType==2)
+        if ((SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"HistoryFolders",Str,Type))==1 || SelectType==2)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);

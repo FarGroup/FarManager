@@ -321,7 +321,7 @@ editor if internal is default.
 
   To print the selected files "Print manager" plugin is used.
 
-  Create hard link (NTFS only)                                #Alt-F6#
+  Create ~file links~@HardSymLink@ (NTFS only)                               #Alt-F6#
 
   Using hard file links you may have several different file names
 referring to the same data.
@@ -334,9 +334,9 @@ referring to the same data.
 
   Perform ~find folder~@FindFolder@ command                                #Alt-F10#
 
-  Display view and edit history                              #Alt-F11#
+  Display ~view and edit history~@HistoryViews@                              #Alt-F11#
 
-  Display folders history                                    #Alt-F12#
+  Display ~folders history~@HistoryFolders@                                    #Alt-F12#
 
   Add files to archive                                      #Shift-F1#
   Extract files from archive                                #Shift-F2#
@@ -779,9 +779,9 @@ $ #Commands menu#
    #Find folder#          Search for a folder in the folders
                         tree. See ~Find folder~@FindFolder@ for more info.
 
-   #File view history#    Display files view and edit history.
+   #File view history#    Display files ~view and edit history~@HistoryViews@.
 
-   #Folders history#      Display folders changing history.
+   #Folders history#      Display folders ~changing history~@HistoryFolders@.
 
                         Items in "Folders history" and "File view
                         history" are moved to the end of list after
@@ -873,9 +873,9 @@ for following operations:
 
  - interrupt operation;
 
- - disconnect network drives from the Disks menu.
+ - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
- - exit from FAR;
+ - exit from FAR.
 
 @FindFile
 $ #Find file#
@@ -954,7 +954,7 @@ shortcuts are available:
 
   Execute a previously executed command in a new window   #Shift-Enter#
 
-  Copy a command to the command line for editing           #Ctrl-Enter#
+  Copy a command to the command line                       #Ctrl-Enter#
 
   Clear the commands history                                      #Del#
 
@@ -968,6 +968,56 @@ line, you can press #Ctrl-E# or #Ctrl-X# respectively.
 you can use the highlighted shortcut letters.
 
     If you want to save the commands history after exiting FAR, use
+the respective option in the ~system settings dialog~@SystemSettings@.
+
+@HistoryViews
+$ #File view and edit history#
+    The file view history shows the list of files that have been
+recently viewed or edited. Besides the cursor control keys, the following
+keyboard shortcuts are available:
+
+  Reopen a file for viewing or editing                          #Enter#
+
+  Copy the file name to the command line                   #Ctrl-Enter#
+
+  Clear the history list                                          #Del#
+
+  Copy the text of the current history item to the             #Ctrl-C#
+  clipboard without closing the list                      or #Ctrl-Ins#
+
+    For choosing a history item, besides the cursor control keys and Enter,
+you can use the highlighted shortcut letters.
+
+    Items of the view and edit history are moved to the end of the list
+after they are selected. You can use #Shift-Enter# to select an item
+without changing its position.
+
+    If you want to save the view and edit history after exiting FAR, use
+the respective option in the ~system settings dialog~@SystemSettings@.
+
+@HistoryFolders
+$ #Folders history#
+    The folders history shows the list of folders that have been
+recently visited. Besides the cursor control keys, the following
+keyboard shortcuts are available:
+
+  Go to the current folder in the list                          #Enter#
+
+  Copy the folder name to the command line                 #Ctrl-Enter#
+
+  Clear the history list                                          #Del#
+
+  Copy the text of the current history item to the             #Ctrl-C#
+  clipboard without closing the list                      or #Ctrl-Ins#
+
+    For choosing a history item, besides the cursor control keys and Enter,
+you can use the highlighted shortcut letters.
+
+    Items of the folders history are moved to the end of the list
+after they are selected. You can use #Shift-Enter# to select an item
+without changing its position.
+
+    If you want to save the folders history after exiting FAR, use
 the respective option in the ~system settings dialog~@SystemSettings@.
 
 @TaskList
@@ -1098,8 +1148,9 @@ to refer to the active panel. For example, !^!.! denotes a current file
 name on the active panel, !##!\!^!.! - a file on the passive panel with the
 same name as the name of the current file on the active panel.
 
-    The modifiers "!##" and "!^" work as triggers for associations,
-for instance:
+    The prefixes "!##" and "!^" work as toggles for associations. The
+effect of these prefixes continues up to the next similar prefix. For
+example:
 
     if exist !##!\!^!.! diff -c -p !##!\!^!.! !\!.!
 
@@ -1163,14 +1214,14 @@ $ #System settings dialog#
                           input without viewer or editor screens
                           in the background.
 
-  #Save commands history#   Forces saving commands history before exit
+  #Save commands history#   Forces saving ~commands history~@History@ before exit
                           and restoring after starting FAR.
 
-  #Save folders history#    Forces saving folders history before exit
+  #Save folders history#    Forces saving ~folders history~@HistoryFolders@ before exit
                           and restoring after starting FAR. Folders
                           history list may be activated by Alt-F12.
 
-  #Save view and edit#      Forces saving history of viewed and edited
+  #Save view and edit#      Forces saving ~history of viewed and edited~@HistoryViews@
   #history#                 files before exit and restoring it after
                           starting FAR. View and edit history list
                           may be activated by Alt-F11.
@@ -1545,6 +1596,7 @@ menu~@DriveDlg@.
   The option #[x] Reconnect at logon# is enabled only for permanently
 connected network drives.
 
+  The confirmation can be disabled in the ~confirmations~@ConfirmDlg@ dialog.
 
 @Highlight
 $ #Files highlighting#
