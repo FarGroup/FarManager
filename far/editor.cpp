@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.130 05.11.2001 $ */
+/* Revision: 1.131 09.11.2001 $ */
 
 /*
 Modify:
+  09.11.2001 IS
+    -  проклятое место - EditorF7Rules,
+       опять фиксим, т.к. не соответствует заявленному в techinfo.
   05.11.2001
     SVS: ! ESPT_SETTABLE -> ESPT_CHARTABLE: все остальные ESPT_* тоже
            устанавливают, но SET  в  их  названии  нету.
@@ -3595,10 +3598,13 @@ BOOL Editor::Search(int Next)
        - Баг: зачем-то при продолжении _обратного_ поиска прокручивались на шаг
          _вперед_.
     */
-    if(!ReverseSearch &&
-       ((!Opt.EditorF7Rules && !ReplaceMode) || (Opt.EditorF7Rules && Next))
-      )
+    /* $ 09.11.2001 IS
+         проклятое место, блин.
+         опять фиксим, т.к. не соответствует заявленному
+    */
+    if( !ReverseSearch && ( Next || (Opt.EditorF7Rules && !ReplaceMode) ) )
         CurPos++;
+    /* IS $ */
     /* IS $ */
     /* SVS $ */
     /* SVS $ */
