@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.57 21.02.2001 $ */
+/* Revision: 1.58 02.03.2001 $ */
 
 /*
 Modify:
+  02.03.2001 IS
+    ! Переписал ExpandEnvironmentStr, ибо не понравилась она мне - могла быть
+      источником багов.
   21.02.2001 VVM
     ! GetFileOwner()::Под НТ/2000 переменная Needed устанавливается
       независимо от результат.
@@ -1177,30 +1180,33 @@ int GetClusterSize(char *Root)
 
 
 
-/* $ 05.07.2000 SVS
-   Расширение переменной среды
+/* $ 02.03.2001 IS
+   Расширение переменных среды
    Вынесена в качестве самостоятельной вместо прямого вызова
      ExpandEnvironmentStrings.
-*/
-/* $ 25.07.2000 SVS
-   Вызов WINAPI
 */
 DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
 {
   DWORD ret=0;
-  char *tmp=(char *)malloc(size+1);
-  if(tmp)
+  if(size)
   {
-    if(ExpandEnvironmentStrings(src,tmp,size))
-      strcpy(dest,tmp);
-    else
-      strcpy(dest,src);
-    free(tmp);
-    ret=strlen(dest);
+   char *tmp=(char *)malloc(size+1);
+   if(tmp)
+   {
+     if(ExpandEnvironmentStrings(src,tmp,size))
+       strncpy(dest, tmp, size);
+     else
+     {
+       strncpy(tmp, src, size);
+       strcpy(dest, tmp);
+     }
+     free(tmp);
+     ret=strlen(dest);
+   }
   }
   return ret;
 }
-/* SVS $ */
+/* IS $ */
 
 
 /* $ 25.07.2000 SVS
@@ -1378,4 +1384,3 @@ void WINAPI DeleteBuffer(char *Buffer)
   if(Buffer)delete [] Buffer;
 }
 /* skv$*/
-
