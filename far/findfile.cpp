@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.167 23.01.2005 $ */
+/* Revision: 1.168 23.01.2005 $ */
 
 /*
 Modify:
+  23.01.2005 SVS
+    - Поиск не мог перейти на pagefile.sys
   23.01.2005 SVS
     ! Продолжаем клеить поиск (см. 01916.search.txt)
   11.12.2004 WARP
@@ -2059,7 +2061,8 @@ int FindFiles::FindFilesProcess()
           break;
         if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
           FileName[Length-1]=0;
-        if (GetFileAttributes(FileName)==(DWORD)-1)
+
+        if ( (GetFileAttributes(FileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
           break;
         {
           char *NamePtr;
