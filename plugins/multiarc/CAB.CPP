@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $Revision: 1.03 14.01.2002 $ */
+/* $Revision: 1.04 29.01.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -34,19 +34,30 @@ typedef DWORD u4;
 
 struct CFHEADER
 {
-  u1  signature[4];
-  u4  reserved1;
-  u4  cbCabinet;
-  u4  reserved2;
-  u4  coffFiles;
-  u4  reserved3;
-  u1  versionMinor;
-  u1  versionMajor;
-  u2  cFolders;
-  u2  cFiles;
-  u2  flags;
-  u2  setID;
-  u2  iCabinet;
+  u1 signature[4];
+  u4 reserved1;
+  u4 cbCabinet;
+  u4 reserved2;
+  u4 coffFiles;
+  u4 reserved3;
+  u1 versionMinor;
+  u1 versionMajor;
+  u2 cFolders;
+  u2 cFiles;
+  u2 flags;
+  u2 setID;
+  u2 iCabinet;
+};
+
+struct CFFILE
+{
+  u4 cbFile;
+  u4 uoffFolderStart;
+  u2 iFolder;
+  u2 date;
+  u2 time;
+  u2 attribs;
+  u1 szName[256];
 };
 
 static HANDLE ArcHandle;
@@ -128,24 +139,28 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
   if( FilesNumber && (MainHeader.flags & 1) )
   {
-    char Name[ 276 ], *EndPos;
+    char *EndPos;
+    struct CFFILE FileHeader;
 
-    if (!ReadFile( ArcHandle, Name, sizeof(Name), &ReadSize, NULL )
+    if (!ReadFile( ArcHandle, &FileHeader, sizeof(FileHeader), &ReadSize, NULL )
         || ReadSize < 18)
       goto blad;
-    if (*(WORD*)(Name + 8) == 0xFFFD || *(WORD*)(Name + 8) == 0xFFFF)
+    if (FileHeader.iFolder == 0xFFFD || FileHeader.iFolder == 0xFFFF)
     {
-      EndPos = Name + 16;
-      while (EndPos - Name < sizeof(Name) && *EndPos)
+      EndPos = FileHeader.szName;
+      while (EndPos - (char*)&FileHeader < sizeof(FileHeader) && *EndPos)
         EndPos++;
-      if (EndPos - Name >= sizeof(Name))
+      if (EndPos - (char*)&FileHeader >= sizeof(FileHeader))
         goto blad;
 
-      SetFilePointer( ArcHandle, (EndPos-Name+1) - ReadSize, NULL, FILE_CURRENT );
+      SetFilePointer( ArcHandle, (EndPos-(char*)&FileHeader+1) - ReadSize, NULL, FILE_CURRENT );
       FilesNumber--;
     }
     else
+    {
       SetFilePointer( ArcHandle, 0 - ReadSize, NULL, FILE_CURRENT );
+      break;
+    }
   }
 ///
   return(TRUE);
@@ -154,16 +169,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
-  struct CFFILE
-  {
-    u4  cbFile;
-    u4  uoffFolderStart;
-    u2  iFolder;
-    u2  date;
-    u2  time;
-    u2  attribs;
-    u1 szName[ NM ];
-  } FileHeader;
+  struct CFFILE FileHeader;
 
   DWORD ReadSize;
   char *EndPos;
@@ -223,8 +229,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"CAB");
-    strcpy(DefaultExt,"cab");
+    lstrcpy(FormatName,"CAB");
+    lstrcpy(DefaultExt,"cab");
     return(TRUE);
   }
   return(FALSE);
@@ -236,8 +242,8 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-    /*Extract               */"MsCab {-sp%%R} x {%%S} %%A @%%LMA",
-    /*Extract without paths */"MsCab e {%%S} %%A @%%LMA",
+    /*Extract               */"MsCab -i0 {-ap%%R} {%%S} x %%A @%%LMA",
+    /*Extract without paths */"MsCab -i0 {%%S} e %%A @%%LMA",
     /*Test                  */"MsCab -i0 {%%S} t %%A @%%LMA",
     /*Delete                */"MsCab -i0 {%%S} d %%A @%%LMA",
     /*Comment archive       */"",
@@ -252,9 +258,9 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"MsCab -r -i0 {-ap%%R} {%%S} m %%A @%%LMA",
     /*"All files" mask      */"*.*"
     };
-    if (Command<sizeof(Commands)/sizeof(Commands[0]))
+    if (Command < sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }
