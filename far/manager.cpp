@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.24 21.05.2001 $ */
+/* Revision: 1.25 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 OT
+    - Исправление бага - удаление Frame, не внесенного в список FrameList
   22.05.2001 OT
     + Добавился RefreshedFrame
   22.05.2001 DJ
@@ -825,10 +827,12 @@ void Manager::DeleteCommit()
     if (!ActivatedFrame)
       ActivatedFrame=FrameList[FramePos];
   } else {
+    bool fFound=false;
     for (int i=0;i<FrameCount;i++){
       Frame *iFrame=FrameList[i];
       int ModalDeletedIndex=(*iFrame)[DeletedFrame];
       if(ModalDeletedIndex>=0){
+        fFound=true;
         if (ModalDeletedIndex>0){
           int iModalCount=iFrame->ModalCount();
           for (int j=iModalCount;j>ModalDeletedIndex;j--){
@@ -841,6 +845,10 @@ void Manager::DeleteCommit()
         }
         break;
       }
+    }
+    if (!fFound){
+      DeletedFrame->OnDestroy();
+      delete DeletedFrame;
     }
   }
 }

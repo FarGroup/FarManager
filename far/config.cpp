@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.75 20.05.2001 $ */
+/* Revision: 1.76 23.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+   + Opt.AltF9
+   + Opt.Confirmation.AllowReedit
   20.05.2001 IS
     + Задаем поведение для файлов с атрибутом r/o в настройках редактора
        лочить или нет
@@ -898,6 +901,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
+  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9,1, (char*)1},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},
@@ -1005,6 +1009,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"Esc",&Opt.Confirm.Esc,0, 0},
   {1, REG_DWORD,  NKeyConfirmations,"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
+  {0, REG_DWORD,  NKeyConfirmations,"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"Exit",&Opt.Confirm.Exit,1, 0},
 
   {1, REG_DWORD,  NKeyPanel,"ShowHidden",&Opt.ShowHidden,1, 0},

@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.46 19.05.2001 $ */
+/* Revision: 1.47 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 OT
+    + Опция AllowReedit
+    ! Исправление бага из-за которго файл трапался по отмене ReloadAgain
+    - Выпрямление логики вызовов в NFZ
   19.05.2001 DJ
     ! лечим последствия NFZ
   15.05.2001 OT
@@ -196,7 +200,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
     int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
     if (FramePos!=-1) {
       int SwitchTo=FALSE;
-      if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE)) {
+      if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE)||Opt.Confirm.AllowReedit) {
         int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
           MSG(MCurrent),MSG(MReload));
         switch(MsgCode){
@@ -204,11 +208,16 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
           SwitchTo=TRUE;
           break;
         case 1:
-          FrameManager->DeleteFrame(FramePos);
-          SetExitCode(-2);
+          if (Opt.Confirm.AllowReedit){
+            SwitchTo=FALSE;
+//            SetExitCode(-1);
+          }else {
+            FrameManager->DeleteFrame(FramePos);
+            SetExitCode(-2);
+          }
           break;
         default:
-          FrameManager->DeleteFrame();
+          FrameManager->DeleteFrame(this);
           SetExitCode(XC_QUIT);
           return;
         }

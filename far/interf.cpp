@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.26 23.05.2001 $ */
+/* Revision: 1.27 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 OT
+    + Добавление опции "AltF9 - по старому"
   23.05.2001 SVS
     ! немного увеличим размеры локальных буферов для отрисовки (по мотивам
       Alt-F9)
@@ -261,10 +263,10 @@ _OT(void ViewConsoleInfo()\
 
 void SetVideoMode(int ScreenMode)
 {
-  if (!ScreenMode){
+  if (!ScreenMode && Opt.AltF9){
     ChangeVideoMode(InitScreenBufferInfo==CurScreenBufferInfo);
   } else {
-    ChangeVideoMode(ScrY==24 ? 50:25,80);
+    ChangeVideoMode(ScrY!=49?50:25,80);
   }
 }
 
@@ -335,14 +337,15 @@ void ChangeVideoMode(int NumLines,int NumColumns)
     _OT(le=GetLastError());
     _OT(SysLog("SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
   }
-  GetVideoMode(CurScreenBufferInfo);
+//  GetVideoMode(CurScreenBufferInfo); // Должно делаться после, в обработчике событий
   // под масдаем внаглую зашлем эвент
   if(WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
   {
     INPUT_RECORD Rec;
     DWORD Writes;
     Rec.EventType=WINDOW_BUFFER_SIZE_EVENT;
-    Rec.Event.WindowBufferSizeEvent.dwSize.X=Rec.Event.WindowBufferSizeEvent.dwSize.Y=0;
+    Rec.Event.WindowBufferSizeEvent.dwSize.X=NumColumns;
+    Rec.Event.WindowBufferSizeEvent.dwSize.Y=NumLines;
     WriteConsoleInput(hConInp,&Rec,1,&Writes);
   }
 }
