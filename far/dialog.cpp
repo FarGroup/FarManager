@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.201 28.12.2001 $ */
+/* Revision: 1.202 03.01.2002 $ */
 
 /*
 Modify:
+  03.01.2002 SVS
+    ! ”точнение дл€ обрезани€ заголовков в DI_SINGLEBOX.
   28.12.2001 SVS
     ! ѕравка с учетом изменений структур (про анонимный union)
   28.12.2001 SVS
@@ -1893,9 +1895,9 @@ void Dialog::ShowDialog(int ID)
           */
           sprintf(Str," %s ",CurItem->Data);
           LenText=LenStrItem(I,Str);
-          if(LenText > CW-3)
+          if(LenText > CW)
           {
-            TruncStrFromEnd(Str,CW-3); // 5 ???
+            TruncStrFromEnd(Str,CW); // 5 ???
             strcat(Str," ");
             LenText=LenStrItem(I,Str);
           }

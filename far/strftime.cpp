@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.05 20.12.2001 $ */
+/* Revision: 1.06 03.01.2002 $ */
 
 /*
 Modify:
+  03.01.2002 SVS
+    ! Хе, блин, русские буковки им не понрявились ;-(
   20.12.2001 SVS
     - BugZ#191 - %C вставляет последние две цифры года
   27.06.2001 SVS
@@ -37,34 +39,50 @@ Modify:
 //extern char  *const _tzname[2];
 static const char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 static int YDays[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
-static char Month[2][2][12][32];
-static char Weekday[2][2][7][32];
+static char AMonth[2][12][16];
+static char AWeekday[2][7][16];
+static char Month[2][12][32];
+static char Weekday[2][7][32];
 static char *AmPm[2] = { "AM", "PM" };
 static int   CurLang=-1;
 static char  Word[80];
 
 void PrepareStrFTime(void)
 {
-  int I,J;
-  const char *TempBuf;
-  for(I=MStrFTimeMonth1; I < MStrFTimeMonth12; ++I)
+  DWORD Loc[2]={LANG_ENGLISH,LANG_NEUTRAL}, ID;
+  char TempBuf[100];
+  int I;
+
+  for(I=0; I < 2; ++I)
   {
-    TempBuf=MSG(I);
-    J=0;
-    while ((TempBuf=GetCommaWord(TempBuf,Word,','))!=NULL)
+    LCID CurLCID=MAKELCID(MAKELANGID(Loc[I],SUBLANG_DEFAULT),SORT_DEFAULT);
+
+    for(ID=LOCALE_SMONTHNAME1; ID <= LOCALE_SMONTHNAME12; ++ID)
     {
-      strncpy(Month[J<2?0:1][J&1][I-MStrFTimeMonth1],Word,sizeof(Month[0][0][0])-1);
-      ++J;
+      GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
+      CharToOem(TempBuf,Month[I][ID-LOCALE_SMONTHNAME1]);
+      *Month[I][ID-LOCALE_SMONTHNAME1]=LocalUpper(*Month[I][ID-LOCALE_SMONTHNAME1]);
     }
-  }
-  for(I=MStrFTimeWeekDay0; I < MStrFTimeWeekDay6; ++I)
-  {
-    TempBuf=MSG(I);
-    J=0;
-    while ((TempBuf=GetCommaWord(TempBuf,Word,','))!=NULL)
+
+    for(ID=LOCALE_SABBREVMONTHNAME1; ID <= LOCALE_SABBREVMONTHNAME12; ++ID)
     {
-      strncpy(Weekday[J<2?0:1][J&1][I-MStrFTimeWeekDay0],Word,sizeof(Weekday[0][0][0])-1);
-      ++J;
+      GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
+      CharToOem(TempBuf,AMonth[I][ID-LOCALE_SABBREVMONTHNAME1]);
+      *AMonth[I][ID-LOCALE_SABBREVMONTHNAME1]=LocalUpper(*AMonth[I][ID-LOCALE_SABBREVMONTHNAME1]);
+    }
+
+    for(ID=LOCALE_SDAYNAME1; ID <= LOCALE_SDAYNAME7; ++ID)
+    {
+      GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
+      CharToOem(TempBuf,Weekday[I][ID-LOCALE_SDAYNAME1]);
+      *Weekday[I][ID-LOCALE_SDAYNAME1]=LocalUpper(*Weekday[I][ID-LOCALE_SDAYNAME1]);
+    }
+
+    for(ID=LOCALE_SABBREVDAYNAME1; ID <= LOCALE_SABBREVDAYNAME7; ++ID)
+    {
+      GetLocaleInfo(CurLCID,ID,TempBuf,sizeof(TempBuf));
+      CharToOem(TempBuf,AWeekday[I][ID-LOCALE_SABBREVDAYNAME1]);
+      *AWeekday[I][ID-LOCALE_SABBREVDAYNAME1]=LocalUpper(*AWeekday[I][ID-LOCALE_SABBREVDAYNAME1]);
     }
   }
   CurLang=0;
@@ -74,8 +92,8 @@ static int atime(char *dest,const struct tm *tmPtr)
 {
     // Thu Oct  7 12:37:32 1999
     return sprintf( dest, "%s %s %02d %02d:%02d:%02d %4d",
-        Weekday[0][CurLang][tmPtr->tm_wday],
-        Month[0][CurLang][tmPtr->tm_mon],
+        AWeekday[CurLang][tmPtr->tm_wday],
+        AMonth[CurLang][tmPtr->tm_mon],
         tmPtr->tm_mday,
         tmPtr->tm_hour,
         tmPtr->tm_min,
@@ -93,7 +111,7 @@ static int st_time(char *dest,const struct tm *tmPtr,char chr)
    {
      res=sprintf(dest, "%2d-%3.3s-%4d",
          range(1, tmPtr->tm_mday, 31),
-         Month[0][CurLang][range(0, tmPtr->tm_mon, 11)],
+         AMonth[CurLang][range(0, tmPtr->tm_mon, 11)],
          tmPtr->tm_year + 1900);
      for (i = 3; i < 6; i++)
        if (LocalIslower(dest[i]))
@@ -305,17 +323,17 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
           continue;
         // Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
         // abbreviated weekday name
-        case 'a': Ptr = Weekday[0][CurLang][t->tm_wday]; break;
+        case 'a': Ptr = AWeekday[CurLang][t->tm_wday]; break;
         // Полное имя дня недели
         // full weekday name
-        case 'A': Ptr = Weekday[1][CurLang][t->tm_wday]; break;
+        case 'A': Ptr = Weekday[CurLang][t->tm_wday]; break;
         // Краткое имя месяца (Jan,Feb,...)
         // abbreviated month name
         case 'h':
-        case 'b': Ptr = Month[0][CurLang][t->tm_mon];    break;
+        case 'b': Ptr = AMonth[CurLang][t->tm_mon];    break;
         // Полное имя месяца
         // full month name
-        case 'B': Ptr = Month[1][CurLang][t->tm_mon];    break;
+        case 'B': Ptr = Month[CurLang][t->tm_mon];    break;
         // Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
         // appropriate date and time representation
         case 'c': atime( Ptr, t );                   break;

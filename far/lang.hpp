@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.91 28.12.2001 $ */
+/* Revision: 1.92 03.01.2002 $ */
 
 /*
 Modify:
+  03.01.2002 SVS
+    ! Выкинуты месяцы и дни недели для $Date
   28.12.2001 SVS
     + С хоткеями: MHYes, MHNo, MHOk, MHCancel, MHRetry, MHSkip, MHAbort,
                   MHIgnore, MHDelete, MHSplit
@@ -1566,27 +1568,6 @@ enum
   MMonthOct,
   MMonthNov,
   MMonthDec,
-
-  MStrFTimeMonth1,
-  MStrFTimeMonth2,
-  MStrFTimeMonth3,
-  MStrFTimeMonth4,
-  MStrFTimeMonth5,
-  MStrFTimeMonth6,
-  MStrFTimeMonth7,
-  MStrFTimeMonth8,
-  MStrFTimeMonth9,
-  MStrFTimeMonth10,
-  MStrFTimeMonth11,
-  MStrFTimeMonth12,
-
-  MStrFTimeWeekDay0,
-  MStrFTimeWeekDay1,
-  MStrFTimeWeekDay2,
-  MStrFTimeWeekDay3,
-  MStrFTimeWeekDay4,
-  MStrFTimeWeekDay5,
-  MStrFTimeWeekDay6,
 
   MPluginHotKeyTitle,
   MPluginHotKey,

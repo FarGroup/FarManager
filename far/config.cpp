@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.119 27.12.2001 $ */
+/* Revision: 1.120 03.01.2002 $ */
 
 /*
 Modify:
+  03.01.2002 SVS
+    - BugZ#220 - Auto save setup нельзя включить
   27.12.2001 IS
     ! По умолчанию CloseConsoleRule=1, т.е. если автосохранение включено, то
       FAR попытается сохранить настройки, если его закрыли "по кресту".
@@ -486,7 +488,7 @@ void SystemSettings()
   Opt.SaveFoldersHistory=CfgDlg[10].Selected;
   Opt.SaveViewHistory=CfgDlg[11].Selected;
   Opt.UseRegisteredTypes=CfgDlg[12].Selected;
-  Opt.AutoSaveSetup=CfgDlg[13].Selected;
+  Opt.AutoSaveSetup=CfgDlg[15].Selected;
   strcpy(Opt.PersonalPluginsPath,PersonalPluginsPath);
   /* SVS $ */
 }
