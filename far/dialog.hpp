@@ -10,12 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.42 08.11.2001 $ */
+/* Revision: 1.43 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 OT
+   - VC выдает ошибку...
   08.11.2001 SVS
-    ! Добавка в виде BitFlags - управление флагами текущего режима диалога
+   ! Добавка в виде BitFlags - управление флагами текущего режима диалога
   06.11.2001 SVS
    ! Заводим доп.параметр struct DialogItem *CurItem у функции
      SelectFromEditHistory()
@@ -491,7 +493,7 @@ class Dialog: public Frame
     /* $ 17.05.2001 DJ */
     void SetHelp(const char *Topic);
     void ShowHelp();
-    int Done() const { return DialogMode.Check(DMODE_ENDLOOP); }
+    int Done() { return DialogMode.Check(DMODE_ENDLOOP); }
     void ClearDone();
     virtual void SetExitCode (int Code);
 
