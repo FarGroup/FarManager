@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.103 02.11.2001 $ */
+/* Revision: 1.104 24.11.2001 $ */
 
 /*
 Modify:
+  24.11.2001 IS
+    + Обработка ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS,
+      ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
   02.11.2001 SVS
     ! Выкинем ненужный код (а кое-где добавим :-))
     ! FCTL_GETCMDLINESELECTION -> FCTL_GETCMDLINESELECTEDTEXT
@@ -585,6 +588,116 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     case ACTL_GETFARHWND:
         return (int)hFarWnd;
     /* tran $ */
+    /* $ 24.11.2001 IS
+       Ознакомим с настройками системными, панели, интерфейса, подтверждений
+    */
+    case ACTL_GETSYSTEMSETTINGS:
+        {
+          DWORD Options=0;
+          if(Opt.ClearReadOnly)
+            Options|=FSS_CLEARROATTRIBUTE;
+          if(Opt.DeleteToRecycleBin)
+            Options|=FSS_DELETETORECYCLEBIN;
+          if(Opt.UseSystemCopy)
+            Options|=FSS_USESYSTEMCOPYROUTINE;
+          if(Opt.CopyOpened)
+            Options|=FSS_COPYFILESOPENEDFORWRITING;
+          if(Opt.CreateUppercaseFolders)
+            Options|=FSS_CREATEFOLDERSINUPPERCASE;
+          if(Opt.SaveHistory)
+            Options|=FSS_SAVECOMMANDSHISTORY;
+          if(Opt.SaveFoldersHistory)
+            Options|=FSS_SAVEFOLDERSHISTORY;
+          if(Opt.SaveViewHistory)
+            Options|=FSS_SAVEVIEWANDEDITHISTORY;
+          if(Opt.UseRegisteredTypes)
+            Options|=FSS_USEWINDOWSREGISTEREDTYPES;
+          if(Opt.AutoSaveSetup)
+            Options|=FSS_AUTOSAVESETUP;
+          return Options;
+        }
+    case ACTL_GETPANELSETTINGS:
+        {
+          DWORD Options=0;
+          if(Opt.ShowHidden)
+            Options|=FPS_SHOWHIDDENANDSYSTEMFILES;
+          if(Opt.Highlight)
+            Options|=FPS_HIGHLIGHTFILES;
+          if(Opt.AutoChangeFolder)
+            Options|=FPS_AUTOCHANGEFOLDER;
+          if(Opt.SelectFolders)
+            Options|=FPS_SELECTFOLDERS;
+          if(Opt.ReverseSort)
+            Options|=FPS_ALLOWREVERSESORTMODES;
+          if(Opt.ShowColumnTitles)
+            Options|=FPS_SHOWCOLUMNTITLES;
+          if(Opt.ShowPanelStatus)
+            Options|=FPS_SHOWSTATUSLINE;
+          if(Opt.ShowPanelTotals)
+            Options|=FPS_SHOWFILESTOTALINFORMATION;
+          if(Opt.ShowPanelFree)
+            Options|=FPS_SHOWFREESIZE;
+          if(Opt.ShowPanelScrollbar)
+            Options|=FPS_SHOWSCROLLBAR;
+          if(Opt.ShowScreensNumber)
+            Options|=FPS_SHOWBACKGROUNDSCREENSNUMBER;
+          if(Opt.ShowSortMode)
+            Options|=FPS_SHOWSORTMODELETTER;
+          return Options;
+        }
+    case ACTL_GETINTERFACESETTINGS:
+        {
+          DWORD Options=0;
+          if(Opt.Clock)
+            Options|=FIS_CLOCKINPANELS;
+          if(Opt.ViewerEditorClock)
+            Options|=FIS_CLOCKINVIEWERANDEDITOR;
+          if(Opt.Mouse)
+            Options|=FIS_MOUSE;
+          if(Opt.ShowKeyBar)
+            Options|=FIS_SHOWKEYBAR;
+          if(Opt.ShowMenuBar)
+            Options|=FIS_ALWAYSSHOWMENUBAR;
+          if(Opt.DialogsEditHistory)
+            Options|=FIS_HISTORYINDIALOGEDITCONTROLS;
+          if(Opt.DialogsEditBlock)
+            Options|=FIS_PERSISTENTBLOCKSINEDITCONTROLS;
+          if(Opt.AltGr)
+            Options|=FIS_USERIGHTALTASALTGR;
+          if(Opt.CopyShowTotal)
+            Options|=FIS_SHOWTOTALCOPYPROGRESSINDICATOR;
+          if(Opt.AutoComplete)
+            Options|=FIS_AUTOCOMPLETEININPUTLINES;
+          if(Opt.PgUpChangeDisk)
+            Options|=FIS_USECTRLPGUPTOCHANGEDRIVE;
+          return Options;
+        }
+    case ACTL_GETCONFIRMATIONS:
+        {
+          DWORD Options=0;
+          if(Opt.Confirm.Copy)
+            Options|=FCS_COPYOVERWRITE;
+          if(Opt.Confirm.Move)
+            Options|=FCS_MOVEOVERWRITE;
+          if(Opt.Confirm.Drag)
+            Options|=FCS_DRAGANDDROP;
+          if(Opt.Confirm.Delete)
+            Options|=FCS_DELETE;
+          if(Opt.Confirm.DeleteFolder)
+            Options|=FCS_DELETENONEMPTYFOLDERS;
+          if(Opt.Confirm.Esc)
+            Options|=FCS_INTERRUPTOPERATION;
+          if(Opt.Confirm.RemoveConnection)
+            Options|=FCS_DISCONNECTNETWORKDRIVE;
+          if(Opt.Confirm.AllowReedit)
+            Options|=FCS_RELOADEDITEDFILE;
+          if(Opt.Confirm.HistoryClear)
+            Options|=FCS_CLEARHISTORYLIST;
+          if(Opt.Confirm.Exit)
+            Options|=FCS_EXIT;
+          return Options;
+        }
+    /* IS $ */
  }
  return FALSE;
 }
