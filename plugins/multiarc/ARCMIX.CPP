@@ -563,7 +563,7 @@ void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini)
 
 int WINAPI GetPassword(char *Password,const char *FileName)
 {
-  char Prompt[NM],InPass[512];
+  char Prompt[2*NM],InPass[512];
   FSF.sprintf(Prompt,GetMsg(MGetPasswordForFile),FileName);
   if(Info.InputBox((const char*)GetMsg(MGetPasswordTitle),
                   (const char*)Prompt,NULL,NULL,
