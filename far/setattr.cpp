@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.44 08.11.2001 $ */
+/* Revision: 1.45 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 SVS
+    - Бага, аднака - для одиночного файлового объекта месаг процесса установки
+      атрибутов был пустым.
+    ! Часть кода по разбору даты и времени вынесена в функцию GetFileDateAndTime()
   08.11.2001 SVS
     ! Уточнение ширины - прагала падлюка.
   06.11.2001 SVS
@@ -152,9 +156,14 @@ Modify:
 
 #define DM_SETATTR      (DM_USER+1)
 
+const char FmtMask1[]="99%c99%c99";
+const char FmtMask2[]="99%c99%c9999";
+const char FmtMask3[]="9999%c99%c99";
+
 struct SetAttrDlgParam{
   DWORD FileSystemFlags;
   int ModeDialog;
+  int DateFormat;
   char *SelName;
   int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
   int OriginalCBAttr2[16]; //
@@ -166,6 +175,27 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
                        char *OSrcDate,char *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
 void ShellSetFileAttributesMsg(char *Name);
+
+// В Dst получить числа для даты времени
+static void GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
+{
+  char Temp[32], Digit[16],*PtrDigit;
+  int I;
+
+  strncpy(Temp,Src,sizeof(Temp)-1);
+  Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
+  I=0;
+  const char *Ptr=Temp;
+  while((Ptr=GetCommaWord(Ptr,Digit,Separator)) != NULL)
+  {
+    PtrDigit=Digit;
+    while (*PtrDigit && !isdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      Dst[I]=atoi(PtrDigit);
+    ++I;
+  }
+}
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
@@ -535,20 +565,20 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     int TimeSeparator=GetTimeSeparator();
     static char DMask[20],TMask[20];
 
-    sprintf(TMask,"99%c99%c99",TimeSeparator,TimeSeparator);
-    switch(GetDateFormat())
+    sprintf(TMask,FmtMask1,TimeSeparator,TimeSeparator);
+    switch(DlgParam.DateFormat=GetDateFormat())
     {
       case 0:
         sprintf(AttrDlg[14].Data,MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
-        sprintf(DMask,"99%c99%c9999",DateSeparator,DateSeparator);
+        sprintf(DMask,FmtMask2,DateSeparator,DateSeparator);
         break;
       case 1:
         sprintf(AttrDlg[14].Data,MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
-        sprintf(DMask,"99%c99%c9999",DateSeparator,DateSeparator);
+        sprintf(DMask,FmtMask2,DateSeparator,DateSeparator);
         break;
       default:
         sprintf(AttrDlg[14].Data,MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator);
-        sprintf(DMask,"9999%c99%c99",DateSeparator,DateSeparator);
+        sprintf(DMask,FmtMask3,DateSeparator,DateSeparator);
         break;
     }
 
@@ -767,7 +797,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     // </Dialog>
 
     SetPreRedrawFunc(PR_ShellSetFileAttributesMsg);
-    ShellSetFileAttributesMsg(NULL);
+    ShellSetFileAttributesMsg(SelCount==1?SelName:NULL);
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
@@ -980,36 +1010,9 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   /* SKV$*/
 
   // ****** ОБРАБОТКА ДАТЫ ******** //
-  strncpy(SrcDate,OSrcDate,sizeof(SrcDate)-1);
-  DateN[0]=DateN[1]=DateN[2]=(unsigned)-1;
-  I=0;
-  Ptr=SrcDate;
-  int DateSeparator=GetDateSeparator();
-  while((Ptr=GetCommaWord(Ptr,Digit,DateSeparator)) != NULL)
-  {
-    PtrDigit=Digit;
-    while (*PtrDigit && !isdigit(*PtrDigit))
-      PtrDigit++;
-    if(*PtrDigit)
-      DateN[I]=atoi(PtrDigit);
-    ++I;
-  }
-
+  GetFileDateAndTime(OSrcDate,DateN,GetDateSeparator());
   // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
-  strncpy(SrcTime,OSrcTime,sizeof(SrcTime)-1);
-  TimeN[0]=TimeN[1]=TimeN[2]=(unsigned)-1;
-  I=0;
-  Ptr=SrcTime;
-  int TimeSeparator=GetTimeSeparator();
-  while((Ptr=GetCommaWord(Ptr,Digit,TimeSeparator)) != NULL)
-  {
-    PtrDigit=Digit;
-    while (*PtrDigit && !isdigit(*PtrDigit))
-      PtrDigit++;
-    if(*PtrDigit)
-      TimeN[I]=atoi(PtrDigit);
-    ++I;
-  }
+  GetFileDateAndTime(OSrcTime,TimeN,GetTimeSeparator());
 
   // исключаем лишние телодвижения
   if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1 ||
