@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.03 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 SVS
+    ! 'P' - обозначающий reparse point заменен на 'L'
   20.10.2000 SVS
     + Добавлен Encrypted
       Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
@@ -941,7 +943,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                    Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
                 */
                 sprintf(OutStr,"%c%c%c%c%c%c",
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'P':' ',
+                        (CurPtr->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ' ',
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':
                            ((CurPtr->FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' '),
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ',

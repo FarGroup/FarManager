@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.40 05.01.2001 $ */
+/* Revision: 1.41 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 SVS
+    + MHighlightJunction, MSetAttrJunction
   05.01.2001 SVS
     + MAskDeleteItems0,   MAskDeleteItemsA,   MAskDeleteItemsS,
   05.01.2001 IS
@@ -801,6 +803,7 @@ enum
   MHighlightCompressed,
   MHighlightEncrypted,
   MHighlightFolder,
+  MHighlightJunction,
   MHighlightExcludeAttr,
   MHighlightColors,
   MHighlightNormal,
@@ -1017,6 +1020,7 @@ enum
   MSetAttrTitle,
   MSetAttrFor,
   MSetAttrSelectedObjects,
+  MSetAttrJunction,
   MSetAttrRO,
   MSetAttrArchive,
   MSetAttrHidden,

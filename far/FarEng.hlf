@@ -1481,12 +1481,12 @@ used both with or instead of color highlighting.
 
  - it has none of the excluded attributes.
 
-    Highlighting groups are analyzed from the beginning.
-If a file fits a certain group, it will not be checked to fit
-the rest of the groups.
+    Highlighting groups are analyzed from the beginning. If a file fits a
+certain group, it will not be checked to fit the rest of the groups.
 
-    The Compressed and Encrypted attributes are valid for NTFS drives
-only. The Encrypted attribute can be used only in Windows 2000.
+    The Compressed, Encrypted attributes and Symbolic links are valid for
+NTFS drives only. The Encrypted attribute and Symbolic links can be used
+only in Windows 2000.
 
 @ViewerSettings
 $ #Viewer settings#
@@ -1749,6 +1749,15 @@ characters, delimited with commas. Allowed column types are:
     If the column types description contains more than one file name
 column, the file panel will be displayed in the multicolumn form.
 
+    File attributes have the following indications:
+
+       #A#         - Archive
+       #R#         - Read only
+       #H#         - Hidden
+       #S#         - System
+       #C# or #E#    - Compressed or Encrypted
+       #L#         - Symbolic links (reparse point)
+
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
 name, description or owner column is 0, it will be calculated automatically,
@@ -1959,7 +1968,7 @@ is defined.
 
     Commands "IF" can be embedded, for instance command "command"
 
-    #if exist file1 if not exist file2 if exist variable command#
+    #if exist file1 if not exist file2 if defined variable command#
 
     will be executed  if exists a file "file1" and does not exist a file
 "file2" and environment variable "variable" defined.

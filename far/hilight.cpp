@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.05 24.11.2000 $ */
+/* Revision: 1.06 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 SVS
+    + Маска для reparse point
   24.11.2000 SVS
     - Для Encrypted вместо EditData.ExcludeAttr стоял IncludeAttr :-(
   30.10.2000 SVS
@@ -130,7 +132,7 @@ void HighlightFiles::HiEdit(int MenuPos)
     for (int I=0;I<HiDataCount;I++)
     {
       struct HighlightData *CurHiData=&HiData[I];
-      sprintf(HiMenuItem.Name,"%c%c%c%c%c%c │ %c%c%c%c%c%c │ %.60s",
+      sprintf(HiMenuItem.Name,"%c%c%c%c%c%c%c │ %c%c%c%c%c%c%c │ %.60s",
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
@@ -138,6 +140,8 @@ void HighlightFiles::HiEdit(int MenuPos)
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':
           ((CurHiData->IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':'.'),
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
+        (CurHiData->IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
+
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
@@ -145,6 +149,7 @@ void HighlightFiles::HiEdit(int MenuPos)
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':
           ((CurHiData->ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':'.'),
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
+        (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
         CurHiData->Masks);
       HiMenuItem.Selected=(I==MenuPos);
       HiMenu.AddItem(&HiMenuItem);
@@ -290,7 +295,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
 {
   const char *HistoryName="Masks";
   static struct DialogData HiEditDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(char *)MHighlightEditTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(char *)MHighlightEditTitle,
   /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MHighlightMasks,
   /* 02 */DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
   /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
@@ -302,25 +307,27 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MHighlightCompressed,
   /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MHighlightEncrypted,
   /* 11 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MHighlightFolder,
-  /* 12 */DI_TEXT,37,5,0,0,0,0,DIF_BOXCOLOR,0,(char *)MHighlightExcludeAttr,
-  /* 13 */DI_CHECKBOX,37,6,0,0,0,0,0,0,(char *)MHighlightRO,
-  /* 14 */DI_CHECKBOX,37,7,0,0,0,0,0,0,(char *)MHighlightHidden,
-  /* 15 */DI_CHECKBOX,37,8,0,0,0,0,0,0,(char *)MHighlightSystem,
-  /* 16 */DI_CHECKBOX,37,9,0,0,0,0,0,0,(char *)MHighlightArchive,
-  /* 17 */DI_CHECKBOX,37,10,0,0,0,0,0,0,(char *)MHighlightCompressed,
-  /* 18 */DI_CHECKBOX,37,11,0,0,0,0,0,0,(char *)MHighlightEncrypted,
-  /* 19 */DI_CHECKBOX,37,12,0,0,0,0,0,0,(char *)MHighlightFolder,
-  /* 20 */DI_TEXT,-1,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
-  /* 21 */DI_BUTTON,5,14,0,0,0,0,0,0,(char *)MHighlightNormal,
-  /* 22 */DI_BUTTON,5,15,0,0,0,0,0,0,(char *)MHighlightSelected,
-  /* 23 */DI_BUTTON,37,14,0,0,0,0,0,0,(char *)MHighlightCursor,
-  /* 24 */DI_BUTTON,37,15,0,0,0,0,0,0,(char *)MHighlightSelectedCursor,
-  /* 25 */DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 26 */DI_TEXT,7,17,0,0,0,0,0,0,(char *)MHighlightMarkChar,
-  /* 27 */DI_FIXEDIT,5,17,5,18,0,0,0,0,"",
-  /* 28 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 29 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 30 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 12 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MHighlightJunction,
+  /* 13 */DI_TEXT,37,5,0,0,0,0,DIF_BOXCOLOR,0,(char *)MHighlightExcludeAttr,
+  /* 14 */DI_CHECKBOX,37,6,0,0,0,0,0,0,(char *)MHighlightRO,
+  /* 15 */DI_CHECKBOX,37,7,0,0,0,0,0,0,(char *)MHighlightHidden,
+  /* 16 */DI_CHECKBOX,37,8,0,0,0,0,0,0,(char *)MHighlightSystem,
+  /* 17 */DI_CHECKBOX,37,9,0,0,0,0,0,0,(char *)MHighlightArchive,
+  /* 18 */DI_CHECKBOX,37,10,0,0,0,0,0,0,(char *)MHighlightCompressed,
+  /* 19 */DI_CHECKBOX,37,11,0,0,0,0,0,0,(char *)MHighlightEncrypted,
+  /* 20 */DI_CHECKBOX,37,12,0,0,0,0,0,0,(char *)MHighlightFolder,
+  /* 21 */DI_CHECKBOX,37,13,0,0,0,0,0,0,(char *)MHighlightJunction,
+  /* 22 */DI_TEXT,-1,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
+  /* 23 */DI_BUTTON,5,15,0,0,0,0,0,0,(char *)MHighlightNormal,
+  /* 24 */DI_BUTTON,5,16,0,0,0,0,0,0,(char *)MHighlightSelected,
+  /* 25 */DI_BUTTON,37,15,0,0,0,0,0,0,(char *)MHighlightCursor,
+  /* 26 */DI_BUTTON,37,16,0,0,0,0,0,0,(char *)MHighlightSelectedCursor,
+  /* 27 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 28 */DI_TEXT,7,18,0,0,0,0,0,0,(char *)MHighlightMarkChar,
+  /* 29 */DI_FIXEDIT,5,18,5,18,0,0,0,0,"",
+  /* 30 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 31 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 32 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(HiEditDlgData,HiEditDlg);
   struct HighlightData EditData;
@@ -339,23 +346,26 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   HiEditDlg[9].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
   HiEditDlg[10].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
   HiEditDlg[11].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0;
-  HiEditDlg[13].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_READONLY)!=0;
-  HiEditDlg[14].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
-  HiEditDlg[15].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
-  HiEditDlg[16].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
-  HiEditDlg[17].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-  HiEditDlg[18].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-  HiEditDlg[19].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0;
+  HiEditDlg[12].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
 
-  *HiEditDlg[27].Data=EditData.MarkChar;
+  HiEditDlg[14].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_READONLY)!=0;
+  HiEditDlg[15].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
+  HiEditDlg[16].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
+  HiEditDlg[17].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
+  HiEditDlg[18].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
+  HiEditDlg[19].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+  HiEditDlg[20].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0;
+  HiEditDlg[21].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
+
+  *HiEditDlg[29].Data=EditData.MarkChar;
 
   int FocusPos;
-  while (ExitCode!=29)
+  while (ExitCode!=31)
   {
     SaveScreen SaveScr;
     Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]));
     Dlg.SetHelp("Highlight");
-    Dlg.SetPosition(-1,-1,76,22);
+    Dlg.SetPosition(-1,-1,76,23);
     Dlg.Show();
     while (!Dlg.Done())
     {
@@ -363,15 +373,16 @@ int HighlightFiles::EditRecord(int RecPos,int New)
        Dlg.ProcessInput();
        FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
        // отработаем взаимоисключения
-       if(FocusPos >= 5 && FocusPos <= 19)
+       if(FocusPos >= 5 && FocusPos <= 21)
        {
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,5,13); // Read only
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,6,14); // Archive
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,7,15); // Hidden
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,8,16); // System
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,9,17); // Compressed
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,10,18); // Encrypted
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,11,19); // Folder
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,5,14); // Read only
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,6,15); // Archive
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,7,16); // Hidden
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,8,17); // System
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,9,18); // Compressed
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,10,19); // Encrypted
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,11,20); // Folder
+         IncludeExcludeAttrib(FocusPos,HiEditDlg,12,21); // Reparse point
          Dlg.FastShow();
        }
     }
@@ -380,18 +391,18 @@ int HighlightFiles::EditRecord(int RecPos,int New)
       return(FALSE);
     switch(ExitCode)
     {
-      case 30:
+      case 32:
         return(FALSE);
-      case 21:
+      case 23:
         GetColorDialog(EditData.Color);
         break;
-      case 22:
+      case 24:
         GetColorDialog(EditData.SelColor);
         break;
-      case 23:
+      case 25:
         GetColorDialog(EditData.CursorColor);
         break;
-      case 24:
+      case 26:
         GetColorDialog(EditData.CursorSelColor);
         break;
     }
@@ -421,27 +432,33 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   }
   if (HiEditDlg[11].Selected)
     EditData.IncludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
-  if (HiEditDlg[13].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_READONLY;
+  if (HiEditDlg[12].Selected)
+    EditData.IncludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
+
   if (HiEditDlg[14].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_HIDDEN;
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_READONLY;
   if (HiEditDlg[15].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_SYSTEM;
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_HIDDEN;
   if (HiEditDlg[16].Selected)
-    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_SYSTEM;
   if (HiEditDlg[17].Selected)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_ARCHIVE;
+  if (HiEditDlg[18].Selected)
   {
     EditData.ExcludeAttr|=FILE_ATTRIBUTE_COMPRESSED;
     EditData.ExcludeAttr&=~FILE_ATTRIBUTE_ENCRYPTED;
   }
-  else if (HiEditDlg[18].Selected)
+  else if (HiEditDlg[19].Selected)
   {
     EditData.ExcludeAttr&=~FILE_ATTRIBUTE_COMPRESSED;
     EditData.ExcludeAttr|=FILE_ATTRIBUTE_ENCRYPTED;
   }
-  if (HiEditDlg[19].Selected)
+  if (HiEditDlg[20].Selected)
     EditData.ExcludeAttr|=FILE_ATTRIBUTE_DIRECTORY;
-  EditData.MarkChar=*HiEditDlg[27].Data;
+  if (HiEditDlg[21].Selected)
+    EditData.ExcludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
+
+  EditData.MarkChar=*HiEditDlg[29].Data;
   if (!New && RecPos<HiDataCount)
     HiData[RecPos]=EditData;
   if (New)

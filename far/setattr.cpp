@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.12 04.01.2001 $ */
+/* Revision: 1.13 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 SVS
+    + ฎกเ กฎโช  แซใ็ ๏, ฅแซจ ’ SymLink
   04.01.2001 SVS
     -  ฃ  แ ฎคจญฎ็ญ๋ฌ ไ ฉซฎฌ - ฏฅเฅฎฏโจฌจงจเฎข ซ ;-(
   03.01.2001 SVS
@@ -179,30 +181,31 @@ static void FillFileldDir(char *SelName,int FileAttr,
 void ShellSetFileAttributes(Panel *SrcPanel)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-/*
-00
-01   ษออออออออออออ Attributes อออออออออออออป
-02   บ     Change file attributes for      บ
-03   บ                 foo                 บ
-04   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ
-05   บ [ ] Read only                       บ
-06   บ [ ] Archive                         บ
-07   บ [ ] Hidden                          บ
-08   บ [ ] System                          บ
-09   บ [ ] Compressed                      บ
-10   บ [ ] Encrypted                       บ
-11   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ
-12   บ [x] Process subfolders              บ
-13   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ
-14   บ  File time      DD.MM.YYYY hh:mm:ss บ
-15   บ Modification      .  .       :  :   บ
-16   บ Creation          .  .       :  :   บ
-17   บ Last access       .  .       :  :   บ
-18   บ                 [ Current ]         บ
-19   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ
-20   บ         [ Set ]  [ Cancel ]         บ
-21   ศอออออออออออออออออออออออออออออออออออออผ
-22
+/*MSetAttrJunction
+00                                             00
+01   ษออออออออออออ Attributes อออออออออออออป   01
+02   บ     Change file attributes for      บ   02
+03   บ                 foo                 บ   03
+04   บ          Link: blach blach          บ < 04 <<
+04   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ   05
+05   บ [ ] Read only                       บ   06
+06   บ [ ] Archive                         บ   07
+07   บ [ ] Hidden                          บ   08
+08   บ [ ] System                          บ   09
+09   บ [ ] Compressed                      บ   10
+10   บ [ ] Encrypted                       บ   11
+11   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ   12
+12   บ [x] Process subfolders              บ   13
+13   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ   14
+14   บ  File time      DD.MM.YYYY hh:mm:ss บ   15
+15   บ Modification      .  .       :  :   บ   16
+16   บ Creation          .  .       :  :   บ   17
+17   บ Last access       .  .       :  :   บ   18
+18   บ                 [ Current ]         บ   19
+19   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ   20
+20   บ         [ Set ]  [ Cancel ]         บ   21
+21   ศอออออออออออออออออออออออออออออออออออออผ   22
+22                                             23
 */
   static struct DialogData AttrDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,41,21,0,0,0,0,(char *)MSetAttrTitle,
@@ -232,9 +235,11 @@ void ShellSetFileAttributes(Panel *SrcPanel)
   /* 24 */DI_BUTTON,21,18,0,0,0,0,0,0,(char *)MSetAttrCurrent,
   /* 25 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 26 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
-  /* 27 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 27 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /* 28 */DI_TEXT,-1,4,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
   };
   MakeDialogItems(AttrDlgData,AttrDlg);
+  int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
 
   char DateMask[100];
   DWORD FileSystemFlags;
@@ -266,7 +271,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
 
     int FocusPos;
     int NewAttr;
-    int FolderPresent=FALSE;
+    int FolderPresent=FALSE, JunctionPresent=FALSE;
     char TimeText[6][100];
 
     int DateSeparator=GetDateSeparator();
@@ -313,6 +318,26 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             AttrDlg[I].Flags&=~DIF_3STATE;
         }
         FolderPresent=TRUE;
+
+        // ฎกเ กฎโช  แซใ็ ๏, ฅแซจ ’ SymLink
+        if(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT)
+        {
+          char JuncName[NM*2];
+          DWORD LenJunction=GetJunctionPointInfo(SelName,JuncName,sizeof(JuncName));
+          if(LenJunction)
+          {
+             //"\??\D:\Junc\Src\"
+             sprintf(AttrDlg[28].Data,MSG(MSetAttrJunction),TruncPathStr(JuncName+4,29));
+             AttrDlg[0].Y2++;
+             for(I=3; I  < DlgCountItems; ++I)
+             {
+               AttrDlg[I].Y1++;
+               AttrDlg[I].Y2++;
+             }
+             DlgCountItems++;
+             JunctionPresent=TRUE;
+          }
+        }
       }
       else
       {
@@ -376,9 +401,9 @@ void ShellSetFileAttributes(Panel *SrcPanel)
     {
       int NewAttr;
 
-      Dialog Dlg(AttrDlg,sizeof(AttrDlg)/sizeof(AttrDlg[0]));
+      Dialog Dlg(AttrDlg,DlgCountItems);
       Dlg.SetHelp("FileAttrDlg");
-      Dlg.SetPosition(-1,-1,45,23);
+      Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
 
       while (1)
       {
@@ -466,9 +491,9 @@ void ShellSetFileAttributes(Panel *SrcPanel)
 //      EmptyDialog(AttrDlg,1,SelCount==1);
 
       {
-        Dialog Dlg(AttrDlg,sizeof(AttrDlg)/sizeof(AttrDlg[0]));
+        Dialog Dlg(AttrDlg,DlgCountItems);
         Dlg.SetHelp("FileAttrDlg");
-        Dlg.SetPosition(-1,-1,45,23);
+        Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
 
         Dlg.Show();
         while (1)
