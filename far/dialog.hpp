@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.74 28.02.2004 $ */
+/* Revision: 1.75 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    + CheckHighlights для Macro II
   28.02.2004 SVS
     ! DLGEDITLILE_ -> DLGEDITLINE_
     + DLGITEMINTERNALFLAGS
@@ -516,6 +518,7 @@ class Dialog: public Frame
     /* DJ $ */
 
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
+    BOOL CheckHighlights(BYTE Chr);
 
     /* $ 08.09.2000 SVS
       Функция SelectOnEntry - выделение строки редактирования

@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.55 30.06.2004 $ */
+/* Revision: 1.56 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    ! CheckHighlights уехал в приват
   30.06.2004 SVS
     + CheckHighlights() - проверка "есть ли такой хоткей в меню"
   11.05.2004 SVS
@@ -379,6 +381,7 @@ class VMenu: virtual public Modal, virtual public Frame
     static int _SetUserData(struct MenuItem *PItem,const void *Data,int Size);
     static void* _GetUserData(struct MenuItem *PItem,void *Data,int Size);
     BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
+    BOOL CheckHighlights(BYTE Chr);
 
   public:
     /* $ 18.07.2000 SVS
@@ -500,8 +503,6 @@ class VMenu: virtual public Modal, virtual public Frame
 
     int GetVDialogItemID() const {return DialogItemID;};
     void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
-
-    BOOL CheckHighlights(BYTE Chr);
 
   public:
     static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.211 01.07.2004 $ */
+/* Revision: 1.212 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    + GetMacroParseError (Macro II)
   01.07.2004 SVS
     ! у FAR_GetDriveType тертий параметр - нужно ли определять тип CD
   30.06.2004 SVS
@@ -1581,6 +1583,9 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
 void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
 const char *eStackAsString(int Pos=0);
+
+BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
+
 #endif
 
 #endif  // __FARFUNC_HPP__

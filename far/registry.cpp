@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.18 18.05.2004 $ */
+/* Revision: 1.19 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    ! вместо sprintf заюзаем strNcpy и strNcat
   18.05.2004 SVS
     ! чтобы баундчекер не матерился
   02.02.2004 SVS
@@ -244,6 +246,18 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *
   return(Required);
 }
 
+static char *MkKeyName(const char *Key, char *Dest, int DestSize)
+{
+  char FullKeyName[2048];
+  strncpy(FullKeyName,Opt.RegRoot,sizeof(FullKeyName)-1);
+  if(*Key)
+  {
+    strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
+    strncat(FullKeyName,Key,sizeof(FullKeyName)-1);
+  }
+  strncpy(Dest,FullKeyName,DestSize);
+  return Dest;
+}
 
 HKEY CreateRegKey(const char *Key)
 {
@@ -252,7 +266,7 @@ HKEY CreateRegKey(const char *Key)
   HKEY hKey;
   DWORD Disposition;
   char FullKeyName[512];
-  sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*Key ? "\\":"",Key);
+  MkKeyName(Key,FullKeyName,sizeof(FullKeyName)-1);
   if(RegCreateKeyEx(hRegRootKey,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
                  &hKey,&Disposition) != ERROR_SUCCESS)
     hKey=NULL;
@@ -271,7 +285,7 @@ HKEY OpenRegKey(const char *Key)
     return(hRegCurrentKey);
   HKEY hKey;
   char FullKeyName[512];
-  sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*Key ? "\\":"",Key);
+  MkKeyName(Key,FullKeyName,sizeof(FullKeyName)-1);
   if (RegOpenKeyEx(hRegRootKey,FullKeyName,0,KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS,&hKey)!=ERROR_SUCCESS)
   {
     CloseSameRegKey();
@@ -289,7 +303,7 @@ HKEY OpenRegKey(const char *Key)
 void DeleteRegKey(const char *Key)
 {
   char FullKeyName[512];
-  sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*Key ? "\\":"",Key);
+  MkKeyName(Key,FullKeyName,sizeof(FullKeyName)-1);
   RegDeleteKey(hRegRootKey,FullKeyName);
 }
 
@@ -298,7 +312,7 @@ void DeleteRegValue(const char *Key,const char *Value)
 {
   HKEY hKey;
   char FullKeyName[512];
-  sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*Key ? "\\":"",Key);
+  MkKeyName(Key,FullKeyName,sizeof(FullKeyName)-1);
   if (RegOpenKeyEx(hRegRootKey,FullKeyName,0,KEY_WRITE,&hKey)==ERROR_SUCCESS)
   {
     RegDeleteValue(hKey,Value);
@@ -309,7 +323,7 @@ void DeleteRegValue(const char *Key,const char *Value)
 void DeleteKeyRecord(const char *KeyMask,int Position)
 {
   char FullKeyName[512],NextFullKeyName[512],MaskKeyName[512];
-  sprintf(MaskKeyName,"%s%s%s",Opt.RegRoot,*KeyMask ? "\\":"",KeyMask);
+  MkKeyName(KeyMask,MaskKeyName,sizeof(MaskKeyName)-1);
   while (1)
   {
     sprintf(FullKeyName,MaskKeyName,Position++);
@@ -326,7 +340,7 @@ void DeleteKeyRecord(const char *KeyMask,int Position)
 void InsertKeyRecord(const char *KeyMask,int Position,int TotalKeys)
 {
   char FullKeyName[512],PrevFullKeyName[512],MaskKeyName[512];
-  sprintf(MaskKeyName,"%s%s%s",Opt.RegRoot,*KeyMask ? "\\":"",KeyMask);
+  MkKeyName(KeyMask,MaskKeyName,sizeof(MaskKeyName)-1);
   for (int CurPos=TotalKeys;CurPos>Position;CurPos--)
   {
     sprintf(FullKeyName,MaskKeyName,CurPos);
@@ -384,7 +398,7 @@ void RenumKeyRecord(const char *KeyRoot,const char *KeyMask,const char *KeyMask0
   {
     KAItems.Sort();
 
-    sprintf(MaskKeyName,"%s%s%s",Opt.RegRoot,*KeyMask ? "\\":"",KeyMask);
+    MkKeyName(KeyMask,MaskKeyName,sizeof(MaskKeyName)-1);
     for(int CurPos=0;;++CurPos)
     {
       KeyRecordItem *Item=KAItems.getItem(CurPos);
@@ -435,9 +449,9 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
     FILETIME LastWrite;
     if (RegEnumKeyEx(hSrcKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
       break;
-    strcpy(SrcKeyName,Src);
-    strcat(SrcKeyName,"\\");
-    strcat(SrcKeyName,SubkeyName);
+    strncpy(SrcKeyName,Src,sizeof(SrcKeyName)-1);
+    strncat(SrcKeyName,"\\",sizeof(SrcKeyName)-1);
+    strncat(SrcKeyName,SubkeyName,sizeof(SrcKeyName)-1);
     if (Skip!=NULL)
     {
       bool Found=false;
@@ -450,9 +464,9 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
       if (Found)
         continue;
     }
-    strcpy(DestKeyName,Dest);
-    strcat(DestKeyName,"\\");
-    strcat(DestKeyName,SubkeyName);
+    strncpy(DestKeyName,Dest,sizeof(DestKeyName)-1);
+    strncat(DestKeyName,"\\",sizeof(DestKeyName)-1);
+    strncat(DestKeyName,SubkeyName,sizeof(DestKeyName)-1);
     if (RegCreateKeyEx(hRegRootKey,DestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
     CopyKeyTree(SrcKeyName,DestKeyName);
@@ -466,7 +480,7 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
 void DeleteKeyTree(const char *KeyName)
 {
   char FullKeyName[200];
-  sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*KeyName ? "\\":"",KeyName);
+  MkKeyName(KeyName,FullKeyName,sizeof(FullKeyName)-1);
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_WINDOWS ||
       RegDeleteKey(hRegRootKey,FullKeyName)!=ERROR_SUCCESS)
     DeleteFullKeyTree(FullKeyName);
@@ -495,7 +509,10 @@ void DeleteKeyTreePart(const char *KeyName)
     FILETIME LastWrite;
     if (RegEnumKeyEx(hKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
       break;
-    sprintf(FullKeyName,"%s\\%s",KeyName,SubkeyName);
+
+    strncpy(FullKeyName,KeyName,sizeof(FullKeyName)-1);
+    strncat(FullKeyName,"\\",sizeof(FullKeyName)-1);
+    strncat(FullKeyName,SubkeyName,sizeof(FullKeyName)-1);
     DeleteKeyTreePart(FullKeyName);
   }
   CloseRegKey(hKey);
@@ -556,7 +573,7 @@ int CheckRegKey(const char *Key)
 {
   HKEY hKey;
   char FullKeyName[512];
-  sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*Key ? "\\":"",Key);
+  MkKeyName(Key,FullKeyName,sizeof(FullKeyName)-1);
   int Exist=RegOpenKeyEx(hRegRootKey,FullKeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS;
   CloseRegKey(hKey);
   return(Exist);
@@ -597,10 +614,10 @@ int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
     if (ExitCode==ERROR_SUCCESS)
     {
       char TempName[512];
-      strcpy(TempName,Key);
+      strncpy(TempName,Key,sizeof(TempName)-1);
       if (*TempName)
         AddEndSlash(TempName);
-      strcat(TempName,SubName);
+      strncat(TempName,SubName,sizeof(TempName)-1);
       strncpy(DestName,TempName,DestSize-1);
       return(TRUE);
     }

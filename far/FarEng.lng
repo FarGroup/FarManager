@@ -1564,6 +1564,16 @@
 "Empty &command line"
 "Selection &block present"
 
+"Unrecognised keyword '%s'"
+"Unexpected $Else"
+"Unexpected $End"
+"Unexpected end of source string"
+"Expected '%s'"
+"Bad Hex Control Char"
+"Bad Control Char"
+"Variable Expected '%s'"
+"Expression Expected"
+
 "Cannot save file"
 "Edited text is stored in"
 

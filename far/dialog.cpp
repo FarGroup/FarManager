@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.302 19.05.2004 $ */
+/* Revision: 1.303 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    + MCODE_F_MENU_CHECKHOTKEY, CheckHighlights для Macro II
   19.05.2004 SVS
     - В продолжении BugZ#962 (мигание курсора на окне диалога плагина без элементов с фокусом ввода)
       При отрисовке только одного элемента (не фокусного) не был учтен тот факт,
@@ -3154,6 +3156,15 @@ int Dialog::ProcessKey(int Key)
         return Item[FocusPos].ListPtr->ProcessKey(Key);
       return 0;
     }
+#if defined(MACRODRIVE2)
+    case MCODE_F_MENU_CHECKHOTKEY:
+    {
+      const char *str = eStackAsString(1);
+      if ( *str )
+        return CheckHighlights(*str);
+      return FALSE;
+    }
+#endif
   }
 
   // BugZ#488 - Shift=enter
@@ -5535,6 +5546,33 @@ int Dialog::IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos)
 }
 /* SVS $ */
 
+
+BOOL Dialog::CheckHighlights(BYTE CheckSymbol)
+{
+#if defined(MACRODRIVE2)
+  int I, Type;
+  DWORD Flags;
+
+  for (I=0;I<ItemCount;I++)
+  {
+    Type=Item[I].Type;
+    Flags=Item[I].Flags;
+
+    if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) &&
+        (Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN))==0)
+    {
+      const char *ChPtr=strchr(Item[I].Data,'&');
+      if (ChPtr)
+      {
+        BYTE Ch=ChPtr[1];
+        if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
+          return TRUE;
+      }
+    }
+  }
+#endif
+  return FALSE;
+}
 
 //////////////////////////////////////////////////////////////////////////
 /* Private:

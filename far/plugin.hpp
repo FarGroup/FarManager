@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.246 24.05.2004 $ */
+/* Revision: 1.247 06.07.2004 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  06.07.2004 SVS
+    + ActlKeyMacro.Param.MacroResult дл€ MCMD_CHECKMACRO (дл€ Macro II)
   24.05.2004 SVS
     + PFLAGS_NUMERICSORT, FCTL_SETNUMERICSORT,FCTL_SETANOTHERNUMERICSORT - логическое дополнение к NumericSort
   11.05.2004 SVS
@@ -1846,6 +1848,11 @@ struct ActlKeyMacro{
     } PlainText;
 #ifdef FAR_USE_INTERNALS
     struct KeySequence Compile;
+    struct {
+      const char *ErrMsg1;
+      const char *ErrMsg2;
+      const char *ErrMsg3;
+    } MacroResult;
 #endif // END FAR_USE_INTERNALS
     DWORD Reserved[3];
   } Param;

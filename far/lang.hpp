@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.145 21.06.2004 $ */
+/* Revision: 1.146 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    + MMacroPErr* (Macro II)
   21.06.2004 SVS
     + MInfoDVD_RAM, MChangeDriveDVD_RAM
   14.06.2004 KM
@@ -1916,6 +1918,16 @@ enum
   MMacroSettingsSelectionPresent,
   MMacroSettingsCommandLine,
   MMacroSettingsSelectionBlockPresent,
+
+  MMacroPErrUnrecognised_keyword,
+  MMacroPErrNot_expected_ELSE,
+  MMacroPErrNot_expected_END,
+  MMacroPErrUnexpected_EOS,
+  MMacroPErrExpected,
+  MMacroPErrBad_Hex_Control_Char,
+  MMacroPErrBad_Control_Char,
+  MMacroPErrVar_Expected,
+  MMacroPErrExpr_Expected,
 
   MCannotSaveFile,
   MTextSavedToTemp,

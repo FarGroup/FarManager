@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.30 31.05.2004 $ */
+/* Revision: 1.31 06.07.2004 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  06.07.2004 SVS
+    + KEY_MACRO_EDITORSTATE для Macro II
   31.05.2004 SVS
     ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   18.12.2003 SVS
@@ -249,6 +251,9 @@ enum BaseDefKeyboard
   KEY_MACRO_BOF,
   KEY_MACRO_EMPTY,
   KEY_MACRO_ROOTFOLDER,
+#if defined(MACRODRIVE2)
+  KEY_MACRO_EDITORSTATE,
+#endif
 
 #if defined(MOUSEKEY)
   KEY_MACROSELWORD,

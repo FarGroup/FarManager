@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.171 03.06.2004 $ */
+/* Revision: 1.172 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    ! MCMD_CHECKMACRO для Macro II
   03.06.2004 SVS
     ! подсократим код... за счет CtrlObject->Cp() -> FPanels
   24.05.2004 SVS
@@ -790,8 +792,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags<<8);
           }
 
-#if 0
-          case MCMD_CHECKMACRO:  // проверка макроса. прежде чем это запусать необходимо, чтобы ParseMacroString возвращал Ptr на ошибку
+#if defined(MACRODRIVE2)
+          case MCMD_CHECKMACRO:  // проверка макроса
           {
             struct MacroRecord CurMacro={0};
             int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText);
@@ -799,6 +801,14 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             {
               if(CurMacro.BufferSize > 1)
                 xf_free(CurMacro.Buffer);
+            }
+            else
+            {
+              static char ErrMsg[3][256];
+              GetMacroParseError(ErrMsg[0],ErrMsg[1],ErrMsg[2]);
+              KeyMacro->Param.MacroResult.ErrMsg1=ErrMsg[0];
+              KeyMacro->Param.MacroResult.ErrMsg2=ErrMsg[1];
+              KeyMacro->Param.MacroResult.ErrMsg3=ErrMsg[2];
             }
             return Ret;
           }

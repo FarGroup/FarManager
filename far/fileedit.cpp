@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.154 31.05.2004 $ */
+/* Revision: 1.155 06.07.2004 $ */
 
 /*
 Modify:
+  06.07.2004 SVS
+    + обработка KEY_MACRO_EDITORSTATE для Macro II
   31.05.2004 SVS
     ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   19.05.2004 SVS
@@ -959,7 +961,27 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
      глюки
   */
   if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) // исключаем MACRO
-     return(FEdit->ProcessKey(Key));
+  {
+#if defined(MACRODRIVE2)
+    if(Key == KEY_MACRO_EDITORSTATE)
+    {
+      DWORD MacroEditState=0;
+      MacroEditState|=Flags.Flags&FFILEEDIT_NEW?0x00000001:0;
+      MacroEditState|=Flags.Flags&FFILEEDIT_ENABLEF6?0x00000002:0;
+      MacroEditState|=FEdit->Flags.Flags&FEDITOR_DELETEONCLOSE?0x00000004:0;
+      MacroEditState|=FEdit->Flags.Flags&FEDITOR_MODIFIED?0x00000008:0;
+      MacroEditState|=FEdit->BlockStart?0x00000010:0;
+      MacroEditState|=FEdit->VBlockStart?0x00000020:0;
+      MacroEditState|=FEdit->Flags.Flags&FEDITOR_WASCHANGED?0x00000040:0;
+      MacroEditState|=FEdit->Flags.Flags&FEDITOR_OVERTYPE?0x00000080:0;
+      MacroEditState|=FEdit->Flags.Flags&FEDITOR_CURPOSCHANGEDBYPLUGIN?0x00000100:0;
+      MacroEditState|=FEdit->Flags.Flags&FEDITOR_LOCKMODE?0x00000200:0;
+      MacroEditState|=FEdit->EdOpt.PersistentBlocks?0x00000400:0;
+      return MacroEditState;
+    }
+#endif
+    return(FEdit->ProcessKey(Key));
+  }
   /* DJ $ */
 
   switch(Key)
