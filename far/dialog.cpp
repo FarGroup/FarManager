@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.276 10.01.2003 $ */
+/* Revision: 1.277 12.02.2003 $ */
 
 /*
 Modify:
+  12.02.2003 SVS
+    ! не отдаем макроклавиши (для них маска 0x00C00000) в обработчик плагина.
   10.01.2003 SVS
     - "Почему место в диалоге параметров поиска, где выбирают
        кодировку (Using character table), в которой искать, сразу после
@@ -2979,7 +2981,7 @@ int Dialog::ProcessKey(int Key)
     Key=KEY_SHIFTENTER;
   }
 
-  if(!DialogMode.Check(DMODE_KEY))
+  if(!(Key&0x00C00000) && !DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
       return TRUE;
 

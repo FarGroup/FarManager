@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.37 11.02.2003 $ */
+/* Revision: 1.38 18.02.2003 $ */
 
 /*
 Modify:
+  18.02.2003 SVS
+    + _ESPT_ToName + _SysLog_LinearDump
+    + DEF_ECTL_(DELETEBLOCK)
   11.02.2003 SVS
     ! Немного красоты в SysLog.
   21.01.2003 SVS
@@ -382,6 +385,7 @@ void SysLog(int l,char *fmt,...)
   }
 #endif
 }
+
 
 void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 {
@@ -768,6 +772,7 @@ const char *_ECTL_ToName(int Command)
     DEF_ECTL_(SETKEYBAR),      DEF_ECTL_(PROCESSKEY),
     DEF_ECTL_(SETPARAM),       DEF_ECTL_(GETBOOKMARKS),
     DEF_ECTL_(TURNOFFMARKINGBLOCK),
+    DEF_ECTL_(DELETEBLOCK),
   };
   int I;
   static char Name[512];
@@ -778,6 +783,38 @@ const char *_ECTL_ToName(int Command)
       return Name;
     }
   sprintf(Name,"\"ECTL_????\" [%d/0x%04X]",Command,Command);
+  return Name;
+#else
+  return "";
+#endif
+}
+
+const char *_ESPT_ToName(int Command)
+{
+#if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
+#define DEF_ESPT_(m) { ESPT_##m , #m }
+  static struct ESPTName{
+    int Msg;
+    const char *Name;
+  } ESPT[]={
+    DEF_ESPT_(TABSIZE),
+    DEF_ESPT_(EXPANDTABS),
+    DEF_ESPT_(AUTOINDENT),
+    DEF_ESPT_(CURSORBEYONDEOL),
+    DEF_ESPT_(CHARCODEBASE),
+    DEF_ESPT_(CHARTABLE),
+    DEF_ESPT_(SAVEFILEPOSITION),
+    DEF_ESPT_(LOCKMODE),
+  };
+  int I;
+  static char Name[512];
+  for(I=0; I < sizeof(ESPT)/sizeof(ESPT[0]); ++I)
+    if(ESPT[I].Msg == Command)
+    {
+      sprintf(Name,"\"ESPT_%s\" [%d/0x%04X]",ESPT[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"ESPT_????\" [%d/0x%04X]",Command,Command);
   return Name;
 #else
   return "";
@@ -1296,6 +1333,31 @@ const char *_VCTL_ToName(int Command)
     }
   sprintf(Name,"\"VCTL_????\" [%d/0x%04X]",Command,Command);
   return Name;
+#else
+  return "";
+#endif
+}
+
+// после вызова этой функции нужно освободить память!!!
+const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
+{
+#if defined(SYSLOG)
+  if(!IsLogON())
+    return "";
+
+  char *TmpBuf=(char *)xf_malloc(sizeof(char)*SizeBuf*3), *PtrTmpBuf;
+  if(TmpBuf)
+  {
+    PtrTmpBuf=TmpBuf;
+    int I, Cnt=SizeBuf;
+    for(I=0; I < Cnt; ++I)
+    {
+      sprintf(PtrTmpBuf,"%02X ",Buf[I]&0xFF);
+      PtrTmpBuf+=3;
+    }
+    *PtrTmpBuf=0;
+  }
+  return TmpBuf;
 #else
   return "";
 #endif

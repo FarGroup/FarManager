@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.176 26.01.2003 $ */
+/* Revision: 1.177 18.02.2003 $ */
 
 /*
 Modify:
+  18.02.2003 SVS
+    + _ESPT_ToName + _SysLog_LinearDump
   26.01.2003 IS
     + FAR_DeleteFile, FAR_RemoveDirectory просьба только их использовать
       для удаления соответственно файлов и каталогов.
@@ -1061,11 +1063,14 @@ void CheckHeap(int NumLine);
 const char *_FARKEY_ToName(int Key);
 const char *_VK_KEY_ToName(int VkKey);
 const char *_ECTL_ToName(int Command);
+const char *_ESPT_ToName(int Command);
 const char *_FCTL_ToName(int Command);
 const char *_DLGMSG_ToName(int Msg);
 const char *_ACTL_ToName(int Command);
 const char *_VCTL_ToName(int Command);
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
+// после вызова этой функции нужно освободить память!!!
+const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
 void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
 void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.129 07.02.2003 $ */
+/* Revision: 1.130 18.02.2003 $ */
 
 /*
 Modify:
+  18.02.2003 SVS
+    ! Детализация логов для ECTL_
   07.02.2003 SVS
     ! В FileEditor::ShowStatus() при выводе статусной строки будем юзать
       не координаты объекта Editor, "свои" имени FileEditor.
@@ -1979,6 +1981,9 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_EDITORTOOEM:
     {
+      if(!Param)
+        return FALSE;
+
       struct EditorConvertText *ect=(struct EditorConvertText *)Param;
       if (FEdit->UseDecodeTable)
         DecodeString(ect->Text,(unsigned char *)FEdit->TableSet.DecodeTable,ect->TextLength);
@@ -1987,6 +1992,9 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_OEMTOEDITOR:
     {
+      if(!Param)
+        return FALSE;
+
       struct EditorConvertText *ect=(struct EditorConvertText *)Param;
       if (FEdit->UseDecodeTable)
         EncodeString(ect->Text,(unsigned char *)FEdit->TableSet.EncodeTable,ect->TextLength);
