@@ -5,13 +5,15 @@ User menu и есть
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    + выход из пользовтельского меню любого уровня вложенности
 */
 
 #include "headers.hpp"
@@ -274,6 +276,14 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
               else
                 Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
               break;
+            /* $ 28.06.2000 tran
+               выход из пользовательского меню по ShiftF10 из любого уровня
+               вложенности просто задаем ExitCode -1, и возвращаем FALSE -
+               по FALSE оно и выйдет откуда угодно */
+            case KEY_SHIFTF10:
+              UserMenu.SetExitCode(-1);
+              return(FALSE);
+            /* tran $ */
             default:
               UserMenu.ProcessInput();
               break;
