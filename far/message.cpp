@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.03 02.02.2001 $ */
+/* Revision: 1.04 02.02.2001 $ */
 
 /*
 Modify:
+  02.02.2001 IS
+    + Заменим cr и lf на пробелы в GetErrorString
   02.02.2001 SVS
     ! Забыли сделать CharToOem в GetErrorString...
   27.01.2001 VVM
@@ -401,6 +403,11 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
                         NULL, LastError, 0, ErrStr, StrSize, NULL))
       {
         CharToOem(ErrStr,ErrStr);
+        /* $ 02.02.2001 IS
+           + Заменим cr и lf на пробелы
+        */
+        RemoveUnprintableCharacters(ErrStr);
+        /* IS $ */
         return(TRUE);
       }
     /* VVM $ */
@@ -414,5 +421,3 @@ void SetMessageHelp(char *Topic)
 {
   strcpy(MsgHelpTopic,Topic);
 }
-
-

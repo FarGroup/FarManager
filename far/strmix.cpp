@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.00 05.01.2001 $ */
+/* Revision: 1.01 02.02.2001 $ */
 
 /*
 Modify:
+  02.02.2001 IS
+   + Функция RemoveUnprintableCharacters - заменяет пробелами непечатные
+     символы в строке. В настоящий момент обрабатываются только cr и lf.
   05.01.2001 SVS
     ! Выделение в качестве самостоятельного модуля
     + Функции InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
@@ -392,6 +395,22 @@ char* WINAPI RemoveExternalSpaces(char *Str)
 }
 /* SVS $ */
 
+/* $ 02.02.2001 IS
+   Заменяет пробелами непечатные символы в строке. В настоящий момент
+   обрабатываются только cr и lf.
+*/
+char* WINAPI RemoveUnprintableCharacters(char *Str)
+{
+ char *p=Str;
+ while(*p)
+ {
+   if('\n'==*p || '\r'==*p) *p=' ';
+   p++;
+ }
+ return RemoveExternalSpaces(Str);
+}
+/* IS $ */
+
 int HiStrlen(char *Str)
 {
   int Length=0;
@@ -560,4 +579,3 @@ void WINAPI Unquote(char *Str)
   }
 }
 /* IS $ */
-

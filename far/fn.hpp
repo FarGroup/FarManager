@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.55 28.01.2001 $ */
+/* Revision: 1.56 29.01.2001 $ */
 
 /*
 Modify:
+  02.02.2001 IS
+   + RemoveUnprintableCharacters
   28.01.2001 SVS
    ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   27.01.2001 VVM
@@ -511,6 +513,11 @@ char* WINAPI RemoveLeadingSpaces(char *Str);
 char* WINAPI RemoveTrailingSpaces(char *Str);
 char* WINAPI RemoveExternalSpaces(char *Str);
 /* SVS $ */
+/* $ 02.02.2001 IS
+  + Новая функция: заменяет пробелами непечатные символы в строке
+*/
+char* WINAPI RemoveUnprintableCharacters(char *Str);
+/* IS $ */
 char* WINAPI TruncStr(char *Str,int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
