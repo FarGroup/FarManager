@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.20 27.02.2002 $ */
+/* Revision: 1.21 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 VVM
+    + Новая функция - пользователь попытался прервать операцию.
+      Зададим вопрос.
   27.02.2002 SVS
     ! Косметика для компиляции с debug-инфой под BC
   26.10.2001 SVS
@@ -506,3 +509,25 @@ void SetMessageHelp(const char *Topic)
 {
   strncpy(MsgHelpTopic,Topic, sizeof(MsgHelpTopic)-1);
 }
+
+/* $ 12.03.2002 VVM
+  Новая функция - пользователь попытался прервать операцию.
+  Зададим вопрос.
+  Возвращает:
+   FALSE - продолжить операцию
+   TRUE  - прервать операцию
+*/
+int AbortMessage()
+{
+  int Res = Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
+            MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
+            MSG(MYes),MSG(MNo));
+  if (Res == -1) // Set "ESC" equal to "NO" button
+    Res = 1;
+  if ((Opt.Confirm.EscTwiceToInterrupt && Res) ||
+      (!Opt.Confirm.EscTwiceToInterrupt && !Res))
+    return (TRUE);
+  else
+    return (FALSE);
+}
+/* VVM $ */

@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.128 28.02.2002 $ */
+/* Revision: 1.129 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 VVM
+    + Opt.Confirm.EscTwiceToInterrupt
+      «адает поведение диалога при прерывании операции.
+      Ћибо второй ESC прерывает операцию, либо он ее продолжает...
   28.02.2002 SVS
     ! RestoreCP ставим по умолчанию в 1. - уже не смешно, блин ;-\
   26.02.2002 SVS
@@ -1441,6 +1445,8 @@ void ReadConfig()
   if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     Opt.FlagPosixSemantics=0;
   /* VVM $ */
+
+  GetRegKey(NKeyConfirmations,"EscTwiceToInterrupt",Opt.Confirm.EscTwiceToInterrupt,0);
 
   // ”молчание разное дл€ разных платформ.
   if(Opt.AltF9 == -1)

@@ -7,10 +7,15 @@ struct.hpp
 
 */
 
-/* Revision: 1.82 19.02.2002 $ */
+/* Revision: 1.83 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 VVM
+    + Opt.EscTwiceToInterrupt
+      Определяет поведение при прерывании длительной операции
+      0 - второй ESC продолжает операцию
+      1 - второй ESC прерывает операцию
   19.02.2002 SVS
     ! В таблицах и правилах Opt.XLat - первый байт = размер таблицы.
     ! Opt.XLat.Rules - 80 байт (по 40 правил)
@@ -276,6 +281,13 @@ struct Confirmation
   */
   int Esc;
   /* IS $ */
+  /* $ 12.03.2002 VVM
+    + Opt.EscTwiceToInterrupt
+      Определяет поведение при прерывании длительной операции
+      0 - второй ESC продолжает операцию
+      1 - второй ESC прерывает операцию */
+  int EscTwiceToInterrupt;
+  /* VVM $ */
   int RemoveConnection;
   /* $ 23.05.2001
     +  Opt.Confirmation.AllowReedit - Флаг, который изменяет поведение открытия

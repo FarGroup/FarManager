@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.137 05.03.2002 $ */
+/* Revision: 1.138 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 VVM
+    + Новая функция - пользователь попытался прервать операцию.
+      Зададим вопрос.
   05.03.2002 DJ
     ! SubstFileName() получает размер буфера
   03.03.2002 SVS
@@ -460,6 +463,15 @@ int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
 int Message(DWORD Flags,int Buttons,const char *Title,const char * const *Items,
             int ItemsNumber,int PluginNumber=-1);
 /* SVS $*/
+/* $ 12.03.2002 VVM
+  Новая функция - пользователь попытался прервать операцию.
+  Зададим вопрос.
+  Возвращает:
+   FALSE - продолжить операцию
+   TRUE  - прервать операцию
+*/
+int AbortMessage();
+/* VVM $ */
 void SetMessageHelp(const char *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);

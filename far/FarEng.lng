@@ -1613,7 +1613,8 @@
 "Time: %8s Left: %8s  %5d%sb/s"
 
 "Operation has been interrupted"
-" Do you really want to cancel it? "
+"Do you really want to cancel it?"
+"Continue work? "
 
 "The file is being checked by the plugin"
 

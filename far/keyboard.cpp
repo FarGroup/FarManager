@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.65 20.02.2002 $ */
+/* Revision: 1.66 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 VVM
+    + Задействуем функцию AbortMessage()
   20.02.2002 OT
     - BugZ#314 - Shift-Enter на папке меняет путь заголовок окна
   14.02.2002 VVM
@@ -1031,9 +1033,8 @@ int CheckForEsc()
     BOOL rc=TRUE;
     IsProcessAssignMacroKey++; // запретим спец клавиши
                                // т.е. в этом диалоге нельзя нажать Alt-F9!
-    if(Opt.Confirm.Esc && Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
-                  MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo)) == 1)
-       rc=FALSE;
+    if (Opt.Confirm.Esc)
+       rc=AbortMessage();
     IsProcessAssignMacroKey--;
     return rc;
   }

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.97 02.03.2002 $ */
+/* Revision: 1.98 12.03.2002 $ */
 
 /*
 Modify:
+  12.03.2002 VVM
+    + MDoYouWantToStopWork2
   02.03.2002 KM
   	+ MCopySkipAll
   21.02.2002 SVS
@@ -1869,6 +1871,7 @@ enum
 
   MKeyESCWasPressed,
   MDoYouWantToStopWork,
+  MDoYouWantToStopWork2,
 
   MCheckingFileInPlugin,
 

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.97 04.03.2002 $ */
+/* Revision: 1.98 12.03.2002 $ */
 
 /*
 Modify:
+  12.02.2002 VVM
+    + Задействуем функцию AbortMessage()
   04.03.2002 DJ
     ! нажатие Esc в диалоге подтверждения прерывания поиска поиск _не_
 	  прерывает
@@ -842,13 +844,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         IsProcessAssignMacroKey++; // запретим спец клавиши
                                    // т.е. в этом диалоге нельзя нажать Alt-F9!
         int LocalRes=TRUE;
-		/* $ 04.03.2002 DJ
-		   нажатие Esc в диалоге confirm Esc поиск _не_ прерывает
-		*/
-        if(Opt.Confirm.Esc && Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
-                      MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo))!=0)
-          LocalRes=FALSE;
-		/* DJ $ */
+        if (Opt.Confirm.Esc)
+          LocalRes=AbortMessage();
         IsProcessAssignMacroKey--;
         PauseSearch=FALSE;
         StopSearch=LocalRes;
