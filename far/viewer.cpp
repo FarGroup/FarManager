@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.79 11.10.2001 $ */
+/* Revision: 1.80 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 SKV
+    - клик на status line'е отрабатывать только если он есть
   11.10.2001 IS
     ! Удаляем файл только, если нет открытых фреймов с таким именем.
   27.09.2001 IS
@@ -1770,7 +1772,11 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   /* $ 16.12.2000 tran
      шелчок мышью на статус баре */
-  if ( MsY==Y1 ) // Status line
+  /* $ 12.10.2001 SKV
+    угу, а только если он нсть, statusline...
+  */
+  if ( MsY==Y1 && ShowStatusLine) // Status line
+  /* SKV$*/
   {
     int XTable, XPos, NameLength;
     NameLength=ScrX-40;

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.22 25.06.2001 $ */
+/* Revision: 1.23 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 SKV
+   - фикс падения при goto в dizview.
   25.06.2001 IS
    ! Внедрение const
   29.05.2001 tran
@@ -412,13 +414,23 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
        позволяем использовать скроллбар, если он включен
     */
     _tran(SysLog("InfoList::ProcessMouse() DizView = %p",DizView));
+    /* $ 12.10.2001 SKV
+      одноко аккуратно посчитаем окошко DizView,
+      и оставим 2 символа на скроллинг мышой.
+    */
+    int DVX1,DVX2,DVY1,DVY2;
+    DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
     if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-        MouseEvent->dwMousePosition.X > 2 &&
-        MouseEvent->dwMousePosition.X < X2 - DizView->GetShowScrollbar() - 1)
+        MouseEvent->dwMousePosition.X > DVX1+1 &&
+        MouseEvent->dwMousePosition.X < DVX2 - DizView->GetShowScrollbar() - 1 &&
+        MouseEvent->dwMousePosition.Y > DVY1+1 &&
+        MouseEvent->dwMousePosition.Y < DVY2-1
+        )
     {
       ProcessKey(KEY_F3);
       return(TRUE);
     }
+    /* SKV$*/
     /* DJ $ */
     if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
     {
@@ -576,6 +588,12 @@ void InfoList::CloseFile()
 {
   if (DizView!=NULL)
   {
+    /* $ 12.10.2001 SKV
+      Если идёт вызов метода DizView,
+      то не надо делать delete...
+    */
+    if(DizView->InRecursion)return;
+    /* SKV$*/
     LastDizWrapMode=DizView->GetWrapMode();
     LastDizWrapType=DizView->GetWrapType();
     /* $ 27.04.2001 DJ
@@ -597,7 +615,11 @@ int InfoList::OpenDizFile(char *DizFile)
   _tran(SysLog("InfoList::OpenDizFile([%s]",DizFile));
   if (DizView == NULL)
   {
-    DizView=new Viewer;
+    /* $ 12.10.2001 SKV
+      Теперь это не просто Viewer, а DizViewer :)
+    */
+    DizView=new DizViewer;
+    /* SKV$*/
     _tran(SysLog("InfoList::OpenDizFile() create new Viewer = %p",DizView));
     DizView->SetRestoreScreenMode(FALSE);
     DizView->SetPosition(X1+1,Y1+15,X2-1,Y2-1);

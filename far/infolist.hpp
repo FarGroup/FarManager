@@ -26,13 +26,39 @@ Modify:
 */
 
 #include "panel.hpp"
+#include "viewer.hpp"
+//class Viewer;
 
-class Viewer;
+/* $ 12.10.2001 SKV
+  заврапим Viewer что бы отслеживать рекурсивность вызова
+  методов DizView и случайно не удалить его во время вызова.
+*/
+class DizViewer: public Viewer
+{
+public:
+  int InRecursion;
+  DizViewer():InRecursion(0){}
+  int ProcessKey(int Key)
+  {
+    InRecursion=1;
+    int res=Viewer::ProcessKey(Key);
+    InRecursion=0;
+    return res;
+  }
+  int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+  {
+    InRecursion=1;
+    int res=Viewer::ProcessMouse(MouseEvent);
+    InRecursion=0;
+    return res;
+  }
+};
+/* SKV$*/
 
 class InfoList:public Panel
 {
   private:
-    Viewer *DizView;
+    DizViewer *DizView;
     int  PrevMacroMode;
     int  OldWrapMode;
     int  OldWrapType;
@@ -68,4 +94,4 @@ class InfoList:public Panel
     /* DJ $ */
 };
 
-#endif	// __INFOLIST_HPP__
+#endif  // __INFOLIST_HPP__
