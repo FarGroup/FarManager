@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.102 10.12.2002 $ */
+/* Revision: 1.103 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 VVM
+    - При проверке сетевого диска под НТ и 9х разные ветки реестра.
   10.12.2002 SVS
     + ProcessDelDisk() - поимел третий параметр, указатель на VMenu для того, чтобы патом
       прорефрешить меню!
@@ -1942,7 +1944,10 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
   {
     HKEY hKey;
     IsPersistent=TRUE;
-    sprintf(MsgText,"Network\\%c",toupper(Letter));
+    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+      sprintf(MsgText,"Network\\%c",toupper(Letter));
+    else
+      sprintf(MsgText,"Network\\Persistent\\%c",toupper(Letter));
     if(RegOpenKeyEx(HKEY_CURRENT_USER,MsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     {
       DCDlg[5].Flags|=DIF_DISABLE;
