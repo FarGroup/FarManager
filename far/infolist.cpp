@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.03 05.01.2001 $ */
+/* Revision: 1.04 26.01.2001 $ */
 
 /*
 Modify:
+  26.01.2001 SVS
+    + Информация о SUBST-дисках - указание пути - на манер ремотных дисков
   05.01.2001 SVS
     + Покажем инфу, что ЭТО - SUBST-диск
   20.07.2000 tran
@@ -86,8 +88,16 @@ void InfoList::DisplayObject()
                             &VolumeNumber,&MaxNameLength,&FileSystemFlags,
                             FileSystemName,sizeof(FileSystemName)))
   {
-    char DiskType[100];
+    char LocalName[8], DiskType[100], RemoteName[NM], DiskName[NM];
+    int ShowRealPath=FALSE;
     int DriveType=GetDriveType(DriveRoot);
+    sprintf(LocalName,"%c:",*DriveRoot);
+
+    if (DriveRoot[0] && DriveRoot[1]==':')
+      sprintf(DiskName,"%c:",toupper(*DriveRoot));
+    else
+      strcpy(DiskName,DriveRoot);
+
     switch(DriveType)
     {
       case DRIVE_REMOVABLE:
@@ -113,34 +123,32 @@ void InfoList::DisplayObject()
        + Информация про Subst-тип диска
     */
     {
-      char LocalName[8],SubstName[NM];
-      sprintf(LocalName,"%c:",*DriveRoot);
-      if(GetSubstName(LocalName,SubstName,sizeof(SubstName)))
+      if(GetSubstName(LocalName,RemoteName,sizeof(RemoteName)))
       {
         strcpy(DiskType,MSG(MInfoSUBST));
         DriveType=DRIVE_SUSTITUTE;
       }
     }
     /* SVS $ */
-    char DiskName[NM];
-    if (DriveRoot[0] && DriveRoot[1]==':')
-      sprintf(DiskName,"%c:",toupper(*DriveRoot));
-    else
-      strcpy(DiskName,DriveRoot);
+
     sprintf(Title," %s %s %s (%s) ",DiskType,MSG(MInfoDisk),DiskName,FileSystemName);
+
     if (DriveType==DRIVE_REMOTE)
     {
-      char LocalName[NM],RemoteName[NM];
       DWORD RemoteNameSize=sizeof(RemoteName);
-      sprintf(LocalName,"%c:",*DriveRoot);
-
       if (WNetGetConnection(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
-      {
-        CharToOem(RemoteName,RemoteName);
-        strcat(Title,RemoteName);
-        strcat(Title," ");
-      }
+        ShowRealPath=TRUE;
     }
+    else if(DriveType == DRIVE_SUSTITUTE)
+        ShowRealPath=TRUE;
+
+    if(ShowRealPath)
+    {
+      CharToOem(RemoteName,RemoteName);
+      strcat(Title,RemoteName);
+      strcat(Title," ");
+    }
+
     TruncStr(Title,X2-X1-3);
     GotoXY(X1+(X2-X1+1-strlen(Title))/2,Y1+3);
     PrintText(Title);

@@ -9,6 +9,9 @@ flink.cpp
 
 /*
 Modify:
+  26.01.2001 SVS
+    - Бага в NT при удалении SUBST-дисков. В NT ЭТО должно выглядеть как
+      '\??\K:\Foo'
   25.01.2001 SVS
     ! Функции GetSubstName и DelSubstDrive теперь нормально работают и для
       Windows98
@@ -258,8 +261,11 @@ int WINAPI MkLink(char *Src,char *Dest)
 */
 int DelSubstDrive(char *DosDeviceName)
 {
-  char NtDeviceName[512];
-  if(GetSubstName(DosDeviceName,NtDeviceName,sizeof(NtDeviceName)))
+  char NtDeviceName[512]="\\??\\";
+  int Pos=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?4:0);
+  if(GetSubstName(DosDeviceName,
+         NtDeviceName+Pos,
+         sizeof(NtDeviceName)-Pos))
   {
     return !DefineDosDevice(DDD_RAW_TARGET_PATH|
                        DDD_REMOVE_DEFINITION|
