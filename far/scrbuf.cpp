@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.25 26.02.2005 $ */
+/* Revision: 1.26 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + У ScreenBuf::Read() появился доп параметр - скока читать.
   26.02.2005 SVS
     ! Для рисовании тени применим алгоритм - если атрибут =0, то выставим 0x08
   08.12.2004 WARP
@@ -258,14 +260,14 @@ void ScreenBuf::WriteA(int X,int Y,const CHAR_INFO *Text,int TextLength)
 
 /* Читать блок из виртуального буфера.
 */
-void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
+void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLength)
 {
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
   int I, Idx;
 
   for (Idx=I=0; I < Height; I++, Idx+=Width)
-    memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,sizeof(CHAR_INFO)*Width);
+    memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,Min((int)sizeof(CHAR_INFO)*Width,(int)MaxTextLength));
 
   if (X1==0 && Y1==0 &&
       CtrlObject!=NULL &&

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.220 05.03.2005 $ */
+/* Revision: 1.221 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + У GetText() появился доп параметр - скока читать.
   05.03.2005 SVS
     ! Изменена функция EnumRegValue()
        - добавлен параметр LPDWORD (для полечения REG_DWORD)
@@ -624,7 +626,7 @@ void SetColor(int Color);
 void SetRealColor(int Color);
 void ClearScreen(int Color);
 int  GetColor();
-void GetText(int X1,int Y1,int X2,int Y2,void *Dest);
+void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize);
 void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
 #if defined(USE_WFUNC)
 void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src);

@@ -7,10 +7,12 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.07 08.12.2004 $ */
+/* Revision: 1.08 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + У ScreenBuf::Read() появился доп параметр - скока читать.
   08.12.2004 WARP
     ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   04.06.2002 SVS
@@ -70,7 +72,7 @@ class ScreenBuf
 
   public:
     void FillBuf();
-    void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text);
+    void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text,int MaxTextLength);
     void Write(int X,int Y,const CHAR_INFO *Text,int TextLength);
 #if defined(USE_WFUNC)
     void WriteA(int X,int Y,const CHAR_INFO *Text,int TextLength);

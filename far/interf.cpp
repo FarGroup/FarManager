@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.87 21.03.2005 $ */
+/* Revision: 1.88 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + У GetText() появился доп параметр - скока читать.
+    + У ScreenBuf::Read() появился доп параметр - скока читать.
   21.03.2005 WARP
     - BugZ#1928 мерцает экран при поиске в просмотре при включенных часах.
   05.01.2005 WARP
@@ -739,7 +742,7 @@ void ShowTime(int ShowAlways)
   SYSTEMTIME tm;
   GetLocalTime(&tm);
   CHAR_INFO ScreenClockText[5];
-  GetText(ScrX-4,0,ScrX,0,ScreenClockText);
+  GetText(ScrX-4,0,ScrX,0,ScreenClockText,sizeof(ScreenClockText));
   if (ShowAlways==2)
   {
     memset(&lasttm,0,sizeof(lasttm));
@@ -1395,9 +1398,9 @@ void ScrollScreen(int Count)
 }
 
 
-void GetText(int X1,int Y1,int X2,int Y2,void *Dest)
+void GetText(int X1,int Y1,int X2,int Y2,void *Dest,int DestSize)
 {
-  ScrBuf.Read(X1,Y1,X2,Y2,(CHAR_INFO *)Dest);
+  ScrBuf.Read(X1,Y1,X2,Y2,(CHAR_INFO *)Dest,DestSize);
 }
 
 #if defined(USE_WFUNC)

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.221 01.04.2005 $ */
+/* Revision: 1.222 03.04.2005 $ */
 
 /*
 Modify:
+  03.04.2005 SVS
+    ! в копире юзается больше NM
   01.04.2005 SVS
     + GetItem()
   10.03.2005 SVS
@@ -4546,7 +4548,7 @@ void FileList::ProcessCopyKeys(int Key)
     {
       if (Key!=KEY_ALTF6)
       {
-        char PluginDestPath[NM];
+        char PluginDestPath[NM*2];
         int ToPlugin=FALSE;
         *PluginDestPath=0;
         if (AnotherPanel->GetMode()==PLUGIN_PANEL && AnotherPanel->IsVisible() &&

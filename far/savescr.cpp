@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.09 06.08.2004 $ */
+/* Revision: 1.10 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + У GetText() появился доп параметр - скока читать.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   09.03.2004 SVS
@@ -116,7 +118,8 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
   SaveScreen::Y1=Y1;
   SaveScreen::X2=X2;
   SaveScreen::Y2=Y2;
-  ScreenBuf=new char[ScreenBufSize()];
+  int _ScreenBufSize=ScreenBufSize();
+  ScreenBuf=new char[_ScreenBufSize];
   if (!ScreenBuf)
     return;
   if (RealScreen)
@@ -127,7 +130,7 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
   }
   else
   {
-    GetText(X1,Y1,X2,Y2,ScreenBuf);
+    GetText(X1,Y1,X2,Y2,ScreenBuf,_ScreenBufSize);
     GetCursorPos(CurPosX,CurPosY);
     GetCursorType(CurVisible,CurSize);
   }
@@ -145,7 +148,7 @@ void SaveScreen::SaveArea()
   }
   else
   {
-    GetText(X1,Y1,X2,Y2,ScreenBuf);
+    GetText(X1,Y1,X2,Y2,ScreenBuf,ScreenBufSize());
     GetCursorPos(CurPosX,CurPosY);
     GetCursorType(CurVisible,CurSize);
   }

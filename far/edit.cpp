@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.135 24.03.2005 $ */
+/* Revision: 1.136 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + У ScreenBuf::Read() появился доп параметр - скока читать.
+    - правки после BugZ#1302
   24.03.2005 SVS
     - BugZ#1302 - Colorization problems when TABs are in text (ЧАСТЬ 2)
   22.03.2005 SVS
@@ -2919,9 +2922,10 @@ void Edit::ApplyColor()
       Length=StrSize-CurItem->StartPos;
 
     int Start=RealPosToTab(CurItem->StartPos)-LeftPos;
-    //int End=RealPosToTab(CurItem->EndPos)-LeftPos;
-    int CorrectPos=CurItem->StartPos < StrSize && memchr(Str+CurItem->StartPos,'\t',Length)?1:0;
+    int LengthFind=CurItem->StartPos+Length >= StrSize?StrSize-CurItem->StartPos+1:Length;
+    int CorrectPos=Opt.EdOpt.ExpandTabColor && LengthFind > 0 && CurItem->StartPos < StrSize && memchr(Str+CurItem->StartPos,'\t',LengthFind)?1:0;
     int End=RealPosToTab(CurItem->EndPos+CorrectPos)-LeftPos;
+
     CHAR_INFO TextData[1024];
     if (Start<=X2 && End>=X1)
     {
@@ -2934,7 +2938,7 @@ void Edit::ApplyColor()
         Length-=CorrectPos;
       if (Length>0 && Length<sizeof(TextData))
       {
-        ScrBuf.Read(Start,Y1,End,Y1,TextData);
+        ScrBuf.Read(Start,Y1,End,Y1,TextData,sizeof(TextData));
         /* $ 28.07.2000 SVS
            SelColor может быть и реальным цветом.
         */

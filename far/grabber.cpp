@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.23 28.03.2005 $ */
+/* Revision: 1.24 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + У GetText() появился доп параметр - скока читать.
   28.03.2005 SVS
     ! уточнения граббера для M$9x
   15.12.2004 WARP
@@ -163,7 +165,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   CHAR_INFO *CharBuf=new CHAR_INFO[BufSize], *PtrCharBuf;
   char *CopyBuf=(char *)xf_malloc(BufSize), *PtrCopyBuf;
   WORD Chr;
-  GetText(X1,Y1,X2,Y2,CharBuf);
+  GetText(X1,Y1,X2,Y2,CharBuf,BufSize*sizeof(CHAR_INFO));
   *CopyBuf=0;
   PtrCharBuf=CharBuf;
   PtrCopyBuf=CopyBuf;
@@ -275,7 +277,7 @@ void Grabber::DisplayObject()
     {
       CHAR_INFO *CharBuf=new CHAR_INFO[(X2-X1+1)*(Y2-Y1+1)];
       CHAR_INFO *PrevBuf=SaveScr->GetBufferAddress();
-      GetText(X1,Y1,X2,Y2,CharBuf);
+      GetText(X1,Y1,X2,Y2,CharBuf,sizeof(CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
 
       for (int X=X1;X<=X2;X++)
         for (int Y=Y1;Y<=Y2;Y++)

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.144 01.04.2005 $ */
+/* Revision: 1.145 03.04.2005 $ */
 
 /*
 Modify:
+  03.04.2005 SVS
+    - ну очень подозрительный кусок...
   01.04.2005 SVS
     - невыставление аатрибутов для копируемых каталогов
   28.03.2005 SVS
@@ -947,7 +949,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   if (DestPlugin==2)
   {
-    if (*PluginDestPath!=NULL)
+    if (PluginDestPath)
       strcpy(PluginDestPath,CopyDlg[2].Data);
     _LOGCOPYR(SysLog("return -> %d",__LINE__));
     return;

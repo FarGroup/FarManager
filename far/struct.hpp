@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.122 03.03.2005 $ */
+/* Revision: 1.123 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    + Opt.EdOpt.ExpandTabColor
   03.03.2005 SVS
     + Opt.MsWheelDeltaHelp
   01.03.2005 SVS
@@ -494,6 +496,7 @@ struct EditorOptions
   int CharCodeBase;
   int SavePos;
   int SaveShortPos;
+  int ExpandTabColor;
   char WordDiv[256];
 };
 /* IS $ */
