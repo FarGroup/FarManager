@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.164 21.11.2001 $ */
+/* Revision: 1.165 22.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  22.11.2001 SVS
+    ! Забыл ограничить FMSG_COLOURS "скобками"
   21.11.2001 SVS
     + DIF_AUTOMATION, DM_GETITEMDATA, DM_SETITEMDATA
   19.11.2001 SVS
@@ -743,7 +745,9 @@ enum {
   FMSG_LEFTALIGN           =0x00000010,
 
   FMSG_ALLINONE            =0x00000020,
+#ifdef FAR_USE_INTERNALS
   FMSG_COLOURS             =0x00000040,
+#endif // END FAR_USE_INTERNALS
 
   FMSG_MB_OK               =0x00010000,
   FMSG_MB_OKCANCEL         =0x00020000,
