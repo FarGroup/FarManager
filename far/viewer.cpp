@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   28.06.2000 tran
     - показ пустой строки в hex viewer
+  28.06.2000 IS (22.06.2000)
+    + Показывать полное имя файла во вьюере
 
 */
 
@@ -566,7 +568,18 @@ void Viewer::ShowStatus()
   char Status[200],Name[NM];
   if (!ShowStatusLine)
     return;
-  strcpy(Name,*Title ? Title:FileName);
+  /* $ 22.06.2000 IS
+    Показывать полное имя файла во вьюере
+    Was: strcpy(Name,*Title ? Title:FileName);
+  */
+  if(*Title) strcpy(Name,Title);
+  else
+  {
+   ViewNamesList.GetCurDir(Name);
+   if(int len=strlen(Name)) if(Name[len-1]!='\\')strcat(Name,"\\");
+   strcat(Name,FileName);
+  }
+  /* IS $  */
   int NameLength=ScrX-40;
   if (Opt.ViewerEditorClock)
     NameLength-=6;
