@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.04 11.02.2001 $ */
+/* Revision: 1.05 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SVS
+    - Баги после #440-го
   11.02.2001 SVS
     ! Введение DIF_VAREDIT позволило расширить размер под маски
   11.02.2001 SVS
@@ -104,9 +106,10 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     for (I=0;I<FilterDataCount;I++)
     {
       memset(&ListItem,0,sizeof(ListItem));
-      sprintf(ListItem.Name,"%-30.30s │ %-30.30s",&FilterData[I].Title,&FilterData[I].Masks);
+      sprintf(ListItem.Name,"%-30.30s │ %-30.30s",FilterData[I].Title,FilterData[I].Masks);
       ListItem.Selected=(I == Pos);
-      ListItem.UserDataSize=strlen(ListItem.UserData)+1;
+      ListItem.Flags=0;
+      ListItem.UserDataSize=strlen(FilterData[I].Masks);
       if(ListItem.UserDataSize >= sizeof(ListItem.UserData))
       {
         ListItem.PtrData=FilterData[I].Masks;
@@ -157,7 +160,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
             (fdata.dwFileAttributes & FA_DIREC))
           continue;
         char *NewPtr=(char *)realloc(ExtPtr,NM*(ExtCount+1));
-        if (NewPtr==NULL)
+        if (!NewPtr)
           break;
         ExtPtr=NewPtr;
         char *DotPtr=strrchr(fdata.cFileName,'.');
@@ -177,7 +180,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
             (FileAttr & FA_DIREC))
           continue;
         char *NewPtr=(char *)realloc(ExtPtr,NM*(ExtCount+1));
-        if (NewPtr==NULL)
+        if (!NewPtr)
           break;
         ExtPtr=NewPtr;
         char *DotPtr=strrchr(FileName,'.');
@@ -208,8 +211,15 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         continue;
       sprintf(ListItem.Name,"%-30.30s │ %-30.30s",MSG(MPanelFileType),CurExtPtr);
       ListItem.Selected=0;
+      ListItem.Flags==0;
       ListItem.UserDataSize=strlen(CurExtPtr)+1;
-      strncpy(ListItem.UserData,CurExtPtr,min((int)sizeof(ListItem.UserData)-1,ListItem.UserDataSize));
+      if(ListItem.UserDataSize >= sizeof(ListItem.UserData))
+      {
+        ListItem.PtrData=FilterData[I].Masks;
+        ListItem.Flags=1;
+      }
+      else
+        strncpy(ListItem.UserData,CurExtPtr,min((int)sizeof(ListItem.UserData)-1,ListItem.UserDataSize));
       FilterList.AddItem(&ListItem);
     }
     /* $ 13.07.2000 SVS
@@ -260,11 +270,17 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
               strcpy(Masks,FilterData[SelPos].Masks);
               if (EditRecord(Title,Masks))
               {
-                strcpy(FilterData[SelPos].Title,Title);
-                strcpy(FilterData[SelPos].Masks,Masks);
-                SaveFilters();
-                *NeedUpdate=1;
-                return(SelPos);
+                char *Ptr;
+                if((Ptr=(char *)realloc(FilterData[SelPos].Masks,strlen(Masks)+1)) != NULL)
+                {
+                  strcpy(FilterData[SelPos].Title,Title);
+                  FilterData[SelPos].Masks=Ptr;
+                  strcpy(FilterData[SelPos].Masks,Masks);
+                  SaveFilters();
+                  *NeedUpdate=1;
+                  return(SelPos);
+                }
+                break;
               }
             }
             else
@@ -277,20 +293,27 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         case KEY_INS:
           {
             int SelPos=FilterList.GetSelectPos();
+            char *Ptr;
             if (SelPos>FilterDataCount)
               SelPos=FilterDataCount;
             *Title=*Masks=0;
             if (EditRecord(Title,Masks))
             {
               struct FilterDataRecord *NewFilterData;
-              if ((NewFilterData=(struct FilterDataRecord *)realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
+              if((Ptr=(char *)malloc(strlen(Masks)+1)) == NULL)
                 break;
+              if ((NewFilterData=(struct FilterDataRecord *)realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
+              {
+                free(Ptr);
+                break;
+              }
               FilterData=NewFilterData;
               for (int I=FilterDataCount-1;I>=SelPos;I--)
                 FilterData[I+1]=FilterData[I];
               FilterDataCount++;
               strncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title));
-              strncpy(FilterData[SelPos].Masks,Masks,sizeof(FilterData[0].Masks));
+              FilterData[SelPos].Masks=Ptr;
+              strcpy(FilterData[SelPos].Masks,Masks);
               FilterData[SelPos].LeftPanelInclude=0;
               FilterData[SelPos].LeftPanelExclude=0;
               FilterData[SelPos].RightPanelInclude=0;
@@ -312,6 +335,9 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
               if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
                           QuotedTitle,MSG(MDelete),MSG(MCancel))==0)
               {
+                if(FilterData[SelPos].Masks)
+                  free(FilterData[SelPos].Masks);
+
                 for (int I=SelPos+1;I<FilterDataCount;I++)
                   FilterData[I-1]=FilterData[I];
                 FilterDataCount--;
@@ -349,10 +375,11 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
 
 void PanelFilter::ProcessSelection(VMenu &FilterList)
 {
+  char Masks[PANELFILTER_MASK_SIZE];
+
   AddMasks(NULL,0);
   for (int I=0;I<FilterList.GetItemCount();I++)
   {
-    char Masks[PANELFILTER_MASK_SIZE],Pos[16];
     int Check=FilterList.GetSelection(I);
     if (Check && FilterList.GetUserData(Masks,sizeof(Masks),I))
       AddMasks(Masks,Check=='-');
@@ -468,7 +495,10 @@ void PanelFilter::InitFilter()
 
     struct FilterDataRecord *NewFilterData;
     if ((NewFilterData=(struct FilterDataRecord *)realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
+    {
+      free(Ptr);
       break;
+    }
     FilterData=NewFilterData;
     strcpy(FilterData[FilterDataCount].Title,FilterTitle);
     FilterData[FilterDataCount].Masks=Ptr;
@@ -551,7 +581,7 @@ int PanelFilter::EditRecord(char *Title,char *Masks)
     Dlg.SetHelp("Filter");
     Dlg.SetPosition(-1,-1,76,10);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=6 || *EditDlg[4].Data==0)
+    if (Dlg.GetExitCode()!=6 || *(char *)EditDlg[4].Ptr.PtrData==0)
       return(FALSE);
   }
   strcpy(Title,EditDlg[2].Data);
