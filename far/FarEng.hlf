@@ -1469,13 +1469,13 @@ $ #System settings dialog#
                           registered to process this file type
                           will be executed.
 
-  #Auto save setup#         If checked, FAR will save setup
-                          automatically. The current folders for
-                          both panels will be also saved.
-
   #Path for#                Specify a full path, where FAR will look
   #personal plugins#        for "personal" plugins (it is possible to
                           use environment variables).
+
+  #Auto save setup#         If checked, FAR will save setup
+                          automatically. The current folders for
+                          both panels will be also saved.
 
 @PanelSettings
 $ #Panel settings dialog#

@@ -8,10 +8,15 @@ help.cpp
 
 */
 
-/* Revision: 1.58 19.12.2001 $ */
+/* Revision: 1.59 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    - Bug: не работала ссылка вида
+      "@<c:\program files\far\plugins\multiarc\multiarc.dll>"
+      Нужно было удавить "multiarc.dll". Плюс к этому теперь для
+      __PluginContents__ путь заканчивается на слеш (для унификации)
   19.12.2001 VVM
     ! Если JumpTopic() не выполнился, то данные из стека удалим.
   03.12.2001 SVS
@@ -1156,6 +1161,7 @@ int Help::JumpTopic(const char *JumpTopic)
 {
   char  OldTopic[512];
   char NewTopic[512];
+  char *p;
 
   Stack->PrintStack(JumpTopic);
 
@@ -1165,7 +1171,7 @@ int Help::JumpTopic(const char *JumpTopic)
   // URL активатор - это ведь так просто :-)))
   {
     strcpy(NewTopic,StackData.SelTopic);
-    char *p=strchr(NewTopic,':');
+    p=strchr(NewTopic,':');
     if(p && NewTopic[0] != ':') // наверное подразумевается URL
     {
       *p=0;
@@ -1189,12 +1195,32 @@ int Help::JumpTopic(const char *JumpTopic)
     strcpy(NewTopic,StackData.SelTopic+(!strcmp(StackData.SelTopic,HelpOnHelpTopic)?1:0));
   }
 
+  // удалим ссылку на .DLL
+  p=strrchr(NewTopic,'>');
+  if(p && *(p-1) != '\\')
+  {
+    char *p2=p;
+    while(p >= NewTopic)
+    {
+      if(*p == '\\')
+      {
+        ++p;
+        memmove(p,p2,strlen(p2)+1);
+        break;
+      }
+      --p;
+    }
+  }
+
 //_SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
   if(*StackData.SelTopic != ':' &&
      LocalStricmp(StackData.SelTopic,PluginContents) &&
      LocalStricmp(StackData.SelTopic,DocumentContents))
   {
     ; // :-)
+    if(HelpMask)
+      free(HelpMask);
+    HelpMask=NULL;
   }
   else
   {
@@ -1441,7 +1467,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       {
         strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
         if ((Slash=strrchr(Path,'\\'))!=NULL)
-          *Slash=0;
+          *++Slash=0;
         FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
         if (HelpFile!=NULL)
         {
@@ -1469,7 +1495,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       {
         strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
         if ((Slash=strrchr(Path,'\\'))!=NULL)
-          *Slash=0;
+          *++Slash=0;
         FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FullFileName);
         if (HelpFile!=NULL)
         {
@@ -1496,7 +1522,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
         while (ScTree.GetNextName(&FindData,FullFileName))
         {
           if((PtrPath=strrchr(FullFileName,'\\')) != NULL)
-            *PtrPath++=0;
+            *++PtrPath=0;
           else
             PtrPath=HelpFileMask;
           FILE *HelpFile=Language::OpenLangFile(Path,PtrPath,Opt.HelpLanguage,FullFileName);

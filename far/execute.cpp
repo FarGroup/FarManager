@@ -5,10 +5,15 @@ execute.cpp
 
 */
 
-/* Revision: 1.25 20.12.2001 $ */
+/* Revision: 1.26 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    - Bug: после запуска компил€тора Java от MS, jvc.exe симолы псевдографики
+           в пользовательском интерфейсе Far'а замен€ютс€ на русские буквы.
+       стати, этим же страдают проги типа sh.exe (bash) из портированного
+      унихового утили€.
   20.12.2001 SVS
     ! ƒл€ Shift-Enter учтем перенаправлени€ и каналы.
   14.12.2001 IS
@@ -546,6 +551,9 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
     // если "да", то этот куско нужно ниже перенести.
     return -1;
   }
+  // запомним CP-консоли перед стартом проги
+  UINT ConsoleCP=GetConsoleCP();
+  UINT ConsoleOutputCP=GetConsoleOutputCP();
 
   CONSOLE_SCREEN_BUFFER_INFO sbi;
   STARTUPINFO si;
@@ -905,6 +913,12 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
   */
   GenerateWINDOW_BUFFER_SIZE_EVENT(-1,-1);
   SetConsoleTitle(OldTitle);
+  if(Opt.RestoreCPAfterExecute)
+  {
+    // восстановим CP-консоли после исполнени€ проги
+    SetConsoleCP(ConsoleCP);
+    SetConsoleOutputCP(ConsoleOutputCP);
+  }
   return(ExitCode);
 }
 

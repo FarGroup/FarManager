@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.60 14.12.2001 $ */
+/* Revision: 1.61 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    - BugZ#187 - Ctrl-X не работает в диалогах
   14.12.2001 IS
     ! внедрение const
   07.12.2001 SVS
@@ -711,7 +713,7 @@ int Edit::ProcessKey(int Key)
       Key!=KEY_RALT && Key!=KEY_NONE)
   {
     MarkingBlock=FALSE;
-    if (!PersistentBlocks && Key!=KEY_CTRLINS && !EditorMode && Key != KEY_CTRLQ)
+    if (!PersistentBlocks && Key!=KEY_CTRLINS && Key!=KEY_SHIFTDEL && !EditorMode && Key != KEY_CTRLQ)
     {
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;

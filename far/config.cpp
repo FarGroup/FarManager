@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.116 17.12.2001 $ */
+/* Revision: 1.117 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    + Opt.RestoreCPAfterExecute
+    ! AutoSave в диалоге настройки системы перенесем ниже - так логичнее будет.
   17.12.2001 IS
     + Работа с PanelMiddleClickRule
   14.12.2001 SVS
@@ -383,6 +386,7 @@ char NKeyDialog[]="Dialog";
 char NKeyEditor[]="Editor";
 char NKeyXLat[]="XLat";
 char NKeySystem[]="System";
+char NKeySystemExecutor[]="System\\Executor";
 char NKeyHelp[]="Help";
 char NKeyLanguage[]="Language";
 char NKeyConfirmations[]="Confirmations";
@@ -416,11 +420,9 @@ void SystemSettings()
   /* 10 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
   /* 11 */  DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
   /* 12 */  DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
-  /* 13 */  DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAutoSave,
-
-  /* 14 */  DI_TEXT,5,14,0,0,0,0,0,0,(char *)MConfigPersonalPath,
-  /* 15 */  DI_EDIT,5,15,50,15,0,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
-
+  /* 13 */  DI_TEXT,5,13,0,0,0,0,0,0,(char *)MConfigPersonalPath,
+  /* 14 */  DI_EDIT,5,14,50,14,0,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
+  /* 15 */  DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigAutoSave,
   /* 16 */  DI_TEXT,5,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 17 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
   /* 18 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
@@ -445,11 +447,11 @@ void SystemSettings()
   CfgDlg[10].Selected=Opt.SaveFoldersHistory;
   CfgDlg[11].Selected=Opt.SaveViewHistory;
   CfgDlg[12].Selected=Opt.UseRegisteredTypes;
-  CfgDlg[13].Selected=Opt.AutoSaveSetup;
 
   strcpy(PersonalPluginsPath,Opt.PersonalPluginsPath);
-  CfgDlg[15].Ptr.PtrData=PersonalPluginsPath;
-  CfgDlg[15].Ptr.PtrLength=sizeof(PersonalPluginsPath);
+  CfgDlg[14].Ptr.PtrData=PersonalPluginsPath;
+  CfgDlg[14].Ptr.PtrLength=sizeof(PersonalPluginsPath);
+  CfgDlg[15].Selected=Opt.AutoSaveSetup;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
@@ -1268,6 +1270,8 @@ static struct FARConfig{
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
   {0, REG_DWORD,  NKeySystem,"LCID",&Opt.LCIDSort,LOCALE_USER_DEFAULT, 0},
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
+
+  {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 

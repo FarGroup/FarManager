@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.69 02.12.2001 $ */
+/* Revision: 1.70 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    - не учитывался флаг VMENU_LISTBOX при пересчете координат, из-за чего
+      нельзя было спозиционировать список в X1=0
   02.12.2001 KM
     + Поелику VMENU_SHOWAMPERSAND сбрасывается в AssignHighlights
       для корректной работы ShowMenu сделаем сохранение энтого флага
@@ -508,10 +511,20 @@ void VMenu::Show()
     X1=(ScrX-MaxLength-4)/2;
     AutoCenter=TRUE;
   }
-  if (X1<2)
-    X1=2;
-  if (X2<=0)
-    X2=X1+MaxLength+4;
+  if(VMenu::VMFlags&VMENU_LISTBOX)
+  {
+    if(X1<0)
+      X1=0;
+    if (X2<=0)
+      X2=X1+MaxLength+4;
+  }
+  else
+  {
+    if(X1<2)
+      X1=2;
+    if (X2<=0)
+      X2=X1+MaxLength+4;
+  }
   if (!AutoCenter && X2 > ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
     X1+=ScrX-4-X2;

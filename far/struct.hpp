@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.79 17.12.2001 $ */
+/* Revision: 1.80 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    + Opt.RestoreCPAfterExecute
   17.12.2001 IS
     + Opt.PanelMiddleClickRule - поведение средней кнопки мыши в панелях
   07.12.2001 IS
@@ -694,6 +696,7 @@ struct Options
   int HelpTabSize;
   int DlgSelectFromHistory;
   int FindFolders;
+  int RestoreCPAfterExecute;
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.198 19.12.2001 $ */
+/* Revision: 1.199 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    - Если DI_LISTBOX был не в фокусе, то... все равно гад реагировал на мышу.
+    ! (unsigned char) -> (short)
   19.12.2001 SVS
     ! Раз уж пред.патч влез в область клиппинга, то... сделаем это самое
       отсечение для максимального количества элементов (читай - не для всех).
@@ -1512,22 +1515,22 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
   /* $ 10.08.2001 KM
     - Ошибочно выставлялся X1 в 0 при Rect->Left=-1 (центрировать текст).
   */
-  CurItem->X1=(unsigned char)Rect->Left;
+  CurItem->X1=(short)Rect->Left;
   /* KM $ */
   CurItem->Y1=(Rect->Top<0)?0:Rect->Top;
 
   if (IsEdit(Type))
   {
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
-      CurItem->X2=(unsigned char)Rect->Right;
+      CurItem->X2=(short)Rect->Right;
       CurItem->Y2=0;
       DialogEdit->SetPosition(X1+Rect->Left, Y1+Rect->Top,
                                    X1+Rect->Right,Y1+Rect->Top);
   }
   else if (Type==DI_LISTBOX)
   {
-      CurItem->X2=(unsigned char)Rect->Right;
-      CurItem->Y2=(unsigned char)Rect->Bottom;
+      CurItem->X2=(short)Rect->Right;
+      CurItem->Y2=(short)Rect->Bottom;
       CurItem->ListPtr->SetPosition(X1+Rect->Left, Y1+Rect->Top,
                                     X1+Rect->Right,Y1+Rect->Bottom);
   }
@@ -1536,8 +1539,8 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
     case DI_DOUBLEBOX:
     case DI_SINGLEBOX:
     case DI_USERCONTROL:
-      CurItem->X2=(unsigned char)Rect->Right;
-      CurItem->Y2=(unsigned char)Rect->Bottom;
+      CurItem->X2=(short)Rect->Right;
+      CurItem->Y2=(short)Rect->Bottom;
       break;
   }
 
@@ -1581,12 +1584,12 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
   switch(Type)
   {
     case DI_TEXT:
-      if (CurItem->X1==(unsigned char)-1)
+      if (CurItem->X1==(short)-1)
         Rect.left=(X2-X1+1-Len)/2;
       if(Rect.left < 0)
         Rect.left=0;
 
-      if (CurItem->Y1==(unsigned char)-1)
+      if (CurItem->Y1==(short)-1)
         Rect.top=(Y2-Y1+1)/2;
 
       if(Rect.top < 0)
@@ -1604,12 +1607,12 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       break;
 
     case DI_VTEXT:
-      if (CurItem->X1==(unsigned char)-1)
+      if (CurItem->X1==(short)-1)
         Rect.left=(X2-X1+1)/2;
       if(Rect.left < 0)
         Rect.left=0;
 
-      if (CurItem->Y1==(unsigned char)-1)
+      if (CurItem->Y1==(short)-1)
         Rect.top=(Y2-Y1+1-strlen(CurItem->Data))/2;
 
       if(Rect.top < 0)
@@ -3362,7 +3365,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       }
       else
       {
-        if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
+        if (I == FocusPos && // для нефокусного списка... не юзаем мышь
+            SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
           Item[I].ListPtr->ProcessMouse(MouseEvent);
       }
       /* KM $ */
