@@ -7,10 +7,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.02 29.04.2001 $ */
+/* Revision: 1.03 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + Перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   29.06.2000 tran
@@ -26,14 +28,12 @@ class Modal:public ScreenObject
   private:
     int     ReadKey,
             WriteKey;
-    KeyBar *ModalKeyBar;
 
   protected:
     INPUT_RECORD ReadRec;
     char HelpTopic[512];
     int  ExitCode;
     int  EndLoop;
-    int  EnableSwitch;
 
   public:
     Modal();
@@ -42,9 +42,6 @@ class Modal:public ScreenObject
     void ClearDone();
     int  GetExitCode();
     void SetExitCode(int Code);
-
-    int  GetEnableSwitch() {return(EnableSwitch);};
-    void SetEnableSwitch(int Mode) {EnableSwitch=Mode;};
 
     virtual void Process();
 
@@ -55,29 +52,11 @@ class Modal:public ScreenObject
     void SetHelp(char *Topic);
     void ShowHelp();
 
-    void SetKeyBar(KeyBar *ModalKeyBar);
-    void UpdateKeyBar();
-    virtual void RedrawKeyBar() { Modal::UpdateKeyBar(); };
-    int  KeyBarVisible;
-
-    virtual int GetTypeAndName(char *Type,char *Name) {return(MODALTYPE_VIRTUAL);};
-    virtual int IsFileModified() {return(FALSE);};
     /* $ 28.06.2000 tran
        (NT Console resize bug) adding virtual method */
     virtual void SetScreenPosition();
     /* tran $ */
-    virtual char *GetTypeName() {return "Modal";};
-
-    virtual void OnDestroy() {};  // вызывается перед уничтожением окна
-    virtual void OnCreate() {};   // вызывается перед созданием окна
-    virtual void OnChangeFocus(int focus) {}; // вызывается при смене фокуса
-
-
-    int MacroMode;
-    int Focus;
 };
 
 
 #endif  //__MODAL_HPP__
-
-

@@ -7,17 +7,22 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.00 09.01.2001 $ */
+/* Revision: 1.01 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   01.01.2001 tran
       created
 */
 
-class FilePanels:public Modal
+class FilePanels:public Window
 {
-    public:
+  private:
+    int Focus;
+
+  public:
 
     FilePanels();
     ~FilePanels();
@@ -64,11 +69,13 @@ class FilePanels:public Modal
     void Update();
 
     virtual int GetTypeAndName(char *Type,char *Name);
+    virtual int GetType() { return MODALTYPE_PANELS; }
 
     virtual char *GetTypeName(){return "[FilePanels]";};
     virtual void OnChangeFocus(int focus);
 
     void RedrawKeyBar(); // virtual
+    virtual void ShowConsoleTitle();
 };
 
 #endif // __FILEPANELS_HPP__

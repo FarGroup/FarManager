@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.31 29.04.2001 $ */
+/* Revision: 1.32 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + ѓ•а•вапе NWZ
   29.04.2001 ОТ
     + В≠•§а•≠®• NWZ Ѓв Та•вмп™ЃҐ†
   28.04.2001 SVS
@@ -135,6 +137,7 @@ enum { MODALTYPE_VIRTUAL,  // возвращаетс€ в Modal
        MODALTYPE_EDITOR,
        MODALTYPE_DIALOG,
        MODALTYPE_VMENU,
+       MODALTYPE_HELP,
        MODALTYPE_USER
        };
 
@@ -337,12 +340,11 @@ enum FlagsNameAndPassword{
 /* VVM $ */
 
 ///
+
 /* 01.08.2000 tran
    ExitCode values */
 #define XC_WORKING        0xffff
 #define XC_QUIT           0
-#define XC_SWITCHTOEDITOR 1
-#define XC_SWITCHTOVIEWER 2
 
 /* $ 11.08.2000 tran
    мелочь дл€ лучшей читабельности */

@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.21 29.04.2001 $ */
+/* Revision: 1.22 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.04.2001 VVM
@@ -198,20 +200,6 @@ void FileViewer::InitKeyBar(void)
   View.SetViewKeyBar(&ViewKeyBar);
 }
 /* SVS $ */
-
-void FileViewer::Process()
-{
-  ChangeMacroMode MacroMode(MACRO_VIEWER);
-  /* $ 15.09.2000 tran
-     FKL bug */
-  if ( Opt.ShowKeyBarViewer )
-      ViewKeyBar.Show();
-  else
-      ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
-  /* tran 15.09.2000 $ */
-  Modal::Process();
-}
-
 
 void FileViewer::Show()
 {
@@ -487,4 +475,3 @@ void FileViewer::OnChangeFocus(int f)
         Show();
     }
 }
-

@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.03 29.04.2001 $ */
+/* Revision: 1.04 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   11.07.2000 tran
@@ -36,22 +38,12 @@ Modal::Modal()
   WriteKey=-1;
   EndLoop=0;
   *HelpTopic=0;
-  ModalKeyBar=NULL;
-  EnableSwitch=FALSE;
 }
 
 
 void Modal::Process()
 {
   Show();
-  /* $ 29.06.2000 tran
-     установка ActiveModal в CtrlObject (NT Console resize) */
-  /* $ 11.07.2000 tran
-     just add checking for CtrlObject */
-  if ( CtrlObject )
-     CtrlObject->ModalManager.ActiveModal=this;
-  /* tran $ */
-  /* tran 11.07.2000 $ */
 
   while (!Done())
   {
@@ -59,11 +51,6 @@ void Modal::Process()
     ProcessInput();
   }
   GetDialogObjectsData();
-  /* $ 29.06.2000 tran
-     установка ActiveModal в CtrlObject (NT Console resize) */
-  if ( CtrlObject )
-     CtrlObject->ModalManager.ActiveModal=0;
-  /* tran $ */
 }
 
 
@@ -76,8 +63,6 @@ int Modal::ReadInput()
   }
   else
     ReadKey=GetInputRecord(&ReadRec);
-  if (ModalKeyBar!=NULL)
-    ModalKeyBar->RedrawIfChanged();
   return(ReadKey);
 }
 
@@ -134,19 +119,6 @@ void Modal::ShowHelp()
     Help Hlp(HelpTopic);
 }
 
-
-void Modal::SetKeyBar(KeyBar *ModalKeyBar)
-{
-  Modal::ModalKeyBar=ModalKeyBar;
-}
-
-void Modal::UpdateKeyBar()
-{
-    SysLog("Modal::UpdateKeyBar(), ModalKeyBar=0x%p",ModalKeyBar);
-    if ( ModalKeyBar!=NULL && KeyBarVisible )
-        ModalKeyBar->RedrawIfChanged();
-}
-
 /* $ 29.06.2000 tran
    adding virtual method for processing NT Console resize
 */
@@ -155,4 +127,3 @@ void Modal::SetScreenPosition()
 {
 }
 /* tran $ */
-

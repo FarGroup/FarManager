@@ -57,6 +57,7 @@ class History;
 #include "viewer.hpp"
 #include "hilight.hpp"
 #include "poscache.hpp"
+#include "window.hpp"
 #include "manager.hpp"
 #include "modal.hpp"
 #include "filepanels.hpp"

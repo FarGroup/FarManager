@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.25 29.04.2001 $ */
+/* Revision: 1.26 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.04.2001 vvm
@@ -308,7 +310,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     if (CloseFAR)
     {
       CloseFAR=FALSE;
-      CtrlObject->ModalManager.IsAnyModalModified(TRUE);
+      CtrlObject->ModalManager.IsAnyWindowModified(TRUE);
     }
 
     if ((LoopCount & 15)==0)
@@ -321,9 +323,9 @@ int GetInputRecord(INPUT_RECORD *rec)
       {
         if (Opt.InactivityExit && Opt.InactivityExitTime>0 &&
             CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-            CtrlObject->ModalManager.GetModalCount()==0)
+            CtrlObject->ModalManager.GetWindowCount()==1)
         {
-          CtrlObject->ExitMainLoop(FALSE);
+          CtrlObject->ModalManager.ExitMainLoop(FALSE);
           return(KEY_NONE);
         }
         if ((LoopCount & 63)==0)
@@ -454,17 +456,18 @@ int GetInputRecord(INPUT_RECORD *rec)
        NT Console resize support for Editor, Viewer, Help */
     else
     {
+      /* 06.07.2000 SVS
+        Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
+      */
+      /*
       GetVideoMode();
       Modal * CurModal=CtrlObject->ModalManager.ActiveModal;
       if (CurModal)
       {
-        /* 06.07.2000 SVS
-          Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
-        */
         // CtrlObject->Cp()->SetScreenPositions();
         // CurModal->SetScreenPosition();
-        /* SVS $ */
       }
+      /* SVS $ */
     }
     /* tran $ */
     return(KEY_NONE);

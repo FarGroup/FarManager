@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.07 04.05.2001 $ */
+/* Revision: 1.08 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   04.05.2001 OT
     + Неверно формировалось меню плагинов по F11 (NWZ)
       Изменился PluginSet::CommandsMenu()
@@ -44,23 +46,20 @@ Modify:
 
 Manager::Manager()
 {
-  ModalList=NULL;
-  ActiveList=NULL;
-  ModalCount=ModalPos=ModalSizeList=0;
-  ActiveListCount=0;
+  WindowList=NULL;
+  WindowCount=WindowPos=WindowListSize=0;
 
   *NextName=0;
 
-  ActiveModal=0;
-  CurrentModal=0;
+  CurrentWindow=NULL;
+  DestroyedWindow = NULL;
+  EndLoop = FALSE;
 }
 
 Manager::~Manager()
 {
-    if ( ModalList )
-        free(ModalList);
-    if ( ActiveList )
-        free(ActiveList);
+  if (WindowList)
+    free(WindowList);
 }
 
 
@@ -99,6 +98,7 @@ BOOL Manager::ExitAll()
 
 void Manager::CloseAll()
 {
+#if 0
   int I;
   EnableSwitch=FALSE;
   for (I=0;I<ModalCount;I++)
@@ -125,17 +125,18 @@ void Manager::CloseAll()
   /* SVS $ */
   ModalList=NULL;
   ModalCount=ModalPos=0;
+#endif
 }
 
-BOOL Manager::IsAnyModalModified(int Activate)
+BOOL Manager::IsAnyWindowModified(int Activate)
 {
-  for (int I=0;I<ModalCount;I++)
-    if (ModalList[I]->IsFileModified())
+  for (int I=0;I<WindowCount;I++)
+    if (WindowList[I]->IsFileModified())
     {
       if (Activate)
       {
-        ModalPos=I;
-        NextModal(0);
+        WindowPos=I;
+        NextWindow(0);
       }
       return(TRUE);
     }
@@ -143,141 +144,101 @@ BOOL Manager::IsAnyModalModified(int Activate)
 }
 
 
-void Manager::AddModal(Modal *NewModal)
+void Manager::AddWindow(Window *NewWindow)
 {
-  SysLog(1,"Manager::AddModal(), NewModal=0x%p, Type=%s",NewModal,NewModal->GetTypeName());
+  SysLog(1,"Manager::AddWindow(), NewWindow=0x%p, Type=%s",NewWindow,NewWindow->GetTypeName());
 
-  if ( ModalSizeList<ModalCount+1 )
+  if (WindowListSize < WindowCount+1)
   {
-      SysLog("Manager::AddModal(), realloc list");
-      ModalList=(Modal **)realloc(ModalList,sizeof(*ModalList)*(ModalCount+1));
-      ModalSizeList++;
+    SysLog("Manager::AddWindow(), realloc list");
+    WindowList=(Window **)realloc(WindowList,sizeof(*WindowList)*(WindowCount+1));
+    WindowListSize++;
   }
-  ModalPos=ModalCount;
-  ModalList[ModalCount]=NewModal;
-  ModalCount++;
+  WindowPos=WindowCount;
+  WindowList[WindowCount]=NewWindow;
+  WindowCount++;
 
 //  NewModal->Hide();
 
-  NextModal(0);
+  NextWindow(0);
 
-  SysLog("Manager::AddModal(), end.");
+  SysLog("Manager::AddWindow(), end.");
   SysLog(-1);
   WaitInMainLoop=IsPanelsActive();
 }
 
-void Manager::ExecuteModal(Modal *Modal)
-{
-    INPUT_RECORD rec;
-    int Key;
-    int EndLoop=0;
-    int es;
-
-    SysLog(1,"Manager::ExecuteModal Modal=0x%p, '%s', set ActiveModal",Modal,Modal->GetTypeName());
-    PushActive();
-    ActiveModal=Modal;
-
-    es=EnableSwitch;
-    EnableSwitch=FALSE;
-
-    SysLog("Manager::ExecModal(), begin");
-
-    while (!EndLoop)
-    {
-        WaitInMainLoop=IsPanelsActive();
-        Key=GetInputRecord(&rec);
-        WaitInMainLoop=FALSE;
-        if (EndLoop)
-        break;
-        if (rec.EventType==MOUSE_EVENT)
-            Modal->ProcessMouse(&rec.Event.MouseEvent);
-        else
-        {
-//            if (Key!=KEY_NONE)
-                Modal->UpdateKeyBar();
-            Modal->ProcessKey(Key);
-        }
-        if ( Modal->GetExitCode()!=XC_WORKING )
-            EndLoop=1;
-    }
-    EnableSwitch=es;
-    SysLog("Manager::ExecModal(), end.");
-    SysLog(-1);
-}
-
-void Manager::DestroyModal(Modal *Killed)
+void Manager::DestroyWindow(Window *Killed)
 {
     int i,j;
-    SysLog(1,"Manager::DestroyModal(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName());
-    if ( Killed==ActiveModal )
+    SysLog(1,"Manager::DestroyWindow(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName());
+    for ( i=0; i<WindowCount; i++ )
     {
-        SysLog("Manager::DestroyModal(), it's ActiveModal, so delete Killed and PopActive");
-        delete Killed;
-        PopActive();
-        SysLog(-1);
-        return ;
-    }
-    for ( i=0; i<ModalCount; i++ )
-    {
-        if ( ModalList[i]==Killed )
+        if ( WindowList[i]==Killed )
         {
-            SysLog("Manager::DestroyModal(), found at i=%i,ModalPos=%i delete and shrink list",i,ModalPos);
+            SysLog("Manager::DestroyWindow(), found at i=%i,WindowPos=%i delete and shrink list",i,WindowPos);
             Killed->OnDestroy();
-            delete Killed;
-            for ( j=i+1; j<ModalCount; j++ )
-                ModalList[j-1]=ModalList[j];
-            if ( ModalPos>=i )
-                ModalPos--;
-            ModalCount--;
-            SysLog("Manager::DestroyModal(), new ModalCount=%i, ModalPos=%i",ModalCount,ModalPos);
+            for ( j=i+1; j<WindowCount; j++ )
+                WindowList[j-1]=WindowList[j];
+            if ( WindowPos>=i )
+                WindowPos--;
+            WindowCount--;
+            SysLog("Manager::DestroyWindow(), new WindowCount=%i, WindowPos=%i",WindowCount,WindowPos);
             break;
         }
     }
-    if ( CurrentModal==Killed )
+    if ( CurrentWindow==Killed )
     {
-        if ( ModalCount )
+        if ( WindowCount )
         {
-            CurrentModal=ModalList[ModalPos];
-            SysLog("Manager::DestroyModal(), Killed==CurrentModal, set new Current to 0x%p, '%s'",CurrentModal,
-                CurrentModal->GetTypeName());
+          SetCurrentWindow (WindowList[WindowPos]);
+          SysLog("Manager::DestroyWindow(), Killed==CurrentWindow, set new Current to 0x%p, '%s'",CurrentWindow,
+            CurrentWindow->GetTypeName());
         }
         else
         {
-            CurrentModal=0;
-            SysLog("Manager::DestroyModal(), Killed==CurrentModal, set new Current to 0");
+            CurrentWindow=0;
+            SysLog("Manager::DestroyWindow(), Killed==CurrentWindow, set new Current to 0");
         }
     }
-    SysLog("Manager::DestroyModal() end.");
+    SysLog("Manager::DestroyWindow() end.");
     SysLog(-1);
-
+    DestroyedWindow = Killed;
 }
 
-void Manager::NextModal(int Increment)
+int Manager::ExecuteModal (Window &ModalWindow)
 {
-  SysLog(1,"Manager::NextModal(), ModalPos=%i, Increment=%i, ModalCount=%i",ModalPos,Increment,ModalCount);
-  if (ModalCount>0)
+  AddWindow (&ModalWindow);
+  ModalWindow.Show();
+  DestroyedWindow = NULL;
+  while (DestroyedWindow != &ModalWindow)
+    ProcessMainLoop();
+  int exitCode = ModalWindow.GetExitCode();
+  DestroyedWindow = NULL;
+  return exitCode;
+}
+
+void Manager::NextWindow(int Increment)
+{
+  SysLog(1,"Manager::NextWindow(), WindowPos=%i, Increment=%i, WindowCount=%i",WindowPos,Increment,WindowCount);
+  if (WindowCount>0)
   {
-    ModalPos+=Increment;
-    if (ModalPos<0)
-      ModalPos=ModalCount-1;
+    WindowPos+=Increment;
+    if (WindowPos<0)
+      WindowPos=WindowCount-1;
   }
-  if (ModalPos>=ModalCount)
-    ModalPos=0;
-  SysLog("Manager::NextModal(), new ModalPos=%i",ModalPos);
-  Modal *CurModal=ModalList[ModalPos];
+  if (WindowPos>=WindowCount)
+    WindowPos=0;
+  SysLog("Manager::NextWindow(), new WindowPos=%i",WindowPos);
+  Window *CurWindow=WindowList[WindowPos];
 
-  if ( CurrentModal )
-      CurrentModal->OnChangeFocus(0);
+  if (CurrentWindow)
+    CurrentWindow->OnChangeFocus(0);
 
-  CurrentModal=CurModal;
-  CurrentModal->ShowConsoleTitle();
-  CurrentModal->OnChangeFocus(1);
-  CtrlObject->Macro.SetMode(CurrentModal->MacroMode);
+  SetCurrentWindow (CurWindow);
 
-  SysLog("Manager::NextModal(), set CurrentModal=0x%p, %s",CurrentModal,CurrentModal->GetTypeName());
+  SysLog("Manager::NextWindow(), set CurrentWindow=0x%p, %s",CurrentWindow,CurrentWindow->GetTypeName());
 
-  char Type[200],Name[NM];
-  if (CurModal->GetTypeAndName(Type,Name)==MODALTYPE_EDITOR)
+  if (CurWindow->GetType()==MODALTYPE_EDITOR)
     UpdateRequired=TRUE;
 
 /*    int ExitCode=CurModal->GetExitCode();
@@ -324,7 +285,16 @@ void Manager::NextModal(int Increment)
 }
 
 
-void Manager::SelectModal()
+void Manager::SetCurrentWindow (Window *NewCurWindow)
+{
+  CurrentWindow = NewCurWindow;
+  CurrentWindow->ShowConsoleTitle();
+  CurrentWindow->OnChangeFocus(1);
+  CtrlObject->Macro.SetMode(CurrentWindow->MacroMode);
+}
+
+
+void Manager::SelectWindow()
 {
   int ExitCode;
   {
@@ -339,21 +309,21 @@ void Manager::SelectModal()
 //    ModalMenuItem.Selected=(ModalPos==ModalCount);
 //    ModalMenu.AddItem(&ModalMenuItem);
 
-    for (int I=0;I<ModalCount;I++)
+    for (int I=0;I<WindowCount;I++)
     {
       char Type[200],Name[NM],NumText[100];
-      ModalList[I]->GetTypeAndName(Type,Name);
-      if (I<9)
-        sprintf(NumText,"&%d. ",I+1);
+      WindowList[I]->GetTypeAndName(Type,Name);
+      if (I<10)
+        sprintf(NumText,"&%d. ",I);
       else
         strcpy(NumText,"&   ");
       /* $ 28.07.2000 tran
          файл усекает по ширине экрана */
       TruncPathStr(Name,ScrX-40);
       /*  добавляется "*" если файл изменен */
-      sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(ModalList[I]->IsFileModified()?'*':' '),Name);
+      sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(WindowList[I]->IsFileModified()?'*':' '),Name);
       /* tran 28.07.2000 $ */
-      ModalMenuItem.Selected=(I==ModalPos);
+      ModalMenuItem.Selected=(I==WindowPos);
       ModalMenu.AddItem(&ModalMenuItem);
     }
     ModalMenu.Process();
@@ -361,18 +331,17 @@ void Manager::SelectModal()
   }
   if (ExitCode>=0)
   {
-    NextModal(ExitCode-ModalPos);
+    NextWindow(ExitCode-WindowPos);
   }
 }
 
 
-void Manager::GetModalTypesCount(int &Viewers,int &Editors)
+void Manager::GetWindowTypesCount(int &Viewers,int &Editors)
 {
   Viewers=Editors=0;
-  for (int I=0;I<ModalCount;I++)
+  for (int I=0;I<WindowCount;I++)
   {
-    char Type[200],Name[NM];
-    switch(ModalList[I]->GetTypeAndName(Type,Name))
+    switch(WindowList[I]->GetType())
     {
       case MODALTYPE_VIEWER:
         Viewers++;
@@ -384,30 +353,29 @@ void Manager::GetModalTypesCount(int &Viewers,int &Editors)
   }
 }
 
-int  Manager::GetModalCountByType(int Type)
+int  Manager::GetWindowCountByType(int Type)
 {
   int ret=0;
-  for (int I=0;I<ModalCount;I++)
+  for (int I=0;I<WindowCount;I++)
   {
-    char type[200],Name[NM];
-    if (ModalList[I]->GetTypeAndName(type,Name)==Type)
-        ret++;
+    if (WindowList[I]->GetType()==Type)
+      ret++;
   }
   return ret;
 }
 
-void Manager::SetModalPos(int NewPos)
+void Manager::SetWindowPos(int NewPos)
 {
-  SysLog("Manager::SetModalPos(), NewPos=%i",NewPos);
-  ModalPos=NewPos;
+  SysLog("Manager::SetWindowPos(), NewPos=%i",NewPos);
+  WindowPos=NewPos;
 }
 
-int  Manager::FindModalByFile(int ModalType,char *FileName)
+int  Manager::FindWindowByFile(int ModalType,char *FileName)
 {
-  for (int I=0;I<ModalCount;I++)
+  for (int I=0;I<WindowCount;I++)
   {
     char Type[200],Name[NM];
-    if (ModalList[I]->GetTypeAndName(Type,Name)==ModalType)
+    if (WindowList[I]->GetTypeAndName(Type,Name)==ModalType)
       if (LocalStricmp(Name,FileName)==0)
         return(I);
   }
@@ -444,7 +412,6 @@ void Manager::ShowBackground()
   } */
 }
 
-
 void Manager::SetNextWindow(int Viewer,char *Name,long Pos)
 {
   NextViewer=Viewer;
@@ -458,16 +425,62 @@ void Manager::ActivateNextWindow()
  // int es;
   if (*NextName)
   {
-    Modal *NewModal;
+    Window *NewWindow;
     char NewName[NM];
     strcpy(NewName,NextName);
     *NextName=0;
     if (NextViewer)
-      NewModal=new FileViewer(NewName,TRUE,FALSE,FALSE,NextPos);
+      NewWindow=new FileViewer(NewName,TRUE,FALSE,FALSE,NextPos);
     else
-      NewModal=new FileEditor(NewName,FALSE,TRUE,-2,NextPos,FALSE);
-    AddModal(NewModal);
+      NewWindow=new FileEditor(NewName,FALSE,TRUE,-2,NextPos,FALSE);
+    AddWindow(NewWindow);
   }
+}
+
+void Manager::EnterMainLoop()
+{
+  WaitInFastFind=0;
+  while (!EndLoop)
+  {
+    ProcessMainLoop();
+    if (DestroyedWindow)
+    {
+      delete DestroyedWindow;
+      DestroyedWindow = NULL;
+    }
+  }
+}
+
+
+void Manager::ProcessMainLoop()
+{
+  WaitInMainLoop=IsPanelsActive();
+
+  WaitInFastFind++;
+  int Key=GetInputRecord(&LastInputRecord);
+  WaitInFastFind--;
+  WaitInMainLoop=FALSE;
+  if (EndLoop)
+    return;
+///    MainKeyBar->RedrawIfChanged();
+  if (LastInputRecord.EventType==MOUSE_EVENT)
+    ProcessMouse(&LastInputRecord.Event.MouseEvent);
+  else
+    ProcessKey(Key);
+///    MainKeyBar->RedrawIfChanged();
+}
+
+void Manager::ExitMainLoop(int Ask)
+{
+  if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
+   /* $ 29.12.2000 IS
+      + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
+        из фара.
+   */
+   if(ExitAll())
+   /* IS $ */
+    if (!CtrlObject->Cp()->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !CtrlObject->Cp()->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
+      EndLoop=TRUE;
 }
 
 int  Manager::ProcessKey(int Key)
@@ -475,21 +488,14 @@ int  Manager::ProcessKey(int Key)
     int ret=FALSE;
     BOOL es;
     char kn[32];
-    Modal *cm;
     KeyToText(Key,kn);
     SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn);
 
-    if ( ActiveModal )
+    if ( CurrentWindow)
     {
-        SysLog("Manager::ProcessKey(), to ActiveModal 0x%p, '%s'",ActiveModal, ActiveModal->GetTypeName());;
-        ActiveModal->UpdateKeyBar();
-        ret=ActiveModal->ProcessKey(Key);
-    }
-    else if ( CurrentModal)
-    {
-        es=CurrentModal->GetEnableSwitch();
-        SysLog("Manager::ProcessKey(), es=%i, to CurrentModal 0x%p, '%s'",es,CurrentModal, CurrentModal->GetTypeName());;
-        switch(Key)
+      es=CurrentWindow->GetEnableSwitch();
+      SysLog("Manager::ProcessKey(), es=%i, to CurrentWindow 0x%p, '%s'",es,CurrentWindow, CurrentWindow->GetTypeName());;
+      switch(Key)
         {
             case KEY_F11:
                 PluginsMenu();
@@ -497,33 +503,32 @@ int  Manager::ProcessKey(int Key)
                 return TRUE;
             case KEY_F12:
                 if ( es )
-                    SelectModal();
+                    SelectWindow();
                 SysLog(-1);
                 return TRUE;
             case KEY_CTRLTAB:
                 if ( es )
-                    NextModal(1);
+                    NextWindow(1);
                 SysLog(-1);
                 return TRUE;
             case KEY_CTRLSHIFTTAB:
                 if ( es )
-                    NextModal(-1);
+                    NextWindow(-1);
                 SysLog(-1);
                 return TRUE;
         }
-        SysLog("Manager::ProcessKey(), to CurrentModal 0x%p, '%s'",CurrentModal, CurrentModal->GetTypeName());;
-        if (Key!=KEY_NONE)
-            CurrentModal->UpdateKeyBar();
+        SysLog("Manager::ProcessKey(), to CurrentWindow 0x%p, '%s'",CurrentWindow, CurrentWindow->GetTypeName());;
+        CurrentWindow->UpdateKeyBar();
         // сохраняем, потому что внутри ProcessKey
         // может быть вызван AddModal и
         // CurrentModal будет изменен.
-        cm=CurrentModal;
-        ret=CurrentModal->ProcessKey(Key);
+        Window *cw=CurrentWindow;
+        ret=CurrentWindow->ProcessKey(Key);
         if ( ret )
         {
             // а так проверяем код выхода у того, кого надо
-            if ( cm->GetExitCode()==XC_QUIT )
-                DestroyModal(cm);
+            if ( cw->GetExitCode()==XC_QUIT )
+                DestroyWindow(cw);
         }
     }
     SysLog("Manager::ProcessKey() ret=%i",ret);
@@ -535,55 +540,27 @@ int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
     int ret=FALSE;
 //    SysLog(1,"Manager::ProcessMouse()");
-    if ( ActiveModal )
-        ret=ActiveModal->ProcessMouse(MouseEvent);
-    else if ( CurrentModal)
-        ret=CurrentModal->ProcessMouse(MouseEvent);
+    if ( CurrentWindow)
+        ret=CurrentWindow->ProcessMouse(MouseEvent);
 //    SysLog("Manager::ProcessMouse() ret=%i",ret);
     SysLog(-1);
     return ret;
 }
 
-void Manager::PushActive()
-{
-    ActiveList=(Modal **)realloc(ActiveList,sizeof(*ActiveList)*(ActiveListCount+1));
-    ActiveList[ActiveListCount]=ActiveModal;
-    ActiveListCount++;
-    SysLog("Manager::PushActive()");
-}
-
-void Manager::PopActive()
-{
-    if ( ActiveListCount==0 )
-    {
-        ActiveModal=0;
-        return ;
-    }
-    ActiveModal=ActiveList[ActiveListCount-1];
-    ActiveList=(Modal **)realloc(ActiveList,sizeof(*ActiveList)*(ActiveListCount-1));
-    ActiveListCount--;
-    SysLog("Manager::PopActive(), Active=0x%p, '%s'",ActiveModal,ActiveModal->GetTypeName());
-}
-
 void Manager::PluginsMenu()
 {
-    SysLog(1);
-    if ( ActiveModal )
-    {
-        SysLog("Manager:PluginsMenu(), ActiveModal!=0, return");
-        SysLog(-1);
-        return;
-    }
-/// ╧юьхэ ыё  т√чют ъюььрэфё ╨рчюсЁрЄ№ё 
+  SysLog(1);
+ // ╧юьхэ ыё  т√чют ъюььрэфё ╨рчюсЁрЄ№ё 
 ///    CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
-    CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
-    SysLog(-1);
+  int curType = CurrentWindow->GetType();
+  if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)
+    CtrlObject->Plugins.CommandsMenu(curType,0,0);
+  SysLog(-1);
 }
 
 BOOL Manager::IsPanelsActive()
 {
-    if ( ActiveModal==0 && CurrentModal->GetTypeAndName(0,0)==MODALTYPE_PANELS )
+    if (CurrentWindow->GetTypeAndName(0,0)==MODALTYPE_PANELS )
         return TRUE;
     return FALSE;
 }
-

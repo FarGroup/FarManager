@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.16 29.04.2001 $ */
+/* Revision: 1.17 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   30.03.2001 SVS
@@ -439,6 +441,7 @@ int FindFiles::FindFilesProcess()
                     Dlg.Hide();
                     {
                       FileViewer ShellViewer(FileFindData.cFileName,FALSE,FALSE,TRUE,-1,NULL,&ViewList);
+                      CtrlObject->ModalManager.ExecuteModal (ShellViewer);
                     }
                     Dlg.Show();
                     FindList.Show();
@@ -449,6 +452,7 @@ int FindFiles::FindFilesProcess()
                     Dlg.Hide();
                     {
                       FileEditor ShellEditor(FileFindData.cFileName,FALSE,FALSE);
+                      CtrlObject->ModalManager.ExecuteModal (ShellEditor);
                     }
                     Dlg.Show();
                     FindList.Show();

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.19 29.04.2001 $ */
+/* Revision: 1.20 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.04.2001 VVM
@@ -87,7 +89,6 @@ ControlObject::ControlObject()
     FolderHistory->ReadHistory();
   if (Opt.SaveViewHistory)
     ViewHistory->ReadHistory();
-  EndLoop=0;
 ///  LastLeftType=LastRightType=FILE_PANEL;
 ///  LastLeftFilePanel=LastRightFilePanel=NULL;
 ///  Cp()->ActivePanel=NULL;
@@ -189,9 +190,9 @@ _beginthread(CheckVersion,0x10000,NULL);
     Cp()->RightPanel->Hide();
   Cp()->HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
   CmdLine->Redraw();
-  Plugins.LoadPlugins();
 
-  ModalManager.AddModal(FPanels);
+  ModalManager.AddWindow(FPanels);
+  Plugins.LoadPlugins();
 }
 
 
@@ -324,6 +325,7 @@ void ControlObject::DeletePanel(Panel *Deleted)
 }
 *///
 
+#if 0
 int ControlObject::ProcessKey(int Key)
 {
   int KeyProcessed; ///
@@ -352,12 +354,6 @@ int ControlObject::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_CTRLTAB:
-      ModalManager.NextModal(1);
-      break;
-    case KEY_CTRLSHIFTTAB:
-      ModalManager.NextModal(-1);
-      break;
     case KEY_TAB:
       if (Cp()->ActivePanel==Cp()->LeftPanel)
       {
@@ -673,6 +669,8 @@ int ControlObject::ProcessKey(int Key)
   return(TRUE);
 }
 
+#endif
+
 /*///
 Panel* ControlObject::ChangePanelToFilled(Panel *Current,int NewType)
 {
@@ -689,6 +687,7 @@ Panel* ControlObject::ChangePanelToFilled(Panel *Current,int NewType)
 }
 *///
 
+#if 0
 int ControlObject::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
 /*///
@@ -701,44 +700,7 @@ int ControlObject::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   return(TRUE);
 }
 
-
-void ControlObject::EnterMainLoop()
-{
-  INPUT_RECORD rec;
-  int Key;
-
-  WaitInFastFind=0;
-  while (!EndLoop)
-  {
-    WaitInMainLoop=ModalManager.IsPanelsActive();
-    WaitInFastFind++;
-    Key=GetInputRecord(&rec);
-    WaitInFastFind--;
-    WaitInMainLoop=FALSE;
-    if (EndLoop)
-      break;
-///    MainKeyBar->RedrawIfChanged();
-    if (rec.EventType==MOUSE_EVENT)
-      ModalManager.ProcessMouse(&rec.Event.MouseEvent);
-    else
-      ModalManager.ProcessKey(Key);
-///    MainKeyBar->RedrawIfChanged();
-  }
-}
-
-
-void ControlObject::ExitMainLoop(int Ask)
-{
-  if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
-   /* $ 29.12.2000 IS
-      + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
-        из фара.
-   */
-   if(ModalManager.ExitAll())
-   /* IS $ */
-    if (!Cp()->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !Cp()->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
-      EndLoop=TRUE;
-}
+#endif
 
 /*///
 Panel* ControlObject::GetAnotherPanel(Panel *Current)

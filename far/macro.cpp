@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.31 29.04.2001 $ */
+/* Revision: 1.32 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   25.04.2001 SVS
@@ -1081,11 +1083,10 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
   if(Mode==MACRO_EDITOR)
   {
-    char Type[200],Name[NM];
-    Modal* CurModal=CtrlObject->ModalManager.ActiveModal;
-    if (CurModal && CurModal->GetTypeAndName(Type,Name)==MODALTYPE_EDITOR)
+    Window* CurWindow=CtrlObject->ModalManager.CurrentWindow;
+    if (CurWindow && CurWindow->GetType()==MODALTYPE_EDITOR)
     {
-      int CurSelected=CurModal->ProcessKey(KEY_MEDIT_ISSELECTED);
+      int CurSelected=CurWindow->ProcessKey(KEY_MEDIT_ISSELECTED);
       if((CurFlags&MFLAGS_SELECTION) && !CurSelected ||
          (CurFlags&MFLAGS_NOSELECTION) && CurSelected)
           return FALSE;

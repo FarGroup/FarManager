@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.03 29.04.2001 $ */
+/* Revision: 1.04 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + Перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   07.08.2000 SVS
@@ -23,10 +25,9 @@ Modify:
     ! Выделение в каµестве самостоятельного модуля
 */
 
-class FileViewer:public Modal
+class FileViewer:public Window
 {
   private:
-    void Process();
     void Show();
     void DisplayObject();
     Viewer View;
@@ -65,6 +66,7 @@ class FileViewer:public Modal
     virtual void OnDestroy(); ///
     virtual void OnChangeFocus(int f); ///
     virtual char *GetTypeName(){return "[FileView]";}; ///
+    virtual int GetType() { return MODALTYPE_VIEWER; }
 };
 
 #endif	// __FILEVIEWER_HPP__

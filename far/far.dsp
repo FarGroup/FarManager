@@ -454,6 +454,10 @@ SOURCE=.\vmenu.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\window.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\xlat.cpp
 # End Source File
 # End Group
@@ -707,6 +711,10 @@ SOURCE=.\viewer.hpp
 # Begin Source File
 
 SOURCE=.\vmenu.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\window.hpp
 # End Source File
 # End Group
 # Begin Group "Resource Files"

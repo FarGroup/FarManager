@@ -2070,8 +2070,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
             else
               SetRegKey(RegKey,"Hotkey",PluginDlg[2].Data);
             PluginList.Hide();
-///            return(CommandsMenu(Editor,Viewer,SelPos,HistoryName));
-            return(CommandsMenu(ModalType,SelPos,HistoryName));///
+///            return(CommandsMenu(Editor,Viewer,SelPos));
+            return(CommandsMenu(ModalType,SelPos));///
           }
         }
         break;

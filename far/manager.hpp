@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.03 29.04.2001 $ */
+/* Revision: 1.04 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 DJ
+    + доделка и переделка NWZ
   29.04.2001 ќ“
     + ¬недрение NWZ от “реть€кова
   29.12.2000 IS
@@ -29,32 +31,35 @@ class Manager
 
     void ActivateNextWindow();
 
-    Modal **ModalList,
-          **ActiveList;
+    Window **WindowList;
+    Window *DestroyedWindow;
 
-    int  ModalCount,
-         ModalSizeList,
-         ActiveListCount;
-    int  ModalPos;
+    int  EndLoop;
+
+    int  WindowCount,
+         WindowListSize;
+    int  WindowPos;
+    int  UpdateRequired;
+
     int  NextViewer;
     char NextName[NM];
     int  NextPos;
-    int  UpdateRequired;
+
+    INPUT_RECORD LastInputRecord;
+
+    void SetCurrentWindow (Window *NewCurWindow);
 
   public:
 
     Manager();
     ~Manager();
 
-    void AddModal(Modal *NewModal);
-    void ExecuteModal(Modal *ExecModal);
-    void DestroyModal(Modal *KilledModal);
+    void AddWindow(Window *NewWindow);
+    void DestroyWindow(Window *Killed);
+    int ExecuteModal(Window &ModalWindow);
 
-    void NextModal(int Increment);
-    void SelectModal(); // show window menu (F12)
-
-    void PushActive();
-    void PopActive();
+    void NextWindow(int Increment);
+    void SelectWindow(); // show window menu (F12)
 
     void CloseAll();
     /* $ 29.12.2000 IS
@@ -64,34 +69,37 @@ class Manager
     */
     BOOL ExitAll();
     /* IS $ */
-    BOOL IsAnyModalModified(int Activate);
+    BOOL IsAnyWindowModified(int Activate);
 
-    int  GetModalCount() {return(ModalCount);};
-    void GetModalTypesCount(int &Viewers,int &Editors);
-    int  GetModalCountByType(int Type);
+    int  GetWindowCount() {return(WindowCount);};
+    void GetWindowTypesCount(int &Viewers,int &Editors);
+    int  GetWindowCountByType(int Type);
 
     BOOL IsPanelsActive(); // используетс€ как признак WaitInMainLoop
 
-    void SetModalPos(int NewPos);
+    void SetWindowPos(int NewPos);
 
-    int  FindModalByFile(int ModalType,char *FileName);
+    int  FindWindowByFile(int ModalType,char *FileName);
 
     void ShowBackground();
 
     void SetNextWindow(int Viewer,char *Name,long Pos);
 
     // new methods
+    void EnterMainLoop();
+    void ProcessMainLoop();
+    void ExitMainLoop(int Ask);
     int ProcessKey(int key);
     int ProcessMouse(MOUSE_EVENT_RECORD *me);
 
     void PluginsMenu(); // вызываем меню по F11
     void CheckExited();
 
-    Modal *ActiveModal;   // активный модал, в том числе и диалог
-                          // может не быть в списке
-    Modal *CurrentModal;  // текущий модал,
+    Window *CurrentWindow;  // текущий модал,
                           // присутсвует в списке, но может быть не активным
     int    EnableSwitch;  // разрешено ли переключение из модала
+
+    INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
 };
 
 #endif  // __MANAGER_HPP__

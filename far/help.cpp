@@ -139,7 +139,8 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   if (HelpData!=NULL)
   {
     InitKeyBar();
-    Process();
+    MacroMode = MACRO_HELP;
+    CtrlObject->ModalManager.ExecuteModal (*this);
   }
   else
   {
@@ -193,7 +194,8 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   if (HelpData!=NULL)
   {
     InitKeyBar();
-    Process();
+    MacroMode = MACRO_HELP;
+    CtrlObject->ModalManager.ExecuteModal (*this);
     ShowPrev=Help::ShowPrev;
   }
   else
@@ -845,12 +847,12 @@ int Help::ProcessKey(int Key)
     case KEY_ESC:
     case KEY_F10:
       ShowPrev=FALSE;
-      EndLoop=TRUE;
+      SetExitCode (XC_QUIT);
       return(TRUE);
     case KEY_ALTF1:
     case KEY_BS:
       ShowPrev=TRUE;
-      EndLoop=TRUE;
+      SetExitCode (XC_QUIT);
       return(TRUE);
     case KEY_HOME:
     case KEY_CTRLHOME:
@@ -971,7 +973,7 @@ int Help::ProcessKey(int Key)
           /* SVS $ */
         }
         if (!KeepHelp)
-          EndLoop=TRUE;
+          SetExitCode (XC_QUIT);
         else
         {
           FastShow();
@@ -1230,7 +1232,7 @@ void Help::SetScreenPosition()
 */
 void Help::InitKeyBar(void)
 {
-  char *FHelpKeys[]={MSG(MHelpF1),MSG(MHelpF2),MSG(MHelpF3),MSG(MHelpF4),MSG(MHelpF5),EnableSwitch ? MSG(MHelpF6):"",MSG(MHelpF7),MSG(MHelpF8),MSG(MHelpF9),MSG(MHelpF10),MSG(MHelpF11),MSG(MHelpF12)};
+  char *FHelpKeys[]={MSG(MHelpF1),MSG(MHelpF2),MSG(MHelpF3),MSG(MHelpF4),MSG(MHelpF5),MSG(MHelpF6),MSG(MHelpF7),MSG(MHelpF8),MSG(MHelpF9),MSG(MHelpF10),MSG(MHelpF11),MSG(MHelpF12)};
   char *FHelpShiftKeys[]={MSG(MHelpShiftF1),MSG(MHelpShiftF2),MSG(MHelpShiftF3),MSG(MHelpShiftF4),MSG(MHelpShiftF5),MSG(MHelpShiftF6),MSG(MHelpShiftF7),MSG(MHelpShiftF8),MSG(MHelpShiftF9),MSG(MHelpShiftF10),MSG(MHelpShiftF11),MSG(MHelpShiftF12)};
   char *FHelpAltKeys[]={MSG(MHelpAltF1),MSG(MHelpAltF2),MSG(MHelpAltF3),MSG(MHelpAltF4),MSG(MHelpAltF5),MSG(MHelpAltF6),MSG(MHelpAltF7),MSG(MHelpAltF8),MSG(MHelpAltF9),MSG(MHelpAltF10),MSG(MHelpAltF11),MSG(MHelpAltF12)};
   char *FHelpCtrlKeys[]={MSG(MHelpCtrlF1),MSG(MHelpCtrlF2),MSG(MHelpCtrlF3),MSG(MHelpCtrlF4),MSG(MHelpCtrlF5),MSG(MHelpCtrlF6),MSG(MHelpCtrlF7),MSG(MHelpCtrlF8),MSG(MHelpCtrlF9),MSG(MHelpCtrlF10),MSG(MHelpCtrlF11),MSG(MHelpCtrlF12)};
@@ -1252,18 +1254,6 @@ void Help::InitKeyBar(void)
   SetKeyBar(&HelpKeyBar);
 }
 /* SVS $ */
-
-void Help::Process()
-{
-  ChangeMacroMode MacroMode(MACRO_HELP);
-  Modal::Process();
-  /* $ 20.01.2001 SVS
-     Из-за отсутствия этой строки пропадал курсор при вызове хелпа :-((
-     Бяка появилась на 354-м патче, когда была введена поддержка кеёбар */
-  HelpKeyBar.Hide();
-  /* SVS $ */
-}
-
 
 /* $ 25.08.2000 SVS
    Запуск URL-ссылок... ;-)

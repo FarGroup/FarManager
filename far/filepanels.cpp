@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.00 09.01.2001 $ */
+/* Revision: 1.01 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+   + перетрях NWZ
   09.01.2001 tran
      Created
 */
@@ -36,6 +38,7 @@ FilePanels::FilePanels()
   RightStateBeforeHide=0;
   LastLeftFilePanel=0;
   LastRightFilePanel=0;
+  MacroMode = MACRO_SHELL;
 //  SetKeyBar(&MainKeyBar);
 //  SysLog("MainKeyBar=0x%p",&MainKeyBar);
 }
@@ -90,7 +93,7 @@ FilePanels::~FilePanels()
   DeletePanel(LeftPanel);
   LeftPanel=NULL;
   DeletePanel(RightPanel);
-  RightPanel=NULL; 
+  RightPanel=NULL;
 }
 
 void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
@@ -723,13 +726,13 @@ void FilePanels::OnChangeFocus(int f)
     SysLog("FilePanels::OnChangeFocus(), focus=%i",f);
     Focus=f;
     if ( f )
-        Redraw();    
+        Redraw();
 }
 
 void FilePanels::Show()
 {
     SysLog("FilePanels::Show()");
-    Modal::Show();
+    Window::Show();
 }
 
 void FilePanels::Redraw()
@@ -752,4 +755,10 @@ int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       if (!MainKeyBar.ProcessMouse(MouseEvent))
         CmdLine->ProcessMouse(MouseEvent);
   return(TRUE);
+}
+
+void FilePanels::ShowConsoleTitle()
+{
+  if (ActivePanel)
+    ActivePanel->SetTitle();
 }

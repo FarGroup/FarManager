@@ -322,7 +322,7 @@ int _cdecl main(int Argc, char *Argv[])
         CtrlObject->Cp()->LeftPanel->Redraw();
         CtrlObject->Cp()->RightPanel->Redraw();
       }
-      CtrlObj.EnterMainLoop();
+      CtrlObj.ModalManager.EnterMainLoop();
     }
   }
   SetConsoleTitle(OldTitle);

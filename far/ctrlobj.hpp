@@ -7,10 +7,12 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.04 29.02.2001 $ */
+/* Revision: 1.05 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + Перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.02.2001 IS
@@ -27,7 +29,6 @@ Modify:
 class ControlObject:public BaseInput
 {
   private:
-    int EndLoop;
 //    int LastLeftType,LastRightType;
 //    int LeftStateBeforeHide,RightStateBeforeHide,HideState;
 //    Panel *LastLeftFilePanel,*LastRightFilePanel;
@@ -42,10 +43,8 @@ class ControlObject:public BaseInput
 
   public:
     void Init();
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void EnterMainLoop();
-    void ExitMainLoop(int Ask);
+//    int ProcessKey(int Key);
+//    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 //    Panel* GetAnotherPanel(Panel *Current);
 //    Panel* ChangePanelToFilled(Panel *Current,int NewType);
 //    Panel* ChangePanel(Panel *Current,int NewType,int CreateNew,int Force);

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.14 29.04.2001 $ */
+/* Revision: 1.15 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   30.04.2001 DJ
@@ -310,7 +312,7 @@ int InfoList::ProcessKey(int Key)
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
         chdir(CurDir);
         FileViewer *ShellViewer=new FileViewer(DizFileName,TRUE);
-        CtrlObject->ModalManager.AddModal(ShellViewer);
+        CtrlObject->ModalManager.AddWindow(ShellViewer);
       }
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
@@ -330,7 +332,7 @@ int InfoList::ProcessKey(int Key)
         if (*DizFileName)
         {
           FileEditor *ShellEditor=new FileEditor(DizFileName,FALSE,TRUE);
-          CtrlObject->ModalManager.AddModal(ShellEditor);
+          CtrlObject->ModalManager.AddWindow(ShellEditor);
         }
         else if (*Opt.FolderInfoFiles)
         {
@@ -341,7 +343,7 @@ int InfoList::ProcessKey(int Key)
             if (!strpbrk (ArgName, "*?"))
             {
               FileEditor *ShellEditor = new FileEditor(ArgName,TRUE,TRUE);
-              CtrlObject->ModalManager.AddModal(ShellEditor);
+              CtrlObject->ModalManager.AddWindow(ShellEditor);
               break;
             }
           }

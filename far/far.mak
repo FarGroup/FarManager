@@ -89,6 +89,7 @@ CLEAN :
 	-@erase "$(INTDIR)\keybar.obj"
 	-@erase "$(INTDIR)\language.obj"
 	-@erase "$(INTDIR)\local.obj"
+	-@erase "$(INTDIR)\window.obj"
 	-@erase "$(INTDIR)\lockscrn.obj"
 	-@erase "$(INTDIR)\macro.obj"
 	-@erase "$(INTDIR)\main.obj"
@@ -153,6 +154,7 @@ DEF_FILE= \
 LINK32_OBJS= \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\constitle.obj" \
+	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\filepanels.obj" \
@@ -204,9 +206,9 @@ LINK32_OBJS= \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
-        "$(INTDIR)\keyboard.obj" \
-        "$(INTDIR)\syslog.obj" \
-        "$(INTDIR)\fileattr.obj" \
+    "$(INTDIR)\keyboard.obj" \
+    "$(INTDIR)\syslog.obj" \
+    "$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\xlat.obj" \
@@ -270,6 +272,7 @@ CLEAN :
 	-@erase "$(INTDIR)\farqueue.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
+	-@erase "$(INTDIR)\window.obj"
 	-@erase "$(INTDIR)\flink.obj"
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
@@ -389,6 +392,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\config.obj" \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
+	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\delete.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
@@ -431,9 +435,9 @@ LINK32_OBJS= \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
-        "$(INTDIR)\keyboard.obj" \
-        "$(INTDIR)\syslog.obj" \
-        "$(INTDIR)\fileattr.obj" \
+    "$(INTDIR)\keyboard.obj" \
+    "$(INTDIR)\syslog.obj" \
+    "$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\xlat.obj" \
@@ -937,5 +941,8 @@ SOURCE=.\filepanels.cpp
 
 "$(INTDIR)\filepanels.obj" : $(SOURCE) "$(INTDIR)"
 
+SOURCE=.\window.cpp
+
+"$(INTDIR)\window.obj" : $(SOURCE) "$(INTDIR)"
 
 !ENDIF

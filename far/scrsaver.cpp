@@ -5,10 +5,12 @@ ScreenSaver
 
 */
 
-/* Revision: 1.03 27.02.2001 $ */
+/* Revision: 1.04 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    - правка под NWZ: в списке окон теперь на одно окно больше (панели)
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -86,13 +88,17 @@ int ScreenSaver(int EnableExit)
     {
       clock_t CurTime=clock();
 
+      /* $ 05.05.2001 DJ
+         NWZ
+      */
       if (EnableExit && Opt.InactivityExit && Opt.InactivityExitTime>0 &&
           CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-          CtrlObject->ModalManager.GetModalCount()==0)
+          CtrlObject->ModalManager.GetWindowCount()==1)
       {
-        CtrlObject->ExitMainLoop(FALSE);
+        CtrlObject->ModalManager.ExitMainLoop(FALSE);
         return(0);
       }
+      /* DJ $ */
       Sleep(50);
       ShowSaver(Step++);
     }

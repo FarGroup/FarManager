@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.38 29.04.2001 $ */
+/* Revision: 1.39 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   30.04.2001 DJ
@@ -1165,7 +1167,7 @@ void Panel::ShowScreensCount()
   if (Opt.ShowScreensNumber && X1==0)
   {
     int Viewers,Editors;
-    CtrlObject->ModalManager.GetModalTypesCount(Viewers,Editors);
+    CtrlObject->ModalManager.GetWindowTypesCount(Viewers,Editors);
     if (Viewers>0 || Editors>0)
     {
       char ScreensText[100];

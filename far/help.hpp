@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.07 12.04.2001 $ */
+/* Revision: 1.08 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   12.04.2001 SVS
     + сохранение значения Mask, переданного в конструктор
     + передача сохраненной Mask в конструктор с ShowPrev
@@ -36,7 +38,7 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-class Help:public Modal
+class Help:public Window
 {
   private:
     KeyBar HelpKeyBar;
@@ -99,7 +101,6 @@ class Help:public Modal
 
   public:
     void Hide();
-    void Process();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void InitKeyBar(void);

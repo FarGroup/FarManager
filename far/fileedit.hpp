@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.03 29.04.2001 $ */
+/* Revision: 1.04 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + Перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   07.08.2000 SVS
@@ -23,12 +25,12 @@ Modify:
     ! Выделение в каµестве самостоятельного модуля
 */
 
-class FileEditor:public Modal
+class FileEditor:public Window
 {
   private:
-    void Process();
     void Show();
     void DisplayObject();
+    int ProcessQuitKey();
 
     Editor FEdit;
     KeyBar EditKeyBar;
@@ -64,6 +66,7 @@ class FileEditor:public Modal
     virtual void SetScreenPosition();
     /* tran $ */
     virtual char *GetTypeName(){return "[FileEdit]";}; ///
+    virtual int GetType() { return MODALTYPE_EDITOR; }
 
     virtual void OnChangeFocus(int i); ///
 };

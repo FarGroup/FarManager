@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.33 04.05.2001 $ */
+/* Revision: 1.34 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   04.05.2001 DJ
     - В процессе наложения 623-го был выкинут патч 616:
       "не передаем KEY_MACRO* в ProcessEditorInput()"
@@ -144,7 +146,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
 
   if (EnableSwitch)
   {
-    int ModalPos=CtrlObject->ModalManager.FindModalByFile(MODALTYPE_EDITOR,FullFileName);
+    int ModalPos=CtrlObject->ModalManager.FindWindowByFile(MODALTYPE_EDITOR,FullFileName);
     if (ModalPos!=-1)
     {
       int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
@@ -152,8 +154,8 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
       switch(MsgCode)
       {
         case 0:
-          CtrlObject->ModalManager.SetModalPos(ModalPos);
-          CtrlObject->ModalManager.NextModal(0);
+          CtrlObject->ModalManager.SetWindowPos(ModalPos);
+          CtrlObject->ModalManager.NextWindow(0);
           return;
         case 1:
           break;
@@ -270,13 +272,6 @@ void FileEditor::InitKeyBar(void)
   FEdit.SetEditKeyBar(&EditKeyBar);
 }
 /* SVS $ */
-
-void FileEditor::Process()
-{
-//  ChangeMacroMode MacroMode(MACRO_EDITOR);
-//  Modal::Process();
-}
-
 
 void FileEditor::Show()
 {
@@ -406,11 +401,10 @@ int FileEditor::ProcessKey(int Key)
           (FEdit.IsFileChanged() || GetFileAttributes(FullFileName)!=0xFFFFFFFF))
       {
         long FilePos=FEdit.GetCurPos();
-        ProcessKey(KEY_ESC);
         /* $ 01.02.2001 IS
            ! Открываем вьюер с указанием длинного имени файла, а не короткого
         */
-        if (Done())
+        if (ProcessQuitKey())
           CtrlObject->ModalManager.SetNextWindow(TRUE,FullFileName,FilePos);
         /* IS $ */
         ShowTime(2);
@@ -423,11 +417,10 @@ int FileEditor::ProcessKey(int Key)
       {
         if(GetEnableSwitch())
         {
-          ProcessKey(KEY_F10);
           /* $ 01.03.2001 IS
                - Баг: не учитывалось, закрылся ли файл на самом деле
           */
-          if(!Done()) return TRUE;
+          if(!ProcessQuitKey()) return TRUE;
           /* IS $ */
           if(strchr(FileName,'\\') || strchr(FileName,'/'))
           {
@@ -467,26 +460,7 @@ int FileEditor::ProcessKey(int Key)
       ProcessKey(KEY_F2);
     case KEY_ESC:
     case KEY_F10:
-      {
-        int FirstSave=1;
-        while (1)
-        {
-          chdir(StartDir);
-          int SaveCode=FEdit.SaveFile(FileName,FirstSave,0,FALSE);
-          if (SaveCode==2)
-            break;
-          if (SaveCode==1)
-          {
-///            SetExitCode(0);
-            SetExitCode(XC_QUIT);///
-            break;
-          }
-          if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-                      FileName,MSG(MRetry),MSG(MCancel))!=0)
-            break;
-          FirstSave=0;
-        }
-      }
+      ProcessQuitKey();
       return(TRUE);
 
     /* $ 27.09.2000 SVS
@@ -545,7 +519,8 @@ int FileEditor::ProcessKey(int Key)
       if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
          return(FEdit.ProcessKey(Key));
       /* DJ $ */
-      if (CtrlObject->Macro.IsExecuting() || !FEdit.ProcessEditorInput(&ReadRec))
+      if (CtrlObject->Macro.IsExecuting() ||
+        !FEdit.ProcessEditorInput(CtrlObject->ModalManager.GetLastInputRecord()))
       {
         /* $ 22.03.2001 SVS
            Это помогло от залипания :-)
@@ -561,10 +536,34 @@ int FileEditor::ProcessKey(int Key)
 }
 
 
+int FileEditor::ProcessQuitKey()
+{
+  int FirstSave=1;
+  while (1)
+  {
+    chdir(StartDir);
+    int SaveCode=FEdit.SaveFile(FileName,FirstSave,0,FALSE);
+    if (SaveCode==2)
+      break;
+    if (SaveCode==1)
+    {
+///            SetExitCode(0);
+      SetExitCode(XC_QUIT);///
+      break;
+    }
+    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
+                FileName,MSG(MRetry),MSG(MCancel))!=0)
+      break;
+    FirstSave=0;
+  }
+  return ExitCode == XC_QUIT;
+}
+
+
 int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   if (!EditKeyBar.ProcessMouse(MouseEvent))
-    if (!FEdit.ProcessEditorInput(&ReadRec))
+    if (!FEdit.ProcessEditorInput(CtrlObject->ModalManager.GetLastInputRecord()))
       if (!FEdit.ProcessMouse(MouseEvent))
         return(FALSE);
   return(TRUE);

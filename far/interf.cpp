@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.20 29.04.2001 $ */
+/* Revision: 1.21 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   06.03.2001 SVS
@@ -265,7 +267,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   }
   CloseFAR=TRUE;
   if (CurrentEditor!=NULL && CurrentEditor->IsFileModified() ||
-      CtrlObject->ModalManager.IsAnyModalModified(FALSE))
+      CtrlObject->ModalManager.IsAnyWindowModified (FALSE))
     return(TRUE);
   return(FALSE);
 }

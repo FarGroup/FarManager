@@ -1078,14 +1078,15 @@ int FileList::ProcessKey(int Key)
               else
                 if (PluginMode)
                 {
-                  FileEditor ShellEditor(FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                  FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                  CtrlObject->ModalManager.ExecuteModal (ShellEditor);
                   UploadFile=ShellEditor.IsFileChanged();
                   Modaling=TRUE;///
                 }
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-                  CtrlObject->ModalManager.AddModal(ShellEditor);
+                  CtrlObject->ModalManager.AddWindow(ShellEditor);
                   Modaling=FALSE;///
                 }
             if (PluginMode && UploadFile)
@@ -1144,7 +1145,7 @@ int FileList::ProcessKey(int Key)
                 FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
                 if (PluginMode)
                   ShellViewer->SetTempViewName(FileName);
-                CtrlObject->ModalManager.AddModal(ShellViewer);
+                CtrlObject->ModalManager.AddWindow(ShellViewer);
                 Modaling=TRUE; ///
               }
           }

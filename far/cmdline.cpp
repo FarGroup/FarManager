@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.15 29.04.2001 $ */
+/* Revision: 1.16 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 DJ
+    + перетрях NWZ
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   25.04.2001 DJ
@@ -181,7 +183,7 @@ int CommandLine::ProcessKey(int Key)
       SaveConfig(1);
       return(TRUE);
     case KEY_F10:
-      CtrlObject->ExitMainLoop(TRUE);
+      CtrlObject->ModalManager.ExitMainLoop(TRUE);
       return(TRUE);
     case KEY_ALTF10:
       {
@@ -217,13 +219,13 @@ int CommandLine::ProcessKey(int Key)
             case 0:
             {
               FileViewer *ShellViewer=new FileViewer(Str,TRUE);
-              CtrlObject->ModalManager.AddModal(ShellViewer);
+              CtrlObject->ModalManager.AddWindow(ShellViewer);
               break;
             }
             case 1:
             {
               FileEditor *ShellEditor=new FileEditor(Str,FALSE,TRUE);
-              CtrlObject->ModalManager.AddModal(ShellEditor);
+              CtrlObject->ModalManager.AddWindow(ShellEditor);
               break;
             }
             case 2:
@@ -248,10 +250,6 @@ int CommandLine::ProcessKey(int Key)
             SetString(Str);
       }
       CtrlObject->Cp()->Redraw();
-      return(TRUE);
-    case KEY_F12:
-      CtrlObject->ModalManager.SelectModal();
-      CtrlObject->ModalManager.NextModal(0);
       return(TRUE);
     case KEY_ALTF12:
       {
