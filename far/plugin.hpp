@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.142 15.09.2001 $ */
+/* Revision: 1.143 15.09.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,7 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
-  15.09.2001 tran
+  15.09.2001 tran 1.143
+    + VE_READ, VE_CLOSE
+  15.09.2001 tran 1.142
     + ACTL_GETFARHWND
   12.09.2001 SVS
     + FSF.ConvertNameToReal
@@ -1348,6 +1350,10 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
   int Command,
   void *Param
 );
+
+#define VE_READ     0
+#define VE_CLOSE    1
+
 #endif // END FAR_USE_INTERNALS
 
 enum EDITOR_EVENTS {
@@ -1870,6 +1876,10 @@ int    WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
 int    WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode);
 int    WINAPI _export SetFindList(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
+
+#ifdef FAR_USE_INTERNALS
+int    WINAPI _export ProcessViewerEvent(int Event,void *Param);
+#endif // END FAR_USE_INTERNALS
 
 #ifdef __cplusplus
 };

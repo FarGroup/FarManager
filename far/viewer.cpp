@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.75 06.09.2001 $ */
+/* Revision: 1.76 15.09.2001 $ */
 
 /*
 Modify:
+  15.09.2001 tran
+    * вызовы ProcessViewerEvent легализированы
+      проверил - мин нет. (см vetest.dll)
   06.09.2001 VVM
     ! Глюк при копировании в клипбоард юникода
   05.09.2001 VVM
@@ -384,7 +387,10 @@ Viewer::~Viewer()
   if (!OpenFailed)
   {
     CtrlObject->Plugins.CurViewer=this;
-//    CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
+    /* $ 15.09.2001 tran
+       пора легализироваться */
+    CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
+    /* tran $ */
   }
 }
 
@@ -591,7 +597,10 @@ int Viewer::OpenFile(const char *Name,int warning)
   AdjustWidth();
   /* DJ $ */
   CtrlObject->Plugins.CurViewer=this;
-//  CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
+  /* $ 15.09.2001 tran
+     пора легализироваться */
+  CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
+  /* tran $ */
   return(TRUE);
 }
 
