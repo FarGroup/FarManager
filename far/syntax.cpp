@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.02 10.09.2004 $ */
+/* Revision: 1.03 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    - BugZ#1188 - тест макропоследовательности (имена макро-функций)
   10.09.2004 SVS
     + UCase, LCase
   05.08.2004 SVS
@@ -647,7 +649,8 @@ DWORD funcLook(const char *s, int& nParam)
 {
   nParam=0;
   for(int I=0; I < sizeof(macroFunction)/sizeof(macroFunction[0]); ++I)
-    if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
+    //if(!strnicmp(s, macroFunction[I].Name, strlen(macroFunction[I].Name)))
+    if(!strnicmp(s, macroFunction[I].Name, Max(strlen(macroFunction[I].Name),strlen(s))))
     {
       nParam = macroFunction[I].nParam;
       return (DWORD)macroFunction[I].Code;
@@ -909,7 +912,12 @@ static TToken getToken(void)
       if ( isalpha(ch) )
       {
         getFarName(ch);
-        if ( ch == '(' ) //!!!! а пробелы пропустить?
+        if(ch == ' ')
+        {
+          while(ch == ' ')
+            ch = getNextChar();
+        }
+        if ( ch == '(' ) //!!!! а пробелы пропустить? ДА!
           return currTok = tFunc;
         else
         {
