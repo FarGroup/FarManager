@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.53 20.12.2000 $ */
+/* Revision: 1.54 22.12.2000 $ */
 
 /*
 Modify:
+  22.12.2000 SVS
+    - Вызов из EE_READ команды ECTL_SETKEYBAR приводил к падению ФАРа, т.к.
+      объект EditKeyBar еще не существует.
   21.12.2000 SVS
     - В предыдущем исправлении было задано неверное условие для
       правила EditorF7Rules
@@ -165,6 +168,7 @@ static int EditorID=0;
 
 Editor::Editor()
 {
+  EditKeyBar=NULL;
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
   /* $ 03.08.2000 KM
@@ -4578,6 +4582,13 @@ int Editor::EditorControl(int Command,void *Param)
     */
     case ECTL_SETKEYBAR:
     {
+      /* $ 22.12.2000 SVS
+         Вызов из EE_READ команды ECTL_SETKEYBAR приводил к падению ФАРа, т.к.
+         объект EditKeyBar еще не существует.
+      */
+      if(!EditKeyBar)
+        return FALSE;
+      /* SVS $ */
       struct KeyBarTitles *Kbt=(struct KeyBarTitles*)Param;
       if(!Kbt)
       {        // восстановить пред значение!
