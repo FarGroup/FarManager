@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.19 07.08.2001 $ */
+/* Revision: 1.20 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 VVM
+    ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек.
   07.08.2001 SVS
     ! Численное значение дельты (31) заменено на DELTA_TREECOUNT
     ! сделаем внешний вид дерева на 1 символ уже.
@@ -83,7 +85,7 @@ Modify:
 #include "ctrlobj.hpp"
 
 
-#define DELTA_TREECOUNT	31
+#define DELTA_TREECOUNT 31
 #define TreeFileName "Tree.Far"
 #define TreeCacheFolderName "Tree.Cache"
 
@@ -91,6 +93,7 @@ static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortCaseSensitive;
 static int TreeCmp(char *Str1,char *Str2);
+static clock_t TreeStartTime;
 
 static char TreeLineSymbol[4][3]={
   {0x20,0x20,/*0x20,*/0x00},
@@ -318,6 +321,7 @@ void TreeList::ReadTree()
   TreeCount=1;
 
   int FirstCall=TRUE;
+  TreeStartTime = clock();
   ScTree.SetFindPath(Root,"*.*");
   while (ScTree.GetNextName(&fdata,FullName))
   {
@@ -479,10 +483,16 @@ void TreeList::SyncDir()
 int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 {
   char NumStr[100];
-  sprintf(NumStr,"%d",TreeCount);
-  Message(FirstCall ? 0:MSG_KEEPBACKGROUND,0,MSG(MTreeTitle),
-          MSG(MReadingTree),NumStr);
-  FirstCall=FALSE;
+  /* $ 24.09.2001 VVM
+    ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
+  if ((!FirstCall) || ((clock() - TreeStartTime) > 500))
+  {
+    sprintf(NumStr,"%d",TreeCount);
+    Message(FirstCall ? 0:MSG_KEEPBACKGROUND,0,MSG(MTreeTitle),
+            MSG(MReadingTree),NumStr);
+    FirstCall=FALSE;
+  }
+  /* VVM $ */
   if (CheckForEsc())
     return(0);
   return(1);
