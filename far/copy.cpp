@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.96 15.08.2002 $ */
+/* Revision: 1.97 14.09.2002 $ */
 
 /*
 Modify:
+  14.09.2002 VVM
+    + Прогресс копирования показывать не чаще 1 раза в секунду.
+    + По умолчанию буфер копирования 64к. Макс. размер по умолчанию 512 к.
   15.08.2002 IS
     ! DestList.Start -> DestList.Reset
     + DestList - применяется ULF_UNIQUE, для исключения дублей
@@ -452,7 +455,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* OT $ */
 
   // Размер буфера берется из реестра
-  GetRegKey("System", "CopyBufferSize", CopyBufferSize, COPY_BUFFER_SIZE);
+  GetRegKey("System", "CopyBufferSize", CopyBufferSize, 0);
+  if (CopyBufferSize == 0)
+    CopyBufferSize = COPY_BUFFER_SIZE * 8; //Макс. размер 512к
   if (CopyBufferSize < COPY_BUFFER_SIZE)
     CopyBufferSize = COPY_BUFFER_SIZE;
 
@@ -2747,6 +2752,13 @@ static void GetTimeText(int Time, char *TimeText)
 
 void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 {
+  /* $ 14.09.2002 VVM
+    + Показывать прогресс не чаще 1 раза в секунду */
+  if ((WrittenSize > 0) && (WrittenSize < TotalSize) && (clock() - LastShowTime < 1000))
+    return;
+  if (!ShowTotalCopySize || TotalBar)
+    LastShowTime = clock();
+  /* VVM $ */
 /* $ 30.01.2001 VVM
     + Запомнить размеры */
   int64 OldWrittenSize = WrittenSize;
@@ -2775,11 +2787,8 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   Text(ProgressBar);
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
-  if (ShowCopyTime &&
-      (!ShowTotalCopySize || TotalBar) &&
-      (clock() - LastShowTime > 1000))
+  if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
-    LastShowTime = clock();
     CopyTime+= (clock() - CopyStartTime);
     CopyStartTime = clock();
     int WorkTime = CopyTime/1000;
