@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Используем конструкцию FarMkTemp()
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -686,9 +688,10 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength)
           if (LocalStricmp(PanelData[J].FindData.cFileName,Info.DescrFiles[I])==0)
           {
             char TempDir[NM],DizName[NM];
-            strcpy(TempDir,Opt.TempPath);
-            strcat(TempDir,"FarTmpXXXXXX");
-            if (mktemp(TempDir)!=NULL && CreateDirectory(TempDir,NULL))
+            //strcpy(TempDir,Opt.TempPath);
+            //strcat(TempDir,FarTmpXXXXXX);
+            //if (mktemp(TempDir)!=NULL && CreateDirectory(TempDir,NULL))
+            if (FarMkTemp(TempDir,"Far")!=NULL && CreateDirectory(TempDir,NULL))
             {
               if (CtrlObject->Plugins.GetFile(hPlugin,&PanelData[J],TempDir,DizName,OPM_SILENT|OPM_VIEW|OPM_DESCR))
               {

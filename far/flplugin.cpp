@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.04 08.09.2000 $ */
+/* Revision: 1.05 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Используем конструкцию FarMkTemp()
   08.09.2000 SVS
     + Добавка в FileList::TranslateKeyToVK для трансляции
       KEY_SHIFTDEL, KEY_ALTSHIFTDEL, KEY_CTRLSHIFTDEL
@@ -326,8 +328,9 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
     if (DizPresent)
     {
       char TempDir[NM],DizName[NM];
-      sprintf(TempDir,"%sFarTmpXXXXXX",Opt.TempPath);
-      if (mktemp(TempDir)!=NULL && CreateDirectory(TempDir,NULL))
+      //sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
+      //if (mktemp(TempDir)!=NULL && CreateDirectory(TempDir,NULL))
+      if (FarMkTemp(TempDir,"Far")!=NULL && CreateDirectory(TempDir,NULL))
       {
         char SaveDir[NM];
         GetCurrentDirectory(sizeof(SaveDir),SaveDir);
@@ -417,9 +420,10 @@ void FileList::PluginToPluginFiles(int Move)
     return;
   FileList *AnotherFilePanel=(FileList *)AnotherPanel;
 
-  strcpy(TempDir,Opt.TempPath);
-  strcat(TempDir,"FarTmpXXXXXX");
-  if (mktemp(TempDir)==NULL)
+  //strcpy(TempDir,Opt.TempPath);
+  //strcat(TempDir,FarTmpXXXXXX);
+  //if (mktemp(TempDir)==NULL)
+  if(!FarMkTemp(TempDir,"Far"))
     return;
   SaveSelection();
   CreateDirectory(TempDir,NULL);

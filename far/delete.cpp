@@ -5,12 +5,15 @@ delete.cpp
 
 */
 
-/* Revision: 1.04 13.07.2000 $ */
+/* Revision: 1.05 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
+    - исправлен небольшой баг в функциях Wipe*
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   13.07.2000 SVS
@@ -464,7 +467,7 @@ int WipeFile(char *Name)
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);
   char TempName[NM];
-  strcpy(PointToName(TempName),"FarTmpXXXXXX");
+  strcpy(TempName,FarTmpXXXXXX);
   mktemp(TempName);
   MoveFile(Name,TempName);
   return(DeleteFile(TempName));
@@ -474,7 +477,7 @@ int WipeFile(char *Name)
 int WipeDirectory(char *Name)
 {
   char TempName[NM];
-  strcpy(PointToName(TempName),"FarTmpXXXXXX");
+  strcpy(TempName,FarTmpXXXXXX);
   mktemp(TempName);
   MoveFile(Name,TempName);
   return(RemoveDirectory(TempName));

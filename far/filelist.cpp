@@ -5,14 +5,16 @@ filelist.cpp
 
 */
 
-/* Revision: 1.17 09.11.2000 $ */
+/* Revision: 1.18 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Используем конструкцию FarMkTemp()
   09.11.2000 OT
     ! F3 на ".." в плагинах
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   23.10.2000 SVS
@@ -865,9 +867,10 @@ int FileList::ProcessKey(int Key)
 
         if (PluginMode)
         {
-          strcpy(TempDir,Opt.TempPath);
-          strcat(TempDir,"FarTmpXXXXXX");
-          if (mktemp(TempDir)==NULL)
+          //strcpy(TempDir,Opt.TempPath);
+          //strcat(TempDir,FarTmpXXXXXX);
+          //if (mktemp(TempDir)==NULL)
+          if(!FarMkTemp(TempDir,"Far"))
             return(TRUE);
           CreateDirectory(TempDir,NULL);
           sprintf(TempName,"%s\\%s",TempDir,PointToName(FileName));
@@ -1310,9 +1313,10 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (PluginMode)
     {
       char TempDir[NM];
-      strcpy(TempDir,Opt.TempPath);
-      strcat(TempDir,"FarTmpXXXXXX");
-      if (mktemp(TempDir)==NULL)
+      //strcpy(TempDir,Opt.TempPath);
+      //strcat(TempDir,FarTmpXXXXXX);
+      //if (mktemp(TempDir)==NULL)
+      if(!FarMkTemp(TempDir,"Far"))
         return;
       CreateDirectory(TempDir,NULL);
       struct PluginPanelItem PanelItem;
@@ -2123,10 +2127,11 @@ void FileList::UpdateViewPanel()
       if ((CurPtr->FileAttr & FA_DIREC)==0)
       {
         char TempDir[NM],FileName[NM];
-        strcpy(FileName,CurPtr->Name);
-        strcpy(TempDir,Opt.TempPath);
-        strcat(TempDir,"FarTmpXXXXXX");
-        if (mktemp(TempDir)==NULL)
+        //strcpy(FileName,CurPtr->Name);
+        //strcpy(TempDir,Opt.TempPath);
+        //strcat(TempDir,FarTmpXXXXXX);
+        //if (mktemp(TempDir)==NULL)
+        if(!FarMkTemp(TempDir,"Far"))
           return;
         CreateDirectory(TempDir,NULL);
         struct PluginPanelItem PanelItem;
@@ -2561,7 +2566,7 @@ void FileList::CountDirSize()
     }
   }
   /* OT $*/
-  
+
 
   for (int I=0;I<FileCount;I++)
   {

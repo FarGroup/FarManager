@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.07 24.09.2000 $ */
+/* Revision: 1.08 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Используем конструкцию FarMkTemp()
   24.09.2000 SVS
     ! Перерисовка CtrlObject->MainKeyBar (случай, если:
        Ctr-Alt-Shift, потом, Alt-отжать, появится быстрый поиск,
@@ -634,9 +636,10 @@ void Panel::FastFindShow(int FindX,int FindY)
 int Panel::MakeListFile(char *ListFileName,int ShortNames)
 {
   FILE *ListFile;
-  strcpy(ListFileName,Opt.TempPath);
-  strcat(ListFileName,"FarTmpXXXXXX");
-  if (mktemp(ListFileName)==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
+  //strcpy(ListFileName,Opt.TempPath);
+  //strcat(ListFileName,FarTmpXXXXXX);
+  //if (mktemp(ListFileName)==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
+  if (FarMkTemp(ListFileName,"Far")==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
   {
     Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
     return(FALSE);

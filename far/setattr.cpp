@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.03 02.11.2000 $ */
+/* Revision: 1.04 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    - "сложности" с криптованием :-))))
   02.11.2000 SVS
     - исправляем баги :-)
   20.10.2000 SVS
@@ -28,6 +30,12 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
+typedef BOOL (WINAPI *PEncryptFileA)(LPCSTR lpFileName);
+typedef BOOL (WINAPI *PDecryptFileA)(LPCSTR lpFileName, DWORD dwReserved);
+static PEncryptFileA pEncryptFileA=NULL;
+static PDecryptFileA pDecryptFileA=NULL;
+static BOOL IsCryptFileASupport=FALSE;
 
 static int ESetFileAttributes(char *Name,int Attr);
 static int ESetFileCompression(char *Name,int State,int FileAttr);
@@ -106,6 +114,28 @@ static void EmptyDialog(struct DialogItem *MultAttrDlg)
 void ShellSetFileAttributes(Panel *SrcPanel)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
+  /* $ 11.11.2000 SVS
+     получим функции криптования
+  */
+  if(!pEncryptFileA)
+  {
+    // работает только под Win2000! Если не 2000, то не надо и показывать эту опцию.
+    pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle("kernel32"),"EncryptFileA");
+    if(!pEncryptFileA)
+      pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle("ADVAPI32"),"EncryptFileA");
+  }
+
+  if(!pDecryptFileA)
+  {
+    pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle("kernel32"),"DecryptFileA");
+    if(!pDecryptFileA)
+      pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle("ADVAPI32"),"DecryptFileA");
+  }
+
+  if(pDecryptFileA && pEncryptFileA)
+    IsCryptFileASupport=TRUE;
+  /* SVS $*/
 
   /* $ 14.08.2000 KM
      Перменные перенесены сюда для установления маски в
@@ -538,12 +568,12 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             }
             if (MultAttrDlg[8].Selected) // -E +C
             {
-              if (!ESetFileEncryption(SelName,0,FindData.dwFileAttributes))
+              if (!ESetFileEncryption(FullName,0,FindData.dwFileAttributes))
               {
                 Cancel=1;
                 break; // неудача дешифровать :-(
               }
-              if (!ESetFileCompression(SelName,1,FindData.dwFileAttributes))
+              if (!ESetFileCompression(FullName,1,FindData.dwFileAttributes))
               {
                 Cancel=1;
                 break; // неудача сжать :-(
@@ -553,9 +583,9 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             {
               // Этот кусок не нужен, т.к. функция криптования сама умеет
               // разжимать сжатые файлы.
-              //if (!ESetFileCompression(SelName,0,FileAttr))
+              //if (!ESetFileCompression(FullName,0,FileAttr))
               //  break; // неудача разжать :-(
-              if (!ESetFileEncryption(SelName,1,FindData.dwFileAttributes))
+              if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
               {
                 Cancel=1;
                 break; // неудача зашифровать :-(
@@ -564,7 +594,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             else //???
             if (MultAttrDlg[14].Selected) // -C ?E
             {
-              if (!ESetFileCompression(SelName,0,FindData.dwFileAttributes))
+              if (!ESetFileCompression(FullName,0,FindData.dwFileAttributes))
               {
                 Cancel=1;
                 break; // неудача разжать :-(
@@ -572,7 +602,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             }
             else if (MultAttrDlg[15].Selected) // ?C -E
             {
-              if (!ESetFileEncryption(SelName,0,FindData.dwFileAttributes))
+              if (!ESetFileEncryption(FullName,0,FindData.dwFileAttributes))
               {
                 Cancel=1;
                 break; // неудача разшифровать :-(
@@ -675,11 +705,14 @@ static int ESetFileEncryption(char *Name,int State,int FileAttr)
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
     return(TRUE);
 
-  int Ret=TRUE;
+  if(!IsCryptFileASupport)
+    return(TRUE);
 
+  int Ret=TRUE;
   // Drop ReadOnly
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
+
   while (!SetFileEncryption(Name,State))
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)
@@ -699,23 +732,12 @@ static int ESetFileEncryption(char *Name,int State,int FileAttr)
   // Set ReadOnly
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributes(Name,FileAttr);
+
   return(Ret);
 }
 
 static int SetFileEncryption(char *Name,int State)
 {
-  // работает только под Win2000! Если не 2000, то не надо и показывать эту опцию.
-  typedef BOOL (WINAPI *PEncryptFileA)(LPCSTR lpFileName);
-  typedef BOOL (WINAPI *PDecryptFileA)(LPCSTR lpFileName, DWORD dwReserved);
-
-  PEncryptFileA pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle("kernel32"),"EncryptFileA");
-  if(!pEncryptFileA)
-    pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle("ADVAPI32"),"EncryptFileA");
-
-  PDecryptFileA pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle("kernel32"),"DecryptFileA");
-  if(!pDecryptFileA)
-    pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle("ADVAPI32"),"DecryptFileA");
-
   // заодно и проверяется успешность получения адреса API...
   if(State)
      return pEncryptFileA ? (*pEncryptFileA)(Name) : FALSE;

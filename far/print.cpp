@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Используем конструкцию FarMkTemp()
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -137,9 +139,10 @@ void PrintFiles(Panel *SrcPanel)
       FILE *SrcFile=NULL;
       if (PluginMode)
       {
-        strcpy(TempDir,Opt.TempPath);
-        strcat(TempDir,"FarTmpXXXXXX");
-        if (mktemp(TempDir)!=NULL)
+        //strcpy(TempDir,Opt.TempPath);
+        //strcat(TempDir,FarTmpXXXXXX);
+        //if (mktemp(TempDir)!=NULL)
+        if(FarMkTemp(TempDir,"Far"))
         {
           CreateDirectory(TempDir,NULL);
           struct FileListItem ListItem;

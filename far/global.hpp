@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.07 20.09.2000 $ */
+/* Revision: 1.08 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
   20.09.2000 SVS
     ! hFarWnd глобальна
   23.08.2000 SVS
@@ -116,6 +118,12 @@ extern int SizeArrayPalette;
   ! hFarWnd глобальна
 */
 extern HWND hFarWnd;
+/* SVS $ */
+
+/* $ 09.11.2000 SVS
+  + Для того, чтобы...
+*/
+extern const char FarTmpXXXXXX[];
 /* SVS $ */
 
 #endif	// __FARGLOBAL_HPP__

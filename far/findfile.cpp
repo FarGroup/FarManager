@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.08 21.10.2000 $ */
+/* Revision: 1.09 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! Используем конструкцию FarMkTemp()
   21.10.2000 SVS
     ! Добавка для поиска в FFFE-файлах.
   10.09.2000 SVS
@@ -839,9 +841,9 @@ int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
       if (hPlugin && (Info.Flags & OPIF_REALNAMES)==0)
       {
         char TempDir[NM];
-        sprintf(TempDir,"%sFarTmpXXXXXX",Opt.TempPath);
-        mktemp(TempDir);
-        CreateDirectory(TempDir,NULL);
+//        sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
+//        mktemp(TempDir);
+        CreateDirectory(FarMkTemp(TempDir,"Far"),NULL);
         /* $ 07.08.2000 KM
            Добавление переменных для борьбы с глюком при поиске в запароленном архиве
         */
