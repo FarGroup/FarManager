@@ -16,10 +16,12 @@ farqueue.cpp
      }
 */
 
-/* Revision: 1.00 24.01.2001 $ */
+/* Revision: 1.01 31.01.2001 $ */
 
 /*
 Modify:
+  31.01.2001 OT
+   -  "Explicit instantiation" для темплитов под VC++
   24.01.2001 SVS
    + Новый файл.
 */
@@ -106,6 +108,10 @@ void FarQueue<Object>::increment(int& x)
   if(++x == Size)
     x=0;
 }
+
+#ifdef _MSC_VER
+template class FarQueue<DWORD>;
+#endif
 
 #if 0
 #include <iostream.h>
