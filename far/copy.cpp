@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.132 01.03.2004 $ */
+/* Revision: 1.133 16.04.2004 $ */
 
 /*
 Modify:
+  16.04.2004 SVS
+    - BugZ#1049 - градусник прогресса копирования неправильно инициализируется
+    ! для года отдадим 4 цифры (в месаг боксе на перезапись)
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -3122,6 +3125,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       SetLastError(LastError);
       // return COPY_FAILUREREAD;
       _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+      CurCopiedSize = 0; // Сбросить текущий прогресс
       return COPY_FAILURE;
     }
     if (BytesRead==0)
@@ -3505,15 +3509,6 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
       if ((FindHandle=FindFirstFile(DestName,&DestData))!=INVALID_HANDLE_VALUE)
         FindClose(FindHandle);
       DestDataFilled=TRUE;
-      char SrcFileStr[512],DestFileStr[512],DateText[20],TimeText[20];
-      ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8);
-
-      int64 SrcSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-      char SrcSizeText[20];
-      SrcSize.itoa(SrcSizeText);
-      int64 DestSize(DestData.nFileSizeHigh,DestData.nFileSizeLow);
-      char DestSizeText[20];
-      DestSize.itoa(DestSizeText);
       /* $ 04.08.2000 SVS
          Опция "Only newer file(s)"
       */
@@ -3528,8 +3523,18 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
       }
       else
       {
+        char SrcFileStr[512],DestFileStr[512];
+        int64 SrcSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+        char SrcSizeText[20];
+        SrcSize.itoa(SrcSizeText);
+        int64 DestSize(DestData.nFileSizeHigh,DestData.nFileSizeLow);
+        char DestSizeText[20];
+        DestSize.itoa(DestSizeText);
+
+        char DateText[20],TimeText[20];
+        ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
         sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
-        ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8);
+        ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
         sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
         SetMessageHelp("CopyFiles");
@@ -3592,9 +3597,9 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
         char DestSizeText[20];
         DestSize.itoa(DestSizeText);
 
-        ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8);
+        ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
         sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
-        ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8);
+        ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8,FALSE,FALSE,TRUE,TRUE);
         sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
         SetMessageHelp("CopyFiles");

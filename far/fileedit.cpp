@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.149 19.11.2003 $ */
+/* Revision: 1.150 16.04.2004 $ */
 
 /*
 Modify:
+  16.04.2004 SVS
+    - BugZ#1058 - «аголовок редактора
   19.11.2003 IS
     ! MoveData работает со ссылкой, а не указателем
   11.11.2003 SVS
@@ -1765,6 +1767,10 @@ end:
     FEdit->TextChanged(0);
   /* VVM $ */
   /* skv$*/
+
+  if(GetDynamicallyBorn()) // принудительно сбросим Title // Flags.Check(FFILEEDIT_SAVETOSAVEAS) ????????
+    *FileEditor::Title=0;
+
   Show();
   /* IS $ */
   /* IS $ */
@@ -1952,7 +1958,7 @@ void FileEditor::ShowStatus()
      - Ѕаг: затиралс€ стек, потому что, например, размер Title больше,
        чем размер TruncFileName
   */
-  strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FullFileName),sizeof(TruncFileName)-1);
+  strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title? Title:FullFileName),sizeof(TruncFileName)-1);
   /* IS $ */
   int NameLength=Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
   /* $ 11.07.2000 tran
