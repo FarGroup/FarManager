@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.65 28.12.2001 $ */
+/* Revision: 1.66 03.01.2002 $ */
 
 /*
 Modify:
+  03.01.2001 IS
+    ! Устранение "двойного отрицания" в GetMacroSettings
   28.12.2001 SVS
     - FAR падал когда срабатывало macro:post ....
       Причина в CheckCurMacroFlags()
@@ -1263,12 +1265,15 @@ static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
     return (Flags&Chk1?1:0);
 }
 
+/* $ 03.01.2001 IS
+   ! Устранение "двойного отрицания"
+*/
 int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
 
   static struct DialogData MacroSettingsDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,62,11,0,0,0,0,"",
-  /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroSettingsDisableOutput,
+  /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroSettingsEnableOutput,
   /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
   /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */ DI_CHECKBOX,5,5,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsCommandLine,
@@ -1287,7 +1292,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 //  if(!(Key&0x7F000000))
 //    MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 
-  MacroSettingsDlg[1].Selected=Flags&MFLAGS_DISABLEOUTPUT?1:0;
+  MacroSettingsDlg[1].Selected=Flags&MFLAGS_DISABLEOUTPUT?0:1;
   MacroSettingsDlg[2].Selected=Flags&MFLAGS_RUNAFTERFARSTART?1:0;
 
   MacroSettingsDlg[4].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
@@ -1304,7 +1309,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   if (Dlg.GetExitCode()!=9)
     return(FALSE);
 
-  Flags=MacroSettingsDlg[1].Selected?MFLAGS_DISABLEOUTPUT:0;
+  Flags=MacroSettingsDlg[1].Selected?0:MFLAGS_DISABLEOUTPUT;
   Flags|=MacroSettingsDlg[2].Selected?MFLAGS_RUNAFTERFARSTART:0;
   Flags|=MacroSettingsDlg[4].Selected==2?0:
           (MacroSettingsDlg[4].Selected==0?MFLAGS_NOTEMPTYCOMMANDLINE:MFLAGS_EMPTYCOMMANDLINE);
@@ -1317,6 +1322,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
   return(TRUE);
 }
+/* IS $ */
 
 int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
 {

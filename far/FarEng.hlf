@@ -2121,7 +2121,7 @@ settings.
   #Cursor beyond#           Allow moving cursor beyond the end of line.
   #end of line#
 
-  #Disable editing of#      When a file with the Read-only attribute
+  #Lock editing of#         When a file with the Read-only attribute
   #read-only files#         is opened for editing, the editor also
                           disables the modification of the edited
                           text, just as if Ctrl-L was pressed.
@@ -2758,11 +2758,11 @@ $ #Macro command settings#
 finish macro recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select
 the desired options in the dialog:
 
-  #Disable screen output while executing macro#
+  #Allow screen output while executing macro#
 
-    During the macro command execution FAR Manager does not
-    redraw the screen. All the updates will be displayed
-    when the macro command playback is finished.
+    If this option is not set during the macro command execution
+    FAR Manager does not redraw the screen. All the updates will
+    be displayed when the macro command playback is finished.
 
   #Execute after FAR start#
 

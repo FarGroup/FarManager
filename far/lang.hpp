@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.92 03.01.2002 $ */
+/* Revision: 1.93 03.01.2002 $ */
 
 /*
 Modify:
+  03.01.2002 IS
+    ! MEditDisableROFileModification -> MEditLockROFileModification
+      MMacroSettingsDisableOutput -> MMacroSettingsEnableOutput
   03.01.2002 SVS
     ! Выкинуты месяцы и дни недели для $Date
   28.12.2001 SVS
@@ -496,7 +499,7 @@ enum
   MEditConfigSaveShortPos,
   MEditAutoDetectTable,
   MEditCursorBeyondEnd,
-  MEditDisableROFileModification,
+  MEditLockROFileModification,
   MEditWarningBeforeOpenROFile,
   MEditConfigTabSize,
 
@@ -1546,7 +1549,7 @@ enum
   MMacroDisAnotherKey,
 
   MMacroSettingsTitle,
-  MMacroSettingsDisableOutput,
+  MMacroSettingsEnableOutput,
   MMacroSettingsRunAfterStart,
   MMacroSettingsCommandLine,
   MMacroSettingsPluginPanel,

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.120 03.01.2002 $ */
+/* Revision: 1.121 03.01.2002 $ */
 
 /*
 Modify:
+  03.01.2001 IS
+    ! Устранение "двойного отрицания" в EditorConfig
   03.01.2002 SVS
     - BugZ#220 - Auto save setup нельзя включить
   27.12.2001 IS
@@ -1011,6 +1013,9 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 /* $ 27.11.2001 DJ
    параметр Local и соответствующие модификации в коде
 */
+/* $ 03.01.2001 IS
+  ! Устранение "двойного отрицания".
+*/
 void EditorConfig(struct EditorOptions &EdOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
@@ -1029,7 +1034,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   /* 12 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
   /* 13 */  DI_CHECKBOX,7,15,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
   /* 14 */  DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 15 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditDisableROFileModification,
+  /* 15 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditLockROFileModification,
   /* 16 */  DI_CHECKBOX,7,18,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
   /* 17 */  DI_FIXEDIT,7,19,9,19,0,0,0,0,"",
   /* 18 */  DI_TEXT,11,19,0,0,0,0,0,0,(char *)MEditConfigTabSize,
@@ -1055,7 +1060,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   /* IS $ */
   sprintf(CfgDlg[17].Data,"%d",EdOpt.TabSize);
   CfgDlg[14].Selected=EdOpt.CursorBeyondEOL;
-  CfgDlg[15].Selected=Opt.EditorReadOnlyLock & 1;
+  CfgDlg[15].Selected=!(Opt.EditorReadOnlyLock & 1);
   CfgDlg[16].Selected=Opt.EditorReadOnlyLock & 2;
 
   if (!RegVer)
@@ -1116,9 +1121,10 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     EdOpt.TabSize=8;
   EdOpt.CursorBeyondEOL=CfgDlg[14].Selected;
   Opt.EditorReadOnlyLock&=~3;
-  if(CfgDlg[15].Selected) Opt.EditorReadOnlyLock|=1;
+  if(!CfgDlg[15].Selected) Opt.EditorReadOnlyLock|=1;
   if(CfgDlg[16].Selected) Opt.EditorReadOnlyLock|=2;
 }
+/* IS 03.01.2002 $ */
 /* DJ $ */
 /* IS $ */
 /* IS $ */

@@ -215,7 +215,7 @@
 "Save &bookmarks"
 "&Autodetect character table"
 "&Cursor beyond end of line"
-"Disable editing of read-only &files"
+"Lock editing of read-only &files"
 "&Warn when opening read-only files"
 "Tab si&ze"
 
@@ -1285,7 +1285,7 @@
 "Try another key"
 
 "Macro settings for '%s'"
-"&Disable screen output while executing macro"
+"Allo&w screen output while executing macro"
 "Execute after FAR &start"
 "Empty &command line"
 "&Plugin panel"
