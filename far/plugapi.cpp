@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.78 26.07.2001 $ */
+/* Revision: 1.78 27.07.2001 $ */
 
 /*
 Modify:
+  27.07.2001 SVS
+    + кусок дл€ тестовых выкрутасов с ACTL_POSTKEYSEQUENCE
+    + ƒадим возможность плагина при вызове GetPluginDirList
+      ссылатьс€ на активную панель, т.е. hPlugin=INVALID_HANDLE_VALUE.
+      ѕо аналогии с Control
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   19.07.2001 OT
@@ -437,6 +442,27 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         MRec.BufferSize=((struct KeySequence*)Param)->Count;
         MRec.Buffer=((struct KeySequence*)Param)->Sequence;
         return CtrlObject->Macro.PostTempKeyMacro(&MRec);
+#if 0
+        // Ётот кусок - дл€ дальнейших экспериментов
+        {
+          //CtrlObject->Macro.PostTempKeyMacro(&MRec);
+          for(int I=0; I < MRec.BufferSize; ++I)
+          {
+            int Key=MRec.Buffer[I];
+            if(CtrlObject->Macro.ProcessKey(Key))
+            {
+              while((Key=CtrlObject->Macro.GetKey()) != 0)
+              {
+                FrameManager->ProcessKey(Key);
+              }
+            }
+            else
+              FrameManager->ProcessKey(Key);
+            FrameManager->PluginCommit();
+          }
+          return TRUE;
+        }
+#endif
       }
       return FALSE;
 
@@ -1103,6 +1129,9 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
         HANDLE InternalHandle;
         int PluginNumber;
       } DirListPlugin;
+      // ј не хочет ли плагин посмотреть на текущую панель?
+      if (hPlugin==INVALID_HANDLE_VALUE)
+        hPlugin=((struct PluginHandle *)CtrlObject->Cp()->ActivePanel->GetPluginHandle())->InternalHandle;
 
       DirListPlugin.PluginNumber=PluginNumber;
       DirListPlugin.InternalHandle=hPlugin;

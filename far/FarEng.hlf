@@ -8,8 +8,8 @@ $^#Copyright (C) 2000-2001 FAR Group.#
    ~About FAR~@About@
    ~How to register FAR~@Register@
 
-   ~Keyboard reference~@KeyRef@
    ~Command line switches~@CmdLine@
+   ~Keyboard reference~@KeyRef@
    ~Plugins support~@Plugins@
    ~Overview of plugin capabilities~@PluginsReviews@
 
@@ -494,6 +494,16 @@ $ #Command line switches#
         View the specified file. If <filename> is `#-#', data
         is read from the stdin. For example, "dir|far /v -"
         will view dir command output.
+
+  #/co#
+        Forces FAR to load plugins from the cache only.
+        In this mode FAR loads faster, but new or updated plugins
+        are not recognized. When "/co" command line parameter is
+        used then "/p" is ignored. Using this parameter makes
+        sense ONLY if the list of installed plugins is stable.
+        After updating plugins it is necessary to load FAR without
+        this parameter.
+        If there is no plugins cache, no plugins will be loaded.
 
   FAR <filename> command starts FAR and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>
@@ -2360,9 +2370,10 @@ is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
-    You can also specify multiple target paths in the edit line. In order
-to do so, separate the paths with semicolons ("#;#"). If a target path
-contains a semicolon, it should be enclosed in quotation marks.
+    В строке ввода может указываться как одна цель для копирования или
+перемещения, так и несколько. В последнем случае цели должны быть разделены
+символом-разделителем "#;#" или "#,#". Если цель содержит в своем имени
+символ ";" (или ","), то эта цель должна быть взята в кавычки.
 
 @HardSymLink
 $ #Hard and Symbolic link#

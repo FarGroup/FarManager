@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.41 24.07.2001 $ */
+/* Revision: 1.42 27.07.2001 $ */
 
 /*
 Modify:
+  27.07.2001 SVS
+    ! Опечатка (по наводке IS)
   24.07.2001 IS
     ! Замена проверки на ' ' и '\t' на вызов isspace
     ! Замена проверки на '\n' и '\r' на вызов iseol
@@ -346,7 +348,7 @@ FindFiles::FindFiles()
       /* $ 01.07.2001 IS
          Проверим маску на корректность
       */
-      if(!FindAskDlg[2].Data)             // если строка с масками пуста,
+      if(!*FindAskDlg[2].Data)            // если строка с масками пуста,
          strcpy(FindAskDlg[2].Data, "*"); // то считаем, что маска есть "*"
 
       if(FileMaskForFindFile.Set(FindAskDlg[2].Data, FMF_ADDASTERISK))

@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.127 16.07.2001 $ */
+/* Revision: 1.128 27.07.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  27.07.2001 SVS
+   + DM_ALLKEYMODE - для нужд MacroBrowse (пока только для него :-)
   16.07.2001 SVS
    + FMENU_USEEXT & MENUITEMFLAGS & FarMenuItemEx
    + DM_SETHISTORY - управление наличием истории у DI_EDIT & DI_FIXEDIT
@@ -751,6 +753,7 @@ enum FarMessagesProc{
   DM_USER=0x4000,
 
   DM_KILLSAVESCREEN=DN_FIRST-1,
+  DM_ALLKEYMODE=DN_FIRST-2,
 };
 
 enum LISTITEMFLAGS {

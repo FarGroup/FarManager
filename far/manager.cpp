@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.45 26.07.2001 $ */ 
+/* Revision: 1.46 27.07.2001 $ */
 
 /*
 Modify:
+  27.07.2001 SVS
+    - При обновлении часиков учитывать тот факт, что они могут быть
+      отключены (к тому же не в той функции вызов стоял)
+    ! KEY_CTRLALTSHIFTPRESS уже не привелегированная
   26.07.2001 OT
     - Исправление far /e - AltF9
   26.07.2001 SVS
@@ -571,16 +575,6 @@ int  Manager::ProcessKey(int Key)
     /***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
     switch(Key)
     {
-      case KEY_CTRLALTSHIFTPRESS:
-        if(!NotUseCAS)
-        {
-          if (CurrentFrame->FastHide()){
-            ImmediateHide();
-            WaitKey(KEY_CTRLALTSHIFTRELEASE);
-            FrameManager->RefreshFrame();
-          }
-        }
-        return TRUE;
       case KEY_CONSOLE_BUFFER_RESIZE:
         _OT(SysLog("[%p] Manager::ProcessKey(KEY_CONSOLE_BUFFER_RESIZE)",this));
         for (i=0;i<FrameCount;i++){
@@ -599,6 +593,16 @@ int  Manager::ProcessKey(int Key)
     {
       switch(Key)
       {
+        case KEY_CTRLALTSHIFTPRESS:
+          if(!NotUseCAS)
+          {
+            if (CurrentFrame->FastHide()){
+              ImmediateHide();
+              WaitKey(KEY_CTRLALTSHIFTRELEASE);
+              FrameManager->RefreshFrame();
+            }
+          }
+          return TRUE;
         case KEY_F11:
           PluginsMenu();
           FrameManager->RefreshFrame();
@@ -795,7 +799,6 @@ void Manager::ActivateCommit()
 */
   }
   /* DJ $ */
-  ShowTime(1);
 }
 
 void Manager::UpdateCommit()
@@ -962,6 +965,11 @@ void Manager::RefreshCommit()
 //_SVS(RefreshedFrame->GetTypeAndName(Type,Name));
 //_SVS(SysLog("Manager: %d (%s,%s)",CtrlObject->Macro.GetMode(),Type,Name));
   }
+  if (Opt.ViewerEditorClock &&
+      (RefreshedFrame->GetType() == MODALTYPE_EDITOR ||
+      RefreshedFrame->GetType() == MODALTYPE_VIEWER)
+      || WaitInMainLoop && Opt.Clock)
+    ShowTime(1);
 }
 
 void Manager::ExecuteCommit()
@@ -1045,6 +1053,4 @@ void Manager::UnmodalizeCommit()
   }
 
 }
-
-
 /* OT $*/

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.146 26.07.2001 $ */
+/* Revision: 1.147 27.07.2001 $ */
 
 /*
 Modify:
+  27.07.2001 SVS
+   + DM_ALLKEYMODE - дл€ нужд MacroBrowse (пока только дл€ него :-)
   26.07.2001 SVS
    ! VFMenu уничтожен как класс
   24.07.2001 SVS
@@ -5297,6 +5299,22 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         if (Dlg->ShadowSaveScr) Dlg->ShadowSaveScr->Discard();
         return TRUE;
       }
+
+    /*
+      Msg=DM_ALLKEYMODE
+      Param1 = -1 - получить состо€ние
+             =  0 - выключить
+             =  1 - включить
+      Ret = состо€ние
+    */
+    case DM_ALLKEYMODE:
+    {
+      if(Param1 == -1)
+        return IsProcessAssignMacroKey;
+      BOOL OldIsProcessAssignMacroKey=IsProcessAssignMacroKey;
+      IsProcessAssignMacroKey=Param1;
+      return OldIsProcessAssignMacroKey;
+    }
   }
 
   // ¬се, что сами не отрабатываем - посылаем на обработку обработчику.

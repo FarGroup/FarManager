@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.29 24.07.2001 $ */
+/* Revision: 1.30 27.07.2001 $ */
 
 /*
 Modify:
+  27.07.2001 SVS
+    + Ключ "/co" документирован.
   24.07.2001 SVS
     ! Заюзаем флаг NotUseCAS - чтобы не гасилось ничего для одиночного
       редатора/вьювера (far /e) - иначе БАГА!
@@ -141,8 +143,8 @@ printf(
 "      Allows to have separate settings for different users.\n"
 " /v <filename>\n"
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
-//" /co\n"
-//"      Forces FAR to load plugins from the cache only.\n"
+" /co\n"
+"      Forces FAR to load plugins from the cache only.\n"
 );
 }
 
