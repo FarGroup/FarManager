@@ -5,10 +5,17 @@ interf.cpp
 
 */
 
-/* Revision: 1.04 13.07.2000 $ */
+/* Revision: 1.05 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+    ! Немного оптимизации в функциях Box(), HiText() :-)
+    + Клавиши (CalcKeyCode):
+       Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
+       KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
+    + Text(int X, int Y, int Color, char *Str);
+    + Text(int X, int Y, int Color, int MsgId);
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -291,10 +298,17 @@ void GetRealCursorType(int &Visible,int &Size)
   Visible=cci.bVisible;
 }
 
-
-void Text(char *Str)
+/* $ 23.07.2000 SVS
+   + две полных функции Text
+*/
+void Text(int X, int Y, int Color, char *Str)
 {
   int Length=strlen(Str);
+  CurColor=FarColorToReal(Color);
+  if (X<0) X=0;
+  if (Y<0) Y=0;
+  CurX=X;
+  CurY=Y;
   if (CurX+Length>ScrX)
     Length=ScrX-CurX+1;
   if (Length<=0)
@@ -309,12 +323,21 @@ void Text(char *Str)
   CurX+=Length;
 }
 
+void Text(char *Str)
+{
+  Text(CurX,CurY,CurColor,Str);
+}
+
+void Text(int X, int Y, int Color,int MsgId)
+{
+  Text(X,Y,Color,MSG(MsgId));
+}
 
 void Text(int MsgId)
 {
-  Text(MSG(MsgId));
+  Text(CurX,CurY,CurColor,MSG(MsgId));
 }
-
+/* SVS $ */
 
 void VText(char *Str)
 {
@@ -348,11 +371,17 @@ void HiText(char *Str,int HiColor)
     Text(TextStr);
     if (ChPtr[1])
     {
+      /* $ 23.07.2000 SVS
+         Немного оптимизации :-)
+      */
+      char Chr[2];
       SaveColor=CurColor;
       SetColor(HiColor);
-      mprintf("%c",ChPtr[1]);
+      Chr[0]=ChPtr[1]; Chr[1]=0;
+      Text(Chr);
       SetColor(SaveColor);
       Text(ChPtr+2);
+      /* SVS $ */
     }
   }
 }
@@ -894,6 +923,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         return(KEY_CTRLALTPGUP);
       case VK_RETURN:
         return(KEY_CTRLALTENTER);
+      case VK_APPS:
+        return(KEY_CTRLALTAPPS);
     }
     if (AsciiChar)
       return(KEY_CTRLALT_BASE+AsciiChar);
@@ -940,6 +971,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         return(KEY_ALTSHIFTPGUP);
       case VK_RETURN:
         return(KEY_ALTSHIFTENTER);
+      case VK_APPS:
+        return(KEY_ALTSHIFTAPPS);
     }
     if (AsciiChar)
     {
@@ -1011,6 +1044,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         return(KEY_CTRLSHIFTTAB);
       case VK_BACK:
         return(KEY_CTRLSHIFTBS);
+      case VK_APPS:
+        return(KEY_CTRLSHIFTAPPS);
     }
     if (AsciiChar)
       return(KEY_CTRLSHIFT_BASE+AsciiChar);
@@ -1080,6 +1115,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         return(KEY_DIVIDE);
       case VK_APPS:
         return(KEY_APPS);
+      case VK_LWIN:
+        return(KEY_LWIN);
+      case VK_RWIN:
+        return(KEY_RWIN);
       case KEY_BREAK:
         return(KEY_BREAK);
     }
@@ -1160,6 +1199,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
           return(KEY_CTRLADD);
         case VK_MULTIPLY:
           return(KEY_CTRLMULTIPLY);
+        case VK_APPS:
+          return(KEY_CTRLAPPS);
       }
     if (KeyCode)
     {
@@ -1226,6 +1267,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
           return(KEY_ALTLEFT);
         case VK_RIGHT:
           return(KEY_ALTRIGHT);
+        case VK_APPS:
+          return(KEY_ALTAPPS);
     }
     if (AsciiChar)
     {
@@ -1289,6 +1332,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
           return(KEY_SHIFTSUBTRACT);
         case VK_ADD:
           return(KEY_SHIFTADD);
+        case VK_APPS:
+          return(KEY_SHIFTAPPS);
       }
   }
   if (AsciiChar)
@@ -1418,59 +1463,47 @@ void BoxText(char *Str)
 }
 
 /*
-Отрисовка прямоугольника.
+   Отрисовка прямоугольника.
+*/
+/* $ 23.07.2000 SVS
+   Немного оптимизации :-)
 */
 void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
   char OutStr[512];
+  static char ChrBox[2][6]={
+    {'─','│','┌','└','┘','┐'},
+    {'═','║','╔','╚','╝','╗'},
+  };
 
   if (x1>=x2 || y1>=y2)
     return;
-  SetColor(Color);
-  if (Type==SINGLE_BOX || Type==SHORT_SINGLE_BOX)
-  {
-    memset(OutStr,'─',sizeof(OutStr));
-    GotoXY(x1+1,y1);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    GotoXY(x1+1,y2);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    memset(OutStr,'│',sizeof(OutStr));
-    GotoXY(x1,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x2,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x1,y1);
-    Text("┌");
-    GotoXY(x1,y2);
-    Text("└");
-    GotoXY(x2,y2);
-    Text("┘");
-    GotoXY(x2,y1);
-    Text("┐");
-  }
-  else
-  {
-    memset(OutStr,'═',sizeof(OutStr));
-    GotoXY(x1+1,y1);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    GotoXY(x1+1,y2);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    memset(OutStr,'║',sizeof(OutStr));
-    GotoXY(x1,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x2,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x1,y1);
-    Text("╔");
-    GotoXY(x1,y2);
-    Text("╚");
-    GotoXY(x2,y2);
-    Text("╝");
-    GotoXY(x2,y1);
-    Text("╗");
-  }
-}
 
+  SetColor(Color);
+  Type=(Type==SINGLE_BOX || Type==SHORT_SINGLE_BOX)?0:1;
+
+  memset(OutStr,ChrBox[Type][0],sizeof(OutStr));
+  OutStr[x2-x1]=0;
+
+  OutStr[0]=ChrBox[Type][2];
+  OutStr[x2-x1]=ChrBox[Type][5];
+  GotoXY(x1,y1);
+  mprintf("%.*s",x2-x1+1,OutStr);
+
+  OutStr[0]=ChrBox[Type][3];
+  OutStr[x2-x1]=ChrBox[Type][4];
+  GotoXY(x1,y2);
+  mprintf("%.*s",x2-x1+1,OutStr);
+
+  memset(OutStr,ChrBox[Type][1],sizeof(OutStr));
+  OutStr[y2-y1]=0;
+
+  GotoXY(x1,y1+1);
+  vmprintf("%.*s",y2-y1-1,OutStr);
+  GotoXY(x2,y1+1);
+  vmprintf("%.*s",y2-y1-1,OutStr);
+}
+/* SVS $ */
 
 void PutRealText(int X1,int Y1,int X2,int Y2,void *Src)
 {

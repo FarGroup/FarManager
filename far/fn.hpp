@@ -3,14 +3,20 @@
 /*
 fn.hpp
 
-Описания функцмй
+Описания функций
 
 */
 
-/* Revision: 1.06 18.07.2000 $ */
+/* Revision: 1.07 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+    + Функция FarDialogEx - расширенный диалог
+    + Функция FarDefDlgProc обработки диалога по умолчанию
+    + Функция FarSendDlgMessage - посылка сообщения диалогу
+    + Text(int X, int Y, int Color, char *Str);
+    + Text(int X, int Y, int Color, int MsgId);
   18.07.2000 tran 1.06
     ! изменил тип аргумента у ScrollBar с 'int' на 'unsigned long'
       нужно для Viewer
@@ -55,7 +61,9 @@ void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(int& X,int& Y);
 void SetRealCursorType(int Visible,int Size);
 void GetRealCursorType(int &Visible,int &Size);
+void Text(int X, int Y, int Color, char *Str);
 void Text(char *Str);
+void Text(int X, int Y, int Color, int MsgId);
 void Text(int MsgId);
 void VText(char *Str);
 void HiText(char *Str,int HiColor);
@@ -210,7 +218,7 @@ void GetPathRoot(char *Path,char *Root);
 char *NullToEmpty(char *Str);
 void CenterStr(char *Src,char *Dest,int Length);
 char *GetCommaWord(char *Src,char *Word);
-int GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
+int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic=NULL,int EnableEmpty=FALSE,
     int Password=FALSE);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
@@ -341,6 +349,19 @@ void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic);
 */
 int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 /* IS $ */
+/* $ 23.07.2000 IS
+   Функции для расширенного диалога
+*/
+//  Функция расширенного диалога
+int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
+      char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+      FARDIALOGPROC Proc);
+//  Функция обработки диалога по умолчанию
+long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+// Посылка сообщения диалогу
+long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, long Param2);
+
+/* SVS $ */
 #endif
 /* $ 05.07.2000 SVS
    Расширение переменной среды

@@ -7,10 +7,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.01 18.07.2000 $ */
+/* Revision: 1.02 22.07.2000 $ */
 
 /*
 Modify:
+  22.07.2000 SVS
+   !  AlwaysScrollBar изменен на ListBoxControl
   18.07.2000 SVS
     + Добавлена переменная класса AlwaysScrollBar, предназначенная
       для отображения (всегда, по мере надобности!) в элементах
@@ -44,7 +46,7 @@ class VMenu:public Modal
        + переменная, отвечающая за отображение scrollbar в
          DI_LISTBOX & DI_COMBOBOX
     */
-    int AlwaysScrollBar;
+    int ListBoxControl;
     /* SVS $ */
   public:
     /* $ 18.07.2000 SVS
@@ -52,9 +54,9 @@ class VMenu:public Modal
          DI_LISTBOX & DI_COMBOBOX
          По умолчанию - зависит от настроек показа scrollbar в меню,
          т.е. не требуется. Для данных элементов (DI_LISTBOX & DI_COMBOBOX)
-         параметр isAlwaysScrollBar должен быть равен TRUE.
+         параметр isListBoxControl должен быть равен TRUE.
     */
-    VMenu(char *Title,struct MenuData *Data,int ItemCount,int MaxHeight=0,int isAlwaysScrollBar=FALSE);
+    VMenu(char *Title,struct MenuData *Data,int ItemCount,int MaxHeight=0,int isListBoxControl=FALSE);
     /* SVS $ */
     ~VMenu();
     void DeleteItems();

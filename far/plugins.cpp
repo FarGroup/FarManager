@@ -5,10 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.08 15.07.2000 $ */
+/* Revision: 1.09 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+     + Функции для обработчика диалога
+       - расширенная функция диалога FarDialogEx;
+       - обмен сообщениями SendDlgMessage;
+       - функция по умолчанию DefDlgProc;
   15.07.2000 SVS
      + Добавка в виде задания дополнительного пути для поиска плагинов
   13.07.2000 SVS
@@ -301,6 +306,16 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     StartupInfo.AdvControl=FarAdvControl;
     /* IS $ */
+    /* $ 23.07.2000 SVS
+       Функции для обработчика диалога
+         - расширенная функция диалога
+         - обмен сообщениями
+         - функция по умолчанию
+    */
+    StartupInfo.DialogEx=FarDialogEx;
+    StartupInfo.SendDlgMessage=FarSendDlgMessage;
+    StartupInfo.DefDlgProc=FarDefDlgProc;
+    /* SVS $ */
     /* 06.07.2000 IS
       Указатель на структуру с адресами полезных функций из far.exe
       Плагин должен обязательно скопировать ее себе, если хочет использовать.

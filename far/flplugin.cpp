@@ -5,10 +5,14 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.02 13.07.2000 $ */
+/* Revision: 1.03 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+    + Клавиши (FileList::TranslateKeyToVK):
+       Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
+       KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -777,6 +781,35 @@ int FileList::TranslateKeyToVK(int Key,int &VirtKey,int &ControlState)
     ControlState=PKF_CONTROL|PKF_ALT;
     return(TRUE);
   }
+  /* $ 23.07.2000 SVS
+     Обработка Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps
+  */
+  if (Key>=KEY_APPS && Key<=KEY_CTRLALTAPPS)
+  {
+    VirtKey=VK_APPS;
+    // ControlState=0;
+    switch(Key)
+    {
+      case KEY_CTRLSHIFTAPPS:
+        ControlState=PKF_SHIFT;
+      case KEY_CTRLAPPS:
+        ControlState|=PKF_CONTROL;
+        break;
+      case KEY_ALTSHIFTAPPS:
+        ControlState=PKF_SHIFT;
+      case KEY_ALTAPPS:
+        ControlState|=PKF_ALT;
+        break;
+      case KEY_SHIFTAPPS:
+        ControlState=PKF_SHIFT;
+        break;
+      case KEY_CTRLALTAPPS:
+        ControlState=PKF_CONTROL|PKF_ALT;
+        break;
+    }
+    return(TRUE);
+  }
+  /* SVS $ */
 
   if (Key>=KEY_F1 && Key<=KEY_F12)
     VirtKey=VK_F1+Key-KEY_F1;
@@ -804,16 +837,20 @@ int FileList::TranslateKeyToVK(int Key,int &VirtKey,int &ControlState)
             VirtKey='A'+Key-KEY_CTRLA;
             ControlState=PKF_CONTROL;
           }
+  /* $ 23.07.2000 SVS
+     + KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
+  */
   static int Keys[]={KEY_BS,KEY_TAB,KEY_ENTER,KEY_ESC,KEY_SPACE,
     KEY_PGUP,KEY_PGDN,KEY_END,KEY_HOME,KEY_LEFT,KEY_UP,KEY_RIGHT,
     KEY_DOWN,KEY_INS,KEY_DEL,KEY_MULTIPLY,KEY_ADD,KEY_SUBTRACT,
-    KEY_DIVIDE,KEY_NUMPAD5,KEY_APPS
+    KEY_DIVIDE,KEY_NUMPAD5,KEY_LWIN,KEY_RWIN
   };
   static int VKKeys[]={VK_BACK,VK_TAB,VK_RETURN,VK_ESCAPE,VK_SPACE,
     VK_PRIOR,VK_NEXT,VK_END,VK_HOME,VK_LEFT,VK_UP,VK_RIGHT,VK_DOWN,
     VK_INSERT,VK_DELETE,VK_MULTIPLY,VK_ADD,VK_SUBTRACT,
-    VK_DIVIDE,VK_CLEAR,VK_APPS
+    VK_DIVIDE,VK_CLEAR,VK_LWIN,VK_RWIN
   };
+  /* SVS $ */
   for (int I=0;I<sizeof(Keys)/sizeof(Keys[0]);I++)
     if (Key==Keys[I])
     {

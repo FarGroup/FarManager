@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.05 13.07.2000 $ */
+/* Revision: 1.06 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+    + Функция FarDefDlgProc обработки диалога по умолчанию
+    + Функция FarSendDlgMessage - посылка сообщения диалогу
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   12.07.2000 IS
@@ -167,9 +170,38 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
   return(ExitCode);
 }
 
+/* $ 23.07.2000 SVS
+   Функции для расширенного диалога
+*/
+// Функция FarDefDlgProc обработки диалога по умолчанию
+long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  if(hDlg)
+    return Dialog::DefDlgProc((Dialog*)hDlg,Msg,Param1,Param2);
+  return NULL;
+}
+
+// Посылка сообщения диалогу
+long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  if(hDlg)
+  {
+    Dialog* Dlg=(Dialog*)hDlg;
+    return Dialog::DefDlgProc((Dialog*)hDlg,Msg,Param1,Param2);
+  }
+  return 0;
+}
 
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
+{
+  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL);
+}
+
+int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
+           char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+           FARDIALOGPROC DlgProc)
+
 {
   if (DisablePluginsOutput)
     return(-1);
@@ -193,7 +225,7 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
   }
 
   {
-    Dialog FarDialog(InternalItem,ItemsNumber);
+    Dialog FarDialog(InternalItem,ItemsNumber,DlgProc);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
     if (HelpTopic!=NULL)
     {
@@ -233,7 +265,7 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
 //  CheckScreenLock();
   return(ExitCode);
 }
-
+/* SVS $ */
 
 char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
 {
@@ -792,3 +824,4 @@ int WINAPI FarEditorControl(int Command,void *Param)
     return(0);
   return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
 }
+

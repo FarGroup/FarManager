@@ -3,14 +3,21 @@
 /*
 dialog.hpp
 
-Класс диалога
+Класс диалога Dialog.
+
+Предназначен для отображения модальных диалогов.
+Является производным от класса Modal.
 
 */
 
-/* Revision: 1.01 18.07.2000 $ */
+/* Revision: 1.02 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+   + Куча ремарок в исходниках :-)
+   + Функция обработки диалога (по умолчанию) - забито место :-)
+   ! Изменен вызов конструктора
   18.07.2000 SVS
     + функция SelectFromComboBox для выбора из DI_COMBOBOX
   25.06.2000 SVS
@@ -20,6 +27,18 @@ Modify:
 
 class Dialog:public Modal
 {
+  private:
+    struct DialogItem *Item;    // массив элементов диалога
+    int ItemCount;              // количество элементов диалога
+
+    char OldConsoleTitle[512];  // предыдущий заголовок консоли
+    int InitObjects;            // элементы инициализарованы?
+    int CreateObjects;          // объекты (Edit,...) созданы?
+    int WarningStyle;           // TRUE - Warning Dialog Style
+    int DialogTooLong;          //
+    int PrevMacroMode;          // предыдущий режим макро
+    FARDIALOGPROC DlgProc;      // функция обработки диалога
+
   private:
     void DisplayObject();
     void DeleteDialogObjects();
@@ -35,18 +54,11 @@ class Dialog:public Modal
     void AddToEditHistory(char *AddStr,char *HistoryName);
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
-    struct DialogItem *Item;
-
-    char OldConsoleTitle[512];
-    int ItemCount;
-    int InitObjects;
-    int CreateObjects;
-    int WarningStyle;
-    int DialogTooLong;
-    int PrevMacroMode;
   public:
-    Dialog(struct DialogItem *Item,int ItemCount);
+    Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc=NULL);
     ~Dialog();
+
+  public:
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Show();
@@ -54,9 +66,15 @@ class Dialog:public Modal
     void InitDialogObjects();
     void GetDialogObjectsData();
     void SetWarningStyle(int Style) {WarningStyle=Style;};
+
     static void DataToItem(struct DialogData *Data,struct DialogItem *Item,
                            int Count);
     static int IsKeyHighlighted(char *Str,int Key,int Translate);
+    /* $ 23.07.2000 SVS
+       функция обработки диалога (по умолчанию)
+    */
+    static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    /* SVS $ */
 };
 
 #endif // __DIALOG_HPP__

@@ -7,10 +7,14 @@ keys.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+    + Клавиши:
+       Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
+       KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -96,6 +100,14 @@ enum
   KEY_NUMPAD5,
 
   KEY_APPS,
+  KEY_CTRLAPPS,
+  KEY_ALTAPPS,
+  KEY_SHIFTAPPS,
+  KEY_CTRLSHIFTAPPS,
+  KEY_ALTSHIFTAPPS,
+  KEY_CTRLALTAPPS,
+  KEY_LWIN,
+  KEY_RWIN,
 
   KEY_CTRLA,
   KEY_CTRLB,

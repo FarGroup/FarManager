@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.02 13.07.2000 $ */
+/* Revision: 1.03 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+    + Клавиши:
+       Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
+       KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -382,6 +386,9 @@ void KeyMacro::KeyToText(int Key,char *KeyText)
     sprintf(KeyText,"Alt%c",Key-KEY_ALTA+'A');
     return;
   }
+  /* $ 23.07.2000 SVS
+     + KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
+  */
   static int KeyCodes[]={
     KEY_BS,KEY_TAB,KEY_ENTER,KEY_ESC,KEY_SPACE,KEY_HOME,KEY_END,KEY_UP,
     KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_PGUP,KEY_PGDN,KEY_INS,KEY_DEL,KEY_NUMPAD5,
@@ -409,7 +416,10 @@ void KeyMacro::KeyToText(int Key,char *KeyText)
     KEY_ALTSHIFTPGUP,KEY_ALTSHIFTENTER,
     KEY_CTRLALTINS,KEY_CTRLALTDOWN,KEY_CTRLALTLEFT,KEY_CTRLALTRIGHT,
     KEY_CTRLALTUP,KEY_CTRLALTEND,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,
-    KEY_CTRLALTPGUP,KEY_CTRLALTENTER,KEY_SHIFTBS,KEY_APPS
+    KEY_CTRLALTPGUP,KEY_CTRLALTENTER,KEY_SHIFTBS,KEY_APPS,
+    KEY_CTRLAPPS,KEY_ALTAPPS,KEY_SHIFTAPPS,
+    KEY_CTRLSHIFTAPPS,KEY_ALTSHIFTAPPS,KEY_CTRLALTAPPS,
+    KEY_LWIN,KEY_RWIN
   };
   static char *KeyNames[]={
     "BS","Tab","Enter","Esc","Space","Home","End","Up",
@@ -438,8 +448,12 @@ void KeyMacro::KeyToText(int Key,char *KeyText)
     "AltShiftPgUp","AltShiftEnter",
     "CtrlAltIns","CtrlAltDown","CtrlAltLeft","CtrlAltRight",
     "CtrlAltUp","CtrlAltEnd","CtrlAltHome","CtrlAltPgDn","CtrlAltPgUp",
-    "CtrlAltEnter","ShiftBS","Apps"
+    "CtrlAltEnter","ShiftBS",
+    "Apps","CtrlApps","AltApps","ShiftApps",
+    "CtrlShiftApps","AltShiftApps","CtrlAltApps",
+    "LWin","RWin"
   };
+  /* SVS $ */
   int I;
 
   for (I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.08 18.07.2000 $ */
+/* Revision: 1.09 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+    ! Функция GetString имеет вызов WINAPI
   18.07.2000 tran 1.08
     ! изменил типа аргумента у ScrollBar
   13.07.2000 IG
@@ -1137,7 +1139,7 @@ char *GetCommaWord(char *Src,char *Word)
 }
 
 
-int GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
+int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic,int EnableEmpty,int Password)
 {
   static struct DialogData StrDlgData[]=
@@ -1593,3 +1595,4 @@ DWORD ExpandEnvironmentStr(char *src, char *dest, size_t size)
  return ret;
 }
 /* SVS $ */
+

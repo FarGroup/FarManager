@@ -5,10 +5,14 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.05 18.07.2000 $ */
+/* Revision: 1.06 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+   + Куча рамарок в исходниках :-)
+   ! AlwaysScrollBar изменен на ListBoxControl
+   ! Тень рисуется только для меню, для ListBoxControl она ненужна
   18.07.2000 SVS
    ! изменен вызов конструктора (пареметр isAlwaysScrollBar) с учетом
      необходимости scrollbar в DI_COMBOBOX (и в будущем - DI_LISTBOX)
@@ -37,17 +41,17 @@ Modify:
 /* IS $ */
 
 /* $ 18.07.2000 SVS
-   ! изменен вызов конструктора (isAlwaysScrollBar) с учетом необходимости
+   ! изменен вызов конструктора (isListBoxControl) с учетом необходимости
      scrollbar в DI_LISTBOX & DI_COMBOBOX
 */
 VMenu::VMenu(char *Title,		// заголовок меню
              struct MenuData *Data,	// пункты меню
              int ItemCount,		// количество пунктов меню
              int MaxHeight,		// максимальная высота
-             int isAlwaysScrollBar)	// нужен ScrollBar?
+             int isListBoxControl)	// нужен ScrollBar?
 {
   int I;
-  AlwaysScrollBar=isAlwaysScrollBar;
+  ListBoxControl=isListBoxControl;
 /* SVS $ */
   UpdateRequired=TRUE;
   WrapMode=TRUE;
@@ -55,16 +59,18 @@ VMenu::VMenu(char *Title,		// заголовок меню
   TopPos=0;
   ShowAmpersand=FALSE;
   SaveScr=NULL;
+
   if (Title!=NULL)
     strcpy(VMenu::Title,Title);
   else
     *VMenu::Title=0;
+
   *BottomTitle=0;
   VMenu::Item=NULL;
   VMenu::ItemCount=0;
   DrawBackground=TRUE;
 
-  for (I=0;I<ItemCount;I++)
+  for (I=0; I < ItemCount; I++)
   {
     struct MenuItem NewItem;
     if ((unsigned int)Data[I].Name < MAX_MSG)
@@ -126,8 +132,10 @@ void VMenu::Hide()
     Sleep(10);
   CallCount++;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
   delete SaveScr;
   SaveScr=NULL;
+
   ScreenObject::Hide();
   UpdateRequired=TRUE;
   CallCount--;
@@ -199,20 +207,30 @@ void VMenu::DisplayObject()
       SaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
   if (DrawBackground)
   {
+    /* $ 23.07.2000 SVS
+       Тень для ListBox ненужна
+    */
     if (BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX)
     {
       Box(X1,Y1,X2,Y2,COL_MENUBOX,BoxType);
-      MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
-      MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+      if(!ListBoxControl)
+      {
+        MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
+        MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+      }
     }
     else
     {
       SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT);
-      MakeShadow(X1,Y2+2,X2+3,Y2+2);
-      MakeShadow(X2+3,Y1,X2+4,Y2+2);
+      if(!ListBoxControl)
+      {
+        MakeShadow(X1,Y2+2,X2+3,Y2+2);
+        MakeShadow(X2+3,Y1,X2+4,Y2+2);
+      }
       if (BoxType!=NO_BOX)
         Box(X1,Y1,X2,Y2,COL_MENUBOX,BoxType);
     }
+    /* SVS $*/
   }
   if (*Title)
   {
@@ -389,7 +407,7 @@ void VMenu::ShowMenu()
        + всегда покажет scrollbar для DI_LISTBOX & DI_COMBOBOX и опционально
          для вертикального меню
   */
-  if ((AlwaysScrollBar || Opt.ShowMenuScrollbar) && (Y2-Y1-1)<ItemCount )
+  if ((ListBoxControl || Opt.ShowMenuScrollbar) && (Y2-Y1-1)<ItemCount )
   {
     SetColor(DialogStyle ? COL_DIALOGMENUSCROLLBAR: COL_MENUSCROLLBAR);
     ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
@@ -549,7 +567,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   MsY=MouseEvent->dwMousePosition.Y;
   /* $ 06.07.2000 tran
      + mouse support for menu scrollbar
-     */
+  */
 
   int SbY1=Y1+1, SbY2=Y2-1;
 

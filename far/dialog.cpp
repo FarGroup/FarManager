@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.04 19.07.2000 $ */
+/* Revision: 1.05 23.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+   + Куча ремарок в исходниках :-)
+   + Изменен вызов конструтора - добавка в виде функции обработки
+   ! Строковые константы "SavedDialogHistory\\%s",
+     "Locked%d" и "Line%d" сделаны поименованными.
+   + Функция обработки диалога (по умолчанию) DefDlgProc() - забито место :-)
   19.07.2000 SVS
     ! "...В редакторе команд меню нажмите home shift+end del
       блок не удаляется..."
@@ -35,43 +41,72 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
-Dialog::Dialog(struct DialogItem *Item,int ItemCount)
+static char fmtLocked[]="Locked%d";
+static char fmtLine[]  ="Line%d";
+static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
+
+/* Public:
+   Конструктор класса Dialog
+*/
+Dialog::Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc)
 {
   CreateObjects=FALSE;
   InitObjects=FALSE;
   DialogTooLong=FALSE;
+  WarningStyle=0;
+
+  if(!DlgProc)
+    DlgProc=(FARDIALOGPROC)Dialog::DefDlgProc;
+  Dialog::DlgProc=DlgProc;
+
   Dialog::Item=Item;
   Dialog::ItemCount=ItemCount;
-  WarningStyle=0;
+
   if (CtrlObject!=NULL)
   {
+    // запомним пред. режим макро.
     PrevMacroMode=CtrlObject->Macro.GetMode();
+    // макросить будет в диалогах :-)
     CtrlObject->Macro.SetMode(MACRO_DIALOG);
   }
+
+  // запоминаем предыдущий заголовок консоли
   GetConsoleTitle(OldConsoleTitle,sizeof(OldConsoleTitle));
 }
 
 
+/* Public, Virtual:
+   Деструктор класса Dialog
+*/
 Dialog::~Dialog()
 {
+  INPUT_RECORD rec;
+
   GetDialogObjectsData();
   DeleteDialogObjects();
+
   if (CtrlObject!=NULL)
     CtrlObject->Macro.SetMode(PrevMacroMode);
+
   Hide();
   ScrBuf.Flush();
-  INPUT_RECORD rec;
+
   PeekInputRecord(&rec);
   SetConsoleTitle(OldConsoleTitle);
 }
 
 
+/* Public, Virtual:
+   Расчет значений координат окна диалога и вызов функции
+   ScreenObject::Show() для вывода диалога на экран.
+*/
 void Dialog::Show()
 {
-  if (X1==-1)
-  {
-    X1=(ScrX-X2+1)/2;
-    if (X1<=0)
+  if (X1 == -1) // задано центрирование диалога по горизонтали?
+  {             //   X2 при этом = ширине диалога.
+    X1=(ScrX - X2 + 1)/2;
+
+    if (X1 <= 0) // ширина диалога больше ширины экрана?
     {
       DialogTooLong=X2-1;
       X1=0;
@@ -80,52 +115,78 @@ void Dialog::Show()
     else
       X2+=X1-1;
   }
-  if (Y1==-1)
-  {
-    Y1=(ScrY-Y2+1)/2;
-    if (Y1>1)      Y1--;
-    if (Y1>5)      Y1--;
-    if (Y1<0)    { Y1=0; Y2=ScrY; }
-    else           Y2+=Y1-1;
+
+  if (Y1 == -1) // задано центрирование диалога по вертикали?
+  {             //   Y2 при этом = высоте диалога.
+    Y1=(ScrY - Y2 + 1)/2;
+
+    if (Y1>1)
+      Y1--;
+    if (Y1>5)
+      Y1--;
+    if (Y1<0)
+    {
+       Y1=0;
+       Y2=ScrY;
+    }
+    else
+      Y2+=Y1-1;
   }
+  // вызывает DisplayObject()
   ScreenObject::Show();
 }
 
 
+/* Private, Virtual:
+   Инициализация объектов и вывод диалога на экран.
+*/
 void Dialog::DisplayObject()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  Shadow();
-  if (!InitObjects)
-  {
+
+  Shadow();              // "наводим" тень
+
+  if (!InitObjects)      // самодостаточный вариант, когда
+  {                      //  элементы инициализируются при первом вызове.
     InitDialogObjects();
-    InitObjects=TRUE;
+    InitObjects=TRUE;    // все объекты проинициализированы!
   }
-  ShowDialog();
+
+  ShowDialog();          // "нарисуем" диалог.
 }
 
 
-/*
-Инициализация элементов диалога.
+/* Public:
+   Инициализация элементов диалога.
 */
 void Dialog::InitDialogObjects()
 {
-  int I,TitleSet;
-  for (I=0,TitleSet=0;I<ItemCount;I++)
+  int I, J, TitleSet;
+  int Length,StartX;
+  struct DialogItem *CurItem;
+
+  // предварительный цикл по поводу кнопок и заголовка консоли
+  for(I=0, TitleSet=0; I < ItemCount; I++)
   {
-    struct DialogItem *CurItem=&Item[I];
+    CurItem=&Item[I];
+
+    // для кнопок не имеющи стиля "Показывает заголовок кнопки без скобок"
+    //  добавим энти самые скобки
     if (CurItem->Type==DI_BUTTON &&
         (CurItem->Flags & DIF_NOBRACKETS)==0 &&
-        *CurItem->Data!='[')
+        *CurItem->Data != '[')
     {
       char BracketedTitle[200];
       sprintf(BracketedTitle,"[ %s ]",CurItem->Data);
       strcpy(CurItem->Data,BracketedTitle);
     }
-    if (!TitleSet && (CurItem->Type==DI_TEXT ||
-                      CurItem->Type==DI_DOUBLEBOX ||
-                      CurItem->Type==DI_SINGLEBOX))
-      for (int J=0;CurItem->Data[J]!=0;J++)
+
+    // по первому попавшемуся "тексту" установим заголовок консоли!
+    if (!TitleSet &&             // при условии, что еще не устанавливали
+         (CurItem->Type==DI_TEXT ||
+          CurItem->Type==DI_DOUBLEBOX ||
+          CurItem->Type==DI_SINGLEBOX))
+      for (J=0;CurItem->Data[J]!=0;J++)
         if (LocalIsalpha(CurItem->Data[J]))
         {
           SetFarTitle(CurItem->Data+J);
@@ -134,37 +195,58 @@ void Dialog::InitDialogObjects()
         }
   }
 
-  for (I=0;I<ItemCount;I++)
+  // а теперь все сначала и по полной программе...
+  for (I=0; I < ItemCount; I++)
   {
-    struct DialogItem *CurItem=&Item[I];
+    CurItem=&Item[I];
 
-    if ((CurItem->Flags & DIF_CENTERGROUP) && (I==0 ||
-        (Item[I-1].Flags & DIF_CENTERGROUP)==0 || Item[I-1].Y1!=CurItem->Y1))
+    // Последовательно объявленные элементы с флагом DIF_CENTERGROUP
+    // и одинаковой вертикальной позицией будут отцентрированы в диалоге.
+    // Их координаты X не важны. Удобно использовать для центрирования
+    // групп кнопок.
+    if ((CurItem->Flags & DIF_CENTERGROUP) &&
+        (I==0 ||
+        (Item[I-1].Flags & DIF_CENTERGROUP)==0 ||
+        Item[I-1].Y1!=CurItem->Y1))
     {
-      int J,Length=0,StartX;
-      for (J=I;J<ItemCount && (Item[J].Flags & DIF_CENTERGROUP) && Item[J].Y1==Item[I].Y1;J++)
+      Length=0;
+
+      for (J=I; J < ItemCount &&
+                (Item[J].Flags & DIF_CENTERGROUP) &&
+                Item[J].Y1==Item[I].Y1; J++)
       {
         Length+=HiStrlen(Item[J].Data);
+
         if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
           Length+=2;
       }
+
       if (Item[I].Type==DI_BUTTON && *Item[I].Data!=' ')
         Length-=2;
+
       StartX=(X2-X1+1-Length)/2;
+
       if (StartX<0)
         StartX=0;
-      for (J=I;J<ItemCount && (Item[J].Flags & DIF_CENTERGROUP) && Item[J].Y1==Item[I].Y1;J++)
+
+      for (J=I; J < ItemCount &&
+                (Item[J].Flags & DIF_CENTERGROUP) &&
+                Item[J].Y1==Item[I].Y1; J++)
       {
         Item[J].X1=StartX;
         StartX+=HiStrlen(Item[J].Data);
+
         if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
           StartX+=2;
       }
     }
+
+    // "редакторы" - разговор особый...
     if (IsEdit(CurItem->Type))
     {
       if (!CreateObjects)
         CurItem->ObjPtr=new Edit;
+
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
@@ -181,6 +263,10 @@ void Dialog::InitDialogObjects()
         DialogEdit->SetOvertypeMode(TRUE);
       }
       else
+        // "мини-редактор"
+        // Последовательно определенные поля ввода (edit controls),
+        // имеющие этот флаг группируются в редактор с возможностью
+        // вставки и удаления строк
         if (!(CurItem->Flags & DIF_EDITOR))
         {
           DialogEdit->SetEditBeyondEnd(FALSE);
@@ -192,54 +278,60 @@ void Dialog::InitDialogObjects()
       */
       if (CurItem->Type==DI_COMBOBOX && CurItem->Data[0] == 0)
       {
-        int nItem;
         struct FarListItem *ListItems=(struct FarListItem *)CurItem->Selected;
 
-        for (nItem=0;ListItems[nItem].Text[0];nItem++)
+        for (J=0; ListItems[J].Text[0]; J++)
         {
-          if(ListItems[nItem].Selected)
+          if(ListItems[J].Selected)
           {
-            // берем только первый пункт
-            strcpy(CurItem->Data,ListItems[nItem].Text);
+            // берем только первый пункт для области редактирования
+            strcpy(CurItem->Data, ListItems[J].Text);
             break;
           }
         }
       }
       /* SVS $ */
       DialogEdit->SetString(CurItem->Data);
+
       if (CurItem->Type==DI_FIXEDIT)
         DialogEdit->SetCurPos(0);
+
       DialogEdit->FastShow();
     }
   }
+  // все объекты созданы
   CreateObjects=TRUE;
 }
 
 
+/* Private:
+   Получение данных и удаление "редакторов"
+*/
 void Dialog::DeleteDialogObjects()
 {
   int I;
-  for (I=0;I<ItemCount;I++)
+  for (I=0; I < ItemCount; I++)
     if (IsEdit(Item[I].Type))
     {
       ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
       /*$ 05.07.2000 SVS $
-      Проверка - этот элемент предполагает расширение переменных среды?*/
+          Проверка - этот элемент предполагает расширение переменных среды?
+      */
       if(Item[I].Flags&DIF_EDITEXPAND)
          ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
-      /* end */
+      /* SVS */
       delete (Edit *)(Item[I].ObjPtr);
     }
 }
 
-/*
-Сохраняет значение из полей редактирования.
-При установленном флаге DIF_HISTORY, сохраняет данные в реестре.
+/* Public:
+   Сохраняет значение из полей редактирования.
+   При установленном флаге DIF_HISTORY, сохраняет данные в реестре.
 */
 void Dialog::GetDialogObjectsData()
 {
   int I;
-  for (I=0;I<ItemCount;I++)
+  for (I=0; I < ItemCount; I++)
     if (IsEdit(Item[I].Type))
     {
       ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
@@ -255,19 +347,23 @@ void Dialog::GetDialogObjectsData()
     }
 }
 
-/*
-Отрисовка элементов диалога на экране.
+/* Private:
+   Отрисовка элементов диалога на экране.
 */
 void Dialog::ShowDialog()
 {
   struct DialogItem *CurItem;
   int X,Y;
   int I;
+
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+
   SetScreen(X1,Y1,X2,Y2,' ',WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
-  for (I=0;I<ItemCount;I++)
+
+  for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
+
     switch(CurItem->Type)
     {
       case DI_SINGLEBOX:
@@ -275,28 +371,35 @@ void Dialog::ShowDialog()
         Box(X1+CurItem->X1,Y1+CurItem->Y1,X1+CurItem->X2,Y1+CurItem->Y2,
             WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX,
             (CurItem->Type==DI_SINGLEBOX) ? SINGLE_BOX:DOUBLE_BOX);
+
         if (*CurItem->Data)
         {
           char Title[200];
-          int X;
+          int XB;
+
           sprintf(Title," %s ",CurItem->Data);
-          X=X1+CurItem->X1+(CurItem->X2-CurItem->X1+1-HiStrlen(Title))/2;
-          if (CurItem->Flags & DIF_LEFTTEXT && X1+CurItem->X1+1<X)
-            X=X1+CurItem->X1+1;
+          XB=X1+CurItem->X1+(CurItem->X2-CurItem->X1+1-HiStrlen(Title))/2;
+
+          if (CurItem->Flags & DIF_LEFTTEXT && X1+CurItem->X1+1 < XB)
+            XB=X1+CurItem->X1+1;
+
           SetColor(WarningStyle ? COL_WARNDIALOGBOXTITLE:COL_DIALOGBOXTITLE);
-          GotoXY(X,Y1+CurItem->Y1);
+          GotoXY(XB,Y1+CurItem->Y1);
           HiText(Title,WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT);
         }
         break;
+
       case DI_TEXT:
         if (CurItem->X1==(unsigned char)-1)
           X=(X2-X1+1-HiStrlen(CurItem->Data))/2;
         else
           X=CurItem->X1;
+
         if (CurItem->Y1==(unsigned char)-1)
           Y=(Y2-Y1+1)/2;
         else
           Y=CurItem->Y1;
+
         if (CurItem->Flags & DIF_SETCOLOR)
           SetColor(CurItem->Flags & DIF_COLORMASK);
         else
@@ -304,6 +407,7 @@ void Dialog::ShowDialog()
             SetColor(WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX);
           else
             SetColor(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+
         if (CurItem->Flags & DIF_SEPARATOR)
         {
           GotoXY(X1+3,Y1+Y);
@@ -312,12 +416,16 @@ void Dialog::ShowDialog()
           else
             ShowSeparator(X2-X1-5);
         }
+
         GotoXY(X1+X,Y1+Y);
+
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
           Text(CurItem->Data);
         else
           HiText(CurItem->Data,WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT);
+
         break;
+
       case DI_VTEXT:
         if (CurItem->Flags & DIF_BOXCOLOR)
           SetColor(WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX);
@@ -326,9 +434,12 @@ void Dialog::ShowDialog()
             SetColor(CurItem->Flags & DIF_COLORMASK);
           else
             SetColor(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
         VText(CurItem->Data);
+
         break;
+
       /* $ 18.07.2000 SVS
          + обработка элемента DI_COMBOBOX
       */
@@ -336,37 +447,42 @@ void Dialog::ShowDialog()
       case DI_FIXEDIT:
       case DI_PSWEDIT:
       case DI_COMBOBOX:
+      {
+        Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
         if (CurItem->Focus)
         {
           SetCursorType(1,-1);
-          ((Edit *)(CurItem->ObjPtr))->Show();
+          EditPtr->Show();
         }
         else
-          ((Edit *)(CurItem->ObjPtr))->FastShow();
-        //if ((CurItem->Flags & DIF_HISTORY) && Opt.DialogsEditHistory && CurItem->Selected)
+          EditPtr->FastShow();
+
         if (CurItem->Selected &&
              ((CurItem->Flags & DIF_HISTORY) &&
               Opt.DialogsEditHistory
               || CurItem->Type == DI_COMBOBOX))
         {
           int EditX1,EditY1,EditX2,EditY2;
-          ((Edit *)(CurItem->ObjPtr))->GetPosition(EditX1,EditY1,EditX2,EditY2);
-          SetColor(COL_DIALOGTEXT);
-          GotoXY(EditX2+1,EditY1);
+
+          EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
           //Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-          Text("");
+          Text(EditX2+1,EditY1,COL_DIALOGTEXT,"");
         }
         // для DI_COMBOBOX здесь должна быть обработка флага DIF_DROPDOWNLIST
         // это когда Edit будет иметь не просто ReadOnly, а ...
         break;
-      /* SVS $ */
+        /* SVS $ */
+      }
+
       case DI_CHECKBOX:
       case DI_RADIOBUTTON:
         if (CurItem->Flags & DIF_SETCOLOR)
           SetColor(CurItem->Flags & DIF_COLORMASK);
         else
           SetColor(WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
+
         if (CurItem->Type==DI_CHECKBOX)
           mprintf("[%c] ",CurItem->Selected ? 'x':' ');
         else
@@ -374,15 +490,20 @@ void Dialog::ShowDialog()
             mprintf(" %c ",CurItem->Selected ? '\07':' ');
           else
             mprintf("(%c) ",CurItem->Selected ? '\07':' ');
+
         HiText(CurItem->Data,WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT);
+
         if (CurItem->Focus)
         {
           SetCursorType(1,-1);
           MoveCursor(X1+CurItem->X1+1,Y1+CurItem->Y1);
         }
+
         break;
+
       case DI_BUTTON:
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
+
         if (CurItem->Focus)
         {
           SetCursorType(0,10);
@@ -394,14 +515,15 @@ void Dialog::ShowDialog()
           SetColor(WarningStyle ? COL_WARNDIALOGBUTTON:COL_DIALOGBUTTON);
           HiText(CurItem->Data,WarningStyle ? COL_WARNDIALOGHIGHLIGHTBUTTON:COL_DIALOGHIGHLIGHTBUTTON);
         }
+
         break;
-    }
-  }
+    } // end switch(...
+  } // end for (I=...
 }
 
-/*
-Обработка данных от клавиатуры.
-Перекрывает BaseInput::ProcessKey.
+/* Public, Virtual:
+   Обработка данных от клавиатуры.
+   Перекрывает BaseInput::ProcessKey.
 */
 int Dialog::ProcessKey(int Key)
 {
@@ -416,6 +538,7 @@ int Dialog::ProcessKey(int Key)
       FocusPos=I;
       break;
     }
+
   int Type=Item[FocusPos].Type;
 
   switch(Key)
@@ -423,6 +546,7 @@ int Dialog::ProcessKey(int Key)
     case KEY_F1:
       ShowHelp();
       return(TRUE);
+
     case KEY_TAB:
     case KEY_SHIFTTAB:
       if (Item[FocusPos].Flags & DIF_EDITOR)
@@ -444,6 +568,7 @@ int Dialog::ProcessKey(int Key)
       Item[I].Focus=1;
       ShowDialog();
       return(TRUE);
+
     case KEY_CTRLENTER:
       EndLoop=TRUE;
       for (I=0;I<ItemCount;I++)
@@ -454,6 +579,7 @@ int Dialog::ProcessKey(int Key)
           ExitCode=I;
           return(TRUE);
         }
+
     case KEY_ENTER:
       if (Item[FocusPos].Flags & DIF_EDITOR)
       {
@@ -507,24 +633,28 @@ int Dialog::ProcessKey(int Key)
       if (ExitCode==-1)
         ExitCode=FocusPos;
       return(TRUE);
+
     case KEY_ESC:
     case KEY_BREAK:
     case KEY_F10:
       EndLoop=TRUE;
       ExitCode=(Key==KEY_BREAK) ? -2:-1;
       return(TRUE);
+
     case KEY_ADD:
       if (Type==DI_CHECKBOX && !Item[FocusPos].Selected)
         ProcessKey(KEY_SPACE);
       else
         ProcessKey('+');
       return(TRUE);
+
     case KEY_SUBTRACT:
       if (Type==DI_CHECKBOX && Item[FocusPos].Selected)
         ProcessKey(KEY_SPACE);
       else
         ProcessKey('-');
       return(TRUE);
+
     case KEY_SPACE:
       if (Type==DI_BUTTON)
         return(ProcessKey(KEY_ENTER));
@@ -554,6 +684,7 @@ int Dialog::ProcessKey(int Key)
         return(TRUE);
       }
       return(TRUE);
+
     case KEY_HOME:
       if (IsEdit(Type))
       {
@@ -570,6 +701,7 @@ int Dialog::ProcessKey(int Key)
           return(TRUE);
         }
       return(TRUE);
+
     case KEY_LEFT:
     case KEY_RIGHT:
       if (IsEdit(Type))
@@ -602,6 +734,7 @@ int Dialog::ProcessKey(int Key)
             return(TRUE);
           }
       }
+
     case KEY_UP:
     case KEY_DOWN:
       {
@@ -619,6 +752,7 @@ int Dialog::ProcessKey(int Key)
           ShowDialog();
       }
       return(TRUE);
+
     case KEY_END:
       if (IsEdit(Type))
       {
@@ -643,6 +777,7 @@ int Dialog::ProcessKey(int Key)
         ProcessKey(KEY_UP);
       }
       return(TRUE);
+
     case KEY_CTRLUP:
     case KEY_CTRLDOWN:
       if (IsEdit(Type) &&
@@ -657,6 +792,7 @@ int Dialog::ProcessKey(int Key)
         SelectFromComboBox((Edit *)(Item[FocusPos].ObjPtr),(struct FarListItem *)Item[FocusPos].Selected);
       /* SVS $ */
       return(TRUE);
+
     default:
       if (IsEdit(Type))
       {
@@ -679,6 +815,7 @@ int Dialog::ProcessKey(int Key)
                   break;
               ShowDialog();
               return(TRUE);
+
             case KEY_DEL:
               /* $ 19.07.2000 SVS
                  ! "...В редакторе команд меню нажмите home shift+end del
@@ -726,16 +863,18 @@ int Dialog::ProcessKey(int Key)
         if (((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key))
           return(TRUE);
       }
+
       if (ProcessHighlighting(Key,FocusPos,FALSE))
         return(TRUE);
+
       return(ProcessHighlighting(Key,FocusPos,TRUE));
   }
 }
 
 
-/*
-Обработка данных от "мыши".
-Перекрывает BaseInput::ProcessMouse.
+/* Public, Virtual:
+   Обработка данных от "мыши".
+   Перекрывает BaseInput::ProcessMouse.
 */
 int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -797,7 +936,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             }
           }
         }
-        if (Item[I].Type==DI_BUTTON && MsY==Y1+Item[I].Y1 &&
+        if (Item[I].Type==DI_BUTTON &&
+            MsY==Y1+Item[I].Y1 &&
             MsX < X1+Item[I].X1+HiStrlen(Item[I].Data))
         {
           Item[FocusPos].Focus=0;
@@ -805,8 +945,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           ShowDialog();
           while (IsMouseButtonPressed())
             ;
-          if (MouseX<X1 || MouseX>X1+Item[I].X1+HiStrlen(Item[I].Data)+4 ||
-              MouseY!=Y1+Item[I].Y1)
+          if (MouseX <  X1 ||
+              MouseX >  X1+Item[I].X1+HiStrlen(Item[I].Data)+4 ||
+              MouseY != Y1+Item[I].Y1)
           {
             Item[FocusPos].Focus=1;
             Item[I].Focus=0;
@@ -817,7 +958,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           return(TRUE);
         }
 
-        if ((Item[I].Type==DI_CHECKBOX || Item[I].Type==DI_RADIOBUTTON) &&
+        if ((Item[I].Type == DI_CHECKBOX ||
+             Item[I].Type == DI_RADIOBUTTON) &&
             MsY==Y1+Item[I].Y1 &&
             MsX < (X1+Item[I].X1+HiStrlen(Item[I].Data)+4-((Item[I].Flags & DIF_MOVESELECT)!=0)))
         {
@@ -832,12 +974,20 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-/*
-Изменяет фокус ввода (воздействие клавишами KEY_TAB, KEY_SHIFTTAB,
-KEY_UP, KEY_DOWN, а так же Alt-HotKey)
+/* Private:
+   Изменяет фокус ввода (воздействие клавишами
+     KEY_TAB, KEY_SHIFTTAB, KEY_UP, KEY_DOWN,
+   а так же Alt-HotKey)
 */
 int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 {
+  int Type;
+  // В функцию обработки диалога здесь передаем сообщение,
+  //   что элемент - LostFocus() - теряет фокус ввода.
+  // Если функция диалога вернула FALSE, то это значит, что
+  //   передавать фокус "не хотим" и вываливаемся отсель...
+  // ...
+  //
   while (1)
   {
     FocusPos+=Step;
@@ -845,19 +995,26 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
       FocusPos=0;
     if (FocusPos<0)
       FocusPos=ItemCount-1;
-    int Type=Item[FocusPos].Type;
+
+    Type=Item[FocusPos].Type;
+
     if (Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type))
       break;
     if (Type==DI_RADIOBUTTON && (!SkipGroup || Item[FocusPos].Selected))
       break;
   }
+  // В функцию обработки диалога здесь передаем сообщение,
+  //   что элемент GotFocus() - получил фокус ввода.
+  // Игнорируем возвращаемое функцией диалога значение
+  // ...
+  //
   return(FocusPos);
 }
 
-/*
-Статический метод - преобразует данные об элементах диалога во внутреннее
-представление. Аналогичен функции InitDialogItems (см. "Far PlugRinG
-Russian Help Encyclopedia of Developer")
+/* Public, Static:
+   преобразует данные об элементах диалога во внутреннее
+   представление. Аналогичен функции InitDialogItems (см. "Far PlugRinG
+   Russian Help Encyclopedia of Developer")
 */
 void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
                         int Count)
@@ -882,9 +1039,9 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
   }
 }
 
-/*
-Проверяет тип элемента диалога на предмет строки ввода
-(DI_EDIT, DI_FIXEDIT, DI_PSWEDIT) и в случае успеха возвращает TRUE
+/* Private:
+   Проверяет тип элемента диалога на предмет строки ввода
+   (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT) и в случае успеха возвращает TRUE
 */
 /* $ 18.07.2000 SVS
    ! элемент DI_COMBOBOX относится к категории строковых редакторов...
@@ -899,36 +1056,46 @@ int Dialog::IsEdit(int Type)
 /* SVS $ */
 
 
+/* Private:
+   Заполняем выпадающий список из истории
+*/
 void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
 {
   char RegKey[80],KeyValue[80],Str[512];
   int I,Dest;
-  sprintf(RegKey,"SavedDialogHistory\\%s",HistoryName);
+  int Checked;
+
+  sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
   {
     // создание пустого вертикального меню
     VMenu HistoryMenu("",NULL,0,8);
+
     struct MenuItem HistoryItem;
     int EditX1,EditY1,EditX2,EditY2;
+    int ItemsCount;
+
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
       EditX2=EditX1+20;
     if (EditX2>ScrX)
       EditX2=ScrX;
+
     HistoryItem.Checked=HistoryItem.Separator=0;
     HistoryMenu.SetFlags(MENU_SHOWAMPERSAND);
     HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 
     // заполнение пунктов меню
-    int ItemsCount=0;
-    for (I=0;I<16;I++)
+    ItemsCount=0;
+    for (I=0; I < 16; I++)
     {
-      sprintf(KeyValue,"Line%d",I);
+      sprintf(KeyValue,fmtLine,I);
       GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
       if (*Str==0)
         continue;
-      sprintf(KeyValue,"Locked%d",I);
-      int Checked;
+
+      sprintf(KeyValue,fmtLocked,I);
+
       GetRegKey(RegKey,KeyValue,(int)Checked,0);
       HistoryItem.Checked=Checked;
       HistoryItem.Selected=FALSE;
@@ -950,22 +1117,22 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
       // Del очищает историю команд.
       if (Key==KEY_DEL)
       {
+        int Locked;
         for (I=0,Dest=0;I<16;I++)
         {
-          sprintf(KeyValue,"Line%d",I);
+          sprintf(KeyValue,fmtLine,I);
           GetRegKey(RegKey,KeyValue,Str,"",sizeof(Str));
           DeleteRegValue(RegKey,KeyValue);
-          int Locked;
-          sprintf(KeyValue,"Locked%d",I);
+          sprintf(KeyValue,fmtLocked,I);
           GetRegKey(RegKey,KeyValue,Locked,0);
           DeleteRegValue(RegKey,KeyValue);
 
           // залоченные пункты истории не удаляются
           if (Locked)
           {
-            sprintf(KeyValue,"Line%d",Dest);
+            sprintf(KeyValue,fmtLine,Dest);
             SetRegKey(RegKey,KeyValue,Str);
-            sprintf(KeyValue,"Locked%d",Dest);
+            sprintf(KeyValue,fmtLocked,Dest);
             SetRegKey(RegKey,KeyValue,TRUE);
             Dest++;
           }
@@ -978,7 +1145,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
       // Ins защищает пункт истории от удаления.
       if (Key==KEY_INS)
       {
-        sprintf(KeyValue,"Locked%d",HistoryMenu.GetSelectPos());
+        sprintf(KeyValue,fmtLocked,HistoryMenu.GetSelectPos());
         if (!HistoryMenu.GetSelection())
         {
           HistoryMenu.SetSelection(TRUE);
@@ -1007,18 +1174,22 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
 }
 
 
+/* Private:
+   Работа с историей - добавление и reorder списка
+*/
 void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 {
-  int LastLine=15,FirstLine=16, I;
+  int LastLine=15,FirstLine=16, I, Locked;
 
   if (*AddStr==0)
     return;
+
   char RegKey[80],SrcKeyValue[80],DestKeyValue[80],Str[512];
-  sprintf(RegKey,"SavedDialogHistory\\%s",HistoryName);
-  for (I=0;I<16;I++)
+  sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
+
+  for (I=0; I < 16; I++)
   {
-    sprintf(SrcKeyValue,"Locked%d",I);
-    int Locked;
+    sprintf(SrcKeyValue,fmtLocked,I);
     GetRegKey(RegKey,SrcKeyValue,Locked,0);
     if (!Locked)
     {
@@ -1026,9 +1197,10 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       break;
     }
   }
-  for (I=0;I<16;I++)
+
+  for (I=0; I < 16; I++)
   {
-    sprintf(SrcKeyValue,"Line%d",I);
+    sprintf(SrcKeyValue,fmtLine,I);
     GetRegKey(RegKey,SrcKeyValue,Str,"",sizeof(Str));
     if (strcmp(Str,AddStr)==0)
     {
@@ -1036,36 +1208,39 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       break;
     }
   }
+
   if (FirstLine<=LastLine)
   {
     for (int Src=LastLine-1;Src>=FirstLine;Src--)
     {
-      int Locked;
-      sprintf(SrcKeyValue,"Locked%d",Src);
+      sprintf(SrcKeyValue,fmtLocked,Src);
       GetRegKey(RegKey,SrcKeyValue,Locked,0);
       if (Locked)
         continue;
       for (int Dest=Src+1;Dest<=LastLine;Dest++)
       {
-        sprintf(DestKeyValue,"Locked%d",Dest);
+        sprintf(DestKeyValue,fmtLocked,Dest);
         GetRegKey(RegKey,DestKeyValue,Locked,0);
         if (!Locked)
         {
-          sprintf(SrcKeyValue,"Line%d",Src);
+          sprintf(SrcKeyValue,fmtLine,Src);
           GetRegKey(RegKey,SrcKeyValue,Str,"",sizeof(Str));
-          sprintf(DestKeyValue,"Line%d",Dest);
+          sprintf(DestKeyValue,fmtLine,Dest);
           SetRegKey(RegKey,DestKeyValue,Str);
           break;
         }
       }
     }
     char FirstLineKeyValue[20];
-    sprintf(FirstLineKeyValue,"Line%d",FirstLine);
+    sprintf(FirstLineKeyValue,fmtLine,FirstLine);
     SetRegKey(RegKey,FirstLineKeyValue,AddStr);
   }
 }
 
 
+/* Public, Static:
+
+*/
 int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
 {
   if ((Str=strchr(Str,'&'))==NULL)
@@ -1086,6 +1261,9 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
 }
 
 
+/* Private:
+
+*/
 int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 {
   int I;
@@ -1128,7 +1306,11 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
   return(FALSE);
 }
 
-/* $ 18.07.2000 SVS
+/* Private:
+   Заполняем выпадающий список для ComboBox
+*/
+/*
+   $ 18.07.2000 SVS
    Функция-обработчик выбора из списка и установки...
 */
 void Dialog::SelectFromComboBox(
@@ -1138,7 +1320,7 @@ void Dialog::SelectFromComboBox(
   char Str[512];
   struct MenuItem ComboBoxItem;
   int EditX1,EditY1,EditX2,EditY2;
-  int I;
+  int I,Dest;
   {
     // создание пустого вертикального меню
     //  с обязательным показом ScrollBar
@@ -1189,5 +1371,20 @@ void Dialog::SelectFromComboBox(
   EditLine->SetString(Str);
   EditLine->SetLeftPos(0);
   Redraw();
+}
+/* SVS $ */
+
+/* $ 23.07.2000 SVS
+   функция обработки диалога (по умолчанию)
+*/
+#pragma argused
+long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  switch(Msg)
+  {
+    case WM_INITDIALOG:
+      return TRUE;
+  }
+  return FALSE;
 }
 /* SVS $ */

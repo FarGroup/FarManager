@@ -10,6 +10,9 @@
 
 /*
 Modify:
+  23.07.2000 SVS
+    + DialogEx, SendDlgMessage, DefDlgProc,
+    ! WINAPI для сервисных дополнительных функций
   18.07.2000 SVS
     + Введен новый элемент: DI_COMBOBOX и флаг DIF_DROPDOWNLIST
       (для нередактируемого DI_COMBOBOX - пока не реализовано!)
@@ -105,6 +108,31 @@ typedef int (WINAPI *FARAPIMENU)(
   int                 ItemsNumber
 );
 
+/* $ 23.07.2000 SVS
+   Для обработчика диалога
+*/
+typedef long (WINAPI *FARDIALOGPROC)(
+  HANDLE hDlg,
+  int Msg,
+  int Param1,
+  long Param2
+);
+
+typedef long (WINAPI *FARAPISENDDLGMESSAGE)(
+  HANDLE hDlg,
+  int Msg,
+  int Param1,
+  long Param2
+);
+
+typedef long (WINAPI *FARAPIDEFDLGPROC)(
+  HANDLE hDlg,
+  int Msg,
+  int Param1,
+  long Param2
+);
+/* SVS $ */
+
 typedef int (WINAPI *FARAPIDIALOG)(
   int                   PluginNumber,
   int                   X1,
@@ -114,6 +142,18 @@ typedef int (WINAPI *FARAPIDIALOG)(
   char                 *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber
+);
+
+typedef int (WINAPI *FARAPIDIALOGEX)(
+  int                   PluginNumber,
+  int                   X1,
+  int                   Y1,
+  int                   X2,
+  int                   Y2,
+  char                 *HelpTopic,
+  struct FarDialogItem *Item,
+  int                   ItemsNumber,
+  FARDIALOGPROC         DlgProc
 );
 
 enum {
@@ -137,7 +177,6 @@ typedef char* (WINAPI *FARAPIGETMSG)(
   int PluginNumber,
   int MsgId
 );
-
 
 /* $ 18.07.2000 SVS
   + Введены новые элементы (зарезервированы!)
@@ -638,6 +677,15 @@ struct PluginStartupInfo
   */
   FARAPIADVCONTROL AdvControl;
   /* IS $ */
+  /* $ 23.07.2000 SVS
+     Функции для обработчика диалога
+       - обмен сообщениями
+       - функция по умолчанию
+  */
+  FARAPIDIALOGEX DialogEx;
+  FARAPISENDDLGMESSAGE SendDlgMessage;
+  FARAPIDEFDLGPROC DefDlgProc;
+  /* SVS $ */
   /* $ 06.07.2000 IS
      Указатель на структуру с адресами полезных функций из far.exe
   */
