@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.77 25.12.2004 $ */
+/* Revision: 1.78 27.12.2004 $ */
 
 /*
 Modify:
+  27.12.2004 WARP
+    ! Сделал критические секции при практически всех вызовах Dialog & VMenu
   25.12.2004 WARP
     ! центрирование диалогов (подробнее см. 01894.DialogCenter.txt)
   08.12.2004 WARP
@@ -577,6 +579,7 @@ class Dialog: public Frame
     int Do_ProcessFirstCtrl();
     int Do_ProcessSpace();
 
+    int CallDlgProc (int nMsg, int nParam1, int nParam2);
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);

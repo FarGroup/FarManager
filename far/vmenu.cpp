@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.143 12.12.2004 $ */
+/* Revision: 1.144 27.12.2004 $ */
 
 /*
 Modify:
+  27.12.2004 WARP
+    ! Сделал критические секции при практически всех вызовах Dialog & VMenu
   12.12.2004 WARP
     ! Оптимизация с VMENU_DISABLEBACKGROUND не совсем удалась.
   08.12.2004 WARP
@@ -1150,6 +1152,8 @@ void VMenu::ShowMenu(int IsParent)
 
 BOOL VMenu::UpdateRequired(void)
 {
+  CriticalSectionLock Lock(CS);
+
   return ((LastAddedItem>=TopPos && LastAddedItem<(TopPos+Y2-Y1)+2) || VMFlags.Check(VMENU_UPDATEREQUIRED));
 
   //+1 for real diff
@@ -1579,6 +1583,8 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void VMenu::DeleteItems()
 {
+  CriticalSectionLock Lock(CS);
+
   /* $ 13.07.2000 SVS
      ни кто не вызывал запрос памяти через new :-)
   */
@@ -1881,6 +1887,8 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
 
 int VMenu::InsertItem(const struct FarListInsert *NewItem)
 {
+  CriticalSectionLock Lock(CS);
+
   if(NewItem)
   {
     struct MenuItem MItem;
@@ -1891,6 +1899,8 @@ int VMenu::InsertItem(const struct FarListInsert *NewItem)
 
 int VMenu::GetUserDataSize(int Position)
 {
+  CriticalSectionLock Lock(CS);
+
   if (ItemCount==0)
     return(0);
   while (CallCount>0)
@@ -2026,6 +2036,8 @@ struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
 // получить позицию курсора и верхнюю позицию итема
 int VMenu::GetSelectPos(struct FarListPos *ListPos)
 {
+  CriticalSectionLock Lock(CS);
+
   ListPos->SelectPos=GetSelectPos();
   if(VMFlags.Check(VMENU_SELECTPOSNONE))
     ListPos->SelectPos=-1;
@@ -2035,6 +2047,8 @@ int VMenu::GetSelectPos(struct FarListPos *ListPos)
 
 void VMenu::SetMaxHeight(int NewMaxHeight)
 {
+  CriticalSectionLock Lock(CS);
+
   VMenu::MaxHeight=NewMaxHeight;
   if(MaxLength > ScrX-8) //
     MaxLength=ScrX-8;
@@ -2243,6 +2257,8 @@ void VMenu::SetTitle(const char *Title)
 
 char *VMenu::GetTitle(char *Dest,int Size)
 {
+  CriticalSectionLock Lock(CS);
+
   /* $ 23.02.2002 DJ
      Если заголовок пустой - это не значит, что его нельзя вернуть!
   */
@@ -2271,6 +2287,8 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
 
 char *VMenu::GetBottomTitle(char *Dest,int Size)
 {
+  CriticalSectionLock Lock(CS);
+
   if (Dest && *VMenu::BottomTitle)
     return xstrncpy(Dest,VMenu::BottomTitle,Size-1);
   return NULL;
@@ -2279,11 +2297,15 @@ char *VMenu::GetBottomTitle(char *Dest,int Size)
 
 void VMenu::SetBoxType(int BoxType)
 {
+  CriticalSectionLock Lock(CS);
+
   VMenu::BoxType=BoxType;
 }
 
 int VMenu::GetPosition(int Position)
 {
+  CriticalSectionLock Lock(CS);
+
   int DataPos=(Position==-1) ? SelectPos : Position;
   if (DataPos>=ItemCount)
     DataPos=ItemCount-1;
@@ -2293,6 +2315,8 @@ int VMenu::GetPosition(int Position)
 
 int VMenu::GetSelection(int Position)
 {
+  CriticalSectionLock Lock(CS);
+
   if (ItemCount==0)
     return(0);
   while (CallCount>0)
@@ -2320,6 +2344,8 @@ void VMenu::SetSelection(int Selection,int Position)
 // Функция GetItemPtr - получить указатель на нужный Item.
 struct MenuItem *VMenu::GetItemPtr(int Position)
 {
+  CriticalSectionLock Lock(CS);
+
   if (ItemCount==0)
     return NULL;
   while (CallCount>0)
@@ -2545,6 +2571,8 @@ void VMenu::SetColors(struct FarListColors *Colors)
 
 void VMenu::GetColors(struct FarListColors *Colors)
 {
+  CriticalSectionLock Lock(CS);
+
   memmove(Colors->Colors,VMenu::Colors,sizeof(VMenu::Colors));
 }
 /* SVS $*/
@@ -2554,6 +2582,8 @@ void VMenu::GetColors(struct FarListColors *Colors)
 */
 void VMenu::SetOneColor (int Index, short Color)
 {
+  CriticalSectionLock Lock(CS);
+
   if ((DWORD)Index < sizeof(Colors) / sizeof (Colors [0]))
     Colors [Index]=FarColorToReal(Color);
 }
@@ -2640,6 +2670,8 @@ int VMenu::FindItem(const struct FarListFind *FItem)
 
 int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)
 {
+  CriticalSectionLock Lock(CS);
+
   char TmpBuf[130];
   if((DWORD)StartIndex < (DWORD)ItemCount)
   {
@@ -2667,6 +2699,8 @@ int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)
 
 BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
 {
+  CriticalSectionLock Lock(CS);
+
   if(Info)
   {
     /* $ 23.02.2002 DJ
@@ -2706,6 +2740,8 @@ int VMenu::SetUserData(void *Data,   // Данные
 // Получить данные
 void* VMenu::GetUserData(void *Data,int Size,int Position)
 {
+  CriticalSectionLock Lock(CS);
+
   void *PtrData=NULL;
   if (ItemCount || Position < 0)
   {
@@ -2764,6 +2800,8 @@ void VMenu::ResizeConsole()
 
 int VMenu::GetTypeAndName(char *Type,char *Name)
 {
+  CriticalSectionLock Lock(CS);
+
   if(Type)
     strcpy(Type,MSG(MVMenuType));
   if(Name)
@@ -2790,6 +2828,8 @@ long WINAPI VMenu::DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2)
 // функция посылки сообщений меню
 long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
 {
+  CriticalSectionLock Lock(((VMenu*)hVMenu)->CS);
+
   if(hVMenu)
     return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
   return 0;

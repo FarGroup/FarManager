@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.314 25.12.2004 $ */
+/* Revision: 1.315 27.12.2004 $ */
 
 /*
 Modify:
+  27.12.2004 WARP
+    ! Сделал критические секции при практически всех вызовах Dialog & VMenu
   25.12.2004 WARP
     ! центрирование диалогов (подробнее см. 01894.DialogCenter.txt)
   15.12.2004 WARP
@@ -1357,6 +1359,8 @@ void Dialog::CheckDialogCoord(void)
 
 void Dialog::InitDialog(void)
 {
+  CriticalSectionLock Lock(CS);
+
   if (!DialogMode.Check(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
   {                      //  элементы инициализируются при первом вызове.
     /* $ 28.07.2000 SVS
@@ -1574,6 +1578,8 @@ void Dialog::ProcessCenterGroup(void)
 */
 int Dialog::InitDialogObjects(int ID)
 {
+  CriticalSectionLock Lock(CS);
+
   int I, J;
   int Type;
   struct DialogItem *CurItem;
@@ -1973,6 +1979,8 @@ int Dialog::InitDialogObjects(int ID)
 
 const char *Dialog::GetDialogTitle()
 {
+  CriticalSectionLock Lock(CS);
+
   struct DialogItem *CurItem, *CurItemList=NULL;
   int I;
 
@@ -2006,6 +2014,8 @@ const char *Dialog::GetDialogTitle()
 
 void Dialog::ProcessLastHistory (struct DialogItem *CurItem, int MsgIndex)
 {
+  CriticalSectionLock Lock(CS);
+
   char RegKey[NM];
   char *PtrData;
   int PtrLength;
@@ -2096,6 +2106,8 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
 
 BOOL Dialog::GetItemRect(int I,RECT& Rect)
 {
+  CriticalSectionLock Lock(CS);
+
   if(I >= ItemCount)
     return FALSE;
 
@@ -2202,6 +2214,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
 */
 void Dialog::DeleteDialogObjects()
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
   struct DialogItem *CurItem;
 
@@ -2239,6 +2253,8 @@ void Dialog::DeleteDialogObjects()
 */
 void Dialog::GetDialogObjectsData()
 {
+  CriticalSectionLock Lock(CS);
+
   int I, Type;
   struct DialogItem *CurItem;
 
@@ -2337,6 +2353,8 @@ void Dialog::GetDialogObjectsData()
 // Функция формирования и запроса цветов.
 DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
 {
+  CriticalSectionLock Lock(CS);
+
   BOOL DisabledItem=Flags&DIF_DISABLE?TRUE:FALSE;
   DWORD Attr=0;
 
@@ -3024,6 +3042,8 @@ void Dialog::ShowDialog(int ID)
 
 int Dialog::LenStrItem(int ID,char *Str)
 {
+  CriticalSectionLock Lock(CS);
+
   if(!Str)
     Str=Item[ID].Data;
   return (Item[ID].Flags & DIF_SHOWAMPERSAND)?strlen(Str):HiStrlen(Str);
@@ -4377,6 +4397,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocusPos)
 {
+  CriticalSectionLock Lock(CS);
+
   char Str[1024];
   DlgEdit *CurEditLine;
 
@@ -4433,6 +4455,8 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocu
 
 int Dialog::ProcessRadioButton(int CurRB)
 {
+  CriticalSectionLock Lock(CS);
+
   int PrevRB=CurRB, I, J;
 
   for (I=CurRB;;I--)
@@ -4484,6 +4508,8 @@ int Dialog::ProcessRadioButton(int CurRB)
 
 int Dialog::Do_ProcessFirstCtrl()
 {
+  CriticalSectionLock Lock(CS);
+
   if (IsEdit(Item[FocusPos].Type))
   {
     ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(KEY_HOME);
@@ -4510,6 +4536,8 @@ int Dialog::Do_ProcessFirstCtrl()
 
 int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
 {
+  CriticalSectionLock Lock(CS);
+
   int OldPos=FocusPos;
   int PrevPos=0;
 
@@ -4537,6 +4565,8 @@ int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
 
 int Dialog::Do_ProcessTab(int Next)
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
   if(ItemCount > 1)
   {
@@ -4573,6 +4603,8 @@ int Dialog::Do_ProcessTab(int Next)
 
 int Dialog::Do_ProcessSpace()
 {
+  CriticalSectionLock Lock(CS);
+
   int OldFocusPos;
   if (Item[FocusPos].Type==DI_CHECKBOX)
   {
@@ -4914,6 +4946,8 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
                              DWORD CheckedSet,DWORD CheckedSkip,
                              DWORD Checked3Set,DWORD Checked3Skip)
 {
+  CriticalSectionLock Lock(CS);
+
   int Ret=FALSE;
   if(IDParent < ItemCount && (Item[IDParent].Flags&DIF_AUTOMATION) &&
      id < ItemCount && IDParent != id) // Сами себя не юзаем!
@@ -4989,6 +5023,8 @@ int Dialog::IsFocused(int Type)
 //
 int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen)
 {
+  CriticalSectionLock Lock(CS);
+
   char *Str;
   int I, LenFindStr=strlen(FindStr);
 
@@ -5060,6 +5096,8 @@ int Dialog::SelectFromComboBox(
          VMenu *ComboBox,    // список строк
          int MaxLen)
 {
+  CriticalSectionLock Lock(CS);
+
   char *Str;
   int EditX1,EditY1,EditX2,EditY2;
   int I,Dest;
@@ -5173,6 +5211,8 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
      Избавился от утечки памяти (проявлялось не у всех, но проявлялось же!)
 */
 {
+  CriticalSectionLock Lock(CS);
+
   if(!EditLine)
     return FALSE;
 
@@ -5407,6 +5447,8 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
 */
 int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 {
+  CriticalSectionLock Lock(CS);
+
 #define MAXSIZESTRING 4096
   int AddLine=-1, I, J, Locked, HistCount, LockedCount=0;
   char Str[MAXSIZESTRING];
@@ -5635,6 +5677,8 @@ int Dialog::IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos)
 
 BOOL Dialog::CheckHighlights(BYTE CheckSymbol)
 {
+  CriticalSectionLock Lock(CS);
+
   int I, Type;
   DWORD Flags;
 
@@ -5664,6 +5708,8 @@ BOOL Dialog::CheckHighlights(BYTE CheckSymbol)
 */
 int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 {
+  CriticalSectionLock Lock(CS);
+
   int I, Type;
   DWORD Flags;
 
@@ -5759,6 +5805,8 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
    + а про ListBox забыли?*/
 void Dialog::AdjustEditPos(int dx, int dy)
 {
+  CriticalSectionLock Lock(CS);
+
   struct DialogItem *CurItem;
   int I;
   int x1,x2,y1,y2;
@@ -5828,6 +5876,8 @@ void Dialog::Process()
 
 void Dialog::CloseDialog()
 {
+  CriticalSectionLock Lock(CS);
+
   GetDialogObjectsData();
   if (DlgProc ((HANDLE)this,DM_CLOSE,ExitCode,0))
   {
@@ -5850,6 +5900,8 @@ void Dialog::CloseDialog()
 
 void Dialog::SetHelp (const char *Topic)
 {
+  CriticalSectionLock Lock(CS);
+
   if (HelpTopic)
     delete[] HelpTopic;
   HelpTopic=NULL;
@@ -5864,6 +5916,8 @@ void Dialog::SetHelp (const char *Topic)
 
 void Dialog::ShowHelp()
 {
+  CriticalSectionLock Lock(CS);
+
   if (HelpTopic && *HelpTopic)
   {
     Help Hlp (HelpTopic);
@@ -5872,12 +5926,16 @@ void Dialog::ShowHelp()
 
 void Dialog::ClearDone()
 {
+  CriticalSectionLock Lock(CS);
+
   ExitCode=-1;
   DialogMode.Clear(DMODE_ENDLOOP);
 }
 
 void Dialog::SetExitCode(int Code)
 {
+  CriticalSectionLock Lock(CS);
+
   ExitCode=Code;
   DialogMode.Set(DMODE_ENDLOOP);
   //CloseDialog();
@@ -5891,6 +5949,8 @@ void Dialog::SetExitCode(int Code)
 
 int Dialog::GetTypeAndName (char *Type, char *Name)
 {
+  CriticalSectionLock Lock(CS);
+
   strcpy (Type, MSG(MDialogType));
   strcpy (Name, GetDialogTitle());
   return MODALTYPE_DIALOG;
@@ -5966,6 +6026,9 @@ void Dialog::ResizeConsole()
 long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
+
+  CriticalSectionLock Lock(Dlg->CS);
+
   struct DialogItem *CurItem=NULL;
   char *Ptr=NULL;
   int Type=0;
@@ -6081,6 +6144,13 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 }
 /* SVS $ */
 
+int Dialog::CallDlgProc (int nMsg, int nParam1, int nParam2)
+{
+	CriticalSectionLock Lock (CS);
+
+	return Dialog::DlgProc ((HANDLE)this, nMsg, nParam1, nParam2);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 /* $ 28.07.2000 SVS
@@ -6095,6 +6165,8 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
+
+  CriticalSectionLock Lock (Dlg->CS);
 
   int I;
 
@@ -6466,14 +6538,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /*****************************************************************/
     case DN_RESIZECONSOLE:
     {
-      return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+      return Dlg->CallDlgProc(Msg,Param1,Param2);
     }
   }
 
   /*****************************************************************/
   if(Msg >= DM_USER)
   {
-    return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+    return Dlg->CallDlgProc(Msg,Param1,Param2);
   }
 
   /*****************************************************************/
@@ -6720,7 +6792,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               int CurListPos=ListBox->GetSelectPos();
               Ret=ListBox->SetSelectPos((struct FarListPos *)Param2);
               if(Ret!=CurListPos)
-                if(!Dlg->DlgProc(hDlg,DN_LISTCHANGE,Param1,Ret))
+                if(!Dlg->CallDlgProc(DN_LISTCHANGE,Param1,Ret))
                   Ret=ListBox->SetSelectPos(CurListPos,1);
               /* KM $ */
               break; // т.к. нужно перерисовать!
@@ -6929,14 +7001,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /*****************************************************************/
     case DN_LISTCHANGE:
     {
-      return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+      return Dlg->CallDlgProc(Msg,Param1,Param2);
     }
 
     /*****************************************************************/
     case DN_EDITCHANGE:
     {
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
-      if((I=Dlg->DlgProc(hDlg,DN_EDITCHANGE,Param1,(long)&PluginDialogItem)) == TRUE)
+      if((I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,(long)&PluginDialogItem)) == TRUE)
       {
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
         if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
@@ -6948,7 +7020,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /*****************************************************************/
     case DN_BTNCLICK:
     {
-      int Ret=Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+      int Ret=Dlg->CallDlgProc(Msg,Param1,Param2);
       if(Ret && (CurItem->Flags&DIF_AUTOMATION) && CurItem->AutoCount && CurItem->AutoPtr)
       {
         DialogItemAutomation* Auto=CurItem->AutoPtr;
@@ -7043,7 +7115,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       // преобразуем данные для!
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
-      I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
+      I=Dlg->CallDlgProc(Msg,Param1,(long)&PluginDialogItem);
       Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
       if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
         CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
@@ -7622,15 +7694,17 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.
-  return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+  return Dlg->CallDlgProc(Msg,Param1,Param2);
 }
 /* SVS $ */
 
 void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 {
-    RealWidth = X2-X1-2;
-    RealHeight = Y2-Y1-2;
+  CriticalSectionLock Lock(CS);
 
-    ScreenObject::SetPosition (X1, Y1, X2, Y2);
+  RealWidth = X2-X1-2;
+  RealHeight = Y2-Y1-2;
+
+  ScreenObject::SetPosition (X1, Y1, X2, Y2);
 }
 //////////////////////////////////////////////////////////////////////////
