@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.45 26.04.2001 $ */
+/* Revision: 1.45 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 IS
+    - Не работали "ссылки на папки" после 606.
   26.04.2001 VVM
     + Обработка KEY_MSWHEEL_XXXX
   26.04.2001 DJ
@@ -1755,13 +1757,21 @@ BOOL FileList::ChangeDir(char *NewDir)
     Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), MSG (MOk));
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }
-  else {
+  /* $ 28.04.2001 IS
+       Закомментарим "до лучших времен".
+       Я не знаю, почему глюк проявлялся только у меня, но зато знаю, почему он
+       был просто-таки обязан проявится. Желающие могут немного RTFM. Тема для
+       изучения: chdir, setdisk, SetCurrentDirectory и переменные окружения
+
+  */
+  /*else {
     if (isalpha(SetDir[0]) && SetDir[1]==':')
     {
       int CurDisk=toupper(SetDir[0])-'A';
       setdisk(CurDisk);
     }
-  }
+  }*/
+  /* IS $ */
   GetCurrentDirectory(sizeof(CurDir),CurDir);
 
   Update(UpdateFlags);
