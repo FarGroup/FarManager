@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.71 23.03.2002 $ */
+/* Revision: 1.72 23.03.2002 $ */
 
 /*
 Modify:
+  23.03.2002 VVM
+    ! Уберем дырку по совету DJ. bug#390
   23.03.2002 IS
     + При копировании только элемента под курсором берем его имя в кавычки,
       если оно содержит разделители.
@@ -1234,8 +1236,11 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         return COPY_FAILURE;
       }
       CopyStartTime = clock();
-      int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-      TotalCopySize-=SubSize;
+      /* $ 23.03.2002 VVM
+        ! Уберем это, т.к. состояние SrcData неизвестно */
+//      int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+//      TotalCopySize-=SubSize;
+      /* VVM $ */
       continue;
     }
     FindClose(FindHandle);
