@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.20 06.05.2001 $ */
+/* Revision: 1.21 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    ! оптимизация
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -101,7 +103,7 @@ void HighlightFiles::InitHighlightFiles()
     itoa(HiDataCount,Ptr,10);
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
-    struct HighlightData *NewHiData,*CurHiData;
+    struct HighlightData *NewHiData;
     struct HighlightData HData={0};
     if(AddMask(&HData,Mask))
     {
@@ -141,6 +143,10 @@ char *HighlightFiles::GetMask(int Idx)
   return ((HData->OriginalMasks)?HData->OriginalMasks:HData->Masks);
 }
 
+/* $ 01.05.2001 DJ
+   оптимизированный формат хранения в Masks
+*/
+
 BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src)
 {
   char *Ptr, *OPtr;
@@ -158,13 +164,8 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct Highli
     Add_PATHEXT(Mask); // добавляем то, чего нету.
     // в GroupStr находится рабочая маска
   }
-  else
-  {
-    free(OPtr); // "съэкономи пару байт"
-    OPtr=NULL;
-  }
   // память под рабочую маску
-  if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+1)) == NULL)
+  if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+2)) == NULL)
   {
     if(OPtr) free(OPtr);
     return FALSE;
@@ -174,10 +175,13 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct Highli
     memmove(Dest,Src,sizeof(struct HighlightData));
 
   // корректирем ссылки на маски.
-  strcpy((Dest->Masks=Ptr),Mask);
+  Dest->Masks = Ptr;
+  CopyMaskStr (Dest->Masks, Mask);
   Dest->OriginalMasks=OPtr;
   return TRUE;
 }
+
+/* DJ $ */
 
 void HighlightFiles::DeleteMask(struct HighlightData *CurHighlightData)
 {
@@ -205,6 +209,10 @@ void HighlightFiles::ClearData()
   HiDataCount=0;
 }
 
+/* $ 01.05.2001 DJ
+   оптимизированный формат хранения Masks
+*/
+
 void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
      unsigned char &SelColor,unsigned char &CursorColor,
      unsigned char &CursorSelColor,unsigned char &MarkChar)
@@ -216,13 +224,13 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
         (Attr & CurHiData->ExcludeAttr)==0)
     {
-      char ArgName[NM], *NamePtr=CurHiData->Masks; // ЗДЕСЬ МАСКА РАБОЧАЯ!!!
-      while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
-        if (Path==NULL && (strcmp(ArgName,"*")==0 || strcmp(ArgName,"*.*")==0) ||
-            Path!=NULL && CmpName(ArgName,Path))
+       // ЗДЕСЬ МАСКА РАБОЧАЯ!!!
+      for (char *NamePtr=CurHiData->Masks; *NamePtr; NamePtr += strlen (NamePtr)+1)
+        if (Path==NULL && (strcmp(NamePtr,"*")==0 || strcmp(NamePtr,"*.*")==0) ||
+            Path!=NULL && CmpName(NamePtr,Path))
         {
           if (Path!=NULL && Path[0]=='.' && Path[1]=='.' && Path[2]==0 &&
-              strcmp(ArgName,"..")!=0)
+              strcmp(NamePtr,"..")!=0)
             continue;
           Color=CurHiData->Color;
           SelColor=CurHiData->SelColor;
@@ -234,6 +242,8 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     }
   }
 }
+
+/* DJ $ */
 
 
 void HighlightFiles::HiEdit(int MenuPos)

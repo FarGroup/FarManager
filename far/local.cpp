@@ -5,10 +5,13 @@ local.cpp
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    ! LowerToUpper/UpperToLower более не static (для оптимизированных
+      inline-функций)
   06.05.2001 DJ
     ! перетрях #include
   28.12.2000 SVS
@@ -33,8 +36,8 @@ Modify:
 
 static int _cdecl LCSort(const void *el1,const void *el2);
 
-static unsigned char LowerToUpper[256];
-static unsigned char UpperToLower[256];
+unsigned char LowerToUpper[256];
+unsigned char UpperToLower[256];
 static unsigned char LCOrder[256];
 static unsigned char KeyToKey[256];
 

@@ -5,10 +5,14 @@ strmix.cpp
 
 */
 
-/* Revision: 1.11 06.05.2001 $ */
+/* Revision: 1.12 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    * оптимизированная ветка CmpName() работает и для имен с несколькими
+      точками
+    + CopyMaskStr()
   06.05.2001 DJ
     ! перетрях #include
   22.04.2001 SVS
@@ -110,8 +114,12 @@ int CmpName(char *pattern,char *string,int skippath)
 
   for (;; ++string)
   {
-    stringc=LocalUpper(*string);
-    patternc=LocalUpper(*pattern++);
+    /* $ 01.05.2001 DJ
+       используем инлайновые версии
+    */
+    stringc=LocalUpperFast(*string);
+    patternc=LocalUpperFast(*pattern++);
+    /* DJ $ */
     switch (patternc)
     {
       case 0:
@@ -125,20 +133,27 @@ int CmpName(char *pattern,char *string,int skippath)
         if (!*pattern)
           return(TRUE);
 
+        /* $ 01.05.2001 DJ
+           оптимизированная ветка работает и для имен с несколькими
+           точками
+        */
         if (*pattern=='.')
         {
           if (pattern[1]=='*' && pattern[2]==0 && depth==0)
             return(TRUE);
-          char *dot=strchr(string,'.');
-          if (pattern[1]==0)
-            return (dot==NULL || dot[1]==0);
-          if (dot!=NULL)
+          if (strpbrk (pattern, "*?[") == NULL)
           {
-            string=dot;
-            if (strpbrk(pattern,"*?[")==NULL && strchr(string+1,'.')==NULL)
-              return(LocalStricmp(pattern+1,string+1)==0);
+            char *dot = strrchr (string, '.');
+            if (pattern[1] == 0)
+              return (dot==NULL || dot[1]==0);
+            char *patdot = strchr (pattern+1, '.');
+            if (patdot != NULL && dot == NULL)
+              return(FALSE);
+            if (patdot == NULL && dot != NULL)
+              return(LocalStricmp (pattern+1,dot+1) == 0);
           }
         }
+        /* DJ $ */
 
         while (*string)
         {
@@ -662,4 +677,33 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     }
   }
   return DestStr;
+}
+
+/* $ 01.05.2001 DJ
+   копирование списка масок, разделенного запятыми, в список, разделенный
+   NULL (для sort groups и file highlighting)
+*/
+
+void CopyMaskStr (char *PDest, const char *PSrc)
+{
+  BOOL SkipBrackets=FALSE;
+
+  while (*PSrc)
+  {
+    if (*PSrc == '[' && strchr (PSrc+1, ']') != NULL)
+      SkipBrackets = TRUE;
+    if (*PSrc == ']')
+      SkipBrackets = FALSE;
+    if (*PSrc == ',' && !SkipBrackets)
+    {
+      *PDest++ = '\0';
+      PSrc++;
+      while (isspace (*PSrc))
+        PSrc++;
+    }
+    else
+      *PDest++ = *PSrc++;
+  }
+  *PDest = '\0';
+  *(PDest+1) = '\0';
 }

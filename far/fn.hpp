@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.78 06.05.2001 $ */
+/* Revision: 1.79 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+   + LocalUpperFast(), LocalLowerFast(), CopyMaskStr()
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -775,6 +777,29 @@ void qsortex(char *base, unsigned int nel, unsigned int width,
 }
 #endif
 
+
+/* $ 01.05.2001 DJ
+   inline-функции для быстрой конвертации
+*/
+
+inline char LocalUpperFast (char c)
+{
+  extern unsigned char LowerToUpper[256];  // in local.cpp
+  return LowerToUpper [c];
+}
+
+inline char LocalLowerFast (char c)
+{
+  extern unsigned char UpperToLower[256];  // in local.cpp
+  return UpperToLower [c];
+}
+
+// копирование списка масок, разделенного запятыми, в список, разделенный
+// NULL (для sort groups и file highlighting)
+
+void CopyMaskStr (char *PDest, const char *PSrc);
+
+/* DJ $ */
 
 int xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin

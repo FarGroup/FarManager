@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.10 06.05.2001 $ */
+/* Revision: 1.11 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 DJ
+    ! оптимизация
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -68,7 +70,7 @@ static char SortGroupsKeyName[]="SortGroups";
 GroupSort::GroupSort()
 {
   int I, J;
-  char GroupName[80],GroupStr[GROUPSORT_MASK_SIZE], *Ptr, *OPtr;
+  char GroupName[80],GroupStr[GROUPSORT_MASK_SIZE];
   static char *GroupFMT[2]={fmtUpperGroup,fmtLowerGroup};
   int  GroupDelta[2]={0,DEFAULT_SORT_GROUP+1};
 
@@ -110,6 +112,9 @@ GroupSort::~GroupSort()
   }
 }
 
+/* $ 01.05.2001 DJ
+   оптимизированный формат хранения в Masks
+*/
 BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
 {
   char *Ptr, *OPtr;
@@ -127,23 +132,20 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
     Add_PATHEXT(Mask); // добавляем то, чего нету.
     // в GroupStr находится рабочая маска
   }
-  else
-  {
-    free(OPtr); // "съэкономи пару байт"
-    OPtr=NULL;
-  }
   // память под рабочую маску
-  if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+1)) == NULL)
+  if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+2)) == NULL)
   {
     if(OPtr) free(OPtr);
     return FALSE;
   }
 
-  strcpy((Dest->Masks=Ptr),Mask);
+  Dest->Masks = Ptr;
+  CopyMaskStr (Dest->Masks, Mask);
   Dest->OriginalMasks=OPtr;
   Dest->Group=Group;
   return TRUE;
 }
+/* DJ $ */
 
 void GroupSort::DeleteMask(struct GroupSortData *CurGroupData)
 {
@@ -165,18 +167,25 @@ char *GroupSort::GetMask(int Idx)
   return ((GData->OriginalMasks)?GData->OriginalMasks:GData->Masks);
 }
 
+/* $ 01.05.2001 DJ
+   оптимизированный формат хранения в Masks
+*/
 int GroupSort::GetGroup(char *Path)
 {
   for (int I=0;I<GroupCount;I++)
   {
     struct GroupSortData *CurGroupData=&GroupData[I];
-    char ArgName[NM],*NamePtr=CurGroupData->Masks;
-    while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
-      if (CmpName(ArgName,Path))
+    char *NamePtr = CurGroupData->Masks;
+    while (*NamePtr)
+    {
+      if (CmpName(NamePtr,Path))
         return(CurGroupData->Group);
+      NamePtr += strlen (NamePtr)+1;
+    }
   }
   return(DEFAULT_SORT_GROUP);
 }
+/* DJ $ */
 
 void GroupSort::EditGroups()
 {
@@ -220,7 +229,7 @@ void GroupSort::EditGroups()
 int GroupSort::EditGroupsMenu(int Pos)
 {
   struct GroupSortData NewGroup;
-  char NewMasks[GROUPSORT_MASK_SIZE], *Ptr;
+  char NewMasks[GROUPSORT_MASK_SIZE];
   char *HelpSortGroups="SortGroups";
   struct MenuItem ListItem;
   struct MenuItem ListItem2;
