@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.81 18.01.2002 $ */
+/* Revision: 1.82 19.01.2002 $ */
 
 /*
 Modify:
+  19.01.2002 VVM
+    ! ѕри удалении последнего диска из меню остаемс€ на предыдущем диске
   18.01.2002 VVM
     ! »збавимс€ от setdisk() - используем FarChDir
   14.01.2002 IS
@@ -644,7 +646,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
               if (ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData)))
-                return SelPos;
+              /* $ 19.01.2002 VVM
+                + ≈сли диск был последним - в конце и останемс€ */
+                return (((DiskCount-SelPos)==1) && (SelPos > 0))?SelPos-1:SelPos;
+              /* VVM $ */
             }
             /* DJ $ */
           }
