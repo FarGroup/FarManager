@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.09 18.09.2000 $ */
+/* Revision: 1.10 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    + Если у плагина есть префикс, то Ctrl-[ и еже с ним
+      подставят первый префикс.
   18.09.2000 SVS
     + При вызове редактора по Shift-F4 можно употреблять
       переменные среды.
@@ -612,9 +615,26 @@ int FileList::ProcessKey(int Key)
         }
         else
         {
+          /* $ 20.09.2000 SVS
+             + Если у плагина есть префикс, то Ctrl-[ и еже с ним
+             подставят первый префикс.
+          */
+          PanelDir[0]=0;
+          if(Opt.SubstPluginPrefix)
+          {
+            struct PluginInfo PInfo;
+            CtrlObject->Plugins.GetPluginInfo(((struct PluginHandle *)SrcFilePanel->hPlugin)->PluginNumber,&PInfo);
+            if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
+            {
+              strcpy(PanelDir,PInfo.CommandPrefix);
+              char *Ptr=strchr(PanelDir,':');
+              if(Ptr) *++Ptr=0; else strcat(PanelDir,":");
+            }
+          }
           struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->hPlugin,&Info);
-          strcpy(PanelDir,NullToEmpty(Info.CurDir));
+          strcat(PanelDir,NullToEmpty(Info.CurDir));
+          /* SVS $ */
         }
         QuoteSpace(PanelDir);
         CtrlObject->CmdLine.InsertString(PanelDir);

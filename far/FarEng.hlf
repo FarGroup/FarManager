@@ -1026,6 +1026,10 @@ $ #System settings dialog#
                           registered to process this file type
                           will be executed.
 
+  #Add prefixs of plugins#  If checked, FAR automatically will add
+  #before path#             a prefix of a plugin before an inserted
+                          path in a ~command line~@CmdLineCmd@.
+
   #Auto save setup#         If checked, FAR will save setup
                           automatically. Both panel current folders
                           will be saved also.

@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.17 19.09.2000 $ */
+/* Revision: 1.18 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+   + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
+     для Ctrl-[ и ему подобные
   19.09.2000 SVS
    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   12.09.2000 SVS
@@ -307,6 +310,12 @@ struct Options
    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   */
   int PanelCtrlAltShiftRule;
+  /* SVS $*/
+  /* $ 20.09.2000 SVS
+   + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
+     для Ctrl-[ и ему подобные
+  */
+  int SubstPluginPrefix;
   /* SVS $*/
 };
 

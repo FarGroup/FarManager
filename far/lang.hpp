@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.17 15.09.2000 $ */
+/* Revision: 1.18 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    + MConfigSubstPluginPrefix
   15.09.2000 IS
     + MDistributionTableWasNotFound, MAutoDetectWillNotWork
   13.09.2000 tran 1.16
@@ -204,6 +206,7 @@ enum
   MConfigSaveFoldersHistory,
   MConfigSaveViewHistory,
   MConfigRegisteredTypes,
+  MConfigSubstPluginPrefix,
   MConfigAutoSave,
   MConfigPersonalPath,
 

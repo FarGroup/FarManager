@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.22 19.09.2000 $ */
+/* Revision: 1.23 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
+      для Ctrl-[ и ему подобные
   19.09.2000 SVS
     + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   15.09.2000 IS
@@ -97,7 +100,7 @@ void SystemSettings()
      + Добавка в виде задания дополнительного пути для поиска плагинов
   */
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigSystemTitle,
+  /*  0 */  DI_DOUBLEBOX,3,1,52,19,0,0,0,0,(char *)MConfigSystemTitle,
   /*  1 */  DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigRO,
   /*  2 */  DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigRecycleBin,
   /*  3 */  DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
@@ -110,14 +113,15 @@ void SystemSettings()
   /* 10 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
   /* 11 */  DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
   /* 12 */  DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
-  /* 13 */  DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAutoSave,
+  /* 13 */  DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigSubstPluginPrefix,
+  /* 14 */  DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigAutoSave,
 
-  /* 14 */  DI_TEXT,5,14,0,0,0,0,0,0,(char *)MConfigPersonalPath,
-  /* 15 */  DI_EDIT,5,15,50,15,0,0,0,0,"",
+  /* 15 */  DI_TEXT,5,15,0,0,0,0,0,0,(char *)MConfigPersonalPath,
+  /* 16 */  DI_EDIT,5,16,50,15,0,0,0,0,"",
 
-  /* 16 */  DI_TEXT,5,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 17 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 18 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 17 */  DI_TEXT,5,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 18 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 19 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -133,15 +137,16 @@ void SystemSettings()
   CfgDlg[10].Selected=Opt.SaveFoldersHistory;
   CfgDlg[11].Selected=Opt.SaveViewHistory;
   CfgDlg[12].Selected=Opt.UseRegisteredTypes;
-  CfgDlg[13].Selected=Opt.AutoSaveSetup;
-  strcpy(CfgDlg[15].Data,Opt.PersonalPluginsPath);
+  CfgDlg[13].Selected=Opt.SubstPluginPrefix;
+  CfgDlg[14].Selected=Opt.AutoSaveSetup;
+  strcpy(CfgDlg[16].Data,Opt.PersonalPluginsPath);
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
-    Dlg.SetPosition(-1,-1,56,20);
+    Dlg.SetPosition(-1,-1,56,21);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=17)
+    if (Dlg.GetExitCode()!=18)
       return;
   }
 
@@ -157,8 +162,9 @@ void SystemSettings()
   Opt.SaveFoldersHistory=CfgDlg[10].Selected;
   Opt.SaveViewHistory=CfgDlg[11].Selected;
   Opt.UseRegisteredTypes=CfgDlg[12].Selected;
-  Opt.AutoSaveSetup=CfgDlg[13].Selected;
-  strncpy(Opt.PersonalPluginsPath,CfgDlg[15].Data,sizeof(Opt.PersonalPluginsPath));
+  Opt.SubstPluginPrefix=CfgDlg[13].Selected;
+  Opt.AutoSaveSetup=CfgDlg[14].Selected;
+  strncpy(Opt.PersonalPluginsPath,CfgDlg[16].Data,sizeof(Opt.PersonalPluginsPath));
   /* SVS $ */
 }
 
@@ -737,6 +743,7 @@ void ReadConfig()
   GetRegKey("System","DriveMenuMode",Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS);
   GetRegKey("System","FileSearchMode",Opt.FileSearchMode,SEARCH_ROOT);
   GetRegKey("System","FolderInfo",Opt.FolderInfoFiles,"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*",sizeof(Opt.FolderInfoFiles));
+  GetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix,0);
 
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
   GetRegKey("Language","Help",Opt.HelpLanguage,"English",sizeof(Opt.HelpLanguage));
@@ -930,6 +937,7 @@ void SaveConfig(int Ask)
   SetRegKey("System","DriveMenuMode",Opt.ChangeDriveMode);
   SetRegKey("System","FileSearchMode",Opt.FileSearchMode);
   SetRegKey("System","FolderInfo",Opt.FolderInfoFiles);
+  SetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix);
 
   SetRegKey("Language","Main",Opt.Language);
   SetRegKey("Language","Help",Opt.HelpLanguage);
