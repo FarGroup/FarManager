@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.56 21.06.2002 $ */
+/* Revision: 1.57 27.06.2002 $ */
 
 /*
 Modify:
+  27.06.2002 SVS
+    - Падение в масдае при старте ФАРа - нефига автодект TTF-шрифта
+      в этой гребанной оси вызывать
   21.06.2002 SVS
     + автодетект TTF-шрифта
     ! /w  - отключена (может потом пригодится)
@@ -497,7 +500,10 @@ int _cdecl main(int Argc, char *Argv[])
   SetFileApisToOEM();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
 #if defined(USE_WFUNC)
-  DetectTTFFont(FarPath);
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    DetectTTFFont(FarPath);
+  else
+    Opt.UseTTFFont=0;
 #endif
   /* $ 02.07.2001 IS
      Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое

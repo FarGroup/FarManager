@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.163 25.06.2002 $ */
+/* Revision: 1.164 27.06.2002 $ */
 
 /*
 Modify:
+  27.06.2002 SVS
+    - Падение ФАРа (у Мамаева, Home в панели FarFTP) из-за того, что CurFile
+      мог принимать весьма интересные значения, далекие от правды (от
+      диапазона возможных значений 0..FileCount-1)
   25.06.2002 SVS
     - BugZ#565 - исчезает окно ввода пароля на фтп если мышой
       Сбросим буфер иначе бардак с очередью сообщений!
@@ -621,6 +625,8 @@ void FileList::DeleteAllDataToDelete()
 void FileList::Up(int Count)
 {
   CurFile-=Count;
+  if(CurFile < 0)
+    CurFile=0;
   ShowFileList(TRUE);
 }
 
@@ -628,6 +634,8 @@ void FileList::Up(int Count)
 void FileList::Down(int Count)
 {
   CurFile+=Count;
+  if(CurFile >= FileCount)
+    CurFile=FileCount-1;
   ShowFileList(TRUE);
 }
 
@@ -1495,7 +1503,7 @@ int FileList::ProcessKey(int Key)
             {
               *Ptr=0;
               DWORD CheckFAttr=GetFileAttributes(FileName);
-              if(CheckFAttr == -1)
+              if(CheckFAttr == (DWORD)-1)
               {
                 SetMessageHelp("WarnEditorPath");
                 if (Message(MSG_WARNING,2,MSG(MWarning),
@@ -3012,6 +3020,7 @@ int FileList::GetSelName(char *Name,int &FileAttr,char *ShortName)
   }
 
   if (SelFileCount==0 || ReturnCurrentFile)
+  {
     if (GetSelPosition==0 && CurFile<FileCount)
     {
       GetSelPosition=1;
@@ -3028,6 +3037,7 @@ int FileList::GetSelName(char *Name,int &FileAttr,char *ShortName)
     }
     else
       return(FALSE);
+  }
 
   while (GetSelPosition<FileCount)
     if (ListData[GetSelPosition++].Selected)

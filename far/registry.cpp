@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.14 19.02.2002 $ */
+/* Revision: 1.15 27.06.2002 $ */
 
 /*
 Modify:
+  27.06.2002 SVS
+    ! Новый взгляд на EnumRegValue - сказано же ведь: только REG_SZ
   19.02.2002 SVS
     ! GetRegKey(), тот который получает BYTE-данные теперь корректно возвращает
       размер считанных данных.
@@ -532,20 +534,31 @@ int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
 int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE Data,DWORD DataSize)
 {
   HKEY hKey=OpenRegKey(Key);
+  int RetCode=FALSE;
+
   if(hKey)
   {
     char ValueName[512];
-    DWORD ValSize=sizeof(ValueName);
-    DWORD Type=REG_SZ;
-    int ExitCode=RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,Data,&DataSize);
-    CloseRegKey(hKey);
-    if (ExitCode==ERROR_SUCCESS)
+
+    while( TRUE )
     {
-      strncpy(DestName,ValueName,DestSize-1);
-      return TRUE;
+      DWORD ValSize=sizeof(ValueName);
+      DWORD Type=REG_SZ;
+
+      if (RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,Data,&DataSize) != ERROR_SUCCESS)
+        break;
+
+      if(Type == REG_SZ)
+      {
+        strncpy(DestName,ValueName,DestSize-1);
+        RetCode=TRUE;
+        break;
+      }
     }
+
+    CloseRegKey(hKey);
   }
-  return(FALSE);
+  return RetCode;
 }
 
 

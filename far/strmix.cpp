@@ -5,10 +5,15 @@ strmix.cpp
 
 */
 
-/* Revision: 1.40 18.05.2002 $ */
+/* Revision: 1.41 27.06.2002 $ */
 
 /*
 Modify:
+  27.06.2002 SVS
+    - В ReplaceStrings (с наводки все того же Мамаева) цикл
+      while(I <= strlen(Str)-LenFindStr) получался бесконечным, т.к. в
+      некоторых случаях результат "strlen(Str)-LenFindStr" воспринималась
+      AS unsigned ;-((
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   25.04.2002 IS
@@ -500,7 +505,7 @@ char* WINAPI TruncPathStr(char *Str,int MaxLength)
 char* WINAPI RemoveLeadingSpaces(char *Str)
 {
   char *ChPtr;
-  if(!(ChPtr=Str))
+  if((ChPtr=Str) == 0)
     return NULL;
 
   for (; IsSpace(*ChPtr); ChPtr++)
@@ -880,8 +885,9 @@ int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count)
   int I=0, J=0;
   int LenReplStr=strlen(ReplStr);
   int LenFindStr=strlen(FindStr);
+  int L=strlen(Str);
 
-  while(I <= strlen(Str)-LenFindStr)
+  while(I <= L-LenFindStr)
   {
     if(memcmp(Str+I, FindStr, LenFindStr) == 0)
     {
@@ -896,6 +902,7 @@ int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count)
     }
     else
       I++;
+    L=strlen(Str);
   }
   return J;
 }
