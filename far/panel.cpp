@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.62 01.10.2001 $ */
+/* Revision: 1.63 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 IS
+    + перерисуем строчку меню при показе панели
   01.10.2001 IS
     - косметические дефекты при усечении длинных строк
   27.09.2001 IS
@@ -1297,6 +1299,10 @@ void Panel::Show()
     }
   }
   ScreenObject::Show();
+  /* $ 03.10.2001 IS перерисуем строчку меню */
+    if (Opt.ShowMenuBar)
+      CtrlObject->TopMenuBar->Show();
+  /* IS $ */
   ShowScreensCount();
 }
 
