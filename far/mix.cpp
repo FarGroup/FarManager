@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.52 05.01.2001 $ */
+/* Revision: 1.53 21.01.2001 $ */
 
 /*
 Modify:
+  21.01.2001 SVS
+    ! ”ã­ªæ¨ï GetString - ¯¥à¥¥å «  ¢ stddlg.cpp
   05.01.2001 SVS
     ! ”ã­ªæ¨ï GetSubstName - ¯¥à¥¥å «  ¢ flink.cpp
     ! ”ã­ªæ¨¨ InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
@@ -857,107 +859,6 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
     FarFreeDirList(PanelItem);
   return(ExitCode);
 }
-
-
-/* $ 25.08.2000 SVS
-   ! ”ã­ªæ¨ï GetString ¬®¦¥â ¯à¨ á®®â¢¥âá¢ãîé¥¬ ä« £¥ (FIB_BUTTONS) ®â®¡à ¦ âì
-     á¥¯ à â®à ¨ ª­®¯ª¨ <Ok> & <Cancel>
-*/
-/* $ 01.08.2000 SVS
-  ! ”ã­ªæ¨ï ¢¢®¤  áâà®ª¨ GetString ¨¬¥¥â ®¤¨­ ¯ à ¬¥âà ¤«ï ¢á¥å ä« £®¢
-*/
-/* $ 31.07.2000 SVS
-   ! ”ã­ªæ¨ï GetString ¨¬¥¥â ¥é¥ ®¤¨­ ¯ à ¬¥âà - à áè¨àïâì «¨ ¯¥à¥¬¥­­ë¥ áà¥¤ë!
-*/
-int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
-    char *DestText,int DestLength,char *HelpTopic,DWORD Flags)
-{
-  int Substract=3; // ¤®¯®«­¨â¥«ì­ ï ¢¥«¨ç¨­  :-)
-  int ExitCode;
-/*
-  0         1         2         3         4         5         6         7
-  0123456789012345678901234567890123456789012345678901234567890123456789012345
-º0                                                                             º
-º1   ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ Title ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»   º
-º2   º Prompt                                                              º   º
-º3   º ÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛÛº   º
-º4   ÇÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¶   º
-º5   º                         [ Ok ]   [ Cancel ]                         º   º
-º6   ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼   º
-º7                                                                             º
-*/
-  static struct DialogData StrDlgData[]=
-  {
-/*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
-                                      Selected               Data
-*/
-/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,"",
-/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,"",
-/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,"",
-/* 4 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"",
-/* 5 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
-  };
-  MakeDialogItems(StrDlgData,StrDlg);
-
-  if(Flags&FIB_BUTTONS)
-  {
-    Substract=0;
-    StrDlg[0].Y2+=2;
-    StrDlg[2].DefaultButton=0;
-    StrDlg[4].DefaultButton=1;
-    strcpy(StrDlg[4].Data,FarMSG(MOk));
-    strcpy(StrDlg[5].Data,FarMSG(MCancel));
-  }
-
-  if(Flags&FIB_EXPANDENV)
-  {
-    StrDlg[2].Flags|=DIF_EDITEXPAND;
-  }
-
-  if (HistoryName!=NULL)
-  {
-    StrDlg[2].Selected=(int)HistoryName;
-    /* $ 09.08.2000 SVS
-       ä« £ ¤«ï ¨á¯®«ì§®¢ ­¨¨ ¯à¥¤ §­ ç¥­¨ï ¨§ ¨áâ®à¨¨ § ¤ ¥âáï ®â¤¥«ì­®!!!
-    */
-    StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
-    /* SVS $ */
-  }
-
-  if (Flags&FIB_PASSWORD)
-    StrDlg[2].Type=DI_PSWEDIT;
-
-  if(Title)
-    strcpy(StrDlg[0].Data,Title);
-  if(Prompt)
-    strcpy(StrDlg[1].Data,Prompt);
-  if(SrcText)
-    strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
-  StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
-
-  Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract);
-  Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
-
-  if (HelpTopic!=NULL)
-    Dlg.SetHelp(HelpTopic);
-
-  Dlg.Process();
-  ExitCode=Dlg.GetExitCode();
-
-  if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
-  {
-    if(!(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
-      return(FALSE);
-    strncpy(DestText,StrDlg[2].Data,DestLength-1);
-    DestText[DestLength-1]=0;
-    return(TRUE);
-  }
-  return(FALSE);
-}
-/* SVS $*/
-/* 01.08.2000 SVS $*/
-/* 25.08.2000 SVS $*/
 
 
 /* $ 07.09.2000 SVS

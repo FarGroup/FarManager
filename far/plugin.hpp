@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.79 21.01.2001 $ */
+/* Revision: 1.80 21.01.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.01.2001 SVS
+    + struct SequenceKey
+    + ACTL_PROCESSSEQUENCEKEY
   21.01.2001 IS
     ! Для однообразия с редактором изменил пару названий:
       VCTL_SETPOS -> VCTL_SETPOSITION
@@ -731,6 +734,12 @@ enum FarHelpFlags{
 
 typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
 
+struct SequenceKey{
+  DWORD Flags;
+  int Count;
+  int *Sequence;
+};
+
 enum {
   ACTL_GETFARVERSION,
   ACTL_CONSOLEMODE,
@@ -740,6 +749,7 @@ enum {
   ACTL_GETARRAYCOLOR,
   ACTL_EJECTMEDIA,
   ACTL_KEYMACRO,
+  ACTL_PROCESSSEQUENCEKEY,
 };
 
 #define CONSOLE_GET_MODE       (-2)

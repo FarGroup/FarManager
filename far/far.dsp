@@ -123,6 +123,10 @@ SOURCE=.\cmdline.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\stddlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\config.cpp
 # End Source File
 # Begin Source File

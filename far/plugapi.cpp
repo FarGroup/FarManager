@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.34 25.12.2000 $ */
+/* Revision: 1.35 21.01.2001 $ */
 
 /*
 Modify:
+  21.01.2001 SVS
+    + ACTL_PROCESSSEQUENCEKEY
   24.12.2000 SVS
     ! Отключаем "MCMD_PLAYSTRING"
     ! Уточнения MCMD_LOADALL и MCMD_SAVEALL - не работать во время записи
@@ -301,6 +303,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       }
       return FALSE;
     }
+
+    case ACTL_PROCESSSEQUENCEKEY:
+      return WriteSequenceInput((struct SequenceKey*)Param);
  }
  return FALSE;
 }

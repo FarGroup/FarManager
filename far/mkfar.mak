@@ -188,6 +188,7 @@ FAROBJ=\
    $(OBJPATH)\ctrlobj.obj\
    $(OBJPATH)\flmodes.obj\
    $(OBJPATH)\flshow.obj\
+   $(OBJPATH)\stddlg.obj\
    $(OBJPATH)\farrtl.obj\
    $(OBJPATH)\syslog.obj\
    $(OBJPATH)\fileattr.obj\

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.48 14.01.2001 $ */
+/* Revision: 1.49 20.01.2001 $ */
 
 /*
 Modify:
+  20.01.2001 SVS
+   + GetSearchReplaceString, WriteSequenceInput
+   ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
   14.01.2001 SVS
    + PrepareOSIfExist
   05.01.2001 SVS
@@ -181,7 +184,7 @@ void vmprintf(char *fmt,...);
 void WaitKey(int KeyWait=-1);
 /* SVS $ */
 int CopyKeyTree(char *Src,char *Dest,char *Skip);
-void WriteInput(int Key);
+int WriteInput(int Key);
 void ShowTime(int ShowAlways);
 int GetDateFormat();
 int GetDateSeparator();
@@ -653,5 +656,16 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
 int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength);
 
 char* WINAPI PrepareOSIfExist(char *CmdLine);
+
+int WINAPI GetSearchReplaceString(
+         int IsReplaceMode,
+         unsigned char *SearchStr,
+         unsigned char *ReplaceStr,
+         const char *TextHistoryName,
+         const char *ReplaceHistoryName,
+         int *Case,
+         int *WholeWords,
+         int *Reverse);
+int WriteSequenceInput(struct SequenceKey *Sequence);
 
 #endif  // __FARFUNC_HPP__

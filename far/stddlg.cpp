@@ -1,0 +1,312 @@
+/*
+stddlg.cpp
+
+Куча разных стандартных диалогов
+
+*/
+
+/* Revision: 1.00 21.01.2001 $ */
+
+/*
+Modify:
+  21.01.2001 SVS
+    ! Выделение в качестве самостоятельного модуля
+    + Функция GetString переехала из mix.cpp
+    + GetSearchReplaceString - преобразована из editor.cpp
+*/
+
+#include "headers.hpp"
+#pragma hdrstop
+#include "internalheaders.hpp"
+
+
+/*
+  Функция GetSearchReplaceString выводит диалог поиска или замены, принимает
+  от пользователя данные и в случае успешного выполнения диалога возвращает
+  TRUE.
+  Параметры:
+    IsReplaceMode
+      TRUE  - если хотим заменять
+      FALSE - если хотим искать
+
+    SearchStr
+      Указатель на строку поиска.
+      Результат отработки диалога заносится в нее же.
+
+    ReplaceStr,
+      Указатель на строку замены.
+      Результат отработки диалога заносится в нее же.
+      Для случая, если IsReplaceMode=FALSE может быть равна NULL
+
+    TextHistoryName
+      Имя истории строки поиска.
+      Если установлено в NULL, то по умолчанию
+      принимается значение "SearchText"
+      Если установлено в пустую строку, то история вестись не будет
+
+    ReplaceHistoryName
+      Имя истории строки замены.
+      Если установлено в NULL, то по умолчанию
+      принимается значение "ReplaceText"
+      Если установлено в пустую строку, то история вестись не будет
+
+    *Case
+      Указатель на переменную, указывающую на значение опции "Case sensitive"
+      Если = NULL, то принимается значение 0 (игнорировать регистр)
+
+    *WholeWords
+      Указатель на переменную, указывающую на значение опции "Whole words"
+      Если = NULL, то принимается значение 0 (в том числе в подстроке)
+
+    *Reverse
+      Указатель на переменную, указывающую на значение опции "Reverse search"
+      Если = NULL, то принимается значение 0 (прямой поиск)
+
+  Возвращаемое значение:
+    TRUE  - пользователь подтвердил свои намериния
+    FALSE - пользователь отказался от диалога (Esc)
+*/
+int WINAPI GetSearchReplaceString(
+         int IsReplaceMode,
+         unsigned char *SearchStr,
+         unsigned char *ReplaceStr,
+         const char *TextHistoryName,
+         const char *ReplaceHistoryName,
+         int *Case,
+         int *WholeWords,
+         int *Reverse)
+{
+  if(!SearchStr || (IsReplaceMode && !ReplaceStr))
+    return FALSE;
+  static const char *TextHistoryName0    ="SearchText",
+                    *ReplaceHistoryName0 ="ReplaceText";
+
+  if(!TextHistoryName)
+    TextHistoryName=TextHistoryName0;
+  if(!ReplaceHistoryName)
+    ReplaceHistoryName=ReplaceHistoryName0;
+
+  /* $ 03.08.2000 KM
+     Добавление checkbox'ов в диалоги для поиска целых слов
+  */
+  if (IsReplaceMode)
+  {
+/*
+  0         1         2         3         4         5         6         7
+  0123456789012345678901234567890123456789012345678901234567890123456789012345
+00
+01   ╔═════════════════════════════ Replace ══════════════════════════════╗
+02   ║ Search for                                                         ║
+03   ║                                                                   ║
+04   ║ Replace with                                                       ║
+05   ║                                                                   ║
+06   ╟────────────────────────────────────────────────────────────────────╢
+07   ║ [ ] Case sensitive                                                 ║
+08   ║ [ ] Whole words                                                    ║
+09   ║ [ ] Reverse search                                                 ║
+10   ╟────────────────────────────────────────────────────────────────────╢
+11   ║                      [ Replace ]  [ Cancel ]                       ║
+12   ╚════════════════════════════════════════════════════════════════════╝
+13
+*/
+    static struct DialogData ReplaceDlgData[]={
+    /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditReplaceTitle,
+    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
+    /*  2 */DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+    /*  3 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
+    /*  4 */DI_EDIT,5,5,70,3,0,(DWORD)ReplaceHistoryName,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,"",
+    /*  5 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
+    /*  7 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
+    /*  8 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditSearchReverse,
+    /*  9 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 10 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
+    /* 11 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    };
+    /* KM $ */
+    MakeDialogItems(ReplaceDlgData,ReplaceDlg);
+    if(!*TextHistoryName)
+    {
+      ReplaceDlg[2].History=0;
+      ReplaceDlg[2].Flags&=~DIF_HISTORY;
+    }
+    if(!*ReplaceHistoryName)
+    {
+      ReplaceDlg[4].History=0;
+      ReplaceDlg[4].Flags&=~DIF_HISTORY;
+    }
+
+    strncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data));
+    strncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data));
+    ReplaceDlg[6].Selected=Case?*Case:0;
+    ReplaceDlg[7].Selected=WholeWords?*WholeWords:0;
+    ReplaceDlg[8].Selected=Reverse?*Reverse:0;
+
+    Dialog Dlg(ReplaceDlg,sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]));
+    Dlg.SetPosition(-1,-1,76,14);
+    Dlg.Process();
+    if (Dlg.GetExitCode()!=10)
+      return FALSE;
+
+    strncpy((char *)SearchStr,ReplaceDlg[2].Data,sizeof(SearchStr));
+    strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,sizeof(ReplaceStr));
+    if(Case)       *Case=ReplaceDlg[6].Selected;
+    if(WholeWords) *WholeWords=ReplaceDlg[7].Selected;
+    if(Reverse)    *Reverse=ReplaceDlg[8].Selected;
+  }
+  else
+  {
+/*
+  0         1         2         3         4         5         6         7
+  0123456789012345678901234567890123456789012345678901234567890123456789012345
+00
+01   ╔══════════════════════════════ Search ══════════════════════════════╗
+02   ║ Search for                                                         ║
+03   ║                                                                   ║
+04   ╟────────────────────────────────────────────────────────────────────╢
+05   ║ [ ] Case sensitive                                                 ║
+06   ║ [ ] Whole words                                                    ║
+07   ║ [ ] Reverse search                                                 ║
+08   ╟────────────────────────────────────────────────────────────────────╢
+09   ║                       [ Search ]  [ Cancel ]                       ║
+10   ╚════════════════════════════════════════════════════════════════════╝
+*/
+    static struct DialogData SearchDlgData[]={
+    /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditSearchTitle,
+    /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
+    /*  2 */DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+    /*  3 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  4 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
+    /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
+    /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchReverse,
+    /*  7 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /*  8 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
+    /*  9 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    };
+    MakeDialogItems(SearchDlgData,SearchDlg);
+
+    if(!*TextHistoryName)
+    {
+      SearchDlg[2].History=0;
+      SearchDlg[2].Flags&=~DIF_HISTORY;
+    }
+
+    strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data));
+    SearchDlg[4].Selected=Case?*Case:0;
+    SearchDlg[5].Selected=WholeWords?*WholeWords:0;
+    SearchDlg[6].Selected=Reverse?*Reverse:0;
+
+    Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
+    Dlg.SetPosition(-1,-1,76,12);
+    Dlg.Process();
+    if (Dlg.GetExitCode()!=8)
+      return FALSE;
+
+    strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
+    if(ReplaceStr) *ReplaceStr=0;
+    if(Case)       *Case=SearchDlg[4].Selected;
+    if(WholeWords) *WholeWords=SearchDlg[5].Selected;
+    if(Reverse)    *Reverse=SearchDlg[6].Selected;
+  }
+  return TRUE;
+}
+
+/* $ 25.08.2000 SVS
+   ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
+     сепаратор и кнопки <Ok> & <Cancel>
+*/
+/* $ 01.08.2000 SVS
+  ! Функция ввода строки GetString имеет один параметр для всех флагов
+*/
+/* $ 31.07.2000 SVS
+   ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
+*/
+int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
+    char *DestText,int DestLength,char *HelpTopic,DWORD Flags)
+{
+  int Substract=3; // дополнительная величина :-)
+  int ExitCode;
+/*
+  0         1         2         3         4         5         6         7
+  0123456789012345678901234567890123456789012345678901234567890123456789012345
+║0                                                                             ║
+║1   ╔═══════════════════════════════ Title ═══════════════════════════════╗   ║
+║2   ║ Prompt                                                              ║   ║
+║3   ║ ███████████████████████████████████████████████████████████████████║   ║
+║4   ╟─────────────────────────────────────────────────────────────────────╢   ║
+║5   ║                         [ Ok ]   [ Cancel ]                         ║   ║
+║6   ╚═════════════════════════════════════════════════════════════════════╝   ║
+║7                                                                             ║
+*/
+  static struct DialogData StrDlgData[]=
+  {
+/*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
+                                      Selected               Data
+*/
+/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,"",
+/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,"",
+/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,"",
+/* 4 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"",
+/* 5 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+  };
+  MakeDialogItems(StrDlgData,StrDlg);
+
+  if(Flags&FIB_BUTTONS)
+  {
+    Substract=0;
+    StrDlg[0].Y2+=2;
+    StrDlg[2].DefaultButton=0;
+    StrDlg[4].DefaultButton=1;
+    strcpy(StrDlg[4].Data,FarMSG(MOk));
+    strcpy(StrDlg[5].Data,FarMSG(MCancel));
+  }
+
+  if(Flags&FIB_EXPANDENV)
+  {
+    StrDlg[2].Flags|=DIF_EDITEXPAND;
+  }
+
+  if (HistoryName!=NULL)
+  {
+    StrDlg[2].Selected=(int)HistoryName;
+    /* $ 09.08.2000 SVS
+       флаг для использовании пред значения из истории задается отдельно!!!
+    */
+    StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
+    /* SVS $ */
+  }
+
+  if (Flags&FIB_PASSWORD)
+    StrDlg[2].Type=DI_PSWEDIT;
+
+  if(Title)
+    strcpy(StrDlg[0].Data,Title);
+  if(Prompt)
+    strcpy(StrDlg[1].Data,Prompt);
+  if(SrcText)
+    strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
+  StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
+
+  Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract);
+  Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
+
+  if (HelpTopic!=NULL)
+    Dlg.SetHelp(HelpTopic);
+
+  Dlg.Process();
+  ExitCode=Dlg.GetExitCode();
+
+  if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
+  {
+    if(!(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
+      return(FALSE);
+    strncpy(DestText,StrDlg[2].Data,DestLength-1);
+    DestText[DestLength-1]=0;
+    return(TRUE);
+  }
+  return(FALSE);
+}
+/* SVS $*/
+/* 01.08.2000 SVS $*/
+/* 25.08.2000 SVS $*/

@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.06 17.01.2001 $ */
+/* Revision: 1.07 21.01.2001 $ */
 
 /*
 Modify:
+  21.01.2001 SVS
+    ! Уточнения в WriteInput!
+    ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
+    + WriteSequenceInput
   17.01.2001 SVS
     + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
       Alt-Буква для нелатинским буковок
@@ -555,10 +559,13 @@ void WaitKey(int KeyWait)
 /* SVS $ */
 
 
-void WriteInput(int Key)
+int WriteInput(int Key)
 {
   INPUT_RECORD rec;
   DWORD WriteCount;
+  int VirtKey,ControlState=0;
+  if(TranslateKeyToVK(Key,VirtKey,ControlState))
+    Key=VirtKey;
   rec.EventType=KEY_EVENT;
   rec.Event.KeyEvent.bKeyDown=1;
   rec.Event.KeyEvent.wRepeatCount=1;
@@ -566,8 +573,21 @@ void WriteInput(int Key)
   if (Key>255)
     Key=0;
   rec.Event.KeyEvent.uChar.UnicodeChar=rec.Event.KeyEvent.uChar.AsciiChar=Key;
-  rec.Event.KeyEvent.dwControlKeyState=0;
-  WriteConsoleInput(hConInp,&rec,1,&WriteCount);
+  rec.Event.KeyEvent.dwControlKeyState=ControlState;
+  return WriteConsoleInput(hConInp,&rec,1,&WriteCount);
+}
+
+int WriteSequenceInput(struct SequenceKey *Sequence)
+{
+  if(Sequence)
+  {
+    int I;
+    for(I=0; I < Sequence->Count; ++I)
+      if(!WriteInput(Sequence->Sequence[I]))
+        return FALSE;
+    return TRUE;
+  }
+  return FALSE;
 }
 
 
@@ -724,7 +744,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState)
 {
   int FKey  =Key&0x0000FFFF;
-  int FShift=Key&0xFF000000;
+  int FShift=Key&0x7F000000; // старший бит используется в других целях!
   int I;
 
   VirtKey=0;
