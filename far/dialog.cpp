@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.304 07.07.2004 $ */
+/* Revision: 1.305 26.07.2004 $ */
 
 /*
 Modify:
+  26.07.2004 KM
+    - Падение в FindInEditForAC, если второй параметр HidtoryName==NULL. Сделана проверка.
   07.07.2004 SVS
     ! Macro II
   06.07.2004 SVS
@@ -4914,6 +4916,13 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
 {
   char *Str;
   int I, LenFindStr=strlen(FindStr);
+
+  /* $ 26.07.2004 KM
+     Сделаем проверку на HistoryName==NULL, падает.
+  */
+  if (HistoryName==NULL)
+    return FALSE;
+  /* KM $ */
 
   if(!TypeFind)
   {
