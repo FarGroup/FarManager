@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.132 18.03.2002 $ */
+/* Revision: 1.133 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 IS
+    ! Убрано считывание Opt.LCIDSort (оно считывается непосредственно перед
+      использованием).
+    ! внедрение const
   18.03.2002 SVS
     ! Уточнения, в связи с введением Opt.Dialogs
     + Opt.Dialogs.SelectedType
@@ -415,29 +419,29 @@ static char WordDivForXlat0[257]=" \t!#$%^&*()+|=\\/@?";
 
 char PersonalPluginsPath[1024];
 char KeyNameConsoleDetachKey[64];
-char szCtrlShiftX[]="CtrlShiftX";
+const char szCtrlShiftX[]="CtrlShiftX";
 
 // KeyName
-char NKeyColors[]="Colors";
-char NKeyScreen[]="Screen";
-char NKeyInterface[]="Interface";
-char NKeyViewer[]="Viewer";
-char NKeyDialog[]="Dialog";
-char NKeyEditor[]="Editor";
-char NKeyXLat[]="XLat";
-char NKeySystem[]="System";
-char NKeySystemExecutor[]="System\\Executor";
-char NKeyHelp[]="Help";
-char NKeyLanguage[]="Language";
-char NKeyConfirmations[]="Confirmations";
-char NKeyPanel[]="Panel";
-char NKeyPanelLeft[]="Panel\\Left";
-char NKeyPanelRight[]="Panel\\Right";
-char NKeyPanelLayout[]="Panel\\Layout";
-char NKeyLayout[]="Layout";
-char NKeyDescriptions[]="Descriptions";
-char NKeyKeyMacros[]="KeyMacros";
-char NKeyPolicies[]="Policies";
+const char NKeyColors[]="Colors";
+const char NKeyScreen[]="Screen";
+const char NKeyInterface[]="Interface";
+const char NKeyViewer[]="Viewer";
+const char NKeyDialog[]="Dialog";
+const char NKeyEditor[]="Editor";
+const char NKeyXLat[]="XLat";
+const char NKeySystem[]="System";
+const char NKeySystemExecutor[]="System\\Executor";
+const char NKeyHelp[]="Help";
+const char NKeyLanguage[]="Language";
+const char NKeyConfirmations[]="Confirmations";
+const char NKeyPanel[]="Panel";
+const char NKeyPanelLeft[]="Panel\\Left";
+const char NKeyPanelRight[]="Panel\\Right";
+const char NKeyPanelLayout[]="Panel\\Layout";
+const char NKeyLayout[]="Layout";
+const char NKeyDescriptions[]="Descriptions";
+const char NKeyKeyMacros[]="KeyMacros";
+const char NKeyPolicies[]="Policies";
 
 void SystemSettings()
 {
@@ -1182,11 +1186,11 @@ void SetFolderInfoFiles()
 static struct FARConfig{
   int   IsSave;   // =1 - будет записываться в SaveConfig()
   DWORD ValType;  // REG_DWORD, REG_SZ, REG_BINARY
-  char *KeyName;  // Имя ключа
-  char *ValName;  // Имя параметра
+  const char *KeyName;  // Имя ключа
+  const char *ValName;  // Имя параметра
   void *ValPtr;   // адрес переменной, куда помещаем данные
   DWORD DefDWord; // он же размер данных для REG_SZ и REG_BINARY
-  char *DefStr;   // строка/данные по умолчанию
+  const char *DefStr;   // строка/данные по умолчанию
 } CFG[]={
   {1, REG_BINARY, NKeyColors,"CurrentPalette",(char*)Palette,SizeArrayPalette,(char*)DefaultPalette},
 
@@ -1322,7 +1326,6 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
 
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
-  {0, REG_DWORD,  NKeySystem,"LCID",&Opt.LCIDSort,LOCALE_USER_DEFAULT, 0},
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
 
@@ -1426,6 +1429,8 @@ void ReadConfig()
   SetRegRootKey(HKEY_CURRENT_USER);
   if(Opt.ExceptRules == -1)
     GetRegKey("System","ExceptRules",Opt.ExceptRules,1);
+
+  //Opt.LCIDSort=LOCALE_USER_DEFAULT; // проинициализируем на всякий случай
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
   for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.142 26.03.2002 $ */
+/* Revision: 1.143 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 IS
+    + void InitLCIDSort();
   26.03.2002 DJ
     ! вынесем CharBufferTooSmallWarn() на всеобщее обозрение
   20.03.2002 SVS
@@ -554,6 +556,7 @@ void LocalUpperInit();
 /* $ 11.01.2002 IS инициализация массива клавиш */
 void InitKeysArray();
 /* IS $ */
+void InitLCIDSort();
 /* $ 28.08.2000 SVS
    Модификация вызова под WINAPI
 */
@@ -731,8 +734,9 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
    Сделано для того, чтобы не дублировать код GetString.
 */
 int WINAPI FarInputBox(const char *Title,const char *Prompt,
-                     const char *HistoryName,const char *SrcText,
-    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags);
+                       const char *HistoryName,const char *SrcText,
+                       char *DestText,int DestLength,
+                       const char *HelpTopic,DWORD Flags);
 /* IS $ */
 /* $ 06.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...

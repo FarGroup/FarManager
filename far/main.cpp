@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.48 28.01.2002 $ */
+/* Revision: 1.49 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 IS
+    + Вызов InitLCIDSort, теперь здесь настраивается сортировка, а не в
+      LocalUpperInit
   28.01.2002 VVM
     + Если не смогли считать .лнг файл - то перед выдачей сообщения очистим
       буфер ввода - на всякий случай...
@@ -362,6 +365,12 @@ int _cdecl main(int Argc, char *Argv[])
     else
       CharToOem(Argv[I],DestName);
 
+  /* $ 26.03.2002 IS
+     Настройка сортировки.
+     Должна быть после CopyGlobalSettings и перед InitKeysArray!
+  */
+  InitLCIDSort();
+  /* IS $ */
   /* $ 11.01.2002 IS
      Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
   */

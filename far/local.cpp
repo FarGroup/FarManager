@@ -5,10 +5,14 @@ local.cpp
 
 */
 
-/* Revision: 1.12 03.03.2002 $ */
+/* Revision: 1.13 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 IS
+    + InitLCIDSort - инициализаци€ системозависимой сортировки строк.
+      ¬ызывать только после CopyGlobalSettings, потому что только тогда
+      GetRegKey считает правильные данные.
   03.03.2002 SVS
     ! ≈сли дл€ VC вставить ключ /Gr, то видим кучу багов :-/
   14.01.2002 SVS
@@ -81,12 +85,23 @@ void LocalUpperInit()
       UpperToLower[I]=CvtStr[0];
     }
   }
+}
 
+/* $ 26.03.2002 IS
+   »нициализаци€ системозависимой сортировки строк.
+   ¬ызывать только после CopyGlobalSettings (потому что только тогда GetRegKey
+   считает правильные данные) и перед InitKeysArray (потому что там уже
+   используетс€ сортировка)!
+*/
+void InitLCIDSort()
+{
   char LCSortBuffer[256];
+  int I;
 
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
     LCSortBuffer[I]=I;
 
+  Opt.LCIDSort=GetRegKey("System","LCID",LOCALE_USER_DEFAULT);
   qsort((void *)LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
 
   for (I=0;I<sizeof(LCSortBuffer)/sizeof(LCSortBuffer[0]);I++)
@@ -106,6 +121,7 @@ void LocalUpperInit()
   for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
     KeyToKey[I]=I;
 }
+/* IS $ */
 
 /* $ 11.01.2002 IS
    »нициализаци€ массива клавиш.
