@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.157 19.05.2004 $ */
+/* Revision: 1.158 29.05.2004 $ */
 
 /*
 Modify:
+  29.05.2004 SVS
+    - BugZ#994 - нехватка кавычки
   19.05.2004 SVS
     ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
       пусть баундчекер не блюет.
@@ -2956,8 +2958,8 @@ void Viewer::Search(int Next,int FirstChar)
 
     strncpy(MsgStr,(char *)SearchStr,sizeof(MsgStr)-1);
 
-    if(strlen(MsgStr)+16 >= X2)
-      TruncStrFromEnd(MsgStr, ObjWidth-17);
+    if(strlen(MsgStr)+18 > ObjWidth)
+      TruncStrFromEnd(MsgStr, ObjWidth-18);
     InsertQuote(MsgStr);
 
     SetPreRedrawFunc(PR_ViewerSearchMsg);
