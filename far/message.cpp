@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.23 03.04.2002 $ */
+/* Revision: 1.24 11.05.2002 $ */
 
 /*
 Modify:
+  11.05.2002 SVS
+    - BugZ#503 - Info.Message()
   03.04.2002 SVS
     ! WordWrap -> FarFormatText
   22.03.2002 SVS
@@ -360,8 +362,10 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   SetColor(COL_DIALOGTEXT);
   if(Title && *Title)
   {
-    GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1+1);
-    mprintf(" %s ",Title);
+    char TempTitle[2048];
+    strncpy(TempTitle,Title,min((int)sizeof(TempTitle)-1,(int)MaxLength));
+    GotoXY(X1+(X2-X1-1-strlen(TempTitle))/2,Y1+1);
+    mprintf(" %s ",TempTitle);
   }
 
   for (I=0;I<StrCount;I++)

@@ -8,10 +8,15 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.85 28.04.2002 $ */
+/* Revision: 1.86 11.05.2002 $ */
 
 /*
 Modify:
+  11.05.2002 SVS
+    ! ћен€ем LIF_UPDATEKEEPUSERDATA на противоположный LIF_DELETEUSERDATA,
+      делаем этот флаг доступным (соответственно мен€етс€ логика -
+      при апдейте итема списка удал€ем прив€занные данные только в случае,
+      если нас об этом попросили)
   28.04.2002 KM
     + GetTypeAndName возвращает тип MODALTYPE_VMENU и
       MODALTYPE_COMBOBOX.
@@ -1417,7 +1422,7 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     struct MenuItem MItem;
     // ќсвободим пам€ть... от ранее зан€того ;-)
     struct MenuItem *PItem=Item+NewItem->Index;
-    if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData && !(NewItem->Item.Flags&LIF_UPDATEKEEPUSERDATA))
+    if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData && (NewItem->Item.Flags&LIF_DELETEUSERDATA))
       free(PItem->UserData);
 
     memcpy(PItem,FarList2MenuItem(&NewItem->Item,&MItem),sizeof(struct MenuItem));
@@ -1571,7 +1576,7 @@ struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
 //    MItem->AccelKey=FItem->AccelKey;
     strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
     MItem->Flags&=~MIF_USETEXTPTR;
-    MItem->Flags&=~LIF_UPDATEKEEPUSERDATA;
+    //MItem->Flags|=LIF_DELETEUSERDATA; //???????????????????
     //VMenu::_SetUserData(MItem,FItem->UserData,FItem->UserDataSize); //???
     // ј здесь надо вычисл€ть AmpPos????
     return MItem;

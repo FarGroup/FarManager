@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.241 08.05.2002 $ */
+/* Revision: 1.242 11.05.2002 $ */
 
 /*
 Modify:
+  11.05.2002 SVS
+    ! Удаляем LIF_UPDATEKEEPUSERDATA
   08.05.2002 SVS
     ! Сделаем относительным FocusPos (иначе, плагин, применив что-то в
       обработчике... в общем, некоректная работа получается :-)
@@ -6494,7 +6496,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               struct MenuItem *ListMenuItem=ListBox->GetItemPtr(LUpdate.Index);
               if(ListMenuItem)
               {
-                LUpdate.Item.Flags=ListMenuItem->Flags|LIF_UPDATEKEEPUSERDATA;
+                LUpdate.Item.Flags=ListMenuItem->Flags;
                 strncpy(LUpdate.Item.Text,Ptr,sizeof(LUpdate.Item.Text));
                 Dialog::SendDlgMessage(hDlg,DM_LISTUPDATE,Param1,(DWORD)&LUpdate);
               }
