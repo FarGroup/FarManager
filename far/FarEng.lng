@@ -299,7 +299,7 @@
 "&Skip"
 "&Cancel"
 
-"Go to line"
+"Go to positon"
 
 "Folder shortcuts"
 "Edit: Del,Ins,F4"
@@ -361,7 +361,7 @@
 "Replac"
 ""
 ""
-""
+"QuitGo"
 ""
 ""
 
@@ -474,7 +474,7 @@
 ""
 ""
 ""
-""
+"QuitGo"
 ""
 ""
 //end of functional keys
