@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.91 30.01.2002 $ */
+/* Revision: 1.92 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    ! ѕроинициализируем новые FarListItem в 0 (поелезно при изменении
+      размера структуры FarListItem)
   30.01.2002 VVM
     ! Ѕольшой фикс - используем hPluginMutex во врем€ работы с панелью
       плагина. »наче возможен облом при просмотре найденного файла в
@@ -563,7 +566,7 @@ FindFiles::FindFiles()
       TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*5);
       if (TableItem==NULL)
         return;
-      TableItem[4].Text[0]=0;
+      memset(&TableItem[4],0,sizeof(FarListItem));
       TableItem[4].Flags=LIF_SEPARATOR;
       TableList.Items=TableItem;
       TableList.ItemsNumber++;
@@ -572,8 +575,8 @@ FindFiles::FindFiles()
     TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(I+6));
     if (TableItem==NULL)
       return;
+    memset(&TableItem[I+5],0,sizeof(FarListItem));
     strcpy(TableItem[I+5].Text,cts.TableName);
-    TableItem[I+5].Flags=0;
     TableList.Items=TableItem;
     TableList.ItemsNumber++;
   }

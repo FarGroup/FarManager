@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.130 05.02.2002 $ */
+/* Revision: 1.131 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    + _DLGMSG_ToName()
   05.02.2002 SVS
     ! ” DeleteFileWithFolder параметр имеет суть const
     + _*_ToName() - дл€ отладочных целей
@@ -852,6 +854,7 @@ const char *_FARKEY_ToName(int Key);
 const char *_VK_KEY_ToName(int VkKey);
 const char *_ECTL_ToName(int Command);
 const char *_FCTL_ToName(int Command);
+const char *_DLGMSG_ToName(int Msg);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus

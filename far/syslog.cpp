@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.22 05.02.2002 $ */
+/* Revision: 1.23 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    ! dialog.cpp::MsgToName() - syslog.cpp::_DLGMSG_ToName()
+    ! Уточнения в _*_ToName()
   05.02.2002 SVS
     + Пара новых функций для отладочных мероприятий
        _FARKEY_ToName() - формирует строку из HEX-кода клавиши и названия онной
@@ -401,8 +404,12 @@ const char *_ECTL_ToName(int Command)
   int I;
   for(I=0; I < sizeof(ECTL)/sizeof(ECTL[0]); ++I)
     if(ECTL[I].Msg == Command)
-      return ECTL[I].Name;
-  return "(Unknown)";
+    {
+      sprintf(Name,"\"%s\" [%d/0x%04X]",ECTL[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"ECTL_????\" [%d/0x%04X]",Command,Command);
+  return Name;
 #else
   return "";
 #endif
@@ -431,10 +438,15 @@ const char *_FCTL_ToName(int Command)
      DEF_FCTL_(FCTL_SETCMDLINESELECTION),   DEF_FCTL_(FCTL_GETCMDLINESELECTION),
   };
   int I;
+  static char Name[512];
   for(I=0; I < sizeof(FCTL)/sizeof(FCTL[0]); ++I)
     if(FCTL[I].Msg == Command)
-      return FCTL[I].Name;
-  return "(Unknown)";
+    {
+      sprintf(Name,"\"%s\" [%d/0x%04X]",FCTL[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"FCTL_????\" [%d/0x%04X]",Command,Command);
+  return Name;
 #else
   return "";
 #endif
@@ -448,10 +460,10 @@ const char *_FARKEY_ToName(int Key)
   if(KeyToText(Key,Name,0))
   {
     InsertQuote(Name);
-    sprintf(Name+strlen(Name)," [0x%08X]",Key);
+    sprintf(Name+strlen(Name)," [%u/0x%08X]",Key,Key);
     return Name;
   }
-  sprintf(Name,"[0x%08X]",Key);
+  sprintf(Name,"\"KEY_????\" [%u/0x%08X]",Key,Key);
   return Name;
 #else
   return "";
@@ -615,9 +627,7 @@ const char *_VK_KEY_ToName(int VkKey)
   Name[0]=0;
   if(VkKey >= '0' && VkKey <= '9' || VkKey >= 'A' && VkKey <= 'Z')
   {
-    sprintf(Name,"VK_%c",VkKey);
-    InsertQuote(Name);
-    sprintf(Name+strlen(Name)," [0x%04X]",VkKey);
+    sprintf(Name,"\"VK_%c\" [%d/0x%04X]",VkKey,VkKey,VkKey);
     return Name;
   }
   else
@@ -626,15 +636,75 @@ const char *_VK_KEY_ToName(int VkKey)
     {
       if(VkKey == vk_def[I].vk)  // c || KeyCode
       {
-        strcpy(Name,"VK_");
-        strcat(Name,vk_def[I].n);
-        InsertQuote(Name);
-        sprintf(Name+strlen(Name)," [0x%04X]",VkKey);
+        sprintf(Name,"\"VK_%s\" [%d/0x%04X]",vk_def[I].n,VkKey,VkKey);
         return Name;
       }
     }
   }
-  sprintf(Name,"[0x%04X]",VkKey);
+  sprintf(Name,"\"VK_??????\" [%d/0x%04X]",VkKey,VkKey);
+  return Name;
+#else
+  return "";
+#endif
+}
+
+const char *_DLGMSG_ToName(int Msg)
+{
+#if defined(SYSLOG)
+#define DEF_MESSAGE(m) { m , #m }
+  static struct MsgName{
+    int Msg;
+    const char *Name;
+  } Message[]={
+    DEF_MESSAGE(DM_FIRST),              DEF_MESSAGE(DM_CLOSE),
+    DEF_MESSAGE(DM_ENABLE),             DEF_MESSAGE(DM_ENABLEREDRAW),
+    DEF_MESSAGE(DM_GETDLGDATA),         DEF_MESSAGE(DM_GETDLGITEM),
+    DEF_MESSAGE(DM_GETDLGRECT),         DEF_MESSAGE(DM_GETTEXT),
+    DEF_MESSAGE(DM_GETTEXTLENGTH),      DEF_MESSAGE(DM_KEY),
+    DEF_MESSAGE(DM_MOVEDIALOG),         DEF_MESSAGE(DM_SETDLGDATA),
+    DEF_MESSAGE(DM_SETDLGITEM),         DEF_MESSAGE(DM_SETFOCUS),
+    DEF_MESSAGE(DM_REDRAW),             DEF_MESSAGE(DM_SETTEXT),
+    DEF_MESSAGE(DM_SETMAXTEXTLENGTH),   DEF_MESSAGE(DM_SHOWDIALOG),
+    DEF_MESSAGE(DM_GETFOCUS),           DEF_MESSAGE(DM_GETCURSORPOS),
+    DEF_MESSAGE(DM_SETCURSORPOS),       DEF_MESSAGE(DM_GETTEXTPTR),
+    DEF_MESSAGE(DM_SETTEXTPTR),         DEF_MESSAGE(DM_SHOWITEM),
+    DEF_MESSAGE(DM_ADDHISTORY),         DEF_MESSAGE(DM_GETCHECK),
+    DEF_MESSAGE(DM_SETCHECK),           DEF_MESSAGE(DM_SET3STATE),
+    DEF_MESSAGE(DM_LISTSORT),           DEF_MESSAGE(DM_LISTGETITEM),
+    DEF_MESSAGE(DM_LISTSET),            DEF_MESSAGE(DM_LISTGETCURPOS),
+    DEF_MESSAGE(DM_LISTSETCURPOS),      DEF_MESSAGE(DM_LISTDELETE),
+    DEF_MESSAGE(DM_LISTADD),            DEF_MESSAGE(DM_LISTADDSTR),
+    DEF_MESSAGE(DM_LISTUPDATE),         DEF_MESSAGE(DM_LISTINSERT),
+    DEF_MESSAGE(DM_LISTFINDSTRING),     DEF_MESSAGE(DM_LISTINFO),
+    DEF_MESSAGE(DM_LISTGETDATA),        DEF_MESSAGE(DM_LISTSETDATA),
+    DEF_MESSAGE(DM_LISTSETTITLES),      DEF_MESSAGE(DM_LISTGETTITLES),
+    DEF_MESSAGE(DM_RESIZEDIALOG),       DEF_MESSAGE(DM_SETITEMPOSITION),
+    DEF_MESSAGE(DM_GETDROPDOWNOPENED),  DEF_MESSAGE(DM_SETDROPDOWNOPENED),
+    DEF_MESSAGE(DM_SETHISTORY),         DEF_MESSAGE(DM_GETITEMPOSITION),
+    DEF_MESSAGE(DM_SETMOUSEEVENTNOTIFY),DEF_MESSAGE(DN_FIRST),
+    DEF_MESSAGE(DN_BTNCLICK),           DEF_MESSAGE(DN_CTLCOLORDIALOG),
+    DEF_MESSAGE(DN_CTLCOLORDLGITEM),    DEF_MESSAGE(DN_CTLCOLORDLGLIST),
+    DEF_MESSAGE(DN_DRAWDIALOG),         DEF_MESSAGE(DN_DRAWDLGITEM),
+    DEF_MESSAGE(DN_EDITCHANGE),         DEF_MESSAGE(DN_ENTERIDLE),
+    DEF_MESSAGE(DN_GOTFOCUS),           DEF_MESSAGE(DN_HELP),
+    DEF_MESSAGE(DN_HOTKEY),             DEF_MESSAGE(DN_INITDIALOG),
+    DEF_MESSAGE(DN_KILLFOCUS),          DEF_MESSAGE(DN_LISTCHANGE),
+    DEF_MESSAGE(DN_MOUSECLICK),         DEF_MESSAGE(DN_DRAGGED),
+    DEF_MESSAGE(DN_RESIZECONSOLE),      DEF_MESSAGE(DN_MOUSEEVENT),
+    DEF_MESSAGE(DN_CLOSE),              DEF_MESSAGE(DN_KEY),
+    DEF_MESSAGE(DM_USER),               DEF_MESSAGE(DM_KILLSAVESCREEN),
+    DEF_MESSAGE(DM_ALLKEYMODE),         DEF_MESSAGE(DM_LISTGETDATASIZE),
+  };
+  int I;
+
+  static char Name[512];
+  for(I=0; I < sizeof(Message)/sizeof(Message[0]); ++I)
+    if(Message[I].Msg == Msg)
+    {
+      sprintf(Name,"\"%s\" [%d/0x%08X]",Message[I].Name,Msg,Msg);
+      return Name;
+    }
+  sprintf(Name,"\"%s+[%d/0x%08X]\"",(Msg>=DN_FIRST?"DN_FIRST":(Msg>=DM_USER?"DM_USER":"DM_FIRST")),Msg,Msg);
   return Name;
 #else
   return "";

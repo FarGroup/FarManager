@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.33 30.01.2002 $ */
+/* Revision: 1.34 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    ! Частичная отмена патча от 25.01.2002 - вернем взад.
   30.01.2002 SVS
     - кривое обрезаение от предыдущего патча.
   29.01.2002 SVS
@@ -322,7 +324,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       }
       else
       {
-#if 0
+#if 1
         SaveScreen SaveScr;
         CtrlObject->Cp()->LeftPanel->CloseFile();
         CtrlObject->Cp()->RightPanel->CloseFile();

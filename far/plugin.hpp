@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.185 06.02.2002 $ */
+/* Revision: 1.186 11.02.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  11.02.2002 SVS
+    + DM_LISTGETDATASIZE
   06.02.2002 DJ
     ! _FAR_USE_FARFINDDATA
   30.01.2002 DJ
@@ -852,6 +854,8 @@ enum FarMessagesProc{
 
   DM_GETCURSORSIZE,
   DM_SETCURSORSIZE,
+
+  DM_LISTGETDATASIZE,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.207 04.02.2002 $ */
+/* Revision: 1.208 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    + DM_LISTGETDATASIZE
+    ! dialog.cpp::MsgToName() - syslog.cpp::_DLGMSG_ToName()
+    - ѕадение при поиске - забыл проверить CurItem->ListItems на NULL
+    - BugZ#294.  олесо, блин... не работало в списках.
   04.02.2002 SVS
     ! ѕерва€ попытка "урегулировать отношени€" диалога с редактором в плане
       DIF_READONLY
@@ -1798,7 +1803,8 @@ void Dialog::GetDialogObjectsData()
     }
 
     if((Type == DI_COMBOBOX || Type == DI_LISTBOX) &&
-       CurItem->ListPtr && CurItem->OriginalListItems == CurItem->ListItems)
+       CurItem->ListPtr && CurItem->ListItems &&
+       CurItem->OriginalListItems == CurItem->ListItems)
     {
       int ListPos=CurItem->ListPtr->GetSelectPos();
       if(ListPos < CurItem->ListItems->ItemsNumber)
@@ -2559,6 +2565,8 @@ int Dialog::ProcessKey(int Key)
       case KEY_DOWN:
       case KEY_PGUP:
       case KEY_PGDN:
+      case KEY_MSWHEEL_UP:
+      case KEY_MSWHEEL_DOWN:
         VMenu *List=Item[FocusPos].ListPtr;
         int CurListPos=List->GetSelectPos();
         int CheckedListItem=List->GetSelection(-1);
@@ -3556,7 +3564,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             {
               // ѕроверка на DI_COMBOBOX здесь лишн€€. ”брана (KM).
               if (MsX==EditX2+1 && MsY==EditY1 && Item[I].History &&
-                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory))
+                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory
+                   || Type == DI_COMBOBOX))
+//                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory))
               {
                 EditLine->SetClearFlag(0); // раз уж покусились на, то и...
                 if(!(Item[I].Flags&DIF_NOFOCUS))
@@ -4921,60 +4931,6 @@ void Dialog::OnDestroy()
    - »збавимс€ от потенциального (и кажетс€ не только) бага
      при Param1==-1.
 */
-#if defined(SYSLOG_DIALOG)
-#define DEF_MESSAGE(m) { m , #m }
-const char *MsgToName(int Msg)
-{
-  static struct MsgName{
-    int Msg;
-    const char *Name;
-  } Message[]={
-    DEF_MESSAGE(DM_FIRST),              DEF_MESSAGE(DM_CLOSE),
-    DEF_MESSAGE(DM_ENABLE),             DEF_MESSAGE(DM_ENABLEREDRAW),
-    DEF_MESSAGE(DM_GETDLGDATA),         DEF_MESSAGE(DM_GETDLGITEM),
-    DEF_MESSAGE(DM_GETDLGRECT),         DEF_MESSAGE(DM_GETTEXT),
-    DEF_MESSAGE(DM_GETTEXTLENGTH),      DEF_MESSAGE(DM_KEY),
-    DEF_MESSAGE(DM_MOVEDIALOG),         DEF_MESSAGE(DM_SETDLGDATA),
-    DEF_MESSAGE(DM_SETDLGITEM),         DEF_MESSAGE(DM_SETFOCUS),
-    DEF_MESSAGE(DM_REDRAW),             DEF_MESSAGE(DM_SETTEXT),
-    DEF_MESSAGE(DM_SETMAXTEXTLENGTH),   DEF_MESSAGE(DM_SHOWDIALOG),
-    DEF_MESSAGE(DM_GETFOCUS),           DEF_MESSAGE(DM_GETCURSORPOS),
-    DEF_MESSAGE(DM_SETCURSORPOS),       DEF_MESSAGE(DM_GETTEXTPTR),
-    DEF_MESSAGE(DM_SETTEXTPTR),         DEF_MESSAGE(DM_SHOWITEM),
-    DEF_MESSAGE(DM_ADDHISTORY),         DEF_MESSAGE(DM_GETCHECK),
-    DEF_MESSAGE(DM_SETCHECK),           DEF_MESSAGE(DM_SET3STATE),
-    DEF_MESSAGE(DM_LISTSORT),           DEF_MESSAGE(DM_LISTGETITEM),
-    DEF_MESSAGE(DM_LISTSET),            DEF_MESSAGE(DM_LISTGETCURPOS),
-    DEF_MESSAGE(DM_LISTSETCURPOS),      DEF_MESSAGE(DM_LISTDELETE),
-    DEF_MESSAGE(DM_LISTADD),            DEF_MESSAGE(DM_LISTADDSTR),
-    DEF_MESSAGE(DM_LISTUPDATE),         DEF_MESSAGE(DM_LISTINSERT),
-    DEF_MESSAGE(DM_LISTFINDSTRING),     DEF_MESSAGE(DM_LISTINFO),
-    DEF_MESSAGE(DM_LISTGETDATA),        DEF_MESSAGE(DM_LISTSETDATA),
-    DEF_MESSAGE(DM_LISTSETTITLES),      DEF_MESSAGE(DM_LISTGETTITLES),
-    DEF_MESSAGE(DM_RESIZEDIALOG),       DEF_MESSAGE(DM_SETITEMPOSITION),
-    DEF_MESSAGE(DM_GETDROPDOWNOPENED),  DEF_MESSAGE(DM_SETDROPDOWNOPENED),
-    DEF_MESSAGE(DM_SETHISTORY),         DEF_MESSAGE(DM_GETITEMPOSITION),
-    DEF_MESSAGE(DM_SETMOUSEEVENTNOTIFY),DEF_MESSAGE(DN_FIRST),
-    DEF_MESSAGE(DN_BTNCLICK),           DEF_MESSAGE(DN_CTLCOLORDIALOG),
-    DEF_MESSAGE(DN_CTLCOLORDLGITEM),    DEF_MESSAGE(DN_CTLCOLORDLGLIST),
-    DEF_MESSAGE(DN_DRAWDIALOG),         DEF_MESSAGE(DN_DRAWDLGITEM),
-    DEF_MESSAGE(DN_EDITCHANGE),         DEF_MESSAGE(DN_ENTERIDLE),
-    DEF_MESSAGE(DN_GOTFOCUS),           DEF_MESSAGE(DN_HELP),
-    DEF_MESSAGE(DN_HOTKEY),             DEF_MESSAGE(DN_INITDIALOG),
-    DEF_MESSAGE(DN_KILLFOCUS),          DEF_MESSAGE(DN_LISTCHANGE),
-    DEF_MESSAGE(DN_MOUSECLICK),         DEF_MESSAGE(DN_DRAGGED),
-    DEF_MESSAGE(DN_RESIZECONSOLE),      DEF_MESSAGE(DN_MOUSEEVENT),
-    DEF_MESSAGE(DN_CLOSE),              DEF_MESSAGE(DN_KEY),
-    DEF_MESSAGE(DM_USER),               DEF_MESSAGE(DM_KILLSAVESCREEN),
-    DEF_MESSAGE(DM_ALLKEYMODE),
-  };
-  int I;
-  for(I=0; I < sizeof(Message)/sizeof(Message[0]); ++I)
-    if(Message[I].Msg == Msg)
-      return Message[I].Name;
-  return "(Unknown)";
-}
-#endif
 
 long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
@@ -4983,7 +4939,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   char *Ptr=NULL;
   int Type=0;
   _DIALOG(CleverSysLog CL("Dialog.DefDlgProc()"));
-  _DIALOG(SysLog("hDlg=%p, Msg=%d (%s), Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,Msg,MsgToName(Msg),Param1,Param1,Param2,Param2));
+  _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
   if(!Dlg)
     return 0;
 
@@ -5105,7 +5061,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   struct FarDialogItem PluginDialogItem;
 
   _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
-  _DIALOG(SysLog("hDlg=%p, Msg=%d (%s), Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,Msg,MsgToName(Msg),Param1,Param1,Param2,Param2));
+  _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
   if(!Dlg)
     return 0;
@@ -5145,6 +5101,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
     case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
     case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
     {
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
@@ -5169,20 +5126,24 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 return -1;
               break;
             }
+
             case DM_LISTINFO:// Param1=ID Param2=FarListInfo
             {
               return ListBox->GetVMenuInfo((struct FarListInfo*)Param2);
             }
+
             case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
             {
               ListBox->SortItems(Param2);
               break;
             }
+
             case DM_LISTADDSTR: // Param1=ID Param2=String
             {
               Ret=ListBox->AddItem((char*)Param2);
               break;
             }
+
             case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
             {
               struct FarList *ListItems=(struct FarList *)Param2;
@@ -5191,6 +5152,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               Ret=ListBox->AddItem(ListItems);
               break;
             }
+
             case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
             {
               int Count;
@@ -5201,11 +5163,19 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 ListBox->DeleteItem(ListItems->StartIndex,Count);
               break;
             }
+
             case DM_LISTGETDATA: // Param1=ID Param2=Index
             {
               if(Param2 < ListBox->GetItemCount())
                 return (long)ListBox->GetUserData(NULL,0,Param2);
               return NULL;
+            }
+
+            case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
+            {
+              if(Param2 < ListBox->GetItemCount())
+                return ListBox->GetUserDataSize(Param2);
+              return 0;
             }
 
             case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
@@ -5220,6 +5190,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               }
               return 0;
             }
+
             case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles
             {
               struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
@@ -5227,6 +5198,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               ListBox->SetBottomTitle((!ListTitle)?NULL:ListTitle->Bottom);
               return TRUE;
             }
+
             case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles
             {
               struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
@@ -5238,6 +5210,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               }
               return FALSE;
             }
+
             case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
             {
               if (Param2)
@@ -5245,6 +5218,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               else
                 return ListBox->GetSelectPos();
             }
+
             case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
             {
               /* 26.06.2001 KM ѕодадим перед изменением позиции об этом сообщение */
@@ -5256,12 +5230,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               /* KM $ */
               break; // т.к. нужно перерисовать!
             }
+
             case DM_LISTUPDATE: // Param1=ID Param2=FarList: Index=Index, Items=Src
             {
               if(Param2 && ListBox->UpdateItem((struct FarList *)Param2))
                 break;
               return FALSE;
             }
+
             case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
             {
               struct FarListGetItem *ListItems=(struct FarListGetItem *)Param2;
