@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.66 19.10.2001 $ */
+/* Revision: 1.67 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 VVM
+    ! Попытка номер 2. С учетом замечаний и пожеланий от KM и SVS ;)))
+    ! Перетрях поиска, зачистка местности, удавливание багов. Далее по тексту...
   19.10.2001 KM
     ! С подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках.
     - Поправлен поиск во временной панели, он там не работал и выдавал "странные результаты",
@@ -269,6 +272,10 @@ static DWORD       ArcListCapacity;
 static DWORD       ArcListCount;
 
 static DWORD FindFileArcIndex;
+// Используются для отправки файлов на временную панель.
+// индекс текущего элемента в списке и флаг для отправки.
+static DWORD FindListPanelIndex;
+static int OpenTempPanel;
 //static char FindFileArcName[NM];
 
 static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
@@ -809,8 +816,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                        (ArcList[FindList[Index].ArcIndex].Flags & OPIF_REALNAMES)))
                   {
                     int Length=strlen(FindList[Index].FindData.cFileName);
-                    if (Length>0 && FindList[Index].FindData.cFileName[Length-1]!='\\' &&
-                        FindList[Index].ArcIndex == LIST_INDEX_NONE)
+                    // Не учитывали файлы в архивах с OPIF_REALNAMES
+                    if (Length>0 && !(FindList[Index].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+//                        FindList[Index].ArcIndex == LIST_INDEX_NONE)
                       ViewList.AddName(FindList[Index].FindData.cFileName);
                   } /* if */
                 } /* for */
@@ -943,7 +951,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           ReleaseMutex(hMutex);
           return FALSE;
         }
-
         {
           char *NamePtr;
           NamePtr=PointToName(FileName);
@@ -994,68 +1001,15 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         WaitForSingleObject(hMutex,INFINITE);
 
-        if (ListBox->GetItemCount()==0)
-        {
-          ReleaseMutex(hMutex);
-          return TRUE;
-        }
-
-        while (ListBox->GetCallCount())
-          Sleep(10);
-        int ListSize=ListBox->GetItemCount();
-
-        PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
-        if (PanelItems==NULL)
-          ListSize=0;
-        int ItemsNumber=0;
-        DWORD ItemIndex;
-        for (int i=0;i<ListSize;i++)
-        {
-          ItemIndex = (DWORD)ListBox->GetUserData(NULL, 0, i);
-          if (ItemIndex != LIST_INDEX_NONE)
-          {
-            char *FileName=FindList[ItemIndex].FindData.cFileName;
-            int Length=strlen(FileName);
-            if (Length>0 && (FileName[Length-1]!='\\' &&
-                FindList[ItemIndex].ArcIndex == LIST_INDEX_NONE) ||
-               (FileName[Length-1]=='\\' &&
-                FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE))
-            {
-              if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)
-              {
-                char *p=strrchr(FileName,':');
-                if (p && p-FileName>1)
-                  strcpy(FileName,ArcList[FindList[ItemIndex].ArcIndex].ArcName);
-              } /* if */
-              PluginPanelItem *pi=&PanelItems[ItemsNumber++];
-              memset(pi,0,sizeof(*pi));
-              pi->FindData=FindList[ItemIndex].FindData;
-            } /* if */
-          } /* if */
-        } /* for */
-
-        HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
-        if (hNewPlugin!=INVALID_HANDLE_VALUE)
-        {
-          Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-          Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-          NewPanel->SetPluginMode(hNewPlugin,"");
-          NewPanel->Update(0);
-          DWORD ItemIndex;
-          if (ListBox && ListBox->GetItemCount() &&
-              (ItemIndex = (DWORD)ListBox->GetUserData(NULL, 0)) != LIST_INDEX_NONE)
-            NewPanel->GoToFile(FindList[ItemIndex].FindData.cFileName);
-          NewPanel->Show();
-          NewPanel->SetFocus();
-//          hPlugin=NULL; !!!!!!!!!!!!!!!
-        }
-        /* $ 13.07.2000 SVS
-           использовали new[]
-        */
-        delete[] PanelItems;
-        /* SVS $ */
+        // На панель будем посылать не в диалоге, а после.
+        // После окончания поиска. Иначе возможна ситуация, когда мы
+        // ищем на панели, потом ее грохаем и создаем новую (а поиск-то
+        // идет!) и в результате ФАР трапается.
+        OpenTempPanel = ListBox->GetItemCount()!=0;
+        if (OpenTempPanel)
+          FindListPanelIndex = (DWORD)ListBox->GetUserData(NULL, 0);
         ReleaseMutex(hMutex);
-        return FALSE;
+        return (!OpenTempPanel);
       }
     }
     case DN_CTLCOLORDLGLIST:
@@ -1210,12 +1164,17 @@ int FindFiles::FindFilesProcess()
   pDlg->SetDynamicallyBorn(TRUE);
   pDlg->SetHelp("FindFile");
   pDlg->SetPosition(-1,-1,76,DLG_HEIGHT+IncY);
+  // Надо бы показать диалог, а то инициализация элементов запаздывает
+  // иногда при поиске и первые элементы не добавляются
+  pDlg->Show();
 
   LastFoundNumber=0;
   SearchDone=FALSE;
   StopSearch=FALSE;
   WriteDataUsed=FALSE;
   FileCount=0;
+  FindListPanelIndex = LIST_INDEX_NONE;
+  OpenTempPanel = FALSE;
   *FindMessage=*LastDirName=FindMessageReady=FindCountReady=0;
 
   // Нитка для вывода в диалоге информации о ходе поиска
@@ -1236,6 +1195,57 @@ int FindFiles::FindFilesProcess()
   IsProcessAssignMacroKey++; // отключим все спец. клавиши
   pDlg->Process();
   IsProcessAssignMacroKey--;
+
+  // Отработаем переброску на временную панель
+  if (OpenTempPanel)
+  {
+    int ListSize = FindListCount;
+    PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
+    if (PanelItems==NULL)
+      ListSize=0;
+    int ItemsNumber=0;
+    for (int i=0;i<ListSize;i++)
+    {
+      char *FileName=FindList[i].FindData.cFileName;
+      int Length=strlen(FileName);
+      if (Length>0)
+      // Добавляем всегда, если имя задано
+      {
+        // Для плагинов с виртуальными именами заменим имя файла на имя архива.
+        // панель сама уберет лишние дубли.
+        int IsArchive = ((FindList[i].ArcIndex != LIST_INDEX_NONE) &&
+                        !(ArcList[FindList[i].ArcIndex].Flags&OPIF_REALNAMES));
+        // Добавляем только файлы или имена архивов
+        if (IsArchive || !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+        {
+          if (IsArchive)
+            strcpy(FileName,ArcList[FindList[i].ArcIndex].ArcName);
+          PluginPanelItem *pi=&PanelItems[ItemsNumber++];
+          memset(pi,0,sizeof(*pi));
+          pi->FindData=FindList[i].FindData;
+          if (IsArchive)
+            pi->FindData.dwFileAttributes = 0;
+        }
+      } /* if */
+    } /* for */
+
+    HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
+    if (hNewPlugin!=INVALID_HANDLE_VALUE)
+    {
+      Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+      Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+      NewPanel->SetPluginMode(hNewPlugin,"");
+      NewPanel->Update(0);
+      if (FindListPanelIndex != LIST_INDEX_NONE);
+        NewPanel->GoToFile(FindList[FindListPanelIndex].FindData.cFileName);
+      NewPanel->Show();
+      NewPanel->SetFocus();
+    }
+    /* $ 13.07.2000 SVS
+       использовали new[]
+    */
+    delete[] PanelItems;
+  } /* if */
 
   CloseHandle(hMutex);
 
@@ -1563,7 +1573,13 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
     DWORD ItemIndex = AddFindListItem(FindData);
     if (ItemIndex != LIST_INDEX_NONE)
     {
-      strcpy(FindList[ItemIndex].FindData.cFileName,PathName);
+      // Сбросим данные в FindData. Они там от файла
+      memset(&FindList[ItemIndex].FindData,0,sizeof(FindList[ItemIndex].FindData));
+      // Используем LastDirName, т.к. PathName уже может быть искажена
+      strncpy(FindList[ItemIndex].FindData.cFileName, LastDirName,
+              sizeof(FindList[ItemIndex].FindData.cFileName)-1);
+      // Поставим атрибут у каталога, что-бы он не был файлом :)
+      FindList[ItemIndex].FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
       if (FindFileArcIndex != LIST_INDEX_NONE)
         FindList[ItemIndex].ArcIndex = FindFileArcIndex;
 
@@ -1577,8 +1593,8 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   DWORD ItemIndex = AddFindListItem(FindData);
   if (ItemIndex != LIST_INDEX_NONE)
   {
-    strncpy(FindList[ItemIndex].FindData.cFileName,
-            FullName, sizeof(FindList[ItemIndex].FindData.cFileName)-1);
+    strncpy(FindList[ItemIndex].FindData.cFileName, FullName, 
+            sizeof(FindList[ItemIndex].FindData.cFileName)-1);
     if (FindFileArcIndex != LIST_INDEX_NONE)
       FindList[ItemIndex].ArcIndex = FindFileArcIndex;
   }
