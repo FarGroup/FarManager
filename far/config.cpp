@@ -5,10 +5,19 @@ config.cpp
 
 */
 
-/* Revision: 1.138 30.05.2002 $ */
+/* Revision: 1.139 10.06.2002 $ */
 
 /*
 Modify:
+  10.06.2002 KM
+    ! Новые символы, наличие которых в имени файла окавычит его:
+    " &()[]{}^=;!'+,`~"
+    Нашёл Igor A. Vyatkin 2:5032/16.0 в MSDN
+    ===
+    The special characters that require quotes are:
+         <space>
+         &()[]{}^=;!'+,`~
+    ===
   30.05.2002 SVS
     ! По просьбе IS: COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO -> COL_PRIVATEPOSITION_FOR_DIF165ABOVE
   24.05.2002 SVS
@@ -1338,7 +1347,11 @@ static struct FARConfig{
   /* VVM $ */
   {0, REG_DWORD,  NKeySystem,"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
 
-  {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
+  /* $ 10.06.2002 KM
+  	! Новые символы, наличие которых в имени файла окавычит его.
+  */
+  {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`~"},
+  /* KM $ */
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
   {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
