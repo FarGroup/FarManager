@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.20 15.05.2002 $ */
+/* Revision: 1.21 30.06.2004 $ */
 
 /*
 Modify:
+  30.06.2004 SVS
+    + GetTopModal() - ответ на вопрос "как добраться до верхнего модала?"
   15.05.2002 SVS
     ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
       для всех Frame в методе Manager::InitKeyBar.
@@ -126,6 +128,7 @@ class Frame: virtual public ScreenObject
     virtual int GetMacroMode() { return MacroMode; }
     /* DJ $ */
     void Push(Frame* Modalized);
+    Frame *GetTopModal(){return NextModal;};
 //    bool Pop();
 //    Frame *operator[](int Index);
 //    int operator[](Frame *ModalFarame);

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.119 14.06.2004 $ */
+/* Revision: 1.120 30.06.2004 $ */
 
 /*
 Modify:
+  30.06.2004 SVS
+    + Небольшая добавка по поводу Macro II (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
   14.06.2004 SVS
     + добавки MACRODRIVE2
   31.05.2004 SVS
@@ -1872,20 +1874,7 @@ int Edit::ProcessCtrlQ(void)
 
 int Edit::ProcessInsDate(void)
 {
-#if defined(MACRODRIVE2)
-  const char *str = eStackAsString();
-  int SizeMacroText = 16+(*str ? 0 : strlen(Opt.DateFormat));
-  SizeMacroText*=4;
-  char *TStr=(char*)alloca(SizeMacroText);
-  if(!TStr)
-    return FALSE;
-
-  if(MkStrFTime(TStr,SizeMacroText,str))
-  {
-    InsertString(TStr);
-    return TRUE;
-  }
-#else
+#if !defined(MACRODRIVE2)
   int SizeMacroText=CtrlObject->Macro.GetPlainTextSize()+8;
   SizeMacroText+=8+(!SizeMacroText?strlen(Opt.DateFormat):0);
   SizeMacroText*=4;
@@ -1895,38 +1884,47 @@ int Edit::ProcessInsDate(void)
     return FALSE;
 
   CtrlObject->Macro.GetPlainText(Fmt);
+#else
+  const char *Fmt = eStackAsString();
+  int SizeMacroText = 16+(*Fmt ? 0 : strlen(Opt.DateFormat));
+  SizeMacroText*=4;
+  char *TStr=(char*)alloca(SizeMacroText);
+  if(!TStr)
+    return FALSE;
+#endif
+
   if(MkStrFTime(TStr,SizeMacroText,Fmt))
   {
     InsertString(TStr);
     return TRUE;
   }
-#endif
   return FALSE;
 }
 
 int Edit::ProcessInsPlainText(void)
 {
-#if defined(MACRODRIVE2)
-  const char *str = eStackAsString();
-  if ( *str )
-  {
-    InsertString(str);
-    return TRUE;
-  }
-#else
+#if !defined(MACRODRIVE2)
   int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
   if(SizeMacroText)
   {
     SizeMacroText+=8;
     char *TStr=(char*)alloca(SizeMacroText);
-    if(!TStr)
-      return FALSE;
-
-    CtrlObject->Macro.GetPlainText(TStr);
-    InsertString(TStr);
+    if(TStr)
+    {
+      CtrlObject->Macro.GetPlainText(TStr);
+      InsertString(TStr);
+      return TRUE;
+    }
+  }
+#else
+  const char *str = eStackAsString();
+  if (*str)
+  {
+    InsertString(str);
     return TRUE;
   }
 #endif
+
   return FALSE;
 }
 

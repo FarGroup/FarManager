@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.209 21.06.2004 $ */
+/* Revision: 1.210 30.06.2004 $ */
 
 /*
 Modify:
+  30.06.2004 SVS
+   + initMacroVarTable(), doneMacroVarTable(), eStackAsString()
+     (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
   21.06.2004 SVS
    + GetCDDeviceCaps(), GetCDDeviceTypeByCaps();
    ! У FAR_GetDriveType добавился опциональный параметр - для CD
@@ -1575,7 +1578,7 @@ int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCm
 #if defined(MACRODRIVE2)
 void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
-const char *eStackAsString(void);
+const char *eStackAsString(int Pos=0);
 #endif
 
 #endif  // __FARFUNC_HPP__

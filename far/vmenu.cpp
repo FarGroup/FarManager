@@ -8,10 +8,15 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.131 31.05.2004 $ */
+/* Revision: 1.132 30.06.2004 $ */
 
 /*
 Modify:
+  30.06.2004 SVS
+    + CheckHighlights() - проверка "есть ли такой хоткей в меню"
+      (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
+    + Небольшая добавка по поводу Macro II
+      (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
   31.05.2004 SVS
     ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   11.05.2004 SVS
@@ -1150,6 +1155,15 @@ int VMenu::ProcessKey(int Key)
       return SelectPos==0;
     case KEY_MACRO_SELECTED:
       return ItemCount > 0 && SelectPos >= 0;
+#if defined(MACRODRIVE2)
+    case MCODE_F_MENU_CHECKHOTKEY:
+    {
+      const char *str = eStackAsString(1);
+      if ( *str )
+        return CheckHighlights(*str);
+      return FALSE;
+    }
+#endif
   }
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
@@ -2209,6 +2223,33 @@ struct MenuItem *VMenu::GetItemPtr(int Position)
   while (CallCount>0)
     Sleep(10);
   return Item+GetPosition(Position);
+}
+
+BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
+{
+#if defined(MACRODRIVE2)
+  for (int I=0; I < ItemCount; I++)
+  {
+    char Ch=0;
+    const char *Name=Item[I].PtrName();
+    const char *ChPtr=strchr(Name,'&');
+
+    if (ChPtr)
+    {
+      Ch=ChPtr[1];
+      if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+      {
+        ChPtr=strchr(ChPtr+1,'&');
+        if(ChPtr)
+          Ch=ChPtr[1];
+      }
+    }
+
+    if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
+      return TRUE;
+  }
+#endif
+  return FALSE;
 }
 
 void VMenu::AssignHighlights(int Reverse)

@@ -64,8 +64,10 @@ FAR_STDHDR_OBJ=
 
 !ifdef MACRODRIVE2
 MACROS=macro2.obj
+SYNTAX=syntax.obj
 !else
 MACROS=macro.obj
+SYNTAX=dummy.obj
 !endif
 
 
@@ -217,6 +219,7 @@ FAROBJ=\
    $(OBJPATH)\strncpy.obj\
    $(OBJPATH)\qsort.obj\
    $(OBJPATH)\cmem.obj\
+   $(OBJPATH)\$(SYNTAX)\
    $(OBJPATH)\main.obj
 
 

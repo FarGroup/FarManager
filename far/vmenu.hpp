@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.54 11.05.2004 $ */
+/* Revision: 1.55 30.06.2004 $ */
 
 /*
 Modify:
+  30.06.2004 SVS
+    + CheckHighlights() - проверка "есть ли такой хоткей в меню"
   11.05.2004 SVS
     + DialogItemID и пара функция для получения/установки этого DialogItemID
   05.01.2004 SVS
@@ -498,6 +500,8 @@ class VMenu: virtual public Modal, virtual public Frame
 
     int GetVDialogItemID() const {return DialogItemID;};
     void SetVDialogItemID(int NewDialogItemID) {DialogItemID=NewDialogItemID;};
+
+    BOOL CheckHighlights(BYTE Chr);
 
   public:
     static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.251 16.06.2004 $ */
+/* Revision: 1.252 30.06.2004 $ */
 
 /*
 Modify:
+  30.06.2004 SVS
+    + Небольшая добавка по поводу Macro II (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
   16.06.2004 SVS
     - BugZ#1101 - появляется лишнее выделение
   15.06.2004 SVS
@@ -3440,6 +3442,7 @@ int Editor::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
+#if !defined(MACRODRIVE2)
         char *Fmt=NULL;
         int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
         SizeMacroText+=16+(Key == KEY_MACRO_DATE && !SizeMacroText?strlen(Opt.DateFormat):0);
@@ -3455,6 +3458,18 @@ int Editor::ProcessKey(int Key)
           return(FALSE);
 
         CtrlObject->Macro.GetPlainText((Key == KEY_MACRO_PLAINTEXT?TStr:Fmt));
+#else
+        const char *Fmt = eStackAsString();
+        int SizeMacroText = 16+(*Fmt ? 0 : strlen(Opt.DateFormat));
+        if(Key == KEY_MACRO_PLAINTEXT)
+          SizeMacroText=strlen(Fmt)+1;
+        SizeMacroText*=4+1;
+        char *TStr=(char*)alloca(SizeMacroText);
+        if(!TStr)
+          return FALSE;
+        if(Key == KEY_MACRO_PLAINTEXT)
+          strcpy(TStr,Fmt);
+#endif
         if(Key == KEY_MACRO_PLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
         {
           char *Ptr=TStr;
@@ -3464,6 +3479,7 @@ int Editor::ProcessKey(int Key)
               *Ptr=13;
             ++Ptr;
           }
+
           Pasting++;
           //_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),NULL));
           TextChanged(1);
