@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.40 26.03.2002 $ */
+/* Revision: 1.41 09.09.2002 $ */
 
 /*
 Modify:
+  09.09.2002 SVS
+    - BugZ#627 - зачем показывать меню если только одна ассоциаци€ активна
   26.03.2002 VVM
     ! ѕри запуске программы она не бралась в кавычки, если содержала пробелы
     + «апускаем всегда по полному пути.
@@ -315,12 +317,20 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       TypesMenuItem.SetSelect(I==0);
       TypesMenu.AddItem(&TypesMenuItem);
     }
+
     if(!ActualCmdCount)
       return(TRUE);
-    TypesMenu.Process();
-    int ExitCode=TypesMenu.Modal::GetExitCode();
-    if (ExitCode<0)
-      return(TRUE);
+
+    int ExitCode;
+    if(ActualCmdCount > 1)
+    {
+      TypesMenu.Process();
+      ExitCode=TypesMenu.Modal::GetExitCode();
+      if (ExitCode<0)
+        return(TRUE);
+    }
+    else
+      ExitCode=0;
     strcpy(Command,Commands[NumCommands[ExitCode]]);
   }
 
@@ -667,7 +677,6 @@ int DeleteTypeRecord(int DeletePos)
   DeleteKeyRecord(FTS.TypeFmt,DeletePos);
   return(TRUE);
 }
-
 
 /* $ 02.08.2001 IS
    ќбработаем новые строчки (дл€ alt-f3, alt-f4, ctrl-pgdn)

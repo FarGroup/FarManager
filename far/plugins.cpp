@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.124 03.09.2002 $ */
+/* Revision: 1.125 10.09.2002 $ */
 
 /*
 Modify:
+  10.09.2002 SVS
+    ! Добавим обработку исключений про диалоги - если флаг PSIF_DIALOG
+      установлен - инициируем выгрузку плагина.
   03.09.2002 SVS
     - BugZ#611 - Нелепая сортировка в меню плагинов
   21.08.2002 IS
@@ -1295,6 +1298,8 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
            if (!hInternal)
              RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
            /* VVM $ */
+           if(CtrlObject->Plugins.Flags.Check(PSIF_DIALOG))
+             RaiseException(EXCEPT_FARDIALOG, 0, 0, 0);
         }
         EXCEPT(xfilter(EXCEPT_OPENPLUGIN,GetExceptionInformation(),PData,1)){
           IsUnload=TRUE;

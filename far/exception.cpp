@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.16 02.07.2002 $ */
+/* Revision: 1.17 10.09.2002 $ */
 
 /*
 Modify:
+  10.09.2002 SVS
+    ! strcpy -> strncpy
   02.07.2002 SVS
     - BugZ#374 - Исключение плагина при выходе из фара
       Ха! А манагер то уже зашутдовен. А в это время вылазит месагбокс...
@@ -154,7 +156,7 @@ int xfilter(
      Неизвестное исключение не стоит игнорировать.
    */
    pName=NULL;
-   strcpy(TruncFileName,NullToEmpty(Module->ModuleName));
+   strncpy(TruncFileName,NullToEmpty(Module->ModuleName),sizeof(TruncFileName));
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */

@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.62 17.08.2002 $ */
+/* Revision: 1.63 10.09.2002 $ */
 
 /*
 Modify:
+  10.09.2002 SVS
+    ! DialogItem приведем к FarDialogItem
+    + некоторое количество приватных функций (куски повтор€ющегос€ код
+      вынесены в отдельные функции)
   17.08.2002 SVS
     ! ќбработка CtrlDown вынесена из обработчика клавиатуры в отдельную
       функцию ProcessOpenComboBox, т.к. вызов ProcessKey(KEY_CTRLDOWN)
@@ -273,14 +277,12 @@ class DlgUserControl{
 */
 struct DialogItem
 {
-  WORD ID;
-  WORD Type;
-  short X1,Y1,X2,Y2;
-  BYTE Focus;
-  BYTE DefaultButton;
-  BYTE Reserved[2];
-  union {
-    unsigned int Selected;
+  int Type;
+  int X1,Y1,X2,Y2;
+  int Focus;
+  union
+  {
+    int Selected;
     char *History;
     char *Mask;
     struct FarList *ListItems;
@@ -288,6 +290,7 @@ struct DialogItem
     CHAR_INFO *VBuf;
   };
   DWORD Flags;
+  int DefaultButton;
   union {
     char Data[512];
     struct {
@@ -298,6 +301,7 @@ struct DialogItem
     } Ptr;
   };
 
+  WORD ID;
   int AutoCount;   // јвтоматизаци€
   struct DialogItemAutomation* AutoPtr;
   DWORD UserData; // ассоциированные данные
@@ -481,6 +485,13 @@ class Dialog: public Frame
     /* 24.08.2000 SVS $ */
 
     int ProcessOpenComboBox(int Type,struct DialogItem *CurItem,int CurFocusPos);
+    int ProcessMoveDialog(DWORD Key);
+
+    int Do_ProcessTab(int Next);
+    int Do_ProcessNextCtrl(int Next);
+    int Do_ProcessFirstCtrl();
+    int Do_ProcessSpace();
+
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);

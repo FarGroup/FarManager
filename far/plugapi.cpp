@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.141 21.08.2002 $ */
+/* Revision: 1.142 10.09.2002 $ */
 
 /*
 Modify:
+  10.09.2002 SVS
+    ! ƒобавим обработку исключений про диалоги - если флаг PSIF_DIALOG
+      установлен - инициируем выгрузку плагина.
   21.08.2002 SVS
     ! ACTL_WAITKEY теперь возвращает код нажатой клавиши
   25.06.2002 SVS
@@ -1117,7 +1120,10 @@ static int Except_FarDialogEx(struct DialogItem *InternalItem)
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
-    frame->UnlockRefresh(); // теперь можно :-)
+  {
+    //while(!frame->Refreshable()) // ј может все таки нужно???
+      frame->UnlockRefresh(); // теперь можно :-)
+  }
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //??
 
