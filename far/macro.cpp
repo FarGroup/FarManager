@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.13 23.12.2000 $ */
+/* Revision: 1.14 25.12.2000 $ */
 
 /*
 Modify:
+  25.12.2000 SVS
+    ! MFLAGS_ вернулись из plugin.hpp
   23.12.2000 SVS
     ! MFLAGS_ переехали в plugin.hpp
     + int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
@@ -67,6 +69,15 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
+#define MFLAGS_MODEMASK            0x0000FFFF
+#define MFLAGS_DISABLEOUTPUT       0x00010000
+#define MFLAGS_RUNAFTERSTART       0x00020000
+#define MFLAGS_EMPTYCOMMANDLINE    0x00040000
+#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
+#define MFLAGS_NOFILEPANELS        0x00100000
+#define MFLAGS_NOPLUGINPANELS      0x00200000
+
 
 static const char *MacroModeName[]={
   "Shell", "Viewer", "Editor", "Dialog", "Search",

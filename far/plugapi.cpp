@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.33 23.12.2000 $ */
+/* Revision: 1.34 25.12.2000 $ */
 
 /*
 Modify:
+  24.12.2000 SVS
+    ! Отключаем "MCMD_PLAYSTRING"
+    ! Уточнения MCMD_LOADALL и MCMD_SAVEALL - не работать во время записи
+      или "воспроизведения макроса
   23.12.2000 SVS
     + MCMD_PLAYSTRING - "проиграть" строку (строка в том виде, как в реестре)
   21.12.2000 SVS
@@ -273,12 +277,16 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         switch(KeyMacro->Command)
         {
           case MCMD_LOADALL: // из реестра в память ФАР с затиранием предыдущего
+            if(Macro.IsRecording() || Macro.IsExecuting())
+              return FALSE;
             return Macro.LoadMacros();
 
           case MCMD_SAVEALL: // из памяти ФАРа в реестра
+            if(Macro.IsRecording() || Macro.IsExecuting())
+              return FALSE;
             Macro.SaveMacros();
             return TRUE;
-
+#if 0
           /* $ 23.12.2000 SVS
                MCMD_PLAYSTRING - "проиграть" строку (строка в том виде,
                как в реестре)
@@ -288,6 +296,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             if(KeyMacro->Str.KeyBuffer && *KeyMacro->Str.KeyBuffer)
                return Macro.PlayKeyMacro(KeyMacro->Str.KeyBuffer);
             return FALSE;
+#endif
         }
       }
       return FALSE;

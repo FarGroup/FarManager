@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.75 23.12.2000 $ */
+/* Revision: 1.76 25.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  25.12.2000 SVS
+    ! ACTL_KEYMACRO поддерживает только 2 команды: MCMD_LOADALL, MCMD_SAVEALL
   23.12.2000 SVS
     + MCMD_PLAYSTRING - "проиграть" строку.
     + MACRO_* - области действия макросов
@@ -743,33 +745,13 @@ struct ActlEjectMedia {
 
 
 enum MacroCommand{
-  MCMD_LOADALL, MCMD_SAVEALL, MCMD_PLAYSTRING,
-};
-
-enum {
-  MACRO_SHELL,MACRO_VIEWER,MACRO_EDITOR,MACRO_DIALOG,MACRO_SEARCH,
-  MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,
-  MACRO_OTHER=0x1000
+  MCMD_LOADALL, MCMD_SAVEALL
 };
 
 struct ActlKeyMacro{
   int Command;
-  union {
-    struct {
-      DWORD Flags;
-      char *KeyBuffer;
-    } Str;
-    DWORD Reserved[3];
-  };
+  DWORD Reserved[3];
 };
-
-#define MFLAGS_MODEMASK            0x0000FFFF
-#define MFLAGS_DISABLEOUTPUT       0x00010000
-#define MFLAGS_RUNAFTERSTART       0x00020000
-#define MFLAGS_EMPTYCOMMANDLINE    0x00040000
-#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
-#define MFLAGS_NOFILEPANELS        0x00100000
-#define MFLAGS_NOPLUGINPANELS      0x00200000
 
 
 typedef int (WINAPI *FARAPIADVCONTROL)(

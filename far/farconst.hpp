@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.13 23.12.2000 $ */
+/* Revision: 1.14 25.12.2000 $ */
 
 /*
 Modify:
+  25.12.2000 SVS
+    ! MACRO_ переехали из plugin.hpp :-)
   23.12.2000 SVS
     ! MACRO_ переехали в plugin.hpp
   21.12.2000 SVS
@@ -100,6 +102,11 @@ enum {DIZ_NOT_UPDATE,DIZ_UPDATE_IF_DISPLAYED,DIZ_UPDATE_ALWAYS};
 // struct EditorUndoData
 enum {UNDO_NONE=0,UNDO_EDIT,UNDO_INSSTR,UNDO_DELSTR};
 
+enum {
+  MACRO_SHELL,MACRO_VIEWER,MACRO_EDITOR,MACRO_DIALOG,MACRO_SEARCH,
+  MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,
+  MACRO_OTHER=0x1000
+};
 
 #define MakeDialogItems(Data,Item) \
   struct DialogItem Item[sizeof(Data)/sizeof(Data[0])]; \
