@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.146 11.07.2003 $ */
+/* Revision: 1.147 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 KM
+    + GlobalSearchHex - Глобальная переменная, хранящая значение
+      "Search for hex" для поиска
+    ! Модификация диалога поиска в режиме hex.
   11.07.2003 SVS
     - BugZ#898 - Возможность перемещения с меньшей дискретностью в HEX-режиме вьювера...
   02.06.2003 VVM
@@ -450,12 +454,10 @@ Modify:
 static void PR_ViewerSearchMsg(void);
 static void ViewerSearchMsg(char *Name);
 
-static int InitLastSearchHex=0;
-
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
-static int InitHex=FALSE;
+static int InitHex=FALSE,SearchHex=FALSE;
 /* $ 27.09.2000 SVS
    ID вьювера - по аналогии с Editor
 */
@@ -488,7 +490,9 @@ Viewer::Viewer()
   LastSearchWholeWords=GlobalSearchWholeWords;
   /* KM $ */
   LastSearchReverse=GlobalSearchReverse;
-  LastSearchHex=InitLastSearchHex;
+  /* $ 22.09.2003 */
+  LastSearchHex=GlobalSearchHex;
+  /* KM $ */
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
   VM.UseDecodeTable=InitUseDecodeTable;
   VM.TableNum=InitTableNum;
@@ -643,7 +647,9 @@ void Viewer::KeepInitParameters()
   GlobalSearchWholeWords=LastSearchWholeWords;
   /* KM $ */
   GlobalSearchReverse=LastSearchReverse;
-  InitLastSearchHex=LastSearchHex;
+  /* $ 22.09.2003 KM */
+  GlobalSearchHex=LastSearchHex;
+  /* KM $ */
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
   InitUseDecodeTable=VM.UseDecodeTable;
   InitTableNum=VM.TableNum;
@@ -2648,14 +2654,101 @@ void Viewer::ChangeViewKeyBar()
 
 long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
-  if(Msg == DN_BTNCLICK)
+  /* 23.09.2003 KM */
+  Dialog* Dlg=(Dialog*)hDlg;
+  char DataStr[NM*2];
+  struct FarDialogItem Item;
+
+  switch(Msg)
   {
-    if(Param1 == 4 || Param1 == 5)
+    case DN_INITDIALOG:
     {
-      Dialog::SendDlgMessage(hDlg,DM_ENABLE,6,(Param1 == 4));
+      /* $ 22.09.2003 KM
+         Переключение видимости строки ввода искомого текста
+         в зависимости от Dlg->Item[6].Selected
+      */
+      Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(long)&Item);
+
+      if (Item.Param.Selected)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
+      }
+      else
+      {
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
+      }
+
+      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,1);
+      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,1);
+      /* KM $ */
+
       return TRUE;
     }
+    case DN_EDITCHANGE:
+    {
+      FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
+
+      if (Param1==2) // Containing text
+      {
+        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'X');
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(long)DataStr);
+      }
+
+      if (Param1==3) // Containing hexadecimal code
+      {
+        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'S');
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)DataStr);
+      }
+      return TRUE;
+    }
+    case DN_BTNCLICK:
+    {
+      if(Param1 == 5 || Param1 == 6)
+      {
+	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        /* $ 22.09.2003 KM
+           Переключение видимости строки ввода искомого текста
+           в зависимости от установленного режима hex search
+        */
+        if (Param1 == 6 && Param2)
+        {
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
+        }
+        else
+        {
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,2,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,3,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
+        }
+        /* KM $ */
+
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,2,(long)&Item);
+        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'X');
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(long)DataStr);
+
+        if (strlen(DataStr)>0)
+        {
+          int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,2,-1);
+          Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,3,UnchangeFlag);
+        }
+
+	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+        return TRUE;
+      }
+    }
   }
+  /* KM $ */
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
@@ -2666,7 +2759,9 @@ static void PR_ViewerSearchMsg(void)
 
 void ViewerSearchMsg(char *MsgStr)
 {
-  Message(0,0,MSG(MViewSearchTitle),MSG(MViewSearchingFor),MsgStr);
+  /* $ 23.09.2003 KM */
+  Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr);
+  /* KM $ */
   PreRedrawParam.Param1=MsgStr;
 }
 
@@ -2679,6 +2774,7 @@ void ViewerSearchMsg(char *MsgStr)
 void Viewer::Search(int Next,int FirstChar)
 {
   const char *TextHistoryName="SearchText";
+  const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ";
   /* $ 01.08.2000 KM
      Добавлен новый checkbox для поиска "Whole words"
   */
@@ -2686,15 +2782,16 @@ void Viewer::Search(int Next,int FirstChar)
   /* 00 */ DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MViewSearchTitle,
   /* 01 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MViewSearchFor,
   /* 02 */ DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-  /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 04 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MViewSearchForText,
-  /* 05 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MViewSearchForHex,
-  /* 06 */ DI_CHECKBOX,40,5,0,0,0,0,0,0,(char *)MViewSearchCase,
-  /* 07 */ DI_CHECKBOX,40,6,0,0,0,0,0,0,(char *)MViewSearchWholeWords,
-  /* 08 */ DI_CHECKBOX,40,7,0,0,0,0,0,0,(char *)MViewSearchReverse,
-  /* 09 */ DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 10 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MViewSearchSearch,
-  /* 11 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MViewSearchCancel
+  /* 03 */ DI_FIXEDIT,5,3,70,3,0,(DWORD)HexMask,DIF_MASKEDIT,0,"",
+  /* 04 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 05 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MViewSearchForText,
+  /* 06 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MViewSearchForHex,
+  /* 07 */ DI_CHECKBOX,40,5,0,0,0,0,0,0,(char *)MViewSearchCase,
+  /* 08 */ DI_CHECKBOX,40,6,0,0,0,0,0,0,(char *)MViewSearchWholeWords,
+  /* 09 */ DI_CHECKBOX,40,7,0,0,0,0,0,0,(char *)MViewSearchReverse,
+  /* 10 */ DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 11 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MViewSearchSearch,
+  /* 12 */ DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MViewSearchCancel
   };
   /* KM $ */
   MakeDialogItems(SearchDlgData,SearchDlg);
@@ -2705,37 +2802,50 @@ void Viewer::Search(int Next,int FirstChar)
   /* $ 01.08.2000 KM
      Добавлена новая переменная WholeWords
   */
-  int SearchLength,Case,WholeWords,ReverseSearch,SearchHex,Match;
+  int SearchLength,Case,WholeWords,ReverseSearch,Match;
   /* KM $ */
 
   if (ViewFile==NULL || Next && *LastSearchStr==0)
     return;
 
-  strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data)-1);
-  SearchDlg[4].Selected=!LastSearchHex;
-  SearchDlg[5].Selected=LastSearchHex;
-  SearchDlg[6].Selected=LastSearchCase;
+  /* 23.09.2003 KM */
+  if (*LastSearchStr)
+    strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr)-1);
+  else
+    *SearchStr=0;
+
+  strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
+  SearchDlg[5].Selected=!LastSearchHex;
+  SearchDlg[6].Selected=LastSearchHex;
+  SearchDlg[7].Selected=LastSearchCase;
+  /* KM $ */
   /* $ 01.08.2000 KM
      Инициализация checkbox'а "Whole words"
   */
-  SearchDlg[7].Selected=LastSearchWholeWords;
+  SearchDlg[8].Selected=LastSearchWholeWords;
   /* KM $ */
-  SearchDlg[8].Selected=LastSearchReverse;
+  SearchDlg[9].Selected=LastSearchReverse;
 
   if (SearchFlags.Check(REVERSE_SEARCH))
-    SearchDlg[8].Selected = !SearchDlg[8].Selected;
+    SearchDlg[9].Selected = !SearchDlg[9].Selected;
 
   if (VM.Unicode)
   {
-    SearchDlg[4].Selected=TRUE;
-    SearchDlg[5].Flags|=DIF_DISABLE;
-    SearchDlg[5].Selected=FALSE;
+    SearchDlg[5].Selected=TRUE;
+    SearchDlg[6].Flags|=DIF_DISABLE;
+    SearchDlg[6].Selected=FALSE;
   }
 
-  if(SearchDlg[5].Selected)
+  if(SearchDlg[6].Selected)
   {
-    SearchDlg[6].Flags|=DIF_DISABLE;
+    SearchDlg[7].Flags|=DIF_DISABLE;
   }
+
+  /* $ 22.09.2003 KM */
+  char HexStr[NM*2];
+  Transform(HexStr,(char *)SearchStr,sizeof(HexStr),'X');
+  strncpy(SearchDlg[3].Data,HexStr,sizeof(SearchDlg[3].Data)-1);
+  /* KM $ */
 
   if (!Next)
   {
@@ -2750,18 +2860,18 @@ void Viewer::Search(int Next,int FirstChar)
       Dlg.ProcessKey(FirstChar);
     }
     Dlg.Process();
-    if (Dlg.GetExitCode()!=10)
+    if (Dlg.GetExitCode()!=11)
       return;
   }
   strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr)-1);
-  SearchHex=SearchDlg[5].Selected;
-  Case=SearchDlg[6].Selected;
+  SearchHex=SearchDlg[6].Selected;
+  Case=SearchDlg[7].Selected;
   /* $ 01.08.2000 KM
      Сохранение состояния checkbox'а "Whole words"
   */
-  WholeWords=SearchDlg[7].Selected;
+  WholeWords=SearchDlg[8].Selected;
   /* KM $ */
-  ReverseSearch=SearchDlg[8].Selected;
+  ReverseSearch=SearchDlg[9].Selected;
 
   strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
   LastSearchHex=SearchHex;
@@ -2780,7 +2890,14 @@ void Viewer::Search(int Next,int FirstChar)
   {
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    strncpy(MsgStr,(char *) SearchStr,sizeof(MsgStr)-1);
+    if (SearchHex)
+    {
+      strncpy(MsgStr,(char *)SearchDlg[3].Data,sizeof(MsgStr)-1);
+      RemoveTrailingSpaces(MsgStr);
+    }
+    else
+      strncpy(MsgStr,(char *)SearchStr,sizeof(MsgStr)-1);
+
     if(strlen(MsgStr)+16 >= X2)
       TruncStrFromEnd(MsgStr, ObjWidth-17);
     InsertQuote(MsgStr);
@@ -2788,12 +2905,9 @@ void Viewer::Search(int Next,int FirstChar)
     SetPreRedrawFunc(PR_ViewerSearchMsg);
     ViewerSearchMsg(MsgStr);
 
-    if (SearchHex)
-      ConvertToHex((char *)SearchStr,SearchLength);
-    else
-      if (!Case)
-        for (int I=0;I<SearchLength;I++)
-          SearchStr[I]=LocalUpper(SearchStr[I]);
+    if (!Case && !SearchHex)
+      for (int I=0;I<SearchLength;I++)
+        SearchStr[I]=LocalUpper(SearchStr[I]);
 
     SelectSize = 0;
     if (Next)
@@ -2990,13 +3104,13 @@ void Viewer::Search(int Next,int FirstChar)
        + После окончания поиска спросим о переходе поиска в начало/конец */
     if (SearchFlags.Check(SEARCH_MODE2))
       Message(MSG_DOWN|MSG_WARNING,1,MSG(MViewSearchTitle),
-              MSG(MViewSearchCannotFind), MsgStr, MSG(MOk));
+        (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),MsgStr,MSG(MOk));
     else
     {
       if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
-                  MSG(MViewSearchCannotFind), MsgStr,
-                  (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
-                   MSG(MHYes), MSG(MHNo)) == 0)
+            (SearchHex?MSG(MViewSearchCannotFindHex):MSG(MViewSearchCannotFind)),MsgStr,
+            (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
+             MSG(MHYes),MSG(MHNo)) == 0)
         Search(2,0);
     }
     /* VVM $ */
@@ -3004,7 +3118,7 @@ void Viewer::Search(int Next,int FirstChar)
 }
 
 
-void Viewer::ConvertToHex(char *SearchStr,int &SearchLength)
+/*void Viewer::ConvertToHex(char *SearchStr,int &SearchLength)
 {
   char OutStr[512],*SrcPtr;
   int OutPos=0,N=0;
@@ -3031,7 +3145,7 @@ void Viewer::ConvertToHex(char *SearchStr,int &SearchLength)
   }
   memcpy(SearchStr,OutStr,OutPos);
   SearchLength=OutPos;
-}
+}*/
 
 
 int Viewer::HexToNum(int Hex)

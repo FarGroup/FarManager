@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.57 15.09.2003 $ */
+/* Revision: 1.58 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 KM
+    + GlobalSearchHex - Глобальная переменная, хранящая значение
+      "Search for hex" для поиска
   15.09.2003 SVS
     + ReservedFilenameSymbols - недопустимые символы в имени файла/каталога
   26.08.2003 SVS
@@ -225,6 +228,11 @@ int GlobalSearchCase=FALSE;
 */
 int GlobalSearchWholeWords=FALSE;
 /* KM $*/
+/* $ 22.09.2003 KM
+   Глобальная переменная, хранящая значение "Search for hex" для поиска
+*/
+int GlobalSearchHex=FALSE;
+/* KM $ */
 int GlobalSearchReverse=FALSE;
 
 int ScreenSaverActive=FALSE;

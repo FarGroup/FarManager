@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.144 20.09.2003 $ */
+/* Revision: 1.145 22.09.2003 $ */
 
 /*
 Modify:
+  22.09.2003 KM
+    + Добавлен поиск 16-ричного кода.
   20.09.2003 KM
     + Добавим в список стандартных таблиц поиска ANSI таблицу,
 	  а то как-то некузяво получается в редакторе и вьювере она
@@ -548,7 +550,7 @@ static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
 /* $ 30.07.2000 KM
    Добавлена переменная WholeWords для поиска по точному совпадению
 */
-static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchInSymLink;
+static int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchInSymLink,SearchHex;
 /* KM $ */
 static int FindFoldersChanged;
 static int SearchFromChanged;
@@ -594,25 +596,50 @@ int _cdecl SortItems(const void *p1,const void *p2)
 long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
-  char *FindText=MSG(MFindFileText),*FindCode=MSG(MFindFileCodePage);
-  char DataStr[NM];
-
+  char *FindText=MSG(MFindFileText),*FindHex=MSG(MFindFileHex),*FindCode=MSG(MFindFileCodePage);
+  char DataStr[NM*2];
+ 
   switch(Msg)
   {
     case DN_INITDIALOG:
     {
-      unsigned int W=Dlg->Item[6].X1-Dlg->Item[4].X1-5;
-      if (strlen(FindText)>W)
+      /* $ 21.09.2003 KM
+         Переключение видимости строки ввода искомого текста
+         в зависимости от Dlg->Item[13].Selected
+      */
+      if (Dlg->Item[13].Selected)
       {
-        strncpy(DataStr,FindText,W-3);
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,FALSE);
+      }
+      else
+      {
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
+      }
+
+      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,1);
+      Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,1);
+      /* KM $ */
+
+      unsigned int W=Dlg->Item[7].X1-Dlg->Item[4].X1-5;
+      if (strlen((Dlg->Item[13].Selected?FindHex:FindText))>W)
+      {
+        strncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),W-3);
         DataStr[W-4]=0;
         strcat(DataStr,"...");
       }
       else
-        strncpy(DataStr,FindText,sizeof(DataStr)-1);
+        strncpy(DataStr,(Dlg->Item[13].Selected?FindHex:FindText),sizeof(DataStr)-1);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
 
-      W=Dlg->Item[0].X2-Dlg->Item[6].X1-3;
+      W=Dlg->Item[0].X2-Dlg->Item[7].X1-3;
       if (strlen(FindCode)>W)
       {
         strncpy(DataStr,FindCode,W-3);
@@ -621,20 +648,20 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       else
         strncpy(DataStr,FindCode,sizeof(DataStr)-1);
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)DataStr);
 
       /* Установка запомненных ранее параметров */
-	  UseAllTables=Opt.CharTable.AllTables;
-	  UseANSI=Opt.CharTable.AnsiTable;
-	  UseUnicode=Opt.CharTable.UnicodeTable;
-	  UseDecodeTable=((UseAllTables==0) && (UseUnicode==0) && (UseANSI==0) && (Opt.CharTable.TableNum>0));
-	  if (UseDecodeTable)
-		TableNum=Opt.CharTable.TableNum-1;
-	  else
-		TableNum=0;
-	  /* -------------------------------------- */
+      UseAllTables=Opt.CharTable.AllTables;
+      UseANSI=Opt.CharTable.AnsiTable;
+      UseUnicode=Opt.CharTable.UnicodeTable;
+      UseDecodeTable=((UseAllTables==0) && (UseUnicode==0) && (UseANSI==0) && (Opt.CharTable.TableNum>0));
+      if (UseDecodeTable)
+        TableNum=Opt.CharTable.TableNum-1;
+      else
+        TableNum=0;
+      /* -------------------------------------- */
 
-	  if (UseAllTables)
+      if (UseAllTables)
         strncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
       else if (UseUnicode)
         strncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
@@ -646,27 +673,27 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         GetTable(&TableSet,TRUE,TableNum,UseUnicode);
         strncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
       }
-	  /* KM $ */
+      /* KM $ */
       else if (!UseDecodeTable)
         strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
       else
         PrepareTable(&TableSet,TableNum,TRUE);
       RemoveChar(TableSet.TableName,'&',TRUE);
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)TableSet.TableName);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,8,(long)TableSet.TableName);
 
       FindFoldersChanged = FALSE;
       SearchFromChanged=FALSE;
 
-      if (Dlg->Item[19].Selected==1)
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,TRUE);
+      if (Dlg->Item[21].Selected==1)
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,TRUE);
       else
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,FALSE);
 
       return TRUE;
     }
     case DN_LISTCHANGE:
     {
-      if (Param1==7)
+      if (Param1==8)
       {
         /* $ 20.09.2003 KM
            Добавим поддержку ANSI таблицы
@@ -711,9 +738,9 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            контролами, только с кнопками немного по-другому, поэтому простое
            нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
       */
-      if (Param1==24 || Param1==26) // [ Find ] или [ Cancel ]
+      if (Param1==26 || Param1==28) // [ Find ] или [ Cancel ]
         return FALSE;
-      else if (Param1==25) // [ Drive ]
+      else if (Param1==27) // [ Drive ]
       {
         IsRedrawFramesInProcess++;
         ActivePanel->ChangeDisk();
@@ -726,43 +753,112 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         PrepareDriveNameStr(SearchFromRoot,sizeof(SearchFromRoot));
         ItemData.PtrLength=strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
-        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,19,(long)&ItemData);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,21,(long)&ItemData);
         PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,PluginMode?FALSE:TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,17,PluginMode?FALSE:TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,14,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,19,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,PluginMode?FALSE:TRUE);
       }
-      else if (Param1==19)
+      else if (Param1==21)
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,TRUE);
         SearchFromChanged=TRUE;
       }
-      else if (Param1==17 || Param1==18 || Param1==20 || Param1==21 || Param1==22)
+      else if (Param1==19 || Param1==20 || Param1==22 || Param1==23 || Param1==24)
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,FALSE);
         SearchFromChanged=TRUE;
       }
-      else if (Param1==13)
+      else if (Param1==15) // [ ] Search for folders
         FindFoldersChanged = TRUE;
+      else if (Param1==13) // [ ] Search for hexadecimal code
+      {
+	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        /* $ 21.09.2003 KM
+           Переключение видимости строки ввода искомого текста
+           в зависимости от установленного чекбокса hex mode
+        */
+        if (Param2)
+        {
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,FALSE);
+        }
+        else
+        {
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,5,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,6,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,11,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,TRUE);
+        }
+        /* KM $ */
+
+        unsigned int W=Dlg->Item[7].X1-Dlg->Item[4].X1-5;
+        if (strlen((Param2?FindHex:FindText))>W)
+        {
+          strncpy(DataStr,(Param2?FindHex:FindText),W-3);
+          DataStr[W-4]=0;
+          strcat(DataStr,"...");
+        }
+        else
+          strncpy(DataStr,(Param2?FindHex:FindText),sizeof(DataStr)-1);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
+
+        Transform(DataStr,Dlg->Item[5].Data,sizeof(DataStr),'X');
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
+
+        if (strlen(DataStr)>0)
+        {
+          int UnchangeFlag=Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,5,-1);
+          Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,UnchangeFlag);
+        }
+
+	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+      }
       return TRUE;
       /* KM $ */
       /* KM $ */
     }
     case DN_EDITCHANGE:
     {
-      if ((Param1==5) && (!FindFoldersChanged))
+      FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
+
+      if (((Param1==5) || (Param1==6)) && (!FindFoldersChanged))
       // Строка "Содержащий текст"
       {
-        FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
         BOOL Checked = (*Item.Data.Data)?FALSE:Opt.FindFolders;
         if (Checked)
-          Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 13, BSTATE_CHECKED);
+          Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_CHECKED);
         else
-          Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 13, BSTATE_UNCHECKED);
+          Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_UNCHECKED);
+      }
+
+      if (Param1==5) // Containing text
+      {
+        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'X');
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
+      }
+
+      if (Param1==6) // Containing hexadecimal code
+      {
+        Transform(DataStr,Item.Data.Data,sizeof(DataStr),'S');
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,5,(long)DataStr);
       }
       return TRUE;
     }
     /* VVM $ */
+    case DN_KEY:
+    {
+      if (Param2==KEY_ALTT) // Обработка "горячей" клавиши Alt-T
+        if (Dlg->Item[13].Selected)
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6,0);
+        else
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5,0);
+    }
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -777,7 +873,7 @@ FindFiles::FindFiles()
   /* $ 30.07.2000 KM
      Добавлена переменная LastWholeWords для поиска по точному совпадению
   */
-  static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchInSymLink=-1;
+  static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchInSymLink=-1,LastSearchHex=0;
   /* KM $ */
   int I;
 
@@ -785,6 +881,7 @@ FindFiles::FindFiles()
   CmpCase=LastCmpCase;
   WholeWords=LastWholeWords;
   SearchInArchives=LastSearchInArchives;
+  SearchHex=LastSearchHex;
   if(LastSearchInSymLink == -1)
     LastSearchInSymLink=Opt.ScanJunction;
   if (!RegVer)
@@ -853,6 +950,8 @@ FindFiles::FindFiles()
     PrepareDriveNameStr(SearchFromRoot,sizeof(SearchFromRoot));
 
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
+    const char *HexMask="HH HH HH HH HH HH HH HH HH HH HH";
+
     /* $ 30.07.2000 KM
        Добавлен новый checkbox "Whole words" в диалог поиска
     */
@@ -860,43 +959,45 @@ FindFiles::FindFiles()
     {
       /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-2,0,0,0,0,(char *)MFindFileTitle,
       /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
-      /* 02 */DI_EDIT,5,3,72,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+      /* 02 */DI_EDIT,5,3,72,3,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
       /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
       /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,"",
-      /* 05 */DI_EDIT,5,6,36,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
-      /* 06 */DI_TEXT,40,5,0,0,0,0,0,0,"",
-      /* 07 */DI_COMBOBOX,40,6,72,16,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
-      /* 08 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
-      /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
-      /* 11 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
-      /* 12 */DI_CHECKBOX,40,8,0,0,0,0,0,0,(char *)MFindArchives,
-      /* 13 */DI_CHECKBOX,40,9,0,0,0,0,0,0,(char *)MFindFolders,
-      /* 14 */DI_CHECKBOX,40,10,0,0,0,0,0,0,(char *)MFindSymLinks,
-      /* 15 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
-      /* 16 */DI_VTEXT,38,7,0,0,0,0,DIF_BOXCOLOR,0,"\xC5\xB3\xB3\xB3\xCF",
-      /* 17 */DI_RADIOBUTTON,5,12,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
-      /* 18 */DI_RADIOBUTTON,5,13,0,0,0,1,0,0,(char *)MSearchAllButNetwork,
-      /* 19 */DI_RADIOBUTTON,5,14,0,0,0,1,0,0,"",
-      /* 20 */DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchFromCurrent,
-      /* 21 */DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
-      /* 22 */DI_RADIOBUTTON,5,17,0,0,0,0,0,0,(char *)MSearchInSelected,
-      /* 23 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 24 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      /* 25 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
-      /* 26 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+      /* 05 */DI_EDIT,5,6,36,6,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
+      /* 06 */DI_FIXEDIT,5,6,36,6,0,(DWORD)HexMask,DIF_MASKEDIT,0,"",
+      /* 07 */DI_TEXT,40,5,0,0,0,0,0,0,"",
+      /* 08 */DI_COMBOBOX,40,6,72,16,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+      /* 09 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 10 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
+      /* 11 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
+      /* 12 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
+      /* 13 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSearchForHex,
+      /* 14 */DI_CHECKBOX,40,8,0,0,0,0,0,0,(char *)MFindArchives,
+      /* 15 */DI_CHECKBOX,40,9,0,0,0,0,0,0,(char *)MFindFolders,
+      /* 16 */DI_CHECKBOX,40,10,0,0,0,0,0,0,(char *)MFindSymLinks,
+      /* 17 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
+      /* 18 */DI_VTEXT,38,7,0,0,0,0,DIF_BOXCOLOR,0,"\xC5\xB3\xB3\xB3\xCF",
+      /* 19 */DI_RADIOBUTTON,5,12,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
+      /* 20 */DI_RADIOBUTTON,5,13,0,0,0,1,0,0,(char *)MSearchAllButNetwork,
+      /* 21 */DI_RADIOBUTTON,5,14,0,0,0,1,0,0,"",
+      /* 22 */DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchFromCurrent,
+      /* 23 */DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
+      /* 24 */DI_RADIOBUTTON,5,17,0,0,0,0,0,0,(char *)MSearchInSelected,
+      /* 25 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 26 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      /* 27 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
+      /* 28 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
     /* KM $ */
-    FindAskDlgData[19].Data=SearchFromRoot;
+    FindAskDlgData[21].Data=SearchFromRoot;
 
     MakeDialogItems(FindAskDlgData,FindAskDlg);
 
 
     if (!*FindStr)
-      FindAskDlg[13].Selected=Opt.FindFolders;
-    for(I=17; I <= 22; ++I)
+      FindAskDlg[15].Selected=Opt.FindFolders;
+    for(I=19; I <= 24; ++I)
       FindAskDlg[I].Selected=0;
-    FindAskDlg[17+SearchMode].Selected=1;
+    FindAskDlg[19+SearchMode].Selected=1;
 
     {
       if (PluginMode)
@@ -908,42 +1009,48 @@ FindFiles::FindFiles()
            дизейблим, а не прячем
         */
         if ((Info.Flags & OPIF_REALNAMES)==0)
-          FindAskDlg[12].Flags |= DIF_DISABLE;
+          FindAskDlg[14].Flags |= DIF_DISABLE;
         /* DJ $ */
-        if (FindAskDlg[17].Selected || FindAskDlg[18].Selected)
+        if (FindAskDlg[19].Selected || FindAskDlg[20].Selected)
         {
-          FindAskDlg[17].Selected=FindAskDlg[18].Selected=0;
-          FindAskDlg[19].Selected=1;
+          FindAskDlg[19].Selected=FindAskDlg[20].Selected=0;
+          FindAskDlg[21].Selected=1;
         }
-        FindAskDlg[17].Flags=FindAskDlg[18].Flags|=DIF_DISABLE;
+        FindAskDlg[19].Flags=FindAskDlg[20].Flags|=DIF_DISABLE;
       }
     }
 
     if (!RegVer || PluginMode)
     {
-      FindAskDlg[14].Selected=0;
-      FindAskDlg[14].Flags|=DIF_DISABLE;
+      FindAskDlg[16].Selected=0;
+      FindAskDlg[16].Flags|=DIF_DISABLE;
     }
     else
-      FindAskDlg[14].Selected=SearchInSymLink;
+      FindAskDlg[16].Selected=SearchInSymLink;
 
     /* $ 14.05.2001 DJ
        не селектим чекбокс, если нельзя искать в архивах
     */
-    if (!(FindAskDlg[12].Flags & DIF_DISABLE))
-      FindAskDlg[12].Selected=SearchInArchives;
+    if (!(FindAskDlg[14].Flags & DIF_DISABLE))
+      FindAskDlg[14].Selected=SearchInArchives;
     /* DJ $ */
 
     strncpy(FindAskDlg[2].Data,FindMask,sizeof(FindAskDlg[2].Data)-1);
     strncpy(FindAskDlg[5].Data,FindStr,sizeof(FindAskDlg[5].Data)-1);
-    FindAskDlg[10].Selected=CmpCase;
-    FindAskDlg[11].Selected=WholeWords;
+
+    char HexStr[NM*2];
+    Transform(HexStr,(char *)FindStr,sizeof(HexStr),'X');
+    strncpy(FindAskDlg[6].Data,HexStr,sizeof(FindAskDlg[6].Data)-1);
+
+    FindAskDlg[11].Selected=CmpCase;
+    FindAskDlg[12].Selected=WholeWords;
+    FindAskDlg[13].Selected=SearchHex;
 
     while (1)
     {
       int ExitCode;
       {
-        FindAskDlg[7].ListItems=&TableList;
+        FindAskDlg[8].ListItems=&TableList;
 
         Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
 
@@ -953,7 +1060,7 @@ FindFiles::FindFiles()
         ExitCode=Dlg.GetExitCode();
       }
 
-      if (ExitCode!=24)
+      if (ExitCode!=26)
       {
         xf_free(TableItem);
         CloseHandle(hPluginMutex);
@@ -1005,18 +1112,19 @@ FindFiles::FindFiles()
     }
     strncpy(FindStr,FindAskDlg[5].Data,sizeof(FindStr)-1);
     /* OT $ */
-    CmpCase=FindAskDlg[10].Selected;
+    CmpCase=FindAskDlg[11].Selected;
     /* $ 30.07.2000 KM
        Добавлена переменная
     */
-    WholeWords=FindAskDlg[11].Selected;
+    WholeWords=FindAskDlg[12].Selected;
     /* KM $ */
-    SearchInArchives=FindAskDlg[12].Selected;
+    SearchHex=FindAskDlg[13].Selected;
+    SearchInArchives=FindAskDlg[14].Selected;
     if (FindFoldersChanged)
-      Opt.FindFolders=FindAskDlg[13].Selected;
+      Opt.FindFolders=FindAskDlg[15].Selected;
 
     if (RegVer && !PluginMode)
-      SearchInSymLink=FindAskDlg[14].Selected;
+      SearchInSymLink=FindAskDlg[16].Selected;
 
     if (*FindStr)
     {
@@ -1027,18 +1135,19 @@ FindFiles::FindFiles()
       */
       GlobalSearchWholeWords=WholeWords;
       /* KM $ */
+      GlobalSearchHex=SearchHex;
     }
-    if (FindAskDlg[17].Selected)
-      SearchMode=SEARCH_ALL;
-    if (FindAskDlg[18].Selected)
-      SearchMode=SEARCH_ALL_BUTNETWORK;
     if (FindAskDlg[19].Selected)
-      SearchMode=SEARCH_ROOT;
+      SearchMode=SEARCH_ALL;
     if (FindAskDlg[20].Selected)
-      SearchMode=SEARCH_FROM_CURRENT;
+      SearchMode=SEARCH_ALL_BUTNETWORK;
     if (FindAskDlg[21].Selected)
-      SearchMode=SEARCH_CURRENT_ONLY;
+      SearchMode=SEARCH_ROOT;
     if (FindAskDlg[22].Selected)
+      SearchMode=SEARCH_FROM_CURRENT;
+    if (FindAskDlg[23].Selected)
+      SearchMode=SEARCH_CURRENT_ONLY;
+    if (FindAskDlg[24].Selected)
         SearchMode=SEARCH_SELECTED;
     if (SearchFromChanged)
     {
@@ -1050,6 +1159,7 @@ FindFiles::FindFiles()
     */
     LastWholeWords=WholeWords;
     /* KM $ */
+    LastSearchHex=SearchHex;
     LastSearchInArchives=SearchInArchives;
     LastSearchInSymLink=SearchInSymLink;
     strncpy(LastFindMask,FindMask,sizeof(LastFindMask)-1);
@@ -2326,7 +2436,7 @@ int FindFiles::LookForString(char *Name)
   FILETIME LastAccess;
   int TimeRead=GetFileTime(FileHandle,NULL,&LastAccess,NULL);
   strncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
-  if (!CmpCase)
+  if (!CmpCase && !SearchHex)
     LocalStrupr(CmpStr);
   /* $ 30.07.2000 KM
      Добавочные переменные
@@ -2341,53 +2451,68 @@ int FindFiles::LookForString(char *Name)
     int UnicodeSearch=UseUnicode;
     int RealReadSize=ReadSize;
 
-    if (UseAllTables || UseUnicode)
+    /* $ 22.09.2003 KM
+       Поиск по hex-кодам
+    */
+    if (!SearchHex)
     {
-      memcpy(SaveBuf,Buf,ReadSize);
-
-      /* $ 21.10.2000 SVS
-         Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
-      */
-      if(!IsFirst)
+      if (UseAllTables || UseUnicode)
       {
-        IsFirst=TRUE;
-        if(*(WORD*)Buf == 0xFFFE) // The text contains the Unicode
-           ReverseBOM=TRUE;       // byte-reversed byte-order mark
-                                  // (Reverse BOM) 0xFFFE as its first character.
-      }
+        memcpy(SaveBuf,Buf,ReadSize);
 
-      if(ReverseBOM)
-      {
-        BYTE Chr;
-        for(int I=0; I < ReadSize; I+=2)
+        /* $ 21.10.2000 SVS
+           Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
+        */
+        if(!IsFirst)
         {
-          Chr=SaveBuf[I];
-          SaveBuf[I]=SaveBuf[I+1];
-          SaveBuf[I+1]=Chr;
+          IsFirst=TRUE;
+          if(*(WORD*)Buf == 0xFFFE) // The text contains the Unicode
+             ReverseBOM=TRUE;       // byte-reversed byte-order mark
+                                    // (Reverse BOM) 0xFFFE as its first character.
         }
+
+        if(ReverseBOM)
+        {
+          BYTE Chr;
+          for(int I=0; I < ReadSize; I+=2)
+          {
+            Chr=SaveBuf[I];
+            SaveBuf[I]=SaveBuf[I+1];
+            SaveBuf[I+1]=Chr;
+          }
+        }
+        /* SVS $ */
       }
-      /* SVS $ */
     }
+    /* KM $ */
 
     while (1)
     {
-      if (DecodeTableNum>0 && !UnicodeSearch)
-        memcpy(Buf,SaveBuf,ReadSize);
-      if (UnicodeSearch)
+      /* $ 22.09.2003 KM
+         Поиск по hex-кодам
+      */
+      if (!SearchHex)
       {
-        WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)SaveBuf,ReadSize/2,Buf,ReadSize,NULL,NULL);
-        ReadSize/=2;
+        if (DecodeTableNum>0 && !UnicodeSearch)
+          memcpy(Buf,SaveBuf,ReadSize);
+        if (UnicodeSearch)
+        {
+          WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)SaveBuf,ReadSize/2,Buf,ReadSize,NULL,NULL);
+          ReadSize/=2;
+        }
+        else
+          /* $ 20.09.2003 KM
+             Добавим поддержку ANSI таблицы
+          */
+          if (UseDecodeTable || UseANSI || DecodeTableNum>0)
+            for (int I=0;I<ReadSize;I++)
+              Buf[I]=TableSet.DecodeTable[Buf[I]];
+		    /* KM $ */
+        if (!CmpCase)
+          LocalUpperBuf(Buf,ReadSize);
       }
-      else
-        /* $ 20.09.2003 KM
-           Добавим поддержку ANSI таблицы
-        */
-        if (UseDecodeTable || UseANSI || DecodeTableNum>0)
-          for (int I=0;I<ReadSize;I++)
-            Buf[I]=TableSet.DecodeTable[Buf[I]];
-		/* KM $ */
-      if (!CmpCase)
-        LocalUpperBuf(Buf,ReadSize);
+      /* KM $ */
+
       int CheckSize=ReadSize-Length+1;
       /* $ 30.07.2000 KM
          Обработка "Whole words" в поиске
@@ -2401,7 +2526,10 @@ int FindFiles::LookForString(char *Name)
         int locResultLeft=FALSE;
         int locResultRight=FALSE;
 
-        if (WholeWords)
+        /* $ 22.09.2003 KM
+           Поиск по hex-кодам
+        */
+        if (WholeWords && !SearchHex)
         {
           if (!FirstIteration)
           {
@@ -2423,6 +2551,7 @@ int FindFiles::LookForString(char *Name)
                (strchr(Opt.WordDiv,Buf[I+Length])!=NULL)))
               locResultRight=TRUE;
         }
+        /* KM $ */
         else
         {
           locResultLeft=TRUE;
@@ -2443,7 +2572,10 @@ int FindFiles::LookForString(char *Name)
       }
       /* KM $ */
       /* KM $ */
-      if (UseAllTables)
+      /* $ 22.09.2003 KM
+         Поиск по hex-кодам
+      */
+      if (UseAllTables && !SearchHex)
       {
         if (PrepareTable(&TableSet,DecodeTableNum++,TRUE))
         {
@@ -2459,19 +2591,24 @@ int FindFiles::LookForString(char *Name)
       }
       else
         break;
+      /* KM $ */
     }
 
     if (RealReadSize==sizeof(Buf))
     {
+      /* $ 22.09.2003 KM
+         Поиск по hex-кодам
+      */
       /* $ 30.07.2000 KM
          Изменение offset при чтении нового блока с учётом WordDiv
       */
       int NewPos;
-      if (UnicodeSearch)
+      if (UnicodeSearch && !SearchHex)
         NewPos=ftell(SrcFile)-2*(Length+1);
       else
         NewPos=ftell(SrcFile)-(Length+1);
       fseek(SrcFile,Max(NewPos,0),SEEK_SET);
+      /* KM $ */
       /* KM $ */
     }
   }

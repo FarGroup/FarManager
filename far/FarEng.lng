@@ -935,6 +935,7 @@
 "Find file - result"
 "A file &mask or several file masks:"
 "Containing &text:"
+"Con&taining hex:"
 "Using c&haracter table:"
 "&Case sensitive"
 "&Whole words"
@@ -942,6 +943,7 @@
 "Search in arch&ives"
 "Search for f&olders"
 "Search in s&ymbolic links"
+"Search for h&ex"
 "Search in &all non-removable drives"
 "Search in all, e&xcept removable and network drives"
 "Search from the &root folder"
@@ -1427,7 +1429,9 @@
 "Cancel"
 
 "Searching for"
+"Searching for bytes"
 "Could not find the string"
+"Could not find the bytes"
 "Continue the search from the beginning of the document?"
 "Continue the search from the end of the document?"
 

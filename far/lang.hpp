@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.129 20.09.2003 $ */
+/* Revision: 1.130 23.09.2003 $ */
 
 /*
 Modify:
+  23.09.2003 KM
+    + MViewSearchingHex, MViewSearchCannotFindHex
   20.09.2003 KM
     + MGetTableWindowsText
   03.09.2003 SVS
@@ -1257,6 +1259,7 @@ enum
   MFindFileResultTitle,
   MFindFileMasks,
   MFindFileText,
+  MFindFileHex,
   MFindFileCodePage,
   MFindFileCase,
   MFindFileWholeWords,
@@ -1264,6 +1267,7 @@ enum
   MFindArchives,
   MFindFolders,
   MFindSymLinks,
+  MSearchForHex,
   MSearchAllDisks,
   MSearchAllButNetwork,
   MSearchFromRoot,
@@ -1747,7 +1751,9 @@ enum
   MViewSearchCancel,
 
   MViewSearchingFor,
+  MViewSearchingHex,
   MViewSearchCannotFind,
+  MViewSearchCannotFindHex,
   MViewSearchFromBegin,
   MViewSearchFromEnd,
 

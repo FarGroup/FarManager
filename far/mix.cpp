@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.148 12.09.2003 $ */
+/* Revision: 1.149 23.09.2003 $ */
 
 /*
 Modify:
+  23.09.2003 KM
+    + Transform() - преобразует строку в hex представление и обратно.
   12.09.2003 SVS
     ! уточнение логики CheckFolder, т.к. конструкция
       GetPathRootOne(Path,FindPath);
@@ -1684,3 +1686,41 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName)
   }
   return FALSE;
 }
+
+/* $ 21.09.2003 KM
+   Трансформация строки по заданному типу.
+*/
+char *Transform(char *Str,const char *ConvStr,int StrLen,char TransformType)
+{
+  int I,L;
+  char *stop;
+
+  switch(TransformType)
+  {
+    case 'X': // Convert common string to hexadecimal string representation
+    {
+      *Str=0;
+      L=strlen(ConvStr);
+      for (I=0;I<StrLen/3,I<L;I++) // StrLen/3 - три выходящих символа на каждый один входящий
+        sprintf(Str+strlen(Str),"%02X ",ConvStr[I]);
+
+	  break;
+    }
+	case 'S': // Convert hexadecimal string representation to common string
+	{
+      *Str=0;
+      L=strlen(ConvStr);
+	  for (I=0;I<StrLen/3,I<L;I++) // StrLen/3 - три входящих символа на каждый один выходящий
+	  {
+        unsigned long value=strtoul(&ConvStr[I*3],&stop,16);
+        sprintf(Str+strlen(Str),"%c",value);
+	  }
+
+	  break;
+	}
+    default:
+      break;
+  }
+  return Str;
+}
+/* KM $ */

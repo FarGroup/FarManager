@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.102 17.09.2003 $ */
+/* Revision: 1.103 21.09.2003 $ */
 
 /*
 Modify:
+  21.09.2003 KM
+    ! Уточнения работы с маской.
+    + Добавление EDMASK_HEX для ввода только шестнадцатиричных символов.
   17.09.2003 SVS
     - Неправильно "исправил" в прошлый раз вставку KEY_MACROPLAINTEXT и KEY_MACRODATE.
       не учел тот факт, что $Date может быть без аргументов
@@ -322,6 +325,7 @@ static const char *EOL_TYPE_CHARS[]={"","\r","\n","\r\n"};
 #define EDMASK_DSS   '#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
 #define EDMASK_DIGIT '9' // позволяет вводить в строку ввода только цифры;
 #define EDMASK_ALPHA 'A' // позволяет вводить в строку ввода только буквы.
+#define EDMASK_HEX   'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 Edit::Edit()
 {
@@ -653,12 +657,33 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
     if (Flags.Check(FEDITLINE_CLEARFLAG) && LeftPos<StrSize)
     {
       SetColor(ColorUnChanged);
-      int Len=strlen(&ShowStr[LeftPos]);
+      /* $ 21.09.2003 KM
+         Уточнения работы с маской
+      */
+      int Len,Size;
+      if (Mask && *Mask)
+      {
+        char *ShortStr=new char[StrSize+1];
+        if (ShortStr==NULL)
+          return;
+        strncpy(ShortStr,ShowStr,StrSize);
+        Len=strlen(RemoveTrailingSpaces(ShortStr));
+        delete[] ShortStr;
+        Size=Len;
+      }
+      else
+      {
+        Len=strlen(&ShowStr[LeftPos]);
+        Size=StrSize;
+      }
       if(Len > EditLength)
         Len=EditLength;
       mprintf("%-*.*s",Len,Len,&ShowStr[LeftPos]);
       SetColor(Color);
-      int BlankLength=EditLength-(StrSize-LeftPos);
+
+      int BlankLength=EditLength-(Size-LeftPos);
+      /* KM $ */
+
       if (BlankLength > 0)
       {
         mprintf("%*s",BlankLength,"");
@@ -1145,8 +1170,28 @@ int Edit::ProcessKey(int Key)
     case KEY_SHIFTEND:  case KEY_SHIFTNUMPAD1:
     {
       DisableEditOut(TRUE);
-      while (CurPos<StrSize)
+
+      /* $ 21.09.2003 KM
+         Уточнения работы с маской
+      */
+      int Len;
+
+      if (Mask && *Mask)
+      {
+        char *ShortStr=new char[StrSize+1];
+        if (ShortStr==NULL)
+          return FALSE;
+        strncpy(ShortStr,Str,StrSize);
+        Len=strlen(RemoveTrailingSpaces(ShortStr));
+        delete[] ShortStr;
+      }
+      else
+        Len=StrSize;
+
+      while (CurPos<Len/*StrSize*/)
         RecurseProcessKey(KEY_SHIFTRIGHT);
+      /* KM $ */
+
       DisableEditOut(FALSE);
       Show();
       return(TRUE);
@@ -1399,7 +1444,23 @@ int Edit::ProcessKey(int Key)
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
-      CurPos=StrSize;
+
+      /* $ 21.09.2003 KM
+         Уточнения работы с маской
+      */
+      if (Mask && *Mask)
+      {
+        char *ShortStr=new char[StrSize+1];
+        if (ShortStr==NULL)
+          return FALSE;
+        strncpy(ShortStr,Str,StrSize);
+        CurPos=strlen(RemoveTrailingSpaces(ShortStr));
+        delete[] ShortStr;
+      }
+      else
+        CurPos=StrSize;
+      /* KM $ */
+
       Show();
       return(TRUE);
     }
@@ -1424,7 +1485,25 @@ int Edit::ProcessKey(int Key)
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
-      CurPos++;
+
+      /* $ 21.09.2003 KM
+         Уточнения работы с маской
+      */
+      if (Mask && *Mask)
+      {
+        char *ShortStr=new char[StrSize+1];
+        if (ShortStr==NULL)
+          return FALSE;
+        strncpy(ShortStr,Str,StrSize);
+        int Len=strlen(RemoveTrailingSpaces(ShortStr));
+        delete[] ShortStr;
+        if (Len>CurPos)
+          CurPos++;
+      }
+      else
+        CurPos++;
+      /* KM $ */
+
       Show();
       return(TRUE);
     }
@@ -1521,13 +1600,35 @@ int Edit::ProcessKey(int Key)
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
-      CurPos++;
+
+      /* $ 21.09.2003 KM
+         Уточнения работы с маской
+      */
+      int Len;
+      if (Mask && *Mask)
+      {
+        char *ShortStr=new char[StrSize+1];
+        if (ShortStr==NULL)
+          return FALSE;
+        strncpy(ShortStr,Str,StrSize);
+        Len=strlen(RemoveTrailingSpaces(ShortStr));
+        delete[] ShortStr;
+        if (Len>CurPos)
+          CurPos++;
+      }
+      else
+      {
+        Len=StrSize;
+        CurPos++;
+      }
+
       /* $ 03.08.2000 SVS
         ! WordDiv -> Opt.WordDiv
       */
-      while (CurPos<StrSize && !(strchr(Opt.WordDiv,Str[CurPos])!=NULL &&
+      while (CurPos<Len/*StrSize*/ && !(strchr(Opt.WordDiv,Str[CurPos])!=NULL &&
              strchr(Opt.WordDiv,Str[CurPos-1])==NULL))
       /* SVS $ */
+      /* KM $ */
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1957,7 +2058,13 @@ void Edit::SetBinaryString(const char *Str,int Length)
   CurPos=0;
   if (Mask && *Mask)
   {
-    for (int i=0;i<strlen(Mask) && Str[i];i++)
+    /* $ 21.09.2003 KM
+       Очистка строки с маской.
+    */
+    RefreshStrByMask(TRUE);
+    /* KM $ */
+
+    for (int i=0;i<strlen(Mask),i<strlen(Str);i++)
     {
       if (CheckCharMask(Mask[i]))
         InsertKey(Str[i]);
@@ -2377,6 +2484,24 @@ int Edit::GetTabCurPos()
 
 void Edit::SetTabCurPos(int NewPos)
 {
+  /* $ 21.09.2003 KM
+     Уточнения работы с маской
+  */
+  int Pos;
+
+  if (Mask && *Mask)
+  {
+    char *ShortStr=new char[StrSize+1];
+    if (ShortStr==NULL)
+      return;
+    strncpy(ShortStr,Str,StrSize);
+    Pos=strlen(RemoveTrailingSpaces(ShortStr));
+    delete[] ShortStr;
+    if (NewPos>Pos)
+      NewPos=Pos;
+  }
+  /* KM $ */
+
   CurPos=TabPosToReal(NewPos);
 }
 
@@ -2734,6 +2859,12 @@ int Edit::KeyMatchedMask(int Key)
   /* KM $ */
   else if (Mask[CurPos]==EDMASK_ALPHA && LocalIsalpha(Key))
     Inserted=TRUE;
+  /* $ 20.09.2003 KM
+     Добавлена поддержка hex-символов.
+  */
+  else if (Mask[CurPos]==EDMASK_HEX && (isdigit(Key) || (LocalUpper(Key)>='A' && LocalUpper(Key)<='F') || (LocalUpper(Key)>='a' && LocalUpper(Key)<='f')))
+    Inserted=TRUE;
+  /* KM $ */
 
   return Inserted;
 }
@@ -2741,7 +2872,7 @@ int Edit::KeyMatchedMask(int Key)
 
 int Edit::CheckCharMask(char Chr)
 {
-  return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA)?TRUE:FALSE;
+  return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA || Chr==EDMASK_HEX)?TRUE:FALSE;
 }
 
 void Edit::SetDialogParent(DWORD Sets)

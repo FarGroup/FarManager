@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.192 02.09.2003 $ */
+/* Revision: 1.193 23.09.2003 $ */
 
 /*
 Modify:
+  23.09.2003 KM
+    + Transform() - преобразует строку в hex представление и обратно.
   02.09.2003 SVS
     ! Удаляем нафиг FolderContentReady - ведь есть же CheckFolder!!!
     ! У CheckFolder - параметр есть "const"
@@ -819,6 +821,12 @@ const char *GetCommaWord(const char *Src,char *Word,char Separator=',');
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner);
 void SIDCacheFlush(void);
+
+/* $ 21.09.2003 KM
+   Трансформирует строку по заданному типу.
+*/
+char *Transform(char *Str,const char *ConvStr,int MaxLen,char TransformType);
+/* KM $ */
 
 void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
