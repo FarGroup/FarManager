@@ -5,10 +5,13 @@ Screen grabber
 
 */
 
-/* Revision: 1.21 12.12.2004 $ */
+/* Revision: 1.22 15.12.2004 $ */
 
 /*
 Modify:
+  15.12.2004 WARP
+    ! Граббер запрещает фрейму перерисовываться.
+    ! Граббер восстанавливает размер/видимость курсора при каждом нажатии клавиши.
   14.12.2004 WARP
     - Обновление текущего фрейма после работы граббера
       и восстановления им экрана (раз уж позволяем
@@ -88,6 +91,7 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
+#include "frame.hpp"
 
 #if defined(USE_WFUNC)
 extern WCHAR Oem2Unicode[];
@@ -95,6 +99,10 @@ extern WCHAR Oem2Unicode[];
 
 Grabber::Grabber()
 {
+  Frame *pFrame = FrameManager->GetCurrentFrame ();
+
+  pFrame->LockRefresh ();
+
   SaveScr=new SaveScreen;
 
   PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -128,6 +136,7 @@ Grabber::Grabber()
 
   delete SaveScr;
 
+  pFrame->UnlockRefresh ();
   FrameManager->RefreshFrame ();
 }
 
@@ -295,6 +304,8 @@ int Grabber::ProcessKey(int Key)
         0,0 консоли.
     Не было учтено режима выполнения макроса.
   */
+  SetCursorType(TRUE,60);
+
   if(CtrlObject->Macro.IsExecuting())
   {
     if ((Key&KEY_SHIFT) && ResetArea)
