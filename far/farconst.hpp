@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.74 12.09.2003 $ */
+/* Revision: 1.75 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    ! Изменения во флагам макрокоманд. В принципе все описано в комметариях
   12.09.2003 SVS
     + CHKFLD_NOTFOUND - "нет такого каталога"
   03.09.2003 SVS
@@ -242,7 +244,7 @@ enum DIZUPDATETYPE {
 };
 
 // *** Macros ***
-// области действия макросов (начало исполнения)
+// области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
 enum MACROMODEAREA {
   MACRO_OTHER,         // Режим копирования текста с экрана, вертикальные меню
   MACRO_SHELL,         // Файловые панели
@@ -262,21 +264,37 @@ enum MACROMODEAREA {
 };
 
 // Флаги для макросов
-#define MFLAGS_MODEMASK            0x0000FFFF // маска для выделения области действия (области начала исполнения) макроса
-#define MFLAGS_DISABLEOUTPUT       0x00010000 // подавить обновление экрана во время выполнения макроса
-#define MFLAGS_RUNAFTERFARSTART    0x00020000 // этот макрос запускается при старте ФАРа
-#define MFLAGS_EMPTYCOMMANDLINE    0x00040000 // запускать, если командная линия пуста
-#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000 // запускать, если командная линия не пуста
-#define MFLAGS_NOFILEPANELS        0x00100000 // запускать, если это плагиновая панель
-#define MFLAGS_NOPLUGINPANELS      0x00200000 // запускать, если это файловая панель
-#define MFLAGS_NOFOLDERS           0x00400000 // запускать, если текущий объект "файл"
-#define MFLAGS_NOFILES             0x00800000 // запускать, если текущий объект "папка"
-#define MFLAGS_REUSEMACRO          0x02000000 // повторное использование макросов (вызов макроса из макроса)
-#define MFLAGS_SELECTION           0x04000000 // запускать, если есть выделение
-#define MFLAGS_NOSELECTION         0x08000000 // запускать, если есть нет выделения
-#define MFLAGS_NOSENDKEYSTOPLUGINS 0x10000000 // НЕ передавать клавиши во время записи/воспроизведения макроса
-#define MFLAGS_RUNAFTERFARSTART2   0x40000000 // признак того, что макрос стартанул при автостарте.
+#define MFLAGS_MODEMASK            0x000000FF // маска для выделения области действия (области начала исполнения) макроса
+
+#define MFLAGS_DISABLEOUTPUT       0x00000100 // подавить обновление экрана во время выполнения макроса
+#define MFLAGS_NOSENDKEYSTOPLUGINS 0x00000200 // НЕ передавать клавиши во время записи/воспроизведения макроса
+//#define MFLAGS_                  0x00000400 //
+#define MFLAGS_RUNAFTERFARSTART    0x00000800 // этот макрос запускается при старте ФАРа
+
+#define MFLAGS_EMPTYCOMMANDLINE    0x00001000 // запускать, если командная линия пуста
+#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00002000 // запускать, если командная линия не пуста
+
+#define MFLAGS_SELECTION           0x00004000 // активная:  запускать, если есть выделение
+#define MFLAGS_NOSELECTION         0x00008000 // активная:  запускать, если есть нет выделения
+#define MFLAGS_PSELECTION          0x00010000 // пассивная: запускать, если есть выделение
+#define MFLAGS_PNOSELECTION        0x00020000 // пассивная: запускать, если есть нет выделения
+#define MFLAGS_EDITSELECTION       0x00040000 // запускать, если есть выделение в редакторе
+#define MFLAGS_EDITNOSELECTION     0x00080000 // запускать, если есть нет выделения в редакторе
+#define MFLAGS_NOFILEPANELS        0x00100000 // активная:  запускать, если это плагиновая панель
+#define MFLAGS_NOPLUGINPANELS      0x00200000 // активная:  запускать, если это файловая панель
+#define MFLAGS_PNOFILEPANELS       0x00400000 // пассивная: запускать, если это плагиновая панель
+#define MFLAGS_PNOPLUGINPANELS     0x00800000 // пассивная: запускать, если это файловая панель
+#define MFLAGS_NOFOLDERS           0x01000000 // активная:  запускать, если текущий объект "файл"
+#define MFLAGS_PNOFOLDERS          0x02000000 // пассивная: запускать, если текущий объект "файл"
+#define MFLAGS_PNOFILES            0x04000000 // пассивная: запускать, если текущий объект "папка"
+#define MFLAGS_NOFILES             0x08000000 // активная:  запускать, если текущий объект "папка"
+
+#define MFLAGS_LABELPRESENT        0x10000000 // есть "метка" для F? клавиш
+#define MFLAGS_REUSEMACRO          0x20000000 // повторное использование макросов (вызов макроса из макроса)
+#define MFLAGS_NEEDSAVEMACRO       0x40000000 // необходимо этот макрос запомнить
 #define MFLAGS_DISABLEMACRO        0x80000000 // этот макрос отключен
+
+
 
 // коды возврата для KeyMacro::GetCurRecord()
 enum MACRORECORDANDEXECUTETYPE{

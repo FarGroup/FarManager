@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.98 26.09.2003 $ */
+/* Revision: 1.99 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    ! RunStartMacro() - "всегда"
   26.09.2003 SVS
     ! Изменения в названиях макроклавиш
   25.07.2003 SVS
@@ -518,6 +520,8 @@ int GetInputRecord(INPUT_RECORD *rec)
   {
      _KEYMACRO(CleverSysLog SL("GetInputRecord()"));
     int VirtKey,ControlState;
+    CtrlObject->Macro.RunStartMacro();
+
     int MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
     {
@@ -528,20 +532,6 @@ int GetInputRecord(INPUT_RECORD *rec)
         ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
       _SVS(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
-//      memset(rec,0,sizeof(*rec));
-      return(MacroKey);
-    }
-    if (CtrlObject->Cp()&&CtrlObject->Cp()->ActivePanel && !CmdMode && CtrlObject->Plugins.IsPluginsLoaded())
-      CtrlObject->Macro.RunStartMacro();
-    MacroKey=CtrlObject->Macro.GetKey();
-    if (MacroKey)
-    {
-      ScrBuf.Flush();
-      TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE || (MacroKey&MCODE_OP_SENDKEY)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
-      if(!(MacroKey&KEY_SHIFT))
-        ShiftPressed=0;
-      _KEYMACRO(SysLog("MacroKey2 =%s",_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }

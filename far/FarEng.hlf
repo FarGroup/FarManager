@@ -3088,10 +3088,19 @@ constructions.
     The main usage of macro commands is assignment of hotkeys for calling
 external plugins and for overloading FAR actions.
 
+    See also:
 
-    #Macro command areas of execution#
+    ~Macro command areas of execution~@KeyMacroArea@
+    ~Hotkeys~@KeyMacroAssign@
+    ~Recording and playing-back macro commands~@KeyMacroRecPlay@
+    ~Deleting a macro command~@KeyMacroDelete@
+    ~Macro command settings~@KeyMacroSetting@
+    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
-    FAR allows the creation of independent macro commands (commands with
+
+@KeyMacroArea
+$ #Macro command areas of execution#
+    FAR allows the creation of independent ~macro commands~@KeyMacro@ (commands with
 identical hotkeys) for different areas of execution.
 
     Attention: The area of execution, to which the macro command will
@@ -3122,9 +3131,9 @@ command that is assigned to this hotkey will be deleted.
 in different areas of execution.
 
 
-    #Hotkeys#
-
-    A macro command can be assigned to:
+@KeyMacroAssign
+$ #Hotkeys#
+    A ~macro command~@KeyMacro@ can be assigned to:
 
     1. any key;
     2. any key combination with Ctrl, Alt and Shift modifiers;
@@ -3140,9 +3149,9 @@ F1, Ctrl-F5) in the hotkey assignment dialog because of their special
 meanings. To assign a macro command to such key combination, select it from
 the dropdown list.
 
-    #Recording and playing-back macro commands#
-
-    A macro command can be played-back in one of the two following modes:
+@KeyMacroRecPlay
+$ #Recording and playing-back macro commands#
+    A ~macro command~@KeyMacro@ can be played-back in one of the two following modes:
 
     1. General mode: keys pressed during the recording or the
        playing-back #will be# sent to plugins.
@@ -3197,11 +3206,11 @@ do what it usually does as a reaction to this combination.
        that will be used to execute the recorded sequence can be
        set.
 
-    #Deleting a macro command#
-
-    To delete a macro command an empty (containing no commands) macro should
-be recorded and assigned the hotkey of the macro command that needs to be
-deleted.
+@KeyMacroDelete
+$ #Deleting a macro command#
+    To delete a ~macro command~@KeyMacro@ an empty (containing no commands)
+macro should be recorded and assigned the hotkey of the macro command that
+needs to be deleted.
 
     This can be achieved by the following steps:
 
@@ -3236,40 +3245,74 @@ be displayed when the macro command playback is finished.
    Allows to execute the macro command immediately after the
 FAR Manager is started.
 
-   Macro command execution conditions:
+   Для активной и пассивной панелей возможны следующие условия,
+активизирующие макрокоманду:
 
-   #Empty command line#
-       [x] - execute only if the command line is empty
-       [ ] - execute only if the command line is not empty
-       [?] - ignore the command line state
+     #Plugin panel#
+         [x] - execute only if the current panel is a plugin panel
+         [ ] - execute only if the current panel is a file panel
+         [?] - ignore the panel type
 
-   #Plugin panel#
-       [x] - execute only if the current panel is a plugin panel
-       [ ] - execute only if the current panel is a file panel
-       [?] - ignore the panel type
+     #Execute for folders#
+         [x] - execute only if a folder is under the panel cursor
+         [ ] - execute only if a file is under the panel cursor
+         [?] - execute for both folders and files
 
-   #Execute for folders#
-       [x] - execute only if a folder is under the panel cursor
-       [ ] - execute only if a file is under the panel cursor
-       [?] - execute for both folders and files
+     #Selection exists#
+         [x] - execute only if there are marked files/directories
+               on the panel
+         [ ] - execute only if there are no marked files/directories
+               on the panel
+         [?] - ignore the file selection state
 
-   #Selection exists#
-       [x] - execute only if there are marked files/directories
-             on the panel or a selected block in the editor
-       [ ] - execute only if there are no marked files/directories
-             on the panel or no selected block in the editor
-       [?] - ignore the block/file selection state
+   Прочие условия активизирующие макрокоманду:
 
-    Some key combinations (including Enter, Esc, F1 and Ctrl-F5) cannot be
+     #Empty command line#
+         [x] - execute only if the command line is empty
+         [ ] - execute only if the command line is not empty
+         [?] - ignore the command line state
+
+     #Отмечен блок#
+        [x] - выполнять, только если выделен блок в редакторе,
+              программе просмотра или в строке ввода в диалоге.
+        [ ] - выполнять, если нет отмеченного блока
+        [?] - игнорировать состояние отметки блока
+
+
+   Notes:
+
+   1. FAR, перед активацией макрокоманды, проверяет все описанные выше условия.
+
+   2. Some key combinations (including Enter, Esc, F1 and Ctrl-F5) cannot be
 entered directly because they have special functions in the dialog.
 To assign a macro to one of those key combinations, select it from
 the drop-down list.
 
 @KeyMacroCmds
 $ #Commands, used inside the text of a macro command#
-   FAR supports several special "pseudo-keys" that cannot be used when
-entering a macro in the standard way. They can be added to a macro only by
-editing the registry or by using special programs or plugins.
+   FAR поддерживает некоторые специальные псевдоклавиши, которые невозможно
+использовать во время ~записи макроса~@KeyMacroRecPlay@ стандартным образом:
+
+     ~$Date~@KeyMacroODate@       - вставка текущего времени
+     ~$Exit~@KeyMacroOExit@       - прервать выполнение макрокоманды
+     ~$If-$Else~@KeyMacroOIf@   - условный оператор
+     ~$MMode~@KeyMacroOMMode@      - сменить режим макроса
+     ~$Rep~@KeyMacroORep@        - оператор цикла
+     ~$Text~@KeyMacroOText@       - вставка произвольного текста
+     ~$XLat~@KeyMacroOXLat@       - функция транслитерации
+
+   Добавить перечисленные специальные макроклавиши в ~макрос~@KeyMacro@
+можно только путем ручной правки реестра или путем применения специальных
+программ/плагинов.
+
+    See also:
+
+    ~Keyboard macro commands (macro command)~@KeyMacro@
+
+@KeyMacroODate
+$ #$Date - вставка текущего времени#
+   Специальная макрокоманда '$Date' предназначена для
+вставки текущей даты/времени.
 
    #$Date ["format"]#
 
@@ -3345,6 +3388,26 @@ to the format used by the strftime function):
 
    Arbitrary text in the format string must be in the OEM codepage.
 
+   The following escape sequences are allowed:
+
+    \"   The '"' character
+    \\   The '\' character
+    \%   The '%' character (same as '%%')
+    \n   New line `\n' (same as '%n')
+    \t   Tab `\t' (same as '%t')
+    \xNN Hex code of characters in the OEM code page
+
+
+    See also:
+
+    ~Keyboard macro commands (macro command)~@KeyMacro@
+    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+@KeyMacroOText
+$ #$Text - вставка произвольного текста#
+   Специальная макрокоманда '$Text' предназначена для
+вставки произвольного текста.
+
    #$Text "string"#
 
    Insert text. The inserted text 'string' must be in the OEM code page.
@@ -3353,23 +3416,143 @@ to the format used by the strftime function):
 sequence containing lengths of arbitrary text and will also lower memory
 usage in such macro sequences.
 
-   #$MMode 1#
-
-   Change macro mode. Toggles the display mode. Works as a trigger.
-
-   #$XLat#
-
-   Invokes the transliteration function. Works independently of
-what key is assigned in TechInfo##10.
-
-
-   Notes:
-
-   1. In the '$Date' and '$Text' macro commands the following escape
-sequences are allowed:
+   In the '$Text' macro commands the following escape sequences are allowed:
 
         \"   The '"' character
         \\   The '\' character
         \n   New line `\n'
         \t   Tab `\t'
         \xNN Hex code of characters in the OEM code page
+
+   See also:
+
+   ~Keyboard macro commands (macro command)~@KeyMacro@
+   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+@KeyMacroOMMode
+$ #$MMode - сменить режим макроса#
+   Специальная макрокоманда '$MMode' позволяет изменять режим
+перерисовки экрана во время проигрывания макропоследовательности.
+
+   #$MMode 1#
+
+   Toggles the display mode. Works as a trigger.
+
+   See also:
+
+   ~Keyboard macro commands (macro command)~@KeyMacro@
+   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+@KeyMacroOExit
+$ #$Exit - прервать выполнение макрокоманды#
+    Специальная макрокоманда '$Exit' прерывает выполнение
+макропоследовательности.
+
+    #$Exit#
+
+   See also:
+
+   ~Keyboard macro commands (macro command)~@KeyMacro@
+   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+
+@KeyMacroOXLat
+$ #$XLat - функция транслитерации#
+    Специальная макрокоманда '$XLat' вызывает функцию транслитерации.
+
+   #$XLat#
+
+   Works independently of what key is assigned in TechInfo##10.
+
+   See also:
+
+   ~Keyboard macro commands (macro command)~@KeyMacro@
+   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+@KeyMacroORep
+$ #$Rep - оператор цикла#
+   Специальная макрокоманда '$Rep' позволяет организовать циклическое
+выполнение некоторой последовательности комбинации клавиш.
+
+   #$Rep Count Sequence $EndRep#
+
+   Повторить 'Count' раз последовательность комбинации клавиш
+'Sequence'. Допускается 16 уровней вложения оператора $Rep
+
+   See also:
+
+   ~Keyboard macro commands (macro command)~@KeyMacro@
+   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+@KeyMacroOIf
+$ #$If-$Else - условный оператор#
+   Специальная макрокоманда '$If-$Else' позволяет организовать
+в макросах процесс ветвления макропоследовательности.
+
+   #$If [!]Condition $Then then-sequence [$Else else-sequence] $EndIf#
+
+   'Condition' может быть одним из нижеследующих ключевых слов,
+значение которых проверяется #на момент исполнения# оператора '$If':
+
+     - проверка флагов макрокоманды
+
+       #DisableOutput#        запрещена перерисовка экрана
+
+     - проверка области, в которой исполняется в данный момент
+       макропоследовательность.
+
+       #Shell#                файловые панели
+       #Viewer#               внутренняя программа просмотра
+       #Editor#               редактор
+       #Dialog#               диалоги
+       #Search#               быстрый поиск в панелях
+       #Disks#                меню выбора дисков
+       #MainMenu#             основное меню
+       #Menu#                 прочие меню
+       #Help#                 система помощи
+       #Info#                 информационная панель
+       #QView#                панель быстрого просмотра
+       #Tree#                 панель дерева папок
+       #Other#                режим копирования текста с экрана,
+                            вертикальные меню
+
+     - проверка состояний активной панели
+
+       #APanel.Visible#       панель видима
+       #APanel.Empty#         панель пуста
+       #APanel.Plugin#        плагиновая панель
+       #APanel.Folder#        текущий элемент панели - папка
+       #APanel.Selected#      на панели есть отмеченные файлы/папки
+       #APanel.Left#          активная панель слева
+
+     - проверка состояний пассивной панели
+
+       #PPanel.Visible#       панель видима
+       #PPanel.Empty#         панель пуста
+       #PPanel.Plugin#        плагиновая панель
+       #PPanel.Folder#        текущий элемент панели - папка
+       #PPanel.Selected#      на панели есть отмеченные файлы/папки
+       #PPanel.Left#          пассивная панель слева
+
+     - проверка состояний строк ввода/редактора/программы просмотра
+
+       #Selected#             выделен блок
+
+     - проверка различных состояний
+
+       #Cmd.Empty#            командная строка пуста
+       #Editor.Eof#           достигнут конец файла в редакторе
+       #Viewer.Eof#           достигнут конец файла в программе
+                            просмотра.
+
+   Непосредственно перед 'Condition' может стоять символ '!',
+который обозначает операцию "НЕТ" (отрицание). В этом случае
+последовательность 'then-sequence' будет исполняться, если
+условие 'Condition' ложно.
+
+   Часть оператора '$Else Seq_else' может отсутствовать.
+
+   See also:
+
+   ~Keyboard macro commands (macro command)~@KeyMacro@
+   ~Commands, used inside the text of a macro command~@KeyMacroCmds@

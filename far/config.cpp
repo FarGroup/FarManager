@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.157 18.09.2003 $ */
+/* Revision: 1.158 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    + KeyMacros\KeyRecord1 и KeyMacros\KeyRecord2 позволяют назначать
+      клавиши записи макросов
   18.09.2003 KM
     + Opt.CharTable
   03.09.2003 SVS
@@ -486,7 +489,9 @@ static char WordDivForXlat0[257]=" \t!#$%^&*()+|=\\/@?";
 
 char PersonalPluginsPath[1024];
 char KeyNameConsoleDetachKey[64];
-const char szCtrlShiftX[]="CtrlShiftX";
+static const char szCtrlShiftX[]="CtrlShiftX";
+static const char szCtrlDot[]="Ctrl.";
+static const char szCtrlShiftDot[]="CtrlShift.";
 
 // KeyName
 const char NKeyColors[]="Colors";
@@ -1657,6 +1662,13 @@ void ReadConfig()
     Opt.EdOpt.TabSize=8;
   if (Opt.ViOpt.TabSize<1 || Opt.ViOpt.TabSize>512)
     Opt.ViOpt.TabSize=8;
+
+  GetRegKey(NKeyKeyMacros,"KeyRecord1",KeyNameFromReg,szCtrlDot,sizeof(KeyNameFromReg)-1);
+  if((Opt.KeyMacroRecord1=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.KeyMacroRecord1=KEY_CTRLDOT;
+  GetRegKey(NKeyKeyMacros,"KeyRecord2",KeyNameFromReg,szCtrlShiftDot,sizeof(KeyNameFromReg)-1);
+  if((Opt.KeyMacroRecord2=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.KeyMacroRecord2=KEY_CTRLSHIFTDOT;
 
   GetRegKey(NKeyXLat,"EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)

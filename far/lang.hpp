@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.130 23.09.2003 $ */
+/* Revision: 1.131 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    + MMacroSettingsSelectionBlockPresent, MMacroSettingsActivePanel, MMacroSettingsPassivePanel,
   23.09.2003 KM
     + MViewSearchingHex, MViewSearchCannotFindHex
   20.09.2003 KM
@@ -1853,10 +1855,13 @@ enum
   MMacroSettingsTitle,
   MMacroSettingsEnableOutput,
   MMacroSettingsRunAfterStart,
-  MMacroSettingsCommandLine,
+  MMacroSettingsActivePanel,
+  MMacroSettingsPassivePanel,
   MMacroSettingsPluginPanel,
   MMacroSettingsFolders,
   MMacroSettingsSelectionPresent,
+  MMacroSettingsCommandLine,
+  MMacroSettingsSelectionBlockPresent,
 
   MCannotSaveFile,
   MTextSavedToTemp,

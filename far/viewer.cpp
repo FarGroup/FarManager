@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.147 22.09.2003 $ */
+/* Revision: 1.148 03.10.2003 $ */
 
 /*
 Modify:
+  03.10.2003 SVS
+    + обработка KEY_MACRO_EDITSELECTED и KEY_MACRO_CHECKEOF во вьювере
   22.09.2003 KM
     + GlobalSearchHex - Глобальная переменная, хранящая значение
       "Search for hex" для поиска
@@ -2331,6 +2333,16 @@ int Viewer::ProcessKey(int Key)
 //        LastSelPos=FilePos;
       }
       return(TRUE);
+
+    case KEY_MACRO_EDITSELECTED:
+    {
+      return SelectSize==0?FALSE:TRUE;
+    }
+
+    case KEY_MACRO_CHECKEOF:
+    {
+      return LastPage || ViewFile==NULL;
+    }
 
     default:
       if (Key>=' ' && Key<=255)

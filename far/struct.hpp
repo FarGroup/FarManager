@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.105 17.09.2003 $ */
+/* Revision: 1.106 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    + Opt.KeyMacroRecord1 аля KEY_CTRLDOT и Opt.KeyMacroRecord2  аля KEY_CTRLSHIFTDOT
   17.09.2003 KM
     + Opt.CharTable
   25.08.2003 SVS
@@ -735,6 +737,8 @@ struct Options
      клавиш */
   int MacroReuseRules;
   /* SVS $ */
+  DWORD KeyMacroRecord1; // аля KEY_CTRLDOT
+  DWORD KeyMacroRecord2; // аля KEY_CTRLSHIFTDOT
   /* $ 22.01.2001 SVS
    + Opt.CursorSize - Размер курсора ФАРа :-)
      клавиш */

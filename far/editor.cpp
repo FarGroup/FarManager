@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.233 26.09.2003 $ */
+/* Revision: 1.234 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    + KEY_MACRO_CHECKEOF - проверка конца файла
   26.09.2003 SVS
     ! Изменения в названиях макроклавиш
     + Добавлена индикация Ctrl-Q в статусной строке - символ '"'
@@ -3293,6 +3295,9 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     }
+
+    case KEY_MACRO_CHECKEOF:
+      return !CurLine->Next && CurPos>=CurLine->EditLine.GetLength();
 
     /* $ 25.04.2001 SVS
        Для макросов - есть блок или нету

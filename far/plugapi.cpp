@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.161 08.09.2003 $ */
+/* Revision: 1.162 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    ! Уточнение структуры ActlKeyMacro: добавлен член Param.PlainText -
+      указатель на строку, содержащую макропоследовательность.
   08.09.2003 SVS
     + Новая команда для ACTL_KEYMACRO: MCMD_POSTMACROSTRING - запостить макрос
       в виде plain-text.
@@ -769,11 +772,22 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
           case MCMD_POSTMACROSTRING:
           {
-            if(KeyMacro->Param.PlainText && *KeyMacro->Param.PlainText)
-               return Macro.PostTempKeyMacro(KeyMacro->Param.PlainText);
-            return FALSE;
+            return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags);
           }
-
+#if 0
+          case MCMD_COMPILEMACRO:
+          {
+            struct MacroRecord CurMacro={0};
+            int Ret=Macro.ParseMacroString(&CurMacro,KeyMacro->Param.PlainText.SequenceText);
+            if(Ret)
+            {
+              //KeyMacro->Params.Compile.Flags=CurMacro.Flags;
+              KeyMacro->Param.Compile.Sequence=CurMacro.Buffer;
+              KeyMacro->Param.Compile.Count=CurMacro.BufferSize;
+            }
+            return Ret;
+          }
+#endif
         }
       }
       return FALSE;
@@ -784,18 +798,18 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       if(CtrlObject && Param && ((struct KeySequence*)Param)->Count > 0)
       {
         struct MacroRecord MRec;
-        MRec.Flags=(((struct KeySequence*)Param)->Flags)<<16;
+        MRec.Flags=(((struct KeySequence*)Param)->Flags)<<8;
         MRec.Key=0;
         MRec.BufferSize=((struct KeySequence*)Param)->Count;
         if(MRec.BufferSize == 1)
           MRec.Buffer=(DWORD *)((struct KeySequence*)Param)->Sequence[0];
         else
           MRec.Buffer=((struct KeySequence*)Param)->Sequence;
-        return CtrlObject->Macro.PostTempKeyMacro(&MRec);
+        return CtrlObject->Macro.PostNewMacro(&MRec,TRUE);
 #if 0
         // Этот кусок - для дальнейших экспериментов
         {
-          //CtrlObject->Macro.PostTempKeyMacro(&MRec);
+          //CtrlObject->Macro.PostNewMacro(&MRec);
           for(int I=0; I < MRec.BufferSize; ++I)
           {
             int Key=MRec.Buffer[I];

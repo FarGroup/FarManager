@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.28 26.09.2003 $ */
+/* Revision: 1.29 04.10.2003 $ */
 
 /*
 Modify:
+  04.10.2003 SVS
+    !  уча переделок - все описание см. 01715.Macro.txt
   26.09.2003 SVS
     ! ѕереименование
       GetMacroPlainText        -> GetPlainText
@@ -107,12 +109,13 @@ struct MacroRecord
 
 /* $TODO:
     1. ”далить IndexMode[], Sort()
-    2. »з MacroPROM сделать
-       struct MacroRecord *MacroPROM[MACRO_LAST];
+    2. »з MacroLIB сделать
+       struct MacroRecord *MacroLIB[MACRO_LAST];
 */
 class KeyMacro
 {
   private:
+    DWORD MacroVersion;
     // тип записи - с вызовом диалога настроек или...
     // 0 - нет записи, 1 - проста€ запись, 2 - вызов диалога настроек
     int Recording;
@@ -121,26 +124,23 @@ class KeyMacro
     int IsRedrawEditor;
 
     int Mode;
-    int ExecMacroPos;
-    int ExecKeyPos;
+    int MacroPC;
+    int ExecLIBPos;
     int StartMode;
-    int StartMacroPos;
 
-    // т.н. MacroPROM (Programmable Read-Only Memory) -
     // сюда "могут" писать только при чтении макросов (занесение нового),
-    // а исполн€ть через MacroRAM
-    int MacroPROMCount;
-    struct MacroRecord *MacroPROM;
+    // а исполн€ть через MacroWORK
+    int MacroLIBCount;
+    struct MacroRecord *MacroLIB;
 
-    // т.н. MacroRAM - текущее исполнение
-    int MacroRAMCount;
-    struct MacroRecord *MacroRAM;
+    // т.н. MacroWORK - текущее исполнение
+    int MacroWORKCount;
+    struct MacroRecord *MacroWORK;
 
     int IndexMode[MACRO_LAST][2];
 
     int RecBufferSize;
     DWORD *RecBuffer;
-
 
     class LockScreen *LockScr;
 
@@ -148,24 +148,27 @@ class KeyMacro
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);
-    void InitVars(BOOL InitedRAM=TRUE);
-    void InitVarsPROM();
-    void ReleaseTempBuffer(BOOL All=FALSE); // удалить временный буфер
+    void InitInternalVars(BOOL InitedRAM=TRUE);
+    void InitInternalLIBVars();
+    void ReleaseWORKBuffer(BOOL All=FALSE); // удалить временный буфер
 
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
-    static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     char *MkRegKeyName(int IdxMacro,char *RegKeyName);
 
     BOOL CheckEditSelected(DWORD CurFlags);
     BOOL CheckInsidePlugin(DWORD CurFlags);
-    BOOL CheckPanel(int PanelMode,DWORD CurFlags);
+    BOOL CheckPanel(int PanelMode,DWORD CurFlags, BOOL IsPassivePanel);
     BOOL CheckCmdLine(int CmdLength,DWORD Flags);
-    BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags);
-    BOOL CheckAll(DWORD CurFlags);
+    BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags, BOOL IsPassivePanel);
+    BOOL CheckAll(int CheckMode,DWORD CurFlags);
     void Sort(void);
     int  IfCondition(DWORD Key,DWORD Flags,DWORD Code);
-    DWORD KeyFromBuffer(struct MacroRecord *MR,int KeyPos);
-    DWORD KeyToBuffer(struct MacroRecord *MR,int KeyPos,DWORD Key);
+    DWORD GetOpCode(struct MacroRecord *MR,int PC);
+    DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
+
+  private:
+    static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    static long WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 
   public:
     KeyMacro();
@@ -186,9 +189,9 @@ class KeyMacro
     void RunStartMacro();
 
     // ѕоместить временное строковое представление макроса
-    int PostTempKeyMacro(char *KeyBuffer);
+    int PostNewMacro(char *PlainText,DWORD Flags=0);
     // ѕоместить временный рекорд (бинарное представление)
-    int PostTempKeyMacro(struct MacroRecord *MRec);
+    int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0);
 
     int  LoadMacros(BOOL InitedRAM=TRUE);
     void SaveMacros(BOOL AllSaved=TRUE);

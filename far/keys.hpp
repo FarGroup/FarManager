@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.25 26.09.2003 $ */
+/* Revision: 1.26 04.10.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  04.10.2003 SVS
+    + KEY_MACRO_CHECKEOF - проверка конца файла
   26.09.2003 SVS
     ! Изменения в названиях макроклавиш
   08.09.2003 SVS
@@ -229,6 +231,7 @@ enum BaseDefKeyboard
   KEY_MACRO_XLAT,
   KEY_MACRO_EDITSELECTED,
   KEY_MACRO_PLAINTEXT,
+  KEY_MACRO_CHECKEOF,
 
 #if defined(MOUSEKEY)
   KEY_MACROSELWORD,

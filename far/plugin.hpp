@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.234 08.09.2003 $ */
+/* Revision: 1.235 04.10.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,11 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.10.2003 SVS
+    + Новый флаг KSFLAGS_NOSENDKEYSTOPLUGINS - не передавать клавиши редакторным
+      плагинам (плагинам, экспортирующим функцию ProcessEditorInput)
+    * Уточнение структуры ActlKeyMacro: добавлен член Param.PlainText -
+      указатель на строку, содержащую макропоследовательность.
   08.09.2003 SVS
     + Новая команда для ACTL_KEYMACRO: MCMD_POSTMACROSTRING - запостить макрос
       в виде plain-text.
@@ -1770,6 +1775,7 @@ struct ActlEjectMedia {
 
 enum FARKEYSEQUENCEFLAGS {
   KSFLAGS_DISABLEOUTPUT       = 0x00000001,
+  KSFLAGS_NOSENDKEYSTOPLUGINS = 0x00000002,
 };
 
 struct KeySequence{
@@ -1782,12 +1788,21 @@ enum FARMACROCOMMAND{
   MCMD_LOADALL,
   MCMD_SAVEALL,
   MCMD_POSTMACROSTRING,
+#ifdef FAR_USE_INTERNALS
+  MCMD_COMPILEMACRO,
+#endif // END FAR_USE_INTERNALS
 };
 
 struct ActlKeyMacro{
   int Command;
   union{
-    char *PlainText;
+    struct {
+      char *SequenceText;
+      DWORD Flags;
+    } PlainText;
+#ifdef FAR_USE_INTERNALS
+    struct KeySequence Compile;
+#endif // END FAR_USE_INTERNALS
     DWORD Reserved[3];
   } Param;
 };
