@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.139 22.03.2002 $ */
+/* Revision: 1.140 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 IS
+    - Баг: удаляли файл, открытый во вьюере с панели плагина сразу же после
+      его открытия, из-за чего в нем (во вьюере) не работали плагины типа
+      PrintMan или S&R
   22.03.2002 SVS
     - strcpy - Fuck!
     ! Вставку в ком строку - к терапевту!
@@ -1616,12 +1620,20 @@ int FileList::ProcessKey(int Key)
                 Modaling=FALSE;
               }
           }
+        /* $ 04.04.2002 IS
+             для файла, который открывался во вьюере, ничего не предпринимаем,
+             т.к. вьюер об этом позаботится сам
+        */
         if (PluginMode)
+        {
           if (UploadFailed)
             Message(MSG_WARNING,1,MSG(MError),MSG(MCannotSaveFile),
                     MSG(MTextSavedToTemp),FileName,MSG(MOk));
-          else // Почему же TempName??????
+          else if(Edit) // удаляем файл только для случая окрытия его в
+                        // редакторе, т.к. вьюер удаляет файл сам
             DeleteFileWithFolder(FileName);
+        }
+        /* IS $ */
         if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)))
         {
           //if (!PluginMode || UploadFile)
