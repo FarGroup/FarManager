@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.27 24.09.2000 $ */
+/* Revision: 1.28 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + Глюки с определением Unicode при просмотре по '+' & '-'
   24.09.2000 SVS
     + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
   19.09.2000 SVS
@@ -320,6 +322,7 @@ int Viewer::OpenFile(char *Name,int warning)
   if(Opt.ViewerAutoDetectTable)
   {
     DWORD ReadSize;
+    Unicode=0;
     FirstWord=0;
     vseek(ViewFile,0,SEEK_SET);
     ReadSize=vread((char *)&FirstWord,sizeof(FirstWord),ViewFile);
