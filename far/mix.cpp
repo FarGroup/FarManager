@@ -5,10 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.130 06.07.2002 $ */
+/* Revision: 1.131 13.10.2002 $ */
 
 /*
 Modify:
+  13.10.2002 IS
+    - баг в Add_PATHEXT: Переписано заново с учетом того, чтобы избавиться
+      от strstr и GetCommaWord - от них только проблемы, в частности,
+      не работала раскраска по маске "%pathext%,*.lnk,*.pif,*.awk,*.pln",
+      если %pathext% содержала ".pl", т.к. эта подстрока входила в "*.pln"
   06.07.2002 VVM
     ! Поправлена PathMayBeAbsolute
   18.06.2002 SVS
@@ -408,6 +413,7 @@ Modify:
 #include "scrbuf.hpp"
 #include "CFileMask.hpp"
 #include "constitle.hpp"
+#include "udlist.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -1259,46 +1265,57 @@ DWORD WINAPI FarGetLogicalDrives(void)
   return LogicalDrivesMask&(~NoDrives);
 }
 
+/* $ 13.10.2002 IS
+   Переписано заново с учетом того, чтобы избавиться от strstr и
+   GetCommaWord - от них только проблемы, в частности, не работала раскраска
+   по маске "%pathext%,*.lnk,*.pif,*.awk,*.pln", если %pathext% содержала
+   ".pl", т.к. эта подстрока входила в "*.pln"
+*/
+
 // Преобразование корявого формата PATHEXT в ФАРовский :-)
 // Функции передается нужные расширения, она лишь добавляет то, что есть
-//   в %PATHEXT% и  нету в Dest.
+// в %PATHEXT%
+// IS: Сравнений на совпадение очередной маски с тем, что имеется в Dest
+// IS: не делается, т.к. дубли сами уберутся при компиляции маски
 char *Add_PATHEXT(char *Dest)
 {
   char Buf[1024];
-  int l;
-  if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)))
+  int curpos=strlen(Dest)-1, l;
+  UserDefinedList MaskList(0,0,ULF_UNIQUE);
+  if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)) && MaskList.Set(Buf))
   {
-    char Tmp[32]="*", ArgName[NM];
-    const char *Ptr;
-
-    if((Ptr=GetCommaWord((Ptr=strlwr(Buf)),ArgName,';')) != NULL)
+    /* $ 13.10.2002 IS проверка на '|' (маски исключения) */
+    if(*Dest && Dest[curpos]!=',' && Dest[curpos]!='|')
     {
-      /* $ 06.07.2001 IS проверка на '|' (маски исключения) */
-      l=strlen(Dest)-1;
-      if(*Dest && Dest[l]!=',' && Dest[l]!='|')
-        strcat(Dest,",");
-      /* IS $ */
-      while(Ptr)
-      {
-        strcpy(Tmp+1,ArgName);
-        Ptr=GetCommaWord(Ptr,ArgName,';');
-        if(!strstr(Dest,Tmp))
-        {
-          strcat(Dest,Tmp);
-          if(Ptr)
-            strcat(Dest,",");
-        }
-      }
+      Dest[curpos+1]=',';
+      Dest[curpos+2]=0;
+      ++curpos;
     }
+    /* IS $ */
+    ++curpos;
+    const char *Ptr;
+    MaskList.Reset();
+    while(NULL!=(Ptr=MaskList.GetNext()))
+    {
+      Dest[curpos]='*';
+      ++curpos;
+      l=strlen(Ptr);
+      memcpy(Dest+curpos,Ptr,l);
+      curpos+=l;
+      Dest[curpos]=',';
+      ++curpos;
+      Dest[curpos]=0;
+    }
+    --curpos;
   }
   // лишняя запятая - в морг!
-  /* $ 06.07.2001 IS Оптимизация по скорости */
-  l=strlen(Dest)-1;
-  if(*Dest && Dest[l] == ',')
-    Dest[l]=0;
+  /* $ 13.10.2002 IS Оптимизация по скорости */
+  if(Dest[curpos] == ',')
+    Dest[curpos]=0;
   /* IS $ */
   return Dest;
 }
+/* IS 13.10.2002 $ */
 
 void CreatePath(char *Path)
 {
