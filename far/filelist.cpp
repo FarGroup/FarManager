@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.79 26.07.2001 $ */
+/* Revision: 1.80 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 VVM
+    + С альтом скролим всегда по 1
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   24.07.2001 SVS
@@ -1427,14 +1429,17 @@ int FileList::ProcessKey(int Key)
           ReturnCurrentFile=FALSE;
       }
       return(TRUE);
+    /* $ 26.07.2001 VVM
+       + С альтом скролим всегда по 1 */
     /* $ 26.04.2001 VVM
        + Обработка колеса мышки */
     case KEY_MSWHEEL_UP:
-      Scroll(-Opt.MsWheelDelta);
+      Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
       return(TRUE);
     case KEY_MSWHEEL_DOWN:
-      Scroll(Opt.MsWheelDelta);
+      Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
       return(TRUE);
+    /* VVM $ */
     /* VVM $ */
     case KEY_HOME:
       Up(0x7fffff);

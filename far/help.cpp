@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.34 22.07.2001 $ */
+/* Revision: 1.35 27.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 VVM
+    + С альтом скролим всегда по 1
   22.07.2001 SVS
     ! Переделка number two - пытаемся при возврате показать привычное
       расположение хелпа (но пока, увы)
@@ -882,21 +884,26 @@ int Help::ProcessKey(int Key)
       else
         ProcessKey(KEY_TAB);
       return(TRUE);
+    /* $ 26.07.2001 VVM
+      + С альтом скролим по 1 */
     /* $ 07.05.2001 DJ
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
       {
-        for (int i=0; i<Opt.MsWheelDelta; i++)
+        int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
+        for (int i=0; i<Roll; i++)
           ProcessKey(KEY_UP);
         return(TRUE);
       }
     case KEY_MSWHEEL_DOWN:
       {
-        for (int i=0; i<Opt.MsWheelDelta; i++)
+        int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
+        for (int i=0; i<Roll; i++)
           ProcessKey(KEY_DOWN);
         return(TRUE);
       }
     /* DJ $ */
+    /* VVM $ */
     case KEY_PGUP:
       StackData.CurX=StackData.CurY=0;
       StackData.TopStr-=Y2-Y1-2-FixSize;

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.71 24.07.2001 $ */
+/* Revision: 1.72 25.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 VVM
+    + С альтом скролим всегда по 1
   24.07.2001 IS
     ! Замена проверки на ' ' и '\t' на вызов isspace
     ! Замена проверки на '\n' и '\r' на вызов iseol
@@ -1465,20 +1467,25 @@ int Viewer::ProcessKey(int Key)
       CtrlObject->Plugins.CommandsMenu(MODALTYPE_VIEWER,0,"Viewer");
       Show();
       return(TRUE);
+    /* $ 27.06.2001 VVM
+      + С альтом скролим по 1 */
     /* $ 27.04.2001 VVM
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
       {
-        for (int i=0; i<Opt.MsWheelDeltaView; i++)
+        int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
+        for (int i=0; i<Roll; i++)
           ProcessKey(KEY_UP);
         return(TRUE);
       }
     case KEY_MSWHEEL_DOWN:
       {
-        for (int i=0; i<Opt.MsWheelDeltaView; i++)
+        int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
+        for (int i=0; i<Roll; i++)
           ProcessKey(KEY_DOWN);
         return(TRUE);
       }
+    /* VVM $ */
     /* VVM $ */
     case KEY_UP:
       if (FilePos>0 && ViewFile)
