@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.163 04.10.2001 $ */
+/* Revision: 1.164 08.10.2001 $ */
 
 /*
 Modify:
+  08.10.2001 SVS
+   - Неверно рассчитывались координаты элементов DI_TEXT & DI_VTEXT
   04.10.2001 SVS
    ! УБЕДИТЕЛЬНАЯ ПРОСЬБА!!!
      Функции Dialog::DefDlgProc и Dialog::SendDlgMessage должны быть всегда
@@ -1370,6 +1372,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
   struct DialogItem *CurItem=&Item[I];
   DWORD ItemFlags=CurItem->Flags;
   int Type=CurItem->Type;
+  int Len;
 
   Rect.left=(int)CurItem->X1;
   Rect.top=(int)CurItem->Y1;
@@ -1378,11 +1381,22 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
 
   switch(Type)
   {
+    case DI_COMBOBOX:
+    case DI_EDIT:
+    case DI_FIXEDIT:
+    case DI_PSWEDIT:
+    case DI_LISTBOX:
+      break;
+    default:
+      Len=((ItemFlags & DIF_SHOWAMPERSAND)?strlen(CurItem->Data):HiStrlen(CurItem->Data));
+      break;
+  }
+
+  switch(Type)
+  {
     case DI_TEXT:
       if (CurItem->X1==(unsigned char)-1)
-        Rect.left=(X2-X1+1-((ItemFlags & DIF_SHOWAMPERSAND)?
-                                 strlen(CurItem->Data):
-                                 HiStrlen(CurItem->Data)))/2;
+        Rect.left=(X2-X1+1-Len)/2;
       if(Rect.left < 0)
         Rect.left=0;
 
@@ -1392,13 +1406,16 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if(Rect.top < 0)
         Rect.top=0;
 
+      Rect.bottom=Rect.top;
+      Rect.right=Rect.left+Len;
+
       if (ItemFlags & DIF_SEPARATOR)
       {
         Rect.bottom=Rect.top;
         Rect.left=(!CheckDialogMode(DMODE_SMALLDIALOG)?3:0); //???
         Rect.right=X2-X1-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0); //???
-        break;
       }
+      break;
 
     case DI_VTEXT:
       if (CurItem->X1==(unsigned char)-1)
@@ -1412,6 +1429,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if(Rect.top < 0)
         Rect.top=0;
 
+      Rect.right=Rect.left;
+      Rect.bottom=Rect.top+Len;
       /* Закроем до поры до времени.
       if (ItemFlags & DIF_SEPARATOR)
       {
@@ -1425,20 +1444,15 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
 
     case DI_BUTTON:
       Rect.bottom=Rect.top;
-      Rect.right=Rect.left+((ItemFlags & DIF_SHOWAMPERSAND)?
-                                 strlen(CurItem->Data):
-                                 HiStrlen(CurItem->Data));
+      Rect.right=Rect.left+Len;
       break;
 
     case DI_CHECKBOX:
     case DI_RADIOBUTTON:
       Rect.bottom=Rect.top;
-      Rect.right=Rect.left+((ItemFlags & DIF_SHOWAMPERSAND)?
-                                 strlen(CurItem->Data):
-                                 HiStrlen(CurItem->Data))+
-                                 (Type == DI_CHECKBOX?4:
-                                   (ItemFlags & DIF_MOVESELECT?3:4)
-                                 );
+      Rect.right=Rect.left+Len+(Type == DI_CHECKBOX?4:
+                                 (ItemFlags & DIF_MOVESELECT?3:4)
+                               );
       break;
 
     case DI_COMBOBOX:
@@ -2946,7 +2960,7 @@ int Dialog::ProcessKey(int Key)
 
         if (edt->ProcessKey(Key))
         {
-          int RedrawNeed=FALSE;
+          //int RedrawNeed=FALSE;
           /* $ 26.07.2000 SVS
              AutoComplite: Если установлен DIF_HISTORY
                  и разрешено автозавершение!.
@@ -3015,7 +3029,7 @@ int Dialog::ProcessKey(int Key)
                  Небольшой глючек с AutoComplete
               */
               edt->SetCurPos(CurPos); // SelEnd
-              RedrawNeed=TRUE;
+              //RedrawNeed=TRUE;
             }
             if(Item[FocusPos].Flags & DIF_VAREDIT)
               free(PStr);
@@ -3786,7 +3800,8 @@ int Dialog::SelectFromComboBox(
         ComboBox->ProcessKey(KEY_ESC);
         continue;
       }
-      int Key=ComboBox->ReadInput();
+      //int Key=
+      ComboBox->ReadInput();
       // здесь можно добавить что-то свое, например,
       I=ComboBox->GetSelectPos();
       if(I != Dest)
@@ -4049,7 +4064,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       if (ExitCode<0)
       {
         Done=TRUE;
-        break;
+//        break;
       }
       else
       {
