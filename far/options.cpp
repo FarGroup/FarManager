@@ -5,12 +5,14 @@ options.cpp
 
 */
 
-/* Revision: 1.14 19.07.2001 $ */ 
+/* Revision: 1.15 24.01.2002 $ */
 
 /*
 Modify:
+  24.01.2002 SVS
+    ! Косметика. Наконец то руки добрались до "красоты" :-)
   19.07.2001 OT
-    Замена CtrlObject->Cp()->ProcessKey на FrameManager->ProcessKey
+    ! Замена CtrlObject->Cp()->ProcessKey на FrameManager->ProcessKey
   19.07.2001 SVS
     - Не работала смена видеорежима из меню
   11.07.2001 SVS
@@ -206,6 +208,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     for(I=0; I < sizeof(OptionsMenu)/sizeof(OptionsMenu[0]); ++I)
       OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> I) & 1);
 
+  // расставим "чеки" для левой панели
   switch(CtrlObject->Cp()->LeftPanel->GetType())
   {
     case FILE_PANEL:
@@ -231,6 +234,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
   LeftMenu[16].SetCheck(!CtrlObject->Cp()->LeftPanel->GetShowShortNamesMode());
 
+  // расставим "чеки" для правой панели
   switch(CtrlObject->Cp()->RightPanel->GetType())
   {
     case FILE_PANEL:
@@ -254,9 +258,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       break;
   }
 
-
   RightMenu[16].SetCheck(!CtrlObject->Cp()->RightPanel->GetShowShortNamesMode());
 
+  // Навигация по меню
   {
     HMenu HOptMenu(MainMenu,sizeof(MainMenu)/sizeof(MainMenu[0]));
     HOptMenu.SetHelp("Menus");
@@ -302,98 +306,111 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     HOptMenu.GetExitCode(HItem,VItem);
   }
 
+  // "Исполнятор команд меню"
   switch(HItem)
   {
+    // *** Left
     case 0:
-      if (VItem>=0 && VItem<=9)
+    {
+      if (VItem>=0 && VItem<=9) // Режимы левой панели
       {
         CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,FILE_PANEL);
         int NewViewMode=VItem==9 ? VIEW_0:VIEW_1+VItem;
         CtrlObject->Cp()->LeftPanel->SetViewMode(NewViewMode);
       }
       else
+      {
         switch(VItem)
         {
-          case 11:
+          case 11: // Info panel
             CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,INFO_PANEL);
             break;
-          case 12:
+          case 12: // Tree panel
             CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,TREE_PANEL);
             break;
-          case 13:
+          case 13: // Quick view
             CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,QVIEW_PANEL);
             break;
-          case 15:
+          case 15: // Sort modes
             CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLF12);
             break;
-          case 16:
+          case 16: // Show long names
             CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLN);
             break;
-          case 17:
+          case 17: // Panel On/Off
             FrameManager->ProcessKey(KEY_CTRLF1);
             break;
-          case 18:
+          case 18: // Re-read
             CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLR);
             break;
-          case 19:
+          case 19: // Change drive
             CtrlObject->Cp()->LeftPanel->ChangeDisk();
             break;
         }
+      }
       break;
+    }
+
+    // *** Files
     case 1:
+    {
       switch(VItem)
       {
-        case 0:
+        case 0:  // View
           FrameManager->ProcessKey(KEY_F3);
           break;
-        case 1:
+        case 1:  // Edit
           FrameManager->ProcessKey(KEY_F4);
           break;
-        case 2:
+        case 2:  // Copy
           FrameManager->ProcessKey(KEY_F5);
           break;
-        case 3:
+        case 3:  // Rename or move
           FrameManager->ProcessKey(KEY_F6);
           break;
-        case 4:
+        case 4:  // Make folder
           FrameManager->ProcessKey(KEY_F7);
           break;
-        case 5:
+        case 5:  // Delete
           FrameManager->ProcessKey(KEY_F8);
           break;
-        case 7:
+        case 7:  // Add to archive
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
           break;
-        case 8:
+        case 8:  // Extract files
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
           break;
-        case 9:
+        case 9:  // Archive commands
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
           break;
-        case 11:
+        case 11: // File attributes
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
           break;
-        case 12:
+        case 12: // Apply command
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
           break;
-        case 13:
+        case 13: // Describe files
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
           break;
-        case 15:
+        case 15: // Select group
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
           break;
-        case 16:
+        case 16: // Unselect group
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
           break;
-        case 17:
+        case 17: // Invert selection
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
           break;
-        case 18:
+        case 18: // Restore selection
           CtrlObject->Cp()->ActivePanel->RestoreSelection();
           break;
       }
       break;
+    }
+
+    // *** Commands
     case 2:
+    {
       switch(VItem)
       {
         case 0: // Find file
@@ -449,19 +466,23 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           break;
       }
       break;
+    }
+
+    // *** Options
     case 3:
+    {
       switch(VItem)
       {
-        case 0:
+        case 0:   // System settings
           SystemSettings();
           break;
-        case 1:
+        case 1:   // Panel settings
           PanelSettings();
           break;
-        case 2:
+        case 2:   // Interface settings
           InterfaceSettings();
           break;
-        case 3:
+        case 3:   // Languages
           {
             VMenu *LangMenu,*HelpMenu;
             if (Language::Select(FALSE,&LangMenu))
@@ -484,40 +505,44 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
             delete LangMenu;
           }
           break;
-        case 4:
+        case 4:   // Plugins configuration
           CtrlObject->Plugins.Configure();
           break;
-        case 6:
+        case 6:   // Confirmations
           SetConfirmations();
           break;
-        case 7:
+        case 7:   // File panel modes
           FileList::SetFilePanelModes();
           break;
-        case 8:
+        case 8:   // File descriptions
           SetDizConfig();
           break;
-        case 9:
+        case 9:   // Folder description files
           SetFolderInfoFiles();
           break;
-        case 11:
+        case 11:  // Viewer settings
           ViewerConfig(Opt.ViOpt);
           break;
-        case 12:
+        case 12:  // Editor settings
           EditorConfig(Opt.EdOpt);
           break;
-        case 14:
+        case 14:  // Colors
           SetColors();
           break;
-        case 15:
+        case 15:  // Files highlighting
           CtrlObject->HiFiles->HiEdit(0);
           break;
-        case 17:
+        case 17:  // Save setup
           SaveConfig(1);
           break;
       }
       break;
+    }
+
+    // *** Right
     case 4:
-      if (VItem>=0 && VItem<=9)
+    {
+      if (VItem>=0 && VItem<=9) // Режимы правой панели
       {
         CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,FILE_PANEL);
         int NewViewMode=VItem==9 ? VIEW_0:VIEW_1+VItem;
@@ -526,34 +551,37 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       else
         switch(VItem)
         {
-          case 11:
+          case 11: // Info panel
             CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,INFO_PANEL);
             break;
-          case 12:
+          case 12: // Tree panel
             CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,TREE_PANEL);
             break;
-          case 13:
+          case 13: // Quick view
             CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,QVIEW_PANEL);
             break;
-          case 15:
+          case 15: // Sort modes
             CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLF12);
             break;
-          case 16:
+          case 16: // Show long names
             CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLN);
             break;
-          case 17:
+          case 17: // Panel On/Off
             FrameManager->ProcessKey(KEY_CTRLF2);
             break;
-          case 18:
+          case 18: // Re-read
             CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLR);
             break;
-          case 19:
+          case 19: // Change drive
             CtrlObject->Cp()->RightPanel->ChangeDisk();
             break;
         }
       break;
+    }
   }
+
   CtrlObject->CmdLine->Show();
+
   if (HItem!=-1 && VItem!=-1)
   {
     LastHItem=HItem;

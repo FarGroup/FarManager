@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.123 23.01.2002 $ */
+/* Revision: 1.124 24.01.2002 $ */
 
 /*
 Modify:
+  24.01.2002 SVS
+    - BugZ#264 - Show hidden files
   23.01.2002 SVS
     ! Нафиг по умолчанию отрубим ScreenSaver ну и некоторые другие.
   16.01.2002 SVS
@@ -603,7 +605,11 @@ void PanelSettings()
   Opt.ShowPanelScrollbar=CfgDlg[DLG_PANEL_SHOWPANELSCROLLBAR].Selected;
   Opt.ShowScreensNumber=CfgDlg[DLG_PANEL_SHOWSCREENSNUMBER].Selected;
   Opt.ShowSortMode=CfgDlg[DLG_PANEL_SHOWSORTMODE].Selected;
-  FrameManager->RefreshFrame();
+//  FrameManager->RefreshFrame();
+  CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->Redraw();
+
 }
 
 
