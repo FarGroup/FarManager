@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.210 05.12.2002 $ */
+/* Revision: 1.211 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - В EditorControl (ECTL_READINPUT) полечим вариант события для KEY_CONSOLE_BUFFER_RESIZE
   05.12.2002 SVS
     ! Применим новую MkStrFTime(), сократив немного кода
   12.11.2002 DJ
@@ -5600,7 +5602,9 @@ int Editor::EditorControl(int Command,void *Param)
       {
         _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_READINPUT)"));
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
-        GetInputRecord(rec);
+        DWORD Key=GetInputRecord(rec);
+        //if(Key==KEY_CONSOLE_BUFFER_RESIZE) //????
+        //  Show();                          //????
 #if defined(SYSLOG_KEYMACRO)
         if(rec->EventType == KEY_EVENT)
         {

@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.11 24.05.2002 $ */
+/* Revision: 1.12 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   30.03.2002 OT
@@ -52,6 +54,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "savescr.hpp"
+#include "lockscrn.hpp"
 
 HMenu::HMenu(struct HMenuData *Item,int ItemCount)
 {
@@ -301,7 +304,15 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
     INPUT_RECORD rec;
     int Key;
     Key=GetInputRecord(&rec);
-    if (rec.EventType==MOUSE_EVENT)
+    if(Key==KEY_CONSOLE_BUFFER_RESIZE)
+    {
+      LockScreen LckScr;
+      ResizeConsole();
+      Show();
+      SubMenu->Hide();
+      SubMenu->Show();
+    }
+    else if (rec.EventType==MOUSE_EVENT)
     {
       if (rec.Event.MouseEvent.dwMousePosition.Y==Y1)
         if (ProcessMouse(&rec.Event.MouseEvent))
@@ -333,9 +344,12 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
 
 void HMenu::ResizeConsole()
 {
-  SaveScr->Discard();
-  delete SaveScr;
-  SaveScr=NULL;
+  if(SaveScr)
+  {
+    SaveScr->Discard();
+    delete SaveScr;
+    SaveScr=NULL;
+  }
   Hide();
   Frame::ResizeConsole();
   SetPosition(0,0,::ScrX,0);

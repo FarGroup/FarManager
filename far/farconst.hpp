@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.64 14.07.2002 $ */
+/* Revision: 1.65 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + MSG_KILLSAVESCREEN
   14.07.2002 IS & SVS
     ! IS> PluginsFolderName, HelpFileMask и HelpFormatLinkModule теперь не
       IS> "#define", а "const char *" - для уменьшения размера данных
@@ -189,8 +191,15 @@ inline int IsEol(int x)  { return x=='\r' || x=='\n'; }
 
 // типы рамок
 enum {NO_BOX,SINGLE_BOX,SHORT_SINGLE_BOX,DOUBLE_BOX,SHORT_DOUBLE_BOX};
-enum {MSG_WARNING=1,MSG_ERRORTYPE=2,MSG_KEEPBACKGROUND=4,MSG_DOWN=8,
-      MSG_LEFTALIGN=16};
+
+enum {
+  MSG_WARNING        =0x00000001,
+  MSG_ERRORTYPE      =0x00000002,
+  MSG_KEEPBACKGROUND =0x00000004,
+  MSG_DOWN           =0x00000008,
+  MSG_LEFTALIGN      =0x00000010,
+  MSG_KILLSAVESCREEN =0x00000020,
+};
 
 /* $ 02.08.2001 IS
      Новые константы для alt-f3, alt-f4 и ctrl-pgdn

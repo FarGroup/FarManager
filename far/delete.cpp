@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.51 18.06.2002 $ */
+/* Revision: 1.52 05.12.2002 $ */
 
 /*
 Modify:
+  05.12.2002 SVS
+    ! Как задел на будущее (про BugZ#702) - подсуетимся и прорисуем месагбокс
   18.06.2002 SVS
     ! Функция IsFolderNotEmpty переименована в CheckFolder
   30.05.2002 SVS
@@ -357,8 +359,13 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     SrcPanel->GetSelName(NULL,FileAttr);
     while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName) && !Cancel)
     {
-      if (CheckForEsc())
-        break;
+      if(CheckForEscSilent())
+      {
+        int AbortOp = ConfirmAbortOp();
+        if (AbortOp)
+          break;
+      }
+
       int Length=strlen(SelName);
       if (Length==0 || SelName[0]=='\\' && Length<2 ||
           SelName[1]==':' && Length<4)
@@ -367,10 +374,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       {
         if (!DeleteAllFolders)
         {
-//          ConvertNameToFull(SelName,FullName, sizeof(FullName));
-          if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName)){
+          if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
             goto done;
-          }
+
           if (CheckFolder(FullName) == CHKFLD_NOTEMPTY)
           {
             int MsgCode=0;
@@ -405,10 +411,14 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           ScTree.SetFindPath(SelName,"*.*");
           while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
           {
-            if (CheckForEsc())
+            if(CheckForEscSilent())
             {
-              Cancel=1;
-              break;
+              int AbortOp = ConfirmAbortOp();
+              if (AbortOp)
+              {
+                Cancel=1;
+                break;
+              }
             }
             ShellDeleteMsg(FullName);
             char ShortName[NM];

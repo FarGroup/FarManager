@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.12 25.04.2002 $ */
+/* Revision: 1.13 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
   25.04.2002 IS
     ! внедрение const
   30.03.2002 OT
@@ -45,8 +47,10 @@ Modify:
 
 #include "global.hpp"
 #include "modal.hpp"
+#include "keys.hpp"
 #include "fn.hpp"
 #include "help.hpp"
+#include "lockscrn.hpp"
 
 Modal::Modal()
 {
@@ -79,6 +83,12 @@ int Modal::ReadInput()
   }
   else
     ReadKey=GetInputRecord(&ReadRec);
+  if(ReadKey == KEY_CONSOLE_BUFFER_RESIZE)
+  {
+    LockScreen LckScr;
+    Hide();
+    Show();
+  }
   if (CloseFARMenu){
     SetExitCode(TRUE);
   }

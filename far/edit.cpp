@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.94 05.12.2002 $ */
+/* Revision: 1.95 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - В ProcessCtrlQ полечим вариант события для KEY_CONSOLE_BUFFER_RESIZE
   05.12.2002 SVS
     ! Применим новую MkStrFTime(), сократив немного кода
   12.11.2002 DJ
@@ -1635,6 +1637,14 @@ int Edit::ProcessCtrlQ(void)
     Key=GetInputRecord(&rec);
     if (Key!=KEY_NONE && Key!=KEY_IDLE && rec.Event.KeyEvent.uChar.AsciiChar)
       break;
+
+    if(Key==KEY_CONSOLE_BUFFER_RESIZE)
+    {
+      int Dis=EditOutDisabled;
+      EditOutDisabled=0;
+      Show();
+      EditOutDisabled=Dis;
+    }
   }
 /*
   EditOutDisabled++;

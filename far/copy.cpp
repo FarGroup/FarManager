@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.102 11.12.2002 $ */
+/* Revision: 1.103 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - BugZ#702 - Не обрабатывается изменение размера консоли во время копирования
+    - BugZ#686 - проблемы с отрисовкой окна прогресса копирования
   11.12.2002 VVM
     - Исправлен баг с прорисовкой прогресса при копировании новых файлов
     - Исправлен баг с подсчетом времени/скорости копирования при наличии "пропущенных" файлов
@@ -348,6 +351,7 @@ Modify:
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
+#include "lockscrn.hpp"
 
 enum {COPY_BUFFER_SIZE  = 0x10000};
 
@@ -364,6 +368,7 @@ static clock_t CopyStartTime;
 static clock_t CopyTime;
 static clock_t LastShowTime;
 /* VVM $ */
+static int OrigScrX,OrigScrY;
 
 static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
        LARGE_INTEGER TotalBytesTransferred,LARGE_INTEGER StreamSize,
@@ -1369,6 +1374,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   }
 
   // Основной цикл копирования одной порции.
+  SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   SrcPanel->GetSelName(NULL,FileAttr);
   while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName))
   {
@@ -1527,7 +1533,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       {
         int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
         TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
-		if (CopyCode == COPY_NEXT)
+        if (CopyCode == COPY_NEXT)
           TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
         continue;
       }
@@ -1687,6 +1693,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   strcpy(DestPath,Dest);
 
+  SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   ShellCopyConvertWildcards(Src,DestPath);
 
   char *NamePtr=PointToName(DestPath);
@@ -2240,11 +2247,15 @@ COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
 
 void ShellCopy::PR_ShellCopyMsg(void)
 {
+  _SVS(CleverSysLog clv("PR_ShellCopyMsg"));
+  _SVS(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+  LastShowTime = 0;
   ((ShellCopy*)PreRedrawParam.Param1)->ShellCopyMsg((char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
 void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 {
+  _SVS(CleverSysLog clv("ShellCopyMsg"));
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
   //_SVS(SysLog("[%p] ShellCopy::ShellCopyMsg('%s','%s',%x)",this,Src,Dest,Flags));
@@ -2293,7 +2304,8 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
   if (Src==NULL)
     Message(Flags,0,(ShellCopy::Flags&FCOPY_MOVE) ? MSG(MMoveDlgTitle):
                        MSG(MCopyDlgTitle),
-                    "",MSG(MCopyScanning),DestName,"","",BarStr,"");
+                       "",MSG(MCopyScanning),
+                       DestName,"","",BarStr,"");
   else
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
@@ -2320,6 +2332,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 
   if (Src!=NULL)
   {
+    _SVS(SysLog(" ******************  ShowTotalCopySize=%d",ShowTotalCopySize));
     ShowBar(0,0,false);
     if (ShowTotalCopySize)
     {
@@ -2331,6 +2344,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
   PreRedrawParam.Param1=this;
   PreRedrawParam.Param2=Src;
   PreRedrawParam.Param3=Dest;
+  _SVS(SysLog("@@ShellCopyMsg 2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
 }
 
 
@@ -2465,6 +2479,10 @@ int ShellCopy::DeleteAfterMove(const char *Name,int Attr)
 int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                              const char *DestName,DWORD DestAttr,int Append)
 {
+  OrigScrX=ScrX;
+  OrigScrY=ScrY;
+
+  SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   if ((ShellCopy::Flags&FCOPY_LINK))
   {
     DeleteFile(DestName);
@@ -2525,12 +2543,21 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   int   AbortOp = FALSE;
   while (1)
   {
+    BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
     if (CheckForEscSilent())
     {
       CopyTime+= (clock() - CopyStartTime);
       AbortOp = ConfirmAbortOp();
+      IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
       CopyStartTime = clock();
     }
+    if(IsChangeConsole)
+    {
+      ShellCopy::PR_ShellCopyMsg();
+      OrigScrX=ScrX;
+      OrigScrY=ScrY;
+    }
+
     if (AbortOp)
     {
       CloseHandle(SrcHandle);
@@ -2564,6 +2591,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
                             MSG(MCopyReadError),SrcName,
                             MSG(MRetry),MSG(MCancel));
+      ShellCopy::PR_ShellCopyMsg();
       CopyStartTime = clock();
       if (MsgCode==0)
         continue;
@@ -2621,6 +2649,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
               int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),
                                   MSG(MErrorInsufficientDiskSpace),DestName,
                                   MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
+              ShellCopy::PR_ShellCopyMsg();
               CopyStartTime = clock();
               if (MsgCode==2)
               {
@@ -2644,6 +2673,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                       int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
                                             MSG(MCopyErrorDiskFull),DestName,
                                             MSG(MRetry),MSG(MCancel));
+                      ShellCopy::PR_ShellCopyMsg();
                       CopyStartTime = clock();
                       if (MsgCode!=0)
                       {
@@ -2756,6 +2786,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       ShowTitle(FALSE);
     }
   }
+
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
     SetFileTime(DestHandle,NULL,NULL,&SrcData.ftLastWriteTime);
@@ -2793,6 +2824,8 @@ static void GetTimeText(int Time, char *TimeText)
 
 void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 {
+  _SVS(CleverSysLog clv("ShellCopy::ShowBar"));
+  _SVS(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
   /* $ 14.09.2002 VVM
     + Показывать прогресс не чаще 1 раза в секунду */
   if ((WrittenSize > 0) && (WrittenSize < TotalSize) && (clock() - LastShowTime < 1000))
@@ -2828,6 +2861,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   Text(ProgressBar);
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
+  _SVS(SysLog("!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
   if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
 //    CopyTime+= (clock() - CopyStartTime);
@@ -2847,7 +2881,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     else
     {
       if (TotalBar)
-		  OldWrittenSize = OldWrittenSize - TotalSkippedSize;
+        OldWrittenSize = OldWrittenSize - TotalSkippedSize;
       int CPS = (OldWrittenSize/WorkTime).PLow();
       TimeLeft = (CPS)?(SizeLeft/CPS).PLow():0;
       c[0]=' ';
@@ -3133,6 +3167,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
 {
   static COPYFILEEX pCopyFileEx=NULL;
   static int LoadAttempt=FALSE;
+  int Res;
 
   if (!LoadAttempt && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
   {
@@ -3149,12 +3184,13 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
 
   //_SVS(SysLog("[%p] ShellCopy::ShellSystemCopy('%s','%s',..)",this,SrcName,DestName));
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
+
   if (pCopyFileEx)
   {
     BOOL Cancel=0;
     TotalCopiedSizeEx=TotalCopiedSize;
     if (!pCopyFileEx(SrcName,DestName,CopyProgressRoutine,NULL,&Cancel,0))
-      return(GetLastError()==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE);
+      return GetLastError()==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
   }
   else
   {
@@ -3166,8 +3202,9 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
       ShowBar(TotalCopiedSize,TotalCopySize,true);
       ShowTitle(FALSE);
     }
+    // Здесь ХЗ... могут быть траблы там, где по каким то причинам нету CopyFileExA
     if (!CopyFile(SrcName,DestName,FALSE))
-      return(COPY_FAILURE);
+      return COPY_FAILURE;
   }
 
   if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !SetSecurity(DestName,sa))
@@ -3188,23 +3225,41 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
       DWORD dwCallbackReason,HANDLE hSourceFile,HANDLE hDestinationFile,
       LPVOID lpData)
 {
+  _SVS(CleverSysLog clv("CopyProgressRoutine"));
+  _SVS(SysLog("dwStreamNumber=%d",dwStreamNumber));
+
   int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
   int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
+
+  int AbortOp = FALSE;
+  BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
+  if (CheckForEscSilent())
+  {
+    CopyTime+= (clock() - CopyStartTime);
+    _SVS(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+    AbortOp = ConfirmAbortOp();
+    IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
+    CopyStartTime = clock();
+  }
+
+  if(IsChangeConsole)
+  {
+    _SVS(SysLog("IsChangeConsole 1"));
+    ShellCopy::PR_ShellCopyMsg();
+    OrigScrX=ScrX;
+    OrigScrY=ScrY;
+  }
+
   CurCopiedSize = TransferredSize;
-  ShellCopy::ShowBar(TransferredSize,TotalSize,false);
+
+  ShellCopy::ShowBar(TransferredSize,TotalSize,FALSE);
   if (ShowTotalCopySize && dwStreamNumber==1)
   {
     TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
     ShellCopy::ShowBar(TotalCopiedSize,TotalCopySize,true);
     ShellCopy::ShowTitle(FALSE);
   }
-  int AbortOp = FALSE;
-  if (CheckForEscSilent())
-  {
-    CopyTime+= (clock() - CopyStartTime);
-    AbortOp = ConfirmAbortOp();
-    CopyStartTime = clock();
-  }
+
   return(AbortOp ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
 }
 #if defined(__BORLANDC__)

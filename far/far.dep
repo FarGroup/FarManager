@@ -183,6 +183,7 @@
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
@@ -300,6 +301,7 @@
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\modal.hpp"\
@@ -1244,6 +1246,7 @@
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
@@ -1372,6 +1375,7 @@
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
@@ -1588,7 +1592,9 @@
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
+	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\panel.hpp"\
 	".\plugin.hpp"\
@@ -1645,6 +1651,8 @@
 	".\help.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
+	".\keys.hpp"\
+	".\lockscrn.hpp"\
 	".\modal.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
@@ -1801,6 +1809,7 @@
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\

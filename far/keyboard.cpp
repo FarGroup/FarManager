@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.84 10.12.2002 $ */
+/* Revision: 1.85 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - BugZ#702 - Не обрабатывается изменение размера консоли во время копирования
+      ВНИМАНИЕ! В обработку WINDOW_BUFFER_SIZE_EVENT включен механизм редрайва
+      фреймов и вызов функции PreRedrawFunc!!!
   10.12.2002 SVS
     - BugZ#695 - Не работает прерывание по Esc
     ! УБРАН SaveScreen в функции ConfirmAbortOp(). МЕШАЕТ!
@@ -270,6 +274,7 @@ Modify:
 #include "manager.hpp"
 #include "scrbuf.hpp"
 #include "savescr.hpp"
+#include "lockscrn.hpp"
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
@@ -1034,6 +1039,18 @@ int GetInputRecord(INPUT_RECORD *rec)
       PrevScrY=PScrY;
       //_SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
       Sleep(1);
+      if(FrameManager)
+      {
+        // апдейтим панели (именно они сейчас!)
+        LockScreen LckScr;
+        FrameManager->ResizeAllFrame();
+        FrameManager->GetCurrentFrame()->Show();
+        //_SVS(SysLog("PreRedrawFunc = %p",PreRedrawFunc));
+        if(PreRedrawFunc)
+        {
+          PreRedrawFunc();
+        }
+      }
       return(KEY_CONSOLE_BUFFER_RESIZE);
     }
   }
@@ -1401,6 +1418,19 @@ int CheckForEscSilent()
     CtrlObject->Macro.SetMode(MACRO_LAST);
     Key=GetInputRecord(&rec);
     CtrlObject->Macro.SetMode(MMode);
+    /*
+    if(Key == KEY_CONSOLE_BUFFER_RESIZE)
+    {
+      // апдейтим панели (именно они сейчас!)
+      LockScreen LckScr;
+      FrameManager->ResizeAllFrame();
+      FrameManager->GetCurrentFrame()->Show();
+      if(PreRedrawFunc)
+        PreRedrawFunc();
+
+    }
+    else
+    */
     if(Key==KEY_ESC || Key==KEY_BREAK)
       return(TRUE);
   }

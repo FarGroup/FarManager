@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.132 07.11.2002 $ */
+/* Revision: 1.133 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
+    - ¬ PR_DrawGetDirInfoMsg была бага - вместо Param2 сто€ло Param1
+    ! ¬ ConvertDate() сократим вызов sprintf`а
   07.11.2002 IS
     + FarChDir: принудительно мен€ем все / на \ (попытка побороть bugz#568)
   13.10.2002 IS
@@ -416,6 +420,8 @@ Modify:
 #include "CFileMask.hpp"
 #include "constitle.hpp"
 #include "udlist.hpp"
+#include "manager.hpp"
+#include "lockscrn.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -601,18 +607,26 @@ void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength
       }
     }
     else
+    {
+      int p1,p2,p3=Year;
       switch(CurDateFormat)
       {
         case 0:
-          sprintf(DateText,"%02d%c%02d%c%02d",st.wMonth,DateSeparator,st.wDay,DateSeparator,Year);
+          p1=st.wMonth;
+          p2=st.wDay;
           break;
         case 1:
-          sprintf(DateText,"%02d%c%02d%c%02d",st.wDay,DateSeparator,st.wMonth,DateSeparator,Year);
+          p1=st.wDay;
+          p2=st.wMonth;
           break;
         default:
-          sprintf(DateText,"%02d%c%02d%c%02d",Year,DateSeparator,st.wMonth,DateSeparator,st.wDay);
+          p1=Year;
+          p2=st.wMonth;
+          p3=st.wDay;
           break;
       }
+      sprintf(DateText,"%02d%c%02d%c%02d",p1,DateSeparator,p2,DateSeparator,p3);
+    }
   }
 
   if (Brief)
@@ -733,7 +747,7 @@ static void DrawGetDirInfoMsg(char *Title,char *Name)
 
 static void PR_DrawGetDirInfoMsg(void)
 {
-  DrawGetDirInfoMsg((char *)PreRedrawParam.Param1,(char *)PreRedrawParam.Param1);
+  DrawGetDirInfoMsg((char *)PreRedrawParam.Param1,(char *)PreRedrawParam.Param2);
 }
 
 int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
@@ -742,19 +756,29 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
                int EnhBreak)
 {
-  SaveScreen SaveScr;
+  class RefreshFrameManeger{
+    public:
+      RefreshFrameManeger(){}
+      ~RefreshFrameManeger()
+      {
+        LockScreen LckScr;
+        FrameManager->ResizeAllFrame();
+        FrameManager->GetCurrentFrame()->Show();
+      }
+  };
+
+  char FullDirName[NM],DriveRoot[NM];
+  char FullName[NM];
+  if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
+    return -1;
+
+  //SaveScreen SaveScr;
   ScanTree ScTree(FALSE);
   WIN32_FIND_DATA FindData;
-  char FullName[NM];
   int MsgOut=0;
   clock_t StartTime=clock();
-  char FullDirName[NM],DriveRoot[NM];
 
   SetCursorType(FALSE,0);
-  if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
-  {
-    return -1;
-  }
   GetPathRoot(FullDirName,DriveRoot);
 
   /* $ 20.03.2002 DJ
@@ -770,6 +794,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   /* DJ */
 
   ConsoleTitle OldTitle;
+  RefreshFrameManeger frref;
 
   if ((ClusterSize=GetClusterSize(DriveRoot))==0)
   {

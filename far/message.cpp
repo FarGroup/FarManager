@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.24 11.05.2002 $ */
+/* Revision: 1.25 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    ! Применим MSG_KILLSAVESCREEN
   11.05.2002 SVS
     - BugZ#503 - Info.Message()
   03.04.2002 SVS
@@ -340,6 +342,8 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       if (Flags & MSG_WARNING)
         Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
       FlushInputBuffer();
+      if(Flags & MSG_KILLSAVESCREEN)
+        Dialog::SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
       Dlg.Process();
       RetCode=Dlg.GetExitCode();
     }
@@ -527,7 +531,7 @@ void SetMessageHelp(const char *Topic)
 */
 int AbortMessage()
 {
-  int Res = Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
+  int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
             MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
             MSG(MYes),MSG(MNo));
   if (Res == -1) // Set "ESC" equal to "NO" button

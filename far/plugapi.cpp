@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.149 04.11.2002 $ */
+/* Revision: 1.150 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
   04.11.2002 SVS
     ! У FarMessageFn() параметр PluginNumber может быть равен -1
       При этом хелп недоступен!
@@ -437,6 +439,7 @@ Modify:
 #include "frame.hpp"
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
+#include "lockscrn.hpp"
 
 // declare in plugins.cpp
 extern int KeepUserScreen;
@@ -1062,67 +1065,72 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     {
       INPUT_RECORD ReadRec;
       int ReadKey=GetInputRecord(&ReadRec);
-      if (ReadRec.EventType==MOUSE_EVENT)
+      if(ReadKey==KEY_CONSOLE_BUFFER_RESIZE)
+      {
+        LockScreen LckScr;
+        FarMenu.Hide();
+        FarMenu.Show();
+      }
+      else if (ReadRec.EventType==MOUSE_EVENT)
         FarMenu.ProcessMouse(&ReadRec.Event.MouseEvent);
-      else
-        if (ReadKey!=KEY_NONE)
+      else if (ReadKey!=KEY_NONE)
+      {
+        if (BreakKeys!=NULL)
         {
-          if (BreakKeys!=NULL)
+          for (int I=0;BreakKeys[I]!=0;I++)
           {
-            for (int I=0;BreakKeys[I]!=0;I++)
+            if(CtrlObject->Macro.IsExecuting())
             {
-              if(CtrlObject->Macro.IsExecuting())
-              {
-                int VirtKey,ControlState;
-                TranslateKeyToVK(ReadKey,VirtKey,ControlState,&ReadRec);
-              }
-              if (ReadRec.Event.KeyEvent.wVirtualKeyCode==(BreakKeys[I] & 0xffff))
-              {
-                DWORD Flags=BreakKeys[I]>>16;
-                /* $ 31.07.2001 IS
-                   - Баг: меню плагина закрывалось в случае нажатия на
-                     ctrl-key, alt-key или shift-key, даже если эти комбинации
-                     вовсе не были указаны в BreakKeys, а плагину было нужно
-                     отследить нажатие на просто key. Решение: переписан весь
-                     кусок по анализу, т.к. предыдущий был полной лажей.
-                */
-                DWORD RealFlags=ReadRec.Event.KeyEvent.dwControlKeyState &
-                      (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED|
-                      LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED);
+              int VirtKey,ControlState;
+              TranslateKeyToVK(ReadKey,VirtKey,ControlState,&ReadRec);
+            }
+            if (ReadRec.Event.KeyEvent.wVirtualKeyCode==(BreakKeys[I] & 0xffff))
+            {
+              DWORD Flags=BreakKeys[I]>>16;
+              /* $ 31.07.2001 IS
+                 - Баг: меню плагина закрывалось в случае нажатия на
+                   ctrl-key, alt-key или shift-key, даже если эти комбинации
+                   вовсе не были указаны в BreakKeys, а плагину было нужно
+                   отследить нажатие на просто key. Решение: переписан весь
+                   кусок по анализу, т.к. предыдущий был полной лажей.
+              */
+              DWORD RealFlags=ReadRec.Event.KeyEvent.dwControlKeyState &
+                    (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED|
+                    LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED);
 
-                int Accept;
-                if(RealFlags) // нажаты shift, ctrl или alt
-                {
-                   Accept=FALSE; // т.к. пока ничего не известно
-                   if(Flags) // должна быть проверка с учетом ctrl|alt|shift
-                   {
-                     if ((Flags & PKF_CONTROL) &&
-                         (RealFlags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)))
-                       Accept=TRUE;
-                     if ((Flags & PKF_ALT) &&
-                         (RealFlags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)))
-                       Accept=TRUE;
-                     if ((Flags & PKF_SHIFT) && (RealFlags & SHIFT_PRESSED))
-                       Accept=TRUE;
-                   }
-                }
-                else
-                   Accept=!Flags;  // TRUE только, если нам не нужны сочетания
-                                   // вместе с ctrl|alt|shift
-                /* IS $ */
-                if (Accept)
-                {
-                  if (BreakCode!=NULL)
-                    *BreakCode=I;
-                  FarMenu.Hide();
+              int Accept;
+              if(RealFlags) // нажаты shift, ctrl или alt
+              {
+                 Accept=FALSE; // т.к. пока ничего не известно
+                 if(Flags) // должна быть проверка с учетом ctrl|alt|shift
+                 {
+                   if ((Flags & PKF_CONTROL) &&
+                       (RealFlags & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)))
+                     Accept=TRUE;
+                   if ((Flags & PKF_ALT) &&
+                       (RealFlags & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)))
+                     Accept=TRUE;
+                   if ((Flags & PKF_SHIFT) && (RealFlags & SHIFT_PRESSED))
+                     Accept=TRUE;
+                 }
+              }
+              else
+                 Accept=!Flags;  // TRUE только, если нам не нужны сочетания
+                                 // вместе с ctrl|alt|shift
+              /* IS $ */
+              if (Accept)
+              {
+                if (BreakCode!=NULL)
+                  *BreakCode=I;
+                FarMenu.Hide();
 //                  CheckScreenLock();
-                  return(FarMenu.GetSelectPos());
-                }
+                return(FarMenu.GetSelectPos());
               }
             }
           }
-          FarMenu.ProcessKey(ReadKey);
         }
+        FarMenu.ProcessKey(ReadKey);
+      }
     }
     ExitCode=FarMenu.Modal::GetExitCode();
   }

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.273 10.12.2002 $ */
+/* Revision: 1.274 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    ! Добавим LockScr - плавнее отрисовка!
   10.12.2002 SVS
     ! Уточнение для DI_COMBOBOX: DIF_EDITOR == DIF_LISTNOAMPERSAND!
   04.11.2002 SVS
@@ -1040,6 +1042,7 @@ Modify:
 #include "manager.hpp"
 #include "savescr.hpp"
 #include "constitle.hpp"
+#include "lockscrn.hpp"
 
 static char HisLocked[16]="Locked", *PHisLocked=NULL;
 static char HisLine[16]  ="Line", *PHisLine=NULL;
@@ -1260,7 +1263,24 @@ void Dialog::Show()
     return;
 
   if(PreRedrawFunc)
-     PreRedrawFunc();
+  {
+  /*
+    static int InPreRedraw=FALSE;
+    //???  предполагаем, что внизу панели!  _УТОЧНИТЬ!_
+    if((PrevScrX != ScrX || PrevScrY != ScrY) && !InPreRedraw)
+    {
+      LockScreen LckScr;
+      InPreRedraw=TRUE;
+      FrameManager->ResizeAllFrame();
+      FrameManager->GetCurrentFrame()->Show();
+      PrevScrX=ScrX;
+      PrevScrY=ScrY;
+      InPreRedraw=FALSE;
+    }
+    //???
+   */
+    PreRedrawFunc();
+  }
 
   /* $ 21.04.2002 KM
       Мавр сделал своё дело - мавр может уходить!
@@ -3950,16 +3970,20 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               }
 
               // Да, мальчик был. Зачнем...
-              Hide();
-              X1=NX1; X2=NX2; Y1=NY1; Y2=NY2;
-              if(AdjX || AdjY)
-                AdjustEditPos(AdjX,AdjY); //?
-              Show();
+              {
+                LockScreen LckScr;
+                Hide();
+                X1=NX1; X2=NX2; Y1=NY1; Y2=NY2;
+                if(AdjX || AdjY)
+                  AdjustEditPos(AdjX,AdjY); //?
+                Show();
+              }
             }
           }
           /* SVS $ */
           else if (mb==2) // right key, abort
           {
+            LockScreen LckScr;
             Hide();
             AdjustEditPos(OldX1-X1,OldY1-Y1);
             X1=OldX1;
@@ -3973,9 +3997,13 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           }
           else  // release key, drop dialog
           {
-            DialogMode.Clear(DMODE_DRAGGED);
-            DlgProc((HANDLE)this,DN_DRAGGED,1,0);
-            Show();
+            if(OldX1!=X1 || OldX2!=X2 || OldY1!=Y1 || OldY2!=Y2)
+            {
+              LockScreen LckScr;
+              DialogMode.Clear(DMODE_DRAGGED);
+              DlgProc((HANDLE)this,DN_DRAGGED,1,0);
+              Show();
+            }
             break;
           }
 
