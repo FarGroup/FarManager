@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.266 01.10.2002 $ */
+/* Revision: 1.267 04.10.2002 $ */
 
 /*
 Modify:
+  04.10.2002 SVS
+    - BugZ#666 - Неразбериха с цветами
+    + VMENU_DISABLED - говорит о том, что ВЕСЬ список (как элемент диалога) заблокирован
+    - BugZ#668 - Не работат шорткаты если фокусе у DI_USERCONTROL
+    - BugZ#669 - Если вручную делать DM_SETCHECK группе Радио-кнопок...
   01.10.2002 SVS
     - Стандартные цвета листбокса.
   30.09.2002 SVS
@@ -1481,6 +1486,8 @@ int Dialog::InitDialogObjects(int ID)
            ! Исправлена подсветка в DI_LISTBOX, теперь на самом деле :)
              для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
         */
+        if(ItemFlags&DIF_DISABLE)
+          ListPtr->SetFlags(VMENU_DISABLED);
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
           ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
         if(ItemFlags&DIF_LISTNOBOX)
@@ -1489,6 +1496,7 @@ int Dialog::InitDialogObjects(int ID)
           ListPtr->SetFlags(VMENU_WRAPMODE);
         if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
           ListPtr->AssignHighlights(FALSE);
+        ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
         ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
         ListPtr->SetBoxType(SHORT_SINGLE_BOX);
@@ -1545,6 +1553,8 @@ int Dialog::InitDialogObjects(int ID)
              DialogEdit->SetDropDownBox(TRUE);
           if(ItemFlags&DIF_LISTWRAPMODE)
             ListPtr->SetFlags(VMENU_WRAPMODE);
+          if(ItemFlags&DIF_DISABLE)
+            ListPtr->SetFlags(VMENU_DISABLED);
           /* $ 15.05.2001 KM
              Добавим подсветку в DI_COMBOBOX
           */
@@ -1570,6 +1580,7 @@ int Dialog::InitDialogObjects(int ID)
           */
           ListPtr->SetFlags(VMENU_COMBOBOX);
           /* KM $ */
+          ListPtr->SetDialogStyle(DialogMode.Check(DMODE_WARNINGSTYLE));
         }
       }
 
@@ -3247,8 +3258,8 @@ int Dialog::ProcessKey(int Key)
 
     default:
     {
-      if(Item[FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
-        return TRUE;
+      //if(Item[FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
+      //  return TRUE;
 
       if(Item[FocusPos].Type == DI_LISTBOX)
       {
@@ -6376,7 +6387,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
       if((I=Dlg->DlgProc(hDlg,DN_EDITCHANGE,Param1,(long)&PluginDialogItem)) == TRUE)
+      {
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
+        if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
+          CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+      }
       return I;
     }
 
@@ -6449,7 +6464,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         Param1=Dlg->ProcessRadioButton(Param1);
         if(Dlg->DialogMode.Check(DMODE_SHOW))
         {
-          Dlg->ShowDialog(Param1);
+          Dlg->ShowDialog();
           ScrBuf.Flush();
         }
         return Param1;
@@ -6464,6 +6479,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
       I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
       Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
+      if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
+        CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
       return I;
     }
 
@@ -6818,6 +6835,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
         CurItem->Type=Type;
+        if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
+          CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
         // еще разок, т.к. данные могли быть изменены
         Dlg->InitDialogObjects(Param1);
         SetFarTitle(Dlg->GetDialogTitle());
@@ -6920,6 +6939,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
            CurItem->Flags&=~DIF_DISABLE;
          else
            CurItem->Flags|=DIF_DISABLE;
+         if((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
+           CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
       }
       if(Dlg->DialogMode.Check(DMODE_SHOW)) //???
       {

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.45 17.09.2002 $ */
+/* Revision: 1.46 07.10.2002 $ */
 
 /*
 Modify:
+  07.10.2002 SVS
+    - BugZ#674 - far.exe c:\dir [c:\dir2] - не работает
   17.09.2002 SKV
     - GoToFile на плагиновой панели.
   24.05.2002 SVS
@@ -205,7 +207,33 @@ void FilePanels::Init()
   }
   else
   {
-    if (*Opt.PassiveFolder && (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff))
+    if(Opt.SetupArgv >= 1)
+    {
+      if(ActivePanel==RightPanel)
+      {
+        if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
+          RightPanel->InitCurDir(Opt.RightFolder);
+      }
+      else
+      {
+        if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
+          LeftPanel->InitCurDir(Opt.LeftFolder);
+      }
+      if(Opt.SetupArgv == 2)
+      {
+        if(ActivePanel==LeftPanel)
+        {
+          if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
+            RightPanel->InitCurDir(Opt.RightFolder);
+        }
+        else
+        {
+          if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
+            LeftPanel->InitCurDir(Opt.LeftFolder);
+        }
+      }
+    }
+    if (Opt.SetupArgv < 2 && *Opt.PassiveFolder && (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff))
     {
       PassivePanel->InitCurDir(Opt.PassiveFolder);
     }

@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.112 30.09.2002 $ */
+/* Revision: 1.113 07.10.2002 $ */
 
 /*
 Modify:
+  07.10.2002 SVS
+    ! Пересмотрены MSetColorDialog* и удалены MSetColorWarning*, т.к.
+      оба вида диалога настраиваются однотипно (имеют одинаковый набор цветов)
   30.09.2002 SVS
     ! MSetColorDialogMenu* -> MSetColorDialogList*
   20.09.2002 SVS
@@ -1385,27 +1388,17 @@ enum
   MSetColorDialogSelectedButtons,
   MSetColorDialogHighlightedButtons,
   MSetColorDialogSelectedHighlightedButtons,
+  MSetColorDialogListBoxControl,
+  MSetColorDialogComboBoxControl,
+
   MSetColorDialogListText,
   MSetColorDialogListSelectedText,
   MSetColorDialogListHighLight,
   MSetColorDialogListSelectedHighLight,
   MSetColorDialogListDisabled,
+  MSetColorDialogListBox,
   MSetColorDialogListTitle,
   MSetColorDialogListScrollBar,
-
-  MSetColorWarningNormal,
-  MSetColorWarningHighlighted,
-  MSetColorWarningDisabled,
-  MSetColorWarningBox,
-  MSetColorWarningBoxTitle,
-  MSetColorWarningHighlightedBoxTitle,
-  MSetColorWarningTextInput,
-  MSetColorWarningEditDisabled,
-  MSetColorWarningButtons,
-  MSetColorWarningSelectedButtons,
-  MSetColorWarningHighlightedButtons,
-  MSetColorWarningSelectedHighlightedButtons,
-  MSetColorWarningListDisabled,
 
   MSetColorMenuNormal,
   MSetColorMenuSelected,

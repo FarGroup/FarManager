@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.91 12.08.2002 $ */
+/* Revision: 1.92 07.10.2002 $ */
 
 /*
 Modify:
+  07.10.2002 SVS
+    + Opt.SetupArgv - количество каталогов в комюстроке ФАРа
   12.08.2002 SVS
    + Opt.ExecuteUseAppPath
   30.05.2002 SVS
@@ -523,6 +525,7 @@ struct Options
   int SaveFoldersHistory;
   int SaveViewHistory;
   int AutoSaveSetup;
+  int SetupArgv; // количество каталогов в комюстроке ФАРа
   int ChangeDriveMode;
   int ChangeDriveDisconnetMode;
   int FileSearchMode;

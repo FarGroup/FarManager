@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.44 30.09.2002 $ */
+/* Revision: 1.45 04.10.2002 $ */
 
 /*
 Modify:
+  04.10.2002 SVS
+    + VMENU_DISABLED - говорит о том, что ¬≈—№ список (как элемент диалога) заблокирован
   30.09.2002 SVS
     ! ÷ветовые истории (Colors не short, а BYTE и применим новую структуру
       FarListColors дл€ SetColors/GetColors)
@@ -211,6 +213,7 @@ enum{
 #define VMENU_COMBOBOX              0x00400000
 /* KM $ */
 #define VMENU_MOUSEDOWN             0x00800000
+#define VMENU_DISABLED              0x80000000
 
 class Dialog;
 class SaveScreen;

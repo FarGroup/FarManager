@@ -5,10 +5,13 @@ palette.cpp
 
 */
 
-/* Revision: 1.11 30.09.2002 $ */
+/* Revision: 1.12 04.10.2002 $ */
 
 /*
 Modify:
+  04.10.2002 SVS
+    + Немного новых цветов, уточняющих листбокс и комбобокс.
+    + ConvertCurrentPalette()
   30.09.2002 SVS
     ! Исправление цвета для COL_DIALOGLISTDISABLED
     ! COL_DIALOGMENU* заменен на COL_DIALOGLIST*
@@ -142,7 +145,7 @@ unsigned char DefaultPalette[]=
 
   F_DARKGRAY|B_RED,                       // COL_WARNDIALOGDISABLED,
   F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGEDITDISABLED,
-  F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGLISTDISABLED,
+  F_DARKGRAY|B_RED,                       // COL_WARNDIALOGLISTDISABLED,
 
   F_DARKGRAY|B_CYAN,                      // COL_MENUDISABLEDTEXT,
 
@@ -150,10 +153,37 @@ unsigned char DefaultPalette[]=
   F_BLACK|B_CYAN,                         // COL_VIEWERCLOCK,
 
   F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTITLE
-  0,
-  0,
-  0,
-  0,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTBOX,
+
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGEDITSELECTED,
+  F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGEDITUNCHANGED,
+
+  F_WHITE|B_CYAN,                         // COL_DIALOGCBOXTEXT,
+  F_WHITE|B_BLACK,                        // COL_DIALOGCBOXSELECTEDTEXT,
+  F_YELLOW|B_CYAN,                        // COL_DIALOGCBOXHIGHLIGHT,
+  F_YELLOW|B_BLACK,                       // COL_DIALOGCBOXSELECTEDHIGHLIGHT,
+  F_WHITE|B_CYAN,                         // COL_DIALOGCBOXBOX,
+  F_WHITE|B_CYAN,                         // COL_DIALOGCBOXTITLE,
+  F_DARKGRAY|B_CYAN,                      // COL_DIALOGCBOXDISABLED,
+  F_WHITE|B_CYAN,                         // COL_DIALOGCBOXSCROLLBAR,
+
+  F_WHITE|B_RED,                          // COL_WARNDIALOGLISTTEXT,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTSELECTEDTEXT,
+  F_YELLOW|B_RED,                         // COL_WARNDIALOGLISTHIGHLIGHT,
+  F_YELLOW|B_LIGHTGRAY,                   // COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
+  F_WHITE|B_RED,                          // COL_WARNDIALOGLISTBOX,
+  F_WHITE|B_RED,                          // COL_WARNDIALOGLISTTITLE,
+  F_WHITE|B_RED,                          // COL_WARNDIALOGLISTSCROLLBAR,
+
+  F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXTEXT,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGCBOXSELECTEDTEXT,
+  F_YELLOW|B_CYAN,                        // COL_WARNDIALOGCBOXHIGHLIGHT,
+  F_YELLOW|B_BLACK,                       // COL_WARNDIALOGCBOXSELECTEDHIGHLIGHT,
+  F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXBOX,
+  F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXTITLE,
+  F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGCBOXDISABLED,
+  F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXSCROLLBAR,
+
 };
 
 
@@ -256,8 +286,8 @@ unsigned char BlackPalette[]=
   F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTDISABLED,
 
   F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGDISABLED,
-  F_LIGHTGRAY|B_DARKGRAY,                 // COL_WARNDIALOGEDITDISABLED,
-  F_LIGHTGRAY|B_DARKGRAY,                 // COL_WARNDIALOGLISTDISABLED,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGEDITDISABLED,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGLISTDISABLED,
 
   F_DARKGRAY|B_LIGHTGRAY,                 // COL_MENUDISABLEDTEXT,
 
@@ -265,11 +295,38 @@ unsigned char BlackPalette[]=
   F_BLACK|B_LIGHTGRAY,                    // COL_VIEWERCLOCK,
 
   F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTITLE
-  0,
-  0,
-  0,
-  0,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTBOX,
+
+  F_BLACK|B_WHITE,                        // COL_WARNDIALOGEDITSELECTED,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGEDITUNCHANGED,
+
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXTEXT,
+  F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGCBOXSELECTEDTEXT,
+  F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGCBOXHIGHLIGHT,
+  F_WHITE|B_BLACK,                        // COL_DIALOGCBOXSELECTEDHIGHLIGHT,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXBOX,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXTITLE,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGCBOXDISABLED,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXSCROLLBAR,
+
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTTEXT,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTSELECTEDTEXT,
+  F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTHIGHLIGHT,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTBOX,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTTITLE,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTSCROLLBAR,
+
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXTEXT,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGCBOXSELECTEDTEXT,
+  F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXHIGHLIGHT,
+  F_WHITE|B_BLACK,                        // COL_WARNDIALOGCBOXSELECTEDHIGHLIGHT,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXBOX,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXTITLE,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGCBOXDISABLED,
+  F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXSCROLLBAR,
 };
+
 
 int SizeArrayPalette=sizeof(DefaultPalette)/sizeof(DefaultPalette[0]);
 unsigned char Palette[sizeof(DefaultPalette)/sizeof(DefaultPalette[0])];
@@ -280,4 +337,17 @@ int FarColorToReal(int FarColor)
     return(FarColor);
   else
     return(Palette[(FarColor-COL_FIRSTPALETTECOLOR)%SizeArrayPalette]);
+}
+
+/*
+  1.65            - 0x52
+  1.70 b1 (272)   - 0x54
+  1.70 b2 (321)   - 0x54
+  1.70 b3 (591)   - 0x54
+  1.70 b4 (1282)  - 0x60
+  1.70 b5 ()      - 0x70
+*/
+void ConvertCurrentPalette()
+{
+//  DWORD Size=GetRegKeySize("Colors","CurrentPalette");
 }

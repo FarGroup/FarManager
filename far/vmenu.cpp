@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.98 27.09.2002 $ */
+/* Revision: 1.99 04.10.2002 $ */
 
 /*
 Modify:
+  04.10.2002 SVS
+    ! Уточнение и расширение VMenu::SetColors()
   30.09.2002 SVS
     ! Цветовые истории (Colors не short, а BYTE и применим новую структуру
       FarListColors для SetColors/GetColors)
@@ -1247,9 +1249,19 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
       {
-        Item[SelectPos].Flags&=~LIF_SELECTED;
-        Item[MsPos].Flags|=LIF_SELECTED;
-        SelectPos=MsPos;
+/* TODO:
+
+   Это заготовка для управления поведением листов "не в стиле меню" - когда текущий
+   указатель списка (позиция) следит за мышой...
+
+        if(!CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags==MOUSE_MOVED ||
+            CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+*/
+        {
+          Item[SelectPos].Flags&=~LIF_SELECTED;
+          Item[MsPos].Flags|=LIF_SELECTED;
+          SelectPos=MsPos;
+        }
         ShowMenu(TRUE);
       }
       /* $ 13.10.2001 VVM
@@ -1983,36 +1995,101 @@ void VMenu::SetColors(struct FarListColors *Colors)
     memmove(VMenu::Colors,Colors->Colors,sizeof(VMenu::Colors));
   else
   {
-    static short StdColor[2][VMENU_COLOR_COUNT]=
+    static short StdColor[2][3][VMENU_COLOR_COUNT]=
     {
+      // Not VMENU_WARNDIALOG
       {
-        COL_DIALOGLISTTEXT,
-        COL_DIALOGLISTTEXT,
-        COL_DIALOGLISTTITLE,
-        COL_DIALOGLISTTEXT,
-        COL_DIALOGLISTHIGHLIGHT,
-        COL_DIALOGLISTTEXT,
-        COL_DIALOGLISTSELECTEDTEXT,
-        COL_DIALOGLISTSELECTEDHIGHLIGHT,
-        COL_DIALOGLISTSCROLLBAR,
-        COL_DIALOGLISTDISABLED,
+        { // VMENU_LISTBOX
+          COL_DIALOGLISTBOX,                         // подложка
+          COL_DIALOGLISTBOX,                         // рамка
+          COL_DIALOGLISTTITLE,                       // заголовок - верхний и нижний
+          COL_DIALOGLISTTEXT,                        // Текст пункта
+          COL_DIALOGLISTHIGHLIGHT,                   // HotKey
+          COL_DIALOGLISTBOX,                         // separator
+          COL_DIALOGLISTSELECTEDTEXT,                // Выбранный
+          COL_DIALOGLISTSELECTEDHIGHLIGHT,           // Выбранный - HotKey
+          COL_DIALOGLISTSCROLLBAR,                   // ScrollBar
+          COL_DIALOGLISTDISABLED,                    // Disabled
+        },
+        { // VMENU_COMBOBOX
+          COL_DIALOGCOMBOBOX,                         // подложка
+          COL_DIALOGCOMBOBOX,                         // рамка
+          COL_DIALOGCOMBOTITLE,                       // заголовок - верхний и нижний
+          COL_DIALOGCOMBOTEXT,                        // Текст пункта
+          COL_DIALOGCOMBOHIGHLIGHT,                   // HotKey
+          COL_DIALOGCOMBOBOX,                         // separator
+          COL_DIALOGCOMBOSELECTEDTEXT,                // Выбранный
+          COL_DIALOGCOMBOSELECTEDHIGHLIGHT,           // Выбранный - HotKey
+          COL_DIALOGCOMBOSCROLLBAR,                   // ScrollBar
+          COL_DIALOGCOMBODISABLED,                    // Disabled
+        },
+        { // VMenu
+          COL_MENUBOX,                               // подложка
+          COL_MENUBOX,                               // рамка
+          COL_MENUTITLE,                             // заголовок - верхний и нижний
+          COL_MENUTEXT,                              // Текст пункта
+          COL_MENUHIGHLIGHT,                         // HotKey
+          COL_MENUBOX,                               // separator
+          COL_MENUSELECTEDTEXT,                      // Выбранный
+          COL_MENUSELECTEDHIGHLIGHT,                 // Выбранный - HotKey
+          COL_MENUSCROLLBAR,                         // ScrollBar
+          COL_MENUDISABLEDTEXT,                      // Disabled
+        }
       },
+
+      // == VMENU_WARNDIALOG
       {
-        COL_MENUTEXT,
-        COL_MENUBOX,
-        COL_MENUTITLE,
-        COL_MENUTEXT,
-        COL_MENUHIGHLIGHT,
-        COL_MENUBOX,
-        COL_MENUSELECTEDTEXT,
-        COL_MENUSELECTEDHIGHLIGHT,
-        COL_MENUSCROLLBAR,
-        COL_MENUDISABLEDTEXT,
+        { // VMENU_LISTBOX
+          COL_WARNDIALOGLISTBOX,                     // подложка
+          COL_WARNDIALOGLISTBOX,                     // рамка
+          COL_WARNDIALOGLISTTITLE,                   // заголовок - верхний и нижний
+          COL_WARNDIALOGLISTTEXT,                    // Текст пункта
+          COL_WARNDIALOGLISTHIGHLIGHT,               // HotKey
+          COL_WARNDIALOGLISTBOX,                     // separator
+          COL_WARNDIALOGLISTSELECTEDTEXT,            // Выбранный
+          COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,       // Выбранный - HotKey
+          COL_WARNDIALOGLISTSCROLLBAR,               // ScrollBar
+          COL_WARNDIALOGLISTDISABLED,                // Disabled
+        },
+        { // VMENU_COMBOBOX
+          COL_WARNDIALOGCOMBOBOX,                    // подложка
+          COL_WARNDIALOGCOMBOBOX,                    // рамка
+          COL_WARNDIALOGCOMBOTITLE,                  // заголовок - верхний и нижний
+          COL_WARNDIALOGCOMBOTEXT,                   // Текст пункта
+          COL_WARNDIALOGCOMBOHIGHLIGHT,              // HotKey
+          COL_WARNDIALOGCOMBOBOX,                    // separator
+          COL_WARNDIALOGCOMBOSELECTEDTEXT,           // Выбранный
+          COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT,      // Выбранный - HotKey
+          COL_WARNDIALOGCOMBOSCROLLBAR,              // ScrollBar
+          COL_WARNDIALOGCOMBODISABLED,               // Disabled
+        },
+        { // VMenu
+          COL_MENUBOX,                               // подложка
+          COL_MENUBOX,                               // рамка
+          COL_MENUTITLE,                             // заголовок - верхний и нижний
+          COL_MENUTEXT,                              // Текст пункта
+          COL_MENUHIGHLIGHT,                         // HotKey
+          COL_MENUBOX,                               // separator
+          COL_MENUSELECTEDTEXT,                      // Выбранный
+          COL_MENUSELECTEDHIGHLIGHT,                 // Выбранный - HotKey
+          COL_MENUSCROLLBAR,                         // ScrollBar
+          COL_MENUDISABLEDTEXT,                      // Disabled
+        }
       }
     };
-    int DialogStyle=CheckFlags(VMENU_LISTBOX)?0:1;
-    for(int I=0; I < VMENU_COLOR_COUNT; ++I)
-      VMenu::Colors[I]=FarColorToReal(StdColor[DialogStyle][I]);
+    int TypeMenu  = CheckFlags(VMENU_LISTBOX)?0:(CheckFlags(VMENU_COMBOBOX)?1:2);
+    int StyleMenu = CheckFlags(VMENU_WARNDIALOG)?1:0;
+    if(CheckFlags(VMENU_DISABLED))
+    {
+      VMenu::Colors[0]=FarColorToReal(StyleMenu?COL_WARNDIALOGDISABLED:COL_DIALOGDISABLED);
+      for(int I=1; I < VMENU_COLOR_COUNT; ++I)
+        VMenu::Colors[I]=VMenu::Colors[0];
+    }
+    else
+    {
+      for(int I=0; I < VMENU_COLOR_COUNT; ++I)
+        VMenu::Colors[I]=FarColorToReal(StdColor[StyleMenu][TypeMenu][I]);
+    }
   }
 }
 

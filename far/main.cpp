@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.59 21.08.2002 $ */
+/* Revision: 1.60 07.10.2002 $ */
 
 /*
 Modify:
+  07.10.2002 SVS
+    - BugZ#674 - far.exe c:\dir [c:\dir2] - не работает
   21.08.2002 SVS
     ! Уточнение про WaitKey
   02.07.2002 SVS
@@ -605,13 +607,18 @@ int _cdecl main(int Argc, char *Argv[])
       while (!Reg.Done)
         Sleep(10);
 
+      Opt.SetupArgv=0;
+
       // воспользуемся тем, что ControlObject::Init() создает панели
       // юзая Opt.*
       if(*DestName[0]) // актиная панель
       {
+        Opt.SetupArgv++;
         strcpy(Path,DestName[0]);
         *PointToName(Path)=0;
-        DeleteEndSlash(Path);  // если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
+        DeleteEndSlash(Path); // если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
+        if(Path[1]==':' && !Path[2])
+          AddEndSlash(Path);
 
         // Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
         if(Opt.LeftPanel.Focus)
@@ -629,9 +636,12 @@ int _cdecl main(int Argc, char *Argv[])
 
         if(*DestName[1]) // пассивная панель
         {
+          Opt.SetupArgv++;
           strcpy(Path,DestName[1]);
           *PointToName(Path)=0;
           DeleteEndSlash(Path);
+          if(Path[1]==':' && !Path[2])
+            AddEndSlash(Path);
 
           // а здесь с точнотью наоборот - обрабатываем пассивную панель
           if(Opt.LeftPanel.Focus)

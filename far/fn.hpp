@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.167 18.09.2002 $ */
+/* Revision: 1.168 04.10.2002 $ */
 
 /*
 Modify:
+  04.10.2002 SVS
+    + ConvertCurrentPalette()
   18.09.2002 VVM
     + SheckForEscSilent() - проверить на ESC безо всяких запросов пользователя
     + CinfirmAbortOp()    - спросить у пользователя подтверждение прерывания
@@ -536,6 +538,7 @@ void Log(char *fmt,...);
 void BoxText(unsigned char Chr);
 void BoxText(char *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
+void ConvertCurrentPalette();
 void ReopenConsole();
 int CheckFolder(char *Name);
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);

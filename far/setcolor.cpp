@@ -5,10 +5,13 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.22 26.09.2002 $ */
+/* Revision: 1.23 07.10.2002 $ */
 
 /*
 Modify:
+  07.10.2002 SVS
+    ! Обработка настройки новых цветов
+    ! SetItemColors() обрабатывает вложенность! (про листбоксы и комбобоксы)
   26.09.2002 SVS
     - ФАР в режиме 80x25. на правой панели штук 15 файлов, кое-какие
       выделены. идем в настройку цветов и меняем цвет выделения и цвет
@@ -82,9 +85,69 @@ Modify:
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 
-static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size);
+static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int TypeSub);
 void GetColor(int PaletteIndex);
-static VMenu *MenuToRedraw1,*MenuToRedraw2;
+static VMenu *MenuToRedraw1=NULL,*MenuToRedraw2=NULL,*MenuToRedraw3=NULL;
+
+static struct MenuData ListItems[]=
+{
+  (char *)MSetColorDialogListText,LIF_SELECTED,0,
+  (char *)MSetColorDialogListHighLight,0,0,
+  (char *)MSetColorDialogListSelectedText,0,0,
+  (char *)MSetColorDialogListSelectedHighLight,0,0,
+  (char *)MSetColorDialogListDisabled,0,0,
+  (char *)MSetColorDialogListBox,0,0,
+  (char *)MSetColorDialogListTitle,0,0,
+  (char *)MSetColorDialogListScrollBar,0,0,
+};
+
+// 0,1 - dialog,warn List
+// 2,3 - dialog,warn Combobox
+static int ListPaletteItems[4][8]=
+{
+  // Listbox
+  { // normal
+    COL_DIALOGLISTTEXT,
+    COL_DIALOGLISTHIGHLIGHT,
+    COL_DIALOGLISTSELECTEDTEXT,
+    COL_DIALOGLISTSELECTEDHIGHLIGHT,
+    COL_DIALOGLISTDISABLED,
+    COL_DIALOGLISTBOX,
+    COL_DIALOGLISTTITLE,
+    COL_DIALOGLISTSCROLLBAR,
+  },
+  { // warn
+    COL_WARNDIALOGLISTTEXT,
+    COL_WARNDIALOGLISTHIGHLIGHT,
+    COL_WARNDIALOGLISTSELECTEDTEXT,
+    COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
+    COL_WARNDIALOGLISTDISABLED,
+    COL_WARNDIALOGLISTBOX,
+    COL_WARNDIALOGLISTTITLE,
+    COL_WARNDIALOGLISTSCROLLBAR,
+  },
+  // Combobox
+  { // normal
+    COL_DIALOGCOMBOTEXT,
+    COL_DIALOGCOMBOHIGHLIGHT,
+    COL_DIALOGCOMBOSELECTEDTEXT,
+    COL_DIALOGCOMBOSELECTEDHIGHLIGHT,
+    COL_DIALOGCOMBODISABLED,
+    COL_DIALOGCOMBOBOX,
+    COL_DIALOGCOMBOTITLE,
+    COL_DIALOGCOMBOSCROLLBAR,
+  },
+  { // warn
+    COL_WARNDIALOGCOMBOTEXT,
+    COL_WARNDIALOGCOMBOHIGHLIGHT,
+    COL_WARNDIALOGCOMBOSELECTEDTEXT,
+    COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT,
+    COL_WARNDIALOGCOMBODISABLED,
+    COL_WARNDIALOGCOMBOBOX,
+    COL_WARNDIALOGCOMBOTITLE,
+    COL_WARNDIALOGCOMBOSCROLLBAR,
+  },
+};
 
 void SetColors()
 {
@@ -131,12 +194,6 @@ void SetColors()
     COL_PANELSCREENSNUMBER
   };
 
-  /* $ 22.11.2000 SVS
-    + пункт в меню - COL_DIALOGLISTSCROLLBAR
-  */
-  /* $ 04.12.2000 SVS
-    + пункт в меню - COL_DIALOGDISABLED
-  */
   struct MenuData DialogItems[]=
   {
     (char *)MSetColorDialogNormal,LIF_SELECTED,0,
@@ -153,51 +210,64 @@ void SetColors()
     (char *)MSetColorDialogSelectedButtons,0,0,
     (char *)MSetColorDialogHighlightedButtons,0,0,
     (char *)MSetColorDialogSelectedHighlightedButtons,0,0,
-    (char *)MSetColorDialogListText,0,0,
-    (char *)MSetColorDialogListSelectedText,0,0,
-    (char *)MSetColorDialogListHighLight,0,0,
-    (char *)MSetColorDialogListSelectedHighLight,0,0,
-    (char *)MSetColorDialogListDisabled,0,0,
-    (char *)MSetColorDialogListTitle,0,0,
-    (char *)MSetColorDialogListScrollBar,0,0, // полоса прокрутки для списка
+    (char *)MSetColorDialogListBoxControl,0,0,
+    (char *)MSetColorDialogComboBoxControl,0,0,
   };
   int DialogPaletteItems[]={
-    COL_DIALOGTEXT,COL_DIALOGHIGHLIGHTTEXT,COL_DIALOGDISABLED,
-    COL_DIALOGBOX,COL_DIALOGBOXTITLE, COL_DIALOGHIGHLIGHTBOXTITLE,
-    COL_DIALOGEDIT,COL_DIALOGEDITUNCHANGED, COL_DIALOGEDITSELECTED,COL_DIALOGEDITDISABLED,
-    COL_DIALOGBUTTON,COL_DIALOGSELECTEDBUTTON, COL_DIALOGHIGHLIGHTBUTTON,COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
-    COL_DIALOGLISTTEXT, COL_DIALOGLISTSELECTEDTEXT,COL_DIALOGLISTHIGHLIGHT,
-    COL_DIALOGLISTSELECTEDHIGHLIGHT, COL_DIALOGLISTDISABLED,
-    COL_DIALOGLISTTITLE,
-    COL_DIALOGLISTSCROLLBAR,
+    COL_DIALOGTEXT,
+    COL_DIALOGHIGHLIGHTTEXT,
+    COL_DIALOGDISABLED,
+    COL_DIALOGBOX,
+    COL_DIALOGBOXTITLE,
+    COL_DIALOGHIGHLIGHTBOXTITLE,
+    COL_DIALOGEDIT,
+    COL_DIALOGEDITUNCHANGED,
+    COL_DIALOGEDITSELECTED,
+    COL_DIALOGEDITDISABLED,
+    COL_DIALOGBUTTON,
+    COL_DIALOGSELECTEDBUTTON,
+    COL_DIALOGHIGHLIGHTBUTTON,
+    COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
+    0,
+    2,
   };
-  /* SVS 04.12.2000 $ */
-  /* SVS 22.11.2000 $ */
 
   struct MenuData WarnDialogItems[]=
   {
-    (char *)MSetColorWarningNormal,LIF_SELECTED,0,
-    (char *)MSetColorWarningHighlighted,0,0,
-    (char *)MSetColorWarningDisabled,0,0,
-    (char *)MSetColorWarningBox,0,0,
-    (char *)MSetColorWarningBoxTitle,0,0,
-    (char *)MSetColorWarningHighlightedBoxTitle,0,0,
-    (char *)MSetColorWarningTextInput,0,0,
-    (char *)MSetColorWarningEditDisabled,0,0,
-    (char *)MSetColorWarningButtons,0,0,
-    (char *)MSetColorWarningSelectedButtons,0,0,
-    (char *)MSetColorWarningHighlightedButtons,0,0,
-    (char *)MSetColorWarningSelectedHighlightedButtons,0,0,
-    (char *)MSetColorWarningListDisabled,0,0,
+    (char *)MSetColorDialogNormal,LIF_SELECTED,0,
+    (char *)MSetColorDialogHighlighted,0,0,
+    (char *)MSetColorDialogDisabled,0,0,
+    (char *)MSetColorDialogBox,0,0,
+    (char *)MSetColorDialogBoxTitle,0,0,
+    (char *)MSetColorDialogHighlightedBoxTitle,0,0,
+    (char *)MSetColorDialogTextInput,0,0,
+    (char *)MSetColorDialogUnchangedTextInput,0,0,
+    (char *)MSetColorDialogSelectedTextInput,0,0,
+    (char *)MSetColorDialogEditDisabled,0,0,
+    (char *)MSetColorDialogButtons,0,0,
+    (char *)MSetColorDialogSelectedButtons,0,0,
+    (char *)MSetColorDialogHighlightedButtons,0,0,
+    (char *)MSetColorDialogSelectedHighlightedButtons,0,0,
+    (char *)MSetColorDialogListBoxControl,0,0,
+    (char *)MSetColorDialogComboBoxControl,0,0,
   };
   int WarnDialogPaletteItems[]={
-    COL_WARNDIALOGTEXT,COL_WARNDIALOGHIGHLIGHTTEXT,COL_WARNDIALOGDISABLED,
+    COL_WARNDIALOGTEXT,
+    COL_WARNDIALOGHIGHLIGHTTEXT,
+    COL_WARNDIALOGDISABLED,
     COL_WARNDIALOGBOX,
-    COL_WARNDIALOGBOXTITLE,COL_WARNDIALOGHIGHLIGHTBOXTITLE,
-    COL_WARNDIALOGEDIT,COL_WARNDIALOGEDITDISABLED,
-    COL_WARNDIALOGBUTTON,COL_WARNDIALOGSELECTEDBUTTON,
-    COL_WARNDIALOGHIGHLIGHTBUTTON,COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON,
-    COL_WARNDIALOGLISTDISABLED,
+    COL_WARNDIALOGBOXTITLE,
+    COL_WARNDIALOGHIGHLIGHTBOXTITLE,
+    COL_WARNDIALOGEDIT,
+    COL_WARNDIALOGEDITUNCHANGED,
+    COL_WARNDIALOGEDITSELECTED,
+    COL_WARNDIALOGEDITDISABLED,
+    COL_WARNDIALOGBUTTON,
+    COL_WARNDIALOGSELECTEDBUTTON,
+    COL_WARNDIALOGHIGHLIGHTBUTTON,
+    COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON,
+    1,
+    3,
   };
 
     /* $ 29.06.2000 SVS
@@ -341,37 +411,37 @@ void SetColors()
       switch(GroupsCode)
       {
         case 0:
-          SetItemColors(PanelItems,PanelPaletteItems,sizeof(PanelItems)/sizeof(PanelItems[0]));
+          SetItemColors(PanelItems,PanelPaletteItems,sizeof(PanelItems)/sizeof(PanelItems[0]),0);
           break;
         case 1:
-          SetItemColors(DialogItems,DialogPaletteItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
+          SetItemColors(DialogItems,DialogPaletteItems,sizeof(DialogItems)/sizeof(DialogItems[0]),1);
           break;
         case 2:
-          SetItemColors(WarnDialogItems,WarnDialogPaletteItems,sizeof(WarnDialogItems)/sizeof(WarnDialogItems[0]));
+          SetItemColors(WarnDialogItems,WarnDialogPaletteItems,sizeof(WarnDialogItems)/sizeof(WarnDialogItems[0]),1);
           break;
         case 3:
-          SetItemColors(MenuItems,MenuPaletteItems,sizeof(MenuItems)/sizeof(MenuItems[0]));
+          SetItemColors(MenuItems,MenuPaletteItems,sizeof(MenuItems)/sizeof(MenuItems[0]),0);
           break;
         case 4:
-          SetItemColors(HMenuItems,HMenuPaletteItems,sizeof(HMenuItems)/sizeof(HMenuItems[0]));
+          SetItemColors(HMenuItems,HMenuPaletteItems,sizeof(HMenuItems)/sizeof(HMenuItems[0]),0);
           break;
         case 5:
-          SetItemColors(KeyBarItems,KeyBarPaletteItems,sizeof(KeyBarItems)/sizeof(KeyBarItems[0]));
+          SetItemColors(KeyBarItems,KeyBarPaletteItems,sizeof(KeyBarItems)/sizeof(KeyBarItems[0]),0);
           break;
         case 6:
-          SetItemColors(CommandLineItems,CommandLinePaletteItems,sizeof(CommandLineItems)/sizeof(CommandLineItems[0]));
+          SetItemColors(CommandLineItems,CommandLinePaletteItems,sizeof(CommandLineItems)/sizeof(CommandLineItems[0]),0);
           break;
         case 7:
-          SetItemColors(ClockItems,ClockPaletteItems,sizeof(ClockItems)/sizeof(ClockItems[0]));
+          SetItemColors(ClockItems,ClockPaletteItems,sizeof(ClockItems)/sizeof(ClockItems[0]),0);
           break;
         case 8:
-          SetItemColors(ViewerItems,ViewerPaletteItems,sizeof(ViewerItems)/sizeof(ViewerItems[0]));
+          SetItemColors(ViewerItems,ViewerPaletteItems,sizeof(ViewerItems)/sizeof(ViewerItems[0]),0);
           break;
         case 9:
-          SetItemColors(EditorItems,EditorPaletteItems,sizeof(EditorItems)/sizeof(EditorItems[0]));
+          SetItemColors(EditorItems,EditorPaletteItems,sizeof(EditorItems)/sizeof(EditorItems[0]),0);
           break;
         case 10:
-          SetItemColors(HelpItems,HelpPaletteItems,sizeof(HelpItems)/sizeof(HelpItems[0]));
+          SetItemColors(HelpItems,HelpPaletteItems,sizeof(HelpItems)/sizeof(HelpItems[0]),0);
           break;
       }
     }
@@ -380,15 +450,19 @@ void SetColors()
 }
 
 
-void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size)
+static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size,int TypeSub)
 {
   int ItemsCode;
 
   VMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
-  MenuToRedraw2=&ItemsMenu;
+  if(TypeSub == 2)
+    MenuToRedraw3=&ItemsMenu;
+  else
+    MenuToRedraw2=&ItemsMenu;
+
   while (1)
   {
-    ItemsMenu.SetPosition(17,5,0,0);
+    ItemsMenu.SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
     /* $ 09.04.2002 KM
       - Добавлен VMENU_NOTCHANGE, который предотвращает скачки
         меню по экрану при AltF9 в диалоге редактирования цветов.
@@ -399,7 +473,16 @@ void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size)
     ItemsMenu.Process();
     if ((ItemsCode=ItemsMenu.Modal::GetExitCode())<0)
       break;
-    GetColor(PaletteItems[ItemsCode]);
+
+// 0,1 - dialog,warn List
+// 2,3 - dialog,warn Combobox
+    if(TypeSub == 1 && PaletteItems[ItemsCode] < 4)
+    {
+      SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],sizeof(ListItems)/sizeof(ListItems[0]),2);
+      MenuToRedraw3=NULL;
+    }
+    else
+      GetColor(PaletteItems[ItemsCode]);
   }
 }
 
@@ -411,12 +494,16 @@ void GetColor(int PaletteIndex)
   {
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
     ScrBuf.Lock(); // отменяем всякую прорисовку
+    if(MenuToRedraw3)
+      MenuToRedraw3->Hide();
     MenuToRedraw2->Hide(); // гасим
     MenuToRedraw1->Hide();
     FrameManager->RefreshFrame(); // рефрешим
     FrameManager->PluginCommit(); // коммитим.
     MenuToRedraw1->Show(); // кажем
     MenuToRedraw2->Show();
+    if(MenuToRedraw3)
+      MenuToRedraw3->Show();
     ScrBuf.Unlock(); // разрешаем прорисовку
     FrameManager->PluginCommit(); // коммитим.
   }
