@@ -5,10 +5,14 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.19 10.01.2003 $ */
+/* Revision: 1.20 07.05.2004 $ */
 
 /*
 Modify:
+  07.05.2004 SVS
+    - Для STATUS_STACK_OVERFLOW не вызываем внешний модуль, а выдаем (пытаемся)
+      сообщение средствами ФАР, после чего падаем.
+      Без этого ФАР молча схлопывается.
   13.01.2003 SVS
     ! Переименование ren exception.?pp farexcpt.?pp
     ! Научим исключатор понимать (и реагировать предсмертным воплем) исключения
@@ -117,6 +121,7 @@ static char* xFromMSGTitle(int From)
     return MSG(MExceptTitle);
 }
 
+static BOOL Is_STACK_OVERFLOW=FALSE;
 
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,DWORD Flags)
 {
@@ -125,15 +130,17 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,D
 
   if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
   {
+    Is_STACK_OVERFLOW=TRUE;
     stack[0] = 0;
     stack[1] = (DWORD)From;
     stack[2] = (DWORD)xp;
     stack[3] = (DWORD)Module;
     stack[4] = Flags;
     xp->ContextRecord->Esp = (DWORD)(&stack);
-    xp->ContextRecord->Eip = (DWORD)(&xfilter);
+    xp->ContextRecord->Eip = (DWORD)(&_xfilter);
 
     Result=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
+    //Result=_xfilter(From,xp,Module,Flags);
   }
   else
     Result=_xfilter(From,xp,Module,Flags);
@@ -158,7 +165,7 @@ static DWORD _xfilter(
 //   if(From == (int)INVALID_HANDLE_VALUE)
 //     CriticalInternalError=TRUE;
 
-   if(GetRegKey("System\\Exception","Used",0))
+   if(!Is_STACK_OVERFLOW && GetRegKey("System\\Exception","Used",0))
    {
      static char FarEventSvc[512];
      if(GetRegKey("System\\Exception","FarEvent.svc",FarEventSvc,"",sizeof(FarEventSvc)-1) && FarEventSvc[0])
