@@ -12,10 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.08 18.07.2000 $ */
+/* Revision: 1.09 24.07.2000 $ */
 
 /*
 Modify:
+  24.07.2000 VVM
+    + Новые константы в связи с изменениеm usermenu.cpp
+      MMainMenuFAR и MMainMenuREG.
   18.07.2000 tran
     + Новые константы в связи с ScrollBar in Viewer
   15.07.2000 SVS
@@ -938,6 +941,8 @@ enum
   MChooseMenuMain,
   MChooseMenuLocal,
   MMainMenuTitle,
+  MMainMenuFAR,
+  MMainMenuREG,
   MLocalMenuTitle,
   MAskDeleteMenuItem,
 

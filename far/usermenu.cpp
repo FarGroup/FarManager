@@ -5,17 +5,19 @@ User menu и есть
 
 */
 
-/* Revision: 1.04 20.07.2000 $ */
+/* Revision: 1.05 24.07.2000 $ */
 
 /*
 Modify:
+  24.07.2000 VVM
+    + При показе главного меню в заголовок добавляет тип - FAR/Registry
   20.07.2000 tran 1.04
     - Bug#19
       ">" обозначающие подменю выравниваются по максимальной границе
-  17.07.2000 MVV
+  17.07.2000 VVM
     + При первом вызове не ищет меню из родительского каталога
     + SHIFT+F2 переключает Главное меню/локальное в цикле
-  14.07.2000 MVV
+  14.07.2000 VVM
     + Вызов главного меню по SHIFT+F2
     + Показ меню из родительского каталога по BkSpace
   28.06.2000 tran
@@ -313,7 +315,23 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     CtrlObject->ActivePanel->GetCurName(Name,ShortName);
 
     {
-      VMenu UserMenu((MenuMode!=MM_LOCAL) ? MSG(MMainMenuTitle):MSG(MLocalMenuTitle),NULL,0,ScrY-4);
+      /* $ 24.07.2000 VVM
+       + При показе главного меню в заголовок добавляет тип - FAR/Registry
+      */
+      char MenuTitle[128];
+      switch (MenuMode)
+      {
+      case MM_LOCAL:
+        strcpy(MenuTitle,MSG(MLocalMenuTitle));
+        break;
+      case MM_FAR:
+        sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),MSG(MMainMenuFAR));
+        break;
+      default:
+        sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),MSG(MMainMenuREG));
+      } /* switch */
+      VMenu UserMenu(MenuTitle,NULL,0,ScrY-4);
+      /* VVM $ */
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
 
