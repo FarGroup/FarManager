@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.72 20.02.2001 $ */
+/* Revision: 1.73 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+   ! Уточнение поведения горячих клавиш с учетом Disabled & Hidden...
   20.02.2001 SVS
    - Бага в SelectFromComboBox
   13.02.2001 SVS
@@ -1288,9 +1290,9 @@ void Dialog::ShowDialog(int ID)
           */
           if (!CheckDialogMode(DMODE_DRAGGED))
             SetCursorType(1,-1);
+          SelectOnEntry(I);
           EditPtr->Show();
           /* KM $ */
-          SelectOnEntry(I);
         }
         else
           EditPtr->FastShow();
@@ -3418,35 +3420,46 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
 */
 int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 {
-  int I;
+  int I, Type;
+  DWORD Flags;
   for (I=0;I<ItemCount;I++)
   {
-    if (!IsEdit(Item[I].Type) &&
-        (Item[I].Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN))==0)
+    Type=Item[I].Type;
+    Flags=Item[I].Flags;
+
+    if ((!IsEdit(Type) || (Type == DI_COMBOBOX && (Flags&DIF_DROPDOWNLIST))) &&
+        (Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN))==0)
       if (IsKeyHighlighted(Item[I].Data,Key,Translate))
       {
         int DisableSelect=FALSE;
-        /* $ 28.07.2000 SVS
-           Сообщим о случивщемся факте процедуре обработки диалога
-        */
-        if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
-          break; // сказали не продолжать обработку...
-        /* SVS $ */
 
-        //???? здесь проверить по поводу DI_COMBOBOX!!!
-        if (I>0 && Item[I].Type==DI_TEXT && IsEdit(Item[I-1].Type) &&
-            Item[I].Y1==Item[I-1].Y1 && Item[I].Y1!=Item[I+1].Y1)
+        // Если ЭТО: Edit(пред контрол) и DI_TEXT в одну строку, то...
+        if (I>0 &&
+            Type==DI_TEXT &&                              // DI_TEXT
+            IsEdit(Item[I-1].Type) &&                     // и редактор
+            Item[I].Y1==Item[I-1].Y1 &&                   // и оба в одну строку
+            (I+1 < ItemCount && Item[I].Y1!=Item[I+1].Y1)) // ...и следующий контрол в другой строке
         {
+          if((Item[I-1].Flags&(DIF_DISABLE|DIF_HIDDEN)) != 0) // и не задисаблен
+             break;
+          // Сообщим о случивщемся факте процедуре обработки диалога
+          if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
+            break; // сказали не продолжать обработку...
           I=ChangeFocus(I,-1,FALSE);
           DisableSelect=TRUE;
         }
-        else
-          if (Item[I].Type==DI_TEXT || Item[I].Type==DI_VTEXT ||
-              Item[I].Type==DI_SINGLEBOX || Item[I].Type==DI_DOUBLEBOX)
-          {
-            I=ChangeFocus(I,1,FALSE);
-            DisableSelect=TRUE;
-          }
+        else if (Item[I].Type==DI_TEXT      || Item[I].Type==DI_VTEXT ||
+                 Item[I].Type==DI_SINGLEBOX || Item[I].Type==DI_DOUBLEBOX)
+        {
+          if(I+1 < ItemCount && // ...и следующий контрол
+            (Item[I+1].Flags&(DIF_DISABLE|DIF_HIDDEN)) != 0) // и не задисаблен
+             break;
+          // Сообщим о случивщемся факте процедуре обработки диалога
+          if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
+            break; // сказали не продолжать обработку...
+          I=ChangeFocus(I,1,FALSE);
+          DisableSelect=TRUE;
+        }
         /* $ 29.08.2000 SVS
            - Первый официальный альфа-баг - функция ProcessHighlighting
            MY> Работа с диалогами стала ГЛЮЧНАЯ. Я имею в виду горячие клавиши.
@@ -3455,6 +3468,9 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 
            А ларчик просто открывался :-)))
         */
+        // Сообщим о случивщемся факте процедуре обработки диалога
+        if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
+          break; // сказали не продолжать обработку...
         ChangeFocus2(FocusPos,I);
         /* SVS $ */
         if ((Item[I].Type==DI_CHECKBOX || Item[I].Type==DI_RADIOBUTTON) &&
@@ -3463,13 +3479,13 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
           ProcessKey(KEY_SPACE);
           return(TRUE);
         }
-        if (Item[I].Type==DI_BUTTON)
+        else if (Item[I].Type==DI_BUTTON)
         {
           ProcessKey(KEY_ENTER);
           return(TRUE);
         }
         // при ComboBox`е - "вываливаем" последний //????
-        if (Item[I].Type==DI_COMBOBOX)
+        else if (Item[I].Type==DI_COMBOBOX)
         {
           ProcessKey(KEY_CTRLDOWN);
           return(TRUE);
