@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.255 07.10.2004 $ */
+/* Revision: 1.256 13.10.2004 $ */
 
 /*
 Modify:
+  13.10.2004 SVS
+    - Проблемы с выделением и работой плагинов
   07.10.2004 SVS
     - BugZ1168 - В редакторе не работают длинные макросы
   06.08.2004 SKV
@@ -2276,7 +2278,8 @@ int Editor::ProcessKey(int Key)
           CurLine->EditLine.Select(-1,0);
           BlockStart=CurLine->Next;
           BlockStartLine=NumLine+1;
-        }else
+        }
+        else
         {
           CurLine->EditLine.Select(SelEnd,-1);
         }
@@ -2287,13 +2290,15 @@ int Editor::ProcessKey(int Key)
         {
           SelStart=0;
           SelEnd=CurPos;
-        }else
+        }
+        else
         {
           if(SelEnd!=-1 && SelEnd<CurPos)
           {
             SelStart=SelEnd;
             SelEnd=CurPos;
-          }else
+          }
+          else
           {
             SelStart=CurPos;
           }
@@ -2308,7 +2313,8 @@ int Editor::ProcessKey(int Key)
         {
           SelStart=CurLine->Next->EditLine.GetLength();
         }*/
-      }else //расширяем выделение
+      }
+      else //расширяем выделение
       {
         CurLine->EditLine.Select(SelStart,-1);
         SelStart=0;
@@ -2316,15 +2322,22 @@ int Editor::ProcessKey(int Key)
         if(SelStart!=-1)SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
         if(SelEnd!=-1)SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
       }
-      if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
+
+      if(!EdOpt.CursorBeyondEOL && SelEnd > CurLine->Next->EditLine.GetLength())
       {
         SelEnd=CurLine->Next->EditLine.GetLength();
       }
-      if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Next->EditLine.GetLength())
+
+      if(!EdOpt.CursorBeyondEOL && SelStart > CurLine->Next->EditLine.GetLength())
       {
         SelStart=CurLine->Next->EditLine.GetLength();
       }
-      CurLine->Next->EditLine.Select(SelStart,SelEnd);
+
+//      if(!SelStart && !SelEnd)
+//        CurLine->Next->EditLine.Select(-1,0);
+//      else
+        CurLine->Next->EditLine.Select(SelStart,SelEnd);
+
       Down();
       Show();
       return(TRUE);
@@ -2346,13 +2359,15 @@ int Editor::ProcessKey(int Key)
         CurLine->Prev->EditLine.Select(SelStart,-1);
         BlockStart=CurLine->Prev;
         BlockStartLine=NumLine-1;
-      }else // снимаем выделение
+      }
+      else // снимаем выделение
       {
         CurPos=CurLine->EditLine.RealPosToTab(CurPos);
         if(SelStart==0)
         {
           CurLine->EditLine.Select(-1,0);
-        }else
+        }
+        else
         {
           CurLine->EditLine.Select(0,SelStart);
         }
@@ -2365,22 +2380,27 @@ int Editor::ProcessKey(int Key)
           BlockStartLine=NumLine-1;
           SelStart=CurLine->Prev->EditLine.TabPosToReal(CurPos);
           SelEnd=-1;
-        }else
+        }
+        else
         {
           if(CurPos<SelStart)
           {
             SelEnd=SelStart;
             SelStart=CurPos;
-          }else
+          }
+          else
           {
             SelEnd=CurPos;
           }
+
           SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
           SelEnd=CurLine->Prev->EditLine.TabPosToReal(SelEnd);
+
           if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Prev->EditLine.GetLength())
           {
             SelEnd=CurLine->Prev->EditLine.GetLength();
           }
+
           if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Prev->EditLine.GetLength())
           {
             SelStart=CurLine->Prev->EditLine.GetLength();
@@ -3658,7 +3678,7 @@ int Editor::ProcessKey(int Key)
              BlockStart!=NULL && BlockStart!=CurLine)
           {
             CurLine->EditLine.GetSelection(SelStart,SelEnd);
-            CurLine->EditLine.Select(0,SelEnd);
+            CurLine->EditLine.Select(SelStart==-1?-1:0,SelEnd);
           }
           /* SKV $ */
           if (!SkipCheckUndo)
