@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.11 27.09.2000 $ */
+/* Revision: 1.12 13.10.2000 $ */
 
 /*
 Modify:
+  13.10.2000 tran 1.12
+    + по Ctrl-f имя отвечает условиям на панели
   27.09.2000 SVS
     + Печать текущего/выбранных файла/ов
     ! FileList::CallPlugin() перенесен в PluginsSet
@@ -542,7 +544,7 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLF:
       if (FileCount>0 && SetCurPath())
       {
-        char FileName[NM];
+        char FileName[NM],temp[NM];
         int CurrentPath=FALSE;
         CurPtr=ListData+CurFile;
         strcpy(FileName,ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
@@ -562,16 +564,49 @@ int FileList::ProcessKey(int Key)
             ConvertNameToFull(FileName,FileName);
             if (ShowShortNames)
               ConvertNameToShort(FileName,FileName);
+            /* $ 13.10.2000 tran
+              по Ctrl-f имя должно отвечать условиям на панели */              
+            if (ViewSettings.FolderUpperCase)
+            {
+              if ( CurPtr->FileAttr & FA_DIREC )
+                LocalStrupr(FileName);
+              else
+              {
+                  strcpy(temp,FileName);
+                  *strrchr(temp,'\\')=0;
+                  LocalStrupr(temp);
+                  strncpy(FileName,temp,strlen(temp));
+              }
+            }
+            if (ViewSettings.FileUpperToLowerCase)
+              if (!(CurPtr->FileAttr & FA_DIREC) && strrchr(FileName,'\\') && !IsCaseMixed(strrchr(FileName,'\\')))
+                 LocalStrlwr(FileName);
+            if ( ViewSettings.FileLowerCase && strrchr(FileName,'\\') && !(CurPtr->FileAttr & FA_DIREC))
+              LocalStrlwr(strrchr(FileName,'\\'));
+            /* tran $ */
           }
           else
           {
             char FullName[NM];
             strcpy(FullName,NullToEmpty(Info.CurDir));
+            /* $ 13.10.2000 tran
+              по Ctrl-f имя должно отвечать условиям на панели */
+            if (ViewSettings.FolderUpperCase)
+              LocalStrupr(FullName);
+            /* tran $ */
             for (int I=0;FullName[I]!=0;I++)
               if (FullName[I]=='/')
                 FullName[I]='\\';
             if (*FullName)
               AddEndSlash(FullName);
+            /* $ 13.10.2000 tran
+              по Ctrl-f имя должно отвечать условиям на панели */
+            if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
+              LocalStrlwr(FileName);
+            if (ViewSettings.FileUpperToLowerCase)
+              if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(FileName))
+                 LocalStrlwr(FileName);
+            /* tran $ */
             strcat(FullName,FileName);
             strcpy(FileName,FullName);
           }

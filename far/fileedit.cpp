@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.07 27.08.2000 $ */
+/* Revision: 1.08 13.10.2000 $ */
 
 /*
 Modify:
+  13.10.2000 tran 1.08
+    ! код возврата опредеяется по IsFileModified вместо IsFileChanged()
   27.09.2000 SVS
     + Печать файла/блока с использованием плагина PrintMan
     ! Ctrl-Alt-Shift - реагируем, если надо.
@@ -117,7 +119,10 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   /* SVS $*/
 
   Process();
-  ExitCode=IsFileChanged() ? 1 : 2;
+  /* $ 13.10.2000 tran
+     IsFileChanged() заменено на IsFileModified() */
+  ExitCode=IsFileModified() ? 1 : 2;
+  /* tran $ */
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
 }

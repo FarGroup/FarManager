@@ -23,7 +23,7 @@ class PanelFilter
     void SaveFilterFile();
     int SaveFilterData();
     int EditRecord(char *Title,char *Masks);
-    int ShowFilterMenu(int Pos,int FirstCall);
+    int ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate);
     void AddMasks(char *Masks,int Exclude);
     void ProcessSelection(VMenu &FilterList);
     void SaveFilters();

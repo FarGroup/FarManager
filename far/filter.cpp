@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 13.10.07.2000 $ */
 
 /*
 Modify:
+  13.10.2000 tran
+    - при изменении custum фильтра и при отказе от меню панель не менялась
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -69,16 +71,20 @@ PanelFilter::~PanelFilter()
 
 void PanelFilter::FilterEdit()
 {
-  int FirstCall=TRUE,Pos=0;
+  /* $ 13.10.2000 tran
+     NeedUpdate - если фильтр менялся по f4, ins, del
+     панель перерисуется при выходе по esc
+  */
+  int FirstCall=TRUE,Pos=0,NeedUpdate=0;
   while (Pos!=-1)
   {
-    Pos=ShowFilterMenu(Pos,FirstCall);
+    Pos=ShowFilterMenu(Pos,FirstCall,&NeedUpdate);
     FirstCall=FALSE;
   }
 }
 
 
-int PanelFilter::ShowFilterMenu(int Pos,int FirstCall)
+int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
 {
   int ExitCode;
   {
@@ -251,6 +257,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall)
                 strcpy(FilterData[SelPos].Title,Title);
                 strcpy(FilterData[SelPos].Masks,Masks);
                 SaveFilters();
+                *NeedUpdate=1;
                 return(SelPos);
               }
             }
@@ -285,6 +292,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall)
               FilterData[SelPos].RightPanelExclude=0;
               SaveFilters();
               SaveSelection();
+              *NeedUpdate=1;
               return(SelPos);
             }
           }
@@ -306,6 +314,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall)
                 SaveSelection();
                 if (SelPos>=FilterDataCount && SelPos>0)
                   SelPos--;
+                *NeedUpdate=1;
                 return(SelPos);
               }
             }
@@ -321,10 +330,10 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall)
       }
     }
     ExitCode=FilterList.GetExitCode();
-    if (ExitCode!=-1)
+    if (ExitCode!=-1 || *NeedUpdate)
       ProcessSelection(FilterList);
   }
-  if (ExitCode!=-1)
+  if (ExitCode!=-1 || *NeedUpdate)
   {
     HostPanel->Update(UPDATE_KEEP_SELECTION);
     HostPanel->Redraw();
