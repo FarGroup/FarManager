@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.10 05.04.2001 $ */
+/* Revision: 1.11 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 DJ
+    - всякие фиксы про скроллбар в viewer'е для просмотра описаний
   05.04.2001 VVM
     + Переключение макросов в режим MACRO_INFOPANEL
   03.04.2001 VVM
@@ -48,6 +50,11 @@ Modify:
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;
+/* $ 27.04.2001 DJ
+   запоминаем, был ли включен скроллбар
+*/
+static int LastDizShowScrollbar = -1;
+/* DJ $ */
 
 InfoList::InfoList()
 {
@@ -59,6 +66,11 @@ InfoList::InfoList()
   {
     LastDizWrapMode = Opt.ViewerIsWrap;
     LastDizWrapType = Opt.ViewerWrap;
+    /* $ 27.04.2001 DJ
+       запоминаем, был ли включен скроллбар
+    */
+    LastDizShowScrollbar = Opt.ViOpt.ShowScrollbar;
+    /* DJ $ */
   }
 }
 
@@ -324,11 +336,17 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   if (MouseEvent->dwMousePosition.Y>=14)
   {
-    if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+    /* $ 27.04.2001 DJ
+       позволяем использовать скроллбар, если он включен
+    */
+    if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
+        MouseEvent->dwMousePosition.X > 2 &&
+        MouseEvent->dwMousePosition.X < X2 - DizView->GetShowScrollbar() - 1)
     {
       ProcessKey(KEY_F3);
       return(TRUE);
     }
+    /* DJ $ */
     if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
     {
       ProcessKey(KEY_F4);
@@ -386,9 +404,8 @@ void InfoList::PrintInfo(int MsgID)
 
 void InfoList::ShowDirDescription()
 {
-  char DizStr[100],DizDir[NM];
-  FILE *DizFile;
-  int I,Length;
+  char DizDir[NM];
+  int Length;
   Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
   DrawSeparator(Y1+14);
   if (AnotherPanel->GetMode()!=FILE_PANEL)
@@ -476,6 +493,11 @@ void InfoList::CloseDizFile()
   {
     LastDizWrapMode=DizView->GetWrapMode();
     LastDizWrapType=DizView->GetWrapType();
+    /* $ 27.04.2001 DJ
+       запоминаем, был ли включен скроллбар
+    */
+    LastDizShowScrollbar=DizView->GetShowScrollbar();
+    /* DJ $ */
     DizView->SetWrapMode(OldWrapMode);
     DizView->SetWrapType(OldWrapType);
     delete DizView;
@@ -497,6 +519,11 @@ int InfoList::OpenDizFile(char *DizFile)
     OldWrapType = DizView->GetWrapType();
     DizView->SetWrapMode(LastDizWrapMode);
     DizView->SetWrapType(LastDizWrapType);
+    /* $ 27.04.2001 DJ
+       если скроллбар был включен, включаем
+    */
+    DizView->SetShowScrollbar (LastDizShowScrollbar);
+    /* DJ $ */
   }
   if (!DizView->OpenFile(DizFile,FALSE))
     return(FALSE);

@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.54 27.04.2001 $ */
+/* Revision: 1.55 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 DJ
+    - всегда обновляем key bar после загрузки файла
+    * отрисовка скроллбара вынесена в DrawScrollbar(), а корректировка ширины
+      в зависимости от его наличия - в AdjustWidth()
+    - коррекное позиционирование скроллбара, когда отключена строка статуса
   27.04.2001 VVM
     + Обработка KEY_MSWHEEL_XXXX
   29.03.2001 IS
@@ -515,12 +520,28 @@ int Viewer::OpenFile(char *Name,int warning)
       FilePos*=2;
       SetFileSize();
     }
+    /* $ 27.04.2001 DJ
+       всегда обновляем keybar после загрузки файла;
+       вычисление ширины - в отдельную функцию
+    */
     if (VM.AnsiMode)
-    {
       VM.AnsiMode=FALSE;
-      ChangeViewKeyBar();
-    }
   }
+  ChangeViewKeyBar();
+  AdjustWidth();
+  /* DJ $ */
+  CtrlObject->Plugins.CurViewer=this;
+//  CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
+  return(TRUE);
+}
+
+
+/* $ 27.04.2001 DJ
+   функция вычисления ширины в зависимости от наличия скроллбара
+*/
+
+void Viewer::AdjustWidth()
+{
   /* $ 19.07.2000 tran
     + вычисление нужного */
   Width=X2-X1+1;
@@ -532,11 +553,9 @@ int Viewer::OpenFile(char *Name,int warning)
      XX2--;
   }
   /* tran 19.07.2000 $ */
-  CtrlObject->Plugins.CurViewer=this;
-//  CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
-  return(TRUE);
 }
 
+/* DJ $ */
 
 void Viewer::SetCRSym()
 {
@@ -568,18 +587,11 @@ void Viewer::DisplayObject()
   int SelPos,SelSize,Y,I;
   int SaveSelectSize=SelectSize;
 
-  /* $ 19.07.2000 tran
-    + вычисление нужного */
-  Width=X2-X1+1;
-  XX2=X2;
-
-  if ( ViOpt.ShowScrollbar )
-  {
-     Width--;
-     XX2--;
-  }
-  /* tran 19.07.2000 $ */
-
+  /* $ 27.04.2001 DJ
+     вычисление ширины - в отдельную функцию
+  */
+  AdjustWidth();
+  /* DJ $ */
 
   /* $ 04.07.2000 tran
     + показ строки "Cannot open the file" красным цветом
@@ -689,15 +701,12 @@ void Viewer::DisplayObject()
       }
     }
   } // if (Hex)  - else
-  /* $ 18.07.2000 tran
-     рисование скролбара */
-  if ( ViOpt.ShowScrollbar )
-  {
-    SetColor(COL_VIEWERSCROLLBAR);
-    ScrollBar(X2,Y1+1,Y2-Y1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
-  }
-  /* tran 18.07.2000 $ */
 
+  /* $ 27.04.2001 DJ
+     рисование скроллбара - в отдельную функцию
+  */
+  DrawScrollbar();
+  /* DJ $ */
   ShowStatus();
 }
 
@@ -841,17 +850,11 @@ void Viewer::ShowUp()
 {
   int Tmp,Y,I;
 
-  /* $ 19.07.2000 tran
-    + вычисление нужного */
-  Width=X2-X1+1;
-  XX2=X2;
-  if ( ViOpt.ShowScrollbar )
-  {
-     Width--;
-     XX2--;
-  }
-  /* tran 19.07.2000 $ */
-
+  /* $ 27.04.2001 DJ
+     вычисление ширины - в отдельную функцию
+  */
+  AdjustWidth();
+  /* DJ $ */
 
   if (HideCursor)
     SetCursorType(0,10);
@@ -897,17 +900,37 @@ void Viewer::ShowUp()
       mprintf("<");
     }
   }
+
+  /* $ 27.04.2001 DJ
+     отрисовка скроллбара - в отдельную функцию
+  */
+  DrawScrollbar();
+  /* DJ $ */
+  ShowStatus();
+}
+
+
+/* $ 27.04.2001 DJ
+   отрисовка скроллбара - в отдельную функцию
+*/
+
+void Viewer::DrawScrollbar()
+{
   /* $ 18.07.2000 tran
      рисование скролбара */
   if ( ViOpt.ShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
-    ScrollBar(X2,Y1+1,Y2-Y1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
+    /* $ 27.04.2001 DJ
+       если status line выключена, рисуем скроллбар до верха окна
+    */
+    ScrollBar(X2,ViewY1,Y2-ViewY1+1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
+    /* DJ $ */
   }
   /* tran 18.07.2000 $ */
-
-  ShowStatus();
 }
+
+/* DJ $ */
 
 
 void Viewer::ShowStatus()
@@ -986,16 +1009,11 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
 {
   int OutPtr,Ch;
 
-  /* $ 19.07.2000 tran
-    + вычисление нужного */
-  Width=X2-X1+1;
-  XX2=X2;
-  if ( ViOpt.ShowScrollbar )
-  {
-     Width--;
-     XX2--;
-  }
-  /* tran 19.07.2000 $ */
+  /* $ 27.04.2001 DJ
+     вычисление ширины - в отдельную функцию
+  */
+  AdjustWidth();
+  /* DJ $ */
 
   OutPtr=0;
   SelSize=0;
@@ -1601,7 +1619,14 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if(ToPercent(FilePos,FileSize) == 100)
           ProcessKey(KEY_CTRLEND);
         else
+        /* $ 27.04.2001 DJ
+           не рвем строки посередине
+        */
+        {
+          AdjustFilePos();
           Show();
+        }
+        /* DJ $ */
         GetInputRecord(&rec);
         MsX=rec.Event.MouseEvent.dwMousePosition.X;
         MsY=rec.Event.MouseEvent.dwMousePosition.Y;
@@ -2419,6 +2444,23 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
     /* tran 17.07.2000 $ */
   }
   // коррекция
+  /* $ 27.04.2001 DJ
+     коррекция вынесена в отдельную функцию
+  */
+  AdjustFilePos();
+  /* DJ $ */
+  LastSelPos=FilePos;
+  if(!(Flags&VSP_NOREDRAW))
+    Show();
+}
+
+
+/* $ 27.04.2001 DJ
+   корректировка позиции вынесена в отдельную функцию
+*/
+
+void Viewer::AdjustFilePos()
+{
   if (!VM.Hex)
   {
     char Buf[1024];
@@ -2443,11 +2485,8 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
         Up();
     }
   }
-  LastSelPos=FilePos;
-  if(!(Flags&VSP_NOREDRAW))
-    Show();
 }
-
+/* DJ $ */
 
 void Viewer::SetFileSize()
 {

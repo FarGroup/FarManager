@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.14 29.03.2001 $ */
+/* Revision: 1.15 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 DJ
+    * DrawScrollbar(), AdjustWidth(), AdjustFilePos()
   29.03.2001 IS
     + структура ViOpt и Get/Set для ее обслуживания
   20.02.2001 VVM
@@ -151,6 +153,15 @@ class Viewer:public ScreenObject
     void ShowHex();
     void ShowUp();
     void ShowStatus();
+    /* $ 27.04.2001 DJ
+       функции для рисования скроллбара, для корректировки ширины в
+       зависимости от наличия скроллбара и для корректировки позиции файла
+       на границу строки
+    */
+    void DrawScrollbar();
+    void AdjustWidth();
+    void AdjustFilePos();
+    /* DJ $ */
     void ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSize);
     int CalcStrSize(char *Str,int Length);
     void ChangeViewKeyBar();
