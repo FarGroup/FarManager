@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.06 15.05.2001 */
+/* Revision: 1.07 18.05.2001 */
 
 /*
-  Modify:
+Modify:
+  18.05.2001 DJ
+    ! Функция SetExitCode() теперь виртуальная
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 OT
@@ -65,7 +67,7 @@ class Frame: public ScreenObject
     virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); };
     void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };
     int  GetExitCode() { return ExitCode; };
-    void SetExitCode(int Code) { ExitCode=Code; };
+    virtual void SetExitCode(int Code) { ExitCode=Code; };
 
     virtual BOOL IsFileModified() {return(FALSE);};
     virtual char *GetTypeName() {return "Modal";};

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.73 14.05.2001 $ */
+/* Revision: 1.74 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 DJ
+    + #include "colors.hpp"
   14.05.2001 SVS
     + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
       По умолчанию - отлючено
@@ -236,6 +238,7 @@ Modify:
 #include "lang.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
+#include "colors.hpp"
 #include "ctrlobj.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"

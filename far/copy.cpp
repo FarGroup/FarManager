@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.32 17.05.2001 $ */
+/* Revision: 1.33 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 DJ
+    + #include "colors.hpp"
   17.05.2001 SKV
     - fix GetTimeText на предмет часов.
   07.05.2001 SVS
@@ -101,6 +103,7 @@ Modify:
 #include "global.hpp"
 #include "lang.hpp"
 #include "keys.hpp"
+#include "colors.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
 #include "dialog.hpp"

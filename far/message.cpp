@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.08 10.05.2001 $ */
+/* Revision: 1.09 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 DJ
+    + #include "colors.hpp"
   10.05.2001 SVS
     ! Вызываем SetDialogMode(DMODE_WARNINGSTYLE) влоб, т.к. функция
       Dialog::SetWarningStyle() удалена.
@@ -42,6 +44,7 @@ static char MsgHelpTopic[80];
 #include "fn.hpp"
 #include "plugin.hpp"
 #include "lang.hpp"
+#include "colors.hpp"
 #include "dialog.hpp"
 #include "farftp.hpp"
 #include "scrbuf.hpp"

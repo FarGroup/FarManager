@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.99 18.05.2001 $ */
+/* Revision: 1.100 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 DJ
+   ! Dialog унаследован от Frame
   18.05.2001 SVS
    + DM_GETCHECK/DM_SETCHECK/DM_SET3STATE
    + DM_LISTINFO/DM_LISTFINDSTRING/DM_LISTINSERT
@@ -437,7 +439,10 @@ Modify:
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
 #include "vmenu.hpp"
+#include "edit.hpp"
+#include "help.hpp"
 #include "scrbuf.hpp"
+#include "manager.hpp"
 
 static char fmtLocked[]="Locked%d";
 static char fmtLine[]  ="Line%d";
@@ -450,6 +455,11 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  /* $ 17.05.2001 DJ */
+  CanLoseFocus = FALSE;
+  HelpTopic = NULL;
+  EndLoop = FALSE;
+  /* DJ $ */
   /* $ 29.08.2000 SVS
     Номер плагина, вызвавшего диалог (-1 = Main)
   */
@@ -524,6 +534,11 @@ Dialog::~Dialog()
 
   Hide();
   ScrBuf.Flush();
+
+  /* $ 17.05.2001 DJ */
+  if (HelpTopic)
+    delete [] HelpTopic;
+  /* DJ $ */
 
   PeekInputRecord(&rec);
   SetConsoleTitle(OldConsoleTitle);
@@ -1937,13 +1952,15 @@ int Dialog::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_CTRLENTER:
-      EndLoop=TRUE;
       for (I=0;I<ItemCount;I++)
         if (Item[I].DefaultButton)
         {
           if (!IsEdit(Item[I].Type))
             Item[I].Selected=1;
           ExitCode=I;
+          /* $ 18.05.2001 DJ */
+          CloseDialog();
+          /* DJ $ */
           return(TRUE);
         }
       if(!CheckDialogMode(DMODE_OLDSTYLE))
@@ -2010,7 +2027,9 @@ int Dialog::ProcessKey(int Key)
           return(TRUE);
 
         ExitCode=FocusPos;
-        EndLoop=TRUE;
+        /* $ 18.05.2001 DJ */
+        CloseDialog();
+        /* DJ $ */
         /* SVS $ */
         /* SVS $ */
       }
@@ -2042,17 +2061,21 @@ int Dialog::ProcessKey(int Key)
           }
       }
 
-      EndLoop=TRUE;
       if (ExitCode==-1)
         ExitCode=FocusPos;
+      /* $ 18.05.2001 DJ */
+      CloseDialog();
+      /* DJ $ */
 #endif
       return(TRUE);
 
     case KEY_ESC:
     case KEY_BREAK:
     case KEY_F10:
-      EndLoop=TRUE;
       ExitCode=(Key==KEY_BREAK) ? -2:-1;
+      /* $ 18.05.2001 DJ */
+      CloseDialog();
+      /* DJ $ */
       return(TRUE);
 
     /* $ 04.12.2000 SVS
@@ -3803,24 +3826,27 @@ void Dialog::SetDialogData(long NewDataDialog)
 */
 void Dialog::Process()
 {
-  do{
-    Modal::Process();
-    /* $ 21.12.2000 SVS
-       Ctr-Break теперь недействителен, т.е. все зависит от того
-       что вернет обработчик.
-    */
-    if(DlgProc((HANDLE)this,DM_CLOSE,ExitCode,0))// || ExitCode == -2)
-      break;
-    /* SVS $ */
-    /* $ 18.08.2000 SVS
-       Вах-вах, а сбросить-то флаг забыли 8-=(((
-    */
-    ClearDone();
-    /* SVS $ */
-  }while(1);
+  /* $ 17.05.2001 DJ
+     NDZ
+  */
+  FrameManager->ExecuteModal (*this);
+  /* DJ $ */
 }
 /* SVS $ */
 
+/* $ 18.05.2001 DJ */
+
+void Dialog::CloseDialog()
+{
+  GetDialogObjectsData();
+  if (DlgProc ((HANDLE)this,DM_CLOSE,ExitCode,0))
+  {
+    EndLoop = TRUE;
+    FrameManager->DeleteFrame (this);
+  }
+}
+
+/* DJ $ */
 
 //////////////////////////////////////////////////////////////////////////
 /* $ 28.07.2000 SVS
@@ -4576,7 +4602,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dlg->ExitCode=Dlg->FocusPos;
       else
         Dlg->ExitCode=Param1;
-      Dlg->EndLoop=TRUE;
+      /* $ 17.05.2001 DJ */
+      Dlg->CloseDialog();
+      /* DJ $ */
       return TRUE;  // согласен с закрытием
     /* SVS $ */
 
@@ -4697,5 +4725,37 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
 }
 /* SVS $ */
+
+/* $ 17.05.2001 DJ
+   установка help topic'а и прочие радости, временно перетащенные сюда
+   из Modal
+*/
+
+void Dialog::SetHelp (const char *Topic)
+{
+  if (HelpTopic)
+    delete[] HelpTopic;
+  HelpTopic = new char [strlen (Topic)+1];
+  strcpy (HelpTopic, Topic);
+}
+
+void Dialog::ShowHelp()
+{
+  if (HelpTopic && *HelpTopic)
+    Help Hlp (HelpTopic);
+}
+
+void Dialog::ClearDone()
+{
+  EndLoop=0;
+}
+
+void Dialog::SetExitCode(int Code)
+{
+  ExitCode=Code;
+  CloseDialog();
+}
+
+/* DJ $ */
 
 //////////////////////////////////////////////////////////////////////////

@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.21 07.05.2001 $ */
+/* Revision: 1.22 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 DJ
+    ! HighlightFiles::EditRecord() переписан с использованием функции-
+      обработчика диалога
   07.05.2001 DJ
     ! оптимизация
   06.05.2001 DJ
@@ -410,14 +413,58 @@ void HighlightFiles::SaveHiData()
   }
 }
 
+/* $ 17.05.2001 DJ
+   обработка взаимоисключений (вместо обработки в явном цикле диалога)
+*/
 
-static void IncludeExcludeAttrib(int FocusPos,struct DialogItem *Item, int FocusPosSet, int FocusPosSkip)
+static void UncheckCheckbox (HANDLE hDlg, int ItemID)
 {
-  if(FocusPos == FocusPosSet && Item[FocusPosSet].Selected && Item[FocusPosSkip].Selected)
-    Item[FocusPosSkip].Selected=0;
-  if(FocusPos == FocusPosSkip && Item[FocusPosSkip].Selected && Item[FocusPosSet].Selected)
-    Item[FocusPosSet].Selected=0;
+  FarDialogItem DlgItem;
+  Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, ItemID, (long) &DlgItem);
+  if (DlgItem.Selected)
+  {
+    DlgItem.Selected = 0;
+    Dialog::SendDlgMessage (hDlg, DM_SETDLGITEM, ItemID, (long) &DlgItem);
+  }
 }
+
+static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+{
+  switch (Msg)
+  {
+    case DN_BTNCLICK:
+      if (Param1 >= 5 && Param1 <= 21 && Param2)
+      {
+        // обработаем взаимоисключения
+        if (Param1 >= 5 && Param1 <= 12)
+          UncheckCheckbox (hDlg, Param1 + 9);
+        else if (Param1 >= 14 && Param1 <= 21)
+          UncheckCheckbox (hDlg, Param1 - 9);
+      }
+      else {
+        HighlightData *EditData = (HighlightData *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+        switch (Param1)
+        {
+          case 23:
+            GetColorDialog(EditData->Color);
+            break;
+          case 24:
+            GetColorDialog(EditData->SelColor);
+            break;
+          case 25:
+            GetColorDialog(EditData->CursorColor);
+            break;
+          case 26:
+            GetColorDialog(EditData->CursorSelColor);
+            break;
+        }
+      }
+      return TRUE;
+  }
+  return Dialog::DefDlgProc (hDlg, Msg, Param1, Param2);
+}
+
+/* DJ $ */
 
 int HighlightFiles::EditRecord(int RecPos,int New)
 {
@@ -446,10 +493,10 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   /* 20 */DI_CHECKBOX,37,12,0,0,0,0,0,0,(char *)MHighlightFolder,
   /* 21 */DI_CHECKBOX,37,13,0,0,0,0,0,0,(char *)MHighlightJunction,
   /* 22 */DI_TEXT,-1,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,(char *)MHighlightColors,
-  /* 23 */DI_BUTTON,5,15,0,0,0,0,0,0,(char *)MHighlightNormal,
-  /* 24 */DI_BUTTON,5,16,0,0,0,0,0,0,(char *)MHighlightSelected,
-  /* 25 */DI_BUTTON,37,15,0,0,0,0,0,0,(char *)MHighlightCursor,
-  /* 26 */DI_BUTTON,37,16,0,0,0,0,0,0,(char *)MHighlightSelectedCursor,
+  /* 23 */DI_BUTTON,5,15,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightNormal,
+  /* 24 */DI_BUTTON,5,16,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelected,
+  /* 25 */DI_BUTTON,37,15,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightCursor,
+  /* 26 */DI_BUTTON,37,16,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MHighlightSelectedCursor,
   /* 27 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 28 */DI_TEXT,7,18,0,0,0,0,0,0,(char *)MHighlightMarkChar,
   /* 29 */DI_FIXEDIT,5,18,5,18,0,0,0,0,"",
@@ -496,55 +543,16 @@ int HighlightFiles::EditRecord(int RecPos,int New)
 
   *HiEditDlg[29].Data=EditData.MarkChar;
 
-  int FocusPos;
-  while (ExitCode!=31)
-  {
-    SaveScreen SaveScr;
-    Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]));
-    Dlg.SetHelp("Highlight");
-    Dlg.SetPosition(-1,-1,76,23);
-    Dlg.Show();
-    while (!Dlg.Done())
-    {
-       Dlg.ReadInput();
-       Dlg.ProcessInput();
-       FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
-       // отработаем взаимоисключения
-       if(FocusPos >= 5 && FocusPos <= 21)
-       {
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,5,14); // Read only
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,6,15); // Archive
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,7,16); // Hidden
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,8,17); // System
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,9,18); // Compressed
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,10,19); // Encrypted
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,11,20); // Folder
-         IncludeExcludeAttrib(FocusPos,HiEditDlg,12,21); // Reparse point
-         Dlg.FastShow();
-       }
-    }
-    Dlg.GetDialogObjectsData();
-    if ((ExitCode=Dlg.GetExitCode())<0)
-      return(FALSE);
-    switch(ExitCode)
-    {
-      case 32:
-        return(FALSE);
-      case 23:
-        GetColorDialog(EditData.Color);
-        break;
-      case 24:
-        GetColorDialog(EditData.SelColor);
-        break;
-      case 25:
-        GetColorDialog(EditData.CursorColor);
-        break;
-      case 26:
-        GetColorDialog(EditData.CursorSelColor);
-        break;
-    }
-    Dlg.InitDialogObjects();
-  }
+  /* $ 18.05.2001 DJ
+     обработка взаимоисключений и кнопок перенесена в обработчик диалога
+  */
+  Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
+  Dlg.SetHelp("Highlight");
+  Dlg.SetPosition(-1,-1,76,23);
+  Dlg.Process();
+  if (Dlg.GetExitCode() != 31) return(FALSE);
+  /* DJ $ */
+
   if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
     return(FALSE);
 

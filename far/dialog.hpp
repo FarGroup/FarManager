@@ -6,14 +6,17 @@ dialog.hpp
  ласс диалога Dialog.
 
 ѕредназначен дл€ отображени€ модальных диалогов.
-явл€етс€ производным от класса Modal.
+явл€етс€ производным от класса Frame.
 
 */
 
-/* Revision: 1.28 14.05.2001 $ */
+/* Revision: 1.29 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 DJ
+   ! Dialog унаследован от Frame
+   + CloseDialog()
   14.05.2001 SVS
    ! DMODE_SMALLDILAOG -> DMODE_SMALLDIALOG
   12.05.2001 SVS
@@ -123,9 +126,8 @@ Modify:
     ! ¬ыделение в качестве самосто€тельного модул€
 */
 
-#include "modal.hpp"
+#include "frame.hpp"
 #include "plugin.hpp"
-#include "edit.hpp"
 #include "vmenu.hpp"
 
 // ‘лаги текущего режима диалога
@@ -222,7 +224,9 @@ struct DialogData
 /* SVS $*/
 /* KM $*/
 
-class Dialog:public Modal
+class Edit;
+
+class Dialog: public Frame
 {
   private:
     /* $ 29.08.2000 SVS
@@ -262,6 +266,11 @@ class Dialog:public Modal
        переменные дл€ перемещени€ диалога */
     int  OldX1,OldX2,OldY1,OldY2;
     /* tran 31.07.2000 $ */
+
+    /* $ 17.05.2001 DJ */
+    char *HelpTopic;
+    int  EndLoop;
+    /* DJ $ */
 
   private:
     /* $ 18.08.2000 SVS
@@ -414,6 +423,17 @@ class Dialog:public Modal
     */
     void SetPluginNumber(int NewPluginNumber){PluginNumber=NewPluginNumber;}
     /* SVS $ */
+
+    /* $ 17.05.2001 DJ */
+    void SetHelp(const char *Topic);
+    void ShowHelp();
+    int Done() const 
+      { return EndLoop; }
+    void ClearDone();
+    virtual void SetExitCode (int Code);
+
+    void CloseDialog();
+    /* DJ $ */
 };
 
 #endif // __DIALOG_HPP__

@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.08 06.05.2001 $ */
+/* Revision: 1.09 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 DJ
+    ! GetColorDialog() переписан с использованием функции-обработчика диалога
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -43,6 +45,7 @@ Modify:
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
+#include "savescr.hpp"
 
 static void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size);
 void GetColor(int PaletteIndex);
@@ -364,6 +367,55 @@ void GetColor(int PaletteIndex)
   }
 }
 
+/* $ 18.05.2001 DJ
+   обработка установки цвета вынесена в функцию-обработчик диалога
+*/
+
+static long WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, long Param2)
+{
+  int I;
+  switch (Msg)
+  {
+  case DN_BTNCLICK:
+    {
+      int NewColor;
+      int *CurColor = (int *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
+      FarDialogItem DlgItem;
+      for (I=2;I<18;I++)
+      {
+        Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, I, (long) &DlgItem);
+        if (DlgItem.Selected)
+        {
+          NewColor=(DlgItem.Flags & B_MASK)>>4;
+          break;
+        }
+      }
+      for (I=19;I<35;I++)
+      {
+        Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, I, (long) &DlgItem);
+        if (DlgItem.Selected)
+        {
+          NewColor|=DlgItem.Flags & B_MASK;
+          break;
+        }
+      }
+      if (NewColor!=*CurColor)
+      {
+        *CurColor=NewColor;
+        for (I=35;I<38;I++)
+        {
+          Dialog::SendDlgMessage (hDlg, DM_GETDLGITEM, I, (long) &DlgItem);
+          DlgItem.Flags=(DlgItem.Flags & ~DIF_COLORMASK) | *CurColor;
+          Dialog::SendDlgMessage (hDlg, DM_SETDLGITEM, I, (long) &DlgItem);
+        }
+      }
+      return TRUE;
+    }
+  }
+  return Dialog::DefDlgProc (hDlg, Msg, Param1, Param2);
+}
+
+/* DJ $ */
 
 int GetColorDialog(unsigned int &Color)
 {
@@ -430,34 +482,14 @@ int GetColorDialog(unsigned int &Color)
     ColorDlg[I].Flags=(ColorDlg[I].Flags & ~DIF_COLORMASK) | Color;
 
   {
-    Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]));
+    /* $ 18.05.2001 DJ
+       обработка установки цвета вынесена в функцию-обработчик диалога
+    */
+    SaveScreen SaveScr;
+    Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (long) &CurColor);
     Dlg.SetPosition(37,2,75,16);
-    Dlg.Show();
-    while (!Dlg.Done())
-    {
-      int NewColor;
-      Dlg.ReadInput();
-      Dlg.ProcessInput();
-      for (I=2;I<18;I++)
-        if (ColorDlg[I].Selected)
-        {
-          NewColor=(ColorDlg[I].Flags & B_MASK)>>4;
-          break;
-        }
-      for (I=19;I<35;I++)
-        if (ColorDlg[I].Selected)
-        {
-          NewColor|=ColorDlg[I].Flags & B_MASK;
-          break;
-        }
-      if (NewColor!=CurColor)
-      {
-        CurColor=NewColor;
-        for (I=35;I<38;I++)
-          ColorDlg[I].Flags=(ColorDlg[I].Flags & ~DIF_COLORMASK) | CurColor;
-        Dlg.FastShow();
-      }
-    }
+    Dlg.Process();
+    /* DJ $ */
     ExitCode=Dlg.GetExitCode();
   }
   if (ExitCode==39)
