@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.15 26.12.2000 $ */
+/* Revision: 1.16 28.12.2000 $ */
 
 /*
 Modify:
+  28.12.2000 SVS
+    - Бага с исключениями про панели.
   26.12.2000 SVS
     + KeyMacroToText()
     ! Скинируем до END_FARKEY_BASE
@@ -712,8 +714,8 @@ int KeyMacro::GetMacroSettings(
          int &RunAfterStart,
          int &EmptyCommandLine,
          int &NotEmptyCommandLine,
-         int &FilePanels,
-         int &PluginPanels)
+         int &NoFilePanels,
+         int &NoPluginPanels)
 {
   static struct DialogData MacroSettingsDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,62,14,0,0,0,0,(char *)MMacroSettingsTitle,
@@ -743,13 +745,8 @@ int KeyMacro::GetMacroSettings(
   RunAfterStart=MacroSettingsDlg[2].Selected;
   EmptyCommandLine=MacroSettingsDlg[5].Selected;
   NotEmptyCommandLine=MacroSettingsDlg[6].Selected;
-  if(!MacroSettingsDlg[8].Selected)
-  {
-    FilePanels=MacroSettingsDlg[10].Selected;
-    PluginPanels=MacroSettingsDlg[9].Selected;
-  }
-  else
-    FilePanels=PluginPanels=1;
+  NoFilePanels=MacroSettingsDlg[10].Selected;
+  NoPluginPanels=MacroSettingsDlg[9].Selected;
 
   return(TRUE);
 }

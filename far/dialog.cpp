@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.63 25.12.2000 $ */
+/* Revision: 1.64 28.12.2000 $ */
 
 /*
 Modify:
+  28.12.2000 SVS
+   + добавлена обработка Opt.HotkeyRules
   25.12.2000 SVS
    - Забыл сделать возврат из функции для DM_GETTEXTPTR
   21.12.2000 SVS
@@ -3026,31 +3028,37 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
   /* $ 08.11.2000 SVS
      Изменен пересчет кодов клавишь для hotkey (используются сканкоды)
   */
-#if 0
-  if (Key<256)
-    return(UpperStrKey==LocalUpper(Key) ||
-           Translate && UpperStrKey==LocalUpper(LocalKeyToKey(Key)));
-  if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
-    return(Key-KEY_ALT0+'0'==UpperStrKey);
-  if (Key>=KEY_ALTA && Key<=KEY_ALT_BASE+255)
+  /* 28.12.2000 SVS
+    + добавлена обработка Opt.HotkeyRules */
+  if(!Opt.HotkeyRules)
   {
-    int AltKey=Key-KEY_ALTA+'A';
-    return(UpperStrKey==LocalUpper(AltKey) ||
-           Translate && UpperStrKey==LocalUpper(LocalKeyToKey(AltKey)));
+    if (Key<256)
+      return(UpperStrKey==LocalUpper(Key) ||
+             Translate && UpperStrKey==LocalUpper(LocalKeyToKey(Key)));
+    if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
+      return(Key-KEY_ALT0+'0'==UpperStrKey);
+    if (Key>=KEY_ALTA && Key<=KEY_ALT_BASE+255)
+    {
+      int AltKey=Key-KEY_ALTA+'A';
+      return(UpperStrKey==LocalUpper(AltKey) ||
+             Translate && UpperStrKey==LocalUpper(LocalKeyToKey(AltKey)));
+    }
   }
-#else
-  if (Key<256)
-    return(UpperStrKey==LocalUpper(Key) ||
-           Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(Key));
-  if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
-    return(Key-KEY_ALT0+'0'==UpperStrKey);
-  if (Key>=KEY_ALTA && Key<=KEY_ALT_BASE+255)
+  else
   {
-    int AltKey=Key-KEY_ALTA+'A';
-    return(UpperStrKey==LocalUpper(AltKey) ||
-           Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(AltKey));
+    if (Key<256)
+      return(UpperStrKey==LocalUpper(Key) ||
+             Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(Key));
+    if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
+      return(Key-KEY_ALT0+'0'==UpperStrKey);
+    if (Key>=KEY_ALTA && Key<=KEY_ALT_BASE+255)
+    {
+      int AltKey=Key-KEY_ALTA+'A';
+      return(UpperStrKey==LocalUpper(AltKey) ||
+             Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(AltKey));
+    }
   }
-#endif
+  /* SVS $*/
   /* SVS $*/
   return(FALSE);
 }

@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.06 21.12.2000 $ */
+/* Revision: 1.07 28.12.2000 $ */
 
 /*
 Modify:
+  28.12.2000 SVS
+    + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев
   21.12.2000 SVS
     Если не нашли LNG, то после выдачи сообщения ожидаем любую клавишу.
   15.12.2000 SVS
@@ -164,6 +166,10 @@ int _cdecl main(int Argc, char *Argv[])
   SetFileApisToOEM();
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
   GetVersionEx(&WinVer);
+  /* $ 28.12.2000 SVS
+   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
+  GetRegKey("Interface","HotkeyRules",Opt.HotkeyRules,1);
+  /* SVS $*/
   LocalUpperInit();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
   *PointToName(FarPath)=0;

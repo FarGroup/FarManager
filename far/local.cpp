@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.03 06.11.2000 $ */
+/* Revision: 1.04 28.12.2000 $ */
 
 /*
 Modify:
+  28.12.2000 SVS
+    + добавлена обработка Opt.HotkeyRules
   08.11.2000 SVS
     ! Изменен массив клавиш Keys - теперь содержит сканкоды.
   28.08.2000 SVS
@@ -76,50 +78,59 @@ void LocalUpperInit()
     LCOrder[I]=LCOrder[UpperToLower[I]];
   for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
     KeyToKey[I]=I;
+
   HKL Layout[10];
   int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
   if (LayoutNumber<5)
-  /* $ 08.11.2000 SVS
-     Изменен массив клавиш Keys - теперь содержит сканкоды.
-  */
-#if 0
-    for (I=0;I<=255;I++)
+  {
+    /* $ 08.11.2000 SVS
+       Изменен массив клавиш Keys - теперь содержит сканкоды.
+    */
+    /* 28.12.2000 SVS
+      + добавлена обработка Opt.HotkeyRules */
+    if(!Opt.HotkeyRules)
     {
-      int Keys[10];
-      memset(Keys,0,sizeof(Keys));
-      for (int J=0;J<LayoutNumber;J++)
+      for (I=0;I<=255;I++)
       {
-        int AnsiKey=MapVirtualKeyEx(I,2,Layout[J]) & 0xff;
-        if (AnsiKey==0)
-          continue;
-        CvtStr[0]=AnsiKey;
-        CvtStr[1]=0;
-        CharToOem((char *)CvtStr,(char *)CvtStr);
-        Keys[J]=CvtStr[0];
-      }
-      if (Keys[0]!=0 && Keys[1]!=0)
-      {
-        KeyToKey[LocalLower(Keys[0])]=Keys[1];
-        KeyToKey[LocalUpper(Keys[0])]=Keys[1];
-        KeyToKey[LocalLower(Keys[1])]=Keys[0];
-        KeyToKey[LocalUpper(Keys[1])]=Keys[0];
+        int Keys[10];
+        memset(Keys,0,sizeof(Keys));
+        for (int J=0;J<LayoutNumber;J++)
+        {
+          int AnsiKey=MapVirtualKeyEx(I,2,Layout[J]) & 0xff;
+          if (AnsiKey==0)
+            continue;
+          CvtStr[0]=AnsiKey;
+          CvtStr[1]=0;
+          CharToOem((char *)CvtStr,(char *)CvtStr);
+          Keys[J]=CvtStr[0];
+        }
+        if (Keys[0]!=0 && Keys[1]!=0)
+        {
+          KeyToKey[LocalLower(Keys[0])]=Keys[1];
+          KeyToKey[LocalUpper(Keys[0])]=Keys[1];
+          KeyToKey[LocalLower(Keys[1])]=Keys[0];
+          KeyToKey[LocalUpper(Keys[1])]=Keys[0];
+        }
       }
     }
-#else
-    CvtStr[1]=0;
-    for (I=0;I<=255;I++)
+    else
     {
-      for (int J=0;J<LayoutNumber;J++)
+      CvtStr[1]=0;
+      for (I=0;I<=255;I++)
       {
-        SHORT AnsiKey=VkKeyScanEx(I,Layout[J])&0xFF;
-        if (AnsiKey==0xFF)
-          continue;
-        CvtStr[0]=I;
-        CharToOem((char *)CvtStr,(char *)CvtStr);
-        KeyToKey[CvtStr[0]]=AnsiKey;
+        for (int J=0;J<LayoutNumber;J++)
+        {
+          SHORT AnsiKey=VkKeyScanEx(I,Layout[J])&0xFF;
+          if (AnsiKey==0xFF)
+            continue;
+          CvtStr[0]=I;
+          CharToOem((char *)CvtStr,(char *)CvtStr);
+          KeyToKey[CvtStr[0]]=AnsiKey;
+        }
       }
     }
-#endif
+  }
+  /* SVS $ */
   /* SVS $ */
 }
 

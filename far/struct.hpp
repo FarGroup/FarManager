@@ -7,12 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.30 21.12.2000 $ */
+/* Revision: 1.31 28.12.2000 $ */
 
 /*
 Modify:
+  28.12.2000 SVS
+   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев
   21.12.2000 SVS
-    ! структура MacroRecord перенесена в macro.hpp
+   ! структура MacroRecord перенесена в macro.hpp
   08.12.2000 SVS
    ! изменения в структуре DialogItem.
   29.11.2000 SVS
@@ -442,6 +444,10 @@ struct Options
   /* $ 28.11.2000 SVS
    + Opt.EditorF7Rules - Правило на счет поиска в редакторе */
   int EditorF7Rules;
+  /* SVS $ */
+  /* $ 28.12.2000 SVS
+   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
+  int HotkeyRules;
   /* SVS $ */
   /* $ 05.09.2000 SVS
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
