@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.113 08.04.2003 $ */
+/* Revision: 1.114 16.04.2003 $ */
 
 /*
 Modify:
+  14.04.2003 VVM
+    ! ѕоказывать прогресс 4 раза в секунду, вместо одного.
   08.03.2003 SVS
     ! Ќебольшое уточнение логики диалога (доделано не все... иначе выпуск
       п€терки отложитс€ - незначительный баг в логике не повредит самому
@@ -3110,7 +3112,8 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   // // _LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
   /* $ 14.09.2002 VVM
     + ѕоказывать прогресс не чаще 1 раза в секунду */
-  if ((WrittenSize > 0) && (WrittenSize < TotalSize) && (clock() - LastShowTime < 1000))
+  // ѕусть будет 4 раза в секунду
+  if ((WrittenSize > 0) && (WrittenSize < TotalSize) && (clock() - LastShowTime < 250))
     return;
   if (!ShowTotalCopySize || TotalBar)
     LastShowTime = clock();
