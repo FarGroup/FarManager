@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.30 29.09.2000 $ */
+/* Revision: 1.31 01.10.2000 $ */
 
 /*
 Modify:
+  01.10.2000 IS
+    ! Показывать букву диска в статусной строке
   29.09.2000 SVS
     ! TableNum - 2
   27.09.2000 SVS
@@ -818,7 +820,11 @@ void Viewer::ShowStatus()
     NameLength-=6;
   if (NameLength<20)
     NameLength=20;
-  TruncStr(Name,NameLength);
+  /* $ 01.10.2000 IS
+     ! Показывать букву диска в статусной строке
+  */
+  TruncPathStr(Name,NameLength);
+  /* IS $ */
   char *TableName;
   if (VM.Unicode)
     TableName="Unicode";

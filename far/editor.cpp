@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.36 24.09.2000 $ */
+/* Revision: 1.37 01.10.2000 $ */
 
 /*
 Modify:
+   01.10.2000 IS
+      ! Показывать букву диска в статусной строке
    24.09.2000 SVS
     + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
     + Перекодировка Xlat
@@ -819,10 +821,18 @@ void Editor::ShowStatus()
     /* $ 20.09.2000 SVS
       - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
     */
-    TruncStr(TruncFileName,(ObjWidth<NameLength?ObjWidth:NameLength));
+    /* $ 01.10.2000 IS
+      ! Показывать букву диска в статусной строке
+    */
+    TruncPathStr(TruncFileName,(ObjWidth<NameLength?ObjWidth:NameLength));
+    /* IS $ */
     /* SVS $ */
   else
-    TruncStr(TruncFileName,NameLength);
+    /* $ 01.10.2000 IS
+      ! Показывать букву диска в статусной строке
+    */
+    TruncPathStr(TruncFileName,NameLength);
+    /* IS $ */
   sprintf(LineStr,"%d/%d",NumLine+1,NumLastLine);
   sprintf(StatusStr,"%-*s %c%c %10.10s %7s %-13.13s %5s %-4d",
           NameLength,TruncFileName,Modified ? '*':' ',LockMode ? '-':' ',
