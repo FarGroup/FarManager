@@ -12,10 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.27 27.11.2000 $ */
+/* Revision: 1.28 29.11.2000 $ */
 
 /*
 Modify:
+  29.11.2000 SVS
+    + MViewF9: в lng файле почему то нет места для F9 во вьюере -
+      недосмотр однако :))
   27.11.2000 SVS
     + MExcDebugger
   22.11.2000 SVS
@@ -605,6 +608,7 @@ enum
   MViewF7,
   MViewF8,
   MViewF8DOS,
+  MViewF9,
   MViewF10,
   MViewF11,
   MViewF12,
