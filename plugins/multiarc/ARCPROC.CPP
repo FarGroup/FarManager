@@ -327,7 +327,13 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       DialogItems[4].Flags|=DIF_USELASTHISTORY;
 
     char DefExt[NM];
-    if (!ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
+    char FullName[NM],ExtName[NM],*NamePtr,*ExtPtr;
+    BOOL Ret=TRUE;
+
+    GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,"DefExt",DefExt,"",sizeof(DefExt));
+    if (*DefExt==0)
+      Ret=ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt);
+    if (!Ret)
       return(0);
 
     char SwHistoryName[NM];
@@ -343,9 +349,12 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       if (ItemsNumber==1)
       {
         strcpy(DialogItems[2].Data,PanelItem->FindData.cFileName);
-        char *Dot=strrchr(DialogItems[2].Data,'.');
-        if (Dot!=NULL)
-          *Dot=0;
+        if(Opt.DeleteExtFile)
+        {
+          char *Dot=strrchr(DialogItems[2].Data,'.');
+          if (Dot!=NULL)
+            *Dot=0;
+        }
       }
       else
       {
@@ -370,6 +379,20 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     DialogItems[12].Selected=Opt.UserBackground;
     /* DJ $ */
 
+    char OriginalName[NM*2];
+    strcpy(OriginalName,DialogItems[2].Data);
+
+    if(!Opt.DeleteExtFile)
+    {
+      if ((ExtPtr=strrchr(DialogItems[2].Data,'.'))==NULL ||
+          (ExtPtr && stricmp(++ExtPtr,DefExt) != 0))
+      {
+        FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
+        strcpy(DialogItems[2].Data,ExtName);
+      }
+    }
+
+
     if ((OpMode & OPM_SILENT)==0)
     {
       int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"AddToArc",
@@ -379,6 +402,9 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       strcpy(Password2,DialogItems[9].Data);
       if (AskCode==15)
       {
+        // Restore original name
+        strcpy(DialogItems[2].Data,OriginalName);
+
         if (!SelectFormat(ArcFormat))
           return(-1);
         FormatToPlugin(ArcFormat,ArcPluginNumber,ArcPluginType);
@@ -449,6 +475,17 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         strcat(Command," ");
         strcat(Command,DialogItems[4].Data);
       }
+
+    if(!Opt.DeleteExtFile)
+    {
+      if ((ExtPtr=strrchr(DialogItems[2].Data,'.'))==NULL ||
+          (ExtPtr && stricmp(++ExtPtr,DefExt) != 0))
+      {
+        FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
+        strcpy(DialogItems[2].Data,ExtName);
+      }
+    }
+
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,DialogItems[2].Data,"",
                       Password1,AllFilesMask,IgnoreErrors,0,0,CurDir,
@@ -456,11 +493,9 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
       ArcExitCode=0;
 
-    char FullName[NM],ExtName[NM],*NamePtr;
-    if (strchr(DialogItems[2].Data,'.')==NULL)
+    if(Opt.DeleteExtFile) // Old!
     {
-      char ArcFormat[100],DefExt[NM];
-      if (ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
+      if (strchr(DialogItems[2].Data,'.')==NULL)
       {
         FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
         if (GetFileAttributes(ExtName)!=0xffffffff)
@@ -470,7 +505,6 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     if (GetFullPathName(DialogItems[2].Data,sizeof(FullName),FullName,&NamePtr))
       strcpy(ArcName,FullName);
-
     break;
   }
   if (Opt.UpdateDescriptions && ArcExitCode)

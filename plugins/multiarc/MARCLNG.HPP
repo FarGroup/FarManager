@@ -111,6 +111,7 @@ enum LanguageID
   MGConfigDizNames,
   MGConfigReadDiz,
   MGConfigUpdateDiz,
+  MGConfigDeleteExtFile,
 
   MArcSettingsExtract,
   MArcSettingsExtractWithoutPath,
@@ -127,6 +128,7 @@ enum LanguageID
   MArcSettingsAddRecurse,
   MArcSettingsMoveRecurse,
   MArcSettingsAllFilesMask,
+  MArcSettingsDefaultExt,
 
   MBackground,
 };

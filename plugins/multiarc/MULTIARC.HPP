@@ -224,11 +224,13 @@ class ArcPlugins *ArcPlugin=NULL;
 
 enum {CMD_EXTRACT=0,CMD_EXTRACTWITHOUTPATH,CMD_TEST,CMD_DELETE,CMD_COMMENT,
       CMD_COMMENTFILES,CMD_SFX,CMD_LOCK,CMD_PROTECT,CMD_RECOVER,
-      CMD_ADD,CMD_MOVE,CMD_ADDRECURSE,CMD_MOVERECURSE,CMD_ALLFILESMASK};
+      CMD_ADD,CMD_MOVE,CMD_ADDRECURSE,CMD_MOVERECURSE,CMD_ALLFILESMASK,
+      CMD_DEFEXT};
 
 char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",
                   "Comment","CommentFiles","SFX","Lock","Protect","Recover",
-                  "Add","Move","AddRecurse","MoveRecurse","AllFilesMask"};
+                  "Add","Move","AddRecurse","MoveRecurse","AllFilesMask",
+                  "DefExt"};
 
 #define F_ENCRYPTED 1
 
@@ -244,9 +246,8 @@ struct Options
   int UserBackground;
   int Background;
   /* tran 13.09.2000 $ */
-  /* $ 18.05.2001 SVS */
-  int UseLastHistory;
-  /* SVS 18.05.2001 $ */
+  int UseLastHistory; // $ 18.05.2001 SVS
+  int DeleteExtFile; // $ 12.07.2001 SVS
 } Opt;
 
 char PluginRootKey[80];

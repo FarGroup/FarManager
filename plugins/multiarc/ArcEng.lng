@@ -111,6 +111,7 @@
 "Description &list names delimited with commas:"
 "&Read archive descriptions"
 "&Update archive descriptions"
+"Re&move file extension from archive name"
 
 "Extract"
 "Extract without paths"
@@ -118,7 +119,7 @@
 "Delete"
 "Comment archive"
 "Comment files"
-"Convert to SFX"
+"Convert to &SFX"
 "Lock archive"
 "Protect archive"
 "Recover archive"
@@ -127,4 +128,6 @@
 "Add files and folders"
 "Move files and folders"
 ""All files" mask"
+"Archive extension"
+
 "&Background"

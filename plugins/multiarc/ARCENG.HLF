@@ -86,7 +86,11 @@ $ #Archive support configuration#
                         switches will be placed in the "Switches"
                         edit line.
 
- #Description list#       Names of files with descriptions of archived
+ #Append default#         Determines, how to deduce initial
+ #archive extension#      ~Add to archive~@AddToArc@ field value from the
+                        name of file/folder to be archived.
+
+ #Description list#       Names of files with ~descriptions~@:FileDiz@ of archived
  #names delimited#        files.
  #with commas#
 
@@ -98,30 +102,47 @@ $ #Archive support configuration#
  #Update archive#         Update descriptions of archived files
  #descriptions#           after adding to or deleting from an archive.
 
+
+    Notes:
+
+ 1. Option #Remove file extension from archive name# determines, how to deduce
+    initial #Add to archive# field value from the name of file/folder
+    to be archived. For example (for RAR archive):
+
+     #option#   #file.name.ext#       #FOLDER.NAME.EXT\*.*#
+
+       [x]    file.name.RAR       FOLDER.NAME.EXT.RAR
+       [ ]    file.name.ext.RAR   FOLDER.NAME.EXT.RAR
+
+    Consider how different archivers handle archive name with
+    extension passed to them: some are appending default archive
+    extension to it (PKZip: #file.name# => #file.name.ZIP#), some
+    aren't (RAR: #file.name# => #file.name#).
+
 @ArcSettings2
 $ #Archiver command lines#
     In this dialog you may change external archiver command lines
-for different archive processing operations and mask, which will be
-used to select all files.
+for different archive processing operations, ~mask~@:FileMasks@, which will
+be used to select all files and archive extension.
 
     The following variables may be used:
 
- %%A - Archive name.
+ #%%A# - Archive name.
 
- %%a - Short archive name.
+ #%%a# - Short archive name.
 
- %%W - Temporary folder including the terminating slash.
+ #%%W# - Temporary folder including the terminating slash.
 
- %%P - Password.
+ #%%P# - Password.
 
- %%R - Current archive folder.
+ #%%R# - Current archive folder.
 
- %%L - Filelist name. Filelist is the file containing names of files
+ #%%L# - Filelist name. Filelist is the file containing names of files
        to be processed by the external archiver.
 
- %%l - Filelist with short file names.
+ #%%l# - Filelist with short file names.
 
- %%F - Names of one or more files to be processed. If all names
+ #%%F# - Names of one or more files to be processed. If all names
        cannot be placed in a single string, the archiver will be
        executed several times until all file names are exhausted.
        By default maximum total command length is 127, but you can
@@ -129,19 +150,19 @@ used to select all files.
        Variable %%F should be used only if the destination archiver
        does not support filelists.
 
- %%f - The name of a single file to process. The archiver will be
+ #%%f# - The name of a single file to process. The archiver will be
        executed several times until all file names are exhausted.
        This variable should be used only if the destination archiver
        does not support filelists or multiple file names on
        the command line.
 
- %%E<errorlevel> - maximum acceptable command errorlevel.
+ #%%E#<errorlevel> - maximum acceptable command errorlevel.
        For example, %%E2 indicates that errorlevels 0, 1 and 2
        are acceptable. This variable may be specified in any place
        of command. If it is absent, only errorlevel 0 is considered
        as successful.
 
- %%S - Place in the command line to insert additional switches,
+ #%%S# - Place in the command line to insert additional switches,
        specified in the second string of "Add" dialog. If this
        variable is absent, switches are added to end of command
        line.
