@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.127 28.05.2002 $ */
+/* Revision: 1.128 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    + ShellUpdatePanels и CheckUpdateAnotherPanel вынесены из delete.cpp
+      в самостоятельные функции в mix.cpp
   28.05.2002 SVS
     + IsLocalPath()
     ! Поправлена PathMayBeAbsolute (исключен вызов функции strlen)
@@ -385,6 +388,7 @@ Modify:
 #include "savefpos.hpp"
 #include "chgprior.hpp"
 #include "filepanels.hpp"
+#include "filelist.hpp"
 #include "panel.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
@@ -1422,4 +1426,64 @@ BOOL IsDiskInDrive(const char *Root)
   BOOL Res = GetVolumeInformation (Drive, VolName, sizeof(VolName), NULL, &MaxComSize, &Flags, FS, sizeof(FS));
   SetErrorMode(ErrMode);
   return Res;
+}
+
+void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
+{
+  if(!SrcPanel)
+    SrcPanel=CtrlObject->Cp()->ActivePanel;
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+  int AnotherType=AnotherPanel->GetType();
+  if (AnotherType!=QVIEW_PANEL)
+  {
+    if(NeedSetUpADir)
+    {
+      char CurDir[2048];
+      SrcPanel->GetCurDir(CurDir);
+      AnotherPanel->SetCurDir(CurDir,TRUE);
+      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+    }
+    else
+    {
+      if(AnotherPanel->NeedUpdatePanel(SrcPanel))
+        AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+      else
+      {
+        // Сбросим время обновления панели. Если там есть нотификация - обновится сама.
+        if (AnotherType==FILE_PANEL)
+          ((FileList *)AnotherPanel)->ResetLastUpdateTime();
+        AnotherPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+      }
+    }
+  }
+  SrcPanel->Update(UPDATE_KEEP_SELECTION);
+//  SrcPanel->Redraw();
+  if (AnotherType==QVIEW_PANEL)
+  {
+    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+//    AnotherPanel->Redraw();
+  }
+  CtrlObject->Cp()->Redraw();
+}
+
+int CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName)
+{
+  char AnotherCurDir[2048];
+  char FullName[2058];
+  if(!SrcPanel)
+    SrcPanel=CtrlObject->Cp()->ActivePanel;
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+  AnotherPanel->CloseFile();
+  if(AnotherPanel->GetMode() == NORMAL_PANEL)
+  {
+    AnotherPanel->GetCurDir(AnotherCurDir);
+    if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
+      return -1;
+    if(strstr(AnotherCurDir,FullName))
+    {
+      ((FileList*)AnotherPanel)->CloseChangeNotification();
+      return TRUE;
+    }
+  }
+  return FALSE;
 }

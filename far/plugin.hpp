@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.209 22.05.2002 $ */
+/* Revision: 1.210 30.05.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  30.05.2002 SVS
+    + FLINK_DONOTUPDATEPANEL
   22.05.2002 SKV
     + ?F_IMMEDIATERETURN
   13.05.2002 VVM
@@ -2068,11 +2070,12 @@ typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest,const char *Prefix);
 typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
 enum MKLINKOP{
-  FLINK_HARDLINK  = 1,
-  FLINK_SYMLINK   = 2,
-  FLINK_VOLMOUNT  = 3,
+  FLINK_HARDLINK         = 1,
+  FLINK_SYMLINK          = 2,
+  FLINK_VOLMOUNT         = 3,
 
-  FLINK_SHOWERRMSG= 0x10000,
+  FLINK_SHOWERRMSG       = 0x10000,
+  FLINK_DONOTUPDATEPANEL = 0x20000,
 };
 typedef int     (WINAPI *FARSTDMKLINK)(const char *Src,const char *Dest,DWORD Flags);
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);

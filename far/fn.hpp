@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.157 28.05.2002 $ */
+/* Revision: 1.158 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    + ShellUpdatePanels è CheckUpdateAnotherPanel
   28.05.2002 SVS
     + IsLocalPath()
   25.05.2002 IS
@@ -671,13 +673,13 @@ int Execute(const char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
             int DirectRun=FALSE,int SetUpDirs=FALSE);
 #endif
 
-
-#ifdef __PANEL_HPP__
+class Panel;
 void ShellMakeDir(Panel *SrcPanel);
 void ShellDelete(Panel *SrcPanel,int Wipe);
 int  ShellSetFileAttributes(Panel *SrcPanel);
 void PrintFiles(Panel *SrcPanel);
-#endif
+void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir=FALSE);
+int  CheckUpdateAnotherPanel(Panel *SrcPanel,const char *SelName);
 
 #ifdef __FAR_INT64_HPP__
 BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree);
@@ -1253,5 +1255,6 @@ BOOL IsDiskInDrive(const char *Drive);
 BOOL IsLocalPath(const char *Path);
 
 BOOL RunGraber(void);
+
 
 #endif  // __FARFUNC_HPP__

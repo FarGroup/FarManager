@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.88 28.05.2002 $ */
+/* Revision: 1.89 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    - Ошибка при формировании имени для создания линка
   28.05.2002 SVS
     - BugZ#534 - копирование файлов с сетевых шар
   25.05.2002 IS
@@ -3216,8 +3218,18 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 {
   if (Flags&(FCOPY_LINK|FCOPY_VOLMOUNT))
   {
-    char SrcFullName[NM], DestFullName[NM];
+    char SrcFullName[NM], DestFullName[NM], SelOnlyName[NM];
     char MsgBuf[NM],MsgBuf2[NM];
+
+    // выделим имя
+    strncpy(SelOnlyName,SelName,sizeof(SelOnlyName)-1);
+    if(SelOnlyName[strlen(SelOnlyName)-1] == '\\')
+      SelOnlyName[strlen(SelOnlyName)-1]=0;
+    char *PtrSelName=strrchr(SelOnlyName,'\\');
+    if(!PtrSelName)
+      PtrSelName=SelOnlyName;
+    else
+      ++PtrSelName;
 
     if(SelName[1] == ':' && (SelName[2] == 0 || SelName[2] == '\\' && SelName[3] == 0)) // C: или C:/
     {
@@ -3249,7 +3261,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
       if(!(Flags&FCOPY_VOLMOUNT))
       {
         // AddEndSlash(DestFullName);
-        strcat(DestFullName,SelName);
+        strcat(DestFullName,PtrSelName);
       }
       else
       {
@@ -3280,7 +3292,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
           AddEndSlash(DestFullName);
         }
         else
-          strcat(DestFullName,SelName);
+          strcat(DestFullName,PtrSelName);
 
         int JSAttr=GetFileAttributes(DestFullName);
 //_SVS(SysLog("AddEndSlash: DestFullName='%s' JSAttr=0x%08X",DestFullName,JSAttr));

@@ -5,10 +5,14 @@ delete.cpp
 
 */
 
-/* Revision: 1.49 14.05.2002 $ */
+/* Revision: 1.50 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    ! ShellDeleteUpdatePanels -> ShellUpdatePanels, and...
+    ! ShellUpdatePanels и CheckUpdateAnotherPanel вынесены из delete.cpp
+      в самостоятельные функции в mix.cpp
   14.05.2002 VVM
     ! Подкорректируем механизм обновления соседней панели
   26.04.2002 SVS
@@ -131,7 +135,6 @@ Modify:
 
 #include "global.hpp"
 #include "lang.hpp"
-#include "fn.hpp"
 #include "flink.hpp"
 #include "panel.hpp"
 #include "chgprior.hpp"
@@ -143,6 +146,7 @@ Modify:
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
+#include "fn.hpp"
 
 static void ShellDeleteMsg(char *Name);
 static int AskDeleteReadOnly(char *Name,DWORD Attr);
@@ -151,9 +155,7 @@ static int ERemoveDirectory(char *Name,char *ShortName,int Wipe);
 static int RemoveToRecycleBin(char *Name);
 static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
-static void ShellDeleteUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir);
 static void PR_ShellDeleteMsg(void);
-static int CheckUpdateAnotherPanel(Panel *SrcPanel,char *SelName);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
 
@@ -264,7 +266,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,SelName)) != -1) //JuncName?
         {
           DeleteJunctionPoint(JuncName);
-          ShellDeleteUpdatePanels(SrcPanel,NeedSetUpADir);
+          ShellUpdatePanels(SrcPanel,NeedSetUpADir);
         }
         goto done;
       }
@@ -541,66 +543,9 @@ done:
   /* $ 01.10.2001 IS перерисуемся, чтобы не было артефактов */
   if(NeedUpdate)
   {
-    ShellDeleteUpdatePanels(SrcPanel,NeedSetUpADir);
+    ShellUpdatePanels(SrcPanel,NeedSetUpADir);
   }
   /* IS $ */
-}
-
-
-void ShellDeleteUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
-{
-  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-  int AnotherType=AnotherPanel->GetType();
-  if (AnotherType!=QVIEW_PANEL)
-  {
-    if(NeedSetUpADir)
-    {
-      char CurDir[2048];
-      SrcPanel->GetCurDir(CurDir);
-      AnotherPanel->SetCurDir(CurDir,TRUE);
-      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    }
-    else
-    {
-      if(AnotherPanel->NeedUpdatePanel(SrcPanel))
-        AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-      else
-      {
-        // Сбросим время обновления панели. Если там есть нотификация - обновится сама.
-        if (AnotherType==FILE_PANEL)
-          ((FileList *)AnotherPanel)->ResetLastUpdateTime();
-        AnotherPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
-      }
-    }
-  }
-  SrcPanel->Update(UPDATE_KEEP_SELECTION);
-//  SrcPanel->Redraw();
-  if (AnotherType==QVIEW_PANEL)
-  {
-    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-//    AnotherPanel->Redraw();
-  }
-  CtrlObject->Cp()->Redraw();
-}
-
-static int CheckUpdateAnotherPanel(Panel *SrcPanel,char *SelName)
-{
-  char AnotherCurDir[2048];
-  char FullName[2058];
-  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-  AnotherPanel->CloseFile();
-  if(AnotherPanel->GetMode() == NORMAL_PANEL)
-  {
-    AnotherPanel->GetCurDir(AnotherCurDir);
-    if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName))
-      return -1;
-    if(strstr(AnotherCurDir,FullName))
-    {
-      ((FileList*)AnotherPanel)->CloseChangeNotification();
-      return TRUE;
-    }
-  }
-  return FALSE;
 }
 
 static void PR_ShellDeleteMsg(void)

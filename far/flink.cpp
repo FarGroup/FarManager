@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.32 25.04.2002 $ */
+/* Revision: 1.33 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    - Ошибка создания симлинка ("Атака клоунов") - добавим обновление панелей
   25.04.2002 SVS
     - BugZ#466 - Ошибка создания симлинка (продолжение эпопеи)
   18.04.2002 SVS
@@ -878,6 +880,8 @@ BOOL WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName)
 
 int WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags)
 {
+  int RetCode=0;
+
   if(Src && *Src && Dest && *Dest)
   {
 //    int Delete=Flags&FLINK_DELETE;
@@ -887,21 +891,25 @@ int WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags)
     {
       case FLINK_HARDLINK:
 //        if(Delete)
-//          return DeleteFile(Src);
+//          RetCode=DeleteFile(Src);
 //        else
           if(CanCreateHardLinks(Src,Dest))
-            return MkLink(Src,Dest);
+            RetCode=MkLink(Src,Dest);
         break;
 
       case FLINK_SYMLINK:
       case FLINK_VOLMOUNT:
 //        if(Delete)
-//          return RemoveDirectory(Src);
+//          RetCode=RemoveDirectory(Src);
 //        else
-          return ShellCopy::MkSymLink(Src,Dest,
+          RetCode=ShellCopy::MkSymLink(Src,Dest,
              (Op==FLINK_VOLMOUNT?FCOPY_VOLMOUNT:FCOPY_LINK)|
              (Flags&FLINK_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
     }
   }
-  return 0;
+
+  if(RetCode && !(Flags&FLINK_DONOTUPDATEPANEL))
+    ShellUpdatePanels(NULL,FALSE);
+
+  return RetCode;
 }
