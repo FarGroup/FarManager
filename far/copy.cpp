@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.22 27.02.2001 $ */
+/* Revision: 1.23 06.03.2001 $ */
 
 /*
 Modify:
+  06.03.2001 SVS
+    ! Немного оптимизации в "индикаторе скорости" + добавка для 'Gb'
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -1569,6 +1571,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     int TimeLeft;
     char TimeStr[100];
     char c[2];
+    c[1]=0;
 
     if (OldTotalSize == 0 || WorkTime == 0)
       sprintf(TimeStr,MSG(MCopyTimeInfo), " ", " ", 0, " ");
@@ -1578,13 +1581,21 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
       TimeLeft = (CPS)?(SizeLeft/CPS).LowPart:0;
       strcpy(c," ");
       if (CPS > 99999) {
-        strcpy(c,"K");
+        c[0]='K';
         CPS = CPS/1024;
       }
       if (CPS > 99999) {
-        strcpy(c,"M");
+        c[0]='M';
         CPS = CPS/1024;
       }
+      /* $ 06.03.2001 SVS
+         А у меня и такое есть :-)
+      */
+      if (CPS > 99999) {
+        c[0]='G';
+        CPS = CPS/1024;
+      }
+      /* SVS $ */
       char WorkTimeStr[12];
       char TimeLeftStr[12];
       GetTimeText(WorkTime, WorkTimeStr);

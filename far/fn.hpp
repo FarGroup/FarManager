@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.62 28.02.2001 $ */
+/* Revision: 1.63 06.03.2001 $ */
 
 /*
 Modify:
+  06.03.2001 SVS
+   ! InsertCommas возвращает знчение на Dest
   28.02.2001 SVS
    ! CenterStr возвращает указатель на Dest
   27.02.2001 SVS
@@ -224,7 +226,8 @@ int GetTimeSeparator();
 char* GetShellAction(char *FileName);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
-void InsertCommas(unsigned long Number,char *Dest);
+char* InsertCommas(unsigned long Number,char *Dest);
+char* InsertCommas(int64 li,char *Dest);
 void DeleteDirTree(char *Dir);
 int GetClusterSize(char *Root);
 void _cdecl CheckVersion(void *Param);
@@ -412,7 +415,6 @@ void PrintFiles(Panel *SrcPanel);
 
 #ifdef __INT64_HPP__
 BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree);
-void InsertCommas(int64 li,char *Dest);
 int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,

@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.18 27.02.2001 $ */
+/* Revision: 1.19 06.03.2001 $ */
 
 /*
 Modify:
+  06.03.2001 SVS
+   ! SetScreen() - размер строки 256 заменен на 4096 во избежании проблем
+     в будущем (new или malloc делать не стоит, т.к. функция часто вызывается)
   27.02.2001 SVS
    + BoxText(Char) - вывод одного символа
    ! В MakeSeparator добавлена отрисовка двойной разделительной линии (Type=3)
@@ -446,7 +449,7 @@ void HiText(char *Str,int HiColor)
 
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 {
-  char FillStr[256];
+  char FillStr[4096];
   int I;
   SetColor(Color);
   if (X1<0) X1=0;

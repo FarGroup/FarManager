@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.03 05.03.2001 $ */
+/* Revision: 1.04 06.03.2001 $ */
 
 /*
 Modify:
+  06.03.2001 SVS
+    ! Немного оптимизации в TruncStr() - избавляемся от лишнего вызова new[]
+    ! Немного оптимизации в InsertCommas() - избавляемся от лишнего sprintf()
   05.03.2001 SVS
     ! Немного оптимизации в фунциях QuoteSpace и QuoteSpaceOnly -
       убрал лишний malloc()
@@ -33,21 +36,22 @@ Modify:
 #pragma hdrstop
 #include "internalheaders.hpp"
 
-void InsertCommas(unsigned long Number,char *Dest)
+char *InsertCommas(unsigned long Number,char *Dest)
 {
-  sprintf(Dest,"%u",Number);
+  ultoa(Number,Dest,10);
   for (int I=strlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
       memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
       Dest[I+1]=',';
     }
+  return Dest;
 }
 
 
-void InsertCommas(int64 li,char *Dest)
+char* InsertCommas(int64 li,char *Dest)
 {
-  if (li<1000000000 && 0)
+  if (li<1000000000)
     InsertCommas(li.LowPart,Dest);
   else
   {
@@ -59,6 +63,7 @@ void InsertCommas(int64 li,char *Dest)
         Dest[I+1]=',';
       }
   }
+  return Dest;
 }
 
 char* WINAPI PointToName(char *Path)
@@ -316,6 +321,7 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
     if (MaxLength<0)
       MaxLength=0;
     if ((Length=strlen(Str))>MaxLength)
+#if 0
       if (MaxLength>3)
       {
         char *TmpStr=new char[MaxLength+5];
@@ -328,6 +334,16 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
       }
       else
         Str[MaxLength]=0;
+#else
+    {
+      if (MaxLength>3)
+      {
+        memmove(Str+3,Str+Length-MaxLength+3,MaxLength);
+        memcpy(Str,"...",3);
+      }
+      Str[MaxLength]=0;
+    }
+#endif
   }
   return(Str);
 }
