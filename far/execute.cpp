@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.65 17.07.2002 $ */
+/* Revision: 1.66 08.08.2002 $ */
 
 /*
 Modify:
+  08.08.2002 VVM
+    ! Вернем назад полный путь до текущего каталога.
   17.07.2002 VVM
     - Если пускаем из текущего каталога, то не делаем "развертку" пути.
     ! Команды из ExcludeCmds имеют ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_CUI
@@ -226,7 +228,7 @@ Modify:
 // При выходе из процедуры IMAGE_SUBSYTEM_UNKNOWN означает
 // "файл не является исполняемым".
 // Для DOS-приложений определим еще одно значение флага.
-#define IMAGE_SUBSYSTEM_DOS_EXECUTABLE	255
+#define IMAGE_SUBSYSTEM_DOS_EXECUTABLE  255
 
 static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 {
@@ -528,10 +530,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
         // GetFullPathName - это нужно, т.к. если тыкаем в date.exe
         // в текущем каталоге, то нифига ничего доброго не получаем
         // cmd.exe по каким то причинам вызыват внутренний date
-        /* $ 17.07.2002 VVM
-          - Уберем эту штуку. Т.к. бага не замечено
         GetFullPathName(FullName,sizeof(FullName),FullName,&FilePart);
-        /* VVM $ */
 
         Ret=TRUE;
         break;
@@ -976,7 +975,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     if (SeparateWindow==2)
     {
       char AnsiCmdStr[4096];
-	  char AnsiCmdPar[4096];
+      char AnsiCmdPar[4096];
       SHELLEXECUTEINFO si;
       OemToChar(CmdPtr, AnsiCmdStr);
       OemToChar(NewCmdPar, AnsiCmdPar);
