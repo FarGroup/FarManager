@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.173 04.01.2005 $ */
+/* Revision: 1.174 16.01.2005 $ */
 
 /*
 Modify:
+  16.01.2005 WARP
+    ! Исправляем выделение в хексвью
   04.01.2005 WARP
     - При смене режима просмотра Unicode <-> ANSI сбрасываем выделение, а то оно едет.
   04.01.2005 WARP
@@ -1152,15 +1154,16 @@ void Viewer::ShowHex()
   int Ch,Ch1,X,Y,TextPos;
 
   int SelStart, SelEnd;
-
-  SelSize=0;
+  bool bSelStartFound = false, bSelEndFound = false;
 
   int HexLeftPos=((LeftPos>80-ObjWidth) ? Max(80-ObjWidth,0):LeftPos);
 
   for (EndFile=0,Y=ViewY1;Y<=Y2;Y++)
   {
-    SelStart = 0;
-    SelEnd = 0;
+    bSelStartFound = false;
+    bSelEndFound = false;
+
+    SelSize=0;
 
     SetColor(COL_VIEWERTEXT);
     GotoXY(X1,Y);
@@ -1176,7 +1179,18 @@ void Viewer::ShowHex()
 
     TextPos=0;
 
-    SelStart = strlen (OutStr);
+    int HexStrStart = strlen (OutStr);
+
+    SelStart = HexStrStart;
+    SelEnd = SelStart;
+
+    __int64 fpos = vtell(ViewFile);
+
+    if ( fpos > SelectPos )
+       bSelStartFound = true;
+
+    if ( fpos < SelectPos+SelectSize-1 )
+       bSelEndFound = true;
 
     if (VM.Unicode)
       for (X=0;X<8;X++)
@@ -1185,6 +1199,7 @@ void Viewer::ShowHex()
 
         if (SelectSize>0 && (SelectPos == fpos) )
         {
+          bSelStartFound = true;
           SelStart = strlen (OutStr);
           SelSize=SelectSize;
           /* $ 22.01.2001 IS
@@ -1196,12 +1211,10 @@ void Viewer::ShowHex()
           /* IS $ */
         }
 
-        if (SelectSize>0 && (fpos == (SelectPos+SelectSize)) )
+        if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)) )
         {
-          SelEnd = strlen (OutStr)-1;
-
-          if ( X == 4 )
-            SelEnd -= 2;
+          bSelEndFound = true;
+          SelEnd = strlen (OutStr)+3;
 
           SelSize=SelectSize;
         }
@@ -1256,6 +1269,7 @@ void Viewer::ShowHex()
 
         if (SelectSize>0 && (SelectPos == fpos) )
         {
+          bSelStartFound = true;
           SelStart = strlen (OutStr);
           SelSize=SelectSize;
           /* $ 22.01.2001 IS
@@ -1267,12 +1281,10 @@ void Viewer::ShowHex()
           /* IS $ */
         }
 
-        if (SelectSize>0 && (fpos == (SelectPos+SelectSize)) )
+        if (SelectSize>0 && (fpos == (SelectPos+SelectSize-1)) )
         {
-          SelEnd = strlen (OutStr)-1;
-
-          if ( X == 8 )
-            SelEnd -= 2;
+          bSelEndFound = true;
+          SelEnd = strlen (OutStr)+1;
 
           SelSize=SelectSize;
         }
@@ -1314,8 +1326,8 @@ void Viewer::ShowHex()
       DecodeString(TextStr,(unsigned char *)TableSet.DecodeTable);
     strcat(TextStr," ");
 
-    if ( SelStart && (SelEnd < SelStart) )
-      SelEnd = strlen (OutStr)-1;
+    if ( (SelEnd <= SelStart) && bSelStartFound )
+       SelEnd = strlen (OutStr)-2;
 
     strcat(OutStr," ");
 
@@ -1325,16 +1337,18 @@ void Viewer::ShowHex()
     else
       mprintf("%*s",ObjWidth,"");
 
-    if (SelSize && SelStart>=HexLeftPos)
+    if ( bSelStartFound && bSelEndFound )
     {
       SetColor(COL_VIEWERSELECTEDTEXT);
       GotoXY((int)((__int64)X1+SelStart-HexLeftPos),Y);
 
-      mprintf("%.*s",SelEnd-SelStart,OutStr+(int)SelStart);
-      SelSize=0;
+      mprintf("%.*s",SelEnd-SelStart+1,OutStr+(int)SelStart);
+
+      SelSize = 0;
     }
   }
 }
+
 
 void Viewer::ShowUp()
 {
