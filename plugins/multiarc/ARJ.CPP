@@ -42,21 +42,26 @@ BOOL WINAPI _export OpenArchive(char *Name,int *Type)
 {
   struct ARJHd1
   {
-    WORD Mark;
-    WORD HeadSize;
-    BYTE FirstHeadSize;
-    BYTE ARJVer;
-    BYTE ARJExtrVer;
+    WORD Mark;            // header id (main and local file) = 0x60 0xEA
+    WORD HeadSize;        // basic header size
+    BYTE FirstHeadSize;   // size up to and including 'extra data'
+    BYTE ARJVer;          // archiver version number
+    BYTE ARJExtrVer;      // minimum archiver version to extract
     BYTE HostOS;
     BYTE Flags;
-    BYTE Reserved1;
-    BYTE FileType;
-    BYTE Reserved2;
-    DWORD ftime;
-    DWORD Reserved3;
-    DWORD Reserved4;
-    DWORD Reserved5;
-    WORD FileSpec;
+    BYTE SecurityVer;     // (2 = current)
+    BYTE FileType;        // file type (must equal 2)
+    BYTE Reserved;
+    DWORD ftime;          // date time when original archive was created
+    DWORD ltime;          // date time when archive was last modified
+    DWORD ArcSize;        // currently used only for secured archives
+    DWORD SecurityPos;    // security envelope file position
+    WORD FileSpec;        // filespec position in filename
+
+    WORD SecuritySize;    // length in bytes of security envelope data
+    BYTE EncrtypVer;      // encryption version
+    BYTE LastChapter;     // last chapter
+                          // ... extra data
   } ArjHeader;
 
   DWORD ReadSize;
@@ -91,23 +96,26 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 {
   struct ARJHd2
   {
-    WORD Mark;
-    WORD HeadSize;
-    BYTE FirstHeadSize;
-    BYTE ARJVer;
-    BYTE ARJExtrVer;
-    BYTE HostOS;
-    BYTE Flags;
-    BYTE Method;
-    BYTE FileType;
-    BYTE Reserved;
-    DWORD ftime;
-    DWORD PackSize;
-    DWORD UnpSize;
-    DWORD CRC;
-    WORD FileSpec;
-    WORD AccessMode;
-    WORD HostData;
+    WORD Mark;              // header id (main and local file) = 0x60 0xEA
+    WORD HeadSize;          // basic header size
+    BYTE FirstHeadSize;     // size up to and including 'extra data'
+    BYTE ARJVer;            // archiver version number
+    BYTE ARJExtrVer;        // minimum archiver version to extract
+    BYTE HostOS;            //
+    BYTE Flags;             //
+    BYTE Method;            // method
+    BYTE FileType;          // file type
+    BYTE Reserved;          //
+    DWORD ftime;            // date time modified
+    DWORD PackSize;         // compressed size
+    DWORD UnpSize;          // original size (this will be different for text mode compression)
+    DWORD CRC;              // original file's CRC
+    WORD FileSpec;          // filespec position in filename
+    WORD AccessMode;        // file access mode
+    //WORD HostData;        //
+    BYTE FirstChapter;      // first chapter of file's lifespan
+    BYTE LastChapter;       // last chapter of file's lifespan
+                            // ... extra data
   } ArjHeader;
 
   DWORD ReadSize;
@@ -182,20 +190,20 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "arj x -+ {-g%%P} -v -y -p1 -- %%a !%%LM",
-      "arj e -+ {-g%%P} -v -y -p1 -- %%a !%%LM",
-      "arj t -+ -y {-g%%P} -v -p1 -- %%a !%%LM",
-      "arj d -+ -y {-w%%W} -p -- %%A !%%LM",
-      "arj c -+ -y {-w%%W} -z -p -- %%A",
-      "arj c -+ -y {-w%%W} -p -- %%A !%%LM",
-      "arj y -+ -je -y -p %%A",
+      "arj x -+ {-g%%P} -v -y -p1 %%S -- %%a !%%LM",
+      "arj e -+ {-g%%P} -v -y -p1 %%S -- %%a !%%LM",
+      "arj t -+ -y {-g%%P} -v -p1 %%S -- %%a !%%LM",
+      "arj d -+ -y {-w%%W} -p %%S -- %%a !%%LM",
+      "arj c -+ -y {-w%%W} -z -p %%S -- %%a",
+      "arj c -+ -y {-w%%W} -p %%S -- %%a !%%LM",
+      "arj y -+ -je -y -p %%a",
       "",
-      "",
-      "",
-      "arj a -+ -y -a1 {-g%%P} {-w%%W} -p -- %%A !%%LM",
-      "arj m -+ -y -a1 {-g%%P} {-w%%W} -p -- %%A !%%LM",
-      "arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p -- %%A !%%LM",
-      "arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p -- %%A !%%LM",
+      "arj t -+ -a1 -y {-g%%P} {-w%%W} -hk -p %%S -- %%a",
+      "arj x -+ -a1 {-g%%P} {-w%%W} -jr -p %%S -- %%a !%%LM",
+      "arj a -+ -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
+      "arj m -+ -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
+      "arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
+      "arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
