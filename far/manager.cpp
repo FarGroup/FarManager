@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.26 26.05.2001 $ */
+/* Revision: 1.27 27.05.2001 $ */
 
 /*
 Modify:
+  27.05.2001 DJ
+    + добавлена возможность отмены ExecuteFrame()
   26.05.2001 OT
     - Исправление ExucuteModal()
     + Новые методы ExecuteComit(), ExecuteFrame(), IndexOfStack()
@@ -402,7 +404,12 @@ void Manager::RefreshFrame(int Index)
 void Manager::ExecuteFrame(Frame *Executed, int DynamicallyBorn)
 {
   _OT(SysLog("ExecuteFrame(), Executed=%p, DynamicallyBorn=%i",Executed,DynamicallyBorn));
-  Executed->SetDynamicallyBorn(DynamicallyBorn);
+  /* $ 27.05.2001 DJ
+     возможность отмены ExecuteFrame()
+  */
+  if (Executed)
+    Executed->SetDynamicallyBorn(DynamicallyBorn);
+  /* DJ $ */
   ExecutedFrame=Executed;
 }
 

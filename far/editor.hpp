@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.18 07.05.2001 $ */
+/* Revision: 1.19 27.05.2001 $ */
 
 /*
 Modify:
+  27.05.2001 DJ
+    + константы для кодов возврата Editor::SaveFile()
   07.05.2001 SVS
     ! Search теперь возвращает TRUE/FALSE
   06.05.2001 DJ
@@ -86,6 +88,18 @@ struct EditorUndoData
   int StrNum;
   char *Str;
 };
+
+/* $ 27.05.2001 DJ
+   коды возврата Editor::SaveFile()
+*/
+
+enum {
+    SAVEFILE_ERROR   = 0,         // пытались сохранять, не получилось
+    SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохранять было не надо
+    SAVEFILE_CANCEL  = 2          // сохранение отменено, редактор не закрывать
+};
+
+/* DJ $ */
 
 class Editor:public ScreenObject
 {

@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.12 15.05.2001 $ */
+/* Revision: 1.13 27.05.2001 $ */
 
 /*
 Modify:
+  27.05.2001 DJ
+    + константы для ExitCode
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 OT
@@ -47,6 +49,18 @@ Modify:
 #include "keybar.hpp"
 
 class NamesList;
+
+/* $ 27.05.2001 DJ 
+   константы для ExitCode
+*/
+
+enum {
+    XC_MODIFIED            = 1,
+    XC_NOT_MODIFIED        = 2,
+    XC_LOADING_INTERRUPTED = 3
+};
+
+/* DJ $ */
 
 class FileEditor:public Frame
 {

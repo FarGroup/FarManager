@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.33 26.05.2001 $ */
+/* Revision: 1.34 27.05.2001 $ */
 
 /*
 Modify:
+  27.05.2001 DJ
+    - Не делаем DeleteFrame() в случае ошибки открытия
   26.05.2001 OT
     - Вьюер возможно запускать в модальном режиме
   20.05.2001 DJ
@@ -161,7 +163,6 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
   if (!View.OpenFile(Name,TRUE))
   /* tran 04.07.2000 $ */
   {
-    FrameManager->DeleteFrame(this);
     ExitCode=FALSE;
     return;
   }

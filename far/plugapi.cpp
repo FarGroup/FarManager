@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.62 26.05.2001 $ */
+/* Revision: 1.63 27.05.2001 $ */
 
 /*
 Modify:
+  27.05.2001 DJ
+    - Выпрямление ExitCode функций FarEditor() и FarViewer()
   26.05.2001 OT
     - Выпрямление логики вызовов в NFZ
   21.05.2001 DJ
@@ -1190,6 +1192,15 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
   else
   {
     FileViewer Viewer (FileName,FALSE,Title,X1,Y1,X2,Y2);
+    /* $ 27.05.2001 DJ 
+       в случае ошибки открытия, не делаем ExecuteModal()
+    */
+    if (!Viewer.GetExitCode())
+    {
+      FrameManager->ExecuteFrame (NULL);   // отменим ExecuteFrame()
+      return FALSE;
+    }
+    /* DJ $ */
     if (Flags & VF_DELETEONCLOSE)
       Viewer.SetTempViewName(FileName);
     /* $ 12.05.2001 DJ */
@@ -1230,19 +1241,32 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
       /* $ 12.05.2001 DJ */
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
-// OT      FrameManager->InsertFrame(Editor);
-      ExitCode=TRUE;
+      /* $ 27.05.2001 DJ */
+      ExitCode = Editor->GetExitCode();
+      /* DJ $ */
     }
   }
   else
   {
-   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
-   /* $ 12.05.2001 DJ */
-   Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-   /* DJ $ */
-   SetConsoleTitle(OldTitle);
-   FrameManager->ExecuteModal(); //OT
-   return TRUE;
+    FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+    /* $ 27.05.2001 DJ */
+    ExitCode = Editor.GetExitCode();
+    if (ExitCode == 0 || ExitCode == XC_LOADING_INTERRUPTED)
+    {
+      FrameManager->ExecuteFrame (NULL);       // отменим выполнение
+      SetConsoleTitle(OldTitle);
+    }
+    else {
+      /* $ 12.05.2001 DJ */
+      Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+      /* DJ $ */
+      FrameManager->ExecuteModal(); //OT
+      if (Editor.IsFileChanged())
+        ExitCode = XC_MODIFIED;
+      else
+        ExitCode = XC_NOT_MODIFIED;
+    }
+    /* DJ $ */
   }
   return ExitCode;
   /* IS $ */

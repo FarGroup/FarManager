@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.48 26.05.2001 $ */
+/* Revision: 1.49 27.05.2001 $ */
 
 /*
 Modify:
+  27.05.2001 DJ
+    ! используютс€ константы дл€ кодов возврата
   26.05.2001 OT
     - ¬ыпр€мление логики вызовов в NFZ
     - –едактор возможно запускать в модальном режиме
@@ -280,7 +282,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
       ExitCode=0;
     }
     else
-      ExitCode=3;
+      ExitCode=XC_LOADING_INTERRUPTED;
     return;
   }
   ShowConsoleTitle();
@@ -659,9 +661,9 @@ int FileEditor::ProcessQuitKey()
   {
     chdir(StartDir);
     int SaveCode=FEdit.SaveFile(FileName,FirstSave,0,FALSE);
-    if (SaveCode==2)
+    if (SaveCode==SAVEFILE_CANCEL)
       break;
-    if (SaveCode==1)
+    if (SaveCode==SAVEFILE_SUCCESS)
     {
       FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
