@@ -263,10 +263,17 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == MAM_ARCSWITCHES)
   {
+    // Выставляем данные из AddSwitches
+    GetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer,"",sizeof(Buffer));
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
+    // если AddSwitches пустой и юзается UseLastHistory, то...
     static char SwHistoryName[NM];
     FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd->ArcFormat);
+    // ...следующая команда заставит выставить LastHistory
     Info.SendDlgMessage(hDlg, DM_SETHISTORY, PDI_SWITCHESEDT, (long)SwHistoryName);
-    Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)"");
+    Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_SWITCHESEDT, 1);
+    return TRUE;
+
   }
   else if(Msg == MAM_SELARC)
   {
