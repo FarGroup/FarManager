@@ -921,6 +921,8 @@ refreshed by pressing #Ctrl-R#.
 the Alt key and type the folder name until you point to the right folder.
 Pressing #Ctrl-Enter# keys simultaneously will select the next match.
 
+    #Gray +# and #Gray -# should move up and down the tree to the next branch
+on the same level.
 
 @InfoPanel
 $ #Panels: info panel#
@@ -1341,6 +1343,9 @@ the folder.
     Press #Enter# to switch to the selected folder.
 
     #Ctrl-R# and #F2# force the rescan of the folders tree.
+
+    #Gray +# and #Gray -# should move up and down the tree to the next branch
+on the same level.
 
 
 @OpFilter

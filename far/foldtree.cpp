@@ -5,10 +5,13 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.13 06.08.2004 $ */
+/* Revision: 1.14 17.10.2004 $ */
 
 /*
 Modify:
+  17.10.2004 SVS
+    + MACRO_FINDFOLDER
+    + Навигация Gray+ Gray- по OFM
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   22.04.2002 KM
@@ -51,6 +54,7 @@ Modify:
 #include "lang.hpp"
 #include "treelist.hpp"
 #include "edit.hpp"
+#include "ctrlobj.hpp"
 #include "help.hpp"
 #include "savescr.hpp"
 
@@ -62,9 +66,11 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
     *ResultFolder=0;
   *NewFolder=0;
   SetPosition(TX1,TY1,TX2,TY2);
-  if ((Tree=new TreeList(IsPanel))==NULL)
-    return;
+  int CurMacroMode=CtrlObject->Macro.GetMode();
+
+  if ((Tree=new TreeList(IsPanel))!=NULL)
   {
+    CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
     *LastName=0;
     Tree->SetModalMode(ModalMode);
     Tree->SetPosition(X1,Y1,X2,Y2);
@@ -87,6 +93,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
         if ((FindEdit=new Edit)==NULL)
         {
           delete Tree;
+          CtrlObject->Macro.SetMode(CurMacroMode);
           return;
         }
         FindEdit->SetEditBeyondEnd(FALSE);
@@ -99,8 +106,10 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
 
     }
     delete Tree;
+
+    CtrlObject->Macro.SetMode(CurMacroMode);
+    strcpy(ResultFolder,NewFolder);
   }
-  strcpy(ResultFolder,NewFolder);
 }
 
 
@@ -150,6 +159,7 @@ int FolderTree::ProcessKey(int Key)
         DrawEdit();
       }
       break;
+
     case KEY_UP:
     case KEY_DOWN:
     case KEY_PGUP:
@@ -161,6 +171,21 @@ int FolderTree::ProcessKey(int Key)
       DrawEdit();
       break;
     default:
+      if(Key == KEY_ADD || Key == KEY_SUBTRACT) // OFM: Gray+/Gray- navigation
+      {
+        Tree->ProcessKey(Key);
+        DrawEdit();
+        break;
+      }
+/*
+      else
+      {
+        if((Key&(~KEY_CTRLMASK)) == KEY_ADD)
+          Key='+';
+        else if((Key&(~KEY_CTRLMASK)) == KEY_SUBTRACT)
+          Key='-';
+      }
+*/
       if (FindEdit->ProcessKey(Key))
       {
         char Name[NM];

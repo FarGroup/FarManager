@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.13 11.07.2003 $ */
+/* Revision: 1.14 16.10.2004 $ */
 
 /*
 Modify:
+  16.10.2004 SVS
+    + GetNextNavPos() è GetPrevNavPos()
   11.07.2003 SVS
     + NumericSort
   08.04.2002 IS
@@ -90,6 +92,8 @@ class TreeList: public Panel
     int GetSelCount();
     int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL);
     void DynamicUpdateKeyBar();
+    int GetNextNavPos();
+    int GetPrevNavPos();
 
   public:
     TreeList(int IsPanel=TRUE);

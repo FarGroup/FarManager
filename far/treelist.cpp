@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.56 06.08.2004 $ */
+/* Revision: 1.57 16.10.2004 $ */
 
 /*
 Modify:
+  16.10.2004 SVS
+    + Gray+ и Gray- используются для быстрого перемещения вверх или вниз по папкам одного уровня.
+    + GetNextNavPos() и GetPrevNavPos()
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   08.06.2004 SVS
@@ -1052,6 +1055,20 @@ int TreeList::ProcessKey(int Key)
       return(TRUE);
     }
 
+    case KEY_ADD: // OFM: Gray+/Gray- navigation
+    {
+      CurFile=GetNextNavPos();
+      DisplayTree(TRUE);
+      return TRUE;
+    }
+
+    case KEY_SUBTRACT: // OFM: Gray+/Gray- navigation
+    {
+      CurFile=GetPrevNavPos();
+      DisplayTree(TRUE);
+      return TRUE;
+    }
+
     case KEY_END:         case KEY_SHIFTNUMPAD1:
     {
       Down(0x7fffff);
@@ -1111,6 +1128,38 @@ int TreeList::ProcessKey(int Key)
   return(FALSE);
 }
 
+
+int TreeList::GetNextNavPos()
+{
+  int NextPos=CurFile;
+  if(CurFile+1 < TreeCount)
+  {
+    int CurDepth=ListData[CurFile].Depth;
+    for(int I=CurFile+1; I < TreeCount; ++I)
+      if(ListData[I].Depth == CurDepth)
+      {
+        NextPos=I;
+        break;
+      }
+  }
+  return NextPos;
+}
+
+int TreeList::GetPrevNavPos()
+{
+  int PrevPos=CurFile;
+  if(CurFile-1 > 0)
+  {
+    int CurDepth=ListData[CurFile].Depth;
+    for(int I=CurFile-1; I > 0; --I)
+      if(ListData[I].Depth == CurDepth)
+      {
+        PrevPos=I;
+        break;
+      }
+  }
+  return PrevPos;
+}
 
 void TreeList::Up(int Count)
 {

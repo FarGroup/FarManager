@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.84 05.08.2004 $ */
+/* Revision: 1.85 17.10.2004 $ */
 
 /*
 Modify:
+  17.10.2004 SVS
+    + MACRO_FINDFOLDER
   05.08.2004 SVS
     + MFLAGS_RUNAFTERFARSTARTED  - этот макрос уже запускался при старте ФАРа
   02.08.2004 SVS
@@ -278,6 +280,7 @@ enum MACROMODEAREA {
   MACRO_INFOPANEL    =  10, // Информационная панель
   MACRO_QVIEWPANEL   =  11, // Панель быстрого просмотра
   MACRO_TREEPANEL    =  12, // Панель дерева папок
+  MACRO_FINDFOLDER   =  13, // Поиск папок
 
   MACRO_COMMON,             // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
   MACRO_LAST                // Должен быть всегда последним! Используется в циклах

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.128 17.09.2004 $ */
+/* Revision: 1.129 17.10.2004 $ */
 
 /*
 Modify:
+  17.10.2004 SVS
+    + MACRO_FINDFOLDER
   17.09.2004 SVS
     - BugZ#1159 - Нельзя удалить макрос из области Common
   10.09.2004 SVS
@@ -467,6 +469,7 @@ struct TMacroKeywords MKeywords[] ={
   {0,  "Info",               MACRO_INFOPANEL,0},
   {0,  "QView",              MACRO_QVIEWPANEL,0},
   {0,  "Tree",               MACRO_TREEPANEL,0},
+  {0,  "FindFolder",         MACRO_FINDFOLDER,0},
   {0,  "Common",             MACRO_COMMON,0},
 
 
