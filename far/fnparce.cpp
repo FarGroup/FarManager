@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.07 25.01.2002 $ */
+/* Revision: 1.08 26.01.2002 $ */
 
 /*
 Modify:
+  26.01.2002 VVM
+    ! При обработке "!&" пробел в начале списка не ставится.
   25.01.2002 SVS
     - Бага при выводе меню, когда юзаются метасимволы !@! и !$! - просто
       оставим их как есть.
@@ -225,6 +227,7 @@ _SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
           CntSkip++;
         }
         WPanel->GetSelName(NULL,FileAttrL);
+        int First = TRUE;
         while (WPanel->GetSelName(FileNameL,FileAttrL,ShortNameL))
         {
           if (ShortN0)
@@ -235,7 +238,11 @@ _SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
 //   если будет нужно - раскомментируем :-)
 //          if(FileAttrL & FA_DIREC)
 //            AddEndSlash(FileNameL);
-          strcat(TmpStr," ");
+          // А нужен ли нам пробел в самом начале?
+          if (First)
+            First = FALSE;
+          else
+            strcat(TmpStr," ");
           strcat(TmpStr,FileNameL);
         }
         CurStr+=CntSkip;
