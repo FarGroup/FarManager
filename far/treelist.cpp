@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.52 11.07.2003 $ */
+/* Revision: 1.53 19.05.2004 $ */
 
 /*
 Modify:
+  19.05.2004 SVS
+    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
+      пусть баундчекер не блюет.
   11.07.2003 SVS
     + NumericSort
   06.05.2003 SVS
@@ -630,7 +633,7 @@ void TreeList::SaveTreeFile()
   // получим и сразу сбросим атрибуты (если получится)
   DWORD FileAttributes=GetFileAttributes(Name);
   if(FileAttributes != -1)
-    SetFileAttributes(Name,0);
+    SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   if ((TreeFile=fopen(Name,"wb"))==NULL)
   {
     /* $ 16.10.2000 tran
@@ -1616,7 +1619,7 @@ void TreeList::FlushCache()
   {
     DWORD FileAttributes=GetFileAttributes(TreeCache.TreeName);
     if(FileAttributes != -1)
-      SetFileAttributes(TreeCache.TreeName,0);
+      SetFileAttributes(TreeCache.TreeName,FILE_ATTRIBUTE_NORMAL);
     if ((TreeFile=fopen(TreeCache.TreeName,"wb"))==NULL)
     {
       ClearCache(1);

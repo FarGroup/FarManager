@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.65 24.02.2004 $ */
+/* Revision: 1.66 19.05.2004 $ */
 
 /*
 Modify:
+  19.05.2004 SVS
+    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
+      пусть баундчекер не блюет.
   24.02.2004 VVM
     - После поиска нужного меню-файла вернем папку на место !
   09.02.2004 SVS
@@ -370,7 +373,7 @@ void ProcessUserMenu(int EditMenu)
             SetFileAttributes(LocalMenuFileName,FileAttr & ~FA_RDONLY);
         }
         if (FileAttr & (FA_HIDDEN|FA_SYSTEM))
-          SetFileAttributes(LocalMenuFileName,0);
+          SetFileAttributes(LocalMenuFileName,FILE_ATTRIBUTE_NORMAL);
       }
       if ((MenuFile=fopen(LocalMenuFileName,"wb"))!=NULL)
       {
@@ -496,7 +499,7 @@ void ProcessUserMenu(int EditMenu)
           SetFileAttributes(MenuFileName,FileAttr & ~FA_RDONLY);
       }
       if (FileAttr & (FA_HIDDEN|FA_SYSTEM))
-        SetFileAttributes(MenuFileName,0);
+        SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
     }
     if ((MenuFile=fopen(MenuFileName,"wb"))!=NULL)
     {

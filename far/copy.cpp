@@ -5,11 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.133 16.04.2004 $ */
+/* Revision: 1.134 19.05.2004 $ */
 
 
 /*
 Modify:
+  19.05.2004 SVS
+    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
+      пусть баундчекер не блюет.
   21.04.2004 SVS
     - BugZ#1059 - возможно надо форматирование строки пути улучшить
   16.04.2004 SVS
@@ -1913,7 +1916,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
                   ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && !(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)))
               {
                 if (SrcData.dwFileAttributes & FA_RDONLY)
-                  SetFileAttributes(FullName,0);
+                  SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
                 _LOGCOPYR(SysLog("************* %d (%s) Pred FAR_RemoveDirectory ******************",__LINE__,FullName));
                 if (FAR_RemoveDirectory(FullName))
                   TreeList::DelTreeName(FullName);
@@ -1937,7 +1940,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       if ((ShellCopy::Flags&FCOPY_MOVE) && CopyCode==COPY_SUCCESS)
       {
         if (FileAttr & FA_RDONLY)
-          SetFileAttributes(SelName,0);
+          SetFileAttributes(SelName,FILE_ATTRIBUTE_NORMAL);
 
         if (FAR_RemoveDirectory(SelName))
         {
@@ -2949,7 +2952,7 @@ int ShellCopy::DeleteAfterMove(const char *Name,int Attr)
       case 4:
         return(COPY_CANCEL);
     }
-    SetFileAttributes(Name,0);
+    SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   }
   while (remove(Name)!=0)
   {
@@ -3082,7 +3085,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
         CloseHandle(DestHandle);
         if (!Append)
         {
-          SetFileAttributes(DestName,0);
+          SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
           FAR_DeleteFile(DestName);
         }
       }
@@ -3121,7 +3124,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
         CloseHandle(DestHandle);
         if (!Append)
         {
-          SetFileAttributes(DestName,0);
+          SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
           FAR_DeleteFile(DestName);
         }
       }
@@ -3171,7 +3174,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                 CloseHandle(SrcHandle);
                 if (!Append)
                 {
-                  SetFileAttributes(DestName,0);
+                  SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
                   FAR_DeleteFile(DestName);
                 }
                 _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
@@ -3267,7 +3270,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           CloseHandle(DestHandle);
           if (!Append)
           {
-            SetFileAttributes(DestName,0);
+            SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
             FAR_DeleteFile(DestName);
           }
           ShowBar(0,0,false);
@@ -3642,7 +3645,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
     }
   }
   if (!SameName && (DestAttr & (FA_RDONLY|FA_HIDDEN|FA_SYSTEM)))
-    SetFileAttributes(DestName,0);
+    SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
   return(TRUE);
 }
 

@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.65 14.04.2004 $ */
+/* Revision: 1.66 19.05.2004 $ */
 
 /*
 Modify:
+  19.05.2004 SVS
+    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
+      пусть баундчекер не блюет.
   14.04.2004 SVS
     ! Добавим соответствующее сообщение для Alt-Del на файле, имеющем несколько жестких связей
   01.03.2004 SVS
@@ -478,7 +481,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
-                  SetFileAttributes(FullName,0);
+                  SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
                 /* $ 19.01.2003 KM
                    Обработка кода возврата из ERemoveDirectory.
                 */
@@ -531,7 +534,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               if (ScTree.IsDirSearchDone())
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
-                  SetFileAttributes(FullName,0);
+                  SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
                 /* $ 19.01.2003 KM
                    Обработка кода возврата из ERemoveDirectory.
                 */
@@ -572,7 +575,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           ShellDeleteMsg(SelName);
           if (FileAttr & FA_RDONLY)
-            SetFileAttributes(SelName,0);
+            SetFileAttributes(SelName,FILE_ATTRIBUTE_NORMAL);
           int DeleteCode;
           // нефига здесь выделываться, а надо учесть, что удаление
           // симлинка в корзину чревато потерей оригинала.
@@ -717,7 +720,7 @@ int AskDeleteReadOnly(const char *Name,DWORD Attr)
     case 4:
       return(DELETE_CANCEL);
   }
-  SetFileAttributes(Name,0);
+  SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   return(DELETE_YES);
 }
 
@@ -973,7 +976,7 @@ int WipeFile(const char *Name)
 {
   DWORD FileSize;
   HANDLE WipeHandle;
-  SetFileAttributes(Name,0);
+  SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
   WipeHandle=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
@@ -1024,7 +1027,7 @@ int WipeDirectory(const char *Name)
 int DeleteFileWithFolder(const char *FileName)
 {
   char FolderName[NM],*Slash;
-  BOOL Ret=SetFileAttributes(FileName,0);
+  BOOL Ret=SetFileAttributes(FileName,FILE_ATTRIBUTE_NORMAL);
   if(Ret)
   {
     if(!remove(FileName))
@@ -1052,7 +1055,7 @@ void DeleteDirTree(const char *Dir)
   ScTree.SetFindPath(Dir,"*.*",0);
   while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
-    SetFileAttributes(FullName,0);
+    SetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
     if (FindData.dwFileAttributes & FA_DIREC)
     {
       if (ScTree.IsDirSearchDone())
@@ -1061,6 +1064,6 @@ void DeleteDirTree(const char *Dir)
     else
       FAR_DeleteFile(FullName);
   }
-  SetFileAttributes(Dir,0);
+  SetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
   FAR_RemoveDirectory(Dir);
 }

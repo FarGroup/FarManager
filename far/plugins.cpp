@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.150 01.03.2004 $ */
+/* Revision: 1.151 19.05.2004 $ */
 
 /*
 Modify:
+  19.05.2004 SVS
+    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
+      пусть баундчекер не блюет.
   01.03.2004 SVS
     + FSF.SetFileApisTo
   07.01.2004 SVS
@@ -2055,7 +2058,7 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
         strcat(ResultName,fdata.cFileName);
         if (GetCode!=1)
         {
-          SetFileAttributes(ResultName,0);
+          SetFileAttributes(ResultName,FILE_ATTRIBUTE_NORMAL);
           remove(ResultName);
         }
         else

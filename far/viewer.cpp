@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.156 25.11.2003 $ */
+/* Revision: 1.157 19.05.2004 $ */
 
 /*
 Modify:
+  19.05.2004 SVS
+    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
+      пусть баундчекер не блюет.
   25.11.2003 SVS
     ! По IS: перерисуем экран перед выдачей сообщения о ненайденном.
       Это уберет лишний месагбокс
@@ -634,7 +637,7 @@ Viewer::~Viewer()
     }
     else
     {
-      SetFileAttributes(TempViewName,0);
+      SetFileAttributes(TempViewName,FILE_ATTRIBUTE_NORMAL);
       remove(TempViewName);
     }
     /* IS $ */

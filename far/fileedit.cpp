@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.152 28.04.2004 $ */
+/* Revision: 1.153 19.05.2004 $ */
 
 /*
 Modify:
+  19.05.2004 SVS
+    ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
+      пусть баундчекер не блюет.
   28.04.2004 SVS
     - В FarFTN прописана замена р -> р
         При попытке ввести "р" в VC-версии срабатывает fexcept
@@ -562,7 +565,7 @@ FileEditor::~FileEditor()
          DeleteFileWithFolder(FullFileName);
        else
        {
-         SetFileAttributes(FullFileName,0);
+         SetFileAttributes(FullFileName,FILE_ATTRIBUTE_NORMAL);
          remove(FullFileName);
        }
     }
@@ -1590,7 +1593,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 
     if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
     {
-      SetFileAttributes(Name,0);
+      SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
       FileAttributesModified=true;
     }
   }
