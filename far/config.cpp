@@ -5,16 +5,18 @@ config.cpp
 
 */
 
-/* Revision: 1.126 26.02.2002 $ */
+/* Revision: 1.127 26.02.2002 $ */
 
 /*
 Modify:
   26.02.2002 SVS
-   ! RestoreCP ставим по умолчанию в 0.
+    - BugZ#323 - Не создается палитра.
+  26.02.2002 SVS
+    ! RestoreCP ставим по умолчанию в 0.
   19.02.2002 SVS
-   ! При считывании конфигурации (ReadConfig) для REG_BINARY обнулим остаток
-     считываемого буфера до нужно размера.
-   ! Для Opt.XLat сразу же уточним размер
+    ! При считывании конфигурации (ReadConfig) для REG_BINARY обнулим остаток
+      считываемого буфера до нужно размера.
+    ! Для Opt.XLat сразу же уточним размер
   24.01.2002 SVS
     - BugZ#264 - Show hidden files
   23.01.2002 SVS
@@ -1425,7 +1427,7 @@ void ReadConfig()
        break;
       case REG_BINARY:
        int Size=GetRegKey(CFG[I].KeyName,CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
-       if(Size < CFG[I].DefDWord)
+       if(Size < CFG[I].DefDWord && Size)
          memset(((BYTE*)CFG[I].ValPtr)+Size,0,CFG[I].DefDWord-Size);
        break;
     }

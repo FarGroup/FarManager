@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.213 23.02.2002 $ */
+/* Revision: 1.214 26.02.2002 $ */
 
 /*
 Modify:
+  26.02.2002 SVS
+    - BugZ#325 - FDLG_SMALLDIALOG не работает
   23.02.2002 DJ
     - не перерисовывалось меню после DM_LISTDELETE (NULL)
     - еще немного корректировок позиций
@@ -2020,9 +2022,9 @@ void Dialog::ShowDialog(int ID)
         {
           GotoXY(X1+(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
           if (DialogTooLong)
-            ShowSeparator(DialogTooLong-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
+            ShowSeparator(DialogTooLong-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0/* -1 */),(CurItem->Flags&DIF_SEPARATOR2?3:1));
           else
-            ShowSeparator(X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
+            ShowSeparator(X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:-1),(CurItem->Flags&DIF_SEPARATOR2?3:1));
         }
 
         GotoXY(X1+X,Y1+Y);
@@ -4847,6 +4849,8 @@ void Dialog::Process()
   /* $ 17.05.2001 DJ
      NDZ
   */
+  if(DialogMode.Check(DMODE_SMALLDIALOG))
+    SetRestoreScreenMode(TRUE);
   FrameManager->ExecuteModal (this);
   /* DJ $ */
 }
