@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.02 13.03.2001 $ */
+/* Revision: 1.03 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 SVS
+    + CanCreateHardLinks() - проверка на вшивость.
   13.03.2001 SVS
     ! GetPathRoot переехала в fn.hpp :-)
   05.01.2001 SVS
@@ -24,6 +26,7 @@ Modify:
 */
 
 int   WINAPI MkLink(char *Src,char *Dest);
+BOOL  WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName);
 int   WINAPI GetNumberOfLinks(char *Name);
 BOOL  WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDir);
 BOOL  WINAPI DeleteJunctionPoint(LPCTSTR szMountDir);

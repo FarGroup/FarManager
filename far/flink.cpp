@@ -5,10 +5,14 @@ flink.cpp
 
 */
 
-/* Revision: 1.10 02.04.2001 $ */
+/* Revision: 1.11 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 SVS
+    - В Win2K в корень папки "Program Files" не создавался HardLink (Alt-F6)
+      Значит применяем "родную", готовую к употреблению функцию CreateHardLink()
+    + CanCreateHardLinks() - проверка на вшивость.
   02.04.2001 SVS
     ! Уточнения для GetPathRoot[One]()
   14.03.2001 OT
@@ -323,6 +327,35 @@ int WINAPI GetNumberOfLinks(char *Name)
 #endif
 int WINAPI MkLink(char *Src,char *Dest)
 {
+  char FileSource[NM],FileDest[NM];
+
+//  ConvertNameToFull(Src,FileSource, sizeof(FileSource));
+  if (ConvertNameToFull(Src,FileSource, sizeof(FileSource)) >= sizeof(FileSource)){
+    return FALSE;
+  }
+//  ConvertNameToFull(Dest,FileDest, sizeof(FileDest));
+  if (ConvertNameToFull(Dest,FileDest, sizeof(FileDest)) >= sizeof(FileDest)){
+    return FALSE;
+  }
+
+  // этот кусок для Win2K
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  {
+    typedef BOOL (WINAPI *PCREATEHARDLINK)(
+       LPCTSTR lpFileName,                         // new file name
+       LPCTSTR lpExistingFileName,                 // extant file name
+       LPSECURITY_ATTRIBUTES lpSecurityAttributes  // SD
+    );
+    static PCREATEHARDLINK PCreateHardLinkA=NULL;
+    if(!PCreateHardLinkA)
+      PCreateHardLinkA=(PCREATEHARDLINK)GetProcAddress(GetModuleHandle("KERNEL32"),"CreateHardLinkA");
+    if(PCreateHardLinkA)
+    {
+      return PCreateHardLinkA(FileDest, FileSource, NULL) != 0;
+    }
+  }
+
+  // все что ниже работает в NT4/2000
   struct CORRECTED_WIN32_STREAM_ID
   {
     DWORD          dwStreamId ;
@@ -332,7 +365,6 @@ int WINAPI MkLink(char *Src,char *Dest)
     WCHAR          cStreamName[ ANYSIZE_ARRAY ] ;
   } StreamId;
 
-  char FileSource[NM],FileDest[NM];
   WCHAR FileLink[NM];
 
   HANDLE hFileSource;
@@ -344,14 +376,6 @@ int WINAPI MkLink(char *Src,char *Dest)
 
   BOOL bSuccess;
 
-//  ConvertNameToFull(Src,FileSource, sizeof(FileSource));
-  if (ConvertNameToFull(Src,FileSource, sizeof(FileSource)) >= sizeof(FileSource)){
-    return FALSE;
-  }
-//  ConvertNameToFull(Dest,FileDest, sizeof(FileDest));
-  if (ConvertNameToFull(Dest,FileDest, sizeof(FileDest)) >= sizeof(FileDest)){
-    return FALSE;
-  }
   MultiByteToWideChar(CP_OEMCP,0,FileDest,-1,FileLink,sizeof(FileLink)/sizeof(FileLink[0]));
 
   hFileSource = CreateFile(FileSource,FILE_WRITE_ATTRIBUTES,
@@ -550,4 +574,25 @@ void WINAPI GetPathRoot(char *Path,char *Root)
     }
   }
   GetPathRootOne(Path,Root);
+}
+
+// Verify that both files are on the same NTFS disk
+BOOL WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName)
+{
+  char Root[2][512],FSysName[NM];
+  GetPathRoot(TargetFile,Root[0]);
+  GetPathRoot(HardLinkName,Root[1]);
+
+   // same drive?
+  if(!strcmp(Root[0],Root[1]))
+  {
+    // NTFS drive?
+    DWORD FileSystemFlags;
+    if(GetVolumeInformation(Root[0],NULL,0,NULL,NULL,&FileSystemFlags,FSysName,sizeof(FSysName)))
+    {
+      if(!strcmp(FSysName,"NTFS"))
+        return TRUE;
+    }
+  }
+  return FALSE;
 }
