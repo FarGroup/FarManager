@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.21 08.04.2001 $ */
+/* Revision: 1.22 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! Полная независимость выставления значений для даты и времени.
+    - Исправлен баг с "неустановкой" даты для одиночного файла.
   08.04.2001 IS
     - не работало изменение атрибутов после №557
   04.04.2001 VVM
@@ -80,66 +83,102 @@ int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
 int OriginalCBAttr2[16]; //
 DWORD OriginalCBFlag[16];
 
-static int ReadFileTime(FILETIME *FileTime,char *SrcDate,char *SrcTime)
+static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,char *SrcDate,char *SrcTime)
 {
-  FILETIME ft;
-  SYSTEMTIME st;
-  int DateN[3],TimeN[3],DigitCount,I;
-  DateN[0]=DateN[1]=DateN[2]=0;
-  for (I=0;I<sizeof(DateN)/sizeof(DateN[0]) && *SrcDate;I++)
-  {
-    DateN[I]=atoi(SrcDate);
-    while (isdigit(*SrcDate))
-      SrcDate++;
-    while (*SrcDate && !isdigit(*SrcDate))
-      SrcDate++;
-  }
-  TimeN[0]=TimeN[1]=TimeN[2]=0;
-  for (DigitCount=I=0;I<sizeof(TimeN)/sizeof(TimeN[0]) && *SrcTime;I++)
-  {
-    TimeN[I]=atoi(SrcTime);
-    while (isdigit(*SrcTime))
-    {
-      SrcTime++;
-      DigitCount++;
-    }
-    while (*SrcTime && !isdigit(*SrcTime))
-      SrcTime++;
-  }
-  if (DigitCount==0)
+  FILETIME ft, oft;
+  SYSTEMTIME st, ost;
+  unsigned DateN[3],TimeN[3];
+  int DigitCount,I;
+  int SetTime,GetTime;
+  FILETIME OriginalFileTime;
+
+  // получаем инфу про оригинальную дату и время файла.
+  HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+               NULL,OPEN_EXISTING,
+               (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+  if (hFile==INVALID_HANDLE_VALUE)
     return(FALSE);
+  GetTime=GetFileTime(hFile,
+                      (Type == 0?&OriginalFileTime:NULL),
+                      (Type == 1?&OriginalFileTime:NULL),
+                      (Type == 2?&OriginalFileTime:NULL));
+  CloseHandle(hFile);
+
+  if(!GetTime)
+    return(FALSE);
+
+  // конвертнем в локальное время.
+  FileTimeToLocalFileTime(&OriginalFileTime,&oft);
+  FileTimeToSystemTime(&oft,&ost);
+
+  int DateSeparator=GetDateSeparator();
+  int TimeSeparator=GetTimeSeparator();
+
+  char *Ptr,Digit[16],*PtrDigit;
+
+  // ****** ОБРАБОТКА ДАТЫ ******** //
+  DateN[0]=DateN[1]=DateN[2]=(unsigned)-1;
+  I=0;
+  Ptr=SrcDate;
+  while((Ptr=GetCommaWord(Ptr,Digit,DateSeparator)) != NULL)
+  {
+    PtrDigit=Digit;
+    while (*PtrDigit && !isdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      DateN[I]=atoi(PtrDigit);
+    ++I;
+  }
+
+  // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
+  TimeN[0]=TimeN[1]=TimeN[2]=(unsigned)-1;
+  I=0;
+  Ptr=SrcTime;
+  while((Ptr=GetCommaWord(Ptr,Digit,TimeSeparator)) != NULL)
+  {
+    PtrDigit=Digit;
+    while (*PtrDigit && !isdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      TimeN[I]=atoi(PtrDigit);
+    ++I;
+  }
+
+  // "Оформим"
   switch(GetDateFormat())
   {
     case 0:
-      st.wMonth=DateN[0];
-      st.wDay=DateN[1];
-      st.wYear=DateN[2];;
+      st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:ost.wMonth;
+      st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:ost.wDay;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
       break;
     case 1:
-      st.wDay=DateN[0];
-      st.wMonth=DateN[1];
-      st.wYear=DateN[2];;
+      st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:ost.wDay;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
       break;
     default:
-      st.wYear=DateN[0];;
-      st.wMonth=DateN[1];
-      st.wDay=DateN[2];
+      st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:ost.wYear;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
+      st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:ost.wDay;
       break;
   }
-  if (st.wDay==0 || st.wMonth==0)
-    return(FALSE);
-  st.wHour=TimeN[0];
-  st.wMinute=TimeN[1];
-  st.wSecond=TimeN[2];
-  st.wDayOfWeek=st.wMilliseconds=0;
+
+  st.wHour   = TimeN[0]!=(unsigned)-1? (TimeN[0]):ost.wHour;
+  st.wMinute = TimeN[1]!=(unsigned)-1? (TimeN[1]):ost.wMinute;
+  st.wSecond = TimeN[2]!=(unsigned)-1? (TimeN[2]):ost.wSecond;
+  st.wDayOfWeek=ost.wDayOfWeek;
+  st.wMilliseconds=ost.wMilliseconds;
+
   if (st.wYear<100)
     if (st.wYear<80)
       st.wYear+=2000;
     else
       st.wYear+=1900;
+
   SystemTimeToFileTime(&st,&ft);
   LocalFileTimeToFileTime(&ft,FileTime);
-  return(TRUE);
+  return (!CompareFileTime(FileTime,&OriginalFileTime))?FALSE:TRUE;
 }
 
 
@@ -310,6 +349,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   {
     char SelName[NM];
     int FileAttr;
+    FILETIME LastWriteTime,CreationTime,LastAccessTime;
+    int SetWriteTime,SetCreationTime,SetLastAccessTime;
+
     SaveScreen SaveScr;
 
     SrcPanel->GetSelName(NULL,FileAttr);
@@ -543,24 +585,22 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting));
 
-      if (!strcmp(TimeText[0],AttrDlg[16].Data) ||
-          !strcmp(TimeText[1],AttrDlg[17].Data) ||
-          !strcmp(TimeText[2],AttrDlg[19].Data) ||
-          !strcmp(TimeText[3],AttrDlg[20].Data) ||
-          !strcmp(TimeText[4],AttrDlg[22].Data) ||
-          !strcmp(TimeText[5],AttrDlg[23].Data))
-      {
-        FILETIME LastWriteTime,CreationTime,LastAccessTime;
-        int SetWriteTime,SetCreationTime,SetLastAccessTime;
-        SetWriteTime=ReadFileTime(&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
-        SetCreationTime=ReadFileTime(&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
-        SetLastAccessTime=ReadFileTime(&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
-        ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,
+      if (strcmp(TimeText[0],AttrDlg[16].Data) || strcmp(TimeText[1],AttrDlg[17].Data))
+        SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
+      if (strcmp(TimeText[2],AttrDlg[19].Data) || strcmp(TimeText[3],AttrDlg[20].Data))
+        SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
+      if (strcmp(TimeText[4],AttrDlg[22].Data) || strcmp(TimeText[5],AttrDlg[23].Data))
+        SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
+
+      if(SetWriteTime || SetCreationTime || SetLastAccessTime)
+        SetWriteTime=ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,
                      SetCreationTime ? &CreationTime:NULL,
                      SetLastAccessTime ? &LastAccessTime:NULL,FileAttr);
-      }
+      else
+        SetWriteTime=TRUE;
 
 //      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
+      if(SetWriteTime) // если время удалось выставить...
       {
         if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
           ESetFileCompression(SelName,1,FileAttr);
@@ -725,12 +765,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       CtrlObject->GetAnotherPanel(SrcPanel)->CloseFile();
 
-      FILETIME LastWriteTime,CreationTime,LastAccessTime;
-      int SetWriteTime,SetCreationTime,SetLastAccessTime;
-      SetWriteTime=ReadFileTime(&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
-      SetCreationTime=ReadFileTime(&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
-      SetLastAccessTime=ReadFileTime(&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
-
       SetAttr=0;  ClearAttr=0;
 
       if (AttrDlg[4].Selected == 1)         SetAttr|=FA_RDONLY;
@@ -772,6 +806,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if (CheckForEsc())
           break;
 
+        SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
+        SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
+        SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
           if (!ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,
                        SetCreationTime ? &CreationTime:NULL,
@@ -822,13 +859,19 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               Cancel=1;
               break;
             }
-            if (!ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
-                         SetCreationTime ? &CreationTime:NULL,
-                         SetLastAccessTime ? &LastAccessTime:NULL,
-                         FindData.dwFileAttributes))
+            SetWriteTime=ReadFileTime(0,FullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
+            SetCreationTime=ReadFileTime(1,FullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
+            SetLastAccessTime=ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
+            if (SetWriteTime || SetCreationTime || SetLastAccessTime)
             {
-              Cancel=1;
-              break;
+              if (!ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
+                           SetCreationTime ? &CreationTime:NULL,
+                           SetLastAccessTime ? &LastAccessTime:NULL,
+                           FindData.dwFileAttributes))
+              {
+                Cancel=1;
+                break;
+              }
             }
             if(((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
                  FindData.dwFileAttributes)
