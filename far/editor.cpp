@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.195 17.09.2002 $ */
+/* Revision: 1.196 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 SKV
+    - Опять выделение. На сей раз в !EdOpt.CursorBeyondEOL режиме.
   17.09.2002 SKV
     - BugZ#538, продолжение эпопеи выделения.
   17.09.2002 SVS
@@ -1803,6 +1805,7 @@ int Editor::ProcessKey(int Key)
            Сверим позицию курсора и существующего выделения, если есть
            противоречие, то начнем новое выделение
         */
+        int Deselecting=0;
         int SelStart,SelEnd;
         if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
         {
@@ -1836,11 +1839,18 @@ int Editor::ProcessKey(int Key)
           }
           else*/
           /* SKV $ */
-            CurLine->EditLine.Select(CurPos+1,SelEnd);
+          CurLine->EditLine.Select(CurPos+1,SelEnd);
+          Deselecting=1;
         }
         else
         {
-          CurLine->EditLine.AddSelect(CurPos,CurPos+1);
+          if(CurPos==CurLine->EditLine.GetLength())
+          {
+            CurLine->EditLine.AddSelect(CurPos,-1);
+          }else
+          {
+            CurLine->EditLine.AddSelect(CurPos,CurPos+1);
+          }
           if (CurLine->Prev!=NULL)
           {
             CurLine->Prev->EditLine.GetSelection(SelStart,SelEnd);
@@ -1870,6 +1880,12 @@ int Editor::ProcessKey(int Key)
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
             CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
             PrevLine->EditLine.FastShow();
+          }
+          if(!EdOpt.CursorBeyondEOL && SelStart>=PrevLine->EditLine.GetLength() &&
+             PrevLine==BlockStart && Deselecting)
+          {
+            PrevLine->EditLine.Select(-1,0);
+            BlockStart=CurLine;
           }
         }
         Pasting--;
@@ -2025,6 +2041,10 @@ int Editor::ProcessKey(int Key)
         CurLine->Prev->EditLine.GetSelection(SelStart,SelEnd);
         CurLine->Prev->EditLine.SetTabCurPos(TabCurPos);
         PrevPos=CurLine->Prev->EditLine.GetCurPos();
+        if(!EdOpt.CursorBeyondEOL && PrevPos>=CurLine->Prev->EditLine.GetLength())
+        {
+          PrevPos=CurLine->Prev->EditLine.GetLength();
+        }
         if (SelStart!=-1)
         {
           CurLine->EditLine.Select(-1,0);
