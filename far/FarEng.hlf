@@ -1035,7 +1035,7 @@ $ #System settings dialog#
 
   #Add plugins' prefixes#   If checked, FAR will automatically add
   #into path#               a prefix of a plugin at the beginning of
-                         the path in the ~command line~@CmdLineCmd@.
+                          the path in the ~command line~@CmdLineCmd@.
 
   #Auto save setup#         If checked, FAR will save setup
                           automatically. Both panel current folders
