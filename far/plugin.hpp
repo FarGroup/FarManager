@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.41 08.09.2000 $ */
+/* Revision: 1.42 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+    ! QWERTY -> Transliterate
+    ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
   08.09.2000 SVS
     + FARMANAGERVERSION
     ! FarStandardFunctions.Reserved* -> FarStandardFunctions.Reserved[10];
@@ -946,12 +949,12 @@ typedef int  (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
 /* $ 05.09.2000 SVS
   + QWERTY
 */
-enum QWERTYMODE{
-  QWED_SWITCHKEYBLAYER = 0x0000001UL, // переключить раскладку клавиатуры
-                                      // после преобразования QWERTY
+enum TRANSLITERATEMODE{
+  EDTR_SWITCHKEYBLAYER = 0x0000001UL, // переключить раскладку клавиатуры
+                                      // после преобразования TRANSLITERATE
 };
 
-typedef char* (WINAPI *FARSTDEDQWERTY)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
+typedef char* (WINAPI *FARSTDEDTRANSLITERATE)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
 /* SVS $*/
 
 /* $ 06.07.2000 IS
@@ -1022,7 +1025,7 @@ typedef struct FarStandardFunctions
   /* $ 05.09.2000 SVS
     + QWERTY
   */
-  FARSTDEDQWERTY             EDQwerty;
+  FARSTDEDTRANSLITERATE      EDTransliterate;
   /* SVS 05.09.2000 $ */
   /* $ 07.09.2000 SVS
     + Добавки

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.20 07.09.2000 $ */
+/* Revision: 1.21 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+    ! QWERTY -> Transliterate
   07.09.2000 SVS
     ! Функции GetFileOwner и GetNumberOfLinks имеют вызов WINAPI
     + FarBsearch
@@ -468,7 +470,7 @@ int FarAltEnter(int mode);
   QWERTY-перекодировка!
   На основе плагина EditSwap by SVS :-)))
 */
-char* WINAPI QWERTY(char *Line,
+char* WINAPI Transliterate(char *Line,
                     int StartPos,
                     int EndPos,
                     struct CharTableSet *TableSet,

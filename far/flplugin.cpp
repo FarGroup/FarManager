@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.03 23.07.2000 $ */
+/* Revision: 1.04 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+    + Добавка в FileList::TranslateKeyToVK для трансляции
+      KEY_SHIFTDEL, KEY_ALTSHIFTDEL, KEY_CTRLSHIFTDEL
   23.07.2000 SVS
     + Клавиши (FileList::TranslateKeyToVK):
        Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
@@ -725,13 +728,30 @@ int FileList::TranslateKeyToVK(int Key,int &VirtKey,int &ControlState)
 {
   ControlState=VirtKey=0;
 
+  /* $ 08.09.2000 SVS
+    Добавка в FileList::TranslateKeyToVK для трансляции
+      KEY_SHIFTDEL, KEY_ALTSHIFTDEL, KEY_CTRLSHIFTDEL
+  */
   switch (Key)
   {
     case KEY_ALTDEL:
       VirtKey=VK_DELETE;
       ControlState=PKF_ALT;
       return(TRUE);
+    case KEY_SHIFTDEL:
+      VirtKey=VK_DELETE;
+      ControlState=PKF_SHIFT;
+      return(TRUE);
+    case KEY_ALTSHIFTDEL:
+      VirtKey=VK_DELETE;
+      ControlState=PKF_ALT|PKF_SHIFT;
+      return(TRUE);
+    case KEY_CTRLSHIFTDEL:
+      VirtKey=VK_DELETE;
+      ControlState=PKF_CONTROL|PKF_SHIFT;
+      return(TRUE);
   }
+  /* SVS $ */
 
   if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
   {

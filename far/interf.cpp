@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.08 24.08.2000 $ */
+/* Revision: 1.09 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+    + KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL в функции CalcKeyCode
   24.08.2000 SVS
     + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
     + Добавление на реакцию KEY_CTRLALTSHIFTPRESS & KEY_CTRLALTSHIFTRELEASE
@@ -1045,6 +1047,13 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         return(KEY_ALTSHIFTENTER);
       case VK_APPS:
         return(KEY_ALTSHIFTAPPS);
+      /* $ 08.09.2000 SVS
+         + KEY_ALTSHIFTDEL
+      */
+      case VK_DELETE:
+      case VK_DECIMAL:
+        return(KEY_ALTSHIFTDEL);
+      /* SVS $ */
     }
     if (AsciiChar)
     {
@@ -1118,6 +1127,13 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         return(KEY_CTRLSHIFTBS);
       case VK_APPS:
         return(KEY_CTRLSHIFTAPPS);
+      /* $ 08.09.2000 SVS
+         + KEY_CTRLSHIFTDEL
+      */
+      case VK_DELETE:
+      case VK_DECIMAL:
+        return(KEY_CTRLSHIFTDEL);
+      /* SVS $ */
     }
     if (AsciiChar)
       return(KEY_CTRLSHIFT_BASE+AsciiChar);

@@ -5,10 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.20 07.09.2000 $ */
+/* Revision: 1.21 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+    - QWERTY - ошибочка вралась :-)))
+    ! QWERTY -> Transliterate
+    ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
+    + KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL
   07.09.2000 SVS
     + Функция GetFileOwner тоже доступна плагинам :-)
     + Функция GetNumberOfLinks тоже доступна плагинам :-)
@@ -1889,6 +1894,9 @@ void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
     /* $ 23.07.2000 SVS
        + KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
     */
+    /* $ 08.09.2000 SVS
+       + KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL
+    */
     static int KeyCodes[]={
       KEY_BS,KEY_TAB,KEY_ENTER,KEY_ESC,KEY_SPACE,KEY_HOME,KEY_END,KEY_UP,
       KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_PGUP,KEY_PGDN,KEY_INS,KEY_DEL,KEY_NUMPAD5,
@@ -1920,7 +1928,8 @@ void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       KEY_CTRLAPPS,KEY_ALTAPPS,KEY_SHIFTAPPS,
       KEY_CTRLSHIFTAPPS,KEY_ALTSHIFTAPPS,KEY_CTRLALTAPPS,
       KEY_LWIN,KEY_RWIN,
-      KEY_CTRLALTSHIFTPRESS,KEY_CTRLALTSHIFTRELEASE
+      KEY_CTRLALTSHIFTPRESS,KEY_CTRLALTSHIFTRELEASE,
+      KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL
     };
     static char *KeyNames[]={
       "BS","Tab","Enter","Esc","Space","Home","End","Up",
@@ -1953,8 +1962,10 @@ void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       "Apps","CtrlApps","AltApps","ShiftApps",
       "CtrlShiftApps","AltShiftApps","CtrlAltApps",
       "LWin","RWin",
-      "CtrlAltShiftPress","CtrlAltShiftRelease"
+      "CtrlAltShiftPress","CtrlAltShiftRelease",
+      "CtrlShiftDel", "AltShiftDel"
     };
+    /* SVS 08.09.2000 $ */
     /* SVS $ */
 
     for (I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)
@@ -2035,7 +2046,7 @@ int WINAPI InputRecordToKey(INPUT_RECORD *r)
   QWERTY-перекодировка!
   На основе плагина EditSwap by SVS :-)))
 */
-char* WINAPI QWERTY(
+char* WINAPI Transliterate(
    char *Line,                    // исходная строка
    int StartPos,                  // начало переконвертирования
    int EndPos,                    // конец переконвертирования
@@ -2048,8 +2059,12 @@ char* WINAPI QWERTY(
   int LangCount[2]={0,0};
   int IsChange=0;
 
-  if(Line || *Line)
+  /* $ 08.09.2000 SVS
+     Ошибочка вкралась :-)))
+  */
+  if(!Line || *Line == 0)
     return NULL;
+  /* SVS $ */
 
   I=strlen(Line);
 
@@ -2132,7 +2147,7 @@ char* WINAPI QWERTY(
 
   // переключаем раскладку клавиатуры?
   //  к сожалению не работает под Win9x - ставьте WinNT и наслаждайтесь :-)
-  if(Flags & QWED_SWITCHKEYBLAYER)
+  if(Flags & EDTR_SWITCHKEYBLAYER)
     PostMessage(GetForegroundWindow(),WM_INPUTLANGCHANGEREQUEST, 1, HKL_NEXT);
 
   return Line;

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.14 07.09.2000 $ */
+/* Revision: 1.15 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 SVS
+    ! QWED_SWITCHKEYBLAYER -> EDTR_SWITCHKEYBLAYER
   07.09.2000 tran 1.14
     + Config//Current File
   05.09.2000 SVS 1.13
@@ -636,7 +638,7 @@ void ReadConfig()
   /* $ 05.09.2000 SVS
      CodeQWERTY - описывающая QWERTY-перекодировщик
   */
-  GetRegKey("Editor\\QWERTY","Flags",(int&)Opt.QWERTY.Flags,(DWORD)QWED_SWITCHKEYBLAYER);
+  GetRegKey("Editor\\QWERTY","Flags",(int&)Opt.QWERTY.Flags,(DWORD)EDTR_SWITCHKEYBLAYER);
   GetRegKey("Editor\\QWERTY","Table1",(BYTE*)Opt.QWERTY.Table[0],(BYTE*)NULL,sizeof(Opt.QWERTY.Table[0]));
   GetRegKey("Editor\\QWERTY","Table2",(BYTE*)Opt.QWERTY.Table[1],(BYTE*)NULL,sizeof(Opt.QWERTY.Table[1]));
   GetRegKey("Editor\\QWERTY","Rules1",(BYTE*)Opt.QWERTY.Rules[0],(BYTE*)NULL,sizeof(Opt.QWERTY.Rules[0]));
