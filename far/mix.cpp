@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.81 25.06.2001 $ */
+/* Revision: 1.82 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    + RawConvertShortNameToLongName
   25.06.2001 IS
     ! ¬недрение const
   17.06.2001 IS
@@ -872,6 +874,131 @@ void CharBufferToSmallWarn(int BufSize, int FileNameSize)
   Message(MSG_WARNING,1,MSG(MWarning),MSG(MBuffSizeTooSmall_1),Buf2,MSG(MOk));
 }
 
+/* $ 02.07.2001 IS
+   ѕолучение длинного имени на основе известного короткого. ћедленно, зато с
+   гарантией.
+   src     - указатель на короткое им€
+   dest    - сюда помещать длинное им€
+   maxsize - размер dest. ¬ dest будет скопировано не больше (maxsize-1)
+             символов
+   ¬озвращаетс€ число скопированных символов или 0. ≈сли размер dest
+   недостаточен, то возвращаетс€ требуемый размер.
+   ѕримечание: разрешено перекрытие src и dest
+*/
+DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
+{
+  if(!src || !dest || !*src)
+     return 0;
+
+  DWORD SrcSize, DestSize=0, FinalSize=0, AddSize;
+  BOOL Error=FALSE;
+
+  SrcSize=strlen(src);
+
+  char *Src, *Dest, *DestBuf=NULL,
+       *SrcBuf=(char *)malloc(SrcSize+1);
+
+  while(SrcBuf)
+  {
+     strcpy(SrcBuf, src);
+     Src=SrcBuf;
+
+     WIN32_FIND_DATA wfd;
+     HANDLE hFile;
+
+     char *Slash, *Dots=strchr(Src, ':');
+
+     if(Dots)
+     {
+       ++Dots;
+       if('\\'==*Dots) ++Dots;
+       char tmp=*Dots;
+       *Dots=0;
+       AddSize=strlen(Src);
+       FinalSize=AddSize;
+       DestBuf=(char *)malloc(AddSize+64);
+       if(DestBuf)
+         {
+           DestSize=AddSize+64;
+           Dest=DestBuf;
+         }
+       else
+         {
+           Error=TRUE;
+           FinalSize=0;
+           break;
+         }
+       strcpy(Dest, Src);
+       Dest+=AddSize;
+
+       *Dots=tmp;
+       Src=Dots+1;
+     }
+
+     while(!Error)
+     {
+        Slash=strchr(Src, '\\');
+        if(Slash) *Slash=0;
+        hFile=FindFirstFile(SrcBuf, &wfd);
+        if(hFile!=INVALID_HANDLE_VALUE)
+          {
+            FindClose(hFile);
+            AddSize=strlen(wfd.cFileName);
+            FinalSize+=AddSize;
+            if(FinalSize>=DestSize)
+            {
+              DestBuf=(char *)realloc(DestBuf, DestSize+64);
+              if(DestBuf)
+                {
+                  DestSize+=64;
+                  Dest=DestBuf+FinalSize-AddSize;
+                }
+              else
+                {
+                  Error=TRUE;
+                  FinalSize=0;
+                  break;
+                }
+            }
+            strcpy(Dest, wfd.cFileName);
+            Dest+=AddSize;
+            if(Slash)
+            {
+              *Dest=*Slash='\\';
+              ++Dest;
+              ++FinalSize;
+              ++Slash;
+              Slash=strchr(Src=Slash, '\\');
+            }
+            else
+              break;
+          }
+        else
+          {
+            Error=TRUE;
+            break;
+          }
+     }
+     break;
+  }
+
+  if(!Error)
+  {
+    if(FinalSize<maxsize)
+       strcpy(dest, DestBuf);
+    else
+    {
+       *dest=0;
+       ++FinalSize;
+    }
+  }
+
+  if(SrcBuf)  free(SrcBuf);
+  if(DestBuf) free(DestBuf);
+
+  return FinalSize;
+}
+/* IS $ */
 int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 {
   int Result = 0;

@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.23 29.06.2001 $ */
+/* Revision: 1.24 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    - Баг: дублировались записи в PluginsCache в том случае, если far.exe был
+      запущен с указанием короткого пути.
   29.06.2001 OT
     ! Косметика оказалась ... с душком-с :( Отменяем :)
   23.06.2001 OT
@@ -273,7 +276,20 @@ int _cdecl main(int Argc, char *Argv[])
   /* SVS $*/
   LocalUpperInit();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
-  *PointToName(FarPath)=0;
+  /* $ 02.07.2001 IS
+     Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое
+     нам нафиг не нужно.
+  */
+  *(PointToName(FarPath)-1)=0;
+  {
+     char tmpFarPath[sizeof(FarPath)];
+     DWORD s=RawConvertShortNameToLongName(FarPath, tmpFarPath,
+                                           sizeof(tmpFarPath));
+     if(s && s<sizeof(tmpFarPath))
+        strcpy(FarPath, tmpFarPath);
+  }
+  AddEndSlash(FarPath);
+  /* IS $ */
   /* $ 03.08.2000 SVS
      Если не указан параметр -P
   */

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.92 25.06.2001 $ */
+/* Revision: 1.93 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+   + RawConvertShortNameToLongName
   25.06.2001 IS
    ! Внедрение const
   22.06.2001 SVS
@@ -380,6 +382,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
 BOOL ExtractIfExistCommand(char *CommandText);
 void EditFileTypes(int MenuPos);
 void ProcessUserMenu(int EditMenu);
+DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize);
 int ConvertNameToFull(const char *Src,char *Dest, int DestSize);
 void ConvertNameToShort(const char *Src,char *Dest);
 void ChangeConsoleMode(int Mode);
