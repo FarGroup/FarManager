@@ -5,10 +5,15 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.49 06.06.2001 $ */
+/* Revision: 1.50 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 KM
+    + Добавлена установка переменных окружения, определяющих
+      текущие директории дисков как для активной, так и для
+      пассивной панели. Это необходимо программам запускаемым
+      из FAR.
   06.06.2001 SVS
     ! Mix/Max
   03.06.2001 SVS
@@ -1133,12 +1138,19 @@ void Panel::InitCurDir(char *CurDir)
 }
 
 
+/* $ 14.06.2001 KM
+   + Добавлена установка переменных окружения, определяющих
+     текущие директории дисков как для активной, так и для
+     пассивной панели. Это необходимо программам запускаемым
+     из FAR.
+*/
 int Panel::SetCurPath()
 {
   if (GetMode()==PLUGIN_PANEL)
-    return(TRUE);
+    return TRUE;
 
-  char UpDir[NM],*ChPtr;
+  BOOL RetVal=FALSE;
+  char UpDir[NM],Drive[4],*ChPtr;
 
   strcpy(UpDir,CurDir);
   if ((ChPtr=strrchr(UpDir,'\\'))!=NULL)
@@ -1150,10 +1162,29 @@ int Panel::SetCurPath()
       ChangeDisk();
     else
       GetCurrentDirectory(sizeof(CurDir),CurDir);
-    return(FALSE);
+    return FALSE;
   }
-  return(TRUE);
+
+  if (isalpha(CurDir[0]) && CurDir[1]==':')
+  {
+    sprintf(Drive,"=%c:\x0",CurDir[0]);
+    SetEnvironmentVariable(Drive,CurDir);
+  }
+  
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+  if (AnotherPanel->GetType()==PLUGIN_PANEL)
+    return TRUE;
+
+  if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' && 
+      toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]));
+  {
+    sprintf(Drive,"=%c:\x0",AnotherPanel->CurDir[0]);
+    SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
+  }
+
+  return TRUE;
 }
+/* KM $ */
 
 
 void Panel::Hide()

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.78 08.06.2001 $ */
+/* Revision: 1.79 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 KM
+    ! Откючение лишнего кода. Потом выкину совсем.
   08.06.2001 SVS
     + Напомним ФАРу после исполнения чего-то внешнего, что не плохобы учесть
       размеры видеобуфера.
@@ -434,7 +436,11 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   *CommandName=0;
   GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
 
-  Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+  /* $ 14.06.2001 KM
+     ! Следующий кусок кода не нужен в свете изменений в установке
+       текущих директорий обеих панелей.
+  */
+/*  Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
       PassivePanel->GetType()==FILE_PANEL)
     for (int I=0;CmdStr[I]!=0;I++)
@@ -448,7 +454,8 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
         chdir(SavePath);
-      }
+      }*/
+  /* KM $ */
 
   char *CmdPtr=CmdStr;
 //  while (isspace(*CmdPtr))
