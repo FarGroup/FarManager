@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.101 28.05.2002 $ */
+/* Revision: 1.102 02.06.2002 $ */
 
 /*
 Modify:
+  02.06.2002 KM
+    - Уточнение поиска по целым словам. Переработка алгоритма.
   28.05.2002 SVS
     - Попытка избавится от курсора под масдаем, путем позиционирования онного
       из 24 строки в ScrY
@@ -2312,68 +2314,50 @@ void Viewer::Search(int Next,int FirstChar)
           /* $ 01.08.2000 KM
              Обработка поиска "Whole words"
           */
-          int cmpResult;
+          /* $ 26.05.2002 KM
+              Исправлены ошибки в поиске по целым словам.
+          */
           int locResultLeft=FALSE;
           int locResultRight=FALSE;
+
           if (WholeWords)
           {
-
-            int locResultLeft=FALSE;
-            int locResultRight=FALSE;
             if (I!=0)
             {
-              if (IsSpace(Buf[I]) || IsEol(Buf[I]))
+              if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) || 
+                 (strchr(Opt.WordDiv,Buf[I-1])!=NULL))
                 locResultLeft=TRUE;
-              if (ReadSize!=BufSize && I+1+SearchLength>=ReadSize)
-                locResultRight=TRUE;
-              else
-                if (IsSpace(Buf[I+1+SearchLength]) ||
-                    IsEol(Buf[I+1+SearchLength]))
-                  locResultRight=TRUE;
-
-              if (!locResultLeft)
-                if (strchr(Opt.WordDiv,Buf[I])!=NULL)
-                  locResultLeft=TRUE;
-              if (!locResultRight)
-                if (strchr(Opt.WordDiv,Buf[I+1+SearchLength])!=NULL)
-                  locResultRight=TRUE;
-
-              cmpResult=locResultLeft && locResultRight && SearchStr[0]==Buf[I+1]
-                && (SearchLength==1 || SearchStr[1]==Buf[I+2]
-                && (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+3],SearchLength-2)==0));
             }
             else
             {
-              if (ReadSize!=BufSize && I+SearchLength>=ReadSize)
-                locResultRight=TRUE;
-              else
-                if (IsSpace(Buf[I+SearchLength]) || IsEol(Buf[I+SearchLength]))
-                  locResultRight=TRUE;
-
-              if (!locResultRight)
-                if (strchr(Opt.WordDiv,Buf[I+1+SearchLength])!=NULL)
-                  locResultRight=TRUE;
-
-              cmpResult=locResultRight && SearchStr[0]==Buf[I]
-                && (SearchLength==1 || SearchStr[1]==Buf[I+1]
-                && (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+2],SearchLength-2)==0));
+              locResultLeft=TRUE;
             }
+
+            if (ReadSize!=BufSize && I+SearchLength>=ReadSize)
+              locResultRight=TRUE;
+            else
+              if (I+SearchLength<ReadSize &&
+                 (IsSpace(Buf[I+SearchLength]) || IsEol(Buf[I+SearchLength]) || 
+                 (strchr(Opt.WordDiv,Buf[I+SearchLength])!=NULL)))
+                locResultRight=TRUE;
           }
           else
           {
-            cmpResult=SearchStr[0]==Buf[I] && (SearchLength==1 || SearchStr[1]==Buf[I+1]
-              && (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+2],SearchLength-2)==0));
+            locResultLeft=TRUE;
+            locResultRight=TRUE;
           }
-          if (cmpResult)
-            Match=TRUE;
-          else
-            Match=FALSE;
+
+          Match=locResultLeft && locResultRight && SearchStr[0]==Buf[I] &&
+            (SearchLength==1 || SearchStr[1]==Buf[I+1] &&
+            (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+2],SearchLength-2)==0));
+
           if (Match)
           {
-            MatchPos=(WholeWords && I!=0)?CurPos+I+1:CurPos+I;
+            MatchPos=CurPos+I;
             break;
           }
-            /* KM $ */
+          /* KM $ */
+          /* KM $ */
         }
         /* KM $ */
 

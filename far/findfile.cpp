@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.117 27.05.2002 $ */
+/* Revision: 1.118 02.06.2002 $ */
 
 /*
 Modify:
+  02.06.2002 KM
+    - Уточнение поиска по целым словам. Переработка алгоритма.
   27.05.2002 VVM
     - Большая бага - при поиске по словам выход за границы массива.
   25.05.2002 IS
@@ -2136,61 +2138,47 @@ int FindFiles::LookForString(char *Name)
       /* $ 30.07.2000 KM
          Обработка "Whole words" в поиске
       */
+      /* $ 26.05.2002 KM
+          Исправлены ошибки в поиске по целым словам.
+      */
       for (int I=0;I<CheckSize;I++)
       {
         int cmpResult;
+        int locResultLeft=FALSE;
+        int locResultRight=FALSE;
+
         if (WholeWords)
         {
-          int locResultLeft=FALSE;
-          int locResultRight=FALSE;
           if (!FirstIteration)
           {
-            /* $ 27.05.2002 VVM
-              - ПИЛЯТЬ. Про правую границу-то забыли. Вот на VC/release и искало что попало... */
-            if (IsSpace(Buf[I]) || IsEol(Buf[I]))
+            if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) || 
+               (strchr(Opt.WordDiv,Buf[I-1])!=NULL))
               locResultLeft=TRUE;
-            if (RealReadSize!=sizeof(Buf) && I+1+Length>=RealReadSize)
-              locResultRight=TRUE;
-            else
-              if (I+1+Length < RealReadSize &&
-                 (IsSpace(Buf[I+1+Length]) || IsEol(Buf[I+1+Length])))
-                locResultRight=TRUE;
-
-            if (!locResultLeft)
-              if (strchr(Opt.WordDiv,Buf[I])!=NULL)
-                locResultLeft=TRUE;
-            if (!locResultRight && I+1+Length < RealReadSize)
-              if (strchr(Opt.WordDiv,Buf[I+1+Length])!=NULL)
-                locResultRight=TRUE;
-            /* VVM $ */
-            cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I+1]
-              && (Length==1 || CmpStr[1]==Buf[I+2]
-              && (Length==2 || memcmp(CmpStr+2,&Buf[I+3],Length-2)==0));
           }
           else
           {
             FirstIteration=FALSE;
-
-            if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
-              locResultRight=TRUE;
-            else
-              if (IsSpace(Buf[I+Length]) || IsEol(Buf[I+Length]))
-                locResultRight=TRUE;
-
-            if (!locResultRight)
-              if (strchr(Opt.WordDiv,Buf[I+1+Length])!=NULL)
-                locResultRight=TRUE;
-
-            cmpResult=locResultRight && CmpStr[0]==Buf[I]
-              && (Length==1 || CmpStr[1]==Buf[I+1]
-              && (Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
+            locResultLeft=TRUE;
           }
+
+          if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
+            locResultRight=TRUE;
+          else
+            if (I+Length<RealReadSize &&
+               (IsSpace(Buf[I+Length]) || IsEol(Buf[I+Length]) || 
+               (strchr(Opt.WordDiv,Buf[I+Length])!=NULL)))
+              locResultRight=TRUE;
         }
         else
         {
-          cmpResult=CmpStr[0]==Buf[I] && (Length==1 || CmpStr[1]==Buf[I+1]
-            && (Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
+          locResultLeft=TRUE;
+          locResultRight=TRUE;
         }
+
+        cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I] &&
+          (Length==1 || CmpStr[1]==Buf[I+1] &&
+          (Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
+
         if (cmpResult)
         {
           if (TimeRead)
@@ -2199,6 +2187,7 @@ int FindFiles::LookForString(char *Name)
           return(TRUE);
         }
       }
+      /* KM $ */
       /* KM $ */
       if (UseAllTables)
       {
