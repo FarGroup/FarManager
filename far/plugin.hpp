@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.134 07.08.2001 $ */
+/* Revision: 1.135 08.08.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  08.08.2001 SVS
+    + DM_GETITEMPOSITION
   07.08.2001 IS
     + ESPT_SETTABLE
     ! FARAPICHARTABLE - второй параметр теперь не const, потому что он может
@@ -799,6 +801,8 @@ enum FarMessagesProc{
   DM_SETDROPDOWNOPENED,
 
   DM_SETHISTORY,
+
+  DM_GETITEMPOSITION,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

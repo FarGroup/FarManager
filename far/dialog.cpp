@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.151 06.08.2001 $ */
+/* Revision: 1.152 08.08.2001 $ */
 
 /*
 Modify:
+  08.08.2001 SVS
+   + DM_GETITEMPOSITION
   07.08.2001 SVS
    + DN_RESIZECONSOLE
   06.08.2001 SVS
@@ -5418,6 +5420,22 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       IsProcessAssignMacroKey=Param1;
       return OldIsProcessAssignMacroKey;
     }
+
+    // получить позицию и размеры контрола
+    case DM_GETITEMPOSITION: // Param1=ID, Param2=*SMALL_RECT
+      if(Param2)
+      {
+        RECT Rect;
+        if(Dlg->GetItemRect(Param1,Rect))
+        {
+          ((SMALL_RECT *)Param2)->Left=Rect.left;
+          ((SMALL_RECT *)Param2)->Top=Rect.top;
+          ((SMALL_RECT *)Param2)->Right=Rect.right;
+          ((SMALL_RECT *)Param2)->Bottom=Rect.bottom;
+          return TRUE;
+        }
+      }
+      return FALSE;
   }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.

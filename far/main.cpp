@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.31 06.08.2001 $ */
+/* Revision: 1.32 08.08.2001 $ */
 
 /*
 Modify:
+  08.08.2001 SVS
+    + позволим для "far /e" работать переключалке F6
   06.08.2001 SVS
     + Ключ "/do" документирован только для "меня" :-)
       Он появится в far /? только тогда, когда ФАР скомпилен с макросом
@@ -367,7 +369,7 @@ int _cdecl main(int Argc, char *Argv[])
       CtrlObj.Plugins.LoadPlugins();
       if (*EditName)
       {
-        FileEditor *ShellEditor=new FileEditor(EditName,TRUE,FALSE,StartLine,StartChar);
+        FileEditor *ShellEditor=new FileEditor(EditName,TRUE,TRUE,StartLine,StartChar);
         _tran(SysLog("make shelleditor %p",ShellEditor));
       }
       if (*ViewName)
