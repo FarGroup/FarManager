@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.67 22.04.2001 $ */
+/* Revision: 1.68 26.04.2001 $ */
 
 /*
 Modify:
+  16.04.2001 VVM
+    + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
+    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
+    ! Opt.MouseWheelDelta -> Opt.MsWheelDelta
   22.04.2001 SVS
     + Opt.QuotedSymbols - разделители для QuoteSpace()
     ! ConsoleDetachKey - по умолчанию назначается "CtrlAltTab"
@@ -915,8 +919,15 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"FlagPosixSemantics", &Opt.FlagPosixSemantics, 1, 0},
   /* VVM $ */
   /* $ 16.04.2001 VVM
-    + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN */
-  {0, REG_DWORD,  NKeySystem,"MouseWheelDelta", &Opt.MouseWheelDelta, 1, 0},
+    + Opt.MsWheelDelta - задает смещение для прокрутки в панелях. */
+  {0, REG_DWORD,  NKeySystem,"MsWheelDelta", &Opt.MsWheelDelta, 1, 0},
+  /* VVM $ */
+  /* VVM $ */
+  /* $ 26.04.2001 VVM
+    + Opt.MsWheelDeltaView - задает смещение для прокрутки во вьюере.
+    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки в редакторе. */
+  {0, REG_DWORD,  NKeySystem,"MsWheelDeltaView", &Opt.MsWheelDeltaView, 1, 0},
+  {0, REG_DWORD,  NKeySystem,"MsWheelDeltaEdit", &Opt.MsWheelDeltaEdit, 1, 0},
   /* VVM $ */
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
 

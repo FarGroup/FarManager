@@ -7,10 +7,12 @@ keys.hpp
 
 */
 
-/* Revision: 1.09 25.04.2001 $ */
+/* Revision: 1.10 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    + KEY_MSWHEEL_UP/KEY_MSWHEEL_DOWN - для колеса мышки.
   25.04.2001 SVS
     + KEY_MEDIT_ISSELECTED, в ответ на которую Editor::ProcessKey возвращает
       TRUE - если есть помеченный блок или FALSE - блока нету.
@@ -50,7 +52,7 @@ HiWord
 ~~~~~~
   HiByte - Shift State
   LoByte - Spec Keys
-
+             +
 LoWord
 ~~~~~~
   HiByte - Func Keys
@@ -124,6 +126,9 @@ enum BaseDefKeyboard
   KEY_CTRLALTSHIFTPRESS    =0x00000201,
   KEY_CTRLALTSHIFTRELEASE  =0x00000202,
 
+  KEY_MSWHEEL_UP           =0x00000203,
+  KEY_MSWHEEL_DOWN         =0x00000204,
+
   KEY_END_FKEY             =0x00000FFF,
 
   KEY_NONE                 =0x00001001,
@@ -134,7 +139,6 @@ enum BaseDefKeyboard
 
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
-
 
   // сюды писать обобщенные макро-команды, которые доступны в других модулях
   KEY_MACRO_BASE           =0x00800000,

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.87 26.04.2001 $ */
+/* Revision: 1.88 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 VVM
+   + Обработка KEY_MSWHEEL_XXXX
+   - Убрал подмену клавиш при прокрутке.
   26.04.2001 SVS
    - Проблема с DM_SETTEXTLENGTH: выставляем максимальный размер в том
      случае, если он еще не выставлен.
@@ -1688,13 +1691,6 @@ int Dialog::ProcessKey(int Key)
   else if(Key == KEY_MULTIPLY)
     Key='*';
 
-  // Подмена клавиш при прокрутке колеса.
-  if(Key == KEY_UP || Key == KEY_DOWN)
-  {
-    if(IsEdit(Type) && (Item[FocusPos].Flags&DIF_HISTORY) && MouseWheeled)
-      Key|=KEY_CTRL;
-  }
-
   switch(Key)
   {
     case KEY_F1:
@@ -2137,6 +2133,11 @@ int Dialog::ProcessKey(int Key)
       }
       return(TRUE);
 
+    /* $ 27.04.2001 VVM
+      + Обработка колеса мышки */
+    case KEY_MSWHEEL_UP:
+    case KEY_MSWHEEL_DOWN:
+    /* VVM $ */
     case KEY_CTRLUP:
     case KEY_CTRLDOWN:
       // для user-типа вываливаем

@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.21 24.04.2001 $ */
+/* Revision: 1.22 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    - Выкинул нафиг MouseWheeled
+    + Обработка спецклавиш KEY_MSWHEEL_XXXX
   24.04.2001 SVS
     + MouseWheeled - признак того, что крутанули колесо.
   16.04.2001 VVM
@@ -276,49 +279,13 @@ int GetInputRecord(INPUT_RECORD *rec)
     StartIdleTime=clock();
   LastEventIdle=FALSE;
   SetFarConsoleMode();
-  MouseWheeled=FALSE;
   while (1)
   {
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
+    /* $ 26.04.2001 VVM
+       ! Убрал подмену колесика */
     if (ReadCount!=0)
-    /* $ 13.04.2001 VVM
-        + Обработка колесика мышки под 2000. */
-    {
-      if ((rec->EventType == MOUSE_EVENT) &&
-         (rec->Event.MouseEvent.dwEventFlags & MOUSE_WHEELED))
-      { // Заменим "прокрутку" на нажатие стрелки вверх/вниз
-        MouseWheeled=TRUE;
-        ReadConsoleInput(hConInp,rec,1,&ReadCount);
-        short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
-        INPUT_RECORD ir;
-        DWORD Written;
-        memset(&ir, 0, sizeof(ir));
-        ir.EventType = KEY_EVENT;
-        ir.Event.KeyEvent.wRepeatCount = 1;
-        ir.Event.KeyEvent.dwControlKeyState = rec->Event.MouseEvent.dwControlKeyState;
-        DWORD WheelDelta = (ir.Event.KeyEvent.dwControlKeyState)?1:Opt.MouseWheelDelta;
-        ir.Event.KeyEvent.dwControlKeyState &= ~(RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED);
-        if (ir.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
-        {
-          ir.Event.KeyEvent.wVirtualKeyCode=(zDelta > 0)?VK_PRIOR:VK_NEXT;
-          ir.Event.KeyEvent.dwControlKeyState &= (~SHIFT_PRESSED);
-        }
-        else
-          ir.Event.KeyEvent.wVirtualKeyCode=(zDelta > 0)?VK_UP:VK_DOWN;
-        ir.Event.KeyEvent.wVirtualScanCode = MapVirtualKey(
-                          ir.Event.KeyEvent.wVirtualKeyCode, 0);
-
-        for (int i=0; i<WheelDelta; i++)
-        {
-          ir.Event.KeyEvent.bKeyDown = TRUE;
-          WriteConsoleInput(hConInp, &ir, 1, &Written);
-          ir.Event.KeyEvent.bKeyDown = FALSE;
-          WriteConsoleInput(hConInp, &ir, 1, &Written);
-        }
-        continue;
-      }
       break;
-    }
     /* VVM $ */
 
     ScrBuf.Flush();
@@ -411,6 +378,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressedLast=RightAltPressedLast=FALSE;
     PressedLastTime=0;
+//    SysLog("Focus!!!");
   }
   if (rec->EventType==KEY_EVENT)
   {
@@ -600,6 +568,15 @@ int GetInputRecord(INPUT_RECORD *rec)
     PrevMouseY=MouseY;
     MouseX=rec->Event.MouseEvent.dwMousePosition.X;
     MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
+    /* $ 26.04.2001 VVM
+       + Обработка колесика мышки под 2000. */
+    if (rec->Event.MouseEvent.dwEventFlags & MOUSE_WHEELED)
+    { // Обработаем колесо и заменим на спец.клавиши
+      short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
+      CalcKey = (zDelta>0)?KEY_MSWHEEL_UP:KEY_MSWHEEL_DOWN;
+      rec->EventType = KEY_EVENT;
+    } /* if */
+    /* VVM $ */
   }
   if (ReadKey!=0 && !GrayKey)
     CalcKey=ReadKey;

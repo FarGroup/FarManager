@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.55 23.04.2001 $ */
+/* Revision: 1.56 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
+    + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
+    + Opt.MouseWheelDelta -> Opt.MsWheelDelta
   23.04.2001 SVS
     ! Новые члены GroupSortData.OriginalMasks и HighlightData.OriginalMasks
       новый вгляд на %PATHEXT% - то что редактируем и то, что юзаем -
@@ -611,8 +615,10 @@ struct Options
   /* VVM $ */
   /* $ 16.04.2001 VVM
     + Opt.MouseWheelDelta - задает смещение для прокрутки. */
-  int MouseWheelDelta;
+  int MsWheelDelta;
   /* VVM $ */
+  int MsWheelDeltaView;
+  int MsWheelDeltaEdit;
 
   struct PoliciesOptions Policies;
 };

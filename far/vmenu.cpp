@@ -7,10 +7,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.14 09.04.2001 $ */
+/* Revision: 1.15 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 VVM
+    + Обработка KEY_MSWHEEL_XXXX
+    + В меню нажатие средней кнопки аналогично нажатию ЕНТЕР
   09.04.2001 SVS
     ! Избавимся от некоторых варнингов
   20.02.2001 SVS
@@ -610,11 +613,19 @@ int VMenu::ProcessKey(int Key)
       SelectPos=SetSelectPos(I,-1);
       ShowMenu(TRUE);
       break;
+    /* $ 27.04.2001 VVM
+      + Обработка KEY_MSWHEEL_XXXX */
+    case KEY_MSWHEEL_UP:
+    /* VVM $ */
     case KEY_LEFT:
     case KEY_UP:
       SelectPos=SetSelectPos(SelectPos-1,-1);
       ShowMenu(TRUE);
       break;
+    /* $ 27.04.2001 VVM
+      + Обработка KEY_MSWHEEL_XXXX */
+    case KEY_MSWHEEL_DOWN:
+    /* VVM $ */
     case KEY_RIGHT:
     case KEY_DOWN:
       SelectPos=SetSelectPos(SelectPos+1,1);
@@ -715,6 +726,15 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     ExitCode=-1;
     return(FALSE);
   }
+
+  /* $ 27.04.2001 VVM
+    + Считать нажатие средней кнопки за ЕНТЕР */
+  if (MouseEvent->dwButtonState & 4)
+  {
+    ProcessKey(KEY_ENTER);
+    return(TRUE);
+  }
+  /* VVM $ */
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;

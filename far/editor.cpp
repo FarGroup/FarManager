@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.86 25.04.2001 $ */
+/* Revision: 1.87 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 VVM
+    + Обработка KEY_MSWHEEL_XXXX
   25.04.2001 SVS
     + KEY_MEDIT_ISSELECTED, в ответ на которую Editor::ProcessKey возвращает
       TRUE - если есть помеченный блок или FALSE - блока нету.
@@ -1951,6 +1953,21 @@ int Editor::ProcessKey(int Key)
         }
       }
       return(TRUE);
+    /* $ 27.04.2001 VVM
+      + Обработка колеса мышки */
+    case KEY_MSWHEEL_UP:
+      {
+        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+          ProcessKey(KEY_CTRLUP);
+        return(TRUE);
+      }
+    case KEY_MSWHEEL_DOWN:
+      {
+        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+          ProcessKey(KEY_CTRLDOWN);
+        return(TRUE);
+      }
+    /* VVM $ */
     case KEY_CTRLUP:
       NewUndo=TRUE;
       ScrollUp();

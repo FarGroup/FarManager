@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.53 29.03.2001 $ */
+/* Revision: 1.54 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 VVM
+    + Обработка KEY_MSWHEEL_XXXX
   29.03.2001 IS
     + структура ViOpt и Get/Set для ее обслуживания
   26.03.2001 SVS
@@ -1393,6 +1395,21 @@ int Viewer::ProcessKey(int Key)
       CtrlObject->Plugins.CommandsMenu(FALSE,TRUE,0,"Viewer");
       Show();
       return(TRUE);
+    /* $ 27.04.2001 VVM
+      + Обработка KEY_MSWHEEL_XXXX */
+    case KEY_MSWHEEL_UP:
+      {
+        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+          ProcessKey(KEY_UP);
+        return(TRUE);
+      }
+    case KEY_MSWHEEL_DOWN:
+      {
+        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+          ProcessKey(KEY_DOWN);
+        return(TRUE);
+      }
+    /* VVM $ */
     case KEY_UP:
       if (FilePos>0 && ViewFile)
       {

@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.15 24.04.2001 $ */
+/* Revision: 1.16 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    - Выкинул нафиг MouseWheeled
   24.04.2001 SVS
     + MouseWheeled - признак того, что крутанули колесо
   01.03.2001 SVS
@@ -96,7 +98,6 @@ extern int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
 */
 extern int MButtonPressed;
 /* SVS $ */
-extern int MouseWheeled;
 
 extern int WaitInMainLoop;
 extern int WaitInFastFind;

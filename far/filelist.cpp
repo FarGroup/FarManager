@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.44 25.04.2001 $ */
+/* Revision: 1.45 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    + Обработка KEY_MSWHEEL_XXXX
   26.04.2001 DJ
     * проверка на то, удалось ли войти в каталог, и вывод сообщения, если
       не удалось
@@ -259,6 +261,12 @@ void FileList::Down(int Count)
   ShowFileList(TRUE);
 }
 
+void FileList::Scroll(int Count)
+{
+  CurFile+=Count;
+  CurTopFile+=Count;
+  ShowFileList(TRUE);
+}
 
 void FileList::CorrectPosition()
 {
@@ -1251,6 +1259,15 @@ int FileList::ProcessKey(int Key)
           ReturnCurrentFile=FALSE;
       }
       return(TRUE);
+    /* $ 26.04.2001 VVM
+       + Обработка колеса мышки */
+    case KEY_MSWHEEL_UP:
+      Scroll(-Opt.MsWheelDelta);
+      return(TRUE);
+    case KEY_MSWHEEL_DOWN:
+      Scroll(Opt.MsWheelDelta);
+      return(TRUE);
+    /* VVM $ */
     case KEY_HOME:
       Up(0x7fffff);
       return(TRUE);

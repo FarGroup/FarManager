@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.13 24.04.2001 $ */
+/* Revision: 1.14 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    - Выкинул нафиг MouseWheeled
   24.04.2001 SVS
     + MouseWheeled - признак того, что крутанули колесо
   01.03.2001 SVS
@@ -70,8 +72,6 @@ int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
 */
 int MButtonPressed;
 /* SVS $ */
-
-int MouseWheeled;
 
 clock_t StartIdleTime;
 

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.09 25.04.2001 $ */
+/* Revision: 1.10 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    + Scroll() - прокрутить файлы, не двигая курсор
   25.04.2001 SVS
     + GetRealSelCount() - сейчас используется для макросов.
   24.04.2001 VVM
@@ -90,6 +92,7 @@ class FileList:public Panel
     void DeleteAllDataToDelete();
     void Up(int Count);
     void Down(int Count);
+    void Scroll(int Count);
     void CorrectPosition();
     void ShowFileList(int Fast);
     void ShowList(int ShowStatus,int StartColumn);
