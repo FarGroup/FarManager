@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.87 03.09.2003 $ */
+/* Revision: 1.88 26.09.2003 $ */
 
 /*
 Modify:
+  26.09.2003 VVM
+    ! ѕри поиске файла сначала ищем по переменной PATH и только потом в остальных местах
   03.09.2003 SVS
     - bugz#933 - задолбал этот strcpy :-(
     + ¬ CommandLine::ProcessOSCommands() добавлен закомментированный кусок
@@ -678,18 +680,41 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
 
     if(!Ret) // второй проход - по правилам SearchPath
     {
-      PtrExt=StdExecuteExt;
-      while(*PtrExt)
+      /* $ 26.09.2003 VVM
+        ! —начала поищем по переменной PATH, а уж потом везде */
+      char PathEnv[4096];
+      if (GetEnvironmentVariable("PATH",PathEnv,sizeof(PathEnv)-1) != 0)
       {
-        if(!PtrFName)
-          strcpy(WorkPtrFName,PtrExt);
-        if(SearchPath(NULL,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+        PtrExt=StdExecuteExt;
+        while(*PtrExt)
         {
-          Ret=TRUE;
-          break;
+          if(!PtrFName)
+            strcpy(WorkPtrFName,PtrExt);
+          if(SearchPath(PathEnv,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+          {
+            Ret=TRUE;
+            break;
+          }
+          PtrExt+=strlen(PtrExt)+1;
         }
-        PtrExt+=strlen(PtrExt)+1;
       }
+
+      if (!Ret)
+      {
+        PtrExt=StdExecuteExt;
+        while(*PtrExt)
+        {
+          if(!PtrFName)
+            strcpy(WorkPtrFName,PtrExt);
+          if(SearchPath(NULL,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+          {
+            Ret=TRUE;
+            break;
+          }
+          PtrExt+=strlen(PtrExt)+1;
+        }
+      }
+      /* VVM $ */
 
       if (!Ret && Opt.ExecuteUseAppPath) // третий проход - лезим в реестр в "App Paths"
       {
