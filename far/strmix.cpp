@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.12 07.05.2001 $ */
+/* Revision: 1.13 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 VVM
+    + переделка Unquote()
   07.05.2001 DJ
     * оптимизированная ветка CmpName() работает и для имен с несколькими
       точками
@@ -585,6 +587,9 @@ int IsCaseLower(char *Str)
 }
 
 
+/* $ 05.06.2001 VVM
+  Теперь мы будем жить по новому :)
+  И удалять весь квотинг и внутри строки */
 /* $ 28.06.2000 IS
   Теперь функция Unquote убирает ВСЕ начальные и заключительные кавычки
 */
@@ -593,24 +598,33 @@ int IsCaseLower(char *Str)
 */
 void WINAPI Unquote(char *Str)
 {
-  if(Str && *Str)
+  if(!(Str && *Str))
+    return;
+  char *P = Str;
+  char *LastQuote = NULL;
+  while (*P)
   {
-    int Length=lstrlen(Str)-1;
-    /*убираем заключительные кавычки*/
-    while(Str[Length]=='\"')
+    if (*P=='\"')
     {
-     Str[Length]='\0';
-     if(!Length)break;
-     Length--;
+      if (LastQuote)
+      {
+        strcpy(LastQuote, LastQuote+1);
+        P--;
+        if (*LastQuote!='\"')
+        {
+          strcpy(P, P+1);
+          P--;
+        }
+        LastQuote = NULL;
+      }
+      else
+        LastQuote = P;
     }
-    /*убираем начальные кавычки*/
-    char *start=Str;
-    while(*start=='\"') start++;
-    if(start!=Str)
-      memcpy(Str,start,Length+Str-start+2);
+    P++;
   }
 }
 /* IS $ */
+/* VVM $ */
 
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.
