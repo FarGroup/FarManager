@@ -1376,8 +1376,10 @@ $ #Interface settings dialog#
                           greater than the menu height)
 
   #AutoComplete#            Allows to use the AutoComplete function
-  #in input lines#          in input lines that have a history
-                          of commands.
+  #in input lines#          in input lines that have a history list
+                          or in combo boxes. When the option is
+                          disabled, you may use the Ctrl-End key
+                          to autocomplete a line.
 
 @Viewer
 $ #Internal viewer#

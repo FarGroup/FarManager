@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.91 06.05.2001 $ */
+/* Revision: 1.92 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! ѕри отключенном автодополнении можно воспользоватьс€ клавишами Ctrl-End
   06.05.2001 DJ
     ! перетр€х #include
   04.05.2001 SVS
@@ -2498,8 +2500,9 @@ int Dialog::ProcessKey(int Key)
             јвтодополнение - чтобы не работало во врем€ проигрывани€ макросов.
           */
           if(!CtrlObject->Macro.IsExecuting() &&
-             Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL &&
-             ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX)
+             ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX))
+          if((Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
+             (!Opt.AutoComplete && Key == KEY_CTRLEND)
             )
           {
             /* $ 05.12.2000 IS

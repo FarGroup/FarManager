@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.30 06.05.2001 $ */
+/* Revision: 1.31 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! Для Move на _том же_ диске отключаем Total
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -517,6 +519,14 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
       CopyDlg[2].Data[I]='\\';
   if (SelCount==1 && Move && strpbrk(CopyDlg[2].Data,":\\")==NULL)
     ShowTotalCopySize=FALSE;
+
+  if(Move)
+  {
+    char SrcDir[NM];
+    SrcPanel->GetCurDir(SrcDir);
+    if(IsSameDisk(SrcDir,CopyDlg[2].Data))
+      ShowTotalCopySize=FALSE;
+  }
 
 /* $ 30.01.2001 VVM
     + Определем, нужно ли показывать время копирования

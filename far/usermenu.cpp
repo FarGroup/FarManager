@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.20 06.05.2001 $ */
+/* Revision: 1.21 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! 'ФАР пускается с ключем -a. В меню по F2 пункты с подменю справа
+      обозначаюися ".". Хотелось бы ">".'
   06.05.2001 DJ
     ! перетрях #include
   01.05.2001 IS
@@ -516,7 +519,16 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,ScrX-12,Label);
         /* tran 20.07.2000 $ */
           if (SubMenu)
+          {
+            /* $ 07.05.2001 SVS
+               FAR 1.70.3 b591. Пускается с ключем -a. В меню по F2 пункты с
+               подменю справа обозначаюися ".". Хотелось бы ">".
+            */
+            if(Opt.CleanAscii)
+              SubMenuSymbol[1]='>';
+            /* SVS $ */
             strcat(MenuText,SubMenuSymbol);
+          }
           strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
           UserMenuItem.Selected=(NumLine==MenuPos);
           UserMenuItem.Separator=0;
