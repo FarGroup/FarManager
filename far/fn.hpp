@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.166 17.09.2002 $ */
+/* Revision: 1.167 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 VVM
+    + SheckForEscSilent() - проверить на ESC безо всяких запросов пользователя
+    + CinfirmAbortOp()    - спросить у пользователя подтверждение прерывания
   17.09.2002 SVS
     + DrawLine()
   23.08.2002 SVS
@@ -1227,6 +1230,8 @@ int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);
 int CheckForEsc();
+int CheckForEscSilent();
+int ConfirmAbortOp();
 
 // Получить из имени диска RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.97 14.09.2002 $ */
+/* Revision: 1.98 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 VVM
+    ! Корректировка алгоритма подсчета времени копирования.
   14.09.2002 VVM
     + Прогресс копирования показывать не чаще 1 раза в секунду.
     + По умолчанию буфер копирования 64к. Макс. размер по умолчанию 512 к.
@@ -1642,11 +1644,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
   *RenamedName=*CopiedName=0;
 
-  CopyTime+= (clock() - CopyStartTime);
-  int AbortOp=CheckForEsc();
-  CopyStartTime = clock();
-  if (AbortOp)
-    return(COPY_CANCEL);
+  if (CheckForEscSilent())
+  {
+    CopyTime+= (clock() - CopyStartTime);
+    int AbortOp = ConfirmAbortOp();
+    CopyStartTime = clock();
+    if (AbortOp)
+      return(COPY_CANCEL);
+  }
 
   strcpy(DestPath,Dest);
 
@@ -2485,11 +2490,15 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   }
 
   int64 WrittenSize(0,0);
+  int   AbortOp = FALSE;
   while (1)
   {
-    CopyTime+= (clock() - CopyStartTime);
-    int AbortOp=CheckForEsc();
-    CopyStartTime = clock();
+    if (CheckForEscSilent())
+    {
+      CopyTime+= (clock() - CopyStartTime);
+      AbortOp = ConfirmAbortOp();
+      CopyStartTime = clock();
+    }
     if (AbortOp)
     {
       CloseHandle(SrcHandle);
@@ -2789,9 +2798,9 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     + Показывает время копирования,оставшееся время и среднюю скорость. */
   if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
-    CopyTime+= (clock() - CopyStartTime);
-    CopyStartTime = clock();
-    int WorkTime = CopyTime/1000;
+//    CopyTime+= (clock() - CopyStartTime);
+//    CopyStartTime = clock();
+    int WorkTime = (CopyTime + (clock() - CopyStartTime))/1000;
     int64 SizeLeft = OldTotalSize - OldWrittenSize;
     if (SizeLeft < 0)
       SizeLeft = 0;
@@ -3147,9 +3156,13 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
   int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
   ShellCopy::ShowBar(TransferredSize,TotalSize,false);
-  CopyTime+= (clock() - CopyStartTime);
-  int AbortOp=CheckForEsc();
-  CopyStartTime = clock();
+  int AbortOp = FALSE;
+  if (CheckForEscSilent())
+  {
+    CopyTime+= (clock() - CopyStartTime);
+    AbortOp = ConfirmAbortOp();
+    CopyStartTime = clock();
+  }
   return(AbortOp ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
 }
 #if defined(__BORLANDC__)

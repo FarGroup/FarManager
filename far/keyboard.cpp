@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.79 16.09.2002 $ */
+/* Revision: 1.80 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 VVM
+    + SheckForEscSilent() - проверить на ESC безо всяких запросов пользователя
+    + CinfirmAbortOp()    - спросить у пользователя подтверждение прерывания
+    ! Соответственно CheckForEsc() теперь состоит из пары этих функций
   16.09.2002 SVS
     - "При драгндропе ярлыка с рабюочего стола его путь вставляется не
        полностью - интересно, почему?"
@@ -1375,26 +1379,38 @@ int WriteInput(int Key,DWORD Flags)
 }
 
 
-/* $ 09.02.2001 IS
-     Подтверждение нажатия Esc
-*/
-int CheckForEsc()
+int CheckForEscSilent()
 {
   INPUT_RECORD rec;
   int Key;
   if (!CtrlObject->Macro.IsExecuting() && PeekInputRecord(&rec) &&
       ((Key=GetInputRecord(&rec))==KEY_ESC || Key==KEY_BREAK))
-  {
-    SaveScreen SaveScr; // НУЖЕН! Избавляет от некоторых подводных багов
-    BOOL rc=TRUE;
-    IsProcessAssignMacroKey++; // запретим спец клавиши
-                               // т.е. в этом диалоге нельзя нажать Alt-F9!
-    if (Opt.Confirm.Esc)
-       rc=AbortMessage();
-    IsProcessAssignMacroKey--;
-    return rc;
-  }
-  return(FALSE);
+    return(TRUE);
+  else
+    return(FALSE);
+}
+
+int ConfirmAbortOp()
+{
+  SaveScreen SaveScr; // НУЖЕН! Избавляет от некоторых подводных багов
+  BOOL rc=TRUE;
+  IsProcessAssignMacroKey++; // запретим спец клавиши
+                             // т.е. в этом диалоге нельзя нажать Alt-F9!
+  if (Opt.Confirm.Esc)
+     rc=AbortMessage();
+  IsProcessAssignMacroKey--;
+  return rc;
+}
+
+/* $ 09.02.2001 IS
+     Подтверждение нажатия Esc
+*/
+int CheckForEsc()
+{
+  if (CheckForEscSilent())
+    return(ConfirmAbortOp());
+  else
+    return(FALSE);
 }
 /* IS $ */
 
