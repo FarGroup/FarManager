@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.63 23.10.2000 $ */
+/* Revision: 1.64 25.10.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  25.10.2000 IS
+    + Изменил имя параметра в MkTemp с Template на Prefix
   23.10.2000 SVS
     + DM_SETEDITPOS, DM_GETEDITPOS -
       позиционирование курсора в строках редактирования.
@@ -929,7 +931,7 @@ typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(char *Name);
 typedef int     (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
-typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
+typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest, char *Prefix);
 typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
 enum FRSMODE{

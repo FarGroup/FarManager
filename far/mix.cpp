@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.37 23.10.2000 $ */
+/* Revision: 1.38 25.10.2000 $ */
 
 /*
 Modify:
+  25.10.2000 IS
+    ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
+      вариант приводил к ошибке (заметили на Multiarc'е)
   23.10.2000 SVS
     ! Узаконненая версия SysLog :-)
       Задолбался я ставить комметарии после AT ;-)
@@ -2450,22 +2453,28 @@ void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD f
 /* $ 18.09.2000 SVS
   Не ту функцию впихнул :-)))
 */
-char* WINAPI FarMkTemp(char *Dest, char *Template)
+/* $ 25.10.2000 IS
+ ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
+   вариант приводил к ошибке (заметили на Multiarc'е)
+   Параметр Prefix - строка, указывающая на первые символы имени временного
+   файла. Используются только первые 3 символа из этой строки.
+*/
+char* WINAPI FarMkTemp(char *Dest, char *Prefix)
 {
-  if(Dest && Template && *Template)
+  if(Dest && Prefix && *Prefix)
   {
-    char TempPath[NM];
+    char TempPath[NM],TempName[NM];
     int Len;
     TempPath[Len=GetTempPath(sizeof(TempPath),TempPath)]=0;
-    strcat(TempPath,Template);
-    if(mktemp(TempPath+Len) != NULL)
+    if(GetTempFileName(TempPath,Prefix,0,TempName))
     {
-      strcpy(Dest,TempPath);
+      strcpy(Dest,TempName);
       return Dest;
     }
   }
   return NULL;
 }
+/* IS $ */
 /* SVS 18.09.2000 $ */
 /* SVS $ */
 
@@ -2582,4 +2591,3 @@ void SysLog(char *fmt,...)
     CloseSysLog();
 #endif
 }
-

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.38 23.10.2000 $ */
+/* Revision: 1.39 25.10.2000 $ */
 
 /*
 Modify:
+  25.10.2000 IS
+   ! Изменил имя параметра в FarMkTemp с Template на Prefix
   23.10.2000 SVS
    ! Узаконненая версия SysLog :-)
   20.10.2000 SVS
@@ -562,7 +564,11 @@ void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD f
 /* $ 14.09.2000 SVS
  + Функция FarMkTemp - получение имени временного файла с полным путем.
 */
-char* WINAPI FarMkTemp(char *Dest, char *Template);
+/* $ 25.10.2000 IS
+ ! Изменил имя параметра с Template на Prefix
+*/
+char* WINAPI FarMkTemp(char *Dest, char *Prefix);
+/* IS $*/
 /* SVS $*/
 
 
