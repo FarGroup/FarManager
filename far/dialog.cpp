@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.28 24.08.2000 $ */
+/* Revision: 1.29 25.08.2000 $ */
 
 /*
 Modify:
+  25.08.2000 SVS
+   ! Уточнения, относительно фокуса ввода - ох уж эти сказочки, блин.
   24.08.2000 SVS
    + InitDialogObjects имеет параметр - для выборочной реинициализации
      элементов
@@ -217,6 +219,8 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   */
   IsEnableRedraw=0;
 
+  FocusPos=-1;
+
   if(!DlgProc) // функция должна быть всегда!!!
     DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
   Dialog::DlgProc=DlgProc;
@@ -346,7 +350,7 @@ int Dialog::InitDialogObjects(int ID)
 {
   int I, J, TitleSet;
   int Length,StartX;
-  int FocusSet, Type;
+  int Type;
   struct DialogItem *CurItem;
   int InitItemCount;
 
@@ -365,7 +369,7 @@ int Dialog::InitDialogObjects(int ID)
 
 
   // предварительный цикл по поводу кнопок и заголовка консоли
-  for(I=ID, FocusSet=0, TitleSet=0; I < InitItemCount; I++)
+  for(I=ID, TitleSet=0; I < InitItemCount; I++)
   {
     CurItem=&Item[I];
 
@@ -394,13 +398,33 @@ int Dialog::InitDialogObjects(int ID)
         }
 
      // предварительный поик фокуса
-     if(IsFocused(CurItem->Type) && CurItem->Focus)
-     {
-       FocusSet++;
-       FocusPos=I; // запомним фокусный элемент
-     }
+     if(FocusPos == -1 && IsFocused(CurItem->Type) && CurItem->Focus)
+       FocusPos=I; // запомним первый фокусный элемент
+     CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
+                       //   что фокусов - как у дурочка фантиков
   }
 
+  // Опять про фокус ввода - теперь, если "чудо" забыло выставить
+  // хотя бы один, то ставим на первый подходящий
+  if(FocusPos == -1)
+  {
+    for (I=0; I < ItemCount; I++) // по всем!!!!
+    {
+      CurItem=&Item[I];
+      if(IsFocused(CurItem->Type))
+      {
+        FocusPos=I;
+        break;
+      }
+    }
+  }
+  if(FocusPos == -1) // ну ни хрена себе - нет ни одного
+  {                  //   элемента с возможностью фокуса
+     FocusPos=0;     // убится, блин
+  }
+
+  // ну вот и добрались до!
+  Item[FocusPos].Focus=1;
 
   // а теперь все сначала и по полной программе...
   for (I=ID; I < InitItemCount; I++)
@@ -408,13 +432,6 @@ int Dialog::InitDialogObjects(int ID)
     CurItem=&Item[I];
     Type=CurItem->Type;
 
-    // Если фокус не установлен - найдем!
-    if(!FocusSet && IsFocused(Type))
-    {
-      FocusPos=I; // запомним фокусный элемент
-      FocusSet++;
-      CurItem->Focus=1;
-    }
     // Последовательно объявленные элементы с флагом DIF_CENTERGROUP
     // и одинаковой вертикальной позицией будут отцентрированы в диалоге.
     // Их координаты X не важны. Удобно использовать для центрирования
