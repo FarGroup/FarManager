@@ -12,6 +12,9 @@ Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  26.06.2000 IS
+    - Глюк с хелпом по f1, shift+f2, end
+      (решение предложил IG)
 */
 
 #include "headers.hpp"
@@ -866,6 +869,11 @@ void Help::ReadPluginsHelp()
       fclose(HelpFile);
     }
   }
+  /* $ 26.06.2000 IS
+   Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
+  */
+  AddLine("");
+  /* IS $ */
 }
 
 
