@@ -5,10 +5,13 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.14 26.06.2001 $ */
+/* Revision: 1.15 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    ! ≈сли хот€ бы один из последних трех параметров функции
+      GetSearchReplaceString равен NULL, то произведем метаморфозы диалогов
   26.06.2001 SVS
     ! __except -> EXCEPT
   25.06.2001 IS
@@ -119,6 +122,8 @@ int WINAPI GetSearchReplaceString(
   static const char *TextHistoryName0    ="SearchText",
                     *ReplaceHistoryName0 ="ReplaceText";
 
+  int HeightDialog, I;
+
   if(!TextHistoryName)
     TextHistoryName=TextHistoryName0;
   if(!ReplaceHistoryName)
@@ -162,6 +167,7 @@ int WINAPI GetSearchReplaceString(
     /* 11 */DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
     };
     /* KM $ */
+    HeightDialog=14;
     MakeDialogItems(ReplaceDlgData,ReplaceDlg);
     if(!*TextHistoryName)
     {
@@ -176,12 +182,64 @@ int WINAPI GetSearchReplaceString(
 
     strncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data));
     strncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data));
-    ReplaceDlg[6].Selected=Case?*Case:0;
-    ReplaceDlg[7].Selected=WholeWords?*WholeWords:0;
-    ReplaceDlg[8].Selected=Reverse?*Reverse:0;
+
+    if(Case)
+      ReplaceDlg[6].Selected=*Case;
+    else
+    {
+      HeightDialog--;
+      ReplaceDlg[0].Y2--;
+      ReplaceDlg[6].Type=DI_TEXT;
+      ReplaceDlg[6].Data[0]=0;
+      for(I=7; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      {
+        ReplaceDlg[I].Y1--;
+        ReplaceDlg[I].Y2--;
+      }
+    }
+
+    if(WholeWords)
+      ReplaceDlg[7].Selected=*WholeWords;
+    else
+    {
+      HeightDialog--;
+      ReplaceDlg[0].Y2--;
+      ReplaceDlg[7].Type=DI_TEXT;
+      ReplaceDlg[7].Data[0]=0;
+      for(I=8; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      {
+        ReplaceDlg[I].Y1--;
+        ReplaceDlg[I].Y2--;
+      }
+    }
+
+    if(Reverse)
+      ReplaceDlg[8].Selected=*Reverse;
+    else
+    {
+      HeightDialog--;
+      ReplaceDlg[0].Y2--;
+      ReplaceDlg[8].Type=DI_TEXT;
+      ReplaceDlg[8].Data[0]=0;
+      for(I=9; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      {
+        ReplaceDlg[I].Y1--;
+        ReplaceDlg[I].Y2--;
+      }
+    }
+
+    // нам не нужны 2 разделительных линии
+    if(HeightDialog == 11)
+    {
+      for(I=9; I < sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]); ++I)
+      {
+        ReplaceDlg[I].Y1--;
+        ReplaceDlg[I].Y2--;
+      }
+    }
 
     Dialog Dlg(ReplaceDlg,sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]));
-    Dlg.SetPosition(-1,-1,76,14);
+    Dlg.SetPosition(-1,-1,76,HeightDialog);
     Dlg.Process();
     if (Dlg.GetExitCode()!=10)
       return FALSE;
@@ -222,6 +280,7 @@ int WINAPI GetSearchReplaceString(
     /*  9 */DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
     };
     MakeDialogItems(SearchDlgData,SearchDlg);
+    HeightDialog=12;
 
     if(!*TextHistoryName)
     {
@@ -230,12 +289,64 @@ int WINAPI GetSearchReplaceString(
     }
 
     strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data));
-    SearchDlg[4].Selected=Case?*Case:0;
-    SearchDlg[5].Selected=WholeWords?*WholeWords:0;
-    SearchDlg[6].Selected=Reverse?*Reverse:0;
+
+    if(Case)
+      SearchDlg[4].Selected=*Case;
+    else
+    {
+      HeightDialog--;
+      SearchDlg[0].Y2--;
+      SearchDlg[4].Type=DI_TEXT;
+      SearchDlg[4].Data[0]=0;
+      for(I=5; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      {
+        SearchDlg[I].Y1--;
+        SearchDlg[I].Y2--;
+      }
+    }
+
+    if(WholeWords)
+      SearchDlg[5].Selected=*WholeWords;
+    else
+    {
+      HeightDialog--;
+      SearchDlg[0].Y2--;
+      SearchDlg[5].Type=DI_TEXT;
+      SearchDlg[5].Data[0]=0;
+      for(I=6; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      {
+        SearchDlg[I].Y1--;
+        SearchDlg[I].Y2--;
+      }
+    }
+
+    if(Reverse)
+      SearchDlg[6].Selected=*Reverse;
+    else
+    {
+      HeightDialog--;
+      SearchDlg[0].Y2--;
+      SearchDlg[6].Type=DI_TEXT;
+      SearchDlg[6].Data[0]=0;
+      for(I=7; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      {
+        SearchDlg[I].Y1--;
+        SearchDlg[I].Y2--;
+      }
+    }
+
+    // нам не нужны 2 разделительных линии
+    if(HeightDialog == 9)
+    {
+      for(I=7; I < sizeof(SearchDlgData)/sizeof(SearchDlgData[0]); ++I)
+      {
+        SearchDlg[I].Y1--;
+        SearchDlg[I].Y2--;
+      }
+    }
 
     Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
-    Dlg.SetPosition(-1,-1,76,12);
+    Dlg.SetPosition(-1,-1,76,HeightDialog);
     Dlg.Process();
     if (Dlg.GetExitCode()!=8)
       return FALSE;

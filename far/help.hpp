@@ -7,10 +7,14 @@ help.hpp
 
 */
 
-/* Revision: 1.16 22.07.2001 $ */
+/* Revision: 1.17 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    + MkTopic() - создание топика
+    ! ReadPluginsHelp() переименована в ReadDocumentsHelp, т.к.
+      предполагается отображать индекс справки не только по плагинам
   22.07.2001 SVS
     ! Переделка number two - пытаемся при возврате показать привычное
       расположение хелпа (но пока, увы)
@@ -73,6 +77,11 @@ struct StackHelpData
   char  SelTopic[512];          // выделенный топик (???)
 };
 
+enum HELPDOCUMENTSHELPTYPE{
+  HIDX_PLUGINS,                 // Индекс плагинов
+  HIDX_DOCUMS,                  // Индекс документов
+};
+
 class Help:public Frame
 {
   private:
@@ -108,7 +117,7 @@ class Help:public Frame
     void CorrectPosition();
     int  IsReferencePresent();
     void MoveToReference(int Forward,int CurScreen);
-    void ReadPluginsHelp();
+    void ReadDocumentsHelp(int TypeIndex);
     int  JumpTopic(const char *JumpTopic=NULL);
 
   public:
@@ -127,6 +136,8 @@ class Help:public Frame
     void ResizeConsole();
     /* $ Введена для нужд CtrlAltShift OT */
     int  FastHide();
+
+    static char *MkTopic(int PluginNumber,const char *HelpTopic,char *Topic);
 };
 
 #endif	// __HELP_HPP__

@@ -712,13 +712,6 @@
 "Tables"
 "DOS text"
 
-"Help"
-"This reference starts the external application:"
-"with parameter:"
-"Do you wish to start it?"
-"Cannot open the file"
-"Requested help topic not found"
-
 "Files highlighting"
 "F1 - Help"
 "Do you wish to delete highlighting for"
@@ -1260,8 +1253,6 @@
 "Execute for &folders"
 "Se&lection present"
 
-"Plugins help"
-
 "Cannot save file"
 "Edited text is stored in"
 
@@ -1341,6 +1332,16 @@
 
 "?"
 "Field '%s...' will be truncated to %d bytes."
+
+"Help"
+"This reference starts the external application:"
+"with parameter:"
+"Do you wish to start it?"
+"Cannot open the file"
+"Requested help topic not found"
+
+"Plugins help"
+"Documents help"
 
 // Help KeyBar F1-12
 "Help"

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.46 31.07.2001 $ */
+/* Revision: 1.47 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    + HelpBeginLink, HelpFormatLink - формат для создания линков на темы помощи.
   31.07.2001 SVS
     + MACRO_MENU
   24.07.2001 SVS
@@ -114,6 +116,9 @@ Modify:
 
 #define PluginsFolderName "Plugins"
 #define HelpFileMask "*.hlf"
+#define HelpBeginLink '<'
+#define HelpEndLink '>'
+#define HelpFormatLink "<%s>%s"
 
 typedef unsigned char    UBYTE;
 typedef unsigned short   UWORD;

@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.35 27.07.2001 $ */
+/* Revision: 1.36 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    + Новый взгляд на линки
+    + Понятие - "Коллекция документов" (часть первая)
   26.07.2001 VVM
     + С альтом скролим всегда по 1
   22.07.2001 SVS
@@ -181,6 +184,7 @@ class CallBackStack
 #define MAX_HELP_STRING_LENGTH 300
 
 static const char *PluginContents="__PluginContents__";
+static const char *DocumentContents="__DocumentContents__";
 static const char *HelpOnHelpTopic="Help";
 static const char *HelpContents="Contents";
 
@@ -223,9 +227,9 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   if(!ReadHelp(Mask) && (Flags&FHELP_USECONTENTS))
   {
     strcpy(StackData.HelpTopic,Topic);
-    if(*StackData.HelpTopic == '#')
+    if(*StackData.HelpTopic == HelpBeginLink)
     {
-      char *Ptr=strrchr(StackData.HelpTopic,'#');
+      char *Ptr=strrchr(StackData.HelpTopic,HelpEndLink);
       if(Ptr)
         strcpy(++Ptr,HelpContents);
     }
@@ -276,10 +280,10 @@ int Help::ReadHelp(char *Mask)
   DisableOut=0;
 
   char Path[NM],*TopicPtr;
-  if (*StackData.HelpTopic=='#')
+  if (*StackData.HelpTopic==HelpBeginLink)
   {
     strcpy(Path,StackData.HelpTopic+1);
-    if ((TopicPtr=strchr(Path,'#'))==NULL)
+    if ((TopicPtr=strchr(Path,HelpEndLink))==NULL)
       return FALSE;
     strcpy(StackData.HelpTopic,TopicPtr+1);
     *TopicPtr=0;
@@ -288,9 +292,15 @@ int Help::ReadHelp(char *Mask)
   else
     strcpy(Path,*StackData.HelpPath ? StackData.HelpPath:FarPath);
 
-  if (strcmp(StackData.HelpTopic,PluginContents)==0)
+  if (!strcmp(StackData.HelpTopic,PluginContents))
   {
-    ReadPluginsHelp();
+    ReadDocumentsHelp(HIDX_PLUGINS);
+    return TRUE;
+  }
+
+  if (!strcmp(StackData.HelpTopic,DocumentContents))
+  {
+    ReadDocumentsHelp(HIDX_DOCUMS);
     return TRUE;
   }
 
@@ -445,10 +455,14 @@ int Help::ReadHelp(char *Mask)
               if (StringLen(SplitLine)<MaxLength)
               {
                 AddLine(SplitLine);
+                memmove(SplitLine+1,SplitLine+I+1,strlen(SplitLine+I+1)+1);
+                *SplitLine=' ';
+                /*
                 char CopyLine[2*MAX_HELP_STRING_LENGTH];
                 strcpy(CopyLine,SplitLine+I+1);
                 *SplitLine=' ';
                 strcpy(SplitLine+1,CopyLine);
+                */
                 HighlightsCorrection(SplitLine);
                 Splitted=TRUE;
                 break;
@@ -498,10 +512,8 @@ void Help::HighlightsCorrection(char *Str)
       Count++;
   if ((Count & 1) && *Str!='$')
   {
-    char CopyLine[MAX_HELP_STRING_LENGTH];
-    strcpy(CopyLine,Str);
+    memmove(Str+1,Str,strlen(Str)+1);
     *Str='#';
-    strcpy(Str+1,CopyLine);
   }
 }
 
@@ -618,7 +630,7 @@ void Help::OutString(char *Str)
       continue;
     }
 
-    if (*Str=='~' || *Str=='#' || *Str==0 || *Str == CtrlColorChar)
+    if (*Str=='~' || *Str=='#' || *Str==HelpBeginLink || *Str==0 || *Str == CtrlColorChar)
     {
       OutStr[OutPos]=0;
       if (Topic)
@@ -968,6 +980,18 @@ int Help::ProcessKey(int Key)
         IsNewTopic=FALSE;
       }
       return(TRUE);
+
+    case KEY_SHIFTF3: // Для "документов" :-)
+      //   не поганим SelTopic, если и так в DocumentContents
+      if(LocalStricmp(StackData.HelpTopic,DocumentContents)!=0)
+      {
+        Stack->Push(&StackData);
+        IsNewTopic=TRUE;
+        JumpTopic(DocumentContents);
+        IsNewTopic=FALSE;
+      }
+      return(TRUE);
+
     case KEY_ALTF1:
     case KEY_BS:
       // Если стек возврата пуст - выходим их хелпа
@@ -1001,7 +1025,7 @@ int Help::JumpTopic(const char *JumpTopic)
 
   if(JumpTopic)
     strcpy(StackData.SelTopic,JumpTopic);
-_SVS(SysLog("JumpTopic() = SelTopic=%s",StackData.SelTopic));
+//_SVS(SysLog("JumpTopic() = SelTopic=%s",StackData.SelTopic));
   // URL активатор - это ведь так просто :-)))
   {
     strcpy(NewTopic,StackData.SelTopic);
@@ -1015,19 +1039,21 @@ _SVS(SysLog("JumpTopic() = SelTopic=%s",StackData.SelTopic));
   }
   // а вот теперь попробуем...
 
-_SVS(SysLog("JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
-  if (*StackData.HelpPath && *StackData.SelTopic!='#' && strcmp(StackData.SelTopic,HelpOnHelpTopic)!=0)
+//_SVS(SysLog("JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
+  if (*StackData.HelpPath && *StackData.SelTopic!=HelpBeginLink && strcmp(StackData.SelTopic,HelpOnHelpTopic)!=0)
   {
     if (*StackData.SelTopic==':')
       strcpy(NewTopic,StackData.SelTopic+1);
     else
-      sprintf(NewTopic,"#%s#%s",StackData.HelpPath,StackData.SelTopic);
+      sprintf(NewTopic,HelpFormatLink,StackData.HelpPath,StackData.SelTopic);
   }
   else
     strcpy(NewTopic,StackData.SelTopic);
 
-_SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
-  if(*StackData.SelTopic != ':' && LocalStricmp(StackData.SelTopic,PluginContents) != 0)
+//_SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
+  if(*StackData.SelTopic != ':' &&
+     LocalStricmp(StackData.SelTopic,PluginContents) &&
+     LocalStricmp(StackData.SelTopic,DocumentContents))
   {
     ; // :-)
   }
@@ -1042,9 +1068,9 @@ _SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
   if(!ReadHelp(HelpMask))
   {
     strcpy(StackData.HelpTopic,NewTopic);
-    if(*StackData.HelpTopic == '#')
+    if(*StackData.HelpTopic == HelpBeginLink)
     {
-      char *Ptr=strrchr(StackData.HelpTopic,'#');
+      char *Ptr=strrchr(StackData.HelpTopic,HelpEndLink);
       if(Ptr)
         strcpy(++Ptr,HelpContents);
     }
@@ -1059,9 +1085,11 @@ _SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
     return FALSE;
   }
 //  ResizeConsole();
-  if(IsNewTopic)
+  if(IsNewTopic
+    || !LocalStricmp(StackData.SelTopic,PluginContents) // Это неприятный костыль :-((
+    || !LocalStricmp(StackData.SelTopic,DocumentContents))
     MoveToReference(1,1);
-  FrameManager->ImmediateHide();
+  //FrameManager->ImmediateHide();
   FrameManager->RefreshFrame();
 
   return TRUE;
@@ -1191,7 +1219,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
   FastShow();
 }
 
-void Help::ReadPluginsHelp()
+void Help::ReadDocumentsHelp(int TypeIndex)
 {
   if(HelpData)
     free(HelpData);
@@ -1204,30 +1232,63 @@ void Help::ReadPluginsHelp()
   TopicFound=TRUE;
   StackData.CurX=StackData.CurY=0;
   CtrlColorChar=0;
-  char PluginsHelpTitle[100];
-  sprintf(PluginsHelpTitle,"^ #%s#",MSG(MPluginsHelpTitle));
-  AddLine(PluginsHelpTitle);
 
-  for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
+  char *PtrTitle, *ContentsName;
+  switch(TypeIndex)
   {
-    char Path[NM],FileName[NM],*Slash;
-    strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
-    if ((Slash=strrchr(Path,'\\'))!=NULL)
-      *Slash=0;
-    FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FileName);
-    if (HelpFile!=NULL)
-    {
-      char EntryName[512],HelpLine[512],SecondParam[512];
-      if (Language::GetLangParam(HelpFile,"PluginContents",EntryName,SecondParam))
-      {
-        if (*SecondParam)
-          sprintf(HelpLine,"   ~%s,%s~@#%s#Contents@",EntryName,SecondParam,Path);
-        else
-          sprintf(HelpLine,"   ~%s~@#%s#Contents@",EntryName,Path);
-        AddLine(HelpLine);
-      }
+    case HIDX_PLUGINS:
+      PtrTitle=MSG(MPluginsHelpTitle);
+      ContentsName="PluginContents";
+      break;
+    case HIDX_DOCUMS:
+      PtrTitle=MSG(MDocumentsHelpTitle);
+      ContentsName="DocumentContents";
+      break;
+  }
 
-      fclose(HelpFile);
+  {
+    char IndexHelpTitle[100];
+    sprintf(IndexHelpTitle,"^ #%s#",PtrTitle);
+    AddLine(IndexHelpTitle);
+  }
+  /* TODO:
+     1. Поиск (для "документов") не только в каталоге Documets, но
+        и в плагинах
+  */
+
+  switch(TypeIndex)
+  {
+    case HIDX_PLUGINS:
+    {
+      for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
+      {
+        char Path[NM],FileName[NM],*Slash;
+        strcpy(Path,CtrlObject->Plugins.PluginsData[I].ModuleName);
+        if ((Slash=strrchr(Path,'\\'))!=NULL)
+          *Slash=0;
+        FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FileName);
+        if (HelpFile!=NULL)
+        {
+          char EntryName[512],HelpLine[512],SecondParam[512];
+          if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
+          {
+            if (*SecondParam)
+              sprintf(HelpLine,"   ~%s,%s~@" HelpFormatLink "@",EntryName,SecondParam,Path,"Contents");
+            else
+              sprintf(HelpLine,"   ~%s~@" HelpFormatLink "@",EntryName,Path,"Contents");
+            AddLine(HelpLine);
+          }
+
+          fclose(HelpFile);
+        }
+      }
+      break;
+    }
+
+    case HIDX_DOCUMS:
+    {
+      // это будет после!
+      break;
     }
   }
   /* $ 26.06.2000 IS
@@ -1236,6 +1297,59 @@ void Help::ReadPluginsHelp()
   AddLine("");
   /* IS $ */
 }
+
+// Формирование топика с учетом разных факторов
+char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
+{
+  *Topic=0;
+  if (HelpTopic && *HelpTopic)
+  {
+    if (*HelpTopic==':')
+      strcpy(Topic,HelpTopic+1);
+    else
+    {
+      if(*HelpTopic==HelpBeginLink)
+      {
+        char *Ptr, *Ptr2;
+        if((Ptr=strchr(strncpy(Topic,HelpTopic,512),HelpEndLink)) == NULL)
+          *Topic=0;
+        else
+        {
+          if(!Ptr[1]) // Вона как поперло то...
+            strcat(Topic,"Contents"); // ... значит покажем основную тему.
+
+          /* А вот теперь разгребем...
+             Формат может быть :
+               "<FullPath>Topic" или "<FullModuleName>Topic"
+             Для случая "FullPath" путь ДОЛЖЕН заканчиваться СЛЕШЕМ!
+             Т.о. мы отличим ЧТО ЭТО - имя модуля или путь!
+          */
+          Ptr2=Ptr-1;
+          if(*Ptr2 != '\\') // Это имя модуля?
+          {
+            // значит удалим это чертово имя :-)
+            if((Ptr2=strrchr(Topic,'\\')) == NULL) // ВО! Фигня какая-то :-(
+              *Topic=0;
+          }
+          if(*Topic)
+          {
+            memmove(Ptr2,Ptr,strlen(Ptr)+1); //???
+
+            // А вот ЗДЕСЬ теперь все по правилам Help API!
+          }
+        }
+      }
+      else if(PluginNumber != -1)
+      {
+         sprintf(Topic,HelpFormatLink,
+                CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName,
+                HelpTopic);
+      }
+    }
+  }
+  return *Topic?Topic:NULL;
+}
+
 
 /* $ 28.06.2000 tran
  (NT Console resize)
@@ -1425,7 +1539,6 @@ int Help::FastHide()
 {
   return Opt.AllCtrlAltShiftRule & CASR_HELP;
 }
-
 
 
 /* ------------------------------------------------------------------ */

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.147 27.07.2001 $ */
+/* Revision: 1.148 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    + Новая идеология создания топика - пусть об этом позаботится ядро Help`а
   27.07.2001 SVS
    + DM_ALLKEYMODE - для нужд MacroBrowse (пока только для него :-)
   26.07.2001 SVS
@@ -2194,39 +2196,12 @@ int Dialog::ProcessKey(int Key)
          Перед выводом диалога посылаем сообщение в обработчик
          и если вернули что надо, то выводим подсказку
       */
-      PtrStr=(char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,
-                           (HelpTopic?(long)&HelpTopic[0]:NULL));
-      if(PtrStr && *PtrStr)
-      {
-        /* $ 31.08.2000 SVS
-           - Бага с вызовом файлов помощи.
-        */
-        if(PluginNumber != -1)
-        {
-          /* $ 29.08.2000 SVS
-             ! При подмене темы помощи из диаловой процедуры...
-               короче, нужно вновь формировать контент!
-          */
-          if (*PtrStr==':')       // Main Topic?
-            strcpy(Str,PtrStr+1);
-          else if (*PtrStr=='#')  // уже сформировано?
-            strcpy(Str,PtrStr);
-          else                    // надо формировать...
-          {
-            strcpy(&Str[512],CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
-            *PointToName(&Str[512])=0;
-            sprintf(Str,"#%s#%s",&Str[512],PtrStr);
-          }
-          /* SVS $ */
-        }
-        else
-          strcpy(Str,PtrStr);
-
-        SetHelp(Str);
-        /* SVS $ */
+      SetHelp(Help::MkTopic(PluginNumber,
+                 (char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,
+                                (HelpTopic?(long)&HelpTopic[0]:NULL)),
+                 Str));
+      if(*Str)
         ShowHelp();
-      }
-      /* SVS $ */
       return(TRUE);
 
     case KEY_TAB:
@@ -5331,9 +5306,14 @@ void Dialog::SetHelp (const char *Topic)
 {
   if (HelpTopic)
     delete[] HelpTopic;
-  HelpTopic = new char [strlen (Topic)+1];
-  if(HelpTopic)
-    strcpy (HelpTopic, Topic);
+  HelpTopic=NULL;
+
+  if(Topic && *Topic)
+  {
+    HelpTopic = new char [strlen (Topic)+1];
+    if(HelpTopic)
+      strcpy (HelpTopic, Topic);
+  }
 }
 
 void Dialog::ShowHelp()

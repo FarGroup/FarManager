@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.68 24.07.2001 $ */
+/* Revision: 1.69 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    ! Сообщения, связанные с хелпом перенесены в одно место!
+    + MDocumentsHelpTitle
   24.07.2001 SVS
     + MConfigPgUpChangeDisk, MSetConfirmHistoryClear
   23.07.2001 VVM
@@ -917,13 +920,6 @@ enum
   MGetTableTitle,
   MGetTableNormalText,
 
-  MHelpTitle,
-  MHelpActivatorURL,
-  MHelpActivatorFormat,
-  MHelpActivatorQ,
-  MCannotOpenHelp,
-  MHelpTopicNotFound,
-
   MHighlightTitle,
   MHighlightBottom,
   MHighlightAskDel,
@@ -1464,8 +1460,6 @@ enum
   MMacroSettingsFolders,
   MMacroSettingsSelectionPresent,
 
-  MPluginsHelpTitle,
-
   MCannotSaveFile,
   MTextSavedToTemp,
 
@@ -1545,6 +1539,16 @@ enum
 
   MCheckBox2State,
   MEditInputSize,
+
+  MHelpTitle,
+  MHelpActivatorURL,
+  MHelpActivatorFormat,
+  MHelpActivatorQ,
+  MCannotOpenHelp,
+  MHelpTopicNotFound,
+
+  MPluginsHelpTitle,
+  MDocumentsHelpTitle,
 
   MHelpF1,
   MHelpF2,

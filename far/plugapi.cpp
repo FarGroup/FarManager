@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.81 31.07.2001 $ */
+/* Revision: 1.82 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    + Поменяем правила игры с новыми флагами (про тему помощи)!
   31.07.2001 IS
     + Изменения и новое в FarDialogEx, FarMenuFn, FarMessageFn:
       1. Учтем флаг F*_CUSTOMNAME
@@ -306,7 +308,7 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
         return FALSE;
       /* SVS $*/
 
-      sprintf(Topic,"#%s#%s",Path,HelpTopic);
+      sprintf(Topic,HelpFormatLink,Path,HelpTopic);
     }
     else
       return FALSE;
@@ -545,39 +547,13 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)
       *BreakCode=-1;
-    /* $ 31.07.2001 IS
-         1. Учтем флаг FMENU_CUSTOMNAME
-         2. Выкинем спецобработку для случая с *HelpTopic=='#'
-         3. Считается, что помощи нет, если имя темы пустое.
-    */
-    if (HelpTopic && *HelpTopic)
-    {
-      char Path[NM],Topic[512];
-      if (*HelpTopic==':')
-        strcpy(Topic,HelpTopic+1);
-      else
-      {
-        if(Flags & FMENU_CUSTOMNAME)
-        {
-          if(PluginNumber)
-            strncpy(Path, reinterpret_cast<char *>(PluginNumber), sizeof(Path));
-          else
-            *Path=0;
-        }
-        else
-          strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
 
-        if(*Path)
-        {
-          *PointToName(Path)=0;
-          sprintf(Topic,"#%s#%s",Path,HelpTopic);
-        }
-        else
-          *Topic=0;
-      }
-      if(*Topic) FarMenu.SetHelp(Topic);
+    {
+      char Topic[512];
+      if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
+        FarMenu.SetHelp(Topic);
     }
-    /* IS $ */
+
     if (Bottom!=NULL)
       FarMenu.SetBottomTitle(Bottom);
 
@@ -773,38 +749,13 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       FarDialog->SetCanLoseFocus(TRUE);
     FarDialog->SetOwnsItems(TRUE);
 
-    /* $ 31.07.2001 IS
-         1. Учтем флаг FDLG_CUSTOMNAME
-         2. Выкинем спецобработку для случая с *HelpTopic=='#'
-         3. Считается, что помощи нет, если имя темы пустое.
-    */
-    if (HelpTopic && *HelpTopic)
-    {
-      char Path[NM],Topic[512];
-      if (*HelpTopic==':')
-        strcpy(Topic,HelpTopic+1);
-      else
-      {
-        if(Flags & FDLG_CUSTOMNAME)
-        {
-          if(PluginNumber)
-            strncpy(Path, reinterpret_cast<char *>(PluginNumber), sizeof(Path));
-          else
-            *Path=0;
-        }
-        else
-          strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
 
-        if(*Path)
-        {
-          *PointToName(Path)=0;
-          sprintf(Topic,"#%s#%s",Path,HelpTopic);
-        }
-        else
-          *Topic=0;
-      }
-      if(*Topic) FarDialog->SetHelp(Topic);
+    {
+      char Topic[512];
+      if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
+        FarDialog->SetHelp(Topic);
     }
+
     /* IS $ */
     /* $ 29.08.2000 SVS
        Запомним номер плагина - сейчас в основном для формирования HelpTopic
@@ -964,39 +915,11 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   }
   /* tran $ */
 
-  /* $ 31.07.2001 IS
-       1. Учтем флаг FMSG_CUSTOMNAME
-       2. Выкинем спецобработку для случая с *HelpTopic=='#'
-       3. Считается, что помощи нет, если имя темы пустое.
-  */
-  if (HelpTopic && *HelpTopic)
   {
-    char Path[NM],Topic[512];
-    if (*HelpTopic==':')
-      strcpy(Topic,HelpTopic+1);
-    else
-    {
-      if(Flags & FMSG_CUSTOMNAME)
-      {
-        if(PluginNumber)
-          strncpy(Path, reinterpret_cast<char *>(PluginNumber), sizeof(Path));
-        else
-          *Path=0;
-      }
-      else
-        strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
-
-      if(*Path)
-      {
-        *PointToName(Path)=0;
-        sprintf(Topic,"#%s#%s",Path,HelpTopic);
-      }
-      else
-        *Topic=0;
-    }
-    if(*Topic) SetMessageHelp(Topic);
+    char Topic[512];
+    if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
+      SetMessageHelp(Topic);
   }
-  /* IS $ */
   /* $ 29.08.2000 SVS
      Запомним номер плагина - сейчас в основном для формирования HelpTopic
   */

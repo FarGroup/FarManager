@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.80 26.07.2001 $ */
+/* Revision: 1.81 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    + HelpBeginLink, HelpFormatLink - формат для создания линков на темы помощи.
   26.07.2001 VVM
     + С альтом скролим всегда по 1
   26.07.2001 SVS
@@ -3363,8 +3365,9 @@ BOOL FileList::UpdateKeyBar()
 
 int FileList::PluginPanelHelp(HANDLE hPlugin)
 {
-  int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;
   char Path[NM],FileName[NM],StartTopic[256],*Slash;
+  int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;
+
   strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
   if ((Slash=strrchr(Path,'\\'))!=NULL)
     *Slash=0;
@@ -3372,7 +3375,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
   if (HelpFile==NULL)
     return(FALSE);
   fclose(HelpFile);
-  sprintf(StartTopic,"#%s#Contents",Path);
+  sprintf(StartTopic,HelpFormatLink,Path,"Contents");
   Help PanelHelp(StartTopic);
   return(TRUE);
 }

@@ -5,10 +5,14 @@ language.cpp
 
 */
 
-/* Revision: 1.11 26.07.2001 $ */
+/* Revision: 1.12 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 SVS
+    - Не допускаем дубликатов!
+      Если в каталог с ФАРом положить еще один HLF с одноименным
+      языком, то... фигня получается при выборе языка.
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   27.06.2001 SVS
@@ -329,8 +333,17 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
     if (GetLangParam(LangFile,"Language",LangName,LangDescr))
     {
       sprintf(LangMenuItem.Name,"%.40s",*LangDescr ? LangDescr:LangName);
-      LangMenuItem.SetSelect(stricmp(Dest,LangName)==0);
-      LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
+      /* $ 01.08.2001 SVS
+         Не допускаем дубликатов!
+         Если в каталог с ФАРом положить еще один HLF с одноименным
+         языком, то... фигня получается при выборе языка.
+      */
+      if(LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_NOPATTERN) == -1)
+      {
+        LangMenuItem.SetSelect(stricmp(Dest,LangName)==0);
+        LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
+      }
+      /* SVS $ */
     }
     fclose(LangFile);
   }
@@ -357,7 +370,7 @@ int Language::GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value)
     if (!strnicmp(ReadStr,FullParamName,Length))
     {
       strcpy(FullParamName,RemoveExternalSpaces(ReadStr+Length));
-      if(!(Ptr=strchr(FullParamName,'=')))
+      if((Ptr=strchr(FullParamName,'=')) == NULL)
         continue;
       *Ptr++=0;
       if (!stricmp(RemoveExternalSpaces(FullParamName),KeyName))
