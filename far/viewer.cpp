@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.29 27.09.2000 $ */
+/* Revision: 1.30 29.09.2000 $ */
 
 /*
 Modify:
+  29.09.2000 SVS
+    ! TableNum - 2
   27.09.2000 SVS
     + ViewerControl - (пока только: получить минимум необходимой
       информации - для PrintMan)
@@ -2210,7 +2212,7 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->FilePos=FilePos;
         Info->FileSize=FileSize;
         memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));
-        Info->CurMode.TableNum=VM.UseDecodeTable ? VM.TableNum-1:-1;
+        Info->CurMode.TableNum=VM.UseDecodeTable ? VM.TableNum-2:-1;
         Info->Options=0;
         if (Opt.SaveViewerPos)         Info->Options|=VOPT_SAVEFILEPOSITION;
         if (Opt.ViewerAutoDetectTable) Info->Options|=VOPT_AUTODETECTTABLE;
