@@ -5,10 +5,21 @@ dialog.cpp
 
 */
 
-/* Revision: 1.54 03.12.2000 $ */
+/* Revision: 1.55 04.12.2000 $ */
 
 /*
 Modify:
+  04.12.2000 SVS
+   ! Проблемы с фокусом ввода:
+     "Ctrl-A Alt-N Enter - фокус ввода не устанавливался в поле даты."
+   ! Автодополнение - чтобы не работало во время проигрывания макросов.
+   ! Оптимизация функций ConvertItem() и DataToItem() - с указателями
+     будет генериться компактный и быстрый код (MSVC - это сам делает :-(
+   + DIF_3STATE - 3-х уровневый CheckBox
+   ! Уточним на что влияет флаг DIF_DROPDOWNLIST - только для DI_COMBOBOX.
+   - Исключаем из списка оповещаемых о мыши недоступные элементы
+   ! Для DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
+   ! Отрисовка Disabled
   03.12.2000 IS
    ! Не автодополнять, если после курсора есть невыделенные символы.
      Работает это правило, естественно, только с постоянными блоками.
@@ -265,6 +276,7 @@ Modify:
 static char fmtLocked[]="Locked%d";
 static char fmtLine[]  ="Line%d";
 static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
+static char *CheckBox3State=NULL;
 
 //////////////////////////////////////////////////////////////////////////
 /* Public:
@@ -273,6 +285,12 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  /* $ 04.12.2000 SVS
+     Если надо - загрузим символ, представляющий 3-е состояние CheckBox
+  */
+  if(!CheckBox3State)
+    CheckBox3State=MSG(MCheckBox2State);
+  /* SVS $ */
   /* $ 29.08.2000 SVS
     Номер плагина, вызвавшего диалог (-1 = Main)
   */
@@ -465,6 +483,7 @@ int Dialog::InitDialogObjects(int ID)
     InitItemCount=ID+1;
   }
 
+  FocusPos = -1; // будем искать сначала!
 
   // предварительный цикл по поводу кнопок и заголовка консоли
   for(I=ID, TitleSet=0; I < InitItemCount; I++)
@@ -634,10 +653,14 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 26.07.2000 SVS
          Ну наконец-то - долгожданный нередактируемый ComboBox
       */
-      if (CurItem->Flags & DIF_DROPDOWNLIST)
+      /* $ 30.11.200 SVS
+         Уточним на что влияет флаг DIF_DROPDOWNLIST
+      */
+      if ((CurItem->Flags & DIF_DROPDOWNLIST) && Type == DI_COMBOBOX)
       {
          DialogEdit->DropDownBox=1;
       }
+      /* SVS $ */
       /* SVS $ */
       /* $ 18.09.2000 SVS
          ReadOnly!
@@ -654,8 +677,10 @@ int Dialog::InitDialogObjects(int ID)
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
       DialogEdit->SetObjectColor(
-         FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGEDIT:COL_DIALOGEDIT),
-         FarColorToReal(COL_DIALOGEDITSELECTED));
+         FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+             ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
+             ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)),
+         FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED));
       if (CurItem->Type==DI_PSWEDIT)
       {
         DialogEdit->SetPasswordMode(TRUE);
@@ -780,11 +805,17 @@ void Dialog::DeleteDialogObjects()
     if (IsEdit(Item[I].Type))
     {
       ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
-      /*$ 05.07.2000 SVS $
+      /* $ 05.07.2000 SVS
           Проверка - этот элемент предполагает расширение переменных среды?
       */
-      if(Item[I].Flags&DIF_EDITEXPAND)
+      /* $ 04.12.2000 SVS
+        ! Для DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
+         (DI_FIXEDIT допускается для случая если нету маски)
+      */
+      if((Item[I].Flags&DIF_EDITEXPAND) &&
+          Item[I].Type != DI_PSWEDIT && Item[I].Type != DI_FIXEDIT)
          ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
+      /* SVS */
       /* SVS */
       delete (Edit *)(Item[I].ObjPtr);
     }
@@ -815,8 +846,15 @@ void Dialog::GetDialogObjectsData()
       Проверка - этот элемент предполагает расширение переменных среды?
       т.к. функция GetDialogObjectsData() может вызываться самостоятельно
       Но надо проверить!*/
-      if(Item[I].Flags&DIF_EDITEXPAND)
+      /* $ 04.12.2000 SVS
+        ! Для DI_PSWEDIT и DI_FIXEDIT обработка DIF_EDITEXPAND не нужна
+         (DI_FIXEDIT допускается для случая если нету маски)
+      */
+      if((Item[I].Flags&DIF_EDITEXPAND) &&
+          Item[I].Type != DI_PSWEDIT &&
+          Item[I].Type != DI_FIXEDIT)
          ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
+      /* SVS $ */
       /* SVS $ */
       /* 01.08.2000 SVS $ */
     }
@@ -914,9 +952,15 @@ void Dialog::ShowDialog(int ID)
       case DI_DOUBLEBOX:
       {
         Attr=MAKELONG(
-          MAKEWORD(FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGBOXTITLE:COL_DIALOGBOXTITLE), // Title LOBYTE
-                 FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT)),// HiText HIBYTE
-          MAKEWORD(FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGBOX:COL_DIALOGBOX), // Box LOBYTE
+          MAKEWORD(FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE):
+                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE)), // Title LOBYTE
+                 FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
+                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))),// HiText HIBYTE
+          MAKEWORD(FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX)), // Box LOBYTE
                  0)                                               // HIBYTE
         );
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
@@ -961,13 +1005,19 @@ void Dialog::ShowDialog(int ID)
           Attr=CurItem->Flags & DIF_COLORMASK;
         else
           if (CurItem->Flags & DIF_BOXCOLOR)
-            Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGBOX:COL_DIALOGBOX;
+            Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX);
           else
-            Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT;
+            Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                  ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
+                  ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT);
 
         Attr=MAKELONG(
            MAKEWORD(FarColorToReal(Attr),
-                   FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT)), // HIBYTE HiText
+                   FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                      ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
+                      ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))), // HIBYTE HiText
              0);
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
         SetColor(Attr&0xFF);
@@ -995,12 +1045,16 @@ void Dialog::ShowDialog(int ID)
       case DI_VTEXT:
       {
         if (CurItem->Flags & DIF_BOXCOLOR)
-          Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGBOX:COL_DIALOGBOX;
+          Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX);
         else
           if (CurItem->Flags & DIF_SETCOLOR)
             Attr=(CurItem->Flags & DIF_COLORMASK);
           else
-            Attr=(CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+            Attr=(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
+                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT));
 
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,FarColorToReal(Attr));
         SetColor(Attr&0xFF);
@@ -1031,18 +1085,36 @@ void Dialog::ShowDialog(int ID)
         {
           DWORD AAA=Attr&0xFF;
           Attr=MAKEWORD(FarColorToReal(AAA),
-                 FarColorToReal((!CurItem->Focus)?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
+                 FarColorToReal((!CurItem->Focus)?
+                  (CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
+                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)
+                  ):
+                  (CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITSELECTED):
+                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+                  )
+                 )
+                );
           Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
             MAKEWORD(FarColorToReal(AAA), // EditLine - UnChanched Color
-            FarColorToReal(COL_DIALOGTEXT) // HistoryLetter
-           ));
+            FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+               ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
+               ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)
+              )) // HistoryLetter
+           );
         }
         else
         {
-          Attr=MAKEWORD(FarColorToReal(Attr&0xFF),FarColorToReal(COL_DIALOGEDITSELECTED));
+          Attr=MAKEWORD(FarColorToReal(Attr&0xFF),
+            (CheckDialogMode(DMODE_WARNINGSTYLE) ?
+              FarColorToReal(((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT)):
+              FarColorToReal(((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED))
+            )
+          );
           Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
              MAKEWORD(FarColorToReal(EditPtr->GetObjectColorUnChanged()), // EditLine - UnChanched Color
-             FarColorToReal(COL_DIALOGTEXT) // HistoryLetter
+             FarColorToReal(((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)) // HistoryLetter
              ));
         }
         /* SVS $ */
@@ -1132,7 +1204,9 @@ void Dialog::ShowDialog(int ID)
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
 
         if (CurItem->Type==DI_CHECKBOX)
-          mprintf("[%c] ",CurItem->Selected ? 'x':' ');
+          mprintf("[%c] ",CurItem->Selected ?
+             (((CurItem->Flags&DIF_3STATE) && CurItem->Selected == 2)?
+                *CheckBox3State:'x'):' ');
         else
           if (CurItem->Flags & DIF_MOVESELECT)
             mprintf(" %c ",CurItem->Selected ? '\07':' ');
@@ -1356,14 +1430,22 @@ int Dialog::ProcessKey(int Key)
   // небольшая оптимизация
   if(Type==DI_CHECKBOX)
   {
-    if((Key == KEY_ADD      && !Item[FocusPos].Selected) ||
-       (Key == KEY_SUBTRACT &&  Item[FocusPos].Selected))
-    Key=KEY_SPACE;
+    if(!(Item[FocusPos].Flags&DIF_3STATE))
+    {
+      if((Key == KEY_ADD      && !Item[FocusPos].Selected) ||
+         (Key == KEY_SUBTRACT &&  Item[FocusPos].Selected))
+       Key=KEY_SPACE;
+    }
+    /*
+      блок else не нужен, т.к. ниже клавиши будут обработаны...
+    */
   }
   else if(Key == KEY_ADD)
     Key='+';
   else if(Key == KEY_SUBTRACT)
     Key='-';
+  else if(Key == KEY_MULTIPLY)
+    Key='*';
 
   switch(Key)
   {
@@ -1536,34 +1618,54 @@ int Dialog::ProcessKey(int Key)
       EndLoop=TRUE;
       ExitCode=(Key==KEY_BREAK) ? -2:-1;
       return(TRUE);
-/*
-    case KEY_ADD:
-      if (Type==DI_CHECKBOX && !Item[FocusPos].Selected)
-        ProcessKey(KEY_SPACE);
-      else
-        ProcessKey('+');
-      return(TRUE);
 
+    /* $ 04.12.2000 SVS
+       3-х уровневое состояние
+       Для чекбокса сюда попадем только в случае, если контрол
+       имеет флаг DIF_3STATE
+    */
+    case KEY_ADD:
     case KEY_SUBTRACT:
-      if (Type==DI_CHECKBOX && Item[FocusPos].Selected)
-        ProcessKey(KEY_SPACE);
-      else
-        ProcessKey('-');
+    case KEY_MULTIPLY:
+      if (Type==DI_CHECKBOX)
+      {
+        int CHKState=
+           (Key == KEY_ADD?1:
+            (Key == KEY_SUBTRACT?0:
+             ((Key == KEY_MULTIPLY)?2:
+              Item[FocusPos].Selected)));
+        if(Item[FocusPos].Selected != CHKState)
+          if(Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,CHKState))
+          {
+             Item[FocusPos].Selected=CHKState;
+             ShowDialog();
+          }
+      }
       return(TRUE);
-*/
+    /* SVS 22.11.2000 $ */
+
     case KEY_SPACE:
       if (Type==DI_BUTTON)
         return(ProcessKey(KEY_ENTER));
       if (Type==DI_CHECKBOX)
       {
-        Item[FocusPos].Selected =! Item[FocusPos].Selected;
+        /* $ 04.12.2000 SVS
+           3-х уровневое состояние
+        */
+        int OldSelected=Item[FocusPos].Selected;
+
+        if(Item[FocusPos].Flags&DIF_3STATE)
+          (++Item[FocusPos].Selected)%=3;
+        else
+          Item[FocusPos].Selected = !Item[FocusPos].Selected;
         /* $ 28.07.2000 SVS
           При изменении состояния каждого элемента посылаем сообщение
            посредством функции SendDlgMessage - в ней делается все!
         */
         if(!Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,Item[FocusPos].Selected))
-          Item[FocusPos].Selected =! Item[FocusPos].Selected;
+          Item[FocusPos].Selected = OldSelected;
         /* SVS $ */
+        /* SVS 04.12.2000 $ */
         ShowDialog();
         return(TRUE);
       }
@@ -2000,7 +2102,11 @@ int Dialog::ProcessKey(int Key)
              AutoComplite: Если установлен DIF_HISTORY
                  и разрешено автозавершение!.
           */
-          if(Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL &&
+          /* $ 04.12.2000 SVS
+            Автодополнение - чтобы не работало во время проигрывания макросов.
+          */
+          if(!CtrlObject->Macro.IsExecuting() &&
+             Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL &&
              ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX)
             )
           {
@@ -2044,24 +2150,8 @@ int Dialog::ProcessKey(int Key)
                 edt->FastShow();
               }
             }
-
-            // а вот при постоянных блоках остатка строки нам ненать
-            //  даже если блок помечен в серёдке... :-)
-            /*if(Opt.EditorPersistentBlocks)
-            {
-              // ненать по возможности :-)
-              if(CurPos <= SelEnd)
-              {
-                Str[CurPos]=0;
-                edt->Select(CurPos,sizeof(Str)); //select the appropriate text
-                edt->DeleteBlock();
-                edt->FastShow();
-              }
-            }*/
             /* IS $ */
 
-            SelEnd=strlen(Str);
-            //find the string in the list
             /* $ 03.12.2000 IS
                  Учитываем флаг DoAutoComplete
             */
@@ -2085,6 +2175,7 @@ int Dialog::ProcessKey(int Key)
               Redraw();
             }
           }
+          /* SVS 03.12.2000 $ */
           /* SVS $ */
           return(TRUE);
         }
@@ -2147,6 +2238,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     */
     for (I=0;I<ItemCount;I++)
     {
+      /* $ 04.12.2000 SVS
+         Исключаем из списка оповещаемых о мыши недоступные элементы
+      */
+      if(Item[I].Flags&(DIF_DISABLE|DIF_NOFOCUS))
+        continue;
+      /* SVS $ */
       int IX1=Item[I].X1+X1,
           IY1=Item[I].Y1+Y1,
           IX2=Item[I].X2+X1,
@@ -2188,6 +2285,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     {
       for (I=0;I<ItemCount;I++)
       {
+        /* $ 04.12.2000 SVS
+           Исключаем из списка оповещаемых о мыши недоступные элементы
+        */
+        if(Item[I].Flags&(DIF_DISABLE|DIF_NOFOCUS))
+          continue;
+        /* SVS $ */
         Type=Item[I].Type;
         if (MsX>=X1+Item[I].X1)
         {
@@ -2438,7 +2541,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 
       Type=Item[FocusPos].Type;
 
-      if(!(Item[FocusPos].Flags&DIF_NOFOCUS))
+      if(!(Item[FocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE)))
       {
         if (Type==DI_LISTBOX || Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type) || Type==DI_USERCONTROL)
           break;
@@ -2471,7 +2574,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 {
   int FucusPosNeed=-1;
-  if(!(Item[SetFocusPos].Flags&DIF_NOFOCUS))
+  if(!(Item[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE)))
   {
     if(CheckDialogMode(DMODE_INITOBJECTS))
       FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
@@ -2514,6 +2617,10 @@ void Dialog::SelectOnEntry(int Pos)
 }
 /* SVS $ */
 
+/* $ 04.12.2000 SVS
+   ! Оптимизация функций ConvertItem() и DataToItem() - с указателями
+     будет генериться компактный и быстрый код (MSVC - это сам делает :-(
+*/
 
 //////////////////////////////////////////////////////////////////////////
 /* $ 28.07.2000 SVS
@@ -2527,32 +2634,32 @@ void Dialog::ConvertItem(int FromPlugin,
 {
   int I;
   if(FromPlugin == CVTITEM_TOPLUGIN)
-    for (I=0; I < Count; I++)
+    for (I=0; I < Count; I++, ++Item, ++Data)
     {
-      Item[I].Type=Data[I].Type;
-      Item[I].X1=Data[I].X1;
-      Item[I].Y1=Data[I].Y1;
-      Item[I].X2=Data[I].X2;
-      Item[I].Y2=Data[I].Y2;
-      Item[I].Focus=Data[I].Focus;
-      Item[I].Selected=Data[I].Selected;
-      Item[I].Flags=Data[I].Flags;
-      Item[I].DefaultButton=Data[I].DefaultButton;
-      strcpy(Item[I].Data,Data[I].Data);
+      Item->Type=Data->Type;
+      Item->X1=Data->X1;
+      Item->Y1=Data->Y1;
+      Item->X2=Data->X2;
+      Item->Y2=Data->Y2;
+      Item->Focus=Data->Focus;
+      Item->Selected=Data->Selected;
+      Item->Flags=Data->Flags;
+      Item->DefaultButton=Data->DefaultButton;
+      strcpy(Item->Data,Data->Data);
     }
   else
-    for (I=0; I < Count; I++)
+    for (I=0; I < Count; I++, ++Item, ++Data)
     {
-      Data[I].Type=Item[I].Type;
-      Data[I].X1=Item[I].X1;
-      Data[I].Y1=Item[I].Y1;
-      Data[I].X2=Item[I].X2;
-      Data[I].Y2=Item[I].Y2;
-      Data[I].Focus=Item[I].Focus;
-      Data[I].Selected=Item[I].Selected;
-      Data[I].Flags=Item[I].Flags;
-      Data[I].DefaultButton=Item[I].DefaultButton;
-      strcpy(Data[I].Data,Item[I].Data);
+      Data->Type=Item->Type;
+      Data->X1=Item->X1;
+      Data->Y1=Item->Y1;
+      Data->X2=Item->X2;
+      Data->Y2=Item->Y2;
+      Data->Focus=Item->Focus;
+      Data->Selected=Item->Selected;
+      Data->Flags=Item->Flags;
+      Data->DefaultButton=Item->DefaultButton;
+      strcpy(Data->Data,Item->Data);
     }
 }
 /* SVS $ */
@@ -2567,24 +2674,25 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
                         int Count)
 {
   int I;
-  for (I=0;I<Count;I++)
+  for (I=0;I<Count;I++, ++Item, ++Data)
   {
-    Item[I].Type=Data[I].Type;
-    Item[I].X1=Data[I].X1;
-    Item[I].Y1=Data[I].Y1;
-    Item[I].X2=Data[I].X2;
-    Item[I].Y2=Data[I].Y2;
-    Item[I].Focus=Data[I].Focus;
-    Item[I].Selected=Data[I].Selected;
-    Item[I].Flags=Data[I].Flags;
-    Item[I].DefaultButton=Data[I].DefaultButton;
-    if ((unsigned int)Data[I].Data<MAX_MSG)
-      strcpy(Item[I].Data,MSG((unsigned int)Data[I].Data));
+    Item->Type=Data->Type;
+    Item->X1=Data->X1;
+    Item->Y1=Data->Y1;
+    Item->X2=Data->X2;
+    Item->Y2=Data->Y2;
+    Item->Focus=Data->Focus;
+    Item->Selected=Data->Selected;
+    Item->Flags=Data->Flags;
+    Item->DefaultButton=Data->DefaultButton;
+    if ((unsigned int)Data->Data<MAX_MSG)
+      strcpy(Item->Data,MSG((unsigned int)Data->Data));
     else
-      strcpy(Item[I].Data,Data[I].Data);
-    Item[I].ObjPtr=NULL;
+      strcpy(Item->Data,Data->Data);
+    Item->ObjPtr=NULL;
   }
 }
+/* SVS 04.12.2000 $ */
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -3715,3 +3823,4 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 /* SVS $ */
 
 //////////////////////////////////////////////////////////////////////////
+

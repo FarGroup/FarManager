@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.27 17.11.2000 $ */
+/* Revision: 1.28 04.12.2000 $ */
 
 /*
 Modify:
+  04.12.2000 SVS
+    + ACTL_GETCOLOR - получить определенный цвет
+    + ACTL_GETARRAYCOLOR - получить весь массив цветов
   17.11.2000 SVS
     ! "Приколы нашего городка" - бага в функцию ShowHelp закралась :-(
   11.11.2000 SVS
@@ -214,6 +217,28 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return 0;
     /* SVS $ */
 
+    /* $ 04.12.2000 SVS
+      ACTL_GETCOLOR - получить определенный цвет по индекс, определенному
+       в farcolor.hpp
+      (int)Param - индекс.
+      Return - значение цвета или -1 если индекс неверен.
+    */
+    case ACTL_GETCOLOR:
+      if((int)Param < SizeArrayPalette && (int)Param >= 0)
+        return (int)((unsigned int)Palette[(int)Param]);
+      return -1;
+    /* SVS $ */
+
+    /* $ 04.12.2000 SVS
+      ACTL_GETARRAYCOLOR - получить весь массив цветов
+      Param - указатель на массив или NULL - чтобы получить размер буфера
+      Return - размер массива.
+    */
+    case ACTL_GETARRAYCOLOR:
+      if(Param)
+        memmove(Param,Palette,SizeArrayPalette);
+      return SizeArrayPalette;
+    /* SVS $ */
  }
  return FALSE;
 }

@@ -969,6 +969,9 @@
 "Menu highlight"
 "Menu selected highlight"
 "Scrollbar for lists"
+"Disabled text"
+"Disabled input line"
+"Disabled list"
 
 "Normal text"
 "Highlighted text"
@@ -980,6 +983,9 @@
 "Selected buttons"
 "Highlighted buttons"
 "Selected highlighted buttons"
+"Disabled text"
+"Disabled input line"
+"Disabled list"
 
 "Normal text"
 "Selected text"
@@ -1230,3 +1236,5 @@
 
 "Buffer allocated for file name too small."
 "Required %d bytes, but allocated only %d ones"
+
+"?"

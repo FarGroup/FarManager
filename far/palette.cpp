@@ -5,10 +5,12 @@ palette.cpp
 
 */
 
-/* Revision: 1.05 06.10.2000 $ */
+/* Revision: 1.06 04.12.2000 $ */
 
 /*
 Modify:
+  04.12.2000 SVS
+    + COL_*DIALOG*DISABLED
   06.10.2000 SVS
     - попытка №1 исправить падение ФАРы в ночное время :-)
   13.09.2000 tran 1.04
@@ -92,18 +94,18 @@ unsigned char DefaultPalette[]=
   F_LIGHTCYAN|B_BLUE,
   /* tran 18.07.2000 $ */
 
-  /* $ 13.09.2000 tran
-     COL_CMDLINEPREFIX */
-  F_LIGHTGRAY|B_BLACK,
+  /* $ 13.09.2000 tran */
+  F_LIGHTGRAY|B_BLACK,     // COL_CMDLINEPREFIX
   /* tran 13.09.2000 $ */
+  /* $ 04.12.2000 SVS */
+  F_DARKGRAY|B_LIGHTGRAY,  // COL_DIALOGDISABLED
+  F_DARKGRAY|B_CYAN,  // COL_DIALOGEDITDISABLED
+  F_DARKGRAY|B_CYAN,  // COL_DIALOGLISTDISABLED
 
-
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  F_DARKGRAY|B_RED,        // COL_WARNDIALOGDISABLED
+  F_DARKGRAY|B_CYAN,        // COL_WARNDIALOGEDITDISABLED
+  F_DARKGRAY|B_CYAN,        // COL_WARNDIALOGLISTDISABLED
+  /* SVS $ */
   0,
   0
 };
@@ -172,13 +174,15 @@ unsigned char BlackPalette[]=
     COL_CMDLINEPREFIX */
   F_LIGHTGRAY|B_BLACK,
   /* tran 13.09.2000 $ */
+  /* $ 04.12.2000 SVS */
+  F_LIGHTGRAY|B_BLACK,      // COL_DIALOGDISABLED
+  F_DARKGRAY|B_LIGHTGRAY,  // COL_DIALOGEDITDISABLED
+  F_DARKGRAY|B_LIGHTGRAY,  // COL_DIALOGLISTDISABLED
 
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
+  F_DARKGRAY|B_LIGHTGRAY,   // COL_WARNDIALOGDISABLED
+  F_LIGHTGRAY|B_DARKGRAY,   // COL_WARNDIALOGEDITDISABLED
+  F_LIGHTGRAY|B_DARKGRAY,   // COL_WARNDIALOGLISTDISABLED
+  /* SVS $ */
   0,
   0
 };

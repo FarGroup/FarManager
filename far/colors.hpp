@@ -7,10 +7,13 @@ colors.hpp
 
 */
 
-/* Revision: 1.03 13.09.2000 $ */
+/* Revision: 1.04 04.12.2000 $ */
 
 /*
 Modify:
+  04.12.2000 SVS
+    + COL_*DIALOG*DISABLED - Недоступный элемент диалога с
+      атрибутом DIF_DISABLE
   13.09.2000 tran 1.03
     + COL_COMMANDLINEPREFIX
   18.07.2000 tran 1.02
@@ -170,6 +173,15 @@ enum PaletteColors
      comman list prefix */
   COL_COMMANDLINEPREFIX,
   /* tran 13.09.2000 $ */
+  /* $ 04.12.2000 SVS
+     COL_*DIALOG*DISABLED - Недоступный элемент диалога с атрибутом DIF_DISABLE */
+  COL_DIALOGDISABLED,
+  COL_DIALOGEDITDISABLED,
+  COL_DIALOGLISTDISABLED,
+  COL_WARNDIALOGDISABLED,
+  COL_WARNDIALOGEDITDISABLED,
+  COL_WARNDIALOGLISTDISABLED,
+  /* SVS 04.12.2000 $ */
 };
 
 #endif  // __COLORS_HPP__

@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.29 29.11.2000 $ */
+/* Revision: 1.30 04.12.2000 $ */
 
 /*
 Modify:
+  04.12.2000 SVS
+    + MSetColorDialog*Disabled, MSetColorWarning*Disabled, MCheckBox2State
   29.11.2000 SVS
     + MEditROOpen, MEditRSH, MEditFileLong
   29.11.2000 SVS
@@ -1048,6 +1050,9 @@ enum
   MSetColorDialogMenuHighLight,
   MSetColorDialogMenuSelectedHighLight,
   MSetColorDialogMenuScrollBar,
+  MSetColorDialogDisabled,
+  MSetColorDialogEditDisabled,
+  MSetColorDialogListDisabled,
 
   MSetColorWarningNormal,
   MSetColorWarningHighlighted,
@@ -1059,6 +1064,9 @@ enum
   MSetColorWarningSelectedButtons,
   MSetColorWarningHighlightedButtons,
   MSetColorWarningSelectedHighlightedButtons,
+  MSetColorWarningDisabled,
+  MSetColorWarningEditDisabled,
+  MSetColorWarningListDisabled,
 
   MSetColorMenuNormal,
   MSetColorMenuSelected,
@@ -1309,5 +1317,7 @@ enum
 
   MBuffSizeTooSmall_1,
   MBuffSizeTooSmall_2,
+
+  MCheckBox2State,
 };
 #endif	// __FARLANG_HPP__

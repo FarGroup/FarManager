@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.67 04.11.2000 $ */
+/* Revision: 1.68 04.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.12.2000 SVS
+    + DIF_3STATE - 3-х уровневый CheckBox
+    + ACTL_GETCOLOR - получить определенный цвет
+    + ACTL_GETARRAYCOLOR - получить весь массив цветов
   04.11.2000 SVS
     + XLAT_SWITCHKEYBBEEP - выдать звуковой сигнал при переключении
       клавиатуры
@@ -444,6 +448,7 @@ enum FarDialogItemFlags {
   DIF_DISABLE         =0x80000000UL,
   DIF_LISTNOAMPERSAND =   0x20000UL,
   DIF_READONLY        =0x20000000UL,
+  DIF_3STATE          =  0x800000UL,
 };
 
 enum FarMessagesProc{
@@ -685,6 +690,8 @@ enum {
   ACTL_CONSOLEMODE,
   ACTL_GETSYSWORDDIV,
   ACTL_WAITKEY,
+  ACTL_GETCOLOR,
+  ACTL_GETARRAYCOLOR,
 };
 
 #define CONSOLE_GET_MODE       (-2)
