@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.05 28.04.2001 $ */
+/* Revision: 1.06 29.05.2001 $ */
 
 /*
 Modify:
+  29.05.2001 SVS
+    + GetPathRootOne()
   28.04.2001 VVM
     + GetSubstName получает тип носителя
   25.04.2001 SVS
@@ -26,7 +28,6 @@ Modify:
   04.01.2001 SVS
     + Создан.
     + Описания MkLink, GetNumberOfLinks переехали из fn.hpp
-
 */
 
 int   WINAPI MkLink(char *Src,char *Dest);
@@ -42,5 +43,6 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize);
 int DelSubstDrive(char *DosDeviceName);
 void  WINAPI GetPathRoot(char *Path,char *Root);
+void GetPathRootOne(char *Path,char *Root);
 
 #endif // __FLINK_HPP__

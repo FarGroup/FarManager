@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.17 06.05.2001 $ */
+/* Revision: 1.18 28.05.2001 $ */
 
 /*
 Modify:
+  28.05.2001 SVS
+    - не обновлялась панель после операции Unlink
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -73,6 +75,7 @@ static int ERemoveDirectory(char *Name,char *ShortName,int Wipe);
 static int RemoveToRecycleBin(char *Name);
 static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
+static void ShellDeleteUpdatePanels(Panel *SrcPanel);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
 
@@ -137,6 +140,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     {
       TruncPathStr(JuncName+4,sizeof(JuncName));
 
+      //SetMessageHelp("?????");
       Ret=Message(0,3,MSG(MDeleteTitle),
                 DeleteFilesMsg,
                 MSG(MAskDeleteLink),
@@ -151,6 +155,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           ; //  ;-%
         }
         DeleteJunctionPoint(JuncName);
+        ShellDeleteUpdatePanels(SrcPanel);
         return;
       }
       if(Ret != 0)
@@ -393,6 +398,12 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   SetConsoleTitle(OldTitle);
 
+  ShellDeleteUpdatePanels(SrcPanel);
+}
+
+
+void ShellDeleteUpdatePanels(Panel *SrcPanel)
+{
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
   int AnotherType=AnotherPanel->GetType();
   if (AnotherType!=QVIEW_PANEL)
@@ -408,7 +419,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     AnotherPanel->Redraw();
   }
 }
-
 
 void ShellDeleteMsg(char *Name,int Flags)
 {

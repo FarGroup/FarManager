@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.107 27.05.2001 $ */
+/* Revision: 1.108 29.05.2001 $ */
 
 /*
 Modify:
+  28.05.2001 SVS
+   ! RegKey[80] -> RegKey[NM]
   27.05.2001 SVS
    ! Для RO элемента редактирования сами отслеживаем RO состояние.
    ! Для DM_SHOWITEM нужно перерисовать элемент для случая
@@ -979,7 +981,7 @@ int Dialog::InitDialogObjects(int ID)
       if(CurItem->Type==DI_EDIT &&
         (ItemFlags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
       {
-        char RegKey[80];
+        char RegKey[NM];
         char *PtrData;
         int PtrLength;
         if(ItemFlags&DIF_VAREDIT)
@@ -3292,7 +3294,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
 
   if(!TypeFind)
   {
-    char RegKey[80],KeyValue[80];
+    char RegKey[NM],KeyValue[80];
     if((Str=(char*)malloc(MaxLen+1)) == NULL)
       return FALSE;
     sprintf(RegKey,fmtSavedDialogHistory,(char*)HistoryName);
@@ -3440,7 +3442,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
      Избавился от утечки памяти (проявлялось не у всех, но проявлялось же!)
 */
 {
-  char RegKey[80],KeyValue[80],*Str[HISTORY_COUNT]={0};
+  char RegKey[NM],KeyValue[80],*Str[HISTORY_COUNT]={0};
   int I,Dest;
   int Checked;
   int Final=FALSE;
@@ -3620,7 +3622,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
 {
   int LastLine=HISTORY_COUNT-1,FirstLine=HISTORY_COUNT, I, Locked;
   char *Str;
-  char RegKey[80];
+  char RegKey[NM];
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
 

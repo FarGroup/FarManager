@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.57 26.05.2001 $ */
+/* Revision: 1.58 29.05.2001 $ */
 
 /*
 Modify:
+  29.05.2001 SVS
+    ! Учтем для Ctrl-Alt-F файловый атрибут FILE_ATTRIBUTE_REPARSE_POINT
+      и постараемся вернуть нормальное значение
   26.05.2001 OT
     - Выпрямление логики вызовов в NFZ
   21.05.2001 SVS
@@ -774,15 +777,31 @@ int FileList::ProcessKey(int Key)
 
             /* $ 29.01.2001 VVM
               + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
-            if (Key==KEY_CTRLALTF) {
+            if (Key==KEY_CTRLALTF)
+            {
               Key = KEY_CTRLF;
               char uni[1024];
               DWORD uniSize = sizeof(uni);
               if (WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,
-                                           &uni, &uniSize) == NOERROR) {
+                                           &uni, &uniSize) == NOERROR)
+              {
                 UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
                 strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
               } /* if */
+
+              if(GetFileAttributes(FileName)&FILE_ATTRIBUTE_REPARSE_POINT)
+              {
+                char JuncName[NM];
+                if(GetJunctionPointInfo(FileName,JuncName,sizeof(JuncName)))
+                {
+                  TruncPathStr(JuncName+4,sizeof(JuncName));
+                  if(!strncmp(JuncName+4,"Volume{",7))
+                    GetPathRootOne(JuncName+4,FileName);
+                  else
+                    strcpy(FileName,JuncName+4);
+_SVS(SysLog("FileName='%s'",FileName));
+                }
+              }
             } /* if */
             /* VVM $ */
             /* $ 20.10.2000 SVS
