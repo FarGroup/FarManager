@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.05 29.05.2001 $ */
+/* Revision: 1.06 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Под NT применяются W-функции для вывода в консоль
   29.05.2001 tran
     + DIRECT_RT
   12.05.2001 DJ
@@ -41,6 +43,8 @@ Modify:
 #ifdef DIRECT_RT
 extern int DirectRT;
 #endif
+
+extern WCHAR Oem2Unicode[];
 
 ScreenBuf ScrBuf;
 
@@ -103,7 +107,10 @@ void ScreenBuf::FillBuf()
   Coord.Top=0;
   Coord.Right=BufX-1;
   Coord.Bottom=BufY-1;
-  ReadConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
+  else
+    ReadConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
   memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
   UseShadow=TRUE;
 
@@ -218,7 +225,13 @@ void ScreenBuf::Flush()
       Coord.Top=WriteY1;
       Coord.Right=WriteX2;
       Coord.Bottom=WriteY2;
-      WriteConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
+      if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      {
+        // Нужно ли здесь делать перекодировку oem->unicode???
+        WriteConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
+      }
+      else
+        WriteConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
       memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
     }
   }
