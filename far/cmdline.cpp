@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.33 07.08.2001 $ */
+/* Revision: 1.34 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 SKV
+    + GetSelString, Select
   07.08.2001 SVS
     + Добавим обработку команды OS - CLS
   10.07.2001 SVS
@@ -868,3 +870,15 @@ void CommandLine::ResizeConsole()
   BackgroundScreen->Resize(ScrX+1,ScrY+1,2);
 //  this->DisplayObject();
 }
+
+/*$ 13.08.2001 SKV */
+void CommandLine::GetSelString(char* Buffer,int MaxLength)
+{
+  CmdStr.GetSelString(Buffer,MaxLength);
+}
+
+void CommandLine::Select(int Start,int End)
+{
+  CmdStr.Select(Start,End);
+}
+/* SKV$*/

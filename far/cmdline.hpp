@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.04 17.05.2001 $ */
+/* Revision: 1.05 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 SKV
+    + GetSelString, Select
   17.05.2001 OT
     - Отрисовка при изменении размеров консоли - ResizeConsole().
   11.05.2001 OT
@@ -59,6 +61,11 @@ class CommandLine:public ScreenObject
     void SetCurPos(int Pos);
     int GetCurPos();
     /* $ 11.05.2001 OT */
+
+    /*$ 13.08.2001 SKV*/
+    void GetSelString(char*,int);
+    void Select(int,int);
+    /* SKV$*/
     void SaveBackground(int X1,int Y1,int X2,int Y2);
     void SaveBackground();
     void ShowBackground();
@@ -66,4 +73,4 @@ class CommandLine:public ScreenObject
     void ResizeConsole();
 };
 
-#endif	// __COMMANDLINE_HPP__
+#endif  // __COMMANDLINE_HPP__

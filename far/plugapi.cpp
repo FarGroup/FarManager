@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.85 13.08.2001 $ */
+/* Revision: 1.86 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 SKV
+    + FCTL_GETCMDLINESELECTION,FCTL_SETCMDLINESELECTION
   13.08.2001 SVS
     - Забыл в прошлый раз проставить интернал PluginNumber в функции
       GetPluginDirList() для случая, если hPlugin=INVALID_HANDLE_VALUE
@@ -1025,6 +1027,16 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_GETCMDLINEPOS:
       *(int *)Param=CtrlObject->CmdLine->GetCurPos();
       return(TRUE);
+    case FCTL_GETCMDLINESELECTION:
+      CtrlObject->CmdLine->GetSelString((char *)Param,1024);
+      return TRUE;
+    case FCTL_SETCMDLINESELECTION:
+    {
+      CmdLineSelect *sel=(CmdLineSelect*)Param;
+      CtrlObject->CmdLine->Select(sel->SelStart,sel->SelEnd);
+      CtrlObject->CmdLine->Redraw();
+      return TRUE;
+    }
     case FCTL_SETUSERSCREEN:
       if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
         return(FALSE);
