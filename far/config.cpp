@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.141 12.08.2002 $ */
+/* Revision: 1.142 14.08.2002 $ */
 
 /*
 Modify:
+  14.08.2002 VVM
+    - Перепутали ShowHiddenDrives & DisabledOptions
   12.08.2002 SVS
     + Opt.ExecuteUseAppPath
   13.06.2002 SVS
@@ -1352,7 +1354,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
 
   /* $ 10.06.2002 KM
-  	! Новые символы, наличие которых в имени файла окавычит его.
+    ! Новые символы, наличие которых в имени файла окавычит его.
   */
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`"},
   /* KM $ */
@@ -1461,7 +1463,7 @@ void ReadConfig()
   SetRegRootKey(HKEY_LOCAL_MACHINE);
   GetRegKey(NKeySystem,"TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
   OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,"ShowHiddenDrives",1)&1;
-  OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,"ShowHiddenDrives",0);
+  OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,"DisabledOptions",0);
   SetRegRootKey(HKEY_CURRENT_USER);
   if(Opt.ExceptRules == -1)
     GetRegKey("System","ExceptRules",Opt.ExceptRules,1);
