@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.32 23.05.2001 $ */
+/* Revision: 1.33 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Уточнение в функции TranslateKeyToVK - теперь wVirtualScanCode
+      корректно транслируется.
   23.05.2001 SVS
     ! Макрос на Alt+Shift+Цифра
   17.05.2001 OT
@@ -891,8 +894,9 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
     Rec->EventType=KEY_EVENT;
     Rec->Event.KeyEvent.bKeyDown=1;
     Rec->Event.KeyEvent.wRepeatCount=1;
-    Rec->Event.KeyEvent.wVirtualKeyCode=
-      Rec->Event.KeyEvent.wVirtualScanCode=VirtKey;
+    Rec->Event.KeyEvent.wVirtualKeyCode=VirtKey;
+    Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(
+                    Rec->Event.KeyEvent.wVirtualKeyCode, 0);
     if (Key>255)
       Key=0;
     Rec->Event.KeyEvent.uChar.UnicodeChar=

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.67 05.06.2001 $ */
+/* Revision: 1.68 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    - Во время исполнения макроса в меню игнорировались BreakKeys.
   05.06.2001 tran
     + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
   04.06.2001 SVS
@@ -506,6 +508,12 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         {
           if (BreakKeys!=NULL)
             for (int I=0;BreakKeys[I]!=0;I++)
+            {
+              if(CtrlObject->Macro.IsExecuting())
+              {
+                int VirtKey,ControlState;
+                TranslateKeyToVK(ReadKey,VirtKey,ControlState,&ReadRec);
+              }
               if (ReadRec.Event.KeyEvent.wVirtualKeyCode==(BreakKeys[I] & 0xffff))
               {
                 DWORD Flags=BreakKeys[I]>>16;
@@ -526,6 +534,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
                   return(FarMenu.GetSelectPos());
                 }
               }
+            }
           FarMenu.ProcessKey(ReadKey);
         }
     }
