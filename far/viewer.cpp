@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.158 29.05.2004 $ */
+/* Revision: 1.159 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   29.05.2004 SVS
     - BugZ#994 - нехватка кавычки
   19.05.2004 SVS
@@ -1820,8 +1823,8 @@ int Viewer::ProcessKey(int Key)
         {
           char Root[NM];
           GetPathRoot(FullFileName,Root);
-          int DriveType=GetDriveType(Root);
-          if (DriveType!=DRIVE_REMOVABLE && DriveType!=DRIVE_CDROM)
+          int DriveType=FAR_GetDriveType(Root);
+          if (DriveType!=DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType))
           {
             HANDLE ViewFindHandle;
             WIN32_FIND_DATA NewViewFindData;

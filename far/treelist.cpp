@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.54 20.05.2004 $ */
+/* Revision: 1.55 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   20.05.2004 SVS
     ! NumericSort - свойство конкретной панели, а не режима отображения
     - Bug#695 - Не работает прерывание по Esc
@@ -1728,11 +1731,11 @@ int TreeList::MustBeCached(char *Root)
 {
     UINT type;
 
-    type=GetDriveType(Root);
+    type=FAR_GetDriveType(Root);
     if ( type==DRIVE_UNKNOWN ||
          type==DRIVE_NO_ROOT_DIR ||
          type==DRIVE_REMOVABLE ||
-         type==DRIVE_CDROM
+         IsDriveTypeCDROM(type)
          )
     {
         if ( type==DRIVE_REMOVABLE )

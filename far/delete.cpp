@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.66 19.05.2004 $ */
+/* Revision: 1.67 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   19.05.2004 SVS
     ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
       пусть баундчекер не блюет.
@@ -246,7 +249,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     ConvertNameToFull(SelName,Root, sizeof(Root));
     GetPathRoot(Root,Root);
 //_SVS(SysLog("Del: SelName='%s' Root='%s'",SelName,Root));
-    if(GetDriveType(Root) != DRIVE_FIXED)
+    if(FAR_GetDriveType(Root) != DRIVE_FIXED)
       Opt.DeleteToRecycleBin=0;
   }
 

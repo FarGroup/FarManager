@@ -5,11 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.134 19.05.2004 $ */
-
+/* Revision: 1.135 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   19.05.2004 SVS
     ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
       пусть баундчекер не блюет.
@@ -1373,9 +1375,9 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
     GetPathRoot(Root,Root);
 //// // _SVS(SysLog("SrcDir=%s",SrcDir));
 //// // _SVS(SysLog("Root=%s",Root));
-    CDP->IsDTSrcFixed=GetDriveType(Root);
+    CDP->IsDTSrcFixed=FAR_GetDriveType(Root);
     CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED ||
-                      CDP->IsDTSrcFixed == DRIVE_CDROM ||
+                      IsDriveTypeCDROM(CDP->IsDTSrcFixed) ||
                       (NT5 && WinVer.dwMinorVersion>0?DRIVE_REMOVABLE:0);
     GetVolumeInformation(Root,NULL,0,NULL,NULL,&CDP->FileSystemFlagsSrc,FSysNameSrc,sizeof(FSysNameSrc));
     CDP->FSysNTFS=!stricmp(FSysNameSrc,"NTFS")?TRUE:FALSE;
@@ -1402,8 +1404,8 @@ BOOL ShellCopy::LinkRules(DWORD *Flags9,DWORD* Flags5,int* Selected5,
 
     //GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
     // 3. если приемник находится не на логическом диске
-    CDP->IsDTDstFixed=GetDriveType(Root);
-    CDP->IsDTDstFixed=CDP->IsDTDstFixed == DRIVE_FIXED || CDP->IsDTSrcFixed == DRIVE_CDROM;
+    CDP->IsDTDstFixed=FAR_GetDriveType(Root);
+    CDP->IsDTDstFixed=CDP->IsDTDstFixed == DRIVE_FIXED || IsDriveTypeCDROM(CDP->IsDTSrcFixed);
     *FSysNameDst=0;
     GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
     int SameDisk=IsSameDisk(SrcDir,DstDir);
@@ -1620,7 +1622,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       if (*DestDriveRoot==0)
       {
         GetPathRoot(FullDest,DestDriveRoot);
-        DestDriveType=GetDriveType(strchr(FullDest,'\\')!=NULL ? DestDriveRoot:NULL);
+        DestDriveType=FAR_GetDriveType(strchr(FullDest,'\\')!=NULL ? DestDriveRoot:NULL);
         if(GetFileAttributes(DestDriveRoot) != -1)
           if(!GetVolumeInformation(DestDriveRoot,NULL,0,NULL,NULL,&DestFSFlags,DestFSName,sizeof(DestFSName)))
             *DestFSName=0;
@@ -1639,7 +1641,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     if (*SrcDriveRoot==0 || LocalStrnicmp(SelName,SrcDriveRoot,strlen(SrcDriveRoot))!=0)
     {
       GetPathRoot(SelName,SrcDriveRoot);
-      SrcDriveType=GetDriveType(strchr(SelName,'\\')!=NULL ? SrcDriveRoot:NULL);
+      SrcDriveType=FAR_GetDriveType(strchr(SelName,'\\')!=NULL ? SrcDriveRoot:NULL);
       if(GetFileAttributes(SrcDriveRoot) != -1)
         if(!GetVolumeInformation(SrcDriveRoot,NULL,0,NULL,NULL,&SrcFSFlags,SrcFSName,sizeof(SrcFSName)))
           *SrcFSName=0;
@@ -2146,7 +2148,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         if ((DestAttr & FILE_ATTRIBUTE_DIRECTORY) && !SameName)
         {
           DWORD SetAttr=SrcData.dwFileAttributes;
-          if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
+          if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
             SetAttr&=~FA_RDONLY;
 
           _LOGCOPYR(SysLog("%d SetAttr=0x%08X, DestAttr=0x%08X",__LINE__,SetAttr,DestAttr));
@@ -2299,7 +2301,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
       DWORD SetAttr=SrcData.dwFileAttributes;
 
-      if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
+      if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
 
       if(!(ShellCopy::Flags&FCOPY_SKIPSETATTRFLD) && (SetAttr&(~FILE_ATTRIBUTE_DIRECTORY)) != 0 /*SetAttr != SrcData.dwFileAttributes && SetAttr != FILE_ATTRIBUTE_DIRECTORY && */) // только 0x10 нужен!
@@ -2579,7 +2581,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
             strcpy(CopiedName,PointToName(DestPath));
         }
 
-        if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly &&
+        if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly &&
             (SrcData.dwFileAttributes & FA_RDONLY))
           ShellSetAttr(DestPath,SrcData.dwFileAttributes & ~FA_RDONLY);
 
@@ -2605,7 +2607,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         strcpy(CopiedName,PointToName(DestPath));
         if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
         {
-          if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly &&
+          if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly &&
               (SrcData.dwFileAttributes & FA_RDONLY))
             ShellSetAttr(DestPath,SrcData.dwFileAttributes & ~FA_RDONLY);
 

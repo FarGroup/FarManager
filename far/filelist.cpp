@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.203 03.06.2004 $ */
+/* Revision: 1.204 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
+    ! Задолбали эти хотетили - уточнение BugZ#633
   03.06.2004 SVS
     ! Уточнение BugZ#633
   03.06.2004 SVS
@@ -2766,7 +2770,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
         strncpy(DirName,CurDir,sizeof(DirName)-1);
         AddEndSlash(DirName);
         if(Opt.PgUpChangeDisk &&
-          (GetDriveType(DirName) != DRIVE_REMOTE ||
+          (FAR_GetDriveType(DirName) != DRIVE_REMOTE ||
            CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) == -1))
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
@@ -3655,6 +3659,7 @@ void FileList::CompareDir()
 
   struct FileListItem *CurPtr, *AnotherCurPtr;
   char TempName1[NM*2],*PtrTempName1,TempName2[NM*2],*PtrTempName2;
+  BOOL OpifRealnames1=FALSE, OpifRealnames2=FALSE;
 
   // помечаем ВСЕ, кроме каталогов на активной панели
   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
@@ -3673,6 +3678,7 @@ void FileList::CompareDir()
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     if (Info.Flags & OPIF_COMPAREFATTIME)
       CompareFatTime=TRUE;
+    OpifRealnames1=Info.Flags & OPIF_REALNAMES;
   }
   if (Another->PanelMode==PLUGIN_PANEL && !CompareFatTime)
   {
@@ -3680,6 +3686,7 @@ void FileList::CompareDir()
     CtrlObject->Plugins.GetOpenPluginInfo(Another->hPlugin,&Info);
     if (Info.Flags & OPIF_COMPAREFATTIME)
       CompareFatTime=TRUE;
+    OpifRealnames2=Info.Flags & OPIF_REALNAMES;
   }
 
   if (PanelMode==NORMAL_PANEL && Another->PanelMode==NORMAL_PANEL)
@@ -3701,11 +3708,13 @@ void FileList::CompareDir()
     for (AnotherCurPtr=Another->ListData,J=0; J < Another->FileCount; J++, AnotherCurPtr++)
     {
       int Cmp=0;
+#if 0
+      PtrTempName1=CurPtr->Name;
+      PtrTempName2=AnotherCurPtr->Name;
+
       int fp1=strpbrk(CurPtr->Name,":\\/")!=NULL;
       int fp2=strpbrk(AnotherCurPtr->Name,":\\/")!=NULL;
 
-      PtrTempName1=CurPtr->Name;
-      PtrTempName2=AnotherCurPtr->Name;
       if(fp1 && !fp2 && strcmp(PtrTempName2,".."))
       {
         strcpy(TempName2,Another->CurDir);
@@ -3720,6 +3729,16 @@ void FileList::CompareDir()
         strncat(TempName1,CurPtr->Name,sizeof(TempName1)-1);
         PtrTempName1=TempName1;
       }
+
+      if(OpifRealnames1 || OpifRealnames2)
+      {
+        PtrTempName1=PointToName(CurPtr->Name);
+        PtrTempName2=PointToName(AnotherCurPtr->Name);
+      }
+#else
+      PtrTempName1=PointToName(CurPtr->Name);
+      PtrTempName2=PointToName(AnotherCurPtr->Name);
+#endif
 
       if (LocalStricmp(PtrTempName1,PtrTempName2)==0)
       //if (LocalStricmp(CurPtr->Name,AnotherCurPtr->Name)==0)

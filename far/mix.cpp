@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.159 20.05.2004 $ */
+/* Revision: 1.160 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   20.05.2004 SVS
     ! классы UndoGlobalSaveScrPtr и RefreshFrameManeger переехали в RefreshFrameManager.?pp
   17.05.2004 SVS
@@ -1397,7 +1400,7 @@ char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
   if(DriveType == DRIVE_UNKNOWN)
   {
     LocalName[2]='\\';
-    DriveType = GetDriveType(LocalName);
+    DriveType = FAR_GetDriveType(LocalName);
     LocalName[2]=0;
   }
 

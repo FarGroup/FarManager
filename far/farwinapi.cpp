@@ -5,10 +5,13 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.02 01.03.2004 $ */
+/* Revision: 1.03 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   01.03.2004 SVS
     + Обертки FAR_OemTo* и FAR_CharTo* вокруг WinAPI
     + FAR_ANSI - руками не мацать (уж больно трудно синхронизацией заниматься)
@@ -175,4 +178,209 @@ BOOL WINAPI FAR_CharToOem(LPCSTR lpszSrc,LPTSTR lpszDst)
   }
 #endif
   return CharToOem(lpszSrc,lpszDst);
+}
+
+
+UINT FAR_GetDriveType(LPCTSTR RootDir)
+{
+  UINT DrvType = GetDriveType(RootDir);
+
+  // анализ CD-привода
+  if (DrvType == DRIVE_CDROM && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  {
+#if defined(__BORLANDC__)
+//#pragma option push -b -a4 -pc -A- /*P_O_Push*/
+#pragma option -a4
+#elif defined(_MSC_VER)
+#pragma pack(push,4)
+#endif
+
+    typedef long LONG_PTR, *PLONG_PTR;
+    typedef unsigned long ULONG_PTR, *PULONG_PTR;
+
+    //#ifndef _NTDDSCSIH_
+    typedef struct _SCSI_PASS_THROUGH {
+        USHORT Length;
+        UCHAR ScsiStatus;
+        UCHAR PathId;
+        UCHAR TargetId;
+        UCHAR Lun;
+        UCHAR CdbLength;
+        UCHAR SenseInfoLength;
+        UCHAR DataIn;
+        ULONG DataTransferLength;
+        ULONG TimeOutValue;
+        ULONG_PTR DataBufferOffset;
+        ULONG SenseInfoOffset;
+        UCHAR Cdb[16];
+    } SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
+
+    #define SCSI_IOCTL_DATA_IN           1
+    #define IOCTL_SCSI_BASE                 FILE_DEVICE_CONTROLLER
+
+    //
+    // NtDeviceIoControlFile IoControlCode values for this device.
+    //
+    // Warning:  Remember that the low two bits of the code specify how the
+    //           buffers are passed to the driver!
+    //
+
+    #define IOCTL_SCSI_PASS_THROUGH         CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+    #define IOCTL_SCSI_PASS_THROUGH_DIRECT  CTL_CODE(IOCTL_SCSI_BASE, 0x0405, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+    //#endif
+
+    typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
+        SCSI_PASS_THROUGH Spt;
+        ULONG             Filler;      // realign buffers to double word boundary
+        UCHAR             SenseBuf[32];
+        UCHAR             DataBuf[512];
+    } SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
+
+
+    // Command Descriptor Block constants.
+    #define CDB6GENERIC_LENGTH         6
+
+    // SCSI CDB operation codes
+    #define SCSIOP_INQUIRY             0x12
+    #define SCSIOP_MODE_SENSE          0x1A
+    #define MODE_PAGE_CAPABILITIES  0x2A
+
+    #ifndef _INC_STDDEF
+
+    #undef offsetof
+    #define offsetof(s,m)   (size_t)&(((s *)0)->m)
+
+    #endif
+
+#if defined(__BORLANDC__)
+//#pragma option pop /*P_O_Push*/
+#pragma option -a.
+#elif defined(_MSC_VER)
+#pragma pack(pop)
+#endif
+
+
+    char szVolumeName[20]="\\\\.\\ :";
+    szVolumeName[4]=*RootDir;
+
+    //get a handle to the device
+    HANDLE hDevice = CreateFile(szVolumeName,
+                           GENERIC_READ|GENERIC_WRITE,
+                           FILE_SHARE_READ|FILE_SHARE_WRITE,
+                           NULL, OPEN_EXISTING, 0, NULL);//get the media types IO call
+
+    if (hDevice != INVALID_HANDLE_VALUE)
+    {
+      BOOL CDReader, CDwriter, DVDReader, DVDwriter;
+      ULONG dwBytesReturned=0;
+
+      SCSI_PASS_THROUGH_WITH_BUFFERS      sptwb;
+      BOOL                                status;
+      ULONG                               length = 0;
+
+      ZeroMemory(&sptwb,sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS));
+
+      sptwb.Spt.Length = sizeof(SCSI_PASS_THROUGH);
+      sptwb.Spt.PathId = 0;
+      sptwb.Spt.TargetId = 1;
+      sptwb.Spt.Lun = 0;
+      sptwb.Spt.CdbLength = CDB6GENERIC_LENGTH;
+      sptwb.Spt.SenseInfoLength = 24;
+      sptwb.Spt.DataIn = SCSI_IOCTL_DATA_IN;
+      sptwb.Spt.DataTransferLength = 192;
+      sptwb.Spt.TimeOutValue = 2;
+      sptwb.Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,DataBuf);
+      sptwb.Spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,SenseBuf);
+//      sptwb.Spt.Cdb[0] = SCSIOP_INQUIRY;
+      sptwb.Spt.Cdb[4] = 192;
+      length = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS,DataBuf) + sptwb.Spt.DataTransferLength;
+/*
+      status = DeviceIoControl(hDevice,
+                               IOCTL_SCSI_PASS_THROUGH,
+                               &sptwb,
+                               sizeof(SCSI_PASS_THROUGH),
+                               &sptwb,
+                               length,
+                               &dwBytesReturned,
+                               FALSE);
+
+      _SVS(if(!status)Message(MSG_ERRORTYPE,1,"FAR_GetDriveType()","","Ok"));
+
+      //PrintStatusResults(status, returned, &sptwb);
+
+  */
+      // If device supports SCSI-3, then we can get the CD drive capabilities, i.e. ability to
+      // read/write to CD-ROM/R/RW or/and read/write to DVD-ROM/R/RW.
+      // Use the previous spti structure, only modify the command to "mode sense"
+
+      sptwb.Spt.Cdb[0] = SCSIOP_MODE_SENSE;
+      sptwb.Spt.Cdb[1] = 0x08;                    // target shall not return any block descriptors
+      sptwb.Spt.Cdb[2] = MODE_PAGE_CAPABILITIES;
+
+      status = DeviceIoControl(hDevice,
+                               IOCTL_SCSI_PASS_THROUGH,
+                               &sptwb,
+                               sizeof(SCSI_PASS_THROUGH),
+                               &sptwb,
+                               length,
+                               &dwBytesReturned,
+                               FALSE);
+      if (status)
+      {
+        if (((sptwb.DataBuf[7] & 0x10)||(sptwb.DataBuf[7] & 0x20)))  //DVRRW
+        {
+          DrvType = DRIVE_DVD_RW;
+/*
+          if ((sptwb.DataBuf[7] & 0x10))
+            DrvType = DRIVE_DVD_R;
+          else if ((sptwb.DataBuf[7] & 0x20))
+            DrvType = DRIVE_DVD_RAM;
+*/
+        }
+/*
+        else if (                                                             //DVD Combo
+                  (
+                    (sptwb.DataBuf[6] & 0x08)||   //  DVDROM
+                    (sptwb.DataBuf[6] & 0x10)||   //  DVDR
+                    (sptwb.DataBuf[6] & 0x20)     //  DVDRAM
+                  )
+                    &&
+                  (
+                    (sptwb.DataBuf[7] & 0x01)||   //CDR
+                    (sptwb.DataBuf[7] & 0x02)     //CDRW
+                  )
+                )
+        {
+          DrvType = DRIVE_DVD_COMBO;
+        }
+*/
+        else if ((sptwb.DataBuf[6] & 0x08)||   //  DVDROM
+                 (sptwb.DataBuf[6] & 0x10)||   //  DVDR
+                 (sptwb.DataBuf[6] & 0x20)     //  DVDRAM
+                )
+        {
+          DrvType = DRIVE_DVD_ROM;
+        }
+        else if((CDwriter=((sptwb.DataBuf[7] & 0x01)||(sptwb.DataBuf[7] & 0x02)))!=0)   //  CDRW
+        {
+          if ((sptwb.DataBuf[7] & 0x02))
+            DrvType = DRIVE_CD_RW;
+/*
+          else if ((sptwb.DataBuf[7] & 0x01))
+            DrvType = DRIVE_CD_R;
+*/
+        }
+      }
+      _SVS(else Message(MSG_ERRORTYPE,1,"FAR_GetDriveType()","","Ok"));
+
+      CloseHandle(hDevice);
+    }
+  }
+
+  return DrvType;
+}
+
+BOOL IsDriveTypeCDROM(UINT DriveType)
+{
+  return DriveType == DRIVE_CDROM || DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_DVD_RW;
 }

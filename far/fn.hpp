@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.205 31.05.2004 $ */
+/* Revision: 1.206 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    + FAR_GetDriveType(), IsDriveTypeCDROM()
   31.05.2004 SVS
     ! ReplaceStrings - последний параметр - не различать "высоту" букв
   07.05.2004 SVS
@@ -695,6 +697,8 @@ HANDLE WINAPI FAR_CreateFile(
     HANDLE hTemplateFile          // handle to file with attributes to copy
    );
 /* IS $ */
+UINT FAR_GetDriveType(LPCTSTR RootDir);
+BOOL IsDriveTypeCDROM(UINT DriveType);
 
 void WINAPI SetFileApisTo(int Type);
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);

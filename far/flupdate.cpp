@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.49 01.03.2004 $ */
+/* Revision: 1.50 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -678,7 +681,7 @@ void FileList::CreateChangeNotification(int CheckTree)
   if(IsLocalPath(CurDir))
   {
     RootDir[0]=*CurDir;
-    DriveType=GetDriveType(RootDir);
+    DriveType=FAR_GetDriveType(RootDir);
   }
 
   if(Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE))

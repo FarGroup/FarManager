@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.14 05.05.2004 $ */
+/* Revision: 1.15 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   05.05.2004 SVS
     + Новая функция IsEjectableMedia(), возвращает TRUE, если медию можно
       "выкинуть". Применяется не для CDROM!
@@ -478,17 +481,19 @@ BOOL EjectVolume(char Letter,DWORD Flags)
 
   szRootName[4]=Letter;
 
-  uDriveType = GetDriveType(szRootName+4);
+  uDriveType = FAR_GetDriveType(szRootName+4);
   szRootName[6]=0;
   switch(uDriveType)
   {
     case DRIVE_REMOVABLE:
       dwAccessFlags = GENERIC_READ | GENERIC_WRITE;
       break;
-    case DRIVE_CDROM:
-      dwAccessFlags = GENERIC_READ;
-      break;
     default:
+      if(IsDriveTypeCDROM(uDriveType))
+      {
+        dwAccessFlags = GENERIC_READ;
+        break;
+      }
       return FALSE;
   }
 

@@ -5,10 +5,14 @@ infolist.cpp
 
 */
 
-/* Revision: 1.40 01.03.2004 $ */
+/* Revision: 1.41 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
+    + добавка типа CD-привода
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -235,7 +239,7 @@ void InfoList::DisplayObject()
   {
     char LocalName[8], DiskType[100], RemoteName[NM], DiskName[NM];
     int ShowRealPath=FALSE;
-    int DriveType=GetDriveType(DriveRoot);
+    int DriveType=FAR_GetDriveType(DriveRoot);
     sprintf(LocalName,"%c:",*DriveRoot);
 
     if (DriveRoot[0] && DriveRoot[1]==':')
@@ -263,7 +267,10 @@ void InfoList::DisplayObject()
         IdxMsgID=MInfoRAM;
         break;
       default:
-        *DiskType=0;
+        if(IsDriveTypeCDROM(DriveType))
+          IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
+        else
+          *DiskType=0;
         break;
     }
     if(IdxMsgID != -1)

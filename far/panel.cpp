@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.126 04.06.2004 $ */
+/* Revision: 1.127 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
+    + добавка типа CD-привода
   04.06.2004 SVS
     - Copy/Paste :-(
   03.06.2004 SVS
@@ -529,7 +533,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       {
         sprintf(MenuText,"&%c: ",'A'+I);
         sprintf(RootDir,"%c:\\",'A'+I);
-        DriveType = GetDriveType(RootDir);
+        DriveType = FAR_GetDriveType(RootDir);
         if (Opt.ChangeDriveMode & DRIVE_SHOW_TYPE)
         {
           static struct TypeMessage{
@@ -540,12 +544,16 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {DRIVE_FIXED,MChangeDriveFixed},
             {DRIVE_REMOTE,MChangeDriveNetwork},
             {DRIVE_CDROM,MChangeDriveCDROM},
+            {DRIVE_CD_RW,MChangeDriveCD_RW},
+            {DRIVE_DVD_ROM,MChangeDriveDVD_ROM},
+            {DRIVE_DVD_RW,MChangeDriveDVD_RW},
             {DRIVE_RAMDISK,MChangeDriveRAM},
           };
           for(J=0; J < sizeof(DrTMsg)/sizeof(DrTMsg[1]); ++J)
             if(DrTMsg[J].DrvType == DriveType)
             {
               strcpy(DiskType,MSG(DrTMsg[J].FarMsg));
+              _SVS(SysLog("DriveType=%d, DiskType='%s'",DriveType,DiskType));
               break;
             }
 
@@ -570,7 +578,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         }
 
         int ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
-                       (DriveType!=DRIVE_CDROM || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM));
+                       (!IsDriveTypeCDROM(DriveType) || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM));
         if (Opt.ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
         {
           char VolumeName[NM],FileSystemName[NM];
@@ -883,7 +891,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
               DriveType=HIWORD(UserData);
-              if(DriveType == DRIVE_CDROM /* || DriveType == DRIVE_REMOVABLE*/)
+              if(IsDriveTypeCDROM(DriveType) /* || DriveType == DRIVE_REMOVABLE*/)
               {
                 SaveScreen SvScrn;
                 EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA);
@@ -901,7 +909,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             */
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
-              if(HIWORD(UserData) == DRIVE_REMOVABLE || HIWORD(UserData) == DRIVE_CDROM)
+              if(HIWORD(UserData) == DRIVE_REMOVABLE || IsDriveTypeCDROM(HIWORD(UserData)))
               {
                 if(HIWORD(UserData) == DRIVE_REMOVABLE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && !IsEjectableMedia(LOBYTE(LOWORD(UserData))))
                   break;
@@ -1060,7 +1068,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         char RootDir[10];
         strncpy(RootDir,CurDir,3);
         RootDir[3]=0;
-        if (GetDriveType(RootDir)==DRIVE_NO_ROOT_DIR)
+        if (FAR_GetDriveType(RootDir)==DRIVE_NO_ROOT_DIR)
           ChDisk.ClearDone();
       }
       /* DJ $ */
@@ -1076,7 +1084,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     }
   }
 
-  if(Opt.CloseCDGate && UserData != NULL && HIWORD(UserData) == DRIVE_CDROM && UserDataSize == 3)
+  if(Opt.CloseCDGate && UserData != NULL && IsDriveTypeCDROM(HIWORD(UserData)) && UserDataSize == 3)
   {
     sprintf(RootDir,"%c:",LOBYTE(LOWORD(UserData)));
     if(!IsDiskInDrive(RootDir))
@@ -1239,7 +1247,7 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
           return DRIVE_DEL_FAIL;
       char RootDir[50];
       sprintf(RootDir,"%c:\\",*DiskLetter);
-      if (GetDriveType(RootDir)==DRIVE_REMOTE)
+      if (FAR_GetDriveType(RootDir)==DRIVE_REMOTE)
         Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
     }
     return DRIVE_DEL_FAIL;
@@ -1727,7 +1735,7 @@ int  Panel::SetCurPath()
       BOOL IsChangeDisk=FALSE;
       char Root[1024];
       GetPathRoot(CurDir,Root);
-      if(GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
+      if(FAR_GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
         IsChangeDisk=TRUE;
       else
       {
@@ -1760,7 +1768,7 @@ int  Panel::SetCurPath()
       BOOL IsChangeDisk=FALSE;
       char Root[1024];
       GetPathRoot(CurDir,Root);
-      if(GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
+      if(FAR_GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
         IsChangeDisk=TRUE;
       else if(CheckFolder(CurDir) == CHKFLD_NOTACCESS)
       {

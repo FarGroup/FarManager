@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.43 01.03.2004 $ */
+/* Revision: 1.44 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
+    ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -532,7 +535,7 @@ int IsLocalDrive(const char *Path)
   if(IsLocalPath(Path))
   {
     RootDir[0] = Path[0];
-    DriveType = GetDriveType(RootDir);
+    DriveType = FAR_GetDriveType(RootDir);
   }
   else
   {
@@ -541,12 +544,12 @@ int IsLocalDrive(const char *Path)
     if(IsLocalPath(RootDir))
     {
       RootDir[3] = 0;
-      DriveType = GetDriveType(RootDir);
+      DriveType = FAR_GetDriveType(RootDir);
     }
   }
 
   return (DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_FIXED ||
-    DriveType == DRIVE_CDROM || DriveType == DRIVE_RAMDISK);
+    IsDriveTypeCDROM(DriveType) || DriveType == DRIVE_RAMDISK);
 }
 /* IS $ */
 
@@ -588,7 +591,7 @@ int WINAPI MkLink(const char *Src,const char *Dest)
   // этот кусок для Win2K
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
      WinVer.dwMajorVersion >= 5
-     //&& GetDriveType(FileSource) == DRIVE_FIXED
+     //&& FAR_GetDriveType(FileSource) == DRIVE_FIXED
     )
   {
     typedef BOOL (WINAPI *PCREATEHARDLINK)(

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.141 20.05.2004 $ */
+/* Revision: 1.142 08.06.2004 $ */
 
 /*
 Modify:
+  08.06.2004 SVS
+    + MInfoCD_RW, MInfoDVD_ROM, MInfoDVD_RW, MChangeDriveCD_RW, MChangeDriveDVD_ROM, MChangeDriveDVD_RW
   20.05.2004 SVS
     ! выкинем MEditPanelModeNumericSort за ненадобностью.
   14.04.2004 SVS
@@ -1368,6 +1370,9 @@ enum
   MInfoFixed,
   MInfoNetwork,
   MInfoCDROM,
+  MInfoCD_RW,
+  MInfoDVD_ROM,
+  MInfoDVD_RW,
   MInfoRAM,
   MInfoSUBST,
   MInfoDisk,
@@ -1538,6 +1543,9 @@ enum
   MChangeDriveFixed,
   MChangeDriveNetwork,
   MChangeDriveCDROM,
+  MChangeDriveCD_RW,
+  MChangeDriveDVD_ROM,
+  MChangeDriveDVD_RW,
   MChangeDriveRAM,
   MChangeDriveSUBST,
   MChangeDriveLabelAbsent,
