@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.43 23.01.2001 $ */
+/* Revision: 1.44 28.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001
+   - Путем проверки ViewFile на NULL в ProcessKey  избавляемся от падения
   23.01.2001 SVS
    + Заполнение Info->LeftPos в VCTL_GETINFO.
   22.01.2001 IS
@@ -1074,6 +1076,9 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
 }
 
 
+/* $ 28.01.2001
+   - Путем проверки ViewFile на NULL избавляемся от падения
+*/
 int Viewer::ProcessKey(int Key)
 {
   int Tmp,I;
@@ -1133,36 +1138,39 @@ int Viewer::ProcessKey(int Key)
     /* tran 18.07.2000 $ */
     case KEY_IDLE:
       {
-        char Root[NM];
-        GetPathRoot(FullFileName,Root);
-        int DriveType=GetDriveType(Root);
-        if (DriveType!=DRIVE_REMOVABLE && DriveType!=DRIVE_CDROM)
+        if(ViewFile)
         {
-          HANDLE ViewFindHandle;
-          WIN32_FIND_DATA NewViewFindData;
-          ViewFindHandle=FindFirstFile(FullFileName,&NewViewFindData);
-          if (ViewFindHandle==INVALID_HANDLE_VALUE)
-            return(TRUE);
-          FindClose(ViewFindHandle);
-          fflush(ViewFile);
-          vseek(ViewFile,0,SEEK_END);
-          unsigned long CurFileSize=vtell(ViewFile);
-          if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
-              ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
-              CurFileSize!=FileSize)
+          char Root[NM];
+          GetPathRoot(FullFileName,Root);
+          int DriveType=GetDriveType(Root);
+          if (DriveType!=DRIVE_REMOVABLE && DriveType!=DRIVE_CDROM)
           {
-            ViewFindData=NewViewFindData;
-            FileSize=CurFileSize;
-            if (FilePos>FileSize)
-              ProcessKey(KEY_CTRLEND);
-            else
+            HANDLE ViewFindHandle;
+            WIN32_FIND_DATA NewViewFindData;
+            ViewFindHandle=FindFirstFile(FullFileName,&NewViewFindData);
+            if (ViewFindHandle==INVALID_HANDLE_VALUE)
+              return(TRUE);
+            FindClose(ViewFindHandle);
+            fflush(ViewFile);
+            vseek(ViewFile,0,SEEK_END);
+            unsigned long CurFileSize=vtell(ViewFile);
+            if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
+                ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
+                CurFileSize!=FileSize)
             {
-              int PrevLastPage=LastPage;
-              Show();
-              if (PrevLastPage && !LastPage)
-              {
+              ViewFindData=NewViewFindData;
+              FileSize=CurFileSize;
+              if (FilePos>FileSize)
                 ProcessKey(KEY_CTRLEND);
-                LastPage=TRUE;
+              else
+              {
+                int PrevLastPage=LastPage;
+                Show();
+                if (PrevLastPage && !LastPage)
+                {
+                  ProcessKey(KEY_CTRLEND);
+                  LastPage=TRUE;
+                }
               }
             }
           }
@@ -1337,14 +1345,15 @@ int Viewer::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_ALTF8:
-      GoTo();
+      if(ViewFile)
+        GoTo();
       return(TRUE);
     case KEY_F11:
       CtrlObject->Plugins.CommandsMenu(FALSE,TRUE,0);
       Show();
       return(TRUE);
     case KEY_UP:
-      if (FilePos>0)
+      if (FilePos>0 && ViewFile)
       {
         Up();
         if (VM.Hex)
@@ -1358,7 +1367,7 @@ int Viewer::ProcessKey(int Key)
       LastSelPos=FilePos;
       return(TRUE);
     case KEY_DOWN:
-      if (!LastPage)
+      if (!LastPage && ViewFile)
       {
         FilePos=SecondPos;
         Show();
@@ -1366,13 +1375,16 @@ int Viewer::ProcessKey(int Key)
       LastSelPos=FilePos;
       return(TRUE);
     case KEY_PGUP:
-      for (I=ViewY1;I<Y2;I++)
-        Up();
-      Show();
-      LastSelPos=FilePos;
+      if(ViewFile)
+      {
+        for (I=ViewY1;I<Y2;I++)
+          Up();
+        Show();
+        LastSelPos=FilePos;
+      }
       return(TRUE);
     case KEY_PGDN:
-      if (LastPage)
+      if (LastPage || ViewFile==NULL)
         return(TRUE);
       vseek(ViewFile,FilePos,SEEK_SET);
       for (I=ViewY1;I<Y2;I++)
@@ -1395,7 +1407,7 @@ int Viewer::ProcessKey(int Key)
       LastSelPos=FilePos;
       return(TRUE);
     case KEY_LEFT:
-      if (LeftPos>0)
+      if (LeftPos>0 && ViewFile)
       {
         if (VM.Hex && LeftPos>80-Width)
           LeftPos=Max(80-Width,1);
@@ -1405,7 +1417,7 @@ int Viewer::ProcessKey(int Key)
       LastSelPos=FilePos;
       return(TRUE);
     case KEY_RIGHT:
-      if (LeftPos<MAX_VIEWLINE)
+      if (LeftPos<MAX_VIEWLINE && ViewFile)
       {
         LeftPos++;
         Show();
@@ -1416,39 +1428,53 @@ int Viewer::ProcessKey(int Key)
       ShowProcessList();
       return(TRUE);
     case KEY_CTRLLEFT:
-      LeftPos-=20;
-      if (LeftPos<0)
-        LeftPos=0;
-      Show();
-      LastSelPos=FilePos;
+      if(ViewFile)
+      {
+        LeftPos-=20;
+        if (LeftPos<0)
+          LeftPos=0;
+        Show();
+        LastSelPos=FilePos;
+      }
       return(TRUE);
     case KEY_CTRLRIGHT:
-      LeftPos+=20;
-      if (LeftPos>MAX_VIEWLINE)
-        LeftPos=MAX_VIEWLINE;
-      Show();
-      LastSelPos=FilePos;
+      if(ViewFile)
+      {
+        LeftPos+=20;
+        if (LeftPos>MAX_VIEWLINE)
+          LeftPos=MAX_VIEWLINE;
+        Show();
+        LastSelPos=FilePos;
+      }
       return(TRUE);
     case KEY_HOME:
     case KEY_CTRLHOME:
-      LeftPos=0;
+      if(ViewFile)
+        LeftPos=0;
     case KEY_CTRLPGUP:
-      FilePos=0;
-      Show();
-      LastSelPos=FilePos;
+      if(ViewFile)
+      {
+        FilePos=0;
+        Show();
+        LastSelPos=FilePos;
+      }
       return(TRUE);
     case KEY_END:
     case KEY_CTRLEND:
-      LeftPos=0;
+      if(ViewFile)
+        LeftPos=0;
     case KEY_CTRLPGDN:
-      vseek(ViewFile,0,SEEK_END);
-      FilePos=vtell(ViewFile);
-      for (I=0;I<Y2-ViewY1;I++)
-        Up();
-      if (VM.Hex)
-        FilePos&=~(VM.Unicode ? 0x7:0xf);
-      Show();
-      LastSelPos=FilePos;
+      if(ViewFile)
+      {
+        vseek(ViewFile,0,SEEK_END);
+        FilePos=vtell(ViewFile);
+        for (I=0;I<Y2-ViewY1;I++)
+          Up();
+        if (VM.Hex)
+          FilePos&=~(VM.Unicode ? 0x7:0xf);
+        Show();
+        LastSelPos=FilePos;
+      }
       return(TRUE);
     default:
       if (Key>=' ' && Key<=255)
@@ -1459,7 +1485,7 @@ int Viewer::ProcessKey(int Key)
   }
   return(FALSE);
 }
-
+/* IS $ */
 
 int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
