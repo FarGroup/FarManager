@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.57 03.12.2001 $ */
+/* Revision: 1.58 19.12.2001 $ */
 
 /*
 Modify:
+  19.12.2001 VVM
+    ! Если JumpTopic() не выполнился, то данные из стека удалим.
   03.12.2001 SVS
     ! Для "обрезания" :-) есть спец-функция.
   03.12.2001 DJ
@@ -1141,7 +1143,8 @@ int Help::ProcessKey(int Key)
       {
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
-        JumpTopic();
+        if (!JumpTopic())
+          Stack->Pop(&StackData);
         IsNewTopic=FALSE;
       }
       return(TRUE);
@@ -1167,7 +1170,7 @@ int Help::JumpTopic(const char *JumpTopic)
     {
       *p=0;
       if(RunURL(NewTopic,StackData.SelTopic))
-        return(TRUE);
+        return(FALSE);
       *p=':';
     }
   }
