@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.145 14.01.2002 $ */
+/* Revision: 1.146 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    ! Флаги вместо кучи переменных типа int
+    ! Первая серия по отучиванию класса Editor слову "Файл"
+    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
   14.01.2002 SVS
     ! DOS_EOL_fmt[], UNIX_EOL_fmt (в global.?pp)
     - ФАР не компилился под MSVC после 1168.
@@ -460,7 +464,6 @@ Editor::Editor()
 {
   _KEYMACRO(SysLog("Editor::Editor()"));
   _KEYMACRO(SysLog(1));
-  DeleteOnClose=FALSE; // ну мы же не самоубийцы, правда? ;-)
   /* $ 19.02.2001 IS
        Я не учел, что для нового файла GetFileAttributes не вызывается...
   */
@@ -488,22 +491,10 @@ Editor::Editor()
 
   DisableOut=0;
   Pasting=0;
-  Modified=0;
-  CurPosChangedByPlugin=FALSE;
-  /*$ 10.08.2000 skv
-    Initialization
-  */
-  JustModified=0;
-  /* skv$*/
-  WasChanged=0;
   NumLine=0;
   NumLastLine=1;
-  Overtype=0;
-  DisableUndo=0;
   LastChangeStrPos=0;
   *FileName=0;
-  MarkingBlock=FALSE;
-  MarkingVBlock=FALSE;
   BlockStart=NULL;
   BlockStartLine=0;
   TopList=EndList=TopScreen=CurLine=new struct EditList;
@@ -532,23 +523,19 @@ Editor::Editor()
   UndoDataPos=0;
   StartLine=StartChar=-1;
   *Title=0;
-  LockMode=FALSE;
   CurrentEditor=this;
   BlockUndo=FALSE;
   *PluginData=0;
-  NewUndo=FALSE;
   VBlockStart=NULL;
   memset(&SavePos,0xff,sizeof(SavePos));
   MaxRightPos=0;
-  TableChangedByUser=FALSE;
   *PluginTitle=0;
-  UndoOverflow=FALSE;
   UndoSavePos=0;
   Editor::EditorID=::EditorID++;
-  OpenFailed=true; // Ну, блин. Файл то еще не открыт,
-                   // так нефига ставить признак удачного открытия
+  EFlags.Set(FEDITOR_OPENFAILED); // Ну, блин. Файл то еще не открыт,
+                                  // так нефига ставить признак удачного открытия
+
   HostFileEditor=NULL;
-  IsResizedConsole=0;
 }
 
 
@@ -566,7 +553,7 @@ Editor::~Editor()
     else
       strcpy(CacheName,FileName);
     unsigned int Table=0;
-    if (TableChangedByUser)
+    if (EFlags.Check(FEDITOR_TABLECHANGEDBYUSER))
     {
       Table=1;
       if (AnsiText)
@@ -576,7 +563,7 @@ Editor::~Editor()
           Table=TableNum+2;
     }
 
-    if (!OpenFailed) // здесь БЯКА в кеш попадала :-(
+    if (!EFlags.Check(FEDITOR_OPENFAILED)) // здесь БЯКА в кеш попадала :-(
       CtrlObject->EditorPosCache->AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
                (EdOpt.SaveShortPos?SavePos.Line:NULL),
                (EdOpt.SaveShortPos?SavePos.Cursor:NULL),
@@ -603,17 +590,17 @@ Editor::~Editor()
   /* IS $ */
   KeepInitParameters();
 
-  if (!OpenFailed)
+  if (!EFlags.Check(FEDITOR_OPENFAILED))
   {
-    Editor *save = CtrlObject->Plugins.CurEditor;
-    CtrlObject->Plugins.CurEditor=this;
+    FileEditor *save = CtrlObject->Plugins.CurEditor;
+    CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_CLOSE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&EditorID);
     /* $ 11.10.2001 IS
        Удалим файл вместе с каталогом, если это просится и файла с таким же
        именем не открыто в других фреймах.
     */
-    if (DeleteOnClose && !FrameManager->CountFramesWithName(FileName))
+    if (EFlags.Check(FEDITOR_DELETEONCLOSE) && !FrameManager->CountFramesWithName(FileName))
        DeleteFileWithFolder(FileName);
    /* IS $ */
     CtrlObject->Plugins.CurEditor = save;
@@ -648,10 +635,10 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   struct EditList *PrevPtr;
   int Count=0,LastLineCR=0,MessageShown=FALSE;
   UserBreak=0;
-  OpenFailed=false;
+  EFlags.Skip(FEDITOR_OPENFAILED);
 //  ConvertNameToFull(Name,FileName,sizeof(FileName));
   if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName)){
-    OpenFailed=true;
+    EFlags.Set(FEDITOR_OPENFAILED);
     return FALSE;
   }
 
@@ -670,7 +657,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     if (LastError!=ERROR_FILE_NOT_FOUND && LastError!=ERROR_PATH_NOT_FOUND)
     {
       UserBreak=-1;
-      OpenFailed=true;
+      EFlags.Set(FEDITOR_OPENFAILED);
     }
     return(FALSE);
   }
@@ -685,7 +672,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     fclose(EditFile);
     SetLastError(ERROR_INVALID_NAME);
     UserBreak=-1;
-    OpenFailed=true;
+    EFlags.Set(FEDITOR_OPENFAILED);
     return(FALSE);
   }
 
@@ -725,7 +712,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
           fclose(EditFile);
           SetLastError(ERROR_OPEN_FAILED);
           UserBreak=1;
-          OpenFailed=true;
+          EFlags.Set(FEDITOR_OPENFAILED);
           return(FALSE);
         }
       }
@@ -760,7 +747,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
        )
      )
     /* IS $ */
-      LockMode=!LockMode;
+      EFlags.Swap(FEDITOR_LOCKMODE);
   }
   /* SVS 15.12.2000 $ */
   /* SVS 03.12.2000 $ */
@@ -911,7 +898,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
                (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
                (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
       //_D(SysLog("after Get cache, LeftPos=%i",LeftPos));
-      TableChangedByUser=(Table!=0);
+      EFlags.Change(FEDITOR_TABLECHANGEDBYUSER,(Table!=0));
       switch(Table)
       {
         case 0:
@@ -975,7 +962,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
                (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
                (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
         //_D(SysLog("after Get cache 2, LeftPos=%i",LeftPos));
-        TableChangedByUser=(Table!=0);
+        EFlags.Change(FEDITOR_TABLECHANGEDBYUSER,(Table!=0));
         switch(Table)
         {
           case 0:
@@ -1026,7 +1013,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     TableNum=0;
   /* IS $ */
 
-  CtrlObject->Plugins.CurEditor=this;
+  CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_READ",__LINE__));
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   return(TRUE);
@@ -1039,23 +1026,15 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
      Убраны (с подачи SVS) потенциальные баги - выход из функции был до того,
      как восстановятся атрибуты файла
 */
-int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
+int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewFile)
 {
-  /* $ 11.10.2000 SVS
-     Редактировали, залочили, при выходе - потеряли файл :-(
-  */
-  if (LockMode && !Modified && !SaveAs)
-    return(SAVEFILE_SUCCESS);
-  /* SVS $ */
-
   FILE *EditFile;
   struct EditList *CurPtr;
-  int AskSave;
-  int NewFile=TRUE;
   int RetCode=SAVEFILE_SUCCESS;
 
   if (TextFormat!=0)
-    WasChanged=TRUE;
+    EFlags.Set(FEDITOR_WASCHANGED);
+
   switch(TextFormat)
   {
     case 1:
@@ -1068,54 +1047,12 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 
   {
     //SaveScreen SaveScr;
-    if (Ask)
-    {
-      if (!Modified)
-        return(SAVEFILE_SUCCESS);
-      AskSave=Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),
-                      MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue));
-
-      switch (AskSave)
-      {
-        case -1:
-        case -2:
-        case 2:
-          return(SAVEFILE_CANCEL);
-        case 0:
-          break;
-        case 1:
-          /*$ 10.08.2000 skv
-            TextChanged() support;
-          */
-          TextChanged(0);
-          /* skv $*/
-          return(SAVEFILE_SUCCESS);
-      }
-    }
-
-    if ((FileAttributes=GetFileAttributes(Name))!=-1)
-    {
-      NewFile=FALSE;
-      if (FileAttributes & FA_RDONLY)
-      {
-        int AskOverwrite;
-        AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
-                             MSG(MEditOvr),MSG(MYes),MSG(MNo));
-        if (AskOverwrite!=0)
-          return(SAVEFILE_CANCEL);
-        SetFileAttributes(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
-      }                                                      // после этих строк
-      if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))            // return из
-        SetFileAttributes(Name,0);                           // середины функции
-                                                             // недопустим
-    }
-
     /* $ 11.10.2001 IS
        Если было произведено сохранение с любым результатом, то не удалять файл
     */
-    DeleteOnClose=FALSE;
+    EFlags.Skip(FEDITOR_DELETEONCLOSE);
     /* IS $ */
-    CtrlObject->Plugins.CurEditor=this;
+    CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_SAVE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
@@ -1146,11 +1083,12 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     }
 
     UndoSavePos=UndoDataPos;
-    UndoOverflow=FALSE;
+    EFlags.Skip(FEDITOR_UNDOOVERFLOW);
 
 //    ConvertNameToFull(Name,FileName, sizeof(FileName));
-    if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName)){
-      OpenFailed=true;
+    if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName))
+    {
+      EFlags.Set(FEDITOR_OPENFAILED);
       RetCode=SAVEFILE_ERROR;
       goto end;
     }
@@ -1198,17 +1136,19 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 
 end:
   SetPreRedrawFunc(NULL);
+
   if (FileAttributes!=-1)
     SetFileAttributes(Name,FileAttributes|FA_ARCH);
-  if (Modified || NewFile)
-    WasChanged|=1;
+
+  if (EFlags.Check(FEDITOR_MODIFIED) || NewFile)
+    EFlags.Set(FEDITOR_WASCHANGED);
 
   /* Этот кусок раскомметировать в том случае, если народ решит, что
      для если файл был залочен и мы его переписали под други именем...
      ...то "лочка" должна быть снята.
   */
 //  if(SaveAs)
-//    LockMode=0;
+//    EFlags.Skip(FEDITOR_LOCKMODE);
 
 
   /*$ 10.08.2000 skv
@@ -1230,10 +1170,10 @@ void Editor::DisplayObject()
 {
   if (!DisableOut)
   {
-    if(IsResizedConsole)
+    if(EFlags.Check(FEDITOR_ISRESIZEDCONSOLE))
     {
-      IsResizedConsole=0;
-      CtrlObject->Plugins.CurEditor=this;
+      EFlags.Skip(FEDITOR_ISRESIZEDCONSOLE);
+      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
     }
     ShowEditor(FALSE);
@@ -1252,7 +1192,7 @@ void Editor::ShowEditor(int CurLineOnly)
   /*$ 10.08.2000 skv
     To make sure that CurEditor is set to required value.
   */
-  CtrlObject->Plugins.CurEditor=this;
+  CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
   /* skv$*/
 
   while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
@@ -1290,10 +1230,10 @@ void Editor::ShowEditor(int CurLineOnly)
       /*$ 13.09.2000 skv
         EE_REDRAW 1 and 2 replaced.
       */
-//_SVS(SysLog("Editor::ShowEditor[%d]: EE_REDRAW (%s)",__LINE__,(JustModified?"EEREDRAW_CHANGE":(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL"))));
-      if(JustModified)
+      //_SVS(SysLog("Editor::ShowEditor[%d]: EE_REDRAW (%s)",__LINE__,(EFlags.Check(FEDITOR_JUSTMODIFIED)?"EEREDRAW_CHANGE":(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL"))));
+      if(EFlags.Check(FEDITOR_JUSTMODIFIED))
       {
-        JustModified=0;
+        EFlags.Skip(FEDITOR_JUSTMODIFIED);
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
       }else
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
@@ -1326,7 +1266,7 @@ void Editor::ShowEditor(int CurLineOnly)
       }
   }
 
-  CurLine->EditLine.SetOvertypeMode(Overtype);
+  CurLine->EditLine.SetOvertypeMode(EFlags.Check(FEDITOR_OVERTYPE));
   CurLine->EditLine.Show();
 
   if (VBlockStart!=NULL && VBlockSizeX>0 && VBlockSizeY>0)
@@ -1376,7 +1316,7 @@ void Editor::ShowEditor(int CurLineOnly)
 
 void Editor::ShowStatus()
 {
-  if (DisableOut)
+  if (DisableOut || !HostFileEditor)
     return;
   SetColor(COL_EDITORSTATUS);
   GotoXY(X1,Y1);
@@ -1428,7 +1368,8 @@ void Editor::ShowStatus()
       GetFileAttributes
   */
   sprintf(StatusStr,"%-*s %c%c %10.10s %7s %*.*s %5s %-4d %3s",
-          NameLength,TruncFileName,Modified ? '*':' ',LockMode ? '-':' ',
+          NameLength,TruncFileName,EFlags.Check(FEDITOR_MODIFIED) ? '*':' ',
+          (EFlags.Check(FEDITOR_LOCKMODE) ? '-':' '),
           UseDecodeTable ? TableSet.TableName:AnsiText ? "Win":"DOS",
           MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
           MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1,AttrStr);
@@ -1467,8 +1408,8 @@ void Editor::ShowStatus()
 */
 void Editor::TextChanged(int State)
 {
-  Modified=State;
-  JustModified=1;
+  EFlags.Change(FEDITOR_MODIFIED,State);
+  EFlags.Set(FEDITOR_JUSTMODIFIED);
 }
 /* skv$*/
 
@@ -1495,8 +1436,7 @@ int Editor::ProcessKey(int Key)
   if ((!ShiftPressed  || CtrlObject->Macro.IsExecuting()) &&
       !IsShiftKey(Key) && !Pasting)
   {
-    MarkingBlock=FALSE;
-    MarkingVBlock=FALSE;
+    EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
 
     if (BlockStart!=NULL || VBlockStart!=NULL && !EdOpt.PersistentBlocks)
       if (!EdOpt.PersistentBlocks)
@@ -1625,10 +1565,10 @@ int Editor::ProcessKey(int Key)
       {
         int First=FALSE, // будет TRUE, если выделяем заново, а не продолжаем
             SelStart,SelEnd;
-        if (!MarkingBlock)
+        if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
         {
           UnmarkBlock();
-          First=MarkingBlock=TRUE;
+          First=TRUE; EFlags.Set(FEDITOR_MARKINGBLOCK);
           BlockStart=CurLine;
           BlockStartLine=NumLine;
         }
@@ -1693,10 +1633,10 @@ int Editor::ProcessKey(int Key)
         */
         {
           int First=FALSE; // будет TRUE, если выделяем заново, а не продолжаем
-          if (!MarkingBlock)
+          if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
           {
             UnmarkBlock();
-            First=MarkingBlock=TRUE;
+            First=TRUE; EFlags.Set(FEDITOR_MARKINGBLOCK);
             BlockStart=CurLine;
             BlockStartLine=NumLine;
           }
@@ -1753,10 +1693,10 @@ int Editor::ProcessKey(int Key)
       if (CurPos>0 || CurLine->Prev!=NULL)
       {
         int SelStart,SelEnd;
-        if (!MarkingBlock)
+        if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
         {
           UnmarkBlock();
-          MarkingBlock=TRUE;
+          EFlags.Set(FEDITOR_MARKINGBLOCK);
         }
         if (CurPos==0)
         {
@@ -1793,10 +1733,10 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTRIGHT:
       {
         int SelStart,SelEnd;
-        if (!MarkingBlock)
+        if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
         {
           UnmarkBlock();
-          MarkingBlock=TRUE;
+          EFlags.Set(FEDITOR_MARKINGBLOCK);
           BlockStart=CurLine;
           BlockStartLine=NumLine;
         }
@@ -1841,7 +1781,7 @@ int Editor::ProcessKey(int Key)
           if (SelEnd>SelStart)
           {
             PrevLine->EditLine.Select(SelStart,-1);
-            CtrlObject->Plugins.CurEditor=this;
+            CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
             CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
             PrevLine->EditLine.FastShow();
@@ -1849,7 +1789,7 @@ int Editor::ProcessKey(int Key)
         }
         Pasting--;
       }
-      CtrlObject->Plugins.CurEditor=this;
+      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
       return(TRUE);
@@ -1867,14 +1807,14 @@ int Editor::ProcessKey(int Key)
            противоречие, то начнем новое выделение
         */
         int CurPos;
-        if(CurPosChangedByPlugin)
+        if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
         {
           int SelStart, SelEnd;
           CurPos=CurLine->EditLine.GetCurPos();
           CurLine->EditLine.GetSelection(SelStart,SelEnd);
           if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
-            MarkingBlock=MarkingVBlock=FALSE;
-          CurPosChangedByPlugin=FALSE;
+            EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         }
         /* IS 07.02.2002 $ */
 
@@ -1926,14 +1866,14 @@ int Editor::ProcessKey(int Key)
            противоречие, то начнем новое выделение
         */
         int CurPos;
-        if(CurPosChangedByPlugin)
+        if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
         {
           int SelStart, SelEnd;
           CurPos=CurLine->EditLine.GetCurPos();
           CurLine->EditLine.GetSelection(SelStart,SelEnd);
           if(SelStart!=-1 && (CurPos<SelStart || CurPos>SelEnd))
-            MarkingBlock=MarkingVBlock=FALSE;
-          CurPosChangedByPlugin=FALSE;
+            EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         }
         /* IS 07.02.2002 $ */
 
@@ -1971,10 +1911,10 @@ int Editor::ProcessKey(int Key)
       {
         int SelStart,SelEnd,NextPos;
         int TabCurPos=CurLine->EditLine.GetTabCurPos();
-        if (!MarkingBlock)
+        if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
         {
           UnmarkBlock();
-          MarkingBlock=TRUE;
+          EFlags.Set(FEDITOR_MARKINGBLOCK);
           BlockStart=CurLine;
           BlockStartLine=NumLine;
         }
@@ -2005,10 +1945,10 @@ int Editor::ProcessKey(int Key)
       {
         int SelStart,SelEnd,PrevPos;
         int TabCurPos=CurLine->EditLine.GetTabCurPos();
-        if (!MarkingBlock)
+        if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
         {
           UnmarkBlock();
-          MarkingBlock=TRUE;
+          EFlags.Set(FEDITOR_MARKINGBLOCK);
         }
         CurLine->Prev->EditLine.GetSelection(SelStart,SelEnd);
         CurLine->Prev->EditLine.SetTabCurPos(TabCurPos);
@@ -2102,7 +2042,7 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTDEL:
       Copy(FALSE);
     case KEY_CTRLD:
-      MarkingBlock=MarkingVBlock=FALSE;
+      EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       DeleteBlock();
       Show();
       return(TRUE);
@@ -2115,8 +2055,9 @@ int Editor::ProcessKey(int Key)
       if (!EdOpt.PersistentBlocks && VBlockStart==NULL)
         DeleteBlock();
       Paste();
-      MarkingBlock=(VBlockStart==NULL);
-      MarkingVBlock=FALSE;
+      // MarkingBlock=(VBlockStart==NULL);
+      EFlags.Change(FEDITOR_MARKINGBLOCK,(VBlockStart==NULL));
+      EFlags.Skip(FEDITOR_MARKINGVBLOCK);
       if (!EdOpt.PersistentBlocks)
         UnmarkBlock();
       Pasting--;
@@ -2124,7 +2065,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
       /* SVS $ */
     case KEY_LEFT:
-      NewUndo=TRUE;
+      EFlags.Set(FEDITOR_NEWUNDO);
       if (CurPos==0 && CurLine->Prev!=NULL)
       {
         Up();
@@ -2140,11 +2081,11 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_INS:
-      Overtype=!Overtype;
+      EFlags.Swap(FEDITOR_OVERTYPE);
       Show();
       return(TRUE);
     case KEY_DEL:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         if (!Pasting && EdOpt.DelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
           DeleteBlock();
@@ -2199,7 +2140,7 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_BS:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         /*$ 10.08.2000 skv
           Modified->TextChanged
@@ -2243,7 +2184,7 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_CTRLBS:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         /*$ 10.08.2000 skv
           Modified->TextChanged
@@ -2266,7 +2207,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_UP:
       {
-        NewUndo=TRUE;
+        EFlags.Set(FEDITOR_NEWUNDO);
         int PrevMaxPos=MaxRightPos;
         struct EditList *LastTopScreen=TopScreen;
         Up();
@@ -2285,7 +2226,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_DOWN:
       {
-        NewUndo=TRUE;
+        EFlags.Set(FEDITOR_NEWUNDO);
         int PrevMaxPos=MaxRightPos;
         struct EditList *LastTopScreen=TopScreen;
         Down();
@@ -2318,23 +2259,23 @@ int Editor::ProcessKey(int Key)
       }
     /* VVM $ */
     case KEY_CTRLUP:
-      NewUndo=TRUE;
+      EFlags.Set(FEDITOR_NEWUNDO);
       ScrollUp();
       Show();
       return(TRUE);
     case KEY_CTRLDOWN:
-      NewUndo=TRUE;
+      EFlags.Set(FEDITOR_NEWUNDO);
       ScrollDown();
       Show();
       return(TRUE);
     case KEY_PGUP:
-      NewUndo=TRUE;
+      EFlags.Set(FEDITOR_NEWUNDO);
       for (I=Y1+1;I<Y2;I++)
         ScrollUp();
       Show();
       return(TRUE);
     case KEY_PGDN:
-      NewUndo=TRUE;
+      EFlags.Set(FEDITOR_NEWUNDO);
       for (I=Y1+1;I<Y2;I++)
         ScrollDown();
       Show();
@@ -2342,7 +2283,7 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLHOME:
     case KEY_CTRLPGUP:
       {
-        NewUndo=TRUE;
+        EFlags.Set(FEDITOR_NEWUNDO);
         int StartPos=CurLine->EditLine.GetTabCurPos();
         NumLine=0;
         TopScreen=CurLine=TopList;
@@ -2356,7 +2297,7 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLEND:
     case KEY_CTRLPGDN:
       {
-        NewUndo=TRUE;
+        EFlags.Set(FEDITOR_NEWUNDO);
         int StartPos=CurLine->EditLine.GetTabCurPos();
         NumLine=NumLastLine-1;
         CurLine=EndList;
@@ -2375,13 +2316,13 @@ int Editor::ProcessKey(int Key)
       {
         if (!Pasting && !EdOpt.PersistentBlocks && BlockStart!=NULL)
           DeleteBlock();
-        NewUndo=TRUE;
+        EFlags.Set(FEDITOR_NEWUNDO);
         InsertString();
         Show();
       }
       return(TRUE);
     case KEY_CTRLN:
-      NewUndo=TRUE;
+      EFlags.Set(FEDITOR_NEWUNDO);
       while (CurLine!=TopScreen)
       {
         CurLine=CurLine->Prev;
@@ -2392,7 +2333,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLE:
       {
-        NewUndo=TRUE;
+        EFlags.Set(FEDITOR_NEWUNDO);
         struct EditList *CurPtr=TopScreen;
         int CurLineFound=FALSE;
         for (I=Y1+1;I<Y2;I++)
@@ -2411,7 +2352,7 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_CTRLL:
-      LockMode=!LockMode;
+      EFlags.Swap(FEDITOR_LOCKMODE);
       Show();
       return(TRUE);
     case KEY_CTRLY:
@@ -2434,7 +2375,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
     case KEY_CTRLF7:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         int ReplaceMode0=ReplaceMode;
         int ReplaceAll0=ReplaceAll;
@@ -2458,12 +2399,11 @@ int Editor::ProcessKey(int Key)
       */
       //ReplaceMode=FALSE;
       /* IS */
-      MarkingBlock=FALSE;
-      MarkingVBlock=FALSE;
+      EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       Search(TRUE);
       return(TRUE);
     case KEY_F8:
-      TableChangedByUser=TRUE;
+      EFlags.Set(FEDITOR_TABLECHANGEDBYUSER);
       if ((AnsiText=!AnsiText)!=0)
       {
         int UseUnicode=FALSE;
@@ -2481,7 +2421,7 @@ int Editor::ProcessKey(int Key)
         int GetTableCode=GetTable(&TableSet,FALSE,TableNum,UseUnicode);
         if (GetTableCode!=-1)
         {
-          TableChangedByUser=TRUE;
+          EFlags.Set(FEDITOR_TABLECHANGEDBYUSER);
           UseDecodeTable=GetTableCode;
           AnsiText=FALSE;
           SetStringsTable();
@@ -2492,7 +2432,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_F11:
 /*
-      CtrlObject->Plugins.CurEditor=this;
+      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
       if (CtrlObject->Plugins.CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
         *PluginTitle=0;
       Show();
@@ -2500,7 +2440,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_ALTBS:
     case KEY_CTRLZ:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         /*$ 10.08.2000 skv
           Without this group undo, like undo of 'delete block' operation
@@ -2526,14 +2466,14 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_ALTU:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         BlockLeft();
         Show();
       }
       return(TRUE);
     case KEY_ALTI:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         BlockRight();
         Show();
@@ -2545,7 +2485,7 @@ int Editor::ProcessKey(int Key)
         return(TRUE);
       /* $ 21.07.2000 tran
          код вынес в BeginVBlockMarking */
-      if (!MarkingVBlock)
+      if (!EFlags.Check(FEDITOR_MARKINGVBLOCK))
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
       Pasting++;
@@ -2585,7 +2525,7 @@ int Editor::ProcessKey(int Key)
 
       /* $ 21.07.2000 tran
          код вынес в BeginVBlockMarking */
-      if (!MarkingVBlock)
+      if (!EFlags.Check(FEDITOR_MARKINGVBLOCK))
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
 
@@ -2724,7 +2664,7 @@ int Editor::ProcessKey(int Key)
         return(TRUE);
       /* $ 21.07.2000 tran
          код вынес в BeginVBlockMarking */
-      if (!MarkingVBlock)
+      if (!EFlags.Check(FEDITOR_MARKINGVBLOCK))
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
 
@@ -2755,7 +2695,7 @@ int Editor::ProcessKey(int Key)
         return(TRUE);
       /* $ 21.07.2000 tran
          код вынес в BeginVBlockMarking */
-      if (!MarkingVBlock)
+      if (!EFlags.Check(FEDITOR_MARKINGVBLOCK))
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
       if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->Next->EditLine.GetLength())
@@ -2863,13 +2803,13 @@ int Editor::ProcessKey(int Key)
 
     case KEY_CTRLSHIFTENTER:
     case KEY_SHIFTENTER:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         Pasting++;
         TextChanged(1);
         if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
         {
-          MarkingBlock=MarkingVBlock=FALSE;
+          EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
         AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -2883,13 +2823,13 @@ int Editor::ProcessKey(int Key)
        Добавлена обработка Ctrl-Q
     */
     case KEY_CTRLQ:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         Pasting++;
         TextChanged(1);
         if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
         {
-          MarkingBlock=MarkingVBlock=FALSE;
+          EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
         AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -2901,7 +2841,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     /* SVS $ */
     case KEY_MACRODATE:
-      if (!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         char TStr[NM],Fmt[NM];
         struct tm *time_now;
@@ -2926,7 +2866,7 @@ int Editor::ProcessKey(int Key)
           TextChanged(1);
           if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
           {
-            MarkingBlock=MarkingVBlock=FALSE;
+            EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             DeleteBlock();
           }
           //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -2943,13 +2883,13 @@ int Editor::ProcessKey(int Key)
          ctrl+f - вставить в строку полное имя редактируемого файла
     */
     case KEY_CTRLF:
-      if(!LockMode)
+      if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
         Pasting++;
         TextChanged(1);
         if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
         {
-          MarkingBlock=MarkingVBlock=FALSE;
+          EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
           DeleteBlock();
         }
         //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
@@ -2998,7 +2938,7 @@ int Editor::ProcessKey(int Key)
             Key==KEY_CTRLRIGHT || Key==KEY_HOME || Key==KEY_END ||
             Key==KEY_CTRLS);
 
-        if (LockMode && !SkipCheckUndo)
+        if (EFlags.Check(FEDITOR_LOCKMODE) && !SkipCheckUndo)
           return(TRUE);
 
         if (Key==KEY_CTRLLEFT && CurLine->EditLine.GetCurPos()==0)
@@ -3011,7 +2951,7 @@ int Editor::ProcessKey(int Key)
             в блоке с переопределённым плагином фоном.
           */
           ShowEditor(FALSE);
-          //CtrlObject->Plugins.CurEditor=this;
+          //CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
           //CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           /* SKV$*/
@@ -3026,7 +2966,7 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_HOME);
           ProcessKey(KEY_DOWN);
           Pasting--;
-          CtrlObject->Plugins.CurEditor=this;
+          CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
 //_SVS(SysLog("Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
@@ -3149,7 +3089,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   + Щелчок мышкой снимает непостоянный блок всегда */
   if ((MouseEvent->dwButtonState & 3)!=0)
   {
-    MarkingBlock=MarkingVBlock=FALSE;
+    EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
     if ((!EdOpt.PersistentBlocks) && (BlockStart!=NULL || VBlockStart!=NULL))
     {
       UnmarkBlock();
@@ -3163,7 +3103,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       Show();
     else
     {
-      CtrlObject->Plugins.CurEditor=this;
+      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_REDRAW",__LINE__));
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
     }
@@ -3221,7 +3161,7 @@ int Editor::CalcDistance(struct EditList *From,struct EditList *To,int MaxDist)
 
 void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
 {
-  if (LockMode)
+  if (EFlags.Check(FEDITOR_LOCKMODE))
     return;
   /* $ 16.12.2000 OT
      CtrlY на последней строке с выделенным вертикальным блоком не снимал выделение */
@@ -3298,7 +3238,7 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
 
 void Editor::InsertString()
 {
-  if (LockMode)
+  if (EFlags.Check(FEDITOR_LOCKMODE))
     return;
   /*$ 10.08.2000 skv
     There is only one return - if new will fail.
@@ -3807,8 +3747,8 @@ BOOL Editor::Search(int Next)
             */
             if(strchr((char*)ReplaceStr,'\t') || strchr((char*)ReplaceStr,13))
             {
-              int SaveOvertypeMode=Overtype;
-              Overtype=TRUE;
+              int SaveOvertypeMode=EFlags.Check(FEDITOR_OVERTYPE);
+              EFlags.Set(FEDITOR_OVERTYPE);
               CurLine->EditLine.SetOvertypeMode(TRUE);
               //int CurPos=CurLine->EditLine.GetCurPos();
               int I;
@@ -3817,11 +3757,11 @@ BOOL Editor::Search(int Next)
                 int Ch=ReplaceStr[I];
                 if (Ch==KEY_TAB)
                 {
-                  Overtype=FALSE;
+                  EFlags.Skip(FEDITOR_OVERTYPE);
                   CurLine->EditLine.SetOvertypeMode(FALSE);
                   ProcessKey(KEY_DEL);
                   ProcessKey(KEY_TAB);
-                  Overtype=TRUE;
+                  EFlags.Set(FEDITOR_OVERTYPE);
                   CurLine->EditLine.SetOvertypeMode(TRUE);
                   continue;
                 }
@@ -3830,7 +3770,7 @@ BOOL Editor::Search(int Next)
               }
               if(SearchStr[I]==0)
               {
-                Overtype=FALSE;
+                EFlags.Skip(FEDITOR_OVERTYPE);
                 CurLine->EditLine.SetOvertypeMode(FALSE);
                 for (;ReplaceStr[I]!=0;I++)
                 {
@@ -3857,7 +3797,7 @@ BOOL Editor::Search(int Next)
                 CurPtr=CurLine;
                 NewNumLine+=Cnt;
               }
-              Overtype=SaveOvertypeMode;
+              EFlags.Change(FEDITOR_OVERTYPE,SaveOvertypeMode);
             }
             else
             {
@@ -3937,7 +3877,7 @@ BOOL Editor::Search(int Next)
 
 void Editor::Paste(char *Src)
 {
-  if (LockMode)
+  if (EFlags.Check(FEDITOR_LOCKMODE))
     return;
 
   char *ClipText=Src;
@@ -3957,7 +3897,7 @@ void Editor::Paste(char *Src)
 
   if (*ClipText)
   {
-    NewUndo=TRUE;
+    EFlags.Set(FEDITOR_NEWUNDO);
     if (UseDecodeTable)
       EncodeString(ClipText,(unsigned char *)TableSet.EncodeTable);
     /*$ 10.08.2000 skv
@@ -3965,14 +3905,14 @@ void Editor::Paste(char *Src)
     */
     TextChanged(1);
     /* skv $*/
-    int SaveOvertype=Overtype;
+    int SaveOvertype=EFlags.Check(FEDITOR_OVERTYPE);
     UnmarkBlock();
     Pasting++;
     DisableOut++;
     Edit::DisableEditOut(TRUE);
-    if (Overtype)
+    if (EFlags.Check(FEDITOR_OVERTYPE))
     {
-      Overtype=FALSE;
+      EFlags.Skip(FEDITOR_OVERTYPE);
       CurLine->EditLine.SetOvertypeMode(FALSE);
     }
     BlockStart=CurLine;
@@ -4035,7 +3975,7 @@ void Editor::Paste(char *Src)
 
     if (SaveOvertype)
     {
-      Overtype=TRUE;
+      EFlags.Set(FEDITOR_OVERTYPE);
       CurLine->EditLine.SetOvertypeMode(TRUE);
     }
 
@@ -4107,7 +4047,7 @@ void Editor::Copy(int Append)
 
 void Editor::DeleteBlock()
 {
-  if (LockMode)
+  if (EFlags.Check(FEDITOR_LOCKMODE))
     return;
 
   if (VBlockStart!=NULL)
@@ -4239,8 +4179,7 @@ void Editor::UnmarkBlock()
   if (BlockStart==NULL && VBlockStart==NULL)
     return;
   VBlockStart=NULL;
-  MarkingBlock=FALSE;
-  MarkingVBlock=FALSE;
+  EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
   while (BlockStart!=NULL)
   {
     int StartSel,EndSel;
@@ -4444,13 +4383,14 @@ void Editor::ChangeEditKeyBar()
 void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
 {
   int PrevUndoDataPos;
-  if (DisableUndo || !UndoData)
+  if (EFlags.Check(FEDITOR_DISABLEUNDO) || !UndoData)
     return;
   if (StrNum==-1)
     StrNum=NumLine;
   if ((PrevUndoDataPos=UndoDataPos-1)<0)
     PrevUndoDataPos=Opt.EditorUndoSize-1;
-  if (!NewUndo && Type==UNDO_EDIT && UndoData[PrevUndoDataPos].Type==UNDO_EDIT &&
+  if (!EFlags.Check(FEDITOR_NEWUNDO) && Type==UNDO_EDIT &&
+      UndoData[PrevUndoDataPos].Type==UNDO_EDIT &&
       StrNum==UndoData[PrevUndoDataPos].StrNum &&
       (abs(StrPos-UndoData[PrevUndoDataPos].StrPos)<=1 ||
       abs(StrPos-LastChangeStrPos)<=1))
@@ -4458,7 +4398,7 @@ void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
     LastChangeStrPos=StrPos;
     return;
   }
-  NewUndo=FALSE;
+  EFlags.Skip(FEDITOR_NEWUNDO);
   if (UndoData[UndoDataPos].Type!=UNDO_NONE && UndoData[UndoDataPos].Str!=NULL)
     delete[] UndoData[UndoDataPos].Str;
   UndoData[UndoDataPos].Type=Type;
@@ -4476,7 +4416,7 @@ void Editor::AddUndoData(const char *Str,int StrNum,int StrPos,int Type)
   if (++UndoDataPos==Opt.EditorUndoSize)
     UndoDataPos=0;
   if (UndoDataPos==UndoSavePos)
-    UndoOverflow=TRUE;
+    EFlags.Set(FEDITOR_UNDOOVERFLOW);
 }
 /* IS $ */
 
@@ -4499,8 +4439,7 @@ void Editor::Undo()
   */
   TextChanged(1);
   /* skv $*/
-  WasChanged=TRUE;
-  DisableUndo=TRUE;
+  EFlags.Set(FEDITOR_WASCHANGED|FEDITOR_DISABLEUNDO);
   GoToLine(UndoData[UndoDataPos].StrNum);
   switch(UndoData[UndoDataPos].Type)
   {
@@ -4538,10 +4477,10 @@ void Editor::Undo()
   /*$ 10.08.2000 skv
     ! Modified->TextChanged
   */
-  if (!UndoOverflow && UndoDataPos==UndoSavePos)
+  if (!EFlags.Check(FEDITOR_UNDOOVERFLOW) && UndoDataPos==UndoSavePos)
     TextChanged(0);
   /* skv $*/
-  DisableUndo=FALSE;
+  EFlags.Skip(FEDITOR_DISABLEUNDO);
 }
 /* IS $ */
 
@@ -4568,13 +4507,13 @@ void Editor::SetStartPos(int LineNum,int CharNum)
 
 int Editor::IsFileChanged()
 {
-  return(Modified || WasChanged);
+  return(EFlags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED));
 }
 
 
 int Editor::IsFileModified()
 {
-  return(Modified);
+  return(EFlags.Check(FEDITOR_MODIFIED));
 }
 
 
@@ -4787,7 +4726,7 @@ void Editor::BlockRight()
 
 void Editor::DeleteVBlock()
 {
-  if (LockMode || VBlockSizeX<=0 || VBlockSizeY<=0)
+  if (EFlags.Check(FEDITOR_LOCKMODE) || VBlockSizeX<=0 || VBlockSizeY<=0)
     return;
 
   int UndoNext=FALSE;
@@ -4936,25 +4875,25 @@ void Editor::VCopy(int Append)
 
 void Editor::VPaste(char *ClipText)
 {
-  if (LockMode)
+  if (EFlags.Check(FEDITOR_LOCKMODE))
     return;
 
   if (*ClipText)
   {
-    NewUndo=TRUE;
+    EFlags.Set(FEDITOR_NEWUNDO);
     /*$ 10.08.2000 skv
       Modified->TextChanged
     */
     TextChanged(1);
     /* skv $*/
-    int SaveOvertype=Overtype;
+    int SaveOvertype=EFlags.Check(FEDITOR_OVERTYPE);
     UnmarkBlock();
     Pasting++;
     DisableOut++;
     Edit::DisableEditOut(TRUE);
-    if (Overtype)
+    if (EFlags.Check(FEDITOR_OVERTYPE))
     {
-      Overtype=FALSE;
+      EFlags.Skip(FEDITOR_OVERTYPE);
       CurLine->EditLine.SetOvertypeMode(FALSE);
     }
 
@@ -5016,7 +4955,7 @@ void Editor::VPaste(char *ClipText)
 
     if (SaveOvertype)
     {
-      Overtype=TRUE;
+      EFlags.Set(FEDITOR_OVERTYPE);
       CurLine->EditLine.SetOvertypeMode(TRUE);
     }
 
@@ -5036,7 +4975,7 @@ void Editor::VPaste(char *ClipText)
 
 void Editor::VBlockShift(int Left)
 {
-  if (LockMode || Left && VBlockX==0 || VBlockSizeX<=0 || VBlockSizeY<=0)
+  if (EFlags.Check(FEDITOR_LOCKMODE) || Left && VBlockX==0 || VBlockSizeX<=0 || VBlockSizeY<=0)
     return;
 
   struct EditList *CurPtr=VBlockStart;
@@ -5178,13 +5117,13 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
     case ECTL_INSERTSTRING:
-      if (LockMode)
+      if (EFlags.Check(FEDITOR_LOCKMODE))
         return(FALSE);
       {
         int Indent=Param!=NULL && *(int *)Param!=FALSE;
         if (!Indent)
           Pasting++;
-        NewUndo=TRUE;
+        EFlags.Set(FEDITOR_NEWUNDO);
         InsertString();
         Show();
         if (!Indent)
@@ -5192,7 +5131,7 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
     case ECTL_INSERTTEXT:
-      if (LockMode)
+      if (EFlags.Check(FEDITOR_LOCKMODE))
         return(FALSE);
       {
         char *Str=(char *)Param;
@@ -5208,7 +5147,7 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
     case ECTL_SETSTRING:
-      if (LockMode)
+      if (EFlags.Check(FEDITOR_LOCKMODE))
         return(FALSE);
       {
         struct EditorSetString *SetString=(struct EditorSetString *)Param;
@@ -5241,12 +5180,12 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
     case ECTL_DELETESTRING:
-      if (LockMode)
+      if (EFlags.Check(FEDITOR_LOCKMODE))
         return(FALSE);
       DeleteString(CurLine,FALSE,NumLine);
       return(TRUE);
     case ECTL_DELETECHAR:
-      if (LockMode)
+      if (EFlags.Check(FEDITOR_LOCKMODE))
         return(FALSE);
       Pasting++;
       ProcessKey(KEY_DEL);
@@ -5266,7 +5205,7 @@ int Editor::EditorControl(int Command,void *Param)
         Info->CurTabPos=CurLine->EditLine.GetTabCurPos();
         Info->TopScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
         Info->LeftPos=CurLine->EditLine.GetLeftPos();
-        Info->Overtype=Overtype;
+        Info->Overtype=EFlags.Check(FEDITOR_OVERTYPE);
         Info->BlockType=BTYPE_NONE;
         if (BlockStart!=NULL)
           Info->BlockType=BTYPE_STREAM;
@@ -5292,9 +5231,9 @@ int Editor::EditorControl(int Command,void *Param)
           Info->Options|=EOPT_CURSORBEYONDEOL;
         Info->TabSize=EdOpt.TabSize;
         Info->BookMarkCount=BOOKMARK_COUNT;
-        Info->CurState=LockMode?ECSTATE_LOCKED:0;
-        Info->CurState|=!Modified?ECSTATE_SAVED:0;
-        Info->CurState|=WasChanged || Modified?ECSTATE_MODIFIED:0;
+        Info->CurState=EFlags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
+        Info->CurState|=!EFlags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
+        Info->CurState|=EFlags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
       }
       return(TRUE);
     case ECTL_SETPOSITION:
@@ -5302,7 +5241,7 @@ int Editor::EditorControl(int Command,void *Param)
         struct EditorSetPosition *Pos=(struct EditorSetPosition *)Param;
         DisableOut++;
         if (Pos->CurLine!=-1 || Pos->CurPos!=-1)
-          CurPosChangedByPlugin=TRUE;
+          EFlags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         if (Pos->CurLine!=-1)
         {
           if (Pos->CurLine==NumLine-1)
@@ -5331,7 +5270,10 @@ int Editor::EditorControl(int Command,void *Param)
            соответствующе, в результате чего получает неопределенное поведение.
         */
         if (Pos->Overtype!=-1)
-          CurLine->EditLine.SetOvertypeMode(Overtype=Pos->Overtype);
+        {
+          EFlags.Change(FEDITOR_OVERTYPE,Pos->Overtype);
+          CurLine->EditLine.SetOvertypeMode(EFlags.Check(FEDITOR_OVERTYPE));
+        }
         /* IS $ */
         DisableOut--;
       }
@@ -5379,10 +5321,11 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
     case ECTL_REDRAW:
-//_SVS(SysLog("Editor::EditorControl[%d]: ECTL_REDRAW",__LINE__));
+      //_SVS(SysLog("Editor::EditorControl[%d]: ECTL_REDRAW",__LINE__));
       Show();
       ScrBuf.Flush();
       return(TRUE);
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_EDITORTOOEM:
       {
         struct EditorConvertText *ect=(struct EditorConvertText *)Param;
@@ -5390,6 +5333,7 @@ int Editor::EditorControl(int Command,void *Param)
           DecodeString(ect->Text,(unsigned char *)TableSet.DecodeTable,ect->TextLength);
       }
       return(TRUE);
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_OEMTOEDITOR:
       {
         struct EditorConvertText *ect=(struct EditorConvertText *)Param;
@@ -5416,7 +5360,7 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
     case ECTL_EXPANDTABS:
-      if (LockMode)
+      if (EFlags.Check(FEDITOR_LOCKMODE))
         return(FALSE);
       {
         int StringNumber=*(int *)Param;
@@ -5440,6 +5384,7 @@ int Editor::EditorControl(int Command,void *Param)
         ScrBuf.Flush();
       }
       return(TRUE);
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_READINPUT:
       {
         _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_READINPUT)"));
@@ -5457,11 +5402,15 @@ int Editor::EditorControl(int Command,void *Param)
 #endif
       }
       return(TRUE);
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_PROCESSINPUT:
       {
         _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_PROCESSINPUT)"));
+        if(!HostFileEditor)
+          return FALSE;
+
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
-        if (ProcessEditorInput(rec))
+        if (HostFileEditor->ProcessEditorInput(rec))
           return(TRUE);
         if (rec->EventType==MOUSE_EVENT)
           ProcessMouse(&rec->Event.MouseEvent);
@@ -5483,6 +5432,8 @@ int Editor::EditorControl(int Command,void *Param)
         }
       }
       return(TRUE);
+    // должно выполняется в FileEditor::EditorControl()
+    // в диалоге - нафиг ненать
     case ECTL_ADDCOLOR:
       {
         struct EditorColor *col=(struct EditorColor *)Param;
@@ -5500,6 +5451,8 @@ int Editor::EditorControl(int Command,void *Param)
         CurPtr->EditLine.AddColor(&newcol);
       }
       return(TRUE);
+    // должно выполняется в FileEditor::EditorControl()
+    // в диалоге - нафиг ненать
     case ECTL_GETCOLOR:
       {
         struct EditorColor *col=(struct EditorColor *)Param;
@@ -5514,25 +5467,36 @@ int Editor::EditorControl(int Command,void *Param)
         col->Color=curcol.Color;
       }
       return(TRUE);
+
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_SAVEFILE:
       {
-        EditorSaveFile *esf=(EditorSaveFile *)Param;
-        char *Name=FileName;
-        int EOL=0;
-        if (esf!=NULL)
+        if (HostFileEditor!=NULL)
         {
-          if (*esf->FileName)
-            Name=esf->FileName;
-          if (esf->FileEOL!=NULL)
+          EditorSaveFile *esf=(EditorSaveFile *)Param;
+          char *Name=FileName;
+          int EOL=0;
+          if (esf!=NULL)
           {
-            if (strcmp(esf->FileEOL,DOS_EOL_fmt)==0)
-              EOL=1;
-            if (strcmp(esf->FileEOL,UNIX_EOL_fmt)==0)
-              EOL=2;
+            if (*esf->FileName)
+              Name=esf->FileName;
+            if (esf->FileEOL!=NULL)
+            {
+              if (strcmp(esf->FileEOL,DOS_EOL_fmt)==0)
+                EOL=1;
+              if (strcmp(esf->FileEOL,UNIX_EOL_fmt)==0)
+                EOL=2;
+            }
           }
+          // сохранение файла только через хост!
+          // Так до тех пор, пока обработчик ECTL_SAVEFILE не переедет в
+          // FileEditor::EditorControl()
+          return(HostFileEditor->SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,FileName)));
         }
-        return(SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,FileName)));
+        return FALSE;
       }
+
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_QUIT:
       FrameManager->DeleteFrame(HostFileEditor);
       if (HostFileEditor!=NULL)
@@ -5544,6 +5508,7 @@ int Editor::EditorControl(int Command,void *Param)
          Param = -1   - обновить полосу (перерисовать)
          Param = KeyBarTitles
     */
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_SETKEYBAR:
     {
       /* $ 22.12.2000 SVS
@@ -5589,6 +5554,7 @@ int Editor::EditorControl(int Command,void *Param)
     /*$ 07.09.2000 skv
       New ECTL parameter
     */
+    // должно выполняется в FileEditor::EditorControl()
     case ECTL_PROCESSKEY:
     {
       ProcessKey((int)Param);
@@ -5631,12 +5597,12 @@ int Editor::EditorControl(int Command,void *Param)
                 (раньше включали oem)
             */
             int oldAnsiText(AnsiText), oldUseDecodeTable(UseDecodeTable),
-                oldTableNum(TableNum), oldChangedByUser(TableChangedByUser);
+                oldTableNum(TableNum), oldChangedByUser(EFlags.Check(FEDITOR_TABLECHANGEDBYUSER));
 
             AnsiText=espar->Param.iParam==2,
             UseDecodeTable=espar->Param.iParam>1,
             TableNum=UseDecodeTable?espar->Param.iParam-3:-1;
-            TableChangedByUser=TRUE;
+            EFlags.Set(FEDITOR_TABLECHANGEDBYUSER);
 
             if(AnsiText)
                rc=GetTable(&TableSet,TRUE,TableNum,UseUnicode);
@@ -5645,7 +5611,7 @@ int Editor::EditorControl(int Command,void *Param)
 
             if(!rc)
             {
-              TableChangedByUser=oldChangedByUser;
+              EFlags.Change(FEDITOR_TABLECHANGEDBYUSER,oldChangedByUser);
               TableNum=oldTableNum;
               UseDecodeTable=oldUseDecodeTable;
               AnsiText=oldAnsiText;
@@ -5672,7 +5638,7 @@ int Editor::EditorControl(int Command,void *Param)
     /* IS $ */
     case ECTL_GETBOOKMARKS:
     {
-      if(!OpenFailed && Param)
+      if(!EFlags.Check(FEDITOR_OPENFAILED) && Param)
       {
         struct EditorBookMarks *ebm=(struct EditorBookMarks *)Param;
         if(ebm->Line && !IsBadWritePtr(ebm->Line,BOOKMARK_COUNT*sizeof(long)))
@@ -5735,27 +5701,6 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
   }
 }
 
-
-int Editor::ProcessEditorInput(INPUT_RECORD *Rec)
-{
-  int RetCode;
-#if defined(SYSLOG_KEYMACRO)
-  {
-    CleverSysLog SL("Editor::ProcessEditorInput()");
-    if(Rec->EventType == KEY_EVENT)
-      SysLog("VKey=0x%04X",Rec->Event.KeyEvent.wVirtualKeyCode);
-    CtrlObject->Plugins.CurEditor=this;
-    RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
-    SysLog("RetCode=%d",RetCode);
-  }
-#else
-  CtrlObject->Plugins.CurEditor=this;
-  RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
-#endif
-  return(RetCode);
-}
-
-
 int Editor::IsShiftKey(int Key)
 {
   /*
@@ -5790,7 +5735,7 @@ void Editor::SetReplaceMode(int Mode)
 
 int Editor::GetLineCurPos()
 {
-    return CurLine->EditLine.GetTabCurPos();
+  return CurLine->EditLine.GetTabCurPos();
 }
 
 void Editor::BeginVBlockMarking()
@@ -5801,7 +5746,7 @@ void Editor::BeginVBlockMarking()
     VBlockSizeX=0;
     VBlockY=NumLine;
     VBlockSizeY=1;
-    MarkingVBlock=TRUE;
+    EFlags.Set(FEDITOR_MARKINGVBLOCK);
     BlockStartLine=NumLine;
     //_D(SysLog("BeginVBlockMarking, set vblock to  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 }

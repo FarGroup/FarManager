@@ -7,10 +7,13 @@ plugins.hpp
 
 */
 
-/* Revision: 1.17 19.09.2001 $ */
+/* Revision: 1.18 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    ! CurEditor теперь - FileEditor, а не Editor (первая стадия отучения
+      класса Editor от слова "Файл")
   20.09.2001 SVS
     + Новое поле Flags у класса PluginsSet.
   25.06.2001 IS
@@ -59,7 +62,7 @@ Modify:
 #include "language.hpp"
 
 class SaveScreen;
-class Editor;
+class FileEditor;
 class Viewer;
 
 typedef void (WINAPI *PLUGINCLOSEPLUGIN)(HANDLE hPlugin);
@@ -155,7 +158,7 @@ class PluginsSet
     struct PluginItem *PluginsData;
     int PluginsCount;
 
-    Editor *CurEditor;
+    FileEditor *CurEditor;
     /* $ 27.09.2000 SVS
        Указатель на текущий Viewer
     */

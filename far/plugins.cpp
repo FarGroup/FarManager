@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.102 14.01.2002 $ */
+/* Revision: 1.103 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    ! Первая серия по отучиванию класса Editor слову "Файл"
   14.01.2002 IS
     ! chdir -> FarChDir
   10.01.2002 SVS
@@ -319,7 +321,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
-#include "editor.hpp"
+#include "fileedit.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
@@ -1403,23 +1405,28 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 void PluginsSet::ProcessEditorEvent(int Event,void *Param)
 {
   //EXCEPTION_POINTERS *xp;
-  struct PluginItem *PData=PluginsData;
-  for (int I=0;I<PluginsCount;I++,PData++)
-    if (PData->pProcessEditorEvent && PreparePlugin(I))
+  if(CtrlObject->Plugins.CurEditor)
+  {
+    struct PluginItem *PData=PluginsData;
+    for (int I=0;I<PluginsCount;I++,PData++)
     {
-      if(Opt.ExceptRules)
+      if (PData->pProcessEditorEvent && PreparePlugin(I))
       {
-        TRY {
-          PData->pProcessEditorEvent(Event,Param);
-        }
-        EXCEPT(xfilter(EXCEPT_PROCESSEDITOREVENT,GetExceptionInformation(),PData,1))
+        if(Opt.ExceptRules)
         {
-          UnloadPlugin(*PData);
+          TRY {
+            PData->pProcessEditorEvent(Event,Param);
+          }
+          EXCEPT(xfilter(EXCEPT_PROCESSEDITOREVENT,GetExceptionInformation(),PData,1))
+          {
+            UnloadPlugin(*PData);
+          }
         }
+        else
+          PData->pProcessEditorEvent(Event,Param);
       }
-      else
-        PData->pProcessEditorEvent(Event,Param);
     }
+  }
 }
 
 

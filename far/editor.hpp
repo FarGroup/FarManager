@@ -9,10 +9,15 @@ editor.hpp
 
 */
 
-/* Revision: 1.31 11.01.2002 $ */
+/* Revision: 1.32 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    ! FileEditor - друг Editor`у (в последствии - дл€ "отучени€ Editor от 'файл'")
+    + GetHostFileEditor()
+    ! ¬место кучи int`ов - битовые флаги FLAGS_CLASS_EDITOR
+    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
   11.11.2002 IS
     + CurPosChangedByPlugin
   25.12.2001 SVS
@@ -103,6 +108,7 @@ Modify:
 #include "struct.hpp"
 #include "plugin.hpp"
 #include "farconst.hpp"
+#include "bitflags.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -132,18 +138,41 @@ enum {
     SAVEFILE_SUCCESS = 1,         // либо успешно сохранили, либо сохран€ть было не надо
     SAVEFILE_CANCEL  = 2          // сохранение отменено, редактор не закрывать
 };
-
 /* DJ $ */
+
+enum FLAGS_CLASS_EDITOR{
+  FEDITOR_DELETEONCLOSE         = 0x00000001,   // 10.10.2001 IS: ≈сли TRUE, то удалить
+                                                // в деструкторе файл вместе с каталогом
+                                                // (если тот пуст
+  FEDITOR_MODIFIED              = 0x00000002,
+  FEDITOR_JUSTMODIFIED          = 0x00000004,   // 10.08.2000 skv: need to send EE_REDRAW 2.
+                                                // set to 1 by TextChanged, no matter what
+                                                // is value of State.
+  FEDITOR_MARKINGBLOCK          = 0x00000008,
+  FEDITOR_MARKINGVBLOCK         = 0x00000010,
+  FEDITOR_WASCHANGED            = 0x00000020,
+  FEDITOR_OVERTYPE              = 0x00000040,
+  FEDITOR_UNDOOVERFLOW          = 0x00000080,
+  FEDITOR_NEWUNDO               = 0x00000100,
+  FEDITOR_DISABLEUNDO           = 0x00000400,
+  FEDITOR_LOCKMODE              = 0x00000800,
+  FEDITOR_CURPOSCHANGEDBYPLUGIN = 0x00001000,   // TRUE, если позици€ в редакторе была изменена
+                                                // плагином (ECTL_SETPOSITION)
+  FEDITOR_TABLECHANGEDBYUSER    = 0x00002000,
+  FEDITOR_OPENFAILED            = 0x00004000,
+  FEDITOR_ISRESIZEDCONSOLE      = 0x00008000,
+};
 
 class Editor:public ScreenObject
 {
+  friend class FileEditor;
   private:
-    /* $ 10.10.2001 IS
-       ≈сли TRUE, то удалить в деструкторе файл вместе с каталогом (если тот
-       пуст).
-    */
-    BOOL DeleteOnClose;
-    /* IS $ */
+    BitFlags EFlags;
+
+    char Title[512];
+    char PluginData[NM*2];
+    char PluginTitle[512];
+
     KeyBar *EditKeyBar;
     struct EditList *TopList,*EndList,*TopScreen,*CurLine;
     /* $ 03.12.2001 IS теперь указатель, т.к. размер может мен€тьс€ */
@@ -155,13 +184,6 @@ class Editor:public ScreenObject
     int LastChangeStrPos;
     char FileName[NM];
     int NumLastLine,NumLine;
-    int Modified;
-    /*$ 10.08.2000 skv
-      need to send EE_REDRAW 2.
-      set to 1 by TextChanged, no matter what is value of State.
-    */
-    int JustModified;
-    /* skv $*/
     /* $ 12.02.2001 IS
          сюда запомним атрибуты файла при открытии, пригод€тс€ где-нибудь...
     */
@@ -178,11 +200,8 @@ class Editor:public ScreenObject
     */
     struct EditorOptions EdOpt;
     /* IS $ */
-    int WasChanged;
-    int Overtype;
     int DisableOut;
     int Pasting;
-    int MarkingBlock;
     char GlobalEOL[10];
     struct EditList *BlockStart;
     int BlockStartLine;
@@ -192,16 +211,10 @@ class Editor:public ScreenObject
     int VBlockSizeX;
     int VBlockY;
     int VBlockSizeY;
-    int MarkingVBlock;
 
-    int DisableUndo;
-    int NewUndo;
-    int LockMode;
     int BlockUndo;
 
     int MaxRightPos;
-    int CurPosChangedByPlugin; // TRUE, если позици€ в редакторе была изменена
-                               // плагином (ECTL_SETPOSITION)
 
     unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
     /* $ 30.07.2000 KM
@@ -214,18 +227,9 @@ class Editor:public ScreenObject
     int UseDecodeTable,TableNum,AnsiText;
     int StartLine,StartChar;
 
-    int TableChangedByUser;
-
-    char Title[512];
-    char PluginData[NM*2];
-
-    char PluginTitle[512];
-
     struct InternalEditorBookMark SavePos;
 
     int EditorID;
-    bool OpenFailed;
-    int IsResizedConsole;
 
     FileEditor *HostFileEditor;
 
@@ -293,7 +297,7 @@ class Editor:public ScreenObject
 
   public:
     int ReadFile(const char *Name,int &UserBreak);
-    int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs);
+    int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewFile=TRUE);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void SetEditKeyBar(KeyBar *EditKeyBar);
@@ -306,11 +310,11 @@ class Editor:public ScreenObject
     void SetPluginData(char *PluginData);
     void SetPluginTitle(char *PluginTitle);
     int EditorControl(int Command,void *Param);
-    int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
     static int IsShiftKey(int Key);
     static void SetReplaceMode(int Mode);
-    void PrepareResizedConsole(){IsResizedConsole=TRUE;}
+    FileEditor *GetHostFileEditor() {return HostFileEditor;};
+    void PrepareResizedConsole(){EFlags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
     /* $ 26.02.2001 IS
          ‘ункции чтени€/установлени€ текущих настроек редактировани€
@@ -344,7 +348,7 @@ class Editor:public ScreenObject
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
     /* $ 10.10.2001 IS установка DeleteOnClose */
-    void SetDeleteOnClose(BOOL NewMode) { DeleteOnClose=NewMode; }
+    void SetDeleteOnClose(BOOL NewMode) { EFlags.Change(FEDITOR_DELETEONCLOSE,NewMode); }
     /* IS */
 
     /* $ 29.10.2001 IS

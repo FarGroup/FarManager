@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.123 14.01.2002 $ */
+/* Revision: 1.124 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    - BugZ#235 - F4 F6 Gray+ - не создавался NameList при вызове редактора
   14.01.2002 IS
     ! chdir -> FarChDir
   14.01.2002 IS
@@ -1357,7 +1359,17 @@ int FileList::ProcessKey(int Key)
                 }
                 else
                 {
+                  NamesList EditList;
+                  if (!PluginMode)
+                  {
+                    for (int I=0;I<FileCount;I++)
+                      if ((ListData[I].FileAttr & FA_DIREC)==0)
+                        EditList.AddName(ListData[I].Name);
+                    EditList.SetCurDir(CurDir);
+                    EditList.SetCurName(FileName);
+                  }
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
+                  ShellEditor->SetNamesList (&EditList);
                   FrameManager->ExecuteModal();//OT
                 }
             if (PluginMode && UploadFile)

@@ -9,6 +9,14 @@ fileedit.cpp
 
 /*
 Modify:
+  15.01.2002 SVS
+    ! ѕерва€ сери€ по отучиванию класса Editor слову "‘айл"
+    + FileEditor::EditorControl() - перва€ стади€ по отучению класса Editor
+      от слова File
+    + SetFileName() - установить переменные в им€ редактируемого файла
+    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
+    + ReadFile() - постепенно сюды переносить код из Editor::ReadFile
+    + SaveFile() - постепенно сюды переносить код из Editor::SaveFile
   14.01.2002 IS
     ! chdir -> FarChDir
   12.01.2002 IS
@@ -286,12 +294,9 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
   GetCurrentDirectory(sizeof(StartDir),StartDir);
-  strcpy(FileName,Name);
 
-  if (sizeof(FullFileName)<=ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)))
-  {
+  if(!SetFileName(Name))
     return;
-  }
 
   /*$ 11.05.2001 OT */
   //int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
@@ -414,7 +419,8 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
      ѕри создании файла с нул€ так же посылаем плагинам событие EE_READ, дабы
      не нарушать однообразие.
   */
-  if (!FEdit.ReadFile(FileName,UserBreak))
+  IsNewFile=CreateNewFile;
+  if (!ReadFile(FullFileName,UserBreak))
   {
     if(!CreateNewFile || UserBreak)
     {
@@ -428,7 +434,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
       CtrlObject->Cp()->Redraw();
       return;
     }
-    CtrlObject->Plugins.CurEditor=&FEdit;
+    CtrlObject->Plugins.CurEditor=this;//&FEdit;
     CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   }
   /* IS $ */
@@ -554,6 +560,9 @@ void FileEditor::DisplayObject()
 
 int FileEditor::ProcessKey(int Key)
 {
+  DWORD FNAttr;
+  char *Ptr, Chr;
+
   switch(Key)
   {
     /* $ 24.08.2000 SVS
@@ -576,9 +585,8 @@ int FileEditor::ProcessKey(int Key)
       BOOL Done=FALSE;
       while(!Done) // бьемс€ до упора
       {
-        DWORD FNAttr;
         // проверим путь к файлу, может его уже снесли...
-        char *Ptr=strrchr(FullFileName,'\\'), Chr;
+        Ptr=strrchr(FullFileName,'\\');
         if(Ptr)
         {
           Chr=*Ptr;
@@ -589,7 +597,9 @@ int FileEditor::ProcessKey(int Key)
           *Ptr=Chr;
         }
 
-        if(Key == KEY_F2 && (FNAttr=GetFileAttributes(FullFileName)) != -1 && !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
+        if(Key == KEY_F2 &&
+           (FNAttr=GetFileAttributes(FullFileName)) != -1 &&
+           !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
             SaveToSaveAs=FALSE;
 
         static int TextFormat=0;
@@ -641,37 +651,10 @@ int FileEditor::ProcessKey(int Key)
               return(TRUE);
             }
           }
-          else
-          {
-            // проверим путь к файлу, может его уже снесли...
-            Ptr=strrchr(EditDlg[2].Data,'\\');
-            if(Ptr)
-            {
-              Chr=*Ptr;
-              *Ptr=0;
-              if(GetFileAttributes(EditDlg[2].Data) == -1)
-              {
-                // и попробуем создать.
-                // –аз уж
-                CreatePath(EditDlg[2].Data);
-                FNAttr=GetFileAttributes(EditDlg[2].Data);
-              }
-              *Ptr=Chr;
-            }
-          }
           /* tran $ */
-          if(FNAttr == -1)
-          {
-            ;
-          }
 
-          strcpy(FileName,EditDlg[2].Data);
-
-//          ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
-          if (ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
-          {
-            return FALSE;
-          }
+          if(!SetFileName(EditDlg[2].Data))
+              return FALSE;
 
           if (EditDlg[5].Selected)
             TextFormat=0;
@@ -681,10 +664,9 @@ int FileEditor::ProcessKey(int Key)
             TextFormat=2;
         }
         ShowConsoleTitle();
-        FarChDir(StartDir);
+        FarChDir(StartDir); //???
 
-
-        if(FEdit.SaveFile(FileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2)==0)
+        if(SaveFile(FullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2)==0)
         {
           if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
                       FileName,MSG(MRetry),MSG(MCancel))!=0)
@@ -746,7 +728,7 @@ int FileEditor::ProcessKey(int Key)
                сохран€ем NamesList
             */
             FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
-              FALSE, FilePos, NULL, EditNamesList, SaveToSaveAs);
+               FALSE, FilePos, NULL, EditNamesList, SaveToSaveAs);
             /* DJ $ */
   //OT          FrameManager->InsertFrame (Viewer);
             /* DJ $ */
@@ -793,24 +775,26 @@ int FileEditor::ProcessKey(int Key)
     case KEY_F10:
     {
       int FirstSave=1, NeedQuestion=1;
-      if(Key != KEY_SHIFTF10 &&    // KEY_SHIFTF10 не учитываем!
-         FEdit.IsFileChanged() &&  // в текущем сеансе были изменени€?
-         GetFileAttributes(FullFileName) == -1) // а сам файл то еще на месте?
+      if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
       {
-        switch(Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditSavedChangedNonFile),
-                MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+        if(FEdit.IsFileChanged() &&  // в текущем сеансе были изменени€?
+           GetFileAttributes(FullFileName) == -1 && !IsNewFile) // а сам файл то еще на месте?
         {
-          case 0:
-            ProcessKey(KEY_F2);  // попытка сначала сохранить
-            FirstSave=0;
-            break;
-          case 1:
-            NeedQuestion=0;
-            FirstSave=0;
-            break;
-          case 2:
-          default:
-            return FALSE;
+          switch(Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditSavedChangedNonFile),
+                  MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+          {
+            case 0:
+              ProcessKey(KEY_F2);  // попытка сначала сохранить
+              FirstSave=0;
+              break;
+            case 1:
+              NeedQuestion=0;
+              FirstSave=0;
+              break;
+            case 2:
+            default:
+              return FALSE;
+          }
         }
       }
       ProcessQuitKey(FirstSave,NeedQuestion);
@@ -892,7 +876,7 @@ int FileEditor::ProcessKey(int Key)
       _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
       _KEYMACRO(SysLog("Key=0x%08X Macro.IsExecuting()=%d",Key,CtrlObject->Macro.IsExecuting()));
       if (CtrlObject->Macro.IsExecuting() ||
-        !FEdit.ProcessEditorInput(FrameManager->GetLastInputRecord()))
+        !ProcessEditorInput(FrameManager->GetLastInputRecord()))
       {
         /* $ 22.03.2001 SVS
            Ёто помогло от залипани€ :-)
@@ -917,7 +901,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
     int SaveCode=SAVEFILE_SUCCESS;
     if(NeedQuestion)
     {
-      SaveCode=FEdit.SaveFile(FileName,FirstSave,0,FALSE);
+      SaveCode=SaveFile(FullFileName,FirstSave,0,FALSE);
     }
     if (SaveCode==SAVEFILE_CANCEL)
       break;
@@ -936,10 +920,94 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 }
 
 
+// сюды плавно переносить код из Editor::ReadFile()
+int FileEditor::ReadFile(const char *Name,int &UserBreak)
+{
+  return FEdit.ReadFile(Name,UserBreak);
+}
+
+// сюды плавно переносить код из Editor::SaveFile()
+int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
+{
+  /* $ 11.10.2000 SVS
+     –едактировали, залочили, при выходе - потер€ли файл :-(
+  */
+  if (FEdit.EFlags.Check(FEDITOR_LOCKMODE) && !FEdit.EFlags.Check(FEDITOR_MODIFIED) && !SaveAs)
+    return SAVEFILE_SUCCESS;
+  /* SVS $ */
+
+  if (Ask)
+  {
+    if(!FEdit.EFlags.Check(FEDITOR_MODIFIED))
+      return SAVEFILE_SUCCESS;
+
+    if (Ask)
+    {
+      switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),
+              MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+      {
+        case -1:
+        case -2:
+        case 2:  // Continue Edit
+          return SAVEFILE_CANCEL;
+        case 0:  // Save
+          break;
+        case 1:  // Not Save
+          FEdit.TextChanged(0); // 10.08.2000 skv: TextChanged() support;
+          return SAVEFILE_SUCCESS;
+      }
+    }
+  }
+
+  int NewFile=TRUE;
+  if ((FEdit.FileAttributes=GetFileAttributes(Name))!=-1)
+  {
+    NewFile=FALSE;
+    if (FEdit.FileAttributes & FA_RDONLY)
+    {
+      int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
+                           MSG(MEditOvr),MSG(MYes),MSG(MNo));
+      if (AskOverwrite!=0)
+        return SAVEFILE_CANCEL;
+
+      SetFileAttributes(Name,FEdit.FileAttributes & ~FA_RDONLY); // сн€ты атрибуты
+    }
+
+    if (FEdit.FileAttributes & (FA_HIDDEN|FA_SYSTEM))
+      SetFileAttributes(Name,0);
+  }
+  else
+  {
+    // проверим путь к файлу, может его уже снесли...
+    char CreatedPath[4096];
+    char *Ptr=strrchr(strncpy(CreatedPath,Name,sizeof(CreatedPath)-1),'\\'), Chr;
+    if(Ptr)
+    {
+      Chr=*Ptr;
+      *Ptr=0;
+      DWORD FAttr=0;
+      if(GetFileAttributes(CreatedPath) == -1)
+      {
+        // и попробуем создать.
+        // –аз уж
+        CreatePath(CreatedPath);
+        FAttr=GetFileAttributes(CreatedPath);
+      }
+      *Ptr=Chr;
+      if(FAttr == -1)
+        return SAVEFILE_ERROR;
+    }
+  }
+
+  int Ret=FEdit.SaveFile(Name,Ask,TextFormat,SaveAs);
+  IsNewFile=0;
+  return Ret;
+}
+
 int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   if (!EditKeyBar.ProcessMouse(MouseEvent))
-    if (!FEdit.ProcessEditorInput(FrameManager->GetLastInputRecord()))
+    if (!ProcessEditorInput(FrameManager->GetLastInputRecord()))
       if (!FEdit.ProcessMouse(MouseEvent))
         return(FALSE);
   return(TRUE);
@@ -985,7 +1053,7 @@ void FileEditor::OnDestroy()
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
   /* $ 19.10.2001 OT
   */
-  if (CtrlObject->Plugins.CurEditor==&this->FEdit)
+  if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
   {
     CtrlObject->Plugins.CurEditor=NULL;
   }
@@ -1020,4 +1088,42 @@ BOOL FileEditor::isTemporary()
 void FileEditor::ResizeConsole()
 {
   FEdit.PrepareResizedConsole();
+}
+
+int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
+{
+  int RetCode;
+  _KEYMACRO(CleverSysLog SL("FileEditor::ProcessEditorInput()"));
+  _KEYMACRO(if(Rec->EventType == KEY_EVENT)SysLog("VKey=0x%04X",Rec->Event.KeyEvent.wVirtualKeyCode));
+
+  CtrlObject->Plugins.CurEditor=this;
+  RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
+
+  _KEYMACRO(SysLog("RetCode=%d",RetCode));
+  return RetCode;
+}
+
+void FileEditor::SetPluginTitle(char *PluginTitle)
+{
+  FEdit.SetPluginTitle(PluginTitle);
+}
+
+BOOL FileEditor::SetFileName(const char *NewFileName)
+{
+  if (ConvertNameToFull(NewFileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
+  {
+    return FALSE;
+  }
+  strncpy(FileName,NewFileName,sizeof(FileName)-1);
+}
+
+int FileEditor::EditorControl(int Command,void *Param)
+{
+  switch(Command)
+  {
+    /* ***************************************************** */
+    default:
+      return FEdit.EditorControl(Command,Param);
+  }
+  return FALSE;
 }

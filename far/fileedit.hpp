@@ -7,10 +7,20 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.25 10.01.2002 $ */
+/* Revision: 1.26 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    - Метод Show() не может быть в привате, т.к. в ScreenObject он в
+      паблик-секции
+    ! Начинаем обучение класса новому слову "Файл", он конечно и сам знает,
+      но не все (начало переноса кода ответственного за работу с файлом из
+      Editor в FileEditor)
+    + SetFileName() - установить переменные в имя редактируемого файла
+    + ReadFile() - постепенно сюды переносить код из Editor::ReadFile
+    + SaveFile() - постепенно сюды переносить код из Editor::SaveFile
+    ! ProcessEditorInput ушел в FileEditor (в диалога плагины не...)
   10.01.2002 SVS
     + FEOPMODE_NEWIFOPEN
     ! FirstSave у ProcessQuitKey() - как параметр.
@@ -111,6 +121,7 @@ class FileEditor:public Frame
     */
     int SaveToSaveAs;
     /* KM $ */
+    int IsNewFile;
 
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
@@ -123,15 +134,15 @@ class FileEditor:public Frame
                BOOL DeleteOnClose=FALSE,
                int OpenModeExstFile=FEOPMODE_QUERY);
 
+    /* $ 07.05.2001 DJ */
+    virtual ~FileEditor();
+    /* DJ $ */
+
   private:
-    void Show();
     void DisplayObject();
     int ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
 
   public:
-    /* $ 07.05.2001 DJ */
-    virtual ~FileEditor();
-    /* DJ $ */
     void Init(const char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData,
               int ToSaveAs, BOOL DeleteOnClose,int OpenModeExstFile);
@@ -180,6 +191,14 @@ class FileEditor:public Frame
       используется для принятия решения переходить в каталог по CtrlF10*/
     BOOL isTemporary();
     void ResizeConsole();
+    void Show();
+
+    int ReadFile(const char *Name,int &UserBreak);
+    int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs);
+    int EditorControl(int Command,void *Param);
+    void SetPluginTitle(char *PluginTitle);
+    BOOL SetFileName(const char *NewFileName);
+    int ProcessEditorInput(INPUT_RECORD *Rec);
 };
 
 #endif  // __FILEEDITOR_HPP__
