@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.85 06.08.2004 $ */
+/* Revision: 1.86 18.12.2004 $ */
 
 /*
 Modify:
+  18.12.2004 WARP
+    ! Спецификатор переноса строки в .hlf файлах (BugZ#1084)
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.06.2004 SVS
@@ -513,6 +515,16 @@ int Help::ReadHelp(const char *Mask)
   else
     CtrlColorChar[0]=0;
 
+
+  *ReadStr=0;
+  if (Language::GetOptionsParam(HelpFile,"CtrlStartPosChar",ReadStr))
+  {
+    xstrncpy(CtrlStartPosChar,ReadStr,sizeof(CtrlStartPosChar)-1);
+  }
+  else
+    CtrlStartPosChar[0] = '\0';
+
+
   /* $ 29.11.2001 DJ
      запомним, чего там написано в PluginContents
   */
@@ -535,8 +547,18 @@ int Help::ReadHelp(const char *Mask)
   memset(TabSpace,' ',sizeof(TabSpace)-1);
   TabSpace[sizeof(TabSpace)-1]=0;
 
+  StartPos = -1;
+  LastStartPos = -1;
+
+  int RealMaxLength;
+
   while (TRUE)
   {
+    if ( StartPos != -1 )
+      RealMaxLength = MaxLength-StartPos;
+    else
+      RealMaxLength = MaxLength;
+
     if (!RepeatLastLine && !BreakProcess && fgets(ReadStr,sizeof(ReadStr)/2,HelpFile)==NULL)
     {
       if (StringLen(SplitLine)<MaxLength)
@@ -566,8 +588,22 @@ int Help::ReadHelp(const char *Mask)
 
     RemoveTrailingSpaces(ReadStr);
 
+    if ( strstr (ReadStr, CtrlStartPosChar) )
+    {
+        char Line[MAX_HELP_STRING_LENGTH];
+        int Length = strstr (ReadStr, CtrlStartPosChar)-ReadStr;
+
+        xstrncpy (Line, ReadStr, Length);
+        LastStartPos = StringLen (Line);;
+
+        strcpy (ReadStr+Length, ReadStr+Length+strlen(CtrlStartPosChar));
+    }
+
+
     if (TopicFound)
+    {
       HighlightsCorrection(ReadStr);
+    }
 
     if (*ReadStr=='@' && !BreakProcess)
     {
@@ -614,6 +650,9 @@ m1:
         */
         if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == '$' || PrevSymbol == '@'))
         {
+          StartPos = -1;
+          LastStartPos = -1;
+
           AddLine(ReadStr+1);
           FixCount++;
         }
@@ -624,13 +663,18 @@ m1:
           {
             if (*SplitLine)
             {
-              if (StringLen(SplitLine)<MaxLength)
+              if (StringLen(SplitLine)<RealMaxLength)
               {
                 AddLine(SplitLine);
+
                 *SplitLine=0;
-                if (StringLen(ReadStr)<MaxLength)
+                if (StringLen(ReadStr)<RealMaxLength)
                 {
                   AddLine(ReadStr);
+
+                  LastStartPos = -1;
+                  StartPos = -1;
+
                   continue;
                 }
               }
@@ -639,7 +683,7 @@ m1:
             }
             else if(*ReadStr)
             {
-              if (StringLen(ReadStr)<MaxLength)
+              if (StringLen(ReadStr)<RealMaxLength)
               {
                 AddLine(ReadStr);
                 continue;
@@ -654,11 +698,16 @@ m1:
 
           if (*ReadStr && IsSpace(*ReadStr) && Formatting)
           {
-            if (StringLen(SplitLine)<MaxLength)
+            if (StringLen(SplitLine)<RealMaxLength)
             {
               if (*SplitLine)
+              {
                 AddLine(SplitLine);
+                StartPos = -1;
+              }
+
               strcpy(SplitLine,ReadStr);
+
               *ReadStr=0;
               continue;
             }
@@ -673,7 +722,7 @@ m1:
             strcat(SplitLine,ReadStr);
           }
 
-          if (StringLen(SplitLine)<MaxLength)
+          if (StringLen(SplitLine)<RealMaxLength)
           {
             if(!*ReadStr && BreakProcess)
               goto m1;
@@ -699,7 +748,7 @@ m1:
             if (SplitLine[I]==' ')
             {
               SplitLine[I]=0;
-              if (StringLen(SplitLine)<MaxLength)
+              if (StringLen(SplitLine)<RealMaxLength)
               {
                 AddLine(SplitLine);
                 memmove(SplitLine+1,SplitLine+I+1,strlen(SplitLine+I+1)+1);
@@ -717,6 +766,8 @@ m1:
             AddLine(SplitLine);
             *SplitLine=0;
           }
+          else
+            StartPos = LastStartPos;
         }
       }
       if(BreakProcess)
@@ -748,7 +799,21 @@ void Help::AddLine(const char *Line)
   if (NewHelpData==NULL)
     return;
   HelpData=NewHelpData;
-  xstrncpy(HelpData+StrCount*MAX_HELP_STRING_LENGTH,Line,MAX_HELP_STRING_LENGTH-1);
+
+  char *HelpStr = HelpData+StrCount*MAX_HELP_STRING_LENGTH;
+
+  memset (HelpStr, 0, MAX_HELP_STRING_LENGTH);
+
+  if ( StartPos != -1 )
+  {
+    for (int i = 0; i < StartPos; i++)
+      HelpStr[i] = ' ';
+
+    xstrncpy(HelpStr+StartPos, Line+1, MAX_HELP_STRING_LENGTH-1);
+  }
+  else
+    xstrncpy(HelpStr, Line, MAX_HELP_STRING_LENGTH-1);
+
   StrCount++;
 }
 

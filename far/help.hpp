@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.28 13.10.2003 $ */
+/* Revision: 1.29 18.12.2004 $ */
 
 /*
 Modify:
+  18.12.2004 WARP
+    ! Спецификатор переноса строки в .hlf файлах (BugZ#1084)
   13.10.2003 SVS
     ! Заготовка для мультисимвольного CtrlColorChar
   03.06.2003 SVS
@@ -146,6 +148,11 @@ class Help:public Frame
     */
     char CurPluginContents[NM];
     /* DJ $ */
+
+    DWORD LastStartPos;
+    DWORD StartPos;
+
+    char  CtrlStartPosChar[16];
 
 #if defined(WORK_HELP_FIND)
   private:
