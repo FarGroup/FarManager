@@ -335,7 +335,7 @@ referring to the same data.
   Toggles the size of the FAR console window                  #Alt-F9#
 
   In the windowed mode, toggles between the current size and the
-maximum possible size of a console window. n the fullscreen mode, Alt-F9
+maximum possible size of a console window. In the fullscreen mode, Alt-F9
 toggles the screen height between 25 and 50 lines. See TechInfo##38 for
 details.
 
@@ -359,11 +359,11 @@ details.
 
   Execute, change folder, enter to an archive                  #Enter#
   Execute in the separate window                         #Shift-Enter#
-  Change folder to root                                       #Ctrl-\#
-  Change folder, enter to archive (also to SFX archive)    #Ctrl-PgDn#
-  Change folder to parent                                  #Ctrl-PgUp#
+  Change to the root folder                                   #Ctrl-\#
+  Change folder, enter an archive (also a SFX archive)     #Ctrl-PgDn#
+  Change to the parent folder                              #Ctrl-PgUp#
 
-  Pressing Ctrl-PgUp in the root directory:
+  Pressing Ctrl-PgUp in the root folder:
     - for local drives - shows the drive selection menu;
     - for network drives - activates the Network Browser plugin.
 
@@ -395,8 +395,8 @@ you will always have them in the history.
 
   Clear history in dialog edit controls                          #Del#
 
-  Очистка текущего незалоченного пункта истории
-  в строках редактирования диалогов                        #Shift-Del#
+  Delete the current item in a dialog edit line history
+  list (if it is not locked)                               #Shift-Del#
 
   Insert a file name under cursor to dialog              #Shift-Enter#
 
@@ -421,15 +421,15 @@ $ #Mouse wheel support#
    Under Windows 2000, FAR Manager supports the mouse wheel:
 
    #Panels#
-     List scrolling without changing the cursor position on the
-     screen.
+     Rotating the wheel scrolls the file list without changing the
+     cursor position on the screen.
 
    #Editor#
-     Text scrolling without changing the cursor position on the
-     screen (similar to Ctrl-Up/Ctrl-Down).
+     Rotating the wheel scrolls the text without changing the cursor
+     position on the screen (similar to Ctrl-Up/Ctrl-Down).
 
-   #Viewer#
-     Text scrolling.
+   #Viewer, help#
+     Rotating the wheel scrolls the text.
 
    #Menus#
      Wheel scrolling works as Up/Down buttons.
@@ -524,15 +524,15 @@ list of available help on the modules by pressing
 
     #Shift-F1# - in the list of plugins (context-dependent help).
 
-    If the plugin has no help file, then context-dependent prompt will
-not pop out. While calling for a context prompt in the  list
-#Plugin configuration# FAR will try to show the topic with the name
-#Config#. If this topic is not in the plugin help, then the basic help topic
-on this plugin will be shown.
+    If the plugin has no help file, then context-dependent help will
+not pop out. If the context help is invoked from the
+#Plugin configuration# menu, FAR will try to show the topic with the name
+#Config#. If this topic does not exist in the plugin help, then the basic
+help topic on this plugin will be shown.
 
     If the active panel shows a plugin emulated file system, the command
 "CD" in the command line may be used to change the plugin file system
-folder. Unlike "CD" "CHDIR" command always treats the specified parameter as
+folder. Unlike "CD", "CHDIR" command always treats the specified parameter as
 a real folder name regardless a file panel type.
 
 @PluginsReviews
@@ -543,16 +543,16 @@ Plugins present an almost limitless expansion of the features of FAR.
 
     Without going into details, some of the capabililities can be noted:
 
-  * syntax highlighting in program source texts.
-  * working with FTP-servers (including access through proxy).
-  * search and replace in many files at the same time, using regular
+  * Syntax highlighting in program source texts.
+  * Working with FTP-servers (including access through proxy).
+  * Search and replace in many files at the same time, using regular
     expressions.
-  * renaming groups of files with support for complex compound masks
+  * Renaming groups of files with support for complex compound masks
     consisting of substitution symbols and templates.
   * NNTP/SMTP/POP3/IMAP4 clients and sending messages to a pager.
-  * working with non-standard text screen resolutions.
-  * conversion of texts from one national code page to another.
-  * manipulating the contents of the Recycle Bin.
+  * Working with non-standard text screen resolutions.
+  * Conversion of texts from one national code page to another.
+  * Manipulating the contents of the Recycle Bin.
   * Process priority control on local or network PC.
   * Words autocomplete in editor and working with templates.
   * Windows system registry editing.
@@ -929,16 +929,17 @@ for following operations:
 
 @MakeFolder
 $ #Make folder#
-    This function allows you to create the folders. You can use environment
-variables in the input line, which are expanded to its values before creating
-the folder. Also you can create multiple folders at the same time: symply
-separate the folder names with backslash sign. For example:
+    This function allows you to create folders. You can use environment
+variables in the input line, which are expanded to their values before creating
+the folder. Also you can create multiple nested subfolders at the same time:
+simply separate the folder names with the backslash character. For example:
 
     #%USERDOMAIN%\%USERNAME%\Folder3#
 
-    Также возможно создавать несколько папок за один раз. Для этого имена
-папок должны быть разделены символом-разделителем "#;#". Если папка в своем
-имени содержит символ ";", то имя должно быть взято в кавычки. Например:
+    It is also possible to create multiple folders at the same time.
+In order to do this, you should separate the folder names with semicolons
+("#;#"). If the name of a folder contains a semicolon, it should be enclosed
+in quotation marks. For example:
 
     #C:\Foo1;"E:\foo2;";D:\foo3#
 
@@ -1011,7 +1012,7 @@ characters of the folder.
 
 @History
 $ #History#
-    The commmands history shows the list of previously executed
+    The commands history shows the list of previously executed
 commands. Besides the cursor control keys, the following keyboard
 shortcuts are available:
 
@@ -2176,10 +2177,9 @@ is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
-    В строке ввода может указываться как одна цель для копирования или
-перемещения, так и несколько. В последнем случае цели должны быть разделены
-символом-разделителем "#;#". Если цели содержит в своем имени символ ";",
-то эта цель должна быть взята в кавычки.
+    You can also specify multiple target paths in the edit line. In order
+to do so, separate the paths with semicolons ("#;#"). If a target path
+contains a semicolon, it should be enclosed in quotation marks.
 
 @HardSymLink
 $ #Hard and Symbolic link#
@@ -2209,27 +2209,26 @@ deleted. The deletion order doesn't matter.  При удалении хардлинка в
 links in a separate column (by default, it's the last column in the 9th
 panel mode) and sort the files by hard link number.
 
-    Хардлинки поддерживаются в NTFS, начиная с NT 4.0. Создавать хардлинки
-можно только на том же диске, на котором расположен исходный файл.
+    Hard links are supported in NTFS starting from Windows NT 4.0.
+Hard links can only be created on the same drive as the source file.
 
     #Symbolic links#
 
-    NTFS начиная с версии 5.0 (Windows 2000) поддерживает символические
-связи (SymLink). Символические связи каталогов в Windows 2000 известны
-как "directory junctions" - технология Windows 2000, позволяющая отображать
-любые локальные каталоги на любые другие локальные каталоги. Например,
-если каталог D:\SYMLINK указывает на C:\WINNT\SYSTEM32 в качестве своей
-цели, то программа, обращающаяся к D:\SYMLINK\DRIVERS, будет на самом
-деле обращаться к C:\WINNT\SYSTEM32\DRIVERS.
+    NTFS starting with version 5.0 (Windows 2000) supports symbolic links
+(SymLink). Symbolic links between directories in Windows 2000 are known as
+"directory junctions". Directory junctions is a technology allowing to
+map any local directories to any other local directories. For example,
+if the directory D:\SYMLINK has C:\WINNT\SYSTEM32 as its target, a program
+accessing D:\SYMLINK\DRIVERS will actually access C:\WINNT\SYSTEM32\DRIVERS.
 
-    FAR умеет создавать символические связи только на локальных дисках,
-файловая система которых поддерживает эту возможность (Windows 2000/NTFS 5.0).
-В отличие от хардлинков, симлинки не обязательно должны указывать на тот
-же диск.
+    FAR supports creating symbolic links only on local drives that have
+a file system supporting that capability (Windows 2000/NTFS 5.0). Unlike
+hard links, symbolic links are not required to have a target on the same
+drive.
 
-    Напрямую делать символические связи на каталоги CD-ROM нельзя, но
-можно это ограничение обойти, смонтировав CD-ROM диск на каталог
-HTFS-раздела.
+    It is not allowed to create symbolic links directly to CD-ROM
+directories, but this restriction can be overcome by mounting a CD-ROM
+to a directory on an NTFS partition.
 
 @ScrSwitch
 $ #Screens switching#
