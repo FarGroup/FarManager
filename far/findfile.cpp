@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.133 26.01.2003 $ */
+/* Revision: 1.134 04.02.2003 $ */
 
 /*
 Modify:
+  04.02.2003 VVM
+    ! Подкорректировал работу с мютексом для диалога.
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -1009,13 +1011,18 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
 
 long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
+  WaitForSingleObject(hDialogMutex,INFINITE);
+
   Dialog* Dlg=(Dialog*)hDlg;
   VMenu *ListBox=Dlg->Item[1].ListPtr;
 
   switch(Msg)
   {
     case DN_HELP: // в режиме поиска отключим вывод помощи, ибо... артефакты с прорисовкой
+    {
+      ReleaseMutex(hDialogMutex);
       return !SearchDone?NULL:Param2;
+    }
 
     case DN_MOUSECLICK:
     {
@@ -1027,15 +1034,15 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         if (ListBox && ListBox->GetItemCount())
           Dialog::SendDlgMessage(hDlg,DM_CLOSE,6/* [ Go to ] */,0);
         FindDlgProc(hDlg,DN_BTNCLICK,6,0); // emulates a [ Go to ] button pressing
+        ReleaseMutex(hDialogMutex);
         return TRUE;
       }
+      ReleaseMutex(hDialogMutex);
       return FALSE;
     }
 
     case DN_KEY:
     {
-      WaitForSingleObject(hDialogMutex,INFINITE);
-
       if (!StopSearch && Param2==KEY_ESC)
       {
         PauseSearch=TRUE;
@@ -1060,7 +1067,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       while (ListBox->GetCallCount())
         Sleep(10);
 
-    if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
+      if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
         FindPositionChanged = TRUE;
 
       // некторые спец.клавиши всеже отбработаем.
@@ -1154,8 +1161,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == (HANDLE)-2 ||
                   ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
               {
-                ReleaseMutex(hDialogMutex);
                 ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+                ReleaseMutex(hDialogMutex);
                 return TRUE;
               }
               ClosePlugin = TRUE;
@@ -1346,10 +1353,12 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       if (Param1==5) // [ New search ] button pressed
       {
         FindExitCode=FIND_EXIT_SEARCHAGAIN;
+        ReleaseMutex(hDialogMutex);
         return FALSE;
       }
       else if (Param1==9) // [ Stop ] button pressed
       {
+        ReleaseMutex(hDialogMutex);
         if (StopSearch)
           return FALSE;
         StopSearch=TRUE;
@@ -1358,9 +1367,10 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       else if (Param1==6) // [ Goto ] button pressed
       {
         if (!ListBox)
+        {
+          ReleaseMutex(hDialogMutex);
           return FALSE;
-
-        WaitForSingleObject(hDialogMutex,INFINITE);
+        }
 
         // Переход будем делать так же после выхода из диалога.
         // Причину смотри для [ Panel ]
@@ -1378,14 +1388,16 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       else if (Param1==7) // [ View ] button pressed
       {
         FindDlgProc(hDlg,DN_KEY,1,KEY_F3);
+        ReleaseMutex(hDialogMutex);
         return TRUE;
       }
       else if (Param1==8) // [ Panel ] button pressed
       {
         if (!ListBox)
+        {
+          ReleaseMutex(hDialogMutex);
           return FALSE;
-
-        WaitForSingleObject(hDialogMutex,INFINITE);
+        }
 
         // На панель будем посылать не в диалоге, а после.
         // После окончания поиска. Иначе возможна ситуация, когда мы
@@ -1406,11 +1418,13 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if (Param2)
         ((struct FarListColors *)Param2)->Colors[VMenuColorDisabled]=FarColorToReal(COL_DIALOGLISTTEXT);
+      ReleaseMutex(hDialogMutex);
       return TRUE;
     }
     case DN_CLOSE:
     {
       StopSearch=TRUE;
+      ReleaseMutex(hDialogMutex);
       while (!SearchDone || WriteDataUsed)
         Sleep(10);
       return TRUE;
@@ -1420,8 +1434,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     */
     case DN_RESIZECONSOLE:
     {
-      WaitForSingleObject(hDialogMutex,INFINITE);
-
       COORD coord=(*(COORD*)Param2);
       SMALL_RECT rect;
       int IncY=coord.Y-DlgHeight-4;
@@ -1467,7 +1479,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     /* KM $ */
   }
-  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+  int Result = Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+  ReleaseMutex(hDialogMutex);
+  return Result;
 }
 
 int FindFiles::FindFilesProcess()
@@ -2037,12 +2051,16 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   struct MenuItem ListItem;
   int i;
 
+  WaitForSingleObject(hDialogMutex,INFINITE);
+
   Dialog* Dlg=(Dialog*)hDlg;
   VMenu *ListBox=Dlg->Item[1].ListPtr;
-  if (!ListBox)
-    return;
 
-  WaitForSingleObject(hDialogMutex,INFINITE);
+  if (!ListBox)
+  {
+    ReleaseMutex(hDialogMutex);
+    return;
+  }
 
   memset(&ListItem,0,sizeof(ListItem));
 
@@ -2541,13 +2559,14 @@ void FindFiles::WriteDialogData(void *Param)
   WriteDataUsed=TRUE;
   while(1)
   {
+    WaitForSingleObject(hDialogMutex,INFINITE);
+
     VMenu *ListBox=Dlg->Item[1].ListPtr;
     /* $ 11.12.2001 VVM
       - Не рисуем диалог при активном скрин-сэйвере */
     if (ListBox && !PauseSearch && !ScreenSaverActive)
     /* VVM $ */
     {
-      WaitForSingleObject(hDialogMutex,INFINITE);
 
       if (BreakMainThread)
         StopSearch=TRUE;
@@ -2622,8 +2641,8 @@ void FindFiles::WriteDialogData(void *Param)
           Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
       }
-      ReleaseMutex(hDialogMutex);
     }
+    ReleaseMutex(hDialogMutex);
 
     if (StopSearch && SearchDone && !FindMessageReady && !FindCountReady && !LastFoundNumber)
       break;
