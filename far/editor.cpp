@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.184 25.06.2002 $ */
+/* Revision: 1.185 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SKV
+    - Bugz#538 - В ECTL_SETPOSITION Pos проверяется не только на -1,
+      но и на полное совпадение с текущей позицией перед выставлением
+      FEDITOR_CURPOSCHANGEDBYPLUGIN.
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
     ! В редакторе (Editor) и вьювере (Viewer) отказываемся от абс. значений
@@ -5743,7 +5747,9 @@ int Editor::EditorControl(int Command,void *Param)
       {
         struct EditorSetPosition *Pos=(struct EditorSetPosition *)Param;
         DisableOut++;
-        if (Pos->CurLine!=-1 || Pos->CurPos!=-1)
+        int CurPos=CurLine->EditLine.GetCurPos();
+        if ((Pos->CurLine!=-1 || Pos->CurPos!=-1)&&
+            (Pos->CurLine!=NumLine || Pos->CurPos!=CurPos))
           Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
         if (Pos->CurLine!=-1)
         {
