@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.57 26.04.2002 $ */
+/* Revision: 1.58 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    + ProcessRadioButton
   26.04.2002 SVS
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   22.04.2002 KM
@@ -462,6 +464,7 @@ class Dialog: public Frame
     /* KM $ */
 
     void ProcessCenterGroup(void);
+    int ProcessRadioButton(int);
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);

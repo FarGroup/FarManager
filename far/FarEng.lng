@@ -424,6 +424,7 @@
 "Folder shortcuts"
 "Edit: Del,Ins,F4"
 "<none>"
+"<plugin>"
 "Enter new shortcut:"
 "Jump to the nearest existing folder?"
 "Save this shortcuts?"

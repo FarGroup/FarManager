@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.10 27.04.2002 $ */
+/* Revision: 1.11 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - BugZ#482 Folder shortcuts (продолжение)
   27.04.2002 SVS
     ! 8192 -> MAXSIZE_SHORTCUTDATA
     - BugZ#482 - Folder shortcuts
@@ -167,7 +169,13 @@ static int ShowFolderShortcutMenu(int Pos)
       ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,I,FolderName,sizeof(FolderName));
       TruncStr(FolderName,60);
       if (*FolderName==0)
-        strcpy(FolderName,MSG(MShortcutNone));
+      {
+        ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINMODULE,I,FolderName,sizeof(FolderName));
+        if(*FolderName == 0)
+          strcpy(FolderName,MSG(MShortcutNone));
+        else
+          strcpy(FolderName,MSG(MShortcutPlugin));
+      }
       sprintf(ListItem.Name,"%s+&%d   %s",MSG(MRightCtrl),I,FolderName);
       ListItem.SetSelect(I == Pos);
       FolderList.AddItem(&ListItem);
@@ -219,7 +227,8 @@ static int ShowFolderShortcutMenu(int Pos)
               strcmp(NewDir,OldNewDir) != 0)
           {
             Unquote(NewDir);
-            DeleteEndSlash(NewDir);
+            if(!(NewDir[1] == ':' && NewDir[2] == '\\' && NewDir[3] == 0))
+              DeleteEndSlash(NewDir);
             BOOL Saved=TRUE;
             if(GetFileAttributes(NewDir) == -1)
             {

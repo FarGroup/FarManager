@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.170 18.04.2002 $ */
+/* Revision: 1.171 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - BugZ#488 - Shift=enter
   18.04.2002 SKV
     ! При чтении позиции из кэша разворачиваем палки / в \
     ! Перепозиционирование курсора и topline при alt-f9 в конце длинного файла.
@@ -664,11 +666,15 @@ Editor::~Editor()
 
 void Editor::FreeAllocatedData()
 {
+_SVS(DWORD I=0);
+_SVS(SysLog("TopList=%p, EndList=%p",TopList, EndList));
   while (EndList!=NULL)
   {
     struct EditList *Prev=EndList->Prev;
+_SVS(if(I > 400000)SysLog("%ld %p",I,Prev));
     delete EndList;
     EndList=Prev;
+_SVS(I++);
   }
   /* $ 03.12.2001 IS
      UndoData - указатель
@@ -1531,6 +1537,13 @@ int Editor::ProcessKey(int Key)
   int CurPos,CurVisPos,I;
   CurPos=CurLine->EditLine.GetCurPos();
   CurVisPos=GetLineCurPos();
+
+  // BugZ#488 - Shift=enter
+  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
+  {
+    Key=KEY_SHIFTENTER;
+  }
+
 
   if ((!ShiftPressed  || CtrlObject->Macro.IsExecuting()) &&
       !IsShiftKey(Key) && !Pasting)

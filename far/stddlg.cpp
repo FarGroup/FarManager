@@ -5,10 +5,13 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.21 13.03.2002 $ */
+/* Revision: 1.22 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    ! Убираем "Грязный Хак" в функции GetString от 12.03.2001, т.к.
+      теперь все решается на уровне диалога.
   13.02.2002 SVS
     + FIB_NOAMPERSAND
   07.12.2001 IS
@@ -385,6 +388,7 @@ int WINAPI GetSearchReplaceString(
 // Функция для коррекции аля Shift-F4 Shift-Enter без отпускания Shift ;-)
 static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
+/*
   if(Msg == DM_KEY)
   {
 //    char KeyText[50];
@@ -397,6 +401,7 @@ static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       return TRUE;
     }
   }
+*/
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.106 27.04.2002 $ */
+/* Revision: 1.107 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    + MShortcutPlugin
   27.04.2002 SVS
     + MSaveThisShortcut
   02.04.2002 KM
@@ -735,6 +737,7 @@ enum
   MFolderShortcutsTitle,
   MFolderShortcutBottom,
   MShortcutNone,
+  MShortcutPlugin,
   MEnterShortcut,
   MNeedNearPath,
   MSaveThisShortcut,

@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.236 28.04.2002 $ */
+/* Revision: 1.237 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - BugZ#488 - Shift=enter
+    - BugZ#490 - Проблема радиокнопками.
+    + ProcessRadioButton
   28.04.2002 KM
     ! Для комбобокса установим флаг VMENU_COMBOBOX, что
       позволит менеджеру отличить его от обычного меню.
@@ -1208,6 +1212,10 @@ void Dialog::ProcessCenterGroup(void)
 /* $ 24.08.2000 SVS
   InitDialogObjects имеет параметр - для выборочной реинициализации
   элементов. ID = -1 - касаемо всех объектов
+*/
+/*
+  TODO: Необходимо применить ProcessRadioButton для исправления
+        кривых рук программеров (а надо?)
 */
 int Dialog::InitDialogObjects(int ID)
 {
@@ -2717,6 +2725,12 @@ int Dialog::ProcessKey(int Key)
 
   int Type=Item[FocusPos].Type;
 
+  // BugZ#488 - Shift=enter
+  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
+  {
+    Key=KEY_SHIFTENTER;
+  }
+
   if(!DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DM_KEY,FocusPos,Key))
       return TRUE;
@@ -3006,49 +3020,7 @@ int Dialog::ProcessKey(int Key)
       }
       else if (Type==DI_RADIOBUTTON)
       {
-        int PrevRB=FocusPos;
-        for (I=FocusPos;;I--)
-        {
-          if(I==0)
-            break;
-
-          if (Item[I].Type==DI_RADIOBUTTON && (Item[I].Flags & DIF_GROUP))
-            break;
-
-          if(Item[I-1].Type!=DI_RADIOBUTTON)
-            break;
-        }
-
-        do
-        {
-          /* $ 28.07.2000 SVS
-            При изменении состояния каждого элемента посылаем сообщение
-            посредством функции SendDlgMessage - в ней делается все!
-          */
-          J=Item[I].Selected;
-          Item[I].Selected=0;
-          if(J)
-          {
-            PrevRB=I;
-          }
-          ++I;
-          /* SVS $ */
-        } while (I<ItemCount && Item[I].Type==DI_RADIOBUTTON &&
-                 (Item[I].Flags & DIF_GROUP)==0);
-
-        Item[FocusPos].Selected=1;
-        /* $ 28.07.2000 SVS
-          При изменении состояния каждого элемента посылаем сообщение
-          посредством функции SendDlgMessage - в ней делается все!
-        */
-        if(!Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,PrevRB,0) ||
-           !Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,1))
-        {
-           // вернем назад, если пользователь не захотел...
-           Item[FocusPos].Selected=0;
-           Item[PrevRB].Selected=1;
-        }
-        /* SVS $ */
+        FocusPos=ProcessRadioButton(FocusPos);
         ShowDialog();
         return(TRUE);
       }
@@ -3950,6 +3922,57 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   return(FALSE);
 }
 /* SVS 18.08.2000 $ */
+
+
+int Dialog::ProcessRadioButton(int CurRB)
+{
+  int PrevRB=CurRB, I, J;
+
+  for (I=CurRB;;I--)
+  {
+    if(I==0)
+      break;
+
+    if (Item[I].Type==DI_RADIOBUTTON && (Item[I].Flags & DIF_GROUP))
+      break;
+
+    if(Item[I-1].Type!=DI_RADIOBUTTON)
+      break;
+  }
+
+  do
+  {
+    /* $ 28.07.2000 SVS
+      При изменении состояния каждого элемента посылаем сообщение
+      посредством функции SendDlgMessage - в ней делается все!
+    */
+    J=Item[I].Selected;
+    Item[I].Selected=0;
+    if(J)
+    {
+      PrevRB=I;
+    }
+    ++I;
+    /* SVS $ */
+  } while (I<ItemCount && Item[I].Type==DI_RADIOBUTTON &&
+           (Item[I].Flags & DIF_GROUP)==0);
+
+  Item[CurRB].Selected=1;
+  /* $ 28.07.2000 SVS
+    При изменении состояния каждого элемента посылаем сообщение
+    посредством функции SendDlgMessage - в ней делается все!
+  */
+  if(!Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,PrevRB,0) ||
+     !Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,CurRB,1))
+  {
+     // вернем назад, если пользователь не захотел...
+     Item[CurRB].Selected=0;
+     Item[PrevRB].Selected=1;
+     return PrevRB;
+  }
+  /* SVS $ */
+  return CurRB;
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -6148,10 +6171,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /*****************************************************************/
     case DM_SETCHECK:
     {
-      if(Type == DI_CHECKBOX || Type == DI_RADIOBUTTON)
+      if(Type == DI_CHECKBOX)
       {
         int Selected=CurItem->Selected;
-        if(Type == DI_CHECKBOX && (CurItem->Flags&DIF_3STATE))
+        if(CurItem->Flags&DIF_3STATE)
           Param2%=3;
         else
           Param2&=1;
@@ -6162,6 +6185,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           ScrBuf.Flush();
         }
         return Selected;
+      }
+      else if(Type == DI_RADIOBUTTON)
+      {
+        Param1=Dlg->ProcessRadioButton(Param1);
+        if(Dlg->DialogMode.Check(DMODE_SHOW))
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
+        return Param1;
       }
       return 0;
     }
