@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.141 16.05.2003 $ */
+/* Revision: 1.142 17.05.2003 $ */
 
 /*
 Modify:
+  17.05.2003 VVM
+    - В режиме Hex-просмотра 80х25 скроллбар затирал последний символ.
   16.05.2003 VVM
     - CTRL+U не работала при выключенных постоянных блоках.
   14.05.2003 VVM
@@ -1073,7 +1075,7 @@ void Viewer::ShowHex()
 
     if (Y==ViewY1+1 && !feof(ViewFile))
       SecondPos=vtell(ViewFile);
-    sprintf(OutStr,"%010I64X:  ",(__int64)ftell64(ViewFile));
+    sprintf(OutStr,"%010I64X: ",(__int64)ftell64(ViewFile));
 
     TextPos=0;
 
