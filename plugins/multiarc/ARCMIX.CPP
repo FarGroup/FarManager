@@ -12,7 +12,7 @@ int __isspace(int Chr)
 
 const char *GetMsg(int MsgId)
 {
-  return(Info.GetMsg(Info.ModuleNumber,MsgId));
+  return Info.GetMsg(Info.ModuleNumber,MsgId);
 }
 
 
@@ -216,7 +216,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     Info.RestoreScreen(hScreen);
   }
 
-  return(ExitCode);
+  return ExitCode;
 }
 
 
@@ -226,7 +226,7 @@ char* QuoteText(char *Str)
   FSF.sprintf(TmpStr,"\"%s\"",Str);
   strcpy(Str,TmpStr);
   delete TmpStr;
-  return(Str);
+  return Str;
 }
 
 
@@ -289,10 +289,10 @@ int ToPercent(long N1,long N2)
     N2/=100;
   }
   if (N2==0)
-    return(0);
+    return 0;
   if (N2<N1)
-    return(100);
-  return((int)(N1*100/N2));
+    return 100;
+  return (int)(N1*100/N2);
 }
 
 
@@ -303,8 +303,8 @@ int IsCaseMixed(const char *Str)
   int Case=IsCharLower(*Str);
   while (*(Str++))
     if (IsCharAlpha(*Str) && IsCharLower(*Str)!=Case)
-      return(TRUE);
-  return(FALSE);
+      return TRUE;
+  return FALSE;
 }
 
 
@@ -325,7 +325,7 @@ int CheckForEsc()
           rec.Event.KeyEvent.bKeyDown)
         ExitCode=TRUE;
   }
-  return(ExitCode);
+  return ExitCode;
 }
 
 
@@ -337,14 +337,14 @@ int LocalStrnicmp(const char *Str1,const char *Str2,int Length)
   AnsiStr1[Length]=AnsiStr2[Length]=0;
   CharLower(AnsiStr1);
   CharLower(AnsiStr2);
-  return(strcmp(AnsiStr1,AnsiStr2));
+  return strcmp(AnsiStr1,AnsiStr2);
 }
 
 char *GetCommaWord(char *Src,char *Word,char Separator)
 {
   int WordPos,SkipBrackets;
   if (*Src==0)
-    return(NULL);
+    return NULL;
   SkipBrackets=FALSE;
   for (WordPos=0;*Src!=0;Src++,WordPos++)
   {
@@ -358,13 +358,13 @@ char *GetCommaWord(char *Src,char *Word,char Separator)
       Src++;
       while (__isspace(*Src))
         Src++;
-      return(Src);
+      return Src;
     }
     else
       Word[WordPos]=*Src;
   }
   Word[WordPos]=0;
-  return(Src);
+  return Src;
 }
 
 int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)

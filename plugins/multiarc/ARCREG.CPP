@@ -26,9 +26,9 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,c
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
     strcpy(ValueData,Default);
-    return(FALSE);
+    return FALSE;
   }
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -41,9 +41,9 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DW
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
     ValueData=Default;
-    return(FALSE);
+    return FALSE;
   }
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -51,7 +51,7 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default)
 {
   int ValueData;
   GetRegKey(hRoot,Key,ValueName,ValueData,Default);
-  return(ValueData);
+  return ValueData;
 }
 
 
@@ -63,7 +63,7 @@ HKEY CreateRegKey(HKEY hRoot,const char *Key)
   FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
   RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
                  &hKey,&Disposition);
-  return(hKey);
+  return hKey;
 }
 
 
@@ -73,8 +73,8 @@ HKEY OpenRegKey(HKEY hRoot,const char *Key)
   char FullKeyName[512];
   FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
   if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
-    return(NULL);
-  return(hKey);
+    return NULL;
+  return hKey;
 }
 
 void DeleteRegKey(HKEY hRoot,const char *Key)

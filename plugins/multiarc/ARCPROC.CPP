@@ -20,7 +20,7 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
 {
   char Command[512],AllFilesMask[32];
   if (ItemsNumber==0)
-    return(FALSE);
+    return FALSE;
   if ((OpMode & OPM_SILENT)==0)
   {
     const char *MsgItems[]={GetMsg(MDeleteTitle),GetMsg(MDeleteFiles),
@@ -32,14 +32,14 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
       MsgItems[1]=Msg;
     }
     if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
-      return(FALSE);
+      return FALSE;
     if (ItemsNumber>1)
     {
       char Msg[100];
       FSF.sprintf(Msg,GetMsg(MDeleteNumberOfFiles),ItemsNumber);
       MsgItems[1]=Msg;
       if (Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
-        return(FALSE);
+        return FALSE;
     }
   }
   GetCommandFormat(CMD_DELETE,Command,sizeof(Command));
@@ -47,11 +47,11 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
   int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
   ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,"",AllFilesMask,IgnoreErrors,0,0,CurDir,CurArcInfo.Prefix);
   if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
-    return(FALSE);
+    return FALSE;
   if (Opt.UpdateDescriptions)
     for (int I=0;I<ItemsNumber;I++)
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -69,9 +69,9 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     {MArcCmdLock,         CMD_LOCK        },
   };
 
-  struct FarMenuItem MenuItems[COUNT(MenuData)];
+  struct FarMenuItemEx MenuItems[COUNT(MenuData)];
   memset(MenuItems,0,sizeof(MenuItems));
-  MenuItems[0].Selected=TRUE;
+  MenuItems[0].Flags=MIF_SELECTED;
 
   int Count=0;
   char Command[512],AllFilesMask[32];
@@ -81,17 +81,18 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     if(*Command /*&& !(MenuData[i].Cmd==CMD_COMMENTFILES && ItemsNumber!=1)*/)
     {
       strcpy(MenuItems[Count].Text, GetMsg(MenuData[i].Msg));
-      *((int *)(MenuItems[Count++].Text+124))=MenuData[i].Cmd;
+      MenuItems[Count++].UserData=MenuData[i].Cmd;
     }
   }
   if(!Count)
     return FALSE;
-  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,0,GetMsg(MArcCmdTitle),NULL,
-      "ArcCmd",NULL,NULL,MenuItems,Count);
+  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_USEEXT,
+       GetMsg(MArcCmdTitle),NULL,"ArcCmd",NULL,NULL,(FarMenuItem *)MenuItems,
+       Count);
   if(ExitCode<0)
     return FALSE;
   FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-  int CommandType=*((int *)(MenuItems[ExitCode].Text+124));
+  int CommandType=MenuItems[ExitCode].UserData;
 
   GetCommandFormat(CommandType,Command,sizeof(Command));
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
@@ -112,7 +113,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
                       GetMsg(MExtrAllVolumes)};
     int MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
     if (MsgCode<0)
-      return(-1);
+      return -1;
     if (MsgCode==1)
     {
       memset(&MaskPanelItem,0,sizeof(MaskPanelItem));
@@ -132,14 +133,14 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
           (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       {
         if (!GetPassword(Password,FSF.PointToName(ArcName)))
-          return(FALSE);
+          return FALSE;
         break;
       }
 
   ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,Password,AllFilesMask,
                     IgnoreErrors,CommandType==CMD_COMMENT || CommandType==CMD_COMMENTFILES ? 2:0,0,
                     CurDir,CurArcInfo.Prefix);
-  return(IgnoreErrors || ArcCmd.GetExecCode()==0);
+  return IgnoreErrors || ArcCmd.GetExecCode()==0;
 }
 
 
@@ -153,7 +154,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
   GetCurrentDirectory(sizeof(SaveDir),SaveDir);
   char Command[512],AllFilesMask[32];
   if (ItemsNumber==0)
-    return(0);
+    return 0;
   if (*DestPath)
     FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
@@ -201,7 +202,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
     int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,14,"ExtrFromArc",
                 DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
     if (AskCode!=10)
-      return(-1);
+      return -1;
     strcpy(DestPath,DialogItems[2].Data);
     Opt.UserBackground=DialogItems[8].Selected;
     SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
@@ -247,7 +248,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
                       GetMsg(MExtrAllVolumes)};
     int MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
     if (MsgCode<0)
-      return(-1);
+      return -1;
     if (MsgCode==1)
     {
       memset(&MaskPanelItem,0,sizeof(MaskPanelItem));
@@ -269,7 +270,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
           (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       {
         if (!GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
-          return(-1);
+          return -1;
         break;
       }
 
@@ -285,13 +286,13 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
   SetCurrentDirectory(SaveDir);
   if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
     if (!(OpMode & OPM_VIEW))
-      return(0);
+      return 0;
   if (Move)
     DeleteFiles(PanelItem,ItemsNumber,TRUE);
   if (Opt.UpdateDescriptions)
     for (int I=0;I<ItemsNumber;I++)
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
-  return(1);
+  return 1;
 }
 
 int __cdecl FormatSort(struct FarMenuItemEx *Item1,struct FarMenuItemEx *Item2)
@@ -345,7 +346,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
           if (NewMenuItems==NULL)
           {
             free(MenuItems);
-            return(FALSE);
+            return FALSE;
           }
           MenuItems=NewMenuItems;
           strncpy(MenuItems[MenuItemsNumber].Text,Format,sizeof(MenuItems[MenuItemsNumber].Text));
@@ -358,7 +359,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
       }
     }
     if (MenuItemsNumber==0)
-      return(FALSE);
+      return FALSE;
 
     FSF.qsort(MenuItems,MenuItemsNumber,sizeof(struct FarMenuItemEx),(FCmp)FormatSort);
 
@@ -383,14 +384,14 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
   }
   if(MenuItems)
     free(MenuItems);
-  return(ExitCode>=0);
+  return ExitCode >= 0;
 }
 
 
 int PluginClass::FormatToPlugin(char *Format,int &PluginNumber,int &PluginType)
 {
   char PluginFormat[100],DefExt[NM];
-  for (int I=0;;I++)
+  for (int I=0; I < ArcPlugin->FmtCount(); I++)
   {
     /* $ AA 12.11.2001//заремлено, чтобы нормально работали нестандартные модули
     if (!ArcPlugin->GetFormatName(I,0,PluginFormat,DefExt))
@@ -404,11 +405,11 @@ int PluginClass::FormatToPlugin(char *Format,int &PluginNumber,int &PluginType)
       {
         PluginNumber=I;
         PluginType=J;
-        return(TRUE);
+        return TRUE;
       }
     }
   }
-  return(FALSE);
+  return FALSE;
 }
 
 
@@ -421,9 +422,9 @@ int PluginClass::GetPassword(char *Password,const char *FileName)
                   InPass,sizeof(InPass),NULL,FIB_PASSWORD|FIB_ENABLEEMPTY))
   {
     strcpy(Password,InPass);
-    return(TRUE);
+    return TRUE;
   }
-  return(FALSE);
+  return FALSE;
 }
 
 
@@ -454,12 +455,12 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
     Info.Control(this,FCTL_REDRAWPANEL,NULL);
     Info.Control(this,FCTL_UPDATEANOTHERPANEL,NULL);
     Info.Control(this,FCTL_REDRAWANOTHERPANEL,NULL);
-    return(TRUE);
+    return TRUE;
   }
   else if (ControlState==(PKF_ALT|PKF_SHIFT) && Key==VK_F9)
   {
     Configure(0);
     return TRUE;
   }
-  return(FALSE);
+  return FALSE;
 }

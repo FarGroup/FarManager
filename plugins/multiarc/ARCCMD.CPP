@@ -71,7 +71,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
         CurPtr+=Length;
         break;
       case -1:
-        return(FALSE);
+        return FALSE;
       default:
         CurPtr++;
         break;
@@ -95,16 +95,16 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
       FSF.sprintf(ErrMsg,(char*)GetMsg(MArcNonZero),ExecCode);
       const char *MsgItems[]={GetMsg(MError),ArcName,ErrMsg,GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
-      return(FALSE);
+      return FALSE;
     }
   }
   else
   {
     const char *MsgItems[]={GetMsg(MError),GetMsg(MArcCommandNotFound),GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
-    return(FALSE);
+    return FALSE;
   }
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -156,7 +156,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
 {
   char Chr=Command[2]&(~0x20);
   if (Command[0]!='%' || Command[1]!='%' || Chr < 'A' || Chr > 'Z')
-    return(FALSE);
+    return FALSE;
   char SaveStr[MAX_COMMAND_LENGTH],LocalAllFilesMask[NM];
   int QuoteName=0,UseSlash=FALSE,FolderMask=FALSE,FolderName=FALSE;
   int NameOnly=FALSE,PathOnly=FALSE,AnsiCode=FALSE;
@@ -283,7 +283,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       if (!MakeListFile(ListFileName,Command[2]=='l',QuoteName,UseSlash,
                         FolderName,NameOnly,PathOnly,FolderMask,
                         LocalAllFilesMask,AnsiCode))
-        return(-1);
+        return -1;
       char QListName[NM+2];
       FSF.QuoteSpaceOnly(strcpy(QListName,ListFileName));
       strcpy(Command,QListName);
@@ -422,11 +422,11 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         *Command=0;
       break;
     default:
-      return(FALSE);
+      return FALSE;
   }
   Length=strlen(Command);
   strcat(Command,SaveStr);
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -456,7 +456,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     if(ListFile != INVALID_HANDLE_VALUE)
       CloseHandle(ListFile);
 25.07.2001 AA $*/
-    return(FALSE);
+    return FALSE;
   }
 
   char CurArcDir[NM];
@@ -540,7 +540,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       DeleteFile(ListFileName);
       const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
-      return(FALSE);
+      return FALSE;
     }
   }
 
@@ -556,5 +556,5 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     return(FALSE);
   }
 */
-  return(TRUE);
+  return TRUE;
 }

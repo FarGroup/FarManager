@@ -123,7 +123,7 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
           TrueArc=I;
         }
       }
-  return(TrueArc);
+  return TrueArc;
 }
 
 
@@ -131,16 +131,16 @@ BOOL ArcPlugins::OpenArchive(int PluginNumber,char *Name,int *Type)
 {
   *Type=0; //$ AA 12.11.2001
   if (PluginNumber>=0 && PluginsData[PluginNumber].pOpenArchive)
-    return(PluginsData[PluginNumber].pOpenArchive(Name,Type));
-  return(FALSE);
+    return PluginsData[PluginNumber].pOpenArchive(Name,Type);
+  return FALSE;
 }
 
 int ArcPlugins::GetArcItem(int PluginNumber,struct PluginPanelItem *Item,
                            struct ArcItemInfo *Info)
 {
   if (PluginNumber>=0 && PluginsData[PluginNumber].pGetArcItem)
-    return(PluginsData[PluginNumber].pGetArcItem(Item,Info));
-  return(FALSE);
+    return PluginsData[PluginNumber].pGetArcItem(Item,Info);
+  return FALSE;
 }
 
 
@@ -156,8 +156,8 @@ BOOL ArcPlugins::GetFormatName(int PluginNumber,int Type,char *FormatName,
 {
   *FormatName=0;
   if (PluginNumber>=0 && PluginNumber<PluginsCount && PluginsData[PluginNumber].pGetFormatName)
-    return(PluginsData[PluginNumber].pGetFormatName(Type,FormatName,DefaultExt));
-  return(FALSE);
+    return PluginsData[PluginNumber].pGetFormatName(Type,FormatName,DefaultExt);
+  return FALSE;
 }
 
 
@@ -166,6 +166,6 @@ BOOL ArcPlugins::GetDefaultCommands(int PluginNumber,int Type,int Command,
 {
   *Dest=0;
   if (PluginNumber>=0 && PluginNumber<PluginsCount && PluginsData[PluginNumber].pGetDefaultCommands)
-    return(PluginsData[PluginNumber].pGetDefaultCommands(Type,Command,Dest));
-  return(FALSE);
+    return PluginsData[PluginNumber].pGetDefaultCommands(Type,Command,Dest);
+  return FALSE;
 }

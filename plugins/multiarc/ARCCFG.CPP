@@ -35,7 +35,7 @@ int ConfigGeneral()
   int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,19,"ArcSettings1",DialogItems,
                            sizeof(DialogItems)/sizeof(DialogItems[0]));
   if (ExitCode==16 || ExitCode < 0)
-    return(FALSE);
+    return FALSE;
   if (DialogItems[1].Selected)
     Opt.HideOutput=0;
   else
@@ -55,7 +55,7 @@ int ConfigGeneral()
   SetRegKey(HKEY_CURRENT_USER,"","UpdateDescriptions",Opt.UpdateDescriptions);
   SetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",Opt.DeleteExtFile);
   SetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",Opt.AddExtArchive);
-  return(TRUE);
+  return TRUE;
 }
 
 

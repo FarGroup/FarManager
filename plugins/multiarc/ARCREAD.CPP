@@ -32,9 +32,9 @@ int PluginClass::ReadArchive(char *Name)
   FindClose(ArcFindHandle);
 
   if (ArcFindHandle==INVALID_HANDLE_VALUE)
-    return(FALSE);
+    return FALSE;
   if (!ArcPlugin->OpenArchive(ArcPluginNumber,Name,&ArcPluginType))
-    return(FALSE);
+    return FALSE;
   strcpy(ArcName,Name);
   if (strchr(FSF.PointToName(ArcName),'.')==NULL)
     strcat(ArcName,".");
@@ -68,7 +68,7 @@ int PluginClass::ReadArchive(char *Name)
         ArcDataCount=0;
         ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
         Info.RestoreScreen(hScreen);
-        return(-1);
+        return -1;
       }
       if (GetTickCount()-StartTime>500)
       {
@@ -165,7 +165,7 @@ int PluginClass::ReadArchive(char *Name)
       break;
   }
   Info.RestoreScreen(hScreen);
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -177,11 +177,11 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
   FindClose(ArcFindHandle);
 
   if (ArcFindHandle==INVALID_HANDLE_VALUE)
-    return(FALSE);
+    return FALSE;
   if (CompareFileTime(&NewArcFindData.ftLastWriteTime,&ArcFindData.ftLastWriteTime)!=0 ||
       NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow || ArcData==NULL)
     if (ReadArchive(ArcName)!=TRUE)
-      return(FALSE);
+      return FALSE;
 
   int CurDirLength=strlen(CurDir);
   *pPanelItem=NULL;
@@ -225,7 +225,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
       (*pItemsNumber)++;
     }
   }
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -241,12 +241,12 @@ int PluginClass::SetDirectory(const char *Dir,int OpMode)
     if (*(++Dir)==0)
     {
       *CurDir=0;
-      return(TRUE);
+      return TRUE;
     }
   if (strcmp(Dir,"..")==0)
   {
     if (*CurDir==0)
-      return(FALSE);
+      return FALSE;
     char *Slash=strrchr(CurDir,'\\');
     if (Slash!=NULL)
       *Slash=0;
@@ -276,7 +276,7 @@ int PluginClass::SetDirectory(const char *Dir,int OpMode)
       }
     }
     if (!Found)
-      return(FALSE);
+      return FALSE;
     if (*CurDir==0 || *Dir==0 || strchr(Dir,'\\')!=0)
       strcpy(CurDir,Dir);
     else
@@ -285,7 +285,7 @@ int PluginClass::SetDirectory(const char *Dir,int OpMode)
       strcat(CurDir,Dir);
     }
   }
-  return(TRUE);
+  return TRUE;
 }
 
 

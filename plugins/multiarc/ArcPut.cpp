@@ -6,11 +6,13 @@ struct PutDlgData
   char Password1[256];
   char Password2[256];
   char DefExt[NM];
+  BOOL DefaultPluginNotFound;
 };
 
 #define MAM_SETDISABLE   DM_USER+1
 #define MAM_ARCSWITCHES  DM_USER+2
 #define MAM_SETNAME      DM_USER+3
+#define MAM_SELARC       DM_USER+4
 
 //­®¬¥à  í«¥¬¥­â®¢ ¤¨ «®£  PutFiles
 #define PDI_DOUBLEBOX       0
@@ -31,10 +33,11 @@ struct PutDlgData
 #define PDI_BGROUNDCHECK    14
 #define PDI_SEPARATOR2      15
 #define PDI_ADDBTN          16
-//#define PDI_SELARCBTN       17
-#define PDI_SAVEBTN         17
-#define PDI_CANCELBTN       18
+#define PDI_SELARCBTN       17
+#define PDI_SAVEBTN         18
+#define PDI_CANCELBTN       19
 
+#define OLDSTYLE 1
 
 class SelectFormatComboBox
 {
@@ -113,6 +116,9 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
   if(Msg == DN_INITDIALOG)
   {
+    if(pdd->DefaultPluginNotFound)
+      Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_SAVEBTN, 1);
+
     Info.SendDlgMessage(hDlg, DM_SETTEXTLENGTH, PDI_PASS0WEDT, 255);
     Info.SendDlgMessage(hDlg, DM_SETTEXTLENGTH, PDI_PASS1WEDT, 255);
     Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
@@ -125,6 +131,24 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
 
     Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
+
+    if(OLDSTYLE)
+    {
+      Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCCOMB, 0);
+      Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCCAPT, 0);
+
+      FarDialogItem Item;
+      Info.SendDlgMessage(hDlg, DM_GETDLGITEM, PDI_SWITCHESCAPT, (DWORD)&Item);
+      Item.X1=5;
+      Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESCAPT, (DWORD)&Item);
+      Info.SendDlgMessage(hDlg, DM_GETDLGITEM, PDI_SWITCHESEDT, (DWORD)&Item);
+      Item.X1=5;
+      Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESEDT, (DWORD)&Item);
+
+      Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCBTN, 1);
+    }
+    else
+      Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCBTN, 0);
     return TRUE;
   }
   else if(Msg == DN_EDITCHANGE)
@@ -133,31 +157,12 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       FarDialogItem *Item=(FarDialogItem *)Param2;
       Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, Item->Data[0] != 0);
+      //strcpy(pdd->OriginalName, Item->Data);
     }
     else if(Param1 == PDI_SELARCCOMB)
     {
-      Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_SAVEBTN, 1);
-
       strcpy(pdd->ArcFormat, ((FarDialogItem *)Param2)->Data);
-      pdd->Self->FormatToPlugin(pdd->ArcFormat,pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType);
-
-      GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
-      BOOL Ret=TRUE;
-      if (*Buffer==0)
-        Ret=ArcPlugin->GetFormatName(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,pdd->ArcFormat,Buffer);
-      if(!Ret)
-        pdd->DefExt[0]=0;
-      else
-        strncpy(pdd->DefExt,Buffer,sizeof(pdd->DefExt));
-
-      FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
-      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
-
-      Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
-      Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
-      Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
-      Info.SendDlgMessage(hDlg,DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
-      //return TRUE;
+      Info.SendDlgMessage(hDlg, MAM_SELARC, 0, 0);
     }
     else if(Param1 == PDI_SWITCHESEDT)
     {
@@ -199,6 +204,11 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         return TRUE;
       }
+      case PDI_SELARCBTN:
+        if(pdd->Self->SelectFormat(pdd->ArcFormat,TRUE))
+          Info.SendDlgMessage(hDlg, MAM_SELARC, 0, 0);
+        Info.SendDlgMessage(hDlg, DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
+        return TRUE;
     }
   }
   else if(Msg == DN_CLOSE)
@@ -236,10 +246,35 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_ARCNAMEEDT, (long)Buffer);
   }
+  else if(Msg == MAM_SELARC)
+  {
+    Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_SAVEBTN, 1);
+
+    pdd->Self->FormatToPlugin(pdd->ArcFormat,pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType);
+
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
+    BOOL Ret=TRUE;
+    if(*Buffer==0)
+      Ret=ArcPlugin->GetFormatName(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,pdd->ArcFormat,Buffer);
+    if(!Ret)
+      pdd->DefExt[0]=0;
+    else
+      strncpy(pdd->DefExt,Buffer,sizeof(pdd->DefExt));
+
+    FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
+
+    Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
+    Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
+    Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
+    Info.SendDlgMessage(hDlg,DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
+    return TRUE;
+  }
 
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
+//­®¢ë© áâ¨«ì ¤¨ «®£  "„®¡ ¢¨âì ª  àå¨¢ã"
 //²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²
 //²                                                                            ²
 //²   ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ Add to ZIP ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»   °
@@ -264,7 +299,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                           int Move,int OpMode)
 {
   if (ItemsNumber==0)
-    return(0);
+    return 0;
 
   char Command[512],AllFilesMask[32];
   int ArcExitCode=1;
@@ -281,8 +316,15 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     char DefaultFormat[100];
     GetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",DefaultFormat,"",sizeof(DefaultFormat));
     if (!FormatToPlugin(DefaultFormat,ArcPluginNumber,ArcPluginType))
+    {
       ArcPluginNumber=ArcPluginType=0;
-    strcpy(pdd.ArcFormat,DefaultFormat);
+      pdd.DefaultPluginNotFound=TRUE;
+    }
+    else
+    {
+      strcpy(pdd.ArcFormat,DefaultFormat);
+      pdd.DefaultPluginNotFound=FALSE;
+    }
   }
 
   /* $ 14.02.2001 raVen
@@ -298,7 +340,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if (*pdd.DefExt==0)
       Ret=ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,pdd.ArcFormat,pdd.DefExt);
     if (!Ret)
-      return(0);
+      return 0;
 
     const char *ArcHistoryName="ArcName";
 
@@ -321,11 +363,18 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       /*14*/{DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MBackground},
       /*15*/{DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
       /*16*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd},
-      /*17*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
-      /*18*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
+      /*17*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect},
+      /*18*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
+      /*19*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
     };
     struct FarDialogItem DialogItems[COUNT(InitItems)];
     InitDialogItems(InitItems,DialogItems,COUNT(InitItems));
+
+/*    if(OLDSTYLE)
+    {
+      DialogItems[PDI_SWITCHESCAPT].X1=5;
+      DialogItems[PDI_SWITCHESEDT].X1=5;
+    }*/
 
     SelectFormatComboBox Box(&DialogItems[PDI_SELARCCOMB], pdd.ArcFormat);
 
@@ -392,7 +441,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data);
       Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
-        return(-1);
+        return -1;
       SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
     }
 
@@ -422,7 +471,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       const char *MsgItems[]={GetMsg(MWarning),GetMsg(MCannotPutToFolder),
                         GetMsg(MPutToRoot),GetMsg(MOk),GetMsg(MCancel)};
       if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,COUNT(MsgItems),2)!=0)
-        return(-1);
+        return -1;
       else
         *CurDir=0;
     }
@@ -459,5 +508,5 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   if (Opt.UpdateDescriptions && ArcExitCode)
     for (int I=0;I<ItemsNumber;I++)
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
-  return(ArcExitCode);
+  return ArcExitCode;
 }
