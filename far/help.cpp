@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.66 03.03.2002 $ */
+/* Revision: 1.67 15.03.2002 $ */
 
 /*
 Modify:
+  15.03.2002 DJ
+    + обработка клика в середине скроллбара в хелпе
   03.03.2002 SVS
     ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   15.01.2001 SVS
@@ -1329,7 +1331,6 @@ int Help::ProcessKey(int Key)
 
 int Help::JumpTopic(const char *JumpTopic)
 {
-  char  OldTopic[512];
   char NewTopic[512];
   char *p;
 
@@ -1499,6 +1500,24 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
     }
   }
+
+  /* $ 15.03.2002 DJ
+     обработаем щелчок в середине скроллбара
+  */
+  if (MouseX == X2)
+  {
+    int ScrollY=Y1+FixSize+1;
+    int Height=Y2-Y1-FixSize-1;
+    if (StrCount > Height && MouseY > ScrollY && MouseY < ScrollY+Height+1)
+    {
+      StackData.CurX=StackData.CurY=0;
+      StackData.TopStr=(MouseY-ScrollY-1) * (StrCount-FixCount-Height+1) / (Height-2);
+      FastShow();
+      return TRUE;
+    }
+  }
+  /* DJ $ */
+
   // DoubliClock - свернуть/развернуть хелп.
   if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
       (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
