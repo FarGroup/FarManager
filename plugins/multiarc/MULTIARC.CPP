@@ -49,6 +49,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   strcpy(IniFile, Info->ModuleName);
   *((int *)(IniFile+strlen(IniFile)-3))=0x696E69; // :)
   #endif
+  Opt.PriorityClass=2; // default: NORMAL
 
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
   GetVersionEx(&WinVer);

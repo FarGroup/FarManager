@@ -442,7 +442,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if (*pdd.DefExt==0)
       Ret=ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,pdd.ArcFormat,pdd.DefExt);
     if (!Ret)
+    {
+      Opt.PriorityClass=2;
       return 0;
+    }
 
     const char *ArcHistoryName="ArcName";
 
@@ -609,7 +612,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       SetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", Opt.AdvFlags);
 
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
+      {
+        Opt.PriorityClass=2;
         return -1;
+      }
       //SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground); // $ 06.02.2002 AA
     }
 
@@ -651,7 +657,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       const char *MsgItems[]={GetMsg(MWarning),GetMsg(MCannotPutToFolder),
                         GetMsg(MPutToRoot),GetMsg(MOk),GetMsg(MCancel)};
       if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,COUNT(MsgItems),2)!=0)
+      {
+        Opt.PriorityClass=2;
         return -1;
+      }
       else
         *CurDir=0;
     }
@@ -665,12 +674,11 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       strcpy(SwPos,DialogItems[PDI_SWITCHESEDT].Data);
       strcat(Command,CmdRest);
     }
-    else
-      if (*DialogItems[PDI_SWITCHESEDT].Data)
-      {
-        strcat(Command," ");
-        strcat(Command,DialogItems[PDI_SWITCHESEDT].Data);
-      }
+    else if (*DialogItems[PDI_SWITCHESEDT].Data)
+    {
+      strcat(Command," ");
+      strcat(Command,DialogItems[PDI_SWITCHESEDT].Data);
+    }
 
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
     FSF.Unquote(DialogItems[PDI_ARCNAMEEDT].Data);
@@ -696,6 +704,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       strcpy(ArcName,FullName);
     break;
   }
+
+  Opt.PriorityClass=2;
   if (Opt.UpdateDescriptions && ArcExitCode)
     for (int I=0;I<ItemsNumber;I++)
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
