@@ -5,10 +5,13 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.06 16.06.2001 $ */
+/* Revision: 1.07 17.06.2001 $ */
 
 /*
 Modify:
+  17.06.2001 IS
+    ! ExpandEnvironmentStrings -> ExpandEnvironmentStr, т.к. первая некорректно
+      работает с символами, коды которых больше 0x7F
   16.06.2001 KM
     ! Добавление WRAPMODE в меню.
   21.05.2001 SVS
@@ -49,7 +52,7 @@ int GetShortcutFolder(int Key,char *DestFolder,char *PluginModule,
   char ValueName[100],Folder[NM];
   sprintf(ValueName,"Shortcut%d",Key-KEY_RCTRL0);
   GetRegKey("FolderShortcuts",ValueName,Folder,"",sizeof(Folder));
-  ExpandEnvironmentStrings(Folder,DestFolder,NM);
+  ExpandEnvironmentStr(Folder,DestFolder,NM);
   sprintf(ValueName,"PluginModule%d",Key-KEY_RCTRL0);
   GetRegKey("FolderShortcuts",ValueName,PluginModule,"",NM);
   sprintf(ValueName,"PluginFile%d",Key-KEY_RCTRL0);

@@ -5,10 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.79 14.06.2001 $ */
+/* Revision: 1.80 17.06.2001 $ */
 
 /*
 Modify:
+  17.06.2001 IS
+    - Ѕаг в ExpandEnvironmentStr: не учитывалось то, что
+      ExpandEnvironmentStrings возвращает значени€ переменных окружени€ в ANSI
+      “еперь происходит соответствующа€ перекодировка, чтобы
+      ExpandEnvironmentStr возвращала строки в OEM, а не в смешанной кодировке.
   14.06.2001 KM
     ! ќткючение лишнего кода. ѕотом выкину совсем.
   08.06.2001 SVS
@@ -1300,19 +1305,27 @@ DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
   DWORD ret=0;
   if(size)
   {
-   char *tmp=(char *)alloca(size+1);
-   if(tmp)
+   /* $ 17.06.2001 IS
+        ”чтем то, что ExpandEnvironmentStrings возвращает значени€ переменных
+        окружени€ в ANSI
+   */
+   char *tmpDest=(char *)alloca(size+1),
+        *tmpSrc=(char *)alloca(strlen(src)+1);
+   if(tmpDest && tmpSrc)
    {
-     if(ExpandEnvironmentStrings(src,tmp,size))
-       strncpy(dest, tmp, size);
+     OemToChar(src, tmpSrc);
+
+     if(ExpandEnvironmentStrings(tmpSrc,tmpDest,size))
+       strncpy(dest, tmpDest, size);
      else
      {
-       strncpy(tmp, src, size);
-       strcpy(dest, tmp);
+       strncpy(tmpDest, tmpSrc, size);
+       strcpy(dest, tmpDest);
      }
-//     free(tmp);
+     CharToOem(dest, dest);
      ret=strlen(dest);
    }
+   /* IS $ */
   }
   return ret;
 }

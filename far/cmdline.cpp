@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.27 07.06.2001 $ */
+/* Revision: 1.28 17.06.2001 $ */
 
 /*
 Modify:
+  $ 17.06.2001 IS
+    ! Вместо ExpandEnvironmentStrings применяем ExpandEnvironmentStr, т.к. она
+      корректно работает с символами, коды которых выше 0x7F.
+    + Перекодируем строки перед SetEnvironmentVariable из OEM в ANSI
   07.06.2001 SVS
     + Добавлена обработка операторов "REM" и "::"
   04.06.2001 OT
@@ -494,7 +498,7 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
         Cmd[PtrCmd-CmdStart]=0;
         Unquote(Cmd);
 //_D(SysLog(Cmd));
-        if (ExpandEnvironmentStrings(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
+        if (ExpandEnvironmentStr(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
         {
           DWORD FileAttr=GetFileAttributes(ExpandedStr);
 //_D(SysLog("%08X ExpandedStr=%s",FileAttr,ExpandedStr));
@@ -578,8 +582,18 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
     else
     {
       char ExpandedStr[8192];
-      if (ExpandEnvironmentStrings(Value+1,ExpandedStr,sizeof(ExpandedStr))!=0)
+      /* $ 17.06.2001 IS
+         ! Применяем ExpandEnvironmentStr, т.к. она корректно работает с
+           русскими буквами.
+         + Перекодируем строки перед SetEnvironmentVariable из OEM в ANSI
+      */
+      if (ExpandEnvironmentStr(Value+1,ExpandedStr,sizeof(ExpandedStr))!=0)
+      {
+        // переменные окружения должны быть в ANSI???
+        OemToChar(ExpandedStr, ExpandedStr);
         SetEnvironmentVariable(Cmd,ExpandedStr);
+      }
+      /* IS $ */
     }
     return(TRUE);
   }
@@ -639,7 +653,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
       return(TRUE);
     }
     char ExpandedDir[8192];
-    if (ExpandEnvironmentStrings(NewDir,ExpandedDir,sizeof(ExpandedDir))!=0)
+    if (ExpandEnvironmentStr(NewDir,ExpandedDir,sizeof(ExpandedDir))!=0)
       if (chdir(ExpandedDir)==-1)
         return(FALSE);
     SetPanel->ChangeDirToCurrent();
@@ -695,7 +709,7 @@ void CommandLine::GetPrompt(char *DestStr)
   char *Format=FormatStr;
   if (Opt.UsePromptFormat)
   {
-    ExpandEnvironmentStrings(FormatStr,ExpandedFormatStr,sizeof(ExpandedFormatStr));
+    ExpandEnvironmentStr(FormatStr,ExpandedFormatStr,sizeof(ExpandedFormatStr));
     Format=ExpandedFormatStr;
   }
   while (*Format)
