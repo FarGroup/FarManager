@@ -1,5 +1,10 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
+".\namelist.hpp" : \
+	".\farconst.hpp"\
+	".\TList.hpp"\
+
+
 "$(INTDIR)\CFileMask.obj" : \
 	".\CFileMask.cpp"\
 	".\array.hpp"\

@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.154 26.10.2003 $ */
+/* Revision: 1.155 19.11.2003 $ */
 
 /*
 Modify:
+  19.11.2003 IS
+    ! »спользование параметра размера буфера у GetNextName/GetPrevName
+    ! MoveData работает со ссылкой, а не указателем
   26.10.2003 KM
     ! ≈сли используем 16-ричный поиск, то поиск также должен искать
       0 байты: "00 00 00"
@@ -1878,9 +1881,9 @@ int Viewer::ProcessKey(int Key)
         bool NextFileFound;
 
         if (Key==KEY_ADD)
-          NextFileFound=ViewNamesList.GetNextName(Name);
+          NextFileFound=ViewNamesList.GetNextName(Name,sizeof(Name));
         else
-          NextFileFound=ViewNamesList.GetPrevName(Name);
+          NextFileFound=ViewNamesList.GetPrevName(Name,sizeof(Name));
 
         if (NextFileFound)
         {
@@ -2725,7 +2728,7 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if(Param1 == 5 || Param1 == 6)
       {
-	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
         /* $ 26.10.2003 KM */
         /* $ 22.09.2003 KM
@@ -2771,7 +2774,7 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         /* KM $ */
         /* KM $ */
 
-	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
         return TRUE;
       }
     }
@@ -3321,7 +3324,7 @@ void Viewer::SetPluginData(char *PluginData)
 void Viewer::SetNamesList(NamesList *List)
 {
   if (List!=NULL)
-    List->MoveData(&ViewNamesList);
+    List->MoveData(ViewNamesList);
 }
 
 

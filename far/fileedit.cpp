@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.148 11.11.2003 $ */
+/* Revision: 1.149 19.11.2003 $ */
 
 /*
 Modify:
+  19.11.2003 IS
+    ! MoveData работает со ссылкой, а не указателем
   11.11.2003 SVS
     + BugZ#2 - Shift-F4: открывать редактор без имени файла
   04.11.2003 SKV
@@ -882,7 +884,7 @@ void FileEditor::SetNamesList (NamesList *Names)
 {
   if (EditNamesList == NULL)
     EditNamesList = new NamesList;
-  Names->MoveData (EditNamesList);
+  Names->MoveData (*EditNamesList);
 }
 
 /* DJ $ */

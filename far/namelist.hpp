@@ -7,10 +7,16 @@ namelist.hpp
 
 */
 
-/* Revision: 1.02 14.10.2003 $ */
+/* Revision: 1.03 19.11.2003 $ */
 
 /*
 Modify:
+  19.11.2003 IS
+    + –абота со списком (TList) на основе кода, созданного KS, чтобы
+      собиралось под борманом.
+    ! внедрение const
+    + защита от переполнени€ буфера в GetNextName/GetPrevName
+    ! MoveData работает со ссылкой, а не указателем
   14.10.2003 SVS
     ! ѕеретр€х в NamesList.
     ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
@@ -23,16 +29,32 @@ Modify:
 */
 
 #include "farconst.hpp"
+#include "TList.hpp"
 
 class NamesList
 {
   private:
-    char *Names;
-    char *CurName;
-    int CurNamePos;
-    int NamesNumber;
-    DWORD NamesSize;
-    DWORD MemSize;
+    struct OneName
+    {
+      char Value[MAX_PATH];
+      OneName()
+      {
+        Value[0]=0;
+      }
+      // дл€ перекрывающихс€ объектов поведение как у strncpy!
+      const OneName& operator=(const char *rhs)
+      {
+        strncpy(Value,rhs,sizeof(Value)-1);
+        return *this;
+      }
+    };
+
+    typedef TList<OneName> StrList;
+
+    StrList Names;
+    OneName CurName;
+    const OneName *pCurName;
+
 
     char CurDir[NM];
 
@@ -40,17 +62,17 @@ class NamesList
     void Init();
 
   public:
-    NamesList(DWORD MemSize=0);
+    NamesList();
     ~NamesList();
 
   public:
-    void AddName(char *Name);
-    bool GetNextName(char *Name);
-    bool GetPrevName(char *Name);
-    void SetCurName(char *Name);
-    void MoveData(NamesList *Dest);
+    void AddName(const char *Name);
+    bool GetNextName(char *Name, const size_t NameSize);
+    bool GetPrevName(char *Name, const size_t NameSize);
+    void SetCurName(const char *Name);
+    void MoveData(NamesList &Dest);
     void GetCurDir(char *Dir,int DestSize);
-    void SetCurDir(char *Dir);
+    void SetCurDir(const char *Dir);
 };
 
-#endif	// __NAMELIST_HPP__
+#endif  // __NAMELIST_HPP__

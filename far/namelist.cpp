@@ -5,10 +5,16 @@ namelist.cpp
 
 */
 
-/* Revision: 1.08 14.10.2003 $ */
+/* Revision: 1.09 19.11.2003 $ */
 
 /*
 Modify:
+  19.11.2003 IS
+    + Работа со списком (TList) на основе кода, созданного KS, чтобы
+      собиралось под борманом.
+    ! внедрение const
+    + защита от переполнения буфера в GetNextName/GetPrevName
+    ! MoveData работает со ссылкой, а не указателем
   14.10.2003 SVS
     ! Перетрях в NamesList.
     ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
@@ -39,102 +45,60 @@ Modify:
 #include "fn.hpp"
 #include "namelist.hpp"
 
-NamesList::NamesList(DWORD _MemSize)
+NamesList::NamesList()
 {
   Init();
-  if((MemSize=_MemSize) > 0)
-  {
-    Names=(char *)xf_malloc(MemSize);
-    if (!Names)
-      MemSize=0;
-    else
-      *Names=0;
-  }
 }
 
 NamesList::~NamesList()
 {
-  if(Names)
-    xf_free(Names);
 }
 
 
-void NamesList::AddName(char *Name)
+void NamesList::AddName(const char *Name)
 {
-  int Length=strlen(Name)+1;
-  if(NamesSize+Length >= MemSize)
+  CurName=Name;
+  Names.push_back(CurName);
+}
+
+
+bool NamesList::GetNextName(char *Name, const size_t NameSize)
+{
+  if(Names.isEnd())
+    return(false);
+  strncpy(Name, Names.toNext()->Value, NameSize-1);
+  return(true);
+}
+
+
+bool NamesList::GetPrevName(char *Name, const size_t NameSize)
+{
+  if (Names.isBegin())
+    return(false);
+  strncpy(Name, Names.toPrev()->Value, NameSize-1);
+  return(true);
+}
+
+
+void NamesList::SetCurName(const char *Name)
+{
+  Names.storePosition();
+  pCurName=Names.toBegin();
+  while(pCurName)
   {
-    char *NewNames=(char *)xf_realloc(Names,NamesSize+Length);
-    if (NewNames==NULL)
+    if(!strcmp(Name,pCurName->Value))
       return;
-    Names=NewNames;
+    pCurName=Names.toNext();
   }
-  memcpy(Names+NamesSize,Name,Length);
-  NamesSize+=Length;
-  MemSize+=Length;
-  NamesNumber++;
+  Names.restorePosition();
 }
 
 
-bool NamesList::GetNextName(char *Name)
+void NamesList::MoveData(NamesList &Dest)
 {
-  if (CurNamePos>=NamesNumber-1)
-    return(false);
-  CurNamePos++;
-  CurName+=strlen(CurName)+1;
-  strcpy(Name,CurName);
-  return(true);
-}
-
-
-bool NamesList::GetPrevName(char *Name)
-{
-  if (CurNamePos<=0)
-    return(false);
-  CurNamePos--;
-  CurName-=2;
-  while (CurName!=Names && *(CurName-1)!=0)
-    CurName--;
-  strcpy(Name,CurName);
-  return(true);
-}
-
-
-void NamesList::SetCurName(char *Name)
-{
-  char *CheckName=Names;
-  DWORD NamePos=0;
-  while (NamePos<NamesNumber)
-    if (strcmp(Name,CheckName)==0)
-    {
-      CurName=CheckName;
-      CurNamePos=NamePos;
-      break;
-    }
-    else
-    {
-      CheckName+=strlen(CheckName)+1;
-      NamePos++;
-    }
-}
-
-
-void NamesList::MoveData(NamesList *Dest)
-{
-  Dest->Names=Names;
-  if(CurName)
-  {
-    Dest->CurName=CurName;
-    Dest->CurNamePos=CurNamePos;
-  }
-  else
-  {
-    Dest->CurName=Names;
-    Dest->CurNamePos=0;
-  }
-  Dest->NamesNumber=NamesNumber;
-  Dest->NamesSize=NamesSize;
-  strcpy(Dest->CurDir,CurDir);
+  Dest.Names.swap(Names);
+  Dest.CurName=CurName;
+  strcpy(Dest.CurDir,CurDir);
   Init();
 }
 
@@ -148,15 +112,14 @@ void NamesList::GetCurDir(char *Dir,int DestSize)
 }
 
 
-void NamesList::SetCurDir(char *Dir)
+void NamesList::SetCurDir(const char *Dir)
 {
   PrepareDiskPath(strncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
 }
 
 void NamesList::Init()
 {
-  Names=CurName=NULL;
-  CurNamePos=NamesNumber=0;
-  NamesSize=MemSize=0;
+  Names.clear();
+  CurName.Value[0]=0;
   *CurDir=0;
 }

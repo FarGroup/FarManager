@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.153 26.10.2003 $ */
+/* Revision: 1.154 19.11.2003 $ */
 
 /*
 Modify:
+  19.11.2003 IS
+    ! теперь NamesList не требует указания размера списка
   26.10.2003 KM
     ! Если используем 16-ричный поиск, то поиск также должен искать
       0 байты: "00 00 00"
@@ -43,8 +45,8 @@ Modify:
     + Добавлен поиск 16-ричного кода.
   20.09.2003 KM
     + Добавим в список стандартных таблиц поиска ANSI таблицу,
-	  а то как-то некузяво получается в редакторе и вьювере она
-	  есть, а в поиске нет.
+    а то как-то некузяво получается в редакторе и вьювере она
+    есть, а в поиске нет.
   18.09.2003 KM
     ! Запоминание установок символьных таблиц
   12.09.2003 SVS
@@ -809,7 +811,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         FindFoldersChanged = TRUE;
       else if (Param1==13) // [ ] Search for hexadecimal code
       {
-	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
         /* $ 21.09.2003 KM
            Переключение видимости строки ввода искомого текста
@@ -859,7 +861,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           Dialog::SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,6,UnchangeFlag);
         }
 
-	      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
       return TRUE;
       /* KM $ */
@@ -1488,7 +1490,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               EnterCriticalSection(&FindFilesCSection);
               int ListSize=ListBox->GetItemCount();
               LeaveCriticalSection(&FindFilesCSection);
-              NamesList ViewList(Opt.FindOpt.CollectFiles?0:ListSize*NM*3+1);
+              NamesList ViewList;
               // Возьмем все файлы, которые имеют реальные имена...
               if(Opt.FindOpt.CollectFiles)
               {
@@ -2679,7 +2681,7 @@ int FindFiles::LookForString(char *Name)
           if (UseDecodeTable || UseANSI || DecodeTableNum>0)
             for (int I=0;I<ReadSize;I++)
               Buf[I]=TableSet.DecodeTable[Buf[I]];
-		    /* KM $ */
+        /* KM $ */
         if (!CmpCase)
           LocalUpperBuf(Buf,ReadSize);
       }
