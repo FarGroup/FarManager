@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.22 13.08.2001 $ */
+/* Revision: 1.23 07.09.2001 $ */
 
 /*
 Modify:
+  07.09.2001 VVM
+    ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево.
   13.08.2001 OT
     - исправление бага с появлением пропавших панелей при старте.
   31.07.2001 SKV
@@ -386,7 +388,18 @@ int  FilePanels::ProcessKey(int Key)
           else
             AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
-          AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+          /* $ 07.09.2001 VVM
+            ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево. */
+          if (ActivePanel->GetType() == TREE_PANEL)
+          {
+            char CurDir[NM];
+            ActivePanel->GetCurDir(CurDir);
+            AnotherPanel->SetCurDir(CurDir, TRUE);
+            AnotherPanel->Update(0);
+          }
+          else
+            AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+          /* VVM $ */
           AnotherPanel->Show();
         }
         ActivePanel->SetFocus();
