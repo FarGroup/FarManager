@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.23 30.01.2001 $ */
+/* Revision: 1.24 19.02.2001 $ */
 
 /*
 Modify:
+  19.02.2001 SVS
+    - Затирание диалога параметров макроса (при обновлении панелей)
   30.01.2001 SVS
     - Забыл сделать проверку на код возврата из диалога назначения
   21.01.2001 SVS
@@ -296,8 +298,6 @@ int KeyMacro::ProcessKey(int Key)
       InternalInput=TRUE;
       WaitInMainLoop=FALSE;
       MacroKey=AssignMacroKey();
-      WaitInMainLoop=WaitInMainLoop0;
-      InternalInput=FALSE;
 
       DWORD Flags=MFLAGS_DISABLEOUTPUT;
 
@@ -305,11 +305,11 @@ int KeyMacro::ProcessKey(int Key)
       // если удаляем, то не нужно выдавать диалог настройки.
       if (MacroKey != KEY_ESC && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
       {
-        InternalInput=TRUE;
         if (!GetMacroSettings(MacroKey,Flags))
           MacroKey=KEY_ESC;
-        InternalInput=FALSE;
       }
+      WaitInMainLoop=WaitInMainLoop0;
+      InternalInput=FALSE;
 
       if (MacroKey==KEY_ESC)
         delete RecBuffer;
