@@ -7,7 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.02 10.07.2000 $ */
+/* Revision: 1.03 12.07.2000 $ */
 
 /*
 Modify:
@@ -19,9 +19,18 @@ Modify:
   10.07.2000 tran
     + увеличение длины строки - с 512 на MAX_VIEWLINE
       MAX_VIEWLINEB = MAX_VIEWLINE + 16
+  12.07.2000 SVS
+    - из-за увеличения длины строки до 0x800 вылетал FAR
+      по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
 */
-#define MAX_VIEWLINE  0x800
-#define MAX_VIEWLINEB 0x80f
+
+/*$ 12.07.2000 SVS
+  - из-за увеличения длины строки до 0x800 вылетал FAR
+    по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
+*/
+#define MAX_VIEWLINE  0x400 // 0x800
+#define MAX_VIEWLINEB 0x40f // 0x80f
+/* SVS $ */
 
 class Viewer:public ScreenObject
 {
