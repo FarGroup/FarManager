@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.17 09.08.2000 $ */
+/* Revision: 1.18 10.08.2000 $ */
 
 /*
 Modify:
+  10.08.2000 SVS
+   + переменная IsMovedDialog - можно ли двигать диалог :-)
+   + функция установки IsMovedDialog
   09.08.2000 tran 1.16
    - убраны "салазки"
   09.08.2000 KM
@@ -125,6 +128,11 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   InitObjects=FALSE;
   DialogTooLong=FALSE;
   WarningStyle=0;
+  /* $ 10.08.2000 SVS
+     Изначально диалоги можно таскать
+  */
+  IsMovedDialog=TRUE;
+  /* SVS $ */
 
   if(!DlgProc) // функция должна быть всегда!!!
     DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
@@ -914,7 +922,11 @@ int Dialog::ProcessKey(int Key)
     return (TRUE);
   }
 
-  if (Key == KEY_CTRLF5)
+  /* $ 10.08.2000 SVS
+     Двигаем, если разрешено! (IsMovedDialog)
+  */
+  if (Key == KEY_CTRLF5 && IsMovedDialog)
+  /* SVS 10.08.2000 $*/
   {
     // включаем флаг и запоминаем координаты
     Dragged=1;
@@ -1555,103 +1567,109 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     // ДЛЯ MOUSE-Перемещалки:
     //   Сюда попадаем в том случае, если мышь не попала на активные элементы
     //
-    /* $ 03.08.2000 tran
-       ну раз попадаем - то будем перемещать */
-
-    Dragged=1;
-    OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
-    MsX=MouseX;
-    MsY=MouseY;
-    /* $ 09.08.2000 KM
-       Переменные для сохранения последних координат мыши.
-       А то без этого диалог катается по экрану, как намазанный
-       маслом и без тормозов.
+    /* $ 10.08.2000 SVS
+       Двигаем, если разрешено! (IsMovedDialog)
     */
-    static int oldmx=-1,oldmy=-1;
-    /* KM $ */
-    while (1)
+    if (IsMovedDialog)
     {
-        int mb=IsMouseButtonPressed();
-        /* $ 09.08.2000 tran
-           - долой "салазки" :) */
-        if ( mb==1 && MouseX==MsX && MouseY==MsY )
-            continue;
-        MsX=MouseX;
-        MsY=MouseY;
-        /* tran 09.08.2000 $ */
+      /* $ 03.08.2000 tran
+         ну раз попадаем - то будем перемещать */
+      Dragged=1;
+      OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
+      MsX=MouseX;
+      MsY=MouseY;
+      /* $ 09.08.2000 KM
+         Переменные для сохранения последних координат мыши.
+         А то без этого диалог катается по экрану, как намазанный
+         маслом и без тормозов.
+      */
+      static int oldmx=-1,oldmy=-1;
+      /* KM $ */
+      while (1)
+      {
+          int mb=IsMouseButtonPressed();
+          /* $ 09.08.2000 tran
+             - долой "салазки" :) */
+          if ( mb==1 && MouseX==MsX && MouseY==MsY )
+              continue;
+          MsX=MouseX;
+          MsY=MouseY;
+          /* tran 09.08.2000 $ */
 
-        int mx,my;
-//        SysLog("MouseMove:(), MouseX=%i, MousePrevX=%i,MouseY=%i, MousePrevY=%i",MouseX,PrevMouseX,MouseY,PrevMouseY);
-        if ( mb==1 ) // left key, still dragging
-        {
-            /* $ 09.08.2000 KM
-               А здесь собственно проверка на одинаковость
-               предыдущих мышиных координат и если да, то
-               уходим отсюда нафиг.
-            */
-            if (oldmx!=MouseX || oldmy!=MouseY)
-            {
+          int mx,my;
+//          SysLog("MouseMove:(), MouseX=%i, MousePrevX=%i,MouseY=%i, MousePrevY=%i",MouseX,PrevMouseX,MouseY,PrevMouseY);
+          if ( mb==1 ) // left key, still dragging
+          {
+              /* $ 09.08.2000 KM
+                 А здесь собственно проверка на одинаковость
+                 предыдущих мышиных координат и если да, то
+                 уходим отсюда нафиг.
+              */
+              if (oldmx!=MouseX || oldmy!=MouseY)
+              {
+                Hide();
+                oldmx=MouseX;
+                oldmy=MouseY;
+                mx=MouseX-PrevMouseX;
+                my=MouseY-PrevMouseY;
+                if ( X1+mx>=0 && X2+mx<=ScrX )
+                {
+                    X1+=mx;
+                    X2+=mx;
+                    AdjustEditPos(mx,0);
+                }
+                if ( Y1+my>=0 && Y2+my<=ScrY )
+                {
+                    Y1+=my;
+                    Y2+=my;
+                    AdjustEditPos(0,my);
+                }
+                Show();
+              }
+              /* KM $ */
+          }
+          else if (mb==2) // right key, abort
+          {
               Hide();
-              oldmx=MouseX;
-              oldmy=MouseY;
-              mx=MouseX-PrevMouseX;
-              my=MouseY-PrevMouseY;
-              if ( X1+mx>=0 && X2+mx<=ScrX )
-              {
-                  X1+=mx;
-                  X2+=mx;
-                  AdjustEditPos(mx,0);
-              }
-              if ( Y1+my>=0 && Y2+my<=ScrY )
-              {
-                  Y1+=my;
-                  Y2+=my;
-                  AdjustEditPos(0,my);
-              }
+              AdjustEditPos(OldX1-X1,OldY1-Y1);
+              X1=OldX1;
+              X2=OldX2;
+              Y1=OldY1;
+              Y2=OldY2;
+              /* $ 09.08.2000 KM
+                 Ну а после выхода из режима перемещения поставим-ка мы
+                 координаты мышки снова заэкранными, чтобы не попасть в
+                 ситуацию когда дрэг мышкой при тех-же координатах не
+                 сработает. Пример: нажали мышкой на диалоге, отпустили,
+                 не меняя положения снова нажали, оп-па не сработало...
+                 Вот именно для этого.
+              */
+              oldmx=-1,oldmy=-1;
+              /* KM $ */
+              Dragged=0;
               Show();
-            }
-            /* KM $ */
-        }
-        else if (mb==2) // right key, abort
-        {
-            Hide();
-            AdjustEditPos(OldX1-X1,OldY1-Y1);
-            X1=OldX1;
-            X2=OldX2;
-            Y1=OldY1;
-            Y2=OldY2;
-            /* $ 09.08.2000 KM
-               Ну а после выхода из режима перемещения поставим-ка мы
-               координаты мышки снова заэкранными, чтобы не попасть в
-               ситуацию когда дрэг мышкой при тех-же координатах не
-               сработает. Пример: нажали мышкой на диалоге, отпустили,
-               не меняя положения снова нажали, оп-па не сработало...
-               Вот именно для этого.
-            */
-            oldmx=-1,oldmy=-1;
-            /* KM $ */
-            Dragged=0;
-            Show();
-            break;
-        }
-        else  // release key, drop dialog
-        {
-            /* $ 09.08.2000 KM
-               Ну а после выхода из режима перемещения поставим-ка мы
-               координаты мышки снова заэкранными, чтобы не попасть в
-               ситуацию когда дрэг мышкой при тех-же координатах не
-               сработает. Пример: нажали мышкой на диалоге, отпустили,
-               не меняя положения снова нажали, оп-па не сработало...
-               Вот именно для этого.
-            */
-            oldmx=-1,oldmy=-1;
-            /* KM $ */
-            Dragged=0;
-            Show();
-            break;
-        }
-    }// while (1)
-    /* tran 03.08.2000 $ */
+              break;
+          }
+          else  // release key, drop dialog
+          {
+              /* $ 09.08.2000 KM
+                 Ну а после выхода из режима перемещения поставим-ка мы
+                 координаты мышки снова заэкранными, чтобы не попасть в
+                 ситуацию когда дрэг мышкой при тех-же координатах не
+                 сработает. Пример: нажали мышкой на диалоге, отпустили,
+                 не меняя положения снова нажали, оп-па не сработало...
+                 Вот именно для этого.
+              */
+              oldmx=-1,oldmy=-1;
+              /* KM $ */
+              Dragged=0;
+              Show();
+              break;
+          }
+      }// while (1)
+      /* tran 03.08.2000 $ */
+    }
+    /* SVS 10.08.2000 $*/
   }
   return(FALSE);
 }

@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.09 09.08.2000 $ */
+/* Revision: 1.10 10.08.2000 $ */
 
 /*
 Modify:
+  10.08.2000 SVS
+   + переменная IsMovedDialog - можно ли двигать диалог :-)
+   + функция установки IsMovedDialog
   09.08.2000 KM 1.09
    + Добавление функции проверки на режим перемещения диалога.
      Кстати новер редакции действительно 1.09 - один был пропущен.
@@ -80,6 +83,11 @@ class Dialog:public Modal
     int  Dragged;
     int  OldX1,OldX2,OldY1,OldY2;
     /* tran 31.07.2000 $ */
+    /* $ 10.08.2000 SVS
+       можно ли двигать диалог :-)
+    */
+    int IsMovedDialog;
+    /* SVS $ */
 
     /* $ 31.07.2000 SVS
        Сохранение того, что под индикатором перемещения диалога
@@ -174,6 +182,12 @@ class Dialog:public Modal
     */
     int IsMoving() {return Dragged;}
     /* KM $ */
+    /* $ 10.08.2000 SVS
+       можно ли двигать диалог :-)
+    */
+    void SetModeMoving(int IsMoving) {IsMovedDialog=IsMoving;};
+    int  GetModeMoving(void) {return IsMovedDialog;};
+    /* SVS $ */
 };
 
 #endif // __DIALOG_HPP__

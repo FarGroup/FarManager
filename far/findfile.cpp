@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.06 07.08.2000 $ */
+/* Revision: 1.07 10.08.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS
+    - Запрещаем двигать диалог результатов поиска!
   07.08.2000 KM
     - Глюк в поиске при запароленном архиве, если после получения
       запроса на ввод пароля понажимать долго стрелки вверх или вниз
@@ -291,6 +293,11 @@ int FindFiles::FindFilesProcess()
     DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
     Dialog Dlg(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]));
     Dlg.SetHelp("FindFile");
+    /* $ 10.09.2000 SVS
+       Запрещаем двигать диалог
+    */
+    Dlg.SetModeMoving(FALSE);
+    /* SVS $ */
     Dlg.SetPosition(-1,-1,76,21+IncY);
     Dlg.Show();
 
