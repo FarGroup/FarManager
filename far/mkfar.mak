@@ -220,19 +220,19 @@ FAROBJ=\
 
 # ************************************************************************
 ALL : BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
-  @echo MakeNode
+	@echo MakeNode
 
 # все эти зависимости не нужны
 # просто описываем одно правило и все %)
 .cpp.obj:
-  @settitle "{$.} - Compiling..."
-  @if not exist $(OBJPATH) mkdir $(OBJPATH)
-  @$(BCC32) -c -o$@ {$. }
+	-@settitle "{$.} - Compiling..."
+	@if not exist $(OBJPATH) mkdir $(OBJPATH)
+	@$(BCC32) -c -o$@ {$. }
 
 .c.obj:
-  @settitle "{$.} - Compiling..."
-  @if not exist $(OBJPATH) mkdir $(OBJPATH)
-  @$(BCC32) -c -o$@ {$. }
+	-@settitle "{$.} - Compiling..."
+	@if not exist $(OBJPATH) mkdir $(OBJPATH)
+	@$(BCC32) -c -o$@ {$. }
 
 # уточнения
 $(OBJPATH)\syslog.obj: syslog.cpp cc.bat
@@ -244,31 +244,31 @@ $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 # Зависимости для публичных файлов
 # ************************************************************************
 $(FARINCLUDE)\farcolor.hpp : colors.hpp
-   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-   -@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) colors.hpp > $(FARINCLUDE)\farcolor.hpp
+	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
+	-@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) colors.hpp > $(FARINCLUDE)\farcolor.hpp
 
 $(FARINCLUDE)\farkeys.hpp : keys.hpp
-   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-   -@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) keys.hpp   > $(FARINCLUDE)\farkeys.hpp
+	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
+	-@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) keys.hpp   > $(FARINCLUDE)\farkeys.hpp
 
 $(FARINCLUDE)\plugin.hpp : plugin.hpp
-   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-   -@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) plugin.hpp > $(FARINCLUDE)\plugin.hpp
+	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
+	-@awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) plugin.hpp > $(FARINCLUDE)\plugin.hpp
 
 # ************************************************************************
 $(OBJPATH)\Far.res :  Far.rc
-  -@settitle "Compiling resource..."
-  @if not exist $(OBJPATH) mkdir $(OBJPATH)
-  $(BRC32) -R @&&|
- $(RESFLAGS)  -FO$@ Far.rc
+	-@settitle "Compiling resource..."
+	@if not exist $(OBJPATH) mkdir $(OBJPATH)
+	$(BRC32) -R @&&|
+	$(RESFLAGS)  -FO$@ Far.rc
 |
 
 !ifdef ILINK
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
-  -@settitle "Linking..."
-  @if not exist $(FINALPATH) mkdir $(FINALPATH)
-  @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-  @$(TLINK32)  $(LINKFLAGS) @&&|
+	-@settitle "Linking..."
+	@if not exist $(FINALPATH) mkdir $(FINALPATH)
+	@if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
+	@$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
@@ -277,39 +277,39 @@ $(OBJPATH)\Far.res
 |
 !else
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
-  -@settitle "Linking..."
-  @if not exist $(FINALPATH) mkdir $(FINALPATH)
-  @if not exist $(FINALPATH) mkdir $(FINALPATH)
-  @$(TLINK32)  $(LINKFLAGS) @&&|
+	-@settitle "Linking..."
+	@if not exist $(FINALPATH) mkdir $(FINALPATH)
+	@if not exist $(FINALPATH) mkdir $(FINALPATH)
+	@$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 Far.def
 |
-   @copy Far.map $(FINALPATH)\Far.map
-   @$(BRC32) $(OBJPATH)\Far.res $(OBJPATH)\Far.res $<
+	@copy Far.map $(FINALPATH)\Far.map
+	@$(BRC32) $(OBJPATH)\Far.res $(OBJPATH)\Far.res $<
 !endif
 
 # обязательно! Что бы в ручную не делать...
-   -@if not exist $(FINALPATH)\FarEng.hlf del $(FINALPATH)\FarEng.hlf  >nul
-   -@if not exist $(FINALPATH)\FarRus.hlf del $(FINALPATH)\FarRus.hlf  >nul
-   -@if not exist $(FINALPATH)\FarEng.lng del $(FINALPATH)\FarEng.lng  >nul
-   -@if not exist $(FINALPATH)\FarRus.lng del $(FINALPATH)\FarRus.lng  >nul
-   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) FarEng.hlf > $(FINALPATH)\FarEng.hlf
-   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) FarRus.hlf > $(FINALPATH)\FarRus.hlf
-   @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
-   @copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
-   -@if exist plugin.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
-   -@if exist fmt.hpp awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) fmt.hpp > $(FARINCLUDE)\fmt.hpp
-   -@if exist fmt.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
-   -@if exist farcolor.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farcolor.pas > $(FARINCLUDE)\farcolor.pas
-   -@if exist farkeys.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farkeys.pas > $(FARINCLUDE)\farkeys.pas
+	-@if not exist $(FINALPATH)\FarEng.hlf del $(FINALPATH)\FarEng.hlf  >nul
+	-@if not exist $(FINALPATH)\FarRus.hlf del $(FINALPATH)\FarRus.hlf  >nul
+	-@if not exist $(FINALPATH)\FarEng.lng del $(FINALPATH)\FarEng.lng  >nul
+	-@if not exist $(FINALPATH)\FarRus.lng del $(FINALPATH)\FarRus.lng  >nul
+	@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) FarEng.hlf > $(FINALPATH)\FarEng.hlf
+	@awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) -v BETA=$(FVB) FarRus.hlf > $(FINALPATH)\FarRus.hlf
+	@copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
+	@copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
+	-@if exist plugin.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
+	-@if exist fmt.hpp awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) fmt.hpp > $(FARINCLUDE)\fmt.hpp
+	-@if exist fmt.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
+	-@if exist farcolor.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farcolor.pas > $(FARINCLUDE)\farcolor.pas
+	-@if exist farkeys.pas awk -f plugins.awk -v p1=$(FV1) -v p2=$(FV2) -v Lang=pas farkeys.pas > $(FARINCLUDE)\farkeys.pas
 
 
 # Compiler configuration file
 # Для тех, у кого длина ком. строки ограничена
 BccW32.cfg : mkfar.mak cc.bat
-   Copy &&|
+	Copy &&|
 -WC
 -WM
 -K
@@ -348,7 +348,7 @@ $(MACRODRIVE2)
 # Очистка
 # ************************************************************************
 CLEAN :
-    -@del /q /f $(OBJPATH)\*.*           > nul
+	-@del /q /f $(OBJPATH)\*.*           > nul
 	-@del /q /f $(FINALPATH)\Far.exe     > nul
 	-@del /q /f $(FINALPATH)\Far.map     > nul
 	-@del /q /f $(FINALPATH)\FarEng.hlf  > nul

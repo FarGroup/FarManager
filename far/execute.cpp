@@ -5,10 +5,14 @@ execute.cpp
 
 */
 
-/* Revision: 1.99 09.03.2004 $ */
+/* Revision: 1.100 15.03.2004 $ */
 
 /*
 Modify:
+  15.03.2004 SVS
+    - не работает "C:\Program Files\Far\Far.exe" /p"C:\Program Files\Far\plugins"
+      и вариации на эту тему (по Shift-Enter).
+      ѕока закомментил..., т.к. возможно повторение BugZ#752
   09.03.2004 SVS
     - SD> 2) окно far'a 102x37
       SD> запускаю батник с одной лишь строкой
@@ -21,7 +25,7 @@ Modify:
       (задел на будущее + править впоследствии только 1 файл)
   09.02.2004 SVS
     - BugZ#993 - перекрытие сообщени€ рамок меню (уточнение)
-    - Bug 752 - ѕроблемы Shift-Enter дл€ UNC ресурсов с пробелами и без (уточнение)
+    - BugZ#752 - ѕроблемы Shift-Enter дл€ UNC ресурсов с пробелами и без (уточнение)
   15.01.2004 SVS
     - BugZ#993 - перекрытие сообщени€ рамок меню
   08.01.2004 SVS
@@ -1139,8 +1143,8 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
               InsertQuote(NewCmdStr);
           }
 
-          if(SeparateWindow)
-            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
+//          if(SeparateWindow)
+//            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
 
           strncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
           strcat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "));
@@ -1173,7 +1177,7 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
           else if (NT && *CmdPtr=='\"')
             strcat(ExecLine," \"\"");
-          ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
+//          ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
         }
 
         strcat(ExecLine," ");
@@ -1187,7 +1191,7 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
         //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
       }
     }
-//_SVS(SysLog("ExecLine='%s'",ExecLine));
+_SVS(SysLog("ExecLine='%s'",ExecLine));
     // если запуск через ShellExecuteEx(), то нефига ставить заголовок
     /* $ 22.03.2002 IS
          ƒл€ 9x параметр у SetConsoleTitle должен быть ANSI

@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.12 18.12.2003 $ */
+/* Revision: 1.13 15.03.2004 $ */
 
 /*
 Modify:
+  15.03.2004 SVS
+    ! LastStr должна быть указателем! (в патче от 18.12.2003 забыл про это)
   18.12.2003 SVS
     + HistoryCount - размер истории
   25.04.2002 IS
@@ -74,11 +76,11 @@ class History
     int SaveTitle,SaveType;
     int LastSimilar;
     int ReturnSimilarTemplate;
-    struct HistoryRecord LastStr[HISTORY_COUNT];
+    struct HistoryRecord *LastStr;
 
   private:
     void AddToHistoryLocal(const char *Str,const char *Title,int Type);
-    void FreeHistory(BOOL FreeMemory=FALSE);
+    void FreeHistory();
     BOOL EqualType(int Type1, int Type2);
 
   public:

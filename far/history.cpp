@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.30 18.12.2003 $ */
+/* Revision: 1.31 15.03.2004 $ */
 
 /*
 Modify:
+  15.03.2004 SVS
+    ! LastStr должна быть указателем! (в патче от 18.12.2003 забыл про это)
   18.12.2003 SVS
     + HistoryCount - размер истории
   21.01.2003 SVS
@@ -102,13 +104,17 @@ Modify:
 
 History::History(int TypeHistory,int HistoryCount,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType)
 {
-  FreeHistory(FALSE);
+  LastStr=NULL;
+  FreeHistory();
   strncpy(History::RegKey,RegKey,sizeof(History::RegKey)-1);
   History::SaveTitle=SaveTitle;
   History::SaveType=SaveType;
   History::EnableSave=EnableSave;
   History::TypeHistory=TypeHistory;
   History::HistoryCount=HistoryCount;
+  LastStr=(struct HistoryRecord*)xf_malloc(sizeof(struct HistoryRecord) * HistoryCount);
+  if(LastStr)
+    memset(LastStr,0,sizeof(struct HistoryRecord) * HistoryCount);
   EnableAdd=RemoveDups=TRUE;
   KeepSelectedPos=FALSE;
   ReturnSimilarTemplate=TRUE;
@@ -116,22 +122,29 @@ History::History(int TypeHistory,int HistoryCount,const char *RegKey,const int *
 
 History::~History()
 {
-  FreeHistory(TRUE);
+  FreeHistory();
+  if(LastStr)
+    xf_free(LastStr);
 }
 
-void History::FreeHistory(BOOL FreeMemory)
+void History::FreeHistory()
 {
-  if(FreeMemory)
+  if(LastStr)
+  {
     for (int I=0; I < HistoryCount;I++)
       if(LastStr[I].Name)
         xf_free(LastStr[I].Name);
-  memset(LastStr,0,sizeof(LastStr));
+    memset(LastStr,0,sizeof(struct HistoryRecord) * HistoryCount);
+  }
   CurLastPtr=LastPtr=CurLastPtr0=LastPtr0=0;
   LastSimilar=0;
 }
 
 void History::ReloadTitle()
 {
+  if(!LastStr)
+    return;
+
   if(TypeHistory != HISTORYTYPE_VIEW)
     return;
 
@@ -165,6 +178,9 @@ void History::ReloadTitle()
 */
 void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveForbid)
 {
+  if(!LastStr)
+    return;
+
   if (!EnableAdd)
     return;
 
@@ -189,7 +205,7 @@ void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveFo
         SaveLastStr[I].Name=NULL;
 
     // т.к. мы все запомнили, то, перед прочтением освободим память
-    FreeHistory(TRUE);
+    FreeHistory();
 
     ReadHistory();
     LastPtr0=LastPtr=SaveLastPtr;
@@ -197,13 +213,13 @@ void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveFo
     LastSimilar=SaveLastSimilar;
     AddToHistoryLocal(Str,Title,Type);
     SaveHistory();
-    FreeHistory(TRUE); // Необходимо, т.к. ReadHistory берет память!
+    FreeHistory(); // Необходимо, т.к. ReadHistory берет память!
 
     // восстановим
     LastPtr0=LastPtr=SaveLastPtr;
     CurLastPtr0=CurLastPtr=SaveCurLastPtr;
     LastSimilar=SaveLastSimilar;
-    memcpy(LastStr,SaveLastStr,sizeof(LastStr));
+    memcpy(LastStr,SaveLastStr,sizeof(struct HistoryRecord) * HistoryCount);
   }
   AddToHistoryLocal(Str,Title,Type);
 }
@@ -211,6 +227,9 @@ void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveFo
 
 void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 {
+  if(!LastStr)
+    return;
+
   if(!Str || *Str == 0)
     return;
 
@@ -304,6 +323,9 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 */
 BOOL History::SaveHistory()
 {
+  if(!LastStr)
+    return FALSE; //??
+
   if (!*EnableSave)
     return TRUE;
 
@@ -398,6 +420,9 @@ BOOL History::SaveHistory()
 
 BOOL History::ReadHistory()
 {
+  if(!LastStr)
+    return FALSE;
+
   int NeedReadTitle=SaveTitle && CheckRegValue(RegKey,"Titles");
   int NeedReadType =SaveType  && CheckRegValue(RegKey,"Types");
 
@@ -430,7 +455,7 @@ BOOL History::ReadHistory()
       if((LastStr[StrPos].Name=(char*)xf_malloc(Length)) == NULL)
       {
         xf_free(Buffer);
-        FreeHistory(TRUE);
+        FreeHistory();
         RegCloseKey(hKey);
         return FALSE;
       }
@@ -453,7 +478,7 @@ BOOL History::ReadHistory()
     if((Buf=(char*)xf_realloc(Buffer,Size)) == NULL)
     {
       xf_free(Buffer);
-      FreeHistory(TRUE);
+      FreeHistory();
       RegCloseKey(hKey);
       return FALSE;
     }
@@ -473,7 +498,7 @@ BOOL History::ReadHistory()
     else // раз требовали Title, но ничего не получили, значит _ВСЕ_ в морг.
     {
       xf_free(Buffer);
-      FreeHistory(TRUE);
+      FreeHistory();
       RegCloseKey(hKey);
       return FALSE;
     }
@@ -499,7 +524,7 @@ BOOL History::ReadHistory()
     }
     else // раз требовали Type, но ничего не получили, значит _ВСЕ_ в морг.
     {
-      FreeHistory(TRUE);
+      FreeHistory();
       RegCloseKey(hKey);
       return FALSE;
     }
@@ -520,6 +545,9 @@ BOOL History::ReadHistory()
 
 int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle)
 {
+  if(!LastStr)
+    return -1;
+
   struct MenuItem HistoryItem;
 
   int Code,I,Height=ScrY-8,StrPos,IsUpdate;
@@ -633,7 +661,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
                      MSG(MClear),MSG(MCancel))==0)))
             {
               HistoryMenu.Hide();
-              FreeHistory(TRUE); // память тоже нужно очистить!
+              FreeHistory(); // память тоже нужно очистить!
               SaveHistory();
               HistoryMenu.Modal::SetExitCode(StrPos);
               HistoryMenu.SetUpdateRequired(TRUE);
@@ -695,6 +723,9 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
 void History::GetPrev(char *Str,int StrLength)
 {
+  if(!LastStr)
+    return;
+
   do
   {
     unsigned int NewPtr=(CurLastPtr-1)%HistoryCount;
@@ -713,6 +744,9 @@ void History::GetPrev(char *Str,int StrLength)
 
 void History::GetNext(char *Str,int StrLength)
 {
+  if(!LastStr)
+    return;
+
   do
   {
     if (CurLastPtr!=LastPtr)
@@ -729,11 +763,17 @@ void History::GetNext(char *Str,int StrLength)
 
 void History::GetSimilar(char *Str,int LastCmdPartLength)
 {
+  if(!LastStr)
+    return;
+
   int Length=strlen(Str);
+
   if (LastCmdPartLength!=-1 && LastCmdPartLength<Length)
     Length=LastCmdPartLength;
+
   if (LastCmdPartLength==-1)
     LastSimilar=0;
+
   for (int I=1;I<HistoryCount;I++)
   {
     int Pos=(LastPtr-LastSimilar-I)%HistoryCount;
