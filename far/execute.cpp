@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.66 08.08.2002 $ */
+/* Revision: 1.67 12.08.2002 $ */
 
 /*
 Modify:
+  12.08.2002 SVS
+    + Opt.ExecuteUseAppPath
   08.08.2002 VVM
     ! Вернем назад полный путь до текущего каталога.
   17.07.2002 VVM
@@ -553,7 +555,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
         PtrExt+=strlen(PtrExt)+1;
       }
 
-      if (!Ret) // третий проход - лезим в реестр в "App Paths"
+      if (!Ret && Opt.ExecuteUseAppPath) // третий проход - лезим в реестр в "App Paths"
       {
         // В строке Command заменть исполняемый модуль на полный путь, который
         // берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
@@ -574,7 +576,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
           }
         }
 
-        if (!Ret)
+        if (!Ret && Opt.ExecuteUseAppPath)
         /* $ 14.06.2002 VVM
            Не нашли - попробуем с расширением */
         {

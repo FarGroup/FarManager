@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.90 30.05.2002 $ */
+/* Revision: 1.91 12.08.2002 $ */
 
 /*
 Modify:
+  12.08.2002 SVS
+   + Opt.ExecuteUseAppPath
   30.05.2002 SVS
     + Opt.UseTTFFont
   25.05.2002 IS
@@ -732,6 +734,7 @@ struct Options
   DWORD LCIDSort;
   int FindFolders;
   int RestoreCPAfterExecute;
+  int ExecuteUseAppPath;
   DWORD PluginMaxReadData;
   int UseNumPad;
   int UseTTFFont;

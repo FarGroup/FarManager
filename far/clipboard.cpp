@@ -5,10 +5,12 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.07 02.06.2002 $ */
+/* Revision: 1.08 12.08.2002 $ */
 
 /*
 Modify:
+  12.08.2002 SVS
+    - Bug-Pasting in file attributes (FAR 1.70b4)
   02.06.2002 SVS
     ! Если в CopyToClipboard переданы пустая строка, то это верный
       признак того, что очищаем клипборд.
@@ -151,6 +153,7 @@ char* WINAPI PasteFromClipboard(void)
 }
 
 
+// max - без учета символа конца строки!
 char* WINAPI PasteFromClipboardEx(int max)
 {
   char *ClipText=NULL;
@@ -199,13 +202,13 @@ char* WINAPI PasteFromClipboardEx(int max)
       {
         if (ReadType==CF_TEXT)
         {
-          strncpy(ClipText,ClipAddr,BufferSize-1);
+          strncpy(ClipText,ClipAddr,BufferSize);
           CharToOem(ClipText,ClipText);
           ClipText[BufferSize]=0;
         }
         else
         {
-          strncpy(ClipText,ClipAddr,BufferSize-1);
+          strncpy(ClipText,ClipAddr,BufferSize);
           ClipText[BufferSize]=0;
         }
       }

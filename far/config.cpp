@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.140 13.06.2002 $ */
+/* Revision: 1.141 12.08.2002 $ */
 
 /*
 Modify:
+  12.08.2002 SVS
+    + Opt.ExecuteUseAppPath
   13.06.2002 SVS
     ! Из предыдущего убираем символ '~'
   10.06.2002 KM
@@ -1363,6 +1365,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 
   {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
+  {0, REG_DWORD,  NKeySystemExecutor,"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 
