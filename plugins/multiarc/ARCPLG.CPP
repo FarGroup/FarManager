@@ -25,22 +25,14 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
                                      const char *PluginName,
                                      ArcPlugins *plugins)
 {
-  struct PluginItem CurPlugin;
-  //char *Ptr;
   if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
     return TRUE;
 
+  struct PluginItem CurPlugin;
   HMODULE hModule=LoadLibrary(PluginName);
+
   if (hModule!=NULL)
   {
-    struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(plugins->PluginsData,
-                            sizeof(struct PluginItem)*(plugins->PluginsCount+1));
-    if (NewPluginsData==NULL)
-    {
-      FreeLibrary(hModule);
-      return FALSE;
-    }
-    plugins->PluginsData=NewPluginsData;
     strcpy(CurPlugin.ModuleName,fdata->cFileName);
     CurPlugin.hModule=hModule;
     CurPlugin.Flags=0;
@@ -54,12 +46,31 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
     CurPlugin.pSetFarInfo=(PLUGINSETFARINFO)GetProcAddress(hModule,"SetFarInfo");
     CurPlugin.pGetSFXPos=(PLUGINGETSFXPOS)GetProcAddress(hModule,"GetSFXPos");
 
+    // обязательные!
+    if(!(CurPlugin.pIsArchive &&
+         CurPlugin.pOpenArchive &&
+         CurPlugin.pGetArcItem &&
+         CurPlugin.pGetFormatName &&
+         CurPlugin.pGetDefaultCommands))
+    {
+      FreeLibrary(hModule);
+      return TRUE;
+    }
+
     if (CurPlugin.pLoadFormatModule)
       CurPlugin.pLoadFormatModule(PluginName);
 
     if (CurPlugin.pSetFarInfo)
       CurPlugin.pSetFarInfo(&Info);
 
+    struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(plugins->PluginsData,
+                            sizeof(struct PluginItem)*(plugins->PluginsCount+1));
+    if (NewPluginsData==NULL)
+    {
+      FreeLibrary(hModule);
+      return FALSE; // при нехватке памяти остановим процесс поиска.
+    }
+    plugins->PluginsData=NewPluginsData;
     memcpy(&plugins->PluginsData[plugins->PluginsCount],&CurPlugin,sizeof(struct PluginItem));
     plugins->PluginsCount++;
   }
@@ -77,52 +88,58 @@ ArcPlugins::~ArcPlugins()
 
 int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
 {
-  char *ExtPtr=strrchr(Name,'.');
-  /* $ 27.07.2001 AA */
-  //DWORD MinSFXSize=-1;
   DWORD MinSFXSize=0xFFFFFFFF;
-  /* 27.07.2001 AA $ */
   DWORD CurSFXSize;
+  char *ExtPtr=strrchr(Name,'.');
   int TrueArc=-1;
+  int I, J;
+  struct PluginItem *CurPluginsData;
+
   if (ExtPtr!=NULL)
   {
     ExtPtr++;
-    for (int I=0;I<PluginsCount;I++)
-      for (int J=0;;J++)
+    for (CurPluginsData=PluginsData,I=0; I < PluginsCount; I++,CurPluginsData++)
+    {
+      for (J=0;;J++)
       {
         char FormatName[200],DefExt[NM];
+
         if (!GetFormatName(I,J,FormatName,DefExt))
           break;
-        if (stricmp(ExtPtr,DefExt)==0)
-          if (PluginsData[I].pIsArchive(Name,Data,DataSize))
-          {
-            if(PluginsData[I].pGetSFXPos)
-              CurSFXSize=PluginsData[I].pGetSFXPos();
-            else
-              CurSFXSize=0;
-            if(CurSFXSize <= MinSFXSize)
-            {
-              MinSFXSize=CurSFXSize;
-              TrueArc=I;
-            }
-            break;
-          }
-      }
-  }
-  for (int I=0;I<PluginsCount;I++)
-    if (PluginsData[I].pIsArchive)
-      if (PluginsData[I].pIsArchive(Name,Data,DataSize))
-      {
-        if(PluginsData[I].pGetSFXPos)
-          CurSFXSize=PluginsData[I].pGetSFXPos();
-        else
-          CurSFXSize=0;
-        if(CurSFXSize <= MinSFXSize)
+
+        if (stricmp(ExtPtr,DefExt)==0 && CurPluginsData->pIsArchive(Name,Data,DataSize))
         {
-          MinSFXSize=CurSFXSize;
-          TrueArc=I;
+          if(CurPluginsData->pGetSFXPos)
+            CurSFXSize=CurPluginsData->pGetSFXPos();
+          else
+            CurSFXSize=0;
+          if(CurSFXSize <= MinSFXSize)
+          {
+            MinSFXSize=CurSFXSize;
+            TrueArc=I;
+          }
+          break;
         }
       }
+    }
+  }
+
+  for (CurPluginsData=PluginsData,I=0; I < PluginsCount; I++,CurPluginsData++)
+  {
+    if (CurPluginsData->pIsArchive && CurPluginsData->pIsArchive(Name,Data,DataSize))
+    {
+      if(CurPluginsData->pGetSFXPos)
+        CurSFXSize=CurPluginsData->pGetSFXPos();
+      else
+        CurSFXSize=0;
+
+      if(CurSFXSize <= MinSFXSize)
+      {
+        MinSFXSize=CurSFXSize;
+        TrueArc=I;
+      }
+    }
+  }
   return TrueArc;
 }
 
@@ -130,7 +147,7 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
 BOOL ArcPlugins::OpenArchive(int PluginNumber,char *Name,int *Type)
 {
   *Type=0; //$ AA 12.11.2001
-  if (PluginNumber>=0 && PluginsData[PluginNumber].pOpenArchive)
+  if ((DWORD)PluginNumber < (DWORD)PluginsCount && PluginsData[PluginNumber].pOpenArchive)
     return PluginsData[PluginNumber].pOpenArchive(Name,Type);
   return FALSE;
 }
@@ -138,7 +155,7 @@ BOOL ArcPlugins::OpenArchive(int PluginNumber,char *Name,int *Type)
 int ArcPlugins::GetArcItem(int PluginNumber,struct PluginPanelItem *Item,
                            struct ArcItemInfo *Info)
 {
-  if (PluginNumber>=0 && PluginsData[PluginNumber].pGetArcItem)
+  if ((DWORD)PluginNumber < (DWORD)PluginsCount && PluginsData[PluginNumber].pGetArcItem)
     return PluginsData[PluginNumber].pGetArcItem(Item,Info);
   return FALSE;
 }
@@ -146,7 +163,7 @@ int ArcPlugins::GetArcItem(int PluginNumber,struct PluginPanelItem *Item,
 
 void ArcPlugins::CloseArchive(int PluginNumber,struct ArcInfo *Info)
 {
-  if (PluginNumber>=0 && PluginsData[PluginNumber].pCloseArchive)
+  if ((DWORD)PluginNumber < (DWORD)PluginsCount && PluginsData[PluginNumber].pCloseArchive)
     PluginsData[PluginNumber].pCloseArchive(Info);
 }
 
@@ -155,7 +172,7 @@ BOOL ArcPlugins::GetFormatName(int PluginNumber,int Type,char *FormatName,
                                char *DefaultExt)
 {
   *FormatName=0;
-  if (PluginNumber>=0 && PluginNumber<PluginsCount && PluginsData[PluginNumber].pGetFormatName)
+  if ((DWORD)PluginNumber < (DWORD)PluginsCount && PluginsData[PluginNumber].pGetFormatName)
     return PluginsData[PluginNumber].pGetFormatName(Type,FormatName,DefaultExt);
   return FALSE;
 }
@@ -165,7 +182,7 @@ BOOL ArcPlugins::GetDefaultCommands(int PluginNumber,int Type,int Command,
                                     char *Dest)
 {
   *Dest=0;
-  if (PluginNumber>=0 && PluginNumber<PluginsCount && PluginsData[PluginNumber].pGetDefaultCommands)
+  if ((DWORD)PluginNumber < (DWORD)PluginsCount && PluginsData[PluginNumber].pGetDefaultCommands)
     return PluginsData[PluginNumber].pGetDefaultCommands(Type,Command,Dest);
   return FALSE;
 }

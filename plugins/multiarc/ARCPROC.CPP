@@ -82,14 +82,14 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
 
   char Command[512],AllFilesMask[32];
   int CommandType;
-  int ExitCode;
+  int ExitCode=0;
 
   while(1)
   {
     struct FarMenuItemEx MenuItems[COUNT(MenuData)];
 
     memset(MenuItems,0,sizeof(MenuItems));
-    MenuItems[0].Flags=MIF_SELECTED;
+    MenuItems[ExitCode].Flags=MIF_SELECTED;
 
     int Count=0;
     for(int i=0; i<COUNT(MenuData); i++)
@@ -117,7 +117,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
       if(BreakCode == 0)  // F4 pressed
       {
         GetFormatName(MenuItems[0].Text);
-        ConfigCommands(MenuItems[0].Text);
+        ConfigCommands(MenuItems[0].Text,2+MenuData[ExitCode].Cmd*2);
         continue;
       }
     }

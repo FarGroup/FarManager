@@ -66,6 +66,9 @@ archive modifications.
 the corresponding archiver tool. Archiver options may be changed
 in the ~Archiver settings~@ArcSettings2@ dialog.
 
+    Для оперативного изменения ключей нажмите F4 в меню "Архивные команды").
+
+
     2. The whole set of archive management commands may only be
 used with RAR archives. Other archivers will support only a sub-set
 of these commands.

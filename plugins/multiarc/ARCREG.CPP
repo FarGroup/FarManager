@@ -54,14 +54,18 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default)
   return ValueData;
 }
 
+static char *CreateKeyName(char *FullKeyName, const char *Key)
+{
+  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
+  return FullKeyName;
+}
 
 HKEY CreateRegKey(HKEY hRoot,const char *Key)
 {
   HKEY hKey;
   DWORD Disposition;
   char FullKeyName[512];
-  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
-  RegCreateKeyEx(hRoot,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
+  RegCreateKeyEx(hRoot,CreateKeyName(FullKeyName,Key),0,NULL,0,KEY_WRITE,NULL,
                  &hKey,&Disposition);
   return hKey;
 }
@@ -71,8 +75,7 @@ HKEY OpenRegKey(HKEY hRoot,const char *Key)
 {
   HKEY hKey;
   char FullKeyName[512];
-  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
-  if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
+  if (RegOpenKeyEx(hRoot,CreateKeyName(FullKeyName,Key),0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     return NULL;
   return hKey;
 }
@@ -80,8 +83,7 @@ HKEY OpenRegKey(HKEY hRoot,const char *Key)
 void DeleteRegKey(HKEY hRoot,const char *Key)
 {
   char FullKeyName[512];
-  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
-  RegDeleteKey(hRoot,FullKeyName);
+  RegDeleteKey(hRoot,CreateKeyName(FullKeyName,Key));
 }
 
 
@@ -89,8 +91,7 @@ void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName)
 {
   HKEY hKey;
   char FullKeyName[512];
-  FSF.sprintf(FullKeyName,"%s%s%s",PluginRootKey,*Key ? "\\":"",Key);
-  if (RegOpenKeyEx(hRoot,FullKeyName,0,KEY_WRITE,&hKey)==ERROR_SUCCESS)
+  if (RegOpenKeyEx(hRoot,CreateKeyName(FullKeyName,Key),0,KEY_WRITE,&hKey)==ERROR_SUCCESS)
   {
     RegDeleteValue(hKey,ValueName);
     RegCloseKey(hKey);

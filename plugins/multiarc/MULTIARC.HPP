@@ -217,7 +217,7 @@ struct InitDialogItem
 };
 
 int ConfigGeneral();
-int ConfigCommands();
+int ConfigCommands(char *ArcFormat,int IDFocus=2);
 
 const char *GetMsg(int MsgId);
 int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
@@ -251,7 +251,6 @@ int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
 int __isspace(int Chr);
 int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
 char *GetCommaWord(char *Src,char *Word,char Separator);
-int ConfigCommands(char *ArcFormat);
 
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);

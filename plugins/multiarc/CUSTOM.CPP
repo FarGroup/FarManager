@@ -31,7 +31,7 @@ BOOL WINAPI OpenArchivePipe(const char *Name,int *Type);
 int GetString(char *Str,int MaxSize);
 int HexCharToNum(int HexChar);
 void ConvertNameToShort(const char *Src,char *Dest);
-int GetSectionName(int Num,char *Name);
+int GetSectionName(int Num,char *Name,int MaxSize);
 
 int CurType;
 
@@ -53,21 +53,28 @@ DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   char *Dot=strrchr((char*)Name,'.');
+
   for (int I=0;;I++)
   {
-    char TypeName[100],Name[64],Ext[NM],ID[512];
+    char TypeName[NM],Name[NM],Ext[NM],ID[512];
     int IDPos;
-    if (!GetSectionName(I,TypeName))
+
+    if (!GetSectionName(I,TypeName,sizeof(TypeName)-1))
       break;
+
     GetPrivateProfileString(TypeName,"TypeName",TypeName,Name,sizeof(Name),FormatFileName);
+
     if (*Name==0)
       break;
+
     GetPrivateProfileString(TypeName,"ID","",ID,sizeof(ID),FormatFileName);
     IDPos=GetPrivateProfileInt(TypeName,"IDPos",-1,FormatFileName);
+
     if (*ID)
     {
       unsigned char IDData[256],*CurID=(unsigned char*)&ID[0];
       int IDLength=0;
+
       while (1)
       {
         while (isspace(*CurID))
@@ -78,16 +85,20 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
         while (*CurID && !isspace(*CurID))
           CurID++;
       }
+
       int Found=FALSE;
+
       if (IDPos>=0)
         Found=IDPos<=DataSize-IDLength && memcmp(Data+IDPos,IDData,IDLength)==0;
       else
+      {
         for (int I=0;I<=DataSize-IDLength;I++)
           if (memcmp(Data+I,IDData,IDLength)==0)
           {
             Found=TRUE;
             break;
           }
+      }
       if (Found)
       {
         if (GetPrivateProfileInt(TypeName,"IDOnly",0,FormatFileName))
@@ -99,7 +110,9 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
       else
         continue;
     }
+
     GetPrivateProfileString(TypeName,"Extension","",Ext,sizeof(Ext),FormatFileName);
+
     if (Dot!=NULL && *Ext!=0 && strcmpi(Dot+1,Ext)==0)
     {
       CurType=I;
@@ -116,12 +129,16 @@ DWORD WINAPI _export GetSFXPos(void)
 
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
-  char TypeName[100],Command[512];
-  if (!GetSectionName(CurType,TypeName))
+  char TypeName[NM],Command[512];
+
+  if (!GetSectionName(CurType,TypeName,sizeof(TypeName)-1))
     return(FALSE);
+
   GetPrivateProfileString(TypeName,"List","",Command,sizeof(Command),FormatFileName);
+
   if (*Command==0)
     return(FALSE);
+
   IgnoreErrors=GetPrivateProfileInt(TypeName,"IgnoreErrors",0,FormatFileName);
   *Type=CurType;
 
@@ -136,11 +153,14 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   char TempPath[NM],TempName[NM];
   GetTempPath(sizeof(TempPath),TempPath);
   GetTempFileName(TempPath,"FAR",0,TempName);
+
   HANDLE OutHandle=CreateFile(TempName,GENERIC_READ|GENERIC_WRITE,
                    FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
                    FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);
+
   if (OutHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
+
   memset(&si,0,sizeof(si));
   si.cb=sizeof(si);
   si.dwFlags=STARTF_USESTDHANDLES;
@@ -168,6 +188,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     CloseHandle(pi.hProcess);
     ExitCode=(ExitCode<GetPrivateProfileInt(TypeName,"Errorlevel",1000,FormatFileName));
   }
+
   if (ExitCode)
   {
     OutData=NULL;
@@ -182,12 +203,14 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     if (OutData==NULL)
       ExitCode=0;
   }
+
   SetConsoleTitle(SaveTitle);
   SetConsoleMode(StdInput,ConsoleMode);
   CloseHandle(OutHandle);
 
   GetPrivateProfileString(TypeName,"Start","",StartText,sizeof(StartText),FormatFileName);
   GetPrivateProfileString(TypeName,"End","",EndText,sizeof(EndText),FormatFileName);
+
   for (FormatNumber=0;FormatNumber<sizeof(Format)/sizeof(Format[0]);FormatNumber++)
   {
     char FormatName[100];
@@ -196,19 +219,21 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     if (*Format[FormatNumber]==0)
       break;
   }
+
   if (ExitCode && OutDataSize==0)
   {
     GlobalFree((HGLOBAL)OutData);
     return(OpenArchivePipe(Name,Type));
   }
+
   return(ExitCode);
 }
 
 
 BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
 {
-  char TypeName[100],Command[512];
-  if (!GetSectionName(CurType,TypeName))
+  char TypeName[NM],Command[512];
+  if (!GetSectionName(CurType,TypeName,sizeof(TypeName)-1))
     return(FALSE);
   GetPrivateProfileString(TypeName,"List","",Command,sizeof(Command),FormatFileName);
   if (*Command==0)
@@ -262,6 +287,7 @@ BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
     const int ReadSize=32768;
     OutDataSize=OutDataPos=0;
     OutData=(char *)GlobalAlloc(GMEM_FIXED,0);
+
     while (1)
     {
       DWORD Read;
@@ -271,21 +297,25 @@ BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
         break;
       OutDataSize+=Read;
     }
+
     CloseHandle(hChildStdoutRd);
     WaitForSingleObject(pi.hProcess,INFINITE);
     GetExitCodeProcess(pi.hProcess,&ExitCode);
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
     ExitCode=(ExitCode<GetPrivateProfileInt(TypeName,"Errorlevel",1000,FormatFileName));
+
     if (!ExitCode)
       GlobalFree((HGLOBAL)OutData);
   }
+
   SetConsoleTitle(SaveTitle);
   SetConsoleMode(StdInput,ConsoleMode);
 
   GetPrivateProfileString(TypeName,"Start","",StartText,sizeof(StartText),FormatFileName);
   GetPrivateProfileString(TypeName,"End","",EndText,sizeof(EndText),FormatFileName);
-  for (FormatNumber=0;FormatNumber<sizeof(Format)/sizeof(Format[0]);FormatNumber++)
+
+  for (FormatNumber=0;FormatNumber < sizeof(Format)/sizeof(Format[0]);FormatNumber++)
   {
     char FormatName[100];
     wsprintf(FormatName,"Format%d",FormatNumber);
@@ -315,6 +345,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         *StartText=0;
       continue;
     }
+
     if (*EndText)
     {
       if (*EndText=='^')
@@ -329,6 +360,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
     char *CurFormat=Format[FormatLine];
     char *CurStr=Str;
+
     for (;*CurStr && *CurFormat;CurFormat++,CurStr++)
     {
       switch(*CurFormat)
@@ -439,6 +471,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           break;
       }
     }
+
     if (++FormatLine==FormatNumber)
     {
       if (st.wDay==0)
@@ -448,14 +481,17 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       if (st.wYear==0)
         st.wYear=syst.wYear;
       else
+      {
         if (st.wYear<50)
           st.wYear+=2000;
-        else
-          if (st.wYear<100)
-            st.wYear+=1900;
+        else if (st.wYear<100)
+          st.wYear+=1900;
+      }
+
       FILETIME ft;
       SystemTimeToFileTime(&st,&ft);
       LocalFileTimeToFileTime(&ft,&Item->FindData.ftLastWriteTime);
+
       for (int I=strlen(Item->FindData.cFileName)-1;I>=0;I--)
       {
         int Ch=Item->FindData.cFileName[I];
@@ -467,6 +503,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       return(GETARC_SUCCESS);
     }
   }
+
   return(GETARC_EOF);
 }
 
@@ -475,7 +512,9 @@ int GetString(char *Str,int MaxSize)
 {
   if (OutDataPos>=OutDataSize)
     return(FALSE);
+
   int StartPos=OutDataPos;
+
   while (OutDataPos<OutDataSize)
   {
     int Ch=OutData[OutDataPos];
@@ -483,10 +522,12 @@ int GetString(char *Str,int MaxSize)
       break;
     OutDataPos++;
   }
+
   int Length=OutDataPos-StartPos;
   int DestLength=Length>=MaxSize ? MaxSize-1:Length;
   strncpy(Str,OutData+StartPos,DestLength);
   Str[DestLength]=0;
+
   while (OutDataPos<OutDataSize)
   {
     int Ch=OutData[OutDataPos];
@@ -494,6 +535,7 @@ int GetString(char *Str,int MaxSize)
       break;
     OutDataPos++;
   }
+
   return(TRUE);
 }
 
@@ -502,38 +544,49 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if (IgnoreErrors)
     Info->Flags|=AF_IGNOREERRORS;
+
   GlobalFree((HGLOBAL)OutData);
+
   return(TRUE);
 }
 
 
 BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
-  char TypeName[100];
-  if (!GetSectionName(Type,TypeName))
+  char TypeName[NM];
+
+  if (!GetSectionName(Type,TypeName,sizeof(TypeName)-1))
     return(FALSE);
+
   GetPrivateProfileString(TypeName,"TypeName",TypeName,FormatName,64,FormatFileName);
   GetPrivateProfileString(TypeName,"Extension","",DefaultExt,NM,FormatFileName);
+
   return(*FormatName!=0);
 }
 
 
 BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
-  char TypeName[100],FormatName[100];
-  if (!GetSectionName(Type,TypeName))
+  char TypeName[NM],FormatName[NM];
+
+  if (!GetSectionName(Type,TypeName,sizeof(TypeName)-1))
     return(FALSE);
+
   GetPrivateProfileString(TypeName,"TypeName",TypeName,FormatName,64,FormatFileName);
+
   if (*FormatName==0)
     return(FALSE);
+
   static char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",
               "Comment","CommentFiles","SFX","Lock","Protect","Recover",
               "Add","Move","AddRecurse","MoveRecurse","AllFilesMask"};
-  if (Command<sizeof(CmdNames)/sizeof(CmdNames[0]))
+
+  if (Command < sizeof(CmdNames)/sizeof(CmdNames[0]))
   {
     GetPrivateProfileString(TypeName,CmdNames[Command],"",Dest,512,FormatFileName);
     return(TRUE);
   }
+
   return(FALSE);
 }
 
@@ -554,28 +607,35 @@ void ConvertNameToShort(const char *Src,char *Dest)
 {
   char ShortName[NM],AnsiName[NM];
   int AnsiApis=AreFileApisANSI();
+
   if (!AnsiApis)
     SetFileApisToANSI();
+
   OemToChar(Src,AnsiName);
+
   if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)) && *ShortName)
     CharToOem(ShortName,Dest);
   else
     strcpy(Dest,Src);
+
   if (!AnsiApis)
     SetFileApisToOEM();
 }
 
 
-int GetSectionName(int Num,char *Name)
+int GetSectionName(int Num,char *Name,int MaxSize)
 {
   char Buf[8192],*Section=Buf;
+
   GetPrivateProfileSectionNames(Buf,sizeof(Buf),FormatFileName);
+
   while (Num-- > 0)
   {
     if (*Section==0)
       return(FALSE);
     Section+=strlen(Section)+1;
   }
-  strcpy(Name,Section);
+
+  strncpy(Name,Section,MaxSize);
   return(TRUE);
 }

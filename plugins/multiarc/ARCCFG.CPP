@@ -108,11 +108,6 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             else
             {
               ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
-/*{
-char BBB[NM];
-FSF.sprintf(BBB,"%s='%s' 0x%02X",CmdNames[J],Command,*Command);
-MessageBox(0,BBB,ArcFormat,0);
-} */
             }
           }
         }
@@ -129,15 +124,17 @@ MessageBox(0,BBB,ArcFormat,0);
       }
       break;
   }
+
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-int ConfigCommands(char *ArcFormat)
+
+int ConfigCommands(char *ArcFormat,int IDFocus)
 {
   struct InitDialogItem InitItems[]={
   /* 00 */{DI_DOUBLEBOX,3,1,72,20,0,0,0,0,ArcFormat},
   /* 01 */{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MArcSettingsExtract},
-  /* 02 */{DI_EDIT,25,2,70,3,1,0,0,0,""},
+  /* 02 */{DI_EDIT,25,2,70,3,0,0,0,0,""},
   /* 03 */{DI_TEXT,5,3,0,0,0,0,0,0,(char *)MArcSettingsExtractWithoutPath},
   /* 04 */{DI_EDIT,25,3,70,3,0,0,0,0,""},
   /* 05 */{DI_TEXT,5,4,0,0,0,0,0,0,(char *)MArcSettingsTest},
@@ -178,9 +175,12 @@ int ConfigCommands(char *ArcFormat)
   int Length,MaxLength=0,I,J;
   InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
 
+  DialogItems[IDFocus].Focus=1;
+
   for (I=1;I<=31;I+=2)
     if ((Length=strlen(DialogItems[I].Data))>MaxLength)
       MaxLength=Length;
+
   for (I=2,J=0;I<=32;I+=2,J++)
     DialogItems[I].X1=6+MaxLength;
 

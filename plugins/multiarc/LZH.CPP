@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 FAR group
 */
-/* $Revision: 1.03 27.04.2001 $ */
+/* $Revision: 1.04 22.12.2001 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -37,27 +37,6 @@
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
-static struct OSIDType{
-  BYTE Type;
-  char Name[15];
-} OSID[]={
-  {'M',"MS-DOS"},   {'2',"OS/2"},     {'9',"OS9"},
-  {'K',"OS/68K"},   {'3',"OS/386"},   {'H',"HUMAN"},
-  {'U',"Unix"},     {'C',"CP/M"},     {'F',"FLEX"},
-  {'m',"Mac"},      {'R',"Runser"},
-};
-
-static struct DictSizeType{
-  BYTE Type[2];
-  short Size;
-} DictSize[]={
-  {{'h','0'},0},   {{'h','1'},4},
-  {{'h','2'},8},   {{'h','3'},8},
-  {{'h','4'},4},   {{'h','5'},8},
-  {{'z','s'},2},   {{'z','4'},0},
-  {{'h','6'},32},  {{'h','7'},64},
-  {{'h','d'},0},
-};
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -219,6 +198,15 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
 
   // OS ID - Host OS
+  static struct OSIDType{
+    BYTE Type;
+    char Name[15];
+  } OSID[]={
+    {'M',"MS-DOS"},   {'2',"OS/2"},     {'9',"OS9"},
+    {'K',"OS/68K"},   {'3',"OS/386"},   {'H',"HUMAN"},
+    {'U',"Unix"},     {'C',"CP/M"},     {'F',"FLEX"},
+    {'m',"Mac"},      {'R',"Runser"},
+  };
   for(I=0; I < sizeof(OSID)/sizeof(OSID[0]); ++I)
   {
     if(OSID[I].Type == OsId)
@@ -229,6 +217,17 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   }
 
   // Dictionary size
+  static struct DictSizeType{
+    BYTE Type[2];
+    short Size;
+  } DictSize[]={
+    {{'h','0'},0},   {{'h','1'},4},
+    {{'h','2'},8},   {{'h','3'},8},
+    {{'h','4'},4},   {{'h','5'},8},
+    {{'z','s'},2},   {{'z','4'},0},
+    {{'h','6'},32},  {{'h','7'},64},
+    {{'h','d'},0},
+  };
   Info->DictSize=0;
   for(I=0; I < sizeof(DictSize)/sizeof(DictSize[0]); ++I)
   {
@@ -290,7 +289,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     /*Move files and folders*/"lha a -a -r -x -p -m {-w%%W} {%%S} %%a @%%lM",
     /*"All files" mask      */"*.*"
     };
-    if (Command<sizeof(Commands)/sizeof(Commands[0]))
+    if (Command < sizeof(Commands)/sizeof(Commands[0]))
     {
       strcpy(Dest,Commands[Command]);
       return(TRUE);

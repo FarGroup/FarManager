@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-2001 FAR group
 */
 
-/* $Revision: 1.03 18.05.2001 $ */
+/* $Revision: 1.04 22.12.2001 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -25,11 +25,14 @@
   #endif
 #endif
 
-#define GETARC_EOF               0
-#define GETARC_SUCCESS           1
-#define GETARC_BROKEN            2
-#define GETARC_UNEXPEOF          3
-#define GETARC_READERROR         4
+enum GETARC_CODE
+{
+  GETARC_EOF               =0,
+  GETARC_SUCCESS           =1,
+  GETARC_BROKEN            =2,
+  GETARC_UNEXPEOF          =3,
+  GETARC_READERROR         =4,
+};
 
 struct ArcItemInfo
 {
@@ -42,11 +45,10 @@ struct ArcItemInfo
   int UnpVer;
 };
 
-
 enum ARCINFO_FLAGS
 {
-  AF_AVPRESENT=1,
-  AF_IGNOREERRORS=2
+  AF_AVPRESENT      =0x00000001,
+  AF_IGNOREERRORS   =0x00000002,
 };
 
 struct ArcInfo
@@ -62,9 +64,9 @@ struct ArcInfo
 };
 
 
-#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
+#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__) || defined(__WATCOMC__)
 #ifdef __cplusplus
-extern "C" {
+extern "C"{
 #endif
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName);

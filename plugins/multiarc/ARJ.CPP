@@ -166,6 +166,14 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   FILETIME lft;
   DosDateTimeToFileTime(HIWORD(ArjHeader.ftime),LOWORD(ArjHeader.ftime),&lft);
   LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
+
+  Info->UnpVer=(ArjHeader.ARJExtrVer/10)*256+(ArjHeader.ARJExtrVer%10);
+  static char *ArjOS[]={"MSDOS","PRIMOS","UNIX","AMIGA","MAC-OS",
+                        "OS/2","APPLE GS","ATARI ST","NEXT",
+                        "VAX VMS","WIN95","WIN32"};
+  if (ArjHeader.HostOS<sizeof(ArjOS)/sizeof(ArjOS[0]))
+    strcpy(Info->HostOS,ArjOS[ArjHeader.HostOS]);
+
   return(GETARC_SUCCESS);
 }
 
