@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.22 02.03.2002 $ */
+/* Revision: 1.23 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    - BugZ#375 - Неправильное отображение каталогов в Alt-F7.
   02.03.2002 SVS
     ! Подготовим "полный прямоугольник" - SetScreen
   09.11.2001 IS
@@ -802,7 +804,17 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                               CurPtr->ShortName:CurPtr->Name;
                 char *SrcNamePtr=NamePtr;
                 if (ViewFlags & COLUMN_NAMEONLY)
+                {
+                  // !!! НЕ УВЕРЕН, но то, что отображается пустое
+                  // пространство вместо названия - бага
+                  int LenNamePtr=strlen(NamePtr);
+                  int TestSlash=(NamePtr[LenNamePtr-1] == '\\')?TRUE:FALSE;
+                  if(TestSlash)
+                    NamePtr[LenNamePtr-1]=0;
                   NamePtr=PointToName(NamePtr);
+                  if(TestSlash)
+                    NamePtr[LenNamePtr-1]='\\';
+                }
 
                 int CurLeftPos=0;
                 int RightAlign=(ViewFlags & COLUMN_RIGHTALIGN);

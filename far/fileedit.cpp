@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.92 18.03.2002 $ */
+/* Revision: 1.93 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    - BugZ#373 - F4 Ctrl-O - виден курсор
   18.03.2002 SVS
     + SetLockEditor() - возможноть программно лочить редактор
   26.02.2002 VVM
@@ -609,6 +611,7 @@ int FileEditor::ProcessKey(int Key)
       FEdit.Hide();
       /* skv$*/
       FrameManager->ShowBackground();
+      SetCursorType(FALSE,0);
       WaitKey(-1);
       Show();
       return(TRUE);

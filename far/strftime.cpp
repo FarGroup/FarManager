@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.06 03.01.2002 $ */
+/* Revision: 1.07 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    - Неверно работали %a и %A (t->tm_wday=0 это воскресенье!)
   03.01.2002 SVS
     ! Хе, блин, русские буковки им не понрявились ;-(
   20.12.2001 SVS
@@ -323,10 +325,14 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
           continue;
         // Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
         // abbreviated weekday name
-        case 'a': Ptr = AWeekday[CurLang][t->tm_wday]; break;
+        case 'a':
+          Ptr = AWeekday[CurLang][(t->tm_wday+6)%7];
+          break;
         // Полное имя дня недели
         // full weekday name
-        case 'A': Ptr = Weekday[CurLang][t->tm_wday]; break;
+        case 'A':
+          Ptr = Weekday[CurLang][(t->tm_wday+6)%7];
+          break;
         // Краткое имя месяца (Jan,Feb,...)
         // abbreviated month name
         case 'h':

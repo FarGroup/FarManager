@@ -2819,7 +2819,7 @@ the desired options in the dialog:
 
   Macro command execution conditions:
 
-    #Command line is empty#
+    #Empty command line#
        [x] - execute only if the command line is empty
        [ ] - execute only if the command line is not empty
        [?] - ignore the command line state

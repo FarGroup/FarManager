@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.66 12.03.2002 $ */
+/* Revision: 1.67 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    - BugZ#364 - alt+break
   12.03.2002 VVM
     + Задействуем функцию AbortMessage()
   20.02.2002 OT
@@ -1531,7 +1533,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
-//_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -1566,6 +1568,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_CTRLALT|KEY_DIVIDE);
       case VK_MULTIPLY:
         return(KEY_CTRLALT|KEY_MULTIPLY);
+      case VK_PAUSE:
+        return(KEY_CTRLALT|KEY_BREAK);
     }
     if (AsciiChar)
       return(KEY_CTRL|KEY_ALT+AsciiChar);
@@ -1579,7 +1583,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-//_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
+_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
     if (KeyCode>='0' && KeyCode<='9')
     {
       if(WaitInFastFind>0 &&
@@ -1636,6 +1640,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         }
         else
           return(KEY_ALTSHIFT|KEY_MULTIPLY);
+      case VK_CAPITAL:
+        return(KEY_NONE);
+      case VK_PAUSE:
+        return(KEY_ALTSHIFT|KEY_BREAK);
     }
     if (AsciiChar)
     {
@@ -1654,7 +1662,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
-//_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1726,7 +1734,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
-//_SVS(if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1777,7 +1785,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-//_SVS(if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
@@ -1819,6 +1827,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 //          return(KEY_ALT+KEY_SHIFT+'*');
 //        else
           return(KEY_ALT|KEY_MULTIPLY);
+      case VK_PAUSE:
+        return(KEY_ALT+KEY_BREAK);
     }
     if (AsciiChar)
     {
