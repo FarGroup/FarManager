@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.106 08.10.2003 $ */
+/* Revision: 1.107 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    ! Уточнение размера под вставку даты
   08.10.2003 SVS
     ! Первое исправления "для колорера"
     ! В Edit::Select() если обе компоненты == -1, сделам как
@@ -1798,7 +1800,8 @@ int Edit::ProcessCtrlQ(void)
 int Edit::ProcessInsDate(void)
 {
   int SizeMacroText=CtrlObject->Macro.GetPlainTextSize()+8;
-  SizeMacroText+=8+(!SizeMacroText?strlen(Opt.DateFormat)*4:0);
+  SizeMacroText+=8+(!SizeMacroText?strlen(Opt.DateFormat):0);
+  SizeMacroText*=4;
   char *TStr=(char*)alloca(SizeMacroText);
   char *Fmt=(char*)alloca(SizeMacroText);
   if(!TStr || !Fmt)

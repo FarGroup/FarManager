@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.09 08.09.2003 $ */
+/* Revision: 1.10 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    ! Уточнение некоторых деталей
   08.09.2003 SVS
     - траблы с wday (%a, %W, etc)
   05.12.2002 SVS
@@ -145,9 +147,9 @@ static int st_time(char *dest,const struct tm *tmPtr,char chr)
          break;
        default:
          res=sprintf(dest, "%4d%c%02d%c%02d",
-            tmPtr->tm_year + 1900,
+            tmPtr->tm_year + 1900,DateSeparator,
             tmPtr->tm_mon+1,DateSeparator,
-            tmPtr->tm_mday,DateSeparator);
+            tmPtr->tm_mday);
          break;
      }
 
@@ -463,10 +465,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
         // appropriate time representation
         case 'T':
         case 'X':
-          sprintf(Ptr,"%02d%c%02d%c%02d",
-              t->tm_hour,TimeSeparator,
-              t->tm_min,TimeSeparator,
-              t->tm_sec,TimeSeparator);
+          sprintf(Ptr,"%02d%c%02d%c%02d",t->tm_hour,TimeSeparator,t->tm_min,TimeSeparator,t->tm_sec);
           break;
         // Две цифры года без столетия (00 to 99)
         // year without a century, 00 - 99
@@ -520,6 +519,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
       strncpy( Dest, Ptr, I );
       Len += I;
       Dest += I;
+      Ptr = Buf;
     }
   }
 

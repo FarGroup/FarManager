@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.237 13.10.2003 $ */
+/* Revision: 1.238 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    ! Уточнение размера под вставку даты
   13.10.2003 SVS
     ! ESPT_WORDDIV -> ESPT_SETWORDDIV (NotInternal)
   10.10.2003 SVS
@@ -3275,7 +3277,9 @@ int Editor::ProcessKey(int Key)
       {
         char *Fmt=NULL;
         int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
-        SizeMacroText+=16+(Key == KEY_MACRO_DATE && !SizeMacroText?strlen(Opt.DateFormat)*4:0);
+        SizeMacroText+=16+(Key == KEY_MACRO_DATE && !SizeMacroText?strlen(Opt.DateFormat):0);
+        if(Key == KEY_MACRO_DATE)
+          SizeMacroText*=4;
         char *TStr=(char*)alloca(SizeMacroText);
         if(!TStr)
           return(FALSE);
