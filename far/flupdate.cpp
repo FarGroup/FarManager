@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.15 01.10.2001 $ */
+/* Revision: 1.16 02.10.2001 $ */
 
 /*
 Modify:
+  02.10.2001 SVS
+    - UpdateColorItems() предназначена не для плагиновых панелей!
   01.10.2001 SVS
     ! Немного оптимизации - для ускорения считывания директории
     + AddParentPoint() - общий код по добавлению ".."
@@ -454,7 +456,7 @@ int FileList::UpdateIfChanged(int Force)
 
 void FileList::UpdateColorItems(void)
 {
-  if (Opt.Highlight)
+  if (Opt.Highlight && PanelMode != PLUGIN_PANEL)
   {
     int I;
     struct FileListItem *CurPtr;
@@ -462,6 +464,7 @@ void FileList::UpdateColorItems(void)
       CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,&CurPtr->Colors);
   }
 }
+
 
 void FileList::CreateChangeNotification(int CheckTree)
 {

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.96 27.09.2001 $ */
+/* Revision: 1.97 02.10.2001 $ */
 
 /*
 Modify:
+  02.10.2001 SVS
+    - В таблице однажды забыл для Opt.AltF9 выставить дефолт =-1
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -342,7 +344,6 @@ char NKeyLayout[]="Layout";
 char NKeyDescriptions[]="Descriptions";
 char NKeyKeyMacros[]="KeyMacros";
 char NKeyPolicies[]="Policies";
-
 
 void SystemSettings()
 {
@@ -975,7 +976,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, 1, 0},
+  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
   {1, REG_DWORD,  NKeyInterface, "CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
