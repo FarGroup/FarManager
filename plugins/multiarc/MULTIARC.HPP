@@ -291,3 +291,10 @@ char PluginRootKey[80];
 /* $ 26.07.2001 AA */
 #define COUNT(Msg) (sizeof(Msg)/sizeof(*Msg))
 /* 26.07.2001 AA $ */
+
+//#define _NEW_ARC_SORT_
+#ifdef _NEW_ARC_SORT_
+char IniFile[MAX_PATH];
+char *SortModes[]={"None", "Name", "RunRate", "ChoiceRate", "User"};
+void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini);
+#endif

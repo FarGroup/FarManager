@@ -92,7 +92,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
     if (!IgnoreErrors && ExecCode!=0)
     {
       char ErrMsg[200];
-      FSF.sprintf(ErrMsg,(char*)GetMsg(MArcNonZero),ExecCode);
+      FSF.sprintf(ErrMsg,(char *)GetMsg(MArcNonZero),ExecCode);
       const char *MsgItems[]={GetMsg(MError),ArcName,ErrMsg,GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       return FALSE;

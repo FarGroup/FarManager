@@ -38,6 +38,11 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   Opt.ReadDescriptions=GetRegKey(HKEY_CURRENT_USER,"","ReadDescriptions",0);
   Opt.UpdateDescriptions=GetRegKey(HKEY_CURRENT_USER,"","UpdateDescriptions",0);
   Opt.UserBackground=GetRegKey(HKEY_CURRENT_USER,"","Background",0);
+
+  #ifdef _NEW_ARC_SORT_
+  strcpy(IniFile, Info->ModuleName);
+  *((int *)(IniFile+strlen(IniFile)-3))=0x696E69; // :)
+  #endif
 }
 
 

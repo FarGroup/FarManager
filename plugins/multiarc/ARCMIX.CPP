@@ -140,8 +140,6 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
             Opt.Background?CREATE_NEW_CONSOLE:0,NULL,NULL,&si,&pi);
 
   LastError=!ExitCode?GetLastError():0;
-  /**/char Buf32[32];
-  FSF.sprintf(Buf32, "%lu", LastError);
   if (HideOutput)
   {
     SetStdHandle(STD_OUTPUT_HANDLE,StdOutput);
@@ -159,7 +157,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   {
     char Msg[100];
     FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),ExecuteName);
-    const char *MsgItems[]={GetMsg(MError),Msg,/**/Buf32, GetMsg(MOk)};
+    const char *MsgItems[]={GetMsg(MError),Msg, GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,
                  NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
     ExitCode=RETEXEC_ARCNOTFOUND;
@@ -405,3 +403,12 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
   }
   return FALSE;
 }
+
+#ifdef _NEW_ARC_SORT_
+void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini)
+{
+  char Buf32[32];
+  wsprintf(Buf32, "%d", Value);
+  WritePrivateProfileString(Section, Key, Buf32, Ini);
+}
+#endif

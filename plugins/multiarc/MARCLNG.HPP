@@ -135,5 +135,5 @@ enum LanguageID
   MArcSettingsDefaultExt,
 
   MBackground,
-  MNoChangeName,
+  MExactArcName,
 };

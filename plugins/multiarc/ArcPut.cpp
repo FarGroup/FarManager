@@ -6,7 +6,8 @@ struct PutDlgData
   char Password1[256];
   char Password2[256];
   char DefExt[NM];
-  BOOL DefaultPluginNotFound;
+  BOOL DefaultPluginNotFound; //$ AA 2?.11.2001
+  BOOL NoChangeName;          //$ AA 23.11.2001
 };
 
 #define MAM_SETDISABLE   DM_USER+1
@@ -29,7 +30,7 @@ struct PutDlgData
 #define PDI_PASS1WEDT       11
 #define PDI_SEPARATOR1      12
 #define PDI_ADDDELCHECK     13
-//#define PDI_NOCHNAMECHECK   14
+//#define PDI_EXACTNAMECHECK   14
 #define PDI_BGROUNDCHECK    14
 #define PDI_SEPARATOR2      15
 #define PDI_ADDBTN          16
@@ -206,7 +207,13 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       case PDI_SELARCBTN:
         if(pdd->Self->SelectFormat(pdd->ArcFormat,TRUE))
+        {
           Info.SendDlgMessage(hDlg, MAM_SELARC, 0, 0);
+          #ifdef _NEW_ARC_SORT_
+          int Rate=GetPrivateProfileInt("ChoiceRate", pdd->ArcFormat, 0, IniFile);
+          WritePrivateProfileInt("ChoiceRate", pdd->ArcFormat, Rate+1, IniFile);
+          #endif
+        }
         Info.SendDlgMessage(hDlg, DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
         return TRUE;
     }
@@ -235,13 +242,16 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     char ExtName[NM],*ExtPtr;
     strcpy(Buffer,pdd->OriginalName);
-    if ((ExtPtr=strrchr(Buffer,'.'))==NULL ||
-        (ExtPtr && stricmp(++ExtPtr,pdd->DefExt) != 0))
+    if(!pdd->NoChangeName)
     {
-      if(Opt.AddExtArchive)
+      if ((ExtPtr=strrchr(Buffer,'.'))==NULL ||
+          (ExtPtr && stricmp(++ExtPtr,pdd->DefExt) != 0))
       {
-        FSF.sprintf(ExtName,"%s.%s",Buffer,pdd->DefExt);
-        strcpy(Buffer,ExtName);
+        if(Opt.AddExtArchive)
+        {
+          FSF.sprintf(ExtName,"%s.%s",Buffer,pdd->DefExt);
+          strcpy(Buffer,ExtName);
+        }
       }
     }
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_ARCNAMEEDT, (long)Buffer);
@@ -359,7 +369,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       /*11*/{DI_PSWEDIT,39,8,70,8,0,0,0,0,""},
       /*12*/{DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
       /*13*/{DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MAddDelete},
-      //    {DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MNoChangeName},
+      //    {DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MExactArcName},
       /*14*/{DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MBackground},
       /*15*/{DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
       /*16*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd},
@@ -381,10 +391,16 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if(Opt.UseLastHistory)
       DialogItems[PDI_SWITCHESEDT].Flags|=DIF_USELASTHISTORY;
 
-    if (*ArcName)
+    if(*ArcName)
+    {
+      pdd.NoChangeName=TRUE;
       strcpy(DialogItems[PDI_ARCNAMEEDT].Data,ArcName);
+      DialogItems[PDI_ARCNAMEEDT].Flags=DIF_READONLY; //одновременно сбрасывается DIF_HISTORY
+      DialogItems[PDI_SELARCBTN].Flags|=DIF_DISABLE;
+    }
     else
     {
+      pdd.NoChangeName=FALSE;
       if (ItemsNumber==1)
       {
         strcpy(DialogItems[PDI_ARCNAMEEDT].Data,PanelItem->FindData.cFileName);
@@ -496,6 +512,12 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,
                       DialogItems[PDI_ARCNAMEEDT].Data,"",pdd.Password1,
                       AllFilesMask,IgnoreErrors,0,0,CurDir,CurArcInfo.Prefix);
+
+    #ifdef _NEW_ARC_SORT_
+    int Rate=GetPrivateProfileInt("RunRate", pdd.ArcFormat, 0, IniFile);
+    WritePrivateProfileInt("RunRate", pdd.ArcFormat, Rate+1, IniFile);
+    #endif
+
     if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
       ArcExitCode=0;
     if (ArcCmd.GetExecCode()==RETEXEC_ARCNOTFOUND)
