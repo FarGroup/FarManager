@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.73 04.04.2001 $ */
+/* Revision: 1.74 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 SVS
+   + ExpandPATHEXT()
   04.04.2001 SVS
    + MkRegKeyHighlightName
   03.04.2001 SVS
@@ -745,6 +747,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
 DWORD WINAPI FarGetLogicalDrives(void);
 
 char *Add_PATHEXT(char *Dest);
+DWORD WINAPI ExpandPATHEXT(char *src, char *dest, size_t size);
 
 // сама функция в hilight.cpp
 char *MkRegKeyHighlightName(char *RegKey);

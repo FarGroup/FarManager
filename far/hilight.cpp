@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.15 04.04.2001 $ */
+/* Revision: 1.16 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 SVS
+    ! Код по анализу PATHEXT вынесен в отдельную функцию ExpandPATHEXT()
   04.04.2001 SVS
     - Не инициализировался массив Mask в HighlightFiles::EditRecord()
       поэтому иногда наблюдался мусор в строке ввода для маски.
@@ -141,24 +143,7 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
       /* $ 02.04.2001 VVM
         + В масках можно задавать переменные окружения */
       char ArgName[NM], ExpandedStr[8192];
-      /* $ 03.04.2001 SVS
-         Из-за галимого формата переменной %pathext% - немного коррекции кода.
-      */
-      int Copied;
-      {
-        char TempStr[2048];
-        char *Ptr=strstr(strlwr(strcpy(TempStr,NullToEmpty(CurHiData->Masks))),"%pathext%");
-        if(Ptr)
-        {
-          int IQ1=(*(Ptr+9) == ',')?10:9;
-          // Если встречается %pathext%, то допишем в конец...
-          memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-          Add_PATHEXT(TempStr); // добавляем то, чего нету.
-        }
-        Copied = ExpandEnvironmentStrings(TempStr,ExpandedStr,sizeof(ExpandedStr));
-      }
-      /* SVS $ */
-
+      int Copied = ExpandPATHEXT(CurHiData->Masks,ExpandedStr,sizeof(ExpandedStr));
       if ((Copied==0) || (Copied > sizeof(ExpandedStr)))
         strcpy(ExpandedStr, CurHiData->Masks);
       char *NamePtr = ExpandedStr;

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.66 03.04.2001 $ */
+/* Revision: 1.67 06.04.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    + ExpandPATHEXT() - Расширение переменных среды с учетом %PATHEXT%
+      При этом значение %PATHEXT% приводим к ФАРовскому формату.
   03.04.2001 SVS
     + Add_PATHEXT()
   30.03.2001 SVS
@@ -1239,6 +1242,52 @@ DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
 }
 /* IS $ */
 
+/* $ 06.04.2001 SVS
+   ExpandPATHEXT() - Расширение переменных среды с учетом %PATHEXT%
+   При этом значение %PATHEXT% приводим к ФАРовскому формату.
+   ;-)
+*/
+DWORD WINAPI ExpandPATHEXT(char *src, char *dest, size_t size)
+{
+  DWORD ret=0;
+  if(size && src && *src && dest && *dest)
+  {
+    char *tmp=(char *)malloc(size+1);
+    if(tmp)
+    {
+      int AllocTempStr=FALSE;
+      char *TempStr=(char *)malloc(size+1024);
+      if(TempStr)
+      {
+        AllocTempStr=TRUE;
+        char *Ptr=strstr(strlwr(strcpy(TempStr,NullToEmpty(src))),"%pathext%");
+        if(Ptr)
+        {
+          int IQ1=(*(Ptr+9) == ',')?10:9;
+          // Если встречается %pathext%, то допишем в конец...
+          memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
+          Add_PATHEXT(TempStr); // добавляем то, чего нету.
+        }
+      }
+      else
+        TempStr=src;
+
+      if(ExpandEnvironmentStrings(TempStr,tmp,size))
+        strncpy(dest, tmp, size);
+      else
+      {
+        strncpy(tmp, TempStr, size);
+        strcpy(dest, tmp);
+      }
+      if(AllocTempStr)
+        free(TempStr);
+      free(tmp);
+      ret=strlen(dest);
+    }
+  }
+  return ret;
+}
+/* SVS $ */
 
 /* $ 25.07.2000 SVS
    Оболочки вокруг вызовов стандартных функцйи, приведенных к WINAPI
