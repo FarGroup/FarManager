@@ -5,10 +5,13 @@ Quick view panel
 
 */
 
-/* Revision: 1.09 01.02.2001 $ */
+/* Revision: 1.10 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SVS
+    ! Выделенный текст отображается COL_PANELINFOTEXT (Highlighted info),
+      а не COL_PANELSELECTEDTEXT (Selected text)
   01.02.2001 SVS
     + В панели "Quick view" добавим инфу про Junction
   03.11.2000 OT
@@ -129,25 +132,25 @@ void QuickView::DisplayObject()
       PrintText(MSG(MQuickViewContains));
       GotoXY(X1+2,Y1+6);
       PrintText(MSG(MQuickViewFolders));
-      SetColor(COL_PANELSELECTEDTEXT);
+      SetColor(COL_PANELINFOTEXT);
       sprintf(Msg,"%d",DirCount);
       PrintText(Msg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+7);
       PrintText(MSG(MQuickViewFiles));
-      SetColor(COL_PANELSELECTEDTEXT);
+      SetColor(COL_PANELINFOTEXT);
       sprintf(Msg,"%d",FileCount);
       PrintText(Msg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+8);
       PrintText(MSG(MQuickViewBytes));
-      SetColor(COL_PANELSELECTEDTEXT);
+      SetColor(COL_PANELINFOTEXT);
       InsertCommas(FileSize,Msg);
       PrintText(Msg);
       SetColor(COL_PANELTEXT);
       GotoXY(X1+2,Y1+9);
       PrintText(MSG(MQuickViewCompressed));
-      SetColor(COL_PANELSELECTEDTEXT);
+      SetColor(COL_PANELINFOTEXT);
       InsertCommas(CompressedFileSize,Msg);
       PrintText(Msg);
       if (Directory!=4 && RealFileSize>=CompressedFileSize)
@@ -155,19 +158,19 @@ void QuickView::DisplayObject()
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+11);
         PrintText(MSG(MQuickViewCluster));
-        SetColor(COL_PANELSELECTEDTEXT);
+        SetColor(COL_PANELINFOTEXT);
         InsertCommas(ClusterSize,Msg);
         PrintText(Msg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+12);
         PrintText(MSG(MQuickViewRealSize));
-        SetColor(COL_PANELSELECTEDTEXT);
+        SetColor(COL_PANELINFOTEXT);
         InsertCommas(RealFileSize,Msg);
         PrintText(Msg);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+13);
         PrintText(MSG(MQuickViewSlack));
-        SetColor(COL_PANELSELECTEDTEXT);
+        SetColor(COL_PANELINFOTEXT);
         InsertCommas(RealFileSize-CompressedFileSize,Msg);
         char SlackMsg[100];
         int64 Size1=RealFileSize-CompressedFileSize;
