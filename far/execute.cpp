@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.73 04.10.2002 $ */
+/* Revision: 1.74 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 VVM
+    - Исправлен баг с запуском приложений из архивов с русским именем.
+      Для ГУИ будем пользовать ShellExcuteEx()
   04.10.2002 VVM
     ! Небольшой баг при поиске файла по списку расширений. Перед поиском расширения
       отделим имя файла от пути к нему.
@@ -864,6 +867,11 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   Unquote(NewCmdStr);
   RemoveExternalSpaces(NewCmdStr);
 
+  char CurrentDirectory[4096];
+  strncpy(CurrentDirectory, NewCmdStr, sizeof(CurrentDirectory) - 1);
+  char* P = PointToName(CurrentDirectory);
+  *P = 0;
+
   //_tran(SysLog("Execute: newCmdStr [%s]",NewCmdStr);)
 
   // Проверим, а не папку ли мы хотим открыть по Shift-Enter?
@@ -901,7 +909,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   if(*NewCmdStr && !((*NewCmdStr == '\\'|| *NewCmdStr == '/') && !NewCmdStr[1]))
     ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
   // Для Виндовс-ГУИ всегда сделаем запуск через ShellExecuteEx()
-  if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
+//  if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
+  if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
     SeparateWindow=2;
   if (!ExecutorType || SeparateWindow==2)
     ExitCode = 1;
@@ -1112,7 +1121,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     }
     else
       ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,
-                             NULL,NULL,&si,&pi);
+                             NULL,CurrentDirectory,&si,&pi);
 
     StartExecTime=clock();
   }
