@@ -32,6 +32,7 @@ int GetString(char *Str,int MaxSize);
 int HexCharToNum(int HexChar);
 void ConvertNameToShort(const char *Src,char *Dest);
 int GetSectionName(int Num,char *Name,int MaxSize);
+void FillFormat(const char *TypeName);
 
 int CurType;
 
@@ -41,6 +42,14 @@ DWORD OutDataPos,OutDataSize;
 char FormatFileName[NM];
 char StartText[256],EndText[256],Format[8][256];
 int FormatNumber,IgnoreErrors;
+struct FarStandardFunctions *FSF;
+
+const char Str_TypeName[]="TypeName";
+
+void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+{
+  FSF=Info->FSF;
+}
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
 {
@@ -62,7 +71,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     if (!GetSectionName(I,TypeName,sizeof(TypeName)-1))
       break;
 
-    GetPrivateProfileString(TypeName,"TypeName",TypeName,Name,sizeof(Name),FormatFileName);
+    GetPrivateProfileString(TypeName,Str_TypeName,TypeName,Name,sizeof(Name),FormatFileName);
 
     if (*Name==0)
       break;
@@ -150,9 +159,10 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   HANDLE StdInput=GetStdHandle(STD_INPUT_HANDLE);
-  char TempPath[NM],TempName[NM];
-  GetTempPath(sizeof(TempPath),TempPath);
-  GetTempFileName(TempPath,"FAR",0,TempName);
+
+  char TempName[NM];
+  if (FSF->MkTemp(TempName,"FAR")==NULL)
+    return(FALSE);
 
   HANDLE OutHandle=CreateFile(TempName,GENERIC_READ|GENERIC_WRITE,
                    FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
@@ -208,17 +218,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   SetConsoleMode(StdInput,ConsoleMode);
   CloseHandle(OutHandle);
 
-  GetPrivateProfileString(TypeName,"Start","",StartText,sizeof(StartText),FormatFileName);
-  GetPrivateProfileString(TypeName,"End","",EndText,sizeof(EndText),FormatFileName);
-
-  for (FormatNumber=0;FormatNumber<sizeof(Format)/sizeof(Format[0]);FormatNumber++)
-  {
-    char FormatName[100];
-    wsprintf(FormatName,"Format%d",FormatNumber);
-    GetPrivateProfileString(TypeName,FormatName,"",Format[FormatNumber],sizeof(Format[0]),FormatFileName);
-    if (*Format[FormatNumber]==0)
-      break;
-  }
+  FillFormat(TypeName);
 
   if (ExitCode && OutDataSize==0)
   {
@@ -312,17 +312,8 @@ BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
   SetConsoleTitle(SaveTitle);
   SetConsoleMode(StdInput,ConsoleMode);
 
-  GetPrivateProfileString(TypeName,"Start","",StartText,sizeof(StartText),FormatFileName);
-  GetPrivateProfileString(TypeName,"End","",EndText,sizeof(EndText),FormatFileName);
+  FillFormat(TypeName);
 
-  for (FormatNumber=0;FormatNumber < sizeof(Format)/sizeof(Format[0]);FormatNumber++)
-  {
-    char FormatName[100];
-    wsprintf(FormatName,"Format%d",FormatNumber);
-    GetPrivateProfileString(TypeName,FormatName,"",Format[FormatNumber],sizeof(Format[0]),FormatFileName);
-    if (*Format[FormatNumber]==0)
-      break;
-  }
   return(ExitCode);
 }
 
@@ -429,7 +420,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           break;
         case 'T':
           {
-            static char *Months[12]={"Jan","Feb","Mar","Apr","May","Jun",
+            static const char *Months[12]={"Jan","Feb","Mar","Apr","May","Jun",
                                      "Jul","Aug","Sep","Oct","Nov","Dec"};
             for (int I=0;I<sizeof(Months)/sizeof(Months[0]);I++)
               if (strnicmp(CurStr,Months[I],3)==0)
@@ -558,7 +549,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (!GetSectionName(Type,TypeName,sizeof(TypeName)-1))
     return(FALSE);
 
-  GetPrivateProfileString(TypeName,"TypeName",TypeName,FormatName,64,FormatFileName);
+  GetPrivateProfileString(TypeName,Str_TypeName,TypeName,FormatName,64,FormatFileName);
   GetPrivateProfileString(TypeName,"Extension","",DefaultExt,NM,FormatFileName);
 
   return(*FormatName!=0);
@@ -572,12 +563,12 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (!GetSectionName(Type,TypeName,sizeof(TypeName)-1))
     return(FALSE);
 
-  GetPrivateProfileString(TypeName,"TypeName",TypeName,FormatName,64,FormatFileName);
+  GetPrivateProfileString(TypeName,Str_TypeName,TypeName,FormatName,64,FormatFileName);
 
   if (*FormatName==0)
     return(FALSE);
 
-  static char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",
+  static const char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",
               "Comment","CommentFiles","SFX","Lock","Protect","Recover",
               "Add","Move","AddRecurse","MoveRecurse","AllFilesMask"};
 
@@ -638,4 +629,19 @@ int GetSectionName(int Num,char *Name,int MaxSize)
 
   strncpy(Name,Section,MaxSize);
   return(TRUE);
+}
+
+void FillFormat(const char *TypeName)
+{
+  GetPrivateProfileString(TypeName,"Start","",StartText,sizeof(StartText),FormatFileName);
+  GetPrivateProfileString(TypeName,"End","",EndText,sizeof(EndText),FormatFileName);
+
+  for (FormatNumber=0; FormatNumber <sizeof(Format)/sizeof(Format[0]); FormatNumber++)
+  {
+    char FormatName[100];
+    FSF->sprintf(FormatName,"Format%d",FormatNumber);
+    GetPrivateProfileString(TypeName,FormatName,"",Format[FormatNumber],sizeof(Format[0]),FormatFileName);
+    if (*Format[FormatNumber]==0)
+      break;
+  }
 }

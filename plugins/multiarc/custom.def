@@ -8,3 +8,4 @@ EXPORTS
     GetDefaultCommands
     GetSFXPos
     LoadFormatModule
+    SetFarInfo
