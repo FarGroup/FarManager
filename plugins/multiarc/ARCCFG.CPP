@@ -112,7 +112,10 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         *Command=0;
         if(Param1) // Reset?
-          DeleteRegKey(HKEY_LOCAL_MACHINE,FormatInfo->ArcFormat);
+        {
+          DeleteRegKey(HKEY_CURRENT_USER,FormatInfo->ArcFormat);
+          DeleteRegKey(HKEY_LOCAL_MACHINE,FormatInfo->ArcFormat); //???
+        }
         int PluginNumber=FormatInfo->PluginNumber,PluginType=FormatInfo->PluginType;
         if (FormatInfo->FastAccess||PluginClass::FormatToPlugin(FormatInfo->ArcFormat,PluginNumber,PluginType))
         {
@@ -125,7 +128,7 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
         }
         //хитрый прием - передача Command в качестве дефолта для Command
-        GetRegKey(HKEY_LOCAL_MACHINE,FormatInfo->ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
+        GetRegKey(FormatInfo->ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
         Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(long)Command);
       }
       return TRUE;
@@ -213,7 +216,7 @@ int ConfigCommands(char *ArcFormat,int IDFocus,BOOL FastAccess,int PluginNumber,
     return FALSE;
 
   for (I=2,J=0;I<=32;I+=2,J++)
-     SetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],DialogItems[I].Data);
+    SetRegKey(HKEY_CURRENT_USER,ArcFormat,CmdNames[J],DialogItems[I].Data);
 
   return TRUE;
 }

@@ -28,7 +28,7 @@ void PluginClass::GetCommandFormat(int Command,char *Format,int FormatSize)
   if(!GetFormatName(ArcFormat))
     return;
   ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,Command,Format);
-  GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[Command],Format,Format,FormatSize);
+  GetRegKey(ArcFormat,CmdNames[Command],Format,Format,FormatSize);
 }
 
 
@@ -232,7 +232,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
         {
           char Buffer[512];
           ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
-          GetRegKey(HKEY_LOCAL_MACHINE,Format,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
+          GetRegKey(Format,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
           if(*Buffer==0)
             continue;
         }

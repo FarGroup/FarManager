@@ -94,7 +94,8 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
       //*Buffer=0; //$ AA сбросится в GetDefaultCommands
       ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
       //хитрый финт - подстановка Buffer в качестве дефолта для самого Buffer
-      GetRegKey(HKEY_LOCAL_MACHINE, Format, CmdNames[CMD_ADD], Buffer, Buffer, sizeof(Buffer));
+      GetRegKey(Format, CmdNames[CMD_ADD], Buffer, Buffer, sizeof(Buffer));
+
       if(*Buffer == 0)
         continue;
 
@@ -294,7 +295,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   else if(Msg == MAM_SETDISABLE)
   {
     ArcPlugin->GetDefaultCommands(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,CMD_ADD,Buffer);
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
+    GetRegKey(pdd->ArcFormat,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
     Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, *Buffer != 0);
   }
   else if(Msg == MAM_ARCSWITCHES)
@@ -321,7 +322,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     BOOL IsDelOldDefExt=Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
     IsDelOldDefExt=IsDelOldDefExt && Info.SendDlgMessage(hDlg, DM_GETCHECK, PDI_EXACTNAMECHECK, 0);
 
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
+    GetRegKey(pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
     BOOL Ret=TRUE;
     if(*Buffer==0)
       Ret=ArcPlugin->GetFormatName(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,pdd->ArcFormat,Buffer);
@@ -433,7 +434,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   /* raVen $ */
   while (1)
   {
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,"DefExt",pdd.DefExt,"",sizeof(pdd.DefExt));
+    GetRegKey(pdd.ArcFormat,"DefExt",pdd.DefExt,"",sizeof(pdd.DefExt));
     if (*pdd.DefExt==0)
       Ret=ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,pdd.ArcFormat,pdd.DefExt);
     if (!Ret)
@@ -599,9 +600,9 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
 
     ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CommandType,Command);
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,CmdNames[CommandType],Command,Command,sizeof(Command));
+    GetRegKey(pdd.ArcFormat,CmdNames[CommandType],Command,Command,sizeof(Command));
     ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CMD_ALLFILESMASK,AllFilesMask);
-    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,"AllFilesMask",AllFilesMask,AllFilesMask,sizeof(AllFilesMask));
+    GetRegKey(pdd.ArcFormat,"AllFilesMask",AllFilesMask,AllFilesMask,sizeof(AllFilesMask));
     if (*CurDir && strstr(Command,"%%R")==NULL)
     {
       const char *MsgItems[]={GetMsg(MWarning),GetMsg(MCannotPutToFolder),
@@ -698,7 +699,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
       if(!ArcPlugin->GetFormatName(i, j, Format, DefExt))
         break;
       //хитрый хинт, чтение ключа с дефолтом из DefExt
-      GetRegKey(HKEY_LOCAL_MACHINE, Format, "DefExt", DefExt, DefExt, sizeof(DefExt));
+      GetRegKey(Format, "DefExt", DefExt, DefExt, sizeof(DefExt));
 
       if(!stricmp(Dot, DefExt))
       {
