@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.139 10.06.2002 $ */
+/* Revision: 1.140 13.06.2002 $ */
 
 /*
 Modify:
+  13.06.2002 SVS
+    ! Из предыдущего убираем символ '~'
   10.06.2002 KM
     ! Новые символы, наличие которых в имени файла окавычит его:
     " &()[]{}^=;!'+,`~"
@@ -1350,7 +1352,7 @@ static struct FARConfig{
   /* $ 10.06.2002 KM
   	! Новые символы, наличие которых в имени файла окавычит его.
   */
-  {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`~"},
+  {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`"},
   /* KM $ */
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},

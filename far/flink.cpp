@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.35 06.06.2002 $ */
+/* Revision: 1.36 13.06.2002 $ */
 
 /*
 Modify:
+  13.06.2002 SVS
+    - Если делать симлинк из-под SUBST-диска - траблы с именем
+      (забыл в прошлый раз выставить разделитель '\')
   06.06.2002 VVM
     ! В функции GetPathRoot учтем UNC пути.
   31.05.2002 SVS
@@ -273,6 +276,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
       if(GetSubstName(DRIVE_NOT_INIT,LocalName,SubstName,sizeof(SubstName)))
       {
         strcat(szDestDir, SubstName);
+        AddEndSlash(szDestDir);
         PtrFullDir=szFullDir+3;
       }
     }
