@@ -7,10 +7,13 @@ Tree panel
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 tran
+    + MustBeCached(Root) - функция, определяющая необходимость кеширования 
+      дерева
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -68,6 +71,12 @@ class TreeList:public Panel
     static void ClearCache(int EnableFreeMem);
     static void ReadCache(char *TreeRoot);
     static void FlushCache();
+
+    /* $ 16.10.2000 tran
+       функция, определяющаяя необходимость кеширования
+       файла */
+    static int MustBeCached(char *Root);
+    /* tran $ */
 };
 
-#endif	// __TREELIST_HPP__
+#endif  // __TREELIST_HPP__

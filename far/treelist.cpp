@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.02 13.07.2000 $ */
+/* Revision: 1.03 16.07.2000 $ */
 
 /*
 Modify:
+  16.10.2000 tran
+    + MustBeCached(Root) - функция, определяющая необходимость кеширования 
+      дерева
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -270,7 +273,9 @@ void TreeList::ReadTree()
   SaveTreeFile();
 }
 
-
+#ifdef _MSC_VER
+#pragma warning(disable:4018)
+#endif
 void TreeList::SaveTreeFile()
 {
   if (TreeCount<4)
@@ -285,9 +290,12 @@ void TreeList::SaveTreeFile()
   if ((TreeFile=fopen(Name,"wb"))==NULL)
   {
     SetFileAttributes(Name,0);
-    if ((TreeFile=fopen(Name,"wb"))==NULL)
+    /* $ 16.10.2000 tran
+       если диск должен кешироваться, то и пытаться не стоит */
+    if (MustBeCached(Root) || (TreeFile=fopen(Name,"wb"))==NULL)
       if (!GetCacheTreeName(Root,Name,TRUE) || (TreeFile=fopen(Name,"wb"))==NULL)
         return;
+    /* tran $ */
   }
   for (I=0;I<TreeCount;I++)
     if (RootLength>=strlen(ListData[I].Name))
@@ -827,7 +835,7 @@ int TreeList::ReadTreeFile()
 
   FlushCache();
   sprintf(Name,"%s%s",Root,TreeFileName);
-  if ((TreeFile=fopen(Name,"rb"))==NULL)
+  if (MustBeCached(Root) || (TreeFile=fopen(Name,"rb"))==NULL)
     if (!GetCacheTreeName(Root,Name,FALSE) || (TreeFile=fopen(Name,"rb"))==NULL)
       return(FALSE);
   /* $ 13.07.2000 SVS
@@ -1130,7 +1138,7 @@ void TreeList::ReadCache(char *TreeRoot)
     FlushCache();
 
   sprintf(TreeName,"%s%s",TreeRoot,TreeFileName);
-  if ((TreeFile=fopen(TreeName,"rb"))==NULL)
+  if (MustBeCached(TreeRoot) || (TreeFile=fopen(TreeName,"rb"))==NULL)
     if (!GetCacheTreeName(TreeRoot,TreeName,FALSE) || (TreeFile=fopen(TreeName,"rb"))==NULL)
     {
       ClearCache(1);
@@ -1260,4 +1268,36 @@ int TreeCmp(char *Str1,char *Str2)
     Str2++;
   }
   return(0);
+}
+
+/* $ 16.10.2000 tran
+ функция, определяющаяя необходимость кеширования
+ файла */
+int TreeList::MustBeCached(char *Root)
+{
+    UINT type;
+
+    type=GetDriveType(Root);
+    if ( type==DRIVE_UNKNOWN ||
+         type==DRIVE_NO_ROOT_DIR ||
+         type==DRIVE_REMOVABLE ||
+         type==DRIVE_CDROM 
+         )
+    {
+        if ( type==DRIVE_REMOVABLE )
+        {
+            if ( toupper(Root[0])=='A' || toupper(Root[0])=='B')
+            {
+                return FALSE; // это дискеты
+            }
+        }
+        return TRUE;
+        // кешируются CD, removable и неизвестно что :)
+    }
+    /* остались
+        DRIVE_REMOTE
+        DRIVE_RAMDISK 
+        DRIVE_FIXED 
+    */
+    return FALSE;
 }
