@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   29.06.2000 SVS
     + Показывать ли ScrollBar для Menu
+  30.06.2000 SVS
+    - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
 */
 
 #include "headers.hpp"
@@ -112,7 +114,11 @@ void SystemSettings()
 void PanelSettings()
 {
   static struct DialogData CfgDlgData[]={
-    DI_DOUBLEBOX,3,1,52,17,0,0,0,0,(char *)MConfigPanelTitle,
+    /* $ 30.06.2000 SVS
+       - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
+    */
+    DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigPanelTitle,
+    /* SVS $ */
     DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigHidden,
     DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigHighlight,
     DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigAutoChange,
