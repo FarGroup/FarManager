@@ -5,15 +5,20 @@ Internal viewer
 
 */
 
-/* Revision: 1.126 03.02.2003 $ */
+/* Revision: 1.127 19.03.2003 $ */
 
 /*
 Modify:
+  19.02.2003 IS
+    - ќшибка при обработке VCTL_SETPOSITION: в случае с юникодом после
+      обновлени€ ViewerSetPosition.StartPos оно становилось в два раза
+      меньше положенного значени€ (т.к. в GoTo StartPos уменьшалось в 2
+      раза)
   03.02.2003 VVM
     ! ѕоиск с самого конца файла искал не всегда правильно
-	+ Alt-F7 - продолжить поиск в "обратном" направлении
-	! ≈сли по всему документу ничего не нашли - не предлагаем
-	  продолжать поиск с начала/конца файла (исключаем STACK_OVERFLOW)
+    + Alt-F7 - продолжить поиск в "обратном" направлении
+    ! ≈сли по всему документу ничего не нашли - не предлагаем
+      продолжать поиск с начала/конца файла (исключаем STACK_OVERFLOW)
   29.01.2003 VVM
     + CtrlU не только сбрасывает выделение, но и перемещает маркер "Ќачало поиска"
       на начало экрана.
@@ -3316,7 +3321,17 @@ int Viewer::ViewerControl(int Command,void *Param)
           ScrBuf.Flush();
         if(!(vsp.Flags&VSP_NORETNEWPOS))
         {
-          ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos;
+          /* $ 19.02.2003 IS
+             ќшибка: в случае с юникодом после обновлени€
+             ViewerSetPosition.StartPos оно становилось в
+             два раза меньше положенного значени€ (т.к. в
+             GoTo StartPos уменьшалось в 2 раза)
+          */
+          if(VM.Unicode)
+            ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos*2;
+          else
+            ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos;
+          /* IS $ */
           ((struct ViewerSetPosition*)Param)->LeftPos=(int)LeftPos; //???
         }
         return(TRUE);
