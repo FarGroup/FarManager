@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.65 14.06.2001 $ */
+/* Revision: 1.66 16.06.2001 $ */
 
 /*
 Modify:
+  16.06.2001 KM
+    ! Добавление WRAPMODE в меню.
   14.06.2001 SVS
     + KEY_CTRLALTINS - вставляет в клипборд полное имя файла
   10.06.2001 KM
@@ -2813,7 +2815,12 @@ void FileList::SelectSortMode()
   int SortCode;
   {
     VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
+    /* $ 16.06.2001 KM
+       ! Добавление WRAPMODE в меню.
+    */
     SortModeMenu.SetPosition(X1+4,-1,0,0);
+    /* KM $ */
+    SortModeMenu.SetFlags(VMENU_WRAPMODE);
     SortModeMenu.Process();
     if ((SortCode=SortModeMenu.GetExitCode())<0)
       return;

@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.13 14.06.2001 $ */
+/* Revision: 1.14 14.06.2001 $ */
 
 /*
 Modify:
+  16.06.2001 KM
+    ! Добавление WRAPMODE в меню.
   14.06.2001 OT
     ! "Бунт" ;-)
   07.06.2001 SVS
@@ -288,6 +290,11 @@ void SetColors()
     VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
     MenuToRedraw1=&GroupsMenu;
     GroupsMenu.SetPosition(2,1,0,0);
+    /* $ 16.06.2001 KM
+       ! Добавление WRAPMODE в меню.
+    */
+    GroupsMenu.SetFlags(VMENU_WRAPMODE);
+    /* KM $ */
     while (1)
     {
       GroupsMenu.ClearDone();

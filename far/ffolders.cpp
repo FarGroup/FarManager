@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.05 21.05.2001 $ */
+/* Revision: 1.06 16.06.2001 $ */
 
 /*
 Modify:
+  16.06.2001 KM
+    ! Добавление WRAPMODE в меню.
   21.05.2001 SVS
     ! Константы MENU_ - в морг
   06.05.2001 DJ
@@ -89,7 +91,11 @@ int ShowFolderShortcutMenu(int Pos)
 {
   struct MenuItem ListItem;
   VMenu FolderList(MSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
-  FolderList.SetFlags(VMENU_SHOWAMPERSAND);
+  /* $ 16.06.2001 KM
+     ! Добавление WRAPMODE в меню.
+  */
+  FolderList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+  /* KM $ */
   FolderList.SetHelp("FolderShortcuts");
   FolderList.SetPosition(-1,-1,0,0);
   FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));

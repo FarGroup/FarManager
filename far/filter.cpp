@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.11 03.06.2001 $ */
+/* Revision: 1.12 16.06.2001 $ */
 
 /*
 Modify:
+  16.06.2001 KM
+    ! Добавление WRAPMODE в меню.
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 SVS
@@ -132,7 +134,11 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     FilterList.SetHelp("Filter");
     FilterList.SetPosition(-1,-1,0,0);
     FilterList.SetBottomTitle(MSG(MFilterBottom));
-    FilterList.SetFlags(VMENU_SHOWAMPERSAND);
+    /* $ 16.06.2001 KM
+       ! Добавление WRAPMODE в меню.
+    */
+    FilterList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+    /* KM $ */
 
     if (Pos>FilterDataCount)
       Pos=0;
