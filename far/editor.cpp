@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.13 21.07.2000 $ */
+/* Revision: 1.14 25.07.2000 $ */
 
 /*
 Modify:
+   25.07.2000 tran 1.14
+    - Bug 22 (остатки)
+      подправлены обработки alt-left,alt-right
+      на предмет перебега за границу блока
    21.07.2000 tran 1.13
     - Bug 22
       вот теперь это верно решение.
@@ -1583,10 +1587,20 @@ int Editor::ProcessKey(int Key)
           VBlockX-=Delta;
           VBlockSizeX+=Delta;
         }
+        /* $ 25.07.2000 tran
+           остатки бага 22 - подправка при перебега за границу блока */
+        if ( VBlockSizeX<0 )
+        {
+            VBlockSizeX=-VBlockSizeX;
+            VBlockX-=VBlockSizeX;
+        }
+        /* tran 25.07.2000 $ */
         ProcessKey(KEY_LEFT);
       }
       Pasting--;
       Show();
+      //SysLog("VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos());
+      //SysLog("~~~~~~~~~~~~~~~~ KEY_ALTLEFT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
       return(TRUE);
     case KEY_ALTSHIFTRIGHT:
     case KEY_ALTRIGHT:
@@ -1612,22 +1626,28 @@ int Editor::ProcessKey(int Key)
         */
         int VisPos=CurLine->EditLine.RealPosToTab(CurPos),
             NextVisPos=CurLine->EditLine.RealPosToTab(CurPos+1);
-        /* SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
-            CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos()); */
+        // SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
+        //    CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos());
 
         Delta=NextVisPos-VisPos;
-        //SysLog("Delta=%i",Delta);
+        // SysLog("Delta=%i",Delta);
         /* tran $ */
 
         if (CurLine->EditLine.GetTabCurPos()>=VBlockX+VBlockSizeX)
-        /* tran $ */
           VBlockSizeX+=Delta;
         else
         {
           VBlockX+=Delta;
           VBlockSizeX-=Delta;
         }
-
+        /* $ 25.07.2000 tran
+           остатки бага 22 - подправка при перебега за границу блока */
+        if ( VBlockSizeX<0 )
+        {
+            VBlockSizeX=-VBlockSizeX;
+            VBlockX-=VBlockSizeX;
+        }
+        /* tran 25.07.2000 $ */
         ProcessKey(KEY_RIGHT);
         //SysLog("VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos());
       }
