@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.28 14.01.2002 $ */
+/* Revision: 1.29 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 SVS
+    - Не исполняется "C:\Program Files\Far\Far.exe" "C:\Program Files\Far\Plugins"
   14.01.2002 IS
     ! chdir -> FarChDir
   24.12.2001 SVS
@@ -667,7 +669,19 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           char *CmdEnd=NewCmdStr+strlen(NewCmdStr)-1;
           if (NT && *NewCmdStr == '\"' && *CmdEnd == '\"' &&
              strchr(NewCmdStr+1, '\"') != CmdEnd && SeparateWindow!=2)
+          {
+            char *Ptr=NewCmdStr;
+            int NumSq=0;
+            while(*Ptr)
+            {
+              if(*Ptr == '\"')
+                NumSq++;
+              ++Ptr;
+            }
             InsertQuote(NewCmdStr);
+            if(NumSq > 2)
+              InsertQuote(NewCmdStr);
+          }
           strncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
           strcat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "));
           strcat(ExecLine,NewCmdStr);
@@ -695,12 +709,29 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         strcat(ExecLine," ");
 
         char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
-        if (NT && (*CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd ||
-            Pipe && *CmdPtr != '\"'))
+        if (NT &&
+             (*CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd ||
+             Pipe && *CmdPtr != '\"')
+           )
         {
           strcat (ExecLine, "\"");
+
+          // посчитаемся
+          char *Ptr=CmdPtr;
+          int NumSq=0;
+          while(*Ptr)
+          {
+            if(*Ptr == '\"')
+              NumSq++;
+            ++Ptr;
+          }
+
+          if(NumSq > 2)
+            strcat (ExecLine, "\"");
           strcat (ExecLine, CmdPtr);
           strcat (ExecLine, "\"");
+          if(NumSq > 2)
+            strcat (ExecLine, "\"");
         }
         else
           strcat(ExecLine,CmdPtr);
