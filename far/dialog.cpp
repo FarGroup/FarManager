@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.181 21.11.2001 $ */
+/* Revision: 1.182 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 VVM
+    ! Раз уж мы наследники фрейма, неплохо бы посмотреть на лок прорисовки
   21.11.2001 SVS
     + Автоматизация (часть I - для внутренного использования).
     + DM_GETITEMDATA, DM_SETITEMDATA
@@ -902,7 +904,11 @@ void Dialog::Show()
   }
   CheckDialogCoord();
   DialogMode.Set(DMODE_SHOW);
-  ScreenObject::Show();
+  /* $ 23.11.2001 VVM
+    ! Раз уж мы наследники фрейма, неплохо бы посмотреть на лок прорисовки */
+  if (!LockRefreshCount)
+    ScreenObject::Show();
+  /* VVM $ */
 }
 
 /* $ 30.08.2000 SVS

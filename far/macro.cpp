@@ -8,10 +8,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.61 05.10.2001 $ */
+/* Revision: 1.62 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 VVM
+    ! Исправление бага при вызове диалога-присваивания макро-клавиши из другого диалога.
+      Будем лочить не _последний немодальный_ фрейм. А _текущий_ фрейм. (Это может быть
+      как раз диалог)
   05.10.2001 SVS
     - IsProcessAssignMacroKey в диалоге назначения макроса присваивались
       явно, из-за чего не работали CAS F12 CtrlTab после назначения макроса
@@ -444,7 +448,12 @@ int KeyMacro::ProcessKey(int Key)
       WaitInMainLoop=FALSE;
 //_SVS(SysLog("StartMode=%d",StartMode));
 //_SVS(SysLog(1));
+      /* $ 23.11.2001 VVM
+        ! Залочить _текущий_ фрейм, а не _последний немодальный_ */
+      FrameManager->GetCurrentFrame()->LockRefresh(); // отменим прорисовку фрейма
       MacroKey=AssignMacroKey();
+      FrameManager->GetCurrentFrame()->UnlockRefresh(); // теперь можно :-)
+      /* VVM $ */
 //_SVS(SysLog(-1));
 //_SVS(SysLog("StartMode=%d",StartMode));
 
@@ -1212,9 +1221,7 @@ DWORD KeyMacro::AssignMacroKey()
   Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,34,6);
   Dlg.SetHelp("KeyMacro");
-  FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
   Dlg.Process();
-  FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
   IsProcessAssignMacroKey--;
   /* $ 30.01.2001 SVS
      Забыл сделать проверку на код возврата из диалога назначения
