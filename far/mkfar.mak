@@ -35,6 +35,12 @@ FINALPATH=final
 .path.cpp = .
 .path.exe = $(FINALPATH)
 
+!ifdef TRY
+OPTEXT=-k
+!else
+OPTEXT=-k-
+!endif
+
 !ifdef DEBUG
 OPTDEBUG=-v
 CSMFILE=fard.csm
@@ -53,9 +59,13 @@ PRECOMPOPT=-H-
 # Borland C++ tools
 #
 BCC32   = $(BCCPATH)\bin\Bcc32 +BccW32.cfg
-#BCC32   = $(BCCPATH)\bin\Bcc32
-TLINK32 = $(BCCPATH)\bin\TLink32
+!ifdef ILINK
+TLINK32 = $(BCCPATH)\bin\ilink32
+BRC32   = $(BCCPATH)\bin\Brcc32
+!else
+TLINK32 = $(BCCPATH)\bin\Tlink32
 BRC32   = $(BCCPATH)\bin\Brc32
+!endif
 # TLIB    = $(BCCPATH)\TLib - а зачем он тут нужен?
 # IMPLIB  = $(BCCPATH)\bin\Implib - и этот тоже?
 
@@ -174,6 +184,17 @@ Dep_fardexe = BccW32.cfg\
    $(FAROBJ)
 
 
+!ifdef ILINK
+$(FINALPATH)\far.exe : $(Dep_fardexe)
+  @settitle "Linking..."
+  @$(TLINK32)  $(LINKFLAGS) @&&|
+$(LIBPATH)\c0x32.obj $(FAROBJ)
+$<,$*
+$(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
+far.def
+$(OBJPATH)\far.res
+|
+!else
 $(FINALPATH)\far.exe : $(Dep_fardexe)
   @settitle "Linking..."
   @$(TLINK32)  $(LINKFLAGS) @&&|
@@ -182,19 +203,28 @@ $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 far.def
 |
-   @settitle "Compiling resource..."
    @$(BRC32) $(OBJPATH)\far.res $(OBJPATH)\far.res $<
+!endif
+
 # обязательно! Что бы в ручную не делать...
    @del $(FINALPATH)\FarEng.hlf  >nul
    @del $(FINALPATH)\FarRus.hlf  >nul
    @del $(FINALPATH)\FarEng.lng  >nul
    @del $(FINALPATH)\FarRus.lng  >nul
+!ifdef ILINK
+   @del $(FINALPATH)\far.ilc  >nul
+   @del $(FINALPATH)\far.ild  >nul
+   @del $(FINALPATH)\far.ilf  >nul
+   @del $(FINALPATH)\far.ils  >nul
+   @del $(FINALPATH)\far.tds  >nul
+!endif
    @copy FarEng.hlf $(FINALPATH)\FarEng.hlf >nul
    @copy FarRus.hlf $(FINALPATH)\FarRus.hlf >nul
    @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
    @copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
 
 $(OBJPATH)\far.res :  far.rc
+  @settitle "Compiling resource..."
   $(BRC32) -R @&&|
  $(RESFLAGS)  -FO$@ far.rc
 |
@@ -208,7 +238,6 @@ BccW32.cfg : mkfar.mak cc.bat
 -K
 -d
 -f-
-$(OPTDEBUG)
 -R-
 -k-
 -x-
@@ -225,8 +254,10 @@ $(OPTDEBUG)
 -Op
 -Ov
 -w-csu
+-I$(INCLUDEPATH)
 $(FARCMEM)
 $(FARALLOC)
 $(PRECOMPOPT)
--I$(INCLUDEPATH)
+$(OPTDEBUG)
+$(OPTEXT)
 | $@
