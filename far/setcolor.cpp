@@ -1,7 +1,7 @@
 /*
 setcolor.cpp
 
-+ёІрэютър ґрЁютёъшµ ¶тхІют
+Установка фаровских цветов
 
 */
 
@@ -9,32 +9,32 @@ setcolor.cpp
 
 /*
 Modify:
-  29.04.2001 ++
-    + +эхфЁхэшх NWZ юІ +ЁхІјїъютр
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   04.12.2000 SVS
-    + яіэъІ» т ьхэѕ - COL_DIALOG*DISABLED ш COL_WARNDIALOG*DISABLED
+    + пункты в меню - COL_DIALOG*DISABLED и COL_WARNDIALOG*DISABLED
   22.11.2000 SVS
-    + яіэъІ т ьхэѕ - COL_DIALOGMENUSCROLLBAR - яюыюёр яЁюъЁіІъш фыї ёяшёър
+    + пункт в меню - COL_DIALOGMENUSCROLLBAR - полоса прокрутки для списка
   13.09.2000 tran 1.04
     + COL_COMMANDLINEPREFIX
   18.03.2000 tran 1.03
     + COL_VIEWERSCROLLBAR
   06.07.2000 SVS
-    + -ют»щ яіэъІ фыї эрёІЁющъш ¶тхІют
+    + Новый пункт для настройки цветов
         COL_DIALOGMENUHIGHLIGHT
         COL_DIALOGMENUSELECTEDHIGHLIGHT
   29.06.2000 SVS
-    + -ют»щ яіэъІ фыї эрёІЁющъш ¶тхІют Menu фыї Menu Scrollbar
+    + Новый пункт для настройки цветов Menu для Menu Scrollbar
   25.06.2000 SVS
-    ! +юфуюІютър Master Copy
-    ! +»фхыхэшх т ър…хёІтх ёрьюёІюїІхыјэюую ьюфіыї
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   +ІрэфрЁІэ»х чруюыютъш
+   Стандартные заголовки
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -89,10 +89,10 @@ void SetColors()
   };
 
   /* $ 22.11.2000 SVS
-    + яіэъІ т ьхэѕ - COL_DIALOGMENUSCROLLBAR
+    + пункт в меню - COL_DIALOGMENUSCROLLBAR
   */
   /* $ 04.12.2000 SVS
-    + яіэъІ т ьхэѕ - COL_DIALOGDISABLED
+    + пункт в меню - COL_DIALOGDISABLED
   */
   struct MenuData DialogItems[]=
   {
@@ -111,12 +111,12 @@ void SetColors()
     (char *)MSetColorDialogListText,0,0,0,
     (char *)MSetColorDialogSelectedListText,0,0,0,
     /* 06.07.2000 SVS
-       + фюсртшы т ьхэѕ фтр Ёрэхх "ёъЁ»І»µ яіэъІр" :-)))
+       + добавил в меню два ранее "скрытых пункта" :-)))
     */
     (char *)MSetColorDialogMenuHighLight,0,0,0,
     (char *)MSetColorDialogMenuSelectedHighLight,0,0,0,
     /* SVS $ */
-    (char *)MSetColorDialogMenuScrollBar,0,0,0, // яюыюёр яЁюъЁіІъш фыї ёяшёър
+    (char *)MSetColorDialogMenuScrollBar,0,0,0, // полоса прокрутки для списка
 
     (char *)MSetColorDialogDisabled,0,0,0,
     (char *)MSetColorDialogEditDisabled,0,0,0,
@@ -162,7 +162,7 @@ void SetColors()
   };
 
     /* $ 29.06.2000 SVS
-      -ют»щ яіэъІ фыї эрёІЁющъш ¶тхІют Menu Scrollbar
+      Новый пункт для настройки цветов Menu Scrollbar
     */
   struct MenuData MenuItems[]=
   {
@@ -222,7 +222,7 @@ void SetColors()
   };
 
   /* $ 18.07.2000 tran
-     эют»щ яіэІ фыї MenuScrollbar*/
+     новый пунт для MenuScrollbar*/
   struct MenuData ViewerItems[]=
   {
     (char *)MSetColorViewerNormal,1,0,0,
@@ -276,7 +276,7 @@ void SetColors()
 
       if (GroupsCode==12)
       {
-        //                   с»ыю sizeof(Palette)
+        //                   было sizeof(Palette)
         memcpy(Palette,DefaultPalette,SizeArrayPalette);
         break;
       }

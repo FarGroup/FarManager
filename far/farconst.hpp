@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.32 05.05.2001 $ */
+/* Revision: 1.33 06.05.2001 $ */
 
 /*
 Modify:
+  06.05.2001 SVS
+    ! кривой комментарий был
   05.05.2001 DJ
     + перетрях NWZ
   29.04.2001 ОТ
@@ -131,7 +133,7 @@ enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2};
 enum {SEARCH_ALL=0,SEARCH_ROOT,SEARCH_FROM_CURRENT,SEARCH_CURRENT_ONLY,
       SEARCH_SELECTED};
 ///enum {MODALTYPE_VIEWER,MODALTYPE_EDITOR};
-enum { MODALTYPE_VIRTUAL,  // тючтЁр№рхIёї т Modal
+enum { MODALTYPE_VIRTUAL,  // возвращается в Modal
        MODALTYPE_PANELS,
        MODALTYPE_VIEWER,
        MODALTYPE_EDITOR,
@@ -347,7 +349,7 @@ enum FlagsNameAndPassword{
 #define XC_QUIT           0
 
 /* $ 11.08.2000 tran
-   ьхыю·? фыї ыi·ёхщ ·шIрсхы?эюёIш */
+   мелочь для лучшей читабельности */
 #define ENABLE_SWITCH TRUE
 #define DISABLE_SWITCH FALSE
 ///

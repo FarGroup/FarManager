@@ -3,7 +3,7 @@
 /*
 fileedit.hpp
 
-+хфръІшЁютрэшх ґрщыр - эрфёІЁющър эрф editor.cpp
+Редактирование файла - надстройка над editor.cpp
 
 */
 
@@ -11,20 +11,20 @@ fileedit.hpp
 
 /*
 Modify:
-  06.05.2001 ++
-    ! +хЁхшьхэютрэшх Window т Frame :)
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   05.05.2001 DJ
-    + +хЁхІЁїµ NWZ
-  29.04.2001 ++
-    + +эхфЁхэшх NWZ юІ +ЁхІјїъютр
+    + Перетрях NWZ
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   07.08.2000 SVS
-    + +іэъ¶шї шэш¶шрышчр¶шш KeyBar Labels - InitKeyBar()
+    + Функция инициализации KeyBar Labels - InitKeyBar()
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
   25.06.2000 SVS
-    ! +юфуюІютър Master Copy
-    ! +»фхыхэшх т ър…хёІтх ёрьюёІюїІхыјэюую ьюфіыї
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 class FileEditor:public Frame
@@ -52,7 +52,7 @@ class FileEditor:public Frame
     void Init(char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData);
     /* $ 07.08.2000 SVS
-       +іэъ¶шї шэш¶шрышчр¶шш KeyBar Labels
+       Функция инициализации KeyBar Labels
     */
     void InitKeyBar(void);
     /* SVS $ */

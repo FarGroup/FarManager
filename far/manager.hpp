@@ -3,7 +3,7 @@
 /*
 manager.hpp
 
-+хЁхъыѕ·хэшх ьхцфі эхёъюыјъшьш file panels, viewers, editors
+Переключение между несколькими file panels, viewers, editors
 
 */
 
@@ -11,20 +11,20 @@ manager.hpp
 
 /*
 Modify:
-  06.05.2001 ++
-    ! +хЁхшьхэютрэшх Window т Frame :)
+  06.05.2001 ОТ
+    ! Переименование Window в Frame :)
   04.05.2001 DJ
-    + фюфхыър ш яхЁхфхыър NWZ
-  29.04.2001 ++
-    + +эхфЁхэшх NWZ юІ +ЁхІјїъютр
+    + доделка и переделка NWZ
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   29.12.2000 IS
-    + +хІюф ExitAll
+    + Метод ExitAll
   28.06.2000 tran
     - NT Console resize bug
       add class member ActiveModal
   25.06.2000 SVS
-    ! +юфуюІютър Master Copy
-    ! +»фхыхэшх т ър·хёІтх ёрьюёІюїІхыјэюую ьюфіыї
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 class Manager
@@ -65,9 +65,9 @@ class Manager
 
     void CloseAll();
     /* $ 29.12.2000 IS
-         +эрыюу CloseAll, эю ЁрчЁхёрхІ яЁюфюыцхэшх яюыэю¶хээющ ЁрсюІ» т ґрЁх,
-         хёыш яюыјчютрІхыј яЁюфюыцшы ЁхфръІшЁютрІј ґрщы.
-         +ючтЁр№рхІ TRUE, хёыш тёх чръЁ»ыш ш ьюцэю т»µюфшІј шч ґрЁр.
+         Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
+         если пользователь продолжил редактировать файл.
+         Возвращает TRUE, если все закрыли и можно выходить из фара.
     */
     BOOL ExitAll();
     /* IS $ */
@@ -77,7 +77,7 @@ class Manager
     void GetFrameTypesCount(int &Viewers,int &Editors);
     int  GetFrameCountByType(int Type);
 
-    BOOL IsPanelsActive(); // шёяюыјчіхІёї ъръ яЁшчэръ WaitInMainLoop
+    BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
 
     void SetFramePos(int NewPos);
 
@@ -94,12 +94,12 @@ class Manager
     int ProcessKey(int key);
     int ProcessMouse(MOUSE_EVENT_RECORD *me);
 
-    void PluginsMenu(); // т»ч»трхь ьхэѕ яю F11
+    void PluginsMenu(); // вызываем меню по F11
     void CheckExited();
 
-    Frame *CurrentFrame;  // Іхъі№шщ ьюфры,
-                          // яЁшёіІётіхІ т ёяшёъх, эю ьюцхІ с»Іј эх ръІштэ»ь
-    int    EnableSwitch;  // ЁрчЁхёхэю ыш яхЁхъыѕ·хэшх шч ьюфрыр
+    Frame *CurrentFrame;  // текущий модал,
+                          // присутсвует в списке, но может быть не активным
+    int    EnableSwitch;  // разрешено ли переключение из модала
 
     INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
 };
