@@ -138,20 +138,20 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "lha x -a -c -d -m %%S %%a @%%lM",
-      "lha e -a -c -m %%S %%a @%%lM",
-      "lha t -a -m %%S %%a @%%lM",
-      "lha d -a -m {-w%%W} %%S %%a @%%lM",
+      "lha x -a -c -d -m {%%S} %%a @%%lM",
+      "lha e -a -c -m {%%S} %%a @%%lM",
+      "lha t -a -m {%%S} %%a @%%lM",
+      "lha d -a -m {-w%%W} {%%S} %%a @%%lM",
       "",
       "",
-      "lha s -a -m %%S %%a",
+      "lha s -a -m {%%S} %%a",
       "",
       "",
       "",
-      "lha a -a -m %%S %%A @%%lM",
-      "lha m -a -m %%S %%A @%%lM",
-      "lha a -a -r -x -p -m %%S %%A @%%lM",
-      "lha m -a -r -x -p -m %%S %%A @%%lM",
+      "lha a -a -m {%%S} %%A @%%lM",
+      "lha m -a -m {%%S} %%A @%%lM",
+      "lha a -a -r -x -p -m {%%S} %%A @%%lM",
+      "lha m -a -r -x -p -m {%%S} %%A @%%lM",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))

@@ -190,20 +190,20 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "arj x -+ {-g%%P} -v -y -p1 %%S -- %%a !%%LM",
-      "arj e -+ {-g%%P} -v -y -p1 %%S -- %%a !%%LM",
-      "arj t -+ -y {-g%%P} -v -p1 %%S -- %%a !%%LM",
-      "arj d -+ -y {-w%%W} -p %%S -- %%a !%%LM",
-      "arj c -+ -y {-w%%W} -z -p %%S -- %%a",
-      "arj c -+ -y {-w%%W} -p %%S -- %%a !%%LM",
+      "arj x -+ {-g%%P} -v -y -p1 {%%S} -- %%a !%%LM",
+      "arj e -+ {-g%%P} -v -y -p1 {%%S} -- %%a !%%LM",
+      "arj t -+ -y {-g%%P} -v -p1 {%%S} -- %%a !%%LM",
+      "arj d -+ -y {-w%%W} -p {%%S} -- %%a !%%LM",
+      "arj c -+ -y {-w%%W} -z -p {%%S} -- %%a",
+      "arj c -+ -y {-w%%W} -p {%%S} -- %%a !%%LM",
       "arj y -+ -je -y -p %%a",
       "",
-      "arj t -+ -a1 -y {-g%%P} {-w%%W} -hk -p %%S -- %%a",
-      "arj x -+ -a1 {-g%%P} {-w%%W} -jr -p %%S -- %%a !%%LM",
-      "arj a -+ -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
-      "arj m -+ -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
-      "arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
-      "arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p %%S -- %%a !%%LM",
+      "arj t -+ -a1 -y {-g%%P} {-w%%W} -hk -p {%%S} -- %%a",
+      "arj x -+ -a1 {-g%%P} {-w%%W} -jr -p {%%S} -- %%a !%%LM",
+      "arj a -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
+      "arj m -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
+      "arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
+      "arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
