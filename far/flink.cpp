@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.15 22.05.2001 $ */
+/* Revision: 1.16 25.05.2001 $ */
 
 /*
 Modify:
+  25.05.2001 SVS
+    ! Удалена за ненадобностью проверка на CREATE_JUNCTION (осталась только
+      для mount volume point
   22.05.2001 tran
     ! по результам прогона на CodeGuard
   06.05.2001 DJ
@@ -190,7 +193,6 @@ int WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder)
 
 BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
 {
-#if defined(CREATE_JUNCTION)
   if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
     return FALSE;
 
@@ -264,7 +266,6 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
     return 0;
   }
   CloseHandle(hDir);
-#endif
   return TRUE;
 }
 

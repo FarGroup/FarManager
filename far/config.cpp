@@ -5,16 +5,19 @@ config.cpp
 
 */
 
-/* Revision: 1.77 24.05.2001 $ */
+/* Revision: 1.78 28.05.2001 $ */
 
 /*
 Modify:
+  28.05.2001 SVS
+    ! Основные XLat-клавиши по умолчанию не ставятся в CtrlShiftX - дадим
+      возможность отключить эту фичу.
   24.05.2001 SVS
     ! Задание размера табуляции в EditorConfig перенесено ниже (так лучше
       смотрится :-)
   21.05.2001 OT
-   + Opt.AltF9
-   + Opt.Confirmation.AllowReedit
+    + Opt.AltF9
+    + Opt.Confirmation.AllowReedit
   20.05.2001 IS
     + Задаем поведение для файлов с атрибутом r/o в настройках редактора
        лочить или нет
@@ -1149,13 +1152,13 @@ void ReadConfig()
 
   GetRegKey(NKeyXLat,"EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatEditorKey=KEY_CTRLSHIFTX;
+    Opt.XLat.XLatEditorKey=0;
   GetRegKey(NKeyXLat,"CmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatCmdLineKey=KEY_CTRLSHIFTX;
+    Opt.XLat.XLatCmdLineKey=0;
   GetRegKey(NKeyXLat,"DialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatDialogKey=KEY_CTRLSHIFTX;
+    Opt.XLat.XLatDialogKey=0;
   GetRegKey(NKeyXLat,"AltEditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
     Opt.XLat.XLatAltEditorKey=0;

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.106 26.05.2001 $ */
+/* Revision: 1.107 27.05.2001 $ */
 
 /*
 Modify:
+  27.05.2001 SVS
+   ! Для RO элемента редактирования сами отслеживаем RO состояние.
+   ! Для DM_SHOWITEM нужно перерисовать элемент для случая
   26.05.2001 OT
    - Выпрямление логики вызовов в NFZ
    + Добавление признака способа "конструирования" объекта
@@ -893,14 +896,6 @@ int Dialog::InitDialogObjects(int ID)
       }
 
       /* SVS $ */
-      /* SVS $ */
-      /* $ 18.09.2000 SVS
-         ReadOnly!
-      */
-      if (ItemFlags & DIF_READONLY)
-      {
-         DialogEdit->ReadOnly=1;
-      }
       /* SVS $ */
       /* $ 15.10.2000 tran
         строка редакторирование должна иметь максимум в 511 символов */
@@ -2023,7 +2018,7 @@ int Dialog::ProcessKey(int Key)
       }
 
     case KEY_ENTER:
-      if (Item[FocusPos].Flags & DIF_EDITOR)
+      if ((Item[FocusPos].Flags & DIF_EDITOR) && !(Item[FocusPos].Flags & DIF_READONLY))
       {
         int EditorLastPos;
         for (EditorLastPos=I=FocusPos;I<ItemCount;I++)
@@ -2221,7 +2216,7 @@ int Dialog::ProcessKey(int Key)
         ShowDialog();
         return(TRUE);
       }
-      if (IsEdit(Type))
+      if (IsEdit(Type) && !(Item[FocusPos].Flags & DIF_READONLY))
       {
         /* $ 28.07.2000 SVS
           При изменении состояния каждого элемента посылаем сообщение
@@ -2367,7 +2362,8 @@ int Dialog::ProcessKey(int Key)
       if (IsEdit(Type) &&
            (Item[FocusPos].Flags & DIF_HISTORY) &&
            Opt.DialogsEditHistory &&
-           Item[FocusPos].History)
+           Item[FocusPos].History &&
+           !(Item[FocusPos].Flags & DIF_READONLY))
       /* $ 26.07.2000 SVS
          Передаем то, что в строке ввода в функцию выбора из истории
          для выделения нужного пункта в истории.
@@ -2396,7 +2392,8 @@ int Dialog::ProcessKey(int Key)
       /* $ 18.07.2000 SVS
          + обработка DI_COMBOBOX - выбор из списка!
       */
-      else if(Type == DI_COMBOBOX && Item[FocusPos].ListPtr)
+      else if(Type == DI_COMBOBOX && Item[FocusPos].ListPtr &&
+              !(Item[FocusPos].Flags & DIF_READONLY))
       {
         char *PStr=Str;
         int MaxLen=sizeof(Item[FocusPos].Data);
@@ -2433,7 +2430,7 @@ int Dialog::ProcessKey(int Key)
       /* $ 21.08.2000 SVS
          Autocomplete при постоянных блоках и немного оптимизации ;-)
       */
-      if (IsEdit(Type))
+      if (IsEdit(Type) && !(Item[FocusPos].Flags & DIF_READONLY))
       {
         Edit *edt=(Edit *)Item[FocusPos].ObjPtr;
         int SelStart, SelEnd;
@@ -4794,6 +4791,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
            CurItem->Flags&=~DIF_HIDDEN;
          else
            CurItem->Flags|=DIF_HIDDEN;
+        if(Dlg->CheckDialogMode(DMODE_SHOW) && !(CurItem->Flags&DIF_HIDDEN))
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
       }
       return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
     }

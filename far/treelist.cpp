@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.14 06.05.2001 $ */
+/* Revision: 1.15 25.05.2001 $ */
 
 /*
 Modify:
+  25.05.2001 SVS
+    + Добавим возможность создавать линк с дерева
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -584,6 +586,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_F5:
     case KEY_DRAGCOPY:
     case KEY_F6:
+    case KEY_ALTF6:
     case KEY_DRAGMOVE:
       if (SetCurPath() && TreeCount>0)
       {
@@ -593,7 +596,11 @@ int TreeList::ProcessKey(int Key)
         int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
                      AnotherPanel->IsVisible() &&
                      !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-        ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,NULL);
+        int Link=(Key==KEY_ALTF6 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 && !ToPlugin);
+        if(Key==KEY_ALTF6 && !Link) // молча отвалим :-)
+          return TRUE;
+
+        ShellCopy ShCopy(this,Move,Link,FALSE,Ask,ToPlugin,NULL);
         if (ToPlugin==1)
         {
           struct PluginPanelItem *ItemList=new PluginPanelItem[1];
