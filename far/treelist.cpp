@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.10 06.04.2001 $ */
+/* Revision: 1.11 23.04.2001 $ */
 
 /*
 Modify:
+  23.04.2001 SVS
+    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
+      Часть вторая, т.с. - в прошлый раз забыл еще в одном месте выставить...
   06.04.2001 SVS
     ! Корректный вызов удаления папки по F8 и Shift-F8
   05.04.2001 VVM
@@ -1211,14 +1214,13 @@ void TreeList::FlushCache()
   int I;
   if (*TreeCache.TreeName)
   {
+    DWORD FileAttributes=GetFileAttributes(TreeCache.TreeName);
+    if(FileAttributes != -1)
+      SetFileAttributes(TreeCache.TreeName,0);
     if ((TreeFile=fopen(TreeCache.TreeName,"wb"))==NULL)
     {
-      SetFileAttributes(TreeCache.TreeName,0);
-      if ((TreeFile=fopen(TreeCache.TreeName,"wb"))==NULL)
-      {
-        ClearCache(1);
-        return;
-      }
+      ClearCache(1);
+      return;
     }
     qsort(TreeCache.ListName,TreeCache.TreeCount,NM,SortCacheList);
     for (I=0;I<TreeCache.TreeCount;I++)
@@ -1231,6 +1233,8 @@ void TreeList::FlushCache()
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),
               TreeCache.TreeName,MSG(MOk));
     }
+    else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
+      SetFileAttributes(TreeCache.TreeName,FileAttributes);
   }
   ClearCache(1);
 }
