@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.143 18.09.2003 $ */
+/* Revision: 1.144 20.09.2003 $ */
 
 /*
 Modify:
+  20.09.2003 KM
+    + Добавим в список стандартных таблиц поиска ANSI таблицу,
+	  а то как-то некузяво получается в редакторе и вьювере она
+	  есть, а в поиске нет.
   18.09.2003 KM
     ! Запоминание установок символьных таблиц
   12.09.2003 SVS
@@ -518,6 +522,7 @@ Modify:
 
 #define DLG_HEIGHT 22
 #define DLG_WIDTH 74
+#define CHAR_TABLE_SIZE 5
 
 #define LIST_DELTA  64
 static DWORD LIST_INDEX_NONE = (DWORD)-1;
@@ -622,7 +627,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 	  UseAllTables=Opt.CharTable.AllTables;
 	  UseANSI=Opt.CharTable.AnsiTable;
 	  UseUnicode=Opt.CharTable.UnicodeTable;
-	  UseDecodeTable=((UseAllTables==0) && (UseUnicode==0) && (Opt.CharTable.TableNum>0));
+	  UseDecodeTable=((UseAllTables==0) && (UseUnicode==0) && (UseANSI==0) && (Opt.CharTable.TableNum>0));
 	  if (UseDecodeTable)
 		TableNum=Opt.CharTable.TableNum-1;
 	  else
@@ -633,6 +638,15 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         strncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
       else if (UseUnicode)
         strncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
+      /* $ 20.09.2003 KM
+         Добавим поддержку ANSI таблицы
+      */
+      else if (UseANSI)
+      {
+        GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+        strncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
+      }
+	  /* KM $ */
       else if (!UseDecodeTable)
         strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
       else
@@ -654,18 +668,28 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if (Param1==7)
       {
+        /* $ 20.09.2003 KM
+           Добавим поддержку ANSI таблицы
+        */
         UseAllTables=(Param2==0);
-        UseUnicode=(Param2==3);
-        UseDecodeTable=(Param2>=5);
-        if (!UseAllTables)
+        UseANSI=(Param2==3);
+        UseUnicode=(Param2==4);
+        UseDecodeTable=(Param2>=(CHAR_TABLE_SIZE+1));
+        TableNum=Param2-(CHAR_TABLE_SIZE+1);
+        if (UseAllTables)
+          strncpy(TableSet.TableName,MSG(MFindFileAllTables),sizeof(TableSet.TableName)-1);
+        else if (UseUnicode)
+          strncpy(TableSet.TableName,"Unicode",sizeof(TableSet.TableName)-1);
+        else if (UseANSI)
         {
-          strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
-          if (UseDecodeTable)
-          {
-            PrepareTable(&TableSet,Param2-5,TRUE);
-            TableNum=Param2-5;
-          }
+          GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+          strncpy(TableSet.TableName,MSG(MGetTableWindowsText),sizeof(TableSet.TableName)-1);
         }
+        else if (!UseDecodeTable)
+          strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
+        else
+          PrepareTable(&TableSet,TableNum,TRUE);
+        /* KM $ */
       }
       return TRUE;
     }
@@ -776,15 +800,16 @@ FindFiles::FindFiles()
 
 
   FarList TableList;
-  FarListItem *TableItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*4);
+  FarListItem *TableItem=(FarListItem *)xf_malloc(sizeof(FarListItem)*CHAR_TABLE_SIZE);
   TableList.Items=TableItem;
-  TableList.ItemsNumber=4;
+  TableList.ItemsNumber=CHAR_TABLE_SIZE;
 
-  memset(TableItem,0,sizeof(FarListItem)*4);
+  memset(TableItem,0,sizeof(FarListItem)*CHAR_TABLE_SIZE);
   strncpy(TableItem[0].Text,MSG(MFindFileAllTables),sizeof(TableItem[0].Text)-1);
   TableItem[1].Flags=LIF_SEPARATOR;
   strncpy(TableItem[2].Text,MSG(MGetTableNormalText),sizeof(TableItem[2].Text)-1);
-  strncpy(TableItem[3].Text,"Unicode",sizeof(TableItem[3].Text)-1);
+  strncpy(TableItem[3].Text,MSG(MGetTableWindowsText),sizeof(TableItem[3].Text)-1);
+  strncpy(TableItem[4].Text,"Unicode",sizeof(TableItem[4].Text)-1);
 
   for (I=0;;I++)
   {
@@ -795,21 +820,21 @@ FindFiles::FindFiles()
 
     if (I==0)
     {
-      TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*5);
+      TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*(CHAR_TABLE_SIZE+1));
       if (TableItem==NULL)
         return;
-      memset(&TableItem[4],0,sizeof(FarListItem));
-      TableItem[4].Flags=LIF_SEPARATOR;
+      memset(&TableItem[CHAR_TABLE_SIZE],0,sizeof(FarListItem));
+      TableItem[CHAR_TABLE_SIZE].Flags=LIF_SEPARATOR;
       TableList.Items=TableItem;
       TableList.ItemsNumber++;
     }
 
-    TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*(I+6));
+    TableItem=(FarListItem *)xf_realloc(TableItem,sizeof(FarListItem)*(I+CHAR_TABLE_SIZE+2));
     if (TableItem==NULL)
       return;
-    memset(&TableItem[I+5],0,sizeof(FarListItem));
-    strncpy(TableItem[I+5].Text,cts.TableName,sizeof(TableItem[I+5].Text)-1);
-    RemoveChar(TableItem[I+5].Text,'&',TRUE);
+    memset(&TableItem[I+CHAR_TABLE_SIZE+1],0,sizeof(FarListItem));
+    strncpy(TableItem[I+CHAR_TABLE_SIZE+1].Text,cts.TableName,sizeof(TableItem[I+CHAR_TABLE_SIZE+1].Text)-1);
+    RemoveChar(TableItem[I+CHAR_TABLE_SIZE+1].Text,'&',TRUE);
     TableList.Items=TableItem;
     TableList.ItemsNumber++;
   }
@@ -840,7 +865,7 @@ FindFiles::FindFiles()
       /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,"",
       /* 05 */DI_EDIT,5,6,36,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
       /* 06 */DI_TEXT,40,5,0,0,0,0,0,0,"",
-      /* 07 */DI_COMBOBOX,40,6,72,10,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+      /* 07 */DI_COMBOBOX,40,6,72,16,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
       /* 08 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
       /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
       /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
@@ -937,7 +962,7 @@ FindFiles::FindFiles()
 
       /* Запоминание установленных параметров */
 	  Opt.CharTable.AllTables=UseAllTables;
-	  Opt.CharTable.AnsiTable=UseANSI; // Пока не используется
+	  Opt.CharTable.AnsiTable=UseANSI;
 	  Opt.CharTable.UnicodeTable=UseUnicode;
 	  if (UseDecodeTable)
 	    Opt.CharTable.TableNum=TableNum+1;
@@ -2354,9 +2379,13 @@ int FindFiles::LookForString(char *Name)
         ReadSize/=2;
       }
       else
-        if (UseDecodeTable || DecodeTableNum>0)
+        /* $ 20.09.2003 KM
+           Добавим поддержку ANSI таблицы
+        */
+        if (UseDecodeTable || UseANSI || DecodeTableNum>0)
           for (int I=0;I<ReadSize;I++)
             Buf[I]=TableSet.DecodeTable[Buf[I]];
+		/* KM $ */
       if (!CmpCase)
         LocalUpperBuf(Buf,ReadSize);
       int CheckSize=ReadSize-Length+1;

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.128 03.09.2003 $ */
+/* Revision: 1.129 20.09.2003 $ */
 
 /*
 Modify:
+  20.09.2003 KM
+    + MGetTableWindowsText
   03.09.2003 SVS
     ! Вместо MUserMenuInvalidInput добавлена пара: MUserMenuInvalidInputLabel
       и MUserMenuInvalidInputHotKey,
@@ -1290,6 +1292,7 @@ enum
 
   MGetTableTitle,
   MGetTableNormalText,
+  MGetTableWindowsText,
 
   MHighlightTitle,
   MHighlightBottom,
