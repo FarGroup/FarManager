@@ -5,10 +5,13 @@ filetype.cpp
 
 */
 
-/* Revision: 1.29 14.08.2001 $ */
+/* Revision: 1.30 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 tran 1.30
+    - баг в показе меню, при выборе пункта через хоткей редактировался
+      не тот, что надо.
   14.08.2001 SVS
     - Проблемы с отрисовкой - когда был амперсанд и он стоял гораздо дальше
       отображаемой области
@@ -535,6 +538,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 void EditFileTypes(int MenuPos)
 {
   int NumLine;
+  int m;
   BOOL MenuModified;
 
   VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
@@ -580,8 +584,15 @@ void EditFileTypes(int MenuPos)
             break;
         }
       }
-      if (TypesMenu.Modal::GetExitCode()!=-1)
+      /* $ 28.10.2001 tran
+         сохраним возвращенное значение */
+      m=TypesMenu.Modal::GetExitCode();
+      if (m!=-1)
       {
+        /* $ 28.10.2001 tran
+           и используем его - пункт могут выбрать через hotkey */
+        MenuPos=m;
+        /* tran $ */
         TypesMenu.ClearDone();
         TypesMenu.WriteInput(KEY_F4);
         continue;
