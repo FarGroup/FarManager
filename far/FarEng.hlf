@@ -2571,26 +2571,29 @@ $ #Error: copy/move onto itself.#
 directories, one of which is a ~symbolic link~@HardSymLink@ to another.
 
 @WarnCopyStream
-$ #Предупреждение: копирование/перенос расширенных атрибутов#
-   Исходный файл содержит более одного потока данных или файловая система
-назначения не поддерживает многопоточность файловых объектов.
+$ #Warning: copying or moving file with multiple streams#
 
-   Потоки это свойство файловой системы NTFS. Например, в файловой системе
-FAT/FAT32 (Windows 9x) внутренняя структура программы представлена лишь одним
-потоком - ее телом. В файловой же системе NTFS (Windows NT/2000/XP) таких
-потоков может быть несколько. Это и независимые программные модули, и
-разнообразная дополнительная служебная информация.
+   The source file contains more than one data stream or the
+destination file system does not support files with multiple streams.
 
-   Для того, чтобы скопировать файловый объект полностью (со всеми потоками),
-включите опцию #"Использовать системную функцию копирования"# в
-диалоге настройки ~системных параметров~@SystemSettings@.
+   Streams are a feature of the NTFS file system allowing to associate
+additional information with a file (for example, author's name, title,
+keywords and so on, or any other data). This information is stored
+together with the file and is invisible to programs that do not
+support streams. For example, streams are used by Windows Explorer in
+Windows 2000/XP to store additional file properties (summary).
+FAT/FAT32 file systems do not support streams.
 
-   Если вы копируете многопоточный файловый объект на том, отличный от
-NTFS, то и в этом случае потеряете данные - будет скопирован только основной
-поток.
+   To copy a file completely (together with all its streams), turn on
+the option "#Use system copy routine#" in the
+~system settings~@SystemSettings@ dialog.
 
-   Если каталог имеет несколько потоков данных, то дополнительные потоки
-скопируются только при использовании функции "Перенос" (F6).
+   If you are copying a file with multiple streams to a volume with a
+file system other than NTFS, you will also lose data - only the main
+stream will be copied.
+
+   If a directory has multiple streams, the additional streams will be
+copied only when the directory is moved (F6).
 
 @ScrSwitch
 $ #Screens switching#

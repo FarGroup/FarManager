@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.182 23.11.2001 $ */
+/* Revision: 1.183 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 SVS
+    - Бага - если в singleline есть 0x0A или 0x0D, то... в общем не
+      выводятся они
   23.11.2001 VVM
     ! Раз уж мы наследники фрейма, неплохо бы посмотреть на лок прорисовки
   21.11.2001 SVS
@@ -1147,7 +1150,8 @@ int Dialog::InitDialogObjects(int ID)
       }
 
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
-      DialogEdit->SetDialogParent(TRUE);
+      DialogEdit->SetDialogParent((Type != DI_COMBOBOX && (ItemFlags & DIF_EDITOR))?
+                                  EDPARENT_MULTILINE:EDPARENT_SINGLELINE);
       /* $ 26.07.2000 SVS
          Ну наконец-то - долгожданный нередактируемый ComboBox
       */

@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.56 15.11.2001 $ */
+/* Revision: 1.57 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 SVS
+    ! IsDialogParent может иметь 3 значения: EDPARENT_*
+    + Вместо длинного "if(Mask[...)" введена функция CheckCharMask()
   15.11.2001 OT
     "Нормальное" исправление предыдущего исправления (бацилла 97)
   13.11.2001 SVS
@@ -207,10 +210,16 @@ static int Recurse=0;
 
 enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
 
+// Идентификаторы масок
+#define EDMASK_ANY   'X' // позволяет вводить в строку ввода любой символ;
+#define EDMASK_DSS   '#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
+#define EDMASK_DIGIT '9' // позволяет вводить в строку ввода только цифры;
+#define EDMASK_ALPHA 'A' // позволяет вводить в строку ввода только буквы.
+
 Edit::Edit()
 {
   ConvertTabs=0;
-  IsDialogParent=0;
+  IsDialogParent=EDPARENT_NONE;
   /* $ 13.07.2000 SVS
      Нет, так нельзя - все последующие расширения памяти делаются через
      realloc, а здесь:
@@ -366,7 +375,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
     int MaskLen=strlen(Mask);
     for (i=Position;i<MaskLen && i>=0;i+=Where)
     {
-      if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+      if (CheckCharMask(Mask[i]))
       {
         Result=i;
         PosChanged=TRUE;
@@ -377,7 +386,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
     {
       for (i=Position;i>=0;i--)
       {
-        if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        if (CheckCharMask(Mask[i]))
         {
           Result=i;
           PosChanged=TRUE;
@@ -389,7 +398,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
     {
       for (i=Position;i<MaskLen;i++)
       {
-        if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        if (CheckCharMask(Mask[i]))
         {
           Result=i;
           break;
@@ -1107,7 +1116,7 @@ int Edit::ProcessKey(int Key)
         while(ptr<MaskLen)
         {
           ptr++;
-          if ((Mask[ptr]!='X' && Mask[ptr]!='9' && Mask[ptr]!='#' && Mask[ptr]!='A') ||
+          if (!CheckCharMask(Mask[ptr]) ||
              (isspace(Str[ptr]) && !isspace(Str[ptr+1])) ||
              (strchr(Opt.WordDiv,Str[ptr])!=NULL))
             break;
@@ -1253,9 +1262,9 @@ int Edit::ProcessKey(int Key)
         int i,j;
         for (i=CurPos,j=CurPos;i<MaskLen;i++)
         {
-          if (Mask[i+1]=='X' || Mask[i+1]=='9' || Mask[i+1]=='#' || Mask[i+1]=='A')
+          if (CheckCharMask(Mask[i+1]))
           {
-            while(Mask[j]!='X' && Mask[j]!='9' && Mask[j]!='#' && Mask[j]!='A' && j<MaskLen)
+            while(!CheckCharMask(Mask[j]) && j<MaskLen)
               j++;
             Str[j]=Str[i+1];
             j++;
@@ -1501,14 +1510,14 @@ int Edit::InsertKey(int Key)
         if (!Overtype)
         {
           int i=MaskLen-1;
-          while(Mask[i]!='X' && Mask[i]!='9' && Mask[i]!='#' && Mask[i]!='A' && i>CurPos)
+          while(!CheckCharMask(Mask[i]) && i>CurPos)
             i--;
 
           for (int j=i;i>CurPos;i--)
           {
-            if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+            if (CheckCharMask(Mask[i]))
             {
-              while(Mask[j-1]!='X' && Mask[j-1]!='9' && Mask[j-1]!='#' && Mask[j-1]!='A')
+              while(!CheckCharMask(Mask[j-1]))
               {
                 if (j<=CurPos)
                   /* $ 15.11.2000 KM
@@ -1637,13 +1646,15 @@ void Edit::SetBinaryString(char *Str,int Length)
   if ( ReadOnly )
     return;
   /* tran 03.07.2000 $ */
-  if (Length>0)
+  if (Length>0 && IsDialogParent != EDPARENT_SINGLELINE)
+  {
     if (Str[Length-1]=='\r')
     {
       EndType=EOL_CR;
       Length--;
     }
     else
+    {
       if (Str[Length-1]=='\n')
       {
         Length--;
@@ -1657,6 +1668,8 @@ void Edit::SetBinaryString(char *Str,int Length)
       }
       else
         EndType=EOL_NONE;
+    }
+  }
   /* $ 15.08.2000 KM
      Работа с маской
   */
@@ -1669,7 +1682,7 @@ void Edit::SetBinaryString(char *Str,int Length)
   {
     for (int i=0;i<strlen(Mask) && Str[i];i++)
     {
-      if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+      if (CheckCharMask(Mask[i]))
         InsertKey(Str[i]);
       else
       {
@@ -1786,7 +1799,7 @@ void Edit::InsertBinaryString(char *Str,int Length)
       */
       for (int i=Pos,j=0;j<StrLen+Pos && Str[j];)
       {
-        if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+        if (CheckCharMask(Mask[i]))
         {
           int goLoop=FALSE;
           if (KeyMatchedMask(Str[j]))
@@ -1906,7 +1919,7 @@ void Edit::RefreshStrByMask(int InitMode)
     {
       if (InitMode)
         Str[i]=' ';
-      if (Mask[i]!='X' && Mask[i]!='9' && Mask[i]!='#' && Mask[i]!='A')
+      if (!CheckCharMask(Mask[i]))
         Str[i]=Mask[i];
     }
   }
@@ -2205,7 +2218,6 @@ void Edit::SetTables(struct CharTableSet *TableSet)
   Edit::TableSet=TableSet;
 };
 
-
 void Edit::DeleteBlock()
 {
   /* $ 25.07.2000 tran
@@ -2227,7 +2239,7 @@ void Edit::DeleteBlock()
   {
     for (int i=SelStart;i<SelEnd;i++)
     {
-      if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
+      if (CheckCharMask(Mask[i]))
         Str[i]=' ';
     }
     /* $ 18.09.2000 SVS
@@ -2400,6 +2412,7 @@ void Edit::Xlat(BOOL All)
 }
 /* SVS $ */
 
+
 /* $ 15.11.2000 KM
    Проверяет: попадает ли символ в разрешённый
    диапазон символов, пропускаемых маской
@@ -2407,19 +2420,24 @@ void Edit::Xlat(BOOL All)
 int Edit::KeyMatchedMask(int Key)
 {
   int Inserted=FALSE;
-  if (Mask[CurPos]=='X')
+  if (Mask[CurPos]==EDMASK_ANY)
     Inserted=TRUE;
-  else if (Mask[CurPos]=='#' && (isdigit(Key) || Key==' ' || Key=='-'))
+  else if (Mask[CurPos]==EDMASK_DSS && (isdigit(Key) || Key==' ' || Key=='-'))
     Inserted=TRUE;
   /* $ 15.11.2000 KM
      Убрано разрешение пробелов в цифровой маске.
   */
-  else if (Mask[CurPos]=='9' && (isdigit(Key)))
+  else if (Mask[CurPos]==EDMASK_DIGIT && (isdigit(Key)))
     Inserted=TRUE;
   /* KM $ */
-  else if (Mask[CurPos]=='A' && LocalIsalpha(Key))
+  else if (Mask[CurPos]==EDMASK_ALPHA && LocalIsalpha(Key))
     Inserted=TRUE;
 
   return Inserted;
 }
 /* KM $ */
+
+int Edit::CheckCharMask(char Chr)
+{
+  return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA)?TRUE:FALSE;
+}

@@ -7,10 +7,13 @@ edit.hpp
 
 */
 
-/* Revision: 1.16 08.11.2001 $ */
+/* Revision: 1.17 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 SVS
+    ! IsDialogParent может иметь 3 значения: EDPARENT_*
+    + Вместо длинного "if(Mask[...)" введена функция CheckCharMask()
   08.11.2001 SVS
     + IsDialogParent - а родитель у нас кто?
   22.06.2001 SVS
@@ -71,6 +74,13 @@ Modify:
 
 #include "scrobj.hpp"
 #include "colors.hpp"
+
+// Константы для Edit::IsDialogParent
+enum {
+  EDPARENT_NONE=0,       // это явно не в диалоге юзается
+  EDPARENT_SINGLELINE=1, // обычная строка ввода в диалоге
+  EDPARENT_MULTILINE=2,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
+};
 
 class Dialog;
 class Editor;
@@ -133,7 +143,7 @@ class Edit:public ScreenObject
     int    PersistentBlocks; // Постоянные блоки (Opt.EditorPersistentBlocks)
     /* IS $ */
 
-    int    IsDialogParent;
+    int    IsDialogParent;   // Признак принадлежности строки к диалогу
 
   private:
     void   DisplayObject();
@@ -159,6 +169,7 @@ class Edit:public ScreenObject
 
     int ProcessCtrlQ(void);
     int ProcessInsDate(void);
+    int CheckCharMask(char Chr);
 
   public:
     Edit();
@@ -265,8 +276,8 @@ class Edit:public ScreenObject
     static void DisableEditOut(int Disable);
     static void DisableEncode(int Disable);
 
-    void SetDialogParent(BOOL Sets) {IsDialogParent=Sets;}
-    int  GetDialogParent(BOOL Sets) {return IsDialogParent;}
+    void SetDialogParent(int Sets) {IsDialogParent=Sets;}
+    int  GetDialogParent() {return IsDialogParent;}
 };
 
 #endif  // __EDIT_HPP__
