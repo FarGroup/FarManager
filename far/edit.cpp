@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.83 25.06.2002 $ */
+/* Revision: 1.84 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SKV
+    - Bugz#512 - Tab+PersistentBlocks+Selection
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   24.06.2002 SKV
@@ -2225,6 +2227,17 @@ void Edit::ReplaceTabs()
   {
     Pos=TabPtr-Str;
     S=TabSize-((TabPtr-Str) % TabSize);
+    if(SelStart!=-1)
+    {
+      if(Pos<=SelStart)
+      {
+        SelStart+=S-(Pos==SelStart?0:1);
+      }
+      if(SelEnd!=-1 && Pos<SelEnd)
+      {
+        SelEnd+=S-1;
+      }
+    }
     int PrevStrSize=StrSize;
     StrSize+=S-1;
     if (CurPos>Pos)
