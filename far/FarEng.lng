@@ -366,6 +366,8 @@
 "which exceeds the configured maximum size of %s."
 "Do you wish to edit it?"
 
+"It is impossible to edit the directory"
+
 "Search"
 "&Search for"
 "&Case sensitive"

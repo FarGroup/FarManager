@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.71 04.06.2001 $ */
+/* Revision: 1.72 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 IS
+    + MEditCanNotEditDirectory
   04.06.2001 IS
     + MIncorrectDirList - сообщение о неправильном списке каталогов
   02.06.2001 IS
@@ -569,6 +571,8 @@ enum
   MEditFileLong,
   MEditFileLong2,
   MEditROOpen,
+
+  MEditCanNotEditDirectory,
 
   MEditSearchTitle,
   MEditSearchFor,

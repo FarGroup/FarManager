@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.49 27.05.2001 $ */
+/* Revision: 1.50 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 IS
+    + посылаем подальше всех, кто пытается отредактировать каталог
   27.05.2001 DJ
     ! используются константы для кодов возврата
   26.05.2001 OT
@@ -247,6 +249,16 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
     - Shift-F4, новый файл. Выдает сообщение :-(
   */
   DWORD FAttr=GetFileAttributes(Name);
+  /* $ 05.06.2001 IS
+     + посылаем подальше всех, кто пытается отредактировать каталог
+  */
+  if(FAttr!=1 && FAttr&FILE_ATTRIBUTE_DIRECTORY)
+  {
+    Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditCanNotEditDirectory),
+            MSG(MOk));
+    return;
+  }
+  /* IS $ */
   if((Opt.EditorReadOnlyLock&2) &&
      FAttr != -1 &&
      (FAttr &

@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.07 05.06.2001 $ */
+/* Revision: 1.08 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 IS
+    + Отмена предыдущего патча VVM
   05.06.2001 VVM
     + убрать кавычки в создаваемом каталоге
   04.06.2001 IS
@@ -59,8 +61,11 @@ void ShellMakeDir(Panel *SrcPanel)
   {
     if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",DirName,DirName,sizeof(DirName),"MakeFolder",FIB_BUTTONS|FIB_EXPANDENV))
       return;
-    
-    Unquote(DirName);
+
+    // оставил в назидание потомкам. ни в коем случае нельзя убирать кавычки из
+    // DirName, т.к. из-за этого нарушается логика работы в DirList.Set
+    //Unquote(DirName);
+
     if(DirList.Set(DirName)) break;
     else Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
                  MSG(MIncorrectDirList), MSG(MOk));
