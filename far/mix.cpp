@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.163 11.11.2004 $ */
+/* Revision: 1.164 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! Изменен алгоритм CreatePath()
+    + Ctrl-[] формирует корректное значение пути в панели дерева
   11.11.2004 SVS
     + _MakePath1()
   06.08.2004 SKV
@@ -1567,29 +1570,37 @@ char *Add_PATHEXT(char *Dest)
 }
 /* IS 13.10.2002 $ */
 
-void CreatePath(char *Path)
+void CreatePath (char *Path)
 {
-  char *ChPtr;
-  ChPtr=Path;
-  while(*ChPtr)
+  char *ChPtr = Path;
+  char *DirPart = Path;
+
+  BOOL bEnd = FALSE;
+
+  while ( TRUE )
   {
-    if (*ChPtr=='\\')
+    if ( (*ChPtr == 0) || (*ChPtr == '\\') )
     {
-      *ChPtr=0;
+      if ( *ChPtr == 0 )
+        bEnd = TRUE;
 
-      char DirName[NM];
-      strcpy(DirName,Path);
-      if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirName))
-        LocalStrupr(DirName);
+      *ChPtr = 0;
 
-      if (CreateDirectory(DirName,NULL))
-        TreeList::AddTreeName(DirName);
-      *ChPtr='\\';
+      if ( Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && GetFileAttributes(Path) == (DWORD)-1)
+        LocalStrupr(DirPart);
+
+      if ( CreateDirectory(Path, NULL) );
+        TreeList::AddTreeName(Path);
+
+      if ( bEnd )
+        break;
+
+      *ChPtr = '\\';
+      DirPart = ChPtr+1;
     }
+
     ChPtr++;
   }
-  if (CreateDirectory(Path,NULL))
-    TreeList::AddTreeName(Path);
 }
 
 void SetPreRedrawFunc(PREREDRAWFUNC Func)
@@ -2030,7 +2041,7 @@ int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2)
         else
         {
           /* TODO: Здесь нужно учесть, что у TreeList тоже есть путь :-) */
-          if (SrcPanel->GetType()!=FILE_PANEL)
+          if (!(SrcPanel->GetType()==FILE_PANEL || SrcPanel->GetType()==TREE_PANEL))
             return(FALSE);
 
           SrcPanel->GetCurDir(PathName);
