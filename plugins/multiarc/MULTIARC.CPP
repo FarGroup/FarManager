@@ -14,8 +14,8 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   heapNew=GetProcessHeap();
   #endif
   ::Info=*Info;
-  ::FSF=*Info->FSF;
-  ::Info.FSF=&::FSF;
+  FSF=*Info->FSF;
+  ::Info.FSF=&FSF;
 
   TIME_ZONE_INFORMATION tzi;
   if (GetTimeZoneInformation(&tzi)!=0xFFFFFFFF)
@@ -23,7 +23,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 
   FarVER=::Info.AdvControl(::Info.ModuleNumber,ACTL_GETFARVERSION,NULL);
 
-  ::FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);
+  FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);
 
   if (ArcPlugin==NULL)
     ArcPlugin=new ArcPlugins(Info->ModuleName);
@@ -207,4 +207,9 @@ int WINAPI _export Configure(int ItemNumber)
   }while(1);
 
   //return FALSE;
+}
+
+extern "C" int __stdcall _DllMainCRTStartup (HANDLE hDllHandle, DWORD dwReason, LPVOID lpreserved)
+{
+  return 1;
 }

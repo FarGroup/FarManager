@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
 
-/* Revision: 1.07 02.07.2002 $ */
+/* Revision: 1.08 04.07.2002 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -31,8 +31,9 @@ typedef int  (WINAPI *MAGETPASSWORD)(char *Password,const char *FileName);
 typedef void (WINAPI *MAUNIXTIMETOFILETIME)(DWORD UnixTime,FILETIME *FileTime);
 
 struct MultiArcStartupInfo{
+  int StructSize;
   const struct PluginStartupInfo *FARInfo;
-  MAGETPASSWORD        GetPassword;
+  MAGETPASSWORD GetPassword;
   MAUNIXTIMETOFILETIME UnixTimeToFileTime;
 };
 

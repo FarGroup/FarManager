@@ -69,9 +69,10 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
       static struct MultiArcStartupInfo MAInfo0={0};
       struct MultiArcStartupInfo MAInfoTmp;
 
-      if(!MAInfo0.FARInfo)
+      if(MAInfo0.StructSize == 0)
       {
-        MAInfo0.FARInfo=&::Info;
+        MAInfo0.StructSize=sizeof(struct MultiArcStartupInfo);
+        MAInfo0.FARInfo=&Info;
         MAInfo0.GetPassword=GetPassword;
         MAInfo0.UnixTimeToFileTime=UnixTimeToFileTime;
       }

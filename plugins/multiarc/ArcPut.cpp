@@ -686,7 +686,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 
   //курсор должен быть вне выделения
   for(i=0; i<pi.SelectedItemsNumber; i++)
-    if(!strcmpi(CurItem->FindData.cFileName, SelItems[i].FindData.cFileName))
+    if(!stricmp(CurItem->FindData.cFileName, SelItems[i].FindData.cFileName))
       return FALSE;
 
   //под курсором должен быть файл с расширением архива
@@ -699,7 +699,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
       //хитрый хинт, чтение ключа с дефолтом из DefExt
       GetRegKey(HKEY_LOCAL_MACHINE, Format, "DefExt", DefExt, DefExt, sizeof(DefExt));
 
-      if(!strcmpi(Dot, DefExt))
+      if(!stricmp(Dot, DefExt))
       {
         strcpy(ArcName, CurItem->FindData.cFileName);
         //int Len=Dot-CurItem->FindData.cFileName-1;

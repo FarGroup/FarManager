@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.16 06.06.2002 $ */
+/* Revision: 1.17 05.07.2002 $ */
 
 //#define USE_TAR_H
 
@@ -106,10 +106,12 @@ int ArcType;
 char ZipName[NM];
 
 static struct MultiArcStartupInfo MAInfo;
+FARSTDLOCALSTRICMP LStricmp;
 
 void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *Info)
 {
   MAInfo=*Info;
+  LStricmp=MAInfo.FARInfo->FSF->LStricmp;
 }
 
 
@@ -144,7 +146,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   if (Dot!=NULL)
   {
     Dot++;
-    if (strcmpi(Dot,"tgz")==0 || strcmpi(Dot,"taz")==0)
+    if (LStricmp(Dot,"tgz")==0 || LStricmp(Dot,"taz")==0)
       strcpy(&ZipName[Dot-NamePtr],"tar");
     else
       ZipName[Dot-NamePtr-1]=0;

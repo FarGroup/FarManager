@@ -6,9 +6,10 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.09 05.03.2002 $ */
+/* Revision: 1.10 04.07.2002 $ */
 
 #include <windows.h>
+#include <limits.h>
 #include <string.h>
 #include <dos.h>
 #include "plugin.hpp"
@@ -39,15 +40,71 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
 static int ArcComment,ArcVolume,ArcRecovery;
 
+#ifndef FNAME_MAX
+#define FNAME_MAX           512
+#endif
+#define FIRST_HDR_SIZE    30
+#define COMMENT_MAX     2048
+#define HEADERSIZE_MAX   (FIRST_HDR_SIZE + 10 + FNAME_MAX + COMMENT_MAX)
+
+#define CRC_MASK        0xFFFFFFFFL
+static DWORD crctable[UCHAR_MAX + 1];
+static BOOL CRCInit=FALSE;
+DWORD CRC;
+
+#define UPDATE_CRC(r,c) r=crctable[((BYTE)(r)^(BYTE)(c))&0xff]^(r>>CHAR_BIT)
+#define CRCPOLY         0xEDB88320L
+
+static void make_crctable(void)
+{
+  UINT i, j;
+  DWORD r;
+
+  for (i = 0; i <= UCHAR_MAX; i++)
+  {
+    r = i;
+    for (j = CHAR_BIT; j > 0; j--)
+    {
+      if (r & 1)
+          r = (r >> 1) ^ CRCPOLY;
+      else
+          r >>= 1;
+    }
+    crctable[i] = r;
+  }
+}
+
+static void crc_buf(const char *str, int len)
+{
+    while (len--)
+        UPDATE_CRC(CRC, *str++);
+}
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
+  if(!CRCInit)
+  {
+    make_crctable();
+    CRCInit=TRUE;
+  }
+
   for (int I=0;I<DataSize-11;I++)
   {
     const unsigned char *D=Data+I;
-    if (D[0]==0x60 && D[1]==0xea && D[3]<0xb && D[7]<0x10 && D[10]==2)
+    WORD HeaderSize;
+    if (D[0]==0x60 && D[1]==0xea &&
+       (HeaderSize=*(WORD*)(D+2)) <= HEADERSIZE_MAX &&
+       D[7]<0x10 &&
+       D[10]==2 &&
+       I+4+HeaderSize < DataSize-11)
     {
-      SFXSize=I;
-      return(TRUE);
+      CRC=CRC_MASK;
+      crc_buf((char *)D+4, (int) HeaderSize);
+      if ((CRC ^ CRC_MASK) == *(DWORD*)(D+4+HeaderSize))
+      {
+        SFXSize=I;
+        return(TRUE);
+      }
     }
   }
   return(FALSE);
@@ -218,22 +275,22 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
-    // Correct Commands for ARJ 2.7x!
+    // Correct Arj/Win32 commands
     static char *Commands[]={
-    /*Extract               */"arj x -+ {-g%%P} -v -y -p1 {-w%%W} -- %%A !%%LM",
-    /*Extract without paths */"arj e -+ {-g%%P} -v -y -p1 {-w%%W} -- %%A !%%LM",
-    /*Test                  */"arj t -+ -y {-g%%P} -v -p1 {-w%%W} -- %%A",
-    /*Delete                */"arj d -+ -y {-w%%W} -p1 {-w%%W} -- %%A !%%LNM",
-    /*Comment archive       */"arj c -+ -y {-w%%W} -z {-w%%W} -- %%A",
-    /*Comment files         */"arj c -+ -y {-w%%W} -p1 {-w%%W} -- %%A !%%LM",
-    /*Convert to SFX        */"arj y -+ -je -y -p {-w%%W} %%A",
+    /*Extract               */"arj32 x -+ {-g%%P} -v -y -p1 -- %%A !%%LM",
+    /*Extract without paths */"arj32 e -+ {-g%%P} -v -y -p1 -- %%A !%%LM",
+    /*Test                  */"arj32 t -+ -y {-g%%P} -v -p1 -- %%A",
+    /*Delete                */"arj32 d -+ -y {-w%%W} -p1 -- %%A !%%LNM",
+    /*Comment archive       */"arj32 c -+ -y {-w%%W} -z -- %%A",
+    /*Comment files         */"arj32 c -+ -y {-w%%W} -p1 -- %%A !%%LM",
+    /*Convert to SFX        */"arj32 y -+ -je -y -p %%A",
     /*Lock archive          */"",
-    /*Protect archive       */"arj t -hk -y {-w%%W} %%A",
-    /*Recover archive       */"arj q -y {-w%%W} %%A",
-    /*Add files             */"arj a -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
-    /*Move files            */"arj m -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
-    /*Add files and folders */"arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
-    /*Move files and folders*/"arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*Protect archive       */"arj32 t -hk -y %%A",
+    /*Recover archive       */"arj32 q -y %%A",
+    /*Add files             */"arj32 a -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*Move files            */"arj32 m -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*Add files and folders */"arj32 a -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*Move files and folders*/"arj32 m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM"
     /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))

@@ -314,7 +314,7 @@ struct Options
 /*
   Global Data
 */
-extern char PluginRootKey[80];
+extern char PluginRootKey[NM];
 extern struct FarStandardFunctions FSF;
 extern struct Options Opt;
 extern struct PluginStartupInfo Info;

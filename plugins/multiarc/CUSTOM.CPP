@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.14 05.03.2002 $ */
+/* Revision: 1.15 05.07.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -53,13 +53,21 @@ DWORD OutDataPos,OutDataSize;
 char FormatFileName[NM];
 char StartText[256],EndText[256],Format[8][256];
 int FormatNumber,IgnoreErrors;
-struct FarStandardFunctions *FSF;
 
 const char Str_TypeName[]="TypeName";
+static struct MultiArcStartupInfo MAInfo;
+FARSTDLOCALSTRICMP LStricmp;
+FARSTDLOCALSTRNICMP LStrnicmp;
+FARSTDSPRINTF SPrintf;
+FARSTDMKTEMP MkTemp;
 
-void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *MAInfo)
+void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *Info)
 {
-  FSF=MAInfo->FARInfo->FSF;
+  MAInfo=*Info;
+  LStricmp=MAInfo.FARInfo->FSF->LStricmp;
+  LStrnicmp=MAInfo.FARInfo->FSF->LStrnicmp;
+  SPrintf=MAInfo.FARInfo->FSF->sprintf;
+  MkTemp=MAInfo.FARInfo->FSF->MkTemp;
 }
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
@@ -133,7 +141,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 
     GetPrivateProfileString(TypeName,"Extension","",Ext,sizeof(Ext),FormatFileName);
 
-    if (Dot!=NULL && *Ext!=0 && strcmpi(Dot+1,Ext)==0)
+    if (Dot!=NULL && *Ext!=0 && LStricmp(Dot+1,Ext)==0)
     {
       CurType=I;
       return(TRUE);
@@ -172,7 +180,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   HANDLE StdInput=GetStdHandle(STD_INPUT_HANDLE);
 
   char TempName[NM];
-  if (FSF->MkTemp(TempName,"FAR")==NULL)
+  if (MkTemp(TempName,"FAR")==NULL)
     return(FALSE);
 
   HANDLE OutHandle=CreateFile(TempName,GENERIC_READ|GENERIC_WRITE,
@@ -437,7 +445,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
             static const char *Months[12]={"Jan","Feb","Mar","Apr","May","Jun",
                                      "Jul","Aug","Sep","Oct","Nov","Dec"};
             for (int I=0;I<sizeof(Months)/sizeof(Months[0]);I++)
-              if (strnicmp(CurStr,Months[I],3)==0)
+              if (LStrnicmp(CurStr,Months[I],3)==0)
               {
                 st.wMonth=I+1;
                 while (CurFormat[1]=='T' && CurStr[1])
@@ -653,7 +661,7 @@ void FillFormat(const char *TypeName)
   for (FormatNumber=0; FormatNumber <sizeof(Format)/sizeof(Format[0]); FormatNumber++)
   {
     char FormatName[100];
-    FSF->sprintf(FormatName,"Format%d",FormatNumber);
+    SPrintf(FormatName,"Format%d",FormatNumber);
     GetPrivateProfileString(TypeName,FormatName,"",Format[FormatNumber],sizeof(Format[0]),FormatFileName);
     if (*Format[FormatNumber]==0)
       break;

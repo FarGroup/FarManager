@@ -2,7 +2,7 @@
 #include "fmt.hpp"
 #include "multiarc.hpp"
 
-char PluginRootKey[80];
+char PluginRootKey[NM];
 struct FarStandardFunctions FSF;
 struct Options Opt;
 struct PluginStartupInfo Info;
