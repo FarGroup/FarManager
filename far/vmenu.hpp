@@ -6,14 +6,18 @@ vmenu.hpp
 Обычное вертикальное меню
   а так же:
     * список в DI_COMBOBOX
+    * список в DI_LISTBOX
     * ...
 
 */
 
-/* Revision: 1.25 26.07.2001 $ */
+/* Revision: 1.26 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 KM
+    + Проверим, а не выполняется ли какая функа у нас...
+      GetCallCount().
   26.07.2001 OT
     Исправления отрисовки ShiftF10-F1-AltF9
   26.07.2001 SVS
@@ -288,6 +292,11 @@ class VMenu: virtual public Modal, virtual public Frame
     int  FindItem(int StartIndex,char *Pattern,DWORD Flags=0);
 
     int  GetItemCount() {return(ItemCount);};
+    /* $ 31.07.2001 KM
+      + Проверим, а не выполняется ли какая функа у нас...
+    */
+    int  GetCallCount() { return CallCount; };
+    /* KM $ */
 
     void *GetUserData(void *Data,int Size,int Position=-1);
     int  GetUserDataSize(int Position=-1);

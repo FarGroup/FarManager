@@ -684,7 +684,7 @@
 "Containing &text:"
 "&Case sensitive"
 "&Whole words"
-"Use all installed c&haracter tables  [ Current: %s ]"
+"Use all installed c&haracter tables"
 "Search in arch&ives"
 "Search in &all non-removable drives"
 "Search from the &root folder"
