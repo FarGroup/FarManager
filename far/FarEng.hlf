@@ -1156,6 +1156,7 @@ $ #Internal viewer#
                        (see notes below)
     #Alt-F8#             ~Change current position~@ViewerGotoPos@
     #Numpad5,F3,F10,Esc# Quit
+    #Ctrl-F10#           Quit with positioning on the current file
     #F11#                Call "Plugin commands" menu
 
     #+#                  Go to next file
@@ -1165,6 +1166,7 @@ $ #Internal viewer#
                        (works so long as we keep these keys)
     #Ctrl-B#             Show/Hide functional key bar at the bottom
                           line.
+    #Ctrl-S#             Show/Hide ScrollBar.
     #Alt-BS, Ctrl-Z#     Undo position change
     #RightCtrl+<N>#      Save current position
                        (N must be '0'..'9')
@@ -1270,6 +1272,8 @@ $ #Internal editor#
    #Alt-F8#                  ~Go to specified line and column~@EditorGotoPos@
    #F10, Esc#                Quit
    #Shift-F10#               Save and quit
+   #Ctrl-F10#                Quit with positioning on the
+                           current file
    #F11#                     Call "Plugin commands" menu
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification
