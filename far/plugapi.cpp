@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.11 09.08.2000 $ */
+/* Revision: 1.12 18.08.2000 $ */
 
 /*
 Modify:
+  18.08.2000 tran 1.12
+    + Flags parameter in FarShowHelp
   09.08.2000 tran 1.11
     ! ACTL_GETSYSWORDDIV при Param==NULL просто возвращает длину строки
   03.08.2000 SVS
@@ -56,10 +58,12 @@ extern char DirToSet[NM];
 
 void ScanPluginDir();
 
+/* $ 18.08.2000 tran
+   + Flags parameter */
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic)
+void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,int Flags)
 {
   if (HelpTopic!=NULL)
   {
@@ -76,6 +80,8 @@ void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic)
   }
 }
 /* IS $ */
+/* tran 18.08.2000 $ */
+
 
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...

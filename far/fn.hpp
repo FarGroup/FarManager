@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.11 14.08.2000 $ */
+/* Revision: 1.12 18.08.2000 $ */
 
 /*
 Modify:
+  18.08.2000 tran
+    + Flags parameter in FarShowHelp
   14.08.2000 SVS
     + Функции семейства seek под __int64
   01.08.2000 SVS
@@ -322,11 +324,15 @@ int WINAPI FarCmpName(char *pattern,char *string,int skippath);
 int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
 void WINAPI FarText(int X,int Y,int Color,char *Str);
 int WINAPI FarEditorControl(int Command,void *Param);
+/* $ 18.08.2000 tran
+   add Flags parameter */
 /* $ 03.07.2000 IS
   Функция вывода помощи
 */
-void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic);
+void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,int Flags);
 /* IS $ */
+/* tran 18.08.2000 $ */
+
 /* $ 06.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */

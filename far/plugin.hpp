@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.22 21.08.2000 $ */
+/* Revision: 1.23 21.08.2000 $ */
 
 /*
 Modify:
+  18.08.2000 tran
+    + Flags in ShowHelp
   12.08.2000 KM 1.22
     + DIF_MASKEDIT - новый флаг, реализующий функциональность ввода
       по маске в строках ввода.
@@ -563,14 +565,18 @@ typedef int (WINAPI *FARAPIEDITORCONTROL)(
   void *Param
 );
 
+/* $ 18.08.2000 tran
+  add Flags parameter for future */
 /* $ 03.07.2000 IS
    Функция вывода помощи
   */
 typedef void (WINAPI *FARAPISHOWHELP)(
   char *ModuleName,
-  char *HelpTopic
+  char *HelpTopic,
+  int   Flags
 );
 /* IS $ */
+/* tran 18.08.2000 $ */
 
 /* $ 06.07.2000 IS
    Функция AdvControl
