@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.14 10.06.2002 $ */
+/* Revision: 1.15 03.07.2002 $ */
 
 /*
 Modify:
+  03.07.2002 SVS
+    -  осметика при выводе ошибки о невозможности создани€ кататалога
   10.06.2002 SVS
     + FIB_EDITPATH
   18.03.2002 SVS
@@ -69,7 +71,7 @@ void ShellMakeDir(Panel *SrcPanel)
      + ћаленька€ модификаци€: добавлены кнопки [ OK ] и [ Cancel ]
        в диалог создани€ каталога
   */
-  char DirName[NM];
+  char DirName[NM], OriginalDirName[NM];
   *DirName=0;
   UserDefinedList DirList;
 
@@ -105,17 +107,22 @@ void ShellMakeDir(Panel *SrcPanel)
   }
   /* IS $ */
   /* KM $ */
+
   *DirName=0;
   const char *OneDir;
+
   DirList.Start();
   while(NULL!=(OneDir=DirList.GetNext()))
   {
     strncpy(DirName, OneDir, sizeof(DirName)-1);
+    strcpy(OriginalDirName,DirName);
+
     //Unquote(DirName);
     if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirName))
       LocalStrupr(DirName);
 
     int Length=strlen(DirName);
+
     /* $ 25.07.2000 IG
        Bug 24 (не перечитывалась панель, после неудачного вложенного
        создани€ директорий)
@@ -123,12 +130,12 @@ void ShellMakeDir(Panel *SrcPanel)
     while (Length>0 && DirName[Length-1]==' ')
       Length--;
     DirName[Length]=0;
-    if (Length>0 && (DirName[Length-1]=='/' || DirName[Length-1]=='\\'))
-      DirName[Length-1]=0;
 
     char bSuccess = 0;
-
     int Error=FALSE;
+
+    if (Length>0 && (DirName[Length-1]=='/' || DirName[Length-1]=='\\'))
+      DirName[Length-1]=0;
 
     for (char *ChPtr=DirName;*ChPtr!=0;ChPtr++)
       if (*ChPtr=='\\' || *ChPtr=='/')
@@ -148,12 +155,12 @@ void ShellMakeDir(Panel *SrcPanel)
       if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||
           LastError==ERROR_INVALID_NAME)
       {
-        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),DirName,MSG(MOk));
+        Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MOk));
         if (bSuccess) break;
           else return;
       }
       else
-        if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),DirName,MSG(MRetry),MSG(MCancel))!=0)
+        if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),OriginalDirName,MSG(MRetry),MSG(MCancel))!=0)
           if (bSuccess) break;
             else return;
     }
