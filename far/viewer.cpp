@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.93 28.04.2002 $ */
+/* Revision: 1.94 06.05.2002 $ */
 
 /*
 Modify:
+  06.05.2002 SVS
+    - BugZ#493 - Не работает показ Goto в viewer при клике мышкой в заголовке
   28.04.2002 IS
     ! Опция "Только целые слова" доступна для изменения даже, когда
       включен режим "Искать 16-ричный код"
@@ -1838,6 +1840,15 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       NameLength=20;
     XTable=NameLength+1;
     XPos=NameLength+1+10+1+10+1;
+
+    while(IsMouseButtonPressed());
+
+    MsX=MouseX;
+    MsY=MouseY;
+
+    if (MsY!=Y1)
+      return(TRUE);
+
     //_D(SysLog("MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
     if ( MsX>=XTable && MsX<=XTable+10 )
     {
@@ -1853,6 +1864,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* tran $ */
   if (MsX<X1 || MsX>X2 || MsY<ViewY1 || MsY>Y2)
     return(FALSE);
+
   if (MsX<X1+7)
     while (IsMouseButtonPressed() && MouseX<X1+7)
       ProcessKey(KEY_LEFT);
