@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.07 28.02.2001 $ */
+/* Revision: 1.08 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
@@ -304,9 +306,12 @@ void TreeList::SaveTreeFile()
   if (RootLength<0)
     RootLength=0;
   sprintf(Name,"%s%s",Root,TreeFileName);
+  // получим и сразу сбросим атрибуты (если получится)
+  DWORD FileAttributes=GetFileAttributes(Name);
+  if(FileAttributes != -1)
+    SetFileAttributes(Name,0);
   if ((TreeFile=fopen(Name,"wb"))==NULL)
   {
-    SetFileAttributes(Name,0);
     /* $ 16.10.2000 tran
        если диск должен кешироваться, то и пытаться не стоит */
     if (MustBeCached(Root) || (TreeFile=fopen(Name,"wb"))==NULL)
@@ -326,6 +331,8 @@ void TreeList::SaveTreeFile()
     remove(Name);
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),Name,MSG(MOk));
   }
+  else if(FileAttributes != -1) // вернем атрибуты (если получится :-)
+    SetFileAttributes(Name,FileAttributes);
 }
 
 
