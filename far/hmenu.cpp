@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.06 26.07.2001 $ */
+/* Revision: 1.07 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 OT
+    - Поправлен ResizeConsole()
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
     ! HMenu прикручен к фреймам - попытка "раз"
@@ -40,6 +42,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "savescr.hpp"
 
 HMenu::HMenu(struct HMenuData *Item,int ItemCount)
 {
@@ -51,6 +54,7 @@ HMenu::HMenu(struct HMenuData *Item,int ItemCount)
   SetRestoreScreenMode (TRUE);
   /* DJ $ */
   FrameManager->ModalizeFrame(this);
+  SetScreen(X1,Y1,X2,Y2,' ',COL_HMENUTEXT);
 }
 
 
@@ -246,6 +250,7 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
     delete SubMenu;
   Position=-1;
   SubMenu=new VMenu("",Data,DataCount);
+  SubMenu->SetFlags(VMENU_NOTCHANGE);
   SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
   SubMenu->SetFlags(VMENU_WRAPMODE);
   SubMenu->SetHelp(SubMenuHelp);
@@ -288,7 +293,12 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
 
 void HMenu::ResizeConsole()
 {
-  SetScreen(0,0,ScrX,0,' ',COL_HMENUTEXT);
+  SaveScr->Discard();
+  delete SaveScr;
+  SaveScr=NULL;
+  Hide();
+  Frame::ResizeConsole();
+  SetPosition(0,0,::ScrX,0);
 }
 
 void HMenu::Process()

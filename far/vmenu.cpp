@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.47 26.07.2001 $ */
+/* Revision: 1.48 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 OT
+    - Поправлен ResizeConsole()
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   22.07.2001 KM
@@ -1604,6 +1606,12 @@ void VMenu::Process()
 
 void VMenu::ResizeConsole()
 {
+  SaveScr->Discard();
+  delete SaveScr;
+  SaveScr=NULL;
+  if (this->CheckFlags(VMENU_NOTCHANGE)){
+    return;
+  }
   ObjWidth=ObjHeight=0;
   if (!this->CheckFlags(VMENU_NOTCENTER)){
     Y2=X2=Y1=X1=-1;
@@ -1617,7 +1625,6 @@ void VMenu::ResizeConsole()
     X2=Y2=0;
 
   }
-  SaveScr->Discard();
 }
 
 

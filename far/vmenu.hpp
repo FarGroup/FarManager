@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.24 26.07.2001 $ */
+/* Revision: 1.25 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 OT
+    Исправления отрисовки ShiftF10-F1-AltF9
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -140,6 +142,7 @@ enum{
 #define VMENU_WARNDIALOG            0x00020000
 #define VMENU_NOTCENTER             0x00040000
 #define VMENU_LEFTMOST              0x00080000
+#define VMENU_NOTCHANGE             0x00100000
 
 class Dialog;
 class SaveScreen;
@@ -173,6 +176,9 @@ struct MenuData
 
 class VMenu: virtual public Modal, virtual public Frame
 {
+#ifdef _MSC_VER
+#pragma warning(disable:4250)
+#endif _MSC_VER
   private:
     char Title[100];
     char BottomTitle[100];

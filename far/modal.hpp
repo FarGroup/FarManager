@@ -7,10 +7,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.06 18.07.2001 $ */ 
+/* Revision: 1.07 26.07.2001 $ */
 
 /*
 Modify:
+  26.07.2001 OT
+    Косметическое исправление (борьба варнингами)
   18.07.2001 OT
     VFMenu
   14.06.2001 OT
@@ -59,7 +61,7 @@ class Modal: virtual public ScreenObject
 
     void SetHelp(char *Topic);
     void ShowHelp();
-    void SetScreenPosition(){inherited::SetScreenPosition();}
+//    void SetScreenPosition(){inherited::SetScreenPosition();}
 
 };
 
