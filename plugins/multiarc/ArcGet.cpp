@@ -1,6 +1,20 @@
-int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
+class TRecur //$ 07.04.2002 AA
+{
+public:
+  static int Count;
+  TRecur(){Count++;}
+  ~TRecur(){Count--;}
+};
+int TRecur::Count=0;
+
+int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
                           int Move, char *DestPath, int OpMode)
 {
+  //костыль против зацикливания в FAR'е при Quick View архивов с паролем
+  TRecur Recur;   //$ 07.04.2002 AA
+  if(Recur.Count>1 && OpMode&OPM_VIEW)
+    return 0;
+
   char SaveDir[NM];
   GetCurrentDirectory(sizeof(SaveDir),SaveDir);
   char Command[512],AllFilesMask[32];
@@ -9,7 +23,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   if (*DestPath)
     FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
-  struct InitDialogItem InitItems[]={
+  InitDialogItem InitItems[]={
   /* 0 */{DI_DOUBLEBOX,3,1,72,13,0,0,0,0,(char *)MExtractTitle},
   /* 1 */{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MExtractTo},
   /* 2 */{DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath},
@@ -25,8 +39,8 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   /*12 */{DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel},
   };
 
-  struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
-  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+  FarDialogItem DialogItems[COUNT(InitItems)];
+  InitDialogItems(InitItems,DialogItems,COUNT(InitItems));
 
   int AskVolume=(OpMode & (OPM_FIND|OPM_VIEW|OPM_EDIT))==0 &&
                 CurArcInfo.Volume && *CurDir==0;
@@ -49,7 +63,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   if ((OpMode & OPM_SILENT)==0)
   {
     int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,15,"ExtrFromArc",
-                DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
+                DialogItems,COUNT(DialogItems));
     if (AskCode!=11)
       return -1;
     strcpy(DestPath,DialogItems[2].Data);
@@ -86,7 +100,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
     FSF.AddEndSlash(DestPath);
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
 
-  struct PluginPanelItem MaskPanelItem;
+  PluginPanelItem MaskPanelItem;
 
   if (AskVolume)
   {
@@ -106,7 +120,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
       const char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
                         GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                         GetMsg(MExtrAllVolumes)};
-      MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
+      MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,COUNT(MsgItems),2);
     }
     if (MsgCode<0)
       return -1;
@@ -130,9 +144,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
       if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
           (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       {
-        if(OpMode & OPM_FIND) //Silent
-          return 0;
-        if(OpMode & OPM_VIEW || !GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
+        if(OpMode&OPM_FIND || !GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
           return -1;
         break;
       }
