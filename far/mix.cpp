@@ -9,6 +9,8 @@ mix.cpp
 
 /*
 Modify:
+  18.09.2000 skv
+    + в IsCommandExeGUI проверка на наличие .bat и .cmd в тек. директории
   18.09.2000 SVS
     ! FarRecurseSearch -> FarRecursiveSearch
     ! Исправление ошибочки в функции FarMkTemp :-)))
@@ -418,18 +420,39 @@ DWORD IsCommandExeGUI(char *Command)
   int GUIType=FALSE;
 
   SetFileApisToANSI();
-  if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
+
+  /*$ 18.09.2000 skv
+    + to allow execution of c.bat in current directory,
+      if gui program c.exe exists somewhere in PATH,
+      in FAR's console and not in separate window.
+      for(;;) is just to prevent multiple nested ifs.
+  */
+  for(;;)
   {
-    SHFILEINFO sfi;
-    DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
-    GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
-            /* $ 13.07.2000 IG
-               в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-               делать проверку побайтово.
-            */
-            HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
-            /* IG $ */
+    sprintf(FullName,"%s.bat",FileName);
+    if(GetFileAttributes(FullName)!=-1)break;
+    sprintf(FullName,"%s.cmd",FileName);
+    if(GetFileAttributes(FullName)!=-1)break;
+  /* skv$*/
+
+    if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
+    {
+      SHFILEINFO sfi;
+      DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
+      GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
+              /* $ 13.07.2000 IG
+                 в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
+                 делать проверку побайтово.
+              */
+              HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
+              /* IG $ */
+    }
+/*$ 18.09.2000 skv
+    little trick.
+*/
+    break;
   }
+  /* skv$*/
   SetFileApisToOEM();
   return(GUIType);
 }
