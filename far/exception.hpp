@@ -7,10 +7,12 @@ exception.cpp
 
 */
 
-/* Revision: 1.04 25.01.2002 $ */
+/* Revision: 1.06 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! ВСЕ СОВСЕМ ИНАЧЕ :-)
   25.01.2002 SVS
     ! Выравниванием, мать его :-((
     ! FAULTCODERECORD.Code = 128 байт
@@ -37,106 +39,53 @@ Modify:
   #pragma pack(push,2)
 #endif
 
+#define FAR_LOG_VERSION  1
+
+#ifndef MAKEFOURCC
+#define MAKEFOURCC(ch0, ch1, ch2, ch3)                  \
+      ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |   \
+      ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24 ))
+#endif
+
 #define FLOG_SYSINFO     0x00000001 // информация о системе
-#define FLOG_REGISTERS   0x00000002 // текущее состояние регистров
-#define FLOG_EXCEPTION   0x00000004 // про исключение
-#define FLOG_STACK       0x00000008 // "раскрученный стек"
-#define FLOG_PLUGIN      0x00000010 // информация о плагине
-#define FLOG_FARAREA     0x00000020 // "где мы сейчас находимся?"
-#define FLOG_MACRO       0x00000040 // Макросы
-#define FLOG_RAWDARA     0x00000080 // произвольные данные
-#define FLOG_FAULTCODE   0x00000100 // кусок кода
-#define FLOG_PLUGINSINFO 0x00000200 // информация о плагинах
+#define FLOG_EXCEPTION   0x00000002 // про исключение
+#define FLOG_PLUGIN      0x00000004 // информация о плагине
+#define FLOG_FARAREA     0x00000008 // "где мы сейчас находимся?"
+#define FLOG_MACRO       0x00000010 // Макросы
+#define FLOG_RAWDARA     0x00000020 // произвольные данные
+#define FLOG_PLUGINSINFO 0x80000000 // информация о плагинах
 #define FLOG_ALL         0xFFFFFFFF
 
-enum {
-  RTYPE_HEADER       =0,// заголовок дампа
-  RTYPE_SYSINFO      =1,// информация о системе
-  RTYPE_CONTEXT      =2,// текущее состояние регистров
-  RTYPE_EXCEPTION    =3,// про исключение
-  RTYPE_FAULTCODE    =4,// кусок кода
-  RTYPE_STACK        =5,// "раскрученный стек"
-  RTYPE_PLUGIN       =6,// информация о плагине
-  RTYPE_FARAREA      =7,// "где мы сейчас находимся?"
-  RTYPE_MACRO        =8,// Макросы
-  RTYPE_RAWDARA      =9,// произвольные данные
-};
-
-/*
-
-Структура файла "farevent.dmp"
-
-FILEHEADER FileHeader;
-
-Record {
-    RECHEADER RecHeader;  // заголовок
-    // RECHEADER Rec[0];  // количеством RecHeader.RecordsCount
-} [FileHeader.CountRecords];
-
-*/
-
-struct FILEHEADER{
-  DWORD ID;               // 'FLOG'
-  DWORD CountRecords;     // количество записей
-  DWORD Version;          // Версия "писателя"
+enum FARRECORDTYPE{
+  RTYPE_SYSINFO      =MAKEFOURCC('S','Y','S','T'),// информация о системе
+  RTYPE_EXCEPTION    =MAKEFOURCC('E','X','C','T'),// про исключение
+  RTYPE_PLUGIN       =MAKEFOURCC('C','P','L','G'),// информация о текущем плагине
+  RTYPE_FARAREA      =MAKEFOURCC('A','R','E','A'),// "где мы сейчас находимся?"
+  RTYPE_MACRO        =MAKEFOURCC('M','A','C','R'),// Макросы
+  RTYPE_RAWDARA      =MAKEFOURCC('R','A','W','D'),// произвольные данные
 };
 
 struct RECHEADER{         // заголовок рекорда
-  WORD TypeRec;           // Тип записи
-  WORD SizeRec;           // Размер данных Data (байт), если =0 - Data отсутствует
+  DWORD TypeRec;          // Тип записи
+  DWORD SizeRec;          // Размер структуры
+  struct RECHEADER *Next; // Следующий элемент в списке
   // Data                 // Данные размером SizeRec
 };
 
-struct DUMPHEADER{        // заголовок дампа
-  WORD  TypeRec;          // Тип записи = RTYPE_HEADER
-  WORD  SizeRec;          // Размер данных = sizeof(struct DUMPHEADER)-sizeof(WORD)*2
-  DWORD DumpFlags;        // дополнительные флаги (пока =0)
-  DWORD DumpSize;         // общий размер текущего дампа
-  SYSTEMTIME DumpTime;    // the system time is expressed in Coordinated Universal Time (UTC))
-  WORD  RecordsCount;     // Общее количество рекордов RECHEADER за исключением заголовка
-  WORD  CountException;   // из них - количество записей под исключения
-  WORD  CountStack;       // из них - количество записей под стек
-  WORD  Reserved[5];      // резерв
-};
-
 struct SYSINFOHEADER{     // информация о системе
-  WORD  TypeRec;          // Тип записи = RTYPE_SYSINFO
-  WORD  SizeRec;          // Размер данных = sizeof(struct DUMPHEADER)-sizeof(WORD)*2
-  OSVERSIONINFO WinVer;   // версия виндов
+  DWORD TypeRec;          // Тип записи = RTYPE_SYSINFO
+  DWORD SizeRec;          // Размер данных = sizeof(struct DUMPHEADER)-sizeof(WORD)*2
+  struct RECHEADER *Next; // Следующий элемент в списке
+  DWORD DumpFlags;        // дополнительные флаги (пока =0)
   DWORD FARVersion;       // версия FAR Manager в формате FAR_VERSION
-  DWORD Reserved[3];      // резерв
-};
-
-struct CONTEXTRECORD{     // текущее состояние регистров
-  WORD  TypeRec;          // Тип записи = RTYPE_CONTEXT
-  WORD  SizeRec;          // Размер данных = sizeof(CONTEXT)
-  CONTEXT Regs;           // Регистры процессора
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x0550)
-  //
-  // This section is specified/returned if the ContextFlags word
-  // contains the flag CONTEXT_EXTENDED_REGISTERS.
-  // The format and contexts are processor specific
-  //
-#define MAXIMUM_SUPPORTED_EXTENSION     512
-#define CONTEXT_EXTENDED_REGISTERS  (CONTEXT_i386 | 0x00000020L) // cpu specific extensions
-  BYTE    ExtendedRegisters[MAXIMUM_SUPPORTED_EXTENSION];
-#endif
-};
-
-struct MACRORECORD{       // Макросы
-  WORD  TypeRec;          // Тип записи = RTYPE_MACRO
-  WORD  SizeRec;          // Размер данных
-  WORD  MacroStatus;      // 0 - не в режиме макро, 1 - Recording, 2 - Executing
-  WORD  MacroPos;         // текущая позиция в MacroKeyBuffer
-  DWORD MacroFlags;       // флаги - младшее слово = MACRO_AREA
-  DWORD MacroKey;         // назначенная макроклавиша
-  DWORD MacroBufferSize;  // размер макропоследовательности MacroKeyBuffer
-  // DWORD MacroKeyBuffer[0];// макро-последовательность
+  SYSTEMTIME DumpTime;    // the system time is expressed in Coordinated Universal Time (UTC))
+  OSVERSIONINFO WinVer;   // версия виндов
 };
 
 struct PLUGINRECORD{      // информация о плагине
-  WORD  TypeRec;          // Тип записи = RTYPE_PLUGIN
-  WORD  SizeRec;          // Размер данных
+  DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
+  DWORD SizeRec;          // Размер
+  struct RECHEADER *Next; // Следующий элемент в списке
 
   DWORD WorkFlags;      // рабочие флаги текущего плагина
   DWORD FuncFlags;      // битовые маски эксп.функций плагина (бит есть - ест и функция)
@@ -152,82 +101,90 @@ struct PLUGINRECORD{      // информация о плагине
     FILETIME ftLastWriteTime;
     DWORD    nFileSizeHigh;
     DWORD    nFileSizeLow;
-    char     cFileName[NM];
+    DWORD    dwReserved0;
+    DWORD    dwReserved1;
+    char     cFileName[MAX_PATH];
     char     cAlternateFileName[14];
   } FindData;
 
-  DWORD Reserved[4];    // разерв :-)
+  DWORD Reserved[2];    // разерв :-)
 
   DWORD SizeModuleName;
   //char ModuleName[0];
 };
 
-struct PLUGINSINFORECORD{ // информация о плагинах
-  WORD  TypeRec;          // Тип записи = FLOG_PLUGINSINFO
-  WORD  SizeRec;          // Размер данных
-  DWORD PluginsCount;     // количество записей
-}; // следом за этим рекордом идут PluginsCount рекорды PLUGINRECORD
-
 struct EXCEPTIONRECORD{   // про исключение
-  WORD  TypeRec;          // Тип записи = RTYPE_EXCEPTION
-  WORD  SizeRec;          // Размер данных
-  WORD  CurItem;          // теущий индекс исключения в текущем дампе
-                          //   (если они валились каскадно)
-  WORD  Reserved;
-  // сокращенный EXCEPTION_RECORD
-  DWORD ExceptionCode;    // код исключения
-  DWORD ExceptionFlags;   // флаги исключения
-  DWORD ExceptionAddress; // адрес исключения
-  DWORD Section;          //  секция  \ Fault address - дополнение к
-  DWORD Offset;           //  смещение/                 ExceptionAddress
-  DWORD NumberParameters; // количество параметров доп. информации
-  DWORD ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS]; // доп. информация
-  DWORD SizeModuleName;   // размер имени модуля
-  //char  ModuleName[0];    // если SizeModuleName=0, то этого поля нету.
+  DWORD TypeRec;          // Тип записи = RTYPE_EXCEPTION
+  DWORD SizeRec;          // Размер данных
+  struct RECHEADER *Next; // Следующий элемент в списке
+
+  EXCEPTION_POINTERS *Exception;
 };
 
-struct FAULTCODERECORD{   // кусок кода
-  WORD  TypeRec;          // Тип записи = RTYPE_FAULTCODE
-  WORD  SizeRec;          // Размер данных
-  DWORD ExceptionAddress; // адрес исключения
-  DWORD SuccessCode;      // =0 - данные в Code невалидны
-  BYTE  Code[128];        // первые 64 байта перед тем местом, где был трап
-                          // 64-й байт - это и есть то самое место!
-                          // эти 128 байта могут быть заполнены 0, если не
-                          // получилось считать данные из памяти (нет доступа)
-  DWORD SuccessData;
-  BYTE  Data[128];
+struct MACRORECORD{       // Макросы
+  DWORD TypeRec;          // Тип записи = RTYPE_MACRO
+  DWORD SizeRec;          // Размер
+  struct RECHEADER *Next; // Следующий элемент в списке
+  WORD  MacroStatus;      // 0 - не в режиме макро, 1 - Recording, 2 - Executing
+  WORD  MacroPos;         // текущая позиция в MacroKeyBuffer
+  DWORD MacroFlags;       // флаги - младшее слово = MACRO_AREA
+  DWORD MacroKey;         // назначенная макроклавиша
+  DWORD MacroBufferSize;  // размер макропоследовательности MacroKeyBuffer
+  // DWORD MacroKeyBuffer[0];// макро-последовательность
 };
-
-struct STACKRECORD{       // "раскрученный стек"
-  WORD  TypeRec;          // Тип записи = RTYPE_STACK
-  WORD  SizeRec;          // Размер данных
-  WORD  CurItem;          // теущий индекс стека в текущем дампе
-  WORD  Reserved;
-  DWORD EIP;              // адрес
-  DWORD EBP;
-  DWORD Section;          // секция
-  DWORD Offset;           // смещение
-
-  DWORD SizeModuleName;   // размер имени модуля
-  // char  ModuleName[0];   // если SizeModuleName=0, то этого поля нету.
-};
-
 
 struct FARAREARECORD{     // "где мы сейчас находимся?"
-  WORD  TypeRec;          // Тип записи = RTYPE_FARAREA
-  WORD  SizeRec;          // Размер данных
+  DWORD TypeRec;          // Тип записи = RTYPE_FARAREA
+  DWORD SizeRec;          // Размер данных
+  struct RECHEADER *Next; // Следующий элемент в списке
   DWORD ObjectType;       // то, что возвращает CtrlObject->Cp()->GetType()
   COORD ScrWH;            // размеры экрана - ширина, высота
+};
 
-  DWORD Reserved[20];
+enum {
+  RAWTYPE_BINARY =0,
+  RAWTYPE_TEXT   =1,
 };
 
 struct RAWDARARECORD{     // произвольные данные
-  WORD  TypeRec;          // Тип записи = RTYPE_RAWDARA
-  WORD  SizeRec;          // Размер данных
+  DWORD TypeRec;          // Тип записи = RTYPE_RAWDARA
+  DWORD SizeRec;          // Размер данных
+  struct RECHEADER *Next; // Следующий элемент в списке
   DWORD RawFlags;         // Дополнительные флаги для расширябильности :-)
+  DWORD RawType;          // Тип данных = RAWTYPE_BINARY, RAWTYPE_TEXT
+  DWORD SizeData;         // Размер произвольных данных
   //BYTE Data[0];         // если SizeRec=0, то этого поля нету
+};
+
+
+//Фейковая структуря для быстрого доступа к данным
+//после заголовка пакета
+struct COMBINE_RECORD {
+  RECHEADER Header;
+  char      Data[ 1 /*SizeRec*/ ];
+};
+//Фейковые структуры для доступа к статическим данным
+//после пакета
+struct MACRORECORD_t : public MACRORECORD {
+  DWORD MacroKeyBuffer[ 1 /*MacroBufferSize*/ ];
+};
+struct PLUGINRECORD_t : public PLUGINRECORD {
+  char ModuleName[ 1 /*SizeModuleName*/ ];
+};
+struct RAWDARARECORD_t : public RAWDARARECORD {
+  LPBYTE RawDataPtr;  //The pointer to allocated raw data can be placed here
+};
+
+struct FARExceptionState {
+  DWORD               StructSize;
+  DWORD               Version;       // Версия "писателя"
+
+  //FAR additional error info
+  char RecomendedDumpFileName[MAXPATH];
+  const char         *RootKey;
+
+  //FAR error context
+  struct RECHEADER   *Head;
 };
 
 #if defined(__BORLANDC__)
@@ -275,19 +232,14 @@ enum ExceptFunctionsType{
   EXCEPT_FARDIALOG,
 };
 
-/* Функция для записи порции рекордов под эгидой одного эвента :-)
-   Вызывается до тех пор, пока не вернет FALSE.
-   Функция должна добавлять к параметру SizeRec размер записанных данных.
-   Iteration - номер очередной итерации (начинается с 0)
-*/
-typedef BOOL (WINAPI *EVENTPROC)(HANDLE hFile,DWORD *SizeRec,int Iteration);
+typedef BOOL (WINAPI *FARPROCESSEVENT)(struct FARExceptionState * Context);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
-               EXCEPTION_POINTERS *xp,
-               struct PluginItem *Module,
-               void *RawData,DWORD RawDataSize,
-               DWORD RawDataFlags=0,
-               EVENTPROC CallBackProc=NULL);
+               EXCEPTION_POINTERS *xp=NULL,
+               struct PluginItem *Module=NULL,
+               void *RawData=NULL,DWORD RawDataSize=0,
+               DWORD RawDataFlags=0,DWORD RawType=RAWTYPE_BINARY);
+
 int xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации

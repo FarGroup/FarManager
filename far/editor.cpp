@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.155 15.02.2002 $ */
+/* Revision: 1.156 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    - По поводу Ins - пока не жмакнули стрелку - размер курсора не изменился :-(
   15.02.2002 SVS
     ! Вызов ShowProcessList() вынесен в манагер
     ! Для Ctrl-L сделаем обновление не всего экрана, а только статусной линии
@@ -2138,8 +2140,8 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_INS:
-      CurLine->EditLine.SetOvertypeMode(EFlags.Swap(FEDITOR_OVERTYPE));
-      CurLine->EditLine.Show();
+      EFlags.Swap(FEDITOR_OVERTYPE);
+      Show();
       return(TRUE);
     case KEY_DEL:
       if (!EFlags.Check(FEDITOR_LOCKMODE))

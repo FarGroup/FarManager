@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.124 24.01.2002 $ */
+/* Revision: 1.125 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+   ! При считывании конфигурации (ReadConfig) для REG_BINARY обнулим остаток
+     считываемого буфера до нужно размера.
+   ! Для Opt.XLat сразу же уточним размер
   24.01.2002 SVS
     - BugZ#264 - Show hidden files
   23.01.2002 SVS
@@ -1236,11 +1240,11 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyEditor,"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
 
   {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT, 0},
-  {0, REG_BINARY, NKeyXLat,"Table1",Opt.XLat.Table[0],sizeof(Opt.XLat.Table[0]),NULL},
-  {0, REG_BINARY, NKeyXLat,"Table2",Opt.XLat.Table[1],sizeof(Opt.XLat.Table[1]),NULL},
-  {0, REG_BINARY, NKeyXLat,"Rules1",Opt.XLat.Rules[0],sizeof(Opt.XLat.Rules[0]),NULL},
-  {0, REG_BINARY, NKeyXLat,"Rules2",Opt.XLat.Rules[1],sizeof(Opt.XLat.Rules[1]),NULL},
-  {0, REG_BINARY, NKeyXLat,"Rules3",Opt.XLat.Rules[2],sizeof(Opt.XLat.Rules[2]),NULL},
+  {0, REG_BINARY, NKeyXLat,"Table1",(BYTE*)&Opt.XLat.Table[0][1],sizeof(Opt.XLat.Table[0])-1,NULL},
+  {0, REG_BINARY, NKeyXLat,"Table2",(BYTE*)&Opt.XLat.Table[1][1],sizeof(Opt.XLat.Table[1])-1,NULL},
+  {0, REG_BINARY, NKeyXLat,"Rules1",(BYTE*)&Opt.XLat.Rules[0][1],sizeof(Opt.XLat.Rules[0])-1,NULL},
+  {0, REG_BINARY, NKeyXLat,"Rules2",(BYTE*)&Opt.XLat.Rules[1][1],sizeof(Opt.XLat.Rules[1])-1,NULL},
+  {0, REG_BINARY, NKeyXLat,"Rules3",(BYTE*)&Opt.XLat.Rules[2][1],sizeof(Opt.XLat.Rules[2])-1,NULL},
   {0, REG_SZ,     NKeyXLat,"WordDivForXlat",Opt.XLat.WordDivForXlat,sizeof(Opt.XLat.WordDivForXlat),WordDivForXlat0},
 
   {1, REG_DWORD,  NKeySystem,"SaveHistory",&Opt.SaveHistory,1, 0},
@@ -1392,7 +1396,7 @@ static struct FARConfig{
 
 void ReadConfig()
 {
-  int I;
+  int I, J;
   DWORD OptPolicies_ShowHiddenDrives,  OptPolicies_DisabledOptions;
   char KeyNameFromReg[34];
 
@@ -1418,7 +1422,9 @@ void ReadConfig()
        GetRegKey(CFG[I].KeyName,CFG[I].ValName,(char*)CFG[I].ValPtr,CFG[I].DefStr,CFG[I].DefDWord);
        break;
       case REG_BINARY:
-       GetRegKey(CFG[I].KeyName,CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
+       int Size=GetRegKey(CFG[I].KeyName,CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
+       if(Size < CFG[I].DefDWord)
+         memset(((BYTE*)CFG[I].ValPtr)+Size,0,CFG[I].DefDWord-Size);
        break;
     }
   }
@@ -1499,6 +1505,30 @@ void ReadConfig()
   GetRegKey(NKeyXLat,"AltDialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
     Opt.XLat.XLatAltDialogKey=0;
+  for(I=0; I < 2; ++I)
+  {
+    for(J=1; J < sizeof(Opt.XLat.Table[0]); ++J)
+    {
+      if(!Opt.XLat.Table[I][J])
+      {
+        if(J > 0) --J;
+        Opt.XLat.Table[I][0]=(BYTE)J;
+        break;
+      }
+    }
+  }
+  for(I=0; I < 3; ++I)
+  {
+    for(J=1; J < sizeof(Opt.XLat.Rules[0]); ++J)
+    {
+      if(!Opt.XLat.Rules[I][J])
+      {
+        if(J > 0) --J;
+        Opt.XLat.Rules[I][0]=(BYTE)J;
+        break;
+      }
+    }
+  }
 
   FileList::ReadPanelModes();
   GetTempPath(sizeof(Opt.TempPath),Opt.TempPath);

@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.81 26.12.2001 $ */
+/* Revision: 1.82 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! В таблицах и правилах Opt.XLat - первый байт = размер таблицы.
+    ! Opt.XLat.Rules - 80 байт (по 40 правил)
   26.12.2001 SVS
     + Opt.CloseConsoleRule, Opt.Diz.ROUpdate
     ! Opt.CursorSize - плюс еще 2 позиции под Overide-режим
@@ -330,8 +333,9 @@ struct CodeXLAT{
   */
   char WordDivForXlat[256];
   /* IS $ */
+  // первый байт - размер таблицы
   BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
-  BYTE Rules[3][60]; // 3 по 30 правил:
+  BYTE Rules[3][81]; // 3 по 40 правил:
                     //  [0] "если предыдущий символ латинский"
                     //  [1] "если предыдущий символ нелатинский символ"
                     //  [2] "если предыдущий символ не рус/lat"

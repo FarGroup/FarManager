@@ -5,10 +5,13 @@ registry.cpp
 
 */
 
-/* Revision: 1.13 25.01.2002 $ */
+/* Revision: 1.14 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! GetRegKey(), тот который получает BYTE-данные теперь корректно возвращает
+      размер считанных данных.
   25.01.2002 SVS
     + GetRegKeySize с уже открытым ключем HKEY hKey
   14.12.2001 IS
@@ -198,9 +201,10 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
+  DWORD Required=DataSize;
   if(hKey)
   {
-    DWORD Type,Required=DataSize;
+    DWORD Type;
     ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,ValueData,&Required);
     if(ExitCode == ERROR_MORE_DATA) // если размер не подходящие...
     {
@@ -220,9 +224,9 @@ int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *
       memcpy(ValueData,Default,DataSize);
     else
       memset(ValueData,0,DataSize);
-    return(FALSE);
+    return(0);
   }
-  return(DataSize);
+  return(Required);
 }
 
 

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.117 13.02.2002 $ */
+/* Revision: 1.118 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! Добавим проверку на PluginNumber в Menu, Message & Dialog
   13.02.2002 SVS
     + MIF_USETEXTPTR - щоб юзать TextPtr
     ! Уборка варнингов
@@ -805,6 +807,10 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 
   if (DisablePluginsOutput)
     return(-1);
+
+  if((DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
+    return(-1); // к терапевту.
+
   int ExitCode;
   {
     VMenu FarMenu(Title,NULL,0,MaxHeight);
@@ -1012,7 +1018,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       IsBadReadPtr(Item,sizeof(struct FarDialogItem)*ItemsNumber))
     return(-1);
 
-  if(PluginNumber >= CtrlObject->Plugins.PluginsCount)
+  if((DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
     return(-1); // к терапевту.
 
   // ФИЧА! нельзя указывать отрицательные X2 и Y2
@@ -1126,6 +1132,9 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
 
   if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
     return(-1);
+
+  if((DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
+    return(-1); // к терапевту.
 
   char *SingleItems=NULL;
   char *Msg;

@@ -5,10 +5,12 @@ XLat - перекодировка
 
 */
 
-/* Revision: 1.02 25.05.2001 $ */
+/* Revision: 1.03 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! Уточнение кодера.
   25.06.2001 IS
     ! Внедрение const
   06.05.2001 DJ
@@ -36,7 +38,7 @@ char* WINAPI Xlat(
    DWORD Flags)                   // флаги (см. enum XLATMODE)
 {
   BYTE Chr,ChrOld;
-  int J,I;
+  int J,I,K;
   int PreLang=2,CurLang=2; // uncnown
   int LangCount[2]={0,0};
   int IsChange=0;
@@ -65,9 +67,9 @@ char* WINAPI Xlat(
     return Line;
 
 
-  I=strlen((char *)Opt.XLat.Table[1]),
-  J=strlen((char *)Opt.XLat.Table[0]);
-  int MinLenTable=(I > J?J:I);
+  int MinLenTable=(BYTE)Opt.XLat.Table[1][0];
+  if((BYTE)Opt.XLat.Table[1][0] > (BYTE)Opt.XLat.Table[0][0])
+    MinLenTable=(BYTE)Opt.XLat.Table[0][0];
 
   if (TableSet)
     // из текущей кодировки в OEM
@@ -80,7 +82,7 @@ char* WINAPI Xlat(
     // ChrOld - пред символ
     IsChange=0;
     // цикл по просмотру Chr в таблицах
-    for(I=0; I < MinLenTable; ++I)
+    for(I=1; I < MinLenTable; ++I)
     {
       // символ из латиницы?
       if(Chr == (BYTE)Opt.XLat.Table[1][I])
@@ -105,19 +107,46 @@ char* WINAPI Xlat(
     if(!IsChange) // особые случаи...
     {
       PreLang=CurLang;
+
       if(LangCount[0] > LangCount[1])
         CurLang=0;
-      else
+      else if(LangCount[0] < LangCount[1])
         CurLang=1;
+      else
+        CurLang=2;
+
       if(PreLang != CurLang)
         CurLang=PreLang;
 
-        for(I=0; I < sizeof(Opt.XLat.Rules[0]) && Opt.XLat.Rules[0][I]; I+=2)
-          if(ChrOld == (BYTE)Opt.XLat.Rules[CurLang][I])
-          {
-             Chr=(BYTE)Opt.XLat.Rules[CurLang][I+1];
+      for(I=1; I < Opt.XLat.Rules[CurLang][0]; I+=2)
+        if(ChrOld == (BYTE)Opt.XLat.Rules[CurLang][I])
+        {
+           Chr=(BYTE)Opt.XLat.Rules[CurLang][I+1];
+           break;
+        }
+
+      #if 0
+      // Если в таблице не найдено и таблица была Unknown...
+      if(I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
+      {
+        // ...смотрим сначала в первой таблице...
+        for(I=1; I < Opt.XLat.Rules[0][0]; I+=2)
+          if(ChrOld == (BYTE)Opt.XLat.Rules[0][I])
              break;
-          }
+        for(J=1; J < Opt.XLat.Rules[1][0]; J+=2)
+          if(ChrOld == (BYTE)Opt.XLat.Rules[1][J])
+             break;
+        if(I >= Opt.XLat.Rules[0][0])
+          CurLang=1;
+        if(J >= Opt.XLat.Rules[1][0])
+          CurLang=0;
+        if(???)
+        {
+          Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
+        }
+      }
+      #endif
+
     }
 
     Line[J]=(char)Chr;

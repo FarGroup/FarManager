@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.108 12.02.2002 $ */
+/* Revision: 1.109 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! Вернем обратно поведение хоткеев... до поры до времени. Заодно одну
+      багу исправим (в комментариях видно что за бага ;-)
   12.02.2002 SVS
     ! В ветке PluginHotkeys храним полные пути к плагинам. Это так же решает
       (или в основном так же) проблему BugZ#302
@@ -2396,7 +2399,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
         }
         /* SVS $ */
       case KEY_ALTF11:
-        WriteEvent(FLOG_PLUGINSINFO,NULL,NULL,NULL,0,0,NULL);
+        WriteEvent(FLOG_PLUGINSINFO);
         break;
       case KEY_F4:
         if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
@@ -2456,6 +2459,37 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
 
 int PluginsSet::GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey)
 {
+#if 1
+// Старый вариант
+/*
+FarPath
+C:\Program Files\Far\
+
+ModuleName                                             PluginName
+---------------------------------------------------------------------------------------
+C:\Program Files\Far\Plugins\MultiArc\MULTIARC.DLL  -> Plugins\MultiArc\MULTIARC.DLL
+C:\MultiArc\MULTIARC.DLL                            -> DLL
+---------------------------------------------------------------------------------------
+*/
+  unsigned int FarPathLength=strlen(FarPath);
+  *RegKey=0;
+  if (FarPathLength < strlen(PluginsData[PluginNumber].ModuleName))
+  {
+    char PluginName[NM], *Ptr;
+//    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+FarPathLength);
+    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+
+           (strncmp(PluginsData[PluginNumber].ModuleName,FarPath,FarPathLength)?0:FarPathLength));
+    for (Ptr=PluginName;*Ptr;++Ptr)
+      if (*Ptr=='\\')
+        *Ptr='/';
+    if (ItemNumber>0)
+      sprintf(Ptr,"%%%d",ItemNumber);
+    sprintf(RegKey,"PluginHotkeys\\%s",PluginName);
+    return(TRUE);
+  }
+  return(FALSE);
+#else
+// Новый вариант, с полными путями
   *RegKey=0;
   char PluginName[NM], *Ptr;
   strcpy(PluginName,PluginsData[PluginNumber].ModuleName);
@@ -2491,6 +2525,7 @@ int PluginsSet::GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey)
   }
 #endif
   return(TRUE);
+#endif
 }
 
 

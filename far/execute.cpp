@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.39 18.02.2002 $ */
+/* Revision: 1.40 19.02.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    ! В исполняторе юзаем только *ConsoleTitle, т.е. апишные...
   18.02.2002 SVS
     - set хрен=редька
       Сабжевая команда под cmd.exe работает правильно, а под фаром - отнюдь.
@@ -801,7 +803,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 //_SVS(SysLog("ExecLine='%s'",ExecLine));
     // если запуск через ShellExecuteEx(), то нефига ставить заголовок
     if(SeparateWindow != 2)
-      SetFarTitle(CmdPtr);
+      SetConsoleTitle(CmdPtr);//SetFarTitle(CmdPtr);
+//_SVS(SysLog("CmdPtr  ='%s'",CmdPtr));
     FlushInputBuffer();
 
     /*$ 15.03.2001 SKV
@@ -1024,13 +1027,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   */
   GenerateWINDOW_BUFFER_SIZE_EVENT(-1,-1);
 
-  /* $ 15.02.2002 DJ
-     здесь нужен SetFarTitle, иначе макро-менеджер потом вернет заголовок
-     взад
-  */
-  //SetConsoleTitle(OldTitle);
-  SetFarTitle (OldTitle);
-  /* DJ $ */
+  SetConsoleTitle(OldTitle);
 
   if(Opt.RestoreCPAfterExecute)
   {
