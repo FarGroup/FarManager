@@ -7,12 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.82 14.05.2001 $ */
+/* Revision: 1.82 16.05.2001 $ */
 
 /*
 Modify:
-  14.05.2001 SVS
+  16.05.2001 SVS
    + _D(x) Для Мельникова!
+    ! DumpExceptionInfo переименован в WriteEvent и переехал в farexcpt.hpp
+    ! xfilter переехал в farexcpt.hpp
   09.05.2001 OT
    ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
   07.05.2001 SVS
@@ -674,6 +676,8 @@ void WINAPI DeleteBuffer(char* Buffer);
 #endif
 /* SVS $ */
 
+/* <Логи ***************************************************
+*/
 void SysLog(int l);
 void SysLog(char *msg,...);
 void SysLog(int l,char *fmt,...); ///
@@ -797,9 +801,6 @@ int WINAPI GetSearchReplaceString(
          int *WholeWords,
          int *Reverse);
 
-int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module=NULL);
-
-
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
 int WINAPI KeyNameMacroToKey(char *Name);
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=NULL);
@@ -871,12 +872,5 @@ inline char LocalLowerFast (char c)
 void CopyMaskStr (char *PDest, const char *PSrc);
 
 /* DJ $ */
-
-int xfilter(
-    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
-    EXCEPTION_POINTERS *xp,   // данные ситуации
-    struct PluginItem *Module,// модуль, приведший к исключению.
-    DWORD Flags);             // дополнительные флаги - пока только один
-                              //        0x1 - спрашивать про выгрузку?
 
 #endif  // __FARFUNC_HPP__

@@ -204,6 +204,7 @@ FAROBJ=\
    $(OBJPATH)\vmenu.obj\
    $(OBJPATH)\frame.obj\
    $(OBJPATH)\xlat.obj\
+   $(OBJPATH)\farexcpt.obj\
    $(OBJPATH)\main.obj
 
 Dep_fardexe = BccW32.cfg\

@@ -46,6 +46,7 @@ CLEAN :
 	-@erase "$(INTDIR)\constitle.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
+	-@erase "$(INTDIR)\farexcpt.obj"
 	-@erase "$(INTDIR)\flink.obj"
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
@@ -166,6 +167,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
 	"$(INTDIR)\delete.obj" \
+	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\qsortex.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
@@ -285,6 +287,7 @@ CLEAN :
 	-@erase "$(INTDIR)\ctrlobj.obj"
 	-@erase "$(INTDIR)\delete.obj"
 	-@erase "$(INTDIR)\dialog.obj"
+	-@erase "$(INTDIR)\farexcpt.obj"
 	-@erase "$(INTDIR)\dizlist.obj"
 	-@erase "$(INTDIR)\edit.obj"
 	-@erase "$(INTDIR)\editor.obj"
@@ -405,6 +408,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\filestr.obj" \
+	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
 	"$(INTDIR)\filter.obj" \
@@ -615,6 +619,10 @@ SOURCE=.\filelist.cpp
 SOURCE=.\filestr.cpp
 
 "$(INTDIR)\filestr.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\farexcpt.cpp
+
+"$(INTDIR)\farexcpt.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\filetype.cpp

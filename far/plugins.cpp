@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.65 14.05.2001 $ */
+/* Revision: 1.66 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! xfilter -> farexcpt.cpp
   14.05.2001 SVS
     + Opt.ShowCheckingFile - щоб управлять мельканием в заголовке...
   06.05.2001 DJ
@@ -226,6 +228,7 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "farexcpt.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
@@ -241,209 +244,6 @@ int KeepUserScreen;
 char DirToSet[NM];
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
-
-/* $ 16.10.2000 SVS
-   Простенький обработчик исключений.
-*/
-static char* xFromMSGTitle(int From)
-{
-  if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
-    return MSG(MExceptTitleLoad);
-  else
-    return MSG(MExceptTitle);
-}
-
-int xfilter(
-    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
-    EXCEPTION_POINTERS *xp,   // данные ситуации
-    struct PluginItem *Module,// модуль, приведший к исключению.
-    DWORD Flags)              // дополнительные флаги - пока только один
-                              //        0x1 - спрашивать про выгрузку?
-{
-   struct __ECODE {
-     DWORD Code;     // код исключения
-     DWORD IdMsg;    // ID сообщения из LNG-файла
-     DWORD RetCode;  // Что вернем?
-   } ECode[]={
-     {EXCEPTION_ACCESS_VIOLATION, MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_ARRAY_BOUNDS_EXCEEDED, MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
-     {EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
-     // сюды добавляем.
-   };
-   // EXCEPTION_CONTINUE_EXECUTION  ??????
-   char *pName;
-   int  I, rc, Ret=1;
-   char Buf[2][80];
-   char TruncFileName[2*NM];
-   BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
-
-   // получим запись исключения
-   EXCEPTION_RECORD *xr = xp->ExceptionRecord;
-
-   // CONTEXT можно использовать для отображения или записи в лог
-   //         содержимого регистров...
-   // CONTEXT *xc = xp->ContextRecord;
-
-   rc = EXCEPTION_EXECUTE_HANDLER;
-
-   /*$ 23.01.2001 skv
-     Неизвестное исключение не стоит игнорировать.
-   */
-   pName=NULL;
-   strcpy(TruncFileName,NullToEmpty(Module->ModuleName));
-
-   /* $ 26.02.2001 VVM
-       ! Обработка STATUS_INVALIDFUNCTIONRESULT */
-   // Этот кусок обрабатываем в первую очередь, т.к. это проверки "на вшивость"
-   if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
-   {
-     I = 0;
-     static const char *NameField[2][3]={
-       {"DiskMenuStrings","PluginMenuStrings","PluginConfigStrings"},
-       {"InfoLines","DescrFiles","PanelModesArray"},};
-     switch(From)
-     {
-       case EXCEPT_GETPLUGININFO_DATA:
-         pName = "PluginInfo";
-         I = 0;
-         break;
-       case EXCEPT_GETOPENPLUGININFO_DATA:
-         pName = "OpenPluginInfo";
-         I = 1;
-         break;
-     }
-
-     if(xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
-        xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
-     {
-       sprintf(Buf[0],
-           MSG(MExcStructField),
-           pName,
-           NameField[I][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
-     }
-     else
-       sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
-
-     Ret=Message(MSG_WARNING,
-            (Opt.ExceptCallDebugger?2:1),
-            xFromMSGTitle(From),
-            MSG(MExcTrappedException),
-            MSG(MExcCheckOnLousys),
-            TruncPathStr(TruncFileName,40),
-            Buf[0],
-            "\1",
-            MSG(MExcUnloadYes),
-            (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MOk)),
-            (Opt.ExceptCallDebugger?MSG(MOk):NULL));
-
-     if (!Opt.ExceptCallDebugger || Ret!=0)
-       Unload = TRUE;
-//       CtrlObject->Plugins.UnloadPlugin(*Module);
-   } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
-
-   // теперь обработаем исключение по возврату 0 вместо INVALID_HANDLE_VALUE
-   // из Open*Plugin()
-   else if (xr->ExceptionCode == STATUS_INVALIDFUNCTIONRESULT)
-   {
-     switch (From)
-     {
-       case EXCEPT_OPENPLUGIN:
-         pName="OpenPlugin";
-         break;
-       case EXCEPT_OPENFILEPLUGIN:
-         pName="OpenFilePlugin";
-         break;
-       case EXCEPT_OPENPLUGIN_FINDLIST:
-         pName="OpenPlugin(OPEN_FINDLIST)";
-         break;
-     }
-
-     sprintf(Buf[0],MSG(MExcInvalidFuncResult),pName);
-     Ret=Message(MSG_WARNING, 2,
-                 xFromMSGTitle(From),
-                 MSG(MExcTrappedException),
-                 MSG(MExcCheckOnLousys),
-                 TruncPathStr(TruncFileName,40),
-                 Buf[0],
-                 "\1",
-                 MSG(MExcUnload),
-                 MSG(MYes), MSG(MNo));
-     if (Ret == 0)
-     {
-       Unload = TRUE;
-       Ret++; // Исключить вызов дебаггера при Ret == 0
-     }
-   }
-
-   else
-   {
-     // просмотрим "знакомые" FAR`у исключения и обработаем...
-     for(I=0; I < sizeof(ECode)/sizeof(ECode[0]); ++I)
-       if(ECode[I].Code == xr->ExceptionCode)
-       {
-         pName=MSG(ECode[I].IdMsg);
-         rc=ECode[I].RetCode;
-         if(xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
-         {
-           sprintf(Buf[1],MSG(xr->ExceptionInformation[0]+MExcRAccess),xr->ExceptionInformation[1]);
-           pName=Buf[1];
-         }
-         break;
-       }
-
-     if (!pName) pName=MSG(MExcUnknown);
-
-     sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
-     if (Flags&1)
-     {
-       Ret=Message(MSG_WARNING,(Opt.ExceptCallDebugger?3:2),
-               xFromMSGTitle(From),
-               MSG(MExcTrappedException),
-               pName,
-               Buf[0],
-               TruncPathStr(TruncFileName,40),"\1",
-               MSG(MExcUnload),
-               (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MYes)),
-               (Opt.ExceptCallDebugger?MSG(MYes):MSG(MNo)),
-               (Opt.ExceptCallDebugger?MSG(MNo):NULL));
-       if ((Opt.ExceptCallDebugger && Ret == 1) ||
-           (!Opt.ExceptCallDebugger && Ret == 0))
-         Unload = TRUE; // CtrlObject->Plugins.UnloadPlugin(*Module);
-     }
-     else
-       Ret=Message(MSG_WARNING,(Opt.ExceptCallDebugger?2:1),
-               xFromMSGTitle(From),
-               MSG(MExcTrappedException),
-               pName,
-               Buf[0],
-               TruncPathStr(TruncFileName,40),"\1",
-               MSG(MExcUnloadYes),
-               (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MOk)),
-               (Opt.ExceptCallDebugger?MSG(MOk):NULL));
-     /* skv$*/
-   } /* else */
-
-   // выведим дамп перед выгрузкой плагина.
-   if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
-     DumpExceptionInfo(xp,Module);
-
-   if (Unload)
-     CtrlObject->Plugins.UnloadPlugin(*Module);
-
-   if (Opt.ExceptCallDebugger && Ret==0)
-     rc = EXCEPTION_CONTINUE_SEARCH;
-   else
-     rc = EXCEPTION_EXECUTE_HANDLER;
-   /* VVM $ */
-
-   if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
-     rc=EXCEPTION_CONTINUE_SEARCH; //?
-   return rc;
-}
-/* SVS $ */
-
 
 PluginsSet::PluginsSet()
 {

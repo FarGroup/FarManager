@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.08 09.05.2001 $ */
+/* Revision: 1.09 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! DumpExceptionInfo -> farexcpt.cpp
+    + _SYSLOG_KM()
   09.05.2001 OT
     ! Макросы, аналогичные _D(x), которые зависят от разработчика или функционала
   07.05.2001 SVS
@@ -43,7 +46,7 @@ Modify:
 #include "plugins.hpp"
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM)
   #define SYSLOG
  #endif
 #endif
@@ -225,150 +228,4 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
   if(InternalLog)
     CloseSysLog();
 #endif
-}
-
-/*
-Структура файла "farexcpt.dmp"
-
-00000: CountRecords:DWORD
-Record {
-    SizeRecord:DWORD    - общий размер
-    RecFlags:DWORD      - дополнительные флаги (пока =0)
-    Time:SYSTEMTIME     - the system time is expressed in Coordinated Universal Time (UTC))
-    WinVer:OSVERSIONINFO- версия виндов
-    FARVersion:DWORD    - версия FAR Manager в формате FAR_VERSION
-    SizePlugin:DWORD    - размер поля Plugin, если = 0 - то нету Plugin
-    {Plugin:PLUGINITEM} * SizePlugin
-    Regs:CONTEXT
-    ExcRecCount:DWORD   - количество исключений, если = 0 - то нету ExcRec
-    {ExcRec[0]:EXCEPTION_RECORD
-      SizeExcAddr:DWORD   - размер поля ExcAddr, если = 0 - то нету ExcAddr
-      {ExcAddr}
-    } * ExcRecCount
-    SizeStack:DWORD     - размер поля Stack, если = 0 - то нету Stack
-    {Stack} * SizeStack
-} * CountRecords
-*/
-int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module)
-{
-  if(xp)
-  {
-    static char DumpExcptFileName[MAX_FILE];
-    GetModuleFileName(NULL,DumpExcptFileName,sizeof(DumpExcptFileName));
-    strcpy(strrchr(DumpExcptFileName,'\\')+1,"farexcpt.dmp");
-    HANDLE fp=CreateFile(DumpExcptFileName,
-                 GENERIC_READ|GENERIC_WRITE,
-                 FILE_SHARE_READ|FILE_SHARE_WRITE,
-                 NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_ARCHIVE,NULL);
-    if(fp != INVALID_HANDLE_VALUE)
-    {
-      int NumExt;
-      DWORD CountDump;
-      DWORD SizeOfRecord;
-      DWORD Pos,Temp;
-      DWORD RecFlags=0;
-      DWORD Zero=0;
-      DWORD SizePlugin=0;
-
-      // Немного посчитаем
-      CONTEXT *cn=xp->ContextRecord;
-      struct _EXCEPTION_RECORD *xpn=xp->ExceptionRecord;
-      // посчитаем размер записи
-      SizeOfRecord=sizeof(SYSTEMTIME)+
-                   sizeof(DWORD)+
-                   sizeof(FAR_VERSION)+
-                   sizeof(CONTEXT)+
-                   sizeof(DWORD)+
-                   sizeof(DWORD)+
-                   sizeof(DWORD)+
-                   sizeof(OSVERSIONINFO);
-      if(Module && Module->ModuleName[0])
-      {
-        SizeOfRecord+=(SizePlugin=sizeof(struct PluginItem));
-      }
-      NumExt=0;
-      while(xpn)
-      {
-        SizeOfRecord+=sizeof(EXCEPTION_RECORD)-
-                      (EXCEPTION_MAXIMUM_PARAMETERS*sizeof(DWORD))+
-                      sizeof(DWORD)*xpn->NumberParameters;
-        if(xpn->ExceptionAddress)
-          SizeOfRecord+=sizeof(DWORD); // учтем поле SizeExcAddr
-        NumExt++;
-        xpn=xpn->ExceptionRecord;
-      }
-
-      // подготовим заголовок
-      if((Pos=GetFileSize(fp,NULL)) == -1 || !Pos)
-        CountDump=0;
-      else
-      {
-        SetFilePointer(fp,0,NULL,FILE_BEGIN);
-        ReadFile(fp,&CountDump,sizeof(CountDump),&Temp,NULL);
-      }
-      CountDump++;
-      SetFilePointer(fp,0,NULL,FILE_BEGIN);
-      WriteFile(fp,&CountDump,sizeof(CountDump),&Temp,NULL);
-
-      // первым дело впишем время
-      // The system time is expressed in Coordinated Universal Time (UTC).
-      SYSTEMTIME st;
-      GetSystemTime(&st);
-      SetFilePointer(fp,0,NULL,FILE_END);
-      // размер записи
-      WriteFile(fp,&SizeOfRecord,sizeof(SizeOfRecord),&Temp,NULL);
-      // флаги
-      WriteFile(fp,&RecFlags,sizeof(RecFlags),&Temp,NULL);
-      // время
-      WriteFile(fp,&st,sizeof(st),&Temp,NULL);
-      // OS
-      WriteFile(fp,&WinVer,sizeof(WinVer),&Temp,NULL);
-      // FAR
-      WriteFile(fp,&FAR_VERSION,sizeof(FAR_VERSION),&Temp,NULL);
-
-      // пишем данные по плагину, если надо
-      WriteFile(fp,&SizePlugin,sizeof(SizePlugin),&Temp,NULL);
-      if(SizePlugin)
-      {
-        WriteFile(fp,&Module,sizeof(*Module),&Temp,NULL);
-      }
-
-      // пишем регистры
-      WriteFile(fp,cn,sizeof(CONTEXT),&Temp,NULL);
-
-      // количество блоков исключений
-      WriteFile(fp,&NumExt,sizeof(NumExt),&Temp,NULL);
-
-      // Сами исключения
-      xpn=xp->ExceptionRecord;
-      while(xpn)
-      {
-        WriteFile(fp,&xpn->ExceptionCode,sizeof(DWORD),&Temp,NULL);
-        WriteFile(fp,&xpn->ExceptionFlags,sizeof(DWORD),&Temp,NULL);
-        Pos=0;//xpn->ExceptionRecord - пока ставим 0
-        WriteFile(fp,&Pos,sizeof(DWORD),&Temp,NULL);
-        WriteFile(fp,xpn->ExceptionAddress,sizeof(PVOID),&Temp,NULL);
-        WriteFile(fp,&xpn->NumberParameters,sizeof(DWORD),&Temp,NULL);
-        WriteFile(fp,xpn->ExceptionInformation,sizeof(DWORD)*xpn->NumberParameters,&Temp,NULL);
-
-        // данные из адреса исключения
-        /* ЭТОГО ПОКА НЕ ЗНАЮ КАК СДЕЛАТЬ :-( */
-        //if(xpn->ExceptionAddress)
-          Zero=0; // Пока 0
-        WriteFile(fp,&Zero,sizeof(Zero),&Temp,NULL);
-        // ... здесь будут
-        //if(xpn->ExceptionAddress)
-        xpn=xpn->ExceptionRecord;
-      }
-
-      // данные из стека возврата
-      /* ЭТОГО ПОКА НЕ ЗНАЮ КАК СДЕЛАТЬ :-( */
-      Zero=0; // Пока 0
-      WriteFile(fp,&Zero,sizeof(Zero),&Temp,NULL);
-      // ... здесь будут
-
-      CloseHandle(fp);
-    }
-  }
-  return EXCEPTION_EXECUTE_HANDLER;
 }

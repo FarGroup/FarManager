@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.07 15.05.2001 $ */
+/* Revision: 1.08 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! _D() -> _OT()
   15.05.2001 OT
     ! NWZ -> NFZ
   12.05.2001 DJ
@@ -43,7 +45,7 @@ Frame::Frame()
   FrameKeyBar=NULL;
   ModalStack=NULL;
   ModalStackCount = ModalStackSize=0;
- 
+
 }
 
 Frame::~Frame()
@@ -60,7 +62,7 @@ void Frame::SetKeyBar(KeyBar *FrameKeyBar)
 
 void Frame::UpdateKeyBar()
 {
-    _D(SysLog("Frame::UpdateKeyBar(), FrameKeyBar=0x%p",FrameKeyBar));
+    _OT(SysLog("Frame::UpdateKeyBar(), FrameKeyBar=0x%p",FrameKeyBar));
     if ( FrameKeyBar!=NULL && KeyBarVisible )
         FrameKeyBar->RedrawIfChanged();
 }

@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.10 06.05.2001 $ */
+/* Revision: 1.11 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    + GetCurRecord() - для дампа
   06.05.2001 DJ
     ! перетрях #include
   25.04.2001 SVS
@@ -68,7 +70,7 @@ class KeyMacro
     // 0 - нет записи, 1 - простая запись, 2 - вызов диалога настроек
     int Recording;
 
-    int *RecBuffer;
+    DWORD *RecBuffer;
     int RecBufferSize;
     int Executing;
     int ExecMacroPos;
@@ -128,6 +130,8 @@ class KeyMacro
     int GetIndex(int Key, int Mode);
     // получение размера, занимаемого указанным макросом
     int GetRecordSize(int Key, int Mode);
+
+    int GetCurRecord(struct MacroRecord* RBuf,int *KeyPos);
 
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);

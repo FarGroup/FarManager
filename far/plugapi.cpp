@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.57 15.05.2001 $ */
+/* Revision: 1.58 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    + #include "farexcpt.hpp"
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 SVS
@@ -176,6 +178,7 @@ Modify:
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "farexcpt.hpp"
 
 // declare in plugins.cpp
 extern int KeepUserScreen;

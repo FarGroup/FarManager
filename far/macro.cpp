@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.35 07.05.2001 $ */
+/* Revision: 1.36 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    + GetCurRecord() - для дампа
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -404,7 +406,7 @@ int KeyMacro::ProcessKey(int Key)
         else
           delete Macros[Pos].Buffer;
         Macros[Pos].Key=MacroKey;
-        Macros[Pos].Buffer=(DWORD*)RecBuffer;
+        Macros[Pos].Buffer=RecBuffer;
         Macros[Pos].BufferSize=RecBufferSize;
         Macros[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
       }
@@ -422,7 +424,7 @@ int KeyMacro::ProcessKey(int Key)
     {
       if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
-      RecBuffer=(int *)realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+1));
+      RecBuffer=(DWORD *)realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+1));
       if (RecBuffer==NULL)
         return(FALSE);
       RecBuffer[RecBufferSize++]=Key;
@@ -1172,4 +1174,26 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
     return FALSE;
 
   return TRUE;
+}
+
+/*
+  Return: 0 - не в режиме макро, 1 - Recording, 2 - Executing
+*/
+int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
+{
+  *KeyPos=Executing?ExecKeyPos:0;
+  memset(RBuf,0,sizeof(struct MacroRecord));
+  if(!Recording)
+  {
+    if(Executing)
+    {
+      memcpy(RBuf,Macros+ExecMacroPos,sizeof(struct MacroRecord));
+      return 2;
+    }
+    memset(RBuf,0,sizeof(struct MacroRecord));
+    return 0;
+  }
+  RBuf->BufferSize=RecBufferSize;
+  RBuf->Buffer=RecBuffer;
+  return 1;
 }

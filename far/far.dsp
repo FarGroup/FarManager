@@ -7,19 +7,19 @@
 CFG=far - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "far.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "far.mak" CFG="far - Win32 Debug"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "far - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "far - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -77,7 +77,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 
@@ -117,6 +117,10 @@ SOURCE=.\constitle.cpp
 # Begin Source File
 
 SOURCE=.\copy.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\farexcpt.cpp
 # End Source File
 # Begin Source File
 
@@ -454,6 +458,10 @@ SOURCE=.\xlat.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\farexcpt.hpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\baseinp.hpp

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.07 15.05.2001 $ */
+/* Revision: 1.08 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! _D() -> _OT()
   15.05.2001 OT
     ! NWZ -> NFZ
   11.05.2001 OT
@@ -150,7 +152,7 @@ void FilePanels::SetScreenPositions()
   RedrawDesktop Redraw;
 //  CtrlObject->CmdLine->Hide();
 
-  _D(SysLog("FilePanels::SetScreenPositions()"));
+  _OT(SysLog("FilePanels::SetScreenPositions()"));
   CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
   MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
@@ -756,7 +758,7 @@ int  FilePanels::GetTypeAndName(char *Type,char *Name)
 
 void FilePanels::OnChangeFocus(int f)
 {
-  _D(SysLog("FilePanels::OnChangeFocus(), focus=%i",f));
+  _OT(SysLog("FilePanels::OnChangeFocus(), focus=%i",f));
   Focus=f;
   if ( f ) {
     Redraw();
@@ -765,7 +767,7 @@ void FilePanels::OnChangeFocus(int f)
 
 void FilePanels::Show()
 {
-    _D(SysLog("FilePanels::Show()"));
+    _OT(SysLog("FilePanels::Show()"));
     Frame::Show();
 }
 
@@ -773,7 +775,7 @@ void FilePanels::Redraw()
 {
     if ( Focus==0 )
         return;
-    _D(SysLog("FilePanels::Redraw()"));
+    _OT(SysLog("FilePanels::Redraw()"));
     CtrlObject->CmdLine->ShowBackground();
     if (LeftPanel->IsVisible())
         LeftPanel->Show();

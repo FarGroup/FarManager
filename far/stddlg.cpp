@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.10 07.05.2001 $ */
+/* Revision: 1.11 16.05.2001 $ */
 
 /*
 Modify:
+  16.05.2001 SVS
+    ! DumpExceptionInfo заменен на xfilter
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -46,6 +48,7 @@ Modify:
 #include "keys.hpp"
 #include "dialog.hpp"
 #include "ctrlobj.hpp"
+#include "farexcpt.hpp"
 
 /*
   Функция GetSearchReplaceString выводит диалог поиска или замены, принимает
@@ -356,7 +359,8 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
     Dlg.Process();
     ExitCode=Dlg.GetExitCode();
   }
-  __except (DumpExceptionInfo(GetExceptionInformation()))
+  __except ( xfilter(EXCEPT_FARDIALOG,
+                   GetExceptionInformation(),NULL,1)) // NULL=???
   {
     return FALSE;
   }
