@@ -5,10 +5,13 @@ options.cpp
 
 */
 
-/* Revision: 1.19 12.05.2003 $ */
+/* Revision: 1.20 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    ! Диалоговые настройки вынесены в отдельный диалог
+    ! Уточнение для полиции - диалоги имеют номер 5
   12.05.2003 SVS
     ! EditFileTypes() теперь без параметра.
   15.05.2002 SVS
@@ -155,24 +158,25 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
   struct MenuData OptionsMenu[]=
   {
-    (char *)MMenuSystemSettings,LIF_SELECTED,0,
-    (char *)MMenuPanelSettings,0,0,
-    (char *)MMenuInterface,0,0,
-    (char *)MMenuLanguages,0,0,
-    (char *)MMenuPluginsConfig,0,0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuConfirmation,0,0,
-    (char *)MMenuFilePanelModes,0,0,
-    (char *)MMenuFileDescriptions,0,0,
-    (char *)MMenuFolderInfoFiles,0,0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuViewer,0,0,
-    (char *)MMenuEditor,0,0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuColors,0,0,
-    (char *)MMenuFilesHighlighting,0,0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuSaveSetup,0,KEY_SHIFTF9,
+   /* 00 */(char *)MMenuSystemSettings,LIF_SELECTED,0,
+   /* 01 */(char *)MMenuPanelSettings,0,0,
+   /* 02 */(char *)MMenuInterface,0,0,
+   /* 03 */(char *)MMenuLanguages,0,0,
+   /* 04 */(char *)MMenuPluginsConfig,0,0,
+   /* 05 */(char *)MMenuDialogSettings,0,0,
+   /* 06 */"",LIF_SEPARATOR,0,
+   /* 07 */(char *)MMenuConfirmation,0,0,
+   /* 08 */(char *)MMenuFilePanelModes,0,0,
+   /* 09 */(char *)MMenuFileDescriptions,0,0,
+   /* 10 */(char *)MMenuFolderInfoFiles,0,0,
+   /* 11 */"",LIF_SEPARATOR,0,
+   /* 12 */(char *)MMenuViewer,0,0,
+   /* 13 */(char *)MMenuEditor,0,0,
+   /* 14 */"",LIF_SEPARATOR,0,
+   /* 15 */(char *)MMenuColors,0,0,
+   /* 16 */(char *)MMenuFilesHighlighting,0,0,
+   /* 17 */"",LIF_SEPARATOR,0,
+   /* 18 */(char *)MMenuSaveSetup,0,KEY_SHIFTF9,
   };
 
 
@@ -216,7 +220,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   // дисаблим
   if (Opt.Policies.DisabledOptions)
     for(I=0; I < sizeof(OptionsMenu)/sizeof(OptionsMenu[0]); ++I)
-      OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> I) & 1);
+    {
+      if(I > 6)
+        OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> (I-1)) & 1);
+      else
+        OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> I) & 1);
+    }
 
   // расставим "чеки" для левой панели
   switch(CtrlObject->Cp()->LeftPanel->GetType())
@@ -520,31 +529,34 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
         case 4:   // Plugins configuration
           CtrlObject->Plugins.Configure();
           break;
-        case 6:   // Confirmations
+        case 5:   // Dialog settings (police=5)
+          DialogSettings();
+          break;
+        case 7:   // Confirmations
           SetConfirmations();
           break;
-        case 7:   // File panel modes
+        case 8:   // File panel modes
           FileList::SetFilePanelModes();
           break;
-        case 8:   // File descriptions
+        case 9:   // File descriptions
           SetDizConfig();
           break;
-        case 9:   // Folder description files
+        case 10:   // Folder description files
           SetFolderInfoFiles();
           break;
-        case 11:  // Viewer settings
+        case 12:  // Viewer settings
           ViewerConfig(Opt.ViOpt);
           break;
-        case 12:  // Editor settings
+        case 13:  // Editor settings
           EditorConfig(Opt.EdOpt);
           break;
-        case 14:  // Colors
+        case 15:  // Colors
           SetColors();
           break;
-        case 15:  // Files highlighting
+        case 16:  // Files highlighting
           CtrlObject->HiFiles->HiEdit(0);
           break;
-        case 17:  // Save setup
+        case 18:  // Save setup
           SaveConfig(1);
           break;
       }

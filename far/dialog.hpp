@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.68 25.02.2003 $ */
+/* Revision: 1.69 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    + Добавка к DialogItem - SelStart, SelEnd. Отвечают за сохранение
+      параметров выделения в строках редактирования
   25.02.2003 SVS
     - BugZ#811 - Зависание при невозможности загрузить плуг
       Последствия разборок с BugZ#806. Добавим флаг DMODE_MSGINTERNAL, который
@@ -267,6 +270,18 @@ Modify:
 #define CVTITEM_TOPLUGIN    0
 #define CVTITEM_FROMPLUGIN  1
 
+enum {
+  DLGEDITLILE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода
+  DLGEDITLILE_SELALLGOTFOCUS      = 0x00000002, // управляет выделением блока при получении фокуса ввода
+  DLGEDITLILE_NOTSELONGOTFOCUS    = 0x00000004, // не восстанавливать выделение строки редактирования при получении фокуса ввода
+  DLGEDITLILE_NEWSELONGOTFOCUS    = 0x00000008, // управляет процессом выделения блока при получении фокуса
+  DLGEDITLILE_GOTOEOLGOTFOCUS     = 0x00000010, // при получении фокуса ввода переместить курсор в конец строки
+  DLGEDITLILE_PERSISTBLOCK        = 0x00000020, // постоянные блоки в строках ввода
+  DLGEDITLILE_AUTOCOMPLETE        = 0x00000040, // автозавершение в строках ввода
+  DLGEDITLILE_AUTOCOMPLETECTRLEND = 0x00000040, // при автозавершение подтверждать комбинацией Ctrl-End
+  DLGEDITLILE_HISTORY             = 0x00000100, // история в строках ввода диалогов
+};
+
 
 #define MakeDialogItems(Data,Item) \
   struct DialogItem Item[sizeof(Data)/sizeof(Data[0])]; \
@@ -328,10 +343,14 @@ struct DialogItem
   int AutoCount;   // Автоматизация
   struct DialogItemAutomation* AutoPtr;
   DWORD UserData; // ассоциированные данные
+
   // прочее
   void *ObjPtr;
   VMenu *ListPtr;
   DlgUserControl *UCData;
+
+  int SelStart;
+  int SelEnd;
 };
 
 /*

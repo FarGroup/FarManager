@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.121 14.05.2003 $ */
+/* Revision: 1.122 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    + MConfigDlgSetsTitle, MConfigDialogsEditHistory, MConfigDialogsEditBlock, MConfigDialogsAutoComplete,
+      MConfigDialogsEULBsClear, MMenuDialogSettings,
   14.05.2003 SVS
     + MViewConfigPersistentSelection
   06.05.2003 SVS
@@ -523,14 +526,17 @@ enum
   MConfigMenuBar,
   MConfigSaver,
   MConfigSaverMinutes,
-  MConfigDialogsEditHistory,
-  MConfigDialogsEditBlock,
   MConfigUsePromptFormat,
   MConfigAltGr,
   MConfigCopyTotal,
   MConfigCopyTimeRule,
-  MConfigAutoComplete,
   MConfigPgUpChangeDisk,
+
+  MConfigDlgSetsTitle,
+  MConfigDialogsEditHistory,
+  MConfigDialogsEditBlock,
+  MConfigDialogsAutoComplete,
+  MConfigDialogsEULBsClear,
 
   MViewConfigTitle,
   MViewConfigExternal,
@@ -1428,6 +1434,7 @@ enum
   MMenuSystemSettings,
   MMenuPanelSettings,
   MMenuInterface,
+  MMenuDialogSettings,
   MMenuLanguages,
   MMenuPluginsConfig,
   MMenuConfirmation,

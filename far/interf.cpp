@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.75 06.05.2003 $ */
+/* Revision: 1.76 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    ! DetectTTFFont уехал из main.cpp в interf.cpp
+    - Bug 893 - Символ \x7F отрисовывается на панели как '?'
   06.05.2003 SVS
     ! W-Console!!!
     ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
@@ -838,6 +841,31 @@ void GetRealCursorType(int &Visible,int &Size)
   Visible=cci.bVisible;
 }
 
+#if defined(USE_WFUNC)
+
+static BOOL DetectTTFFont(void)
+{
+  char AppName[NM*2], OptRegRoot[NM];
+  BOOL UseTTFConsoleFont=FALSE;
+  GetModuleFileName(NULL,AppName,sizeof(AppName));
+  SetRegRootKey(HKEY_CURRENT_USER);
+  strcpy(OptRegRoot,Opt.RegRoot);
+  strcpy(Opt.RegRoot,"Console");
+  ReplaceStrings(AppName,"\\","_",-1);
+  if(!CheckRegKey(AppName))
+  {
+    strcpy(Opt.RegRoot,"");
+    strcpy(AppName,"Console");
+  }
+  int FontFamily=GetRegKey(AppName,"FontFamily",0);
+  if(FontFamily && Opt.UseUnicodeConsole == -1)
+    UseTTFConsoleFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
+  strcpy(Opt.RegRoot,OptRegRoot);
+  return UseTTFConsoleFont;
+}
+
+#endif
+
 void InitRecodeOutTable(UINT cp)
 {
   int I;
@@ -848,23 +876,23 @@ void InitRecodeOutTable(UINT cp)
     RecodeOutTable[I]=I;
   if (Opt.CleanAscii)
   {
-    for (I=0;I<32;I++)
+    for (I=0x00;I<0x20;I++)
       RecodeOutTable[I]='.';
-    RecodeOutTable[7]='*';
-    RecodeOutTable[24]=RecodeOutTable[25]='|';
-    RecodeOutTable[30]='X';
-    RecodeOutTable[31]='X';
-    RecodeOutTable[255]=' ';
+    RecodeOutTable[0x07]='*';
+    RecodeOutTable[0x18]=RecodeOutTable[0x19]='|';
+    RecodeOutTable[0x1E]='X';
+    RecodeOutTable[0x1F]='X';
+    RecodeOutTable[0xFF]=' ';
     RecodeOutTable[0x10]='>';
     RecodeOutTable[0x11]='<';
   }
   if (Opt.NoGraphics)
   {
-    for (I=179;I<=218;I++)
+    for (I=0xB3;I<=0xDA;I++)
       RecodeOutTable[I]='+';
-    RecodeOutTable[179]=RecodeOutTable[186]='|';
-    RecodeOutTable[196]='-';
-    RecodeOutTable[205]='=';
+    RecodeOutTable[0xB3]=RecodeOutTable[0xBA]='|';
+    RecodeOutTable[0xC4]='-';
+    RecodeOutTable[0xCD]='=';
   }
 #if defined(USE_WFUNC)
   if(Opt.UseUnicodeConsole)
@@ -909,23 +937,25 @@ void InitRecodeOutTable(UINT cp)
     GetRegKey("System","Oem2Unicode",(BYTE *)Oem2Unicode,(BYTE*)_Oem2Unicode,sizeof(Oem2Unicode));
     if (Opt.CleanAscii)
     {
-      for (I=0;I<32;I++)
+      for (I=0;I<0x20;I++)
         Oem2Unicode[I]=0;
-      Oem2Unicode[7]='*';
-      Oem2Unicode[24]=Oem2Unicode[25]='|';
-      Oem2Unicode[30]='X';
-      Oem2Unicode[31]='X';
-      Oem2Unicode[255]=' ';
+      Oem2Unicode[0x07]='*';
+      Oem2Unicode[0x18]=Oem2Unicode[0x19]='|';
+      Oem2Unicode[0x1E]='X';
+      Oem2Unicode[0x1F]='X';
+      Oem2Unicode[0xFF]=' ';
       Oem2Unicode[0x10]='>';
       Oem2Unicode[0x11]='<';
     }
+    if(!DetectTTFFont())
+      Oem2Unicode[0x7F]=0;
     if (Opt.NoGraphics)
     {
-      for (I=179;I<=218;I++)
+      for (I=0xB3;I<=0xDA;I++)
         Oem2Unicode[I]='+';
-      Oem2Unicode[179]=Oem2Unicode[186]='|';
-      Oem2Unicode[196]='-';
-      Oem2Unicode[205]='=';
+      Oem2Unicode[0xB3]=Oem2Unicode[0xBA]='|';
+      Oem2Unicode[0xC4]='-';
+      Oem2Unicode[0xCD]='=';
     }
 
     for (I=1;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)

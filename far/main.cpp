@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.68 06.05.2003 $ */
+/* Revision: 1.69 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    ! DetectTTFFont уехал из main.cpp в interf.cpp
   06.05.2003 SVS
     ! /aw удален, вместо него /8, который в масдае не действует, а в NT
       заставляет работать ФАР в 8-битной консоли (по умолчанию в NT
@@ -287,29 +289,6 @@ printf(
 #endif
 #endif
 }
-
-#if defined(USE_WFUNC)
-/*
-void DetectTTFFont(char *Path)
-{
-  char AppName[NM*2], OptRegRoot[NM];
-  strncpy(AppName,Path,sizeof(AppName)-1);
-  SetRegRootKey(HKEY_CURRENT_USER);
-  strcpy(OptRegRoot,Opt.RegRoot);
-  strcpy(Opt.RegRoot,"Console");
-  ReplaceStrings(AppName,"\\","_",-1);
-  if(!CheckRegKey(AppName))
-  {
-    strcpy(Opt.RegRoot,"");
-    strcpy(AppName,"Console");
-  }
-  int FontFamily=GetRegKey(AppName,"FontFamily",0);
-  if(FontFamily && Opt.UseUnicodeConsole == -1)
-    Opt.UseUnicodeConsole=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
-  strcpy(Opt.RegRoot,OptRegRoot);
-}
-*/
-#endif
 
 static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar,int RegOpt)
 {

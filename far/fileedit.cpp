@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.134 21.04.2003 $ */
+/* Revision: 1.135 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    - BugZ#889 - Плагину доходят клавиши во время записи макроса.
+      Пусть доходят! Кроме того теперь доходят и те клавиши, которые не доходили :-)
   21.04.2003 SVS
     + Немного логов
   14.04.2003 SVS
@@ -871,158 +874,31 @@ int FileEditor::ProcessKey(int Key)
     Key=KEY_SHIFTENTER;
   }
 
+  // Все сотальные необработанные клавиши пустим далее
+  /* $ 28.04.2001 DJ
+     не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
+     никак не соответствует обрабатываемой клавише, возникают разномастные
+     глюки
+  */
+  if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
+     return(FEdit->ProcessKey(Key));
+  /* DJ $ */
+
   switch(Key)
   {
-    /* $ 24.08.2000 SVS
-       + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
+    /* $ 27.09.2000 SVS
+       Печать файла/блока с использованием плагина PrintMan
     */
-    case KEY_CTRLO:
+    case KEY_ALTF5:
     {
-      if(!Opt.OnlyEditorViewerUsed)
+      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
       {
-        /*$ 27.09.2000 skv
-          To prevent redraw in macro with Ctrl-O
-        */
-        FEdit->Hide();
-        /* skv$*/
-        FrameManager->ShowBackground();
-        SetCursorType(FALSE,0);
-        WaitKey();
-        Show();
+        CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
+        return TRUE;
       }
-      return(TRUE);
+      break; // отдадим Alt-F5 на растерзание плагинам, если не установлен PrintMan
     }
-/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
-
-    case KEY_F2:
-    case KEY_SHIFTF2:
-    {
-      BOOL Done=FALSE;
-      char OldCurDir[4096];
-      FarGetCurDir(sizeof(OldCurDir),OldCurDir);
-
-      while(!Done) // бьемся до упора
-      {
-        // проверим путь к файлу, может его уже снесли...
-        Ptr=strrchr(FullFileName,'\\');
-        if(Ptr)
-        {
-          Chr=*Ptr;
-          *Ptr=0;
-          // В корне?
-          if (!(isalpha(FullFileName[0]) && (FullFileName[1]==':') && !FullFileName[2]))
-          {
-            // а дальше? каталог существует?
-            if((FNAttr=::GetFileAttributes(FullFileName)) == -1 ||
-                              !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
-                //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
-              )
-              Flags.Set(FFILEEDIT_SAVETOSAVEAS);
-          }
-          *Ptr=Chr;
-        }
-
-        if(Key == KEY_F2 &&
-           (FNAttr=::GetFileAttributes(FullFileName)) != -1 &&
-           !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
-            Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
-
-        static int TextFormat=0;
-        int NameChanged=FALSE;
-        if (Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS))
-        {
-          const char *HistoryName="NewEdit";
-          static struct DialogData EditDlgData[]=
-          {
-            /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
-            /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
-            /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITPATH,0,"",
-            /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-            /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
-            /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
-            /* 6 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MEditSaveDOS,
-            /* 7 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(char *)MEditSaveUnix,
-            /* 8 */ DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(char *)MEditSaveMac,
-            /* 9 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-            /*10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-            /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
-          };
-          MakeDialogItems(EditDlgData,EditDlg);
-          strncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
-          EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
-          EditDlg[5+TextFormat].Selected=TRUE;
-
-          {
-            Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
-            Dlg.SetPosition(-1,-1,76,14);
-            Dlg.SetHelp("FileSaveAs");
-            Dlg.Process();
-            if (Dlg.GetExitCode()!=10 || *EditDlg[2].Data==0)
-              return(FALSE);
-          }
-          /* $ 07.06.2001 IS
-             - Баг: нужно сначала убирать пробелы, а только потом кавычки
-          */
-          RemoveTrailingSpaces(EditDlg[2].Data);
-          Unquote(EditDlg[2].Data);
-          /* IS $ */
-
-          NameChanged=LocalStricmp(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName))!=0;
-          /* $ 01.08.2001 tran
-             этот кусок перенесен повыше и вместо FileName
-             используеся EditDlg[2].Data */
-          if(!NameChanged)
-            FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???
-
-          FNAttr=::GetFileAttributes(EditDlg[2].Data);
-          if (NameChanged && FNAttr != -1)
-          {
-            if (Message(MSG_WARNING,2,MSG(MEditTitle),EditDlg[2].Data,MSG(MEditExists),
-                         MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
-            {
-              FarChDir(OldCurDir);
-              return(TRUE);
-            }
-          }
-          /* tran $ */
-
-          if(!SetFileName(EditDlg[2].Data))
-          {
-            SetLastError(ERROR_INVALID_NAME);
-            Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),EditDlg[2].Data,MSG(MOk));
-            if(!NameChanged)
-              FarChDir(OldCurDir);
-            return FALSE;
-          }
-
-          if (EditDlg[5].Selected)
-            TextFormat=0;
-          if (EditDlg[6].Selected)
-            TextFormat=1;
-          if (EditDlg[7].Selected)
-            TextFormat=2;
-          if (EditDlg[8].Selected)
-            TextFormat=3;
-          if(!NameChanged)
-            FarChDir(OldCurDir);
-        }
-        ShowConsoleTitle();
-        FarChDir(StartDir); //???
-
-        if(SaveFile(FullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2) == SAVEFILE_ERROR)
-        {
-          if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-                      FileName,MSG(MRetry),MSG(MCancel))!=0)
-          {
-            Done=TRUE;
-            break;
-          }
-        }
-        else
-          Done=TRUE;
-      }
-      return(TRUE);
-    }
+    /* SVS $*/
 
     case KEY_F6:
     {
@@ -1088,142 +964,6 @@ int FileEditor::ProcessKey(int Key)
       break; // отдадим F6 плагинам, если есть запрет на переключение
       /* DJ $ */
     }
-    /*$ 21.07.2000 SKV
-        + выход с позиционированием на редактируемом файле по CTRLF10
-    */
-    case KEY_CTRLF10:
-    {
-      {
-        if (isTemporary())
-        {
-          return(TRUE);
-        }
-
-        char FullFileNameTemp[NM*2];
-        strcpy(FullFileNameTemp,FullFileName);
-        /* 26.11.2001 VVM
-          ! Использовать полное имя файла */
-        /* $ 28.12.2001 DJ
-           вынесем код в общую функцию
-        */
-        if(::GetFileAttributes(FullFileName) == -1) // а сам файл то еще на месте?
-        {
-          if(!CheckShortcutFolder(FullFileNameTemp,sizeof(FullFileNameTemp)-1,FALSE))
-            return FALSE;
-          strcat(FullFileNameTemp,"\\."); // для вваливания внутрь :-)
-        }
-
-        if(Flags.Check(FFILEEDIT_NEW))
-        {
-          UpdateFileList();
-          Flags.Clear(FFILEEDIT_NEW);
-        }
-
-        {
-          SaveScreen Sc;
-          CtrlObject->Cp()->GoToFile (FullFileNameTemp);
-          Flags.Set(FFILEEDIT_REDRAWTITLE);
-        }
-        /* DJ $ */
-        /* VVM $ */
-      }
-      return (TRUE);
-    }
-    /* SKV $*/
-
-    case KEY_SHIFTF10:
-      if(!ProcessKey(KEY_F2)) // учтем факт того, что могли отказаться от сохранения
-        return FALSE;
-    case KEY_ESC:
-    case KEY_F10:
-    {
-      int FirstSave=1, NeedQuestion=1;
-      if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
-      {
-        if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
-           ::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE)) // а сам файл то еще на месте?
-        {
-          switch(Message(MSG_WARNING,3,MSG(MEditTitle),
-                         MSG(MEditSavedChangedNonFile),
-                         MSG(MEditSavedChangedNonFile2),
-                         MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
-          {
-            case 0:
-              if(!ProcessKey(KEY_F2))  // попытка сначала сохранить
-                NeedQuestion=0;
-              FirstSave=0;
-              break;
-            case 1:
-              NeedQuestion=0;
-              FirstSave=0;
-              break;
-            case 2:
-            default:
-              return FALSE;
-          }
-        }
-      }
-      ProcessQuitKey(FirstSave,NeedQuestion);
-      return(TRUE);
-    }
-
-    /* $ 27.09.2000 SVS
-       Печать файла/блока с использованием плагина PrintMan
-    */
-    case KEY_ALTF5:
-    {
-      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
-      {
-        CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
-        return TRUE;
-      }
-      break; // отдадим Alt-F5 на растерзание плагинам, если не установлен PrintMan
-    }
-    /* SVS $*/
-
-    /* $ 19.12.2000 SVS
-       Вызов диалога настроек (с подачи IS)
-    */
-    case KEY_ALTSHIFTF9:
-    {
-      /* $ 26.02.2001 IS
-           Работа с локальной копией EditorOptions
-      */
-      struct EditorOptions EdOpt;
-
-      EdOpt.TabSize=FEdit->GetTabSize();
-      EdOpt.ExpandTabs=FEdit->GetConvertTabs();
-      EdOpt.PersistentBlocks=FEdit->GetPersistentBlocks();
-      EdOpt.DelRemovesBlocks=FEdit->GetDelRemovesBlocks();
-      EdOpt.AutoIndent=FEdit->GetAutoIndent();
-      EdOpt.AutoDetectTable=FEdit->GetAutoDetectTable();
-      EdOpt.CursorBeyondEOL=FEdit->GetCursorBeyondEOL();
-      EdOpt.CharCodeBase=FEdit->GetCharCodeBase();
-      FEdit->GetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
-      //EdOpt.BSLikeDel=FEdit->GetBSLikeDel();
-
-      /* $ 27.11.2001 DJ
-         Local в EditorConfig
-      */
-      EditorConfig(EdOpt,1);
-      /* DJ $ */
-      EditKeyBar.Show(); //???? Нужно ли????
-
-      FEdit->SetTabSize(EdOpt.TabSize);
-      FEdit->SetConvertTabs(EdOpt.ExpandTabs);
-      FEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
-      FEdit->SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
-      FEdit->SetAutoIndent(EdOpt.AutoIndent);
-      FEdit->SetAutoDetectTable(EdOpt.AutoDetectTable);
-      FEdit->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
-      FEdit->SetCharCodeBase(EdOpt.CharCodeBase);
-      FEdit->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
-      //FEdit->SetBSLikeDel(EdOpt.BSLikeDel);
-      /* IS $ */
-      FEdit->Show();
-      return TRUE;
-    }
-    /* SVS $ */
 
     /* $ 10.05.2001 DJ
        Alt-F11 - показать view/edit history
@@ -1240,25 +980,12 @@ int FileEditor::ProcessKey(int Key)
     /* DJ $ */
   }
 
-  // Все сотальные необработанные клавиши пустим далее
-  /* $ 28.04.2001 DJ
-     не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
-     никак не соответствует обрабатываемой клавише, возникают разномастные
-     глюки
-  */
-  if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
-     return(FEdit->ProcessKey(Key));
-  /* DJ $ */
-
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
   _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
-  if (CtrlObject->Macro.IsExecuting() ||
+
+  if (//CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsRecording() || // пусть доходят!
     !ProcessEditorInput(FrameManager->GetLastInputRecord()))
   {
-    /* Обработка после плагина!
-       ИМЕННО сюда и писать те клавиши, которые могут доходить до плагина,
-       но которые так же что-то делают (например F1 - показ хелпа)
-    */
     switch(Key)
     {
       case KEY_F1:
@@ -1295,16 +1022,292 @@ int FileEditor::ProcessKey(int Key)
         return (TRUE);
       }
       /* IS $ */
-    }
+      /* $ 24.08.2000 SVS
+         + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
+      */
+      case KEY_CTRLO:
+      {
+        if(!Opt.OnlyEditorViewerUsed)
+        {
+          /*$ 27.09.2000 skv
+            To prevent redraw in macro with Ctrl-O
+          */
+          FEdit->Hide();
+          /* skv$*/
+          FrameManager->ShowBackground();
+          SetCursorType(FALSE,0);
+          WaitKey();
+          Show();
+        }
+        return(TRUE);
+      }
+  /* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
 
-    /* $ 22.03.2001 SVS
-       Это помогло от залипания :-)
-    */
-    if (Flags.Check(FFILEEDIT_FULLSCREEN) && !CtrlObject->Macro.IsExecuting())
-      EditKeyBar.Show();
-    /* SVS $ */
-    if (!EditKeyBar.ProcessKey(Key))
-      return(FEdit->ProcessKey(Key));
+      case KEY_F2:
+      case KEY_SHIFTF2:
+      {
+        BOOL Done=FALSE;
+        char OldCurDir[4096];
+        FarGetCurDir(sizeof(OldCurDir),OldCurDir);
+
+        while(!Done) // бьемся до упора
+        {
+          // проверим путь к файлу, может его уже снесли...
+          Ptr=strrchr(FullFileName,'\\');
+          if(Ptr)
+          {
+            Chr=*Ptr;
+            *Ptr=0;
+            // В корне?
+            if (!(isalpha(FullFileName[0]) && (FullFileName[1]==':') && !FullFileName[2]))
+            {
+              // а дальше? каталог существует?
+              if((FNAttr=::GetFileAttributes(FullFileName)) == -1 ||
+                                !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
+                  //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
+                )
+                Flags.Set(FFILEEDIT_SAVETOSAVEAS);
+            }
+            *Ptr=Chr;
+          }
+
+          if(Key == KEY_F2 &&
+             (FNAttr=::GetFileAttributes(FullFileName)) != -1 &&
+             !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
+              Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
+
+          static int TextFormat=0;
+          int NameChanged=FALSE;
+          if (Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS))
+          {
+            const char *HistoryName="NewEdit";
+            static struct DialogData EditDlgData[]=
+            {
+              /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
+              /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
+              /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITPATH,0,"",
+              /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+              /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
+              /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
+              /* 6 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MEditSaveDOS,
+              /* 7 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(char *)MEditSaveUnix,
+              /* 8 */ DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(char *)MEditSaveMac,
+              /* 9 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+              /*10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+              /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+            };
+            MakeDialogItems(EditDlgData,EditDlg);
+            strncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
+            EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
+            EditDlg[5+TextFormat].Selected=TRUE;
+
+            {
+              Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
+              Dlg.SetPosition(-1,-1,76,14);
+              Dlg.SetHelp("FileSaveAs");
+              Dlg.Process();
+              if (Dlg.GetExitCode()!=10 || *EditDlg[2].Data==0)
+                return(FALSE);
+            }
+            /* $ 07.06.2001 IS
+               - Баг: нужно сначала убирать пробелы, а только потом кавычки
+            */
+            RemoveTrailingSpaces(EditDlg[2].Data);
+            Unquote(EditDlg[2].Data);
+            /* IS $ */
+
+            NameChanged=LocalStricmp(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName))!=0;
+            /* $ 01.08.2001 tran
+               этот кусок перенесен повыше и вместо FileName
+               используеся EditDlg[2].Data */
+            if(!NameChanged)
+              FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???
+
+            FNAttr=::GetFileAttributes(EditDlg[2].Data);
+            if (NameChanged && FNAttr != -1)
+            {
+              if (Message(MSG_WARNING,2,MSG(MEditTitle),EditDlg[2].Data,MSG(MEditExists),
+                           MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
+              {
+                FarChDir(OldCurDir);
+                return(TRUE);
+              }
+            }
+            /* tran $ */
+
+            if(!SetFileName(EditDlg[2].Data))
+            {
+              SetLastError(ERROR_INVALID_NAME);
+              Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),EditDlg[2].Data,MSG(MOk));
+              if(!NameChanged)
+                FarChDir(OldCurDir);
+              return FALSE;
+            }
+
+            if (EditDlg[5].Selected)
+              TextFormat=0;
+            if (EditDlg[6].Selected)
+              TextFormat=1;
+            if (EditDlg[7].Selected)
+              TextFormat=2;
+            if (EditDlg[8].Selected)
+              TextFormat=3;
+            if(!NameChanged)
+              FarChDir(OldCurDir);
+          }
+          ShowConsoleTitle();
+          FarChDir(StartDir); //???
+
+          if(SaveFile(FullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2) == SAVEFILE_ERROR)
+          {
+            if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
+                        FileName,MSG(MRetry),MSG(MCancel))!=0)
+            {
+              Done=TRUE;
+              break;
+            }
+          }
+          else
+            Done=TRUE;
+        }
+        return(TRUE);
+      }
+
+      /*$ 21.07.2000 SKV
+          + выход с позиционированием на редактируемом файле по CTRLF10
+      */
+      case KEY_CTRLF10:
+      {
+        {
+          if (isTemporary())
+          {
+            return(TRUE);
+          }
+
+          char FullFileNameTemp[NM*2];
+          strcpy(FullFileNameTemp,FullFileName);
+          /* 26.11.2001 VVM
+            ! Использовать полное имя файла */
+          /* $ 28.12.2001 DJ
+             вынесем код в общую функцию
+          */
+          if(::GetFileAttributes(FullFileName) == -1) // а сам файл то еще на месте?
+          {
+            if(!CheckShortcutFolder(FullFileNameTemp,sizeof(FullFileNameTemp)-1,FALSE))
+              return FALSE;
+            strcat(FullFileNameTemp,"\\."); // для вваливания внутрь :-)
+          }
+
+          if(Flags.Check(FFILEEDIT_NEW))
+          {
+            UpdateFileList();
+            Flags.Clear(FFILEEDIT_NEW);
+          }
+
+          {
+            SaveScreen Sc;
+            CtrlObject->Cp()->GoToFile (FullFileNameTemp);
+            Flags.Set(FFILEEDIT_REDRAWTITLE);
+          }
+          /* DJ $ */
+          /* VVM $ */
+        }
+        return (TRUE);
+      }
+      /* SKV $*/
+
+      case KEY_SHIFTF10:
+        if(!ProcessKey(KEY_F2)) // учтем факт того, что могли отказаться от сохранения
+          return FALSE;
+      case KEY_ESC:
+      case KEY_F10:
+      {
+        int FirstSave=1, NeedQuestion=1;
+        if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
+        {
+          if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
+             ::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE)) // а сам файл то еще на месте?
+          {
+            switch(Message(MSG_WARNING,3,MSG(MEditTitle),
+                           MSG(MEditSavedChangedNonFile),
+                           MSG(MEditSavedChangedNonFile2),
+                           MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+            {
+              case 0:
+                if(!ProcessKey(KEY_F2))  // попытка сначала сохранить
+                  NeedQuestion=0;
+                FirstSave=0;
+                break;
+              case 1:
+                NeedQuestion=0;
+                FirstSave=0;
+                break;
+              case 2:
+              default:
+                return FALSE;
+            }
+          }
+        }
+        ProcessQuitKey(FirstSave,NeedQuestion);
+        return(TRUE);
+      }
+
+      /* $ 19.12.2000 SVS
+         Вызов диалога настроек (с подачи IS)
+      */
+      case KEY_ALTSHIFTF9:
+      {
+        /* $ 26.02.2001 IS
+             Работа с локальной копией EditorOptions
+        */
+        struct EditorOptions EdOpt;
+
+        EdOpt.TabSize=FEdit->GetTabSize();
+        EdOpt.ExpandTabs=FEdit->GetConvertTabs();
+        EdOpt.PersistentBlocks=FEdit->GetPersistentBlocks();
+        EdOpt.DelRemovesBlocks=FEdit->GetDelRemovesBlocks();
+        EdOpt.AutoIndent=FEdit->GetAutoIndent();
+        EdOpt.AutoDetectTable=FEdit->GetAutoDetectTable();
+        EdOpt.CursorBeyondEOL=FEdit->GetCursorBeyondEOL();
+        EdOpt.CharCodeBase=FEdit->GetCharCodeBase();
+        FEdit->GetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
+        //EdOpt.BSLikeDel=FEdit->GetBSLikeDel();
+
+        /* $ 27.11.2001 DJ
+           Local в EditorConfig
+        */
+        EditorConfig(EdOpt,1);
+        /* DJ $ */
+        EditKeyBar.Show(); //???? Нужно ли????
+
+        FEdit->SetTabSize(EdOpt.TabSize);
+        FEdit->SetConvertTabs(EdOpt.ExpandTabs);
+        FEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
+        FEdit->SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
+        FEdit->SetAutoIndent(EdOpt.AutoIndent);
+        FEdit->SetAutoDetectTable(EdOpt.AutoDetectTable);
+        FEdit->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
+        FEdit->SetCharCodeBase(EdOpt.CharCodeBase);
+        FEdit->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
+        //FEdit->SetBSLikeDel(EdOpt.BSLikeDel);
+        /* IS $ */
+        FEdit->Show();
+        return TRUE;
+      }
+      /* SVS $ */
+
+      default:
+      {
+        /* $ 22.03.2001 SVS
+           Это помогло от залипания :-)
+        */
+        if (Flags.Check(FFILEEDIT_FULLSCREEN) && !CtrlObject->Macro.IsExecuting())
+          EditKeyBar.Show();
+        /* SVS $ */
+        if (!EditKeyBar.ProcessKey(Key))
+          return(FEdit->ProcessKey(Key));
+      }
+    }
   }
   return(TRUE);
 }

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.95 02.05.2003 $ */
+/* Revision: 1.96 21.05.2003 $ */
 
 /*
 Modify:
+  21.05.2003 SVS
+    - BugZ#900 - ACTL_POSTKEYSEQUENCE вызванная из макроса
   02.05.2003 SVS
     - BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
     - BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
@@ -933,8 +935,8 @@ int KeyMacro::GetKey()
     else
 */
     {
-    Executing=TRUE;
-    ExecKeyPos=0; //?????????????????????????????????
+      Executing=TRUE;
+      ExecKeyPos=0; //?????????????????????????????????
     }
   }
 
@@ -1598,7 +1600,8 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
   MacroRAMCount++;
 
 //  Executing=TRUE;
-  ExecKeyPos=0;
+  if(ExecKeyPos == MacroRAM->BufferSize)
+    ExecKeyPos=0;
   return TRUE;
 }
 
@@ -1640,7 +1643,8 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   MacroRAMCount++;
 
 //  Executing=TRUE;
-  ExecKeyPos=0;
+  if(ExecKeyPos == MacroRAM->BufferSize)
+    ExecKeyPos=0;
   return TRUE;
 }
 

@@ -5,10 +5,16 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.93 06.05.2003 $ */
+/* Revision: 1.94 23.05.2003 $ */
 
 /*
 Modify:
+  23.05.2003 SVS
+    ! ≈сли макроклавиша - "обычна€" клавиша, то...
+       INPUT_RECORD.EventType=0x8001 - элемент Event содержит структуру
+       KEY_EVENT_RECORD с информацией о сообщении с клавиатуры. Ёто
+       сообщение специфичное дл€ FAR manager (начина€ с билда 1662) и
+       приходит плагину во врем€ "проигрывани€" макрокоманды.
   06.05.2003 SVS
     ! очередные работы по DETECT_ALT_ENTER
   21.04.2003 SVS
@@ -505,7 +511,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=0;
+      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:0x8001;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
@@ -519,7 +525,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-      rec->EventType=0;
+      rec->EventType=((MacroKey&KEY_MACROSPEC_BASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:0x8001;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
       _KEYMACRO(SysLog("MacroKey2 =%s",_FARKEY_ToName(MacroKey)));

@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.99 14.05.2003 $ */
+/* Revision: 1.100 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    - неправильные комментарии в struct DialogsOptions
+    ! DialogsOptions.SelectedType -> DialogsOptions.EditLine
   14.05.2003 VVM
     + ViewerOptions.PersistentBlocks - постоянные блоки во вьюере
   06.05.2003 SVS
@@ -435,12 +438,12 @@ struct PoliciesOptions {
 };
 
 struct DialogsOptions{
-  int   EditHistory;        // Постоянные блоки в строках ввода
-  int   EditBlock;          // Разрешение для функции автозавершения в строках ввода в диалогах имеющих History
+  int   EditBlock;          // Постоянные блоки в строках ввода
+  int   EditHistory;        // Добавлять в историю?
   int   AutoComplete;       // Разрешено автодополнение?
   int   EULBsClear;         // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
   int   SelectFromHistory;  // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
-  DWORD SelectedType;       // позволяет управлять выделением в строках ввода в диалогах.
+  DWORD EditLine;           // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
 };
 
 struct NowellOptions{

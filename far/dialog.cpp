@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.284 06.05.2003 $ */
+/* Revision: 1.285 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    + Про выделения в строках ввода.
+    + Добавка к DialogItem - SelStart, SelEnd. Отвечают за сохранение
+      параметров выделения в строках редактирования
   06.05.2003 SVS
     + Проверка в конструкторе на IsBadCodePtr((FARPROC)DlgProc)
   16.04.2003 SVS
@@ -1598,6 +1602,7 @@ int Dialog::InitDialogObjects(int ID)
         {
           CurItem->ListPtr=new VMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
         }
+        CurItem->SelStart=-1;
       }
 
       DlgEdit *DialogEdit=(DlgEdit *)CurItem->ObjPtr;
@@ -3545,6 +3550,13 @@ int Dialog::ProcessKey(int Key)
         if(!(Item[FocusPos].Flags & DIF_READONLY) ||
             (Item[FocusPos].Flags & DIF_READONLY) && IsNavKey(Key))
         {
+          // "только что ломанулись и начинать выделение с нуля"?
+          if((Opt.Dialogs.EditLine&DLGEDITLILE_NEWSELONGOTFOCUS) && Item[FocusPos].SelStart != -1 && PrevFocusPos != FocusPos)// && Item[FocusPos].SelEnd)
+          {
+            edt->Flags.Clear(FEDITLINE_MARKINGBLOCK);
+            PrevFocusPos=FocusPos;
+          }
+
           if (edt->ProcessKey(Key))
           {
             if(Item[FocusPos].Flags & DIF_READONLY)
@@ -3565,6 +3577,7 @@ int Dialog::ProcessKey(int Key)
                (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
               )
             {
+              // (Opt.Dialogs.EditLine&DLGEDITLILE_AUTOCOMPLETECTRLEND)
               /* $ 05.12.2000 IS
                  Все удалил и написал заново ;)
               */
@@ -3607,8 +3620,8 @@ int Dialog::ProcessKey(int Key)
               /* $ 03.12.2000 IS
                    Учитываем флаг DoAutoComplete
               */
-              if (DoAutoComplete && FindInEditForAC(Item[FocusPos].Type == DI_COMBOBOX,
-                           (void *)Item[FocusPos].Selected,PStr,MaxLen))
+              if (DoAutoComplete &&
+                  FindInEditForAC(Item[FocusPos].Type == DI_COMBOBOX,(void *)Item[FocusPos].Selected,PStr,MaxLen))
               /* IS $ */
               {
   //_D(SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos));
@@ -4372,7 +4385,45 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
        SetFocusPos=KillFocusPos;
 
     Item[KillFocusPos].Focus=0;
+
+    // "снимать выделение при потере фокуса?"
+    if(IsEdit(Item[KillFocusPos].Type) &&
+       !(Item[KillFocusPos].Type == DI_COMBOBOX && (Item[KillFocusPos].Flags & DIF_DROPDOWNLIST)))
+    {
+      Edit *EditPtr=(Edit*)Item[KillFocusPos].ObjPtr;
+      EditPtr->GetSelection(Item[KillFocusPos].SelStart,Item[KillFocusPos].SelEnd);
+      if((Opt.Dialogs.EditLine&DLGEDITLILE_CLEARSELONKILLFOCUS))
+      {
+        EditPtr->Select(-1,0);
+      }
+    }
+
     Item[SetFocusPos].Focus=1;
+
+    // "не восстанавливать выделение при получении фокуса?"
+    if(IsEdit(Item[SetFocusPos].Type) &&
+       !(Item[SetFocusPos].Type == DI_COMBOBOX && (Item[SetFocusPos].Flags & DIF_DROPDOWNLIST)))
+    {
+      Edit *EditPtr=(Edit*)Item[SetFocusPos].ObjPtr;
+      if(!(Opt.Dialogs.EditLine&DLGEDITLILE_NOTSELONGOTFOCUS))
+      {
+        if(Opt.Dialogs.EditLine&DLGEDITLILE_SELALLGOTFOCUS)
+          EditPtr->Select(0,EditPtr->StrSize);
+        else
+          EditPtr->Select(Item[SetFocusPos].SelStart,Item[SetFocusPos].SelEnd);
+      }
+      else
+      {
+        EditPtr->Select(-1,0);
+      }
+
+      // при получении фокуса ввода переместить курсор в конец строки?
+      if(Opt.Dialogs.EditLine&DLGEDITLILE_GOTOEOLGOTFOCUS)
+      {
+        EditPtr->SetCurPos(EditPtr->StrSize);
+      }
+    }
+
     /* $ 21.02.2002 DJ
        проинформируем листбокс, есть ли у него фокус
     */
@@ -4531,6 +4582,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
     Item->Selected=Data->Selected;
     Item->Flags=Data->Flags;
     Item->DefaultButton=Data->DefaultButton;
+    Item->SelStart=-1;
     if ((unsigned int)Data->Data<MAX_MSG)
       strncpy(Item->Data,MSG((unsigned int)Data->Data),sizeof(Item->Data)-1);
     else
@@ -4616,6 +4668,7 @@ int Dialog::IsFocused(int Type)
 /* $ 28.07.2000 SVS
    ! Переметр DlgEdit *EditLine нафиг ненужен!
 */
+//
 int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen)
 {
   char *Str;

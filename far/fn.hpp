@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.184 14.05.2003 $ */
+/* Revision: 1.185 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    + DialogSettings()
   14.05.2003 SVS
     + GetOpenPluginInfo_Dump()
   12.05.2003 SVS
@@ -716,6 +718,7 @@ void FlushInputBuffer();
 void SystemSettings();
 void PanelSettings();
 void InterfaceSettings();
+void DialogSettings();
 void SetConfirmations();
 void SetDizConfig();
 int  CheckParseJunction(char *Path,int SizePath);

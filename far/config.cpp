@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.148 14.05.2003 $ */
+/* Revision: 1.149 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    ! Диалоговые настройки вынесены в отдельный диалог
   14.05.2003 SVS
     ! MEditConfigPersistentBlocks -> MViewConfigPersistentSelection
   14.05.2003 VVM
@@ -696,16 +698,13 @@ void PanelSettings()
 #define DLG_INTERF_SCREENSAVER          7
 #define DLG_INTERF_SCREENSAVERTIME      8
 #define DLG_INTERF_SAVERMINUTES         9
-#define DLG_INTERF_DIALOGSEDITHISTORY  10
-#define DLG_INTERF_DIALOGSEDITBLOCK    11
-#define DLG_INTERF_USEPROMPTFORMAT     12
-#define DLG_INTERF_PROMPTFORMAT        13
-#define DLG_INTERF_ALTGR               14
-#define DLG_INTERF_COPYSHOWTOTAL       15
-#define DLG_INTERF_COPYTIMERULE        16
-#define DLG_INTERF_AUTOCOMPLETE        17
-#define DLG_INTERF_PGUPCHANGEDISK      18
-#define DLG_INTERF_OK                  20
+#define DLG_INTERF_USEPROMPTFORMAT     10
+#define DLG_INTERF_PROMPTFORMAT        11
+#define DLG_INTERF_ALTGR               12
+#define DLG_INTERF_COPYSHOWTOTAL       13
+#define DLG_INTERF_COPYTIMERULE        14
+#define DLG_INTERF_PGUPCHANGEDISK      16
+#define DLG_INTERF_OK                  17
 
 /* $ 17.12.2001 IS
    Настройка средней кнопки мыши для панелей. Воткнем пока сюда, потом надо
@@ -720,7 +719,7 @@ void InterfaceSettings()
     /* $ 26.07.2000 SVS
        + Разрешить ли автодополнение в строках ввода
     */
-  /* 00 */DI_DOUBLEBOX,3,1,54,21,0,0,0,0,(char *)MConfigInterfaceTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,54,18,0,0,0,0,(char *)MConfigInterfaceTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigMouse,
@@ -730,18 +729,15 @@ void InterfaceSettings()
   /* 07 */DI_CHECKBOX,5,8,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigSaver,
   /* 08 */DI_FIXEDIT,9,9,11,8,0,0,0,0,"",
   /* 09 */DI_TEXT,13,9,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
-  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigUsePromptFormat,
-  /* 13 */DI_EDIT,9,13,24,12,0,0,0,0,"",
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigAltGr,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigCopyTotal,
-  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigCopyTimeRule,
-  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigAutoComplete,
-  /* 18 */DI_CHECKBOX,5,18,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
-  /* 19 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 20 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 21 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,DIF_AUTOMATION,0,(char *)MConfigUsePromptFormat,
+  /* 11 */DI_EDIT,9,11,24,12,0,0,0,0,"",
+  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigAltGr,
+  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCopyTotal,
+  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigCopyTimeRule,
+  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
+  /* 16 */DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 17 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 18 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -766,8 +762,6 @@ void InterfaceSettings()
     CfgDlg[DLG_INTERF_SCREENSAVERTIME].Flags|=DIF_DISABLE;
     CfgDlg[DLG_INTERF_SAVERMINUTES].Flags|=DIF_DISABLE;
   }
-  CfgDlg[DLG_INTERF_DIALOGSEDITHISTORY].Selected=Opt.Dialogs.EditHistory;
-  CfgDlg[DLG_INTERF_DIALOGSEDITBLOCK].Selected=Opt.Dialogs.EditBlock;
   CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected=Opt.UsePromptFormat;
   strcpy(CfgDlg[DLG_INTERF_PROMPTFORMAT].Data,Opt.PromptFormat);
   if(!Opt.UsePromptFormat)
@@ -777,13 +771,12 @@ void InterfaceSettings()
 
   CfgDlg[DLG_INTERF_COPYTIMERULE].Selected=Opt.CopyTimeRule!=0;
 
-  CfgDlg[DLG_INTERF_AUTOCOMPLETE].Selected=Opt.Dialogs.AutoComplete;
   CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected=Opt.PgUpChangeDisk;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("InterfSettings");
-    Dlg.SetPosition(-1,-1,58,23);
+    Dlg.SetPosition(-1,-1,58,20);
     Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SCREENSAVERTIME,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(DLG_INTERF_SCREENSAVER,DLG_INTERF_SAVERMINUTES,DIF_DISABLE,0,0,DIF_DISABLE);
     Dlg.SetAutomation(DLG_INTERF_USEPROMPTFORMAT,DLG_INTERF_PROMPTFORMAT,DIF_DISABLE,0,0,DIF_DISABLE);
@@ -800,15 +793,12 @@ void InterfaceSettings()
   Opt.ShowKeyBar=CfgDlg[DLG_INTERF_SHOWKEYBAR].Selected;
   Opt.ShowMenuBar=CfgDlg[DLG_INTERF_SHOWMENUBAR].Selected;
   Opt.ScreenSaver=CfgDlg[DLG_INTERF_SCREENSAVER].Selected;
-  Opt.Dialogs.EditHistory=CfgDlg[DLG_INTERF_DIALOGSEDITHISTORY].Selected;
-  Opt.Dialogs.EditBlock=CfgDlg[DLG_INTERF_DIALOGSEDITBLOCK].Selected;
   if ((Opt.ScreenSaverTime=atoi(CfgDlg[DLG_INTERF_SCREENSAVERTIME].Data))<=0)
     Opt.ScreenSaver=Opt.ScreenSaverTime=0;
   Opt.UsePromptFormat=CfgDlg[DLG_INTERF_USEPROMPTFORMAT].Selected;
   strncpy(Opt.PromptFormat,CfgDlg[DLG_INTERF_PROMPTFORMAT].Data,sizeof(Opt.PromptFormat)-1);
   Opt.AltGr=CfgDlg[DLG_INTERF_ALTGR].Selected;
   Opt.CopyShowTotal=CfgDlg[DLG_INTERF_COPYSHOWTOTAL].Selected;
-  Opt.Dialogs.AutoComplete=CfgDlg[DLG_INTERF_AUTOCOMPLETE].Selected;
   Opt.PgUpChangeDisk=CfgDlg[DLG_INTERF_PGUPCHANGEDISK].Selected;
   Opt.CopyTimeRule=0;
   if(CfgDlg[DLG_INTERF_COPYTIMERULE].Selected)
@@ -824,11 +814,50 @@ void InterfaceSettings()
   */
   CtrlObject->Cp()->Redraw();
   /* SKV$*/
-  /* $ 09.09.2001 IS обновим настройки ком.строки */
-  CtrlObject->CmdLine->SetPersistentBlocks(Opt.Dialogs.EditBlock);
-  /* IS $ */
 }
 /* IS 17.12.2001 $ */
+
+#define DLG_DIALOGS_DIALOGSEDITHISTORY  1
+#define DLG_DIALOGS_DIALOGSEDITBLOCK    2
+#define DLG_DIALOGS_AUTOCOMPLETE        3
+#define DLG_DIALOGS_EULBSCLEAR          4
+#define DLG_DIALOGS_OK                  6
+
+void DialogSettings()
+{
+  static struct DialogData CfgDlgData[]={
+  /* 00 */DI_DOUBLEBOX,3,1,54,8,0,0,0,0,(char *)MConfigDlgSetsTitle,
+  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
+  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
+  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigDialogsAutoComplete,
+  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigDialogsEULBsClear,
+  /* 05 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 06 */DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 07 */DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  };
+  MakeDialogItems(CfgDlgData,CfgDlg);
+
+  CfgDlg[DLG_DIALOGS_DIALOGSEDITHISTORY].Selected=Opt.Dialogs.EditHistory;
+  CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected=Opt.Dialogs.EditBlock;
+  CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected=Opt.Dialogs.AutoComplete;
+  CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected=Opt.Dialogs.EULBsClear;
+
+  {
+    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dlg.SetHelp("DialogSettings");
+    Dlg.SetPosition(-1,-1,58,10);
+    Dlg.Process();
+    if (Dlg.GetExitCode() != DLG_DIALOGS_OK)
+      return;
+  }
+
+  Opt.Dialogs.EditHistory=CfgDlg[DLG_DIALOGS_DIALOGSEDITHISTORY].Selected;
+  Opt.Dialogs.EditBlock=CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected;
+  Opt.Dialogs.AutoComplete=CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected;
+  Opt.Dialogs.EULBsClear=CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected;
+
+  CtrlObject->CmdLine->SetPersistentBlocks(Opt.Dialogs.EditBlock);
+}
 
 /* $ 09.02.2001 IS
    Опция Esc
@@ -1256,13 +1285,10 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyScreen, "UsePromptFormat", &Opt.UsePromptFormat,0, 0},
   {1, REG_SZ,     NKeyScreen, "PromptFormat",Opt.PromptFormat,sizeof(Opt.PromptFormat),"$p>"},
 
-  {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
-  {1, REG_DWORD,  NKeyInterface, "DialogsEditBlock",&Opt.Dialogs.EditBlock,0, 0},
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
   {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CopyShowTotal,0, 0},
   {1, REG_DWORD,  NKeyInterface, "ShowMenuBar",&Opt.ShowMenuBar,0, 0},
-  {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize3",&Opt.CursorSize[2],99, 0},
@@ -1290,9 +1316,12 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViewerWrap,0, 0},
   {1, REG_DWORD,  NKeyViewer,"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,1, 0},
 
-  {0, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
-  {0, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
-  {0, REG_DWORD,  NKeyDialog,"SelectedType",&Opt.Dialogs.SelectedType,0, 0},
+  {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.Dialogs.EditHistory,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "DialogsEditBlock",&Opt.Dialogs.EditBlock,0, 0},
+  {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
+  {1, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
+  {1, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
+  {0, REG_DWORD,  NKeyDialog,"EditLine",&Opt.Dialogs.EditLine,0, 0},
 
   {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
   {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},

@@ -45,6 +45,7 @@ $^#Copyright (C) 2000-<%YEAR%> FAR Group#
    ~System settings~@SystemSettings@
    ~Panel settings~@PanelSettings@
    ~Interface settings~@InterfSettings@
+   ~Dialog settings~@DialogSettings@
 
    ~Files highlighting~@Highlight@
    ~File descriptions~@FileDiz@
@@ -1032,6 +1033,8 @@ $ #Options menu#
 
    #Interface settings#   Shows ~interface settings~@InterfSettings@ dialog.
 
+   #Dialog settings#      Shows ~dialog settings~@DialogSettings@ dialog.
+
    #Languages#            Select main and help language.
                         Use "Save setup" to save selected languages.
 
@@ -1658,17 +1661,6 @@ $ #Interface settings dialog#
   #Screen saver#            Run screen saver after the inactivity
                           interval in minutes.
 
-  #History in dialog#       Keep history in edit controls of some
-  #edit controls#           FAR dialogs. The previous strings history
-                          list may be activated by mouse or using
-                          Ctrl-Up and Ctrl-Down. If you do not wish
-                          to track such history, for example due to
-                          security reasons, switch this option off.
-
-  #Persistent blocks#       Do not remove block selection after moving
-  #in edit controls#        the cursor in dialog edit controls, command
-                          line and folders history.
-
   #Set command line#        This option allows to set the default
   #prompt format#           FAR command line prompt. You may use
                           the following format variables:
@@ -1701,6 +1693,27 @@ $ #Interface settings dialog#
     copying many small files and the option "Show total copy
     progress indicator" is disabled.
 
+  #Use Ctrl-PgUp#           Pressing Ctrl-PgUp in the root directory:
+  #to change drive#         - for local drives - shows the drive
+                            selection menu;
+                          - for network drives - activates the
+                            Network plugin (if it is available)
+                            or the drive selection menu (if the
+                            Network plugin is not available).
+
+@DialogSettings
+$ #Dialog settings#
+  #History in dialog#       Keep history in edit controls of some
+  #edit controls#           FAR dialogs. The previous strings history
+                          list may be activated by mouse or using
+                          Ctrl-Up and Ctrl-Down. If you do not wish
+                          to track such history, for example due to
+                          security reasons, switch this option off.
+
+  #Persistent blocks#       Do not remove block selection after moving
+  #in edit controls#        the cursor in dialog edit controls and
+                          command line.
+
   #AutoComplete#            Allows to use the AutoComplete function
   #in edit controls#        in edit controls that have a history list
                           or in combo boxes. When the option is
@@ -1709,13 +1722,10 @@ $ #Interface settings dialog#
                           feature is disabled while a macro is
                           being recorded or executed.
 
-  #Use Ctrl-PgUp#           Pressing Ctrl-PgUp in the root directory:
-  #to change drive#         - for local drives - shows the drive
-                            selection menu;
-                          - for network drives - activates the
-                            Network plugin (if it is available)
-                            or the drive selection menu (if the
-                            Network plugin is not available).
+  #Backspace deletes#       If the option is on, pressing BackSpace
+  #unchanged text#          in an unchanged edit string deletes
+                          the entire text, as if Del had been
+                          pressed.
 
 @Viewer
 $ #Internal viewer#

@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.139 14.05.2003 $ */
+/* Revision: 1.140 19.05.2003 $ */
 
 /*
 Modify:
+  19.05.2003 SVS
+    + ƒобавим при загрузке плагинов проверку на ERROR_PROC_NOT_FOUND
+      (про BugZ#884)
   14.05.2003 SVS
     + _ALGO()
   09.05.2003 SVS
@@ -773,7 +776,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   }
 
   /* "...» добавь первичную загрузку с DONT_RESOLVE_DLL_REFERENCES..."  */
-  if (!hModule && LstErr != ERROR_BAD_EXE_FORMAT)
+  if (!hModule && !(LstErr == ERROR_BAD_EXE_FORMAT || LstErr == ERROR_PROC_NOT_FOUND))
   {
     char PlgName[NM];
     strncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);
