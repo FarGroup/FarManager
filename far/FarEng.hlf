@@ -1588,6 +1588,8 @@ $ #Internal viewer#
                        (N must be '0'..'9')
     #LeftCtrl-<N>#       Go to bookmark <N>
 
+    #Ctrl-Ins, Ctrl-C#   Copy selection to clipboard
+
     Notes:
 
     1. Custom character tables are provided in "Addons\Tables"

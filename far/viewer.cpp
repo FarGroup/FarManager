@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.74 05.09.2001 $ */
+/* Revision: 1.75 06.09.2001 $ */
 
 /*
 Modify:
+  06.09.2001 VVM
+    ! Глюк при копировании в клипбоард юникода
   05.09.2001 VVM
     + Копирование выделения в клипбоард
   20.08.2001 VVM
@@ -1206,7 +1208,7 @@ int Viewer::ProcessKey(int Key)
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
-  if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_CTRLINS)
+  if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_CTRLINS && Key!=KEY_CTRLC)
     SelectSize=0;
   /* IS $ */
 
@@ -1251,28 +1253,29 @@ int Viewer::ProcessKey(int Key)
   {
     /* $ 05.09.2001 VVM
       + Копирование выделения в клипбоард */
+    case KEY_CTRLC:
     case KEY_CTRLINS:
       if (SelectSize)
       {
         char *SelData;
-        int SelPos = SelectPos*(VM.Unicode?2:1);
-        unsigned long SelSize= SelectSize*(VM.Unicode?2:1);
-        unsigned long DataSize = SelSize+(VM.Unicode?2:1);
+        unsigned long DataSize = SelectSize+(VM.Unicode?2:1);
         unsigned long CurFilePos=vtell(ViewFile);
 
-        if ((SelData=(char*)malloc(DataSize)) == NULL)
-          return(TRUE);
-        memset(SelData, 0, DataSize);
-        vseek(ViewFile,SelPos,SEEK_SET);
-        vread(SelData, SelSize, ViewFile);
-        if (VM.UseDecodeTable && !VM.Unicode)
-          DecodeString(SelData, (unsigned char *)TableSet.DecodeTable);
-        if (VM.Unicode)
-          WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)(*SelData),SelectSize,SelData,SelectSize," ",NULL);
-        CopyToClipboard(SelData);
-        free(SelData);
-        vseek(ViewFile,CurFilePos,SEEK_SET);
-      }
+        if ((SelData=(char*)malloc(DataSize)) != NULL)
+        {
+          memset(SelData, 0, DataSize);
+          vseek(ViewFile,SelectPos,SEEK_SET);
+          vread(SelData, SelectSize, ViewFile);
+          if (VM.UseDecodeTable && !VM.Unicode)
+            DecodeString(SelData, (unsigned char *)TableSet.DecodeTable);
+          if (VM.Unicode)
+            WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)(SelData),SelectSize,
+                                           SelData,SelectSize," ",NULL);
+          CopyToClipboard(SelData);
+          free(SelData);
+          vseek(ViewFile,CurFilePos,SEEK_SET);
+        } /* if */
+      } /* if */
       return(TRUE);
     /* VVM $ */
     /* $ 18.07.2000 tran
