@@ -295,7 +295,10 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
         for (int J=0; J < *pItemsNumber; J++)
           if ((*pPanelItem)[J].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             if (stricmp(CurItem.FindData.cFileName,(*pPanelItem)[J].FindData.cFileName)==0)
+            {
               Append=FALSE;
+              (*pPanelItem)[J].FindData.dwFileAttributes |= CurItem.FindData.dwFileAttributes;
+            }
       }
     }
 
