@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.23 21.08.2000 $ */
+/* Revision: 1.24 21.08.2000 $ */
 
 /*
 Modify:
+  21.08.2000 SVS 1.23
+   ! DMSG_CHANGEITEM -> DMSG_EDITCHANGE
+   + DMSG_BTNCLICK
   18.08.2000 tran
     + Flags in ShowHelp
   12.08.2000 KM 1.22
@@ -318,7 +321,7 @@ enum FarMessagesProc{
   DMSG_PAINT,
   DMSG_SETREDRAW,
   DMSG_DRAWITEM,
-  DMSG_CHANGEITEM,
+  DMSG_EDITCHANGE,
   DMSG_CHANGELIST,
   DMSG_GETDLGITEM,
   DMSG_SETDLGITEM,
@@ -335,6 +338,7 @@ enum FarMessagesProc{
   DMSG_HOTKEY,
   DMSG_ENABLEREDRAW,
   DMSG_MOUSECLICK,
+  DMSG_BTNCLICK,
 };
 /* SVS $*/
 
