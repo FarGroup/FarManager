@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.26 22.03.2001 $ */
+/* Revision: 1.27 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 SVS
+    ! Передадим в SaveFile новый параметр - SaveAs?
   22.03.2001 SVS
     - "Залипание" кейбара после исполнения макроса
   18.03.2001 IS
@@ -368,7 +370,7 @@ int FileEditor::ProcessKey(int Key)
                       MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
             return(TRUE);
 
-        while (FEdit.SaveFile(FileName,0,Key==KEY_SHIFTF2 ? TextFormat:0)==0)
+        while (FEdit.SaveFile(FileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2)==0)
           if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
                       FileName,MSG(MRetry),MSG(MCancel))!=0)
             break;
@@ -436,7 +438,7 @@ int FileEditor::ProcessKey(int Key)
         while (1)
         {
           chdir(StartDir);
-          int SaveCode=FEdit.SaveFile(FileName,FirstSave,0);
+          int SaveCode=FEdit.SaveFile(FileName,FirstSave,0,FALSE);
           if (SaveCode==2)
             break;
           if (SaveCode==1)

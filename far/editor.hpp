@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.15 27.02.2001 $ */
+/* Revision: 1.16 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 SVS
+    + дополнительный параметр для SaveFile() - SaveAs
   27.02.2001 SVS
     + *CharCodeBase() - по поводу базы вывода
   26.02.2001 IS
@@ -214,7 +216,7 @@ class Editor:public ScreenObject
 
   public:
     int ReadFile(char *Name,int &UserBreak);
-    int SaveFile(char *Name,int Ask,int TextFormat);
+    int SaveFile(char *Name,int Ask,int TextFormat,int SaveAs);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void SetEditKeyBar(KeyBar *EditKeyBar);

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.79 28.03.2001 $ */
+/* Revision: 1.80 28.03.2001 $ */
 
 /*
 Modify:
+  28.03.2001 SVS
+    + дополнительный параметр для SaveFile() - SaveAs
   28.03.2001 VVM
     ! При переходе на строку сдвигалась позиция на символ вправо.
   26.03.2001 SVS
@@ -768,12 +770,12 @@ int Editor::ReadFile(char *Name,int &UserBreak)
 /* $ 12.02.2001 IS
      Заменил локальную FileAttr на FileAttributes
 */
-int Editor::SaveFile(char *Name,int Ask,int TextFormat)
+int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
 {
   /* $ 11.10.2000 SVS
      Редактировали, залочили, при выходе - потеряли файл :-(
   */
-  if (LockMode && !Modified)
+  if (LockMode && !Modified && !SaveAs)
     return(1);
   /* SVS $ */
 
@@ -908,6 +910,15 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
     SetFileAttributes(Name,FileAttributes|FA_ARCH);
   if (Modified || NewFile)
     WasChanged|=1;
+
+  /* Этот кусок раскомметировать в том случае, если народ решит, что
+     для если файл был залочен и мы его переписали под други именем...
+     ...то "лочка" должна быть снята.
+  */
+//  if(SaveAs)
+//    LockMode=0;
+
+
   /*$ 10.08.2000 skv
     Modified->TextChanged
   */
@@ -4703,7 +4714,7 @@ int Editor::EditorControl(int Command,void *Param)
               EOL=2;
           }
         }
-        return(SaveFile(Name,FALSE,EOL));
+        return(SaveFile(Name,FALSE,EOL,!stricmp(Name,FileName)));
       }
     case ECTL_QUIT:
       if (HostFileEditor!=NULL)
