@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.197 19.09.2002 $ */
+/* Revision: 1.198 21.09.2002 $ */
 
 /*
 Modify:
+  21.09.2002 VVM
+    - Падение при удалении блока. Портился стек.
   19.09.2002 SKV
     - BugZ#643. Выделение, набор текста с шифтом.
   18.09.2002 SKV
@@ -4414,8 +4416,6 @@ void Editor::DeleteBlock()
       Length=StartSel;
       CurPtr->EditLine.InsertBinaryString("",0);
     }
-    // дальше будет realloc, поэтому тут malloc.
-    char *TmpStr=(char*)malloc(Length+3);
     /* SKV $ */
     if (StartSel!=0 || EndSel!=0)
     {
@@ -4426,6 +4426,8 @@ void Editor::DeleteBlock()
     }
     const char *CurStr,*EndSeq;
     CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
+    // дальше будет realloc, поэтому тут malloc.
+    char *TmpStr=(char*)malloc(Length+3);
     memcpy(TmpStr,CurStr,Length);
     TmpStr[Length]=0;
     int DeleteNext=FALSE;
