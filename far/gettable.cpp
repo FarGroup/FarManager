@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.15 22.10.2002 $ */
+/* Revision: 1.16 29.10.2002 $ */
 
 /*
 Modify:
+  29.10.2002 SVS
+    - Блин, с этой сраной сортировкой поломал GetTable()...
   22.10.2002 SVS
     ! добавка CharTableSet.RFCCharset, но закомменченная - чтобы потом не
       думать как ЭТО сделать ;-)
@@ -120,15 +122,15 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   struct MenuItem ListItem;
   memset(&ListItem,0,sizeof(ListItem));
-  //ListItem.SetSelect(!TableNum);
+  ListItem.SetSelect(!TableNum);
   strcpy(ListItem.Name,MSG(MGetTableNormalText));
-  TableList.AddItem(&ListItem);
+  TableList.SetUserData((void*)0,sizeof(DWORD),TableList.AddItem(&ListItem));
 
   if (UseUnicode)
   {
-    //ListItem.SetSelect(TableNum==1);
+    ListItem.SetSelect(TableNum==1);
     strcpy(ListItem.Name,"Unicode");
-    TableList.AddItem(&ListItem);
+    TableList.SetUserData((void*)1,sizeof(DWORD),TableList.AddItem(&ListItem));
   }
 
   for (I=0;;I++)
@@ -140,15 +142,18 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     sprintf(t,"CodeTables\\%s",ItemName);
     GetRegKey(t,"TableName",t2,ItemName,128);
     strcpy(ListItem.Name,t2);
-    //ListItem.SetSelect(I+1+UseUnicode == TableNum);
-    TableList.AddItem(&ListItem);
+    ListItem.SetSelect(I+1+UseUnicode == TableNum);
+    TableList.SetUserData((void*)(I+1+UseUnicode),sizeof(I),TableList.AddItem(&ListItem));
   }
 
-  TableList.SortItems(0,0);
-  TableList.SetSelectPos(1+UseUnicode == TableNum,1);
+  //TableList.SetSelectPos(1+UseUnicode == TableNum,1);
   TableList.AssignHighlights(FALSE);
+  TableList.SortItems(0,0);
   TableList.Process();
-  int Pos=TableList.Modal::GetExitCode();
+
+  int Pos=-1;
+  if (TableList.Modal::GetExitCode()>=0)
+    Pos=(int)TableList.GetUserData(NULL,0);
 
   if (Pos>UseUnicode && !PrepareTable(TableSet,Pos-1-UseUnicode))
     return(FALSE);

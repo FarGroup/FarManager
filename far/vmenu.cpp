@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.102 22.10.2002 $ */
+/* Revision: 1.103 29.10.2002 $ */
 
 /*
 Modify:
+  29.10.2002 SVS
+    ! скорректируем SelectPos после сортировки
   22.10.2002 SVS
     ! PrevCursorSize, PrevMacroMode - для пред.курсора
      > у меня сразу после выбора DrawLine из меню F11 пропадает курсор.
@@ -2151,11 +2153,23 @@ void VMenu::SortItems(int Direction,int Offset)
   Param.Direction=Direction;
   Param.Offset=Offset;
 
+  int I;
+  //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
   qsortex((char *)Item,
           ItemCount,
-          sizeof(*Item),
+          sizeof(struct MenuItem),
           (qsortex_fn)SortItem,
           &Param);
+  //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
+
+  // скорректируем SelectPos
+  for(I=0; I < ItemCount; ++I)
+    if (Item[I].Flags & LIF_SELECTED && !(Item[I].Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+    {
+      SelectPos=I;
+      break;
+    }
+
   VMFlags.Set(VMENU_UPDATEREQUIRED);
 }
 
