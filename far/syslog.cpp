@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.19 15.10.2001 $ */
+/* Revision: 1.20 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    + Добавим в функции FarSysLog() в LOG-файл имя модуля.
   15.10.2001 SVS
     + Экспортируемые FarSysLog и FarSysLogDump только под SYSLOG_FARSYSLOG
   03.10.2001 SVS
@@ -331,7 +333,7 @@ void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
   if ( LogStream )
   {
     char timebuf[64];
-    fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
+    fprintf(LogStream,"%s %s%s:: %s\n",PrintTime(timebuf),MakeSpace(),PointToName(ModuleName),msg);
     fflush(LogStream);
   }
   CloseSysLog();

@@ -10,10 +10,13 @@ help.hpp
 
 */
 
-/* Revision: 1.23 29.11.2001 $ */
+/* Revision: 1.24 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    ! HelpMask переехала в StackHelpData.
+    + Математика поиска в хелпе (зачатки, серия первая)
   29.11.2001 DJ
     ! отрисовка рамки хелпа вытащена в отдельную функцию
     + помним PluginContents для текущего хелпа
@@ -88,6 +91,7 @@ struct StackHelpData
   int   TopStr;                 // номер верхней видимой строки темы
   int   CurX,CurY;              // координаты (???)
 
+  char  HelpMask[NM];           // значение маски
   char  HelpPath[NM];           // путь к хелпам
   char  HelpTopic[512];         // текущий топик
   char  SelTopic[512];          // выделенный топик (???)
@@ -113,7 +117,6 @@ class Help:public Frame
     int   FixSize;              // Размер непрокручиваемой области
     int   TopicFound;           // TRUE - топик найден
     int   IsNewTopic;           // это новый топик?
-    char *HelpMask;             // значение маски, переданной в конструктор
     int   MouseDown;
 
     int   DisableOut;           // TRUE - не выводить на экран
@@ -129,6 +132,17 @@ class Help:public Frame
     */
     char CurPluginContents[NM];
     /* DJ $ */
+
+#if defined(WORK_HELP_FIND)
+  private:
+    DWORD LastSearchPos;
+    unsigned char LastSearchStr[SEARCHSTRINGBUFSIZE];
+    int LastSearchCase,LastSearchWholeWords,LastSearchReverse;
+
+  private:
+    int Search(int Next);
+    void KeepInitParameters();
+#endif
 
   private:
     void DisplayObject();

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.116 17.12.2001 $ */
+/* Revision: 1.117 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    - BugZ#163 - Не удаляется временный файл (вызов редактора)
   17.12.2001 IS
     ! обрабатываем среднюю кнопку как enter опционально
   14.12.2001 IS
@@ -1263,6 +1265,7 @@ int FileList::ProcessKey(int Key)
           strcpy(FileName,CurPtr->Name);
           strcpy(ShortFileName,*CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
         }
+
         char TempDir[NM],TempName[NM];
 
         int UploadFailed=FALSE, NewFile=FALSE;
@@ -1417,12 +1420,12 @@ int FileList::ProcessKey(int Key)
         if (PluginMode)
           if (UploadFailed)
             Message(MSG_WARNING,1,MSG(MError),MSG(MCannotSaveFile),
-                    MSG(MTextSavedToTemp),TempName,MSG(MOk));
-          else
-            DeleteFileWithFolder(TempName);
+                    MSG(MTextSavedToTemp),FileName,MSG(MOk));
+          else // Почему же TempName??????
+            DeleteFileWithFolder(FileName);
         if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)))
         {
-          if (!PluginMode || UploadFile)
+          //if (!PluginMode || UploadFile)
           {
             Update(UPDATE_KEEP_SELECTION);
             Redraw();
@@ -1433,8 +1436,8 @@ int FileList::ProcessKey(int Key)
               AnotherPanel->Redraw();
             }
           }
-          else
-            SetTitle();
+//          else
+//            SetTitle();
         }
         else
           if (PanelMode==NORMAL_PANEL)

@@ -1372,6 +1372,10 @@
 "Plugins help"
 "Documents help"
 
+"Search"
+"Searching for"
+"Could not find the string"
+
 // Help KeyBar F1-12
 "Help"
 ""
@@ -1379,7 +1383,7 @@
 ""
 "Zoom"
 ""
-""
+"Search"
 ""
 ""
 "Quit"
@@ -1389,11 +1393,11 @@
 // Help KeyBar Shift-F1-12
 "Index"
 "Plugin"
+"Docums"
 ""
 ""
 ""
-""
-""
+"Next"
 ""
 ""
 ""

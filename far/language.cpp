@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.15 14.12.2001 $ */
+/* Revision: 1.16 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    + ƒоп.параметр у OpenLangFile() - StrongLang: "только заданный €зык и не более"
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   29.11.2001 DJ
@@ -231,8 +233,7 @@ char* Language::GetMsg(int MsgId)
   return(MsgAddr[MsgId]);
 }
 
-
-FILE* Language::OpenLangFile(char *Path,char *Mask,char *Language,char *FileName)
+FILE* Language::OpenLangFile(char *Path,char *Mask,char *Language,char *FileName,BOOL StrongLang)
 {
   *FileName=0;
 
@@ -256,10 +257,15 @@ FILE* Language::OpenLangFile(char *Path,char *Mask,char *Language,char *FileName
       char LangName[100];
       if (GetLangParam(LangFile,"Language",LangName,NULL) && LocalStricmp(LangName,Language)==0)
         break;
-      if (LocalStricmp(LangName,"English")==0)
-        strcpy(EngFileName,FileName);
       fclose(LangFile);
       LangFile=NULL;
+      if(StrongLang)
+      {
+        *FileName=*EngFileName=0;
+        break;
+      }
+      if (LocalStricmp(LangName,"English")==0)
+        strcpy(EngFileName,FileName);
     }
   }
 

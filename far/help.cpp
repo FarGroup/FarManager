@@ -8,10 +8,16 @@ help.cpp
 
 */
 
-/* Revision: 1.60 24.12.2001 $ */
+/* Revision: 1.61 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    ! HelpMask переехала в StackHelpData.
+    ! Уточнения для "документов" (в принципе уже можно открывать!)
+    + Математика поиска в хелпе (зачатки!).
+      Не обижусь, если кто-нить поможет ;-) Все равно до релиза
+      (а может и дальше) поисковика не будет (но терять идеи надоело!!!)
   24.12.2001 SVS
     ! Уточнение.
   21.12.2001 SVS
@@ -206,12 +212,14 @@ class CallBackStack
       char  *HelpTopic;        // текущий топик
       char  *HelpPath;         // путь к хелпам
       char  *SelTopic;         // текущее выделение
+      char  *HelpMask;         // маска
 
       ListNode(const struct StackHelpData *Data, ListNode* n=NULL)
       {
         HelpTopic=strdup(Data->HelpTopic);
         HelpPath=strdup(Data->HelpPath);
         SelTopic=strdup(Data->SelTopic);
+        HelpMask=strdup(Data->HelpMask);
         Flags=Data->Flags;
         TopStr=Data->TopStr;
         CurX=Data->CurX;
@@ -224,6 +232,7 @@ class CallBackStack
         if(HelpTopic) free(HelpTopic);
         if(HelpPath)  free(HelpPath);
         if(SelTopic)  free(SelTopic);
+        if(HelpMask)  free(HelpMask);
       }
     };
 
@@ -247,7 +256,9 @@ class CallBackStack
 #define MAX_HELP_STRING_LENGTH 300
 
 static const char *PluginContents="__PluginContents__";
+#if defined(WORK_HELP_DOCUMS)
 static const char *DocumentContents="__DocumentContents__";
+#endif
 static const char *HelpOnHelpTopic=":Help";
 static const char *HelpContents="Contents";
 
@@ -283,7 +294,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   CtrlTabSize = 8;
   /* DJ $ */
 
-  HelpMask=Mask?strdup(Mask):NULL; // сохраним маску файла
+  strncpy(StackData.HelpMask,NullToEmpty(Mask),sizeof(StackData.HelpMask)-1); // сохраним маску файла
 
   KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
   TopScreen=new SaveScreen;
@@ -295,7 +306,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
 
-  if(!ReadHelp(Mask) && (Flags&FHELP_USECONTENTS))
+  if(!ReadHelp(StackData.HelpMask) && (Flags&FHELP_USECONTENTS))
   {
     strcpy(StackData.HelpTopic,Topic);
     if(*StackData.HelpTopic == HelpBeginLink)
@@ -305,7 +316,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
         strcpy(++Ptr,HelpContents);
     }
     *StackData.HelpPath=0;
-    ReadHelp(Mask);
+    ReadHelp(StackData.HelpMask);
   }
 
   if (HelpData!=NULL)
@@ -321,6 +332,15 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
     ErrorHelp=TRUE;
   }
+
+#if defined(WORK_HELP_FIND)
+  strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr));
+  LastSearchPos=0;
+  LastSearchCase=GlobalSearchCase;
+  LastSearchWholeWords=GlobalSearchWholeWords;
+  LastSearchReverse=GlobalSearchReverse;
+#endif
+
 }
 
 Help::~Help()
@@ -330,9 +350,24 @@ Help::~Help()
 
   if(HelpData)     free(HelpData);
   if(Stack)        delete Stack;
-  if(HelpMask)     delete HelpMask;
   if(TopScreen)    delete TopScreen;
+
+#if defined(WORK_HELP_FIND)
+  KeepInitParameters();
+#endif
 }
+
+
+#if defined(WORK_HELP_FIND)
+void Help::KeepInitParameters()
+{
+  strcpy(GlobalSearchString,(char *)LastSearchStr);
+  LastSearchPos=0;
+  GlobalSearchCase=LastSearchCase;
+  GlobalSearchWholeWords=LastSearchWholeWords;
+  GlobalSearchReverse=LastSearchReverse;
+}
+#endif
 
 
 void Help::Hide()
@@ -370,13 +405,15 @@ int Help::ReadHelp(char *Mask)
     return TRUE;
   }
 
+#if defined(WORK_HELP_DOCUMS)
   if (!strcmp(StackData.HelpTopic,DocumentContents))
   {
     ReadDocumentsHelp(HIDX_DOCUMS);
     return TRUE;
   }
+#endif
 
-  FILE *HelpFile=Language::OpenLangFile(Path,(!Mask?HelpFileMask:Mask),Opt.HelpLanguage,FileName);
+  FILE *HelpFile=Language::OpenLangFile(Path,(!*Mask?HelpFileMask:Mask),Opt.HelpLanguage,FileName);
 
   if (HelpFile==NULL)
   {
@@ -963,6 +1000,73 @@ void Help::CorrectPosition()
     StackData.TopStr=0;
 }
 
+#if defined(WORK_HELP_FIND)
+/* SVS:
+   ВНИМАНИЕ!!!!!
+   Эта функция совсем сырая (мягко сказано!)
+   Если у кого хватит ума немного ее поправить - милости просим ;-)
+*/
+int Help::Search(int Next)
+{
+  unsigned char SearchStr[SEARCHSTRINGBUFSIZE]
+  char MsgStr[512];
+  int SearchLength,Case,WholeWords,ReverseSearch,Match;
+
+  if (Next && *LastSearchStr==0)
+    return TRUE;
+
+  Match=FALSE;
+  strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr));
+  Case=LastSearchCase;
+  WholeWords=LastSearchWholeWords;
+  ReverseSearch=LastSearchReverse;
+
+  if (!Next)
+    if(!GetSearchReplaceString(FALSE,SearchStr,sizeof(SearchStr),
+                   NULL,0,NULL,NULL,
+                   NULL/*&Case*/,NULL/*&WholeWords*/,NULL/*&ReverseSearch*/))
+      return FALSE;
+
+  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
+  LastSearchCase=Case;
+  LastSearchWholeWords=WholeWords;
+  LastSearchReverse=ReverseSearch;
+
+  if ((SearchLength=strlen((char *)SearchStr))==0)
+    return TRUE;
+  else
+  {
+    SaveScreen SaveScr;
+    SetCursorType(FALSE,0);
+    char Buf[8192];
+
+    sprintf(MsgStr,"\"%s\"",SearchStr);
+    Message(0,0,MSG(MHelpSearchTitle),MSG(MHelpSearchingFor),MsgStr);
+
+    if (!Case)
+      for (int I=0;I<SearchLength;I++)
+        SearchStr[I]=LocalUpper(SearchStr[I]);
+/*
+    //if(!ReadHelp(HelpMask))
+    //fseek(ViewFile,LastSearchPos,SEEK_SET);
+
+    while (!Match)
+    {
+
+    }
+*/
+  }
+  if (!Match)
+  {
+    Message(MSG_DOWN|MSG_WARNING,1,MSG(MHelpFindTitle),
+              MSG(MHelpSearchCannotFind),MsgStr,MSG(MOk));
+    return FALSE;
+  }
+
+  // перехд к найденному топику.
+  return TRUE;
+}
+#endif
 
 int Help::ProcessKey(int Key)
 {
@@ -1121,8 +1225,8 @@ int Help::ProcessKey(int Key)
       }
       return(TRUE);
 
+#if defined(WORK_HELP_DOCUMS)
     case KEY_SHIFTF3: // Для "документов" :-)
-#if 0
       //   не поганим SelTopic, если и так в DocumentContents
       if(LocalStricmp(StackData.HelpTopic,DocumentContents)!=0)
       {
@@ -1131,8 +1235,8 @@ int Help::ProcessKey(int Key)
         JumpTopic(DocumentContents);
         IsNewTopic=FALSE;
       }
-#endif
       return(TRUE);
+#endif
 
     case KEY_ALTF1:
     case KEY_BS:
@@ -1155,6 +1259,16 @@ int Help::ProcessKey(int Key)
         IsNewTopic=FALSE;
       }
       return(TRUE);
+
+#if defined(WORK_HELP_FIND)
+    case KEY_F7:
+      Search(0);
+      return(TRUE);
+    case KEY_SHIFTF7:
+      Search(1);
+      return(TRUE);
+#endif
+
   }
   return(FALSE);
 }
@@ -1189,6 +1303,8 @@ int Help::JumpTopic(const char *JumpTopic)
   {
     if (*StackData.SelTopic==':')
       strcpy(NewTopic,StackData.SelTopic+1);
+    else if(StackData.Flags&FHELP_CUSTOMFILE)
+      strcpy(NewTopic,StackData.SelTopic);
     else
       sprintf(NewTopic,HelpFormatLink,StackData.HelpPath,StackData.SelTopic);
   }
@@ -1207,6 +1323,12 @@ int Help::JumpTopic(const char *JumpTopic)
       if(*p == '\\')
       {
         ++p;
+        if(*p)
+        {
+          StackData.Flags|=FHELP_CUSTOMFILE;
+          strcpy(StackData.HelpMask,p);
+          *strrchr(StackData.HelpMask,'>')=0;
+        }
         memmove(p,p2,strlen(p2)+1);
         break;
       }
@@ -1214,27 +1336,29 @@ int Help::JumpTopic(const char *JumpTopic)
     }
   }
 
-//_SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
+//_SVS(SysLog("HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
   if(*StackData.SelTopic != ':' &&
-     LocalStricmp(StackData.SelTopic,PluginContents) &&
-     LocalStricmp(StackData.SelTopic,DocumentContents))
+     LocalStricmp(StackData.SelTopic,PluginContents)
+#if defined(WORK_HELP_DOCUMS)
+     && LocalStricmp(StackData.SelTopic,DocumentContents)
+#endif
+    )
   {
-    if(strrchr(NewTopic,'>'))
+    if(!(StackData.Flags&FHELP_CUSTOMFILE) && strrchr(NewTopic,'>'))
     {
-      if(HelpMask)
-        free(HelpMask);
-      HelpMask=NULL;
+      if(StackData.HelpMask)
+        *StackData.HelpMask=0;
     }
   }
   else
   {
-    if(HelpMask)
-      free(HelpMask);
-    HelpMask=NULL;
+    if(StackData.HelpMask)
+      *StackData.HelpMask=0;
   }
   strcpy(StackData.HelpTopic,NewTopic);
-  *StackData.HelpPath=0;
-  if(!ReadHelp(HelpMask))
+  if(!(StackData.Flags&FHELP_CUSTOMFILE))
+    *StackData.HelpPath=0;
+  if(!ReadHelp(StackData.HelpMask))
   {
     strcpy(StackData.HelpTopic,NewTopic);
     if(*StackData.HelpTopic == HelpBeginLink)
@@ -1244,7 +1368,7 @@ int Help::JumpTopic(const char *JumpTopic)
         strcpy(++Ptr,HelpContents);
     }
     *StackData.HelpPath=0;
-    ReadHelp(HelpMask);
+    ReadHelp(StackData.HelpMask);
   }
   if (!HelpData)
   {
@@ -1256,7 +1380,10 @@ int Help::JumpTopic(const char *JumpTopic)
 //  ResizeConsole();
   if(IsNewTopic
     || !LocalStricmp(StackData.SelTopic,PluginContents) // Это неприятный костыль :-((
-    || !LocalStricmp(StackData.SelTopic,DocumentContents))
+#if defined(WORK_HELP_DOCUMS)
+    || !LocalStricmp(StackData.SelTopic,DocumentContents)
+#endif
+    )
     MoveToReference(1,1);
   //FrameManager->ImmediateHide();
   FrameManager->RefreshFrame();
@@ -1450,10 +1577,12 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       PtrTitle=MSG(MPluginsHelpTitle);
       ContentsName="PluginContents";
       break;
+#if defined(WORK_HELP_DOCUMS)
     case HIDX_DOCUMS:
       PtrTitle=MSG(MDocumentsHelpTitle);
       ContentsName="DocumentContents";
       break;
+#endif
   }
 
   AddTitle(PtrTitle);
@@ -1479,9 +1608,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
           if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
           {
             if (*SecondParam)
-              sprintf(HelpLine,"   ~%s,%s~@" HelpFormatLink "@",EntryName,SecondParam,Path,"Contents");
+              sprintf(HelpLine,"   ~%s,%s~@" HelpFormatLink "@",EntryName,SecondParam,Path,HelpContents);
             else
-              sprintf(HelpLine,"   ~%s~@" HelpFormatLink "@",EntryName,Path,"Contents");
+              sprintf(HelpLine,"   ~%s~@" HelpFormatLink "@",EntryName,Path,HelpContents);
             AddLine(HelpLine);
           }
 
@@ -1491,9 +1620,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       break;
     }
 
+#if defined(WORK_HELP_DOCUMS)
     case HIDX_DOCUMS:
     {
-#if 0
       // в плагинах.
       for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
       {
@@ -1506,9 +1635,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
           if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
           {
             if (*SecondParam)
-              sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,"Contents");
+              sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,HelpContents);
             else
-              sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,"Contents");
+              sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,HelpContents);
             AddLine(HelpLine);
           }
 
@@ -1519,35 +1648,41 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       // в документах.
       {
         WIN32_FIND_DATA FindData;
-        ScanTree ScTree(FALSE,FALSE);
+        char FMask[NM];
         AddEndSlash(strcpy(Path,FarPath));
         strcat(Path,"Doc");
+        ScanTree ScTree(FALSE,FALSE);
         ScTree.SetFindPath(Path,HelpFileMask);
         while (ScTree.GetNextName(&FindData,FullFileName))
         {
           if((PtrPath=strrchr(FullFileName,'\\')) != NULL)
+          {
+            strncpy(FMask,PtrPath+1,sizeof(FMask)-1);
             *++PtrPath=0;
+          }
           else
-            PtrPath=HelpFileMask;
-          FILE *HelpFile=Language::OpenLangFile(Path,PtrPath,Opt.HelpLanguage,FullFileName);
+            strncpy(FMask,HelpFileMask,sizeof(FMask)-1);
+
+          FILE *HelpFile=Language::OpenLangFile(Path,FMask,Opt.HelpLanguage,FullFileName,TRUE);
           if (HelpFile!=NULL)
           {
             if (Language::GetLangParam(HelpFile,ContentsName,EntryName,SecondParam))
             {
               if (*SecondParam)
-                sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,"Contents");
+                sprintf(HelpLine,"   ~%s,%s~@<%s>%s@",EntryName,SecondParam,FullFileName,HelpContents);
               else
-                sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,"Contents");
-_SVS(SysLog("HelpLine=%s",HelpLine));
+                sprintf(HelpLine,"   ~%s~@<%s>%s@",EntryName,FullFileName,HelpContents);
+
               AddLine(HelpLine);
             }
             fclose(HelpFile);
           }
         }
       }
-#endif
+      StackData.Flags|=FHELP_CUSTOMFILE;
       break;
     }
+#endif
   }
   // сортируем по алфавиту
   qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (*)(const void *,const void *))LCStricmp);
@@ -1585,7 +1720,7 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
         else
         {
           if(!Ptr[1]) // Вона как поперло то...
-            strcat(Topic,"Contents"); // ... значит покажем основную тему.
+            strcat(Topic,HelpContents); // ... значит покажем основную тему.
 
           /* А вот теперь разгребем...
              Формат может быть :
@@ -1650,6 +1785,15 @@ void Help::InitKeyBar(void)
   char *FHelpAltShiftKeys[]={"","","","","","","","","","","",""};
   char *FHelpCtrlShiftKeys[]={"","","","","","","","","","","",""};
   char *FHelpCtrlAltKeys[]={"","","","","","","","","","","",""};
+
+  // Уберем лишнее с глаз долой
+#if !defined(WORK_HELP_DOCUMS)
+  FHelpShiftKeys[3-1][0]=0;
+#endif
+#if !defined(WORK_HELP_FIND)
+  FHelpKeys[7-1][0]=0;
+  FHelpShiftKeys[7-1][0]=0;
+#endif
 
   HelpKeyBar.Set(FHelpKeys,sizeof(FHelpKeys)/sizeof(FHelpKeys[0]));
   HelpKeyBar.SetShift(FHelpShiftKeys,sizeof(FHelpShiftKeys)/sizeof(FHelpShiftKeys[0]));
@@ -1795,7 +1939,7 @@ void Help::ResizeConsole()
   }
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
-  ReadHelp(HelpMask);
+  ReadHelp(StackData.HelpMask);
   StackData.CurY--; // ЭТО ЕСМЬ КОСТЫЛЬ (пусть пока будет так!)
   MoveToReference(1,1);
   IsNewTopic=OldIsNewTopic;
@@ -1836,6 +1980,8 @@ int CallBackStack::Pop(struct StackHelpData *Dest)
       strcpy(Dest->HelpTopic,oldTop->HelpTopic);
       strcpy(Dest->HelpPath,oldTop->HelpPath);
       strcpy(Dest->SelTopic,oldTop->SelTopic);
+      strcpy(Dest->HelpMask,oldTop->HelpMask);
+
       Dest->Flags=oldTop->Flags;
       Dest->TopStr=oldTop->TopStr;
       Dest->CurX=oldTop->CurX;
@@ -1861,7 +2007,7 @@ void CallBackStack::PrintStack(const char *Title)
   SysLog(1);
   while(Ptr)
   {
-    SysLog("%03d '%s' '%s'",I++,Ptr->HelpTopic,Ptr->HelpPath);
+    SysLog("%03d HelpTopic='%s' HelpPath='%s' HelpMask='%s'",I++,Ptr->HelpTopic,Ptr->HelpPath,Ptr->HelpMask);
     Ptr=Ptr->Next;
   }
   SysLog(-1);

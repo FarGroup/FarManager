@@ -7,10 +7,13 @@ language.hpp
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    + ƒоп.параметр у OpenLangFile() - StrongLang: "только заданный €зык и не более"
+      ѕо умолчанию StrongLang=FALSE (как и раньше)
   06.05.2001 DJ
     ! перетр€х #include
   27.02.2001 SVS
@@ -42,7 +45,7 @@ class Language
     int Init(char *Path,int CountNeed=-1);
     void Close();
     char* GetMsg(int MsgId);
-    static FILE* OpenLangFile(char *Path,char *Mask,char *Language,char *FileName);
+    static FILE* OpenLangFile(char *Path,char *Mask,char *Language,char *FileName,BOOL StrongLang=FALSE);
     static int GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2);
     /* $ 01.09.2000 SVS
       + Ќовый метод, дл€ получени€ параметров дл€ .Options

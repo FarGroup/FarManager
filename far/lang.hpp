@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.88 17.12.2001 $ */
+/* Revision: 1.89 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    + MHelpSearch* - для будущего поиска в хелпе.
   17.12.2001 IS
     + MConfigMousePanelMClickRule - опция для средней кнопки мыши в панелях
   11.12.2001 SVS
@@ -1623,6 +1625,10 @@ enum
 
   MPluginsHelpTitle,
   MDocumentsHelpTitle,
+
+  MHelpSearchTitle,
+  MHelpSearchingFor,
+  MHelpSearchCannotFind,
 
   MHelpF1,
   MHelpF2,

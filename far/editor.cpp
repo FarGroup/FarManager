@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.136 14.12.2001 $ */
+/* Revision: 1.137 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    - Бага компиляции в Editor::ProcessEditorInput - лищняя скобка
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   14.12.2001 IS
@@ -5574,7 +5576,7 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
 int Editor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
 #if defined(SYSLOG_KEYMACRO)
-  CleverSysLog SL("Editor::ProcessEditorInput()"));
+  CleverSysLog SL("Editor::ProcessEditorInput()");
   if(Rec->EventType == KEY_EVENT)
     SysLog("VKey=0x%04X",Rec->Event.KeyEvent.wVirtualKeyCode);
   CtrlObject->Plugins.CurEditor=this;
