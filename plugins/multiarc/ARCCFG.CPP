@@ -82,6 +82,12 @@ int ConfigGeneral()
 
 
 #define DM_INITCONFIG DM_USER+1
+typedef struct
+{
+  char *ArcFormat;
+  BOOL FastAccess;
+  int PluginNumber, PluginType;
+} FORMATINFO;
 
 long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
@@ -95,14 +101,14 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       int I,J;
       char Command[512];
-      char *ArcFormat=(char*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+      FORMATINFO *FormatInfo=(FORMATINFO*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
       for (I=2,J=0;I<=32;I+=2,J++)
       {
         *Command=0;
         if(Param1) // Reset?
-          DeleteRegKey(HKEY_LOCAL_MACHINE,ArcFormat);
-        int PluginNumber,PluginType;
-        if (PluginClass::FormatToPlugin(ArcFormat,PluginNumber,PluginType))
+          DeleteRegKey(HKEY_LOCAL_MACHINE,FormatInfo->ArcFormat);
+        int PluginNumber=FormatInfo->PluginNumber,PluginType=FormatInfo->PluginType;
+        if (FormatInfo->FastAccess||PluginClass::FormatToPlugin(FormatInfo->ArcFormat,PluginNumber,PluginType))
         {
           if(I == 32)
           {
@@ -113,7 +119,7 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
         }
         //хитрый прием - передача Command в качестве дефолта для Command
-        GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
+        GetRegKey(HKEY_LOCAL_MACHINE,FormatInfo->ArcFormat,CmdNames[J],Command,Command,sizeof(Command));
         Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,I,(long)Command);
       }
       return TRUE;
@@ -132,7 +138,7 @@ long WINAPI CfgCmdProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 }
 
 
-int ConfigCommands(char *ArcFormat,int IDFocus)
+int ConfigCommands(char *ArcFormat,int IDFocus,BOOL FastAccess,int PluginNumber,int PluginType)
 {
   struct InitDialogItem InitItems[]={
   /* 00 */{DI_DOUBLEBOX,3,1,72,20,0,0,0,0,ArcFormat},
@@ -187,9 +193,15 @@ int ConfigCommands(char *ArcFormat,int IDFocus)
   for (I=2,J=0;I<=32;I+=2,J++)
     DialogItems[I].X1=6+MaxLength;
 
+  FORMATINFO FormatInfo;
+  FormatInfo.ArcFormat = ArcFormat;
+  FormatInfo.FastAccess = FastAccess;
+  FormatInfo.PluginNumber = PluginNumber;
+  FormatInfo.PluginType = PluginType;
+
   int ExitCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,22,"ArcSettings2",
                DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]),
-               0,0,CfgCmdProc,(long)ArcFormat);
+               0,0,CfgCmdProc,(long)&FormatInfo);
 
   if(ExitCode==35 || ExitCode < 0)
     return FALSE;

@@ -341,7 +341,7 @@ void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini);
 #endif //_NEW_ARC_SORT_
 
 int ConfigGeneral();
-int ConfigCommands(char *ArcFormat,int IDFocus=2);
+int ConfigCommands(char *ArcFormat,int IDFocus=2,BOOL FastAccess=FALSE,int PluginNumber=0,int PluginType=0);
 
 const char *GetMsg(int MsgId);
 int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);

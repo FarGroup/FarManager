@@ -205,7 +205,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
   int MenuItemsNumber=0;
   char Format[100],DefExt[NM];
   int BreakCode;
-  int BreakKeys[2]={VK_F4,0};
+  int BreakKeys[]={VK_F4,VK_RETURN,0};
   int ExitCode;
 
   #ifdef _NEW_ARC_SORT_
@@ -244,12 +244,12 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
         }
         MenuItems=NewMenuItems;
         memset(MenuItems+MenuItemsNumber,0,sizeof(struct FarMenuItemEx));
+        MenuItems[MenuItemsNumber].UserData = MAKEWPARAM((WORD)i,(WORD)j);
         strncpy(MenuItems[MenuItemsNumber].Text.Text,Format,sizeof(MenuItems[MenuItemsNumber].Text.Text)-1);
         MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
                                           *ArcFormat==0 ||
                                           !stricmp(ArcFormat,Format))?
                                           MIF_SELECTED:0;
-
         #ifdef _NEW_ARC_SORT_
         if(SortMode)
           MenuItems[MenuItemsNumber].UserData=GetPrivateProfileInt(SortMode, Format, 0, IniFile);
@@ -282,8 +282,8 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
     if (ExitCode>=0)
     {
       strcpy(ArcFormat,MenuItems[ExitCode].Text.Text);
-      if(BreakCode == 0)  // F4 pressed
-        ConfigCommands(ArcFormat);
+      if(BreakCode==0||BreakCode==1)  // F4 or Enter pressed
+        ConfigCommands(ArcFormat,2,TRUE,LOWORD(MenuItems[ExitCode].UserData),HIWORD(MenuItems[ExitCode].UserData));
       else
         break;
     }

@@ -197,7 +197,7 @@ int WINAPI _export Configure(int ItemNumber)
         char ArcFormat[100];
         *ArcFormat=0;
         while(PluginClass::SelectFormat(ArcFormat))
-          ConfigCommands(ArcFormat);
+          ;//ConfigCommands(ArcFormat);
         break;
       }
     }
