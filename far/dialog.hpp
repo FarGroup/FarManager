@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.35 12.07.2001 $ */
+/* Revision: 1.36 21.07.2001 $ */
 
 /*
 Modify:
+  21.07.2001 KM
+   ! Объявление FindFiles другом диалога для доступа к члену Item.
   12.07.2001 OT
    - Исправление ситуации (после 816) F11->F4->Esc-> :(
   11.07.2001 OT
@@ -246,6 +248,11 @@ class Edit;
 
 class Dialog: public Frame
 {
+  /* $ 21.07.2001 KM
+    ! Объявление FindFiles другом диалога для доступа к члену Item.
+  */
+  friend class FindFiles;
+  /* KM $ */
   private:
     /* $ 29.08.2000 SVS
        + Номер плагина, для формирования HelpTopic
