@@ -5,10 +5,14 @@ checkver.cpp
 
 */
 
-/* Revision: 1.02 21.02.2001 $ */
+/* Revision: 1.03 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+    ! ...а все началось с того, что нужно было убрать кирилицу из строк в
+      исходниках... и получился вот такой исзврат с "xUSSR регистрация" и
+      именами дней недели :-)
   21.02.2001 IS
     ! Opt.TabSize -> Opt.EdOpt.TabSize
   11.07.2000 SVS
@@ -28,9 +32,48 @@ Modify:
 /* IS $ */
 
 
-unsigned char MyName[]={'E'^0x50,'u'^0x51,'g'^0x52,'e'^0x53,'n'^0x54,'e'^0x55,' '^0x56,'R'^0x57,'o'^0x58,'s'^0x59,'h'^0x5a,'a'^0x5b,'l'^0x5c};
-char *Days[]={"воскресенье","понедельник","вторник","среда","четверг",
-              "пятница","суббота"};
+unsigned char MyName[]={
+    'E'^0x50,'u'^0x51,'g'^0x52,'e'^0x53,'n'^0x54,'e'^0x55,
+    ' '^0x56,'R'^0x57,'o'^0x58,'s'^0x59,'h'^0x5a,'a'^0x5b,'l'^0x5c};
+
+static char *GetDaysName(int wDayOfWeek)
+{
+  static unsigned char *Days[7]={
+    {"\x0C\xF7\xF8\xB6\xF2\xB9\xFF\xBA\xF9\xF0\xB2\xFA"}, // "воскресенье",
+    {"\x0c\xFA\xF8\xFA\xFD\xFD\xFF\xF0\xB0\xF0\xF6\xF5"}, // "понедельник",
+    {"\x08\xF7\xB4\xF9\xB8\xF4\xF2\xF1"},                 // "вторник",
+    {"\x06\xB4\xB6\xF2\xFC\xF9"},                         // "среда",
+    {"\x08\xB2\xF3\xB5\xFA\xFC\xBA\xF8"},                 // "четверг",
+    {"\x08\xFA\xB9\xB5\xF5\xF1\xBC\xFB"},                 // "пятница",
+    {"\x08\xB4\xB5\xF6\xF9\xF7\xB8\xFB"},                 // "суббота"
+  };
+  if(Days[0][0])
+  {
+    int I, J;
+    for(J=0; J < 7; ++J)
+    {
+      unsigned char B=0x55;
+      for(I=1; I < Days[J][0]; ++I, ++B)
+        Days[J][I]^=B;
+    }
+    Days[0][0]=0x00;
+  }
+  return &Days[wDayOfWeek][1];
+}
+
+static char *GetxUSSRRegName()
+{
+  // "xUSSR регистрация"
+  static unsigned char xUSSRRegName[]="\x12\x2D\x03\x04\x0B\x0B\x7A\xBB\xF9\xFE\xF6\xBE\x82\x81\xC2\x85\xCC\x8A";
+  if(xUSSRRegName[0])
+  {
+    unsigned char B=0x55;
+    for(int I=1; I < xUSSRRegName[0]; ++I, ++B)
+      xUSSRRegName[I]^=B;
+    xUSSRRegName[0]=0;
+  }
+  return xUSSRRegName+1;
+}
 
 #ifndef _MSC_VER
 #pragma warn -par
@@ -81,11 +124,11 @@ void Register()
   for (I=0;RegName[I]!=0;I++)
     Xor^=RegName[I];
   int xUSSR=FALSE;
-  if (strcmp(RegName,"xUSSR регистрация")==0)
+  if (strcmp(RegName,GetxUSSRRegName())==0)
   {
     SYSTEMTIME st;
     GetLocalTime(&st);
-    if (strcmp(RegCode,Days[st.wDayOfWeek])==0)
+    if (strcmp(RegCode,GetDaysName(st.wDayOfWeek))==0)
       xUSSR=TRUE;
   }
   if (!xUSSR && (Length<4 || (Xor & 0xf)!=ToHex(RegCode[0]) || ((~(Xor>>4))&0xf)!=ToHex(RegCode[3])))
@@ -147,7 +190,8 @@ void _cdecl CheckReg(void *Param)
       Xor^=RegName[I];
     if ((Xor & 0xf)!=ToHex(RegCode[0]) || ((~(Xor>>4))&0xf)!=ToHex(RegCode[3]))
       RegVer=0;
-    if (strcmp(RegName,"xUSSR регистрация")==0)
+
+    if (strcmp(RegName,GetxUSSRRegName())==0)
       RegVer=3;
     strcpy(Reg->RegCode,RegCode);
     strcpy(Reg->RegName,RegName);

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.70 29.03.2001 $ */
+/* Revision: 1.71 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+   + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
+     скрытых логических дисков
   29.03.2001 IS
    ! void ViewerConfig() -> void ViewerConfig(struct ViewerOptions &ViOpt);
   24.03.2001 tran 1.69
@@ -735,6 +738,7 @@ char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
 char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
                                 int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
+DWORD WINAPI FarGetLogicalDrives(void);
 
 #ifdef __cplusplus
 extern "C" {

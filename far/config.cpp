@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.63 29.03.2001 $ */
+/* Revision: 1.64 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+    + Opt.Policies.*
+    ! ViewerConfig, EditorConfig - ограничение на размер поля ввода
   29.03.2001 IS
     + По аналогии с редактором часть настроек переехала в ViewerOptions,
       соответственно произведены замены по всему файлу типа
@@ -243,6 +246,7 @@ char NKeyPanelLayout[]="Panel\\Layout";
 char NKeyLayout[]="Layout";
 char NKeyDescriptions[]="Descriptions";
 char NKeyKeyMacros[]="KeyMacros";
+char NKeyPolicies[]="Policies";
 
 
 void SystemSettings()
@@ -665,7 +669,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
   }
 
   Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
-  strcpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data);
+  strncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer));
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
   Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
   /* $ 16.12.2000 IS
@@ -763,7 +767,7 @@ void EditorConfig(struct EditorOptions &EdOpt)
   }
 
   Opt.UseExternalEditor=CfgDlg[2].Selected;
-  strcpy(Opt.ExternalEditor,CfgDlg[5].Data);
+  strncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor));
   EdOpt.ExpandTabs=CfgDlg[7].Selected;
   EdOpt.PersistentBlocks=CfgDlg[8].Selected;
   EdOpt.DelRemovesBlocks=CfgDlg[9].Selected;
@@ -964,6 +968,9 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyDescriptions,"StartPos",&Opt.Diz.StartPos,0, 0},
 
   {0, REG_DWORD,  NKeyKeyMacros,"MacroReuseRules",&Opt.MacroReuseRules,0, 0},
+
+  {0, REG_DWORD,  NKeyPolicies,"ShowHiddenDrives",&Opt.Policies.ShowHiddenDrives,1, 0},
+  {0, REG_DWORD,  NKeyPolicies,"DisabledOptions",&Opt.Policies.DisabledOptions,0, 0},
 };
 
 

@@ -5,10 +5,13 @@ options.cpp
 
 */
 
-/* Revision: 1.04 29.03.2001 $ */
+/* Revision: 1.05 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+    ! В OptionsDisabled() задействуем Opt.Policies.DisabledOptions, которая
+      централизовано и успешно считывается в config.cpp
   29.03.2001 IS
     + ViewerConfig вызывается с Opt.ViOpt
   28.02.2001 IS
@@ -516,16 +519,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 /* $ 05.09.2000 tran
    функция проверки разрешенности конфигурации */
-int OptionsDisabled(int i)
+int OptionsDisabled(int I)
 {
-    int r;
-
-    if (GetRegKey("Policies","DisabledOptions",r,0))
-    {
-//        SysLog("i=%i, r=0x0%08x, (r>>i)=0x%08x, (r>>i)&1=%i",i,r,(r>>i),(r>>i)&1);
-        if ( (r>>i)&1 )
-            return FALSE;
-    }
-    return TRUE;
+  if (Opt.Policies.DisabledOptions)
+    if ((Opt.Policies.DisabledOptions >> I) & 1)
+       return FALSE;
+  return TRUE;
 }
 /* tran 05.09.2000 $ */

@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.14 28.02.2001 $ */
+/* Revision: 1.15 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+    ! GetLogicalDrives заменен на FarGetLogicalDrives() в связи с началом
+      компании по поддержке виндовой "полиции".
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
@@ -728,7 +731,7 @@ void _cdecl PrepareFilesList(void *Param)
   WIN32_FIND_DATA FindData;
   char FullName[NM],Root[NM];
 
-  DWORD DiskMask=GetLogicalDrives();
+  DWORD DiskMask=FarGetLogicalDrives();
   CtrlObject->CmdLine->GetCurDir(Root);
 
   for (int CurrentDisk=0;DiskMask!=0;CurrentDisk++,DiskMask>>=1)

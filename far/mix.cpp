@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.64 24.03.2001 $ */
+/* Revision: 1.65 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+    + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
+      скрытых логических дисков
   24.03.2001 tran
     + qsortex
   20.03.2001 tran
@@ -1455,4 +1458,38 @@ char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
     strcpy(Dest,RemoteName);
   }
   return Dest;
+}
+
+/*
+  FarGetLogicalDrives
+  оболочка вокруг GetLogicalDrives, с учетом скрытых логических дисков
+  HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
+  NoDrives:DWORD
+    Последние 26 бит определяют буквы дисков от A до Z (отсчет справа налево).
+    Диск виден при установленном 0 и скрыт при значении 1.
+    Диск A представлен правой последней цифрой при двоичном представлении.
+    Например, значение 00000000000000000000010101(0x7h)
+    скрывает диски A, C, и E
+*/
+DWORD WINAPI FarGetLogicalDrives(void)
+{
+  static DWORD LogicalDrivesMask = 0;
+  DWORD NoDrives=0;
+  if ((!Opt.RememberLogicalDrives) || (LogicalDrivesMask==0))
+    LogicalDrivesMask=GetLogicalDrives();
+
+  if(!Opt.Policies.ShowHiddenDrives)
+  {
+    HKEY hKey;
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
+    {
+      int ExitCode;
+      DWORD Type,Size=sizeof(NoDrives);
+      ExitCode=RegQueryValueEx(hKey,"NoDrives",0,&Type,(BYTE *)&NoDrives,&Size);
+      RegCloseKey(hKey);
+      if(ExitCode != ERROR_SUCCESS)
+        NoDrives=0;
+    }
+  }
+  return LogicalDrivesMask&(~NoDrives);
 }

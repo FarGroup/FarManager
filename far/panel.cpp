@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.25 28.03.2001 $ */
+/* Revision: 1.26 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+    ! GetLogicalDrives заменен на FarGetLogicalDrives() в связи с началом
+      компании по поддержке виндовой "полиции".
   28.03.2001 VVM
     + Обработка Opt.RememberLogicalDrives.
   27.03.2001 SVS
@@ -99,11 +102,6 @@ static char DragName[NM];
 
 static unsigned char VerticalLine=0x0B3;
 
-/* $ 28.03.2001 VVM
-    + Обработка Opt.RememberLogicalDrives. */
-static DWORD LogicalDrivesMask = 0;
-/* VVM $ */
-
 static int MessageRemoveConnection(char Letter, int &UpdateProfile);
 
 
@@ -169,12 +167,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
   *DiskLetter=0;
 
-  /* $ 28.03.2001 VVM
-    + Обработка Opt.RememberLogicalDrives. */
-  if ((!Opt.RememberLogicalDrives) || (LogicalDrivesMask==0))
-    LogicalDrivesMask=GetLogicalDrives();
-  Mask = LogicalDrivesMask;
-  /* VVM $ */
+  Mask=FarGetLogicalDrives();
 
   for (DiskMask=Mask,DiskCount=0;DiskMask!=0;DiskMask>>=1)
     DiskCount+=DiskMask & 1;

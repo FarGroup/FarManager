@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.50 29.03.2001 $ */
+/* Revision: 1.51 30.03.2001 $ */
 
 /*
 Modify:
+  30.03.2001 SVS
+   + Opt.Policies - прообраз полиции.
   29.03.2001 IS
    + struct ViewerOptions
   28.03.2001 VVM
@@ -315,6 +317,13 @@ struct ViewerOptions
   /* tran 18.07.2000 $ */
 };
 /* IS $ */
+
+// "Полиция"
+struct PoliciesOptions {
+  int DisabledOptions;  // разрешенность меню конфигурации
+  int ShowHiddenDrives; // показывать скрытые логические диски
+};
+
 struct Options
 {
   /* $ 03.08.2000 SVS
@@ -581,6 +590,8 @@ struct Options
       каждый раз. Для предотвращения "просыпания" "зеленых" винтов. */
   int RememberLogicalDrives;
   /* VVM $ */
+
+  struct PoliciesOptions Policies;
 };
 
 
