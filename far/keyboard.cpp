@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.14 09.02.2001 $ */
+/* Revision: 1.15 25.02.2001 $ */
 
 /*
 Modify:
+  25.02.2001 SVS
+    ! “â®ç­¥­¨ï ¤«ï Alt-Shift-...
   09.02.2001 IS
     + ®¤â¢¥à¦¤¥­¨¥ ­ ¦ â¨ï Esc ¢ CheckForEsc (®¯æ¨®­ «ì­®)
   06.02.2001 SVS
@@ -1106,10 +1108,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-//if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s³0x%08X (%c)³0x%08X (%c)³","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s³0x%08X (%c)³0x%08X (%c)³WaitInMainLoop=%d WaitInFastFind=%d","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind);
     if (KeyCode>='0' && KeyCode<='9')
     {
-      if(WaitInFastFind)
+      if(WaitInFastFind>0)
         return(KEY_ALT+KEY_SHIFT+AsciiChar);
       else
         return(KEY_ALTSHIFT0+KeyCode-'0');
