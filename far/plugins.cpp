@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.59 26.03.2001 $ */
+/* Revision: 1.60 04.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 SVS
+    ! Попытка исключить ненужные вызовы в CallPlugin()
   26.03.2001 SVS
     + дополнительный параметр у CommandsMenu() - HistoryName
   24.03.2001 tran
@@ -2332,10 +2334,15 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
         NewPanel->SetPluginMode(hNewPlugin,"");
         if (Data && *(char *)Data)
           SetDirectory(hNewPlugin,(char *)Data,0);
-        NewPanel->Update(0);
+        /* $ 04.04.2001 SVS
+           Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
+           Если что-то не так - раскомментировать!!!
+        */
+//        NewPanel->Update(0);
         if (CurFocus || !CtrlObject->GetAnotherPanel(NewPanel)->IsVisible())
           NewPanel->SetFocus();
-        NewPanel->Show();
+//        NewPanel->Show();
+        /* SVS $ */
       }
       return TRUE;
     }

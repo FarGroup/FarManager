@@ -7,10 +7,13 @@ Keybar
 
 */
 
-/* Revision: 1.02 07.08.2000 $ */
+/* Revision: 1.03 04.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 SVS
+    - Избавляемся от "залипания" :-)
+    ! убран "мусор" - ненужные новые переменные CtrlShiftState
   07.08.2000 SVS
     + Изменение любого Label - функция Change(Group,...)
   02.08.2000 SVS
@@ -47,7 +50,6 @@ class KeyBar:public ScreenObject
     */
     char CtrlShiftKeyName[12][10],AltShiftKeyName[12][10],CtrlAltKeyName[12][10];
     int CtrlShiftKeyCount,AltShiftKeyCount,CtrlAltKeyCount;
-    int AltShiftState,CtrlAltState,CtrlShiftState;
     /* SVS $*/
     int KeyCount,ShiftKeyCount,AltKeyCount,CtrlKeyCount;
     int AltState,CtrlState,ShiftState;

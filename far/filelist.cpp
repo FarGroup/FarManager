@@ -9,6 +9,12 @@ filelist.cpp
 
 /*
 Modify:
+  04.04.2001 SVS
+    + дополнительная проверка в FileList::ChangeDir()
+      *RemoteName != 0 перед вызовом нетворк плагина
+      (а вдруг не удалось определить RemoteName)
+    ! Сомнительный кусок в FileList::ChangeDir()
+      NewCurDir[sizeof(...)]; заменен на NewCurDir[NM*2];
   02.04.2001 IS
     - Исправляю баг, связанный с выдачей ерунды при ctrl-n и ctrl-f для длинных
       имен на плагине типа временной панели (т.е. которые содержат имя файла
@@ -1614,21 +1620,24 @@ void FileList::ChangeDir(char *NewDir)
            Добавим возможность вызова Network-плагина из корня зашаренных
            дисков.
         */
-        char NewCurDir[sizeof(CurDir)];
+        char NewCurDir[NM*2];
         strcpy(NewCurDir,CurDir);
         if(NewCurDir[1] == ':')
         {
           char Letter=*NewCurDir;
           DriveLocalToRemoteName(DRIVE_REMOTE,Letter,NewCurDir);
         }
-        char *PtrS1=strchr(NewCurDir+2,'\\');
-        if(PtrS1 && !strchr(PtrS1+1,'\\'))
+        if(*NewCurDir) // проверим - может не удалось определить RemoteName
         {
-// SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
-          if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
+          char *PtrS1=strchr(NewCurDir+2,'\\');
+          if(PtrS1 && !strchr(PtrS1+1,'\\'))
           {
-//SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
-            return;
+  // SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
+            if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
+            {
+  //SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
+              return;
+            }
           }
         }
         /* SVS $ */

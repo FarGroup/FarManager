@@ -5,10 +5,13 @@ Keybar
 
 */
 
-/* Revision: 1.05 17.01.2001 $ */
+/* Revision: 1.06 04.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 SVS
+    - Избавляемся от "залипания" :-)
+    ! убран "мусор" - ненужные новые переменные CtrlShiftState
   17.01.2001 SVS
     - Вернем обратно предыдущее изменение в связи с очередным уточнением клавиш
   07.01.2001 OT
@@ -49,7 +52,6 @@ KeyBar::KeyBar()
   /* $ 02.08.2000 SVS
      Дополнительные индикаторы
   */
-  AltShiftState=CtrlAltState=CtrlShiftState=0;
   CtrlShiftKeyCount=AltShiftKeyCount=CtrlAltKeyCount=0;
   memset(CtrlShiftKeyName,0,sizeof(CtrlShiftKeyName));
   memset(AltShiftKeyName,0,sizeof(AltShiftKeyName));
@@ -72,7 +74,6 @@ void KeyBar::DisplayObject()
   int I;
   GotoXY(X1,Y1);
   AltState=CtrlState=ShiftState=0;
-  AltShiftState=CtrlAltState=CtrlShiftState=0;
 
   int KeyWidth=(X2-X1-1)/12;
   if (KeyWidth<8)
@@ -90,48 +91,48 @@ void KeyBar::DisplayObject()
 
     if (ShiftPressed)
     {
+      ShiftState=ShiftPressed;
       if (CtrlPressed)
       {
+        CtrlState=CtrlPressed;
         if(!AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
         {
           if (I<CtrlShiftKeyCount)
             Label=CtrlShiftKeyName[I];
-          CtrlShiftState=1;
         }
       }
       else if (AltPressed)
       {
         if (I<AltShiftKeyCount)
           Label=AltShiftKeyName[I];
-        AltShiftState=1;
+        AltState=AltPressed;
       }
       else
       {
         if (I<ShiftKeyCount)
           Label=ShiftKeyName[I];
-        ShiftState=1;
       }
     }
     else if (CtrlPressed)
     {
+      CtrlState=CtrlPressed;
       if (AltPressed)
       {
         if (I<CtrlAltKeyCount)
           Label=CtrlAltKeyName[I];
-        CtrlAltState=1;
+        AltState=AltPressed;
       }
       else
       {
         if (I<CtrlKeyCount)
           Label=CtrlKeyName[I];
-        CtrlState=1;
       }
     }
     else if (AltPressed)
     {
+      AltState=AltPressed;
       if (I<AltKeyCount)
         Label=AltKeyName[I];
-      AltState=1;
     }
     else
       if (I<KeyCount && (DisableMask & (1<<I))==0)
@@ -336,16 +337,9 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void KeyBar::RedrawIfChanged()
 {
-  /* $ 02.08.2000 SVS
-     Не забудем про новые индикаторы
-  */
-  if (ShiftPressed!=ShiftState         ||
-      CtrlPressed!=CtrlState           ||
-      AltPressed!=AltState      )//       ||
-/*      AltShiftPressed!=AltShiftState   ||
-      CtrlShiftPressed!=CtrlShiftState ||
-      CtrlAltPressed!=CtrlAltState)*/
-  /* SVS $ */
+  if (ShiftPressed!=ShiftState ||
+      CtrlPressed!=CtrlState ||
+      AltPressed!=AltState)
     Redraw();
 }
 
@@ -354,4 +348,3 @@ void KeyBar::SetDisableMask(int Mask)
 {
   DisableMask=Mask;
 }
-
