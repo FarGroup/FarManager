@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.53 11.02.2001 $ */
+/* Revision: 1.54 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    ! Обработка NULL после OpenPlugin
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   01.02.2001 SVS
@@ -1087,7 +1089,10 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
         hInternal=INVALID_HANDLE_VALUE;
       }
       /* SVS $ */
-      if (hInternal!=INVALID_HANDLE_VALUE)
+      /* $ 26.02.2001 VVM
+          ! Обработка NULL после OpenPlugin */
+      if ((hInternal) && (hInternal!=INVALID_HANDLE_VALUE))
+      /* VVM $ */
       {
         PluginHandle *hPlugin=new PluginHandle;
         hPlugin->InternalHandle=hInternal;
@@ -1155,7 +1160,10 @@ HANDLE PluginsSet::OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber
         PreparePlugin(I))
     {
       HANDLE hInternal=PluginsData[I].pOpenPlugin(OPEN_FINDLIST,0);
-      if (hInternal!=INVALID_HANDLE_VALUE)
+      /* $ 26.02.2001 VVM
+          ! Обработка NULL после OpenPlugin */
+      if ((hInternal) && (hInternal!=INVALID_HANDLE_VALUE))
+      /* VVM $ */
       {
         //EXCEPTION_POINTERS *xp;
         BOOL Ret;
@@ -1979,7 +1987,10 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
     if (Viewer)
       OpenCode=OPEN_VIEWER;
     HANDLE hPlugin=OpenPlugin(Data[0],OpenCode,Data[1]);
-    if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
+    /* $ 26.02.2001 VVM
+        ! Обработка NULL после OpenPlugin */
+    if ((hPlugin) && (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer))
+    /* VVM $ */
     {
       Panel *NewPanel=CtrlObject->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
       NewPanel->SetPluginMode(hPlugin,"");
@@ -2199,7 +2210,10 @@ int PluginsSet::ProcessCommandLine(char *Command)
   strcpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1));
   /* VVM $ */
   HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
-  if (hPlugin!=INVALID_HANDLE_VALUE)
+  /* $ 26.02.2001 VVM
+      ! Обработка NULL после OpenPlugin */
+  if ((hPlugin) && (hPlugin!=INVALID_HANDLE_VALUE))
+  /* VVM $ */
   {
     Panel *NewPanel=CtrlObject->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
     NewPanel->SetPluginMode(hPlugin,"");
@@ -2247,8 +2261,11 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
     {
       HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(int)Data);
 
-      if (hNewPlugin!=INVALID_HANDLE_VALUE &&
-        (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
+      /* $ 26.02.2001 VVM
+          ! Обработка NULL после OpenPlugin */
+      if ((hNewPlugin) && (hNewPlugin!=INVALID_HANDLE_VALUE &&
+        (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL)))
+      /* VVM $ */
       {
         int CurFocus=CtrlObject->ActivePanel->GetFocus();
         Panel *NewPanel=CtrlObject->ChangePanel(CtrlObject->ActivePanel,FILE_PANEL,TRUE,TRUE);

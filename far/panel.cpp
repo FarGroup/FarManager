@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.15 14.02.2001 $ */
+/* Revision: 1.16 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    ! Обработка NULL после OpenPlugin
   14.02.2001 SVS
     ! Дополнительный параметр для MakeListFile - модификаторы
   11.02.2001 SVS
@@ -584,7 +586,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     if (UserDataSize==2)
     {
       HANDLE hPlugin=CtrlObject->Plugins.OpenPlugin(DiskLetter[0],OPEN_DISKMENU,DiskLetter[1]);
-      if (hPlugin!=INVALID_HANDLE_VALUE)
+      /* $ 26.02.2001 VVM
+          ! Обработка NULL после OpenPlugin */
+      if ((hPlugin) && (hPlugin!=INVALID_HANDLE_VALUE))
+      /* VVM $ */
       {
         Focus=GetFocus();
         Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,TRUE);

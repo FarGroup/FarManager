@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.28 21.02.2001 $ */
+/* Revision: 1.29 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    ! Обработка NULL после OpenPlugin
   21.02.2001 SKV
     - перерисовка FileList при DOUBLE_CLICK без простого клика перед ним.
   14.02.2001 VVM
@@ -491,7 +493,10 @@ int FileList::ProcessKey(int Key)
               if (CtrlObject->Plugins.PluginsData[I].pOpenPlugin)
               {
                 HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_SHORTCUT,(int)PluginData);
-                if (hNewPlugin!=INVALID_HANDLE_VALUE)
+                /* $ 26.02.2001 VVM
+                    ! Обработка NULL после OpenPlugin */
+                if ((hNewPlugin) && (hNewPlugin!=INVALID_HANDLE_VALUE))
+                /* VVM $ */
                 {
                   int CurFocus=GetFocus();
                   Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
