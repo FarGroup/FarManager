@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.106 03.01.2003 $ */
+/* Revision: 1.107 11.01.2003 $ */
 
 /*
 Modify:
+  11.01.2003 KM
+    - 100% падение фара в ShowMenu, скомпилированного VC, из
+      диалога поиска при попытке отрисовки DI_LISTBOX.
   03.01.2003 SVS
     - Bug#757 - Ќесанкционированный доступ к настройкам
       (видимо не только в конструкторе нужно... надо подумать потом!!!)
@@ -737,6 +740,14 @@ void VMenu::ShowMenu(int IsParent)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   BoxChar2[1]=BoxChar[1]=0;
 
+  /* $ 11.01.2003 KM
+     ! »ногда TopPos=-1, что в дальнейшем приводило к отрицательному
+       индексу и, естественно, приводило к exception.
+  */
+  if (TopPos<0)
+      TopPos=0;
+  /* KM $ */
+
   /* $ 22.07.2001 KM
    - Ќе устанавливалс€ тип рамки при первом вызове
      ShowMenu с параметром TRUE, что давало неверную
@@ -778,8 +789,12 @@ void VMenu::ShowMenu(int IsParent)
       *BoxChar=0x0BA; // ||
       break;
   }
-  if (SelectPos<ItemCount)
+  /* $ 11.01.2002 KM
+     ! ѕри ItemCount=0 Item[SelectPos] не имеет смысла.
+  */
+  if ((ItemCount) && (SelectPos<ItemCount))
     Item[SelectPos].Flags|=LIF_SELECTED;
+  /* KM $ */
 
   /* $ 02.12.2001 KM
      ! ѕредварительно, если нужно, настроим "гор€чие" клавиши.
@@ -800,7 +815,11 @@ void VMenu::ShowMenu(int IsParent)
   /* KM $ */
   {
     GotoXY(X1,Y);
-    if (I<ItemCount)
+    /* $ 11.01.2003 KM
+       ѕроверим, есть ли у нас итемы в списке
+    */
+    if ((ItemCount) && (I<ItemCount))
+    /* KM $ */
     {
       if (Item[I].Flags&LIF_SEPARATOR)
       {
