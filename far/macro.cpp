@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.140 10.03.2005 $ */
+/* Revision: 1.141 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    ! в макроса пока отключим сохранение варсов.
   10.03.2005 SVS
     - BugZ#1238 Неверная работа fexist по определённой смене папки
   05.03.2005 SVS
@@ -2224,7 +2226,7 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
   char *TextBuffer;
   char RegKeyName[150];
 
-  WriteVarsConst(MACRO_VARS);
+  //WriteVarsConst(MACRO_VARS);
 
   for (int I=0;I<MacroLIBCount;I++)
   {

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.59 28.02.2005 $ */
+/* Revision: 1.60 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    ! в PrepareOptFolder() проэкспандим значение из реестра.
   28.02.2005 SVS
     - BugZ#1281 - Курсор на левой панели, обе отображены.
                   Жмём CtrlF2 CtrlO CtrlF2 CtrlF2 CtrlO.
@@ -211,10 +213,12 @@ FilePanels::FilePanels()
 static void PrepareOptFolder(char *Src,int SizeSrc,int IsLocalPath_FarPath)
 {
   if(!*Src)
-  {
     xstrncpy(Src,FarPath,SizeSrc);
-    DeleteEndSlash(Src);
-  }
+  else
+    ExpandEnvironmentStr(Src,Src,SizeSrc);
+
+  DeleteEndSlash(Src);
+
   if(!strcmp(Src,"/"))
   {
     xstrncpy(Src,FarPath,SizeSrc);
