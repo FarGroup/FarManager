@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.26 13.12.2000 $ */
+/* Revision: 1.27 12.12.2000 $ */
 
 /*
 Modify:
+   10.12.2000 tran & OT
+    ! KEY_SHIFTBS изменен на KEY_CTRLSHIFTBS (tran)
+    - Исправление бага с KEY_SHIFTTAB (OT)
    13.12.2000 SVS
     + Дополнительный параметр в функции  Xlat()
    10.12.2000 IS
@@ -835,9 +838,12 @@ int Edit::ProcessKey(int Key)
         Show();
       return(TRUE);
 
+    /* $ 10.12.2000 tran
+       KEY_SHIFTBS изменен на KEY_CTRLSHIFTBS*/
     /* $ 03.07.2000 tran
        + KEY_SHIFTBS - удялем от курсора до начала строки */
-    case KEY_SHIFTBS:
+    case KEY_CTRLSHIFTBS:
+    /* tran $ */
       /* $ 19.08.2000 KM
          Немного изменён алгоритм удаления до начала строки.
          Теперь удаление работает и с маской ввода.
@@ -1186,13 +1192,13 @@ int Edit::ProcessKey(int Key)
       return(TRUE);
     case KEY_SHIFTTAB:
       {
-        int Size=CurPos % Opt.TabSize;
-        if (Size==0 && CurPos!=0)
-          Size=Opt.TabSize;
         /* $ 15.08.2000 KM */
         PrevCurPos=CurPos;
         /* KM $ */
-        CurPos-=Size;
+        /* $ 12.12.2000 OT KEY_SHIFTTAB Bug Fix*/
+        CursorPos-=(CursorPos-1) % Opt.TabSize+1;
+        SetTabCurPos(CursorPos);
+        /* OT $ */
         Show();
       }
       return(TRUE);
