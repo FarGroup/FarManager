@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.98 12.03.2002 $ */
+/* Revision: 1.99 12.03.2002 $ */
 
 /*
 Modify:
+  15.03.2002 KM
+    - Заголовок окна показывался без амперсанда, но с подсветкой
+      если в имени искомого файла был амперсанд.
   12.02.2002 VVM
     + Задействуем функцию AbortMessage()
   04.03.2002 DJ
@@ -1274,11 +1277,14 @@ int FindFiles::FindFilesProcess()
   else
     sprintf(SearchStr,MSG(MFindSearchingIn),"");
 
+  /* $ 15.03.2002 KM
+     Заголовок окна показывался без амперсанда.
+  /*
   /* $ 03.12.2001 DJ
      корректный показ имен файлов с амперсандами
   */
   static struct DialogData FindDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,0,0,Title,
+  /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,DIF_SHOWAMPERSAND,0,Title,
   /* 01 */DI_LISTBOX,4,2,71,14,0,0,DIF_LISTNOBOX,0,(char*)0,
   /* 02 */DI_TEXT,-1,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 03 */DI_TEXT,5,16,0,0,0,0,DIF_SHOWAMPERSAND,0,SearchStr,
@@ -1290,6 +1296,7 @@ int FindFiles::FindFilesProcess()
   /* 09 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindStop
   };
   /* DJ $ */
+  /* KM $ */
   MakeDialogItems(FindDlgData,FindDlg);
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
