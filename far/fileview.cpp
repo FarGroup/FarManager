@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.43 11.10.2001 $ */
+/* Revision: 1.44 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 VVM
+    ! Неправильно запоминалось имя файла в истории.
   11.10.2001 IS
     ! Если просили удалить файл при закрытии и переключаемся в редактор
       по F6, то удалять файл уже не нужно.
@@ -510,8 +512,7 @@ void FileViewer::OnDestroy()
   if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
   {
     char FullFileName[NM];
-    if (ConvertNameToFull(Name,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
-      return ;
+    View.GetFileName(FullFileName);
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
 }
