@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.156 08.06.2004 $ */
+/* Revision: 1.157 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 KM
+    ! Уточним действие поиска при использовании фильтра, в котором
+      теперь существует обработка атрибута FILE_ATTRIBUTE_DIRECTORY
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -2195,14 +2198,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
           while (PauseSearch)
             Sleep(10);
 
-          if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-          {
-            strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
-            FindMessage[sizeof(FindMessage)-1]=0;
-            FindMessageReady=TRUE;
-          }
-
-          /* 30.09.2003 KM
+          /* $ 30.09.2003 KM
             Отфильтруем файлы не попадающие в действующий фильтр
           */
           int IsFile;
@@ -2213,6 +2209,17 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
           if (IsFile)
           {
+            /* $ 14.06.2004 KM
+              Уточнение действия при обработке каталогов
+            */
+            if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+              strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
+              FindMessage[sizeof(FindMessage)-1]=0;
+              FindMessageReady=TRUE;
+            }
+            /* KM $ */
+
             if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
               AddMenuRecord(FullName,&FindData);
 
@@ -2898,15 +2905,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
 //        strcpy(AddPath,PluginSearchPath);
       }
 
-      if (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-      {
-        strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
-        FindMessage[sizeof(FindMessage)-1]=0;
-        RemovePseudoBackSlash(FindMessage);
-        FindMessageReady=TRUE;
-      }
-
-      /* 30.09.2003 KM
+      /* $ 30.09.2003 KM
         Отфильтруем файлы не попадающие в действующий фильтр
       */
       int IsFile;
@@ -2917,6 +2916,18 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
 
       if (IsFile)
       {
+        /* $ 14.06.2004 KM
+          Уточнение действия при обработке каталогов
+        */
+        if (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+          strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
+          FindMessage[sizeof(FindMessage)-1]=0;
+          RemovePseudoBackSlash(FindMessage);
+          FindMessageReady=TRUE;
+        }
+        /* KM $ */
+
         if (IsFileIncluded(CurPanelItem,CurName,CurPanelItem->FindData.dwFileAttributes))
           AddMenuRecord(FullName,&CurPanelItem->FindData);
 

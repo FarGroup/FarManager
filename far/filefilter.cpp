@@ -5,10 +5,13 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.02 08.12.2003 $ */
+/* Revision: 1.03 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 KM
+    + Добавлена обработка атрибута FILE_ATTRIBUTE_DIRECTORY
+    ! Заменим BSTATE_UNCHECKED на BSTATE_3STATE при сбросе значений.
   08.12.2003 SVS
     + размеры в Mb, Gb
     + кнопка Reset
@@ -189,10 +192,10 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
-      if (Param1==30 || Param1==32) // Ok и Cancel
+      if (Param1==31 || Param1==33) // Ok и Cancel
         return FALSE;
 
-      if (Param1==31) // Reset
+      if (Param1==32) // Reset
       {
         // очистка диалога
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
@@ -205,8 +208,12 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,18,(long)"");
         Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,19,(long)"");
 
-        for(int I=24; I <= 29; ++I)
-          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_UNCHECKED);
+        /* 14.06.2004 KM
+           Заменим BSTATE_UNCHECKED на BSTATE_3STATE, в данном
+           случае это будет логичнее, т.с. дефолтное значение
+        */
+        for(int I=24; I <= 30; ++I)
+          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
 
         // 6, 13 - позиции в списке
         struct FarListPos LPos={0,0};
@@ -251,13 +258,14 @@ void FileFilter::Configure()
 14  "  | | [ Current ] [ Blank ]                                 | |  "
 15  "  | +-------------------------------------------------------+ |  "
 16  "  | +-[ ] Attributes----------------------------------------+ |  "
-17  "  | | [x] Только чтение [x] Скрытый       [x] Зашифрованный | |  "
-18  "  | | [x] Архивный      [x] Системный     [x] Сжатый        | |  "
-19  "  | +-------------------------------------------------------+ |  "
-20  "  |                     [ Ok ]  [ Cancel ]                    |  "
-21  "  +-----------------------------------------------------------+  "
-22  "                                                                 "
-23  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+17  "  | | [x] Только чтение [x] Скрытый       [x] Сжатый        | |  "
+18  "  | | [x] Архивный      [x] Системный     [x] Зашифрованный | |  "
+19  "  | | [x] Directory                                         | |  "
+20  "  | +-------------------------------------------------------+ |  "
+21  "  |                [ Ok ]  [ Reset]  [ Cancel ]               |  "
+22  "  +-----------------------------------------------------------+  "
+23  "                                                                 "
+24  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 */
 
   // Временная маска.
@@ -265,7 +273,7 @@ void FileFilter::Configure()
   int I;
 
   struct DialogData FilterDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,63,21,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,63,22,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
 
   /* 01 */DI_SINGLEBOX,5,2,61,4,0,0,DIF_SHOWAMPERSAND,0,"",
   /* 02 */DI_CHECKBOX,7,2,0,0,1,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
@@ -291,7 +299,7 @@ void FileFilter::Configure()
   /* 20 */DI_BUTTON,7,14,0,14,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
   /* 21 */DI_BUTTON,19,14,0,14,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
 
-  /* 22 */DI_SINGLEBOX,5,16,61,19,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 22 */DI_SINGLEBOX,5,16,61,20,0,0,DIF_SHOWAMPERSAND,0,"",
   /* 23 */DI_CHECKBOX, 7,16,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
   /* 24 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
   /* 25 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
@@ -299,10 +307,11 @@ void FileFilter::Configure()
   /* 27 */DI_CHECKBOX,25,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
   /* 28 */DI_CHECKBOX,43,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
   /* 29 */DI_CHECKBOX,43,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
+  /* 30 */DI_CHECKBOX, 7,19,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
 
-  /* 30 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
-  /* 31 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,1,(char *)MFileFilterReset,
-  /* 32 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
+  /* 31 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
+  /* 32 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,1,(char *)MFileFilterReset,
+  /* 33 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
   };
 
   MakeDialogItems(FilterDlgData,FilterDlg);
@@ -347,9 +356,10 @@ void FileFilter::Configure()
   FilterDlg[27].Selected=(AttrSet & FILE_ATTRIBUTE_SYSTEM?1:AttrClear & FILE_ATTRIBUTE_SYSTEM?0:2);
   FilterDlg[28].Selected=(AttrSet & FILE_ATTRIBUTE_COMPRESSED?1:AttrClear & FILE_ATTRIBUTE_COMPRESSED?0:2);
   FilterDlg[29].Selected=(AttrSet & FILE_ATTRIBUTE_ENCRYPTED?1:AttrClear & FILE_ATTRIBUTE_ENCRYPTED?0:2);
+  FilterDlg[30].Selected=(AttrSet & FILE_ATTRIBUTE_DIRECTORY?1:AttrClear & FILE_ATTRIBUTE_DIRECTORY?0:2);
   if (!FilterDlg[23].Selected)
   {
-    for(I=24; I <= 29; ++I)
+    for(I=24; I <= 30; ++I)
       FilterDlg[I].Flags|=DIF_DISABLE;
   }
   else
@@ -369,7 +379,7 @@ void FileFilter::Configure()
   Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FilterDlgProc);
 
   Dlg.SetHelp("OpFilter");
-  Dlg.SetPosition(-1,-1,67,23);
+  Dlg.SetPosition(-1,-1,67,24);
 
   Dlg.SetAutomation(2,3,DIF_DISABLE,0,0,DIF_DISABLE);
 
@@ -395,6 +405,7 @@ void FileFilter::Configure()
   Dlg.SetAutomation(23,27,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(23,28,DIF_DISABLE,0,0,DIF_DISABLE);
   Dlg.SetAutomation(23,29,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(23,30,DIF_DISABLE,0,0,DIF_DISABLE);
 
   for (;;)
   {
@@ -402,7 +413,7 @@ void FileFilter::Configure()
     Dlg.Process();
     int ExitCode=Dlg.GetExitCode();
 
-    if (ExitCode==30) // Ok
+    if (ExitCode==31) // Ok
     {
       // Если введённая пользователем маска не корректна, тогда вернёмся в диалог
       if (FilterDlg[2].Selected && !FileMask.Set(FilterDlg[3].Data,0))
@@ -433,12 +444,14 @@ void FileFilter::Configure()
       AttrSet|=(FilterDlg[27].Selected==1?FILE_ATTRIBUTE_SYSTEM:0);
       AttrSet|=(FilterDlg[28].Selected==1?FILE_ATTRIBUTE_COMPRESSED:0);
       AttrSet|=(FilterDlg[29].Selected==1?FILE_ATTRIBUTE_ENCRYPTED:0);
+      AttrSet|=(FilterDlg[30].Selected==1?FILE_ATTRIBUTE_DIRECTORY:0);
       AttrClear|=(FilterDlg[24].Selected==0?FILE_ATTRIBUTE_READONLY:0);
       AttrClear|=(FilterDlg[25].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
       AttrClear|=(FilterDlg[26].Selected==0?FILE_ATTRIBUTE_HIDDEN:0);
       AttrClear|=(FilterDlg[27].Selected==0?FILE_ATTRIBUTE_SYSTEM:0);
       AttrClear|=(FilterDlg[28].Selected==0?FILE_ATTRIBUTE_COMPRESSED:0);
       AttrClear|=(FilterDlg[29].Selected==0?FILE_ATTRIBUTE_ENCRYPTED:0);
+      AttrClear|=(FilterDlg[30].Selected==0?FILE_ATTRIBUTE_DIRECTORY:0);
       FF.FAttr.AttrSet=AttrSet;
       FF.FAttr.AttrClear=AttrClear;
 
@@ -646,6 +659,8 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
       return FALSE;
     if ((AttrSet & FILE_ATTRIBUTE_ENCRYPTED) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)))
       return FALSE;
+    if ((AttrSet & FILE_ATTRIBUTE_DIRECTORY) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
+      return FALSE;
 
     // Проверка попадания файла по отсутствующим атрибутам
     DWORD AttrClear=FF.FAttr.AttrClear;
@@ -660,6 +675,8 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
     if ((AttrClear & FILE_ATTRIBUTE_COMPRESSED) && (fd->dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
       return FALSE;
     if ((AttrClear & FILE_ATTRIBUTE_ENCRYPTED) && (fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED))
+      return FALSE;
+    if ((AttrClear & FILE_ATTRIBUTE_DIRECTORY) && (fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       return FALSE;
   }
 

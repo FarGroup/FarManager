@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.143 09.06.2004 $ */
+/* Revision: 1.144 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 KM
+    + MFileFilterAttrD
   09.06.2004 SVS
     + MInfoCD_RWDVD, MChangeDriveCD_RWDVD
   08.06.2004 SVS
@@ -2254,6 +2256,7 @@ enum
   MFileFilterAttrS,
   MFileFilterAttrC,
   MFileFilterAttrE,
+  MFileFilterAttrD,
   MFileFilterOk,
   MFileFilterReset,
   MFileFilterCancel,
