@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.46 07.10.2001 $ */
+/* Revision: 1.47 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+    + Сортируем индекс хелпов от плагинов перед выдачей на экран.
   07.10.2001 SVS
     + Opt.HelpTabSize - размер табуляции по умолчанию.
   01.10.2001 SVS
@@ -1323,7 +1325,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
      1. Поиск (для "документов") не только в каталоге Documets, но
         и в плагинах
   */
-
+  int OldStrCount=StrCount;
   switch(TypeIndex)
   {
     case HIDX_PLUGINS:
@@ -1410,6 +1412,8 @@ _SVS(SysLog("HelpLine=%s",HelpLine));
       break;
     }
   }
+  // сортируем по алфавиту
+  qsort(HelpData+OldStrCount*MAX_HELP_STRING_LENGTH,StrCount-OldStrCount,MAX_HELP_STRING_LENGTH,(int (*)(const void *,const void *))strcmp);
   /* $ 26.06.2000 IS
    Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
   */

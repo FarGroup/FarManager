@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.166 15.10.2001 $ */
+/* Revision: 1.167 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 SVS
+   ! BugZ#71: "Если "редактор" имеет флаг DIF_NOFOCUS..." - Неверно было
+     сделано исправление от 10.10.2001. Теперь все верно - всегда в таком
+     случае кажем Unchanged-цветом
   15.10.2001 SVS
    ! if Opt.DlgSelectFromHistory == 0 then (ctrl-down в строке с историей
      курсор устанавливался на самую верхнюю строку)
@@ -1885,7 +1889,8 @@ void Dialog::ShowDialog(int ID)
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT),
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:
+                  (CurItem->Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_WARNDIALOGEDIT)),
                 // LOHI (Select)
                 FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
               ),
@@ -1900,7 +1905,8 @@ void Dialog::ShowDialog(int ID)
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
-                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT),
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:
+                  (CurItem->Flags&DIF_NOFOCUS?COL_DIALOGEDITUNCHANGED:COL_DIALOGEDIT)),
                 // LOHI (Select)
                 FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
               ),
@@ -1918,7 +1924,7 @@ void Dialog::ShowDialog(int ID)
 
         EditPtr->SetObjectColor(Attr&0xFF,HIBYTE(LOWORD(Attr)),LOBYTE(HIWORD(Attr)));
 
-        if (CurItem->Focus && !(CurItem->Flags&DIF_NOFOCUS))
+        if (CurItem->Focus)
         {
           /* $ 09.08.2000 KM
              Отключение мигающего курсора при перемещении диалога
