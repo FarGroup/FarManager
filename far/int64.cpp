@@ -5,10 +5,12 @@ int64.cpp
 
 */
 
-/* Revision: 1.02 20.02.2001 $ */
+/* Revision: 1.03 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! применяем __int64 в классе int64 :-)
   20.02.2001 SVS
     ! Заголовки - к общему виду!
   16.10.2000 SVS
@@ -22,6 +24,22 @@ Modify:
 #pragma hdrstop
 #include "internalheaders.hpp"
 
+#if defined(__NEW_CLASS_INT64__)
+int64 operator / (int64 n1,int64 n2)
+{
+  int64 res;
+  res.Number.i64=(n2.Number.i64?n1.Number.i64/n2.Number.i64:0);
+  return(res);
+}
+
+int64 operator % (int64 n1,int64 n2)
+{
+  int64 res;
+  res.Number.i64=(n2.Number.i64?n1.Number.i64%n2.Number.i64:0);
+  return(res);
+}
+
+#else
 int64::int64()
 {
   HighPart=LowPart=0;
@@ -248,3 +266,4 @@ void int64::itoa(char *Str)
     Str[I]=TmpStr[Pos-I-1];
   Str[Pos]=0;
 }
+#endif

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.04 06.03.2001 $ */
+/* Revision: 1.05 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
   06.03.2001 SVS
     ! Немного оптимизации в TruncStr() - избавляемся от лишнего вызова new[]
     ! Немного оптимизации в InsertCommas() - избавляемся от лишнего sprintf()
@@ -52,7 +54,7 @@ char *InsertCommas(unsigned long Number,char *Dest)
 char* InsertCommas(int64 li,char *Dest)
 {
   if (li<1000000000)
-    InsertCommas(li.LowPart,Dest);
+    InsertCommas(li.PLow(),Dest);
   else
   {
     li.itoa(Dest);

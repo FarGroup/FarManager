@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.58 02.03.2001 $ */
+/* Revision: 1.59 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
   02.03.2001 IS
     ! Переписал ExpandEnvironmentStr, ибо не понравилась она мне - могла быть
       источником багов.
@@ -918,7 +920,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
       if (ClusterSize>0)
       {
         RealSize+=CurSize;
-        int Slack=(CurSize%ClusterSize).LowPart;
+        int Slack=(CurSize%ClusterSize).PLow();
         if (Slack>0)
           RealSize+=ClusterSize-Slack;
       }

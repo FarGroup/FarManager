@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.12 28.02.2001 $ */
+/* Revision: 1.13 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   20.02.2001 VVM
@@ -190,12 +192,12 @@ void QuickView::DisplayObject()
         char SlackMsg[100];
         int64 Size1=RealFileSize-CompressedFileSize;
         int64 Size2=RealFileSize;
-        while (Size2.HighPart!=0)
+        while (Size2.PHigh()!=0)
         {
           Size1=Size1>>1;
           Size2=Size2>>1;
         }
-        sprintf(SlackMsg,"%s (%d%%)",Msg,ToPercent(Size1.LowPart,Size2.LowPart));
+        sprintf(SlackMsg,"%s (%d%%)",Msg,ToPercent(Size1.PLow(),Size2.PLow()));
         PrintText(SlackMsg);
       }
     }

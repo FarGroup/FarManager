@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.74 28.02.2001 $ */
+/* Revision: 1.75 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
   27.02.2001 SVS
     + В статусной строке показываем код символа в зависимости от базы -
       Oct, Dec или Hex
@@ -441,7 +443,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
     */
     SetLastError(NO_ERROR);
     /* IS $ */
-    RealSizeFile.LowPart=GetFileSize(hEdit,&RealSizeFile.HighPart);
+    RealSizeFile.PLow()=GetFileSize(hEdit,&RealSizeFile.PHigh());
     if (GetLastError() == NO_ERROR)
     {
       int64 NeedSizeFile(Opt.EditorFileSizeLimitHi,Opt.EditorFileSizeLimitLo);

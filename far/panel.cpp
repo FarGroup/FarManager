@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.19 28.02.2001 $ */
+/* Revision: 1.20 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
@@ -230,8 +232,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           int64 TotalSize,TotalFree,UserFree;
           if (ShowDisk && GetDiskSize(RootDir,&TotalSize,&TotalFree,&UserFree))
           {
-            sprintf(TotalText,"%5d %.2s",(TotalSize/(1024*1024)).LowPart,MSG(MChangeDriveMb));
-            sprintf(FreeText,"%5d %.2s",(UserFree/(1024*1024)).LowPart,MSG(MChangeDriveMb));
+            sprintf(TotalText,"%5d %.2s",(TotalSize/(1024*1024)).PLow(),MSG(MChangeDriveMb));
+            sprintf(FreeText,"%5d %.2s",(UserFree/(1024*1024)).PLow(),MSG(MChangeDriveMb));
           }
           sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);
         }

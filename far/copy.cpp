@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.23 06.03.2001 $ */
+/* Revision: 1.24 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
   06.03.2001 SVS
     ! Немного оптимизации в "индикаторе скорости" + добавка для 'Gb'
   27.02.2001 VVM
@@ -1541,19 +1543,19 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   TotalSize=TotalSize>>8;
 
   int Length;
-  if (WrittenSize.LowPart>TotalSize.LowPart)
-    WrittenSize.LowPart=TotalSize.LowPart;
-  if (TotalSize.LowPart==0)
+  if (WrittenSize.PLow()>TotalSize.PLow())
+    WrittenSize.PLow()=TotalSize.PLow();
+  if (TotalSize.PLow()==0)
     Length=BarLength;
   else
-    if (TotalSize.LowPart<1000000)
-      Length=WrittenSize.LowPart*BarLength/TotalSize.LowPart;
+    if (TotalSize.PLow()<1000000)
+      Length=WrittenSize.PLow()*BarLength/TotalSize.PLow();
     else
-      Length=(WrittenSize.LowPart/100)*BarLength/(TotalSize.LowPart/100);
+      Length=(WrittenSize.PLow()/100)*BarLength/(TotalSize.PLow()/100);
   char ProgressBar[100];
   memset(ProgressBar,0x0B0,BarLength);
   ProgressBar[BarLength]=0;
-  if (TotalSize.LowPart!=0)
+  if (TotalSize.PLow()!=0)
     memset(ProgressBar,0x0DB,Length);
   SetColor(COL_DIALOGTEXT);
   GotoXY(BarX,BarY+(TotalBar ? 2:0));
@@ -1577,8 +1579,8 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
       sprintf(TimeStr,MSG(MCopyTimeInfo), " ", " ", 0, " ");
     else
     {
-      int CPS = (OldWrittenSize/WorkTime).LowPart;
-      TimeLeft = (CPS)?(SizeLeft/CPS).LowPart:0;
+      int CPS = (OldWrittenSize/WorkTime).PLow();
+      TimeLeft = (CPS)?(SizeLeft/CPS).PLow():0;
       strcpy(c," ");
       if (CPS > 99999) {
         c[0]='K';
@@ -2015,7 +2017,7 @@ void ShellCopy::ShowTitle(int FirstTime)
     strcat(Title,Percent);
     */
     char Percent[200];
-    sprintf(Percent,"{%d%%} %s",ToPercent(CopySize.LowPart,TotalSize.LowPart),Title);
+    sprintf(Percent,"{%d%%} %s",ToPercent(CopySize.PLow(),TotalSize.PLow()),Title);
     strcpy(Title,Percent);
     /* IS $ */
   }

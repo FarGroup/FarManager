@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.33 11.03.2001 $ */
+/* Revision: 1.34 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    ! Коррекция в связи с изменениями в классе int64
   11.03.2001 VVM
     ! Печать через pman только из файловых панелей.
   05.03.2001 SVS
@@ -2647,10 +2649,10 @@ void FileList::CountDirSize()
         struct FileListItem *CurPtr=ListData+I;
         if (CurPtr->FileAttr & FA_DIREC){
           if (GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize)) {
-            DoubleDotDir->UnpSize+=FileSize.LowPart;
-            DoubleDotDir->UnpSizeHigh+=FileSize.HighPart;
-            DoubleDotDir->PackSize+=CompressedFileSize.LowPart;
-            DoubleDotDir->PackSizeHigh+=CompressedFileSize.HighPart;
+            DoubleDotDir->UnpSize+=FileSize.PLow();
+            DoubleDotDir->UnpSizeHigh+=FileSize.PHigh();
+            DoubleDotDir->PackSize+=CompressedFileSize.PLow();
+            DoubleDotDir->PackSizeHigh+=CompressedFileSize.PHigh();
           }
         } else {
           DoubleDotDir->UnpSize     += CurPtr->UnpSize;
@@ -2680,10 +2682,10 @@ void FileList::CountDirSize()
       {
         SelFileSize-=int64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
-        CurPtr->UnpSize=FileSize.LowPart;
-        CurPtr->UnpSizeHigh=FileSize.HighPart;
-        CurPtr->PackSize=CompressedFileSize.LowPart;
-        CurPtr->PackSizeHigh=CompressedFileSize.HighPart;
+        CurPtr->UnpSize=FileSize.PLow();
+        CurPtr->UnpSizeHigh=FileSize.PHigh();
+        CurPtr->PackSize=CompressedFileSize.PLow();
+        CurPtr->PackSizeHigh=CompressedFileSize.PHigh();
         CurPtr->ShowFolderSize=1;
       }
       else
@@ -2699,10 +2701,10 @@ void FileList::CountDirSize()
         GetDirInfo(MSG(MDirInfoViewTitle),strcmp(CurPtr->Name,"..")==0 ? ".":CurPtr->Name,DirCount,DirFileCount,
                    FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,FALSE)==1)
     {
-      CurPtr->UnpSize=FileSize.LowPart;
-      CurPtr->UnpSizeHigh=FileSize.HighPart;
-      CurPtr->PackSize=CompressedFileSize.LowPart;
-      CurPtr->PackSizeHigh=CompressedFileSize.HighPart;
+      CurPtr->UnpSize=FileSize.PLow();
+      CurPtr->UnpSizeHigh=FileSize.PHigh();
+      CurPtr->PackSize=CompressedFileSize.PLow();
+      CurPtr->PackSizeHigh=CompressedFileSize.PHigh();
       CurPtr->ShowFolderSize=1;
     }
   SortFileList(TRUE);
