@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.40 08.11.2001 $ */
+/* Revision: 1.41 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 VVM
+    ! При ожидании окончания регистрации отдаем время виндам...
   08.11.2001 SVS
     ! Народ не понял предыдущей фишки :-(((
   06.11.2001 SVS
@@ -424,7 +426,7 @@ int _cdecl main(int Argc, char *Argv[])
       static struct RegInfo Reg;
       _beginthread(CheckReg,0x10000,&Reg);
       while (!Reg.Done)
-        Sleep(0);
+        Sleep(10);
       CtrlObj.Init();
       if (*DestName)
       {

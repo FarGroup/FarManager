@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.42 10.12.2001 $ */
+/* Revision: 1.43 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 VVM
+    ! При ожидании окончания регистрации отдаем время виндам...
   10.12.2001 SVS
     ! SetFarTitle() - уточнение для макросов (в режиме исполнения если стоит
       флаг MFLAGS_DISABLEOUTPUT не выставлять заголовок консоли)
@@ -810,7 +812,7 @@ void ShowTime(int ShowAlways)
     Reg.Done=0;
     _beginthread(CheckReg,0x10000,&Reg);
     while (!Reg.Done)
-      Sleep(0);
+      Sleep(10);
     if (*Reg.RegName)
     {
       unsigned char Add=158,Xor1=211;
