@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.05 25.04.2001 $ */
+/* Revision: 1.06 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    + UpdateKeyBar() - установка key bar titles
   25.04.2001 SVS
     + GetRealSelCount() - сейчас используется для макросов.
   24.04.2001 VVM
@@ -138,6 +140,12 @@ class Panel:public ScreenObject
     virtual int ProcessPluginEvent(int Event,void *Param) {return(FALSE);};
     virtual HANDLE GetPluginHandle() {return(INVALID_HANDLE_VALUE);};
     virtual void SetTitle();
+    /* $ 30.04.2001 DJ
+       функция вызывается для обновления кейбара; если возвращает FALSE,
+       используется стандартный кейбар
+    */
+    virtual BOOL UpdateKeyBar() { return FALSE; };
+    /* DJ $ */
 
     static void EndDrag();
     void Hide();

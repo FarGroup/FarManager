@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.15 27.04.2001 $ */
+/* Revision: 1.16 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    + GetAnsiMode(), GetHexMode()
   27.04.2001 DJ
     * DrawScrollbar(), AdjustWidth(), AdjustFilePos()
   29.03.2001 IS
@@ -229,6 +231,11 @@ class Viewer:public ScreenObject
     int GetShowArrows() const { return ViOpt.ShowArrows; }
     void SetShowArrows(int newValue) { ViOpt.ShowArrows=newValue; }
     /* IS $ */
+
+    /* $ 30.04.2001 DJ */
+    int GetAnsiMode() const { return VM.AnsiMode; }
+    int GetHexMode() const { return VM.Hex; }
+    /* DJ $ */
 };
 
 #endif // __VIEWER_HPP__

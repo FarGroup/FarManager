@@ -657,19 +657,22 @@ folder. Pressing #Ctrl-Enter# keys simultaneously will select the next match.
 $ #Info panel#
     The information panel contains the following data:
 
- - #network# names of computer and user;
+ - #network# names of the computer and the current user;
 
- - name and type of the #current disk#, filesystem type, network name, total
-and free space sizes, disk volume label and serial number;
+ - name and type of the #current disk#, type of the file system, network
+name, total and free space, disk volume label and serial number;
 
  - #memory# load percentage (100% means all of available memory is used),
-total and free size of physical and virtual memory;
+total and free size of the physical and virtual memory;
 
  - #folder description# file
 
     You may view the contents of the folder description file in full screen
-by pressing the F3 key or left mouse button. Edit or create action is available
-by pressing the F4 key or right mouse button.
+by pressing the #F3# key or clicking the left mouse button. To edit or
+create the description file, press #F4# or click the right mouse button.
+You can also use many of the ~viewer commands~@Viewer@ (search, code page
+selection and so on) for viewing the folder description file.
+
     A list of possible folder description file names may be defined
 using "Folder description files" command in the ~Options menu~@OptMenu@.
 

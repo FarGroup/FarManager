@@ -7,10 +7,13 @@ Keybar
 
 */
 
-/* Revision: 1.04 28.04.2001 $ */
+/* Revision: 1.05 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    ! Все нафиг переделано :-) Убран весь дублирующийся код. Публичный API
+      сохранен.
   28.04.2001 VVM
     + ProcessKey() функция.
   04.04.2001 SVS
@@ -37,23 +40,32 @@ enum {
   KBL_ALT,
   KBL_CTRLSHIFT,
   KBL_ALTSHIFT,
-  KBL_CTRLALT
+  KBL_CTRLALT,
+
+  /* $ 30.04.2001 DJ */
+  KBL_GROUP_COUNT
+  /* DJ $ */
 };
 /* SVS $ */
 
-class KeyBar:public ScreenObject
+const int KEY_COUNT = 12;
+
+/* $ 30.04.2001 DJ
+   добавлен typedef; структура класса переделана, дабы избавиться от
+   дублирования кода и данных
+*/
+
+typedef char KeyBarTitle [10];
+typedef KeyBarTitle KeyBarTitleGroup [KEY_COUNT];
+
+class KeyBar: public ScreenObject
 {
   private:
     BaseInput *Owner;
-    char KeyName[12][10];
-    char ShiftKeyName[12][10],AltKeyName[12][10],CtrlKeyName[12][10];
-    /* $ 02.08.2000 SVS
-       Дополнительные индикаторы
-    */
-    char CtrlShiftKeyName[12][10],AltShiftKeyName[12][10],CtrlAltKeyName[12][10];
-    int CtrlShiftKeyCount,AltShiftKeyCount,CtrlAltKeyCount;
-    /* SVS $*/
-    int KeyCount,ShiftKeyCount,AltKeyCount,CtrlKeyCount;
+
+    KeyBarTitleGroup KeyTitles [KBL_GROUP_COUNT];
+    int KeyCounts [KBL_GROUP_COUNT];
+
     int AltState,CtrlState,ShiftState;
     int DisableMask;
 
@@ -65,19 +77,24 @@ class KeyBar:public ScreenObject
     void SetOwner(BaseInput *Owner);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void Set(char **Key,int KeyCount);
-    void SetShift(char **Key,int KeyCount);
-    void SetAlt(char **Key,int KeyCount);
-    void SetCtrl(char **Key,int KeyCount);
+
+    void SetGroup(int Group,char **Key,int KeyCount);
+    void ClearGroup(int Group);
+
+    void Set(char **Key,int KeyCount)            { SetGroup (KBL_MAIN, Key, KeyCount); }
+    void SetShift(char **Key,int KeyCount)       { SetGroup (KBL_SHIFT, Key, KeyCount); }
+    void SetAlt(char **Key,int KeyCount)         { SetGroup (KBL_ALT, Key, KeyCount); }
+    void SetCtrl(char **Key,int KeyCount)        { SetGroup (KBL_CTRL, Key, KeyCount); }
     /* $ 02.08.2000 SVS
        Дополнительные индикаторы
     */
-    void SetCtrlShift(char **Key,int KeyCount);
-    void SetAltShift(char **Key,int KeyCount);
-    void SetCtrlAlt(char **Key,int KeyCount);
+    void SetCtrlShift(char **Key,int KeyCount)   { SetGroup (KBL_CTRLSHIFT, Key, KeyCount); }
+    void SetAltShift(char **Key,int KeyCount)    { SetGroup (KBL_ALTSHIFT, Key, KeyCount); }
+    void SetCtrlAlt(char **Key,int KeyCount)     { SetGroup (KBL_CTRLALT, Key, KeyCount); }
     /* SVS $*/
+
     void SetDisableMask(int Mask);
-    void Change(char *NewStr,int Pos);
+    void Change(char *NewStr,int Pos)            { Change (KBL_MAIN, NewStr, Pos); }
 
     /* $ 07.08.2000 SVS
        Изменение любого Label
@@ -85,7 +102,15 @@ class KeyBar:public ScreenObject
     void Change(int Group,char *NewStr,int Pos);
     /* SVS $ */
 
+    /* $ 30.04.2001 DJ
+       Групповая установка идущих подряд строк LNG для указанной группы
+    */
+    void SetAllGroup (int Group, int StartIndex, int Count);
+    /* DJ $ */
+
     void RedrawIfChanged();
 };
+
+/* DJ $ */
 
 #endif	// __KEYBAR_HPP__

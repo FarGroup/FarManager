@@ -5,10 +5,14 @@ infolist.cpp
 
 */
 
-/* Revision: 1.12 28.04.2001 $ */
+/* Revision: 1.13 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    + UpdateKeyBar()
+    - еще немного всяких фиксов (F1, редактирование описаний)
+    ! вместо CloseDizFile() используется виртуальный CloseFile()
   28.04.2001 VVM
     + GetSubstName() принимает тип носителя
   27.04.2001 DJ
@@ -78,7 +82,11 @@ InfoList::InfoList()
 
 InfoList::~InfoList()
 {
-  CloseDizFile();
+  /* $ 30.04.2001 DJ
+     CloseDizFile() -> CloseFile()
+  */
+  CloseFile();
+  /* DJ $ */
   SetMacroMode(TRUE);
 }
 
@@ -88,7 +96,11 @@ void InfoList::DisplayObject()
   Panel *AnotherPanel;
   char DriveRoot[NM],VolumeName[NM],FileSystemName[NM];
   DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-  CloseDizFile();
+  /* $ 30.04.2001 DJ
+     CloseDizFile() -> CloseFile()
+  */
+  CloseFile();
+  /* DJ $ */
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
@@ -280,6 +292,15 @@ int InfoList::ProcessKey(int Key)
   }
   switch(Key)
   {
+    /* $ 30.04.2001 DJ
+       показываем правильную тему хелпа
+    */
+    case KEY_F1:
+      {
+        Help Hlp ("InfoPanel");
+      }
+      break;
+    /* DJ $ */
     case KEY_F3:
     case KEY_NUMPAD5:
       if (*DizFileName)
@@ -295,26 +316,38 @@ int InfoList::ProcessKey(int Key)
       /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_F4:
-      CtrlObject->GetAnotherPanel(this)->GetCurDir(CurDir);
-      chdir(CurDir);
-      if (*DizFileName)
-      {
-        FileEditor *ShellEditor=new FileEditor(DizFileName,FALSE,TRUE);
-        CtrlObject->ModalManager.AddModal(ShellEditor);
-      }
-      else
-      {
-        char ArgName[NM];
-        GetCommaWord(Opt.FolderInfoFiles,ArgName);
-        FileEditor *ShellEditor=new FileEditor(ArgName,TRUE,TRUE);
-        CtrlObject->ModalManager.AddModal(ShellEditor);
-      }
+      /* $ 30.04.2001 DJ
+         не показываем редактор, если ничего не задано в именах файлов;
+         не редактируем имена описаний со звездочками;
+         убираем лишнюю перерисовку панелей
+      */
       {
         Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+        AnotherPanel->GetCurDir(CurDir);
+        chdir(CurDir);
+        if (*DizFileName)
+        {
+          FileEditor *ShellEditor=new FileEditor(DizFileName,FALSE,TRUE);
+          CtrlObject->ModalManager.AddModal(ShellEditor);
+        }
+        else if (*Opt.FolderInfoFiles)
+        {
+          char ArgName[NM];
+          char *p = Opt.FolderInfoFiles;
+          while ((p = GetCommaWord(p,ArgName)) != NULL)
+          {
+            if (!strpbrk (ArgName, "*?"))
+            {
+              FileEditor *ShellEditor = new FileEditor(ArgName,TRUE,TRUE);
+              CtrlObject->ModalManager.AddModal(ShellEditor);
+              break;
+            }
+          }
+        }
         AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-        AnotherPanel->Redraw();
         Update(0);
       }
+      /* DJ $ */
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
       CtrlObject->Redraw();
@@ -324,8 +357,20 @@ int InfoList::ProcessKey(int Key)
       Redraw();
       return(TRUE);
   }
+  /* $ 30.04.2001 DJ
+     обновляем кейбар после нажатия F8, F2 или Shift-F2
+  */
   if (DizView!=NULL && Key>=256)
-    return(DizView->ProcessKey(Key));
+  {
+    int ret = DizView->ProcessKey(Key);
+    if (Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
+    {
+      DynamicUpdateKeyBar();
+      CtrlObject->MainKeyBar.Redraw();
+    }
+    return(ret);
+  }
+  /* DJ $ */
   return(FALSE);
 }
 
@@ -438,7 +483,11 @@ void InfoList::ShowDirDescription()
     if (OpenDizFile(FullDizName))
       return;
   }
-  CloseDizFile();
+  /* $ 30.04.2001 DJ
+     CloseDizFile() -> CloseFile()
+  */
+  CloseFile();
+  /* DJ $ */
   SetColor(COL_PANELTEXT);
   GotoXY(X1+2,Y1+15);
   PrintText(MInfoDizAbsent);
@@ -452,7 +501,11 @@ void InfoList::ShowPluginDescription()
   AnotherPanel=CtrlObject->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
-  CloseDizFile();
+  /* $ 30.04.2001 DJ
+     CloseDizFile() -> CloseFile()
+  */
+  CloseFile();
+  /* DJ $ */
   struct OpenPluginInfo Info;
   AnotherPanel->GetOpenPluginInfo(&Info);
   for (int I=0;I<Info.InfoLinesNumber;I++)
@@ -489,7 +542,10 @@ void InfoList::ShowPluginDescription()
   }
 }
 
-void InfoList::CloseDizFile()
+/* $ 30.04.2001 DJ
+   CloseDizFile() -> CloseFile()
+*/
+void InfoList::CloseFile()
 {
   if (DizView!=NULL)
   {
@@ -507,6 +563,7 @@ void InfoList::CloseDizFile()
   }
   *DizFileName=0;
 }
+/* DJ $ */
 
 int InfoList::OpenDizFile(char *DizFile)
 {
@@ -560,3 +617,56 @@ void InfoList::SetMacroMode(int Restore)
     PrevMacroMode = CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
 }
+
+/* $ 30.04.2001 DJ
+   свой кейбар
+*/
+
+BOOL InfoList::UpdateKeyBar()
+{
+  KeyBar &KB = CtrlObject->MainKeyBar;
+  KB.SetAllGroup (KBL_MAIN, MInfoF1, 12);
+  KB.SetAllGroup (KBL_SHIFT, MInfoShiftF1, 12);
+  KB.SetAllGroup (KBL_ALT, MInfoAltF1, 12);
+  KB.SetAllGroup (KBL_CTRL, MInfoCtrlF1, 12);
+  KB.ClearGroup (KBL_CTRLSHIFT);
+  KB.ClearGroup (KBL_CTRLALT);
+  KB.ClearGroup (KBL_ALTSHIFT);
+  DynamicUpdateKeyBar();
+
+  return TRUE;
+}
+
+void InfoList::DynamicUpdateKeyBar()
+{
+  KeyBar &KB = CtrlObject->MainKeyBar;
+  if (DizView)
+  {
+    if (DizView->GetAnsiMode())
+      KB.Change (MSG(MViewF8DOS), 7);
+    else
+      KB.Change (MSG(MInfoF8), 7);
+
+    if (!DizView->GetWrapMode())
+    {
+      if (DizView->GetWrapType())
+        KB.Change (MSG(MViewShiftF2), 2-1);
+      else
+        KB.Change (MSG(MViewF2), 2-1);
+    }
+    else
+      KB.Change (MSG(MViewF2Unwrap), 2-1);
+
+    if (DizView->GetWrapType())
+      KB.Change (KBL_SHIFT, MSG(MViewF2), 2-1);
+    else
+      KB.Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+  }
+  else {
+    KB.Change (MSG(MF2), 2-1);
+    KB.Change (KBL_SHIFT, "", 2-1);
+    KB.Change ("", 8-1);
+  }
+}
+
+/* DJ $ */

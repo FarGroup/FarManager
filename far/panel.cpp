@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.36 28.04.2001 $ */
+/* Revision: 1.37 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    - не давало закрыть по Esc менюшку выбора диска, вызванную из quick view
+      панели
   28.04.2001 VVM
     + GetSubstName() принимает тип носителя
   27.04.2001 SVS
@@ -620,7 +623,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
              еще косяк, не дает выйти из меню, если у нас текущий путь - UNC
              "\\server\share\"
       */
-      if (ChDisk.Done() && ChDisk.GetExitCode()<0 && strncmp(CurDir,"\\\\",2)!=0)
+      /* $ 30.04.2001 DJ
+         и еще одна поправочка: не дает выйти из меню, если оно вызвано
+         из quick view panel (в нем CurDir пустая)
+      */
+      if (ChDisk.Done() && ChDisk.GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
       {
         char RootDir[10];
         strncpy(RootDir,CurDir,3);
@@ -628,6 +635,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         if (GetDriveType(RootDir)==DRIVE_NO_ROOT_DIR)
           ChDisk.ClearDone();
       }
+      /* DJ $ */
       /* SVS $ */
       /* tran $ */
       /* SVS $ */

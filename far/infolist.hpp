@@ -7,10 +7,13 @@ infolist.hpp
 
 */
 
-/* Revision: 1.02 05.04.2001 $ */
+/* Revision: 1.03 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    + UpdateKeyBar()
+    ! вместо CloseDizFile() используется виртуальный CloseFile()
   05.04.2001 VVM
     + Переключение макросов в режим MACRO_INFOPANEL
   03.04.2001 VVM
@@ -37,9 +40,11 @@ class InfoList:public Panel
     void PrintText(int MsgID);
     void PrintInfo(char *Str);
     void PrintInfo(int MsgID);
-    void CloseDizFile();
     int  OpenDizFile(char *DizFile);
     void SetMacroMode(int Restore = FALSE);
+    /* $ 30.04.2001 DJ */
+    void DynamicUpdateKeyBar();
+    /* DJ $ */
 
   public:
     InfoList();
@@ -51,6 +56,10 @@ class InfoList:public Panel
     void Update(int Mode) {Redraw();};
     virtual void SetFocus();
     virtual void KillFocus();
+    /* $ 30.04.2001 DJ */
+    virtual BOOL UpdateKeyBar();
+    virtual void CloseFile();
+    /* DJ $ */
 };
 
 #endif	// __INFOLIST_HPP__

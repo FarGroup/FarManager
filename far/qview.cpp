@@ -5,10 +5,13 @@ Quick view panel
 
 */
 
-/* Revision: 1.14 05.04.2001 $ */
+/* Revision: 1.15 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    + UpdateKeyBar()
+    - правильный help topic
   05.04.2001 VVM
     + Переключение макросов в режим MACRO_QVIEWPANEL
   12.03.2001 SVS
@@ -229,6 +232,14 @@ int QuickView::ProcessKey(int Key)
       return(TRUE);
     }
   }
+  /* $ 30.04.2001 DJ
+     показываем правильный help topic
+  */
+  if (Key == KEY_F1)
+  {
+    Help Hlp ("QViewPanel");
+  }
+  /* DJ $ */
   if (Key==KEY_F3 || Key==KEY_NUMPAD5)
   {
     Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
@@ -247,8 +258,19 @@ int QuickView::ProcessKey(int Key)
   }
   /* tran 04.08.2000 $ */
 
+  /* $ 30.04.2001 DJ
+     обновляем кейбар
+  */
   if (QView!=NULL && !Directory && Key>=256)
-    return(QView->ProcessKey(Key));
+  {
+    int ret = QView->ProcessKey(Key);
+    if (Key == KEY_F4 || Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
+    {
+      DynamicUpdateKeyBar();
+      CtrlObject->MainKeyBar.Redraw();
+    }
+    return ret;
+  }
   return(FALSE);
 }
 
@@ -368,6 +390,15 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
     }
   }
   Redraw();
+  /* $ 30.04.2001 DJ
+     обновляем кейбар
+  */
+  if (CtrlObject->ActivePanel == this)
+  {
+    DynamicUpdateKeyBar();
+    CtrlObject->MainKeyBar.Redraw();
+  }
+  /* DJ $ */
 }
 
 
@@ -478,3 +509,63 @@ void QuickView::SetMacroMode(int Restore)
     PrevMacroMode = CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_QVIEWPANEL);
 }
+
+/* $ 30.04.2001 DJ
+   свой кейбар
+*/
+
+BOOL QuickView::UpdateKeyBar()
+{
+  KeyBar &KB = CtrlObject->MainKeyBar;
+  KB.SetAllGroup (KBL_MAIN, MQViewF1, 12);
+  KB.SetAllGroup (KBL_SHIFT, MQViewShiftF1, 12);
+  KB.SetAllGroup (KBL_ALT, MQViewAltF1, 12);
+  KB.SetAllGroup (KBL_CTRL, MQViewCtrlF1, 12);
+  KB.ClearGroup (KBL_CTRLSHIFT);
+  KB.ClearGroup (KBL_CTRLALT);
+  KB.ClearGroup (KBL_ALTSHIFT);
+
+  DynamicUpdateKeyBar();
+
+  return TRUE;
+}
+
+void QuickView::DynamicUpdateKeyBar()
+{
+  KeyBar &KB = CtrlObject->MainKeyBar;
+  if (Directory || !QView)
+  {
+    KB.Change (MSG(MF2), 2-1);
+    KB.Change ("", 4-1);
+    KB.Change ("", 8-1);
+    KB.Change (KBL_SHIFT, "", 2-1);
+  }
+  else {
+    if (QView->GetHexMode())
+      KB.Change (MSG(MViewF4Text), 4-1);
+    else
+      KB.Change (MSG(MQViewF4), 4-1);
+
+    if (QView->GetAnsiMode())
+      KB.Change (MSG(MViewF8DOS), 8-1);
+    else
+      KB.Change (MSG(MQViewF8), 8-1);
+
+    if (!QView->GetWrapMode())
+    {
+      if (QView->GetWrapType())
+        KB.Change (MSG(MViewShiftF2), 2-1);
+      else
+        KB.Change (MSG(MViewF2), 2-1);
+    }
+    else
+      KB.Change (MSG(MViewF2Unwrap), 2-1);
+
+    if (QView->GetWrapType())
+      KB.Change (KBL_SHIFT, MSG(MViewF2), 2-1);
+    else
+      KB.Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+  }
+}
+
+/* DJ $ */

@@ -5,10 +5,13 @@ Keybar
 
 */
 
-/* Revision: 1.07 28.04.2001 $ */
+/* Revision: 1.08 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    ! Все нафиг переделано :-) Убран (почти) весь дублирующийся код.
+      Публичный API сохранен.
   28.04.2001 VVM
     + ProcessKey()
   04.04.2001 SVS
@@ -43,22 +46,15 @@ Modify:
 
 KeyBar::KeyBar()
 {
-  KeyCount=ShiftKeyCount=AltKeyCount=CtrlKeyCount=0;
-  AltState=CtrlState=ShiftState=0;
   DisableMask=0;
   Owner=NULL;
-  memset(KeyName,0,sizeof(KeyName));
-  memset(AltKeyName,0,sizeof(AltKeyName));
-  memset(CtrlKeyName,0,sizeof(CtrlKeyName));
-  memset(ShiftKeyName,0,sizeof(ShiftKeyName));
-  /* $ 02.08.2000 SVS
-     Дополнительные индикаторы
-  */
-  CtrlShiftKeyCount=AltShiftKeyCount=CtrlAltKeyCount=0;
-  memset(CtrlShiftKeyName,0,sizeof(CtrlShiftKeyName));
-  memset(AltShiftKeyName,0,sizeof(AltShiftKeyName));
-  memset(CtrlAltKeyName,0,sizeof(CtrlAltKeyName));
-  /* SVS $*/
+  AltState=CtrlState=ShiftState=0;
+
+  for (int i=0; i<KBL_GROUP_COUNT; i++)
+  {
+    memset (KeyTitles [i], 0, sizeof (KeyTitles [i]));
+    KeyCounts [i] = 0;
+  }
 }
 
 
@@ -82,7 +78,7 @@ void KeyBar::DisplayObject()
     KeyWidth=8;
 
   int LabelWidth=KeyWidth-2;
-  for (I=0;I<sizeof(KeyName)/sizeof(KeyName[0]);I++)
+  for (I=0; I<KEY_COUNT; I++)
   {
     if (WhereX()+LabelWidth>=X2)
       break;
@@ -99,20 +95,20 @@ void KeyBar::DisplayObject()
         CtrlState=CtrlPressed;
         if(!AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
         {
-          if (I<CtrlShiftKeyCount)
-            Label=CtrlShiftKeyName[I];
+          if (I<KeyCounts [KBL_CTRLSHIFT])
+            Label=KeyTitles [KBL_CTRLSHIFT][I];
         }
       }
       else if (AltPressed)
       {
-        if (I<AltShiftKeyCount)
-          Label=AltShiftKeyName[I];
+        if (I<KeyCounts [KBL_ALTSHIFT])
+          Label=KeyTitles [KBL_ALTSHIFT][I];
         AltState=AltPressed;
       }
       else
       {
-        if (I<ShiftKeyCount)
-          Label=ShiftKeyName[I];
+        if (I<KeyCounts [KBL_SHIFT])
+          Label=KeyTitles [KBL_SHIFT][I];
       }
     }
     else if (CtrlPressed)
@@ -120,28 +116,28 @@ void KeyBar::DisplayObject()
       CtrlState=CtrlPressed;
       if (AltPressed)
       {
-        if (I<CtrlAltKeyCount)
-          Label=CtrlAltKeyName[I];
+        if (I<KeyCounts [KBL_CTRLALT])
+          Label=KeyTitles [KBL_CTRLALT][I];
         AltState=AltPressed;
       }
       else
       {
-        if (I<CtrlKeyCount)
-          Label=CtrlKeyName[I];
+        if (I<KeyCounts [KBL_CTRL])
+          Label=KeyTitles [KBL_CTRL][I];
       }
     }
     else if (AltPressed)
     {
       AltState=AltPressed;
-      if (I<AltKeyCount)
-        Label=AltKeyName[I];
+      if (I<KeyCounts [KBL_ALT])
+        Label=KeyTitles [KBL_ALT][I];
     }
     else
-      if (I<KeyCount && (DisableMask & (1<<I))==0)
-        Label=KeyName[I];
+      if (I<KeyCounts [KBL_MAIN] && (DisableMask & (1<<I))==0)
+        Label=KeyTitles [KBL_MAIN][I];
 
     mprintf("%-*.*s",LabelWidth,LabelWidth,Label);
-    if (I<sizeof(KeyName)/sizeof(KeyName[0])-1)
+    if (I<KEY_COUNT-1)
     {
       SetColor(COL_KEYBARBACKGROUND);
       Text(" ");
@@ -156,45 +152,18 @@ void KeyBar::DisplayObject()
 }
 /* SVS $ */
 
-void KeyBar::Set(char **Key,int KeyCount)
+void KeyBar::SetGroup(int Group,char **Key,int KeyCount)
 {
-  int I;
-  for (I=0;I<KeyCount && I<sizeof(KeyName)/sizeof(KeyName[0]);I++)
-    strncpy(KeyName[I],Key[I],sizeof(KeyName[I]));
-  KeyBar::KeyCount=KeyCount;
+  for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
+    strncpy (KeyTitles [Group][i], Key [i], sizeof (KeyTitles [Group][i]));
+  KeyCounts [Group]=KeyCount;
 }
 
-
-void KeyBar::SetShift(char **Key,int KeyCount)
+void KeyBar::ClearGroup(int Group)
 {
-  int I;
-  for (I=0;I<KeyCount && I<sizeof(ShiftKeyName)/sizeof(ShiftKeyName[0]);I++)
-    strncpy(ShiftKeyName[I],Key[I],sizeof(ShiftKeyName[I]));
-  KeyBar::ShiftKeyCount=KeyCount;
-}
-
-
-void KeyBar::SetAlt(char **Key,int KeyCount)
-{
-  int I;
-  for (I=0;I<KeyCount && I<sizeof(AltKeyName)/sizeof(AltKeyName[0]);I++)
-    strncpy(AltKeyName[I],Key[I],sizeof(AltKeyName[I]));
-  KeyBar::AltKeyCount=KeyCount;
-}
-
-
-void KeyBar::SetCtrl(char **Key,int KeyCount)
-{
-  int I;
-  for (I=0;I<KeyCount && I<sizeof(CtrlKeyName)/sizeof(CtrlKeyName[0]);I++)
-    strncpy(CtrlKeyName[I],Key[I],sizeof(CtrlKeyName[I]));
-  KeyBar::CtrlKeyCount=KeyCount;
-}
-
-
-void KeyBar::Change(char *NewStr,int Pos)
-{
-  strncpy(KeyName[Pos],NewStr,sizeof(KeyName[Pos]));
+  for (int i=0; i<KEY_COUNT; i++)
+    KeyTitles [Group][i][0] = '\0';
+  KeyCounts [Group] = 0;
 }
 
 /* $ 07.08.2000 SVS
@@ -202,63 +171,25 @@ void KeyBar::Change(char *NewStr,int Pos)
 */
 void KeyBar::Change(int Group,char *NewStr,int Pos)
 {
-  switch(Group)
-  {
-    case KBL_MAIN:
-      strncpy(KeyName[Pos],NewStr,sizeof(KeyName[Pos]));
-      break;
-    case KBL_SHIFT:
-      strncpy(ShiftKeyName[Pos],NewStr,sizeof(ShiftKeyName[Pos]));
-      break;
-    case KBL_CTRL:
-      strncpy(CtrlKeyName[Pos],NewStr,sizeof(CtrlKeyName[Pos]));
-      break;
-    case KBL_ALT:
-      strncpy(AltKeyName[Pos],NewStr,sizeof(AltKeyName[Pos]));
-      break;
-    case KBL_CTRLSHIFT:
-      strncpy(CtrlShiftKeyName[Pos],NewStr,sizeof(CtrlShiftKeyName[Pos]));
-      break;
-    case KBL_ALTSHIFT:
-      strncpy(AltShiftKeyName[Pos],NewStr,sizeof(AltShiftKeyName[Pos]));
-      break;
-    case KBL_CTRLALT:
-      strncpy(CtrlAltKeyName[Pos],NewStr,sizeof(CtrlAltKeyName[Pos]));
-      break;
-  }
+  strncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos]));
 }
 /* SVS $ */
 
 
-/* $ 02.08.2000 SVS
-   Новые индикаторы
+/* $ 30.04.2001 DJ
+   Групповая установка идущих подряд строк LNG для указанной группы
 */
-void KeyBar::SetCtrlShift(char **Key,int KeyCount)
+
+void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
 {
-  int I;
-  for (I=0;I<KeyCount && I<sizeof(CtrlShiftKeyName)/sizeof(CtrlShiftKeyName[0]);I++)
-    strncpy(CtrlShiftKeyName[I],Key[I],sizeof(CtrlShiftKeyName[I]));
-  KeyBar::CtrlShiftKeyCount=KeyCount;
+  if (Count > KEY_COUNT)
+    Count = KEY_COUNT;
+  for (int i=0, Index=StartIndex; i<Count; i++, Index++)
+    strncpy (KeyTitles [Group][i], MSG (Index), sizeof (KeyTitles [Group][i]));
+  KeyCounts [Group] = Count;
 }
 
-
-void KeyBar::SetAltShift(char **Key,int KeyCount)
-{
-  int I;
-  for (I=0;I<KeyCount && I<sizeof(AltShiftKeyName)/sizeof(AltShiftKeyName[0]);I++)
-    strncpy(AltShiftKeyName[I],Key[I],sizeof(AltShiftKeyName[I]));
-  KeyBar::AltShiftKeyCount=KeyCount;
-}
-
-
-void KeyBar::SetCtrlAlt(char **Key,int KeyCount)
-{
-  int I;
-  for (I=0;I<KeyCount && I<sizeof(CtrlAltKeyName)/sizeof(CtrlAltKeyName[0]);I++)
-    strncpy(CtrlAltKeyName[I],Key[I],sizeof(CtrlAltKeyName[I]));
-  KeyBar::CtrlAltKeyCount=KeyCount;
-}
-/* SVS $*/
+/* DJ $ */
 
 /* $ 28.04.2001 VVM
   + ProcessKey() */

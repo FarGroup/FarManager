@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.69 28.04.2001 $ */
+/* Revision: 1.70 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    * не было history в SetFolderInfoFiles; не обновлялись инфо-панели
+      после его изменения
   28.04.2001 VVM
     + Opt.SubstNameRule битовая маска:
       0 - если установлен, то опрашивать сменные диски при GetSubstName()
@@ -815,7 +818,18 @@ void EditorConfig(struct EditorOptions &EdOpt)
 
 void SetFolderInfoFiles()
 {
-  GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),NULL,Opt.FolderInfoFiles,Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY);
+  /* 30.04.2001 DJ
+     добавлена history; обновляем инфо-панель после изменения
+  */
+  if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),"FolderInfoFiles",
+      Opt.FolderInfoFiles,Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY))
+  {
+    if (CtrlObject->LeftPanel->GetType() == INFO_PANEL)
+      CtrlObject->LeftPanel->Update(0);
+    if (CtrlObject->RightPanel->GetType() == INFO_PANEL)
+      CtrlObject->RightPanel->Update(0);
+  }
+  /* DJ $ */
 }
 
 

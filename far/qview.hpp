@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.03 05.04.2001 $ */
+/* Revision: 1.04 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    + UpdateKeyBar(), DynamicUpdateKeyBar()
   05.04.2001 VVM
     + Переключение макросов в режим MACRO_QVIEWPANEL
   20.02.2001 VVM
@@ -38,6 +40,9 @@ class QuickView:public Panel
     int OldWrapMode;
     int OldWrapType;
     void SetMacroMode(int Restore = FALSE);
+    /* $ 30.04.2001 DJ */
+    void DynamicUpdateKeyBar();
+    /* DJ $ */
   public:
     QuickView();
     ~QuickView();
@@ -54,6 +59,9 @@ class QuickView:public Panel
     virtual void SetFocus();
     /* tran 20.07.2000 $ */
     virtual void KillFocus();
+    /* $ 30.04.2001 DJ */
+    virtual BOOL UpdateKeyBar();
+    /* DJ $ */
 
 };
 

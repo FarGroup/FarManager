@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.10 26.04.2001 $ */
+/* Revision: 1.11 30.04.2001 $ */
 
 /*
 Modify:
+  30.04.2001 DJ
+    + UpdateKeyBar()
   26.04.2001 VVM
     + Scroll() - прокрутить файлы, не двигая курсор
   25.04.2001 SVS
@@ -208,6 +210,13 @@ class FileList:public Panel
     void SetPluginModified();
     int ProcessPluginEvent(int Event,void *Param);
     void SetTitle();
+
+    /* $ 30.04.2001 DJ
+       добавлен UpdateKeyBar()
+    */
+    virtual BOOL UpdateKeyBar();
+    /* DJ $ */
+
     HANDLE GetPluginHandle();
     int GetRealSelCount();
     static void SetFilePanelModes();
