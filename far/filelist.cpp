@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.138 22.03.2002 $ */
+/* Revision: 1.139 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
+    ! Вставку в ком строку - к терапевту!
+    - "не портится стек в SetTitle()" - все равно там все портилось!
   22.03.2002 SVS
     - Bugz#334 и BugZ#239 в одной упаковке
   22.03.2002 DJ
@@ -774,19 +778,24 @@ int FileList::CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile)
 {
   if(TestPath && *TestPath && GetFileAttributes(TestPath) == -1)
   {
-    char Target[NM], TestPathTemp[1024];
+    char Target[NM];
     int FoundPath=0;
 
     strncpy(Target, TestPath, sizeof(Target)-1);
     TruncPathStr(Target, ScrX-16);
 
     if(IsHostFile)
+    {
+      SetLastError(ERROR_FILE_NOT_FOUND);
       Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
+    }
     else // попытка найти!
     {
+      SetLastError(ERROR_PATH_NOT_FOUND);
       if(Message (MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), Target, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
       {
         char *Ptr;
+        char TestPathTemp[1024];
         strncpy(TestPathTemp,TestPath,sizeof(TestPathTemp)-1);
         while((Ptr=strrchr(TestPathTemp,'\\')) != NULL)
         {
@@ -891,7 +900,7 @@ int FileList::ProcessKey(int Key)
           switch(CheckShortcutFolder(PluginFile,0,TRUE))
           {
             case 0:
-              return FALSE;
+//              return FALSE;
             case -1:
               return TRUE;
           }
@@ -921,7 +930,7 @@ int FileList::ProcessKey(int Key)
           switch(CheckShortcutFolder(NULL,0,TRUE))
           {
             case 0:
-              return FALSE;
+//              return FALSE;
             case -1:
               return TRUE;
           }
@@ -948,13 +957,22 @@ int FileList::ProcessKey(int Key)
               break;
             }
           }
+          /*
+          if(I == CtrlObject->Plugins.PluginsCount)
+          {
+            char Target[NM*2];
+            strncpy(Target, PluginModule, sizeof(Target)-1);
+            TruncPathStr(Target, ScrX-16);
+            Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
+          }
+          */
         }
         return(TRUE);
       }
       switch(CheckShortcutFolder(ShortcutFolder,sizeof(ShortcutFolder)-1,FALSE))
       {
         case 0:
-          return FALSE;
+//          return FALSE;
         case -1:
           return TRUE;
       }
@@ -3401,7 +3419,7 @@ void FileList::SetTitle()
 {
   if (GetFocus() || CtrlObject->Cp()->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
   {
-    char TitleDir[NM];
+    char TitleDir[NM*2];
     if (PanelMode==PLUGIN_PANEL)
     {
       struct OpenPluginInfo Info;
@@ -3414,11 +3432,11 @@ void FileList::SetTitle()
       /* DJ $ */
       RemoveLeadingSpaces(Title);
       RemoveTrailingSpaces(Title);
-      sprintf(TitleDir,"{%s}",Title);
+      sprintf(TitleDir,"{%.*s}",sizeof(TitleDir)-3,Title);
     }
     else
-      sprintf(TitleDir,"{%s}",CurDir);
-    strcpy(LastFarTitle,TitleDir);
+      sprintf(TitleDir,"{%.*s}",sizeof(TitleDir)-3,CurDir);
+    strncpy(LastFarTitle,TitleDir,sizeof(LastFarTitle)-1);
     SetFarTitle(TitleDir);
   }
 }

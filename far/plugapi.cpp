@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.122 18.03.2002 $ */
+/* Revision: 1.123 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   18.03.2002 SVS
     ! Уточнения, в связи с введением Opt.Dialogs
   17.03.2002 IS
@@ -399,7 +401,7 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
   // двоеточие в начале топика надо бы игнорировать и в том случае,
   // если стоит FHELP_FARHELP...
   if((Flags&FHELP_FARHELP) || *HelpTopic==':')
-    strcpy(Topic,HelpTopic+((*HelpTopic == ':')?1:0));
+    strncpy(Topic,HelpTopic+((*HelpTopic == ':')?1:0),sizeof(Topic)-1);
   else
   {
     if(ModuleName)
@@ -412,7 +414,7 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
       */
       if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE|FHELP_CUSTOMPATH)))
       {
-        strcpy(Path,ModuleName);
+        strncpy(Path,ModuleName,sizeof(Path)-1);
         if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
         {
           Mask=PointToName(Path);
@@ -1118,7 +1120,7 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
   {
     struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
     char Path[NM];
-    strcpy(Path,CurPlugin->ModuleName);
+    strncpy(Path,CurPlugin->ModuleName,sizeof(Path)-1);
     *PointToName(Path)=0;
     if (CurPlugin->Lang.Init(Path))
       return(CurPlugin->Lang.GetMsg(MsgId));

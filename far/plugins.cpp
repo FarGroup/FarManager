@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.114 20.03.2002 $ */
+/* Revision: 1.115 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   20.03.2002 IS
     ! ProcessCommandLine принимает const
   19.03.2002 OT
@@ -469,7 +471,7 @@ void PluginsSet::LoadPlugins()
         ExpandEnvironmentStr(Opt.PersonalPluginsPath,FullName,sizeof(FullName));
         // проверка на вшивость!
         if(LocalStricmp(PluginsDir,FullName))
-          strcpy(PluginsDir,FullName);
+          strncpy(PluginsDir,FullName,sizeof(PluginsDir)-1);
         else
           continue; // продолжем дальше
         /* SVS $ */

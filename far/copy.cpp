@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.69 19.03.2002 $ */
+/* Revision: 1.70 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   19.03.2002 VVM
     - ”берем отрицательное врем€ копировани€. ћожет возникнуть при
       дозаписи файла в момент копировани€.
@@ -738,7 +740,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
           // ѕозаботимс€ о дизах.
           if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && *DestDizPath)
           {
-            char DestDizName[NM];
+            char DestDizName[NM*2];
             DestDiz.GetDizName(DestDizName);
             DWORD Attr=GetFileAttributes(DestDizName);
             int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));
@@ -763,7 +765,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
   {                 // равно нужно апдейтить дизы!
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && *DestDizPath)
     {
-      char DestDizName[NM];
+      char DestDizName[NM+32];
       DestDiz.GetDizName(DestDizName);
       DWORD Attr=GetFileAttributes(DestDizName);
       int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));

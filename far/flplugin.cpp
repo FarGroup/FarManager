@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.22 20.03.2002 $ */
+/* Revision: 1.23 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   01.03.2002 SVS
@@ -163,7 +165,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 int FileList::FileNameToPluginItem(char *Name,PluginPanelItem *pi)
 {
   char TempDir[NM],*ChPtr;
-  strcpy(TempDir,Name);
+  strncpy(TempDir,Name,sizeof(TempDir)-1);
   if ((ChPtr=strrchr(TempDir,'\\'))==NULL)
     return(FALSE);
   *ChPtr=0;

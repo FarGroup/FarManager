@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.10 18.03.2002 $ */
+/* Revision: 1.11 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   18.03.2002 SVS
     ! Уточнения, в связи с введением Opt.Dialogs
   24.10.2001 SVS
@@ -156,7 +158,7 @@ int FolderTree::ProcessKey(int Key)
         else
         {
           FindEdit->SetString(LastName);
-          strcpy(Name,LastName);
+          strncpy(Name,LastName,sizeof(Name)-1);
         }
         DrawEdit();
       }

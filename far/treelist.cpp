@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.35 21.02.2002 $ */
+/* Revision: 1.36 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   21.02.2002 SVS
     - BugZ#316 - Нет разделителя.
   12.02.2002 SVS
@@ -1590,7 +1592,7 @@ void TreeList::SetTitle()
 {
   if (GetFocus())
   {
-    char TitleDir[NM];
+    char TitleDir[NM+30];
     char *Ptr="";
     if(ListData)
     {
@@ -1598,7 +1600,7 @@ void TreeList::SetTitle()
       Ptr=CurPtr->Name;
     }
     if (*Ptr)
-      sprintf(TitleDir,"{%s - Tree}",Ptr);
+      sprintf(TitleDir,"{%s - Tree}",NM-1,Ptr);
     else
     {
       sprintf(TitleDir,"{Tree}");

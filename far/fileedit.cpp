@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.96 21.03.2002 $ */
+/* Revision: 1.97 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   21.03.2002 SVS
     ! Запретим показ амп. в проптере диалога Save As
   20.03.2002 SVS
@@ -367,7 +369,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
         if(OpenModeExstFile == FEOPMODE_QUERY)
         {
           char MsgFullFileName[NM];
-          strcpy(MsgFullFileName,FullFileName);
+          strncpy(MsgFullFileName,FullFileName,sizeof(MsgFullFileName)-1);
           SetMessageHelp("EditorReload");
           MsgCode=Message(0,3,MSG(MEditTitle),
                 TruncPathStr(MsgFullFileName,ScrX-16),
@@ -677,7 +679,7 @@ int FileEditor::ProcessKey(int Key)
             /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
           };
           MakeDialogItems(EditDlgData,EditDlg);
-          strcpy(EditDlg[2].Data,(SaveToSaveAs?FullFileName:FileName));
+          strncpy(EditDlg[2].Data,(SaveToSaveAs?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
           EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
           EditDlg[5+TextFormat].Selected=TRUE;
           Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.44 22.03.2002 $ */
+/* Revision: 1.45 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   22.03.2002 SVS
     ! переезд DeleteFileWithFolder(), DeleteDirTree() из mix.cpp в
       delete.cpp ибо здесь им место.
@@ -361,7 +363,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             int MsgCode=0;
             /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
             char MsgFullName[NM];
-            strcpy(MsgFullName, FullName);
+            strncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
             TruncPathStr(MsgFullName, ScrX-16);
             // для symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
@@ -397,9 +399,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             }
             ShellDeleteMsg(FullName);
             char ShortName[NM];
-            strcpy(ShortName,FullName);
+            strncpy(ShortName,FullName,sizeof(ShortName)-1);
             if (*FindData.cAlternateFileName)
-              strcpy(PointToName(ShortName),FindData.cAlternateFileName);
+              strcpy(PointToName(ShortName),FindData.cAlternateFileName); //???
             if (FindData.dwFileAttributes & FA_DIREC)
             {
               /* $ 28.11.2000 SVS
@@ -425,7 +427,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                      усекаем имя, чтоб оно поместилось в сообщение
                 */
                 char MsgFullName[NM];
-                strcpy(MsgFullName, FullName);
+                strncpy(MsgFullName, FullName,sizeof(MsgFullName)-1);
                 TruncPathStr(MsgFullName, ScrX-16);
                 int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
                       MSG(MDeleteFolderConfirm),MsgFullName,
@@ -631,7 +633,7 @@ int AskDeleteReadOnly(char *Name,DWORD Attr)
   {
     /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
     char MsgName[NM];
-    strcpy(MsgName, Name);
+    strncpy(MsgName, Name,sizeof(MsgName)-1);
     TruncPathStr(MsgName, ScrX-16);
     MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),MsgName,
             MSG(MAskDeleteRO),MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
@@ -691,7 +693,7 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
     int MsgCode;
     /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
     char MsgName[NM];
-    strcpy(MsgName, Name);
+    strncpy(MsgName, Name,sizeof(MsgName)-1);
     TruncPathStr(MsgName, ScrX-16);
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
                     MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
@@ -726,7 +728,7 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
         break;
     /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
     char MsgName[NM];
-    strcpy(MsgName, Name);
+    strncpy(MsgName, Name,sizeof(MsgName)-1);
     TruncPathStr(MsgName, ScrX-16);
     if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
                 MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
@@ -840,7 +842,7 @@ int DeleteFileWithFolder(const char *FileName)
   char FolderName[NM],*Slash;
   SetFileAttributes(FileName,0);
   remove(FileName);
-  strcpy(FolderName,FileName);
+  strncpy(FolderName,FileName,sizeof(FolderName)-1);
   if ((Slash=strrchr(FolderName,'\\'))!=NULL)
     *Slash=0;
   return(RemoveDirectory(FolderName));

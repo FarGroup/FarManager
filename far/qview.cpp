@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.25 22.03.2002 $ */
+/* Revision: 1.26 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   22.03.2002 DJ
     ! отведем побольше места на Title
   14.02.2002 VVM
@@ -506,7 +508,7 @@ int QuickView::UpdateIfChanged(int UpdateMode)
 {
   if (IsVisible() && *CurFileName && Directory==2)
   {
-    char ViewName[NM];
+    char ViewName[NM+30];
     strcpy(ViewName,CurFileName);
     ShowFile(ViewName,*TempName,NULL);
     return(TRUE);
@@ -522,12 +524,12 @@ void QuickView::SetTitle()
   {
     char TitleDir[NM+30];
     if (*CurFileName)
-      sprintf(TitleDir,"{%s - QuickView}",CurFileName);
+      sprintf(TitleDir,"{%.*s - QuickView}",NM-1,CurFileName);
     else
     {
       char CmdText[512];
       CtrlObject->CmdLine->GetString(CmdText,sizeof(CmdText));
-      sprintf(TitleDir,"{%s}",CmdText);
+      sprintf(TitleDir,"{%.*s}",sizeof(TitleDir)-3,CmdText);
     }
     strcpy(LastFarTitle,TitleDir);
     SetFarTitle(TitleDir);

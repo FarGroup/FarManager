@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.16 27.07.2001 $ */
+/* Revision: 1.17 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.07.2001 SVS
@@ -153,7 +155,7 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
 
     char Tmp1[GROUPSORT_MASK_SIZE], *pSeparator;
-    strcpy(Tmp1, Mask);
+    strncpy(Tmp1, Mask,sizeof(Tmp1)-1);
     pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
     if(pSeparator)
     {
@@ -163,7 +165,7 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
       else
       {
         char Tmp2[GROUPSORT_MASK_SIZE];
-        strcpy(Tmp2, pSeparator+1);
+        strncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
         *pSeparator=0;
         Add_PATHEXT(Tmp1);
         sprintf(Mask, "%s|%s", Tmp1, Tmp2);

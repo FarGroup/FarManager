@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.52 19.03.2002 $ */
+/* Revision: 1.53 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   19.03.2002 SVS
     - BugZ#373 - F3 Ctrl-O - виден курсор
   28.01.2002 OT
@@ -199,7 +201,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   /* SVS $ */
 
   DisableHistory=disableHistory; ///
-  strcpy(Name,name); ///
+  strncpy(Name,name,sizeof(Name)-1); ///
   SetCanLoseFocus(EnableSwitch);
 
   /* $ 17.08.2001 KM

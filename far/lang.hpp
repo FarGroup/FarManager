@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.101 21.03.2002 $ */
+/* Revision: 1.102 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    ! перемещение MNeedNearPath
   21.03.2002 SVS
     + MNeedNearPath
   20.03.2002 DJ
@@ -725,6 +727,7 @@ enum
   MFolderShortcutBottom,
   MShortcutNone,
   MEnterShortcut,
+  MNeedNearPath,
 
   MEditF1,
   MEditF2,
@@ -1890,8 +1893,6 @@ enum
   MIncorrectMask,
 
   MPanelBracketsForLongName,
-
-  MNeedNearPath,
 
   MListEval
 };

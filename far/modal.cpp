@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.09 20.02.2002 $ */
+/* Revision: 1.10 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   20.02.2002 OT
     - BugZ#314 - Shift-Enter на папке меняет путь заголовок окна
   14.06.2001 OT
@@ -121,7 +123,7 @@ void Modal::SetExitCode(int Code)
 
 void Modal::SetHelp(char *Topic)
 {
-  strcpy(HelpTopic,Topic);
+  strncpy(HelpTopic,Topic,sizeof(HelpTopic)-1);
 }
 
 

@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.21 12.03.2002 $ */
+/* Revision: 1.22 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   12.03.2002 VVM
     + Новая функция - пользователь попытался прервать операцию.
       Зададим вопрос.
@@ -256,7 +258,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   MessageY2=Y2=Y1+StrCount+3;
 
   char HelpTopic[80];
-  strcpy(HelpTopic,MsgHelpTopic);
+  strncpy(HelpTopic,MsgHelpTopic,sizeof(HelpTopic)-1);
   *MsgHelpTopic=0;
 
   // *** Вариант с Диалогом ***

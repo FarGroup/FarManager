@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.24 21.03.2002 $ */
+/* Revision: 1.25 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   21.03.2002 DJ
     ! не портим стек при отрисовке длинного заголовка панели
   20.03.2002 IS
@@ -277,7 +279,7 @@ void FileList::ShowFileList(int Fast)
     if (ShowShortNames)
       ConvertNameToShort(CurDir,TitleDir);
     else
-      strcpy(TitleDir,CurDir);
+      strncpy(TitleDir,CurDir,sizeof(TitleDir)-1);
     TruncPathStr(TitleDir,TruncSize-2);
     sprintf(Title," %s ",TitleDir);
   }
@@ -922,9 +924,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                     PtrName=MSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
 
                   if (strlen(PtrName) <= Width-2)
-                    sprintf(Str,"<%s>",PtrName);
+                    sprintf(Str,"<%.*s>",sizeof(Str)-3,PtrName);
                   else
-                    strcpy(Str,PtrName);
+                    strncpy(Str,PtrName,sizeof(Str)-1);
 
                   mprintf("%*.*s",Width,Width,Str);
                 }

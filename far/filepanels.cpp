@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.38 19.03.2002 $ */
+/* Revision: 1.39 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   19.03.2002 OT
     - Исправление #96
   15.02.2002 SVS
@@ -988,9 +990,9 @@ void FilePanels::GoToFile (char *FileName)
     AddEndSlash (ADir);
 
     char NameFile[NM], NameDir[NM];
-    strcpy(NameDir, FileName);
+    strncpy(NameDir, FileName,sizeof(NameDir)-1);
     char *NameTmp=PointToName(NameDir);
-    strcpy(NameFile,NameTmp);
+    strncpy(NameFile,NameTmp,sizeof(NameFile)-1);
     *NameTmp=0;
 
     /* $ 10.04.2001 IS

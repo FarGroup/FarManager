@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.11 19.03.2002 $ */
+/* Revision: 1.12 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   19.03.2002 OT
     - Исправление #96
   11.02.2002 SVS
@@ -358,7 +360,7 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
   {
     char Type[100];
     int ColumnType=ViewColumnTypes[I] & 0xff;
-    strcpy(Type,ColumnSymbol[ColumnType]);
+    strncpy(Type,ColumnSymbol[ColumnType],sizeof(Type)-1);
     if (ColumnType==NAME_COLUMN)
     {
       if (ViewColumnTypes[I] & COLUMN_MARK)

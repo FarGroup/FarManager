@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.221 20.03.2002 $ */
+/* Revision: 1.222 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   20.03.2002 DJ
     + обработка KEY_MEDIT_ISSELECTED для корректной работы флага
       [x] Selection exists в диалоговых макросов
@@ -1188,7 +1190,7 @@ int Dialog::InitDialogObjects(int ID)
         *CurItem->Data != '[')
     {
       char BracketedTitle[200];
-      sprintf(BracketedTitle,"[ %s ]",CurItem->Data);
+      sprintf(BracketedTitle,"[ %.*s ]",sizeof(BracketedTitle)-5,CurItem->Data);
       strcpy(CurItem->Data,BracketedTitle);
     }
 
@@ -2008,7 +2010,7 @@ void Dialog::ShowDialog(int ID)
 /* ***************************************************************** */
       case DI_TEXT:
       {
-        strcpy(Str,CurItem->Data);
+        strncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str);
         Y=(CY1==-1)?(Y2-Y1+1)/2:CY1;
         X=(CX1==-1)?(X2-X1+1-LenText)/2:CX1;
@@ -4039,7 +4041,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Coun
     Item->Flags=Data->Flags;
     Item->DefaultButton=Data->DefaultButton;
     if ((unsigned int)Data->Data<MAX_MSG)
-      strcpy(Item->Data,MSG((unsigned int)Data->Data));
+      strncpy(Item->Data,MSG((unsigned int)Data->Data),sizeof(Item->Data)-1);
     else
       memcpy(Item->Data,Data->Data,sizeof(Item->Data));
   }

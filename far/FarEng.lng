@@ -425,6 +425,7 @@
 "Edit: Del,Ins,F4"
 "<none>"
 "Enter new shortcut:"
+"Перейти в ближайшую доступную папку?"
 
 //functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
 "Help"
@@ -1627,7 +1628,5 @@
 "File-mask string contains errors!"
 
 "{}"
-
-"Перейти в ближайшую доступную папку?"
 
 "Evaluation version"

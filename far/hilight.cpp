@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.35 14.12.2001 $ */
+/* Revision: 1.36 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   14.12.2001 SVS
     - BugZ#178 - При вызове SaveHiData() учтем  Opt.AutoSaveSetup
   23.11.2001 SVS
@@ -239,7 +241,7 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
 
     char Tmp1[HIGHLIGHT_MASK_SIZE], *pSeparator;
-    strcpy(Tmp1, Mask);
+    strncpy(Tmp1, Mask,sizeof(Tmp1)-1);
     pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
     if(pSeparator)
     {
@@ -249,7 +251,7 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
       else
       {
         char Tmp2[HIGHLIGHT_MASK_SIZE];
-        strcpy(Tmp2, pSeparator+1);
+        strncpy(Tmp2, pSeparator+1,sizeof(Tmp2)-1);
         *pSeparator=0;
         Add_PATHEXT(Tmp1);
         sprintf(Mask, "%s|%s", Tmp1, Tmp2);

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.29 20.03.2002 $ */
+/* Revision: 1.30 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   12.03.2002 SVS
@@ -235,14 +237,14 @@ _SVS(SysLog("LinkFolder=%s",LinkFolder));
 
   char szDestDir[1024];
   if (SrcFolder[0] == '\\' && SrcFolder[1] == '?')
-    strcpy(szDestDir, SrcFolder);
+    strncpy(szDestDir, SrcFolder,sizeof(szDestDir)-1);
   else
   {
     LPTSTR pFilePart;
     char szFullDir[1024];
 
     strcpy(szDestDir, "\\??\\");
-    if (!GetFullPathName(SrcFolder, 1024, szFullDir, &pFilePart) ||
+    if (!GetFullPathName(SrcFolder, sizeof(szFullDir), szFullDir, &pFilePart) ||
       GetFileAttributes(szFullDir) == -1)
     {
       return FALSE;

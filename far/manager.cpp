@@ -5,10 +5,15 @@ manager.cpp
 
 */
 
-/* Revision: 1.63 22.03.2002 $ */
+/* Revision: 1.64 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
+    ! Уточнение для BugZ#386 - F12 вызывается всегда, но!
+      Но для модального редактора (или вьювера из поиска)
+      все пункты меню задисаблены.
   22.03.2002 SVS
     - BugZ#386 - Поиск файлов и редактор
   03.03.2002 SVS
@@ -433,7 +438,7 @@ int Manager::CountFramesWithName(const char *Name, BOOL IgnoreCase)
 */
 Frame *Manager::FrameMenu()
 {
-  int ExitCode;
+  int ExitCode, CheckCanLoseFocus=CurrentFrame->GetCanLoseFocus();
   {
     struct MenuItem ModalMenuItem;
     memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
@@ -442,8 +447,9 @@ Frame *Manager::FrameMenu()
     ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
 
-    if(IsProcessVE_FindFile)
+    if (!CheckCanLoseFocus)
       ModalMenuItem.SetDisable(TRUE);
+
     for (int I=0;I<FrameCount;I++)
     {
       char Type[200],Name[NM],NumText[100];
@@ -471,11 +477,17 @@ Frame *Manager::FrameMenu()
     ModalMenu.Process();
     ExitCode=ModalMenu.Modal::GetExitCode();
   }
-  if (ExitCode>=0)
+
+  if(CheckCanLoseFocus)
   {
-    ActivateFrame (ExitCode);
+    if (ExitCode>=0)
+    {
+      ActivateFrame (ExitCode);
+      return (ActivatedFrame==CurrentFrame || !CurrentFrame->GetCanLoseFocus()?NULL:CurrentFrame);
+    }
+    return (ActivatedFrame==CurrentFrame?NULL:CurrentFrame);
   }
-  return (ActivatedFrame==CurrentFrame?NULL:CurrentFrame);
+  return NULL;
 }
 
 
@@ -505,14 +517,16 @@ void Manager::SetFramePos(int NewPos)
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
 int  Manager::FindFrameByFile(int ModalType,char *FileName,char *Dir)
 {
-  char bufFileName[NM];
+  char bufFileName[NM*2];
   char *FullFileName=FileName;
-  if (Dir){
+  if (Dir)
+  {
     strcpy(bufFileName,Dir);
     AddEndSlash(bufFileName);
     strcat(bufFileName,FileName);
     FullFileName=bufFileName;
   }
+
   for (int I=0;I<FrameCount;I++)
   {
     char Type[200],Name[NM];
@@ -708,6 +722,7 @@ int  Manager::ProcessKey(int Key)
           return TRUE;
 
         case KEY_ALTF9:
+        {
           //_SVS(SysLog(1,"Manager::ProcessKey, KEY_ALTF9 pressed..."));
           Sleep(1);
           SetVideoMode(FarAltEnter(-2));
@@ -742,12 +757,14 @@ int  Manager::ProcessKey(int Key)
           }
           //_SVS(SysLog(-1));
           return TRUE;
-      }
+        }
 
-      if(IsProcessVE_FindFile && Key == KEY_F12)// && CtrlObject->Macro.IsExecuting())
-      {
-        FrameMenu();
-        return TRUE;
+        case KEY_F12:
+        {
+          DeactivateFrame(FrameMenu(),0);
+          _OT(SysLog(-1));
+          return TRUE;
+        }
       }
 
       // а здесь то, что может быть запрещено везде :-)
@@ -764,12 +781,6 @@ int  Manager::ProcessKey(int Key)
                 FrameManager->RefreshFrame();
               }
             }
-            return TRUE;
-
-          case KEY_F12:
-            if (CurrentFrame->GetCanLoseFocus())
-              DeactivateFrame(FrameMenu(),0);
-            _OT(SysLog(-1));
             return TRUE;
 
           case KEY_CTRLTAB:

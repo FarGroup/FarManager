@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.29 20.03.2002 $ */
+/* Revision: 1.30 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - strcpy - Fuck!
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   16.01.2002 SVS
@@ -526,9 +528,12 @@ void InfoList::ShowDirDescription()
   const char *NamePtr=Opt.FolderInfoFiles;
   while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
   {
-    char FullDizName[NM];
-    strcpy(FullDizName,DizDir);
-    strcat(FullDizName,ArgName);
+    char FullDizName[2048];
+    strncpy(FullDizName,DizDir,sizeof(FullDizName)-1);
+    if(strlen(FullDizName)+strlen(ArgName) < sizeof(FullDizName))
+      strcat(FullDizName,ArgName);
+    else
+      return;
 
     HANDLE FindHandle;
     WIN32_FIND_DATA FindData;
