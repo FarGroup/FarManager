@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.11 28.12.2001 $ */
+/* Revision: 1.12 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 OT
+    Испраление поведения макросов в инфо-, квик- и три-панелей
   28.12.2001 DJ
     + единый метод GoToFile()
   02.11.2001 SVS
@@ -111,6 +113,12 @@ class FilePanels:public Frame
     */
     void GoToFile (char *FileName);
     /* DJ $ */
+
+    /* $ 16.01.2002	OT
+       переопределенный виртуальный метод от Frame
+    */
+	int GetMacroMode();
+    /* OT $ */
 };
 
 #endif // __FILEPANELS_HPP__

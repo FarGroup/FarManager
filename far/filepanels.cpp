@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.34 02.01.2002 $ */
+/* Revision: 1.35 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 OT
+    Испраление поведения макросов в инфо-, квик- и три-панелей
   02.01.2002 IS
     - Баг: забыли в GetTypeAndName про то, что бывают INFO_PANEL
   31.12.2002 VVM
@@ -1008,3 +1010,21 @@ void FilePanels::GoToFile (char *FileName)
 }
 
 /* DJ $ */
+
+/* $ 16.01.2002	OT
+   переопределенный виртуальный метод от Frame
+*/
+int  FilePanels::GetMacroMode()
+{
+  switch (ActivePanel->GetType())
+  {
+    case TREE_PANEL:
+      return MACRO_TREEPANEL;
+    case QVIEW_PANEL:
+      return MACRO_QVIEWPANEL;
+    case INFO_PANEL:
+      return MACRO_INFOPANEL;
+    default:
+      return MACRO_SHELL;
+  }
+}
