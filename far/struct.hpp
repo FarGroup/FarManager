@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.52 02.04.2001 $ */
+/* Revision: 1.53 16.04.2001 $ */
 
 /*
 Modify:
+  16.04.2001 VVM
+    + Opt.MouseWheelDelta - задает смещение для прокрутки.
   02.04.2001 VVM
     + Opt.FlagPosixSemantics будет влиять на:
         добавление файлов в историю с разным регистром
@@ -599,6 +601,10 @@ struct Options
         добавление файлов в историю с разным регистром
         добавление LastPositions в редакторе и вьюере */
   int FlagPosixSemantics;
+  /* VVM $ */
+  /* $ 16.04.2001 VVM
+    + Opt.MouseWheelDelta - задает смещение для прокрутки. */
+  int MouseWheelDelta;
   /* VVM $ */
 
   struct PoliciesOptions Policies;

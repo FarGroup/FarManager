@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.19 13.04.2001 $ */
+/* Revision: 1.20 16.04.2001 $ */
 
 /*
 Modify:
+  16.04.2001 VVM
+    + Прокрутка с шифтом подменяется на PgUp/PgDn
+    + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN
   13.04.2001 VVM
     + Обработка колесика мышки под 2000.
   12.03.2001 SVS
@@ -289,13 +292,25 @@ int GetInputRecord(INPUT_RECORD *rec)
         ir.EventType = KEY_EVENT;
         ir.Event.KeyEvent.wRepeatCount = 1;
         ir.Event.KeyEvent.dwControlKeyState = rec->Event.MouseEvent.dwControlKeyState;
-        Written=(zDelta > 0)?VK_UP:VK_DOWN;
+        DWORD WheelDelta = (ir.Event.KeyEvent.dwControlKeyState)?1:Opt.MouseWheelDelta;
+        ir.Event.KeyEvent.dwControlKeyState &= ~(RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED);
+        if (ir.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
+        {
+          ir.Event.KeyEvent.wVirtualKeyCode=(zDelta > 0)?VK_PRIOR:VK_NEXT;
+          ir.Event.KeyEvent.dwControlKeyState &= (~SHIFT_PRESSED);
+        }
+        else
+          ir.Event.KeyEvent.wVirtualKeyCode=(zDelta > 0)?VK_UP:VK_DOWN;
         ir.Event.KeyEvent.wVirtualScanCode = MapVirtualKey(
-                    (ir.Event.KeyEvent.wVirtualKeyCode=Written),0);
-        ir.Event.KeyEvent.bKeyDown = TRUE;
-        WriteConsoleInput(hConInp, &ir, 1, &Written);
-        ir.Event.KeyEvent.bKeyDown = FALSE;
-        WriteConsoleInput(hConInp, &ir, 1, &Written);
+                          ir.Event.KeyEvent.wVirtualKeyCode, 0);
+
+        for (int i=0; i<WheelDelta; i++)
+        {
+          ir.Event.KeyEvent.bKeyDown = TRUE;
+          WriteConsoleInput(hConInp, &ir, 1, &Written);
+          ir.Event.KeyEvent.bKeyDown = FALSE;
+          WriteConsoleInput(hConInp, &ir, 1, &Written);
+        }
         continue;
       }
       break;
@@ -738,7 +753,6 @@ int WINAPI KeyNameToKey(char *Name)
 //     return Key;
 
    int I, Pos, Len=strlen(Name);
-   Key=0;
 
    // пройдемся по всем модификаторам
    for(Pos=I=0; Pos < Len && I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
