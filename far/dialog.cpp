@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.69 11.02.2001 $ */
+/* Revision: 1.70 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SVS
+   + Добавка на реакцию DOUBLE_CLICK - чекбоксы стали шустрее переключаться :-)
+     AN> ...Пробелом те же чекбоксы переключаются очень шустро.
+     AN> Это именно отсутствие реакции на (MouseEvent.dwEventFlags==DOUBLE_CLICK).
   11.02.2001 SVS
    ! DIF_VAREDIT - только для DI_EDIT!!!
   11.02.2001 SVS
@@ -1271,7 +1275,7 @@ void Dialog::ShowDialog(int ID)
 
           EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
           //Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-          Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),"");
+          Text(EditX2+1,EditY1,HIBYTE(HIWORD(Attr)),"\x19");
         }
         break;
         /* SVS $ */
@@ -2359,7 +2363,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(TRUE);
   }
 
-  if (MouseEvent->dwEventFlags==0)
+  if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
   {
     /* $ 21.08.2000 SVS
        DN_MOUSECLICK - первично.
