@@ -7,10 +7,16 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.20 24.05.2002 $ */
+/* Revision: 1.21 25.05.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    + MoveFileThroughTemp - функция переименования файла, которая сработает
+      даже для случая, когда переименовываем самого в себя (на основе
+      предложенного SVS способа - обертка вокруг MoveFile).
+    ! Убрал FCOPY_RENAMESAME, т.к. не используется
+    ! внедрение const и ссылок
   24.05.2002 SVS
     + FCOPY_RENAMESAME - переименование типа abcdefghi.txt -> abcdef~1.txt,
       когда это про один и тотже файл
@@ -94,7 +100,6 @@ enum COPY_FLAGS {
   FCOPY_VOLMOUNT        = 0x00000400, // операция монтированния тома
   FCOPY_STREAMSKIP      = 0x00000800,
   FCOPY_STREAMALL       = 0x00001000,
-  FCOPY_RENAMESAME      = 0x00002000, // переименование типа abcdefghi.txt -> abcdef~1.txt, когда это про один и тотже файл
   FCOPY_COPYLASTTIME    = 0x10000000, // При копировании в несколько каталогов
                                       // устанавливается для последнего.
 };
@@ -155,26 +160,35 @@ class ShellCopy
 
   private:
     COPY_CODES CopyFileTree(char *Dest);
-    COPY_CODES ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,char *Dest,
-                                int KeepPathPos,int Rename);
+    COPY_CODES ShellCopyOneFile(const char *Src,
+                                const WIN32_FIND_DATA &SrcData,
+                                const char *Dest,
+                                int KeepPathPos, int Rename);
     COPY_CODES CheckStreams(const char *Src,const char *DestPath);
-    int  ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,char *DestName,
-                       DWORD DestAttr,int Append);
-    int  ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *SrcData);
-    void ShellCopyMsg(char *Src,char *Dest,int Flags);
-    int  ShellCopyConvertWildcards(char *Src,char *Dest);
+    int  ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
+                       const char *DestName, DWORD DestAttr,int Append);
+    int  ShellSystemCopy(const char *SrcName,const char *DestName,const WIN32_FIND_DATA &SrcData);
+    void ShellCopyMsg(const char *Src,const char *Dest,int Flags);
+    int  ShellCopyConvertWildcards(const char *Src,char *Dest);
     int  DeleteAfterMove(const char *Name,int Attr);
     void SetDestDizPath(const char *DestPath);
-    int  AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
+    int  AskOverwrite(const WIN32_FIND_DATA &SrcData,const char *DestName,
                       DWORD DestAttr,int SameName,int Rename,int AskAppend,
                       int &Append,int &RetCode);
-    int  GetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
-    int  SetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
+    int  GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa);
+    int  SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa);
     int  IsSameDisk(const char *SrcPath,const char *DestPath);
     bool CalcTotalSize();
     int  CmpFullNames(const char *Src,const char *Dest);
     BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,char *SrcDir,char *DstDir,struct CopyDlgParam *CDP);
     int  ShellSetAttr(const char *Dest,DWORD Attr);
+    /* $ 25.05.2002 IS
+       Функция переименования файла, которая сработает даже для случая, когда
+       переименовываем самого в себя (на основе предложенного SVS способа -
+       обертка вокруг MoveFile). Возвращает TRUE - успех, FALSE - неудача.
+    */
+    BOOL MoveFileThroughTemp(const char *Src, const char *Dest);
+    /* IS $ */
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,

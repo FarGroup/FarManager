@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.88 24.05.2002 $ */
+/* Revision: 1.89 25.05.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    ! внедрение const
   24.05.2002 SVS
     + Opt.UseNumPad
   22.05.2002 SVS
@@ -773,8 +775,8 @@ struct PreRedrawParamStruct
 {
   DWORD Flags;
   void *Param1;
-  void *Param2;
-  void *Param3;
+  const void *Param2;
+  const void *Param3;
   void *Param4;
 };
 

@@ -5,10 +5,33 @@ copy.cpp
 
 */
 
-/* Revision: 1.86 24.05.2002 $ */
+/* Revision: 1.87 25.05.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    + CmpFullNames: всегда работаем с реальными _длинными_ именами, в
+      результате чего отлавливается ситуация, когда
+      Src="D:\Program Files\filename"
+      Dest="D:\PROGRA~1\filename"
+      ("D:\PROGRA~1" - короткое имя для "D:\Program Files")
+      считается, что имена тоже одинаковые, а раньше считалось,
+      что они разные (функция не знала, что и в первом, и во втором случае
+      путь один и тот же)
+    ! CmpFullNames: "велосипед" заменен на DeleteEndSlash
+    ! CmpFullNames: убираем всю самодеятельность по проверке имен с разным
+      регистром из функции прочь, потому что это нужно делать только при
+      переименовании, а функция вызывается и при копировании тоже. Все это
+      должно обрабатываться не в ней, а там же, где и RenameToShortName.
+      Теперь функция вернет 1, для случая имен src=path\filename,
+      dest=path\filename (раньше возвращала 2 - т.е. сигнал об ошибке).
+    + MoveFileThroughTemp - функция переименования файла, которая сработает
+      даже для случая, когда переименовываем самого в себя (на основе
+      предложенного SVS способа - обертка вокруг MoveFile).
+    ! Теперь FAR умеет переименовывать и файлы, и _каталоги_ в короткое
+      имя (для этого используется MoveFileThroughTemp).
+    ! внедрение const и ссылок
+    - ShellCopyConvertWildcards меняла то, что нельзя было менять
   24.05.2002 SVS
     ! отм...
   24.05.2002 SVS
@@ -1345,7 +1368,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         CopyCode=COPY_FAILURE;
       else
       {
-        CopyCode=ShellCopyOneFile(SelName,&SrcData,DestPath,KeepPathPos,1);
+        CopyCode=ShellCopyOneFile(SelName,SrcData,DestPath,KeepPathPos,1);
         if (CopyCode==COPY_SUCCESS_MOVE)
         {
           if (*DestDizPath)
@@ -1385,7 +1408,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
     if (!(ShellCopy::Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
     {
-      CopyCode=ShellCopyOneFile(SelName,&SrcData,Dest,KeepPathPos,0);
+      CopyCode=ShellCopyOneFile(SelName,SrcData,Dest,KeepPathPos,0);
       ShellCopy::Flags&=~FCOPY_OVERWRITENEXT;
 
       if (CopyCode==COPY_CANCEL)
@@ -1429,7 +1452,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         {
           AttemptToMove=TRUE;
 
-          switch(ShellCopyOneFile(FullName,&SrcData,Dest,KeepPathPos,1))
+          switch(ShellCopyOneFile(FullName,SrcData,Dest,KeepPathPos,1))
           {
             case COPY_CANCEL:
               return COPY_CANCEL;
@@ -1451,7 +1474,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         if (AttemptToMove)
           OvrMode=1;
 
-        SubCopyCode=ShellCopyOneFile(FullName,&SrcData,Dest,KeepPathPos,0);
+        SubCopyCode=ShellCopyOneFile(FullName,SrcData,Dest,KeepPathPos,0);
 
         if (AttemptToMove)
           OvrMode=SaveOvrMode;
@@ -1520,14 +1543,23 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   return COPY_SUCCESS; //COPY_SUCCESS_MOVE???
 }
 
-COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
-                                       char *Dest,int KeepPathPos,int Rename)
+COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
+                                       const WIN32_FIND_DATA &SrcData,
+                                       const char *Dest, int KeepPathPos,
+                                       int Rename)
 {
   char DestPath[2*NM];
   DWORD DestAttr;
   HANDLE FindHandle;
   WIN32_FIND_DATA DestData;
-  int SameName=0,Append=0;
+  /* $ 25.05.2002 IS
+     + RenameToShortName - дополняет SameName и становится больше нуля тогда,
+       когда объект переименовывается в его же _короткое_ имя.
+  */
+  int SameName=0,
+      RenameToShortName=0,
+      Append=0;
+  /* IS $ */
 
   *RenamedName=*CopiedName=0;
 
@@ -1575,6 +1607,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     if ((CmpCode=CmpFullNames(Src,DestPath))!=0)
     {
       SameName=1;
+      /* $ 25.05.2002 IS
+         Проверим ту ситуацию, когда переименовывается _каталог_ в свое же
+         _короткое_ имя
+      */
+      if(CmpCode!=2 && Rename)
+      {
+         if(!strcmp(PointToName(Src),PointToName(DestPath)))
+           CmpCode=2; // ошибка: новое имя идентично старому
+         else
+           RenameToShortName = (!LocalStricmp(DestData.cFileName,
+             SrcData.cFileName) &&
+             0!=LocalStricmp(DestData.cAlternateFileName,SrcData.cFileName));
+      }
+      /* IS $ */
       if (CmpCode==2 || !Rename)
       {
         CopyTime+= (clock() - CopyStartTime);
@@ -1588,13 +1634,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
     if (!SameName)
     {
-      char *PathPtr;
       int Length=strlen(DestPath);
 
       if (DestPath[Length-1]!='\\' && DestPath[Length-1]!=':')
         strcat(DestPath,"\\");
 
-      PathPtr=Src+KeepPathPos;
+      const char *PathPtr=Src+KeepPathPos;
 
       if (*PathPtr && KeepPathPos==0 && PathPtr[1]==':')
         PathPtr+=2;
@@ -1614,7 +1659,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     }
   }
 
-  if (stricmp(DestPath,"nul")!=0 && stricmp(DestPath,"prn")!=0)
+  /* $ 25.05.2002 IS
+     Забыли в проверке считать nul==con, вместо того, чтобы дописать в условие
+     проверку на con, напишу просто проверку на FCOPY_COPYTONUL
+  */
+  if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && stricmp(DestPath,"prn")!=0)
+  /* IS $ */
     SetDestDizPath(DestPath);
 
   ShellCopyMsg(Src,DestPath,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
@@ -1628,16 +1678,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       case COPY_CANCEL: return COPY_CANCEL;
     }
 
-    if (SrcData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
       if (!Rename)
         strcpy(CopiedName,PointToName(DestPath));
 
-      if (DestAttr!=(DWORD)-1)
+      /* $ 25.05.2002 IS
+         Не выполняем лиших операций, когда RenameToShortName.
+      */
+      if (DestAttr!=(DWORD)-1 && !RenameToShortName)
+      /* IS $ */
       {
         if ((DestAttr & FILE_ATTRIBUTE_DIRECTORY) && !SameName)
         {
-          DWORD SetAttr=SrcData->dwFileAttributes;
+          DWORD SetAttr=SrcData.dwFileAttributes;
           if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
             SetAttr&=~FA_RDONLY;
           //_SVS(SysLog("SetAttr=0x%08X, DestAttr=0x%08X",SetAttr,DestAttr));
@@ -1667,11 +1721,18 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         {
           return(COPY_NEXT);
         }
+
         /* $ 18.07.2001 VVM
           + Пытаемся переименовать, пока не отменят */
         while (1)
         {
-          if (MoveFile(Src,DestPath))
+          /* $ 25.05.2002 IS
+             Отдельная обработка RenameToShortName для каталога.
+          */
+          BOOL SuccessMove=RenameToShortName?MoveFileThroughTemp(Src,DestPath):
+                 MoveFile(Src,DestPath);
+          if (SuccessMove)
+          /* IS $ */
           {
             if (PointToName(DestPath)==DestPath)
               strcpy(RenamedName,DestPath);
@@ -1694,7 +1755,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
             int LastError = GetLastError();
             int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
             SECURITY_ATTRIBUTES sa;
-            if ((CopySecurity) && !GetSecurity(Src,&sa))
+            if ((CopySecurity) && !GetSecurity(Src,sa))
               CopySecurity = FALSE;
             if (CreateDirectory(DestPath,CopySecurity?&sa:NULL))
             {
@@ -1730,7 +1791,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       }
 
       SECURITY_ATTRIBUTES sa;
-      if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,&sa))
+      if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sa))
         return(COPY_CANCEL);
 
       while (!CreateDirectory(DestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
@@ -1746,7 +1807,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
           return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
       }
 
-      DWORD SetAttr=SrcData->dwFileAttributes;
+      DWORD SetAttr=SrcData.dwFileAttributes;
 
       if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
@@ -1763,40 +1824,35 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
     if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
     {
-      // Случай, когда файл переименовываем из длинного в собственное короткое
-      ShellCopy::Flags&=~FCOPY_RENAMESAME;
-#if 0
-      if (!LocalStricmp(DestData.cFileName,SrcData->cFileName) &&
-           LocalStricmp(DestData.cAlternateFileName,SrcData->cFileName)
-         )
+      /* $ 25.05.2002 IS
+         + Не проверяем RenameToShortName второй раз
+         + Чтобы не делать лишнюю работу, проверяем сначала совпадение размера
+           файлов, в т.ч. и nFileSizeHigh
+      */
+      if(!RenameToShortName)
       {
-        char SrcFullName[1024],DestFullName[1024], *Ptr;
-        if (ConvertNameToReal(Src,SrcFullName, sizeof(SrcFullName)) < sizeof(SrcFullName))
-        {
-          Ptr=strrchr(SrcFullName,'\\');
-          if(Ptr) *Ptr=0;
-          if (ConvertNameToReal(DestPath,DestFullName, sizeof(DestFullName)) < sizeof(DestFullName))
-          {
-            Ptr=strrchr(DestFullName,'\\');
-            if(Ptr) *Ptr=0;
-            if(!LocalStricmp(DestFullName,SrcFullName))
-            {
-              ShellCopy::Flags|=FCOPY_RENAMESAME;
-              _SVS(SysLog("FCOPY_RENAMESAME"));
-            }
-          }
-        }
-      }
-#endif
-
-      if(!(ShellCopy::Flags&FCOPY_RENAMESAME))
-      {
-        if (SrcData->nFileSizeLow==DestData.nFileSizeLow)
+        if (SrcData.nFileSizeHigh==DestData.nFileSizeHigh &&
+            SrcData.nFileSizeLow==DestData.nFileSizeLow)
+      /* IS $ */
         {
           int CmpCode;
           if ((CmpCode=CmpFullNames(Src,DestPath))!=0)
           {
             SameName=1;
+            /* $ 25.05.2002 IS
+               Проверим ту ситуацию, когда переименовывается _файл_ в свое же
+               _короткое_ имя
+            */
+            if(CmpCode!=2 && Rename)
+            {
+               if(!strcmp(PointToName(Src),PointToName(DestPath)))
+                 CmpCode=2; // ошибка: новое имя идентично старому
+               else
+                 RenameToShortName = (!LocalStricmp(DestData.cFileName,
+                   SrcData.cFileName) &&
+                   0!=LocalStricmp(DestData.cAlternateFileName,SrcData.cFileName));
+            }
+            /* IS $ */
             if (CmpCode==2 || !Rename)
             {
               CopyTime+= (clock() - CopyStartTime);
@@ -1820,7 +1876,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
   }
   else
   {
-    if (SrcData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       return COPY_SUCCESS;
 /*
     {
@@ -1844,8 +1900,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     {
       int MoveCode=FALSE,AskDelete;
 
-      if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT && !Append && DestAttr!=(DWORD)-1 && !SameName &&
-          !(ShellCopy::Flags&FCOPY_RENAMESAME)) // !!!
+      if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT && !Append &&
+          DestAttr!=(DWORD)-1 && !SameName &&
+          !RenameToShortName) // !!!
       {
         remove(DestPath);
       }
@@ -1856,20 +1913,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName));
 
         if (NWFS_Attr)
-          SetFileAttributes(SrcFullName,SrcData->dwFileAttributes&(~FA_RDONLY));
-#if 0
-        if(ShellCopy::Flags&FCOPY_RENAMESAME) // переименование типа abcdefghi.txt -> abcdef~1.txt, когда это про один и тотже файл
-        {
-          char TempBuf[NM];
-          MoveCode=0;
-          if(FarMkTempEx(TempBuf,NULL, FALSE))
-          {
-            if(MoveFile(SrcFullName,TempBuf))
-              MoveCode=MoveFile(TempBuf,DestPath);
-          }
-        }
+          SetFileAttributes(SrcFullName,SrcData.dwFileAttributes&(~FA_RDONLY));
+
+        /* $ 25.05.2002 IS
+           Отдельная обработка RenameToShortName для каталога.
+        */
+        if(RenameToShortName)
+          MoveCode=MoveFileThroughTemp(SrcFullName, DestPath);
         else
-#endif
         {
           if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !strcmp(DestFSName,"NWFS"))
             MoveCode=MoveFile(SrcFullName,DestPath);
@@ -1881,7 +1932,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         {
           int MoveLastError=GetLastError();
           if (NWFS_Attr)
-            SetFileAttributes(SrcFullName,SrcData->dwFileAttributes);
+            SetFileAttributes(SrcFullName,SrcData.dwFileAttributes);
 
           if(MoveLastError==ERROR_NOT_SAME_DEVICE)
             return(COPY_FAILURE);
@@ -1890,11 +1941,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         }
 
         if (NWFS_Attr)
-          SetFileAttributes(DestPath,SrcData->dwFileAttributes);
+          SetFileAttributes(DestPath,SrcData.dwFileAttributes);
 
         if (ShowTotalCopySize && MoveCode)
         {
-          int64 AddSize(SrcData->nFileSizeHigh,SrcData->nFileSizeLow);
+          int64 AddSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
           CurCopySize+=AddSize;
           ShowBar(CurCopySize,TotalCopySize,true);
           ShowTitle(FALSE);
@@ -1933,11 +1984,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         }
 
         if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly &&
-            (SrcData->dwFileAttributes & FA_RDONLY))
-          ShellSetAttr(DestPath,SrcData->dwFileAttributes & ~FA_RDONLY);
+            (SrcData.dwFileAttributes & FA_RDONLY))
+          ShellSetAttr(DestPath,SrcData.dwFileAttributes & ~FA_RDONLY);
 
         TotalFiles++;
-        if (AskDelete && DeleteAfterMove(Src,SrcData->dwFileAttributes)==COPY_CANCEL)
+        if (AskDelete && DeleteAfterMove(Src,SrcData.dwFileAttributes)==COPY_CANCEL)
           return(COPY_CANCEL);
 
         return(COPY_SUCCESS_MOVE);
@@ -1952,8 +2003,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
         {
           if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly &&
-              (SrcData->dwFileAttributes & FA_RDONLY))
-            ShellSetAttr(DestPath,SrcData->dwFileAttributes & ~FA_RDONLY);
+              (SrcData.dwFileAttributes & FA_RDONLY))
+            ShellSetAttr(DestPath,SrcData.dwFileAttributes & ~FA_RDONLY);
 
           if (DestAttr!=(DWORD)-1 && LocalStricmp(CopiedName,DestData.cFileName)==0 &&
               strcmp(CopiedName,DestData.cFileName)!=0)
@@ -2076,7 +2127,7 @@ void ShellCopy::PR_ShellCopyMsg(void)
   ((ShellCopy*)PreRedrawParam.Param1)->ShellCopyMsg((char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
-void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
+void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 {
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
@@ -2167,9 +2218,15 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
 }
 
 
-int ShellCopy::ShellCopyConvertWildcards(char *Src,char *Dest)
+int ShellCopy::ShellCopyConvertWildcards(const char *SrcName,char *Dest)
 {
   char WildName[2*NM],*CurWildPtr,*DestNamePtr,*SrcNamePtr;
+  /* $ 25.05.2002 IS
+     Скопируем SrcName во внутренний буфер, т.к. нам надо переменную изменить
+  */
+  char Src[2*NM];
+  strncpy(Src,SrcName,sizeof(Src)-1);
+  /* IS $ */
   char PartBeforeName[NM],PartAfterFolderName[NM];
   DestNamePtr=PointToName(Dest);
   strcpy(WildName,DestNamePtr);
@@ -2289,8 +2346,8 @@ int ShellCopy::DeleteAfterMove(const char *Name,int Attr)
 }
 
 
-int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
-                             char *DestName,DWORD DestAttr,int Append)
+int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
+                             const char *DestName,DWORD DestAttr,int Append)
 {
   if ((ShellCopy::Flags&FCOPY_LINK))
   {
@@ -2310,7 +2367,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
   }
 
   SECURITY_ATTRIBUTES sa;
-  if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,&sa))
+  if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
     return(COPY_CANCEL);
   int OpenMode=FILE_SHARE_READ;
   if (Opt.CopyOpened)
@@ -2329,7 +2386,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
     DestHandle=CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,
                           (ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL,
                           Append ? OPEN_EXISTING:CREATE_ALWAYS,
-                          SrcData->dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+                          SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
     if (DestHandle==INVALID_HANDLE_VALUE)
     {
       DWORD LastError=GetLastError();
@@ -2506,7 +2563,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
           }
           DestHandle=CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,NULL,
                                 Append ? OPEN_EXISTING:CREATE_ALWAYS,
-                                SrcData->dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+                                SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
 
           if (DestHandle==INVALID_HANDLE_VALUE ||
               Append && SetFilePointer(DestHandle,0,NULL,FILE_END)==0xFFFFFFFF)
@@ -2570,7 +2627,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
     /* VVM $ */
 
     WrittenSize+=BytesWritten;
-    int64 FileSize(SrcData->nFileSizeHigh,SrcData->nFileSizeLow);
+    int64 FileSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
     ShowBar(WrittenSize,FileSize,false);
     if (ShowTotalCopySize)
     {
@@ -2581,13 +2638,13 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
   }
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
-    SetFileTime(DestHandle,NULL,NULL,&SrcData->ftLastWriteTime);
+    SetFileTime(DestHandle,NULL,NULL,&SrcData.ftLastWriteTime);
     CloseHandle(SrcHandle);
     CloseHandle(DestHandle);
 
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
-        (SrcData->dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
-      ShellSetAttr(DestName,SrcData->dwFileAttributes);
+        (SrcData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
+      ShellSetAttr(DestName,SrcData.dwFileAttributes);
   }
   else
     CloseHandle(SrcHandle);
@@ -2718,8 +2775,9 @@ void ShellCopy::SetDestDizPath(const char *DestPath)
 }
 
 
-int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
-               DWORD DestAttr,int SameName,int Rename,int AskAppend,
+int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
+               const char *DestName, DWORD DestAttr,
+               int SameName,int Rename,int AskAppend,
                int &Append,int &RetCode)
 {
   HANDLE FindHandle;
@@ -2763,9 +2821,9 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
         FindClose(FindHandle);
       DestDataFilled=TRUE;
       char SrcFileStr[512],DestFileStr[512],DateText[20],TimeText[20];
-      ConvertDate(&SrcData->ftLastWriteTime,DateText,TimeText,8);
+      ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8);
 
-      int64 SrcSize(SrcData->nFileSizeHigh,SrcData->nFileSizeLow);
+      int64 SrcSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
       char SrcSizeText[20];
       SrcSize.itoa(SrcSizeText);
       int64 DestSize(DestData.nFileSizeHigh,DestData.nFileSizeLow);
@@ -2777,7 +2835,7 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
       if((ShellCopy::Flags&FCOPY_ONLYNEWERFILES))
       {
         // сравним время
-        int RetCompare=CompareFileTime(&DestData.ftLastWriteTime,&SrcData->ftLastWriteTime);
+        int RetCompare=CompareFileTime(&DestData.ftLastWriteTime,&SrcData.ftLastWriteTime);
         if(RetCompare < 0)
           MsgCode=0;
         else
@@ -2786,7 +2844,7 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
       else
       {
         sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
-        ConvertDate(&DestData.ftLastWriteTime,DateText,TimeText,8);
+        ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8);
         sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
         SetMessageHelp("CopyFiles");
@@ -2842,16 +2900,16 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
         }
         char SrcFileStr[512],DestFileStr[512],DateText[20],TimeText[20];
 
-        int64 SrcSize(SrcData->nFileSizeHigh,SrcData->nFileSizeLow);
+        int64 SrcSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
         char SrcSizeText[20];
         SrcSize.itoa(SrcSizeText);
         int64 DestSize(DestData.nFileSizeHigh,DestData.nFileSizeLow);
         char DestSizeText[20];
         DestSize.itoa(DestSizeText);
 
-        ConvertDate(&SrcData->ftLastWriteTime,DateText,TimeText,8);
+        ConvertDate(SrcData.ftLastWriteTime,DateText,TimeText,8);
         sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
-        ConvertDate(&DestData.ftLastWriteTime,DateText,TimeText,8);
+        ConvertDate(DestData.ftLastWriteTime,DateText,TimeText,8);
         sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
         SetMessageHelp("CopyFiles");
@@ -2893,7 +2951,7 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
 }
 
 
-int ShellCopy::GetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa)
+int ShellCopy::GetSecurity(const char *FileName,SECURITY_ATTRIBUTES &sa)
 {
   char AnsiName[NM];
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
@@ -2910,19 +2968,19 @@ int ShellCopy::GetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa)
                 MSG(MCannotGetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
       return(FALSE);
   }
-  sa->nLength=sizeof(SECURITY_ATTRIBUTES);
-  sa->lpSecurityDescriptor=sd;
-  sa->bInheritHandle=FALSE;
+  sa.nLength=sizeof(SECURITY_ATTRIBUTES);
+  sa.lpSecurityDescriptor=sd;
+  sa.bInheritHandle=FALSE;
   return(TRUE);
 }
 
 
-int ShellCopy::SetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa)
+int ShellCopy::SetSecurity(const char *FileName,const SECURITY_ATTRIBUTES &sa)
 {
   char AnsiName[NM];
   SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
   OemToChar(FileName,AnsiName);
-  if (!SetFileSecurity(AnsiName,si,sa->lpSecurityDescriptor))
+  if (!SetFileSecurity(AnsiName,si,sa.lpSecurityDescriptor))
   {
     int LastError=GetLastError();
     if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
@@ -2939,7 +2997,7 @@ typedef BOOL (WINAPI *COPYFILEEX)(LPCTSTR lpExistingFileName,
             LPCTSTR lpNewFileName,void *lpProgressRoutine,
             LPVOID lpData,LPBOOL pbCancel,DWORD dwCopyFlags);
 
-int ShellCopy::ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *SrcData)
+int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WIN32_FIND_DATA &SrcData)
 {
   static COPYFILEEX pCopyFileEx=NULL;
   static int LoadAttempt=FALSE;
@@ -2954,7 +3012,7 @@ int ShellCopy::ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *Src
 
 
   SECURITY_ATTRIBUTES sa;
-  if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,&sa))
+  if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
     return(COPY_CANCEL);
 
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
@@ -2969,7 +3027,7 @@ int ShellCopy::ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *Src
   {
     if (ShowTotalCopySize)
     {
-      int64 AddSize(SrcData->nFileSizeHigh,SrcData->nFileSizeLow);
+      int64 AddSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
       CurCopySize+=AddSize;
       ShowBar(CurCopySize,TotalCopySize,true);
       ShowTitle(FALSE);
@@ -2978,7 +3036,7 @@ int ShellCopy::ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *Src
       return(COPY_FAILURE);
   }
 
-  if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !SetSecurity(DestName,&sa))
+  if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !SetSecurity(DestName,sa))
     return(COPY_CANCEL);
   return(COPY_SUCCESS);
 }
@@ -3097,35 +3155,53 @@ void ShellCopy::ShowTitle(int FirstTime)
 }
 
 
+/* $ 25.05.2002 IS
+ + Всегда работаем с реальными _длинными_ именами, в результате чего
+   отлавливается ситуация, когда
+   Src="D:\Program Files\filename"
+   Dest="D:\PROGRA~1\filename"
+   ("D:\PROGRA~1" - короткое имя для "D:\Program Files")
+   считается, что имена тоже одинаковые, а раньше считалось,
+   что они разные (функция не знала, что и в первом, и во втором случае
+   путь один и тот же)
+ ! Оптимизация - "велосипед" заменен на DeleteEndSlash
+ ! Убираем всю самодеятельность по проверке имен с разным
+   регистром из функции прочь, потому что это нужно делать только при
+   переименовании, а функция вызывается и при копировании тоже. Все это
+   должно обрабатываться не в ней, а там же, где и RenameToShortName.
+   Теперь функция вернет 1, для случая имен src=path\filename,
+   dest=path\filename (раньше возвращала 2 - т.е. сигнал об ошибке).
+*/
 int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
 {
   char SrcFullName[1024],DestFullName[1024];
   int I;
 
+  // получим полные пути с учетом символических связей
   if (ConvertNameToReal(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
-    return(2);
+    return 2;
   if (ConvertNameToReal(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
-    return(2);
-_SVS(SysLog("SrcFullName=%s",SrcFullName));
-_SVS(SysLog("DestFullName=%s",DestFullName));
+    return 2;
+
+  // уберем мусор из имен
   for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;
-
-  if(SrcFullName[strlen(SrcFullName)-1] == '\\')
-    SrcFullName[strlen(SrcFullName)-1]=0;
-
+  DeleteEndSlash(SrcFullName);
   for (I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
     DestFullName[I]=0;
+  DeleteEndSlash(DestFullName);
 
-  if(DestFullName[strlen(DestFullName)-1] == '\\')
-    DestFullName[strlen(DestFullName)-1]=0;
+  // избавимся от коротких имен
+  I=RawConvertShortNameToLongName(SrcFullName,SrcFullName,sizeof(SrcFullName));
+  if(!I || I>=sizeof(SrcFullName))
+    return 2;
+  I=RawConvertShortNameToLongName(DestFullName,DestFullName,sizeof(DestFullName));
+  if(!I || I>=sizeof(DestFullName))
+    return 2;
 
-//_SVS(SysLog("\nSrcFullName ='%s'\nDestFullName='%s'",SrcFullName,DestFullName));
-  if (LocalStricmp(SrcFullName,DestFullName)!=0)
-    return(0);
-
-  return(strcmp(PointToName(SrcFullName),PointToName(DestFullName))==0 ? 2:1);
+  return LocalStricmp(SrcFullName,DestFullName)==0;
 }
+/* IS $ */
 
 // Кусок для создания SymLink для каталогов.
 int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
@@ -3364,4 +3440,16 @@ int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
     return TRUE;
   }
   return FALSE;
+}
+
+BOOL ShellCopy::MoveFileThroughTemp(const char *Src, const char *Dest)
+{
+  char Temp[NM];
+  BOOL rc = FALSE;
+  if(FarMkTempEx(Temp, NULL, FALSE))
+  {
+    if(MoveFile(Src, Temp))
+      rc = MoveFile(Temp, Dest);
+  }
+  return rc;
 }

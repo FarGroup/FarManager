@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.115 24.05.2002 $ */
+/* Revision: 1.116 25.05.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    ! первый параметр у ConvertDate теперь ссылка на константу
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   18.05.2002 SVS
@@ -1925,7 +1927,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   /* KM $ */
 
   sprintf(FileText," %-30.30s %10.10s",DisplayName,SizeText);
-  ConvertDate(&FindData->ftLastWriteTime,DateStr,TimeStr,5);
+  ConvertDate(FindData->ftLastWriteTime,DateStr,TimeStr,5);
   sprintf(Date,"    %s   %s",DateStr,TimeStr);
   strcat(FileText,Date);
   sprintf(MenuText," %-*.*s",DlgWidth-3,DlgWidth-3,FileText);

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.155 24.05.2002 $ */
+/* Revision: 1.156 25.05.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    ! первый параметр у ConvertDate теперь ссылка на константу
   24.05.2002 SVS
     + _INPUT_RECORD_Dump - вывод в лог информацию о INPUT_RECORD
     + _FCTLLOG
@@ -627,7 +629,7 @@ const char *GetCommaWord(const char *Src,char *Word,char Separator=',');
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner);
 
-void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
+void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.51 26.04.2002 $ */
+/* Revision: 1.52 25.05.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    ! первый параметр у ConvertDate теперь ссылка на константу
   26.04.2002 SVS
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   05.04.2002 SVS
@@ -399,7 +401,7 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             GetSystemTimeAsFileTime(&ft);
           else
             ft=*(FILETIME *)Param2;
-          ConvertDate(&ft,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(ft,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
         }
         else if(!Param2) // Clear
         {
@@ -622,9 +624,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
           {
             FindClose(FindHandle);
-            ConvertDate(&FindData.ftLastWriteTime, AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(&FindData.ftCreationTime,  AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-            ConvertDate(&FindData.ftLastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftLastWriteTime, AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftCreationTime,  AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(FindData.ftLastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
           }
           AttrDlg[4].Selected=(FileAttr & FA_RDONLY)!=0;
           AttrDlg[5].Selected=(FileAttr & FA_ARCH)!=0;
@@ -717,9 +719,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
         {
           FindClose(FindHandle);
-          ConvertDate(&FindData.ftLastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(&FindData.ftCreationTime,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(&FindData.ftLastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(FindData.ftLastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(FindData.ftCreationTime,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
+          ConvertDate(FindData.ftLastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
         }
       }
     }

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.125 22.05.2002 $ */
+/* Revision: 1.126 25.05.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    ! первый параметр у ConvertDate теперь ссылка на константу
   22.05.2002 SVS
     + IsDiskInDrive()
   29.04.2002 SVS
@@ -469,7 +471,7 @@ DWORD NTTimeToDos(FILETIME *ft)
 }
 
 
-void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
+void ConvertDate(const FILETIME &ft,char *DateText,char *TimeText,int TimeLength,
                  int Brief,int TextMonth,int FullYear,int DynInit)
 {
   static int WDateFormat,WDateSeparator,WTimeSeparator;
@@ -495,7 +497,7 @@ void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
   SYSTEMTIME st;
   FILETIME ct;
 
-  if (ft->dwHighDateTime==0)
+  if (ft.dwHighDateTime==0)
   {
     if (DateText!=NULL)
       *DateText=0;
@@ -504,7 +506,7 @@ void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
     return;
   }
 
-  FileTimeToLocalFileTime(ft,&ct);
+  FileTimeToLocalFileTime(&ft,&ct);
   FileTimeToSystemTime(&ct,&st);
 
   if (TimeText!=NULL)

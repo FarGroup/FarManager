@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.25 22.03.2002 $ */
+/* Revision: 1.26 25.03.2002 $ */
 
 /*
 Modify:
+  25.05.2002 IS
+    ! первый параметр у ConvertDate теперь ссылка на константу
   22.03.2002 SVS
     - strcpy - Fuck!
   21.03.2002 DJ
@@ -945,14 +947,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
             case DATE_COLUMN:
               {
                 char OutStr[30];
-                ConvertDate(&CurPtr->WriteTime,OutStr,NULL,0,FALSE,FALSE,ColumnWidth>9);
+                ConvertDate(CurPtr->WriteTime,OutStr,NULL,0,FALSE,FALSE,ColumnWidth>9);
                 mprintf("%*.*s",ColumnWidth,ColumnWidth,OutStr);
               }
               break;
             case TIME_COLUMN:
               {
                 char OutStr[30];
-                ConvertDate(&CurPtr->WriteTime,NULL,OutStr,ColumnWidth);
+                ConvertDate(CurPtr->WriteTime,NULL,OutStr,ColumnWidth);
                 mprintf("%*.*s",ColumnWidth,ColumnWidth,OutStr);
               }
               break;
@@ -984,7 +986,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                     FullYear=TRUE;
                 }
                 char DateStr[30],TimeStr[30],OutStr[30];
-                ConvertDate(FileTime,DateStr,TimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
+                ConvertDate(*FileTime,DateStr,TimeStr,ColumnWidth-9,Brief,TextMonth,FullYear);
                 sprintf(OutStr,"%s %s",DateStr,TimeStr);
                 mprintf("%*.*s",ColumnWidth,ColumnWidth,OutStr);
               }
