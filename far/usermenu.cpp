@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.37 07.08.2001 $ */
+/* Revision: 1.38 14.08.2001 $ */
 
 /*
 Modify:
+  14.08.2001 SVS
+    ! —окращение кода за счет исключени€ повтор€ющихс€ последовательностей
   07.08.2001 SVS
     + ’откей ' ' теперь не жилец :-)
     ! по разному оформл€ем строку дл€ меню - ≈сли хоткей - Fx, то
@@ -621,17 +623,24 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
 
-      NumLine=FillUserMenu(UserMenu,MenuKey,MenuPos,FuncPos,Name,ShortName);
+//      NumLine=FillUserMenu(UserMenu,MenuKey,MenuPos,FuncPos,Name,ShortName);
 
       {
         MenuModified=TRUE;
         while (!UserMenu.Done())
         {
-          if (MenuModified==TRUE){
+          if (MenuModified==TRUE)
+          {
+            UserMenu.Hide(); // спр€чем
+            // "изнасилуем" (перезаполним :-)
+            NumLine=FillUserMenu(UserMenu,MenuKey,MenuPos,FuncPos,Name,ShortName);
+            // заставим манагер менюхи корректно отрисовать ширину и
+            // высоту, а заодно и скорректировать вертикальные позиции
+            UserMenu.SetPosition(-1,-1,-1,-1);
             UserMenu.Show();
             MenuModified=FALSE;
           }
-          int SelectPos=UserMenu.GetSelectPos();
+          MenuPos=UserMenu.GetSelectPos();
           int Key=UserMenu.ReadInput();
           if (Key>=KEY_F1 && Key<=KEY_F12)
           {
@@ -648,37 +657,17 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
           switch(Key)
           {
             case KEY_DEL:
-              if (SelectPos<NumLine)
-              {
-                if (DeleteMenuRecord(MenuKey,SelectPos))
-                {
-                  UserMenu.Hide(); // спр€чем
-                  // "изнасилуем" (перезаполним :-)
-                  NumLine=FillUserMenu(UserMenu,MenuKey,SelectPos,FuncPos,Name,ShortName);
-                  // заставим манагер менюхи корректно отрисовать ширину и
-                  // высоту, а заодно и скорректировать вертикальные позиции
-                  UserMenu.SetPosition(-1,-1,-1,-1);
-                  // заставим перерисоватьс€ ;-)
-                  MenuModified=TRUE;
-                }
-              }
+              if (MenuPos<NumLine)
+                DeleteMenuRecord(MenuKey,MenuPos);
+              MenuModified=TRUE;
               break;
             case KEY_INS:
             case KEY_F4:
             case KEY_SHIFTF4:
-              if (Key != KEY_INS && SelectPos>=NumLine)
+              if (Key != KEY_INS && MenuPos>=NumLine)
                 break;
-              else
-              {
-                if (EditMenuRecord(MenuKey,SelectPos,NumLine,Key == KEY_INS))
-                {
-                // все махинации аналогичны при Del
-                  UserMenu.Hide();
-                  NumLine=FillUserMenu(UserMenu,MenuKey,SelectPos,FuncPos,Name,ShortName);
-                  UserMenu.SetPosition(-1,-1,-1,-1);
-                  MenuModified=TRUE;
-                }
-              }
+              EditMenuRecord(MenuKey,MenuPos,NumLine,Key == KEY_INS);
+              MenuModified=TRUE;
               break;
             case KEY_ALTF4:
               if (RegVer)

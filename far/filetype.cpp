@@ -5,10 +5,13 @@ filetype.cpp
 
 */
 
-/* Revision: 1.28 13.08.2001 $ */
+/* Revision: 1.29 14.08.2001 $ */
 
 /*
 Modify:
+  14.08.2001 SVS
+    - ѕроблемы с отрисовкой - когда был амперсанд и он сто€л гораздо дальше
+      отображаемой области
   13.08.2001 SVS
     - ѕроблемы с отрисовкой - это все рекурси€ нам жизнь поганит
   03.08.2001 SVS
@@ -260,7 +263,10 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
           strcpy(Title,Descriptions[I]);
         else
           *Title=0;
-        int Ampersand=strchr(Title,'&')!=NULL;
+        char *PtrAmp;
+        int Ampersand=(PtrAmp=strchr(Title,'&'))!=NULL;
+        if(DizWidth+Ampersand > ScrX/2 && PtrAmp && PtrAmp-Title > DizWidth)
+          Ampersand=0;
         sprintf(MenuText,"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,Title,VerticalLine);
       }
       TruncStr(CommandText,Min(ScrX,(int)sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
@@ -506,7 +512,10 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
         strcpy(Title,Description);
       else
         *Title=0;
-      int Ampersand=strchr(Title,'&')!=NULL;
+      char *PtrAmp;
+      int Ampersand=(PtrAmp=strchr(Title,'&'))!=NULL;
+      if(DizWidth+Ampersand > ScrX/2 && PtrAmp && PtrAmp-Title > DizWidth)
+        Ampersand=0;
       sprintf(MenuText,"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,Title,VerticalLine);
     }
     TruncStr(Mask,Min(ScrX,(int)sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
@@ -540,7 +549,8 @@ void EditFileTypes(int MenuPos)
       MenuModified=TRUE;
       while (!TypesMenu.Done())
       {
-        if (MenuModified==TRUE){
+        if (MenuModified==TRUE)
+        {
           TypesMenu.Hide();
           NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
           TypesMenu.SetPosition(-1,-1,-1,-1);
@@ -552,18 +562,18 @@ void EditFileTypes(int MenuPos)
         {
           case KEY_DEL:
             if (MenuPos<NumLine)
-              if (DeleteTypeRecord(MenuPos))
-                MenuModified=TRUE;
+              DeleteTypeRecord(MenuPos);
+            MenuModified=TRUE;
             break;
           case KEY_INS:
-            if (EditTypeRecord(MenuPos,NumLine,1))
-              MenuModified=TRUE;
+            EditTypeRecord(MenuPos,NumLine,1);
+            MenuModified=TRUE;
             break;
           case KEY_ENTER:
           case KEY_F4:
             if (MenuPos<NumLine)
-              if (EditTypeRecord(MenuPos,NumLine,0))
-                MenuModified=TRUE;
+              EditTypeRecord(MenuPos,NumLine,0);
+            MenuModified=TRUE;
             break;
           default:
             TypesMenu.ProcessInput();

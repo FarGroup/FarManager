@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.52 07.08.2001 $ */
+/* Revision: 1.53 14.08.2001 $ */
 
 /*
 Modify:
+  14.08.2001 SVS
+    ! уточнение пересчета координат при автоцентировании
   07.08.2001 SVS
     - неверно в прошлой серии велся пересчет координат.
   06.08.2001 SVS
@@ -450,7 +452,7 @@ void VMenu::Show()
   if (X1<2)
     X1=2;
   if (X2<=0)
-    X2=X1+MaxLength+4;
+    X2=X1+MaxLength+3;
   if (!AutoCenter && X2>ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
     X1+=ScrX-4-X2;
