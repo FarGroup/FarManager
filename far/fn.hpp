@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.61 27.02.2001 $ */
+/* Revision: 1.62 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 SVS
+   ! CenterStr возвращает указатель на Dest
   27.02.2001 SVS
    + BoxText(Char) - вывод одного символа
   22.02.2001 SVS
@@ -370,7 +372,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
 char *NullToEmpty(char *Str);
-void CenterStr(char *Src,char *Dest,int Length);
+char* CenterStr(char *Src,char *Dest,int Length);
 char *GetCommaWord(char *Src,char *Word);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner);

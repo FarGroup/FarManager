@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.17 30.01.2001 $ */
+/* Revision: 1.18 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 SVS
+    - Бага в Win2K с взаимоисключениями Сжатого и Шифрованного атрибута
+    + Выставляем заголовок консоли во время процесса установки атрибутов
+    + В месаге процесса установки отображаем текущЕЕ файлО.
   30.01.2001 SVS
     ! снимаем 3-state, если "есть все или нет ничего"
       за исключением случая, если есть Фолдер среди объектов
@@ -65,6 +69,7 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
+int OriginalCBAttr0[16]; // значения CheckBox`ов на момент старта диалога
 int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
 int OriginalCBAttr2[16]; //
 DWORD OriginalCBFlag[16];
@@ -138,11 +143,6 @@ static void IncludeExcludeAttrib(int FocusPos,struct DialogItem *Item, int Focus
     Item[FocusPosSkip].Selected=0;
   if(FocusPos == FocusPosSkip && Item[FocusPosSkip].Selected && Item[FocusPosSet].Selected)
     Item[FocusPosSet].Selected=0;
-  if(Item[FocusPosSet].Selected == 2 || Item[FocusPosSkip].Selected == 2)
-  {
-    Item[FocusPosSkip].Selected=2;
-    Item[FocusPosSet].Selected=2;
-  }
 }
 
 
@@ -460,7 +460,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     // запомним состояние переключателей.
     for(I=4; I <= 9; ++I)
     {
-      OriginalCBAttr[I-4]=AttrDlg[I].Selected;
+      OriginalCBAttr0[I-4]=OriginalCBAttr[I-4]=AttrDlg[I].Selected;
       OriginalCBAttr2[I-4]=-1;
       OriginalCBFlag[I-4]=AttrDlg[I].Flags;
     }
@@ -558,6 +558,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     else
     {
       int SetAttr,ClearAttr,Cancel=0;
+      char OldConsoleTitle[NM], OutFileName[72],TmpFileName[72];
 
 //      EmptyDialog(AttrDlg,1,SelCount==1);
 
@@ -571,6 +572,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         while (1)
         {
           int Sel11=AttrDlg[11].Selected;
+          int Sel8=AttrDlg[8].Selected;
+          int Sel9=AttrDlg[9].Selected;
           while (!Dlg.Done())
           {
             Dlg.ReadInput();
@@ -581,9 +584,26 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                  (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
                (FocusPos == 8 || FocusPos == 9))
             {
-              IncludeExcludeAttrib(FocusPos,AttrDlg,8,9);
-              RefreshNeed=TRUE;
+              if(FocusPos == 8 && Sel8 != AttrDlg[8].Selected) // Состояние изменилось?
+              {
+                if(AttrDlg[8].Selected == 1 && AttrDlg[9].Selected)
+                   AttrDlg[9].Selected=0;
+                else if(AttrDlg[8].Selected == 2)
+                   AttrDlg[9].Selected=2;
+                RefreshNeed=TRUE;
+              }
+              else if(FocusPos == 9 && Sel9 != AttrDlg[9].Selected) // Состояние изменилось?
+              {
+                if(AttrDlg[9].Selected == 1 && AttrDlg[8].Selected)
+                   AttrDlg[8].Selected=0;
+                else if(AttrDlg[9].Selected == 2)
+                   AttrDlg[8].Selected=2;
+                RefreshNeed=TRUE;
+              }
+              Sel9=AttrDlg[9].Selected;
+              Sel8=AttrDlg[8].Selected;
             }
+
             // если снимаем атрибуты для SubFolders
             // этот кусок всегда работает если есть хотя бы одна папка
             // иначе 11-й недоступен и всегда снят.
@@ -704,12 +724,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       else if (!AttrDlg[9].Selected)
         ClearAttr|=FILE_ATTRIBUTE_ENCRYPTED;
 
-      Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting));
+      // добавим заголовок окна
+      GetConsoleTitle(OldConsoleTitle,sizeof(OldConsoleTitle));
+      SetFarTitle(MSG(MSetAttrTitle));
+
       SrcPanel->GetSelName(NULL,FileAttr);
       while (SrcPanel->GetSelName(SelName,FileAttr) && !Cancel)
       {
 //SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 // SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr)));
+        Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),
+          CenterStr(TruncPathStr(strcpy(OutFileName,SelName),40),OutFileName,44));
 
         if (CheckForEsc())
           break;
@@ -757,6 +782,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           ScTree.SetFindPath(SelName,"*.*");
           while (ScTree.GetNextName(&FindData,FullName))
           {
+            Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),
+              CenterStr(TruncPathStr(strcpy(OutFileName,FullName),40),OutFileName,44));
             if (CheckForEsc())
             {
               Cancel=1;
@@ -814,7 +841,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             }
           }
         }
-      }
+      } // END: while (SrcPanel->GetSelName(...))
+      SetConsoleTitle(OldConsoleTitle);
     }
   }
 
@@ -827,4 +855,3 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   AnotherPanel->Redraw();
   return 1;
 }
-

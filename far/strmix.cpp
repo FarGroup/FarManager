@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.02 22.02.2001 $ */
+/* Revision: 1.02 28.02.2001 $ */
 
 /*
 Modify:
+  28.02.2001 SVS
+    ! CenterStr возвращает указатель на Dest
   22.02.2001 IS
     + RemoveChar - удаляет символ из строки
     ! RemoveHighlights(Str) как макрос (в fn.hpp) - вызывает RemoveChar(Str,'&')
@@ -489,7 +491,7 @@ char *NullToEmpty(char *Str)
 }
 
 
-void CenterStr(char *Src,char *Dest,int Length)
+char* CenterStr(char *Src,char *Dest,int Length)
 {
   char TempSrc[512];
   int SrcLength=strlen(Src);
@@ -501,6 +503,7 @@ void CenterStr(char *Src,char *Dest,int Length)
     int Space=(Length-SrcLength)/2;
     sprintf(Dest,"%*s%s%*s",Space,"",TempSrc,Length-Space-SrcLength,"");
   }
+  return Dest;
 }
 
 
