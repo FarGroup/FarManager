@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.27 07.06.2001 $ */
+/* Revision: 1.28 17.06.2001 $ */
 
 /*
 Modify:
+  17.06.2001 IS
+    - Баг: выбиралось каким-то чудом то, что выбираться не должно, а именно -
+      разделители.
   07.06.2001 SVS
     ! Добавлена предварительная обработка операторов "rem" и "::"
   05.06.2001 KM
@@ -529,7 +532,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
         {
           UserMenuItem.Flags|=LIF_SEPARATOR;
-          UserMenuItem.Flags|=LIF_SELECTED;
+          UserMenuItem.Flags&=~LIF_SELECTED;
           if (NumLine==MenuPos)
             MenuPos++;
         }
@@ -562,7 +565,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       }
 
       *UserMenuItem.Name=0;
-      UserMenuItem.Flags&=LIF_SEPARATOR;
+      UserMenuItem.Flags&=~LIF_SEPARATOR;
       UserMenuItem.SetSelect(NumLine==MenuPos);
       UserMenu.AddItem(&UserMenuItem);
 
