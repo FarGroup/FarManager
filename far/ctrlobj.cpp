@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.07 19.09.2000 $ */
+/* Revision: 1.08 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 IS
+    ! Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
   19.09.2000 SVS
     + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   19.09.2000 SVS
@@ -396,10 +398,11 @@ int ControlObject::ProcessKey(int Key)
         if (!AnotherPanel->ProcessPluginEvent(FE_CLOSE,NULL))
         {
           if (AnotherPanel->GetType()==NewType)
-            if (AnotherPanel==LeftPanel)
-              AnotherPanel=ChangePanel(AnotherPanel,LastLeftType,FALSE,FALSE);
-            else
-              AnotherPanel=ChangePanel(AnotherPanel,LastRightType,FALSE,FALSE);
+          /* $ 19.09.2000 IS
+            Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
+          */
+            AnotherPanel=ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
+          /* IS % */
           else
             AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
@@ -877,4 +880,3 @@ void ControlObject::Redraw()
     MainKeyBar.Redraw();
 }
 /* tran 15.07.2000 $ */
-
