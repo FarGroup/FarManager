@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.13 22.02.2001 $ */
+/* Revision: 1.14 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 VVM
+    ! Если топик не найден - остаемся, где были
+    - В функции ReadPluginsHelp инициализировать CtrlColorChar
   22.02.2001 SVS
     ! в активаторе замена двойных символов ~~ и ## на одинарные эквиваленты
   06.02.2001 SVS
@@ -127,18 +130,22 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags)
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp();
+  /* $ 16.03.2001 VVM
+    ! Если топик не найден - остаемся, где были */
   if (HelpData!=NULL)
   {
     InitKeyBar();
     Process();
+    ShowPrev=Help::ShowPrev;
   }
   else
   {
     if(!(Flags&FHELP_NOSHOWERROR))
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
     ErrorHelp=TRUE;
+    ShowPrev=TRUE;
   }
-  ShowPrev=Help::ShowPrev;
+  /* VVM $ */
 }
 
 
@@ -213,7 +220,6 @@ void Help::ReadHelp(char *Mask)
   }
   else
     CtrlColorChar=0;
-
   *SplitLine=0;
   CurX=CurY=0;
   if (HelpData!=NULL)
@@ -586,7 +592,7 @@ void Help::OutString(char *Str)
       Str++;
       continue;
     }
-    if(*Str == CtrlColorChar)
+    if (*Str == CtrlColorChar)
     {
       WORD Chr;
 
@@ -1000,7 +1006,6 @@ void Help::MoveToReference(int Forward,int CurScreen)
           break;
       }
     }
-
     FastShow();
     if (*SelTopic==0)
       StartSelection=0;
@@ -1045,6 +1050,7 @@ void Help::ReadPluginsHelp()
   TopStr=0;
   TopicFound=TRUE;
   CurX=CurY=0;
+  CtrlColorChar=0;
   char PluginsHelpTitle[100];
   sprintf(PluginsHelpTitle,"^ #%s#",MSG(MPluginsHelpTitle));
   AddLine(PluginsHelpTitle);
