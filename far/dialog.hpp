@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.40 01.11.2001 $ */
+/* Revision: 1.41 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+   ! Заводим доп.параметр struct DialogItem *CurItem у функции
+     SelectFromEditHistory()
   01.11.2001 SVS
    ! MakeDialogItems перехала в dialog.hpp из farconst.hpp
   15.08.2001 SVS
@@ -365,7 +368,7 @@ class Dialog: public Frame
       + Дополнительный параметр в SelectFromEditHistory для выделения
        нужной позиции в истории (если она соответствует строке ввода)
     */
-    void SelectFromEditHistory(Edit *EditLine,char *HistoryName,char *Str,int MaxLen);
+    void SelectFromEditHistory(struct DialogItem *CurItem,Edit *EditLine,char *HistoryName,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX

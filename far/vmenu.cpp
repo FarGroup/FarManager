@@ -8,10 +8,17 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.64 05.11.2001 $ */
+/* Revision: 1.65 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    ! VMENU_REVERSIHLIGHT -> VMENU_REVERSEHIGHLIGHT
+    ! struct FarListInsert.
+         ≈сли Index больше текущего количества элементов списка, то
+         вставл€емый пункт будет добавлен в конец списка.
+         ≈сли Index меньше нул€, то вставл€емый пункт будет добавлен
+         в начало списка.
   05.11.2001 SVS
     ! немного комментариев-разъ€снений по поводу "прикрепленных" данных
   01.11.2001 SVS
@@ -843,8 +850,9 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   struct MenuItem *NewPtr;
   int Length;
 
-  if((DWORD)PosAdd >= (DWORD)ItemCount)
+  if(PosAdd >= ItemCount)
     PosAdd=ItemCount;
+
   if (UpdateRequired())
     VMFlags|=VMENU_UPDATEREQUIRED;
 
@@ -854,10 +862,14 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
       return(0);
     Item=NewPtr;
   }
+
+  // ≈сли < 0 - однозначно ставим в нудевую позицию, т.е добавка сверху
+  if(PosAdd < 0)
+    PosAdd=0;
+
   if(PosAdd < ItemCount)
-  {
     memmove(Item+PosAdd+1,Item+PosAdd,sizeof(struct MenuItem)*(ItemCount-PosAdd)); //??
-  }
+
   Item[PosAdd]=*NewItem;
   Length=strlen(Item[PosAdd].Name);
   if (Length>MaxLength)
@@ -879,8 +891,8 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
       Item[PosAdd].AmpPos=ChPtr-Item[PosAdd].Name;
   }
 
-  if(VMFlags&(VMENU_AUTOHIGHLIGHT|VMENU_REVERSIHLIGHT))
-    AssignHighlights(VMFlags&VMENU_REVERSIHLIGHT);
+  if(VMFlags&(VMENU_AUTOHIGHLIGHT|VMENU_REVERSEHIGHLIGHT))
+    AssignHighlights(VMFlags&VMENU_REVERSEHIGHLIGHT);
 //  if(VMenu::VMFlags&VMENU_LISTBOXSORT)
 //    SortItems(0);
   CallCount--;
@@ -1579,7 +1591,7 @@ void VMenu::AssignHighlights(int Reverse)
           break;
         }
   }
-  VMFlags|=VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSIHLIGHT:0);
+  VMFlags|=VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSEHIGHLIGHT:0);
   VMFlags&=~VMENU_SHOWAMPERSAND;
 }
 

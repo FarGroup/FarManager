@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.30 01.11.2001 $ */
+/* Revision: 1.31 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    ! VMENU_REVERSIHLIGHT -> VMENU_REVERSEHIGHLIGHT
   01.11.2001 SVS
     + немного про "типы" - GetType*()
   13.10.2001 VVM
@@ -146,7 +148,7 @@ enum{
 #define VMENU_LISTBOX               0x00000200
 #define VMENU_SHOWNOBOX             0x00000400
 #define VMENU_AUTOHIGHLIGHT         0x00000800
-#define VMENU_REVERSIHLIGHT         0x00001000
+#define VMENU_REVERSEHIGHLIGHT      0x00001000
 #define VMENU_UPDATEREQUIRED        0x00002000
 #define VMENU_DISABLEDRAWBACKGROUND 0x00004000
 #define VMENU_WRAPMODE              0x00008000
@@ -291,7 +293,7 @@ class VMenu: virtual public Modal, virtual public Frame
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
 
-    int  AddItem(const struct MenuItem *NewItem,int PosAdd=-1);
+    int  AddItem(const struct MenuItem *NewItem,int PosAdd=0x7FFFFFFF);
     int  AddItem(const struct FarList *NewItem);
     int  AddItem(const char *NewStrItem);
 

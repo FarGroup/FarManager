@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.33 24.10.2001 $ */
+/* Revision: 1.34 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    ! Ширина месага при удалении файлов и выставлении атрибутов динамически
+      меняется в сторону увеличения (с подачи SF), начиная с min 30 символов.
   24.10.2001 SVS
     - Уберем флаг MSG_KEEPBACKGROUND для месага.
   23.10.2001 SVS
@@ -519,7 +522,10 @@ void ShellDeleteMsg(char *Name)
 {
   char DelName[NM];
 
-  int Width=WidthNameForMessage; // ширина месага - 38%
+  int Width=Max((int)strlen(Name),(int)30);
+
+  if(Width > WidthNameForMessage)
+    Width=WidthNameForMessage; // ширина месага - 38%
   if(Width >= sizeof(DelName))
     Width=sizeof(DelName)-1;
 

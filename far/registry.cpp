@@ -5,10 +5,13 @@ registry.cpp
 
 */
 
-/* Revision: 1.09 27.09.2001 $ */
+/* Revision: 1.10 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    + EnumRegValue() - перечисление Values у ключа
+    ! Немного const не помешает
   27.09.2001 IS
     - Левый размер при использовании strncpy
   25.06.2001 IS
@@ -43,9 +46,9 @@ Modify:
 #include "global.hpp"
 
 static LONG CloseRegKey(HKEY hKey);
-int CopyKeyTree(char *Src,char *Dest,char *Skip=NULL);
-void DeleteFullKeyTree(char *KeyName);
-static void DeleteKeyTreePart(char *KeyName);
+int CopyKeyTree(const char *Src,const char *Dest,const char *Skip=NULL);
+void DeleteFullKeyTree(const char *KeyName);
+static void DeleteKeyTreePart(const char *KeyName);
 static int DeleteCount;
 
 static HKEY hRegRootKey=HKEY_CURRENT_USER;
@@ -76,7 +79,7 @@ void CloseSameRegKey()
 }
 
 
-void SetRegKey(char *Key,char *ValueName,const char * const ValueData)
+void SetRegKey(const char *Key,const char *ValueName,const char * const ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);
@@ -84,7 +87,7 @@ void SetRegKey(char *Key,char *ValueName,const char * const ValueData)
 }
 
 
-void SetRegKey(char *Key,char *ValueName,DWORD ValueData)
+void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
@@ -92,7 +95,7 @@ void SetRegKey(char *Key,char *ValueName,DWORD ValueData)
 }
 
 
-void SetRegKey(char *Key,char *ValueName,BYTE *ValueData,DWORD ValueSize)
+void SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize)
 {
   HKEY hKey=CreateRegKey(Key);
   RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
@@ -100,7 +103,7 @@ void SetRegKey(char *Key,char *ValueName,BYTE *ValueData,DWORD ValueSize)
 }
 
 
-int GetRegKeySize(char *Key,char *ValueName)
+int GetRegKeySize(const char *Key,const char *ValueName)
 {
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
@@ -119,7 +122,7 @@ int GetRegKeySize(char *Key,char *ValueName)
   Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA
   Если такая ситуация встретилась - получим сколько надо в любом случае
 */
-int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD DataSize)
+int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
@@ -149,7 +152,7 @@ int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD Data
 /* SVS $ */
 
 
-int GetRegKey(char *Key,char *ValueName,int &ValueData,DWORD Default)
+int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
@@ -168,7 +171,7 @@ int GetRegKey(char *Key,char *ValueName,int &ValueData,DWORD Default)
 }
 
 
-int GetRegKey(char *Key,char *ValueName,DWORD Default)
+int GetRegKey(const char *Key,const char *ValueName,DWORD Default)
 {
   int ValueData;
   GetRegKey(Key,ValueName,ValueData,Default);
@@ -176,7 +179,7 @@ int GetRegKey(char *Key,char *ValueName,DWORD Default)
 }
 
 
-int GetRegKey(char *Key,char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize)
+int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize)
 {
   int ExitCode;
   HKEY hKey=OpenRegKey(Key);
@@ -208,7 +211,7 @@ int GetRegKey(char *Key,char *ValueName,BYTE *ValueData,BYTE *Default,DWORD Data
 }
 
 
-HKEY CreateRegKey(char *Key)
+HKEY CreateRegKey(const char *Key)
 {
   if (hRegCurrentKey)
     return(hRegCurrentKey);
@@ -227,7 +230,7 @@ HKEY CreateRegKey(char *Key)
 }
 
 
-HKEY OpenRegKey(char *Key)
+HKEY OpenRegKey(const char *Key)
 {
   if (hRegCurrentKey)
     return(hRegCurrentKey);
@@ -248,7 +251,7 @@ HKEY OpenRegKey(char *Key)
 }
 
 
-void DeleteRegKey(char *Key)
+void DeleteRegKey(const char *Key)
 {
   char FullKeyName[512];
   sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*Key ? "\\":"",Key);
@@ -256,7 +259,7 @@ void DeleteRegKey(char *Key)
 }
 
 
-void DeleteRegValue(char *Key,char *Value)
+void DeleteRegValue(const char *Key,const char *Value)
 {
   HKEY hKey;
   char FullKeyName[512];
@@ -269,7 +272,7 @@ void DeleteRegValue(char *Key,char *Value)
 }
 
 
-void DeleteKeyRecord(char *KeyMask,int Position)
+void DeleteKeyRecord(const char *KeyMask,int Position)
 {
   char FullKeyName[512],NextFullKeyName[512],MaskKeyName[512];
   sprintf(MaskKeyName,"%s%s%s",Opt.RegRoot,*KeyMask ? "\\":"",KeyMask);
@@ -286,7 +289,7 @@ void DeleteKeyRecord(char *KeyMask,int Position)
 }
 
 
-void InsertKeyRecord(char *KeyMask,int Position,int TotalKeys)
+void InsertKeyRecord(const char *KeyMask,int Position,int TotalKeys)
 {
   char FullKeyName[512],PrevFullKeyName[512],MaskKeyName[512];
   sprintf(MaskKeyName,"%s%s%s",Opt.RegRoot,*KeyMask ? "\\":"",KeyMask);
@@ -302,7 +305,7 @@ void InsertKeyRecord(char *KeyMask,int Position,int TotalKeys)
 }
 
 
-int CopyKeyTree(char *Src,char *Dest,char *Skip)
+int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
 {
   HKEY hSrcKey,hDestKey;
   if (RegOpenKeyEx(hRegRootKey,Src,0,KEY_READ,&hSrcKey)!=ERROR_SUCCESS)
@@ -337,7 +340,7 @@ int CopyKeyTree(char *Src,char *Dest,char *Skip)
     if (Skip!=NULL)
     {
       bool Found=false;
-      char *SkipName=Skip;
+      const char *SkipName=Skip;
       while (!Found && *SkipName)
         if (stricmp(SrcKeyName,SkipName)==0)
           Found=true;
@@ -359,7 +362,7 @@ int CopyKeyTree(char *Src,char *Dest,char *Skip)
 }
 
 
-void DeleteKeyTree(char *KeyName)
+void DeleteKeyTree(const char *KeyName)
 {
   char FullKeyName[200];
   sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*KeyName ? "\\":"",KeyName);
@@ -369,7 +372,7 @@ void DeleteKeyTree(char *KeyName)
 }
 
 
-void DeleteFullKeyTree(char *KeyName)
+void DeleteFullKeyTree(const char *KeyName)
 {
   do
   {
@@ -379,7 +382,7 @@ void DeleteFullKeyTree(char *KeyName)
 }
 
 
-void DeleteKeyTreePart(char *KeyName)
+void DeleteKeyTreePart(const char *KeyName)
 {
   HKEY hKey;
   if (RegOpenKeyEx(hRegRootKey,KeyName,0,KEY_READ,&hKey)!=ERROR_SUCCESS)
@@ -404,7 +407,7 @@ void DeleteKeyTreePart(char *KeyName)
    Удаление пустого ключа в том случае, если он не содержит никаких переменных
    и подключей. Возвращает TRUE при успехе.
 */
-int DeleteEmptyKey(HKEY hRoot, char *FullKeyName)
+int DeleteEmptyKey(HKEY hRoot, const char *FullKeyName)
 {
   HKEY hKey;
   int Exist=RegOpenKeyEx(hRoot,FullKeyName,0,KEY_ALL_ACCESS,
@@ -450,7 +453,7 @@ int DeleteEmptyKey(HKEY hRoot, char *FullKeyName)
 /* IS $ */
 
 
-int CheckRegKey(char *Key)
+int CheckRegKey(const char *Key)
 {
   HKEY hKey;
   char FullKeyName[512];
@@ -464,7 +467,7 @@ int CheckRegKey(char *Key)
    Возвращает FALSE, если указанная переменная не содержит данные
    или размер данных равен нулю.
 */
-int CheckRegValue(char *Key,char *ValueName)
+int CheckRegValue(const char *Key,const char *ValueName)
 {
   int ExitCode;
   DWORD DataSize=0;
@@ -482,7 +485,7 @@ int CheckRegValue(char *Key,char *ValueName)
 /* IS $ */
 
 
-int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize)
+int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
 {
   HKEY hKey=OpenRegKey(Key);
   if(hKey)
@@ -501,6 +504,25 @@ int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize)
       strcat(TempName,SubName);
       strncpy(DestName,TempName,DestSize-1);
       return(TRUE);
+    }
+  }
+  return(FALSE);
+}
+
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE Data,DWORD DataSize)
+{
+  HKEY hKey=OpenRegKey(Key);
+  if(hKey)
+  {
+    char ValueName[512];
+    DWORD ValSize=sizeof(ValueName);
+    DWORD Type=REG_SZ;
+    int ExitCode=RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,Data,&DataSize);
+    CloseRegKey(hKey);
+    if (ExitCode==ERROR_SUCCESS)
+    {
+      strncpy(DestName,ValueName,DestSize-1);
+      return TRUE;
     }
   }
   return(FALSE);

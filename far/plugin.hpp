@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.158 05.11.2001 $ */
+/* Revision: 1.159 06.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  06.11.2001 SVS
+    ! DM_LIST[G|S]ETTITLE -> DM_LIST[G|S]ETTITLES
+    ! LINFO_REVERSIHLIGHT -> LINFO_REVERSEHIGHLIGHT
   05.11.2001 SVS
     ! ESPT_SETTABLE -> ESPT_CHARTABLE: все остальные ESPT_* тоже
       устанавливают, но SET  в  их  названии  нету.
@@ -847,8 +850,8 @@ enum FarMessagesProc{
   DM_LISTINFO,
   DM_LISTGETDATA,
   DM_LISTSETDATA,
-  DM_LISTSETTITLE,
-  DM_LISTGETTITLE,
+  DM_LISTSETTITLES,
+  DM_LISTGETTITLES,
 
   DM_RESIZEDIALOG,
   DM_SETITEMPOSITION,
@@ -957,7 +960,7 @@ enum {
   LINFO_ALWAYSSCROLLBAR       =0x00000100,
   LINFO_SHOWNOBOX             =0x00000400,
   LINFO_AUTOHIGHLIGHT         =0x00000800,
-  LINFO_REVERSIHLIGHT         =0x00001000,
+  LINFO_REVERSEHIGHLIGHT      =0x00001000,
   LINFO_WRAPMODE              =0x00008000,
   LINFO_SHOWAMPERSAND         =0x00010000,
 };

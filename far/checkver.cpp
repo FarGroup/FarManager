@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    ! const при передаче в реестр.
   06.05.2001 DJ
     - перетрях #include
   09.04.2001 SVS
@@ -158,7 +160,7 @@ void Register()
   char SaveKey[512];
   strcpy(SaveKey,Opt.RegRoot);
   strcpy(Opt.RegRoot,"Software\\Far");
-  SetRegKey("Registration","Data",(BYTE *)RegData,Size);
+  SetRegKey("Registration","Data",(const BYTE *)RegData,Size);
   strcpy(Opt.RegRoot,SaveKey);
   SetRegRootKey(HKEY_CURRENT_USER);
   Message(0,1,MSG(MRegTitle),MSG(MRegThanks),MSG(MOk));

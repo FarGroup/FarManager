@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.112 18.10.2001 $ */
+/* Revision: 1.113 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    + EnumRegValue() - перечисление Values у ключа
+    ! Немного const для функции работы с реестром
   18.10.2001 SVS
     ! У функций Message параметр Flags имеет суть "DWORD"
     + WordWrap()
@@ -335,7 +338,6 @@ void PutRealText(int X1,int Y1,int X2,int Y2,void *Src);
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
-int CopyKeyTree(char *Src,char *Dest,char *Skip);
 void ShowTime(int ShowAlways);
 int GetDateFormat();
 int GetDateSeparator();
@@ -360,16 +362,7 @@ void BoxText(unsigned char Chr);
 void BoxText(char *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
 void ReopenConsole();
-void DeleteRegKey(char *Key);
-void DeleteRegValue(char *Key,char *Value);
-void DeleteKeyRecord(char *KeyMask,int Position);
-void InsertKeyRecord(char *KeyMask,int Position,int TotalKeys);
-void DeleteKeyTree(char *KeyName);
 void _cdecl CheckReg(void *Param);
-int CheckRegKey(char *Key);
-int CheckRegValue(char *Key,char *ValueName);
-int DeleteEmptyKey(HKEY hRoot, char *FullKeyName);
-int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
 int IsFolderNotEmpty(char *Name);
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
@@ -506,25 +499,36 @@ char* CenterStr(char *Src,char *Dest,int Length);
 const char *GetCommaWord(const char *Src,char *Word,char Separator=',');
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(const char *Computer,const char *Name,char *Owner);
-void UseSameRegKey();
-void CloseSameRegKey();
 
-#if defined(_INC_WINDOWS) || defined(_WINDOWS_)
 void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
+
+// Registry
 void SetRegRootKey(HKEY hRootKey);
-void SetRegKey(char *Key,char *ValueName,const char * const ValueData);
-void SetRegKey(char *Key,char *ValueName,DWORD ValueData);
-void SetRegKey(char *Key,char *ValueName,BYTE *ValueData,DWORD ValueSize);
-int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD DataSize);
-int GetRegKey(char *Key,char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(char *Key,char *ValueName,DWORD Default);
-int GetRegKey(char *Key,char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
-HKEY CreateRegKey(char *Key);
-HKEY OpenRegKey(char *Key);
-int GetRegKeySize(char *Key,char *ValueName);
-#endif
+void SetRegKey(const char *Key,const char *ValueName,const char * const ValueData);
+void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData);
+void SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize);
+int GetRegKey(const char *Key,const char *ValueName,char *ValueData,const char *Default,DWORD DataSize);
+int GetRegKey(const char *Key,const char *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(const char *Key,const char *ValueName,DWORD Default);
+int GetRegKey(const char *Key,const char *ValueName,BYTE *ValueData,const BYTE *Default,DWORD DataSize);
+HKEY CreateRegKey(const char *Key);
+HKEY OpenRegKey(const char *Key);
+int GetRegKeySize(const char *Key,const char *ValueName);
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE Data,DWORD DataSize);
+void DeleteRegKey(const char *Key);
+void DeleteRegValue(const char *Key,const char *Value);
+void DeleteKeyRecord(const char *KeyMask,int Position);
+void InsertKeyRecord(const char *KeyMask,int Position,int TotalKeys);
+void DeleteKeyTree(const char *KeyName);
+int CheckRegKey(const char *Key);
+int CheckRegValue(const char *Key,const char *ValueName);
+int DeleteEmptyKey(HKEY hRoot, const char *FullKeyName);
+int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize);
+int CopyKeyTree(const char *Src,const char *Dest,const char *Skip);
+void UseSameRegKey();
+void CloseSameRegKey();
 
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))

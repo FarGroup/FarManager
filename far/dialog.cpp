@@ -5,10 +5,18 @@ dialog.cpp
 
 */
 
-/* Revision: 1.174 05.11.2001 $ */
+/* Revision: 1.175 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    ! DM_LIST[G|S]ETTITLE -> DM_LIST[G|S]ETTITLES
+    - BugZ#36: проблемы с перерисовкой истории после записи макроса
+      откройте диалог с  историей,  например,  alt-f7,  откройте  историю
+      (ctrl-down), запишите  макрос,  после  назначения  горячей  клавиши
+      история как бы пропадает, видны только ее ошметки, если  понажимать
+      вверх/вниз, то появляются прочие куски истории
+      Сделано через одно место :-( Но работает.
   04.11.2001 SVS
     ! Если DropDown теряет фокус, то не будем отображать его как селектед.
   02.11.2001 SVS
@@ -2115,6 +2123,19 @@ void Dialog::ShowDialog(int ID)
     /* 28.07.2000 SVS $ */
   } // end for (I=...
 
+  // КОСТЫЛЬ!
+  // но работает ;-)
+  for (I=ID; I < DrawItemCount; I++)
+  {
+    CurItem=&Item[I];
+    if((CurItem->Type == DI_EDIT || CurItem->Type == DI_FIXEDIT) &&
+       !(CurItem->Flags&DIF_HIDDEN) &&
+       (CurItem->Flags&DIF_HISTORY) &&
+       CurItem->ListPtr)
+    {
+      CurItem->ListPtr->Show();
+    }
+  }
   /* $ 31.07.2000 SVS
      Включим индикатор перемещения...
   */
@@ -2783,7 +2804,7 @@ int Dialog::ProcessKey(int Key)
         */
         CurEditLine->GetString(PStr,MaxLen);
         /* SVS $ */
-        SelectFromEditHistory(CurEditLine,Item[FocusPos].History,PStr,MaxLen);
+        SelectFromEditHistory(Item+FocusPos,CurEditLine,Item[FocusPos].History,PStr,MaxLen);
         Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
         if(Item[FocusPos].Flags&DIF_VAREDIT)
           free(PStr);
@@ -3867,7 +3888,8 @@ int Dialog::SelectFromComboBox(
   + Дополнительный параметр в SelectFromEditHistory для выделения
    нужной позиции в истории (если она соответствует строке ввода)
 */
-void Dialog::SelectFromEditHistory(Edit *EditLine,
+void Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
+                                   Edit *EditLine,
                                    char *HistoryName,
                                    char *IStr,
                                    int MaxLen)
@@ -3890,7 +3912,6 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
   {
-
     // создание пустого вертикального меню
     VMenu HistoryMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
 
@@ -3906,6 +3927,9 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
 
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
     Done=FALSE;
+
+    // запомним (для прорисовки)
+    CurItem->ListPtr=&HistoryMenu;
 
     while(!Done)
     {
@@ -4079,6 +4103,9 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         IsOk=TRUE;
       }
     }
+
+    // забудим (не нужен)
+    CurItem->ListPtr=NULL;
 
     SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
   }
@@ -4587,8 +4614,8 @@ const char *MsgToName(int Msg)
     DEF_MESSAGE(DM_LISTADDSTR),        DEF_MESSAGE(DM_LISTUPDATE),
     DEF_MESSAGE(DM_LISTINSERT),        DEF_MESSAGE(DM_LISTFINDSTRING),
     DEF_MESSAGE(DM_LISTINFO),          DEF_MESSAGE(DM_LISTGETDATA),
-    DEF_MESSAGE(DM_LISTSETDATA),       DEF_MESSAGE(DM_LISTSETTITLE),
-    DEF_MESSAGE(DM_LISTGETTITLE),      DEF_MESSAGE(DM_RESIZEDIALOG),
+    DEF_MESSAGE(DM_LISTSETDATA),       DEF_MESSAGE(DM_LISTSETTITLES),
+    DEF_MESSAGE(DM_LISTGETTITLES),     DEF_MESSAGE(DM_RESIZEDIALOG),
     DEF_MESSAGE(DM_SETITEMPOSITION),   DEF_MESSAGE(DM_GETDROPDOWNOPENED),
     DEF_MESSAGE(DM_SETDROPDOWNOPENED), DEF_MESSAGE(DM_SETHISTORY),
     DEF_MESSAGE(DM_GETITEMPOSITION),   DEF_MESSAGE(DM_SETMOUSEEVENTNOTIFY),
@@ -4773,8 +4800,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
     case DM_LISTGETDATA: // Param1=ID Param2=Index
     case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
-    case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
-    case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
         VMenu *ListBox;
@@ -4848,14 +4875,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               }
               return 0;
             }
-            case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitles
+            case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles
             {
               struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
               ListBox->SetTitle((!ListTitle)?NULL:ListTitle->Title);
               ListBox->SetBottomTitle((!ListTitle)?NULL:ListTitle->Bottom);
               return TRUE;
             }
-            case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitles
+            case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles
             {
               struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
               if(ListTitle)

@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.42 24.10.2001 $ */
+/* Revision: 1.43 06.11.2001 $ */
 
 /*
 Modify:
+  06.11.2001 SVS
+    ! Ширина месага при удалении файлов и выставлении атрибутов динамически
+      меняется в сторону увеличения (с подачи SF), начиная с min 30 символов.
   24.10.2001 SVS
     - Уберем флаг MSG_KEEPBACKGROUND для месага.
   23.10.2001 SVS
@@ -382,7 +385,11 @@ void ShellSetFileAttributesMsg(char *Name)
 {
   char OutFileName[NM];
 
-  int Width=WidthNameForMessage; // ширина месага - 38%
+  int Width=Max((int)strlen(NullToEmpty(Name)),(int)30);
+
+  if(Width > WidthNameForMessage)
+    Width=WidthNameForMessage; // ширина месага - 38%
+
   if(Width >= sizeof(OutFileName))
     Width=sizeof(OutFileName)-1;
 
