@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.317 05.01.2005 $ */
+/* Revision: 1.318 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 SVS
+    ! костыль для DI_TEXT
   05.01.2005 WARP
     - DN_EDITCHANGE от комбо-бокса приходило с ID не того элемента
   05.01.2005 WARP
@@ -2698,6 +2700,9 @@ void Dialog::ShowDialog(int ID)
 
     Attr=CtlColorDlgItem(I,CurItem->Type,CurItem->Focus,CurItem->Flags);
 
+    // TODO: прежде чем эту строку применять... нужно проверить _ВСЕ_ диалоги на предмет X2, Y2. !!!
+    //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
+
     switch(CurItem->Type)
     {
 /* ***************************************************************** */
@@ -2764,6 +2769,13 @@ void Dialog::ShowDialog(int ID)
 
         if(X1+X+LenText > X2)
            Str[ObjWidth-1]=0;
+
+        // нужно ЭТО
+        //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
+        // вместо этого:
+        SetColor(Attr&0xFF);
+        GotoXY(X1+X,Y1+Y);
+        mprintf("%*s",CX2-CX1+1,"");
 
         if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
