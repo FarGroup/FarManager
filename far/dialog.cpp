@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.265 30.09.2002 $ */
+/* Revision: 1.266 01.10.2002 $ */
 
 /*
 Modify:
+  01.10.2002 SVS
+    - Стандартные цвета листбокса.
   30.09.2002 SVS
     ! SelectFromComboBox имеет первый параметр типа struct DialogItem
     - BugZ#659 - двигаем FDLG_NODRAWSHADOW
@@ -2298,6 +2300,7 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
 
     case DI_LISTBOX:
     {
+      Item[ItemPos].ListPtr->SetColors(NULL);
       return 0;
     }
 
@@ -4600,6 +4603,7 @@ int Dialog::SelectFromComboBox(
     struct FarListColors ListColors={0};
     ListColors.ColorItem=VMENU_COLOR_COUNT;
     ListColors.Colors=RealColors;
+    ComboBox->SetColors(NULL);
     ComboBox->GetColors(&ListColors);
     if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(long)&ListColors))
       ComboBox->SetColors(&ListColors);
