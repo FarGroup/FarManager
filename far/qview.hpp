@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.06 24.12.2001 $ */
+/* Revision: 1.07 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   24.12.2001
     + virtual int GetCurName(char *Name,char *ShortName) - текущий просматриваемый файл
   06.05.2001 DJ
@@ -60,7 +62,7 @@ class QuickView:public Panel
     void ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin);
     void CloseFile();
     void QViewDelTempName();
-    int UpdateIfChanged();
+    virtual int UpdateIfChanged(int UpdateMode);
     /* $ 20.07.2000 tran
        add two new virtual methos - for correct title showing*/
     virtual void SetTitle();

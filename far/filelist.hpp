@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.21 27.11.2001 $ */
+/* Revision: 1.22 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   27.11.2001 SVS
     + GetCurBaseName() выдает на гора имя файлового объекта под курсором
       с учетом вложенности панельного плагина, т.е. имя самого верхнего
@@ -265,7 +267,7 @@ class FileList:public Panel
       Параметр для игнорирования времени последнего Update.
       Используется для Update после исполнения команды.
     */
-    int UpdateIfChanged(int Force=0);
+    virtual int UpdateIfChanged(int UpdateMode);
     /* SKV$*/
     void CreateChangeNotification(int CheckTree);
     void CloseChangeNotification();

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.23 16.01.2002 $ */
+/* Revision: 1.24 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   16.01.2002 SVS
     ! уточнение кейбара для варианта с каталогом (косметика)
   24.12.2001
@@ -498,7 +500,7 @@ void QuickView::PrintText(char *Str)
 }
 
 
-int QuickView::UpdateIfChanged()
+int QuickView::UpdateIfChanged(int UpdateMode)
 {
   if (IsVisible() && *CurFileName && Directory==2)
   {

@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.13 09.02.2002 $ */
+/* Revision: 1.14 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   09.02.2002 VVM
     ! ProcessDelDisk возвращает
       enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT}
@@ -88,6 +90,8 @@ enum {NORMAL_PANEL,PLUGIN_PANEL};
 
 enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT};
 
+enum {UIC_UPDATE_NORMAL, UIC_UPDATE_FORCE, UIC_UPDATE_FORCE_NOTIFICATION};
+
 class Panel:public ScreenObject
 {
   protected:
@@ -154,7 +158,7 @@ class Panel:public ScreenObject
       Параметр для игнорирования времени последнего Update.
       Используется для Update после исполнения команды.
     */
-    virtual int UpdateIfChanged(int Force=0) {return(0);};
+    virtual int UpdateIfChanged(int UpdateMode) {return(0);};
     /* SKV$*/
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(char *Name,int Next) {return(FALSE);}

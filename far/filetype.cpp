@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.34 11.02.2002 $ */
+/* Revision: 1.35 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   11.02.2002 SVS
     ! Частичная отмена патча от 25.01.2002 - вернем взад.
   30.01.2002 SVS
@@ -339,8 +341,8 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
           ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
                            // проредравив экран забьет последнюю строку вывода.
         }
-        CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1);
-        CtrlObject->Cp()->RightPanel->UpdateIfChanged(1);
+        CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+        CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
         CtrlObject->Cp()->Redraw();
 #endif
       }

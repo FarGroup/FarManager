@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.63 05.02.2002 $ */
+/* Revision: 1.64 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   05.02.2002 SVS
     ! технологический патч - про сислоги
     + SpecKeyName - доступно только при отладке (SysLog)
@@ -552,8 +554,8 @@ int GetInputRecord(INPUT_RECORD *rec)
           if (!UpdateReenter && CurTime-KeyPressedLastTime>700)
           {
             UpdateReenter=TRUE;
-            CtrlObject->Cp()->LeftPanel->UpdateIfChanged();
-            CtrlObject->Cp()->RightPanel->UpdateIfChanged();
+            CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+            CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
             UpdateReenter=FALSE;
           }
         }

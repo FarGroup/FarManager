@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.35 16.01.2002 $ */
+/* Revision: 1.36 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   16.01.2002 OT
     Испраление поведения макросов в инфо-, квик- и три-панелей
   02.01.2002 IS
@@ -891,8 +893,8 @@ void FilePanels::OnChangeFocus(int f)
     /*$ 22.06.2001 SKV
       + update панелей при получении фокуса
     */
-    CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(1);
-    ActivePanel->UpdateIfChanged(1);
+    CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
+    ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
     /* SKV$*/
     Redraw();
     Frame::OnChangeFocus(1);

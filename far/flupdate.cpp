@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.28 13.02.2002 $ */
+/* Revision: 1.29 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   13.02.2002 DJ
     ! не выставляем заголовок окна, если мы не текущий фрейм
   24.01.2002 VVM
@@ -482,25 +484,25 @@ void FileList::ReadFileNames(int KeepSelection)
 /*$ 22.06.2001 SKV
   Добавлен параметр для вызова после исполнения команды.
 */
-int FileList::UpdateIfChanged(int Force)
+int FileList::UpdateIfChanged(int UpdateMode)
 {
   //_SVS(SysLog("CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
   if(!Opt.AutoUpdateLimit || FileCount <= Opt.AutoUpdateLimit)
   {
     /* $ 19.12.2001 VVM
       ! Сменим приоритеты. При Force обновление всегда! */
-    if ((IsVisible() && (clock()-LastUpdateTime>2000)) || Force)
+    if ((IsVisible() && (clock()-LastUpdateTime>2000)) || (UpdateMode != UIC_UPDATE_NORMAL))
     {
-      if(!Force)
+      if(UpdateMode == UIC_UPDATE_NORMAL)
         ProcessPluginEvent(FE_IDLE,NULL);
       /* $ 24.12.2002 VVM
         ! Поменяем логику обновления панелей. */
       if(// Нормальная панель, на ней установлено уведомление и есть сигнал
          (PanelMode==NORMAL_PANEL && hListChange!=INVALID_HANDLE_VALUE && WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0) ||
-         // Или Нормальная панель, но нет уведомления и мы попросили обновить через Force
-         (PanelMode==NORMAL_PANEL && hListChange==INVALID_HANDLE_VALUE && Force) ||
-         // Или плагинная панель и обновляем через Force
-         (PanelMode!=NORMAL_PANEL && Force)
+         // Или Нормальная панель, но нет уведомления и мы попросили обновить через UPDATE_FORCE
+         (PanelMode==NORMAL_PANEL && hListChange==INVALID_HANDLE_VALUE && UpdateMode==UIC_UPDATE_FORCE) ||
+         // Или плагинная панель и обновляем через UPDATE_FORCE
+         (PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
         )
       /* VVM $ */
         {
@@ -510,11 +512,11 @@ int FileList::UpdateIfChanged(int Force)
           if (AnotherPanel->GetType()==INFO_PANEL)
           {
             AnotherPanel->Update(UPDATE_KEEP_SELECTION);
-            if(!Force)
+            if (UpdateMode==UIC_UPDATE_NORMAL)
               AnotherPanel->Redraw();
           }
           Update(UPDATE_KEEP_SELECTION);
-          if(!Force)
+          if (UpdateMode==UIC_UPDATE_NORMAL)
             Show();
           return(TRUE);
         }

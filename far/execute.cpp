@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.35 07.02.2002 $ */
+/* Revision: 1.36 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 VVM
+    ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   07.02.2002 SKV
     - Ќе надо при отрыве консоли мен€ть еЄ моду и т.д.
   04.02.2002 SVS
@@ -1064,8 +1066,8 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
           ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
       }
     }
-    CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1);
-    CtrlObject->Cp()->RightPanel->UpdateIfChanged(1);
+    CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+    CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
     CtrlObject->Cp()->Redraw();
   }
   /* VVM $ */
