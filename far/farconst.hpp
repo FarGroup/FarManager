@@ -7,7 +7,7 @@ farconst.hpp
 
 */
 
-/* Revision: 1.04 12.07.2000 $ */
+/* Revision: 1.05 15.07.2000 $ */
 
 /*
 Modify:
@@ -26,6 +26,8 @@ Modify:
     ! Изменения для возможности компиляции под BC & VC
   12.07.2000 SVS
     + Константы для WrapMode во вьювере.
+  15.07.2000 SVS
+    + Константы для Меню от VVM - вынесены из usermenu.cpp
 */
 
 /* $ 29.06.2000 tran
@@ -163,6 +165,21 @@ enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
    + Константы для WrapMode во вьювере.
 */
 enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
+/* SVS $ */
+
+/* $ 15.07.2000 SVS
+   + Константы для Меню от VVM - вынесены из usermenu.cpp
+*/
+// VVM> Режимы показа меню (Menu mode) и Коды выхода из меню (Exit codes)
+enum {MM_LOCAL=0,           // Локальное меню
+      MM_FAR=1,             // Меню из каталога ФАРа
+      MM_MAIN=2};           // Главное меню
+
+enum {EC_CLOSE_LEVEL = -1,  // Выйти из меню на один уровень вверх
+      EC_CLOSE_MENU  =-2,   // Выйти из меню по SHIFT+F10
+      EC_PARENT_MENU =-3,   // Показать меню родительского каталога
+      EC_MAIN_MENU   =-4};  // Показать главное меню
+
 /* SVS $ */
 
 #endif // __FARCONST_HPP__

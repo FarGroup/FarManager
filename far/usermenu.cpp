@@ -5,7 +5,7 @@ User menu и есть
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 14.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,9 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   28.06.2000 tran
     + выход из пользовтельского меню любого уровня вложенности
+  14.07.2000 MVV
+    + Вызов главного меню по SHIFT+F2
+    + Показ меню из родительского каталога по BkSpace
 */
 
 #include "headers.hpp"
@@ -32,27 +35,50 @@ static int EditSubMenu(char *MenuKey,int EditPos,int TotalRecords,int NewRec);
 static void MenuRegToFile(char *MenuKey,FILE *MenuFile);
 static void MenuFileToReg(char *MenuKey,FILE *MenuFile);
 
-static int MainMenu,MainMenuTitle,MenuModified;
-static char MenuRootKey[100],LocalMenuName[100],LocalMenuKey[100];
+static int MenuModified;
+static char MenuRootKey[100],LocalMenuKey[100];
+
+/* $ 14.07.2000 VVM
+   + Режимы показа меню (Menu mode) и Коды выхода из меню (Exit codes)
+   SVS> вынесены в farconst.hpp :-)
+*/
+static int MenuMode;
+/* VVM $ */
 
 void ProcessUserMenu(int EditMenu)
 {
-  char CurDir[NM];
-  CtrlObject->CmdLine.GetCurDir(CurDir);
-  if (chdir(CurDir)==-1)
-    chdir(FarPath);
-
+/* $ 14.07.2000 VVM
+   + Вынес все описания в начало процедуры. Привык я к паскалю :)
+*/
   FILE *MenuFile;
+//  char MenuFileName[NM];
+  char MenuKey[512];
+//  char CurDir[NM];
+  char MenuFilePath[NM];    // Путь к текущему каталогу с файлом LocalMenuFileName
+  char *ChPtr;
+  int  ExitCode = 0;
+/* VVM $ */
 
-  sprintf(LocalMenuName,"LocalMenu%u",clock());
-  sprintf(LocalMenuKey,"UserMenu\\%s",LocalMenuName);
+  CtrlObject->CmdLine.GetCurDir(MenuFilePath);
+/* $ 14.07.2000 VVM
+  ! Менять пока ничего не надо - потом сменим.
+*/
+//  if (chdir(MenuFilePath)==-1)
+//    chdir(FarPath);
+
+//  FILE *MenuFile;
+
+//  sprintf(LocalMenuName,"LocalMenu%u",clock());
+  sprintf(LocalMenuKey,"UserMenu\\LocalMenu%u",clock());
+  MenuMode=MM_LOCAL;
 
   DeleteKeyTree(LocalMenuKey);
+//  char MenuFileName[NM];
 
-  char MenuFileName[NM];
-  strcpy(MenuFileName,LocalMenuFileName);
+//  strcpy(MenuFileName,LocalMenuFileName);
 
-  MainMenuTitle=MainMenu=TRUE;
+//  MainMenuTitle=MainMenu=TRUE;
+/* VVM $ */
 
   MenuModified=FALSE;
 
@@ -62,9 +88,117 @@ void ProcessUserMenu(int EditMenu)
                    MSG(MChooseMenuMain),MSG(MChooseMenuLocal),MSG(MCancel));
     if (EditChoice<0 || EditChoice==2)
       return;
-    MainMenuTitle=MainMenu=(EditChoice==0);
+    if (EditChoice==0)
+    {
+      MenuMode=MM_FAR;
+      strcpy(MenuFilePath, FarPath);
+    } /* if */
   }
+/* $ 14.07.2000 VVM
+   + Почти полностью переписан алгоритм функции ProcessUserMenu. Добавлен цикл.
+*/
+  while((ExitCode!=EC_CLOSE_LEVEL)&&(ExitCode!=EC_CLOSE_MENU))
+  {
 
+    if (MenuMode!=MM_MAIN)
+    {
+      // Пытаемся открыть файл на локальном диске
+      if ((chdir(MenuFilePath)==0) &&
+         ((MenuFile=fopen(LocalMenuFileName,"rb"))!=NULL))
+      {
+        MenuFileToReg(LocalMenuKey, MenuFile);
+        fclose(MenuFile);
+      } /* if */
+      else
+      // Файл не открылся. Смотрим дальше.
+        if (MenuMode==MM_FAR)
+          MenuMode=MM_MAIN;
+        else
+          if (!EditMenu)
+          {
+            ChPtr=strrchr(MenuFilePath, '\\');
+            if (ChPtr!=NULL)
+            {
+              *(ChPtr--)=0;
+              if (*ChPtr!=':')
+                continue;
+            } /* if */
+            strcpy(MenuFilePath, FarPath);
+            MenuMode=MM_FAR;
+            continue;
+          } /* if */
+    } /* if */
+
+    strcpy(MenuRootKey,(MenuMode==MM_MAIN) ? "UserMenu\\MainMenu":LocalMenuKey);
+    ExitCode=ProcessSingleMenu(MenuRootKey, 0);
+
+    // Фаровский кусок по записи файла
+    if ((MenuMode!=MM_MAIN) && (MenuModified))
+    {
+      chdir(MenuFilePath);
+      int FileAttr=GetFileAttributes(LocalMenuFileName);
+      if (FileAttr!=-1)
+      {
+        if (FileAttr & FA_RDONLY)
+        {
+          int AskOverwrite;
+          AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,
+                       MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
+          if (AskOverwrite==0)
+            SetFileAttributes(LocalMenuFileName,FileAttr & ~FA_RDONLY);
+        }
+        if (FileAttr & (FA_HIDDEN|FA_SYSTEM))
+          SetFileAttributes(LocalMenuFileName,0);
+      }
+      if ((MenuFile=fopen(LocalMenuFileName,"wb"))!=NULL)
+      {
+        MenuRegToFile(LocalMenuKey,MenuFile);
+        long Length=filelen(MenuFile);
+        fclose(MenuFile);
+        if (Length==0)
+          remove(LocalMenuFileName);
+      }
+    }
+    if (MenuMode!=MM_MAIN)
+      DeleteKeyTree(LocalMenuKey);
+
+    switch(ExitCode)
+    {
+    case EC_PARENT_MENU:
+      if (MenuMode==MM_LOCAL)
+      {
+        ChPtr=strrchr(MenuFilePath, '\\');
+        if (ChPtr!=NULL)
+        {
+          *(ChPtr--)=0;
+          if (*ChPtr!=':')
+            continue;
+        } /* if */
+        strcpy(MenuFilePath, FarPath);
+        MenuMode=MM_FAR;
+      } /* if */
+      else
+        MenuMode=MM_MAIN;
+      break;
+
+    case EC_MAIN_MENU:
+      if (MenuMode==MM_LOCAL)
+      {
+        strcpy(MenuFilePath, FarPath);
+        MenuMode=MM_FAR;
+      }
+      else
+        MenuMode=MM_MAIN;
+      break;
+    } /* switch */
+  } /* while */
+
+  CtrlObject->CmdLine.GetCurDir(MenuFilePath);
+  chdir(MenuFilePath);
+  CtrlObject->ActivePanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->ActivePanel->Redraw();
+
+/*
   if ((!EditMenu || !MainMenu) && (MenuFile=fopen(MenuFileName,"rb"))!=NULL)
   {
     MenuFileToReg(LocalMenuKey,MenuFile);
@@ -119,9 +253,14 @@ void ProcessUserMenu(int EditMenu)
   }
   if (!MainMenu)
     DeleteKeyTree(LocalMenuKey);
+*/
 }
 
 
+/* $ 14.07.2000 VVM
+   + Вместо TRUE/FALSE возвращает коды EC_*
+*/
+/* VVM $ */
 int ProcessSingleMenu(char *MenuKey,int MenuPos)
 {
   while (1)
@@ -137,7 +276,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     CtrlObject->ActivePanel->GetCurName(Name,ShortName);
 
     {
-      VMenu UserMenu(MainMenuTitle ? MSG(MMainMenuTitle):MSG(MLocalMenuTitle),NULL,0,ScrY-4);
+      VMenu UserMenu((MenuMode!=MM_LOCAL) ? MSG(MMainMenuTitle):MSG(MLocalMenuTitle),NULL,0,ScrY-4);
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
 
@@ -146,7 +285,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       while (1)
       {
         char ItemKey[512],HotKey[10],Label[512],MenuText[512];
-        sprintf(ItemKey,"UserMenu\\%s\\Item%d",MenuKey,NumLine);
+        sprintf(ItemKey,"%s\\Item%d",MenuKey,NumLine);
         if (!GetRegKey(ItemKey,"HotKey",HotKey,"",sizeof(HotKey)))
           break;
         if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
@@ -247,7 +386,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                 remove(MenuFileName);
                 UserMenu.Hide();
                 MenuModified=TRUE;
-                return(FALSE);
+/* $ 14.07.2000 VVM
+   ! Закрыть меню
+*/
+                return(EC_CLOSE_MENU);
+/* VVM $ */
               }
               else
                 Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
@@ -257,9 +400,21 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                вложенности просто задаем ExitCode -1, и возвращаем FALSE -
                по FALSE оно и выйдет откуда угодно */
             case KEY_SHIFTF10:
-              UserMenu.SetExitCode(-1);
-              return(FALSE);
-            /* tran $ */
+//              UserMenu.SetExitCode(-1);
+              return(EC_CLOSE_MENU);
+             /* tran $ */
+/* $ 14.07.2000 VVM
+   + Показать меню из родительского каталога
+*/
+            case KEY_BS:
+                return(EC_PARENT_MENU);
+/* VVM $ */
+/* $ 14.07.2000 VVM
+   + Показать главное меню
+*/
+            case KEY_SHIFTF2:
+                return(EC_MAIN_MENU);
+/* VVM $ */
             default:
               UserMenu.ProcessInput();
               break;
@@ -270,19 +425,28 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     }
 
     if (ExitCode<0 || ExitCode>=NumLine)
-      return(TRUE);
+/* $ 14.07.2000 VVM
+   ! вверх на один уровень
+*/
+      return(EC_CLOSE_LEVEL);
+/* VVM $ */
 
     char CurrentKey[512];
     int SubMenu;
-    sprintf(CurrentKey,"UserMenu\\%s\\Item%d",MenuKey,ExitCode);
+    sprintf(CurrentKey,"%s\\Item%d",MenuKey,ExitCode);
     GetRegKey(CurrentKey,"Submenu",SubMenu,0);
 
     if (SubMenu)
     {
       char SubMenuKey[512];
       sprintf(SubMenuKey,"%s\\Item%d",MenuKey,ExitCode);
-      if (!ProcessSingleMenu(SubMenuKey,0))
-        return(FALSE);
+/* $ 14.07.2000 VVM
+   ! Если закрыли подменю, то остаться. Инече передать управление выше
+*/
+      MenuPos=ProcessSingleMenu(SubMenuKey,0);
+      if (MenuPos!=EC_CLOSE_LEVEL)
+        return(MenuPos);
+/* VVM $ */
       MenuPos=ExitCode;
       continue;
     }
@@ -334,7 +498,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       if (LeftVisible)
         CtrlObject->LeftPanel->Show();
     }
-    return(FALSE);
+/* $ 14.07.2000 VVM
+   ! Закрыть меню
+*/
+    return(EC_CLOSE_MENU);
+/* VVM $ */
   }
 }
 
@@ -342,14 +510,14 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 int DeleteMenuRecord(char *MenuKey,int DeletePos)
 {
   char RecText[200],ItemName[200],RegKey[512];
-  sprintf(RegKey,"UserMenu\\%s\\Item%d",MenuKey,DeletePos);
+  sprintf(RegKey,"%s\\Item%d",MenuKey,DeletePos);
   GetRegKey(RegKey,"Label",RecText,"",sizeof(RecText));
   sprintf(ItemName,"\"%s\"",RecText);
   if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(MAskDeleteMenuItem),
               ItemName,MSG(MDelete),MSG(MCancel))!=0)
     return(FALSE);
   MenuModified=TRUE;
-  sprintf(RegKey,"UserMenu\\%s\\Item%%d",MenuKey);
+  sprintf(RegKey,"%s\\Item%%d",MenuKey);
   DeleteKeyRecord(RegKey,DeletePos);
   return(TRUE);
 }
@@ -382,7 +550,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   MakeDialogItems(EditDlgData,EditDlg);
 
   char ItemKey[512];
-  sprintf(ItemKey,"UserMenu\\%s\\Item%d",MenuKey,EditPos);
+  sprintf(ItemKey,"%s\\Item%d",MenuKey,EditPos);
 
   MenuModified=TRUE;
 
@@ -430,7 +598,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   if (NewRec)
   {
     char KeyMask[512];
-    sprintf(KeyMask,"UserMenu\\%s\\Item%%d",MenuKey);
+    sprintf(KeyMask,"%s\\Item%%d",MenuKey);
     InsertKeyRecord(KeyMask,EditPos,TotalRecords);
   }
 
@@ -471,7 +639,7 @@ int EditSubMenu(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   MakeDialogItems(EditDlgData,EditDlg);
 
   char ItemKey[512];
-  sprintf(ItemKey,"UserMenu\\%s\\Item%d",MenuKey,EditPos);
+  sprintf(ItemKey,"%s\\Item%d",MenuKey,EditPos);
   if (NewRec)
   {
     *EditDlg[2].Data=0;
@@ -493,7 +661,7 @@ int EditSubMenu(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   if (NewRec)
   {
     char KeyMask[512];
-    sprintf(KeyMask,"UserMenu\\%s\\Item%%d",MenuKey);
+    sprintf(KeyMask,"%s\\Item%%d",MenuKey);
     InsertKeyRecord(KeyMask,EditPos,TotalRecords);
   }
 
