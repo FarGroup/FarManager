@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.110 15.02.2002 $ */
+/* Revision: 1.111 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 VVM
+    ! Если строка не помещалась в буфер, то ExpandEnvironmetStr портила ее.
   15.02.2002 VVM
     ! Небольшие уточнения, фиксы
   05.02.2002 SVS
@@ -1305,8 +1307,12 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
    if(tmpDest && tmpSrc)
    {
      OemToChar(src, tmpSrc);
-
-     if(ExpandEnvironmentStrings(tmpSrc,tmpDest,size))
+     /* $ 15.02.2002 VVM
+       ! Если строка не помещалась в буфер, то ExpandEnvironmetStr портила ее. */
+//     if(ExpandEnvironmentStrings(tmpSrc,tmpDest,size))
+     int Len = ExpandEnvironmentStrings(tmpSrc,tmpDest,size);
+     if (Len <= size)
+     /* VVM $ */
        strncpy(dest, tmpDest, size-1);
      else
      {
