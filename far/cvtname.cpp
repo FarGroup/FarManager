@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.12 06.08.2004 $ */
+/* Revision: 1.13 25.03.2005 $ */
 
 /*
 Modify:
+  25.03.2005 SVS
+    - BugZ#1304 - Падения с длинными путями.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   01.03.2004 SVS
@@ -407,7 +409,13 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 
 void ConvertNameToShort(const char *Src,char *Dest)
 {
-  char ShortName[NM],AnsiName[NM];
+  char ShortName[NM];
+  char *AnsiName=(char*)alloca(strlen(Src)+8);
+  if(!AnsiName)
+  {
+    strcpy(Dest,Src);
+    return;
+  }
   SetFileApisTo(APIS2ANSI);
   FAR_OemToChar(Src,AnsiName);
   if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)))
