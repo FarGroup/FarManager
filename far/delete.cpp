@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.22 11.07.2001 $ */ 
+/* Revision: 1.23 13.07.2001 $ */
 
 /*
 Modify:
+  13.07.2001 IS
+    ! Приводим сообщения, содержащие имя удаляемого файла, в божеский вид при
+      помощи TruncPathStr
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   09.07.2001 SVS
@@ -138,7 +141,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if (strcmp(SelName,"..")==0 || *SelName==0)
       goto done;
     strcpy(DeleteFilesMsg,SelName);
-    TruncStr(DeleteFilesMsg,Min((int)sizeof(DeleteFilesMsg),ScrX-16));
+    TruncPathStr(DeleteFilesMsg,Min((int)sizeof(DeleteFilesMsg),ScrX-16));
   }
   else
   /* $ 05.01.2001 SVS
@@ -289,12 +292,17 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           if (IsFolderNotEmpty(FullName))
           {
             int MsgCode=0;
+            /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
+            char MsgFullName[NM];
+            strcpy(MsgFullName, FullName);
+            TruncPathStr(MsgFullName, ScrX-16);
             // для symlink`а не нужно подтверждение
             if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
                MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
-                  MSG(MDeleteFolderConfirm),FullName,
+                  MSG(MDeleteFolderConfirm),MsgFullName,
                     MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
                     MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+            /* IS $ */
             if (MsgCode<0 || MsgCode==3)
               break;
             if (MsgCode==1)
@@ -343,10 +351,17 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               /* SVS $ */
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && IsFolderNotEmpty(FullName))
               {
+                /* $ 13.07.2001 IS
+                     усекаем имя, чтоб оно поместилось в сообщение
+                */
+                char MsgFullName[NM];
+                strcpy(MsgFullName, FullName);
+                TruncPathStr(MsgFullName, ScrX-16);
                 int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
-                      MSG(MDeleteFolderConfirm),FullName,
+                      MSG(MDeleteFolderConfirm),MsgFullName,
                       MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
                       MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+                /* IS $ */
                 if (MsgCode<0 || MsgCode==3)
                 {
                   Cancel=1;
@@ -468,8 +483,8 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel)
 void ShellDeleteMsg(char *Name,int Flags)
 {
   char DelName[NM];
-  CenterStr(Name,DelName,30);
-  TruncStr(DelName,30);
+  CenterStr(Name,DelName,ScrX-16);
+  TruncPathStr(DelName,ScrX-16);
   Message(Flags,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
 }
 
@@ -483,10 +498,15 @@ int AskDeleteReadOnly(char *Name,DWORD Attr)
     MsgCode=ReadOnlyDeleteMode;
   else
   {
-    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),Name,
+    /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
+    char MsgName[NM];
+    strcpy(MsgName, Name);
+    TruncPathStr(MsgName, ScrX-16);
+    MsgCode=Message(MSG_DOWN|MSG_WARNING,5,MSG(MWarning),MSG(MDeleteRO),MsgName,
             MSG(MAskDeleteRO),MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
             MSG(MDeleteFileSkip),MSG(MDeleteFileSkipAll),
             MSG(MDeleteFileCancel));
+    /* IS $ */
   }
   switch(MsgCode)
   {
@@ -538,10 +558,14 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
         if (RemoveToRecycleBin(Name))
           break;
     int MsgCode;
+    /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
+    char MsgName[NM];
+    strcpy(MsgName, Name);
+    TruncPathStr(MsgName, ScrX-16);
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                    MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
+                    MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
                     MSG(MDeleteSkip),MSG(MDeleteCancel));
-
+    /* IS */
     switch(MsgCode)
     {
       case -1:
@@ -569,9 +593,14 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
     else
       if ((RetCode=RemoveDirectory(Name))!=0 || (RetCode=RemoveDirectory(ShortName))!=0)
         break;
+    /* $ 13.07.2001 IS усекаем имя, чтоб оно поместилось в сообщение */
+    char MsgName[NM];
+    strcpy(MsgName, Name);
+    TruncPathStr(MsgName, ScrX-16);
     if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-                MSG(MCannotDeleteFolder),Name,MSG(MDeleteRetry),
+                MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
                 MSG(MDeleteCancel))!=0)
+    /* IS $ */
       break;
   }
   return(RetCode);
