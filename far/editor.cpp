@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.188 23.07.2002 $ */
+/* Revision: 1.189 06.08.2002 $ */
 
 /*
 Modify:
+  06.08.2002 IS
+    - Баг: падение в ECTL_SETSTRING при отрицательном StringLength.
+      Проверяем корректность StringLength и вернем FALSE, если оно меньше
+      нуля.
   23.07.2002 SKV
     - Еще одна попытка разобраться с выделением.
   12.07.2002 SVS
@@ -5662,12 +5666,18 @@ int Editor::EditorControl(int Command,void *Param)
         return(FALSE);
       {
         struct EditorSetString *SetString=(struct EditorSetString *)Param;
-
+        /* $ 06.08.2002 IS
+           Проверяем корректность StringLength и вернем FALSE, если оно меньше
+           нуля.
+        */
+        int Length=SetString->StringLength;
+        if(Length < 0)
+          return(FALSE);
         struct EditList *CurPtr=GetStringByNumber(SetString->StringNumber);
         if (CurPtr==NULL)
           return(FALSE);
         const char *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
-        int Length=SetString->StringLength;
+        /* IS 06.08.2002 IS $ */
         int LengthEOL=strlen(EOL);
         char *NewStr=new char[Length+LengthEOL+1];
         if (NewStr==NULL)
