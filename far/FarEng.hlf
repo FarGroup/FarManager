@@ -332,7 +332,12 @@ referring to the same data.
 
   Display ~commands history~@History@                                    #Alt-F8#
 
-  Selects the number of lines on the screen                   #Alt-F9#
+  Toggles the size of the FAR console window                  #Alt-F9#
+
+  In the windowed mode, toggles between the current size and the
+maximum possible size of a console window. n the fullscreen mode, Alt-F9
+toggles the screen height between 25 and 50 lines. See TechInfo##38 for
+details.
 
   Perform ~find folder~@FindFolder@ command                                #Alt-F10#
 
@@ -1786,6 +1791,16 @@ settings.
 
   #Cursor beyond#           Allow moving cursor beyond the end of line.
   #end of line#
+
+  #Disable editing of#      When a file with the Read-only attribute
+  #read-only files#         is opened for editing, the editor also
+                          disables the modification of the edited
+                          text, just as if Ctrl-L was pressed.
+
+  #Warn when opening#       When a file with the Read-only attribute
+  #read-only files#         is opened for editing, a warning message
+                          will be shown.
+
 
     If the external editor is assigned to F4 key, it will be executed only
 if ~associated~@FileAssoc@ editor for the current file type is not defined.

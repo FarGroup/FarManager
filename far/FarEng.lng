@@ -196,10 +196,10 @@
 "&Save file position"
 "Save &bookmarks"
 "&Autodetect character table"
-"Tab si&ze"
 "&Cursor beyond end of line"
-"Disable modi&fication of a file with R/O attribute"
-"&Warning before opening a file with R/O attribute"
+"Disable editing of read-only &files"
+"&Warn when opening read-only files"
+"Tab si&ze"
 
 "Table with the character frequency distribution was not found!"
 "Option "Autodetect character table" is off."

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.76 23.05.2001 $ */
+/* Revision: 1.77 24.05.2001 $ */
 
 /*
 Modify:
+  24.05.2001 SVS
+    ! Задание размера табуляции в EditorConfig перенесено ниже (так лучше
+      смотрится :-)
   21.05.2001 OT
    + Opt.AltF9
    + Opt.Confirmation.AllowReedit
@@ -775,11 +778,11 @@ void EditorConfig(struct EditorOptions &EdOpt)
   /* 11 */  DI_CHECKBOX,7,13,0,0,0,0,0,0,(char *)MEditConfigSavePos,
   /* 12 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
   /* 13 */  DI_CHECKBOX,7,15,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
-  /* 14 */  DI_FIXEDIT,7,16,9,15,0,0,0,0,"",
-  /* 15 */  DI_TEXT,11,16,0,0,0,0,0,0,(char *)MEditConfigTabSize,
-  /* 16 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 17 */  DI_CHECKBOX,7,18,0,0,0,0,0,0,(char *)MEditDisableROFileModification,
-  /* 18 */  DI_CHECKBOX,7,19,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
+  /* 14 */  DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
+  /* 15 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditDisableROFileModification,
+  /* 16 */  DI_CHECKBOX,7,18,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
+  /* 17 */  DI_FIXEDIT,7,19,9,19,0,0,0,0,"",
+  /* 18 */  DI_TEXT,11,19,0,0,0,0,0,0,(char *)MEditConfigTabSize,
   /* 19 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
   /* 20 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
@@ -800,16 +803,16 @@ void EditorConfig(struct EditorOptions &EdOpt)
   */
   CfgDlg[13].Selected=EdOpt.AutoDetectTable&&DistrTableExist();
   /* IS $ */
-  sprintf(CfgDlg[14].Data,"%d",EdOpt.TabSize);
-  CfgDlg[16].Selected=EdOpt.CursorBeyondEOL;
-  CfgDlg[17].Selected=Opt.EditorReadOnlyLock & 1;
-  CfgDlg[18].Selected=Opt.EditorReadOnlyLock & 2;
+  sprintf(CfgDlg[17].Data,"%d",EdOpt.TabSize);
+  CfgDlg[14].Selected=EdOpt.CursorBeyondEOL;
+  CfgDlg[15].Selected=Opt.EditorReadOnlyLock & 1;
+  CfgDlg[16].Selected=Opt.EditorReadOnlyLock & 2;
 
   if (!RegVer)
   {
-    CfgDlg[14].Type=CfgDlg[15].Type=DI_TEXT;
-    sprintf(CfgDlg[14].Data," *  %s",MSG(MRegOnlyShort));
-    *CfgDlg[15].Data=0;
+    CfgDlg[17].Type=CfgDlg[18].Type=DI_TEXT;
+    sprintf(CfgDlg[17].Data," *  %s",MSG(MRegOnlyShort));
+    *CfgDlg[18].Data=0;
   }
 
   {
@@ -842,13 +845,13 @@ void EditorConfig(struct EditorOptions &EdOpt)
               MSG(MOk));
   }
   /* IS $ */
-  EdOpt.TabSize=atoi(CfgDlg[14].Data);
+  EdOpt.TabSize=atoi(CfgDlg[17].Data);
   if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
     EdOpt.TabSize=8;
-  EdOpt.CursorBeyondEOL=CfgDlg[16].Selected;
+  EdOpt.CursorBeyondEOL=CfgDlg[14].Selected;
   Opt.EditorReadOnlyLock&=~3;
-  if(CfgDlg[17].Selected) Opt.EditorReadOnlyLock|=1;
-  if(CfgDlg[18].Selected) Opt.EditorReadOnlyLock|=2;
+  if(CfgDlg[15].Selected) Opt.EditorReadOnlyLock|=1;
+  if(CfgDlg[16].Selected) Opt.EditorReadOnlyLock|=2;
 }
 /* IS $ */
 /* IS $ */
@@ -901,7 +904,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9,1, (char*)1},
+  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9,1, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},

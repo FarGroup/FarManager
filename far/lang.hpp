@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.67 21.05.2001 $ */
+/* Revision: 1.68 24.05.2001 $ */
 
 /*
 Modify:
+    ! Задание размера табуляции в EditorConfig перенесено ниже (так лучше
+      смотрится :-)
   21.05.2001 DJ
     + MDialogType
   21.05.2001 SVS
@@ -387,10 +389,10 @@ enum
   MEditConfigSavePos,
   MEditConfigSaveShortPos,
   MEditAutoDetectTable,
-  MEditConfigTabSize,
   MEditCursorBeyondEnd,
   MEditDisableROFileModification,
   MEditWarningBeforeOpenROFile,
+  MEditConfigTabSize,
 
   MDistributionTableWasNotFound,
   MAutoDetectWillNotWork,
