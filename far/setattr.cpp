@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.22 08.04.2001 $ */
+/* Revision: 1.23 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    - нужно было использовать локальные копии для параметров SrcDate и SrcTime
+      в функции ReadFileTime
+    ! немного оптимизации в функции ReadFileTime
   08.04.2001 SVS
     ! Полная независимость выставления значений для даты и времени.
     - Исправлен баг с "неустановкой" даты для одиночного файла.
@@ -83,7 +87,8 @@ int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
 int OriginalCBAttr2[16]; //
 DWORD OriginalCBFlag[16];
 
-static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,char *SrcDate,char *SrcTime)
+static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
+                       char *OSrcDate,char *OSrcTime)
 {
   FILETIME ft, oft;
   SYSTEMTIME st, ost;
@@ -91,35 +96,15 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,ch
   int DigitCount,I;
   int SetTime,GetTime;
   FILETIME OriginalFileTime;
-
-  // получаем инфу про оригинальную дату и время файла.
-  HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-               NULL,OPEN_EXISTING,
-               (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
-  if (hFile==INVALID_HANDLE_VALUE)
-    return(FALSE);
-  GetTime=GetFileTime(hFile,
-                      (Type == 0?&OriginalFileTime:NULL),
-                      (Type == 1?&OriginalFileTime:NULL),
-                      (Type == 2?&OriginalFileTime:NULL));
-  CloseHandle(hFile);
-
-  if(!GetTime)
-    return(FALSE);
-
-  // конвертнем в локальное время.
-  FileTimeToLocalFileTime(&OriginalFileTime,&oft);
-  FileTimeToSystemTime(&oft,&ost);
-
-  int DateSeparator=GetDateSeparator();
-  int TimeSeparator=GetTimeSeparator();
-
+  char SrcDate[32], SrcTime[32];
   char *Ptr,Digit[16],*PtrDigit;
 
   // ****** ОБРАБОТКА ДАТЫ ******** //
+  strncpy(SrcDate,OSrcDate,sizeof(SrcDate));
   DateN[0]=DateN[1]=DateN[2]=(unsigned)-1;
   I=0;
   Ptr=SrcDate;
+  int DateSeparator=GetDateSeparator();
   while((Ptr=GetCommaWord(Ptr,Digit,DateSeparator)) != NULL)
   {
     PtrDigit=Digit;
@@ -131,9 +116,11 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,ch
   }
 
   // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
+  strncpy(SrcTime,OSrcTime,sizeof(SrcTime));
   TimeN[0]=TimeN[1]=TimeN[2]=(unsigned)-1;
   I=0;
   Ptr=SrcTime;
+  int TimeSeparator=GetTimeSeparator();
   while((Ptr=GetCommaWord(Ptr,Digit,TimeSeparator)) != NULL)
   {
     PtrDigit=Digit;
@@ -143,6 +130,35 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,ch
       TimeN[I]=atoi(PtrDigit);
     ++I;
   }
+
+  // исключаем лишние телодвижения
+  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1 ||
+     TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
+  {
+    // получаем инфу про оригинальную дату и время файла.
+    HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+                 NULL,OPEN_EXISTING,
+                 (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+    if (hFile==INVALID_HANDLE_VALUE)
+      return(FALSE);
+    GetTime=GetFileTime(hFile,
+                        (Type == 0?&OriginalFileTime:NULL),
+                        (Type == 1?&OriginalFileTime:NULL),
+                        (Type == 2?&OriginalFileTime:NULL));
+    CloseHandle(hFile);
+
+    if(!GetTime)
+      return(FALSE);
+
+    // конвертнем в локальное время.
+    FileTimeToLocalFileTime(&OriginalFileTime,&oft);
+    FileTimeToSystemTime(&oft,&ost);
+    st.wDayOfWeek=ost.wDayOfWeek;
+    st.wMilliseconds=ost.wMilliseconds;
+    DigitCount=TRUE;
+  }
+  else
+    DigitCount=FALSE;
 
   // "Оформим"
   switch(GetDateFormat())
@@ -163,12 +179,9 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,ch
       st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:ost.wDay;
       break;
   }
-
   st.wHour   = TimeN[0]!=(unsigned)-1? (TimeN[0]):ost.wHour;
   st.wMinute = TimeN[1]!=(unsigned)-1? (TimeN[1]):ost.wMinute;
   st.wSecond = TimeN[2]!=(unsigned)-1? (TimeN[2]):ost.wSecond;
-  st.wDayOfWeek=ost.wDayOfWeek;
-  st.wMilliseconds=ost.wMilliseconds;
 
   if (st.wYear<100)
     if (st.wYear<80)
@@ -176,9 +189,12 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,ch
     else
       st.wYear+=1900;
 
+  // преобразование в "удобоваримый" формат
   SystemTimeToFileTime(&st,&ft);
   LocalFileTimeToFileTime(&ft,FileTime);
-  return (!CompareFileTime(FileTime,&OriginalFileTime))?FALSE:TRUE;
+  if(DigitCount)
+    return (!CompareFileTime(FileTime,&OriginalFileTime))?FALSE:TRUE;
+  return TRUE;
 }
 
 
@@ -585,12 +601,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
       Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting));
 
-      if (strcmp(TimeText[0],AttrDlg[16].Data) || strcmp(TimeText[1],AttrDlg[17].Data))
-        SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
-      if (strcmp(TimeText[2],AttrDlg[19].Data) || strcmp(TimeText[3],AttrDlg[20].Data))
-        SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
-      if (strcmp(TimeText[4],AttrDlg[22].Data) || strcmp(TimeText[5],AttrDlg[23].Data))
-        SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
+      SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
+      SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
+      SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
 
       if(SetWriteTime || SetCreationTime || SetLastAccessTime)
         SetWriteTime=ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,

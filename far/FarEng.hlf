@@ -1727,7 +1727,7 @@ corresponding checkboxes was changed from the initial state.
 drives. The "Encrypted" attribute can be used in Windows 2000 only. These two
 attributes are mutually exclusive, that is, you can set only one of them.
 
-    For folder links the dialog will display the original folder information
+    For ~folder links~@HardSymLink@ the dialog will display the original folder information
 (NTFS/Windows 2000 only).
 
   #File date and time#
@@ -1743,8 +1743,11 @@ attributes are mutually exclusive, that is, you can set only one of them.
     On FAT drives the hours, minutes and seconds of the last access time
 are always equal to zero.
 
-    If you want to keep the file time unchanged, leave the corresponding
-field empty. You may press #Blank# button to clear all date and time fields.
+    If you do not want to change the file time, leave the respective
+field empty. You can push the #Blank# button to clear all the date and
+time fields and then change an individual component of the date or
+time, for example, only month or only minutes. All the other date and
+time components will remain unchanged.
 
     The #Current# button fills the file time fields with the current time.
 

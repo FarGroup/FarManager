@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.04 03.04.2001 $ */
+/* Revision: 1.05 09.04.2001 $ */
 
 /*
 Modify:
+  09.04.2001 SVS
+    - проблемы с отладкой под VC - трапается на GetxUSSRRegName()
   03.04.2001 SVS
     - проблемы с компиляцией под VC
   30.03.2001 SVS
@@ -67,14 +69,17 @@ static const char *GetxUSSRRegName()
 {
   // "xUSSR регистрация"
   static unsigned char *xUSSRRegName=(BYTE*)"\x12\x2D\x03\x04\x0B\x0B\x7A\xBB\xF9\xFE\xF6\xBE\x82\x81\xC2\x85\xCC\x8A";
-  if(xUSSRRegName[0])
+  static unsigned char xUSSRRegNameDec [64];
+  static int xUSSRDecrypted = 0;
+  if(!xUSSRDecrypted)
   {
     unsigned char B=0x55;
+    xUSSRRegNameDec[xUSSRRegName[0]] = 0;
     for(int I=1; I < xUSSRRegName[0]; ++I, ++B)
-      xUSSRRegName[I]^=B;
-    xUSSRRegName[0]=0;
+      xUSSRRegNameDec[I-1] = xUSSRRegName[I] ^ B;
+    xUSSRDecrypted = 1;
   }
-  return (const char*)xUSSRRegName+1;
+  return (const char*)xUSSRRegNameDec;
 }
 
 #ifndef _MSC_VER
