@@ -5,10 +5,15 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.22 15.03.2001 $ */
+/* Revision: 1.23 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+    + добавлена информация о пути соединения в диалог подтверждения удаления
+      мапленного диска.
+    ! Кусок кода, получающий информацию о RemoteName вынесен в функцию
+      DriveLocalToRemoteName()
   15.03.2001 SVS
     ! Del в меню дисков
   15.03.2001 IS
@@ -249,34 +254,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
         if (Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME)
         {
-          int NetPathShown=FALSE;
-          if (DriveType==DRIVE_REMOTE)
+          char RemoteName[NM];
+          DriveLocalToRemoteName(DriveType,*RootDir,RemoteName);
+          if(*RemoteName)
           {
-            char LocalName[NM],RemoteName[NM];
-            DWORD RemoteNameSize=sizeof(RemoteName);
-            sprintf(LocalName,"%c:",*RootDir);
-
-            SetFileApisToANSI();
-            if (WNetGetConnection(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
-            {
-              NetPathShown=TRUE;
-              CharToOem(RemoteName,RemoteName);
-              strcat(MenuText,"  ");
-              strcat(MenuText,RemoteName);
-            }
-            SetFileApisToOEM();
-          }
-          if (!NetPathShown)
-          {
-            char LocalName[8],SubstName[NM];
-            sprintf(LocalName,"%c:",*RootDir);
-
-            if (GetSubstName(LocalName,SubstName,sizeof(SubstName)))
-            {
-              CharToOem(SubstName,SubstName);
-              strcat(MenuText,"  ");
-              strcat(MenuText,SubstName);
-            }
+            strcat(MenuText,"  ");
+            strcat(MenuText,RemoteName);
           }
           ShowSpecial=TRUE;
         }
@@ -1293,7 +1276,8 @@ int Panel::GetCurName(char *Name,char *ShortName)
 
 static int MessageRemoveConnection(char Letter, int &UpdateProfile)
 {
-  int Len1, Len2, Len3;
+  int Len1, Len2, Len3,Len4;
+  BOOL IsPersistent;
   char MsgText[NM];
 /*
   0         1         2         3         4         5         6         7
@@ -1301,76 +1285,79 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
 0
 1   ╔════════ Отключение сетевого устройства ════════╗
 2   ║ Вы хотите удалить соединение с устройством C:? ║
-3   ║ [ ] Восстанавливать при входе в систему        ║
-4   ╟────────────────────────────────────────────────╢
-5   ║              [ Да ]   [ Отмена ]               ║
-6   ╚════════════════════════════════════════════════╝
-7
-
-  0         1         2         3         4         5         6         7
-  0123456789012345678901234567890123456789012345678901234567890123456789012345
-0
-1   ╔══════════════ Disconnect network drive ══════════════════╗
-2   ║ Do you want to remove your connection with the C: drive? ║
-3   ║ [ ] Reconnect at Logon                                   ║
-4   ╟──────────────────────────────────────────────────────────╢
-5   ║                   [ Yes ]   [ Cancel ]                   ║
-6   ╚══════════════════════════════════════════════════════════╝
-7
+3   ║ На устройство %c: отображен каталог            ║
+4   ║ \\host\share                                   ║
+6   ╟────────────────────────────────────────────────╢
+7   ║ [ ] Восстанавливать при входе в систему        ║
+8   ╟────────────────────────────────────────────────╢
+9   ║              [ Да ]   [ Отмена ]               ║
+10  ╚════════════════════════════════════════════════╝
+11
 */
   static struct DialogData DCDlgData[]=
   {
 /*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
                                       Selected               Data
 */
-/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 6, 0, 0, 0,                0,"",
+/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 9, 0, 0, 0,                0,"",
 /* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
-/* 2 */ DI_CHECKBOX,  5, 3, 70, 3, 0, 0, 0,                0,"",
-/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,"",
-/* 4 */ DI_BUTTON,    0, 5,  0, 0, 1, 0, DIF_CENTERGROUP,  1,"",
-/* 5 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
+/* 2 */ DI_TEXT,      5, 3,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 3 */ DI_TEXT,      5, 4,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 4 */ DI_TEXT,      0, 5,  0, 6, 0, 0, DIF_SEPARATOR,    0,"",
+/* 5 */ DI_CHECKBOX,  5, 6, 70, 5, 0, 0, 0,                0,"",
+/* 6 */ DI_TEXT,      0, 7,  0, 6, 0, 0, DIF_SEPARATOR,    0,"",
+/* 7 */ DI_BUTTON,    0, 8,  0, 0, 1, 0, DIF_CENTERGROUP,  1,"",
+/* 8 */ DI_BUTTON,    0, 8,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
   };
   MakeDialogItems(DCDlgData,DCDlg);
 
-  sprintf(MsgText,MSG(MChangeDriveDisconnectQuestion),Letter);
-
   Len1=strlen(strcpy(DCDlg[0].Data,MSG(MChangeDriveDisconnectTitle)));
+  sprintf(MsgText,MSG(MChangeDriveDisconnectQuestion),Letter);
   Len2=strlen(strcpy(DCDlg[1].Data,MsgText));
-  Len3=strlen(strcpy(DCDlg[2].Data,MSG(MChangeDriveDisconnectReconnect)));
+  sprintf(MsgText,MSG(MChangeDriveDisconnectMapped),Letter);
+  Len4=strlen(strcpy(DCDlg[2].Data,MsgText));
+  Len3=strlen(strcpy(DCDlg[5].Data,MSG(MChangeDriveDisconnectReconnect)));
 
-  Len1=max(Len1,max(Len2,Len3));
 
-  strcpy(DCDlg[4].Data,MSG(MYes));
-  strcpy(DCDlg[5].Data,MSG(MCancel));
+  Len1=max(Len1,max(Len2,max(Len3,Len4)));
+
+  strcpy(DCDlg[3].Data,TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,MsgText),Len1));
+
+  strcpy(DCDlg[7].Data,MSG(MYes));
+  strcpy(DCDlg[8].Data,MSG(MCancel));
 
   // проверяем - это было постоянное соедение или нет?
   // Если ветка в реестре HKCU\Network\БукваДиска есть - это
   //   есть постоянное подключение.
   {
     HKEY hKey;
+    IsPersistent=TRUE;
     sprintf(MsgText,"Network\\%c",toupper(Letter));
     if(RegOpenKeyEx(HKEY_CURRENT_USER,MsgText,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
     {
-      DCDlg[2].Flags|=DIF_DISABLE;
-      DCDlg[2].Selected=0;
+      DCDlg[5].Flags|=DIF_DISABLE;
+      DCDlg[5].Selected=0;
+      IsPersistent=FALSE;
     }
     else
-      DCDlg[2].Selected=1;
+      DCDlg[5].Selected=Opt.ChangeDriveDisconnetMode;
     RegCloseKey(hKey);
   }
 
   // скорректируем размеры диалога - для дизайнУ
-  DCDlg[0].X2=DCDlg[0].X1+Len1+2;
+  DCDlg[0].X2=DCDlg[0].X1+Len1+3;
 
-  int ExitCode=4;
+  int ExitCode=7;
   if(Opt.Confirm.RemoveConnection)
   {
     Dialog Dlg(DCDlg,sizeof(DCDlg)/sizeof(DCDlg[0]));
-    Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,8);
-    // Dlg.SetHelp("????");
+    Dlg.SetPosition(-1,-1,DCDlg[0].X2+4,11);
+    Dlg.SetHelp("DisconnectDrive");
     Dlg.Process();
     ExitCode=Dlg.GetExitCode();
   }
-  UpdateProfile=DCDlg[2].Selected?0:CONNECT_UPDATE_PROFILE;
-  return ExitCode == 4;
+  UpdateProfile=DCDlg[5].Selected?0:CONNECT_UPDATE_PROFILE;
+  if(IsPersistent)
+    Opt.ChangeDriveDisconnetMode=DCDlg[5].Selected;
+  return ExitCode == 7;
 }

@@ -885,7 +885,8 @@
 "If you do not close the open files, data may be lost."
 
 "Disconnect network drive"
-"Do you want to remove your connection with the %c: drive?"
+"Do you want to disconnect from the drive %c:?"
+"The drive %c: is mapped to..."
 "&Reconnect at Logon"
 
 "Do you want to disconnect the device anyway?"
@@ -1070,9 +1071,9 @@
 "&Drag and drop"
 "De&lete"
 "Delete non-empty &folders"
-"E&xit"
-"&Pressing the Esc"
+"&Interrupt operation"
 "Disconnect &network drive"
+"E&xit"
 
 "Find folder"
 "Tree"
@@ -1268,6 +1269,9 @@
 ""Unknown exception""
 "Debugger"
 
+"User name"
+"User password"
+
 "Cannot read folder contents"
 "This plugin requeired higher FAR version"
 "Required FAR version is %d.%d.%d. Current FAR version is %d.%d.%d"
@@ -1344,7 +1348,7 @@
 
 "Time: %8s Left: %8s  %5d%sb/s"
 
-"Key ESC was pressed"
-"Do you want to stop work?"
+"Operation has been interrupted"
+" Do you really want to cancel it? "
 
 "Evaluation version"

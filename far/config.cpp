@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.57 15.03.2001 $ */
+/* Revision: 1.58 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+    ! В конфирм-диалоге операция Exit должна по смыслу стоять последней
+    + Opt.ChangeDriveDisconnetMode
   15.03.2001 SVS
     + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
   12.03.2001 SVS
@@ -440,9 +443,9 @@ void SetConfirmations()
     DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
     DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MSetConfirmDelete,
     DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MSetConfirmDeleteFolders,
-    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmExit,
-    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmEsc,
-    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
+    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmEsc,
+    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
+    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmExit,
     DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
     DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
@@ -453,9 +456,9 @@ void SetConfirmations()
   ConfDlg[3].Selected=Opt.Confirm.Drag;
   ConfDlg[4].Selected=Opt.Confirm.Delete;
   ConfDlg[5].Selected=Opt.Confirm.DeleteFolder;
-  ConfDlg[6].Selected=Opt.Confirm.Exit;
-  ConfDlg[7].Selected=Opt.Confirm.Esc;
-  ConfDlg[8].Selected=Opt.Confirm.RemoveConnection;
+  ConfDlg[6].Selected=Opt.Confirm.Esc;
+  ConfDlg[7].Selected=Opt.Confirm.RemoveConnection;
+  ConfDlg[8].Selected=Opt.Confirm.Exit;
 
   Dialog Dlg(ConfDlg,sizeof(ConfDlg)/sizeof(ConfDlg[0]));
   Dlg.SetHelp("ConfirmDlg");
@@ -468,9 +471,9 @@ void SetConfirmations()
   Opt.Confirm.Drag=ConfDlg[3].Selected;
   Opt.Confirm.Delete=ConfDlg[4].Selected;
   Opt.Confirm.DeleteFolder=ConfDlg[5].Selected;
-  Opt.Confirm.Exit=ConfDlg[6].Selected;
-  Opt.Confirm.Esc=ConfDlg[7].Selected;
-  Opt.Confirm.RemoveConnection=ConfDlg[8].Selected;
+  Opt.Confirm.Esc=ConfDlg[6].Selected;
+  Opt.Confirm.RemoveConnection=ConfDlg[7].Selected;
+  Opt.Confirm.Exit=ConfDlg[8].Selected;
 }
 /* SVS $ */
 /* IS $ */
@@ -992,6 +995,7 @@ void ReadConfig()
   GetRegKey("System","InactivityExit",Opt.InactivityExit,0);
   GetRegKey("System","InactivityExitTime",Opt.InactivityExitTime,15);
   GetRegKey("System","DriveMenuMode",Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS);
+  GetRegKey("System","DriveDisconnetMode",Opt.ChangeDriveDisconnetMode,1);
   GetRegKey("System","FileSearchMode",Opt.FileSearchMode,SEARCH_ROOT);
   GetRegKey("System","FolderInfo",Opt.FolderInfoFiles,"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*",sizeof(Opt.FolderInfoFiles));
   GetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix,0);
@@ -1245,6 +1249,7 @@ void SaveConfig(int Ask)
   SetRegKey("System","InactivityExit",Opt.InactivityExit);
   SetRegKey("System","InactivityExitTime",Opt.InactivityExitTime);
   SetRegKey("System","DriveMenuMode",Opt.ChangeDriveMode);
+  SetRegKey("System","DriveDisconnetMode",Opt.ChangeDriveDisconnetMode);
   SetRegKey("System","FileSearchMode",Opt.FileSearchMode);
   SetRegKey("System","FolderInfo",Opt.FolderInfoFiles);
   SetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix);

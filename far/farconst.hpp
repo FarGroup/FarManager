@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.21 26.02.2001 $ */
+/* Revision: 1.22 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+    + FlagsNameAndPassword
   26.02.2001 VVM
     + STATUS_INVALIDFUNCTIONRESULT - когда функция вернула недопустимое значение
   25.02.2001 VVM
@@ -282,5 +284,11 @@ enum ReadDizFlags {
 #define HIGHLIGHT_MASK_SIZE      2048
 #define GROUPSORT_MASK_SIZE      2048
 #define PANELFILTER_MASK_SIZE    2048
+
+// для диалога GetNameAndPassword()
+enum FlagsNameAndPassword{
+  GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
+  GNP_NOOEMTOCHAR  = 0x00000002UL, // не конвертировать имя и пароль OEM->CHAR
+};
 
 #endif // __FARCONST_HPP__

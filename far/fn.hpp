@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.65 13.03.2001 $ */
+/* Revision: 1.66 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+   + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
+   + GetNameAndPassword();
   13.03.2001 SVS
    ! GetPathRoot переехала в flink.hpp :-)
   07.03.2001 IS
@@ -567,6 +570,7 @@ char* WINAPI PasteFromClipboard(void);
 int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic=NULL,DWORD Flags=0);
 /* SVS $ */
+int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *HelpTopic,DWORD Flags);
 
 /* Программое переключение FulScreen <-> Windowed
    (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
@@ -716,5 +720,7 @@ void WaitKey(int KeyWait=-1);
 /* SVS $ */
 int WriteInput(int Key,DWORD Flags=0);
 
+// Получить из имени диска RemoteName
+char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
 
 #endif  // __FARFUNC_HPP__

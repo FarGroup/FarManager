@@ -871,11 +871,11 @@ for following operations:
 
  - delete folders;
 
+ - interrupt operation;
+
+ - disconnect network drives from the Disks menu.
+
  - exit from FAR;
-
- - press the Esc key;
-
- - disconnect network drive.
 
 @FindFile
 $ #Find file#
@@ -1486,7 +1486,7 @@ to the file panel.
 
     #Del# key can be used:
 
-     - to disconnect from network drives.
+     - to ~disconnect~@DisconnectDrive@ from network drives.
 
      - to delete a substituted (virtual) drive.
 
@@ -1508,6 +1508,15 @@ to the file panel.
     Ctrl-8 - display of CD parameters.
 
     #Change drive# menu settings are saved in the FAR configuration.
+
+@DisconnectDrive
+$ #Disconnect network drive#
+  You can disconnect a network drive by pressing #Del# in the ~Change Drive
+menu~@DriveDlg@.
+
+  The option #[x] Reconnect at logon# is enabled only for permanently
+connected network drives.
+
 
 @Highlight
 $ #Files highlighting#

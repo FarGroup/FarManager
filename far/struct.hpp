@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.46 15.03.2001 $ */
+/* Revision: 1.47 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+   + Opt.ChangeDriveDisconnetMode - для запоминания - как удалять мапленные
+     диски (для CheckBox`а)
   15.03.2001 SVS
    + Opt.Confirm.RemoveConnection - подтверждение для удаления мапленных дисков
   12.03.2001 SVS
@@ -374,6 +377,7 @@ struct Options
   int SaveViewHistory;
   int AutoSaveSetup;
   int ChangeDriveMode;
+  int ChangeDriveDisconnetMode;
   int FileSearchMode;
   char TempPath[NM];
   int HeightDecrement;

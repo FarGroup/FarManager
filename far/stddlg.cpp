@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.07 13.03.2001 $ */
+/* Revision: 1.08 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+    + GetNameAndPassword();
   13.03.2001 SVS
     - в предыдущем патче неверно работали макросы - не была учтена ситуация
       с макросами.
@@ -369,3 +371,81 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
 /* SVS $*/
 /* 01.08.2000 SVS $*/
 /* 25.08.2000 SVS $*/
+
+
+/*
+  Стандартный диалог ввода пароля.
+  Умеет сам запоминать последнего юзвера и пароль.
+
+  Name      - сюда будет помещен юзвер (max 256 символов!!!)
+  Password  - сюда будет помещен пароль (max 256 символов!!!)
+  Title     - заголовок диалога (может быть NULL)
+  HelpTopic - тема помощи (может быть NULL)
+  Flags     - флаги (GNP_*)
+*/
+int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *HelpTopic,DWORD Flags)
+{
+  static char LastName[256],LastPassword[256];
+  int ExitCode;
+/*
+  0         1         2         3         4         5         6         7
+  0123456789012345678901234567890123456789012345678901234567890123456789012345
+║0                                                                             ║
+║1   ╔═══════════════════════════════ Title ═══════════════════════════════╗   ║
+║2   ║ User name                                                           ║   ║
+║3   ║ ███████████████████████████████████████████████████████████████████║   ║
+║4   ║ User password                                                       ║   ║
+║5   ║ ███████████████████████████████████████████████████████████████████ ║   ║
+║6   ╟─────────────────────────────────────────────────────────────────────╢   ║
+║7   ║                         [ Ok ]   [ Cancel ]                         ║   ║
+║8   ╚═════════════════════════════════════════════════════════════════════╝   ║
+║9                                                                             ║
+*/
+  static struct DialogData PassDlgData[]=
+  {
+/* 0 */ DI_DOUBLEBOX,  3, 1,72, 8,0,0,0,0,"",
+/* 1 */ DI_TEXT,       5, 2, 0, 0,0,0,0,0,"",
+/* 2 */ DI_EDIT,       5, 3,70, 3,1,0,DIF_USELASTHISTORY|DIF_HISTORY,0,"",
+/* 3 */ DI_TEXT,       5, 4, 0, 0,0,0,0,0,"",
+/* 4 */ DI_PSWEDIT,    5, 5,70, 3,0,0,0,0,"",
+/* 5 */ DI_TEXT,       3, 6, 0, 0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+/* 6 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,1,"",
+/* 7 */ DI_BUTTON,     0, 7, 0, 0,0,0,DIF_CENTERGROUP,0,""
+  };
+  MakeDialogItems(PassDlgData,PassDlg);
+
+  strcpy(PassDlg[1].Data,MSG(MNetUserName));
+  strcpy(PassDlg[3].Data,MSG(MNetUserPassword));
+  strcpy(PassDlg[6].Data,MSG(MOk));
+  strcpy(PassDlg[7].Data,MSG(MCancel));
+  if (Title!=NULL)
+    strncpy(PassDlg[0].Data,Title,sizeof(PassDlg[0].Data));
+  strncpy(PassDlg[2].Data,(Flags&GNP_USELAST)?LastName:UserName,sizeof(LastName));
+  strncpy(PassDlg[4].Data,(Flags&GNP_USELAST)?LastPassword:Password,sizeof(LastPassword));
+
+  {
+    Dialog Dlg(PassDlg,sizeof(PassDlg)/sizeof(PassDlg[0]));
+    Dlg.SetPosition(-1,-1,76,10);
+
+    if (HelpTopic!=NULL)
+      Dlg.SetHelp(HelpTopic);
+
+    Dlg.Process();
+    ExitCode=Dlg.GetExitCode();
+  }
+
+  if (ExitCode!=6)
+    return(FALSE);
+
+  // запоминаем всегда.
+  strcpy(LastName,strncpy(UserName,PassDlg[2].Data,sizeof(LastName)));
+  strcpy(LastPassword,strncpy(Password,PassDlg[4].Data,sizeof(LastPassword)));
+
+  // Convert Name and Password to Ansi
+  if(!(Flags&GNP_NOOEMTOCHAR))
+  {
+    OemToChar(UserName,UserName);
+    OemToChar(Password,Password);
+  }
+  return(TRUE);
+}

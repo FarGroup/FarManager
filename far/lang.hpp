@@ -15,10 +15,14 @@ lang.hpp
 
 */
 
-/* Revision: 1.55 15.03.2001 $ */
+/* Revision: 1.56 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+    + MNetUserName, MNetUserPassword,
+    ! В конфирм-диалоге операция Exit должна по смыслу стоять последней
+    + MChangeDriveDisconnectMapped
   15.03.2001 SVS
     + По поводу удаление коннектенных дисков:
       MChangeDriveDisconnectTitle, MChangeDriveDisconnectQuestion,
@@ -1030,6 +1034,7 @@ enum
 
   MChangeDriveDisconnectTitle,
   MChangeDriveDisconnectQuestion,
+  MChangeDriveDisconnectMapped,
   MChangeDriveDisconnectReconnect,
 
   MChangeDriveAskDisconnect,
@@ -1214,9 +1219,9 @@ enum
   MSetConfirmDrag,
   MSetConfirmDelete,
   MSetConfirmDeleteFolders,
-  MSetConfirmExit,
   MSetConfirmEsc,
   MSetConfirmRemoveConnection,
+  MSetConfirmExit,
 
   MFindFolderTitle,
   MTreeTitle,
@@ -1411,6 +1416,9 @@ enum
   MExcBreakPoint,
   MExcUnknown,
   MExcDebugger,
+
+  MNetUserName,
+  MNetUserPassword,
 
   MReadFolderError,
   MPlgBadVers,

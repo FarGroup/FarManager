@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.60 15.03.2001 $ */
+/* Revision: 1.61 16.03.2001 $ */
 
 /*
 Modify:
+  16.03.2001 SVS
+    + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
   15.03.2001 SKV
     - фикс с размером консоли при detach far console.
   12.03.2001 SVS
@@ -1394,3 +1396,35 @@ void WINAPI DeleteBuffer(char *Buffer)
   if(Buffer)delete [] Buffer;
 }
 /* skv$*/
+
+// Получить из имени диска RemoteName
+char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
+{
+  int NetPathShown=FALSE, IsOK=FALSE;
+  char LocalName[8]=" :",RemoteName[NM];
+  DWORD RemoteNameSize=sizeof(RemoteName);
+
+  *LocalName=Letter;
+  *Dest=0;
+
+  if (DriveType==DRIVE_REMOTE)
+  {
+    SetFileApisToANSI();
+    if (WNetGetConnection(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
+    {
+      NetPathShown=TRUE;
+      IsOK=TRUE;
+    }
+    SetFileApisToOEM();
+  }
+  if (!NetPathShown)
+    if (GetSubstName(LocalName,RemoteName,sizeof(RemoteName)))
+      IsOK=TRUE;
+
+  if(IsOK)
+  {
+    CharToOem(RemoteName,RemoteName);
+    strcpy(Dest,RemoteName);
+  }
+  return Dest;
+}
