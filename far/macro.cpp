@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.44 24.06.2001 $ */
+/* Revision: 1.45 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    - Баги при отработке строк для $Date
   24.06.2001 SVS
     ! Исправление поведения макросов после 771-го.
   22.06.2001 SVS
@@ -646,19 +648,27 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
       if(J)
         strcat(TextBuffer," ");
       strcat(TextBuffer,MacroKeyText);
+
       switch(Buffer[J])
       {
+        /* $Date
+           0: KEY_MACRODATE
+           1: Строка выравненна на 4 байта
+              Если строка пуста, то следующий за KEY_MACRODATE DWORD = 0
+        */
         case KEY_MACRODATE:
           {
-            strcat(TextBuffer," \"");
-            strcat(TextBuffer,(char*)&Buffer[++J]);
+            ++J;
             int LenTextBuf=strlen((char*)&Buffer[J]);
-            // Сюда надо добавить... \"
-
-            J=+LenTextBuf/sizeof(DWORD);
-            if((LenTextBuf%sizeof(DWORD)) != 0)
-              ++J;
-            strcat(TextBuffer,"\"");
+            if(LenTextBuf)
+            {
+              strcat(TextBuffer," \"");
+              strcat(TextBuffer,(char*)&Buffer[J]);
+              strcat(TextBuffer,"\"");
+            }
+            // учтем что строка кратна 4
+            J+=LenTextBuf/sizeof(DWORD);
+            // остаток будет прибавлен при следующей итерации цикла
           }
           break;
       }
@@ -1105,36 +1115,47 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     KeyCode=KeyNameToKey(CurKeyText);
 
     Size=1;
+    /* $Date
+       0: KEY_MACRODATE
+       1: Строка, выровненная на 4 байта
+          Если строка пуста, то следующий за KEY_MACRODATE DWORD = 0
+    */
     if(KeyCode == KEY_MACRODATE)
     {
+      char *BufPtr2=BufPtr;
       memset(CurKeyText,0,sizeof(CurKeyText));
       // ищем первую кавычку
       while (*BufPtr && *BufPtr != '"')
         BufPtr++;
       if(*BufPtr)
-        ++BufPtr;
-      // ищем конечную кавычку
-      CurBufPtr=CurKeyText;
-      while (*BufPtr)
       {
-        if(*BufPtr == '\\' && BufPtr[1] == '"')
+          ++BufPtr;
+        // ищем конечную кавычку
+        CurBufPtr=CurKeyText;
+        while (*BufPtr)
         {
-          *CurBufPtr++='\\';
-          *CurBufPtr++='"';
-          BufPtr+=2;
+          if(*BufPtr == '\\' && BufPtr[1] == '"')
+          {
+            *CurBufPtr++='\\';
+            *CurBufPtr++='"';
+            BufPtr+=2;
+          }
+          else if(*BufPtr == '"')
+          {
+            *CurBufPtr=0;
+            BufPtr++;
+            break;
+          }
+          else
+            *CurBufPtr++=*BufPtr++;
         }
-        else if(*BufPtr == '"')
-        {
-          *CurBufPtr=0;
+        if(*BufPtr)
           BufPtr++;
-          break;
-        }
-        else
-          *CurBufPtr++=*BufPtr++;
       }
-      if(*BufPtr)
-        BufPtr++;
+      else
+        BufPtr=BufPtr2;
       Length=strlen(CurKeyText)+1;
+      // строка должна быть выровнена на 4
       Size+=Length/sizeof(DWORD);
       if(Length==1 || (Length%sizeof(DWORD)) != 0) // дополнение до sizeof(DWORD) нулями.
         Size++;
@@ -1149,8 +1170,11 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
         return FALSE;
       }
       CurMacro->Buffer[CurMacro->BufferSize]=KeyCode;
+
       if(KeyCode == KEY_MACRODATE)
+      {
         memcpy(&CurMacro->Buffer[CurMacro->BufferSize+1],CurKeyText,(Size-1)*sizeof(DWORD));
+      }
 
       CurMacro->BufferSize+=Size;
     }

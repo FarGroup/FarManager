@@ -5,10 +5,14 @@ strftime.cpp
 
 */
 
-/* Revision: 1.01 23.06.2001 $ */
+/* Revision: 1.02 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    - ошибка для '%m' неверно учитывался ведущий нуль
+    + '%m0' - с ведущим нулем (%m - без ведущего нуля)
+    - ошибка: вызов самого себя, но не совсем себя - а обычную функцю :-((
   23.06.2001 OT
     - косметические исправления, чтобы VC не "предупреждал" :)
   22.06.2001 SVS
@@ -340,21 +344,23 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
         // Три цифры дня в году (001 - 366)
         // day of the year, 001 - 366
         case 'j':
+        {
           I = t->tm_yday + 1;
           ultoa((long)(I&0xffff), Buf + (I < 10) + (I < 100),10 );
           break;
+        }
         // Две цифры месяца, как десятичное число (1 - 12)
         // month, 01 - 12
         case 'm':
         {
           int Hex=Format[1] == 'h'; // %mh - Hex month digit
+          int N=Format[1] == '0'; // %m0 - ведущий 0
           I = t->tm_mon + 1;
-          ultoa((long)(I&0xffff), Buf + (I > 9 && !Hex?1:0),Hex?16:10);
+          ultoa((long)(I&0xffff), Buf + (I < 10 && !Hex && N?1:0),Hex?16:10);
           if(Hex)
-          {
             Buf[0]=toupper(Buf[0]);
+          if(Hex || N)
             ++Format;
-          }
           break;
         }
         // Две цифры минут (00 - 59)
@@ -450,10 +456,10 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
 
         // time as %I:%M:%S %p
         case 'r':
-          strftime(Buf, sizeof(Buf), "%I:%M:%S %p", t); break;
+          StrFTime(Buf, sizeof(Buf), "%I:%M:%S %p", t); break;
         // time as %H:%M
         case 'R':
-          strftime(Buf, sizeof(Buf), "%H:%M", t); break;
+          StrFTime(Buf, sizeof(Buf), "%H:%M", t); break;
         case 'V':	/* week of year according ISO 8601 */
           sprintf(Buf, "%02d", iso8601wknum(t));
           break;

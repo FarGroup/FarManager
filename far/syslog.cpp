@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.09 16.05.2001 $ */
+/* Revision: 1.10 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    ! Заюзаем внутреннюю функцию StrFTime вместо стандартной.
   16.05.2001 SVS
     ! DumpExceptionInfo -> farexcpt.cpp
     + _SYSLOG_KM()
@@ -80,7 +82,7 @@ FILE * OpenLogStream(char *file)
     time(&t);
     time_now=localtime(&t);
 
-    strftime(RealLogName,MAX_FILE,file,time_now);
+    StrFTime(RealLogName,MAX_FILE,file,time_now);
     return _fsopen(RealLogName,"a+t",SH_DENYWR);
 #else
     return NULL;
