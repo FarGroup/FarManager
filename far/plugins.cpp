@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.154 26.07.2004 $ */
+/* Revision: 1.155 02.08.2004 $ */
 
 /*
 Modify:
+  02.08.2004 SVS
+    - если исключение проиходит где-нить в Message, то... надо бы сбросить локи.
   26.07.2004 SVS
     - strcpy()
   09.07.2004 SVS
@@ -987,6 +989,10 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 //      FrameManager->DeleteFrame();
 
   CurPluginItem=NULL;
+  Frame *frame;
+  if((frame=FrameManager->GetBottomFrame()) != NULL && !frame->Refreshable())
+    frame->UnlockRefresh();
+
   if(Flags.Check(PSIF_DIALOG)) // BugZ#52 exception handling for floating point incorrect
   {
     Flags.Clear(PSIF_DIALOG);

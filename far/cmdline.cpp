@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.70 07.07.2004 $ */
+/* Revision: 1.71 02.08.2004 $ */
 
 /*
 Modify:
+  02.08.2004 SVS
+    + обработка MCODE_C_CMDLINE_BOF и MCODE_C_CMDLINE_EOF
   07.07.2004 SVS
     ! Macro II
   06.05.2004 SVS
@@ -265,6 +267,10 @@ int CommandLine::ProcessKey(int Key)
 {
   char Str[2048], *PStr;
 
+  if(Key == MCODE_C_CMDLINE_BOF || Key == MCODE_C_CMDLINE_EOF)
+  {
+    return CmdStr.ProcessKey(Key);
+  }
   if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
     if (LastCmdPartLength==-1)

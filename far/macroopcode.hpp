@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.00 07.07.2004 $ */
+/* Revision: 1.01 02.08.2004 $ */
 
 /*
 Modify:
+  02.08.2004 SVS
+    + MCODE_C_CMDLINE_BOF, MCODE_C_CMDLINE_EOF
   07.07.2004 SVS & AN
     + Адд
 */
@@ -71,8 +73,8 @@ enum MACRO_OP_CODE {
 
 
   /* ************************************************************************* */
-  MCODE_OP_DATE,
   MCODE_OP_XLAT,
+  MCODE_OP_DATE,
   MCODE_OP_PLAINTEXT,
 
   MCODE_OP_MACROMODE,               // сменить режим блокировки вывода на экран
@@ -135,6 +137,8 @@ enum MACRO_OP_CODE {
   MCODE_C_APANEL_LEFT,              // активная панель левая?
   MCODE_C_PPANEL_LEFT,              // пассивная панель левая?
 
+  MCODE_C_CMDLINE_BOF,              // курсор в начале cmd-строки редактирования?
+  MCODE_C_CMDLINE_EOF,              // курсор в конеце cmd-строки редактирования?
 
   /* ************************************************************************* */
   // не булевые переменные

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.305 26.07.2004 $ */
+/* Revision: 1.306 02.08.2004 $ */
 
 /*
 Modify:
+  02.08.2004 SVS
+    - Bug: С какого-то перепоя при выборе итема из комбобокса в Edit помещались
+      приаттаченные данные, но не лейбак.
   26.07.2004 KM
     - Падение в FindInEditForAC, если второй параметр HidtoryName==NULL. Сделана проверка.
   07.07.2004 SVS
@@ -5068,8 +5071,9 @@ int Dialog::SelectFromComboBox(
       return KEY_ESC;
     }
 
-    ComboBox->GetUserData(Str,MaxLen,Dest);
-    EditLine->SetString(Str);
+    //ComboBox->GetUserData(Str,MaxLen,Dest);
+    struct MenuItem *ItemPtr=ComboBox->GetItemPtr(Dest);
+    EditLine->SetString(ItemPtr->PtrName());
     EditLine->SetLeftPos(0);
     Redraw();
     xf_free(Str);

@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.135 20.07.2004 $ */
+/* Revision: 1.136 02.08.2004 $ */
 
 /*
 Modify:
+  02.08.2004 SVS
+    - BugZ#1144 - Непонятки c CheckHotkey
+      Забыл учесть AmpPos
   20.07.2004 KM
     - Падение меню в AdjustSelectPos при SelectPos=-1
   08.07.2004 SVS
@@ -2254,9 +2257,16 @@ BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
     const char *Name=Item[I].PtrName();
     const char *ChPtr=strchr(Name,'&');
 
-    if (ChPtr)
+    if (ChPtr || Item[I].AmpPos > -1)
     {
-      Ch=ChPtr[1];
+      if (!ChPtr && Item[I].AmpPos > -1)
+      {
+        ChPtr=Name+Item[I].AmpPos;
+        Ch=*ChPtr;
+      }
+      else
+        Ch=ChPtr[1];
+
       if(VMFlags.Check(VMENU_SHOWAMPERSAND))
       {
         ChPtr=strchr(ChPtr+1,'&');

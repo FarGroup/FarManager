@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.174 30.07.2004 $ */
+/* Revision: 1.175 02.08.2004 $ */
 
 /*
 Modify:
+  02.08.2004 SVS
+    ! принудительно выставим область действия макроса в менюхе (FarMenuFn)
   30.07.2004 SVS
     - BugZ#1141 Сохранение (F2) убивает пользовательский Title у редактора
   07.07.2004 SVS
@@ -1094,6 +1096,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
   int ExitCode;
   {
     VMenu FarMenu(Title,NULL,0,MaxHeight);
+    CtrlObject->Macro.SetMode(MACRO_MENU);
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)
       *BreakCode=-1;

@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.121 08.07.2004 $ */
+/* Revision: 1.122 02.08.2004 $ */
 
 /*
 Modify:
+  02.08.2004 SVS
+    - BugZ#1148 - Не показывается Sequence макроса
+    + "CmdLine.Bof/CmdLine.Eof" - курсор в начале/конце cmd-строки редактирования?
   08.07.2004 SVS
     + MACRO_COMMON
   07.07.2004 SVS & AN
@@ -402,9 +405,9 @@ Modify:
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "global.hpp"
-#include "fn.hpp"
 #include "lang.hpp"
 #include "plugin.hpp"
+#include "fn.hpp"
 #include "lockscrn.hpp"
 #include "fileedit.hpp"
 #include "dialog.hpp"
@@ -481,6 +484,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "APanel.Width",       MCODE_V_APANEL_WIDTH,0},
   {2,  "PPanel.Width",       MCODE_V_PPANEL_WIDTH,0},
 
+  {2,  "CmdLine.Bof",        MCODE_C_CMDLINE_BOF,0}, // курсор в начале cmd-строки редактирования?
+  {2,  "CmdLine.Eof",        MCODE_C_CMDLINE_EOF,0}, // курсор в конеце cmd-строки редактирования?
 
   {2,  "Editor.State",       MCODE_V_EDITORSTATE,0},
 
@@ -525,7 +530,7 @@ static struct TKeyCodeName{
 #if defined(MOUSEKEY)
    { MCODE_OP_SELWORD,              8, "$SelWord" },
 #endif
-   { MCODE_OP_DATE,                5, "$Date"    }, // $Date "%d-%a-%Y"
+   { MCODE_OP_DATE,                 5, "$Date"    }, // $Date "%d-%a-%Y"
    { MCODE_OP_ELSE,                 5, "$Else"    },
    { MCODE_OP_END,                  4, "$End"     },
    { MCODE_OP_EXIT,                 5, "$Exit"    },
@@ -534,9 +539,10 @@ static struct TKeyCodeName{
    { MCODE_OP_SWITCHKBD,           10, "$KbdSwitch"},
    { MCODE_OP_MACROMODE,            6, "$MMode"   },
    { MCODE_OP_REP,                  4, "$Rep"     },
-   { MCODE_OP_PLAINTEXT,           5, "$Text"    }, // $Text "Plain Text"
+   { MCODE_OP_PLAINTEXT,            5, "$Text"    }, // $Text "Plain Text"
    { MCODE_OP_WHILE,                6, "$While"   },
-   { MCODE_OP_XLAT,                5, "$XLat"    },};
+   { MCODE_OP_XLAT,                 5, "$XLat"    },
+};
 
 
 static char __code2symbol(BYTE b1, BYTE b2);
@@ -974,6 +980,13 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           {
             Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
           }
+          break;
+        }
+
+        case MCODE_C_CMDLINE_BOF: // "CmdLine.Bof" - курсор в начале cmd-строки редактирования?
+        case MCODE_C_CMDLINE_EOF: // "CmdLine.Eof" - курсор в конеце cmd-строки редактирования?
+        {
+          Cond=CtrlObject->CmdLine->ProcessKey(CheckCode);
           break;
         }
 
@@ -1692,7 +1705,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
   {
     Key=Buffer[J];
 
-    if((Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (Key&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_JMP) || !KeyToText(Key,MacroKeyText))
+    if((Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (Key&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE || !KeyToText(Key,MacroKeyText))
     {
       xf_free(TextBuffer);
       return Src?strdup(Src):NULL;
@@ -2485,8 +2498,8 @@ static void printKeyValue(DWORD* k, int& i)
   else if ( k[i] == MCODE_F_INT )              sprint(ii, " int()");
   else if ( k[i] == MCODE_F_DATE )             sprint(ii, " date()");
   else if ( k[i] == MCODE_F_ENVIRON )          sprint(ii, " env()");
-  else if ( k[i] == MCODE_OP_DATE )           sprint(ii, "$date ''");
-  else if ( k[i] == MCODE_OP_PLAINTEXT )      sprint(ii, "$text ''");
+  else if ( k[i] == MCODE_OP_DATE )            sprint(ii, "$date ''");
+  else if ( k[i] == MCODE_OP_PLAINTEXT )       sprint(ii, "$text ''");
   else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, " PUSH VAR \"%%%s\"", printfStr(k, i));
   else if ( k[i] == MCODE_OP_PUSHINT )         sprint(ii, " PUSH INT %d", (char*)k[++i]);
   else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, " PUSH STR \"%s\"", printfStr(k, i));
