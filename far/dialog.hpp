@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.76 08.12.2004 $ */
+/* Revision: 1.77 25.12.2004 $ */
 
 /*
 Modify:
+  25.12.2004 WARP
+    ! центрирование диалогов (подробнее см. 01894.DialogCenter.txt)
   08.12.2004 WARP
     ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   06.07.2004 SVS
@@ -473,6 +475,8 @@ class Dialog: public Frame
 
     CriticalSection CS;
 
+    int RealWidth, RealHeight;
+
   private:
     void DisplayObject();
     void DeleteDialogObjects();
@@ -679,6 +683,8 @@ class Dialog: public Frame
     static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
     static long WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2);
+
+    virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 };
 
 #endif // __DIALOG_HPP__

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.313 15.12.2004 $ */
+/* Revision: 1.314 25.12.2004 $ */
 
 /*
 Modify:
+  25.12.2004 WARP
+    ! центрирование диалогов (подробнее см. 01894.DialogCenter.txt)
   15.12.2004 WARP
     - Dialog игнорировал LockRefreshCount. Проверяем LockRefreshCount в ShowDialog
   08.12.2004 SVS
@@ -1331,24 +1333,21 @@ void Dialog::CheckDialogCoord(void)
   if(Y1 == -1 && Y2 > ScrY+1)
   {
     Y1=-1;
-    Y2=ScrY-1;
+    Y2=ScrY+1;
   }
 
   if (Y1 < 0) // задано центрирование диалога по вертикали?
   {             //   Y2 при этом = высоте диалога.
-    Y1=(ScrY - Y2 + 1)/2;
-
-    if (Y1>1)
-      Y1--;
+    Y1=(ScrY-Y2+1)/2;
 
     if(!DialogMode.Check(DMODE_SMALLDIALOG)) //????
       if (Y1>5)
         Y1--;
 
-    if (Y1<0)
+    if ( Y1<0 )
     {
        Y1=0;
-       Y2=ScrY;
+       Y2=ScrY+1;
     }
     else
       Y2+=Y1-1;
@@ -1378,6 +1377,7 @@ void Dialog::InitDialog(void)
     // все объекты проинициализированы!
     DialogMode.Set(DMODE_INITOBJECTS);
   }
+
   CheckDialogCoord();
 }
 
@@ -5917,6 +5917,7 @@ void Dialog::ResizeConsole()
 
   if(IsVisible())
     Hide();
+
   // коррекция относительного положения диалога (чтобы не центрировать :-)
   c.X=ScrX+1; c.Y=ScrY+1;
   Dialog::SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(long)&c);
@@ -5925,6 +5926,7 @@ void Dialog::ResizeConsole()
   //c.X=((X1*100/PrevScrX)*ScrX)/100;
   //c.Y=((Y1*100/PrevScrY)*ScrY)/100;
   // !!!!!!!!!!! здесь нужно правильно вычислить положение !!!!!!!!!!!
+
   c.X=c.Y=-1;
   Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
 };
@@ -6118,6 +6120,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       int W1,H1;
 
+      if ( Param1 >= 0 ) //если это не ресайз, вернем настоящую длину/ширину
+                         //(мало ли, что там CheckCoord натворил).
+      {
+         Dlg->X2 = Dlg->X1+Dlg->RealWidth;
+         Dlg->Y2 = Dlg->Y1+Dlg->RealHeight;
+      }
       /* $ 10.08.2001 KM
         - Неверно вычислялась ширина диалога.
       */
@@ -6164,14 +6172,17 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         OldH1=H1;
         W1=((COORD*)Param2)->X;
         H1=((COORD*)Param2)->Y;
+
+        Dlg->RealWidth = W1-1;
+        Dlg->RealHeight = H1-1;
         /* $ 11.10.2001 KM
           - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
             выхода краёв диалога за границу экрана.
         */
         if(Dlg->X1+W1>ScrX)
           Dlg->X1=ScrX-W1+1;
-        if(Dlg->Y1+H1>ScrY)
-          Dlg->Y1=ScrY-H1+1;
+        if(Dlg->Y1+H1>ScrY+1)
+          Dlg->Y1=ScrY-H1+2;
         /* KM $ */
 
         if (W1<OldW1 || H1<OldH1)
@@ -6214,8 +6225,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       */
       if(Dlg->X1+W1>ScrX)
         Dlg->X1=ScrX-W1+1;
-      if(Dlg->Y1+H1>ScrY)
-        Dlg->Y1=ScrY-H1+1;
+      if(Dlg->Y1+H1>ScrY+1)
+        Dlg->Y1=ScrY-H1+2;
       /* KM $ */
       /* $ 10.08.2001 KM
         - Неверно вычислялись координаты X2 и Y2.
@@ -6223,6 +6234,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dlg->X2=Dlg->X1+W1-1;
       Dlg->Y2=Dlg->Y1+H1-1;
       /* KM $ */
+
+      Dlg->CheckDialogCoord();
 
       if(Param1 < 0)   // размер?
       {
@@ -7613,5 +7626,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 }
 /* SVS $ */
 
+void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
+{
+    RealWidth = X2-X1-2;
+    RealHeight = Y2-Y1-2;
 
+    ScreenObject::SetPosition (X1, Y1, X2, Y2);
+}
 //////////////////////////////////////////////////////////////////////////
