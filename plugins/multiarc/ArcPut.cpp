@@ -135,8 +135,8 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
     Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
 
-    GetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer,"",sizeof(Buffer));
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
+/*    GetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer,"",sizeof(Buffer));
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);*/
 
     FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
@@ -227,8 +227,11 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       case PDI_SAVEBTN:
       {
         SetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",pdd->ArcFormat);
+        /*Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
+        SetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer);*/
+
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
-        SetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer);
+        Info.SendDlgMessage(hDlg, DM_ADDHISTORY, PDI_SWITCHESEDT, (long)Buffer);
 
         Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_SAVEBTN, 0);
         Info.SendDlgMessage(hDlg, DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
@@ -274,17 +277,18 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == MAM_ARCSWITCHES)
   {
-    // Выставляем данные из AddSwitches
+    /*// Выставляем данные из AddSwitches //$ 08.03.2002 AA нифига ничего не выставляем
     GetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer,"",sizeof(Buffer));
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);
-    // если AddSwitches пустой и юзается UseLastHistory, то...
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)Buffer);*/
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)"");
+    /*// если AddSwitches пустой и юзается UseLastHistory, то...*/
+    //$ 08.03.2002 AA он не "если", он всегда пустой
     static char SwHistoryName[NM];
     FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd->ArcFormat);
     // ...следующая команда заставит выставить LastHistory
     Info.SendDlgMessage(hDlg, DM_SETHISTORY, PDI_SWITCHESEDT, (long)SwHistoryName);
-    Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_SWITCHESEDT, 1);
+    //Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_SWITCHESEDT, 1);
     return TRUE;
-
   }
   else if(Msg == MAM_SELARC)
   {
@@ -315,6 +319,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
     //Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
     Info.SendDlgMessage(hDlg,DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
+    Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
     return TRUE;
   }
   else if(Msg == MAM_ADDDEFEXT)
@@ -355,6 +360,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 //▓   ║ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ║   ░
 //▓   ╟────────────────────────────────────────────────────────────────────╢   ░
 //▓   ║ [ ] Delete files after archiving                                   ║   ░
+//▓   ║ [ ] Exact archive filename                                         ║   ░
 //▓   ║ [ ] Background                                                     ║   ░
 //▓   ╟────────────────────────────────────────────────────────────────────╢   ░
 //▓   ║               [ Add ]  [ Save settings ]  [ Cancel ]               ║   ░

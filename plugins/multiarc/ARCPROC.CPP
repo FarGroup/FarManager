@@ -122,11 +122,10 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
         ConfigCommands(MenuItems[0].Text.Text,2+MenuData[ExitCode].Cmd*2);
         continue;
       }
+      if(MenuItems[ExitCode].UserData==0xFFFFFFFF)
+        return FALSE;
     }
     else
-      return FALSE;
-    CommandType=MenuItems[ExitCode].UserData;
-    if(CommandType==0xFFFFFFFF)
       return FALSE;
     break;
   }
@@ -201,7 +200,6 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
   int BreakCode;
   int BreakKeys[2]={VK_F4,0};
   int ExitCode;
-  int I,J, Add;
 
   #ifdef _NEW_ARC_SORT_
   int SortModeIndex=GetPrivateProfileInt("MultiArc", "SortMode", 1, IniFile);
@@ -214,50 +212,45 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
 
   while(1)
   {
-    for (I=0;I < ArcPlugin->FmtCount();I++)
+    for(int i=0; i<ArcPlugin->FmtCount(); i++)
     {
-      for (J=0;;J++)
+      for(int j=0; ; j++)
       {
-        if (!ArcPlugin->GetFormatName(I,J,Format,DefExt))
+        if(!ArcPlugin->GetFormatName(i, j, Format, DefExt))
           break;
-
-        Add=TRUE;
 
         if(AddOnly) // Only add to archive?
         {
           char Buffer[512];
-          ArcPlugin->GetDefaultCommands(I,J,CMD_ADD,Buffer);
+          ArcPlugin->GetDefaultCommands(i, j, CMD_ADD, Buffer);
           GetRegKey(HKEY_LOCAL_MACHINE,Format,CmdNames[CMD_ADD],Buffer,Buffer,sizeof(Buffer));
-          if(*Buffer == 0)
-            Add=FALSE;
+          if(*Buffer==0)
+            continue;
         }
 
-        if(Add) //
+        NewMenuItems=(struct FarMenuItemEx *)realloc(MenuItems,
+                             (MenuItemsNumber+1)*sizeof(struct FarMenuItemEx));
+        if (NewMenuItems==NULL)
         {
-          NewMenuItems=(struct FarMenuItemEx *)realloc(MenuItems,
-                               (MenuItemsNumber+1)*sizeof(struct FarMenuItemEx));
-          if (NewMenuItems==NULL)
-          {
-            free(MenuItems);
-            return FALSE;
-          }
-          MenuItems=NewMenuItems;
-          memset(MenuItems+MenuItemsNumber,0,sizeof(struct FarMenuItemEx));
-          strncpy(MenuItems[MenuItemsNumber].Text.Text,Format,sizeof(MenuItems[MenuItemsNumber].Text.Text)-1);
-          MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
-                                            *ArcFormat==0 ||
-                                            !stricmp(ArcFormat,Format))?
-                                            MIF_SELECTED:0;
-
-          #ifdef _NEW_ARC_SORT_
-          if(SortMode)
-            MenuItems[MenuItemsNumber].UserData=GetPrivateProfileInt(SortMode, Format, 0, IniFile);
-          else
-            MenuItems[MenuItemsNumber].UserData=SortModeIndex?0:-1;
-          #endif
-
-          MenuItemsNumber++;
+          free(MenuItems);
+          return FALSE;
         }
+        MenuItems=NewMenuItems;
+        memset(MenuItems+MenuItemsNumber,0,sizeof(struct FarMenuItemEx));
+        strncpy(MenuItems[MenuItemsNumber].Text.Text,Format,sizeof(MenuItems[MenuItemsNumber].Text.Text)-1);
+        MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
+                                          *ArcFormat==0 ||
+                                          !stricmp(ArcFormat,Format))?
+                                          MIF_SELECTED:0;
+
+        #ifdef _NEW_ARC_SORT_
+        if(SortMode)
+          MenuItems[MenuItemsNumber].UserData=GetPrivateProfileInt(SortMode, Format, 0, IniFile);
+        else
+          MenuItems[MenuItemsNumber].UserData=SortModeIndex?0:-1;
+        #endif
+
+        MenuItemsNumber++;
       }
     }
     if (MenuItemsNumber==0)
@@ -276,9 +269,9 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
         Flags|=FMENU_WRAPMODE;
     }
     ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,Flags,
-                         GetMsg(MSelectArchiver),GetMsg(MSelectF4),NULL,
-                         BreakKeys,&BreakCode,
-                         (struct FarMenuItem*)MenuItems,MenuItemsNumber);
+                       GetMsg(MSelectArchiver),GetMsg(MSelectF4),NULL,
+                       BreakKeys,&BreakCode,
+                       (struct FarMenuItem*)MenuItems,MenuItemsNumber);
     if (ExitCode>=0)
     {
       strcpy(ArcFormat,MenuItems[ExitCode].Text.Text);
@@ -299,19 +292,19 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
 }
 
 
-int PluginClass::FormatToPlugin(char *Format,int &PluginNumber,int &PluginType)
+int PluginClass::FormatToPlugin(char *Format, int &PluginNumber, int &PluginType)
 {
-  char PluginFormat[100],DefExt[NM];
-  for (int I=0; I < ArcPlugin->FmtCount(); I++)
+  char PluginFormat[100], DefExt[NM];
+  for(int i=0; i<ArcPlugin->FmtCount(); i++)
   {
-    for (int J=0;;J++)
+    for(int j=0; ; j++)
     {
-      if (!ArcPlugin->GetFormatName(I,J,PluginFormat,DefExt))
+      if(!ArcPlugin->GetFormatName(i, j, PluginFormat, DefExt))
         break;
-      if (stricmp(PluginFormat,Format)==0)
+      if(!stricmp(PluginFormat,Format))
       {
-        PluginNumber=I;
-        PluginType=J;
+        PluginNumber=i;
+        PluginType=j;
         return TRUE;
       }
     }
