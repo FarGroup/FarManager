@@ -5,10 +5,13 @@ flshow.cpp
 
 */
 
-/* Revision: 1.41 01.11.2004 $ */
+/* Revision: 1.42 01.11.2004 $ */
 
 /*
 Modify:
+  01.11.2004 SVS
+    - Неотрисовка статуса
+    - Кривизна с выбором цвета глобальной колонки
   01.11.2004 SVS & WARP ItSelf
     ! Новый способ разбиения на глобальные колонки
   06.08.2004 SKV
@@ -848,6 +851,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
       if (ListPos<FileCount)
       {
         struct FileListItem *CurPtr=ListData+ListPos;
+
         if (!ShowStatus && !StatusShown && CurFile==ListPos && Opt.ShowPanelStatus)
         {
           ShowList(TRUE,CurColumn);
@@ -855,6 +859,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           StatusShown=TRUE;
           SetShowColor(ListPos);
         }
+        if (!ShowStatus && (Level == ColumnsInGlobal))
+           SetShowColor(ListPos);
+
         if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
         {
           int ColumnNumber=ColumnType-CUSTOM_COLUMN0;
@@ -885,8 +892,6 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
             case NAME_COLUMN:
               {
                 char NewName[NM];
-                if (!ShowStatus)
-                  SetShowColor(ListPos);
                 int Width=ColumnWidth;
                 int ViewFlags=ColumnTypes[K];
                 if ((ViewFlags & COLUMN_MARK) && Width>2)
@@ -1167,13 +1172,16 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0])));
       }
 
-      if ( Level == ColumnsInGlobal )
+      if(!ShowStatus)
       {
-        Level = 0;
-        CurColumn++;
-      }
+        if ( Level == ColumnsInGlobal )
+        {
+          Level = 0;
+          CurColumn++;
+        }
 
-      Level++;
+        Level++;
+      }
 
     }
     if ((!ShowStatus || StatusLine) && WhereX()<X2)
