@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.10 03.08.2000 $ */
+/* Revision: 1.11 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 tran 1.11
+    ! ACTL_GETSYSWORDDIV при Param==NULL просто возвращает длину строки
   03.08.2000 SVS
     + ACTL_GETSYSWORDDIV получить строку с символами разделителями слов
   01.08.2000 SVS
@@ -106,7 +108,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
        Строка выбирается не из реестра, а из Opt.
     */
     case ACTL_GETSYSWORDDIV:
-      strcpy((char *)Param,Opt.WordDiv);
+      /* $ 09.08.2000 tran
+       + if param==NULL, plugin хочет только узнать длину строки  */
+      if ( Param )
+          strcpy((char *)Param,Opt.WordDiv);
+      /* tran 09.08.2000 $ */
       return strlen(Opt.WordDiv);
     /* SVS $ */
  }

@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.17 07.08.2000 $ */
+/* Revision: 1.18 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 tran
+    + #define CONSOLE_* 
   04.08.2000 SVS
     + ECTL_SETKEYBAR - функция установки KeyBar Labels в редакторе
   04.08.2000 SVS
@@ -386,6 +388,16 @@ enum {
   ACTL_GETSYSWORDDIV, // получить строку с символами разделителями слов
 };
 /* IS $ */
+
+/* $ 09.08.2000 tran
+   константы для ACTL_CONSOLE_MODE */
+#define CONSOLE_GET_MODE       (-2)
+#define CONSOLE_TRIGGER        (-1)
+#define CONSOLE_SET_WINDOWED   (0)
+#define CONSOLE_SET_FULLSCREEN (1)
+#define CONSOLE_WINDOWED       (0)
+#define CONSOLE_FULLSCREEN     (1)
+/* tran 09.08.2000 $ */
 
 enum {PTYPE_FILEPANEL,PTYPE_TREEPANEL,PTYPE_QVIEWPANEL,PTYPE_INFOPANEL};
 
