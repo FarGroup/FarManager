@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.04 01.08.2000 $ */
+/* Revision: 1.05 02.08.2000 $ */
 
 /*
 Modify:
+  02.08.2000 IG
+    ! Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим
+      на директорию
   01.08.2000 SVS
     ! Изменения при вызове GetString
   15.07.2000 tran
@@ -1670,30 +1673,50 @@ int FileList::FindPartName(char *Name,int Next)
 {
   char Mask[NM];
   int I;
-  sprintf(Mask,"%s*",Name);
+
+  /* $ 02.08.2000 IG
+     Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
+  */
+  int DirFind = 0;
+  int Length = strlen(Name);
+
+  strcpy(Mask,Name);
+  if ( Length > 0 && (Name[Length-1] == '/' || Name[Length-1] == '\\') )
+  {
+    DirFind = 1;
+    Mask[Length-1] = '*';
+  }
+  else
+  {
+    Mask[Length] = '*';
+    Mask[Length+1] = 0;
+  }
   for (I=(Next) ? CurFile+1:CurFile;I<FileCount;I++)
   {
     CmpNameSearchMode=(I==CurFile);
     if (CmpName(Mask,ListData[I].Name,TRUE))
       if (strcmp(ListData[I].Name,"..")!=0)
-      {
-        CmpNameSearchMode=FALSE;
-        CurFile=I;
-        CurTopFile=CurFile-(Y2-Y1)/2;
-        ShowFileList(TRUE);
-        return(TRUE);
-      }
+        if (!DirFind || (ListData[I].FileAttr & FA_DIREC))
+        {
+          CmpNameSearchMode=FALSE;
+          CurFile=I;
+          CurTopFile=CurFile-(Y2-Y1)/2;
+          ShowFileList(TRUE);
+          return(TRUE);
+        }
   }
   CmpNameSearchMode=FALSE;
   for (I=0;I<CurFile;I++)
     if (CmpName(Mask,ListData[I].Name,TRUE))
       if (strcmp(ListData[I].Name,"..")!=0)
-      {
-        CurFile=I;
-        CurTopFile=CurFile-(Y2-Y1)/2;
-        ShowFileList(TRUE);
-        return(TRUE);
-      }
+        if (!DirFind || (ListData[I].FileAttr & FA_DIREC))
+        {
+          CurFile=I;
+          CurTopFile=CurFile-(Y2-Y1)/2;
+          ShowFileList(TRUE);
+          return(TRUE);
+        }
+  /* IG $ */
   return(FALSE);
 }
 
