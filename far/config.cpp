@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.80 22.06.2001 $ */
+/* Revision: 1.81 24.06.2001 $ */
 
 /*
 Modify:
+  24.06.2001 KM
+    ! Вернулся назад дефолт открытия read-only файлов: не предупреждать и не блокировать,
+      уж слишком много копий было сломано из-за этого в последнее время.
   22.06.2001 SVS
     + Opt.DateFormat
   14.06.2001 OT
@@ -938,7 +941,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,"SaveEditorShortPos",&Opt.SaveEditorShortPos,0, 0},
   {1, REG_DWORD,  NKeyEditor,"AutoDetectTable",&Opt.EdOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyEditor,"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
-  {1, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,2, 0},
+  {1, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
   {0, REG_SZ,     NKeyEditor,"WordDiv",Opt.WordDiv,sizeof(Opt.WordDiv),WordDiv0},
   {0, REG_DWORD,  NKeyEditor,"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
   {0, REG_DWORD,  NKeyEditor,"EditorF7Rules",&Opt.EditorF7Rules,1, 0},
