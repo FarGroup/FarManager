@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.143 28.03.2005 $ */
+/* Revision: 1.144 01.04.2005 $ */
 
 /*
 Modify:
+  01.04.2005 SVS
+    - невыставление аатрибутов для копируемых каталогов
   28.03.2005 SVS
     - Трабла с переполнением буфера
   20.12.2004 WARP
@@ -2396,6 +2398,32 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           }
         }
       }
+      else if((SetAttr & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+      {
+        while(!ShellSetAttr(DestPath,SetAttr))
+        {
+          int MsgCode;
+          CopyTime+= (clock() - CopyStartTime);
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                          MSG(MCopyCannotChangeFolderAttr),DestPath,
+                          MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
+          CopyStartTime = clock();
+
+          if (MsgCode!=0)
+          {
+            if(MsgCode==1)
+              break;
+            if(MsgCode==2)
+            {
+              ShellCopy::Flags|=FCOPY_SKIPSETATTRFLD;
+              break;
+            }
+            FAR_RemoveDirectory(DestPath);
+            _LOGCOPYR(SysLog("return COPY_CANCEL -> %d ShellSetAttr('%s', 0x%08X)==0",__LINE__,DestPath,SetAttr));
+            return((MsgCode==-2 || MsgCode==3) ? COPY_CANCEL:COPY_NEXT);
+          }
+        }
+      }
 #if 1
       // для источника, имеющего суть симлинка - создадим симлинк
       // Если [ ] Copy contents of symbolic links
@@ -3373,7 +3401,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     CloseHandle(SrcHandle);
     CloseHandle(DestHandle);
 
-    // ЗДЕСЯ СТАВИТЬ Compressed???
+    // TODO: ЗДЕСЯ СТАВИТЬ Compressed???
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
         (SrcData.dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
       ShellSetAttr(DestName,SrcData.dwFileAttributes);
@@ -4292,6 +4320,14 @@ int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
   {
     _LOGCOPYR(SysLog("return 0 -> %d SetFileAttributes('%s',0x%08X) == 0",__LINE__,Dest,Attr));
     return FALSE;
+  }
+  if((Attr&FILE_ATTRIBUTE_COMPRESSED) && !(Attr&FILE_ATTRIBUTE_ENCRYPTED))
+  {
+    if(!ESetFileCompression(Dest,1,Attr&(~FILE_ATTRIBUTE_COMPRESSED)))
+    {
+      _LOGCOPYR(SysLog("return 0 -> %d ESetFileEncryption('%s',1,0) == 0",__LINE__,Dest));
+      return FALSE;
+    }
   }
     // При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
     // для каталога, если он есть
