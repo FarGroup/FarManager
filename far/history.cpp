@@ -5,12 +5,14 @@ history.cpp
 
 */
 
-/* Revision: 1.09 18.07.2001 $ */ 
+/* Revision: 1.10 18.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 VVM
+    + —просить подтверждение перед очищением истории
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   06.06.2001 SVS
     ! Mix/Max
   04.06.2001 SVS
@@ -42,6 +44,7 @@ Modify:
 #include "global.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"
+#include "lang.hpp"
 
 History::History(char *RegKey,int *EnableSave,int SaveTitle,int SaveType)
 {
@@ -292,12 +295,21 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
         }
         /* SVS $ */
         case KEY_DEL:
-          memset(LastStr,0,sizeof(LastStr));
-          CurLastPtr=LastPtr=0;
-          CurLastPtr0=LastPtr0=0;
-          SaveHistory();
-          HistoryMenu.Hide();
-          return(Select(Title,HelpTopic,Str,Type));
+        /* $ 23.07.2001 VVM
+          + —просить подтверждение перед удалением */
+        {
+          if (Message(MSG_WARNING,2,MSG(MHistoryTitle),MSG(MHistoryClear),MSG(MClear),MSG(MCancel))==0)
+          {
+            memset(LastStr,0,sizeof(LastStr));
+            CurLastPtr=LastPtr=0;
+            CurLastPtr0=LastPtr0=0;
+            SaveHistory();
+            HistoryMenu.Hide();
+            return(Select(Title,HelpTopic,Str,Type));
+          } /* if */
+          break;
+        }
+        /* VVM $ */
         default:
           HistoryMenu.ProcessInput();
           break;

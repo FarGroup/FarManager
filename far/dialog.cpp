@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.142 23.07.2001 $ */
+/* Revision: 1.143 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 VVM
+   + При удалении строки из истории курсор оставлять на месте.
+   + При очистке истории спросить об этом пользователя.
   23.07.2001 SVS
    ! DIF_SEPARATOR пока не обрабатываем для DI_VTEXT
   23.07.2001 SVS
@@ -3733,6 +3736,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
   int IsOk=FALSE, Done, IsUpdate;
   struct MenuItem HistoryItem;
   int ItemsCount;
+  int LastSelected = 0;
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
 
@@ -3785,6 +3789,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       if (ItemsCount==0)
         break;
 
+      HistoryMenu.SetSelectPos(LastSelected, 1);
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       /*$ 14.06.2001 OT */
       short Colors[VMENU_COLOR_COUNT];
@@ -3832,8 +3837,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         }
         else if (Key==KEY_SHIFTDEL) // Shift-Del очищает текущий пункт истории команд.
         {
-          Dest=HistoryMenu.GetSelectPos();
-          if (!HistoryMenu.GetSelection(Dest))
+          LastSelected=HistoryMenu.GetSelectPos();
+          if (!HistoryMenu.GetSelection(LastSelected))
           {
             HistoryMenu.Hide();
             // удаляем из реестра все.
@@ -3845,7 +3850,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
               DeleteRegValue(RegKey,HisLine);
             }
             // удаляем из списка только то, что требовали
-            HistoryMenu.DeleteItem(Dest);
+            HistoryMenu.DeleteItem(LastSelected);
             // перестроим список в реестре
             for (Dest=I=0; I < HistoryMenu.GetItemCount(); I++)
             {
@@ -3868,30 +3873,35 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         }
         else if (Key==KEY_DEL) // Del очищает историю команд.
         {
-          HistoryMenu.Hide();
+          LastSelected=HistoryMenu.GetSelectPos();
 
-          // удаляем из реестра
-          for (I=0; I < HISTORY_COUNT;I++)
+          if (Message(MSG_WARNING,2,MSG(MHistoryTitle),MSG(MHistoryClear),MSG(MClear),MSG(MCancel))==0)
           {
-            itoa(I,PHisLocked,10);
-            DeleteRegValue(RegKey,HisLocked);
-            itoa(I,PHisLine,10);
-            DeleteRegValue(RegKey,HisLine);
-          }
+            HistoryMenu.Hide();
 
-          // заносим в реестр
-          for (Dest=I=0; I < HistoryMenu.GetItemCount(); I++)
-          {
-            if (HistoryMenu.GetSelection(I))
+            // удаляем из реестра
+            for (I=0; I < HISTORY_COUNT;I++)
             {
-              HistoryMenu.GetUserData(Str,sizeof(Str),I);
-              itoa(Dest,PHisLine,10);
-              SetRegKey(RegKey,HisLine,Str);
-              itoa(Dest,PHisLocked,10);
-              SetRegKey(RegKey,HisLocked,TRUE);
-              Dest++;
-            }
-          }
+              itoa(I,PHisLocked,10);
+              DeleteRegValue(RegKey,HisLocked);
+              itoa(I,PHisLine,10);
+              DeleteRegValue(RegKey,HisLine);
+            } /* for */
+
+            // заносим в реестр
+            for (Dest=I=0; I < HistoryMenu.GetItemCount(); I++)
+            {
+              if (HistoryMenu.GetSelection(I))
+              {
+                HistoryMenu.GetUserData(Str,sizeof(Str),I);
+                itoa(Dest,PHisLine,10);
+                SetRegKey(RegKey,HisLine,Str);
+                itoa(Dest,PHisLocked,10);
+                SetRegKey(RegKey,HisLocked,TRUE);
+                Dest++;
+              } /* if */
+            } /* for */
+          } /* if */
           HistoryMenu.SetUpdateRequired(TRUE);
           IsUpdate=TRUE;
           break;

@@ -125,6 +125,9 @@
 "Edit"
 "Ext."
 
+"All records in the history will be deleted. Continue?"
+"&Clear history"
+
 "System settings"
 "&Clear R/O attribute from CD files"
 "&Delete to Recycle Bin"

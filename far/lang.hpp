@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.66 22.07.2001 $ */
+/* Revision: 1.67 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 VVM
+    + MHistoryClear
+    + MClear
   22.07.2001 SVS
     + MNewOpen, MSetConfirmAllowReedit
     + MFindFileResultTitle
@@ -344,6 +347,9 @@ enum
   MHistoryView,
   MHistoryEdit,
   MHistoryExt,
+
+  MHistoryClear,
+  MClear,
 
   MConfigSystemTitle,
   MConfigRO,
