@@ -301,13 +301,12 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   while (1)
   {
     const char *ArcHistoryName="ArcName";
-    const char *SwHistoryName="ArcSwitches";
     struct InitDialogItem InitItems[]={
   /* 0 */    DI_DOUBLEBOX,3,1,72,14,0,0,0,0,"",
   /* 1 */    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc,
   /* 2 */    DI_EDIT,5,3,70,3,1,(DWORD)ArcHistoryName,DIF_HISTORY,0,"",
   /* 3 */    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSwitches,
-  /* 4 */    DI_EDIT,5,5,70,3,0,(DWORD)SwHistoryName,DIF_HISTORY,0,"",
+  /* 4 */    DI_EDIT,5,5,70,3,0,0,DIF_HISTORY,0,"",
   /* 5 */    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 6 */    DI_TEXT,5,7,0,0,0,0,0,0,(char *)MAddPassword,
   /* 7 */    DI_PSWEDIT,5,8,35,8,0,0,0,0,"",
@@ -330,7 +329,12 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     char DefExt[NM];
     if (!ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
       return(0);
+
+    char SwHistoryName[NM];
     FSF.sprintf(DialogItems[0].Data,GetMsg(MAddTitle),ArcFormat);
+    FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",ArcFormat);
+    DialogItems[4].History=SwHistoryName;
+
     GetRegKey(HKEY_CURRENT_USER,ArcFormat,"AddSwitches",DialogItems[4].Data,"",sizeof(DialogItems[4].Data));
     if (*ArcName)
       strcpy(DialogItems[2].Data,ArcName);
