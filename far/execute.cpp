@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.50 28.03.2002 $ */
+/* Revision: 1.51 30.03.2002 $ */
 
 /*
 Modify:
+  30.03.2002 VVM
+    !  авычим строку выполнени€ только если пускаем в отдельном окне.
   28.03.2002 SVS
     - CLS не выставл€ла атрибуты консоли
   26.03.2002 SVS
@@ -816,11 +818,11 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
         //_tran(SysLog("2. execline=[%s]",ExecLine);)
         //_tran(SysLog("3. cmdptr=[%s]",CmdPtr);)
 
-        if (PipeFound)
+        if ((PipeFound) && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
           strcat(ExecLine, "\"");
         strcat(ExecLine, CmdPtr);
         strcat(ExecLine, NewCmdPar);
-        if (PipeFound)
+        if ((PipeFound) && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
           strcat(ExecLine, "\"");
         //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
       }
