@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.60 02.06.2001 $ */
+/* Revision: 1.61 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 OT
+    - мусор в %temp% после неверно выкинутого куска кода 
   02.06.2001 KM
     + Ну уж так народ настаивает на кнопках в диалоге при открытии
       файла по Shift-F4.
@@ -1221,20 +1223,9 @@ _SVS(SysLog("FileName='%s'",FileName));
                   ViewList.SetCurName(FileName);
                 }
                 FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
-#if 0
-                /* $ 11.05.2001 VVM
-                  - Проверить, открылся ли файл... */
-                if (ShellViewer->GetExitCode() != FALSE)
-                {
-                  if (PluginMode)
-                    ShellViewer->SetTempViewName(FileName);
-                  FrameManager->InsertFrame(ShellViewer);
-                }
-                else
-                  delete ShellViewer;
-                Modaling=FALSE; ///
-                /* VVM $ */
-#endif 0
+                if (PluginMode)
+                  ShellViewer->SetTempViewName(FileName);
+                Modaling=FALSE;
               }
           }
         if (PluginMode)
@@ -1243,7 +1234,6 @@ _SVS(SysLog("FileName='%s'",FileName));
                     MSG(MTextSavedToTemp),TempName,MSG(MOk));
           else
             DeleteFileWithFolder(TempName);
-///        if (Edit || IsColumnDisplayed(ADATE_COLUMN))
         if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)))
         {
           if (!PluginMode || UploadFile)

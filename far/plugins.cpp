@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.71 30.05.2001 $ */
+/* Revision: 1.72 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 OT
+    - Не обновлялся StatusLine после DrawLine в редакторе
   30.05.2001 SVS
     + StandardFunctions.MkLink
   29.05.2001 IS
@@ -244,6 +246,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
+#include "editor.hpp"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4509)
@@ -1948,6 +1951,9 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       NewPanel->Update(0);
       NewPanel->Show();
       NewPanel->SetFocus();
+    }
+    if (Editor){
+      CurEditor->SetPluginTitle(NULL);
     }
   }
   return(TRUE);

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.19 27.05.2001 $ */
+/* Revision: 1.20 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 OT
+    - Не обновлялся StatusLine после DrawLine в редакторе
   27.05.2001 DJ
     + константы для кодов возврата Editor::SaveFile()
   07.05.2001 SVS
@@ -261,6 +263,7 @@ class Editor:public ScreenObject
     void SetTitle(char *Title);
     long GetCurPos();
     void SetPluginData(char *PluginData);
+    void SetPluginTitle(char *PluginTitle);
     int EditorControl(int Command,void *Param);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};

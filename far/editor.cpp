@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.99 31.05.2001 $ */
+/* Revision: 1.100 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 OT
+    - Не обновлялся StatusLine после DrawLine в редакторе
   31.05.2001 OT
     ! Исправления в SaveFile() Вместо цифр - поименованные константы типа SAVEFILE_XXX
   25.05.2001 IS
@@ -2220,10 +2222,12 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_F11:
+/*
       CtrlObject->Plugins.CurEditor=this;
       if (CtrlObject->Plugins.CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
         *PluginTitle=0;
       Show();
+*/
       return(TRUE);
     case KEY_ALTBS:
     case KEY_CTRLZ:
@@ -4194,6 +4198,10 @@ void Editor::SetPluginData(char *PluginData)
   strcpy(Editor::PluginData,NullToEmpty(PluginData));
 }
 
+void Editor::SetPluginTitle(char *PluginTitle)
+{
+  strcpy(Editor::PluginTitle,NullToEmpty(PluginTitle));
+}
 
 void Editor::SetStringsTable()
 {
