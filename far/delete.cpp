@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.23 13.07.2001 $ */
+/* Revision: 1.24 13.07.2001 $ */
 
 /*
 Modify:
+  13.07.2001 SVS
+    - "Гадим в память" ;-(
   13.07.2001 IS
     ! Приводим сообщения, содержащие имя удаляемого файла, в божеский вид при
       помощи TruncPathStr
@@ -176,7 +178,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     char JuncName[NM];
     if(GetJunctionPointInfo(DeleteFilesMsg,JuncName,sizeof(JuncName)))
     {
-      TruncPathStr(JuncName+4,sizeof(JuncName));
+      TruncPathStr(JuncName+4,sizeof(JuncName)-4);
 
       //SetMessageHelp("?????");
       Ret=Message(0,3,MSG(MDeleteTitle),

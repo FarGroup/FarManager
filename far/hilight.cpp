@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.26 12.07.2001 $ */
+/* Revision: 1.27 13.07.2001 $ */
 
 /*
 Modify:
+  13.07.2001 SVS
+    + Ctrl-Up/Ctrl-Down в списке - движение групп в меню выбора.
   12.07.2001 SVS
     + F5 - дублировать текущую группу
     + Функция дублирования - DupHighlightData()
@@ -403,6 +405,28 @@ void HighlightFiles::HiEdit(int MenuPos)
                   NeedUpdate=TRUE;
               }
               break;
+            case KEY_CTRLUP:
+              if (SelectPos > 0 && SelectPos < HiMenu.GetItemCount()-1)
+              {
+                struct HighlightData HData;
+                memcpy(&HData,HiData+SelectPos,sizeof(struct HighlightData));
+                memcpy(HiData+SelectPos,HiData+SelectPos-1,sizeof(struct HighlightData));
+                memcpy(HiData+SelectPos-1,&HData,sizeof(struct HighlightData));
+                HiMenu.SetSelection(--SelectPos);
+                NeedUpdate=TRUE;
+                break;
+              }
+            case KEY_CTRLDOWN:
+              if (SelectPos < HiMenu.GetItemCount()-2)
+              {
+                struct HighlightData HData;
+                memcpy(&HData,HiData+SelectPos,sizeof(struct HighlightData));
+                memcpy(HiData+SelectPos,HiData+SelectPos+1,sizeof(struct HighlightData));
+                memcpy(HiData+SelectPos+1,&HData,sizeof(struct HighlightData));
+                HiMenu.SetSelection(++SelectPos);
+                NeedUpdate=TRUE;
+              }
+
             default:
               HiMenu.ProcessInput();
               break;
