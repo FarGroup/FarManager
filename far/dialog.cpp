@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.56 04.12.2000 $ */
+/* Revision: 1.57 05.12.2000 $ */
 
 /*
 Modify:
+  05.12.2000 IS
+   ! Все удалил в блоке, где проверяем, автодополнять или нет,
+     и написал заново
   04.12.2000 SVS
    - перебор с DIF_NOFOCUS :-(
    - При удаление в предыдущем патче - прихватил нужную строку :-(
@@ -2114,52 +2117,30 @@ int Dialog::ProcessKey(int Key)
              ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX)
             )
           {
-            /* $ 03.12.2000 IS
-               Флаг для указания - автодополнять или нет.
+            /* $ 05.12.2000 IS
+               Все удалил и написал заново ;)
             */
             int DoAutoComplete=TRUE;
-            /* IS $*/
-            /* $ 01.08.2000 SVS
-               Небольшой глючек с AutoComplete
-            */
             int CurPos=edt->GetCurPos();
-            /* SVS $*/
-            //text to search for
             edt->GetString(Str,sizeof(Str));
+            int len=strlen(Str);
+            edt->GetSelection(SelStart,SelEnd);
+            if(SelStart < 0 || SelStart==SelEnd)
+                SelStart=len;
+            else
+                SelStart++;
 
+            if(CurPos<SelStart) DoAutoComplete=FALSE;
+            if(SelStart<SelEnd && SelEnd<len) DoAutoComplete=FALSE;
 
-            /* $ 03.12.2000 IS
-               Не автодополнять, если после курсора есть невыделенные символы.
-               Работает это правило, естественно, только с постоянными блоками.
-            */
             if(Opt.EditorPersistentBlocks)
             {
-              /* $ 03.12.2000 IS
-                Тут баг был, imho. Нужно именно "<", а не "<=".
-              */
-              /* $ 04.12.2000 SVS
-                 Этот кусок только для персистентных блоков
-              */
-              edt->GetSelection(SelStart,SelEnd);
-              if(SelStart < 0)
-              /* IS $ */
-                SelStart=sizeof(Str);
-              else
-                SelStart++;
-              /* SVS $ */
-//SysLog("\n0) Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
-              if(SelStart<SelEnd && (CurPos<SelStart || SelEnd<strlen(Str)))
-                 DoAutoComplete=FALSE;
-
-              // удалим остаток строки
               if(DoAutoComplete && CurPos <= SelEnd)
               {
-//SysLog("1) Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
                 Str[CurPos]=0;
                 edt->Select(CurPos,sizeof(Str)); //select the appropriate text
                 edt->DeleteBlock();
                 edt->FastShow();
-//SysLog("2) Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
               }
             }
             /* IS $ */
@@ -3855,4 +3836,3 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 /* SVS $ */
 
 //////////////////////////////////////////////////////////////////////////
-
