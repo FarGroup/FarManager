@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.17 01.08.2001 $ */
+/* Revision: 1.18 05.08.2001 $ */
 
 /*
 Modify:
+  05.08.2001 SVS
+    + AddTitle() - добавить титл.
   01.08.2001 SVS
     + MkTopic() - создание топика
     ! ReadPluginsHelp() переименована в ReadDocumentsHelp, т.к.
@@ -110,6 +112,7 @@ class Help:public Frame
     void DisplayObject();
     int  ReadHelp(char *Mask=NULL);
     void AddLine(char *Line);
+    void AddTitle(char *Title);
     void HighlightsCorrection(char *Str);
     void FastShow();
     void OutString(char *Str);

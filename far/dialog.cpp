@@ -5,12 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.148 01.08.2001 $ */
+/* Revision: 1.149 05.08.2001 $ */
 
 /*
 Modify:
+  05.08.2001 SVS
+   - Проблемы с хелпом в диалогах из-под плагинов.
+   ! Отрисовка(?) после DI_EDITCHANGE
+   - Ctrl-Enter или Enter при задисабленной дефолтовой кнопке
   01.08.2001 SVS
-    + Новая идеология создания топика - пусть об этом позаботится ядро Help`а
+   + Новая идеология создания топика - пусть об этом позаботится ядро Help`а
   27.07.2001 SVS
    + DM_ALLKEYMODE - для нужд MacroBrowse (пока только для него :-)
   26.07.2001 SVS
@@ -2192,16 +2196,15 @@ int Dialog::ProcessKey(int Key)
   switch(Key)
   {
     case KEY_F1:
-      /* $ 28.07.2000 SVS
-         Перед выводом диалога посылаем сообщение в обработчик
-         и если вернули что надо, то выводим подсказку
-      */
-      SetHelp(Help::MkTopic(PluginNumber,
+      // Перед выводом диалога посылаем сообщение в обработчик
+      //   и если вернули что надо, то выводим подсказку
+      if(Help::MkTopic(PluginNumber,
                  (char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,
-                                (HelpTopic?(long)&HelpTopic[0]:NULL)),
-                 Str));
-      if(*Str)
-        ShowHelp();
+                                (HelpTopic?(long)HelpTopic:NULL)),
+                 Str))
+      {
+        Help Hlp (Str);
+      }
       return(TRUE);
 
     case KEY_TAB:
@@ -2230,6 +2233,11 @@ int Dialog::ProcessKey(int Key)
       for (I=0;I<ItemCount;I++)
         if (Item[I].DefaultButton)
         {
+          if(Item[I].Flags&DIF_DISABLE)
+          {
+             // ProcessKey(KEY_DOWN); // на твой вкус :-)
+             return TRUE;
+          }
           if (!IsEdit(Item[I].Type))
             Item[I].Selected=1;
           ExitCode=I;
@@ -2331,6 +2339,11 @@ int Dialog::ProcessKey(int Key)
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton && !(Item[I].Flags&DIF_BTNNOCLOSE))
           {
+            if(Item[I].Flags&DIF_DISABLE)
+            {
+               // ProcessKey(KEY_DOWN); // на твой вкус :-)
+               return TRUE;
+            }
             if (!IsEdit(Item[I].Type))
               Item[I].Selected=1;
             ExitCode=I;
@@ -2450,8 +2463,10 @@ int Dialog::ProcessKey(int Key)
           посредством функции SendDlgMessage - в ней делается все!
         */
         if(((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key))
+        {
           Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
-        /* SVS $ */
+          Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
+        }
         return(TRUE);
       }
       return(TRUE);
@@ -2820,6 +2835,7 @@ int Dialog::ProcessKey(int Key)
           edt->SetClearFlag(0);
           edt->Xlat();
           Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
+          Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
           return TRUE;
         }
         /* SVS $ */
@@ -2904,7 +2920,7 @@ int Dialog::ProcessKey(int Key)
           /* SVS 03.12.2000 $ */
           Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
           /* SVS $ */
-          if(RedrawNeed)
+//          if(RedrawNeed)
             Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
           return(TRUE);
         }
@@ -4375,7 +4391,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   if(!Dlg)
     return 0;
   // предварительно проверим...
-  if(Param1 >= Dlg->ItemCount)
+  if(Param1 >= Dlg->ItemCount || !Dlg->Item)
     return 0;
 
 //  CurItem=&Dlg->Item[Param1];

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.82 01.08.2001 $ */
+/* Revision: 1.83 05.08.2001 $ */
 
 /*
 Modify:
+  05.08.2001 SVS
+    - Бага с вызовом хелпа в диалогах из плагинов
+    ! Убираем из борланда ненужные (тупорылые) варнинги
   01.08.2001 SVS
     + Поменяем правила игры с новыми флагами (про тему помощи)!
   31.07.2001 IS
@@ -748,13 +751,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     if(Flags & FDLG_NONMODAL)
       FarDialog->SetCanLoseFocus(TRUE);
     FarDialog->SetOwnsItems(TRUE);
-
-
-    {
-      char Topic[512];
-      if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
-        FarDialog->SetHelp(Topic);
-    }
+    FarDialog->SetHelp(HelpTopic);
 
     /* IS $ */
     /* $ 29.08.2000 SVS
@@ -817,6 +814,9 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 */
 
 #define MAXMSG  15
+#ifdef __BORLANDC__
+#pragma warn -aus
+#endif
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
                         const char * const *Items,int ItemsNumber,
                         int ButtonsNumber)
@@ -935,6 +935,9 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   return(MsgCode);
 }
 /* SVS $ */
+#ifdef __BORLANDC__
+#pragma warn .aus
+#endif
 
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)

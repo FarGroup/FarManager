@@ -5,10 +5,17 @@ help.cpp
 
 */
 
-/* Revision: 1.37 03.08.2001 $ */
+/* Revision: 1.38 05.08.2001 $ */
 
 /*
 Modify:
+  05.08.2001 SVS
+    + AddTitle() - добавить титл.
+    ! В Help::MkTopic() исключим возможность повторного формирования топика,
+      если он уже сформирован. Здесь еще нужно поковыряться, т.к. пока есть
+      непонятки:
+        К примеру, если принять как аксиому, что имя модуля всегда содержит
+        ".ext" (точку), то все решается на ура.
   03.08.2001 SVS
     - бага с вызовом хелпа.
   01.08.2001 SVS
@@ -459,12 +466,6 @@ int Help::ReadHelp(char *Mask)
                 AddLine(SplitLine);
                 memmove(SplitLine+1,SplitLine+I+1,strlen(SplitLine+I+1)+1);
                 *SplitLine=' ';
-                /*
-                char CopyLine[2*MAX_HELP_STRING_LENGTH];
-                strcpy(CopyLine,SplitLine+I+1);
-                *SplitLine=' ';
-                strcpy(SplitLine+1,CopyLine);
-                */
                 HighlightsCorrection(SplitLine);
                 Splitted=TRUE;
                 break;
@@ -505,6 +506,12 @@ void Help::AddLine(char *Line)
   StrCount++;
 }
 
+void Help::AddTitle(char *Title)
+{
+  char IndexHelpTitle[100];
+  sprintf(IndexHelpTitle,"^ #%s#",Title);
+  AddLine(IndexHelpTitle);
+}
 
 void Help::HighlightsCorrection(char *Str)
 {
@@ -1248,11 +1255,8 @@ void Help::ReadDocumentsHelp(int TypeIndex)
       break;
   }
 
-  {
-    char IndexHelpTitle[100];
-    sprintf(IndexHelpTitle,"^ #%s#",PtrTitle);
-    AddLine(IndexHelpTitle);
-  }
+  AddTitle(PtrTitle);
+
   /* TODO:
      1. Поиск (для "документов") не только в каталоге Documets, но
         и в плагинах
@@ -1310,7 +1314,7 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
       strcpy(Topic,HelpTopic+1);
     else
     {
-      if(PluginNumber != -1)
+      if(PluginNumber != -1 && *HelpTopic!=HelpBeginLink)
       {
          sprintf(Topic,HelpFormatLink,
                 CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName,
