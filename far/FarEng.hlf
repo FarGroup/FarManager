@@ -58,7 +58,7 @@ $^#Copyright (C) 2000-<%YEAR%> FAR Group#
    ~Internal editor~@Editor@
 
    ~File masks~@FileMasks@
-   ~Keyboard macros~@KeyMacro@
+   ~Keyboard macro commands (macro command)~@KeyMacro@
 
 @Help
 $ #How to use help#
@@ -129,30 +129,31 @@ $ #Command line switches#
         unstable work.
 
   #/p[<path>]#
-        Искать "основные" плагины в папке, указанной в <path>.
-        Можно указать несколько путей поиска, разделенных символом
-        ';'. При указании пути поиска можно использовать переменные
-        среды.
+        Search for "main" plugins in the folder given in <path>.
+        Several search paths may be given separated by ';'.
 
-        Например: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
+        Example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
 
-  #/co#   Заставляет FAR грузить плагины только из кэша.
-        Загрузка при этом происходит быстрее, но новые или измененные
-        плагины не обнаруживаются. Имеет смысл применять ТОЛЬКО при
-        стабильном списке плагинов. После добавления, замены или
-        удаления плагинов надо загрузить FAR без этого параметра.
-        Если кэша нет, то плагины грузиться не будут.
+  #/co#   Forces FAR to load plugins from cache only.
+        Plugins are loaded faster this way, but new or changed
+        plugins are not discovered. Should be used ONLY with a
+        stable list of plugins. After adding, replacing or
+        deleting a plugin FAR should be loaded without this
+        switch. If the cache is empty, no plugins will be loaded.
 
-     Замечания относительно ключей /p и /co:
+        Remarks about switches /p and /co:
 
-     - если указан пустой /p, то FAR запустится без плагинов;
-     - если указан /p<path>, то загрузятся только плагины из <path>
-     - если указан только ключ /co и кэш плагинов не пуст, то
-       загружаются плагины из кэша
-     - ключ /co игнорируется, если также указан /p
-     - если не указаны ключи /p и /co, то загрузятся плагины
-       из основного каталога и из каталога, указанного в
-       параметре "~Путь к персональным плагинам~@SystemSettings@"
+        - if /p is empty, then FAR will be loaded with
+          no plugins;
+        - if /p is given with a <path>, then only plugins
+          from <path> will be loaded;
+        - if only the /co switch is given and plugins cache
+          is not empty, then plugins will be loaded from
+          cache;
+        - /co is ignored, if /p is given;
+        - if /p and /co are not given, then plugins will
+          be loaded from the main folder, and from the path
+          given at the "~Path for personal plugins~@SystemSettings@" parameter.
 
   #/u <username>#
         Allows to have separate settings for different users.
@@ -1128,10 +1129,10 @@ files and folders matching one or more ~wildcards~@FileMasks@ (delimited
 with commas). It may also be used with file systems emulated
 by ~plugins~@Plugins@.
 
-    Примечание: если маска, введенная пользователем, не содержит
-                символов '?', '*' и '.', то FAR к введенному
-                пользователем значению добавляет символ '*' и
-                производит поиск по измененной маске.
+    Remark: if the mask, entered by the user, does not contain
+            the symbols '?', '*' and '.', then FAR will add the
+            '*' symbol to the user value and will conduct the
+            search with the modified mask.
 
     Optional text string may be specified to find only files containing
 this text. If the string is entered, the option #Case sensitive# selects case
@@ -1154,15 +1155,13 @@ decreases the performance of the search. FAR cannot search in nested archives.
 that match the wildcards. Also the counter of found files takes account of
 found folders.
 
-     Параметр #Искать в символических связях# позволяет искать файлы в
- ~символических связях~@HardSymLink@ наравне с обычными подкаталогами.
+    The #Search in symbolic links# option allows searching files in
+~symbolic links~@HardSymLink@ along with normal sub-foledrs.
 
-     Примечание: если при помощи символических связей в файловой
-                 системе образованы рекурсивные кольца (например,
-                 символическая связь указывает на один из
-                 собственных родительских каталогов), поиск будет
-                 идти до достижения максимально допустимой длины
-                 полного пути файлов.
+    Remark: if the file system contains recursive cycles of
+             symbolic links (e.g. a symlink pointing to one of
+             its parent folders), then the search will be conducted
+             until the maximum allowed path length is reached.
 
     Search may be performed in all non-removable disks, in all disks, except
 removable and network, in all folders from the disk root, from the current
@@ -1559,16 +1558,16 @@ $ #System settings dialog#
                           is being modified at the same time as
                           copying.
 
-  #Scan symbolic links#     Обрабатывать ~символические связи~@HardSymLink@ наравне
-                          с обычными подкаталогами при построении
-                          дерева каталогов, определении суммарного
-                          размера файлов в подкаталогах.
+  #Scan symbolic links#     Scan ~symbolic links~@HardSymLink@ along with normal
+                          sub-folders when building the folder tree,
+                          determining the total file size in the
+                          sub-folders.
 
-  Примечание: если при помощи символических связей в файловой системе
-              образованы рекурсивные кольца (например, символическая
-              связь указывает на один из собственных родительских
-              каталогов), сканирование будет идти до достижения
-              максимально допустимой длины полного пути файлов.
+       Remark: if the file system contains recursive cycles of
+               symbolic links (e.g. a symlink pointing to one of
+               its parent folders), then the scanning will continue
+               until the maximum allowed path length is reached.
+
 
   #Create folders#          If the name of a new folder contains only
   #in uppercase#            lowercase letters and this option is on,
@@ -1606,15 +1605,13 @@ $ #System settings dialog#
                           correctly (this can happen because of bugs
                           in the drivers of some CD-ROM drives).
 
-  #Path for#                Укажите полный путь, где FAR будет искать
-  #personal plugins#        "персональные" плагины в дополнение
-                          к "основным". Можно указать несколько путей
-                          поиска, разделенных символом ';'. При
-                          указании пути поиска можно использовать
-                          переменные среды.
-                          Персональные плагины не будут загружаться,
-                          если в параметрах ~командной строки~@CmdLine@ указан
-                          один из ключей /p или /co.
+  #Path for#                Enter here the full path, where FAR will search
+  #personal plugins#      for "personal" plugins in addition to the "main"
+                          plugins. Several search paths may be given separated
+                          by ';'. Environment variables can be entered in the
+                          search path. Personal plugins will not be loaded, if
+                          the switches /p or /co are given in the
+                          ~command line~@CmdLine@.
 
   #Auto save setup#         If checked, FAR will save setup
                           automatically. The current folders for
@@ -1779,9 +1776,9 @@ $ #Internal viewer#
     #Up#                 Line up
     #Down#               Line down
     #Ctrl-Left#          20 characters left
-                       В 16-ричном режиме - на 1 позицию влево
+                       In Hex-mode - 1 position left
     #Ctrl-Right#         20 characters right
-                       В 16-ричном режиме - на 1 позицию вправо
+                       In Hex-mode - 1 position right
     #PgUp#               Page up
     #PgDn#               Page down
     #Ctrl-Shift-Left#    Start of lines on the screen
@@ -2412,13 +2409,13 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
     The "Compressed" and "Encrypted" attributes may be changed only on NTFS
-drives. The "Encrypted" attribute can be used in Windows 2000/XP only. These two
-attributes are mutually exclusive, that is, you can set only one of them.
+drives. The "Encrypted" attribute can be used in Windows 2000/XP only. These
+two attributes are mutually exclusive, that is, you can set only one of them.
 
-    For ~folder links~@HardSymLink@ the dialog will display the original folder information
-(NTFS/Windows 2000/XP only). Если информация об оригинальной папке
-недоступна (в частности, для символических связей в сетевых
-каталогах), то выводится сообщение "#(нет данных)#".
+    For ~folder links~@HardSymLink@ the dialog will display the original
+folder information (NTFS/Windows 2000/XP only). If the information on the
+original folder is not available (in particular, for symbolic links in remote
+folders), then the "#(data not available)#" message will be shown.
 
   #File date and time#
 
@@ -2618,12 +2615,11 @@ real case.
 
   - #Use case sensitive sort# - use case sensitive sort for file names.
 
-  - #Использовать числовую сортировку# - использовать
-числовую сортировку имен файлов (в стиле Windows XP, ведущие нули не
-учитываются). Следующий пример показывает как сортируются файлы в
-зависимости от опции.
+  - #Use numeric sort# - use numeric sorting of file names (as in Windows XP,
+leading zeroes are ignored). Then following examples show how files are sorted
+according to this option.
 
-    Опция выключена     Опция включена
+    Option is on        Option is off
 
     0                   0
     00012               1
@@ -2802,9 +2798,9 @@ is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
-    Параметр "Копировать содержимое символических связей" позволяет
-уточнять ~логику~@CopyRule@ работы FAR с ~символическими связями~@HardSymLink@
-при копировании/перемещении.
+    The "Copy contents of symbolic links" option allows to control the
+~logic~@CopyRule@ of FAR processing of ~symbolic links~@HardSymLink@
+when copying/moving.
 
     When moving files, to determine whether the operation should be
 performed as a copy with subsequent deletion or as a direct move
@@ -2822,43 +2818,44 @@ the current copy session and are not saved for later copy operations.
 
 
 @CopyRule
-$ #Правила копирования/перемещения#
-    При ~копировании/перемещении~@CopyFiles@ каталогов и
-~символических связей~@HardSymLink@ соблюдаются следующие правила.
+$ #Copying/Moving rules#
+    When ~copying/moving~@CopyFiles@ folders and/or
+~symbolic links~@HardSymLink@ the following rules apply:
 
-  #Копирование символической связи#
+    #Copying of symbolic links#
 
-  Если включена опция "Копировать содержимое символических связей"
-  или источник или приемник - сетевые диски, то в приемнике
-  создается папка и в нее копируется содержимое связи-источника
-  (для вложенных линков рекурсивно).
+    If the "Copy contents of symbolic links" option is on or the source
+or the destination are remote disks, then a folder will be created at
+the destination and the contents of the source symbolic link will be
+copied to it (recursively for enclosed links).
 
-  Если опция "Копировать содержимое символических связей" выключена,
-  и источник и приемник - локальные диски, то в приемнике создается
-  символическая связь, ссылающаяся на связь-источник.
+    If the "Copy contents of symbolic links" option is off and the source
+and the destination are local disks, then a symbolic link pointing to
+the source symbolic link will be created at the destination.
 
-  #Перемещение символической связи#
+    #Moving of symbolic links#
 
-  Если включена опция "Копировать содержимое символических связей"
-  или источник или приемник - сетевые диски, то в приемнике
-  создается папка и в нее копируется содержимое связи-источника
-  (для вложенных линков рекурсивно). Сама связь в источнике
-  удаляется.
+    If the "Copy contents of symbolic links" option is on or the source
+or the destination are remote disks, then a folder will be created at
+the destination and the contents of the source symbolic links will be
+copied to it (recursively for enclosed links). The source symbolic
+link is then deleted.
 
-  Если опция "Копировать содержимое символических связей" выключена,
-  и источник и приемник - локальные диски, то связь-источник просто
-  переносится. Рекурсивный спуск по дереву не производится.
+    If the "Copy contents of symbolic links" option is off and the source
+and the destination are local disks, then the source symbolic link will
+be moved to the destination. Recursive descent of the tree will not be
+made.
 
-  #Перемещение каталога, содержащего символические связи#
+    #Moving of a folder, than contains symbolic links#
 
-  Если источник и приемник - локальные диски, то каталог просто
-  перемещается.
+    If the source and the destination are local disk, then the folder will
+be moved as a normal folder.
 
-  Если источник или приемник - сетевые диски, то независимо от
-  состояния опции "Копировать содержимое символических связей"
-  в приемнике создается папка и в нее копируется содержимое
-  связи-источника (для вложенных линков рекурсивно).
-  Сама связь в источнике удаляется.
+    If the source or the destination are remote disks, then with no regard
+to the "Copy contents of symbolic links" option a folder will be created
+in the destination and the contents of the source symbolic link will be
+copied to it (recursively for enclosed links). The source symbolic link
+is then deleted.
 
 
 @HardSymLink
@@ -3055,165 +3052,167 @@ available to child processes:
     #FARLANG#            name of the current interface language.
 
 @KeyMacro
-$ #Клавиатурные макрокоманды (макросы)#
-    Клавиатурные макрокоманды или макросы - это записанная последовательность
-нажатий клавиш, которую можно использовать для совершения одних и тех же
-действий произвольное количество раз.
+$ #Keyboard macro commands (macro command)#
+    Keyboard macro commands or macro commands - are recorded sequences of key
+presses that can be used to perform repetitive task unlimited number of times
+by pressing a single hotkey.
 
-    Каждый макрос имеет следующие параметры:
+    Each macro command has the following parameters:
 
-    - горячую клавишу, при нажатии на которую будет выполнена
-      записанная последовательность;
-    - набор дополнительных ~параметров~@KeyMacroSetting@, которые влияют на способ
-      и место воспроизведения FAR записанной последовательности;
+    - an hotkey, that will execute the recorded sequence when
+      pressed;
+    - additional ~settings~@KeyMacroSetting@, that influence the method and
+      the area of execution of the recorded sequence.
 
-    Макросы могут содержать специальные ~команды~@KeyMacroCmds@, которые FAR
-при воспроизведении будет интерпретировать специальным образом, что позволяет
-создавать сложные конструкции.
+    Macro commands may contain special ~commands~@KeyMacroCmds@, that will be
+interpreted in a special way upon execution, those allowing to create complex
+constructions.
 
-    Макросы, чаще всего, используются для:
+    Macro commands are mostly used for:
 
-    1. Совершения одинаковых действий несколько раз, используя для
-       вызова последовательности этих действий одно сочетание кнопок.
-    2. Выполнения специальный функций, которые задаются специальными
-       командами в тексте макроса.
-    3. Переопределение стандартных сочетаний клавиш, которые
-       использует FAR для совершения тех или иных действий.
+    1. Performing repetitive task unlimited number of times by
+       pressing a single hotkey.
+    2. Execution of special functions, which are represented by
+       special commands in the text of the macro command.
+    3. Redefine standard hotkeys, which are used by FAR for
+       execution of internal commands.
 
-    Основным применением макросов является определение кнопок для быстрого
-вызова внешних плагинов и переопределение действий FAR.
-
-
-    #Области действия макросов#
-
-    FAR позволяет создавать независимые макросы (макросы, у которых совпадает
-сочетание клавиш запуска) для различных областей.
-
-    Внимание: Область, к которой будет принадлежать макрос,
-              определяется тем местом, где его #начали# записывать.
-
-    В настоящий момент такими независимыми областями являются:
-
-    - файловые панели;
-    - внутренняя программа просмотра;
-    - редактор;
-    - диалоги;
-    - быстрый поиск в панелях;
-    - меню выбора дисков;
-    - основное меню;
-    - прочие меню;
-    - система помощи;
-    - информационная панель;
-    - панель быстрого просмотра;
-    - панель дерева папок;
-    - режим копирования текста с экрана, вертикальные меню.
-
-    Нельзя назначить действия на какое-либо сочетание клавиш, если
-это сочетание уже используется для воспроизведения макроса. При попытке
-назначить сочетание, используемое другим макросом, будет выдано предупреждение
-о том, что использующий это сочетание макрос будет удален.
-
-    Таким образом, вы можете иметь по одному макросу с одинаковым
-сочетанием клавиш запуска в каждой из перечисленных областей.
+    The main usage of macro commands is assignment of hotkeys for calling
+external plugins and for overloading FAR actions.
 
 
-    #Кнопки назначения#
+    #Macro command areas of execution#
 
-    Макрос может быть назначен на:
+    FAR allows the creation of independent macro commands (commands with
+identical hotkeys) for different areas of execution.
 
-    1. любую клавишу;
-    2. на сочетание клавиши с модификаторами Ctrl, Alt и Shift;
-    3. на сочетание клавиши с двумя модификаторами.
-       FAR позволяет использовать следующие двойные модификаторы:
-       Ctrl-Shift-<клавиша>, Ctrl-Alt-<клавиша> и Alt-Shift-<клавиша>
+    Attention: The area of execution, to which the macro command will
+               belong, is determined by the location in which the
+               recording of the macro command has been #started#.
 
-    Макрос #не# может быть назначен на следующие клавиши и сочетания
-клавиш: Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>
+    Currently those are the available independent areas:
 
-    Некоторые комбинации клавиш (в частности, Enter, Esc, F1,
-Ctrl-F5) невозможно ввести напрямую в диалоге назначения макроклавиши,
-поскольку они имеют специальные функции. Для того, чтобы назначить макрос на
-одну из таких комбинаций клавиш, выберите ее из выпадающего списка.
+    - file panels;
+    - internal viewer;
+    - internal editor;
+    - dialogs;
+    - quick file search;
+    - select drive menu;
+    - main menu;
+    - other menus;
+    - help window;
+    - info panel;
+    - quick view panel;
+    - tree panel;
+    - screen grabber, vertical menus.
 
-    #Запись и воспроизведение макросов#
+    It is impossible to assign a macro command to an already used hotkey. When
+such an attempt is made, a warning message will appear telling that the macro
+command that is assigned to this hotkey will be deleted.
 
-    Макрос может выполняться FAR в двух основных режимах:
+    This way you can have identical hotkeys for different macro commands only
+in different areas of execution.
 
-    1. Общий режим: нажимаемые клавиши при записи
-       и воспроизведении #будут# передаваться плагинам.
 
-    2. Специальный режим: нажимаемые клавиши при записи
-       и воспроизведении #не будут# передаваться плагинам.
+    #Hotkeys#
 
-    Например, если какой-то плагин обрабатывает сочетание клавиш
-Ctrl+A, то при специальном режиме работы макросов этот плагин не получит
-управления и не выполнит действия, которые он обычно выполняет при
-реакции на это сочетание клавиш.
+    A macro command can be assigned to:
 
-    Создание макроса выполняется следующими действиями:
+    1. any key;
+    2. any key combination with Ctrl, Alt and Shift modifiers;
+    3. any key combination with two modifiers.
+       FAR allows to use the following double modifiers:
+       Ctrl-Shift-<key>, Ctrl-Alt-<key> and Alt-Shift-<key>
 
-    1. Начало записи макроса.
+    A macro command #can't# be assigned to the following key combinations:
+Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>
 
-       Клавиша #Ctrl-<.># (Ctrl и клавишу с точкой) для записи
-       макроса в общем режиме и #Ctrl-Shift-<.># (Ctrl,
-       Shift и клавишу с точкой), для записи макроса в специальном
-       режиме.
+    It is impossible to enter some key combinations (in particular Enter, Esc,
+F1, Ctrl-F5) in the hotkey assignment dialog because of their special
+meanings. To assign a macro command to such key combination, select it from
+the dropdown list.
 
-       После того как FAR начал запись макроса в левом верхнем
-       углу экрана будет отображаться символ '\4FR\-'.
+    #Recording and playing macro commands#
 
-    2. Текст макроса.
+    A macro command can be played in one of the two following modes:
 
-       FAR будет сохранять все нажимаемые клавиши со следующими
-       исключениями:
+    1. General mode: keys pressed during the recording or the playing
+       #will be# sent to plugins.
 
-       - будут сохранены только клавиши обрабатываемые FAR.
-         Т.е. если вы в процессе записи макроса из консоли FAR
-         запустите внешнюю программу, то FAR сохранит только
-         клавиши, нажатые до и после завершения внешней программы.
+    2. Special mode: keys pressed during the recording or the playing
+       #will not be# sent to plugins.
 
-    3. Окончание записи макроса.
+    For example, if some plugin processes the key combination - Ctrl+A,
+then in the special mode this plugin will not receive focus and will not
+do what it usually does as a reaction to this combination.
 
-       Для указания об окончании записи макроса служат специальные
-       сочетания клавиш. Т.к. макрос может быть дополнительно
-       настроен, то таких сочетаний два: #Ctrl-<.># (Ctrl и клавишу
-       с точкой) и #Ctrl-Shift-<.># (Ctrl, Shift и клавишу с точкой).
-       При нажатии на первое сочетание запись макроса прекратится
-       и макрос будет использовать параметры воспроизведения,
-       принятые по умолчанию. При нажатии на второе сочетание клавиш
-       запись макроса прекратится и будет показан диалог с
-       ~параметрами~@KeyMacroSetting@ выполнения макроса.
+    Creation of a macro command is achieved by the following actions:
 
-    4. Назначение сочетания клавиш для запуска макроса.
+    1. To start recording a macro command
 
-       После окончания ввода текста макроса и назначения параметров
-       его выполнения будет показан диалог ~назначения клавиши~@KeyMacroSetting@,
-       в котором можно задать клавишу, которая будет использована
-       для воспроизведения записанной последовательности нажатия
-       клавиш.
+       Press #Ctrl-<.># (Ctrl and a period pressed together) to record
+       a macro in the general mode or #Ctrl-Shift-<.># (Ctrl, Shift and
+       a period pressed together) to record a macro in the special
+       mode.
 
-    #Удаление макроса#
+       As the recording begins the symbol '\4FR\-' will appear at the
+       upper left corner of the screen.
 
-    Для того, чтобы удалить макрос, нужно записать пустой (не
-содержащий действий) макрос и присвоить ему горячую клавишу макроса,
-который вы хотите удалить.
+    2. Contents of the macro command.
 
-    Эту операцию можно выполнить осуществив следующие действия:
+       All keys pressed during the recording will be saved with the
+       following exceptions:
 
-    1. Начать запись макроса (Ctrl-<.>)
-    2. Закончить запись макроса (Ctrl-<.>)
-    3. Ввести или выбрать в диалоге назначения горячей клавиши
-       сочетание, макрос для которого вы хотите удалить
+       - only keys processed by FAR will be saved. Meaning that if
+         during the macro recording process an external program is
+         run inside the current console then only the keys pressed
+         before the execution and after completion of that program
+         will be saved.
 
-    Внимание: после удаления макроса, сочетание клавиш,
-              используемое для его выполнения, начнет
-              выполнять свою первоначальную функцию.
-              Т.е. если это сочетание клавиш обрабатывалось
-              FAR или каким-либо плагином, то после удаления
-              макроса оно снова будет обрабатываться.
+    3. To finish recording the macro command.
+
+       To finish a macro recording there are special key
+       combinations. Because a macro command can be additionally
+       configured there are two such combinations: #Ctrl-<.># (Ctrl
+       and a period pressed together) and #Ctrl-Shift-<.># (Ctrl,
+       Shift and a period pressed together). Pressing the first
+       combination will end the recording of the macro command
+       and will use the default settings for its playback. Pressing
+       the second combination will end the recording of the macro
+       command and a dialog showing macro command ~options~@KeyMacroSetting@
+       will appear.
+
+    4. Assign a hotkey to the macro command
+
+       When the macro recording is finished and all the options are
+       set the ~hotkey assignment~@KeyMacroSetting@ dialog will appear, where the hotkey
+       that will be used to execute the recorded sequence can be
+       set.
+
+    #Deleting a macro command#
+
+    To delete a macro command an empty (containing no commands) macro should
+be recorded and assigned the hotkey of the macro command that needs to be
+deleted.
+
+    This can be achieved by the following steps:
+
+    1. Start recording a macro command (Ctrl-<.>)
+    2. Stop recording a macro command (Ctrl-<.>)
+    3. Enter or select in the hotkey assignment
+       dialog the hotkey of the macro command that
+       needs to be deleted.
+
+    Attention: after deleting a macro command, the key combination
+               (hotkey) that was used for its execution will begin
+               to function as it was meant to, originally. That is
+               if that key combination was somehow processed by FAR
+               or some plugin then after deleting the macro command
+               the key combination would be processed by them as in
+               the past.
 
 @KeyMacroSetting
-$ #Параметры макрокоманды#
+$ #Macro command settings#
     To specify additional ~macro command~@KeyMacro@ settings, start or
 finish macro recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select
 the desired options in the dialog:
@@ -3259,7 +3258,7 @@ To assign a macro to one of those key combinations, select it from
 the drop-down list.
 
 @KeyMacroCmds
-$ #Команды, используемы в тексте макросов#
+$ #Commands, used inside the text of a macro command#
    FAR supports several special "pseudo-keys" that cannot be used when
 entering a macro in the standard way. They can be added to a macro only by
 editing the registry or by using special programs or plugins.
