@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.155 20.05.2002 $ */
+/* Revision: 1.156 22.05.2002 $ */
 
 /*
 Modify:
+  22.05.2002 VVM
+    - ѕошлем сообщение о смене режима плагину _после_ смены режима.
   20.05.2002 IS
     + ѕри обработке маски в SelectFiles, если работаем с именем файла на
       панели, берем каждую квадратную скобку в имени при образовании маски
@@ -2699,15 +2701,6 @@ void FileList::SetViewMode(int ViewMode)
   if (!OldDiz && NewDiz)
     ReadDiz();
 
-  if (PanelMode==PLUGIN_PANEL)
-  {
-    char ColumnTypes[80],ColumnWidths[80];
-//    SetScreenPosition();
-    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
-        ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
-    ProcessPluginEvent(FE_CHANGEVIEWMODE,ColumnTypes);
-  }
-
   if (ViewSettings.FullScreen && !CurFullScreen)
   {
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -2745,6 +2738,16 @@ void FileList::SetViewMode(int ViewMode)
       FileList::ViewMode=ViewMode;
       FrameManager->RefreshFrame();
     }
+
+  if (PanelMode==PLUGIN_PANEL)
+  {
+    char ColumnTypes[80],ColumnWidths[80];
+//    SetScreenPosition();
+    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
+        ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
+    ProcessPluginEvent(FE_CHANGEVIEWMODE,ColumnTypes);
+  }
+
   if (ResortRequired)
   {
     SortFileList(TRUE);
