@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.137 06.08.2004 $ */
+/* Revision: 1.138 27.08.2004 $ */
 
 /*
 Modify:
+  27.08/2004 VVM
+    - Некорректное исправление от 20.07.2004
+      Перестало работать корректировка выделения при добавлении в пустой список.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   02.08.2004 SVS
@@ -2094,11 +2097,14 @@ void VMenu::AdjustSelectPos()
      Добавим проверку на -1, в противном случае падает меню
      из Dialog API.
   */
-  if (SelectPos!=-1)
-  {
+  /* $ 27.07.2004 VVM
+     Перенесем проверку в другое место :)
+  */
+//  if (SelectPos!=-1)
+//  {
     int OldSelectPos = SelectPos;
     // если selection стоит в некорректном месте - сбросим его
-    if (Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
+    if (SelectPos >= 0 && Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
       SelectPos = -1;
 
     for (int i=0; i<ItemCount; i++)
@@ -2124,9 +2130,10 @@ void VMenu::AdjustSelectPos()
     if (SelectPos == -1)
     {
       SelectPos = OldSelectPos;
-      Item [SelectPos].SetSelect (TRUE);
+      if (SelectPos >= 0)
+        Item [SelectPos].SetSelect (TRUE);
     }
-  }
+//  }
   /* KM $ */
 
   if (SelectPos == -1)
