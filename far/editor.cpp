@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.181 17.06.2002 $ */
+/* Revision: 1.182 24.06.2002 $ */
 
 /*
 Modify:
+  24.06.2002 SKV
+    - При Shift-Down надо сбрасывать FEDITOR_CURPOSCHANGEDBYPLUGIN.
   17.06.2002 SVS
     - BugZ#557 - FAR builtin editor crash on invalid attributes of LastPositions
   14.06.2002 IS
@@ -2194,6 +2196,11 @@ int Editor::ProcessKey(int Key)
           CurLine->EditLine.AddSelect(CurPos,-1);
           CurLine->Next->EditLine.Select(0,NextPos);
         }
+        /* $ 24.06.2002 SKV
+          Было бы неплохо сбросить флажок то :)
+        */
+        Flags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+        /* SKV $ */
         Down();
         Show();
       }
