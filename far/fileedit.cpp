@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.58 23.07.2001 $ */
+/* Revision: 1.59 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 tran
+    - bug с Shift-F2, существующее им€, esc. F2
   23.07.2001 SVS
     ! »зменен пор€док кнопок  MNewOpen и MReload
   22.07.2001 SVS
@@ -499,7 +501,17 @@ int FileEditor::ProcessKey(int Key)
           RemoveTrailingSpaces(EditDlg[2].Data);
           Unquote(EditDlg[2].Data);
           /* IS $ */
+
           NameChanged=LocalStricmp(EditDlg[2].Data,FileName)!=0;
+          /* $ 01.08.2001 tran
+             этот кусок перенесен повыше и вместо FileName
+             используес€ EditDlg[2].Data */
+          if (NameChanged && GetFileAttributes(EditDlg[2].Data)!=0xFFFFFFFF)
+            if (Message(MSG_WARNING,2,MSG(MEditTitle),EditDlg[2].Data,MSG(MEditExists),
+                         MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
+              return(TRUE);
+          /* tran $ */
+
           strcpy(FileName,EditDlg[2].Data);
 //          ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
           if (ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName)){
@@ -515,10 +527,6 @@ int FileEditor::ProcessKey(int Key)
         ShowConsoleTitle();
         chdir(StartDir);
 
-        if (NameChanged && GetFileAttributes(FileName)!=0xFFFFFFFF)
-          if (Message(MSG_WARNING,2,MSG(MEditTitle),FileName,MSG(MEditExists),
-                      MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
-            return(TRUE);
 
         while (FEdit.SaveFile(FileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2)==0)
           if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
