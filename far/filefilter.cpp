@@ -5,10 +5,12 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.05 25.10.2004 $ */
+/* Revision: 1.06 01.11.2004 $ */
 
 /*
 Modify:
+  01.11.2004 SVS
+    - две дефолтовые кнопки
   25.10.2004 SVS
     - "Вместо 0 - ограничитель диапазона - использовать "пусто"."
   06.08.2004 SKV
@@ -314,7 +316,7 @@ void FileFilter::Configure()
   /* 30 */DI_CHECKBOX, 7,19,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrD,
 
   /* 31 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
-  /* 32 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,1,(char *)MFileFilterReset,
+  /* 32 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MFileFilterReset,
   /* 33 */DI_BUTTON,0,21,0,21,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
   };
 

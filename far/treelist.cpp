@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.59 28.10.2004 $ */
+/* Revision: 1.60 01.11.2004 $ */
 
 /*
 Modify:
+  01.11.2004 SVS
+    - Gray+ и Gray- - не было автосмены папок
   28.10.2004 SVS
     + "Конструкторы" имен - TreeFileName() и TreeCacheFolderName()
       В дальнейшем нужно осуществить TODO по этим функциям!
@@ -1050,14 +1052,20 @@ int TreeList::ProcessKey(int Key)
     case KEY_ADD: // OFM: Gray+/Gray- navigation
     {
       CurFile=GetNextNavPos();
-      DisplayTree(TRUE);
+      if (Opt.AutoChangeFolder && !ModalMode)
+        ProcessKey(KEY_ENTER);
+      else
+        DisplayTree(TRUE);
       return TRUE;
     }
 
     case KEY_SUBTRACT: // OFM: Gray+/Gray- navigation
     {
       CurFile=GetPrevNavPos();
-      DisplayTree(TRUE);
+      if (Opt.AutoChangeFolder && !ModalMode)
+        ProcessKey(KEY_ENTER);
+      else
+        DisplayTree(TRUE);
       return TRUE;
     }
 

@@ -1470,7 +1470,7 @@ available:
 
   Go to the current folder in the list                          #Enter#
 
-  Перейти в указанную папку на пассивной панели      #Ctrl-Shift-Enter#
+  Open the selected folder in the passive panel      #Ctrl-Shift-Enter#
 
   Copy the folder name to the command line                 #Ctrl-Enter#
 
