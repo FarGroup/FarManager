@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.12 16.05.2001 $ */
+/* Revision: 1.13 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 DJ
+    ! SetPluginStartupInfo() возвращает TRUE при удачной загрузке
   16.05.2001 SVS
     ! Метод DumpPluginsInfo - в морг. Есть "штатные" средства записи
       информации о плагинах :-)
@@ -142,14 +144,19 @@ class PluginsSet
 
     Editor *CurEditor;
     /* $ 27.09.2000 SVS
-       Указательна текущий Viewer
+       Указатель на текущий Viewer
     */
     Viewer *CurViewer;
     /* SVS $*/
 
   private:
     int LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Init);
-    void SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber);
+    /* $ 22.05.2001 DJ
+       возвращает TRUE при успешной загрузке или FALSE, если не прошло
+       GetMinFarVersion()
+    */
+    int SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber);
+    /* DJ $ */
     int PreparePlugin(int PluginNumber);
     int GetCacheNumber(char *FullName,WIN32_FIND_DATA *FindData,int CachePos);
     int SavePluginSettings(struct PluginItem &CurPlugin,WIN32_FIND_DATA &FindData);
@@ -158,6 +165,12 @@ class PluginsSet
     int GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey);
     BOOL TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info);
     BOOL TestOpenPluginInfo(struct PluginItem& Item,struct OpenPluginInfo *Info);
+
+    /* $ 03.08.2000 tran
+       новые методы для проверки минимальной версии */
+    int  CheckMinVersion(struct PluginItem &CurPlg);
+    void ShowMessageAboutIllegalPluginVersion(char* plg,int required);
+    /* tran 03.08.2000 $ */
 
   public:
     PluginsSet();
@@ -199,12 +212,7 @@ class PluginsSet
     void DiscardCache();
     int ProcessCommandLine(char *Command);
 
-    /* $ 03.08.2000 tran
-       новые методы для проверки минимальной версии */
-    int  CheckMinVersion(struct PluginItem &CurPlg);
     void UnloadPlugin(struct PluginItem &CurPlg);
-    void ShowMessageAboutIllegialPluginVersion(char* plg,int required);
-    /* tran 03.08.2000 $ */
 
     /* $ .09.2000 SVS
       Функция CallPlugin - найти плагин по ID и запустить

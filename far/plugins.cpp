@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.68 21.05.2001 $ */
+/* Revision: 1.69 21.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 DJ
+    - GetMinFarVersion() не вызывался в двух местах из трех нужных;
+      вызов перенесен в SetPluginStartupInfo()
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -560,17 +563,11 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   CurPlugin.pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(hModule,"GetMinFarVersion");
   if (ModuleNumber!=-1 && Init)
   {
-    /* $ 03.08.2000 tran
-       проверка на минимальную версию фара */
-    if ( CheckMinVersion(CurPlugin) )
-    {
-      SetPluginStartupInfo(CurPlugin,ModuleNumber);
-    }
-    else
-    {
-        UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
-        return (FALSE);
-    }
+    /* $ 22.05.2001 DJ
+       проверка мин. версии перенесена в SetPluginStartupInfo()
+    */
+    return(SetPluginStartupInfo(CurPlugin,ModuleNumber));
+    /* DJ $ */
   }
   return(TRUE);
 }
@@ -605,7 +602,7 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
         )
     ) // кранты - плагин требует старший фар
     {
-        ShowMessageAboutIllegialPluginVersion(CurPlugin.ModuleName,v);
+        ShowMessageAboutIllegalPluginVersion(CurPlugin.ModuleName,v);
         return (FALSE);
     }
     return (TRUE); // нормально, свой парень
@@ -620,7 +617,7 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin)
     CurPlugin.DontLoadAgain=1;
 }
 
-void PluginsSet::ShowMessageAboutIllegialPluginVersion(char* plg,int required)
+void PluginsSet::ShowMessageAboutIllegalPluginVersion(char* plg,int required)
 {
     char msg[512];
     char PlgName[NM];
@@ -634,8 +631,19 @@ void PluginsSet::ShowMessageAboutIllegialPluginVersion(char* plg,int required)
 /* tran 03.08.2000 $ */
 /* SVS $ */
 
-void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber)
+/* $ 22.05.2001 DJ
+   проверка мин. версии перенесена в SetPluginStartupInfo()
+*/
+
+int PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber)
 {
+  /* $ 03.08.2000 tran
+     проверка на минимальную версию фара */
+  if (!CheckMinVersion(CurPlugin))
+  {
+    UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+    return (FALSE);
+  }
   if (CurPlugin.pSetStartupInfo!=NULL)
   {
     static struct PluginStartupInfo StartupInfo={0};
@@ -823,9 +831,12 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
                          GetExceptionInformation(),&CurPlugin,0) )
       {
          UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+         return FALSE;
       }
   }
+  return TRUE;
 }
+/* DJ $ */
 
 
 int PluginsSet::PreparePlugin(int PluginNumber)

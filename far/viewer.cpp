@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.62 16.05.2001 $ */
+/* Revision: 1.63 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 DJ
+    ! убрана обработка постфикса D в Alt-F8
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -2407,11 +2409,17 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, DWORD Flags)
       }
       /* $ 19.07.2000 tran
          при форме NNNd - десятичная форма */
+      /* $ 22.05.2001 DJ
+         вообще-то, есть такая шестнадцатеричная цифра - D...
+         проверка закомментарена
+      /*
       else if (strchr(ptr,'d') || strchr(ptr,'D'))
       {
           GoToDlg[RB_HEX].Selected=GoToDlg[RB_PRC].Selected=0;
           GoToDlg[RB_DEC].Selected=1;
       }
+      */
+      /* DJ $ */
       /* tran 19.07.2000 $ */
       if (GoToDlg[RB_PRC].Selected)
       {

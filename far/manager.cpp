@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.22 21.05.2001 $ */
+/* Revision: 1.23 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 DJ
+    ! в ExecuteModal() прежде всего делаем явный commit (если остались 
+      подвисшие операции, возможны разные глюки)
   21.05.2001 DJ
     ! чистка внутренностей; в связи с появлением нового типа фреймов
       выкинуто GetFrameTypesCount(); не посылалось OnChangeFocus(0)
@@ -308,6 +311,11 @@ void Manager::ModalizeFrame (Frame *Modalized, int Mode)
 
 int Manager::ExecuteModal (Frame &ModalFrame)
 {
+  /* $ 22.05.2001 DJ
+     делаем Commit() - вдруг есть что-то повисшее?
+  */
+  Commit();
+  /* DJ $ */
   _DJ(SysLog ("Executing modal %08x", &ModalFrame));
   ModalSaveState();
   InsertFrame (&ModalFrame);
