@@ -5,13 +5,16 @@ strmix.cpp
 
 */
 
-/* Revision: 1.01 02.02.2001 $ */
+/* Revision: 1.02 22.02.2001 $ */
 
 /*
 Modify:
+  22.02.2001 IS
+    + RemoveChar - удаляет символ из строки
+    ! RemoveHighlights(Str) как макрос (в fn.hpp) - вызывает RemoveChar(Str,'&')
   02.02.2001 IS
-   + Функция RemoveUnprintableCharacters - заменяет пробелами непечатные
-     символы в строке. В настоящий момент обрабатываются только cr и lf.
+    + Функция RemoveUnprintableCharacters - заменяет пробелами непечатные
+      символы в строке. В настоящий момент обрабатываются только cr и lf.
   05.01.2001 SVS
     ! Выделение в качестве самостоятельного модуля
     + Функции InsertCommas, PointToName, GetPathRoot, CmpName, ConvertWildcards,
@@ -411,6 +414,20 @@ char* WINAPI RemoveUnprintableCharacters(char *Str)
 }
 /* IS $ */
 
+// Удалить символ Target из строки Str (везде!)
+char *RemoveChar(char *Str,char Target)
+{
+  char *Ptr = Str, *StrBegin = Str, Chr;
+  while((Chr=*Str++) != 0)
+  {
+    if(Chr == Target)
+      continue;
+    *Ptr++ = Chr;
+  }
+  *Ptr = '\0';
+  return StrBegin;
+}
+
 int HiStrlen(char *Str)
 {
   int Length=0;
@@ -513,22 +530,6 @@ char *GetCommaWord(char *Src,char *Word)
   Word[WordPos]=0;
   return(Src);
 }
-
-void RemoveHighlights(char *Str)
-{
-  int HCount=0;
-  while (1)
-  {
-    if (*Str=='&')
-      HCount++;
-    else
-      *(Str-HCount)=*Str;
-    if (*Str==0)
-      break;
-    Str++;
-  }
-}
-
 
 int IsCaseMixed(char *Str)
 {

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.59 21.02.2001 $ */
+/* Revision: 1.60 22.02.2001 $ */
 
 /*
 Modify:
+  22.02.2001 SVS
+   + RemoveChar - удаляет символ из строки
+   ! RemoveHighlights(Str) как макрос - вызывает RemoveChar(Str,'&')
   21.02.2001 IS
    + EditorConfig вызывается с ссылкой на EditorOptions
   20.02.2001 SVS
@@ -247,7 +250,8 @@ int CheckRegValue(char *Key,char *ValueName);
 /* IS $ */
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
 int IsFolderNotEmpty(char *Name);
-void RemoveHighlights(char *Str);
+char *RemoveChar(char *Str,char Target);
+#define RemoveHighlights(Str) RemoveChar(Str,'&')
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
 int DeleteFileWithFolder(char *FileName);

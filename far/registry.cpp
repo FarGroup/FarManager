@@ -5,10 +5,14 @@ registry.cpp
 
 */
 
-/* Revision: 1.02 15.09.2000 $ */
+/* Revision: 1.03 22.02.2001 $ */
 
 /*
 Modify:
+  22.02.2001 SVS
+    ! Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA
+      Если такая ситуация встретилась - получим сколько надо в любом случае
+    + Проверки на корректность открытия ключа!
   15.09.2000 IS
     + Функция CheckRegValue(char *Key, char *ValueName) - возвращает FALSE,
       если указанная переменная не содержит данные или размер данных равен нулю
@@ -86,12 +90,30 @@ void SetRegKey(char *Key,char *ValueName,BYTE *ValueData,DWORD ValueSize)
 }
 
 
+/* $ 22.02.2001 SVS
+  Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA
+  Если такая ситуация встретилась - получим сколько надо в любом случае
+*/
 int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD DataSize)
 {
+  int ExitCode;
   HKEY hKey=OpenRegKey(Key);
-  DWORD Type;
-  int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)ValueData,&DataSize);
-  CloseRegKey(hKey);
+  if(hKey) // надобно проверить!
+  {
+    DWORD Type,QueryDataSize=DataSize;
+    ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)ValueData,&QueryDataSize);
+    if(ExitCode == ERROR_MORE_DATA) // если размер не подходящие...
+    {
+      char *TempBuffer=new char[QueryDataSize+1]; // ...то выделим сколько надо
+      if(TempBuffer) // Если с памятью все нормально...
+      {
+        if((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&QueryDataSize)) == ERROR_SUCCESS)
+          strncpy(ValueData,TempBuffer,DataSize); // скопируем сколько надо.
+        delete[] TempBuffer;
+      }
+    }
+    CloseRegKey(hKey);
+  }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
     strcpy(ValueData,Default);
@@ -99,14 +121,19 @@ int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD Data
   }
   return(TRUE);
 }
+/* SVS $ */
 
 
 int GetRegKey(char *Key,char *ValueName,int &ValueData,DWORD Default)
 {
+  int ExitCode;
   HKEY hKey=OpenRegKey(Key);
-  DWORD Type,Size=sizeof(ValueData);
-  int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
-  CloseRegKey(hKey);
+  if(hKey)
+  {
+    DWORD Type,Size=sizeof(ValueData);
+    ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(BYTE *)&ValueData,&Size);
+    CloseRegKey(hKey);
+  }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
     ValueData=Default;
@@ -126,10 +153,24 @@ int GetRegKey(char *Key,char *ValueName,DWORD Default)
 
 int GetRegKey(char *Key,char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize)
 {
+  int ExitCode;
   HKEY hKey=OpenRegKey(Key);
-  DWORD Type,Required=DataSize;
-  int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,ValueData,&Required);
-  CloseRegKey(hKey);
+  if(hKey)
+  {
+    DWORD Type,Required=DataSize;
+    ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,ValueData,&Required);
+    if(ExitCode == ERROR_MORE_DATA) // если размер не подходящие...
+    {
+      char *TempBuffer=new char[Required+1]; // ...то выделим сколько надо
+      if(TempBuffer) // Если с памятью все нормально...
+      {
+        if((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&Required)) == ERROR_SUCCESS)
+          memcpy(ValueData,TempBuffer,DataSize);  // скопируем сколько надо.
+        delete[] TempBuffer;
+      }
+    }
+    CloseRegKey(hKey);
+  }
   if (hKey==NULL || ExitCode!=ERROR_SUCCESS)
   {
     if (Default!=NULL)
@@ -265,7 +306,9 @@ int CopyKeyTree(char *Src,char *Dest,char *Skip)
     FILETIME LastWrite;
     if (RegEnumKeyEx(hSrcKey,I,SubkeyName,&NameSize,NULL,NULL,NULL,&LastWrite)!=ERROR_SUCCESS)
       break;
-    sprintf(SrcKeyName,"%s\\%s",Src,SubkeyName);
+    strcpy(SrcKeyName,Src);
+    strcat(SrcKeyName,"\\");
+    strcat(SrcKeyName,SubkeyName);
     if (Skip!=NULL)
     {
       bool Found=false;
@@ -278,7 +321,9 @@ int CopyKeyTree(char *Src,char *Dest,char *Skip)
       if (Found)
         continue;
     }
-    sprintf(DestKeyName,"%s\\%s",Dest,SubkeyName);
+    strcpy(DestKeyName,Dest);
+    strcat(DestKeyName,"\\");
+    strcat(DestKeyName,SubkeyName);
     if (RegCreateKeyEx(hRegRootKey,DestKeyName,0,NULL,0,KEY_WRITE,NULL,&hDestKey,&Disposition)!=ERROR_SUCCESS)
       break;
     CopyKeyTree(SrcKeyName,DestKeyName);
@@ -346,11 +391,17 @@ int CheckRegKey(char *Key)
 */
 int CheckRegValue(char *Key,char *ValueName)
 {
+  int ExitCode;
+  DWORD DataSize=0;
   HKEY hKey=OpenRegKey(Key);
-  DWORD Type, DataSize=0;
-  int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,NULL,&DataSize);
-  CloseRegKey(hKey);
-  if (hKey==NULL || ExitCode!=ERROR_SUCCESS || !DataSize) return(FALSE);
+  if(hKey)
+  {
+    DWORD Type;
+    ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,NULL,&DataSize);
+    CloseRegKey(hKey);
+  }
+  if (hKey==NULL || ExitCode!=ERROR_SUCCESS || !DataSize)
+    return(FALSE);
   return(TRUE);
 }
 /* IS $ */
@@ -358,20 +409,23 @@ int CheckRegValue(char *Key,char *ValueName)
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize)
 {
   HKEY hKey=OpenRegKey(Key);
-  FILETIME LastWriteTime;
-  char SubName[512];
-  DWORD SubSize=sizeof(SubName);
-  int ExitCode=RegEnumKeyEx(hKey,Index,SubName,&SubSize,NULL,NULL,NULL,&LastWriteTime);
-  CloseRegKey(hKey);
-  if (ExitCode==ERROR_SUCCESS)
+  if(hKey)
   {
-    char TempName[512];
-    strcpy(TempName,Key);
-    if (*TempName)
-      AddEndSlash(TempName);
-    strcat(TempName,SubName);
-    strncpy(DestName,TempName,DestSize);
-    return(TRUE);
+    FILETIME LastWriteTime;
+    char SubName[512];
+    DWORD SubSize=sizeof(SubName);
+    int ExitCode=RegEnumKeyEx(hKey,Index,SubName,&SubSize,NULL,NULL,NULL,&LastWriteTime);
+    CloseRegKey(hKey);
+    if (ExitCode==ERROR_SUCCESS)
+    {
+      char TempName[512];
+      strcpy(TempName,Key);
+      if (*TempName)
+        AddEndSlash(TempName);
+      strcat(TempName,SubName);
+      strncpy(DestName,TempName,DestSize);
+      return(TRUE);
+    }
   }
   return(FALSE);
 }

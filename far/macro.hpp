@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.06 17.01.2001 $ */
+/* Revision: 1.07 22.02.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+    + Функция MkRegKeyName - формирование имени ключа в реестре.
   17.01.2001 SVS
     + функции получения индекса макроса и размера под макропоследовательность:
        int GetIndex(int Key, int Mode);
@@ -81,6 +83,7 @@ class KeyMacro
     int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr);
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
     static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    char *MkRegKeyName(int IdxMacro,char *RegKeyName);
 
   public:
     KeyMacro();

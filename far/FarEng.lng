@@ -1187,10 +1187,14 @@
 
 "Define macro"
 "Press the desired key"
-"MacroKey '%s' already defined"
+"MacroKey '%s' already defined. Sequence:"
+"Macrokey '%s' is not active. Sequence:"
+"MacroKey '%s' will be removed. Sequence:"
 "Redefine?"
-"MacroKey '%s' will be removed"
 "Delete?"
+"(macrokey is not active)"
+"Overwrite"
+"Try another key"
 
 "Macro settings for '%s'"
 "&Disable screen output while executing macro"

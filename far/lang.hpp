@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.50 09.02.2001 $ */
+/* Revision: 1.51 22.02.2001 $ */
 
 /*
 Modify:
+  22.02.2001 SVS
+    + MMacroDis* - по поводу дизабленных макросов
   09.02.2001 IS
     + MSetConfirmEsc
     + MKeyESCWasPressed, MDoYouWantToStopWork
@@ -1318,9 +1320,13 @@ enum
   MDefineMacroTitle,
   MDefineMacro,
   MMacroReDefinedKey,
-  MMacroReDefinedKey2,
+  MMacroDeleteAssign,
   MMacroDeleteKey,
+  MMacroReDefinedKey2,
   MMacroDeleteKey2,
+  MMacroDisDisabledKey,
+  MMacroDisOverwrite,
+  MMacroDisAnotherKey,
 
   MMacroSettingsTitle,
   MMacroSettingsDisableOutput,

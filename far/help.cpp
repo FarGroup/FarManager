@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.12 06.02.2001 $ */
+/* Revision: 1.13 22.02.2001 $ */
 
 /*
 Modify:
+  22.02.2001 SVS
+    ! в активаторе замена двойных символов ~~ и ## на одинарные эквиваленты
   06.02.2001 SVS
     - Исправлен(?) баг с активатором...
       (новый кусок пока не трогать - возможно потом исключим его вообще)
@@ -1180,6 +1182,21 @@ static int RunURL(char *Protocol, char *URLPath)
         {
           char *pp=strrchr(Buf,'%');
           if(pp) *pp='\0'; else strcat(Buf," ");
+
+          // удалим два идущих в подряд ~~
+          pp=URLPath;
+          while(*pp && (pp=strstr(pp,"~~")) != NULL)
+          {
+            memmove(pp,pp+1,strlen(pp+1)+1);
+            ++pp;
+          }
+          // удалим два идущих в подряд ##
+          pp=URLPath;
+          while(*pp && (pp=strstr(pp,"##")) != NULL)
+          {
+            memmove(pp,pp+1,strlen(pp+1)+1);
+            ++pp;
+          }
 
           Disposition=0;
           if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)

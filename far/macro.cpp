@@ -5,10 +5,16 @@ macro.cpp
 
 */
 
-/* Revision: 1.24 19.02.2001 $ */
+/* Revision: 1.25 22.02.2001 $ */
 
 /*
 Modify:
+  22.02.2001 SVS
+    + MFLAGS_DISABLEMACRO - ЭТОТ макрос задисаблен!
+    ! Учтем, что символ '~' в начале названия макроса - это задисабленный
+      макрос
+    + В диалогах про удаление, переназначение добавлена краткая инфа про
+      текущий Sequence
   19.02.2001 SVS
     - Затирание диалога параметров макроса (при обновлении панелей)
   30.01.2001 SVS
@@ -112,6 +118,7 @@ Modify:
 #define MFLAGS_NOFOLDERS           0x00400000
 #define MFLAGS_NOFILES             0x00800000
 #define MFLAGS_REUSEMACRO          0x01000000
+#define MFLAGS_DISABLEMACRO        0x80000000
 
 
 static const char *MacroModeName[]={
@@ -381,7 +388,7 @@ int KeyMacro::ProcessKey(int Key)
     {
       int I=GetIndex(LocalUpper(Key),
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
-      if(I != -1)
+      if(I != -1 && !(Macros[I].Flags&MFLAGS_DISABLEMACRO))
       {
 //SysLog("KeyMacro: %d (I=%d Key=0x%08X)",__LINE__,I,Key);
         // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
@@ -533,6 +540,17 @@ DWORD KeyMacro::SwitchFlags(DWORD& Flags,DWORD Value)
 }
 
 
+char *KeyMacro::MkRegKeyName(int IdxMacro,char *RegKeyName)
+{
+  char KeyText[50];
+  ::KeyToText(Macros[IdxMacro].Key,KeyText);
+  sprintf(RegKeyName,"KeyMacros\\%s\\%s%s",
+     GetSubKey(Macros[IdxMacro].Flags&MFLAGS_MODEMASK),
+     (Macros[IdxMacro].Flags&MFLAGS_DISABLEMACRO?"~":""),
+     KeyText);
+  return RegKeyName;
+}
+
 // Сохранение ВСЕХ макросов
 void KeyMacro::SaveMacros()
 {
@@ -540,10 +558,8 @@ void KeyMacro::SaveMacros()
   {
     char *TextBuffer=NULL;
     int TextBufferSize=0;
-    char KeyText[50],RegKeyName[50];
-    ::KeyToText(Macros[I].Key,KeyText);
-    sprintf(RegKeyName,"KeyMacros\\%s\\%s",
-       GetSubKey(Macros[I].Flags&MFLAGS_MODEMASK),KeyText);
+    char RegKeyName[150];
+    MkRegKeyName(I,RegKeyName);
 
     if (Macros[I].BufferSize==0)
     {
@@ -619,14 +635,25 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 
   for (I=0;;I++)
   {
-    char RegKeyName[50],KeyText[50];
+    char RegKeyName[150],KeyText[50];
     char UpKeyName[100];
+    DWORD MFlags=0;
+
     sprintf(UpKeyName,"KeyMacros\\%s",GetSubKey(ReadMode));
     if (!EnumRegKey(UpKeyName,I,RegKeyName,sizeof(RegKeyName)))
       break;
     char *KeyNamePtr=strrchr(RegKeyName,'\\');
     if (KeyNamePtr!=NULL)
+    {
       strcpy(KeyText,KeyNamePtr+1);
+      // ПОМНИМ! что название макроса, начинающееся на символ ~ - это
+      // блокированный макрос!!!
+      if(*KeyText == '~' && KeyText[1])
+      {
+        memmove(KeyText,KeyText+1,sizeof(KeyText)-1);
+        MFlags|=MFLAGS_DISABLEMACRO;
+      }
+    }
     else
       *KeyText=0;
     int KeyCode=KeyNameToKey(KeyText);
@@ -642,7 +669,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro->Key=KeyCode;
     CurMacro->Buffer=NULL;
     CurMacro->BufferSize=0;
-    CurMacro->Flags=ReadMode&MFLAGS_MODEMASK;
+    CurMacro->Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
     GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
     CurMacro->Flags|=GetRegKey(RegKeyName,"DisableOutput",0)?MFLAGS_DISABLEOUTPUT:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"RunAfterFARStart",0)?MFLAGS_RUNAFTERSTART:0;
@@ -674,6 +701,8 @@ void KeyMacro::RunStartMacro()
     int CurPos=StartMacroPos++;
     if ((Macros[CurPos].Flags&MFLAGS_MODEMASK)==MACRO_SHELL &&
         Macros[CurPos].BufferSize>0 &&
+        // исполняем не задисабленные макросы
+        !(Macros[CurPos].Flags&MFLAGS_DISABLEMACRO) &&
         (Macros[CurPos].Flags&MFLAGS_RUNAFTERSTART))
     {
       int CmdLength=CtrlObject->CmdLine.GetLength();
@@ -724,6 +753,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
   char KeyText[50];
   static int LastKey;
   static struct DlgParam *KMParam=NULL;
+  int Index, I;
 
   if(Msg == DN_INITDIALOG)
     KMParam=(struct DlgParam *)Param2;
@@ -746,21 +776,53 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
     KeyToText(Param2,KeyText);
 
     // если УЖЕ есть такой макрос...
-    if(MacroDlg->GetIndex(Param2,KMParam->Mode) != -1)
+    if((Index=MacroDlg->GetIndex(Param2,KMParam->Mode)) != -1)
     {
+      DWORD DisFlags=MacroDlg->Macros[Index].Flags&MFLAGS_DISABLEMACRO;
       char Buf[256];
+      char BufKey[64];
+      char RegKeyName[150];
+      int F=0;
+
+      MacroDlg->MkRegKeyName(Index,RegKeyName);
 
       // выведем сообщение.
       // Если размер буфера нулевой - удаление
       //  Иначе - перезапись
+
+      // про последовательность
+      I=GetRegKey(RegKeyName,"Sequence",BufKey,"",sizeof(BufKey)-1);
+      I=strlen(BufKey);
+      if(I > 45) { I=45; F++; }
+      sprintf(Buf,"\"%*.*s%s\"",I,I,BufKey,(F?"...":""));
+      strcpy(BufKey,Buf);
+
       sprintf(Buf,
-        MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey:MMacroReDefinedKey),
+        MSG(!MacroDlg->RecBufferSize?
+           (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
+           MMacroReDefinedKey),
         KeyText);
-      if(!Message(MSG_WARNING,2,MSG(MWarning),
+
+      I=Message(MSG_WARNING,2,MSG(MWarning),
             Buf,
-            MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:MMacroReDefinedKey2),
-            MSG(MYes),MSG(MNo)))
+            BufKey,
+            MSG(!MacroDlg->RecBufferSize?
+                  MMacroDeleteKey2:
+                  (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
+            MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
+            MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
+      if(!I)
       {
+        if(DisFlags)
+        {
+          if (Opt.AutoSaveSetup) // удаляем из реестра только в случае
+          {                      // когда включен автосейв
+            // удалим старую запись из реестра
+            DeleteRegKey(RegKeyName);
+          }
+          // раздисаблим
+          MacroDlg->Macros[Index].Flags&=~MFLAGS_DISABLEMACRO;
+        }
         // в любом случае - вываливаемся
         Dialog::SendDlgMessage(hDlg,DM_CLOSE,1,0);
         return TRUE;
