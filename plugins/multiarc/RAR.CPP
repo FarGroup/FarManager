@@ -4,9 +4,9 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2002 FAR group
+  Copyrigth (c) 2000-2004 FAR group
 */
-/* Revision: 1.17 01.08.2002 $ */
+/* Revision: 1.18 29.05.2004 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -45,8 +45,11 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
       SFXSize=I;
       return(TRUE);
     }
+    // check marker block
+    // The marker block is actually considered as a fixed byte sequence: 0x52 0x61 0x72 0x21 0x1a 0x07 0x00
     if (D[0]==0x52 && D[1]==0x61 && D[2]==0x72 && D[3]==0x21 &&
-        D[4]==0x1a && D[5]==0x07 && D[6]==0)
+        D[4]==0x1a && D[5]==0x07 && D[6]==0 &&
+        D[9]==0x73)                                             // next "archive header"? (Header type: 0x73)
     {
       OldFormat=FALSE;
       SFXSize=I;

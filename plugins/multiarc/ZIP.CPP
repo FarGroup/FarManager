@@ -4,9 +4,9 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2001 FAR group
+  Copyrigth (c) 2000-2004 FAR group
 */
-/* Revision: 1.21 17.02.2003 $ */
+/* Revision: 1.22 29.05.2004 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -64,6 +64,7 @@ inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEn
   const WORD Zip64=45;
   return (0x04034b50==pHdr->Signature
     && pHdr->Method<15
+    && pHdr->VerToExtract < 0xFF
     && Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
 }
 
