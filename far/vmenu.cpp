@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.59 10.10.2001 $ */
+/* Revision: 1.60 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 VVM
+    ! Исправление ситуации со скроллбаром в DROPDOWNLIST-е
   10.10.2001 IS
     ! внедрение const
   27.09.2001 IS
@@ -1179,10 +1181,18 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   int SbY1=((BoxType!=NO_BOX)?Y1+1:Y1), SbY2=((BoxType!=NO_BOX)?Y2-1:Y2);
 
   XX2=X2;
-  if (Opt.ShowMenuScrollbar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
+
+  /* $ 12.10.2001 VVM
+    ! Есть ли у нас скроллбар? */
+  int ShowScrollBar = FALSE;
+  if (((VMenu::VMFlags&(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR)) || Opt.ShowMenuScrollbar))
+    ShowScrollBar = TRUE;
+  /* VVM $ */
+
+  if (ShowScrollBar && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
     XX2--;  // уменьшает площадь, в которой меню следит за мышью само
 
-  if (Opt.ShowMenuScrollbar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount &&
+  if (ShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount &&
       (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) )
   /* KM $ */
   {
