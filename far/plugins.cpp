@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.33 12.10.2000 $ */
+/* Revision: 1.34 12.10.2000 $ */
 
 /*
 Modify:
+  12.10.2000 tran
+    + /co & PF_PRELOAD = friendship.
+    + PluginsSet::DumpPluginsInfo(), call by AltF11 in plugins menu
   12.10.2000 IS
     + Указатель на ProcessName в StandardFunctions
   27.09.2000 SVS
@@ -244,13 +247,23 @@ void PluginsSet::LoadPlugins()
           char RegKey[100];
           sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
           CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
-          CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
-          CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
-          CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
-          CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
-          CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
-          CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
-          CurPlugin.CachePos=CachePos;
+          /* $ 12.10.2000 tran
+             Preload=1 нужно для корректной обработки -co */
+          if ( GetRegKey(RegKey,"Preload",0)==1 )
+          {
+            LoadCached=0;
+          }
+          else
+          {
+          /* tran $ */
+            CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
+            CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
+            CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
+            CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
+            CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+            CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
+            CurPlugin.CachePos=CachePos;
+          }
         }
         if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
         {
@@ -331,23 +344,34 @@ void PluginsSet::LoadPluginsFromCache()
                             //  012345678901234567890
         strcpy(RegKey,PlgKey); // "PLuginsCache\PluginXX"
         GetRegKey(RegKey,"Name",CurPlugin.ModuleName,"",NM);
-        strcat(RegKey,"\\");
-        strcat(RegKey,"Exports");
-        CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
-        CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
-        CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
-        CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
-        CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
-        CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
-        CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
-        CurPlugin.CachePos=atoi(PlgKey+19);
+        /* $ 12.10.2000 tran
+          -co должен понимать PRELOAD плагины */
+        if ( GetRegKey(RegKey,"Preload",0)==1 )
+        {
+          if (!LoadPlugin(CurPlugin,-1,TRUE))
+            continue; // загрузка не удалась
+        }
+        else
+        {
+        /* tran $ */
+          strcat(RegKey,"\\");
+          strcat(RegKey,"Exports");
+          CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
+          CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
+          CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
+          CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
+          CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
+          CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+          CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
+          CurPlugin.CachePos=atoi(PlgKey+19);
+          CurPlugin.Cached=TRUE;
+          // вот тут это поле не заполнено, надеюсь, что оно не критично
+          // CurPlugin.FindData=FindData;
+        }
         struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
         if (NewPluginsData==NULL)
             break;
         PluginsData=NewPluginsData;
-        CurPlugin.Cached=TRUE;
-        // вот тут это поле не заполнено, надеюсь, что оно не критично
-        // CurPlugin.FindData=FindData;
         PluginsData[PluginsCount]=CurPlugin;
         PluginsCount++;
     }
@@ -680,8 +704,13 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
   memset(&Info,0,sizeof(Info));
   CurPlugin.pGetPluginInfo(&Info);
   CurPlugin.SysID=Info.SysID;
-  if (Info.Flags & PF_PRELOAD)
-    return(FALSE);
+  /* $ 12.10.2000 tran
+     при PF_PRELOAD в кеш будет записано, что плагин не кешируется
+     так будет работать -co */
+//  if (Info.Flags & PF_PRELOAD)
+//    return(FALSE);
+  /* tran $ */
+
   /* $ 13.07.2000 IS
     Исправлен глюк, допущенный при неправильном переводе под VC:
     переменная I изменялась во всех циклах (внимательнее над быть,
@@ -703,6 +732,17 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
               FindData.ftCreationTime.dwLowDateTime,
               FindData.ftLastWriteTime.dwLowDateTime);
       SetRegKey(RegKey,"ID",CurPluginID);
+      /* $ 12.10.2000 tran
+         если плагин PRELOAD, в кеш пишется об этом */
+      if (Info.Flags & PF_PRELOAD)
+      {
+        SetRegKey(RegKey,"Preload",1);
+        break;
+      }
+      else
+        SetRegKey(RegKey,"Preload",(DWORD)0);
+      /* tran $ */
+
       for (I=0;I<Info.DiskMenuStringsNumber;I++)
       {
         char Value[100];
@@ -1289,6 +1329,9 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
     PluginList.GetUserData(Data,2,SelPos);
     switch(PluginList.ReadInput())
     {
+      case KEY_ALTF11:
+        DumpPluginsInfo();
+        break;
       case KEY_F4:
         if (SelPos<MenuItemNumber && GetHotKeyRegKey(Data[0],Data[1],RegKey))
         {
@@ -1355,7 +1398,6 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
   }
   return(TRUE);
 }
-
 
 int PluginsSet::GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey)
 {
@@ -1641,3 +1683,42 @@ int PluginsSet::FindPlugin(DWORD SysID)
   return -1;
 }
 /* SVS $ */
+
+/* $ 12.10.2000 tran
+  новый метод - сбрасывает в файл список плагинов */
+void PluginsSet::DumpPluginsInfo()
+{
+    char file[NM];
+    FILE *s;
+    PluginItem *p;
+
+    strcpy(file,FarPath);
+    strcat(file,"far_plugins.txt");
+
+    s=fopen(file,"w+t");
+
+    if ( s==0 )
+        return;
+
+    fprintf(s,"Plugins count = %3i\n"
+              "=======================================\n",PluginsCount);
+    for ( int i=0; i<PluginsCount; i++ )
+    {
+        p=&PluginsData[i];
+        fprintf(s,"#%3i. ModuleName      = '%s'\n"
+               "      hModule         = 0x%08x\n"
+               "      SysId           = 0x%08x\n"
+               "      Cached          = %s\n"
+               "      CachePos        = %i\n"
+               "      EditorPlugin    = %i\n"
+               "      RootKey         = '%s'\n"
+               "      pSetStartupInfo = 0x%p\n\n",
+               i,
+               p->ModuleName,p->hModule,p->SysID,
+               (p->Cached?"yes":"no"),p->CachePos,p->EditorPlugin,
+               p->RootKey,p->pSetStartupInfo);
+    }
+    fprintf(s,"=======================================\n");
+    fclose(s);
+}
+

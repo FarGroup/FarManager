@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.04 27.09.2000 $ */
+/* Revision: 1.05 12.10.2000 $ */
 
 /*
 Modify:
+  12.10.2000 tran 1.05
+    + DumpPluginsInfo()
   27.09.2000 SVS
     + Функция CallPlugin - найти плагин по ID и запустить
     + CurViewer
@@ -190,6 +192,11 @@ class PluginsSet
     int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
     int FindPlugin(DWORD SysID);
     /* SVS $ */
+
+    /* $ 12.10.2000 tran
+      new method - for debugging purpose */
+    void DumpPluginsInfo();
+    /* tran $ */
 };
 
 #endif  // __PLUGINS_HPP__
