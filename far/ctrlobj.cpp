@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.15 28.02.2001 $ */
+/* Revision: 1.16 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    + Обработка Opt.FlagPosixSemantics
   28.02.2001 IS
     ! Т.е. CmdLine теперь указатель, то произведем замену
       "CmdLine." на "CmdLine->" и собственно создадим/удалим ее в конструкторе
@@ -71,7 +73,7 @@ ControlObject::ControlObject()
   FolderHistory=new History("SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
   ViewHistory=new History("SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
   FolderHistory->SetAddMode(TRUE,2,TRUE);
-  ViewHistory->SetAddMode(TRUE,1,TRUE);
+  ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
   if (Opt.SaveHistory)
     CmdHistory->ReadHistory();
   if (Opt.SaveFoldersHistory)

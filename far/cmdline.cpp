@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.11 12.03.2001 $ */
+/* Revision: 1.12 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    + Обработка Opt.FlagPosixSemantics
   12.03.2001 SVS
     + Alt-Shift-Left, Alt-Shift-Right, Alt-Shift-Home и Alt-Shift-End выделяют
       блок в командной строке независимо от состояния панелей.
@@ -199,7 +201,7 @@ int CommandLine::ProcessKey(int Key)
         {
           if (SelectType!=2)
             CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
-          CtrlObject->ViewHistory->SetAddMode(FALSE,1,TRUE);
+          CtrlObject->ViewHistory->SetAddMode(FALSE,Opt.FlagPosixSemantics?1:2,TRUE);
 
           switch(Type)
           {
@@ -230,7 +232,7 @@ int CommandLine::ProcessKey(int Key)
               break;
             }
           }
-          CtrlObject->ViewHistory->SetAddMode(TRUE,1,TRUE);
+          CtrlObject->ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
         }
         else
           if (SelectType==3)

@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.03 03.11.2000 $ */
+/* Revision: 1.04 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    + Обработка Opt.FlagPosixSemantics и убирание дупов с помощью FindPosition()
   03.11.2000 OT
     ! Введение проверки возвращаемого значения 
   02.11.2000 OT
@@ -85,6 +87,9 @@ void FilePositionCache::AddPosition(char *Name,unsigned int Position1,
     }
   }
   strcpy(&Names[CurPos*3*NM],FullName);
+  int Pos = FindPosition(FullName);
+  if (Pos >= 0)
+    CurPos = Pos;
   Positions[CurPos*5+0]=Position1;
   Positions[CurPos*5+1]=Position2;
   Positions[CurPos*5+2]=Position3;
@@ -121,27 +126,38 @@ void FilePositionCache::GetPosition(char *Name,unsigned int &Position1,
     }
   }
   Position1=Position2=Position3=Position4=Position5=0;
+  int Pos = FindPosition(FullName);
+  if (Pos >= 0)
+  {
+    Position1=Positions[Pos*5+0];
+    Position2=Positions[Pos*5+1];
+    Position3=Positions[Pos*5+2];
+    Position4=Positions[Pos*5+3];
+    Position5=Positions[Pos*5+4];
+    if(SPosLine) memmove(SPosLine,&ShortPos[Pos*40+0],10*sizeof(long));
+    if(SPosLeftPos) memmove(SPosLeftPos,&ShortPos[Pos*40+10],10*sizeof(long));
+    if(SPosCursor) memmove(SPosCursor,&ShortPos[Pos*40+20],10*sizeof(long));
+    if(SPosScreenLine) memmove(SPosScreenLine,&ShortPos[Pos*40+30],10*sizeof(long));
+  }
+}
+
+int FilePositionCache::FindPosition(char *FullName)
+{
   for (int I=1;I<=Opt.MaxPositionCache;I++)
   {
     int Pos=CurPos-I;
     if (Pos<0)
       Pos+=Opt.MaxPositionCache;
-    if (LocalStricmp(&Names[Pos*3*NM],FullName)==0)
-    {
-      Position1=Positions[Pos*5+0];
-      Position2=Positions[Pos*5+1];
-      Position3=Positions[Pos*5+2];
-      Position4=Positions[Pos*5+3];
-      Position5=Positions[Pos*5+4];
-      if(SPosLine) memmove(SPosLine,&ShortPos[Pos*40+0],10*sizeof(long));
-      if(SPosLeftPos) memmove(SPosLeftPos,&ShortPos[Pos*40+10],10*sizeof(long));
-      if(SPosCursor) memmove(SPosCursor,&ShortPos[Pos*40+20],10*sizeof(long));
-      if(SPosScreenLine) memmove(SPosScreenLine,&ShortPos[Pos*40+30],10*sizeof(long));
-      break;
-    }
+    int CmpRes;
+    if (Opt.FlagPosixSemantics)
+      CmpRes = strcmp(&Names[Pos*3*NM],FullName);
+    else
+      CmpRes = LStricmp(&Names[Pos*3*NM],FullName);
+    if (CmpRes == 0)
+      return(Pos);
   }
+  return(-1);
 }
-
 
 void FilePositionCache::Read(char *Key)
 {

@@ -7,10 +7,12 @@ poscache.hpp
 
 */
 
-/* Revision: 1.01 24.09.2000 $ */
+/* Revision: 1.02 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    + int FindPosition()
   24.09.2000 SVS
     + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
   25.06.2000 SVS
@@ -29,6 +31,7 @@ class FilePositionCache
     long *ShortPos;
     int CurPos;
 
+    int FindPosition(char *Name);
   public:
     FilePositionCache();
    ~FilePositionCache();

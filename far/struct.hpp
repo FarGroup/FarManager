@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.51 30.03.2001 $ */
+/* Revision: 1.52 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    + Opt.FlagPosixSemantics будет влиять на:
+        добавление файлов в историю с разным регистром
+        добавление LastPositions в редакторе и вьюере
   30.03.2001 SVS
    + Opt.Policies - прообраз полиции.
   29.03.2001 IS
@@ -589,6 +593,12 @@ struct Options
     + RememberLogicalDrives = запоминать логические диски и не опрашивать
       каждый раз. Для предотвращения "просыпания" "зеленых" винтов. */
   int RememberLogicalDrives;
+  /* VVM $ */
+  /* $ 02.04.2001 VVM
+    + Opt.FlagPosixSemantics будет влиять на:
+        добавление файлов в историю с разным регистром
+        добавление LastPositions в редакторе и вьюере */
+  int FlagPosixSemantics;
   /* VVM $ */
 
   struct PoliciesOptions Policies;

@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.64 30.03.2001 $ */
+/* Revision: 1.65 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    + Opt.FlagPosixSemantics будет влиять на:
+        добавление файлов в историю с разным регистром
+        добавление LastPositions в редакторе и вьюере
   30.03.2001 SVS
     + Opt.Policies.*
     ! ViewerConfig, EditorConfig - ограничение на размер поля ввода
@@ -899,6 +903,12 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 0, 0},
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),""},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath),PersonalPluginsPath},
+  /* $ 02.04.2001 VVM
+    + Будет влиять на:
+        добавление файлов в историю с разным регистром
+        добавление LastPositions в редакторе и вьюере */
+  {0, REG_DWORD,  NKeySystem,"FlagPosixSemantics", &Opt.FlagPosixSemantics, 1, 0},
+  /* VVM $ */
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 
@@ -1003,6 +1013,11 @@ void ReadConfig()
   }
 
   /* <ПОСТПРОЦЕССЫ> *************************************************** */
+  /* $ 02.04.2001 VVM
+    + Opt.FlagPosixSemantics не пашет под 9x */
+  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+    Opt.FlagPosixSemantics=0;
+  /* VVM $ */
   //   Уточняем алгоритм "взятия" палитры.
   for(I=COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR+1;
       I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
