@@ -7,12 +7,16 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.38 25.06.2001 $ */
+/* Revision: 1.39 29.06.2001 $ */
 
 /*
 Modify:
+  29.06.2001 SVS
+    + Новый параметр у FindItem - флаги
+    + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
+      поиске в списке
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   14.06.2001 SVS
     - Установка позиции всегда приводит к выбору 0 итема.
   13.06.2001 SVS
@@ -1414,7 +1418,7 @@ int VMenu::FindItem(struct FarListFind *FItem)
   return FindItem(FItem->StartIndex,FItem->Pattern);
 }
 
-int VMenu::FindItem(int StartIndex,char *Pattern)
+int VMenu::FindItem(int StartIndex,char *Pattern,DWORD Flags)
 {
   char TmpBuf[130];
   if((DWORD)StartIndex < (DWORD)ItemCount)
@@ -1422,8 +1426,17 @@ int VMenu::FindItem(int StartIndex,char *Pattern)
     for(int I=StartIndex;I < ItemCount;I++)
     {
       memcpy(TmpBuf,Item[I].Name,sizeof(TmpBuf));
-      if(CmpName(Pattern,RemoveChar(TmpBuf,'&'),1))
-        return I;
+      if(Flags&LIFIND_NOPATTER)
+      {
+        if (!LocalStrnicmp(RemoveChar(TmpBuf,'&'),Pattern,
+               Min((int)strlen(Pattern),(int)sizeof(Item[I].Name))))
+          return I;
+      }
+      else
+      {
+        if(CmpName(Pattern,RemoveChar(TmpBuf,'&'),1))
+          return I;
+      }
     }
   }
   return -1;

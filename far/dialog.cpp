@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.128 26.06.2001 $ */
+/* Revision: 1.129 29.06.2001 $ */
 
 /*
 Modify:
+  29.06.2001 SVS
+   - Бага - двое добавление первоначальных данных в комбобокс
+   + ЗАКОММЕНЧЕНО: Во время навигации в открытом боксе (дропдовн)
+                   отображаем это в связанной строке редактирования
+                   (медленно! :-(
+   ! Проблемы с выбором из комбобокса
   26.06.2001 KM
    ! Подадим перед DM_LISTSETCURPOS сообщение DN_LISTCHANGE.
   26.06.2001 SVS
@@ -920,38 +926,38 @@ int Dialog::InitDialogObjects(int ID)
       if (!CheckDialogMode(DMODE_CREATEOBJECTS))
         CurItem->ListPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
                         VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
-      if(CurItem->ListPtr)
-      {
-        /* $ 13.09.2000 SVS
-           + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
-             DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
-             подавляет такое поведение
-        */
-        /* $ 15.05.2001 KM
-           ! Исправлена подсветка в DI_LISTBOX
-        */
-        /* $ 03.06.2001 KM
-           ! Исправлена подсветка в DI_LISTBOX, теперь на самом деле :)
-             для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
-        */
-        if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-          CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
-        if(ItemFlags&DIF_LISTNOBOX)
-          CurItem->ListPtr->SetFlags(VMENU_SHOWNOBOX);
-        if(ItemFlags&DIF_LISTWRAPMODE)
-          CurItem->ListPtr->SetFlags(VMENU_WRAPMODE);
-        if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
-          CurItem->ListPtr->AssignHighlights(FALSE);
-        CurItem->ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
-                             X1+CurItem->X2,Y1+CurItem->Y2);
-        CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
-        // удалим все итемы
-        //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
-        if(CurItem->ListItems)
-          CurItem->ListPtr->AddItem(CurItem->ListItems);
-        /* KM $ */
-        /* KM $ */
-      }
+       if(CurItem->ListPtr)
+       {
+         /* $ 13.09.2000 SVS
+            + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
+              DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
+              подавляет такое поведение
+         */
+         /* $ 15.05.2001 KM
+            ! Исправлена подсветка в DI_LISTBOX
+         */
+         /* $ 03.06.2001 KM
+            ! Исправлена подсветка в DI_LISTBOX, теперь на самом деле :)
+              для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
+         */
+         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
+           CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
+         if(ItemFlags&DIF_LISTNOBOX)
+           CurItem->ListPtr->SetFlags(VMENU_SHOWNOBOX);
+         if(ItemFlags&DIF_LISTWRAPMODE)
+           CurItem->ListPtr->SetFlags(VMENU_WRAPMODE);
+         if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
+           CurItem->ListPtr->AssignHighlights(FALSE);
+         CurItem->ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
+                              X1+CurItem->X2,Y1+CurItem->Y2);
+         CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
+         // удалим все итемы
+         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
+         if(CurItem->ListItems && !CheckDialogMode(DMODE_CREATEOBJECTS))
+           CurItem->ListPtr->AddItem(CurItem->ListItems);
+         /* KM $ */
+         /* KM $ */
+       }
     }
     /* SVS $*/
     // "редакторы" - разговор особый...
@@ -993,7 +999,7 @@ int Dialog::InitDialogObjects(int ID)
            ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem
               Восстановлено!!!
         */
-        if(CurItem->ListItems)
+        if(CurItem->ListItems && !CheckDialogMode(DMODE_CREATEOBJECTS))
           CurItem->ListPtr->AddItem(CurItem->ListItems);
         /* KM $ */
         /* KM $ */
@@ -1122,7 +1128,7 @@ int Dialog::InitDialogObjects(int ID)
         struct FarListItem *ListItems=CurItem->ListItems->Items;
         int Length=CurItem->ListItems->ItemsNumber;
 
-        CurItem->ListPtr->AddItem(CurItem->ListItems);
+        //CurItem->ListPtr->AddItem(CurItem->ListItems);
 
         for (J=0; J < Length; J++)
         {
@@ -3560,6 +3566,12 @@ int Dialog::SelectFromComboBox(
       ComboBox->SetColors(Colors);
 
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
+
+    // Выставим то, что есть в строке ввода!
+    // if(EditLine->DropDownBox == 1) //???
+    EditLine->GetString(Str,MaxLen);
+    ComboBox->SetSelectPos(ComboBox->FindItem(0,Str,LIFIND_NOPATTER),1);
+
     ComboBox->Show();
 
     Dest=ComboBox->GetSelectPos();
@@ -3579,6 +3591,20 @@ int Dialog::SelectFromComboBox(
           ComboBox->SetSelectPos(Dest,Dest<I?-1:1); //????
         else
           Dest=I;
+
+#if 0
+        // во время навигации по DropDown листу - отобразим ЭТО дело в
+        // связанной строке
+        // ВНИМАНИЕ!!!
+        //  Очень медленная реакция!
+        if(EditLine->DropDownBox == 1)
+        {
+          struct MenuItem *CurCBItem=ComboBox->GetItemPtr();
+          EditLine->SetString(CurCBItem->Name);
+          EditLine->Show();
+          //EditLine->FastShow();
+        }
+#endif
       }
       // обработку multiselect ComboBox
       // ...
@@ -4303,7 +4329,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
             {
               return ListBox->FindItem(((struct FarListFind *)Param2)->StartIndex,
-                                       ((struct FarListFind *)Param2)->Pattern);
+                                       ((struct FarListFind *)Param2)->Pattern,
+                                       ((struct FarListFind *)Param2)->Flags);
             }
 
             case DM_LISTINSERT: // Param1=ID Param2=FarListInsert

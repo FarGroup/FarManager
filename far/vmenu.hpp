@@ -10,12 +10,14 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.20 25.06.2001 $ */
+/* Revision: 1.21 29.06.2001 $ */
 
 /*
 Modify:
+  29.06.2001 SVS
+    + Новый параметр у FindItem - флаги
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   14.06.2001 SVS
     ! число -> VMENU_COLOR_COUNT
   10.06.2001 SVS
@@ -264,7 +266,7 @@ class VMenu: public Modal
     int  InsertItem(struct FarListInsert *NewItem);
     int  UpdateItem(struct FarList *NewItem);
     int  FindItem(struct FarListFind *FindItem);
-    int  FindItem(int StartIndex,char *Pattern);
+    int  FindItem(int StartIndex,char *Pattern,DWORD Flags=0);
 
     int  GetItemCount() {return(ItemCount);};
 

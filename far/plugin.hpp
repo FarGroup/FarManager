@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.123 26.06.2001 $ */
+/* Revision: 1.124 29.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  29.06.2001 SVS
+   ! Уточнение FarListFind.
+   + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
+     поиске в списке
   26.06.2001 SKV
    + ACTL_COMMIT
   26.06.2001 SVS
@@ -773,11 +777,17 @@ struct FarListInsert
   struct FarListItem *Item;
 };
 
+
+enum{
+  LIFIND_NOPATTER = 0x00000001,
+};
+
 struct FarListFind
 {
   int StartIndex;
   char *Pattern;
-  DWORD Reserved[2];
+  DWORD Flags;
+  DWORD Reserved;
 };
 
 struct FarListDelete
