@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.35 15.09.2003 $ */
+/* Revision: 1.36 15.01.2004 $ */
 
 /*
 Modify:
+  15.01.2004 SVS
+    - BugZ#997 - падение FAR при большом выставлении высоты буфера экрана
   15.09.2003 SVS
     ! Корректировка на часы (X2) ведется только в том случае, если
       Opt.ShowMenuBar == 0
@@ -554,8 +556,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
 }
 
 
-int FileList::ConvertName(char *SrcName,char *DestName,int MaxLength,
-                          int RightAlign,int ShowStatus,DWORD FileAttr)
+int FileList::ConvertName(char *SrcName,char *DestName,int MaxLength,int RightAlign,int ShowStatus,DWORD FileAttr)
 {
   memset(DestName,' ',MaxLength);
   int SrcLength=strlen(SrcName);
@@ -907,7 +908,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   }
                 }
 
-                int TooLong=ConvertName(NamePtr,NewName,Width,RightAlign,ShowStatus,CurPtr->FileAttr);
+                int TooLong=ConvertName(NamePtr,NewName,
+                             Min((int)Width,(int)sizeof(NewName)-1), // BugZ#997 - падение FAR при большом выставлении высоты буфера экрана
+                             RightAlign,ShowStatus,CurPtr->FileAttr);
 
                 if (CurLeftPos!=0)
                   LeftBracket=TRUE;

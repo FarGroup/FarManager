@@ -5,10 +5,15 @@ gettable.cpp
 
 */
 
-/* Revision: 1.17 10.12.2002 $ */
+/* Revision: 1.18 14.01.2004 $ */
 
 /*
 Modify:
+  14.01.2004 SVS
+    ! Если есть "AutoDetect" и он равен 0, то исключаем таблицу из автодетекта
+      (см. BugZ#158 - фича)
+    ! если есть ключ, но нет "Mapping", то не вываливаем, а продолжаем сканировать
+      следующие таблицы!
   10.12.2002 SVS
     ! Уберем условную компиляцию (а зачем ее делали то?)
   29.10.2002 SVS
@@ -255,15 +260,20 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
 
   unsigned long BestValue=CalcDifference(SrcTable,CheckedTable,NULL);
   int BestTable=-1;
+
   for (I=0;;I++)
   {
     char TableKey[512];
     if (!EnumRegKey("CodeTables",I,TableKey,sizeof(TableKey)))
       break;
 
+    if(!GetRegKey(TableKey,"AutoDetect",1))
+      continue;
+
     unsigned char DecodeTable[256];
     if (!GetRegKey(TableKey,"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
-      return(FALSE);
+      continue; //return(FALSE);
+
     unsigned long CurValue=CalcDifference(SrcTable,CheckedTable,DecodeTable);
     if (CurValue<(5*BestValue)/6 || CurValue<BestValue && BestTable!=-1)
     {
@@ -271,6 +281,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
       BestTable=I;
     }
   }
+
   if (BestTable==-1)
   {
     TableNum=0;

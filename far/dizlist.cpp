@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.12 25.02.2003 $ */
+/* Revision: 1.13 15.01.2004 $ */
 
 /*
 Modify:
+  15.01.2004 SVS
+    - BugZ#455 - Ќекорректна€ работа описалова при копировании с добавлением
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.01.2003 SVS
@@ -466,6 +468,8 @@ int DizList::CopyDiz(char *Name,char *ShortName,char *DestName,
       break;
     DestDiz->AddDiz(DestName,DestShortName,DizData[DizPos].DizText);
   }
+  // BugZ#455 - Ќекорректна€ работа описалова при копировании с добавлением
+  DestDiz->BuildIndex();
   return(TRUE);
 }
 

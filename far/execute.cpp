@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.95 08.01.2004 $ */
+/* Revision: 1.96 15.01.2004 $ */
 
 /*
 Modify:
+  15.01.2004 SVS
+    - BugZ#993 - перекрытие сообщения рамок меню
   08.01.2004 SVS
     + учтем опцию Opt.ExecuteShowErrorMessage и выведем текст на экран, а не в месагбоксе
   05.01.2004 SVS
@@ -1398,6 +1400,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   {
     //if (SeparateWindow!=2)
     {
+      char OutStr[2048];
+
       SetLastError(_LastErrCode);
       //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
       //        SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
@@ -1405,11 +1409,12 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       if(Opt.ExecuteShowErrorMessage)
       {
         SetMessageHelp("ErrCannotExecute");
-        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),CmdPtr,MSG(MOk));
+        // BugZ#993 - перекрытие сообщения рамок меню
+        TruncPathStr(strncpy(OutStr,CmdPtr,sizeof(OutStr)-1),ScrX-15);
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),OutStr,MSG(MOk));
       }
       else
       {
-        char OutStr[2048];
         sprintf(OutStr,MSG(MExecuteErrorMessage),CmdPtr);
         char *PtrStr=FarFormatText(OutStr,ScrX,OutStr,sizeof(OutStr),"\n",0);
         printf(PtrStr);

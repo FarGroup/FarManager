@@ -591,8 +591,8 @@ Esc leaves the grabbing mode. Ctrl-U - deselect block.
 
   History in dialog edit controls                 #Ctrl-Up, Ctrl-Down#
 
-  In dialog edit control history you may use Enter to copy the current item
-to the edit control and Ins to mark or unmark an item. Marked items are not pushed
+  In dialog edit control history you may use #Enter# to copy the current item
+to the edit control and #Ins# to mark or unmark an item. Marked items are not pushed
 out of history by new items, so you may mark frequently used strings so that
 you will always have them in the history.
 
