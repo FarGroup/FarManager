@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 FAR group
 */
-/* $Revision: 1.01 20.05.2001 $ */
+/* $Revision: 1.02 31.05.2001 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -110,7 +110,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 #endif
          )
       {
-        SFXSize=NextPosition=I-7;
+        SFXSize=I-7;
         return(TRUE);
       }
     }
@@ -132,6 +132,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   *Type=0;
 
   FileSize=GetFileSize(ArcHandle,NULL);
+  NextPosition=SFXSize;
 
   SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
   if (!ReadFile(ArcHandle,&MainHeader,sizeof(MainHeader),&ReadSize,NULL) ||
