@@ -1165,6 +1165,7 @@
 "Number of &hard links"
 "Use sort &groups      Shift-F11"
 "Show selected &first  Shift-F12"
+"Use num&eric sort"
 
 "Drive"
 "removable"
@@ -1527,6 +1528,7 @@
 "Empty &command line"
 "&Plugin panel"
 "Execute for &folders"
+"Enable when plugin &active"
 "Se&lection present"
 
 "Cannot save file"

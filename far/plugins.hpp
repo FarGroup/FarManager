@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.29 21.04.2003 $ */
+/* Revision: 1.30 15.07.2003 $ */
 
 /*
 Modify:
+  15.07.2003 SVS
+    + CurPluginItem - NULL или указатель на текущий плагин
   21.04.2003 SVS
     + IsPluginsLoaded(), PSIF_PLUGINSLOADDED
   21.08.2002 IS
@@ -238,7 +240,8 @@ class PluginsSet
     DWORD Reserved;        // в будущем это может быть второй порцией флагов
 
     struct PluginItem *PluginsData;
-    int PluginsCount;
+    int    PluginsCount;
+    struct PluginItem *CurPluginItem;
 
     FileEditor *CurEditor;
     Viewer *CurViewer;     // 27.09.2000 SVS: ”казатель на текущий Viewer

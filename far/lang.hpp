@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.124 11.07.2003 $ */
+/* Revision: 1.125 15.07.2003 $ */
 
 /*
 Modify:
+  15.07.2003 SVS
+    + MMenuSortUseNumeric, MMacroSettingsInsidePlugin
   11.07.2003 SVS
     + MEditPanelModeNumericSort
   12.06.2003 SVS
@@ -1476,6 +1478,7 @@ enum
   MMenuSortByNumLinks,
   MMenuSortUseGroups,
   MMenuSortSelectedFirst,
+  MMenuSortUseNumeric,
 
   MChangeDriveTitle,
   MChangeDriveRemovable,
@@ -1836,6 +1839,7 @@ enum
   MMacroSettingsCommandLine,
   MMacroSettingsPluginPanel,
   MMacroSettingsFolders,
+  MMacroSettingsInsidePlugin,
   MMacroSettingsSelectionPresent,
 
   MCannotSaveFile,

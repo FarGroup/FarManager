@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.24 02.05.2003 $ */
+/* Revision: 1.25 15.07.2003 $ */
 
 /*
 Modify:
+  15.07.2003 SVS
+    + KeyMacro::CheckInsidePlugin() - "мы внутри плагина?"
+    + KeyMacro::DropProcess() - прервать текущий исполняемый макрос.
   02.05.2003 SVS
     - BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
     + IsExecutingLastKey() - введем проверку на... "это последняя клавиша макрокоманды?"
@@ -145,6 +148,7 @@ class KeyMacro
     char *MkRegKeyName(int IdxMacro,char *RegKeyName);
 
     BOOL CheckEditSelected(DWORD CurFlags);
+    BOOL CheckInsidePlugin(DWORD CurFlags);
     BOOL CheckPanel(int PanelMode,DWORD CurFlags);
     BOOL CheckCmdLine(int CmdLength,DWORD Flags);
     BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags);
@@ -199,6 +203,7 @@ class KeyMacro
     static char *MkTextSequence(DWORD *Buffer,int BufferSize);
     // из строкового представления макроса сделать MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);
+    void DropProcess();
 };
 
 #endif	// __KEYMACRO_HPP__

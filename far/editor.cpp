@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.225 05.06.2003 $ */
+/* Revision: 1.226 15.07.2003 $ */
 
 /*
 Modify:
+  15.07.2003 SVS
+    - Del/Bs в самой последней позиции ничего не удаляет, поэтому не модифицируем...
   05.06.2003 SVS
     - XLat, если ничего не сконвертил, все равно ставит модификацию текста.
   05.06.2003 SKV
@@ -2331,6 +2333,9 @@ int Editor::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
+        // Del в самой последней позиции ничего не удаляет, поэтому не модифицируем...
+        if(!CurLine->Next && CurPos>=CurLine->EditLine.GetLength() && BlockStart==NULL && VBlockStart==NULL)
+          return TRUE;
         /* $ 07.03.2002 IS
            Снимем выделение, если блок все равно пустой
         */
@@ -2380,12 +2385,12 @@ int Editor::ProcessKey(int Key)
           }
           else
             CurLine->EditLine.ProcessKey(KEY_DEL);
+          /*$ 10.08.2000 skv
+            Modified->TextChanged
+          */
+          TextChanged(1);
+          /* skv $*/
         }
-        /*$ 10.08.2000 skv
-          Modified->TextChanged
-        */
-        TextChanged(1);
-        /* skv $*/
         Show();
       }
       return(TRUE);
@@ -2395,6 +2400,9 @@ int Editor::ProcessKey(int Key)
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
+        // Bs в самом начале нихрена ничего не удаляет, посему не будем выставлять
+        if(!CurLine->Prev && !CurPos && BlockStart==NULL && VBlockStart==NULL)
+          return TRUE;
         /*$ 10.08.2000 skv
           Modified->TextChanged
         */

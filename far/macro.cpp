@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.96 21.05.2003 $ */
+/* Revision: 1.97 15.07.2003 $ */
 
 /*
 Modify:
+  15.07.2003 SVS
+    + Новая опция в настройках макроса - "Enable when plugin active"
+    + KeyMacro::CheckInsidePlugin() - "мы внутри плагина?"
+    + KeyMacro::DropProcess() - прервать текущий исполняемый макрос.
   21.05.2003 SVS
     - BugZ#900 - ACTL_POSTKEYSEQUENCE вызванная из макроса
   02.05.2003 SVS
@@ -380,6 +384,8 @@ static struct TMacroKeywords {
   {1,  "ReuseMacro",         MFLAGS_REUSEMACRO,0},
   {1,  "Selection",          MFLAGS_SELECTION,0},
   {1,  "NoSelection",        MFLAGS_NOSELECTION,0},
+  {1,  "InsidePlugin",       MFLAGS_INSIDEPLUGIN,0},
+  {1,  "NoInsidePlugin",     MFLAGS_NOINSIDEPLUGIN,0},
 
   {2,  "Windowed",           MCODE_WINDOWEDMODE,0},
   {2,  "APanel.IsEmpty",     MCODE_APANEL_ISEMPTY,0},
@@ -587,7 +593,7 @@ int KeyMacro::ProcessKey(int Key)
 //_SVS(SysLog(-1));
 //_SVS(SysLog("StartMode=%d",StartMode));
 
-      DWORD Flags=MFLAGS_DISABLEOUTPUT;
+      DWORD Flags=MFLAGS_DISABLEOUTPUT|MFLAGS_NOINSIDEPLUGIN;
 
       // добавим проверку на удаление
       // если удаляем, то не нужно выдавать диалог настройки.
@@ -840,6 +846,13 @@ BOOL KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)
             else
               Cond=SelCount < 1;
           }
+          break;
+        }
+        case MFLAGS_INSIDEPLUGIN: // $StopIf[Not] InsidePlugin
+        case MFLAGS_NOINSIDEPLUGIN: // $StopIf[Not] NoInsidePlugin
+        {
+          if(CtrlObject)
+            Cond=CtrlObject->Plugins.CurPluginItem?(Code == MFLAGS_INSIDEPLUGIN?TRUE:FALSE):(Code == MFLAGS_INSIDEPLUGIN?FALSE:TRUE); //??
           break;
         }
       }
@@ -1524,17 +1537,18 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
 
   static struct DialogData MacroSettingsDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,62,11,0,0,0,0,"",
+  /* 00 */ DI_DOUBLEBOX,3,1,62,12,0,0,0,0,"",
   /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroSettingsEnableOutput,
   /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
   /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */ DI_CHECKBOX,5,5,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsCommandLine,
   /* 05 */ DI_CHECKBOX,5,6,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsPluginPanel,
   /* 06 */ DI_CHECKBOX,5,7,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsFolders,
-  /* 07 */ DI_CHECKBOX,5,8,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsSelectionPresent,
-  /* 08 */ DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 09 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 10 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 07 */ DI_CHECKBOX,5,8,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsInsidePlugin,
+  /* 08 */ DI_CHECKBOX,5,9,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsSelectionPresent,
+  /* 09 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(MacroSettingsDlgData,MacroSettingsDlg);
 
@@ -1550,15 +1564,16 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   MacroSettingsDlg[4].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
   MacroSettingsDlg[5].Selected=Set3State(Flags,MFLAGS_NOFILEPANELS,MFLAGS_NOPLUGINPANELS);
   MacroSettingsDlg[6].Selected=Set3State(Flags,MFLAGS_NOFILES,MFLAGS_NOFOLDERS);
-  MacroSettingsDlg[7].Selected=Set3State(Flags,MFLAGS_SELECTION,MFLAGS_NOSELECTION);
+  MacroSettingsDlg[7].Selected=Set3State(Flags,MFLAGS_INSIDEPLUGIN,MFLAGS_NOINSIDEPLUGIN);
+  MacroSettingsDlg[8].Selected=Set3State(Flags,MFLAGS_SELECTION,MFLAGS_NOSELECTION);
 
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
-  Dlg.SetPosition(-1,-1,66,13);
+  Dlg.SetPosition(-1,-1,66,14);
   Dlg.SetHelp("KeyMacroSetting");
   FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
   Dlg.Process();
   FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
-  if (Dlg.GetExitCode()!=9)
+  if (Dlg.GetExitCode()!=10)
     return(FALSE);
 
   Flags=MacroSettingsDlg[1].Selected?0:MFLAGS_DISABLEOUTPUT;
@@ -1570,7 +1585,9 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   Flags|=MacroSettingsDlg[6].Selected==2?0:
           (MacroSettingsDlg[6].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
   Flags|=MacroSettingsDlg[7].Selected==2?0:
-          (MacroSettingsDlg[7].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
+          (MacroSettingsDlg[7].Selected==0?MFLAGS_NOINSIDEPLUGIN:MFLAGS_INSIDEPLUGIN);
+  Flags|=MacroSettingsDlg[8].Selected==2?0:
+          (MacroSettingsDlg[8].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
 
   return(TRUE);
 }
@@ -1905,6 +1922,14 @@ BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags)
   return TRUE;
 }
 
+BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
+{
+  if(CtrlObject &&  CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_NOINSIDEPLUGIN) ||
+     CtrlObject && !CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_INSIDEPLUGIN))
+    return FALSE;
+  return TRUE;
+}
+
 BOOL KeyMacro::CheckCmdLine(int CmdLength,DWORD CurFlags)
 {
  if ((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
@@ -1941,6 +1966,9 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   if(ActivePanel!=NULL)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
   {
+    if(!CheckInsidePlugin(CurFlags))
+      return FALSE;
+
     if(!CheckPanel(ActivePanel->GetMode(),CurFlags))
       return FALSE;
 
@@ -2063,4 +2091,15 @@ int KeyMacro::IsExecutingLastKey()
     return (ExecKeyPos == MR->BufferSize-1);
   }
   return FALSE;
+}
+
+void KeyMacro::DropProcess()
+{
+  if(Executing)
+  {
+    if(LockScr) delete LockScr;
+    LockScr=NULL;
+    Executing=FALSE;
+    ReleaseTempBuffer();
+  }
 }

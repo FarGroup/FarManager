@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.183 11.07.2003 $ */
+/* Revision: 1.184 14.07.2003 $ */
 
 /*
 Modify:
+  14.07.2003 SVS
+    + "Numeric sort" добавим в меню быстрого доступа Ctrl-F12
   11.07.2003 SVS
     ! Еще одна оптимизация - сделаем inline strcmp
     + учтем опцию NumericSort
@@ -3924,11 +3926,13 @@ void FileList::SelectSortMode()
     "",LIF_SEPARATOR,0,
     (char *)MMenuSortUseGroups,0,KEY_SHIFTF11,
     (char *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
+    (char *)MMenuSortUseNumeric,0,0,
   };
 
   int SG=GetSortGroups();
   SortMenu[12].SetCheck(SG);
   SortMenu[13].SetCheck(SelectedFirst);
+  SortMenu[14].SetCheck(ViewSettingsArray[ViewMode].NumericSort);
 
   static int SortModes[]={BY_NAME,BY_EXT,BY_MTIME,BY_SIZE,UNSORTED,
     BY_CTIME,BY_ATIME,BY_DIZ,BY_OWNER,BY_COMPRESSEDSIZE,BY_NUMLINKS};
@@ -3963,6 +3967,14 @@ void FileList::SelectSortMode()
         break;
       case 13:
         ProcessKey(KEY_SHIFTF12);
+        break;
+      case 14:
+        ViewSettingsArray[ViewMode].NumericSort=ViewSettingsArray[ViewMode].NumericSort?0:1;
+        Update(UPDATE_KEEP_SELECTION);
+        Redraw();
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+        AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+        AnotherPanel->Redraw();
         break;
     }
 }

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.232 15.06.2003 $ */
+/* Revision: 1.233 14.07.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  14.07.2003 SVS
+    ! Сделаем перечисления именованными
   15.06.2003 SVS
     + DN_DRAWDIALOGDONE - приходит после отриосвки диалога
     + ACTL_GETDIALOGSETTINGS
@@ -830,7 +832,7 @@ typedef struct _INPUT_RECORD INPUT_RECORD;
 typedef struct _CHAR_INFO    CHAR_INFO;
 #endif
 
-enum {
+enum FARMESSAGEFLAGS{
   FMSG_WARNING             = 0x00000001,
   FMSG_ERRORTYPE           = 0x00000002,
   FMSG_KEEPBACKGROUND      = 0x00000004,
@@ -1031,7 +1033,7 @@ enum FarMessagesProc{
 #endif // END FAR_USE_INTERNALS
 };
 
-enum CHECKEDSTATE {
+enum FARCHECKEDSTATE {
   BSTATE_UNCHECKED = 0,
   BSTATE_CHECKED   = 1,
   BSTATE_3STATE    = 2,
@@ -1081,7 +1083,7 @@ struct FarListPos
   int TopPos;
 };
 
-enum{
+enum FARLISTFINDFLAGS{
   LIFIND_EXACTMATCH = 0x00000001,
 };
 
@@ -1099,7 +1101,7 @@ struct FarListDelete
   int Count;
 };
 
-enum {
+enum FARLISTINFOFLAGS{
   LINFO_SHOWNOBOX             = 0x00000400,
   LINFO_AUTOHIGHLIGHT         = 0x00000800,
   LINFO_REVERSEHIGHLIGHT      = 0x00001000,
@@ -1220,7 +1222,7 @@ struct FarDialogItemData
 #define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
 #define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(long)&FLID);}
 
-enum {
+enum FARDIALOGFLAGS{
   FDLG_WARNING             = 0x00000001,
   FDLG_SMALLDIALOG         = 0x00000002,
   FDLG_NODRAWSHADOW        = 0x00000004,
@@ -1309,7 +1311,7 @@ struct FarMenuItemEx
   DWORD UserData;
 };
 
-enum {
+enum FARMENUFLAGS{
   FMENU_SHOWAMPERSAND        = 0x0001,
   FMENU_WRAPMODE             = 0x0002,
   FMENU_AUTOHIGHLIGHT        = 0x0004,
@@ -1336,7 +1338,7 @@ typedef int (WINAPI *FARAPIMENU)(
 );
 
 
-enum {
+enum PLUGINPANELITEMFLAGS{
   PPIF_PROCESSDESCR           = 0x80000000,
   PPIF_SELECTED               = 0x40000000,
   PPIF_USERDATA               = 0x20000000,
@@ -1399,7 +1401,7 @@ enum PANELINFOFLAGS {
   PFLAGS_REALNAMES          = 0x00000020,
 };
 
-enum {
+enum PANELINFOTYPE{
   PTYPE_FILEPANEL,
   PTYPE_TREEPANEL,
   PTYPE_QVIEWPANEL,
@@ -1574,7 +1576,7 @@ typedef int (WINAPI *FARAPICMPNAME)(
 );
 
 
-enum {
+enum FARCHARTABLE_COMMAND{
   FCT_DETECT=0x40000000,
 };
 
@@ -1747,7 +1749,7 @@ enum FarDescriptionSettings {
 #define FAR_CONSOLE_WINDOWED       (0)
 #define FAR_CONSOLE_FULLSCREEN     (1)
 
-enum {
+enum FAREJECTMEDIAFLAGS{
  EJECT_NO_MESSAGE                    = 0x00000001,
  EJECT_LOAD_MEDIA                    = 0x00000002,
 #ifdef FAR_USE_INTERNALS
@@ -1761,7 +1763,7 @@ struct ActlEjectMedia {
 };
 
 
-enum MacroCommand{
+enum FARMACROCOMMAND{
   MCMD_LOADALL,
   MCMD_SAVEALL
 };
@@ -1771,7 +1773,7 @@ struct ActlKeyMacro{
   DWORD Reserved[3];
 };
 
-enum KeySequenceFlags {
+enum FARKEYSEQUENCEFLAGS {
   KSFLAGS_DISABLEOUTPUT       = 0x00000001,
 };
 
@@ -1792,7 +1794,7 @@ struct FarSetColors{
   LPBYTE Colors;
 };
 
-enum {
+enum WINDOWINFO_TYPE{
 #ifdef FAR_USE_INTERNALS
   WTYPE_VIRTUAL,
   // ПРОСЬБА НЕ ЗАБЫВАТЬ СИНХРОНИЗИРОВАТЬ ИЗМЕНЕНИЯ
@@ -2181,7 +2183,7 @@ typedef void    (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
 typedef int     (WINAPI *FARSTDLOCALSTRICMP)(const char *s1,const char *s2);
 typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(const char *s1,const char *s2,int n);
 
-enum {
+enum PROCESSNAME_FLAGS{
  PN_CMPNAME      = 0x00000000UL,
  PN_CMPNAMELIST  = 0x00001000UL,
  PN_GENERATENAME = 0x00002000UL,
@@ -2471,7 +2473,7 @@ struct OpenPluginInfo
   long                  Reserverd;
 };
 
-enum {
+enum OPENPLUGIN_OPENFROM{
   OPEN_DISKMENU,
   OPEN_PLUGINSMENU,
   OPEN_FINDLIST,
@@ -2484,7 +2486,7 @@ enum {
 #endif // END FAR_USE_INTERNALS
 };
 
-enum {
+enum FAR_PKF_FLAGS {
   PKF_CONTROL = 0x0001,
   PKF_ALT     = 0x0002,
   PKF_SHIFT   = 0x0004,

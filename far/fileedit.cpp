@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.136 30.05.2003 $ */
+/* Revision: 1.137 15.07.2003 $ */
 
 /*
 Modify:
+  15.07.2003 SVS
+    + немного логов
   30.05.2003 SVS
     + Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
       Пока закомментим (чтобы не потерялось)
@@ -2032,6 +2034,7 @@ int FileEditor::EditorControl(int Command,void *Param)
     case ECTL_SETTITLE:
     {
       // $ 08.06.2001 IS - Баг: не учитывался размер PluginTitle
+      _ECTLLOG(SysLog("Title='%s'",Param));
       strncpy(PluginTitle,NullToEmpty((char *)Param),sizeof(PluginTitle)-1);
       ShowStatus();
       ScrBuf.Flush();
@@ -2042,10 +2045,16 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       if(!Param)
         return FALSE;
-
       struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-      if (FEdit->UseDecodeTable)
+      _ECTLLOG(SysLog("struct EditorConvertText{"));
+      _ECTLLOG(SysLog("  Text       ='%s'",ect->Text));
+      _ECTLLOG(SysLog("  TextLength =%d",ect->TextLength));
+      _ECTLLOG(SysLog("}"));
+      if (FEdit->UseDecodeTable && ect->Text)
+      {
         DecodeString(ect->Text,(unsigned char *)FEdit->TableSet.DecodeTable,ect->TextLength);
+        _ECTLLOG(SysLog("DecodeString -> ect->Text='%s'",ect->Text));
+      }
       return TRUE;
     }
 
@@ -2055,14 +2064,20 @@ int FileEditor::EditorControl(int Command,void *Param)
         return FALSE;
 
       struct EditorConvertText *ect=(struct EditorConvertText *)Param;
-      if (FEdit->UseDecodeTable)
+      _ECTLLOG(SysLog("struct EditorConvertText{"));
+      _ECTLLOG(SysLog("  Text       ='%s'",ect->Text));
+      _ECTLLOG(SysLog("  TextLength =%d",ect->TextLength));
+      _ECTLLOG(SysLog("}"));
+      if (FEdit->UseDecodeTable && ect->Text)
+      {
         EncodeString(ect->Text,(unsigned char *)FEdit->TableSet.EncodeTable,ect->TextLength);
+        _ECTLLOG(SysLog("EncodeString -> ect->Text='%s'",ect->Text));
+      }
       return TRUE;
     }
 
     case ECTL_REDRAW:
     {
-      //_SVS(SysLog("FileEditor::EditorControl[%d]: ECTL_REDRAW",__LINE__));
       FileEditor::DisplayObject();
       ScrBuf.Flush();
       return(TRUE);
@@ -2117,6 +2132,13 @@ int FileEditor::EditorControl(int Command,void *Param)
       int EOL=0;
       if (esf!=NULL)
       {
+        _ECTLLOG(char *LinDump=(esf->FileEOL?(char *)_SysLog_LinearDump(esf->FileEOL,strlen(esf->FileEOL)):NULL));
+        _ECTLLOG(SysLog("struct EditorSaveFile{"));
+        _ECTLLOG(SysLog("  FileName   ='%s'",esf->FileName));
+        _ECTLLOG(SysLog("  FileEOL    ='%s'",(esf->FileEOL?LinDump:"(null)")));
+        _ECTLLOG(SysLog("}"));
+        _ECTLLOG(if(LinDump)xf_free(LinDump));
+
         if (*esf->FileName)
           Name=esf->FileName;
         if (esf->FileEOL!=NULL)
@@ -2128,6 +2150,7 @@ int FileEditor::EditorControl(int Command,void *Param)
           if (strcmp(esf->FileEOL,MAC_EOL_fmt)==0)
             EOL=3;
         }
+        _ECTLLOG(SysLog("EOL=%d",EOL));
       }
       return SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,FullFileName));
     }

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.152 13.06.2003 $ */
+/* Revision: 1.153 14.07.2003 $ */
 
 /*
 Modify:
+  14.07.2003 SVS
+    - Ctrl-PgUp для выбора диска - Галка не сохраняется и, соответственно,
+      диск по Ctrl-PgUp выбирается и при снятой и при выставленной галке.
   13.06.2003 SVS
     + В диалог "Системные параметры" ("System settings") добавлена опция
       "Сканировать символические связи" ("Scan symbolic links"). Позволяет
@@ -729,7 +732,7 @@ void PanelSettings()
 #define DLG_INTERF_ALTGR               12
 #define DLG_INTERF_COPYSHOWTOTAL       13
 #define DLG_INTERF_COPYTIMERULE        14
-#define DLG_INTERF_PGUPCHANGEDISK      16
+#define DLG_INTERF_PGUPCHANGEDISK      15
 #define DLG_INTERF_OK                  17
 
 /* $ 17.12.2001 IS
