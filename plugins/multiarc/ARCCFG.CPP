@@ -27,7 +27,7 @@ int ConfigGeneral()
   strcpy(DialogItems[8].Data,Opt.DescriptionNames);
   DialogItems[10].Selected=Opt.ReadDescriptions;
   DialogItems[11].Selected=Opt.UpdateDescriptions;
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,17,"ArcCfg",DialogItems,
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,17,"Config",DialogItems,
                            sizeof(DialogItems)/sizeof(DialogItems[0]));
   if (ExitCode!=13)
     return(FALSE);
