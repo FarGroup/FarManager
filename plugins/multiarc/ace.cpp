@@ -324,8 +324,8 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
       "ace32 r -y -std {%%S} %%A",                              // Recover
       "ace32 a -c2 -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",    // Add
       "ace32 m -c2 -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",    // Move
-      "ace32 a -c2 -r -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN", // AddRecurse
-      "ace32 m -c2 -r -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN", // MoveRecurse
+      "ace32 a -y -c2 -r -f -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",// AddRecurse
+      "ace32 m -y -c2 -r -f -std {-p%%P} {-t%%W} {%%S} %%A @%%LN", // MoveRecurse
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
