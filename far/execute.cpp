@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.60 18.06.2002 $ */
+/* Revision: 1.61 19.06.2002 $ */
 
 /*
 Modify:
+  19.02.2002 SVS
+    - BugZ#558 - ShiftEnter из меню выбора диска
+      ѕроверим так же на "корень диска" и выставим запуск через ShellExecuteEx()
   18.06.2002 SVS
     ! ¬ обработчике команды "CD" (see CommandLine::ProcessOSCommands)
       посмотрим на CHKFLD_NOTACCESS (эту константу вернет нам та сама€
@@ -733,7 +736,7 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
   DWORD Attr=GetFileAttributes(NewCmdStr);
   if(SeparateWindow) //???
   {
-    if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY))
+    if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) || (NewCmdStr[1]==':' && (NewCmdStr[2] == '\\' && !NewCmdStr[3] || !NewCmdStr[2])))
       SeparateWindow=2;
   }
 
