@@ -45,7 +45,7 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
   GetCommandFormat(CMD_DELETE,Command,sizeof(Command));
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
   int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
-  ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,"",AllFilesMask,IgnoreErrors,0,0,CurDir);
+  ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,"",AllFilesMask,IgnoreErrors,0,0,CurDir,CurArcInfo.Prefix);
   if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
     return(FALSE);
   if (Opt.UpdateDescriptions)
@@ -121,7 +121,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
 
   ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,"",Password,AllFilesMask,
                     IgnoreErrors,CommandType==CMD_COMMENT || CommandType==CMD_COMMENTFILES ? 2:0,0,
-                    CurDir);
+                    CurDir,CurArcInfo.Prefix);
   return(IgnoreErrors || ArcCmd.GetExecCode()==0);
 }
 
@@ -260,7 +260,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
   ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,
              DialogItems[5].Data,AllFilesMask,IgnoreErrors,
-             (OpMode & OPM_VIEW)!=0,(OpMode & OPM_FIND),CurDir);
+             (OpMode & OPM_VIEW)!=0,(OpMode & OPM_FIND),CurDir,CurArcInfo.Prefix);
   Opt.HideOutput=SaveHideOut;
   SetCurrentDirectory(SaveDir);
   if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
@@ -325,6 +325,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     };
     struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
     InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+    if(Opt.UseLastHistory)
+      DialogItems[4].Flags|=DIF_USELASTHISTORY;
 
     char DefExt[NM];
     if (!ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
@@ -446,7 +448,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       }
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,DialogItems[2].Data,"",
-                      Password1,AllFilesMask,IgnoreErrors,0,0,CurDir);
+                      Password1,AllFilesMask,IgnoreErrors,0,0,CurDir,
+                      CurArcInfo.Prefix);
     if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
       ArcExitCode=0;
 

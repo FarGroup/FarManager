@@ -3,10 +3,13 @@
 
 */
 
-/* $Revision: 1.01 19.02.2001 $ */
+/* $Revision: 1.02 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 SVS
+    + Опция: "Use Last History" для диалога Shift-F1
+    + PluginItem.Flags - на будущее :-)
   13.04.2001 DJ
     - вместо QuoteSpace используется FSF.QuoteSpaceOnly
     - вся необходимая механика для wincon.h уже есь в plugin.hpp
@@ -64,6 +67,7 @@ struct PluginItem
 {
   char ModuleName[NM];
   HMODULE hModule;
+  DWORD Flags;
   PLUGINLOADFORMATMODULE pLoadFormatModule;
   PLUGINISARCHIVE pIsArchive;
   PLUGINOPENARCHIVE pOpenArchive;
@@ -151,13 +155,14 @@ class ArcCommand
     int NameNumber;
     int PrevFileNameNumber;
     char ListFileName[NM];
+    char PrefixFileName[32];
     unsigned int ExecCode;
     unsigned int MaxAllowedExitCode;
   public:
     ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                char *FormatString,char *ArcName,char *ArcDir,char *Password,
                char *AllFilesMask,int IgnoreErrors,int CommandType=0,
-               int Silent=0,char *RealArcDir=NULL);
+               int Silent=0,char *RealArcDir=NULL,char *Prefix=NULL);
     int GetExecCode() {return(ExecCode);};
 };
 
@@ -237,6 +242,9 @@ struct Options
   int UserBackground;
   int Background;
   /* tran 13.09.2000 $ */
+  /* $ 18.05.2001 SVS */
+  int UseLastHistory;
+  /* SVS 18.05.2001 $ */
 } Opt;
 
 char PluginRootKey[80];

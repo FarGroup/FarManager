@@ -31,6 +31,7 @@ ArcPlugins::ArcPlugins(char *ModuleName)
       struct PluginItem CurPlugin;
       strcpy(CurPlugin.ModuleName,fdata.cFileName);
       CurPlugin.hModule=hModule;
+      CurPlugin.Flags=0;
       CurPlugin.pLoadFormatModule=(PLUGINLOADFORMATMODULE)GetProcAddress(hModule,"LoadFormatModule");
       CurPlugin.pIsArchive=(PLUGINISARCHIVE)GetProcAddress(hModule,"IsArchive");
       CurPlugin.pOpenArchive=(PLUGINOPENARCHIVE)GetProcAddress(hModule,"OpenArchive");
@@ -134,4 +135,3 @@ BOOL ArcPlugins::GetDefaultCommands(int PluginNumber,int Type,int Command,
     return(PluginsData[PluginNumber].pGetDefaultCommands(Type,Command,Dest));
   return(FALSE);
 }
-

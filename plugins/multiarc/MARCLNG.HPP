@@ -106,6 +106,7 @@ enum LanguageID
   MGConfigHideView,
   MGConfigHideAlways,
   MGConfigProcessShiftF1,
+  MGConfigUseLastHistory,
   MGConfigDizNames,
   MGConfigReadDiz,
   MGConfigUpdateDiz,

@@ -25,6 +25,8 @@ void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
     ArcPlugin=new ArcPlugins(Info->ModuleName);
   Opt.HideOutput=GetRegKey(HKEY_CURRENT_USER,"","HideOutput",0);
   Opt.ProcessShiftF1=GetRegKey(HKEY_CURRENT_USER,"","ProcessShiftF1",1);
+  Opt.UseLastHistory=GetRegKey(HKEY_CURRENT_USER,"","UseLastHistory",0);
+
   GetRegKey(HKEY_CURRENT_USER,"","DescriptionNames",Opt.DescriptionNames,
             "descript.ion,files.bbs",sizeof(Opt.DescriptionNames));
   Opt.ReadDescriptions=GetRegKey(HKEY_CURRENT_USER,"","ReadDescriptions",0);

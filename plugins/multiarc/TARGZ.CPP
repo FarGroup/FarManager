@@ -44,6 +44,7 @@ DWORD NextPosition,FileSize;
 int timezone=0;
 int ArcType;
 char ZipName[NM];
+char Prefix[32];
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -76,6 +77,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     else
       ZipName[Dot-NamePtr-1]=0;
   }
+  memset(Prefix,0,sizeof(Prefix));
   return(TRUE);
 }
 
@@ -191,7 +193,23 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     return(GETARC_READERROR);
   if (ReadSize==0 || *Header.name==0)
     return(GETARC_EOF);
-  strncpy(Item->FindData.cFileName,Header.name,sizeof(Item->FindData.cFileName));
+
+  char *EndPos = Header.name;
+  while( *EndPos )
+  {
+    if( *EndPos == '/' )
+      *EndPos = '\\';
+    EndPos++;
+  }
+
+  EndPos = Header.name;
+  if( *EndPos == '.') ++EndPos;
+  if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
+
+  if(EndPos != Header.name && !Prefix[0])
+    memcpy(Prefix,Header.name,min((int)sizeof(Prefix)-1,(int)(EndPos-Header.name)));
+
+  strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
   Item->FindData.dwFileAttributes=(GetOctal(Header.mode) & 0x4000) || ((Header.linkflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
   struct dosdate_t dt;
   struct time tm;
@@ -221,6 +239,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
 BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
+  if(Info)
+  {
+    strcpy(Info->Prefix,Prefix);
+  }
   return(CloseHandle(ArcHandle));
 }
 

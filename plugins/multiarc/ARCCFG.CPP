@@ -1,21 +1,22 @@
 int ConfigGeneral()
 {
   struct InitDialogItem InitItems[]={
-    DI_DOUBLEBOX,3,1,72,15,0,0,0,0,(char *)MGConfigTitle,
-    DI_RADIOBUTTON,5,2,0,0,1,0,DIF_GROUP,0,(char *)MGConfigHideNone,
-    DI_RADIOBUTTON,5,3,0,0,0,0,0,0,(char *)MGConfigHideView,
-    DI_RADIOBUTTON,5,4,0,0,0,0,0,0,(char *)MGConfigHideAlways,
-    DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MGConfigProcessShiftF1,
-    DI_TEXT,5,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_TEXT,5,8,0,0,0,0,0,0,(char *)MGConfigDizNames,
-    DI_EDIT,5,9,70,9,0,0,0,0,"",
-    DI_TEXT,5,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MGConfigReadDiz,
-    DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MGConfigUpdateDiz,
-    DI_TEXT,5,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /*  0 */DI_DOUBLEBOX,3,1,72,16,0,0,0,0,(char *)MGConfigTitle,
+  /*  1 */DI_RADIOBUTTON,5,2,0,0,1,0,DIF_GROUP,0,(char *)MGConfigHideNone,
+  /*  2 */DI_RADIOBUTTON,5,3,0,0,0,0,0,0,(char *)MGConfigHideView,
+  /*  3 */DI_RADIOBUTTON,5,4,0,0,0,0,0,0,(char *)MGConfigHideAlways,
+  /*  4 */DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MGConfigProcessShiftF1,
+  /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MGConfigUseLastHistory,
+  /*  7 */DI_TEXT,5,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*  8 */DI_TEXT,5,9,0,0,0,0,0,0,(char *)MGConfigDizNames,
+  /*  9 */DI_EDIT,5,10,70,10,0,0,0,0,"",
+  /* 10 */DI_TEXT,5,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 11 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MGConfigReadDiz,
+  /* 12 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MGConfigUpdateDiz,
+  /* 13 */DI_TEXT,5,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 14 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 15 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -24,22 +25,25 @@ int ConfigGeneral()
   DialogItems[2].Selected=(Opt.HideOutput==1);
   DialogItems[3].Selected=(Opt.HideOutput==2);
   DialogItems[5].Selected=Opt.ProcessShiftF1;
-  strcpy(DialogItems[8].Data,Opt.DescriptionNames);
-  DialogItems[10].Selected=Opt.ReadDescriptions;
-  DialogItems[11].Selected=Opt.UpdateDescriptions;
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,17,"Config",DialogItems,
+  DialogItems[6].Selected=Opt.UseLastHistory;
+  strcpy(DialogItems[9].Data,Opt.DescriptionNames);
+  DialogItems[11].Selected=Opt.ReadDescriptions;
+  DialogItems[12].Selected=Opt.UpdateDescriptions;
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,18,"Config",DialogItems,
                            sizeof(DialogItems)/sizeof(DialogItems[0]));
-  if (ExitCode!=13)
+  if (ExitCode==15 || ExitCode < 0)
     return(FALSE);
   if (DialogItems[1].Selected)
     Opt.HideOutput=0;
   else
     Opt.HideOutput=(DialogItems[2].Selected) ? 1 : 2;
   Opt.ProcessShiftF1=DialogItems[5].Selected;
-  strcpy(Opt.DescriptionNames,DialogItems[8].Data);
-  Opt.ReadDescriptions=DialogItems[10].Selected;
-  Opt.UpdateDescriptions=DialogItems[11].Selected;
+  Opt.UseLastHistory=DialogItems[6].Selected;
+  strcpy(Opt.DescriptionNames,DialogItems[9].Data);
+  Opt.ReadDescriptions=DialogItems[11].Selected;
+  Opt.UpdateDescriptions=DialogItems[12].Selected;
   SetRegKey(HKEY_CURRENT_USER,"","HideOutput",Opt.HideOutput);
+  SetRegKey(HKEY_CURRENT_USER,"","UseLastHistory",Opt.UseLastHistory);
   SetRegKey(HKEY_CURRENT_USER,"","ProcessShiftF1",Opt.ProcessShiftF1);
   SetRegKey(HKEY_CURRENT_USER,"","DescriptionNames",Opt.DescriptionNames);
   SetRegKey(HKEY_CURRENT_USER,"","ReadDescriptions",Opt.ReadDescriptions);
@@ -118,4 +122,3 @@ int ConfigCommands()
   }
   return(TRUE);
 }
-

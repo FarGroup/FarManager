@@ -16,7 +16,7 @@ Modify:
 ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                        char *FormatString,char *ArcName,char *ArcDir,
                        char *Password,char *AllFilesMask,int IgnoreErrors,
-                       int CommandType,int Silent,char *RealArcDir)
+                       int CommandType,int Silent,char *RealArcDir,char *Prefix)
 {
 //  ExecCode=-1;
 /* $ 28.11.2000 AS
@@ -29,6 +29,7 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
   char Command[MAX_COMMAND_LENGTH];
   ArcCommand::PanelItem=PanelItem;
   ArcCommand::ItemsNumber=ItemsNumber;
+  strcpy(ArcCommand::PrefixFileName,Prefix);
   strcpy(ArcCommand::ArcName,ArcName);
   strcpy(ArcCommand::ArcDir,ArcDir);
   strcpy(ArcCommand::RealArcDir,RealArcDir ? RealArcDir:"");
@@ -306,7 +307,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       if (PanelItem!=NULL)
       {
         char CurArcDir[NM];
-        strcpy(CurArcDir,ArcDir);
+        strcpy(CurArcDir,PrefixFileName);
+        strcat(CurArcDir,ArcDir);
         int Length=strlen(CurArcDir);
         if (Length>0 && CurArcDir[Length-1]!='\\')
           strcat(CurArcDir,"\\");
@@ -367,7 +369,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
             {
               char FolderMaskName[NM];
-              FSF.sprintf(FolderMaskName,"%s\\%s",Name,LocalAllFilesMask);
+              //strcpy(LocalAllFilesMask,PrefixFileName);
+              FSF.sprintf(FolderMaskName,"%s%s\\%s",PrefixFileName,Name,LocalAllFilesMask);
               if (PathOnly)
               {
                 strcpy(FolderMaskName,Name);
@@ -500,7 +503,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     if (!Error && (FileAttr & FILE_ATTRIBUTE_DIRECTORY) && FolderMask)
     {
       char OutName[NM];
-      FSF.sprintf(OutName,"%s%s%c%s",CurArcDir,FileName,UseSlash ? '/':'\\',LocalAllFilesMask);
+      FSF.sprintf(OutName,"%s%s%s%c%s",PrefixFileName,CurArcDir,FileName,UseSlash ? '/':'\\',LocalAllFilesMask);
       if (QuoteName==1)
         FSF.QuoteSpaceOnly(OutName);
       else

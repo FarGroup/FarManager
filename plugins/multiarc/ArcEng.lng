@@ -106,6 +106,7 @@
 "Hide archivers output for &view operation"
 "Always &hide archivers output"
 "Process &Shift-F1 command"
+"Use last h&istory"
 "Description &list names delimited with commas:"
 "&Read archive descriptions"
 "&Update archive descriptions"
@@ -126,4 +127,3 @@
 "Move files and folders"
 ""All files" mask"
 "&Background"
-

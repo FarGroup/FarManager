@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-2001 FAR group
 */
 
-/* $Revision: 1.02 02.04.2001 $ */
+/* $Revision: 1.03 18.05.2001 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -57,6 +57,8 @@ struct ArcInfo
   int Recovery;
   int Lock;
   DWORD Flags;
+  DWORD Reserved;
+  char Prefix[32];
 };
 
 
