@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.29 26.01.2003 $ */
+/* Revision: 1.30 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    - BugZ#805 - Остается прорисовка после поиска в Qview & InfoPanel
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -325,6 +327,15 @@ int QuickView::ProcessKey(int Key)
     {
       DynamicUpdateKeyBar();
       CtrlObject->MainKeyBar->Redraw();
+    }
+    if (Key == KEY_F7 || Key == KEY_SHIFTF7)
+    {
+      __int64 Pos;
+      int Length;
+      DWORD Flags;
+      QView->GetSelectedParam(Pos,Length,Flags);
+      ShellUpdatePanels(NULL,FALSE);
+      QView->SelectText(Pos,Length,Flags|1);
     }
     return ret;
   }

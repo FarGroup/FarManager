@@ -5,10 +5,13 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.09 25.06.2002 $ */
+/* Revision: 1.10 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! В ScreenObject::Show() воспользуемся флагом FSCROBJ_ISREDRAWING с тем,
+      чтобы исключить рекурсию при прорисовке объектов!
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   18.05.2002 SVS
@@ -139,8 +142,12 @@ void ScreenObject::Show()
 //  _tran(SysLog("[%p] ScreenObject::Show()",this));
   if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
     return;
+  if (Flags.Check(FSCROBJ_ISREDRAWING))
+    return;
+  Flags.Set(FSCROBJ_ISREDRAWING);
   SavePrevScreen();
   DisplayObject();
+  Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 

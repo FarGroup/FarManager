@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.47 21.01.2003 $ */
+/* Revision: 1.48 24.02.2003 $ */
 
 /*
 Modify:
+  24.02.2003 SVS
+    + для пассивной панели типа QVIEW_PANEL добавим LockScreen, дабы исключить
+      лишнюю прорисовку.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -155,6 +158,7 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "help.hpp"
+#include "lockscrn.hpp"
 
 #define DELTA_TREECOUNT 31
 /* $ 08.12.2001 IS
@@ -300,6 +304,10 @@ void TreeList::DisplayTree(int Fast)
   int I,J,K;
   struct TreeItem *CurPtr;
   char Title[100];
+  LockScreen *LckScreen=NULL;
+
+  if(CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
+    LckScreen=new LockScreen;
 
   CorrectPosition();
   if (TreeCount>0)
@@ -365,6 +373,8 @@ void TreeList::DisplayTree(int Fast)
 
   UpdateViewPanel();
   SetTitle(); // не забудим прорисовать заголовок
+  if(LckScreen)
+    delete LckScreen;
 }
 
 

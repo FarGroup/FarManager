@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.279 22.02.2003 $ */
+/* Revision: 1.280 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    - BugZ#811 - Зависание при невозможности загрузить плуг
   22.02.2003 SVS
     - BugZ#806 - Strange crash
       Пытаюсь при загрузке плагина (setstartupinfo) пополнить историю диалога с
@@ -5401,7 +5403,7 @@ void Dialog::CloseDialog()
     DialogMode.Set(DMODE_ENDLOOP);
     Hide();
 
-    if(FrameManager->ManagerStarted())
+    if(DialogMode.Check(DMODE_MSGINTERNAL) || FrameManager->ManagerStarted())
       FrameManager->DeleteFrame (this);
 
     _DIALOG(CleverSysLog CL("Close Dialog"));

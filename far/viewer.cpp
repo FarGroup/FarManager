@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.128 20.03.2003 $ */
+/* Revision: 1.129 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    + SelectFlags, GetSelectedParam - что бы была возможность восстановить выделение
   20.02.2003 IS
     ! Отменим предыдущий патч, т.к. лучше устранить эту "ошибку
       проектирования" на корню - коль уж идет оперирование размерами,
@@ -3212,6 +3214,13 @@ void Viewer::SetFileSize()
 }
 
 
+void Viewer::GetSelectedParam(__int64& Pos,int& Length, DWORD& Flags)
+{
+  Pos=SelectPos;
+  Length=SelectSize;
+  Flags=SelectFlags;
+}
+
 /* $ 19.01.2001 SVS
    Выделение - в качестве самостоятельной функции.
    Flags=0x01 - показывать (делать Show())
@@ -3236,6 +3245,7 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
   vseek(ViewFile,MatchPos+1,SEEK_SET);
   SelectPos=FilePos=MatchPos;
   SelectSize=SearchLength;
+  SelectFlags=Flags;
 //  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
   /* $ 13.03.2001 IS
      Если найденное расположено в самой первой строке юникодного файла и файл

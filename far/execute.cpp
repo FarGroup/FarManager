@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.79 20.02.2003 $ */
+/* Revision: 1.80 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! Вернем "старое" поведение для выставление титла консоли, ибо строка
+      "gzip foo.bar" намного понятнее выглядит, нежели "c:\usr\bin\gzip.EXE"
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
@@ -1071,13 +1074,13 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
       {
         char FarTitle[2*NM];
-        int size=Min((DWORD)strlen(CmdPtr),(DWORD)sizeof(FarTitle)-1);
+        int size=Min((DWORD)strlen(CmdStr),(DWORD)sizeof(FarTitle)-1);
         OemToCharBuff(CmdPtr,FarTitle,size);
         FarTitle[size]=0;
         SetConsoleTitle(FarTitle);
       }
       else
-        SetConsoleTitle(CmdPtr);//SetFarTitle(CmdPtr);
+        SetConsoleTitle(CmdStr);//SetFarTitle(CmdPtr);
     }
     /* IS $ */
 //_SVS(SysLog("CmdPtr  ='%s'",CmdPtr));

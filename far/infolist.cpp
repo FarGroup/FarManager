@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.37 14.01.2003 $ */
+/* Revision: 1.38 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    - BugZ#805 - Остается прорисовка после поиска в Qview & InfoPanel
   14.01.2003 SVS
     - BugZ#758 - падение FAR'a при запуске ассоциации
   01.10.2002 SVS
@@ -441,6 +443,15 @@ int InfoList::ProcessKey(int Key)
     {
       DynamicUpdateKeyBar();
       CtrlObject->MainKeyBar->Redraw();
+    }
+    if (Key == KEY_F7 || Key == KEY_SHIFTF7)
+    {
+      __int64 Pos;
+      int Length;
+      DWORD Flags;
+      DizView->GetSelectedParam(Pos,Length,Flags);
+      ShellUpdatePanels(NULL,FALSE);
+      DizView->SelectText(Pos,Length,Flags|1);
     }
     return(ret);
   }

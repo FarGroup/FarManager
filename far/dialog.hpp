@@ -10,10 +10,18 @@ dialog.hpp
 
 */
 
-/* Revision: 1.67 17.10.2002 $ */
+/* Revision: 1.68 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    - BugZ#811 - Зависание при невозможности загрузить плуг
+      Последствия разборок с BugZ#806. Добавим флаг DMODE_MSGINTERNAL, который
+      будет выставляться в Message().
+      По хорошему здесь нужна очередь! Именно для нее и введена структура
+      FarDialogMessage. Сейчас она пока функциональной нагрузки не несет...
+      (введена, что не забыть сделать как можно быстрее, иначе таких баг-репортов
+      будет море).
   17.10.2002 SVS
     + Добавим в Do_ProcessNextCtrl() параметр про принудительную
       прорисовку 2 элементов (старого и нового)
@@ -250,6 +258,7 @@ Modify:
 #define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
 #define DMODE_NODRAWSHADOW  0x00100000 // не рисовать тень?
 #define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?
+#define DMODE_MSGINTERNAL   0x40000000 // Внутренняя Message?
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
 #define DIMODE_REDRAW       0x00000001 // требуется принудительная прорисовка итема?
@@ -346,6 +355,13 @@ struct DialogData
   DWORD Flags;
   BYTE  DefaultButton;
   char *Data;
+};
+
+struct FarDialogMessage{
+  HANDLE hDlg;
+  int    Msg;
+  int    Param1;
+  long   Param2;
 };
 
 class DlgEdit;

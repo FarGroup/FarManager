@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.25 03.02.2003 $ */
+/* Revision: 1.26 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    + SelectFlags, GetSelectedParam - что бы была возможность восстановить выделение
   03.02.2003 VVM
     +  Разные флаги для поиска
   23.01.2003 VVM
@@ -187,6 +189,7 @@ class Viewer:public ScreenObject
     __int64 LastPage;
     int CRSym;
     __int64 SelectPos,SelectSize;
+    DWORD SelectFlags;
     /* $ 06.02.2001 IS
        Используется для коррекции позиции выделения в юникодных файлах
     */
@@ -293,6 +296,7 @@ class Viewer:public ScreenObject
     /* SVS $ */
 
     void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,DWORD Flags=0);
+    void GetSelectedParam(__int64& Pos,int& Length, DWORD& Flags);
     // Функция выделения - как самостоятельная функция
     void SelectText(__int64 MatchPos,int SearchLength, DWORD Flags=0x1);
     /* $ 29.03.2001 IS

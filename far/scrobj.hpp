@@ -7,10 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.08 18.05.2002 $ */
+/* Revision: 1.09 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    + FSCROBJ_ISREDRAWING - идет процесс Show?
   18.05.2002 SVS
     ! Выносим некоторые переменные во флаги
   19.11.2001 OT
@@ -43,6 +45,7 @@ enum {
   FSCROBJ_VISIBLE              = 0x00000001,
   FSCROBJ_ENABLERESTORESCREEN  = 0x00000002,
   FSCROBJ_SETPOSITIONDONE      = 0x00000004,
+  FSCROBJ_ISREDRAWING          = 0x00000008,   // идет процесс Show?
 };
 
 class ScreenObject

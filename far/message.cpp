@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.27 21.01.2003 $ */
+/* Revision: 1.28 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    + Выставим DMODE_MSGINTERNAL перед показом месага (как вариант решения
+      разногласий между BugZ#811 и BugZ#806)
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -350,6 +353,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       Dlg.SetPluginNumber(PluginNumber); // Запомним номер плагина
       if (Flags & MSG_WARNING)
         Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
+      Dlg.SetDialogMode(DMODE_MSGINTERNAL);
       FlushInputBuffer();
       if(Flags & MSG_KILLSAVESCREEN)
         Dialog::SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);

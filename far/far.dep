@@ -2217,6 +2217,7 @@
 	
 
 "$(INTDIR)\treelist.obj" : \
+	".\array.hpp"\
 	".\treelist.cpp"\
 	".\array.hpp"\
 	".\bitflags.hpp"\
@@ -2232,6 +2233,7 @@
 	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
+	".\lockscrn.hpp"\
 	".\frame.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
@@ -2253,7 +2255,6 @@
 	".\struct.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
-	".\array.hpp"\
 	
 
 "$(INTDIR)\udlist.obj" : \
