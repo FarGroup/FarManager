@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.88 27.04.2001 $ */
+/* Revision: 1.89 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 OT
+    + Неверно формировалось меню плагинов по F11 (NWZ)
+      Изменился PluginSet::CommandsMenu()
   27.04.2001 SVS
     - Ctrl-Q: не выставлялся признак модификации
     - Ctrl-Q: не помещались данные в буфер отката
@@ -2128,7 +2131,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_F11:
       CtrlObject->Plugins.CurEditor=this;
-      if (CtrlObject->Plugins.CommandsMenu(TRUE,FALSE,0,"Editor"))
+      if (CtrlObject->Plugins.CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
         *PluginTitle=0;
       Show();
       return(TRUE);

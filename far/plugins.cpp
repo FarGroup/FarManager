@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.62 29.04.2001 $ */
+/* Revision: 1.63 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 OT
+    + Неверно формировалось меню плагинов по F11 (NWZ)
+      Изменился PluginSet::CommandsMenu()
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   28.04.2001 SVS
@@ -1912,9 +1915,17 @@ void PluginsSet::Configure()
 }
 
 
-int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
+///int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName)
+int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
 {
   int MenuItemNumber=0;
+/* $ 04.05.2001 OT */
+  int Editor,Viewer;
+
+  Editor = ModalType==MODALTYPE_EDITOR;
+  Viewer = ModalType==MODALTYPE_VIEWER;
+  /* OT $ */
+
   VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
   PluginList.SetFlags(MENU_WRAPMODE);
   PluginList.SetPosition(-1,-1,0,0);
@@ -1939,6 +1950,8 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryNam
       {
         sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
         int Flags=GetRegKey(RegKey,"Flags",0);
+        /* todo: тут надо не смотреть на Editor/Viewer
+                 а сделать четкий анализ на ModalType */
         if (Editor && (Flags & PF_EDITOR)==0 ||
             Viewer && (Flags & PF_VIEWER)==0 ||
             !Editor && !Viewer && (Flags & PF_DISABLEPANELS))
@@ -2057,7 +2070,8 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryNam
             else
               SetRegKey(RegKey,"Hotkey",PluginDlg[2].Data);
             PluginList.Hide();
-            return(CommandsMenu(Editor,Viewer,SelPos));
+///            return(CommandsMenu(Editor,Viewer,SelPos,HistoryName));
+            return(CommandsMenu(ModalType,SelPos,HistoryName));///
           }
         }
         break;
@@ -2099,7 +2113,7 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryNam
 
 int PluginsSet::GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey)
 {
-  int FarPathLength=strlen(FarPath);
+  unsigned int FarPathLength=strlen(FarPath);
   *RegKey=0;
   if (FarPathLength<strlen(PluginsData[PluginNumber].ModuleName))
   {

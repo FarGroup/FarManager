@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.06 29.04.2001 $ */
+/* Revision: 1.07 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 OT
+    + Неверно формировалось меню плагинов по F11 (NWZ)
+      Изменился PluginSet::CommandsMenu()
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   29.12.2000 IS
@@ -383,7 +386,7 @@ void Manager::GetModalTypesCount(int &Viewers,int &Editors)
 
 int  Manager::GetModalCountByType(int Type)
 {
-  int ret;
+  int ret=0;
   for (int I=0;I<ModalCount;I++)
   {
     char type[200],Name[NM];
@@ -572,6 +575,7 @@ void Manager::PluginsMenu()
         return;
     }
 /// ╧юьхэ ыё  т√чют ъюььрэфё ╨рчюсЁрЄ№ё 
+///    CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
     CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
     SysLog(-1);
 }

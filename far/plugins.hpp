@@ -7,10 +7,13 @@ plugins.hpp
 
 */
 
-/* Revision: 1.08 26.03.2001 $ */
+/* Revision: 1.09 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 OT
+    + Неверно формировалось меню плагинов по F11 (NWZ)
+      Изменился PluginSet::CommandsMenu()
   26.03.2001 SVS
     + дополнительный параметр у CommandsMenu() - HistoryName
   31.10.2000 SVS
@@ -180,7 +183,7 @@ class PluginsSet
     void SendExit();
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure();
-    int CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryName=NULL);
+    int CommandsMenu(int ModalType,int StartPos,char *HistoryName=NULL);
     int GetDiskMenuItem(int PluginNumber,int PluginItem,int &ItemPresent,int &PluginTextNumber,char *PluginText);
     int UseFarCommand(HANDLE hPlugin,int CommandType);
     void ReloadLanguage();

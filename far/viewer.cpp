@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.56 28.04.2001 $ */
+/* Revision: 1.57 04.05.2001 $ */
 
 /*
 Modify:
+  04.05.2001 OT
+    + Неверно формировалось меню плагинов по F11 (NWZ)
+      Изменился PluginSet::CommandsMenu()
   28.04.2001 SVS
     - Opt.MsWheelDeltaEdit -> Opt.MsWheelDeltaView
   27.04.2001 DJ
@@ -630,7 +633,7 @@ void Viewer::DisplayObject()
       ReadString(OutStr[I],-1,MAX_VIEWLINEB,SelPos,SelSize);
       SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
-      if (strlen((char *)OutStr[I])>LeftPos)
+      if (strlen((char *)OutStr[I])>(unsigned) LeftPos)
       {
         /* $ 18.10.2000 SVS
            -Bug: Down Down Up & первый пробел
@@ -1412,7 +1415,7 @@ int Viewer::ProcessKey(int Key)
         GoTo();
       return(TRUE);
     case KEY_F11:
-      CtrlObject->Plugins.CommandsMenu(FALSE,TRUE,0,"Viewer");
+      CtrlObject->Plugins.CommandsMenu(MODALTYPE_VIEWER,0,"Viewer");
       Show();
       return(TRUE);
     /* $ 27.04.2001 VVM
