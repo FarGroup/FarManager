@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.38 25.10.2000 $ */
+/* Revision: 1.39 25.10.2000 $ */
 
 /*
 Modify:
+  25.10.2000 SVS
+    ! Уточнения OpenLogStream
+    ! У MkTemp префикс может быть и по русски, так что переведем в ANSI
   25.10.2000 IS
     ! Заменил mktemp на вызов соответствующей апишной функции, т.к. предыдущий
       вариант приводил к ошибке (заметили на Multiarc'е)
@@ -24,12 +27,12 @@ Modify:
   09.10.2000 IS
     + Новые функции для обработки имени файла: ProcessName, ConvertWildcards
   27.09.2000 skv
-   + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
+    + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
   24.09.2000 SVS
-   + Функция KeyNameToKey - получение кода клавиши по имени
-     Если имя не верно или нет такого - возвращается -1
+    + Функция KeyNameToKey - получение кода клавиши по имени
+      Если имя не верно или нет такого - возвращается -1
   20.09.2000 SVS
-   ! удалил FolderPresent (блин, совсем крышу сорвало :-(
+    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   20.09.2000 SVS
     ! Уточнения в функции Xlat()
   19.09.2000 SVS
@@ -2466,11 +2469,18 @@ char* WINAPI FarMkTemp(char *Dest, char *Prefix)
     char TempPath[NM],TempName[NM];
     int Len;
     TempPath[Len=GetTempPath(sizeof(TempPath),TempPath)]=0;
-    if(GetTempFileName(TempPath,Prefix,0,TempName))
+    /* $ 25.10.2000 SVS
+       Соблюдем условие, что префикс должен быть в ANSI
+       А нужно ли???!!!
+    */
+    char Pref[32];
+    OemToChar(Prefix,Pref);
+    if(GetTempFileName(TempPath,Pref,0,TempName))
     {
       strcpy(Dest,TempName);
       return Dest;
     }
+    /* SVS $ */
   }
   return NULL;
 }
@@ -2526,6 +2536,8 @@ FILE * OpenLogStream(char *file)
 
     strftime(RealLogName,MAX_FILE,file,time_now);
     return _fsopen(RealLogName,"a+t",SH_DENYWR);
+#else
+    return NULL;
 #endif
 }
 
