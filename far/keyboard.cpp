@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.113 09.11.2004 $ */
+/* Revision: 1.114 03.12.2004 $ */
 
 /*
 Modify:
+  03.12.2004 SVS
+    - BugZ#1196 - Повторное Shift-Enter...
   09.11.2004 SVS
     - Макросы. Если есть автостартующие макросы, то
       Far -r
@@ -370,6 +372,7 @@ static BOOL IsKeyRCASPressed=FALSE; // Right CtrlAltShift - нажато или нет?
 static clock_t PressedLastTime,KeyPressedLastTime;
 static int ShiftState=0;
 static int AltEnter=-1;
+static int LastShiftEnterPressed=FALSE;
 
 /* ----------------------------------------------------------------- */
 static struct TTable_KeyToVK{
@@ -552,7 +555,7 @@ int IsMouseButtonPressed()
 
 DWORD GetInputRecord(INPUT_RECORD *rec)
 {
-//_SVS(CleverSysLog Clev("GetInputRecord - main"));
+_SVS(CleverSysLog Clev("GetInputRecord - main"));
   static int LastEventIdle=FALSE;
   DWORD ReadCount;
   DWORD LoopCount=0,CalcKey;
@@ -573,8 +576,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
       rec->EventType=((MacroKey >= KEY_MACRO_BASE && MacroKey <= KEY_MACRO_ENDBASE) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
       if(!(MacroKey&KEY_SHIFT))
         ShiftPressed=0;
-//      _KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
-//      _SVS(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
+//_KEYMACRO(SysLog("MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
@@ -645,7 +647,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
       }
 */
 //_SVS(if(rec->EventType==KEY_EVENT)SysLog("Opt.UseUnicodeConsole=%d",Opt.UseUnicodeConsole));
-//_SVS(if(rec->EventType==KEY_EVENT)SysLog("if(rec->EventType==KEY_EVENT) >>> %s",_INPUT_RECORD_Dump(rec)));
+_SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
 
 /*
 #if defined(USE_WFUNC_IN)
@@ -1007,6 +1009,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
        Для Win9x при нажатом NumLock и юзании курсорных клавиш
        получаем в диалоге назначения ерундистику.
     */
+//_SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
     if(CtrlObject && CtrlObject->Macro.IsRecording())
     {
       static WORD PrevVKKeyCode=0; // NumLock+Cursor
@@ -1082,6 +1085,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
     }
 /* SVS $ */
   }
+
+//_SVS(if(rec->EventType==KEY_EVENT)SysLog("[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
 
   ReturnAltValue=FALSE;
   CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
@@ -2502,8 +2507,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     case VK_RETURN:
       //  !!!!!!!!!!!!! - Если "!ShiftPressed", то Shift-F4 Shift-Enter, не
       //                  отпуская Shift...
-      if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)
+//_SVS(SysLog("ShiftPressed=%d RealKey=%d !ShiftPressedLast=%d !CtrlPressed=%d !AltPressed=%d (%d)",ShiftPressed,RealKey,ShiftPressedLast,CtrlPressed,AltPressed,(ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed)));
+      if (ShiftPressed && RealKey && !ShiftPressedLast && !CtrlPressed && !AltPressed && !LastShiftEnterPressed)
         return(KEY_ENTER);
+      LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
       return(Modif|KEY_ENTER);
     case VK_BACK:
       return(Modif|KEY_BS);
