@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.44 11.01.2002 $ */
+/* Revision: 1.45 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    - BugZ#263 - Opening non-existent file in viewer (beta 4 only)
   11.01.2002 IS
     - "Сделал", блин :-(
       Не в LocalUpperInit это нужно вставлять, а в отдельную функцию, а
@@ -423,10 +425,16 @@ int _cdecl main(int Argc, char *Argv[])
       {
         FileEditor *ShellEditor=new FileEditor(EditName,TRUE,TRUE,StartLine,StartChar);
         _tran(SysLog("make shelleditor %p",ShellEditor));
+        if (!ShellEditor->GetExitCode()){ // ????????????
+          FrameManager->ExitMainLoop(0);
+        }
       }
       if (*ViewName)
       {
         FileViewer *ShellViewer=new FileViewer(ViewName,FALSE);
+        if (!ShellViewer->GetExitCode()){
+          FrameManager->ExitMainLoop(0);
+        }
         _tran(SysLog("make shellviewer, %p",ShellViewer));
       }
       FrameManager->EnterMainLoop();
