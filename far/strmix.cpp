@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.13 05.06.2001 $ */
+/* Revision: 1.14 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 VVM
+    ! чуть-чуть переделаем Unquote()
   05.06.2001 VVM
     + переделка Unquote()
   07.05.2001 DJ
@@ -606,20 +608,21 @@ void WINAPI Unquote(char *Str)
   {
     if (*P=='\"')
     {
-      if (LastQuote)
-      {
-        strcpy(LastQuote, LastQuote+1);
-        P--;
-        if (*LastQuote!='\"')
-        {
-          strcpy(P, P+1);
-          P--;
-        }
-        LastQuote = NULL;
-      }
+      if (*(P+1)=='\"')
+        strcpy(P, P+1);
       else
-        LastQuote = P;
-    }
+      {
+        if (LastQuote)
+        {
+          strcpy(LastQuote, LastQuote+1);
+          strcpy(P-1, P);
+          P = P-2;
+          LastQuote = NULL;
+        }
+        else
+          LastQuote = P;
+      } /* else */
+    } /* while */
     P++;
   }
 }
