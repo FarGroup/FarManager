@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.11 27.04.2001 $ */
+/* Revision: 1.12 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + GetSubstName() принимает тип носителя
   27.04.2001 DJ
     - всякие фиксы про скроллбар в viewer'е для просмотра описаний
   05.04.2001 VVM
@@ -176,7 +178,7 @@ void InfoList::DisplayObject()
        + Информация про Subst-тип диска
     */
     {
-      if(GetSubstName(LocalName,RemoteName,sizeof(RemoteName)))
+      if(GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName)))
       {
         strcpy(DiskType,MSG(MInfoSUBST));
         DriveType=DRIVE_SUBSTITUTE;

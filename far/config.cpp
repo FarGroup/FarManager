@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.68 26.04.2001 $ */
+/* Revision: 1.69 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + Opt.SubstNameRule битовая маска:
+      0 - если установлен, то опрашивать сменные диски при GetSubstName()
+      1 - если установлен, то опрашивать все остальные при GetSubstName()
   16.04.2001 VVM
     + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
     + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
@@ -929,6 +933,13 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaView", &Opt.MsWheelDeltaView, 1, 0},
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaEdit", &Opt.MsWheelDeltaEdit, 1, 0},
   /* VVM $ */
+  /* $ 28.04.2001 VVM
+    + Opt.SubstNameRule битовая маска:
+      0 - если установлен, то опрашивать сменные диски при GetSubstName()
+      1 - если установлен, то опрашивать все остальные при GetSubstName() */
+  {0, REG_DWORD,  NKeySystem,"SubstNameRule", &Opt.SubstNameRule, 2, 0},
+  /* VVM $ */
+
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},

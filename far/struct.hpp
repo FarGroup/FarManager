@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.56 26.04.2001 $ */
+/* Revision: 1.57 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + Opt.SubstNameRule битовая маска:
+      0 - если установлен, то опрашивать сменные диски при GetSubstName()
+      1 - если установлен, то опрашивать все остальные при GetSubstName()
   26.04.2001 VVM
     + Opt.MsWheelDeltaView - задает смещение для прокрутки вьюера.
     + Opt.MsWheelDeltaEdit - задает смещение для прокрутки редактора.
@@ -619,6 +623,12 @@ struct Options
   /* VVM $ */
   int MsWheelDeltaView;
   int MsWheelDeltaEdit;
+  /* $ 28.04.2001 VVM
+    + Opt.SubstNameRule битовая маска:
+      0 - если установлен, то опрашивать сменные диски при GetSubstName()
+      1 - если установлен, то опрашивать все остальные при GetSubstName() */
+  int SubstNameRule;
+  /* VVM $ */
 
   struct PoliciesOptions Policies;
 };

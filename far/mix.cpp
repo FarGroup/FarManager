@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.70 24.04.2001 $ */
+/* Revision: 1.71 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + GetSubstName() принимает тип носителя
   24.04.2001 SVS
     - Бага с кавычками (с подачи DJ)
   13.04.2001 VVM
@@ -1475,7 +1477,7 @@ char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
     SetFileApisToOEM();
   }
   if (!NetPathShown)
-    if (GetSubstName(LocalName,RemoteName,sizeof(RemoteName)))
+    if (GetSubstName(DriveType,LocalName,RemoteName,sizeof(RemoteName)))
       IsOK=TRUE;
 
   if(IsOK)

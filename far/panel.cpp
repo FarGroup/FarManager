@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.35 27.04.2001 $ */
+/* Revision: 1.36 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + GetSubstName() принимает тип носителя
   27.04.2001 SVS
     + Т.к. нет способа получить состояние "открытости" устройства,
       то добавим обработку Ins для CD - "закрыть диск"
@@ -241,7 +243,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           {
             char LocalName[8],SubstName[NM];
             sprintf(LocalName,"%c:",*RootDir);
-            if(GetSubstName(LocalName,SubstName,sizeof(SubstName)))
+            if(GetSubstName(DriveType,LocalName,SubstName,sizeof(SubstName)))
             {
               strcpy(DiskType,MSG(MChangeDriveSUBST));
               DriveType=DRIVE_SUBSTITUTE;

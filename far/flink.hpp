@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.04 25.04.2001 $ */
+/* Revision: 1.05 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    + GetSubstName получает тип носителя
   25.04.2001 SVS
     + CreateVolumeMountPoint() - монтирование диска на файловую систему
   06.04.2001 SVS
@@ -37,7 +39,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
               LPTSTR  szDestBuff,
               DWORD   dwBuffSize);
 
-BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize);
+BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize);
 int DelSubstDrive(char *DosDeviceName);
 void  WINAPI GetPathRoot(char *Path,char *Root);
 

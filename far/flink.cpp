@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.12 25.04.2001 $ */
+/* Revision: 1.13 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 VVM
+    ! GetSubstName() получает тип носителя
+    + Обработка Opt.SubstNameRule
   25.04.2001 SVS
     + CreateVolumeMountPoint() - монтирование диска на файловую систему
   06.04.2001 SVS
@@ -481,9 +484,8 @@ int DelSubstDrive(char *DosDeviceName)
 {
   char NtDeviceName[512]="\\??\\";
   int Pos=(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?4:0);
-  if(GetSubstName(DosDeviceName,
-         NtDeviceName+Pos,
-         sizeof(NtDeviceName)-Pos))
+  if(GetSubstName(DRIVE_NOT_INIT, DosDeviceName,
+                  NtDeviceName+Pos, sizeof(NtDeviceName)-Pos))
   {
     return !DefineDosDevice(DDD_RAW_TARGET_PATH|
                        DDD_REMOVE_DEFINITION|
@@ -494,8 +496,22 @@ int DelSubstDrive(char *DosDeviceName)
 }
 /* SVS $ */
 
-BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize)
+BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 {
+  /* $28.04.2001 VVM
+    + Обработка в зависимости от Opt.SubstNameRule
+      битовая маска:
+      0 - если установлен, то опрашивать сменные диски
+      1 - если установлен, то опрашивать все остальные */
+  if (DriveType!=DRIVE_NOT_INIT)
+  {
+    int DriveRemovable = (DriveType==DRIVE_REMOVABLE) || (DriveType==DRIVE_CDROM);
+    if ((!(Opt.SubstNameRule & 1)) && (DriveRemovable))
+      return(FALSE);
+    if ((!(Opt.SubstNameRule & 2)) && (!DriveRemovable))
+      return(FALSE);
+  }
+  /* VVM $ */
   char Name[NM*2]="";
   LocalName=CharUpper((LPTSTR)LocalName);
   if ((LocalName[0]>='A') && ((LocalName[0]<='Z')))
