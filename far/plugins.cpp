@@ -9,6 +9,8 @@ plugins.cpp
 
 /*
 Modify:
+  27.09.2000 skv
+    + DeleteBuffer
   24.09.2000 SVS
     + Функция FarNameToKey - получение кода клавиши по имени
       Если имя не верно или нет такого - возвращается -1
@@ -552,6 +554,12 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     StandardFunctions.MkTemp=FarMkTemp;
     /* SVS $ */
+
+    /*$ 27.09.2000 skv
+      + Delete buffer allocated in PasteFromClipboard
+    */
+    StandardFunctions.DeleteBuffer=DeleteBuffer;
+    /* skv$*/
 
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);

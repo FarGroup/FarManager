@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.06 10.09.2000 $ */
+/* Revision: 1.07 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SKV
+    - Don't redraw editor after macro finished if it is hidden.
   10.09.2000 SVS
     ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
     ! Функция ReadMacros имеет дополнительные аргументы
@@ -258,9 +260,17 @@ int KeyMacro::GetKey()
     {
       if(CtrlObject->Plugins.CurEditor)
       {
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,(LPVOID)2);
-        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,0);
-        CtrlObject->Plugins.CurEditor->Show();
+        /*$ 27.09.2000 skv
+          Don't redraw editor if it is hidden.
+        */
+        if(CtrlObject->Plugins.CurEditor->IsVisible())
+        {
+
+          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+          CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+          CtrlObject->Plugins.CurEditor->Show();
+        }
+        /* skv$*/
       }
     }
     /* skv$*/

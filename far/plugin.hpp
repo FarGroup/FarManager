@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.57 26.09.2000 $ */
+/* Revision: 1.58 27.09.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  27.09.2000 skv
+    + DeleteBuffer
   26.09.2000 SVS
     ! FARSTDKEYTOTEXT -> FARSTDKEYTOKEYNAME
   24.09.2000 SVS
@@ -858,6 +860,7 @@ typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(char *Name);
 typedef int     (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
 typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
+typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
@@ -915,6 +918,7 @@ typedef struct FarStandardFunctions
   FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
   FARSTDRECURSIVESEARCH      FarRecursiveSearch;
   FARSTDMKTEMP               MkTemp;
+  FARSTDDELETEBUFFER         DeleteBuffer;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo

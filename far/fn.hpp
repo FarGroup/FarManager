@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.31 24.09.2000 $ */
+/* Revision: 1.32 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 skv
+   + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
   24.09.2000 SVS
    + Функция KeyNameToKey - получение кода клавиши по имени
      Если имя не верно или нет такого - возвращается -1
@@ -544,6 +546,11 @@ char* WINAPI FarMkTemp(char *Dest, char *Template);
 */
 int WINAPI KeyNameToKey(char *Name);
 /* SVS $*/
+
+/*$ 27.09.2000 skv
+*/
+void WINAPI DeleteBuffer(char* Buffer);
+/* skv$*/
 
 #ifdef __cplusplus
 };

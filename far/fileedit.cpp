@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.05 24.08.2000 $ */
+/* Revision: 1.06 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SKV
+    + Для правильного функционирования макро с Ctrl-O делается FEdit.Hide()
   24.08.2000 SVS
     + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
   07.08.2000 SVS
@@ -189,6 +191,11 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_CTRLALTSHIFTPRESS:
     case KEY_CTRLO:
+    /*$ 27.09.2000 skv
+      To prevent redraw in macro with Ctrl-O
+    */
+      FEdit.Hide();
+    /* skv$*/
       Hide();
       if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)
         CtrlObject->ModalManager.ShowBackground();
