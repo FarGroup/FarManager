@@ -7,14 +7,16 @@ Tree panel
 
 */
 
-/* Revision: 1.02 05.04.2001 $ */
+/* Revision: 1.03 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + SetRootDir()
   05.04.2001 VVM
     + Переключение макросов в режим MACRO_TREEPANEL
   16.10.2000 tran
-    + MustBeCached(Root) - функция, определяющая необходимость кеширования 
+    + MustBeCached(Root) - функция, определяющая необходимость кеширования
       дерева
   25.06.2000 SVS
     ! Подготовка Master Copy
@@ -61,6 +63,7 @@ class TreeList:public Panel
     void Update(int Mode);
     void ReadTree();
     void SetCurDir(char *NewDir,int ClosePlugin);
+    void SetRootDir(char *NewRootDir);
     void GetCurDir(char *CurDir);
     int GetCurName(char *Name,char *ShortName);
     void UpdateViewPanel();

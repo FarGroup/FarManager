@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.85 24.04.2001 $ */
+/* Revision: 1.86 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+   + уточнения по поводу DM_SETTEXTLENGTH & DIF_VAREDIT
   24.04.2001 SVS
    ! Подмена клавиш при прокрутке колеса.
    ! Если в ответ на событие DN_MOUSECLICK (Param=-1) обработчик диалога
@@ -4175,8 +4177,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(IsEdit(Type) && !(CurItem->Flags & DIF_DROPDOWNLIST) && CurItem->ObjPtr)
       {
         int MaxLen=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
-        if(Param2 > 511) Param2=511;
+
+        if((CurItem->Type==DI_EDIT || CurItem->Type==DI_COMBOBOX) &&
+           (CurItem->Flags&DIF_VAREDIT))
+          CurItem->Ptr.PtrLength=Param2; //???
+        else if(Param2 > 511)
+          Param2=511;
+
         ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
+
+        //if (CheckDialogMode(DMODE_INITOBJECTS)) //???
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
         return MaxLen;
       }

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.11 06.04.2001 $ */
+/* Revision: 1.12 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + CreateVolumeMountPoint() - монтирование диска на файловую систему
   06.04.2001 SVS
     - В Win2K в корень папки "Program Files" не создавался HardLink (Alt-F6)
       Значит применяем "родную", готовую к употреблению функцию CreateHardLink()
@@ -119,16 +121,62 @@ struct TMN_REPARSE_DATA_BUFFER
 };
 
 typedef BOOL (WINAPI *PDELETEVOLUMEMOUNTPOINT)(
-     LPCTSTR lpszVolumeMountPoint);  // volume mount point path
+          LPCTSTR lpszVolumeMountPoint);  // volume mount point path
 
 typedef BOOL (WINAPI *PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)(
           LPCTSTR lpszVolumeMountPoint, // volume mount point or directory
           LPTSTR lpszVolumeName,        // volume name buffer
           DWORD cchBufferLength);       // size of volume name buffer
 
+typedef BOOL (WINAPI *PSETVOLUMEMOUNTPOINT)(
+          LPCTSTR lpszVolumeMountPoint, // mount point
+          LPCTSTR lpszVolumeName);        // volume to be mounted
+
 static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
 static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
+static PSETVOLUMEMOUNTPOINT pSetVolumeMountPoint=NULL;
 
+
+/*
+ SrcVolume
+   Pointer to a string that indicates the volume mount point where the
+   volume is to be mounted. This may be a root directory (X:\) or a
+   directory on a volume (X:\mnt\). The string must end with a trailing
+   backslash ('\').
+*/
+int WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder)
+{
+#if defined(CREATE_JUNCTION)
+   BOOL bFlag;
+   char Buf[1024];            // temporary buffer for volume name
+
+   if(!pGetVolumeNameForVolumeMountPoint)
+      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"GetVolumeNameForVolumeMountPointA");
+   if(!pSetVolumeMountPoint)
+      pSetVolumeMountPoint=(PSETVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"SetVolumeMountPointA");
+   if(!pGetVolumeNameForVolumeMountPoint || !pSetVolumeMountPoint)
+     return(3);
+
+   // We should do some error checking on the inputs. Make sure
+   // there are colons and backslashes in the right places, etc.
+   if(pGetVolumeNameForVolumeMountPoint(
+                SrcVolume, // input volume mount point or directory
+                      Buf, // output volume name buffer
+               sizeof(Buf) // size of volume name buffer
+           ) != TRUE)
+   {
+      // printf( "Retrieving volume name for %s failed.\n", SrcVolume);
+      return (1);
+   }
+   if(!pSetVolumeMountPoint(LinkFolder, // mount point
+                               Buf)) // volume to be mounted
+   {
+     //printf ("Attempt to mount %s at %s failed.\n", SrcVolume, LinkFolder);
+     return (2);
+   }
+#endif
+   return (0);
+}
 
 BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
 {

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.11 23.04.2001 $ */
+/* Revision: 1.12 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    ! Добавка для MODALTREE_FREE
   23.04.2001 SVS
     ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
       Часть вторая, т.с. - в прошлый раз забыл еще в одном месте выставить...
@@ -94,6 +96,11 @@ TreeList::~TreeList()
   SetMacroMode(TRUE);
 }
 
+void TreeList::SetRootDir(char *NewRootDir)
+{
+  strcpy(Root,NewRootDir);
+  strcpy(CurDir,NewRootDir);
+}
 
 void TreeList::DisplayObject()
 {
@@ -398,6 +405,8 @@ Panel* TreeList::GetRootPanel()
   {
     if (ModalMode==MODALTREE_ACTIVE)
       RootPanel=CtrlObject->ActivePanel;
+    else if (ModalMode==MODALTREE_FREE)
+      RootPanel=this;
     else
     {
       RootPanel=CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
@@ -749,7 +758,12 @@ int TreeList::SetDirPosition(char *NewDir)
 void TreeList::GetCurDir(char *CurDir)
 {
   if (TreeCount==0)
-    *CurDir=0;
+  {
+    if (ModalMode==MODALTREE_FREE)
+      strcpy(CurDir,Root);
+    else
+      *CurDir=0;
+  }
   else
     strcpy(CurDir,ListData[CurFile].Name);
 }

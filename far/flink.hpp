@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.03 06.04.2001 $ */
+/* Revision: 1.04 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + CreateVolumeMountPoint() - монтирование диска на файловую систему
   06.04.2001 SVS
     + CanCreateHardLinks() - проверка на вшивость.
   13.03.2001 SVS
@@ -28,6 +30,7 @@ Modify:
 int   WINAPI MkLink(char *Src,char *Dest);
 BOOL  WINAPI CanCreateHardLinks(char *TargetFile,char *HardLinkName);
 int   WINAPI GetNumberOfLinks(char *Name);
+int   WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder);
 BOOL  WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDir);
 BOOL  WINAPI DeleteJunctionPoint(LPCTSTR szMountDir);
 DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,

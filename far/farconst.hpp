@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.26 13.04.2001 $ */
+/* Revision: 1.28 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + MODALTREE_FREE
   13.04.2001 VVM
     + Обработка колесика мышки под 2000.
   04.04.2001 SVS
@@ -160,7 +162,7 @@ enum {
 };
 
 // for class Panel
-enum {MODALTREE_ACTIVE=1,MODALTREE_PASSIVE=2};
+enum {MODALTREE_ACTIVE=1,MODALTREE_PASSIVE=2,MODALTREE_FREE=3};
 enum {NORMAL_PANEL,PLUGIN_PANEL};
 
 

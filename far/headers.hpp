@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.09 08.04.2001 $ */
+/* Revision: 1.10 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + FILE_SUPPORTS_REPARSE_POINTS
   08.04.2001 SVS
     ! вместо alloc.h просто вызываем malloc.h
   24.10.2000 SVS
@@ -73,6 +75,9 @@ Modify:
 #define FILE_ATTRIBUTE_REPARSE_POINT 0x400
 #endif
 
+#if !defined(FILE_SUPPORTS_REPARSE_POINTS)
+#define FILE_SUPPORTS_REPARSE_POINTS    0x00000080
+#endif
 
 #ifndef __DOS_H
 #include <dos.h>	// FA_*

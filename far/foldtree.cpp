@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.01 09.01.2001 $ */
+/* Revision: 1.02 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + Обработка MODALTREE_FREE
   09.01.2001 SVS
     - Для KEY_XXX_BASE нужно прибавить 0x01
   25.06.2000 SVS
@@ -29,7 +31,9 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
 {
   SetRestoreScreenMode(FALSE);
   SaveScreen SaveScr;
-  *ResultFolder=*NewFolder=0;
+  if(ModalMode != MODALTREE_FREE)
+    *ResultFolder=0;
+  *NewFolder=0;
   SetPosition(TX1,TY1,TX2,TY2);
   if ((Tree=new TreeList)==NULL)
     return;
@@ -37,8 +41,16 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
     *LastName=0;
     Tree->SetModalMode(ModalMode);
     Tree->SetPosition(X1,Y1,X2,Y2);
+    if(ModalMode == MODALTREE_FREE)
+      Tree->SetRootDir(ResultFolder);
     Tree->Update(0);
     Tree->Show();
+    if(ModalMode == MODALTREE_FREE)
+    {
+      Tree->Update(UPDATE_KEEP_SELECTION);
+      Tree->GoToFile(ResultFolder);
+      Tree->Redraw();
+    }
     MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
     MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
     {
@@ -50,7 +62,9 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
       FindEdit->SetEditBeyondEnd(FALSE);
       DrawEdit();
     }
+
     Process();
+
     delete FindEdit;
     delete Tree;
   }
