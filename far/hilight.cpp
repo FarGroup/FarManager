@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.03 20.10.2000 $ */
+/* Revision: 1.04 30.10.2000 $ */
 
 /*
 Modify:
+  30.10.2000 SVS
+    - Не редактируются маски файлов в Files Highlighting!
   20.10.2000 SVS
     ! Добавлен атрибут Enctripted и введена логика взаимоисключений
       для Include & Exclude атрибутов.
@@ -371,7 +373,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
          Dlg.FastShow();
        }
     }
-//    Dlg.GetDialogObjectsData(); //??
+    Dlg.GetDialogObjectsData();
     if ((ExitCode=Dlg.GetExitCode())<0)
       return(FALSE);
     switch(ExitCode)
