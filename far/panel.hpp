@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + Get(Set)SelectedFirstMode
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -68,6 +70,13 @@ class Panel:public ScreenObject
     virtual int FindPartName(char *Name,int Next) {return(FALSE);}
     virtual int GoToFile(char *Name) {return(TRUE);};
     virtual int IsSelected(char *Name) {return(FALSE);};
+    /* $ 09.02.2001 IS
+       Функции установления/считывания состояния режима
+       "Помеченные файлы вперед"
+    */
+    virtual void SetSelectedFirstMode(int) {};
+    virtual int GetSelectedFirstMode(void) {return 0;};
+    /* IS $ */
     int GetMode() {return(PanelMode);};
     void SetMode(int Mode) {PanelMode=Mode;};
     int GetModalMode() {return(ModalMode);};

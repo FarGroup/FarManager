@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.04 04.01.2001 $ */
+/* Revision: 1.05 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + Get(Set)SelectedFirstMode
   04.01.2001 SVS
     ! TranslateKeyToVK() -> keyboard.cpp
   27.09.2000 SVS
@@ -72,6 +74,13 @@ class FileList:public Panel
     int InternalProcessKey;
 
   private:
+    /* $ 09.02.2001 IS
+       Функции установления/считывания состояния режима
+       "Помеченные файлы вперед"
+    */
+    void SetSelectedFirstMode(int Mode);
+    int GetSelectedFirstMode(void) {return SelectedFirst;};
+    /* IS $ */
     void DisplayObject();
     void DeleteListData(struct FileListItem *(&ListData),long &FileCount);
     void DeleteAllDataToDelete();

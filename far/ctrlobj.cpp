@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.13 09.01.2001 $ */
+/* Revision: 1.14 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + восстановим состояние опций "помеченное вперед"
   09.01.2001 SVS
     + Учтем правило Opt.ShiftsKeyRules (WaitInFastFind)
   29.12.2000 IS
@@ -147,6 +149,12 @@ void ControlObject::Init()
   {
       LeftPanel->GoToFile(Opt.LeftCurFile);
       RightPanel->GoToFile(Opt.RightCurFile);
+      /* $ 09.02.2001 IS
+         + восстановим состояние опций "помеченное вперед"
+      */
+      LeftPanel->SetSelectedFirstMode(Opt.LeftSelectedFirst);
+      RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
+      /* IS $ */
   }
   /* tran 07.09.2000 $ */
 

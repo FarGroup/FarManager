@@ -5,13 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.46 30.01.2001 $ */
+/* Revision: 1.47 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + сохраним/считаем состояние опции "помеченное вперед"
   30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule 
+      Зависит от настроек в реестре CopyTimeRule
   22.01.2001 SVS
     + Opt.CursorSize - Размер курсора ФАРа :-)
   19.01.2001 SVS
@@ -1013,7 +1015,11 @@ void ReadConfig()
      + Config//Current File*/
   GetRegKey("Panel\\Left","CurFile",Opt.LeftCurFile,"",sizeof(Opt.LeftCurFile));
   /* tran 07.09.2000 $ */
-
+  /* $ 09.02.2001 IS
+     + считаем состояние опции "помеченное вперед"
+  */
+  GetRegKey("Panel\\Left","SelectedFirst",Opt.LeftSelectedFirst,0);
+  /* IS $ */
   GetRegKey("Panel\\Right","Type",Opt.RightPanel.Type,0);
   GetRegKey("Panel\\Right","Visible",Opt.RightPanel.Visible,1);
   GetRegKey("Panel\\Right","Focus",Opt.RightPanel.Focus,0);
@@ -1028,6 +1034,11 @@ void ReadConfig()
   GetRegKey("Panel\\Right","CurFile",Opt.RightCurFile,"",sizeof(Opt.RightCurFile));
   /* tran 07.09.2000 $ */
 
+  /* $ 09.02.2001 IS
+     + считаем состояние опции "помеченное вперед"
+  */
+  GetRegKey("Panel\\Right","SelectedFirst",Opt.RightSelectedFirst,0);
+  /* IS $ */
   GetRegKey("Panel\\Layout","ColumnTitles",Opt.ShowColumnTitles,1);
   GetRegKey("Panel\\Layout","StatusLine",Opt.ShowPanelStatus,1);
   GetRegKey("Panel\\Layout","TotalInfo",Opt.ShowPanelTotals,1);
@@ -1191,6 +1202,11 @@ void SaveConfig(int Ask)
     LeftPanel->GetCurName(OutText,OutText2);
     SetRegKey("Panel\\Left","CurFile",OutText);
     /* tran 07.09.2000 $ */
+    /* $ 09.02.2001 IS
+       + сохраним состояние опции "помеченное вперед"
+    */
+    SetRegKey("Panel\\Left","SelectedFirst",LeftPanel->GetSelectedFirstMode());
+    /* IS $ */
   }
 
   Panel *RightPanel=CtrlObject->RightPanel;
@@ -1211,6 +1227,11 @@ void SaveConfig(int Ask)
     RightPanel->GetCurName(OutText,OutText2);
     SetRegKey("Panel\\Right","CurFile",OutText);
     /* tran 07.09.2000 $ */
+    /* $ 09.02.2001 IS
+       + сохраним состояние опции "помеченное вперед"
+    */
+    SetRegKey("Panel\\Right","SelectedFirst",RightPanel->GetSelectedFirstMode());
+    /* IS $ */
   }
 
   SetRegKey("Panel\\Layout","ColumnTitles",Opt.ShowColumnTitles);

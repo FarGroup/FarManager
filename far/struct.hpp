@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.35 30.01.2001 $ */
+/* Revision: 1.36 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + RightSelectedFirst, LeftSelectedFirst;
   30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость.
       Зависит от настроек в реестре CopyTimeRule
@@ -268,6 +270,11 @@ struct Options
   char RightCurFile[NM];
   /* tran 07.09.2000 $ */
 
+  /* $ 09.02.2001 IS
+     состояние режима "помеченное вперед"
+  */
+  int RightSelectedFirst, LeftSelectedFirst;
+  /* IS $ */
   int SelectFolders;
   int ReverseSort;
   int ClearReadOnly;

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.24 29.01.2001 $ */
+/* Revision: 1.25 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + SetSelectedFirstMode
   29.01.2001 VVM
     + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла.
   09.01.2001 SVS
@@ -603,7 +605,7 @@ int FileList::ProcessKey(int Key)
               Key = KEY_CTRLF;
               char uni[1024];
               DWORD uniSize = sizeof(uni);
-              if (WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL, 
+              if (WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,
                                            &uni, &uniSize) == NOERROR) {
                 UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
                 strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
@@ -2785,3 +2787,13 @@ void FileList::ProcessCopyKeys(int Key)
       AnotherPanel->ProcessKey(KEY_ENTER);
   }
 }
+
+/* $ 09.02.2001 IS
+   Установить/сбросить режим "помеченное вперед"
+*/
+void FileList::SetSelectedFirstMode(int Mode)
+{
+  SelectedFirst=Mode;
+  SortFileList(TRUE);
+}
+/* IS $ */
