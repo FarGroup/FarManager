@@ -5,10 +5,13 @@ local.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 28.08.2000 $ */
 
 /*
 Modify:
+  28.08.2000 SVS
+    + Добавлена функция LocalLowerBuf
+    ! Функции модифицированы под WINAPI с целью применения в FSF
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
   25.06.2000 SVS
@@ -99,20 +102,18 @@ void LocalUpperInit()
 }
 
 
-int LocalIslower(int Ch)
+int WINAPI LocalIslower(int Ch)
 {
   return(Ch<256 && LowerToUpper[Ch]!=Ch);
 }
 
 
-int LocalIsupper(int Ch)
+int WINAPI LocalIsupper(int Ch)
 {
   return(Ch<256 && LowerToUpper[Ch]==Ch);
 }
 
-
-
-int LocalIsalpha(int Ch)
+int WINAPI LocalIsalpha(int Ch)
 {
   if (Ch>=256)
     return(FALSE);
@@ -122,8 +123,7 @@ int LocalIsalpha(int Ch)
   return(IsCharAlpha(CvtStr[0]));
 }
 
-
-int LocalIsalphanum(int Ch)
+int WINAPI LocalIsalphanum(int Ch)
 {
   if (Ch>=256)
     return(FALSE);
@@ -134,38 +134,52 @@ int LocalIsalphanum(int Ch)
 }
 
 
-int LocalUpper(int LowerChar)
+int WINAPI LocalUpper(int LowerChar)
 {
   return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
 }
 
 
-void LocalUpperBuf(char *Buf,int Length)
+void WINAPI LocalUpperBuf(char *Buf,int Length)
 {
   for (int I=0;I<Length;I++)
     Buf[I]=LowerToUpper[Buf[I]];
 }
 
-int LocalLower(int UpperChar)
+/* $ 28.08.2000 SVS
+   Добавлена функция LocalLowerBuf
+*/
+void WINAPI LocalLowerBuf(char *Buf,int Length)
+{
+  for (int I=0;I<Length;I++)
+    Buf[I]=UpperToLower[Buf[I]];
+}
+/* SVS $ */
+
+int WINAPI LocalLower(int UpperChar)
 {
   return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
 }
 
 
-void LocalStrupr(char *s1)
+void WINAPI LocalStrupr(char *s1)
 {
   while (*s1)
     *s1=LowerToUpper[*(s1++)];
 }
 
 
-void LocalStrlwr(char *s1)
+void WINAPI LocalStrlwr(char *s1)
 {
   while (*s1)
     *s1=UpperToLower[*(s1++)];
 }
 
 
+int WINAPI LStricmp(char *s1,char *s2)
+{
+  return LocalStricmp(s1,s2);
+}
 int LocalStricmp(char *s1,char *s2)
 {
   while (1)
@@ -179,6 +193,10 @@ int LocalStricmp(char *s1,char *s2)
   return(0);
 }
 
+int WINAPI LStrnicmp(char *s1,char *s2,int n)
+{
+  return LocalStrnicmp(s1,s2,n);
+}
 
 int LocalStrnicmp(char *s1,char *s2,int n)
 {

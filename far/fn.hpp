@@ -7,10 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.15 24.08.2000 $ */
+/* Revision: 1.16 28.08.2000 $ */
 
 /*
 Modify:
+  28.08.2000 SVS
+    + Модификация вызова под WINAPI у функций Local*
+    ! уточнение для FarQsort
+    ! Не FarAtoa64, но FarAtoi64
+    + FarItoa64
   24.08.2000 SVS
     + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
   23.08.2000 SVS
@@ -194,15 +199,22 @@ char* PasteFormatFromClipboard(char *Format);
 int GetFileTypeByName(char *Name);
 void SetFarTitle(char *Title);
 void LocalUpperInit();
-int LocalIslower(int Ch);
-int LocalIsupper(int Ch);
-int LocalIsalpha(int Ch);
-int LocalIsalphanum(int Ch);
-int LocalUpper(int LowerChar);
-void LocalUpperBuf(char *Buf,int Length);
-int LocalLower(int UpperChar);
-void LocalStrupr(char *s1);
-void LocalStrlwr(char *s1);
+/* $ 28.08.2000 SVS
+   Модификация вызова под WINAPI
+*/
+int WINAPI LocalIslower(int Ch);
+int WINAPI LocalIsupper(int Ch);
+int WINAPI LocalIsalpha(int Ch);
+int WINAPI LocalIsalphanum(int Ch);
+int WINAPI LocalUpper(int LowerChar);
+void WINAPI LocalUpperBuf(char *Buf,int Length);
+void WINAPI LocalLowerBuf(char *Buf,int Length);
+int WINAPI LocalLower(int UpperChar);
+void WINAPI LocalStrupr(char *s1);
+void WINAPI LocalStrlwr(char *s1);
+int WINAPI LStricmp(char *s1,char *s2);
+int WINAPI LStrnicmp(char *s1,char *s2,int n);
+/* SVS $ */
 int LocalStricmp(char *s1,char *s2);
 int LocalStrnicmp(char *s1,char *s2,int n);
 int LCStricmp(char *s1,char *s2);
@@ -394,9 +406,10 @@ char* WINAPI PointToName(char *Path);
 void  WINAPI GetPathRoot(char *Path,char *Root);
 void  WINAPI AddEndSlash(char *Path);
 char *WINAPI FarItoa(int value, char *string, int radix);
-__int64 WINAPI FarAtoa64(const char *s);
+__int64 WINAPI FarAtoi64(const char *s);
+char *WINAPI FarItoa64(__int64 value, char *string, int radix);
 int WINAPI FarAtoi(const char *s);
-void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (WINAPIV *fcmp)(const void *, const void *));
+void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 int WINAPIV FarSprintf(char *buffer,const char *format,...);
 int WINAPIV FarSscanf(const char *buffer, const char *format,...);
 int WINAPI CopyToClipboard(char *Data);

@@ -6,10 +6,15 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.29 25.08.2000 $ */
+/* Revision: 1.30 28.08.2000 $ */
 
 /*
 Modify:
+  28.08.2000 SVS
+    + SFS-функции аля Local*
+    ! уточнение для FARSTDQSORT - явное указание __cdecl для функции сравнения
+    ! не FarStandardFunctions._atoi64, но FarStandardFunctions.atoi64
+    + FARSTDITOA64
   25.08.2000 SVS
     + DM_GETDLGRECT - получить координаты диалогового окна
     + DM_USER - эт для юзеровских месагов :-)
@@ -821,7 +826,7 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
 typedef int   (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
 typedef int   (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
 // </C&C++>
-typedef void  (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (WINAPIV *fcmp)(const void *, const void *));
+typedef void  (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 /* IS $ */
 
 /* $ 07.07.2000 IS
@@ -832,6 +837,7 @@ typedef void  (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int 
 */
 typedef int (WINAPI *FARSTDATOI)(const char *s);
 typedef __int64 (WINAPI *FARSTDATOI64)(const char *s);
+typedef char *(WINAPI *FARSTDITOA64)(__int64 value, char *string, int radix);
 typedef char *(WINAPI *FARSTDITOA)(int value, char *string, int radix);
 typedef char *(WINAPI *FARSTDREMOVELEADINGSPACES)(char *Str);
 typedef char *(WINAPI *FARSTDREMOVETRAILINGSPACES)(char *Str);
@@ -854,6 +860,23 @@ typedef char* (WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 typedef void (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
 /* 01.08.2000 SVS $*/
 
+/* $ 28.08.2000 SVS
+   Работа с локализованными строками
+*/
+typedef int  (WINAPI *FARSTDLOCALISLOWER)(int Ch);
+typedef int  (WINAPI *FARSTDLOCALISUPPER)(int Ch);
+typedef int  (WINAPI *FARSTDLOCALISALPHA)(int Ch);
+typedef int  (WINAPI *FARSTDLOCALISALPHANUM)(int Ch);
+typedef int  (WINAPI *FARSTDLOCALUPPER)(int LowerChar);
+typedef void (WINAPI *FARSTDLOCALUPPERBUF)(char *Buf,int Length);
+typedef void (WINAPI *FARSTDLOCALLOWERBUF)(char *Buf,int Length);
+typedef int  (WINAPI *FARSTDLOCALLOWER)(int UpperChar);
+typedef void (WINAPI *FARSTDLOCALSTRUPR)(char *s1);
+typedef void (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
+typedef int  (WINAPI *FARSTDLOCALSTRICMP)(char *s1,char *s2);
+typedef int  (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
+/* SVS $ */
+
 /* SVS $*/
 /* $ 06.07.2000 IS
    Полезные функции из far.exe
@@ -869,13 +892,27 @@ typedef struct FarStandardFunctions
   int StructSize;
 
   FARSTDATOI    atoi;
-  FARSTDATOI64  _atoi64;
+  FARSTDATOI64  atoi64;
   FARSTDITOA    itoa;
+  FARSTDITOA64  itoa64;
   // <C&C++>
   FARSTDSPRINTF sprintf;
   FARSTDSSCANF  sscanf;
   // </C&C++>
   FARSTDQSORT qsort;
+
+  FARSTDLOCALISLOWER     LIsLower;
+  FARSTDLOCALISUPPER     LIsUpper;
+  FARSTDLOCALISALPHA     LIsAlpha;
+  FARSTDLOCALISALPHANUM  LIsAlphanum;
+  FARSTDLOCALUPPER       LUpper;
+  FARSTDLOCALLOWER       LLower;
+  FARSTDLOCALUPPERBUF    LUpperBuf;
+  FARSTDLOCALLOWERBUF    LLowerBuf;
+  FARSTDLOCALSTRUPR      LStrupr;
+  FARSTDLOCALSTRLWR      LStrlwr;
+  FARSTDLOCALSTRICMP     LStricmp;
+  FARSTDLOCALSTRNICMP    LStrnicmp;
 
   FARSTDUNQUOTE Unquote;
   FARSTDEXPANDENVIRONMENTSTR ExpandEnvironmentStr;
@@ -1097,7 +1134,6 @@ extern "C"{
 #endif
 // Exported Functions
 
-int    WINAPI _export GetMinFarVersion(void);
 void   WINAPI _export ClosePlugin(HANDLE hPlugin);
 int    WINAPI _export Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);
 int    WINAPI _export Configure(int ItemNumber);
@@ -1107,6 +1143,7 @@ void   WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelI
 void   WINAPI _export FreeVirtualFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 int    WINAPI _export GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
 int    WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+int    WINAPI _export GetMinFarVersion(void);
 void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info);
 void   WINAPI _export GetPluginInfo(struct PluginInfo *Info);
 int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,char *Path);

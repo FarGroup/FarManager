@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.30 25.08.2000 $ */
+/* Revision: 1.31 28.08.2000 $ */
 
 /*
 Modify:
+  28.08.2000 SVS
+   - баг рук кривых (или не внимательности!) :-)
   25.08.2000 SVS
    + DM_GETDLGRECT - получить координаты диалогового окна
    ! Уточнение для DN_MOUSECLICK
@@ -1802,7 +1804,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if(Send_DN)
           DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent);
 
-        if(Type == DI_USERCONTROL)
+        if(Item[I].Type == DI_USERCONTROL)
         {
            ChangeFocus2(FocusPos,I);
            ShowDialog();

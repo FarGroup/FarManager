@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.14 25.08.2000 $ */
+/* Revision: 1.14 28.08.2000 $ */
 
 /*
 Modify:
+  28.08.2000 SVS
+    + Добавка для Local*
+    ! не FarStandardFunctions._atoi64, но FarStandardFunctions.atoi64
+    + FARSTDITOA64
   25.08.2000 SVS
     ! Удалены из FSF функции:
       memset, memcpy, memmove, memcmp, strchr, strrchr, strstr, strtok, strpbrk
@@ -344,14 +348,33 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     struct FarStandardFunctions StandardFunctions;
     StandardFunctions.StructSize=sizeof(StandardFunctions);
-    StandardFunctions.Unquote=Unquote;
-    StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
     StandardFunctions.sprintf=FarSprintf;
     StandardFunctions.sscanf=FarSscanf;
     StandardFunctions.qsort=FarQsort;
     StandardFunctions.atoi=FarAtoi;
-    StandardFunctions._atoi64=FarAtoa64;
+    StandardFunctions.atoi64=FarAtoi64;
     StandardFunctions.itoa=FarItoa;
+    StandardFunctions.itoa64=FarItoa64;
+
+    /* $ 28.08.2000 SVS
+       + Функции работы с...
+    */
+    StandardFunctions.LIsLower   =LocalIslower;
+    StandardFunctions.LIsUpper   =LocalIsupper;
+    StandardFunctions.LIsAlpha   =LocalIsalpha;
+    StandardFunctions.LIsAlphanum=LocalIsalphanum;
+    StandardFunctions.LUpper     =LocalUpper;
+    StandardFunctions.LUpperBuf  =LocalUpperBuf;
+    StandardFunctions.LLowerBuf  =LocalLowerBuf;
+    StandardFunctions.LLower     =LocalLower;
+    StandardFunctions.LStrupr    =LocalStrupr;
+    StandardFunctions.LStrlwr    =LocalStrlwr;
+    StandardFunctions.LStricmp   =LStricmp;
+    StandardFunctions.LStrnicmp  =LStrnicmp;
+    /* SVS $ */
+
+    StandardFunctions.Unquote=Unquote;
+    StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
     StandardFunctions.RemoveLeadingSpaces=RemoveLeadingSpaces;
     StandardFunctions.RemoveTrailingSpaces=RemoveTrailingSpaces;
     StandardFunctions.RemoveExternalSpaces=RemoveExternalSpaces;

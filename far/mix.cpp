@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.15 25.08.2000 $ */
+/* Revision: 1.16 28.08.2000 $ */
 
 /*
 Modify:
+  28.08.2000 SVS
+    ! уточнение для FarQsort
+    ! Не FarAtoa64, но FarAtoi64
+    + FarItoa64
   25.08.2000 SVS
     ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
       сепаратор и кнопки <Ok> & <Cancel>
@@ -1682,15 +1686,24 @@ char *WINAPI FarItoa(int value, char *string, int radix)
 {
   return itoa(value,string,radix);
 }
-__int64 WINAPI FarAtoa64(const char *s)
+/* $ 28.08.2000 SVS
+  + FarItoa64
+*/
+char *WINAPI FarItoa64(__int64 value, char *string, int radix)
 {
-  return _atoi64(s);
+  return _i64toa(value, string, radix);
 }
+/* SVS $ */
 int WINAPI FarAtoi(const char *s)
 {
   return atoi(s);
 }
-void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (WINAPIV *fcmp)(const void *, const void *))
+__int64 WINAPI FarAtoi64(const char *s)
+{
+  return _atoi64(s);
+}
+void WINAPI FarQsort(void *base, size_t nelem, size_t width,
+                     int (__cdecl *fcmp)(const void *, const void *))
 {
   qsort(base,nelem,width,fcmp);
 }
