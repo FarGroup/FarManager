@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.14 05.03.2002 $ */
+/* Revision: 1.15 24.04.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -35,8 +35,29 @@
 #pragma comment(linker, "/merge:.text=.")
 #endif
 
+#if _MSC_VER
+struct dosdate_t {
+   unsigned char day;       /* 1-31 */
+   unsigned char month;     /* 1-12 */
+   unsigned int  year;      /* 1980 - 2099 */
+   unsigned char dayofweek; /* 0 - 6 (0=Sunday) */
+};
+struct time {
+   unsigned char ti_min;      /* minutes */
+   unsigned char ti_hour;     /* hours */
+   unsigned char ti_hund;     /* hundredths of seconds */
+   unsigned char ti_sec;      /* seconds */
+};
+#endif
+
+
+void UnixToDos(long time, struct dosdate_t *d, struct time *t);
+void UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime);
+
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
+int timezone=0;
+
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -63,6 +84,10 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     return(FALSE);
   *Type=0;
   FileSize=GetFileSize(ArcHandle,NULL);
+
+  TIME_ZONE_INFORMATION tzi;
+  if (GetTimeZoneInformation(&tzi)!=0xFFFFFFFF)
+    timezone=tzi.Bias*60;
 
   NextPosition=SFXSize;
   return(TRUE);
@@ -194,8 +219,15 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   Item->FindData.nFileSizeLow=LzhHeader.UnpSize;
 
   FILETIME lft;
-  DosDateTimeToFileTime(LzhHeader.FDate,LzhHeader.FTime,&lft);
-  LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
+  if(LzhHeader.FLevel == 2) // level-2, Original file time stamp(UNIX type, seconds since 1970)
+  {
+    UnixTimeToFileTime(MAKELONG(LzhHeader.FTime,LzhHeader.FDate),&Item->FindData.ftLastWriteTime);
+  }
+  else  // Original file date/time (Generic time stamp)
+  {
+    DosDateTimeToFileTime(LzhHeader.FDate,LzhHeader.FTime,&lft);
+    LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
+  }
 
   // OS ID - Host OS
   static struct OSIDType{
@@ -296,4 +328,62 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     }
   }
   return(FALSE);
+}
+
+void UnixToDos(long time, struct dosdate_t *d, struct time *t)
+{
+  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+  time -= 24L * 60L * 60L * 3652L + timezone;
+  t->ti_hund = 0;
+  t->ti_sec = time % 60;
+  time /= 60;
+  t->ti_min = time % 60;
+  time /= 60;
+  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
+  time %= 1461L * 24L;
+  if (time >= 366 * 24)
+  {
+    time -= 366 * 24;
+    d->year++;
+    d->year += (int)(time / (365 * 24));
+    time %= 365 * 24;
+  }
+  t->ti_hour = time % 24;
+  time /= 24;
+  time++;
+  if ((d->year & 3) == 0)
+  {
+    if (time > 60)
+      time--;
+    else
+      if (time == 60)
+      {
+        d->month = 2;
+        d->day = 29;
+        return;
+      }
+  }
+  for (d->month = 0; Days[d->month] < time; d->month++)
+    time -= Days[d->month];
+  d->month++;
+  d->day = (unsigned char) time;
+}
+
+
+void UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime)
+{
+  struct dosdate_t dt;
+  struct time tm;
+  UnixToDos(UnixTime,&dt,&tm);
+  SYSTEMTIME st;
+  st.wYear=dt.year;
+  st.wMonth=dt.month;
+  st.wDay=dt.day;
+  st.wHour=tm.ti_hour;
+  st.wMinute=tm.ti_min;
+  st.wSecond=tm.ti_sec;
+  st.wMilliseconds=tm.ti_hund*10;
+  FILETIME lft;
+  SystemTimeToFileTime(&st,&lft);
+  LocalFileTimeToFileTime(&lft,FileTime);
 }
