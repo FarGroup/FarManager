@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.34 04.11.2002 $ */
+/* Revision: 1.35 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + ManagerClass_Dump()
   04.11.2002 SVS
     + Для отладочных целей, для плагинов - FarSysLog_INPUT_RECORD_Dump()
       (доступно только под дебугинфой)
@@ -109,6 +111,8 @@ Modify:
 #include "fn.hpp"
 #include "plugins.hpp"
 #include "filelist.hpp"
+#include "manager.hpp"
+#include "frame.hpp"
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
@@ -510,6 +514,140 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
     CloseSysLog();
 #endif
 }
+
+void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
+{
+#if defined(SYSLOG)
+  int InternalLog=fp==NULL?TRUE:FALSE;
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=LogStream;
+    if(fp)
+    {
+      char timebuf[64];
+      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+    }
+  }
+
+  if (fp)
+  {
+    const Manager *Man=(m==NULL?FrameManager:m);
+//StartSysLog
+    int I;
+    char Type[NM],Name[NM*2];
+    fprintf(fp,"**** Очередь модальных фреймов ***\nFrameListSize=%d, FramePos=%d\n",Man->FrameListSize,Man->FramePos);
+    if(Man->FrameList)
+    {
+      for(I=0; I < Man->FrameCount; ++I)
+      {
+        if(Man->FrameList[I])
+        {
+          Man->FrameList[I]->GetTypeAndName(Type,Name);
+          fprintf(fp,"\tFrameList[%d] %p  Type='%s' Name='%s'\n",
+                      I,Man->FrameList[I],Type,Name);
+        }
+        else
+          fprintf(fp,"\tFrameList[%d] NULL\n",I,Man->FrameList[I]);
+      }
+    }
+    else
+     fprintf(fp,"\tFrameList = NULL\n");
+
+    fprintf(fp,"**** Стек модальных фреймов ***\nModalStackSize=%d\n",Man->ModalStackSize);
+    if(Man->ModalStack)
+    {
+      for(I=0; I < Man->ModalStackCount; ++I)
+      {
+        if(Man->ModalStack[I])
+        {
+          Man->ModalStack[I]->GetTypeAndName(Type,Name);
+          fprintf(fp,"\tModalStack[%d] %p  Type='%s' Name='%s'\n",
+                      I,Man->ModalStack[I],Type,Name);
+        }
+        else
+          fprintf(fp,"\tModalStack[%d] NULL\n",I,Man->ModalStack[I]);
+      }
+    }
+    else
+     fprintf(fp,"\tModalStack = NULL\n");
+
+    fprintf(fp,"**** Претенденты на ... ***\n");
+
+    if(!Man->InsertedFrame)
+      *Type=*Name=0;
+    else
+      Man->InsertedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tInsertedFrame=%p (Type='%s' Name='%s') - Фрейм, который будет добавлен в конец немодальной очереди\n",
+      Man->InsertedFrame,Type,Name);
+
+    if(!Man->DeletedFrame)
+      *Type=*Name=0;
+    else
+      Man->DeletedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tDeletedFrame=%p (Type='%s' Name='%s') - Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)\n",
+       Man->DeletedFrame,Type,Name);
+
+    if(!Man->ActivatedFrame)
+      *Type=*Name=0;
+    else
+      Man->ActivatedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tActivatedFrame=%p (Type='%s' Name='%s') - Фрейм, который необходимо активировать после каких нибудь изменений\n",
+      Man->ActivatedFrame,Type,Name);
+
+    if(!Man->RefreshedFrame)
+      *Type=*Name=0;
+    else
+      Man->RefreshedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tRefreshedFrame=%p (Type='%s' Name='%s') - Фрейм, который нужно просто освежить, т.е. перерисовать\n",
+      Man->RefreshedFrame,Type,Name);
+
+    if(!Man->ModalizedFrame)
+      *Type=*Name=0;
+    else
+      Man->ModalizedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tModalizedFrame=%p (Type='%s' Name='%s') - Фрейм, который становится в 'очередь' к текущему немодальному фрейму\n",
+      Man->ModalizedFrame,Type,Name);
+
+    if(!Man->UnmodalizedFrame)
+      *Type=*Name=0;
+    else
+      Man->UnmodalizedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tUnmodalizedFrame=%p (Type='%s' Name='%s') -Фрейм, убираюющийся из 'очереди' немодального фрейма\n",
+      Man->UnmodalizedFrame,Type,Name);
+
+    if(!Man->DeactivatedFrame)
+      *Type=*Name=0;
+    else
+      Man->DeactivatedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tDeactivatedFrame=%p (Type='%s' Name='%s') -Фрейм, который указывает на предудущий активный фрейм\n",
+      Man->DeactivatedFrame,Type,Name);
+
+
+    if(!Man->ExecutedFrame)
+      *Type=*Name=0;
+    else
+      Man->ExecutedFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tExecutedFrame=%p (Type='%s' Name='%s') - Фрейм, которого вскорости нужно будет поставить на вершину модального сттека\n",
+      Man->ExecutedFrame,Type,Name);
+
+    if(!Man->CurrentFrame)
+      *Type=*Name=0;
+    else
+      Man->CurrentFrame->GetTypeAndName(Type,Name);
+    fprintf(fp,"\tCurrentFrame=%p (Type='%s' Name='%s') - текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке\n",
+      Man->CurrentFrame,Type,Name);
+
+    fprintf(fp,"\n");
+    fflush(fp);
+  }
+
+  if(InternalLog)
+    CloseSysLog();
+#endif
+}
+
 
 #if defined(SYSLOG_FARSYSLOG)
 void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)

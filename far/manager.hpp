@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.33 26.09.2002 $ */
+/* Revision: 1.34 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + ManagerClass_Dump() - друг класса!
   26.09.2002 SVS
     + ResizeAllFrame()
   18.06.2002 SVS
@@ -99,6 +101,9 @@ class Frame;
 
 class Manager
 {
+#if defined(SYSLOG)
+    friend void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp);
+#endif
   private:
     Frame **ModalStack;     // Стек модальных фреймов
     int ModalStackCount;    // Размер стека модальных фреймов

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.43 29.05.2002 $ */
+/* Revision: 1.44 04.12.2002 $ */
 
 /*
 Modify:
+  04.12.2002 SVS
+    - BugZ#695 - Не работает прерывание по Esc
   29.05.2002 SKV
     ! Оптимизация TreeCache
   24.05.2002 SVS
@@ -463,26 +465,44 @@ int TreeList::ReadTree()
     ListData->Name[RootLength]=0;
   TreeCount=1;
 
-  int FirstCall=TRUE;
+  int FirstCall=TRUE, AscAbort=FALSE;
   TreeStartTime = clock();
   ScTree.SetFindPath(Root,"*.*");
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
   {
+//    if(TreeCount > 3)
+    TreeList::MsgReadTree(TreeCount,FirstCall);
+    if (CheckForEscSilent())
+    {
+      AscAbort=ConfirmAbortOp()!=0;
+      FirstCall=TRUE;
+    }
+    if(AscAbort)
+      break;
+
+    if ((ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==NULL)
+    {
+      AscAbort=TRUE;
+      break;
+    }
+
     if (!(fdata.dwFileAttributes & FA_DIREC))
       continue;
-    if (TreeCount>3 && !MsgReadTree(TreeCount,FirstCall) ||
-        (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==0)
-    {
-      free(ListData);
-      ListData=NULL;
-      TreeCount=0;
-      SetPreRedrawFunc(NULL);
-      return FALSE;
-    }
+
     memset(&ListData[TreeCount], 0, sizeof(ListData[0]));
     strcpy(ListData[TreeCount++].Name,FullName);
   }
+
+  if(AscAbort)
+  {
+    free(ListData);
+    ListData=NULL;
+    TreeCount=0;
+    SetPreRedrawFunc(NULL);
+    return FALSE;
+  }
+
   SetPreRedrawFunc(NULL);
   StaticSortCaseSensitive=CaseSensitiveSort=FALSE;
   qsort(ListData,TreeCount,sizeof(*ListData),SortList);
@@ -642,7 +662,13 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 {
   /* $ 24.09.2001 VVM
     ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
-  if ((!FirstCall) || ((clock() - TreeStartTime) > 500))
+  BOOL IsChangeConsole=PrevScrX != ScrX || PrevScrY != ScrY;
+  if(IsChangeConsole)
+  {
+    FirstCall=TRUE;
+  }
+
+  if (IsChangeConsole || (!FirstCall) || ((clock() - TreeStartTime) > 500))
   {
     char NumStr[32];
     itoa(TreeCount,NumStr,10);
@@ -652,8 +678,6 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
     FirstCall=FALSE;
   }
   /* VVM $ */
-  if (CheckForEsc())
-    return(0);
   return(1);
 }
 
@@ -1421,16 +1445,25 @@ void TreeList::ReadSubTree(char *Path)
   ConvertNameToFull(Path,DirName, sizeof(DirName));
   AddTreeName(DirName);
 
-  int FirstCall=TRUE;
+  int FirstCall=TRUE, AscAbort=FALSE;
   ScTree.SetFindPath(DirName,"*.*");
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
+  {
     if (fdata.dwFileAttributes & FA_DIREC)
     {
-      if (!MsgReadTree(++Count,FirstCall))
+      TreeList::MsgReadTree(Count+1,FirstCall);
+      if (CheckForEscSilent())
+      {
+        AscAbort=ConfirmAbortOp()!=0;
+        FirstCall=TRUE;
+      }
+      if(AscAbort)
         break;
       AddTreeName(FullName);
+      ++Count;
     }
+  }
   SetPreRedrawFunc(NULL);
 }
 

@@ -7,10 +7,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.17 18.06.2002 $ */
+/* Revision: 1.18 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + ProcessDelDisk() - поимел третий параметр, указатель на VMenu для того, чтобы патом
+      прорефрешить меню!
   18.06.2002 SVS
     + Panel::IfGoHome()
   08.04.2002 IS
@@ -98,6 +101,7 @@ enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT};
 
 enum {UIC_UPDATE_NORMAL, UIC_UPDATE_FORCE, UIC_UPDATE_FORCE_NOTIFICATION};
 
+class VMenu;
 class Panel:public ScreenObject
 {
   protected:
@@ -127,7 +131,7 @@ class Panel:public ScreenObject
     /* $ 28.12.2001 DJ
        обработка Del в меню дисков
     */
-    int ProcessDelDisk (char Drive, int DriveType);
+    int ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu);
     /* DJ $ */
     void FastFindShow(int FindX,int FindY);
     void DragMessage(int X,int Y,int Move);

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.121 10.11.2002 $ */
+/* Revision: 1.122 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    - BugZ#720 - far /v file + Ctrl-O
   10.11.2002 SKV
     ! Слэши в имени файла должны быть только обратные, дабы избежать проблем с историей и т.д.
   08.11.2002 SVS
@@ -794,15 +796,18 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_CTRLO:
     {
-      /*$ 27.09.2000 skv
-        To prevent redraw in macro with Ctrl-O
-      */
-      FEdit->Hide();
-      /* skv$*/
-      FrameManager->ShowBackground();
-      SetCursorType(FALSE,0);
-      WaitKey();
-      Show();
+      if(!OnliEditorViewerUsed)
+      {
+        /*$ 27.09.2000 skv
+          To prevent redraw in macro with Ctrl-O
+        */
+        FEdit->Hide();
+        /* skv$*/
+        FrameManager->ShowBackground();
+        SetCursorType(FALSE,0);
+        WaitKey();
+        Show();
+      }
       return(TRUE);
     }
 /* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */

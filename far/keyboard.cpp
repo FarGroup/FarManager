@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.83 18.11.2002 $ */
+/* Revision: 1.84 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    - BugZ#695 - Не работает прерывание по Esc
+    ! УБРАН SaveScreen в функции ConfirmAbortOp(). МЕШАЕТ!
   18.11.2002 SVS
     - FSF.FarNameToKey("aaa") возвращает вместо -1 0x40000000.
   09.11.2002 SVS
@@ -654,8 +657,8 @@ int GetInputRecord(INPUT_RECORD *rec)
       }
 #endif
 
-      _SVS(if(rec->EventType==KEY_EVENT))
-        _SVS(SysLog("-- %s",_INPUT_RECORD_Dump(rec)));
+//      _SVS(if(rec->EventType==KEY_EVENT))
+        _SVS(SysLog("@@@> %s",_INPUT_RECORD_Dump(rec)));
 #if defined(USE_WFUNC_IN)
       WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
       if((UnicodeChar&0xFF00) && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -1391,21 +1394,27 @@ int CheckForEscSilent()
 {
   INPUT_RECORD rec;
   int Key;
-  if (!CtrlObject->Macro.IsExecuting() && PeekInputRecord(&rec) &&
-      ((Key=GetInputRecord(&rec))==KEY_ESC || Key==KEY_BREAK))
-    return(TRUE);
-  else
-    return(FALSE);
+
+  if (!CtrlObject->Macro.IsExecuting() && PeekInputRecord(&rec))
+  {
+    int MMode=CtrlObject->Macro.GetMode();
+    CtrlObject->Macro.SetMode(MACRO_LAST);
+    Key=GetInputRecord(&rec);
+    CtrlObject->Macro.SetMode(MMode);
+    if(Key==KEY_ESC || Key==KEY_BREAK)
+      return(TRUE);
+  }
+  return(FALSE);
 }
 
 int ConfirmAbortOp()
 {
-  SaveScreen SaveScr; // НУЖЕН! Избавляет от некоторых подводных багов
+//  SaveScreen SaveScr; // НУЖЕН! Избавляет от некоторых подводных багов
   BOOL rc=TRUE;
   IsProcessAssignMacroKey++; // запретим спец клавиши
                              // т.е. в этом диалоге нельзя нажать Alt-F9!
   if (Opt.Confirm.Esc)
-     rc=AbortMessage();
+    rc=AbortMessage();
   IsProcessAssignMacroKey--;
   return rc;
 }

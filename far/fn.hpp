@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.170 05.12.2002 $ */
+/* Revision: 1.171 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + ManagerClass_Dump()
   05.12.2002 SVS
     + MkStrFTime()
   07.11.2002 SVS
@@ -1025,6 +1027,8 @@ const char *_VCTL_ToName(int Command);
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
 void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
+class Manager;
+void ManagerClass_Dump(char *Title,const Manager *m=NULL,FILE *fp=NULL);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus

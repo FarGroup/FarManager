@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.272 04.11.2002 $ */
+/* Revision: 1.273 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    ! ”точнение дл€ DI_COMBOBOX: DIF_EDITOR == DIF_LISTNOAMPERSAND!
   04.11.2002 SVS
     - BugZ#691 - теперь у скрытого ListBox (как в принципе и у любого скрытого
       контрола) самовольно измен€ютс€ координаты.
@@ -1539,9 +1541,9 @@ int Dialog::InitDialogObjects(int ID)
     {
       // сбросим флаг DIF_EDITOR дл€ строки ввода, отличной от DI_EDIT,
       // DI_FIXEDIT и DI_PSWEDIT
-      if((ItemFlags&DIF_EDITOR) &&
-         Type != DI_EDIT && Type != DI_FIXEDIT && Type != DI_PSWEDIT)
-        ItemFlags&=~DIF_EDITOR;
+      if(Type != DI_COMBOBOX)
+        if((ItemFlags&DIF_EDITOR) && Type != DI_EDIT && Type != DI_FIXEDIT && Type != DI_PSWEDIT)
+          ItemFlags&=~DIF_EDITOR;
 
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
       {

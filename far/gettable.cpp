@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.16 29.10.2002 $ */
+/* Revision: 1.17 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    ! Уберем условную компиляцию (а зачем ее делали то?)
   29.10.2002 SVS
     - Блин, с этой сраной сортировкой поломал GetTable()...
   22.10.2002 SVS
@@ -67,11 +69,7 @@ Modify:
 #include "vmenu.hpp"
 #include "savefpos.hpp"
 
-#if defined(__BORLANDC__)
 static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable);
-#else
-static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,char *DecodeTable);
-#endif
 
 /* 15.09.2000 IS
    Проверяет, установлена ли таблица с распределением частот символов
@@ -262,11 +260,8 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
     char TableKey[512];
     if (!EnumRegKey("CodeTables",I,TableKey,sizeof(TableKey)))
       break;
-#if defined(__BORLANDC__)
+
     unsigned char DecodeTable[256];
-#else
-    char DecodeTable[256];
-#endif
     if (!GetRegKey(TableKey,"Mapping",(BYTE *)DecodeTable,(BYTE *)NULL,sizeof(DecodeTable)))
       return(FALSE);
     unsigned long CurValue=CalcDifference(SrcTable,CheckedTable,DecodeTable);
@@ -288,11 +283,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
 }
 
 
-#if defined(__BORLANDC__)
 static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned char *DecodeTable)
-#else
-static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,char *DecodeTable)
-#endif
 {
   unsigned char EncodeTable[256];
   int CheckedTableProcessed[256];

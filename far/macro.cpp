@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.88 03.12.2002 $ */
+/* Revision: 1.89 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    - BugZ#699 - Бесконечный цикл при использовании ACTL_POSTKEYSEQUENCE
+      Продолжение эпопеи - отвалился KSFLAGS_DISABLEOUTPUT
   03.12.2002 SVS
     - BugZ#699 - Бесконечный цикл при использовании ACTL_POSTKEYSEQUENCE
   09.11.2002 SVS
@@ -875,7 +878,11 @@ int KeyMacro::GetKey()
   if(!Executing)
   {
     if(!MacroRAM)
+    {
+      if(LockScr) delete LockScr;
+      LockScr=NULL;
       return(FALSE);
+    }
     Executing=TRUE;
   }
 
@@ -933,14 +940,6 @@ done:
 
   DWORD Key=KeyFromBuffer(MR,ExecKeyPos++);
 
-  if(MR==MacroRAM && ExecKeyPos>=MR->BufferSize)
-  {
-    if(LockScr) delete LockScr;
-    LockScr=NULL;
-    ReleaseTempBuffer();
-    Executing=FALSE;
-  }
-
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
     Key&=~KEY_ALTDIGIT;
@@ -991,6 +990,13 @@ done:
         goto begin;
       }
   }
+
+  if(MR==MacroRAM && ExecKeyPos>=MR->BufferSize)
+  {
+    ReleaseTempBuffer();
+    Executing=FALSE;
+  }
+
 //_SVS(SysLog("%s.%s.Key=%s ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(MacroPROM[ExecMacroPos].Flags&MFLAGS_MODEMASK),_FARKEY_ToName(Key),ExecMacroPos,ExecKeyPos));
   return(Key);
 }

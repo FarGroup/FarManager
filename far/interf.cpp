@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.69 18.09.2002 $ */
+/* Revision: 1.70 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    ! уберу SysLogDump("Oem2Unicode"...)
   18.09.2002 SVS
     ! Про двойные '&' в меню
   17.09.2002 SVS
@@ -439,7 +441,7 @@ void InitRecodeOutTable(UINT cp)
       }
     }
   }
-  _SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
+  //_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
 #endif
 }
 

@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.59 14.06.2002 $ */
+/* Revision: 1.60 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    - BugZ#720 - far /v file + Ctrl-O
   14.06.2002 IS
     + ƒополнительный параметр у SetTempViewName - DeleteFolder
   04.06.2002 SVS
@@ -389,10 +391,13 @@ int FileViewer::ProcessKey(int Key)
     */
 /* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_CTRLO:
-      FrameManager->ShowBackground();
-      SetCursorType(FALSE,0);
-      WaitKey();
-      FrameManager->RefreshFrame();
+      if(!OnliEditorViewerUsed)
+      {
+        FrameManager->ShowBackground();
+        SetCursorType(FALSE,0);
+        WaitKey();
+        FrameManager->RefreshFrame();
+      }
       return(TRUE);
     /* SVS $ */
     case KEY_F3:

@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.101 09.11.2002 $ */
+/* Revision: 1.102 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + ProcessDelDisk() - поимел третий параметр, указатель на VMenu для того, чтобы патом
+      прорефрешить меню!
+    - BugZ#721 - Кривизна отрисовки при удалении примапленного диска
   09.11.2002 SVS
     - Bug: В панелях Ctrl-L Ctrl-U - видим багу.
       Лечится путем инициализации ViewSettings.FullScreen в 0
@@ -305,6 +309,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "array.hpp"
+#include "lockscrn.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -864,7 +869,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               }
               else
               {
-                int Code = ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData));
+                int Code = ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData), &ChDisk);
                 if (Code != DRIVE_DEL_FAIL)
                 {
                   // "BugZ#640 - отрисовка" - обновим экран.
@@ -1071,7 +1076,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
    обработка Del в меню дисков
 */
 
-int Panel::ProcessDelDisk (char Drive, int DriveType)
+int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 {
   char MsgText[200];
   int UpdateProfile=CONNECT_UPDATE_PROFILE;
@@ -1081,9 +1086,17 @@ int Panel::ProcessDelDisk (char Drive, int DriveType)
   DiskLetter[1] = ':';
   DiskLetter[2] = 0;
 
-  // если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
-  // удалению
-  IfGoHome(Drive);
+  // <КОСТЫЛЬ>
+  {
+    LockScreen LckScr;
+    // если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
+    // удалению
+    IfGoHome(Drive);
+    FrameManager->ResizeAllFrame();
+    FrameManager->GetCurrentFrame()->Show();
+    ChDiskMenu->Show();
+  }
+  // </КОСТЫЛЬ>
 
   /* $ 05.01.2001 SVS
      Пробуем удалить SUBST-драйв.

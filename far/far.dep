@@ -1731,6 +1731,7 @@
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
@@ -2172,10 +2173,12 @@
 	".\farconst.hpp"\
 	".\filelist.hpp"\
 	".\fn.hpp"\
+	".\frame.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\language.hpp"\
+	".\manager.hpp"\
 	".\panel.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.45 05.12.2002 $ */
+/* Revision: 1.46 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + StartSysLog - для (потом будет) управляемого писания логов!
   05.12.2002 SVS
     - неверно проинициализированы PrevScrX и PrevScrY
   04.11.2002 SVS
@@ -239,3 +241,7 @@ int InGrabber=FALSE;
 const char *PluginsFolderName="Plugins";
 const char *HelpFileMask="*.hlf";
 const char *HelpFormatLinkModule="<%s>%s";
+
+#if defined(SYSLOG)
+BOOL StartSysLog=0;
+#endif

@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.44 04.11.2002 $ */
+/* Revision: 1.45 10.12.2002 $ */
 
 /*
 Modify:
+  10.12.2002 SVS
+    + StartSysLog - для (потом будет) управляемого писания логов!
   04.11.2002 SVS
     ! ReturnAltValue уехала из keyboard.cpp в global.cpp
   14.07.2002 SVS
@@ -242,5 +244,9 @@ extern int InGrabber;    // Мы сейчас в грабере?
 extern const char *PluginsFolderName;
 extern const char *HelpFileMask;
 extern const char *HelpFormatLinkModule;
+
+#if defined(SYSLOG)
+extern BOOL StartSysLog;
+#endif
 
 #endif  // __FARGLOBAL_HPP__
