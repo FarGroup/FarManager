@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.201 14.10.2002 $ */
+/* Revision: 1.202 14.10.2002 $ */
 
 /*
 Modify:
+  14.10.2002 SVS
+    - BugZ#684 - ECTL_SETPOSITION с отрицательным столбцом
   14.10.2002 SKV
     ! выделение переписано заново
   09.10.2002 SKV
@@ -5483,15 +5485,24 @@ int Editor::EditorControl(int Command,void *Param)
         Info->CurState|=Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
       }
       return(TRUE);
+
     case ECTL_SETPOSITION:
+      // "Вначале было слово..."
+      if(Param && !IsBadReadPtr(Param,sizeof(struct EditorSetPosition)))
       {
+        // ...а вот теперь поработаем с тем, что передалаи
         struct EditorSetPosition *Pos=(struct EditorSetPosition *)Param;
+
         DisableOut++;
+
         int CurPos=CurLine->EditLine.GetCurPos();
-        if ((Pos->CurLine!=-1 || Pos->CurPos!=-1)&&
+
+        // выставим флаг об изменении поз (если надо)
+        if ((Pos->CurLine >= 0 || Pos->CurPos >= 0)&&
             (Pos->CurLine!=NumLine || Pos->CurPos!=CurPos))
           Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-        if (Pos->CurLine!=-1)
+
+        if (Pos->CurLine >= 0) // поменяем строку
         {
           if (Pos->CurLine==NumLine-1)
             Up();
@@ -5501,32 +5512,39 @@ int Editor::EditorControl(int Command,void *Param)
             else
               GoToLine(Pos->CurLine);
         }
-        if (Pos->TopScreenLine!=-1 && Pos->TopScreenLine<=NumLine)
+
+        if (Pos->TopScreenLine >= 0 && Pos->TopScreenLine<=NumLine)
         {
           TopScreen=CurLine;
           for (int I=NumLine;I>0 && NumLine-I<Y2-Y1+1 && I!=Pos->TopScreenLine;I--)
             TopScreen=TopScreen->Prev;
         }
-        if (Pos->CurPos!=-1)
+
+        if (Pos->CurPos >= 0)
           CurLine->EditLine.SetCurPos(Pos->CurPos);
-        if (Pos->CurTabPos!=-1)
+
+        if (Pos->CurTabPos >= 0)
           CurLine->EditLine.SetTabCurPos(Pos->CurTabPos);
-        if (Pos->LeftPos!=-1)
+
+        if (Pos->LeftPos >= 0)
           CurLine->EditLine.SetLeftPos(Pos->LeftPos);
+
         /* $ 30.08.2001 IS
            Изменение режима нужно выставлять сразу, в противном случае приходят
            глюки, т.к. плагинописатель думает, что режим изменен, и ведет себя
            соответствующе, в результате чего получает неопределенное поведение.
         */
-        if (Pos->Overtype!=-1)
+        if (Pos->Overtype >= 0)
         {
           Flags.Change(FEDITOR_OVERTYPE,Pos->Overtype);
           CurLine->EditLine.SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
         }
         /* IS $ */
+
         DisableOut--;
+        return TRUE;
       }
-      return(TRUE);
+      return FALSE;
     case ECTL_SELECT:
       {
         struct EditorSelect *Sel=(struct EditorSelect *)Param;

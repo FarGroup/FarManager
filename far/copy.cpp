@@ -5,10 +5,18 @@ copy.cpp
 
 */
 
-/* Revision: 1.99 19.09.2002 $ */
+/* Revision: 1.100 14.10.2002 $ */
 
 /*
 Modify:
+  14.10.2002 SVS
+    - В одном ФАРе выделяем все файлы в каталоге, жмем F6
+      В другом (это обычная эмуляция!) удаляем пару файлов из
+      каталога, откуда первый ФАР собирается мувить.
+      Возвращаемся в первый ФАР и жмем Enter.
+      Когда нарываемся на файло который удалили во втором ФАРе,
+      то на экране видим... бардак с дистинейшеном (вместо
+      имени - мусор).
   19.09.2002 VVM
     ! Поломали прогресс при системной функции копирования
   18.09.2002 VVM
@@ -1393,6 +1401,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     else
       SelectedFolderNameLength=0;
 
+    KeepPathPos=PointToName(SelName)-SelName;
     if(!stricmp(SrcDriveRoot,SelName) && (ShellCopy::Flags&FCOPY_CREATESYMLINK)) // но сначала посмотрим на "это корень диска?"
     {
       SrcData.dwFileAttributes=FILE_ATTRIBUTE_DIRECTORY;
@@ -1404,6 +1413,8 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       if ((FindHandle=FindFirstFile(SelName,&SrcData))==INVALID_HANDLE_VALUE)
       {
         CopyTime+= (clock() - CopyStartTime);
+        strcat(DestPath,SelName);
+        ShellCopy::ShellCopyMsg(SelName,DestPath,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
                 SelName,MSG(MSkip),MSG(MCancel))==1)
         {
@@ -1434,7 +1445,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       }
     }
 
-    KeepPathPos=PointToName(SelName)-SelName;
+    //KeepPathPos=PointToName(SelName)-SelName;
 
     // Мувим?
     if ((ShellCopy::Flags&FCOPY_MOVE))
@@ -2217,7 +2228,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 {
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
-  _tran(SysLog("[%p] ShellCopy::ShellCopyMsg()",this));
+  //_SVS(SysLog("[%p] ShellCopy::ShellCopyMsg('%s','%s',%x)",this,Src,Dest,Flags));
   #define BAR_SIZE  40
   static char Bar[BAR_SIZE+2]={0};
   if(!Bar[0])
@@ -3109,6 +3120,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
     return(COPY_CANCEL);
 
+  //_SVS(SysLog("[%p] ShellCopy::ShellSystemCopy('%s','%s',..)",this,SrcName,DestName));
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
   if (pCopyFileEx)
   {
