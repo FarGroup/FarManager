@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.42 25.04.2001 $ */
+/* Revision: 1.43 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + GetRealSelCount() - сейчас используется для макросов.
   25.04.2001 DJ
     - оптимизация Shift-стрелок для Selected first
     * если SetDirectory вернуло FALSE, Update() делается с UPDATE_KEEP_SELECTION
@@ -2126,6 +2128,13 @@ int FileList::GetSelCount()
     return(0);
   if (SelFileCount==0 || ReturnCurrentFile)
     return(1);
+  return(SelFileCount);
+}
+
+int FileList::GetRealSelCount()
+{
+  if (FileCount==0)
+    return(0);
   return(SelFileCount);
 }
 

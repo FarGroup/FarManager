@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.85 25.04.2001 $ */
+/* Revision: 1.86 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + KEY_MEDIT_ISSELECTED, в ответ на которую Editor::ProcessKey возвращает
+      TRUE - если есть помеченный блок или FALSE - блока нету.
   25.04.2001 IS
     + ctrl-shift-enter - вставить в строку полное имя редактируемого файла
   20.04.2001 IS
@@ -2481,6 +2484,12 @@ int Editor::ProcessKey(int Key)
       }
       return (TRUE);
     /* IS $ */
+    /* $ 25.04.2001 SVS
+       Для макросов - есть блок или нету
+    */
+    case KEY_MEDIT_ISSELECTED:
+      return BlockStart || VBlockStart?TRUE:FALSE;
+    /* SVS $ */
     default:
       {
         if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->EditLine.GetLength())

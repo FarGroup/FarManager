@@ -7,15 +7,17 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.04 24.04.2001 $ */
+/* Revision: 1.05 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + GetRealSelCount() - сейчас используется для макросов.
   24.04.2001 VVM
     + функция смены сортировки.
   25.02.2001 VVM
     + Доп. параметр у ReadDiz - dwFlags
-      На данном этапе флаг всего один 
+      На данном этапе флаг всего один
       RDF_NO_UPDATE - Не выполнять GetFindData.
   14.02.2001 SVS
     ! Дополнительный параметр для MakeListFile - модификаторы
@@ -62,6 +64,7 @@ class Panel:public ScreenObject
     virtual void ChangeDirToCurrent();
     virtual void GetCurDir(char *CurDir);
     virtual int GetSelCount() {return(0);};
+    virtual int GetRealSelCount() {return(0);};
     virtual int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL) {return(FALSE);};
     virtual void UngetSelName() {};
     virtual void ClearLastGetSelection() {};

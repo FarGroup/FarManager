@@ -1,6 +1,6 @@
 .Language=English,English
 @Contents
-$^#FAR version 1.70 beta 3. File and archive manager.#
+$^#FAR version 1.70 beta 4. File and archive manager.#
 $^#Copyright (C) 1996-2000 Eugene Roshal.#
 $^#Copyright (C) 2000-2001 FAR Group.#
    ~How to use help~@Help@
@@ -1508,8 +1508,10 @@ $ #Internal editor#
    #RightCtrl-<N>#           Set a bookmark at the current position
                            (N must be '0'..'9')
    #LeftCtrl-<N>#            Go to bookmark <N>
-   #Shift-Enter#             Insert the name of the file being edited
-                           at the current cursor position.
+   #Shift-Enter#             Insert the name of the current file on
+                           the panel at the cursor position.
+   #Ctrl-Shift-Enter#        Insert the full name of the file being
+                           edited at the cursor position.
 
     Notes:
 
@@ -2227,7 +2229,7 @@ macros to Ctrl-Shift-<letter>, Ctrl-Alt-<letter> and Alt-Shift-<letter>.
 few other macro types. Macro sets are saved when the command "Save setup"
 from the ~Options menu~@OptMenu@ is executed.
 
-    To specify additional macro settings, start or finish macro
+    To specify ~additional macro settings~@KeyMacroSetting@, start or finish macro
 recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select the desired
 options in the dialog.
 
@@ -2242,3 +2244,44 @@ to the F1 key.
     To assign a macro command to the Enter key, you should press Enter
 twice. When Enter is pressed the first time, the key will be assigned;
 pressing it again will confirm the assignment and close the dialog.
+
+@KeyMacroSetting
+$ #Macro command settings#
+    To specify additional ~macro command~@KeyMacro@ settings, start or
+finish macro recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select
+the desired options in the dialog:
+
+  #Disable screen output while executing macro#
+
+    During the macro command execution FAR Manager does not
+    redraw the screen. All the updates will be displayed
+    when the macro command playback is finished.
+
+  #Execute after FAR start#
+
+    Allows to execute the macro command immediately after the
+    FAR Manager is started.
+
+  Macro command execution conditions:
+
+    #Command line is empty#
+       [x] - execute only if the command line is empty
+       [ ] - execute only if the command line is not empty
+       [?] - ignore the command line state
+
+    #Plugin panel#
+       [x] - execute only if the current panel is a plugin panel
+       [ ] - execute only if the current panel is a file panel
+       [?] - ignore the panel type
+
+    #Execute for folders#
+       [x] - execute only if a folder is under the panel cursor
+       [ ] - execute only if a file is under the panel cursor
+       [?] - execute for both folders and files
+
+    #Selection exists#
+       [x] - execute only if there are marked files/directories
+             on the panel or a selected block in the editor
+       [ ] - execute only if there are no marked files/directories
+             on the panel or no selected block in the editor
+       [?] - ignore the block/file selection state

@@ -5,10 +5,18 @@ macro.cpp
 
 */
 
-/* Revision: 1.29 05.04.2001 $ */
+/* Revision: 1.30 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + MFLAGS_SELECTION - флаг проверки выделения:
+      для панелей - больше одного выделенного объекта,
+      для редактора - про блоки.
+    ! Код проверки флагов для старта макросов вынесен в функции Check* -
+      слишком много повторяющегося кода :-(
+    ! Новый диалог настройки макроса - используются 3-х позиционные чекбоксы,
+      что позволило "ужать" диалог в размерах.
   05.04.2001 VVM
     + 3 дополнительных области макросов - "Info", "QView", "Tree"
   21.03.2001 SVS
@@ -122,7 +130,7 @@ Modify:
 
 #define MFLAGS_MODEMASK            0x0000FFFF
 #define MFLAGS_DISABLEOUTPUT       0x00010000
-#define MFLAGS_RUNAFTERFARSTART       0x00020000
+#define MFLAGS_RUNAFTERFARSTART    0x00020000
 #define MFLAGS_EMPTYCOMMANDLINE    0x00040000
 #define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
 #define MFLAGS_NOFILEPANELS        0x00100000
@@ -130,6 +138,8 @@ Modify:
 #define MFLAGS_NOFOLDERS           0x00400000
 #define MFLAGS_NOFILES             0x00800000
 #define MFLAGS_REUSEMACRO          0x01000000
+#define MFLAGS_SELECTION           0x02000000
+#define MFLAGS_NOSELECTION         0x04000000
 #define MFLAGS_DISABLEMACRO        0x80000000
 
 
@@ -153,6 +163,8 @@ static struct TMacroFlagsName {
   {"NoFolders",           MFLAGS_NOFOLDERS},
   {"NoFiles",             MFLAGS_NOFILES},
   {"ReuseMacro",          MFLAGS_REUSEMACRO},
+  {"Selection",           MFLAGS_SELECTION},
+  {"NoSelection",         MFLAGS_NOSELECTION},
 };
 
 // тип временного буфера
@@ -416,44 +428,17 @@ int KeyMacro::ProcessKey(int Key)
   {
     if (!Executing) // Это еще не режим исполнения?
     {
+      DWORD CurFlags;
       int I=GetIndex(LocalUpper(Key),
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
-      if(I != -1 && !(Macros[I].Flags&MFLAGS_DISABLEMACRO))
+      if(I != -1 && !((CurFlags=Macros[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
 //SysLog("KeyMacro: %d (I=%d Key=0x%08X)",__LINE__,I,Key);
-        // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
-        int CmdLength=CtrlObject->CmdLine->GetLength();
-        if ((Macros[I].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
-            (Macros[I].Flags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
-          return(FALSE);
+        if(!CheckAll(CurFlags))
+          return FALSE;
 
-        // проверки панели и типа файла
-        Panel *ActivePanel=CtrlObject->ActivePanel;
-        if(ActivePanel!=NULL)// && (Macros[I].Flags&MFLAGS_MODEMASK)==MACRO_SHELL)
-        {
-          int PanelMode=ActivePanel->GetMode();
-          char FileName[NM*2];
-          int FileAttr=-1;
-          if(PanelMode == PLUGIN_PANEL)
-          {
-            if(Macros[I].Flags&MFLAGS_NOPLUGINPANELS)
-              return FALSE;
-          }
-          if(PanelMode == NORMAL_PANEL)
-          {
-            if(Macros[I].Flags&MFLAGS_NOFILEPANELS)
-              return FALSE;
-          }
-          ActivePanel->GetFileName(FileName,ActivePanel->GetCurrentPos(),FileAttr);
-          if(FileAttr != -1)
-          {
-            if((FileAttr&FA_DIREC) && (Macros[I].Flags&MFLAGS_NOFOLDERS) ||
-               !(FileAttr&FA_DIREC) && (Macros[I].Flags&MFLAGS_NOFILES))
-              return FALSE;
-          }
-        }
         // Подавлять вывод?
-        if (Macros[I].Flags&MFLAGS_DISABLEOUTPUT)
+        if (CurFlags&MFLAGS_DISABLEOUTPUT)
         {
           if(LockScr) delete LockScr;
           LockScr=new LockScreen;
@@ -703,44 +688,22 @@ void KeyMacro::RunStartMacro()
 {
   if (StartMacroPos==-1)
     return;
+
+  DWORD CurFlags;
   while (StartMacroPos<MacrosNumber)
   {
+
     int CurPos=StartMacroPos++;
-    if ((Macros[CurPos].Flags&MFLAGS_MODEMASK)==MACRO_SHELL &&
+    if (((CurFlags=Macros[CurPos].Flags)&MFLAGS_MODEMASK)==MACRO_SHELL &&
         Macros[CurPos].BufferSize>0 &&
         // исполняем не задисабленные макросы
-        !(Macros[CurPos].Flags&MFLAGS_DISABLEMACRO) &&
-        (Macros[CurPos].Flags&MFLAGS_RUNAFTERFARSTART))
+        !(CurFlags&MFLAGS_DISABLEMACRO) &&
+        (CurFlags&MFLAGS_RUNAFTERFARSTART) && CtrlObject)
     {
-      int CmdLength=CtrlObject->CmdLine->GetLength();
-      if ((Macros[CurPos].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
-          (Macros[CurPos].Flags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
+      if(!CheckAll(CurFlags))
         return;
-      Panel *ActivePanel=CtrlObject->ActivePanel;
-      if(ActivePanel!=NULL)
-      {
-        char FileName[NM*2];
-        int FileAttr=-1;
-        int PanelMode=ActivePanel->GetMode();
-        if(PanelMode == PLUGIN_PANEL)
-        {
-          if(Macros[CurPos].Flags&MFLAGS_NOPLUGINPANELS)
-            return;
-        }
-        if(PanelMode == NORMAL_PANEL)
-        {
-          if(Macros[CurPos].Flags&MFLAGS_NOFILEPANELS)
-            return;
-        }
-        ActivePanel->GetFileName(FileName,ActivePanel->GetCurrentPos(),FileAttr);
-        if(FileAttr != -1)
-        {
-          if((FileAttr&FA_DIREC) && (Macros[CurPos].Flags&MFLAGS_NOFOLDERS) ||
-             !(FileAttr&FA_DIREC) && (Macros[CurPos].Flags&MFLAGS_NOFILES))
-            return;
-        }
-      }
-      if (Macros[CurPos].Flags&MFLAGS_DISABLEOUTPUT)
+
+      if (CurFlags&MFLAGS_DISABLEOUTPUT)
       {
         if(LockScr) delete LockScr;
         LockScr=new LockScreen;
@@ -908,32 +871,30 @@ DWORD KeyMacro::AssignMacroKey()
   return Param.Key;
 }
 
+static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
+{
+  DWORD Chk12=Chk1|Chk2, FlagsChk12=Flags&Chk12;
+  if(FlagsChk12 == Chk12 || FlagsChk12 == 0)
+    return (2);
+  else
+    return (Flags&Chk1?1:0);
+}
+
 int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
 
   static struct DialogData MacroSettingsDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,62,18,0,0,0,0,"",
+  /* 00 */ DI_DOUBLEBOX,3,1,62,11,0,0,0,0,"",
   /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroSettingsDisableOutput,
   /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
-//  /* 03 */ DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MMacroSettingsExactCollation,
-  /* 03 */ DI_TEXT,5,4,0,0,0,0,0,0,"",
-  /* 04 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 05 */ DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreCommandLine,
-  /* 06 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MMacroSettingsEmptyCommandLine,
-  /* 07 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MMacroSettingsNotEmptyCommandLine,
-  /* 08 */ DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 09 */ DI_RADIOBUTTON,5,9,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnorePanels,
-  /* 10 */ DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(char *)MMacroSettingsFilePanels,
-  /* 11 */ DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(char *)MMacroSettingsPluginPanels,
-
-  /* 12 */ DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 13 */ DI_RADIOBUTTON,5,13,0,0,0,1,DIF_GROUP,0,(char *)MMacroSettingsIgnoreFileFolders,
-  /* 14 */ DI_RADIOBUTTON,5,14,0,0,0,0,0,0,(char *)MMacroSettingsFolders,
-  /* 15 */ DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MMacroSettingsFiles,
-
-  /* 16 */ DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 17 */ DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 18 */ DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 04 */ DI_CHECKBOX,5,5,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsCommandLine,
+  /* 05 */ DI_CHECKBOX,5,6,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsPluginPanel,
+  /* 06 */ DI_CHECKBOX,5,7,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsFolders,
+  /* 07 */ DI_CHECKBOX,5,8,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsSelectionPresent,
+  /* 08 */ DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 09 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 10 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(MacroSettingsDlgData,MacroSettingsDlg);
 
@@ -945,28 +906,29 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
   MacroSettingsDlg[1].Selected=Flags&MFLAGS_DISABLEOUTPUT?1:0;
   MacroSettingsDlg[2].Selected=Flags&MFLAGS_RUNAFTERFARSTART?1:0;
-  MacroSettingsDlg[6].Selected=Flags&MFLAGS_EMPTYCOMMANDLINE?1:0;
-  MacroSettingsDlg[7].Selected=Flags&MFLAGS_NOTEMPTYCOMMANDLINE?1:0;
-  MacroSettingsDlg[11].Selected=Flags&MFLAGS_NOFILEPANELS?1:0;
-  MacroSettingsDlg[10].Selected=Flags&MFLAGS_NOPLUGINPANELS?1:0;
-  MacroSettingsDlg[15].Selected=Flags&MFLAGS_NOFOLDERS?1:0;
-  MacroSettingsDlg[14].Selected=Flags&MFLAGS_NOFILES?1:0;
+
+  MacroSettingsDlg[4].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
+  MacroSettingsDlg[5].Selected=Set3State(Flags,MFLAGS_NOFILEPANELS,MFLAGS_NOPLUGINPANELS);
+  MacroSettingsDlg[6].Selected=Set3State(Flags,MFLAGS_NOFILES,MFLAGS_NOFOLDERS);
+  MacroSettingsDlg[7].Selected=Set3State(Flags,MFLAGS_SELECTION,MFLAGS_NOSELECTION);
 
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
-  Dlg.SetPosition(-1,-1,66,20);
-  Dlg.SetHelp("KeyMacro");
+  Dlg.SetPosition(-1,-1,66,13);
+  Dlg.SetHelp("KeyMacroSetting");
   Dlg.Process();
-  if (Dlg.GetExitCode()!=17)
+  if (Dlg.GetExitCode()!=9)
     return(FALSE);
 
   Flags=MacroSettingsDlg[1].Selected?MFLAGS_DISABLEOUTPUT:0;
   Flags|=MacroSettingsDlg[2].Selected?MFLAGS_RUNAFTERFARSTART:0;
-  Flags|=MacroSettingsDlg[6].Selected?MFLAGS_EMPTYCOMMANDLINE:0;
-  Flags|=MacroSettingsDlg[7].Selected?MFLAGS_NOTEMPTYCOMMANDLINE:0;
-  Flags|=MacroSettingsDlg[11].Selected?MFLAGS_NOFILEPANELS:0;
-  Flags|=MacroSettingsDlg[10].Selected?MFLAGS_NOPLUGINPANELS:0;
-  Flags|=MacroSettingsDlg[15].Selected?MFLAGS_NOFOLDERS:0;
-  Flags|=MacroSettingsDlg[14].Selected?MFLAGS_NOFILES:0;
+  Flags|=MacroSettingsDlg[4].Selected==2?0:
+          (MacroSettingsDlg[4].Selected==0?MFLAGS_NOTEMPTYCOMMANDLINE:MFLAGS_EMPTYCOMMANDLINE);
+  Flags|=MacroSettingsDlg[5].Selected==2?0:
+          (MacroSettingsDlg[5].Selected==0?MFLAGS_NOPLUGINPANELS:MFLAGS_NOFILEPANELS);
+  Flags|=MacroSettingsDlg[6].Selected==2?0:
+          (MacroSettingsDlg[6].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
+  Flags|=MacroSettingsDlg[7].Selected==2?0:
+          (MacroSettingsDlg[7].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
 
   return(TRUE);
 }
@@ -1111,4 +1073,82 @@ int KeyMacro::GetSubKey(char *Mode)
     if(!stricmp(MacroModeName[I],Mode))
       return I;
   return -1;
+}
+
+BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
+{
+  if(Mode==MACRO_EDITOR)
+  {
+    char Type[200],Name[NM];
+    Modal* CurModal=CtrlObject->ModalManager.ActiveModal;
+    if (CurModal && CurModal->GetTypeAndName(Type,Name)==MODALTYPE_EDITOR)
+    {
+      int CurSelected=CurModal->ProcessKey(KEY_MEDIT_ISSELECTED);
+      if((CurFlags&MFLAGS_SELECTION) && !CurSelected ||
+         (CurFlags&MFLAGS_NOSELECTION) && CurSelected)
+          return FALSE;
+    }
+  }
+  return TRUE;
+}
+
+BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags)
+{
+  if(PanelMode == PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS) ||
+     PanelMode == NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS))
+    return FALSE;
+  return TRUE;
+}
+
+BOOL KeyMacro::CheckCmdLine(int CmdLength,DWORD CurFlags)
+{
+ if ((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
+     (CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
+      return FALSE;
+  return TRUE;
+}
+
+BOOL KeyMacro::CheckFileFolder(Panel *ActivePanel,DWORD CurFlags)
+{
+  char FileName[NM*2];
+  int FileAttr=-1;
+  ActivePanel->GetFileName(FileName,ActivePanel->GetCurrentPos(),FileAttr);
+  if(FileAttr != -1)
+  {
+    if((FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFOLDERS) ||
+      !(FileAttr&FA_DIREC) && (CurFlags&MFLAGS_NOFILES))
+      return FALSE;
+  }
+  return TRUE;
+}
+
+BOOL KeyMacro::CheckAll(DWORD CurFlags)
+{
+  // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
+  if(!CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
+    return FALSE;
+
+  // проверки панели и типа файла
+  Panel *ActivePanel=CtrlObject->ActivePanel;
+  if(ActivePanel!=NULL)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
+  {
+    if(!CheckPanel(ActivePanel->GetMode(),CurFlags))
+      return FALSE;
+
+    if(!CheckFileFolder(ActivePanel,CurFlags))
+      return FALSE;
+
+    int SelCount=ActivePanel->GetRealSelCount();
+    if(Mode!=MACRO_EDITOR) // ??? видимо не весь диапазон !!!
+    {
+      if((CurFlags&MFLAGS_SELECTION) && SelCount < 1 ||
+         (CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1)
+        return FALSE;
+    }
+  }
+
+  if(!CheckEditSelected(CurFlags))
+    return FALSE;
+
+  return TRUE;
 }

@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.62 12.04.2001 $ */
+/* Revision: 1.63 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    ! Пересмотр некоторых MMacroSettings* в связи с "упрощением" диалога
+      параметров макроса.
   12.04.2001 SVS
     + MSetAttrUnknownJunction
   08.04.2001 SVS
@@ -1380,15 +1383,10 @@ enum
   MMacroSettingsTitle,
   MMacroSettingsDisableOutput,
   MMacroSettingsRunAfterStart,
-  MMacroSettingsIgnoreCommandLine,
-  MMacroSettingsEmptyCommandLine,
-  MMacroSettingsNotEmptyCommandLine,
-  MMacroSettingsIgnorePanels,
-  MMacroSettingsFilePanels,
-  MMacroSettingsPluginPanels,
-  MMacroSettingsIgnoreFileFolders,
+  MMacroSettingsCommandLine,
+  MMacroSettingsPluginPanel,
   MMacroSettingsFolders,
-  MMacroSettingsFiles,
+  MMacroSettingsSelectionPresent,
 
   MPluginsHelpTitle,
 

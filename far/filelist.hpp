@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.08 24.04.2001 $ */
+/* Revision: 1.09 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + GetRealSelCount() - сейчас используется для макросов.
   24.04.2001 VVM
     + Функция для смены порядка сортировки.
   09.04.2001 SVS
@@ -204,6 +206,7 @@ class FileList:public Panel
     int ProcessPluginEvent(int Event,void *Param);
     void SetTitle();
     HANDLE GetPluginHandle();
+    int GetRealSelCount();
     static void SetFilePanelModes();
     static void SavePanelModes();
     static void ReadPanelModes();

@@ -7,10 +7,13 @@ keys.hpp
 
 */
 
-/* Revision: 1.08 17.01.2001 $ */
+/* Revision: 1.09 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    + KEY_MEDIT_ISSELECTED, в ответ на которую Editor::ProcessKey возвращает
+      TRUE - если есть помеченный блок или FALSE - блока нету.
   17.01.2001 SVS
     + KEY_COLON = ':'
     ! Новая переделка (не пинать ногами).
@@ -143,6 +146,8 @@ enum BaseDefKeyboard
   KEY_MACROHOUR,
   KEY_MACROMIN,
   KEY_MACROSEC,
+
+  KEY_MEDIT_ISSELECTED,
 
   KEY_MACROSPEC_BASE       =0x00C00000,
   // отсюда начинаются коды специализированных макро-кодов,

@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.08 08.03.2001 $ */
+/* Revision: 1.09 25.03.2001 $ */
 
 /*
 Modify:
+  25.04.2001 SVS
+    ! Код проверки флагов для старта макросов вынесен в функции Check* -
+      слишком много повторяющегося кода :-(
   08.03.2001 SVS
     + Функция MkTextSequence - формирование строкового представления Sequence
   22.01.2001 SVS
@@ -86,6 +89,12 @@ class KeyMacro
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
     static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     char *MkRegKeyName(int IdxMacro,char *RegKeyName);
+
+    BOOL CheckEditSelected(DWORD CurFlags);
+    BOOL CheckPanel(int PanelMode,DWORD CurFlags);
+    BOOL CheckCmdLine(int CmdLength,DWORD Flags);
+    BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags);
+    BOOL CheckAll(DWORD CurFlags);
 
   public:
     KeyMacro();
