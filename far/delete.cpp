@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.60 01.06.2003 $ */
+/* Revision: 1.61 10.06.2003 $ */
 
 /*
 Modify:
+  10.06.2003 SVS
+    - Для вложенных симлинков - получали ругань на отсутствие каталога
   01.06.2003 SVS
     ! FAR_DeleteFile и FAR_RemoveDirectory переехали из delete.cpp в farwinapi.cpp
   21.04.2003 SVS
@@ -481,6 +483,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                 TreeList::DelTreeName(FullName);
                 if (UpdateDiz)
                   SrcPanel->DeleteDiz(FullName,SelShortName);
+                ScTree.SkipDir(); // ??? ЭТО НУЖНО ДЛЯ ТОГО, ЧТОБЫ...
                 continue;
                 /* KM $ */
               }
