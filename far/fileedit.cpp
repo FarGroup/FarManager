@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.131 05.03.2003 $ */
+/* Revision: 1.132 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    + добавим _ECTLLOG для ECTL_GETINFO
   05.03.2003 SVS
     ! Закоментим _SVS
   18.02.2003 SVS
@@ -1951,6 +1953,27 @@ int FileEditor::EditorControl(int Command,void *Param)
       FEdit->EditorControl(Command,Param);
       struct EditorInfo *Info=(struct EditorInfo *)Param;
       Info->FileName=FullFileName;
+      _ECTLLOG(SysLog("struct EditorInfo{"));
+      _ECTLLOG(SysLog("  EditorID       = %d",Info->EditorID));
+      _ECTLLOG(SysLog("  FileName       = '%s'",Info->FileName));
+      _ECTLLOG(SysLog("  WindowSizeX    = %d",Info->WindowSizeX));
+      _ECTLLOG(SysLog("  WindowSizeY    = %d",Info->WindowSizeY));
+      _ECTLLOG(SysLog("  TotalLines     = %d",Info->TotalLines));
+      _ECTLLOG(SysLog("  CurLine        = %d",Info->CurLine));
+      _ECTLLOG(SysLog("  CurPos         = %d",Info->CurPos));
+      _ECTLLOG(SysLog("  CurTabPos;     = %d",Info->CurTabPos));
+      _ECTLLOG(SysLog("  TopScreenLine  = %d",Info->TopScreenLine));
+      _ECTLLOG(SysLog("  LeftPos        = %d",Info->LeftPos));
+      _ECTLLOG(SysLog("  Overtype       = %d",Info->Overtype));
+      _ECTLLOG(SysLog("  BlockType      = %s (%d)",(Info->BlockType==BTYPE_NONE?"BTYPE_NONE":((Info->BlockType==BTYPE_STREAM?"BTYPE_STREAM":((Info->BlockType==BTYPE_COLUMN?"BTYPE_COLUMN":"BTYPE_?????"))))),Info->BlockType));
+      _ECTLLOG(SysLog("  BlockStartLine = %d",Info->BlockStartLine));
+      _ECTLLOG(SysLog("  AnsiMode       = %d",Info->AnsiMode));
+      _ECTLLOG(SysLog("  TableNum       = %d",Info->TableNum));
+      _ECTLLOG(SysLog("  Options        = 0x%08X",Info->Options));
+      _ECTLLOG(SysLog("  TabSize        = %d",Info->TabSize));
+      _ECTLLOG(SysLog("  BookMarkCount  = %d",Info->BookMarkCount));
+      _ECTLLOG(SysLog("  CurState       = 0x%08X",Info->CurState));
+      _ECTLLOG(SysLog("}"));
       return TRUE;
     }
 

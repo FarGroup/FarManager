@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.179 05.03.2003 $ */
+/* Revision: 1.180 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    + _EE_ToName(), _EEREDRAW_ToName()
+    + SYSLOG_EE_REDRAW
   05.03.2003 SVS
     + SYSLOG_COPYR
     + CheckParseJunction
@@ -1071,6 +1074,8 @@ void CheckHeap(int NumLine);
 const char *_FARKEY_ToName(int Key);
 const char *_VK_KEY_ToName(int VkKey);
 const char *_ECTL_ToName(int Command);
+const char *_EE_ToName(int Command);
+const char *_EEREDRAW_ToName(int Command);
 const char *_ESPT_ToName(int Command);
 const char *_FCTL_ToName(int Command);
 const char *_DLGMSG_ToName(int Msg);
@@ -1126,6 +1131,12 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #define _ECTLLOG(x)  x
 #else
 #define _ECTLLOG(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_EE_REDRAW)
+#define _SYS_EE_REDRAW(x)  x
+#else
+#define _SYS_EE_REDRAW(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_FCTL)

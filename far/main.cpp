@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.65 17.03.2003 $ */
+/* Revision: 1.66 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    ! Проверим код возврата _beginthread() и выставим "Евалюшин копия"
   17.03.2003 SVS
     ! применим новые флаги FFPOL_*
   04.02.2003 SVS
@@ -346,7 +348,14 @@ static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestN
         if (RegOpt)
           Register();
         static struct RegInfo Reg;
-        _beginthread(CheckReg,0x10000,&Reg);
+        if(_beginthread(CheckReg,0x10000,&Reg) == -1)
+        {
+          Reg.Done=TRUE;
+          *Reg.RegName=0;
+          RegVer=0;
+          Opt.EdOpt.TabSize=8;
+          Opt.ViewerEditorClock=0;
+        }
         while (!Reg.Done)
           Sleep(10);
 #ifdef _DEBUGEXC

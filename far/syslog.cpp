@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.39 05.03.2003 $ */
+/* Revision: 1.40 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    + _EE_ToName(), _EEREDRAW_ToName()
+    + _SYS_EE_REDRAW
   05.03.2003 SVS
     + SYSLOG_COPYR
   18.02.2003 SVS
@@ -128,7 +131,7 @@ Modify:
 #include "frame.hpp"
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW)
   #define SYSLOG
  #endif
 #endif
@@ -791,6 +794,56 @@ const char *_ECTL_ToName(int Command)
 #endif
 }
 
+const char *_EE_ToName(int Command)
+{
+#if defined(SYSLOG)
+#define DEF_EE_(m) { EE_##m , #m }
+  static struct EEName{
+    int Msg;
+    const char *Name;
+  } EE[]={
+    DEF_EE_(READ),     DEF_EE_(SAVE),     DEF_EE_(REDRAW),     DEF_EE_(CLOSE),
+  };
+  int I;
+  static char Name[512];
+  for(I=0; I < sizeof(EE)/sizeof(EE[0]); ++I)
+    if(EE[I].Msg == Command)
+    {
+      sprintf(Name,"\"EE_%s\" [%d/0x%04X]",EE[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"EE_????\" [%d/0x%04X]",Command,Command);
+  return Name;
+#else
+  return "";
+#endif
+}
+
+const char *_EEREDRAW_ToName(int Command)
+{
+#if defined(SYSLOG)
+#define DEF_EEREDRAW_(m) { (int)EEREDRAW_##m , #m }
+  static struct EEREDRAWName{
+    int Msg;
+    const char *Name;
+  } EEREDRAW[]={
+    DEF_EEREDRAW_(ALL),  DEF_EEREDRAW_(CHANGE),  DEF_EEREDRAW_(LINE),
+  };
+  int I;
+  static char Name[512];
+  for(I=0; I < sizeof(EEREDRAW)/sizeof(EEREDRAW[0]); ++I)
+    if(EEREDRAW[I].Msg == Command)
+    {
+      sprintf(Name,"\"EEREDRAW_%s\" [%d/0x%04X]",EEREDRAW[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"EEREDRAW_????\" [%d/0x%04X]",Command,Command);
+  return Name;
+#else
+  return "";
+#endif
+}
+
 const char *_ESPT_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
@@ -1345,7 +1398,7 @@ const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
 {
 #if defined(SYSLOG)
   if(!IsLogON())
-    return "";
+    return NULL;
 
   char *TmpBuf=(char *)xf_malloc(sizeof(char)*SizeBuf*3), *PtrTmpBuf;
   if(TmpBuf)
@@ -1361,6 +1414,6 @@ const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
   }
   return TmpBuf;
 #else
-  return "";
+  return NULL;
 #endif
 }

@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.11 17.03.2003 $ */
+/* Revision: 1.12 21.03.2003 $ */
 
 /*
 Modify:
+  21.03.2003 SVS
+    - Ctrl-W Del Ctrl-W и т.д....
   17.03.2003 SVS
     + Полиция 21 - "Нельзя килять задачи"
   23.12.2002 SVS
@@ -48,6 +50,7 @@ Modify:
 #include "keys.hpp"
 #include "lang.hpp"
 #include "vmenu.hpp"
+#include "BlockExtKey.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
 static BOOL KillProcess(DWORD dwPID);
@@ -88,6 +91,8 @@ void ShowProcessList()
 
       case KEY_DEL:
         {
+          BlockExtKey blockExtKey;
+
           // Полиция 21
           if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
             break;

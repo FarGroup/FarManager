@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.219 05.03.2003 $ */
+/* Revision: 1.220 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    + _SYS_EE_REDRAW
   05.03.2003 SVS
     + Editor::ReadData, Editor::SaveData (пока невалидны с точки зрени€ работы) - дл€ DI_MEMOEDIT
     ! «акоментим _SVS
@@ -1389,21 +1391,26 @@ void Editor::ShowEditor(int CurLineOnly)
       Send EE_REDRAW with param=2 if text was just modified.
 
     */
+    _SYS_EE_REDRAW(CleverSysLog Clev("Editor::ShowEditor()"));
     if(!ScrBuf.GetLockCount())
     {
       /*$ 13.09.2000 skv
         EE_REDRAW 1 and 2 replaced.
       */
-      //_SVS(SysLog("Editor::ShowEditor[%d]: EE_REDRAW (%s)",__LINE__,(Flags.Check(FEDITOR_JUSTMODIFIED)?"EEREDRAW_CHANGE":(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL"))));
       if(Flags.Check(FEDITOR_JUSTMODIFIED))
       {
         Flags.Clear(FEDITOR_JUSTMODIFIED);
+        _SYS_EE_REDRAW(SysLog("Call ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE)"));
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
       }
       else
+      {
+        _SYS_EE_REDRAW(SysLog("Call ProcessEditorEvent(EE_REDRAW,%s)",(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL")));
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
+      }
       /* skv$*/
     }
+    _SYS_EE_REDRAW(else SysLog("ScrBuf Locked !!!"));
     /* skv$*/
   }
 
@@ -3208,7 +3215,7 @@ int Editor::ProcessKey(int Key)
           Pasting--;
           CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
           //_D(SysLog("%08d EE_REDRAW",__LINE__));
-          //_SVS(SysLog("Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
+          _SYS_EE_REDRAW(SysLog("Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           /*$ 03.02.2001 SKV
             ј то EEREDRAW_ALL то уходит, а на самом деле
@@ -3358,7 +3365,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     else
     {
       CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-//_D(SysLog("%08d EE_REDRAW",__LINE__));
+      _SYS_EE_REDRAW(SysLog("Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE)",__LINE__));
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
     }
     return(TRUE);
@@ -5447,7 +5454,7 @@ int Editor::EditorControl(int Command,void *Param)
                             CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
                             CurPtr->EditLine.TabPosToReal(VBlockX);
         }
-        _ECTLLOG(char *LinDump=GetString->StringEOL?_SysLog_LinearDump(GetString->StringEOL,strlen(GetString->StringEOL)):NULL);
+        _ECTLLOG(char *LinDump=(GetString->StringEOL?(char *)_SysLog_LinearDump(GetString->StringEOL,strlen(GetString->StringEOL)):NULL));
         _ECTLLOG(SysLog("struct EditorGetString{"));
         _ECTLLOG(SysLog("  StringNumber    =%d",GetString->StringNumber));
         _ECTLLOG(SysLog("  StringText      ='%s'",GetString->StringText));

@@ -5,10 +5,14 @@ message.cpp
 
 */
 
-/* Revision: 1.28 25.02.2003 $ */
+/* Revision: 1.29 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    - BugZ#827 - перекрытие кнопок и рамки диалога
+      Попробуем уточнить за счет увелечения допустимой ширины месага
+      Введена MAX_WIDTH_MESSAGE и 15 заменено на 13
   25.02.2003 SVS
     + Выставим DMODE_MSGINTERNAL перед показом месага (как вариант решения
       разногласий между BugZ#811 и BugZ#806)
@@ -191,9 +195,11 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       MaxLength=I;
   }
 
+  #define MAX_WIDTH_MESSAGE (ScrX-13)
+
   // певая коррекция максимального размера
-  if (MaxLength>ScrX-15)
-    MaxLength=ScrX-15;
+  if (MaxLength > MAX_WIDTH_MESSAGE)
+    MaxLength=MAX_WIDTH_MESSAGE;
 
   // теперь обработаем MSG_ERRORTYPE
   int CountErrorLine=0;
@@ -206,19 +212,19 @@ int Message(DWORD Flags,int Buttons,const char *Title,
 
     // вычисление "красивого" размера
     int LenErrStr=strlen(ErrStr);
-    if(LenErrStr > ScrX-15)
+    if(LenErrStr > MAX_WIDTH_MESSAGE)
     {
       // половина меньше?
-      if(LenErrStr/2 < ScrX-15)
+      if(LenErrStr/2 < MAX_WIDTH_MESSAGE)
       {
         // а половина + 1/3?
-        if((LenErrStr+LenErrStr/3)/2 < ScrX-15)
+        if((LenErrStr+LenErrStr/3)/2 < MAX_WIDTH_MESSAGE)
           LenErrStr=(LenErrStr+LenErrStr/3)/2;
         else
           LenErrStr/=2;
       }
       else
-        LenErrStr=ScrX-15;
+        LenErrStr=MAX_WIDTH_MESSAGE;
     }
     else if(LenErrStr < MaxLength)
       LenErrStr=MaxLength;

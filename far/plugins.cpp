@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.135 17.03.2003 $ */
+/* Revision: 1.136 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    + _ECTLLOG для PluginsSet::ProcessEditorEvent()
   17.03.2003 SVS
     ! применим новые флаги FFPOL_*
   25.02.2003 SVS
@@ -1650,6 +1652,8 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 
 void PluginsSet::ProcessEditorEvent(int Event,void *Param)
 {
+  _ECTLLOG(CleverSysLog Clev("PluginsSet::ProcessEditorEvent()"));
+  int Ret;
   //EXCEPTION_POINTERS *xp;
   if(CtrlObject->Plugins.CurEditor)
   {
@@ -1658,11 +1662,14 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
     {
       if (PData->pProcessEditorEvent && PreparePlugin(I) && !ProcessException)
       {
+        //_ECTLLOG(CleverSysLog Clev2("Call ProcessEditorEvent()"));
+        _ECTLLOG(SysLog("Plugin: '%s'",PData->ModuleName));
+        _ECTLLOG(SysLog("Params: Event=%s, Param=%s",_EE_ToName(Event),_EEREDRAW_ToName((int)Param)));
         PData->FuncFlags.Set(PICFF_PROCESSEDITOREVENT);
         if(Opt.ExceptRules)
         {
           TRY {
-            PData->pProcessEditorEvent(Event,Param);
+            Ret=PData->pProcessEditorEvent(Event,Param);
           }
           EXCEPT(xfilter(EXCEPT_PROCESSEDITOREVENT,GetExceptionInformation(),PData,1))
           {
@@ -1671,7 +1678,8 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
           }
         }
         else
-          PData->pProcessEditorEvent(Event,Param);
+          Ret=PData->pProcessEditorEvent(Event,Param);
+        _ECTLLOG(SysLog("Return=%d",Ret));
         PData->FuncFlags.Clear(PICFF_PROCESSEDITOREVENT);
       }
     }

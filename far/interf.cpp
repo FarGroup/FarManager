@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.71 04.02.2003 $ */
+/* Revision: 1.72 31.03.2003 $ */
 
 /*
 Modify:
+  31.03.2003 SVS
+    ! Проверим код возврата _beginthread() и выставим "Евалюшин копия"
+    - CtrlHandler() инициализировался до создания CtrlObject
   04.02.2003 SVS
     + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
       проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
@@ -665,10 +668,13 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   {
     if (CtrlType==CTRL_BREAK_EVENT)
       WriteInput(KEY_BREAK);
-    if (CtrlObject->Cp()->LeftPanel!=NULL && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-      CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
-    if (CtrlObject->Cp()->RightPanel!=NULL && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-      CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
+    if(CtrlObject && CtrlObject->Cp())
+    {
+      if (CtrlObject->Cp()->LeftPanel!=NULL && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+        CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
+      if (CtrlObject->Cp()->RightPanel!=NULL && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+        CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
+    }
     return(TRUE);
   }
   CloseFAR=TRUE;
@@ -681,7 +687,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   if(!Opt.CloseConsoleRule)
   {
     if (CurrentEditor!=NULL && CurrentEditor->IsFileModified() ||
-        FrameManager->IsAnyFrameModified (FALSE))
+        (FrameManager && FrameManager->IsAnyFrameModified (FALSE)))
       return(TRUE);
     return(FALSE);
   }
@@ -1069,7 +1075,14 @@ void ShowTime(int ShowAlways)
     RegChecked=TRUE;
     struct RegInfo Reg;
     Reg.Done=0;
-    _beginthread(CheckReg,0x10000,&Reg);
+    if(_beginthread(CheckReg,0x10000,&Reg) == -1)
+    {
+       Reg.Done=TRUE;
+       RegVer=0;
+       *Reg.RegName=0;
+       Opt.EdOpt.TabSize=8;
+       Opt.ViewerEditorClock=0;
+    }
     while (!Reg.Done)
       Sleep(10);
     if (*Reg.RegName)
