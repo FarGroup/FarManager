@@ -5,10 +5,14 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.16 05.03.2003 $ */
+/* Revision: 1.17 05.09.2003 $ */
 
 /*
 Modify:
+  05.09.2003 SVS
+    - Некорректно формировался файл-список с полными именами (метасимвол "!@F!")
+      на панели плагина TempPanel. Каждый файл дополнялся путем из родительской
+      панели.
   05.03.2003 SVS
     ! Закоментим _SVS
   21.01.2003 SVS
@@ -758,7 +762,7 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 
     if(Modifers && *Modifers)
     {
-      if(strchr(Modifers,'F')) // 'F' - использовать полный путь;
+      if(strchr(Modifers,'F') && PointToName(FileName) == FileName) // 'F' - использовать полный путь;
       {
         char TempFileName[NM*2];
         strcpy(TempFileName,CurDir);

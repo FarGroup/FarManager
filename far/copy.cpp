@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.125 19.07.2003 $ */
+/* Revision: 1.126 04.09.2003 $ */
 
 /*
 Modify:
+  04.09.2003 SVS
+    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
+      приведем FILETIME к __int64
   19.07.2003 IS
     + Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
       ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy
@@ -3472,7 +3475,7 @@ int ShellCopy::AskOverwrite(const WIN32_FIND_DATA &SrcData,
       if((ShellCopy::Flags&FCOPY_ONLYNEWERFILES))
       {
         // сравним время
-        int RetCompare=CompareFileTime(&DestData.ftLastWriteTime,&SrcData.ftLastWriteTime);
+        __int64 RetCompare=*(__int64*)&DestData.ftLastWriteTime - *(__int64*)&SrcData.ftLastWriteTime;
         if(RetCompare < 0)
           MsgCode=0;
         else

@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.57 06.05.2003 $ */
+/* Revision: 1.58 04.09.2003 $ */
 
 /*
 Modify:
+  04.09.2003 SVS
+    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
+      приведем FILETIME к __int64
   06.05.2003 SVS
     - траблы с выставлением атрибутов C и E
   20.02.2003 SVS
@@ -1186,6 +1189,6 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   SystemTimeToFileTime(&st,&ft);
   LocalFileTimeToFileTime(&ft,FileTime);
   if(DigitCount)
-    return (!CompareFileTime(FileTime,OriginalFileTime))?FALSE:TRUE;
+    return (*(__int64*)&FileTime - *(__int64*)&OriginalFileTime) == 0?FALSE:TRUE;
   return TRUE;
 }

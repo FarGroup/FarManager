@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.188 03.09.2003 $ */
+/* Revision: 1.189 04.09.2003 $ */
 
 /*
 Modify:
+  04.09.2003 SVS
+    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
+      приведем FILETIME к __int64
   03.09.2003 SVS
     ! При откавычивании учтем биты QUOTEDNAME_
   31.08.2003 SVS
@@ -3615,7 +3618,10 @@ void FileList::CompareDir()
             Cmp=(FullDosTime<AnotherFullDosTime) ? -1:1;
         }
         else
-          Cmp=CompareFileTime(&CurPtr->WriteTime,&AnotherCurPtr->WriteTime);
+        {
+          __int64 RetCompare=*(__int64*)&CurPtr->WriteTime - *(__int64*)&AnotherCurPtr->WriteTime;
+          Cmp=!RetCompare?0:(RetCompare > 0?1:-1);
+        }
 
         if (Cmp==0 && (CurPtr->UnpSize!=AnotherCurPtr->UnpSize ||
                        CurPtr->UnpSizeHigh!=AnotherCurPtr->UnpSizeHigh))

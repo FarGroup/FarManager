@@ -556,7 +556,7 @@ Use arrow keys or click the left mouse button to move the cursor. To select
 text use Shift-arrow keys or drag the mouse while holding the left mouse
 button. Enter, Ctrl-Ins, right mouse button or doubleclick copy selected text
 to the clipboard, Ctrl- <Gray +> appends it to the clipboard contents,
-Esc leaves the grabbing mode.
+Esc leaves the grabbing mode. Ctrl-U - deselect block.
 
   Record a ~keyboard macro~@KeyMacro@                                   #Ctrl-<.>#
 
@@ -1925,8 +1925,8 @@ $ #Internal editor#
    #PgDn#                    Page down
    #Home#                    Start of line
    #End#                     End of line
-   #Ctrl-Home#               Start of file
-   #Ctrl-End#                End of file
+   #Ctrl-Home, Ctrl-PgUp#    Start of file
+   #Ctrl-End, Ctrl-PgDn#     End of file
    #Ctrl-N#                  Start of screen
    #Ctrl-E#                  End of screen
 

@@ -5,10 +5,13 @@ Screen grabber
 
 */
 
-/* Revision: 1.13 25.02.2003 $ */
+/* Revision: 1.14 05.09.2003 $ */
 
 /*
 Modify:
+  05.09.2003 SVS
+    + Grabber::Reset() - сброс выделения
+    + Реация на Ctrl-U в грабере - сброс выделения.
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.01.2003 SVS
@@ -160,11 +163,8 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
       memcpy(AppendBuf+DataSize+add,CopyBuf,BufSize);
       if ( add )
         memcpy(AppendBuf+DataSize,"\r\n",2);
-      /* $ 13.07.2000 SVS
-         раз вызывали new[], то нужно вызывать delete[]
-      */
+
       xf_free(CopyBuf);
-      /* SVS $ */
       CopyBuf=AppendBuf;
     }
   }
@@ -172,13 +172,10 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     CopyFormatToClipboard(FAR_VerticalBlock,CopyBuf);
   else
     CopyToClipboard(CopyBuf);
-  /* $ 13.07.2000 SVS
-     раз вызывали new[], то нужно вызывать delete[]
-  */
+
   if(CopyBuf)
     xf_free(CopyBuf);
   delete[] CharBuf;
-  /* SVS $ */
 }
 
 
@@ -193,14 +190,17 @@ void Grabber::DisplayObject()
     X2=Max(GArea.X1,GArea.X2);
     Y1=Min(GArea.Y1,GArea.Y2);
     Y2=Max(GArea.Y1,GArea.Y2);
+
     if (X1>Min(PrevArea.X1,PrevArea.X2) || X2<Max(PrevArea.X1,PrevArea.X2) ||
         Y1>Min(PrevArea.Y1,PrevArea.Y2) || Y2<Max(PrevArea.Y1,PrevArea.Y2))
       SaveScr->RestoreArea(FALSE);
+
     if (GArea.X1!=-1)
     {
       CHAR_INFO *CharBuf=new CHAR_INFO[(X2-X1+1)*(Y2-Y1+1)];
       CHAR_INFO *PrevBuf=SaveScr->GetBufferAddress();
       GetText(X1,Y1,X2,Y2,CharBuf);
+
       for (int X=X1;X<=X2;X++)
         for (int Y=Y1;Y<=Y2;Y++)
         {
@@ -212,12 +212,10 @@ void Grabber::DisplayObject()
           int Pos=(X-X1)+(Y-Y1)*(X2-X1+1);
           CharBuf[Pos].Attributes=(CharBuf[Pos].Attributes & ~0xff) | NewColor;
         }
+
       PutText(X1,Y1,X2,Y2,CharBuf);
-      /* $ 13.07.2000 SVS
-         раз вызывали new[], то нужно вызывать delete[]
-      */
+
       delete[] CharBuf;
-      /* SVS $ */
     }
     PrevArea=GArea;
   }
@@ -235,22 +233,14 @@ int Grabber::ProcessKey(int Key)
   if(CtrlObject->Macro.IsExecuting())
   {
     if ((Key&KEY_SHIFT) && ResetArea)
-    {
-      GArea.X1=GArea.X2=GArea.CurX;
-      GArea.Y1=GArea.Y2=GArea.CurY;
-      ResetArea=FALSE;
-    }
+      Reset();
     else if(!(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
   else
   {
     if ((ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
-    {
-      GArea.X1=GArea.X2=GArea.CurX;
-      GArea.Y1=GArea.Y2=GArea.CurY;
-      ResetArea=FALSE;
-    }
+      Reset();
     else if (Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
   }
@@ -258,6 +248,9 @@ int Grabber::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_CTRLU:
+      Reset();
+      break;
     case KEY_ESC:
       SetExitCode(0);
       break;
@@ -402,6 +395,14 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   //VerticalBlock=MouseEvent->dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
   DisplayObject();
   return(TRUE);
+}
+
+void Grabber::Reset()
+{
+  GArea.X1=GArea.X2=GArea.CurX;
+  GArea.Y1=GArea.Y2=GArea.CurY;
+  ResetArea=FALSE;
+  //DisplayObject();
 }
 
 BOOL RunGraber(void)

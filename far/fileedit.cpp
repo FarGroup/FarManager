@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.139 29.07.2003 $ */
+/* Revision: 1.140 04.09.2003 $ */
 
 /*
 Modify:
+  04.09.2003 SVS
+    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
+      приведем FILETIME к __int64
   29.07.2003 SVS
     ! Уточнение логики работы макросов.
     + ECTL_PROCESSKEY _также_ выполняется в FileEditor::EditorControl()!
@@ -1466,9 +1469,8 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     WIN32_FIND_DATA FInfo;
     if(GetLastInfo(Name,&FInfo) && *FileInfo.cFileName)
     {
-      if(CompareFileTime(&FileInfo.ftLastWriteTime,&FInfo.ftLastWriteTime) ||
-          !(FInfo.nFileSizeHigh == FileInfo.nFileSizeHigh &&
-          FInfo.nFileSizeLow  == FInfo.nFileSizeLow))
+      __int64 RetCompare=*(__int64*)&FileInfo.ftLastWriteTime - *(__int64*)&FInfo.ftLastWriteTime;
+      if(RetCompare || !(FInfo.nFileSizeHigh == FileInfo.nFileSizeHigh && FInfo.nFileSizeLow  == FInfo.nFileSizeLow))
       {
         SetMessageHelp("WarnEditorSavedEx");
         switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),

@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.38 02.09.2003 $ */
+/* Revision: 1.39 04.09.2003 $ */
 
 /*
 Modify:
+  04.09.2003 SVS
+    ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
+      приведем FILETIME к __int64
   02.09.2003 SVS
     - BugZ#937 - Необходимо выдача сообщения об Access Denied
     ! у FileList::OpenPluginForFile() новый параметр - файловые атрибуты
@@ -721,7 +724,7 @@ void FileList::PluginPutFilesToNew()
       struct FileListItem *PtrListData=ListData+1, *PtrLastPos=ListData;
       for (int I=1; I < FileCount; I++,PtrListData++)
       {
-        if (CompareFileTime(&PtrListData->CreationTime,&PtrLastPos->CreationTime)==1)
+        if ((*(__int64*)&PtrListData->CreationTime - *(__int64*)&PtrLastPos->CreationTime) > 0)
         {
           PtrLastPos=ListData+(LastPos=I);
         }

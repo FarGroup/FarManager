@@ -7,10 +7,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.02 24.05.2002 $ */
+/* Revision: 1.03 05.09.2003 $ */
 
 /*
 Modify:
+  05.09.2003 SVS
+    + Grabber::Reset() - сброс выделения
   24.05.2002 SVS
     ! CopyGrabbedArea имеет доп.параметр
   06.05.2001 DJ
@@ -43,6 +45,7 @@ class Grabber:Modal
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void CopyGrabbedArea(int Append, int VerticalBlock);
+    void Reset();
 
   public:
     Grabber();
