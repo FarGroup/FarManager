@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.15 30.12.2000 $ */
+/* Revision: 1.16 01.01.2001 $ */
 
 /*
 Modify:
+  01.01.2001 VVM
+    + Размер буфера для копирования берется из реестра.
   30.12.2000 SVS
     - При копировании/переносе забыли выставить FILE_ATTRIBUTE_ENCRYPTED
       для каталога, если он есть
@@ -62,7 +64,6 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
-
 #define COPY_BUFFER_SIZE 0x10000
 
 static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
@@ -114,6 +115,14 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   *SelName=0;
 
   ShowTotalCopySize=Opt.CopyShowTotal != 0;
+
+
+/* $ 06.01.2001 VVM
+   Размер буфера берется из реестра */
+  GetRegKey("System", "CopyBufferSize", CopyBufferSize, COPY_BUFFER_SIZE);
+  if (CopyBufferSize == 0)
+    CopyBufferSize = COPY_BUFFER_SIZE;
+/* VVM $ */
 
   DestPlugin=ToPlugin;
   ToPlugin=FALSE;
@@ -335,7 +344,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
     CtrlObject->RightPanel->ReadDiz();
   }
 
-  CopyBuffer=new char[COPY_BUFFER_SIZE];
+  CopyBuffer=new char[CopyBufferSize];
   AnotherPanel->CloseFile();
   *DestDizPath=0;
   SrcPanel->SaveSelection();
@@ -1221,7 +1230,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
     /* $ 23.10.2000 VVM
        + Динамический буфер копирования */
 
-    if (CopyBufSize < COPY_BUFFER_SIZE)
+    if (CopyBufSize < CopyBufferSize)
       StartTime=clock();
 
     while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
@@ -1375,14 +1384,14 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
       BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
     }
 
-    if ((CopyBufSize < COPY_BUFFER_SIZE) && (BytesWritten==CopyBufSize))
+    if ((CopyBufSize < CopyBufferSize) && (BytesWritten==CopyBufSize))
     {
       StopTime=clock();
       if ((StopTime - StartTime) < 1000)
       {
         CopyBufSize*=2;
-        if (CopyBufSize > COPY_BUFFER_SIZE)
-          CopyBufSize=COPY_BUFFER_SIZE;
+        if (CopyBufSize > CopyBufferSize)
+          CopyBufSize=CopyBufferSize;
       }
     } /* if */
     /* VVM $ */

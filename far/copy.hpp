@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.04 14.12.2000 $ */
+/* Revision: 1.05 01.01.2001 $ */
 
 /*
 Modify:
+  01.01.2001 VVM
+    + Переменная CopyBufferSize -  размер буфера для копирования
   14.12.2000 SVS
     + CopyToNUL - Признак копирования в NUL
   23.10.2000 VVM
@@ -61,6 +63,7 @@ class ShellCopy
     */
     int CopyToNUL;
     /* SVS $ */
+    int CopyBufferSize;
 
   private:
     void CopyFileTree(char *Dest);
