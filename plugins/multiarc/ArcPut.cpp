@@ -655,7 +655,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   if (Opt.UpdateDescriptions && ArcExitCode)
     for (int I=0;I<ItemsNumber;I++)
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
-  if(!Opt.UserBackground && ArcExitCode && NewArchive && GoToFile(ArcName))
+  if(!Opt.UserBackground && ArcExitCode && NewArchive &&
+     GoToFile(ArcName, FALSE))
     ArcExitCode=2;
   return ArcExitCode;
 }

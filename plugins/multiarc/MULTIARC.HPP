@@ -362,7 +362,7 @@ int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
 int __isspace(int Chr);
 int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
 char *GetCommaWord(char *Src,char *Word,char Separator);
-BOOL GoToFile(const char *Target);
+BOOL GoToFile(const char *Target, BOOL AllowChangeDir);
 BOOL FileExists(const char* Name);
 
 

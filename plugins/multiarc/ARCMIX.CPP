@@ -20,11 +20,11 @@ BOOL FileExists(const char* Name)
   return GetFileAttributes(Name)!=0xFFFFFFFF;
 }
 
-BOOL GoToFile(const char *Target)
+BOOL GoToFile(const char *Target, BOOL AllowChangeDir)
 {
   if(!Target || !*Target)
     return FALSE;
-  BOOL rc=FALSE;
+  BOOL rc=FALSE, search=TRUE;
   PanelRedrawInfo PRI;
   PanelInfo PInfo;
   char Name[NM], Dir[NM*5];
@@ -41,6 +41,7 @@ BOOL GoToFile(const char *Target)
   FSF.Unquote(Name);
   FSF.Unquote(Dir);
 
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_UPDATEPANEL,(void*)1);
   Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
   pathlen=lstrlen(Dir);
   if(pathlen)
@@ -52,23 +53,30 @@ BOOL GoToFile(const char *Target)
 
     if(0!=FSF.LStricmp(Dir,PInfo.CurDir))
     {
-      Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&Dir);
-      Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
+      if(AllowChangeDir)
+      {
+        Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&Dir);
+        Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
+      }
+      else
+        search=FALSE;
     }
   }
 
   PRI.CurrentItem=PInfo.CurrentItem;
   PRI.TopPanelItem=PInfo.TopPanelItem;
-
-  for(int J=0; J < PInfo.ItemsNumber; J++)
+  if(search)
   {
-    if(!FSF.LStricmp(Name,
-       FSF.PointToName(PInfo.PanelItems[J].FindData.cFileName)))
+    for(int J=0; J < PInfo.ItemsNumber; J++)
     {
-      PRI.CurrentItem=J;
-      PRI.TopPanelItem=J;
-      rc=TRUE;
-      break;
+      if(!FSF.LStricmp(Name,
+         FSF.PointToName(PInfo.PanelItems[J].FindData.cFileName)))
+      {
+        PRI.CurrentItem=J;
+        PRI.TopPanelItem=J;
+        rc=TRUE;
+        break;
+      }
     }
   }
   return rc?Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&PRI):FALSE;
