@@ -5,10 +5,14 @@ strmix.cpp
 
 */
 
-/* Revision: 1.08 08.04.2001 $ */
+/* Revision: 1.09 13.04.2001 $ */
 
 /*
 Modify:
+  13.04.2001 SVS
+    ! переделаны QuoteSpaceOnly & QuoteSpace - общий код вынесен во
+      вспомогательную функцию InsertQuote и добавлена проверка на присутствие
+      кавычек в начала и в конце строки.
   08.04.2001 SVS
     ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
   20.03.2001 SVS
@@ -268,31 +272,33 @@ int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength)
 }
 /* IS $ */
 
+static char *InsertQuote(char *Str)
+{
+  unsigned l = strlen(Str);
+  if(*Str != '"')
+  {
+    memmove(Str+1,Str,++l);
+    *Str='"';
+  }
+  if(Str[l-1] != '"')
+  {
+    Str[l++] = '\"';
+    Str[l] = 0;
+  }
+  return Str;
+}
+
 char* QuoteSpace(char *Str)
 {
   if (*Str=='-' || *Str=='^' || strpbrk(Str," &+,")!=NULL)
-  {
-    unsigned l = strlen(Str);
-    memmove(Str+1,Str,l);
-    *Str = Str[l+1] = '\"';
-    Str[l+2] = 0;
-  }
+    InsertQuote(Str);
   return(Str);
 }
 
-
 char* WINAPI QuoteSpaceOnly(char *Str)
 {
-  if(Str)
-  {
-    if (strchr(Str,' ')!=NULL)
-    {
-      unsigned l = strlen(Str);
-      memmove(Str+1,Str,l);
-      *Str = Str[l+1] = '\"';
-      Str[l+2] = 0;
-    }
-  }
+  if (Str && strchr(Str,' ')!=NULL)
+    InsertQuote(Str);
   return(Str);
 }
 
