@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.51 24.10.2001 $ */
+/* Revision: 1.52 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 SVS
+    - BugZ#66 - порча командной строки после двойного AltF9
+      ƒобавив немного Sleep(1) избавл€емс€ от бага...
   24.10.2001 SVS
     ! CheckForEsc() - нажатие Esc в диалоге равносильно нажатию кнопки Yes
       ѕлюс - запрещение Alt-F9 и скринсавер.
@@ -649,16 +652,21 @@ int GetInputRecord(INPUT_RECORD *rec)
   {
     int PScrX=ScrX;
     int PScrY=ScrY;
+    //_SVS(SysLog(1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)"));
+    Sleep(1);
     GetVideoMode(CurScreenBufferInfo);
     if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
         PScrY+1 == CurScreenBufferInfo.dwSize.Y)
     {
+      //_SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_NONE"));
       return KEY_NONE;
     }
     else
     {
       PrevScrX=PScrX;
       PrevScrY=PScrY;
+      //_SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
+      Sleep(1);
       return(KEY_CONSOLE_BUFFER_RESIZE);
     }
   }

@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.55 11.10.2001 $ */
+/* Revision: 1.56 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 SVS
+    - BugZ#66 - порча командной строки после двойного AltF9
+      ƒобавив немного Sleep(1) избавл€емс€ от бага...
   11.10.2001 IS
     + CountFramesWithName
   04.10.2001 OT
@@ -643,11 +646,13 @@ int  Manager::ProcessKey(int Key)
     switch(Key)
     {
       case KEY_CONSOLE_BUFFER_RESIZE:
-        _OT(SysLog("[%p] Manager::ProcessKey(KEY_CONSOLE_BUFFER_RESIZE)",this));
-        for (i=0;i<FrameCount;i++){
+        Sleep(1);
+        for (i=0;i<FrameCount;i++)
+        {
           FrameList[i]->ResizeConsole();
         }
-        for (i=0;i<ModalStackCount;i++){
+        for (i=0;i<ModalStackCount;i++)
+        {
           ModalStack[i]->ResizeConsole();
         }
         ImmediateHide();
@@ -669,8 +674,11 @@ int  Manager::ProcessKey(int Key)
           _OT(SysLog(-1));
           return TRUE;
         case KEY_ALTF9:
-          _OT(SysLog("Manager::ProcessKey, KEY_ALTF9 pressed..."));
+          //_SVS(SysLog(1,"Manager::ProcessKey, KEY_ALTF9 pressed..."));
+          Sleep(1);
           SetVideoMode(FarAltEnter(-2));
+          Sleep(1);
+          //_SVS(SysLog(-1));
           return TRUE;
       }
 
