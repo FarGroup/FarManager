@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.18 25.01.2002 $ */
+/* Revision: 1.20 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    - мааааааааааасссссссссссссссссддддддддддддаааааааааааааааааайййййййййй!!!!
   25.01.2002 SVS
     ! Компонента Name теперь динамическая. Размер в масдае - max 511 байт.
       В NT - сколько есть. Т.е. обрезаение строк будет только в масдае.
@@ -357,7 +359,7 @@ BOOL History::ReadHistory()
     if(RegQueryValueEx(hKey,"Types",0,&Type,(unsigned char *)TypesBuffer,&Size)==ERROR_SUCCESS)
     {
       int StrPos=0;
-      Buf=TypesBuffer;
+      Buf=(char *)TypesBuffer;
       while (isdigit(*Buf) && StrPos < sizeof(LastStr)/sizeof(LastStr[0]))
       {
         LastStr[StrPos++].Type=*Buf-'0';

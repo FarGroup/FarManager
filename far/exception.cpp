@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.12 25.01.2002 $ */
+/* Revision: 1.13 25.01.2002 $ */
 
 /*
 Modify:
+  25.01.2002 SVS
+    - Блин, с вашим сраным долбанных MSVC... :-((
   25.01.2002 SVS
     ! Уточнения в писателе (WriteEvent) с учетом изменений в структурах дампа.
     - ошибка в farexcpt.cpp::GetLogicalAddress()
@@ -70,7 +72,7 @@ Modify:
 #define VERSION_WRITER 1
 
 BOOL GetLogicalAddress(void* addr, char *szModule, DWORD len, DWORD& section, DWORD& offset);
-void IntelStackWalk(HANDLE fp,PCONTEXT pContext, DWORD& SizeOfRecord, DWORD& StackCount);
+void IntelStackWalk(HANDLE fp,PCONTEXT pContext, DWORD& SizeOfRecord, WORD &StackCount);
 int WritePLUGINRECORD(HANDLE fp,struct PluginItem *Module,DWORD *DumpSize);
 
 int WriteEvent(DWORD DumpType, // FLOG_*
@@ -481,7 +483,7 @@ static BOOL GetLogicalAddress(void* addr, char *szModule, DWORD len, DWORD& sect
 //============================================================
 // Walks the stack, and writes the results to the report file
 //============================================================
-static void IntelStackWalk(HANDLE fp,PCONTEXT pContext, DWORD& SizeOfRecord, DWORD& StackCount)
+static void IntelStackWalk(HANDLE fp,PCONTEXT pContext, DWORD& SizeOfRecord, WORD& StackCount)
 {
   // Call stack:
   struct STACKRECORD StackRecord;
