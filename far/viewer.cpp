@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.65 06.06.2001 $ */
+/* Revision: 1.66 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001
+    - Баги в некоторых местах из-за использования strcpy, а не strncpy, в
+      результате чего гадили в память.
   06.06.2001 SVS
     ! Mix/Max
   30.05.2001 tran
@@ -971,7 +974,7 @@ void Viewer::DrawScrollbar()
 
 void Viewer::ShowStatus()
 {
-  char Status[200],Name[NM];
+  char Status[200],Name[512];
   if (!ShowStatusLine)
     return;
   /* $ 22.06.2000 IS
@@ -2241,7 +2244,12 @@ void Viewer::SetTitle(char *Title)
   if (Title==NULL)
     *Viewer::Title=0;
   else
-    strcpy(Viewer::Title,Title);
+  /* $ 08.06.2001 IS
+     - Баг: не учитывался размер Title, что приводило к порче памяти и
+       к падению Фара.
+  */
+    strncpy(Viewer::Title,Title,sizeof(Title)-1);
+  /* IS $ */
 }
 
 

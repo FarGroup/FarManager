@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.102 06.06.2001 $ */
+/* Revision: 1.103 08.06.2001 $ */
 
 /*
 Modify:
+  08.06.2001 IS
+    - Баги в некоторых местах из-за использования strcpy, а не strncpy, в
+      результате чего гадили в память.
   06.06.2001 SVS
     + EDITOR_UNDO_COUNT - "от чисел к символам"
     + ECTL_GETBOOKMARK - получить инфу о закладках.
@@ -931,7 +934,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
         SetFileAttributes(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
       }                                                      // после этих строк
       if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))            // return из
-        SetFileAttributes(Name,0);                           // середины функции
+        SetFileAttributes(Name,0);                           // середины функции
                                                              // недопустим
     }
 
@@ -1187,7 +1190,13 @@ void Editor::ShowStatus()
   SetColor(COL_EDITORSTATUS);
   GotoXY(X1,Y1);
   char TruncFileName[NM],StatusStr[NM],LineStr[50];
-  strcpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FileName));
+  /* $ 08.06.2001 IS
+     - Баг: затирался стек, потому что, например, размер Title больше,
+       чем размер TruncFileName
+  */
+  strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FileName),
+          sizeof(TruncFileName)-1);
+  /* IS $ */
   int NameLength=Opt.ViewerEditorClock ? 19:25;
   /* $ 11.07.2000 tran
      + expand filename if console more when 80 column */
@@ -4198,7 +4207,12 @@ void Editor::SetTitle(char *Title)
   if (Title==NULL)
     *Editor::Title=0;
   else
-    strcpy(Editor::Title,Title);
+  /* $ 08.06.2001
+     - Баг: не учитывался размер Title, что приводило к порче памяти и
+       к падению Фара.
+  */
+    strncpy(Editor::Title, Title, sizeof(Editor::Title)-1);
+  /* IS $ */
 }
 
 // используется в FileEditor
@@ -4981,7 +4995,11 @@ int Editor::EditorControl(int Command,void *Param)
     case ECTL_SETTITLE:
       {
         char *Title=(char *)Param;
-        strcpy(PluginTitle,Title);
+        /* $ 08.06.2001 IS
+           - Баг: не учитывался размер PluginTitle
+        */
+        strncpy(PluginTitle,Title,sizeof(PluginTitle)-1);
+        /* IS $ */
         ShowStatus();
         ScrBuf.Flush();
       }
