@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.26 11.11.2000 $ */
+/* Revision: 1.27 17.11.2000 $ */
 
 /*
 Modify:
+  17.11.2000 SVS
+    ! "Приколы нашего городка" - бага в функцию ShowHelp закралась :-(
   11.11.2000 SVS
     ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
@@ -119,10 +121,14 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
     {
       // FHELP_SELFHELP=0 - трактовать первый пар-р как Info.ModuleName
       //                   и показать топик из хелпа вызвавшего плагина
-      if(Flags&(FHELP_SELFHELP|FHELP_CUSTOMFILE|FHELP_CUSTOMPATH))
+      /* $ 17.11.2000 SVS
+         А значение FHELP_SELFHELP равно чему? Правильно - 0
+         И фигля здесь удивлятся тому, что функция не работает :-(
+      */
+      if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE|FHELP_CUSTOMPATH)))
       {
         strcpy(Path,ModuleName);
-        if(Flags&(FHELP_SELFHELP|FHELP_CUSTOMFILE))
+        if(Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
         {
           Mask=PointToName(Path);
           if(Flags&FHELP_CUSTOMFILE)
@@ -139,6 +145,7 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
       }
       else
         return FALSE;
+      /* SVS $*/
 
       sprintf(Topic,"#%s#%s",Path,HelpTopic);
     }
