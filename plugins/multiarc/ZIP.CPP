@@ -18,6 +18,16 @@
   #endif
 #endif
 
+#ifdef _MSC_VER
+// Startup code exclusion
+// Set Project|Settings|Link|Category:Output|Entry-point symbol
+// to "DllEntryPoint" 
+BOOL WINAPI DllEntryPoint(HINSTANCE, DWORD, LPVOID)  
+{
+    return TRUE;
+}
+#endif
+
 static HANDLE ArcHandle;
 static DWORD SFXSize,NextPosition,FileSize;
 static int ArcComment,Truncated,FirstRecord;
@@ -185,15 +195,21 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       ArcComment=TRUE;
     return(GETARC_EOF);
   }
-  int SizeToRead=(ZipHeader.NameLen<NM-1) ? ZipHeader.NameLen : NM-1;
+  DWORD SizeToRead=(ZipHeader.NameLen<NM-1) ? ZipHeader.NameLen : NM-1;
   if (!ReadFile(ArcHandle,Item->FindData.cFileName,SizeToRead,&ReadSize,NULL) ||
       ReadSize!=SizeToRead)
     return(GETARC_READERROR);
   Item->FindData.cFileName[NM-1]=0;
+
+/*// Commented out as since NTFS file times support scans the extra field
+  // and the file comment is also readed.
+  // ZipHeader.PackSize is skipped later (see below)
+
   long SeekLen=ZipHeader.AddLen+ZipHeader.CommLen;
   if (Truncated)
     SeekLen+=ZipHeader.PackSize;
   NextPosition=SetFilePointer(ArcHandle,SeekLen,NULL,FILE_CURRENT);
+*/
 
   Item->FindData.dwFileAttributes=ZipHeader.Attr & 0x3f;
   Item->FindData.nFileSizeLow=ZipHeader.UnpSize;
@@ -216,6 +232,100 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     CharToOem(Item->FindData.cFileName,Item->FindData.cFileName);
   Info->UnpVer=(ZipHeader.UnpVer/10)*256+(ZipHeader.UnpVer%10);
   Info->DictSize=32;
+
+
+//NTFS file times support
+
+  // Search for NTFS extra block
+  for(  DWORD dwExtraFieldEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
+          +ZipHeader.AddLen;
+        dwExtraFieldEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT); 
+  )
+  {
+    struct ExtraBlockHeader
+    {
+      WORD Type;
+      WORD Length;
+    } 
+    BlockHead;
+
+    if (!ReadFile(ArcHandle, &BlockHead, sizeof(BlockHead), &ReadSize,NULL) 
+            || ReadSize!=sizeof(BlockHead) )
+      return(GETARC_READERROR);
+
+    if (0xA!=BlockHead.Type) //NTFS Header ID 
+      // Move to extra block end
+      SetFilePointer(ArcHandle, BlockHead.Length, NULL, FILE_CURRENT);
+    else
+    {
+      SetFilePointer(ArcHandle, 4, NULL, FILE_CURRENT); // Skip the reserved 4 bytes
+
+      // Search for file times attribute
+      for(  DWORD dwNTFSExtraBlockEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
+              -4+BlockHead.Length;
+            dwNTFSExtraBlockEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT); 
+      )
+      {
+        struct NTFSAttributeHeader
+        {
+          WORD Tag;
+          WORD Length;
+        } 
+        AttrHead;
+
+        if (!ReadFile(ArcHandle, &AttrHead, sizeof(AttrHead), &ReadSize,NULL) 
+                || ReadSize!=sizeof(AttrHead) )
+          return(GETARC_READERROR);
+
+        if (1!=AttrHead.Tag) // File times attribute tag
+          // Move to attribute end
+          SetFilePointer(ArcHandle, AttrHead.Length, NULL, FILE_CURRENT);
+        else
+        { // Read file times
+          struct TimesAttribute
+          {
+            FILETIME Modification;
+            FILETIME Access;
+            FILETIME Creation;
+          } 
+          Times;
+
+          if (!ReadFile(ArcHandle, &Times, sizeof(Times), &ReadSize,NULL) 
+                  || ReadSize!=sizeof(Times) )
+            return(GETARC_READERROR);
+
+          Item->FindData.ftLastWriteTime = Times.Modification;
+          Item->FindData.ftLastAccessTime = Times.Access;
+          Item->FindData.ftCreationTime = Times.Creation;
+
+          // Interrupt search
+          SetFilePointer(ArcHandle, dwExtraFieldEnd, NULL, FILE_BEGIN);
+        }
+      }
+    }  
+  } 
+// End of NTFS file times support  
+
+// Read the in-archive file comment if any
+  if (ZipHeader.CommLen>0)
+  {
+    DWORD SizeToRead= (ZipHeader.CommLen>255) ? 255 : ZipHeader.CommLen;
+
+    if (!ReadFile(ArcHandle, Info->Description, SizeToRead, &ReadSize, NULL) 
+            || ReadSize!=SizeToRead )
+      return(GETARC_READERROR);
+
+    // Skip comment tail
+    SetFilePointer(ArcHandle, ZipHeader.CommLen-ReadSize,NULL,FILE_CURRENT);
+  }
+//
+
+
+  long SeekLen=0;
+  if (Truncated)
+    SeekLen+=ZipHeader.PackSize;
+  NextPosition=SetFilePointer(ArcHandle,SeekLen,NULL,FILE_CURRENT);
+
   return(GETARC_SUCCESS);
 }
 
