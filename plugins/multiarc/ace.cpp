@@ -92,6 +92,11 @@ static DWORD getcrc(DWORD crc,BYTE *addr,int len)
 #endif
 
 
+DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
+{
+  return(0);
+}
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=0;I<(int)(DataSize-sizeof(struct ACEHEADER));I++)

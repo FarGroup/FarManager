@@ -4,70 +4,78 @@ Modify:
    ! правка высвобождения списка PluginsData в деструкторе ArcPlugins
 */
 
+
 ArcPlugins::ArcPlugins(const char *ModuleName)
 {
+  char PluginsFolder[NM],*NamePtr;
+
   PluginsData=NULL;
   PluginsCount=0;
-  char PluginsFolder[NM],PluginsMask[NM],*NamePtr;
+
   strcpy(PluginsFolder,ModuleName);
   if ((NamePtr=strrchr(PluginsFolder,'\\'))==NULL)
     return;
+
   strcpy(NamePtr,"\\Formats\\");
-  FSF.sprintf(PluginsMask,"%s*.fmt",PluginsFolder);
-  HANDLE FindHandle;
-  WIN32_FIND_DATA fdata;
-  int Done=((FindHandle=FindFirstFile(PluginsMask,&fdata))==INVALID_HANDLE_VALUE);
-  while (!Done)
-  {
-    char PluginName[NM];
-    FSF.sprintf(PluginName,"%s%s",PluginsFolder,fdata.cFileName);
-    HMODULE hModule=LoadLibrary(PluginName);
-    if (hModule!=NULL)
-    {
-      struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
-      if (NewPluginsData==NULL)
-        break;
-      PluginsData=NewPluginsData;
-      struct PluginItem CurPlugin;
-      strcpy(CurPlugin.ModuleName,fdata.cFileName);
-      CurPlugin.hModule=hModule;
-      CurPlugin.Flags=0;
-      CurPlugin.pLoadFormatModule=(PLUGINLOADFORMATMODULE)GetProcAddress(hModule,"LoadFormatModule");
-      CurPlugin.pIsArchive=(PLUGINISARCHIVE)GetProcAddress(hModule,"IsArchive");
-      CurPlugin.pOpenArchive=(PLUGINOPENARCHIVE)GetProcAddress(hModule,"OpenArchive");
-      CurPlugin.pGetArcItem=(PLUGINGETARCITEM)GetProcAddress(hModule,"GetArcItem");
-      CurPlugin.pCloseArchive=(PLUGINCLOSEARCHIVE)GetProcAddress(hModule,"CloseArchive");
-      CurPlugin.pGetFormatName=(PLUGINGETFORMATNAME)GetProcAddress(hModule,"GetFormatName");
-      CurPlugin.pGetDefaultCommands=(PLUGINGETDEFAULTCOMMANDS)GetProcAddress(hModule,"GetDefaultCommands");
-      CurPlugin.pSetFarInfo=(PLUGINSETFARINFO)GetProcAddress(hModule,"SetFarInfo");
-      CurPlugin.pGetSFXPos=(PLUGINGetSFXPos)GetProcAddress(hModule,"GetSFXPos");
-
-      if (CurPlugin.pLoadFormatModule)
-        CurPlugin.pLoadFormatModule(PluginName);
-
-      if (CurPlugin.pSetFarInfo)
-        CurPlugin.pSetFarInfo(&Info);
-
-      PluginsData[PluginsCount]=CurPlugin;
-      PluginsCount++;
-    }
-    Done=!FindNextFile(FindHandle,&fdata);
-  }
-  FindClose(FindHandle);
+  FSF.FarRecursiveSearch(PluginsFolder,"*",
+                    (FRSUSERFUNC)LoadFmtModules,FRS_RECUR,this);
 }
 
+int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
+                                     const char *PluginName,
+                                     ArcPlugins *plugins)
+{
+  struct PluginItem CurPlugin;
+  char *Ptr;
+  if(fdata->dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+    return TRUE;
+  if((Ptr=strrchr(fdata->cFileName,'.')) == NULL || stricmp(Ptr,".fmt"))
+    return TRUE;
+
+  HMODULE hModule=LoadLibrary(PluginName);
+  if (hModule!=NULL)
+  {
+    struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(plugins->PluginsData,
+                            sizeof(struct PluginItem)*(plugins->PluginsCount+1));
+    if (NewPluginsData==NULL)
+    {
+      FreeLibrary(hModule);
+      return FALSE;
+    }
+    plugins->PluginsData=NewPluginsData;
+    strcpy(CurPlugin.ModuleName,fdata->cFileName);
+    CurPlugin.hModule=hModule;
+    CurPlugin.Flags=0;
+    CurPlugin.pLoadFormatModule=(PLUGINLOADFORMATMODULE)GetProcAddress(hModule,"LoadFormatModule");
+    CurPlugin.pIsArchive=(PLUGINISARCHIVE)GetProcAddress(hModule,"IsArchive");
+    CurPlugin.pOpenArchive=(PLUGINOPENARCHIVE)GetProcAddress(hModule,"OpenArchive");
+    CurPlugin.pGetArcItem=(PLUGINGETARCITEM)GetProcAddress(hModule,"GetArcItem");
+    CurPlugin.pCloseArchive=(PLUGINCLOSEARCHIVE)GetProcAddress(hModule,"CloseArchive");
+    CurPlugin.pGetFormatName=(PLUGINGETFORMATNAME)GetProcAddress(hModule,"GetFormatName");
+    CurPlugin.pGetDefaultCommands=(PLUGINGETDEFAULTCOMMANDS)GetProcAddress(hModule,"GetDefaultCommands");
+    CurPlugin.pSetFarInfo=(PLUGINSETFARINFO)GetProcAddress(hModule,"SetFarInfo");
+    CurPlugin.pGetSFXPos=(PLUGINGETSFXPOS)GetProcAddress(hModule,"GetSFXPos");
+
+    if (CurPlugin.pLoadFormatModule)
+      CurPlugin.pLoadFormatModule(PluginName);
+
+    if (CurPlugin.pSetFarInfo)
+      CurPlugin.pSetFarInfo(&Info);
+
+    memcpy(&plugins->PluginsData[plugins->PluginsCount],&CurPlugin,sizeof(struct PluginItem));
+    plugins->PluginsCount++;
+  }
+  return TRUE;
+}
 
 ArcPlugins::~ArcPlugins()
 {
   for (int I=0;I<PluginsCount;I++)
     FreeLibrary(PluginsData[I].hModule);
-//  delete PluginsData;
-/* $ 19.02.2001 AS
-*/
-  delete [] PluginsData;
-/* AS $*/
-}
 
+  if(PluginsData)
+    free(PluginsData);
+}
 
 int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
 {
@@ -94,11 +102,6 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
               CurSFXSize=PluginsData[I].pGetSFXPos();
             else
               CurSFXSize=0;
-/*{
-  char BBBB[100];
-  FSF.sprintf(BBBB,"1) %s)\nCurSFXSize=%d\nMinSFXSize=%d\nOk",FormatName,CurSFXSize,MinSFXSize);
-  Info.Message(Info.ModuleNumber,FMSG_ALLINONE,NULL,(const char **)BBBB,0,1);
-}*/
             if(CurSFXSize <= MinSFXSize)
             {
               MinSFXSize=CurSFXSize;
@@ -116,22 +119,12 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
           CurSFXSize=PluginsData[I].pGetSFXPos();
         else
           CurSFXSize=0;
-/*{
-  char BBBB[100];
-  FSF.sprintf(BBBB,"%s\nCurSFXSize=%d\nMinSFXSize=%d\nOk",PluginsData[I].ModuleName,CurSFXSize,MinSFXSize);
-  Info.Message(Info.ModuleNumber,FMSG_ALLINONE,NULL,(const char **)BBBB,0,1);
-}   */
         if(CurSFXSize <= MinSFXSize)
         {
           MinSFXSize=CurSFXSize;
           TrueArc=I;
         }
       }
-/*{
-  char BBBB[100];
-  FSF.sprintf(BBBB,"End: %s\nCurSFXSize=%d\nMinSFXSize=%d\nOk",PluginsData[I].ModuleName,CurSFXSize,MinSFXSize);
-  Info.Message(Info.ModuleNumber,FMSG_ALLINONE,NULL,(const char **)BBBB,0,1);
-} */
   return(TrueArc);
 }
 

@@ -629,7 +629,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
   int BreakCode;
   int BreakKeys[2]={VK_F4,0};
   int ExitCode;
-  int I,J;
+  int I,J, Add;
 
   while(1)
   {
@@ -644,38 +644,40 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
       {
         if (!ArcPlugin->GetFormatName(I,J,Format,DefExt))
           break;
-        NewMenuItems=(struct FarMenuItemEx *)realloc(MenuItems,
-                             (MenuItemsNumber+1)*sizeof(struct FarMenuItemEx));
-        if (NewMenuItems==NULL)
-        {
-          free(MenuItems);
-          return(FALSE);
-        }
-        MenuItems=NewMenuItems;
-        //memset(MenuItems+MenuItemsNumber,0,sizeof(struct FarMenuItem));
-        strncpy(MenuItems[MenuItemsNumber].Text,Format,sizeof(MenuItems[MenuItemsNumber].Text));
-        /*
-        MenuItems[MenuItemsNumber].Selected=(MenuItemsNumber==0 &&
-                                          *ArcFormat==0 ||
-                                          !stricmp(ArcFormat,Format));
-        */
-        MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
-                                          *ArcFormat==0 ||
-                                          !stricmp(ArcFormat,Format))?
-                                          MIF_SELECTED:0;
 
+        Add=TRUE;
 
-        if(AddOnly)
+        if(AddOnly) // Only add to archive?
         {
           char Buffer[512];
           GetRegKey(HKEY_LOCAL_MACHINE,Format,CmdNames[CMD_ADD],Buffer,"",sizeof(Buffer));
           if(*Buffer == 0)
+          {
             ArcPlugin->GetDefaultCommands(I,J,CMD_ADD,Buffer);
-          if(*Buffer == 0)
-            MenuItems[MenuItemsNumber].Flags|=MIF_DISABLE;
+            if(*Buffer == 0)
+            {
+              Add=FALSE;
+            }
+          }
         }
 
-        MenuItemsNumber++;
+        if(Add) //
+        {
+          NewMenuItems=(struct FarMenuItemEx *)realloc(MenuItems,
+                               (MenuItemsNumber+1)*sizeof(struct FarMenuItemEx));
+          if (NewMenuItems==NULL)
+          {
+            free(MenuItems);
+            return(FALSE);
+          }
+          MenuItems=NewMenuItems;
+          strncpy(MenuItems[MenuItemsNumber].Text,Format,sizeof(MenuItems[MenuItemsNumber].Text));
+          MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
+                                            *ArcFormat==0 ||
+                                            !stricmp(ArcFormat,Format))?
+                                            MIF_SELECTED:0;
+          MenuItemsNumber++;
+        }
       }
     }
     if (MenuItemsNumber==0)

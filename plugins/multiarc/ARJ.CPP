@@ -23,6 +23,11 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
 static int ArcComment,ArcVolume,ArcRecovery;
 
+DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
+{
+  return(0);
+}
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=0;I<DataSize-11;I++)

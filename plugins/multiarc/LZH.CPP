@@ -52,6 +52,11 @@ static struct DictSizeType{
   {{'h','d'},0},
 };
 
+DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
+{
+  return(0);
+}
+
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -268,7 +273,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     static char *Commands[]={
       "lha x -a -c -d -m {%%S} %%a @%%lM",
       "lha e -a -c -m {%%S} %%a @%%lM",
-      "lha t -m -r2 {%%S} %%a", 
+      "lha t -m -r2 {%%S} %%a",
       "lha d -a -m {-w%%W} {%%S} %%a @%%lM",
       "",
       "",

@@ -18,19 +18,14 @@
   #endif
 #endif
 
-#ifdef _MSC_VER
-// Startup code exclusion
-// Set Project|Settings|Link|Category:Output|Entry-point symbol
-// to "DllEntryPoint"
-BOOL WINAPI DllEntryPoint(HINSTANCE, DWORD, LPVOID)
-{
-    return TRUE;
-}
-#endif
-
 static HANDLE ArcHandle;
 static DWORD SFXSize,NextPosition,FileSize;
 static int ArcComment,Truncated,FirstRecord;
+
+DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
+{
+  return(0);
+}
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {

@@ -46,6 +46,11 @@ int ArcType;
 char ZipName[NM];
 char Prefix[32];
 
+DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
+{
+  return(0);
+}
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (IsTarHeader(Data,DataSize))

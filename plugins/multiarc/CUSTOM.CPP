@@ -1,27 +1,30 @@
-#include <stdio.h>
+#include <windows.h>
 #include <string.h>
-
-#ifdef _MSC_VER
-#  define _WINCON_
-#  include <windows.h>
-#  undef _WINCON_
+#include <dos.h>
 #include "plugin.hpp"
-#  pragma pack(8)
-#  include <wincon.h>
-#else
-#  include <windows.h>
-#include "plugin.hpp"
-#endif
-
 #include "fmt.hpp"
+
+#if defined(__BORLANDC__)
+  #pragma option -a1
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+  #pragma pack(1)
+  #if defined(__LCC__)
+    #define _export __declspec(dllexport)
+  #endif
+#else
+  #pragma pack(push,1)
+  #if _MSC_VER
+    #define _export
+  #endif
+#endif
 
 #undef isspace
 #define isspace(c) ((c)==' ' || (c)=='\t')
 
 #ifdef _MSC_VER
-#pragma comment(lib,"user32.lib")
-#pragma comment(linker, "-subsystem:console")
-#pragma comment(linker, "-merge:.rdata=.text")
+//#pragma comment(lib,"user32.lib")
+//#pragma comment(linker, "-subsystem:console")
+//#pragma comment(linker, "-merge:.rdata=.text")
 #endif
 
 

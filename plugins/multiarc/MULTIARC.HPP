@@ -62,13 +62,14 @@ typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest)
   + Fmt.SetFarInfo */
 typedef void (WINAPI *PLUGINSETFARINFO)(const struct PluginStartupInfo *plg);
 /* tran 13.09.2000 $ */
-typedef DWORD (WINAPI *PLUGINGetSFXPos)(void);
+typedef DWORD (WINAPI *PLUGINGETSFXPOS)(void);
 
 struct PluginItem
 {
   char ModuleName[NM];
   HMODULE hModule;
   DWORD Flags;
+
   PLUGINLOADFORMATMODULE pLoadFormatModule;
   PLUGINISARCHIVE pIsArchive;
   PLUGINOPENARCHIVE pOpenArchive;
@@ -77,7 +78,7 @@ struct PluginItem
   PLUGINGETFORMATNAME pGetFormatName;
   PLUGINGETDEFAULTCOMMANDS pGetDefaultCommands;
   PLUGINSETFARINFO pSetFarInfo;
-  PLUGINGetSFXPos pGetSFXPos;
+  PLUGINGETSFXPOS pGetSFXPos;
 };
 
 
@@ -86,9 +87,12 @@ class ArcPlugins
   private:
     struct PluginItem *PluginsData;
     int PluginsCount;
+
   public:
     ArcPlugins(const char *ModuleName);
     ~ArcPlugins();
+
+  public:
     int  IsArchive(char *Name,const unsigned char *Data,int DataSize);
     BOOL OpenArchive(int PluginNumber,char *Name,int *Type);
     int  GetArcItem(int PluginNumber,struct PluginPanelItem *Item,struct ArcItemInfo *Info);
@@ -96,14 +100,13 @@ class ArcPlugins
     BOOL GetFormatName(int PluginNumber,int Type,char *FormatName,char *DefaultExt);
     BOOL GetDefaultCommands(int PluginNumber,int Type,int Command,char *Dest);
     int  FmtCount() {return PluginsCount;}
+    static int WINAPI LoadFmtModules(const WIN32_FIND_DATA *FData,const char *FullName,ArcPlugins *plugins);
 };
 
 
 class PluginClass
 {
   private:
-    void GetCommandFormat(int Command,char *Format,int FormatSize);
-    int GetPassword(char *Password,const char *FileName);
     char ArcName[NM];
     char CurDir[NM];
     PluginPanelItem *ArcData;
@@ -117,9 +120,16 @@ class PluginClass
     DWORD TotalSize;
     DWORD PackedSize;
     int DizPresent;
+
+  private:
+    void GetCommandFormat(int Command,char *Format,int FormatSize);
+    int GetPassword(char *Password,const char *FileName);
+
   public:
     PluginClass(int ArcPluginNumber);
     ~PluginClass();
+
+  public:
     int ReadArchive(char *Name);
     int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
@@ -141,12 +151,6 @@ class PluginClass
 class ArcCommand
 {
   private:
-    int ProcessCommand(char *Command,int CommandType,int IgnoreErrors,int Silent,char *ListFileName=0);
-    void DeleteBraces(char *Command);
-    int ReplaceVar(char *Command,int &Length);
-    int MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
-                     int UseSlash,int FolderName,int NameOnly,int PathOnly,
-                     int FolderMask,char *LocalAllFilesMask,int AnsiCode);
     struct PluginPanelItem *PanelItem;
     int ItemsNumber;
     char ArcName[NM];
@@ -162,11 +166,22 @@ class ArcCommand
     char PrefixFileName[32];
     unsigned int ExecCode;
     unsigned int MaxAllowedExitCode;
+
+  private:
+    int ProcessCommand(char *Command,int CommandType,int IgnoreErrors,int Silent,char *ListFileName=0);
+    void DeleteBraces(char *Command);
+    int ReplaceVar(char *Command,int &Length);
+    int MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
+                     int UseSlash,int FolderName,int NameOnly,int PathOnly,
+                     int FolderMask,char *LocalAllFilesMask,int AnsiCode);
+
   public:
     ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                char *FormatString,char *ArcName,char *ArcDir,char *Password,
                char *AllFilesMask,int IgnoreErrors,int CommandType=0,
                int Silent=0,char *RealArcDir=NULL,char *Prefix=NULL);
+
+  public:
     int GetExecCode() {return(ExecCode);};
 };
 
