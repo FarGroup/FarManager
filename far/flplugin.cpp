@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.30 25.06.2002 $ */
+/* Revision: 1.31 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SVS
+    + _PluginsStackItem_Dump() - дамп стека плагинов
   25.06.2002 SVS
     ! При передаче плагину очередного итема (FileListToPluginItem) так же
       передадим поле Owner (если оно конечно заполнено!)
@@ -100,6 +102,7 @@ Modify:
 
 void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {
+  _SVS(CleverSysLog("FileList::PushPlugin()"));
   DeleteAllDataToDelete();
   PluginsStack=(struct PluginsStackItem *)realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
   struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
@@ -110,11 +113,14 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
   PStack->PrevSortMode=SortMode;
   PStack->PrevSortOrder=SortOrder;
   PluginsStackSize++;
+  _SVS(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
 }
 
 
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
+  _SVS(CleverSysLog("FileList::PopPlugin()"));
+  _SVS(PluginsStackItem_Dump("FileList::PopPlugin",PluginsStack,PluginsStackSize));
   DeleteAllDataToDelete();
   if (PluginsStackSize==0)
   {

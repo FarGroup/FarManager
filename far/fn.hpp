@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.162 18.06.2002 $ */
+/* Revision: 1.163 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SVS
+    + _PluginsStackItem_Dump() - дамп стека плагинов
   18.06.2002 SVS
     ! Функция IsFolderNotEmpty переименована в CheckFolder
   04.06.2002 SVS
@@ -1000,6 +1002,7 @@ const char *_DLGMSG_ToName(int Msg);
 const char *_ACTL_ToName(int Command);
 const char *_VCTL_ToName(int Command);
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
+void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus

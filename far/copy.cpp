@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.93 18.06.2002 $ */
+/* Revision: 1.94 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SVS
+    - BugZ#522 - Refreshing panels after renaming directory (changing its register)
   18.06.2002 SVS
     ! Функция IsFolderNotEmpty переименована в CheckFolder
   18.06.2002 VVM
@@ -892,6 +894,20 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
   if (CDP.SelCount==1 && *RenamedName)
     SrcPanel->GoToFile(RenamedName);
+
+  if(CDP.FileAttr != -1 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
+  {
+    // если SrcDir содержится в DestDir...
+    DestPanel->GetCurDir(DestDir);
+    SrcPanel->GetCurDir(SrcDir);
+    int LenSrcDir=strlen(SrcDir);
+    if(strlen(DestDir) > strlen(SrcDir) && !LocalStrnicmp(DestDir,SrcDir,LenSrcDir))
+    {
+      // ...то просто.. ;-) выставим тот же каталог, что позволит обновить
+      // панель.
+      DestPanel->SetCurDir(DestDir,FALSE);
+    }
+  }
 
   DestPanel->SortFileList(TRUE);
   DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);

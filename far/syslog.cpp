@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.31 25.06.2002 $ */
+/* Revision: 1.32 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SVS
+    - ошибки в _VCTL_ToName
+    + _PluginsStackItem_Dump() - дамп стека плагинов
   25.06.2002 SVS
     - Ошибки проектирования в _INPUT_RECORD_Dump
   24.05.2002 SVS
@@ -100,6 +103,7 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "plugins.hpp"
+#include "filelist.hpp"
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
@@ -391,6 +395,64 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 #endif
 }
 
+void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp)
+{
+#if defined(SYSLOG)
+  int InternalLog=fp==NULL?TRUE:FALSE;
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=LogStream;
+    if(fp)
+    {
+      char timebuf[64];
+      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+    }
+  }
+
+  if (fp)
+  {
+    #define DEF_SORTMODE_(m) { m , #m }
+    static struct SORTMode{
+      int Mode;
+      const char *Name;
+    } __SORT[]={
+      DEF_SORTMODE_(UNSORTED),  DEF_SORTMODE_(BY_NAME),  DEF_SORTMODE_(BY_EXT),
+      DEF_SORTMODE_(BY_MTIME),  DEF_SORTMODE_(BY_CTIME), DEF_SORTMODE_(BY_ATIME),
+      DEF_SORTMODE_(BY_SIZE),   DEF_SORTMODE_(BY_DIZ),   DEF_SORTMODE_(BY_OWNER),
+      DEF_SORTMODE_(BY_COMPRESSEDSIZE),DEF_SORTMODE_(BY_NUMLINKS)
+    };
+
+    if(!StackItems || !ItemNumber)
+      fprintf(fp,"\tPluginsStackItem <EMPTY>");
+    else
+    {
+      for(int I=ItemNumber-1; I >= 0; --I)
+        fprintf(fp,"\t[%d]: "
+                  "hPlugin=%p "
+                  "Modified=%s "
+                  "PrevViewMode=VIEW_%02d "
+                  "PrevSortMode=%d/%-17s "
+                  "PrevSortOrder=%02d "
+                  "HostFile=%s\n",
+         I,
+         StackItems[I].hPlugin,
+         (StackItems[I].Modified?"True ":"False"),
+         StackItems[I].PrevViewMode,
+         StackItems[I].PrevSortMode,
+           (StackItems[I].PrevSortMode<BY_NUMLINKS?__SORT[StackItems[I].PrevSortMode].Name:"<Unknown>"),
+         StackItems[I].PrevSortOrder,
+         StackItems[I].HostFile);
+    }
+    fprintf(fp,"\n");
+    fflush(fp);
+  }
+
+  if(InternalLog)
+    CloseSysLog();
+#endif
+}
 
 #if defined(SYSLOG_FARSYSLOG)
 void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
@@ -915,12 +977,12 @@ const char *_VCTL_ToName(int Command)
     int Msg;
     const char *Name;
   } VCTL[]={
-    DEF_VCTL_(VCTL_GETINFO),
-    DEF_VCTL_(VCTL_QUIT),
-    DEF_VCTL_(VCTL_REDRAW),
-    DEF_VCTL_(VCTL_SETKEYBAR),
-    DEF_VCTL_(VCTL_SETPOSITION),
-    DEF_VCTL_(VCTL_SELECT),
+    DEF_VCTL_(GETINFO),
+    DEF_VCTL_(QUIT),
+    DEF_VCTL_(REDRAW),
+    DEF_VCTL_(SETKEYBAR),
+    DEF_VCTL_(SETPOSITION),
+    DEF_VCTL_(SELECT),
   };
   int I;
   static char Name[512];

@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.70 24.05.2002 $ */
+/* Revision: 1.71 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SVS
+    - BugZ#400 - скролбар и проблемы из-за него
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   18.05.2002 SVS
@@ -1565,11 +1567,17 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   {
     int ScrollY=Y1+FixSize+1;
     int Height=Y2-Y1-FixSize-1;
-    if (StrCount > Height && MouseY > ScrollY && MouseY < ScrollY+Height+1)
+    if (StrCount > Height)
     {
-      StackData.CurX=StackData.CurY=0;
-      StackData.TopStr=(MouseY-ScrollY-1) * (StrCount-FixCount-Height+1) / (Height-2);
-      FastShow();
+      while (IsMouseButtonPressed())
+      {
+        if(MouseY > ScrollY && MouseY < ScrollY+Height+1)
+        {
+          StackData.CurX=StackData.CurY=0;
+          StackData.TopStr=(MouseY-ScrollY-1) * (StrCount-FixCount-Height+1) / (Height-2);
+          FastShow();
+        }
+      }
       return TRUE;
     }
   }
