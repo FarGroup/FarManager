@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.19 05.09.2000 $ */
+/* Revision: 1.20 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 SVS
+    ! Функции GetFileOwner и GetNumberOfLinks имеют вызов WINAPI
+    + FarBsearch
   05.09.2000 SVS
     + QWERTY-перекодировка!
       На основе плагина EditSwap by SVS :-)))
@@ -250,8 +253,8 @@ char *NullToEmpty(char *Str);
 void CenterStr(char *Src,char *Dest,int Length);
 char *GetCommaWord(char *Src,char *Word);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
-int GetFileOwner(char *Computer,char *Name,char *Owner);
-int GetNumberOfLinks(char *Name);
+int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner);
+int WINAPI GetNumberOfLinks(char *Name);
 void ShowSeparator(int Length);
 void UseSameRegKey();
 void CloseSameRegKey();
@@ -481,6 +484,8 @@ extern "C" {
 
 __int64 WINAPI ftell64(FILE *fp);
 int WINAPI fseek64 (FILE *fp, __int64 offset, int whence);
+
+void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 
 #ifdef __cplusplus
 };

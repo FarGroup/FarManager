@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.19 05.09.2000 $ */
+/* Revision: 1.20 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 SVS
+    + Функция GetFileOwner тоже доступна плагинам :-)
+    + Функция GetNumberOfLinks тоже доступна плагинам :-)
+    + Оболочка FarBsearch для плагинов (функция bsearch)
   05.09.2000 SVS 1.19
     + QWERTY - функция перекодировки QWERTY<->ЙЦУКЕН
   31.08.2000 tran 1.18
@@ -1280,7 +1284,10 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
 }
 
 
-int GetFileOwner(char *Computer,char *Name,char *Owner)
+/* $ 07.09.2000 SVS
+   Функция GetFileOwner тоже доступна плагинам :-)
+*/
+int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner)
 {
   SECURITY_INFORMATION si;
   SECURITY_DESCRIPTOR *sd;
@@ -1296,7 +1303,7 @@ int GetFileOwner(char *Computer,char *Name,char *Owner)
   int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
   SetFileApisToOEM();
 
-  if (!GetCode)
+  if (!GetCode || Needed!=0)
     return(FALSE);
   PSID pOwner;
   BOOL OwnerDefaulted;
@@ -1310,9 +1317,13 @@ int GetFileOwner(char *Computer,char *Name,char *Owner)
   CharToOem(AccountName,Owner);
   return(TRUE);
 }
+/* SVS $*/
 
 
-int GetNumberOfLinks(char *Name)
+/* $ 07.09.2000 SVS
+   Функция GetNumberOfLinks тоже доступна плагинам :-)
+*/
+int WINAPI GetNumberOfLinks(char *Name)
 {
   HANDLE hFile=CreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
@@ -1323,6 +1334,7 @@ int GetNumberOfLinks(char *Name)
   CloseHandle(hFile);
   return(GetCode ? bhfi.nNumberOfLinks:0);
 }
+/* SVS $*/
 
 
 void ShowSeparator(int Length)
@@ -2127,3 +2139,11 @@ char* WINAPI QWERTY(
 }
 /* SVS $ */
 
+/* $ 07.09.2000 SVS
+   Оболочка FarBsearch для плагинов (функция bsearch)
+*/
+void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+{
+  return bsearch(key,base,nelem,width,fcmp);
+}
+/* SVS $ */

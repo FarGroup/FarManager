@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.17 05.09.2000 $ */
+/* Revision: 1.18 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 SVS
+    + Функция GetFileOwner тоже доступна плагинам :-)
+    + Функция GetNumberOfLinks тоже доступна плагинам :-)
+    + Оболочка FarBsearch для плагинов (функция bsearch)
   05.09.2000 SVS 1.17
     + QWERTY - перекодировщик - StandardFunctions.EDQwerty
   01.09.2000 tran 1.16
@@ -429,6 +433,8 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
        AddEndSlash
     */
     struct FarStandardFunctions StandardFunctions;
+    memset(&StandardFunctions,0,sizeof(struct FarStandardFunctions));
+
     StandardFunctions.StructSize=sizeof(StandardFunctions);
     StandardFunctions.sprintf=FarSprintf;
     StandardFunctions.sscanf=FarSscanf;
@@ -437,6 +443,9 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StandardFunctions.atoi64=FarAtoi64;
     StandardFunctions.itoa=FarItoa;
     StandardFunctions.itoa64=FarItoa64;
+
+    StandardFunctions.qsort=FarQsort;
+    StandardFunctions.bsearch=FarBsearch;
 
     /* $ 28.08.2000 SVS
        + Функции работы с...
@@ -483,6 +492,14 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     StandardFunctions.EDQwerty=QWERTY;
     /* SVS $ */
+    /* $ 07.09.2000 SVS 1.17
+       + Функция GetFileOwner тоже доступна плагинам :-)
+       + Функция GetNumberOfLinks тоже доступна плагинам :-)
+    */
+    StandardFunctions.GetFileOwner=GetFileOwner;
+    StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
+    /* SVS $ */
+
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
     StartupInfo.ModuleNumber=ModuleNumber;

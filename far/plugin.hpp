@@ -6,11 +6,15 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.37 05.09.2000 $ */
+/* Revision: 1.38 07.09.2000 $ */
 
 /*
 Modify:
-  05.09.2000 SVS 1.17
+  07.09.2000 SVS 1.38
+    + FSF.bsearch
+    + FSF.GetFileOwner
+    + FSF.GetNumberOfLinks;
+  05.09.2000 SVS 1.37
     + QWERTY - перекодировщик - StandardFunctions.EDQwerty
   01.09.2000 SVS
     + конструкция (с подачи MY)
@@ -866,6 +870,9 @@ typedef int   (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
 typedef int   (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
 // </C&C++>
 typedef void  (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+typedef void *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+typedef int   (WINAPI *FARSTDGETFILEOWNER)(char *Computer,char *Name,char *Owner);
+typedef int   (WINAPI *FARSTDGETNUMBEROFLINKS)(char *Name);
 /* IS $ */
 
 /* $ 07.07.2000 IS
@@ -946,15 +953,34 @@ typedef struct FarStandardFunctions
 {
   int StructSize;
 
-  FARSTDATOI    atoi;
-  FARSTDATOI64  atoi64;
-  FARSTDITOA    itoa;
-  FARSTDITOA64  itoa64;
+  FARSTDATOI             atoi;
+  FARSTDATOI64           atoi64;
+  FARSTDITOA             itoa;
+  FARSTDITOA64           itoa64;
   // <C&C++>
-  FARSTDSPRINTF sprintf;
-  FARSTDSSCANF  sscanf;
+  FARSTDSPRINTF          sprintf;
+  FARSTDSSCANF           sscanf;
   // </C&C++>
-  FARSTDQSORT qsort;
+  FARSTDQSORT            qsort;
+  /* $ 07.09.2000 SVS
+    Дополнения!
+  */
+  FARSTDBSEARCH          bsearch;
+
+  // вот сюда можно будет потом вместо
+  //  DWORD ReservedX вставлять нужные
+  //  функции из RTL-библиотеки.
+  DWORD                  Reserved0;
+  DWORD                  Reserved1;
+  DWORD                  Reserved2;
+  DWORD                  Reserved3;
+  DWORD                  Reserved4;
+  DWORD                  Reserved5;
+  DWORD                  Reserved6;
+  DWORD                  Reserved7;
+  DWORD                  Reserved8;
+  DWORD                  Reserved9;
+  /* SVS $ */
 
   FARSTDLOCALISLOWER     LIsLower;
   FARSTDLOCALISUPPER     LIsUpper;
@@ -993,6 +1019,12 @@ typedef struct FarStandardFunctions
   */
   FARSTDEDQWERTY             EDQwerty;
   /* SVS 05.09.2000 $ */
+  /* $ 07.09.2000 SVS
+    + Добавки
+  */
+  FARSTDGETFILEOWNER         GetFileOwner;
+  FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
+  /* SVS 07.09.2000 $ */
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
 
