@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 FAR group
 */
-/* $ Revision: 1.19 01.08.2002 $ */
+/* Revision: 1.20 25.09.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -69,7 +69,7 @@ inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEn
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  if (Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
+  if (DataSize>=3 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
   {
     SFXSize=0;
     return(TRUE);
