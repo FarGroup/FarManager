@@ -287,6 +287,7 @@
 "Do you wish to wipe the folder"
 "Do you wish to wipe the file"
 "Do you wish to wipe"
+"is a symbolic link to folder"
 "%d item%s"
 "(s)"
 "(s)"
@@ -300,6 +301,9 @@
 "&Skip"
 "S&kip all"
 "&Cancel"
+
+"Delete folder"
+"Unlink folder"
 
 "Deleting"
 

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.12 13.03.2001 $ */
+/* Revision: 1.13 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    + Обработка "удаления" линков - Part I
   13.03.2001 SVS
     - удаление симлинка в корзину чревато потерей оригинала!!!!!!
   12.03.2001 SVS
@@ -65,7 +67,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   WIN32_FIND_DATA FindData;
   char DeleteFilesMsg[300],SelName[NM],SelShortName[NM],DizName[NM];
-  int SelCount,FileAttr,UpdateDiz;
+  int SelCount,FileAttr,UpdateDiz, UnlinkFolder=FALSE;
 
   DeleteAllFolders=!Opt.Confirm.DeleteFolder;
 
@@ -107,8 +109,41 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   /* IS $ */
   }
   /* SVS $ */
+  int Ret=1;
 
-  if (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC))
+  /* $ 13.02.2001 SVS
+     Обработка "удаления" линков
+  */
+  if((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
+  {
+    char JuncName[NM];
+    if(GetJunctionPointInfo(DeleteFilesMsg,JuncName,sizeof(JuncName)))
+    {
+      TruncPathStr(JuncName+4,sizeof(JuncName));
+
+      Ret=Message(0,3,MSG(MDeleteTitle),
+                DeleteFilesMsg,
+                MSG(MAskDeleteLink),
+                JuncName+4,
+                MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
+
+      if(Ret == 1)
+      {
+        ConvertNameToFull(SelName, JuncName, sizeof(JuncName));
+        if(Opt.Confirm.Delete)
+        {
+          ; //  ;-%
+        }
+        DeleteJunctionPoint(JuncName);
+        return;
+      }
+      if(Ret != 0)
+        return;
+    }
+  }
+  /* SVS $ */
+
+  if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC)))
   {
     char *DelMsg;
     /* $ 05.01.2001 IS
@@ -118,8 +153,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     BOOL folder=(FileAttr & FA_DIREC);
     if (SelCount==1)
     {
-
-      if (Wipe)
+      if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
         DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
       else
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
@@ -129,7 +163,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     }
     else
     {
-      if (Wipe)
+      if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
         DelMsg=MSG(MAskWipe);
       else
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))

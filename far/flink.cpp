@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.07 13.03.2001 $ */
+/* Revision: 1.08 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    ! Добавлен необходимый код в функцию DeleteJunctionPoint()
   13.03.2001 SVS
     ! GetPathRoot переехала из strmix.cpp :-)
     + В функцию GetPathRoot добавлена обработка mounted volume
@@ -41,28 +43,47 @@ Modify:
 
 //#if defined(__BORLANDC__)
 // current thread's ANSI code page
-  #define CP_THREAD_ACP             3
+#define CP_THREAD_ACP             3
 
-  #define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
-  // Predefined reparse tags.
-  // These tags need to avoid conflicting with IO_REMOUNT defined in ntos\inc\io.h
-  #define IO_REPARSE_TAG_RESERVED_ZERO             (0)
-  #define IO_REPARSE_TAG_RESERVED_ONE              (1)
+#define FILE_ANY_ACCESS                 0
+#define FILE_SPECIAL_ACCESS    (FILE_ANY_ACCESS)
 
-  // The value of the following constant needs to satisfy the following conditions:
-  //  (1) Be at least as large as the largest of the reserved tags.
-  //  (2) Be strictly smaller than all the tags in use.
-  #define IO_REPARSE_TAG_RESERVED_RANGE            IO_REPARSE_TAG_RESERVED_ONE
-  // The following constant represents the bits that are valid to use in
-  // reparse tags.
-  #define IO_REPARSE_TAG_VALID_VALUES     (0xE000FFFF)
-  // Macro to determine whether a reparse tag is a valid tag.
-  #define IsReparseTagValid(_tag) (                               \
-                    !((_tag) & ~IO_REPARSE_TAG_VALID_VALUES) &&   \
-                    ((_tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
-                   )
-  #define FILE_FLAG_OPEN_REPARSE_POINT    0x00200000
-  #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
+// Predefined reparse tags.
+// These tags need to avoid conflicting with IO_REMOUNT defined in ntos\inc\io.h
+#define IO_REPARSE_TAG_RESERVED_ZERO             (0)
+#define IO_REPARSE_TAG_RESERVED_ONE              (1)
+#define IO_REPARSE_TAG_MOUNT_POINT               (0xA0000003)
+
+// The value of the following constant needs to satisfy the following conditions:
+//  (1) Be at least as large as the largest of the reserved tags.
+//  (2) Be strictly smaller than all the tags in use.
+#define IO_REPARSE_TAG_RESERVED_RANGE            IO_REPARSE_TAG_RESERVED_ONE
+// The following constant represents the bits that are valid to use in
+// reparse tags.
+#define IO_REPARSE_TAG_VALID_VALUES     (0xE000FFFF)
+// Macro to determine whether a reparse tag is a valid tag.
+#define IsReparseTagValid(_tag) (                               \
+                  !((_tag) & ~IO_REPARSE_TAG_VALID_VALUES) &&   \
+                  ((_tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
+                 )
+#define FILE_FLAG_OPEN_REPARSE_POINT    0x00200000
+#define FSCTL_SET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 41, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) // REPARSE_DATA_BUFFER,
+#define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define FSCTL_DELETE_REPARSE_POINT      CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 43, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) // REPARSE_DATA_BUFFER,
+
+
+typedef struct _REPARSE_GUID_DATA_BUFFER {
+  DWORD  ReparseTag;
+  WORD   ReparseDataLength;
+  WORD   Reserved;
+  GUID   ReparseGuid;
+  struct {
+      BYTE   DataBuffer[1];
+  } GenericReparseBuffer;
+} REPARSE_GUID_DATA_BUFFER, *PREPARSE_GUID_DATA_BUFFER;
+#define REPARSE_GUID_DATA_BUFFER_HEADER_SIZE   FIELD_OFFSET(REPARSE_GUID_DATA_BUFFER, GenericReparseBuffer)
+#define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
 // REPARSE_DATA_BUFFER
 //#endif
 struct TMN_REPARSE_DATA_BUFFER
@@ -84,6 +105,18 @@ struct TMN_REPARSE_DATA_BUFFER
   //int BytesForIoControl() const;
 };
 
+typedef BOOL (WINAPI *PDELETEVOLUMEMOUNTPOINT)(
+     LPCTSTR lpszVolumeMountPoint);  // volume mount point path
+
+typedef BOOL (WINAPI *PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)(
+          LPCTSTR lpszVolumeMountPoint, // volume mount point or directory
+          LPTSTR lpszVolumeName,        // volume name buffer
+          DWORD cchBufferLength);       // size of volume name buffer
+
+static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
+static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
+
+
 BOOL WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDirArg)
 {
   return TRUE;
@@ -91,7 +124,32 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDirArg)
 
 BOOL WINAPI DeleteJunctionPoint(LPCTSTR szDir)
 {
-  return TRUE;
+  HANDLE hDir=CreateFile(szDir,
+          GENERIC_READ | GENERIC_WRITE,
+          0,
+          0,
+          OPEN_EXISTING,
+          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+          0);
+  if (hDir == INVALID_HANDLE_VALUE)
+  {
+    return FALSE;
+  }
+
+  REPARSE_GUID_DATA_BUFFER rgdb = { 0 };
+  rgdb.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+  DWORD dwBytes;
+  const BOOL bOK =
+    DeviceIoControl(hDir,
+            FSCTL_DELETE_REPARSE_POINT,
+            &rgdb,
+            REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,
+            NULL,
+            0,
+            &dwBytes,
+            0);
+  CloseHandle(hDir);
+  return bOK != 0;
 }
 
 DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
@@ -326,18 +384,6 @@ BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize)
 // просмотр одной позиции :-)
 void GetPathRootOne(char *Path,char *Root)
 {
-  typedef BOOL (WINAPI *PDELETEVOLUMEMOUNTPOINT)(
-     LPCTSTR lpszVolumeMountPoint  // volume mount point path
-  );
-
-  typedef BOOL (WINAPI *PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)(
-          LPCTSTR lpszVolumeMountPoint, // volume mount point or directory
-          LPTSTR lpszVolumeName,        // volume name buffer
-          DWORD cchBufferLength);       // size of volume name buffer
-
-  static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
-  static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
-
   if(!pGetVolumeNameForVolumeMountPoint)
     // работает только под Win2000!
     pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"GetVolumeNameForVolumeMountPointA");

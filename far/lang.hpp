@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.52 26.02.2001 $ */
+/* Revision: 1.53 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    + MAskDeleteLink, MDeleteLinkDelete, MDeleteLinkUnlink
   26.02.2001 VVM
     + MExcInvalidFuncResult
   22.02.2001 SVS
@@ -440,6 +442,7 @@ enum
   MAskWipeFolder,
   MAskWipeFile,
   MAskWipe,
+  MAskDeleteLink,
   MAskDeleteItems,
   MAskDeleteItems0,
   MAskDeleteItemsA,
@@ -453,6 +456,9 @@ enum
   MDeleteFileSkip,
   MDeleteFileSkipAll,
   MDeleteFileCancel,
+
+  MDeleteLinkDelete,
+  MDeleteLinkUnlink,
 
   MDeletingTitle,
 
