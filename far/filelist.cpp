@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.137 22.03.2002 $ */
+/* Revision: 1.138 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - Bugz#334 и BugZ#239 в одной упаковке
   22.03.2002 DJ
     ! косметика от BoundsChecker (не инициализировался GetSelPosition)
   21.03.2002 DJ
@@ -756,6 +758,58 @@ void FileList::SetFocus()
   SetTitle();
 }
 
+/*
+   Проверка пути или хост-файла на существование
+   Если идет проверка пути (IsHostFile=FALSE), то будет
+   предпринята попытка найти ближайший путь. Результат попытки
+   возвращается в переданном TestPath.
+
+   Return: 0 - бЯда.
+           1 - ОБИ!,
+          -1 - Почти что ОБИ, но ProcessPluginEvent вернул TRUE
+   TestPath может быть пустым, тогда просто исполним ProcessPluginEvent()
+
+*/
+int FileList::CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile)
+{
+  if(TestPath && *TestPath && GetFileAttributes(TestPath) == -1)
+  {
+    char Target[NM], TestPathTemp[1024];
+    int FoundPath=0;
+
+    strncpy(Target, TestPath, sizeof(Target)-1);
+    TruncPathStr(Target, ScrX-16);
+
+    if(IsHostFile)
+      Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
+    else // попытка найти!
+    {
+      if(Message (MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), Target, MSG (MNeedNearPath), MSG(MHYes),MSG(MHNo)) == 0)
+      {
+        char *Ptr;
+        strncpy(TestPathTemp,TestPath,sizeof(TestPathTemp)-1);
+        while((Ptr=strrchr(TestPathTemp,'\\')) != NULL)
+        {
+          *Ptr=0;
+          if(GetFileAttributes(TestPathTemp) != -1)
+          {
+            strncpy(TestPath,TestPathTemp,LengthPath);
+            if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+              AddEndSlash(TestPath);
+            FoundPath=1;
+            break;
+          }
+        }
+      }
+    }
+    if(!FoundPath)
+      return 0;
+  }
+  if(ProcessPluginEvent(FE_CLOSE,NULL))
+    return -1;
+  return 1;
+}
+
 
 int FileList::ProcessKey(int Key)
 {
@@ -830,12 +884,17 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
     {
-      if (ProcessPluginEvent(FE_CLOSE,NULL))
-        return(TRUE);
-      if (*PluginModule)
+      if(*PluginModule)
       {
-        if (*PluginFile)
+        if(*PluginFile)
         {
+          switch(CheckShortcutFolder(PluginFile,0,TRUE))
+          {
+            case 0:
+              return FALSE;
+            case -1:
+              return TRUE;
+          }
           /* Своеобразное решение BugZ#50 */
           char RealDir[2048], *Ptr;
           Ptr=strrchr(strcpy(RealDir,PluginFile),'\\');
@@ -859,6 +918,13 @@ int FileList::ProcessKey(int Key)
         }
         else
         {
+          switch(CheckShortcutFolder(NULL,0,TRUE))
+          {
+            case 0:
+              return FALSE;
+            case -1:
+              return TRUE;
+          }
           for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
           {
             if (LocalStricmp(CtrlObject->Plugins.PluginsData[I].ModuleName,PluginModule)==0)
@@ -884,6 +950,13 @@ int FileList::ProcessKey(int Key)
           }
         }
         return(TRUE);
+      }
+      switch(CheckShortcutFolder(ShortcutFolder,sizeof(ShortcutFolder)-1,FALSE))
+      {
+        case 0:
+          return FALSE;
+        case -1:
+          return TRUE;
       }
       SetCurDir(ShortcutFolder,TRUE);
       Show();

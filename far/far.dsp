@@ -132,6 +132,10 @@ SOURCE=.\ctrlobj.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\cvtname.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\delete.cpp
 # End Source File
 # Begin Source File

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.100 20.03.2002 $ */
+/* Revision: 1.101 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 SVS
+    + MNeedNearPath
   20.03.2002 DJ
     + MAssocNeedMask
   19.03.2002 SVS
@@ -1888,6 +1890,8 @@ enum
   MIncorrectMask,
 
   MPanelBracketsForLongName,
+
+  MNeedNearPath,
 
   MListEval
 };

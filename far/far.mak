@@ -62,6 +62,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\frame.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\flink.obj" \
+	"$(INTDIR)\cvtname.obj" \
 	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \

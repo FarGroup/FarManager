@@ -4,10 +4,14 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.12 27.02.2002 $ */
+/* Revision: 1.13 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 SVS
+    ! переезд функций FarBsearch, FarSscanf, FarSprintf, FarQsortEx, 
+      FarQsort, FarAtoi64, FarAtoi, FarItoa64, FarItoa из mix.cpp
+      в farrtl.cpp
   27.02.2002 SVS
     ! кусок кода вынесен нафиг в cmem.cpp
   26.02.2002 SVS
@@ -239,3 +243,120 @@ int fseek64 (FILE *fp, __int64 offset, int whence)
 
 #endif
 /* SVS $*/
+
+/* $ 25.07.2000 SVS
+   Оболочки вокруг вызовов стандартных функцйи, приведенных к WINAPI
+*/
+char *WINAPI FarItoa(int value, char *string, int radix)
+{
+  if(string)
+    return itoa(value,string,radix);
+  return NULL;
+}
+/* $ 28.08.2000 SVS
+  + FarItoa64
+*/
+char *WINAPI FarItoa64(__int64 value, char *string, int radix)
+{
+  if(string)
+    return _i64toa(value, string, radix);
+  return NULL;
+}
+/* SVS $ */
+int WINAPI FarAtoi(const char *s)
+{
+  if(s)
+    return atoi(s);
+  return 0;
+}
+__int64 WINAPI FarAtoi64(const char *s)
+{
+  if(s)
+    return _atoi64(s);
+  return 0i64;
+}
+
+void WINAPI FarQsort(void *base, size_t nelem, size_t width,
+                     int (__cdecl *fcmp)(const void *, const void *))
+{
+  if(base && fcmp)
+    qsort(base,nelem,width,fcmp);
+}
+
+/* $ 24.03.2001 tran
+   новая фишка...*/
+void WINAPI FarQsortEx(void *base, size_t nelem, size_t width,
+                     int (__cdecl *fcmp)(const void *, const void *,void *user),void *user)
+{
+  if(base && fcmp)
+    qsortex((char*)base,nelem,width,fcmp,user);
+}
+/* tran $ */
+
+int WINAPIV FarSprintf(char *buffer,const char *format,...)
+{
+  int ret=0;
+  if(buffer && format)
+  {
+    va_list argptr;
+    va_start(argptr,format);
+    ret=vsprintf(buffer,format,argptr);
+    va_end(argptr);
+  }
+  return ret;
+}
+
+/* $ 29.08.2000 SVS
+   - Неверно отрабатывала функция FarSscanf
+   Причина - т.к. у VC нету vsscanf, то пришлось смоделировать (взять из
+   исходников VC sscanf и "нарисовать" ее сюда
+*/
+#if defined(_MSC_VER)
+extern "C" {
+int __cdecl _input (FILE *stream,const unsigned char *format,va_list arglist);
+};
+#endif
+
+int WINAPIV FarSscanf(const char *buffer, const char *format,...)
+{
+  if(!buffer || !format)
+    return 0;
+#if defined(_MSC_VER)
+  // полная копия внутренностей sscanf :-)
+  va_list arglist;
+  FILE str;
+  FILE *infile = &str;
+  int retval;
+
+  va_start(arglist, format);
+
+  infile->_flag = _IOREAD|_IOSTRG|_IOMYBUF;
+  infile->_ptr = infile->_base = (char *) buffer;
+  infile->_cnt = strlen(buffer);
+
+  retval = (_input(infile,(const unsigned char *)format,arglist));
+
+  return(retval);
+#else
+  va_list argptr;
+  va_start(argptr,format);
+  int ret=vsscanf(buffer,format,argptr);
+  va_end(argptr);
+  return ret;
+#endif
+}
+/* 29.08.2000 SVS $ */
+/* SVS $ */
+
+
+/* $ 07.09.2000 SVS
+   Оболочка FarBsearch для плагинов (функция bsearch)
+*/
+void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+{
+  if(key && fcmp && base)
+    return bsearch(key,base,nelem,width,fcmp);
+  return NULL;
+}
+/* SVS $ */
+

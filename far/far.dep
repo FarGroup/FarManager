@@ -215,6 +215,18 @@
 	".\udlist.hpp"\
 	
 
+.\cvtname.cpp : \
+	".\farconst.hpp"\
+	".\flink.hpp"\
+	".\fn.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+	".\int64.hpp"\
+	".\lang.hpp"\
+	".\plugin.hpp"\
+	".\struct.hpp"\
+	
+
 .\delete.cpp : \
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
@@ -1534,6 +1546,7 @@
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\hilight.hpp"\
+	".\history.hpp"\
 	".\hmenu.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\

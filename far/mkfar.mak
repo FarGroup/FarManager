@@ -135,6 +135,7 @@ FAROBJ=\
    $(OBJPATH)\flupdate.obj\
    $(OBJPATH)\foldtree.obj\
    $(OBJPATH)\gettable.obj\
+   $(OBJPATH)\cvtname.obj\
    $(OBJPATH)\global.obj\
    $(OBJPATH)\grabber.obj\
    $(OBJPATH)\grpsort.obj\
@@ -208,12 +209,12 @@ ALL : BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\f
 # все эти зависимости не нужны
 # просто описываем одно правило и все %)
 .cpp.obj:
-  @settitle "{$.} - Compiling..."
+  -@settitle "{$.} - Compiling..."
   @if not exist $(OBJPATH) mkdir $(OBJPATH)
   @$(BCC32) -c -o$@ {$. }
 
 .c.obj:
-  @settitle "{$.} - Compiling..."
+  -@settitle "{$.} - Compiling..."
   @if not exist $(OBJPATH) mkdir $(OBJPATH)
   @$(BCC32) -c -o$@ {$. }
 
@@ -228,19 +229,19 @@ $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 # ************************************************************************
 $(FARINCLUDE)\farcolor.hpp : colors.hpp
    @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-   @awk -f plugins.awk -v p1=1 -v p2=70 colors.hpp > $(FARINCLUDE)\farcolor.hpp
+   -@awk -f plugins.awk -v p1=1 -v p2=70 colors.hpp > $(FARINCLUDE)\farcolor.hpp
 
 $(FARINCLUDE)\farkeys.hpp : keys.hpp
    @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-   @awk -f plugins.awk -v p1=1 -v p2=70 keys.hpp   > $(FARINCLUDE)\farkeys.hpp
+   -@awk -f plugins.awk -v p1=1 -v p2=70 keys.hpp   > $(FARINCLUDE)\farkeys.hpp
 
 $(FARINCLUDE)\plugin.hpp : plugin.hpp
    @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
-   @awk -f plugins.awk -v p1=1 -v p2=70 plugin.hpp > $(FARINCLUDE)\plugin.hpp
+   -@awk -f plugins.awk -v p1=1 -v p2=70 plugin.hpp > $(FARINCLUDE)\plugin.hpp
 
 # ************************************************************************
 $(OBJPATH)\Far.res :  Far.rc
-  @settitle "Compiling resource..."
+  -@settitle "Compiling resource..."
   @if not exist $(OBJPATH) mkdir $(OBJPATH)
   $(BRC32) -R @&&|
  $(RESFLAGS)  -FO$@ Far.rc
@@ -248,7 +249,7 @@ $(OBJPATH)\Far.res :  Far.rc
 
 !ifdef ILINK
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
-  @settitle "Linking..."
+  -@settitle "Linking..."
   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
@@ -259,7 +260,7 @@ $(OBJPATH)\Far.res
 |
 !else
 $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
-  @settitle "Linking..."
+  -@settitle "Linking..."
   @if not exist $(FINALPATH) mkdir $(FINALPATH)
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)

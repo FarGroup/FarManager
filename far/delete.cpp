@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.43 18.03.2002 $ */
+/* Revision: 1.44 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    ! переезд DeleteFileWithFolder(), DeleteDirTree() из mix.cpp в
+      delete.cpp ибо здесь им место.
   18.03.2002 SVS
     - "Broke link" - изменялась пассивная панель (когда ее не просили)
   01.03.2002 SVS
@@ -830,4 +833,41 @@ int WipeDirectory(char *Name)
   char TempName[NM];
   MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
   return(RemoveDirectory(TempName));
+}
+
+int DeleteFileWithFolder(const char *FileName)
+{
+  char FolderName[NM],*Slash;
+  SetFileAttributes(FileName,0);
+  remove(FileName);
+  strcpy(FolderName,FileName);
+  if ((Slash=strrchr(FolderName,'\\'))!=NULL)
+    *Slash=0;
+  return(RemoveDirectory(FolderName));
+}
+
+
+void DeleteDirTree(char *Dir)
+{
+  if (*Dir==0 || (Dir[0]=='\\' || Dir[0]=='/') && Dir[1]==0 ||
+      Dir[1]==':' && (Dir[2]=='\\' || Dir[2]=='/') && Dir[3]==0)
+    return;
+  char FullName[NM];
+  WIN32_FIND_DATA FindData;
+  ScanTree ScTree(TRUE);
+
+  ScTree.SetFindPath(Dir,"*.*");
+  while (ScTree.GetNextName(&FindData,FullName))
+  {
+    SetFileAttributes(FullName,0);
+    if (FindData.dwFileAttributes & FA_DIREC)
+    {
+      if (ScTree.IsDirSearchDone())
+        RemoveDirectory(FullName);
+    }
+    else
+      DeleteFile(FullName);
+  }
+  SetFileAttributes(Dir,0);
+  RemoveDirectory(Dir);
 }

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.24 19.03.2002 $ */
+/* Revision: 1.25 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 SVS
+    + CheckShortcutFolder()
   19.03.2002 DJ
     + UpdateIfRequired()
     + параметр IgnoreVisible
@@ -261,6 +263,8 @@ class FileList:public Panel
     static void ViewSettingsToText(unsigned int *ViewColumnTypes,
            int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
            char *ColumnWidths);
+
+    int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile);
 
   public:
     FileList();
