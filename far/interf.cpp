@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.62 06.06.2002 $ */
+/* Revision: 1.63 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    - BugZ#566 - Недограбливаются диалоги, содержащие точки.
   06.06.2002 SVS
     - некомпиляция под VC
   04.06.2002 SVS
@@ -412,8 +414,9 @@ void InitRecodeOutTable(UINT cp)
     };
 
     // перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
+    Oem2Unicode[0]=0;
     GetRegKey("System","Oem2Unicode",(BYTE *)Oem2Unicode,(BYTE*)_Oem2Unicode,sizeof(Oem2Unicode));
-    for (I=0;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
+    for (I=1;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
     {
       if(!Oem2Unicode[I])
       {
