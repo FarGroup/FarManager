@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.43 22.06.2001 $ */
+/* Revision: 1.44 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 IS
+    - Баг: в редакторе по ctrl-], ctrl-[, ctrl-shift-]  и ctrl-shift-[
+      всегда вставлялась строка в кодировке OEM, даже если текущая кодировка
+      была != OEM
   22.06.2001 SVS
     ! Устранены проблемы с Ctrl-Q - теперь кусок кода (для
       неперсистентных блоков) удаляется только в момент вставки символа
@@ -781,6 +785,13 @@ int Edit::ProcessKey(int Key)
           }
           DeleteBlock();
           /* tran 03.07.2000 $ */
+          /* $ 10.07.2001 IS
+             Вставляем строку с учетом текущей кодировки символов
+          */
+          if(TableSet)
+             EncodeString(PanelDir,(unsigned char*)TableSet->EncodeTable,
+                          strlen(PanelDir));
+          /* IS $ */
           for (int I=0;PanelDir[I]!=0;I++)
             InsertKey(PanelDir[I]);
           Show();
