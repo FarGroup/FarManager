@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.124 01.10.2002 $ */
+/* Revision: 1.125 01.10.2002 $ */
 
 /*
 Modify:
+  01.10.2002 SVS
+    - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
   01.10.2002 VVM
     ! Переместим фокус на кнопку [Go To] при первом добавлении в список,
       а не при прорисовке.
@@ -569,6 +571,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
       else
         PrepareTable(&TableSet,TableNum);
+      RemoveChar(TableSet.TableName,'&',TRUE);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)TableSet.TableName);
 
       FindFoldersChanged = FALSE;
@@ -728,6 +731,7 @@ FindFiles::FindFiles()
       return;
     memset(&TableItem[I+5],0,sizeof(FarListItem));
     strncpy(TableItem[I+5].Text,cts.TableName,sizeof(TableItem[I+5].Text)-1);
+    RemoveChar(TableItem[I+5].Text,'&',TRUE);
     TableList.Items=TableItem;
     TableList.ItemsNumber++;
   }

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.109 29.09.2002 $ */
+/* Revision: 1.110 01.10.2002 $ */
 
 /*
 Modify:
+  01.10.2002 SVS
+    - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
   29.09.2002 IS
     - Не обрабатывалась VCTL_QUIT
   27.08.2002 SVS
@@ -1173,11 +1175,15 @@ void Viewer::ShowStatus()
   TruncPathStr(Name,NameLength);
   /* IS $ */
   char *TableName;
+  char TmpTableName[32];
   if (VM.Unicode)
     TableName="Unicode";
   else
     if (VM.UseDecodeTable)
-      TableName=TableSet.TableName;
+    {
+      strncpy(TmpTableName,TableSet.TableName,sizeof(TmpTableName));
+      TableName=RemoveChar(TmpTableName,'&',TRUE);
+    }
     else
       if (VM.AnsiMode)
         TableName="Win";

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.117 04.09.2002 $ */
+/* Revision: 1.118 01.10.2002 $ */
 
 /*
 Modify:
+  01.10.2002 SVS
+    - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
   04.09.2002 SVS
     + "Файл был изменен внешней программой"
     ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
@@ -1630,10 +1632,20 @@ void FileEditor::ShowStatus()
     ! Используем уже готовую AttrStr, которая сформирована в
       GetFileAttributes
   */
+  char *TableName;
+  char TmpTableName[32];
+  if(FEdit->UseDecodeTable)
+  {
+    strncpy(TmpTableName,FEdit->TableSet.TableName,sizeof(TmpTableName));
+    TableName=RemoveChar(TmpTableName,'&',TRUE);
+  }
+  else
+    TableName=FEdit->AnsiText ? "Win":"DOS";
+
   sprintf(StatusStr,"%-*s %c%c %10.10s %7s %*.*s %5s %-4d %3s",
           NameLength,TruncFileName,FEdit->Flags.Check(FEDITOR_MODIFIED) ? '*':' ',
           (FEdit->Flags.Check(FEDITOR_LOCKMODE) ? '-':' '),
-          FEdit->UseDecodeTable ? FEdit->TableSet.TableName:FEdit->AnsiText ? "Win":"DOS",
+          TableName,
           MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
           MSG(MEditStatusCol),FEdit->CurLine->EditLine.GetTabCurPos()+1,AttrStr);
   /* IS $ */
