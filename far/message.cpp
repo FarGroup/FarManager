@@ -5,10 +5,17 @@ message.cpp
 
 */
 
-/* Revision: 1.32 20.06.2003 $ */
+/* Revision: 1.33 22.08.2003 $ */
 
 /*
 Modify:
+  22.08.2003 SVS
+    ! Небольшое уточнение... иначе на коротких сообщениях получается вот так:
+      г==== Error ====¬          г==== Error ====¬
+      ¦    Access     ¦  вместо  ¦ Access denied ¦
+      ¦    denied     ¦          ¦      Ok       ¦
+      ¦      Ok       ¦          L===============-
+      L===============-
   20.06.2003 SVS
     + При форматировании ErrStr (FarFormatText) укажим MaxLength-1, т.к.
       замечено обрезание системных сообщений при выводе Message
@@ -240,7 +247,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     MaxLength=LenErrStr;
 
     // а теперь проврапим
-    PtrStr=FarFormatText(ErrStr,MaxLength-1,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
+    PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
     while((PtrStr=strchr(PtrStr,'\n')) != NULL)
     {
       *PtrStr++=0;
