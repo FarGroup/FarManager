@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.16 06.05.2001 $ */
+/* Revision: 1.17 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -426,7 +428,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
   char AnotherQuotedName[NM+2],AnotherQuotedShortName[NM+2];
   char CmdDir[NM];
 
-//SysLog(">>>>>>>>>: [%s]",Str);
+//_D(SysLog(">>>>>>>>>: [%s]",Str));
 
   if (CmdLineDir!=NULL)
     strcpy(CmdDir,CmdLineDir);
@@ -487,12 +489,12 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       QuoteSpaceOnly(DirBegin);
       DirBegin=NULL;
     }
-//SysLog("'%c' DirBegin=[%s] %d",*CurStr, DirBegin, SkipQuotes);
+//_D(SysLog("'%c' DirBegin=[%s] %d",*CurStr, DirBegin, SkipQuotes));
     if (strncmp(CurStr,"!#",2)==0)
     {
       CurStr+=2;
       PassivePanel=TRUE;
-//      //SysLog("PassivePanel=TRUE");
+//      //_D(SysLog("PassivePanel=TRUE"));
     }
     if (strncmp(CurStr,"!^",2)==0)
     {
@@ -511,7 +513,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       {
         strcat(TmpStr,"!");
         CurStr+=2;
-//SysLog("!! TmpStr=[%s]",TmpStr);
+//_D(SysLog("!! TmpStr=[%s]",TmpStr));
         continue;
       }
       /* $ 21.07.2000 IG
@@ -522,14 +524,14 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       {
         strcat(TmpStr,PassivePanel ? AnotherQuotedName:QuotedName);
         CurStr+=3;
-//SysLog("!.! TmpStr=[%s]",TmpStr);
+//_D(SysLog("!.! TmpStr=[%s]",TmpStr));
         continue;
       }
       if (strncmp(CurStr,"!~",2)==0)
       {
         strcat(TmpStr,PassivePanel ? AnotherShortNameOnly:ShortNameOnly);
         CurStr+=2;
-//SysLog("!~ TmpStr=[%s]",TmpStr);
+//_D(SysLog("!~ TmpStr=[%s]",TmpStr));
         continue;
       }
       if (strncmp(CurStr,"!?",2)==0 && strchr(CurStr+2,'!')!=NULL)
@@ -537,7 +539,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         char *NewCurStr=strchr(CurStr+2,'!')+1;
         strncat(TmpStr,CurStr,NewCurStr-CurStr);
         CurStr=NewCurStr;
-//SysLog("!? TmpStr=[%s]",TmpStr);
+//_D(SysLog("!? TmpStr=[%s]",TmpStr));
         continue;
       }
 
@@ -569,7 +571,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
           strcat(TmpStr,FileNameL);
         }
         CurStr+=CntSkip;
-//SysLog("!& TmpStr=[%s]",TmpStr);
+//_D(SysLog("!& TmpStr=[%s]",TmpStr));
         continue;
       }
       /* $ 21.07.2000 IG
@@ -638,7 +640,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
             }
             /* tran $ */
             CurStr+=Ptr-CurStr+1;
-    //SysLog("!$! TmpStr=[%s]",TmpStr);
+    //_D(SysLog("!$! TmpStr=[%s]",TmpStr));
             continue;
           }
         }
@@ -651,7 +653,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       {
         strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
         CurStr+=3;
-//SysLog("!-! TmpStr=[%s]",TmpStr);
+//_D(SysLog("!-! TmpStr=[%s]",TmpStr));
         continue;
       }
       /* $ 21.07.2000 IG
@@ -663,7 +665,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
         CurStr+=3;
         PreserveLFN=TRUE;
-//SysLog("!+! TmpStr=[%s]",TmpStr);
+//_D(SysLog("!+! TmpStr=[%s]",TmpStr));
         continue;
       }
       if (strncmp(CurStr,"!:",2)==0)
@@ -682,7 +684,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
         CurStr+=2;
-//SysLog("!: TmpStr=[%s]",TmpStr);
+//_D(SysLog("!: TmpStr=[%s]",TmpStr));
         continue;
       }
       /* $ 21.07.2000 IG
@@ -708,7 +710,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         CurStr+=5;
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
-//SysLog("!\\!.! TmpStr=[%s]",TmpStr);
+//_D(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
         continue;
       }
       if (strncmp(CurStr,"!\\",2)==0)
@@ -729,7 +731,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         }
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
-//SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir);
+//_D(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
         continue;
       }
       if (strncmp(CurStr,"!/",2)==0)
@@ -759,7 +761,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         }
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
-//SysLog("!/ TmpStr=[%s]",TmpStr);
+//_D(SysLog("!/ TmpStr=[%s]",TmpStr));
         continue;
       }
       if (*CurStr=='!')
@@ -767,7 +769,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,PointToName(PassivePanel ? AnotherNameOnly:NameOnly));
         CurStr++;
-//SysLog("! TmpStr=[%s]",TmpStr);
+//_D(SysLog("! TmpStr=[%s]",TmpStr));
         continue;
       }
     }
@@ -783,7 +785,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
     ReplaceVariables(TmpStr);
   strcpy(Str,TmpStr);
 
-//SysLog("<<<<<<<<<: [%s]\n",Str);
+//_D(SysLog("<<<<<<<<<: [%s]\n",Str));
   return(PreserveLFN);
 }
 

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.34 06.05.2001 $ */
+/* Revision: 1.35 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -449,7 +451,7 @@ int KeyMacro::ProcessKey(int Key)
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=Macros[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
-//SysLog("KeyMacro: %d (I=%d Key=0x%08X)",__LINE__,I,Key);
+//_D(SysLog("KeyMacro: %d (I=%d Key=0x%08X)",__LINE__,I,Key));
         if(!CheckAll(CurFlags))
           return FALSE;
 
@@ -549,7 +551,7 @@ done:
         goto begin;
       }
   }
-//SysLog("Key=0x%08X ExecMacroPos=%d", Key,ExecMacroPos);
+//_D(SysLog("Key=0x%08X ExecMacroPos=%d", Key,ExecMacroPos));
   return(Key);
 }
 

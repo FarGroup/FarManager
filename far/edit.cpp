@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.40 06.05.2001 $ */
+/* Revision: 1.41 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -1290,7 +1292,7 @@ int Edit::ProcessKey(int Key)
       Key = KEY_SPACE;
     /* VVM $ */
     default:
-//      SysLog("Key=0x%08X",Key);
+//      _D(SysLog("Key=0x%08X",Key));
 
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)
         break;

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.41 06.05.2001 $ */
+/* Revision: 1.42 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -472,7 +474,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
     while (!ChDisk.Done())
     {
-      //SysLog("ExitCode=%i",ChDisk.GetExitCode());
+      //_D(SysLog("ExitCode=%i",ChDisk.GetExitCode()));
       int SelPos=ChDisk.GetSelectPos();
       int Key;
       {
@@ -885,7 +887,7 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
             FileName[I]='/';
       }
     }
-//SysLog("%s[%s] %s",__FILE__,Modifers,FileName);
+//_D(SysLog("%s[%s] %s",__FILE__,Modifers,FileName));
     if (fprintf(ListFile,"%s\r\n",FileName)==EOF)
     {
       fclose(ListFile);

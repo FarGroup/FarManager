@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.79 07.05.2001 $ */
+/* Revision: 1.80 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! _D(x) для SysLog
   07.05.2001 DJ
    + LocalUpperFast(), LocalLowerFast(), CopyMaskStr()
   06.05.2001 DJ
@@ -672,6 +674,12 @@ void SysLog(int l);
 void SysLog(char *msg,...);
 void SysLog(int l,char *fmt,...); ///
 
+#if defined(SYSLOG)
+#define _D(x)  x
+#else
+#define _D(x)
+#endif
+
 void OpenSysLog();
 void CloseSysLog();
 
@@ -776,7 +784,6 @@ void qsortex(char *base, unsigned int nel, unsigned int width,
 #ifdef __cplusplus
 }
 #endif
-
 
 /* $ 01.05.2001 DJ
    inline-функции для быстрой конвертации

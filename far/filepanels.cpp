@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.04 07.05.2001 $ */
+/* Revision: 1.05 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
    - чтоб кейбар обновлялся
   06.05.2001 DJ
@@ -59,7 +61,7 @@ FilePanels::FilePanels()
   KeyBarVisible = Opt.ShowKeyBar;
   /* DJ $ */
 //  SetKeyBar(&MainKeyBar);
-//  SysLog("MainKeyBar=0x%p",&MainKeyBar);
+//  _D(SysLog("MainKeyBar=0x%p",&MainKeyBar));
 }
 
 void FilePanels::Init()
@@ -136,7 +138,7 @@ void FilePanels::SetScreenPositions()
   RedrawDesktop Redraw;
   CmdLine->Hide();
 
-  SysLog("FilePanels::SetScreenPositions()");
+  _D(SysLog("FilePanels::SetScreenPositions()"));
   CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
   MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
@@ -737,7 +739,7 @@ int  FilePanels::GetTypeAndName(char *Type,char *Name)
 
 void FilePanels::OnChangeFocus(int f)
 {
-    SysLog("FilePanels::OnChangeFocus(), focus=%i",f);
+    _D(SysLog("FilePanels::OnChangeFocus(), focus=%i",f));
     Focus=f;
     if ( f )
         Redraw();
@@ -745,7 +747,7 @@ void FilePanels::OnChangeFocus(int f)
 
 void FilePanels::Show()
 {
-    SysLog("FilePanels::Show()");
+    _D(SysLog("FilePanels::Show()"));
     Frame::Show();
 }
 
@@ -753,7 +755,7 @@ void FilePanels::Redraw()
 {
     if ( Focus==0 )
         return;
-    SysLog("FilePanels::Redraw()");
+    _D(SysLog("FilePanels::Redraw()"));
     if (LeftPanel->IsVisible())
         LeftPanel->Show();
     if (RightPanel->IsVisible())

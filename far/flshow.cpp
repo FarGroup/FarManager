@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.09 06.05.2001 $ */
+/* Revision: 1.10 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -58,7 +60,7 @@ static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
 void FileList::DisplayObject()
 {
   Height=Y2-Y1-4+!Opt.ShowColumnTitles+(Opt.ShowPanelStatus ? 0:2);
-  SysLog("FileList::DisplayObject()");///
+  _D(SysLog("FileList::DisplayObject()"));///
   if (UpdateRequired)
   {
     UpdateRequired=FALSE;

@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.03 07.05.2001 $ */
+/* Revision: 1.04 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
     ! причешем идентификаторы
   06.05.2001 DJ
@@ -41,7 +43,7 @@ void Frame::SetKeyBar(KeyBar *ModalKeyBar)
 
 void Frame::UpdateKeyBar()
 {
-    SysLog("Frame::UpdateKeyBar(), ModalKeyBar=0x%p",ModalKeyBar);
+    _D(SysLog("Frame::UpdateKeyBar(), ModalKeyBar=0x%p",ModalKeyBar));
     if ( ModalKeyBar!=NULL && KeyBarVisible )
         ModalKeyBar->RedrawIfChanged();
 }

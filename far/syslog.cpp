@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    + ¬ DumpExceptionInfo добавлена верси€ ‘ј–а в формате FAR_VERSION
   06.05.2001 DJ
     ! перетр€х #include
   06.05.2001 SVS
@@ -223,8 +225,9 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 Record {
     SizeRecord:DWORD    - общий размер
     RecFlags:DWORD      - дополнительные флаги (пока =0)
-    Time:SYSTEMTIME     - The system time is expressed in Coordinated Universal Time (UTC))
-    WinVer:OSVERSIONINFO
+    Time:SYSTEMTIME     - the system time is expressed in Coordinated Universal Time (UTC))
+    WinVer:OSVERSIONINFO- верси€ виндов
+    FARVersion:DWORD    - верси€ FAR Manager в формате FAR_VERSION
     SizePlugin:DWORD    - размер пол€ Plugin, если = 0 - то нету Plugin
     {Plugin:PLUGINITEM} * SizePlugin
     Regs:CONTEXT
@@ -235,7 +238,7 @@ Record {
     } * ExcRecCount
     SizeStack:DWORD     - размер пол€ Stack, если = 0 - то нету Stack
     {Stack} * SizeStack
-}
+} * CountRecords
 */
 int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module)
 {
@@ -264,6 +267,7 @@ int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module)
       // посчитаем размер записи
       SizeOfRecord=sizeof(SYSTEMTIME)+
                    sizeof(DWORD)+
+                   sizeof(FAR_VERSION)+
                    sizeof(CONTEXT)+
                    sizeof(DWORD)+
                    sizeof(DWORD)+
@@ -310,6 +314,8 @@ int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module)
       WriteFile(fp,&st,sizeof(st),&Temp,NULL);
       // OS
       WriteFile(fp,&WinVer,sizeof(WinVer),&Temp,NULL);
+      // FAR
+      WriteFile(fp,&FAR_VERSION,sizeof(FAR_VERSION),&Temp,NULL);
 
       // пишем данные по плагину, если надо
       WriteFile(fp,&SizePlugin,sizeof(SizePlugin),&Temp,NULL);

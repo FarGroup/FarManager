@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.58 06.05.2001 $ */
+/* Revision: 1.59 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   04.05.2001 OT
@@ -1630,7 +1632,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         FilePos=(FileSize-1)*(MsY-Y1)/(Y2-Y1-1);
         if ( FilePos>FileSize )
             FilePos=FileSize;
-        //SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent(FilePos,FileSize),FilePos,FileSize);
+        //_D(SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent(FilePos,FileSize),FilePos,FileSize));
         if(ToPercent(FilePos,FileSize) == 100)
           ProcessKey(KEY_CTRLEND);
         else
@@ -1665,7 +1667,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       NameLength=20;
     XTable=NameLength+1;
     XPos=NameLength+1+10+1+10+1;
-    //SysLog("MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos);
+    //_D(SysLog("MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
     if ( MsX>=XTable && MsX<=XTable+10 )
     {
         ProcessKey(KEY_SHIFTF8);

@@ -1525,7 +1525,7 @@ $ #Internal editor#
    #F6#                      Switch to viewer
    #F7#                      Search
    #Ctrl-F7#                 Replace
-   #Shift-F7#                Continue search
+   #Shift-F7#                Continue search/replace
    #F8#                      Toggle DOS/Windows text
    #Shift-F8#                Select custom character table
                            (see notes below)

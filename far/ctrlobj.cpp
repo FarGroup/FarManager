@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.22 06.05.2001 $ */
+/* Revision: 1.23 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -361,13 +363,13 @@ int ControlObject::ProcessKey(int Key)
   if (!Key)
     return(TRUE);
 ///
-  SysLog(1,"ControlObject::ProcessKey(), Key=%i, call ModalManager->ProcessKey",Key);
+  _D(SysLog(1,"ControlObject::ProcessKey(), Key=%i, call ModalManager->ProcessKey",Key));
   KeyProcessed=ModalManager.ProcessKey(Key);
-  SysLog("ControlObject::ProcessKey(), KeyProcessed=%i",KeyProcessed);
+  _D(SysLog("ControlObject::ProcessKey(), KeyProcessed=%i",KeyProcessed));
 
   if ( KeyProcessed==TRUE )
   {
-    SysLog(-1);
+    _D(SysLog(-1));
     return (TRUE);
   }
 ///

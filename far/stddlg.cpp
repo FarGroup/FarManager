@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.09 06.05.2001 $ */
+/* Revision: 1.10 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   16.03.2001 SVS
@@ -252,7 +254,7 @@ static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
 //    char KeyText[50];
 //    KeyToText(Param2,KeyText);
-//    SysLog("%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed);
+//    _D(SysLog("%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed));
     if(ShiftPressed && Param2 == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
     {
       DWORD Arr[1]={KEY_SHIFTENTER};

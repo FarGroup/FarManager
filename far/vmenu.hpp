@@ -10,10 +10,16 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.07 06.05.2001 $ */
+/* Revision: 1.08 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+   + AddItem, отличается тем, что параметр типа struct FarList - для
+     сокращения кода в диалогах :-)
+   + SortItems() - опять же - для диалогов
+   * Изменен тип возвращаемого значения для GetItemPtr() и убран первый
+     параметр функции - Item
   06.05.2001 DJ
    ! перетрях #include
   20.01.2001 SVS
@@ -69,6 +75,8 @@ enum{
 */
 #define VMENU_ALWAYSSCROLLBAR 0x0100
 #define VMENU_LISTBOX	      0x0200
+#define VMENU_SHOWNOBOX       0x0400
+//#define VMENU_LISTBOXSORT	  0x0800
 /* SVS $ */
 
 class Dialog;
@@ -183,6 +191,7 @@ class VMenu: public Modal
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
     int  AddItem(struct MenuItem *NewItem);
+    int  AddItem(struct FarList *NewItem);
     int  GetItemCount() {return(ItemCount);};
     int  GetUserData(void *Data,int Size,int Position=-1);
     int  GetSelectPos();
@@ -193,8 +202,10 @@ class VMenu: public Modal
     /* $ 20.09.2000 SVS
       + Функция GetItemPtr - получить указатель на нужный Item.
     */
-    BOOL GetItemPtr(struct MenuItem *Item,int Position=-1);
+    struct MenuItem *GetItemPtr(int Position=-1);
     /* SVS $*/
+
+    void SortItems(int Direction=0);
 
     /* $ 01.08.2000 SVS
        функция обработки меню (по умолчанию)

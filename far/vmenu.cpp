@@ -7,10 +7,17 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.16 06.05.2001 $ */
+/* Revision: 1.17 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
+    + AddItem, отличается тем, что параметр типа struct FarList - для
+      сокращения кода в диалогах :-)
+    + SortItems() - опять же - для диалогов
+    * Изменен тип возвращаемого значения для GetItemPtr() и убран первый
+      параметр функции - Item
   06.05.2001 DJ
     ! перетрях #include
   27.04.2001 VVM
@@ -213,7 +220,7 @@ void VMenu::Show()
     Sleep(10);
   CallCount++;
   if(VMenu::VMFlags&VMENU_LISTBOX)
-    BoxType=SHORT_DOUBLE_BOX;
+    BoxType=VMenu::VMFlags&VMENU_SHOWNOBOX?NO_BOX:SHORT_DOUBLE_BOX;
 
   int AutoCenter=FALSE,AutoHeight=FALSE;
   if (X1==-1)
@@ -351,7 +358,7 @@ void VMenu::ShowMenu(int IsParent)
 
   if(!IsParent && (VMenu::VMFlags&VMENU_LISTBOX))
   {
-    BoxType=SHORT_SINGLE_BOX;
+    BoxType=VMenu::VMFlags&VMENU_SHOWNOBOX?NO_BOX:SHORT_SINGLE_BOX;
     SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[0]);
     if (BoxType!=NO_BOX)
       Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
@@ -493,9 +500,52 @@ int VMenu::AddItem(struct MenuItem *NewItem)
     MaxLength=Length;
   if (Item[ItemCount].Selected)
     SelectPos=ItemCount;
+//  if(VMenu::VMFlags&VMENU_LISTBOXSORT)
+//    SortItems(0);
   CallCount--;
   return(ItemCount++);
 }
+
+int VMenu::AddItem(struct FarList *List)
+{
+  struct MenuItem ListItem={0};
+  if(List && List->Items)
+  {
+    struct FarListItem *Items=List->Items;
+    for (int J=0; J < List->ItemsNumber; J++)
+    {
+      ListItem.Separator=Items[J].Flags&LIF_SEPARATOR;
+      ListItem.Selected=Items[J].Flags&LIF_SELECTED;
+      ListItem.Checked=Items[J].Flags&LIF_CHECKED;
+      ListItem.Disabled=Items[J].Flags&LIF_DISABLE;
+      // здесь нужно добавить проверку на LIF_PTRDATA!!!
+      ListItem.Flags=0;
+      ListItem.PtrData=NULL;
+      if(Items[J].Flags&LIF_PTRDATA)
+      {
+        strncpy(ListItem.Name,Items[J].Ptr.PtrData,sizeof(ListItem.Name));
+        ListItem.UserDataSize=Items[J].Ptr.PtrLength;
+        if(Items[J].Ptr.PtrLength > sizeof(ListItem.UserData))
+        {
+          ListItem.PtrData=Items[J].Ptr.PtrData;
+          ListItem.Flags=1;
+        }
+        else
+          memmove(ListItem.UserData,Items[J].Ptr.PtrData,Items[J].Ptr.PtrLength);
+      }
+      else
+      {
+        strncpy(ListItem.Name,Items[J].Text,sizeof(ListItem.Name));
+        strncpy(ListItem.UserData,Items[J].Text,sizeof(ListItem.UserData));
+        ListItem.UserDataSize=strlen(Items[J].Text);
+      }
+      AddItem(&ListItem);
+    }
+  }
+  return ItemCount;
+}
+
+
 /* $ 01.08.2000 SVS
    функция удаления N пунктов меню
 */
@@ -896,7 +946,7 @@ int VMenu::GetUserData(void *Data,int Size,int Position)
   if (DataPos>=ItemCount)
     DataPos=ItemCount-1;
   int DataSize=Item[DataPos].UserDataSize;
-//  SysLog("VMenu::GetUserData: Size=%i, DataSize=%i",Size,DataSize);
+//  _D(SysLog("VMenu::GetUserData: Size=%i, DataSize=%i",Size,DataSize));
   /* $ 29.08.2000 tran
      - BUG with no \0 setting */
   if (DataSize>0 && Size>0 && Data!=NULL)
@@ -946,17 +996,16 @@ void VMenu::SetSelection(int Selection,int Position)
 #ifndef _MSC_VER
 #pragma warn -par
 #endif
-BOOL VMenu::GetItemPtr(struct MenuItem *Item1,int Position)
+struct MenuItem *VMenu::GetItemPtr(int Position)
 {
   if (ItemCount==0)
-    return FALSE;
+    return NULL;
   while (CallCount>0)
     Sleep(10);
   int Pos=(Position==-1) ? SelectPos : Position;
   if (Pos>=ItemCount)
     Pos=ItemCount-1;
-  Item1=&Item[Pos];
-  return TRUE;
+  return Item+Pos;
 }
 #ifndef _MSC_VER
 #pragma warn +par
@@ -1061,3 +1110,22 @@ long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
+
+static int _cdecl SortItem(const struct MenuItem *el1,
+                           const struct MenuItem *el2,
+                           const int *Direction)
+{
+  int Res=strcmp(el1->Name,el2->Name);
+  return(*Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
+}
+
+// Сортировка элементов списка
+void VMenu::SortItems(int Direction)
+{
+  typedef int (*qsortex_fn)(void*,void*,void*);
+  qsortex((char *)Item,
+          ItemCount,
+          sizeof(*Item),
+          (qsortex_fn)SortItem,
+          &Direction);
+}

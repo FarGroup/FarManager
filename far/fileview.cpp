@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.25 07.05.2001 $ */
+/* Revision: 1.26 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
     - кейбар не обновлялся
   06.05.2001 DJ
@@ -484,7 +486,7 @@ void FileViewer::OnDestroy()
 
 void FileViewer::OnChangeFocus(int f)
 {
-    SysLog("FileViewer::OnChangeFocus(), focus=%i",f);
+    _D(SysLog("FileViewer::OnChangeFocus(), focus=%i",f));
     if ( f )
     {
         Show();

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.38 07.05.2001 $ */
+/* Revision: 1.39 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
     + добавлен NameList (пока только для передачи обратно во вьюер при
       повторном нажатии F6)
@@ -157,7 +159,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
     return;
   FEdit.SetPluginData(PluginData);
   FEdit.SetHostFileEditor(this);
-  SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch);///
+  _D(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
   GetCurrentDirectory(sizeof(StartDir),StartDir);
   strcpy(FileName,Name);
@@ -638,7 +640,7 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnChangeFocus(int f)
 {
-    SysLog("FileEditor::OnChangeFocus(), focus=%i",f);
+    _D(SysLog("FileEditor::OnChangeFocus(), focus=%i",f));
     if ( f )
     {
         Show();

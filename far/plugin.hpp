@@ -8,13 +8,20 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.98 04.05.2001 $ */
+/* Revision: 1.99 07.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  07.05.2001 SVS
+    + DM_LISTADD, DM_LISTDELETE, DM_LISTGET, DM_LISTSORT, DM_LISTGETCURPOS,
+      DM_LISTSETCURPOS
+    + DIF_LISTNOBOX - рамку для DI_LISTBOX не рисовать
+    + struct FarListDelete
+    + Макросы DlgList_*, DlgItem_*, DlgEdit_*, Dlg_* - типа windowsx.h ;-)
+      Для затравки - глядишь и продолжат начинания :-)))
   04.05.2001 SVS
     ! Наконец то дошли руки до DI_LISTBOX ;-) - новый член FarDialogItem.ListPos
   24.04.2001 SVS
@@ -552,6 +559,7 @@ enum FarDialogItemFlags {
   DIF_VAREDIT         =0x00010000UL,
   DIF_EDITOR          =0x00020000UL,
   DIF_LISTNOAMPERSAND =0x00020000UL,
+  DIF_LISTNOBOX       =0x00040000UL,
   DIF_HISTORY         =0x00040000UL,
   DIF_BTNNOCLOSE      =0x00040000UL,
   DIF_EDITEXPAND      =0x00080000UL,
@@ -592,6 +600,13 @@ enum FarMessagesProc{
   DM_SETTEXTPTR,
   DM_SHOWITEM,
   DM_ADDHISTORY,
+
+  DM_LISTSORT,
+  DM_LISTGET,
+  DM_LISTGETCURPOS,
+  DM_LISTSETCURPOS,
+  DM_LISTDELETE,
+  DM_LISTADD,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -645,6 +660,12 @@ struct FarList
   struct FarListItem *Items;
 };
 
+struct FarListDelete
+{
+  int StartIndex;
+  int Count;
+};
+
 struct FarDialogItem
 {
   int Type;
@@ -671,6 +692,31 @@ struct FarDialogItem
   };
 };
 
+struct FarDialogItemData
+{
+  int   PtrLength;
+  char *PtrData;
+};
+
+#define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
+#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(long)Data)
+
+#define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
+#define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)
+#define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
+#define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
+#define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
+
+#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(long)Str)
+
+#define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
+#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,NewPos)
+#define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
+#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(long)&FLDItem);}
+#define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
+#define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
+
+
 struct FarMenuItem
 {
   char Text[128];
@@ -679,11 +725,6 @@ struct FarMenuItem
   int Separator;
 };
 
-struct FarDialogItemData
-{
-  int   PtrLength;
-  char *PtrData;
-};
 
 enum {FCTL_CLOSEPLUGIN,FCTL_GETPANELINFO,FCTL_GETANOTHERPANELINFO,
       FCTL_UPDATEPANEL,FCTL_UPDATEANOTHERPANEL,

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.17 06.05.2001 $ */
+/* Revision: 1.18 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! Search теперь возвращает TRUE/FALSE
   06.05.2001 DJ
     ! перетрях #include
   28.03.2001 SVS
@@ -181,7 +183,7 @@ class Editor:public ScreenObject
     void Down();
     void ScrollDown();
     void ScrollUp();
-    void Search(int Next);
+    BOOL Search(int Next);
     /* $ 05.07.2000 tran
        ! изменил тип возврата у GoToLine() с 'void ' на 'int'
        возвращаемое значение - это колонка, введенная пользователем

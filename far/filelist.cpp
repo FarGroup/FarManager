@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.49 06.05.2001 $ */
+/* Revision: 1.50 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -1767,10 +1769,10 @@ BOOL FileList::ChangeDir(char *NewDir)
           char *PtrS1=strchr(NewCurDir+2,'\\');
           if(PtrS1 && !strchr(PtrS1+1,'\\'))
           {
-  // SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
+  // _D(SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
             if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
             {
-  //SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir);
+  //_D(SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
               return(FALSE);
             }
           }

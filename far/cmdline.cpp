@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.18 06.05.2001 $ */
+/* Revision: 1.19 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -502,11 +504,11 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
         memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
         Cmd[PtrCmd-CmdStart]=0;
         Unquote(Cmd);
-//SysLog(Cmd);
+//_D(SysLog(Cmd));
         if (ExpandEnvironmentStrings(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
         {
           DWORD FileAttr=GetFileAttributes(ExpandedStr);
-//SysLog("%08X ExpandedStr=%s",FileAttr,ExpandedStr);
+//_D(SysLog("%08X ExpandedStr=%s",FileAttr,ExpandedStr));
           if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
           {
             while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
@@ -535,7 +537,7 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
           memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
           Cmd[PtrCmd-CmdStart]=0;
           DWORD ERet=GetEnvironmentVariable(Cmd,ExpandedStr,sizeof(ExpandedStr));
-//SysLog(Cmd);
+//_D(SysLog(Cmd));
           if(ERet && !Not || !ERet && Not)
           {
             while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;

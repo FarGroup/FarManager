@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.12 07.05.2001 $ */
+/* Revision: 1.13 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
     ! приведены в порядок CloseAll() и ExitAll()
   06.05.2001 DJ
@@ -142,14 +144,13 @@ BOOL Manager::IsAnyFrameModified(int Activate)
   return(FALSE);
 }
 
-
 void Manager::AddFrame(Frame *NewFrame)
 {
-  SysLog(1,"Manager::AddFrame(), NewFrame=0x%p, Type=%s",NewFrame,NewFrame->GetTypeName());
+  _D(SysLog(1,"Manager::AddFrame(), NewFrame=0x%p, Type=%s",NewFrame,NewFrame->GetTypeName()));
 
   if (FrameListSize < FrameCount+1)
   {
-    SysLog("Manager::AddFrame(), realloc list");
+    _D(SysLog("Manager::AddFrame(), realloc list"));
     FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
     FrameListSize++;
   }
@@ -161,27 +162,27 @@ void Manager::AddFrame(Frame *NewFrame)
 
   NextFrame(0);
 
-  SysLog("Manager::AddFrame(), end.");
-  SysLog(-1);
+  _D(SysLog("Manager::AddFrame(), end."));
+  _D(SysLog(-1));
   WaitInMainLoop=IsPanelsActive();
 }
 
 void Manager::DestroyFrame(Frame *Killed)
 {
     int i,j;
-    SysLog(1,"Manager::DestroyFrame(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName());
+    _D(SysLog(1,"Manager::DestroyFrame(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName()));
     for ( i=0; i<FrameCount; i++ )
     {
         if ( FrameList[i]==Killed )
         {
-            SysLog("Manager::DestroyFrame(), found at i=%i,FramePos=%i delete and shrink list",i,FramePos);
+            _D(SysLog("Manager::DestroyFrame(), found at i=%i,FramePos=%i delete and shrink list",i,FramePos));
             Killed->OnDestroy();
             for ( j=i+1; j<FrameCount; j++ )
                 FrameList[j-1]=FrameList[j];
             FrameCount--;
             if ( FramePos>=FrameCount )
                 FramePos=0;
-            SysLog("Manager::DestroyFrame(), new FrameCount=%i, FramePos=%i",FrameCount,FramePos);
+            _D(SysLog("Manager::DestroyFrame(), new FrameCount=%i, FramePos=%i",FrameCount,FramePos));
             break;
         }
     }
@@ -190,17 +191,16 @@ void Manager::DestroyFrame(Frame *Killed)
         if ( FrameCount )
         {
           SetCurrentFrame (FrameList[FramePos]);
-          SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0x%p, '%s'",CurrentFrame,
-            CurrentFrame->GetTypeName());
+          _D(SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0x%p, '%s'",CurrentFrame,CurrentFrame->GetTypeName()));
         }
         else
         {
             CurrentFrame=0;
-            SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0");
+            _D(SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0"));
         }
     }
-    SysLog("Manager::DestroyFrame() end.");
-    SysLog(-1);
+    _D(SysLog("Manager::DestroyFrame() end."));
+    _D(SysLog(-1));
     DestroyedFrame = Killed;
 }
 
@@ -231,7 +231,7 @@ int Manager::ExecuteModal (Frame &ModalFrame)
 
 void Manager::NextFrame(int Increment)
 {
-  SysLog(1,"Manager::NextFrame(), FramePos=%i, Increment=%i, FrameCount=%i",FramePos,Increment,FrameCount);
+  _D(SysLog(1,"Manager::NextFrame(), FramePos=%i, Increment=%i, FrameCount=%i",FramePos,Increment,FrameCount));
   if (FrameCount>0)
   {
     FramePos+=Increment;
@@ -240,7 +240,7 @@ void Manager::NextFrame(int Increment)
   }
   if (FramePos>=FrameCount)
     FramePos=0;
-  SysLog("Manager::NextFrame(), new FramePos=%i",FramePos);
+  _D(SysLog("Manager::NextFrame(), new FramePos=%i",FramePos));
   Frame *CurFrame=FrameList[FramePos];
 
   if (CurrentFrame)
@@ -248,7 +248,7 @@ void Manager::NextFrame(int Increment)
 
   SetCurrentFrame (CurFrame);
 
-  SysLog("Manager::NextFrame(), set CurrentFrame=0x%p, %s",CurrentFrame,CurrentFrame->GetTypeName());
+  _D(SysLog("Manager::NextFrame(), set CurrentFrame=0x%p, %s",CurrentFrame,CurrentFrame->GetTypeName()));
 
   if (CurFrame->GetType()==MODALTYPE_EDITOR)
     UpdateRequired=TRUE;
@@ -293,7 +293,7 @@ void Manager::NextFrame(int Increment)
   CtrlObject->Cp()->RightPanel->Redraw();
   CtrlObject->CmdLine.Redraw();
   CtrlObject->MainKeyBar.Redraw();*/
-  SysLog(-1);
+  _D(SysLog(-1));
 }
 
 
@@ -378,7 +378,7 @@ int  Manager::GetFrameCountByType(int Type)
 
 void Manager::SetFramePos(int NewPos)
 {
-  SysLog("Manager::SetFramePos(), NewPos=%i",NewPos);
+  _D(SysLog("Manager::SetFramePos(), NewPos=%i",NewPos));
   FramePos=NewPos;
 }
 
@@ -494,34 +494,34 @@ int  Manager::ProcessKey(int Key)
     int ret=FALSE;
     char kn[32];
     KeyToText(Key,kn);
-    SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn);
+    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
 
     if ( CurrentFrame)
     {
-      SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName());;
+      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
       switch(Key)
         {
             case KEY_F11:
                 PluginsMenu();
-                SysLog(-1);
+                _D(SysLog(-1));
                 return TRUE;
             case KEY_F12:
                 if (CurrentFrame->GetCanLoseFocus())
                     SelectFrame();
-                SysLog(-1);
+                _D(SysLog(-1));
                 return TRUE;
             case KEY_CTRLTAB:
                 if (CurrentFrame->GetCanLoseFocus())
                     NextFrame(1);
-                SysLog(-1);
+                _D(SysLog(-1));
                 return TRUE;
             case KEY_CTRLSHIFTTAB:
                 if (CurrentFrame->GetCanLoseFocus())
                     NextFrame(-1);
-                SysLog(-1);
+                _D(SysLog(-1));
                 return TRUE;
         }
-        SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName());;
+        _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
         CurrentFrame->UpdateKeyBar();
         // сохраняем, потому что внутри ProcessKey
         // может быть вызван AddModal и
@@ -535,31 +535,31 @@ int  Manager::ProcessKey(int Key)
             DestroyFrame(cw);
         }
     }
-    SysLog("Manager::ProcessKey() ret=%i",ret);
-    SysLog(-1);
+    _D(SysLog("Manager::ProcessKey() ret=%i",ret));
+    _D(SysLog(-1));
     return ret;
 }
 
 int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
     int ret=FALSE;
-//    SysLog(1,"Manager::ProcessMouse()");
+//    _D(SysLog(1,"Manager::ProcessMouse()"));
     if ( CurrentFrame)
         ret=CurrentFrame->ProcessMouse(MouseEvent);
-//    SysLog("Manager::ProcessMouse() ret=%i",ret);
-    SysLog(-1);
+//    _D(SysLog("Manager::ProcessMouse() ret=%i",ret));
+    _D(SysLog(-1));
     return ret;
 }
 
 void Manager::PluginsMenu()
 {
-  SysLog(1);
+  _D(SysLog(1));
  // Поменялся вызов коммандс Разобраться
 ///    CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
   int curType = CurrentFrame->GetType();
   if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)
     CtrlObject->Plugins.CommandsMenu(curType,0,0);
-  SysLog(-1);
+  _D(SysLog(-1));
 }
 
 BOOL Manager::IsPanelsActive()

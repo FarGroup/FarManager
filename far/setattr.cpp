@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.26 06.05.2001 $ */
+/* Revision: 1.27 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -825,8 +827,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       SrcPanel->GetSelName(NULL,FileAttr);
       while (SrcPanel->GetSelName(SelName,FileAttr) && !Cancel)
       {
-//SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
-// SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr)));
+//_D(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
+// SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
         Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),
           CenterStr(TruncPathStr(strcpy(OutFileName,SelName),40),OutFileName,44));
 

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.29 07.05.2001 $ */
+/* Revision: 1.30 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
   07.05.2001 SVS
     - При быстром поиске Alt-Shift-'-' не начинает поиск файлов, начинающихся
       с '_', а начинает с '-'. Раньше работало нормально.
@@ -441,7 +443,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 
   ReturnAltValue=FALSE;
   CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
-//SysLog("1) CalcKey=0x%08X",CalcKey);
+//_D(SysLog("1) CalcKey=0x%08X",CalcKey));
   if (ReturnAltValue && !NotMacros)
   {
     if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
@@ -792,7 +794,7 @@ int WINAPI KeyNameToKey(char *Name)
        Key|=ModifKeyName[I].Key;
      }
    }
-//SysLog("Name=%s",Name);
+//_D(SysLog("Name=%s",Name));
    // если что-то осталось - преобразуем.
    if(Pos < Len)
    {
@@ -814,7 +816,7 @@ int WINAPI KeyNameToKey(char *Name)
        }
      }
    }
-//SysLog("Key=0x%08X (%c)",Key,(Key?Key:' '));
+//_D(SysLog("Key=0x%08X (%c)",Key,(Key?Key:' ')));
 
    return (!Key)? -1: Key;
 }
@@ -861,7 +863,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
     strncpy(KeyText0,KeyText,Size);
   else
     strcpy(KeyText0,KeyText);
-//SysLog("KeyToText() 0x%08X %s",Key,KeyText);
+//_D(SysLog("KeyToText() 0x%08X %s",Key,KeyText));
   return TRUE;
 }
 /* SVS 10.09.2000 $ */
@@ -1140,7 +1142,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
-//if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//_D(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -1188,7 +1190,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-//if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind);
+//_D(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
     if (KeyCode>='0' && KeyCode<='9')
     {
       if(WaitInFastFind>0)
@@ -1257,7 +1259,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
-//if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//_D(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1329,7 +1331,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
-//if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//_D(if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1380,7 +1382,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-//if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
+//_D(if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {

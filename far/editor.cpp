@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.92 07.05.2001 $ */
+/* Revision: 1.93 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    ! SysLog(); -> _D(SysLog());
+    ! Search теперь возвращает TRUE/FALSE
   07.05.2001 IS
     - Баги: по shift-f7 продолжалась замена, хотя должен был быть поиск
       В Paste устранил потенциальный баг с delete []
@@ -432,7 +435,7 @@ Editor::~Editor()
   if (!OpenFailed)
   {
     CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_CLOSE",__LINE__);
+//_D(SysLog("%08d EE_CLOSE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&EditorID);
   }
 
@@ -715,7 +718,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
                (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
-      //SysLog("after Get cache, LeftPos=%i",LeftPos);
+      //_D(SysLog("after Get cache, LeftPos=%i",LeftPos));
       TableChangedByUser=(Table!=0);
       switch(Table)
       {
@@ -748,7 +751,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         CurLine->EditLine.SetTabCurPos(LinePos);
         DisableOut--;
       }
-      //SysLog("Setleftpos to %i",LeftPos);
+      //_D(SysLog("Setleftpos to %i",LeftPos));
       CurLine->EditLine.SetLeftPos(LeftPos);
     }
   }
@@ -779,7 +782,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
                (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
-        //SysLog("after Get cache 2, LeftPos=%i",LeftPos);
+        //_D(SysLog("after Get cache 2, LeftPos=%i",LeftPos));
         TableChangedByUser=(Table!=0);
         switch(Table)
         {
@@ -815,7 +818,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         for (int I=0;I<ScreenLine;I++)
           ProcessKey(KEY_DOWN);
         CurLine->EditLine.SetTabCurPos(LinePos);
-        //SysLog("Setleftpos 2 to %i",LeftPos);
+        //_D(SysLog("Setleftpos 2 to %i",LeftPos));
         CurLine->EditLine.SetLeftPos(LeftPos);
         DisableOut--;
       }
@@ -825,7 +828,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
       CurPtr->EditLine.SetTables(&TableSet);
 
   CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_READ",__LINE__);
+//_D(SysLog("%08d EE_READ",__LINE__));
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   return(TRUE);
 }
@@ -903,7 +906,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
     }
 
     CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_SAVE",__LINE__);
+//_D(SysLog("%08d EE_SAVE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
     DWORD Flags=FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN;
@@ -1013,7 +1016,7 @@ void Editor::ShowEditor(int CurLineOnly)
   CtrlObject->Plugins.CurEditor=this;
   /* skv$*/
 
-  //SysLog("ShowEditor, CurLineOnly=%i",CurLineOnly);
+  //_D(SysLog("ShowEditor, CurLineOnly=%i",CurLineOnly));
 
   while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
   {
@@ -1033,7 +1036,7 @@ void Editor::ShowEditor(int CurLineOnly)
     {
       CurLine->EditLine.SetCurPos(Length);
       CurLine->EditLine.SetLeftPos(0);
-      //SysLog("call CurLine->EditLine.FastShow()");
+      //_D(SysLog("call CurLine->EditLine.FastShow()"));
       CurLine->EditLine.FastShow();
       CurPos=CurLine->EditLine.GetTabCurPos();
     }
@@ -1050,7 +1053,7 @@ void Editor::ShowEditor(int CurLineOnly)
       /*$ 13.09.2000 skv
         EE_REDRAW 1 and 2 replaced.
       */
-//SysLog("%08d EE_REDRAW",__LINE__);
+//_D(SysLog("%08d EE_REDRAW",__LINE__));
       if(JustModified)
       {
         JustModified=0;
@@ -1071,7 +1074,7 @@ void Editor::ShowEditor(int CurLineOnly)
         CurPtr->EditLine.SetEditBeyondEnd(TRUE);
         CurPtr->EditLine.SetPosition(X1,Y,X2,Y);
         CurPtr->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
-        //SysLog("Setleftpos 3 to %i",LeftPos);
+        //_D(SysLog("Setleftpos 3 to %i",LeftPos));
         CurPtr->EditLine.SetLeftPos(LeftPos);
         CurPtr->EditLine.SetTabCurPos(CurPos);
         CurPtr->EditLine.FastShow();
@@ -1583,7 +1586,7 @@ int Editor::ProcessKey(int Key)
           {
             PrevLine->EditLine.Select(SelStart,-1);
             CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_REDRAW",__LINE__);
+//_D(SysLog("%08d EE_REDRAW",__LINE__));
             CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
             PrevLine->EditLine.FastShow();
           }
@@ -1591,7 +1594,7 @@ int Editor::ProcessKey(int Key)
         Pasting--;
       }
       CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_REDRAW",__LINE__);
+//_D(SysLog("%08d EE_REDRAW",__LINE__));
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
       return(TRUE);
     case KEY_CTRLSHIFTLEFT:
@@ -2129,15 +2132,29 @@ int Editor::ProcessKey(int Key)
       ShowProcessList();
       return(TRUE);
     case KEY_F7:
+    {
+      int ReplaceMode0=ReplaceMode;
+      int ReplaceAll0=ReplaceAll;
       ReplaceMode=ReplaceAll=FALSE;
-      Search(FALSE);
+      if(!Search(FALSE))
+      {
+        ReplaceMode=ReplaceMode0;
+        ReplaceAll=ReplaceAll0;
+      }
       return(TRUE);
+    }
     case KEY_CTRLF7:
       if (!LockMode)
       {
+        int ReplaceMode0=ReplaceMode;
+        int ReplaceAll0=ReplaceAll;
         ReplaceMode=TRUE;
         ReplaceAll=FALSE;
-        Search(FALSE);
+        if(!Search(FALSE))
+        {
+          ReplaceMode=ReplaceMode0;
+          ReplaceAll=ReplaceAll0;
+        }
       }
       return(TRUE);
     case KEY_SHIFTF7:
@@ -2149,7 +2166,7 @@ int Editor::ProcessKey(int Key)
       /* $ 07.05.2001 IS
          Сказано в хелпе "Shift-F7 Продолжить _поиск_"
       */
-      ReplaceMode=FALSE;
+      //ReplaceMode=FALSE;
       /* IS */
       MarkingBlock=FALSE;
       MarkingVBlock=FALSE;
@@ -2255,8 +2272,8 @@ int Editor::ProcessKey(int Key)
       }
       Pasting--;
       Show();
-      //SysLog("VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos());
-      //SysLog("~~~~~~~~~~~~~~~~ KEY_ALTLEFT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+      //_D(SysLog("VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
+      //_D(SysLog("~~~~~~~~~~~~~~~~ KEY_ALTLEFT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
       return(TRUE);
     case KEY_ALTSHIFTRIGHT:
     case KEY_ALTRIGHT:
@@ -2277,7 +2294,7 @@ int Editor::ProcessKey(int Key)
       /* $ 21.07.2000 tran
          bug22 - продолжение
       */
-      //SysLog("---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos());
+      //_D(SysLog("---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos()));
       Pasting++;
       {
         int Delta;
@@ -2288,11 +2305,11 @@ int Editor::ProcessKey(int Key)
         */
         int VisPos=CurLine->EditLine.RealPosToTab(CurPos),
             NextVisPos=CurLine->EditLine.RealPosToTab(CurPos+1);
-        //SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
-        //    CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos());
+        //_D(SysLog("CurPos=%i, VisPos=%i, NextVisPos=%i",
+        //    CurPos,VisPos, NextVisPos); //,CurLine->EditLine.GetTabCurPos()));
 
         Delta=NextVisPos-VisPos;
-         //SysLog("Delta=%i",Delta);
+         //_D(SysLog("Delta=%i",Delta));
         /* tran $ */
 
         if (CurLine->EditLine.GetTabCurPos()>=VBlockX+VBlockSizeX)
@@ -2311,11 +2328,11 @@ int Editor::ProcessKey(int Key)
         }
         /* tran 25.07.2000 $ */
         ProcessKey(KEY_RIGHT);
-        //SysLog("VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos());
+        //_D(SysLog("VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
       }
       Pasting--;
       Show();
-      //SysLog("~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+      //_D(SysLog("~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
       /* tran 21.07.2000 $ */
 
       return(TRUE);
@@ -2432,7 +2449,7 @@ int Editor::ProcessKey(int Key)
       /* tran 21.07.2000 $ */
       Pasting--;
       Show();
-      //SysLog("~~~~~~~~ ALT_PGUP, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+      //_D(SysLog("~~~~~~~~ ALT_PGUP, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
       return(TRUE);
     case KEY_ALTSHIFTDOWN:
     case KEY_ALTDOWN:
@@ -2462,7 +2479,7 @@ int Editor::ProcessKey(int Key)
       /* tran 21.07.2000 $ */
       Pasting--;
       Show();
-      //SysLog("~~~~ Key_AltDOWN: VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+      //_D(SysLog("~~~~ Key_AltDOWN: VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
       return(TRUE);
     case KEY_ALTSHIFTHOME:
     case KEY_ALTHOME:
@@ -2611,7 +2628,7 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_LEFT);
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_REDRAW",__LINE__);
+//_D(SysLog("%08d EE_REDRAW",__LINE__));
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           return(TRUE);
         }
@@ -2625,7 +2642,7 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_DOWN);
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_REDRAW",__LINE__);
+//_D(SysLog("%08d EE_REDRAW",__LINE__));
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           /*$ 03.02.2001 SKV
             А то EEREDRAW_ALL то уходит, а на самом деле
@@ -2759,7 +2776,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     else
     {
       CtrlObject->Plugins.CurEditor=this;
-//SysLog("%08d EE_REDRAW",__LINE__);
+//_D(SysLog("%08d EE_REDRAW",__LINE__));
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
     }
     return(TRUE);
@@ -3232,7 +3249,7 @@ void Editor::ScrollUp()
    в отдельную функцию GetSearchReplaceString
    (файл stddlg.cpp)
 */
-void Editor::Search(int Next)
+BOOL Editor::Search(int Next)
 {
   struct EditList *CurPtr;
   unsigned char SearchStr[256],ReplaceStr[256];
@@ -3246,7 +3263,7 @@ void Editor::Search(int Next)
   int CurPos,Count,Case,WholeWords,ReverseSearch,Match,NewNumLine,UserBreak;
   /* KM $ */
   if (Next && *LastSearchStr==0)
-    return;
+    return TRUE;
 
   strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr));
   strncpy((char *)ReplaceStr,(char *)LastReplaceStr,sizeof(ReplaceStr));
@@ -3258,7 +3275,7 @@ void Editor::Search(int Next)
     if(!GetSearchReplaceString(ReplaceMode,SearchStr,ReplaceStr,
                    TextHistoryName,ReplaceHistoryName,
                    &Case,&WholeWords,&ReverseSearch))
-      return;
+      return FALSE;
 
   strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
   strncpy((char *)LastReplaceStr,(char *)ReplaceStr,sizeof(LastReplaceStr));
@@ -3267,7 +3284,7 @@ void Editor::Search(int Next)
   LastSearchReverse=ReverseSearch;
 
   if (*SearchStr==0)
-    return;
+    return TRUE;
 
   LastSuccessfulReplaceMode=ReplaceMode;
 
@@ -3496,6 +3513,7 @@ void Editor::Search(int Next)
   if (!Match && !UserBreak)
     Message(MSG_DOWN|MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
             MsgStr,MSG(MOk));
+   return TRUE;
 }
 /* SVS $ */
 
@@ -3859,7 +3877,7 @@ void Editor::GoToPosition()
 
   GetRowCol(GoToDlg[1].Data,&NewLine,&NewCol);
 
-  //SysLog("GoToPosition: NewLine=%i, NewCol=%i",NewLine,NewCol);
+  //_D(SysLog("GoToPosition: NewLine=%i, NewCol=%i",NewLine,NewCol));
   GoToLine(NewLine);
 
   if ( NewCol == -1)
@@ -4381,7 +4399,6 @@ void Editor::DeleteVBlock()
   BlockUndo=FALSE;
 }
 
-
 void Editor::VCopy(int Append)
 {
   struct EditList *CurPtr=VBlockStart;
@@ -4400,7 +4417,6 @@ void Editor::VCopy(int Append)
         PrevSize=DataSize=strlen(CopyData);
     }
   }
-
 
   for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
   {
@@ -4449,7 +4465,6 @@ void Editor::VCopy(int Append)
     delete CopyData;
   }
 }
-
 
 void Editor::VPaste(char *ClipText)
 {
@@ -5155,7 +5170,7 @@ void Editor::BeginVBlockMarking()
     VBlockSizeY=1;
     MarkingVBlock=TRUE;
     BlockStartLine=NumLine;
-    //SysLog("BeginVBlockMarking, set vblock to  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+    //_D(SysLog("BeginVBlockMarking, set vblock to  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 }
 
 void Editor::AdjustVBlock(int PrevX)
@@ -5163,13 +5178,13 @@ void Editor::AdjustVBlock(int PrevX)
     int x=GetLineCurPos();
     int c2;
 
-    //SysLog("AdjustVBlock, x=%i,   vblock is VBlockY=%i:%i, VBlockX=%i:%i, PrevX=%i",x,VBlockY,VBlockSizeY,VBlockX,VBlockSizeX,PrevX);
+    //_D(SysLog("AdjustVBlock, x=%i,   vblock is VBlockY=%i:%i, VBlockX=%i:%i, PrevX=%i",x,VBlockY,VBlockSizeY,VBlockX,VBlockSizeX,PrevX));
     if ( x==VBlockX+VBlockSizeX)  // ничего не случилось, никаких табуляций нет
         return;
     if ( x>VBlockX )  // курсор убежал внутрь блока
     {
         VBlockSizeX=x-VBlockX;
-        //SysLog("x>VBlockX");
+        //_D(SysLog("x>VBlockX");
     }
     else if ( x<VBlockX ) // курсор убежал за начало блока
     {
@@ -5184,18 +5199,18 @@ void Editor::AdjustVBlock(int PrevX)
             VBlockX=x;
             VBlockSizeX+=c2-x;  // расширяем блок
         }
-        //SysLog("x<VBlockX");
+        //_D(SysLog("x<VBlockX"));
     }
     else if (x==VBlockX && x!=PrevX)
     {
         VBlockSizeX=0;  // ширина в 0, потому прыгнули прям на табуляцию
-        //SysLog("x==VBlockX && x!=PrevX");
+        //_D(SysLog("x==VBlockX && x!=PrevX"));
     }
     // примечание
     //   случай x>VBLockX+VBlockSizeX не может быть
     //   потому что курсор прыгает назад на табуляцию, но не вперед
 
-    //SysLog("AdjustVBlock, changed vblock  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
+    //_D(SysLog("AdjustVBlock, changed vblock  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 }
 
 

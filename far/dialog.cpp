@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.92 07.05.2001 $ */
+/* Revision: 1.93 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    + DM_LISTSORT, DM_LISTADD, DM_LISTDELETE, DM_LISTGET, DM_LISTGETCURPOS,
+      DM_LISTSETCURPOS
+    ! SysLog(); -> _D(SysLog());
   07.05.2001 SVS
     ! При отключенном автодополнении можно воспользоваться клавишами Ctrl-End
   06.05.2001 DJ
@@ -743,16 +747,12 @@ int Dialog::InitDialogObjects(int ID)
     {
       if (!CheckDialogMode(DMODE_CREATEOBJECTS))
         CurItem->ObjPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
-                               VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
+                        VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
 
       VMenu *ListBox=(VMenu *)CurItem->ObjPtr;
 
       if(ListBox)
       {
-        // удалим все итемы
-        ListBox->DeleteItems();
-
-        struct MenuItem ListItem={0};
         /* $ 13.09.2000 SVS
            + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
              DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
@@ -760,46 +760,15 @@ int Dialog::InitDialogObjects(int ID)
         */
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
           ListBox->SetFlags(MENU_SHOWAMPERSAND);
+        if(ItemFlags&DIF_LISTNOBOX)
+          ListBox->SetFlags(VMENU_SHOWNOBOX);
         /* SVS $*/
         ListBox->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
         ListBox->SetBoxType(SHORT_SINGLE_BOX);
-
-        struct FarList *List=CurItem->ListItems;
-        if(List && List->Items)
-        {
-          struct FarListItem *Items=List->Items;
-          for (J=0; J < List->ItemsNumber; J++)
-          {
-            ListItem.Separator=Items[J].Flags&LIF_SEPARATOR;
-            ListItem.Selected=Items[J].Flags&LIF_SELECTED;
-            ListItem.Checked=Items[J].Flags&LIF_CHECKED;
-            ListItem.Disabled=Items[J].Flags&LIF_DISABLE;
-            // здесь нужно добавить проверку на LIF_PTRDATA!!!
-            ListItem.Flags=0;
-            ListItem.PtrData=NULL;
-            if(Items[J].Flags&LIF_PTRDATA)
-            {
-              strncpy(ListItem.Name,Items[J].Ptr.PtrData,sizeof(ListItem.Name));
-              ListItem.UserDataSize=Items[J].Ptr.PtrLength;
-              if(Items[J].Ptr.PtrLength > sizeof(ListItem.UserData))
-              {
-                ListItem.PtrData=Items[J].Ptr.PtrData;
-                ListItem.Flags=1;
-              }
-              else
-                memmove(ListItem.UserData,Items[J].Ptr.PtrData,Items[J].Ptr.PtrLength);
-            }
-            else
-            {
-              strncpy(ListItem.Name,Items[J].Text,sizeof(ListItem.Name));
-              strncpy(ListItem.UserData,Items[J].Text,sizeof(ListItem.UserData));
-              ListItem.UserDataSize=strlen(Items[J].Text);
-            }
-
-            ListBox->AddItem(&ListItem);
-          }
-        }
+        // удалим все итемы
+        //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
+        ListBox->AddItem(CurItem->ListItems);
       }
     }
     /* SVS $*/
@@ -2551,7 +2520,7 @@ int Dialog::ProcessKey(int Key)
                          (void *)Item[FocusPos].Selected,PStr,MaxLen))
             /* IS $ */
             {
-//SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
+//_D(SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos));
               edt->SetString(PStr);
               edt->Select(SelEnd,MaxLen); //select the appropriate text
               //edt->Select(CurPos,sizeof(Str)); //select the appropriate text
@@ -2617,7 +2586,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(TRUE);
   }
 
-//SysLog("Ms (%d,%d)",MsX,MsY);
+//_D(SysLog("Ms (%d,%d)",MsX,MsY));
   if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
   {
     // первый цикл - все за исключением рамок.
@@ -2629,11 +2598,11 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       GetItemRect(I,Rect);
       Rect.left+=X1;  Rect.top+=Y1;
       Rect.right+=X1; Rect.bottom+=Y1;
-//SysLog("? %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data);
+//_D(SysLog("? %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data));
 
       if(MsX >= Rect.left && MsY >= Rect.top && MsX <= Rect.right && MsY <= Rect.bottom)
       {
-//SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data);
+//_D(SysLog("+ %2d) Rect (%2d,%2d) (%2d,%2d) '%s'",I,Rect.left,Rect.top,Rect.right,Rect.bottom,Item[I].Data));
         // для прозрачных :-)
         if(Item[I].Type == DI_SINGLEBOX || Item[I].Type == DI_DOUBLEBOX)
         {
@@ -3196,7 +3165,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
     /* $ 28.07.2000 SVS
        Введенные буковки не затрагиваем, а дополняем недостающее.
     */
-//SysLog("FindInEditForAC()  FindStr=%s Str=%s",FindStr,&Str[strlen(FindStr)]);
+//_D(SysLog("FindInEditForAC()  FindStr=%s Str=%s",FindStr,&Str[strlen(FindStr)]));
     strncat(FindStr,&Str[LenFindStr],MaxLen-LenFindStr);
     /* SVS $ */
     free(Str);
@@ -3972,6 +3941,97 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
   switch(Msg)
   {
+    case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
+    case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
+    case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
+    case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+    case DM_LISTGETCURPOS: // Param1=ID Param2=0
+    case DM_LISTSETCURPOS: // Param1=ID Param2=NewPos Ret: RealPos
+    //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+      if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
+      {
+        VMenu *ListBox=(VMenu *)CurItem->ObjPtr;
+        if(ListBox)
+        {
+          int Ret=TRUE;
+          switch(Msg)
+          {
+            case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
+            {
+              ListBox->SortItems(Param2);
+              break;
+            }
+            case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
+            {
+              struct FarList *ListItems=(struct FarList *)Param2;
+              if(!ListItems)
+                return FALSE;
+              ListBox->AddItem(ListItems);
+              break;
+            }
+            case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
+            {
+              int Count;
+              struct FarListDelete *ListItems=(struct FarListDelete *)Param2;
+              if(!ListItems || (Count=ListItems->Count) <= 0)
+                ListBox->DeleteItems();
+              else
+                ListBox->DeleteItem(ListItems->StartIndex,Count);
+              break;
+            }
+            case DM_LISTGETCURPOS: // Param1=ID Param2=0
+            {
+              return ListBox->GetSelectPos();
+            }
+            case DM_LISTSETCURPOS: // Param1=ID Param2=NewPos Ret: RealPos
+            {
+              Ret=ListBox->SetSelectPos(Param2,1);
+              break; // т.к. нужно перерисовать!
+            }
+            case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+            {
+              struct FarList *ListItems=(struct FarList *)Param2;
+              if(!ListItems)
+                return FALSE;
+              struct MenuItem *ListMenuItem;
+              if((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemsNumber)) != NULL)
+              {
+                ListItems->ItemsNumber=1;
+                struct FarListItem *Items=ListItems->Items;
+                if(Items)
+                {
+                  memset(Items,0,sizeof(struct FarListItem));
+                  Items->Flags|=ListMenuItem->Separator?LIF_SEPARATOR:0;
+                  Items->Flags|=ListMenuItem->Selected?LIF_SELECTED:0;
+                  Items->Flags|=ListMenuItem->Checked?LIF_CHECKED:0;
+                  Items->Flags|=ListMenuItem->Disabled?LIF_DISABLE:0;
+                  Items->Flags|=ListMenuItem->Flags&1?LIF_PTRDATA:0;
+                  if(ListMenuItem->Flags&1)
+                  {
+                    Items->Ptr.PtrData=ListMenuItem->PtrData;
+                    Items->Ptr.PtrLength=ListMenuItem->UserDataSize;
+                  }
+                  else
+                  {
+                    strncpy(Items->Text,ListMenuItem->Name,sizeof(Items->Text));
+                  }
+                  return TRUE;
+                }
+              }
+              return FALSE;
+            }
+            //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+          }
+          if(Dlg->CheckDialogMode(DMODE_SHOW))
+          {
+            Dlg->ShowDialog(Param1);
+            ScrBuf.Flush();
+          }
+          return Ret;
+        }
+      }
+      return FALSE;
+
     case DM_ADDHISTORY:
       if(Param2 &&
          (Type==DI_EDIT || Type==DI_FIXEDIT) &&
