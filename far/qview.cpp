@@ -5,13 +5,15 @@ Quick view panel
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 IS
+    - Не показывать тип файла для каталогов в "Быстром просмотре"
 */
 
 #include "headers.hpp"
@@ -261,6 +263,11 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   }
   if (hDirPlugin || (FileAttr=GetFileAttributes(CurFileName))!=-1 && (FileAttr & FA_DIREC))
   {
+    /* $ 28.06.2000 IS
+     Не показывать тип файла для каталогов в "Быстром просмотре" /
+    */
+    *CurFileType=0;
+    /* IS $ */
     if (hDirPlugin)
     {
       int ExitCode=GetPluginDirInfo(hDirPlugin,CurFileName,DirCount,
