@@ -880,7 +880,7 @@ for following operations:
 @FindFile
 $ #Find file#
     This command allows to locate in the folder tree one or more
-files and folders matching one or more wildcards (delimited
+files and folders matching one or more ~wildcards~@FileMasks@ (delimited
 with commas). It may also be used with file systems emulated
 by ~plugins~@Plugins@.
 
