@@ -5,13 +5,16 @@ editor.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  28.06.2000 tran
+    - trap при размере вертикального блока более 1000 колонок
+
 */
 
 #include "headers.hpp"
@@ -646,7 +649,11 @@ void Editor::ShowEditor(int CurLineOnly)
       {
         if (CurScreenLine>=VBlockY && CurScreenLine<VBlockY+VBlockSizeY)
         {
-          CHAR_INFO SelBuf[1000];
+          /* $ 28.06.2000 tran
+             убираем трап при ширине вертикального блока
+             более 1000 колонок */
+
+          CHAR_INFO SelBuf[300];
           int BlockX1=VBlockX-LeftPos;
           int BlockX2=VBlockX+VBlockSizeX-1-LeftPos;
           if (BlockX1<X1)
@@ -658,10 +665,15 @@ void Editor::ShowEditor(int CurLineOnly)
             GetText(BlockX1,Y,BlockX2,Y,SelBuf);
             SetColor(COL_EDITORSELECTEDTEXT);
             int SelColor=GetColor();
-            for (int I=0;I<VBlockSizeX;I++)
+            /* tran: было I<VBlockSizeX
+               теперь мы заполняем массив ровно столько
+               сколько показываем
+            */
+            for (int I=0;I<=BlockX2;I++)
               SelBuf[I].Attributes=SelColor;
             PutText(BlockX1,Y,BlockX2,Y,SelBuf);
           }
+          /* tran $ */
         }
         CurPtr=CurPtr->Next;
         CurScreenLine++;
