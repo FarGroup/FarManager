@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.01 05.01.2001 $ */
+/* Revision: 1.02 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    ! GetPathRoot переехала в fn.hpp :-)
   05.01.2001 SVS
     + Функция DelSubstDrive - удаление Subst драйвера
     + Функция GetSubstName переехала из fh.hpp
@@ -31,5 +33,6 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 
 BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize);
 int DelSubstDrive(char *DosDeviceName);
+void  WINAPI GetPathRoot(char *Path,char *Root);
 
 #endif // __FLINK_HPP__

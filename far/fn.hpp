@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.64 07.03.2001 $ */
+/* Revision: 1.65 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+   ! GetPathRoot переехала в flink.hpp :-)
   07.03.2001 IS
    + DeleteEmptyKey
   06.03.2001 SVS
@@ -546,7 +548,6 @@ char* WINAPI TruncStr(char *Str,int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
-void  WINAPI GetPathRoot(char *Path,char *Root);
 int  WINAPI AddEndSlash(char *Path);
 char *WINAPI FarItoa(int value, char *string, int radix);
 __int64 WINAPI FarAtoi64(const char *s);

@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.06 01.02.2001 $ */
+/* Revision: 1.07 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    ! GetPathRoot переехала из strmix.cpp :-)
+    + В функцию GetPathRoot добавлена обработка mounted volume
   01.02.2001 SKV
     - MAXPATH или _MAX_PATH вот в чём вопрос.
   26.01.2001 SVS
@@ -80,7 +83,6 @@ struct TMN_REPARSE_DATA_BUFFER
   //BOOL Init(LPCWSTR wszJunctionPoint);
   //int BytesForIoControl() const;
 };
-
 
 BOOL WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDirArg)
 {
@@ -321,3 +323,93 @@ BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize)
   return FALSE;
 }
 
+// просмотр одной позиции :-)
+void GetPathRootOne(char *Path,char *Root)
+{
+  typedef BOOL (WINAPI *PDELETEVOLUMEMOUNTPOINT)(
+     LPCTSTR lpszVolumeMountPoint  // volume mount point path
+  );
+
+  typedef BOOL (WINAPI *PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)(
+          LPCTSTR lpszVolumeMountPoint, // volume mount point or directory
+          LPTSTR lpszVolumeName,        // volume name buffer
+          DWORD cchBufferLength);       // size of volume name buffer
+
+  static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
+  static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
+
+  if(!pGetVolumeNameForVolumeMountPoint)
+    // работает только под Win2000!
+    pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"GetVolumeNameForVolumeMountPointA");
+
+  char TempRoot[1024],*ChPtr;
+  strncpy(TempRoot,Path,NM);
+
+  // обработка mounted volume
+  if(pGetVolumeNameForVolumeMountPoint && !strncmp(Path,"Volume{",7))
+  {
+    char Drive[] = "C:\\"; // \\?\Volume{...
+    BOOL Res;
+    for (int I = 'C'; I <= 'Z';  I++ )
+    {
+      Drive[0] = (char)I;
+      if(pGetVolumeNameForVolumeMountPoint(
+                Drive, // input volume mount point or directory
+                TempRoot, // output volume name buffer
+                sizeof(TempRoot)) &&       // size of volume name buffer
+         !stricmp(TempRoot+4,Path))
+      {
+         strcpy(Root,Drive);
+         return;
+      }
+    }
+  }
+
+  if (*TempRoot==0)
+    strcpy(TempRoot,"\\");
+  else
+    if (TempRoot[0]=='\\' && TempRoot[1]=='\\')
+    {
+      if ((ChPtr=strchr(TempRoot+2,'\\'))!=NULL)
+        if ((ChPtr=strchr(ChPtr+1,'\\'))!=NULL)
+          *(ChPtr+1)=0;
+        else
+          strcat(TempRoot,"\\");
+    }
+    else
+      if ((ChPtr=strchr(TempRoot,'\\'))!=NULL)
+        *(ChPtr+1)=0;
+      else
+        if ((ChPtr=strchr(TempRoot,':'))!=NULL)
+          strcpy(ChPtr+1,"\\");
+  strncpy(Root,TempRoot,NM);
+}
+
+// полный проход ПО!!!
+void WINAPI GetPathRoot(char *Path,char *Root)
+{
+  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  {
+    char TempRoot[1024], *TmpPtr;
+    DWORD FileAttr;
+    char JuncName[NM];
+
+    strncpy(TempRoot,Path,1024);
+    TmpPtr=TempRoot;
+    while(strlen(TempRoot) > 2)
+    {
+      FileAttr=GetFileAttributes(TempRoot);
+      if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
+        {
+           GetPathRootOne(JuncName+4,Root);
+           return;
+        }
+      }
+      char *Ptr=strrchr(TmpPtr,'\\');
+      if(Ptr) *Ptr=0; else break;
+    }
+  }
+  GetPathRootOne(Path,Root);
+}

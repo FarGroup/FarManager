@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.05 12.03.2001 $ */
+/* Revision: 1.06 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    ! GetPathRoot переехала в flink.cpp :-)
   12.03.2001 SVS
     ! Коррекция в связи с изменениями в классе int64
   06.03.2001 SVS
@@ -78,31 +80,6 @@ char* WINAPI PointToName(char *Path)
     Path++;
   }
   return(NamePtr);
-}
-
-
-void WINAPI GetPathRoot(char *Path,char *Root)
-{
-  char TempRoot[NM],*ChPtr;
-  strncpy(TempRoot,Path,NM);
-  if (*TempRoot==0)
-    strcpy(TempRoot,"\\");
-  else
-    if (TempRoot[0]=='\\' && TempRoot[1]=='\\')
-    {
-      if ((ChPtr=strchr(TempRoot+2,'\\'))!=NULL)
-        if ((ChPtr=strchr(ChPtr+1,'\\'))!=NULL)
-          *(ChPtr+1)=0;
-        else
-          strcat(TempRoot,"\\");
-    }
-    else
-      if ((ChPtr=strchr(TempRoot,'\\'))!=NULL)
-        *(ChPtr+1)=0;
-      else
-        if ((ChPtr=strchr(TempRoot,':'))!=NULL)
-          strcpy(ChPtr+1,"\\");
-  strncpy(Root,TempRoot,NM);
 }
 
 int CmpName(char *pattern,char *string,int skippath)

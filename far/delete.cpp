@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.11 12.03.2001 $ */
+/* Revision: 1.12 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    - удаление симлинка в корзину чревато потерей оригинала!!!!!!
   12.03.2001 SVS
     + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
@@ -120,7 +122,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       if (Wipe)
         DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
       else
-        if (Opt.DeleteToRecycleBin)
+        if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
           DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
         else
           DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
@@ -130,7 +132,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       if (Wipe)
         DelMsg=MSG(MAskWipe);
       else
-        if (Opt.DeleteToRecycleBin)
+        if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
           DelMsg=MSG(MAskDeleteRecycle);
         else
           DelMsg=MSG(MAskDelete);
@@ -206,12 +208,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         }
 
         bool SymLink=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)!=0;
-
         if (!SymLink && (!Opt.DeleteToRecycleBin || Wipe))
         {
           char FullName[NM];
           ScanTree ScTree(TRUE);
-
           ScTree.SetFindPath(SelName,"*.*");
           while (ScTree.GetNextName(&FindData,FullName))
           {
@@ -289,13 +289,16 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
             }
           }
         }
+
         if (!Cancel)
         {
           ShellDeleteMsg(SelName,MSG_KEEPBACKGROUND);
           if (FileAttr & FA_RDONLY)
             SetFileAttributes(SelName,0);
           int DeleteCode;
-          if (!Opt.DeleteToRecycleBin || Wipe)
+          // нефига здесь выделываться, а надо учесть, что удаление
+          // симлинка в корзину чревато потерей оригинала.
+          if (SymLink || !Opt.DeleteToRecycleBin || Wipe)
             DeleteCode=ERemoveDirectory(SelName,SelShortName,Wipe);
           else
           {
