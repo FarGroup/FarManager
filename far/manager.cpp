@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.40 24.07.2001 $ */
+/* Revision: 1.41 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 OT
+    Исправление отрисовки CAS при 2-х и более модальных диалогах
   24.07.2001 SVS
     ! Заюзаем флаг NotUseCAS - чтобы не гасилось ничего для одиночного
       редатора/вьювера (far /e)
@@ -980,7 +982,7 @@ void Manager::ImmediateHide()
     }
 
     if (ModalStackCount>1){
-      for (int i=0;i<ModalStackCount;i++){
+      for (int i=0;i<ModalStackCount-1;i++){
         if (!(ModalStack[i]->FastHide() & CASR_HELP)){
           RefreshFrame(ModalStack[i]);
           Commit();
