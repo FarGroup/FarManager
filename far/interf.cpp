@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.40 21.10.2001 $ */
+/* Revision: 1.41 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    + WidthNameForMessage - 38% для размера усечения имени в месагах-процессах
   21.10.2001 SVS
     + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
       диалогов)
@@ -452,6 +454,7 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
   GetConsoleScreenBufferInfo(hConOut,&csbi);
   ScrX=csbi.dwSize.X-1;
   ScrY=csbi.dwSize.Y-1;
+  WidthNameForMessage=(ScrX*38)/100+1;
   if(PrevScrX == -1) PrevScrX=ScrX;
   if(PrevScrY == -1) PrevScrY=ScrY;
 _OT(SysLog("ScrX=%d ScrY=%d",ScrX,ScrY));

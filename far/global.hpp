@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.28 21.10.2001 $ */
+/* Revision: 1.29 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    + WidthNameForMessage - 38% для размера усечения имени в месагах-процессах
   21.10.2001 SVS
     ! PREREDRAWFUNC и PISDEBUGGERPRESENT переехали в farconst.hpp
     + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
@@ -193,4 +195,6 @@ extern char *Copyright;
 
 extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 
-#endif	// __FARGLOBAL_HPP__
+extern int WidthNameForMessage;
+
+#endif  // __FARGLOBAL_HPP__

@@ -5,10 +5,15 @@ setattr.cpp
 
 */
 
-/* Revision: 1.40 21.10.2001 $ */
+/* Revision: 1.41 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    - неверное выставлялись атрибуты для нескольких объектов
+    ! немного уточнений по поводу вывода текущего обрабатываемого файла
+    - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
+      погашена - остается кусок месагбокса)
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   12.10.2001 SVS
@@ -153,7 +158,7 @@ struct SetAttrDlgParam{
 static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
                        char *OSrcDate,char *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
-void ShellSetFileAttributesMsg(char *Name);
+void ShellSetFileAttributesMsg(char *Name,int Flags);
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
@@ -368,17 +373,30 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 static void PR_ShellSetFileAttributesMsg(void)
 {
-  ShellSetFileAttributesMsg((char *)PreRedrawParam.Param1);
+  ShellSetFileAttributesMsg((char *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
-void ShellSetFileAttributesMsg(char *Name)
+void ShellSetFileAttributesMsg(char *Name,int Flags)
 {
-  char OutFileName[72];
+  char OutFileName[NM];
+
+  int Width=WidthNameForMessage; // ширина месага - 38%
+  if(Width >= sizeof(OutFileName))
+    Width=sizeof(OutFileName)-1;
+
   if(Name && *Name)
-    CenterStr(TruncPathStr(strcpy(OutFileName,Name),40),OutFileName,44);
+  {
+    strncpy(OutFileName,Name,sizeof(OutFileName)-1);
+    TruncPathStr(OutFileName,Width);
+    CenterStr(OutFileName,OutFileName,Width+2);
+  }
   else
+  {
     *OutFileName=0;
-  Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
+    CenterStr(OutFileName,OutFileName,Width+2); // подготавливаем нужную ширину (вид!)
+  }
+  Message(Flags,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
+  PreRedrawParam.Flags=Flags;
   PreRedrawParam.Param1=Name;
 }
 
@@ -732,6 +750,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     // </Dialog>
 
     SetPreRedrawFunc(PR_ShellSetFileAttributesMsg);
+    ShellSetFileAttributesMsg(NULL,0);
+
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
       int NewAttr;
@@ -742,8 +762,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (AttrDlg[7].Selected)        NewAttr|=FA_SYSTEM;
       if (AttrDlg[8].Selected)        NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
       if (AttrDlg[9].Selected)        NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
-
-      ShellSetFileAttributesMsg(NULL);
 
       SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
       SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
@@ -765,10 +783,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           ESetFileCompression(SelName,1,FileAttr);
         else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
           ESetFileCompression(SelName,0,FileAttr);
-        else if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+
+        if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
           ESetFileEncryption(SelName,1,FileAttr);
         else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
           ESetFileEncryption(SelName,0,FileAttr);
+
         ESetFileAttributes(SelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
       }
     }
@@ -798,7 +818,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
       else if (!AttrDlg[8].Selected)
         ClearAttr|=FILE_ATTRIBUTE_COMPRESSED;
-      else if (AttrDlg[9].Selected == 1)
+
+      if (AttrDlg[9].Selected == 1)
       {
         SetAttr|=FILE_ATTRIBUTE_ENCRYPTED;
         ClearAttr|=FILE_ATTRIBUTE_COMPRESSED;
@@ -816,7 +837,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       {
 //_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 //    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
-        ShellSetFileAttributesMsg(SelName);
+        ShellSetFileAttributesMsg(SelName,MSG_KEEPBACKGROUND);
 
         if (CheckForEsc())
           break;
@@ -834,26 +855,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
         if(((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
         {
-          if (AttrDlg[8].Selected == 1) // -E +C
+          if (AttrDlg[8].Selected != 2)
           {
-            if (!ESetFileCompression(SelName,1,FileAttr))
+            if (!ESetFileCompression(SelName,AttrDlg[8].Selected,FileAttr))
               break; // неудача сжать :-(
           }
-          else if (AttrDlg[9].Selected == 1) // +E -C
+          if (AttrDlg[9].Selected != 2) // +E -C
           {
-            if (!ESetFileEncryption(SelName,1,FileAttr))
-              break; // неудача зашифровать :-(
-          }
-          else //???
-          if (AttrDlg[8].Selected == 0) // -C ?E
-          {
-            if (!ESetFileCompression(SelName,0,FileAttr))
-              break; // неудача разжать :-(
-          }
-          else if (AttrDlg[9].Selected == 0) // ?C -E
-          {
-            if (!ESetFileEncryption(SelName,0,FileAttr))
-              break; // неудача разшифровать :-(
+            if(AttrDlg[8].Selected != 1)
+              if (!ESetFileEncryption(SelName,AttrDlg[9].Selected,FileAttr))
+                break; // неудача зашифровать :-(
           }
 
           if (!ESetFileAttributes(SelName,((FileAttr|SetAttr)&(~ClearAttr))))
@@ -869,7 +880,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           ScTree.SetFindPath(SelName,"*.*");
           while (ScTree.GetNextName(&FindData,FullName))
           {
-            ShellSetFileAttributesMsg(FullName);
+            ShellSetFileAttributesMsg(FullName,MSG_KEEPBACKGROUND);
             if (CheckForEsc())
             {
               Cancel=1;
@@ -892,7 +903,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             if(((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
                  FindData.dwFileAttributes)
             {
-              if (AttrDlg[8].Selected == 1) // -E +C
+              if (AttrDlg[8].Selected != 2)
               {
                 if (!ESetFileCompression(FullName,1,FindData.dwFileAttributes))
                 {
@@ -900,30 +911,14 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                   break; // неудача сжать :-(
                 }
               }
-              else if (AttrDlg[9].Selected == 1) // +E -C
+              else if (AttrDlg[9].Selected != 2) // +E -C
               {
-                if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
-                {
-                  Cancel=1;
-                  break; // неудача зашифровать :-(
-                }
-              }
-              else //???
-              if (!AttrDlg[8].Selected) // -C ?E
-              {
-                if (!ESetFileCompression(FullName,0,FindData.dwFileAttributes))
-                {
-                  Cancel=1;
-                  break; // неудача разжать :-(
-                }
-              }
-              else if (!AttrDlg[9].Selected) // ?C -E
-              {
-                if (!ESetFileEncryption(FullName,0,FindData.dwFileAttributes))
-                {
-                  Cancel=1;
-                  break; // неудача разшифровать :-(
-                }
+                if(AttrDlg[8].Selected != 1)
+                  if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
+                  {
+                    Cancel=1;
+                    break; // неудача зашифровать :-(
+                  }
               }
               if (!ESetFileAttributes(FullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr)))
               {
@@ -942,10 +937,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   SrcPanel->SaveSelection();
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
   SrcPanel->ClearSelection();
-  SrcPanel->Redraw();
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-  AnotherPanel->Redraw();
+  CtrlObject->Cp()->Redraw();
   return 1;
 }
 

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.31 22.10.2001 $ */
+/* Revision: 1.32 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    ! немного уточнений по поводу вывода текущего обрабатываемого файла
   22.10.2001 SVS
     - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
       погашена - остается кусок месагбокса)
@@ -514,8 +516,15 @@ static void PR_ShellDeleteMsg(void)
 void ShellDeleteMsg(char *Name,int Flags)
 {
   char DelName[NM];
-  CenterStr(Name,DelName,30);
-  TruncPathStr(DelName,30);
+
+  int Width=WidthNameForMessage; // ширина месага - 38%
+  if(Width >= sizeof(DelName))
+    Width=sizeof(DelName)-1;
+
+  strncpy(DelName,Name,sizeof(DelName)-1);
+  TruncPathStr(DelName,Width);
+  CenterStr(DelName,DelName,Width+4);
+
   Message(Flags,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
   PreRedrawParam.Flags=Flags;
   PreRedrawParam.Param1=Name;

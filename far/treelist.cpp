@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.23 22.10.2001 $ */
+/* Revision: 1.24 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    ! немного оптимизации - sprintf для "%d" - это жирно.
   22.10.2001 SVS
     - Забыл прибить CALLBACK-функцию при выходе :-(
     ! исправление отрисовки после CALLBACK
@@ -506,13 +508,13 @@ void TreeList::PR_MsgReadTree(void)
 
 int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 {
-  char NumStr[100];
   /* $ 24.09.2001 VVM
     ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
   if ((!FirstCall) || ((clock() - TreeStartTime) > 500))
   {
-    sprintf(NumStr,"%d",TreeCount);
-    Message(FirstCall ? 0:MSG_KEEPBACKGROUND,0,MSG(MTreeTitle),
+    char NumStr[32];
+    itoa(TreeCount,NumStr,10);
+    Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle),
             MSG(MReadingTree),NumStr);
     PreRedrawParam.Flags=TreeCount;
     FirstCall=FALSE;

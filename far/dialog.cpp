@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.170 21.10.2001 $ */
+/* Revision: 1.171 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    ! FarListTitle -> FarListTitles
+    ! Ёксперимент - в ProcessMouse делаем обход контролов с конца на начало,
+      т.е. учитываем (как бы) Z-order (IMHO так будет вернее, но чем черт
+      не шутит)
   21.10.2001 SVS
     ! вызов CALLBACK-функции (в месаге DN_RESIZECONSOLE) перемещен в "нужное место"
     ! »зменена логина добавлени€ в историю:
@@ -3109,7 +3114,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
 
-  for (I=0;I<ItemCount;I++)
+  //for (I=0;I<ItemCount;I++)
+  for (I=ItemCount-1;I>=0;I--)
   {
     if(Item[I].Flags&(DIF_DISABLE|DIF_HIDDEN))
       continue;
@@ -3170,7 +3176,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
   {
     // первый цикл - все за исключением рамок.
-    for (I=0; I < ItemCount;I++)
+    //for (I=0; I < ItemCount;I++)
+    for (I=ItemCount-1;I>=0;I--)
     {
       if(Item[I].Flags&(DIF_DISABLE|DIF_HIDDEN))
         continue;
@@ -3219,7 +3226,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
     if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
     {
-      for (I=0;I<ItemCount;I++)
+      //for (I=0;I<ItemCount;I++)
+      for (I=ItemCount-1;I>=0;I--)
       {
         /* $ 04.12.2000 SVS
            »сключаем из списка оповещаемых о мыши недоступные элементы
@@ -4794,8 +4802,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
     case DM_LISTGETDATA: // Param1=ID Param2=Index
     case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
-    case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitle: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
-    case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitle: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
         VMenu *ListBox;
@@ -4869,16 +4877,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               }
               return 0;
             }
-            case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitle
+            case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitles
             {
-              struct FarListTitle *ListTitle=(struct FarListTitle *)Param2;
+              struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
               ListBox->SetTitle((!ListTitle)?NULL:ListTitle->Title);
               ListBox->SetBottomTitle((!ListTitle)?NULL:ListTitle->Bottom);
               return TRUE;
             }
-            case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitle
+            case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitles
             {
-              struct FarListTitle *ListTitle=(struct FarListTitle *)Param2;
+              struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
               if(ListTitle)
               {
                 if (ListBox->GetTitle(ListTitle->Title,ListTitle->TitleLen) ||

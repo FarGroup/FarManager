@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.17 22.10.2001 $ */
+/* Revision: 1.18 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    ! неверное(!) применение strncpy
   22.10.2001 SVS
     + "Новый знания" о системных ошибках - по поводу шифрования в Win2K
   22.10.2001 SVS
@@ -362,7 +364,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
         CPtrStr++;
         int TextLength=strlen(CPtrStr);
         if (TextLength<Length)
-          strncpy(&Separator[(Length-TextLength)/2],CPtrStr,TextLength);
+          memcpy(&Separator[(Length-TextLength)/2],CPtrStr,TextLength);
         SetColor(COL_DIALOGBOX);
         GotoXY(X1+3,Y1+I+2);
         BoxText(Separator);

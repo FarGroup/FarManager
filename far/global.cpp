@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.27 21.10.2001 $ */
+/* Revision: 1.28 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    + WidthNameForMessage - 38% для размера усечения имени в месагах-процессах
   21.10.2001 SVS
     + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
       диалогов)
@@ -171,3 +173,5 @@ PISDEBUGGERPRESENT pIsDebuggerPresent=NULL;
 
 PREREDRAWFUNC PreRedrawFunc=NULL;
 struct PreRedrawParamStruct PreRedrawParam={0};
+
+int WidthNameForMessage=0;

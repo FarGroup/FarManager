@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.26 22.10.2001 $ */
+/* Revision: 1.27 23.10.2001 $ */
 
 /*
 Modify:
+  23.10.2001 SVS
+    - Подводные камни в CenterStr()
   22.10.2001 SVS
     ! strncpy() ;-(
   21.10.2001 SVS
@@ -603,11 +605,11 @@ const char *NullToEmpty(const char *Str)
 
 char* CenterStr(char *Src,char *Dest,int Length)
 {
-  char TempSrc[512];
+  char TempSrc[1024];
+  strncpy(TempSrc,Src,sizeof(TempSrc)-1);
   int SrcLength=strlen(Src);
-  strcpy(TempSrc,Src);
-  if (SrcLength>=Length)
-    strcpy(Dest,TempSrc);
+  if (SrcLength >= Length)
+    strncpy(Dest,TempSrc,Length-1);
   else
   {
     int Space=(Length-SrcLength)/2;

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.153 19.10.2001 $ */
+/* Revision: 1.154 23.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  23.10.2001 SVS
+    ! FarListTitle -> FarListTitles
   19.10.2001 SVS
     + DIF_SEPARATOR2 - двойной сепаратор
   17.10.2001 SVS
@@ -966,7 +968,7 @@ struct FarListItemData
   DWORD Reserved;
 };
 
-struct FarListTitle
+struct FarListTitles
 {
   int   TitleLen;
   char *Title;
