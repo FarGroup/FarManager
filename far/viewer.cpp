@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.24 14.09.2000 $ */
+/* Revision: 1.25 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    ! Уточнение Warp и KeyBar
   14.09.2000 SVS
     + AutoDecode Unicode - те файлы, которые начинаются с 0xFEFF
   13.09.2000 tran 1.23
@@ -915,7 +917,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         /* $ 12.07.2000 SVS
           Wrap - 3-x позиционный и если есть регистрация :-)
         */
-        if ((Wrap || (TypeWrap && RegVer))
+        if ((Wrap && (TypeWrap && RegVer))
         /* SVS $ */
             && OutPtr>XX2-X1)
           Str[XX2-X1+1]=0;
@@ -1117,6 +1119,8 @@ int Viewer::ProcessKey(int Key)
       if(RegVer)
       {
         TypeWrap=!TypeWrap;
+        if(!Wrap)
+          Wrap=!Wrap;
         ChangeViewKeyBar();
         Show();
         Opt.ViewerWrap=TypeWrap;
@@ -1504,7 +1508,7 @@ void Viewer::ChangeViewKeyBar()
        MSG(
        (!Wrap)?((!TypeWrap)?MViewF2:MViewShiftF2)
        :MViewF2Unwrap),1);
-    ViewKeyBar->Change(KBL_SHIFT,MSG((!TypeWrap)?MViewF2:MViewShiftF2),1);
+    ViewKeyBar->Change(KBL_SHIFT,MSG((TypeWrap)?MViewF2:MViewShiftF2),1);
     /* SVS $ */
     /* SVS $ */
 
