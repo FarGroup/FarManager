@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.175 03.02.2005 $ */
+/* Revision: 1.176 04.02.2005 $ */
 
 /*
 Modify:
+  04.02.2005 WARP
+    ! И еще раз вьювер (см. 01924.viewer.show2.txt)
   03.02.2005 WARP
     ! Новая отрисовка вьювера (см. 01923.viewer.show.txt)
   16.01.2005 WARP
@@ -546,7 +548,9 @@ Viewer::Viewer()
      alloc memory for OutStr */
   for ( int i=0; i<=MAXSCRY; i++ )
   {
-    OutStr[i]=new char[MAX_VIEWLINEB];
+    Strings[i] = new ViewerString;
+    memset (Strings[i], 0, sizeof(ViewerString));
+    Strings[i]->lpData = new char[MAX_VIEWLINEB];
   }
   /* tran 12.07.2000 $ */
   strcpy((char *)LastSearchStr,GlobalSearchString);
@@ -689,7 +693,11 @@ Viewer::~Viewer()
     /* $ 13.07.2000 SVS
       раз уж вызвали new[], то и нужно delete[]
     */
-    delete[] OutStr[i];
+    //delete[] OutStr[i];
+
+    delete [] Strings[i]->lpData;
+    delete Strings[i];
+
     /* SVS $ */
   }
   /* tran 12.07.2000 $ */
@@ -1000,11 +1008,6 @@ void Viewer::SetCRSym()
 
 void Viewer::ShowPage (int nMode)
 {
-  bool bSelStartFound, bSelEndFound;
-
-  __int64 fpos;
-  __int64 SelStart, SelEnd;
-
   int I,Y;
 
   AdjustWidth();
@@ -1030,6 +1033,12 @@ void Viewer::ShowPage (int nMode)
     SetCursorType(0,10);
   }
 
+  vseek(ViewFile,FilePos,SEEK_SET);
+
+  if (SelectSize == 0)
+    SelectPos=FilePos;
+
+
   switch ( nMode )
   {
     case SHOW_HEX:
@@ -1041,139 +1050,127 @@ void Viewer::ShowPage (int nMode)
 
       ViewY1 = Y1+ShowStatusLine;
 
-      vseek(ViewFile,FilePos,SEEK_SET);
-
-      if ( SelectSize == 0 )
-        SelectPos=FilePos;
-
       for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
       {
-        StrFilePos[I]=vtell(ViewFile);
+        Strings[I]->nFilePos = vtell(ViewFile);
 
         if ( Y==ViewY1+1 && !feof(ViewFile) )
           SecondPos=vtell(ViewFile);
 
-        ReadString(OutStr[I],-1,MAX_VIEWLINEB, NULL, NULL);
+        ReadString(Strings[I],-1,MAX_VIEWLINEB);
       }
 
       break;
 
     case SHOW_UP:
-      vseek(ViewFile,FilePos,SEEK_SET);
-
-      if (SelectSize == 0)
-        SelectPos=FilePos;
-
       for (I=Y2-ViewY1-1;I>=0;I--)
       {
-        StrFilePos[I+1]=StrFilePos[I];
-        strcpy(OutStr[I+1],OutStr[I]);
+        Strings[I+1]->nFilePos = Strings[I]->nFilePos;
+        Strings[I+1]->nSelStart = Strings[I]->nSelStart;
+        Strings[I+1]->nSelEnd = Strings[I]->nSelEnd;
+        Strings[I+1]->bSelection = Strings[I]->bSelection;
+
+        strcpy(Strings[I+1]->lpData, Strings[I]->lpData);
       }
 
-      StrFilePos[0]=FilePos;
-      SecondPos=StrFilePos[1];
+      Strings[0]->nFilePos = FilePos;
+      SecondPos = Strings[1]->nFilePos;
 
-      ReadString(OutStr[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB,NULL,NULL);
+      ReadString(Strings[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB);
       break;
 
     case SHOW_DOWN:
 
       for (I=0; I<Y2-ViewY1;I++)
       {
-        StrFilePos[I]=StrFilePos[I+1];
-        strcpy(OutStr[I],OutStr[I+1]);
+        Strings[I]->nFilePos = Strings[I+1]->nFilePos;
+        Strings[I]->nSelStart = Strings[I+1]->nSelStart;
+        Strings[I]->nSelEnd = Strings[I+1]->nSelEnd;
+        Strings[I]->bSelection = Strings[I+1]->bSelection;
+
+        strcpy(Strings[I]->lpData, Strings[I+1]->lpData);
       }
 
-      FilePos = StrFilePos[0];
-      SecondPos = StrFilePos[1];
+      FilePos = Strings[0]->nFilePos;
+      SecondPos = Strings[1]->nFilePos;
 
-      if (SelectSize == 0)
-        SelectPos=FilePos;
-
-      vseek(ViewFile,StrFilePos[Y2-ViewY1],SEEK_SET);
-      ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
-      StrFilePos[Y2-ViewY1] = vtell(ViewFile);
-      ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
+      vseek(ViewFile, Strings[Y2-ViewY1]->nFilePos, SEEK_SET);
+      ReadString(Strings[Y2-ViewY1],-1,MAX_VIEWLINEB);
+      Strings[Y2-ViewY1]->nFilePos = vtell(ViewFile);
+      ReadString(Strings[Y2-ViewY1],-1,MAX_VIEWLINEB);
 
       break;
   }
 
-  for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+  if ( nMode != SHOW_HEX )
   {
-    int StrLength = strlen(OutStr[I]);
-
-    bSelStartFound = false;
-    bSelEndFound = false;
-
-    fpos = StrFilePos[I];
-    SelStart = 0;
-
-    if ( fpos >= SelectPos )
-       bSelStartFound = true;
-
-    if ( (fpos < SelectPos) && (fpos+StrLength > SelectPos) )
+    for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
     {
-      SelStart = SelectPos-fpos;
-      bSelStartFound = true;
-    }
+      int StrLength = strlen(Strings[I]->lpData);
 
-    SelEnd = StrLength-1;
-
-    if ( fpos <= (SelectPos+SelectSize) )
-    {
-       SelEnd = (SelectPos+SelectSize)-fpos;
-       bSelEndFound = true;
-    }
-
-    SetColor(COL_VIEWERTEXT);
-    GotoXY(X1,Y);
-
-    if ( StrLength > LeftPos )
-    {
-      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !StrFilePos[I])
-         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
-      else
-         mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
-    }
-    else
-      mprintf("%*s",Width,"");
-
-    if ( bSelStartFound && bSelEndFound )
-    {
-      int SelX1;
-
-      SetColor(COL_VIEWERSELECTEDTEXT);
-
-      if ( LeftPos > SelStart )
-        SelX1 = X1;
-      else
-        SelX1 = SelStart-LeftPos;
-
-      GotoXY(SelX1,Y);
-
-      __int64 Length = SelEnd-SelStart;
-
-      if ( LeftPos > SelStart )
-        Length = SelEnd-LeftPos;
-
-      if ( LeftPos > SelEnd )
-        Length = 0;
-
-      mprintf("%.*s",(int)Length,&OutStr[I][(int)(SelX1+LeftPos+SelectPosOffSet)]);
-    }
-
-    if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
-    {
-      GotoXY(XX2,Y);
-      SetColor(COL_VIEWERARROWS);
-      BoxText(Opt.UseUnicodeConsole?0xbb:'>');
-    }
-
-    if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
-    {
+      SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
-      SetColor(COL_VIEWERARROWS);
-      BoxText(Opt.UseUnicodeConsole?0xab:'<');
+
+      if ( StrLength > LeftPos )
+      {
+        if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !Strings[I]->nFilePos)
+           mprintf("%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos+1]);
+        else
+           mprintf("%-*.*s",Width,Width,&Strings[I]->lpData[(int)LeftPos]);
+      }
+      else
+        mprintf("%*s",Width,"");
+
+      if ( Strings[I]->bSelection )
+      {
+        int SelX1;
+
+        if ( LeftPos > Strings[I]->nSelStart )
+          SelX1 = X1;
+        else
+          SelX1 = Strings[I]->nSelStart-LeftPos;
+
+        if ( !VM.Wrap && (Strings[I]->nSelStart < LeftPos || Strings[I]->nSelStart > LeftPos+XX2-X1) )
+        {
+          if ( AdjustSelPosition )
+          {
+            LeftPos = Strings[I]->nSelStart-1;
+            AdjustSelPosition = FALSE;
+            Show();
+            return;
+          }
+        }
+        else
+        {
+          SetColor(COL_VIEWERSELECTEDTEXT);
+
+          GotoXY(SelX1,Y);
+
+          __int64 Length = Strings[I]->nSelEnd-Strings[I]->nSelStart;
+
+          if ( LeftPos > Strings[I]->nSelStart )
+            Length = Strings[I]->nSelEnd-LeftPos;
+
+          if ( LeftPos > Strings[I]->nSelEnd )
+            Length = 0;
+
+          mprintf("%.*s",(int)Length,&Strings[I]->lpData[(int)(SelX1+LeftPos+SelectPosOffSet)]);
+        }
+      }
+
+      if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
+      {
+        GotoXY(XX2,Y);
+        SetColor(COL_VIEWERARROWS);
+        BoxText(Opt.UseUnicodeConsole?0xbb:'>');
+      }
+
+      if (LeftPos>0 && *Strings[I]->lpData!=0  && ViOpt.ShowArrows)
+      {
+        GotoXY(X1,Y);
+        SetColor(COL_VIEWERARROWS);
+        BoxText(Opt.UseUnicodeConsole?0xab:'<');
+      }
     }
   }
 
@@ -1488,27 +1485,34 @@ void Viewer::SetStatusMode(int Mode)
 }
 
 
-void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int64 *SelSize1)
+void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 {
   int Ch, Ch2;
-  __int64 SelPos=0, SelSize=0, OutPtr;
+  __int64 OutPtr;
 
-  /* $ 27.04.2001 DJ
-     вычисление ширины - в отдельную функцию
-  */
+  bool bSelStartFound = false, bSelEndFound = false;
+
+  pString->bSelection = false;
+
   AdjustWidth();
-  /* DJ $ */
 
   OutPtr=0;
-  SelSize=0;
+
   if (VM.Hex)
   {
-    OutPtr=vread(Str,VM.Unicode ? 8:16,ViewFile);
-    Str[VM.Unicode ? 8:16]=0;
+    OutPtr=vread(pString->lpData,VM.Unicode ? 8:16,ViewFile);
+    pString->lpData[VM.Unicode ? 8:16]=0;
   }
   else
   {
     bool CRSkipped=false;
+
+    if ( SelectSize && vtell (ViewFile) > SelectPos )
+    {
+      pString->nSelStart = 0;
+      bSelStartFound = true;
+    }
+
     while (1)
     {
       if (OutPtr>=StrSize-16)
@@ -1526,24 +1530,24 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int
           vseek(ViewFile,SavePos,SEEK_SET);
           if (VM.TypeWrap && RegVer) // только для зарегестрированных
           {
-            if ( !IsSpace(Ch) && !IsSpace(Str[(int)OutPtr]))
+            if ( !IsSpace(Ch) && !IsSpace(pString->lpData[(int)OutPtr]))
             {
                __int64 SavePtr=OutPtr;
                /* $ 18.07.2000 tran
                   добавил в качестве wordwrap разделителей , ; > ) */
                while (OutPtr)
                {
-                  Ch2=Str[(int)OutPtr];
+                  Ch2=pString->lpData[(int)OutPtr];
                   if(IsSpace(Ch2) || Ch2==',' || Ch2==';' || Ch2=='>'|| Ch2==')')
                     break;
                   OutPtr--;
                }
 
-               Ch2=Str[(int)OutPtr];
+               Ch2=pString->lpData[(int)OutPtr];
                if (Ch2==',' || Ch2==';' || Ch2==')' || Ch2=='>')
                    OutPtr++;
                else
-                   while (IsSpace(Str[(int)OutPtr]) && OutPtr<=SavePtr)
+                   while (IsSpace(pString->lpData[(int)OutPtr]) && OutPtr<=SavePtr)
                       OutPtr++;
 
                if (OutPtr)
@@ -1571,15 +1575,8 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int
 
       if (SelectSize > 0 && SelectPos==vtell(ViewFile))
       {
-        SelPos=OutPtr;
-        SelSize=SelectSize;
-        /* $ 22.01.2001 IS
-            Внимание! Возможно, это не совсем верное решение проблемы
-            выделения из плагинов, но мне пока другого в голову не пришло.
-            Я приравниваю SelectSize нулю в Process*
-        */
-        //SelectSize=0;
-        /* IS $ */
+         pString->nSelStart = OutPtr;
+         bSelStartFound = true;
       }
 
       if (MaxSize-- == 0)
@@ -1591,14 +1588,14 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int
       if (CRSkipped)
       {
         CRSkipped=false;
-        Str[(int)OutPtr++]=13;
+        pString->lpData[(int)OutPtr++]=13;
       }
 
       if (Ch=='\t')
       {
         do
         {
-          Str[(int)OutPtr++]=' ';
+          pString->lpData[(int)OutPtr++]=' ';
         } while ((OutPtr % ViOpt.TabSize)!=0);
         /* $ 12.07.2000 SVS
           Wrap - 3-x позиционный и если есть регистрация :-)
@@ -1610,7 +1607,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int
         /* IS $ */
         /* SVS $ */
             && OutPtr>XX2-X1)
-          Str[XX2-X1+1]=0;
+          pString->lpData[XX2-X1+1]=0;
         continue;
       }
       /* $ 20.09.01 IS
@@ -1632,16 +1629,31 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int
       /* IS $ */
       if (Ch==0 || Ch==10)
         Ch=' ';
-      Str[(int)OutPtr++]=Ch;
+      pString->lpData[(int)OutPtr++]=Ch;
+
+      if (SelectSize > 0 && (SelectPos+SelectSize)==vtell(ViewFile))
+      {
+         pString->nSelEnd = OutPtr;
+         bSelEndFound = true;
+      }
     }
   }
-  Str[(int)OutPtr]=0;
+
+  pString->lpData[(int)OutPtr]=0;
+
+  if ( SelectSize && vtell (ViewFile) < SelectPos+SelectSize )
+  {
+     bSelEndFound = true;
+       pString->nSelEnd = strlen (pString->lpData);
+  }
 
   if (VM.UseDecodeTable && !VM.Unicode)
-    DecodeString(Str,(unsigned char *)TableSet.DecodeTable);
+    DecodeString(pString->lpData,(unsigned char *)TableSet.DecodeTable);
+
   LastPage=feof(ViewFile);
-  if(SelPos1) *SelPos1=SelPos;
-  if(SelSize1) *SelSize1=SelSize;
+
+  if ( bSelStartFound && bSelEndFound )
+    pString->bSelection = true;
 }
 
 
@@ -1651,7 +1663,8 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int
 int Viewer::ProcessKey(int Key)
 {
   int I;
-  char ReadStr[4096];
+
+  ViewerString vString;
 
   switch(Key)
   {
@@ -2155,18 +2168,20 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3: case KEY_CTRLDOWN:
     {
+      vString.lpData = new char[MAX_VIEWLINEB];
+
       if (LastPage || ViewFile==NULL)
         return(TRUE);
       vseek(ViewFile,FilePos,SEEK_SET);
       for (I=ViewY1;I<Y2;I++)
       {
-        ReadString(ReadStr,-1,sizeof(ReadStr),NULL,NULL);
+        ReadString(&vString,-1, MAX_VIEWLINEB);
         if (LastPage)
           return(TRUE);
       }
       FilePos=vtell(ViewFile);
       for (I=ViewY1;I<=Y2;I++)
-        ReadString(ReadStr,-1,sizeof(ReadStr),NULL,NULL);
+        ReadString(&vString,-1, MAX_VIEWLINEB);
       /* $ 02.06.2003 VVM
         + Старое поведение оставим на Ctrl-Down */
       /* $ 21.05.2003 VVM
@@ -2183,6 +2198,8 @@ int Viewer::ProcessKey(int Key)
       /* VVM $ */
       /* VVM $ */
       Show();
+
+      delete [] vString.lpData;
 //      LastSelPos=FilePos;
       return(TRUE);
     }
@@ -2271,7 +2288,7 @@ int Viewer::ProcessKey(int Key)
           int I, Y, Len, MaxLen = 0;
           for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
           {
-             Len = strlen(OutStr[I]);
+             Len = strlen(Strings[I]->lpData);
              if (Len > MaxLen)
                MaxLen = Len;
           } /* for */
@@ -3667,7 +3684,7 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
   */
 
     SelectPosOffSet=(VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
-           && (MatchPos+SelectSize<=ObjWidth && MatchPos<strlen(OutStr[0])))?1:0;
+           && (MatchPos+SelectSize<=ObjWidth && MatchPos<strlen(Strings[0]->lpData)))?1:0;
 
     SelectPos-=SelectPosOffSet;
 

@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.29 03.02.2005 $ */
+/* Revision: 1.30 04.02.2005 $ */
 
 /*
 Modify:
+  04.02.2005 WARP
+    ! И еще раз вьювер (см. 01924.viewer.show2.txt)
   03.02.2005 WARP
     ! Новая отрисовка вьювера (см. 01923.viewer.show.txt)
   14.05.2003 VVM
@@ -122,6 +124,14 @@ enum {VIEW_UNWRAP=0,VIEW_WRAP=1, VIEW_WORDWRAP=2};
 class FileViewer;
 class KeyBar;
 
+struct ViewerString {
+    char *lpData /*[MAX_VIEWLINEB]*/;
+    __int64 nFilePos;
+    bool bSelection;
+    int nSelStart;
+    int nSelEnd;
+};
+
 struct InternalViewerBookMark{
   __int64 SavePosAddr[BOOKMARK_COUNT];
   __int64 SavePosLeft[BOOKMARK_COUNT];
@@ -168,11 +178,10 @@ class Viewer:public ScreenObject
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;
-    /* $ 12.07.2000 tran
-     dymanic alloc memory for OutStr */
-    char *OutStr[MAXSCRY+1]; //[MAX_VIEWLINEB];
-    /* tran 12.07.2000 $ */
-    __int64 StrFilePos[MAXSCRY+1]; //??
+
+
+    ViewerString *Strings[MAXSCRY+1];
+
     char FileName[NM];
     char FullFileName[NM];
     FILE *ViewFile;
@@ -257,7 +266,7 @@ class Viewer:public ScreenObject
     void AdjustWidth();
     void AdjustFilePos();
     /* DJ $ */
-    void ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos,__int64 *SelSize);
+    void ReadString(ViewerString *pString, int MaxSize, int StrSize);
     int CalcStrSize(char *Str,int Length);
     void ChangeViewKeyBar();
     void SetCRSym();
