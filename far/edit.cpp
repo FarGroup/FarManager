@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.84 02.07.2002 $ */
+/* Revision: 1.85 04.07.2002 $ */
 
 /*
 Modify:
+  04.07.2002 SKV
+    - Bugz#512 - доделка :)
   02.07.2002 SKV
     - Bugz#512 - Tab+PersistentBlocks+Selection
   25.06.2002 SVS
@@ -509,6 +511,12 @@ void Edit::FastShow()
   if (!Flags.Check(FEDITLINE_CONVERTTABS) && memchr(Str,'\t',StrSize)!=NULL)
   {
     char *SaveStr;
+    /* $ 04.07.2002 SKV
+      Выделение тоже нужно запомнить ...
+    */
+    int SaveSelStart=SelStart;
+    int SaveSelEnd=SelEnd;
+    /* SKV $ */
     int SaveStrSize=StrSize,SaveCurPos=CurPos;
     if ((SaveStr=new char[StrSize+1])==NULL)
       return;
@@ -527,6 +535,12 @@ void Edit::FastShow()
     /* SVS $*/
     StrSize=SaveStrSize;
     CurPos=SaveCurPos;
+    /* $ 04.07.2002 SKV
+      ... и восстановать.
+    */
+    SelStart=SaveSelStart;
+    SelEnd=SaveSelEnd;
+    /* SKV $ */
     Str=(char *)realloc(Str,StrSize+1);
   }
   else
