@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.102 18.05.2002 $ */
+/* Revision: 1.103 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    - BugZ#515 - AltF5 не приходит в ProcessEditorInput
   18.05.2002 SVS
     ! ФЛАГИ
   13.05.2002 VVM
@@ -632,6 +634,7 @@ int FileEditor::ProcessKey(int Key)
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
     case KEY_CTRLO:
+    {
       /*$ 27.09.2000 skv
         To prevent redraw in macro with Ctrl-O
       */
@@ -642,7 +645,9 @@ int FileEditor::ProcessKey(int Key)
       WaitKey(-1);
       Show();
       return(TRUE);
+    }
 /* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
+
     case KEY_F2:
     case KEY_SHIFTF2:
     {
@@ -767,7 +772,9 @@ int FileEditor::ProcessKey(int Key)
       }
       return(TRUE);
     }
+
     case KEY_F6:
+    {
       /* $ 10.05.2001 DJ
          используем EnableF6
       */
@@ -825,13 +832,16 @@ int FileEditor::ProcessKey(int Key)
           /* IS $ */
           ShowTime(2);
         }
+        return(TRUE);
       }
+      break; // отдадим F6 плагинам, если есть запрет на переключение
       /* DJ $ */
-      return(TRUE);
+    }
     /*$ 21.07.2000 SKV
         + выход с позиционированием на редактируемом файле по CTRLF10
     */
     case KEY_CTRLF10:
+    {
       {
         if (isTemporary())
         {
@@ -856,6 +866,7 @@ int FileEditor::ProcessKey(int Key)
         /* VVM $ */
       }
       return (TRUE);
+    }
     /* SKV $*/
 
     case KEY_SHIFTF10:
@@ -900,8 +911,11 @@ int FileEditor::ProcessKey(int Key)
     case KEY_ALTF5:
     {
       if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+      {
         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
-      return TRUE;
+        return TRUE;
+      }
+      break; // отдадим Alt-F5 на растерзание плагинам, если не установлен PrintMan
     }
     /* SVS $*/
 
@@ -909,6 +923,7 @@ int FileEditor::ProcessKey(int Key)
        Вызов диалога настроек (с подачи IS)
     */
     case KEY_ALTSHIFTF9:
+    {
       /* $ 26.02.2001 IS
            Работа с локальной копией EditorOptions
       */
@@ -945,44 +960,48 @@ int FileEditor::ProcessKey(int Key)
       /* IS $ */
       FEdit.Show();
       return TRUE;
+    }
     /* SVS $ */
 
     /* $ 10.05.2001 DJ
        Alt-F11 - показать view/edit history
     */
     case KEY_ALTF11:
-      if (GetCanLoseFocus())
-        CtrlObject->CmdLine->ShowViewEditHistory();
-      return TRUE;
-    /* DJ $ */
-
-    default:
     {
-      /* $ 28.04.2001 DJ
-         не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
-         никак не соответствует обрабатываемой клавише, возникают разномастные
-         глюки
-      */
-      if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
-         return(FEdit.ProcessKey(Key));
-      /* DJ $ */
-      _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
-      _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
-      if (CtrlObject->Macro.IsExecuting() ||
-        !ProcessEditorInput(FrameManager->GetLastInputRecord()))
+      if (GetCanLoseFocus())
       {
-        /* $ 22.03.2001 SVS
-           Это помогло от залипания :-)
-        */
-        if (FullScreen && !CtrlObject->Macro.IsExecuting())
-          EditKeyBar.Show();
-        /* SVS $ */
-        if (!EditKeyBar.ProcessKey(Key))
-          return(FEdit.ProcessKey(Key));
+        CtrlObject->CmdLine->ShowViewEditHistory();
+        return TRUE;
       }
-      return(TRUE);
+      break; // отдадим Alt-F11 на растерзание плагинам, если редактор модальный
     }
+    /* DJ $ */
   }
+
+  // Все сотальные необработанные клавиши пустим далее
+  /* $ 28.04.2001 DJ
+     не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
+     никак не соответствует обрабатываемой клавише, возникают разномастные
+     глюки
+  */
+  if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
+     return(FEdit.ProcessKey(Key));
+  /* DJ $ */
+  _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
+  _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
+  if (CtrlObject->Macro.IsExecuting() ||
+    !ProcessEditorInput(FrameManager->GetLastInputRecord()))
+  {
+    /* $ 22.03.2001 SVS
+       Это помогло от залипания :-)
+    */
+    if (FullScreen && !CtrlObject->Macro.IsExecuting())
+      EditKeyBar.Show();
+    /* SVS $ */
+    if (!EditKeyBar.ProcessKey(Key))
+      return(FEdit.ProcessKey(Key));
+  }
+  return(TRUE);
 }
 
 

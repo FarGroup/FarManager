@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.88 18.05.2002 $ */
+/* Revision: 1.89 18.05.2002 $ */
 
 /*
 Modify:
+  18.05.2002 SVS
+    - BugZ#517 - Пустое меню плагинов (и их конфигов) нельзя закрыть мышкой.
   18.05.2002 SVS
     - При апдейте данных в списке ЗАТИРАЛОСЬ ВСЕ!, потому то и нихрена не
       работало :-( Обновляем только те поля, которые нужно.
@@ -1052,6 +1054,8 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   if (ItemCount==0)
   {
+    if(MouseEvent->dwButtonState && MouseEvent->dwEventFlags==0)
+      EndLoop=TRUE;
     Modal::ExitCode=-1;
     return(FALSE);
   }
