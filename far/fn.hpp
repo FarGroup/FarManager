@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.60 22.02.2001 $ */
+/* Revision: 1.61 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 SVS
+   + BoxText(Char) - вывод одного символа
   22.02.2001 SVS
    + RemoveChar - удаляет символ из строки
    ! RemoveHighlights(Str) как макрос - вызывает RemoveChar(Str,'&')
@@ -232,6 +234,7 @@ void DetectWindowedMode();
 int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
+void BoxText(unsigned char Chr);
 void BoxText(char *Str);
 int FarColorToReal(int FarColor);
 void ReopenConsole();

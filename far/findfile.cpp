@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.12 11.02.2001 $ */
+/* Revision: 1.13 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! ‘¨¬¢®«ë, § ¢¨á¨¬ë¥ ®â ª®¤®¢®© áâà ­¨æë
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      ¯¥à¥¢¥¤¥­ë ¢ ª®¤ë.
   11.02.2001 SVS
     ! ¥áª®«ìª® ãâ®ç­¥­¨© ª®¤  ¢ á¢ï§¨ á ¨§¬¥­¥­¨ï¬¨ ¢ áâàãªâãà¥ MenuItem
   14.12.2000 OT
@@ -111,35 +115,45 @@ FindFiles::FindFiles()
   do
   {
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
+    static char H2Separator[72]={0};
     /* $ 30.07.2000 KM
        „®¡ ¢«¥­ ­®¢ë© checkbox "Whole words" ¢ ¤¨ «®£ ¯®¨áª 
     */
     static struct DialogData FindAskDlgData[]=
     {
-      DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(char *)MFindFileTitle,
-      DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
-      DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-      DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR,0,"ÌÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹",
-      DI_TEXT,5,5,0,0,0,0,0,0,(char *)MFindFileText,
-      DI_EDIT,5,6,70,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
-      DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
-      DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
-      DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindFileAllTables,
-      DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MFindArchives,
-      DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR,0,"ÌÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹",
-      DI_RADIOBUTTON,5,13,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
-      DI_RADIOBUTTON,5,14,0,0,0,1,0,0,(char *)MSearchFromRoot,
-      DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchFromCurrent,
-      DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
-      DI_RADIOBUTTON,5,17,0,0,0,0,0,0,(char *)MSearchInSelected,
-      DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileTable,
-      DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+      /* 00 */DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(char *)MFindFileTitle,
+      /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
+      /* 02 */DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+      /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR,0,"",
+      /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,(char *)MFindFileText,
+      /* 05 */DI_EDIT,5,6,70,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
+      /* 06 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
+      /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
+      /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindFileAllTables,
+      /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MFindArchives,
+      /* 11 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR,0,"",
+      /* 12 */DI_RADIOBUTTON,5,13,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
+      /* 13 */DI_RADIOBUTTON,5,14,0,0,0,1,0,0,(char *)MSearchFromRoot,
+      /* 14 */DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchFromCurrent,
+      /* 15 */DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
+      /* 16 */DI_RADIOBUTTON,5,17,0,0,0,0,0,0,(char *)MSearchInSelected,
+      /* 17 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 18 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileTable,
+      /* 20 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
     /* KM $ */
     MakeDialogItems(FindAskDlgData,FindAskDlg);
+
+    /* $ 27.02.2001 SVS
+       „¨­ ¬¨ç¥áª¨ áä®à¬¨àã¥¬ à §¤¥«¨â¥«ì­ãî «¨­¨î */
+    if(!H2Separator[0])
+      MakeSeparator(70,H2Separator,3);
+
+    strcpy(FindAskDlg[3].Data,H2Separator);
+    strcpy(FindAskDlg[11].Data,H2Separator);
+    /* SVS $ */
 
     {
       Panel *ActivePanel=CtrlObject->ActivePanel;

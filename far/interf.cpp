@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.17 20.02.2001 $ */
+/* Revision: 1.18 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 SVS
+   + BoxText(Char) - вывод одного символа
+   ! В MakeSeparator добавлена отрисовка двойной разделительной линии (Type=3)
   20.02.2001 SVS
    ! ShowSeparator - дополнительный параметр - тип сепаратора
    + MakeSeparator - создание разделителя в памяти
@@ -609,6 +612,14 @@ void ShowTime(int ShowAlways)
   }
 }
 
+void BoxText(unsigned char Chr)
+{
+  char Str[2];
+  Str[0]=Chr;
+  Str[1]=0;
+  BoxText(Str);
+}
+
 void BoxText(char *Str)
 {
   if (OutputCP!=437 && OutputCP!=866)
@@ -756,17 +767,17 @@ char* MakeSeparator(int Length,char *DestStr,int Type)
 {
   if (Length>1 && DestStr)
   {
-    static unsigned char BoxType[3][2]={
-      {0x20,0x20},
-      {0xC7,0xB6},
-      {0xC3,0xB4},
+    static unsigned char BoxType[4][4]={
+      {0x20,0x20,0xC4,0x00},
+      {0xC7,0xB6,0xC4,0x00},
+      {0xC3,0xB4,0xC4,0x00},
+      {0xCC,0xB9,0xCD,0x00},
     };
-    Type%=3;
-    memset(DestStr,0xC4,Length);
+    Type%=(sizeof(BoxType)/sizeof(BoxType[0]));
+    memset(DestStr,BoxType[Type][2],Length);
     DestStr[0]=BoxType[Type][0];
     DestStr[Length-1]=BoxType[Type][1];
     DestStr[Length]=0;
   }
   return DestStr;
 }
-

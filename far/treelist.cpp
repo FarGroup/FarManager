@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.05 09.01.2001 $ */
+/* Revision: 1.06 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   09.01.2001 SVS
     - Для KEY_XXX_BASE нужно прибавить 0x01
   02.11.2000 OT
@@ -38,6 +42,13 @@ static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortCaseSensitive;
 static int TreeCmp(char *Str1,char *Str2);
+
+static char TreeLineSymbol[4][4]={
+  {0x20,0x20,0x20,0x00},
+  {0xB3,0x20,0x20,0x00},
+  {0xC0,0xC4,0xC4,0x00},
+  {0xC3,0xC4,0xC4,0x00},
+};
 
 static struct TreeListCache
 {
@@ -129,13 +140,13 @@ void TreeList::DisplayTree(int Fast)
         char OutStr[200];
         for (*OutStr=0,K=0;K<CurPtr->Depth-1 && WhereX()+3*K<X2-6;K++)
           if (CurPtr->Last[K])
-            strcat(OutStr,"   ");
+            strcat(OutStr,TreeLineSymbol[0]);
           else
-            strcat(OutStr,"│  ");
+            strcat(OutStr,TreeLineSymbol[1]);
         if (CurPtr->Last[CurPtr->Depth-1])
-          strcat(OutStr,"└──");
+          strcat(OutStr,TreeLineSymbol[2]);
         else
-          strcat(OutStr,"├──");
+          strcat(OutStr,TreeLineSymbol[3]);
         Text(OutStr);
         char *ChPtr=strrchr(CurPtr->Name,'\\');
         if (ChPtr!=NULL)

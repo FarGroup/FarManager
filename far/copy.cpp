@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.21 12.02.2001 $ */
+/* Revision: 1.22 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   12.02.2001 VVM
     - При включенном TotalCopyIndicator и показе CPS размер показывается 1 раз :)
   06.02.2001 SKV
@@ -1011,7 +1015,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
 {
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
-  static char *Bar="────────────────────────────────────────";
+
+  #define BAR_SIZE	40
+  static char Bar[BAR_SIZE+2]={0};
+  if(!Bar[0])
+    memset(Bar,0x0C4,BAR_SIZE);
 
   strcpy(BarStr,Bar);
 
@@ -1541,10 +1549,10 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     else
       Length=(WrittenSize.LowPart/100)*BarLength/(TotalSize.LowPart/100);
   char ProgressBar[100];
-  memset(ProgressBar,'░',BarLength);
+  memset(ProgressBar,0x0B0,BarLength);
   ProgressBar[BarLength]=0;
   if (TotalSize.LowPart!=0)
-    memset(ProgressBar,'█',Length);
+    memset(ProgressBar,0x0DB,Length);
   SetColor(COL_DIALOGTEXT);
   GotoXY(BarX,BarY+(TotalBar ? 2:0));
   Text(ProgressBar);

@@ -5,10 +5,14 @@ infolist.cpp
 
 */
 
-/* Revision: 1.05 01.02.2001 $ */
+/* Revision: 1.06 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   01.02.2001 SVS
     + В Win2K корректно отображать инфу при заходе в Juction каталог
       Здесь Рут-диск может быть другим
@@ -417,6 +421,7 @@ void InfoList::ShowDirDescription()
 void InfoList::ShowPluginDescription()
 {
   Panel *AnotherPanel;
+  static char VertcalLine[2]={0xBA,0x00};
   AnotherPanel=CtrlObject->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
@@ -430,11 +435,11 @@ void InfoList::ShowPluginDescription()
     struct InfoPanelLine *InfoLine=&Info.InfoLines[I];
     GotoXY(X1,Y);
     SetColor(COL_PANELBOX);
-    Text("║");
+    Text(VertcalLine);
     SetColor(COL_PANELTEXT);
     mprintf("%*s",X2-X1-1,"");
     SetColor(COL_PANELBOX);
-    Text("║");
+    Text(VertcalLine);
     GotoXY(X1+2,Y);
     if (InfoLine->Separator)
     {
@@ -455,4 +460,3 @@ void InfoList::ShowPluginDescription()
     }
   }
 }
-

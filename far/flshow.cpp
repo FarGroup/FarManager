@@ -5,10 +5,14 @@ flshow.cpp
 
 */
 
-/* Revision: 1.04 14.01.200116.02.2001 $ */
+/* Revision: 1.05 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   16.02.2001 OT
     - БАГА при очень широком столбце в панели
   14.01.2001 SVS
@@ -34,6 +38,8 @@ Modify:
 
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
+
+static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
 
 void FileList::DisplayObject()
 {
@@ -138,16 +144,16 @@ void FileList::ShowFileList(int Fast)
     SetColor(COL_PANELBOX);
     ColumnPos+=ViewSettings.ColumnWidth[I];
     GotoXY(ColumnPos,Y1);
-    BoxText("╤");
+    BoxText(209);
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
-      Text("│");
+      Text(VerticalLine[0]);
     }
     if (!Opt.ShowPanelStatus)
     {
       GotoXY(ColumnPos,Y2);
-      BoxText("╧");
+      BoxText(207);
     }
     ColumnPos++;
   }
@@ -307,12 +313,13 @@ void FileList::ShowSelectedSize()
     DrawSeparator(Y2-2);
     for (int I=0,ColumnPos=X1+1;I<ViewSettings.ColumnCount-1;I++)
     {
+      static char TRLine[2]={0x0C1,0x00};
       if (ViewSettings.ColumnWidth[I]<0 ||
           I==ViewSettings.ColumnCount-2 && ViewSettings.ColumnWidth[I+1]<0)
         continue;
       ColumnPos+=ViewSettings.ColumnWidth[I];
       GotoXY(ColumnPos,Y2-2);
-      Text("┴");
+      Text(TRLine);
       ColumnPos++;
     }
   }
@@ -367,12 +374,13 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
         sprintf(TotalStr,MSG(MListFileSize),FormSize);
     else
     {
-      sprintf(TotalStr," %s (%d) ═══ %s ",FormSize,TotalFileCount,FreeSize);
+      static unsigned char DHLine[4]={0x0CD,0x0CD,0x0CD,0x00};
+      sprintf(TotalStr," %s (%d) %s %s ",FormSize,TotalFileCount,DHLine,FreeSize);
       if (strlen(TotalStr)>X2-X1-1)
       {
         InsertCommas(FreeDiskSize>>20,FreeSize);
         InsertCommas(TotalFileSize>>20,FormSize);
-        sprintf(TotalStr," %s %s (%d) ═══ %s %s ",FormSize,MSG(MListMb),TotalFileCount,FreeSize,MSG(MListMb));
+        sprintf(TotalStr," %s %s (%d) %s %s %s ",FormSize,MSG(MListMb),TotalFileCount,DHLine,FreeSize,MSG(MListMb));
       }
     }
   else
@@ -383,11 +391,11 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   Length=strlen(TotalStr);
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
-  char *FirstBox=strchr(TotalStr,'═');
+  char *FirstBox=strchr(TotalStr,0x0CD);
   int BoxPos=(FirstBox==NULL) ? -1:FirstBox-TotalStr;
   int BoxLength=0;
   if (BoxPos!=-1)
-    for (int I=0;TotalStr[BoxPos+I]=='═';I++)
+    for (int I=0;TotalStr[BoxPos+I]==0x0CD;I++)
       BoxLength++;
 
   if (BoxPos==-1 || BoxLength==0)
@@ -649,7 +657,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         {
           SetColor(COL_PANELBOX);
           GotoXY(CurX-1,CurY);
-          Text(CurX-1==X2 ? "║":" ");
+          Text(CurX-1==X2 ? VerticalLine[1]:" ");
         }
         continue;
       }
@@ -699,7 +707,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 int ViewFlags=ColumnTypes[K];
                 if ((ViewFlags & COLUMN_MARK) && Width>2)
                 {
-                  Text(CurPtr->Selected ? "√ ":"  ");
+                  static char SelectedChar[4]={0x0FB,0x20,0x00,0x00};
+                  Text(CurPtr->Selected ? SelectedChar:"  ");
                   Width-=2;
                 }
                 if (CurPtr->MarkChar && Opt.Highlight && Width>1)
@@ -1021,9 +1030,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
           SetColor(COL_PANELBOX);
         GotoXY(CurX+ColumnWidth,CurY);
         if (K==ColumnCount-1)
-          Text(CurX+ColumnWidth==X2 ? "║":" ");
+          Text(CurX+ColumnWidth==X2 ? VerticalLine[1]:" ");
         else
-          Text(ShowStatus ? " ":"│");
+          Text(ShowStatus ? " ":VerticalLine[0]);
       }
       if (WasNameColumn && K<ColumnCount-1 && (ColumnTypes[K+1] & 0xff)==NAME_COLUMN)
         CurColumn++;

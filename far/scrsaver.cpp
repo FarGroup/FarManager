@@ -5,10 +5,14 @@ ScreenSaver
 
 */
 
-/* Revision: 1.02 12.10.2000 $ */
+/* Revision: 1.03 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   12.10.2000 tran
     - trap in scrsaver
       причина трапа - неинициализированное поле проявлялось под VC/release.
@@ -41,6 +45,14 @@ static struct
   int Color;
   int Speed;
 } Star[16];
+
+static char StarSymbol[5][2]={
+  {0xFE,0x00},
+  {0x07,0x00},
+  {0xF9,0x00},
+  {0xF8,0x00},
+  {0xFA,0x00},
+};
 
 int ScreenSaver(int EnableExit)
 {
@@ -116,12 +128,12 @@ static void ShowSaver(int Step)
           if (Star[I].Type==STAR_PLANET)
           {
             SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
-            Text("■");
+            Text(StarSymbol[0]);
           }
           else
           {
             SetColor(F_WHITE|B_BLACK);
-            Text("");
+            Text(StarSymbol[1]);
           }
         }
         else
@@ -130,7 +142,7 @@ static void ShowSaver(int Step)
             if (Star[I].Type==STAR_PLANET)
             {
               SetColor(Star[I].Color|FOREGROUND_INTENSITY|B_BLACK);
-              Text("");
+              Text(StarSymbol[1]);
             }
             else
             {
@@ -138,7 +150,7 @@ static void ShowSaver(int Step)
                 SetColor(F_LIGHTCYAN|B_BLACK);
               else
                 SetColor(F_CYAN|B_BLACK);
-              Text("∙");
+              Text(StarSymbol[2]);
             }
           }
           else
@@ -146,12 +158,12 @@ static void ShowSaver(int Step)
             if (Star[I].Type==STAR_PLANET)
             {
               SetColor(Star[I].Color|B_BLACK);
-              Text("°");
+              Text(StarSymbol[3]);
             }
             else
             {
               SetColor(F_CYAN|B_BLACK);
-              Text("·");
+              Text(StarSymbol[4]);
             }
           }
       }

@@ -5,10 +5,14 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.04 25.02.2001 $ */
+/* Revision: 1.05 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   25.02.2001 VVM
     + Обработка флага RDF_NO_UPDATE в ReadDiz()
   11.11.2000 SVS
@@ -269,7 +273,7 @@ void FileList::ReadFileNames(int KeepSelection)
           char Title[512],ReadMsg[100];
           int TitleLength=X2-X1-1;
           SetColor(COL_PANELBOX);
-          memset(Title,'═',TitleLength);
+          memset(Title,0x0CD,TitleLength);
           Title[TitleLength]=0;
           GotoXY(X1+1,Y1);
           Text(Title);

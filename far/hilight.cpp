@@ -5,10 +5,14 @@ Files highlighting
 
 */
 
-/* Revision: 1.10 26.02.2001 $ */
+/* Revision: 1.11 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   26.02.2001 SVS
     - Забыл при редактировании инициализировать данные...
   12.02.2001 SVS
@@ -148,6 +152,7 @@ void HighlightFiles::HiEdit(int MenuPos)
   memset(&HiMenuItem,0,sizeof(HiMenuItem));
 
   {
+    unsigned char VerticalLine=0x0B3;
     VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
     HiMenu.SetHelp("Highlight");
     HiMenu.SetFlags(MENU_WRAPMODE|MENU_SHOWAMPERSAND);
@@ -156,7 +161,7 @@ void HighlightFiles::HiEdit(int MenuPos)
     for (int I=0;I<HiDataCount;I++)
     {
       struct HighlightData *CurHiData=&HiData[I];
-      sprintf(HiMenuItem.Name,"%c%c%c%c%c%c%c │ %c%c%c%c%c%c%c │ %.60s",
+      sprintf(HiMenuItem.Name,"%c%c%c%c%c%c%c %c %c%c%c%c%c%c%c %c %.60s",
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
@@ -166,6 +171,8 @@ void HighlightFiles::HiEdit(int MenuPos)
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
 
+        VerticalLine,
+
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
@@ -174,6 +181,9 @@ void HighlightFiles::HiEdit(int MenuPos)
           ((CurHiData->ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':'.'),
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY) ? 'F':'.',
         (CurHiData->ExcludeAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L':'.',
+
+        VerticalLine,
+
         CurHiData->Masks);
       HiMenuItem.Selected=(I==MenuPos);
       HiMenu.AddItem(&HiMenuItem);

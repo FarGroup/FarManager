@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.04 02.02.2001 $ */
+/* Revision: 1.05 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Отрисовка сепаратора - функцией MakeSeparator()
   02.02.2001 IS
     + Заменим cr и lf на пробелы в GetErrorString
   02.02.2001 SVS
@@ -230,10 +232,7 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
       if (Length>1)
       {
         char Separator[500];
-        memset(Separator,'─',Length);
-        Separator[0]='╟';
-        Separator[Length-1]='╢';
-        Separator[Length]=0;
+        MakeSeparator(Length,Separator,1);
         int TextLength=strlen(Str[I]+1);
         if (TextLength<Length)
           strncpy(&Separator[(Length-TextLength)/2],Str[I]+1,TextLength);

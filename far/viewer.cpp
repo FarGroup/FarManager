@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.47 20.02.2001 $ */
+/* Revision: 1.48 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   20.02.2001 VVM
     + GetWrapType()/SetWrapType()
   06.02.2001 IS
@@ -164,6 +168,8 @@ static int InitHex=FALSE;
 */
 static int ViewerID=0;
 /* SVS $*/
+
+static char BorderLine[]={0x0B3,0x020,0x00};
 
 Viewer::Viewer()
 {
@@ -743,7 +749,7 @@ void Viewer::ShowHex()
           LastPage=0;
         }
         if (X==3)
-          strcat(OutStr,"│ ");
+          strcat(OutStr,BorderLine);
       }
     else
       for (X=0;X<16;X++)
@@ -787,7 +793,7 @@ void Viewer::ShowHex()
           LastPage=0;
         }
         if (X==7)
-          strcat(OutStr,"│ ");
+          strcat(OutStr,BorderLine);
       }
     TextStr[TextPos]=0;
     if (VM.UseDecodeTable && !VM.Unicode)

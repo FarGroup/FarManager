@@ -5,10 +5,14 @@ print.cpp
 
 */
 
-/* Revision: 1.04 11.02.2001 $ */
+/* Revision: 1.05 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   11.11.2000 SVS
@@ -221,7 +225,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     CharToOem(NullToEmpty(pi[I].pPrinterName),PrinterName);
     if (pi[I].pComment!=NULL)
       CharToOem(pi[I].pComment,pi[I].pComment);
-    sprintf(MenuText,"%-22.22s │ %-10s %3d %s  %s",PrinterName,
+    sprintf(MenuText,"%-22.22s %c %-10s %3d %s  %s",PrinterName,0x0B3U,
             NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
             NullToEmpty(pi[I].pComment));
     strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name));
@@ -237,4 +241,3 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     PrinterList->AddItem(&ListItem);
   }
 }
-

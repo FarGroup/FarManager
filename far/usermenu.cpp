@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.14 11.02.2001 $ */
+/* Revision: 1.15 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   17.01.2001 SVS
@@ -74,6 +78,8 @@ static char MenuRootKey[100],LocalMenuKey[100];
 */
 static int MenuMode;
 /* VVM $ */
+
+static char SubMenuSymbol[]={0x020,0x010,0x000};
 
 void ProcessUserMenu(int EditMenu)
 {
@@ -462,7 +468,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,ScrX-12,Label);
         /* tran 20.07.2000 $ */
           if (SubMenu)
-            strcat(MenuText," ");
+            strcat(MenuText,SubMenuSymbol);
           strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
           UserMenuItem.Selected=(NumLine==MenuPos);
           UserMenuItem.Separator=0;

@@ -5,10 +5,14 @@ filetype.cpp
 
 */
 
-/* Revision: 1.11 14.02.2001 $ */
+/* Revision: 1.12 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   14.02.2001 SVS
     ! Модификаторы для !@! и !$! - AFQS
   11.02.2001 SVS
@@ -52,6 +56,8 @@ static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
 static int GetDescriptionWidth();
 static void ReplaceVariables(char *Str);
+
+static unsigned char VerticalLine=0x0B3;
 
 /* $ 14.01.2001 SVS
    Добавим интелектуальности.
@@ -144,7 +150,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         else
           *Title=0;
         int Ampersand=strchr(Title,'&')!=NULL;
-        sprintf(MenuText,"%-*.*s │ ",DizWidth+Ampersand,DizWidth+Ampersand,Title);
+        sprintf(MenuText,"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,Title,VerticalLine);
       }
       TruncStr(CommandText,Min(ScrX,sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
       strcat(MenuText,CommandText);
@@ -791,7 +797,7 @@ void EditFileTypes(int MenuPos)
       else
         *Title=0;
       int Ampersand=strchr(Title,'&')!=NULL;
-      sprintf(MenuText,"%-*.*s │ ",DizWidth+Ampersand,DizWidth+Ampersand,Title);
+      sprintf(MenuText,"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,Title,VerticalLine);
     }
     TruncStr(Mask,Min(ScrX,sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
     strcat(MenuText,Mask);

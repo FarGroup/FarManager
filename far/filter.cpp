@@ -5,10 +5,14 @@ filter.cpp
 
 */
 
-/* Revision: 1.06 13.02.2001 $ */
+/* Revision: 1.07 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   13.02.2001 SVS
     - Ошибка, синтаксическая :-( "ListItem.Flags==0;"
   12.02.2001 SVS
@@ -39,6 +43,8 @@ static int _cdecl ExtSort(const void *el1,const void *el2);
 
 static struct FilterDataRecord *FilterData=NULL;
 static int FilterDataCount=NULL;
+
+static unsigned char VerticalLine=0x0B3;
 
 PanelFilter::PanelFilter(Panel *HostPanel)
 {
@@ -108,7 +114,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     for (I=0;I<FilterDataCount;I++)
     {
       memset(&ListItem,0,sizeof(ListItem));
-      sprintf(ListItem.Name,"%-30.30s │ %-30.30s",FilterData[I].Title,FilterData[I].Masks);
+      sprintf(ListItem.Name,"%-30.30s %c %-30.30s",FilterData[I].Title,VerticalLine,FilterData[I].Masks);
       ListItem.Selected=(I == Pos);
       ListItem.Flags=0;
       ListItem.UserDataSize=strlen(FilterData[I].Masks);
@@ -140,7 +146,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     memset(&ListItem,0,sizeof(ListItem));
     if (FilterDataCount==0)
     {
-      sprintf(ListItem.Name,"%-30.30s │",MSG(MNoCustomFilters));
+      sprintf(ListItem.Name,"%-30.30s %c",MSG(MNoCustomFilters),VerticalLine);
       ListItem.Selected=(Pos==0);
       FilterList.AddItem(&ListItem);
     }
@@ -211,7 +217,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       char *CurExtPtr=ExtPtr+I*NM;
       if (I>0 && LocalStricmp(CurExtPtr-NM,CurExtPtr)==0)
         continue;
-      sprintf(ListItem.Name,"%-30.30s │ %-30.30s",MSG(MPanelFileType),CurExtPtr);
+      sprintf(ListItem.Name,"%-30.30s %c %-30.30s",MSG(MPanelFileType),VerticalLine,CurExtPtr);
       ListItem.Selected=0;
       ListItem.Flags=0;
       ListItem.UserDataSize=strlen(CurExtPtr)+1;
@@ -604,4 +610,3 @@ void PanelFilter::SwapFilter()
     FilterData[I].RightPanelExclude=Swap;
   }
 }
-

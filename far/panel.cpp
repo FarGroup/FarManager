@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.17 26.02.2001 $ */
+/* Revision: 1.18 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 VVM
+    ! Символы, зависимые от кодовой страницы
+      /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
+      переведены в коды.
   26.02.2001 VVM
     - Отмена предыдущего патча
   26.02.2001 VVM
@@ -73,6 +77,8 @@ static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
 static SaveScreen *DragSaveScr=NULL;
 static char DragName[NM];
+
+static unsigned char VerticalLine=0x0B3;
 
 Panel::Panel()
 {
@@ -209,10 +215,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (Opt.ChangeDriveMode & DRIVE_SHOW_LABEL)
           {
             TruncStr(VolumeName,LabelWidth);
-            sprintf(MenuText+strlen(MenuText),"│%-*s",LabelWidth,VolumeName);
+            sprintf(MenuText+strlen(MenuText),"%c%-*s",VerticalLine,LabelWidth,VolumeName);
           }
           if (Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM)
-            sprintf(MenuText+strlen(MenuText),"│%-8.8s",FileSystemName);
+            sprintf(MenuText+strlen(MenuText),"%c%-8.8s",VerticalLine,FileSystemName);
         }
 
         if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE)
@@ -225,7 +231,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
             sprintf(TotalText,"%5d %.2s",(TotalSize/(1024*1024)).LowPart,MSG(MChangeDriveMb));
             sprintf(FreeText,"%5d %.2s",(UserFree/(1024*1024)).LowPart,MSG(MChangeDriveMb));
           }
-          sprintf(MenuText+strlen(MenuText),"│%-8s│%-8s",TotalText,FreeText);
+          sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);
         }
 
         if (Opt.ChangeDriveMode & DRIVE_SHOW_NETNAME)
