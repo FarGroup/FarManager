@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.167 25.12.2003 $ */
+/* Revision: 1.168 12.01.2004 $ */
 
 /*
 Modify:
+  12.01.2004 SVS
+    - Забыл сдвинуть флаги на 8 для MCMD_POSTMACROSTRING
   25.12.2003 SVS
     ! принудительная инициализация структуры MRec
   15.12.2003 SVS
@@ -779,7 +781,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
           case MCMD_POSTMACROSTRING:
           {
-            return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags);
+            return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags<<8);
           }
 #if 0
           case MCMD_COMPILEMACRO:
