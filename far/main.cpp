@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.51 18.04.2002 $ */
+/* Revision: 1.52 21.05.2002 $ */
 
 /*
 Modify:
+  21.05.2002 IS
+    + Получим реальное значение полного длинного пути с учетом
+      символических связей для MainPluginsPath
   18.04.2002 SKV
     + потрогаем floating point что бы VC++ его подключил.
     + ifdef что бы компилировалось под VC 7.0
@@ -340,6 +343,13 @@ int _cdecl main(int Argc, char *Argv[])
           {
             ExpandEnvironmentStrings(&Argv[I][2],MainPluginsPath,sizeof(MainPluginsPath));
             Unquote(MainPluginsPath);
+            /* $ 21.05.2002 IS
+                 Получим реальное значение полного длинного пути с учетом
+                 символических связей.
+            */
+            ConvertNameToReal(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
+            RawConvertShortNameToLongName(MainPluginsPath,MainPluginsPath,sizeof(MainPluginsPath));
+            /* IS $ */
           }
           else
           {

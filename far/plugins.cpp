@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.120 18.05.2002 $ */
+/* Revision: 1.121 21.05.2002 $ */
 
 /*
 Modify:
+  21.05.2002 IS
+    + Получим реальное значение полного длинного пути с учетом
+      символических связей для PersonalPluginsPath
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   14.05.2002 SKV
@@ -479,6 +482,13 @@ void PluginsSet::LoadPlugins()
            Вот здесь и расширяем значение пути!!!
         */
         ExpandEnvironmentStr(Opt.PersonalPluginsPath,FullName,sizeof(FullName));
+        /* $ 21.05.2002 IS
+             Получим реальное значение полного длинного пути с учетом
+             символических связей.
+        */
+        ConvertNameToReal(FullName,FullName,sizeof(FullName));
+        RawConvertShortNameToLongName(FullName,FullName,sizeof(FullName));
+        /* IS $ */
         // проверка на вшивость!
         if(LocalStricmp(PluginsDir,FullName))
           strncpy(PluginsDir,FullName,sizeof(PluginsDir)-1);
