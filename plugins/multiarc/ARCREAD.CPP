@@ -22,15 +22,18 @@ PluginClass::~PluginClass()
 
 void PluginClass::FreeArcData()
 {
-  for (int I=0;I<ArcDataCount;I++)
+  if(ArcData)
   {
-    if (ArcData[I].Description!=NULL)
-      delete ArcData[I].Description;
-    if(ArcData[I].UserData)
-      free((void *)ArcData[I].UserData);
+    for (int I=0;I<ArcDataCount;I++)
+    {
+      if (ArcData[I].Description!=NULL)
+        delete ArcData[I].Description;
+      if(ArcData[I].UserData)
+        free((void *)ArcData[I].UserData);
+    }
+    free (ArcData);
+    ArcData=NULL;
   }
-  delete ArcData;
-  ArcData=NULL;
   ArcDataCount=0;
 }
 
@@ -80,9 +83,7 @@ int PluginClass::ReadArchive(char *Name)
     {
       if (CheckForEsc())
       {
-        delete ArcData;
-        ArcData=NULL;
-        ArcDataCount=0;
+        FreeArcData();
         ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
         Info.RestoreScreen(NULL);
         Info.RestoreScreen(hScreen);
