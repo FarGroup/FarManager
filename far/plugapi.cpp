@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.136 27.05.2002 $ */
+/* Revision: 1.137 27.05.2002 $ */
 
 /*
 Modify:
+  27.05.2002 SVS
+    - Блин, поспешил с BugZ#514 (что называется перебор - в одном месте проверил,
+      а самое главное - MultiArc...  :-(
   27.05.2002 SVS
     - BugZ#514 - Multiple selected items in menu...
     + Автокомит для ?F_IMMEDIATERETURN (по мотивам BugZ#530 - флаг
@@ -922,7 +925,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         // исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
         DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
         CurItem.Flags&=~LIF_SELECTED;
-        if(!Selected && !(CurItem.Flags&LIF_SEPARATOR))
+        if(!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
         {
           CurItem.Flags|=SelCurItem;
           Selected++;
@@ -955,7 +958,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 
         DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
         CurItem.Flags&=~LIF_SELECTED;
-        if(!Selected && !(CurItem.Flags&LIF_SEPARATOR))
+        if(!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
         {
           CurItem.Flags|=SelCurItem;
           Selected++;

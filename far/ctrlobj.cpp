@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.39 14.03.2002 $ */
+/* Revision: 1.40 27.05.2002 $ */
 
 /*
 Modify:
+  27.05.2002 SVS
+    + файловые панели суем в очередь перед загрузкой плагинов.
   14.03.2002 SVS
     - Ѕлин, уродска€ неразбериха с этими сраными пон€ти€ми :-((
       “ипа "лева€-права€" и "активна€-пассивна€"
@@ -209,8 +211,8 @@ void ControlObject::Init()
   if(Opt.ShowKeyBar)
     this->MainKeyBar->Show();
 
-  Plugins.LoadPlugins();
   FrameManager->InsertFrame(FPanels);
+  Plugins.LoadPlugins();
 
   char StartCurDir[NM];
   Cp()->ActivePanel->GetCurDir(StartCurDir);
