@@ -1,0 +1,678 @@
+/*
+filefilter.cpp
+
+Файловый фильтр
+
+*/
+
+/* Revision: 1.00 04.10.2003 $ */
+
+/*
+Modify:
+  04.10.2003 KM
+    ! Введение в строй фильтра операций. Начало новой эры :-)
+*/
+
+#include "headers.hpp"
+#pragma hdrstop
+
+#include "filefilter.hpp"
+#include "fn.hpp"
+#include "lang.hpp"
+#include "dialog.hpp"
+#include "global.hpp"
+
+static DWORD CompEnabled,EncrEnabled;
+static DWORD SizeType,DateType;
+
+FileFilter::FileFilter():
+  FmtMask1("99%c99%c9999"),
+  FmtMask2("9999%c99%c99"),
+  FmtMask3("99%c99%c99"),
+  DigitMask("99999999999999999999"),
+  FilterMasksHistoryName("FilterMasks")
+{
+
+  // Определение параметров даты и времени в системе.
+  DateSeparator=GetDateSeparator();
+  TimeSeparator=GetTimeSeparator();
+  DateFormat=GetDateFormat();
+
+  switch(DateFormat)
+  {
+    case 0:
+      sprintf(DateMask,FmtMask1,DateSeparator,DateSeparator);
+      break;
+    case 1:
+      sprintf(DateMask,FmtMask1,DateSeparator,DateSeparator);
+      break;
+    default:
+      sprintf(DateMask,FmtMask2,DateSeparator,DateSeparator);
+      break;
+  }
+  sprintf(TimeMask,FmtMask3,TimeSeparator,TimeSeparator);
+
+  // Настройка списка множителей для типа размера
+  TableItemSize=(FarListItem *)xf_malloc(sizeof(FarListItem)*SIZE_COUNT);
+  SizeList.Items=TableItemSize;
+  SizeList.ItemsNumber=SIZE_COUNT;
+
+  memset(TableItemSize,0,sizeof(FarListItem)*SIZE_COUNT);
+  strncpy(TableItemSize[0].Text,MSG(MFileFilterSizeInBytes),sizeof(TableItemSize[0].Text)-1);
+  strncpy(TableItemSize[1].Text,MSG(MFileFilterSizeInKBytes),sizeof(TableItemSize[1].Text)-1);
+
+  // Настройка списка типов дат файла
+  TableItemDate=(FarListItem *)xf_malloc(sizeof(FarListItem)*DATE_COUNT);
+  DateList.Items=TableItemDate;
+  DateList.ItemsNumber=DATE_COUNT;
+
+  memset(TableItemDate,0,sizeof(FarListItem)*DATE_COUNT);
+  strncpy(TableItemDate[0].Text,MSG(MFileFilterModified),sizeof(TableItemDate[0].Text)-1);
+  strncpy(TableItemDate[1].Text,MSG(MFileFilterCreated),sizeof(TableItemDate[1].Text)-1);
+  strncpy(TableItemDate[2].Text,MSG(MFileFilterOpened),sizeof(TableItemDate[2].Text)-1);
+
+  // Том поддерживает компрессию и шифрацию?
+  unsigned long FSFlags=0;
+  if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&FSFlags,NULL,0))
+  {
+    if (FSFlags & FS_FILE_COMPRESSION)
+      CompEnabled=TRUE;
+    else
+      CompEnabled=FALSE;
+
+    if ((IsCryptFileASupport) && (FSFlags & FS_FILE_ENCRYPTION))
+      EncrEnabled=TRUE;
+    else
+      EncrEnabled=FALSE;
+  }
+
+  // Скопируем текущее состояние фильтра во временное значение,
+  // с которым и будем работать
+  FF=Opt.OpFilter;
+
+  // Проверка на валидность текущих настроек фильтра
+  CFileMask FileMask;
+  if ((*FF.FMask.Mask==0) || (!FileMask.Set(FF.FMask.Mask,FMF_SILENT)))
+    strncpy(FF.FMask.Mask,"*.*",sizeof(FF.FMask.Mask));
+
+  SizeType=FF.FSize.SizeType;
+  if (SizeType>FSIZE_INKBYTES || SizeType<FSIZE_INBYTES)
+  {
+    SizeType=0;
+    FF.FSize.SizeType=(FSizeType) SizeType;
+  }
+
+  DateType=FF.FDate.DateType;
+  if (DateType>FDATE_OPENED || DateType<FDATE_MODIFIED)
+  {
+    DateType=0;
+    FF.FDate.DateType=(FDateType) DateType;
+  }
+
+}
+
+FileFilter::~FileFilter()
+{
+  xf_free(TableItemSize);
+  xf_free(TableItemDate);
+
+  // Сохраним текущие изменения в глобальном фильтре
+  Opt.OpFilter=FF;
+}
+
+long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  switch(Msg)
+  {
+    case DN_LISTCHANGE:
+      if (Param1==6)  // In bytes or kilobytes?
+        SizeType=Param2;
+      if (Param1==13) // Modified,created or accessed?
+        DateType=Param2;
+      return TRUE;
+    case DN_BTNCLICK:
+    {
+      if (Param1==2) // Match file mask(s)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        if (Param2==0)
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,3,FALSE);
+        else
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,3,TRUE);
+
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+      }
+      if (Param1==5) // File size
+      {
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        if (Param2==0)
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,6,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,10,FALSE);
+        }
+        else
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,6,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,10,TRUE);
+        }
+
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+      }
+      if (Param1==12) // File date
+      {
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        if (Param2==0)
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,13,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,16,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,19,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,21,FALSE);
+        }
+        else
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,13,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,16,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,19,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,21,TRUE);
+        }
+
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+      }
+      if (Param1==23) // Attributes
+      {
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        if (Param2==0)
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,26,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,28,FALSE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,FALSE);
+        }
+        else
+        {
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,26,TRUE);
+          Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,TRUE);
+          if (CompEnabled==FALSE)
+            Dialog::SendDlgMessage(hDlg,DM_ENABLE,28,FALSE);
+          else
+            Dialog::SendDlgMessage(hDlg,DM_ENABLE,28,TRUE);
+          if (EncrEnabled==FALSE)
+            Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,FALSE);
+          else
+            Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,TRUE);
+        }
+
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+      }
+      if (Param1==20 || Param1==21) //Current и Blank
+      {
+        FILETIME ft;
+        char Date[16],Time[16];
+
+        if (Param1==20)
+        {
+          GetSystemTimeAsFileTime(&ft);
+          ConvertDate(ft,Date,Time,8,FALSE,FALSE,TRUE);
+        }
+        else
+          *Date=*Time=0;
+
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,15,(long)Date);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,16,(long)Time);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,18,(long)Date);
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,19,(long)Time);
+
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,15,0);
+        COORD r;
+        r.X=r.Y=0;
+        Dialog::SendDlgMessage(hDlg,DM_SETCURSORPOS,15,(long)&r);
+
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+      }
+      if (Param1==30 || Param1==31) // Ok и Cancel
+        return FALSE;
+      return TRUE;
+    }
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
+void FileFilter::Configure()
+{
+/*
+    0000000000111111111122222222223333333333444444444455555555556666666
+    0123456789012345678901234567890123456789012345678901234567890123456
+00  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+01  "  +-------------------- Operations filter --------------------+  "
+02  "  | +-[ ] Match file mask(s) -------------------------------+ |  "
+03  "  | | *.*################################################## | |  "
+04  "  | +-------------------------------------------------------+ |  "
+05  "  | +-[ ] File size-----------------------------------------+ |  "
+06  "  | | In bytes#################                             | |  "
+07  "  | | Greater than or equal to:        #################### | |  "
+08  "  | | Less than or equal to:           #################### | |  "
+09  "  | +-------------------------------------------------------+ |  "
+10  "  | +-[ ] File date-----------------------------------------+ |  "
+11  "  | | Last modified time#######                             | |  "
+12  "  | | After:                            ##.##.#### ##:##:## | |  "
+13  "  | | Before:                           ##.##.#### ##:##:## | |  "
+14  "  | | [ Current ] [ Blank ]                                 | |  "
+15  "  | +-------------------------------------------------------+ |  "
+16  "  | +-[ ] Attributes----------------------------------------+ |  "
+17  "  | | [x] Только чтение [x] Скрытый       [x] Зашифрованный | |  "
+18  "  | | [x] Архивный      [x] Системный     [x] Сжатый        | |  "
+19  "  | +-------------------------------------------------------+ |  "
+20  "  |                     [ Ok ]  [ Cancel ]                    |  "
+21  "  +-----------------------------------------------------------+  "
+22  "                                                                 "
+23  """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+*/
+
+  CFileMask FileMask;
+
+  struct DialogData FilterDlgData[]={
+  /* 00 */DI_DOUBLEBOX,3,1,63,21,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
+
+  /* 01 */DI_SINGLEBOX,5,2,61,4,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 02 */DI_CHECKBOX,7,2,0,0,1,0,0,0,(char *)MFileFilterMatchMask,
+  /* 03 */DI_EDIT,7,3,59,3,0,(DWORD)FilterMasksHistoryName,DIF_HISTORY,0,"",
+
+  /* 04 */DI_SINGLEBOX,5,5,61,9,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 05 */DI_CHECKBOX,7,5,0,0,0,0,0,0,(char *)MFileFilterSize,
+  /* 06 */DI_COMBOBOX,7,6,31,6,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+  /* 07 */DI_TEXT,7,7,38,7,0,0,0,0,(char *)MFileFilterSizeFrom,
+  /* 08 */DI_FIXEDIT,40,7,59,7,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+  /* 09 */DI_TEXT,7,8,38,8,0,0,0,0,(char *)MFileFilterSizeTo,
+  /* 10 */DI_FIXEDIT,40,8,59,8,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
+
+  /* 11 */DI_SINGLEBOX,5,10,61,15,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 12 */DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MFileFilterDate,
+  /* 13 */DI_COMBOBOX,7,11,31,11,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
+  /* 14 */DI_TEXT,7,12,38,12,0,0,0,0,(char *)MFileFilterAfter,
+  /* 15 */DI_FIXEDIT,41,12,50,12,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
+  /* 16 */DI_FIXEDIT,52,12,59,12,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
+  /* 17 */DI_TEXT,7,13,40,13,0,0,0,0,(char *)MFileFilterBefore,
+  /* 18 */DI_FIXEDIT,41,13,50,13,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
+  /* 19 */DI_FIXEDIT,52,13,59,13,0,(DWORD)TimeMask,DIF_MASKEDIT,0,"",
+  /* 20 */DI_BUTTON,7,14,0,14,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterCurrent,
+  /* 21 */DI_BUTTON,19,14,0,14,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
+
+  /* 22 */DI_SINGLEBOX,5,16,61,19,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 23 */DI_CHECKBOX, 7,16,0,0,0,0,0,0,(char *)MFileFilterAttr,
+  /* 24 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
+  /* 25 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
+  /* 26 */DI_CHECKBOX,25,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
+  /* 27 */DI_CHECKBOX,25,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrS,
+  /* 28 */DI_CHECKBOX,43,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrC,
+  /* 29 */DI_CHECKBOX,43,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
+
+  /* 30 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
+  /* 31 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
+  };
+
+  MakeDialogItems(FilterDlgData,FilterDlg);
+
+  FilterDlg[2].Selected=FF.FMask.Used;
+  strncpy(FilterDlg[3].Data,FF.FMask.Mask,sizeof(FilterDlg[3].Data));
+  if (!FilterDlg[2].Selected)
+    FilterDlg[3].Flags|=DIF_DISABLE;
+
+  FilterDlg[5].Selected=FF.FSize.Used;
+  FilterDlg[6].ListItems=&SizeList;
+
+  SizeType=FF.FSize.SizeType;
+
+  strncpy(FilterDlg[6].Data,TableItemSize[SizeType].Text,sizeof(FilterDlg[6].Data));
+  _ui64toa(FF.FSize.SizeAbove,FilterDlg[8].Data,10);
+  _ui64toa(FF.FSize.SizeBelow,FilterDlg[10].Data,10);
+  if (!FilterDlg[5].Selected)
+  {
+    FilterDlg[6].Flags|=DIF_DISABLE;
+    FilterDlg[8].Flags|=DIF_DISABLE;
+    FilterDlg[10].Flags|=DIF_DISABLE;
+  }
+
+  FilterDlg[12].Selected=FF.FDate.Used;
+  FilterDlg[13].ListItems=&DateList;
+
+  DateType=FF.FDate.DateType;
+
+  strncpy(FilterDlg[13].Data,TableItemDate[DateType].Text,sizeof(FilterDlg[13].Data));
+
+  ConvertDate(FF.FDate.DateAfter,FilterDlg[15].Data,FilterDlg[16].Data,8,FALSE,FALSE,TRUE);
+  ConvertDate(FF.FDate.DateBefore,FilterDlg[18].Data,FilterDlg[19].Data,8,FALSE,FALSE,TRUE);
+
+  if (!FilterDlg[12].Selected)
+  {
+    FilterDlg[13].Flags|=DIF_DISABLE;
+    FilterDlg[15].Flags|=DIF_DISABLE;
+    FilterDlg[16].Flags|=DIF_DISABLE;
+    FilterDlg[18].Flags|=DIF_DISABLE;
+    FilterDlg[19].Flags|=DIF_DISABLE;
+    FilterDlg[20].Flags|=DIF_DISABLE;
+    FilterDlg[21].Flags|=DIF_DISABLE;
+  }
+
+  DWORD AttrSet=FF.FAttr.AttrSet;
+  DWORD AttrClear=FF.FAttr.AttrClear;
+  FilterDlg[23].Selected=FF.FAttr.Used;
+  FilterDlg[24].Selected=(AttrSet & FILE_ATTRIBUTE_READONLY?1:AttrClear & FILE_ATTRIBUTE_READONLY?0:2);
+  FilterDlg[25].Selected=(AttrSet & FILE_ATTRIBUTE_ARCHIVE?1:AttrClear & FILE_ATTRIBUTE_ARCHIVE?0:2);
+  FilterDlg[26].Selected=(AttrSet & FILE_ATTRIBUTE_HIDDEN?1:AttrClear & FILE_ATTRIBUTE_HIDDEN?0:2);
+  FilterDlg[27].Selected=(AttrSet & FILE_ATTRIBUTE_SYSTEM?1:AttrClear & FILE_ATTRIBUTE_SYSTEM?0:2);
+  FilterDlg[28].Selected=(AttrSet & FILE_ATTRIBUTE_COMPRESSED?1:AttrClear & FILE_ATTRIBUTE_COMPRESSED?0:2);
+  FilterDlg[29].Selected=(AttrSet & FILE_ATTRIBUTE_ENCRYPTED?1:AttrClear & FILE_ATTRIBUTE_ENCRYPTED?0:2);
+  if (!FilterDlg[23].Selected)
+  {
+    FilterDlg[24].Flags|=DIF_DISABLE;
+    FilterDlg[25].Flags|=DIF_DISABLE;
+    FilterDlg[26].Flags|=DIF_DISABLE;
+    FilterDlg[27].Flags|=DIF_DISABLE;
+    FilterDlg[28].Flags|=DIF_DISABLE;
+    FilterDlg[29].Flags|=DIF_DISABLE;
+  }
+  else
+  {
+    if (CompEnabled==FALSE)
+      FilterDlg[28].Flags|=DIF_DISABLE;
+    if (EncrEnabled==FALSE)
+      FilterDlg[29].Flags|=DIF_DISABLE;
+  }
+
+  Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FilterDlgProc);
+
+  Dlg.SetHelp("OpFilter");
+  Dlg.SetPosition(-1,-1,67,23);
+
+  for (;;)
+  {
+    Dlg.ClearDone();
+    Dlg.Process();
+    int ExitCode=Dlg.GetExitCode();
+
+    if (ExitCode==30) // Ok
+    {
+      // Если введённая пользователем маска не корректна, тогда вернёмся в диалог
+      if (FilterDlg[2].Selected && !FileMask.Set(FilterDlg[3].Data,0))
+        continue;
+
+      FF.FMask.Used=FilterDlg[2].Selected;
+      strncpy(FF.FMask.Mask,FilterDlg[3].Data,sizeof(FF.FMask.Mask));
+
+      FF.FSize.Used=FilterDlg[5].Selected;
+      FF.FSize.SizeType=(FSizeType) SizeType;
+      FF.FSize.SizeAbove=_atoi64(FilterDlg[8].Data);
+      FF.FSize.SizeBelow=_atoi64(FilterDlg[10].Data);
+
+      FF.FDate.Used=FilterDlg[12].Selected;
+      FF.FDate.DateType=(FDateType) DateType;
+      StrToDateTime(FilterDlg[15].Data,FilterDlg[16].Data,FF.FDate.DateAfter);
+      StrToDateTime(FilterDlg[18].Data,FilterDlg[19].Data,FF.FDate.DateBefore);
+
+      DWORD AttrSet=0;
+      DWORD AttrClear=0;
+      FF.FAttr.Used=FilterDlg[23].Selected;
+      AttrSet|=(FilterDlg[24].Selected==1?FILE_ATTRIBUTE_READONLY:0);
+      AttrSet|=(FilterDlg[25].Selected==1?FILE_ATTRIBUTE_ARCHIVE:0);
+      AttrSet|=(FilterDlg[26].Selected==1?FILE_ATTRIBUTE_HIDDEN:0);
+      AttrSet|=(FilterDlg[27].Selected==1?FILE_ATTRIBUTE_SYSTEM:0);
+      AttrSet|=(FilterDlg[28].Selected==1?FILE_ATTRIBUTE_COMPRESSED:0);
+      AttrSet|=(FilterDlg[29].Selected==1?FILE_ATTRIBUTE_ENCRYPTED:0);
+      AttrClear|=(FilterDlg[24].Selected==0?FILE_ATTRIBUTE_READONLY:0);
+      AttrClear|=(FilterDlg[25].Selected==0?FILE_ATTRIBUTE_ARCHIVE:0);
+      AttrClear|=(FilterDlg[26].Selected==0?FILE_ATTRIBUTE_HIDDEN:0);
+      AttrClear|=(FilterDlg[27].Selected==0?FILE_ATTRIBUTE_SYSTEM:0);
+      AttrClear|=(FilterDlg[28].Selected==0?FILE_ATTRIBUTE_COMPRESSED:0);
+      AttrClear|=(FilterDlg[29].Selected==0?FILE_ATTRIBUTE_ENCRYPTED:0);
+      FF.FAttr.AttrSet=AttrSet;
+      FF.FAttr.AttrClear=AttrClear;
+
+      break;
+    }
+    else
+      break;
+  }
+}
+
+FILETIME &FileFilter::StrToDateTime(const char *CDate,const char *CTime,FILETIME &ft)
+{
+  unsigned DateN[3],TimeN[3];
+  SYSTEMTIME st;
+  FILETIME lft;
+
+  // Преобразуем введённые пользователем дату и время
+  GetFileDateAndTime(CDate,DateN,DateSeparator);
+  GetFileDateAndTime(CTime,TimeN,GetTimeSeparator());
+  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1)
+  {
+    // Пользователь оставил дату пустой, значит обнулим дату и время.
+    ZeroMemory(&ft,sizeof(ft));
+    return ft;
+  }
+
+  ZeroMemory(&st,sizeof(st));
+
+  // "Оформим"
+  switch(DateFormat)
+  {
+    case 0:
+      st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:0;
+      st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:0;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+      break;
+    case 1:
+      st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:0;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:0;
+      break;
+    default:
+      st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:0;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:0;
+      st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:0;
+      break;
+  }
+  st.wHour   = TimeN[0]!=(unsigned)-1?(TimeN[0]):0;
+  st.wMinute = TimeN[1]!=(unsigned)-1?(TimeN[1]):0;
+  st.wSecond = TimeN[2]!=(unsigned)-1?(TimeN[2]):0;
+
+  if (st.wYear<100)
+    if (st.wYear<80)
+      st.wYear+=2000;
+    else
+      st.wYear+=1900;
+
+  // преобразование в "удобоваримый" формат
+  SystemTimeToFileTime(&st,&lft);
+  LocalFileTimeToFileTime(&lft,&ft);
+  return ft;
+}
+
+void FileFilter::GetFileDateAndTime(const char *Src,unsigned *Dst,int Separator)
+{
+  char Temp[32], Digit[16],*PtrDigit;
+  int I;
+
+  strncpy(Temp,Src,sizeof(Temp)-1);
+  Dst[0]=Dst[1]=Dst[2]=(unsigned)-1;
+  I=0;
+  const char *Ptr=Temp;
+  while((Ptr=GetCommaWord(Ptr,Digit,Separator)) != NULL)
+  {
+    PtrDigit=Digit;
+    while (*PtrDigit && !isdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      Dst[I]=atoi(PtrDigit);
+    ++I;
+  }
+}
+
+int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
+{
+  // Пустое значение?
+  if (fd==NULL)
+    return FALSE;
+
+  // Режим проверки маски файла включен?
+  if (FF.FMask.Used)
+  {
+    CFileMask FileMask;
+
+    if (!FileMask.Set(FF.FMask.Mask,FMF_SILENT))
+      // Не смогли установить маску.
+      return FALSE;
+
+    // Файл не попадает под маску введённую в фильтре?
+    if (!FileMask.Compare(fd->cFileName))
+      // Не пропускаем этот файл
+      return FALSE;
+  }
+
+  // Режим проверки размера файла включен?
+  if (FF.FSize.Used)
+  {
+    unsigned __int64 sizeabove=FF.FSize.SizeAbove;
+    unsigned __int64 sizebelow=FF.FSize.SizeBelow;
+
+    // Преобразуем размер из двух DWORD в беззнаковый __int64
+    unsigned __int64 fsize=(unsigned __int64)fd->nFileSizeLow|((unsigned __int64)fd->nFileSizeHigh<<32);
+
+    if (sizeabove!=0 || sizebelow!=0)
+    {
+
+      switch (FF.FSize.SizeType)
+      {
+        case FSIZE_INBYTES:
+          // Размер введён в байтах, значит ничего не меняем.
+          break;
+        case FSIZE_INKBYTES:
+          // Размер введён в килобайтах, переведём его в байты.
+          // !!! Проверки на превышение максимального значения не делаются !!!
+          sizeabove=sizeabove*1024;
+          sizebelow=sizebelow*1024;
+          break;
+        case 2:
+          // Задел // Размер введён в мегабайтах, переведём его в байты.
+          // !!! Проверки на превышение максимального значения не делаются !!!
+          sizeabove=sizeabove*1024*1024;
+          sizebelow=sizebelow*1024*1024;
+          break;
+        case 3:
+          // Задел // Размер введён в гигабайтах, переведём его в байты.
+          // !!! Проверки на превышение максимального значения не делаются !!!
+          sizeabove=sizeabove*1024*1024*1024;
+          sizebelow=sizebelow*1024*1024*1024;
+          break;
+      }
+
+      // Есть введённый пользователем минимальный размер файла?
+      if (sizeabove!=0)
+        // Размер файла меньше минимального разрешённого по фильтру?
+        if (fsize<sizeabove)
+          // Не пропускаем этот файл
+          return FALSE;
+
+      // Есть введённый пользователем максимальный размер файла?
+      if (sizebelow!=0)
+        // Размер файла больше максимального разрешённого по фильтру?
+        if (fsize>sizebelow)
+          // Не пропускаем этот файл
+          return FALSE;
+    }
+  }
+
+  // Режим проверки времени файла включен?
+  if (FF.FDate.Used)
+  {
+    // Преобразуем FILETIME в беззнаковый __int64
+    unsigned __int64 &after=(unsigned __int64 &)FF.FDate.DateAfter;
+    unsigned __int64 &before=(unsigned __int64 &)FF.FDate.DateBefore;
+
+    if (after!=0 || before!=0)
+    {
+      unsigned __int64 ftime;
+
+      switch (FF.FDate.DateType)
+      {
+        case FDATE_MODIFIED:
+          (unsigned __int64 &)ftime=(unsigned __int64 &)fd->ftLastWriteTime;
+          break;
+        case FDATE_CREATED:
+          (unsigned __int64 &)ftime=(unsigned __int64 &)fd->ftCreationTime;
+          break;
+        case FDATE_OPENED:
+          (unsigned __int64 &)ftime=(unsigned __int64 &)fd->ftLastAccessTime;
+          break;
+      }
+
+      // Есть введённая пользователем начальная дата?
+      if (after!=0)
+        // Дата файла меньше начальной даты по фильтру?
+        if (ftime<after)
+          // Не пропускаем этот файл
+          return FALSE;
+
+      // Есть введённая пользователем конечная дата?
+      if (before!=0)
+        // Дата файла больше конечной даты по фильтру?
+        if (ftime>before)
+          return FALSE;
+    }
+  }
+
+  // Режим проверки атрибутов файла включен?
+  if (FF.FAttr.Used)
+  {
+    // Проверка попадания файла по установленным атрибутам
+    DWORD AttrSet=FF.FAttr.AttrSet;
+    if ((AttrSet & FILE_ATTRIBUTE_READONLY) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_READONLY)))
+      return FALSE;
+    if ((AttrSet & FILE_ATTRIBUTE_ARCHIVE) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE)))
+      return FALSE;
+    if ((AttrSet & FILE_ATTRIBUTE_HIDDEN) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)))
+      return FALSE;
+    if ((AttrSet & FILE_ATTRIBUTE_SYSTEM) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)))
+      return FALSE;
+    if ((AttrSet & FILE_ATTRIBUTE_COMPRESSED) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)))
+      return FALSE;
+    if ((AttrSet & FILE_ATTRIBUTE_ENCRYPTED) && (!(fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED)))
+      return FALSE;
+
+    // Проверка попадания файла по отсутствующим атрибутам
+    DWORD AttrClear=FF.FAttr.AttrClear;
+    if ((AttrClear & FILE_ATTRIBUTE_READONLY) && (fd->dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+      return FALSE;
+    if ((AttrClear & FILE_ATTRIBUTE_ARCHIVE) && (fd->dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE))
+      return FALSE;
+    if ((AttrClear & FILE_ATTRIBUTE_HIDDEN) && (fd->dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
+      return FALSE;
+    if ((AttrClear & FILE_ATTRIBUTE_SYSTEM) && (fd->dwFileAttributes & FILE_ATTRIBUTE_SYSTEM))
+      return FALSE;
+    if ((AttrClear & FILE_ATTRIBUTE_COMPRESSED) && (fd->dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
+      return FALSE;
+    if ((AttrClear & FILE_ATTRIBUTE_ENCRYPTED) && (fd->dwFileAttributes & FILE_ATTRIBUTE_ENCRYPTED))
+      return FALSE;
+  }
+
+  // Да! Файл выдержал все испытания и будет допущен к использованию
+  // в вызвавшей эту функцию операции.
+  return TRUE;
+}

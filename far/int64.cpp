@@ -5,10 +5,12 @@ int64.cpp
 
 */
 
-/* Revision: 1.05 22.02.2002 $ */
+/* Revision: 1.06 05.10.2003 $ */
 
 /*
 Modify:
+  05.10.2003 KM
+    + Конструкторы int64(int n) и int64(__int64 n)
   22.02.2002 SVS
     ! Введение FAR_INT64
   06.05.2001 DJ
@@ -58,6 +60,20 @@ int64::int64(DWORD n)
 }
 
 
+int64::int64(int n)
+{
+  HighPart=0;
+  LowPart=n;
+}
+
+
+int64::int64(__int64 n)
+{
+  HighPart=((unsigned __int64)n>>32)&0xFFFFFFFFUL;
+  LowPart=n&0xFFFFFFFFUL;
+}
+
+
 int64::int64(LONG HighPart,DWORD LowPart)
 {
   int64::HighPart=HighPart;
@@ -74,7 +90,7 @@ int64 int64::operator = (int64 n)
 
 int64 int64::operator = (__int64 n)
 {
-  HighPart=(n>>32)&0xFFFFFFFFUL;
+  HighPart=((unsigned __int64)n>>32)&0xFFFFFFFFUL;
   LowPart=n&0xFFFFFFFFUL;
   return(*this);
 }

@@ -165,6 +165,7 @@ FAROBJ=\
    $(OBJPATH)\lockscrn.obj\
    $(OBJPATH)\$(MACROS)\
    $(OBJPATH)\manager.obj\
+   $(OBJPATH)\filefilter.obj\
    $(OBJPATH)\menubar.obj\
    $(OBJPATH)\message.obj\
    $(OBJPATH)\strftime.obj\

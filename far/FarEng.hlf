@@ -3556,3 +3556,6 @@ $ #$If-$Else - условный оператор#
 
    ~Keyboard macro commands (macro command)~@KeyMacro@
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
+
+@OpFilter
+$ #Operations filter#

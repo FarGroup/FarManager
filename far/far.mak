@@ -90,6 +90,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\farwinapi.obj" \
 	"$(INTDIR)\ffolders.obj" \
 	"$(INTDIR)\fileedit.obj" \
+	"$(INTDIR)\filefilter.obj" \
 	"$(INTDIR)\strftime.obj" \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\filestr.obj" \

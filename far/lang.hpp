@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.131 04.10.2003 $ */
+/* Revision: 1.132 05.10.2003 $ */
 
 /*
 Modify:
+  05.10.2003 KM
+    + Добавлено много новых идентификаторов MFileFilter*
+    + MFindUseFilter, MFindUsingFilter, MFindFileSetFilter
   04.10.2003 SVS
     + MMacroSettingsSelectionBlockPresent, MMacroSettingsActivePanel, MMacroSettingsPassivePanel,
   23.09.2003 KM
@@ -1277,8 +1280,11 @@ enum
   MSearchFromCurrent,
   MSearchInCurrent,
   MSearchInSelected,
+  MFindUseFilter,
+  MFindUsingFilter,
   MFindFileFind,
   MFindFileDrive,
+  MFindFileSetFilter,
   MFindFileTable,
   MFindSearchingIn,
   MFindNewSearch,
@@ -2179,6 +2185,31 @@ enum
   MComspecNotFound,
 
   MOpenPluginCannotOpenFile,
+
+  MFileFilterTitle,
+  MFileFilterMatchMask,
+  MFileFilterSize,
+  MFileFilterSizeInBytes,
+  MFileFilterSizeInKBytes,
+  MFileFilterSizeFrom,
+  MFileFilterSizeTo,
+  MFileFilterDate,
+  MFileFilterModified,
+  MFileFilterCreated,
+  MFileFilterOpened,
+  MFileFilterAfter,
+  MFileFilterBefore,
+  MFileFilterCurrent,
+  MFileFilterBlank,
+  MFileFilterAttr,
+  MFileFilterAttrR,
+  MFileFilterAttrA,
+  MFileFilterAttrH,
+  MFileFilterAttrS,
+  MFileFilterAttrC,
+  MFileFilterAttrE,
+  MFileFilterOk,
+  MFileFilterCancel,
 
   MListEval
 };

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.106 04.10.2003 $ */
+/* Revision: 1.107 05.10.2003 $ */
 
 /*
 Modify:
+  05.10.2003 KM
+    + struct FilterParams, Opt.OpFilter
   04.10.2003 SVS
     + Opt.KeyMacroRecord1 аля KEY_CTRLDOT и Opt.KeyMacroRecord2  аля KEY_CTRLSHIFTDOT
   17.09.2003 KM
@@ -305,6 +307,48 @@ Modify:
 */
 
 #include "farconst.hpp"
+
+enum FDateType
+{
+  FDATE_MODIFIED=0,
+  FDATE_CREATED,
+  FDATE_OPENED,
+};
+
+enum FSizeType
+{
+  FSIZE_INBYTES=0,
+  FSIZE_INKBYTES,
+};
+
+struct FilterParams
+{
+  struct
+  {
+    DWORD Used;
+    char Mask[NM*2];
+  } FMask;
+  struct
+  {
+    DWORD Used;
+    FDateType DateType;
+    FILETIME DateAfter;
+    FILETIME DateBefore;
+  } FDate;
+  struct
+  {
+    DWORD Used;
+    FSizeType SizeType;
+    __int64 SizeAbove;
+    __int64 SizeBelow;
+  } FSize;
+  struct
+  {
+    DWORD Used;
+    DWORD AttrSet;
+    DWORD AttrClear;
+  } FAttr;
+};
 
 struct PanelOptions
 {
@@ -837,6 +881,11 @@ struct Options
        Структура для запоминания параметров таблиц символов в поиске
   */
   struct FindCharTable CharTable;
+  /* KM $ */
+  /* $ 28.09.2003 KM
+     OpFilter - параметр для запоминания свойств файлового фильтра
+  */
+  struct FilterParams OpFilter;
   /* KM $ */
 };
 

@@ -204,6 +204,10 @@ SOURCE=.\fileedit.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\filefilter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\filelist.cpp
 # End Source File
 # Begin Source File
@@ -644,6 +648,10 @@ SOURCE=.\farversion.inc
 # Begin Source File
 
 SOURCE=.\fileedit.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\filefilter.hpp
 # End Source File
 # Begin Source File
 

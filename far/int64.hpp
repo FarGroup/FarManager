@@ -7,10 +7,12 @@ int64.hpp
 
 */
 
-/* Revision: 1.04 22.02.2002 $ */
+/* Revision: 1.05 05.10.2002 $ */
 
 /*
 Modify:
+  05.10.2003 KM
+    + Конструкторы int64(int n) и int64(__int64 n)
   22.02.2002 SVS
     ! Введение FAR_INT64
   13.03.2001 SVS
@@ -34,6 +36,8 @@ class int64
   public:
     int64();
     int64(DWORD n);
+    int64(int n);
+    int64(__int64 n);
     int64(LONG HighPart,DWORD LowPart);
 
     int64 operator = (int64 n);
@@ -84,6 +88,16 @@ inline int64::int64()
 inline int64::int64(DWORD n)
 {
   Number.i64=(__int64)n;
+}
+
+inline int64::int64(int n)
+{
+  Number.i64=(__int64)n;
+}
+
+inline int64::int64(__int64 n)
+{
+  Number.i64=n;
 }
 
 inline int64::int64(LONG HighPart,DWORD LowPart)

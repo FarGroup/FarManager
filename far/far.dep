@@ -846,6 +846,7 @@
 	".\filelist.hpp"\
 	".\filepanels.hpp"\
 	".\fileview.hpp"\
+	".\filefilter.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
@@ -2395,6 +2396,21 @@
 	".\int64.hpp"\
 	".\plugin.hpp"\
 	".\struct.hpp"\
+
+
+
+"$(INTDIR)\filefilter.obj" : \
+	".\filefilter.cpp"\
+	".\filefilter.hpp"\
+	".\CFileMask.hpp"\
+	".\headers.hpp"\
+	".\plugin.hpp"\
+	".\struct.hpp"\
+	".\dialog.hpp"\
+	".\filefilter.hpp"\
+	".\fn.hpp"\
+	".\lang.hpp"\
+	".\global.hpp"\
 
 
 

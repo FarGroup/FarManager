@@ -5,10 +5,20 @@ findfile.cpp
 
 */
 
-/* Revision: 1.146 24.09.2003 $ */
+/* Revision: 1.147 05.10.2003 $ */
 
 /*
 Modify:
+  05.10.2003 KM
+    ! Размер в результатах поиска выводится с учётом 64-битной математики.
+    + В результатах поиска выводятся атрибуты найденных папок и файлов.
+    + Чекбокс [ ] Use filter, включающий возможность фильтрования
+      операции поиска при помощи использования нового класса FileFilter.
+    + Кнопка Filter, позволяющая настраивать фильтр операций.
+    ! При включенном фильтре операций тип даты и времени найденных файлов
+      выводится в зависимости от установленных в фильтре:
+      модификации, создания или последнего доступа.
+    + Если используется фильтр операций, то во время поиска сообщаем об этом
   24.09.2003 KM
     - Маленькие правки на предыдущий патч.
   22.09.2003 KM
@@ -523,8 +533,9 @@ Modify:
 #include "manager.hpp"
 #include "scrbuf.hpp"
 #include "CFileMask.hpp"
+#include "filefilter.hpp"
 
-#define DLG_HEIGHT 22
+#define DLG_HEIGHT 24
 #define DLG_WIDTH 74
 #define CHAR_TABLE_SIZE 5
 
@@ -570,7 +581,7 @@ static CRITICAL_SECTION FindFilesCSection;
 
 static HANDLE hDialogMutex, hPluginMutex;
 
-static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0;
+static int UseAllTables=FALSE,UseDecodeTable=FALSE,UseANSI=FALSE,UseUnicode=FALSE,TableNum=0,UseFilter=0;
 static struct CharTableSet TableSet;
 
 /* $ 01.07.2001 IS
@@ -579,6 +590,12 @@ static struct CharTableSet TableSet;
 */
 static CFileMask FileMaskForFindFile;
 /* IS $ */
+
+/* $ 05.10.2003 KM
+   Указатель на объект фильтра операций
+*/
+static FileFilter *Filter;
+/* KM $*/
 
 int _cdecl SortItems(const void *p1,const void *p2)
 {
@@ -689,9 +706,9 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       SearchFromChanged=FALSE;
 
       if (Dlg->Item[21].Selected==1)
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,TRUE);
       else
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,FALSE);
 
       return TRUE;
     }
@@ -742,9 +759,9 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
            контролами, только с кнопками немного по-другому, поэтому простое
            нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
       */
-      if (Param1==26 || Param1==28) // [ Find ] или [ Cancel ]
+      if (Param1==28 || Param1==31) // [ Find ] или [ Cancel ]
         return FALSE;
-      else if (Param1==27) // [ Drive ]
+      else if (Param1==29) // [ Drive ]
       {
         IsRedrawFramesInProcess++;
         ActivePanel->ChangeDisk();
@@ -763,14 +780,11 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,19,PluginMode?FALSE:TRUE);
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,PluginMode?FALSE:TRUE);
       }
-      else if (Param1==21)
+      else if (Param1==30) // Filter
+        Filter->Configure();
+      else if (Param1>=19 || Param1<=24)
       {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,TRUE);
-        SearchFromChanged=TRUE;
-      }
-      else if (Param1==19 || Param1==20 || Param1==22 || Param1==23 || Param1==24)
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,FALSE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,Param1==21?TRUE:FALSE);
         SearchFromChanged=TRUE;
       }
       else if (Param1==15) // [ ] Search for folders
@@ -887,6 +901,10 @@ FindFiles::FindFiles()
   int I;
 
   InitializeCriticalSection(&FindFilesCSection);
+
+  // Создадим объект фильтра
+  Filter=new FileFilter;
+
   CmpCase=LastCmpCase;
   WholeWords=LastWholeWords;
   SearchInArchives=LastSearchInArchives;
@@ -992,9 +1010,12 @@ FindFiles::FindFiles()
       /* 23 */DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
       /* 24 */DI_RADIOBUTTON,5,17,0,0,0,0,0,0,(char *)MSearchInSelected,
       /* 25 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 26 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      /* 27 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
-      /* 28 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+      /* 26 */DI_CHECKBOX,5,19,0,0,0,0,0,0,(char *)MFindUseFilter,
+      /* 27 */DI_TEXT,3,20,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 28 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      /* 29 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileDrive,
+      /* 30 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileSetFilter,
+      /* 31 */DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
     };
     /* KM $ */
     FindAskDlgData[21].Data=SearchFromRoot;
@@ -1055,6 +1076,9 @@ FindFiles::FindFiles()
     FindAskDlg[12].Selected=WholeWords;
     FindAskDlg[13].Selected=SearchHex;
 
+    // Использовать фильтр. KM
+    FindAskDlg[26].Selected=UseFilter;
+
     while (1)
     {
       int ExitCode;
@@ -1069,7 +1093,7 @@ FindFiles::FindFiles()
         ExitCode=Dlg.GetExitCode();
       }
 
-      if (ExitCode!=26)
+      if (ExitCode!=28)
       {
         xf_free(TableItem);
         CloseHandle(hPluginMutex);
@@ -1083,7 +1107,7 @@ FindFiles::FindFiles()
 	  if (UseDecodeTable)
 	    Opt.CharTable.TableNum=TableNum+1;
 	  else
-        Opt.CharTable.TableNum=0;
+      Opt.CharTable.TableNum=0;
 	  /****************************************/
 
       /* $ 01.07.2001 IS
@@ -1134,6 +1158,9 @@ FindFiles::FindFiles()
 
     if (RegVer && !PluginMode)
       SearchInSymLink=FindAskDlg[16].Selected;
+
+    // Запомнить признак использования фильтра. KM
+    UseFilter=FindAskDlg[26].Selected;
 
     if (*FindStr)
     {
@@ -1190,6 +1217,10 @@ FindFiles::~FindFiles()
   /* IS $ */
   ClearAllLists();
   ScrBuf.ResetShadow();
+
+  // Уничтожим объект фильтра
+  delete Filter;
+
   DeleteCriticalSection(&FindFilesCSection);
 }
 
@@ -1643,7 +1674,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       COORD coord=(*(COORD*)Param2);
       SMALL_RECT rect;
-      int IncY=coord.Y-DlgHeight-4;
+      int IncY=coord.Y-DlgHeight-3;
       int I;
 
       Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
@@ -1696,10 +1727,20 @@ int FindFiles::FindFilesProcess()
   static char Title[2*NM]="";
   static char SearchStr[NM]="";
 
+  /* $ 05.10.2003 KM
+     Если используется фильтр операций, то во время поиска сообщаем об этом
+  */
   if (*FindMask)
-    sprintf(Title,"%s: %s",MSG(MFindFileTitle),FindMask);
+    if (UseFilter)
+      sprintf(Title,"%s: %s (%s)",MSG(MFindFileTitle),FindMask,MSG(MFindUsingFilter));
+    else
+      sprintf(Title,"%s: %s",MSG(MFindFileTitle),FindMask);
   else
-    sprintf(Title,"%s",MSG(MFindFileTitle));
+    if (UseFilter)
+      sprintf(Title,"%s (%s)",MSG(MFindFileTitle),MSG(MFindUsingFilter));
+    else
+      sprintf(Title,"%s",MSG(MFindFileTitle));
+  /* KM $ */
   if (*FindStr)
   {
     /* $ 24.09.2003 KM */
@@ -1722,16 +1763,16 @@ int FindFiles::FindFilesProcess()
      корректный показ имен файлов с амперсандами
   */
   static struct DialogData FindDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-2,0,0,DIF_SHOWAMPERSAND,0,Title,
-  /* 01 */DI_LISTBOX,4,2,73,15,0,0,DIF_LISTNOBOX,0,(char*)0,
-  /* 02 */DI_TEXT,-1,16,0,16,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 03 */DI_TEXT,5,17,0,17,0,0,DIF_SHOWAMPERSAND,0,SearchStr,
-  /* 04 */DI_TEXT,3,18,0,18,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 05 */DI_BUTTON,0,19,0,19,1,0,DIF_CENTERGROUP,1,(char *)MFindNewSearch,
-  /* 06 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(char *)MFindGoTo,
-  /* 07 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(char *)MFindView,
-  /* 08 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(char *)MFindPanel,
-  /* 09 */DI_BUTTON,0,19,0,19,0,0,DIF_CENTERGROUP,0,(char *)MFindStop
+  /* 00 */DI_DOUBLEBOX,3,1,DLG_WIDTH,DLG_HEIGHT-4,0,0,DIF_SHOWAMPERSAND,0,Title,
+  /* 01 */DI_LISTBOX,4,2,73,DLG_HEIGHT-9,0,0,DIF_LISTNOBOX,0,(char*)0,
+  /* 02 */DI_TEXT,-1,DLG_HEIGHT-8,0,DLG_HEIGHT-8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 03 */DI_TEXT,5,DLG_HEIGHT-7,0,DLG_HEIGHT-7,0,0,DIF_SHOWAMPERSAND,0,SearchStr,
+  /* 04 */DI_TEXT,3,DLG_HEIGHT-6,0,DLG_HEIGHT-6,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 05 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,1,0,DIF_CENTERGROUP,1,(char *)MFindNewSearch,
+  /* 06 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(char *)MFindGoTo,
+  /* 07 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(char *)MFindView,
+  /* 08 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(char *)MFindPanel,
+  /* 09 */DI_BUTTON,0,DLG_HEIGHT-5,0,DLG_HEIGHT-5,0,0,DIF_CENTERGROUP,0,(char *)MFindStop
   };
   /* DJ $ */
   /* KM $ */
@@ -1739,7 +1780,8 @@ int FindFiles::FindFilesProcess()
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  DlgHeight=DLG_HEIGHT;
+  DlgHeight=DLG_HEIGHT-2;
+  DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
 
   int IncY=ScrY>24 ? ScrY-24:0;
   FindDlg[0].Y2+=IncY;
@@ -1775,12 +1817,11 @@ int FindFiles::FindFilesProcess()
     }
   }
 
-  DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
   Dialog *pDlg=new Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]),FindDlgProc);
   hDlg=(HANDLE)pDlg;
   pDlg->SetDynamicallyBorn(TRUE);
   pDlg->SetHelp("FindFile");
-  pDlg->SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT+IncY);
+  pDlg->SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT-2+IncY);
   // Надо бы показать диалог, а то инициализация элементов запаздывает
   // иногда при поиске и первые элементы не добавляются
   pDlg->InitDialog();
@@ -2115,11 +2156,24 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
             FindMessageReady=TRUE;
           }
 
-          if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
-            AddMenuRecord(FullName,&FindData);
+          /* 30.09.2003 KM
+            Отфильтруем файлы не попадающие в действующий фильтр
+          */
+          int IsFile;
+          if (UseFilter)
+            IsFile=Filter->FileInFilter(&FindData);
+          else
+            IsFile=TRUE;
 
-          if (SearchInArchives)
-            ArchiveSearch(FullName);
+          if (IsFile)
+          {
+            if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
+              AddMenuRecord(FullName,&FindData);
+
+            if (SearchInArchives)
+              ArchiveSearch(FullName);
+          }
+          /* KM $ */
         }
         if (SearchMode!=SEARCH_SELECTED)
           break;
@@ -2280,9 +2334,8 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
 void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
 {
   char MenuText[NM],FileText[NM],SizeText[30];
-  char Date[30],DateStr[30],TimeStr[30];
+  char Attr[30],Date[30],DateStr[30],TimeStr[30];
   struct MenuItem ListItem;
-  int i;
 
   ClevMutex Mutex(hDialogMutex);
 
@@ -2302,9 +2355,13 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   memset(&ListItem,0,sizeof(ListItem));
 
   if (FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-    sprintf(SizeText,"%10s",MSG(MFindFileFolder));
+    sprintf(SizeText,"%13s",MSG(MFindFileFolder));
   else
-    sprintf(SizeText,"%10u",FindData->nFileSizeLow);
+  {
+    // Изменим отображение размера с учётом 64-битности размера файла
+    __int64 fsize=(unsigned __int64)FindData->nFileSizeLow|((unsigned __int64)FindData->nFileSizeHigh<<32);
+    _ui64toa(fsize,SizeText,10);
+  }
   char *DisplayName=FindData->cFileName;
   /* $ 24.03.2002 KM
      В плагинах принудительно поставим указатель в имени на имя
@@ -2316,10 +2373,52 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     DisplayName=PointToName(DisplayName);
   /* KM $ */
 
-  sprintf(FileText," %-30.30s %10.10s",DisplayName,SizeText);
-  ConvertDate(FindData->ftLastWriteTime,DateStr,TimeStr,5);
-  sprintf(Date,"    %s   %s",DateStr,TimeStr);
+  sprintf(FileText," %-26.26s %13.13s",DisplayName,SizeText);
+
+  /* $ 05.10.2003 KM
+     При использовании фильтра по дате будем отображать тот тип
+     даты, который задан в фильтре.
+  */
+  if (UseFilter && Filter->GetParams().FDate.Used)
+  {
+    switch(Filter->GetParams().FDate.DateType)
+    {
+      case FDATE_MODIFIED:
+        // Отображаем дату последнего изменения
+        ConvertDate(FindData->ftLastWriteTime,DateStr,TimeStr,5);
+        break;
+      case FDATE_CREATED:
+        // Отображаем дату создания
+        ConvertDate(FindData->ftCreationTime,DateStr,TimeStr,5);
+        break;
+      case FDATE_OPENED:
+        // Отображаем дату последнего доступа
+        ConvertDate(FindData->ftLastAccessTime,DateStr,TimeStr,5);
+        break;
+    }
+  }
+  else
+    // Отображаем дату последнего изменения
+    ConvertDate(FindData->ftLastWriteTime,DateStr,TimeStr,5);
+  /* KM $ */
+  sprintf(Date,"  %s  %s",DateStr,TimeStr);
   strcat(FileText,Date);
+
+  /* $ 05.10.2003 KM
+     Отобразим в панели поиска атрибуты найденных файлов
+  */
+  char AttrStr[8];
+  DWORD FileAttr=FindData->dwFileAttributes;
+  AttrStr[0]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
+  AttrStr[1]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
+  AttrStr[2]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
+  AttrStr[3]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
+  AttrStr[4]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
+  AttrStr[5]=0;
+
+  sprintf(Attr," %s",AttrStr);
+  strcat(FileText,Attr);
+  /* KM $ */
   sprintf(MenuText," %-*.*s",DlgWidth-3,DlgWidth-3,FileText);
 
   char PathName[2*NM];
@@ -2360,7 +2459,7 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       strncpy(PathName,ArcPathName,sizeof(PathName)-1);
     }
     strncpy(SizeText,MSG(MFindFileFolder),sizeof(SizeText)-1);
-    sprintf(FileText,"%-50.50s     <%6.6s>",TruncPathStr(PathName,50),SizeText);
+    sprintf(FileText,"%-50.50s  <%6.6s>",TruncPathStr(PathName,50),SizeText);
     sprintf(ListItem.Name,"%-*.*s",DlgWidth-2,DlgWidth-2,FileText);
 
     DWORD ItemIndex = AddFindListItem(FindData);
@@ -2749,11 +2848,24 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         FindMessageReady=TRUE;
       }
 
-      if (IsFileIncluded(CurPanelItem,CurName,CurPanelItem->FindData.dwFileAttributes))
-        AddMenuRecord(FullName,&CurPanelItem->FindData);
+      /* 30.09.2003 KM
+        Отфильтруем файлы не попадающие в действующий фильтр
+      */
+      int IsFile;
+      if (UseFilter)
+        IsFile=Filter->FileInFilter(&CurPanelItem->FindData);
+      else
+        IsFile=TRUE;
 
-      if (SearchInArchives && (hPlugin != INVALID_HANDLE_VALUE) && (Flags & OPIF_REALNAMES))
-        ArchiveSearch(FullName);
+      if (IsFile)
+      {
+        if (IsFileIncluded(CurPanelItem,CurName,CurPanelItem->FindData.dwFileAttributes))
+          AddMenuRecord(FullName,&CurPanelItem->FindData);
+
+        if (SearchInArchives && (hPlugin != INVALID_HANDLE_VALUE) && (Flags & OPIF_REALNAMES))
+          ArchiveSearch(FullName);
+      }
+      /* KM $ */
     }
   }
   if (SearchMode!=SEARCH_CURRENT_ONLY)
