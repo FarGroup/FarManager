@@ -114,7 +114,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
     return;
   }
 
-  FSF.qsort(Items, Count, sizeof(struct FarMenuItemEx), (FCmp)Compare);
+  FSF.qsort(Items, Count, sizeof(struct FarListItem), (FCmp)Compare);
 
   DialogItem->ListItems=&ListItems;
 }
