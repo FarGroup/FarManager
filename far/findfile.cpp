@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.67 19.10.2001 $ */
+/* Revision: 1.68 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 VVM
+    + Вынесли GoTo за пределы диалоговой процедуры.Причины все те же, что и у [ Panel ]
+    ! FindFileArcIndex нельзя использовать при обработке выделенных элементов списка.
+      Он может быть и другой.
   19.10.2001 VVM
     ! Попытка номер 2. С учетом замечаний и пожеланий от KM и SVS ;)))
     ! Перетрях поиска, зачистка местности, удавливание багов. Далее по тексту...
@@ -274,8 +278,9 @@ static DWORD       ArcListCount;
 static DWORD FindFileArcIndex;
 // Используются для отправки файлов на временную панель.
 // индекс текущего элемента в списке и флаг для отправки.
-static DWORD FindListPanelIndex;
-static int OpenTempPanel;
+static DWORD FindExitIndex;
+enum {FIND_EXIT_NONE, FIND_EXIT_GOTO, FIND_EXIT_PANEL};
+static int FindExitCode;
 //static char FindFileArcName[NM];
 
 static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
@@ -741,8 +746,10 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           char SearchFileName[NM];
           char TempDir[NM];
           char *FileName=FindList[ItemIndex].FindData.cFileName;
-          if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-              (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
+          // FindFileArcIndex нельзя здесь использовать
+          // Он может быть уже другой.
+          if ((FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE) &&
+              (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
           {
             char *FindArcName = ArcList[FindList[ItemIndex].ArcIndex].ArcName;
             if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
@@ -831,8 +838,10 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 FileViewer ShellViewer (SearchFileName,FALSE,FALSE,FALSE,-1,NULL,(FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)?NULL:&ViewList);
                 ShellViewer.SetDynamicallyBorn(FALSE);
                 ShellViewer.SetEnableF6(TRUE);
-                if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-                    (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
+                // FindFileArcIndex нельзя здесь использовать
+                // Он может быть уже другой.
+                if ((FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE) &&
+                    (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
                   ShellViewer.SetSaveToSaveAs(TRUE);
                 IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
@@ -854,8 +863,10 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 FileEditor ShellEditor (SearchFileName,FALSE,FALSE);
                 ShellEditor.SetDynamicallyBorn(FALSE);
                 ShellEditor.SetEnableF6 (TRUE);
-                if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-                    (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
+                // FindFileArcIndex нельзя здесь использовать
+                // Он может быть уже другой.
+                if ((FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE) &&
+                    (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
                   ShellEditor.SetSaveToSaveAs(TRUE);
                 IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
@@ -899,95 +910,18 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         WaitForSingleObject(hMutex,INFINITE);
 
+        // Переход будем делать так же после выхода из диалога.
+        // Причину смотри для [ Panel ]
         if (ListBox->GetItemCount()==0)
         {
           ReleaseMutex(hMutex);
-          return TRUE;
+          return (TRUE);
         }
-
-        while (ListBox->GetCallCount())
-          Sleep(10);
-        DWORD ItemIndex = (DWORD)ListBox->GetUserData(NULL, 0);
-
-        char *FileName=FindList[ItemIndex].FindData.cFileName;
-        Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
-
-        if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-            (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
-        {
-          if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
-          {
-            char ArcName[NM],ArcPath[NM];
-            strncpy(ArcName,ArcList[FindList[ItemIndex].ArcIndex].ArcName,sizeof(ArcName)-1);
-            if (FindPanel->GetType()!=FILE_PANEL)
-              FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
-            strcpy(ArcPath,ArcName);
-            *PointToName(ArcPath)=0;
-            FindPanel->SetCurDir(ArcPath,TRUE);
-            ArcList[FindList[ItemIndex].ArcIndex].hPlugin=((FileList *)FindPanel)->OpenFilePlugin(ArcName,FALSE);
-            if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin==INVALID_HANDLE_VALUE ||
-                ArcList[FindList[ItemIndex].ArcIndex].hPlugin==(HANDLE)-2)
-            {
-              ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
-              ReleaseMutex(hMutex);
-              return FALSE;
-            }
-          } /* if */
-          SetPluginDirectory(FileName, ArcList[FindList[ItemIndex].ArcIndex].hPlugin);
-          ReleaseMutex(hMutex);
-          return FALSE;
-        } /* if */
-        char SetName[NM];
-        int Length;
-        if ((Length=strlen(FileName))==0)
-        {
-          ReleaseMutex(hMutex);
-          return FALSE;
-        }
-        if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
-          FileName[Length-1]=0;
-        if (GetFileAttributes(FileName)==(DWORD)-1)
-        {
-          ReleaseMutex(hMutex);
-          return FALSE;
-        }
-        {
-          char *NamePtr;
-          NamePtr=PointToName(FileName);
-          strcpy(SetName,NamePtr);
-          *NamePtr=0;
-          Length=strlen(FileName);
-          if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
-            FileName[Length-1]=0;
-        }
-
-        if (*FileName==0)
-        {
-          ReleaseMutex(hMutex);
-          return FALSE;
-        }
-        if (FindPanel->GetType()!=FILE_PANEL &&
-            CtrlObject->Cp()->GetAnotherPanel(FindPanel)->GetType()==FILE_PANEL)
-          FindPanel=CtrlObject->Cp()->GetAnotherPanel(FindPanel);
-        /* $ 09.06.2001 IS
-           ! Не меняем каталог, если мы уже в нем находимся. Тем самым
-             добиваемся того, что выделение с элементов панели не сбрасывается.
-        */
-        {
-          char DirTmp[NM];
-          FindPanel->GetCurDir(DirTmp);
-          Length=strlen(DirTmp);
-          if (Length>1 && DirTmp[Length-1]=='\\' && DirTmp[Length-2]!=':')
-            DirTmp[Length-1]=0;
-          if(0!=LocalStricmp(FileName, DirTmp))
-            FindPanel->SetCurDir(FileName,TRUE);
-        }
-        /* IS $ */
-        if (*SetName)
-          FindPanel->GoToFile(SetName);
-        FindPanel->Show();
+        FindExitIndex = (DWORD)ListBox->GetUserData(NULL, 0);
+        if (FindExitIndex != LIST_INDEX_NONE)
+          FindExitCode = FIND_EXIT_GOTO;
         ReleaseMutex(hMutex);
-        return FALSE;
+        return (FALSE);
       }
       else if (Param1==7) // [ View ] button pressed
       {
@@ -1005,11 +939,15 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         // После окончания поиска. Иначе возможна ситуация, когда мы
         // ищем на панели, потом ее грохаем и создаем новую (а поиск-то
         // идет!) и в результате ФАР трапается.
-        OpenTempPanel = ListBox->GetItemCount()!=0;
-        if (OpenTempPanel)
-          FindListPanelIndex = (DWORD)ListBox->GetUserData(NULL, 0);
+        if (ListBox->GetItemCount()==0)
+        {
+          ReleaseMutex(hMutex);
+          return (TRUE);
+        }
+        FindExitCode = FIND_EXIT_PANEL;
+        FindExitIndex = (DWORD)ListBox->GetUserData(NULL, 0);
         ReleaseMutex(hMutex);
-        return (!OpenTempPanel);
+        return (FALSE);
       }
     }
     case DN_CTLCOLORDLGLIST:
@@ -1173,8 +1111,8 @@ int FindFiles::FindFilesProcess()
   StopSearch=FALSE;
   WriteDataUsed=FALSE;
   FileCount=0;
-  FindListPanelIndex = LIST_INDEX_NONE;
-  OpenTempPanel = FALSE;
+  FindExitIndex = LIST_INDEX_NONE;
+  FindExitCode = FIND_EXIT_NONE;
   *FindMessage=*LastDirName=FindMessageReady=FindCountReady=0;
 
   // Нитка для вывода в диалоге информации о ходе поиска
@@ -1196,56 +1134,138 @@ int FindFiles::FindFilesProcess()
   pDlg->Process();
   IsProcessAssignMacroKey--;
 
-  // Отработаем переброску на временную панель
-  if (OpenTempPanel)
+  switch (FindExitCode)
   {
-    int ListSize = FindListCount;
-    PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
-    if (PanelItems==NULL)
-      ListSize=0;
-    int ItemsNumber=0;
-    for (int i=0;i<ListSize;i++)
+    case FIND_EXIT_PANEL:
+    // Отработаем переброску на временную панель
     {
-      char *FileName=FindList[i].FindData.cFileName;
-      int Length=strlen(FileName);
-      if (Length>0)
-      // Добавляем всегда, если имя задано
+      int ListSize = FindListCount;
+      PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
+      if (PanelItems==NULL)
+        ListSize=0;
+      int ItemsNumber=0;
+      for (int i=0;i<ListSize;i++)
       {
-        // Для плагинов с виртуальными именами заменим имя файла на имя архива.
-        // панель сама уберет лишние дубли.
-        int IsArchive = ((FindList[i].ArcIndex != LIST_INDEX_NONE) &&
-                        !(ArcList[FindList[i].ArcIndex].Flags&OPIF_REALNAMES));
-        // Добавляем только файлы или имена архивов
-        if (IsArchive || !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+        char *FileName=FindList[i].FindData.cFileName;
+        int Length=strlen(FileName);
+        if (Length>0)
+        // Добавляем всегда, если имя задано
         {
-          if (IsArchive)
-            strcpy(FileName,ArcList[FindList[i].ArcIndex].ArcName);
-          PluginPanelItem *pi=&PanelItems[ItemsNumber++];
-          memset(pi,0,sizeof(*pi));
-          pi->FindData=FindList[i].FindData;
-          if (IsArchive)
-            pi->FindData.dwFileAttributes = 0;
-        }
-      } /* if */
-    } /* for */
+          // Для плагинов с виртуальными именами заменим имя файла на имя архива.
+          // панель сама уберет лишние дубли.
+          int IsArchive = ((FindList[i].ArcIndex != LIST_INDEX_NONE) &&
+                          !(ArcList[FindList[i].ArcIndex].Flags&OPIF_REALNAMES));
+          // Добавляем только файлы или имена архивов
+          if (IsArchive || !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+          {
+            if (IsArchive)
+              strcpy(FileName,ArcList[FindList[i].ArcIndex].ArcName);
+            PluginPanelItem *pi=&PanelItems[ItemsNumber++];
+            memset(pi,0,sizeof(*pi));
+            pi->FindData=FindList[i].FindData;
+            if (IsArchive)
+              pi->FindData.dwFileAttributes = 0;
+          }
+        } /* if */
+      } /* for */
 
-    HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
-    if (hNewPlugin!=INVALID_HANDLE_VALUE)
+      HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
+      if (hNewPlugin!=INVALID_HANDLE_VALUE)
+      {
+        Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+        Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+        NewPanel->SetPluginMode(hNewPlugin,"");
+        NewPanel->SetVisible(TRUE);
+        NewPanel->Update(0);
+        if (FindExitIndex != LIST_INDEX_NONE)
+          NewPanel->GoToFile(FindList[FindExitIndex].FindData.cFileName);
+        NewPanel->Show();
+        NewPanel->SetFocus();
+      }
+      /* $ 13.07.2000 SVS
+         использовали new[]
+      */
+      delete[] PanelItems;
+      break;
+    } /* case FIND_EXIT_PANEL */
+    case FIND_EXIT_GOTO:
     {
-      Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-      Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
-      NewPanel->SetPluginMode(hNewPlugin,"");
-      NewPanel->Update(0);
-      if (FindListPanelIndex != LIST_INDEX_NONE);
-        NewPanel->GoToFile(FindList[FindListPanelIndex].FindData.cFileName);
-      NewPanel->Show();
-      NewPanel->SetFocus();
-    }
-    /* $ 13.07.2000 SVS
-       использовали new[]
-    */
-    delete[] PanelItems;
-  } /* if */
+      char *FileName=FindList[FindExitIndex].FindData.cFileName;
+      Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
+
+      if ((FindList[FindExitIndex].ArcIndex != LIST_INDEX_NONE) &&
+          (!(ArcList[FindList[FindExitIndex].ArcIndex].Flags & OPIF_REALNAMES)))
+      {
+        HANDLE hPlugin = ArcList[FindList[FindExitIndex].ArcIndex].hPlugin;
+        if (hPlugin == INVALID_HANDLE_VALUE)
+        {
+          char ArcName[NM],ArcPath[NM];
+          strncpy(ArcName,ArcList[FindList[FindExitIndex].ArcIndex].ArcName,sizeof(ArcName)-1);
+          if (FindPanel->GetType()!=FILE_PANEL)
+            FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
+          strcpy(ArcPath,ArcName);
+          *PointToName(ArcPath)=0;
+          FindPanel->SetCurDir(ArcPath,TRUE);
+          hPlugin=((FileList *)FindPanel)->OpenFilePlugin(ArcName,FALSE);
+          if (hPlugin==(HANDLE)-2)
+            hPlugin = INVALID_HANDLE_VALUE;
+        } /* if */
+        if (hPlugin != INVALID_HANDLE_VALUE)
+          SetPluginDirectory(FileName, hPlugin);
+      } /* if */
+      else
+      {
+        char SetName[NM];
+        int Length;
+        if ((Length=strlen(FileName))==0)
+          break;
+        if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
+          FileName[Length-1]=0;
+        if (GetFileAttributes(FileName)==(DWORD)-1)
+          break;
+        {
+          char *NamePtr;
+          NamePtr=PointToName(FileName);
+          strcpy(SetName,NamePtr);
+          *NamePtr=0;
+          Length=strlen(FileName);
+          if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
+            FileName[Length-1]=0;
+        }
+        if (*FileName==0)
+          break;
+        if (FindPanel->GetType()!=FILE_PANEL &&
+            CtrlObject->Cp()->GetAnotherPanel(FindPanel)->GetType()==FILE_PANEL)
+          FindPanel=CtrlObject->Cp()->GetAnotherPanel(FindPanel);
+        if ((FindPanel->GetType()!=FILE_PANEL) || (FindPanel->GetMode()!=NORMAL_PANEL))
+        // Сменим панель на обычную файловую...
+        {
+          FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
+          FindPanel->SetVisible(TRUE);
+          FindPanel->Update(0);
+        }
+        /* $ 09.06.2001 IS
+           ! Не меняем каталог, если мы уже в нем находимся. Тем самым
+             добиваемся того, что выделение с элементов панели не сбрасывается.
+        */
+        {
+          char DirTmp[NM];
+          FindPanel->GetCurDir(DirTmp);
+          Length=strlen(DirTmp);
+          if (Length>1 && DirTmp[Length-1]=='\\' && DirTmp[Length-2]!=':')
+            DirTmp[Length-1]=0;
+          if(0!=LocalStricmp(FileName, DirTmp))
+            FindPanel->SetCurDir(FileName,TRUE);
+        }
+        /* IS $ */
+        if (*SetName)
+          FindPanel->GoToFile(SetName);
+        FindPanel->Show();
+        FindPanel->SetFocus();
+      }
+      break;
+    } /* case FIND_EXIT_GOTO */
+  } /* switch */
 
   CloseHandle(hMutex);
 
@@ -1593,7 +1613,7 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   DWORD ItemIndex = AddFindListItem(FindData);
   if (ItemIndex != LIST_INDEX_NONE)
   {
-    strncpy(FindList[ItemIndex].FindData.cFileName, FullName, 
+    strncpy(FindList[ItemIndex].FindData.cFileName, FullName,
             sizeof(FindList[ItemIndex].FindData.cFileName)-1);
     if (FindFileArcIndex != LIST_INDEX_NONE)
       FindList[ItemIndex].ArcIndex = FindFileArcIndex;
