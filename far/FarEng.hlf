@@ -1800,6 +1800,9 @@ $ #Internal editor#
   Cursor movement
 
    #Left#                    Character left
+   #Ctrl-S#                  Move the cursor one character to the left,
+                           but don't move to the previous line if
+                           the line beginning is reached.
    #Right#                   Character right
    #Up#                      Line up
    #Down#                    Line down

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.115 13.07.2002 $ */
+/* Revision: 1.116 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 SVS
+    ! Уточнение про WaitKey
   13.07.2002 SVS
     - До плагина не доходила клавиша F1.
       Введем понятие пост обработка!
@@ -695,7 +697,7 @@ int FileEditor::ProcessKey(int Key)
       /* skv$*/
       FrameManager->ShowBackground();
       SetCursorType(FALSE,0);
-      WaitKey(-1);
+      WaitKey();
       Show();
       return(TRUE);
     }

@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.58 02.07.2002 $ */
+/* Revision: 1.59 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 SVS
+    ! Уточнение про WaitKey
   02.07.2002 SVS
     - /u USER отломали
   27.06.2002 SVS
@@ -541,7 +543,7 @@ int _cdecl main(int Argc, char *Argv[])
     ControlObject::ShowCopyright(1);
     fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
     FlushConsoleInputBuffer(hConInp);
-    WaitKey(-1); // А стоит ли ожидать клавишу??? Стоит
+    WaitKey(); // А стоит ли ожидать клавишу??? Стоит
     exit(0);
     /* SVS $ */
   }

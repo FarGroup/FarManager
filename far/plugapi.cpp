@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.140 25.06.2002 $ */
+/* Revision: 1.141 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 SVS
+    ! ACTL_WAITKEY теперь возвращает код нажатой клавиши
   25.06.2002 SVS
     ! Косметика:  BitFlags::Skip -> BitFlags::Clear
   21.06.2002 SVS
@@ -594,8 +596,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_WAITKEY:
     {
-      WaitKey(Param?(int)Param:-1);
-      return 0;
+      return WaitKey(Param?(DWORD)Param:(DWORD)-1);
     }
     /* SVS $ */
 

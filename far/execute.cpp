@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.68 17.08.2002 $ */
+/* Revision: 1.69 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 SVS
+    - Исправления 1493 патча. Сначала нужно в обязательном порядке проверить
+      кей "open", а если его нету, то... что первое попадется ;-)
   17.08.2002 VVM
     + GetShellAction() - если нет "Default action",  то возьмем первую,
       у которой будет ключ "Command"
@@ -367,9 +370,10 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
   {
     // This member defaults to "Open" if no verb is specified.
     // Т.е. если мы вернули NULL, то подразумевается команда "Open"
-    RetPtr=NULL;
+      RetPtr=NULL;
 //    strcat(Value,"\\open");
   }
+
   // Если RetPtr==NULL - мы не нашли default action.
   // Посмотрим - есть ли вообще что-нибудь у этого расширения
   if (RetPtr==NULL)
@@ -380,6 +384,21 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
     DWORD dwKeySize = 0;
     FILETIME ftLastWriteTime;
     HKEY hOpenKey;
+
+    // Сначала проверим "open"...
+    strcpy(Action,"open");
+    strncpy(NewValue, Value, sizeof(NewValue) - 1);
+    strcat(NewValue, Action);
+    strcat(NewValue, "\\command");
+    if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
+    {
+      RegCloseKey(hOpenKey);
+      strcat(Value, Action);
+      RetPtr = Action;
+      RetEnum = ERROR_NO_MORE_ITEMS;
+    } /* if */
+
+    // ... а теперь все остальное, если "open" нету
     while (RetEnum == ERROR_SUCCESS)
     {
       dwKeySize = sizeof(Action);
@@ -387,7 +406,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
       if (RetEnum == ERROR_SUCCESS)
       {
         // Проверим наличие "команды" у этого ключа
-          strncpy(NewValue, Value, sizeof(NewValue) - 1);
+        strncpy(NewValue, Value, sizeof(NewValue) - 1);
         strcat(NewValue, Action);
         strcat(NewValue, "\\command");
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)

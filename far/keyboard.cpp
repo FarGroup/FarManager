@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.77 19.08.2002 $ */
+/* Revision: 1.78 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 SVS
+    ! WaitKey теперь возвращает код нажатой клавиши
   19.08.2002 SVS
     + Аля SKV "Пусть KEY_CTRL тоже будет IsShiftKey" :)
       (про дополнения в "BugZ#579 - сбрасывание выделения")
@@ -1238,7 +1240,7 @@ int PeekInputRecord(INPUT_RECORD *rec)
  + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
      Если KeyWait = -1 - как и раньше
 */
-void WaitKey(int KeyWait)
+DWORD WaitKey(DWORD KeyWait)
 {
   int Visible,Size;
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE)
@@ -1246,11 +1248,13 @@ void WaitKey(int KeyWait)
     GetCursorType(Visible,Size);
     SetCursorType(0,10);
   }
+
+  DWORD Key;
   while (1)
   {
     INPUT_RECORD rec;
-    int Key=GetInputRecord(&rec);
-    if(KeyWait == -1)
+    Key=GetInputRecord(&rec);
+    if(KeyWait == (DWORD)-1)
     {
       if (Key!=KEY_NONE && Key!=KEY_IDLE)
         break;
@@ -1258,8 +1262,11 @@ void WaitKey(int KeyWait)
     else if(Key == KeyWait)
       break;
   }
+
   if(KeyWait == KEY_CTRLALTSHIFTRELEASE)
     SetCursorType(Visible,Size);
+
+  return Key;
 }
 /* SVS $ */
 

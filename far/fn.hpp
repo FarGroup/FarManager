@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.163 02.07.2002 $ */
+/* Revision: 1.164 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 SVS
+    ! WaitKey теперь возвращает код нажатой клавиши
   02.07.2002 SVS
     + _PluginsStackItem_Dump() - дамп стека плагинов
   18.06.2002 SVS
@@ -1210,7 +1212,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 /* $ 24.08.2000 SVS
  + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
 */
-void WaitKey(int KeyWait=-1);
+DWORD WaitKey(DWORD KeyWait=(DWORD)-1);
 /* SVS $ */
 int WriteInput(int Key,DWORD Flags=0);
 int IsNavKey(DWORD Key);

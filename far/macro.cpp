@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.84 19.08.2002 $ */
+/* Revision: 1.85 21.08.2002 $ */
 
 /*
 Modify:
+  21.08.2002 SVS
+    - ѕроблемы с компил€цией под VC
   19.08.2002 SVS
     ! ѕри помещении в очередь очередного макроса Executing сразу не
       выставл€етс€ (ибо действительно сейчас нет исполнени€ макроса).
@@ -434,7 +436,7 @@ void KeyMacro::InitVars()
         free(MacroPROM[I].Buffer);
     free(MacroPROM);
   }
-  if(RecBuffer) delete[] RecBuffer;
+  if(RecBuffer) free(RecBuffer);
 
   if(LockScr)
   {
@@ -554,7 +556,7 @@ int KeyMacro::ProcessKey(int Key)
       InternalInput=FALSE;
 
       if (MacroKey==(DWORD)-1)
-        delete RecBuffer;
+        free(RecBuffer);
       else
       {
         int Pos;
@@ -578,7 +580,7 @@ int KeyMacro::ProcessKey(int Key)
         if(RecBufferSize > 1)
           MacroPROM[Pos].Buffer=RecBuffer;
         else
-          (DWORD)(MacroPROM[Pos].Buffer)=*RecBuffer;
+          MacroPROM[Pos].Buffer=reinterpret_cast<DWORD*>(*RecBuffer);
         MacroPROM[Pos].BufferSize=RecBufferSize;
         MacroPROM[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
       }
@@ -1543,7 +1545,7 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   if(MRec->BufferSize > 1)
     memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
   else
-    (DWORD)(NewMacroRAM2.Buffer)=*MRec->Buffer;
+    NewMacroRAM2.Buffer=reinterpret_cast<DWORD*>(*MRec->Buffer);
 
   MacroRAM=NewMacroRAM;
   NewMacroRAM=MacroRAM+MacroRAMCount;
@@ -1708,7 +1710,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
   }
   else
   {
-    (DWORD)(CurMacro->Buffer)=*CurMacro_Buffer;
+    CurMacro->Buffer=reinterpret_cast<DWORD*>(*CurMacro_Buffer);
     free(CurMacro_Buffer);
   }
   return TRUE;
