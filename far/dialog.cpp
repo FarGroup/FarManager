@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.52 08.11.2000 $ */
+/* Revision: 1.53 21.11.2000 $ */
 
 /*
 Modify:
+  21.11.2000 SVS
+   - Не стиралась последняя строка в многострочном редакторе
   08.11.2000 SVS
    ! Изменен пересчет кодов клавишь для hotkey (используются сканкоды)
   04.11.2000 SVS
@@ -1845,17 +1847,24 @@ int Dialog::ProcessKey(int Key)
             case KEY_BS:
             {
               int CurPos=edt->GetCurPos();
+              /* $ 21.11.2000 SVS
+                 Не стиралась последняя строка в многострочном редакторе
+              */
+              // В начале строки????
               if(!edt->GetCurPos())
               {
-                if(FocusPos > 0 &&
-                   (Item[FocusPos-1].Flags&DIF_EDITOR))
+                // а "выше" тоже DIF_EDITOR?
+                if(FocusPos > 0 && (Item[FocusPos-1].Flags&DIF_EDITOR))
                 {
+                  // добавляем к предыдущему и...
                   Edit *edt_1=(Edit *)Item[FocusPos-1].ObjPtr;
                   edt_1->GetString(Str,sizeof(Str));
                   CurPos=strlen(Str);
                   edt->GetString(Str+CurPos,sizeof(Str)-CurPos);
                   edt_1->SetString(Str);
+
                   for (I=FocusPos+1;I<ItemCount;I++)
+                  {
                     if (Item[I].Flags & DIF_EDITOR)
                     {
                       if (I>FocusPos)
@@ -1865,12 +1874,17 @@ int Dialog::ProcessKey(int Key)
                       }
                       ((Edit *)(Item[I].ObjPtr))->SetString("");
                     }
-                    else
+                    else // ага, значит  FocusPos это есть последний из DIF_EDITOR
+                    {
+                      ((Edit *)(Item[I-1].ObjPtr))->SetString("");
                       break;
-                   ProcessKey(KEY_UP);
-                   edt_1->SetCurPos(CurPos);
+                    }
+                  }
+                  ProcessKey(KEY_UP);
+                  edt_1->SetCurPos(CurPos);
                 }
               }
+              /* SVS $ */
               else
               {
                 edt->ProcessKey(Key);
