@@ -11,6 +11,8 @@ struct.hpp
 
 /*
 Modify:
+  26.10.2001 KM
+    + Opt.FindFolders. Запомнить флаг разрешения поиска каталогов в Alt-F7
   19.10.2001 SVS
     + struct PreRedrawParamStruct - для исправления BugZ#85
   15.10.2001 SVS
@@ -668,6 +670,7 @@ struct Options
   DWORD LCIDSort;
   int HelpTabSize;
   int DlgSelectFromHistory;
+  int FindFolders;
 
   char DateFormat[80]; // Для $Date
   struct PoliciesOptions Policies;

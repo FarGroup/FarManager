@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.70 20.10.2001 $ */
+/* Revision: 1.71 26.10.2001 $ */
 
 /*
 Modify:
+  26.10.2001 KM
+    + Добавлена опция "Искать каталоги", позволяющая искать не только файлы, но и каталоги.
+    - Была попытка просматривать каталоги из архивов по F3.
   20.10.2001 KM
     ! Подчистки по тексту.
     ! Зачем-то при выбросе файлов во временную панель был сделан переход на файл,
@@ -474,13 +477,12 @@ FindFiles::FindFiles()
   {
     ClearAllLists();
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
-    static char H2Separator[72]={0};
     /* $ 30.07.2000 KM
        Добавлен новый checkbox "Whole words" в диалог поиска
     */
     static struct DialogData FindAskDlgData[]=
     {
-      /* 00 */DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
+      /* 00 */DI_DOUBLEBOX,3,1,72,18,0,0,0,0,(char *)MFindFileTitle,
       /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
       /* 02 */DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
       /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
@@ -492,16 +494,18 @@ FindFiles::FindFiles()
       /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
       /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
       /* 11 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
-      /* 12 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindArchives,
-      /* 13 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
-      /* 14 */DI_RADIOBUTTON,5,12,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
-      /* 15 */DI_RADIOBUTTON,5,13,0,0,0,1,0,0,(char *)MSearchFromRoot,
-      /* 16 */DI_RADIOBUTTON,5,14,0,0,0,0,0,0,(char *)MSearchFromCurrent,
-      /* 17 */DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchInCurrent,
-      /* 18 */DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInSelected,
-      /* 19 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 20 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      /* 21 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+      /* 12 */DI_CHECKBOX,40,8,0,0,0,0,0,0,(char *)MFindArchives,
+      /* 13 */DI_CHECKBOX,40,9,0,0,0,0,0,0,(char *)MFindFolders,
+      /* 14 */DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
+      /* 15 */DI_VTEXT,38,7,0,0,0,0,DIF_BOXCOLOR,0,"\xC5\xB3\xB3\xCF",
+      /* 16 */DI_RADIOBUTTON,5,11,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
+      /* 17 */DI_RADIOBUTTON,5,12,0,0,0,1,0,0,(char *)MSearchFromRoot,
+      /* 18 */DI_RADIOBUTTON,5,13,0,0,0,0,0,0,(char *)MSearchFromCurrent,
+      /* 19 */DI_RADIOBUTTON,5,14,0,0,0,0,0,0,(char *)MSearchInCurrent,
+      /* 20 */DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchInSelected,
+      /* 21 */DI_TEXT,3,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 22 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      /* 23 */DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
     /* KM $ */
     MakeDialogItems(FindAskDlgData,FindAskDlg);
@@ -535,10 +539,11 @@ FindFiles::FindFiles()
     if (!(FindAskDlg[12].Flags & DIF_DISABLE))
       FindAskDlg[12].Selected=SearchInArchives;
     /* DJ $ */
-    FindAskDlg[14].Selected=FindAskDlg[15].Selected=0;
+    FindAskDlg[13].Selected=Opt.FindFolders;
     FindAskDlg[16].Selected=FindAskDlg[17].Selected=0;
-    FindAskDlg[18].Selected=0;
-    FindAskDlg[14+SearchMode].Selected=1;
+    FindAskDlg[18].Selected=FindAskDlg[19].Selected=0;
+    FindAskDlg[20].Selected=0;
+    FindAskDlg[16+SearchMode].Selected=1;
 
     while (1)
     {
@@ -547,11 +552,11 @@ FindFiles::FindFiles()
         Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
 
         Dlg.SetHelp("FindFile");
-        Dlg.SetPosition(-1,-1,76,21);
+        Dlg.SetPosition(-1,-1,76,20);
         Dlg.Process();
         ExitCode=Dlg.GetExitCode();
       }
-      if (ExitCode!=20)
+      if (ExitCode!=22)
       {
         free(TableItem);
         return;
@@ -597,6 +602,7 @@ FindFiles::FindFiles()
     WholeWords=FindAskDlg[11].Selected;
     /* KM $ */
     SearchInArchives=FindAskDlg[12].Selected;
+    Opt.FindFolders=FindAskDlg[13].Selected;
     if (*FindStr)
     {
       strcpy(GlobalSearchString,FindStr);
@@ -607,15 +613,15 @@ FindFiles::FindFiles()
       GlobalSearchWholeWords=WholeWords;
       /* KM $ */
     }
-    if (FindAskDlg[14].Selected)
-      SearchMode=SEARCH_ALL;
-    if (FindAskDlg[15].Selected)
-      SearchMode=SEARCH_ROOT;
     if (FindAskDlg[16].Selected)
-      SearchMode=SEARCH_FROM_CURRENT;
+      SearchMode=SEARCH_ALL;
     if (FindAskDlg[17].Selected)
-      SearchMode=SEARCH_CURRENT_ONLY;
+      SearchMode=SEARCH_ROOT;
     if (FindAskDlg[18].Selected)
+      SearchMode=SEARCH_FROM_CURRENT;
+    if (FindAskDlg[19].Selected)
+      SearchMode=SEARCH_CURRENT_ONLY;
+    if (FindAskDlg[20].Selected)
         SearchMode=SEARCH_SELECTED;
     Opt.FileSearchMode=SearchMode;
     LastCmpCase=CmpCase;
@@ -737,6 +743,12 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           int RemoveTemp=FALSE;
           char SearchFileName[NM];
           char TempDir[NM];
+
+          if (FindList[ItemIndex].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+          {
+            ReleaseMutex(hMutex);
+            return TRUE;
+          }
           char *FileName=FindList[ItemIndex].FindData.cFileName;
           // FindFileArcIndex нельзя здесь использовать
           // Он может быть уже другой.
@@ -793,8 +805,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             strcpy(SearchFileName,FindList[ItemIndex].FindData.cFileName);
 
           DWORD FileAttr;
-          if ((FileAttr=GetFileAttributes(SearchFileName))!=(DWORD)-1 &&
-              (FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+          if ((FileAttr=GetFileAttributes(SearchFileName))!=(DWORD)-1)
           {
             char OldTitle[512];
             GetConsoleTitle(OldTitle,sizeof(OldTitle));
@@ -1441,8 +1452,9 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
   while(FileFound)
   {
     if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) &&
+        (Opt.FindFolders==0) &&
         ((hPlugin == INVALID_HANDLE_VALUE) ||
-         (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
+        (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
       return FALSE;
 
     if (*FindStr && FileFound)
@@ -1534,11 +1546,13 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   {
     strncpy(PathName,FullName,sizeof(PathName)-1);
     PathName[sizeof(PathName)-1]=0;
-    *PointToName(PathName)=0;
+    if ((FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
+      *PointToName(PathName)=0;
   }
   if (*PathName==0)
     strcpy(PathName,".\\");
 
+  AddEndSlash(PathName);
   if (LocalStricmp(PathName,LastDirName)!=0)
   {
     if (*LastDirName)
@@ -1556,7 +1570,9 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
     }
     strcpy(LastDirName,PathName);
     if ((FindFileArcIndex != LIST_INDEX_NONE) &&
-        (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
+        (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)) &&
+        (ArcList[FindFileArcIndex].ArcName) &&
+        (*ArcList[FindFileArcIndex].ArcName))
     {
       char ArcPathName[NM*2],DirName[NM];
       sprintf(ArcPathName,"%s:%s",ArcList[FindFileArcIndex].ArcName,*PathName=='.' ? "\\":PathName);
@@ -1591,21 +1607,24 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
     }
   }
 
-  DWORD ItemIndex = AddFindListItem(FindData);
-  if (ItemIndex != LIST_INDEX_NONE)
+  if ((FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
   {
-    strncpy(FindList[ItemIndex].FindData.cFileName, FullName,
-            sizeof(FindList[ItemIndex].FindData.cFileName)-1);
-    if (FindFileArcIndex != LIST_INDEX_NONE)
-      FindList[ItemIndex].ArcIndex = FindFileArcIndex;
-  }
-  strcpy(ListItem.Name,MenuText);
-  ListItem.SetSelect(!FileCount);
+    DWORD ItemIndex = AddFindListItem(FindData);
+    if (ItemIndex != LIST_INDEX_NONE)
+    {
+      strncpy(FindList[ItemIndex].FindData.cFileName, FullName,
+              sizeof(FindList[ItemIndex].FindData.cFileName)-1);
+      if (FindFileArcIndex != LIST_INDEX_NONE)
+        FindList[ItemIndex].ArcIndex = FindFileArcIndex;
+    }
+    strcpy(ListItem.Name,MenuText);
+    ListItem.SetSelect(!FileCount);
 
-  while (ListBox->GetCallCount())
-    Sleep(10);
-  ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex),
-                       ListBox->AddItem(&ListItem));
+    while (ListBox->GetCallCount())
+      Sleep(10);
+    ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex),
+                         ListBox->AddItem(&ListItem));
+  }
 
   LastFoundNumber++;
   FileCount++;

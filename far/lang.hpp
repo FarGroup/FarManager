@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.81 22.10.2001 $ */
+/* Revision: 1.82 26.10.2001 $ */
 
 /*
 Modify:
+  26.10.2001 KM
+    + MFindFolders
   22.10.2001 SVS
     + По поводу шифрования в Win2K
   16.10.2001 SVS
@@ -935,6 +937,7 @@ enum
   MFindFileWholeWords,
   MFindFileAllTables,
   MFindArchives,
+  MFindFolders,
   MSearchAllDisks,
   MSearchFromRoot,
   MSearchFromCurrent,

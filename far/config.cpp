@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.101 15.10.2001 $ */
+/* Revision: 1.102 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 KM
+    + Opt.FindFolders. Запомнить флаг разрешения поиска каталогов в Alt-F7
   15.10.2001 SVS
     + Opt.DlgSelectFromHistory
   12.10.2001 SVS
@@ -987,6 +989,11 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
   {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
   {1, REG_DWORD,  NKeyInterface, "CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
+  /* $ 24.10.2001 KM
+     Запомнить флаг разрешения поиска каталогов в Alt-F7
+  */
+  {1, REG_DWORD,  NKeyInterface, "FindFolders",&Opt.FindFolders, 1, 0},
+  /* KM $ */
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},

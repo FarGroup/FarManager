@@ -1060,6 +1060,10 @@ with different codepages.
 archives with known formats. However, using this option significantly
 decreases the performance of the search. FAR cannot search in nested archives.
 
+    The #"Search for folders"# option includes in search list those folders,
+that match the wildcards. Also the counter of found files takes account of
+found folders.
+
     Search may be performed in all non-removable disks, in all folders
 from the disk root, from the current folder, in the current folder only
 or in selected folders. The search origin is saved in the configuration.
