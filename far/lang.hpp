@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.142 08.06.2004 $ */
+/* Revision: 1.143 09.06.2004 $ */
 
 /*
 Modify:
+  09.06.2004 SVS
+    + MInfoCD_RWDVD, MChangeDriveCD_RWDVD
   08.06.2004 SVS
     + MInfoCD_RW, MInfoDVD_ROM, MInfoDVD_RW, MChangeDriveCD_RW, MChangeDriveDVD_ROM, MChangeDriveDVD_RW
   20.05.2004 SVS
@@ -1371,6 +1373,7 @@ enum
   MInfoNetwork,
   MInfoCDROM,
   MInfoCD_RW,
+  MInfoCD_RWDVD,
   MInfoDVD_ROM,
   MInfoDVD_RW,
   MInfoRAM,
@@ -1544,6 +1547,7 @@ enum
   MChangeDriveNetwork,
   MChangeDriveCDROM,
   MChangeDriveCD_RW,
+  MChangeDriveCD_RWDVD,
   MChangeDriveDVD_ROM,
   MChangeDriveDVD_RW,
   MChangeDriveRAM,

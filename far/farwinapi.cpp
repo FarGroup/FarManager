@@ -5,10 +5,13 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.04 09.06.2004 $ */
+/* Revision: 1.05 09.06.2004 $ */
 
 /*
 Modify:
+  09.06.2004 SVS
+    ! Попался привод - DVD читает, но не писатель (не CD-RW) - изменена логика.
+    + работаем в NT-based (проверено так же на NT4 SP6a)
   09.06.2004 SVS
     - Вот ить.... забыл, что у GetDriveType параметр может быть равен NULL.
   08.06.2004 SVS
@@ -188,7 +191,7 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
   UINT DrvType = GetDriveType(RootDir);
 
   // анализ CD-привода
-  if (RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  if (RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
 #if defined(__BORLANDC__)
 //#pragma option push -b -a4 -pc -A- /*P_O_Push*/
@@ -330,48 +333,31 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
 
       if (status)
       {
-        if (((sptwb.DataBuf[7] & 0x10)||(sptwb.DataBuf[7] & 0x20)))  //DVRRW
+        int CdRW=0,CdR=0,DvdR=0, DvdRW=0;
+        if (((sptwb.DataBuf[7] & 0x10)||(sptwb.DataBuf[7] & 0x20)))  //DVR-RW
+          DvdRW=1;
+        if ((sptwb.DataBuf[7] & 0x01)||(sptwb.DataBuf[7] & 0x02))     //CD-RW
+          CdRW=1;
+        if ((sptwb.DataBuf[6] & 0x08)||(sptwb.DataBuf[6] & 0x10)||(sptwb.DataBuf[6] & 0x20)) // DVD-ROM
+          DvdR=1;
+        if ((sptwb.DataBuf[6] & 0x01)||(sptwb.DataBuf[6] & 0x02))     //CD-ROM
+          CdR=1;
+
+        if(CdRW)
         {
-          DrvType = DRIVE_DVD_RW;
-/*
-          if ((sptwb.DataBuf[7] & 0x10))
-            DrvType = DRIVE_DVD_R;
-          else if ((sptwb.DataBuf[7] & 0x20))
-            DrvType = DRIVE_DVD_RAM;
-*/
-        }
-/*
-        else if (                                                             //DVD Combo
-                  (
-                    (sptwb.DataBuf[6] & 0x08)||   //  DVDROM
-                    (sptwb.DataBuf[6] & 0x10)||   //  DVDR
-                    (sptwb.DataBuf[6] & 0x20)     //  DVDRAM
-                  )
-                    &&
-                  (
-                    (sptwb.DataBuf[7] & 0x01)||   //CDR
-                    (sptwb.DataBuf[7] & 0x02)     //CDRW
-                  )
-                )
-        {
-          DrvType = DRIVE_DVD_COMBO;
-        }
-*/
-        else if ((sptwb.DataBuf[6] & 0x08)||   //  DVDROM
-                 (sptwb.DataBuf[6] & 0x10)||   //  DVDR
-                 (sptwb.DataBuf[6] & 0x20)     //  DVDRAM
-                )
-        {
-          DrvType = DRIVE_DVD_ROM;
-        }
-        else if(((sptwb.DataBuf[7] & 0x01)||(sptwb.DataBuf[7] & 0x02)))   //  CDRW
-        {
-          if ((sptwb.DataBuf[7] & 0x02))
+          if(DvdRW)
+            DrvType = DRIVE_DVD_RW;
+          else if(DvdR)
+            DrvType = DRIVE_CD_RWDVD;
+          else
             DrvType = DRIVE_CD_RW;
-/*
-          else if ((sptwb.DataBuf[7] & 0x01))
-            DrvType = DRIVE_CD_R;
-*/
+        }
+        else
+        {
+          if(DvdRW)
+            DrvType = DRIVE_DVD_RW;
+          else if(DvdR)
+            DrvType = DRIVE_DVD_ROM;
         }
       }
       _SVS(else Message(MSG_ERRORTYPE,1,"FAR_GetDriveType()","","Ok"));

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.127 08.06.2004 $ */
+/* Revision: 1.128 09.06.2004 $ */
 
 /*
 Modify:
+  09.06.2004 SVS
+    + DRIVE_CD_RWDVD
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -545,6 +547,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {DRIVE_REMOTE,MChangeDriveNetwork},
             {DRIVE_CDROM,MChangeDriveCDROM},
             {DRIVE_CD_RW,MChangeDriveCD_RW},
+            {DRIVE_CD_RWDVD,MChangeDriveCD_RWDVD},
             {DRIVE_DVD_ROM,MChangeDriveDVD_ROM},
             {DRIVE_DVD_RW,MChangeDriveDVD_RW},
             {DRIVE_RAMDISK,MChangeDriveRAM},

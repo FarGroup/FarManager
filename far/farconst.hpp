@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.79 08.06.2004 $ */
+/* Revision: 1.80 09.06.2004 $ */
 
 /*
 Modify:
+  09.06.2004 SVS
+    + DRIVE_CD_RWDVD
   08.06.2004 SVS
     + DRIVE_*
   09.01.2004 SVS
@@ -383,8 +385,9 @@ enum ReadDizFlags {
 #define DRIVE_SUBSTITUTE            15
 #define DRIVE_REMOTE_NOT_CONNECTED  16
 #define DRIVE_CD_RW                 18
-#define DRIVE_DVD_ROM               19
-#define DRIVE_DVD_RW                20
+#define DRIVE_CD_RWDVD              19
+#define DRIVE_DVD_ROM               20
+#define DRIVE_DVD_RW                21
 #define DRIVE_NOT_INIT             255
 
 
