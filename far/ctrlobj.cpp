@@ -5,10 +5,15 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.34 29.10.2001 $ */
+/* Revision: 1.35 15.11.2001 $ */
 
 /*
 Modify:
+  15,11,2001 SVS
+    ! Для каждого из *History назначим тип.
+    - При выставленном Interface\ShowMenuBar=1 ФАР при старте падал,
+      т.к. в panel.cpp кто-то (IS) залудил когда-то вызов TopMenuBar->Show(),
+      и кто-то (уже и не знаю кто)... в общем Long History
   29.10.2001 IS
     ! SaveEditorPos переехала в EditorOptions
   24.10.2001 SVS
@@ -126,9 +131,11 @@ ControlObject::ControlObject()
   */
   CmdLine=new CommandLine;
   /* IS $ */
-  CmdHistory=new History("SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
-  FolderHistory=new History("SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
-  ViewHistory=new History("SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
+
+  CmdHistory=new History(HISTORYTYPE_CMD,"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
+  FolderHistory=new History(HISTORYTYPE_FOLDER,"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
+  ViewHistory=new History(HISTORYTYPE_VIEW,"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
+
   FolderHistory->SetAddMode(TRUE,2,TRUE);
   ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
   if (Opt.SaveHistory)
@@ -167,9 +174,9 @@ void ControlObject::Init()
   CmdLine->SaveBackground(0,0,ScrX,ScrY);
 
   FPanels=new FilePanels();
-  FPanels->Init();
   this->MainKeyBar=&(FPanels->MainKeyBar);
   this->TopMenuBar=&(FPanels->TopMenuBar);
+  FPanels->Init();
   FPanels->SetScreenPosition();
 
   _beginthread(CheckVersion,0x10000,NULL);

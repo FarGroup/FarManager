@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.05 08.11.2001 $ */
+/* Revision: 1.06 15.11.2001 $ */
 
 /*
 Modify:
+  15,11,2001 SVS
+    + Тип истории.
   08.11.2001 SVS
     ! Ничего личного - только причесал сорцы :-)
   04.06.2001 SVS
@@ -28,6 +30,12 @@ Modify:
 
 #include "farconst.hpp"
 
+enum{
+  HISTORYTYPE_CMD,
+  HISTORYTYPE_FOLDER,
+  HISTORYTYPE_VIEW,
+};
+
 struct HistoryRecord
 {
   char Name[512];
@@ -42,6 +50,7 @@ class History
     unsigned int LastPtr,CurLastPtr;
     unsigned int LastPtr0,CurLastPtr0;
     int EnableAdd,RemoveDups,KeepSelectedPos;
+    int TypeHistory;
     int *EnableSave,SaveTitle,SaveType;
     int LastSimilar;
     int ReturnSimilarTemplate;
@@ -51,7 +60,7 @@ class History
     struct HistoryRecord LastStr[HISTORY_COUNT];
 
   public:
-    History(char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
+    History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
 
   public:
     void AddToHistory(char *Str,char *Title=NULL,int Type=0);

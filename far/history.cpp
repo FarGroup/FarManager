@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.15 08.11.2001 $ */
+/* Revision: 1.16 15.11.2001 $ */
 
 /*
 Modify:
+  15,11,2001 SVS
+    + Тип истории.
   08.11.2001 SVS
     ! Отмена пред.патча - есть неразрешимые вопросы с макросами.
   06.11.2001 IS
@@ -58,13 +60,14 @@ Modify:
 #include "vmenu.hpp"
 #include "lang.hpp"
 
-History::History(char *RegKey,int *EnableSave,int SaveTitle,int SaveType)
+History::History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType)
 {
   LastPtr=CurLastPtr=LastPtr0=CurLastPtr0=0;
   memset(LastStr,0,sizeof(LastStr));
   History::SaveTitle=SaveTitle;
   History::SaveType=SaveType;
   History::EnableSave=EnableSave;
+  History::TypeHistory=TypeHistory;
   strcpy(History::RegKey,RegKey);
   EnableAdd=RemoveDups=TRUE;
   KeepSelectedPos=FALSE;
@@ -316,9 +319,12 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
         {
           if (!Opt.Confirm.HistoryClear ||
               (Opt.Confirm.HistoryClear &&
-              Message(MSG_WARNING,2,MSG(MHistoryTitle),
-                       MSG(MHistoryClear),
-                       MSG(MClear),MSG(MCancel))==0))
+              Message(MSG_WARNING,2,
+                   MSG((History::TypeHistory==HISTORYTYPE_CMD?MHistoryTitle:
+                        (History::TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:
+                        MViewHistoryTitle))),
+                   MSG(MHistoryClear),
+                   MSG(MClear),MSG(MCancel))==0))
           {
             memset(LastStr,0,sizeof(LastStr));
             CurLastPtr=LastPtr=0;

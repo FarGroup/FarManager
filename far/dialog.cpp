@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.179 14.11.2001 $ */
+/* Revision: 1.180 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 SVS
+    - уточнение для DI_COMBOBOX - здесь еще и Edit нужно корректно заполнить
   14.11.2001 SVS
     ! DN_EDITCHANGE: Path#1047:
       "...Уточнение повендения DN_EDITCHANGE при выборе из истории..."
@@ -4819,6 +4821,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
   switch(Msg)
   {
+    /*****************************************************************/
     case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
     case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
     case DM_LISTADDSTR: // Param1=ID Param2=String
@@ -4834,6 +4837,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
     case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
     case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    {
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
         VMenu *ListBox;
@@ -4971,6 +4975,17 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
           }
+          // уточнение для DI_COMBOBOX - здесь еще и Edit нужно корректно заполнить
+          if(Type==DI_COMBOBOX && CurItem->ObjPtr)
+          {
+            struct MenuItem *ListMenuItem;
+            if((ListMenuItem=ListBox->GetItemPtr(ListBox->GetSelectPos())) != NULL)
+            {
+              ((Edit *)(CurItem->ObjPtr))->SetString(ListMenuItem->Name);
+              ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+            }
+          }
+
           if(Dlg->DialogMode.Check(DMODE_SHOW) && ListBox->UpdateRequired())
           {
             Dlg->ShowDialog(Param1);
@@ -4980,7 +4995,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
       }
       return FALSE;
+    }
 
+    /*****************************************************************/
     case DM_SETHISTORY: // Param1 = ID, Param2 = LPSTR HistoryName
     {
       if(Type==DI_EDIT || Type==DI_FIXEDIT)
@@ -5002,7 +5019,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     }
 
+    /*****************************************************************/
     case DM_ADDHISTORY:
+    {
       if(Param2 &&
          (Type==DI_EDIT || Type==DI_FIXEDIT) &&
          (CurItem->Flags & DIF_HISTORY))
@@ -5010,10 +5029,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return Dlg->AddToEditHistory((char*)Param2,CurItem->History);
       }
       return FALSE;
+    }
+
+    /*****************************************************************/
     /* $ 23.10.2000 SVS
        Получить/установить позицию в строках редактирования
     */
     case DM_GETCURSORPOS:
+    {
       if(!CurItem->ObjPtr || !Param2)
         return FALSE;
       if (IsEdit(Type))
@@ -5029,8 +5052,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
       return FALSE;
+    }
 
+    /*****************************************************************/
     case DM_SETCURSORPOS:
+    {
       if(!CurItem->ObjPtr)
         return FALSE;
       if (IsEdit(Type))
@@ -5064,14 +5090,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
       return FALSE;
-    /* SVS $ */
+    }
 
 
+    /*****************************************************************/
     case DN_LISTCHANGE:
     {
       return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
     }
 
+    /*****************************************************************/
     case DN_EDITCHANGE:
     {
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
@@ -5080,15 +5108,23 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return I;
     }
 
+    /*****************************************************************/
     case DN_BTNCLICK:
+    {
       return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+    }
 
+    /*****************************************************************/
     case DM_GETCHECK:
+    {
       if(Type == DI_CHECKBOX || Type == DI_RADIOBUTTON)
         return CurItem->Selected;
       return 0;
+    }
 
+    /*****************************************************************/
     case DM_SET3STATE:
+    {
       if(Type == DI_CHECKBOX)
       {
         int OldState=CurItem->Flags&DIF_3STATE?TRUE:FALSE;
@@ -5099,8 +5135,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return OldState;
       }
       return 0;
+    }
 
+    /*****************************************************************/
     case DM_SETCHECK:
+    {
       if(Type == DI_CHECKBOX || Type == DI_RADIOBUTTON)
       {
         int Selected=CurItem->Selected;
@@ -5117,23 +5156,32 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return Selected;
       }
       return 0;
+    }
 
+    /*****************************************************************/
     case DN_DRAWDLGITEM:
+    {
       // преобразуем данные для!
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
       I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
       Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
       return I;
+    }
 
+    /*****************************************************************/
     case DM_SETREDRAW:
+    {
       if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
         Dlg->Show();
       return 0;
+    }
 
+    /*****************************************************************/
     /* $ 08.09.2000 SVS
       - Если коротко, то DM_SETFOCUS вроде как и работал :-)
     */
     case DM_SETFOCUS:
+    {
 //      if(!Dialog::IsFocused(Dlg->Item[Param1].Type))
 //        return FALSE;
       if(Dlg->FocusPos == Param1) // уже и так установлено все!
@@ -5144,15 +5192,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
       return FALSE;
-    /* SVS $ */
+    }
 
-    /* $ 20.10.2000 SVS
-      Получить ID фокуса
-    */
-    case DM_GETFOCUS:
+    /*****************************************************************/
+    case DM_GETFOCUS: // Получить ID фокуса
+    {
       return Dlg->FocusPos;
-    /* SVS $ */
+    }
 
+    /*****************************************************************/
     case DM_GETTEXTPTR:
       if(Param2)
       {
@@ -5162,6 +5210,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return Dialog::SendDlgMessage(hDlg,DM_GETTEXT,Param1,(long)&IData);
       }
 
+    /*****************************************************************/
     case DM_GETTEXT:
       if(Param2) // если здесь NULL, то это еще один способ получить размер
       {
@@ -5227,6 +5276,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       // здесь умышленно не ставим return, т.к. хотим получить размер
       // следовательно сразу должен идти "case DM_GETTEXTLENGTH"!!!
 
+    /*****************************************************************/
     case DM_GETTEXTLENGTH:
       switch(Type)
       {
@@ -5276,6 +5326,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return Len-(!Len?0:1);;
 
+    /*****************************************************************/
     case DM_SETTEXTPTR:
     {
       if(!Param2)
@@ -5287,7 +5338,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return Dialog::SendDlgMessage(hDlg,DM_SETTEXT,Param1,(long)&IData);
     }
 
-
+    /*****************************************************************/
     case DM_SETTEXT:
       if(Param2)
       {
@@ -5380,7 +5431,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return 0;
 
+    /*****************************************************************/
     case DM_SETTEXTLENGTH:
+    {
       if((Type==DI_EDIT || Type==DI_PSWEDIT ||
           (Type==DI_COMBOBOX && !(CurItem->Flags & DIF_DROPDOWNLIST))) &&
          CurItem->ObjPtr)
@@ -5401,8 +5454,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return MaxLen;
       }
       return 0;
+    }
 
+    /*****************************************************************/
     case DM_GETDLGITEM:
+    {
       if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
       {
         Dialog::ConvertItem(CVTITEM_TOPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
@@ -5418,8 +5474,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
       return FALSE;
+    }
 
+    /*****************************************************************/
     case DM_SETDLGITEM:
+    {
       if(Param2 && !IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)) &&
          Type == ((struct FarDialogItem *)Param2)->Type) // пока нефига менять тип
       {
@@ -5436,12 +5495,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
       return FALSE;
+    }
 
 
+    /*****************************************************************/
     /* $ 18.08.2000 SVS
        + Разрешение/запрещение отрисовки диалога
     */
     case DM_ENABLEREDRAW:
+    {
       if(Param1)
         Dlg->IsEnableRedraw++;
       else
@@ -5455,8 +5517,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 //          Dlg->Show();
         }
       return 0;
+    }
     /* SVS $ */
 
+    /*****************************************************************/
     /* $ 03.01.2001 SVS
         + показать/скрыть элемент
         Param2: -1 - получить состояние
@@ -5483,6 +5547,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
     }
 
+    /*****************************************************************/
     /* $ 23.08.2000 SVS
        + показать/спрятать диалог.
     */
@@ -5503,6 +5568,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return 0;
     /* SVS $ */
 
+    /*****************************************************************/
     /* $ 23.08.2000 SVS
        + установить/взять данные диалога.
     */
@@ -5513,12 +5579,14 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return PrewDataDialog;
     }
 
+    /*****************************************************************/
     case DM_GETDLGDATA:
     {
       return Dlg->DataDialog;
     }
     /* SVS $ */
 
+    /*****************************************************************/
     /* $ 23.08.2000 SVS
        + послать клавишу(ы)
     */
@@ -5533,10 +5601,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     /* SVS $ */
 
+    /*****************************************************************/
     /* $ 23.08.2000 SVS
        + принудительно закрыть диалог
     */
     case DM_CLOSE:
+    {
       if(Param1 == -1)
         Dlg->ExitCode=Dlg->FocusPos;
       else
@@ -5545,8 +5615,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dlg->CloseDialog();
       /* DJ $ */
       return TRUE;  // согласен с закрытием
+    }
     /* SVS $ */
 
+    /*****************************************************************/
     /* $ 25.08.2000 SVS
         + получить координаты диалогового окна
     */
@@ -5565,10 +5637,17 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     }
     /* SVS $ */
+
+    /*****************************************************************/
     /* $ 23.06.2001 KM */
     case DM_GETDROPDOWNOPENED: // Param1=0; Param2=0
+    {
       return Dlg->GetDropDownOpened();
+    }
+
+    /*****************************************************************/
     case DM_SETDROPDOWNOPENED: // Param1=ID; Param2={TRUE|FALSE}
+    {
       if (!Param2) // Закрываем любой открытый комбобокс или историю
       {
         if (Dlg->GetDropDownOpened())
@@ -5596,14 +5675,21 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           return FALSE;
       }
       return FALSE;
+    }
     /* KM $ */
-    case DM_SETITEMPOSITION: // Param1 = ID; Param2 = SMALL_RECT
-      return Dlg->SetItemRect((int)Param1,(SMALL_RECT*)Param2);
 
+    /*****************************************************************/
+    case DM_SETITEMPOSITION: // Param1 = ID; Param2 = SMALL_RECT
+    {
+      return Dlg->SetItemRect((int)Param1,(SMALL_RECT*)Param2);
+    }
+
+    /*****************************************************************/
     case DM_RESIZEDIALOG:
       // изменим вызов RESIZE.
       Param1=-1;
 
+    /*****************************************************************/
     /* $ 30.08.2000 SVS
         + программное перемещение диалога
     */
@@ -5729,6 +5815,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     /* SVS $ */
 
+    /*****************************************************************/
     /* $ 31.08.2000 SVS
         + переключение/получение состояния Enable/Disable элемента
     */
@@ -5746,14 +5833,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     /* SVS $ */
 
-    /* SVS $ */
+    /*****************************************************************/
     case DM_KILLSAVESCREEN:
-      {
-        if (Dlg->SaveScr) Dlg->SaveScr->Discard();
-        if (Dlg->ShadowSaveScr) Dlg->ShadowSaveScr->Discard();
-        return TRUE;
-      }
+    {
+      if (Dlg->SaveScr) Dlg->SaveScr->Discard();
+      if (Dlg->ShadowSaveScr) Dlg->ShadowSaveScr->Discard();
+      return TRUE;
+    }
 
+    /*****************************************************************/
     /*
       Msg=DM_ALLKEYMODE
       Param1 = -1 - получить состояние
@@ -5770,6 +5858,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return OldIsProcessAssignMacroKey;
     }
 
+    /*****************************************************************/
     // получить позицию и размеры контрола
     case DM_GETITEMPOSITION: // Param1=ID, Param2=*SMALL_RECT
       if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
@@ -5786,6 +5875,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return FALSE;
 
+    /*****************************************************************/
     case DM_SETMOUSEEVENTNOTIFY: // Param1 = 0 on, 1 off, -1 - get
     {
       int State=Dlg->DialogMode.Check(DMODE_MOUSEEVENT)?TRUE:FALSE;
@@ -5799,8 +5889,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return State;
     }
 
+    /*****************************************************************/
     case DN_RESIZECONSOLE:
+    {
       break;
+    }
   }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.
