@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.60 03.02.2001 $ */
+/* Revision: 1.61 08.02.2001 $ */
 
 /*
 Modify:
+  08.02.2001 skv
+    - EEREDRAW при Ctrl-P, Ctrl-M
   03.02.2001 skv
     - EEREDRAW_ALL теперь соответствует действительности,
       при переходе с одной строки на другую при выключенном
@@ -1495,6 +1497,14 @@ int Editor::ProcessKey(int Key)
             CurLine->EditLine.SetCurPos(CurPos);
         ProcessKey(KEY_SHIFTINS);
         Pasting--;
+
+        /*$ 08.02.2001 SKV
+          всё делалось с pasting'ом, поэтому redraw плагинам не ушел.
+          сделаем его.
+        */
+        Show();
+        /* SKV$*/
+
         if (OemData!=NULL)
         {
           CopyToClipboard(OemData);
