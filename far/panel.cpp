@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.34 26.04.2001 $ */
+/* Revision: 1.35 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 SVS
+    + Т.к. нет способа получить состояние "открытости" устройства,
+      то добавим обработку Ins для CD - "закрыть диск"
   26.04.2001 VVM
     ! Отмена патча 547
   24.04.2001 SVS
@@ -453,6 +456,26 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       }
       switch(Key)
       {
+        /* $ 27.04.2001 SVS
+           Т.к. нет способа получить состояние "открытости" устройства,
+           то добавим обработку Ins для CD - "закрыть диск"
+        */
+        case KEY_INS:
+          if (SelPos<DiskCount && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+          {
+            char MsgText[200], LocalName[50];
+            if (ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter)))
+            {
+              DriveType=(DWORD)(BYTE)DiskLetter[2];
+              if(DriveType == DRIVE_CDROM /* || DriveType == DRIVE_REMOVABLE*/)
+              {
+                EjectVolume(*DiskLetter,EJECT_LOAD_MEDIA);
+                return(SelPos);
+              }
+            }
+          }
+          break;
+        /* SVS $ */
         case KEY_DEL:
           if (SelPos<DiskCount)
           {
@@ -466,14 +489,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               DriveType=(DWORD)(BYTE)DiskLetter[2];
               if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
               {
-                DWORD Flags=0;
-                // пробуем выяснить про "а есть ли диск, открыт ли привод?"
-                if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && DriveType == DRIVE_CDROM)
-                {
-                  if(!EjectVolume(*DiskLetter,EJECT_NO_MESSAGE|4))
-                    Flags=EJECT_LOAD_MEDIA;
-                }
-                EjectVolume(*DiskLetter,Flags);
+                EjectVolume(*DiskLetter,0);
                 return(SelPos);
               }
               /* SVS $ */

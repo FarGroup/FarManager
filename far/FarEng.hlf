@@ -114,6 +114,8 @@ $ #Keyboard reference#
 
  ~Miscellaneous~@MiscCmd@
 
+ ~Mouse wheel support~@MsWheel@
+
 @PanelCmd
 $ #Panel control commands#
  #Common panel commands#
@@ -397,6 +399,36 @@ line, including dialogs and the ~internal editor~@Editor@.
   Right clicking outside the dialog works the same as pressing Esc.
 
   Left clicking outside the dialog works the same as pressing Enter.
+
+  Under Windows 2000, FAR Manager supports the ~mouse wheel~@MsWheel@.
+
+@MsWheel
+$ #Mouse wheel support#
+   Under Windows 2000, FAR Manager supports the mouse wheel:
+
+   #Panels#
+     List scrolling without changing the cursor position on the
+     screen.
+
+   #Editor#
+     Text scrolling without changing the cursor position on the
+     screen (similar to Ctrl-Up/Ctrl-Down).
+
+   #Viewer#
+     Text scrolling.
+
+   #Menus#
+     Wheel scrolling works as Up/Down buttons.
+     Pressing the middle button has the same effect as pressing
+     Enter. It is possible to choose items without moving the cursor.
+
+   #Dialogs#
+     In dialogs, when the wheel is rotated at an edit line with a
+     history list or a combo box, the drop-down list is opened. In
+     the drop-down list scrolling works the same as in menus.
+
+   You can specify the number of lines to scroll at a time in the
+panels, editor and viewer (see TechInfo##33).
 
 @CmdLine
 $ #Command line switches#
@@ -1574,8 +1606,10 @@ to the file panel.
      - to delete a substituted (virtual) drive.
 
      - to eject disks from CD-ROM and removable drives.
-       To perform this operation on Windows NT/2000 administrator
-       privileges are required.
+       To perform this operation on Windows NT/2000
+       administrator privileges are required.
+       CD-ROM drives can be closed by pressing Ins (only
+       under Windows NT/2000).
 
 
     #Ctrl-1# - #Ctrl-8# switch the display of different information:

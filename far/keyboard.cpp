@@ -5,10 +5,17 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.22 26.04.2001 $ */
+/* Revision: 1.23 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 SVS
+    + Добавлены:
+       "MsWheelDown" для KEY_MSWHEEL_DOWN и
+       "MsWheelUp" для KEY_MSWHEEL_UP
+      в массив FKeys1[]
+    ! Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
+      нельзя было использовать в макросах нечто вроде "ShiftMsWheelUp"
   26.04.2001 VVM
     - Выкинул нафиг MouseWheeled
     + Обработка спецклавиш KEY_MSWHEEL_XXXX
@@ -136,6 +143,8 @@ struct TFKey3{
 static struct TFKey3 FKeys1[]={
   { KEY_CTRLALTSHIFTRELEASE, 19, "CtrlAltShiftRelease"},
   { KEY_CTRLALTSHIFTPRESS,   17, "CtrlAltShiftPress"},
+  { KEY_MSWHEEL_DOWN,        11, "MsWheelDown"},
+  { KEY_MSWHEEL_UP,           9, "MsWheelUp"},
   { KEY_BACKSLASH,            9, "BackSlash"},
   { KEY_SUBTRACT,             8, "Subtract"},
   { KEY_MULTIPLY,             8, "Multiply"},
@@ -574,6 +583,15 @@ int GetInputRecord(INPUT_RECORD *rec)
     { // Обработаем колесо и заменим на спец.клавиши
       short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
       CalcKey = (zDelta>0)?KEY_MSWHEEL_UP:KEY_MSWHEEL_DOWN;
+      /* $ 27.04.2001 SVS
+         Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
+         нельзя было использовать в макросах нечто вроде "ShiftMsWheelUp"
+      */
+      DWORD SMState=rec->Event.MouseEvent.dwControlKeyState;
+      CalcKey |= (SMState&SHIFT_PRESSED?KEY_SHIFT:0)|
+                 (SMState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                 (SMState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+      /* SVS $ */
       rec->EventType = KEY_EVENT;
     } /* if */
     /* VVM $ */

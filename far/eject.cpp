@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.02 22.04.2001 $ */
+/* Revision: 1.03 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 SVS
+    ! Т.к. нет уверенного способа (пока нет) получить состояние устройства,
+      то убираем "шаманство" с IOCTL_STORAGE_CHECK_VERIFY
   22.04.2001 SVS
     ! Изменена функция EjectVolume (по мотивам функции by
       Vadim Yegorov <zg@matrica.apollo.lv>)
@@ -397,143 +400,6 @@ CLEANUP_AND_EXIT_APP:
    return Ret;
 }
 
-
-#if 0
-/*
-  HOWTO: Ejecting Removable Media in Windows NT/Windows 2000
-  http://support.microsoft.com/support/kb/articles/Q165/7/21.ASP
-*/
-#define LOCK_TIMEOUT        10000       // 10 Seconds
-#define LOCK_RETRIES        20
-static BOOL LockVolume(HANDLE hVolume)
-{
-    DWORD dwBytesReturned;
-    DWORD dwSleepAmount;
-    int nTryCount;
-
-    dwSleepAmount = LOCK_TIMEOUT / LOCK_RETRIES;
-
-    // Do this in a loop until a timeout period has expired
-    for (nTryCount = 0; nTryCount < LOCK_RETRIES; nTryCount++) {
-        if (DeviceIoControl(hVolume,
-                            FSCTL_LOCK_VOLUME,
-                            NULL, 0,
-                            NULL, 0,
-                            &dwBytesReturned,
-                            NULL))
-            return TRUE;
-
-        Sleep(dwSleepAmount);
-    }
-
-    return FALSE;
-}
-
-
-BOOL EjectVolume(char Letter,DWORD Flags)
-{
-  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-  {
-    return EjectVolume95(Letter,Flags);
-  }
-
-  HANDLE hVolume;
-
-  BOOL fRemoveSafely = FALSE;
-  BOOL fAutoEject = FALSE;
-  DWORD dwBytesReturned;
-  char szRootName[5];
-  UINT uDriveType;
-  char szVolumeName[8];
-  DWORD dwAccessFlags;
-
-  // Open the volume.
-
-  sprintf(szRootName, "%c:\\", Letter);
-
-  uDriveType = GetDriveType(szRootName);
-  switch(uDriveType) {
-  case DRIVE_REMOVABLE:
-      dwAccessFlags = GENERIC_READ | GENERIC_WRITE;
-      break;
-  case DRIVE_CDROM:
-      dwAccessFlags = GENERIC_READ;
-      break;
-  default:
-      return FALSE;
-  }
-
-  sprintf(szVolumeName, "\\\\.\\%c:", Letter);
-
-  hVolume = CreateFile(szVolumeName,
-                       dwAccessFlags,
-                       FILE_SHARE_READ | FILE_SHARE_WRITE,
-                       NULL,
-                       OPEN_EXISTING,
-                       0,
-                       NULL );
-  if (hVolume == INVALID_HANDLE_VALUE)
-  {
-    if(!(Flags&EJECT_NO_MESSAGE))
-    {
-      char MsgText[200];
-      sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),Letter);
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
-    }
-    return FALSE;
-  }
-
-  // Lock and dismount the volume.
-  if (LockVolume(hVolume) &&
-      DeviceIoControl( hVolume,  // DismountVolume
-                            FSCTL_DISMOUNT_VOLUME,
-                            NULL, 0,
-                            NULL, 0,
-                            &dwBytesReturned,
-                            NULL)
-     )
-  {
-      fRemoveSafely = TRUE;
-
-      PREVENT_MEDIA_REMOVAL PMRBuffer;
-      PMRBuffer.PreventMediaRemoval = FALSE;
-
-      // Set prevent removal to false and eject the volume.
-      if (DeviceIoControl( hVolume,  // PreventRemovalOfVolume
-             IOCTL_STORAGE_MEDIA_REMOVAL,
-             &PMRBuffer, sizeof(PREVENT_MEDIA_REMOVAL),
-             NULL, 0,
-             &dwBytesReturned,
-             NULL)
-          &&
-          DeviceIoControl( hVolume,                     // AutoEjectVolume
-             IOCTL_STORAGE_EJECT_MEDIA,
-             NULL, 0,
-             NULL, 0,
-             &dwBytesReturned,
-             NULL)
-         )
-        fAutoEject = TRUE;
-  }
-
-  // Close the volume so other processes can use the drive.
-  if (!CloseHandle(hVolume))
-      return FALSE;
-/*
-  if (fAutoEject)
-      printf("Media in Drive %c has been ejected safely.\n",
-             Letter);
-  else {
-      if (fRemoveSafely)
-          printf("Media in Drive %c can be safely removed.\n",
-          Letter);
-  }
-*/
-  return TRUE;
-}
-/* SVS $ */
-
-#else
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
    Доработанная! Умеет под NT/2000 "вставлять" диск :-)
 */
@@ -591,23 +457,9 @@ BOOL EjectVolume(char Letter,DWORD Flags)
 
         if(DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),NULL,0,&temp,NULL))
         {
-          // чистой воды шаманство...
-          if(Flags&0x04)
-          {
-            fAutoEject=DeviceIoControl(DiskHandle,
-                         IOCTL_STORAGE_CHECK_VERIFY,
-                         NULL,0,0,0,&temp,NULL);
-            // ...если ошибка = "нет доступа", то это похоже на то,
-            // что диск вставлен
-            // Способ экспериментальный, потому афишировать не имеет смысла.
-            if(!fAutoEject && GetLastError() == 5)
-              fAutoEject=TRUE;
-            Retry=FALSE;
-          }
-          else
-            fAutoEject=DeviceIoControl(DiskHandle,
-                (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
-                NULL,0,NULL,0,&temp,NULL);
+          fAutoEject=DeviceIoControl(DiskHandle,
+              (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
+              NULL,0,NULL,0,&temp,NULL);
         }
         Retry=FALSE;
       }
@@ -626,4 +478,3 @@ BOOL EjectVolume(char Letter,DWORD Flags)
   }
   return fAutoEject;
 }
-#endif
