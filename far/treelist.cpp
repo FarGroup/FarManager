@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.45 27.12.2002 $ */
+/* Revision: 1.46 04.01.2003 $ */
 
 /*
 Modify:
+  04.01.2003 VVM
+    - При изменении размера консоли прогресс начинал глючить.
   27.12.2002 VVM
     + Показывать индикатор сканирования раз в секунду.
     + Выделять память блоками по 255 итемов.
@@ -164,6 +166,8 @@ static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortCaseSensitive;
 static int TreeCmp(char *Str1,char *Str2);
 static clock_t TreeStartTime;
+static int LastScrX = -1;
+static int LastScrY = -1;
 
 static char TreeLineSymbol[4][3]={
   {0x20,0x20,/*0x20,*/0x00},
@@ -474,6 +478,8 @@ int TreeList::ReadTree()
   TreeStartTime = clock();
   ScTree.SetFindPath(Root,"*.*",0);
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
+  LastScrX = ScrX;
+  LastScrY = ScrY;
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
   {
 //    if(TreeCount > 3)
@@ -667,10 +673,11 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 {
   /* $ 24.09.2001 VVM
     ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
-  BOOL IsChangeConsole=PrevScrX != ScrX || PrevScrY != ScrY;
+  BOOL IsChangeConsole = LastScrX != ScrX || LastScrY != ScrY;
   if(IsChangeConsole)
   {
-    FirstCall=TRUE;
+    LastScrX = ScrX;
+    LastScrY = ScrY;
   }
 
   if (IsChangeConsole || (clock() - TreeStartTime) > 1000)
@@ -680,7 +687,6 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
     Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle),
             MSG(MReadingTree),NumStr);
     PreRedrawParam.Flags=TreeCount;
-    FirstCall=FALSE;
     TreeStartTime = clock();
   }
   /* VVM $ */
@@ -1454,6 +1460,8 @@ void TreeList::ReadSubTree(char *Path)
   int FirstCall=TRUE, AscAbort=FALSE;
   ScTree.SetFindPath(DirName,"*.*",0);
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
+  LastScrX = ScrX;
+  LastScrY = ScrY;
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))
   {
     if (fdata.dwFileAttributes & FA_DIREC)
