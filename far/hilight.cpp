@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.09 12.02.2001 $ */
+/* Revision: 1.10 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 SVS
+    - Забыл при редактировании инициализировать данные...
   12.02.2001 SVS
     + Функция ClearData - очистка HiData
     - устранение утечки памяти (после 440-го)
@@ -359,7 +361,11 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   char Mask[HIGHLIGHT_MASK_SIZE];
 
   if (!New && RecPos<HiDataCount)
+  {
     EditData=HiData[RecPos];
+    if(EditData.Masks)
+      strcpy(Mask,EditData.Masks);
+  }
   else
     memset(&EditData,0,sizeof(EditData));
 
