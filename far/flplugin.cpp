@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.15 24.09.2001 $ */
+/* Revision: 1.16 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   24.09.2001 SVS
     ! немного оптимизации (сокращение кода)
   17.08.2001 VVM
@@ -109,7 +111,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
       else
       {
         memset(&PanelItem,0,sizeof(PanelItem));
-        strncpy(PanelItem.FindData.cFileName,PointToName(PStack->HostFile),NM);
+        strncpy(PanelItem.FindData.cFileName,PointToName(PStack->HostFile),sizeof(PanelItem.FindData.cFileName)-1);
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
       }
       chdir(SaveDir);
@@ -186,9 +188,9 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
 
 void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi)
 {
-  strncpy(fi->Name,pi->FindData.cFileName,sizeof(fi->Name));
-  strncpy(fi->ShortName,pi->FindData.cAlternateFileName,sizeof(fi->ShortName));
-  strncpy(fi->Owner,NullToEmpty(pi->Owner),sizeof(fi->Owner));
+  strncpy(fi->Name,pi->FindData.cFileName,sizeof(fi->Name)-1);
+  strncpy(fi->ShortName,pi->FindData.cAlternateFileName,sizeof(fi->ShortName)-1);
+  strncpy(fi->Owner,NullToEmpty(pi->Owner),sizeof(fi->Owner)-1);
   if (pi->Description)
   {
     fi->DizText=new char[strlen(pi->Description)+1];
@@ -726,8 +728,8 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info)
   char ColumnTypes[80],ColumnWidths[80];
   ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
                      ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
-  strncpy(Info->ColumnTypes,ColumnTypes,sizeof(Info->ColumnTypes));
-  strncpy(Info->ColumnWidths,ColumnWidths,sizeof(Info->ColumnWidths));
+  strncpy(Info->ColumnTypes,ColumnTypes,sizeof(Info->ColumnTypes)-1);
+  strncpy(Info->ColumnWidths,ColumnWidths,sizeof(Info->ColumnWidths)-1);
   Info->ShortNames=ShowShortNames;
 }
 

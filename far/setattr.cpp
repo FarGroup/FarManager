@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.36 24.09.2001 $ */
+/* Revision: 1.37 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   24.09.2001 SVS
     - В деревяхе Ctrl-A неверно отображало инфу для симлинков.
   11.09.2001 SVS
@@ -912,7 +914,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   /* SKV$*/
 
   // ****** ОБРАБОТКА ДАТЫ ******** //
-  strncpy(SrcDate,OSrcDate,sizeof(SrcDate));
+  strncpy(SrcDate,OSrcDate,sizeof(SrcDate)-1);
   DateN[0]=DateN[1]=DateN[2]=(unsigned)-1;
   I=0;
   Ptr=SrcDate;
@@ -928,7 +930,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   }
 
   // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
-  strncpy(SrcTime,OSrcTime,sizeof(SrcTime));
+  strncpy(SrcTime,OSrcTime,sizeof(SrcTime)-1);
   TimeN[0]=TimeN[1]=TimeN[2]=(unsigned)-1;
   I=0;
   Ptr=SrcTime;

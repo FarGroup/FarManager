@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.18 05.09.2001 $ */
+/* Revision: 1.19 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   05.09.2001 SVS
     ! Немного оптимизации ;-)
     ! Вместо полей Color* в структе FileListItem используется
@@ -1004,7 +1006,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   }
                 }
                 char DizText[1024];
-                strncpy(DizText,CurPtr->DizText ? CurPtr->DizText+CurLeftPos:"",sizeof(DizText));
+                strncpy(DizText,CurPtr->DizText ? CurPtr->DizText+CurLeftPos:"",sizeof(DizText)-1);
                 DizText[sizeof(DizText)-1]=0;
                 char *DizEnd=strchr(DizText,'\4');
                 if (DizEnd!=NULL)

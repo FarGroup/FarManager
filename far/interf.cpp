@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.37 30.08.2001 $ */
+/* Revision: 1.38 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Ћевый размер при использовании strncpy
   30.08.2001 IS
     - ”течка ресурсов. “еперь при закрытии окна "по кресту" всегда говорим
       системе, что "разберемс€ сами", в противном случае ‘ар будет закрыт
@@ -634,7 +636,7 @@ void HiText(const char *Str,int HiColor)
   char TextStr[300];
   int SaveColor;
   char *ChPtr;
-  strncpy(TextStr,Str,sizeof(TextStr));
+  strncpy(TextStr,Str,sizeof(TextStr)-1);
   if ((ChPtr=strchr(TextStr,'&'))==NULL)
     Text(TextStr);
   else

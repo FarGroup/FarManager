@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.118 24.09.2001 $ */
+/* Revision: 1.119 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   24.09.2001 SKV
     - ctrl-left fix
   18.08.2001 SVS
@@ -385,7 +387,7 @@ Editor::Editor()
   /* IS $ */
 
   EditKeyBar=NULL;
-  strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr));
+  strncpy((char *)LastSearchStr,GlobalSearchString,sizeof(LastSearchStr)-1);
   LastSearchCase=GlobalSearchCase;
   /* $ 03.08.2000 KM
      Переменная для поиска "Whole words"
@@ -692,7 +694,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       if (!LastLineCR && ((CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
           (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL))
       {
-        strncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL));
+        strncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
         GlobalEOL[sizeof(GlobalEOL)-1]=0;
         LastLineCR=1;
       }
@@ -3437,8 +3439,8 @@ BOOL Editor::Search(int Next)
   if (Next && *LastSearchStr==0)
     return TRUE;
 
-  strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr));
-  strncpy((char *)ReplaceStr,(char *)LastReplaceStr,sizeof(ReplaceStr));
+  strncpy((char *)SearchStr,(char *)LastSearchStr,sizeof(SearchStr)-1);
+  strncpy((char *)ReplaceStr,(char *)LastReplaceStr,sizeof(ReplaceStr)-1);
   Case=LastSearchCase;
   WholeWords=LastSearchWholeWords;
   ReverseSearch=LastSearchReverse;
@@ -3450,8 +3452,8 @@ BOOL Editor::Search(int Next)
                    &Case,&WholeWords,&ReverseSearch))
       return FALSE;
 
-  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
-  strncpy((char *)LastReplaceStr,(char *)ReplaceStr,sizeof(LastReplaceStr));
+  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
+  strncpy((char *)LastReplaceStr,(char *)ReplaceStr,sizeof(LastReplaceStr)-1);
   LastSearchCase=Case;
   LastSearchWholeWords=WholeWords;
   LastSearchReverse=ReverseSearch;

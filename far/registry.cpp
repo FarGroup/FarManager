@@ -5,12 +5,14 @@ registry.cpp
 
 */
 
-/* Revision: 1.08 25.06.2001 $ */
+/* Revision: 1.09 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   04.06.2001 SVS
     + Уточнение GetRegKeySize()
   03.06.2001 SVS
@@ -131,7 +133,7 @@ int GetRegKey(char *Key,char *ValueName,char *ValueData,char *Default,DWORD Data
       if(TempBuffer) // Если с памятью все нормально...
       {
         if((ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)TempBuffer,&QueryDataSize)) == ERROR_SUCCESS)
-          strncpy(ValueData,TempBuffer,DataSize); // скопируем сколько надо.
+          strncpy(ValueData,TempBuffer,DataSize-1); // скопируем сколько надо.
         delete[] TempBuffer;
       }
     }
@@ -426,7 +428,7 @@ int DeleteEmptyKey(HKEY hRoot, char *FullKeyName)
         if(ExitCode!=ERROR_SUCCESS)
           {
             char KeyName[512], *pSubKey;
-            strncpy(KeyName, FullKeyName, sizeof(KeyName));
+            strncpy(KeyName, FullKeyName, sizeof(KeyName)-1);
             if(NULL!=(pSubKey=strrchr(KeyName,'\\')))
               {
                  *pSubKey=0;
@@ -497,7 +499,7 @@ int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize)
       if (*TempName)
         AddEndSlash(TempName);
       strcat(TempName,SubName);
-      strncpy(DestName,TempName,DestSize);
+      strncpy(DestName,TempName,DestSize-1);
       return(TRUE);
     }
   }

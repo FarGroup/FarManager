@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.13 24.09.2001 $ */
+/* Revision: 1.14 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   24.09.2001 SVS
     ! немного оптимизации (сокращение кода)
   20.09.2001 SVS
@@ -409,5 +411,5 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
 
 void SetMessageHelp(const char *Topic)
 {
-  strncpy(MsgHelpTopic,Topic, sizeof(MsgHelpTopic));
+  strncpy(MsgHelpTopic,Topic, sizeof(MsgHelpTopic)-1);
 }

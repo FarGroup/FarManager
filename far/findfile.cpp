@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.53 24.09.2001 $ */
+/* Revision: 1.54 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   24.09.2001 OT
     Падение при открытии файла (F3,F4) из поиска
   13.09.2001 KM
@@ -803,7 +805,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           if (*UserDataItem.FindFileArcName && !hPlugin)
           {
             char ArcName[NM],ArcPath[NM];
-            strncpy(ArcName,UserDataItem.FindFileArcName,NM);
+            strncpy(ArcName,UserDataItem.FindFileArcName,sizeof(ArcName)-1);
             if (FindPanel->GetType()!=FILE_PANEL)
               FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
             strcpy(ArcPath,ArcName);
@@ -1207,7 +1209,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
       ScTree.SetFindPath(CurRoot,"*.*");
 
-      strncpy(FindMessage,CurRoot,sizeof(FindMessage));
+      strncpy(FindMessage,CurRoot,sizeof(FindMessage)-1);
       FindMessage[sizeof(FindMessage)-1]=0;
       FindMessageReady=TRUE;
 
@@ -1215,7 +1217,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       {
         if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
-          strncpy(FindMessage,FullName,sizeof(FindMessage));
+          strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
           FindMessage[sizeof(FindMessage)-1]=0;
           FindMessageReady=TRUE;
         }
@@ -1447,7 +1449,7 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   UserDataItem.FileFindData=*FindData;
   strncpy(UserDataItem.FileFindData.cFileName,
           FullName,
-          sizeof(UserDataItem.FileFindData.cFileName));
+          sizeof(UserDataItem.FileFindData.cFileName)-1);
   if (*FindFileArcName)
     strcpy(UserDataItem.FindFileArcName,FindFileArcName);
   strcpy(ListItem.Name,MenuText);
@@ -1711,7 +1713,7 @@ void FindFiles::ScanPluginTree()
 
       if (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
       {
-        strncpy(FindMessage,FullName,sizeof(FindMessage));
+        strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
         FindMessage[sizeof(FindMessage)-1]=0;
         for (int I=0;FindMessage[I]!=0;I++)
           if (FindMessage[I]=='\x1')

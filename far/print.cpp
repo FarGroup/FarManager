@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.10 26.07.2001 $ */
+/* Revision: 1.11 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -243,7 +245,7 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     sprintf(MenuText,"%-22.22s %c %-10s %3d %s  %s",PrinterName,0x0B3U,
             NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
             NullToEmpty(pi[I].pComment));
-    strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name));
+    strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name)-1);
     if ((pi[I].Attributes & PRINTER_ATTRIBUTE_DEFAULT) && !DefaultPrinterFound)
     {
       DefaultPrinterFound=TRUE;

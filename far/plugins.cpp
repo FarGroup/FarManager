@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.92 26.09.2001 $ */
+/* Revision: 1.93 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     + Полиция 4 - Параметры внешних модулей
     + Полиция 20 - Игнорировать путь к персональным плагинам
@@ -1974,7 +1976,7 @@ void PluginsSet::Configure(int StartPos)
             struct MenuItem ListItem;
             memset(&ListItem,0,sizeof(ListItem));
             char Name[sizeof(ListItem.Name)];
-            strncpy(Name,NullToEmpty(Info.PluginConfigStrings[J]),sizeof(Name));
+            strncpy(Name,NullToEmpty(Info.PluginConfigStrings[J]),sizeof(Name)-1);
             if (!HotKeysPresent)
               strcpy(ListItem.Name,Name);
             else
@@ -2137,7 +2139,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           struct MenuItem ListItem;
           memset(&ListItem,0,sizeof(ListItem));
           char Name[sizeof(ListItem.Name)];
-          strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name));
+          strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name)-1);
           if (!HotKeysPresent)
             strcpy(ListItem.Name,Name);
           else

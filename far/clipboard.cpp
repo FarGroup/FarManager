@@ -5,12 +5,14 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.03 25.05.2001 $ */
+/* Revision: 1.04 25.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   06.05.2001 DJ
     ! перетрях #include
   23.01.2001 SVS
@@ -190,13 +192,13 @@ char* WINAPI PasteFromClipboardEx(int max)
       {
         if (ReadType==CF_TEXT)
         {
-          strncpy(ClipText,ClipAddr,BufferSize);
+          strncpy(ClipText,ClipAddr,BufferSize-1);
           CharToOem(ClipText,ClipText);
           ClipText[BufferSize]=0;
         }
         else
         {
-          strncpy(ClipText,ClipAddr,BufferSize);
+          strncpy(ClipText,ClipAddr,BufferSize-1);
           ClipText[BufferSize]=0;
         }
       }

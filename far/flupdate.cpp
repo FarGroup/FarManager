@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.13 26.09.2001 $ */
+/* Revision: 1.14 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     + Opt.AutoUpdateLimit -  выше этого количество не обновлять панели.
   05.09.2001 SVS
@@ -283,7 +285,7 @@ void FileList::ReadFileNames(int KeepSelection)
       {
         char Owner[NM];
         GetFileOwner(*ComputerName ? ComputerName:NULL,CurPtr->Name,Owner);
-        strncpy(CurPtr->Owner,Owner,sizeof(CurPtr->Owner));
+        strncpy(CurPtr->Owner,Owner,sizeof(CurPtr->Owner)-1);
       }
       else
         *CurPtr->Owner=0;

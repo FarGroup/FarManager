@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.60 26.09.2001 $ */
+/* Revision: 1.61 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     + Panel::NeedUpdatePanel() - нужно ли обновлять панели с учетом нового
       параметра Opt.AutoUpdateLimit
@@ -396,7 +398,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           ChDiskItem.SetSelect(I==Pos);
         else
           ChDiskItem.SetSelect(MenuLine==Pos);
-        strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
+        strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
         if (strlen(MenuText)>4)
           ShowSpecial=TRUE;
 
@@ -457,7 +459,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
                   PluginTextNumber+'0', ShowSpecial ? PluginText:"");
           /* IS $ */
-          strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
+          strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
           ChDiskItem.UserDataSize=0;
           ChDiskItem.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
           PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;
@@ -493,7 +495,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   PluginTextNumber>9 ? AdditionalHotKey[(AHKPos++)%AHKSize]:
                   PluginTextNumber+'0', ShowSpecial ? PluginText:"");
           /* IS $ */
-          strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
+          strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
           ChDiskItem.UserDataSize=0;
           ChDiskItem.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
           PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;

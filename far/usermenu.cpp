@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.46 05.09.2001 $ */
+/* Revision: 1.47 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Ћевый размер при использовании strncpy
   05.09.2001 VVM
     ! ѕри показе заголовка обрабатываем макроподстановки
   03.09.2001 VVM
@@ -584,7 +586,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
         strcat(MenuText,SubMenuSymbol);
 //_SVS(SysLog("%2d - '%s'",HiStrlen(MenuText),MenuText));
       }
-      strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
+      strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name)-1);
       UserMenuItem.SetSelect(NumLine==MenuPos);
       UserMenuItem.Flags&=~LIF_SEPARATOR;
     }
@@ -626,7 +628,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
       */
       char MenuTitle[128];
       if(Title && *Title)
-        strncpy(MenuTitle,Title,sizeof(MenuTitle));
+        strncpy(MenuTitle,Title,sizeof(MenuTitle)-1);
       else
         switch (MenuMode)
         {
@@ -1024,7 +1026,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
       sprintf(CommandName,"Command%d",CommandNumber);
       if (!GetRegKey(ItemKey,CommandName,Command,"",sizeof(Command)))
         break;
-      strncpy(EditDlg[7+CommandNumber].Data,Command,sizeof(EditDlg[0].Data));
+      strncpy(EditDlg[7+CommandNumber].Data,Command,sizeof(EditDlg[0].Data)-1);
       CommandNumber++;
     }
   }

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.93 22.09.2001 $ */
+/* Revision: 1.94 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Ћевый размер при использовании strncpy
   22.09.2001 OT
     ¬ызов Viewer и Editor из меню плагина засовывает куда-то в background window
   21.09.2001 SVS
@@ -604,7 +606,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       for (I=0;I<ItemsNumber;I++)
       {
         CurItem.Flags=ItemEx[I].Flags;
-        strncpy(CurItem.Name,ItemEx[I].Text,sizeof(CurItem.Name));
+        strncpy(CurItem.Name,ItemEx[I].Text,sizeof(CurItem.Name)-1);
         FarMenu.AddItem(&CurItem);
       }
     }
@@ -614,7 +616,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         CurItem.Flags=Item[I].Checked?(LIF_CHECKED|(Item[I].Checked&0xFFFF)):0;
         CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
         CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
-        strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name));
+        strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
         FarMenu.AddItem(&CurItem);
       }
 
@@ -1206,7 +1208,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
 
     {
       char DirName[512];
-      strncpy(DirName,Dir,sizeof(DirName));
+      strncpy(DirName,Dir,sizeof(DirName)-1);
       TruncStr(DirName,30);
       CenterStr(DirName,DirName,30);
       SetCursorType(FALSE,0);
@@ -1275,7 +1277,7 @@ void ScanPluginDir()
     StopSearch=TRUE;
 
   char DirName[NM];
-  strncpy(DirName,PluginSearchPath,sizeof(DirName));
+  strncpy(DirName,PluginSearchPath,sizeof(DirName)-1);
   DirName[sizeof(DirName)-1]=0;
   for (I=0;DirName[I]!=0;I++)
     if (DirName[I]=='\x1')

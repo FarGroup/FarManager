@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.92 26.09.2001 $ */
+/* Revision: 1.93 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     ! немного SysLog для выявления бага с текущим каталогом
   10.09.2001 SVS
@@ -27,7 +29,7 @@ Modify:
   20.08.2001 VVM
     ! Обработка прокрутки с альтом.
   17.08.2001 OT
-	- не учел в прошлом исправлении такой клавиши как Enter :(
+  - не учел в прошлом исправлении такой клавиши как Enter :(
   16.08.2001 OT
     - исправление наведенного предыдущим патчем бага, связанного с
       пропаданием панели в Network browser.
@@ -927,7 +929,7 @@ int FileList::ProcessKey(int Key)
                     strcpy(temp,FileName);
                     *strrchr(temp,'\\')=0;
                     LocalStrupr(temp);
-                    strncpy(FileName,temp,strlen(temp));
+                    strcpy(FileName,temp);
                 }
               }
               if (ViewSettings.FileUpperToLowerCase)
@@ -1690,9 +1692,9 @@ int FileList::ProcessKey(int Key)
       /* $ 09.04.2001 SVS
          Не перерисовываем, если ChangeDir закрыла панель
       */
-	  /* $ 16.08.2001 OT
-		 Перерисовываем всегда ! ( убран if, обрамляющий ChangeDir(".."))
-	  */
+    /* $ 16.08.2001 OT
+     Перерисовываем всегда ! ( убран if, обрамляющий ChangeDir(".."))
+    */
       ChangeDir("..");
       /* OT $ */
       /* $ 24.04.2001 IS
@@ -2015,7 +2017,7 @@ BOOL FileList::ChangeDir(char *NewDir)
           При выходе из Dir2 вызывалось меню дисков.
       */
       char RootDir[NM],TempDir[NM];
-      strncpy(TempDir,CurDir,NM);
+      strncpy(TempDir,CurDir,sizeof(TempDir)-1);
       TempDir[NM-1]=0;
       AddEndSlash(TempDir);
       GetPathRoot(TempDir,RootDir);
@@ -2035,7 +2037,7 @@ BOOL FileList::ChangeDir(char *NewDir)
              для правильного определения типа драйва.
         */
         char DirName[NM];
-        strncpy(DirName,CurDir,NM);
+        strncpy(DirName,CurDir,sizeof(DirName)-1);
         AddEndSlash(DirName);
         if(Opt.PgUpChangeDisk &&
           (GetDriveType(DirName) != DRIVE_REMOTE ||

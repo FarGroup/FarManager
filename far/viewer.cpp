@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.77 20.09.2001 $ */
+/* Revision: 1.78 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   20.09.01 IS
     - Баг: при обработке 0x0D не учитывали левую границу при свертке
   15.09.2001 tran
@@ -1997,7 +1999,7 @@ void Viewer::Search(int Next,int FirstChar)
   if (ViewFile==NULL || Next && *LastSearchStr==0)
     return;
 
-  strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data));
+  strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data)-1);
   if(VM.Hex && !Next) // при первом поиске все зависит от режима
   {
     SearchDlg[4].Selected=FALSE;
@@ -2043,7 +2045,7 @@ void Viewer::Search(int Next,int FirstChar)
     if (Dlg.GetExitCode()!=10)
       return;
   }
-  strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
+  strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr)-1);
   SearchHex=SearchDlg[5].Selected;
   Case=SearchDlg[6].Selected;
   /* $ 01.08.2000 KM
@@ -2053,7 +2055,7 @@ void Viewer::Search(int Next,int FirstChar)
   /* KM $ */
   ReverseSearch=SearchDlg[8].Selected;
 
-  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
+  strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr)-1);
   LastSearchHex=SearchHex;
   LastSearchCase=Case;
   /* $ 01.08.2000 KM

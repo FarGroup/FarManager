@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.17 14.09.2001 $ */
+/* Revision: 1.18 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   14.09.2001 SVS
     ! Отключаемые исключения
   09.09.2001 SVS
@@ -184,8 +186,8 @@ int WINAPI GetSearchReplaceString(
       ReplaceDlg[4].Flags&=~DIF_HISTORY;
     }
 
-    strncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data));
-    strncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data));
+    strncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data)-1);
+    strncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data)-1);
 
     if(Case)
       ReplaceDlg[6].Selected=*Case;
@@ -248,8 +250,8 @@ int WINAPI GetSearchReplaceString(
     if (Dlg.GetExitCode()!=10)
       return FALSE;
 
-    strncpy((char *)SearchStr,ReplaceDlg[2].Data,LenSearchStr);
-    strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,LenReplaceStr);
+    strncpy((char *)SearchStr,ReplaceDlg[2].Data,LenSearchStr-1);
+    strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,LenReplaceStr-1);
     if(Case)       *Case=ReplaceDlg[6].Selected;
     if(WholeWords) *WholeWords=ReplaceDlg[7].Selected;
     if(Reverse)    *Reverse=ReplaceDlg[8].Selected;
@@ -292,7 +294,7 @@ int WINAPI GetSearchReplaceString(
       SearchDlg[2].Flags&=~DIF_HISTORY;
     }
 
-    strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data));
+    strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
 
     if(Case)
       SearchDlg[4].Selected=*Case;
@@ -355,7 +357,7 @@ int WINAPI GetSearchReplaceString(
     if (Dlg.GetExitCode()!=8)
       return FALSE;
 
-    strncpy((char *)SearchStr,SearchDlg[2].Data,LenSearchStr);
+    strncpy((char *)SearchStr,SearchDlg[2].Data,LenSearchStr-1);
     if(ReplaceStr) *ReplaceStr=0;
     if(Case)       *Case=SearchDlg[4].Selected;
     if(WholeWords) *WholeWords=SearchDlg[5].Selected;
@@ -468,7 +470,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
   else
   {
     if(SrcText)
-      strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
+      strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data)-1);
     StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
   }
 
@@ -507,7 +509,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
       return(FALSE);
     if(!(StrDlg[2].Flags&DIF_VAREDIT))
     {
-      strncpy(DestText,StrDlg[2].Data,DestLength);
+      strncpy(DestText,StrDlg[2].Data,DestLength-1);
       DestText[DestLength-1]=0;
     }
     return(TRUE);
@@ -565,9 +567,9 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
   strcpy(PassDlg[6].Data,MSG(MOk));
   strcpy(PassDlg[7].Data,MSG(MCancel));
   if (Title!=NULL)
-    strncpy(PassDlg[0].Data,Title,sizeof(PassDlg[0].Data));
-  strncpy(PassDlg[2].Data,(Flags&GNP_USELAST)?LastName:UserName,sizeof(LastName));
-  strncpy(PassDlg[4].Data,(Flags&GNP_USELAST)?LastPassword:Password,sizeof(LastPassword));
+    strncpy(PassDlg[0].Data,Title,sizeof(PassDlg[0].Data)-1);
+  strncpy(PassDlg[2].Data,(Flags&GNP_USELAST)?LastName:UserName,sizeof(LastName)-1);
+  strncpy(PassDlg[4].Data,(Flags&GNP_USELAST)?LastPassword:Password,sizeof(LastPassword)-1);
 
   {
     Dialog Dlg(PassDlg,sizeof(PassDlg)/sizeof(PassDlg[0]));
@@ -584,8 +586,8 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
     return(FALSE);
 
   // запоминаем всегда.
-  strcpy(LastName,strncpy(UserName,PassDlg[2].Data,sizeof(LastName)));
-  strcpy(LastPassword,strncpy(Password,PassDlg[4].Data,sizeof(LastPassword)));
+  strcpy(LastName,strncpy(UserName,PassDlg[2].Data,sizeof(LastName)-1));
+  strcpy(LastPassword,strncpy(Password,PassDlg[4].Data,sizeof(LastPassword)-1));
 
   // Convert Name and Password to Ansi
   if(!(Flags&GNP_NOOEMTOCHAR))

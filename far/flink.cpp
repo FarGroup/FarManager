@@ -5,10 +5,14 @@ flink.cpp
 
 */
 
-/* Revision: 1.22 26.09.2001 $ */
+/* Revision: 1.23 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    ! FarGetRepasePointInfo: выделяем столько памяти, сколько нужно
+    - FarGetRepasePointInfo: использовали размер указателя, а не размер буфера
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     ! В FarGetRepasePointInfo буфер выделется динамически (alloca)
   24.09.2001 SVS
@@ -388,12 +392,19 @@ int WINAPI FarGetRepasePointInfo(const char *Src,char *Dest,int DestSize)
      WinVer.dwMajorVersion >= 5 &&
      Src && *Src)
   {
-    char *TempDest=(char *)alloca(Max((int)strlen(Src)*2,(int)2048));
+    /* $ 27.09.2001 IS
+       ! Выделяем столько памяти, сколько нужно.
+       - Использовали размер указателя, а не размер буфера.
+       - Указывали не верный размер для strncpy
+    */
+    int TempSize=Max((int)(strlen(Src)+1),DestSize);
+    char *TempDest=(char *)alloca(TempSize);
     strcpy(TempDest,Src);
     AddEndSlash(TempDest);
-    DWORD Size=GetJunctionPointInfo(TempDest,TempDest,sizeof(TempDest));
+    DWORD Size=GetJunctionPointInfo(TempDest,TempDest,TempSize);
     if(Size && Dest)
-      strncpy(Dest,TempDest,DestSize);
+      strncpy(Dest,TempDest,DestSize-1);
+    /* IS $ */
     return Size;
   }
   return 0;
@@ -579,7 +590,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
       {
         if (!strncmp(Name,"\\??\\",4))
         {
-          strncpy(SubstName,Name+4,SubstSize);
+          strncpy(SubstName,Name+4,SubstSize-1);
           return TRUE;
         }
       }
@@ -587,7 +598,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
       {
         if(Name[1] == ':' && Name[2] == '\\')
         {
-          strncpy(SubstName,Name,SubstSize);
+          strncpy(SubstName,Name,SubstSize-1);
           return TRUE;
         }
       }
@@ -600,7 +611,7 @@ BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize)
 void GetPathRootOne(const char *Path,char *Root)
 {
   char TempRoot[1024],*ChPtr;
-  strncpy(TempRoot,Path,NM);
+  strncpy(TempRoot,Path,NM-1);
 
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
@@ -651,7 +662,7 @@ void GetPathRootOne(const char *Path,char *Root)
       else
         if ((ChPtr=strchr(TempRoot,':'))!=NULL)
           strcpy(ChPtr+1,"\\");
-  strncpy(Root,TempRoot,NM);
+  strncpy(Root,TempRoot,NM-1);
 }
 
 // полный проход ПО!!!
@@ -663,7 +674,7 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
     DWORD FileAttr;
     char JuncName[NM];
 
-    strncpy(TempRoot,Path,1024);
+    strncpy(TempRoot,Path,sizeof(TempRoot)-1);
     TmpPtr=TempRoot;
     while(strlen(TempRoot) > 2)
     {

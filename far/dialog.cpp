@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.160 16.09.2001 $ */
+/* Revision: 1.161 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   16.09.2001 SVS
    ! Отключаемые исключения
   08.09.2001 VVM
@@ -1231,9 +1233,9 @@ int Dialog::InitDialogObjects(int ID)
           {
             // берем только первый пункт для области редактирования
             if(ItemFlags&DIF_VAREDIT)
-              strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength);
+              strncpy((char *)CurItem->Ptr.PtrData, ListItems[J].Text,CurItem->Ptr.PtrLength-1);
             else
-              strncpy(CurItem->Data, ListItems[J].Text,sizeof(CurItem->Data));
+              strncpy(CurItem->Data, ListItems[J].Text,sizeof(CurItem->Data)-1);
             break;
           }
         }
@@ -4708,7 +4710,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 {
                   memset(Items,0,sizeof(struct FarListItem));
                   Items->Flags=ListMenuItem->Flags;
-                  strncpy(Items->Text,ListMenuItem->Name,sizeof(Items->Text));
+                  strncpy(Items->Text,ListMenuItem->Name,sizeof(Items->Text)-1);
                   return TRUE;
                 }
               }

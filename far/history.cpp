@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.12 26.07.2001 $ */
+/* Revision: 1.13 27.07.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   24.07.2001 SVS
@@ -88,8 +90,8 @@ void History::AddToHistory(char *Str,char *Title,int Type)
 void History::AddToHistoryLocal(char *Str,char *Title,int Type)
 {
   struct HistoryRecord AddRecord;
-  strncpy(AddRecord.Name,Str,sizeof(AddRecord.Name));
-  strncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title));
+  strncpy(AddRecord.Name,Str,sizeof(AddRecord.Name)-1);
+  strncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1);
   AddRecord.Type=Type;
   RemoveTrailingSpaces(AddRecord.Name);
   RemoveTrailingSpaces(AddRecord.Title);

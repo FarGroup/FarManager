@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.57 16.09.2001 $ */
+/* Revision: 1.58 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   16.09.2001 SVS
     - BugZ#26: Динамическое изменение ширины списка истории
       (не вычищенные остатки предыдущих испытаний :-)
@@ -66,8 +68,8 @@ Modify:
       будет вызываться)
   30.06.2001 KM
     ! Языковое уточненение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
-	+ GetSelectPos(struct FarListPos *)
-	+ SetSelectPos(struct FarListPos *)
+  + GetSelectPos(struct FarListPos *)
+  + SetSelectPos(struct FarListPos *)
     ! Небольшое изменение в функции UpdateRequired: теперь она возвращает
       TRUE и при условии, что выставлен флаг VMENU_UPDATEREQUIRED
   29.06.2001 SVS
@@ -272,7 +274,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   VMenuProc=Proc;
 
   if (Title!=NULL)
-    strncpy(VMenu::Title,Title, sizeof(VMenu::Title));
+    strncpy(VMenu::Title,Title, sizeof(VMenu::Title)-1);
   else
     *VMenu::Title=0;
 
@@ -883,7 +885,7 @@ int  VMenu::AddItem(char *NewStrItem)
   else
   {
     FarListItem0.Flags=0;
-    strncpy(FarListItem0.Text,NewStrItem,sizeof(FarListItem0.Text));
+    strncpy(FarListItem0.Text,NewStrItem,sizeof(FarListItem0.Text)-1);
   }
   FarList0.ItemsNumber=1;
   FarList0.Items=&FarListItem0;
@@ -920,7 +922,7 @@ struct FarListItem *VMenu::MenuItem2FarList(struct MenuItem *MItem,
   {
     memset(FItem,0,sizeof(struct FarListItem));
     FItem->Flags=MItem->Flags;
-    strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text));
+    strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text)-1);
     return FItem;
   }
   return NULL;
@@ -933,7 +935,7 @@ struct MenuItem *VMenu::FarList2MenuItem(struct FarListItem *FItem,
   {
     memset(MItem,0,sizeof(struct MenuItem));
     MItem->Flags=FItem->Flags;
-    strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name));
+    strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
     // А здесь надо вычислять AmpPos????
     return MItem;
   }
@@ -1300,7 +1302,7 @@ void VMenu::SetTitle(const char *Title)
   int Length;
   VMFlags|=VMENU_UPDATEREQUIRED;
   Title=NullToEmpty(Title);
-  strncpy(VMenu::Title,Title,sizeof(VMenu::Title));
+  strncpy(VMenu::Title,Title,sizeof(VMenu::Title)-1);
   Length=strlen(Title)+2;
   if (Length > MaxLength)
     MaxLength=Length;
@@ -1312,7 +1314,7 @@ void VMenu::SetTitle(const char *Title)
 char *VMenu::GetTitle(char *Dest,int Size)
 {
   if (Dest && *VMenu::Title)
-    return strncpy(Dest,VMenu::Title,Size);
+    return strncpy(Dest,VMenu::Title,Size-1);
   return NULL;
 }
 
@@ -1322,7 +1324,7 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
   int Length;
   VMFlags|=VMENU_UPDATEREQUIRED;
   BottomTitle=NullToEmpty(BottomTitle);
-  strncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle));
+  strncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle)-1);
   Length=strlen(BottomTitle)+2;
   if (Length > MaxLength)
     MaxLength=Length;
@@ -1334,7 +1336,7 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
 char *VMenu::GetBottomTitle(char *Dest,int Size)
 {
   if (Dest && *VMenu::BottomTitle)
-    return strncpy(Dest,VMenu::BottomTitle,Size);
+    return strncpy(Dest,VMenu::BottomTitle,Size-1);
   return NULL;
 }
 

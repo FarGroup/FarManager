@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.92 26.09.2001 $ */
+/* Revision: 1.93 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Ћевый размер при использовании strncpy
   26.09.2001 SVS
     ! Ќемного увеличим размер временного буфера в ConvertNameToReal()
   24.09.2001 SVS
@@ -1127,7 +1129,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
   }
   if(IsAddEndSlash) // если не просили - удалим.
     TempDest[strlen(TempDest)-1]=0;
-  strncpy(Dest,TempDest,DestSize);
+  strncpy(Dest,TempDest,DestSize-1);
   return Ret;
 }
 
@@ -1518,17 +1520,17 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
         ”чтем то, что ExpandEnvironmentStrings возвращает значени€ переменных
         окружени€ в ANSI
    */
-   char *tmpDest=(char *)alloca(size+1),
+   char *tmpDest=(char *)alloca(size),
         *tmpSrc=(char *)alloca(strlen(src)+1);
    if(tmpDest && tmpSrc)
    {
      OemToChar(src, tmpSrc);
 
      if(ExpandEnvironmentStrings(tmpSrc,tmpDest,size))
-       strncpy(dest, tmpDest, size);
+       strncpy(dest, tmpDest, size-1);
      else
      {
-       strncpy(tmpDest, tmpSrc, size);
+       strncpy(tmpDest, tmpSrc, size-1);
        strcpy(dest, tmpDest);
      }
      CharToOem(dest, dest);

@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.11 22.06.2001 $ */
+/* Revision: 1.12 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   22.06.2001
     ! ProcessMouse: Owner меняем на FrameManager.
   14.06.2001 OT
@@ -163,7 +165,7 @@ void KeyBar::DisplayObject()
 void KeyBar::SetGroup(int Group,char **Key,int KeyCount)
 {
   for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
-    strncpy (KeyTitles [Group][i], Key [i], sizeof (KeyTitles [Group][i]));
+    strncpy (KeyTitles [Group][i], Key [i], sizeof (KeyTitles [Group][i])-1);
   KeyCounts [Group]=KeyCount;
 }
 
@@ -179,7 +181,7 @@ void KeyBar::ClearGroup(int Group)
 */
 void KeyBar::Change(int Group,char *NewStr,int Pos)
 {
-  strncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos]));
+  strncpy (KeyTitles [Group][Pos], NewStr, sizeof (KeyTitles [Group][Pos])-1);
 }
 /* SVS $ */
 
@@ -193,7 +195,7 @@ void KeyBar::SetAllGroup (int Group, int StartIndex, int Count)
   if (Count > KEY_COUNT)
     Count = KEY_COUNT;
   for (int i=0, Index=StartIndex; i<Count; i++, Index++)
-    strncpy (KeyTitles [Group][i], MSG (Index), sizeof (KeyTitles [Group][i]));
+    strncpy (KeyTitles [Group][i], MSG (Index), sizeof (KeyTitles [Group][i])-1);
   KeyCounts [Group] = Count;
 }
 

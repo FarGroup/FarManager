@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.21 26.09.2001 $ */
+/* Revision: 1.22 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     + DeleteEndSlash (с подачи IS)
     ! AddEndSlash имеет возвращаемый тип BOOL
@@ -250,7 +252,7 @@ int ConvertWildcards(const char *src,char *Dest, int SelectedFolderNameLength)
   if (strchr(WildName,'*')==NULL && strchr(WildName,'?')==NULL)
     return(FALSE);
 
-  strncpy(Src, src, sizeof(Src));
+  strncpy(Src, src, sizeof(Src)-1);
 
   if (SelectedFolderNameLength!=0)
   {

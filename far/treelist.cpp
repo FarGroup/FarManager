@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.20 24.09.2001 $ */
+/* Revision: 1.21 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   24.09.2001 VVM
     ! Писать сообщение о чтении дерева только, если это заняло более 500 мсек.
   07.08.2001 SVS
@@ -989,7 +991,7 @@ int TreeList::ReadTreeFile()
       fclose(TreeFile);
       return(FALSE);
     }
-    strncpy(ListData[TreeCount++].Name,DirName,sizeof(ListData[0].Name));
+    strncpy(ListData[TreeCount++].Name,DirName,sizeof(ListData[0].Name)-1);
   }
   fclose(TreeFile);
 
@@ -1104,7 +1106,7 @@ void TreeList::AddTreeName(char *Name)
     }
     else
       if (CachePos<TreeCache.TreeCount)
-        strncpy(DirName,&TreeCache.ListName[NM*CachePos++],sizeof(DirName));
+        strncpy(DirName,&TreeCache.ListName[NM*CachePos++],sizeof(DirName)-1);
       else
         break;
 
@@ -1119,7 +1121,7 @@ void TreeList::AddTreeName(char *Name)
       return;
     }
     ListName=NewPtr;
-    strncpy(&ListName[NM*TreeCount++],DirName,NM);
+    strncpy(&ListName[NM*TreeCount++],DirName,NM-1);
   }
   /* $ 13.07.2000 SVS
      не надо смешивать new/delete с realloc
@@ -1149,7 +1151,7 @@ void TreeList::DelTreeName(char *Name)
   *DirName=0;
   for (CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    strncpy(DirName,&TreeCache.ListName[NM*CachePos],sizeof(DirName));
+    strncpy(DirName,&TreeCache.ListName[NM*CachePos],sizeof(DirName)-1);
     if (LocalStrnicmp(Name,DirName,Length=strlen(Name))==0 &&
         (DirName[Length]==0 || DirName[Length]=='\\'))
       continue;
@@ -1164,7 +1166,7 @@ void TreeList::DelTreeName(char *Name)
       return;
     }
     ListName=NewPtr;
-    strncpy(&ListName[NM*TreeCount++],DirName,NM);
+    strncpy(&ListName[NM*TreeCount++],DirName,NM-1);
   }
   /* $ 13.07.2000 SVS
      не надо смешивать new/delete с realloc
@@ -1285,7 +1287,7 @@ void TreeList::ReadCache(char *TreeRoot)
       return;
     }
     TreeCache.ListName=ListName;
-    strncpy(&TreeCache.ListName[NM*TreeCache.TreeCount++],DirName,NM);
+    strncpy(&TreeCache.ListName[NM*TreeCache.TreeCount++],DirName,NM-1);
   }
   fclose(TreeFile);
 }

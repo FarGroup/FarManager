@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.15 26.07.2001 $ */
+/* Revision: 1.16 27.07.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -291,7 +293,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   {
     if (GroupData[GroupPos].Group>DEFAULT_SORT_GROUP)
       break;
-    strncpy(ListItem.Name,GetMask(GroupPos),sizeof(ListItem.Name));
+    strncpy(ListItem.Name,GetMask(GroupPos),sizeof(ListItem.Name)-1);
     ListItem.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem);
     GroupPos++;
@@ -310,7 +312,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   memset(&ListItem2,0,sizeof(ListItem2));
   for (;GroupPos<GroupCount;I++)
   {
-    strncpy(ListItem2.Name,GetMask(GroupPos),sizeof(ListItem2.Name));
+    strncpy(ListItem2.Name,GetMask(GroupPos),sizeof(ListItem2.Name)-1);
     ListItem2.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem2);
     GroupPos++;

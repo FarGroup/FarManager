@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.17 26.07.2001 $ */
+/* Revision: 1.18 27.07.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -360,7 +362,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
               for (int I=FilterDataCount-1;I>=SelPos;I--)
                 FilterData[I+1]=FilterData[I];
               FilterDataCount++;
-              strncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title));
+              strncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title)-1);
               FilterData[SelPos].Masks=Ptr;
               strcpy(FilterData[SelPos].Masks,Masks);
               FilterData[SelPos].LeftPanelInclude=0;

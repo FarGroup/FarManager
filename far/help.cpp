@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.43 24.09.2001 $ */
+/* Revision: 1.44 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Ћевый размер при использовании strncpy
   24.09.2001 VVM
     ! ќбрежем длинные строки при показе. “акое будет только при длинных ссылках...
   19.09.2001 VVM
@@ -516,7 +518,7 @@ void Help::AddLine(char *Line)
   if (NewHelpData==NULL)
     return;
   HelpData=NewHelpData;
-  strncpy(HelpData+StrCount*MAX_HELP_STRING_LENGTH,Line,MAX_HELP_STRING_LENGTH);
+  strncpy(HelpData+StrCount*MAX_HELP_STRING_LENGTH,Line,MAX_HELP_STRING_LENGTH-1);
   StrCount++;
 }
 
@@ -667,7 +669,7 @@ void Help::OutString(char *Str)
           SetColor(COL_HELPSELECTEDTOPIC);
           if (Str[1]=='@')
           {
-            strncpy(StackData.SelTopic,Str+2,sizeof(StackData.SelTopic));
+            strncpy(StackData.SelTopic,Str+2,sizeof(StackData.SelTopic)-1);
             char *EndPtr=strchr(StackData.SelTopic,'@');
             /* $ 25.08.2000 SVS
                учтем, что может быть такой вариант: @@ или \@
@@ -1353,7 +1355,7 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
                 HelpTopic);
       }
       else
-        strncpy(Topic,HelpTopic,512);
+        strncpy(Topic,HelpTopic,511);
 
       if(*Topic==HelpBeginLink)
       {

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.62 26.09.2001 $ */
+/* Revision: 1.63 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     - Бага с Ctrl-F10, когда указывался корень диска.
   08.09.2001 IS
@@ -595,7 +597,7 @@ int FileEditor::ProcessKey(int Key)
           if(strchr(FileName,'\\') || strchr(FileName,'/'))
           {
             char DirTmp[NM],ADir[NM],PDir[NM],NameFile[NM],*NameTmp;
-            strncpy(DirTmp,FileName,NM);
+            strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
             NameTmp=PointToName(DirTmp);
             if(NameTmp>DirTmp)
             {

@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.41 08.09.2001 $ */
+/* Revision: 1.42 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Ћевый размер при использовании strncpy
   08.09.2001 IS
     + ƒополнительный параметр у второго конструктора: DisableHistory
   17.08.2001 KM
@@ -304,7 +306,7 @@ int FileViewer::ProcessKey(int Key)
           ProcessKey(KEY_F10);
           if(strchr(FileName,'\\') || strchr(FileName,'/'))
           {
-            strncpy(DirTmp,FileName,NM);
+            strncpy(DirTmp,FileName,sizeof(DirTmp)-1);
             NameTmp=PointToName(DirTmp);
             if(NameTmp>DirTmp)NameTmp[-1]=0;
             CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.95 26.09.2001 $ */
+/* Revision: 1.96 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 SVS
     + Opt.AutoUpdateLimit -  выше этого количество не обновлять панели.
       По умолчанию = 0 (всегда делать автоапдейт)
@@ -562,7 +564,7 @@ void InterfaceSettings()
   if ((Opt.ScreenSaverTime=atoi(CfgDlg[7].Data))<=0)
     Opt.ScreenSaver=Opt.ScreenSaverTime=0;
   Opt.UsePromptFormat=CfgDlg[11].Selected;
-  strncpy(Opt.PromptFormat,CfgDlg[12].Data,sizeof(Opt.PromptFormat));
+  strncpy(Opt.PromptFormat,CfgDlg[12].Data,sizeof(Opt.PromptFormat)-1);
   Opt.AltGr=CfgDlg[13].Selected;
   Opt.CopyShowTotal=CfgDlg[14].Selected;
   Opt.ShowMenuScrollbar=CfgDlg[15].Selected;
@@ -681,7 +683,7 @@ void SetDizConfig()
   Dlg.Process();
   if (Dlg.GetExitCode()!=12)
     return;
-  strncpy(Opt.Diz.ListNames,DizDlg[2].Data,sizeof(Opt.Diz.ListNames));
+  strncpy(Opt.Diz.ListNames,DizDlg[2].Data,sizeof(Opt.Diz.ListNames)-1);
   if (DizDlg[8].Selected)
     Opt.Diz.UpdateMode=DIZ_NOT_UPDATE;
   else
@@ -782,7 +784,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
   }
 
   Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
-  strncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer));
+  strncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer)-1);
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
   Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
   /* $ 16.12.2000 IS
@@ -889,7 +891,7 @@ void EditorConfig(struct EditorOptions &EdOpt)
   }
 
   Opt.UseExternalEditor=CfgDlg[2].Selected;
-  strncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor));
+  strncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
   EdOpt.ExpandTabs=CfgDlg[7].Selected;
   EdOpt.PersistentBlocks=CfgDlg[8].Selected;
   EdOpt.DelRemovesBlocks=CfgDlg[9].Selected;

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.40 26.09.2001 $ */
+/* Revision: 1.41 27.09.2001 $ */
 
 /*
 Modify:
+  27.09.2001 IS
+    - Левый размер при использовании strncpy
   26.09.2001 VVM
     ! Перерисовать панели, если были изменения. В догонку к предыдущему патчу.
   23.09.2001 VVM
@@ -178,14 +180,14 @@ int CommandLine::ProcessKey(int Key)
   {
     char Command[1024];
     if (LastCmdPartLength==-1)
-      strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr));
+      strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
     strcpy(Command,LastCmdStr);
     int CurCmdPartLength=strlen(Command);
     CtrlObject->CmdHistory->GetSimilar(Command,LastCmdPartLength);
     if (LastCmdPartLength==-1)
     {
       LastCmdPartLength=CurCmdPartLength;
-      strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr));
+      strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
     }
     CmdStr.SetString(Command);
     Show();
