@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.07 18.12.2000 $ */
+/* Revision: 1.08 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 SVS
+    + В ProcessOSCommands добавлена обработка
+       "IF [NOT] EXIST filename command"
+       "IF [NOT] DEFINED variable command"
   18.12.2000 SVS
     - Написано же "Ctrl-D - Символ вправо"!
     + Сбрасываем выделение при редактировании на некоторых клавишах
@@ -384,6 +388,112 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
 }
 
 
+/* $ 14.01.2001 SVS
+   + В ProcessOSCommands добавлена обработка
+     "IF [NOT] EXIST filename command"
+     "IF [NOT] DEFINED variable command"
+
+   Эта функция предназначена для обработки вложенного IF`а
+   CmdLine - полная строка вида
+     if exist file if exist file2 command
+   Return - указатель на "command"
+            пуская строка - условие не выполнимо
+            NULL - не попался "IF" или ошибки в предложении, например
+                   не exist, а esist или предложение неполно.
+
+   DEFINED - подобно EXIST, но оперирует с переменными среды
+
+   Исходная строка (CmdLine) не модифицируется!!!
+*/
+char* WINAPI PrepareOSIfExist(char *CmdLine)
+{
+  if(!CmdLine || !*CmdLine)
+    return NULL;
+
+  char Cmd[1024], *PtrCmd=CmdLine, *CmdStart;
+  int Not=FALSE;
+  int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
+               // > 0 - эсть такая конструкция
+
+  while(1)
+  {
+    if (!PtrCmd || !*PtrCmd || memicmp(PtrCmd,"IF ",3))
+      break;
+
+    PtrCmd+=3; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+
+    if (memicmp(PtrCmd,"NOT ",4)==0)
+    {
+      Not=TRUE;
+      PtrCmd+=4; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+    }
+
+    if (*PtrCmd && !memicmp(PtrCmd,"EXIST ",6))
+    {
+      PtrCmd+=6; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      CmdStart=PtrCmd;
+      if(*PtrCmd == '"')
+        PtrCmd=strchr(PtrCmd+1,'"');
+
+      if(PtrCmd && *PtrCmd)
+      {
+        PtrCmd=strchr(PtrCmd,' ');
+        if(PtrCmd && *PtrCmd && *PtrCmd == ' ')
+        {
+          char ExpandedStr[8192];
+          memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
+          Cmd[PtrCmd-CmdStart]=0;
+          Unquote(Cmd);
+//SysLog(Cmd);
+          if (ExpandEnvironmentStrings(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
+          {
+            DWORD FileAttr=GetFileAttributes(ExpandedStr);
+//SysLog("%08X ExpandedStr=%s",FileAttr,ExpandedStr);
+            if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
+            {
+              while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
+              Exist++;
+            }
+            else
+              return "";
+          }
+        }
+      }
+    }
+    // "IF [NOT] DEFINED variable command"
+    else if (*PtrCmd && !memicmp(PtrCmd,"DEFINED ",8))
+    {
+      PtrCmd+=8; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
+      CmdStart=PtrCmd;
+      if(*PtrCmd == '"')
+        PtrCmd=strchr(PtrCmd+1,'"');
+
+      if(PtrCmd && *PtrCmd)
+      {
+        PtrCmd=strchr(PtrCmd,' ');
+        if(PtrCmd && *PtrCmd && *PtrCmd == ' ')
+        {
+          char ExpandedStr[8192];
+          memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
+          Cmd[PtrCmd-CmdStart]=0;
+          DWORD ERet=GetEnvironmentVariable(Cmd,ExpandedStr,sizeof(ExpandedStr));
+//SysLog(Cmd);
+          if(ERet && !Not || !ERet && Not)
+          {
+            while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
+            Exist++;
+          }
+          else
+            return "";
+        }
+      }
+    }
+  }
+  return Exist?PtrCmd:NULL;
+}
+/* SVS $ */
+
+
 int CommandLine::ProcessOSCommands(char *CmdLine)
 {
   Panel *SetPanel;
@@ -424,6 +534,27 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
     }
     return(TRUE);
   }
+  /* $ 14.01.2001 SVS
+     + В ProcessOSCommands добавлена обработка
+       "IF [NOT] EXIST filename command"
+       "IF [NOT] DEFINED variable command"
+  */
+  if (memicmp(CmdLine,"IF ",3)==0)
+  {
+    char *PtrCmd=PrepareOSIfExist(CmdLine);
+    // здесь PtrCmd - уже готовая команда, без IF
+    if(PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
+    {
+      CmdStr.SetString("");
+      GotoXY(X1,Y1);
+      mprintf("%*s",X2-X1+1,"");
+      Show();
+      return TRUE;
+    }
+    return FALSE;
+  }
+  /* SVS $ */
+
   if ((strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
       (isspace(CmdLine[Length]) || CmdLine[Length]=='\\' || strcmp(CmdLine+Length,"..")==0))
   {

@@ -34,6 +34,7 @@ $^#Copyright (C) 2000-2001 FAR Group.#
    ~Change drive menu~@DriveDlg@
 
    ~File associations~@FileAssoc@
+   ~Operating system commands~@OSCommands@
    ~Folder shortcuts~@FolderShortcuts@
    ~Sort groups~@SortGroups@
    ~File panel filter~@Filter@
@@ -1027,6 +1028,8 @@ in the ~Commands menu~@CmdMenu@.
                  after performing the command, FAR will restore it
         !@@!      Name of file with selected file names list
         !$!      Name of file with selected short file names list
+        !&       List of selected files
+        !&~~      List of selected short file names
         !:       Current drive
         !\       Current path
         !/       Short name of the current path
@@ -1045,6 +1048,21 @@ in the ~Commands menu~@CmdMenu@.
 to refer to passive panel. For example, !##!.! denotes a current file
 name on passive panel.
 
+    "!^" modifier specified before file association symbol forces it
+to refer to active panel. For example, !^!.! denotes a current file
+name on active panel, !##!\!^!.! - a file on passive panel with such
+name, as a name of current file on active panel.
+
+    The modifiers "!##" and "!^" work as triggers for assotiations,
+for instance:
+
+    if exist !##!\!^!.! diff -c -p !##!\!^!.! !\!.!
+
+    "If on passive panel exists such file, either as on active panel
+    under cursor, show the divergences between file on passive panel
+    and file on active panel,  regardless of name of current file on
+    passive panel"
+
   Notes:
 
   1. If no execute command is associated with file and
@@ -1052,7 +1070,11 @@ name on passive panel.
 is on, FAR tries to use Windows association for execution of this file type;
 
   2. You may define several associations for one file type and select
-the desired association from the menu.
+the desired association from the menu.  "IF EXIST" and "IF DEFINED"
+~commands~@OSCommands@ allow to do assotiations more "clever" - in the menu
+of assotiations will be enclosed only  assotiations, for which will be
+executed specified condition.
+
 
 @SystemSettings
 $ #System settings dialog#
@@ -1899,6 +1921,57 @@ special symbols should be used to denote the file name.
 
     For example, 'type !.!' will output to the screen all selected files,
 one at a time.
+
+    See also ~"Operating system commands"~@OSCommands@
+@OSCommands
+$ #Operating system commands#
+    FAR Manager by itself processes the following operating system commands:
+
+    #disk:#
+
+    To change current disk on panels on specified "disk".
+
+    #CD [disk:]path# or #CHDIR [disk:]path#
+
+    To change current path on panels on specified "path". If specified name of
+disk, is in the same way changed and disk. If the active panel shows a ~plugin~@Plugins@
+emulated file system, the command "CD" in the command line may be used to
+change the plugin file system folder. Unlike "CD" "CHDIR" command always
+treats the specified parameter as a real folder name regardless a file panel
+type.
+
+    #SET variable=[string]#
+
+    Set environment variable "variable" in the value "string". If "string" not
+specified, the variable ambience "variable" will be removed.
+
+    #IF [NOT] EXIST filename command#
+
+    Execute a command "command" if "filename" exists. Prefix "NOT" - carry out
+the command only if the condition is false.
+
+    #IF [NOT] DEFINED variable command#
+
+    The "DEFINED" conditional works just like "EXISTS" except it takes an
+environment variable name and returns true if the environment variable
+is defined.
+
+
+    Commands "IF" can be embedded, for instance command "command"
+
+    #if exist file1 if not exist file2 if exist variable command#
+
+    will be executed  if exists a file "file1" and does not exist a file
+"file2" and environment variable "variable" defined.
+
+    If syntax of commands differs from specified, FAR Manager will send
+a management operating system.
+
+    Enumerated commands work in:
+    - "~Command line~@CmdLineCmd@"
+    - "~Apply command~@ApplyCmd@"
+    - "~User menu~@UserMenu@"
+    - "~File associations~@FileAssoc@"
 
 @KeyMacro
 $ #Keyboard macros#

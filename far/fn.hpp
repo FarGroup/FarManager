@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.47 05.01.2001 $ */
+/* Revision: 1.48 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 SVS
+   + PrepareOSIfExist
   05.01.2001 SVS
    ! Функция GetSubstName переехала в flink.hpp
   04.01.2001 SVS
@@ -649,5 +651,7 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
                   int FileAttr);
 /* SVS $ */
 int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength);
+
+char* WINAPI PrepareOSIfExist(char *CmdLine);
 
 #endif  // __FARFUNC_HPP__

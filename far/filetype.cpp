@@ -5,12 +5,15 @@ filetype.cpp
 
 */
 
-/* Revision: 1.08 03.11.2000 $ */
+/* Revision: 1.09 14.01.2001 $ */
 
 /*
 Modify:
+  14.01.2001 SVS
+    + Интелектуальное поведение списка ассоциаций
+    + Модификаторы !&, !&~ и !^
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   01.11.2000 IS
@@ -46,9 +49,18 @@ static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
 static int GetDescriptionWidth();
 static void ReplaceVariables(char *Str);
 
+/* $ 14.01.2001 SVS
+   Добавим интелектуальности.
+   Если встречается "IF" и оно выполняется, то команда
+   помещается в список
+
+   Вызывается для F3, F4 - ассоциации
+   Enter в ком строке - ассоциации.
+*/
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish)
 {
   char Commands[32][512],Descriptions[32][128],Command[512];
+  int NumCommands[32];
   int CommandCount=0;
   for (int I=0;;I++)
   {
@@ -96,12 +108,28 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     TypesMenu.SetPosition(-1,-1,0,0);
 
     int DizWidth=GetDescriptionWidth();
+    int ActualCmdCount=0; // отображаемых ассоциаций в меню
 
     for (int I=0;I<CommandCount;I++)
     {
-      char CommandText[512],MenuText[512];
+      char CommandText[512],MenuText[512], *PtrCmd;
       strcpy(CommandText,Commands[I]);
       SubstFileName(CommandText,Name,ShortName,NULL,NULL,TRUE);
+
+      // все "подставлено", теперь проверим условия "if exist"
+      PtrCmd=PrepareOSIfExist(CommandText);
+      if(PtrCmd)
+      {
+        if(!*PtrCmd) // Во! Условие не выполнено!!!
+                     // (например, пока рассматривали менюху, в это время)
+                     // какой-то злобный чебурашка стер файл!
+          continue;
+        // прокинем "if exist"
+        memmove(CommandText,PtrCmd,strlen(PtrCmd)+1);
+      }
+      // запомним индекс оригинальной команды из мессива Commands
+      NumCommands[ActualCmdCount++]=I;
+
       if (DizWidth==0)
         *MenuText=0;
       else
@@ -121,11 +149,13 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       TypesMenuItem.Selected=(I==0);
       TypesMenu.AddItem(&TypesMenuItem);
     }
+    if(!ActualCmdCount)
+      return(TRUE);
     TypesMenu.Process();
     int ExitCode=TypesMenu.GetExitCode();
     if (ExitCode<0)
       return(TRUE);
-    strcpy(Command,Commands[ExitCode]);
+    strcpy(Command,Commands[NumCommands[ExitCode]]);
   }
 
   /* $ 02.09.2000 tran
@@ -133,6 +163,19 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   char ListName[NM*2],ShortListName[NM*2];
   {
     int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName);
+
+    // Снова все "подставлено", теперь проверим условия "if exist"
+    char *PtrCmd=PrepareOSIfExist(Command);
+    if(PtrCmd) // NULL - считаем что все УГУ
+    {
+      if(!*PtrCmd) // Во! Условие не выполнено!!!
+                   // (например, пока рассматривали менюху, в это время)
+                   // какой-то злобный чебурашка стер файл!
+        return TRUE;
+
+      // прокинем "if exist"
+      memmove(Command,PtrCmd,strlen(PtrCmd)+1);
+    }
     PreserveLongName PreserveName(ShortName,PreserveLFN);
     if (*Command)
       if (*Command!='@')
@@ -162,6 +205,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   /* tran $ */
   return(TRUE);
 }
+/* SVS $ */
 
 
 int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
@@ -264,16 +308,32 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
   return(TRUE);
 }
 
-
+/*
+  Используется для запуска внешнего редактора и вьювера
+*/
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish)
 {
   char ExecStr[512],FullExecStr[512];
   char ListName[NM*2],ShortListName[NM*2];
   char FullName[NM],FullShortName[NM];
+  char *PtrCmd;
   strcpy(ExecStr,Command);
   strcpy(FullExecStr,Command);
   {
     int PreserveLFN=SubstFileName(ExecStr,Name,ShortName,ListName,ShortListName);
+    // Снова все "подставлено", теперь проверим условия "if exist"
+    PtrCmd=PrepareOSIfExist(ExecStr);
+    if(PtrCmd) // NULL - считаем что все УГУ
+    {
+      if(!*PtrCmd) // Во! Условие не выполнено!!!
+                   // (например, пока рассматривали менюху, в это время)
+                   // какой-то злобный чебурашка стер файл!
+        return;
+
+      // прокинем "if exist"
+      memmove(ExecStr,PtrCmd,strlen(PtrCmd)+1);
+    }
+
     PreserveLongName PreserveName(ShortName,PreserveLFN);
 
 //    ConvertNameToFull(Name,FullName, sizeof(FullName));
@@ -282,6 +342,18 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     }
     ConvertNameToShort(FullName,FullShortName);
     SubstFileName(FullExecStr,FullName,FullShortName,ListName,ShortListName);
+    // Снова все "подставлено", теперь проверим условия "if exist"
+    PtrCmd=PrepareOSIfExist(FullExecStr);
+    if(PtrCmd) // NULL - считаем что все УГУ
+    {
+      if(!*PtrCmd) // Во! Условие не выполнено!!!
+                   // (например, пока рассматривали менюху, в это время)
+                   // какой-то злобный чебурашка стер файл!
+        return;
+
+      // прокинем "if exist"
+      memmove(FullExecStr,PtrCmd,strlen(PtrCmd)+1);
+    }
     CtrlObject->ViewHistory->AddToHistory(FullExecStr,MSG(MHistoryExt),AlwaysWaitFinish+2);
 
     if (*ExecStr!='@')
@@ -305,6 +377,12 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
 }
 
 
+/* Used in:
+   filelist.cpp  FileList::ApplyCommand() 1 раз
+   usermenu.cpp  ProcessSingleMenu 3 раза
+   filetype.cpp  описание и ProcessLocalFileTypes - 2 раза, ProcessExternal -2
+*/
+// Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
 int SubstFileName(char *Str,char *Name,char *ShortName,
                   char *ListName,char *ShortListName,int IgnoreInput,
                   char *CmdLineDir)
@@ -315,6 +393,8 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
   char AnotherNameOnly[NM],AnotherShortNameOnly[NM];
   char AnotherQuotedName[NM+2],AnotherQuotedShortName[NM+2];
   char CmdDir[NM];
+
+//SysLog(">>>>>>>>>: [%s]",Str);
 
   if (CmdLineDir!=NULL)
     strcpy(CmdDir,CmdLineDir);
@@ -364,15 +444,28 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
 
   int SkipQuotes=FALSE;
   CurStr=Str;
-//  SysLog("SubstrFileName: CurStr=[%s]",CurStr);
+  char *DirBegin=NULL;
+
+  int PassivePanel=FALSE;
   while (*CurStr)
   {
-    int PassivePanel=FALSE;
+    if(isspace(*CurStr) && DirBegin && DirBegin != Str && *(DirBegin-1) != '"')
+    {
+      Unquote(DirBegin);
+      QuoteSpaceOnly(DirBegin);
+      DirBegin=NULL;
+    }
+//SysLog("'%c' DirBegin=[%s] %d",*CurStr, DirBegin, SkipQuotes);
     if (strncmp(CurStr,"!#",2)==0)
     {
       CurStr+=2;
       PassivePanel=TRUE;
-//      SysLog("PassivePanel=TRUE");
+//      //SysLog("PassivePanel=TRUE");
+    }
+    if (strncmp(CurStr,"!^",2)==0)
+    {
+      CurStr+=2;
+      PassivePanel=FALSE;
     }
     if (*CurStr=='\"')
       SkipQuotes=(CurStr==Str);
@@ -386,6 +479,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       {
         strcat(TmpStr,"!");
         CurStr+=2;
+//SysLog("!! TmpStr=[%s]",TmpStr);
         continue;
       }
       /* $ 21.07.2000 IG
@@ -396,12 +490,14 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       {
         strcat(TmpStr,PassivePanel ? AnotherQuotedName:QuotedName);
         CurStr+=3;
+//SysLog("!.! TmpStr=[%s]",TmpStr);
         continue;
       }
       if (strncmp(CurStr,"!~",2)==0)
       {
         strcat(TmpStr,PassivePanel ? AnotherShortNameOnly:ShortNameOnly);
         CurStr+=2;
+//SysLog("!~ TmpStr=[%s]",TmpStr);
         continue;
       }
       if (strncmp(CurStr,"!?",2)==0 && strchr(CurStr+2,'!')!=NULL)
@@ -409,6 +505,39 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         char *NewCurStr=strchr(CurStr+2,'!')+1;
         strncat(TmpStr,CurStr,NewCurStr-CurStr);
         CurStr=NewCurStr;
+//SysLog("!? TmpStr=[%s]",TmpStr);
+        continue;
+      }
+
+      // список файлов разделенных пробелом.
+      if (!strncmp(CurStr,"!&~",3) && CurStr[3] != '?' ||
+          !strncmp(CurStr,"!&",2) && CurStr[2] != '?')
+      {
+        char FileNameL[NM],ShortNameL[NM];
+        Panel *WPanel=PassivePanel?AnotherPanel:CtrlObject->ActivePanel;
+        int FileAttrL;
+        int ShortN0=FALSE;
+        int CntSkip=2;
+        if(CurStr[2] == '~')
+        {
+          ShortN0=TRUE;
+          CntSkip++;
+        }
+        WPanel->GetSelName(NULL,FileAttrL);
+        while (WPanel->GetSelName(FileNameL,FileAttrL,ShortNameL))
+        {
+          if (ShortN0)
+            strcpy(FileNameL,ShortNameL);
+// Вот здесь фиг его знает - нужно/ненужно...
+//   если будет нужно - раскомментируем :-)
+//          if(FileAttrL & FA_DIREC)
+//            AddEndSlash(FileNameL);
+          QuoteSpaceOnly(FileNameL);
+          strcat(TmpStr," ");
+          strcat(TmpStr,FileNameL);
+        }
+        CurStr+=CntSkip;
+//SysLog("!& TmpStr=[%s]",TmpStr);
         continue;
       }
       /* $ 21.07.2000 IG
@@ -429,6 +558,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         }
         /* tran $ */
         CurStr+=3;
+//SysLog("!@! TmpStr=[%s]",TmpStr);
         continue;
       }
       /* $ 21.07.2000 IG
@@ -459,6 +589,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         }
         /* tran $ */
         CurStr+=3;
+//SysLog("!$! TmpStr=[%s]",TmpStr);
         continue;
       }
       /* $ 21.07.2000 IG
@@ -469,6 +600,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       {
         strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
         CurStr+=3;
+//SysLog("!-! TmpStr=[%s]",TmpStr);
         continue;
       }
       /* $ 21.07.2000 IG
@@ -480,6 +612,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
         CurStr+=3;
         PreserveLFN=TRUE;
+//SysLog("!+! TmpStr=[%s]",TmpStr);
         continue;
       }
       if (strncmp(CurStr,"!:",2)==0)
@@ -495,8 +628,10 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         CurDir[2]=0;
         if (*CurDir && CurDir[1]!=':')
           *CurDir=0;
+        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
         CurStr+=2;
+//SysLog("!: TmpStr=[%s]",TmpStr);
         continue;
       }
       /* $ 21.07.2000 IG
@@ -520,7 +655,9 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         strcat(CurDir,FileName);
         QuoteSpace(CurDir);
         CurStr+=5;
+        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
+//SysLog("!\\!.! TmpStr=[%s]",TmpStr);
         continue;
       }
       if (strncmp(CurStr,"!\\",2)==0)
@@ -539,7 +676,9 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
           if (strpbrk(Name,"\\:")!=NULL)
             *CurDir=0;
         }
+        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
+//SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir);
         continue;
       }
       if (strncmp(CurStr,"!/",2)==0)
@@ -567,22 +706,33 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
             *CurDir=0;
           }
         }
+        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
+//SysLog("!/ TmpStr=[%s]",TmpStr);
         continue;
       }
       if (*CurStr=='!')
       {
+        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,PointToName(PassivePanel ? AnotherNameOnly:NameOnly));
         CurStr++;
+//SysLog("! TmpStr=[%s]",TmpStr);
         continue;
       }
     }
     strncat(TmpStr,CurStr,1);
     CurStr++;
   }
+  if(DirBegin && DirBegin != Str && *(DirBegin-1) != '"')
+  {
+    Unquote(DirBegin);
+    QuoteSpaceOnly(DirBegin);
+  }
   if (!IgnoreInput)
     ReplaceVariables(TmpStr);
   strcpy(Str,TmpStr);
+
+//SysLog("<<<<<<<<<: [%s]\n",Str);
   return(PreserveLFN);
 }
 
