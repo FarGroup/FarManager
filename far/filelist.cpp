@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.31 28.02.2001 $ */
+/* Revision: 1.32 05.03.2001 $ */
 
 /*
 Modify:
+  05.03.2001 SVS
+    ! Исключаем Alt-[Shift-]-Bs из быстрого поиска
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   26.02.2001 VVM
@@ -1335,8 +1337,10 @@ int FileList::ProcessKey(int Key)
       ProcessEnter(0,0);
       return(TRUE);
     default:
-      if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
-          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)
+      if((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
+          Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255) &&
+         Key != KEY_ALTBS && Key != (KEY_ALTBS|KEY_SHIFT)
+        )
         FastFind(Key);
       else
         break;

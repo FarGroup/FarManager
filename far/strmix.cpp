@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.02 28.02.2001 $ */
+/* Revision: 1.03 05.03.2001 $ */
 
 /*
 Modify:
+  05.03.2001 SVS
+    ! Немного оптимизации в фунциях QuoteSpace и QuoteSpaceOnly -
+      убрал лишний malloc()
   28.02.2001 SVS
     ! CenterStr возвращает указатель на Dest
   22.02.2001 IS
@@ -280,13 +283,10 @@ char* QuoteSpace(char *Str)
 {
   if (*Str=='-' || *Str=='^' || strpbrk(Str," &+,")!=NULL)
   {
-    char *TmpStr=new char[strlen(Str)+3];
-    sprintf(TmpStr,"\"%s\"",Str);
-    strcpy(Str,TmpStr);
-    /* $ 13.07.2000 SVS
-       ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-    delete[] TmpStr;
-    /* SVS $ */
+    unsigned l = strlen(Str);
+    memmove(Str+1,Str,l);
+    *Str = Str[l+1] = '\"';
+    Str[l+2] = 0;
   }
   return(Str);
 }
@@ -298,13 +298,10 @@ char* WINAPI QuoteSpaceOnly(char *Str)
   {
     if (strchr(Str,' ')!=NULL)
     {
-      char *TmpStr=new char[strlen(Str)+3];
-      sprintf(TmpStr,"\"%s\"",Str);
-      strcpy(Str,TmpStr);
-      /* $ 13.07.2000 SVS
-         ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-      delete[] TmpStr;
-      /* SVS $ */
+      unsigned l = strlen(Str);
+      memmove(Str+1,Str,l);
+      *Str = Str[l+1] = '\"';
+      Str[l+2] = 0;
     }
   }
   return(Str);
@@ -324,10 +321,10 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
         char *TmpStr=new char[MaxLength+5];
         sprintf(TmpStr,"...%s",Str+Length-MaxLength+3);
         strcpy(Str,TmpStr);
-      /* $ 13.07.2000 SVS
-         ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-      delete[] TmpStr;
-      /* SVS $ */
+        /* $ 13.07.2000 SVS
+           ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+        delete[] TmpStr;
+        /* SVS $ */
       }
       else
         Str[MaxLength]=0;

@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.11 02.03.2001 $ */
+/* Revision: 1.12 05.03.2001 $ */
 
 /*
 Modify:
+  05.03.2001 SVS
+    + Закомментированный /co для /?
   02.03.2001 SVS
     - А слеш поставить забыли :-((((
   01.03.2001 SVS
@@ -81,6 +83,8 @@ printf(
 "      Allows to have separate settings for different users.\n"
 " /v <filename>\n"
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
+//" /co\n"
+//"      Forces FAR to load plugins from the cache only.\n"
 );
 }
 
