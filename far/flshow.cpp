@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.15 17.06.2001 $ */
+/* Revision: 1.16 01.08.2001 $ */
 
 /*
 Modify:
+  01.08.2001 VVM
+    + TotalStr в панели обрезается справа, а не слева
   17.06.2001 SVS
     ! MListSymLink & MListFolder
   14.06.2001 OT
@@ -426,6 +428,18 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
     sprintf(TotalStr,MSG(MListFreeSize),*FreeSize ? FreeSize:"???");
 
   SetColor(COL_PANELTOTALINFO);
+  /* $ 01.08.2001 VVM
+    + Обрезаем строчку справа, а не слева */
+  {
+    int MaxLength = X2-X1-1;
+    int Length = strlen(TotalStr);
+    if (Length > MaxLength)
+    {
+      memcpy(TotalStr+MaxLength-3,"...",3);
+      TotalStr[MaxLength]=0;
+    }
+  }
+  /* VVM $ */
   TruncStr(TotalStr,X2-X1-1);
   Length=strlen(TotalStr);
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
