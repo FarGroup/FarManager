@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.238 29.04.2002 $ */
+/* Revision: 1.239 05.05.2002 $ */
 
 /*
 Modify:
+  05.05.2002 SVS
+    - попытка установить фокус на нефокусный элемент - удачна :-(
+    - пр€чем фокусный элемент - а на экране фиг знает что :-(
   29.04.2002 SVS
     ! »сключим обработку BugZ#488 дл€ DI_BUTTON (иначе Shift-Del Enter
       не срабатывает - Shift, при этом не успевает отжатьс€ :-)))
@@ -6218,8 +6221,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     */
     case DM_SETFOCUS:
     {
-//      if(!Dialog::IsFocused(Dlg->Item[Param1].Type))
-//        return FALSE;
+      if(!Dialog::IsFocused(Type))
+        return FALSE;
       if(Dlg->FocusPos == Param1) // уже и так установлено все!
         return TRUE;
       if(Dlg->ChangeFocus2(Dlg->FocusPos,Param1) == Param1)
@@ -6560,10 +6563,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
            CurItem->Flags&=~DIF_HIDDEN;
          else
            CurItem->Flags|=DIF_HIDDEN;
-        if(Dlg->DialogMode.Check(DMODE_SHOW) && !(CurItem->Flags&DIF_HIDDEN))
+        if(Dlg->DialogMode.Check(DMODE_SHOW))// && (PrevFlags&DIF_HIDDEN) != (CurItem->Flags&DIF_HIDDEN))//!(CurItem->Flags&DIF_HIDDEN))
         {
+          if(CurItem->Flags&DIF_HIDDEN)
+          {
+            Param2=Dlg->ChangeFocus(Param1,1,TRUE);
+            Dlg->ChangeFocus2(Param1,Param2);
+          }
           // Ћибо все,  либо... только 1
-          Dlg->ShowDialog(Dlg->GetDropDownOpened()?-1:Param1);
+          Dlg->ShowDialog(Dlg->GetDropDownOpened()||(CurItem->Flags&DIF_HIDDEN)?-1:Param1);
           ScrBuf.Flush();
         }
       }
