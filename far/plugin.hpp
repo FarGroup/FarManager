@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.139 31.08.2001 $ */
+/* Revision: 1.140 09.09.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  09.09.2001 IS
+    + VF_DISABLEHISTORY, EF_DISABLEHISTORY
   31.08.2001 IS
     ! Все поля структуры CharTableSet кроме TableName теперь unsigned char.
   17.08.2001 VVM
@@ -1105,15 +1107,17 @@ typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
 typedef void (WINAPI *FARAPIFREEDIRLIST)(const struct PluginPanelItem *PanelItem);
 
 enum VIEWER_FLAGS {
-  VF_NONMODAL      =1,
-  VF_DELETEONCLOSE =2,
-  VF_ENABLE_F6     =4,
+  VF_NONMODAL       =1,
+  VF_DELETEONCLOSE  =2,
+  VF_ENABLE_F6      =4,
+  VF_DISABLEHISTORY =8,
 };
 
 enum EDITOR_FLAGS {
-  EF_NONMODAL      =1,
-  EF_CREATENEW     =2,
-  EF_ENABLE_F6     =4,
+  EF_NONMODAL       =1,
+  EF_CREATENEW      =2,
+  EF_ENABLE_F6      =4,
+  EF_DISABLEHISTORY =8,
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.87 08.09.2001 $ */
+/* Revision: 1.88 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 IS
+    + Обработка VF_DISABLEHISTORY/EF_DISABLEHISTORY - плагин может запрещать
+      добавление имени файла в историю.
   08.09.2001 IS
     ! Теперь имя файла добавляется в историю просмотра/редактирования
       при использовании функций апи Editor/Viewer
@@ -1368,10 +1371,13 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
     Y2=ScrY;
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
+  /* $ 09.09.2001 IS */
+  int DisableHistory=(Flags & VF_DISABLEHISTORY)?TRUE:FALSE;
+  /* IS $ */
   if (Flags & VF_NONMODAL)
   {
-    /* 08.09.2001 IS ! Добавим имя файла в историю */
-    FileViewer *Viewer=new FileViewer(FileName,TRUE,FALSE,Title,X1,Y1,X2,Y2);
+    /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+    FileViewer *Viewer=new FileViewer(FileName,TRUE,DisableHistory,Title,X1,Y1,X2,Y2);
     /* IS $ */
     if (Flags & VF_DELETEONCLOSE)
       Viewer->SetTempViewName(FileName);
@@ -1381,8 +1387,8 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
   }
   else
   {
-    /* 08.09.2001 IS ! Добавим имя файла в историю */
-    FileViewer Viewer (FileName,FALSE,FALSE,Title,X1,Y1,X2,Y2);
+    /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+    FileViewer Viewer (FileName,FALSE,DisableHistory,Title,X1,Y1,X2,Y2);
     /* IS $ */
     /* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
     Viewer.SetDynamicallyBorn(false);
@@ -1420,11 +1426,14 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
     + Обработка флага EF_CREATENEW */
   int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
   /* VVM $ */
+  /* $ 09.09.2001 IS */
+  int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
+  /* IS $ */
   if (Flags & EF_NONMODAL)
   {
     ExitCode=FALSE;
-    /* 08.09.2001 IS ! Добавим имя файла в историю */
-    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2,FALSE);
+    /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory);
     /* IS $ */
     if (Editor)
     {
@@ -1436,8 +1445,8 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   }
   else
   {
-   /* 08.09.2001 IS ! Добавим имя файла в историю */
-   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2,FALSE);
+   /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory);
    /* IS $ */
    Editor.SetDynamicallyBorn(false);
    /* $ 12.05.2001 DJ */
