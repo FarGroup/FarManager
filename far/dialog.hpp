@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.52 11.02.2002 $ */
+/* Revision: 1.53 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    ! Первый параметр у IsKeyHighlighted() - const
   11.02.2002 SVS
    ! OriginalListItems к терапевту... - юзаем DlgProc
   05.02.2002 SVS
@@ -487,7 +489,7 @@ class Dialog: public Frame
     /* SVS $ */
     static void DataToItem(struct DialogData *Data,struct DialogItem *Item,
                            int Count);
-    static int IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos=-1);
+    static int IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos=-1);
 
     /* $ 31.07.2000 tran
        метод для перемещения диалога */

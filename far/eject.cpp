@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    ! Уборка варнингов
+    - Упс. Потаенная бага... - проверка результата CreateFile
   06.05.2001 DJ
     ! перетрях #include
   27.04.2001 SVS
@@ -347,11 +350,10 @@ This code works on Windows 95 only.
 -----------------------------------------------------------------------*/
 BOOL EjectVolume95 (char Letter,DWORD Flags)
 {
-   HANDLE hVWin32      = INVALID_HANDLE_VALUE;
+   HANDLE hVWin32;
    BYTE   bDrive;
-   BOOL   fDriveLocked = FALSE;
+   BOOL   fDriveLocked;
    char MsgText[200];
-   BOOL Ret=FALSE;
 
    // convert command line arg 1 from a drive letter to a DOS drive
    // number
@@ -363,6 +365,10 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
    hVWin32 = CreateFile ("\\\\.\\vwin32", 0, 0, NULL, 0,
                       FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
+   if(hVWin32 == INVALID_HANDLE_VALUE)
+     return FALSE;
+
+   BOOL Ret=FALSE;
    // Make sure no other applications are using the drive.
    fDriveLocked = LockLogicalVolume (hVWin32, bDrive, 0, 0);
    if (!fDriveLocked)

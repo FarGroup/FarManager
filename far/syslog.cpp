@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.23 11.02.2002 $ */
+/* Revision: 1.24 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    + SysLogLastError() - вывод в лог результата GetLastError()
   11.02.2002 SVS
     ! dialog.cpp::MsgToName() - syslog.cpp::_DLGMSG_ToName()
     ! Уточнения в _*_ToName()
@@ -241,6 +243,37 @@ void SysLog(char *fmt,...)
     OutputDebugString("\n");
 #endif _MSC_VER
   }
+#endif
+}
+
+void SysLogLastError(void)
+{
+#if defined(SYSLOG)
+  LPSTR lpMsgBuf;
+
+  DWORD LastErr=GetLastError();
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                NULL,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
+                (LPTSTR) &lpMsgBuf,0,NULL);
+
+  OpenSysLog();
+  if (LogStream)
+  {
+    char timebuf[64];
+    RemoveUnprintableCharacters(lpMsgBuf);
+    fprintf(LogStream,"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf),MakeSpace(),LastErr,LastErr,lpMsgBuf);
+    fflush(LogStream);
+  }
+  CloseSysLog();
+  if(pIsDebuggerPresent && pIsDebuggerPresent())
+  {
+    OutputDebugString(lpMsgBuf);
+#ifdef _MSC_VER
+    OutputDebugString("\n");
+#endif _MSC_VER
+  }
+  LocalFree(lpMsgBuf);
+  SetLastError(LastErr);
 #endif
 }
 

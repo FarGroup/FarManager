@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.116 11.02.2002 $ */
+/* Revision: 1.117 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    + MIF_USETEXTPTR - щоб юзать TextPtr
+    ! Уборка варнингов
   11.02.2002 SVS
     + Добавка в меню - акселератор - решение BugZ#299
     ! Сепаратор может иметь лэйб только для варианта с Ex
@@ -827,7 +830,16 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
         CurItem.Flags=ItemEx->Flags;
-        strncpy(CurItem.Name,ItemEx->Text,sizeof(CurItem.Name)-1);
+        CurItem.NamePtr=NULL; // за раз 4 байта в 0 :-)
+        if(ItemEx->Flags&MIF_USETEXTPTR)
+          CurItem.NamePtr=(char*)ItemEx->Text.TextPtr;
+        else
+          strncpy(CurItem.Name,ItemEx->Text.Text,sizeof(CurItem.Name)-1);
+        /*
+        strncpy(CurItem.Name,
+            ((ItemEx->Flags&MIF_USETEXTPTR) && ItemEx->Text.TextPtr)?ItemEx->Text.TextPtr:ItemEx->Text.Text,
+            sizeof(CurItem.Name)-1);
+        */
         CurItem.AccelKey=(ItemEx->Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
         FarMenu.AddItem(&CurItem);
       }
@@ -1016,7 +1028,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   int ExitCode=-1;
 
-  struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
+  //struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
 
   memset(InternalItem,0,sizeof(DialogItem)*ItemsNumber);
 

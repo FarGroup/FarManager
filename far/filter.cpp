@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.20 25.12.2001 $ */
+/* Revision: 1.21 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    ! Уборка варнингов
   25.12.2001 SVS
     ! немного оптимизации (если VC сам умеет это делать, то
       борманду нужно помочь)
@@ -578,7 +580,7 @@ void PanelFilter::InitFilter()
     if (!GetRegKey(RegKey,"Mask",FilterMask,"",sizeof(FilterMask)))
       break;
 
-    if(!(Ptr=(char *)malloc(strlen(FilterMask)+1)))
+    if((Ptr=(char *)malloc(strlen(FilterMask)+1)) == NULL)
       break;
 
     struct FilterDataRecord *NewFilterData;

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.209 11.02.2002 $ */
+/* Revision: 1.210 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    ! Первый параметр у IsKeyHighlighted() - const
   11.02.2002 SVS
     ! Уточнение типа Param2 у DM_LISTUPDATE - должен быть типа FarListUpdate
     ! При выходе из диалога юзается ListPosвместо ListItems
@@ -4616,7 +4618,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 /* $ 20.02.2001 SVS
    Пересмотр алгоритма IsKeyHighlighted с добавками Alt- на
    сколько это возможно*/
-int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos)
+int Dialog::IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos)
 {
   if(AmpPos == -1)
   {

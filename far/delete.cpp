@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.39 24.01.2002 $ */
+/* Revision: 1.40 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    ! Уборка варнингов
   24.01.2002 VVM
     ! При удалении в корзину и обломе - сказать об этом под НТ
   19.01.2002 VVM
@@ -141,7 +143,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   WIN32_FIND_DATA FindData;
   char DeleteFilesMsg[300],SelName[NM],SelShortName[NM],DizName[NM];
   char FullName[2058];
-  int SelCount,FileAttr,UpdateDiz, UnlinkFolder=FALSE;
+  int SelCount,FileAttr,UpdateDiz;
   int DizPresent;
   int Ret;
   BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;

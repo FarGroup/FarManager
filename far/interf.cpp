@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.45 08.01.2002 $ */
+/* Revision: 1.46 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    ! Уборка варнингов
   08.01.2002 SVS
     - Бага с макросом, в котором есть Alt-F9 (смена режима)
     ! Обработаем коды символов 0x10 и 0x11
@@ -428,7 +430,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
         LastError=%i",coordScreen.X,coordScreen.Y,le=GetLastError()));
     }
   }
-  if (!(retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect))){
+  if ((retSetConsole=SetConsoleWindowInfo(hConOut, TRUE, &srWindowRect)) == NULL){
     _OT(SysLog("LastError=%i, srWindowRect",le=GetLastError()));
     retSetConsole=SetConsoleScreenBufferSize(hConOut, coordScreen);
     _OT(le=GetLastError());

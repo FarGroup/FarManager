@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.187 11.02.2002 $ */
+/* Revision: 1.188 13.02.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  13.02.2002 SVS
+    + MIF_USETEXTPTR - щоб юзать FarMenuItemEx.Text.TextPtr
+    ! 130 -> 128 - так вот и живем...
   11.02.2002 SVS
     ! Переделки FarListItem, FarListUpdate, FarListInsert, FarMenuItemEx
       - размер FarMenuItemEx.Text = 130 + AccelKey (в FAR нотации)
@@ -913,7 +916,7 @@ enum CHECKEDSTATE {
 struct FarListItem
 {
   DWORD Flags;
-  char  Text[130];
+  char  Text[128];
   DWORD Reserved[3];
 };
 
@@ -1134,25 +1137,29 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
 struct FarMenuItem
 {
   char Text[128];
-  int Selected;
-  int Checked;
-  int Separator;
+  int  Selected;
+  int  Checked;
+  int  Separator;
 };
 
 enum MENUITEMFLAGS {
-  MIF_SELECTED = 0x00010000UL,
-  MIF_CHECKED  = 0x00020000UL,
-  MIF_SEPARATOR= 0x00040000UL,
-  MIF_DISABLE  = 0x00080000UL,
+  MIF_SELECTED   = 0x00010000UL,
+  MIF_CHECKED    = 0x00020000UL,
+  MIF_SEPARATOR  = 0x00040000UL,
+  MIF_DISABLE    = 0x00080000UL,
 #ifdef FAR_USE_INTERNALS
-  MIF_GRAYED   = 0x00100000UL,
+  MIF_GRAYED     = 0x00100000UL,
 #endif // END FAR_USE_INTERNALS
+  MIF_USETEXTPTR = 0x80000000UL,
 };
 
 struct FarMenuItemEx
 {
   DWORD Flags;
-  char  Text[130];
+  union {
+    char  Text[128];
+    const char *TextPtr;
+  } Text;
   DWORD AccelKey;
   DWORD Reserved;
   DWORD UserData;

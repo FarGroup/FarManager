@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.131 11.02.2002 $ */
+/* Revision: 1.132 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    + SysLogLastError()
   11.02.2002 SVS
     + _DLGMSG_ToName()
   05.02.2002 SVS
@@ -847,6 +849,7 @@ void WINAPI DeleteBuffer(char* Buffer);
 void SysLog(int l);
 void SysLog(char *fmt,...);
 void SysLog(int l,char *fmt,...); ///
+void SysLogLastError(void);
 void ShowHeap();
 void CheckHeap(int NumLine);
 

@@ -11,10 +11,13 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.35 11.02.2002 $ */
+/* Revision: 1.36 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    + Один интересный повторяющийся кусок вынесен в CheckKeyHighlighted()
+    + MenuItem.NamePtr
   11.02.2002 SVS
     + Член AccelKey в MenuData и MenuItem
     + BitFlags
@@ -182,7 +185,10 @@ class SaveScreen;
 struct MenuItem
 {
   DWORD  Flags;                  // Флаги пункта
-  char   Name[130];              // Текст пункта
+  union {
+    char  Name[128];              // Текст пункта
+    char *NamePtr;
+  };
   DWORD  AccelKey;
   int    UserDataSize;           // Размер пользовательских данных
   union {                        // Пользовательские данные:
@@ -213,6 +219,9 @@ struct MenuItem
 
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+  char  operator[](int Pos) const;
+                     // здесь сыграем на том, что у нас union ;-)
+  char* PtrName();
 };
 
 struct MenuData
@@ -291,8 +300,9 @@ class VMenu: virtual public Modal, virtual public Frame
     void DisplayObject();
     void ShowMenu(int IsParent=0);
     int  GetPosition(int Position);
-    static int _SetUserData(struct MenuItem *PItem,void *Data,int Size);
+    static int _SetUserData(struct MenuItem *PItem,const void *Data,int Size);
     static void* _GetUserData(struct MenuItem *PItem,void *Data,int Size);
+    BOOL CheckKeyHiOrAcc(DWORD Key,int Type,int Translate);
 
   public:
     /* $ 18.07.2000 SVS

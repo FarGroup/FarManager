@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.72 11.02.2002 $ */
+/* Revision: 1.73 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    ! Немного оптимизации...
+    + Один интересный повторяющийся кусок вынесен в CheckKeyHighlighted()
+    + MIF_USETEXTPTR - щоб юзать TextPtr
   11.02.2002 SVS
     + Член AccelKey в MenuData и MenuItem
     + BitFlags
@@ -345,9 +349,9 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   {
     memset(&NewItem,0,sizeof(NewItem));
     if ((unsigned int)Data[I].Name < MAX_MSG)
-      strcpy(NewItem.Name,MSG((unsigned int)Data[I].Name));
+      strncpy(NewItem.Name,MSG((unsigned int)Data[I].Name),sizeof(NewItem.Name)+1);
     else
-      strcpy(NewItem.Name,Data[I].Name);
+      strncpy(NewItem.Name,Data[I].Name,sizeof(NewItem.Name)+1);
     //NewItem.AmpPos=-1;
     NewItem.AccelKey=Data[I].AccelKey;
     NewItem.Flags=Data[I].Flags;
@@ -647,6 +651,8 @@ void VMenu::ShowMenu(int IsParent)
     TopPos=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
   if (SelectPos<TopPos)
     TopPos=SelectPos;
+
+  char *NamePtr;
   for (Y=Y1+((BoxType!=NO_BOX)?1:0),I=TopPos;Y<((BoxType!=NO_BOX)?Y2:Y2+1);Y++,I++)
   /* KM $ */
   {
@@ -663,25 +669,25 @@ void VMenu::ShowMenu(int IsParent)
         if (I>0 && I<ItemCount-1 && SepWidth>3)
           for (unsigned int J=0;Ptr[J+3]!=0;J++)
           {
-            if (Item[I-1].Name[J]==0)
+            if (Item[I-1][J]==0)
               break;
-            if (Item[I-1].Name[J]==0x0B3)
+            if (Item[I-1][J]==0x0B3)
             {
               int Correction=0;
-              if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && memchr(Item[I-1].Name,'&',J)!=NULL)
+              if (!VMFlags.Check(VMENU_SHOWAMPERSAND) && memchr(Item[I-1].PtrName(),'&',J)!=NULL)
                 Correction=1;
-              if (strlen(Item[I+1].Name)>=J && Item[I+1].Name[J]==0x0B3)
+              if (strlen(Item[I+1].PtrName())>=J && Item[I+1][J]==0x0B3)
                 Ptr[J-Correction+2]=0x0C5;
               else
                 Ptr[J-Correction+2]=0x0C1;
             }
           }
         Text(X1,Y,VMenu::Colors[1],TmpStr);
-        if (*Item[I].Name)
+        if (*Item[I].PtrName())
         {
-          int ItemWidth=strlen(Item[I].Name);
+          int ItemWidth=strlen(Item[I].PtrName());
           GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
-          mprintf(" %*.*s ",ItemWidth,ItemWidth,Item[I].Name);
+          mprintf(" %*.*s ",ItemWidth,ItemWidth,Item[I].PtrName());
         }
       }
       else
@@ -712,7 +718,7 @@ void VMenu::ShowMenu(int IsParent)
           else
             Check=(char)Item[I].Flags&0x0000FFFF;
 
-        sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].Name);
+        sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].PtrName());
         { // табуляции меняем только при показе!!!
           // для сохранение оригинальной строки!!!
           char *TabPtr;
@@ -804,6 +810,30 @@ BOOL VMenu::UpdateRequired(void)
   return ((ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1) || VMFlags.Check(VMENU_UPDATEREQUIRED));
 }
 
+BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
+{
+  int I, Result;
+  struct MenuItem *CurItem;
+  for (CurItem=Item,I=0; I < ItemCount; I++, ++CurItem)
+  {
+    if((!Type && CurItem->AccelKey && Key == CurItem->AccelKey) ||
+       (Type && Dialog::IsKeyHighlighted(CurItem->PtrName(),Key,Translate,CurItem->AmpPos))
+      )
+    {
+      Item[SelectPos].Flags&=~LIF_SELECTED;
+      CurItem->Flags|=LIF_SELECTED;
+      SelectPos=I;
+      ShowMenu(TRUE);
+      if(!VMenu::ParentDialog)
+      {
+        Modal::ExitCode=I;
+        EndLoop=TRUE;
+      }
+      break;
+    }
+  }
+  return EndLoop==TRUE;
+}
 
 int VMenu::ProcessKey(int Key)
 {
@@ -900,23 +930,7 @@ int VMenu::ProcessKey(int Key)
         break;
       }
     default:
-      for (I=0;I<ItemCount;I++)
-      {
-        if(Item[I].AccelKey && Key == Item[I].AccelKey)
-        {
-          Item[SelectPos].Flags&=~LIF_SELECTED;
-          Item[I].Flags|=LIF_SELECTED;
-          SelectPos=I;
-          ShowMenu(TRUE);
-          if(!VMenu::ParentDialog)
-          {
-            Modal::ExitCode=I;
-            EndLoop=TRUE;
-          }
-          break;
-        }
-      }
-      if (!EndLoop)
+      if(!CheckKeyHiOrAcc(Key,0,0))
       {
         if(Key == KEY_SHIFTF1 || Key == KEY_F1)
         {
@@ -928,41 +942,8 @@ int VMenu::ProcessKey(int Key)
         }
         else
         {
-          for (I=0;I<ItemCount;I++)
-          {
-            if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE,Item[I].AmpPos))
-            {
-              Item[SelectPos].Flags&=~LIF_SELECTED;
-              Item[I].Flags|=LIF_SELECTED;
-              SelectPos=I;
-              ShowMenu(TRUE);
-              if(!VMenu::ParentDialog)
-              {
-                Modal::ExitCode=I;
-                EndLoop=TRUE;
-              }
-              break;
-            }
-          }
-        }
-      }
-      if (!EndLoop)
-      {
-        for (I=0;I<ItemCount;I++)
-        {
-          if (Dialog::IsKeyHighlighted(Item[I].Name,Key,TRUE,Item[I].AmpPos))
-          {
-            Item[SelectPos].Flags&=~LIF_SELECTED;
-            Item[I].Flags|=LIF_SELECTED;
-            SelectPos=I;
-            ShowMenu(TRUE);
-            if(!VMenu::ParentDialog)
-            {
-              Modal::ExitCode=I;
-              EndLoop=TRUE;
-            }
-            break;
-          }
+          if(!CheckKeyHiOrAcc(Key,1,FALSE))
+            CheckKeyHiOrAcc(Key,1,TRUE);
         }
       }
       CallCount--;
@@ -1254,7 +1235,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     memmove(Item+PosAdd+1,Item+PosAdd,sizeof(struct MenuItem)*(ItemCount-PosAdd)); //??
 
   Item[PosAdd]=*NewItem;
-  Length=strlen(Item[PosAdd].Name);
+  Length=strlen(Item[PosAdd].PtrName());
   if (Length>MaxLength)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
@@ -1272,7 +1253,8 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   // Вычисление размеров
   int I=0, J=0;
   char Chr;
-  while((Chr=Item[PosAdd].Name[I]) != 0)
+  const char *NamePtr=Item[PosAdd].PtrName();
+  while((Chr=NamePtr[I]) != 0)
   {
     if(Chr != '&' && Chr != '\t')
       J++;
@@ -1286,9 +1268,9 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     ++I;
   }
 
-  Item[PosAdd].Len[0]=strlen(Item[PosAdd].Name)-Item[PosAdd].Idx2; //??
+  Item[PosAdd].Len[0]=strlen(NamePtr)-Item[PosAdd].Idx2; //??
   if(Item[PosAdd].Idx2)
-    Item[PosAdd].Len[1]=strlen(&Item[PosAdd].Name[Item[PosAdd].Idx2]);
+    Item[PosAdd].Len[1]=strlen(&NamePtr[Item[PosAdd].Idx2]);
 
   // Уточнение общих размеров
   if(RLen[0] < Item[PosAdd].Len[0])
@@ -1377,7 +1359,7 @@ int VMenu::GetUserDataSize(int Position)
 }
 
 int VMenu::_SetUserData(struct MenuItem *PItem,
-                       void *Data,   // Данные
+                       const void *Data,   // Данные
                        int Size)     // Размер, если =0 то предполагается, что в Data-строка
 {
   if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
@@ -1392,7 +1374,7 @@ int VMenu::_SetUserData(struct MenuItem *PItem,
 
     // Если Size=0, то подразумевается, что в Data находится ASCIIZ строка
     if(!Size)
-      SizeReal=strlen((char*)Data)+1;
+      SizeReal=strlen((const char*)Data)+1;
 
     // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
     if(!Size ||
@@ -1449,8 +1431,11 @@ void* VMenu::_GetUserData(struct MenuItem *PItem,void *Data,int Size)
     }
     else // ... данных нет, значит лудим имя пункта!
     {
-      memmove(Data,PItem->Name,Min(Size,(int)sizeof(PItem->Name)));
-      PtrData=PItem->Name;
+      PtrData=PItem->PtrName();
+      if(PItem->Flags&MIF_USETEXTPTR)
+        memmove(Data,PtrData,Min(Size,(int)strlen(PtrData)));
+      else
+        memmove(Data,PItem->Name,Min(Size,(int)sizeof(PItem->Name)));
     }
   }
   /* KM $ */
@@ -1463,8 +1448,8 @@ struct FarListItem *VMenu::MenuItem2FarList(const struct MenuItem *MItem,
   if(FItem && MItem)
   {
     memset(FItem,0,sizeof(struct FarListItem));
-    FItem->Flags=MItem->Flags;
-    strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text)-1);
+    FItem->Flags=MItem->Flags&(~MIF_USETEXTPTR); //??
+    strncpy(FItem->Text,((struct MenuItem *)MItem)->PtrName(),sizeof(FItem->Text)-1);
 //    FItem->AccelKey=MItem->AccelKey;
     //??????????????????
     //   FItem->UserData=MItem->UserData;
@@ -1484,6 +1469,7 @@ struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
     MItem->Flags=FItem->Flags;
 //    MItem->AccelKey=FItem->AccelKey;
     strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
+    MItem->Flags&=~MIF_USETEXTPTR;
     //VMenu::_SetUserData(MItem,FItem->UserData,FItem->UserDataSize); //???
     // А здесь надо вычислять AmpPos????
     return MItem;
@@ -1680,25 +1666,25 @@ void VMenu::AssignHighlights(int Reverse)
   if (VMOldFlags.Check(VMENU_SHOWAMPERSAND))
     VMFlags.Set(VMENU_SHOWAMPERSAND);
   /* KM $ */
-  int I;
-  for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
+  int I, Delta=Reverse ? -1:1;
+  for (I=(Reverse ? ItemCount-1:0); I >= 0 && I < ItemCount; I+=Delta)
   {
-    char *Name=Item[I].Name;
-    char *ChPtr=strchr(Name,'&');
+    const char *Name=Item[I].PtrName();
+    const char *ChPtr=strchr(Name,'&');
     if (ChPtr!=NULL && !VMFlags.Check(VMENU_SHOWAMPERSAND))
     {
       Used[LocalUpper(ChPtr[1])]=TRUE;
       Used[LocalLower(ChPtr[1])]=TRUE;
-      Item[I].AmpPos=ChPtr-Item[I].Name;
+      Item[I].AmpPos=ChPtr-Name;
     }
-//_SVS(SysLog("Pre:   Item[I].AmpPos=%d Item[I].Name='%s'",Item[I].AmpPos,Item[I].Name));
+//_SVS(SysLog("Pre:   Item[I].AmpPos=%d Item[I].Name='%s'",Item[I].AmpPos,Item[I].PtrName()));
   }
   for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
   {
-    char *Name=Item[I].Name;
-    char *ChPtr=strchr(Name,'&');
+    const char *Name=Item[I].PtrName();
+    const char *ChPtr=strchr(Name,'&');
     if (ChPtr==NULL || VMFlags.Check(VMENU_SHOWAMPERSAND))
-      for (int J=0;Name[J]!=0;J++)
+      for (int J=0; Name[J]; J++)
         if (Name[J]=='&' || !Used[Name[J]] && LocalIsalphanum(Name[J]))
         {
           Used[Name[J]]=TRUE;
@@ -1761,7 +1747,7 @@ static int _cdecl SortItem(const struct MenuItem *el1,
                            const struct MenuItem *el2,
                            const int *Direction)
 {
-  int Res=strcmp(el1->Name,el2->Name);
+  int Res=strcmp(((struct MenuItem *)el1)->PtrName(),((struct MenuItem *)el2)->PtrName());
   return(*Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }
 
@@ -1788,13 +1774,16 @@ int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)
   char TmpBuf[130];
   if((DWORD)StartIndex < (DWORD)ItemCount)
   {
+    const char *NamePtr;
+    int LenPattern=strlen(Pattern);
     for(int I=StartIndex;I < ItemCount;I++)
     {
-      memcpy(TmpBuf,Item[I].Name,sizeof(TmpBuf));
+      NamePtr=Item[I].PtrName();
+      int LenNamePtr=strlen(NamePtr);
+      memcpy(TmpBuf,NamePtr,Min((int)LenNamePtr+1,(int)sizeof(TmpBuf)));
       if(Flags&LIFIND_NOPATTERN)
       {
-        if (!LocalStrnicmp(RemoveChar(TmpBuf,'&'),Pattern,
-               Max((int)strlen(Pattern),(int)strlen(Item[I].Name))))
+        if(!LocalStrnicmp(RemoveChar(TmpBuf,'&'),Pattern,Max(LenPattern,LenNamePtr)))
           return I;
       }
       else
@@ -1920,3 +1909,15 @@ long WINAPI VMenu::SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2)
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
+
+char MenuItem::operator[](int Pos) const
+{
+  if(Flags&MIF_USETEXTPTR)
+    return (!NamePtr || Pos > strlen(NamePtr))?0:NamePtr[Pos];
+  return (Pos > strlen(Name))?0:Name[Pos];
+}
+
+char* MenuItem::PtrName()
+{
+  return ((Flags&MIF_USETEXTPTR)!=0&&NamePtr)?NamePtr:Name;
+}
