@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.05 25.01.2001 $ */
+/* Revision: 1.06 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 SKV
+    - MAXPATH ¨«¨ _MAX_PATH ¢®â ¢ çñ¬ ¢®¯à®á.
   26.01.2001 SVS
     -  £  ¢ NT ¯à¨ ã¤ «¥­¨¨ SUBST-¤¨áª®¢. ‚ NT ’Ž ¤®«¦­® ¢ë£«ï¤¥âì ª ª
       '\??\K:\Foo'
@@ -283,7 +285,15 @@ BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize)
   if ((LocalName[0]>='A') && ((LocalName[0]<='Z')))
   {
     // ’Ž ŽŸ‡€’…‹œŽ, ˆ€—… ‚ WIN98 €Ž’€’œ … “„…’!!!!
+/*$ 01.02.2001 skv
+  •®ææ  ª®¬¯¨«ïâáï ¨ ¯®¤ ‚–++ ®¤­ ª®.
+*/
+#ifdef _MSC_VER
+    int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name):_MAX_PATH;
+#else
     int SizeName=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?sizeof(Name):MAXPATH;
+#endif
+    /* skv$*/
 
     if (QueryDosDevice(LocalName,Name,SizeName) >= 3)
     {
