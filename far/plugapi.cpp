@@ -5,10 +5,16 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.118 19.02.2002 $ */
+/* Revision: 1.119 28.02.2002 $ */
 
 /*
 Modify:
+  28.02.2002 SVS
+   - Для ACTL_CONSOLEMODE+CONSOLE_GET_MODE
+     Param=NULL - это... обычный (void*)0, так шта...
+     К тому же "*(int*)Param" - это полная хрень.
+   ! ACTL_*WINDOW* - Добавим проверку на FrameManager != NULL
+   - ACTL_GETWINDOWINFO - забыли выставить корректное значение WindowInfo.Pos
   19.02.2002 SVS
     ! Добавим проверку на PluginNumber в Menu, Message & Dialog
   13.02.2002 SVS
@@ -472,7 +478,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_CONSOLEMODE:
     {
-      return FarAltEnter(Param?*(int*)Param:-2);
+      return FarAltEnter((int)Param);
     }
     /* SVS $ */
 
@@ -620,7 +626,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
        новые ACTL_ для работы с фреймами */
     case ACTL_GETWINDOWINFO:
     {
-      if(Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
+      if(FrameManager && Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
       {
         WindowInfo *wi=(WindowInfo*)Param;
         Frame *f;
@@ -634,26 +640,25 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         if ( f==NULL )
           return FALSE;
         f->GetTypeAndName(wi->TypeName,wi->Name);
+        wi->Pos=FrameManager->IndexOf(f);
         wi->Type=f->GetType();
         wi->Modified=f->IsFileModified();
         wi->Current=f==FrameManager->GetCurrentFrame();
         return TRUE;
       }
-      break;
+      return FALSE;
     }
 
     case ACTL_GETWINDOWCOUNT:
     {
-      return FrameManager->GetFrameCount();
+      return FrameManager?FrameManager->GetFrameCount():0;
     }
 
     case ACTL_SETCURRENTWINDOW:
     {
-      int pos=(int)Param;
-
-      if ( FrameManager->operator[](pos)!=NULL )
+      if (FrameManager && FrameManager->operator[]((int)Param)!=NULL )
       {
-        FrameManager->ActivateFrame(pos);
+        FrameManager->ActivateFrame((int)Param);
         return TRUE;
       }
       return FALSE;
@@ -665,11 +670,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     */
     case ACTL_COMMIT:
     {
-      if(FrameManager)
-      {
-        return FrameManager->PluginCommit();
-      }
-      return FALSE;
+      return FrameManager?FrameManager->PluginCommit():FALSE;
     }
     /* SKV$*/
     /* $ 15.09.2001 tran
