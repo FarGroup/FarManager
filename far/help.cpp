@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.11 20.01.2001 $ */
+/* Revision: 1.12 06.02.2001 $ */
 
 /*
 Modify:
+  06.02.2001 SVS
+    - Исправлен(?) баг с активатором...
+      (новый кусок пока не трогать - возможно потом исключим его вообще)
   20.01.2001 SVS
     - Пропадал курсор при вызове справки.
       Бяка появилась на 354-м патче, когда была введена поддержка кеёбар
@@ -1150,11 +1153,16 @@ void Help::Process()
      0 - это не URL ссылка (не похожа)
      1 - CreateProcess вернул FALSE
      2 - Все Ок
+
+   Параметры (например):
+     Protocol="mailto"
+     URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
 */
+#if 1
 static int RunURL(char *Protocol, char *URLPath)
 {
-  BOOL EditCode=0;
-  if(Protocol && *Protocol && URLPath && *URLPath)
+  int EditCode=0;
+  if(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF))
   {
     char *Buf=(char*)malloc(2048);
     if(Buf)
@@ -1166,18 +1174,10 @@ static int RunURL(char *Protocol, char *URLPath)
       if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
       {
         Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
-        /* $ 18.12.2000 SVS
-           Хммм... а здесь может быть и так: "%ProgramFiles%\Outlook Express\msimn.exe"
-        */
         ExpandEnvironmentStr(Buf, Buf, 2048);
-        /* SVS $ */
         RegCloseKey(hKey);
         if(Disposition == ERROR_SUCCESS)
         {
-          /* $ 07.12.2000 SVS
-            ! Изменен механизм запуска URL приложения - были нарекания
-              со стороны владельцев оутглюка.
-          */
           char *pp=strrchr(Buf,'%');
           if(pp) *pp='\0'; else strcat(Buf," ");
 
@@ -1192,47 +1192,48 @@ static int RunURL(char *Protocol, char *URLPath)
                         MSG(MHelpActivatorQ),
                         MSG(MYes),MSG(MNo));
 
-          strcat(Buf,URLPath);
-
           EditCode=2; // Все Ok!
-          if(Disposition == 0 && (Opt.HelpURLRules&0xFF))
+          if(Disposition == 0)
           {
             /*
               СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
               ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
             */
-            OemToChar(Buf,Buf);
             if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
             {
+#if 0
               SHELLEXECUTEINFO sei;
 
-              pp=strchr(Buf+1,'"');
-              if(pp) *++pp='\0'; ++pp;
-
+              OemToChar(URLPath,Buf);
               memset(&sei,0,sizeof(sei));
               sei.cbSize=sizeof(sei);
               sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
               sei.lpFile=RemoveExternalSpaces(Buf);
-              sei.lpParameters=RemoveExternalSpaces(pp);
-              sei.lpVerb=GetShellAction((char *)sei.lpFile);
               sei.nShow=SW_SHOWNORMAL;
               SetFileApisToANSI();
               if(ShellExecuteEx(&sei))
                 EditCode=1;
               SetFileApisToOEM();
+#else
+              OemToChar(URLPath,Buf);
+              SetFileApisToANSI();
+              EditCode=ShellExecute(0, 0, RemoveExternalSpaces(Buf), 0, 0, SW_SHOWNORMAL)?1:2;
+              SetFileApisToOEM();
+#endif
             }
             else
             {
               STARTUPINFO si={0};
               PROCESS_INFORMATION pi={0};
               si.cb=sizeof(si);
+              strcat(Buf,URLPath);
+              OemToChar(Buf,Buf);
               SetFileApisToANSI(); //????
               if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
                  EditCode=1;
               SetFileApisToOEM(); //????
             }
           }
-          /* SVS $ */
         }
       }
       free(Buf);
@@ -1240,4 +1241,75 @@ static int RunURL(char *Protocol, char *URLPath)
   }
   return EditCode;
 }
+#else
+// ЕЩЕ ОДИН ВАРИАНТ
+static int RunURL(char *Protocol, char *URLPath)
+{
+  if (!(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF)))
+    return 0;
+  char *Buf;
+  if (!(Buf=(char*)malloc(2048)))
+    return 0;
+  int EditCode=0;
+  if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
+  {
+    if(((Opt.HelpURLRules&0xFF) != 2) || Message(MSG_WARNING,2,MSG(MHelpTitle),
+                                                 MSG(MHelpActivatorURL),
+                                                 URLPath,
+                                                 "\x01",
+                                                 MSG(MHelpActivatorQ),
+                                                 MSG(MYes),MSG(MNo)) == 0)
+    {
+      SHELLEXECUTEINFO sei;
+      strcpy(Buf,URLPath);
+      OemToChar(Buf,Buf);
+      memset(&sei,0,sizeof(sei));
+      sei.cbSize=sizeof(sei);
+      sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
+      sei.lpFile=RemoveExternalSpaces(Buf);
+      sei.nShow=SW_SHOWNORMAL;
+      SetFileApisToANSI();
+      EditCode=ShellExecuteEx(&sei)?1:2;
+      SetFileApisToOEM();
+    }
+  }
+  else // CREATEPROCESS_METHOD
+  {
+    HKEY hKey;
+    strcat(strcpy(Buf,Protocol),"\\shell\\open\\command");
+    if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
+    {
+      DWORD Disposition, DataSize=250;
+      Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
+      RegCloseKey(hKey);
+      if(Disposition != ERROR_SUCCESS)
+        return 0;
+      ExpandEnvironmentStr(Buf, Buf, 2048);
+      char *pp=strrchr(Buf,'%');
+      if(pp) *pp='\0'; else pp=Buf+strlen(strcat(Buf," "));
+      if(((Opt.HelpURLRules&0xFF) != 2) ||
+           Message(MSG_WARNING,2,MSG(MHelpTitle),
+                   MSG(MHelpActivatorURL),
+                   Buf,
+                   MSG(MHelpActivatorFormat),
+                   URLPath,
+                   "\x01",
+                   MSG(MHelpActivatorQ),
+                   MSG(MYes),MSG(MNo)) == 0)
+      {
+        strcpy(pp, URLPath);
+        OemToChar(pp,pp);
+        STARTUPINFO si={0};
+        PROCESS_INFORMATION pi={0};
+        si.cb=sizeof(si);
+        SetFileApisToANSI(); //????
+        EditCode=CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi)?2:1;
+        SetFileApisToOEM(); //????
+      }
+    }
+  }
+  free(Buf);
+  return EditCode;
+}
+#endif
 /* SVS $ */
