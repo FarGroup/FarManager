@@ -387,7 +387,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
             return FALSE;
           }
           MenuItems=NewMenuItems;
-          strncpy(MenuItems[MenuItemsNumber].Text,Format,sizeof(MenuItems[MenuItemsNumber].Text));
+          strncpy(MenuItems[MenuItemsNumber].Text,Format,sizeof(MenuItems[MenuItemsNumber].Text)-1);
           MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
                                             *ArcFormat==0 ||
                                             !stricmp(ArcFormat,Format))?

@@ -243,10 +243,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   if(EndPos != Item->FindData.cFileName)
   {
-    if(!Prefix[0] && lstrcmp(Item->FindData.cFileName,".\\"))
+    if(!Prefix[0] && strcmp(Item->FindData.cFileName,".\\"))
       memcpy(Prefix,Item->FindData.cFileName,min((int)sizeof(Prefix)-1,(int)(EndPos-Item->FindData.cFileName)));
       Item->FindData.cFileName[0]='\0';
-      lstrcat(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix));
+      strcat(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix));
   }
 
 
@@ -276,7 +276,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
                         "Win32","SMS/QDOS","Acorn RISC OS","Win32 VFAT","MVS",
                         "BeOS","Tandem"};
   if (ZipHeader.PackOS<sizeof(ZipOS)/sizeof(ZipOS[0]))
-    lstrcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
+    strcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
 
   if (ZipHeader.PackOS==11 && ZipHeader.PackVer>20 && ZipHeader.PackVer<25)
     CharToOem(Item->FindData.cFileName,Item->FindData.cFileName);
@@ -384,7 +384,7 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if(Info)
   {
-    lstrcpy(Info->Prefix,Prefix);
+    strcpy(Info->Prefix,Prefix);
     Info->SFXSize=SFXSize;
     Info->Comment=ArcComment;
   }
@@ -400,8 +400,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    lstrcpy(FormatName,"ZIP");
-    lstrcpy(DefaultExt,"zip");
+    strcpy(FormatName,"ZIP");
+    strcpy(DefaultExt,"zip");
     return(TRUE);
   }
   return(FALSE);
@@ -432,7 +432,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      lstrcpy(Dest,Commands[Command]);
+      strcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }

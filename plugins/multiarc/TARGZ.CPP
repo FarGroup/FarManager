@@ -98,13 +98,13 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
         return(FALSE);
   const char *NamePtr=(const char *)strrchr((char*)Name,'\\');
   NamePtr=(NamePtr==NULL) ? Name:NamePtr+1;
-  lstrcpy(ZipName,NamePtr);
+  strcpy(ZipName,NamePtr);
   const char *Dot=(const char *)strrchr((char*)NamePtr,'.');
   if (Dot!=NULL)
   {
     Dot++;
-    if (lstrcmpi(Dot,"tgz")==0 || lstrcmpi(Dot,"taz")==0)
-      lstrcpy(&ZipName[Dot-NamePtr],"tar");
+    if (strcmpi(Dot,"tgz")==0 || strcmpi(Dot,"taz")==0)
+      strcpy(&ZipName[Dot-NamePtr],"tar");
     else
       ZipName[Dot-NamePtr-1]=0;
   }
@@ -145,7 +145,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       if (ArcType==BZ_FORMAT)
       {
         Item->PackSize=Item->FindData.nFileSizeLow=FileSize;
-        lstrcpy(Item->FindData.cFileName,ZipName);
+        strcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
       }
@@ -175,7 +175,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   Item->PackSize=FileSize;
   if (ArcType==Z_FORMAT)
   {
-    lstrcpy(Item->FindData.cFileName,ZipName);
+    strcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
     Item->FindData.nFileSizeLow=FileSize;
     return(GETARC_SUCCESS);
@@ -193,7 +193,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     if (!ReadFile(ArcHandle,Item->FindData.cFileName,sizeof(Item->FindData.cFileName),&ReadSize,NULL))
       return(GETARC_READERROR);
   if (*Item->FindData.cFileName==0)
-    lstrcpy(Item->FindData.cFileName,ZipName);
+    strcpy(Item->FindData.cFileName,ZipName);
   *ZipName=0;
   UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
   Info->Comment=(Header.Flags & 16)!=0;
@@ -234,7 +234,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       else
         EndPos = AdjustTARFileName (Header.name);
 
-      lstrcpyn(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
+      strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
       Item->FindData.dwFileAttributes=(GetOctal(Header.mode) & 0x4000) || ((Header.linkflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
       UnixTimeToFileTime(GetOctal(Header.timestamp),&Item->FindData.ftLastWriteTime);
       Item->FindData.nFileSizeHigh=0;
@@ -274,7 +274,7 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if(Info)
   {
-    lstrcpy(Info->Prefix,Prefix);
+    strcpy(Info->Prefix,Prefix);
   }
   return(CloseHandle(ArcHandle));
 }
@@ -282,23 +282,20 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 
 BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
+  static const char * const FmtAndExt[4][2]={
+    {"TAR","tar"},
+    {"GZip","gz"},
+    {"Z(Unix)","z"},
+    {"BZip","bz2"},
+  };
   switch(Type)
   {
     case TAR_FORMAT:
-      lstrcpy(FormatName,"TAR");
-      lstrcpy(DefaultExt,"tar");
-      return(TRUE);
     case GZ_FORMAT:
-      lstrcpy(FormatName,"GZip");
-      lstrcpy(DefaultExt,"gz");
-      return(TRUE);
     case Z_FORMAT:
-      lstrcpy(FormatName,"Z(Unix)");
-      lstrcpy(DefaultExt,"z");
-      return(TRUE);
     case BZ_FORMAT:
-      lstrcpy(FormatName,"BZip");
-      lstrcpy(DefaultExt,"bz2");
+      strcpy(FormatName,FmtAndExt[Type][0]);
+      strcpy(DefaultExt,FmtAndExt[Type][1]);
       return(TRUE);
   }
   return(FALSE);
@@ -307,113 +304,85 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 
 BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
-  switch(Type)
-  {
-    case TAR_FORMAT:
-    {
-      static char *Commands[]={
-        "tar --force-local -xf %%A %%FSQ32768",
-        "%comspec% /c tar --force-local -O -xf %%A %%fSQ > %%fWQ",
-        "",
-        "tar --delete --force-local -f %%A %%FSQ32768",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "tar --force-local -rf %%A %%FSQ32768",
-        "tar --force-local --remove-files -rf %%A %%FSQ32768",
-        "tar --force-local -rf %%A %%FSQ32768",
-        "tar --force-local --remove-files -rf %%A %%FSQ32768",
-        "*"
-      };
-      if (Command<sizeof(Commands)/sizeof(Commands[0]))
-      {
-        lstrcpy(Dest,Commands[Command]);
-        return(TRUE);
-      }
-      break;
-    }
-    case GZ_FORMAT:
-    {
-      static char *Commands[]={
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "gzip -t %%A",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "%COMSPEC% /c gzip -c %%fQ>%%A",
-        "gzip %%fQ",
-        "%COMSPEC% /c gzip -c %%fQ>%%A",
-        "gzip %%fQ",
-        "*"
-      };
-      if (Command<sizeof(Commands)/sizeof(Commands[0]))
-      {
-        lstrcpy(Dest,Commands[Command]);
-        return(TRUE);
-      }
-      break;
-    }
-    case Z_FORMAT:
-    {
-      static char *Commands[]={
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "gzip -t %%A",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "*"
-      };
-      if (Command<sizeof(Commands)/sizeof(Commands[0]))
-      {
-        lstrcpy(Dest,Commands[Command]);
-        return(TRUE);
-      }
-      break;
-    }
-    case BZ_FORMAT:
-    {
-      static char *Commands[]={
-        "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
-        "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
-        "%COMSPEC% /c bzip2 -cd %%A >nul",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "%COMSPEC% /c bzip2 -c %%fQ >%%A",
-        "bzip2 %%fQ",
-        "%COMSPEC% /c bzip2 -c %%fQ >%%A",
-        "bzip2 %%fQ",
-        "*"
-      };
-      if (Command<sizeof(Commands)/sizeof(Commands[0]))
-      {
-        lstrcpy(Dest,Commands[Command]);
-        return(TRUE);
-      }
-      break;
-    }
-  }
+   static const char * Commands[4][15]=
+   {
+     { // TAR_FORMAT
+       "tar --force-local -xf %%A %%FSQ32768",
+       "%comspec% /c tar --force-local -O -xf %%A %%fSQ > %%fWQ",
+       "",
+       "tar --delete --force-local -f %%A %%FSQ32768",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "tar --force-local -rf %%A %%FSQ32768",
+       "tar --force-local --remove-files -rf %%A %%FSQ32768",
+       "tar --force-local -rf %%A %%FSQ32768",
+       "tar --force-local --remove-files -rf %%A %%FSQ32768",
+       "*"
+     },
+
+     { // GZ_FORMAT
+       "%COMSPEC% /c gzip -cd %%A >%%fQ",
+       "%COMSPEC% /c gzip -cd %%A >%%fQ",
+       "gzip -t %%A",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "%COMSPEC% /c gzip -c %%fQ>%%A",
+       "gzip %%fQ",
+       "%COMSPEC% /c gzip -c %%fQ>%%A",
+       "gzip %%fQ",
+       "*"
+     },
+
+     { // Z_FORMAT
+       "%COMSPEC% /c gzip -cd %%A >%%fQ",
+       "%COMSPEC% /c gzip -cd %%A >%%fQ",
+       "gzip -t %%A",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "*"
+     },
+
+     { // BZ_FORMAT
+       "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
+       "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
+       "%COMSPEC% /c bzip2 -cd %%A >nul",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "",
+       "%COMSPEC% /c bzip2 -c %%fQ >%%A",
+       "bzip2 %%fQ",
+       "%COMSPEC% /c bzip2 -c %%fQ >%%A",
+       "bzip2 %%fQ",
+       "*"
+     },
+   };
+   if (Type >= TAR_FORMAT && Type <= BZ_FORMAT && Command < sizeof(Commands[Type])/sizeof(Commands[Type][0]))
+   {
+     strcpy(Dest,Commands[Type][Command]);
+     return(TRUE);
+   }
   return(FALSE);
 }
 
@@ -512,7 +481,7 @@ char *AdjustTARFileName(char *FileName)
   if( *EndPos == '.') ++EndPos;
   if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
 
-  if(EndPos != FileName && !Prefix[0] && lstrcmp(FileName,".\\"))
+  if(EndPos != FileName && !Prefix[0] && strcmp(FileName,".\\"))
     memcpy(Prefix,FileName,min((int)sizeof(Prefix)-1,(int)(EndPos-FileName)));
   return EndPos;
 }

@@ -100,7 +100,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
         return;
       }
       Items=NewItems;
-      strncpy(Items[Count].Text, Format, sizeof(Items[Count].Text));
+      strncpy(Items[Count].Text, Format, sizeof(Items[Count].Text)-1);
       Items[Count].Flags=(Count==0 && *ArcFormat==0 ||
                           !stricmp(ArcFormat, Format))?MIF_SELECTED:0;
       Count++;
@@ -292,7 +292,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     if(!Ret)
       pdd->DefExt[0]=0;
     else
-      strncpy(pdd->DefExt,Buffer,sizeof(pdd->DefExt));
+      strncpy(pdd->DefExt,Buffer,sizeof(pdd->DefExt)-1);
 
     if(IsDelOldDefExt)
       Info.SendDlgMessage(hDlg, MAM_ADDDEFEXT, 0, 0);
@@ -668,7 +668,7 @@ void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
   int Len=(Dot && !(Items->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
           ?(Dot-Name):strlen(Name);
   for(int i=1; i<Count; i++)
-    if(NoGroop || strnicmp(Name, Items[i].FindData.cFileName, Len))
+    if(NoGroop || FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
 //    if(strncmpi(Name, Items[i].FindData.cFileName, Len))
     {
       //взять имя папки

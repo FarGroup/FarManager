@@ -220,10 +220,10 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 
 char* QuoteText(char *Str)
 {
-  char *TmpStr=new char[strlen(Str)+3];
-  FSF.sprintf(TmpStr,"\"%s\"",Str);
-  strcpy(Str,TmpStr);
-  delete TmpStr;
+  int LastPos=strlen(Str);
+  memmove(Str+1,Str,LastPos+1);
+  Str[LastPos+1]=*Str='"';
+  Str[LastPos+2]=0;
   return Str;
 }
 
@@ -258,10 +258,7 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->Selected=PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    if ((unsigned int)PInit->Data<2000)
-      strcpy(PItem->Data,GetMsg((unsigned int)PInit->Data));
-    else
-      strcpy(PItem->Data,PInit->Data);
+    strcpy(PItem->Data,((DWORD)PInit->Data<2000)?GetMsg((unsigned int)PInit->Data):PInit->Data);
   }
 }
 
@@ -269,7 +266,8 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
 void InsertCommas(unsigned long Number,char *Dest)
 {
   int I;
-  FSF.sprintf(Dest,"%u",Number);
+  //FSF.sprintf(Dest,"%u",Number);
+  FSF.itoa(Number,Dest,10);
   for (I=strlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
