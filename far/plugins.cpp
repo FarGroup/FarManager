@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.159 31.01.2005 $ */
+/* Revision: 1.160 04.02.2005 $ */
 
 /*
 Modify:
+  04.02.2005 SVS
+    - Если в меню плагинов/конфигурации отсутствовали хоткеи, то диалог создания хоткея показывал чепуху.
   31.01.2005 SVS
     - BugZ#1249 - Дополнительная информативность в диалоге "Assign Hotkey"
   11.12.2004 WARP
@@ -2525,6 +2527,11 @@ void PluginsSet::Configure(int StartPos)
       BOOL Done=FALSE;
       int MenuItemNumber=0;
 
+
+      char FirstHotKey[512];
+      int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
+
+
       if(NeedUpdateItems)
       {
         PluginList.ClearDone();
@@ -2533,9 +2540,7 @@ void PluginsSet::Configure(int StartPos)
         MenuItemNumber=0;
 
         LoadIfCacheAbsent();
-        char FirstHotKey[512];
         char HotRegKey[512],HotKey[100];
-        int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
 
         *HotKey=0;
 
@@ -2638,7 +2643,10 @@ void PluginsSet::Configure(int StartPos)
               BlockExtKey blockExtKey;
               struct PluginInfo Info;
               char Name00[NM];
-              xstrncpy(Name00,PluginList.GetItemPtr()->Name+3,sizeof(Name00)-1);
+
+              int nOffset = HotKeysPresent?3:0;
+
+              xstrncpy(Name00,PluginList.GetItemPtr()->Name+nOffset,sizeof(Name00)-1);
               RemoveExternalSpaces(Name00);
               if(GetMenuHotKey(NULL,1,
                         (char *)MPluginHotKeyTitle,
@@ -2699,8 +2707,13 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
     BOOL NeedUpdateItems=TRUE;
     BOOL Done=FALSE;
 
+
     while(!Done)
     {
+
+      char FirstHotKey[512];
+      int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
+
       if(NeedUpdateItems)
       {
         PluginList.ClearDone();
@@ -2708,9 +2721,6 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
         PluginList.SetPosition(-1,-1,0,0);
 
         LoadIfCacheAbsent();
-
-        char FirstHotKey[512];
-        int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
 
         for (int I=0;I<PluginsCount;I++)
         {
@@ -2827,7 +2837,10 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           {
             BlockExtKey blockExtKey;
             char Name00[NM];
-            xstrncpy(Name00,PluginList.GetItemPtr()->Name+3,sizeof(Name00)-1);
+
+            int nOffset = HotKeysPresent?3:0;
+
+            xstrncpy(Name00,PluginList.GetItemPtr()->Name+nOffset,sizeof(Name00)-1);
             RemoveExternalSpaces(Name00);
             if(GetMenuHotKey(NULL,1,(char *)MPluginHotKeyTitle,(char *)MPluginHotKey,Name00,NULL,RegKey,"Hotkey"))
             {
