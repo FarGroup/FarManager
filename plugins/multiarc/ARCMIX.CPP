@@ -255,10 +255,10 @@ void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Ite
     PItem->X2=PInit->X2;
     PItem->Y2=PInit->Y2;
     PItem->Focus=PInit->Focus;
-    PItem->Selected=PInit->Selected;
+    PItem->Param.Selected=PInit->Selected;
     PItem->Flags=PInit->Flags;
     PItem->DefaultButton=PInit->DefaultButton;
-    strcpy(PItem->Data,((DWORD)PInit->Data<2000)?GetMsg((unsigned int)PInit->Data):PInit->Data);
+    strcpy(PItem->Data.Data,((DWORD)PInit->Data<2000)?GetMsg((unsigned int)PInit->Data):PInit->Data);
   }
 }
 
@@ -421,7 +421,7 @@ BOOL AddExt(char *Name, char *Ext)
   {
     // transform Ext
     char NewExt[NM], *Ptr;
-    strncpy(NewExt,Ext,sizeof(NewExt));
+    strncpy(NewExt,Ext,sizeof(NewExt)-1);
 
     int Up=0, Lw=0;
     Ptr=Name;

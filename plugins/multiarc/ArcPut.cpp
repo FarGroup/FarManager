@@ -73,7 +73,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
   FarListItem *&Items=ListItems.Items;
   char Format[100], DefExt[NM];
 
-  DialogItem->ListItems=NULL;
+  DialogItem->Param.ListItems=NULL;
   Items=NULL;
   Count=0;
   for(int i=0; i<ArcPlugin->FmtCount(); i++)
@@ -116,7 +116,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
 
   FSF.qsort(Items, Count, sizeof(struct FarMenuItemEx), (FCmp)Compare);
 
-  DialogItem->ListItems=&ListItems;
+  DialogItem->Param.ListItems=&ListItems;
 }
 
 
@@ -174,13 +174,13 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     if(Param1 == PDI_ARCNAMEEDT)
     {
       FarDialogItem *Item=(FarDialogItem *)Param2;
-      Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, Item->Data[0] != 0);
+      Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, Item->Data.Data[0] != 0);
       //pdd->ArcNameChanged=TRUE;
       Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_EXACTNAMECHECK, 1);
     }
     else if(Param1 == PDI_SELARCCOMB)
     {
-      strcpy(pdd->ArcFormat, ((FarDialogItem *)Param2)->Data);
+      strcpy(pdd->ArcFormat, ((FarDialogItem *)Param2)->Data.Data);
       Info.SendDlgMessage(hDlg, MAM_SELARC, 0, 0);
     }
     else if(Param1 == PDI_SWITCHESEDT)
@@ -447,12 +447,12 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     {
       pdd.NoChangeArcName=TRUE;
       pdd.OldExactState=TRUE;
-      strcpy(DialogItems[PDI_ARCNAMEEDT].Data, ArcName);
+      strcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, ArcName);
     }
     else
     {
 #ifdef _ARC_UNDER_CURSOR_
-      if(GetCursorName(DialogItems[PDI_ARCNAMEEDT].Data, pdd.ArcFormat, pdd.DefExt))
+      if(GetCursorName(DialogItems[PDI_ARCNAMEEDT].Data.Data, pdd.ArcFormat, pdd.DefExt))
       {
         //pdd.NoChangeArcName=TRUE;
         pdd.OldExactState=TRUE;
@@ -462,12 +462,12 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 #endif //_ARC_UNDER_CURSOR_
         pdd.OldExactState=Opt.AutoOffExactArcName?FALSE:Opt.ExactArcName;
 #ifdef _GROOP_NAME_
-        GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data);
+        GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data.Data);
 #else //_GROOP_NAME_
         if(ItemsNumber==1)
         {
-          strcpy(DialogItems[PDI_ARCNAMEEDT].Data, PanelItem->FindData.cFileName);
-          char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data,'.');
+          strcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, PanelItem->FindData.cFileName);
+          char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data.Data,'.');
           if(Dot!=NULL)
             *Dot=0;
         }
@@ -475,11 +475,11 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         {
           char CurDir[NM];
           GetCurrentDirectory(sizeof(CurDir),CurDir);
-          strcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDir));
+          strcpy(DialogItems[PDI_ARCNAMEEDT].Data.Data, FSF.PointToName(CurDir));
         }
 #endif //else _GROOP_NAME_
         if(pdd.OldExactState && !*ArcName)
-          AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
+          AddExt(DialogItems[PDI_ARCNAMEEDT].Data.Data, pdd.DefExt);
 #ifdef _ARC_UNDER_CURSOR_
       }
 #endif //_ARC_UNDER_CURSOR_
@@ -494,11 +494,11 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       AA 29.11.2001 $ */
     }
 
-    DialogItems[PDI_ADDDELCHECK].Selected=Move;
+    DialogItems[PDI_ADDDELCHECK].Param.Selected=Move;
     /* $ 13.04.2001 DJ
        UserBackground instead of Background
     */
-    DialogItems[PDI_BGROUNDCHECK].Selected=Opt.UserBackground;
+    DialogItems[PDI_BGROUNDCHECK].Param.Selected=Opt.UserBackground;
     /* DJ $ */
     //strcpy(pdd.OriginalName,DialogItems[PDI_ARCNAMEEDT].Data);
 
@@ -509,25 +509,25 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                   DialogItems,COUNT(DialogItems),
                   0,0,PluginClass::PutDlgProc,(long)&pdd);
 
-      strcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
+      strcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data.Data);
       //strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001
-      Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
-      if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
+      Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Param.Selected;
+      if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data.Data==0)
         return -1;
       SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
-      Opt.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
+      Opt.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Param.Selected;
       SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
     }
 
     char *Ext;
-    SeekDefExtPoint(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt, &Ext);
-    if(DialogItems[PDI_EXACTNAMECHECK].Selected)
+    SeekDefExtPoint(DialogItems[PDI_ARCNAMEEDT].Data.Data, pdd.DefExt, &Ext);
+    if(DialogItems[PDI_EXACTNAMECHECK].Param.Selected)
     {
       if(Ext==NULL)
-        strcat(DialogItems[PDI_ARCNAMEEDT].Data, ".");
+        strcat(DialogItems[PDI_ARCNAMEEDT].Data.Data, ".");
     }
     else
-      AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
+      AddExt(DialogItems[PDI_ARCNAMEEDT].Data.Data, pdd.DefExt);
 
     int Recurse=FALSE;
     for (int I=0;I<ItemsNumber;I++)
@@ -537,7 +537,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         break;
       }
     int CommandType;
-    if (DialogItems[PDI_ADDDELCHECK].Selected)
+    if (DialogItems[PDI_ADDDELCHECK].Param.Selected)
       CommandType=Recurse ? CMD_MOVERECURSE:CMD_MOVE;
     else
       CommandType=Recurse ? CMD_ADDRECURSE:CMD_ADD;
@@ -566,19 +566,19 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       strcpy(CmdRest,SwPos[3]=='}' ? SwPos+4:SwPos+3);
       if (SwPos!=Command && *(SwPos-1)=='{')
         SwPos--;
-      strcpy(SwPos,DialogItems[PDI_SWITCHESEDT].Data);
+      strcpy(SwPos,DialogItems[PDI_SWITCHESEDT].Data.Data);
       strcat(Command,CmdRest);
     }
     else
-      if (*DialogItems[PDI_SWITCHESEDT].Data)
+      if (*DialogItems[PDI_SWITCHESEDT].Data.Data)
       {
         strcat(Command," ");
-        strcat(Command,DialogItems[PDI_SWITCHESEDT].Data);
+        strcat(Command,DialogItems[PDI_SWITCHESEDT].Data.Data);
       }
 
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,
-                      DialogItems[PDI_ARCNAMEEDT].Data,"",pdd.Password1,
+                      DialogItems[PDI_ARCNAMEEDT].Data.Data,"",pdd.Password1,
                       AllFilesMask,IgnoreErrors,0,0,CurDir,CurArcInfo.Prefix);
 
 #ifdef _NEW_ARC_SORT_
@@ -591,7 +591,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     if (ArcCmd.GetExecCode()==RETEXEC_ARCNOTFOUND)
       continue;
 
-    if (GetFullPathName(DialogItems[PDI_ARCNAMEEDT].Data,sizeof(FullName),FullName,&NamePtr))
+    if (GetFullPathName(DialogItems[PDI_ARCNAMEEDT].Data.Data,sizeof(FullName),FullName,&NamePtr))
       strcpy(ArcName,FullName);
     break;
   }
