@@ -228,7 +228,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
           if(*Buffer==0)
             continue;
         }
- 
+
         NewMenuItems=(struct FarMenuItemEx *)realloc(MenuItems,
                              (MenuItemsNumber+1)*sizeof(struct FarMenuItemEx));
         if (NewMenuItems==NULL)
@@ -352,9 +352,9 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
     Info.Control(this,FCTL_GETPANELINFO,&PInfo);
     GetFiles(PInfo.SelectedItems,PInfo.SelectedItemsNumber,FALSE,PInfo.CurDir,OPM_SILENT);
 //    Info.RestoreScreen(hScreen);
-    Info.Control(this,FCTL_UPDATEPANEL,NULL);
+    Info.Control(this,FCTL_UPDATEPANEL,(void*)1);
     Info.Control(this,FCTL_REDRAWPANEL,NULL);
-    Info.Control(this,FCTL_UPDATEANOTHERPANEL,NULL);
+    Info.Control(this,FCTL_UPDATEANOTHERPANEL,(void*)1);
     Info.Control(this,FCTL_REDRAWANOTHERPANEL,NULL);
     return TRUE;
   }
