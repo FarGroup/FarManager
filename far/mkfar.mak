@@ -255,8 +255,8 @@ Far.def
    @del $(FINALPATH)\Far.ils  >nul
    @del $(FINALPATH)\Far.tds  >nul
 !endif
-   @copy FarEng.hlf $(FINALPATH)\FarEng.hlf >nul
-   @copy FarRus.hlf $(FINALPATH)\FarRus.hlf >nul
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) FarEng.hlf > $(FINALPATH)\FarEng.hlf
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) FarRus.hlf > $(FINALPATH)\FarRus.hlf
    @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
    @copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
 

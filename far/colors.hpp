@@ -1,16 +1,45 @@
 #ifndef __COLORS_HPP__
 #define __COLORS_HPP__
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
+#ifdef FAR_USE_INTERNALS
 /*
 colors.hpp
 
 Цвета
 
 */
+#else // ELSE FAR_USE_INTERNALS
+/*
+  FARCOLOR.HPP
 
-/* Revision: 1.07 06.06.2001 $ */
+  Colors Index for FAR Manager 1.70
+  HKCU\Software\Far\Colors\CurrentPalette
 
+  Copyright (c) 1996-2000 Eugene Roshal
+  Copyrigth (c) 2000-2001 FAR group
+*/
+#endif // END FAR_USE_INTERNALS
+
+/* Revision: 1.08 09.08.2001 $ */
+
+#ifdef FAR_USE_INTERNALS
+/*
+  Внимание!
+  Пункт COL_LASTPALETTECOLOR должен быть самым последним!!!!!!
+*/
 /*
 Modify:
+  09.08.2001 SVS
+    + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
+      который будет генерить одноименный файл для дистрибутива. Если нужно
+      исключить что либо от внешнего взгляда - заключить вот в такие "скобки":
+      1 # ifdef FAR_USE_INTERNALS
+      2   то, что должно быть скрыто
+      3 # else // ELSE FAR_USE_INTERNALS
+      4   замена!
+      5 # endif // END FAR_USE_INTERNALS
   07.06.2001 SVS
     + COL_EDITORCLOCK, COL_VIEWERCLOCK
   21.05.2001 SVS
@@ -70,13 +99,17 @@ enum {
     F_MASK=F_WHITE,
     B_MASK=B_WHITE
 };
-
+#endif // END FAR_USE_INTERNALS
 
 enum PaletteColors
 {
+#ifdef FAR_USE_INTERNALS
   COL_FIRSTPALETTECOLOR=1000,
 
   COL_MENUTEXT=COL_FIRSTPALETTECOLOR,
+#else // ELSE FAR_USE_INTERNALS
+  COL_MENUTEXT,
+#endif // END FAR_USE_INTERNALS
   COL_MENUSELECTEDTEXT,
   COL_MENUHIGHLIGHT,
   COL_MENUSELECTEDHIGHLIGHT,
@@ -160,46 +193,32 @@ enum PaletteColors
   COL_COMMANDLINESELECTED,
   COL_VIEWERARROWS,
 
+#ifdef FAR_USE_INTERNALS
   /* $ 11.07.2000 SVS
     + 1 Служебная позиция перед новыми цветами :-)
   */
   COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO,
-  /* SVS $ */
-  /* $ 29.06.2000 SVS
-    Цветовые атрибуты для Menu ScrollBar
-  */
-  COL_DIALOGMENUSCROLLBAR,  // для случая History
-  COL_MENUSCROLLBAR,            // для обычного меню
-  /* SVS $ */
-  /* $ 18.07.2000 tran
-     scrollbar для viewer*/
+#else // ELSE FAR_USE_INTERNALS
+  COL_RESERVED0,
+#endif // END FAR_USE_INTERNALS
+
+  COL_DIALOGMENUSCROLLBAR,
+  COL_MENUSCROLLBAR,
   COL_VIEWERSCROLLBAR,
-  /* tran 18.07.2000 $ */
-  /* $ 13.09.2000 tran
-     comman list prefix */
   COL_COMMANDLINEPREFIX,
-  /* tran 13.09.2000 $ */
-  /* $ 04.12.2000 SVS
-     COL_*DIALOG*DISABLED - Недоступный элемент диалога с атрибутом DIF_DISABLE */
   COL_DIALOGDISABLED,
   COL_DIALOGEDITDISABLED,
   COL_DIALOGLISTDISABLED,
   COL_WARNDIALOGDISABLED,
   COL_WARNDIALOGEDITDISABLED,
   COL_WARNDIALOGLISTDISABLED,
-  /* SVS 04.12.2000 $ */
-
 
   COL_MENUDISABLEDTEXT,
 
   COL_EDITORCLOCK,
   COL_VIEWERCLOCK,
 
-  /* $ 13.12.2000 SVS
-     Этот пункт должен быть самым последним!!!!!!
-  */
   COL_LASTPALETTECOLOR
-  /* SVS $ */
 };
 
 #endif  // __COLORS_HPP__

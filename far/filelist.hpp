@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.14 20.07.2001 $ */
+/* Revision: 1.15 09.08.2001 $ */
 
 /*
 Modify:
+  09.08.2001 SVS
+    + virtual long GetFileCount() для нужд макросов :-)
   20.07.2001 SVS
     ! PluginPanelHelp переехала из help.hpp
   22.06.2001 SKV
@@ -276,6 +278,7 @@ class FileList:public Panel
     int ProcessPluginEvent(int Event,void *Param);
     void SetTitle();
     int PluginPanelHelp(HANDLE hPlugin);
+    long GetFileCount() {return FileCount;}
 
     /* $ 30.04.2001 DJ
        добавлен UpdateKeyBar()

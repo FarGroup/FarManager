@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.08 22.06.2001 $ */
+/* Revision: 1.09 09.08.2001 $ */
 
 /*
 Modify:
+  09.08.2001 SVS
+    + virtual long GetFileCount() для нужд макросов :-)
   22.06.2001 SKV
     + Параметр Force у UpdateIfChanged.
   06.05.2001 DJ
@@ -192,6 +194,7 @@ class Panel:public ScreenObject
     */
     virtual BOOL UpdateKeyBar() { return FALSE; };
     /* DJ $ */
+    virtual long GetFileCount() {return 0;}
 
     static void EndDrag();
     void Hide();

@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.14 22.06.2001 $ */
+/* Revision: 1.15 09.08.2001 $ */
 
 /*
 Modify:
+  09.08.2001 SVS
+    + IfCondition() - вернет TRUE/FALSE в зависимости от условия
   22.06.2001 SVS
     + GetMacroPlainText()
   20.06.2001 SVS
@@ -69,6 +71,11 @@ struct MacroRecord
   DWORD *Buffer;
 };
 
+/* $TODO:
+    1. Удалить IndexMode[], Sort()
+    2. Из Macros сделать
+       struct MacroRecord *Macros[MACRO_LAST];
+*/
 class KeyMacro
 {
   private:
@@ -115,6 +122,7 @@ class KeyMacro
     BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags);
     BOOL CheckAll(DWORD CurFlags);
     void Sort(void);
+    BOOL IfCondition(DWORD Key,DWORD Flags,DWORD Code);
 
   public:
     KeyMacro();

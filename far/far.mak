@@ -265,8 +265,8 @@ LINK32_OBJS= \
    @if exist "$(OUTDIR)\FarRus.hlf" del "$(OUTDIR)\FarRus.hlf"  >nul
    @if exist "$(OUTDIR)\FarEng.lng" del "$(OUTDIR)\FarEng.lng"  >nul
    @if exist "$(OUTDIR)\FarRus.lng" del "$(OUTDIR)\FarRus.lng"  >nul
-   @copy ".\FarEng.hlf" "$(OUTDIR)\FarEng.hlf" >nul
-   @copy ".\FarRus.hlf" "$(OUTDIR)\FarRus.hlf" >nul
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarEng.hlf" > "$(OUTDIR)\FarEng.hlf"
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarRus.hlf" > "$(OUTDIR)\FarRus.hlf"
    @copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
    @copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
 
@@ -512,8 +512,8 @@ LINK32_OBJS= \
    @if exist "$(OUTDIR)\FarRus.hlf" del "$(OUTDIR)\FarRus.hlf"  >nul
    @if exist "$(OUTDIR)\FarEng.lng" del "$(OUTDIR)\FarEng.lng"  >nul
    @if exist "$(OUTDIR)\FarRus.lng" del "$(OUTDIR)\FarRus.lng"  >nul
-   @copy ".\FarEng.hlf" "$(OUTDIR)\FarEng.hlf" >nul
-   @copy ".\FarRus.hlf" "$(OUTDIR)\FarRus.hlf" >nul
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarEng.hlf" > "$(OUTDIR)\FarEng.hlf"
+   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarRus.hlf" > "$(OUTDIR)\FarRus.hlf"
    @copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
    @copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
 

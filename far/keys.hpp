@@ -1,5 +1,9 @@
 #ifndef __FARKEYS_HPP__
 #define __FARKEYS_HPP__
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
+#ifdef FAR_USE_INTERNALS
 /*
 keys.hpp
 
@@ -9,11 +13,31 @@ keys.hpp
   Новые пвсевдоклавиши, типа KEY_FOCUS_CHANGED и KEY_CONSOLE_BUFFER_RESIZE
   добавлять между KEY_END_FKEY и KEY_END_SKEY
 */
+#else // ELSE FAR_USE_INTERNALS
+/*
+  farkeys.hpp
 
-/* Revision: 1.15 10.07.2001 $ */
+  Inside KeyName for FAR Manager 1.70
 
+  Copyright (c) 1996-2000 Eugene Roshal
+  Copyrigth (c) 2000-2001 FAR group
+*/
+#endif // END FAR_USE_INTERNALS
+
+/* Revision: 1.16 09.08.2001 $ */
+
+#ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  09.08.2001 SVS
+    + Маркеры про FAR_USE_INTERNALS. Просьба не убирать! Это для скрипта,
+      который будет генерить одноименный файл для дистрибутива. Если нужно
+      исключить что либо от внешнего взгляда - заключить вот в такие "скобки":
+      1 # ifdef FAR_USE_INTERNALS
+      2   то, что должно быть скрыто
+      3 # else // ELSE FAR_USE_INTERNALS
+      4   замена!
+      5 # endif // END FAR_USE_INTERNALS
   10.07.2001 SVS
     + KEY_MACROXLAT - для макросов это будет $XLat
   22.06.2001 SVS
@@ -73,6 +97,7 @@ LoWord
   LoByte - ASCII Code
 
 */
+#endif // END FAR_USE_INTERNALS
 
 enum BaseDefKeyboard
 {
@@ -147,16 +172,17 @@ enum BaseDefKeyboard
 
   KEY_NONE                 =0x00001001,
   KEY_IDLE                 =0x00001002,
+#ifdef FAR_USE_INTERNALS
   KEY_DRAGCOPY             =0x00001003,
   KEY_DRAGMOVE             =0x00001004,
   KEY_LOCKSCREEN           =0x00001005,
 
   KEY_FOCUS_CHANGED        =0x00001006,
   KEY_CONSOLE_BUFFER_RESIZE=0x00001007,
-
+#endif // END FAR_USE_INTERNALS
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
-
+#ifdef FAR_USE_INTERNALS
   // сюды писать обобщенные макро-команды, которые доступны в других модулях
   KEY_MACRO_BASE           =0x00800000,
   //
@@ -168,6 +194,7 @@ enum BaseDefKeyboard
   KEY_MACROSPEC_BASE       =0x00C00000,
   // отсюда начинаются коды специализированных макро-кодов,
   // объявленных в macro.cpp
+#endif // END FAR_USE_INTERNALS
 };
 
 enum AddDefKeyboard
