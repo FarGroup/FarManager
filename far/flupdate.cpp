@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.26 14.01.2002 $ */
+/* Revision: 1.27 24.01.2002 $ */
 
 /*
 Modify:
+  24.01.2002 VVM
+    ! ѕомен€ем логику обновлени€ панелей
+    ! hListChange работает с INVALID_HANDLE_VALUE, а не с NULL
   14.01.2002 IS
     - ќпечатка
   27.12.2001 SVS
@@ -480,8 +483,16 @@ int FileList::UpdateIfChanged(int Force)
     {
       if(!Force)
         ProcessPluginEvent(FE_IDLE,NULL);
-      if (PanelMode==NORMAL_PANEL && hListChange!=NULL)
-        if (WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0)
+      /* $ 24.12.2002 VVM
+        ! ѕомен€ем логику обновлени€ панелей. */
+      if(// Ќормальна€ панель, на ней установлено уведомление и есть сигнал
+         (PanelMode==NORMAL_PANEL && hListChange!=INVALID_HANDLE_VALUE && WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0) ||
+         // »ли Ќормальна€ панель, но нет уведомлени€ и мы попросили обновить через Force
+         (PanelMode==NORMAL_PANEL && hListChange==INVALID_HANDLE_VALUE && Force) ||
+         // »ли плагинна€ панель и обновл€ем через Force
+         (PanelMode!=NORMAL_PANEL && Force)
+        )
+      /* VVM $ */
         {
           Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
           // ¬ этом случае - просто перекрасим
@@ -528,10 +539,10 @@ void FileList::CreateChangeNotification(int CheckTree)
 
 void FileList::CloseChangeNotification()
 {
-  if (hListChange!=NULL)
+  if (hListChange!=INVALID_HANDLE_VALUE)
   {
     FindCloseChangeNotification(hListChange);
-    hListChange=NULL;
+    hListChange=INVALID_HANDLE_VALUE;
   }
 }
 

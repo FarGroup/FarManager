@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.127 23.01.2002 $ */
+/* Revision: 1.128 24.01.2002 $ */
 
 /*
 Modify:
+  24.01.2002 VVM
+    ! hListChange инициализируем INVALID_HANDLE_VALUE.
+      Все-таки под виндами с хендлами работаем, а не в сях с указателями :)
   23.01.2002 SVS
     - для плагинов не добавляем в конец "." когда Ctrl-F делается для ".."
     + Добавка для Shift-F4 - при несуществующем пути задать вопрос
@@ -438,7 +441,7 @@ FileList::FileList()
   PluginsStackSize=0;
   ShiftSelection=-1;
   DisableOut=0;
-  hListChange=NULL;
+  hListChange=INVALID_HANDLE_VALUE;
   SelFileCount=0;
   SelFileSize=0;
   TotalFileCount=0;

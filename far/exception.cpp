@@ -5,10 +5,13 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.10 22.01.2002 $ */
+/* Revision: 1.11 24.01.2002 $ */
 
 /*
 Modify:
+  24.01.2002 SVS
+    ! Все же вызовим писателя (WriteEvent) - а уже в нем есть проверка на
+      запись
   22.01.2002 SVS
     ! Уточнение в PLUGINRECORD
     + System/UseFarevent:DWORD = 1 писать в дамп, по умолчанию отключено
@@ -542,10 +545,8 @@ int xfilter(
    EXCEPTION_RECORD *xr = xp->ExceptionRecord;
 
    // выведим дамп перед выдачей сообщений
-#if defined(_DEBUG)
    if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
      WriteEvent(FLOG_ALL&(~FLOG_PLUGINSINFO),xp,Module,NULL,0);
-#endif
 
    // CONTEXT можно использовать для отображения или записи в лог
    //         содержимого регистров...
