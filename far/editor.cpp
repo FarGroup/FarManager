@@ -6,10 +6,19 @@ editor.cpp
 
 */
 
-/* Revision: 1.81 03.04.2001 $ */
+/* Revision: 1.82 10.04.2001 $ */
 
 /*
 Modify:
+  10.04.2001 SVS
+    - Если файл RO и мы отказались его открывать - все равно плагину
+      посылался эвент, что мол файл закрыт! И это при том, что плагин не
+      получал эвен про удачное чтение - галиматья, блин :-((((
+    ! Избавляемся от варнингов.
+    - ^P/^M - некорректно работали: уловие для CurPos должно быть ">=",
+      а не "меньше".
+    - Забыли Pasting выставить :-( - для Shift-Ins из-за чего тот же колорер
+      неверно отрабатывал.
   03.04.2001 IS
     + Обработка ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL, ESPT_CHARCODEBASE
       (это в ECTL_SETPARAM)
@@ -325,7 +334,8 @@ Editor::Editor()
   UndoOverflow=FALSE;
   UndoSavePos=0;
   Editor::EditorID=::EditorID++;
-  OpenFailed=false;
+  OpenFailed=true; // Ну, блин. Файл то еще не открыт,
+                   // так нефига ставить признак удачного открытия
   HostFileEditor=NULL;
 }
 
@@ -353,7 +363,8 @@ Editor::~Editor()
           Table=TableNum+2;
     }
 
-    CtrlObject->EditorPosCache.AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
+    if (!OpenFailed) // здесь БЯКА в кеш попадала :-(
+      CtrlObject->EditorPosCache.AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
                (Opt.SaveEditorShortPos?SavePosLine:NULL),
                (Opt.SaveEditorShortPos?SavePosCursor:NULL),
                (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
@@ -374,6 +385,7 @@ Editor::~Editor()
   if (!OpenFailed)
   {
     CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_CLOSE",__LINE__);
     CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&EditorID);
   }
 
@@ -766,6 +778,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
       CurPtr->EditLine.SetTables(&TableSet);
 
   CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_READ",__LINE__);
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
   return(TRUE);
 }
@@ -843,6 +856,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
     }
 
     CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_SAVE",__LINE__);
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
     DWORD Flags=FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN;
@@ -942,7 +956,7 @@ void Editor::DisplayObject()
 void Editor::ShowEditor(int CurLineOnly)
 {
   struct EditList *CurPtr;
-  int LeftPos=0,CurPos,Y;
+  int LeftPos,CurPos,Y;
   if (DisableOut)
     return;
 
@@ -989,6 +1003,7 @@ void Editor::ShowEditor(int CurLineOnly)
       /*$ 13.09.2000 skv
         EE_REDRAW 1 and 2 replaced.
       */
+//SysLog("%08d EE_REDRAW",__LINE__);
       if(JustModified)
       {
         JustModified=0;
@@ -1423,6 +1438,7 @@ int Editor::ProcessKey(int Key)
           {
             PrevLine->EditLine.Select(SelStart,-1);
             CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_REDRAW",__LINE__);
             CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
             PrevLine->EditLine.FastShow();
           }
@@ -1430,6 +1446,7 @@ int Editor::ProcessKey(int Key)
         Pasting--;
       }
       CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_REDRAW",__LINE__);
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
       return(TRUE);
     case KEY_CTRLSHIFTLEFT:
@@ -1611,11 +1628,16 @@ int Editor::ProcessKey(int Key)
         Pasting++;
         ProcessKey(Key==KEY_CTRLP ? KEY_CTRLINS:KEY_SHIFTDEL);
 
+        /* $ 10.04.2001 SVS
+          ^P/^M - некорректно работали: уловие для CurPos должно быть ">=",
+           а не "меньше".
+        */
         if (Key==KEY_CTRLM && SelStart!=-1 && SelEnd!=-1)
-          if (CurPos>SelEnd)
+          if (CurPos>=SelEnd)
             CurLine->EditLine.SetCurPos(CurPos-(SelEnd-SelStart));
           else
             CurLine->EditLine.SetCurPos(CurPos);
+        /* SVS $ */
         ProcessKey(KEY_SHIFTINS);
         Pasting--;
 
@@ -1648,6 +1670,10 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLV:
     case KEY_SHIFTINS:
+      /* $ 10.04.2001 SVS
+         Забыли Pasting выставить :-(
+      */
+      Pasting++;
       if (!EdOpt.PersistentBlocks && VBlockStart==NULL)
         DeleteBlock();
       Paste();
@@ -1655,8 +1681,10 @@ int Editor::ProcessKey(int Key)
       MarkingVBlock=FALSE;
       if (!EdOpt.PersistentBlocks)
         UnmarkBlock();
+      Pasting--;
       Show();
       return(TRUE);
+      /* SVS $ */
     case KEY_LEFT:
       NewUndo=TRUE;
       if (CurPos==0 && CurLine->Prev!=NULL)
@@ -2380,6 +2408,7 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_LEFT);
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_REDRAW",__LINE__);
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           return(TRUE);
         }
@@ -2393,6 +2422,7 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_DOWN);
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_REDRAW",__LINE__);
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
           /*$ 03.02.2001 SKV
             А то EEREDRAW_ALL то уходит, а на самом деле
@@ -2526,6 +2556,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     else
     {
       CtrlObject->Plugins.CurEditor=this;
+//SysLog("%08d EE_REDRAW",__LINE__);
       CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
     }
     return(TRUE);
@@ -3142,7 +3173,7 @@ void Editor::Search(int Next)
               int SaveOvertypeMode=Overtype;
               Overtype=TRUE;
               CurLine->EditLine.SetOvertypeMode(TRUE);
-              int CurPos=CurLine->EditLine.GetCurPos();
+              //int CurPos=CurLine->EditLine.GetCurPos();
               int I;
               for (I=0;SearchStr[I]!=0 && ReplaceStr[I]!=0;I++)
               {
@@ -3179,7 +3210,7 @@ void Editor::Search(int Next)
               }
               int Cnt=0;
               char *Tmp=(char*)ReplaceStr;
-              while(Tmp=strchr(Tmp,13))
+              while((Tmp=strchr(Tmp,13)) != NULL)
               {
                 Cnt++;
                 Tmp++;
@@ -3653,7 +3684,7 @@ void Editor::GoToPosition()
    и вычисляет новые координаты */
 void Editor::GetRowCol(char *argv,int *row,int *col)
 {
-  int x=0xffff,y=0,l;
+  int x=0xffff,y,l;
   char *argvx=0;
   int LeftPos=CurLine->EditLine.GetTabCurPos() + 1;
 
@@ -4794,19 +4825,19 @@ int Editor::EditorControl(int Command,void *Param)
         {
           case ESPT_TABSIZE:
             SetTabSize(espar->iParam);
-            return TRUE;
+            break;
           case ESPT_EXPANDTABS:
             SetConvertTabs(espar->iParam);
-            return TRUE;
+            break;
           case ESPT_AUTOINDENT:
             SetAutoIndent(espar->iParam);
-            return TRUE;
+            break;
           case ESPT_CURSORBEYONDEOL:
             SetCursorBeyondEOL(espar->iParam);
-            return TRUE;
+            break;
           case ESPT_CHARCODEBASE:
             SetCharCodeBase(espar->iParam);
-            return TRUE;
+            break;
           default:
             return FALSE;
         }
