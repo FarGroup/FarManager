@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.25 05.04.2001 $ */
+/* Revision: 1.26 13.04.2001 $ */
 
 /*
 Modify:
+  13.04.2001 VVM
+    + Обработка колесика мышки под 2000.
   04.04.2001 SVS
     + MACRO_INFOPANEL,MACRO_QVIEWPANEL,MACRO_TREEPANEL,MACRO_LAST
       MACRO_LAST должен всегда стоять последним. Испрользуется в циклах.
@@ -303,5 +305,10 @@ enum FlagsNameAndPassword{
   GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
   GNP_NOOEMTOCHAR  = 0x00000002UL, // не конвертировать имя и пароль OEM->CHAR
 };
+
+/* $ 13.04.2001 VVM
+  + 2000 посылает консольному окну событие с dwEventFlags == MOUSE_WHEELED */
+#define MOUSE_WHEELED 0x0004
+/* VVM $ */
 
 #endif // __FARCONST_HPP__
