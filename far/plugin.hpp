@@ -1,10 +1,29 @@
 #ifndef __PLUGIN_HPP__
 #define __PLUGIN_HPP__
+/*
+  PLUGIN.HPP
 
-#if defined(__BORLANDC__) && (__BORLANDC <= 0x520)
+  Plugin API for FAR Manager 1.66
+
+*/
+/* Revision: 1.01 28.06.2000 $ */
+
+/*
+Modify:
+  26.06.2000 SVS
+    ! Подготовка Master Copy
+  28.06.2000 SVS
+    + Для MSVC тоже требуется extern "C" при декларации
+      экспортируемых функций + коррекция на Borland C++ 5.5
+*/
+
+#if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
   #pragma option -a1
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100))
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack(1)
+  #if defined(__LCC__)
+    #define _export __declspec(dllexport)
+  #endif
 #else
   #pragma pack(push,1)
   #if _MSC_VER
@@ -17,16 +36,16 @@
 struct PluginPanelItem
 {
   WIN32_FIND_DATA FindData;
-  DWORD PackSizeHigh;
-  DWORD PackSize;
-  DWORD Flags;
-  DWORD NumberOfLinks;
-  char *Description;
-  char *Owner;
-  char **CustomColumnData;
-  int CustomColumnNumber;
-  DWORD UserData;
-  DWORD Reserved[3];
+  DWORD           PackSizeHigh;
+  DWORD           PackSize;
+  DWORD           Flags;
+  DWORD           NumberOfLinks;
+  char           *Description;
+  char           *Owner;
+  char          **CustomColumnData;
+  int             CustomColumnNumber;
+  DWORD           UserData;
+  DWORD           Reserved[3];
 };
 
 #define PPIF_PROCESSDESCR 0x80000000
@@ -42,29 +61,29 @@ enum {
 
 
 typedef int (WINAPI *FARAPIMENU)(
-  int PluginNumber,
-  int X,
-  int Y,
-  int MaxHeight,
-  unsigned int Flags,
-  char *Title,
-  char *Bottom,
-  char *HelpTopic,
-  int *BreakKeys,
-  int *BreakCode,
+  int                 PluginNumber,
+  int                 X,
+  int                 Y,
+  int                 MaxHeight,
+  unsigned int        Flags,
+  char               *Title,
+  char               *Bottom,
+  char               *HelpTopic,
+  int                *BreakKeys,
+  int                *BreakCode,
   struct FarMenuItem *Item,
-  int ItemsNumber
+  int                 ItemsNumber
 );
 
 typedef int (WINAPI *FARAPIDIALOG)(
-  int PluginNumber,
-  int X1,
-  int Y1,
-  int X2,
-  int Y2,
-  char *HelpTopic,
+  int                   PluginNumber,
+  int                   X1,
+  int                   Y1,
+  int                   X2,
+  int                   Y2,
+  char                 *HelpTopic,
   struct FarDialogItem *Item,
-  int ItemsNumber
+  int                   ItemsNumber
 );
 
 enum {
@@ -115,7 +134,7 @@ enum FarDialogItemFlags {
   DIF_NOBRACKETS      =  0x8000,
   DIF_SEPARATOR       = 0x10000,
   DIF_EDITOR          = 0x20000,
-  DIF_HISTORY         = 0x40000
+  DIF_HISTORY         = 0x40000,
 };
 
 struct FarDialogItem
@@ -128,7 +147,6 @@ struct FarDialogItem
   int DefaultButton;
   char Data[512];
 };
-
 
 struct FarMenuItem
 {
@@ -385,7 +403,6 @@ struct EditorColor
   int Color;
 };
 
-
 struct EditorSaveFile
 {
   char FileName[NM];
@@ -550,12 +567,47 @@ enum OPERATION_MODES {
   OPM_DESCR=32
 };
 
-#if defined(__BORLANDC__) && (__BORLANDC <= 0x520)
+#if defined(__BORLANDC__) || defined(_MSC_VER)
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+void   WINAPI _export ClosePlugin(HANDLE hPlugin);
+int    WINAPI _export Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);
+int    WINAPI _export Configure(int ItemNumber);
+int    WINAPI _export DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+void   WINAPI _export ExitFAR(void);
+void   WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
+void   WINAPI _export FreeVirtualFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
+int    WINAPI _export GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
+int    WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
+void   WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info);
+void   WINAPI _export GetPluginInfo(struct PluginInfo *Info);
+int    WINAPI _export GetVirtualFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,char *Path);
+int    WINAPI _export MakeDirectory(HANDLE hPlugin,char *Name,int OpMode);
+HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
+HANDLE WINAPI _export OpenPlugin(int OpenFrom,int Item);
+int    WINAPI _export ProcessEvent(HANDLE hPlugin,int Event,void *Param);
+int    WINAPI _export ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
+int    WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
+int    WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
+int    WINAPI _export SetDirectory(HANDLE hPlugin,char *Dir,int OpMode);
+int    WINAPI _export SetFindList(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
+void   WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info);
+int    WINAPI _export ProcessEditorInput(INPUT_RECORD *Rec);
+int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
+
+#ifdef __cplusplus
+};
+#endif
+#endif
+
+#if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
   #pragma option -a.
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100))
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack()
 #else
   #pragma pack(pop)
 #endif
 
-#endif	// __PLUGIN_HPP__
+#endif /* __PLUGINS_HPP__ */
