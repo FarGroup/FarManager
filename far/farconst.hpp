@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.42 26.06.2001 $ */
+/* Revision: 1.43 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    + Оконстантим SysID для Network Browse плагина - SYSID_NETWORK
   26.06.2001 SVS
     ! __except -> EXCEPT
   25.06.2001 SVS
@@ -189,6 +191,7 @@ enum {
 /* SVS $ */
 
 #define SYSID_PRINTMANAGER	0x6E614D50
+#define SYSID_NETWORK		0x5774654E
 
 
 /* $ 25.02.2001 VVM

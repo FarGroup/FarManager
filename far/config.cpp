@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.87 19.07.2001 $ */
+/* Revision: 1.88 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    + Опция про релоад файла в редакторе
   19.07.2001 SVS
     ! Про хелп. Юзаем то, что есть в Opt и не пладим сущностей.
   19.07.2001 OT
@@ -565,18 +567,20 @@ void InterfaceSettings()
 void SetConfirmations()
 {
   static struct DialogData ConfDlgData[]={
-    DI_DOUBLEBOX,3,1,41,12,0,0,0,0,(char *)MSetConfirmTitle,
-    DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MSetConfirmCopy,
-    DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MSetConfirmMove,
-    DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
-    DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MSetConfirmDelete,
-    DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MSetConfirmDeleteFolders,
-    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmEsc,
-    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
-    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmExit,
-    DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 00 */DI_DOUBLEBOX,3,1,41,13,0,0,0,0,(char *)MSetConfirmTitle,
+  /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MSetConfirmCopy,
+  /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MSetConfirmMove,
+  /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
+  /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MSetConfirmDelete,
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MSetConfirmDeleteFolders,
+  /* 06 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmEsc,
+  /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmRemoveConnection,
+  /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MSetConfirmAllowReedit,
+  /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MSetConfirmExit,
+  /* 10 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 11 */DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 12 */DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+
   };
   MakeDialogItems(ConfDlgData,ConfDlg);
   ConfDlg[1].Selected=Opt.Confirm.Copy;
@@ -586,13 +590,14 @@ void SetConfirmations()
   ConfDlg[5].Selected=Opt.Confirm.DeleteFolder;
   ConfDlg[6].Selected=Opt.Confirm.Esc;
   ConfDlg[7].Selected=Opt.Confirm.RemoveConnection;
-  ConfDlg[8].Selected=Opt.Confirm.Exit;
+  ConfDlg[8].Selected=Opt.Confirm.AllowReedit;
+  ConfDlg[9].Selected=Opt.Confirm.Exit;
 
   Dialog Dlg(ConfDlg,sizeof(ConfDlg)/sizeof(ConfDlg[0]));
   Dlg.SetHelp("ConfirmDlg");
-  Dlg.SetPosition(-1,-1,45,14);
+  Dlg.SetPosition(-1,-1,45,15);
   Dlg.Process();
-  if (Dlg.GetExitCode()!=10)
+  if (Dlg.GetExitCode()!=11)
     return;
   Opt.Confirm.Copy=ConfDlg[1].Selected;
   Opt.Confirm.Move=ConfDlg[2].Selected;
@@ -601,7 +606,8 @@ void SetConfirmations()
   Opt.Confirm.DeleteFolder=ConfDlg[5].Selected;
   Opt.Confirm.Esc=ConfDlg[6].Selected;
   Opt.Confirm.RemoveConnection=ConfDlg[7].Selected;
-  Opt.Confirm.Exit=ConfDlg[8].Selected;
+  Opt.Confirm.AllowReedit=ConfDlg[8].Selected;
+  Opt.Confirm.Exit=ConfDlg[9].Selected;
 }
 /* SVS $ */
 /* IS $ */
@@ -1041,7 +1047,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"Esc",&Opt.Confirm.Esc,0, 0},
   {1, REG_DWORD,  NKeyConfirmations,"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
-  {0, REG_DWORD,  NKeyConfirmations,"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"Exit",&Opt.Confirm.Exit,1, 0},
 
   {1, REG_DWORD,  NKeyPanel,"ShowHidden",&Opt.ShowHidden,1, 0},

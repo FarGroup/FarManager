@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.28 18.07.2001 $ */ 
+/* Revision: 1.29 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    ! Избавляемся от варнингов
   18.07.2001 OT
     VFMenu
   13.07.2001 SVS
@@ -579,7 +581,6 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   };
   MakeDialogItems(HiEditDlgData,HiEditDlg);
   struct HighlightData EditData;
-  int ExitCode=0;
   char Mask[HIGHLIGHT_MASK_SIZE], *Ptr;
 
   *Mask=0;

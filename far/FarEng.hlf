@@ -363,13 +363,22 @@ details.
 
   Execute, change folder, enter to an archive                  #Enter#
   Execute in the separate window                         #Shift-Enter#
+
+    Shift-Enter для каталога вызывает Проводник с
+    показом содержимого выбранного каталога. Для того,
+    чтобы в Проводнике показать корневой каталог, нужно
+    нажать Shift-Enter на требуемом диске в меню
+    ~выбора дисков~@DriveDlg@.
+
   Change to the root folder                                   #Ctrl-\#
   Change folder, enter an archive (also a SFX archive)     #Ctrl-PgDn#
   Change to the parent folder                              #Ctrl-PgUp#
 
-  Pressing Ctrl-PgUp in the root folder:
-    - for local drives - shows the drive selection menu;
-    - for network drives - activates the Network Browser plugin.
+    Pressing Ctrl-PgUp in the root folder:
+      - for local drives - shows the drive selection menu;
+      - для сетевых дисков вызовет плагин Network (если
+        плагин есть) или меню выбора дисков (если плагин
+        Network отсутствует).
 
   Create shortcut to the current folder               #Ctrl-Shift-<N>#
   Use folder shortcut                                  #RightCtrl-<N>#
@@ -954,6 +963,8 @@ for following operations:
 
  - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
+ - ~повторное открытие~@EditorReload@ файла в редакторе;
+
  - exit from FAR.
 
 
@@ -1255,13 +1266,17 @@ in the ~Commands menu~@CmdMenu@.
 #Use Windows registered types# option in ~System settings~@SystemSettings@
 is on, FAR tries to use Windows association to execute this file type;
 
-  2. You may define several associations for one file type and select
+  2. FAR, в процессе парсинга метасимволов, не заключает имена файлов и
+каталогов в кавычки, поэтому при создании ассоциаций необходимо учитывать
+этот факт.
+
+  3. You may define several associations for one file type and select
 the desired association from the menu.  "IF EXIST" and "IF DEFINED"
 ~commands~@OSCommands@ allow to create "smarter" associations -
 the menu will show only the associations for which the specified condition
 is true.
 
-  3. The following modifiers may be used with the associations !@@! and !$! :
+  4. The following modifiers may be used with the associations !@@! and !$! :
 
      'Q' - enclose names containing spaces in quotes;
      'S' - use '/' instead of '\' in pathnames;
@@ -1272,7 +1287,7 @@ is true.
 list of selected file names, in ANSI encoding, include full pathnames,
 names with spaces will be in quotes".
 
-  4. The prefixes "!##" and "!^" work as toggles for associations. The
+  5. The prefixes "!##" and "!^" work as toggles for associations. The
 effect of these prefixes continues up to the next similar prefix. For
 example:
 
@@ -1691,6 +1706,31 @@ the specified column in the current line.
 to the specified percent of the file. For example, if you enter #50%#,
 the editor will jump to the middle of the text.
 
+@EditorReload
+$ #Повторное открытие файла в редакторе#
+    FAR Manager отслеживает все попытки повторного открытия в редакторе
+уже редактируемых файлов. Правила повторного открытия следующие:
+
+    1. Если файл не был изменен, то при отключенной опции
+"Повторное открытие файла в редакторе" в диалоге ~подтверждений~@ConfirmDlg@
+происходит переход к редактированию текущего файла без дополнительных
+запросов.
+
+    2. Если файл был изменен или включена опция "Повторное открытие файла
+в редакторе", то существует три варианта действий:
+
+    #Текущий#     - Продолжить редактирование того же файла.
+
+    #Перегрузить# - Текущие изменения не сохраняются и в редактор
+                  загружается прежнее содержимое файла (с момента
+                  последнего сохранения).
+
+    #Новая копия# - Файл будет открыт для редактирования в новой
+                  копии редактора. В этом случае будьте внимательны:
+                  содержимое файла на диске будет соответствовать
+                  тому, в какой из копий редактора последний раз
+                  сохраняли этот файл.
+
 @DriveDlg
 $ #Change drive#
     This menu allows to change the current drive of a panel,
@@ -1727,6 +1767,11 @@ to the file panel.
     Ctrl-8 - display of CD parameters.
 
     #Change drive# menu settings are saved in the FAR configuration.
+
+    #Ctrl-PgUp# аналогична #Esc# - отказаться от выбора.
+
+    #Shift-Enter# вызывает Проводник с показом корневого каталога
+указанного диска (работает только для дисков).
 
 @DisconnectDrive
 $ #Disconnect network drive#

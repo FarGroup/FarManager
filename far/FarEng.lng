@@ -345,9 +345,10 @@
 "Cannot set file access rights for"
 
 "Editor"
-"already loaded. Load again?"
-"Show &current"
+"already loaded. How to open this file?"
+"&Current"
 "&Reload"
+"&New copy"
 "Cannot open the file"
 "Reading the file"
 "File has been modified"
@@ -674,6 +675,7 @@
 "A file &mask or several file masks:"
 
 "Find file"
+"Find file - result"
 "A file &mask or several file masks:"
 "Containing &text:"
 "&Case sensitive"
@@ -1108,6 +1110,7 @@
 "Delete non-empty &folders"
 "&Interrupt operation"
 "Disconnect &network drive"
+"&Reload edited file"
 "E&xit"
 
 "Find folder"

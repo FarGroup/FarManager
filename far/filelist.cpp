@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.74 20.07.2001 $ */
+/* Revision: 1.75 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    + Оконстантим SysID для Network Browse плагина - SYSID_NETWORK
+    ! Если плагина SYSID_NETWORK нету, то вызываем как обычно меню дисков
   20.07.2001 SVS
     ! PluginPanelHelp переехала из help.hpp
   20.07.2001 VVM
@@ -1879,7 +1882,8 @@ BOOL FileList::ChangeDir(char *NewDir)
         char DirName[NM];
         strncpy(DirName,CurDir,NM);
         AddEndSlash(DirName);
-        if(GetDriveType(DirName) != DRIVE_REMOTE)
+        if(GetDriveType(DirName) != DRIVE_REMOTE ||
+           CtrlObject->Plugins.FindPlugin(SYSID_NETWORK) == -1)
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
           return TRUE;
@@ -1903,7 +1907,7 @@ BOOL FileList::ChangeDir(char *NewDir)
           if(PtrS1 && !strchr(PtrS1+1,'\\'))
           {
   // _D(SysLog("1) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
-            if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
+            if(CtrlObject->Plugins.CallPlugin(SYSID_NETWORK,OPEN_FILEPANEL,NewCurDir)) // NetWork Plugin :-)
             {
   //_D(SysLog("2) SetDir=%s  NewCurDir=%s",SetDir,NewCurDir));
               return(FALSE);

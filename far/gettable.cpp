@@ -5,12 +5,14 @@ gettable.cpp
 
 */
 
-/* Revision: 1.09 18.07.2001 $ */ 
+/* Revision: 1.10 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    ! Избавляемся от варнингов
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   03.06.2001 IS
     - Баг: некорректно генерировалась кодовая таблица в PrepareTable, в
       частности, для cp1251 после этой функции символы 0x84 (открывающие
@@ -67,7 +69,6 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode)
 {
   int I;
-  int mx=0;
   char ItemName[128],t[128],t2[128];
 
   if (AnsiText)
@@ -108,7 +109,6 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     ListItem.SetSelect(TableNum==1);
     strcpy(ListItem.Name,"Unicode");
     TableList.AddItem(&ListItem);
-    mx=1;
   }
 
   for (I=0;;I++)

@@ -5,12 +5,15 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.56 11.07.2001 $ */ 
+/* Revision: 1.57 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    + Добавлен хелп для месага про "релоад"
+    ! Имя файла в месага про "релоад" усекается.
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   06.07.2001 IS
     - При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
       не нарушать однообразие.
@@ -217,34 +220,46 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   }
 
   /*$ 11.05.2001 OT */
-  if (EnableSwitch){
+  if (EnableSwitch)
+  {
     int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
-    if (FramePos!=-1) {
+    if (FramePos!=-1)
+    {
       int SwitchTo=FALSE;
-      if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE)||Opt.Confirm.AllowReedit) {
-        int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
-          MSG(MCurrent),MSG(MReload));
-        switch(MsgCode){
-        case 0:
-          SwitchTo=TRUE;
-          break;
-        case 1:
-          if (Opt.Confirm.AllowReedit){
-            SwitchTo=FALSE;
-          }else {
+      if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
+          Opt.Confirm.AllowReedit)
+      {
+        char MsgFullFileName[NM];
+        strcpy(MsgFullFileName,FullFileName);
+        SetMessageHelp("EditorReload");
+        int MsgCode=Message(0,3,MSG(MEditTitle),
+              TruncPathStr(MsgFullFileName,ScrX-16),
+              MSG(MAskReload),
+              MSG(MCurrent),MSG(MReload),MSG(MNewOpen));
+        switch(MsgCode)
+        {
+          case 0:
+            SwitchTo=TRUE;
+            break;
+          case 1:
             FrameManager->DeleteFrame(FramePos);
             SetExitCode(-2);
-          }
-          break;
-        default:
-          FrameManager->DeleteFrame(this);
-          SetExitCode(XC_QUIT);
-          return;
+            break;
+          case 2:
+            SwitchTo=FALSE;
+            break;
+          default:
+            FrameManager->DeleteFrame(this);
+            SetExitCode(XC_QUIT);
+            return;
         }
-      } else {
+      }
+      else
+      {
         SwitchTo=TRUE;
       }
-      if (SwitchTo) {
+      if (SwitchTo)
+      {
         FrameManager->ActivateFrame(FramePos);
         SetExitCode(TRUE);
         return ;

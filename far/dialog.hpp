@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.36 21.07.2001 $ */
+/* Revision: 1.37 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+   ! Пересмотрены параметры функции SelectFromComboBox() - ведь и так
+     передаем указатель аж на цельный класс строки, так что...
   21.07.2001 KM
    ! Объявление FindFiles другом диалога для доступа к члену Item.
   12.07.2001 OT
@@ -351,7 +354,7 @@ class Dialog: public Frame
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    int SelectFromComboBox(Edit *EditLine,VMenu *List,char *Str,int MaxLen);
+    int SelectFromComboBox(Edit *EditLine,VMenu *List,int MaxLen);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории

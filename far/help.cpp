@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.33 20.07.2001 $ */
+/* Revision: 1.34 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    ! Переделка number two - пытаемся при возврате показать привычное
+      расположение хелпа (но пока, увы)
   20.07.2001 SVS
     - "То-ро-пыш-ка" :-( (или увеличение номера билда)
     ! PluginPanelHelp переехала к плагинам (не место ей здесь)
@@ -126,20 +129,33 @@ class CallBackStack
   private:
     struct ListNode
     {
-      char *Str;
-      char *Path;
-      DWORD Flags;
       ListNode *Next;
-      ListNode(const char *Src,const char *Path0, DWORD Flags0, ListNode* n=NULL):Next(n)
+
+      DWORD Flags;             // флаги
+      int   TopStr;            // номер верхней видимой строки темы
+      int   CurX,CurY;         // координаты (???)
+
+      char  *HelpTopic;        // текущий топик
+      char  *HelpPath;         // путь к хелпам
+      char  *SelTopic;         // текущее выделение
+
+      ListNode(const struct StackHelpData *Data, ListNode* n=NULL)
       {
-        Str=strdup(Src);
-        Path=strdup(Path0);
-        Flags=Flags0;
+        HelpTopic=strdup(Data->HelpTopic);
+        HelpPath=strdup(Data->HelpPath);
+        SelTopic=strdup(Data->SelTopic);
+        Flags=Data->Flags;
+        TopStr=Data->TopStr;
+        CurX=Data->CurX;
+        CurY=Data->CurY;
+
+        Next=n;
       }
-     ~ListNode()
+      ~ListNode()
       {
-        if(Str) free(Str);
-        if(Path) free(Path);
+        if(HelpTopic) free(HelpTopic);
+        if(HelpPath)  free(HelpPath);
+        if(SelTopic)  free(SelTopic);
       }
     };
 
@@ -153,8 +169,8 @@ class CallBackStack
     void ClearStack();
     BOOL isEmpty() const {return topOfStack==NULL;};
 
-    void Push(const char *Str,const char *Path,DWORD Flags);
-    char *Pop(char *Dest=NULL,char *Path=NULL,DWORD* Flags=NULL);
+    void Push(const struct StackHelpData *Data);
+    int Pop(struct StackHelpData *Data=NULL);
 
     void PrintStack(const char *Title);
 };
@@ -172,16 +188,17 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
   /* $ OT По умолчанию все хелпы создаются статически*/
   SetDynamicallyBorn(FALSE);
-
   CanLoseFocus=FALSE;
-  Help::Flags=Flags;
-
   PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_HELP);
 
   ErrorHelp=TRUE;
+  IsNewTopic=TRUE;
 
   Stack=new CallBackStack;
+
+  memset(&StackData,0,sizeof(StackData));
+  StackData.Flags=Flags;
 
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
@@ -194,8 +211,8 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
   TopScreen=new SaveScreen;
   HelpData=NULL;
-  strcpy(HelpTopic,Topic);
-  *HelpPath=0;
+  strcpy(StackData.HelpTopic,Topic);
+  *StackData.HelpPath=0;
   if (Opt.FullScreenHelp)
     SetPosition(0,0,ScrX,ScrY);
   else
@@ -203,14 +220,14 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 
   if(!ReadHelp(Mask) && (Flags&FHELP_USECONTENTS))
   {
-    strcpy(HelpTopic,Topic);
-    if(*HelpTopic == '#')
+    strcpy(StackData.HelpTopic,Topic);
+    if(*StackData.HelpTopic == '#')
     {
-      char *Ptr=strrchr(HelpTopic,'#');
+      char *Ptr=strrchr(StackData.HelpTopic,'#');
       if(Ptr)
         strcpy(++Ptr,HelpContents);
     }
-    *HelpPath=0;
+    *StackData.HelpPath=0;
     ReadHelp(Mask);
   }
 
@@ -257,19 +274,19 @@ int Help::ReadHelp(char *Mask)
   DisableOut=0;
 
   char Path[NM],*TopicPtr;
-  if (*HelpTopic=='#')
+  if (*StackData.HelpTopic=='#')
   {
-    strcpy(Path,HelpTopic+1);
+    strcpy(Path,StackData.HelpTopic+1);
     if ((TopicPtr=strchr(Path,'#'))==NULL)
       return FALSE;
-    strcpy(HelpTopic,TopicPtr+1);
+    strcpy(StackData.HelpTopic,TopicPtr+1);
     *TopicPtr=0;
-    strcpy(HelpPath,Path);
+    strcpy(StackData.HelpPath,Path);
   }
   else
-    strcpy(Path,*HelpPath ? HelpPath:FarPath);
+    strcpy(Path,*StackData.HelpPath ? StackData.HelpPath:FarPath);
 
-  if (strcmp(HelpTopic,PluginContents)==0)
+  if (strcmp(StackData.HelpTopic,PluginContents)==0)
   {
     ReadPluginsHelp();
     return TRUE;
@@ -279,7 +296,7 @@ int Help::ReadHelp(char *Mask)
 
   if (HelpFile==NULL)
   {
-    if(!(Flags&FHELP_NOSHOWERROR))
+    if(!(StackData.Flags&FHELP_NOSHOWERROR))
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
     ErrorHelp=TRUE;
     return FALSE;
@@ -291,13 +308,11 @@ int Help::ReadHelp(char *Mask)
   else
     CtrlColorChar=0;
   *SplitLine=0;
-  CurX=CurY=0;
   if (HelpData)
     free(HelpData);
   HelpData=NULL;
   StrCount=0;
   FixCount=0;
-  TopStr=0;
   TopicFound=0;
   RepeatLastLine=FALSE;
   int NearTopicFound=0;
@@ -347,7 +362,7 @@ int Help::ReadHelp(char *Mask)
         break;
       }
       else
-        if (LocalStricmp(ReadStr+1,HelpTopic)==0)
+        if (LocalStricmp(ReadStr+1,StackData.HelpTopic)==0)
         {
           TopicFound=1;
           NearTopicFound=1;
@@ -453,6 +468,11 @@ int Help::ReadHelp(char *Mask)
   fclose(HelpFile);
   FixSize=FixCount+(FixCount!=0);
   ErrorHelp=FALSE;
+  if(IsNewTopic)
+  {
+    StackData.CurX=StackData.CurY=0;
+    StackData.TopStr=0;
+  }
   return TopicFound != 0;
 }
 
@@ -490,14 +510,14 @@ void Help::DisplayObject()
     TopScreen=new SaveScreen;
   if (!TopicFound)
   {
-    if(!(Flags&FHELP_NOSHOWERROR))
+    if(!(StackData.Flags&FHELP_NOSHOWERROR))
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
     ProcessKey(KEY_ALTF1);
     ErrorHelp=TRUE;
     return;
   }
   SetCursorType(0,10);
-  if (*SelTopic==0)
+  if (*StackData.SelTopic==0)
     MoveToReference(1,1);
   FastShow();
   if (!Opt.FullScreenHelp)
@@ -524,7 +544,7 @@ void Help::FastShow()
     mprintf(" %s ",MSG(MHelpTitle));
   }
   CorrectPosition();
-  *SelTopic=0;
+  *StackData.SelTopic=0;
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
      чтобы новая тема начиналась с нормальными атрибутами
@@ -549,7 +569,7 @@ void Help::FastShow()
       }
       else
       {
-        StrPos=I+TopStr;
+        StrPos=I+StackData.TopStr;
         if (FixCount>0)
           StrPos--;
       }
@@ -572,7 +592,7 @@ void Help::FastShow()
   {
     int Scrolled=StrCount-FixCount-ScrollLength;
     SetColor(COL_HELPSCROLLBAR);
-    ScrollBar(X2,Y1+FixSize+1,ScrollLength,TopStr,Scrolled);
+    ScrollBar(X2,Y1+FixSize+1,ScrollLength,StackData.TopStr,Scrolled);
   }
 }
 
@@ -602,16 +622,16 @@ void Help::OutString(char *Str)
       if (Topic)
       {
         int RealCurX,RealCurY;
-        RealCurX=X1+CurX+1;
-        RealCurY=Y1+CurY+FixSize+1;
+        RealCurX=X1+StackData.CurX+1;
+        RealCurY=Y1+StackData.CurY+FixSize+1;
         if (WhereY()==RealCurY && RealCurX>=WhereX() &&
                 RealCurX<WhereX()+(Str-StartTopic)-1)
         {
           SetColor(COL_HELPSELECTEDTOPIC);
           if (Str[1]=='@')
           {
-            strncpy(SelTopic,Str+2,sizeof(SelTopic));
-            char *EndPtr=strchr(SelTopic,'@');
+            strncpy(StackData.SelTopic,Str+2,sizeof(StackData.SelTopic));
+            char *EndPtr=strchr(StackData.SelTopic,'@');
             /* $ 25.08.2000 SVS
                учтем, что может быть такой вариант: @@ или \@
                этот вариант только для URL!
@@ -771,31 +791,31 @@ int Help::StringLen(char *Str)
 
 void Help::CorrectPosition()
 {
-  if (CurX>X2-X1-2)
-    CurX=X2-X1-2;
-  if (CurX<0)
-    CurX=0;
-  if (CurY>Y2-Y1-2-FixSize)
+  if (StackData.CurX>X2-X1-2)
+    StackData.CurX=X2-X1-2;
+  if (StackData.CurX<0)
+    StackData.CurX=0;
+  if (StackData.CurY>Y2-Y1-2-FixSize)
   {
-    TopStr+=CurY-(Y2-Y1-2-FixSize);
-    CurY=Y2-Y1-2-FixSize;
+    StackData.TopStr+=StackData.CurY-(Y2-Y1-2-FixSize);
+    StackData.CurY=Y2-Y1-2-FixSize;
   }
-  if (CurY<0)
+  if (StackData.CurY<0)
   {
-    TopStr+=CurY;
-    CurY=0;
+    StackData.TopStr+=StackData.CurY;
+    StackData.CurY=0;
   }
-  if (TopStr>StrCount-FixCount-(Y2-Y1-1-FixSize))
-    TopStr=StrCount-FixCount-(Y2-Y1-1-FixSize);
-  if (TopStr<0)
-    TopStr=0;
+  if (StackData.TopStr>StrCount-FixCount-(Y2-Y1-1-FixSize))
+    StackData.TopStr=StrCount-FixCount-(Y2-Y1-1-FixSize);
+  if (StackData.TopStr<0)
+    StackData.TopStr=0;
 }
 
 
 int Help::ProcessKey(int Key)
 {
-  if (*SelTopic==0)
-    CurX=CurY=0;
+  if (*StackData.SelTopic==0)
+    StackData.CurX=StackData.CurY=0;
   switch(Key)
   {
     case KEY_NONE:
@@ -813,50 +833,50 @@ int Help::ProcessKey(int Key)
     case KEY_HOME:
     case KEY_CTRLHOME:
     case KEY_CTRLPGUP:
-      CurX=CurY=0;
-      TopStr=0;
+      StackData.CurX=StackData.CurY=0;
+      StackData.TopStr=0;
       FastShow();
-      if (*SelTopic==0)
+      if (*StackData.SelTopic==0)
         MoveToReference(1,1);
       return(TRUE);
     case KEY_END:
     case KEY_CTRLEND:
     case KEY_CTRLPGDN:
-      CurX=CurY=0;
-      TopStr=StrCount;
+      StackData.CurX=StackData.CurY=0;
+      StackData.TopStr=StrCount;
       FastShow();
-      if (*SelTopic==0)
+      if (*StackData.SelTopic==0)
       {
-        CurX=0;
-        CurY=Y2-Y1-2-FixSize;
+        StackData.CurX=0;
+        StackData.CurY=Y2-Y1-2-FixSize;
         MoveToReference(0,1);
       }
       return(TRUE);
     case KEY_UP:
-      if (TopStr>0)
+      if (StackData.TopStr>0)
       {
-        TopStr--;
-        if (CurY<Y2-Y1-2-FixSize)
+        StackData.TopStr--;
+        if (StackData.CurY<Y2-Y1-2-FixSize)
         {
-          CurX=X2-X1-2;
-          CurY++;
+          StackData.CurX=X2-X1-2;
+          StackData.CurY++;
         }
         FastShow();
-        if (*SelTopic==0)
+        if (*StackData.SelTopic==0)
           MoveToReference(0,1);
       }
       else
         ProcessKey(KEY_SHIFTTAB);
       return(TRUE);
     case KEY_DOWN:
-      if (TopStr<StrCount-FixCount-(Y2-Y1-1-FixSize))
+      if (StackData.TopStr<StrCount-FixCount-(Y2-Y1-1-FixSize))
       {
-        TopStr++;
-        if (CurY>0)
-          CurY--;
-        CurX=0;
+        StackData.TopStr++;
+        if (StackData.CurY>0)
+          StackData.CurY--;
+        StackData.CurX=0;
         FastShow();
-        if (*SelTopic==0)
+        if (*StackData.SelTopic==0)
           MoveToReference(1,1);
       }
       else
@@ -878,27 +898,27 @@ int Help::ProcessKey(int Key)
       }
     /* DJ $ */
     case KEY_PGUP:
-      CurX=CurY=0;
-      TopStr-=Y2-Y1-2-FixSize;
+      StackData.CurX=StackData.CurY=0;
+      StackData.TopStr-=Y2-Y1-2-FixSize;
       FastShow();
-      if (*SelTopic==0)
+      if (*StackData.SelTopic==0)
       {
-        CurX=CurY=0;
+        StackData.CurX=StackData.CurY=0;
         MoveToReference(1,1);
       }
       return(TRUE);
     case KEY_PGDN:
       {
-        int PrevTopStr=TopStr;
-        TopStr+=Y2-Y1-2-FixSize;
+        int PrevTopStr=StackData.TopStr;
+        StackData.TopStr+=Y2-Y1-2-FixSize;
         FastShow();
-        if (TopStr==PrevTopStr)
+        if (StackData.TopStr==PrevTopStr)
         {
           ProcessKey(KEY_CTRLPGDN);
           return(TRUE);
         }
         else
-          CurX=CurY=0;
+          StackData.CurX=StackData.CurY=0;
         MoveToReference(1,1);
       }
       return(TRUE);
@@ -913,26 +933,32 @@ int Help::ProcessKey(int Key)
 
     case KEY_F1:
       // не поганим SelTopic, если и так в Help on Help
-      if(LocalStricmp(HelpTopic,HelpOnHelpTopic)!=0)
+      if(LocalStricmp(StackData.HelpTopic,HelpOnHelpTopic)!=0)
       {
-        Stack->Push(HelpTopic,HelpPath,Flags);
+        Stack->Push(&StackData);
+        IsNewTopic=TRUE;
         JumpTopic(HelpOnHelpTopic);
+        IsNewTopic=FALSE;
       }
       return(TRUE);
     case KEY_SHIFTF1:
       //   не поганим SelTopic, если и так в теме Contents
-      if(LocalStricmp(HelpTopic,HelpContents)!=0)
+      if(LocalStricmp(StackData.HelpTopic,HelpContents)!=0)
       {
-        Stack->Push(HelpTopic,HelpPath,Flags);
+        Stack->Push(&StackData);
+        IsNewTopic=TRUE;
         JumpTopic(HelpContents);
+        IsNewTopic=FALSE;
       }
       return(TRUE);
     case KEY_SHIFTF2:
       //   не поганим SelTopic, если и так в PluginContents
-      if(LocalStricmp(HelpTopic,PluginContents)!=0)
+      if(LocalStricmp(StackData.HelpTopic,PluginContents)!=0)
       {
-        Stack->Push(HelpTopic,HelpPath,Flags);
+        Stack->Push(&StackData);
+        IsNewTopic=TRUE;
         JumpTopic(PluginContents);
+        IsNewTopic=FALSE;
       }
       return(TRUE);
     case KEY_ALTF1:
@@ -940,17 +966,19 @@ int Help::ProcessKey(int Key)
       // Если стек возврата пуст - выходим их хелпа
       if(!Stack->isEmpty())
       {
-        Stack->Pop(HelpTopic,HelpPath,&Flags);
-        JumpTopic(HelpTopic);
+        Stack->Pop(&StackData);
+        JumpTopic(StackData.HelpTopic);
         return(TRUE);
       }
       return ProcessKey(KEY_ESC);
 
     case KEY_ENTER:
-      if (*SelTopic && LocalStricmp(HelpTopic,SelTopic)!=0)
+      if (*StackData.SelTopic && LocalStricmp(StackData.HelpTopic,StackData.SelTopic)!=0)
       {
-        Stack->Push(HelpTopic,HelpPath,Flags);
+        Stack->Push(&StackData);
+        IsNewTopic=TRUE;
         JumpTopic();
+        IsNewTopic=FALSE;
       }
       return(TRUE);
   }
@@ -959,37 +987,40 @@ int Help::ProcessKey(int Key)
 
 int Help::JumpTopic(const char *JumpTopic)
 {
-  Stack->PrintStack(JumpTopic);
+  char  OldTopic[512];
   char NewTopic[512];
+
+  Stack->PrintStack(JumpTopic);
+
   if(JumpTopic)
-    strcpy(SelTopic,JumpTopic);
-_SVS(SysLog("JumpTopic() = SelTopic=%s",SelTopic));
+    strcpy(StackData.SelTopic,JumpTopic);
+_SVS(SysLog("JumpTopic() = SelTopic=%s",StackData.SelTopic));
   // URL активатор - это ведь так просто :-)))
   {
-    strcpy(NewTopic,SelTopic);
+    strcpy(NewTopic,StackData.SelTopic);
     char *p=strchr(NewTopic,':');
     if(p && NewTopic[0] != ':') // наверное подразумевается URL
     {
       *p=0;
-      if(RunURL(NewTopic,SelTopic))
+      if(RunURL(NewTopic,StackData.SelTopic))
         return(TRUE);
     }
   }
   // а вот теперь попробуем...
 
-_SVS(SysLog("JumpTopic() = SelTopic=%s, HelpPath=%s",SelTopic,HelpPath));
-  if (*HelpPath && *SelTopic!='#' && strcmp(SelTopic,HelpOnHelpTopic)!=0)
+_SVS(SysLog("JumpTopic() = SelTopic=%s, StackData.HelpPath=%s",StackData.SelTopic,StackData.HelpPath));
+  if (*StackData.HelpPath && *StackData.SelTopic!='#' && strcmp(StackData.SelTopic,HelpOnHelpTopic)!=0)
   {
-    if (*SelTopic==':')
-      strcpy(NewTopic,SelTopic+1);
+    if (*StackData.SelTopic==':')
+      strcpy(NewTopic,StackData.SelTopic+1);
     else
-      sprintf(NewTopic,"#%s#%s",HelpPath,SelTopic);
+      sprintf(NewTopic,"#%s#%s",StackData.HelpPath,StackData.SelTopic);
   }
   else
-    strcpy(NewTopic,SelTopic);
+    strcpy(NewTopic,StackData.SelTopic);
 
 _SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
-  if(*SelTopic != ':' && LocalStricmp(SelTopic,PluginContents) != 0)
+  if(*StackData.SelTopic != ':' && LocalStricmp(StackData.SelTopic,PluginContents) != 0)
   {
     ; // :-)
   }
@@ -999,28 +1030,33 @@ _SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
       free(HelpMask);
     HelpMask=NULL;
   }
-  strcpy(HelpTopic,NewTopic);
-  *HelpPath=0;
+  strcpy(StackData.HelpTopic,NewTopic);
+  *StackData.HelpPath=0;
   if(!ReadHelp(HelpMask))
   {
-    strcpy(HelpTopic,NewTopic);
-    if(*HelpTopic == '#')
+    strcpy(StackData.HelpTopic,NewTopic);
+    if(*StackData.HelpTopic == '#')
     {
-      char *Ptr=strrchr(HelpTopic,'#');
+      char *Ptr=strrchr(StackData.HelpTopic,'#');
       if(Ptr)
         strcpy(++Ptr,HelpContents);
     }
-    *HelpPath=0;
+    *StackData.HelpPath=0;
     ReadHelp(HelpMask);
   }
   if (!HelpData)
   {
-    if(!(Flags&FHELP_NOSHOWERROR))
+    if(!(StackData.Flags&FHELP_NOSHOWERROR))
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
     ErrorHelp=TRUE;
     return FALSE;
   }
-  ResizeConsole();
+//  ResizeConsole();
+  if(IsNewTopic)
+    MoveToReference(1,1);
+  FrameManager->ImmediateHide();
+  FrameManager->RefreshFrame();
+
   return TRUE;
 }
 
@@ -1065,10 +1101,10 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       ProcessKey(KEY_DOWN);
     return(TRUE);
   }
-  CurX=MouseEvent->dwMousePosition.X-X1-1;
-  CurY=MouseEvent->dwMousePosition.Y-Y1-1-FixSize;
+  StackData.CurX=MouseEvent->dwMousePosition.X-X1-1;
+  StackData.CurY=MouseEvent->dwMousePosition.Y-Y1-1-FixSize;
   FastShow();
-  if ((MouseEvent->dwButtonState & 3)==0 && *SelTopic)
+  if ((MouseEvent->dwButtonState & 3)==0 && *StackData.SelTopic)
     ProcessKey(KEY_ENTER);
   return(TRUE);
 }
@@ -1077,7 +1113,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 int Help::IsReferencePresent()
 {
   CorrectPosition();
-  int StrPos=FixCount+TopStr+CurY;
+  int StrPos=FixCount+StackData.TopStr+StackData.CurY;
   /* $ 19.09.2000 OT
     Ошибка при отрисовки хелпа
     */
@@ -1092,52 +1128,58 @@ int Help::IsReferencePresent()
 
 void Help::MoveToReference(int Forward,int CurScreen)
 {
-  int StartSelection=*SelTopic;
-  int SaveCurX=CurX,SaveCurY=CurY,SaveTopStr=TopStr;
-  *SelTopic=0;
+  int StartSelection=*StackData.SelTopic;
+  int SaveCurX=StackData.CurX;
+  int SaveCurY=StackData.CurY;
+  int SaveTopStr=StackData.TopStr;
+
+  *StackData.SelTopic=0;
   DisableOut=TRUE;
-  while (*SelTopic==0)
+
+  while (*StackData.SelTopic==0)
   {
     if (Forward)
     {
-      if (CurX==0 && !IsReferencePresent())
-        CurX=X2-X1-2;
-      if (++CurX >= X2-X1-2)
+      if (StackData.CurX==0 && !IsReferencePresent())
+        StackData.CurX=X2-X1-2;
+      if (++StackData.CurX >= X2-X1-2)
       {
         StartSelection=0;
-        CurX=0;
-        CurY++;
-        if (TopStr+CurY>=StrCount-FixCount ||
-            CurScreen && CurY>Y2-Y1-2-FixSize)
+        StackData.CurX=0;
+        StackData.CurY++;
+        if (StackData.TopStr+StackData.CurY>=StrCount-FixCount ||
+            CurScreen && StackData.CurY>Y2-Y1-2-FixSize)
           break;
       }
     }
     else
     {
-      if (CurX==X2-X1-2 && !IsReferencePresent())
-        CurX=0;
-      if (--CurX < 0)
+      if (StackData.CurX==X2-X1-2 && !IsReferencePresent())
+        StackData.CurX=0;
+      if (--StackData.CurX < 0)
       {
         StartSelection=0;
-        CurX=X2-X1-2;
-        CurY--;
-        if (TopStr+CurY<0 || CurScreen && CurY<0)
+        StackData.CurX=X2-X1-2;
+        StackData.CurY--;
+        if (StackData.TopStr+StackData.CurY<0 ||
+            CurScreen && StackData.CurY<0)
           break;
       }
     }
+
     FastShow();
-    if (*SelTopic==0)
+    if (*StackData.SelTopic==0)
       StartSelection=0;
     else
       if (StartSelection)
-        *SelTopic=0;
+        *StackData.SelTopic=0;
   }
   DisableOut=FALSE;
-  if (*SelTopic==0)
+  if (*StackData.SelTopic==0)
   {
-    CurX=SaveCurX;
-    CurY=SaveCurY;
-    TopStr=SaveTopStr;
+    StackData.CurX=SaveCurX;
+    StackData.CurY=SaveCurY;
+    StackData.TopStr=SaveTopStr;
   }
   FastShow();
 }
@@ -1151,9 +1193,9 @@ void Help::ReadPluginsHelp()
   StrCount=0;
   FixCount=1;
   FixSize=2;
-  TopStr=0;
+  StackData.TopStr=0;
   TopicFound=TRUE;
-  CurX=CurY=0;
+  StackData.CurX=StackData.CurY=0;
   CtrlColorChar=0;
   char PluginsHelpTitle[100];
   sprintf(PluginsHelpTitle,"^ #%s#",MSG(MPluginsHelpTitle));
@@ -1352,6 +1394,8 @@ void Help::OnChangeFocus(int Focus)
 
 void Help::ResizeConsole()
 {
+  int OldIsNewTopic=IsNewTopic;
+  IsNewTopic=FALSE;
   delete TopScreen;
   TopScreen=NULL;
   Hide();
@@ -1363,7 +1407,9 @@ void Help::ResizeConsole()
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp(HelpMask);
+  StackData.CurY--; // ЭТО ЕСМЬ КОСТЫЛЬ (пусть пока будет так!)
   MoveToReference(1,1);
+  IsNewTopic=OldIsNewTopic;
   FrameManager->ImmediateHide();
   FrameManager->RefreshFrame();
 }
@@ -1374,33 +1420,39 @@ int Help::FastHide()
 }
 
 
+
+/* ------------------------------------------------------------------ */
 void CallBackStack::ClearStack()
 {
   while(!isEmpty())
     Pop();
 }
 
-char* CallBackStack::Pop(char *Dest, char *Path,DWORD* Flags)
+int CallBackStack::Pop(struct StackHelpData *Dest)
 {
   if(!isEmpty())
   {
     ListNode *oldTop = topOfStack;
     topOfStack = topOfStack->Next;
-    if(Dest)
-      strcpy(Dest,oldTop->Str);
-    if(Path)
-      strcpy(Path,oldTop->Path);
-    if(Flags)
-      *Flags=oldTop->Flags;
+    if(Dest!=NULL)
+    {
+      strcpy(Dest->HelpTopic,oldTop->HelpTopic);
+      strcpy(Dest->HelpPath,oldTop->HelpPath);
+      strcpy(Dest->SelTopic,oldTop->SelTopic);
+      Dest->Flags=oldTop->Flags;
+      Dest->TopStr=oldTop->TopStr;
+      Dest->CurX=oldTop->CurX;
+      Dest->CurY=oldTop->CurY;
+    }
     delete oldTop;
-    return Dest;
+    return TRUE;
   }
-  return NULL;
+  return FALSE;
 }
 
-void CallBackStack::Push(const char *Str,const char *Path,DWORD Flags)
+void CallBackStack::Push(const struct StackHelpData *Data)
 {
-  topOfStack=new ListNode(Str,Path,Flags,topOfStack);
+  topOfStack=new ListNode(Data,topOfStack);
 }
 
 void CallBackStack::PrintStack(const char *Title)
@@ -1411,7 +1463,7 @@ void CallBackStack::PrintStack(const char *Title)
   SysLog(1);
   while(Ptr)
   {
-    SysLog("%03d '%s' '%s'",I++,Ptr->Str,Ptr->Path);
+    SysLog("%03d '%s' '%s'",I++,Ptr->HelpTopic,Ptr->HelpPath);
     Ptr=Ptr->Next;
   }
   SysLog(-1);

@@ -5,14 +5,17 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.53 18.07.2001 $ */ 
+/* Revision: 1.54 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    + ѕовторное нажатие CtrlPgUp в меню выбора дисков гасит это меню.
+    + Shift-Enter в меню выбора дисков вызывает проводник дл€ данного диска
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   21.06.2001 tran
-    ! убран глюк AltF1,F1,esc      
+    ! убран глюк AltF1,F1,esc
   17.06.2001 KM
     ! ƒобавление WRAPMODE в меню.
   14.06.2001 KM
@@ -387,7 +390,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
                  ChDisk.AddItem(&ChDiskItem));
         MenuLine++;
       } // if (DiskMask & 1)
-    } // for 
+    } // for
     /* VVM $ */
 
     int UsedNumbers[10];
@@ -527,6 +530,20 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       }
       switch(Key)
       {
+        // Shift-Enter в меню выбора дисков вызывает проводник дл€ данного диска
+        case KEY_SHIFTENTER:
+          if (SelPos<DiskCount)
+          {
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
+            {
+              char DosDeviceName[16];
+              sprintf(DosDeviceName,"%c:\\",LOBYTE(LOWORD(UserData)));
+              Execute(DosDeviceName,FALSE,TRUE,TRUE);
+            }
+          }
+          break;
+        case KEY_CTRLPGUP:
+          return -1;
         /* $ 27.04.2001 SVS
            “.к. нет способа получить состо€ние "открытости" устройства,
            то добавим обработку Ins дл€ CD - "закрыть диск"

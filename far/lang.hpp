@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.65 18.07.2001 $ */
+/* Revision: 1.66 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    + MNewOpen, MSetConfirmAllowReedit
+    + MFindFileResultTitle
   18.07.2001 VVM
     + MCopyCannotRenameFolder
     + MCopyIgnore
@@ -565,6 +568,7 @@ enum
   MAskReload,
   MCurrent,
   MReload,
+  MNewOpen,
   MEditCannotOpen,
   MEditReading,
   MEditAskSave,
@@ -871,6 +875,7 @@ enum
   MFilterMasks,
 
   MFindFileTitle,
+  MFindFileResultTitle,
   MFindFileMasks,
   MFindFileText,
   MFindFileCase,
@@ -1305,6 +1310,7 @@ enum
   MSetConfirmDeleteFolders,
   MSetConfirmEsc,
   MSetConfirmRemoveConnection,
+  MSetConfirmAllowReedit,
   MSetConfirmExit,
 
   MFindFolderTitle,

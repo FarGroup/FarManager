@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.42 18.07.2001 $ */
+/* Revision: 1.43 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    ! Избавляемся от варнингов
   18.07.2001 VVM
     + Если не удалось переименовать каталог - сказать об этом пользователю
       и спросить - "что делать?"
@@ -908,7 +910,6 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   DWORD DestAttr;
   _tran(SysLog("[%p] ShellCopy::CopyFileTree()",this));
 
-  int DestNew=FALSE;
   char SelName[NM],SelShortName[NM];
   int Length,FileAttr;
 
@@ -1351,7 +1352,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
           } /* else */
         } /* while */
         /* VVM $ */
-      }  
+      }
 
       SECURITY_ATTRIBUTES sa;
       if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,&sa))
@@ -2581,7 +2582,6 @@ int ShellCopy::MkSymLink(char *SelName,char *Dest,DWORD Flags)
 {
   if (Flags&(FCOPY_LINK|FCOPY_VOLMOUNT))
   {
-    int FolderNew=FALSE;
     char SrcFullName[NM], DestFullName[NM];
     char MsgBuf[NM],MsgBuf2[NM];
 
@@ -2674,7 +2674,6 @@ int ShellCopy::MkSymLink(char *SelName,char *Dest,DWORD Flags)
           else
             CreatePath(DestFullName);
 //_SVS(SysLog("Create folder '%s'",DestFullName));
-          FolderNew=TRUE;
         }
         if(GetFileAttributes(DestFullName) == -1) // так. все очень даже плохо.
         {
@@ -2695,7 +2694,6 @@ int ShellCopy::MkSymLink(char *SelName,char *Dest,DWORD Flags)
       else
         CreatePath(DestFullName);
 //_SVS(SysLog("Create folder '%s'",DestFullName));
-      FolderNew=TRUE;
       if(GetFileAttributes(DestFullName) == -1) // так. все очень даже плохо.
       {
         if(!(Flags&FCOPY_NOSHOWMSGLINK))

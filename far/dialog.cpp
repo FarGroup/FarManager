@@ -5,12 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.139 18.07.2001 $ */ 
+/* Revision: 1.140 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+   ! Пересмотрены параметры функции SelectFromComboBox() - ведь и так
+     передаем указатель аж на цельный класс строки, так что...
   18.07.2001 OT
-    VFMenu
+   !  VFMenu
   16.07.2001 SVS
    + DM_SETHISTORY - управление историей
   12.07.2001 OT
@@ -2624,19 +2627,11 @@ int Dialog::ProcessKey(int Key)
       else if(Type == DI_COMBOBOX && Item[FocusPos].ListPtr &&
               !(Item[FocusPos].Flags & DIF_READONLY))
       {
-        char *PStr=Str;
-        int MaxLen=sizeof(Item[FocusPos].Data);
-        if(Item[FocusPos].Flags&DIF_VAREDIT)
-        {
-          MaxLen=Item[FocusPos].Ptr.PtrLength;
-          if((PStr=(char*)malloc(MaxLen+1)) == NULL)
-            return TRUE;//???
-        }
-        CurEditLine->GetString(PStr,MaxLen);
-        SelectFromComboBox(CurEditLine,Item[FocusPos].ListPtr,PStr,MaxLen);
+        int MaxLen=(Item[FocusPos].Flags&DIF_VAREDIT)?
+                     Item[FocusPos].Ptr.PtrLength:
+                     sizeof(Item[FocusPos].Data);
+        SelectFromComboBox(CurEditLine,Item[FocusPos].ListPtr,MaxLen);
         Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
-        if(Item[FocusPos].Flags&DIF_VAREDIT)
-          free(PStr);
       }
       /* SVS $ */
       return(TRUE);
@@ -3613,7 +3608,6 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
 int Dialog::SelectFromComboBox(
          Edit *EditLine,                   // строка редактирования
          VMenu *ComboBox,    // список строк
-         char *IStr,
          int MaxLen)
 {
   char *Str;
@@ -3727,7 +3721,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
   char RegKey[NM],Str[4096];
   int I,Dest;
   int Locked;
-  int IsOk=FALSE, Done=FALSE, IsUpdate;
+  int IsOk=FALSE, Done, IsUpdate;
   struct MenuItem HistoryItem;
   int ItemsCount;
 
@@ -3750,6 +3744,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
+    Done=FALSE;
 
     while(!Done)
     {

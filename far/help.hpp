@@ -7,10 +7,13 @@ help.hpp
 
 */
 
-/* Revision: 1.15 20.07.2001 $ */
+/* Revision: 1.16 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 SVS
+    ! Переделка number two - пытаемся при возврате показать привычное
+      расположение хелпа (но пока, увы)
   20.07.2001 SVS
     ! PluginPanelHelp переехала к плагинам (не место ей здесь)
     ! Удалены за ненадобностью Get/Set-FullScreenMode
@@ -59,26 +62,32 @@ Modify:
 
 class CallBackStack;
 
+struct StackHelpData
+{
+  DWORD Flags;                  // флаги
+  int   TopStr;                 // номер верхней видимой строки темы
+  int   CurX,CurY;              // координаты (???)
+
+  char  HelpPath[NM];           // путь к хелпам
+  char  HelpTopic[512];         // текущий топик
+  char  SelTopic[512];          // выделенный топик (???)
+};
+
 class Help:public Frame
 {
   private:
-    DWORD Flags;                // флаги
     BOOL  ErrorHelp;            // TRUE - ошибка! Например - нет такого топика
     SaveScreen *TopScreen;      // область сохранения под хелпом
     KeyBar      HelpKeyBar;     // кейбар
     CallBackStack *Stack;       // стек возврата
 
+    struct StackHelpData StackData;
     char *HelpData;             // "хелп" в памяти.
     int   StrCount;             // количество строк в теме
     int   FixCount;             // количество строк непрокручиваемой области
-    int   TopicFound;           // TRUE - топик найден
-    int   TopStr;               // номер верхней видимой строки темы
-    int   CurX,CurY;            // координаты (???)
     int   FixSize;              // Размер непрокручиваемой области
-
-    char  HelpTopic[512];       // текущий топик
-    char  SelTopic[512];        // выделенный топик (???)
-    char  HelpPath[NM];         // путь к хелпам
+    int   TopicFound;           // TRUE - топик найден
+    int   IsNewTopic;           // это новый топик?
     char *HelpMask;             // значение маски, переданной в конструктор
 
     int   DisableOut;           // TRUE - не выводить на экран
