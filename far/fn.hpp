@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.35 16.10.2000 $ */
+/* Revision: 1.36 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+   + SysLog
   16.10.2000 tran
    + PasteFromClipboardEx(int max);
   09.10.2000 IS
@@ -576,5 +578,5 @@ void WINAPI DeleteBuffer(char* Buffer);
 };
 #endif
 /* SVS $ */
-
+void SysLog(char *fmt,...);
 #endif  // __FARFUNC_HPP__

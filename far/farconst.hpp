@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.07 17.10.2000 $ */
+/* Revision: 1.08 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    ! FILE_ATTRIBUTE_REPARSE_POINT перенесен в headers.hpp
   17.10.2000 SVS
     + ИСКЛЮЧЕНИЯ! Константы EXCEPT_* и макрос TRY
   27.09.2000 SVS
@@ -38,10 +40,6 @@ Modify:
    вместо #define FAR_VERSION включаем farversion.hpp */
 #include "farversion.hpp"
 /* tran $ */
-
-#ifndef _MSC_VER
- #define FILE_ATTRIBUTE_REPARSE_POINT 0x400
-#endif
 
 #define TreeFileName "Tree.Far"
 #define LocalMenuFileName "FarMenu.Ini"

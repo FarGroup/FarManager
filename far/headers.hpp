@@ -5,10 +5,15 @@ headers.cpp
 
 */
 
-/* Revision: 1.06 11.10.2000 $ */
+/* Revision: 1.07 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    + FILE_SUPPORTS_ENCRYPTION,
+      FILE_ATTRIBUTE_ENCRYPTED,
+      FS_FILE_ENCRYPTION
+    ! FILE_ATTRIBUTE_REPARSE_POINT перенесен из farconst.hpp в headers.hpp
   11.10.2000 SVS
     ! В BC RAND_MAX = 0x7fffU, а не 0x7fff
   19.09.2000 SVS
@@ -48,6 +53,22 @@ Modify:
 #endif
 
 #include <winioctl.h>
+
+#undef FILE_ATTRIBUTE_ENCRYPTED
+#define FILE_ATTRIBUTE_ENCRYPTED     0x00004000
+//#define FILE_ATTRIBUTE_ENCRYPTED     0x00000040
+
+#if !defined(FILE_SUPPORTS_ENCRYPTION)
+#define FILE_SUPPORTS_ENCRYPTION     0x00020000
+#endif
+#if !defined(FS_FILE_ENCRYPTION)
+#define FS_FILE_ENCRYPTION           FILE_SUPPORTS_ENCRYPTION
+#endif
+
+#if !defined(FILE_ATTRIBUTE_REPARSE_POINT)
+#define FILE_ATTRIBUTE_REPARSE_POINT 0x400
+#endif
+
 
 #ifndef __DOS_H
 #include <dos.h>	// FA_*

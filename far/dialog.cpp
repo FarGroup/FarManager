@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.47 16.10.2000 $ */
+/* Revision: 1.48 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
   16.10.2000 tran 1.47
    + для EDIT полей выставляется ограничение в 511 символов
   27.09.2000 SVS
@@ -672,7 +674,7 @@ int Dialog::InitDialogObjects(int ID)
         if ((CurItem->Flags & DIF_MASKEDIT) && CurItem->Mask)
         {
           char *Ptr=CurItem->Mask;
-          while(*Ptr == ' ') ++Ptr;
+          while(*Ptr && *Ptr == ' ') ++Ptr;
           if(*Ptr)
             DialogEdit->SetInputMask(CurItem->Mask);
           else
@@ -3270,6 +3272,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
       return FALSE;
+    /* SVS $ */
+
+    /* $ 20.10.2000 SVS
+      Получить ID фокуса
+    */
+    case DM_GETFOCUS:
+      return Dlg->FocusPos;
     /* SVS $ */
 
     case DM_GETTEXT:

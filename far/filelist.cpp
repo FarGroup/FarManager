@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.12 13.10.2000 $ */
+/* Revision: 1.13 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    ! Сделаем фичу Ctrl-F опциональной!
   13.10.2000 tran 1.12
     + по Ctrl-f имя отвечает условиям на панели
   27.09.2000 SVS
@@ -564,26 +566,32 @@ int FileList::ProcessKey(int Key)
             ConvertNameToFull(FileName,FileName);
             if (ShowShortNames)
               ConvertNameToShort(FileName,FileName);
-            /* $ 13.10.2000 tran
-              по Ctrl-f имя должно отвечать условиям на панели */              
-            if (ViewSettings.FolderUpperCase)
+            /* $ 20.10.2000 SVS
+               Сделаем фичу Ctrl-F опциональной!*/
+            if(Opt.PanelCtrlFRule)
             {
-              if ( CurPtr->FileAttr & FA_DIREC )
-                LocalStrupr(FileName);
-              else
+              /* $ 13.10.2000 tran
+                по Ctrl-f имя должно отвечать условиям на панели */
+              if (ViewSettings.FolderUpperCase)
               {
-                  strcpy(temp,FileName);
-                  *strrchr(temp,'\\')=0;
-                  LocalStrupr(temp);
-                  strncpy(FileName,temp,strlen(temp));
+                if ( CurPtr->FileAttr & FA_DIREC )
+                  LocalStrupr(FileName);
+                else
+                {
+                    strcpy(temp,FileName);
+                    *strrchr(temp,'\\')=0;
+                    LocalStrupr(temp);
+                    strncpy(FileName,temp,strlen(temp));
+                }
               }
+              if (ViewSettings.FileUpperToLowerCase)
+                if (!(CurPtr->FileAttr & FA_DIREC) && strrchr(FileName,'\\') && !IsCaseMixed(strrchr(FileName,'\\')))
+                   LocalStrlwr(FileName);
+              if ( ViewSettings.FileLowerCase && strrchr(FileName,'\\') && !(CurPtr->FileAttr & FA_DIREC))
+                LocalStrlwr(strrchr(FileName,'\\'));
+              /* tran $ */
             }
-            if (ViewSettings.FileUpperToLowerCase)
-              if (!(CurPtr->FileAttr & FA_DIREC) && strrchr(FileName,'\\') && !IsCaseMixed(strrchr(FileName,'\\')))
-                 LocalStrlwr(FileName);
-            if ( ViewSettings.FileLowerCase && strrchr(FileName,'\\') && !(CurPtr->FileAttr & FA_DIREC))
-              LocalStrlwr(strrchr(FileName,'\\'));
-            /* tran $ */
+            /* SVS $ */
           }
           else
           {
@@ -591,22 +599,31 @@ int FileList::ProcessKey(int Key)
             strcpy(FullName,NullToEmpty(Info.CurDir));
             /* $ 13.10.2000 tran
               по Ctrl-f имя должно отвечать условиям на панели */
-            if (ViewSettings.FolderUpperCase)
+            /* $ 20.10.2000 SVS
+               Сделаем фичу Ctrl-F опциональной!*/
+            if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
               LocalStrupr(FullName);
+            /* SVS $ */
             /* tran $ */
             for (int I=0;FullName[I]!=0;I++)
               if (FullName[I]=='/')
                 FullName[I]='\\';
             if (*FullName)
               AddEndSlash(FullName);
-            /* $ 13.10.2000 tran
-              по Ctrl-f имя должно отвечать условиям на панели */
-            if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
-              LocalStrlwr(FileName);
-            if (ViewSettings.FileUpperToLowerCase)
-              if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(FileName))
-                 LocalStrlwr(FileName);
-            /* tran $ */
+            /* $ 20.10.2000 SVS
+               Сделаем фичу Ctrl-F опциональной!*/
+            if(Opt.PanelCtrlFRule)
+            {
+              /* $ 13.10.2000 tran
+                по Ctrl-f имя должно отвечать условиям на панели */
+              if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
+                LocalStrlwr(FileName);
+              if (ViewSettings.FileUpperToLowerCase)
+                if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(FileName))
+                   LocalStrlwr(FileName);
+              /* tran $ */
+            }
+            /* SVS $*/
             strcat(FullName,FileName);
             strcpy(FileName,FullName);
           }

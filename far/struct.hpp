@@ -7,10 +7,15 @@ struct.hpp
 
 */
 
-/* Revision: 1.22 17.10.2000 $ */
+/* Revision: 1.23 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+   + Opt.PanelCtrlFRule
+      Panel/CtrlFRule в реестре - задает поведение Ctrl-F
+      Если = 0, то штампуется файл как есть, иначе - с учетом
+      отображения на панели
   17.10.2000 SVS
    ! WordDiv имеет размер 256;
   10.10.2000 SVS
@@ -340,6 +345,13 @@ struct Options
    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
   */
   int PanelCtrlAltShiftRule;
+  /* SVS $*/
+  /* $ 20.10.2000 SVS
+    Panel/CtrlFRule в реестре - задает поведение Ctrl-F
+    Если = 0, то штампуется файл как есть, иначе - с учетом
+    отображения на панели
+  */
+  int PanelCtrlFRule;
   /* SVS $*/
   /* $ 27.09.2000 SVS
    + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift

@@ -49,6 +49,7 @@ OPTDEBUG=-v-
 CSMFILE=far.csm
 !endif
 
+
 !ifdef PRECOMP
 PRECOMPOPT=-H=$(OBJPATH)\$(CSMFILE)
 !else
@@ -260,4 +261,5 @@ $(FARALLOC)
 $(PRECOMPOPT)
 $(OPTDEBUG)
 $(OPTEXT)
+$(FARSYSLOG)
 | $@

@@ -9,6 +9,9 @@ flshow.cpp
 
 /*
 Modify:
+  20.10.2000 SVS
+    + Добавлен Encrypted
+      Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
   25.06.2000 SVS
@@ -933,13 +936,19 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
             case ATTR_COLUMN:
               {
                 char OutStr[30];
+                /* $ 20.10.2000 SVS
+                   Encrypted NTFS/Win2K
+                   Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
+                */
                 sprintf(OutStr,"%c%c%c%c%c%c",
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'P':' ',
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':' ',
+                        (CurPtr->FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':
+                           ((CurPtr->FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' '),
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ',
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ',
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ',
                         (CurPtr->FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ');
+                /* SVS $ */
                 char *OutPtr=OutStr;
                 if (ColumnWidth<6)
                   OutPtr=OutStr+6-ColumnWidth;

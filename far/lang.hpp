@@ -12,10 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.22 17.10.2000 $ */
+/* Revision: 1.23 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    + MHighlightEncrypted, MSetAttrEncrypted, MSetAttrEncryptedCannotFor,
+    ! удален MSetAttrNTFSOnly за ненадобностью
   17.10.2000 SVS
     + Еще несколько MExc*
   16.10.2000 SVS
@@ -744,6 +747,7 @@ enum
   MHighlightSystem,
   MHighlightArchive,
   MHighlightCompressed,
+  MHighlightEncrypted,
   MHighlightFolder,
   MHighlightExcludeAttr,
   MHighlightColors,
@@ -958,6 +962,7 @@ enum
   MSetAttrHidden,
   MSetAttrSystem,
   MSetAttrCompressed,
+  MSetAttrEncrypted,
   MSetAttrSubfolders,
   MSetAttrFileTime,
   MSetAttrModification,
@@ -969,7 +974,6 @@ enum
   MSetAttrChange,
   MSetAttrSetClear,
 
-  MSetAttrNTFSOnly,
   MSetAttrTimeTitle1,
   MSetAttrTimeTitle2,
   MSetAttrTimeTitle3,
@@ -977,6 +981,7 @@ enum
   MSetAttrSetting,
   MSetAttrCannotFor,
   MSetAttrCompressedCannotFor,
+  MSetAttrEncryptedCannotFor,
   MSetAttrTimeCannotFor,
 
   MSetColorPanel,

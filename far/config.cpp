@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.29 17.10.2000 $ */
+/* Revision: 1.30 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    + Opt.PanelCtrlFRule
+      Panel/CtrlFRule в реестре - задает поведение Ctrl-F
+      Если = 0, то штампуется файл как есть, иначе - с учетом
+      отображения на панели
   17.10.2000 SVS
     ! WordDiv имеет размер 256;
   16.10.2000 SVS
@@ -828,6 +833,13 @@ void ReadConfig()
   */
   GetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule,2);
   Opt.PanelRightClickRule%=3;
+  /* SVS $ */
+  /* $ 20.10.2000 SVS
+    + Panel/CtrlFRule в реестре - задает поведение Ctrl-F
+      Если = 0, то штампуется файл как есть, иначе - с учетом
+      отображения на панели
+  */
+  GetRegKey("Panel","CtrlFRule",Opt.PanelCtrlFRule,1);
   /* SVS $ */
   /* $ 19.09.2000 SVS
     + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.

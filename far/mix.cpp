@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.34 16.10.2000 $ */
+/* Revision: 1.35 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    + SysLog
   16.10.2000 tran
     + PasteFromClipboardEx(int max);
   09.10.2000 IS
@@ -1146,7 +1148,7 @@ char* WINAPI PasteFromClipboardEx(int max)
         {
           char *tmp=new char[BufferSize];
           strncpy(tmp,ClipAddr,BufferSize-1);
-          //tmp[BufferSize]=0;            
+          //tmp[BufferSize]=0;
           CharToOem(ClipAddr,tmp);
           strcpy(ClipText,tmp);
         }
@@ -2490,3 +2492,27 @@ void WINAPI DeleteBuffer(char *Buffer)
   if(Buffer)delete [] Buffer;
 }
 /* skv$*/
+
+void SysLog(char *fmt,...)
+{
+#if defined(SYSLOG)
+  va_list argptr;
+  va_start(argptr,fmt);
+  char OutStr[1024];
+  vsprintf(OutStr,fmt,argptr);
+
+  char FarFileName[NM];
+  GetModuleFileName(NULL,FarFileName,sizeof(FarFileName));
+  strcpy(strrchr(FarFileName,'\\')+1,"far.log");
+  FILE *LogFile=fopen(FarFileName,"r+b");
+  if (LogFile!=NULL)
+  {
+    SYSTEMTIME tm;
+    GetLocalTime(&tm);
+    fseek(LogFile,0,2);
+    fprintf(LogFile,"%02d:%02d:%02d %s\r\n",tm.wHour,tm.wMinute,tm.wSecond,OutStr);
+    fclose(LogFile);
+  }
+  va_end(argptr);
+#endif
+}

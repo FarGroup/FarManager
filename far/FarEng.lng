@@ -681,6 +681,7 @@
 "System"
 "Archive"
 "Compressed"
+"Encrypted"
 "Folder"
 "&Exclude attributes"
 " File name colors ("black on black" - default color) "
@@ -895,6 +896,7 @@
 "&Hidden"
 "&System"
 "&Compressed"
+"&Encrypted"
 "Process sub&folders"
 "File time"
 "&Modification"
@@ -906,7 +908,6 @@
 "Change file attributes"
 "Set  Clear"
 
-" - NTFS only"
 "MM%cDD%cYYYY hh%cmm%css"
 "DD%cMM%cYYYY hh%cmm%css"
 "YYYY%cMM%cDD hh%cmm%css"
@@ -914,6 +915,7 @@
 "Setting file attributes"
 "Cannot set attributes for"
 "Cannot set attribute COMPRESSED for"
+"Cannot set attribute ENCRYPTED for"
 "Cannot set file time for"
 
 "&Panel"

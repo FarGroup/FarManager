@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.60 09.10.2000 $ */
+/* Revision: 1.61 20.10.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  20.10.2000 SVS
+    + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
   09.10.2000 IS
     + Флаги для ProcessName (PN_*)
     + Указатель в FARSTANDARDFUNCTIONS на ProcessName;
@@ -449,6 +451,7 @@ enum FarMessagesProc{
   DM_SETTEXT,
   DM_SETTEXTLENGTH,
   DM_SHOWDIALOG,
+  DM_GETFOCUS,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

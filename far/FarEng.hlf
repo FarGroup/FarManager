@@ -1377,6 +1377,9 @@ used both with or instead of color highlighting.
 If a file fits a certain group, it will not be checked to fit
 the rest of the groups.
 
+    The Compressed and Encrypted attributes are valid for NTFS drives
+only. The Encrypted attribute can be used only in Windows 2000.
+
 @ViewerSettings
 $ #Viewer settings#
     This dialog allows the default external viewer settings to be changed.
@@ -1495,7 +1498,9 @@ file time. Either single file or group of files may be processed.
 If you do not want to process files in subfolders, clear
 the "Process subfolders" option.
 
-    Attribute "Compressed" may be changed only for NTFS drives.
+    The "Compressed" and "Encrypted" attributes may be changed only on NTFS
+drives. The "Encrypted" attribute can be used in Windows 2000 only. These two
+attributes are mutually exclusive, that is, you can set only one of them.
 
     Three different file times are supported:
 

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.22 16.10.2000 $ */
+/* Revision: 1.23 20.10.2000 $ */
 
 /*
 Modify:
+   20.10.2000 SVS
+    ! Уточнение для масок.
    16.10.2000 tran
     + если стоит MaxLength, из клипборда грузим не больше чем
       положено
@@ -1199,8 +1201,12 @@ int Edit::InsertKey(int Key)
         Inserted=TRUE;
       else if (Mask[CurPos]=='#' && (isdigit(Key) || Key==' ' || Key=='-'))
         Inserted=TRUE;
-      else if (Mask[CurPos]=='9' && isdigit(Key))
+      /* 20.10.2000 SVS
+         Допускается в числах вводить пробел.
+      */
+      else if (Mask[CurPos]=='9' && (isdigit(Key) || Key==' '))
         Inserted=TRUE;
+      /* SVS $ */
       else if (Mask[CurPos]=='A' && LocalIsalpha(Key))
         Inserted=TRUE;
       if (Inserted)
@@ -1365,17 +1371,25 @@ void Edit::SetBinaryString(char *Str,int Length)
   */
   if (Mask && *Mask)
   {
+    /* $ 20.10.2000 SVS
+       Забыли проверить на конец строки :-)
+    */
     RefreshStrByMask();
+    int EOStr=FALSE;
     for (int i=0;i<strlen(Mask);i++)
     {
+      if(!EOStr && !Str[i])
+        EOStr=TRUE;
+
       if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
-        InsertKey(Str[i]);
+        InsertKey(!EOStr?Str[i]:' ');
       else
       {
         PrevCurPos=CurPos;
         CurPos++;
       }
     }
+    /* SVS $ */
   }
   else
   {
