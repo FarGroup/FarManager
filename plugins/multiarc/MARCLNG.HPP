@@ -114,6 +114,7 @@ enum LanguageID
   MGConfigHideView,
   MGConfigHideAlways,
   MGConfigProcessShiftF1,
+  MGConfigAllowChangeDir,
   MGConfigUseLastHistory,
 //  MGConfigDeleteExtFile,
 //  MGConfigAddExtArchive,

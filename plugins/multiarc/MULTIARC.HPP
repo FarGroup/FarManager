@@ -304,6 +304,7 @@ struct Options
   /* tran 13.09.2000 $ */
   int OldUserBackground; // $ 02.07.2002 AY
   int UseLastHistory; // $ 18.05.2001 SVS
+  int AllowChangeDir; // $ 05.08.2001 SVS
   //int DeleteExtFile; // $ 12.07.2001 SVS
   //int AddExtArchive; // $ 16.07.2001 SVS
   //BOOL AutoResetExactArcName; // $ 2?.11.2001 AA
