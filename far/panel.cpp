@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.37 30.04.2001 $ */
+/* Revision: 1.38 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   30.04.2001 DJ
     - не давало закрыть по Esc менюшку выбора диска, вызванную из quick view
       панели
@@ -438,7 +440,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     }
 
     int X=X1+5;
-    if (this==CtrlObject->RightPanel && IsFullScreen() && X2-X1>40)
+    if (this==CtrlObject->Cp()->RightPanel && IsFullScreen() && X2-X1>40)
       X=(X2-X1+1)/2+5;
     int Y=(ScrY+1-(DiskCount+PluginMenuItemsCount+5))/2;
     if (Y<1) Y=1;
@@ -680,10 +682,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     char CurDir[NM];
     GetCurrentDirectory(sizeof(CurDir),CurDir);
     Focus=GetFocus();
-    Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,FALSE);
+    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,FALSE);
     NewPanel->SetCurDir(CurDir,TRUE);
     NewPanel->Show();
-    if (Focus || !CtrlObject->GetAnotherPanel(this)->IsVisible())
+    if (Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
       NewPanel->SetFocus();
   }
   else
@@ -693,11 +695,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       if (hPlugin!=INVALID_HANDLE_VALUE)
       {
         Focus=GetFocus();
-        Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
+        Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
         NewPanel->SetPluginMode(hPlugin,"");
         NewPanel->Update(0);
         NewPanel->Show();
-        if (Focus || !CtrlObject->GetAnotherPanel(NewPanel)->IsVisible())
+        if (Focus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
           NewPanel->SetFocus();
       }
     }
@@ -798,9 +800,9 @@ void Panel::FastFind(int FirstKey)
     }
   }
   Show();
-  CtrlObject->MainKeyBar.Redraw();
+  CtrlObject->MainKeyBar->Redraw();
   ScrBuf.Flush();
-  Panel *ActivePanel=CtrlObject->ActivePanel;
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   if (KeyToProcess==KEY_ENTER && ActivePanel->GetType()==TREE_PANEL)
     ((TreeList *)ActivePanel)->ProcessEnter();
   else
@@ -888,14 +890,14 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 
 void Panel::SetFocus()
 {
-  if (CtrlObject->ActivePanel!=this)
+  if (CtrlObject->Cp()->ActivePanel!=this)
   {
-    CtrlObject->ActivePanel->KillFocus();
-    CtrlObject->ActivePanel=this;
+    CtrlObject->Cp()->ActivePanel->KillFocus();
+    CtrlObject->Cp()->ActivePanel=this;
   }
   if (!GetFocus())
   {
-    CtrlObject->RedrawKeyBar();
+    CtrlObject->Cp()->RedrawKeyBar();
     Focus=TRUE;
     Redraw();
     chdir(CurDir);
@@ -956,7 +958,7 @@ int Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
       return(TRUE);
     }
     if (MouseEvent->dwMousePosition.Y<=Y1 || MouseEvent->dwMousePosition.Y>=Y2 ||
-        !CtrlObject->GetAnotherPanel(SrcDragPanel)->IsVisible())
+        !CtrlObject->Cp()->GetAnotherPanel(SrcDragPanel)->IsVisible())
     {
       EndDrag();
       return(TRUE);
@@ -1112,7 +1114,7 @@ int Panel::SetCurPath()
 void Panel::Hide()
 {
   ScreenObject::Hide();
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->IsVisible())
   {
     if (AnotherPanel->GetFocus())
@@ -1126,7 +1128,7 @@ void Panel::Hide()
 void Panel::Show()
 {
   SavePrevScreen();
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->IsVisible() && !GetModalMode())
   {
     SaveScr->AppendArea(AnotherPanel->SaveScr);
@@ -1205,7 +1207,7 @@ void Panel::SetTitle()
 void Panel::SetPluginCommand(int Command,void *Param)
 {
   ProcessingPluginCommand++;
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   PluginCommand=Command;
   switch(Command)
   {

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.12 25.04.2001 $ */
+/* Revision: 1.13 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   25.04.2001 SVS
     ! Добавка для MODALTREE_FREE
   23.04.2001 SVS
@@ -404,18 +406,18 @@ Panel* TreeList::GetRootPanel()
   if (ModalMode)
   {
     if (ModalMode==MODALTREE_ACTIVE)
-      RootPanel=CtrlObject->ActivePanel;
+      RootPanel=CtrlObject->Cp()->ActivePanel;
     else if (ModalMode==MODALTREE_FREE)
       RootPanel=this;
     else
     {
-      RootPanel=CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
+      RootPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
       if (!RootPanel->IsVisible())
-        RootPanel=CtrlObject->ActivePanel;
+        RootPanel=CtrlObject->Cp()->ActivePanel;
     }
   }
   else
-    RootPanel=CtrlObject->GetAnotherPanel(this);
+    RootPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   return(RootPanel);
 }
 
@@ -507,7 +509,7 @@ int TreeList::ProcessKey(int Key)
       return(TRUE);
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
     {
-      Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       if (AnotherPanel->GetType()==FILE_PANEL)
       {
         AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
@@ -569,7 +571,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_DRAGMOVE:
       if (SetCurPath() && TreeCount>0)
       {
-        Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         int Ask=(Key!=KEY_DRAGCOPY && Key!=KEY_DRAGMOVE || Opt.Confirm.Drag);
         int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
         int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&

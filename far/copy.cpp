@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.28 24.04.2001 $ */
+/* Revision: 1.29 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   24.04.2001 VVM
     ! При подсчете времени копирования игнорировать время простоя (в диалогах)
   08.04.2001 SVS
@@ -204,7 +206,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   DestPlugin=ToPlugin;
   ToPlugin=FALSE;
   ShellCopy::SrcPanel=SrcPanel;
-  AnotherPanel=CtrlObject->GetAnotherPanel(SrcPanel);
+  AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
   PanelMode=DestPlugin ? AnotherPanel->GetMode():NORMAL_PANEL;
   SrcPanelMode=SrcPanel->GetMode();
 
@@ -486,8 +488,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   if (Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && SrcPanel->IsDizDisplayed() ||
       Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
   {
-    CtrlObject->LeftPanel->ReadDiz();
-    CtrlObject->RightPanel->ReadDiz();
+    CtrlObject->Cp()->LeftPanel->ReadDiz();
+    CtrlObject->Cp()->RightPanel->ReadDiz();
   }
 
   CopyBuffer=new char[CopyBufferSize];
@@ -722,7 +724,7 @@ void ShellCopy::CopyFileTree(char *Dest)
       if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
               SelName,MSG(MSkip),MSG(MCancel))==1)
         return;
-      CopyStartTime = clock();             
+      CopyStartTime = clock();
       int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
       TotalCopySize-=SubSize;
       continue;

@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.03 28.04.2001 $ */
+/* Revision: 1.04 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ’
+    + ‚­¥¤ΰ¥­¨¥ NWZ ®β ’ΰ¥βμοª®Ά 
   28.04.2001 SVS
     - ¥Ά¥ΰ­® Άλαβ Ά«¥­ δ« £, Ά¬¥αβ® β¥αβ  CONTEXT_INTEGER αβ®ο«®
       CONTEXT_SEGMENTS
@@ -118,6 +120,39 @@ void SysLog(char *fmt,...)
   CloseSysLog();
 #endif
 }
+
+///
+void SysLog(int l,char *fmt,...)
+{
+#if defined(SYSLOG)
+    char spaces[]=" ³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³³";
+    char msg[MAX_LOG_LINE];
+    time_t t;
+    struct tm *tm;
+    char timebuf[64];
+
+    va_list argptr;
+    va_start( argptr, fmt );
+
+    vsprintf( msg, fmt, argptr );
+    va_end(argptr);
+
+    time (&t);
+    tm = localtime (&t);
+    strftime (timebuf, sizeof (timebuf), "%d.%m.%Y %H:%M:%S", tm);
+
+    SysLog(l);
+    OpenSysLog();
+    if ( LogStream )
+    {
+        spaces[1+Indent]=0;
+        fprintf(LogStream,"%s %s%s\n",timebuf,spaces,msg);
+        fflush(LogStream);
+    }
+    CloseSysLog();
+#endif
+}
+///
 
 void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 {

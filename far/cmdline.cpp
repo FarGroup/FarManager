@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.14 25.04.2001 $ */
+/* Revision: 1.15 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   25.04.2001 DJ
     * обработка @ в IF EXIST
     * обработка кавычек внутри имени файла в IF EXIST
@@ -46,7 +48,7 @@ Modify:
   02.08.2000 tran 1.01
     - мелкий фикс - при выходе по CtrlF10, если файл был открыт на просмотр
       из Alt-F11, был виден keybar в панелях
-      как всегда добавил CtrlObject->Redraw()
+      как всегда добавил CtrlObject->Cp()->Redraw()
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -119,7 +121,7 @@ int CommandLine::ProcessKey(int Key)
   switch(Key)
   {
     case KEY_UP:
-      if (CtrlObject->LeftPanel->IsVisible() || CtrlObject->RightPanel->IsVisible())
+      if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
         return(FALSE);
     case KEY_CTRLE:
       {
@@ -132,7 +134,7 @@ int CommandLine::ProcessKey(int Key)
       LastCmdPartLength=-1;
       return(TRUE);
     case KEY_DOWN:
-      if (CtrlObject->LeftPanel->IsVisible() || CtrlObject->RightPanel->IsVisible())
+      if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
         return(FALSE);
     case KEY_CTRLX:
       {
@@ -189,7 +191,7 @@ int CommandLine::ProcessKey(int Key)
         }
         if (*NewFolder)
         {
-          Panel *ActivePanel=CtrlObject->ActivePanel;
+          Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
           ActivePanel->SetCurDir(NewFolder,TRUE);
           ActivePanel->Show();
           if (ActivePanel->GetType()==TREE_PANEL)
@@ -232,8 +234,8 @@ int CommandLine::ProcessKey(int Key)
               else
               {
                 SaveScreen SaveScr;
-                CtrlObject->LeftPanel->CloseFile();
-                CtrlObject->RightPanel->CloseFile();
+                CtrlObject->Cp()->LeftPanel->CloseFile();
+                CtrlObject->Cp()->RightPanel->CloseFile();
                 Execute(Str+1,Type-2);
               }
               break;
@@ -245,7 +247,7 @@ int CommandLine::ProcessKey(int Key)
           if (SelectType==3)
             SetString(Str);
       }
-      CtrlObject->Redraw();
+      CtrlObject->Cp()->Redraw();
       return(TRUE);
     case KEY_F12:
       CtrlObject->ModalManager.SelectModal();
@@ -259,8 +261,8 @@ int CommandLine::ProcessKey(int Key)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
-          CtrlObject->ActivePanel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
-          CtrlObject->ActivePanel->Redraw();
+          CtrlObject->Cp()->ActivePanel->SetCurDir(Str,Type==0 ? TRUE:FALSE);
+          CtrlObject->Cp()->ActivePanel->Redraw();
           CtrlObject->FolderHistory->SetAddMode(TRUE,2,TRUE);
         }
         else
@@ -271,7 +273,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ENTER:
     case KEY_SHIFTENTER:
       {
-        Panel *ActivePanel=CtrlObject->ActivePanel;
+        Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         /* $ 19.02.2001 IS
              - выделение нам уже не нужно
         */
@@ -393,10 +395,10 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
   int Code;
   {
     RedrawDesktop Redraw;
-    CtrlObject->LeftPanel->CloseChangeNotification();
-    CtrlObject->RightPanel->CloseChangeNotification();
-    CtrlObject->LeftPanel->CloseFile();
-    CtrlObject->RightPanel->CloseFile();
+    CtrlObject->Cp()->LeftPanel->CloseChangeNotification();
+    CtrlObject->Cp()->RightPanel->CloseChangeNotification();
+    CtrlObject->Cp()->LeftPanel->CloseFile();
+    CtrlObject->Cp()->RightPanel->CloseFile();
 
     ScrollScreen(1);
     MoveCursor(X1,Y1);
@@ -411,8 +413,8 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     GetCursorPos(CurX,CurY);
     if (CurY>=Y1-1)
       ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
-    CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-    CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
     GotoXY(X1,Y1);
     mprintf("%*s",X2-X1+1,"");
   }
@@ -550,9 +552,9 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
 {
   Panel *SetPanel;
   int Length;
-  SetPanel=CtrlObject->ActivePanel;
-  if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
-    SetPanel=CtrlObject->GetAnotherPanel(SetPanel);
+  SetPanel=CtrlObject->Cp()->ActivePanel;
+  if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
+    SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
   RemoveTrailingSpaces(CmdLine);
   if (isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
   {

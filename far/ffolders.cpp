@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.02 28.02.2001 $ */
+/* Revision: 1.03 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   11.02.2001 SVS
@@ -164,7 +166,7 @@ int ShowFolderShortcutMenu(int Pos)
   if (ExitCode>=0)
   {
     FolderList.Hide();
-    CtrlObject->ActivePanel->ProcessKey(KEY_RCTRL0+ExitCode);
+    CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_RCTRL0+ExitCode);
   }
   return(-1);
 }

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.70 30.04.2001 $ */
+/* Revision: 1.71 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   30.04.2001 DJ
     * не было history в SetFolderInfoFiles; не обновлялись инфо-панели
       после его изменения
@@ -409,9 +411,9 @@ void PanelSettings()
   Opt.ShowScreensNumber=CfgDlg[12].Selected;
   Opt.ShowSortMode=CfgDlg[13].Selected;
 
-  CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->SetScreenPositions();
+  CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->SetScreenPositions();
 }
 
 
@@ -493,9 +495,9 @@ void InterfaceSettings()
   Opt.AutoComplete=CfgDlg[15].Selected;
   /* SVS $ */
   SetFarConsoleMode();
-  CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->SetScreenPositions();
+  CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->SetScreenPositions();
 }
 
 
@@ -824,10 +826,10 @@ void SetFolderInfoFiles()
   if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),"FolderInfoFiles",
       Opt.FolderInfoFiles,Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY))
   {
-    if (CtrlObject->LeftPanel->GetType() == INFO_PANEL)
-      CtrlObject->LeftPanel->Update(0);
-    if (CtrlObject->RightPanel->GetType() == INFO_PANEL)
-      CtrlObject->RightPanel->Update(0);
+    if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
+      CtrlObject->Cp()->LeftPanel->Update(0);
+    if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
+      CtrlObject->Cp()->RightPanel->Update(0);
   }
   /* DJ $ */
 }
@@ -1140,8 +1142,8 @@ void SaveConfig(int Ask)
     return;
 
   /* <ПРЕПРОЦЕССЫ> *************************************************** */
-  Panel *LeftPanel=CtrlObject->LeftPanel;
-  Panel *RightPanel=CtrlObject->RightPanel;
+  Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
+  Panel *RightPanel=CtrlObject->Cp()->RightPanel;
 
   Opt.LeftPanel.Focus=LeftPanel->GetFocus();
   Opt.LeftPanel.Visible=LeftPanel->IsVisible();
@@ -1149,7 +1151,7 @@ void SaveConfig(int Ask)
   Opt.RightPanel.Visible=RightPanel->IsVisible();
 
   Opt.FullScreenHelp=Help::GetFullScreenMode();
-  CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(Opt.PassiveFolder);
+  CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(Opt.PassiveFolder);
 
   if (LeftPanel->GetMode()==NORMAL_PANEL)
   {

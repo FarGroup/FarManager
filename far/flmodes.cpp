@@ -1,24 +1,26 @@
 /*
 flmodes.cpp
 
-” ©«®¢ ï ¯ ­¥«ì - à ¡®â  á à¥¦¨¬ ¬¨
+Ôàéëîâàÿ ïàíåëü - ðàáîòà ñ ðåæèìàìè
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êàµåñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -47,9 +49,9 @@ struct PanelViewSettings ViewSettingsArray[]=
 void FileList::SetFilePanelModes()
 {
   int CurMode=0;
-  if (CtrlObject->ActivePanel->GetType()==FILE_PANEL)
+  if (CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
   {
-    CurMode=CtrlObject->ActivePanel->GetViewMode();
+    CurMode=CtrlObject->Cp()->ActivePanel->GetViewMode();
     CurMode=(CurMode==0) ? 9:CurMode-1;
   }
   while (1)
@@ -152,17 +154,17 @@ void FileList::SetFilePanelModes()
                        NewSettings.StatusColumnWidth,NewSettings.StatusColumnCount);
 
     ViewSettingsArray[ModeNumber]=NewSettings;
-    CtrlObject->LeftPanel->SortFileList(TRUE);
-    CtrlObject->RightPanel->SortFileList(TRUE);
-    CtrlObject->SetScreenPositions();
-    int LeftMode=CtrlObject->LeftPanel->GetViewMode();
-    int RightMode=CtrlObject->RightPanel->GetViewMode();
-    CtrlObject->LeftPanel->SetViewMode(ModeNumber);
-    CtrlObject->RightPanel->SetViewMode(ModeNumber);
-    CtrlObject->LeftPanel->SetViewMode(LeftMode);
-    CtrlObject->RightPanel->SetViewMode(RightMode);
-    CtrlObject->LeftPanel->Redraw();
-    CtrlObject->RightPanel->Redraw();
+    CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
+    CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
+    CtrlObject->Cp()->SetScreenPositions();
+    int LeftMode=CtrlObject->Cp()->LeftPanel->GetViewMode();
+    int RightMode=CtrlObject->Cp()->RightPanel->GetViewMode();
+    CtrlObject->Cp()->LeftPanel->SetViewMode(ModeNumber);
+    CtrlObject->Cp()->RightPanel->SetViewMode(ModeNumber);
+    CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
+    CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
+    CtrlObject->Cp()->LeftPanel->Redraw();
+    CtrlObject->Cp()->RightPanel->Redraw();
   }
 }
 

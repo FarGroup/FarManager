@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.18 28.04.2001 $ */
+/* Revision: 1.19 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.04.2001 VVM
     + KeyBar тоже умеет обрабатывать клавиши.
   22.04.2001 SVS
@@ -66,6 +68,7 @@ Modify:
 
 ControlObject::ControlObject()
 {
+  FPanels=0;
   CtrlObject=this;
   ReadConfig();
   /* $ 28.02.2001 IS
@@ -85,9 +88,9 @@ ControlObject::ControlObject()
   if (Opt.SaveViewHistory)
     ViewHistory->ReadHistory();
   EndLoop=0;
-  LastLeftType=LastRightType=FILE_PANEL;
-  LastLeftFilePanel=LastRightFilePanel=NULL;
-  ActivePanel=NULL;
+///  LastLeftType=LastRightType=FILE_PANEL;
+///  LastLeftFilePanel=LastRightFilePanel=NULL;
+///  Cp()->ActivePanel=NULL;
   RegVer=-1;
 }
 
@@ -115,88 +118,94 @@ void ControlObject::Init()
   else
     Text(MShareware);
 
-  LeftPanel=CreatePanel(Opt.LeftPanel.Type);
-  RightPanel=CreatePanel(Opt.RightPanel.Type);
+/*///
+  Cp()->LeftPanel=CreatePanel(Opt.LeftPanel.Type);
+  Cp()->RightPanel=CreatePanel(Opt.RightPanel.Type);
 
   SetPanelPositions(FileList::IsModeFullScreen(Opt.LeftPanel.ViewMode),
                     FileList::IsModeFullScreen(Opt.RightPanel.ViewMode));
-  LeftPanel->SetViewMode(Opt.LeftPanel.ViewMode);
-  RightPanel->SetViewMode(Opt.RightPanel.ViewMode);
-  LeftPanel->SetSortMode(Opt.LeftPanel.SortMode);
-  RightPanel->SetSortMode(Opt.RightPanel.SortMode);
-  LeftPanel->SetSortOrder(Opt.LeftPanel.SortOrder);
-  RightPanel->SetSortOrder(Opt.RightPanel.SortOrder);
-  LeftPanel->SetSortGroups(Opt.LeftPanel.SortGroups);
-  RightPanel->SetSortGroups(Opt.RightPanel.SortGroups);
-  LeftPanel->SetShowShortNamesMode(Opt.LeftPanel.ShowShortNames);
-  RightPanel->SetShowShortNamesMode(Opt.RightPanel.ShowShortNames);
+  Cp()->LeftPanel->SetViewMode(Opt.LeftPanel.ViewMode);
+  Cp()->RightPanel->SetViewMode(Opt.RightPanel.ViewMode);
+  Cp()->LeftPanel->SetSortMode(Opt.LeftPanel.SortMode);
+  Cp()->RightPanel->SetSortMode(Opt.RightPanel.SortMode);
+  Cp()->LeftPanel->SetSortOrder(Opt.LeftPanel.SortOrder);
+  Cp()->RightPanel->SetSortOrder(Opt.RightPanel.SortOrder);
+  Cp()->LeftPanel->SetSortGroups(Opt.LeftPanel.SortGroups);
+  Cp()->RightPanel->SetSortGroups(Opt.RightPanel.SortGroups);
+  Cp()->LeftPanel->SetShowShortNamesMode(Opt.LeftPanel.ShowShortNames);
+  Cp()->RightPanel->SetShowShortNamesMode(Opt.RightPanel.ShowShortNames);
 
-  MainKeyBar.SetOwner(this);
+  MainKeyBar->SetOwner(this);
   RedrawKeyBar();
   SetScreenPositions();
   if (Opt.LeftPanel.Focus)
-    ActivePanel=LeftPanel;
+    Cp()->ActivePanel=Cp()->LeftPanel;
   else
-    ActivePanel=RightPanel;
-  ActivePanel->SetFocus();
+    Cp()->ActivePanel=Cp()->RightPanel;
+  Cp()->ActivePanel->SetFocus();
   if (Opt.AutoSaveSetup)
   {
     if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
-      LeftPanel->InitCurDir(Opt.LeftFolder);
+      Cp()->LeftPanel->InitCurDir(Opt.LeftFolder);
     if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
-      RightPanel->InitCurDir(Opt.RightFolder);
+      Cp()->RightPanel->InitCurDir(Opt.RightFolder);
   }
   else
     if (*Opt.PassiveFolder)
     {
-      Panel *PassivePanel=GetAnotherPanel(ActivePanel);
+      Panel *PassivePanel=GetAnotherPanel(Cp()->ActivePanel);
       if (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)
         PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
-  _beginthread(CheckVersion,0x10000,NULL);
-  LeftPanel->Update(0);
-  RightPanel->Update(0);
+*///
+///
+  FPanels=new FilePanels();
+  FPanels->Init();
+  this->MainKeyBar=&(FPanels->MainKeyBar);
+  this->TopMenuBar=&(FPanels->TopMenuBar);
+  FPanels->CmdLine=ControlObject::CmdLine;
+  FPanels->SetScreenPositions();
+///
+_beginthread(CheckVersion,0x10000,NULL);
+  Cp()->LeftPanel->Update(0);
+  Cp()->RightPanel->Update(0);
 
   /* $ 07.09.2000 tran
     + Config//Current File */
   if (Opt.AutoSaveSetup)
   {
-      LeftPanel->GoToFile(Opt.LeftCurFile);
-      RightPanel->GoToFile(Opt.RightCurFile);
-      /* $ 09.02.2001 IS
-         + восстановим состояние опций "помеченное вперед"
-      */
-      LeftPanel->SetSelectedFirstMode(Opt.LeftSelectedFirst);
-      RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
-      /* IS $ */
+      Cp()->LeftPanel->GoToFile(Opt.LeftCurFile);
+      Cp()->RightPanel->GoToFile(Opt.RightCurFile);
   }
   /* tran 07.09.2000 $ */
 
   if (Opt.LeftPanel.Visible)
-    LeftPanel->Show();
+    Cp()->LeftPanel->Show();
   else
-    LeftPanel->Hide();
+    Cp()->LeftPanel->Hide();
   if (Opt.RightPanel.Visible)
-    RightPanel->Show();
+    Cp()->RightPanel->Show();
   else
-    RightPanel->Hide();
-  HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
+    Cp()->RightPanel->Hide();
+  Cp()->HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
   CmdLine->Redraw();
   Plugins.LoadPlugins();
+
+  ModalManager.AddModal(FPanels);
 }
 
 
 ControlObject::~ControlObject()
 {
-  ModalManager.CloseAll();
-  if (ActivePanel!=NULL)
+///  ModalManager.CloseAll();
+  if (Cp()->ActivePanel!=NULL)
   {
     if (Opt.AutoSaveSetup)
       SaveConfig(0);
-    if (ActivePanel->GetMode()!=PLUGIN_PANEL)
+    if (Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
     {
       char CurDir[NM];
-      ActivePanel->GetCurDir(CurDir);
+      Cp()->ActivePanel->GetCurDir(CurDir);
       FolderHistory->AddToHistory(CurDir,NULL,0);
     }
   }
@@ -204,14 +213,20 @@ ControlObject::~ControlObject()
     EditorPosCache.Save("Editor\\LastPositions");
   if (Opt.SaveViewerPos)
     ViewerPosCache.Save("Viewer\\LastPositions");
-  if (LastLeftFilePanel!=LeftPanel && LastLeftFilePanel!=RightPanel)
+///
+  ModalManager.CloseAll();
+  FPanels=NULL;
+///
+/*///
+  if (LastLeftFilePanel!=Cp()->LeftPanel && LastLeftFilePanel!=Cp()->RightPanel)
     DeletePanel(LastLeftFilePanel);
-  if (LastRightFilePanel!=LeftPanel && LastRightFilePanel!=RightPanel)
+  if (LastRightFilePanel!=Cp()->LeftPanel && LastRightFilePanel!=Cp()->RightPanel)
     DeletePanel(LastRightFilePanel);
-  DeletePanel(LeftPanel);
-  LeftPanel=NULL;
-  DeletePanel(RightPanel);
-  RightPanel=NULL;
+  DeletePanel(Cp()->LeftPanel);
+  Cp()->LeftPanel=NULL;
+  DeletePanel(Cp()->RightPanel);
+  Cp()->RightPanel=NULL;
+*///
   Plugins.SendExit();
   PanelFilter::CloseFilter();
   delete CmdHistory;
@@ -222,7 +237,7 @@ ControlObject::~ControlObject()
   CtrlObject=NULL;
 }
 
-
+/*///
 void ControlObject::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 {
   if (Opt.HeightDecrement>ScrY-7)
@@ -230,16 +245,16 @@ void ControlObject::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
   if (Opt.HeightDecrement<0)
     Opt.HeightDecrement=0;
   if (LeftFullScreen)
-    LeftPanel->SetPosition(0,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+    Cp()->LeftPanel->SetPosition(0,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
   else
-    LeftPanel->SetPosition(0,Opt.ShowMenuBar,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+    Cp()->LeftPanel->SetPosition(0,Opt.ShowMenuBar,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
   if (RightFullScreen)
-    RightPanel->SetPosition(0,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+    Cp()->RightPanel->SetPosition(0,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
   else
-    RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+    Cp()->RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
 }
-
-
+*///
+/*///
 void ControlObject::SetScreenPositions()
 {
   RedrawDesktop Redraw;
@@ -247,14 +262,15 @@ void ControlObject::SetScreenPositions()
 
   CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
-  MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
-  SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
+  MainKeyBar->SetPosition(0,ScrY,ScrX,ScrY);
+  SetPanelPositions(Cp()->LeftPanel->IsFullScreen(),Cp()->RightPanel->IsFullScreen());
 }
-
+*///
 
 /* $ 02.08.2000 SVS
    Новые индикаторы!
 */
+#if 0
 void ControlObject::RedrawKeyBar()
 {
   /* $ 30.04.2001 DJ
@@ -272,10 +288,13 @@ void ControlObject::RedrawKeyBar()
   }
   /* DJ $ */
 
-  MainKeyBar.Redraw();
+  MainKeyBar->Redraw();
 }
+#endif
+
 /* SVS $ */
 
+/*///
 Panel* ControlObject::CreatePanel(int Type)
 {
   switch (Type)
@@ -303,19 +322,33 @@ void ControlObject::DeletePanel(Panel *Deleted)
   if (Deleted==LastRightFilePanel)
     LastRightFilePanel=NULL;
 }
-
+*///
 
 int ControlObject::ProcessKey(int Key)
 {
+  int KeyProcessed; ///
   if (!Key)
     return(TRUE);
+///
+  SysLog(1,"ControlObject::ProcessKey(), Key=%i, call ModalManager->ProcessKey",Key);
+  KeyProcessed=ModalManager.ProcessKey(Key);
+  SysLog("ControlObject::ProcessKey(), KeyProcessed=%i",KeyProcessed);
 
+  if ( KeyProcessed==TRUE )
+  {
+    SysLog(-1);
+    return (TRUE);
+  }
+///
+
+/*///
   if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT) && (CmdLine->GetLength()>0 ||
-      !LeftPanel->IsVisible() && !RightPanel->IsVisible()))
+      !Cp()->LeftPanel->IsVisible() && !Cp()->RightPanel->IsVisible()))
   {
     CmdLine->ProcessKey(Key);
     return(TRUE);
   }
+*///
 
   switch(Key)
   {
@@ -326,61 +359,62 @@ int ControlObject::ProcessKey(int Key)
       ModalManager.NextModal(-1);
       break;
     case KEY_TAB:
-      if (ActivePanel==LeftPanel)
+      if (Cp()->ActivePanel==Cp()->LeftPanel)
       {
-        if (RightPanel->IsVisible())
-          RightPanel->SetFocus();
+        if (Cp()->RightPanel->IsVisible())
+          Cp()->RightPanel->SetFocus();
       }
       else
-        if (LeftPanel->IsVisible())
-          LeftPanel->SetFocus();
+        if (Cp()->LeftPanel->IsVisible())
+          Cp()->LeftPanel->SetFocus();
       break;
     case KEY_CTRLF1:
-      if (LeftPanel->IsVisible())
+      if (Cp()->LeftPanel->IsVisible())
       {
-        LeftPanel->Hide();
-        if (RightPanel->IsVisible())
-          RightPanel->SetFocus();
+        Cp()->LeftPanel->Hide();
+        if (Cp()->RightPanel->IsVisible())
+          Cp()->RightPanel->SetFocus();
       }
       else
       {
-        if (!RightPanel->IsVisible())
-          LeftPanel->SetFocus();
-        LeftPanel->Show();
+        if (!Cp()->RightPanel->IsVisible())
+          Cp()->LeftPanel->SetFocus();
+        Cp()->LeftPanel->Show();
       }
       CmdLine->Show();
       break;
     case KEY_F1:
-      if (!ActivePanel->ProcessKey(KEY_F1))
+      if (!Cp()->ActivePanel->ProcessKey(KEY_F1))
       {
         Help Hlp("Contents");
       }
       return(TRUE);
     case KEY_CTRLF2:
-      if (RightPanel->IsVisible())
+      if (Cp()->RightPanel->IsVisible())
       {
-        RightPanel->Hide();
-        if (LeftPanel->IsVisible())
-          LeftPanel->SetFocus();
+        Cp()->RightPanel->Hide();
+        if (Cp()->LeftPanel->IsVisible())
+          Cp()->LeftPanel->SetFocus();
       }
       else
       {
-        if (!LeftPanel->IsVisible())
-          RightPanel->SetFocus();
-        RightPanel->Show();
+        if (!Cp()->LeftPanel->IsVisible())
+          Cp()->RightPanel->SetFocus();
+        Cp()->RightPanel->Show();
       }
       CmdLine->Show();
       break;
+/***/
     case KEY_CTRLB:
       Opt.ShowKeyBar=!Opt.ShowKeyBar;
-      SetScreenPositions();
+      Cp()->SetScreenPositions();
       break;
     case KEY_CTRLL:
     case KEY_CTRLQ:
     case KEY_CTRLT:
-      if (ActivePanel->IsVisible())
+      if (Cp()->ActivePanel->IsVisible())
       {
-        Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
+        Panel *AnotherPanel=Cp()->GetAnotherPanel(Cp()->ActivePanel);
         int NewType;
         if (Key==KEY_CTRLL)
           NewType=INFO_PANEL;
@@ -389,23 +423,23 @@ int ControlObject::ProcessKey(int Key)
             NewType=QVIEW_PANEL;
           else
             NewType=TREE_PANEL;
-        if (ActivePanel->GetType()==NewType)
-          AnotherPanel=ActivePanel;
+        if (Cp()->ActivePanel->GetType()==NewType)
+          AnotherPanel=Cp()->ActivePanel;
         if (!AnotherPanel->ProcessPluginEvent(FE_CLOSE,NULL))
         {
           if (AnotherPanel->GetType()==NewType)
           /* $ 19.09.2000 IS
             Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
           */
-            AnotherPanel=ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
+            AnotherPanel=Cp()->ChangePanel(AnotherPanel,FILE_PANEL,FALSE,FALSE);
           /* IS % */
           else
-            AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
+            AnotherPanel=Cp()->ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
           AnotherPanel->Update(UPDATE_KEEP_SELECTION);
           AnotherPanel->Show();
         }
-        ActivePanel->SetFocus();
+        Cp()->ActivePanel->SetFocus();
       }
       break;
     /* $ 19.09.2000 SVS
@@ -419,23 +453,23 @@ int ControlObject::ProcessKey(int Key)
          + Opt.PanelCtrlAltShiftRule задает поведение
            Ctrl-Alt-Shift для панелей.
         */
-        int LeftVisible=LeftPanel->IsVisible();
-        int RightVisible=RightPanel->IsVisible();
+        int LeftVisible=Cp()->LeftPanel->IsVisible();
+        int RightVisible=Cp()->RightPanel->IsVisible();
         int CmdLineVisible=CmdLine->IsVisible();
-        int KeyBarVisible=MainKeyBar.IsVisible();
-        LeftPanel->Hide();
-        RightPanel->Hide();
+        int KeyBarVisible=MainKeyBar->IsVisible();
+        Cp()->LeftPanel->Hide();
+        Cp()->RightPanel->Hide();
         if(!Opt.PanelCtrlAltShiftRule)
           CmdLine->Show();
         if(Opt.PanelCtrlAltShiftRule == 2)
-          MainKeyBar.Hide();
+          MainKeyBar->Hide();
         if(Opt.PanelCtrlAltShiftRule)
           CmdLine->Hide();
         WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
-        if (LeftVisible)      LeftPanel->Show();
-        if (RightVisible)     RightPanel->Show();
+        if (LeftVisible)      Cp()->LeftPanel->Show();
+        if (RightVisible)     Cp()->RightPanel->Show();
         if (CmdLineVisible)   CmdLine->Show();
-        if (KeyBarVisible)    MainKeyBar.Show();
+        if (KeyBarVisible)    MainKeyBar->Show();
         /* SVS $ */
       }
       break;
@@ -444,33 +478,33 @@ int ControlObject::ProcessKey(int Key)
 
     case KEY_CTRLO:
       {
-        int LeftVisible=LeftPanel->IsVisible();
-        int RightVisible=RightPanel->IsVisible();
-        if (!HideState || LeftVisible || RightVisible)
+        int LeftVisible=Cp()->LeftPanel->IsVisible();
+        int RightVisible=Cp()->RightPanel->IsVisible();
+        if (!Cp()->HideState || LeftVisible || RightVisible)
         {
-          LeftStateBeforeHide=LeftVisible;
-          RightStateBeforeHide=RightVisible;
-          LeftPanel->Hide();
-          RightPanel->Hide();
-          HideState=TRUE;
+          Cp()->LeftStateBeforeHide=LeftVisible;
+          Cp()->RightStateBeforeHide=RightVisible;
+          Cp()->LeftPanel->Hide();
+          Cp()->RightPanel->Hide();
+          Cp()->HideState=TRUE;
         }
         else
         {
-          if (!LeftStateBeforeHide && !RightStateBeforeHide)
-            LeftStateBeforeHide=RightStateBeforeHide=TRUE;
-          if (LeftStateBeforeHide)
-            LeftPanel->Show();
-          if (RightStateBeforeHide)
-            RightPanel->Show();
-          HideState=FALSE;
+          if (!Cp()->LeftStateBeforeHide && !Cp()->RightStateBeforeHide)
+            Cp()->LeftStateBeforeHide=Cp()->RightStateBeforeHide=TRUE;
+          if (Cp()->LeftStateBeforeHide)
+            Cp()->LeftPanel->Show();
+          if (Cp()->RightStateBeforeHide)
+            Cp()->RightPanel->Show();
+          Cp()->HideState=FALSE;
         }
       }
       CmdLine->Show();
       break;
     case KEY_CTRLP:
-      if (ActivePanel->IsVisible())
+      if (Cp()->ActivePanel->IsVisible())
       {
-        Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
+        Panel *AnotherPanel=Cp()->GetAnotherPanel(Cp()->ActivePanel);
         if (AnotherPanel->IsVisible())
           AnotherPanel->Hide();
         else
@@ -479,55 +513,55 @@ int ControlObject::ProcessKey(int Key)
       }
       break;
     case KEY_CTRLI:
-      ActivePanel->EditFilter();
+      Cp()->ActivePanel->EditFilter();
       return(TRUE);
     case KEY_CTRLW:
       ShowProcessList();
       return(TRUE);
     case KEY_CTRLU:
-      if (LeftPanel->IsVisible() || RightPanel->IsVisible())
+      if (Cp()->LeftPanel->IsVisible() || Cp()->RightPanel->IsVisible())
       {
         int XL1,YL1,XL2,YL2,VL;
         int XR1,YR1,XR2,YR2,VR;
         int SwapType;
         Panel *Swap;
-        LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
-        RightPanel->GetPosition(XR1,YR1,XR2,YR2);
+        Cp()->LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
+        Cp()->RightPanel->GetPosition(XR1,YR1,XR2,YR2);
         if (XL2-XL1!=ScrX && XR2-XR1!=ScrX)
         {
-          VL=LeftPanel->IsVisible();
-          VR=RightPanel->IsVisible();
-          LeftPanel->Hide();
-          RightPanel->Hide();
+          VL=Cp()->LeftPanel->IsVisible();
+          VR=Cp()->RightPanel->IsVisible();
+          Cp()->LeftPanel->Hide();
+          Cp()->RightPanel->Hide();
           Opt.WidthDecrement=-Opt.WidthDecrement;
-          LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
-          RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
+          Cp()->LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
+          Cp()->RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
           if (VL)
-            LeftPanel->Show();
+            Cp()->LeftPanel->Show();
           if (VR)
-            RightPanel->Show();
-          Swap=LeftPanel;
-          LeftPanel=RightPanel;
-          RightPanel=Swap;
-          if (LastLeftFilePanel)
-            LastLeftFilePanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
-          if (LastRightFilePanel)
-            LastRightFilePanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-          Swap=LastLeftFilePanel;
-          LastLeftFilePanel=LastRightFilePanel;
-          LastRightFilePanel=Swap;
-          SwapType=LastLeftType;
-          LastLeftType=LastRightType;
-          LastRightType=SwapType;
+            Cp()->RightPanel->Show();
+          Swap=Cp()->LeftPanel;
+          Cp()->LeftPanel=Cp()->RightPanel;
+          Cp()->RightPanel=Swap;
+          if (Cp()->LastLeftFilePanel)
+            Cp()->LastLeftFilePanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
+          if (Cp()->LastRightFilePanel)
+            Cp()->LastRightFilePanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
+          Swap=Cp()->LastLeftFilePanel;
+          Cp()->LastLeftFilePanel=Cp()->LastRightFilePanel;
+          Cp()->LastRightFilePanel=Swap;
+          SwapType=Cp()->LastLeftType;
+          Cp()->LastLeftType=Cp()->LastRightType;
+          Cp()->LastRightType=SwapType;
           PanelFilter::SwapFilter();
         }
       }
       break;
     case KEY_ALTF1:
-      LeftPanel->ChangeDisk();
+      Cp()->LeftPanel->ChangeDisk();
       break;
     case KEY_ALTF2:
-      RightPanel->ChangeDisk();
+      Cp()->RightPanel->ChangeDisk();
       break;
     case KEY_ALTF7:
       {
@@ -536,41 +570,41 @@ int ControlObject::ProcessKey(int Key)
       break;
     case KEY_ALTF9:
       ChangeVideoMode(ScrY==24 ? 50:25);
-      SetScreenPositions();
+      Cp()->SetScreenPositions();
       break;
     case KEY_CTRLUP:
       if (Opt.HeightDecrement<ScrY-7)
       {
         Opt.HeightDecrement++;
-        SetScreenPositions();
+        Cp()->SetScreenPositions();
       }
       break;
     case KEY_CTRLDOWN:
       if (Opt.HeightDecrement>0)
       {
         Opt.HeightDecrement--;
-        SetScreenPositions();
+        Cp()->SetScreenPositions();
       }
       break;
     case KEY_CTRLLEFT:
       if (Opt.WidthDecrement<ScrX/2-10)
       {
         Opt.WidthDecrement++;
-        SetScreenPositions();
+        Cp()->SetScreenPositions();
       }
       break;
     case KEY_CTRLRIGHT:
       if (Opt.WidthDecrement>-(ScrX/2-10))
       {
         Opt.WidthDecrement--;
-        SetScreenPositions();
+        Cp()->SetScreenPositions();
       }
       break;
     case KEY_CTRLCLEAR:
       if (Opt.WidthDecrement!=0)
       {
         Opt.WidthDecrement=0;
-        SetScreenPositions();
+        Cp()->SetScreenPositions();
       }
       break;
     case KEY_F9:
@@ -580,65 +614,66 @@ int ControlObject::ProcessKey(int Key)
       ShellOptions(1,NULL);
       return(TRUE);
     case KEY_CTRL1:
-      ActivePanel->SetViewMode(VIEW_1);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_1);
+      Cp()->ActivePanel->SetViewMode(VIEW_1);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_1);
       break;
     case KEY_CTRL2:
-      ActivePanel->SetViewMode(VIEW_2);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_2);
+      Cp()->ActivePanel->SetViewMode(VIEW_2);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_2);
       break;
     case KEY_CTRL3:
-      ActivePanel->SetViewMode(VIEW_3);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_3);
+      Cp()->ActivePanel->SetViewMode(VIEW_3);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_3);
       break;
     case KEY_CTRL4:
-      ActivePanel->SetViewMode(VIEW_4);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_4);
+      Cp()->ActivePanel->SetViewMode(VIEW_4);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_4);
       break;
     case KEY_CTRL5:
-      ActivePanel->SetViewMode(VIEW_5);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_5);
+      Cp()->ActivePanel->SetViewMode(VIEW_5);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_5);
       break;
     case KEY_CTRL6:
-      ActivePanel->SetViewMode(VIEW_6);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_6);
+      Cp()->ActivePanel->SetViewMode(VIEW_6);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_6);
       break;
     case KEY_CTRL7:
-      ActivePanel->SetViewMode(VIEW_7);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_7);
+      Cp()->ActivePanel->SetViewMode(VIEW_7);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_7);
       break;
     case KEY_CTRL8:
-      ActivePanel->SetViewMode(VIEW_8);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_8);
+      Cp()->ActivePanel->SetViewMode(VIEW_8);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_8);
       break;
     case KEY_CTRL9:
-      ActivePanel->SetViewMode(VIEW_9);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_9);
+      Cp()->ActivePanel->SetViewMode(VIEW_9);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_9);
       break;
     case KEY_CTRL0:
-      ActivePanel->SetViewMode(VIEW_0);
-      ChangePanelToFilled(ActivePanel,FILE_PANEL);
-      ActivePanel->SetViewMode(VIEW_0);
+      Cp()->ActivePanel->SetViewMode(VIEW_0);
+      Cp()->ChangePanelToFilled(Cp()->ActivePanel,FILE_PANEL);
+      Cp()->ActivePanel->SetViewMode(VIEW_0);
       break;
+/***/
     default:
-      if (!ActivePanel->ProcessKey(Key) &&
-          !MainKeyBar.ProcessKey(Key))
+      if (!Cp()->ActivePanel->ProcessKey(Key) &&
+           !MainKeyBar->ProcessKey(Key))
         CmdLine->ProcessKey(Key);
       break;
   }
   return(TRUE);
 }
 
-
+/*///
 Panel* ControlObject::ChangePanelToFilled(Panel *Current,int NewType)
 {
   if (Current->GetType()!=NewType && !Current->ProcessPluginEvent(FE_CLOSE,NULL))
@@ -652,14 +687,17 @@ Panel* ControlObject::ChangePanelToFilled(Panel *Current,int NewType)
   }
   return(Current);
 }
-
+*///
 
 int ControlObject::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  if (!ActivePanel->ProcessMouse(MouseEvent))
-    if (!GetAnotherPanel(ActivePanel)->ProcessMouse(MouseEvent))
-      if (!MainKeyBar.ProcessMouse(MouseEvent))
+/*///
+  if (!Cp()->ActivePanel->ProcessMouse(MouseEvent))
+    if (!GetAnotherPanel(Cp()->ActivePanel)->ProcessMouse(MouseEvent))
+      if (!MainKeyBar->ProcessMouse(MouseEvent))
         CmdLine->ProcessMouse(MouseEvent);
+*///
+  ModalManager.ProcessMouse(MouseEvent);
   return(TRUE);
 }
 
@@ -672,19 +710,19 @@ void ControlObject::EnterMainLoop()
   WaitInFastFind=0;
   while (!EndLoop)
   {
-    WaitInMainLoop=TRUE;
+    WaitInMainLoop=ModalManager.IsPanelsActive();
     WaitInFastFind++;
     Key=GetInputRecord(&rec);
     WaitInFastFind--;
     WaitInMainLoop=FALSE;
     if (EndLoop)
       break;
-    MainKeyBar.RedrawIfChanged();
+///    MainKeyBar->RedrawIfChanged();
     if (rec.EventType==MOUSE_EVENT)
-      ProcessMouse(&rec.Event.MouseEvent);
+      ModalManager.ProcessMouse(&rec.Event.MouseEvent);
     else
-      ProcessKey(Key);
-    MainKeyBar.RedrawIfChanged();
+      ModalManager.ProcessKey(Key);
+///    MainKeyBar->RedrawIfChanged();
   }
 }
 
@@ -698,17 +736,17 @@ void ControlObject::ExitMainLoop(int Ask)
    */
    if(ModalManager.ExitAll())
    /* IS $ */
-    if (!LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
+    if (!Cp()->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !Cp()->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
       EndLoop=TRUE;
 }
 
-
+/*///
 Panel* ControlObject::GetAnotherPanel(Panel *Current)
 {
-  if (Current==LeftPanel)
-    return(RightPanel);
+  if (Current==Cp()->LeftPanel)
+    return(Cp()->RightPanel);
   else
-    return(LeftPanel);
+    return(Cp()->LeftPanel);
 }
 
 
@@ -733,7 +771,7 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
   OldShowShortNames=Current->GetShowShortNamesMode();
   OldFocus=Current->GetFocus();
 
-  LeftPosition=(Current==LeftPanel);
+  LeftPosition=(Current==Cp()->LeftPanel);
   Panel *(&LastFilePanel)=LeftPosition ? LastLeftFilePanel:LastRightFilePanel;
 
   Current->GetPosition(X1,Y1,X2,Y2);
@@ -807,20 +845,20 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
   else
     /* $ 13.07.2000 SVS
        немного сократим код путем вызова функции класса CreatePanel(int Type)
-    */
+    * /
     NewPanel=CreatePanel(NewType);
-    /* SVS $*/
+    /* SVS $* /
 
-  if (Current==ActivePanel)
-    ActivePanel=NewPanel;
+  if (Current==Cp()->ActivePanel)
+    Cp()->ActivePanel=NewPanel;
   if (LeftPosition)
   {
-    LeftPanel=NewPanel;
+    Cp()->LeftPanel=NewPanel;
     LastLeftType=OldType;
   }
   else
   {
-    RightPanel=NewPanel;
+    Cp()->RightPanel=NewPanel;
     LastRightType=OldType;
   }
   if (!UseLastPanel)
@@ -830,12 +868,12 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
       if (LeftPosition)
       {
         NewPanel->SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
-        RightPanel->Redraw();
+        Cp()->RightPanel->Redraw();
       }
       else
       {
         NewPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
-        LeftPanel->Redraw();
+        Cp()->LeftPanel->Redraw();
       }
     }
     else
@@ -853,7 +891,7 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
   }
   return(NewPanel);
 }
-
+*///
 
 /* $ 25.11.2000 SVS
    Copyright в 2 строки
@@ -908,13 +946,24 @@ void ControlObject::ShowCopyright(DWORD Flags)
 
 /* $ 15.07.2000 tran
    + этот метод просто перерисовывает панели, ком.строку и кейбар */
+/*///
 void ControlObject::Redraw()
 {
-    if (LeftPanel->IsVisible())
-        LeftPanel->Show();
-    if (RightPanel->IsVisible())
-        RightPanel->Show();
+    if (Cp()->LeftPanel->IsVisible())
+        Cp()->LeftPanel->Show();
+    if (Cp()->RightPanel->IsVisible())
+        Cp()->RightPanel->Show();
     CmdLine->Show();
-    MainKeyBar.Redraw();
+    MainKeyBar->Redraw();
 }
+*///
 /* tran 15.07.2000 $ */
+
+FilePanels* ControlObject::Cp()
+{
+    if ( FPanels==0 )
+    {
+        Message(MSG_WARNING,1,MSG(MError),"CtrlObject::Cp(), FPanels==0",MSG(MOk));
+    }
+    return FPanels;
+}

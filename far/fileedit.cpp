@@ -5,12 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.32 28.04.2001 $ */
+/* Revision: 1.32 29.04.2001 $ */
 
 /*
 Modify:
-  28.04.2001 DJ
-    - не передаем KEY_MACRO* в ProcessEditorInput()
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.04.2001 VVM
     + KeyBar тоже умеет обрабатывать клавиши.
   19.04.2001 SVS
@@ -130,6 +130,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
     return;
   FEdit.SetPluginData(PluginData);
   FEdit.SetHostFileEditor(this);
+  SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch);///
   SetEnableSwitch(EnableSwitch);
   GetCurrentDirectory(sizeof(StartDir),StartDir);
   strcpy(FileName,Name);
@@ -216,10 +217,14 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   InitKeyBar();
   /* SVS $*/
 
+/*///
   Process();
   ExitCode=IsFileChanged() ? 1 : 2;
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
+*///
+   MacroMode=MACRO_EDITOR; ///
+
 }
 
 /* $ 07.08.2000 SVS
@@ -264,8 +269,8 @@ void FileEditor::InitKeyBar(void)
 
 void FileEditor::Process()
 {
-  ChangeMacroMode MacroMode(MACRO_EDITOR);
-  Modal::Process();
+//  ChangeMacroMode MacroMode(MACRO_EDITOR);
+//  Modal::Process();
 }
 
 
@@ -305,7 +310,7 @@ int FileEditor::ProcessKey(int Key)
       FEdit.Hide();
       /* skv$*/
       Hide();
-      if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)
+      if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
         CtrlObject->ModalManager.ShowBackground();
       else
       {
@@ -317,6 +322,7 @@ int FileEditor::ProcessKey(int Key)
       Show();
       return(TRUE);
     /* SVS $ */
+/*///
     case KEY_CTRLTAB:
     case KEY_CTRLSHIFTTAB:
     case KEY_F12:
@@ -329,6 +335,7 @@ int FileEditor::ProcessKey(int Key)
           SetExitCode(Key==KEY_CTRLTAB ? 1:2);
       }
       return(TRUE);
+*///
     case KEY_F2:
     case KEY_SHIFTF2:
       {
@@ -424,8 +431,8 @@ int FileEditor::ProcessKey(int Key)
             strncpy(DirTmp,FileName,NM);
             NameTmp=PointToName(DirTmp);
             if(NameTmp>DirTmp)NameTmp[-1]=0;
-            CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(PDir);
-            CtrlObject->ActivePanel->GetCurDir(ADir);
+            CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
+            CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
             /* $ 10.04.2001 IS
                  Не делаем SetCurDir, если нужный путь уже есть на открытых
                  панелях, тем самым добиваемся того, что выделение с элементов
@@ -439,13 +446,13 @@ int FileEditor::ProcessKey(int Key)
                 CtrlObject->ProcessKey(KEY_TAB);
             }
             if(!AExist && !PExist)
-                CtrlObject->ActivePanel->SetCurDir(DirTmp,TRUE);
+                CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
             /* IS */
-            CtrlObject->ActivePanel->GoToFile(NameTmp);
+            CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
           }else
           {
-            CtrlObject->ActivePanel->SetCurDir(StartDir,TRUE);
-            CtrlObject->ActivePanel->GoToFile(FileName);
+            CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
+            CtrlObject->Cp()->ActivePanel->GoToFile(FileName);
           }
         }
         return (TRUE);
@@ -466,7 +473,8 @@ int FileEditor::ProcessKey(int Key)
             break;
           if (SaveCode==1)
           {
-            SetExitCode(0);
+///            SetExitCode(0);
+            SetExitCode(XC_QUIT);///
             break;
           }
           if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
@@ -525,14 +533,6 @@ int FileEditor::ProcessKey(int Key)
     /* SVS $ */
 
     default:
-      /* $ 28.04.2001 DJ
-         не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
-         никак не соответствует обрабатываемой клавише, возникают разномастные
-         глюки
-      */
-      if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
-         return(FEdit.ProcessKey(Key));
-      /* DJ $ */
       if (CtrlObject->Macro.IsExecuting() || !FEdit.ProcessEditorInput(&ReadRec))
       {
         /* $ 22.03.2001 SVS
@@ -561,8 +561,8 @@ int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 int FileEditor::GetTypeAndName(char *Type,char *Name)
 {
-  strcpy(Type,MSG(MScreensEdit));
-  strcpy(Name,FullFileName);
+  if ( Type ) strcpy(Type,MSG(MScreensEdit));
+  if ( Name ) strcpy(Name,FullFileName);
   return(MODALTYPE_EDITOR);
 }
 
@@ -592,3 +592,13 @@ void FileEditor::SetScreenPosition()
   }
 }
 /* tran $ */
+
+void FileEditor::OnChangeFocus(int f)
+{
+    SysLog("FileEditor::OnChangeFocus(), focus=%i",f);
+    if ( f )
+    {
+        Show();
+    }
+}
+

@@ -3,22 +3,24 @@
 /*
 fileview.hpp
 
-Џа®б¬®ва д ©«  - ­ ¤бва®©Є  ­ ¤ viewer.cpp
+Просмотр файла - надстройка над viewer.cpp
 
 */
 
-/* Revision: 1.02 07.08.2000 $ */
+/* Revision: 1.03 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   07.08.2000 SVS
-    + ”г­ЄжЁп Ё­ЁжЁ «Ё§ жЁЁ KeyBar Labels - InitKeyBar()
+    + Функция инициализации KeyBar Labels - InitKeyBar()
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
   25.06.2000 SVS
-    ! Џ®¤Ј®в®ўЄ  Master Copy
-    ! ‚л¤Ґ«Ґ­ЁҐ ў Є зҐбвўҐ б ¬®бв®пвҐ«м­®Ј® ¬®¤г«п
+    ! Подготовка Master Copy
+    ! Выделение в каµестве самостоятельного модуля
 */
 
 class FileViewer:public Modal
@@ -34,6 +36,8 @@ class FileViewer:public Modal
     int FullScreen;
     int ExitCode;
     int DisableEdit;
+    int DisableHistory;
+    char Name[NM];
   public:
     FileViewer(char *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
                int DisableEdit=FALSE,long ViewStartPos=-1,char *PluginData=NULL,
@@ -43,7 +47,7 @@ class FileViewer:public Modal
     void Init(char *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,char *PluginData,NamesList *ViewNamesList);
     /* $ 07.08.2000 SVS
-       ”г­ЄжЁп Ё­ЁжЁ «Ё§ жЁЁ KeyBar Labels
+       Функция инициализации KeyBar Labels
     */
     void InitKeyBar(void);
     /* SVS $ */
@@ -57,6 +61,10 @@ class FileViewer:public Modal
        NT Console resize - resize viewer */
     virtual void SetScreenPosition();
     /* tran $ */
+    virtual void OnCreate(); ///
+    virtual void OnDestroy(); ///
+    virtual void OnChangeFocus(int f); ///
+    virtual char *GetTypeName(){return "[FileView]";}; ///
 };
 
 #endif	// __FILEVIEWER_HPP__

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.72 01.05.2001 $ */
+/* Revision: 1.73 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   01.05.2001 SVS
     ! mktemp - создаем имена временных файлов в верхнем регистре (strupr)
   28.04.2001 VVM
@@ -409,7 +411,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   *CommandName=0;
   GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
 
-  Panel *PassivePanel=CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
+  Panel *PassivePanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
       PassivePanel->GetType()==FILE_PANEL)
     for (int I=0;CmdStr[I]!=0;I++)
@@ -602,7 +604,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 //    ReopenConsole();
     GetVideoMode();
     if (CurScrX!=ScrX || CurScrY!=ScrY)
-      CtrlObject->SetScreenPositions();
+      CtrlObject->Cp()->SetScreenPositions();
     GetExitCodeProcess(pi.hProcess,(LPDWORD)&ExitCode);
     if (SeparateWindow!=2)
       CloseHandle(pi.hThread);

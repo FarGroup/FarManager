@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.24 28.04.2001 $ */
+/* Revision: 1.25 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.04.2001 vvm
     + KEY_FOCUS_CHANGED для прорисовки кейбара.
   27.04.2001 SVS
@@ -254,7 +256,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
-    if (CtrlObject->ActivePanel!=NULL && !CmdMode)
+    if (CtrlObject->Cp()->ActivePanel!=NULL && !CmdMode)
       CtrlObject->Macro.RunStartMacro();
     MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
@@ -342,7 +344,7 @@ int GetInputRecord(INPUT_RECORD *rec)
                   break;
               }
 
-              CtrlObject->SetScreenPositions();
+              CtrlObject->Cp()->SetScreenPositions();
               ScrBuf.ResetShadow();
               ScrBuf.Flush();
             }
@@ -352,8 +354,8 @@ int GetInputRecord(INPUT_RECORD *rec)
           if (!UpdateReenter && CurTime-KeyPressedLastTime>700)
           {
             UpdateReenter=TRUE;
-            CtrlObject->LeftPanel->UpdateIfChanged();
-            CtrlObject->RightPanel->UpdateIfChanged();
+            CtrlObject->Cp()->LeftPanel->UpdateIfChanged();
+            CtrlObject->Cp()->RightPanel->UpdateIfChanged();
             UpdateReenter=FALSE;
           }
         }
@@ -446,7 +448,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     if (WaitInMainLoop)
     {
       GetVideoMode();
-      CtrlObject->SetScreenPositions();
+      CtrlObject->Cp()->SetScreenPositions();
     }
     /* $ 28.06.2000 tran
        NT Console resize support for Editor, Viewer, Help */
@@ -459,7 +461,7 @@ int GetInputRecord(INPUT_RECORD *rec)
         /* 06.07.2000 SVS
           Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
         */
-        // CtrlObject->SetScreenPositions();
+        // CtrlObject->Cp()->SetScreenPositions();
         // CurModal->SetScreenPosition();
         /* SVS $ */
       }

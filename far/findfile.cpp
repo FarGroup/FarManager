@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.15 30.03.2001 $ */
+/* Revision: 1.16 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   30.03.2001 SVS
     ! GetLogicalDrives заменен на FarGetLogicalDrives() в связи с началом
       компании по поддержке виндовой "полиции".
@@ -161,7 +163,7 @@ FindFiles::FindFiles()
     /* SVS $ */
 
     {
-      Panel *ActivePanel=CtrlObject->ActivePanel;
+      Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
       int PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 
       if (PluginMode)
@@ -313,7 +315,7 @@ int FindFiles::FindFilesProcess()
   int FindListDataSize,DlgExitCode,ListPosChanged=FALSE;
   char UserData[1024];
 
-  Panel *ActivePanel=CtrlObject->ActivePanel;
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   int PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 
   int IncY=ScrY>24 ? ScrY-24:0;
@@ -619,8 +621,8 @@ int FindFiles::FindFilesProcess()
       HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
       if (hNewPlugin!=INVALID_HANDLE_VALUE)
       {
-        Panel *ActivePanel=CtrlObject->ActivePanel;
-        Panel *NewPanel=CtrlObject->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+        Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+        Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
         NewPanel->SetPluginMode(hNewPlugin,"");
         NewPanel->Update(0);
         if (ListPosChanged && FindList.GetUserData(&FileFindData,sizeof(FileFindData)))
@@ -645,13 +647,13 @@ int FindFiles::FindFilesProcess()
       if (FindListDataSize!=0)
       {
         char *FileName=FileFindData.cFileName;
-        Panel *FindPanel=CtrlObject->ActivePanel;
+        Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
         if (FindListDataSize==sizeof(WIN32_FIND_DATA)+NM)
         {
           char ArcName[NM],ArcPath[NM];
           strncpy(ArcName,UserData+sizeof(WIN32_FIND_DATA),NM);
           if (FindPanel->GetType()!=FILE_PANEL)
-            FindPanel=CtrlObject->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
+            FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
           strcpy(ArcPath,ArcName);
           *PointToName(ArcPath)=0;
           FindPanel->SetCurDir(ArcPath,TRUE);
@@ -686,8 +688,8 @@ int FindFiles::FindFilesProcess()
         if (*FileName==0)
           break;
         if (FindPanel->GetType()!=FILE_PANEL &&
-            CtrlObject->GetAnotherPanel(FindPanel)->GetType()==FILE_PANEL)
-          FindPanel=CtrlObject->GetAnotherPanel(FindPanel);
+            CtrlObject->Cp()->GetAnotherPanel(FindPanel)->GetType()==FILE_PANEL)
+          FindPanel=CtrlObject->Cp()->GetAnotherPanel(FindPanel);
         FindPanel->SetCurDir(FileName,TRUE);
         if (*SetName)
           FindPanel->GoToFile(SetName);
@@ -702,7 +704,7 @@ int FindFiles::FindFilesProcess()
 void FindFiles::SetPluginDirectory(char *FileName)
 {
   char Name[NM],*StartName,*EndName;
-  Panel *ActivePanel=CtrlObject->ActivePanel;
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
   strcpy(Name,FileName);
@@ -757,14 +759,14 @@ void _cdecl PrepareFilesList(void *Param)
     char SelName[NM];
     int FileAttr;
     if (SearchMode==SEARCH_SELECTED)
-      CtrlObject->ActivePanel->GetSelName(NULL,FileAttr);
+      CtrlObject->Cp()->ActivePanel->GetSelName(NULL,FileAttr);
 
     while (1)
     {
       char CurRoot[2*NM];
       if (SearchMode==SEARCH_SELECTED)
       {
-        if (!CtrlObject->ActivePanel->GetSelName(SelName,FileAttr))
+        if (!CtrlObject->Cp()->ActivePanel->GetSelName(SelName,FileAttr))
           break;
         if ((FileAttr & FA_DIREC)==0 || strcmp(SelName,"..")==0 ||
             strcmp(SelName,".")==0)
@@ -1262,7 +1264,7 @@ void ScanPluginTree()
       if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC) &&
           strcmp(CurName,".")!=0 && strcmp(CurName,"..")!=0 &&
           (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1 ||
-          CtrlObject->ActivePanel->IsSelected(CurName)))
+          CtrlObject->Cp()->ActivePanel->IsSelected(CurName)))
         if (strchr(CurName,'\x1')==NULL && CtrlObject->Plugins.SetDirectory(hPlugin,CurName,OPM_FIND))
         {
           strcat(PluginSearchPath,CurName);

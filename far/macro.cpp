@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.30 25.04.2001 $ */
+/* Revision: 1.31 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   25.04.2001 SVS
     + MFLAGS_SELECTION - флаг проверки выделения:
       для панелей - больше одного выделенного объекта,
@@ -1129,7 +1131,7 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
     return FALSE;
 
   // проверки панели и типа файла
-  Panel *ActivePanel=CtrlObject->ActivePanel;
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   if(ActivePanel!=NULL)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
   {
     if(!CheckPanel(ActivePanel->GetMode(),CurFlags))

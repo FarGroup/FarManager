@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.20 28.04.2001 $ */
+/* Revision: 1.21 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.04.2001 VVM
     + KeyBar тоже умеет обрабатывать клавиши.
   10.04.2001 IS
@@ -91,7 +93,7 @@ FileViewer::FileViewer(char *Name,int EnableSwitch,char *Title,
 }
 
 
-void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
+void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
                       long ViewStartPos,char *PluginData,
                       NamesList *ViewNamesList)
 {
@@ -103,6 +105,8 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
   View.SetHostFileViewer(this);
   /* SVS $ */
 
+  DisableHistory=disableHistory; ///
+  strcpy(Name,name); ///
   SetEnableSwitch(EnableSwitch);
 
   /* $ 07.08.2000 SVS
@@ -136,8 +140,9 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
   SetFarTitle(NewTitle);
   ShowConsoleTitle();
   F3KeyOnly=TRUE;
+/*///
   Process();
-  if (!DisableHistory && (CtrlObject->ActivePanel!=NULL || strcmp(Name,"-")!=0))
+  if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
   {
     char FullFileName[NM];
 //    ConvertNameToFull(Name,FullFileName, sizeof(FullFileName));
@@ -146,6 +151,7 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
     }
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
+*///
 }
 
 
@@ -252,8 +258,8 @@ int FileViewer::ProcessKey(int Key)
             strncpy(DirTmp,FileName,NM);
             NameTmp=PointToName(DirTmp);
             if(NameTmp>DirTmp)NameTmp[-1]=0;
-            CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(PDir);
-            CtrlObject->ActivePanel->GetCurDir(ADir);
+            CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
+            CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
             /* $ 10.04.2001 IS
                  Не делаем SetCurDir, если нужный путь уже есть на открытых
                  панелях, тем самым добиваемся того, что выделение с элементов
@@ -267,14 +273,14 @@ int FileViewer::ProcessKey(int Key)
                 CtrlObject->ProcessKey(KEY_TAB);
             }
             if(!AExist && !PExist)
-                CtrlObject->ActivePanel->SetCurDir(DirTmp,TRUE);
+                CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
             /* IS */
-            CtrlObject->ActivePanel->GoToFile(NameTmp);
+            CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
           }
           /*else
           {
-            CtrlObject->ActivePanel->SetCurDir(StartDir,TRUE);
-            CtrlObject->ActivePanel->GoToFile(FileName);
+            CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
+            CtrlObject->Cp()->ActivePanel->GoToFile(FileName);
           } */
         }
         return (TRUE);
@@ -299,7 +305,7 @@ int FileViewer::ProcessKey(int Key)
         return TRUE;
     case KEY_CTRLO:
       Hide();
-      if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)
+      if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
         CtrlObject->ModalManager.ShowBackground();
       else
       {
@@ -317,6 +323,7 @@ int FileViewer::ProcessKey(int Key)
       Show();
       return(TRUE);
     /* SVS $ */
+/*///
     case KEY_CTRLTAB:
     case KEY_CTRLSHIFTTAB:
     case KEY_F12:
@@ -329,13 +336,15 @@ int FileViewer::ProcessKey(int Key)
           SetExitCode(Key==KEY_CTRLTAB ? 1:2);
       }
       return(TRUE);
+*///
     case KEY_F3:
     case KEY_NUMPAD5:
       if (F3KeyOnly)
         return(TRUE);
     case KEY_ESC:
     case KEY_F10:
-      SetExitCode(0);
+      SetExitCode(XC_QUIT);///
+///      SetExitCode(0);
       return(TRUE);
     case KEY_F6:
       if (!DisableEdit)
@@ -418,8 +427,8 @@ int FileViewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 int FileViewer::GetTypeAndName(char *Type,char *Name)
 {
-  strcpy(Type,MSG(MScreensView));
-  View.GetFileName(Name);
+  if ( Type ) strcpy(Type,MSG(MScreensView));
+  if ( Name ) View.GetFileName(Name);
   return(MODALTYPE_VIEWER);
 }
 
@@ -453,3 +462,29 @@ void FileViewer::SetScreenPosition()
   }
 }
 /* tran $ */
+
+void FileViewer::OnCreate()
+{
+}
+
+void FileViewer::OnDestroy()
+{
+  if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
+  {
+    char FullFileName[NM];
+    //ConvertNameToFull(Name,FullFileName, sizeof(FullFileName));
+    if (ConvertNameToFull(Name,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
+      return ;
+    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
+  }
+}
+
+void FileViewer::OnChangeFocus(int f)
+{
+    SysLog("FileViewer::OnChangeFocus(), focus=%i",f);
+    if ( f )
+    {
+        Show();
+    }
+}
+

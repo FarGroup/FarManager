@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.08 23.04.2001 $ */
+/* Revision: 1.09 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   23.04.2001 SVS
     ! КХЕ! Новый взбляд на %PATHEXT% - то что редактируем и то, что
       юзаем - разные сущности.
@@ -193,10 +195,10 @@ void GroupSort::EditGroups()
       DeleteRegValue(SortGroupsKeyName,GroupName);
     }
   }
-  CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->LeftPanel->Redraw();
-  CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->RightPanel->Redraw();
+  CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->LeftPanel->Redraw();
+  CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+  CtrlObject->Cp()->RightPanel->Redraw();
 }
 
 

@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.19 06.03.2001 $ */
+/* Revision: 1.20 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   06.03.2001 SVS
    ! SetScreen() - размер строки 256 заменен на 4096 во избежании проблем
      в будущем (new или malloc делать не стоит, т.к. функция часто вызывается)
@@ -255,10 +257,10 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
   {
     if (CtrlType==CTRL_BREAK_EVENT)
       WriteInput(KEY_BREAK);
-    if (CtrlObject->LeftPanel!=NULL && CtrlObject->LeftPanel->GetMode()==PLUGIN_PANEL)
-      CtrlObject->Plugins.ProcessEvent(CtrlObject->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
-    if (CtrlObject->RightPanel!=NULL && CtrlObject->RightPanel->GetMode()==PLUGIN_PANEL)
-      CtrlObject->Plugins.ProcessEvent(CtrlObject->RightPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
+    if (CtrlObject->Cp()->LeftPanel!=NULL && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+      CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
+    if (CtrlObject->Cp()->RightPanel!=NULL && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+      CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)CtrlType);
     return(TRUE);
   }
   CloseFAR=TRUE;

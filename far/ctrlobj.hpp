@@ -7,10 +7,12 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.03 28.02.2001 $ */
+/* Revision: 1.04 29.02.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.02.2001 IS
     ! CmdLine теперь указатель
   15.12.2000 SVS
@@ -26,13 +28,13 @@ class ControlObject:public BaseInput
 {
   private:
     int EndLoop;
-    int LastLeftType,LastRightType;
-    int LeftStateBeforeHide,RightStateBeforeHide,HideState;
-    Panel *LastLeftFilePanel,*LastRightFilePanel;
+//    int LastLeftType,LastRightType;
+//    int LeftStateBeforeHide,RightStateBeforeHide,HideState;
+//    Panel *LastLeftFilePanel,*LastRightFilePanel;
 
   private:
-    Panel* ControlObject::CreatePanel(int Type);
-    void DeletePanel(Panel *Deleted);
+//    Panel* ControlObject::CreatePanel(int Type);
+//    void DeletePanel(Panel *Deleted);
 
   public:
     ControlObject();
@@ -44,25 +46,27 @@ class ControlObject:public BaseInput
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void EnterMainLoop();
     void ExitMainLoop(int Ask);
-    Panel* GetAnotherPanel(Panel *Current);
-    Panel* ChangePanelToFilled(Panel *Current,int NewType);
-    Panel* ChangePanel(Panel *Current,int NewType,int CreateNew,int Force);
-    void SetPanelPositions(int LeftFullScreen,int RightFullScreen);
-    void SetScreenPositions();
-    void RedrawKeyBar();
+//    Panel* GetAnotherPanel(Panel *Current);
+//    Panel* ChangePanelToFilled(Panel *Current,int NewType);
+//    Panel* ChangePanel(Panel *Current,int NewType,int CreateNew,int Force);
+//    void SetPanelPositions(int LeftFullScreen,int RightFullScreen);
+//    void SetScreenPositions();
+//    void RedrawKeyBar();
     /* $ 15.07.2000 tran
        here is :) */
-    void Redraw();
+//    void Redraw();
     /* tran 15.07.2000 $ */
 
   public:
-    Panel *LeftPanel,*RightPanel,*ActivePanel;
+//    Panel *LeftPanel,*RightPanel,*ActivePanel;
+    FilePanels *FPanels;
+    FilePanels *Cp(); // {return FPanels;};
 
     Manager ModalManager;
     CommandLine *CmdLine;
     History *CmdHistory,*FolderHistory,*ViewHistory;
-    KeyBar MainKeyBar;
-    MenuBar TopMenuBar;
+    KeyBar *MainKeyBar;
+    MenuBar *TopMenuBar;
     HighlightFiles HiFiles;
     GroupSort GrpSort;
     FilePositionCache ViewerPosCache,EditorPosCache;

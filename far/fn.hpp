@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.76 28.04.2001 $ */
+/* Revision: 1.77 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.04.2001 SVS
    + xfilter
    + Новый параметр у DumpExceptionInfo - указатель на PluginItem.
@@ -661,6 +663,7 @@ void WINAPI DeleteBuffer(char* Buffer);
 
 void SysLog(int l);
 void SysLog(char *msg,...);
+void SysLog(int l,char *fmt,...); ///
 
 void OpenSysLog();
 void CloseSysLog();

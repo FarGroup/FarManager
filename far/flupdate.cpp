@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.07 26.03.2001 $ */
+/* Revision: 1.08 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   26.03.2001 SVS
     ! для любых сетевых путей добавляем ".." - иногда операционка этого
       сама не делает :-(
@@ -59,7 +61,7 @@ void FileList::Update(int Mode)
             ReadFileNames(Mode & UPDATE_KEEP_SELECTION);
           else
             if ((Info.Flags & OPIF_REALNAMES) ||
-                CtrlObject->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
+                CtrlObject->Cp()->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
                 (Mode & UPDATE_SECONDARY)==0)
               UpdatePlugin(Mode & UPDATE_KEEP_SELECTION);
         }
@@ -91,7 +93,7 @@ void FileList::ReadFileNames(int KeepSelection)
 
   CloseChangeNotification();
 
-  if (!SetCurPath() && this!=CtrlObject->LeftPanel && this!=CtrlObject->RightPanel)
+  if (!SetCurPath() && this!=CtrlObject->Cp()->LeftPanel && this!=CtrlObject->Cp()->RightPanel)
     return;
 
   SortGroupsRead=FALSE;
@@ -104,7 +106,7 @@ void FileList::ReadFileNames(int KeepSelection)
 
   LastCurFile=-1;
 
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   AnotherPanel->QViewDelTempName();
 
   int PrevSelFileCount=SelFileCount;
@@ -411,7 +413,7 @@ int FileList::UpdateIfChanged()
       {
         Update(UPDATE_KEEP_SELECTION);
         Show();
-        Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         if (AnotherPanel->GetType()==INFO_PANEL)
         {
           AnotherPanel->Update(UPDATE_KEEP_SELECTION);

@@ -7,10 +7,12 @@ classes.hpp
 
 */
 
-/* Revision: 1.03 20.03.2001 $ */
+/* Revision: 1.04 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   20.03.2001 tran
     + constitle.hpp
   24.01.2001 SVS
@@ -56,8 +58,9 @@ class History;
 #include "hilight.hpp"
 #include "poscache.hpp"
 #include "manager.hpp"
-#include "ctrlobj.hpp"
 #include "modal.hpp"
+#include "filepanels.hpp"
+#include "ctrlobj.hpp"
 #include "foldtree.hpp"
 #include "fileview.hpp"
 #include "vmenu.hpp"

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.61 28.04.2001 $ */
+/* Revision: 1.62 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.04.2001 SVS
     ! xfilter - видна в других модулях
     ! небольшие уточнения исключений
@@ -1177,8 +1179,8 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       else
         if (*DirToSet)
         {
-          CtrlObject->ActivePanel->SetCurDir(DirToSet,TRUE);
-          CtrlObject->ActivePanel->Redraw();
+          CtrlObject->Cp()->ActivePanel->SetCurDir(DirToSet,TRUE);
+          CtrlObject->Cp()->ActivePanel->Redraw();
         }
     }
   return(INVALID_HANDLE_VALUE);
@@ -1892,15 +1894,15 @@ void PluginsSet::Configure()
         }
         if (Ret)
         {
-          if (CtrlObject->LeftPanel->GetMode()==PLUGIN_PANEL)
+          if (CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
           {
-            CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-            CtrlObject->LeftPanel->Redraw();
+            CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+            CtrlObject->Cp()->LeftPanel->Redraw();
           }
-          if (CtrlObject->RightPanel->GetMode()==PLUGIN_PANEL)
+          if (CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
           {
-            CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
-            CtrlObject->RightPanel->Redraw();
+            CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+            CtrlObject->Cp()->RightPanel->Redraw();
           }
         }
         SavePluginSettings(PluginsData[PNum],PluginsData[PNum].FindData);
@@ -2074,7 +2076,7 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryNam
   PluginList.GetUserData(Data,2,ExitCode);
   if (PreparePlugin(Data[0]) && PluginsData[Data[0]].pOpenPlugin!=NULL)
   {
-    Panel *ActivePanel=CtrlObject->ActivePanel;
+    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
     if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
       return(FALSE);
     int OpenCode=OPEN_PLUGINSMENU;
@@ -2085,7 +2087,7 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos,char *HistoryNam
     HANDLE hPlugin=OpenPlugin(Data[0],OpenCode,Data[1]);
     if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
     {
-      Panel *NewPanel=CtrlObject->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+      Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
       NewPanel->SetPluginMode(hPlugin,"");
       NewPanel->Update(0);
       NewPanel->Show();
@@ -2291,7 +2293,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
     return(FALSE);
   if (!PreparePlugin(PluginPos) || PluginsData[PluginPos].pOpenPlugin==NULL)
     return(FALSE);
-  Panel *ActivePanel=CtrlObject->ActivePanel;
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
     return(FALSE);
   CtrlObject->CmdLine->SetString("");
@@ -2305,7 +2307,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
   HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
-    Panel *NewPanel=CtrlObject->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
     NewPanel->SetPluginMode(hPlugin,"");
     NewPanel->Update(0);
     NewPanel->Show();
@@ -2317,15 +2319,15 @@ int PluginsSet::ProcessCommandLine(char *Command)
 
 void PluginsSet::ReadUserBackgound(SaveScreen *SaveScr)
 {
-  CtrlObject->LeftPanel->ProcessingPluginCommand++;
-  CtrlObject->RightPanel->ProcessingPluginCommand++;
+  CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand++;
+  CtrlObject->Cp()->RightPanel->ProcessingPluginCommand++;
   if (KeepUserScreen)
   {
     SaveScr->Discard();
     RedrawDesktop Redraw;
   }
-  CtrlObject->LeftPanel->ProcessingPluginCommand--;
-  CtrlObject->RightPanel->ProcessingPluginCommand--;
+  CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand--;
+  CtrlObject->Cp()->RightPanel->ProcessingPluginCommand--;
 }
 
 
@@ -2354,8 +2356,8 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
       if (hNewPlugin!=INVALID_HANDLE_VALUE &&
          (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
       {
-        int CurFocus=CtrlObject->ActivePanel->GetFocus();
-        Panel *NewPanel=CtrlObject->ChangePanel(CtrlObject->ActivePanel,FILE_PANEL,TRUE,TRUE);
+        int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
+        Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
         NewPanel->SetPluginMode(hNewPlugin,"");
         if (Data && *(char *)Data)
           SetDirectory(hNewPlugin,(char *)Data,0);
@@ -2364,7 +2366,7 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
            Если что-то не так - раскомментировать!!!
         */
 //        NewPanel->Update(0);
-        if (CurFocus || !CtrlObject->GetAnotherPanel(NewPanel)->IsVisible())
+        if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
           NewPanel->SetFocus();
 //        NewPanel->Show();
         /* SVS $ */

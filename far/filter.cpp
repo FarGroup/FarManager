@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.07 27.02.2001 $ */
+/* Revision: 1.08 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -55,7 +57,7 @@ PanelFilter::PanelFilter(Panel *HostPanel)
   ExcludeFilterMaskCount=0;
   AddMasks(NULL,0);
   for (int I=0;I<FilterDataCount;I++)
-    if (HostPanel==CtrlObject->LeftPanel)
+    if (HostPanel==CtrlObject->Cp()->LeftPanel)
     {
       if (FilterData[I].LeftPanelInclude)
         AddMasks(FilterData[I].Masks,FALSE);
@@ -126,7 +128,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       else
         strcpy(ListItem.UserData,FilterData[I].Masks);
 
-      if (HostPanel==CtrlObject->LeftPanel)
+      if (HostPanel==CtrlObject->Cp()->LeftPanel)
       {
         if (FilterData[I].LeftPanelInclude)
           ListItem.Checked='+';
@@ -393,17 +395,17 @@ void PanelFilter::ProcessSelection(VMenu &FilterList)
       AddMasks(Masks,Check=='-');
     if (I<FilterDataCount)
     {
-      if (HostPanel==CtrlObject->LeftPanel)
+      if (HostPanel==CtrlObject->Cp()->LeftPanel)
         FilterData[I].LeftPanelInclude=FilterData[I].LeftPanelExclude=0;
-      if (HostPanel==CtrlObject->RightPanel)
+      if (HostPanel==CtrlObject->Cp()->RightPanel)
         FilterData[I].RightPanelInclude=FilterData[I].RightPanelExclude=0;
       if (Check=='+')
-        if (HostPanel==CtrlObject->LeftPanel)
+        if (HostPanel==CtrlObject->Cp()->LeftPanel)
           FilterData[I].LeftPanelInclude=TRUE;
         else
           FilterData[I].RightPanelInclude=TRUE;
       if (Check=='-')
-        if (HostPanel==CtrlObject->LeftPanel)
+        if (HostPanel==CtrlObject->Cp()->LeftPanel)
           FilterData[I].LeftPanelExclude=TRUE;
         else
           FilterData[I].RightPanelExclude=TRUE;

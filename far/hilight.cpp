@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.18 23.04.2001 $ */
+/* Revision: 1.19 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   23.04.2001 SVS
     ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
       юзаем - разные сущности.
@@ -281,8 +283,8 @@ void HighlightFiles::HiEdit(int MenuPos)
       HiMenu.Show();
       while (1)
       {
-        Panel *LeftPanel=CtrlObject->LeftPanel;
-        Panel *RightPanel=CtrlObject->RightPanel;
+        Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
+        Panel *RightPanel=CtrlObject->Cp()->RightPanel;
         while (!HiMenu.Done())
         {
           int SelectPos=HiMenu.GetSelectPos();

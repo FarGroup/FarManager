@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.14 25.04.2001 $ */
+/* Revision: 1.15 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   24.04.2001 DJ
     * обработка @ в ассоциациях IF EXIST
   28.02.2001 IS
@@ -220,8 +222,8 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       else
       {
         SaveScreen SaveScr;
-        CtrlObject->LeftPanel->CloseFile();
-        CtrlObject->RightPanel->CloseFile();
+        CtrlObject->Cp()->LeftPanel->CloseFile();
+        CtrlObject->Cp()->RightPanel->CloseFile();
         Execute(Command+1,AlwaysWaitFinish);
       }
   }
@@ -383,8 +385,8 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     else
     {
       SaveScreen SaveScr;
-      CtrlObject->LeftPanel->CloseFile();
-      CtrlObject->RightPanel->CloseFile();
+      CtrlObject->Cp()->LeftPanel->CloseFile();
+      CtrlObject->Cp()->RightPanel->CloseFile();
       Execute(ExecStr+1,AlwaysWaitFinish);
     }
   }
@@ -450,7 +452,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
   QuoteSpace(QuotedName);
   QuoteSpace(QuotedShortName);
 
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
 
   AnotherPanel->GetCurName(AnotherName,AnotherShortName);
   strcpy(AnotherNameOnly,AnotherName);
@@ -536,7 +538,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
           !strncmp(CurStr,"!&",2) && CurStr[2] != '?')
       {
         char FileNameL[NM],ShortNameL[NM];
-        Panel *WPanel=PassivePanel?AnotherPanel:CtrlObject->ActivePanel;
+        Panel *WPanel=PassivePanel?AnotherPanel:CtrlObject->Cp()->ActivePanel;
         int FileAttrL;
         int ShortN0=FALSE;
         int CntSkip=2;
@@ -582,7 +584,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
             {
               strcat(TmpStr,ListName+NM);
             }
-            if ( !PassivePanel && (*ListName || CtrlObject->ActivePanel->MakeListFile(ListName,FALSE,Modifers)))
+            if ( !PassivePanel && (*ListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ListName,FALSE,Modifers)))
             {
               strcat(TmpStr,ListName);
             }
@@ -617,7 +619,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
               /* IS $ */
               strcat(TmpStr,ShortListName+NM);
             }
-            if ( !PassivePanel && (*ShortListName || CtrlObject->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
+            if ( !PassivePanel && (*ShortListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
             {
               /* $ 01.11.2000 IS
                  Имя файла в данном случае должно быть коротким

@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.18 23.04.2001 $ */
+/* Revision: 1.19 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   23.04.2001 SVS
     ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
       юзаем - разные сущности.
@@ -284,14 +286,14 @@ int _cdecl main(int Argc, char *Argv[])
     {
       Panel *DummyPanel=new Panel;
       CmdMode=TRUE;
-      CtrlObj.LeftPanel=CtrlObj.RightPanel=CtrlObj.ActivePanel=DummyPanel;
+      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
       CtrlObj.Plugins.LoadPlugins();
       if (*EditName)
         FileEditor ShellEditor(EditName,TRUE,FALSE,StartLine,StartChar);
       if (*ViewName)
         FileViewer ShellViewer(ViewName,FALSE);
       delete DummyPanel;
-      CtrlObj.LeftPanel=CtrlObj.RightPanel=CtrlObj.ActivePanel=NULL;
+      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
     }
     else
     {
@@ -308,7 +310,7 @@ int _cdecl main(int Argc, char *Argv[])
         char Path[NM];
         strcpy(Path,DestName);
         *PointToName(Path)=0;
-        Panel *ActivePanel=CtrlObject->ActivePanel;
+        Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
         if (*Path)
           ActivePanel->SetCurDir(Path,TRUE);
         strcpy(Path,PointToName(DestName));
@@ -317,8 +319,8 @@ int _cdecl main(int Argc, char *Argv[])
           if (ActivePanel->GoToFile(Path))
             ActivePanel->ProcessKey(KEY_CTRLPGDN);
         }
-        CtrlObject->LeftPanel->Redraw();
-        CtrlObject->RightPanel->Redraw();
+        CtrlObject->Cp()->LeftPanel->Redraw();
+        CtrlObject->Cp()->RightPanel->Redraw();
       }
       CtrlObj.EnterMainLoop();
     }

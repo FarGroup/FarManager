@@ -5,10 +5,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.01 28.02.2001 $ */
+/* Revision: 1.02 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   25.06.2000 SVS
@@ -27,27 +29,27 @@ Modify:
 
 RedrawDesktop::RedrawDesktop()
 {
-  LeftVisible=CtrlObject->LeftPanel->IsVisible();
-  RightVisible=CtrlObject->RightPanel->IsVisible();
-  CtrlObject->LeftPanel->Hide();
-  CtrlObject->RightPanel->Hide();
-  CtrlObject->MainKeyBar.Hide();
-  CtrlObject->TopMenuBar.Hide();
+  LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
+  RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
+  CtrlObject->Cp()->LeftPanel->Hide();
+  CtrlObject->Cp()->RightPanel->Hide();
+  CtrlObject->MainKeyBar->Hide();
+  CtrlObject->TopMenuBar->Hide();
 }
 
 
 RedrawDesktop::~RedrawDesktop()
 {
   if (Opt.ShowKeyBar)
-    CtrlObject->MainKeyBar.Show();
+    CtrlObject->MainKeyBar->Show();
   if (Opt.ShowMenuBar)
-    CtrlObject->TopMenuBar.Show();
+    CtrlObject->TopMenuBar->Show();
   CtrlObject->CmdLine->Show();
-  int RightType=CtrlObject->RightPanel->GetType();
+  int RightType=CtrlObject->Cp()->RightPanel->GetType();
   if (RightVisible && RightType!=QVIEW_PANEL)
-    CtrlObject->RightPanel->Show();
+    CtrlObject->Cp()->RightPanel->Show();
   if (LeftVisible)
-    CtrlObject->LeftPanel->Show();
+    CtrlObject->Cp()->LeftPanel->Show();
   if (RightVisible && RightType==QVIEW_PANEL)
-    CtrlObject->RightPanel->Show();
+    CtrlObject->Cp()->RightPanel->Show();
 }

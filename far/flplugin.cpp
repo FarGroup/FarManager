@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.08 26.04.2001 $ */
+/* Revision: 1.09 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   26.04.2001 DJ
     - в ProcessHostFile() не передавался OPM_TOPLEVEL
   04.01.2001 SVS
@@ -106,7 +108,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     PanelMode=NORMAL_PANEL;
   PluginsStack=(struct PluginsStackItem *)realloc(PluginsStack,PluginsStackSize*sizeof(*PluginsStack));
   if (EnableRestoreViewMode)
-    CtrlObject->RedrawKeyBar();
+    CtrlObject->Cp()->RedrawKeyBar();
   return(TRUE);
 }
 
@@ -234,7 +236,7 @@ HANDLE FileList::OpenPluginForFile(char *FileName)
   }
   int ReadSize=fread(Buffer,1,MaxRead,ProcessFile);
   fclose(ProcessFile);
-  CtrlObject->GetAnotherPanel(this)->CloseFile();
+  CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
   HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,ReadSize);
   delete[] Buffer;
   /* SVS $ */
@@ -287,7 +289,7 @@ void FileList::PluginDelete()
     DeletePluginItemList(ItemList,ItemNumber);
     Update(UPDATE_KEEP_SELECTION);
     Redraw();
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
     AnotherPanel->Redraw();
   }
@@ -307,8 +309,8 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
       (Info.HostFile==NULL || *Info.HostFile==0 || DestPanel->GetModalMode() ||
       GetFileAttributes(Info.HostFile)!=0xFFFFFFFF))
   {
-    CtrlObject->LeftPanel->ReadDiz();
-    CtrlObject->RightPanel->ReadDiz();
+    CtrlObject->Cp()->LeftPanel->ReadDiz();
+    CtrlObject->Cp()->RightPanel->ReadDiz();
 
     if (DestPanel->GetModalMode())
       DestPanel->ReadDiz();
@@ -382,8 +384,8 @@ void FileList::PluginGetFiles(char *DestPath,int Move)
         {
           if (!DizFound)
           {
-            CtrlObject->LeftPanel->ReadDiz();
-            CtrlObject->RightPanel->ReadDiz();
+            CtrlObject->Cp()->LeftPanel->ReadDiz();
+            CtrlObject->Cp()->RightPanel->ReadDiz();
             DestDiz.Read(DestPath);
             DizFound=TRUE;
           }
@@ -409,7 +411,7 @@ void FileList::PluginGetFiles(char *DestPath,int Move)
     DeletePluginItemList(ItemList,ItemNumber);
     Update(UPDATE_KEEP_SELECTION);
     Redraw();
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
     AnotherPanel->Redraw();
   }
@@ -420,7 +422,7 @@ void FileList::PluginToPluginFiles(int Move)
 {
   struct PluginPanelItem *ItemList;
   int ItemNumber;
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   char TempDir[NM];
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
@@ -474,7 +476,7 @@ void FileList::PluginToPluginFiles(int Move)
 
 void FileList::PluginHostGetFiles()
 {
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   char DestPath[NM],SelName[NM],*ExtPtr;
   int FileAttr;
 
@@ -570,7 +572,7 @@ void FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
     DeletePluginItemList(ItemList,ItemNumber);
     Update(UPDATE_KEEP_SELECTION);
     Redraw();
-    if (AnotherPanel==CtrlObject->GetAnotherPanel(this))
+    if (AnotherPanel==CtrlObject->Cp()->GetAnotherPanel(this))
     {
       AnotherPanel->Update(UPDATE_KEEP_SELECTION);
       AnotherPanel->Redraw();
@@ -644,7 +646,7 @@ void FileList::ProcessHostFile()
       ClearSelection();
       Update(UPDATE_KEEP_SELECTION);
       Redraw();
-      Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
       AnotherPanel->Redraw();
     }
@@ -664,13 +666,13 @@ void FileList::SetPluginMode(HANDLE hPlugin,char *PluginFile)
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   if (Info.StartPanelMode)
     SetViewMode(VIEW_0+Info.StartPanelMode-'0');
-  CtrlObject->RedrawKeyBar();
+  CtrlObject->Cp()->RedrawKeyBar();
   if (Info.StartSortMode)
   {
     SortMode=Info.StartSortMode-(SM_UNSORTED-UNSORTED);
     SortOrder=Info.StartSortOrder ? -1:1;
   }
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=FILE_PANEL)
   {
     AnotherPanel->Update(UPDATE_KEEP_SELECTION);

@@ -1,38 +1,40 @@
 /*
 setcolor.cpp
 
-“áâ ­®¢ª  ä à®¢áª¨å æ¢¥â®¢
+Óñòàíîâêà ôàðîâñêèõ öâåòîâ
 
 */
 
-/* Revision: 1.06 04.12.2000 $ */
+/* Revision: 1.07 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ÎÒ
+    + Âíåäðåíèå NWZ îò Òðåòüÿêîâà
   04.12.2000 SVS
-    + ¯ã­ªâë ¢ ¬¥­î - COL_DIALOG*DISABLED ¨ COL_WARNDIALOG*DISABLED
+    + ïóíêòû â ìåíþ - COL_DIALOG*DISABLED è COL_WARNDIALOG*DISABLED
   22.11.2000 SVS
-    + ¯ã­ªâ ¢ ¬¥­î - COL_DIALOGMENUSCROLLBAR - ¯®«®á  ¯à®ªàãâª¨ ¤«ï á¯¨áª 
+    + ïóíêò â ìåíþ - COL_DIALOGMENUSCROLLBAR - ïîëîñà ïðîêðóòêè äëÿ ñïèñêà
   13.09.2000 tran 1.04
     + COL_COMMANDLINEPREFIX
   18.03.2000 tran 1.03
     + COL_VIEWERSCROLLBAR
   06.07.2000 SVS
-    + ®¢ë© ¯ã­ªâ ¤«ï ­ áâà®©ª¨ æ¢¥â®¢
+    + Íîâûé ïóíêò äëÿ íàñòðîéêè öâåòîâ
         COL_DIALOGMENUHIGHLIGHT
         COL_DIALOGMENUSELECTEDHIGHLIGHT
   29.06.2000 SVS
-    + ®¢ë© ¯ã­ªâ ¤«ï ­ áâà®©ª¨ æ¢¥â®¢ Menu ¤«ï Menu Scrollbar
+    + Íîâûé ïóíêò äëÿ íàñòðîéêè öâåòîâ Menu äëÿ Menu Scrollbar
   25.06.2000 SVS
-    ! ®¤£®â®¢ª  Master Copy
-    ! ‚ë¤¥«¥­¨¥ ¢ ª ç¥áâ¢¥ á ¬®áâ®ïâ¥«ì­®£® ¬®¤ã«ï
+    ! Ïîäãîòîâêà Master Copy
+    ! Âûäåëåíèå â êàµåñòâå ñàìîñòîÿòåëüíîãî ìîäóëÿ
 */
 
 #include "headers.hpp"
 #pragma hdrstop
 
 /* $ 30.06.2000 IS
-   ‘â ­¤ àâ­ë¥ § £®«®¢ª¨
+   Ñòàíäàðòíûå çàãîëîâêè
 */
 #include "internalheaders.hpp"
 /* IS $ */
@@ -87,10 +89,10 @@ void SetColors()
   };
 
   /* $ 22.11.2000 SVS
-    + ¯ã­ªâ ¢ ¬¥­î - COL_DIALOGMENUSCROLLBAR
+    + ïóíêò â ìåíþ - COL_DIALOGMENUSCROLLBAR
   */
   /* $ 04.12.2000 SVS
-    + ¯ã­ªâ ¢ ¬¥­î - COL_DIALOGDISABLED
+    + ïóíêò â ìåíþ - COL_DIALOGDISABLED
   */
   struct MenuData DialogItems[]=
   {
@@ -109,12 +111,12 @@ void SetColors()
     (char *)MSetColorDialogListText,0,0,0,
     (char *)MSetColorDialogSelectedListText,0,0,0,
     /* 06.07.2000 SVS
-       + ¤®¡ ¢¨« ¢ ¬¥­î ¤¢  à ­¥¥ "áªàëâëå ¯ã­ªâ " :-)))
+       + äîáàâèë â ìåíþ äâà ðàíåå "ñêðûòûõ ïóíêòà" :-)))
     */
     (char *)MSetColorDialogMenuHighLight,0,0,0,
     (char *)MSetColorDialogMenuSelectedHighLight,0,0,0,
     /* SVS $ */
-    (char *)MSetColorDialogMenuScrollBar,0,0,0, // ¯®«®á  ¯à®ªàãâª¨ ¤«ï á¯¨áª 
+    (char *)MSetColorDialogMenuScrollBar,0,0,0, // ïîëîñà ïðîêðóòêè äëÿ ñïèñêà
 
     (char *)MSetColorDialogDisabled,0,0,0,
     (char *)MSetColorDialogEditDisabled,0,0,0,
@@ -160,7 +162,7 @@ void SetColors()
   };
 
     /* $ 29.06.2000 SVS
-      ®¢ë© ¯ã­ªâ ¤«ï ­ áâà®©ª¨ æ¢¥â®¢ Menu Scrollbar
+      Íîâûé ïóíêò äëÿ íàñòðîéêè öâåòîâ Menu Scrollbar
     */
   struct MenuData MenuItems[]=
   {
@@ -220,7 +222,7 @@ void SetColors()
   };
 
   /* $ 18.07.2000 tran
-     ­®¢ë© ¯ã­â ¤«ï MenuScrollbar*/
+     íîâûé ïóíò äëÿ MenuScrollbar*/
   struct MenuData ViewerItems[]=
   {
     (char *)MSetColorViewerNormal,1,0,0,
@@ -274,7 +276,7 @@ void SetColors()
 
       if (GroupsCode==12)
       {
-        //                   ¡ë«® sizeof(Palette)
+        //                   áûëî sizeof(Palette)
         memcpy(Palette,DefaultPalette,SizeArrayPalette);
         break;
       }
@@ -321,7 +323,7 @@ void SetColors()
       }
     }
   }
-  CtrlObject->SetScreenPositions();
+  CtrlObject->Cp()->SetScreenPositions();
 }
 
 
@@ -351,7 +353,7 @@ void GetColor(int PaletteIndex)
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
     MenuToRedraw2->Hide();
     MenuToRedraw1->Hide();
-    CtrlObject->SetScreenPositions();
+    CtrlObject->Cp()->SetScreenPositions();
     MenuToRedraw1->Show();
     MenuToRedraw2->Show();
   }

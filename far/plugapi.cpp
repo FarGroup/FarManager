@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.49 01.05.2001 $ */
+/* Revision: 1.49 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   01.05.2001 SVS
     - Вместо PluginNumber в FarDialogEx() залудил ItemsNumber :-(((
   28.04.2001 SVS
@@ -714,7 +716,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
-  if (CtrlObject->LeftPanel==NULL || CtrlObject->RightPanel==NULL)
+  if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
     return(0);
 
   switch(Command)
@@ -744,12 +746,12 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       {
         if (hPlugin==INVALID_HANDLE_VALUE)
         {
-          CtrlObject->ActivePanel->SetPluginCommand(Command,Param);
+          CtrlObject->Cp()->ActivePanel->SetPluginCommand(Command,Param);
           return(TRUE);
         }
         HANDLE hInternal;
-        Panel *LeftPanel=CtrlObject->LeftPanel;
-        Panel *RightPanel=CtrlObject->RightPanel;
+        Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
+        Panel *RightPanel=CtrlObject->Cp()->RightPanel;
         int Processed=FALSE;
         if (LeftPanel!=NULL && LeftPanel->GetMode()==PLUGIN_PANEL)
         {
@@ -790,11 +792,11 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       *(int *)Param=CtrlObject->CmdLine->GetCurPos();
       return(TRUE);
     case FCTL_SETUSERSCREEN:
-      if (CtrlObject->LeftPanel==NULL || CtrlObject->RightPanel==NULL)
+      if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
         return(FALSE);
       KeepUserScreen=TRUE;
-      CtrlObject->LeftPanel->ProcessingPluginCommand++;
-      CtrlObject->RightPanel->ProcessingPluginCommand++;
+      CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand++;
+      CtrlObject->Cp()->RightPanel->ProcessingPluginCommand++;
       ScrBuf.FillBuf();
       SaveScreen SaveScr;
       {
@@ -802,8 +804,8 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
         CtrlObject->CmdLine->Hide();
         SaveScr.RestoreArea(FALSE);
       }
-      CtrlObject->LeftPanel->ProcessingPluginCommand--;
-      CtrlObject->RightPanel->ProcessingPluginCommand--;
+      CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand--;
+      CtrlObject->Cp()->RightPanel->ProcessingPluginCommand--;
       return(TRUE);
   }
   return(FALSE);

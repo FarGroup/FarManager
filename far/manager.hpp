@@ -3,60 +3,95 @@
 /*
 manager.hpp
 
-ЏҐаҐЄ«озҐ­ЁҐ ¬Ґ¦¤г ­ҐбЄ®«мЄЁ¬Ё file panels, viewers, editors
+Переключение между несколькими file panels, viewers, editors
 
 */
 
-/* Revision: 1.02 29.12.2000 $ */
+/* Revision: 1.03 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   29.12.2000 IS
-    + ЊҐв®¤ ExitAll
+    + Метод ExitAll
   28.06.2000 tran
     - NT Console resize bug
       add class member ActiveModal
   25.06.2000 SVS
-    ! Џ®¤Ј®в®ўЄ  Master Copy
-    ! ‚л¤Ґ«Ґ­ЁҐ ў Є зҐбвўҐ б ¬®бв®пвҐ«м­®Ј® ¬®¤г«п
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 class Manager
 {
   private:
+
     void ActivateNextWindow();
 
-    Modal **ModalList;
-    int ModalCount;
-    int ModalPos;
-    int NextViewer;
+    Modal **ModalList,
+          **ActiveList;
+
+    int  ModalCount,
+         ModalSizeList,
+         ActiveListCount;
+    int  ModalPos;
+    int  NextViewer;
     char NextName[NM];
-    int NextPos;
-    int UpdateRequired;
+    int  NextPos;
+    int  UpdateRequired;
+
   public:
+
     Manager();
+    ~Manager();
+
     void AddModal(Modal *NewModal);
+    void ExecuteModal(Modal *ExecModal);
+    void DestroyModal(Modal *KilledModal);
+
     void NextModal(int Increment);
+    void SelectModal(); // show window menu (F12)
+
+    void PushActive();
+    void PopActive();
+
     void CloseAll();
     /* $ 29.12.2000 IS
-         Ђ­ «®Ј CloseAll, ­® а §аҐи Ґв Їа®¤®«¦Ґ­ЁҐ Ї®«­®жҐ­­®© а Ў®вл ў д аҐ,
-         Ґб«Ё Ї®«м§®ў вҐ«м Їа®¤®«¦Ё« аҐ¤ ЄвЁа®ў вм д ©«.
-         ‚®§ўа й Ґв TRUE, Ґб«Ё ўбҐ § Єал«Ё Ё ¬®¦­® ўле®¤Ёвм Ё§ д а .
+         Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
+         если пользователь продолжил редактировать файл.
+         Возвращает TRUE, если все закрыли и можно выходить из фара.
     */
     BOOL ExitAll();
     /* IS $ */
     BOOL IsAnyModalModified(int Activate);
-    void SelectModal();
-    int GetModalCount() {return(ModalCount);};
+
+    int  GetModalCount() {return(ModalCount);};
     void GetModalTypesCount(int &Viewers,int &Editors);
+    int  GetModalCountByType(int Type);
+
+    BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
+
     void SetModalPos(int NewPos);
-    int FindModalByFile(int ModalType,char *FileName);
+
+    int  FindModalByFile(int ModalType,char *FileName);
+
     void ShowBackground();
+
     void SetNextWindow(int Viewer,char *Name,long Pos);
-    /* $ 28.06.2000 tran
-       add class memer ActiveModal */
-    Modal *ActiveModal;
-    /* tran $ */
+
+    // new methods
+    int ProcessKey(int key);
+    int ProcessMouse(MOUSE_EVENT_RECORD *me);
+
+    void PluginsMenu(); // вызываем меню по F11
+    void CheckExited();
+
+    Modal *ActiveModal;   // активный модал, в том числе и диалог
+                          // может не быть в списке
+    Modal *CurrentModal;  // текущий модал,
+                          // присутсвует в списке, но может быть не активным
+    int    EnableSwitch;  // разрешено ли переключение из модала
 };
 
 #endif  // __MANAGER_HPP__

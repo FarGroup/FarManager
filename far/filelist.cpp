@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.46 30.04.2001 $ */
+/* Revision: 1.47 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   30.04.2001 DJ
     + UpdateKeyBar()
   28.04.2001 IS
@@ -553,12 +555,12 @@ int FileList::ProcessKey(int Key)
                 if (hNewPlugin!=INVALID_HANDLE_VALUE)
                 {
                   int CurFocus=GetFocus();
-                  Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
+                  Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
                   NewPanel->SetPluginMode(hNewPlugin,"");
                   if (*ShortcutFolder)
                     CtrlObject->Plugins.SetDirectory(hNewPlugin,ShortcutFolder,0);
                   NewPanel->Update(0);
-                  if (CurFocus || !CtrlObject->GetAnotherPanel(NewPanel)->IsVisible())
+                  if (CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible())
                     NewPanel->SetFocus();
                   NewPanel->Show();
                 }
@@ -644,7 +646,7 @@ int FileList::ProcessKey(int Key)
       int NewKey = KEY_CTRLF;
       if (Key & KEY_ALT)
         NewKey|=KEY_ALT;
-      Panel *SrcPanel = CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
+      Panel *SrcPanel = CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
       int OldState = SrcPanel->IsVisible();
       SrcPanel->SetVisible(1);
       SrcPanel->ProcessKey(NewKey);
@@ -811,16 +813,16 @@ int FileList::ProcessKey(int Key)
         switch(Key)
         {
           case KEY_CTRLBRACKET:
-            SrcPanel=CtrlObject->LeftPanel;
+            SrcPanel=CtrlObject->Cp()->LeftPanel;
             break;
           case KEY_CTRLBACKBRACKET:
-            SrcPanel=CtrlObject->RightPanel;
+            SrcPanel=CtrlObject->Cp()->RightPanel;
             break;
           case KEY_CTRLSHIFTBRACKET:
-            SrcPanel=CtrlObject->ActivePanel;
+            SrcPanel=CtrlObject->Cp()->ActivePanel;
             break;
           case KEY_CTRLSHIFTBACKBRACKET:
-            SrcPanel=CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
+            SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
             break;
         }
         if (SrcPanel->GetType()!=FILE_PANEL)
@@ -879,7 +881,7 @@ int FileList::ProcessKey(int Key)
           ApplyCommand();
           Update(UPDATE_KEEP_SELECTION);
           Redraw();
-          Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+          Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
           AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
           AnotherPanel->Redraw();
         }
@@ -893,7 +895,7 @@ int FileList::ProcessKey(int Key)
         Opt.ShowHidden=!Opt.ShowHidden;
         Update(UPDATE_KEEP_SELECTION);
         Redraw();
-        Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
         AnotherPanel->Redraw();
       }
@@ -905,7 +907,7 @@ int FileList::ProcessKey(int Key)
       Update(UPDATE_KEEP_SELECTION);
       Redraw();
       {
-        Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         if (AnotherPanel->GetType()!=FILE_PANEL)
         {
           AnotherPanel->SetCurDir(CurDir,FALSE);
@@ -963,6 +965,7 @@ int FileList::ProcessKey(int Key)
       if ((Key==KEY_SHIFTF4 || FileCount>0) && SetCurPath())
       {
         int Edit=(Key==KEY_F4 || Key==KEY_ALTF4 || Key==KEY_SHIFTF4 || Key==KEY_CTRLSHIFTF4);
+        BOOL Modaling=FALSE; ///
         int UploadFile=TRUE;
         char FileName[NM],ShortFileName[NM],PluginData[NM*2];
 
@@ -1077,11 +1080,13 @@ int FileList::ProcessKey(int Key)
                 {
                   FileEditor ShellEditor(FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                   UploadFile=ShellEditor.IsFileChanged();
+                  Modaling=TRUE;///
                 }
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
                   CtrlObject->ModalManager.AddModal(ShellEditor);
+                  Modaling=FALSE;///
                 }
             if (PluginMode && UploadFile)
             {
@@ -1140,6 +1145,7 @@ int FileList::ProcessKey(int Key)
                 if (PluginMode)
                   ShellViewer->SetTempViewName(FileName);
                 CtrlObject->ModalManager.AddModal(ShellViewer);
+                Modaling=TRUE; ///
               }
           }
         if (PluginMode)
@@ -1148,13 +1154,14 @@ int FileList::ProcessKey(int Key)
                     MSG(MTextSavedToTemp),TempName,MSG(MOk));
           else
             DeleteFileWithFolder(TempName);
-        if (Edit || IsColumnDisplayed(ADATE_COLUMN))
+///        if (Edit || IsColumnDisplayed(ADATE_COLUMN))
+        if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)))
         {
           if (!PluginMode || UploadFile)
           {
             Update(UPDATE_KEEP_SELECTION);
             Redraw();
-            Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+            Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
             if (AnotherPanel->GetMode()==NORMAL_PANEL)
             {
               AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1172,7 +1179,7 @@ int FileList::ProcessKey(int Key)
          а тут мы вызываем перерисовку панелей
          потому что этот viewer, editor могут нам неверно восстановить
          */
-      CtrlObject->Redraw();
+      CtrlObject->Cp()->Redraw();
       /* tran 15.07.2000 $ */
       return(TRUE);
     case KEY_F5:
@@ -1233,7 +1240,7 @@ int FileList::ProcessKey(int Key)
           if (MakeCode==1)
             GoToFile(PointToName(DirName));
           Redraw();
-          Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+          Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
           AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
           AnotherPanel->Redraw();
         }
@@ -1599,7 +1606,7 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
       if (!PopPlugin(TRUE))
         break;
     }
-    CtrlObject->RedrawKeyBar();
+    CtrlObject->Cp()->RedrawKeyBar();
   }
   ChangeDir(NewDir);
 }
@@ -1644,7 +1651,7 @@ BOOL FileList::ChangeDir(char *NewDir)
         GoToPanelFile=TRUE;
       }
       PopPlugin(TRUE);
-      Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       if (AnotherPanel->GetType()==INFO_PANEL)
         AnotherPanel->Redraw();
     }
@@ -1794,14 +1801,14 @@ BOOL FileList::ChangeDir(char *NewDir)
     CtrlObject->CmdLine->SetCurDir(CurDir);
     CtrlObject->CmdLine->Show();
   }
-  AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=FILE_PANEL)
   {
     AnotherPanel->SetCurDir(CurDir,FALSE);
     AnotherPanel->Redraw();
   }
   if (PanelMode==PLUGIN_PANEL)
-    CtrlObject->RedrawKeyBar();
+    CtrlObject->Cp()->RedrawKeyBar();
   return(TRUE);
 }
 
@@ -2021,7 +2028,7 @@ void FileList::SetViewMode(int ViewMode)
 
   if (ViewSettings.FullScreen && !CurFullScreen)
   {
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     int AnotherVisible=AnotherPanel->IsVisible();
     Hide();
     AnotherPanel->Hide();
@@ -2035,12 +2042,12 @@ void FileList::SetViewMode(int ViewMode)
   else
     if (!ViewSettings.FullScreen && CurFullScreen)
     {
-      Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       int AnotherVisible=AnotherPanel->IsVisible();
       Hide();
       AnotherPanel->Hide();
       if (Y2>0)
-        if (this==CtrlObject->LeftPanel)
+        if (this==CtrlObject->Cp()->LeftPanel)
           SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
         else
           SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
@@ -2065,7 +2072,7 @@ void FileList::SetViewMode(int ViewMode)
   {
     SortFileList(TRUE);
     ShowFileList(TRUE);
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     if (AnotherPanel->GetType()==TREE_PANEL)
       AnotherPanel->Redraw();
   }
@@ -2400,7 +2407,7 @@ void FileList::SelectFiles(int Mode)
 
 void FileList::UpdateViewPanel()
 {
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (FileCount>0 && AnotherPanel->IsVisible() &&
       AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
   {
@@ -2447,7 +2454,7 @@ void FileList::UpdateViewPanel()
 
 void FileList::CompareDir()
 {
-  FileList *Another=(FileList *)CtrlObject->GetAnotherPanel(this);
+  FileList *Another=(FileList *)CtrlObject->Cp()->GetAnotherPanel(this);
   int I,J;
   if (Another->GetType()!=FILE_PANEL || !Another->IsVisible())
   {
@@ -2569,7 +2576,7 @@ void FileList::CopyNames()
 
 void FileList::SetTitle()
 {
-  if (GetFocus() || CtrlObject->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
+  if (GetFocus() || CtrlObject->Cp()->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
   {
     char TitleDir[NM];
     if (PanelMode==PLUGIN_PANEL)
@@ -2770,7 +2777,7 @@ void FileList::DescribeFiles()
     FlushDiz();
     Update(UPDATE_KEEP_SELECTION);
     Redraw();
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
     AnotherPanel->Redraw();
   }
@@ -2963,7 +2970,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
     CurFile=0;
     Update(0);
     Redraw();
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     if (AnotherPanel->GetType()==INFO_PANEL)
       AnotherPanel->Redraw();
   }
@@ -2979,7 +2986,7 @@ void FileList::ProcessCopyKeys(int Key)
     int Ask=!Drag || Opt.Confirm.Drag;
     int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
     int AnotherDir=FALSE;
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     if (AnotherPanel->GetType()==FILE_PANEL)
     {
       FileList *AnotherFilePanel=(FileList *)AnotherPanel;
@@ -3111,14 +3118,14 @@ BOOL FileList::UpdateKeyBar()
         FCtrlAltKeys[I]=Info.KeyBar->CtrlAltTitles[I];
   }
 
-  CtrlObject->MainKeyBar.Set(FKeys,sizeof(FKeys)/sizeof(FKeys[0]));
-  CtrlObject->MainKeyBar.SetAlt(FAltKeys,sizeof(FAltKeys)/sizeof(FAltKeys[0]));
-  CtrlObject->MainKeyBar.SetCtrl(FCtrlKeys,sizeof(FCtrlKeys)/sizeof(FCtrlKeys[0]));
-  CtrlObject->MainKeyBar.SetShift(FShiftKeys,sizeof(FShiftKeys)/sizeof(FShiftKeys[0]));
+  CtrlObject->MainKeyBar->Set(FKeys,sizeof(FKeys)/sizeof(FKeys[0]));
+  CtrlObject->MainKeyBar->SetAlt(FAltKeys,sizeof(FAltKeys)/sizeof(FAltKeys[0]));
+  CtrlObject->MainKeyBar->SetCtrl(FCtrlKeys,sizeof(FCtrlKeys)/sizeof(FCtrlKeys[0]));
+  CtrlObject->MainKeyBar->SetShift(FShiftKeys,sizeof(FShiftKeys)/sizeof(FShiftKeys[0]));
 
-  CtrlObject->MainKeyBar.SetCtrlAlt(FCtrlAltKeys,sizeof(FCtrlAltKeys)/sizeof(FCtrlAltKeys[0]));
-  CtrlObject->MainKeyBar.SetCtrlShift(FCtrlShiftKeys,sizeof(FCtrlShiftKeys)/sizeof(FCtrlShiftKeys[0]));
-  CtrlObject->MainKeyBar.SetAltShift(FAltShiftKeys,sizeof(FAltShiftKeys)/sizeof(FAltShiftKeys[0]));
+  CtrlObject->MainKeyBar->SetCtrlAlt(FCtrlAltKeys,sizeof(FCtrlAltKeys)/sizeof(FCtrlAltKeys[0]));
+  CtrlObject->MainKeyBar->SetCtrlShift(FCtrlShiftKeys,sizeof(FCtrlShiftKeys)/sizeof(FCtrlShiftKeys[0]));
+  CtrlObject->MainKeyBar->SetAltShift(FAltShiftKeys,sizeof(FAltShiftKeys)/sizeof(FAltShiftKeys[0]));
 
   return TRUE;
 }

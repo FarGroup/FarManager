@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.15 24.04.2001 $ */
+/* Revision: 1.16 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   24.04.2001 SVS
     ! для symlink`а не нужно дополниетльное подтверждение на удаление
   14.03.2001 SVS
@@ -201,7 +203,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   SetFarTitle(MSG(MDeletingTitle));
 
-  CtrlObject->GetAnotherPanel(SrcPanel)->CloseFile();
+  CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
   if (SrcPanel->GetType()==TREE_PANEL)
     chdir("\\");
@@ -382,7 +384,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   SetConsoleTitle(OldTitle);
 
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(SrcPanel);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
   int AnotherType=AnotherPanel->GetType();
   if (AnotherType!=QVIEW_PANEL)
   {

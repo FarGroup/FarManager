@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.13 30.04.2001 $ */
+/* Revision: 1.14 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   30.04.2001 DJ
     + UpdateKeyBar()
     - еще немного всяких фиксов (F1, редактирование описаний)
@@ -132,7 +134,7 @@ void InfoList::DisplayObject()
     PrintInfo(UserName);
   }
 
-  AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   AnotherPanel->GetCurDir(CurDir);
   if (*CurDir==0)
     GetCurrentDirectory(sizeof(CurDir),CurDir);
@@ -281,7 +283,7 @@ int InfoList::ProcessKey(int Key)
     char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[8192];
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
     {
-      Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       if (AnotherPanel->GetType()==FILE_PANEL && *PluginModule==0)
       {
         AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
@@ -305,14 +307,14 @@ int InfoList::ProcessKey(int Key)
     case KEY_NUMPAD5:
       if (*DizFileName)
       {
-        CtrlObject->GetAnotherPanel(this)->GetCurDir(CurDir);
+        CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
         chdir(CurDir);
         FileViewer *ShellViewer=new FileViewer(DizFileName,TRUE);
         CtrlObject->ModalManager.AddModal(ShellViewer);
       }
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
-      CtrlObject->Redraw();
+      CtrlObject->Cp()->Redraw();
       /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_F4:
@@ -322,7 +324,7 @@ int InfoList::ProcessKey(int Key)
          убираем лишнюю перерисовку панелей
       */
       {
-        Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         AnotherPanel->GetCurDir(CurDir);
         chdir(CurDir);
         if (*DizFileName)
@@ -345,12 +347,13 @@ int InfoList::ProcessKey(int Key)
           }
         }
         AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+//        AnotherPanel->Redraw();
         Update(0);
       }
       /* DJ $ */
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
-      CtrlObject->Redraw();
+      CtrlObject->Cp()->Redraw();
       /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_CTRLR:
@@ -366,7 +369,7 @@ int InfoList::ProcessKey(int Key)
     if (Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
     {
       DynamicUpdateKeyBar();
-      CtrlObject->MainKeyBar.Redraw();
+      CtrlObject->MainKeyBar->Redraw();
     }
     return(ret);
   }
@@ -453,7 +456,7 @@ void InfoList::ShowDirDescription()
 {
   char DizDir[NM];
   int Length;
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   DrawSeparator(Y1+14);
   if (AnotherPanel->GetMode()!=FILE_PANEL)
   {
@@ -498,7 +501,7 @@ void InfoList::ShowPluginDescription()
 {
   Panel *AnotherPanel;
   static char VertcalLine[2]={0xBA,0x00};
-  AnotherPanel=CtrlObject->GetAnotherPanel(this);
+  AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
     return;
   /* $ 30.04.2001 DJ
@@ -624,14 +627,14 @@ void InfoList::SetMacroMode(int Restore)
 
 BOOL InfoList::UpdateKeyBar()
 {
-  KeyBar &KB = CtrlObject->MainKeyBar;
-  KB.SetAllGroup (KBL_MAIN, MInfoF1, 12);
-  KB.SetAllGroup (KBL_SHIFT, MInfoShiftF1, 12);
-  KB.SetAllGroup (KBL_ALT, MInfoAltF1, 12);
-  KB.SetAllGroup (KBL_CTRL, MInfoCtrlF1, 12);
-  KB.ClearGroup (KBL_CTRLSHIFT);
-  KB.ClearGroup (KBL_CTRLALT);
-  KB.ClearGroup (KBL_ALTSHIFT);
+  KeyBar *KB = CtrlObject->MainKeyBar;
+  KB->SetAllGroup (KBL_MAIN, MInfoF1, 12);
+  KB->SetAllGroup (KBL_SHIFT, MInfoShiftF1, 12);
+  KB->SetAllGroup (KBL_ALT, MInfoAltF1, 12);
+  KB->SetAllGroup (KBL_CTRL, MInfoCtrlF1, 12);
+  KB->ClearGroup (KBL_CTRLSHIFT);
+  KB->ClearGroup (KBL_CTRLALT);
+  KB->ClearGroup (KBL_ALTSHIFT);
   DynamicUpdateKeyBar();
 
   return TRUE;
@@ -639,34 +642,33 @@ BOOL InfoList::UpdateKeyBar()
 
 void InfoList::DynamicUpdateKeyBar()
 {
-  KeyBar &KB = CtrlObject->MainKeyBar;
+  KeyBar *KB = CtrlObject->MainKeyBar;
   if (DizView)
   {
     if (DizView->GetAnsiMode())
-      KB.Change (MSG(MViewF8DOS), 7);
+      KB->Change (MSG(MViewF8DOS), 7);
     else
-      KB.Change (MSG(MInfoF8), 7);
+      KB->Change (MSG(MInfoF8), 7);
 
     if (!DizView->GetWrapMode())
     {
       if (DizView->GetWrapType())
-        KB.Change (MSG(MViewShiftF2), 2-1);
+        KB->Change (MSG(MViewShiftF2), 2-1);
       else
-        KB.Change (MSG(MViewF2), 2-1);
+        KB->Change (MSG(MViewF2), 2-1);
     }
     else
-      KB.Change (MSG(MViewF2Unwrap), 2-1);
+      KB->Change (MSG(MViewF2Unwrap), 2-1);
 
     if (DizView->GetWrapType())
-      KB.Change (KBL_SHIFT, MSG(MViewF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewF2), 2-1);
     else
-      KB.Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
   }
   else {
-    KB.Change (MSG(MF2), 2-1);
-    KB.Change (KBL_SHIFT, "", 2-1);
-    KB.Change ("", 8-1);
+    KB->Change (MSG(MF2), 2-1);
+    KB->Change (KBL_SHIFT, "", 2-1);
+    KB->Change ("", 8-1);
   }
 }
-
 /* DJ $ */

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.15 30.04.2001 $ */
+/* Revision: 1.16 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   30.04.2001 DJ
     + UpdateKeyBar()
     - правильный help topic
@@ -98,7 +100,7 @@ void QuickView::DisplayObject()
 {
   char Title[NM];
   if (QView==NULL && !ProcessingPluginCommand)
-    CtrlObject->GetAnotherPanel(this)->UpdateViewPanel();
+    CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
   if (QView!=NULL)
     QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
@@ -223,7 +225,7 @@ int QuickView::ProcessKey(int Key)
     char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[8192];
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
     {
-      Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       if (AnotherPanel->GetType()==FILE_PANEL && *PluginModule==0)
       {
         AnotherPanel->SetCurDir(ShortcutFolder,TRUE);
@@ -242,7 +244,7 @@ int QuickView::ProcessKey(int Key)
   /* DJ $ */
   if (Key==KEY_F3 || Key==KEY_NUMPAD5)
   {
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     if (AnotherPanel->GetType()==FILE_PANEL)
       AnotherPanel->ProcessKey(KEY_F3);
     return(TRUE);
@@ -251,7 +253,7 @@ int QuickView::ProcessKey(int Key)
      Gray+, Gray- передвигают курсор на другой панели*/
   if (Key==KEY_ADD || Key==KEY_SUBTRACT)
   {
-    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     if (AnotherPanel->GetType()==FILE_PANEL)
       AnotherPanel->ProcessKey(Key==KEY_ADD?KEY_DOWN:KEY_UP);
     return(TRUE);
@@ -267,7 +269,7 @@ int QuickView::ProcessKey(int Key)
     if (Key == KEY_F4 || Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
     {
       DynamicUpdateKeyBar();
-      CtrlObject->MainKeyBar.Redraw();
+      CtrlObject->MainKeyBar->Redraw();
     }
     return ret;
   }
@@ -296,7 +298,7 @@ void QuickView::Update(int Mode)
   if (!EnableUpdate)
     return;
   if (*CurFileName==0)
-    CtrlObject->GetAnotherPanel(this)->UpdateViewPanel();
+    CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
   Redraw();
 }
 #if defined(__BORLANDC__)
@@ -393,10 +395,10 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   /* $ 30.04.2001 DJ
      обновляем кейбар
   */
-  if (CtrlObject->ActivePanel == this)
+  if (CtrlObject->Cp()->ActivePanel == this)
   {
     DynamicUpdateKeyBar();
-    CtrlObject->MainKeyBar.Redraw();
+    CtrlObject->MainKeyBar->Redraw();
   }
   /* DJ $ */
 }
@@ -516,14 +518,14 @@ void QuickView::SetMacroMode(int Restore)
 
 BOOL QuickView::UpdateKeyBar()
 {
-  KeyBar &KB = CtrlObject->MainKeyBar;
-  KB.SetAllGroup (KBL_MAIN, MQViewF1, 12);
-  KB.SetAllGroup (KBL_SHIFT, MQViewShiftF1, 12);
-  KB.SetAllGroup (KBL_ALT, MQViewAltF1, 12);
-  KB.SetAllGroup (KBL_CTRL, MQViewCtrlF1, 12);
-  KB.ClearGroup (KBL_CTRLSHIFT);
-  KB.ClearGroup (KBL_CTRLALT);
-  KB.ClearGroup (KBL_ALTSHIFT);
+  KeyBar *KB = CtrlObject->MainKeyBar;
+  KB->SetAllGroup (KBL_MAIN, MQViewF1, 12);
+  KB->SetAllGroup (KBL_SHIFT, MQViewShiftF1, 12);
+  KB->SetAllGroup (KBL_ALT, MQViewAltF1, 12);
+  KB->SetAllGroup (KBL_CTRL, MQViewCtrlF1, 12);
+  KB->ClearGroup (KBL_CTRLSHIFT);
+  KB->ClearGroup (KBL_CTRLALT);
+  KB->ClearGroup (KBL_ALTSHIFT);
 
   DynamicUpdateKeyBar();
 
@@ -532,39 +534,39 @@ BOOL QuickView::UpdateKeyBar()
 
 void QuickView::DynamicUpdateKeyBar()
 {
-  KeyBar &KB = CtrlObject->MainKeyBar;
+  KeyBar *KB = CtrlObject->MainKeyBar;
   if (Directory || !QView)
   {
-    KB.Change (MSG(MF2), 2-1);
-    KB.Change ("", 4-1);
-    KB.Change ("", 8-1);
-    KB.Change (KBL_SHIFT, "", 2-1);
+    KB->Change (MSG(MF2), 2-1);
+    KB->Change ("", 4-1);
+    KB->Change ("", 8-1);
+    KB->Change (KBL_SHIFT, "", 2-1);
   }
   else {
     if (QView->GetHexMode())
-      KB.Change (MSG(MViewF4Text), 4-1);
+      KB->Change (MSG(MViewF4Text), 4-1);
     else
-      KB.Change (MSG(MQViewF4), 4-1);
+      KB->Change (MSG(MQViewF4), 4-1);
 
     if (QView->GetAnsiMode())
-      KB.Change (MSG(MViewF8DOS), 8-1);
+      KB->Change (MSG(MViewF8DOS), 8-1);
     else
-      KB.Change (MSG(MQViewF8), 8-1);
+      KB->Change (MSG(MQViewF8), 8-1);
 
     if (!QView->GetWrapMode())
     {
       if (QView->GetWrapType())
-        KB.Change (MSG(MViewShiftF2), 2-1);
+        KB->Change (MSG(MViewShiftF2), 2-1);
       else
-        KB.Change (MSG(MViewF2), 2-1);
+        KB->Change (MSG(MViewF2), 2-1);
     }
     else
-      KB.Change (MSG(MViewF2Unwrap), 2-1);
+      KB->Change (MSG(MViewF2Unwrap), 2-1);
 
     if (QView->GetWrapType())
-      KB.Change (KBL_SHIFT, MSG(MViewF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewF2), 2-1);
     else
-      KB.Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
+      KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
   }
 }
 

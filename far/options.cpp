@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.05 30.03.2001 $ */
+/* Revision: 1.06 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   30.03.2001 SVS
     ! В OptionsDisabled() задействуем Opt.Policies.DisabledOptions, которая
       централизовано и успешно считывается в config.cpp
@@ -171,11 +173,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   static int LastHItem=0,LastVItem=0;
   int HItem,VItem;
 
-  switch(CtrlObject->LeftPanel->GetType())
+  switch(CtrlObject->Cp()->LeftPanel->GetType())
   {
     case FILE_PANEL:
       {
-        int MenuLine=CtrlObject->LeftPanel->GetViewMode()-VIEW_0;
+        int MenuLine=CtrlObject->Cp()->LeftPanel->GetViewMode()-VIEW_0;
         if (MenuLine<10)
           if (MenuLine==0)
             LeftMenu[9].Checked=1;
@@ -194,13 +196,13 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       break;
   }
 
-  LeftMenu[16].Checked=!CtrlObject->LeftPanel->GetShowShortNamesMode();
+  LeftMenu[16].Checked=!CtrlObject->Cp()->LeftPanel->GetShowShortNamesMode();
 
-  switch(CtrlObject->RightPanel->GetType())
+  switch(CtrlObject->Cp()->RightPanel->GetType())
   {
     case FILE_PANEL:
       {
-        int MenuLine=CtrlObject->RightPanel->GetViewMode()-VIEW_0;
+        int MenuLine=CtrlObject->Cp()->RightPanel->GetViewMode()-VIEW_0;
         if (MenuLine<10)
           if (MenuLine==0)
             RightMenu[9].Checked=1;
@@ -220,7 +222,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   }
 
 
-  RightMenu[16].Checked=!CtrlObject->RightPanel->GetShowShortNamesMode();
+  RightMenu[16].Checked=!CtrlObject->Cp()->RightPanel->GetShowShortNamesMode();
 
   {
     HMenu HOptMenu(MainMenu,sizeof(MainMenu)/sizeof(MainMenu[0]));
@@ -238,8 +240,8 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       HOptMenu.ProcessKey(KEY_DOWN);
     }
     else
-      if (CtrlObject->ActivePanel==CtrlObject->RightPanel &&
-          CtrlObject->ActivePanel->IsVisible())
+      if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel &&
+          CtrlObject->Cp()->ActivePanel->IsVisible())
       {
         MainMenu[0].Selected=0;
         MainMenu[4].Selected=1;
@@ -259,36 +261,36 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     case 0:
       if (VItem>=0 && VItem<=9)
       {
-        CtrlObject->ChangePanelToFilled(CtrlObject->LeftPanel,FILE_PANEL);
+        CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,FILE_PANEL);
         int NewViewMode=VItem==9 ? VIEW_0:VIEW_1+VItem;
-        CtrlObject->LeftPanel->SetViewMode(NewViewMode);
+        CtrlObject->Cp()->LeftPanel->SetViewMode(NewViewMode);
       }
       else
         switch(VItem)
         {
           case 11:
-            CtrlObject->ChangePanelToFilled(CtrlObject->LeftPanel,INFO_PANEL);
+            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,INFO_PANEL);
             break;
           case 12:
-            CtrlObject->ChangePanelToFilled(CtrlObject->LeftPanel,TREE_PANEL);
+            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,TREE_PANEL);
             break;
           case 13:
-            CtrlObject->ChangePanelToFilled(CtrlObject->LeftPanel,QVIEW_PANEL);
+            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->LeftPanel,QVIEW_PANEL);
             break;
           case 15:
-            CtrlObject->LeftPanel->ProcessKey(KEY_CTRLF12);
+            CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLF12);
             break;
           case 16:
-            CtrlObject->LeftPanel->ProcessKey(KEY_CTRLN);
+            CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLN);
             break;
           case 17:
             CtrlObject->ProcessKey(KEY_CTRLF1);
             break;
           case 18:
-            CtrlObject->LeftPanel->ProcessKey(KEY_CTRLR);
+            CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLR);
             break;
           case 19:
-            CtrlObject->LeftPanel->ChangeDisk();
+            CtrlObject->Cp()->LeftPanel->ChangeDisk();
             break;
         }
       break;
@@ -314,34 +316,34 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           CtrlObject->ProcessKey(KEY_F8);
           break;
         case 7:
-          CtrlObject->ActivePanel->ProcessKey(KEY_SHIFTF1);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
           break;
         case 8:
-          CtrlObject->ActivePanel->ProcessKey(KEY_SHIFTF2);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
           break;
         case 9:
-          CtrlObject->ActivePanel->ProcessKey(KEY_SHIFTF3);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
           break;
         case 11:
-          CtrlObject->ActivePanel->ProcessKey(KEY_CTRLA);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
           break;
         case 12:
-          CtrlObject->ActivePanel->ProcessKey(KEY_CTRLG);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
           break;
         case 13:
-          CtrlObject->ActivePanel->ProcessKey(KEY_CTRLZ);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
           break;
         case 15:
-          CtrlObject->ActivePanel->ProcessKey(KEY_ADD);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
           break;
         case 16:
-          CtrlObject->ActivePanel->ProcessKey(KEY_SUBTRACT);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
           break;
         case 17:
-          CtrlObject->ActivePanel->ProcessKey(KEY_MULTIPLY);
+          CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
           break;
         case 18:
-          CtrlObject->ActivePanel->RestoreSelection();
+          CtrlObject->Cp()->ActivePanel->RestoreSelection();
           break;
       }
       break;
@@ -373,7 +375,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           CtrlObject->ProcessKey(KEY_CTRLO);
           break;
         case 9:
-          CtrlObject->ActivePanel->CompareDir();
+          CtrlObject->Cp()->ActivePanel->CompareDir();
           break;
         case 11:
           ProcessUserMenu(1);
@@ -388,7 +390,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           CtrlObject->GrpSort.EditGroups();
           break;
         case 15:
-          CtrlObject->ActivePanel->EditFilter();
+          CtrlObject->Cp()->ActivePanel->EditFilter();
           break;
         case 17:
           CtrlObject->ProcessKey(KEY_F11);
@@ -434,8 +436,8 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               delete HelpMenu;
               LangMenu->Hide();
               CtrlObject->Plugins.ReloadLanguage();
-              CtrlObject->RedrawKeyBar();
-              CtrlObject->SetScreenPositions();
+              CtrlObject->Cp()->RedrawKeyBar();
+              CtrlObject->Cp()->SetScreenPositions();
             }
             delete LangMenu;
           }
@@ -475,36 +477,36 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     case 4:
       if (VItem>=0 && VItem<=9)
       {
-        CtrlObject->ChangePanelToFilled(CtrlObject->RightPanel,FILE_PANEL);
+        CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,FILE_PANEL);
         int NewViewMode=VItem==9 ? VIEW_0:VIEW_1+VItem;
-        CtrlObject->RightPanel->SetViewMode(NewViewMode);
+        CtrlObject->Cp()->RightPanel->SetViewMode(NewViewMode);
       }
       else
         switch(VItem)
         {
           case 11:
-            CtrlObject->ChangePanelToFilled(CtrlObject->RightPanel,INFO_PANEL);
+            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,INFO_PANEL);
             break;
           case 12:
-            CtrlObject->ChangePanelToFilled(CtrlObject->RightPanel,TREE_PANEL);
+            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,TREE_PANEL);
             break;
           case 13:
-            CtrlObject->ChangePanelToFilled(CtrlObject->RightPanel,QVIEW_PANEL);
+            CtrlObject->Cp()->ChangePanelToFilled(CtrlObject->Cp()->RightPanel,QVIEW_PANEL);
             break;
           case 15:
-            CtrlObject->RightPanel->ProcessKey(KEY_CTRLF12);
+            CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLF12);
             break;
           case 16:
-            CtrlObject->RightPanel->ProcessKey(KEY_CTRLN);
+            CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLN);
             break;
           case 17:
             CtrlObject->ProcessKey(KEY_CTRLF2);
             break;
           case 18:
-            CtrlObject->RightPanel->ProcessKey(KEY_CTRLR);
+            CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLR);
             break;
           case 19:
-            CtrlObject->RightPanel->ChangeDisk();
+            CtrlObject->Cp()->RightPanel->ChangeDisk();
             break;
         }
       break;

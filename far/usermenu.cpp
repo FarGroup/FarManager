@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.17 25.04.2001 $ */
+/* Revision: 1.18 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   25.04.2001 DJ
     * новая константа EC_COMMAND_EXECUTED; не обновляем панели, если
       меню было закрыто без выбора команды
@@ -286,8 +288,8 @@ void ProcessUserMenu(int EditMenu)
   */
   if (ExitCode == EC_COMMAND_SELECTED || MenuModified)
   {
-    CtrlObject->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-    CtrlObject->ActivePanel->Redraw();
+    CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->ActivePanel->Redraw();
   }
   /* DJ $ */
 
@@ -340,8 +342,8 @@ void ProcessUserMenu(int EditMenu)
       fclose(MenuFile);
       if (Length==0)
         remove(LocalMenuFileName);
-      CtrlObject->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-      CtrlObject->ActivePanel->Redraw();
+      CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
+      CtrlObject->Cp()->ActivePanel->Redraw();
     }
   }
   if (!MainMenu)
@@ -366,7 +368,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       FuncPos[I]=-1;
 
     char Name[NM],ShortName[NM];
-    CtrlObject->ActivePanel->GetCurName(Name,ShortName);
+    CtrlObject->Cp()->ActivePanel->GetCurName(Name,ShortName);
 
     {
       /* $ 24.07.2000 VVM
@@ -656,12 +658,12 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         PreserveLongName PreserveName(ShortName,PreserveLFN);
         if (!PanelsHidden)
         {
-          LeftVisible=CtrlObject->LeftPanel->IsVisible();
-          RightVisible=CtrlObject->RightPanel->IsVisible();
-          CtrlObject->LeftPanel->Hide();
-          CtrlObject->RightPanel->Hide();
-          CtrlObject->LeftPanel->SetUpdateMode(FALSE);
-          CtrlObject->RightPanel->SetUpdateMode(FALSE);
+          LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
+          RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
+          CtrlObject->Cp()->LeftPanel->Hide();
+          CtrlObject->Cp()->RightPanel->Hide();
+          CtrlObject->Cp()->LeftPanel->SetUpdateMode(FALSE);
+          CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
           PanelsHidden=TRUE;
         }
         if (*Command)
@@ -679,14 +681,14 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     }
     if (PanelsHidden)
     {
-      CtrlObject->LeftPanel->SetUpdateMode(TRUE);
-      CtrlObject->RightPanel->SetUpdateMode(TRUE);
-      CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-      CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
+      CtrlObject->Cp()->LeftPanel->SetUpdateMode(TRUE);
+      CtrlObject->Cp()->RightPanel->SetUpdateMode(TRUE);
+      CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+      CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
       if (RightVisible)
-        CtrlObject->RightPanel->Show();
+        CtrlObject->Cp()->RightPanel->Show();
       if (LeftVisible)
-        CtrlObject->LeftPanel->Show();
+        CtrlObject->Cp()->LeftPanel->Show();
     }
 /* $ 14.07.2000 VVM
    ! Закрыть меню

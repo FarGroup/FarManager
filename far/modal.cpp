@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   11.07.2000 tran
     - trap if no lang files found
   29.06.2000 tran
@@ -136,6 +138,13 @@ void Modal::ShowHelp()
 void Modal::SetKeyBar(KeyBar *ModalKeyBar)
 {
   Modal::ModalKeyBar=ModalKeyBar;
+}
+
+void Modal::UpdateKeyBar()
+{
+    SysLog("Modal::UpdateKeyBar(), ModalKeyBar=0x%p",ModalKeyBar);
+    if ( ModalKeyBar!=NULL && KeyBarVisible )
+        ModalKeyBar->RedrawIfChanged();
 }
 
 /* $ 29.06.2000 tran

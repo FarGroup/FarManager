@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.07 20.03.2001 $ */
+/* Revision: 1.08 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   20.03.2001 SVS
     ! подсократим - весь код по форматированию размера файла из
       FileList::ShowList() вынесен в отдельную функцию - FileSizeToStr()
@@ -50,6 +52,7 @@ static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
 void FileList::DisplayObject()
 {
   Height=Y2-Y1-4+!Opt.ShowColumnTitles+(Opt.ShowPanelStatus ? 0:2);
+  SysLog("FileList::DisplayObject()");///
   if (UpdateRequired)
   {
     UpdateRequired=FALSE;
@@ -276,7 +279,7 @@ void FileList::ShowFileList(int Fast)
     UpdateViewPanel();
   }
   if (PanelMode==PLUGIN_PANEL)
-    CtrlObject->RedrawKeyBar();
+    CtrlObject->Cp()->RedrawKeyBar();
 }
 
 

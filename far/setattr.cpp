@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.24 12.04.2001 $ */
+/* Revision: 1.25 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   12.04.2001 SVS
     ! Для FILE_ATTRIBUTE_REPARSE_POINT всегда показываем "Link to:",
       но, если данные не доступны - так и говорим - "НЕТУ!"
@@ -781,7 +783,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         /* IS $ */
       }
 
-      CtrlObject->GetAnotherPanel(SrcPanel)->CloseFile();
+      CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
       SetAttr=0;  ClearAttr=0;
 
@@ -944,7 +946,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
   SrcPanel->ClearSelection();
   SrcPanel->Redraw();
-  Panel *AnotherPanel=CtrlObject->GetAnotherPanel(SrcPanel);
+  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   AnotherPanel->Redraw();
   return 1;

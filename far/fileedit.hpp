@@ -3,22 +3,24 @@
 /*
 fileedit.hpp
 
-ђҐ¤ ЄвЁа®ў ­ЁҐ д ©«  - ­ ¤бва®©Є  ­ ¤ editor.cpp
+Редактирование файла - надстройка над editor.cpp
 
 */
 
-/* Revision: 1.02 07.08.2000 $ */
+/* Revision: 1.03 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   07.08.2000 SVS
-    + ”г­ЄжЁп Ё­ЁжЁ «Ё§ жЁЁ KeyBar Labels - InitKeyBar()
+    + Функция инициализации KeyBar Labels - InitKeyBar()
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
   25.06.2000 SVS
-    ! Џ®¤Ј®в®ўЄ  Master Copy
-    ! ‚л¤Ґ«Ґ­ЁҐ ў Є зҐбвўҐ б ¬®бв®пвҐ«м­®Ј® ¬®¤г«п
+    ! Подготовка Master Copy
+    ! Выделение в каµестве самостоятельного модуля
 */
 
 class FileEditor:public Modal
@@ -46,7 +48,7 @@ class FileEditor:public Modal
     void Init(char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData);
     /* $ 07.08.2000 SVS
-       ”г­ЄжЁп Ё­ЁжЁ «Ё§ жЁЁ KeyBar Labels
+       Функция инициализации KeyBar Labels
     */
     void InitKeyBar(void);
     /* SVS $ */
@@ -61,6 +63,9 @@ class FileEditor:public Modal
        NT Console resize - resize editor */
     virtual void SetScreenPosition();
     /* tran $ */
+    virtual char *GetTypeName(){return "[FileEdit]";}; ///
+
+    virtual void OnChangeFocus(int i); ///
 };
 
 #endif	// __FILEEDITOR_HPP__

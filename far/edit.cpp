@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.38 13.04.2001 $ */
+/* Revision: 1.39 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   13.04.2001 OT
     - Исправляет ситуацию (не до конца) с дерганьем строк в редакторе
   13.04.2001 SVS
@@ -693,7 +695,7 @@ int Edit::ProcessKey(int Key)
     case KEY_SHIFTENTER:
       {
         char FileName[NM],ShortFileName[NM];
-        if (CtrlObject->ActivePanel!=NULL && CtrlObject->ActivePanel->GetCurName(FileName,ShortFileName))
+        if (CtrlObject->Cp()->ActivePanel!=NULL && CtrlObject->Cp()->ActivePanel->GetCurName(FileName,ShortFileName))
         {
           /* $ 03.07.2000 tran
              - bug#10, если был выделен текст, то удаляем его */
@@ -725,16 +727,16 @@ int Edit::ProcessKey(int Key)
         switch(Key)
         {
           case KEY_CTRLBRACKET:
-            SrcPanel=CtrlObject->LeftPanel;
+            SrcPanel=CtrlObject->Cp()->LeftPanel;
             break;
           case KEY_CTRLBACKBRACKET:
-            SrcPanel=CtrlObject->RightPanel;
+            SrcPanel=CtrlObject->Cp()->RightPanel;
             break;
           case KEY_CTRLSHIFTBRACKET:
-            SrcPanel=CtrlObject->ActivePanel;
+            SrcPanel=CtrlObject->Cp()->ActivePanel;
             break;
           case KEY_CTRLSHIFTBACKBRACKET:
-            SrcPanel=CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
+            SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
             break;
         }
         if (SrcPanel!=NULL)

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.30 28.04.2001 $ */
+/* Revision: 1.31 29.04.2001 $ */
 
 /*
 Modify:
+  29.04.2001 ОТ
+    + Внедрение NWZ от Третьякова
   28.04.2001 SVS
     + EXCEPT_OPENPLUGIN_FINDLIST, EXCEPT_FARDIALOG
   26.04.2001 DJ
@@ -126,7 +128,16 @@ enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2};
 #undef SEARCH_ALL
 enum {SEARCH_ALL=0,SEARCH_ROOT,SEARCH_FROM_CURRENT,SEARCH_CURRENT_ONLY,
       SEARCH_SELECTED};
-enum {MODALTYPE_VIEWER,MODALTYPE_EDITOR};
+///enum {MODALTYPE_VIEWER,MODALTYPE_EDITOR};
+enum { MODALTYPE_VIRTUAL,  // тючтЁр∙рхЄё  т Modal
+       MODALTYPE_PANELS,
+       MODALTYPE_VIEWER,
+       MODALTYPE_EDITOR,
+       MODALTYPE_DIALOG,
+       MODALTYPE_VMENU,
+       MODALTYPE_USER
+       };
+
 
 enum {DIZ_NOT_UPDATE,DIZ_UPDATE_IF_DISPLAYED,DIZ_UPDATE_ALWAYS};
 
@@ -324,5 +335,19 @@ enum FlagsNameAndPassword{
   + 2000 посылает консольному окну событие с dwEventFlags == MOUSE_WHEELED */
 #define MOUSE_WHEELED 0x0004
 /* VVM $ */
+
+///
+/* 01.08.2000 tran
+   ExitCode values */
+#define XC_WORKING        0xffff
+#define XC_QUIT           0
+#define XC_SWITCHTOEDITOR 1
+#define XC_SWITCHTOVIEWER 2
+
+/* $ 11.08.2000 tran
+   ьхыюў№ фы  ыєў°хщ ўшЄрсхы№эюёЄш */
+#define ENABLE_SWITCH TRUE
+#define DISABLE_SWITCH FALSE
+///
 
 #endif // __FARCONST_HPP__
