@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.109 26.10.2003 $ */
+/* Revision: 1.110 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SKV
+    - shift-end в edit-е с выставленной максимальной
+      длинной при максимальной заполненности
   26.10.2003 KM
     ! Уточнение копирования маскированной строки в клипборд.
     ! Скорректируем вставку из клипборда с учётом маски
@@ -1213,8 +1216,13 @@ int Edit::ProcessKey(int Key)
       else
         Len=StrSize;
 
+      int LastCurPos=CurPos;
       while (CurPos<Len/*StrSize*/)
+      {
         RecurseProcessKey(KEY_SHIFTRIGHT);
+        if(LastCurPos==CurPos)break;
+        LastCurPos=CurPos;
+      }
       /* KM $ */
 
       DisableEditOut(FALSE);
