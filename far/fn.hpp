@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.136 03.03.2002 $ */
+/* Revision: 1.137 05.03.2002 $ */
 
 /*
 Modify:
+  05.03.2002 DJ
+    ! SubstFileName() получает размер буфера
   03.03.2002 SVS
     ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   03.03.2002 SVS
@@ -480,7 +482,7 @@ char *InsertQuote(char *Str);
 int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish);
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish);
-int SubstFileName(char *Str,char *Name,char *ShortName,
+int SubstFileName(char *Str,int StrSize, char *Name,char *ShortName,
                   char *ListName=NULL,char *ShortListName=NULL,
                   int IgnoreInput=FALSE,char *CmdLineDir=NULL);
 BOOL ExtractIfExistCommand(char *CommandText);

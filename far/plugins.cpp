@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.111 21.02.2002 $ */
+/* Revision: 1.112 05.03.2002 $ */
 
 /*
 Modify:
+  05.03.2002 DJ
+    ! вылет из-за переполнения буфера в PluginsSet::ProcessCommandLine()
   21.02.2002 SVS
     ! Вызываем функции плагинов только в случае если сейчас не идет
       обработка исключений
@@ -2771,12 +2773,16 @@ int PluginsSet::ProcessCommandLine(char *Command)
     return(FALSE);
   CtrlObject->CmdLine->SetString("");
 
-  char PluginCommand[512];
+  /* $ 05.03.2002 DJ
+     сделаем буфер побольше, и не забудем проверить
+  */
+  char PluginCommand[4096];
   /* $ 07.09.2000 VVM 1.18
     + Если флаг PF_FULLCMDLINE - отдавать с префиксом
   */
-  strcpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1));
+  strncpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1), sizeof (PluginCommand)-1);
   /* VVM $ */
+  /* DJ $ */
   RemoveTrailingSpaces(PluginCommand);
   HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
   if (hPlugin!=INVALID_HANDLE_VALUE)

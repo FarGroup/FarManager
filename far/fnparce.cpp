@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.09 01.03.2002 $ */
+/* Revision: 1.10 05.03.2002 $ */
 
 /*
 Modify:
+  05.03.2002 DJ
+    - борьба с переполнением буфера
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   26.01.2002 VVM
@@ -57,6 +59,7 @@ static void ReplaceVariables(char *Str);
   Входные ListName и ShortListName обЯзаны иметь размер NM*2 !!!
 */
 int SubstFileName(char *Str,            // результирующая строка
+                  int   StrSize,        // /* $ 05.03.2002 DJ */ размер буфера результирующей строки /* DJ $ */
                   char *Name,           // Длинное имя
                   char *ShortName,      // Короткое имя
                   char *ListName,       // Длинное имя файла-списка
@@ -147,7 +150,7 @@ _SVS(SysLog("PassivePanel=FALSE '%s'",CurStr));
       // !! символ '!'
       if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
       {
-        strcat(TmpStr,"!");
+        strncat(TmpStr,"!",sizeof (TmpStr)-1);
         CurStr+=2;
 _SVS(SysLog("!! TmpStr=[%s]",TmpStr));
         continue;
@@ -156,7 +159,7 @@ _SVS(SysLog("!! TmpStr=[%s]",TmpStr));
       // !.!      Длинное имя файла с расширением
       if (strncmp(CurStr,"!.!",3)==0 && CurStr[3] != '?')
       {
-        strcat(TmpStr,PassivePanel ? AnotherName:Name);
+        strncat(TmpStr,PassivePanel ? AnotherName:Name, sizeof (TmpStr)-1);
         CurStr+=3;
 _SVS(SysLog("!.! TmpStr=[%s]",TmpStr));
         continue;
@@ -165,7 +168,7 @@ _SVS(SysLog("!.! TmpStr=[%s]",TmpStr));
       // !~       Короткое имя файла без расширения
       if (strncmp(CurStr,"!~",2)==0)
       {
-        strcat(TmpStr,PassivePanel ? AnotherShortNameOnly:ShortNameOnly);
+        strncat(TmpStr,PassivePanel ? AnotherShortNameOnly:ShortNameOnly, sizeof (TmpStr)-1);
         CurStr+=2;
 _SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
         continue;
@@ -186,7 +189,7 @@ _SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
           CurStr+=2;
         }
         if(Ext && *Ext)
-          strcat(TmpStr,++Ext);
+          strncat(TmpStr,++Ext, sizeof (TmpStr)-1);
 _SVS(SysLog("!` TmpStr=[%s]",TmpStr));
         continue;
       }
@@ -206,10 +209,10 @@ _SVS(SysLog("!` TmpStr=[%s]",TmpStr));
         }
         else
           *CurDir=0;
-        strcat(CurDir,FileName);
+        strncat(CurDir,FileName,sizeof (CurDir)-1);
         CurStr+=5;
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strcat(TmpStr,CurDir);
+        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
 _SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
         continue;
       }
@@ -244,8 +247,14 @@ _SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
           if (First)
             First = FALSE;
           else
-            strcat(TmpStr," ");
-          strcat(TmpStr,FileNameL);
+            strncat(TmpStr," ", sizeof (TmpStr)-1);
+          strncat(TmpStr,FileNameL, sizeof (TmpStr)-1);
+		  /* $ 05.03.2002 DJ
+		     если в буфер больше не влезет - выйдем из цикла
+		  */
+		  if (strlen (TmpStr) >= sizeof (TmpStr)-1)
+            break;
+		  /* DJ $ */
         }
         CurStr+=CntSkip;
 _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
@@ -269,18 +278,18 @@ _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
             {
               if ( PassivePanel && ( ListName[NM] || AnotherPanel->MakeListFile(ListName+NM,FALSE,Modifers)))
               {
-                strcat(TmpStr,ListName+NM);
+                strncat(TmpStr,ListName+NM, sizeof (TmpStr)-1);
               }
               if ( !PassivePanel && (*ListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ListName,FALSE,Modifers)))
               {
-                strcat(TmpStr,ListName);
+                strncat(TmpStr,ListName, sizeof (TmpStr)-1);
               }
             }
             else
             {
-              strcat(TmpStr,CurStr);
-              strcat(TmpStr,Modifers);
-              strcat(TmpStr,"!");
+              strncat(TmpStr,CurStr, sizeof (TmpStr)-1);
+              strncat(TmpStr,Modifers, sizeof (TmpStr)-1);
+              strncat(TmpStr,"!", sizeof (TmpStr)-1);
             }
             /* tran $ */
             CurStr+=Ptr-CurStr+1;
@@ -311,7 +320,7 @@ _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
                 */
                 ConvertNameToShort(ShortListName+NM,ShortListName+NM);
                 /* IS $ */
-                strcat(TmpStr,ShortListName+NM);
+                strncat(TmpStr,ShortListName+NM, sizeof (TmpStr)-1);
               }
               if ( !PassivePanel && (*ShortListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
               {
@@ -320,15 +329,15 @@ _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
                 */
                 ConvertNameToShort(ShortListName,ShortListName);
                 /* IS $ */
-                strcat(TmpStr,ShortListName);
+                strncat(TmpStr,ShortListName, sizeof (TmpStr)-1);
               }
               /* tran $ */
             }
             else
             {
-              strcat(TmpStr,CurStr);
-              strcat(TmpStr,Modifers);
-              strcat(TmpStr,"!");
+              strncat(TmpStr,CurStr, sizeof (TmpStr)-1);
+              strncat(TmpStr,Modifers, sizeof (TmpStr)-1);
+              strncat(TmpStr,"!", sizeof (TmpStr)-1);
             }
             CurStr+=Ptr-CurStr+1;
 _SVS(SysLog("!$! TmpStr=[%s]",TmpStr));
@@ -340,7 +349,7 @@ _SVS(SysLog("!$! TmpStr=[%s]",TmpStr));
       // !-!      Короткое имя файла с расширением
       if (strncmp(CurStr,"!-!",3)==0 && CurStr[3] != '?')
       {
-        strcat(TmpStr,PassivePanel ? AnotherShortName:ShortName);
+        strncat(TmpStr,PassivePanel ? AnotherShortName:ShortName, sizeof (TmpStr)-1);
         CurStr+=3;
 _SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
         continue;
@@ -350,7 +359,7 @@ _SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
       //          после выполнения команды, FAR восстановит его
       if (strncmp(CurStr,"!+!",3)==0 && CurStr[3] != '?')
       {
-        strcat(TmpStr,PassivePanel ? AnotherShortName:ShortName);
+        strncat(TmpStr,PassivePanel ? AnotherShortName:ShortName, sizeof (TmpStr)-1);
         CurStr+=3;
         PreserveLFN=TRUE;
 _SVS(SysLog("!+! TmpStr=[%s]",TmpStr));
@@ -372,7 +381,7 @@ _SVS(SysLog("!+! TmpStr=[%s]",TmpStr));
         if (*CurDir && CurDir[1]!=':')
           *CurDir=0;
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strcat(TmpStr,CurDir);
+        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
         CurStr+=2;
 _SVS(SysLog("!: TmpStr=[%s]",TmpStr));
         continue;
@@ -396,7 +405,7 @@ _SVS(SysLog("!: TmpStr=[%s]",TmpStr));
             *CurDir=0;
         }
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strcat(TmpStr,CurDir);
+        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
 _SVS(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
         continue;
       }
@@ -428,7 +437,7 @@ _SVS(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
           }
         }
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strcat(TmpStr,CurDir);
+        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
 _SVS(SysLog("!/ TmpStr=[%s]",TmpStr));
         continue;
       }
@@ -447,7 +456,7 @@ _SVS(SysLog("!? TmpStr=[%s]",TmpStr));
       if (*CurStr=='!')
       {
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strcat(TmpStr,PointToName(PassivePanel ? AnotherNameOnly:NameOnly));
+        strncat(TmpStr,PointToName(PassivePanel ? AnotherNameOnly:NameOnly), sizeof (TmpStr)-1);
         CurStr++;
 _SVS(SysLog("! TmpStr=[%s]",TmpStr));
         continue;
@@ -462,7 +471,7 @@ _SVS(++Pass);
 
   if (!IgnoreInput)
     ReplaceVariables(TmpStr);
-  strcpy(Str,TmpStr);
+  strncpy(Str,TmpStr,StrSize-1);
 
 _SVS(SysLog(-1));
 _SVS(SysLog("[%s]\n",Str));

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.131 01.03.2002 $ */
+/* Revision: 1.132 05.03.2002 $ */
 
 /*
 Modify:
+  05.03.2002
+    - передадим размер буфера в SubstFileName
   01.03.2002 SVS
     - BugZ#196 - Ctrl-\ bug
     ! Есть только одна функция создания временного файла - FarMkTempEx
@@ -976,7 +978,7 @@ int FileList::ProcessKey(int Key)
     /* VVM $ */
       if (FileCount>0 && SetCurPath())
       {
-        char FileName[2048],temp[NM];
+        char FileName[2048];
         int CurrentPath=FALSE;
         CurPtr=ListData+CurFile;
         strcpy(FileName,ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
@@ -3554,7 +3556,7 @@ void FileList::ApplyCommand()
     strcpy(ConvertedCommand,Command);
 
     {
-      int PreserveLFN=SubstFileName(ConvertedCommand,SelName,SelShortName,ListName,ShortListName);
+      int PreserveLFN=SubstFileName(ConvertedCommand,sizeof (ConvertedCommand),SelName,SelShortName,ListName,ShortListName);
       PreserveLongName PreserveName(SelShortName,PreserveLFN);
       Execute(ConvertedCommand,FALSE,FALSE);
       ClearLastGetSelection();

@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.53 01.03.2002 $ */
+/* Revision: 1.54 05.03.2002 $ */
 
 /*
 Modify:
+  05.03.2002 DJ
+    ! передадим размер буфера в SubstFileName()
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   28.02.2002 SVS
@@ -493,7 +495,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
       break;
     if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
       break;
-    SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
+    SubstFileName(Label,sizeof (Label),Name,ShortName,NULL,NULL,TRUE);
     /* $ 28.07.2000 VVM
        + Обработка переменных окружения
     */
@@ -548,7 +550,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
       break;
     if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
       break;
-    SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
+    SubstFileName(Label,sizeof (Label),Name,ShortName,NULL,NULL,TRUE);
     /* $ 28.07.2000 VVM
        + Обработка переменных окружения
     */
@@ -624,7 +626,6 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 {
   while (1)
   {
-    int RetCode;
     struct MenuItem UserMenuItem;
     memset(&UserMenuItem,0,sizeof(UserMenuItem));
     int NumLine,ExitCode,FuncPos[12];
@@ -825,7 +826,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
       SubMenuTitle[0]=0;
       if(GetRegKey(SubMenuKey,"Label",SubMenuLabel,"",sizeof(SubMenuLabel)))
       {
-        SubstFileName(SubMenuLabel,Name,ShortName,NULL,NULL,TRUE);
+        SubstFileName(SubMenuLabel,sizeof (SubMenuLabel),Name,ShortName,NULL,NULL,TRUE);
         ExpandEnvironmentStr(SubMenuLabel, SubMenuLabel, sizeof(SubMenuLabel));
         char *HotKeyInLabel = strchr(SubMenuLabel, '&');
         if (HotKeyInLabel)
@@ -885,7 +886,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
         */
         //if(ExtractIfExistCommand(Command))
         {
-          int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
+          int PreserveLFN=SubstFileName(Command,sizeof (Command),Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
           PreserveLongName PreserveName(ShortName,PreserveLFN);
           /* $ 01.05.2001 IS
              Отключим до лучших времен

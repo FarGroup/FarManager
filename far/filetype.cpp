@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.35 14.02.2002 $ */
+/* Revision: 1.36 05.03.2002 $ */
 
 /*
 Modify:
+  05.03.2002 DJ
+    - передадим размер буфера в SubstFileName
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   11.02.2002 SVS
@@ -256,7 +258,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       char CommandText[512],MenuText[512];
       memset(&TypesMenuItem,0,sizeof(TypesMenuItem));
       strcpy(CommandText,Commands[I]);
-      SubstFileName(CommandText,Name,ShortName,NULL,NULL,TRUE);
+      SubstFileName(CommandText,sizeof (CommandText),Name,ShortName,NULL,NULL,TRUE);
 
       // все "подставлено", теперь проверим условия "if exist"
       /* $ 25.04.2001 DJ
@@ -277,7 +279,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         if (*Descriptions[I])
         {
           strcpy(Title,Descriptions[I]);
-          SubstFileName(Title,Name,ShortName,NULL,NULL,TRUE);
+          SubstFileName(Title,sizeof (Title), Name,ShortName,NULL,NULL,TRUE);
         }
         else
           *Title=0;
@@ -307,7 +309,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
      [NM] -> [NM*2] */
   char ListName[NM*2],ShortListName[NM*2];
   {
-    int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName);
+    int PreserveLFN=SubstFileName(Command,sizeof (Command), Name,ShortName,ListName,ShortListName);
 
     // Снова все "подставлено", теперь проверим условия "if exist"
     /* $ 25.04.2001 DJ
@@ -475,7 +477,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
   strcpy(ExecStr,Command);
   strcpy(FullExecStr,Command);
   {
-    int PreserveLFN=SubstFileName(ExecStr,Name,ShortName,ListName,ShortListName);
+    int PreserveLFN=SubstFileName(ExecStr,sizeof (ExecStr), Name,ShortName,ListName,ShortListName);
     // Снова все "подставлено", теперь проверим условия "if exist"
     /* $ 25.04.2001 DJ
        обработка @ в IF EXIST
@@ -491,7 +493,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
       return;
     }
     ConvertNameToShort(FullName,FullShortName);
-    SubstFileName(FullExecStr,FullName,FullShortName,ListName,ShortListName);
+    SubstFileName(FullExecStr,sizeof (FullExecStr), FullName,FullShortName,ListName,ShortListName);
     // Снова все "подставлено", теперь проверим условия "if exist"
     /* $ 25.04.2001 DJ
        обработка @ в IF EXIST
