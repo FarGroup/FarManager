@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.06 06.06.2001 $ */
+/* Revision: 1.07 23.08.2002 $ */
 
 /*
 Modify:
+  23.08.2002 SVS
+    + SaveScreen::DumpBuffer
   06.06.2001 SVS
     ! Mix/Max
   21.05.2001 OT
@@ -240,3 +242,8 @@ void SaveScreen::CleanupBuffer(char *Buffer, int Height, int Width)
   }
 }
 /* 21.05.2001 OT  $ */
+
+void SaveScreen::DumpBuffer(const char *Title)
+{
+  SaveScreenDumpBuffer(Title,GetBufferAddress(),X1,Y1,X2,Y2,RealScreen,NULL);
+}

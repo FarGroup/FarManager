@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.85 21.08.2002 $ */
+/* Revision: 1.86 23.08.2002 $ */
 
 /*
 Modify:
+  23.08.2002 SVS
+    - Перед юзанием *Buffer* надобы проверить его на NULL, т.к.
+      процесс убиения макроса физически не создает буфер
   21.08.2002 SVS
     - Проблемы с компиляцией под VC
   19.08.2002 SVS
@@ -579,7 +582,7 @@ int KeyMacro::ProcessKey(int Key)
         MacroPROM[Pos].Key=MacroKey;
         if(RecBufferSize > 1)
           MacroPROM[Pos].Buffer=RecBuffer;
-        else
+        else if(RecBuffer)
           MacroPROM[Pos].Buffer=reinterpret_cast<DWORD*>(*RecBuffer);
         MacroPROM[Pos].BufferSize=RecBufferSize;
         MacroPROM[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
@@ -621,7 +624,7 @@ int KeyMacro::ProcessKey(int Key)
     StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
     // тип записи - с вызовом диалога настроек или...
     Recording=(Key==KEY_CTRLSHIFTDOT) ? 2:1;
-    free(RecBuffer);
+    if(RecBuffer) free(RecBuffer);
     RecBuffer=NULL;
     RecBufferSize=0;
     ScrBuf.ResetShadow();
@@ -1544,7 +1547,7 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   // теперь добавим в нашу "очередь" новые данные
   if(MRec->BufferSize > 1)
     memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
-  else
+  else if(MRec->Buffer)
     NewMacroRAM2.Buffer=reinterpret_cast<DWORD*>(*MRec->Buffer);
 
   MacroRAM=NewMacroRAM;
@@ -1708,7 +1711,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
   {
     CurMacro->Buffer=CurMacro_Buffer;
   }
-  else
+  else if(CurMacro_Buffer)
   {
     CurMacro->Buffer=reinterpret_cast<DWORD*>(*CurMacro_Buffer);
     free(CurMacro_Buffer);

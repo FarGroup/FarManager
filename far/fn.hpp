@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.164 21.08.2002 $ */
+/* Revision: 1.165 23.08.2002 $ */
 
 /*
 Modify:
+  23.08.2002 SVS
+    + SaveScreenDumpBuffer()
+    + _GetRealText/_PutRealText - обобщенные функции
   21.08.2002 SVS
     ! WaitKey теперь возвращает код нажатой клавиши
   02.07.2002 SVS
@@ -471,6 +474,8 @@ void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src);
 #endif
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest);
 void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
+void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
+void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
@@ -1005,6 +1010,7 @@ const char *_ACTL_ToName(int Command);
 const char *_VCTL_ToName(int Command);
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
+void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus

@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.65 19.08.2002 $ */
+/* Revision: 1.66 23.08.2002 $ */
 
 /*
 Modify:
+  23.08.2002 SVS
+    ! PutRealText и GetRealText приведем к USE_WFUNC
+    + _GetRealText/_PutRealText - обобщенные функции
   19.08.2002 SVS
     ! ”точнение SetFarTitle - мен€ем заголовок если сейчас исполнение
       макроса и разрешен вывод или сейчас макроса не исполн€етс€.
@@ -1128,43 +1131,79 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 }
 /* SVS $ */
 
-void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src)
+void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY)
 {
   COORD Size,Corner;
   SMALL_RECT Coord;
-  if (X2>ScrX) X2=ScrX;
-  if (Y2>ScrY) Y2=ScrY;
+
+  if (X2>BufX) X2=BufX;
+  if (Y2>BufY) Y2=BufY;
   if (X1>X2) X1=X2;
   if (Y1>Y2) Y1=Y2;
+
   Size.X=X2-X1+1;
   Size.Y=Y2-Y1+1;
+
   Corner.X=0;
   Corner.Y=0;
+
   Coord.Left=X1;
   Coord.Top=Y1;
   Coord.Right=X2;
   Coord.Bottom=Y2;
-  WriteConsoleOutput(hConOut,(PCHAR_INFO)Src,Size,Corner,&Coord);
+
+#if defined(USE_WFUNC)
+  if(Opt.UseTTFFont)
+    WriteConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
+  else
+    WriteConsoleOutputA(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
+#else
+  WriteConsoleOutput(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
+#endif
+}
+
+
+void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src)
+{
+  _PutRealText(hConOut,X1,Y1,X2,Y2,Src,ScrX,ScrY);
+}
+
+void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Dest,int BufX,int BufY)
+{
+  COORD Size,Corner;
+  SMALL_RECT Coord;
+
+  if (X2>BufX) X2=BufX;
+  if (Y2>BufY) Y2=BufY;
+  if (X1>X2) X1=X2;
+  if (Y1>Y2) Y1=Y2;
+
+  Size.X=X2-X1+1;
+  Size.Y=Y2-Y1+1;
+
+  Corner.X=0;
+  Corner.Y=0;
+
+  Coord.Left=X1;
+  Coord.Top=Y1;
+  Coord.Right=X2;
+  Coord.Bottom=Y2;
+
+#if defined(USE_WFUNC)
+  if(Opt.UseTTFFont)
+    ReadConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
+  else
+    ReadConsoleOutputA(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
+#else
+  ReadConsoleOutput(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
+#endif
 }
 
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
 {
-  COORD Size,Corner;
-  SMALL_RECT Coord;
-  if (X2>ScrX) X2=ScrX;
-  if (Y2>ScrY) Y2=ScrY;
-  if (X1>X2) X1=X2;
-  if (Y1>Y2) Y1=Y2;
-  Size.X=X2-X1+1;
-  Size.Y=Y2-Y1+1;
-  Corner.X=0;
-  Corner.Y=0;
-  Coord.Left=X1;
-  Coord.Top=Y1;
-  Coord.Right=X2;
-  Coord.Bottom=Y2;
-  ReadConsoleOutput(hConOut,(PCHAR_INFO)Dest,Size,Corner,&Coord);
+  _PutRealText(hConOut,X1,Y1,X2,Y2,Dest,ScrX,ScrY);
 }
+
 
 void SetFarTitle(const char *Title)
 {

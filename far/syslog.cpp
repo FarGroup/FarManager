@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.32 02.07.2002 $ */
+/* Revision: 1.33 23.08.2002 $ */
 
 /*
 Modify:
+  23.08.2002 SVS
+    + SaveScreenDumpBuffer()
   02.07.2002 SVS
     - ошибки в _VCTL_ToName
     + _PluginsStackItem_Dump() - дамп стека плагинов
@@ -394,6 +396,58 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
     CloseSysLog();
 #endif
 }
+
+
+void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp)
+{
+#if defined(SYSLOG)
+  int InternalLog=fp==NULL?TRUE:FALSE;
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=LogStream;
+    if(fp)
+    {
+      char timebuf[64];
+      fprintf(fp,"%s %s(CHAR_INFO DumpBuffer: '%s')\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+    }
+  }
+
+  char *line=new char[X2-X1+4];
+  if (fp && line)
+  {
+    int x,y,i;
+
+    if(!InternalLog && Title && *Title)
+      fprintf(fp,"CHAR_INFO DumpBuffer: %s\n",Title);
+
+    fprintf(fp,"XY={%i,%i - %i,%i}, RealScreen=%i\n",X1,Y1,X2,Y2,RealScreen);
+
+    for (y=Y1; y <= Y2; y++)
+    {
+      fprintf(fp,"%04d: ",y);
+      for (i=0, x=X1; x <= X2; x++, ++i)
+      {
+        line[i]=Buffer->Char.AsciiChar?Buffer->Char.AsciiChar:' ';
+        Buffer++;
+      }
+      line[i]=0;
+      fprintf(fp,"%s\n",line);
+    }
+    fprintf(fp,"\n");
+    fflush(fp);
+  }
+
+  if (line)
+    delete[] line;
+
+  if(InternalLog)
+    CloseSysLog();
+#endif
+}
+
+
 
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp)
 {
