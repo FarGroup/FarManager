@@ -290,7 +290,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
 
 void PluginClass::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 {
-  delete PanelItem;
+  if(PanelItem) free(PanelItem);
 }
 
 
