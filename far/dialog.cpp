@@ -5,7 +5,7 @@ dialog.cpp
 
 */
 
-/* Revision: 1.03 18.07.2000 $ */
+/* Revision: 1.04 19.07.2000 $ */
 
 /*
 Modify:
@@ -20,6 +20,10 @@ Modify:
   18.07.2000 SVS
     + Обработка элемента DI_COMBOBOX (пока все еще редактируемого)
     + Функция-обработчик выбора из списка - SelectFromComboBox
+  19.07.2000 SVS
+    ! "...В редакторе команд меню нажмите home shift+end del
+      блок не удаляется..."
+      DEL у итемов, имеющих DIF_EDITOR, работал без учета выделения...
 */
 
 #include "headers.hpp"
@@ -676,24 +680,44 @@ int Dialog::ProcessKey(int Key)
               ShowDialog();
               return(TRUE);
             case KEY_DEL:
+              /* $ 19.07.2000 SVS
+                 ! "...В редакторе команд меню нажмите home shift+end del
+                   блок не удаляется..."
+                   DEL у итемов, имеющих DIF_EDITOR, работал без учета
+                   выделения...
+              */
               if (FocusPos<ItemCount+1 && (Item[FocusPos+1].Flags & DIF_EDITOR))
               {
-                int CurPos=((Edit *)(Item[FocusPos].ObjPtr))->GetCurPos();
-                int Length=((Edit *)(Item[FocusPos].ObjPtr))->GetLength();
-                if (CurPos>=Length)
+                char Str[1024];
+                Edit *edt=(Edit *)Item[FocusPos].ObjPtr;
+                int CurPos=edt->GetCurPos();
+                int Length=edt->GetLength();
+                int SelStart, SelEnd;
+
+                edt->GetSelection(SelStart, SelEnd);
+                edt->GetString(Str,sizeof(Str));
+                int LengthStr=strlen(Str);
+                if(SelStart > -1)
                 {
-                  char Str[1024];
-                  ((Edit *)(Item[FocusPos].ObjPtr))->GetString(Str,sizeof(Str));
-                  int Length=strlen(Str);
-                  ((Edit *)(Item[FocusPos+1].ObjPtr))->GetString(Str+Length,sizeof(Str)-Length);
-                  ((Edit *)(Item[FocusPos+1].ObjPtr))->SetString(Str);
+                  memmove(&Str[SelStart],&Str[SelEnd],Length-SelEnd+1);
+                  edt->SetString(Str);
+                  edt->SetCurPos(SelStart);
+                  ShowDialog();
+                  return(TRUE);
+                }
+                else if (CurPos>=Length)
+                {
+                  Edit *edt_1=(Edit *)Item[FocusPos+1].ObjPtr;
+                  edt_1->GetString(Str+LengthStr,sizeof(Str)-LengthStr);
+                  edt_1->SetString(Str);
                   ProcessKey(KEY_CTRLY);
-                  ((Edit *)(Item[FocusPos].ObjPtr))->SetCurPos(CurPos);
+                  edt->SetCurPos(CurPos);
                   ShowDialog();
                   return(TRUE);
                 }
               }
               break;
+              /* SVS $*/
             case KEY_PGUP:
               ProcessKey(KEY_SHIFTTAB);
               ProcessKey(KEY_DOWN);
