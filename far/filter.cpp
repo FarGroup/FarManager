@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.28 06.08.2004 $ */
+/* Revision: 1.29 11.09.2004 $ */
 
 /*
 Modify:
+  11.09.2004 VVM
+    + Нажатие SHIFT-<GREY MINUS> сбрасывает все пометки фильтра.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   20.02.2003 SVS
@@ -311,6 +313,20 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
           FilterList.ProcessKey(KEY_DOWN);
           break;
         }
+
+        /* $ 11.09.2003 VVM
+           + SHIFT-<GREY MINUS> сбрасывает все пометки фильтра */
+        case KEY_SHIFTSUBTRACT:
+        {
+          for (int I=0; I < FilterList.GetItemCount(); I++)
+          {
+            FilterList.SetSelection(FALSE, I);
+          }
+          FilterList.SetUpdateRequired(TRUE);
+          FilterList.FastShow();
+          break;
+        }
+        /* VVM $ */
 
         case KEY_F4:
         {
