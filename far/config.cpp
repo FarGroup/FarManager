@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.137 24.05.2002 $ */
+/* Revision: 1.138 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    ! По просьбе IS: COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO -> COL_PRIVATEPOSITION_FOR_DIF165ABOVE
   24.05.2002 SVS
     + Opt.UseNumPad
   22.05.2002 SVS
@@ -1489,14 +1491,14 @@ void ReadConfig()
   Opt.HelpTabSize=8; // пока жестко пропишем...
 
   //   Уточняем алгоритм "взятия" палитры.
-  for(I=COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR+1;
+  for(I=COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR+1;
       I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
       ++I)
   {
     if(!Palette[I])
-      if(!Palette[COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR])
+      if(!Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR])
         Palette[I]=DefaultPalette[I];
-      else if(Palette[COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR] == 1)
+      else if(Palette[COL_PRIVATEPOSITION_FOR_DIF165ABOVE-COL_FIRSTPALETTECOLOR] == 1)
         Palette[I]=BlackPalette[I];
       /*
       else

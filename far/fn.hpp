@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.158 30.05.2002 $ */
+/* Revision: 1.159 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    + InitRecodeOutTable()
+    ! GetVidChar и SetVidChar оперируют байтами
   30.05.2002 SVS
     + ShellUpdatePanels и CheckUpdateAnotherPanel
   28.05.2002 SVS
@@ -411,6 +414,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type);
   — 0 используетс€ дл€ ConsoleDetach.
 */
 void InitConsole(int FirstInit=TRUE);
+void InitRecodeOutTable(UINT cp);
 /* SKV$*/
 void CloseConsole();
 void SetFarConsoleMode();
@@ -1211,8 +1215,8 @@ inline char LocalLowerFast (char c)
 /* DJ $ */
 
 #if defined(USE_WFUNC)
-char GetVidChar(CHAR_INFO CI);
-void SetVidChar(CHAR_INFO& CI,char Chr);
+BYTE GetVidChar(CHAR_INFO CI);
+void SetVidChar(CHAR_INFO& CI,BYTE Chr);
 #else
 #define GetVidChar(CI)     (CI).Char.AsciiChar
 #define SetVidChar(CI,Chr) (CI).Char.AsciiChar=Chr
@@ -1255,6 +1259,5 @@ BOOL IsDiskInDrive(const char *Drive);
 BOOL IsLocalPath(const char *Path);
 
 BOOL RunGraber(void);
-
 
 #endif  // __FARFUNC_HPP__

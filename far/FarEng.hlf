@@ -562,8 +562,7 @@ $ #Command line switches#
         is read from the stdin. For example, "dir|far /v -"
         will view dir command output.
 
-  #/co#
-        Forces FAR to load plugins from the cache only.
+  #/co#   Forces FAR to load plugins from the cache only.
         In this mode FAR loads faster, but new or updated plugins
         are not recognized. When "/co" command line parameter is
         used, "/p" is ignored. Using this parameter makes
@@ -572,10 +571,14 @@ $ #Command line switches#
         this parameter.
         If there is no plugins cache, no plugins will be loaded.
 
-  #/x#
-        Disable exception handling. This option has been designed
+  #/x#    Disable exception handling. This option has been designed
         for plugin developers, and it is not recommended to specify
         it during normal operation.
+
+  #/ttf#  Specify this option if you are using a TrueType font for
+        the console window. This option has effect only under
+        Windows NT 4 or higher.
+
 
   FAR <filename> command starts FAR and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>

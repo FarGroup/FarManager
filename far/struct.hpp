@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.89 25.05.2002 $ */
+/* Revision: 1.90 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    + Opt.UseTTFFont
   25.05.2002 IS
     ! внедрение const
   24.05.2002 SVS
@@ -732,6 +734,7 @@ struct Options
   int RestoreCPAfterExecute;
   DWORD PluginMaxReadData;
   int UseNumPad;
+  int UseTTFFont;
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"

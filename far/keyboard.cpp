@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.73 24.05.2002 $ */
+/* Revision: 1.74 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    ! Технологический патч для USE_WFUNC_IN - пока только эксперименты
+      (чтоб не потерялось :-))
   24.05.2002 SVS
     ! Внедрение Numpad.
     ! исправлена ситуация, когда для прочих событий в клавиатурнике
@@ -497,7 +500,17 @@ int GetInputRecord(INPUT_RECORD *rec)
        ! Убрал подмену колесика */
     if (ReadCount!=0)
     {
-      _SVS(if(rec->EventType==MENU_EVENT)SysLog("GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
+#if defined(USE_WFUNC_IN)
+      WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
+      if((UnicodeChar&0xFF00) && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      {
+        _SVS(if(rec->EventType==KEY_EVENT)SysLog(">GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
+        rec->Event.KeyEvent.uChar.UnicodeChar=0;
+        UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
+        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+        _SVS(if(rec->EventType==KEY_EVENT)SysLog("<GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
+      }
+#endif
       break;
     }
     /* VVM $ */
@@ -611,7 +624,16 @@ int GetInputRecord(INPUT_RECORD *rec)
     PressedLastTime=0;
 #if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    {
       ReadConsoleInputW(hConInp,rec,1,&ReadCount);
+      WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
+      if((UnicodeChar&0xFF00))
+      {
+        rec->Event.KeyEvent.uChar.UnicodeChar=0;
+        UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
+        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+      }
+    }
     else
       ReadConsoleInputA(hConInp,rec,1,&ReadCount);
 #else
@@ -714,7 +736,15 @@ int GetInputRecord(INPUT_RECORD *rec)
   {
 #if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    {
       ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
+      WCHAR UnicodeChar=ReadKey;
+      if((UnicodeChar&0xFF00))
+      {
+        UnicodeToAscii(&UnicodeChar,(char*)&ReadKey,sizeof(WCHAR));
+        CharToOemBuff((char*)&ReadKey,(char*)&ReadKey,1);
+      }
+    }
     else
       ReadConsoleA(hConInp,&ReadKey,1,&ReadCount,NULL);
 #else
@@ -724,7 +754,16 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
 #if defined(USE_WFUNC_IN)
       if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      {
         ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
+        WCHAR UnicodeChar=ReadKey;
+        if((UnicodeChar&0xFF00))
+        {
+          ReadKey=0;
+          UnicodeToAscii(&UnicodeChar,(char*)&ReadKey,sizeof(WCHAR));
+          CharToOemBuff((char*)&ReadKey,(char*)&ReadKey,1);
+        }
+      }
       else
         ReadConsoleA(hConInp,&ReadKey,1,&ReadCount,NULL);
 #else
@@ -737,7 +776,16 @@ int GetInputRecord(INPUT_RECORD *rec)
   {
 #if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    {
       ReadConsoleInputW(hConInp,rec,1,&ReadCount);
+      WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
+      if((UnicodeChar&0xFF00))
+      {
+        rec->Event.KeyEvent.uChar.UnicodeChar=0;
+        UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
+        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+      }
+    }
     else
       ReadConsoleInputA(hConInp,rec,1,&ReadCount);
 #else
@@ -1026,7 +1074,16 @@ int PeekInputRecord(INPUT_RECORD *rec)
   {
 #if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    {
       PeekConsoleInputW(hConInp,rec,1,&ReadCount);
+      WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
+      if((UnicodeChar&0xFF00))
+      {
+        rec->Event.KeyEvent.uChar.UnicodeChar=0;
+        UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
+        CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
+      }
+    }
     else
       PeekConsoleInputA(hConInp,rec,1,&ReadCount);
 #else

@@ -22,7 +22,7 @@ colors.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.09 08.01.2002 $ */
+/* Revision: 1.10 30.05.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -31,6 +31,8 @@ colors.hpp
 */
 /*
 Modify:
+  30.05.2002 SVS
+    ! По просьбе IS: COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO -> COL_PRIVATEPOSITION_FOR_DIF165ABOVE
   08.01.2002 SVS
     ! Вместо 2001 вставлен макрос "<%YEAR%>"
   09.08.2001 SVS
@@ -199,7 +201,7 @@ enum PaletteColors
   /* $ 11.07.2000 SVS
     + 1 Служебная позиция перед новыми цветами :-)
   */
-  COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO,
+  COL_PRIVATEPOSITION_FOR_DIF165ABOVE,
 #else // ELSE FAR_USE_INTERNALS
   COL_RESERVED0,
 #endif // END FAR_USE_INTERNALS

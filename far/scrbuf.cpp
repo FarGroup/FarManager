@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.16 18.05.2002 $ */
+/* Revision: 1.17 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    ! В USE_WFUNC, вместо проверки на тип операционки заюзаем Opt.UseTTFFont
   18.05.2002 SVS
     ! Выносим некоторые переменные во флаги
   04.03.2002 DJ
@@ -141,7 +143,7 @@ void ScreenBuf::FillBuf()
   Coord.Right=BufX-1;
   Coord.Bottom=BufY-1;
 #if defined(USE_WFUNC)
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if(Opt.UseTTFFont)
     ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
   else
     ReadConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
@@ -229,8 +231,10 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
   for (I=0;I < Height; I++)
   {
     K=(Y1+I)*BufX+X1;
-    for (J=0; J < Width; J++)
-      Buf[K+J].Attributes=Color;
+    CHAR_INFO *PtrBuf=Buf+K;
+    for (J=0; J < Width; J++, ++PtrBuf)
+      PtrBuf->Attributes=Color;
+      //Buf[K+J].Attributes=Color;
   }
 
 #ifdef DIRECT_SCREEN_OUT
@@ -346,7 +350,7 @@ void ScreenBuf::Flush()
       Coord.Right=WriteX2;
       Coord.Bottom=WriteY2;
 #if defined(USE_WFUNC)
-      if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      if(Opt.UseTTFFont)
       {
         // Нужно ли здесь делать перекодировку oem->unicode???
         WriteConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);

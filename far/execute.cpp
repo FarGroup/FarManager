@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.57 29.05.2002 $ */
+/* Revision: 1.58 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    ! Для CHCP добавлен вызов InitRecodeOutTable().
   29.05.2002 SVS
     ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
   28.05.2002 SVS
@@ -1406,6 +1408,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     BOOL r2=SetConsoleOutputCP(cp);
     if(r1 && r2) // Если все ОБИ, то так  и...
     {
+      InitRecodeOutTable(cp);
       CtrlObject->Cp()->Redraw();
       ScrBuf.Flush();
       return TRUE;

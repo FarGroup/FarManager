@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.52 21.05.2002 $ */
+/* Revision: 1.53 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 SVS
+    ! Новая опция /ttf - для выставленного TTF-фонта для консольного окна
   21.05.2002 IS
     + Получим реальное значение полного длинного пути с учетом
       символических связей для MainPluginsPath
@@ -208,6 +210,9 @@ printf(
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
 " /co  Forces FAR to load plugins from the cache only.\n"
 " /x   Disable exception handling.\n"
+#if defined(USE_WFUNC)
+" /ttf Specify this if you are using a TrueType font for the console.\n"
+#endif
 #if defined(_DEBUGEXC)
 " /xd  Enable exception handling.\n"
 #endif
@@ -224,6 +229,9 @@ int _cdecl main(int Argc, char *Argv[])
   int StartLine=-1,StartChar=-1,RegOpt=FALSE;
   *EditName=*ViewName=*DestName=0;
   CmdMode=FALSE;
+
+  WinVer.dwOSVersionInfoSize=sizeof(WinVer);
+  GetVersionEx(&WinVer);
 
   /*$ 18.04.2002 SKV
     Попользуем floating point что бы проинициализировался vc-ный fprtl.
@@ -310,6 +318,11 @@ int _cdecl main(int Argc, char *Argv[])
         case 'I':
           Opt.SmallIcon=TRUE;
           break;
+#if defined(USE_WFUNC)
+        case 'T':
+          Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)?TRUE:FALSE;
+          break;
+#endif
         case 'X':
           Opt.ExceptRules=0;
 #if defined(_DEBUGEXC)
@@ -413,8 +426,6 @@ int _cdecl main(int Argc, char *Argv[])
 #endif
 
   SetFileApisToOEM();
-  WinVer.dwOSVersionInfoSize=sizeof(WinVer);
-  GetVersionEx(&WinVer);
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
   /* $ 02.07.2001 IS
      Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое
