@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.22 16.03.2001 $ */
+/* Revision: 1.23 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    + DRIVE_NOT_INIT. Используется при показе меню дисков.
   16.03.2001 SVS
     + FlagsNameAndPassword
   26.02.2001 VVM
@@ -275,6 +277,7 @@ enum ReadDizFlags {
 /* SVS $ */
 
 #define DRIVE_SUSTITUTE     0x0F
+#define DRIVE_NOT_INIT      0xFF
 
 
 #define SKEY_VK_KEYS        0x40000000

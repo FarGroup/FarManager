@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.26 30.03.2001 $ */
+/* Revision: 1.27 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+    ! Попытка не будить спящие диски...
   30.03.2001 SVS
     ! GetLogicalDrives заменен на FarGetLogicalDrives() в связи с началом
       компании по поддержке виндовой "полиции".
@@ -181,14 +183,17 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     int DriveType,MenuLine;
     int LabelWidth=Max(11,strlen(MSG(MChangeDriveLabelAbsent)));
 
+    /* $ 02.04.2001 VVM
+      ! Попытка не будить спящие диски... */
     for (DiskMask=Mask,MenuLine=I=0;DiskMask!=0;DiskMask>>=1,I++)
       if (DiskMask & 1)
       {
         sprintf(MenuText,"&%c: ",'A'+I);
         sprintf(RootDir,"%c:\\",'A'+I);
-        DriveType=GetDriveType(RootDir);
+        DriveType = DRIVE_NOT_INIT;
         if (Opt.ChangeDriveMode & DRIVE_SHOW_TYPE)
         {
+          DriveType = GetDriveType(RootDir);
           switch(DriveType)
           {
             case DRIVE_REMOVABLE:
@@ -226,8 +231,15 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           strcat(MenuText,DiskType);
         }
 
-        int ShowDisk=(DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
+        int ShowDisk = TRUE;
+        if (!((Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE) &&
+              (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM)))
+        // Мы хотим спрятать cd-rom или сменный диск
+        {
+          DriveType = GetDriveType(RootDir);
+          ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
                      (DriveType!=DRIVE_CDROM || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM));
+        }
         if (Opt.ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
         {
           char VolumeName[NM],FileSystemName[NM];
@@ -290,6 +302,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         ChDisk.AddItem(&ChDiskItem);
         MenuLine++;
       }
+    /* VVM $ */
 
     int UsedNumbers[10];
     memset(UsedNumbers,0,sizeof(UsedNumbers));
@@ -442,6 +455,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                  Попробуем сделать Eject :-)
               */
               DriveType=(DWORD)(BYTE)Letter[2];
+              if (DriveType == DRIVE_NOT_INIT)
+              {
+                char RootDir[4];
+                sprintf(RootDir, "%c:\\", *Letter);
+                DriveType = GetDriveType(RootDir);
+              }
               if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
               {
                 EjectVolume(*Letter,0);
