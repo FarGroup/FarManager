@@ -30,9 +30,21 @@ bool GoToFile(const char *Target)
   FSF.Unquote(Name);
   FSF.Unquote(Dir);
 
-  if(*Dir)
-    Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&Dir);
   Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
+  pathlen=lstrlen(Dir);
+  if(pathlen)
+  {
+    if(*PInfo.CurDir &&
+       PInfo.CurDir[lstrlen(PInfo.CurDir)-1]!='\\' // old path != "*\"
+       && Dir[pathlen-1]=='\\')
+      Dir[pathlen-1]=0;
+
+    if(0!=FSF.LStricmp(Dir,PInfo.CurDir))
+    {
+      Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&Dir);
+      Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
+    }
+  }
 
   PRI.CurrentItem=PInfo.CurrentItem;
   PRI.TopPanelItem=PInfo.TopPanelItem;
