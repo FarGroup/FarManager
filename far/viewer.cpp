@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.22 12.09.2000 $ */
+/* Revision: 1.23 13.09.2000 $ */
 
 /*
 Modify:
+  13.09.2000 tran 1.23
+    + при WWrap обрезаются пробелы в начале строки
   12.09.2000 SVS
     ! Разделение Wrap/WWrap/UnWrap на 2 составляющих -
       F2 Состояние (Wrap/UnWrap) и Shift-F2 тип (Wrap/WWrap)
@@ -848,7 +850,15 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
                   OutPtr=SavePtr;
             }
             /* tran 11.07.2000 $ */
-          }
+            /* $ 13.09.2000 tran
+               remove space at WWrap */
+            unsigned long savepos=vtell(ViewFile);
+            while (Ch==' '|| Ch=='\t')
+                Ch=vgetc(ViewFile);
+            if ( vtell(ViewFile)!=savepos)
+                vseek(ViewFile,-1,SEEK_CUR);
+            /* tran 13.09.2000 $ */
+          }// wwrap
           /* SVS $ */
         }
         break;
