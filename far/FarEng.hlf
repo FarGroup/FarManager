@@ -294,7 +294,8 @@ folder before moving, terminate the name with a backslash.
   Delete files and folders. F8 and Shift-Del process all selected files,
 Shift-F8 - only the file under the cursor. Shift-Del deletes files
 immediately, not to Recycle Bin as opposed to F8 and Shift-F8 if they are
-configured to utilize the Recycle Bin method.
+~configured~@SystemSettings@ to utilize the Recycle Bin method (only for
+local hard disks).
 
   Wipe                                                       #Alt-Del#
 
@@ -1279,6 +1280,9 @@ $ #System settings dialog#
   #from CD files#           from CD.
 
   #Delete to Recycle Bin#   Enables file deletion via the Recycle Bin.
+                          The operation of deleting to the Recycle
+                          Bin can be performed only for local hard
+                          disks.
 
   #Use system copy#         Use Windows function CopyFileEx
   #routine#                 (or CopyFile if CopyFileEx not available)
@@ -1435,7 +1439,9 @@ $ #Interface settings dialog#
   #in input lines#          in input lines that have a history list
                           or in combo boxes. When the option is
                           disabled, you may use the Ctrl-End key
-                          to autocomplete a line.
+                          to autocomplete a line. The autocomplete
+                          feature is disabled while a macro is
+                          being recorded or executed.
 
 @Viewer
 $ #Internal viewer#
@@ -1456,7 +1462,7 @@ $ #Internal viewer#
     #F2#                 Toggle line wrap/unwrap
     #Shift-F2#           Toggle wrap type (letters/words)
     #F4#                 Toggle text/hex mode
-    #F6#                 Switch to editor
+    #F6#                 Switch to ~editor~@Editor@
     #Alt-F5#             Print the file
                        ("Print manager" plugin is used).
     #F7#                 Search
@@ -1468,7 +1474,7 @@ $ #Internal viewer#
     #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
     #Numpad5,F3,F10,Esc# Quit
     #Ctrl-F10#           Quit and position to the current file
-    #F11#                Call "Plugin commands" menu
+    #F11#                Call "~Plugin commands~@Plugins@" menu
 
     #+#                  Go to next file
     #-#                  Go to previous file
@@ -1578,7 +1584,7 @@ $ #Internal editor#
    #Shift-F2#                ~Save file as...~@FileSaveAs@
    #Alt-F5#                  Print file or selected block
                            ("Print manager" plugin is used).
-   #F6#                      Switch to viewer
+   #F6#                      Switch to ~viewer~@Viewer@
    #F7#                      Search
    #Ctrl-F7#                 Replace
    #Shift-F7#                Continue search/replace
@@ -1590,7 +1596,7 @@ $ #Internal editor#
    #F10, Esc#                Quit
    #Shift-F10#               Save and quit
    #Ctrl-F10#                Quit and position to the current file
-   #F11#                     Call "Plugin commands" menu
+   #F11#                     Call "~Plugin commands~@Plugins@" menu
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification
    #Ctrl-O#                  Show user screen
@@ -1669,7 +1675,7 @@ to the file panel.
      - to eject disks from CD-ROM and removable drives.
        To perform this operation on Windows NT/2000
        administrator privileges are required.
-       CD-ROM drives can be closed by pressing Ins (only
+       CD-ROM drives can be closed by pressing #Ins# (only
        under Windows NT/2000).
 
 
@@ -2110,11 +2116,11 @@ $ #File masks#
 and folders or groups of them. Masks may contain common valid file name
 symbols, wildcards ('*' and '?') and special expressions:
 
-    *           any number of characters;
+    #*#           any number of characters;
 
-    ?           any single character;
+    #?#           any single character;
 
-    [c,x-z]     any character enclosed by the brackets.
+    #[c,x-z]#     any character enclosed by the brackets.
                 Both separate characters and character intervals
                 are allowed.
 

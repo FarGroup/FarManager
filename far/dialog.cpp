@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.121 14.06.2001 $ */
+/* Revision: 1.122 19.06.2001 $ */
 
 /*
 Modify:
+  19.06.2001 SVS
+   ! Операция автозавершения не работает во время записи и исполнения макроса.
+   - устранение потенциальной проблемы (выход за границу массива) при выборе
+     значения из истории.
   14.06.2001 SVS
    ! число -> VMENU_COLOR_COUNT
   14.06.2001 OT
@@ -2739,8 +2743,9 @@ int Dialog::ProcessKey(int Key)
           */
           /* $ 04.12.2000 SVS
             Автодополнение - чтобы не работало во время проигрывания макросов.
+            GetCurRecord() вернет 0 для случая, если нет ни записи ни проигрыша.
           */
-          if(!CtrlObject->Macro.IsExecuting() &&
+          if(!CtrlObject->Macro.GetCurRecord(NULL,NULL) &&
              ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX))
           if((Opt.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
              (!Opt.AutoComplete && Key == KEY_CTRLEND)
@@ -3433,7 +3438,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
 
   if(!TypeFind)
   {
-    char RegKey[NM],KeyValue[80];
+    char RegKey[NM];
     if((Str=(char*)malloc(MaxLen+1)) == NULL)
       return FALSE;
     sprintf(RegKey,fmtSavedDialogHistory,(char*)HistoryName);
@@ -3571,7 +3576,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
   if(!EditLine)
     return;
 
-  char RegKey[NM],KeyValue[80],Str[4096];
+  char RegKey[NM],Str[4096];
   int I,Dest;
   int Locked;
   int IsOk=FALSE, Done=FALSE, IsUpdate;
@@ -3747,7 +3752,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       }
       else
       {
-        HistoryMenu.GetUserData(Str,MaxLen,ExitCode);
+        HistoryMenu.GetUserData(Str,Min((int)sizeof(Str),MaxLen),ExitCode);
         Done=TRUE;
         IsOk=TRUE;
       }

@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.08 02.06.2001 $ */
+/* Revision: 1.09 19.06.2001 $ */
 
 /*
 Modify:
+  19.06.2001 SVS
+    + ShellSetAttr - оболочка вокруг SetFileAttributes
   02.06.2001 IS
     ! #define FCOPY* -> enum
       ну, не люблю дефайны (начитался Скотта Мейерса)
@@ -119,6 +121,7 @@ class ShellCopy
     bool CalcTotalSize();
     int CmpFullNames(char *Src,char *Dest);
     BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,char *SrcDir,char *DstDir,struct CopyDlgParam *CDP);
+    int ShellSetAttr(char *Dest,DWORD Attr);
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,

@@ -9,6 +9,8 @@ delete.cpp
 
 /*
 Modify:
+  19.06.2001 SVS
+    ! Удаление в корзину только для  FIXED-дисков
   06.06.2001 SVS
     ! Mix/Max
   31.05.2001 OT
@@ -95,6 +97,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   int DizPresent;
   int Ret;
 
+  int Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
 
 /*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
   Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
@@ -110,6 +113,19 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   if ((SelCount=SrcPanel->GetSelCount())==0)
     goto done;
+
+  // Удаление в корзину только для  FIXED-дисков
+  {
+    char Root[1024];
+    char FSysNameSrc[NM];
+    SrcPanel->GetSelName(NULL,FileAttr);
+    SrcPanel->GetSelName(SelName,FileAttr);
+    ConvertNameToFull(SelName,Root, sizeof(Root));
+    GetPathRoot(Root,Root);
+//_SVS(SysLog("Del: SelName='%s' Root='%s'",SelName,Root));
+    if(GetDriveType(Root) != DRIVE_FIXED)
+      Opt.DeleteToRecycleBin=0;
+  }
 
   if (SelCount==1)
   {
@@ -186,15 +202,18 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
          какие и сколько элементов выделено.
     */
     BOOL folder=(FileAttr & FA_DIREC);
+
     if (SelCount==1)
     {
       if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
         DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
       else
+      {
         if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
           DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
         else
           DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
+      }
     }
     else
     {
@@ -415,6 +434,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   ShellDeleteUpdatePanels(SrcPanel);
 
 done:
+  Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
 /*& 31.05.2001 OT Разрешить перерисовку фрейма */
   FrameFromLaunched->UnlockRefresh();
 /* OT &*/

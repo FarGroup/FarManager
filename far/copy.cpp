@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.39 07.06.2001 $ */
+/* Revision: 1.40 19.06.2001 $ */
 
 /*
 Modify:
+  19.06.2001 SVS
+    ! Учтем возможности файловой системы при выставлении target-атрибутов
   07.06.2001 IS
     - Баг (в обработке имени): нужно сначала убирать пробелы, а только потом
       кавычки
@@ -756,20 +758,20 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
     *Selected5=0;
     return TRUE;
   }
-_SVS(SysLog("\n---"));
+//_SVS(SysLog("\n---"));
   // получаем полную инфу о источнике и приемнике
   if(CDP->IsDTSrcFixed == -1)
   {
     char FSysNameSrc[NM];
     ConvertNameToFull(SrcDir,Root, sizeof(Root));
     GetPathRoot(Root,Root);
-_SVS(SysLog("SrcDir=%s",SrcDir));
-_SVS(SysLog("Root=%s",Root));
+//_SVS(SysLog("SrcDir=%s",SrcDir));
+//_SVS(SysLog("Root=%s",Root));
     CDP->IsDTSrcFixed=GetDriveType(Root);
     CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED || CDP->IsDTSrcFixed == DRIVE_CDROM;
     GetVolumeInformation(Root,NULL,0,NULL,NULL,&CDP->FileSystemFlagsSrc,FSysNameSrc,sizeof(FSysNameSrc));
     CDP->FSysNTFS=!stricmp(FSysNameSrc,"NTFS")?TRUE:FALSE;
-_SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
+//_SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
   }
 
   // 1. если источник находится не на логическом диске
@@ -783,7 +785,7 @@ _SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
     if(GetFileAttributes(Root) == -1)
       return TRUE;
 
-    GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
+    //GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
 
     // 3. если приемник находится не на логическом диске
     if(GetDriveType(Root) == DRIVE_FIXED &&
@@ -1238,8 +1240,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
           DWORD SetAttr=SrcData->dwFileAttributes;
           if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
             SetAttr&=~FA_RDONLY;
+//_SVS(SysLog("SetAttr=0x%08X, DestAttr=0x%08X",SetAttr,DestAttr));
           if (SetAttr!=DestAttr)
-            SetFileAttributes(DestPath,SetAttr);
+            ShellSetAttr(DestPath,SetAttr);
           char SrcFullName[NM];
           if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName)){
             return(COPY_NEXT);
@@ -1291,18 +1294,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       DWORD SetAttr=SrcData->dwFileAttributes;
       if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
-      SetFileAttributes(DestPath,SetAttr);
-      /* $ 30.12.2000 SVS
-         При копировании/переносе забыли выставить FILE_ATTRIBUTE_ENCRYPTED
-         для каталога, если он есть
-      */
-      if(SetAttr&FILE_ATTRIBUTE_ENCRYPTED)
-        if(!ESetFileEncryption(DestPath,1,0))
-        {
-           RemoveDirectory(DestPath);
-           return COPY_CANCEL;
-        }
-      /* SVS $*/
+      if(!ShellSetAttr(DestPath,SetAttr))
+      {
+         RemoveDirectory(DestPath);
+         return COPY_CANCEL;
+      }
       TreeList::AddTreeName(DestPath);
       return(COPY_SUCCESS);
     }
@@ -1403,7 +1399,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
             strcpy(CopiedName,PointToName(DestPath));
         if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly &&
             (SrcData->dwFileAttributes & FA_RDONLY))
-          SetFileAttributes(DestPath,SrcData->dwFileAttributes & ~FA_RDONLY);
+          ShellSetAttr(DestPath,SrcData->dwFileAttributes & ~FA_RDONLY);
         TotalFiles++;
         if (AskDelete && DeleteAfterMove(Src,SrcData->dwFileAttributes)==COPY_CANCEL)
           return(COPY_CANCEL);
@@ -1420,7 +1416,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         {
           if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly &&
               (SrcData->dwFileAttributes & FA_RDONLY))
-            SetFileAttributes(DestPath,SrcData->dwFileAttributes & ~FA_RDONLY);
+            ShellSetAttr(DestPath,SrcData->dwFileAttributes & ~FA_RDONLY);
           if (DestAttr!=(DWORD)-1 && LocalStricmp(CopiedName,DestData.cFileName)==0 &&
               strcmp(CopiedName,DestData.cFileName)!=0)
             MoveFile(DestPath,DestPath);
@@ -1956,7 +1952,7 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
 
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS &&
         (SrcData->dwFileAttributes & (FA_HIDDEN|FA_SYSTEM|FA_RDONLY)))
-      SetFileAttributes(DestName,SrcData->dwFileAttributes);
+      ShellSetAttr(DestName,SrcData->dwFileAttributes);
   }
   else
     CloseHandle(SrcHandle);
@@ -2695,4 +2691,38 @@ int ShellCopy::MkSymLink(char *SelName,char *Dest,DWORD Flags)
     }
   }
   return 2;
+}
+
+/*
+  Оболочка вокруг SetFileAttributes() для
+  корректного выставления атрибутов
+*/
+int ShellCopy::ShellSetAttr(char *Dest,DWORD Attr)
+{
+  char Root[1024];
+  char FSysNameDst[NM];
+  DWORD FileSystemFlagsDst;
+
+  ConvertNameToFull(Dest,Root, sizeof(Root));
+  GetPathRoot(Root,Root);
+  if(GetFileAttributes(Root) == -1)
+    return FALSE;
+
+//_SVS(SysLog("Copy: 0x%08X Dest='%s' Root='%s'",Attr,Dest,Root));
+  if(GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst)))
+  {
+//_SVS(SysLog("Copy: %s (0x%08X) %c%c",FSysNameDst,FileSystemFlagsDst,(FileSystemFlagsDst&FS_FILE_COMPRESSION?'C':'.'),(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION?'E':'.')));
+     if(!(FileSystemFlagsDst&FS_FILE_COMPRESSION))
+       Attr&=~FILE_ATTRIBUTE_COMPRESSED;
+     if(!(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION))
+       Attr&=~FILE_ATTRIBUTE_ENCRYPTED;
+    SetFileAttributes(Dest,Attr);
+    // При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
+    // для каталога, если он есть
+    if((Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
+      if(!ESetFileEncryption(Dest,1,0))
+        return FALSE;
+    return TRUE;
+  }
+  return FALSE;
 }
