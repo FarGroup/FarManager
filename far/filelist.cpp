@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.94 01.10.2001 $ */
+/* Revision: 1.95 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 VVM
+    + Восстанавливаем позицию верхнего файла на экране после выхода из архива.
+      Актуально при хождении по каталогам внутри архива и возврате в панели.
   01.10.2001 SVS
     ! Немного оптимизации...
   27.09.2001 IS
@@ -288,12 +291,16 @@ static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
 static int ListPanelMode,ListCaseSensitive;
 static HANDLE hSortPlugin;
 
+/* $ 11.10.2001 VVM
+  + PrevTopFile - позиция верхнего файла при входе в плагин */
 struct PrevDataItem
 {
   struct FileListItem *PrevListData;
   long PrevFileCount;
   char PrevName[NM];
+  long PrevTopFile;
 };
+/* VVM $ */
 
 enum SELECT_MODES {SELECT_INVERT,SELECT_INVERTALL,SELECT_ADD,SELECT_REMOVE,
     SELECT_ADDEXT,SELECT_REMOVEEXT,SELECT_ADDNAME,SELECT_REMOVENAME};
@@ -1964,6 +1971,7 @@ BOOL FileList::ChangeDir(char *NewDir)
       if (PrevDataStack[PrevDataStackSize].PrevFileCount>0)
       {
         MoveSelection(ListData,FileCount,PrevDataStack[PrevDataStackSize].PrevListData,PrevDataStack[PrevDataStackSize].PrevFileCount);
+        UpperFolderTopFile = PrevDataStack[PrevDataStackSize].PrevTopFile;
         if (!GoToPanelFile)
           strcpy(FindDir,PrevDataStack[PrevDataStackSize].PrevName);
         DeleteListData(PrevDataStack[PrevDataStackSize].PrevListData,PrevDataStack[PrevDataStackSize].PrevFileCount);
@@ -3324,6 +3332,7 @@ HANDLE FileList::OpenFilePlugin(char *FileName,int PushPrev)
       PrevDataStack=(struct PrevDataItem *)realloc(PrevDataStack,(PrevDataStackSize+1)*sizeof(*PrevDataStack));
       PrevDataStack[PrevDataStackSize].PrevListData=ListData;
       PrevDataStack[PrevDataStackSize].PrevFileCount=FileCount;
+      PrevDataStack[PrevDataStackSize].PrevTopFile = CurTopFile;
       strcpy(PrevDataStack[PrevDataStackSize].PrevName,FileName);
       PrevDataStackSize++;
       ListData=NULL;
