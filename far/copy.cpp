@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.19 30.01.2001 $ */
+/* Revision: 1.20 06.02.2001 $ */
 
 /*
 Modify:
+  06.02.2001 SKV
+    - char SelNameShort[NM];, а не char SelNameShort[40];
   30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость.
       Зависит от настроек в реестре CopyTimeRule
@@ -132,7 +134,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
       Будет содержать усеченное имя файла, которое покажем в диалоге
       копирования
   */
-  char SelNameShort[40];
+  /*$ 06.02.2001 SKV
+    едрёна вошь!
+    почему 40 то???
+    А потом туда SelFile strcpy делаем.
+  */
+  char SelNameShort[NM];
+  /* SKV$*/
   /* IS $ */
   int SelCount,DestPlugin;
 
@@ -1540,8 +1548,8 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   Text(ProgressBar);
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
-  if (ShowCopyTime && 
-      (!ShowTotalCopySize || TotalBar) && 
+  if (ShowCopyTime &&
+      (!ShowTotalCopySize || TotalBar) &&
       (clock() - LastShowTime > 1000))
   {
     LastShowTime = clock();
