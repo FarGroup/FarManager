@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.18 29.04.2001 $ */
+/* Revision: 1.19 01.05.2001 $ */
 
 /*
 Modify:
+  01.05.2001 IS
+    ! Теперь при выполнении команд из меню панели и их обновление не
+      отключаются.
   29.04.2001 ОТ
     + Внедрение NWZ от Третьякова
   25.04.2001 DJ
@@ -639,7 +642,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       continue;
     }
 
-    int LeftVisible,RightVisible,PanelsHidden=0;
+    /* $ 01.05.2001 IS
+         Отключим до лучших времен
+    */
+    //int LeftVisible,RightVisible,PanelsHidden=0;
+    /* IS $ */
     int CurLine=0;
 
     char CmdLineDir[NM];
@@ -656,7 +663,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       {
         int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
         PreserveLongName PreserveName(ShortName,PreserveLFN);
-        if (!PanelsHidden)
+        /* $ 01.05.2001 IS
+           Отключим до лучших времен
+        */
+        /*if (!PanelsHidden)
         {
           LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
           RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
@@ -665,7 +675,8 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           CtrlObject->Cp()->LeftPanel->SetUpdateMode(FALSE);
           CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
           PanelsHidden=TRUE;
-        }
+        }*/
+        /* IS $ */
         if (*Command)
           CtrlObject->CmdLine->ExecString(Command,FALSE);
       }
@@ -679,7 +690,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           remove(ShortListName+NM);
       CurLine++;
     }
-    if (PanelsHidden)
+    /* $ 01.05.2001 IS
+         Отключим до лучших времен
+    */
+    /*if (PanelsHidden)
     {
       CtrlObject->Cp()->LeftPanel->SetUpdateMode(TRUE);
       CtrlObject->Cp()->RightPanel->SetUpdateMode(TRUE);
@@ -689,7 +703,8 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         CtrlObject->Cp()->RightPanel->Show();
       if (LeftVisible)
         CtrlObject->Cp()->LeftPanel->Show();
-    }
+    }*/
+    /* IS $ */
 /* $ 14.07.2000 VVM
    ! Закрыть меню
 */
