@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.10 01.03.2001 $ */
+/* Revision: 1.11 02.03.2001 $ */
 
 /*
 Modify:
+  02.03.2001 SVS
+    - А слеш поставить забыли :-((((
   01.03.2001 SVS
     ! Унифицирована функция SetHighlighting() - в последствии проще будет
       изменять или добавлять - меняем лишь массив.
@@ -307,6 +309,7 @@ void ConvertOldSettings()
       strcpy(NameSrc,Opt.RegRoot);
       strcat(NameSrc,"\\Highlight");
       strcpy(NameDst,Opt.RegRoot);
+      strcat(NameDst,"\\");
       strcat(NameDst,RegColorsHighlight);
       CopyKeyTree(NameSrc,NameDst,"\0");
     }
