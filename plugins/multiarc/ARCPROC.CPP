@@ -17,7 +17,7 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
     return(FALSE);
   if ((OpMode & OPM_SILENT)==0)
   {
-    char *MsgItems[]={GetMsg(MDeleteTitle),GetMsg(MDeleteFiles),
+    const char *MsgItems[]={GetMsg(MDeleteTitle),GetMsg(MDeleteFiles),
                       GetMsg(MDeleteDelete),GetMsg(MDeleteCancel)};
     char Msg[512];
     if (ItemsNumber==1)
@@ -84,7 +84,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
   {
     char VolMsg[300];
     FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
-    char *MsgItems[]={"",VolMsg,GetMsg(MExtrVolumeAsk1),
+    const char *MsgItems[]={"",VolMsg,GetMsg(MExtrVolumeAsk1),
                       GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                       GetMsg(MExtrAllVolumes)};
     int MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
@@ -216,7 +216,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   {
     char VolMsg[300];
     FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
-    char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
+    const char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
                       GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                       GetMsg(MExtrAllVolumes)};
     int MsgCode=Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2);
@@ -380,7 +380,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     if (strcmp(Password1,Password2)!=0)
     {
-      char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
+      const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       continue;
     }
@@ -407,7 +407,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CMD_ALLFILESMASK,AllFilesMask);
     if (*CurDir && strstr(Command,"%%R")==NULL)
     {
-      char *MsgItems[]={GetMsg(MWarning),GetMsg(MCannotPutToFolder),
+      const char *MsgItems[]={GetMsg(MWarning),GetMsg(MCannotPutToFolder),
                         GetMsg(MPutToRoot),GetMsg(MOk),GetMsg(MCancel)};
       if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
         return(-1);

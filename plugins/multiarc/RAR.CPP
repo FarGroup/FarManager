@@ -17,7 +17,7 @@ static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
 static LONG NextPositionHigh;
 static int OldFormat;
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=0;I<DataSize-7;I++)
   {
@@ -40,7 +40,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   DWORD ReadSize;
 

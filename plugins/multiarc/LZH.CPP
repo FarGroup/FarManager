@@ -21,7 +21,7 @@
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=2;I<DataSize-5;I++)
   {
@@ -37,7 +37,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                        NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);

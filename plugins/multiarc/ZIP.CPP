@@ -22,7 +22,7 @@ static HANDLE ArcHandle;
 static DWORD SFXSize,NextPosition,FileSize;
 static int ArcComment,Truncated,FirstRecord;
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
   {
@@ -42,7 +42,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                        NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);

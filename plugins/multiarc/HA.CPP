@@ -39,7 +39,7 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
 static int timezone=0;
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (DataSize<26 || Data[0]!='H' || Data[1]!='A' || Data[3]>32)
     return(FALSE);
@@ -50,7 +50,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                        NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);

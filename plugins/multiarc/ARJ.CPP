@@ -23,7 +23,7 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
 static int ArcComment,ArcVolume,ArcRecovery;
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=0;I<DataSize-11;I++)
   {
@@ -38,7 +38,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   struct ARJHd1
   {

@@ -86,7 +86,7 @@ void WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelIte
 }
 
 
-int WINAPI _export SetDirectory(HANDLE hPlugin,char *Dir,int OpMode)
+int WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode)
 {
   PluginClass *Plugin=(PluginClass *)hPlugin;
   return(Plugin->SetDirectory(Dir,OpMode));
@@ -132,7 +132,7 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   Info->PluginMenuStrings=NULL;
   Info->PluginMenuStringsNumber=0;
   static char *PluginCfgStrings[1];
-  PluginCfgStrings[0]=GetMsg(MCfgLine0);
+  PluginCfgStrings[0]=(char*)GetMsg(MCfgLine0);
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
 }

@@ -83,15 +83,15 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
     if (!IgnoreErrors && ExecCode!=0)
     {
       char ErrMsg[200];
-      FSF.sprintf(ErrMsg,GetMsg(MArcNonZero),ExecCode);
-      char *MsgItems[]={GetMsg(MError),ArcName,ErrMsg,GetMsg(MOk)};
+      FSF.sprintf(ErrMsg,(char*)GetMsg(MArcNonZero),ExecCode);
+      const char *MsgItems[]={GetMsg(MError),ArcName,ErrMsg,GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       return(FALSE);
     }
   }
   else
   {
-    char *MsgItems[]={GetMsg(MError),GetMsg(MArcCommandNotFound),GetMsg(MOk)};
+    const char *MsgItems[]={GetMsg(MError),GetMsg(MArcCommandNotFound),GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
     return(FALSE);
   }
@@ -438,7 +438,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
                    FILE_FLAG_SEQUENTIAL_SCAN,NULL)) == INVALID_HANDLE_VALUE)
 
   {
-    char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),ListFileName,GetMsg(MOk)};
+    const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),ListFileName,GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
     CloseHandle(ListFile);
     return(FALSE);
@@ -514,7 +514,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     {
       CloseHandle(ListFile);
       DeleteFile(ListFileName);
-      char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
+      const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       return(FALSE);
     }
@@ -534,5 +534,3 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
 */
   return(TRUE);
 }
-
-

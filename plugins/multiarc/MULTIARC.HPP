@@ -54,16 +54,16 @@ Modify:
 #define MAX_COMMAND_LENGTH 32768
 
 
-typedef DWORD (WINAPI *PLUGINLOADFORMATMODULE)(char *ModuleName);
-typedef BOOL (WINAPI *PLUGINISARCHIVE)(char *Name,const unsigned char *Data,int DataSize);
-typedef BOOL (WINAPI *PLUGINOPENARCHIVE)(char *Name,int *Type);
+typedef DWORD (WINAPI *PLUGINLOADFORMATMODULE)(const char *ModuleName);
+typedef BOOL (WINAPI *PLUGINISARCHIVE)(const char *Name,const unsigned char *Data,int DataSize);
+typedef BOOL (WINAPI *PLUGINOPENARCHIVE)(const char *Name,int *Type);
 typedef int (WINAPI *PLUGINGETARCITEM)(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
 typedef BOOL (WINAPI *PLUGINCLOSEARCHIVE)(struct ArcInfo *Info);
 typedef BOOL (WINAPI *PLUGINGETFORMATNAME)(int Type,char *FormatName,char *DefaultExt);
 typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest);
 /* $ 13.09.2000 tran
   + Fmt.SetFarInfo */
-typedef void (WINAPI *PLUGINSETFARINFO)(struct PluginStartupInfo *plg);
+typedef void (WINAPI *PLUGINSETFARINFO)(const struct PluginStartupInfo *plg);
 /* tran 13.09.2000 $ */
 
 struct PluginItem
@@ -122,7 +122,7 @@ class PluginClass
     int ReadArchive(char *Name);
     int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
-    int SetDirectory(char *Dir,int OpMode);
+    int SetDirectory(const char *Dir,int OpMode);
     void GetOpenPluginInfo(struct OpenPluginInfo *Info);
     int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
     int ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
@@ -182,7 +182,7 @@ struct InitDialogItem
 int ConfigGeneral();
 int ConfigCommands();
 
-char *GetMsg(int MsgId);
+const char *GetMsg(int MsgId);
 int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
 
 /* $ 13.09.2000 tran
@@ -202,21 +202,21 @@ DWORD WINAPI ThreadWhatWaitingForKillListFile(LPVOID par);
 
 char* QuoteSpace(char *Str);
 char* QuoteText(char *Str);
-void ConvertNameToShort(char *Src,char *Dest);
-void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
+void ConvertNameToShort(const char *Src,char *Dest);
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
                      int ItemsNumber);
 void InsertCommas(unsigned long Number,char *Dest);
 int ToPercent(long N1,long N2);
-int IsCaseMixed(char *Str);
+int IsCaseMixed(const char *Str);
 int CheckForEsc();
-int LocalStrnicmp(char *Str1,char *Str2,int Length);
+int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
 int __isspace(int Chr);
 
-void SetRegKey(HKEY hRoot,char *Key,char *ValueName,char *ValueData);
-void SetRegKey(HKEY hRoot,char *Key,char *ValueName,DWORD ValueData);
-int GetRegKey(HKEY hRoot,char *Key,char *ValueName,char *ValueData,char *Default,DWORD DataSize);
-int GetRegKey(HKEY hRoot,char *Key,char *ValueName,int &ValueData,DWORD Default);
-int GetRegKey(HKEY hRoot,char *Key,char *ValueName,DWORD Default);
+void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
+void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData,char *Default,DWORD DataSize);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DWORD Default);
+int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
 
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;

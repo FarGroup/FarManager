@@ -4,7 +4,7 @@ int __isspace(int Chr)
 }
 
 
-char *GetMsg(int MsgId)
+const char *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
@@ -82,7 +82,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
       else
       {
         hScreen=Info.SaveScreen(0,0,-1,-1);
-        char *MsgItems[]={"",GetMsg(MWaitForExternalProgram)};
+        const char *MsgItems[]={"",GetMsg(MWaitForExternalProgram)};
         Info.Message(Info.ModuleNumber,0,NULL,MsgItems,
                       sizeof(MsgItems)/sizeof(MsgItems[0]),0);
       }
@@ -211,7 +211,7 @@ char* QuoteText(char *Str)
 }
 
 
-void ConvertNameToShort(char *Src,char *Dest)
+void ConvertNameToShort(const char *Src,char *Dest)
 {
   char ShortName[NM],AnsiName[NM];
   SetFileApisToANSI();
@@ -224,24 +224,27 @@ void ConvertNameToShort(char *Src,char *Dest)
 }
 
 
-void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
+void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,
                     int ItemsNumber)
 {
-  for (int I=0;I<ItemsNumber;I++)
+  int I;
+  struct FarDialogItem *PItem=Item;
+  const struct InitDialogItem *PInit=Init;
+  for (I=0;I<ItemsNumber;I++,PItem++,PInit++)
   {
-    Item[I].Type=Init[I].Type;
-    Item[I].X1=Init[I].X1;
-    Item[I].Y1=Init[I].Y1;
-    Item[I].X2=Init[I].X2;
-    Item[I].Y2=Init[I].Y2;
-    Item[I].Focus=Init[I].Focus;
-    Item[I].Selected=Init[I].Selected;
-    Item[I].Flags=Init[I].Flags;
-    Item[I].DefaultButton=Init[I].DefaultButton;
-    if ((unsigned int)Init[I].Data<2000)
-      strcpy(Item[I].Data,GetMsg((unsigned int)Init[I].Data));
+    PItem->Type=PInit->Type;
+    PItem->X1=PInit->X1;
+    PItem->Y1=PInit->Y1;
+    PItem->X2=PInit->X2;
+    PItem->Y2=PInit->Y2;
+    PItem->Focus=PInit->Focus;
+    PItem->Selected=PInit->Selected;
+    PItem->Flags=PInit->Flags;
+    PItem->DefaultButton=PInit->DefaultButton;
+    if ((unsigned int)PInit->Data<2000)
+      strcpy(PItem->Data,GetMsg((unsigned int)PInit->Data));
     else
-      strcpy(Item[I].Data,Init[I].Data);
+      strcpy(PItem->Data,PInit->Data);
   }
 }
 
@@ -274,7 +277,7 @@ int ToPercent(long N1,long N2)
 }
 
 
-int IsCaseMixed(char *Str)
+int IsCaseMixed(const char *Str)
 {
   while (*Str && !IsCharAlpha(*Str))
     Str++;
@@ -307,7 +310,7 @@ int CheckForEsc()
 }
 
 
-int LocalStrnicmp(char *Str1,char *Str2,int Length)
+int LocalStrnicmp(const char *Str1,const char *Str2,int Length)
 {
   char AnsiStr1[8192],AnsiStr2[8192];
   OemToChar(Str1,AnsiStr1);

@@ -43,7 +43,7 @@ static HANDLE ArcHandle;
 static DWORD SFXSize,FilesNumber;
 static DWORD UnpVer;
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   for (int I=0;I<(int)(DataSize-sizeof(struct CFHEADER));I++)
   {
@@ -64,7 +64,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   struct CFHEADER MainHeader;
   DWORD ReadSize;
@@ -179,4 +179,3 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   }
   return(FALSE);
 }
-

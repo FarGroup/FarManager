@@ -73,7 +73,7 @@ int PluginClass::ReadArchive(char *Name)
       {
         char FilesMsg[100];
         FSF.sprintf(FilesMsg,GetMsg(MArcReadFiles),ArcDataCount);
-        char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),
+        const char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),
                           Name,FilesMsg};
         Info.Message(Info.ModuleNumber,WaitMessage ? FMSG_KEEPBACKGROUND:0,NULL,MsgItems,
                    sizeof(MsgItems)/sizeof(MsgItems[0]),0);
@@ -145,19 +145,19 @@ int PluginClass::ReadArchive(char *Name)
   {
     case GETARC_BROKEN:
       {
-        char *MsgItems[]={GetMsg(MError),Name,GetMsg(MBadArchive),GetMsg(MOk)};
+        const char *MsgItems[]={GetMsg(MError),Name,GetMsg(MBadArchive),GetMsg(MOk)};
         Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       }
       break;
     case GETARC_UNEXPEOF:
       {
-        char *MsgItems[]={GetMsg(MError),Name,GetMsg(MUnexpEOF),GetMsg(MOk)};
+        const char *MsgItems[]={GetMsg(MError),Name,GetMsg(MUnexpEOF),GetMsg(MOk)};
         Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       }
       break;
     case GETARC_READERROR:
       {
-        char *MsgItems[]={GetMsg(MError),Name,GetMsg(MReadError),GetMsg(MOk)};
+        const char *MsgItems[]={GetMsg(MError),Name,GetMsg(MReadError),GetMsg(MOk)};
         Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       }
       break;
@@ -233,7 +233,7 @@ void PluginClass::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 }
 
 
-int PluginClass::SetDirectory(char *Dir,int OpMode)
+int PluginClass::SetDirectory(const char *Dir,int OpMode)
 {
   if (*Dir=='\\')
     if (*(++Dir)==0)
@@ -390,7 +390,6 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   static struct KeyBarTitles KeyBar;
   memset(&KeyBar,0,sizeof(KeyBar));
   KeyBar.ShiftTitles[1-1]="";
-  KeyBar.AltTitles[6-1]=GetMsg(MAltF6);
+  KeyBar.AltTitles[6-1]=(char*)GetMsg(MAltF6);
   Info->KeyBar=&KeyBar;
 }
-

@@ -25,10 +25,10 @@
 #endif
 
 
-BOOL WINAPI OpenArchivePipe(char *Name,int *Type);
+BOOL WINAPI OpenArchivePipe(const char *Name,int *Type);
 int GetString(char *Str,int MaxSize);
 int HexCharToNum(int HexChar);
-void ConvertNameToShort(char *Src,char *Dest);
+void ConvertNameToShort(const char *Src,char *Dest);
 int GetSectionName(int Num,char *Name);
 
 int CurType;
@@ -40,7 +40,7 @@ char FormatFileName[NM];
 char StartText[256],EndText[256],Format[8][256];
 int FormatNumber,IgnoreErrors;
 
-DWORD WINAPI _export LoadFormatModule(char *ModuleName)
+DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
 {
   strcpy(FormatFileName,ModuleName);
   strcpy(strrchr(FormatFileName,'\\')+1,"custom.ini");
@@ -48,9 +48,9 @@ DWORD WINAPI _export LoadFormatModule(char *ModuleName)
 }
 
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  char *Dot=strrchr(Name,'.');
+  char *Dot=strrchr((char*)Name,'.');
   for (int I=0;;I++)
   {
     char TypeName[100],Name[64],Ext[NM],ID[512];
@@ -108,7 +108,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   char TypeName[100],Command[512];
   if (!GetSectionName(CurType,TypeName))
@@ -199,7 +199,7 @@ BOOL WINAPI _export OpenArchive(char *Name,int *Type)
 }
 
 
-BOOL WINAPI OpenArchivePipe(char *Name,int *Type)
+BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
 {
   char TypeName[100],Command[512];
   if (!GetSectionName(CurType,TypeName))
@@ -544,7 +544,7 @@ int HexCharToNum(int HexChar)
 }
 
 
-void ConvertNameToShort(char *Src,char *Dest)
+void ConvertNameToShort(const char *Src,char *Dest)
 {
   char ShortName[NM],AnsiName[NM];
   int AnsiApis=AreFileApisANSI();

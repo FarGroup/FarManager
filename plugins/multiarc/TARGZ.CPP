@@ -35,7 +35,7 @@ struct time {
 
 void UnixToDos(long time, struct dosdate_t *d, struct time *t);
 int IsTarHeader(const unsigned char *Data,int DataSize);
-DWORD GetOctal(char *Str);
+DWORD GetOctal(const char *Str);
 
 enum {TAR_FORMAT,GZ_FORMAT,Z_FORMAT,BZ_FORMAT};
 
@@ -45,7 +45,7 @@ int timezone=0;
 int ArcType;
 char ZipName[NM];
 
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
+BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (IsTarHeader(Data,DataSize))
   {
@@ -64,10 +64,10 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
         ArcType=BZ_FORMAT;
       else
         return(FALSE);
-  char *NamePtr=strrchr(Name,'\\');
+  const char *NamePtr=(const char *)strrchr((char*)Name,'\\');
   NamePtr=(NamePtr==NULL) ? Name:NamePtr+1;
   strcpy(ZipName,NamePtr);
-  char *Dot=strrchr(NamePtr,'.');
+  const char *Dot=(const char *)strrchr((char*)NamePtr,'.');
   if (Dot!=NULL)
   {
     Dot++;
@@ -80,7 +80,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
 }
 
 
-BOOL WINAPI _export OpenArchive(char *Name,int *Type)
+BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                        NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
@@ -436,9 +436,8 @@ int IsTarHeader(const unsigned char *Data,int DataSize)
 }
 
 
-DWORD GetOctal(char *Str)
+DWORD GetOctal(const char *Str)
 {
   char *endptr;
   return(strtoul(Str,&endptr,8));
 }
-

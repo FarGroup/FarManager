@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-2001 FAR group
 */
 
-/* $Revision: 1.01 22.02.2001 $ */
+/* $Revision: 1.02 02.04.2001 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -65,11 +65,11 @@ struct ArcInfo
 extern "C" {
 #endif
 
-DWORD WINAPI _export LoadFormatModule(char *ModuleName);
-void  WINAPI _export SetFarInfo(struct PluginStartupInfo *Info);
+DWORD WINAPI _export LoadFormatModule(const char *ModuleName);
+void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info);
 
-BOOL  WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize);
-BOOL  WINAPI _export OpenArchive(char *Name,int *TypeArc);
+BOOL  WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize);
+BOOL  WINAPI _export OpenArchive(const char *Name,int *TypeArc);
 int   WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
 BOOL  WINAPI _export CloseArchive(struct ArcInfo *Info);
 BOOL  WINAPI _export GetFormatName(int TypeArc,char *FormatName,char *DefaultExt);
