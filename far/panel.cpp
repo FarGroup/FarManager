@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.125 03.06.2004 $ */
+/* Revision: 1.126 04.06.2004 $ */
 
 /*
 Modify:
+  04.06.2004 SVS
+    - Copy/Paste :-(
   03.06.2004 SVS
     ! SetPluginCommand теперь возвращает TRUE/FALSE
     ! подсократим код... за счет CtrlObject->Cp() -> FPanels
@@ -2113,7 +2115,7 @@ int Panel::SetPluginCommand(int Command,void *Param)
     case FCTL_SETPANELDIR:
     case FCTL_SETANOTHERPANELDIR:
     {
-      Panel *DestPanel=Command==FCTL_REDRAWANOTHERPANEL?AnotherPanel:this;
+      Panel *DestPanel=Command==FCTL_SETANOTHERPANELDIR?AnotherPanel:this;
       if (DestPanel && Param)
       {
         DestPanel->SetCurDir((char *)Param,TRUE);

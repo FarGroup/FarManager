@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.87 17.05.2004 $ */
+/* Revision: 1.88 04.06.2004 $ */
 
 /*
 Modify:
+  04.06.2004 SVS
+    ! Щёб KEY_APPS|KEY_CTRL|KEY_ALT не какал в regmon при каждом нажатии клавиш... изменим условие
   17.05.2004 SVS
     ! Для cl.exe (тот, что Microsoft позиционирует как freeware, version
       13.10.3052) сделаем уточнение для Test_EXCEPTION_STACK_OVERFLOW.
@@ -866,7 +868,7 @@ int  Manager::ProcessKey(int Key)
 
 #if defined(FAR_ALPHA_VERSION)
 // сей код для проверки исключатор, просьба не трогать :-)
-    if(GetRegKey("System\\Exception","Used",0) && Key == (KEY_APPS|KEY_CTRL|KEY_ALT))
+    if(Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GetRegKey("System\\Exception","Used",0))
     {
       struct __ECODE {
         DWORD Code;
