@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.48 08.08.2001 $ */
+/* Revision: 1.49 23.08.2001 $ */
 
 /*
 Modify:
+  23.08.2001 OT
+    - Исправление зависания фара по F10 из панелей с несохраненными файлами 
+      в редакторе. Криво была написана функция ExitAll() 
   08.08.2001 OT
     - Исправление CtrlF10 в редакторе/вьюере
   28.07.2001 OT
@@ -204,27 +207,20 @@ Manager::~Manager()
 */
 BOOL Manager::ExitAll()
 {
-  bool EnterFlag=false;
   int i;
-  do {
-    bool NoSavedFile=false;
-    int PrevFrameCount=FrameCount;
-    for (i=FrameCount-1; i>=1; i--,EnterFlag=false){
-      Frame *iFrame=FrameList[i];
-      if (!iFrame->GetCanLoseFocus(TRUE)){
-        NoSavedFile=true;
-        ActivateFrame(iFrame);
-        Commit();
-        iFrame->ProcessKey(KEY_ESC);
-        Commit();
-        EnterFlag=true;
-        break;
+  for (i=FrameCount-1; i>=1; i--){
+    Frame *iFrame=FrameList[i];
+    if (!iFrame->GetCanLoseFocus(TRUE)){
+      ActivateFrame(iFrame);
+      Commit();
+      int PrevFrameCount=FrameCount;
+      iFrame->ProcessKey(KEY_ESC);
+      Commit();
+      if (PrevFrameCount==FrameCount){
+        return FALSE;
       }
     }
-    if (NoSavedFile && PrevFrameCount==FrameCount){
-      return FALSE;
-    }
-  } while (EnterFlag);
+  }
   return TRUE;
 }
 /* IS $ */

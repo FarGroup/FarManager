@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.16 01.08.2001 $ */
+/* Revision: 1.17 23.08.2001 $ */
 
 /*
 Modify:
+  23.08.2001 VVM
+    ! Убран один лишний вызов. Остаток от предыдущего патча.
   01.08.2001 VVM
     + TotalStr в панели обрезается справа, а не слева
   17.06.2001 SVS
@@ -440,7 +442,6 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
     }
   }
   /* VVM $ */
-  TruncStr(TotalStr,X2-X1-1);
   Length=strlen(TotalStr);
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 

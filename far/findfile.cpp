@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.50 17.08.2001 $ */
+/* Revision: 1.51 23.08.2001 $ */
 
 /*
 Modify:
+  23.08.2001 VVM
+    + В диалоге поиска строка с каталогом расширена на 20 символов - все равно пустовали.
+    + Вызвать TruncPathStr() для каталога...
   17.08.2001 KM
     ! При редактировании найденного файла из архива функция "Сохранить"
       заменяется на функцию "Сохранить в", вызывая диалог для ввода имени.
@@ -655,7 +658,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             int SavePluginsOutput=DisablePluginsOutput;
             DisablePluginsOutput=TRUE;
             HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(UserDataItem.FindFileArcName,(unsigned char *)Buffer,ReadSize);
-            DisablePluginsOutput=DisablePluginsOutput;
+            DisablePluginsOutput=SavePluginsOutput;
 
             delete[] Buffer;
 
@@ -1412,7 +1415,7 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
       Tree.GetNextName(FindData,FindFileArcName);
     }
     strcpy(SizeText,MSG(MFindFileFolder));
-    sprintf(FileText,"%-30.30s     <%6.6s>",PathName,SizeText);
+    sprintf(FileText,"%-50.50s     <%6.6s>",TruncPathStr(PathName,50),SizeText);
     sprintf(ListItem.Name,"%-*.*s",DlgWidth-2,DlgWidth-2,FileText);
 
     memset(&UserDataItem,0,sizeof(UserDataItem));

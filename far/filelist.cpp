@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.88 21.08.2001 $ */
+/* Revision: 1.89 23.08.2001 $ */
 
 /*
 Modify:
+  23.08.2001 VVM
+    ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского
   21.08.2001 KM
     - Исправление глюка с вызовом меню выбора дисков на UNC путях
       при выходе из подкаталогов сетевого ресурса:
@@ -1755,7 +1757,11 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     {
       char FullPath[NM];
       AddEndSlash(strcpy(FullPath,CurDir));
-      strcat(FullPath,CurPtr->Name);
+      /* 23.08.2001 VVM
+        ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
+      if (strcmp(CurPtr->Name,".."))
+        strcat(FullPath,CurPtr->Name);
+      /* VVM $ */
       QuoteSpace(FullPath);
       Execute(FullPath,FALSE,SeparateWindow,TRUE);
     }

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.34 13.08.2001 $ */
+/* Revision: 1.35 23.08.2001 $ */
 
 /*
 Modify:
+  23.08.2001 OT
+    - исправление far -e file -> AltF9
   13.08.2001 SKV
     + GetSelString, Select
   07.08.2001 SVS
@@ -862,7 +864,9 @@ void CommandLine::SaveBackground()
 }
 void CommandLine::ShowBackground()
 {
-  BackgroundScreen->RestoreArea();
+  if (BackgroundScreen){
+    BackgroundScreen->RestoreArea();
+  }
 }
 
 void CommandLine::ResizeConsole()
