@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.12 09.01.2001 $ */
+/* Revision: 1.13 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 VVM
+    - Порядок сортировки задается аналогично StartSortOrder
   09.01.2001 SVS
     - Для KEY_XXX_BASE нужно прибавить 0x01
   05.01.2001 SVS
@@ -1091,8 +1093,10 @@ void Panel::SetPluginCommand(int Command,void *Param)
     case FCTL_SETANOTHERSORTORDER:
       if (Param!=NULL)
       {
-        int Order=*(int *)Param;
-        Order&=1; // 0 или 1 :-)
+        /* $ 22.01.2001 VVM
+           - Порядок сортировки задается аналогично StartSortOrder */
+        int Order = (*(int *)Param) ? -1:1;
+        /* VVM $ */
         Panel *DestPanel=(Command==FCTL_SETSORTORDER) ? this:AnotherPanel;
         if (DestPanel!=NULL)
           DestPanel->SetSortOrder(Order);
