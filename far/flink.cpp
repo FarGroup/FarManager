@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.21 24.09.2001 $ */
+/* Revision: 1.22 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    ! В FarGetRepasePointInfo буфер выделется динамически (alloca)
   24.09.2001 SVS
     + FarGetRepasePointInfo - для FSF.
     ! уточнение для GetPathRoot(), если в качестве параметра передали
@@ -382,10 +384,11 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
 
 int WINAPI FarGetRepasePointInfo(const char *Src,char *Dest,int DestSize)
 {
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 &&
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
+     WinVer.dwMajorVersion >= 5 &&
      Src && *Src)
   {
-    char TempDest[2048];
+    char *TempDest=(char *)alloca(Max((int)strlen(Src)*2,(int)2048));
     strcpy(TempDest,Src);
     AddEndSlash(TempDest);
     DWORD Size=GetJunctionPointInfo(TempDest,TempDest,sizeof(TempDest));

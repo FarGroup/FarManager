@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.12 05.09.2001 $ */
+/* Revision: 1.13 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Opt.AutoUpdateLimit -  выше этого количество не обновлять панели.
   05.09.2001 SVS
     ! Вместо полей Color* в структе FileListItem используется
       структура HighlightDataColor
@@ -421,19 +423,23 @@ void FileList::ReadFileNames(int KeepSelection)
 */
 int FileList::UpdateIfChanged(int Force)
 {
-  if (IsVisible() && (clock()-LastUpdateTime>2000 || Force))
+  //_SVS(SysLog("CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
+  if ((!Opt.AutoUpdateLimit || FileCount <= Opt.AutoUpdateLimit) &&
+      IsVisible() && (clock()-LastUpdateTime>2000 || Force))
   {
     if(!Force)ProcessPluginEvent(FE_IDLE,NULL);
     if (PanelMode==NORMAL_PANEL && hListChange!=NULL)
       if (WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0)
       {
         Update(UPDATE_KEEP_SELECTION);
-        if(!Force)Show();
+        if(!Force)
+          Show();
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         if (AnotherPanel->GetType()==INFO_PANEL)
         {
           AnotherPanel->Update(UPDATE_KEEP_SELECTION);
-          if(!Force)AnotherPanel->Redraw();
+          if(!Force)
+            AnotherPanel->Redraw();
         }
         return(TRUE);
       }

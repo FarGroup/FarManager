@@ -8,10 +8,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.58 20.09.2001 $ */
+/* Revision: 1.59 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + ѕолици€ 18 - если у "полиции" выставлен 18-й бит - не дать возможности
+      писать макросы.
   20.09.2001 SVS
     - остаток экрана при прорисовке, если закончили макрос в плагине (OT)
   14.09.2001 SVS
@@ -501,6 +504,9 @@ int KeyMacro::ProcessKey(int Key)
   }
   else if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // Ќачало записи?
   {
+    // ѕолици€ 18
+    if((Opt.Policies.DisabledOptions >> 18) & 1)
+      return FALSE;
 //    if(CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN))
 //      return FALSE;
 

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.31 25.07.2001 $ */
+/* Revision: 1.32 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    - Бага: При старте неверно выставлен текущий каталог
   25.07.2001 SVS
     ! Copyright переехала в global.cpp.
   06.07.2001 OT
@@ -167,9 +169,9 @@ void ControlObject::Init()
   FPanels->SetScreenPosition();
 
   _beginthread(CheckVersion,0x10000,NULL);
+
   Cp()->LeftPanel->Update(0);
   Cp()->RightPanel->Update(0);
-
   /* $ 07.09.2000 tran
     + Config//Current File */
   if (Opt.AutoSaveSetup)
@@ -178,8 +180,15 @@ void ControlObject::Init()
       Cp()->RightPanel->GoToFile(Opt.RightCurFile);
   }
   /* tran 07.09.2000 $ */
+
   Plugins.LoadPlugins();
   FrameManager->InsertFrame(FPanels);
+  char StartCurDir[NM];
+  Cp()->ActivePanel->GetCurDir(StartCurDir);
+  chdir(StartCurDir);
+  Cp()->ActivePanel->SetFocus();
+//  _SVS(SysLog("ActivePanel->GetCurDir='%s'",StartCurDir));
+//  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog("AnotherPanel->GetCurDir='%s'",PPP));
 }
 
 void ControlObject::CreateFilePanels()

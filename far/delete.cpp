@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.27 25.07.2001 $ */
+/* Revision: 1.28 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Opt.AutoUpdateLimit -  выше этого количество не обновлять пассивную
+      панель (если ее содержимое не равно активной).
   25.07.2001 IS
     ! При удалении размер сообщения такой же как и раньше (до 820).
   19.07.2001 SVS
@@ -476,8 +479,11 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel)
   int AnotherType=AnotherPanel->GetType();
   if (AnotherType!=QVIEW_PANEL)
   {
-    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-    AnotherPanel->Redraw();
+    if(AnotherPanel->NeedUpdatePanel(SrcPanel))
+    {
+      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+      AnotherPanel->Redraw();
+    }
   }
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
   SrcPanel->Redraw();

@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.20 03.08.2001 $ */
+/* Revision: 1.21 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + DeleteEndSlash (с подачи IS)
+    ! AddEndSlash имеет возвращаемый тип BOOL
   03.08.2001 IS
     ! InsertQuote теперь не static
   24.07.2001 IS
@@ -507,9 +510,9 @@ int HiStrlen(const char *Str,BOOL Dup)
 }
 
 
-int WINAPI AddEndSlash(char *Path)
+BOOL WINAPI AddEndSlash(char *Path)
 {
-  int Result=0;
+  BOOL Result=FALSE;
   if(Path)
   {
     /* $ 06.12.2000 IS
@@ -527,7 +530,7 @@ int WINAPI AddEndSlash(char *Path)
     }
     int Length=end-Path;
     char c=(Slash<BackSlash)?'/':'\\';
-    Result = 1;
+    Result=TRUE;
     if (Length==0)
     {
        *end=c;
@@ -541,13 +544,28 @@ int WINAPI AddEndSlash(char *Path)
        end[1]=c;
        end[2]=0;
      }
-     else *end=c;
+     else
+       *end=c;
     }
     /* IS $ */
   }
   return Result;
 }
 
+BOOL WINAPI DeleteEndSlash(char *Path)
+{
+  BOOL Result=FALSE;
+  if(Path)
+  {
+    int Length=strlen(Path)-1;
+    if (Length >= 0 && Path[Length]=='\\')
+    {
+      Path[Length]=0;
+      Result = TRUE;
+    }
+  }
+  return Result;
+}
 
 char *NullToEmpty(char *Str)
 {

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.91 10.09.2001 $ */
+/* Revision: 1.92 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    ! немного SysLog для выявления бага с текущим каталогом
   10.09.2001 SVS
     - Ctrl-Alt-Ins неверно работал для ".."
   07.09.2001 VVM
@@ -1990,10 +1992,14 @@ BOOL FileList::ChangeDir(char *NewDir)
   else
   {
     char FullNewDir[NM];
+    //_SVS(char FullCurDir[NM]);
 //    ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir));
     if (ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir)) >= sizeof(FullNewDir)){
       return (TRUE);
     }
+    //_SVS(ConvertNameToFull(CurDir,FullCurDir, sizeof(FullCurDir)));
+    //_SVS(SysLog("\nFullNewDir=%s\nFullCurDir=%s",FullNewDir,FullCurDir));
+
     if (LocalStricmp(FullNewDir,CurDir)!=0)
       CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
 

@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.91 24.09.2001 $ */
+/* Revision: 1.92 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Полиция 4 - Параметры внешних модулей
+    + Полиция 20 - Игнорировать путь к персональным плагинам
   24.09.2001 SVS
     + FSF.GetRepasePointInfo
     ! немного оптимизации (сокращение кода). Вместо индексов в массиве
@@ -394,7 +397,8 @@ void PluginsSet::LoadPlugins()
     if(!IPath)
     {
       // если пусто то прерываем поиск :-) независимо ни от чего...
-      if(Opt.PersonalPluginsPath[0])
+                                       // Полиция 20
+      if(Opt.PersonalPluginsPath[0] && !((Opt.Policies.DisabledOptions >> 20) & 1))
       {
         /* $ 01.08.2000 SVS
            Вот здесь и расширяем значение пути!!!
@@ -1901,6 +1905,10 @@ void PluginsSet::ConfigureCurrent(int PNum,int INum)
 */
 void PluginsSet::Configure(int StartPos)
 {
+  // Полиция 4 - Параметры внешних модулей
+  if((Opt.Policies.DisabledOptions >> 4) & 1)
+    return;
+
   for(;;)
   {
     DWORD Data;

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.94 16.09.2001 $ */
+/* Revision: 1.95 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Opt.AutoUpdateLimit -  выше этого количество не обновлять панели.
+      По умолчанию = 0 (всегда делать автоапдейт)
   16.09.2001 SVS
     ! Opt.ExceptCallDebugger удален в связи со сменой статуса опции
       Opt.ExceptRules
@@ -1092,6 +1095,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyPanel,"CtrlFRule",&Opt.PanelCtrlFRule,1, 0},
   {0, REG_DWORD,  NKeyPanel,"CtrlAltShiftRule",&Opt.PanelCtrlAltShiftRule,0, 0},
   {0, REG_DWORD,  NKeyPanel,"RememberLogicalDrives",&Opt.RememberLogicalDrives, 0, 0},
+  {0, REG_DWORD,  NKeyPanel,"AutoUpdateLimit",&Opt.AutoUpdateLimit, 0, 0},
 
   {1, REG_DWORD,  NKeyPanelLeft,"Type",&Opt.LeftPanel.Type,0, 0},
   {1, REG_DWORD,  NKeyPanelLeft,"Visible",&Opt.LeftPanel.Visible,1, 0},

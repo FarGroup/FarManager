@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.107 24.09.2001 $ */
+/* Revision: 1.108 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + DeleteEndSlash (с подачи IS)
   24.09.2001 SVS
     ! CleverSysLog - параметр у конструктора - "заголовок"
   20.09.2001 SVS
@@ -663,7 +665,8 @@ char* WINAPI TruncStr(char *Str,int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
-int  WINAPI AddEndSlash(char *Path);
+BOOL  WINAPI AddEndSlash(char *Path);
+BOOL  WINAPI DeleteEndSlash(char *Path);
 char *WINAPI FarItoa(int value, char *string, int radix);
 __int64 WINAPI FarAtoi64(const char *s);
 char *WINAPI FarItoa64(__int64 value, char *string, int radix);

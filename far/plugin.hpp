@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.145 24.09.2001 $ */
+/* Revision: 1.146 26.09.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,9 +20,11 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
-  24.09.2001 SVS 1.45
+  26.09.2001 SVS 1.146
+    ! AddEndSlash имеет возвращаемый тип BOOL
+  24.09.2001 SVS 1.145
     + FSF.GetRepasePointInfo
-  20.09.2001 SVS 1.44
+  20.09.2001 SVS 1.144
     ! У функции FSF.FarInputRecordToKey параметр имеет сущность "const"!
   15.09.2001 tran 1.143
     + VE_READ, VE_CLOSE
@@ -1558,7 +1560,7 @@ typedef char   *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
 typedef char   *(WINAPI *FARSTDPOINTTONAME)(char *Path);
 typedef void    (WINAPI *FARSTDGETPATHROOT)(const char *Path,char *Root);
-typedef int     (WINAPI *FARSTDADDENDSLASH)(char *Path);
+typedef BOOL    (WINAPI *FARSTDADDENDSLASH)(char *Path);
 typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(const char *Data);
 typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 typedef int     (WINAPI *FARSTDINPUTRECORDTOKEY)(const INPUT_RECORD *r);

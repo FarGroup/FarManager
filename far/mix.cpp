@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.91 24.09.2001 $ */
+/* Revision: 1.92 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    ! Ќемного увеличим размер временного буфера в ConvertNameToReal()
   24.09.2001 SVS
     - бага в ConvertNameToReal() (вот же, д€тел, блин :-((
   24.09.2001 SVS
@@ -1048,7 +1050,7 @@ end:
 */
 int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 {
-  char TempDest[1024];
+  char TempDest[2048];
   BOOL IsAddEndSlash=FALSE; // =TRUE, если слеш добавл€ли самосто€тельно
                             // в конце мы его того... удавим.
 
@@ -1111,8 +1113,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
           // но дл€ "Volume{" начало всегда будет корректным!
           memmove(TempDest2,TempDest2+4,strlen(TempDest2+4)+1);
           *Ptr=Chr; // восстановим символ
-          if(TempDest2[strlen(TempDest2)-1] == '\\')
-            TempDest2[strlen(TempDest2)-1]=0;
+          DeleteEndSlash(TempDest2);
           strcat(TempDest2,Ptr);
           strcpy(TempDest,TempDest2);
           Ret=strlen(TempDest);

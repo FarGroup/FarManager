@@ -7,10 +7,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.09 09.08.2001 $ */
+/* Revision: 1.10 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Panel::NeedUpdatePanel() - нужно ли обновлять панели с учетом нового
+      параметра Opt.AutoUpdateLimit
   09.08.2001 SVS
     + virtual long GetFileCount() для нужд макросов :-)
   22.06.2001 SKV
@@ -102,9 +105,16 @@ class Panel:public ScreenObject
     int ModalMode;
     int PluginCommand;
     BYTE PluginParam[1024];
+
+  public:
+    struct PanelViewSettings ViewSettings;
+    int ProcessingPluginCommand;
+
   public:
     Panel();
     virtual ~Panel();
+
+  public:
     virtual void SetCurDir(char *NewDir,int ClosePlugin);
     virtual void ChangeDirToCurrent();
     virtual void GetCurDir(char *CurDir);
@@ -208,8 +218,7 @@ class Panel:public ScreenObject
     int MakeListFile(char *ListFileName,int ShortNames,char *Modifers=NULL);
     int SetCurPath();
 
-    struct PanelViewSettings ViewSettings;
-    int ProcessingPluginCommand;
+    BOOL NeedUpdatePanel(Panel *AnotherPanel);
 };
 
 #endif	// __PANEL_HPP__

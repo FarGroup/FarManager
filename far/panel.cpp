@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.59 24.09.2001 $ */
+/* Revision: 1.60 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Panel::NeedUpdatePanel() - нужно ли обновлять панели с учетом нового
+      параметра Opt.AutoUpdateLimit
   24.09.2001 SVS
     ! немного оптимизации (сокращение кода)
   26.07.2001 SVS
@@ -1641,4 +1644,13 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
   if(IsPersistent)
     Opt.ChangeDriveDisconnetMode=DCDlg[5].Selected;
   return ExitCode == 7;
+}
+
+BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
+{
+  if(!Opt.AutoUpdateLimit ||
+     GetFileCount() <= Opt.AutoUpdateLimit ||
+     !stricmp(AnotherPanel->CurDir,CurDir))
+    return TRUE;
+  return FALSE;
 }

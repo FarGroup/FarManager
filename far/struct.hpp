@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.67 08.09.2001 $ */
+/* Revision: 1.68 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Opt.AutoUpdateLimit -  выше этого количество автоматически
+      не обновлять панели.
   08.09.2001 VVM
     + Постоянные блоки в строках ввода - Opt.DialogsEditBlock;
       0 - Блоки непостоянные
@@ -469,6 +472,7 @@ struct Options
   struct DizOptions Diz;
   struct PanelOptions LeftPanel;
   struct PanelOptions RightPanel;
+  DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
   char Language[80];
   char HelpLanguage[80];
   int SmallIcon;

@@ -5,10 +5,13 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.10 24.07.2001 $ */
+/* Revision: 1.11 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    + Opt.AutoUpdateLimit -  выше этого количество не обновлять пассивную
+      панель (если ее содержимое не равно активной).
   24.07.2001 IS
     ! Уточнение предыдущего изменения SVS. Первоначальный предложенный мною
       вариант не учитывал такую ситуацию, как пробелы, а потом имя каталога в
@@ -150,8 +153,13 @@ void ShellMakeDir(Panel *SrcPanel)
     SrcPanel->GoToFile(DirName);
   }
   SrcPanel->Redraw();
+
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-  AnotherPanel->Redraw();
+  int AnotherType=AnotherPanel->GetType();
+  if(AnotherPanel->NeedUpdatePanel(SrcPanel) || AnotherType==QVIEW_PANEL)
+  {
+    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+    AnotherPanel->Redraw();
+  }
 }
 /* IS $ */

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.61 08.09.2001 $ */
+/* Revision: 1.62 26.09.2001 $ */
 
 /*
 Modify:
+  26.09.2001 SVS
+    - Ѕага с Ctrl-F10, когда указывалс€ корень диска.
   08.09.2001 IS
     + ƒополнительный параметр у второго конструктора: DisableHistory
   17.08.2001 KM
@@ -592,12 +594,19 @@ int FileEditor::ProcessKey(int Key)
           /* IS $ */
           if(strchr(FileName,'\\') || strchr(FileName,'/'))
           {
-            char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp;
+            char DirTmp[NM],ADir[NM],PDir[NM],NameFile[NM],*NameTmp;
             strncpy(DirTmp,FileName,NM);
             NameTmp=PointToName(DirTmp);
-            if(NameTmp>DirTmp)NameTmp[-1]=0;
+            if(NameTmp>DirTmp)
+            {
+              strcpy(NameFile,NameTmp);
+              *NameTmp=0;
+            }
             CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(PDir);
             CtrlObject->Cp()->ActivePanel->GetCurDir(ADir);
+//  _SVS(SysLog("Editor:APanel->GetCurDir='%s'",ADir));
+//  _SVS(SysLog("Editor:PPanel->GetCurDir='%s'",PDir));
+//  _SVS(SysLog("Editor:DirTmp='%s'",DirTmp));
             /* $ 10.04.2001 IS
                  Ќе делаем SetCurDir, если нужный путь уже есть на открытых
                  панел€х, тем самым добиваемс€ того, что выделение с элементов
@@ -613,7 +622,7 @@ int FileEditor::ProcessKey(int Key)
             if(!AExist && !PExist)
                 CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
             /* IS */
-            CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
+            CtrlObject->Cp()->ActivePanel->GoToFile(NameFile);
           }else
           {
             CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
