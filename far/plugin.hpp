@@ -3,13 +3,15 @@
 /*
   PLUGIN.HPP
 
-  Plugin API for FAR Manager 1.66
+  Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.19 09.08.2000 $ */
+/* Revision: 1.20 17.08.2000 $ */
 
 /*
 Modify:
+  17.08.2000 SVS
+    ! Изменение номера весрии :-)
   09.08.2000 SVS
     + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
       истории задается отдельно!!!
