@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.16 10.09.2000 $ */
+/* Revision: 1.17 11.09.2000 $ */
 
 /*
 Modify:
+  11.09.2000 SVS
+    + если Far\Dialog\EULBsClear = 1, то BS в диалогах для UnChanged строки
+      удаляет такую строку также, как и Del
   10.09.2000 SVS
     ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
@@ -615,6 +618,12 @@ void ReadConfig()
   GetRegKey("Viewer","TypeWrap",Opt.ViewerTypeWrap,VIEW_WRAP);
   /* SVS $*/
 
+  /* $ 11.09.2000 SVS
+     если EULBsClear = 1, то BS в диалогах для UnChanged строки
+     удаляет такую строку также, как и Del
+  */
+  GetRegKey("Dialog","EULBsClear",Opt.DlgEULBsClear,0);
+  /* SVS $*/
 
   GetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor,"",sizeof(Opt.ExternalEditor));
   GetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor,0);
@@ -802,6 +811,13 @@ void SaveConfig(int Ask)
      ! Opt.ViewerTypeWrap
   */
   SetRegKey("Viewer","TypeWrap",Opt.ViewerTypeWrap);
+  /* SVS $*/
+
+  /* $ 11.09.2000 SVS
+     если EULBsClear = 1, то BS в диалогах для UnChanged строки
+     удаляет такую строку также, как и Del
+  */
+  SetRegKey("Dialog","EULBsClear",Opt.DlgEULBsClear);
   /* SVS $*/
 
   SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);

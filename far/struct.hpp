@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.14 09.09.2000 $ */
+/* Revision: 1.15 11.09.2000 $ */
 
 /*
 Modify:
+  11.09.2000 SVS
+   + В Opt добавлена переменная DlgEULBsClear
+     если = 1, то BS в диалогах для UnChanged строки удаляет такую
+     строку также, как и Del
   09.09.2000 SVS 1.14
    + CHAR_INFO *VBuf; в элементах диалога
   07.09.2000 tran 1.13
@@ -267,6 +271,14 @@ struct Options
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
   */
   struct CodeXLAT XLat;
+  /* SVS $*/
+
+  /* $ 11.09.2000 SVS
+     В Opt добавлена переменная DlgEULBsClear
+     если = 1, то BS в диалогах для UnChanged строки удаляет такую
+     строку также, как и Del
+  */
+  int DlgEULBsClear;
   /* SVS $*/
 };
 
