@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.02 01.09.2000 $ */
+/* Revision: 1.03 21.09.2000 $ */
 
 /*
 Modify:
+  21.09.2000 SVS
+    + поле SysID - системный идентификатор плагина
   01.09.2000 tran 1.02
     + PluginsSet::LoadPluginsFromCache()
   03.08.2000 tran 1.01
@@ -56,6 +58,14 @@ struct PluginItem
   HMODULE hModule;
   WIN32_FIND_DATA FindData;
   Language Lang;
+  /* $ 21.09.2000 SVS
+     поле - системный идентификатор плагина
+     Плагин должен сам задавать, например для
+     Network      = 0x5774654E (NetW)
+     PrintManager = 0x6E614D50 (PMan)
+  */
+  DWORD SysID;
+  /* SVS $ */
   int Cached;
   int CachePos;
   int EditorPlugin;

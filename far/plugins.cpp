@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.28 20.09.2000 $ */
+/* Revision: 1.29 21.09.2000 $ */
 
 /*
 Modify:
+  21.09.2000 SVS
+    + Работа с  PluginItem.SysID - системный идентификатор плагина
   20.09.2000 SVS
     ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   19.09.2000 SVS
@@ -229,6 +231,7 @@ void PluginsSet::LoadPlugins()
         {
           char RegKey[100];
           sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
+          CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
           CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
           CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
           CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
@@ -317,6 +320,7 @@ void PluginsSet::LoadPluginsFromCache()
         GetRegKey(RegKey,"Name",CurPlugin.ModuleName,"",NM);
         strcat(RegKey,"\\");
         strcat(RegKey,"Exports");
+        CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
         CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
         CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
         CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
@@ -643,6 +647,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
   struct PluginInfo Info;
   memset(&Info,0,sizeof(Info));
   CurPlugin.pGetPluginInfo(&Info);
+  CurPlugin.SysID=Info.SysID;
   if (Info.Flags & PF_PRELOAD)
     return(FALSE);
   /* $ 13.07.2000 IS
@@ -692,6 +697,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       SetRegKey(RegKey,"CommandPrefix",NullToEmpty(Info.CommandPrefix));
       SetRegKey(RegKey,"Flags",Info.Flags);
       sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",I0);
+      SetRegKey(RegKey,"SysID",CurPlugin.SysID);
       SetRegKey(RegKey,"OpenPlugin",CurPlugin.pOpenPlugin!=NULL);
       SetRegKey(RegKey,"OpenFilePlugin",CurPlugin.pOpenFilePlugin!=NULL);
       SetRegKey(RegKey,"SetFindList",CurPlugin.pSetFindList!=NULL);

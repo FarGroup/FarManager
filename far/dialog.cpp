@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.43 20.09.2000 $ */
+/* Revision: 1.44 22.09.2000 $ */
 
 /*
 Modify:
+  22.09.2000 SVS
+   ! Уточнение AutoComplete при постоянных блоках.
   20.09.2000 SVS
    ! Enter в строках ввода (кроме DIF_EDITOR) завершает диалог.
   18.09.2000 SVS
@@ -1940,7 +1942,12 @@ int Dialog::ProcessKey(int Key)
             {
               // ненать по возможности :-)
               if(CurPos <= SelEnd)
+              {
                 Str[CurPos]=0;
+                edt->Select(CurPos,sizeof(Str)); //select the appropriate text
+                edt->DeleteBlock();
+                edt->FastShow();
+              }
             }
             SelEnd=strlen(Str);
             //find the string in the list

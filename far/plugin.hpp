@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.54 20.09.2000 $ */
+/* Revision: 1.55 21.09.2000 $ */
 
 /*
 Modify:
+  21.09.2000 SVS
+    + OPEN_FILEPANEL открыт из файловой панели.
+    + Поле PluginInfo.SysID - системный идентификатор плагина
   20.09.2000 SVS
     ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   19.09.2000 SVS
@@ -1225,6 +1228,7 @@ struct PluginInfo
   char **PluginConfigStrings;
   int PluginConfigStringsNumber;
   char *CommandPrefix;
+  DWORD SysID;
 };
 
 
@@ -1326,7 +1330,8 @@ enum {
   OPEN_SHORTCUT,
   OPEN_COMMANDLINE,
   OPEN_EDITOR,
-  OPEN_VIEWER
+  OPEN_VIEWER,
+  OPEN_FILEPANEL,
 };
 
 enum {PKF_CONTROL=1,PKF_ALT=2,PKF_SHIFT=4};

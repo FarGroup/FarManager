@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.01 11.09.2000 $ */
+/* Revision: 1.02 21.09.2000 $ */
 
 /*
 Modify:
+  21.09.2000 SVS
+    + Функция CallPlugin - найти плагин по ID и запустить
   11.09.2000 SVS
     + Переменная IsEmpty, указывающая на полностью пустую колонку
   25.06.2000 SVS
@@ -190,6 +192,12 @@ class FileList:public Panel
     static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
     static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
     static int IsModeFullScreen(int Mode);
+
+    /* $ 21.09.2000 SVS
+      Функция CallPlugin - найти плагин по ID и запустить
+    */
+    int CallPlugin(DWORD SysID,char *Data);
+    /* SVS $ */
 };
 
 #endif	// __FILELIST_HPP__

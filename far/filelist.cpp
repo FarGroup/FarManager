@@ -1391,6 +1391,24 @@ void FileList::ChangeDir(char *NewDir)
     ConvertNameToFull(SetDir,FullNewDir);
     if (LocalStricmp(FullNewDir,CurDir)!=0)
       CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
+
+    /* $ 21.09.2000 SVS
+       Отловим момент ".." и "\\host\share"
+    */
+    if(!strcmp(SetDir,".."))
+    {
+      if(CurDir[0] == '\\' && CurDir[1] == '\\')
+      {
+        char *PtrS1=strchr(CurDir+2,'\\');
+        if(PtrS1 && !strchr(PtrS1+1,'\\'))
+        {
+          //*PtrS1=0;
+          if(CallPlugin(0x5774654E,CurDir)) // NetWork Plugin :-)
+            return;
+        }
+      }
+    }
+    /* SVS $ */
   }
 
   strcpy(FindDir,PointToName(CurDir));
@@ -2602,3 +2620,37 @@ void FileList::ProcessCopyKeys(int Key)
       AnotherPanel->ProcessKey(KEY_ENTER);
   }
 }
+
+/* $ 21.09.2000 SVS
+   найти и загрузить!
+*/
+int FileList::CallPlugin(DWORD SysID,char *PluginData)
+{
+  if(SysID != 0 && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
+    for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
+    {
+      if (CtrlObject->Plugins.PluginsData[I].SysID == SysID)
+      {
+        if (CtrlObject->Plugins.PluginsData[I].pOpenPlugin)
+        {
+          HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_FILEPANEL,(int)PluginData);
+          if (hNewPlugin!=INVALID_HANDLE_VALUE)
+          {
+            int CurFocus=GetFocus();
+            Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
+            NewPanel->SetPluginMode(hNewPlugin,"");
+            if (*PluginData)
+              CtrlObject->Plugins.SetDirectory(hNewPlugin,PluginData,0);
+            NewPanel->Update(0);
+            if (CurFocus || !CtrlObject->GetAnotherPanel(NewPanel)->IsVisible())
+              NewPanel->SetFocus();
+            NewPanel->Show();
+          }
+          return TRUE;
+        }
+        break;
+      }
+    }
+  return FALSE;
+}
+/* SVS $ */
