@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.220 31.03.2003 $ */
+/* Revision: 1.221 15.04.2003 $ */
 
 /*
 Modify:
+  15.04.2003 VVM
+    ! После поиска отступим на четверть и проверим на перекрытие диалогом замены
   31.03.2003 SVS
     + _SYS_EE_REDRAW
   05.03.2003 SVS
@@ -3978,10 +3980,12 @@ BOOL Editor::Search(int Next)
            ! По окончании поиска отступим от верха экрана на
              треть отображаемой высоты.
         */
-        int FromTop=(ScrY-2)/3;
-        if (FromTop<0 || FromTop>ScrY)
+        /* $ 15.04.2003 VVM
+           Отступим на четверть и проверим на перекрытие диалогом замены */
+        int FromTop=(ScrY-2)/4;
+        if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
           FromTop=0;
-
+        /* VVM $ */
         TmpPtr=CurLine=CurPtr;
         for (int i=0;i<FromTop;i++)
         {
