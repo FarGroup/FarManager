@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.69 07.12.2000 $ */
+/* Revision: 1.70 08.12.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  08.12.2000 SVS 1.70
+    ! Оригинальный номер ревизии получился - 1.70 ;-) - символично.
+      Для DM_SETTEXT, DM_GETTEXT в Param2 передается структура
+      FarDialogItemData.
   07.12.2000 SVS
     ! Изменена константа FARMANAGERVERSION. Остальное читайте в
       DIFF.DOC\00300.FAR_VERSION.txt
@@ -541,6 +545,11 @@ struct FarMenuItem
   int Separator;
 };
 
+struct FarDialogItemData
+{
+  int   DataLength;
+  char *DataPtr;
+};
 
 enum {FCTL_CLOSEPLUGIN,FCTL_GETPANELINFO,FCTL_GETANOTHERPANELINFO,
       FCTL_UPDATEPANEL,FCTL_UPDATEANOTHERPANEL,

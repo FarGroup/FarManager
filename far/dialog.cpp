@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.58 06.12.2000 $ */
+/* Revision: 1.59 08.12.2000 $ */
 
 /*
 Modify:
+  08.12.2000 SVS
+   ! DM_SET(GET)TEXT - Param2 указатель на структуру FarDialogItemData
   06.12.2000 SVS
    - Охрененная бага с SelectOnEntry() - эта функция вызывалась
      до создания редактора!!!
@@ -3477,63 +3479,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     /* SVS $ */
 
-    case DM_SETTEXT:
-      if(Param2) // если здесь NULL, то это еще один способ получить размер
-      {
-        switch(Type)
-        {
-          case DI_USERCONTROL:
-          case DI_TEXT:
-          case DI_VTEXT:
-          case DI_SINGLEBOX:
-          case DI_DOUBLEBOX:
-            strncpy(Ptr,(char *)Param2,512);
-            if(Dlg->CheckDialogMode(DMODE_SHOW))
-            {
-              Dlg->ShowDialog(Param1);
-              ScrBuf.Flush();
-            }
-            return strlen((char *)Param2)+1;
-
-          case DI_BUTTON:
-          case DI_CHECKBOX:
-          case DI_RADIOBUTTON:
-            strcpy(Ptr,(char *)Param2);
-            break;
-
-          case DI_COMBOBOX:
-          case DI_EDIT:
-          case DI_PSWEDIT:
-          case DI_FIXEDIT:
-            ((Edit *)(CurItem->ObjPtr))->SetString((char *)Param2);
-            ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
-            break;
-
-          case DI_LISTBOX: // пока не трогаем - не реализован
-            return 0;
-
-          default:  // подразумеваем, что остались
-            return 0;
-        }
-        Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-        if(Dlg->CheckDialogMode(DMODE_SHOW)) // достаточно ли этого????!!!!
-        {
-          Dlg->ShowDialog(Param1);
-          ScrBuf.Flush();
-        }
-        return strlen((char *)Param2)+1;
-      }
-      return 0;
-
-    case DM_SETTEXTLENGTH:
-      if(IsEdit(Type) && !(CurItem->Flags & DIF_DROPDOWNLIST))
-      {
-        Param1=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
-        ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
-        Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-        return Param1;
-      }
-      return 0;
 
     case DN_LISTCHANGE:
       return Dlg->DlgProc(hDlg,Msg,Param1,(long)&CurItem->ListItems);
@@ -3584,46 +3529,58 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_GETTEXT:
       if(Param2) // если здесь NULL, то это еще один способ получить размер
       {
+        struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
+        Len=0;
         switch(Type)
         {
-          case DI_BUTTON:
-            Len=strlen(Ptr);
-            if (!(CurItem->Flags & DIF_NOBRACKETS))
-            {
-              Ptr+=2;
-              Len-=4;
-            }
-            memmove((char *)Param2,Ptr,Len);
-            ((char *)Param2)[Len]=0;
-            break;
+          case DI_COMBOBOX:
+          case DI_EDIT:
+          case DI_PSWEDIT:
+          case DI_FIXEDIT:
+            ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
+            Ptr=Str;
 
-          case DI_USERCONTROL:
           case DI_TEXT:
           case DI_VTEXT:
           case DI_SINGLEBOX:
           case DI_DOUBLEBOX:
           case DI_CHECKBOX:
           case DI_RADIOBUTTON:
-            strcpy((char *)Param2,Ptr);
+          case DI_BUTTON:
+
+            Len=strlen(Ptr)+1;
+            if (!(CurItem->Flags & DIF_NOBRACKETS) && Type == DI_BUTTON)
+            {
+              Ptr+=2;
+              Len-=4;
+            }
+
+            if(!did->DataLength)
+              did->DataLength=Len;
+            else if(Len > did->DataLength)
+              Len=did->DataLength;
+
+            if(Len > 0 && did->DataPtr)
+            {
+              memmove(did->DataPtr,Ptr,Len);
+              did->DataPtr[Len]=0;
+            }
             break;
 
-          case DI_COMBOBOX:
-          case DI_EDIT:
-          case DI_PSWEDIT:
-          case DI_FIXEDIT:
-            ((Edit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
-            strcpy((char *)Param2,Str);
+          case DI_USERCONTROL:
+            did->DataLength=CurItem->Ptr.DataLength;
+            did->DataPtr=(char*)CurItem->Ptr.DataPtr;
             break;
 
           case DI_LISTBOX: // пока не трогаем - не реализован
-            *(char *)Param2='\0';
+            did->DataLength=0;
             break;
 
           default:  // подразумеваем, что остались
-            *(char *)Param2='\0';
+            did->DataLength=0;
             break;
         }
-        return strlen((char *)Param2)+1;
+        return Len;
       }
       // здесь умышленно не ставим return, т.к. хотим получить размер
       // следовательно сразу должен идти "case DM_GETTEXTLENGTH"!!!
@@ -3638,6 +3595,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           break;
 
         case DI_USERCONTROL:
+          Len=CurItem->Ptr.DataLength;
+          break;
+
         case DI_TEXT:
         case DI_VTEXT:
         case DI_SINGLEBOX:
@@ -3661,6 +3621,104 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           break;
       }
       return Len;
+
+    case DM_SETTEXT:
+      if(Param2) // если здесь NULL, то это еще один способ получить размер
+      {
+        struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
+        Len=0;
+        switch(Type)
+        {
+          case DI_USERCONTROL:
+            CurItem->Ptr.DataLength=did->DataLength;
+            CurItem->Ptr.DataPtr=did->DataPtr;
+            return CurItem->Ptr.DataLength;
+
+          case DI_TEXT:
+          case DI_VTEXT:
+          case DI_SINGLEBOX:
+          case DI_DOUBLEBOX:
+            if(!(Len=did->DataLength))
+            {
+              strncpy(Ptr,(char *)did->DataPtr,511);
+              Len=strlen(Ptr)+1;
+            }
+            else
+            {
+              if((unsigned)did->DataLength > 511)
+                Len=511;
+              memmove(Ptr,(char *)did->DataPtr,Len);
+              Ptr[Len]=0;
+            }
+            if(Dlg->CheckDialogMode(DMODE_SHOW))
+            {
+              Dlg->ShowDialog(Param1);
+              ScrBuf.Flush();
+            }
+            return Len;
+
+          case DI_BUTTON:
+          case DI_CHECKBOX:
+          case DI_RADIOBUTTON:
+            if(!(Len=did->DataLength))
+            {
+              strncpy(Ptr,(char *)did->DataPtr,511);
+              Len=strlen(Ptr)+1;
+            }
+            else
+            {
+              if((unsigned)did->DataLength > 511)
+                Len=511;
+              memmove(Ptr,(char *)did->DataPtr,Len);
+              Ptr[Len]=0;
+            }
+            break;
+
+          case DI_COMBOBOX:
+          case DI_EDIT:
+          case DI_PSWEDIT:
+          case DI_FIXEDIT:
+            if(!(Len=did->DataLength))
+            {
+              strncpy(Ptr,(char *)did->DataPtr,511);
+              Len=strlen(Ptr)+1;
+            }
+            else
+            {
+              if((unsigned)did->DataLength > 511)
+                Len=511;
+              memmove(Ptr,(char *)did->DataPtr,Len);
+              Ptr[Len]=0;
+            }
+            ((Edit *)(CurItem->ObjPtr))->SetString((char *)Ptr);
+            ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+            break;
+
+          case DI_LISTBOX: // пока не трогаем - не реализован
+            return 0;
+
+          default:  // подразумеваем, что остались
+            return 0;
+        }
+        Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
+        if(Dlg->CheckDialogMode(DMODE_SHOW)) // достаточно ли этого????!!!!
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
+        return strlen((char *)Ptr)+1; //???
+      }
+      return 0;
+
+    case DM_SETTEXTLENGTH:
+      if(IsEdit(Type) && !(CurItem->Flags & DIF_DROPDOWNLIST))
+      {
+        Param1=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
+        ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
+        Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
+        return Param1;
+      }
+      return 0;
 
     case DM_GETDLGITEM:
       if(Param2)

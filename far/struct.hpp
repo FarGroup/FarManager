@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.28 29.11.2000 $ */
+/* Revision: 1.29 08.12.2000 $ */
 
 /*
 Modify:
+  08.12.2000 SVS
+   ! изменения в структуре DialogItem.
   29.11.2000 SVS
    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
      он имеет атрибуты R|S|H
@@ -493,6 +495,9 @@ struct EditorUndoData
 /* $ 12.08.2000 KM
    Дополнительное поле, содержащее маску ввода
 */
+/* $ 08.12.2000 SVS
+   Data "объединен" с новой структурой
+*/
 struct DialogItem
 {
   unsigned char Type;
@@ -507,10 +512,16 @@ struct DialogItem
   };
   DWORD Flags;
   unsigned char DefaultButton;
-  char Data[512];
+  union {
+    char Data[512];
+    struct {
+      int   DataLength;
+      void *DataPtr;
+    } Ptr;
+  };
   void *ObjPtr;
 };
-
+/* SVS $ */
 
 /*
 Описывает один элемент диалога - для сокращения объемов
