@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.158 11.12.2004 $ */
+/* Revision: 1.159 31.01.2005 $ */
 
 /*
 Modify:
+  31.01.2005 SVS
+    - BugZ#1249 - ƒополнительна€ информативность в диалоге "Assign Hotkey"
   11.12.2004 WARP
     ! –азборки с FE_CLOSE, приход€щим на панель плагина при
       попытке открыть поверх панели плагин, которому нова€ панель
@@ -2634,9 +2636,14 @@ void PluginsSet::Configure(int StartPos)
             if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
             {
               BlockExtKey blockExtKey;
+              struct PluginInfo Info;
+              char Name00[NM];
+              xstrncpy(Name00,PluginList.GetItemPtr()->Name+3,sizeof(Name00)-1);
+              RemoveExternalSpaces(Name00);
               if(GetMenuHotKey(NULL,1,
                         (char *)MPluginHotKeyTitle,
                         (char *)MPluginHotKey,
+                        Name00,
                         NULL,RegKey,"ConfHotkey"))
               {
                 PluginList.Hide();
@@ -2819,7 +2826,10 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
           {
             BlockExtKey blockExtKey;
-            if(GetMenuHotKey(NULL,1,(char *)MPluginHotKeyTitle,(char *)MPluginHotKey,NULL,RegKey,"Hotkey"))
+            char Name00[NM];
+            xstrncpy(Name00,PluginList.GetItemPtr()->Name+3,sizeof(Name00)-1);
+            RemoveExternalSpaces(Name00);
+            if(GetMenuHotKey(NULL,1,(char *)MPluginHotKeyTitle,(char *)MPluginHotKey,Name00,NULL,RegKey,"Hotkey"))
             {
               PluginList.Hide();
               NeedUpdateItems=TRUE;

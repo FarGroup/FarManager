@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.218 21.01.2005 $ */
+/* Revision: 1.219 31.01.2005 $ */
 
 /*
 Modify:
+  31.01.2005 SVS
+    ! ¬ GetMenuHotKey() новый параметр - "им€ плагина"
   21.01.2005 SVS
     + GetVolumeInformation_Dump
   11.11.2004 SVS
@@ -1568,6 +1570,7 @@ int MkStrFTime(char *Dest,int DestSize,const char *Fmt=NULL);
 BOOL WINAPI GetMenuHotKey(char *HotKey,int LenHotKey,
                           char *DlgHotKeyTitle,
                           char *DlgHotKeyText,
+                          char *DlgPluginTitle,  // заголовок
                           char *HelpTopic,
                           char *RegKey,
                           char *RegValueName);

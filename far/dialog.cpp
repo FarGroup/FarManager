@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.323 29.01.2005 $ */
+/* Revision: 1.324 31.01.2005 $ */
 
 /*
 Modify:
+  31.01.2005 SVS
+    ! уточнение для "обрезания" :-)
   29.01.2005 WARP
     ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
   29.01.2005 WARP
@@ -2786,7 +2788,12 @@ void Dialog::ShowDialog(int ID)
           X=0;
 
         if(X1+X+LenText > X2)
-           Str[ObjWidth-1]=0;
+        {
+          int tmpCW=ObjWidth;
+          if(CW < ObjWidth)
+            tmpCW=CW+1;
+          Str[tmpCW-1]=0;
+        }
 
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);

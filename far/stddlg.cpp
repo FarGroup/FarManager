@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.29 06.08.2004 $ */
+/* Revision: 1.30 31.01.2005 $ */
 
 /*
 Modify:
+  31.01.2005 SVS
+    ! В GetMenuHotKey() новый параметр - "имя плагина"
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   01.03.2004 SVS
@@ -679,6 +681,7 @@ BOOL WINAPI GetMenuHotKey(char *HotKey,          // хоткей, может быть =NULL
                           int LenHotKey,         // блина хоткея (мин. = 1)
                           char *DlgHotKeyTitle,  // заголовок диалога
                           char *DlgHotKeyText,   // prompt назначения
+                          char *DlgPluginTitle,  // заголовок
                           char *HelpTopic,       // темя помощи, может быть =NULL
                           char *RegKey,          // ключ, откуда берем значение, может быть =NULL
                           char *RegValueName)    // название параметра из реестра, может быть =NULL
@@ -694,11 +697,13 @@ L========================================================-
   {
     /* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,"",
     /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,"",
-    /* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,""
+    /* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,"",
+    /* 03 */DI_TEXT,8,3,58,3,0,0,0,0,"",
   };
 
   if(DlgHotKeyTitle) PluginDlgData[0].Data=(char*)DlgHotKeyTitle;
   if(DlgHotKeyText)  PluginDlgData[1].Data=(char*)DlgHotKeyText;
+  if(DlgHotKeyText)  PluginDlgData[3].Data=DlgPluginTitle;
 
   MakeDialogItems(PluginDlgData,PluginDlg);
 
