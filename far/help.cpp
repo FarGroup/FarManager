@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.42 19.09.2001 $ */
+/* Revision: 1.43 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 VVM
+    ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках...
   19.09.2001 VVM
     + Заменить ТАБУЛЯЦИЮ на пробел.
   21.08.2001 KM
@@ -693,6 +695,11 @@ void Help::OutString(char *Str)
           SetColor(COL_HELPHIGHLIGHTTEXT);
         else
           SetColor(CurColor);
+      /* $ 24.09.2001 VVM
+        ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
+      if ((strlen(OutStr) + WhereX()) > X2)
+        OutStr[X2 - WhereX()] = 0;
+      /* VVM $ */
       if (DisableOut)
         GotoXY(WhereX()+strlen(OutStr),WhereY());
       else
