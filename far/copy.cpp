@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.98 18.09.2002 $ */
+/* Revision: 1.99 19.09.2002 $ */
 
 /*
 Modify:
+  19.09.2002 VVM
+    ! Поломали прогресс при системной функции копирования
   18.09.2002 VVM
     ! Корректировка алгоритма подсчета времени копирования.
   14.09.2002 VVM
@@ -3146,6 +3148,9 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
       DWORD dwCallbackReason,HANDLE hSourceFile,HANDLE hDestinationFile,
       LPVOID lpData)
 {
+  int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
+  int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
+  ShellCopy::ShowBar(TransferredSize,TotalSize,false);
   if (ShowTotalCopySize && dwStreamNumber==1)
   {
     int64 AddSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
@@ -3153,9 +3158,6 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
     ShellCopy::ShowBar(CurCopySize,TotalCopySize,true);
     ShellCopy::ShowTitle(FALSE);
   }
-  int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
-  int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
-  ShellCopy::ShowBar(TransferredSize,TotalSize,false);
   int AbortOp = FALSE;
   if (CheckForEscSilent())
   {
