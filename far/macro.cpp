@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.74 20.03.2002 $ */
+/* Revision: 1.75 03.04.2002 $ */
 
 /*
 Modify:
+  03.04.2002 SVS
+    - BugZ#426 - Не выдается предупреждение на переопределение макроса 
   20.03.2002 DJ
     ! корректная обработка [x] Selection exists для диалогов
   03.03.2002 SVS
@@ -1187,7 +1189,8 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
     // если УЖЕ есть такой макрос...
     if((Index=MacroDlg->GetIndex(Param2,KMParam->Mode)) != -1)
     {
-      DWORD DisFlags=MacroDlg->Macros[Index].Flags&MFLAGS_DISABLEMACRO;
+      struct MacroRecord *Mac=MacroDlg->Macros+Index;
+      DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
       char Buf[256];
       char BufKey[64];
       char RegKeyName[150];
@@ -1195,8 +1198,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
 
       MacroDlg->MkRegKeyName(Index,RegKeyName);
       // берем из памяти.
-      if((TextBuffer=MacroDlg->MkTextSequence(MacroDlg->Macros[Index].Buffer,
-                                  MacroDlg->Macros[Index].BufferSize)) != NULL)
+      if((TextBuffer=MacroDlg->MkTextSequence(Mac->Buffer,Mac->BufferSize)) != NULL)
       {
         int F=0;
         I=strlen(TextBuffer);
@@ -1216,11 +1218,9 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
 
       // проверим "а не совпадает ли всё?"
       if(!DisFlags &&
-         MacroDlg->Macros[Index].Buffer &&
-         MacroDlg->RecBuffer &&
-         MacroDlg->Macros[Index].BufferSize == MacroDlg->RecBufferSize &&
-         !memcmp(MacroDlg->Macros[Index].Buffer,MacroDlg->RecBuffer,
-         MacroDlg->RecBufferSize))
+         Mac->Buffer && MacroDlg->RecBuffer &&
+         Mac->BufferSize == MacroDlg->RecBufferSize &&
+         !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)))
         I=0;
       else
         I=Message(MSG_WARNING,2,MSG(MWarning),
@@ -1242,7 +1242,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
             DeleteRegKey(RegKeyName);
           }
           // раздисаблим
-          MacroDlg->Macros[Index].Flags&=~MFLAGS_DISABLEMACRO;
+          Mac->Flags&=~MFLAGS_DISABLEMACRO;
         }
         // в любом случае - вываливаемся
         Dialog::SendDlgMessage(hDlg,DM_CLOSE,1,0);

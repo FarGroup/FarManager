@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.145 02.04.2002 $ */
+/* Revision: 1.146 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 SVS
+    ! WordWrap -> FarFormatText
+    + _ACTL_ToName
   02.04.2002 SVS
     + SetInitialCursorType()
   28.03.2002 SVS
@@ -921,6 +924,7 @@ const char *_VK_KEY_ToName(int VkKey);
 const char *_ECTL_ToName(int Command);
 const char *_FCTL_ToName(int Command);
 const char *_DLGMSG_ToName(int Msg);
+const char *_ACTL_ToName(int Command);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
@@ -962,6 +966,12 @@ void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Bu
 #define _ECTLLOG(x)  x
 #else
 #define _ECTLLOG(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_ACTL)
+#define _ACTLLOG(x)  x
+#else
+#define _ACTLLOG(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_OT)
@@ -1175,9 +1185,9 @@ BOOL WINAPI GetMenuHotKey(char *HotKey,int LenHotKey,
                           char *RegKey,
                           char *RegValueName);
 
-char *WINAPI WordWrap(const char *SrcText,int Width,
+char *WINAPI FarFormatText(const char *SrcText,int Width,
                       char *DestText,int MaxLen,
-                      const char* Break, int Cut);
+                      const char* Break, DWORD Flags);
 
 void SetPreRedrawFunc(PREREDRAWFUNC Func);
 

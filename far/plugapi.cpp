@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.126 30.03.2002 $ */
+/* Revision: 1.127 03.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 SVS
+    - ≈сли в меню указали первым итемом сепаратор, но не указали
+      selected, то получаем на экране лажу.
   30.03.2002 OT
     - ѕосле исправлени€ бага є314 (патч 1250) отвалилось закрытие
       фара по кресту.
@@ -491,7 +494,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     case ACTL_GETDESCSETTINGS:
       break;
     default:
-     if (FrameManager->ManagerIsDown())
+     if (FrameManager && FrameManager->ManagerIsDown())
        return 0;
   }
 
@@ -871,6 +874,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 
     struct MenuItem CurItem;
     memset(&CurItem,0,sizeof(CurItem));
+    int Selected=0;
 
     if(Flags&FMENU_USEEXT)
     {
@@ -879,7 +883,8 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       {
         CurItem.Flags=ItemEx->Flags;
         CurItem.NamePtr=NULL; // за раз 4 байта в 0 :-)
-        if(ItemEx->Flags&MIF_USETEXTPTR)
+
+        if(CurItem.Flags&MIF_USETEXTPTR)
           CurItem.NamePtr=(char*)ItemEx->Text.TextPtr;
         else
           strncpy(CurItem.Name,ItemEx->Text.Text,sizeof(CurItem.Name)-1);
@@ -888,7 +893,9 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
             ((ItemEx->Flags&MIF_USETEXTPTR) && ItemEx->Text.TextPtr)?ItemEx->Text.TextPtr:ItemEx->Text.Text,
             sizeof(CurItem.Name)-1);
         */
-        CurItem.AccelKey=(ItemEx->Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
+        CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
+        if(!Selected && (CurItem.Flags&LIF_SELECTED) && !(CurItem.Flags&LIF_SEPARATOR))
+          Selected++;
         FarMenu.AddItem(&CurItem);
       }
     }
@@ -903,9 +910,14 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
           CurItem.Name[0]=0;
         else
           strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
+        if(!Selected && (CurItem.Flags&LIF_SELECTED) && !(CurItem.Flags&LIF_SEPARATOR))
+          Selected++;
         FarMenu.AddItem(&CurItem);
       }
     }
+
+    if(!Selected)
+      FarMenu.SetSelectPos(0,1);
 
     DWORD MenuFlags=0;
     if (Flags & FMENU_SHOWAMPERSAND)

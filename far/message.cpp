@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.22 22.03.2002 $ */
+/* Revision: 1.23 03.04.2002 $ */
 
 /*
 Modify:
+  03.04.2002 SVS
+    ! WordWrap -> FarFormatText
   22.03.2002 SVS
     - strcpy - Fuck!
   12.03.2002 VVM
@@ -207,7 +209,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     MaxLength=LenErrStr;
 
     // а теперь проврапим
-    PtrStr=WordWrap(ErrStr,MaxLength,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
+    PtrStr=FarFormatText(ErrStr,MaxLength,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
     while((PtrStr=strchr(PtrStr,'\n')) != NULL)
     {
       *PtrStr++=0;

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.194 25.03.2002 $ */
+/* Revision: 1.195 04.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.04.2002 SVS
+    + DN_ACTIVATEAPP
   25.03.2002 SVS
     ! CONSOLE_* -> FAR_CONSOLE_* (ибо с мелкософтом не поспоришь :-(()
   23.03.2002 IS
@@ -909,6 +911,7 @@ enum FarMessagesProc{
 #ifdef FAR_USE_INTERNALS
   DM_KILLSAVESCREEN=DN_FIRST-1,
   DM_ALLKEYMODE=DN_FIRST-2,
+  DN_ACTIVATEAPP=DM_USER-1,
 #endif // END FAR_USE_INTERNALS
 };
 
@@ -2015,6 +2018,11 @@ typedef int (WINAPI *FRSUSERFUNC)(
   void *Param
 );
 
+enum FRSMODE{
+  FRS_RETUPDIR = 0x0001,
+  FRS_RECUR    = 0x0002
+};
+
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
 typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest,const char *Prefix);
 typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
@@ -2028,13 +2036,8 @@ enum MKLINKOP{
 };
 typedef int     (WINAPI *FARSTDMKLINK)(const char *Src,const char *Dest,DWORD Flags);
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
-
-enum FRSMODE{
-  FRS_RETUPDIR = 0x0001,
-  FRS_RECUR    = 0x0002
-};
-
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
+
 
 typedef struct FarStandardFunctions
 {

@@ -5,10 +5,16 @@ filter.cpp
 
 */
 
-/* Revision: 1.23 26.03.2002 $ */
+/* Revision: 1.24 03.04.2002 $ */
 
 /*
 Modify:
+  03.04.2002 SVS
+    - BugZ#413 - Не отображается текущий фильтр  - закомментировано!!!!!!!!
+    + ParseAndAddMasks() - выявлять и если надо добавлять очередную маску
+      общий код вынесен в отдельную функцию с некоторой оптимизацией по
+      размеру
+    ! немного оптимизации кода...
   26.03.2002 DJ
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
   16.03.2002 IS
@@ -175,22 +181,25 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     {
       memset(&ListItem,0,sizeof(ListItem));
       sprintf(ListItem.Name,"%-30.30s %c %-30.30s",FilterData[I].Title,VerticalLine,FilterData[I].Masks);
+
       if(I == Pos)
         ListItem.Flags|=LIF_SELECTED;
+
       if (HostPanel==CtrlObject->Cp()->LeftPanel)
       {
         if (FilterData[I].LeftPanelInclude)
           ListItem.SetCheck('+');
-        else
-          if (FilterData[I].LeftPanelExclude)
-            ListItem.SetCheck('-');
+        else if (FilterData[I].LeftPanelExclude)
+          ListItem.SetCheck('-');
       }
       else
+      {
         if (FilterData[I].RightPanelInclude)
           ListItem.SetCheck('+');
-        else
-          if (FilterData[I].RightPanelExclude)
-            ListItem.SetCheck('-');
+        else if (FilterData[I].RightPanelExclude)
+          ListItem.SetCheck('-');
+      }
+
       FilterList.SetUserData(FilterData[I].Masks,0,
             FilterList.AddItem(&ListItem));
     }
@@ -207,7 +216,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       FilterList.AddItem(&ListItem);
     }
 
-    char FileName[NM],*ExtPtr=NULL;
+    char FileName[NM],*ExtPtr=NULL, *NewPtr;
     WIN32_FIND_DATA fdata;
     int FileAttr,ExtCount=0;
 
@@ -215,62 +224,19 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     {
       char CurDir[NM];
       HostPanel->GetCurDir(CurDir);
+
       ScanTree ScTree(FALSE,FALSE);
       ScTree.SetFindPath(CurDir,"*.*");
-
       while (ScTree.GetNextName(&fdata,FileName, sizeof (FileName)-1))
-      {
-        if (strcmp(fdata.cFileName,".")==0 || (fdata.cFileName,"..")==0 ||
-            (fdata.dwFileAttributes & FA_DIREC))
-          continue;
-        char *NewPtr=(char *)realloc(ExtPtr,NM*(ExtCount+1));
-        if (!NewPtr)
+        if(!ParseAndAddMasks(&ExtPtr,fdata.cFileName,fdata.dwFileAttributes,ExtCount))
           break;
-        ExtPtr=NewPtr;
-        char *DotPtr=strrchr(fdata.cFileName,'.');
-        char Mask[NM];
-        /* $ 01.07.2001 IS
-           Если маска содержит разделитель (',' или ';'), то возьмем ее в
-           кавычки
-        */
-        if (DotPtr==NULL)
-          strcpy(Mask,"*.");
-        else if(strpbrk(DotPtr,",;"))
-          sprintf(Mask,"\"*%s\"",DotPtr);
-        else
-          sprintf(Mask,"*%s",DotPtr);
-        /* IS $ */
-        strcpy(ExtPtr+ExtCount*NM,Mask);
-        ExtCount++;
-      }
     }
     else
+    {
       for (I=0;HostPanel->GetFileName(FileName,I,FileAttr);I++)
-      {
-        if (strcmp(FileName,".")==0 || (FileName,"..")==0 ||
-            (FileAttr & FA_DIREC))
-          continue;
-        char *NewPtr=(char *)realloc(ExtPtr,NM*(ExtCount+1));
-        if (!NewPtr)
+        if(!ParseAndAddMasks(&ExtPtr,FileName,FileAttr,ExtCount))
           break;
-        ExtPtr=NewPtr;
-        char *DotPtr=strrchr(FileName,'.');
-        char Mask[NM];
-        /* $ 01.07.2001 IS
-           Если маска содержит разделитель (',' или ';'), то возьмем ее в
-           кавычки
-        */
-        if (DotPtr==NULL)
-          strcpy(Mask,"*.");
-        else if(strpbrk(DotPtr,",;"))
-          sprintf(Mask,"\"*%s\"",DotPtr);
-        else
-          sprintf(Mask,"*%s",DotPtr);
-        /* IS $ */
-        strcpy(ExtPtr+ExtCount*NM,Mask);
-        ExtCount++;
-      }
-
+    }
 
     qsort((void *)ExtPtr,ExtCount,NM,ExtSort);
 
@@ -282,15 +248,14 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     }
 
     ListItem.Flags&=~LIF_SEPARATOR;
+
     for (I=0;I<ExtCount;I++)
     {
       char *CurExtPtr=ExtPtr+I*NM;
-      if (I>0 && LocalStricmp(CurExtPtr-NM,CurExtPtr)==0)
-        continue;
       sprintf(ListItem.Name,"%-30.30s %c %-30.30s",MSG(MPanelFileType),VerticalLine,CurExtPtr);
+      ListItem.SetCheck(CurExtPtr[strlen(CurExtPtr)+1]);
       ListItem.Flags&=~LIF_SELECTED;
-      FilterList.SetUserData(CurExtPtr, // FilterData[I].Masks???
-            0,FilterList.AddItem(&ListItem));
+      FilterList.SetUserData(CurExtPtr,0,FilterList.AddItem(&ListItem));
     }
     /* $ 13.07.2000 SVS
        ни кто не вызывал запрос памяти через new :-)
@@ -298,147 +263,172 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     free(ExtPtr);
     /* SVS $ */
 
-    FilterList.Show();
-
     if (!FirstCall)
       ProcessSelection(&FilterList);
+
+    FilterList.Show();
+
+    int SelPos;
 
     while (!FilterList.Done())
     {
       int Key=FilterList.ReadInput();
+
       if (Key==KEY_ADD)
         Key='+';
-      else
-        if (Key==KEY_SUBTRACT)
-          Key='-';
+      else if (Key==KEY_SUBTRACT)
+        Key='-';
+
       switch(Key)
       {
         case KEY_SPACE:
         case '+':
         case '-':
-          {
-            int Check=FilterList.GetSelection(),NewCheck;
-            if (Key=='-')
-              NewCheck=(Check=='-') ? 0:'-';
-            else
-              if (Key=='+')
-                NewCheck=(Check=='+') ? 0:'+';
-              else
-                NewCheck=Check ? 0:'+';
-            FilterList.SetSelection(NewCheck);
-            FilterList.SetUpdateRequired(TRUE);
-            FilterList.FastShow();
-            FilterList.ProcessKey(KEY_DOWN);
-          }
+        {
+          int Check=FilterList.GetSelection(),NewCheck;
+          if (Key=='-') 
+            NewCheck=(Check=='-') ? 0:'-';
+          else if (Key=='+')
+            NewCheck=(Check=='+') ? 0:'+';
+          else
+            NewCheck=Check ? 0:'+';
+
+          FilterList.SetSelection(NewCheck);
+          FilterList.SetUpdateRequired(TRUE);
+          FilterList.FastShow();
+          FilterList.ProcessKey(KEY_DOWN);
           break;
+        }
+
         case KEY_F4:
+        {
+          SelPos=FilterList.GetSelectPos();
+          if (SelPos<FilterDataCount)
           {
-            int SelPos=FilterList.GetSelectPos();
-            if (SelPos<FilterDataCount)
-            {
-              strcpy(Title,FilterData[SelPos].Title);
-              strcpy(Masks,FilterData[SelPos].Masks);
-              if (EditRecord(Title,Masks))
-              {
-                char *Ptr;
-                if((Ptr=(char *)realloc(FilterData[SelPos].Masks,strlen(Masks)+1)) != NULL)
-                {
-                  strcpy(FilterData[SelPos].Title,Title);
-                  FilterData[SelPos].Masks=Ptr;
-                  strcpy(FilterData[SelPos].Masks,Masks);
-                  SaveFilters();
-                  *NeedUpdate=1;
-                  return(SelPos);
-                }
-                break;
-              }
-            }
-            else
-            {
-              Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanEditCustomFilterOnly),MSG(MOk));
-              continue;
-            }
-          }
-          break;
-        case KEY_INS:
-          {
-            int SelPos=FilterList.GetSelectPos();
-            char *Ptr;
-            if (SelPos>FilterDataCount)
-              SelPos=FilterDataCount;
-            *Title=*Masks=0;
+            strcpy(Title,FilterData[SelPos].Title);
+            strcpy(Masks,FilterData[SelPos].Masks);
+
             if (EditRecord(Title,Masks))
             {
-              struct FilterDataRecord *NewFilterData;
-              if((Ptr=(char *)malloc(strlen(Masks)+1)) == NULL)
-                break;
-              if ((NewFilterData=(struct FilterDataRecord *)realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
+              char *Ptr;
+              if((Ptr=(char *)realloc(FilterData[SelPos].Masks,strlen(Masks)+1)) != NULL)
               {
-                free(Ptr);
-                break;
+                strcpy(FilterData[SelPos].Title,Title);
+                FilterData[SelPos].Masks=Ptr;
+                strcpy(FilterData[SelPos].Masks,Masks);
+                SaveFilters();
+                *NeedUpdate=1;
+                return(SelPos);
               }
-              FilterData=NewFilterData;
-              for (int I=FilterDataCount-1;I>=SelPos;I--)
-                FilterData[I+1]=FilterData[I];
-              FilterDataCount++;
-              strncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title)-1);
-              FilterData[SelPos].Masks=Ptr;
-              strcpy(FilterData[SelPos].Masks,Masks);
-              FilterData[SelPos].LeftPanelInclude=0;
-              FilterData[SelPos].LeftPanelExclude=0;
-              FilterData[SelPos].RightPanelInclude=0;
-              FilterData[SelPos].RightPanelExclude=0;
+              break;
+            }
+          }
+          else
+          {
+            Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanEditCustomFilterOnly),MSG(MOk));
+            continue;
+          }
+          break;
+        }
+
+        case KEY_INS:
+        {
+          SelPos=FilterList.GetSelectPos();
+          char *Ptr;
+
+          if (SelPos>FilterDataCount)
+            SelPos=FilterDataCount;
+
+          *Title=*Masks=0;
+          if (EditRecord(Title,Masks))
+          {
+            struct FilterDataRecord *NewFilterData;
+
+            if((Ptr=(char *)malloc(strlen(Masks)+1)) == NULL)
+              break;
+
+            if ((NewFilterData=(struct FilterDataRecord *)realloc(FilterData,sizeof(*FilterData)*(FilterDataCount+1)))==NULL)
+            {
+              free(Ptr);
+              break;
+            }
+            
+            FilterData=NewFilterData;
+            
+            for (int I=FilterDataCount-1;I>=SelPos;I--)
+              FilterData[I+1]=FilterData[I];
+            
+            FilterDataCount++;
+            memset(FilterData+SelPos,0,sizeof(struct FilterDataRecord));
+            strncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title)-1);
+            FilterData[SelPos].Masks=Ptr;
+            strcpy(FilterData[SelPos].Masks,Masks);
+            FilterData[SelPos].LeftPanelInclude=0;
+            FilterData[SelPos].LeftPanelExclude=0;
+            FilterData[SelPos].RightPanelInclude=0;
+            FilterData[SelPos].RightPanelExclude=0;
+
+            SaveFilters();
+            SaveSelection();
+            *NeedUpdate=1;
+            return(SelPos);
+          }
+          break;
+        }
+
+        case KEY_DEL:
+        {
+          SelPos=FilterList.GetSelectPos();
+          if (SelPos<FilterDataCount)
+          {
+            char QuotedTitle[512];
+            sprintf(QuotedTitle,"\"%.*s\"",sizeof(QuotedTitle)-1,FilterData[SelPos].Title);
+            if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
+                        QuotedTitle,MSG(MDelete),MSG(MCancel))==0)
+            {
+              if(FilterData[SelPos].Masks)
+                free(FilterData[SelPos].Masks);
+
+              for (int I=SelPos+1;I<FilterDataCount;I++)
+                FilterData[I-1]=FilterData[I];
+
+              FilterDataCount--;
               SaveFilters();
               SaveSelection();
+
+              if (SelPos>=FilterDataCount && SelPos>0)
+                SelPos--;
+
               *NeedUpdate=1;
               return(SelPos);
             }
           }
-          break;
-        case KEY_DEL:
+          else
           {
-            int SelPos=FilterList.GetSelectPos();
-            if (SelPos<FilterDataCount)
-            {
-              char QuotedTitle[512];
-              sprintf(QuotedTitle,"\"%.*s\"",sizeof(QuotedTitle)-1,FilterData[SelPos].Title);
-              if (Message(0,2,MSG(MFilterTitle),MSG(MAskDeleteFilter),
-                          QuotedTitle,MSG(MDelete),MSG(MCancel))==0)
-              {
-                if(FilterData[SelPos].Masks)
-                  free(FilterData[SelPos].Masks);
-
-                for (int I=SelPos+1;I<FilterDataCount;I++)
-                  FilterData[I-1]=FilterData[I];
-                FilterDataCount--;
-                SaveFilters();
-                SaveSelection();
-                if (SelPos>=FilterDataCount && SelPos>0)
-                  SelPos--;
-                *NeedUpdate=1;
-                return(SelPos);
-              }
-            }
-            else
-            {
-              Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanDeleteCustomFilterOnly),MSG(MOk));
-              continue;
-            }
+            Message(MSG_WARNING,1,MSG(MFilterTitle),MSG(MCanDeleteCustomFilterOnly),MSG(MOk));
+            continue;
           }
+        }
+
         default:
+        {
           FilterList.ProcessInput();
           break;
+        }
       }
     }
+
     ExitCode=FilterList.Modal::GetExitCode();
     if (ExitCode!=-1 || *NeedUpdate)
       ProcessSelection(&FilterList);
   }
+
   if (ExitCode!=-1 || *NeedUpdate)
   {
     HostPanel->Update(UPDATE_KEEP_SELECTION);
     HostPanel->Redraw();
   }
+
   return(-1);
 }
 
@@ -452,6 +442,7 @@ void PanelFilter::ProcessSelection(VMenu *FilterList)
   for (int I=0; I < FilterList->GetItemCount(); I++, CurFilterData++)
   {
     int Check=FilterList->GetSelection(I);
+
     if (Check && FilterList->GetUserData(Masks,sizeof(Masks),I))
       AddMasks(Masks,Check=='-');
 
@@ -493,54 +484,67 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
     // Освободим память
     IncludeMask.Free();
     ExcludeMask.Free();
-    if(IncludeMaskStr) free(IncludeMaskStr);
-    if(ExcludeMaskStr) free(ExcludeMaskStr);
+
+    if(IncludeMaskStr) 
+      free(IncludeMaskStr);
+
+    if(ExcludeMaskStr) 
+      free(ExcludeMaskStr);
+
     IncludeMaskStr=ExcludeMaskStr=NULL;
-    IncludeMaskIsOK=ExcludeMaskIsOK=false;
+    IncludeMaskIsOK=ExcludeMaskIsOK=FALSE;
+
     return;
   }
 
-  int addsize=strlen(Masks)+4, oldsize;
+  int AddSize=strlen(Masks)+4, OldSize;
 
   if(Exclude)
   {
     ExcludeMask.Free();
-    oldsize=ExcludeMaskStr?strlen(ExcludeMaskStr):0;
-    char *NewExcludeMaskStr=(char *)realloc(ExcludeMaskStr,addsize+oldsize);
+
+    OldSize=ExcludeMaskStr?strlen(ExcludeMaskStr):0;
+    char *NewExcludeMaskStr=(char *)realloc(ExcludeMaskStr,AddSize+OldSize);
     if (NewExcludeMaskStr==NULL)
        return;
+
     ExcludeMaskStr=NewExcludeMaskStr;
-    if(oldsize)
+    if(OldSize)
     {
-      if(ExcludeMaskStr[oldsize-1]!=',')
+      if(ExcludeMaskStr[OldSize-1]!=',')
       {
-        ExcludeMaskStr[oldsize]=',';
-        ExcludeMaskStr[oldsize+1]=0;
+        ExcludeMaskStr[OldSize]=',';
+        ExcludeMaskStr[OldSize+1]=0;
       }
     }
     else
       *ExcludeMaskStr=0;
+
     strcat(ExcludeMaskStr, Masks);
     ExcludeMaskIsOK=ExcludeMask.Set(ExcludeMaskStr, FMF_SILENT);
   }
   else
   {
     IncludeMask.Free();
-    oldsize=IncludeMaskStr?strlen(IncludeMaskStr):0;
-    char *NewIncludeMaskStr=(char *)realloc(IncludeMaskStr,addsize+oldsize);
+
+    OldSize=IncludeMaskStr?strlen(IncludeMaskStr):0;
+    char *NewIncludeMaskStr=(char *)realloc(IncludeMaskStr,AddSize+OldSize);
+
     if (NewIncludeMaskStr==NULL)
        return;
+    
     IncludeMaskStr=NewIncludeMaskStr;
-    if(oldsize)
+    if(OldSize)
     {
-      if (IncludeMaskStr[oldsize-1]!=',')
+      if (IncludeMaskStr[OldSize-1]!=',')
       {
-        IncludeMaskStr[oldsize]=',';
-        IncludeMaskStr[oldsize+1]=0;
+        IncludeMaskStr[OldSize]=',';
+        IncludeMaskStr[OldSize+1]=0;
       }
     }
     else
       *IncludeMaskStr=0;
+
     strcat(IncludeMaskStr, Masks);
     IncludeMaskIsOK=IncludeMask.Set(IncludeMaskStr, FMF_SILENT);
   }
@@ -564,23 +568,23 @@ bool PanelFilter::IsEnabled()
   return IncludeMaskIsOK || ExcludeMaskIsOK;
 }
 
-
-int _cdecl ExtSort(const void *el1,const void *el2)
-{
-  return(LocalStricmp((char *)el1,(char *)el2));
-}
-
-
 void PanelFilter::InitFilter()
 {
+  char RegKey[80], *PtrRegKey;
+
   FilterData=NULL;
   FilterDataCount=0;
+
+  strcpy(RegKey,"Filters\\Filter");
+  PtrRegKey=RegKey+strlen(RegKey);
+
   while (1)
   {
     char FilterTitle[200],FilterMask[PANELFILTER_MASK_SIZE], *Ptr;
-    char RegKey[80];
-    sprintf(RegKey,"Filters\\Filter%d",FilterDataCount);
+    
+    itoa(FilterDataCount,PtrRegKey,10);
     GetRegKey(RegKey,"Title",FilterTitle,"",sizeof(FilterTitle));
+    
     if (!GetRegKey(RegKey,"Mask",FilterMask,"",sizeof(FilterMask)))
       break;
 
@@ -594,6 +598,7 @@ void PanelFilter::InitFilter()
       break;
     }
     FilterData=NewFilterData;
+
     strcpy(FilterData[FilterDataCount].Title,FilterTitle);
     FilterData[FilterDataCount].Masks=Ptr;
     strcpy(FilterData[FilterDataCount].Masks,FilterMask);
@@ -613,6 +618,7 @@ void PanelFilter::CloseFilter()
     for(int I=0; I < FilterDataCount; ++I)
       if(FilterData[I].Masks)
         free(FilterData[I].Masks);
+
     free(FilterData);
   }
 }
@@ -620,10 +626,14 @@ void PanelFilter::CloseFilter()
 
 void PanelFilter::SaveSelection()
 {
+  char RegKey[80], *PtrRegKey;
+
+  strcpy(RegKey,"Filters\\Filter");
+  PtrRegKey=RegKey+strlen(RegKey);
+
   for (int I=0;I<FilterDataCount;I++)
   {
-    char RegKey[80];
-    sprintf(RegKey,"Filters\\Filter%d",I);
+    itoa(I,PtrRegKey,10);
     SetRegKey(RegKey,"LeftInclude",FilterData[I].LeftPanelInclude);
     SetRegKey(RegKey,"LeftExclude",FilterData[I].LeftPanelExclude);
     SetRegKey(RegKey,"RightInclude",FilterData[I].RightPanelInclude);
@@ -635,10 +645,14 @@ void PanelFilter::SaveSelection()
 void PanelFilter::SaveFilters()
 {
   struct FilterDataRecord *CurFilterData=FilterData;
+  char RegKey[80], *PtrRegKey;
+
+  strcpy(RegKey,"Filters\\Filter");
+  PtrRegKey=RegKey+strlen(RegKey);
+
   for (int I=0; I < FilterDataCount+5; I++, CurFilterData++)
   {
-    char RegKey[80];
-    sprintf(RegKey,"Filters\\Filter%d",I);
+    itoa(I,PtrRegKey,10);
 
     if (I>=FilterDataCount)
       DeleteRegKey(RegKey);
@@ -713,3 +727,61 @@ void PanelFilter::SwapFilter()
     CurFilterData->RightPanelExclude=Swap;
   }
 }
+
+int PanelFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount)
+{
+  if (!strcmp(FileName,".") || !strcmp(FileName,"..") || (FileAttr & FA_DIREC))
+    return -1;
+
+  const char *DotPtr=strrchr(FileName,'.');
+  char Mask[NM];
+  /* $ 01.07.2001 IS
+     Если маска содержит разделитель (',' или ';'), то возьмем ее в
+     кавычки
+  */
+  if (DotPtr==NULL)
+    strcpy(Mask,"*.");
+  else if(strpbrk(DotPtr,",;"))
+    sprintf(Mask,"\"*%s\"",DotPtr);
+  else
+    sprintf(Mask,"*%s",DotPtr);
+  /* IS $ */
+
+  // сначала поиск...
+  size_t Cnt=ExtCount;
+  if(lfind((const void *)Mask,(void *)*ExtPtr,&Cnt,NM,ExtSort))
+    return -1;
+
+  // ... а потом уже выделение памяти!
+  char *NewPtr;
+  if ((NewPtr=(char *)realloc(*ExtPtr,NM*(ExtCount+1))) == NULL)
+    return 0;
+  *ExtPtr=NewPtr;
+  
+  NewPtr=*ExtPtr+ExtCount*NM;
+  strncpy(NewPtr,Mask,NM-2);
+
+  NewPtr=NewPtr+strlen(NewPtr)+1;
+//!!! Если нужно "решить" BugZ#413, то раскомментировать ЭТОТ кусок!!!
+// Для ускорения здесь неплохо бы иметь нечто вроде ExcludeMask.CheckExt(Mask),
+// т.к. нам нафиг ненать здесь знать имя файла!!!
+/*
+  if (ExcludeMaskIsOK && ExcludeMask.Compare(FileName))
+    *NewPtr='-';
+  else if(IncludeMaskIsOK && IncludeMask.Compare(FileName))
+    *NewPtr='+';
+  else
+*/
+//!!! Если нужно "решить" BugZ#413, то раскомментировать ЭТОТ кусок!!!
+    *NewPtr=0;
+  
+  ExtCount++;
+
+  return 1;
+}
+
+int _cdecl ExtSort(const void *el1,const void *el2)
+{
+  return LocalStricmp((char *)el1,(char *)el2);
+}
+

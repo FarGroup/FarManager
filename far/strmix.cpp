@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.36 28.03.2002 $ */
+/* Revision: 1.37 03.04.2002 $ */
 
 /*
 Modify:
+  03.04.2002 SVS
+    ! WordWrap -> FarFormatText
   28.03.2002 SVS
     ! Внимание! Совершенно новая функция FileSizeToStr()
       Корректно работает (надо проверить, конечно, но мне показалось,
@@ -116,6 +118,7 @@ Modify:
 
 #include "fn.hpp"
 #include "global.hpp"
+#include "plugin.hpp"
 #include "lang.hpp"
 #include "int64.hpp"
 
@@ -881,47 +884,72 @@ int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count)
 
 /*
 From PHP 4.x.x
-Сворачивает буфер по заданному количеству символов, используя разделительную
-строку. Возвращает строку SrcText свёрнутую в колонке, заданной параметром
-Width. Строка рубится при помощи параметра Break.
+Форматирует исходный текст по заданной ширине, используя
+разделительную строку. Возвращает строку SrcText свёрнутую
+в колонке, заданной параметром Width. Строка рубится при
+помощи строки Break.
 
-Если параметр Cut установлен в 1, то строка всегда сворачивается по заданной
-ширине. Так если у вас есть слово, которое больше заданной ширины, то оно
-будет разрезано на части.
+Разбивает на строки с выравниваением влево.
+
+Если параметр Flahs & FFTM_BREAKLONGWORD, то строка всегда
+сворачивается по заданной ширине. Так если у вас есть слово,
+которое больше заданной ширины, то оно будет разрезано на части.
 
 Example 1.
-wordwrap( "The quick brown fox jumped over the lazy dog.", 20 ,"\n", 0);
-Этот пример отобразит:
+FarFormatText("Пример строки, которая будет разбита на несколько строк по ширине в 20 символов.", 20 ,Dest, "\n", 0);
+Этот пример вернет:
 ---
-The quick brown fox
-jumped over the lazy dog.
+Пример строки,
+которая будет
+разбита на
+несколько строк по
+ширине в 20
+символов.
 ---
 
 Example 2.
-wordwrap( "A very long woooooooooooord.", 8, "\n", 1);
-Этот пример отобразит:
+FarFormatText( "Эта строка содержит оооооооооооооччччччччеееень длиное слово", 9, Dest, NULL, FFTM_BREAKLONGWORD);
+Этот пример вернет:
 
 ---
-A very
-long
-wooooooo
-ooooord.
+Эта
+строка
+содержит
+ооооооооо
+ооооччччч
+чччеееень
+длиное
+слово
 ---
 
 */
-char *WINAPI WordWrap(const char *SrcText,int Width,
-                      char *DestText,int MaxLen,
-                      const char* Break, int Cut)
+char *WINAPI FarFormatText(const char *SrcText,     // источник
+                           int Width,               // заданная ширина
+                           char *DestText,          // приемник
+                           int MaxLen,              // максимальнАЯ размера приемника
+                           const char* Break,       // брик, если = NULL, то принимается '\n'
+                           DWORD Flags)             // один из FFTM_*
 {
-  long i=0, l=0, pgr=0, linelength=0, last=0, breakcharlen, docut=0;
-  const char *text, *breakchar;
+  const char *breakchar;
+  breakchar = Break?Break:"\n";
+
+  if(!SrcText || !*SrcText)
+    return NULL;
+
+  if(!strpbrk(SrcText,breakchar) && strlen(SrcText) <= Width)
+  {
+    if(MaxLen > 0 && DestText)
+      strncpy(DestText,SrcText,MaxLen-1);
+    return DestText;
+  }
+
+  long i=0, l=0, pgr=0, last=0;
   char *newtext;
 
-  text = SrcText;
-  linelength = Width;
-  breakchar = Break; // "\n"
-  breakcharlen = strlen(Break);
-  docut = Cut;
+  const char *text= SrcText;
+  long linelength = Width;
+  int breakcharlen = strlen(breakchar);
+  int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 
   /* Special case for a single-character break as it needs no
      additional storage space */
@@ -1059,7 +1087,9 @@ char *WINAPI WordWrap(const char *SrcText,int Width,
       strcat(newtext, text+last);
     }
   }
-  strncpy(DestText,newtext,MaxLen-1);
+
+  if(DestText && MaxLen > 0)
+    strncpy(DestText,newtext,MaxLen-1);
   free(newtext);
   return DestText;
 }

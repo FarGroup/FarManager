@@ -7,10 +7,13 @@ filter.hpp
 
 */
 
-/* Revision: 1.02 01.06.2001 $ */
+/* Revision: 1.03 03.04.2002 $ */
 
 /*
 Modify:
+  03.04.2002 SVS
+    + ParseAndAddMasks() - выявлять и если надо добавлять очередную маску
+    ! Немного красоты ;-)
   01.07.2001 IS
     + #include "CFileMask.hpp"
     ! Внедрение const
@@ -29,13 +32,6 @@ class Panel;
 class PanelFilter
 {
   private:
-    void SaveFilterFile();
-    int SaveFilterData();
-    int EditRecord(char *Title,char *Masks);
-    int ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate);
-    void AddMasks(const char *Masks,int Exclude);
-    void ProcessSelection(VMenu *FilterList);
-    void SaveFilters();
     Panel *HostPanel;
     /* $ 01.07.2001 IS
        Добавим классы для работы с масками
@@ -44,15 +40,30 @@ class PanelFilter
     char *IncludeMaskStr, *ExcludeMaskStr;
     bool IncludeMaskIsOK, ExcludeMaskIsOK;
     /* IS $ */
+  
+  private:
+    void SaveFilterFile();
+    int  SaveFilterData();
+    int  EditRecord(char *Title,char *Masks);
+    int  ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate);
+    void AddMasks(const char *Masks,int Exclude);
+    int  ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount);
+    void ProcessSelection(VMenu *FilterList);
+    void SaveFilters();
+
   public:
     PanelFilter(Panel *HostPanel);
     ~PanelFilter();
+
+  public:
+    void FilterEdit();
+    int CheckName(const char *Name);
+    bool IsEnabled();
+
+  public:
     static void InitFilter();
     static void CloseFilter();
     static void SwapFilter();
     static void SaveSelection();
-    void FilterEdit();
-    int CheckName(const char *Name);
-    bool IsEnabled();
 };
 #endif //__PANELFILTER_HPP__

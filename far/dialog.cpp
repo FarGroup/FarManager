@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.225 02.04.2002 $ */
+/* Revision: 1.226 03.04.2002 $ */
 
 /*
 Modify:
+  03.04.2002 SVS
+    + DN_ACTIVATEAPP - При потере/получении фокуса консольным окном...
+    - В SendDlgMessage была полная лабуда при Param1 < 0... короче, бага.
   02.04.2002 SVS
     - BugZ#416 - Listbox with DIF_LISTNOBOX does not work correctly
   01.04.2002 SVS
@@ -2481,7 +2484,7 @@ int Dialog::ProcessKey(int Key)
 
   if(Key == KEY_KILLFOCUS || Key == KEY_GOTFOCUS)
   {
-    DlgProc((HANDLE)this,Key == KEY_KILLFOCUS?DN_KILLFOCUS:DN_GOTFOCUS,-1,0);
+    DlgProc((HANDLE)this,DN_ACTIVATEAPP,Key == KEY_KILLFOCUS?FALSE:TRUE,0);
     return(FALSE);
   }
 
@@ -5488,19 +5491,16 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   struct FarDialogItem PluginDialogItem;
   // предварительно проверим...
   /* $ 09.12.2001 DJ
-     для DM_KEY и DM_USER проверять _не_надо_!
+     для DM_USER проверять _не_надо_!
   */
-  if((Msg != DM_KEY && Msg < DM_USER && Param1 >= Dlg->ItemCount) || !Dlg->Item)
+  if((Msg < DM_USER && (Param1 < 0 || Param1 >= Dlg->ItemCount)) || !Dlg->Item)
     return 0;
   /* DJ $ */
 
 //  CurItem=&Dlg->Item[Param1];
-  if (Param1>=0)
-  {
-    CurItem=Dlg->Item+Param1;
-    Type=CurItem->Type;
-    Ptr=CurItem->Data;
-  }
+  CurItem=Dlg->Item+Param1;
+  Type=CurItem->Type;
+  Ptr=CurItem->Data;
 
   switch(Msg)
   {

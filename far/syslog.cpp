@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.24 13.02.2002 $ */
+/* Revision: 1.25 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 SVS
+    + DN_ACTIVATEAPP
+    + _ACTL_ToName()
   13.02.2002 SVS
     + SysLogLastError() - вывод в лог результата GetLastError()
   11.02.2002 SVS
@@ -415,30 +418,31 @@ CleverSysLog::~CleverSysLog()
 const char *_ECTL_ToName(int Command)
 {
 #if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
-#define DEF_ECTL_(m) { m , #m }
+#define DEF_ECTL_(m) { ECTL_##m , #m }
   static struct ECTLName{
     int Msg;
     const char *Name;
   } ECTL[]={
-    DEF_ECTL_(ECTL_GETSTRING),      DEF_ECTL_(ECTL_SETSTRING),
-    DEF_ECTL_(ECTL_INSERTSTRING),   DEF_ECTL_(ECTL_DELETESTRING),
-    DEF_ECTL_(ECTL_DELETECHAR),     DEF_ECTL_(ECTL_INSERTTEXT),
-    DEF_ECTL_(ECTL_GETINFO),        DEF_ECTL_(ECTL_SETPOSITION),
-    DEF_ECTL_(ECTL_SELECT),         DEF_ECTL_(ECTL_REDRAW),
-    DEF_ECTL_(ECTL_EDITORTOOEM),    DEF_ECTL_(ECTL_OEMTOEDITOR),
-    DEF_ECTL_(ECTL_TABTOREAL),      DEF_ECTL_(ECTL_REALTOTAB),
-    DEF_ECTL_(ECTL_EXPANDTABS),     DEF_ECTL_(ECTL_SETTITLE),
-    DEF_ECTL_(ECTL_READINPUT),      DEF_ECTL_(ECTL_PROCESSINPUT),
-    DEF_ECTL_(ECTL_ADDCOLOR),       DEF_ECTL_(ECTL_GETCOLOR),
-    DEF_ECTL_(ECTL_SAVEFILE),       DEF_ECTL_(ECTL_QUIT),
-    DEF_ECTL_(ECTL_SETKEYBAR),      DEF_ECTL_(ECTL_PROCESSKEY),
-    DEF_ECTL_(ECTL_SETPARAM),       DEF_ECTL_(ECTL_GETBOOKMARKS),
+    DEF_ECTL_(GETSTRING),      DEF_ECTL_(SETSTRING),
+    DEF_ECTL_(INSERTSTRING),   DEF_ECTL_(DELETESTRING),
+    DEF_ECTL_(DELETECHAR),     DEF_ECTL_(INSERTTEXT),
+    DEF_ECTL_(GETINFO),        DEF_ECTL_(SETPOSITION),
+    DEF_ECTL_(SELECT),         DEF_ECTL_(REDRAW),
+    DEF_ECTL_(EDITORTOOEM),    DEF_ECTL_(OEMTOEDITOR),
+    DEF_ECTL_(TABTOREAL),      DEF_ECTL_(REALTOTAB),
+    DEF_ECTL_(EXPANDTABS),     DEF_ECTL_(SETTITLE),
+    DEF_ECTL_(READINPUT),      DEF_ECTL_(PROCESSINPUT),
+    DEF_ECTL_(ADDCOLOR),       DEF_ECTL_(GETCOLOR),
+    DEF_ECTL_(SAVEFILE),       DEF_ECTL_(QUIT),
+    DEF_ECTL_(SETKEYBAR),      DEF_ECTL_(PROCESSKEY),
+    DEF_ECTL_(SETPARAM),       DEF_ECTL_(GETBOOKMARKS),
   };
   int I;
+  static char Name[512];
   for(I=0; I < sizeof(ECTL)/sizeof(ECTL[0]); ++I)
     if(ECTL[I].Msg == Command)
     {
-      sprintf(Name,"\"%s\" [%d/0x%04X]",ECTL[I].Name,Command,Command);
+      sprintf(Name,"\"ECTL_%s\" [%d/0x%04X]",ECTL[I].Name,Command,Command);
       return Name;
     }
   sprintf(Name,"\"ECTL_????\" [%d/0x%04X]",Command,Command);
@@ -451,31 +455,31 @@ const char *_ECTL_ToName(int Command)
 const char *_FCTL_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_FCTL_(m) { m , #m }
+#define DEF_FCTL_(m) { FCTL_##m , #m }
   static struct FCTLName{
     int Msg;
     const char *Name;
   } FCTL[]={
-     DEF_FCTL_(FCTL_CLOSEPLUGIN),           DEF_FCTL_(FCTL_GETPANELINFO),
-     DEF_FCTL_(FCTL_GETANOTHERPANELINFO),   DEF_FCTL_(FCTL_UPDATEPANEL),
-     DEF_FCTL_(FCTL_UPDATEANOTHERPANEL),    DEF_FCTL_(FCTL_REDRAWPANEL),
-     DEF_FCTL_(FCTL_REDRAWANOTHERPANEL),    DEF_FCTL_(FCTL_SETANOTHERPANELDIR),
-     DEF_FCTL_(FCTL_GETCMDLINE),            DEF_FCTL_(FCTL_SETCMDLINE),
-     DEF_FCTL_(FCTL_SETSELECTION),          DEF_FCTL_(FCTL_SETANOTHERSELECTION),
-     DEF_FCTL_(FCTL_SETVIEWMODE),           DEF_FCTL_(FCTL_SETANOTHERVIEWMODE),
-     DEF_FCTL_(FCTL_INSERTCMDLINE),         DEF_FCTL_(FCTL_SETUSERSCREEN),
-     DEF_FCTL_(FCTL_SETPANELDIR),           DEF_FCTL_(FCTL_SETCMDLINEPOS),
-     DEF_FCTL_(FCTL_GETCMDLINEPOS),         DEF_FCTL_(FCTL_SETSORTMODE),
-     DEF_FCTL_(FCTL_SETANOTHERSORTMODE),    DEF_FCTL_(FCTL_SETSORTORDER),
-     DEF_FCTL_(FCTL_SETANOTHERSORTORDER),   DEF_FCTL_(FCTL_GETCMDLINESELECTEDTEXT),
-     DEF_FCTL_(FCTL_SETCMDLINESELECTION),   DEF_FCTL_(FCTL_GETCMDLINESELECTION),
+     DEF_FCTL_(CLOSEPLUGIN),           DEF_FCTL_(GETPANELINFO),
+     DEF_FCTL_(GETANOTHERPANELINFO),   DEF_FCTL_(UPDATEPANEL),
+     DEF_FCTL_(UPDATEANOTHERPANEL),    DEF_FCTL_(REDRAWPANEL),
+     DEF_FCTL_(REDRAWANOTHERPANEL),    DEF_FCTL_(SETANOTHERPANELDIR),
+     DEF_FCTL_(GETCMDLINE),            DEF_FCTL_(SETCMDLINE),
+     DEF_FCTL_(SETSELECTION),          DEF_FCTL_(SETANOTHERSELECTION),
+     DEF_FCTL_(SETVIEWMODE),           DEF_FCTL_(SETANOTHERVIEWMODE),
+     DEF_FCTL_(INSERTCMDLINE),         DEF_FCTL_(SETUSERSCREEN),
+     DEF_FCTL_(SETPANELDIR),           DEF_FCTL_(SETCMDLINEPOS),
+     DEF_FCTL_(GETCMDLINEPOS),         DEF_FCTL_(SETSORTMODE),
+     DEF_FCTL_(SETANOTHERSORTMODE),    DEF_FCTL_(SETSORTORDER),
+     DEF_FCTL_(SETANOTHERSORTORDER),   DEF_FCTL_(GETCMDLINESELECTEDTEXT),
+     DEF_FCTL_(SETCMDLINESELECTION),   DEF_FCTL_(GETCMDLINESELECTION),
   };
   int I;
   static char Name[512];
   for(I=0; I < sizeof(FCTL)/sizeof(FCTL[0]); ++I)
     if(FCTL[I].Msg == Command)
     {
-      sprintf(Name,"\"%s\" [%d/0x%04X]",FCTL[I].Name,Command,Command);
+      sprintf(Name,"\"FCTL_%s\" [%d/0x%04X]",FCTL[I].Name,Command,Command);
       return Name;
     }
   sprintf(Name,"\"FCTL_????\" [%d/0x%04X]",Command,Command);
@@ -727,6 +731,7 @@ const char *_DLGMSG_ToName(int Msg)
     DEF_MESSAGE(DN_CLOSE),              DEF_MESSAGE(DN_KEY),
     DEF_MESSAGE(DM_USER),               DEF_MESSAGE(DM_KILLSAVESCREEN),
     DEF_MESSAGE(DM_ALLKEYMODE),         DEF_MESSAGE(DM_LISTGETDATASIZE),
+    DEF_MESSAGE(DN_ACTIVATEAPP),
   };
   int I;
 
@@ -738,6 +743,40 @@ const char *_DLGMSG_ToName(int Msg)
       return Name;
     }
   sprintf(Name,"\"%s+[%d/0x%08X]\"",(Msg>=DN_FIRST?"DN_FIRST":(Msg>=DM_USER?"DM_USER":"DM_FIRST")),Msg,Msg);
+  return Name;
+#else
+  return "";
+#endif
+}
+
+const char *_ACTL_ToName(int Command)
+{
+#if defined(SYSLOG_ACTL)
+#define DEF_ACTL_(m) { ACTL_##m , #m }
+  static struct ACTLName{
+    int Msg;
+    const char *Name;
+  } ACTL[]={
+    DEF_ACTL_(GETFARVERSION),          DEF_ACTL_(CONSOLEMODE),
+    DEF_ACTL_(GETSYSWORDDIV),          DEF_ACTL_(WAITKEY),
+    DEF_ACTL_(GETCOLOR),               DEF_ACTL_(GETARRAYCOLOR),
+    DEF_ACTL_(EJECTMEDIA),             DEF_ACTL_(KEYMACRO),
+    DEF_ACTL_(POSTKEYSEQUENCE),        DEF_ACTL_(GETWINDOWINFO),
+    DEF_ACTL_(GETWINDOWCOUNT),         DEF_ACTL_(SETCURRENTWINDOW),
+    DEF_ACTL_(COMMIT),                 DEF_ACTL_(GETFARHWND),
+    DEF_ACTL_(GETSYSTEMSETTINGS),      DEF_ACTL_(GETPANELSETTINGS),
+    DEF_ACTL_(GETINTERFACESETTINGS),   DEF_ACTL_(GETCONFIRMATIONS),
+    DEF_ACTL_(GETDESCSETTINGS),
+  };
+  int I;
+  static char Name[512];
+  for(I=0; I < sizeof(ACTL)/sizeof(ACTL[0]); ++I)
+    if(ACTL[I].Msg == Command)
+    {
+      sprintf(Name,"\"ACTL_%s\" [%d/0x%04X]",ACTL[I].Name,Command,Command);
+      return Name;
+    }
+  sprintf(Name,"\"ACTL_????\" [%d/0x%04X]",Command,Command);
   return Name;
 #else
   return "";
