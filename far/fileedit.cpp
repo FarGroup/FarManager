@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.23 27.02.2001 $ */
+/* Revision: 1.24 01.03.2001 $ */
 
 /*
 Modify:
+  01.03.2001 IS
+    - Баг: не учитывалось, закрылся ли файл на самом деле по ctrl-f10
   27.02.2001 SVS
     + Добавки по поводу базы вывода.
   26.02.2001 IS
@@ -388,6 +390,11 @@ int FileEditor::ProcessKey(int Key)
         if(GetEnableSwitch())
         {
           ProcessKey(KEY_F10);
+          /* $ 01.03.2001 IS
+               - Баг: не учитывалось, закрылся ли файл на самом деле
+          */
+          if(!Done()) return TRUE;
+          /* IS $ */
           if(strchr(FileName,'\\') || strchr(FileName,'/'))
           {
             char DirTmp[NM],ADir[NM],PDir[NM],*NameTmp;
