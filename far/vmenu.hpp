@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.56 06.07.2004 $ */
+/* Revision: 1.57 19.11.2004 $ */
 
 /*
 Modify:
+  19.11.2004 WARP
+    + LastAddedItem
   06.07.2004 SVS
     ! CheckHighlights уехал в приват
   30.06.2004 SVS
@@ -364,6 +366,8 @@ class VMenu: virtual public Modal, virtual public Frame
     /* KM $ */
     struct MenuItem *Item;
     int ItemCount;
+
+    int LastAddedItem;
     /* $ 28.07.2000 SVS
        ÷ветовые атрибуты
     */

@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.160 09.11.2004 $ */
+/* Revision: 1.161 19.11.2004 $ */
 
 /*
 Modify:
+  19.11.2004 WARP
+    ! "Ќормальна€" реализаци€ UpdateRequired дл€ VMenu,
+      более интеллектальное обновление листа в поске.
   09.11.2004 WARP
     - Ќеверное позиционирование в архиве после просмотра файла во врем€ поиска
   25.10.2004 SVS
@@ -3098,7 +3101,10 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         LastFoundNumber=0;
         while (ListBox->GetCallCount())
           Sleep(10);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
+
+        if ( ListBox->UpdateRequired () )
+            ListBox->Show ();
+//        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
       }
     }
     Mutex.Unlock();

@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.139 11.11.2004 $ */
+/* Revision: 1.140 19.11.2004 $ */
 
 /*
 Modify:
+  19.11.2004 WARP
+    ! "Ќормальна€" реализаци€ UpdateRequired дл€ VMenu,
+      более интеллектальное обновление листа в поске.
   11.11.2004 SVS
     + ќбработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   27.08/2004 VVM
@@ -544,6 +547,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   *BottomTitle=0;
   VMenu::Item=NULL;
   VMenu::ItemCount=0;
+
+  VMenu::LastAddedItem = 0;
 
   /* $ 01.08.2000 SVS
    - Bug в конструкторе, если передали NULL дл€ Title
@@ -1120,7 +1125,10 @@ void VMenu::ShowMenu(int IsParent)
 
 BOOL VMenu::UpdateRequired(void)
 {
-  return ((ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1) || VMFlags.Check(VMENU_UPDATEREQUIRED));
+  return ((LastAddedItem>=TopPos && LastAddedItem<(TopPos+Y2-Y1)+2) || VMFlags.Check(VMENU_UPDATEREQUIRED));
+
+  //+1 for real diff
+  //+2 for scrollbar
 }
 
 BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
@@ -1758,6 +1766,8 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
 //  if(VMFlags.Check(VMENU_LISTBOXSORT))
 //    SortItems(0);
+  LastAddedItem = PosAdd;
+
   InterlockedDecrement(&CallCount);
   LeaveCriticalSection(&CSection);
   return(ItemCount++);
