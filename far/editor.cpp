@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.172 29.04.2002 $ */
+/* Revision: 1.173 06.05.2002 $ */
 
 /*
 Modify:
+  06.05.2002 KM
+    - AltF8 AltF9... Oops!
   29.04.2002 SVS
     - не туда залудил этот BugZ#488
   29.04.2002 SVS
@@ -2610,9 +2612,7 @@ int Editor::ProcessKey(int Key)
            + возможность переходить не только на строку, но и на колонку */
         /* $ 21.07.2000 tran
            Все внутри функции */
-        DisableOut++;
         GoToPosition();
-        DisableOut--;
         /* tran 21.07.2000 $ */
         /* tran 05.07.2000 $ */
         // <GOTO_UNMARK:1>
@@ -4457,6 +4457,14 @@ void Editor::GoToPosition()
   Dlg.SetPosition(-1,-1,25,5);
   Dlg.SetHelp("EditorGotoPos");
   Dlg.Process();
+
+  /* $ 06.05.2002 KM
+      Прибъём ShadowSaveScr для предотвращения мелькания
+      изображения.
+  */
+  Dialog::SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
+  /* KM $ */
+
     // tran: was if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
   if (Dlg.GetExitCode()!=1 )
       return ;
