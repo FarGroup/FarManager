@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.137 07.05.2003 $ */
+/* Revision: 1.138 12.05.2003 $ */
 
 /*
 Modify:
+  12.05.2003 VVM
+    + При отсутствии выделения маркер "поиска" двигается при перемещении по файлу.
   07.05.2003 VVM
     - При 16-ном просмотре не работал скроллинг вниз.
   06.05.2003 SVS
@@ -945,6 +947,8 @@ void Viewer::DisplayObject()
     SetCursorType(0,10);
   }
   vseek(ViewFile,FilePos,SEEK_SET);
+  if (SelectSize == 0)
+    SelectPos=FilePos;
 
   if (VM.Hex)
     ShowHex();
@@ -1201,6 +1205,8 @@ void Viewer::ShowUp()
   if (HideCursor)
     SetCursorType(0,10);
   vseek(ViewFile,FilePos,SEEK_SET);
+  if (SelectSize == 0)
+    SelectPos=FilePos;
 
   for (I=Y2-ViewY1-1;I>=0;I--)
   {
@@ -1293,6 +1299,8 @@ void Viewer::ShowDown()
   }
   FilePos = StrFilePos[0];
   SecondPos = StrFilePos[1];
+  if (SelectSize == 0)
+    SelectPos=FilePos;
 
   vseek(ViewFile,StrFilePos[Y2-ViewY1],SEEK_SET);
   ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
@@ -1683,7 +1691,6 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_CTRLU:
     {
-      SelectPos = FilePos;
       if (SelectSize)
       {
         SelectSize = 0;
