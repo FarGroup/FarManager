@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.29 09.04.2001 $ */
+/* Revision: 1.30 19.04.2001 $ */
 
 /*
 Modify:
+  19.04.2001 SVS
+    - не удалялся SUBST-диск - портилось оригинальное значение DriveType
+      в момент проверки "Мы хотим спрятать cd-rom или сменный диск"
   09.04.2001 SVS
     ! проблемы с быстрым поиском.
   02.04.2001 SVS
@@ -240,7 +243,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM)))
         // Мы хотим спрятать cd-rom или сменный диск
         {
-          DriveType = GetDriveType(RootDir);
           ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
                      (DriveType!=DRIVE_CDROM || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM));
         }
