@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.73 26.03.2002 $ */
+/* Revision: 1.74 28.03.2002 $ */
 
 /*
 Modify:
+  28.01.2002 VVM
+    ! Слэш не будем добавлять, если Dest является маской...
   26.03.2002 DJ
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
   23.03.2002 VVM
@@ -361,7 +363,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   // Размер буфера берется из реестра
   GetRegKey("System", "CopyBufferSize", CopyBufferSize, COPY_BUFFER_SIZE);
-  if (CopyBufferSize == 0)
+  if (CopyBufferSize < COPY_BUFFER_SIZE)
     CopyBufferSize = COPY_BUFFER_SIZE;
 
   CDP.thisClass=this;
@@ -703,7 +705,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         char NameTmp[NM];
 
         // переинициализируем переменные в самом начале (BugZ#171)
-        CopyBufSize=1024; // Начинаем с 1к
+        CopyBufSize = COPY_BUFFER_SIZE; // Начинаем с 1к
         ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipMode=-1;
 
         DestList.Start();
@@ -719,8 +721,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
           // Если выделенных элементов больше 1 и среди них есть каталог, то всегда
           // делаем так, чтобы на конце был '\\'
-          if(AddSlash)
-              AddEndSlash(NameTmp);
+          // деламем так не всегда, а только когда NameTmp не является маской.
+          if (AddSlash && strchr(NameTmp,'*')==NULL && strchr(NameTmp,'?')==NULL)
+            AddEndSlash(NameTmp);
 
           // Для перемещение одного объекта скинем просчет "тотала"
           if (CDP.SelCount==1 && Move && strpbrk(NameTmp,":\\")==NULL)
