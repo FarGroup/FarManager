@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.52 16.12.2000 $ */
+/* Revision: 1.53 20.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    - В предыдущем исправлении было задано неверное условие для
+      правила EditorF7Rules
   16.12.2000 OT
     - CtrlY на последней строке с выделенным вертикальным блоком не снимал
       выделение
@@ -2945,8 +2948,14 @@ void Editor::Search(int Next)
        "О, это не ощибка - это свойство моей программы" :-)
        Новое поведение стало подконтрольным
     */
-    if (!ReplaceMode && !ReverseSearch && Next && Opt.EditorF7Rules)
+    /* $ 21.12.2000 SVS
+       - В предыдущем исправлении было задано неверное условие для
+         правила EditorF7Rules
+    */
+    if((!Opt.EditorF7Rules && !ReplaceMode && !ReverseSearch) ||
+       (Opt.EditorF7Rules && Next))
       CurPos++;
+    /* SVS $ */
     /* SVS $ */
     /* tran $ */
 
