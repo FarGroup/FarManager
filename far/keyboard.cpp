@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.69 05.04.2002 $ */
+/* Revision: 1.70 14.04.2002 $ */
 
 /*
 Modify:
+  14.05.2002 VVM
+    - Если крутим колесо мыши, то сбрасываем тип события EventType;
   05.04.2002 SVS
     + Prev?ButtonPressed
   01.04.2002 SVS
@@ -928,7 +930,10 @@ int GetInputRecord(INPUT_RECORD *rec)
                  (SMState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
                  (SMState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
       /* SVS $ */
-      rec->EventType = KEY_EVENT;
+      /* $ 14.05.2002 VVM
+        - сбросим тип евента вообще. Иначе бывают глюки (ProcessEditorInput) */
+      rec->EventType = 0;
+      /* VVM $ */
     } /* if */
     /* VVM $ */
   }
