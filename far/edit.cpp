@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.27 12.12.2000 $ */
+/* Revision: 1.28 15.12.2000 $ */
 
 /*
 Modify:
+   15.12.2000 OT
+    - Исправление бага с (KEY_TAB && OverType)
    10.12.2000 tran & OT
     ! KEY_SHIFTBS изменен на KEY_CTRLSHIFTBS (tran)
     - Исправление бага с KEY_SHIFTTAB (OT)
@@ -1242,7 +1244,11 @@ int Edit::InsertKey(int Key)
   if (Key==KEY_TAB && Overtype)
   {
     PrevCurPos=CurPos;
-    CurPos+=Opt.TabSize - (CurPos % Opt.TabSize);
+    /* $ 14.12.2000 OT KEY_TAB Bug Fix*/
+    CursorPos+=Opt.TabSize - (CursorPos % Opt.TabSize);
+    SetTabCurPos(CursorPos);
+    /* OT $ */
+
     return(TRUE);
   }
   if (Mask && *Mask)
