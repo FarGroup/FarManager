@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.134 08.07.2004 $ */
+/* Revision: 1.135 20.07.2004 $ */
 
 /*
 Modify:
+  20.07.2004 KM
+    - Падение меню в AdjustSelectPos при SelectPos=-1
   08.07.2004 SVS
     + обработка MCODE_OP_PLAINTEXT в VMenu
   07.07.2004 SVS
@@ -2083,36 +2085,44 @@ void VMenu::AdjustSelectPos()
   if (!Item || !ItemCount)
     return;
 
-  int OldSelectPos = SelectPos;
-  // если selection стоит в некорректном месте - сбросим его
-  if (Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
-    SelectPos = -1;
-
-  for (int i=0; i<ItemCount; i++)
+  /* $ 20.07.2004 KM
+     Добавим проверку на -1, в противном случае падает меню
+     из Dialog API.
+  */
+  if (SelectPos!=-1)
   {
-    if (Item [i].Flags & (LIF_SEPARATOR | LIF_DISABLE))
-      Item [i].SetSelect (FALSE);
-    else
+    int OldSelectPos = SelectPos;
+    // если selection стоит в некорректном месте - сбросим его
+    if (Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
+      SelectPos = -1;
+
+    for (int i=0; i<ItemCount; i++)
     {
-      if (SelectPos == -1)
-      {
-        Item [i].SetSelect (TRUE);
-        SelectPos = i;
-      }
-      else if (SelectPos >= 0 && SelectPos != i)
-      {
-        // если уже есть выделенный элемент - оставим как было
+      if (Item [i].Flags & (LIF_SEPARATOR | LIF_DISABLE))
         Item [i].SetSelect (FALSE);
+      else
+      {
+        if (SelectPos == -1)
+        {
+          Item [i].SetSelect (TRUE);
+          SelectPos = i;
+        }
+        else if (SelectPos >= 0 && SelectPos != i)
+        {
+          // если уже есть выделенный элемент - оставим как было
+          Item [i].SetSelect (FALSE);
+        }
       }
     }
-  }
 
-  // если ничего не нашли - оставим как было
-  if (SelectPos == -1)
-  {
-    SelectPos = OldSelectPos;
-    Item [SelectPos].SetSelect (TRUE);
+    // если ничего не нашли - оставим как было
+    if (SelectPos == -1)
+    {
+      SelectPos = OldSelectPos;
+      Item [SelectPos].SetSelect (TRUE);
+    }
   }
+  /* KM $ */
 
   if (SelectPos == -1)
     VMFlags.Set(VMENU_SELECTPOSNONE); //??
