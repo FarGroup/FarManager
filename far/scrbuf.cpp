@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.18 31.05.2002 $ */
+/* Revision: 1.19 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    + ScreenBuf::WriteA - с конвертацией
   31.05.2002 SVS
     ! ScreenBuf::Flush - изменен порядок в уловии - сначал проверим атрибуты, а потом
       символы (т.к. для получения символов вызываются функции)
@@ -164,7 +166,7 @@ void ScreenBuf::FillBuf()
 
 /* Записать Text в виртуальный буфер
 */
-void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
+void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
 {
   if (Y>=BufY || TextLength==0)
     return;
@@ -180,6 +182,30 @@ void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
     Flush();
 #endif
 }
+
+#if defined(USE_WFUNC)
+void ScreenBuf::WriteA(int X,int Y,const CHAR_INFO *Text,int TextLength)
+{
+  if (Y>=BufY || TextLength==0)
+    return;
+  if(X+TextLength >= BufX)
+    TextLength=BufX-X; //??
+  CHAR_INFO *PtrBuf=Buf+Y*BufX+X;
+  for(int I=0; I < TextLength; ++I, ++PtrBuf, ++Text)
+  {
+    SetVidChar(*PtrBuf,Text->Char.AsciiChar);
+    PtrBuf->Attributes=Text->Attributes;
+  }
+  SBFlags.Skip(SBFLAGS_FLUSHED);
+
+#ifdef DIRECT_SCREEN_OUT
+  Flush();
+#elif defined(DIRECT_RT)
+  if ( DirectRT  )
+    Flush();
+#endif
+}
+#endif
 
 /* Читать блок из виртуального буфера.
 */

@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.109 30.05.2002 $ */
+/* Revision: 1.110 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    - BugZ#545 - Ctrl-F10 для удалённого файла
+    - BugZ#546 - Editor валит фар
   30.05.2002 IS
     ! небольшая оптимизация там же - уберем лишний strlen
   29.05.2002 SVS
@@ -533,7 +536,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
       {
         ExitCode=XC_LOADING_INTERRUPTED;
       }
-      FrameManager->DeleteFrame(this);
+      //FrameManager->DeleteFrame(this); // BugZ#546 - Editor валит фар!
       CtrlObject->Cp()->Redraw();
       return;
     }
@@ -882,6 +885,9 @@ int FileEditor::ProcessKey(int Key)
         {
           return(TRUE);
         }
+
+        char FullFileNameTemp[NM*2];
+        strcpy(FullFileNameTemp,FullFileName);
         /* 26.11.2001 VVM
           ! Использовать полное имя файла */
         /* $ 28.12.2001 DJ
@@ -889,12 +895,14 @@ int FileEditor::ProcessKey(int Key)
         */
         if(GetFileAttributes(FullFileName) == -1) // а сам файл то еще на месте?
         {
-          return FALSE;
+          if(!CheckShortcutFolder(FullFileNameTemp,sizeof(FullFileNameTemp)-1,FALSE))
+            return FALSE;
+          strcat(FullFileNameTemp,"\\."); // для вваливания внутрь :-)
         }
 
         {
           SaveScreen Sc;
-          CtrlObject->Cp()->GoToFile (FullFileName);
+          CtrlObject->Cp()->GoToFile (FullFileNameTemp);
           RedrawTitle = TRUE;
         }
         /* DJ $ */

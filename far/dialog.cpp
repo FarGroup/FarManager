@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.250 02.06.2002 $ */
+/* Revision: 1.251 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    + DIF_CENTERTEXT
+    + DIF_NOTCVTUSERCONTROL, если флаг не установлен - вызываем PutTextA
+      (с конвертацией)
   02.06.2002 SVS
     - Проблема с unchanged так и осталась - после посылки DN_KEY проверим
       состояние элемента (могло изменится плагином в обработчике)
@@ -2354,6 +2358,8 @@ void Dialog::ShowDialog(int ID)
       {
         strncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=LenStrItem(I,Str);
+        if ((CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
+          LenText=LenStrItem(I,CenterStr(Str,Str,CX2-CX1+1));
         Y=(CY1==-1)?(Y2-Y1+1)/2:CY1;
         X=(CX1==-1)?(X2-X1+1-LenText)/2:CX1;
         if(X < 0)
@@ -2387,6 +2393,8 @@ void Dialog::ShowDialog(int ID)
       {
         strncpy(Str,CurItem->Data,sizeof(Str)-1);
         LenText=strlen(Str);//LenStrItem(I,Str);
+        if ((CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
+          LenText=strlen(CenterStr(Str,Str,CY2-CY1+1));
         X=(CX1==-1)?(X2-X1+1)/2:CX1;
         Y=(CY1==-1)?(Y2-Y1+1-LenText)/2:CY1;
         if(Y < 0)
@@ -2563,7 +2571,12 @@ void Dialog::ShowDialog(int ID)
       case DI_USERCONTROL:
         if(CurItem->VBuf)
         {
-          PutText(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
+#if defined(USE_WFUNC)
+          if (!(CurItem->Flags & DIF_NOTCVTUSERCONTROL))
+            PutTextA(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
+          else
+#endif
+            PutText(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
           // не забудем переместить курсор, если он позиционирован.
           if(FocusPos == I)
           {

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.210 30.05.2002 $ */
+/* Revision: 1.211 04.06.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.06.2002 SVS
+    + DIF_CENTERTEXT
+    + DIF_NOTCVTUSERCONTROL
   30.05.2002 SVS
     + FLINK_DONOTUPDATEPANEL
   22.05.2002 SKV
@@ -827,6 +830,12 @@ enum FarDialogItemFlags {
   DIF_LISTNOBOX         = 0x00040000UL,
   DIF_HISTORY           = 0x00040000UL,
   DIF_BTNNOCLOSE        = 0x00040000UL,
+  DIF_CENTERTEXT        = 0x00040000UL,
+#ifdef FAR_USE_INTERNALS
+#if defined(USE_WFUNC)
+  DIF_NOTCVTUSERCONTROL= 0x00040000UL,
+#endif
+#endif // END FAR_USE_INTERNALS
   DIF_EDITEXPAND        = 0x00080000UL,
   DIF_DROPDOWNLIST      = 0x00100000UL,
   DIF_USELASTHISTORY    = 0x00200000UL,
@@ -2032,7 +2041,7 @@ enum {
  PN_CMPNAME      = 0x00000000UL,
  PN_CMPNAMELIST  = 0x00001000UL,
  PN_GENERATENAME = 0x00002000UL,
- PN_SKIPPATH     = 0x000100000UL
+ PN_SKIPPATH     = 0x00100000UL,
 };
 
 typedef int     (WINAPI *FARSTDPROCESSNAME)(const char *param1, char *param2, DWORD flags);
@@ -2080,7 +2089,6 @@ enum MKLINKOP{
 typedef int     (WINAPI *FARSTDMKLINK)(const char *Src,const char *Dest,DWORD Flags);
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const char *Src,char *Dest,int DestSize);
-
 
 typedef struct FarStandardFunctions
 {

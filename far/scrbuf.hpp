@@ -7,10 +7,12 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.05 18.05.2002 $ */
+/* Revision: 1.06 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    + ScreenBuf::WriteA - с конвертацией
   18.05.2002 SVS
     ! Выносим некоторые переменные во флаги
   04.03.2002 DJ
@@ -64,7 +66,10 @@ class ScreenBuf
   public:
     void FillBuf();
     void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text);
-    void Write(int X,int Y,CHAR_INFO *Text,int TextLength);
+    void Write(int X,int Y,const CHAR_INFO *Text,int TextLength);
+#if defined(USE_WFUNC)
+    void WriteA(int X,int Y,const CHAR_INFO *Text,int TextLength);
+#endif
     void RestoreMacroChar();
 
     void ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);

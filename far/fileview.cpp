@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.57 24.05.2002 $ */
+/* Revision: 1.58 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    - BugZ#546 - Editor валит фар (здесь така€ же фигн€, что и в редакторе!)
   24.05.2002 SVS
     ! ”точнени€ в FileViewer::ViewerControl дл€ логов
   22.05.2002 SVS
@@ -235,7 +237,7 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
     */
     DisableHistory = TRUE;
     /* DJ $ */
-    FrameManager->DeleteFrame(this);
+    // FrameManager->DeleteFrame(this); // «ј„≈ћ? ¬ьювер то еще не помещен в очередь манагера!
     ExitCode=FALSE;
     return;
   }

@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.53 30.05.2002 $ */
+/* Revision: 1.54 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    - BugZ#547 - No dot in help description
   30.05.2002 SVS
     ! Новая опция /ttf - для выставленного TTF-фонта для консольного окна
   21.05.2002 IS
@@ -196,7 +198,7 @@ static void show_help(void)
 {
 printf(
 "The following switches may be used in the command line:\n\n"
-" /?   This help\n"
+" /?   This help.\n"
 " /a   Disable display of characters with codes 0 - 31 and 255.\n"
 " /ag  Disable display of pseudographics characters.\n"
 " /e[<line>[:<pos>]] <filename>\n"

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.160 31.05.2002 $ */
+/* Revision: 1.161 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    + TextToCharInfo
+    ! Немного const
   31.05.2002 SVS
     ! GetVidChar стал inline в fn.hpp, код, ответственный за юникод
       перекочевал в GetVidCharW (из-за "for").
@@ -456,12 +459,40 @@ void SetColor(int Color);
 void ClearScreen(int Color);
 int  GetColor();
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest);
-void PutText(int X1,int Y1,int X2,int Y2,void *Src);
+void PutText(int X1,int Y1,int X2,int Y2,const void *Src);
+#if defined(USE_WFUNC)
+void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src);
+#endif
 void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest);
-void PutRealText(int X1,int Y1,int X2,int Y2,void *Src);
+void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
+
+#if defined(USE_WFUNC)
+BYTE GetVidCharW(CHAR_INFO CI);
+inline BYTE GetVidChar(CHAR_INFO CI)
+{
+  if(Opt.UseTTFFont)
+    return GetVidCharW(CI);
+  return CI.Char.AsciiChar;
+}
+
+inline void SetVidChar(CHAR_INFO& CI,BYTE Chr)
+{
+  extern WCHAR Oem2Unicode[];
+  if(Opt.UseTTFFont)
+    CI.Char.UnicodeChar = Oem2Unicode[Chr];
+  else
+    CI.Char.AsciiChar=Chr;
+}
+
+#else
+#define GetVidChar(CI)     (CI).Char.AsciiChar
+#define SetVidChar(CI,Chr) (CI).Char.AsciiChar=Chr
+#endif
+
+
 void ShowTime(int ShowAlways);
 int GetDateFormat();
 int GetDateSeparator();
@@ -761,6 +792,9 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
 int WINAPI FarCmpName(const char *pattern,const char *string,int skippath);
 int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
 void WINAPI FarText(int X,int Y,int Color,const char *Str);
+#if defined(USE_WFUNC)
+int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved);
+#endif
 int WINAPI FarEditorControl(int Command,void *Param);
 
 int WINAPI FarViewerControl(int Command,void *Param);
@@ -1218,29 +1252,6 @@ inline char LocalLowerFast (char c)
   return UpperToLower [c];
 }
 /* DJ $ */
-
-#if defined(USE_WFUNC)
-BYTE GetVidCharW(CHAR_INFO CI);
-inline BYTE GetVidChar(CHAR_INFO CI)
-{
-  if(Opt.UseTTFFont)
-    return GetVidCharW(CI);
-  return CI.Char.AsciiChar;
-}
-
-inline void SetVidChar(CHAR_INFO& CI,BYTE Chr)
-{
-  extern WCHAR Oem2Unicode[];
-  if(Opt.UseTTFFont)
-    CI.Char.UnicodeChar = Oem2Unicode[Chr];
-  else
-    CI.Char.AsciiChar=Chr;
-}
-
-#else
-#define GetVidChar(CI)     (CI).Char.AsciiChar
-#define SetVidChar(CI,Chr) (CI).Char.AsciiChar=Chr
-#endif
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 

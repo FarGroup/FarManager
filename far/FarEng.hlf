@@ -575,11 +575,11 @@ $ #Command line switches#
         for plugin developers, and it is not recommended to specify
         it during normal operation.
 
+#ifdef USE_WFUNC
   #/ttf#  Specify this option if you are using a TrueType font for
         the console window. This option has effect only under
         Windows NT 4 or higher.
-
-
+#endif // END USE_WFUNC
   FAR <filename> command starts FAR and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>
 is a folder.

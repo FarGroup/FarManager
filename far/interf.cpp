@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.60 31.05.2002 $ */
+/* Revision: 1.61 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    + TextToCharInfo
+    + PutTextA (с конвертацией)
   31.05.2002 SVS
     ! GetVidChar стал inline в fn.hpp, код, ответственный за юникод
       перекочевал в GetVidCharW (из-за "for").
@@ -961,19 +964,23 @@ void GetText(int X1,int Y1,int X2,int Y2,void *Dest)
   ScrBuf.Read(X1,Y1,X2,Y2,(CHAR_INFO *)Dest);
 }
 
-void PutText(int X1,int Y1,int X2,int Y2,void *Src)
+#if defined(USE_WFUNC)
+void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src)
 {
   int Width=X2-X1+1;
   int I,Y;
-#if 1
-  CHAR_INFO *SrcPtr=(CHAR_INFO*)Src;
-
-  for (Y=Y1;Y<=Y2;++Y,SrcPtr+=Width)
-    ScrBuf.Write(X1,Y,SrcPtr,Width);
-#else
-  for (I=0,Y=Y1;I<Y2-Y1+1;I++,++Y)
-    ScrBuf.Write(X1,Y,((PCHAR_INFO)Src)+Width*I,Width);
+  for (Y=Y1;Y<=Y2;++Y,(CHAR_INFO *)Src+=Width)
+    ScrBuf.WriteA(X1,Y,(CHAR_INFO *)Src,Width);
+}
 #endif
+
+void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
+{
+  int Width=X2-X1+1;
+  int I,Y;
+
+  for (Y=Y1;Y<=Y2;++Y,(CHAR_INFO *)Src+=Width)
+    ScrBuf.Write(X1,Y,(CHAR_INFO *)Src,Width);
 }
 
 
@@ -1109,7 +1116,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 }
 /* SVS $ */
 
-void PutRealText(int X1,int Y1,int X2,int Y2,void *Src)
+void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src)
 {
   COORD Size,Corner;
   SMALL_RECT Coord;
@@ -1253,4 +1260,28 @@ BYTE GetVidCharW(CHAR_INFO CI)
   */
 }
 
+#endif
+
+#if defined(USE_WFUNC)
+int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved)
+{
+  int I;
+  if(Opt.UseTTFFont)
+  {
+    for (I=0; I < Length; I++, ++CharInfo)
+    {
+      CharInfo->Char.UnicodeChar=Oem2Unicode[RecodeOutTable[(BYTE)Text[I]]];
+      CharInfo->Attributes=Attr;
+    }
+  }
+  else
+  {
+    for (I=0; I < Length; I++, ++CharInfo)
+    {
+      CharInfo->Char.AsciiChar=RecodeOutTable[(BYTE)Text[I]];
+      CharInfo->Attributes=Attr;
+    }
+  }
+  return TRUE;
+}
 #endif

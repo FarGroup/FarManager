@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.10 02.06.2002 $ */
+/* Revision: 1.11 04.06.2002 $ */
 
 /*
 Modify:
+  04.06.2002 SVS
+    - не обновл€лс€ указатель PtrCopyBuf при преобразовании в CHAR_INFO
   02.06.2002 SVS
     ! Grabber::CopyGrabbedArea - изменен алгоритм преобразовани€
       CHAR_INFO в char (исключены strcat)
@@ -135,6 +137,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     }
     for (int K=strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)
       CopyBuf[K]=0;
+    PtrCopyBuf=CopyBuf+strlen(CopyBuf);
   }
   if (Append)
   {
