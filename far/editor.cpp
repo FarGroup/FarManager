@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.248 29.05.2004 $ */
+/* Revision: 1.249 29.05.2004 $ */
 
 /*
 Modify:
+  29.05.2004 SVS
+    - BugZ#1048 - Сдвигается влево отображение в редакторе по CtrlShiftEnd
+      Строку "CurLine->EditLine.ObjWidth=X2-X1;" нужно было ставить до
+      вызова "ProcessKey(KEY_END);"!!!
   29.05.2004 SVS
     - Bugz#794 - пометка блока остается при удалении текста
   17.05.2004 SVS
@@ -2020,24 +2024,23 @@ int Editor::ProcessKey(int Key)
         }else
         {
           if(SelEnd!=-1)
-          {
             CurLine->EditLine.Select(SelEnd,CurLength);
-          }else
-          {
+          else
             CurLine->EditLine.Select(CurLength,-1);
-          }
         }
-        ProcessKey(KEY_END);
-
-        Pasting--;
-        DisableOut--;
-        Edit::DisableEditOut(FALSE);
 
         /* $ 17.01.2002 SKV
           Это что бы при FastShow LeftPos не становился в конец строки.
         */
         CurLine->EditLine.ObjWidth=X2-X1;
         /* SKV$*/
+
+        ProcessKey(KEY_END);
+
+        Pasting--;
+        DisableOut--;
+        Edit::DisableEditOut(FALSE);
+
         /* $ 13.9.2001 SKV
           Однако LeftPos апдейтится только в FastShow :-\
         */
