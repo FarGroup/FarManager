@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.96 01.11.2001 $ */
+/* Revision: 1.97 05.12.2001 $ */
 
 /*
 Modify:
+  05.12.2001 SVS
+    ! Небольшое уточненение по поводу исключений
   01.11.2001 SVS
     ! НЕЛЬЗЯ ИЗ ОБРАБОТЧИКА ВЫГРУЖАТЬ ПЛАГИН! Только после того, как
       обработали исключения.
@@ -1114,6 +1116,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
     struct PluginItem *PData=PluginsData+PluginNumber;
     if (PData->pOpenPlugin && PreparePlugin(PluginNumber))
     {
+      BOOL IsUnload=FALSE;
       /* $ 16.10.2000 SVS
          + Обработка исключений при вызове галимого плагина.
       */
@@ -1131,8 +1134,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
            /* VVM $ */
         }
         EXCEPT(xfilter(EXCEPT_OPENPLUGIN,GetExceptionInformation(),PData,1)){
-          UnloadPlugin(*PData);
-          return(INVALID_HANDLE_VALUE);
+          IsUnload=TRUE;
         }
       }
       else
@@ -1165,6 +1167,12 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
         CtrlObject->Plugins.CurEditor->Show();
       }
       /* skv$*/
+      if(IsUnload)
+      {
+        UnloadPlugin(*PData);
+        return(INVALID_HANDLE_VALUE);
+      }
+
       if (hInternal!=INVALID_HANDLE_VALUE)
       {
         PluginHandle *hPlugin=new PluginHandle;

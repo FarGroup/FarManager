@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.19 04.12.2001 $ */
+/* Revision: 1.20 05.12.2001 $ */
 
 /*
 Modify:
+  05.12.2001 SVS
+    - При определении ассоциации забыл "расширить" переменные среды :-(
   04.12.2001 SVS
     - забыл выделить имя модуля (не учитывались кавычки в активаторе)
   04.12.2001 SVS
@@ -211,13 +213,14 @@ char* GetShellAction(char *FileName,DWORD *GUIType)
   // а теперь проверим ГУЕвость запускаемой проги
   if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
   {
-    char Command[1024];
+    char Command[2048];
     ValueSize=sizeof(Command);
     RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Command,(LPDWORD)&ValueSize);
     RegCloseKey(hKey);
     if(RetQuery == ERROR_SUCCESS)
     {
       char *Ptr;
+      ExpandEnvironmentStr(Command,Command,sizeof(Command));
       // Выделяем имя модуля
       if (*Command=='\"')
       {

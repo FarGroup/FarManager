@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.18 27.09.2001 $ */
+/* Revision: 1.19 05.12.2001 $ */
 
 /*
 Modify:
+  05.12.2001 SVS
+    ! Временно отключаем обработку исключений на этом уровне.
   27.09.2001 IS
     - Левый размер при использовании strncpy
   14.09.2001 SVS
@@ -480,7 +482,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
 
     if (HelpTopic!=NULL)
       Dlg.SetHelp(HelpTopic);
-
+#if 0
     if(Opt.ExceptRules)
     {
       TRY{
@@ -493,6 +495,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
       }
     }
     else
+#endif
     {
       Dlg.Process();
     }

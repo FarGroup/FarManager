@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.106 30.11.2001 $ */
+/* Revision: 1.107 05.12.2001 $ */
 
 /*
 Modify:
+  05.12.2001 SVS
+    ! Временно отключаем обработку исключений на этом уровне.
   30.11.2001 DJ
     - не вылетаем, если GetPluginDirList() вызывается не на плагиновой панели
     - в GetPluginDirList() некорректно копировалась PPIF_USERDATA для каталогов
@@ -920,6 +922,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     FarDialog.SetPluginNumber(PluginNumber);
     /* SVS $ */
 
+#if 0
     if(Opt.ExceptRules)
     {
       TRY
@@ -935,6 +938,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       }
     }
     else
+#endif
     {
       FarDialog.Process();
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
