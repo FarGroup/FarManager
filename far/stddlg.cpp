@@ -5,12 +5,14 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.13 25.06.2001 $ */
+/* Revision: 1.14 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SVS
+    ! __except -> EXCEPT
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   11.06.2001 SVS
     ! Новые параметры у GetSearchReplaceString() - указывающие размеры буферов
   16.05.2001 SVS
@@ -366,7 +368,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
     Dlg.Process();
     ExitCode=Dlg.GetExitCode();
   }
-  __except ( xfilter(EXCEPT_FARDIALOG,
+  EXCEPT ( xfilter(EXCEPT_FARDIALOG,
                    GetExceptionInformation(),NULL,1)) // NULL=???
   {
     return FALSE;

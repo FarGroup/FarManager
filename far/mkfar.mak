@@ -41,16 +41,18 @@ FINALPATH=final
 .path.exe = $(FINALPATH)
 
 !ifdef TRY
-OPTEXT=-x
+OPTEXT=-x -DFARTRY
 !else
-OPTEXT=-x-
+OPTEXT=-x- -DNDEBUG
 !endif
 
 !ifdef DEBUG
 OPTDEBUG=-v
+OPTDEBUG2=
 CSMFILE=fard.csm
 !else
 OPTDEBUG=-v-
+OPTDEBUG2=-DNDEBUG
 CSMFILE=Far.csm
 !endif
 
@@ -291,6 +293,7 @@ $(FARCMEM)
 $(FARALLOC)
 $(PRECOMPOPT)
 $(OPTDEBUG)
+$(OPTDEBUG2)
 $(OPTEXT)
 $(FARSYSLOG)
 $(FARADDMACRO)

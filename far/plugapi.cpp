@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.73 26.06.2001 $ */
+/* Revision: 1.74 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SVS
+    ! __except -> EXCEPT
   26.06.2001 SKV
     + ACTL_COMMIT
   25.06.2001 IS
@@ -641,7 +643,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   TRY {
     Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
   }
-  __except (xfilter(EXCEPT_FARDIALOG,
+  EXCEPT (xfilter(EXCEPT_FARDIALOG,
                    GetExceptionInformation(),CurPlugin,0))
   {
     delete[] InternalItem;
@@ -699,7 +701,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       delete FarDialog;
     }
   }
-  __except (xfilter(EXCEPT_FARDIALOG,
+  EXCEPT (xfilter(EXCEPT_FARDIALOG,
                    GetExceptionInformation(),CurPlugin,1))
   {
     ;

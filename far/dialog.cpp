@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.126 26.06.2001 $ */
+/* Revision: 1.127 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SVS
+   ! __except -> EXCEPT
   26.06.2001 KM
    - Не работал клик на скролбаре в DI_LISTBOX.
   23.06.2001 KM
@@ -3325,7 +3327,7 @@ void Dialog::ConvertItem(int FromPlugin,
           TRY{
             memmove(Item->Data,Data->Data,sizeof(Item->Data));
           }
-          __except (EXCEPTION_EXECUTE_HANDLER)
+          EXCEPT (EXCEPTION_EXECUTE_HANDLER)
           {
             ;
           }
@@ -3347,7 +3349,7 @@ void Dialog::ConvertItem(int FromPlugin,
          TRY{
            memmove(Data->Data,Item->Data,sizeof(Data->Data));
          }
-         __except (EXCEPTION_EXECUTE_HANDLER)
+         EXCEPT (EXCEPTION_EXECUTE_HANDLER)
          {
            ;
          }
@@ -3410,7 +3412,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
       TRY{
         memmove(Item->Data,Data->Data,sizeof(Item->Data));
       }
-      __except (EXCEPTION_EXECUTE_HANDLER)
+      EXCEPT (EXCEPTION_EXECUTE_HANDLER)
       {
         ;
       }
@@ -3648,7 +3650,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
-    
+
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 
     while(!Done)
@@ -3814,7 +3816,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         IsOk=TRUE;
       }
     }
-    
+
     SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
   }
 
@@ -4965,7 +4967,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         return TRUE;
       }
-      else if (Param2 && (Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT || 
+      else if (Param2 && (Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT ||
                Type==DI_PSWEDIT) && (CurItem->Flags&DIF_HISTORY)))) // Открываем заданный в Param1 комбобокс или историю
       {
         if (Dlg->GetDropDownOpened())
@@ -4973,7 +4975,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           Dlg->SetDropDownOpened(FALSE);
           Sleep(10);
         }
-        
+
         if (Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0))
         {
           Dlg->ProcessKey(KEY_CTRLDOWN);

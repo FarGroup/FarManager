@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.03 06.06.2001 $ */
+/* Revision: 1.04 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SVS
+    + IsDebuggerPresent() - первая попытка (закомментированная)
   06.06.2001 SVS
     ! Mix/Max
   17.05.2001 SVS
@@ -656,6 +658,9 @@ int xfilter(
    else
      rc = EXCEPTION_EXECUTE_HANDLER;
    /* VVM $ */
+
+//   if(IsDebuggerPresent())
+//     rc = EXCEPTION_CONTINUE_SEARCH;
 
    if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
      rc=EXCEPTION_CONTINUE_SEARCH; //?

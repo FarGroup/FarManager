@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.41 25.06.2001 $ */
+/* Revision: 1.42 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SVS
+    ! __except -> EXCEPT
   25.06.2001 SVS
     + SEARCHSTRINGBUFSIZE - размер буфера для строки поиска.
   20.06.2001 SVS
@@ -199,12 +201,17 @@ enum ReadDizFlags {
 #define STATUS_STRUCTWRONGFILLED       0xE0001000
 #define STATUS_INVALIDFUNCTIONRESULT   0xE0002000
 
-#if defined(__BORLANDC__)
-#define TRY	try
+#if defined(FARTRY)
+ #if defined(__BORLANDC__)
+  #define TRY	   try
+ #else
+  #define TRY	__try
+ #endif
+ #define EXCEPT __except
 #else
-#define TRY	__try
+  #define TRY
+  #define EXCEPT(a) if(0)
 #endif
-/* SVS $ */
 
 #define DRIVE_SUBSTITUTE    0x0F
 #define DRIVE_NOT_INIT      0xFF
