@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.08 08.06.2001 $ */
+/* Revision: 1.09 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SKV
+    + Scroll - скроллирование буффера
   08.06.2001 SVS
     ! небольшая чистка (в т.ч. BC матюкался на "#elif DIRECT_RT")
   06.06.2001 SVS
@@ -351,3 +353,18 @@ void ScreenBuf::RestoreMacroChar()
   Write(0,0,&MacroChar,1);
   ResetShadow();
 }
+
+/*$ 23.07.2001 SKV
+  проскроллировать буффер на одну строку вверх.
+*/
+void ScreenBuf::Scroll(int num)
+{
+  if(num>0)
+  {
+    for(int i=0;i<BufY-num;i++)
+    {
+      MoveMemory(Buf+i*BufX,Buf+(i+num)*BufX,BufX*sizeof(CHAR_INFO));
+    }
+  }
+}
+/* SKV$*/

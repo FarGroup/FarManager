@@ -7,10 +7,12 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.01 12.05.2001 $ */
+/* Revision: 1.02 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SKV
+    + Scroll
   12.05.2001 DJ
     ! глобальный ScrBuf переехал сюда
   25.06.2000 SVS
@@ -50,8 +52,11 @@ class ScreenBuf
     void SetCursorType(int Visible,int Size);
     void GetCursorType(int &Visible,int &Size);
     void RestoreMacroChar();
+/*$ 23.07.2001 SKV */
+    void Scroll(int);
+/* SKV$*/
 };
 
 extern ScreenBuf ScrBuf;
 
-#endif	// __SCREENBUF_HPP__
+#endif  // __SCREENBUF_HPP__

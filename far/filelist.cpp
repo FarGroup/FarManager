@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.75 22.07.2001 $ */
+/* Revision: 1.76 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SKV
+    ! При погашенных панелях теперь работают
+      CtrlG,CtrlF,CtrlAltF,Ctrl[,Ctrl],CtrlShift[,CtrlShift]
+    ! ScrBufffer скроллится на 1 строку вверх после Apply command
   22.07.2001 SVS
     + Оконстантим SysID для Network Browse плагина - SYSID_NETWORK
     ! Если плагина SYSID_NETWORK нету, то вызываем как обычно меню дисков
@@ -589,7 +593,21 @@ int FileList::ProcessKey(int Key)
       }
   }
   else
-    if (Key!=KEY_SHIFTF4)
+    /*$ 23.07.2001 SKV
+      Пусть Ctrl-G, Ctrl-F, Ctrl-Shift-F, Ctrl-Enter работают
+      при погашенных панелях.
+    */
+    if (Key!=KEY_SHIFTF4 &&
+        Key!=KEY_CTRLG &&
+        Key!=KEY_CTRLF &&
+        Key!=KEY_CTRLALTF &&
+        Key!=KEY_CTRLENTER &&
+        Key!=KEY_CTRLBRACKET &&
+        Key!=KEY_CTRLBACKBRACKET &&
+        Key!=KEY_CTRLSHIFTBRACKET &&
+        Key!=KEY_CTRLSHIFTBACKBRACKET
+        )
+    /* SKV$*/
       return(FALSE);
 
   if (!ShiftPressed && ShiftSelection!=-1)
@@ -2998,6 +3016,15 @@ void FileList::ApplyCommand()
       ClearLastGetSelection();
     }
   }
+  /*$ 23.07.2001 SKV
+    что бы не затирать последнюю строку вывода.
+  */
+  if(CtrlObject->MainKeyBar->IsVisible())
+  {
+    ScrBuf.Scroll(1);
+    ScrBuf.Flush();
+  }
+  /* SKV$*/
 }
 
 
