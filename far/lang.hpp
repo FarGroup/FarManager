@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.70 02.06.2001 $ */
+/* Revision: 1.71 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 IS
+    + MIncorrectDirList - сообщение о неправильном списке каталогов
   02.06.2001 IS
     + MCopyIncorrectTargetList - сообщение о неправильном списке целей при
       копировании или перемещении
@@ -980,6 +982,7 @@ enum
 
   MMakeFolderTitle,
   MCreateFolder,
+  MIncorrectDirList,
   MCannotCreateFolder,
 
   MMenuBriefView,
