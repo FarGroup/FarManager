@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.115 21.04.2003 $ */
+/* Revision: 1.116 25.04.2003 $ */
 
 /*
 Modify:
+  25.04.2003 VVM
+    ! Отменим динамический буфер. Сколько в реестре зададут - столько и будет
   21.04.2003 SVS
     ! В обработчике DN_KEY сделаем "break", а не "return". Логика не
       изменится, но суть поменяется!
@@ -392,7 +394,7 @@ Modify:
 #include "constitle.hpp"
 #include "lockscrn.hpp"
 
-enum {COPY_BUFFER_SIZE  = 0x10000};
+enum {COPY_BUFFER_SIZE  = 0x20000};
 
 /* $ 30.01.2001 VVM
    + Константы для правил показа
@@ -524,7 +526,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // Размер буфера берется из реестра
   GetRegKey("System", "CopyBufferSize", CopyBufferSize, 0);
   if (CopyBufferSize == 0)
-    CopyBufferSize = COPY_BUFFER_SIZE * 8; //Макс. размер 512к
+    CopyBufferSize = COPY_BUFFER_SIZE; //Макс. размер 64к
   if (CopyBufferSize < COPY_BUFFER_SIZE)
     CopyBufferSize = COPY_BUFFER_SIZE;
 
@@ -900,7 +902,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         char NameTmp[NM];
 
         // переинициализируем переменные в самом начале (BugZ#171)
-        CopyBufSize = COPY_BUFFER_SIZE; // Начинаем с 1к
+//        CopyBufSize = COPY_BUFFER_SIZE; // Начинаем с 1к
+        CopyBufSize = CopyBufferSize;
         ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipMode=-1;
 
         DestList.Reset();
@@ -2825,6 +2828,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
 //  int64 WrittenSize(0,0);
   int   AbortOp = FALSE;
+  UINT OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
   while (1)
   {
     BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
@@ -2860,6 +2864,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
         }
       }
       _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+      SetErrorMode(OldErrMode);
       return COPY_CANCEL;
     }
     DWORD BytesRead,BytesWritten;
@@ -2867,9 +2872,10 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     /* $ 23.10.2000 VVM
        + Динамический буфер копирования */
 
-    if (CopyBufSize < CopyBufferSize)
-      StartTime=clock();
-    UINT OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
+    /* $ 25.04.2003 VVM
+       - Отменим пока это буфер */
+//    if (CopyBufSize < CopyBufferSize)
+//      StartTime=clock();
     while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
     {
       CopyTime+= (clock() - CopyStartTime);
@@ -2898,13 +2904,12 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       }
       ShowBar(0,0,false);
       ShowTitle(FALSE);
-      SetLastError(LastError);
       SetErrorMode(OldErrMode);
+      SetLastError(LastError);
       // return COPY_FAILUREREAD;
       _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
       return COPY_FAILURE;
     }
-    SetErrorMode(OldErrMode);
     if (BytesRead==0)
       break;
 
@@ -2946,6 +2951,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                   FAR_DeleteFile(DestName);
                 }
                 _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+                SetErrorMode(OldErrMode);
                 return COPY_FAILURE;
               }
               if (MsgCode==0)
@@ -2989,6 +2995,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           if (!AskCode)
           {
             CloseHandle(SrcHandle);
+            SetErrorMode(OldErrMode);
             _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
             return(COPY_CANCEL);
           }
@@ -3009,6 +3016,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             DWORD LastError=GetLastError();
             CloseHandle(SrcHandle);
             CloseHandle(DestHandle);
+            SetErrorMode(OldErrMode);
             SetLastError(LastError);
             _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
             return COPY_FAILURE;
@@ -3040,6 +3048,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           }
           ShowBar(0,0,false);
           ShowTitle(FALSE);
+          SetErrorMode(OldErrMode);
           SetLastError(LastError);
           if (SplitSkipped)
           {
@@ -3057,16 +3066,17 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
     }
 
-    if ((CopyBufSize < CopyBufferSize) && (BytesWritten==CopyBufSize))
-    {
-      StopTime=clock();
-      if ((StopTime - StartTime) < 1000)
-      {
-        CopyBufSize*=2;
-        if (CopyBufSize > CopyBufferSize)
-          CopyBufSize=CopyBufferSize;
-      }
-    } /* if */
+//    if ((CopyBufSize < CopyBufferSize) && (BytesWritten==CopyBufSize))
+//   {
+//      StopTime=clock();
+//      if ((StopTime - StartTime) < 250)
+//      {
+//        CopyBufSize*=2;
+//        if (CopyBufSize > CopyBufferSize)
+//          CopyBufSize=CopyBufferSize;
+//      }
+//    } /* if */
+    /* VVM $ */
     /* VVM $ */
 
     CurCopiedSize+=BytesWritten;
@@ -3078,7 +3088,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       ShowBar(TotalCopiedSize,TotalCopySize,true);
       ShowTitle(FALSE);
     }
-  }
+  } /* while */
+  SetErrorMode(OldErrMode);
 
   if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
   {
