@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.136 15.03.2003 $ */
+/* Revision: 1.137 07.04.2003 $ */
 
 /*
 Modify:
+  07.04.2003 VVM
+    ! Если во время поиска выбрать найденный файл мышью - вешаемся.
+      Не надо посылать сообщение на закрытие диалога. Оно ни к чему...
   15.03.2003 VVM
     - Если диалог вызывается в цикле, то и DI_COMBOBOX надо инитить в цикле.
   20.02.2003 SVS
@@ -1031,19 +1034,22 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_MOUSECLICK:
     {
+      /* $ 07.04.2003 VVM
+         ! Если во время поиска выбрать найденный файл мышью - вешаемся.
+         Не надо посылать сообщение на закрытие диалога. Оно ни к чему... */
       SMALL_RECT drect,rect;
+      int Ret = FALSE;
       Dialog::SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&drect);
       Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,1,(long)&rect);
       if (Param1==1 && ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.X<drect.Left+rect.Right)
       {
-        if (ListBox && ListBox->GetItemCount())
-          Dialog::SendDlgMessage(hDlg,DM_CLOSE,6/* [ Go to ] */,0);
-        FindDlgProc(hDlg,DN_BTNCLICK,6,0); // emulates a [ Go to ] button pressing
-        ReleaseMutex(hDialogMutex);
-        return TRUE;
+//        if (ListBox && ListBox->GetItemCount())
+//          Dialog::SendDlgMessage(hDlg,DM_CLOSE,6/* [ Go to ] */,0);
+        Ret = FindDlgProc(hDlg,DN_BTNCLICK,6,0); // emulates a [ Go to ] button pressing
       }
+      /* VVM $ */
       ReleaseMutex(hDialogMutex);
-      return FALSE;
+      return Ret;
     }
 
     case DN_KEY:
