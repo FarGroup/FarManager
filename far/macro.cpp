@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.37 22.05.2001 $ */
+/* Revision: 1.38 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 SVS
+    - автостартующий макрос не работал - кушался первый кей :-(
+      из-за того, что по сути не было автивного модала...
   22.05.2001 tran
     ! по результам прогона на CodeGuard
   16.05.2001 SVS
@@ -484,7 +487,7 @@ int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
 
-  if (InternalInput || !Executing)
+  if (InternalInput || !Executing || !FrameManager->GetCurrentFrame())
     return(FALSE);
 
 initial:
@@ -559,7 +562,7 @@ done:
         goto begin;
       }
   }
-//_D(SysLog("Key=0x%08X ExecMacroPos=%d", Key,ExecMacroPos));
+_SVS(SysLog("Key=0x%08X ExecMacroPos=%d ExecKeyPos=%d", Key,ExecMacroPos,ExecKeyPos));
   return(Key);
 }
 

@@ -7,10 +7,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.23 21.05.2001 $ */
+/* Revision: 1.24 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 SVS
+    ! Ќе трогаем оригинал на предмет вставки '&', все делаем только при
+      прорисовке.
   21.05.2001 DJ
     - «абыли вернуть значение в VMenu::ChangeFlags()
   21.05.2001 SVS
@@ -456,6 +459,7 @@ void VMenu::ShowMenu(int IsParent)
             Check=0x0FB;
           else
             Check=Item[I].Flags&0x0000FFFF;
+
         sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].Name);
         { // табул€ции мен€ем только при показе!!!
           // дл€ сохранение оригинальной строки!!!
@@ -477,7 +481,17 @@ void VMenu::ShowMenu(int IsParent)
         if(VMFlags&VMENU_SHOWAMPERSAND)
           Text(TmpStr);
         else
+        {
+          short AmpPos=Item[I].AmpPos+2;
+_SVS(SysLog(">AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
+          if(AmpPos >= 2 && TmpStr[AmpPos] != '&')
+          {
+            memmove(TmpStr+AmpPos+1,TmpStr+AmpPos,strlen(TmpStr+AmpPos)+1);
+            TmpStr[AmpPos]='&';
+          }
+_SVS(SysLog("<AmpPos=%d TmpStr='%s'",AmpPos,TmpStr));
           HiText(TmpStr,Col);
+        }
 
         mprintf("%*s",X2-WhereX(),"");
       }
@@ -638,9 +652,9 @@ struct FarListItem *VMenu::MenuItem2FarList(struct MenuItem *MItem,
     {
       strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text)); // MItem->UserData?
       // коррекци€ на &
-      short AmpPos=MItem->AmpPos;
-      if(AmpPos >= 0)
-        memmove(FItem->Text+AmpPos,FItem->Text+AmpPos+1,strlen(FItem->Text+AmpPos+1));
+//      short AmpPos=MItem->AmpPos;
+//      if(AmpPos >= 0)
+//        memmove(FItem->Text+AmpPos,FItem->Text+AmpPos+1,strlen(FItem->Text+AmpPos+1));
     }
     else
     {
@@ -1151,6 +1165,7 @@ void VMenu::AssignHighlights(int Reverse)
     {
       Used[LocalUpper(ChPtr[1])]=TRUE;
       Used[LocalLower(ChPtr[1])]=TRUE;
+      Item[I].AmpPos=Item[I].Name-ChPtr;
     }
   }
   for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
@@ -1164,8 +1179,8 @@ void VMenu::AssignHighlights(int Reverse)
           Used[Name[J]]=TRUE;
           Used[LocalUpper(Name[J])]=TRUE;
           Used[LocalLower(Name[J])]=TRUE;
-          memmove(Name+J+1,Name+J,strlen(Name+J)+1);
-          Name[J]='&';
+          //memmove(Name+J+1,Name+J,strlen(Name+J)+1);
+          //Name[J]='&';
           Item[I].AmpPos=J;
           break;
         }
