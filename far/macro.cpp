@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.77 15.04.2002 $ */
+/* Revision: 1.78 05.05.2002 $ */
 
 /*
 Modify:
+  05.05.2002 SVS
+    - BugZ#496 - Не работают макросы (про дисаблы)
   15.04.2002 SVS
     - откат обратно.
   12.04.2002 SVS
@@ -1057,13 +1059,14 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 {
   int I, J;
 
+  char UpKeyName[100];
+  sprintf(UpKeyName,"KeyMacros\\%s",GetSubKey(ReadMode));
+
   for (I=0;;I++)
   {
     char RegKeyName[150],KeyText[50];
-    char UpKeyName[100];
     DWORD MFlags=0;
 
-    sprintf(UpKeyName,"KeyMacros\\%s",GetSubKey(ReadMode));
     if (!EnumRegKey(UpKeyName,I,RegKeyName,sizeof(RegKeyName)))
       break;
     char *KeyNamePtr=strrchr(RegKeyName,'\\');
@@ -1074,7 +1077,10 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
       // блокированный макрос!!!
       if(*KeyText == '~' && KeyText[1])
       {
-        memmove(KeyText,KeyText+1,sizeof(KeyText)-1);
+        char *Ptr=KeyText+1;
+        while(*Ptr && *Ptr == '~')// && isspace(KeyText[1]))
+          ++Ptr;
+        memmove(KeyText,Ptr,strlen(Ptr)+1);
         MFlags|=MFLAGS_DISABLEMACRO;
       }
     }
@@ -1624,13 +1630,15 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
 //_SVS(SysLog("ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
     }
     for(Pos=0; Pos < Len; ++Pos, ++MPtr)
-      if (LocalUpper(MPtr->Key)==LocalUpper(Key) &&
-        MPtr->BufferSize > 0)
+    {
+      if (LocalUpper(MPtr->Key)==LocalUpper(Key) && MPtr->BufferSize > 0)
       {
 //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
 //_SVS(SysLog("GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
-        return Pos+((ChechMode >= 0)?IndexMode[ChechMode][0]:0);
+        if(!(MPtr->Flags&MFLAGS_DISABLEMACRO))
+          return Pos+((ChechMode >= 0)?IndexMode[ChechMode][0]:0);
       }
+    }
   }
   return -1;
 }

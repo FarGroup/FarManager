@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.27 04.04.2002 $ */
+/* Revision: 1.28 05.05.2002 $ */
 
 /*
 Modify:
+  05.05.2002 SVS
+    ! Ќемного усовершенствуем лог по хипу
   04.04.2002 SVS
     ! ECTL_TURNOFFMARKINGBLOK -> ECTL_TURNOFFMARKINGBLOCK
   04.04.2002 IS
@@ -173,21 +175,30 @@ void CloseSysLog(void)
 void ShowHeap()
 {
 #if defined(SYSLOG) && defined(HEAPLOG)
-  _HEAPINFO hi;
-
-  SysLog( "   Size   Status" );
-  SysLog( "   ----   ------" );
-  DWORD Sz=0;
-  hi._pentry=NULL;
-//    int     *__pentry;
-  while( _rtl_heapwalk( &hi ) == _HEAPOK )
+  OpenSysLog();
+  if ( LogStream )
   {
-    SysLog( "%7u    %s  (%p)", hi._size, (hi._useflag ? "used" : "free"),hi.__pentry);
-    Sz+=hi._useflag?hi._size:0;
-  }
-  SysLog( "   ----   ------" );
-  SysLog( "%7u      ", Sz);
+    char timebuf[64];
+    fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),"Heap Status");
 
+    fprintf(LogStream,"   Size   Status\n");
+    fprintf(LogStream,"   ----   ------\n");
+
+    DWORD Sz=0;
+    _HEAPINFO hi;
+    hi._pentry=NULL;
+    //    int     *__pentry;
+    while( _rtl_heapwalk( &hi ) == _HEAPOK )
+    {
+      fprintf(LogStream,"%7u    %s  (%p)\n", hi._size, (hi._useflag ? "used" : "free"),hi.__pentry);
+      Sz+=hi._useflag?hi._size:0;
+    }
+    fprintf(LogStream,"   ----   ------\n" );
+    fprintf(LogStream,"%7u      \n", Sz);
+
+    fflush(LogStream);
+  }
+  CloseSysLog();
 #endif
 }
 
@@ -195,10 +206,17 @@ void ShowHeap()
 void CheckHeap(int NumLine)
 {
 #if defined(SYSLOG) && defined(HEAPLOG)
-  if (_heapchk()==_HEAPBADNODE)
+  int HeapStatus=_heapchk();
+  if (HeapStatus ==_HEAPBADNODE)
   {
     SysLog("Error: Heap broken, Line=%d",NumLine);
   }
+  else if (HeapStatus < 0)
+  {
+    SysLog("Error: Heap corrupt, Line=%d, HeapStatus=%d",NumLine,HeapStatus);
+  }
+  else
+    SysLog("Heap OK, HeapStatus=%d",HeapStatus);
 #endif
 }
 
