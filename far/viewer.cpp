@@ -5,10 +5,18 @@ Internal viewer
 
 */
 
-/* Revision: 1.127 19.03.2003 $ */
+/* Revision: 1.128 20.03.2003 $ */
 
 /*
 Modify:
+  20.02.2003 IS
+    ! Отменим предыдущий патч, т.к. лучше устранить эту "ошибку
+      проектирования" на корню - коль уж идет оперирование размерами,
+      уменьшенными в 2 раза в случае юникода, то и плагины пусть
+      такими же размерами оперируют везде.
+    - Ошибка в SetFileSize - в случае юникода размер не уменьшался в 2
+      раза, и это при том, что везде идет сравнение FilePos (это значение
+      в 2 раза уменьшенное, конечно) и FileSize!
   19.02.2003 IS
     - Ошибка при обработке VCTL_SETPOSITION: в случае с юникодом после
       обновления ViewerSetPosition.StartPos оно становилось в два раза
@@ -3194,6 +3202,13 @@ void Viewer::SetFileSize()
   SaveFilePos SavePos(ViewFile);
   vseek(ViewFile,0,SEEK_END);
   FileSize=ftell64(ViewFile);
+  /* $ 20.02.2003 IS
+     Везде сравниваем FilePos с FileSize, FilePos для юникодных файлов
+     уменьшается в два раза, поэтому FileSize тоже надо уменьшать
+  */
+  if (VM.Unicode)
+    FileSize=(FileSize+(FileSize&1))/2;
+  /* IS $ */
 }
 
 
@@ -3316,22 +3331,18 @@ int Viewer::ViewerControl(int Command,void *Param)
         bool isReShow=vsp.StartPos.i64 != FilePos;
         if((LeftPos=vsp.LeftPos) < 0)
           LeftPos=0;
-        GoTo(FALSE, vsp.StartPos.i64, vsp.Flags);
+        /* $ 20.01.2003 IS
+             Если кодировка - юникод, то оперируем числами, уменьшенными в
+             2 раза. Поэтому увеличим StartPos в 2 раза, т.к. функция
+             GoTo принимает смещения в _байтах_.
+        */
+        GoTo(FALSE, vsp.StartPos.i64*(VM.Unicode?2:1), vsp.Flags);
+        /* IS $ */
         if (isReShow && !(vsp.Flags&VSP_NOREDRAW))
           ScrBuf.Flush();
         if(!(vsp.Flags&VSP_NORETNEWPOS))
         {
-          /* $ 19.02.2003 IS
-             Ошибка: в случае с юникодом после обновления
-             ViewerSetPosition.StartPos оно становилось в
-             два раза меньше положенного значения (т.к. в
-             GoTo StartPos уменьшалось в 2 раза)
-          */
-          if(VM.Unicode)
-            ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos*2;
-          else
-            ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos;
-          /* IS $ */
+          ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos;
           ((struct ViewerSetPosition*)Param)->LeftPos=(int)LeftPos; //???
         }
         return(TRUE);
