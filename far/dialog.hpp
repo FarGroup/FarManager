@@ -10,10 +10,15 @@ dialog.hpp
 
 */
 
-/* Revision: 1.05 28.07.2000 $ */
+/* Revision: 1.06 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 tran & SVS
+   + переменная класса Dragged - флаг перемещения
+     а также OldX*, OldY*,
+     метод - AdjustEditPos(int dx,int dy) - подравнивает координаты Edit"ов
+   + Сохранение того, что под индикатором перемещения диалога
   28.07.2000 SVS
    + Переменная класса InitParam - хранит параметр, переданный
      в диалог.
@@ -65,6 +70,18 @@ class Dialog:public Modal
     int PrevMacroMode;          // предыдущий режим макро
     long InitParam;		// параметр, переданный в конструктор
     FARDIALOGPROC DlgProc;      // функция обработки диалога
+
+    /* $ 31.07.2000 tran
+       переменные для перемещения диалога */
+    int  Dragged;
+    int  OldX1,OldX2,OldY1,OldY2;
+    /* tran 31.07.2000 $ */
+
+    /* $ 31.07.2000 SVS
+       Сохранение того, что под индикатором перемещения диалога
+    */
+    CHAR_INFO LV[4];
+    /* SVS $ */
 
   private:
     void DisplayObject();
@@ -141,6 +158,11 @@ class Dialog:public Modal
     */
     static long WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2);
     /* SVS $ */
+
+    /* $ 31.07.2000 tran
+       метод для перемещения диалога */
+    void AdjustEditPos(int dx,int dy);
+    /* tran 31.07.2000 $ */
 };
 
 #endif // __DIALOG_HPP__

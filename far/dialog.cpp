@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.10 31.07.2000 $ */
+/* Revision: 1.11 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 tran & SVS
+   + перемещение диалога по экрану клавишами. Ctrl-F5 включает режим
+     перемещения. Индикация перемещения - "Move" в левом верхнем углу
   31.07.2000 SVS
    ! В History должно заносится значение (для DIF_EXPAND...) перед
      расширением среды!
@@ -102,6 +105,8 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   Dialog::InitParam=InitParam;
   Dialog::Item=Item;
   Dialog::ItemCount=ItemCount;
+
+  Dragged=0;
 
   if (CtrlObject!=NULL)
   {
@@ -678,6 +683,15 @@ void Dialog::ShowDialog()
     } // end switch(...
     /* 28.07.2000 SVS $ */
   } // end for (I=...
+
+  /* $ 31.07.2000 SVS
+     Включим индикатор перемещения...
+  */
+  if ( Dragged ) // если диалог таскается
+  {
+    Text(0,0,0xCE,"Move");
+  }
+  /* SVS $ */
 }
 
 /* Public, Virtual:
@@ -690,6 +704,99 @@ int Dialog::ProcessKey(int Key)
   char Str[1024];
   char *PtrStr;
   Edit *CurEditLine;
+
+  /* $ 31.07.2000 tran
+     + перемещение диалога по экрану */
+  if ( Dragged ) // если диалог таскается
+  {
+    int rr=1;
+    switch (Key)
+    {
+        case KEY_CTRLLEFT:
+            rr=10;
+        case KEY_LEFT:
+            Hide();
+            for ( I=0; I<rr; I++ )
+                if ( X1>0 )
+                {
+                    X1--;
+                    X2--;
+                    AdjustEditPos(-1,0);
+                }
+            Show();
+            break;
+        case KEY_CTRLRIGHT:
+            rr=10;
+        case KEY_RIGHT:
+            Hide();
+            for ( I=0; I<rr; I++ )
+                if ( X2<ScrX )
+                {
+                    X1++;
+                    X2++;
+                    AdjustEditPos(1,0);
+                }
+            Show();
+            break;
+        case KEY_PGUP:
+        case KEY_CTRLUP:
+            rr=5;
+        case KEY_UP:
+            Hide();
+            for ( I=0; I<rr; I++ )
+                if ( Y1>0 )
+                {
+                    Y1--;
+                    Y2--;
+                    AdjustEditPos(0,-1);
+                }
+            Show();
+            break;
+        case KEY_PGDN:
+        case KEY_CTRLDOWN:
+            rr=5;
+        case KEY_DOWN:
+            Hide();
+            for ( I=0; I<rr; I++ )
+                if ( Y2<ScrY )
+                {
+                    Y1++;
+                    Y2++;
+                    AdjustEditPos(0,1);
+                }
+            Show();
+            break;
+        case KEY_ENTER:
+        case KEY_CTRLF5:
+            Dragged=0;
+            Show();
+            PutText(0,0,3,0,LV);
+            break;
+        case KEY_ESC:
+            Hide();
+            AdjustEditPos(OldX1-X1,OldY1-Y1);
+            X1=OldX1;
+            X2=OldX2;
+            Y1=OldY1;
+            Y2=OldY2;
+            Show();
+            PutText(0,0,3,0,LV);
+            Dragged=0;
+            break;
+    }
+    return (TRUE);
+  }
+
+  if (Key == KEY_CTRLF5)
+  {
+    // включаем флаг и запоминаем координаты
+    Dragged=1;
+    OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
+    GetText(0,0,3,0,LV);
+    Show();
+    return (TRUE);
+  }
+  /* tran 31.07.2000 $ */
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
   {
@@ -1178,6 +1285,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
+
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
     if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
@@ -1186,6 +1294,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       ProcessKey(KEY_ENTER);
     return(TRUE);
   }
+
   if (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
   {
     for (I=0;I<ItemCount;I++)
@@ -1249,6 +1358,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           return(TRUE);
         }
       }
+    // ДЛЯ MOUSE-Перемещалки:
+    //   Сюда попадаем в том случае, если мышь не попала на активные элементы
+    //
   }
   return(FALSE);
 }
@@ -2288,3 +2400,29 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 }
 /* SVS $ */
 
+
+/* $ 31.07.2000 tran
+   + функция подравнивания координат edit классов */
+void Dialog::AdjustEditPos(int dx, int dy)
+{
+  struct DialogItem *CurItem;
+  int I;
+  int x1,x2,y1,y2;
+
+  Edit *DialogEdit;
+  for (I=0; I < ItemCount; I++)
+  {
+    CurItem=&Item[I];
+    if (IsEdit(CurItem->Type))
+    {
+       DialogEdit=(Edit *)CurItem->ObjPtr;
+       DialogEdit->GetPosition(x1,y1,x2,y2);
+       x1+=dx;
+       x2+=dx;
+       y1+=dy;
+       y2+=dy;
+       DialogEdit->SetPosition(x1,y1,x2,y2);
+    }
+  }
+}
+/* tran 31.07.2000 $ */
