@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.144 29.05.2003 $ */
+/* Revision: 1.145 02.06.2003 $ */
 
 /*
 Modify:
+  02.06.2003 VVM
+    + Старое поведение при скроллинге оставим на Ctrl-Down. Ctrl-Up до кучи
   29.05.2003 SVS
     - BugZ#912 - падение FAR и добавление хэлпа надо....
   21.05.2003 VVM
@@ -2108,7 +2110,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9:
+    case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9: case KEY_CTRLUP:
     {
       if(ViewFile)
       {
@@ -2120,7 +2122,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3:
+    case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3: case KEY_CTRLDOWN:
     {
       if (LastPage || ViewFile==NULL)
         return(TRUE);
@@ -2134,17 +2136,20 @@ int Viewer::ProcessKey(int Key)
       FilePos=vtell(ViewFile);
       for (I=ViewY1;I<=Y2;I++)
         ReadString(ReadStr,-1,sizeof(ReadStr),NULL,NULL);
+      /* $ 02.06.2003 VVM
+        + Старое поведение оставим на Ctrl-Down */
       /* $ 21.05.2003 VVM
         + По PgDn листаем всегда по одной странице,
           даже если осталась всего одна строчка.
           Удобно тексты читать */
-//      if (LastPage)
-//      {
-//        InternalKey++;
-//        ProcessKey(KEY_CTRLPGDN);
-//        InternalKey--;
-//        return(TRUE);
-//      }
+      if (LastPage && Key == KEY_CTRLDOWN)
+      {
+        InternalKey++;
+        ProcessKey(KEY_CTRLPGDN);
+        InternalKey--;
+        return(TRUE);
+      }
+      /* VVM $ */
       /* VVM $ */
       Show();
 //      LastSelPos=FilePos;
