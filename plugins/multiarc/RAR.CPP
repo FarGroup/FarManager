@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2004 FAR group
 */
-/* Revision: 1.18 29.05.2004 $ */
+/* Revision: 1.19 07.06.2004 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -33,6 +33,12 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
 static long NextPositionHigh;
 static int OldFormat;
+static char *RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
+
+
+void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
+{
+}
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -164,7 +170,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       FILETIME lft;
       DosDateTimeToFileTime(HIWORD(RarHeader.FileTime),LOWORD(RarHeader.FileTime),&lft);
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
-      strcpy(Info->HostOS,"MS DOS");
+      strcpy(Info->HostOS,RarOS[0]);
       Info->Solid=Flags & 8;
       Info->Comment=RarHeader.Flags & 8;
       Info->Encrypted=RarHeader.Flags & 4;
@@ -194,6 +200,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         return(GETARC_READERROR);
       if (ReadSize==0)
         return(GETARC_EOF);
+      if (RarHeader.HeadType==0x7B)
+        return GETARC_EOF;
       NextPosition+=RarHeader.HeadSize;
       if (NextPosition<RarHeader.HeadSize)
         NextPositionHigh++;
@@ -284,7 +292,6 @@ arctime
         }
       }
 
-      static char *RarOS[]={"DOS","OS/2","Windows","Unix","MacOS","BeOS"};
       if (RarHeader.HostOS<sizeof(RarOS)/sizeof(RarOS[0]))
         strcpy(Info->HostOS,RarOS[RarHeader.HostOS]);
       Info->Solid=Flags & 8;
