@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.237 29.04.2002 $ */
+/* Revision: 1.238 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    ! Исключим обработку BugZ#488 для DI_BUTTON (иначе Shift-Del Enter
+      не срабатывает - Shift, при этом не успевает отжаться :-)))
   29.04.2002 SVS
     - BugZ#488 - Shift=enter
     - BugZ#490 - Проблема радиокнопками.
@@ -2726,7 +2729,7 @@ int Dialog::ProcessKey(int Key)
   int Type=Item[FocusPos].Type;
 
   // BugZ#488 - Shift=enter
-  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
+  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting() && Type != DI_BUTTON)
   {
     Key=KEY_SHIFTENTER;
   }

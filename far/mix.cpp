@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.123 26.04.2002 $ */
+/* Revision: 1.124 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - BugZ#239 - Folder shortcuts для несуществующих папок
   26.04.2002 SVS
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   09.04.2002 SVS
@@ -1369,10 +1371,13 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile)
           *Ptr=0;
           if(GetFileAttributes(TestPathTemp) != -1)
           {
-            strncpy(TestPath,TestPathTemp,LengthPath);
-            if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-              AddEndSlash(TestPath);
-            FoundPath=1;
+            if(!(TestPath[0] == '\\' && TestPath[1] == '\\' && TestPathTemp[1] == 0))
+            {
+              strncpy(TestPath,TestPathTemp,LengthPath);
+              if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+                AddEndSlash(TestPath);
+              FoundPath=1;
+            }
             break;
           }
         }
