@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.32 25.06.2001 $ */
+/* Revision: 1.33 17.07.2001 $ */
 
 /*
 Modify:
+  17.07.2001 SKV
+   - баг в ReadFileTime. Псевдопотенциальный, в debug срабатывал всегда.
+   ! закомментировал несколько неюзаемых переменных, сократив кол-во варнингов
   25.06.2001 IS
    ! Внедрение const
   10.06.2001 SVS
@@ -117,7 +120,7 @@ Modify:
 #include "ctrlobj.hpp"
 
 
-#define DM_SETATTR	(DM_USER+1)
+#define DM_SETATTR      (DM_USER+1)
 
 struct SetAttrDlgParam{
   DWORD FileSystemFlags;
@@ -435,7 +438,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     if (SelCount==0 || SelCount==1 && strcmp(SelName,"..")==0)
       return 0;
 
-    int NewAttr;
+//    int NewAttr;
     int FolderPresent=FALSE, JunctionPresent=FALSE;
     char TimeText[6][100];
 
@@ -670,7 +673,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     else
     {
       int SetAttr,ClearAttr,Cancel=0;
-      char OldConsoleTitle[NM], OutFileName[72],TmpFileName[72];
+      char OldConsoleTitle[NM], OutFileName[72];//,TmpFileName[72];
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
       SetAttr=0;  ClearAttr=0;
@@ -849,10 +852,17 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
   SYSTEMTIME st, ost;
   unsigned DateN[3],TimeN[3];
   int DigitCount,I;
-  int SetTime,GetTime;
+  int /*SetTime,*/GetTime;
   FILETIME *OriginalFileTime, OFTModify, OFTCreate, OFTLast;
   char SrcDate[32], SrcTime[32], Digit[16],*PtrDigit;
   const char *Ptr;
+
+
+  /*$ 17.07.2001 SKV
+    от греха подальше, занулим.
+  */
+  ZeroMemory(&st,sizeof(st));
+  /* SKV$*/
 
   // ****** ОБРАБОТКА ДАТЫ ******** //
   strncpy(SrcDate,OSrcDate,sizeof(SrcDate));
