@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.56 28.12.2000 $ */
+/* Revision: 1.57 07.01.2001 $ */
 
 /*
 Modify:
+  07.01.2001 IS
+    - не правильно работала проверка на ошибку при открытии файлов,
+      превышающих определенный размер (не всегда срабатывала)
   28.12.2000 VVM
     + Щелчок мышью снимает непостоянный блок всегда.
   23.12.2000 OT
@@ -361,6 +364,11 @@ int Editor::ReadFile(char *Name,int &UserBreak)
   if(Opt.EditorFileSizeLimitLo || Opt.EditorFileSizeLimitHi)
   {
     int64 RealSizeFile;
+    /* $ 07.01.2001 IS
+        - без этого не правильно работала проверка на ошибку
+    */
+    SetLastError(NO_ERROR);
+    /* IS $ */
     RealSizeFile.LowPart=GetFileSize(hEdit,&RealSizeFile.HighPart);
     if (GetLastError() == NO_ERROR)
     {
