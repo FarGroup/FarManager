@@ -11,10 +11,13 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.38 13.04.2002 $ */
+/* Revision: 1.39 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 KM
+    + VMENU_COMBOBOX
+    + ћеню может быть типа MODALTYPE_VMENU и MODALTYPE_COMBOBOX
   13.04.2002 KM
     - ??? я не пон€л зачем в классе свой член SaveScr,
       если в ScreenObj он уже есть. »спользу€ SaveScr из
@@ -190,9 +193,16 @@ enum{
 */
 #define VMENU_LISTHASFOCUS          0x00200000
 /* DJ $ */
+/* $ 28.04.2002 KM
+    меню €вл€етс€ комбобоксом и обрабатываетс€
+    менеджером по-особому.
+*/
+#define VMENU_COMBOBOX              0x00400000
+/* KM $ */
 
 class Dialog;
 class SaveScreen;
+
 
 
 struct MenuItem
@@ -440,7 +450,11 @@ class VMenu: virtual public Modal, virtual public Frame
 
     virtual const char *GetTypeName() {return "[VMenu]";};
     virtual int GetTypeAndName(char *Type,char *Name);
-    virtual int GetType() { return MODALTYPE_VMENU; }
+    /* $ 28.04.2002 KM
+        ћеню может быть типа MODALTYPE_VMENU и MODALTYPE_COMBOBOX
+    */
+    virtual int GetType() { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
+    /* KM $ */
 };
 
 

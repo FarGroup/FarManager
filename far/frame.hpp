@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.18 20.12.2001 $ */
+/* Revision: 1.19 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 KM
+    + MODALTYPE_COMBOBOX
   20.12.2001 IS
     - Баг: MODALTYPE_* не были синхронизированы с WTYPE_*
   02.11.2001 SVS
@@ -66,7 +68,8 @@ enum { MODALTYPE_VIRTUAL,
   MODALTYPE_DIALOG,
   MODALTYPE_VMENU,
   MODALTYPE_HELP,
-  MODALTYPE_USER
+  MODALTYPE_COMBOBOX,
+  MODALTYPE_USER,
 };
 
 class Frame: virtual public ScreenObject

@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.84 25.04.2002 $ */
+/* Revision: 1.85 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 KM
+    + GetTypeAndName возвращает тип MODALTYPE_VMENU и
+      MODALTYPE_COMBOBOX.
   25.04.2002 SVS
     - BugZ#467 - ƒублирующиес€ хоткеи в Folders History
   18.04.2002 KM
@@ -457,13 +460,6 @@ void VMenu::Hide()
     SaveScr=NULL;
     ScreenObject::Hide();
   }
-
-  /* $ 18.04.2002 KM
-    —брасываем флаг "координаты установлены" у
-    меню.
-  */
-  SetScreenPosition();
-  /* KM $ */
 
   Y2=-1;
 //  X2=-1;
@@ -2079,7 +2075,7 @@ int VMenu::GetTypeAndName(char *Type,char *Name)
     strcpy(Type,MSG(MVMenuType));
   if(Name)
     strcpy(Name,Title);
-  return(MODALTYPE_VMENU);
+  return(CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU);
 }
 
 

@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.19 13.04.2002 $ */
+/* Revision: 1.20 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 KM
+    - Уточнения в отрисовке меню.
   13.04.2002 KM
     - Изменения в ResizeConsole() для корректной отрисовки
       нескольких экземпляров меню друг над другом.
@@ -107,16 +109,13 @@ void Frame::OnChangeFocus (int focus)
     Show();
     Frame *iModal=NextModal;
     while (iModal) {
-    /* $ 13.04.2002 KM
-      ! Скорее всего здесь эта проверка на Visible не нужна,
-        поскольку она мешала перерисовке фрейма с активным
-        меню над ним.
-    */
-//      if (!iModal->IsVisible()){
-//        break;
-//      }
+      /* $ 28.04.2002 KM
+          Если модальный объект - комбобокс, то
+          не отображаем его.
+      */
+      if (!(iModal->GetType()==MODALTYPE_COMBOBOX))
+        iModal->Show();
       /* KM $ */
-      iModal->Show();
       iModal=iModal->NextModal;
     }
   } else {

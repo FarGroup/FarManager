@@ -5,10 +5,24 @@ manager.cpp
 
 */
 
-/* Revision: 1.70 18.04.2002 $ */
+/* Revision: 1.71 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 KM
+    - Баг с зацикливанием:
+      F12 F1 F12 F1 F12 F1... и так далее из любого фрейма
+      приводило к бякам с перерисовкой.
+    - Bug#485
+      ===
+      Вызываем UserMenu: F2 Alt-F4 и попадаем в модальный редактор.
+
+      Далее:
+      1. Ctrl-O - видим User Screen
+      2. CAS    - (no comment)
+
+      ImmediateHide говорите. Хе!
+      ===
   18.04.2002 SKV
     - фикс деактиватора.
   13.04.2002 KM
@@ -464,6 +478,16 @@ int Manager::CountFramesWithName(const char *Name, BOOL IgnoreCase)
 */
 Frame *Manager::FrameMenu()
 {
+  /* $ 28.04.2002 KM
+      Флаг для определения того, что меню переключения
+      экранов уже активировано.
+  */
+  static int AlreadyShown=FALSE;
+
+  if (AlreadyShown)
+    return NULL;
+  /* KM $ */
+
   int ExitCode, CheckCanLoseFocus=CurrentFrame->GetCanLoseFocus();
   {
     struct MenuItem ModalMenuItem;
@@ -500,7 +524,11 @@ Frame *Manager::FrameMenu()
       ModalMenuItem.SetSelect(I==FramePos);
       ModalMenu.AddItem(&ModalMenuItem);
     }
+    /* $ 28.04.2002 KM */
+    AlreadyShown=TRUE;
     ModalMenu.Process();
+    AlreadyShown=FALSE;
+    /* KM $ */
     ExitCode=ModalMenu.Modal::GetExitCode();
   }
 
@@ -1211,41 +1239,50 @@ void Manager::ImmediateHide()
   // Фреймы перерисовываются, значит для нижних
   // не выставляем заголовок консоли, чтобы не мелькал.
   if (ModalStackCount>0){
-    int UnlockCount=0;
-    /* $ 07.04.2002 KM */
-    IsRedrawFramesInProcess++;
-    /* KM $ */
+    /* $ 28.04.2002 KM
+        Проверим, а не модальный ли редактор или вьювер на вершине
+        модального стека? И если да, покажем User screen.
+    */
+    if (ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_EDITOR ||
+        ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_VIEWER){
+      CtrlObject->CmdLine->ShowBackground();
+    } else {
+      int UnlockCount=0;
+      /* $ 07.04.2002 KM */
+      IsRedrawFramesInProcess++;
+      /* KM $ */
 
-    while (!(*this)[FramePos]->Refreshable()){
-      (*this)[FramePos]->UnlockRefresh();
-      UnlockCount++;
-    }
-    RefreshFrame((*this)[FramePos]);
+      while (!(*this)[FramePos]->Refreshable()){
+        (*this)[FramePos]->UnlockRefresh();
+        UnlockCount++;
+      }
+      RefreshFrame((*this)[FramePos]);
 
-    Commit();
-    for (int i=0;i<UnlockCount;i++){
-      (*this)[FramePos]->LockRefresh();
-    }
+      Commit();
+      for (int i=0;i<UnlockCount;i++){
+        (*this)[FramePos]->LockRefresh();
+      }
 
-    if (ModalStackCount>1){
-      for (int i=0;i<ModalStackCount-1;i++){
-        if (!(ModalStack[i]->FastHide() & CASR_HELP)){
-          RefreshFrame(ModalStack[i]);
-          Commit();
-        } else {
-          break;
+      if (ModalStackCount>1){
+        for (int i=0;i<ModalStackCount-1;i++){
+          if (!(ModalStack[i]->FastHide() & CASR_HELP)){
+            RefreshFrame(ModalStack[i]);
+            Commit();
+          } else {
+            break;
+          }
         }
       }
+      /* $ 04.04.2002 KM
+         Перерисуем заголовок только у активного фрейма.
+         Этим мы предотвращаем мелькание заголовка консоли
+         при перерисовке всех фреймов.
+      */
+      IsRedrawFramesInProcess--;
+      CurrentFrame->ShowConsoleTitle();
+      /* KM $ */
     }
-    /* $ 04.04.2002 KM
-       Перерисуем заголовок только у активного фрейма.
-       Этим мы предотвращаем мелькание заголовка консоли
-       при перерисовке всех фреймов.
-    */
-    IsRedrawFramesInProcess--;
-    CurrentFrame->ShowConsoleTitle();
     /* KM $ */
-
   } else {
     CtrlObject->CmdLine->ShowBackground();
   }

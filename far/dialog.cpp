@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.235 26.04.2002 $ */
+/* Revision: 1.236 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 KM
+    ! Для комбобокса установим флаг VMENU_COMBOBOX, что
+      позволит менеджеру отличить его от обычного меню.
   26.04.2002 SVS
     - BugZ#483 - DN_EDITCHANGE для DI_COMBOBOX с DIF_DROPDOWNLIST
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
@@ -1387,31 +1390,40 @@ int Dialog::InitDialogObjects(int ID)
       */
       if (Type == DI_COMBOBOX)
       {
-        CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
-        if(ItemFlags & DIF_DROPDOWNLIST)
-           DialogEdit->DropDownBox=1;
-        if(ItemFlags&DIF_LISTWRAPMODE)
-          CurItem->ListPtr->SetFlags(VMENU_WRAPMODE);
-        /* $ 15.05.2001 KM
-           Добавим подсветку в DI_COMBOBOX
-        */
-        /* $ 03.06.2001 KM
-           ! Исправлена подсветка в DI_COMBOBOX, теперь на самом деле :)
-             для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
-        */
-        if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-          CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
-        if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
-          CurItem->ListPtr->AssignHighlights(FALSE);
-        /* $ 12.06.2001 KM
-           ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem
-              Восстановлено!!!
-        */
-        if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
-          CurItem->ListPtr->AddItem(CurItem->ListItems);
-        /* KM $ */
-        /* KM $ */
-        /* KM $ */
+        if(CurItem->ListPtr)
+        {
+          VMenu *ListPtr=CurItem->ListPtr;
+          ListPtr->SetBoxType(SHORT_SINGLE_BOX);
+          if(ItemFlags & DIF_DROPDOWNLIST)
+             DialogEdit->DropDownBox=1;
+          if(ItemFlags&DIF_LISTWRAPMODE)
+            ListPtr->SetFlags(VMENU_WRAPMODE);
+          /* $ 15.05.2001 KM
+             Добавим подсветку в DI_COMBOBOX
+          */
+          /* $ 03.06.2001 KM
+             ! Исправлена подсветка в DI_COMBOBOX, теперь на самом деле :)
+               для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
+          */
+          if(!(ItemFlags&DIF_LISTNOAMPERSAND))
+            ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
+          if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
+            ListPtr->AssignHighlights(FALSE);
+          /* $ 12.06.2001 KM
+             ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem
+                Восстановлено!!!
+          */
+          if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
+            ListPtr->AddItem(CurItem->ListItems);
+          /* KM $ */
+          /* KM $ */
+          /* KM $ */
+          /* $ 28.04.2002 KM
+              Установим флаг, определяющий объект как комбобокс.
+          */
+          ListPtr->SetFlags(VMENU_COMBOBOX);
+          /* KM $ */
+        }
       }
 
       /* SVS $ */
