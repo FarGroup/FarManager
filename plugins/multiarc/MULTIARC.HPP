@@ -122,7 +122,7 @@ typedef int (WINAPI *PLUGINGETARCITEM)(struct PluginPanelItem *Item,struct ArcIt
 typedef BOOL (WINAPI *PLUGINCLOSEARCHIVE)(struct ArcInfo *Info);
 typedef BOOL (WINAPI *PLUGINGETFORMATNAME)(int Type,char *FormatName,char *DefaultExt);
 typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest);
-typedef void (WINAPI *PLUGINSETFARINFO)(const struct MultiArcStartupInfo *plg);
+typedef void (WINAPI *PLUGINSETFARINFO)(const struct PluginStartupInfo *plg);
 typedef DWORD (WINAPI *PLUGINGETSFXPOS)(void);
 
 struct PluginItem

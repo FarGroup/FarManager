@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.15 05.07.2002 $ */
+/* Revision: 1.16 15.07.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -55,19 +55,18 @@ char StartText[256],EndText[256],Format[8][256];
 int FormatNumber,IgnoreErrors;
 
 const char Str_TypeName[]="TypeName";
-static struct MultiArcStartupInfo MAInfo;
+
 FARSTDLOCALSTRICMP LStricmp;
 FARSTDLOCALSTRNICMP LStrnicmp;
 FARSTDSPRINTF SPrintf;
 FARSTDMKTEMP MkTemp;
 
-void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *Info)
+void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
 {
-  MAInfo=*Info;
-  LStricmp=MAInfo.FARInfo->FSF->LStricmp;
-  LStrnicmp=MAInfo.FARInfo->FSF->LStrnicmp;
-  SPrintf=MAInfo.FARInfo->FSF->sprintf;
-  MkTemp=MAInfo.FARInfo->FSF->MkTemp;
+  LStricmp=Info->FSF->LStricmp;
+  LStrnicmp=Info->FSF->LStrnicmp;
+  SPrintf=Info->FSF->sprintf;
+  MkTemp=Info->FSF->MkTemp;
 }
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName)

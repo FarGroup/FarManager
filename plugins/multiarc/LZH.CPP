@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.16 19.06.2002 $ */
+/* Revision: 1.17 15.07.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -37,11 +37,18 @@
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
-static struct MultiArcStartupInfo MAInfo;
 
-void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *MAInfo)
+// Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
+#define EPOCH_BIAS    116444736000000000i64
+
+void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  ::MAInfo=*MAInfo;
+  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
+}
+
+void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+{
+  ;
 }
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
@@ -204,7 +211,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   FILETIME lft;
   if(LzhHeader.FLevel == 2) // level-2, Original file time stamp(UNIX type, seconds since 1970)
   {
-    MAInfo.UnixTimeToFileTime(MAKELONG(LzhHeader.FTime,LzhHeader.FDate),&Item->FindData.ftLastWriteTime);
+    UnixTimeToFileTime(MAKELONG(LzhHeader.FTime,LzhHeader.FDate),&Item->FindData.ftLastWriteTime);
   }
   else  // Original file date/time (Generic time stamp)
   {

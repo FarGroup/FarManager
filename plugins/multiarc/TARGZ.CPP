@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.17 05.07.2002 $ */
+/* Revision: 1.18 15.07.2002 $ */
 
 //#define USE_TAR_H
 
@@ -42,29 +42,29 @@
 #else
 
 struct posix_header
-{                       /* byte offset */
-  char name[100];       /*   0 */
-  char mode[8];         /* 100 */
-  char userid[8];       /* 108 */
-  char groupid[8];      /* 116 */
-  char size[12];        /* 124 */
-  char mtime[12];       /* 136 */
-  char chksum[8];       /* 148 */
-  char typeflag;        /* 156 */
-  char linkname[100];   /* 157 */
-  char magic[6];        /* 257 */
-  char version[2];      /* 263 */
-  char uname[32];       /* 265 */
-  char gname[32];       /* 297 */
-  char devmajor[8];     /* 329 */
-  char devminor[8];     /* 337 */
-  char prefix[155];     /* 345 */
-                        /* 500 */
+{                               /* byte offset */
+  char name[100];               /*   0 = 0x000 */
+  char mode[8];                 /* 100 = 0x064 */
+  char uid[8];                  /* 108 = 0x06C */
+  char gid[8];                  /* 116 = 0x074 */
+  char size[12];                /* 124 = 0x07C */
+  char mtime[12];               /* 136 = 0x088 */
+  char chksum[8];               /* 148 = 0x094 */
+  char typeflag;                /* 156 = 0x09C */
+  char linkname[100];           /* 157 = 0x09D */
+  char magic[6];                /* 257 = 0x101 */
+  char version[2];              /* 263 = 0x107 */
+  char uname[32];               /* 265 = 0x109 */
+  char gname[32];               /* 297 = 0x129 */
+  char devmajor[8];             /* 329 = 0x149 */
+  char devminor[8];             /* 337 = 0x151 */
+  char prefix[155];             /* 345 = 0x159 */
+                                /* 500 = 0x1F4 */
 };
 
 #define TMAGIC     "ustar"     // ustar and a null
 #define TMAGLEN    6
-#define GNUTMAGIC  "GNUtar"  // 7 chars and a null
+#define GNUTMAGIC  "GNUtar"    // 7 chars and a null
 #define GNUTMAGLEN 7
 
 #define BLOCKSIZE 512
@@ -105,15 +105,20 @@ DWORD NextPosition,SFXSize,FileSize;
 int ArcType;
 char ZipName[NM];
 
-static struct MultiArcStartupInfo MAInfo;
 FARSTDLOCALSTRICMP LStricmp;
 
-void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *Info)
+void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
 {
-  MAInfo=*Info;
-  LStricmp=MAInfo.FARInfo->FSF->LStricmp;
+  LStricmp=Info->FSF->LStricmp;
 }
 
+// Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
+#define EPOCH_BIAS    116444736000000000i64
+
+void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
+{
+  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
+}
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -243,7 +248,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 
   *ZipName=0;
 
-  MAInfo.UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
+  UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
 
   Info->Comment=(Header.Flags & 16)!=0;
   Info->Encrypted=(Header.Flags & 32)!=0;
@@ -293,7 +298,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       Item->FindData.dwFileAttributes=(GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
       Item->FindData.nFileSizeHigh=0;
 
-      MAInfo.UnixTimeToFileTime(GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
+      UnixTimeToFileTime(GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
     }
     Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(TAR_hdr.header.size);
 

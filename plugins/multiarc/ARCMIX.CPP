@@ -15,22 +15,6 @@ Modify:
 #include "multiarc.hpp"
 #include "marclng.hpp"
 
-#if _MSC_VER
-struct dosdate_t {
-   unsigned char day;       /* 1-31 */
-   unsigned char month;     /* 1-12 */
-   unsigned int  year;      /* 1980 - 2099 */
-   unsigned char dayofweek; /* 0 - 6 (0=Sunday) */
-};
-struct time {
-   unsigned char ti_min;      /* minutes */
-   unsigned char ti_hour;     /* hours */
-   unsigned char ti_hund;     /* hundredths of seconds */
-   unsigned char ti_sec;      /* seconds */
-};
-#endif
-
-
 BOOL FileExists(const char* Name)
 {
   return GetFileAttributes(Name)!=0xFFFFFFFF;
@@ -584,11 +568,7 @@ int WINAPI GetPassword(char *Password,const char *FileName)
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
 #define EPOCH_BIAS    116444736000000000i64
 
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x550)
-typedef __int64 INT64,  *PINT64;
-#endif
-
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(PINT64)ft = EPOCH_BIAS + time * 10000000i64;
+  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
 }

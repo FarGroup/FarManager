@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.09 05.03.2002 $ */
+/* Revision: 1.10 15.07.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -38,11 +38,18 @@
 static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
 
-static struct MultiArcStartupInfo MAInfo;
 
-void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *MAInfo)
+// Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
+#define EPOCH_BIAS    116444736000000000i64
+
+void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  ::MAInfo=*MAInfo;
+  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
+}
+
+void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+{
+  ;
 }
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
@@ -117,7 +124,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
   Item->FindData.dwFileAttributes=(Header.Type & 0xf)==0xe ? FILE_ATTRIBUTE_DIRECTORY:0;
   Item->CRC32=Header.CRC;
-  MAInfo.UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
+  UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
   Item->FindData.nFileSizeLow=Header.UnpSize;
   Item->FindData.nFileSizeHigh=0;
   Item->PackSize=Header.PackSize;
