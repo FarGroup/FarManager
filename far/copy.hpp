@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.02 21.10.2000 $ */
+/* Revision: 1.03 23.10.2000 $ */
 
 /*
 Modify:
+  23.10.2000 VVM
+   + Динамический буфер копирования - рабочие переменные
   21.10.2000 SVS
     + Переменная Copy_Buffer_Size -  размер буфера для копирования
   04.08.2000 SVS
@@ -29,6 +31,12 @@ class ShellCopy
     char DestDizPath[2*NM];
     Panel *SrcPanel,*AnotherPanel;
     char *CopyBuffer;
+    /* $ 23.10.2000 VVM
+       + Динамический буфер копирования - рабочие переменные */
+    int CopyBufSize;
+    clock_t StartTime;
+    clock_t StopTime;
+    /* VVM $ */
     char RenamedName[NM],CopiedName[NM];
     int PanelMode,SrcPanelMode;
     int OvrMode,ReadOnlyOvrMode,ReadOnlyDelMode;
@@ -39,11 +47,6 @@ class ShellCopy
        Copy only newer files
     */
     int OnlyNewerFiles;
-    /* SVS $ */
-    /* $ 21.10.2000 SVS
-       Для последующего использования... - размер буфера для копирования
-    */
-    DWORD Copy_Buffer_Size;
     /* SVS $ */
     int CopySecurity;
     long TotalFiles;

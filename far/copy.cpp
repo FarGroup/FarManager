@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.10 21.10.2000 $ */
+/* Revision: 1.11 23.10.2000 $ */
 
 /*
 Modify:
+  23.10.2000 VVM
+   + Динамический буфер копирования
   21.10.2000 SVS
    + Проинициализируем новую переменную Copy_Buffer_Size в стандартное
      значение = 64К
@@ -99,12 +101,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   int SelCount,DestPlugin;
 
   *SelName=0;
-
-  /* $ 21.10.2000 SVS
-     Проинициализируем Copy_Buffer_Size в стандартное значение
-  */
-  Copy_Buffer_Size=COPY_BUFFER_SIZE;
-  /* SVS $ */
 
   ShowTotalCopySize=Opt.CopyShowTotal != 0;
 
@@ -379,6 +375,7 @@ void ShellCopy::CopyFileTree(char *Dest)
   char SelName[NM],SelShortName[NM];
   int Length,FileAttr;
 
+  CopyBufSize=1024; // Начинаем с 1к
   ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=-1;
   SetCursorType(FALSE,0);
 
@@ -1155,11 +1152,14 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
       return(COPY_CANCEL);
     }
     DWORD BytesRead,BytesWritten;
-    /* $ 21.10.2000 SVS
-       Размер буфера копирования - величина переменная
-    */
-    while (!ReadFile(SrcHandle,CopyBuffer,Copy_Buffer_Size,&BytesRead,NULL))
-    /* SVS $ */
+
+    /* $ 23.10.2000 VVM
+       + Динамический буфер копирования */
+
+    if (CopyBufSize < COPY_BUFFER_SIZE)
+      StartTime=clock();
+
+    while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
     {
       if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
                   MSG(MCopyReadError),SrcName,MSG(MRetry),MSG(MCancel))==0)
@@ -1299,6 +1299,19 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
       }
       break;
     }
+
+    if ((CopyBufSize < COPY_BUFFER_SIZE) && (BytesWritten==CopyBufSize))
+    {
+      StopTime=clock();
+      if ((StopTime - StartTime) < 1000)
+      {
+        CopyBufSize*=2;
+        if (CopyBufSize > COPY_BUFFER_SIZE)
+          CopyBufSize=COPY_BUFFER_SIZE;
+      }
+    } /* if */
+    /* VVM $ */
+
     WrittenSize+=BytesWritten;
     int64 FileSize(SrcData->nFileSizeHigh,SrcData->nFileSizeLow);
     ShowBar(WrittenSize,FileSize,false);
