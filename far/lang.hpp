@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.25 02.11.2000 $ */
+/* Revision: 1.26 22.11.2000 $ */
 
 /*
 Modify:
+  22.11.2000 SVS
+    + MSetColorDialogMenuScrollBar - полоса прокрутки для списка
   02.11.2000 OT
     + MBuffSizeTooSmall_1, MBuffSizeTooSmall_2
  23.10.2000 SVS
@@ -1033,6 +1035,7 @@ enum
   MSetColorDialogSelectedListText,
   MSetColorDialogMenuHighLight,
   MSetColorDialogMenuSelectedHighLight,
+  MSetColorDialogMenuScrollBar,
 
   MSetColorWarningNormal,
   MSetColorWarningHighlighted,

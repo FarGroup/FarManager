@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.04 13.09.2000 $ */
+/* Revision: 1.05 22.11.2000 $ */
 
 /*
 Modify:
+  22.11.2000 SVS
+    + пункт в меню - COL_DIALOGMENUSCROLLBAR - полоса прокрутки для списка
   13.09.2000 tran 1.04
     + COL_COMMANDLINEPREFIX
   18.03.2000 tran 1.03
@@ -82,6 +84,9 @@ void SetColors()
     COL_PANELSCREENSNUMBER
   };
 
+  /* $ 22.11.2000 SVS
+    + пункт в меню - COL_DIALOGMENUSCROLLBAR
+  */
   struct MenuData DialogItems[]=
   {
     (char *)MSetColorDialogNormal,1,0,0,
@@ -104,6 +109,7 @@ void SetColors()
     (char *)MSetColorDialogMenuHighLight,0,0,0,
     (char *)MSetColorDialogMenuSelectedHighLight,0,0,0,
     /* SVS $ */
+    (char *)MSetColorDialogMenuScrollBar,0,0,0, // полоса прокрутки для списка
   };
   int DialogPaletteItems[]={
     COL_DIALOGTEXT,COL_DIALOGHIGHLIGHTTEXT,COL_DIALOGBOX,COL_DIALOGBOXTITLE,
@@ -111,8 +117,9 @@ void SetColors()
     COL_DIALOGEDITSELECTED,COL_DIALOGBUTTON,COL_DIALOGSELECTEDBUTTON,
     COL_DIALOGHIGHLIGHTBUTTON,COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
     COL_DIALOGMENUTEXT,COL_DIALOGMENUSELECTEDTEXT,COL_DIALOGMENUHIGHLIGHT,
-    COL_DIALOGMENUSELECTEDHIGHLIGHT
+    COL_DIALOGMENUSELECTEDHIGHLIGHT, COL_DIALOGMENUSCROLLBAR
   };
+  /* SVS 22.11.2000 $ */
 
   struct MenuData WarnDialogItems[]=
   {
@@ -180,7 +187,7 @@ void SetColors()
   {
     (char *)MSetColorCommandLineNormal,1,0,0,
     (char *)MSetColorCommandLineSelected,0,0,0,
-    (char *)MSetColorCommandLinePrefix,0,0,0    
+    (char *)MSetColorCommandLinePrefix,0,0,0
   };
   int CommandLinePaletteItems[]={
     COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX
