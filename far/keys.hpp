@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.31 06.07.2004 $ */
+/* Revision: 1.32 07.07.2004 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   06.07.2004 SVS
     + KEY_MACRO_EDITORSTATE для Macro II
   31.05.2004 SVS
@@ -240,26 +242,14 @@ enum BaseDefKeyboard
 #endif // END FAR_USE_INTERNALS
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
+
 #ifdef FAR_USE_INTERNALS
-  // сюды писать обобщенные макро-клавиши, которые доступны в других модулях
   KEY_MACRO_BASE           =0x00080000,
-  KEY_MACRO_DATE           =KEY_MACRO_BASE,
-  KEY_MACRO_XLAT,
-  KEY_MACRO_PLAINTEXT,
-  KEY_MACRO_SELECTED,
-  KEY_MACRO_EOF,
-  KEY_MACRO_BOF,
-  KEY_MACRO_EMPTY,
-  KEY_MACRO_ROOTFOLDER,
-#if defined(MACRODRIVE2)
-  KEY_MACRO_EDITORSTATE,
-#endif
-
-#if defined(MOUSEKEY)
-  KEY_MACROSELWORD,
-#endif
-
-  KEY_MACROSPEC_BASE       =0x000F0000,
+  KEY_MACRO_OP_BASE        =KEY_MACRO_BASE,          // opcode
+  KEY_MACRO_F_BASE         =KEY_MACRO_OP_BASE+256,   // функции
+  KEY_MACRO_C_BASE         =KEY_MACRO_F_BASE+256,    // булевые условия
+  KEY_MACRO_V_BASE         =KEY_MACRO_C_BASE+512,    // разные переменные
+  // см macroopcode.hpp
   KEY_MACRO_ENDBASE        =0x000FFFFF,
 #endif // END FAR_USE_INTERNALS
 };

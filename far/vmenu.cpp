@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.132 30.06.2004 $ */
+/* Revision: 1.133 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   30.06.2004 SVS
     + CheckHighlights() - проверка "есть ли такой хоткей в меню"
       (в "обычном" ‘ј–е не работает, т.к. ограничена дефайном MACRODRIVE2)
@@ -466,6 +468,7 @@ Modify:
 #include "lang.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
+#include "macroopcode.hpp"
 #include "colors.hpp"
 #include "chgprior.hpp"
 #include "dialog.hpp"
@@ -1147,15 +1150,14 @@ int VMenu::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_MACRO_EMPTY:
+    case MCODE_C_EMPTY:
       return ItemCount<=0;
-    case KEY_MACRO_EOF:
+    case MCODE_C_EOF:
       return SelectPos==ItemCount-1;
-    case KEY_MACRO_BOF:
+    case MCODE_C_BOF:
       return SelectPos==0;
-    case KEY_MACRO_SELECTED:
+    case MCODE_C_SELECTED:
       return ItemCount > 0 && SelectPos >= 0;
-#if defined(MACRODRIVE2)
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = eStackAsString(1);
@@ -1163,7 +1165,6 @@ int VMenu::ProcessKey(int Key)
         return CheckHighlights(*str);
       return FALSE;
     }
-#endif
   }
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
@@ -2227,7 +2228,6 @@ struct MenuItem *VMenu::GetItemPtr(int Position)
 
 BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
 {
-#if defined(MACRODRIVE2)
   for (int I=0; I < ItemCount; I++)
   {
     char Ch=0;
@@ -2248,7 +2248,6 @@ BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
     if(Ch && LocalUpper(CheckSymbol) == LocalUpper(Ch))
       return TRUE;
   }
-#endif
   return FALSE;
 }
 

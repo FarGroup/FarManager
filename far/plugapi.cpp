@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.172 06.07.2004 $ */
+/* Revision: 1.173 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   06.07.2004 SVS
     ! MCMD_CHECKMACRO для Macro II
   03.06.2004 SVS
@@ -792,7 +794,6 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             return Macro.PostNewMacro(KeyMacro->Param.PlainText.SequenceText,KeyMacro->Param.PlainText.Flags<<8);
           }
 
-#if defined(MACRODRIVE2)
           case MCMD_CHECKMACRO:  // проверка макроса
           {
             struct MacroRecord CurMacro={0};
@@ -812,7 +813,6 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
             }
             return Ret;
           }
-#endif
 
 #if 0
           case MCMD_COMPILEMACRO:

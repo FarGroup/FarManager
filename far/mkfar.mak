@@ -62,14 +62,6 @@ FAR_STDHDR_OBJ=
 !endif
 
 
-!ifdef MACRODRIVE2
-MACROS=macro2.obj
-SYNTAX=syntax.obj
-!else
-MACROS=macro.obj
-SYNTAX=dummy.obj
-!endif
-
 
 !ifdef PRECOMP
 PRECOMPOPT=-H -H=$(OBJPATH)\$(CSMFILE)
@@ -167,7 +159,7 @@ FAROBJ=\
    $(OBJPATH)\language.obj\
    $(OBJPATH)\local.obj\
    $(OBJPATH)\lockscrn.obj\
-   $(OBJPATH)\$(MACROS)\
+   $(OBJPATH)\macro.obj\
    $(OBJPATH)\manager.obj\
    $(OBJPATH)\filefilter.obj\
    $(OBJPATH)\menubar.obj\
@@ -219,7 +211,7 @@ FAROBJ=\
    $(OBJPATH)\strncpy.obj\
    $(OBJPATH)\qsort.obj\
    $(OBJPATH)\cmem.obj\
-   $(OBJPATH)\$(SYNTAX)\
+   $(OBJPATH)\syntax.obj\
    $(OBJPATH)\main.obj
 
 
@@ -344,9 +336,6 @@ $(PRECOMPOPT)
 $(OPTDEBUG)
 $(OPTDEBUG2)
 $(FARSYSLOG)
-$(FARADDMACRO)
-$(FUTUREMACRO)
-$(MACRODRIVE2)
 | $@
 
 # ************************************************************************

@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.75 14.06.2004 $ */
+/* Revision: 1.76 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   14.06.2004 SVS
     + добавки MACRODRIVE2
   01.03.2004 SVS
@@ -794,10 +796,9 @@ int _cdecl main(int Argc, char *Argv[])
   }
   /* IS $ */
 
-#if defined(MACRODRIVE2)
+
   initMacroVarTable(0);
   initMacroVarTable(1);
-#endif
 
   int Result;
   if(Opt.ExceptRules)
@@ -812,10 +813,8 @@ int _cdecl main(int Argc, char *Argv[])
   else
     Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
 
-#if defined(MACRODRIVE2)
   doneMacroVarTable(1);
   doneMacroVarTable(0);
-#endif
 
   SetConsoleTitle(OldTitle);
   _OT(SysLog("[[[[[Exit of FAR]]]]]]]]]"));

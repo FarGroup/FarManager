@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.119 31.05.2004 $ */
+/* Revision: 1.120 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS & AN
+    ! Macro II (в общем то все совсем новое)
   31.05.2004 SVS
     ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   26.05.2004 SVS
@@ -395,6 +397,7 @@ Modify:
 #pragma hdrstop
 
 #include "macro.hpp"
+#include "macroopcode.hpp"
 #include "keys.hpp"
 #include "global.hpp"
 #include "fn.hpp"
@@ -411,53 +414,6 @@ Modify:
 #include "scrbuf.hpp"
 #include "udlist.hpp"
 
-
-enum MACRO_OP_CODE {
-  // 1 словные операторы
-  MCODE_OP_JMP=0x80000000,       // Jump, оставшиеся байты
-  MCODE_OP_EXIT=KEY_MACROSPEC_BASE,// принудительно закончить выполнение макропоследовательности
-  MCODE_OP_MACROMODE,            // сменить режим блокировки вывода на экран
-  MCODE_OP_REP,                  // $rep - признак начала цикла
-  MCODE_OP_ENDREP,               // $endrep - признак конца цикла
-  MCODE_OP_IF,                   // $if ...
-  MCODE_OP_IFTHEN,               // ... $then ...
-  MCODE_OP_ELSE,                 // ... $else ...
-  MCODE_OP_ENDIF,                // ... $endif
-
-  // функции
-  MCODE_F_XLAT,                  // вызывать XLat: Param=0 или 1
-  MCODE_F_SWITCHKBD,             // переключить раскладку клавиатуры
-  MCODE_F_ICLIP,                 // внутренний или внешний клипборд
-
-  // булевые условия
-  MCODE_C_DISABLEOUTPUT,         // вывод запрещен?
-  MCODE_C_WINDOWEDMODE,          // оконный режим?
-  MCODE_C_SELECTED,              // выделенный блок есть?
-  MCODE_C_EOF,                   // конец файла/активного каталога?
-  MCODE_C_BOF,                   // начало файла/активного каталога?
-  MCODE_C_ISEMPTY,               // ком.строка пуста?
-  MCODE_C_ICLIP,                 // внутренний или внешний клипборд
-
-  MCODE_C_APANEL_ISEMPTY,        // активная панель:  пуста?
-  MCODE_C_PPANEL_ISEMPTY,        // пассивная панель: пуста?
-  MCODE_C_APANEL_BOF,            // начало активного  каталога?
-  MCODE_C_PPANEL_BOF,            // начало пассивного каталога?
-  MCODE_C_APANEL_EOF,            // конец активного  каталога?
-  MCODE_C_PPANEL_EOF,            // конец пассивного каталога?
-  MCODE_C_APANEL_ROOT,           // это корневой каталог активной панели?
-  MCODE_C_PPANEL_ROOT,           // это корневой каталог пассивной панели?
-  MCODE_C_APANEL_VISIBLE,        // активная панель:  видима?
-  MCODE_C_PPANEL_VISIBLE,        // пассивная панель: видима?
-  MCODE_C_APANEL_PLUGIN,         // активная панель:  плагиновая?
-  MCODE_C_PPANEL_PLUGIN,         // пассивная панель: плагиновая?
-  MCODE_C_APANEL_FOLDER,         // активная панель:  текущий элемент каталог?
-  MCODE_C_PPANEL_FOLDER,         // пассивная панель: текущий элемент каталог?
-  MCODE_C_APANEL_SELECTED,       // активная панель:  выделенные элементы есть?
-  MCODE_C_PPANEL_SELECTED,       // пассивная панель: выделенные элементы есть?
-  MCODE_C_APANEL_LEFT,           // активная панель левая?
-  MCODE_C_PPANEL_LEFT,           // пассивная панель левая?
-};
-
 // для диалога назначения клавиши
 struct DlgParam{
   KeyMacro *Handle;
@@ -469,12 +425,7 @@ struct DlgParam{
     Сейчас здесь сделано криво, в лоб.
     Надобно немного уточнить.........
 */
-static struct TMacroKeywords {
-  int Type;                    // Тип: 0=Area, 1=Flags, 2=Condition
-  char *Name;                  // Наименование
-  DWORD Value;                 // Значение
-  DWORD Reserved;
-} MKeywords[] ={
+struct TMacroKeywords MKeywords[] ={
   // ЭТИ ВСЕГДА ДОЛЖНЫ БЫТЬ В НАЧАЛЕ МАССИВА!
   {0,  "Other",              MACRO_OTHER,0},
   {0,  "Shell",              MACRO_SHELL,0},
@@ -493,7 +444,7 @@ static struct TMacroKeywords {
   // ПРОЧЕЕ
   {2,  "Bof",                MCODE_C_BOF,0},
   {2,  "Eof",                MCODE_C_EOF,0},
-  {2,  "Empty",              MCODE_C_ISEMPTY,0},
+  {2,  "Empty",              MCODE_C_EMPTY,0},
   {2,  "DisableOutput",      MCODE_C_DISABLEOUTPUT,0},
   {2,  "Selected",           MCODE_C_SELECTED,0},
   {2,  "IClip",              MCODE_C_ICLIP,0},
@@ -516,6 +467,18 @@ static struct TMacroKeywords {
   {2,  "PPanel.Selected",    MCODE_C_PPANEL_SELECTED,0},
   {2,  "APanel.Left",        MCODE_C_APANEL_LEFT,0},
   {2,  "PPanel.Left",        MCODE_C_PPANEL_LEFT,0},
+
+  {2,  "APanel.Current",     MCODE_V_APANEL_CURRENT,0},
+  {2,  "PPanel.Current",     MCODE_V_PPANEL_CURRENT,0},
+  {2,  "APanel.SelСount",    MCODE_V_APANEL_SELCOUNT,0},
+  {2,  "PPanel.SelСount",    MCODE_V_PPANEL_SELCOUNT,0},
+  {2,  "APanel.Path",        MCODE_V_APANEL_PATH,0},
+  {2,  "PPanel.Path",        MCODE_V_PPANEL_PATH,0},
+  {2,  "APanel.Width",       MCODE_V_APANEL_WIDTH,0},
+  {2,  "PPanel.Width",       MCODE_V_PPANEL_WIDTH,0},
+
+
+  {2,  "Editor.State",       MCODE_V_EDITORSTATE,0},
 
   {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
 },
@@ -547,6 +510,7 @@ MKeywordsFlags[] ={
   {1,  "NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 };
 
+int MKeywordsSize = sizeof(MKeywords)/sizeof(*MKeywords);
 
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName{
@@ -555,22 +519,21 @@ static struct TKeyCodeName{
   char *Name;
 } KeyMacroCodes[]={
 #if defined(MOUSEKEY)
-   { KEY_MACROSELWORD,              8, "$SelWord" },
+   { MCODE_OP_SELWORD,              8, "$SelWord" },
 #endif
-   { MCODE_F_SWITCHKBD,            10, "$KbdSwitch"},
-   { MCODE_OP_ENDREP,               7, "$EndRep"  },
-   { MCODE_OP_ENDIF,                6, "$EndIf"   },
-   { MCODE_F_ICLIP,                 6, "$IClip"   },
-   { MCODE_OP_MACROMODE,            6, "$MMode"   },
-   { KEY_MACRO_DATE,                5, "$Date"    }, // $Date "%d-%a-%Y"
+   { MCODE_OP_DATE,                5, "$Date"    }, // $Date "%d-%a-%Y"
    { MCODE_OP_ELSE,                 5, "$Else"    },
+   { MCODE_OP_END,                  4, "$End"     },
    { MCODE_OP_EXIT,                 5, "$Exit"    },
-   { KEY_MACRO_PLAINTEXT,           5, "$Text"    }, // $Text "Plain Text"
-   { MCODE_OP_IFTHEN,               5, "$Then"    },
-   { KEY_MACRO_XLAT,                5, "$XLat"    },
-   { MCODE_OP_REP,                  4, "$Rep"     },
+   { MCODE_OP_ICLIP,                6, "$IClip"   },
    { MCODE_OP_IF,                   3, "$If"      },
-};
+   { MCODE_OP_SWITCHKBD,           10, "$KbdSwitch"},
+   { MCODE_OP_MACROMODE,            6, "$MMode"   },
+   { MCODE_OP_REP,                  4, "$Rep"     },
+   { MCODE_OP_PLAINTEXT,           5, "$Text"    }, // $Text "Plain Text"
+   { MCODE_OP_WHILE,                6, "$While"   },
+   { MCODE_OP_XLAT,                5, "$XLat"    },};
+
 
 static char __code2symbol(BYTE b1, BYTE b2);
 static const char* ParsePlainText(char *CurKeyText, const char *BufPtr);
@@ -911,6 +874,8 @@ int KeyMacro::ProcessKey(int Key)
 
         _KEYMACRO(SysLog("**** Start Of Execute Macro ****"));
         _KEYMACRO(SysLog(1));
+        doneMacroVarTable(0);
+        initMacroVarTable(0);
         return(TRUE);
       }
     }
@@ -948,18 +913,18 @@ int KeyMacro::GetPlainTextSize()
   return strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
-int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
+TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 {
   int I;
-  BOOL Cond=0;
+  TVar Cond(0l);
   char FileName[NM*2];
   int FileAttr=-1;
 
   // Найдем индекс нужного кейворда
-  for(I=0; I < sizeof(MKeywords)/sizeof(MKeywords[0]); ++I)
-    if(MKeywords[I].Value == CheckCode)
+  for ( I=0 ; I < sizeof(MKeywords)/sizeof(MKeywords[0]) ; ++I )
+    if ( MKeywords[I].Value == CheckCode )
       break;
-  if(I == sizeof(MKeywords)/sizeof(MKeywords[0]))
+  if ( I == sizeof(MKeywords)/sizeof(MKeywords[0]) )
     return Cond; // здесь TRUE обязательно, чтобы прекратить выполнение
                  // макроса, ибо код не распознан.
 
@@ -1003,7 +968,7 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
         {
           if(CurFrame)
           {
-            Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?KEY_MACRO_BOF:KEY_MACRO_EOF)?1:0;
+            Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
           }
           break;
         }
@@ -1013,7 +978,7 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel=(CheckCode==MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
-            Cond=SelPanel->ProcessKey(KEY_MACRO_ROOTFOLDER)?1:0;
+            Cond=SelPanel->ProcessKey(MCODE_C_ROOTFOLDER)?1:0;
           break;
         }
 
@@ -1024,7 +989,7 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel=(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
-            Cond=SelPanel->ProcessKey(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?KEY_MACRO_BOF:KEY_MACRO_EOF)?1:0;
+            Cond=SelPanel->ProcessKey(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
           break;
         }
 
@@ -1035,19 +1000,19 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
           {
             int CurSelected;
             if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-              CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_SELECTED);
+              CurSelected=CtrlObject->CmdLine->ProcessKey(MCODE_C_SELECTED);
             else
-              CurSelected=CurFrame->ProcessKey(KEY_MACRO_SELECTED);
+              CurSelected=CurFrame->ProcessKey(MCODE_C_SELECTED);
             Cond=CurSelected?1:0;
           }
           break;
         }
 
-        case MCODE_C_ISEMPTY:   // Empty
+        case MCODE_C_EMPTY:   // Empty
           if(CurFrame->GetType() == MACRO_SHELL)
             Cond=CtrlObject->CmdLine->GetLength()==0;
           else
-            Cond=CurFrame->ProcessKey(KEY_MACRO_EMPTY);
+            Cond=CurFrame->ProcessKey(MCODE_C_EMPTY);
           break;
 
         case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
@@ -1055,7 +1020,7 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel=CheckCode==MCODE_C_APANEL_VISIBLE?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
-            Cond=SelPanel->IsVisible();
+            Cond = SelPanel->IsVisible()?1:0;
           break;
         }
 
@@ -1075,14 +1040,11 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
         }
 
         case MCODE_C_APANEL_LEFT: // APanel.Left
-        {
-          Cond=ActivePanel == CtrlObject->Cp()->LeftPanel?1:0;
-          break;
-        }
-
         case MCODE_C_PPANEL_LEFT: // PPanel.Left
         {
-          Cond=PassivePanel == CtrlObject->Cp()->LeftPanel?1:0;
+          Panel *SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond = SelPanel == CtrlObject->Cp()->LeftPanel ? 1l : 0l;
           break;
         }
 
@@ -1119,20 +1081,126 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
           }
           break;
         }
+
+        //- AN -----------------------------------------------------
+        //  Пара новых псевдопеременных не логического типа на пробу
+        //- AN -----------------------------------------------------
+        case MCODE_V_APANEL_CURRENT: // APanel.Current
+        case MCODE_V_PPANEL_CURRENT: // PPanel.Current
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURRENT ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+          {
+            SelPanel->GetFileName(FileName,SelPanel->GetCurrentPos(),FileAttr);
+            if ( FileAttr != -1 )
+              Cond = FileName;
+          }
+          break;
+        }
+
+        case MCODE_V_APANEL_SELCOUNT: // APanel.SelCount
+        case MCODE_V_PPANEL_SELCOUNT: // PPanel.SelCount
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_SELCOUNT ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond = (long)SelPanel->GetRealSelCount();
+          break;
+        }
+
+        case MCODE_V_APANEL_WIDTH: // APanel.Width
+        case MCODE_V_PPANEL_WIDTH: // PPanel.Width
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_WIDTH ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+          {
+            int X1, Y1, X2, Y2;
+            SelPanel->GetPosition(X1,Y1,X2,Y2);
+            Cond = (long)(X2-X1+1);
+          }
+          break;
+        }
+
+        case MCODE_V_APANEL_PATH: // APanel.Path
+        case MCODE_V_PPANEL_PATH: // PPanel.Path
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+          {
+            SelPanel->GetCurDir(FileName);
+            Cond = FileName;
+          }
+          break;
+        }
         // *****************
+
+        case MCODE_V_EDITORSTATE: // Editor.State
+        {
+          if(CtrlObject->Macro.GetMode()==MACRO_EDITOR &&
+             CtrlObject->Plugins.CurEditor &&
+             CtrlObject->Plugins.CurEditor->IsVisible())
+            Cond=(long)CtrlObject->Plugins.CurEditor->ProcessKey(MCODE_V_EDITORSTATE);
+          break;
+        }
       }
     }
   }
 
-  // теперь, сообразно условию - нот или не нот
-  if(OpCode == MCODE_OP_IF && Cond) //$If Flag|Area
-    return 1;
+  return Cond;
+}
 
-  return 0;
+// Получить очередной код клавиши из макроса
+static TVar substrFunc(TVar *param)
+{
+  char *p = (char*)(param[0].toString());
+  int len = strlen(p);
+  int p1 = (int)(param[1].toInteger());
+  if ( ( p1 >= 0 ) && ( p1 < len ) )
+  {
+    p += p1;
+    len = strlen(p);
+    int p2 = (int)(param[2].toInteger());
+    if ( ( p2 > 0 ) && ( p2 < len ) )
+      p[p2] = 0;
+    return TVar(p);
+  }
+  return TVar("");
+}
+
+static TVar indexFunc(TVar *param)
+{
+  const char *s = param[0].toString();
+  const char *p = param[1].toString();
+  //const char *i = strstr(s, p);
+  const char *i = LocalStrstri(s,p);
+  return TVar(i ? i-s : -1l);
+}
+
+static TVar dateFunc(TVar *param)
+{
+  const char *s = param[0].toString();
+  int SizeMacroText = 16+(*s ? 0 : strlen(Opt.DateFormat));
+  SizeMacroText*=4;
+  char *TStr=(char*)alloca(SizeMacroText);
+  if(TStr && MkStrFTime(TStr,SizeMacroText,s))
+    return TVar(TStr);
+  return TVar("");
+}
+
+static TVar xlatFunc(TVar *param)
+{
+  char *Str = (char *)param[0].toString();
+  return TVar(::Xlat(Str,0,strlen(Str),NULL,Opt.XLat.Flags));
 }
 
 
-// Получить очередной код клавиши из макроса
+TVarTable glbVarTable, locVarTable;
+TVar eStack[MAXEXEXSTACK];
+
+const char *eStackAsString(int Pos)
+{
+  return eStack[Pos].toString();
+}
+
 int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
@@ -1261,24 +1329,24 @@ done:
     ReturnAltValue=1;
   }
 
-  if(Key&MCODE_OP_JMP)
-  {
-    Work.ExecLIBPos=Key&(~MCODE_OP_JMP); // просто присваиваем позицию...
-    goto begin;
-  }
+  static int ePos, errVar;
+  char value[2048];
 
   switch(Key)
   {
+    case MCODE_OP_EXIT:
+      goto done;
+
     /* $IClip
-       0: MCODE_F_ICLIP
+       0: MCODE_OP_ICLIP
     */
-    case MCODE_F_ICLIP:
+    case MCODE_OP_ICLIP:
     {
       UsedInternalClipboard=UsedInternalClipboard==0?1:0;
       goto begin;
     }
 
-    case MCODE_F_SWITCHKBD:
+    case MCODE_OP_SWITCHKBD:
     {
       if(hFarWnd)
       {
@@ -1289,85 +1357,221 @@ done:
       goto begin;
     }
 
-    /* $Rep Count Seq $EndRep
+    case MCODE_OP_JMP:
+      Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      goto begin;
+    case MCODE_OP_JZ:
+      if ( eStack->toInteger() == 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+    case MCODE_OP_JNZ:
+      if ( eStack->toInteger() != 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+    case MCODE_OP_LT:
+      if ( eStack->toInteger() < 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+    case MCODE_OP_LE:
+      if ( eStack->toInteger() <= 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+    case MCODE_OP_GT:
+      if ( eStack->toInteger() > 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+    case MCODE_OP_GE:
+      if ( eStack->toInteger() >= 0 )
+        Work.ExecLIBPos=GetOpCode(MR,Work.ExecLIBPos);
+      else
+        Work.ExecLIBPos++;
+      goto begin;
+    case MCODE_OP_EXPR:
+      _KEYMACRO(SysLog("  --- expr %d", Work.ExecLIBPos));
+      ePos = 0;
+      while ( ( Key=GetOpCode(MR,Work.ExecLIBPos++) ) != MCODE_OP_DOIT && Work.ExecLIBPos < MR->BufferSize )
+      {
+        switch ( Key )
+        {
+          case MCODE_OP_PUSHINT:
+            // Положить целое значение на стек.
+            eStack[++ePos] = (long)GetOpCode(MR,Work.ExecLIBPos++);
+            break;
+          case MCODE_OP_PUSHVAR:
+          {
+            // Положить на стек переменную.
+            GetPlainText(value);
+            TVarTable *t = ( *value == '%' ) ? &glbVarTable : &locVarTable;
+            // %%name - глобальная переменная
+            eStack[++ePos] = varLook(*t, value, errVar)->value;
+            break;
+          }
+          case MCODE_OP_PUSHSTR:
+            // Положить на стек строку-константу.
+            GetPlainText(value);
+            eStack[++ePos] = TVar(value);
+            break;
 
-               0: MCODE_OP_REP
-               1: CounterOrig
-               2: MCODE_OP_JMP | idxEndRep
-        idxSeq+0: seq
-                  ...
-    */
+          case MCODE_OP_NEGATE: eStack[ePos] = -eStack[ePos]; break;
+          case MCODE_OP_NOT:    eStack[ePos] = !eStack[ePos]; break;
+
+          case MCODE_OP_LT:     ePos--; eStack[ePos] = eStack[ePos] <  eStack[ePos+1]; break;
+          case MCODE_OP_LE:     ePos--; eStack[ePos] = eStack[ePos] <= eStack[ePos+1]; break;
+          case MCODE_OP_GT:     ePos--; eStack[ePos] = eStack[ePos] >  eStack[ePos+1]; break;
+          case MCODE_OP_GE:     ePos--; eStack[ePos] = eStack[ePos] >= eStack[ePos+1]; break;
+          case MCODE_OP_EQ:     ePos--; eStack[ePos] = eStack[ePos] == eStack[ePos+1]; break;
+          case MCODE_OP_NE:     ePos--; eStack[ePos] = eStack[ePos] != eStack[ePos+1]; break;
+
+          case MCODE_OP_ADD:    ePos--; eStack[ePos] = eStack[ePos] +  eStack[ePos+1]; break;
+          case MCODE_OP_SUB:    ePos--; eStack[ePos] = eStack[ePos] -  eStack[ePos+1]; break;
+          case MCODE_OP_MUL:    ePos--; eStack[ePos] = eStack[ePos] *  eStack[ePos+1]; break;
+          case MCODE_OP_DIV:
+            ePos--;
+            if(eStack[ePos+1] == 0L)
+              goto done;
+            eStack[ePos] = eStack[ePos] /  eStack[ePos+1];
+            break;
+
+          case MCODE_OP_AND:    ePos--; eStack[ePos] = eStack[ePos] && eStack[ePos+1]; break;
+          case MCODE_OP_OR:     ePos--; eStack[ePos] = eStack[ePos] || eStack[ePos+1]; break;
+          case MCODE_OP_BITAND: ePos--; eStack[ePos] = eStack[ePos] &  eStack[ePos+1]; break;
+          case MCODE_OP_BITOR:  ePos--; eStack[ePos] = eStack[ePos] |  eStack[ePos+1]; break;
+          case MCODE_OP_BITXOR: ePos--; eStack[ePos] = eStack[ePos] ^  eStack[ePos+1]; break;
+          case MCODE_F_ABS:
+            if ( eStack[ePos].isInteger() )
+              eStack[ePos] = labs(eStack[ePos].i());
+            break;
+          case MCODE_F_MIN:
+            ePos--;
+            eStack[ePos] = ( eStack[ePos+1] < eStack[ePos] ) ? eStack[ePos+1] : eStack[ePos];
+            break;
+          case MCODE_F_MAX:
+            ePos--;
+            eStack[ePos] = ( eStack[ePos+1] > eStack[ePos] ) ? eStack[ePos+1] : eStack[ePos];
+            break;
+          case MCODE_F_IIF:
+            ePos -= 2;
+            eStack[ePos] = eStack[ePos].toInteger() ? eStack[ePos+1] : eStack[ePos+2];
+            break;
+          case MCODE_F_SUBSTR:
+            ePos -= 2;
+            eStack[ePos] = substrFunc(eStack+ePos);
+            break;
+          case MCODE_F_INDEX:
+            ePos--;
+            eStack[ePos] = indexFunc(eStack+ePos);
+            break;
+          case MCODE_F_ENVIRON:
+          {
+            char Env[1024];
+            if(GetEnvironmentVariable(eStack[ePos].toString(),Env,sizeof(Env)))
+            {
+              FAR_CharToOem(Env,Env);
+              eStack[ePos] = Env;
+            }
+            else
+              eStack[ePos] = "";
+            break;
+          }
+          case MCODE_F_LEN:
+            eStack[ePos] = strlen(eStack[ePos].toString());
+            break;
+          case MCODE_F_FEXIST:
+            eStack[ePos] = GetFileAttributes(eStack[ePos].toString()) != (DWORD)-1?1L:0L;
+            break;
+          case MCODE_F_FATTR:
+            eStack[ePos] = TVar(GetFileAttributes(eStack[ePos].toString()));
+            break;
+          case MCODE_F_STRING:
+            eStack[ePos].toString();
+            break;
+          case MCODE_F_INT:
+            eStack[ePos].toInteger();
+            break;
+
+          case MCODE_F_MENU_CHECKHOTKEY:
+          {
+             long Result=0L;
+             int CurMMode=CtrlObject->Macro.GetMode();
+             if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU)
+             {
+               Frame *f=FrameManager->GetCurrentFrame();
+               f=f->GetTopModal();
+               if(f)
+                 Result=f->ProcessKey(MCODE_F_MENU_CHECKHOTKEY);
+             }
+             eStack[ePos]=Result;
+             break;
+          }
+
+          case MCODE_F_DATE:  // вызывать date: Param=1
+            eStack[ePos] = dateFunc(eStack + ePos);   //AN???
+            break;
+          case MCODE_F_XLAT:                  // вызывать XLat: Param=1
+            eStack[ePos] = xlatFunc(eStack + ePos);   //AN???
+            break;
+          default:
+            eStack[++ePos] = FARPseudoVariable(MR->Flags, Key);
+            break;
+        }
+      }
+      _KEYMACRO(SysLog("  --- expr end"));
+      *eStack = eStack[ePos];
+      _KEYMACRO(SysLog("      ePos       =%d", ePos));
+      _KEYMACRO(SysLog("      eStack->i()=%d", eStack->i()));
+      _KEYMACRO(SysLog("      eStack->s()='%s'", eStack->s()));
+      goto begin;
+// $Rep (expr) ... $End
+// -------------------------------------
+//            <expr>
+//            MCODE_OP_SAVEREPCOUNT       1
+// +--------> MCODE_OP_REP                    p1=*
+// |          <counter>                   3
+// |          MCODE_OP_JZ  ------------+  4   p2=*+2
+// |          ...                      |
+// +--------- MCODE_OP_JMP             |
+//            MCODE_OP_END <-----------+
+    case MCODE_OP_SAVEREPCOUNT:
+    {
+      // получим оригинальное значение счетчика
+      // со стека и запишем его в рабочее место
+      long Counter = eStack->toInteger();
+      SetOpCode(MR,Work.ExecLIBPos+1,Counter>0?Counter:0);
+      goto begin;
+    }
+
     case MCODE_OP_REP:
     {
-      // получим оригинальное значение счетчика...
-      int Counter=GetOpCode(MR,Work.ExecLIBPos);
-      // получим индекс перехода на idxEndRep
-      int idxEndRep=GetOpCode(MR,Work.ExecLIBPos+1)&(~MCODE_OP_JMP);
-      // и запишем его в рабочее место
-      SetOpCode(MR,idxEndRep+1,Counter);
-      Work.ExecLIBPos=idxEndRep; // просто присваиваем позиции значение idxEndRep, для прыжка на $RepEnd
-                            // в общем, здесь можно сразу сказать "goto begin;", но мы исключим один шаг -
-      goto begin;           // пропустим MCODE_OP_JMP
+      // получим текущее значение счетчика
+      // и положим его на вершину стека
+      long Counter;
+      *eStack = Counter = GetOpCode(MR,Work.ExecLIBPos);
+      // уменьшим его и пойдем на MCODE_OP_JZ
+      SetOpCode(MR,Work.ExecLIBPos++,Counter-1);
+      goto begin;
     }
 
-    /* $Rep Count Seq $EndRep
-                  ...
-                  seq
-                  ...
-     idxEndRep+0: MCODE_OP_ENDREP
-     idxEndRep+1: Counter
-     idxEndRep+2: MCODE_OP_JMP | idxSeq
+    case MCODE_OP_END:
+      // просто пропустим этот рудимент синтаксиса :)
+      goto begin;
 
-    */
-    case MCODE_OP_ENDREP:
+    case MCODE_OP_SAVE:
     {
-      int Counter=(int)GetOpCode(MR,Work.ExecLIBPos); // Work.ExecLIBPos указывает на счетчик
-      Counter--;                                     // уменьшим...
-      SetOpCode(MR,Work.ExecLIBPos,Counter);            // ...и запишем счетчик обратно, для следующей итерации
-      Work.ExecLIBPos++;                                  // Work.ExecLIBPos указывает на адрес (индекс) idxSeq
-      if(Counter < 0)                                // пора заканчивать цикл?
-        Work.ExecLIBPos++;                                // следующая команда за $RepEnd (пропустим "MCODE_OP_JMP | idxSeq")
+      GetPlainText(value);
+      TVarTable *t = ( *value == '%' ) ? &glbVarTable : &locVarTable;
+      varInsert(*t, value)->value = *eStack;
       goto begin;
     }
-
-    /* $If [!]Condition $Then Seq_then [$Else Seq_else] $EndIf
-               0: MCODE_OP_IF
-               1: Condition
-               2: Not                  если встречался '!', то здесь 1, иначе 0
-               3: MCODE_OP_JMP | idxElse
-               4: MCODE_OP_IFTHEN
-               5: Seq_then
-                  ...
-     [
-               N: MCODE_OP_JMP | idxEndIf
-         idxElse: MCODE_OP_ELSE                Этой части может и не быть,
-       idxElse+2: Seq_else                     т.е. за MCODE_OP_ELSE сразу будет
-                  ...                          следовать MCODE_OP_ENDIF
-     ]
-        idxEndIf: MCODE_OP_ENDIF
-    */
-    case MCODE_OP_IF:
-    {
-      int Condition=IfCondition(Key,MR->Flags,GetOpCode(MR,Work.ExecLIBPos++)); // условие
-      int Not=GetOpCode(MR,Work.ExecLIBPos++);    // признак NOT
-      if(Condition && Not || !Condition && !Not) // проверка Condition
-        ; // на следующем шаге сработает "MCODE_OP_JMP | idxElse"
-      else
-        Work.ExecLIBPos++;          // перескакиваем "MCODE_OP_JMP | idxElse" и... получаемся на MCODE_OP_IFTHEN
-      goto begin;
-    }
-
-    case MCODE_OP_IFTHEN:
-      goto begin;
-
-    case MCODE_OP_ELSE:
-      goto begin;
-
-    case MCODE_OP_ENDIF:
-      goto begin;
-
-    case MCODE_OP_EXIT:
-      goto done;
 
     case KEY_ALTINS:
     {
@@ -1477,7 +1681,6 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
 
     if(KeyToText((DWORD)Buffer,MacroKeyText))
       strcpy(TextBuffer,MacroKeyText);
-
     return TextBuffer;
   }
 
@@ -1485,145 +1688,14 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const char *Src)
   {
     Key=Buffer[J];
 
-    if((Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (Key&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_JMP))
+    if((Key&KEY_MACRO_ENDBASE) >= KEY_MACRO_BASE && (Key&KEY_MACRO_ENDBASE) <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_JMP) || !KeyToText(Key,MacroKeyText))
     {
       xf_free(TextBuffer);
       return Src?strdup(Src):NULL;
     }
-
-    if(Key&MCODE_OP_JMP)
-    {
-//      J++;
-      continue;
-    }
-
-    if(KeyToText(Key,MacroKeyText))
-    {
-      if(J)
-        strcat(TextBuffer," ");
-      strcat(TextBuffer,MacroKeyText);
-
-#if 0
-      switch(Key)
-      {
-        /* $If Condition $Then Seq_then [$Else Seq_else] $EndIf
-                   0: MCODE_OP_IF
-                   1: Condition
-                   2: Not                  если встречался '!', то здесь 1, иначе 0
-                   3: MCODE_OP_JMP | idxElse
-                   4: MCODE_OP_IFTHEN
-                   5: Seq_then
-                        ...
-         [
-                   N: MCODE_OP_JMP | idxEndIf
-             idxElse: MCODE_OP_ELSE                Этой части может и не быть,
-           idxElse+2: Seq_else                     т.е. за MCODE_OP_ELSE сразу будет
-                      ...                          следовать MCODE_OP_ENDIF
-         ]
-            idxEndIf: MCODE_OP_ENDIF
-        */
-        case MCODE_OP_IF:
-        {
-          J++;
-          strcat(TextBuffer," ");
-          for(I=0; I < sizeof(MKeywords)/sizeof(MKeywords[0]); ++I)
-            if(MKeywords[I].Value == Buffer[J])
-              break;
-          J++;
-          if(Buffer[J])
-            strcat(TextBuffer,"!");
-          strcat(TextBuffer,(I == sizeof(MKeywords)/sizeof(MKeywords[0]))?"???":MKeywords[I].Name);
-          J++;
-          break;
-        }
-
-        case MCODE_OP_ELSE:
-        case MCODE_OP_IFTHEN:
-        case MCODE_OP_ENDIF:
-        {                              // 28.10.2003 L&K  эт что за конструкция такая? :-)
-          break;
-        }
-
-        /* $Rep Count Seq $EndRep
-
-                   0: MCODE_OP_REP
-                   1: CounterOrig
-                   2: MCODE_OP_JMP | idxEndRep
-            idxSeq+0: seq
-                      ...
-        */
-        case MCODE_OP_REP:
-        {
-          strcat(TextBuffer," ");
-          strcat(TextBuffer,itoa(Buffer[J+1],MacroKeyText,10)); // запишем значение счетчика
-          J+=2;
-          break;
-        }
-        /* $Rep Count Seq $EndRep
-                      ...
-                      seq
-                      ...
-         idxEndRep+0: MCODE_OP_ENDREP
-         idxEndRep+1: Counter
-         idxEndRep+2: MCODE_OP_JMP | idxSeq
-
-        */
-        case MCODE_OP_ENDREP:
-        {
-          J+=2;
-          break;
-        }
-
-        /* $Text
-           0: KEY_MACRO_PLAINTEXT
-           1: Строка выравненна на 4 байта
-              Если строка пуста, то следующий за KEY_MACRO_DATE DWORD = 0
-        */
-        case KEY_MACRO_PLAINTEXT:
-        /* $Date
-           0: KEY_MACRO_DATE
-           1: Строка выравненна на 4 байта
-              Если строка пуста, то следующий за KEY_MACRO_DATE DWORD = 0
-        */
-        case KEY_MACRO_DATE:
-        {
-          ++J;
-          int LenTextBuf=strlen((char*)&Buffer[J]);
-          if(LenTextBuf)
-          {
-            //strcat(TextBuffer,((Key == KEY_MACRO_DATE)?" \"":" "));
-            strcat(TextBuffer," \"");
-            char *TextBufferPtr=TextBuffer+strlen(TextBuffer);
-            strcat(TextBuffer,(char*)&Buffer[J]);
-            ReplaceStrings(TextBufferPtr,"\\","\\\\",-1);
-            ReplaceStrings(TextBufferPtr,"\"","\\\"",-1);
-            ReplaceStrings(TextBufferPtr,"\n","\\n",-1);
-            ReplaceStrings(TextBufferPtr,"\t","\\t",-1);
-            char *TextBufferPtr2=TextBufferPtr, TempBuf1[2],TempBuf2[16];
-            TempBuf1[1]=0;
-            TempBuf2[0]='\\';
-            TempBuf2[1]='x';
-            while(*TextBufferPtr2)
-            {
-              if(*TextBufferPtr2 < ' ')
-              {
-                TempBuf1[0]=*TextBufferPtr2;
-                itoa(*TextBufferPtr2,TempBuf2+2,16);
-                ReplaceStrings(TextBufferPtr2,TempBuf1,TempBuf2,-1);
-              }
-              ++TextBufferPtr2;
-            }
-            strcat(TextBuffer,"\"");
-          }
-          // учтем что строка кратна 4
-          J+=LenTextBuf/sizeof(DWORD);
-          // остаток будет прибавлен при следующей итерации цикла
-          break;
-        }
-
-      }
-#endif
-    }
+    if(J)
+      strcat(TextBuffer," ");
+    strcat(TextBuffer,MacroKeyText);
   }
   return TextBuffer;
 }
@@ -1650,7 +1722,6 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
       continue;
 
     SetRegKey(RegKeyName,"Sequence",TextBuffer);
-
     //_SVS(SysLog("%3d) %s|Sequence='%s'",I,RegKeyName,TextBuffer));
     if(TextBuffer)
       xf_free(TextBuffer);
@@ -1897,8 +1968,8 @@ M1:
       char *TextBuffer;
 
       MacroDlg->MkRegKeyName(Index,RegKeyName);
-      // берем из памяти.
 #if 0
+      // берем из памяти.
       if((TextBuffer=MacroDlg->MkTextSequence(Mac->Buffer,Mac->BufferSize)) != NULL)
       {
         int F=0;
@@ -1922,6 +1993,7 @@ M1:
       else
         BufKey[0]=0;
 #endif
+
       sprintf(Buf,
         MSG(!MacroDlg->RecBufferSize?
            (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
@@ -2212,8 +2284,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)
 {
-  struct MacroRecord NewMacroWORK2;
-  memset(&NewMacroWORK2,0,sizeof(struct MacroRecord));
+  struct MacroRecord NewMacroWORK2={0};
 
   // сначала смотрим на парсер
   if(!ParseMacroString(&NewMacroWORK2,PlainText))
@@ -2250,7 +2321,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag)
   if(!MRec)
     return FALSE;
 
-  struct MacroRecord NewMacroWORK2;
+  struct MacroRecord NewMacroWORK2={0};
   memcpy(&NewMacroWORK2,MRec,sizeof(struct MacroRecord));
   NewMacroWORK2.Src=NULL;
 
@@ -2290,342 +2361,533 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag)
 }
 
 // Парсер строковых эквивалентов в коды клавиш
+//- AN ----------------------------------------------
+//  Парсер строковых эквивалентов в байткод
+//  Переписан практически с нуля 15.11.2003
+//- AN ----------------------------------------------
+
+// Стек структурных операторов
+enum TExecMode
+{
+  emmMain, emmWhile, emmThen, emmElse, emmRep
+};
+
+struct TExecItem
+{
+  TExecMode state;
+  DWORD pos1, pos2;
+};
+
+class TExec
+{
+  private:
+    TExecItem stack[MAXEXEXSTACK];
+  public:
+    int current;
+    void init()
+    {
+      current = 0;
+      stack[current].state = emmMain;
+      stack[current].pos1 = stack[current].pos2 = 0;
+    }
+    TExec() { init(); }
+    TExecItem& operator()() { return stack[current]; }
+    int add(TExecMode, DWORD, DWORD = 0);
+    int del();
+};
+
+int TExec::add(TExecMode s, DWORD p1, DWORD p2)
+{
+  if ( ++current < MAXEXEXSTACK )
+  {
+    stack[current].state = s;
+    stack[current].pos1 = p1;
+    stack[current].pos2 = p2;
+    return TRUE;
+  }
+  // Stack Overflow
+  return FALSE;
+};
+
+int TExec::del()
+{
+  if ( --current < 0 )
+  {
+    // Stack Underflow ???
+    current = 0;
+    return FALSE;
+  }
+  return TRUE;
+};
+
+#ifdef _DEBUG
+#ifdef SYSLOG_KEYMACRO
+static char *printfStr(DWORD* k, int& i)
+{
+  i++;
+  char *s = (char*)&k[i];
+  while ( strlen((char*)&k[i]) > 3 )
+    i++;
+  return s;
+}
+
+static void sprint(int i, char *fmt, char *data = NULL)
+{
+  static char tmp[128];
+  strcat(strcpy(tmp, "%4d: "), fmt);
+  SysLog(tmp, i, data);
+}
+
+static void printKeyValue(DWORD* k, int& i)
+{
+  int ii = i;
+  if ( !k[i] )                                 sprint(ii, "<null>");
+  else if ( k[i] == MCODE_OP_END )             sprint(ii, "END");
+  else if ( k[i] == MCODE_OP_EXPR )            sprint(ii, "expr (");
+  else if ( k[i] == MCODE_OP_DOIT )            sprint(ii, ") expr");
+  else if ( k[i] == MCODE_OP_SAVE )            sprint(ii, "SAVE \"%%%s\"", printfStr(k, i));
+  else if ( k[i] == MCODE_OP_SAVEREPCOUNT )    sprint(ii, "SAVE REP COUNT");
+  else if ( k[i] == MCODE_OP_REP )             sprint(ii, "REP (*)", (char*)(i++));
+  else if ( k[i] == MCODE_OP_NEGATE )          sprint(ii, " /-/");
+  else if ( k[i] == MCODE_OP_ADD )             sprint(ii, " +");
+  else if ( k[i] == MCODE_OP_SUB )             sprint(ii, " -");
+  else if ( k[i] == MCODE_OP_MUL )             sprint(ii, " *");
+  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, " /");
+  else if ( k[i] == MCODE_OP_LT )              sprint(ii, " <");
+  else if ( k[i] == MCODE_OP_LE )              sprint(ii, " <=");
+  else if ( k[i] == MCODE_OP_GE )              sprint(ii, " >=");
+  else if ( k[i] == MCODE_OP_GT )              sprint(ii, " >");
+  else if ( k[i] == MCODE_OP_EQ )              sprint(ii, " ==");
+  else if ( k[i] == MCODE_OP_NE )              sprint(ii, " !=");
+  else if ( k[i] == MCODE_OP_NOT )             sprint(ii, " !");
+  else if ( k[i] == MCODE_OP_DIV )             sprint(ii, " /");
+  else if ( k[i] == MCODE_OP_AND )             sprint(ii, " &&");
+  else if ( k[i] == MCODE_OP_OR )              sprint(ii, " ||");
+  else if ( k[i] == MCODE_OP_BITAND )          sprint(ii, " &");
+  else if ( k[i] == MCODE_OP_BITOR )           sprint(ii, " |");
+  else if ( k[i] == MCODE_OP_BITXOR )          sprint(ii, " ^");
+  else if ( k[i] == MCODE_F_XLAT )             sprint(ii, " xlat()");
+  else if ( k[i] == MCODE_F_ABS )              sprint(ii, " abs()");
+  else if ( k[i] == MCODE_F_MIN )              sprint(ii, " min()");
+  else if ( k[i] == MCODE_F_MAX )              sprint(ii, " max()");
+  else if ( k[i] == MCODE_F_IIF )              sprint(ii, " iif()");
+  else if ( k[i] == MCODE_F_SUBSTR )           sprint(ii, " substr()");
+  else if ( k[i] == MCODE_F_MENU_CHECKHOTKEY ) sprint(ii, " checkhotkey()");
+  else if ( k[i] == MCODE_F_INDEX )            sprint(ii, " index()");
+  else if ( k[i] == MCODE_F_FEXIST )           sprint(ii, " fexist()");
+  else if ( k[i] == MCODE_F_FATTR )            sprint(ii, " fattr()");
+  else if ( k[i] == MCODE_F_LEN )              sprint(ii, " len()");
+  else if ( k[i] == MCODE_F_STRING )           sprint(ii, " string()");
+  else if ( k[i] == MCODE_F_INT )              sprint(ii, " int()");
+  else if ( k[i] == MCODE_F_DATE )             sprint(ii, " date()");
+  else if ( k[i] == MCODE_F_ENVIRON )          sprint(ii, " env()");
+  else if ( k[i] == MCODE_OP_DATE )           sprint(ii, "$date ''");
+  else if ( k[i] == MCODE_OP_PLAINTEXT )      sprint(ii, "$text ''");
+  else if ( k[i] == MCODE_OP_PUSHVAR )         sprint(ii, " PUSH VAR \"%%%s\"", printfStr(k, i));
+  else if ( k[i] == MCODE_OP_PUSHINT )         sprint(ii, " PUSH INT %d", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_PUSHSTR )         sprint(ii, " PUSH STR \"%s\"", printfStr(k, i));
+  else if ( k[i] == MCODE_OP_JMP )             sprint(ii, "JMP %4d", (char*)k[++i]);
+  else if ( k[i] == MCODE_OP_JZ  )             sprint(ii, "JZ %4d", (char*)k[++i]);
+  else
+  {
+    int FARFunc = 0;
+    for ( int j = 0 ; j < MKeywordsSize ; j++ )
+      if ( k[i] == MKeywords[j].Value)
+      {
+        FARFunc = 1;
+        sprint(ii, " %s", MKeywords[j].Name);
+        break;
+      }
+    if ( !FARFunc )
+    {
+      char tmp[128];
+      if ( KeyToText(k[i], tmp, sizeof(tmp)) )
+        sprint(ii, "%s", tmp);
+      else
+        sprint(ii, "0x%08X", (char*)k[i]);
+    }
+  }
+}
+#endif
+#endif
+
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 {
-  if(!CurMacro || !BufPtr || !*BufPtr)
+  _macro_nErr = 0;
+  if ( CurMacro == NULL || BufPtr == NULL || !*BufPtr)
     return FALSE;
-
-  int SizeCurKeyText=strlen(BufPtr)*2; // возмем чуток поболее
-  char *CurKeyText=(char *)xf_malloc(SizeCurKeyText); // возмем чуток поболее
-
-  if(!CurKeyText)
-    return FALSE;
-
-  static int Rep[17];
-  static int If[17];
-
-  int J,I;
-  int RepLevel=-1;
-  int IfLevel=-1;
-  /* 28.10.2003 L&K Для проверки на забытый или лишний $Then */
-  int ThenLevel=-1;
-  DWORD *CurMacro_Buffer=NULL;
-  DWORD KeyCode;
-  int Size, Length;
-
-  memset(If,0xFF,sizeof(If));
-
-  // здесь структура сформирована, начинаем разбор последовательности,
-  // которая находится в Buffer
-  while (1)
+  _KEYMACRO(SysLog("--- macro parse '%s'", BufPtr));
+  int SizeCurKeyText = strlen(BufPtr)*2;
+  char *CurrKeyText = (char*)xf_malloc(SizeCurKeyText);
+  if ( CurrKeyText == NULL )
   {
-    if((BufPtr=__GetNextWord(BufPtr,CurKeyText)) == NULL)
-      break;
+    return FALSE;
+  }
+  //- AN ----------------------------------------------
+  //  Буфер под парсинг выражений
+  //- AN ----------------------------------------------
+  DWORD *exprBuff = (DWORD*)xf_malloc(SizeCurKeyText*sizeof(DWORD));
+  if ( exprBuff == NULL )
+  {
+    xf_free(CurrKeyText);
+    return FALSE;
+  }
+  TExec exec;
+  char varName[256];
+  DWORD KeyCode, *CurMacro_Buffer = NULL;
 
-    // в CurKeyText - название клавиши. Попробуем отыскать ее код...
-    if((KeyCode=KeyNameToKey(CurKeyText)) == -1)
+  for (;;)
+  {
+    int Size = 1;
+    int SizeVarName = 0;
+    const char *oldBufPtr = BufPtr;
+    if ( ( BufPtr = __GetNextWord(BufPtr, CurrKeyText) ) == NULL )
+       break;
+    //- AN ----------------------------------------------
+    //  Проверка на строковый литерал
+    //  Сделаем $Text опциональным
+    //- AN ----------------------------------------------
+    if ( *CurrKeyText == '\"' && CurrKeyText[1] )
     {
-      if (CurMacro_Buffer!=NULL)
-      {
-        xf_free(CurMacro_Buffer);
-        CurMacro->Buffer=NULL;
-      }
-      xf_free(CurKeyText);
-      CurMacro->BufferSize=0;
-      return FALSE;
+      KeyCode = MCODE_OP_PLAINTEXT;
+      BufPtr = oldBufPtr;
     }
-
-    Size=1;
-    switch(KeyCode)
+    else if ( ( KeyCode = KeyNameToKey(CurrKeyText) ) == (DWORD)-1 )
     {
-      /* $Text
-         0: KEY_MACRO_PLAINTEXT
-         1: Строка выравненна на 4 байта
-      */
-      case KEY_MACRO_PLAINTEXT:
-      /* $Date
-         0: KEY_MACRO_DATE
-         1: Строка, выровненная на 4 байта
-            Если строка пуста, то следующий за KEY_MACRO_DATE DWORD = 0
-      */
-      case KEY_MACRO_DATE:
+      int ProcError=0;
+      if ( *CurrKeyText == '%' && ( isalpha(CurrKeyText[1]) || ( CurrKeyText[1] == '%' && isalpha(CurrKeyText[2]) ) ) )
       {
-        const char *BufPtr2=BufPtr;
-        memset(CurKeyText,0,SizeCurKeyText);
-        // ищем первую кавычку
-        while (*BufPtr)
-        {
-          if(*BufPtr == '\\' && BufPtr[1] == '"')
-            BufPtr++;
-          else if(*BufPtr == '"')
-          {
-            //BufPtr++;
-            break;
-          }
+        BufPtr = oldBufPtr;
+        while ( *BufPtr && IsSpace(*BufPtr) )
           BufPtr++;
-        }
-        if(*BufPtr)
-          BufPtr=ParsePlainText(CurKeyText,BufPtr);
-        else
-          BufPtr=BufPtr2;
-        Length=strlen(CurKeyText)+1;
+        memset(varName, 0, sizeof(varName));
+        KeyCode = MCODE_OP_SAVE;
+        char* p = varName;
+        char* s = CurrKeyText+1;
+        if ( *s == '%' )
+          *p++ = *s++;
+        char ch;
+        *p++ = *s++;
+        while ( ( isalnum(ch = *s++) || ( ch == '_') ) )
+          *p++ = ch;
+        *p = 0;
+        int Length = strlen(varName)+1;
         // строка должна быть выровнена на 4
-        Size+=Length/sizeof(DWORD);
-        if(Length==1 || (Length%sizeof(DWORD)) != 0) // дополнение до sizeof(DWORD) нулями.
-          Size++;
-        break;
+        SizeVarName = Length/sizeof(DWORD);
+        if ( Length == 1 || ( Length % sizeof(DWORD)) != 0 ) // дополнение до sizeof(DWORD) нулями.
+          SizeVarName++;
+        BufPtr += Length;
+        Size += parseExpr(BufPtr, exprBuff, '=', ';');
+        if(_macro_nErr)
+          ProcError++;
       }
+      else
+        ProcError++;
 
-      // $Rep Count Seq $EndRep
-      case MCODE_OP_REP:
+      if(ProcError)
       {
-//        if(!strstr(BufPtr,"$EndRep"))
-//          goto clean_done;
-        if((BufPtr=__GetNextWord(BufPtr,CurKeyText)) == NULL) // возьмем очередное "слово", предполагается, что это CounterOrig
-          break;
-        Size+=2;  // естественно, размер будет на 2 больше
-        break;
-      }
+        if(!_macro_nErr)
+          keyMacroParseError(err_Unrecognised_keyword, CurrKeyText, CurrKeyText,CurrKeyText);
 
-      case MCODE_OP_ENDREP:
-      {
-        Size+=2; // т.к. предполагается, что за $EndRep следует счетчик и индекс начала seq
-        break;
-      }
-
-      /* $If Condition $Then Seq_then [$Else Seq_else] $EndIf
-                 0: MCODE_OP_IF
-                 1: Condition
-                 2: Not                  если встречался '!', то здесь 1, иначе 0
-                 3: MCODE_OP_JMP | idxElse
-                 4: MCODE_OP_IFTHEN
-                 5: Seq_then
-                      ...
-       [
-                 N: MCODE_OP_JMP | idxEndIf
-           idxElse: MCODE_OP_ELSE                Этой части может и не быть,
-         idxElse+2: Seq_else                     т.е. за MCODE_OP_ELSE сразу будет
-                    ...                          следовать MCODE_OP_ENDIF
-       ]
-          idxEndIf: MCODE_OP_ENDIF
-      */
-      case MCODE_OP_IF:
-      {
-//        if(!strstr(BufPtr,"$Then"))
-//          goto clean_done;
-//        if(!strstr(BufPtr,"$EndIf"))
-//          goto clean_done;
-        if((BufPtr=__GetNextWord(BufPtr,CurKeyText)) == NULL) // возьмем очередное "слово" - Condition
-          break;
-        Size+=3;  // естественно, размер будет на 3 больше
-        break;
-      }
-
-      case MCODE_OP_IFTHEN:
-      case MCODE_OP_ENDIF:
-        break;
-
-      case MCODE_OP_ELSE:
-      {
-//        if(!strstr(BufPtr,"$EndIf"))
-//          goto clean_done;
-        // здесь нужно вставить (MCODE_OP_JMP|idxEndIf) перед MCODE_OP_ELSE
-        Size++;
-        break;
-      }
-    }
-
-    if(!BufPtr)
-      break;
-
-    // код найден, добавим этот код в буфер последовательности.
-    if (KeyCode!=-1)
-    {
-      CurMacro_Buffer=(DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacro->BufferSize+Size));
-      if (CurMacro_Buffer==NULL)
-      {
-        CurMacro->Buffer=NULL;
-        CurMacro->BufferSize=0;
-        xf_free(CurKeyText);
+        if ( CurMacro_Buffer != NULL )
+        {
+          xf_free(CurMacro_Buffer);
+          CurMacro->Buffer = NULL;
+        }
+        CurMacro->BufferSize = 0;
+        xf_free(CurrKeyText);
+        xf_free(exprBuff);
         return FALSE;
       }
 
-      switch(KeyCode)
-      {
-        case MCODE_OP_REP:
-        case MCODE_OP_ENDREP:
-        case MCODE_OP_IF:
-        case MCODE_OP_ENDIF:
-        case MCODE_OP_MACROMODE:
-        case MCODE_OP_EXIT:
-          CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
-          break;
-        case MCODE_OP_IFTHEN:
-          /* 28.10.2003 L&K Проверка на забытый $Then */
-          if(ThenLevel+1 != IfLevel)
-            goto clean_done;    // нестыковка в количестве $If и $Then
-          // все класс, $Then'ов на один меньше, чем $If'ов
-          ThenLevel++;                  // подравниваем...
-          CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
-          break;
-        case MCODE_OP_ELSE:
-        {
-          /* $If Condition $Then Seq_then [$Else Seq_else] $EndIf
-                     0: MCODE_OP_IF
-                     1: Condition
-                     2: Not                  если встречался '!', то здесь 1, иначе 0
-                     3: MCODE_OP_JMP | idxElse
-                     4: MCODE_OP_IFTHEN
-                     5: Seq_then
-                          ...
-           [
-                     N: MCODE_OP_JMP | idxEndIf       <- CurMacro->BufferSize
-               idxElse: MCODE_OP_ELSE                 <- CurMacro->BufferSize+1
-             idxElse+2: Seq_else                      <- CurMacro->BufferSize+2
-                        ...
-           ]
-              idxEndIf: MCODE_OP_ENDIF
-          */
-          /* 28.10.2003 L&K Проверка на забытый $Then */
-          if(ThenLevel != IfLevel)
-            goto clean_done;    // забыли
-
-          CurMacro_Buffer[If[IfLevel]]=MCODE_OP_JMP | (CurMacro->BufferSize+1);  // 3: MCODE_OP_JMP | idxElse
-          If[IfLevel]=CurMacro->BufferSize;                                    // зпоминаем позицию для заполнения "N: MCODE_OP_JMP | idxEndIf"
-          CurMacro_Buffer[CurMacro->BufferSize+1]=MCODE_OP_ELSE;
-          break;
-        }
-        default:
-          CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
-      } // end switch(KeyCode)
-
-
-      switch(KeyCode)
-      {
-        case KEY_MACRO_DATE:
-        case KEY_MACRO_PLAINTEXT:
-          // $Date и $Text - здесь идет ASCIIZ-строка
-          memcpy(&CurMacro_Buffer[CurMacro->BufferSize+1],CurKeyText,(Size-1)*sizeof(DWORD));
-          break;
-
-        case MCODE_OP_REP:
-        {
-          if(++RepLevel >= sizeof(Rep))  // слишком много вложений!
-            goto clean_done;
-
-          CurMacro_Buffer[CurMacro->BufferSize+1]=atoi(CurKeyText); // сюда поместим оригинальный счетчик
-          Rep[RepLevel]=CurMacro->BufferSize+2;                     //           2: MCODE_OP_JMP | idxEndRep
-          break;
-        }
-
-        case MCODE_OP_ENDREP:
-        {
-          /* $Rep Count Seq $EndRep
-
-               0: MCODE_OP_REP
-               1: CounterOrig
-               2: MCODE_OP_JMP | idxEndRep
-        idxSeq+0: seq
-                  ...
-     idxEndRep+0: MCODE_OP_ENDREP
-     idxEndRep+1: Counter
-     idxEndRep+2: MCODE_OP_JMP | idxSeq
-
-          */
-          if(RepLevel < 0) // вот же говнюки, левизну подсунули :-(
-            goto clean_done;
-
-          CurMacro_Buffer[CurMacro->BufferSize+1]=0; // Counter - заполняется в момент исполнения MCODE_OP_REP
-          CurMacro_Buffer[CurMacro->BufferSize+2]=MCODE_OP_JMP | (Rep[RepLevel]+1); // idxEndRep+2: MCODE_OP_JMP | idxSeq
-          CurMacro_Buffer[Rep[RepLevel]]=MCODE_OP_JMP | CurMacro->BufferSize;       //           2: MCODE_OP_JMP | idxEndRep
-          RepLevel--;
-          break;
-        }
-
-        case MCODE_OP_IF:
-        {
-          /* $If Condition $Then Seq_then [$Else Seq_else] $EndIf
-                     0: MCODE_OP_IF
-                     1: Condition
-                     2: Not                  если встречался '!', то здесь 1, иначе 0
-                     3: MCODE_OP_JMP | idxElse
-                     4: MCODE_OP_IFTHEN
-                     5: Seq_then
-                          ...
-           [
-                     N: MCODE_OP_JMP | idxEndIf
-               idxElse: MCODE_OP_ELSE                Этой части может и не быть,
-             idxElse+2: Seq_else                     т.е. за MCODE_OP_ELSE сразу будет
-                        ...                          следовать MCODE_OP_ENDIF
-           ]
-              idxEndIf: MCODE_OP_ENDIF
-          */
-          IfLevel++;
-          KeyCode=-1;
-
-          //CurKeyText==Condition
-          for(I=0;I < sizeof(MKeywords)/sizeof(MKeywords[0]); ++I)
-            if(!stricmp(MKeywords[I].Name,CurKeyText+(*CurKeyText=='!'?1:0)))
-            {
-              KeyCode=MKeywords[I].Value;
-              break;
-            }
-                                                                            // 0: MCODE_OP_IF
-          CurMacro_Buffer[CurMacro->BufferSize+1]=KeyCode;                  // 1: Condition
-          CurMacro_Buffer[CurMacro->BufferSize+2]=(*CurKeyText=='!'?1:0);   // 2: Not: если встречался '!', то здесь 1, иначе 0
-          CurMacro_Buffer[CurMacro->BufferSize+3]=-1;                       // 3: MCODE_OP_JMP | idxElse
-                                                                            //      заполняется при обработке MCODE_OP_ELSE
-          If[IfLevel]=CurMacro->BufferSize+3;                               // запоминаем позицию для (MCODE_OP_JMP|idxElse)
-          break;
-        }
-
-        case MCODE_OP_ENDIF:
-        {
-          /* 28.10.2003 L&K Проверка на забытый $Then */
-          if(ThenLevel != IfLevel)
-            goto clean_done;    // забыли (или лишний :)
-
-          // заполнение индекса для N: (MCODE_OP_JMP|idxEndIf) или (MCODE_OP_JMP|idxElse), если '$else' не было
-          if(If[IfLevel] != -1)
-            CurMacro_Buffer[If[IfLevel]]=MCODE_OP_JMP | CurMacro->BufferSize;
-          If[IfLevel]=-1;
-          --IfLevel;
-          /* 28.10.2003 L&K проверка на забытай $Then */
-          --ThenLevel;          // $If кончился, подравнять счетчик $Then'ов
-          break;
-        }
-      } // end switch(KeyCode)
-
-      CurMacro->BufferSize+=Size;
     }
-  }
-  if(CurMacro->BufferSize > 1)
+
+    switch ( KeyCode )
+    {
+      //- AN ----------------------------------------------
+      //  Опциональность аргумента
+      //- AN ----------------------------------------------
+      case MCODE_OP_DATE:
+        while ( *BufPtr && IsSpace(*BufPtr) )
+          BufPtr++;
+        if ( *BufPtr == '\"' && BufPtr[1] )
+          Size += parseExpr(BufPtr, exprBuff, 0, 0);
+        else
+        {
+          Size += 4;
+          exprBuff[0] = MCODE_OP_EXPR;
+          exprBuff[1] = MCODE_OP_PUSHSTR;
+          exprBuff[2] = 0;
+          exprBuff[3] = MCODE_OP_DOIT;
+        }
+        break;
+      case MCODE_OP_PLAINTEXT:
+        Size += parseExpr(BufPtr, exprBuff, 0, 0);
+        break;
+
+// $Rep (expr) ... $End
+// -------------------------------------
+//            <expr>
+//            MCODE_OP_SAVEREPCOUNT       1
+// +--------> MCODE_OP_REP                    p1=*
+// |          <counter>                   3
+// |          MCODE_OP_JZ  ------------+  4   p2=*+2
+// |          ...                      |
+// +--------- MCODE_OP_JMP             |
+//            MCODE_OP_END <-----------+
+
+      case MCODE_OP_REP:
+        Size += parseExpr(BufPtr, exprBuff, '(', ')');
+        if ( !exec.add(emmRep, CurMacro->BufferSize+Size, CurMacro->BufferSize+Size+3) )
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacro->Buffer = NULL;
+          }
+          CurMacro->BufferSize = 0;
+          xf_free(CurrKeyText);
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        Size += 4;  // естественно, размер будет больше
+        break;
+
+// $If (expr) ... $End
+// -------------------------------------
+//            <expr>
+//            MCODE_OP_JZ  ------------+      p1=*+0
+//            ...                      |
+// +--------- MCODE_OP_JMP             |
+// |          ...          <-----------+
+// +--------> MCODE_OP_END
+
+// или
+
+//            <expr>
+//            MCODE_OP_JZ  ------------+      p1=*+0
+//            ...                      |
+//            MCODE_OP_END <-----------+
+
+      case MCODE_OP_IF:
+        Size += parseExpr(BufPtr, exprBuff, '(', ')');
+        if ( !exec.add(emmThen, CurMacro->BufferSize+Size) )
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacro->Buffer = NULL;
+          }
+          CurMacro->BufferSize = 0;
+          xf_free(CurrKeyText);
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        Size++;
+        break;
+
+      case MCODE_OP_ELSE:
+        Size++;
+        break;
+
+// $While (expr) ... $End
+// -------------------------------------
+// +--------> <expr>
+// |          MCODE_OP_JZ  ------------+
+// |          ...                      |
+// +--------- MCODE_OP_JMP             |
+//            MCODE_OP_END <-----------+
+
+      case MCODE_OP_WHILE:
+        Size += parseExpr(BufPtr, exprBuff, '(', ')');
+        if ( !exec.add(emmWhile, CurMacro->BufferSize, CurMacro->BufferSize+Size) )
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacro->Buffer = NULL;
+          }
+          CurMacro->BufferSize = 0;
+          xf_free(CurrKeyText);
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        Size++;
+        break;
+      case MCODE_OP_END:
+        switch ( exec().state )
+        {
+          case emmRep:
+          case emmWhile:
+            Size += 2; // Место под дополнительный JMP
+            break;
+        }
+        break;
+    }
+    if(_macro_nErr)
+    {
+      if ( CurMacro_Buffer != NULL )
+      {
+        xf_free(CurMacro_Buffer);
+        CurMacro->Buffer = NULL;
+      }
+      CurMacro->BufferSize = 0;
+      xf_free(CurrKeyText);
+      xf_free(exprBuff);
+      return FALSE;
+    }
+
+    if ( BufPtr == NULL ) // ???
+      break;
+    // код найден, добавим этот код в буфер последовательности.
+    CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacro->BufferSize+Size+SizeVarName));
+    if ( CurMacro_Buffer == NULL )
+    {
+      CurMacro->Buffer = NULL;
+      CurMacro->BufferSize = 0;
+      xf_free(CurrKeyText);
+      xf_free(exprBuff);
+      return FALSE;
+    }
+    switch ( KeyCode )
+    {
+      case MCODE_OP_DATE:
+      case MCODE_OP_PLAINTEXT:
+        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+        break;
+      case MCODE_OP_SAVE:
+        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+        memcpy(CurMacro_Buffer+CurMacro->BufferSize+Size, varName, SizeVarName*sizeof(DWORD));
+        break;
+      case MCODE_OP_IF:
+        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacro->BufferSize+Size-2] = MCODE_OP_JZ;
+        break;
+      case MCODE_OP_REP:
+        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacro->BufferSize+Size-5] = MCODE_OP_SAVEREPCOUNT;
+        CurMacro_Buffer[CurMacro->BufferSize+Size-4] = KeyCode;
+        CurMacro_Buffer[CurMacro->BufferSize+Size-2] = MCODE_OP_JZ;
+        break;
+      case MCODE_OP_WHILE:
+        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacro->BufferSize+Size-2] = MCODE_OP_JZ;
+        break;
+      case MCODE_OP_ELSE:
+        if ( exec().state == emmThen )
+        {
+          exec().state = emmElse;
+          CurMacro_Buffer[exec().pos1] = CurMacro->BufferSize+2;
+          exec().pos1 = CurMacro->BufferSize;
+          CurMacro_Buffer[CurMacro->BufferSize] = 0;
+        }
+        else // тут $else и не предвиделось :-/
+        {
+          keyMacroParseError(err_Not_expected_ELSE, CurrKeyText, CurrKeyText);
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacro->Buffer = NULL;
+          }
+          CurMacro->BufferSize = 0;
+          xf_free(CurrKeyText);
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        break;
+      case MCODE_OP_END:
+        switch ( exec().state )
+        {
+          case emmMain:
+            // тут $end и не предвиделось :-/
+            keyMacroParseError(err_Not_expected_END, CurrKeyText, CurrKeyText);
+            if ( CurMacro_Buffer != NULL )
+            {
+              xf_free(CurMacro_Buffer);
+              CurMacro->Buffer = NULL;
+            }
+            CurMacro->BufferSize = 0;
+            xf_free(CurrKeyText);
+            xf_free(exprBuff);
+            return FALSE;
+          case emmThen:
+            CurMacro_Buffer[exec().pos1-1] = MCODE_OP_JZ;
+            CurMacro_Buffer[exec().pos1+0] = CurMacro->BufferSize+Size-1;
+            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            break;
+          case emmElse:
+            CurMacro_Buffer[exec().pos1-0] = MCODE_OP_JMP; //??
+            CurMacro_Buffer[exec().pos1+1] = CurMacro->BufferSize+Size-1; //??
+            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            break;
+          case emmRep:
+            CurMacro_Buffer[exec().pos2] = CurMacro->BufferSize+Size-1;
+            CurMacro_Buffer[CurMacro->BufferSize+Size-3] = MCODE_OP_JMP;
+            CurMacro_Buffer[CurMacro->BufferSize+Size-2] = exec().pos1;
+            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            break;
+          case emmWhile:
+            CurMacro_Buffer[exec().pos2] = CurMacro->BufferSize+Size-1;
+            CurMacro_Buffer[CurMacro->BufferSize+Size-3] = MCODE_OP_JMP;
+            CurMacro_Buffer[CurMacro->BufferSize+Size-2] = exec().pos1;
+            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            break;
+        }
+        if ( !exec.del() )  // Вообще-то этого быть не должно,  но подстрахуемся
+        {
+          if ( CurMacro_Buffer != NULL )
+          {
+            xf_free(CurMacro_Buffer);
+            CurMacro->Buffer = NULL;
+          }
+          CurMacro->BufferSize = 0;
+          xf_free(CurrKeyText);
+          xf_free(exprBuff);
+          return FALSE;
+        }
+        break;
+      default:
+        CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
+    } // end switch(KeyCode)
+    CurMacro->BufferSize += Size+SizeVarName;
+  } // END for (;;)
+#ifdef _DEBUG
+#ifdef SYSLOG_KEYMACRO
+  SysLog("--- macro buffer out (%d)", CurMacro->BufferSize);
+  SysLogDump("",0,(LPBYTE)CurMacro_Buffer,CurMacro->BufferSize*sizeof(DWORD),NULL);
+  if ( CurMacro_Buffer )
   {
-    CurMacro->Buffer=CurMacro_Buffer;
+    int ii;
+    for ( ii = 0 ; ii < CurMacro->BufferSize ; ii++ )
+      SysLog("%08X: %08X",ii,CurMacro_Buffer[ii]);
+
+    for ( ii = 0 ; ii < CurMacro->BufferSize ; ii++ )
+      printKeyValue(CurMacro_Buffer, ii);
   }
-  else if(CurMacro_Buffer)
+  else
+    SysLog("??? is NULL");
+  SysLog("--- macro buffer end");
+#endif
+#endif
+  if ( CurMacro->BufferSize > 1 )
+    CurMacro->Buffer = CurMacro_Buffer;
+  else if ( CurMacro_Buffer )
   {
-    CurMacro->Buffer=reinterpret_cast<DWORD*>(*CurMacro_Buffer);
+    CurMacro->Buffer = reinterpret_cast<DWORD*>(*CurMacro_Buffer);
     xf_free(CurMacro_Buffer);
   }
-
-  xf_free(CurKeyText);
+  xf_free(exprBuff);
+  if ( exec().state != emmMain )
+  {
+    keyMacroParseError(err_Unexpected_EOS, CurrKeyText, CurrKeyText);
+    return FALSE;
+  }
+  xf_free(CurrKeyText);
+  if ( _macro_nErr )
+    return FALSE;
   return TRUE;
-
-clean_done:
-  if (CurMacro_Buffer)
-  {
-    xf_free(CurMacro_Buffer);
-    CurMacro_Buffer=NULL;
-  }
-  if (CurMacro->Buffer)
-  {
-    xf_free(CurMacro->Buffer);
-    CurMacro->Buffer=NULL;
-  }
-  CurMacro->BufferSize=0;
-  xf_free(CurKeyText);
-  return FALSE;
 }
 
 
@@ -2729,9 +2991,9 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
     {
       int CurSelected;
       if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-        CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_SELECTED);
+        CurSelected=CtrlObject->CmdLine->ProcessKey(MCODE_C_SELECTED);
       else
-        CurSelected=CurFrame->ProcessKey(KEY_MACRO_SELECTED);
+        CurSelected=CurFrame->ProcessKey(MCODE_C_SELECTED);
 
       if((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected ||
          (CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected)
@@ -3044,16 +3306,23 @@ static const char* ParsePlainText(char *CurKeyText, const char *BufPtr)
 static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
 {
    // пропускаем ведущие пробельные символы
-   while (IsSpace(*BufPtr) || IsEol(*BufPtr))
+   while (IsSpace(*BufPtr) || IsEol(*BufPtr)) // удалить IsEol(*BufPtr)?
      BufPtr++;
    if (*BufPtr==0)
      return NULL;
 
    const char *CurBufPtr=BufPtr;
+   char Chr=*BufPtr, Chr2=BufPtr[1];
+   BOOL SpecMacro=Chr=='$' && Chr2 && !(IsSpace(Chr2) || IsEol(Chr2));
 
    // ищем конец очередного названия клавиши
-   while (*BufPtr && !(IsSpace(*BufPtr) || IsEol(*BufPtr)))
+   while (Chr && !(IsSpace(Chr) || IsEol(Chr))) // удалить IsEol(*BufPtr)?
+   {
+     if(SpecMacro && (Chr == '[' || Chr == '(' || Chr == '{'))
+       break;
      BufPtr++;
+     Chr=*BufPtr;
+   }
    int Length=BufPtr-CurBufPtr;
 
    memcpy(CurKeyText,CurBufPtr,Length);
@@ -3078,4 +3347,14 @@ int KeyMacro::PopState()
   memcpy(&Work,PCStack+CurPCStack,sizeof(struct MacroState));
   CurPCStack--;
   return TRUE;
+}
+
+void initMacroVarTable(int global)
+{
+  initVTable(global ? glbVarTable : locVarTable);
+}
+
+void doneMacroVarTable(int global)
+{
+  deleteVTable(global ? glbVarTable : locVarTable);
 }

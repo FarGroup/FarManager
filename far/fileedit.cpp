@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.155 06.07.2004 $ */
+/* Revision: 1.156 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   06.07.2004 SVS
     + обработка KEY_MACRO_EDITORSTATE для Macro II
   31.05.2004 SVS
@@ -419,6 +421,7 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "lang.hpp"
+#include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "poscache.hpp"
@@ -962,8 +965,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
   */
   if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) // исключаем MACRO
   {
-#if defined(MACRODRIVE2)
-    if(Key == KEY_MACRO_EDITORSTATE)
+    if(Key == MCODE_V_EDITORSTATE)
     {
       DWORD MacroEditState=0;
       MacroEditState|=Flags.Flags&FFILEEDIT_NEW?0x00000001:0;
@@ -979,7 +981,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
       MacroEditState|=FEdit->EdOpt.PersistentBlocks?0x00000400:0;
       return MacroEditState;
     }
-#endif
     return(FEdit->ProcessKey(Key));
   }
   /* DJ $ */

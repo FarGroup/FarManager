@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.120 30.06.2004 $ */
+/* Revision: 1.121 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
+    ! В Edit::TabPosToReal и Edit::RealPosToTab добавим проверку на конец строки...
+      (это про BugZ#1122 - При установленном Punto Switcher падает ввод в диалог)
   30.06.2004 SVS
     + Небольшая добавка по поводу Macro II (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
   14.06.2004 SVS
@@ -348,6 +352,7 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
+#include "macroopcode.hpp"
 #include "keys.hpp"
 #include "editor.hpp"
 #include "ctrlobj.hpp"
@@ -956,13 +961,13 @@ int Edit::ProcessKey(int Key)
 {
   switch(Key)
   {
-    case KEY_MACRO_EMPTY:
+    case MCODE_C_EMPTY:
       return GetLength()==0;
-    case KEY_MACRO_SELECTED:
+    case MCODE_C_SELECTED:
       return SelStart != -1 && SelStart < SelEnd;
-    case KEY_MACRO_EOF:
+    case MCODE_C_EOF:
       return CurPos >= StrSize;
-    case KEY_MACRO_BOF:
+    case MCODE_C_BOF:
       return CurPos==0;
   }
 
@@ -1339,7 +1344,7 @@ int Edit::ProcessKey(int Key)
     }
 
 #if defined(MOUSEKEY)
-    case KEY_MACROSELWORD:
+    case MCODE_OP_SELWORD:
     {
       int OldCurPos=CurPos;
       int SStart, SEnd;
@@ -1362,15 +1367,15 @@ int Edit::ProcessKey(int Key)
     }
 #endif
 
-    case KEY_MACRO_DATE:
-    case KEY_MACRO_PLAINTEXT:
+    case MCODE_OP_DATE:
+    case MCODE_OP_PLAINTEXT:
     {
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
       {
         if(SelStart != -1 || Flags.Check(FEDITLINE_CLEARFLAG)) // BugZ#1053 - Неточности в $Text
           RecurseProcessKey(KEY_DEL);
       }
-      if(Key == KEY_MACRO_DATE)
+      if(Key == MCODE_OP_DATE)
         ProcessInsDate();
       else
         ProcessInsPlainText();
@@ -1874,24 +1879,12 @@ int Edit::ProcessCtrlQ(void)
 
 int Edit::ProcessInsDate(void)
 {
-#if !defined(MACRODRIVE2)
-  int SizeMacroText=CtrlObject->Macro.GetPlainTextSize()+8;
-  SizeMacroText+=8+(!SizeMacroText?strlen(Opt.DateFormat):0);
-  SizeMacroText*=4;
-  char *TStr=(char*)alloca(SizeMacroText);
-  char *Fmt=(char*)alloca(SizeMacroText);
-  if(!TStr || !Fmt)
-    return FALSE;
-
-  CtrlObject->Macro.GetPlainText(Fmt);
-#else
   const char *Fmt = eStackAsString();
   int SizeMacroText = 16+(*Fmt ? 0 : strlen(Opt.DateFormat));
   SizeMacroText*=4;
   char *TStr=(char*)alloca(SizeMacroText);
   if(!TStr)
     return FALSE;
-#endif
 
   if(MkStrFTime(TStr,SizeMacroText,Fmt))
   {
@@ -1903,27 +1896,12 @@ int Edit::ProcessInsDate(void)
 
 int Edit::ProcessInsPlainText(void)
 {
-#if !defined(MACRODRIVE2)
-  int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
-  if(SizeMacroText)
-  {
-    SizeMacroText+=8;
-    char *TStr=(char*)alloca(SizeMacroText);
-    if(TStr)
-    {
-      CtrlObject->Macro.GetPlainText(TStr);
-      InsertString(TStr);
-      return TRUE;
-    }
-  }
-#else
   const char *str = eStackAsString();
   if (*str)
   {
     InsertString(str);
     return TRUE;
   }
-#endif
 
   return FALSE;
 }
@@ -2636,7 +2614,7 @@ int Edit::RealPosToTab(int Pos)
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 
-  for (TabPos=0,I=0;I<Pos;I++)
+  for (TabPos=0,I=0;I<Pos && Str[I];I++)
   {
     if (I>=StrSize)
     {
@@ -2659,7 +2637,7 @@ int Edit::TabPosToReal(int Pos)
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 
-  for (TabPos=0,I=0;TabPos<Pos;I++)
+  for (TabPos=0,I=0;TabPos<Pos && Str[I];I++)
   {
     if (Str[I]=='\t')
     {

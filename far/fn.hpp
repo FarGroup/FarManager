@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.212 06.07.2004 $ */
+/* Revision: 1.213 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
+    + LocalRevStrstri() - аналог strstr(), но с локалью, без учета регистра и сзади
   06.07.2004 SVS
     + GetMacroParseError (Macro II)
   01.07.2004 SVS
@@ -845,7 +848,8 @@ void WINAPI LocalStrlwr(char *s1);
 int WINAPI LStricmp(const char *s1,const char *s2);
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 /* SVS $ */
-const char *  __cdecl LocalStrstri(const char *str1, const char *str2);
+const char * __cdecl LocalStrstri(const char *str1, const char *str2);
+const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
 int __cdecl LocalStricmp(const char *s1,const char *s2);
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n);
 int __cdecl LCStricmp(const char *s1,const char *s2);
@@ -1579,13 +1583,11 @@ BOOL RunGraber(void);
 BOOL ProcessOSAliases(char *Str,int SizeStr);
 int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCmdPar,int SizeNewCmdPar);
 
-#if defined(MACRODRIVE2)
 void initMacroVarTable(int global);
 void doneMacroVarTable(int global);
 const char *eStackAsString(int Pos=0);
 
 BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
 
-#endif
 
 #endif  // __FARFUNC_HPP__

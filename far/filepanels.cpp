@@ -5,10 +5,16 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.55 03.06.2004 $ */
+/* Revision: 1.56 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    + Macro II
+    - Bug: делаем Ctrl-Q Tab Ctrl-5 (или любой другой режим) - ФАР упал, т.к.
+      в FilePanels::ChangePanelViewMode после вызова ChangePanelToFilled
+      Current панель совсем не так, что была (была QView, она уничтожилась,
+      стала обычная файловая)
   03.06.2004 SVS
     ! Часть кода вынесена в отдельные функции:
        a) Установить фокус на противоположную панель (Tab)
@@ -155,6 +161,7 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
+#include "macroopcode.hpp"
 #include "lang.hpp"
 #include "plugin.hpp"
 #include "ctrlobj.hpp"
@@ -570,9 +577,9 @@ int  FilePanels::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_MACRO_EOF:
-    case KEY_MACRO_BOF:
-    case KEY_MACRO_SELECTED:
+    case MCODE_C_EOF:
+    case MCODE_C_BOF:
+    case MCODE_C_SELECTED:
       return ActivePanel->ProcessKey(Key);
   }
 
@@ -865,7 +872,7 @@ int FilePanels::ChangePanelViewMode(Panel *Current,int Mode,BOOL RefreshFrame)
   if(Current && Mode >= VIEW_0 && Mode <= VIEW_9)
   {
     Current->SetViewMode(Mode);
-    ChangePanelToFilled(Current,FILE_PANEL);
+    Current=ChangePanelToFilled(Current,FILE_PANEL);
     Current->SetViewMode(Mode);
     // ВНИМАНИЕ! Костыль! Но Работает!
     SetScreenPosition();

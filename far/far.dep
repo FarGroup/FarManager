@@ -1,11 +1,18 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
-".\namelist.hpp" : \
+
+.\cddrv.obj : \
+	".\cddrv.cpp"\
 	".\farconst.hpp"\
-	".\TList.hpp"\
+	".\fn.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+	".\int64.hpp"\
+	".\struct.hpp"\
 
 
-"$(INTDIR)\CFileMask.obj" : \
+
+.\CFileMask.obj : \
 	".\CFileMask.cpp"\
 	".\array.hpp"\
 	".\BaseFileMask.hpp"\
@@ -22,7 +29,8 @@
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\checkver.obj" : \
+
+.\checkver.obj : \
 	".\checkver.cpp"\
 	".\bitflags.hpp"\
 	".\dialog.hpp"\
@@ -41,14 +49,8 @@
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\cddrv.obj" : \
-	".\cddrv.cpp"\
-	".\farconst.hpp"\
-	".\fn.hpp"\
-	".\headers.hpp"\
 
-
-"$(INTDIR)\chgmmode.obj" : \
+.\chgmmode.obj : \
 	".\chgmmode.cpp"\
 	".\bitflags.hpp"\
 	".\chgmmode.hpp"\
@@ -58,25 +60,29 @@
 	".\language.hpp"\
 	".\macro.hpp"\
 	".\plugins.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\chgprior.obj" : \
+
+.\chgprior.obj : \
 	".\chgprior.cpp"\
 	".\chgprior.hpp"\
 	".\headers.hpp"\
 
 
-"$(INTDIR)\clipboard.obj" : \
+
+.\clipboard.obj : \
 	".\clipboard.cpp"\
-	".\fn.hpp"\
 	".\farconst.hpp"\
+	".\fn.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\struct.hpp"\
 
 
-"$(INTDIR)\cmdline.obj" : \
+
+.\cmdline.obj : \
 	".\cmdline.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -100,6 +106,7 @@
 	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
@@ -112,17 +119,20 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 
 
-"$(INTDIR)\cmem.obj" : \
+
+.\cmem.obj : \
 	".\cmem.cpp"\
 	".\headers.hpp"\
 
 
-"$(INTDIR)\config.obj" : \
+
+.\config.obj : \
 	".\config.cpp"\
-	".\array.hpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
 	".\CFileMask.hpp"\
@@ -158,11 +168,12 @@
 	".\poscache.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\udlist.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\constitle.obj" : \
+
+.\constitle.obj : \
 	".\constitle.cpp"\
 	".\constitle.hpp"\
 	".\farconst.hpp"\
@@ -170,11 +181,11 @@
 	".\global.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
-	".\udlist.hpp"\
 	".\struct.hpp"\
 
 
-"$(INTDIR)\copy.obj" : \
+
+.\copy.obj : \
 	".\copy.cpp"\
 	".\array.hpp"\
 	".\bitflags.hpp"\
@@ -186,6 +197,7 @@
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
 	".\farconst.hpp"\
+	".\filelist.hpp"\
 	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
@@ -210,14 +222,15 @@
 	".\scantree.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\ctrlobj.obj" : \
+
+.\ctrlobj.obj : \
 	".\ctrlobj.cpp"\
-	".\array.hpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
 	".\CFileMask.hpp"\
@@ -247,11 +260,12 @@
 	".\poscache.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\treelist.hpp"\
-	".\udlist.hpp"\
 
 
-"$(INTDIR)\cvtname.obj" : \
+
+.\cvtname.obj : \
 	".\cvtname.cpp"\
 	".\farconst.hpp"\
 	".\flink.hpp"\
@@ -264,7 +278,14 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\delete.obj" : \
+
+.\del.obj : \
+	".\del.cpp"\
+	".\headers.hpp"\
+
+
+
+.\delete.obj : \
 	".\delete.cpp"\
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
@@ -292,10 +313,12 @@
 	".\scantree.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\treelist.hpp"\
 
 
-"$(INTDIR)\dialog.obj" : \
+
+.\dialog.obj : \
 	".\dialog.cpp"\
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
@@ -318,6 +341,7 @@
 	".\language.hpp"\
 	".\lockscrn.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\modal.hpp"\
 	".\plugin.hpp"\
@@ -326,10 +350,12 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\dizlist.obj" : \
+
+.\dizlist.obj : \
 	".\dizlist.cpp"\
 	".\dizlist.hpp"\
 	".\farconst.hpp"\
@@ -342,7 +368,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\dlgedit.obj" : \
+
+.\dlgedit.obj : \
 	".\dlgedit.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -352,7 +379,8 @@
 	".\scrobj.hpp"\
 
 
-"$(INTDIR)\edit.obj" : \
+
+.\edit.obj : \
 	".\edit.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -372,6 +400,7 @@
 	".\keys.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\menubar.hpp"\
 	".\panel.hpp"\
 	".\plugin.hpp"\
@@ -379,11 +408,12 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\editor.obj" : \
+
+.\editor.obj : \
 	".\editor.cpp"\
-	".\array.hpp"\
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
 	".\colors.hpp"\
@@ -391,8 +421,8 @@
 	".\dialog.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
-	".\farexcpt.hpp"\
 	".\farconst.hpp"\
+	".\farexcpt.hpp"\
 	".\fileedit.hpp"\
 	".\filestr.hpp"\
 	".\fn.hpp"\
@@ -405,6 +435,7 @@
 	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\modal.hpp"\
 	".\plugin.hpp"\
@@ -414,11 +445,12 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\udlist.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\eject.obj" : \
+
+.\eject.obj : \
 	".\eject.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -430,32 +462,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\farexcpt.obj" : \
-	".\farexcpt.cpp"\
-	".\bitflags.hpp"\
-	".\BlockExtKey.hpp"\
-	".\ctrlobj.hpp"\
-	".\farexcpt.hpp"\
-	".\farconst.hpp"\
-	".\filepanels.hpp"\
-	".\fn.hpp"\
-	".\frame.hpp"\
-	".\global.hpp"\
-	".\headers.hpp"\
-	".\int64.hpp"\
-	".\keybar.hpp"\
-	".\lang.hpp"\
-	".\language.hpp"\
-	".\macro.hpp"\
-	".\manager.hpp"\
-	".\menubar.hpp"\
-	".\plugin.hpp"\
-	".\plugins.hpp"\
-	".\scrobj.hpp"\
-	".\struct.hpp"\
 
-
-"$(INTDIR)\execute.obj" : \
+.\execute.obj : \
 	".\execute.cpp"\
 	".\array.hpp"\
 	".\bitflags.hpp"\
@@ -486,22 +494,52 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\udlist.hpp"\
 
 
-.\far.res : \
-	".\far.rc"\
+
+.\far.rc : \
 	".\Far.ico"\
 	".\res.hpp"\
 
 
-"$(INTDIR)\farqueue.obj" : \
+
+.\farexcpt.obj : \
+	".\farexcpt.cpp"\
+	".\bitflags.hpp"\
+	".\blockextkey.hpp"\
+	".\ctrlobj.hpp"\
+	".\farconst.hpp"\
+	".\farexcpt.hpp"\
+	".\filepanels.hpp"\
+	".\fn.hpp"\
+	".\frame.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+	".\int64.hpp"\
+	".\keybar.hpp"\
+	".\lang.hpp"\
+	".\language.hpp"\
+	".\macro.hpp"\
+	".\manager.hpp"\
+	".\menubar.hpp"\
+	".\plugin.hpp"\
+	".\plugins.hpp"\
+	".\scrobj.hpp"\
+	".\struct.hpp"\
+	".\syntax.hpp"\
+
+
+
+.\farqueue.obj : \
 	".\farqueue.cpp"\
 	".\farqueue.hpp"\
 	".\headers.hpp"\
 
 
-"$(INTDIR)\farrtl.obj" : \
+
+.\farrtl.obj : \
 	".\farrtl.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -511,15 +549,19 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\farwinapi.obj" : \
+
+.\farwinapi.obj : \
 	".\farwinapi.cpp"\
+	".\farconst.hpp"\
 	".\fn.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
+	".\int64.hpp"\
+	".\struct.hpp"\
 
 
 
-"$(INTDIR)\ffolders.obj" : \
+.\ffolders.obj : \
 	".\ffolders.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -548,10 +590,12 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\fileattr.obj" : \
+
+.\fileattr.obj : \
 	".\fileattr.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -562,9 +606,9 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\fileedit.obj" : \
+
+.\fileedit.obj : \
 	".\fileedit.cpp"\
-	".\array.hpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -588,6 +632,7 @@
 	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
@@ -600,12 +645,37 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\udlist.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\filelist.obj" : \
+
+.\filefilter.obj : \
+	".\filefilter.cpp"\
+	".\BaseFileMask.hpp"\
+	".\bitflags.hpp"\
+	".\CFileMask.hpp"\
+	".\dialog.hpp"\
+	".\farconst.hpp"\
+	".\filefilter.hpp"\
+	".\fn.hpp"\
+	".\frame.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+	".\int64.hpp"\
+	".\lang.hpp"\
+	".\manager.hpp"\
+	".\modal.hpp"\
+	".\plugin.hpp"\
+	".\scrobj.hpp"\
+	".\struct.hpp"\
+	".\vmenu.hpp"\
+
+
+
+.\filelist.obj : \
 	".\filelist.cpp"\
 	".\array.hpp"\
 	".\BaseFileMask.hpp"\
@@ -638,6 +708,7 @@
 	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
@@ -651,12 +722,15 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\udlist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\FileMasksProcessor.obj" : \
+
+.\FileMasksProcessor.obj : \
 	".\FileMasksProcessor.cpp"\
 	".\array.hpp"\
 	".\BaseFileMask.hpp"\
@@ -670,19 +744,35 @@
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\FileMasksWithExclude.obj" : \
+
+.\FileMasksWithExclude.obj : \
 	".\FileMasksWithExclude.cpp"\
 	".\array.hpp"\
 	".\BaseFileMask.hpp"\
 	".\farconst.hpp"\
-	".\fn.hpp"\
 	".\FileMasksProcessor.hpp"\
 	".\FileMasksWithExclude.hpp"\
+	".\fn.hpp"\
+	".\global.hpp"\
 	".\headers.hpp"\
+	".\int64.hpp"\
+	".\struct.hpp"\
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\filepanels.obj" : \
+
+.\fileowner.obj : \
+	".\fileowner.cpp"\
+	".\farconst.hpp"\
+	".\fn.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+	".\int64.hpp"\
+	".\struct.hpp"\
+
+
+
+.\filepanels.obj : \
 	".\filepanels.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -709,6 +799,7 @@
 	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\namelist.hpp"\
@@ -720,11 +811,14 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\treelist.hpp"\
 	".\viewer.hpp"\
 
 
-"$(INTDIR)\filestr.obj" : \
+
+.\filestr.obj : \
 	".\filestr.cpp"\
 	".\farconst.hpp"\
 	".\filestr.hpp"\
@@ -735,7 +829,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\filetype.obj" : \
+
+.\filetype.obj : \
 	".\filetype.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -769,10 +864,12 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\fileview.obj" : \
+
+.\fileview.obj : \
 	".\fileview.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -804,10 +901,13 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 
 
-"$(INTDIR)\filter.obj" : \
+
+.\filter.obj : \
 	".\filter.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -836,16 +936,18 @@
 	".\scantree.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\findfile.obj" : \
+
+.\findfile.obj : \
 	".\findfile.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
-	".\ClevMutex.hpp"\
 	".\CFileMask.hpp"\
 	".\chgprior.hpp"\
+	".\ClevMutex.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\ctrlobj.hpp"\
@@ -855,10 +957,10 @@
 	".\editor.hpp"\
 	".\farconst.hpp"\
 	".\fileedit.hpp"\
+	".\filefilter.hpp"\
 	".\filelist.hpp"\
 	".\filepanels.hpp"\
 	".\fileview.hpp"\
-	".\filefilter.hpp"\
 	".\findfile.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
@@ -883,11 +985,14 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\flink.obj" : \
+
+.\flink.obj : \
 	".\flink.cpp"\
 	".\array.hpp"\
 	".\copy.hpp"\
@@ -903,7 +1008,8 @@
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\flmodes.obj" : \
+
+.\flmodes.obj : \
 	".\flmodes.cpp"\
 	".\bitflags.hpp"\
 	".\ctrlobj.hpp"\
@@ -929,10 +1035,12 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\flplugin.obj" : \
+
+.\flplugin.obj : \
 	".\flplugin.cpp"\
 	".\bitflags.hpp"\
 	".\ctrlobj.hpp"\
@@ -956,9 +1064,11 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\flshow.obj" : \
+
+.\flshow.obj : \
 	".\flshow.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -987,9 +1097,11 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\flupdate.obj" : \
+
+.\flupdate.obj : \
 	".\flupdate.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -1022,9 +1134,11 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\fnparce.obj" : \
+
+.\fnparce.obj : \
 	".\fnparce.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -1034,6 +1148,7 @@
 	".\edit.hpp"\
 	".\farconst.hpp"\
 	".\filepanels.hpp"\
+	".\flink.hpp"\
 	".\fn.hpp"\
 	".\frame.hpp"\
 	".\global.hpp"\
@@ -1045,17 +1160,18 @@
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
-	".\flink.hpp"\
 	".\modal.hpp"\
 	".\panel.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\foldtree.obj" : \
+
+.\foldtree.obj : \
 	".\foldtree.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1079,7 +1195,8 @@
 	".\treelist.hpp"\
 
 
-"$(INTDIR)\frame.obj" : \
+
+.\frame.obj : \
 	".\frame.cpp"\
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
@@ -1094,7 +1211,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\gettable.obj" : \
+
+.\gettable.obj : \
 	".\gettable.cpp"\
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
@@ -1113,7 +1231,8 @@
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\global.obj" : \
+
+.\global.obj : \
 	".\global.cpp"\
 	".\copyright.inc"\
 	".\farconst.hpp"\
@@ -1124,7 +1243,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\grabber.obj" : \
+
+.\grabber.obj : \
 	".\grabber.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1143,9 +1263,11 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\grpsort.obj" : \
+
+.\grpsort.obj : \
 	".\grpsort.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -1172,12 +1294,15 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\help.obj" : \
+
+.\help.obj : \
 	".\help.cpp"\
 	".\bitflags.hpp"\
+	".\blockextkey.hpp"\
 	".\colors.hpp"\
 	".\ctrlobj.hpp"\
 	".\farconst.hpp"\
@@ -1199,9 +1324,11 @@
 	".\scantree.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\hilight.obj" : \
+
+.\hilight.obj : \
 	".\hilight.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -1234,10 +1361,12 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\history.obj" : \
+
+.\history.obj : \
 	".\history.cpp"\
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
@@ -1257,7 +1386,8 @@
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\hmenu.obj" : \
+
+.\hmenu.obj : \
 	".\hmenu.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1285,10 +1415,12 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\infolist.obj" : \
+
+.\infolist.obj : \
 	".\infolist.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1319,17 +1451,21 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 
 
-"$(INTDIR)\int64.obj" : \
+
+.\int64.obj : \
 	".\int64.cpp"\
 	".\farconst.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
 
 
-"$(INTDIR)\interf.obj" : \
+
+.\interf.obj : \
 	".\interf.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1356,9 +1492,11 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\iswind.obj" : \
+
+.\iswind.obj : \
 	".\iswind.cpp"\
 	".\farconst.hpp"\
 	".\global.hpp"\
@@ -1367,7 +1505,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\keybar.obj" : \
+
+.\keybar.obj : \
 	".\keybar.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1383,7 +1522,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\keyboard.obj" : \
+
+.\keyboard.obj : \
 	".\keyboard.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -1415,9 +1555,11 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\language.obj" : \
+
+.\language.obj : \
 	".\language.cpp"\
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
@@ -1437,7 +1579,8 @@
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\local.obj" : \
+
+.\local.obj : \
 	".\local.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -1447,7 +1590,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\lockscrn.obj" : \
+
+.\lockscrn.obj : \
 	".\lockscrn.cpp"\
 	".\bitflags.hpp"\
 	".\headers.hpp"\
@@ -1455,7 +1599,8 @@
 	".\scrbuf.hpp"\
 
 
-"$(INTDIR)\macro.obj" : \
+
+.\macro.obj : \
 	".\macro.cpp"\
 	".\array.hpp"\
 	".\bitflags.hpp"\
@@ -1479,6 +1624,7 @@
 	".\language.hpp"\
 	".\lockscrn.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
@@ -1488,10 +1634,13 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\udlist.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\main.obj" : \
+
+.\main.obj : \
 	".\main.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -1526,11 +1675,13 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\udlist.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 
 
-"$(INTDIR)\manager.obj" : \
+
+.\manager.obj : \
 	".\manager.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -1558,10 +1709,12 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\menubar.obj" : \
+
+.\menubar.obj : \
 	".\menubar.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1576,7 +1729,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\message.obj" : \
+
+.\message.obj : \
 	".\message.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -1590,22 +1744,26 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\lang.hpp"\
+	".\language.hpp"\
+	".\macro.hpp"\
 	".\manager.hpp"\
 	".\modal.hpp"\
 	".\plugin.hpp"\
+	".\plugins.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\mix.obj" : \
+
+.\mix.obj : \
 	".\mix.cpp"\
 	".\array.hpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
 	".\CFileMask.hpp"\
-	".\RefreshFrameManager.hpp"\
 	".\chgprior.hpp"\
 	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
@@ -1620,10 +1778,10 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
-	".\lasterror.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lasterror.hpp"\
 	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\manager.hpp"\
@@ -1631,17 +1789,20 @@
 	".\panel.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
+	".\RefreshFrameManager.hpp"\
 	".\savefpos.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\mkdir.obj" : \
+
+.\mkdir.obj : \
 	".\mkdir.cpp"\
 	".\array.hpp"\
 	".\bitflags.hpp"\
@@ -1663,16 +1824,19 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\mktemp.obj" : \
+
+.\mktemp.obj : \
 	".\mktemp.c"\
 	".\headers.hpp"\
 
 
-"$(INTDIR)\modal.obj" : \
+
+.\modal.obj : \
 	".\modal.cpp"\
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
@@ -1690,7 +1854,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\namelist.obj" : \
+
+.\namelist.obj : \
 	".\namelist.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -1699,9 +1864,17 @@
 	".\int64.hpp"\
 	".\namelist.hpp"\
 	".\struct.hpp"\
+	".\TList.hpp"\
 
 
-"$(INTDIR)\options.obj" : \
+
+.\new.obj : \
+	".\new.cpp"\
+	".\headers.hpp"\
+
+
+
+.\options.obj : \
 	".\options.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
@@ -1737,16 +1910,19 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\palette.obj" : \
+
+.\palette.obj : \
 	".\palette.cpp"\
 	".\colors.hpp"\
 	".\headers.hpp"\
 
 
-"$(INTDIR)\panel.obj" : \
+
+.\panel.obj : \
 	".\panel.cpp"\
 	".\array.hpp"\
 	".\bitflags.hpp"\
@@ -1766,6 +1942,7 @@
 	".\frame.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
+	".\help.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
@@ -1773,6 +1950,7 @@
 	".\language.hpp"\
 	".\lockscrn.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
@@ -1783,20 +1961,24 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\treelist.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\plist.obj" : \
+
+.\plist.obj : \
 	".\plist.cpp"\
 	".\bitflags.hpp"\
+	".\blockextkey.hpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
-	".\help.hpp"\
 	".\frame.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
+	".\help.hpp"\
 	".\int64.hpp"\
+	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\manager.hpp"\
@@ -1807,7 +1989,8 @@
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\plognmn.obj" : \
+
+.\plognmn.obj : \
 	".\plognmn.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -1818,7 +2001,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\plugapi.obj" : \
+
+.\plugapi.obj : \
 	".\plugapi.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -1827,8 +2011,8 @@
 	".\dialog.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
-	".\farexcpt.hpp"\
 	".\farconst.hpp"\
+	".\farexcpt.hpp"\
 	".\fileedit.hpp"\
 	".\filepanels.hpp"\
 	".\fileview.hpp"\
@@ -1857,14 +2041,18 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\plugins.obj" : \
+
+.\plugins.obj : \
 	".\plugins.cpp"\
+	".\array.hpp"\
 	".\bitflags.hpp"\
-	".\BlockExtKey.hpp"\
+	".\blockextkey.hpp"\
 	".\chgprior.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -1873,14 +2061,13 @@
 	".\dialog.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
-	".\farexcpt.hpp"\
 	".\farconst.hpp"\
+	".\farexcpt.hpp"\
 	".\fileedit.hpp"\
 	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
 	".\frame.hpp"\
-	".\udlist.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
@@ -1901,10 +2088,13 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\udlist.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\poscache.obj" : \
+
+.\poscache.obj : \
 	".\poscache.cpp"\
 	".\array.hpp"\
 	".\farconst.hpp"\
@@ -1915,10 +2105,10 @@
 	".\poscache.hpp"\
 	".\struct.hpp"\
 	".\udlist.hpp"\
-	".\array.hpp"\
 
 
-"$(INTDIR)\print.obj" : \
+
+.\print.obj : \
 	".\print.cpp"\
 	".\bitflags.hpp"\
 	".\ctrlobj.hpp"\
@@ -1941,15 +2131,18 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\qsortex.obj" : \
+
+.\qsortex.obj : \
 	".\qsortex.c"\
 	".\headers.hpp"\
 
 
-"$(INTDIR)\qview.obj" : \
+
+.\qview.obj : \
 	".\qview.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -1978,10 +2171,13 @@
 	".\qview.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 
 
-"$(INTDIR)\rdrwdsk.obj" : \
+
+.\rdrwdsk.obj : \
 	".\rdrwdsk.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -2005,20 +2201,39 @@
 	".\rdrwdsk.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\registry.obj" : \
+
+.\RefreshFrameManager.obj : \
+	".\RefreshFrameManager.cpp"\
+	".\bitflags.hpp"\
+	".\farconst.hpp"\
+	".\frame.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+	".\lockscrn.hpp"\
+	".\manager.hpp"\
+	".\RefreshFrameManager.hpp"\
+	".\savescr.hpp"\
+	".\scrobj.hpp"\
+	".\struct.hpp"\
+
+
+
+.\registry.obj : \
 	".\registry.cpp"\
+	".\array.hpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
 	".\int64.hpp"\
-	".\array.hpp"\
 	".\struct.hpp"\
 
 
-"$(INTDIR)\savefpos.obj" : \
+
+.\savefpos.obj : \
 	".\savefpos.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -2029,7 +2244,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\savescr.obj" : \
+
+.\savescr.obj : \
 	".\savescr.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -2040,7 +2256,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\scantree.obj" : \
+
+.\scantree.obj : \
 	".\scantree.cpp"\
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
@@ -2052,7 +2269,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\scrbuf.obj" : \
+
+.\scrbuf.obj : \
 	".\scrbuf.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -2067,9 +2285,11 @@
 	".\plugins.hpp"\
 	".\scrbuf.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\scrobj.obj" : \
+
+.\scrobj.obj : \
 	".\scrobj.cpp"\
 	".\bitflags.hpp"\
 	".\farconst.hpp"\
@@ -2082,7 +2302,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\scrsaver.obj" : \
+
+.\scrsaver.obj : \
 	".\scrsaver.cpp"\
 	".\chgprior.hpp"\
 	".\colors.hpp"\
@@ -2096,7 +2317,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\setattr.obj" : \
+
+.\setattr.obj : \
 	".\setattr.cpp"\
 	".\bitflags.hpp"\
 	".\chgprior.hpp"\
@@ -2125,10 +2347,12 @@
 	".\scantree.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\setcolor.obj" : \
+
+.\setcolor.obj : \
 	".\setcolor.cpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
@@ -2155,16 +2379,18 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\stddlg.obj" : \
+
+.\stddlg.obj : \
 	".\stddlg.cpp"\
 	".\bitflags.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
-	".\farexcpt.hpp"\
 	".\farconst.hpp"\
+	".\farexcpt.hpp"\
 	".\fn.hpp"\
 	".\frame.hpp"\
 	".\global.hpp"\
@@ -2180,10 +2406,18 @@
 	".\plugins.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\strftime.obj" : \
+
+.\strdup.obj : \
+	".\strdup.c"\
+	".\headers.hpp"\
+
+
+
+.\strftime.obj : \
 	".\strftime.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -2194,7 +2428,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\strmix.obj" : \
+
+.\strmix.obj : \
 	".\strmix.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -2206,27 +2441,29 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\strncpy.obj" : \
+
+.\strncpy.obj : \
 	".\strncpy.c"\
 	".\headers.hpp"\
 
 
-"$(INTDIR)\strdup.obj" : \
-	".\strdup.c"\
+
+.\syntax.obj : \
+	".\syntax.cpp"\
+	".\farconst.hpp"\
+	".\fn.hpp"\
+	".\global.hpp"\
 	".\headers.hpp"\
+	".\int64.hpp"\
+	".\keys.hpp"\
+	".\lang.hpp"\
+	".\macroopcode.hpp"\
+	".\struct.hpp"\
+	".\syntax.hpp"\
 
 
-"$(INTDIR)\del.obj" : \
-	".\del.cpp"\
-	".\headers.hpp"\
 
-
-"$(INTDIR)\new.obj" : \
-	".\new.cpp"\
-	".\headers.hpp"\
-
-
-"$(INTDIR)\syslog.obj" : \
+.\syslog.obj : \
 	".\syslog.cpp"\
 	".\bitflags.hpp"\
 	".\dizlist.hpp"\
@@ -2246,8 +2483,8 @@
 	".\struct.hpp"\
 
 
-"$(INTDIR)\treelist.obj" : \
-	".\array.hpp"\
+
+.\treelist.obj : \
 	".\treelist.cpp"\
 	".\array.hpp"\
 	".\bitflags.hpp"\
@@ -2259,12 +2496,10 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\farconst.hpp"\
-	".\RefreshFrameManager.hpp"\
 	".\filelist.hpp"\
 	".\filepanels.hpp"\
 	".\flink.hpp"\
 	".\fn.hpp"\
-	".\lockscrn.hpp"\
 	".\frame.hpp"\
 	".\global.hpp"\
 	".\headers.hpp"\
@@ -2274,21 +2509,25 @@
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\
+	".\lockscrn.hpp"\
 	".\macro.hpp"\
 	".\menubar.hpp"\
 	".\panel.hpp"\
 	".\plugin.hpp"\
 	".\plugins.hpp"\
 	".\qview.hpp"\
+	".\RefreshFrameManager.hpp"\
 	".\savescr.hpp"\
 	".\scantree.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\treelist.hpp"\
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\udlist.obj" : \
+
+.\udlist.obj : \
 	".\udlist.cpp"\
 	".\array.hpp"\
 	".\farconst.hpp"\
@@ -2300,7 +2539,8 @@
 	".\udlist.hpp"\
 
 
-"$(INTDIR)\usermenu.obj" : \
+
+.\usermenu.obj : \
 	".\usermenu.cpp"\
 	".\bitflags.hpp"\
 	".\cmdline.hpp"\
@@ -2333,12 +2573,13 @@
 	".\savefpos.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\viewer.obj" : \
+
+.\viewer.obj : \
 	".\viewer.cpp"\
-	".\array.hpp"\
 	".\bitflags.hpp"\
 	".\colors.hpp"\
 	".\ctrlobj.hpp"\
@@ -2358,6 +2599,7 @@
 	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
 	".\modal.hpp"\
@@ -2371,17 +2613,19 @@
 	".\scrbuf.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
-	".\udlist.hpp"\
+	".\syntax.hpp"\
+	".\TList.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\vmenu.obj" : \
+
+.\vmenu.obj : \
 	".\vmenu.cpp"\
 	".\bitflags.hpp"\
-	".\constitle.hpp"\
 	".\chgprior.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\farconst.hpp"\
@@ -2394,6 +2638,7 @@
 	".\lang.hpp"\
 	".\language.hpp"\
 	".\macro.hpp"\
+	".\macroopcode.hpp"\
 	".\manager.hpp"\
 	".\modal.hpp"\
 	".\plugin.hpp"\
@@ -2401,10 +2646,12 @@
 	".\savescr.hpp"\
 	".\scrobj.hpp"\
 	".\struct.hpp"\
+	".\syntax.hpp"\
 	".\vmenu.hpp"\
 
 
-"$(INTDIR)\xlat.obj" : \
+
+.\xlat.obj : \
 	".\xlat.cpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
@@ -2414,33 +2661,5 @@
 	".\plugin.hpp"\
 	".\struct.hpp"\
 
-
-
-"$(INTDIR)\filefilter.obj" : \
-	".\filefilter.cpp"\
-	".\filefilter.hpp"\
-	".\CFileMask.hpp"\
-	".\headers.hpp"\
-	".\plugin.hpp"\
-	".\struct.hpp"\
-	".\dialog.hpp"\
-	".\filefilter.hpp"\
-	".\fn.hpp"\
-	".\lang.hpp"\
-	".\global.hpp"\
-
-
-
-"$(INTDIR)\fileowner.obj" : \
-	".\fileowner.cpp"\
-	".\fn.hpp"\
-
-
-"$(INTDIR)\RefreshFrameManager.obj" : \
-	".\RefreshFrameManager.cpp"\
-	".\lockscrn.hpp"\
-	".\manager.hpp"\
-	".\savescr.hpp"\
-	".\global.hpp"\
 
 

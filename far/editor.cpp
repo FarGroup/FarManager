@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.252 30.06.2004 $ */
+/* Revision: 1.253 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   30.06.2004 SVS
     + Небольшая добавка по поводу Macro II (в "обычном" ФАРе не работает, т.к. ограничена дефайном MACRODRIVE2)
   16.06.2004 SVS
@@ -736,6 +738,7 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 #include "lang.hpp"
+#include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "poscache.hpp"
@@ -1814,13 +1817,13 @@ int Editor::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_MACRO_EMPTY:
+    case MCODE_C_EMPTY:
       return !CurLine->Next && !CurLine->Prev; //??
-    case KEY_MACRO_EOF:
+    case MCODE_C_EOF:
       return !CurLine->Next && CurPos>=CurLine->EditLine.GetLength();
-    case KEY_MACRO_BOF:
+    case MCODE_C_BOF:
       return !CurLine->Prev && CurPos==0;
-    case KEY_MACRO_SELECTED:
+    case MCODE_C_SELECTED:
       return BlockStart || VBlockStart?TRUE:FALSE;
   }
 
@@ -3437,40 +3440,22 @@ int Editor::ProcessKey(int Key)
     }
     /* SVS $ */
 
-    case KEY_MACRO_DATE:
-    case KEY_MACRO_PLAINTEXT:
+    case MCODE_OP_DATE:
+    case MCODE_OP_PLAINTEXT:
     {
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
-#if !defined(MACRODRIVE2)
-        char *Fmt=NULL;
-        int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
-        SizeMacroText+=16+(Key == KEY_MACRO_DATE && !SizeMacroText?strlen(Opt.DateFormat):0);
-        if(Key == KEY_MACRO_DATE)
-          SizeMacroText*=4;
-        char *TStr=(char*)alloca(SizeMacroText);
-        if(!TStr)
-          return(FALSE);
-
-        if(Key == KEY_MACRO_DATE)
-          Fmt=(char*)alloca(SizeMacroText);
-        if(Key == KEY_MACRO_DATE && !Fmt)
-          return(FALSE);
-
-        CtrlObject->Macro.GetPlainText((Key == KEY_MACRO_PLAINTEXT?TStr:Fmt));
-#else
         const char *Fmt = eStackAsString();
         int SizeMacroText = 16+(*Fmt ? 0 : strlen(Opt.DateFormat));
-        if(Key == KEY_MACRO_PLAINTEXT)
+        if(Key == MCODE_OP_PLAINTEXT)
           SizeMacroText=strlen(Fmt)+1;
         SizeMacroText*=4+1;
         char *TStr=(char*)alloca(SizeMacroText);
         if(!TStr)
           return FALSE;
-        if(Key == KEY_MACRO_PLAINTEXT)
+        if(Key == MCODE_OP_PLAINTEXT)
           strcpy(TStr,Fmt);
-#endif
-        if(Key == KEY_MACRO_PLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
+        if(Key == MCODE_OP_PLAINTEXT || MkStrFTime(TStr,SizeMacroText,Fmt))
         {
           char *Ptr=TStr;
           while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)
@@ -3642,7 +3627,7 @@ int Editor::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
             Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) ||
-            Key == KEY_MACRO_XLAT)
+            Key == MCODE_OP_XLAT)
         /* IS  $ */
         {
           Xlat();

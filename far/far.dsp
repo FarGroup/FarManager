@@ -140,6 +140,10 @@ SOURCE=.\cvtname.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\del.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\delete.cpp
 # End Source File
 # Begin Source File
@@ -392,6 +396,10 @@ SOURCE=.\namelist.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\new.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\options.cpp
 # End Source File
 # Begin Source File
@@ -440,11 +448,11 @@ SOURCE=.\rdrwdsk.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\registry.cpp
+SOURCE=.\RefreshFrameManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\RefreshFrameManager.cpp
+SOURCE=.\registry.cpp
 # End Source File
 # Begin Source File
 
@@ -488,14 +496,6 @@ SOURCE=.\strdup.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\del.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\new.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\strftime.cpp
 # End Source File
 # Begin Source File
@@ -505,6 +505,10 @@ SOURCE=.\strmix.cpp
 # Begin Source File
 
 SOURCE=.\strncpy.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\syntax.cpp
 # End Source File
 # Begin Source File
 
@@ -782,10 +786,6 @@ InputPath=.\keys.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\lasterror.hpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\lang.hpp
 # End Source File
 # Begin Source File
@@ -794,11 +794,19 @@ SOURCE=.\language.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\lasterror.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\lockscrn.hpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\macro.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\macroopcode.hpp
 # End Source File
 # Begin Source File
 
@@ -898,6 +906,10 @@ SOURCE=.\scrobj.hpp
 # Begin Source File
 
 SOURCE=.\struct.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\syntax.hpp
 # End Source File
 # Begin Source File
 

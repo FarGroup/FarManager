@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.204 08.06.2004 $ */
+/* Revision: 1.205 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -580,6 +582,7 @@ Modify:
 #include "fn.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
+#include "macroopcode.hpp"
 #include "lang.hpp"
 #include "ctrlobj.hpp"
 #include "filter.hpp"
@@ -1018,7 +1021,7 @@ int FileList::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_MACRO_ROOTFOLDER:
+    case MCODE_C_ROOTFOLDER:
     {
       if (PanelMode==PLUGIN_PANEL)
       {
@@ -1037,11 +1040,11 @@ int FileList::ProcessKey(int Key)
         return TRUE;
       }
     }
-    case KEY_MACRO_EOF:
+    case MCODE_C_EOF:
       return CurFile == FileCount-1;
-    case KEY_MACRO_BOF:
+    case MCODE_C_BOF:
       return CurFile==0;
-    case KEY_MACRO_SELECTED:
+    case MCODE_C_SELECTED:
       return GetRealSelCount()>1;
   }
 

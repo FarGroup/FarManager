@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.161 16.06.2004 $ */
+/* Revision: 1.162 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   16.06.2004 SVS
     - BugZ#1097 - невозможность поиска вхождений в юникод текстовом файле
       Уточнение для реверсного поиска.
@@ -472,6 +474,7 @@ Modify:
 #pragma hdrstop
 
 #include "viewer.hpp"
+#include "macroopcode.hpp"
 #include "global.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
@@ -2374,13 +2377,13 @@ int Viewer::ProcessKey(int Key)
       }
       return(TRUE);
 
-    case KEY_MACRO_EMPTY:
+    case MCODE_C_EMPTY:
       return FileSize==0;
-    case KEY_MACRO_SELECTED:
+    case MCODE_C_SELECTED:
       return SelectSize==0?FALSE:TRUE;
-    case KEY_MACRO_EOF:
+    case MCODE_C_EOF:
       return LastPage || ViewFile==NULL;
-    case KEY_MACRO_BOF:
+    case MCODE_C_BOF:
       return !FilePos || ViewFile==NULL;
 
     default:

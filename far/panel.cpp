@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.130 01.07.2004 $ */
+/* Revision: 1.131 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   01.07.2004 SVS
     ! тип CD в меню выбора дисков определяется тока если выставлен DRIVE_SHOW_CDROM
   21.06.2004 SVS
@@ -362,6 +364,7 @@ Modify:
 
 #include "panel.hpp"
 #include "plugin.hpp"
+#include "macroopcode.hpp"
 #include "global.hpp"
 #include "fn.hpp"
 #include "flink.hpp"
@@ -1369,7 +1372,7 @@ void Panel::FastFind(int FirstKey)
           }
           else if((Opt.XLat.XLatFastFindKey && Key == Opt.XLat.XLatFastFindKey ||
                    Opt.XLat.XLatAltFastFindKey && Key == Opt.XLat.XLatAltFastFindKey) ||
-                  Key == KEY_MACRO_XLAT)
+                  Key == MCODE_OP_XLAT)
           {
             char TempName[NM*2];
             FindEdit.Xlat();

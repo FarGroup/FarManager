@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.303 06.07.2004 $ */
+/* Revision: 1.304 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   06.07.2004 SVS
     + MCODE_F_MENU_CHECKHOTKEY, CheckHighlights для Macro II
   19.05.2004 SVS
@@ -1134,6 +1136,7 @@ Modify:
 #include "lang.hpp"
 #include "fn.hpp"
 #include "global.hpp"
+#include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
@@ -3145,18 +3148,17 @@ int Dialog::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_MACRO_EOF:
-    case KEY_MACRO_BOF:
-    case KEY_MACRO_SELECTED:
-    case KEY_MACRO_EMPTY:
+    case MCODE_C_EOF:
+    case MCODE_C_BOF:
+    case MCODE_C_SELECTED:
+    case MCODE_C_EMPTY:
     {
       if (IsEdit(Item[FocusPos].Type))
         return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-      else if(Item[FocusPos].Type == DI_LISTBOX && Key != KEY_MACRO_SELECTED)
+      else if(Item[FocusPos].Type == DI_LISTBOX && Key != MCODE_C_SELECTED)
         return Item[FocusPos].ListPtr->ProcessKey(Key);
       return 0;
     }
-#if defined(MACRODRIVE2)
     case MCODE_F_MENU_CHECKHOTKEY:
     {
       const char *str = eStackAsString(1);
@@ -3164,7 +3166,6 @@ int Dialog::ProcessKey(int Key)
         return CheckHighlights(*str);
       return FALSE;
     }
-#endif
   }
 
   // BugZ#488 - Shift=enter
@@ -3710,7 +3711,7 @@ int Dialog::ProcessKey(int Key)
         */
         if((Opt.XLat.XLatDialogKey && Key == Opt.XLat.XLatDialogKey ||
            Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey) ||
-           Key == KEY_MACRO_XLAT && !(Item[FocusPos].Flags & DIF_READONLY))
+           Key == MCODE_OP_XLAT && !(Item[FocusPos].Flags & DIF_READONLY))
         {
           edt->SetClearFlag(0);
           edt->Xlat();
@@ -5549,7 +5550,6 @@ int Dialog::IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos)
 
 BOOL Dialog::CheckHighlights(BYTE CheckSymbol)
 {
-#if defined(MACRODRIVE2)
   int I, Type;
   DWORD Flags;
 
@@ -5570,7 +5570,6 @@ BOOL Dialog::CheckHighlights(BYTE CheckSymbol)
       }
     }
   }
-#endif
   return FALSE;
 }
 

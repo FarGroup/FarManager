@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.34 14.06.2004 $ */
+/* Revision: 1.35 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   14.06.2004 SVS
     + добавки MACRODRIVE2
   26.05.2004 SVS
@@ -107,9 +109,7 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 #include "farconst.hpp"
-#if defined(MACRODRIVE2)
 #include "syntax.hpp"
-#endif
 
 class Panel;
 
@@ -186,11 +186,7 @@ class KeyMacro
     BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags, BOOL IsPassivePanel);
     BOOL CheckAll(int CheckMode,DWORD CurFlags);
     void Sort(void);
-#if defined(MACRODRIVE2)
     TVar FARPseudoVariable(DWORD Flags,DWORD Code);
-#else
-    int  IfCondition(DWORD Key,DWORD Flags,DWORD Code);
-#endif
     DWORD GetOpCode(struct MacroRecord *MR,int PC);
     DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
 

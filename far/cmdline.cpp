@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.69 06.05.2004 $ */
+/* Revision: 1.70 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    ! Macro II
   06.05.2004 SVS
     + ProcessOSAliases()
   09.03.2004 SVS
@@ -180,6 +182,7 @@ Modify:
 
 #include "cmdline.hpp"
 #include "global.hpp"
+#include "macroopcode.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
 #include "fn.hpp"
@@ -451,7 +454,7 @@ int CommandLine::ProcessKey(int Key)
       */
       if((Opt.XLat.XLatCmdLineKey && Key == Opt.XLat.XLatCmdLineKey) ||
          (Opt.XLat.XLatAltCmdLineKey && Key == Opt.XLat.XLatAltCmdLineKey) ||
-         Key == KEY_MACRO_XLAT)
+         Key == MCODE_OP_XLAT)
       {
         /* 13.12.2000 SVS
            ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)

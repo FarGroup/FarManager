@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.20 22.04.2004 $ */
+/* Revision: 1.21 07.07.2004 $ */
 
 /*
 Modify:
+  07.07.2004 SVS
+    + LocalRevStrstri() - аналог strstr(), но с локалью, без учета регистра и сзади
   22.04.2004 SVS
     + LocalStrstri() - аналог strstr(), но с локалью и без учета регистра
   29.03.2004 SVS
@@ -362,6 +364,40 @@ const char * __cdecl LocalStrstri(const char *str1, const char *str2)
       return (const char *)cp;
 
     cp++;
+  }
+
+  return (const char *)NULL;
+}
+
+const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
+{
+  int len1 = strlen(str1);
+  int len2 = strlen(str2);
+
+  if (len2 > len1)
+    return (const char *)NULL;
+
+  if ( !*str2 )
+    return &str1[len1];
+
+  char *cp = (char *)&str1[len1 - len2];
+  char *s1, *s2;
+
+  while (cp >= str1)
+  {
+    s1 = cp;
+    s2 = (char *) str2;
+
+    while ( *s1 && *s2 && !(UpperToLower[*s1] - UpperToLower[*s2]) )
+    {
+      s1++;
+      s2++;
+    }
+
+    if (!*s2)
+      return (const char *)cp;
+
+    cp--;
   }
 
   return (const char *)NULL;
