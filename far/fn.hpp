@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.39 25.10.2000 $ */
+/* Revision: 1.40 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+   ! Введение проверки на длину буфера, отведенного под имя файла.
   25.10.2000 IS
    ! Изменил имя параметра в FarMkTemp с Template на Prefix
   23.10.2000 SVS
@@ -250,7 +252,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
                   int IgnoreInput=FALSE,char *CmdLineDir=NULL);
 void EditFileTypes(int MenuPos);
 void ProcessUserMenu(int EditMenu);
-void ConvertNameToFull(char *Src,char *Dest);
+int ConvertNameToFull(char *Src,char *Dest, int DestSize);
 void ConvertNameToShort(char *Src,char *Dest);
 void ChangeConsoleMode(int Mode);
 void FlushInputBuffer();
@@ -490,7 +492,7 @@ char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
 void  WINAPI GetPathRoot(char *Path,char *Root);
-void  WINAPI AddEndSlash(char *Path);
+int  WINAPI AddEndSlash(char *Path);
 char *WINAPI FarItoa(int value, char *string, int radix);
 __int64 WINAPI FarAtoi64(const char *s);
 char *WINAPI FarItoa64(__int64 value, char *string, int radix);

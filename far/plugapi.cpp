@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.22 05.10.2000 $ */
+/* Revision: 1.23 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+   ! Введение проверки на длину буфера, отведенного под имя файла.
   05.10.2000 SVS
    - бага с вызовом хелпа (FHELP_CUSTOMFILE)
   27.09.2000 SVS
@@ -587,7 +589,7 @@ int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
   ScanTree ScTree(FALSE);
   WIN32_FIND_DATA FindData;
   char FullName[NM],DirName[NM];
-  ConvertNameToFull(Dir,DirName);
+  ConvertNameToFull(Dir,DirName, sizeof(DirName));
   ScTree.SetFindPath(DirName,"*.*");
   *PointToName(DirName)=0;
   int DirLength=strlen(DirName);

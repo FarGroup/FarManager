@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.06 01.11.2000 $ */
+/* Revision: 1.07 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   01.11.2000 IS
     - Имя файла в случае !$! должно быть коротким
   02.09.2000 tran
@@ -236,7 +238,7 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
   {
 /*
     char FullName[2*NM];
-    ConvertNameToFull(Name,FullName);
+    ConvertNameToFull(Name,FullName, sizeof(FullName));
     if (FullName[0]=='\\' && FullName[1]=='\\')
       strcpy(Name,FullName);
     else
@@ -272,7 +274,7 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     int PreserveLFN=SubstFileName(ExecStr,Name,ShortName,ListName,ShortListName);
     PreserveLongName PreserveName(ShortName,PreserveLFN);
 
-    ConvertNameToFull(Name,FullName);
+    ConvertNameToFull(Name,FullName, sizeof(FullName));
     ConvertNameToShort(FullName,FullShortName);
     SubstFileName(FullExecStr,FullName,FullShortName,ListName,ShortListName);
     CtrlObject->ViewHistory->AddToHistory(FullExecStr,MSG(MHistoryExt),AlwaysWaitFinish+2);

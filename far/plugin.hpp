@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.65 26.10.2000 $ */
+/* Revision: 1.66 02.11.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   26.10.2000 SVS
     ! DM_SETEDITPOS/DM_GETEDITPOS -> DM_SETCURSORPOS/DM_GETCURSORPOS
   25.10.2000 IS
@@ -906,7 +908,7 @@ typedef char   *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
 typedef char   *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
 typedef char   *(WINAPI *FARSTDPOINTTONAME)(char *Path);
 typedef void    (WINAPI *FARSTDGETPATHROOT)(char *Path,char *Root);
-typedef void    (WINAPI *FARSTDADDENDSLASH)(char *Path);
+typedef int     (WINAPI *FARSTDADDENDSLASH)(char *Path);
 typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(char *Data);
 typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 typedef int     (WINAPI *FARSTDINPUTRECORDTOKEY)(INPUT_RECORD *r);

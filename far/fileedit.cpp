@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.09 16.10.2000 $ */
+/* Revision: 1.10 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   16.10.2000 SVS
     ! Отмена 1.08 (#229)
   13.10.2000 tran 1.08
@@ -76,7 +78,9 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   SetEnableSwitch(EnableSwitch);
   GetCurrentDirectory(sizeof(StartDir),StartDir);
   strcpy(FileName,Name);
-  ConvertNameToFull(FileName,FullFileName);
+  if (sizeof(FullFileName)<=ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName))) {
+    return;
+  }
   if (EnableSwitch)
   {
     int ModalPos=CtrlObject->ModalManager.FindModalByFile(MODALTYPE_EDITOR,FullFileName);
@@ -267,7 +271,7 @@ int FileEditor::ProcessKey(int Key)
           RemoveTrailingSpaces(EditDlg[2].Data);
           NameChanged=LocalStricmp(EditDlg[2].Data,FileName)!=0;
           strcpy(FileName,EditDlg[2].Data);
-          ConvertNameToFull(FileName,FullFileName);
+          ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
           if (EditDlg[4].Selected)
             TextFormat=0;
           if (EditDlg[5].Selected)

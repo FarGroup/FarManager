@@ -6,12 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.40 23.10.2000 $ */
+/* Revision: 1.41 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   23.10.2000 tran 1.40
-    ! ВБ, табуляция и CurBeyondEOL 
+    ! ВБ, табуляция и CurBeyondEOL
   16.10.2000 tran 1.39
     ! первый поиск идет с текущей позиции, а следующий - со следующей (FGWL#10)
   11.10.2000 SVS
@@ -263,7 +265,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
   FILE *EditFile;
   struct EditList *PrevPtr;
   int Count=0,LastLineCR=0,MessageShown=FALSE;
-  ConvertNameToFull(Name,FileName);
+  ConvertNameToFull(Name,FileName,sizeof(FileName));
   UserBreak=0;
   OpenFailed=false;
 
@@ -624,7 +626,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
     UndoSavePos=UndoDataPos;
     UndoOverflow=FALSE;
 
-    ConvertNameToFull(Name,FileName);
+    ConvertNameToFull(Name,FileName, sizeof(FileName));
     SetCursorType(FALSE,0);
     Message(0,0,MSG(MEditTitle),MSG(MEditSaving),Name);
     CurPtr=TopList;
@@ -1777,7 +1779,7 @@ int Editor::ProcessKey(int Key)
     case KEY_ALTSHIFTRIGHT:
     case KEY_ALTRIGHT:
       /* $ 23.10.2000 tran
-         вместо GetTabCurPos надо вызывать GetCurPos - 
+         вместо GetTabCurPos надо вызывать GetCurPos -
          сравнивать реальную позицию с реальной длиной
          а было сравнение видимой позицией с реальной длиной*/
       if (!Opt.EditorCursorBeyondEOL && CurLine->EditLine.GetCurPos()>=CurLine->EditLine.GetLength())

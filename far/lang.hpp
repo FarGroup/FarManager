@@ -12,11 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.24 23.10.2000 $ */
+/* Revision: 1.25 02.11.2000 $ */
 
 /*
 Modify:
-  23.10.2000 SVS
+  02.11.2000 OT
+    + MBuffSizeTooSmall_1, MBuffSizeTooSmall_2
+ 23.10.2000 SVS
     + MExcCheckOnLousys :-)
   20.10.2000 SVS
     + MHighlightEncrypted, MSetAttrEncrypted, MSetAttrEncryptedCannotFor,
@@ -1288,5 +1290,8 @@ enum
   MReadFolderError,
   MPlgBadVers,
   MPlgRequired,
+
+  MBuffSizeTooSmall_1,
+  MBuffSizeTooSmall_2,
 };
 #endif	// __FARLANG_HPP__

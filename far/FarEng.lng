@@ -1220,3 +1220,6 @@
 "Cannot read folder contents"
 "This plugin requeired higher FAR version"
 "Required FAR version is %d.%d. Current FAR version is %d.%d"
+
+"Buffer allocated for file name too small."
+"Required %d bytes, but allocated only %d ones"

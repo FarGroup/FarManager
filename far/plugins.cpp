@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.41 31.10.2000 $ */
+/* Revision: 1.42 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   31.10.2000 SVS
     + Функция TestOpenPluginInfo - проверка на вшивость переданных
       плагином данных
@@ -1022,7 +1024,7 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
       char FullName[NM],*NamePtr=NULL;
       if (Name!=NULL)
       {
-        ConvertNameToFull(Name,FullName);
+        ConvertNameToFull(Name,FullName, sizeof(FullName));
         NamePtr=FullName;
       }
       /* $ 16.10.2000 SVS

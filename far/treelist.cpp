@@ -5,12 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.03 16.07.2000 $ */
+/* Revision: 1.04 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   16.10.2000 tran
-    + MustBeCached(Root) - функция, определяющая необходимость кеширования 
+    + MustBeCached(Root) - функция, определяющая необходимость кеширования
       дерева
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
@@ -961,7 +963,7 @@ void TreeList::AddTreeName(char *Name)
 
   if (*Name==0)
     return;
-  ConvertNameToFull(Name,FullName);
+  ConvertNameToFull(Name,FullName, sizeof(FullName));
   Name=FullName;
   GetPathRoot(Name,Root);
   Name+=strlen(Root)-1;
@@ -1018,7 +1020,7 @@ void TreeList::DelTreeName(char *Name)
   int Length;
   if (*Name==0)
     return;
-  ConvertNameToFull(Name,FullName);
+  ConvertNameToFull(Name,FullName, sizeof(FullName));
   Name=FullName;
   GetPathRoot(Name,Root);
   Name+=strlen(Root)-1;
@@ -1098,7 +1100,7 @@ void TreeList::ReadSubTree(char *Path)
 
   if ((FileAttr=GetFileAttributes(Path))==-1 || (FileAttr & FA_DIREC)==0)
     return;
-  ConvertNameToFull(Path,DirName);
+  ConvertNameToFull(Path,DirName, sizeof(DirName));
   AddTreeName(DirName);
 
   int FirstCall=TRUE;
@@ -1281,7 +1283,7 @@ int TreeList::MustBeCached(char *Root)
     if ( type==DRIVE_UNKNOWN ||
          type==DRIVE_NO_ROOT_DIR ||
          type==DRIVE_REMOVABLE ||
-         type==DRIVE_CDROM 
+         type==DRIVE_CDROM
          )
     {
         if ( type==DRIVE_REMOVABLE )
@@ -1296,8 +1298,8 @@ int TreeList::MustBeCached(char *Root)
     }
     /* остались
         DRIVE_REMOTE
-        DRIVE_RAMDISK 
-        DRIVE_FIXED 
+        DRIVE_RAMDISK
+        DRIVE_FIXED
     */
     return FALSE;
 }

@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.01 24.09.2000 $ */
+/* Revision: 1.02 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   24.09.2000 SVS
     + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
   25.06.2000 SVS
@@ -75,7 +77,7 @@ void FilePositionCache::AddPosition(char *Name,unsigned int Position1,
   if (*Name=='<')
     strcpy(FullName,Name);
   else
-    ConvertNameToFull(Name,FullName);
+    ConvertNameToFull(Name,FullName, sizeof(FullName));
   strcpy(&Names[CurPos*3*NM],FullName);
   Positions[CurPos*5+0]=Position1;
   Positions[CurPos*5+1]=Position2;
@@ -107,7 +109,7 @@ void FilePositionCache::GetPosition(char *Name,unsigned int &Position1,
   if (*Name=='<')
     strcpy(FullName,Name);
   else
-    ConvertNameToFull(Name,FullName);
+    ConvertNameToFull(Name,FullName, sizeof(FullName));
   Position1=Position2=Position3=Position4=Position5=0;
   for (int I=1;I<=Opt.MaxPositionCache;I++)
   {

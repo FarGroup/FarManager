@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.11 27.09.2000 $ */
+/* Revision: 1.12 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   27.09.2000 SVS
     + Печать файла с использованием плагина PrintMan
     ! Ctrl-Alt-Shift - реагируем, если надо.
@@ -118,7 +120,7 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
   if (!DisableHistory && (CtrlObject->ActivePanel!=NULL || strcmp(Name,"-")!=0))
   {
     char FullFileName[NM];
-    ConvertNameToFull(Name,FullFileName);
+    ConvertNameToFull(Name,FullFileName, sizeof(FullFileName));
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
 }

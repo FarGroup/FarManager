@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.14 23.10.2000 $ */
+/* Revision: 1.15 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   23.10.2000 SVS
     ! Уточнение для Ctlr-F (с подачи tran!)
   20.10.2000 SVS
@@ -565,7 +567,7 @@ int FileList::ProcessKey(int Key)
             CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
           {
-            ConvertNameToFull(FileName,FileName);
+            ConvertNameToFull(FileName,FileName, sizeof(FileName));
             if (ShowShortNames)
               ConvertNameToShort(FileName,FileName);
             /* $ 20.10.2000 SVS
@@ -1453,7 +1455,7 @@ void FileList::ChangeDir(char *NewDir)
   else
   {
     char FullNewDir[NM];
-    ConvertNameToFull(SetDir,FullNewDir);
+    ConvertNameToFull(SetDir,FullNewDir, sizeof(FullNewDir));
     if (LocalStricmp(FullNewDir,CurDir)!=0)
       CtrlObject->FolderHistory->AddToHistory(CurDir,NULL,0);
 

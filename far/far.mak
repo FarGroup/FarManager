@@ -232,6 +232,7 @@ LINK32_OBJS= \
 
 OUTDIR=.\Debug
 INTDIR=.\Debug\obj
+CODDIR=".\\Debug\\cod\\"
 # Begin Custom Macros
 OutDir=.\Debug
 # End Custom Macros
@@ -854,4 +855,3 @@ SOURCE=.\farrtl.cpp
 
 
 !ENDIF
-

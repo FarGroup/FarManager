@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.34 20.10.2000 $ */
+/* Revision: 1.35 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 OT
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   20.10.2000 tran
     + обратный порядок байтов в юникоде (fffe)
   18.10.2000 SVS
@@ -344,7 +346,7 @@ int Viewer::OpenFile(char *Name,int warning)
   TableChangedByUser=FALSE;
   ViewFile=NewViewFile;
   strcpy(FileName,Name);
-  ConvertNameToFull(FileName,FullFileName);
+  ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
 
   HANDLE ViewFindHandle;
   ViewFindHandle=FindFirstFile(FileName,&ViewFindData);
@@ -543,7 +545,7 @@ void Viewer::DisplayObject()
         /* $ 18.10.2000 SVS
            -Bug: Down Down Up & первый пробел
         */
-        if(VM.Unicode && 
+        if(VM.Unicode &&
              (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
              && !I && !LeftPos && !StrFilePos[I])
           mprintf("%-*.*s",Width,Width,&OutStr[I][LeftPos+1]);
@@ -2008,7 +2010,7 @@ void Viewer::ShowConsoleTitle()
 
 void Viewer::SetTempViewName(char *Name)
 {
-  ConvertNameToFull(Name,TempViewName);
+  ConvertNameToFull(Name,TempViewName, sizeof(TempViewName));
 }
 
 
@@ -2066,10 +2068,10 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
         {
             t=TmpBuf[i];
             TmpBuf[i]=TmpBuf[i+1];
-            TmpBuf[i+1]=t;   
+            TmpBuf[i+1]=t;
         }
     }
-    /* tran $ */    
+    /* tran $ */
     ReadSize+=(ReadSize & 1);
     WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)TmpBuf,ReadSize/2,Buf,Size," ",NULL);
     return(ReadSize/2);
