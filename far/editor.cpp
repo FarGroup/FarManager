@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.97 24.05.2001 $ */
+/* Revision: 1.98 25.05.2001 $ */
 
 /*
 Modify:
+  25.05.2001 IS
+    - При вставке поточного блока из буфера обмена первый символ вставлялся в
+      неверной кодировке. Это мой глюк, сорри :)
   24.05.2001 IS
     ! Опять правка последствий 592 (shift-home/end)
   19.05.2001 IS
@@ -3589,7 +3592,12 @@ void Editor::Paste()
         {
           if(EdOpt.AutoIndent)       // первый символ вставим так, чтобы
           {                          // сработал автоотступ
-            ProcessKey(ClipText[I]);
+            /* $ 25.05.2001 IS
+                 Корректно обработаем вставку в файл в кодировке,
+                 отличной от oem
+            */
+            ProcessKey(UseDecodeTable?TableSet.DecodeTable[(unsigned)ClipText[I]]:ClipText[I]);
+            /* IS $ */
             I++;
             StartPos=CurLine->EditLine.GetCurPos();
             if(StartPos) StartPos--;
