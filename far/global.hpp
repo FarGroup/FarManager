@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.54 26.08.2003 $ */
+/* Revision: 1.55 15.09.2003 $ */
 
 /*
 Modify:
+  15.09.2003 SVS
+    + ReservedFilenameSymbols - недопустимые символы в имени файла/каталога
   26.08.2003 SVS
     + TitleModified
   06.06.2003 SVS
@@ -289,4 +291,7 @@ extern int PrevFarAltEnterMode;
 extern WCHAR BoxSymbols[];
 
 extern int _localLastError;
+
+extern const char *ReservedFilenameSymbols;
+
 #endif  // __FARGLOBAL_HPP__

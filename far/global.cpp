@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.56 26.08.2003 $ */
+/* Revision: 1.57 15.09.2003 $ */
 
 /*
 Modify:
+  15.09.2003 SVS
+    + ReservedFilenameSymbols - недопустимые символы в имени файла/каталога
   26.08.2003 SVS
     + TitleModified
   06.06.2003 SVS
@@ -288,3 +290,5 @@ int PrevFarAltEnterMode=-1;
 WCHAR BoxSymbols[64];
 
 int _localLastError=0;
+
+const char *ReservedFilenameSymbols="<>|";

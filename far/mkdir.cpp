@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.16 15.08.2002 $ */
+/* Revision: 1.17 15.09.2003 $ */
 
 /*
 Modify:
+  15.09.2003 SVS
+    ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
   15.08.2002 IS
     ! DirList.Start -> DirList.Reset
     + DirList - применяется ULF_UNIQUE, для исключения дублей
@@ -106,8 +108,10 @@ void ShellMakeDir(Panel *SrcPanel)
       InsertQuote(DirName); // возьмем в кавычки, т.к. могут быть разделители
     }
 
-    if(DirList.Set(DirName)) break;
-    else Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
+    if(DirList.Set(DirName) && !strpbrk(DirName,ReservedFilenameSymbols))
+      break;
+    else
+      Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
                  MSG(MIncorrectDirList), MSG(MOk));
   }
   /* IS $ */

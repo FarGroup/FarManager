@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.140 04.09.2003 $ */
+/* Revision: 1.141 15.09.2003 $ */
 
 /*
 Modify:
+  15.09.2003 SVS
+    ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
+    + Если по Shift-F2 было кривое имя - то выдадим диалог и вернемся опять в диалог.
   04.09.2003 SVS
     ! Вместо юзания CompareFileTime() применим трюк с сортировщиком файлов:
       приведем FILETIME к __int64
@@ -1176,7 +1179,8 @@ int FileEditor::ProcessKey(int Key)
               Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),EditDlg[2].Data,MSG(MOk));
               if(!NameChanged)
                 FarChDir(OldCurDir);
-              return FALSE;
+              continue;
+              //return FALSE;
             }
 
             if (EditDlg[5].Selected)
@@ -1814,7 +1818,8 @@ void FileEditor::SetPluginTitle(const char *PluginTitle)
 
 BOOL FileEditor::SetFileName(const char *NewFileName)
 {
-  if (ConvertNameToFull(NewFileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
+  if (strpbrk(NewFileName,ReservedFilenameSymbols) ||
+      ConvertNameToFull(NewFileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
   {
     return FALSE;
   }

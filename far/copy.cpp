@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.127 12.09.2003 $ */
+/* Revision: 1.128 15.09.2003 $ */
 
 /*
 Modify:
+  15.09.2003 SVS
+    ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
+    ! Временно закомментим проверку апдейта пассивной панели.
+      Траблы есть, на которыми работаю. Дмуаю скоро победЮ :-(
   12.09.2003 SVS
     - BugZ#947 - Траблы с переименованием по Shift-F6...
       проверим "нужность" апдейта пассивной панели
@@ -848,7 +852,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
            InsertQuote(CopyDlgValue);
         }
         /* IS $ */
-        if(DestList.Set(CopyDlgValue))
+        if(DestList.Set(CopyDlgValue) && !strpbrk(CopyDlgValue,ReservedFilenameSymbols))
           break;
         else
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
@@ -1109,7 +1113,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
 #endif
   // проверим "нужность" апдейта пассивной панели
-  if(CheckUpdateAnotherPanel(SrcPanel,SrcDir))
+//  if(CheckUpdateAnotherPanel(SrcPanel,SrcDir))
   {
     DestPanel->SortFileList(TRUE);
     DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
