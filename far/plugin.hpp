@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.218 23.09.2002 $ */
+/* Revision: 1.219 25.09.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  25.09.2002 SVS
+    ! легилизаци€ ACTL_SETARRAYCOLOR и еже с ним.
   23.09.2002 SVS
     + ACTL_SETARRAYCOLOR, FARCOLORFLAGS, FARColor пока дл€ внутренного юзани€
       (хот€, блин, работает на ура!)
@@ -1574,8 +1576,8 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETINTERFACESETTINGS,
   ACTL_GETCONFIRMATIONS,
   ACTL_GETDESCSETTINGS,
-#ifdef FAR_USE_INTERNALS
   ACTL_SETARRAYCOLOR,
+#ifdef FAR_USE_INTERNALS
   ACTL_GETWCHARMODE,
 #endif // END FAR_USE_INTERNALS
 };
@@ -1684,7 +1686,6 @@ struct KeySequence{
   DWORD *Sequence;
 };
 
-#ifdef FAR_USE_INTERNALS
 enum FARCOLORFLAGS{
   FCLR_REDRAW                 = 0x00000001,
 };
@@ -1695,7 +1696,6 @@ struct FARColor{
   int ColorItem;
   LPBYTE Colors;
 };
-#endif // END FAR_USE_INTERNALS
 
 enum {
 #ifdef FAR_USE_INTERNALS
