@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.40 10.05.2001 $ */
+/* Revision: 1.41 10.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   10.05.2001 DJ
     + OnDestroy() (не работало добавление во view/edit history)
     + FileEditor::DisableHistory, DisableF6
@@ -365,9 +367,15 @@ int FileEditor::ProcessKey(int Key)
       */
       FEdit.Hide();
       /* skv$*/
+      CtrlObject->FrameManager->ShowBackground();
+      WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
+      Show();
+      return(TRUE);
+/*
       Hide();
       if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
         CtrlObject->FrameManager->ShowBackground();
+
       else
       {
         EditKeyBar.Hide();

@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.02 10.05.2001 $ */
+/* Revision: 1.03 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Новые методы для отрисовки Background
   10.05.2001 DJ
     * ShowViewEditHistory()
   06.05.2001 DJ
@@ -36,6 +38,7 @@ class CommandLine:public ScreenObject
     char CurDir[NM];
     char LastCmdStr[256];
     int LastCmdPartLength;
+    SaveScreen *BackgroundScreen;
   public:
     CommandLine();
     int ProcessKey(int Key);
@@ -47,12 +50,17 @@ class CommandLine:public ScreenObject
     int GetLength() {return(CmdStr.GetLength());};
     void ExecString(char *Str,int AlwaysWaitFinish,int SeparateWindow=FALSE,
                     int DirectRun=FALSE);
-    void InsertString(char *Str);
-    void SetCurPos(int Pos);
-    int GetCurPos();
     /* $ 10.05.2001 DJ */
     void ShowViewEditHistory();
     /* DJ $ */
+    void InsertString(char *Str);
+    void SetCurPos(int Pos);
+    int GetCurPos();
+    /* $ 11.05.2001 OT */
+    void SaveBackground(int X1,int Y1,int X2,int Y2);
+    void SaveBackground();
+    void ShowBackground();
+    /* OT $ */
 };
 
 #endif	// __COMMANDLINE_HPP__

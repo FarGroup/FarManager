@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.27 10.05.2001 $ */
+/* Revision: 1.28 07.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   10.05.2001 DJ
     + Alt-F11 - view/edit history
     + Ctrl-F10 всегда переключается на панели
@@ -323,6 +325,9 @@ int FileViewer::ProcessKey(int Key)
       if(!(Opt.AllCtrlAltShiftRule & CASR_VIEWER))
         return TRUE;
     case KEY_CTRLO:
+      CtrlObject->FrameManager->ShowBackground();
+      WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
+/*
       Hide();
       if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
         CtrlObject->FrameManager->ShowBackground();
@@ -333,13 +338,14 @@ int FileViewer::ProcessKey(int Key)
           WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       }
       /* $ 21.07.2000 tran
-         - артефакт при Ctrl-O*/
+         - артефакт при Ctrl-O* /
       if ( Opt.ShowKeyBarViewer )
         ViewKeyBar.Show();
       else
         ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
-      /* tran 21.07.2000 $ */
-      Show();
+      /* tran 21.07.2000 $ * /
+*/
+        Show();
       return(TRUE);
     /* SVS $ */
     case KEY_F3:

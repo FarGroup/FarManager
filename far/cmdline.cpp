@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.20 10.05.2001 $ */
+/* Revision: 1.21 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Новые методы для отрисовки Background
   10.05.2001 DJ
     * ShowViewEditHistory()
   07.05.2001 SVS
@@ -88,11 +90,13 @@ CommandLine::CommandLine()
   CmdStr.SetEditBeyondEnd(FALSE);
   LastCmdPartLength=-1;
   *LastCmdStr=0;
+  BackgroundScreen=NULL;
 }
 
 
 void CommandLine::DisplayObject()
 {
+  _OT(SysLog("[%p] CommandLine::DisplayObject()",this));
   char TruncDir[NM];
   GetPrompt(TruncDir);
   TruncPathStr(TruncDir,(X2-X1)/2);
@@ -375,6 +379,8 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     CtrlObject->Cp()->LeftPanel->CloseFile();
     CtrlObject->Cp()->RightPanel->CloseFile();
 
+    CtrlObject->CmdLine->ShowBackground();
+    CtrlObject->CmdLine->Show();
     ScrollScreen(1);
     MoveCursor(X1,Y1);
     if (CurDir[0] && CurDir[1]==':')
@@ -388,10 +394,12 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     GetCursorPos(CurX,CurY);
     if (CurY>=Y1-1)
       ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
+    CtrlObject->CmdLine->SaveBackground();
+    CtrlObject->CmdLine->Show();
     CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
     CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-    GotoXY(X1,Y1);
-    mprintf("%*s",X2-X1+1,"");
+//    GotoXY(X1,Y1);
+//    mprintf("%*s",X2-X1+1,"");
   }
   ScrBuf.Flush();
   return(Code);
@@ -705,10 +713,6 @@ void CommandLine::GetPrompt(char *DestStr)
 }
 
 
-int CommandLine::GetCurPos()
-{
-  return(CmdStr.GetCurPos());
-}
 
 /* $ 10.05.2001 DJ
    показ history по Alt-F11 вынесен в отдельную функцию
@@ -755,3 +759,29 @@ void CommandLine::ShowViewEditHistory()
 }
 
 /* DJ $ */
+int CommandLine::GetCurPos()
+{
+  return(CmdStr.GetCurPos());
+}
+
+
+void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2) 
+{
+  if (BackgroundScreen) {
+    delete BackgroundScreen;
+  }
+  BackgroundScreen=new SaveScreen(X1,Y1,X2,Y2);
+}
+
+void CommandLine::SaveBackground() 
+{
+  if (BackgroundScreen) {
+//    BackgroundScreen->Discard();
+    BackgroundScreen->SaveArea();
+  }
+}
+void CommandLine::ShowBackground() 
+{
+  BackgroundScreen->RestoreArea();
+}
+

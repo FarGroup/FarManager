@@ -7,10 +7,12 @@ savescr.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -19,7 +21,6 @@ Modify:
 class SaveScreen
 {
   private:
-    void SaveArea(int X1,int Y1,int X2,int Y2);
     char *ScreenBuf;
     int CurPosX,CurPosY,CurVisible,CurSize;
     int X1,Y1,X2,Y2;
@@ -29,6 +30,8 @@ class SaveScreen
     SaveScreen(int RealScreen);
     SaveScreen(int X1,int Y1,int X2,int Y2,int RealScreen=FALSE);
     ~SaveScreen();
+    void SaveArea(int X1,int Y1,int X2,int Y2);
+    void SaveArea();
     void RestoreArea(int RestoreCursor=TRUE);
     void Discard();
     void AppendArea(SaveScreen *NewArea);

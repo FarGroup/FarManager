@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.01 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   06.05.2001 DJ
     ! перетрях #include
   13.07.2000 SVS
@@ -107,6 +109,24 @@ void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
   SaveScreen::Y1=Y1;
   SaveScreen::X2=X2;
   SaveScreen::Y2=Y2;
+  if (RealScreen)
+  {
+    GetRealText(X1,Y1,X2,Y2,ScreenBuf);
+    GetRealCursorPos(CurPosX,CurPosY);
+    GetRealCursorType(CurVisible,CurSize);
+  }
+  else
+  {
+    GetText(X1,Y1,X2,Y2,ScreenBuf);
+    GetCursorPos(CurPosX,CurPosY);
+    GetCursorType(CurVisible,CurSize);
+  }
+}
+
+void SaveScreen::SaveArea()
+{
+  if (!ScreenBuf)
+    return;
   if (RealScreen)
   {
     GetRealText(X1,Y1,X2,Y2,ScreenBuf);

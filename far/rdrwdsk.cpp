@@ -5,10 +5,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -31,22 +33,25 @@ Modify:
 
 RedrawDesktop::RedrawDesktop()
 {
+  CtrlObject->CmdLine->ShowBackground();
   LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
   RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
+/*
   CtrlObject->Cp()->LeftPanel->Hide();
   CtrlObject->Cp()->RightPanel->Hide();
   CtrlObject->MainKeyBar->Hide();
   CtrlObject->TopMenuBar->Hide();
+*/
 }
 
 
 RedrawDesktop::~RedrawDesktop()
 {
+//  CtrlObject->CmdLine->Show();
   if (Opt.ShowKeyBar)
     CtrlObject->MainKeyBar->Show();
   if (Opt.ShowMenuBar)
     CtrlObject->TopMenuBar->Show();
-  CtrlObject->CmdLine->Show();
   int RightType=CtrlObject->Cp()->RightPanel->GetType();
   if (RightVisible && RightType!=QVIEW_PANEL)
     CtrlObject->Cp()->RightPanel->Show();

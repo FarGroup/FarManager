@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.14 10.05.2001 $ */
+/* Revision: 1.15 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   10.05.2001 DJ
     + SwitchToPanels()
     * GetFrameTypesCount() не учитывает фрейм, который мы собрались удалять
@@ -65,6 +67,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "savescr.hpp"
+#include "cmdline.hpp"
 
 Manager::Manager()
 {
@@ -464,32 +467,12 @@ void Manager::ShowBackground()
     Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
     return;
   }
-
-  SaveScreen SaveScr;
-/*  int I;
-  for (I=0;I<ModalCount;I++)
-  {
-    Modal *CurModal=ModalList[I];
-    CurModal->Hide();
-  }
-  {
-    RedrawDesktop Redraw;
-    CtrlObject->Cp()->CmdLine.Hide();
-    SetCursorType(FALSE,10);
-    WaitKey();
-    CtrlObject->Cp()->CmdLine.Show();
-  }
-  for (I=0;I<ModalCount;I++)
-  {
-    Modal *CurModal=ModalList[I];
-    CurModal->SavePrevScreen();
-  } */
+  CtrlObject->CmdLine->ShowBackground();
 }
 
 /* $ 06.05.2001 DJ
    активирует фрейм с указанным номером
 */
-
 void Manager::ActivateFrameByPos (int NewPos)
 {
   SetFramePos(NewPos);
@@ -555,11 +538,11 @@ int  Manager::ProcessKey(int Key)
     int ret=FALSE;
     _D(char kn[32]);
     _D(KeyToText(Key,kn));
-    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
+//    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
 
     if ( CurrentFrame)
     {
-      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
+//      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
       switch(Key)
         {
             case KEY_F11:
@@ -582,7 +565,7 @@ int  Manager::ProcessKey(int Key)
                 _D(SysLog(-1));
                 return TRUE;
         }
-        _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
+//        _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
         CurrentFrame->UpdateKeyBar();
         // сохраняем, потому что внутри ProcessKey
         // может быть вызван AddModal и
@@ -596,7 +579,7 @@ int  Manager::ProcessKey(int Key)
             DestroyFrame(cw);
         }
     }
-    _D(SysLog("Manager::ProcessKey() ret=%i",ret));
+//    _D(SysLog("Manager::ProcessKey() ret=%i",ret));
     _D(SysLog(-1));
     return ret;
 }

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.05 07.05.2001 $ */
+/* Revision: 1.06 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
@@ -48,11 +50,11 @@ FilePanels::FilePanels()
   _OT(SysLog("[%p] FilePanels::FilePanels()", this));
   LeftPanel=CreatePanel(Opt.LeftPanel.Type);
   RightPanel=CreatePanel(Opt.RightPanel.Type);
-  CmdLine=0;
+//  CmdLine=0;
   ActivePanel=0;
   LastLeftType=0;
   LastRightType=0;
-  HideState=0;
+//  HideState=0;
   LeftStateBeforeHide=0;
   RightStateBeforeHide=0;
   LastLeftFilePanel=0;
@@ -119,6 +121,11 @@ FilePanels::~FilePanels()
   RightPanel=NULL;
 }
 
+void FilePanels::DisplayObject()
+{
+  _OT(SysLog("[%p] FilePanels::DisplayObject()",this));
+}
+
 void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 {
   if (Opt.HeightDecrement>ScrY-7)
@@ -138,10 +145,10 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
 void FilePanels::SetScreenPositions()
 {
   RedrawDesktop Redraw;
-  CmdLine->Hide();
+//  CtrlObject->CmdLine->Hide();
 
   _D(SysLog("FilePanels::SetScreenPositions()"));
-  CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
+  CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
   MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
   SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
@@ -241,10 +248,10 @@ int  FilePanels::ProcessKey(int Key)
   if (!Key)
     return(TRUE);
 
-  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT) && (CmdLine->GetLength()>0 ||
+  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT) && (CtrlObject->CmdLine->GetLength()>0 ||
       !LeftPanel->IsVisible() && !RightPanel->IsVisible()))
   {
-    CmdLine->ProcessKey(Key);
+    CtrlObject->CmdLine->ProcessKey(Key);
     return(TRUE);
   }
 
@@ -273,7 +280,7 @@ int  FilePanels::ProcessKey(int Key)
           LeftPanel->SetFocus();
         LeftPanel->Show();
       }
-      CmdLine->Show();
+      Redraw();
       break;
     case KEY_F1:
       if (!ActivePanel->ProcessKey(KEY_F1))
@@ -294,7 +301,7 @@ int  FilePanels::ProcessKey(int Key)
           RightPanel->SetFocus();
         RightPanel->Show();
       }
-      CmdLine->Show();
+      Redraw();
       break;
     case KEY_CTRLB:
       Opt.ShowKeyBar=!Opt.ShowKeyBar;
@@ -349,20 +356,23 @@ int  FilePanels::ProcessKey(int Key)
         */
         int LeftVisible=LeftPanel->IsVisible();
         int RightVisible=RightPanel->IsVisible();
-        int CmdLineVisible=CmdLine->IsVisible();
+        int CmdLineVisible=CtrlObject->CmdLine->IsVisible();
         int KeyBarVisible=MainKeyBar.IsVisible();
+        CtrlObject->CmdLine->ShowBackground();
+
         LeftPanel->Hide();
         RightPanel->Hide();
         if(!Opt.PanelCtrlAltShiftRule)
-          CmdLine->Show();
+          CtrlObject->CmdLine->Show();
         if(Opt.PanelCtrlAltShiftRule == 2)
           MainKeyBar.Hide();
         if(Opt.PanelCtrlAltShiftRule)
-          CmdLine->Hide();
+          CtrlObject->CmdLine->Hide();
+
         WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
         if (LeftVisible)      LeftPanel->Show();
         if (RightVisible)     RightPanel->Show();
-        if (CmdLineVisible)   CmdLine->Show();
+        if (CmdLineVisible)   CtrlObject->CmdLine->Show();
         if (KeyBarVisible)    MainKeyBar.Show();
         /* SVS $ */
       }
@@ -374,13 +384,15 @@ int  FilePanels::ProcessKey(int Key)
       {
         int LeftVisible=LeftPanel->IsVisible();
         int RightVisible=RightPanel->IsVisible();
-        if (!HideState || LeftVisible || RightVisible)
+        int HideState=!LeftVisible && !RightVisible;
+        if (!HideState)
         {
           LeftStateBeforeHide=LeftVisible;
           RightStateBeforeHide=RightVisible;
           LeftPanel->Hide();
           RightPanel->Hide();
           HideState=TRUE;
+          CtrlObject->CmdLine->ShowBackground();
         }
         else
         {
@@ -393,7 +405,7 @@ int  FilePanels::ProcessKey(int Key)
           HideState=FALSE;
         }
       }
-      CmdLine->Show();
+      Redraw();
       break;
     case KEY_CTRLP:
       if (ActivePanel->IsVisible())
@@ -403,7 +415,7 @@ int  FilePanels::ProcessKey(int Key)
           AnotherPanel->Hide();
         else
           AnotherPanel->Show();
-        CmdLine->Redraw();
+        CtrlObject->CmdLine->Redraw();
       }
       break;
     case KEY_CTRLI:
@@ -559,7 +571,7 @@ int  FilePanels::ProcessKey(int Key)
       break;
     default:
       if (!ActivePanel->ProcessKey(Key))
-        CmdLine->ProcessKey(Key);
+        CtrlObject->CmdLine->ProcessKey(Key);
       break;
   }
   return(TRUE);
@@ -741,10 +753,11 @@ int  FilePanels::GetTypeAndName(char *Type,char *Name)
 
 void FilePanels::OnChangeFocus(int f)
 {
-    _D(SysLog("FilePanels::OnChangeFocus(), focus=%i",f));
-    Focus=f;
-    if ( f )
-        Redraw();
+  _D(SysLog("FilePanels::OnChangeFocus(), focus=%i",f));
+  Focus=f;
+  if ( f ) {
+    Redraw();
+  }
 }
 
 void FilePanels::Show()
@@ -758,11 +771,12 @@ void FilePanels::Redraw()
     if ( Focus==0 )
         return;
     _D(SysLog("FilePanels::Redraw()"));
+    CtrlObject->CmdLine->ShowBackground();
     if (LeftPanel->IsVisible())
         LeftPanel->Show();
     if (RightPanel->IsVisible())
         RightPanel->Show();
-    CmdLine->Show();
+    CtrlObject->CmdLine->Show();
     MainKeyBar.Redraw();
 }
 
@@ -771,7 +785,7 @@ int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (!ActivePanel->ProcessMouse(MouseEvent))
     if (!GetAnotherPanel(ActivePanel)->ProcessMouse(MouseEvent))
       if (!MainKeyBar.ProcessMouse(MouseEvent))
-        CmdLine->ProcessMouse(MouseEvent);
+        CtrlObject->CmdLine->ProcessMouse(MouseEvent);
   return(TRUE);
 }
 

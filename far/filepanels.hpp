@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -31,7 +33,9 @@ class CommandLine;
 class FilePanels:public Frame
 {
   private:
+    void DisplayObject();
     int Focus;
+
 
   public:
 
@@ -60,15 +64,15 @@ class FilePanels:public Frame
           *RightPanel,
           *ActivePanel;
 
-    CommandLine *CmdLine;
+//    CommandLine *CmdLine;
     KeyBar      MainKeyBar;
     MenuBar     TopMenuBar;
 
     int LastLeftType,
         LastRightType;
     int LeftStateBeforeHide,
-        RightStateBeforeHide,
-        HideState;
+        RightStateBeforeHide;
+//        HideState;
 
 
     int ProcessKey(int Key);

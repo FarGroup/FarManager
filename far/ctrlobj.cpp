@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.23 07.05.2001 $ */
+/* Revision: 1.24 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 OT
+    ! Отрисовка Background
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -142,52 +144,13 @@ void ControlObject::Init()
   else
     Text(MShareware);
 
-/*///
-  Cp()->LeftPanel=CreatePanel(Opt.LeftPanel.Type);
-  Cp()->RightPanel=CreatePanel(Opt.RightPanel.Type);
+  CmdLine->SaveBackground(0,0,ScrX,ScrY);
 
-  SetPanelPositions(FileList::IsModeFullScreen(Opt.LeftPanel.ViewMode),
-                    FileList::IsModeFullScreen(Opt.RightPanel.ViewMode));
-  Cp()->LeftPanel->SetViewMode(Opt.LeftPanel.ViewMode);
-  Cp()->RightPanel->SetViewMode(Opt.RightPanel.ViewMode);
-  Cp()->LeftPanel->SetSortMode(Opt.LeftPanel.SortMode);
-  Cp()->RightPanel->SetSortMode(Opt.RightPanel.SortMode);
-  Cp()->LeftPanel->SetSortOrder(Opt.LeftPanel.SortOrder);
-  Cp()->RightPanel->SetSortOrder(Opt.RightPanel.SortOrder);
-  Cp()->LeftPanel->SetSortGroups(Opt.LeftPanel.SortGroups);
-  Cp()->RightPanel->SetSortGroups(Opt.RightPanel.SortGroups);
-  Cp()->LeftPanel->SetShowShortNamesMode(Opt.LeftPanel.ShowShortNames);
-  Cp()->RightPanel->SetShowShortNamesMode(Opt.RightPanel.ShowShortNames);
-
-  MainKeyBar->SetOwner(this);
-  RedrawKeyBar();
-  SetScreenPositions();
-  if (Opt.LeftPanel.Focus)
-    Cp()->ActivePanel=Cp()->LeftPanel;
-  else
-    Cp()->ActivePanel=Cp()->RightPanel;
-  Cp()->ActivePanel->SetFocus();
-  if (Opt.AutoSaveSetup)
-  {
-    if (GetFileAttributes(Opt.LeftFolder)!=0xffffffff)
-      Cp()->LeftPanel->InitCurDir(Opt.LeftFolder);
-    if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
-      Cp()->RightPanel->InitCurDir(Opt.RightFolder);
-  }
-  else
-    if (*Opt.PassiveFolder)
-    {
-      Panel *PassivePanel=GetAnotherPanel(Cp()->ActivePanel);
-      if (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)
-        PassivePanel->InitCurDir(Opt.PassiveFolder);
-    }
-*///
-///
   FPanels=new FilePanels();
   FPanels->Init();
   this->MainKeyBar=&(FPanels->MainKeyBar);
   this->TopMenuBar=&(FPanels->TopMenuBar);
-  FPanels->CmdLine=ControlObject::CmdLine;
+//  FPanels->CmdLine=ControlObject::CmdLine;
   FPanels->SetScreenPositions();
 ///
 _beginthread(CheckVersion,0x10000,NULL);
@@ -211,7 +174,7 @@ _beginthread(CheckVersion,0x10000,NULL);
     Cp()->RightPanel->Show();
   else
     Cp()->RightPanel->Hide();
-  Cp()->HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
+//  Cp()->HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
   CmdLine->Redraw();
 
   FrameManager->AddFrame(FPanels);
