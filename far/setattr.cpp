@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.45 17.12.2001 $ */
+/* Revision: 1.46 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! ≈сли врем€ не удалось выставить, то не пытаемс€ выставл€ть и атрибуты
   17.12.2001 SVS
     - Ѕага, аднака - дл€ одиночного файлового объекта месаг процесса установки
       атрибутов был пустым.
@@ -550,6 +552,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     int FileAttr;
     FILETIME LastWriteTime,CreationTime,LastAccessTime;
     int SetWriteTime,SetCreationTime,SetLastAccessTime;
+    int SetWriteTimeRetCode=TRUE;
 
     //SaveScreen SaveScr;
 
@@ -815,16 +818,16 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
 //_SVS(SysLog("\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
       if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-        SetWriteTime=ESetFileTime(SelName,
+        SetWriteTimeRetCode=ESetFileTime(SelName,
                      (SetWriteTime ? &LastWriteTime:NULL),
                      (SetCreationTime ? &CreationTime:NULL),
                      (SetLastAccessTime ? &LastAccessTime:NULL),
                      FileAttr);
       else
-        SetWriteTime=TRUE;
+        SetWriteTimeRetCode=TRUE;
 
 //      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить мен€ть???
-      if(SetWriteTime) // если врем€ удалось выставить...
+      if(SetWriteTimeRetCode == 1) // если врем€ удалось выставить...
       {
         if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
           ESetFileCompression(SelName,1,FileAttr);
@@ -893,13 +896,17 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
         SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
         if(SetWriteTime || SetCreationTime || SetLastAccessTime)
-          if (!ESetFileTime(SelName,
+        {
+          SetWriteTimeRetCode=ESetFileTime(SelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
                  (SetLastAccessTime ? &LastAccessTime:NULL),
-                 FileAttr))
+                 FileAttr);
+          if(!SetWriteTimeRetCode)
             break;
-
+          if(SetWriteTimeRetCode == 2)
+            continue;
+        }
         if(((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
         {
           if (AttrDlg[8].Selected != 2)
@@ -938,10 +945,11 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetLastAccessTime=ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
             if (SetWriteTime || SetCreationTime || SetLastAccessTime)
             {
-              if (!ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
+              SetWriteTimeRetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
-                           FindData.dwFileAttributes))
+                           FindData.dwFileAttributes);
+              if(SetWriteTimeRetCode != 1)
               {
                 Cancel=1;
                 break;

@@ -8,10 +8,13 @@ help.cpp
 
 */
 
-/* Revision: 1.62 25.12.2001 $ */
+/* Revision: 1.63 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    - Бага с кустом-линками
+    - BugZ#62: ошибка форматирования hlf.
   25.12.2001 SVS
     - Работа над ошибками (Help::MkTopic для ModuleName)
   24.12.2001 SVS
@@ -382,7 +385,7 @@ int Help::ReadHelp(char *Mask)
 {
   char FileName[NM],ReadStr[2*MAX_HELP_STRING_LENGTH];
   char SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
-  int Formatting=TRUE,RepeatLastLine,PosTab;
+  int Formatting=TRUE,RepeatLastLine,PosTab,BreakProcess;
   const int MaxLength=X2-X1-1;
   char TabSpace[32];
 
@@ -456,6 +459,7 @@ int Help::ReadHelp(char *Mask)
   FixCount=0;
   TopicFound=0;
   RepeatLastLine=FALSE;
+  BreakProcess=FALSE;
   int NearTopicFound=0;
   char PrevSymbol=0;
 
@@ -464,7 +468,7 @@ int Help::ReadHelp(char *Mask)
 
   while (TRUE)
   {
-    if (!RepeatLastLine && fgets(ReadStr,sizeof(ReadStr)/2,HelpFile)==NULL)
+    if (!RepeatLastLine && !BreakProcess && fgets(ReadStr,sizeof(ReadStr)/2,HelpFile)==NULL)
     {
       if (StringLen(SplitLine)<MaxLength)
       {
@@ -497,7 +501,7 @@ int Help::ReadHelp(char *Mask)
     if (TopicFound)
       HighlightsCorrection(ReadStr);
 
-    if (*ReadStr=='@')
+    if (*ReadStr=='@' && !BreakProcess)
     {
       if (TopicFound)
       {
@@ -514,7 +518,12 @@ int Help::ReadHelp(char *Mask)
           continue;
         }
         if (*SplitLine)
-          AddLine(SplitLine);
+        {
+          BreakProcess=TRUE;
+          *ReadStr=0;
+          PrevSymbol=0;
+          goto m1;
+        }
         break;
       }
       else
@@ -525,6 +534,10 @@ int Help::ReadHelp(char *Mask)
         }
     }
     else
+    {
+m1:
+      if(!*ReadStr && BreakProcess && !*SplitLine)
+        break;
       if (TopicFound)
       {
         /* $<text> в начале строки, определение темы
@@ -540,7 +553,9 @@ int Help::ReadHelp(char *Mask)
         {
           NearTopicFound=0;
           if (*ReadStr==0 || !Formatting)
+          {
             if (*SplitLine)
+            {
               if (StringLen(SplitLine)<MaxLength)
               {
                 AddLine(SplitLine);
@@ -553,13 +568,19 @@ int Help::ReadHelp(char *Mask)
               }
               else
                 RepeatLastLine=TRUE;
-            else
+            }
+            else if(*ReadStr)
+            {
               if (StringLen(ReadStr)<MaxLength)
               {
                 AddLine(ReadStr);
                 continue;
               }
-          if (isspace(*ReadStr) && Formatting)
+            }
+          }
+
+          if (*ReadStr && isspace(*ReadStr) && Formatting)
+          {
             if (StringLen(SplitLine)<MaxLength)
             {
               if (*SplitLine)
@@ -570,15 +591,24 @@ int Help::ReadHelp(char *Mask)
             }
             else
               RepeatLastLine=TRUE;
+          }
+
           if (!RepeatLastLine)
           {
             if (*SplitLine)
               strcat(SplitLine," ");
             strcat(SplitLine,ReadStr);
           }
+
           if (StringLen(SplitLine)<MaxLength)
+          {
+            if(!*ReadStr && BreakProcess)
+              goto m1;
             continue;
+          }
+
           int Splitted=0;
+
           for (int I=strlen(SplitLine)-1;I>0;I--)
           {
             if (I>0 && SplitLine[I]=='~' && SplitLine[I-1]=='~')
@@ -616,8 +646,16 @@ int Help::ReadHelp(char *Mask)
           }
         }
       }
+      if(BreakProcess)
+      {
+        if(*SplitLine)
+          goto m1;
+        break;
+      }
+    }
     PrevSymbol=*ReadStr;
   }
+  //AddLine("");
 
   fclose(HelpFile);
   FixSize=FixCount+(FixCount!=0);
@@ -1304,7 +1342,10 @@ int Help::JumpTopic(const char *JumpTopic)
   if (*StackData.HelpPath && *StackData.SelTopic!=HelpBeginLink && strcmp(StackData.SelTopic,HelpOnHelpTopic)!=0)
   {
     if (*StackData.SelTopic==':')
+    {
       strcpy(NewTopic,StackData.SelTopic+1);
+      StackData.Flags&=~FHELP_CUSTOMFILE;
+    }
     else if(StackData.Flags&FHELP_CUSTOMFILE)
       strcpy(NewTopic,StackData.SelTopic);
     else
@@ -1317,24 +1358,35 @@ int Help::JumpTopic(const char *JumpTopic)
 
   // удалим ссылку на .DLL
   p=strrchr(NewTopic,'>');
-  if(p && *(p-1) != '\\')
+  if(p)
   {
-    char *p2=p;
-    while(p >= NewTopic)
+    if(*(p-1) != '\\')
     {
-      if(*p == '\\')
+      char *p2=p;
+      while(p >= NewTopic)
       {
-        ++p;
-        if(*p)
+        if(*p == '\\')
         {
-          StackData.Flags|=FHELP_CUSTOMFILE;
-          strcpy(StackData.HelpMask,p);
-          *strrchr(StackData.HelpMask,'>')=0;
+          ++p;
+          if(*p)
+          {
+            StackData.Flags|=FHELP_CUSTOMFILE;
+            strcpy(StackData.HelpMask,p);
+            *strrchr(StackData.HelpMask,'>')=0;
+          }
+          memmove(p,p2,strlen(p2)+1);
+          p=strrchr(StackData.HelpMask,'.');
+          if(p && stricmp(p,".hlf"))
+            *StackData.HelpMask=0;
+          break;
         }
-        memmove(p,p2,strlen(p2)+1);
-        break;
+        --p;
       }
-      --p;
+    }
+    else
+    {
+      StackData.Flags&=~FHELP_CUSTOMFILE;
+      StackData.Flags|=FHELP_CUSTOMPATH;
     }
   }
 

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.120 26.12.2001 $ */
+/* Revision: 1.121 27.12.2001 $ */
 
 /*
 Modify:
+  27.12.2001 SVS
+    - Продолжение эпопеи про ^PgUp (с подачи DJ)
   26.12.2001 SVS
     - ...когда ввели в масдае cd //host/share... получаем
       C:\\host\share
@@ -1863,7 +1865,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       else
         res=ChangeDir(CurPtr->ShortName);
 //      if(res)
-        Show();
+      CtrlObject->Cp()->ActivePanel->Show();
       /* SVS $ */
     }
   }

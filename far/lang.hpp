@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.90 26.12.2001 $ */
+/* Revision: 1.91 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    + С хоткеями: MHYes, MHNo, MHOk, MHCancel, MHRetry, MHSkip, MHAbort,
+                  MHIgnore, MHDelete, MHSplit
   26.12.2001 SVS
     + MCannotUpdateRODiz, MCfgDizROUpdate
   24.12.2001 SVS
@@ -287,6 +290,9 @@ enum
   MNo,
   MOk,
 
+  MHYes,
+  MHNo,
+  MHOk,
 
   MCancel,
   MRetry,
@@ -295,6 +301,14 @@ enum
   MIgnore,
   MDelete,
   MSplit,
+
+  MHCancel,
+  MHRetry,
+  MHSkip,
+  MHAbort,
+  MHIgnore,
+  MHDelete,
+  MHSplit,
 
   MWarning,
   MError,

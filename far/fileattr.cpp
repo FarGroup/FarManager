@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.03 19.10.2001 $ */
+/* Revision: 1.04 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! Применяем кнопки с хоткеями
   19.10.2001 SVS
     - бага с выставлением шифрования для файлов с русскими буквицами.
   14.05.2001 SVS
@@ -70,7 +72,7 @@ int ESetFileAttributes(const char *Name,int Attr)
   while (!SetFileAttributes(Name,Attr))
   {
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-             MSG(MSetAttrCannotFor),(char *)Name,MSG(MRetry),MSG(MSkip),MSG(MCancel));
+             MSG(MSetAttrCannotFor),(char *)Name,MSG(MHRetry),MSG(MHSkip),MSG(MHCancel));
     if (Code==1 || Code<0)
       break;
     if (Code==2)
@@ -116,8 +118,8 @@ int ESetFileCompression(const char *Name,int State,int FileAttr)
     if (GetLastError()==ERROR_INVALID_FUNCTION)
       break;
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrCompressedCannotFor),(char *)Name,MSG(MRetry),
-                MSG(MSkip),MSG(MCancel));
+                MSG(MSetAttrCompressedCannotFor),(char *)Name,MSG(MHRetry),
+                MSG(MHSkip),MSG(MHCancel));
     if (Code==1 || Code<0)
       break;
     if (Code==2)
@@ -184,8 +186,8 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr)
     if (GetLastError()==ERROR_INVALID_FUNCTION)
       break;
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrEncryptedCannotFor),(char *)Name,MSG(MRetry),
-                MSG(MSkip),MSG(MCancel));
+                MSG(MSetAttrEncryptedCannotFor),(char *)Name,MSG(MHRetry),
+                MSG(MHSkip),MSG(MHCancel));
     if (Code==1 || Code<0)
       break;
     if (Code==2)
@@ -203,12 +205,13 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr)
 }
 
 
+// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
                   FILETIME *LastAccessTime,int FileAttr)
 {
   if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
       (FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-    return(TRUE);
+    return 1;
   while (1)
   {
     if (FileAttr & FA_RDONLY)
@@ -227,17 +230,21 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
     if (SetTime)
       break;
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrTimeCannotFor),(char *)Name,MSG(MRetry),
-                MSG(MSkip),MSG(MCancel));
-    if (Code==1 || Code<0)
+                MSG(MSetAttrTimeCannotFor),(char *)Name,MSG(MHRetry),
+                MSG(MHSkip),MSG(MHCancel));
+    if (Code<0)
+    {
       break;
-    if (Code==2)
-      return(FALSE);
+    }
+    if(Code == 1)
+      return 2;
+    if(Code == 2)
+      return 0;
   }
   /* $ 14.05.2001 SVS
      Кхе, RO сбросили (см. выше), а выставлять дядя будет?
   */
   SetFileAttributes(Name,FileAttr);
   /* SVS $ */
-  return(TRUE);
+  return 1;
 }

@@ -6,6 +6,9 @@
 "No"
 "Ok"
 
+"&Yes"
+"&No"
+"&Ok"
 
 "Cancel"
 "Retry"
@@ -14,6 +17,14 @@
 "Ignore"
 "Delete"
 "Split"
+
+"&Cancel"
+"&Retry"
+"&Skip"
+"&Abort"
+"&Ignore"
+"&Delete"
+"Sp&lit"
 
 "Warning"
 "Error"
