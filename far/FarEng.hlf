@@ -157,7 +157,10 @@ $ #Panel control commands#
   Select all files                                    #Shift-<Gray +>#
   Deselect all files                                  #Shift-<Gray ->#
   Restore previous selection                                  #Ctrl-M#
+
   Scroll long names and descriptions              #Alt-Left,Alt-Right#
+                                                    #Alt-Home,Alt-End#
+
   Set brief view mode                                     #LeftCtrl-1#
   Set medium view mode                                    #LeftCtrl-2#
   Set full view mode                                      #LeftCtrl-3#
@@ -168,10 +171,13 @@ $ #Panel control commands#
   Set file owners view mode                               #LeftCtrl-8#
   Set file links view mode                                #LeftCtrl-9#
   Set alternative full view mode                          #LeftCtrl-0#
+
   Toggle hidden and system files displaying                   #Ctrl-H#
   Toggle long/short file names view mode                      #Ctrl-N#
+
   Hide/Show left panel                                       #Ctrl-F1#
   Hide/Show right panel                                      #Ctrl-F2#
+
   Sort files in the active panel by name                     #Ctrl-F3#
   Sort files in the active panel by extension                #Ctrl-F4#
   Sort files in the active panel by modification time        #Ctrl-F5#
@@ -550,15 +556,9 @@ $ #Command line switches#
 
   #/ag#   Disable display of pseudographics characters.
 
-#ifdef USE_WFUNC
-  #/aw#   Disable TrueType font autodetection.
-        On startup, FAR tries to determine whether a TrueType
-        or a bitmap font has been selected from the console
-        window, and if a TrueType font (for example, Lucida
-        Console) is selected, FAR will correctly display
-        characters with codes lower than the space.
+  #/8#    Forces FAR to work with console, not using
+        unicode capabilies.
         The option works only under Windows NT 4 or later.
-#endif // END USE_WFUNC
 
   #/e[<line>[:<pos>]] <filename>#
         Edit the specified file. After /e you may optionally

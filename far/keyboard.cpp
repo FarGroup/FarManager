@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.92 21.04.2003 $ */
+/* Revision: 1.93 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! очередные работы по DETECT_ALT_ENTER
   21.04.2003 SVS
     ! Автостартующие макросы запускаем только после загрузки всех плагинов!
     + Alt-Enter - пока в тестовой моде.
@@ -1125,10 +1127,13 @@ int GetInputRecord(INPUT_RECORD *rec)
     Sleep(1);
     GetVideoMode(CurScreenBufferInfo);
 #if defined(DETECT_ALT_ENTER)
+//    if((PScrX == PrevScrX && PScrY == PrevScrY) && PrevFarAltEnterMode == FarAltEnter(FAR_CONSOLE_GET_MODE))
     if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
         PScrY+1 == CurScreenBufferInfo.dwSize.Y &&
         PScrX+1 <= CurScreenBufferInfo.dwMaximumWindowSize.X &&
-        PScrY+1 <= CurScreenBufferInfo.dwMaximumWindowSize.Y)
+        PScrY+1 <= CurScreenBufferInfo.dwMaximumWindowSize.Y
+        && PrevFarAltEnterMode == FarAltEnter(FAR_CONSOLE_GET_MODE)
+      )
 #else
     if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
         PScrY+1 == CurScreenBufferInfo.dwSize.Y)
@@ -1961,8 +1966,8 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
 // GetAsyncKeyState(VK_RSHIFT)
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
-  // // _SVS(CleverSysLog Clev("CalcKeyCode"));
-  // // _SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
+_SVS(CleverSysLog Clev("CalcKeyCode"));
+_SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
   CHAR_WCHAR Char;
 
   unsigned int ScanCode,KeyCode,CtrlState;
@@ -2333,7 +2338,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
-//// // _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -2383,7 +2388,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-// // _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> %s",_INPUT_RECORD_Dump(rec)));
+_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='0' && KeyCode<='9')
     {
       if(WaitInFastFind>0 &&
@@ -2462,7 +2467,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
-//// // _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -2534,7 +2539,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
-//// // _SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -2585,7 +2590,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-// // _SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> %s",_INPUT_RECORD_Dump(rec)));
+_SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {

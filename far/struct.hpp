@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.97 21.04.2003 $ */
+/* Revision: 1.98 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
   21.04.2003 SVS
     + Opt.DelThreadPriority
     + struct ScreenSizes, Opt.ScrSize - для отладки "Alt-Enter"
@@ -772,7 +774,7 @@ struct Options
   int ExecuteUseAppPath;
   DWORD PluginMaxReadData;
   int UseNumPad;
-  int UseTTFFont;
+  int UseUnicodeConsole;
   int ScanJunction;
 
   int OnlyEditorViewerUsed; // =1, если старт был /e или /v

@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.31 03.03.2003 $ */
+/* Revision: 1.32 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! W-console: замена вида "BoxText(209);" на  "BoxText(BoxSymbols[0xD1-0x0B0]);"
   03.03.2003 SVS
     ! ќформим парвильное окончание при выделении (дл€ "21" было "файлов") с помощью __FormatEndSelectedPhrase()
   20.02.2003 SVS
@@ -247,7 +249,7 @@ void FileList::ShowFileList(int Fast)
     SetColor(COL_PANELBOX);
     ColumnPos+=ViewSettings.ColumnWidth[I];
     GotoXY(ColumnPos,Y1);
-    BoxText(209);
+    BoxText(BoxSymbols[0xD1-0x0B0]);
     if (Opt.ShowColumnTitles)
     {
       GotoXY(ColumnPos,Y1+1);
@@ -256,7 +258,7 @@ void FileList::ShowFileList(int Fast)
     if (!Opt.ShowPanelStatus)
     {
       GotoXY(ColumnPos,Y2);
-      BoxText(207);
+      BoxText(BoxSymbols[0xCF-0x0B0]);
     }
     ColumnPos++;
   }
@@ -445,13 +447,12 @@ void FileList::ShowSelectedSize()
     DrawSeparator(Y2-2);
     for (int I=0,ColumnPos=X1+1;I<ViewSettings.ColumnCount-1;I++)
     {
-      static char TRLine[2]={0x0C1,0x00};
       if (ViewSettings.ColumnWidth[I]<0 ||
           I==ViewSettings.ColumnCount-2 && ViewSettings.ColumnWidth[I+1]<0)
         continue;
       ColumnPos+=ViewSettings.ColumnWidth[I];
       GotoXY(ColumnPos,Y2-2);
-      Text(TRLine);
+      BoxText(BoxSymbols[0x0C1-0x0B0]);
       ColumnPos++;
     }
   }
@@ -502,6 +503,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
       sprintf(TotalStr,MSG(__FormatEndSelectedPhrase(TotalFileCount)),FormSize,TotalFileCount);
     else
     {
+// UNICODE!!!
       static unsigned char DHLine[4]={0x0CD,0x0CD,0x0CD,0x00};
       sprintf(TotalStr," %s (%d) %s %s ",FormSize,TotalFileCount,DHLine,FreeSize);
       if ((int) strlen(TotalStr)> X2-X1-1)
@@ -523,10 +525,12 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   Length=strlen(TotalStr);
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
 
+// UNICODE!!!
   char *FirstBox=strchr(TotalStr,0x0CD);
   int BoxPos=(FirstBox==NULL) ? -1:FirstBox-TotalStr;
   int BoxLength=0;
   if (BoxPos!=-1)
+// UNICODE!!!
     for (int I=0;TotalStr[BoxPos+I]==0x0CD;I++)
       BoxLength++;
 

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.56 20.02.2003 $ */
+/* Revision: 1.57 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    - траблы с выставлением атрибутов C и E
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
@@ -252,9 +254,9 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
              (FocusPos == 8 || FocusPos == 9))
           {
-              if(FocusPos == 8 && State8 && State9)
+              if(FocusPos == 8 && /*State8 &&*/ State9)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,9,BSTATE_UNCHECKED);
-              if(FocusPos == 9 && State9 && State8)
+              if(FocusPos == 9 && /*State9 &&*/ State8)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,8,BSTATE_UNCHECKED);
           }
         }
@@ -281,9 +283,9 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
 
             // еще одна проверка
-            if(FocusPos == 8 && State8 && State9)
+            if(FocusPos == 8 && /* DlgParam->OState8 && */ State9)
               Dialog::SendDlgMessage(hDlg,DM_SETCHECK,9,BSTATE_UNCHECKED);
-            if(FocusPos == 9 && State9 && State8)
+            if(FocusPos == 9 && /* DlgParam->OState9 && */ State8)
               Dialog::SendDlgMessage(hDlg,DM_SETCHECK,8,BSTATE_UNCHECKED);
 
             DlgParam->OState9=State9;

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.52 21.04.2003 $ */
+/* Revision: 1.53 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    + BoxSymbols[] - массив символов пвсевдографики
   21.04.2003 SVS
     + RegistrationBugs - =TRUE, если трид создать не удалось.
     + PrevFarAltEnterMode - для тестирования "Alt-Enetr"
@@ -280,3 +282,5 @@ int RegistrationBugs=FALSE;
 #if defined(DETECT_ALT_ENTER)
 int PrevFarAltEnterMode=-1;
 #endif
+
+WCHAR BoxSymbols[64];

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.31 26.02.2003 $ */
+/* Revision: 1.32 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    + Фича: показ Ratio (задолбался сегодня на калькуляторе считать ;-(
   26.02.2003 SVS
     - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
     ! вместо ShellUpdatePanels() исполним Redraw()
@@ -217,6 +219,8 @@ void QuickView::DisplayObject()
 
     if (Directory==1 || Directory==4)
     {
+      char SlackMsg[100];
+
       GotoXY(X1+2,Y1+4);
       PrintText(MSG(MQuickViewContains));
       GotoXY(X1+2,Y1+6);
@@ -242,26 +246,33 @@ void QuickView::DisplayObject()
       SetColor(COL_PANELINFOTEXT);
       InsertCommas(CompressedFileSize,Msg);
       PrintText(Msg);
+
+      SetColor(COL_PANELTEXT);
+      GotoXY(X1+2,Y1+10);
+      PrintText(MSG(MQuickViewRatio));
+      SetColor(COL_PANELINFOTEXT);
+      sprintf(SlackMsg,"%d%%",ToPercent64(CompressedFileSize.Number.i64,FileSize.Number.i64));
+      PrintText(SlackMsg);
+
       if (Directory!=4 && RealFileSize>=CompressedFileSize)
       {
         SetColor(COL_PANELTEXT);
-        GotoXY(X1+2,Y1+11);
+        GotoXY(X1+2,Y1+12);
         PrintText(MSG(MQuickViewCluster));
         SetColor(COL_PANELINFOTEXT);
         InsertCommas(ClusterSize,Msg);
         PrintText(Msg);
         SetColor(COL_PANELTEXT);
-        GotoXY(X1+2,Y1+12);
+        GotoXY(X1+2,Y1+13);
         PrintText(MSG(MQuickViewRealSize));
         SetColor(COL_PANELINFOTEXT);
         InsertCommas(RealFileSize,Msg);
         PrintText(Msg);
         SetColor(COL_PANELTEXT);
-        GotoXY(X1+2,Y1+13);
+        GotoXY(X1+2,Y1+14);
         PrintText(MSG(MQuickViewSlack));
         SetColor(COL_PANELINFOTEXT);
         InsertCommas(RealFileSize-CompressedFileSize,Msg);
-        char SlackMsg[100];
         int64 Size1=RealFileSize-CompressedFileSize;
         int64 Size2=RealFileSize;
         while (Size2.PHigh()!=0)

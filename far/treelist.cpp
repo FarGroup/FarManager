@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.50 22.04.2003 $ */
+/* Revision: 1.51 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! Учтем Opt.UseUnicodeConsole при рисовании дерева
   22.04.2003 SVS
     ! strcpy -> strNcpy
   26.02.2003 SVS
@@ -187,6 +189,10 @@ static char TreeLineSymbol[4][3]={
   {0xC3,0xC4,/*0xC4,*/0x00},
 };
 
+#if defined(USE_WFUNC)
+static WCHAR TreeLineSymbolW[4][3]={0};
+#endif
+
 static struct TreeListCache
 {
   char TreeName[NM];
@@ -346,17 +352,66 @@ void TreeList::DisplayTree(int Fast)
         DisplayTreeName("\\",J);
       else
       {
-        char OutStr[200];
+#if defined(USE_WFUNC)
+        // первоначальная инициализация
+        if(TreeLineSymbolW[0][0] == 0x0000)
+        {
+          for(int IW=0; IW < 4; ++IW)
+          {
+            for(int JW=0; JW < 2; ++JW)
+              TreeLineSymbolW[IW][JW]=(TreeLineSymbol[IW][JW] == 0x20)?0x20:BoxSymbols[TreeLineSymbol[IW][JW]-0x0B0];
+          }
+        }
+        WCHAR OutStrW[200];
+        *OutStrW=0;
+#endif
+        char  OutStr[200];
         for (*OutStr=0,K=0;K<CurPtr->Depth-1 && WhereX()+3*K<X2-6;K++)
+        {
           if (CurPtr->Last[K])
-            strcat(OutStr,TreeLineSymbol[0]);
+          {
+#if defined(USE_WFUNC)
+            if(Opt.UseUnicodeConsole)
+              wcscat(OutStrW,TreeLineSymbolW[0]);
+            else
+#endif
+              strcat(OutStr,TreeLineSymbol[0]);
+          }
           else
+          {
+#if defined(USE_WFUNC)
+            if(Opt.UseUnicodeConsole)
+              wcscat(OutStrW,TreeLineSymbolW[1]);
+            else
+#endif
             strcat(OutStr,TreeLineSymbol[1]);
+          }
+        }
         if (CurPtr->Last[CurPtr->Depth-1])
-          strcat(OutStr,TreeLineSymbol[2]);
+        {
+#if defined(USE_WFUNC)
+          if(Opt.UseUnicodeConsole)
+            wcscat(OutStrW,TreeLineSymbolW[2]);
+          else
+#endif
+            strcat(OutStr,TreeLineSymbol[2]);
+        }
         else
-          strcat(OutStr,TreeLineSymbol[3]);
-        Text(OutStr);
+        {
+#if defined(USE_WFUNC)
+          if(Opt.UseUnicodeConsole)
+            wcscat(OutStrW,TreeLineSymbolW[3]);
+          else
+#endif
+            strcat(OutStr,TreeLineSymbol[3]);
+        }
+#if defined(USE_WFUNC)
+        if(Opt.UseUnicodeConsole)
+          BoxTextW(OutStrW,FALSE);
+        else
+#endif
+          Text(OutStr);
+
         char *ChPtr=strrchr(CurPtr->Name,'\\');
         if (ChPtr!=NULL)
           DisplayTreeName(ChPtr+1,J);

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.181 21.04.2003 $ */
+/* Revision: 1.182 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! W-Console!!!
+    + SetRealColor()
   21.04.2003 SVS
     + IsLocalRootPath()
     + InternalPasteFromClipboard(int AnsiMode);
@@ -476,7 +479,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type);
   С 0 используется для ConsoleDetach.
 */
 void InitConsole(int FirstInit=TRUE);
-void InitRecodeOutTable(UINT cp);
+void InitRecodeOutTable(UINT cp=0);
 /* SKV$*/
 void CloseConsole();
 void SetFarConsoleMode();
@@ -500,17 +503,33 @@ void SetRealCursorType(int Visible,int Size);
 void GetRealCursorType(int &Visible,int &Size);
 void Text(int X, int Y, int Color, const char *Str);
 void Text(const char *Str);
+#if defined(USE_WFUNC)
+void TextW(int X, int Y, int Color, const WCHAR *Str);
+void TextW(const WCHAR *Str);
+#endif
 void Text(int X, int Y, int Color, int MsgId);
 void Text(int MsgId);
 void VText(const char *Str);
+#if defined(USE_WFUNC)
+void VTextW(const WCHAR *Str);
+#endif
 void HiText(const char *Str,int HiColor);
-void ShowSeparator(int Length,int Type=1);
+#if defined(USE_WFUNC)
+void HiTextW(const WCHAR *Str,int HiColor);
+#endif
+
 void DrawLine(int Length,int Type);
+#define ShowSeparator(Length,Type) DrawLine(Length,Type)
+
 char* MakeSeparator(int Length,char *DestStr,int Type=1);
+#if defined(USE_WFUNC)
+WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type=1);
+#endif
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);
 void SetColor(int Color);
+void SetRealColor(int Color);
 void ClearScreen(int Color);
 int  GetColor();
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest);
@@ -522,26 +541,33 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest);
 void PutRealText(int X1,int Y1,int X2,int Y2,const void *Src);
 void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
 void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *Src,int BufX,int BufY);
+
+#if defined(USE_WFUNC)
+void mprintfW(CHAR *fmt,...);
+void vmprintfW(CHAR *fmt,...);
+#endif
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
 
 #if defined(USE_WFUNC)
-BYTE GetVidCharW(CHAR_INFO CI);
-inline BYTE GetVidChar(CHAR_INFO CI)
+WORD GetVidCharW(CHAR_INFO CI);
+inline WORD GetVidChar(CHAR_INFO CI)
 {
-  if(Opt.UseTTFFont)
+  if(Opt.UseUnicodeConsole)
     return GetVidCharW(CI);
   return CI.Char.AsciiChar;
 }
 
-inline void SetVidChar(CHAR_INFO& CI,BYTE Chr)
+inline void SetVidChar(CHAR_INFO& CI,WORD Chr)
 {
   extern WCHAR Oem2Unicode[];
-  if(Opt.UseTTFFont)
+  extern BYTE RecodeOutTable[];
+
+  if(Opt.UseUnicodeConsole)
     CI.Char.UnicodeChar = Oem2Unicode[Chr];
   else
-    CI.Char.AsciiChar=Chr;
+    CI.Char.AsciiChar=RecodeOutTable[Chr];
 }
 
 #else
@@ -573,8 +599,11 @@ void DetectWindowedMode();
 int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
-void BoxText(unsigned char Chr);
+void BoxText(WORD Chr);
 void BoxText(char *Str,int IsVert=0);
+#if defined(USE_WFUNC)
+void BoxTextW(WCHAR *Str,int IsVert=0);
+#endif
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
 void ReopenConsole();
@@ -613,6 +642,7 @@ HANDLE WINAPI FAR_CreateFile(
 
 char* FarMSG(int MsgID);
 #define MSG(ID) FarMSG(ID)
+
 /* $ 29.08.2000 SVS
    Дополнительный параметр у Message* - номер плагина.
 */

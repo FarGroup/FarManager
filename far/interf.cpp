@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.74 29.04.2003 $ */
+/* Revision: 1.75 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! W-Console!!!
+    ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
   29.04.2003 SVS
     ! _Oem2Unicode:
       "...Well, to be exact, you could place 0x221a on position 0xFB (this is a
@@ -252,7 +255,7 @@ static int CurX,CurY;
 static int CurColor;
 
 static int OutputCP;
-static BYTE RecodeOutTable[256];
+BYTE RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
 static const char CONOUT[]="CONOUT$";
 static const char CONIN[]="CONIN$";
@@ -268,7 +271,7 @@ WCHAR Oem2Unicode[256];
 static void __Create_CONOUT()
 {
 #if defined(USE_WFUNC)
-  if(Opt.UseTTFFont)
+  if(Opt.UseUnicodeConsole)
     hConOut=CreateFileW(LCONOUT,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
   else
@@ -284,7 +287,7 @@ static void __Create_CONOUT()
 static void __Create_CONIN()
 {
 #if defined(USE_WFUNC_IN)
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if(Opt.UseUnicodeConsole)
     hConInp=CreateFileW(LCONIN,GENERIC_READ|GENERIC_WRITE,
           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
   else
@@ -298,8 +301,7 @@ static void __Create_CONIN()
 
 void InitConsole(int FirstInit)
 {
-  OutputCP=GetConsoleOutputCP();
-  InitRecodeOutTable(OutputCP);
+  InitRecodeOutTable();
   __Create_CONOUT();
   __Create_CONIN();
   SetConsoleCtrlHandler(CtrlHandler,TRUE);
@@ -387,87 +389,6 @@ void SetFarConsoleMode()
   ChangeConsoleMode(Mode);
 }
 
-
-void InitRecodeOutTable(UINT cp)
-{
-  int I;
-  for (I=0;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
-    RecodeOutTable[I]=I;
-  if (Opt.CleanAscii)
-  {
-    for (I=0;I<32;I++)
-      RecodeOutTable[I]='.';
-    RecodeOutTable[7]='*';
-    RecodeOutTable[24]=RecodeOutTable[25]='|';
-    RecodeOutTable[30]='X';
-    RecodeOutTable[31]='X';
-    RecodeOutTable[255]=' ';
-    RecodeOutTable[0x10]='>';
-    RecodeOutTable[0x11]='<';
-  }
-  if (Opt.NoGraphics)
-  {
-    for (I=179;I<=218;I++)
-      RecodeOutTable[I]='+';
-    RecodeOutTable[179]=RecodeOutTable[186]='|';
-    RecodeOutTable[196]='-';
-    RecodeOutTable[205]='=';
-  }
-#if defined(USE_WFUNC)
-  if(Opt.UseTTFFont)
-  {
-    static WCHAR _Oem2Unicode[256] = {
-    /*00*/ 0x0000, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
-           0x25D8, 0x0000, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
-    /*10*/ 0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25A0, 0x21A8,
-           0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC,
-    /*20*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*30*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*40*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*50*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*60*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*70*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x2206,
-    /*80*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*90*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*A0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*B0*/ 0x0000, 0x0000, 0x0000, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
-           0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
-    /*C0*/ 0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
-           0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
-    /*D0*/ 0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
-           0x256A, 0x2518, 0x250C, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*E0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-    /*F0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x221A, 0x0000, 0x0000, 0x0000, 0x0000,
-    };
-
-    // перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-    Oem2Unicode[0]=0;
-    GetRegKey("System","Oem2Unicode",(BYTE *)Oem2Unicode,(BYTE*)_Oem2Unicode,sizeof(Oem2Unicode));
-    for (I=1;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
-    {
-      if(!Oem2Unicode[I])
-      {
-        CHAR Chr = (CHAR)RecodeOutTable[I];
-        MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &Chr, 1, Oem2Unicode+I, 1);
-      }
-    }
-  }
-  //_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
-#endif
-}
-
-
 void ChangeConsoleMode(int Mode)
 {
   DWORD CurrentConsoleMode;
@@ -476,6 +397,38 @@ void ChangeConsoleMode(int Mode)
     SetConsoleMode(hConInp,Mode);
 }
 
+
+void SetFarTitle(const char *Title)
+{
+  static char FarTitle[2*NM];
+  char OldFarTitle[2*NM];
+//_SVS(SysLog("SetFarTitle('%s')",Title));
+  GetConsoleTitle(OldFarTitle,sizeof(OldFarTitle));
+  if(Title)
+  {
+    sprintf(FarTitle,"%.256s%s",Title,FarTitleAddons);
+    if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+      OemToChar(FarTitle,FarTitle);
+    if(strcmp(OldFarTitle,FarTitle) &&
+      (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput() ||
+       !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey())
+    )
+    {
+     //_SVS(SysLog("  FarTitle='%s'",FarTitle));
+      SetConsoleTitle(FarTitle);
+    }
+  }
+  else
+  {
+    /*
+      Title=NULL для случая, когда нужно выставить пред.заголовок
+      SetFarTitle(NULL) - это не для всех!
+      Этот вызов имеет право делать только макро-движок!
+    */
+    SetConsoleTitle(FarTitle);
+     //_SVS(SysLog("  (NULL)FarTitle='%s'",FarTitle));
+  }
+}
 
 void FlushInputBuffer()
 {
@@ -712,6 +665,89 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 }
 
 
+void ShowTime(int ShowAlways)
+{
+  char ClockText[10];
+  static SYSTEMTIME lasttm={0,0,0,0,0,0,0,0};
+  SYSTEMTIME tm;
+  GetLocalTime(&tm);
+  CHAR_INFO ScreenClockText[5];
+  GetText(ScrX-4,0,ScrX,0,ScreenClockText);
+  if (ShowAlways==2)
+  {
+    memset(&lasttm,0,sizeof(lasttm));
+    return;
+  }
+
+  if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
+      GetVidChar(ScreenClockText[2])==':' || ScreenSaverActive)
+    return;
+
+  ProcessShowClock++;
+  lasttm=tm;
+  sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
+  GotoXY(ScrX-4,0);
+  // Здесь хрень какая-то получается с ModType - все время не верное значение!
+  int ModType=FrameManager->GetCurrentFrame()->GetType();
+  SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
+           (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
+  Text(ClockText);
+  ScrBuf.Flush();
+  static int RegChecked=FALSE;
+
+#ifdef _DEBUGEXC
+  if(!CheckRegistration)
+    RegChecked=TRUE;
+#endif
+
+  if (!RegChecked && clock()>10000)
+  {
+    RegChecked=TRUE;
+    struct RegInfo Reg;
+    Reg.Done=0;
+    RegistrationBugs=FALSE;
+    if(_beginthread(CheckReg,0x10000,&Reg) == -1)
+    {
+      RegistrationBugs=TRUE;
+      CheckReg(&Reg);
+    }
+
+    while (!Reg.Done)
+      Sleep(10);
+
+    if (*Reg.RegName)
+    {
+      unsigned char Add=158,Xor1=211;
+      for (int I=0;Reg.RegName[I];I++)
+      {
+        Add+=Reg.RegName[I];
+        Xor1^=(RegName[I]<<I)^I;
+      }
+      if ((Add & 0xf)!=ToHex(Reg.RegCode[1]) || ((Add>>3) & 0xf)!=ToHex(Reg.RegCode[2]))
+      {
+        RegistrationBugs=FALSE;
+        void *ErrRegFnPtr=((char *)ErrRegFn-(200*lasttm.wMilliseconds));
+        if(_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)),0x10000,NULL) == -1)
+        {
+          RegistrationBugs=TRUE;
+          ((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)))(NULL);
+        }
+      }
+      if (RegVer!=3 && (((Xor1>>5) & 0xf)!=ToHex(Reg.RegCode[4]) || (~Xor1 & 0xf)!=ToHex(Reg.RegCode[6])))
+      {
+        RegistrationBugs=FALSE;
+        void *ErrRegFnPtr=((char *)ErrRegFn-(0x55*lasttm.wMilliseconds));
+        if(_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)),0x10000,NULL) == -1)
+        {
+          RegistrationBugs=TRUE;
+          ((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)))(NULL);
+        }
+      }
+    }
+  }
+  ProcessShowClock--;
+}
+
 void GotoXY(int X,int Y)
 {
   if (X<0) X=0;
@@ -802,6 +838,163 @@ void GetRealCursorType(int &Visible,int &Size)
   Visible=cci.bVisible;
 }
 
+void InitRecodeOutTable(UINT cp)
+{
+  int I;
+
+  OutputCP=!cp?GetConsoleOutputCP():cp;
+
+  for (I=0;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
+    RecodeOutTable[I]=I;
+  if (Opt.CleanAscii)
+  {
+    for (I=0;I<32;I++)
+      RecodeOutTable[I]='.';
+    RecodeOutTable[7]='*';
+    RecodeOutTable[24]=RecodeOutTable[25]='|';
+    RecodeOutTable[30]='X';
+    RecodeOutTable[31]='X';
+    RecodeOutTable[255]=' ';
+    RecodeOutTable[0x10]='>';
+    RecodeOutTable[0x11]='<';
+  }
+  if (Opt.NoGraphics)
+  {
+    for (I=179;I<=218;I++)
+      RecodeOutTable[I]='+';
+    RecodeOutTable[179]=RecodeOutTable[186]='|';
+    RecodeOutTable[196]='-';
+    RecodeOutTable[205]='=';
+  }
+#if defined(USE_WFUNC)
+  if(Opt.UseUnicodeConsole)
+  {
+    static WCHAR _Oem2Unicode[256] = {
+    /*00*/ 0x0000, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
+           0x25D8, 0x0000, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
+    /*10*/ 0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25A0, 0x21A8,
+           0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC,
+    /*20*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*30*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*40*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*50*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*60*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*70*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x2206,
+    /*80*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*90*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*A0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*B0*/ 0x0000, 0x0000, 0x0000, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
+           0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
+    /*C0*/ 0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
+           0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
+    /*D0*/ 0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
+           0x256A, 0x2518, 0x250C, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*E0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+    /*F0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x221A, 0x0000, 0x0000, 0x0000, 0x0000,
+    };
+
+    // перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
+    Oem2Unicode[0]=0;
+    GetRegKey("System","Oem2Unicode",(BYTE *)Oem2Unicode,(BYTE*)_Oem2Unicode,sizeof(Oem2Unicode));
+    if (Opt.CleanAscii)
+    {
+      for (I=0;I<32;I++)
+        Oem2Unicode[I]=0;
+      Oem2Unicode[7]='*';
+      Oem2Unicode[24]=Oem2Unicode[25]='|';
+      Oem2Unicode[30]='X';
+      Oem2Unicode[31]='X';
+      Oem2Unicode[255]=' ';
+      Oem2Unicode[0x10]='>';
+      Oem2Unicode[0x11]='<';
+    }
+    if (Opt.NoGraphics)
+    {
+      for (I=179;I<=218;I++)
+        Oem2Unicode[I]='+';
+      Oem2Unicode[179]=Oem2Unicode[186]='|';
+      Oem2Unicode[196]='-';
+      Oem2Unicode[205]='=';
+    }
+
+    for (I=1;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
+    {
+      if(!Oem2Unicode[I])
+      {
+        CHAR Chr = (CHAR)RecodeOutTable[I];
+        MultiByteToWideChar(CP_OEMCP, MB_USEGLYPHCHARS, &Chr, 1, Oem2Unicode+I, 1);
+      }
+    }
+
+    static WCHAR _BoxSymbols[48] = {
+       0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
+       0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
+       0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
+       0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
+       0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
+       0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
+    };
+
+    // перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
+    GetRegKey("System","BoxSymbols",(BYTE *)BoxSymbols,(BYTE*)_BoxSymbols,sizeof(_BoxSymbols));
+    if (Opt.NoGraphics)
+    {
+      for (I=0xB3-0xB0;I<=0xDA-0xB0;I++)
+        BoxSymbols[I]='+';
+      BoxSymbols[0xB3-0xB0]=BoxSymbols[0xBA-0xB0]='|';
+      BoxSymbols[0xC4-0xB0]='-';
+      BoxSymbols[0xCD-0xB0]='=';
+    }
+  }
+  //_SVS(SysLogDump("Oem2Unicode",0,(LPBYTE)Oem2Unicode,sizeof(Oem2Unicode),NULL));
+#endif
+}
+
+
+#if defined(USE_WFUNC)
+void TextW(int X, int Y, int Color, const WCHAR *Str)
+{
+  CurColor=FarColorToReal(Color);
+  if (X<0) X=0;
+  if (Y<0) Y=0;
+  CurX=X;
+  CurY=Y;
+  TextW(Str);
+}
+
+void TextW(const WCHAR *Str)
+{
+  int Length=wcslen(Str), I;
+  if (CurX+Length>ScrX)
+    Length=ScrX-CurX+1;
+  if (Length<=0)
+    return;
+  CHAR_INFO CharBuf[1024], *PtrCharBuf;
+  if (Length >= sizeof(CharBuf))
+    Length=sizeof(CharBuf)-1;
+
+  PtrCharBuf=CharBuf;
+  for (I=0; I < Length; I++, ++PtrCharBuf)
+  {
+    PtrCharBuf->Char.UnicodeChar=Str[I];
+    PtrCharBuf->Attributes=CurColor;
+  }
+  ScrBuf.Write(CurX,CurY,CharBuf,Length);
+  CurX+=Length;
+}
+#endif
+
 /* $ 23.07.2000 SVS
    + две полных функции Text
 */
@@ -831,7 +1024,7 @@ void Text(const char *Str)
 
   PtrCharBuf=CharBuf;
 #if defined(USE_WFUNC)
-  if(Opt.UseTTFFont)
+  if(Opt.UseUnicodeConsole)
   {
     for (I=0; I < Length; I++, ++PtrCharBuf)
     {
@@ -864,6 +1057,27 @@ void Text(int MsgId)
 /* VVM $ */
 /* SVS $ */
 
+#if defined(USE_WFUNC)
+void VTextW(const WCHAR *Str)
+{
+  int Length=wcslen(Str);
+  if (CurY+Length>ScrY)
+    Length=ScrY-CurY+1;
+  if (Length<=0)
+    return;
+  int StartCurX=CurX;
+  WCHAR ChrStr[2]={0,0};
+  for (int I=0;I<Length;I++)
+  {
+    GotoXY(CurX,CurY);
+    ChrStr[0]=Str[I];
+    TextW(ChrStr);
+    CurY++;
+    CurX=StartCurX;
+  }
+}
+#endif
+
 void VText(const char *Str)
 {
   int Length=strlen(Str);
@@ -882,7 +1096,6 @@ void VText(const char *Str)
     CurX=StartCurX;
   }
 }
-
 
 void HiText(const char *Str,int HiColor)
 {
@@ -940,7 +1153,11 @@ void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color)
   if (X2>ScrX) X2=ScrX;
   if (Y2>ScrY) Y2=ScrY;
 
+#if defined(USE_WFUNC)
+  ScrBuf.FillRect(X1,Y1,X2,Y2,(Opt.UseUnicodeConsole?Ch:RecodeOutTable[Ch]),FarColorToReal(Color));
+#else
   ScrBuf.FillRect(X1,Y1,X2,Y2,RecodeOutTable[Ch],FarColorToReal(Color));
+#endif
 //  SetColor(Color);
 //  GotoXY(X2,Y2);
 }
@@ -966,6 +1183,58 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
   ScrBuf.ApplyColor(X1,Y1,X2,Y2,FarColorToReal(Color));
 }
 
+#if defined(USE_WFUNC)
+void mprintfW(WCHAR *fmt,...)
+{
+  va_list argptr;
+  va_start(argptr,fmt);
+  WCHAR OutStr[2048];
+  vswprintf(OutStr,fmt,argptr);
+  TextW(OutStr);
+  va_end(argptr);
+}
+
+void vmprintfW(WCHAR *fmt,...)
+{
+  va_list argptr;
+  va_start(argptr,fmt);
+  WCHAR OutStr[2048];
+  vswprintf(OutStr,fmt,argptr);
+  VTextW(OutStr);
+  va_end(argptr);
+}
+
+void mprintf(char *fmt,...)
+{
+  va_list argptr;
+  va_start(argptr,fmt);
+  char OutStr[2048];
+  vsprintf(OutStr,fmt,argptr);
+  Text(OutStr);
+  va_end(argptr);
+}
+
+void vmprintf(char *fmt,...)
+{
+  va_list argptr;
+  va_start(argptr,fmt);
+  char OutStr[2048];
+  vsprintf(OutStr,fmt,argptr);
+  VText(OutStr);
+  va_end(argptr);
+}
+
+void mprintf(int MsgId,...)
+{
+  va_list argptr;
+  va_start(argptr,MsgId);
+  char OutStr[2048];
+  vsprintf(OutStr,MSG(MsgId),argptr);
+  Text(OutStr);
+  va_end(argptr);
+}
+
+#else
 
 void mprintf(char *fmt,...)
 {
@@ -996,10 +1265,17 @@ void vmprintf(char *fmt,...)
   VText(OutStr);
   va_end(argptr);
 }
+#endif
 
 void SetColor(int Color)
 {
   CurColor=FarColorToReal(Color);
+}
+
+void SetRealColor(int Color)
+{
+  CurColor=FarColorToReal(Color);
+  SetConsoleTextAttribute(hConOut,CurColor);
 }
 
 void ClearScreen(int Color)
@@ -1051,112 +1327,65 @@ void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
 }
 
 
-void ShowTime(int ShowAlways)
+void BoxText(WORD Chr)
 {
-  char ClockText[10];
-  static SYSTEMTIME lasttm={0,0,0,0,0,0,0,0};
-  SYSTEMTIME tm;
-  GetLocalTime(&tm);
-  CHAR_INFO ScreenClockText[5];
-  GetText(ScrX-4,0,ScrX,0,ScreenClockText);
-  if (ShowAlways==2)
+#if defined(USE_WFUNC)
+  if(Opt.UseUnicodeConsole)
   {
-    memset(&lasttm,0,sizeof(lasttm));
-    return;
+    WCHAR Str[2];
+    Str[0]=Chr;
+    Str[1]=0;
+    BoxTextW(Str);
   }
-
-  if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
-      GetVidChar(ScreenClockText[2])==':' || ScreenSaverActive)
-    return;
-
-  ProcessShowClock++;
-  lasttm=tm;
-  sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
-  GotoXY(ScrX-4,0);
-  // Здесь хрень какая-то получается с ModType - все время не верное значение!
-  int ModType=FrameManager->GetCurrentFrame()->GetType();
-  SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
-           (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
-  Text(ClockText);
-  ScrBuf.Flush();
-  static int RegChecked=FALSE;
-
-#ifdef _DEBUGEXC
-  if(!CheckRegistration)
-    RegChecked=TRUE;
+  else
 #endif
-
-  if (!RegChecked && clock()>10000)
   {
-    RegChecked=TRUE;
-    struct RegInfo Reg;
-    Reg.Done=0;
-    RegistrationBugs=FALSE;
-    if(_beginthread(CheckReg,0x10000,&Reg) == -1)
-    {
-      RegistrationBugs=TRUE;
-      CheckReg(&Reg);
-    }
-
-    while (!Reg.Done)
-      Sleep(10);
-
-    if (*Reg.RegName)
-    {
-      unsigned char Add=158,Xor1=211;
-      for (int I=0;Reg.RegName[I];I++)
-      {
-        Add+=Reg.RegName[I];
-        Xor1^=(RegName[I]<<I)^I;
-      }
-      if ((Add & 0xf)!=ToHex(Reg.RegCode[1]) || ((Add>>3) & 0xf)!=ToHex(Reg.RegCode[2]))
-      {
-        RegistrationBugs=FALSE;
-        void *ErrRegFnPtr=((char *)ErrRegFn-(200*lasttm.wMilliseconds));
-        if(_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)),0x10000,NULL) == -1)
-        {
-          RegistrationBugs=TRUE;
-          ((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(200*lasttm.wMilliseconds)))(NULL);
-        }
-      }
-      if (RegVer!=3 && (((Xor1>>5) & 0xf)!=ToHex(Reg.RegCode[4]) || (~Xor1 & 0xf)!=ToHex(Reg.RegCode[6])))
-      {
-        RegistrationBugs=FALSE;
-        void *ErrRegFnPtr=((char *)ErrRegFn-(0x55*lasttm.wMilliseconds));
-        if(_beginthread((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)),0x10000,NULL) == -1)
-        {
-          RegistrationBugs=TRUE;
-          ((void (__cdecl *)(void *))((char *)ErrRegFnPtr+(0x55*lasttm.wMilliseconds)))(NULL);
-        }
-      }
-    }
+    char Str[2];
+    Str[0]=Chr;
+    Str[1]=0;
+    BoxText(Str);
   }
-  ProcessShowClock--;
 }
 
-void BoxText(unsigned char Chr)
+
+#if defined(USE_WFUNC)
+void BoxTextW(WCHAR *Str,int IsVert)
 {
-  char Str[2];
-  Str[0]=Chr;
-  Str[1]=0;
-  BoxText(Str);
+  if(IsVert)
+    VTextW(Str);
+  else
+    TextW(Str);
 }
+#endif
 
 void BoxText(char *Str,int IsVert)
 {
   if (OutputCP!=437 && OutputCP!=866)
+  {
     for (int I=0;Str[I]!=0;I++)
+    {
       switch(Str[I])
       {
-        case 199:
-        case 182:
-          Str[I]=186;
+        case 0x0C7:
+        case 0x0B6:
+          Str[I]=0x0BA;
           break;
-        case 207:
-        case 209:
-          Str[I]=205;
+        case 0x0CF:
+        case 0x0D1:
+          Str[I]=0x0CD;
+          break;
+        case 0x0C6:
+        case 0x0B5:
+          Str[I]=0x0B3;
+          break;
+        case 0x0D0:
+        case 0x0D2:
+          Str[I]=0x0C4;
           break;
       }
+    }
+  }
+
   if(IsVert)
     VText(Str);
   else
@@ -1171,7 +1400,6 @@ void BoxText(char *Str,int IsVert)
 */
 void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
-  char OutStr[4096];
   static char ChrBox[2][6]={
     {0xC4,0xB3,0xDA,0xC0,0xD9,0xBF},
     {0xCD,0xBA,0xC9,0xC8,0xBC,0xBB},
@@ -1183,26 +1411,56 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
   SetColor(Color);
   Type=(Type==SINGLE_BOX || Type==SHORT_SINGLE_BOX)?0:1;
 
-  memset(OutStr,ChrBox[Type][0],sizeof(OutStr));
-  OutStr[x2-x1]=0;
+#if defined(USE_WFUNC)
+  if(Opt.UseUnicodeConsole)
+  {
+    WCHAR OutStr[4096];
+    _wmemset(OutStr,BoxSymbols[ChrBox[Type][0]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
+    OutStr[x2-x1]=0;
 
-  OutStr[0]=ChrBox[Type][2];
-  OutStr[x2-x1]=ChrBox[Type][5];
-  GotoXY(x1,y1);
-  mprintf("%.*s",x2-x1+1,OutStr);
+    OutStr[0]=BoxSymbols[ChrBox[Type][2]-0x0B0];
+    OutStr[x2-x1]=BoxSymbols[ChrBox[Type][5]-0x0B0];
+    GotoXY(x1,y1);
+    mprintfW(L"%.*s",x2-x1+1,OutStr);
 
-  OutStr[0]=ChrBox[Type][3];
-  OutStr[x2-x1]=ChrBox[Type][4];
-  GotoXY(x1,y2);
-  mprintf("%.*s",x2-x1+1,OutStr);
+    OutStr[0]=BoxSymbols[ChrBox[Type][3]-0x0B0];
+    OutStr[x2-x1]=BoxSymbols[ChrBox[Type][4]-0x0B0];
+    GotoXY(x1,y2);
+    mprintfW(L"%.*s",x2-x1+1,OutStr);
 
-  memset(OutStr,ChrBox[Type][1],sizeof(OutStr));
-  OutStr[y2-y1]=0;
+    _wmemset(OutStr,BoxSymbols[ChrBox[Type][1]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
+    OutStr[y2-y1]=0;
 
-  GotoXY(x1,y1+1);
-  vmprintf("%.*s",y2-y1-1,OutStr);
-  GotoXY(x2,y1+1);
-  vmprintf("%.*s",y2-y1-1,OutStr);
+    GotoXY(x1,y1+1);
+    vmprintfW(L"%.*s",y2-y1-1,OutStr);
+    GotoXY(x2,y1+1);
+    vmprintfW(L"%.*s",y2-y1-1,OutStr);
+  }
+  else
+#endif
+  {
+    char OutStr[4096];
+    memset(OutStr,ChrBox[Type][0],sizeof(OutStr));
+    OutStr[x2-x1]=0;
+
+    OutStr[0]=ChrBox[Type][2];
+    OutStr[x2-x1]=ChrBox[Type][5];
+    GotoXY(x1,y1);
+    mprintf("%.*s",x2-x1+1,OutStr);
+
+    OutStr[0]=ChrBox[Type][3];
+    OutStr[x2-x1]=ChrBox[Type][4];
+    GotoXY(x1,y2);
+    mprintf("%.*s",x2-x1+1,OutStr);
+
+    memset(OutStr,ChrBox[Type][1],sizeof(OutStr));
+    OutStr[y2-y1]=0;
+
+    GotoXY(x1,y1+1);
+    vmprintf("%.*s",y2-y1-1,OutStr);
+    GotoXY(x2,y1+1);
+    vmprintf("%.*s",y2-y1-1,OutStr);
+  }
 }
 /* SVS $ */
 
@@ -1228,7 +1486,7 @@ void _PutRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
   Coord.Bottom=Y2;
 
 #if defined(USE_WFUNC)
-  if(Opt.UseTTFFont)
+  if(Opt.UseUnicodeConsole)
     WriteConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
   else
     WriteConsoleOutputA(hConsoleOutput,(PCHAR_INFO)Src,Size,Corner,&Coord);
@@ -1265,7 +1523,7 @@ void _GetRealText(HANDLE hConsoleOutput,int X1,int Y1,int X2,int Y2,const void *
   Coord.Bottom=Y2;
 
 #if defined(USE_WFUNC)
-  if(Opt.UseTTFFont)
+  if(Opt.UseUnicodeConsole)
     ReadConsoleOutputW(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
   else
     ReadConsoleOutputA(hConsoleOutput,(PCHAR_INFO)Dest,Size,Corner,&Coord);
@@ -1280,46 +1538,8 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
 }
 
 
-void SetFarTitle(const char *Title)
-{
-  static char FarTitle[2*NM];
-  char OldFarTitle[2*NM];
-//_SVS(SysLog("SetFarTitle('%s')",Title));
-  GetConsoleTitle(OldFarTitle,sizeof(OldFarTitle));
-  if(Title)
-  {
-    sprintf(FarTitle,"%.256s%s",Title,FarTitleAddons);
-    if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-      OemToChar(FarTitle,FarTitle);
-    if(strcmp(OldFarTitle,FarTitle) &&
-      (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput() ||
-       !CtrlObject->Macro.IsExecuting())
-    )
-    {
-     //_SVS(SysLog("  FarTitle='%s'",FarTitle));
-      SetConsoleTitle(FarTitle);
-    }
-  }
-  else
-  {
-    /*
-      Title=NULL для случая, когда нужно выставить пред.заголовок
-      SetFarTitle(NULL) - это не для всех!
-      Этот вызов имеет право делать только макро-движок!
-    */
-    SetConsoleTitle(FarTitle);
-     //_SVS(SysLog("  (NULL)FarTitle='%s'",FarTitle));
-  }
-}
-
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
 {
-  /* $ 06.07.2000 tran
-     - trap under NT with console height > 210
-       was char OutStr[200] :) */
-  char OutStr[4096];
-  /* tran 06.07.2000 $ */
-
   int ThumbPos;
   if ((Length-=2)<1)
     return;
@@ -1330,19 +1550,24 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
   if (ThumbPos>=Length)
     ThumbPos=Length-1;
   GotoXY(X1,Y1);
-  memset(OutStr,0xB0,Length);
-  OutStr[ThumbPos]=0xB2;
-  OutStr[Length]=0;
-  vmprintf("%c%s%c",0x1E,OutStr,0x1F);
-}
 
-void ShowSeparator(int Length,int Type)
-{
-  if (Length>1)
+#if defined(USE_WFUNC)
+  if(Opt.UseUnicodeConsole)
   {
-    char Separator[4096];
-    MakeSeparator(Length,Separator,Type);
-    BoxText(Separator,Type>=4);
+    WCHAR OutStr[4096];
+    _wmemset(OutStr,BoxSymbols[0xB0-0x0B0],Length);
+    OutStr[ThumbPos]=BoxSymbols[0xB2-0x0B0];
+    OutStr[Length]=0;
+    vmprintfW(L"%c%s%c",Oem2Unicode[0x1E],OutStr,Oem2Unicode[0x1F]);
+  }
+  else
+#endif
+  {
+    char OutStr[4096]; // $ 06.07.2000 tran: - trap under NT with console height > 210 was char OutStr[200] :)
+    memset(OutStr,0xB0,Length);
+    OutStr[ThumbPos]=0xB2;
+    OutStr[Length]=0;
+    vmprintf("%c%s%c",0x1E,OutStr,0x1F);
   }
 }
 
@@ -1350,68 +1575,97 @@ void DrawLine(int Length,int Type)
 {
   if (Length>1)
   {
-    char Separator[4096];
-    MakeSeparator(Length,Separator,Type);
-    BoxText(Separator,Type>=10);
+#if defined(USE_WFUNC)
+    if(Opt.UseUnicodeConsole)
+    {
+      WCHAR Separator[4096];
+      MakeSeparatorW(Length,Separator,Type);
+      if(Type>=10)
+        VTextW(Separator);
+      else
+        TextW(Separator);
+    }
+    else
+#endif
+    {
+      char Separator[4096];
+      MakeSeparator(Length,Separator,Type);
+      if(Type>=10)
+        VText(Separator);
+      else
+        Text(Separator);
+    }
   }
 }
 
 // "Нарисовать" сепаратор в памяти.
+static BYTE __BoxType[12][8]={
+//       cp866, 437           cp other!
+/* 00 */{0x20,0x20,0xC4,0x00, 0x20,0x20,0xC4,0x00}, // -
+/* 01 */{0xC7,0xB6,0xC4,0x00, 0xBA,0xBA,0xC4,0x00}, // ||-||
+/* 02 */{0xC3,0xB4,0xC4,0x00, 0xC3,0xB4,0xC4,0x00}, // |-|
+/* 03 */{0xCC,0xB9,0xCD,0x00, 0xCC,0xB9,0xCD,0x00}, // ||=||
+
+/* 04 */{0x20,0x20,0xB3,0x00, 0x20,0x20,0xB3,0x00}, //  |
+/* 05 */{0xD1,0xCF,0xB3,0x00, 0xCD,0xCD,0xB3,0x00}, // =|=
+/* 06 */{0xC2,0xC1,0xB3,0x00, 0xC2,0xC1,0xB3,0x00}, //
+/* 07 */{0xCB,0xCA,0xBA,0x00, 0xCB,0xCA,0xBA,0x00}, //
+
+/* 08 */{0xC4,0xC4,0xC4,0x00, 0xC4,0xC4,0xC4,0x00}, // -
+/* 09 */{0xCD,0xCD,0xCD,0x00, 0xCD,0xCD,0xCD,0x00}, // =
+/* 10 */{0xB3,0xB3,0xB3,0x00, 0xB3,0xB3,0xB3,0x00}, // |
+/* 11 */{0xBA,0xBA,0xBA,0x00, 0xBA,0xBA,0xBA,0x00}, // ||
+};
+
+#if defined(USE_WFUNC)
+WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type)
+{
+  if (Length>1 && DestStr)
+  {
+    Type%=(sizeof(__BoxType)/sizeof(__BoxType[0]));
+    _wmemset(DestStr,BoxSymbols[__BoxType[Type][2]-0x0B0],Length);
+    DestStr[0]=BoxSymbols[__BoxType[Type][0]-0x0B0];
+    DestStr[Length-1]=BoxSymbols[__BoxType[Type][1]-0x0B0];
+    DestStr[Length]=0x0000;
+  }
+  return DestStr;
+}
+#endif
+
 char* MakeSeparator(int Length,char *DestStr,int Type)
 {
   if (Length>1 && DestStr)
   {
-    static unsigned char BoxType[12][4]={
-    /* 00 */{0x20,0x20,0xC4,0x00},
-    /* 01 */{0xC7,0xB6,0xC4,0x00},
-    /* 02 */{0xC3,0xB4,0xC4,0x00},
-    /* 03 */{0xCC,0xB9,0xCD,0x00},
+    int I=0;
+    if (OutputCP!=437 && OutputCP!=866)
+      I=4;
 
-    /* 04 */{0x20,0x20,0xB3,0x00},
-    /* 05 */{0xD1,0xCF,0xB3,0x00},
-    /* 06 */{0xC2,0xC1,0xB3,0x00},
-    /* 07 */{0xCB,0xCA,0xBA,0x00},
-
-    /* 08 */{0xC4,0xC4,0xC4,0x00}, // -
-    /* 09 */{0xCD,0xCD,0xCD,0x00}, // =
-    /* 10 */{0xB3,0xB3,0xB3,0x00}, // |
-    /* 11 */{0xBA,0xBA,0xBA,0x00}, // ||
-
-    };
-    Type%=(sizeof(BoxType)/sizeof(BoxType[0]));
-    memset(DestStr,BoxType[Type][2],Length);
-    DestStr[0]=BoxType[Type][0];
-    DestStr[Length-1]=BoxType[Type][1];
+    Type%=(sizeof(__BoxType)/sizeof(__BoxType[0]));
+    memset(DestStr,__BoxType[Type][2+I],Length);
+    DestStr[0]=__BoxType[Type][0+I];
+    DestStr[Length-1]=__BoxType[Type][1+I];
     DestStr[Length]=0;
   }
   return DestStr;
 }
 
 #if defined(USE_WFUNC)
-BYTE GetVidCharW(CHAR_INFO CI)
+WORD GetVidCharW(CHAR_INFO CI)
 {
+  if(CI.Char.UnicodeChar < 0x100)
+    return CI.Char.UnicodeChar;
   for(int I=0; I < 256; ++I)
     if(CI.Char.UnicodeChar == Oem2Unicode[I])
       return (BYTE)I;
   return 0;
-  /*
-  char AsciiChar;
-  BOOL UsedDefChar=FALSE;
-  WideCharToMultiByte(CP_OEMCP,0,
-        &CI.Char.UnicodeChar,1,
-        &AsciiChar,1,
-        NULL,&UsedDefChar);
-  return AsciiChar;
-  */
 }
-
 #endif
 
 #if defined(USE_WFUNC)
 int WINAPI TextToCharInfo(const char *Text,WORD Attr, CHAR_INFO *CharInfo, int Length, DWORD Reserved)
 {
   int I;
-  if(Opt.UseTTFFont)
+  if(Opt.UseUnicodeConsole)
   {
     for (I=0; I < Length; I++, ++CharInfo)
     {

@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.22 04.02.2003 $ */
+/* Revision: 1.23 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
   04.02.2003 SVS
     ! Небольшая оптимизация
   27.08.2002 tran
@@ -166,7 +168,7 @@ void ScreenBuf::FillBuf()
         Coord.Bottom=y;
         BOOL r;
         #if defined(USE_WFUNC)
-        if(Opt.UseTTFFont)
+        if(Opt.UseUnicodeConsole)
           r=ReadConsoleOutputW(hScreen,ci,Size,Corner,&Coord);
         else
           r=ReadConsoleOutputA(hScreen,ci,Size,Corner,&Coord);
@@ -181,7 +183,7 @@ void ScreenBuf::FillBuf()
   else
   {
 #if defined(USE_WFUNC)
-    if(Opt.UseTTFFont)
+    if(Opt.UseUnicodeConsole)
       ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
     else
       ReadConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
@@ -413,7 +415,7 @@ void ScreenBuf::Flush()
       Coord.Right=WriteX2;
       Coord.Bottom=WriteY2;
 #if defined(USE_WFUNC)
-      if(Opt.UseTTFFont)
+      if(Opt.UseUnicodeConsole)
       {
         // Нужно ли здесь делать перекодировку oem->unicode???
         WriteConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);

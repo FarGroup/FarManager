@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.283 16.04.2003 $ */
+/* Revision: 1.284 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    + Проверка в конструкторе на IsBadCodePtr((FARPROC)DlgProc)
   16.04.2003 SVS
     + DM_GETSELECTION и DM_SETSELECTION.
   27.02.2003 SVS
@@ -1127,7 +1129,7 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
   FocusPos=-1;
   PrevFocusPos=-1;
 
-  if(!DlgProc) // функция должна быть всегда!!!
+  if(!DlgProc || IsBadCodePtr((FARPROC)DlgProc)) // функция должна быть всегда!!!
   {
     DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
     // знать диалог в старом стиле - учтем этот факт!

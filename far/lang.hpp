@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.119 12.03.2003 $ */
+/* Revision: 1.120 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    + MCannotKillProcessPerm, MQuickViewRatio
   12.03.2003 SVS
     ! MListFilesSize -> MListFilesSize1, MListFilesSize2, MCopyCannotChangeFolderAttr
   27.01.2003 VVM
@@ -1501,6 +1503,7 @@ enum
   MKillProcessWarning,
   MKillProcessKill,
   MCannotKillProcess,
+  MCannotKillProcessPerm,
 
   MQuickViewTitle,
   MQuickViewFolder,
@@ -1511,6 +1514,7 @@ enum
   MQuickViewFiles,
   MQuickViewBytes,
   MQuickViewCompressed,
+  MQuickViewRatio,
   MQuickViewCluster,
   MQuickViewRealSize,
   MQuickViewSlack,

@@ -5,10 +5,15 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.109 05.03.2003 $ */
+/* Revision: 1.110 02.05.2003 $ */
 
 /*
 Modify:
+  02.05.2003 SVS
+    - BugZ#727 - [wish] ѕрикрутить Ctrl-R к меню выбора дисков
+      “еперь поправлен:
+      "...после Ctrl-R все равно прыгает на A:, если до перечитывани€
+      курсор сто€л на одном из плагинов (например, FTP)..."
   05.03.2003 SVS
     ! «акоментим _SVS
   23.02.2003 SVS
@@ -574,7 +579,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         }
         if (FirstCall)
           ChDiskItem.SetSelect(I==Pos);
-        else
+        else if(Pos < DiskCount)
           ChDiskItem.SetSelect(MenuLine==Pos);
         strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
         if (strlen(MenuText)>4)
@@ -702,7 +707,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               break;
             }
           }
-        }
+        } // END: for (PluginItem=0;;++PluginItem)
+
         ++PluginNumber;
       }
 
@@ -758,7 +764,11 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
         ChDiskItem.Flags&=~LIF_SEPARATOR;
         for (int I=0;I<PluginMenuItemsCount;++I)
+        {
+          if(Pos > DiskCount)
+            MPItems.getItem(I)->Item.SetSelect(DiskCount+I+1==Pos);
           ChDisk.AddItem(&MPItems.getItem(I)->Item);
+        }
       }
     }
     /* IS 22.08.2002 $ */
@@ -1666,7 +1676,7 @@ void Panel::DrawSeparator(int Y)
   {
     SetColor(COL_PANELBOX);
     GotoXY(X1,Y);
-    ShowSeparator(X2-X1+1);
+    ShowSeparator(X2-X1+1,1);
   }
 }
 

@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.155 17.03.2003 $ */
+/* Revision: 1.156 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
+    - траблы с макросами:
+      BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
+      BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
   17.03.2003 SVS
     + ACTL_GETPOLICIES + FFPOL_* - пока для внутреннего юзания
   20.02.2003 SVS
@@ -612,7 +617,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
     case ACTL_GETWCHARMODE:
     {
-      return Opt.UseTTFFont;
+      return Opt.UseUnicodeConsole;
     }
 
     /* $ 03.08.2000 SVS
@@ -727,9 +732,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         switch(KeyMacro->Command)
         {
           case MCMD_LOADALL: // из реестра в память ФАР с затиранием предыдущего
-            if(Macro.IsRecording() || Macro.IsExecuting())
+            if(Macro.IsRecording())
               return FALSE;
-            return Macro.LoadMacros();
+            return Macro.LoadMacros(!Macro.IsExecuting());
 
           case MCMD_SAVEALL: // из памяти ФАРа в реестра
             if(Macro.IsRecording() || Macro.IsExecuting())
@@ -760,7 +765,10 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         MRec.Flags=(((struct KeySequence*)Param)->Flags)<<16;
         MRec.Key=0;
         MRec.BufferSize=((struct KeySequence*)Param)->Count;
-        MRec.Buffer=((struct KeySequence*)Param)->Sequence;
+        if(MRec.BufferSize == 1)
+          MRec.Buffer=(DWORD *)((struct KeySequence*)Param)->Sequence[0];
+        else
+          MRec.Buffer=((struct KeySequence*)Param)->Sequence;
         return CtrlObject->Macro.PostTempKeyMacro(&MRec);
 #if 0
         // Этот кусок - для дальнейших экспериментов

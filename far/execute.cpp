@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.82 17.03.2003 $ */
+/* Revision: 1.83 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! при смене кодовой страницы так же переинициализируем некоторое массивы
+    ! попытка борьбы с синим фоном в 4NT при старте консоль
   17.03.2003 SVS
     - BugZ#831 - Неверный заголовок окна при запуске из командной строки
   06.03.2003 SVS
@@ -1138,8 +1141,10 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       pi.hProcess=si.hProcess;
     }
     else
-      ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,
-                             NULL,NULL,&si,&pi);
+    {
+      SetRealColor(F_LIGHTGRAY|B_BLACK); // попытка борьбы с синим фоном в 4NT при старте консоль
+      ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,NULL,NULL,&si,&pi);
+    }
 
     StartExecTime=clock();
   }
@@ -1631,6 +1636,9 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if(r1 && r2) // Если все ОБИ, то так  и...
     {
       InitRecodeOutTable(cp);
+      InitLCIDSort();
+      LocalUpperInit();
+      InitKeysArray();
       CtrlObject->Cp()->Redraw();
       ScrBuf.Flush();
       return TRUE;

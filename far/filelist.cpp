@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.176 04.03.2003 $ */
+/* Revision: 1.177 02.05.2003 $ */
 
 /*
 Modify:
+  02.05.2003 SVS
+    + BugZ#830 - [wish] ѕрикрутить Alt-Home и Alt-End дл€ прокрутки
   04.03.2003 SVS
     - BugZ#795 -вывод команды затираетс€ командной строкой фара при возврате из программы
       Ctrl-G Echo !.! Enter - псоледней строки нет (CAS - видна!)
@@ -1156,12 +1158,14 @@ int FileList::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_ALTLEFT:     // ѕрокрутка длинных имен и описаний
-      LeftPos--;
+    case KEY_ALTHOME:     // ѕрокрутка длинных имен и описаний - в начало
+      LeftPos=(Key == KEY_ALTHOME)?0:LeftPos-1;
       Redraw();
       return(TRUE);
 
     case KEY_ALTRIGHT:    // ѕрокрутка длинных имен и описаний
-      LeftPos++;
+    case KEY_ALTEND:     // ѕрокрутка длинных имен и описаний - в конец
+      LeftPos=(Key == KEY_ALTEND)?0x7fff:LeftPos+1;
       Redraw();
       return(TRUE);
 

@@ -1202,6 +1202,7 @@
 "You will lose any unsaved information in this program"
 "Kill"
 "Cannot kill the specified task"
+"You have no permission to kill this process."
 
 "Quick view"
 "Folder \"%s\""
@@ -1212,6 +1213,7 @@
 "Files            "
 "Files size       "
 "Compressed size  "
+"Ratio            "
 "Cluster size     "
 "Real files size  "
 "Files slack      "

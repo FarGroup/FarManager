@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.135 24.04.2003 $ */
+/* Revision: 1.136 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! Вместо mprintf("<>"); применим BoxText(), который в зависимости от
+      Opt.UseUnicodeConsole будет выводить 0xbb/0xab или >/<
   24.04.2003 VVM
     + Новая функция ShowDown() используется при нажатии на "стрелка вниз"
   15.04.2003 SVS
@@ -1015,13 +1018,13 @@ void Viewer::DisplayObject()
       {
         GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
-        mprintf(">");
+        BoxText(Opt.UseUnicodeConsole?0xbb:'>');
       }
       if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
       {
         GotoXY(X1,Y);
         SetColor(COL_VIEWERARROWS);
-        mprintf("<");
+        BoxText(Opt.UseUnicodeConsole?0xab:'<');
       }
     } /* for */
   } // if (Hex)  - else
@@ -1250,13 +1253,13 @@ void Viewer::ShowUp()
     {
       GotoXY(XX2,Y);
       SetColor(COL_VIEWERARROWS);
-      mprintf(">");
+      BoxText(Opt.UseUnicodeConsole?0xbb:'>');
     }
     if (LeftPos>0 && *OutStr[I]!=0 && ViOpt.ShowArrows)
     {
       GotoXY(X1,Y);
       SetColor(COL_VIEWERARROWS);
-      mprintf("<");
+      BoxText(Opt.UseUnicodeConsole?0xab:'<');
     }
   }
 
@@ -1337,13 +1340,14 @@ void Viewer::ShowDown()
     {
       GotoXY(XX2,Y);
       SetColor(COL_VIEWERARROWS);
-      mprintf(">");
+      BoxText(Opt.UseUnicodeConsole?0xbb:'>');
+
     }
     if (LeftPos>0 && *OutStr[I]!=0 && ViOpt.ShowArrows)
     {
       GotoXY(X1,Y);
       SetColor(COL_VIEWERARROWS);
-      mprintf("<");
+      BoxText(Opt.UseUnicodeConsole?0xab:'<');
     }
   }
 

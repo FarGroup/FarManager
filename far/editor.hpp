@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.43 28.04.2003 $ */
+/* Revision: 1.44 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! Работа с закладками вынесена в отдельные функции SetBookmark() и GotoBookmark()
   28.04.2003 SVS
     ! Изменены параметры SaveData
   05.03.2003 SVS
@@ -318,6 +320,9 @@ class Editor:public ScreenObject
     void VBlockShift(int Left);
     struct EditList * GetStringByNumber(int DestLine);
     static void EditorShowMsg(const char *Title,const char *Msg, const char* Name);
+
+    int SetBookmark(DWORD Pos);
+    int GotoBookmark(DWORD Pos);
 
   public:
     Editor();

@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.30 21.04.2003 $ */
+/* Revision: 1.31 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! W-Console: в Message() вместо MakeSeparator() применен другой трюк с
+      использованием DrawLine(). В vmenu... там такое пока не прет :-(
   21.04.2003 SVS
     + CheckErrorForProcessed() - Проверка на "продолжаемость" экспериментов
       по... например, удалению файла с разными именами!
@@ -404,15 +407,16 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       int Length=X2-X1-5;
       if (Length>1)
       {
-        char Separator[1024];
-        MakeSeparator(Length,Separator,(Chr == 2?3:1));
+        SetColor(COL_DIALOGBOX);
+        GotoXY(X1+3,Y1+I+2);
+        DrawLine(Length,(Chr == 2?3:1));
         CPtrStr++;
         int TextLength=strlen(CPtrStr);
         if (TextLength<Length)
-          memcpy(&Separator[(Length-TextLength)/2],CPtrStr,TextLength);
-        SetColor(COL_DIALOGBOX);
-        GotoXY(X1+3,Y1+I+2);
-        BoxText(Separator);
+        {
+          GotoXY(X1+3+(Length-TextLength)/2,Y1+I+2);
+          Text(CPtrStr);
+        }
         SetColor(COL_DIALOGTEXT);
       }
       continue;

@@ -5,10 +5,15 @@ main.cpp
 
 */
 
-/* Revision: 1.67 16.04.2003 $ */
+/* Revision: 1.68 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! /aw удален, вместо него /8, который в масдае не действует, а в NT
+      заставляет работать ФАР в 8-битной консоли (по умолчанию в NT
+      ФАР стартует as Unicode - как для Out, так и для Inp
+    ! Автодетект TTF отключен нафиг
   16.04.2003 SVS
     ! /co преобладает над /p
     ! Уточнение для _beginthread() - вызовем функции напрямую, иначе
@@ -247,11 +252,7 @@ printf(
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
     printf(
-#if !defined(USE_WFUNC_ALW)
-" /aw  Disable TrueType font autodetection.\n"
-#else
-" /8   Disable Unicode console.\n"
-#endif
+" /8   Forces FAR to work in ANSI (non-Unicode) console.\n"
     );
   }
 #endif
@@ -288,6 +289,7 @@ printf(
 }
 
 #if defined(USE_WFUNC)
+/*
 void DetectTTFFont(char *Path)
 {
   char AppName[NM*2], OptRegRoot[NM];
@@ -302,10 +304,11 @@ void DetectTTFFont(char *Path)
     strcpy(AppName,"Console");
   }
   int FontFamily=GetRegKey(AppName,"FontFamily",0);
-  if(FontFamily && Opt.UseTTFFont == -1)
-    Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
+  if(FontFamily && Opt.UseUnicodeConsole == -1)
+    Opt.UseUnicodeConsole=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
   strcpy(Opt.RegRoot,OptRegRoot);
 }
+*/
 #endif
 
 static int MainProcess(char *EditName,char *ViewName,char *DestName1,char *DestName2,int StartLine,int StartChar,int RegOpt)
@@ -504,7 +507,7 @@ int _cdecl main(int Argc, char *Argv[])
 #endif
 
 #if defined(USE_WFUNC)
-  Opt.UseTTFFont=-1;
+  Opt.UseUnicodeConsole=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT /* && WinVer.dwMajorVersion >= 5 */)?TRUE:FALSE;
 #endif
 
 //  Opt.ExceptRules=-1;
@@ -546,21 +549,12 @@ int _cdecl main(int Argc, char *Argv[])
             case 'G':
               Opt.NoGraphics=TRUE;
               break;
-#if defined(USE_WFUNC)
-#if !defined(USE_WFUNC_ALW)
-            case 'W':
-              Opt.UseTTFFont=FALSE;
-              break;
-#endif
-#endif
           }
           break;
 #if defined(USE_WFUNC)
-#if defined(USE_WFUNC_ALW)
         case '8':
-          Opt.UseTTFFont=FALSE;
+          Opt.UseUnicodeConsole=FALSE;
           break;
-#endif
 #endif
         case 'E':
           if (isdigit(Argv[I][2]))
@@ -589,14 +583,6 @@ int _cdecl main(int Argc, char *Argv[])
         case 'I':
           Opt.SmallIcon=TRUE;
           break;
-#if 0
-#if defined(USE_WFUNC)
-        case 'W':
-          if(Opt.UseTTFFont == -1)
-            Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)?TRUE:FALSE;
-          break;
-#endif
-#endif
         case 'X':
           Opt.ExceptRules=0;
 #if defined(_DEBUGEXC)
@@ -728,21 +714,8 @@ int _cdecl main(int Argc, char *Argv[])
   SetFileApisToOEM();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
 #if defined(USE_WFUNC)
-#if defined(USE_WFUNC_ALW)
-  if(Opt.UseTTFFont == -1 && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
-  {
-    Opt.UseTTFFont=TRUE;
-    Opt.CleanAscii=FALSE;
-    Opt.NoGraphics=FALSE;
-  }
-  else
-    Opt.UseTTFFont=0;
-#else
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-    DetectTTFFont(FarPath);
-  else
-    Opt.UseTTFFont=0;
-#endif
+//  if(Opt.CleanAscii || Opt.NoGraphics)
+//    Opt.UseUnicodeConsole=FALSE;
 #endif
   /* $ 02.07.2001 IS
      Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое

@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.12 21.03.2003 $ */
+/* Revision: 1.13 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! ≈сли выставлена полици€, то покажет соответствующее сообщение
   21.03.2003 SVS
     - Ctrl-W Del Ctrl-W и т.д....
   17.03.2003 SVS
@@ -95,7 +97,10 @@ void ShowProcessList()
 
           // ѕолици€ 21
           if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
+          {
+            Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
             break;
+          }
 
           HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
           if (ProcWnd!=NULL)

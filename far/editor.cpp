@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.223 28.04.2003 $ */
+/* Revision: 1.224 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    ! Работа с закладками вынесена в отдельные функции SetBookmark() и GotoBookmark()
   28.04.2003 SVS
     ! Изменены параметры SaveData + немного очередных уточнений
   15.04.2003 SVS
@@ -1600,7 +1602,6 @@ void Editor::TextChanged(int State)
 }
 /* skv$*/
 
-
 int Editor::ProcessKey(int Key)
 {
   if (Key==KEY_IDLE)
@@ -1669,34 +1670,14 @@ int Editor::ProcessKey(int Key)
   if (Key==KEY_ALTD)
     Key=KEY_CTRLK;
 
+  // работа с закладками
   if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
-  {
-    int Pos=Key-KEY_CTRL0;
-    if (SavePos.Line[Pos]!=0xffffffff)
-    {
-      GoToLine(SavePos.Line[Pos]);
-      CurLine->EditLine.SetCurPos(SavePos.Cursor[Pos]);
-      CurLine->EditLine.SetLeftPos(SavePos.LeftPos[Pos]);
-      TopScreen=CurLine;
-      for (int I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
-        TopScreen=TopScreen->Prev;
-      if (!EdOpt.PersistentBlocks)
-        UnmarkBlock();
-      Show();
-    }
-    return(TRUE);
-  }
+    return GotoBookmark(Key-KEY_CTRL0);
   if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
     Key=Key-KEY_CTRLSHIFT0+KEY_RCTRL0;
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
-  {
-    int Pos=Key-KEY_RCTRL0;
-    SavePos.Line[Pos]=NumLine;
-    SavePos.Cursor[Pos]=CurPos;
-    SavePos.LeftPos[Pos]=CurLine->EditLine.GetLeftPos();
-    SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
-    return(TRUE);
-  }
+    return SetBookmark(Key-KEY_RCTRL0);
+
   int SelStart,SelEnd;
   int SelFirst=FALSE;
   int SelAtBeginning=FALSE;
@@ -2277,7 +2258,9 @@ int Editor::ProcessKey(int Key)
 
     case KEY_CTRLX:
     case KEY_SHIFTDEL:
+    {
       Copy(FALSE);
+    }
     case KEY_CTRLD:
     {
       Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
@@ -2295,6 +2278,7 @@ int Editor::ProcessKey(int Key)
       Pasting++;
       if (!EdOpt.PersistentBlocks && VBlockStart==NULL)
         DeleteBlock();
+
       Paste();
       // MarkingBlock=(VBlockStart==NULL);
       Flags.Change(FEDITOR_MARKINGBLOCK,(VBlockStart==NULL));
@@ -5960,7 +5944,7 @@ int Editor::EditorControl(int Command,void *Param)
       if (Flags.Check(FEDITOR_LOCKMODE))
       {
         _ECTLLOG(SysLog("FEDITOR_LOCKMODE!"));
-        return(FALSE);
+        return FALSE;
       }
       else
       {
@@ -5969,13 +5953,13 @@ int Editor::EditorControl(int Command,void *Param)
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",StringNumber));
-          return(FALSE);
+          return FALSE;
         }
         AddUndoData(CurPtr->EditLine.GetStringAddr(),StringNumber,
                     CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
         CurPtr->EditLine.ReplaceTabs();
       }
-      return(TRUE);
+      return TRUE;
     }
 
     // должно выполняется в FileEditor::EditorControl()
@@ -6003,13 +5987,13 @@ int Editor::EditorControl(int Command,void *Param)
         if (CurPtr==NULL)
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL",col->StringNumber));
-          return(FALSE);
+          return FALSE;
         }
         if (col->Color==0)
           return(CurPtr->EditLine.DeleteColor(newcol.StartPos));
         CurPtr->EditLine.AddColor(&newcol);
       }
-      return(TRUE);
+      return TRUE;
     }
 
     // должно выполняется в FileEditor::EditorControl()
@@ -6025,13 +6009,13 @@ int Editor::EditorControl(int Command,void *Param)
         if (!CurPtr || IsBadWritePtr(col,sizeof(struct EditorColor)))
         {
           _ECTLLOG(SysLog("GetStringByNumber(%d) return NULL or IsBadWritePtr(col,sizeof(struct EditorColor)",col->StringNumber));
-          return(FALSE);
+          return FALSE;
         }
         struct ColorItem curcol;
         if (!CurPtr->EditLine.GetColor(&curcol,col->ColorItem))
         {
           _ECTLLOG(SysLog("GetColor() return NULL"));
-          return(FALSE);
+          return FALSE;
         }
         col->StartPos=curcol.StartPos;
         col->EndPos=curcol.EndPos;
@@ -6044,7 +6028,7 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  Color       =%d (0x%08X)",col->Color,col->Color));
         _ECTLLOG(SysLog("}"));
       }
-      return(TRUE);
+      return TRUE;
     }
 
     /*$ 07.09.2000 skv
@@ -6174,7 +6158,7 @@ int Editor::EditorControl(int Command,void *Param)
       {
         _ECTLLOG(if(Flags.Check(FEDITOR_LOCKMODE))SysLog("FEDITOR_LOCKMODE!"));
         _ECTLLOG(if(!(VBlockStart || BlockStart))SysLog("Not selected block!"));
-        return(FALSE);
+        return FALSE;
       }
 
       Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
@@ -6183,9 +6167,42 @@ int Editor::EditorControl(int Command,void *Param)
       return TRUE;
     }
   }
-  return(FALSE);
+  return FALSE;
 }
 
+int Editor::SetBookmark(DWORD Pos)
+{
+  if(Pos < BOOKMARK_COUNT)
+  {
+    SavePos.Line[Pos]=NumLine;
+    SavePos.Cursor[Pos]=CurLine->EditLine.GetCurPos();
+    SavePos.LeftPos[Pos]=CurLine->EditLine.GetLeftPos();
+    SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+int Editor::GotoBookmark(DWORD Pos)
+{
+  if(Pos < BOOKMARK_COUNT)
+  {
+    if (SavePos.Line[Pos]!=0xffffffff)
+    {
+      GoToLine(SavePos.Line[Pos]);
+      CurLine->EditLine.SetCurPos(SavePos.Cursor[Pos]);
+      CurLine->EditLine.SetLeftPos(SavePos.LeftPos[Pos]);
+      TopScreen=CurLine;
+      for (int I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
+        TopScreen=TopScreen->Prev;
+      if (!EdOpt.PersistentBlocks)
+        UnmarkBlock();
+      Show();
+    }
+    return TRUE;
+  }
+  return FALSE;
+}
 
 struct EditList * Editor::GetStringByNumber(int DestLine)
 {

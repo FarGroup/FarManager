@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.94 14.04.2003 $ */
+/* Revision: 1.95 02.05.2003 $ */
 
 /*
 Modify:
+  02.05.2003 SVS
+    - BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
+    - BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
+    + IsExecutingLastKey() - введем проверку на... "это последняя клавиша макрокоманды?"
   14.04.2003 SVS
     - отвалились несколько post`ов
   17.03.2003 SVS
@@ -445,6 +449,7 @@ KeyMacro::KeyMacro()
   MacroPROM=NULL;
   RecBuffer=NULL;
   StartMacroPos=-2; // Только 1 раз(!) будет автостарт
+  Mode=MACRO_SHELL;
   LoadMacros();
 }
 
@@ -454,8 +459,7 @@ KeyMacro::~KeyMacro()
   InitVars();
 }
 
-// инициализация всех переменных
-void KeyMacro::InitVars()
+void KeyMacro::InitVarsPROM()
 {
   if(MacroPROM)
   {
@@ -465,6 +469,14 @@ void KeyMacro::InitVars()
     xf_free(MacroPROM);
   }
   if(RecBuffer) xf_free(RecBuffer);
+  MacroPROMCount=0;
+  MacroPROM=NULL;
+}
+
+// инициализация всех переменных
+void KeyMacro::InitVars(BOOL InitedRAM)
+{
+  InitVarsPROM();
 
   if(LockScr)
   {
@@ -472,14 +484,16 @@ void KeyMacro::InitVars()
     LockScr=NULL;
   }
 
-  ReleaseTempBuffer(TRUE);
+  if(InitedRAM)
+  {
+    ReleaseTempBuffer(TRUE);
+    Executing=FALSE;
+  }
 
-  MacroPROMCount=0;
-  Recording=FALSE;
-  Executing=FALSE;
-  MacroPROM=NULL;
   RecBuffer=NULL;
   RecBufferSize=0;
+
+  Recording=FALSE;
   InternalInput=FALSE;
 }
 
@@ -510,10 +524,10 @@ void KeyMacro::ReleaseTempBuffer(BOOL All)
 }
 
 // загрузка ВСЕХ макросов из реестра
-int KeyMacro::LoadMacros()
+int KeyMacro::LoadMacros(BOOL InitedRAM)
 {
   int Ret=FALSE;
-  InitVars();
+  InitVars(InitedRAM);
 
   #define TEMP_BUFFER_SIZE 32768
   char *Buffer=new char[TEMP_BUFFER_SIZE];
@@ -531,7 +545,7 @@ int KeyMacro::LoadMacros()
     if(Ret)
       KeyMacro::Sort();
   }
-  Mode=MACRO_SHELL;
+//  Mode=MACRO_SHELL;
   return Ret;
 }
 
@@ -676,8 +690,7 @@ int KeyMacro::ProcessKey(int Key)
       }
 
 //_SVS(SysLog("<Key=%s",_FARKEY_ToName(Key)));
-      int I=GetIndex(Key,
-                    (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
+      int I=GetIndex(Key,(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=MacroPROM[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
 //_SVS(SysLog("KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroPROM[I].Key)));
@@ -694,6 +707,7 @@ int KeyMacro::ProcessKey(int Key)
         }
 
         Executing=TRUE;
+        PostTempKeyMacro(MacroPROM+I);
         ExecMacroPos=I;
         ExecKeyPos=0;
 
@@ -909,8 +923,19 @@ int KeyMacro::GetKey()
       LockScr=NULL;
       return(FALSE);
     }
+/*
+    else if(ExecKeyPos>=MR->BufferSize)
+    {
+      ReleaseTempBuffer();
+      Executing=FALSE;
+      return(FALSE);
+    }
+    else
+*/
+    {
     Executing=TRUE;
     ExecKeyPos=0; //?????????????????????????????????
+    }
   }
 
 initial:
@@ -1603,10 +1628,10 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   }
 
   // теперь добавим в нашу "очередь" новые данные
-  if((MRec->BufferSize+1) > 1)
+  if((MRec->BufferSize+1) > 2)
     memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
   else if(MRec->Buffer)
-    NewMacroRAM2.Buffer=reinterpret_cast<DWORD*>(*MRec->Buffer);
+    NewMacroRAM2.Buffer[0]=(DWORD)MRec->Buffer;
   NewMacroRAM2.Buffer[NewMacroRAM2.BufferSize++]=KEY_NONE; // доп.клавиша/пустышка
 
   MacroRAM=NewMacroRAM;
@@ -2021,4 +2046,17 @@ void KeyMacro::Sort(void)
 DWORD KeyMacro::KeyFromBuffer(struct MacroRecord *MR,int KeyPos)
 {
   return (MR->BufferSize > 1)?MR->Buffer[KeyPos]:(DWORD)MR->Buffer;
+}
+
+// Вот это лечит вот ЭТО:
+// BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
+int KeyMacro::IsExecutingLastKey()
+{
+  if(Executing)
+  {
+    struct MacroRecord *MR;
+    MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
+    return (ExecKeyPos == MR->BufferSize-1);
+  }
+  return FALSE;
 }

@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.23 19.08.2002 $ */
+/* Revision: 1.24 02.05.2003 $ */
 
 /*
 Modify:
+  02.05.2003 SVS
+    - BugZ#790 - Редактирование макроса самим собой прерывает его исполнение?
+    + IsExecutingLastKey() - введем проверку на... "это последняя клавиша макрокоманды?"
   19.08.2002 SVS
     + KeyMacro::KeyFromBuffer() - юзать ее для получения нужной клавиши из
       буфера
@@ -133,7 +136,8 @@ class KeyMacro
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);
-    void InitVars();
+    void InitVars(BOOL InitedRAM=TRUE);
+    void InitVarsPROM();
     void ReleaseTempBuffer(BOOL All=FALSE); // удалить временный буфер
 
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
@@ -160,6 +164,7 @@ class KeyMacro
 
     int  IsRecording() {return(Recording);};
     int  IsExecuting() {return(Executing);};
+    int  IsExecutingLastKey();
     int  IsDsableOutput() {return CheckCurMacroFlags(MFLAGS_DISABLEOUTPUT);};
     void SetMode(int Mode) {KeyMacro::Mode=Mode;};
     int  GetMode() {return(Mode);};
@@ -171,7 +176,7 @@ class KeyMacro
     // Поместить временный рекорд (бинарное представление)
     int PostTempKeyMacro(struct MacroRecord *MRec);
 
-    int  LoadMacros();
+    int  LoadMacros(BOOL InitedRAM=TRUE);
     void SaveMacros(BOOL AllSaved=TRUE);
 
     int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST?Mode:MACRO_LAST][0];}
