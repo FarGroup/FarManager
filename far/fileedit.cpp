@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.84 21.01.2002 $ */
+/* Revision: 1.85 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 SVS
+    ! MEditSavedChangedNonFile2
   21.01.2002 SVS
     - Bug#255 - Alt-Shift-Ins - каталог с другой панели
   16.01.2002 SVS
@@ -697,8 +699,10 @@ int FileEditor::ProcessKey(int Key)
         if(FEdit.IsFileChanged() &&  // в текущем сеансе были изменения?
            GetFileAttributes(FullFileName) == -1) // а файл еще существует?
         {
-          switch(Message(MSG_WARNING,2,MSG(MEditTitle),MSG(MEditSavedChangedNonFile),
-                      MSG(MEditSave),MSG(MCancel)))
+          switch(Message(MSG_WARNING,2,MSG(MEditTitle),
+                         MSG(MEditSavedChangedNonFile),
+                         MSG(MEditSavedChangedNonFile2),
+                         MSG(MEditSave),MSG(MCancel)))
           {
             case 0:
               if(ProcessKey(KEY_F2))
@@ -784,8 +788,10 @@ int FileEditor::ProcessKey(int Key)
         if(FEdit.IsFileChanged() &&  // в текущем сеансе были изменения?
            GetFileAttributes(FullFileName) == -1 && !IsNewFile) // а сам файл то еще на месте?
         {
-          switch(Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditSavedChangedNonFile),
-                  MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
+          switch(Message(MSG_WARNING,3,MSG(MEditTitle),
+                         MSG(MEditSavedChangedNonFile),
+                         MSG(MEditSavedChangedNonFile2),
+                         MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
           {
             case 0:
               ProcessKey(KEY_F2);  // попытка сначала сохранить
@@ -1127,11 +1133,5 @@ BOOL FileEditor::SetFileName(const char *NewFileName)
 
 int FileEditor::EditorControl(int Command,void *Param)
 {
-  switch(Command)
-  {
-    /* ***************************************************** */
-    default:
-      return FEdit.EditorControl(Command,Param);
-  }
-  return FALSE;
+  return FEdit.EditorControl(Command,Param);
 }

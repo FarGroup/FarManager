@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.31 19.01.2002 $ */
+/* Revision: 1.32 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 SVS
+    - небольшая бага в AddEndSlash()
   19.01.2002 VVM
     ! Небольшое уточнение в CenterStr
   25.12.2001 SVS
@@ -550,10 +552,11 @@ BOOL AddEndSlash(char *Path,char TypeSlash)
         изменение уже существующего конечного слеша на такой, который
         встречается чаще.
     */
-    char *end=Path;
+    char *end;
     int Slash=0, BackSlash=0;
     if(!TypeSlash)
     {
+      end=Path;
       while(*end)
       {
        Slash+=(*end=='\\');
@@ -563,10 +566,11 @@ BOOL AddEndSlash(char *Path,char TypeSlash)
     }
     else
     {
+      end=Path+strlen(Path);
       if(TypeSlash == '\\')
-        BackSlash=1;
-      else
         Slash=1;
+      else
+        BackSlash=1;
     }
     int Length=end-Path;
     char c=(Slash<BackSlash)?'/':'\\';

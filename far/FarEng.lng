@@ -274,7 +274,7 @@
 "&Cancel"
 
 "Cannot create the symlink"
-"Target directory must be empty"
+"Target folder must be empty"
 
 "Volume mount points error"
 "Retrieving volume name for '%s' failed"
@@ -394,7 +394,7 @@
 "which exceeds the configured maximum size of %s."
 "Do you wish to edit it?"
 
-"It is impossible to edit the directory"
+"It is impossible to edit the folder"
 
 "Search"
 "&Search for"
@@ -532,7 +532,11 @@
 "&Dos/Windows format (CR LF)"
 "&Unix format (LF)"
 "Cannot save the file"
-"File was changed but, probably, he was moved or deleted"
+"The file is changed but the folder containing"
+"this file was moved or deleted."
+"The path to the edited file does not exist,"
+"but will be created when the file is saved."
+"Continue?"
 
 "Name"
 "Size"

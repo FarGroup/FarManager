@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.126 16.01.2002 $ */
+/* Revision: 1.127 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 SVS
+    - для плагинов не добавляем в конец "." когда Ctrl-F делается для ".."
+    + Добавка для Shift-F4 - при несуществующем пути задать вопрос
   16.01.2002 SVS
     - Тот же самый BugZ#238. Немного увеличим буфера (до 4096 размер под FullPath)
   16.02.2002 VVM
@@ -953,7 +956,11 @@ int FileList::ProcessKey(int Key)
         strcpy(FileName,ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
         if (strcmp(FileName,"..")==0)
         {
-          strcpy(FileName,".");
+          if (PanelMode==PLUGIN_PANEL)
+            *FileName=0;
+          else
+            FileName[1]=0; // "."
+
           Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
           CurrentPath=TRUE;
         }
@@ -1259,8 +1266,31 @@ int FileList::ProcessKey(int Key)
           ConvertNameToShort(FileName,ShortFileName);
           /* $ 24.11.2001 IS применим функцию от ОТ ;-) */
           if (PathMayBeAbsolute(FileName))
-          /* IS $ */
+          {
             PluginMode=FALSE;
+          }
+          /* IS $ */
+          {
+            // проверим путь к файлу
+            char *Ptr=strrchr(FileName,'\\');
+            if(Ptr)
+            {
+              *Ptr=0;
+              DWORD CheckFAttr=GetFileAttributes(FileName);
+              if(CheckFAttr == -1)
+              {
+                SetMessageHelp("WarnEditorPath");
+                if (Message(MSG_WARNING,2,MSG(MWarning),
+                            MSG(MEditNewPath1),
+                            MSG(MEditNewPath2),
+                            MSG(MEditNewPath3),
+                            MSG(MHYes),MSG(MHNo))!=0)
+
+                  return(FALSE);
+              }
+              *Ptr='\\';
+            }
+          }
         }
         else
         {

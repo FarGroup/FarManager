@@ -1892,6 +1892,15 @@ enabled, there are three possible options:
                    contents of the file on the disk is reloaded into
                    the editor.
 
+@WarnEditorPath
+$ #Warning: Path to the file to edit does not exist#
+    When opening a new file for ~editing~@Editor@, you have entered
+the name of a folder that does not exist. Before saving the file, FAR
+will create the folder, provided that the path is correct (for
+example, a path starting with a non-existing drive letter would not be
+correct) and that you have enough rights to create the folder.
+
+
 @DriveDlg
 $ #Change drive#
     This menu allows to change the current drive of a panel,

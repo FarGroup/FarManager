@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.94 10.01.2002 $ */
+/* Revision: 1.95 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 SVS
+    + MEditSavedChangedNonFile2, MEditNewPath?
   10.01.2002 SVS
     + MEditSavedChangedNonFile
   03.01.2002 IS
@@ -810,6 +812,10 @@ enum
   MEditSaveUnix,
   MEditCannotSave,
   MEditSavedChangedNonFile,
+  MEditSavedChangedNonFile2,
+  MEditNewPath1,
+  MEditNewPath2,
+  MEditNewPath3,
 
   MColumnName,
   MColumnSize,

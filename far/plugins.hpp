@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.19 22.01.2002 $ */
+/* Revision: 1.20 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 SVS
+    + PICFF_PANELPLUGIN - первая попытка определиться с понятием "это панель"
   22.01.2002 SVS
     ! Удалено поле PluginItem.EditorPlugin - нигде не встретил.
     + PluginItem.*Flags - рабочие флаги пункта и флаги вызова эксп.функций
@@ -133,6 +135,24 @@ enum PLUGINITEMCALLFUNCFLAGS{
   PICFF_PROCESSEDITORINPUT   = 0x01000000, //
   PICFF_MINFARVERSION        = 0x02000000, //
   PICFF_PROCESSVIEWEREVENT   = 0x04000000, //
+
+  // PICFF_PANELPLUGIN - первая попытка определиться с понятием "это панель"
+  PICFF_PANELPLUGIN          = PICFF_OPENFILEPLUGIN|
+                               PICFF_GETFINDDATA|
+                               PICFF_FREEFINDDATA|
+                               PICFF_GETVIRTUALFINDDATA|
+                               PICFF_FREEVIRTUALFINDDATA|
+                               PICFF_SETDIRECTORY|
+                               PICFF_GETFILES|
+                               PICFF_PUTFILES|
+                               PICFF_DELETEFILES|
+                               PICFF_MAKEDIRECTORY|
+                               PICFF_PROCESSHOSTFILE|
+                               PICFF_SETFINDLIST|
+                               PICFF_PROCESSKEY|
+                               PICFF_PROCESSEVENT|
+                               PICFF_COMPARE|
+                               PICFF_GETOPENPLUGININFO,
 };
 
 struct PluginItem

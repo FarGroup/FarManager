@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.104 22.01.2002 $ */
+/* Revision: 1.105 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 SVS
+    - BugZ#137 - обработка падени€ панельного плагина
+    - Ќебольша€ бага в UnloadPlugin (с прощлого раза :-))
+    + RemoveTrailingSpaces в ProcessCommandLine() перед вызовом плагина
   22.01.2002 SVS
     ! ¬недрение флагов по каждому плагину
     ! Ќебольшие подготовительные операции в UnloadPlugin
@@ -760,26 +764,34 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin,DWORD Exception)
 
   BOOL Ret=FreeLibrary(CurPlugin.hModule);
   CurPlugin.FuncFlags.Skip(PICFF_LOADED); //??
-  Flags.Set(PSIF_DIALOG);
 
   // им€ оставл€ем об€зательно!!! :-(
   char ModuleName[NM];
   strcpy(ModuleName,CurPlugin.ModuleName);
+
+  BOOL NeedUpdatePanels=CurPlugin.FuncFlags.Check(PICFF_PANELPLUGIN);
+
   memset(&CurPlugin,0,sizeof(CurPlugin));
   strcpy(CurPlugin.ModuleName,ModuleName);
   CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
-  FrameManager->RefreshFrame();
-
-/*
   // BugZ#137 - обработка падени€ панельного плагина
   // здесь нужно проверить на "панельность" плагина,
-  if(CurPlugin.pGetFiles)
+  if(NeedUpdatePanels)
   {
     CtrlObject->Cp()->ActivePanel->SetCurDir(".",TRUE);
-    FrameManager->RefreshFrame();
+
+//    FrameManager->RefreshFrame();
+
+    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+
+    ActivePanel->Update(UPDATE_KEEP_SELECTION);
+    ActivePanel->Redraw();
+
+    Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+    AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+    AnotherPanel->Redraw();
   }
-*/
 }
 
 void PluginsSet::ShowMessageAboutIllegalPluginVersion(char* plg,int required)
@@ -2639,6 +2651,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
   */
   strcpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1));
   /* VVM $ */
+  RemoveTrailingSpaces(PluginCommand);
   HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {
