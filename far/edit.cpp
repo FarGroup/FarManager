@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.133 21.03.2005 $ */
+/* Revision: 1.134 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    - BugZ#1302 - Colorization problems when TABs are in text
   22.03.2005 WARP
     - BugZ#1297 Неверно устанавливался TabExpandMode для Edit'ов.
   28.02.2005 SVS
@@ -2911,7 +2913,10 @@ void Edit::ApplyColor()
   {
     struct ColorItem *CurItem=ColorList+Col;
     int Start=RealPosToTab(CurItem->StartPos)-LeftPos;
-    int End=RealPosToTab(CurItem->EndPos)-LeftPos;
+    //int End=RealPosToTab(CurItem->EndPos)-LeftPos;
+    int CorrectPos=(CurItem->StartPos < StrSize && Str[CurItem->StartPos] == '\t')?1:0;
+    int End=RealPosToTab(CurItem->EndPos+CorrectPos)-LeftPos;
+
     CHAR_INFO TextData[1024];
     if (Start<=X2 && End>=X1)
     {
@@ -2919,7 +2924,7 @@ void Edit::ApplyColor()
         Start=X1;
       if (End>X2)
         End=X2;
-      int Length=End-Start+1;
+      int Length=End-Start+1-CorrectPos;
       if (Length>0 && Length<sizeof(TextData))
       {
         ScrBuf.Read(Start,Y1,End,Y1,TextData);
