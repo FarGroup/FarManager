@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.132 08.07.2004 $ */
+/* Revision: 1.133 26.07.2004 $ */
 
 /*
 Modify:
+  26.07.2004 VVM
+    - Функция SetCurPath() зависала при вызове из панели QuickView.
   08.07.2004 SVS
     - В макросе: "%file=APanel.Current; Tab Home Alt< $Text %file"
       не работает вставка текста в Alt< с помощью $Text "xx"
@@ -1756,36 +1758,31 @@ int  Panel::SetCurPath()
 #if 1
     while(!FarChDir(CurDir))
     {
-      BOOL IsChangeDisk=FALSE;
       char Root[1024];
       GetPathRoot(CurDir,Root);
-      if(FAR_GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
-        IsChangeDisk=TRUE;
-      else
+      if(FAR_GetDriveType(Root) != DRIVE_REMOVABLE || IsDiskInDrive(Root))
       {
         int Result=CheckFolder(CurDir);
         if(Result == CHKFLD_NOTACCESS)
         {
           if(FarChDir(Root))
+          {
             SetCurDir(Root,TRUE);
-          else
-            IsChangeDisk=TRUE;
+            return TRUE;
+          }
         }
         else if(Result == CHKFLD_NOTFOUND)
         {
-          if(CheckShortcutFolder(CurDir,sizeof(CurDir)-1,FALSE,TRUE))
+          if(CheckShortcutFolder(CurDir,sizeof(CurDir)-1,FALSE,TRUE) && FarChDir(CurDir))
           {
-            if(FarChDir(CurDir))
-              SetCurDir(CurDir,TRUE);
-            else
-              IsChangeDisk=TRUE;
+            SetCurDir(CurDir,TRUE);
+            return TRUE;
           }
-          else
-            IsChangeDisk=TRUE;
         }
+        else
+          break;
       }
-      if(IsChangeDisk)
-        ChangeDisk();
+      ChangeDisk();
     }
 #else
     do{
