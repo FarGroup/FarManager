@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.68 19.10.2001 $ */
+/* Revision: 1.69 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 KM
+    - Маленький глючок в моём прошлом патче, перепутал параметры местами у memset.
+    ! Использование DIF_SEPARATOR2 вмечто MakeSeparator.
+    ! Обработка кнопки [ New search ] сделана через enum VVM для однообразности.
   19.10.2001 VVM
     + Вынесли GoTo за пределы диалоговой процедуры.Причины все те же, что и у [ Panel ]
     ! FindFileArcIndex нельзя использовать при обработке выделенных элементов списка.
@@ -279,7 +283,7 @@ static DWORD FindFileArcIndex;
 // Используются для отправки файлов на временную панель.
 // индекс текущего элемента в списке и флаг для отправки.
 static DWORD FindExitIndex;
-enum {FIND_EXIT_NONE, FIND_EXIT_GOTO, FIND_EXIT_PANEL};
+enum {FIND_EXIT_NONE, FIND_EXIT_SEARCHAGAIN, FIND_EXIT_GOTO, FIND_EXIT_PANEL};
 static int FindExitCode;
 //static char FindFileArcName[NM];
 
@@ -299,7 +303,6 @@ static HANDLE hDlg;
 //static struct OpenPluginInfo Info;
 static int RecurseLevel;
 static int BreakMainThread;
-static int ContinueSearch;
 static int PluginMode;
 
 static HANDLE hMutex;
@@ -325,8 +328,9 @@ int _cdecl SortItems(const void *p1,const void *p2)
   PluginPanelItem *Item1=(PluginPanelItem *)p1;
   PluginPanelItem *Item2=(PluginPanelItem *)p2;
   char n1[NM*2],n2[NM*2];
-  memset(n1,sizeof(n1),0);
-  memset(n2,sizeof(n2),0);
+  // здесь я чтой-то глюканул, перепутал параметры местами :))
+  memset(&n1,0,sizeof(n1));
+  memset(&n2,0,sizeof(n2));
   if (*Item1->FindData.cFileName)
     strcpy(n1,Item1->FindData.cFileName);
   if (*Item2->FindData.cFileName)
@@ -479,7 +483,7 @@ FindFiles::FindFiles()
       /* 00 */DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
       /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
       /* 02 */DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
-      /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR,0,"",
+      /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
       /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,"",
       /* 05 */DI_EDIT,5,6,36,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
       /* 06 */DI_TEXT,40,5,0,0,0,0,0,0,"",
@@ -489,7 +493,7 @@ FindFiles::FindFiles()
       /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
       /* 11 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
       /* 12 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindArchives,
-      /* 13 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR,0,"",
+      /* 13 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR2,0,"",
       /* 14 */DI_RADIOBUTTON,5,12,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
       /* 15 */DI_RADIOBUTTON,5,13,0,0,0,1,0,0,(char *)MSearchFromRoot,
       /* 16 */DI_RADIOBUTTON,5,14,0,0,0,0,0,0,(char *)MSearchFromCurrent,
@@ -501,15 +505,6 @@ FindFiles::FindFiles()
     };
     /* KM $ */
     MakeDialogItems(FindAskDlgData,FindAskDlg);
-
-    /* $ 27.02.2001 SVS
-       Динамически сформируем разделительную линию */
-    if(!H2Separator[0])
-      MakeSeparator(70,H2Separator,3);
-
-    strcpy(FindAskDlg[3].Data,H2Separator);
-    strcpy(FindAskDlg[13].Data,H2Separator);
-    /* SVS $ */
 
     {
       Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -893,7 +888,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if (Param1==5) // [ New search ] button pressed
       {
-        ContinueSearch=TRUE;
+        FindExitCode=FIND_EXIT_SEARCHAGAIN;
         return FALSE;
       }
       else if (Param1==9) // [ Stop ] button pressed
@@ -1034,8 +1029,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 int FindFiles::FindFilesProcess()
 {
-  ContinueSearch=FALSE;
-
   hMutex=CreateMutex(NULL,FALSE,NULL);
 
   static struct DialogData FindDlgData[]={
@@ -1136,6 +1129,10 @@ int FindFiles::FindFilesProcess()
 
   switch (FindExitCode)
   {
+    case FIND_EXIT_SEARCHAGAIN:
+    {
+      return TRUE;
+    }
     case FIND_EXIT_PANEL:
     // Отработаем переброску на временную панель
     {
@@ -1268,9 +1265,6 @@ int FindFiles::FindFilesProcess()
   } /* switch */
 
   CloseHandle(hMutex);
-
-  if (ContinueSearch)
-    return TRUE;
 
   return FALSE;
 }
