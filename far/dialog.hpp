@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.14 23.08.2000 $ */
+/* Revision: 1.15 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+   + InitDialogObjects() имеет параметр - для выборочной реинициализации
+     элементов
   23.08.2000 SVS
    ! изменения для DataDialog.
    + Переменная класса FocusPos - всегда известно какой элемент в фокусе
@@ -196,7 +199,12 @@ class Dialog:public Modal
        Теперь InitDialogObjects возвращает ID элемента
        с фокусом ввода
     */
-    int  InitDialogObjects();
+    /* $ 24.08.2000 SVS
+       InitDialogObjects имеет параметр - для выборочной реинициализации
+       элементов
+    */
+    int  InitDialogObjects(int ID=-1);
+    /* 24.08.2000 SVS $ */
     /* SVS $ */
     void GetDialogObjectsData();
     void SetWarningStyle(int Style) {

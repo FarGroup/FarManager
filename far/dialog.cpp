@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.27 24.08.2000 $ */
+/* Revision: 1.28 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+   + InitDialogObjects имеет параметр - для выборочной реинициализации
+     элементов
   24.08.2000 SVS
    ! Охрененная дыра!!!! (дальше только матом)... это про ComboBox
      Этого лучше не знать...
@@ -335,15 +338,34 @@ void Dialog::DisplayObject()
    Теперь InitDialogObjects возвращает ID элемента
    с фокусом ввода
 */
-int Dialog::InitDialogObjects()
+/* $ 24.08.2000 SVS
+  InitDialogObjects имеет параметр - для выборочной реинициализации
+  элементов. ID = -1 - касаемо всех объектов
+*/
+int Dialog::InitDialogObjects(int ID)
 {
   int I, J, TitleSet;
   int Length,StartX;
   int FocusSet, Type;
   struct DialogItem *CurItem;
+  int InitItemCount;
+
+  if(ID+1 > ItemCount)
+    return -1;
+
+  if(ID == -1) // инициализируем все?
+  {
+    ID=0;
+    InitItemCount=ItemCount;
+  }
+  else
+  {
+    InitItemCount=ID+1;
+  }
+
 
   // предварительный цикл по поводу кнопок и заголовка консоли
-  for(I=0, FocusSet=0, TitleSet=0; I < ItemCount; I++)
+  for(I=ID, FocusSet=0, TitleSet=0; I < InitItemCount; I++)
   {
     CurItem=&Item[I];
 
@@ -379,8 +401,9 @@ int Dialog::InitDialogObjects()
      }
   }
 
+
   // а теперь все сначала и по полной программе...
-  for (I=0; I < ItemCount; I++)
+  for (I=ID; I < InitItemCount; I++)
   {
     CurItem=&Item[I];
     Type=CurItem->Type;
@@ -581,6 +604,7 @@ int Dialog::InitDialogObjects()
   SetDialogMode(DMODE_CREATEOBJECTS);
   return I;
 }
+/* 24.08.2000 SVS $ */
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -2814,7 +2838,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           default:  // подразумеваем, что остались
             return 0;
         }
-        Dlg->InitDialogObjects(); // переинициализируем элементы диалога
+        Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
         Dlg->ShowDialog(Param1);
         ScrBuf.Flush();
         return strlen((char *)Param2)+1;
@@ -2826,7 +2850,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         Param1=((Edit *)(CurItem->ObjPtr))->GetMaxLength();
         ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
-        Dlg->InitDialogObjects(); // переинициализируем элементы диалога
+        Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
         return Param1;
       }
       return 0;
@@ -2966,7 +2990,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
         CurItem->Type=Type;
         // еще разок, т.к. данные могли быть изменены
-        Dlg->InitDialogObjects();
+        Dlg->InitDialogObjects(Param1);
+        Dlg->ShowDialog(Param1);
+        ScrBuf.Flush();
         return TRUE;
       }
       return FALSE;
