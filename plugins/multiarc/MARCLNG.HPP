@@ -94,6 +94,7 @@ enum LanguageID
   MInfoRatio,
 
   MAltF6,
+  MAltShiftF9,
 
   MWaitForExternalProgram,
 

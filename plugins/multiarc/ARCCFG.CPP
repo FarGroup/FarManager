@@ -29,7 +29,7 @@ int ConfigGeneral()
   strcpy(DialogItems[9].Data,Opt.DescriptionNames);
   DialogItems[11].Selected=Opt.ReadDescriptions;
   DialogItems[12].Selected=Opt.UpdateDescriptions;
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,18,"Config",DialogItems,
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,18,"ArcSettings1",DialogItems,
                            sizeof(DialogItems)/sizeof(DialogItems[0]));
   if (ExitCode==15 || ExitCode < 0)
     return(FALSE);
@@ -113,7 +113,7 @@ int ConfigCommands()
           ArcPlugin->GetDefaultCommands(PluginNumber,PluginType,J,Command);
       }
     }
-    int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,21,"ArcSettings",
+    int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,21,"ArcSettings2",
                  DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
     if (ExitCode!=32)
       continue;

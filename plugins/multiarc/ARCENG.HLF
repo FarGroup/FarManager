@@ -15,15 +15,15 @@ archiver calls.
 
    ~Archive commands~@ArcCmd@
 
-   ~Archive support configuration~@Config@
+   ~Archive support configuration~@ArcSettings1@
 
-   ~Archiver command lines~@ArcSettings@
+   ~Archiver command lines~@ArcSettings2@
 
 @AddToArc
 $ #Adding files to archive#
     In this dialog you may choose the archiver, add or change
 command line switches (default switches may be defined using
-~Archiver settings~@ArcSettings@ dialog), enter a password
+~Archiver settings~@ArcSettings2@ dialog), enter a password
 to encrypt files during archiving.
 
     Option #Delete files after archiving# forces the archiver to move
@@ -56,13 +56,20 @@ archive modifications.
 
     1. To execute an archive management command you need to have
 the corresponding archiver tool. Archiver options may be changed
-in the ~Archiver settings~@ArcSettings@ dialog.
+in the ~Archiver settings~@ArcSettings2@ dialog.
 
     2. The whole set of archive management commands may only be
 used with RAR archives. Other archivers will support only a sub-set
 of these commands.
 
 @Config
+$ #Plugin configuration#
+
+    ~Archive support configuration~@ArcSettings1@
+
+    ~Archiver command lines~@ArcSettings2@
+
+@ArcSettings1
 $ #Archive support configuration#
     In this dialog you may change following parameters:
 
@@ -73,6 +80,11 @@ $ #Archive support configuration#
  #command#                You may wish to disable this option
                         if you have another archive support plugin
                         installed, which processes Shift-F1 command.
+
+ #Use last command#       When adding files to archives, the last
+ #from history#           used value of the archiver command line
+                        switches will be placed in the "Switches"
+                        edit line.
 
  #Description list#       Names of files with descriptions of archived
  #names delimited#        files.
@@ -86,7 +98,7 @@ $ #Archive support configuration#
  #Update archive#         Update descriptions of archived files
  #descriptions#           after adding to or deleting from an archive.
 
-@ArcSettings
+@ArcSettings2
 $ #Archiver command lines#
     In this dialog you may change external archiver command lines
 for different archive processing operations and mask, which will be

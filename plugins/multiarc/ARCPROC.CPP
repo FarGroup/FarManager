@@ -274,7 +274,6 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   return(1);
 }
 
-
 int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                           int Move,int OpMode)
 {
@@ -477,9 +476,15 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 }
 
 
+int __cdecl FormatSort(struct FarMenuItem *Item1,struct FarMenuItem *Item2)
+{
+  return FSF.LStricmp(Item1->Text,Item2->Text);
+}
+
 int PluginClass::SelectFormat(char *ArcFormat)
 {
-  struct FarMenuItem *MenuItems=NULL;
+  typedef int (__cdecl *FCmp)(const void *, const void *);
+  struct FarMenuItem *MenuItems=NULL, *NewMenuItems;
   int MenuItemsNumber=0;
   char Format[100],DefExt[NM];
   for (int I=0;;I++)
@@ -490,9 +495,13 @@ int PluginClass::SelectFormat(char *ArcFormat)
     {
       if (!ArcPlugin->GetFormatName(I,J,Format,DefExt))
         break;
-      MenuItems=(struct FarMenuItem *)realloc(MenuItems,(MenuItemsNumber+1)*sizeof(*MenuItems));
-      if (MenuItems==NULL)
+      NewMenuItems=(struct FarMenuItem *)realloc(MenuItems,(MenuItemsNumber+1)*sizeof(*MenuItems));
+      if (NewMenuItems==NULL)
+      {
+        free(MenuItems);
         return(FALSE);
+      }
+      MenuItems=NewMenuItems;
       strcpy(MenuItems[MenuItemsNumber].Text,Format);
       MenuItems[MenuItemsNumber].Selected=(MenuItemsNumber==0 && *ArcFormat==0 ||
         strcmp(ArcFormat,Format)==0);
@@ -503,7 +512,10 @@ int PluginClass::SelectFormat(char *ArcFormat)
   }
   if (MenuItemsNumber==0)
     return(FALSE);
-  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_AUTOHIGHLIGHT,
+
+  FSF.qsort(MenuItems,MenuItemsNumber,sizeof(struct FarMenuItem),(FCmp)FormatSort);
+
+  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
       GetMsg(MSelectArchiver),NULL,NULL,NULL,NULL,MenuItems,MenuItemsNumber);
   if (ExitCode>=0)
     strcpy(ArcFormat,MenuItems[ExitCode].Text);
@@ -535,23 +547,18 @@ int PluginClass::FormatToPlugin(char *Format,int &PluginNumber,int &PluginType)
 }
 
 
-int PluginClass::GetPassword(char *Password,char *FileName)
+int PluginClass::GetPassword(char *Password,const char *FileName)
 {
-  struct InitDialogItem InitItems[]={
-    DI_DOUBLEBOX,3,1,72,4,0,0,0,0,(char *)MGetPasswordTitle,
-    DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-    DI_PSWEDIT,5,3,70,3,1,0,0,1,""
-  };
-
-  struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
-  InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
-
-  FSF.sprintf(DialogItems[1].Data,GetMsg(MGetPasswordForFile),FileName);
-  if (Info.Dialog(Info.ModuleNumber,-1,-1,76,6,NULL,DialogItems,
-      sizeof(DialogItems)/sizeof(DialogItems[0]))<0)
-    return(FALSE);
-  strcpy(Password,DialogItems[2].Data);
-  return(TRUE);
+  char Prompt[NM],InPass[80];
+  FSF.sprintf(Prompt,GetMsg(MGetPasswordForFile),FileName);
+  if(Info.InputBox((const char*)GetMsg(MGetPasswordTitle),
+                  (const char*)Prompt,NULL,NULL,
+                  InPass,sizeof(InPass),NULL,FIB_PASSWORD|FIB_ENABLEEMPTY))
+  {
+    strcpy(Password,InPass);
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
 
@@ -583,6 +590,11 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
     Info.Control(this,FCTL_UPDATEANOTHERPANEL,NULL);
     Info.Control(this,FCTL_REDRAWANOTHERPANEL,NULL);
     return(TRUE);
+  }
+  else if (ControlState==(PKF_ALT|PKF_SHIFT) && Key==VK_F9)
+  {
+    Configure(0);
+    return TRUE;
   }
   return(FALSE);
 }

@@ -102,7 +102,7 @@ class PluginClass
 {
   private:
     void GetCommandFormat(int Command,char *Format,int FormatSize);
-    int GetPassword(char *Password,char *FileName);
+    int GetPassword(char *Password,const char *FileName);
     char ArcName[NM];
     char CurDir[NM];
     PluginPanelItem *ArcData;

@@ -10,7 +10,7 @@
 
 int WINAPI _export GetMinFarVersion(void)
 {
-  return FARMANAGERVERSION;
+  return MAKEFARVERSION(1,70,591);
 }
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
@@ -170,7 +170,7 @@ int WINAPI _export Configure(int ItemNumber)
 
   do{
     ItemNumber=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_WRAPMODE,
-                       GetMsg(MCfgLine0),NULL,NULL,NULL,NULL,MenuItems,
+                       GetMsg(MCfgLine0),NULL,"Config",NULL,NULL,MenuItems,
                        sizeof(MenuItems)/sizeof(MenuItems[0]));
     switch(ItemNumber)
     {

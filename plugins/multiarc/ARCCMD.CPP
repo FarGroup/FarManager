@@ -230,7 +230,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         OemToChar(Command,Command);
       if (PathOnly)
       {
-        char *NamePtr=FSF.PointToName(Command);
+        char *NamePtr=(char *)FSF.PointToName(Command);
         if (NamePtr!=Command)
           *(NamePtr-1)=0;
         else
@@ -257,7 +257,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           OemToChar(Command,Command);
         if (PathOnly)
         {
-          char *NamePtr=FSF.PointToName(Command);
+          char *NamePtr=(char *)FSF.PointToName(Command);
           if (NamePtr!=Command)
             *(NamePtr-1)=0;
           else
@@ -356,7 +356,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           }
           if (PathOnly)
           {
-            char *NamePtr=FSF.PointToName(Name);
+            char *NamePtr=(char *)FSF.PointToName(Name);
             if (NamePtr!=Name)
               *(NamePtr-1)=0;
             else
@@ -374,7 +374,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
               if (PathOnly)
               {
                 strcpy(FolderMaskName,Name);
-                char *NamePtr=FSF.PointToName(FolderMaskName);
+                char *NamePtr=(char *)FSF.PointToName(FolderMaskName);
                 if (NamePtr!=FolderMaskName)
                   *(NamePtr-1)=0;
                 else
@@ -480,7 +480,10 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       strcpy(FileName,NewName);
     }
     if (PathOnly)
-      *FSF.PointToName(FileName)=0;
+    {
+      char *Ptr=(char*)FSF.PointToName(FileName);
+      *Ptr=0;
+    }
     int FileAttr=PanelItem[I].FindData.dwFileAttributes;
 
     int Error=FALSE;
