@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.01 05.09.2000 $ */
+/* Revision: 1.02 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+    + EditorConfig вызывается с Opt.EdOpt
   05.09.2000 tran
     + OptionsEnabled - reg:Policies/DisabledOptions
   25.06.2000 SVS
@@ -450,7 +452,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
           ViewerConfig();
           break;
         case 12:
-          EditorConfig();
+          EditorConfig(Opt.EdOpt);
           break;
         case 14:
           SetColors();

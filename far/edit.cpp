@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.35 15.02.2001 $ */
+/* Revision: 1.36 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+    ! Opt.TabSize -> Opt.EdOpt.TabSize
+      Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
+      Opt.EditorDelRemovesBlocks -> Opt.EdOpt.DelRemovesBlocks
   15.02.2001 IS
     ! Opt.EditorDelRemovesBlocks -> DelRemovesBlocks
       Opt.EditorPersistentBlocks -> PersistentBlocks
@@ -191,16 +195,16 @@ Edit::Edit()
      + DropDownBox style */
   DropDownBox=0;
   /* tran 26.07.2000 $ */
-  /* $ 14.02.2001 IS
-       Размер табуляции по умолчанию равен Opt.TabSize;
+  /* $ 21.02.2001 IS
+       Размер табуляции по умолчанию равен Opt.EdOpt.TabSize;
   */
-  TabSize=Opt.TabSize;
+  TabSize=Opt.EdOpt.TabSize;
   /* IS $ */
-  /* $ 15.02.2001 IS
+  /* $ 21.02.2001 IS
        Инициализация внутренних переменных по умолчанию
   */
-  DelRemovesBlocks=Opt.EditorDelRemovesBlocks;
-  PersistentBlocks=Opt.EditorPersistentBlocks;
+  DelRemovesBlocks=Opt.EdOpt.DelRemovesBlocks;
+  PersistentBlocks=Opt.EdOpt.PersistentBlocks;
   /* IS $ */
 }
 

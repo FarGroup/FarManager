@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.40 12.02.2001 $ */
+/* Revision: 1.41 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+   ! Часть настроек редактора переехала в EditorOptions
   12.02.2001 SKV
    + ConsoleDetachKey. Клавиша отстёгивания консоли фара от
      долгоиграющего процесса в ней запущенного.
@@ -259,6 +261,22 @@ struct CodeXLAT{
 };
 /* SVS $*/
 
+/* $ 21.02.2001 IS
+     Новая структура: настройки редактора
+*/
+struct EditorOptions
+{
+  int TabSize;
+  int ExpandTabs;
+  int PersistentBlocks;
+  int DelRemovesBlocks;
+  int AutoIndent;
+  int AutoDetectTable;
+  int CursorBeyondEOL;
+  int BSLikeDel;
+};
+/* IS $ */
+
 struct Options
 {
   /* $ 03.08.2000 SVS
@@ -309,14 +327,11 @@ struct Options
   char ExternalEditor[NM];
   int SaveViewerPos;
   int SaveViewerShortPos;
-  int EditorExpandTabs;
-  int TabSize;
-  int EditorPersistentBlocks;
-  int EditorDelRemovesBlocks;
-  int EditorAutoIndent;
-  int EditorAutoDetectTable;
-  int EditorCursorBeyondEOL;
-  int EditorBSLikeDel;
+  /* $ 21.02.2001 IS
+       Переменные для редактора переехали в соответствующую структуру
+  */
+  struct EditorOptions EdOpt;
+  /* IS $ */
   /* $ 29.11.2000 SVS
    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
      он имеет атрибуты R|S|H

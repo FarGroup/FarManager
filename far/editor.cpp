@@ -6,10 +6,19 @@ editor.cpp
 
 */
 
-/* Revision: 1.70 19.02.2001 $ */
+/* Revision: 1.71 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+    ! Opt.TabSize -> Opt.EdOpt.TabSize
+      Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
+      Opt.EditorDelRemovesBlocks -> Opt.EdOpt.DelRemovesBlocks
+      Opt.EditorExpandTabs -> Opt.EdOpt.ExpandTabs
+      Opt.EditorAutoIndent -> Opt.EdOpt.AutoIndent
+      Opt.EditorAutoDetectTable -> Opt.EdOpt.AutoDetectTable
+      Opt.EditorCursorBeyondEOL -> Opt.EdOpt.CursorBeyondEOL
+      Opt.EditorBSLikeDel -> Opt.EdOpt.BSLikeDel
   19.02.2001 IS
     - Забыл проинициализировать AttrStr
   16.02.2001 IS
@@ -219,21 +228,21 @@ Editor::Editor()
   */
   *AttrStr=0;
   /* IS $ */
-  /* $ 14.02.2001 IS
-       Размер табуляции по умолчанию равен Opt.TabSize;
+  /* $ 21.02.2001 IS
+       Размер табуляции по умолчанию равен Opt.EdOpt.TabSize;
   */
-  TabSize=Opt.TabSize;
+  TabSize=Opt.EdOpt.TabSize;
   /* IS $ */
-  /* $ 15.02.2001 IS
+  /* $ 21.02.2001 IS
        Инициализируем режим "Пробелы вместо табуляции"
   */
-  ConvertTabs=Opt.EditorExpandTabs;
+  ConvertTabs=Opt.EdOpt.ExpandTabs;
   /* IS $ */
-  /* $ 15.02.2001 IS
+  /* $ 21.02.2001 IS
        Инициализация внутренних переменных по умолчанию
   */
-  DelRemovesBlocks=Opt.EditorDelRemovesBlocks;
-  PersistentBlocks=Opt.EditorPersistentBlocks;
+  DelRemovesBlocks=Opt.EdOpt.DelRemovesBlocks;
+  PersistentBlocks=Opt.EdOpt.PersistentBlocks;
   /* IS $ */
 
   EditKeyBar=NULL;
@@ -496,7 +505,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
 
     clock_t StartTime=clock();
 
-    if (Opt.EditorAutoDetectTable)
+    if (Opt.EdOpt.AutoDetectTable)
     {
       UseDecodeTable=DetectTable(EditFile,&TableSet,TableNum);
       AnsiText=FALSE;
@@ -916,7 +925,7 @@ void Editor::ShowEditor(int CurLineOnly)
   }
 
   CurPos=CurLine->EditLine.GetTabCurPos();
-  if (!Opt.EditorCursorBeyondEOL)
+  if (!Opt.EdOpt.CursorBeyondEOL)
   {
     MaxRightPos=CurPos;
     int RealCurPos=CurLine->EditLine.GetCurPos();
@@ -967,7 +976,7 @@ void Editor::ShowEditor(int CurLineOnly)
         CurPtr->EditLine.SetLeftPos(LeftPos);
         CurPtr->EditLine.SetTabCurPos(CurPos);
         CurPtr->EditLine.FastShow();
-        CurPtr->EditLine.SetEditBeyondEnd(Opt.EditorCursorBeyondEOL);
+        CurPtr->EditLine.SetEditBeyondEnd(Opt.EdOpt.CursorBeyondEOL);
         CurPtr=CurPtr->Next;
       }
       else
@@ -1694,7 +1703,7 @@ int Editor::ProcessKey(int Key)
            Bs удаляет блок так же, как и Del
         */
         int IsDelBlock=FALSE;
-        if(Opt.EditorBSLikeDel)
+        if(Opt.EdOpt.BSLikeDel)
         {
           if (!Pasting && DelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
             IsDelBlock=TRUE;
@@ -2021,7 +2030,7 @@ int Editor::ProcessKey(int Key)
          вместо GetTabCurPos надо вызывать GetCurPos -
          сравнивать реальную позицию с реальной длиной
          а было сравнение видимой позицией с реальной длиной*/
-      if (!Opt.EditorCursorBeyondEOL && CurLine->EditLine.GetCurPos()>=CurLine->EditLine.GetLength())
+      if (!Opt.EdOpt.CursorBeyondEOL && CurLine->EditLine.GetCurPos()>=CurLine->EditLine.GetLength())
         return(TRUE);
       /* tran 23.10.2000 $ */
 
@@ -2170,7 +2179,7 @@ int Editor::ProcessKey(int Key)
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
 
-      if (!Opt.EditorCursorBeyondEOL && VBlockX>=CurLine->Prev->EditLine.GetLength())
+      if (!Opt.EdOpt.CursorBeyondEOL && VBlockX>=CurLine->Prev->EditLine.GetLength())
         return(TRUE);
       Pasting++;
       if (NumLine>VBlockY)
@@ -2200,7 +2209,7 @@ int Editor::ProcessKey(int Key)
       if (!MarkingVBlock)
         BeginVBlockMarking();
       /* tran 21.07.2000 $ */
-      if (!Opt.EditorCursorBeyondEOL && VBlockX>=CurLine->Next->EditLine.GetLength())
+      if (!Opt.EdOpt.CursorBeyondEOL && VBlockX>=CurLine->Next->EditLine.GetLength())
         return(TRUE);
       Pasting++;
       if (NumLine>=VBlockY+VBlockSizeY-1)
@@ -2334,7 +2343,7 @@ int Editor::ProcessKey(int Key)
           return(TRUE);
         }
 
-        if ((!Opt.EditorCursorBeyondEOL && Key==KEY_RIGHT || Key==KEY_CTRLRIGHT) &&
+        if ((!Opt.EdOpt.CursorBeyondEOL && Key==KEY_RIGHT || Key==KEY_CTRLRIGHT) &&
             CurLine->EditLine.GetCurPos()>=CurLine->EditLine.GetLength() &&
             CurLine->Next!=NULL)
         {
@@ -2639,7 +2648,7 @@ void Editor::InsertString()
   /* IS $ */
   NewString->EditLine.SetConvertTabs(ConvertTabs);
   NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
-  NewString->EditLine.SetEditBeyondEnd(Opt.EditorCursorBeyondEOL);
+  NewString->EditLine.SetEditBeyondEnd(Opt.EdOpt.CursorBeyondEOL);
   NewString->EditLine.SetEditorMode(TRUE);
   NewString->Prev=CurLine;
   NewString->Next=CurLine->Next;
@@ -2661,7 +2670,7 @@ void Editor::InsertString()
 
   int IndentPos=0;
 
-  if (Opt.EditorAutoIndent && !Pasting)
+  if (Opt.EdOpt.AutoIndent && !Pasting)
   {
     struct EditList *PrevLine=CurLine;
     while (PrevLine!=NULL)
@@ -2727,7 +2736,7 @@ void Editor::InsertString()
     int StrSize=CurPos;
     /* $ 17.07.2000 tran
        а тут в условие добавили проверку на нашу новую переменную */
-    if (Opt.EditorAutoIndent && NewLineEmpty)
+    if (Opt.EdOpt.AutoIndent && NewLineEmpty)
     {
       RemoveTrailingSpaces(CurLineStr);
       StrSize=strlen(CurLineStr);
@@ -2805,7 +2814,7 @@ void Editor::InsertString()
 
     if (IndentPos>0)
     {
-      if (CurLine->EditLine.GetLength()!=0 || !Opt.EditorCursorBeyondEOL)
+      if (CurLine->EditLine.GetLength()!=0 || !Opt.EdOpt.CursorBeyondEOL)
       {
         CurLine->EditLine.ProcessKey(KEY_HOME);
 
@@ -4465,13 +4474,13 @@ int Editor::EditorControl(int Command,void *Param)
           Info->Options|=EOPT_PERSISTENTBLOCKS;
         if (DelRemovesBlocks)
           Info->Options|=EOPT_DELREMOVESBLOCKS;
-        if (Opt.EditorAutoIndent)
+        if (Opt.EdOpt.AutoIndent)
           Info->Options|=EOPT_AUTOINDENT;
         if (Opt.SaveEditorPos)
           Info->Options|=EOPT_SAVEFILEPOSITION;
-        if (Opt.EditorAutoDetectTable)
+        if (Opt.EdOpt.AutoDetectTable)
           Info->Options|=EOPT_AUTODETECTTABLE;
-        if (Opt.EditorCursorBeyondEOL)
+        if (Opt.EdOpt.CursorBeyondEOL)
           Info->Options|=EOPT_CURSORBEYONDEOL;
         Info->TabSize=TabSize;
       }

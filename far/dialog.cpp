@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.75 21.02.2001 $ */
+/* Revision: 1.76 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+    ! Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
   21.02.2001 IS
    - Избавился от утечки памяти в SelectFromEditHistory (проявлялось не у всех,
      но проявлялось же!)
@@ -2344,7 +2346,7 @@ int Dialog::ProcessKey(int Key)
             if(CurPos<SelStart) DoAutoComplete=FALSE;
             if(SelStart<SelEnd && SelEnd<len) DoAutoComplete=FALSE;
 
-            if(Opt.EditorPersistentBlocks)
+            if(Opt.EdOpt.PersistentBlocks)
             {
               if(DoAutoComplete && CurPos <= SelEnd)
               {

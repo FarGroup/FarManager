@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+    ! Opt.TabSize -> Opt.EdOpt.TabSize
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
   25.06.2000 SVS
@@ -39,7 +41,7 @@ void _cdecl CheckVersion(void *Param)
 
   if (!RegVer)
   {
-    Opt.TabSize=8;
+    Opt.EdOpt.TabSize=8;
     Opt.ViewerEditorClock=0;
   }
   _endthread();
@@ -183,4 +185,3 @@ void _cdecl ErrRegFn(void *Param)
 #ifndef _MSC_VER
 #pragma warn +par
 #endif
-

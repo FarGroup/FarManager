@@ -5,10 +5,20 @@ config.cpp
 
 */
 
-/* Revision: 1.50 20.02.2001 $ */
+/* Revision: 1.51 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+    + Работа в EditorConfig идет со структурой EditorOptions
+    ! Opt.EditorBSLikeDel -> Opt.EdOpt.BSLikeDel
+      Opt.TabSize -> Opt.EdOpt.TabSize
+      Opt.EditorExpandTabs -> Opt.EdOpt.ExpandTabs
+      Opt.EditorCursorBeyondEOL -> Opt.EdOpt.CursorBeyondEOL
+      Opt.EditorAutoDetectTable -> Opt.EdOpt.AutoDetectTable
+      Opt.EditorAutoIndent -> Opt.EdOpt.AutoIndent
+      Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
+      Opt.EditorDelRemovesBlocks -> Opt.EdOpt.DelRemovesBlocks
   20.02.2001 VVM
     ! Сохранение параметра "Тип врапа"
   12.02.2001 SKV
@@ -613,7 +623,10 @@ void ViewerConfig()
 /* $ 03.08.2000 SVS
   + WordDiv внесен в Options|Editor settings
 */
-void EditorConfig()
+/* $ 21.02.2001 IS
+  + Работа идет со структурой EditorOptions
+*/
+void EditorConfig(struct EditorOptions &EdOpt)
 {
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX,3,1,47,20,0,0,0,0,(char *)MEditConfigTitle,
@@ -641,20 +654,20 @@ void EditorConfig()
   CfgDlg[2].Selected=Opt.UseExternalEditor;
   CfgDlg[3].Selected=!Opt.UseExternalEditor;
   strcpy(CfgDlg[5].Data,Opt.ExternalEditor);
-  CfgDlg[7].Selected=Opt.EditorExpandTabs;
-  CfgDlg[8].Selected=Opt.EditorPersistentBlocks;
-  CfgDlg[9].Selected=Opt.EditorDelRemovesBlocks;
-  CfgDlg[10].Selected=Opt.EditorAutoIndent;
+  CfgDlg[7].Selected=Opt.EdOpt.ExpandTabs;
+  CfgDlg[8].Selected=EdOpt.PersistentBlocks;
+  CfgDlg[9].Selected=EdOpt.DelRemovesBlocks;
+  CfgDlg[10].Selected=EdOpt.AutoIndent;
   CfgDlg[11].Selected=Opt.SaveEditorPos;
   CfgDlg[12].Selected=Opt.SaveEditorShortPos;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
   */
-  CfgDlg[13].Selected=Opt.EditorAutoDetectTable&&DistrTableExist();
+  CfgDlg[13].Selected=EdOpt.AutoDetectTable&&DistrTableExist();
   /* IS $ */
-  sprintf(CfgDlg[14].Data,"%d",Opt.TabSize);
-  CfgDlg[16].Selected=Opt.EditorCursorBeyondEOL;
+  sprintf(CfgDlg[14].Data,"%d",EdOpt.TabSize);
+  CfgDlg[16].Selected=EdOpt.CursorBeyondEOL;
 
   if (!RegVer)
   {
@@ -674,30 +687,31 @@ void EditorConfig()
 
   Opt.UseExternalEditor=CfgDlg[2].Selected;
   strcpy(Opt.ExternalEditor,CfgDlg[5].Data);
-  Opt.EditorExpandTabs=CfgDlg[7].Selected;
-  Opt.EditorPersistentBlocks=CfgDlg[8].Selected;
-  Opt.EditorDelRemovesBlocks=CfgDlg[9].Selected;
-  Opt.EditorAutoIndent=CfgDlg[10].Selected;
+  Opt.EdOpt.ExpandTabs=CfgDlg[7].Selected;
+  EdOpt.PersistentBlocks=CfgDlg[8].Selected;
+  EdOpt.DelRemovesBlocks=CfgDlg[9].Selected;
+  EdOpt.AutoIndent=CfgDlg[10].Selected;
   Opt.SaveEditorPos=CfgDlg[11].Selected;
   Opt.SaveEditorShortPos=CfgDlg[12].Selected;
-  Opt.EditorAutoDetectTable=CfgDlg[13].Selected;
+  EdOpt.AutoDetectTable=CfgDlg[13].Selected;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
   */
-  if(!DistrTableExist() && Opt.EditorAutoDetectTable)
+  if(!DistrTableExist() && EdOpt.AutoDetectTable)
   {
-    Opt.EditorAutoDetectTable=0;
+    EdOpt.AutoDetectTable=0;
     Message(MSG_WARNING,1,MSG(MWarning),
               MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
               MSG(MOk));
   }
   /* IS $ */
-  Opt.TabSize=atoi(CfgDlg[14].Data);
-  if (Opt.TabSize<1 || Opt.TabSize>512)
-    Opt.TabSize=8;
-  Opt.EditorCursorBeyondEOL=CfgDlg[16].Selected;
+  EdOpt.TabSize=atoi(CfgDlg[14].Data);
+  if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
+    EdOpt.TabSize=8;
+  EdOpt.CursorBeyondEOL=CfgDlg[16].Selected;
 }
+/* IS $ */
 /* SVS $ */
 
 
@@ -807,15 +821,15 @@ void ReadConfig()
 
   GetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor,"",sizeof(Opt.ExternalEditor));
   GetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor,0);
-  GetRegKey("Editor","ExpandTabs",Opt.EditorExpandTabs,0);
-  GetRegKey("Editor","TabSize",Opt.TabSize,8);
-  GetRegKey("Editor","PersistentBlocks",Opt.EditorPersistentBlocks,1);
-  GetRegKey("Editor","DelRemovesBlocks",Opt.EditorDelRemovesBlocks,0);
-  GetRegKey("Editor","AutoIndent",Opt.EditorAutoIndent,0);
+  GetRegKey("Editor","ExpandTabs",Opt.EdOpt.ExpandTabs,0);
+  GetRegKey("Editor","TabSize",Opt.EdOpt.TabSize,8);
+  GetRegKey("Editor","PersistentBlocks",Opt.EdOpt.PersistentBlocks,1);
+  GetRegKey("Editor","DelRemovesBlocks",Opt.EdOpt.DelRemovesBlocks,0);
+  GetRegKey("Editor","AutoIndent",Opt.EdOpt.AutoIndent,0);
   GetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos,0);
   GetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos,0);
-  GetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable,0);
-  GetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL,1);
+  GetRegKey("Editor","AutoDetectTable",Opt.EdOpt.AutoDetectTable,0);
+  GetRegKey("Editor","EditorCursorBeyondEOL",Opt.EdOpt.CursorBeyondEOL,1);
   /* $ 29.11.2000 SVS
    + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
      он имеет атрибуты R|S|H
@@ -828,7 +842,7 @@ void ReadConfig()
   GetRegKey("Editor","WordDiv",Opt.WordDiv,WordDiv0,sizeof(Opt.WordDiv));
   /* SVS $ */
 
-  GetRegKey("Editor","BSLikeDel",Opt.EditorBSLikeDel,1);
+  GetRegKey("Editor","BSLikeDel",Opt.EdOpt.BSLikeDel,1);
 
   /* $ 03.08.2000 SVS
      Исключаем случайное стирание разделителей ;-)
@@ -1103,8 +1117,8 @@ void ReadConfig()
   AddEndSlash(Opt.TempPath);
   CtrlObject->EditorPosCache.Read("Editor\\LastPositions");
   CtrlObject->ViewerPosCache.Read("Viewer\\LastPositions");
-  if (Opt.TabSize<1 || Opt.TabSize>512)
-    Opt.TabSize=8;
+  if (Opt.EdOpt.TabSize<1 || Opt.EdOpt.TabSize>512)
+    Opt.EdOpt.TabSize=8;
   if (Opt.ViewTabSize<1 || Opt.ViewTabSize>512)
     Opt.ViewTabSize=8;
 }
@@ -1161,15 +1175,15 @@ void SaveConfig(int Ask)
 
   SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);
   SetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor);
-  SetRegKey("Editor","ExpandTabs",Opt.EditorExpandTabs);
-  SetRegKey("Editor","TabSize",Opt.TabSize);
-  SetRegKey("Editor","PersistentBlocks",Opt.EditorPersistentBlocks);
-  SetRegKey("Editor","DelRemovesBlocks",Opt.EditorDelRemovesBlocks);
-  SetRegKey("Editor","AutoIndent",Opt.EditorAutoIndent);
+  SetRegKey("Editor","ExpandTabs",Opt.EdOpt.ExpandTabs);
+  SetRegKey("Editor","TabSize",Opt.EdOpt.TabSize);
+  SetRegKey("Editor","PersistentBlocks",Opt.EdOpt.PersistentBlocks);
+  SetRegKey("Editor","DelRemovesBlocks",Opt.EdOpt.DelRemovesBlocks);
+  SetRegKey("Editor","AutoIndent",Opt.EdOpt.AutoIndent);
   SetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos);
   SetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos);
-  SetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable);
-  SetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL);
+  SetRegKey("Editor","AutoDetectTable",Opt.EdOpt.AutoDetectTable);
+  SetRegKey("Editor","EditorCursorBeyondEOL",Opt.EdOpt.CursorBeyondEOL);
 
   SetRegKey("System","SaveHistory",Opt.SaveHistory);
   SetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory);

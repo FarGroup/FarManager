@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.58 20.02.2001 $ */
+/* Revision: 1.59 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+   + EditorConfig вызывается с ссылкой на EditorOptions
   20.02.2001 SVS
    ! ShowSeparator - дополнительный параметр - тип сепаратора
    + MakeSeparator - создание разделителя в памяти
@@ -303,7 +305,7 @@ void InterfaceSettings();
 void SetConfirmations();
 void SetDizConfig();
 void ViewerConfig();
-void EditorConfig();
+void EditorConfig(struct EditorOptions &EdOpt);
 void SetFolderInfoFiles();
 void ReadConfig();
 void SaveConfig(int Ask);

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.09 19.02.2001 $ */
+/* Revision: 1.10 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 IS
+    ! Opt.EditorPersistentBlocks -> Opt.EdOpt.PersistentBlocks
   19.02.2001 IS
     - баг: не сбрасывалось выделение в командной строке по enter и shift-enter
   14.01.2001 SVS
@@ -310,7 +312,7 @@ int CommandLine::ProcessKey(int Key)
       /* $ 18.12.2000 SVS
          Сбрасываем выделение на некоторых клавишах
       */
-      if (!Opt.EditorPersistentBlocks)
+      if (!Opt.EdOpt.PersistentBlocks)
       {
         static int UnmarkKeys[]={KEY_LEFT,KEY_CTRLS,KEY_RIGHT,KEY_CTRLD,
                    KEY_CTRLLEFT,KEY_CTRLRIGHT,KEY_CTRLHOME,KEY_CTRLEND,
