@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.72 06.08.2001 $ */
+/* Revision: 1.73 08.08.2001 $ */
 
 /*
 Modify:
+  08.08.2001 KM
+    + MFindFileCodePage
+    ! MFindFileAllTables
   06.08.2001 SVS
     + MAskDeleteSubMenuItem
   03.08.2001 IS
@@ -901,6 +904,7 @@ enum
   MFindFileResultTitle,
   MFindFileMasks,
   MFindFileText,
+  MFindFileCodePage,
   MFindFileCase,
   MFindFileWholeWords,
   MFindFileAllTables,

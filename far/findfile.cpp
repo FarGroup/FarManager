@@ -5,10 +5,16 @@ findfile.cpp
 
 */
 
-/* Revision: 1.46 07.08.2001 $ */
+/* Revision: 1.47 08.08.2001 $ */
 
 /*
 Modify:
+  08.08.2001 KM
+    ! Глобальный перетрях поиска. 3-я серия
+    ! Кажется удалось избавится ещё от одного потенциально (и не только)
+      падучего места при закрытии диалога поиска во время оного: просто
+      я забыл перед закрытием диалога дождаться окончания работы второй нити.
+    ! Переделан (пока без таблицы ANSI) выбор таблиц поиска.
   07.08.2001 IS
     ! Изменились параметры у FarCharTable
   07.08.2001 SVS
@@ -184,7 +190,7 @@ static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
 static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives;
 /* KM $ */
 static int DlgWidth;
-static volatile int StopSearch,SearchDone,LastFoundNumber,FileCount;
+static volatile int StopSearch,SearchDone,LastFoundNumber,FileCount,WriteDataUsed;
 static char FindMessage[200],LastDirName[NM];
 static int FindMessageReady,FindCountReady;
 static char PluginSearchPath[2*NM];
@@ -205,7 +211,7 @@ static HANDLE hMutex;
 static int IsPluginGetsFile;
 /* KM $ */
 
-static int UseDecodeTable=FALSE,UseUnicode=FALSE,TableNum=-1;
+static int UseDecodeTable=FALSE,UseUnicode=FALSE,TableNum=0;
 static struct CharTableSet TableSet;
 
 /* $ 01.07.2001 IS
@@ -225,54 +231,66 @@ struct ListItemUserData{
 long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
-  char *AllChars=MSG(MFindFileAllTables),DataStr[NM];
+  char *FindText=MSG(MFindFileText),*FindCode=MSG(MFindFileCodePage);
+  char DataStr[NM];
 
   switch(Msg)
   {
     case DN_INITDIALOG:
     {
-      unsigned int W=Dlg->Item[10].X1-Dlg->Item[9].X1-5;
-      if (strlen(AllChars)>W)
+      unsigned int W=Dlg->Item[6].X1-Dlg->Item[4].X1-5;
+      if (strlen(FindText)>W)
       {
-        strncpy(DataStr,AllChars,W-3);
+        strncpy(DataStr,FindText,W-3);
         DataStr[W-4]=0;
         strcat(DataStr,"...");
       }
       else
-        strcpy(DataStr,AllChars);
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,9,(long)DataStr);
+        strcpy(DataStr,FindText);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)DataStr);
 
-      strcpy(TableSet.TableName,MSG(MGetTableNormalText));
-      PrepareTable(&TableSet,0);
+      W=Dlg->Item[0].X2-Dlg->Item[6].X1-3;
+      if (strlen(FindCode)>W)
+      {
+        strncpy(DataStr,FindCode,W-3);
+        DataStr[W-4]=0;
+        strcat(DataStr,"...");
+      }
+      else
+        strcpy(DataStr,FindCode);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,6,(long)DataStr);
+
+      if (UseAllTables)
+        strcpy(TableSet.TableName,MSG(MFindFileAllTables));
+      else if (!UseDecodeTable)
+        strcpy(TableSet.TableName,MSG(MGetTableNormalText));
+      else if (UseUnicode)
+        strcpy(TableSet.TableName,"Unicode");
+      else
+        PrepareTable(&TableSet,TableNum);
+      strcpy(Dlg->Item[7].Data,TableSet.TableName);
 
       return TRUE;
     }
     case DN_LISTCHANGE:
     {
-      if (Param1==10)
+      if (Param1==7)
       {
-        UseDecodeTable=(Param2>0);
+        VMenu *ListBox=Dlg->Item[7].ListPtr;
+        UseDecodeTable=(Param2>0 && Param2<ListBox->GetItemCount()-1);
         UseUnicode=(Param2==1);
-        strcpy(TableSet.TableName,MSG(MGetTableNormalText));
-        if (Param2>1)
-          PrepareTable(&TableSet,Param2-2);
+        UseAllTables=(Param2==ListBox->GetItemCount()-1);
+        if (!UseAllTables)
+        {
+          strcpy(TableSet.TableName,MSG(MGetTableNormalText));
+          if (Param2>1)
+          {
+            PrepareTable(&TableSet,Param2-2);
+            TableNum=Param2-2;
+          }
+        }
       }
       return TRUE;
-    }
-    case DN_BTNCLICK:
-    {
-      if (Param1==9) // [ ] Use all installed character tables
-      {
-        if (Param2==0)
-        {
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,10,TRUE);
-        }
-        else if (Param2==1)
-        {
-          Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,10,FALSE);
-        }
-        return TRUE;
-      }
     }
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -324,6 +342,16 @@ FindFiles::FindFiles()
     TableList.ItemsNumber++;
   }
 
+  TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(TableList.ItemsNumber+2));
+  if (TableItem==NULL)
+    return;
+  TableItem[TableList.ItemsNumber].Text[0]=0;
+  TableItem[TableList.ItemsNumber].Flags=LIF_SEPARATOR;
+  strcpy(TableItem[TableList.ItemsNumber+1].Text,MSG(MFindFileAllTables));
+  TableItem[TableList.ItemsNumber+1].Flags=0;
+  TableList.Items=TableItem;
+  TableList.ItemsNumber+=2;
+
   do
   {
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
@@ -333,27 +361,28 @@ FindFiles::FindFiles()
     */
     static struct DialogData FindAskDlgData[]=
     {
-      /* 00 */DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(char *)MFindFileTitle,
+      /* 00 */DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
       /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
       /* 02 */DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
       /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR,0,"",
-      /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,(char *)MFindFileText,
-      /* 05 */DI_EDIT,5,6,70,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
-      /* 06 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
-      /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
-      /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,"",
-      /* 10 */DI_COMBOBOX,45,10,70,10,0,(DWORD)&TableList,DIF_DROPDOWNLIST,0,"",
-      /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MFindArchives,
-      /* 12 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR,0,"",
-      /* 13 */DI_RADIOBUTTON,5,13,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
-      /* 14 */DI_RADIOBUTTON,5,14,0,0,0,1,0,0,(char *)MSearchFromRoot,
-      /* 15 */DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchFromCurrent,
-      /* 16 */DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
-      /* 17 */DI_RADIOBUTTON,5,17,0,0,0,0,0,0,(char *)MSearchInSelected,
-      /* 18 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      /* 20 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+      /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,"",
+      /* 05 */DI_EDIT,5,6,36,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
+      /* 06 */DI_TEXT,40,5,0,0,0,0,0,0,"",
+      /* 07 */DI_COMBOBOX,40,6,70,10,0,(DWORD)&TableList,DIF_DROPDOWNLIST,0,"",
+      /* 08 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"СііБ",
+      /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
+      /* 11 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
+      /* 12 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindArchives,
+      /* 13 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR,0,"",
+      /* 14 */DI_RADIOBUTTON,5,12,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
+      /* 15 */DI_RADIOBUTTON,5,13,0,0,0,1,0,0,(char *)MSearchFromRoot,
+      /* 16 */DI_RADIOBUTTON,5,14,0,0,0,0,0,0,(char *)MSearchFromCurrent,
+      /* 17 */DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchInCurrent,
+      /* 18 */DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInSelected,
+      /* 19 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 20 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      /* 21 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
     /* KM $ */
     MakeDialogItems(FindAskDlgData,FindAskDlg);
@@ -364,7 +393,7 @@ FindFiles::FindFiles()
       MakeSeparator(70,H2Separator,3);
 
     strcpy(FindAskDlg[3].Data,H2Separator);
-    strcpy(FindAskDlg[12].Data,H2Separator);
+    strcpy(FindAskDlg[13].Data,H2Separator);
     /* SVS $ */
 
     {
@@ -380,40 +409,36 @@ FindFiles::FindFiles()
            дизейблим, а не прячем
         */
         if ((Info.Flags & OPIF_REALNAMES)==0)
-          FindAskDlg[10].Flags |= DIF_DISABLE;
+          FindAskDlg[12].Flags |= DIF_DISABLE;
         /* DJ $ */
       }
     }
 
     strcpy(FindAskDlg[2].Data,FindMask);
     strcpy(FindAskDlg[5].Data,FindStr);
-    strcpy(FindAskDlg[10].Data,TableItem[0].Text);
-    FindAskDlg[7].Selected=CmpCase;
-    FindAskDlg[8].Selected=WholeWords;
-    FindAskDlg[9].Selected=UseAllTables;
-    if (FindAskDlg[9].Selected)
-      FindAskDlg[10].Flags|=DIF_HIDDEN;
+    FindAskDlg[10].Selected=CmpCase;
+    FindAskDlg[11].Selected=WholeWords;
 
     /* $ 14.05.2001 DJ
        не селектим чекбокс, если нельзя искать в архивах
     */
-    if (!(FindAskDlg[11].Flags & DIF_DISABLE))
-      FindAskDlg[11].Selected=SearchInArchives;
+    if (!(FindAskDlg[12].Flags & DIF_DISABLE))
+      FindAskDlg[12].Selected=SearchInArchives;
     /* DJ $ */
-    FindAskDlg[13].Selected=FindAskDlg[14].Selected=0;
-    FindAskDlg[15].Selected=FindAskDlg[16].Selected=0;
-    FindAskDlg[17].Selected=0;
-    FindAskDlg[13+SearchMode].Selected=1;
+    FindAskDlg[14].Selected=FindAskDlg[15].Selected=0;
+    FindAskDlg[16].Selected=FindAskDlg[17].Selected=0;
+    FindAskDlg[18].Selected=0;
+    FindAskDlg[14+SearchMode].Selected=1;
 
     while (1)
     {
       Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
 
       Dlg.SetHelp("FindFile");
-      Dlg.SetPosition(-1,-1,76,22);
+      Dlg.SetPosition(-1,-1,76,21);
       Dlg.Process();
       int ExitCode=Dlg.GetExitCode();
-      if (ExitCode!=19)
+      if (ExitCode!=20)
       {
         free(TableItem);
         return;
@@ -455,14 +480,13 @@ FindFiles::FindFiles()
     }
     strncpy(FindStr,FindAskDlg[5].Data,sizeof(FindStr)-1);
     /* OT $ */
-    CmpCase=FindAskDlg[7].Selected;
+    CmpCase=FindAskDlg[10].Selected;
     /* $ 30.07.2000 KM
        Добавлена переменная
     */
-    WholeWords=FindAskDlg[8].Selected;
+    WholeWords=FindAskDlg[11].Selected;
     /* KM $ */
-    UseAllTables=FindAskDlg[9].Selected;
-    SearchInArchives=FindAskDlg[11].Selected;
+    SearchInArchives=FindAskDlg[12].Selected;
     if (*FindStr)
     {
       strcpy(GlobalSearchString,FindStr);
@@ -473,15 +497,15 @@ FindFiles::FindFiles()
       GlobalSearchWholeWords=WholeWords;
       /* KM $ */
     }
-    if (FindAskDlg[13].Selected)
-      SearchMode=SEARCH_ALL;
     if (FindAskDlg[14].Selected)
-      SearchMode=SEARCH_ROOT;
+      SearchMode=SEARCH_ALL;
     if (FindAskDlg[15].Selected)
-      SearchMode=SEARCH_FROM_CURRENT;
+      SearchMode=SEARCH_ROOT;
     if (FindAskDlg[16].Selected)
-      SearchMode=SEARCH_CURRENT_ONLY;
+      SearchMode=SEARCH_FROM_CURRENT;
     if (FindAskDlg[17].Selected)
+      SearchMode=SEARCH_CURRENT_ONLY;
+    if (FindAskDlg[18].Selected)
         SearchMode=SEARCH_SELECTED;
     Opt.FileSearchMode=SearchMode;
     LastCmpCase=CmpCase;
@@ -819,7 +843,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_CLOSE:
     {
       StopSearch=TRUE;
-      while (!SearchDone)
+      while (!SearchDone || WriteDataUsed)
         Sleep(10);
       return TRUE;
     }
@@ -892,6 +916,7 @@ int FindFiles::FindFilesProcess()
   LastFoundNumber=0;
   SearchDone=FALSE;
   StopSearch=FALSE;
+  WriteDataUsed=FALSE;
   FileCount=0;
   *FindMessage=*LastDirName=FindMessageReady=FindCountReady=0;
 
@@ -1552,6 +1577,7 @@ void FindFiles::WriteDialogData(void *Param)
   Dialog* Dlg=(Dialog*)hDlg;
   VMenu *ListBox=Dlg->Item[1].ListPtr;
 
+  WriteDataUsed=TRUE;
   while(1)
   {
     if (ListBox)
@@ -1628,4 +1654,5 @@ void FindFiles::WriteDialogData(void *Param)
       break;
     Sleep(20);
   }
+  WriteDataUsed=FALSE;
 }
