@@ -5,10 +5,14 @@ fileview.cpp
 
 */
 
-/* Revision: 1.18 29.03.2001 $ */
+/* Revision: 1.19 10.04.2001 $ */
 
 /*
 Modify:
+  10.04.2001 IS
+    ! Не делаем SetCurDir при ctrl-f10, если нужный путь уже есть на открытых
+      панелях, тем самым добиваемся того, что выделение с элементов
+      панелей не сбрасывается.
   29.03.2001 IS
     + Работа с локальной копией ViewerOptions при KEY_ALTSHIFTF9
   22.03.2001 SVS
@@ -248,12 +252,21 @@ int FileViewer::ProcessKey(int Key)
             if(NameTmp>DirTmp)NameTmp[-1]=0;
             CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(PDir);
             CtrlObject->ActivePanel->GetCurDir(ADir);
+            /* $ 10.04.2001 IS
+                 Не делаем SetCurDir, если нужный путь уже есть на открытых
+                 панелях, тем самым добиваемся того, что выделение с элементов
+                 панелей не сбрасывается.
+            */
+            BOOL AExist=LocalStricmp(ADir,DirTmp)==0,
+                 PExist=LocalStricmp(PDir,DirTmp)==0;
             // если нужный путь есть на пассивной панели
-            if ( LocalStricmp(ADir,DirTmp)!=0  && LocalStricmp(PDir,DirTmp)==0)
+            if ( !AExist && PExist)
             {
                 CtrlObject->ProcessKey(KEY_TAB);
             }
-            CtrlObject->ActivePanel->SetCurDir(DirTmp,TRUE);
+            if(!AExist && !PExist)
+                CtrlObject->ActivePanel->SetCurDir(DirTmp,TRUE);
+            /* IS */
             CtrlObject->ActivePanel->GoToFile(NameTmp);
           }
           /*else
