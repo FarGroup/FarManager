@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.50 14.09.2001 $ */
+/* Revision: 1.51 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 VVM
+    + CTRL+SHIFT+ENTER вставляет файл с пассивной панели.
   14.09.2001 SKV
     - при ctrl-q надо вызывать DeleteBlock, а не RecurseProcessKey(KEY_DEL); :)
   05.09.2001 SVS
@@ -762,10 +764,17 @@ int Edit::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_CTRLSHIFTENTER:
     case KEY_SHIFTENTER:
       {
         char FileName[NM],ShortFileName[NM];
-        if (CtrlObject->Cp()->ActivePanel!=NULL && CtrlObject->Cp()->ActivePanel->GetCurName(FileName,ShortFileName))
+        /* $ 07.10.2001 VVM
+          + CTRL+SHIFT+ENTER вставляет файл с пассивной панели. */
+        Panel *SrcPanel = CtrlObject->Cp()->ActivePanel;
+        if (Key == KEY_CTRLSHIFTENTER)
+          SrcPanel = CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+        if (SrcPanel!=NULL && SrcPanel->GetCurName(FileName,ShortFileName))
+        /* VVM $ */
         {
           /* $ 03.07.2000 tran
              - bug#10, если был выделен текст, то удаляем его */
