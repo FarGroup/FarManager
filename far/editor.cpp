@@ -6,10 +6,18 @@ editor.cpp
 
 */
 
-/* Revision: 1.191 27.08.2002 $ */
+/* Revision: 1.192 04.09.2002 $ */
 
 /*
 Modify:
+  04.09.2002 SVS
+    ! Структура EditList пеехала из editor.cpp в edit.hpp
+    ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
+      теперь это привелегия FileEditor`а
+    ! Команда ECTL_SAVEFILE обрабатывается в FileEditor::EditorControl
+    ! Команда ECTL_QUIT обрабатывается в FileEditor::EditorControl
+    ! Команда ECTL_SETTITLE обрабатывается в FileEditor::EditorControl
+    ! Код Editor::ShowStatus() переехал в FileEditor::ShowStatus()
   27.08.2002 SVS
     ! Убираем EditorInfo.WindowPos
   19.08.2002 SVS
@@ -572,13 +580,6 @@ Modify:
 #include "savescr.hpp"
 #include "scrbuf.hpp"
 
-struct EditList
-{
-  struct EditList *Prev;
-  struct EditList *Next;
-  Edit EditLine;
-};
-
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
@@ -593,11 +594,6 @@ Editor::Editor()
 {
   _KEYMACRO(SysLog("Editor::Editor()"));
   _KEYMACRO(SysLog(1));
-  /* $ 19.02.2001 IS
-       Я не учел, что для нового файла GetFileAttributes не вызывается...
-  */
-  *AttrStr=0;
-  /* IS $ */
   /* $ 26.02.2001 IS
        Инициализируем переменные одним махом ;)
   */
@@ -650,13 +646,11 @@ Editor::Editor()
   /* IS $ */
   UndoDataPos=0;
   StartLine=StartChar=-1;
-  *Title=0;
   BlockUndo=FALSE;
   *PluginData=0;
   VBlockStart=NULL;
   memset(&SavePos,0xff,sizeof(SavePos));
   MaxRightPos=0;
-  *PluginTitle=0;
   UndoSavePos=0;
   Editor::EditorID=::EditorID++;
   Flags.Set(FEDITOR_OPENFAILED); // Ну, блин. Файл то еще не открыт,
@@ -899,7 +893,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     /* $ 12.02.2001 IS
          Запомним атрибуты
     */
-    FileAttributes=GetFileAttributes(Name);
+    DWORD FileAttributes=HostFileEditor?HostFileEditor->GetFileAttributes(Name):(DWORD)-1;
     if((Opt.EditorReadOnlyLock&1) &&
        FileAttributes != -1 &&
        (FileAttributes &
@@ -1217,158 +1211,6 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   return(TRUE);
 }
 
-/* $ 12.02.2001 IS
-     Заменил локальную FileAttr на FileAttributes
-*/
-/* $ 04.06.2001 IS
-     Убраны (с подачи SVS) потенциальные баги - выход из функции был до того,
-     как восстановятся атрибуты файла
-*/
-int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewFile)
-{
-  FILE *EditFile;
-  struct EditList *CurPtr;
-  int RetCode=SAVEFILE_SUCCESS;
-
-  if (TextFormat!=0)
-    Flags.Set(FEDITOR_WASCHANGED);
-
-  switch(TextFormat)
-  {
-    case 1:
-      strcpy(GlobalEOL,DOS_EOL_fmt);
-      break;
-    case 2:
-      strcpy(GlobalEOL,UNIX_EOL_fmt);
-      break;
-    case 3:
-      strcpy(GlobalEOL,MAC_EOL_fmt);
-      break;
-  }
-
-  {
-    //SaveScreen SaveScr;
-    /* $ 11.10.2001 IS
-       Если было произведено сохранение с любым результатом, то не удалять файл
-    */
-    Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
-    /* IS $ */
-    CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-//_D(SysLog("%08d EE_SAVE",__LINE__));
-    CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
-
-    DWORD FileFlags=FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN;
-    if (FileAttributes!=-1 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-      FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
-
-    HANDLE hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
-                 FileAttributes!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,FileFlags,NULL);
-    if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttributes!=-1)
-      hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
-                       FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-    if (hEdit==INVALID_HANDLE_VALUE)
-    {
-      RetCode=SAVEFILE_ERROR;
-      goto end;
-    }
-    int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
-    if (EditHandle==-1)
-    {
-      RetCode=SAVEFILE_ERROR;
-      goto end;
-    }
-    if ((EditFile=fdopen(EditHandle,"wb"))==NULL)
-    {
-      RetCode=SAVEFILE_ERROR;
-      goto end;
-    }
-
-    UndoSavePos=UndoDataPos;
-    Flags.Clear(FEDITOR_UNDOOVERFLOW);
-
-//    ConvertNameToFull(Name,FileName, sizeof(FileName));
-    if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName))
-    {
-      Flags.Set(FEDITOR_OPENFAILED);
-      RetCode=SAVEFILE_ERROR;
-      goto end;
-    }
-    SetCursorType(FALSE,0);
-    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
-    EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
-    CurPtr=TopList;
-
-    while (CurPtr!=NULL)
-    {
-      const char *SaveStr, *EndSeq;
-      int Length;
-      CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
-      if (*EndSeq==0 && CurPtr->Next!=NULL)
-        EndSeq=*GlobalEOL ? GlobalEOL:DOS_EOL_fmt;
-      if (TextFormat!=0 && *EndSeq!=0)
-      {
-        if (TextFormat==1)
-          EndSeq=DOS_EOL_fmt;
-        else if (TextFormat==2)
-          EndSeq=UNIX_EOL_fmt;
-        else
-          EndSeq=MAC_EOL_fmt;
-        CurPtr->EditLine.SetEOL(EndSeq);
-      }
-      int EndLength=strlen(EndSeq);
-      if (fwrite(SaveStr,1,Length,EditFile)!=Length ||
-          fwrite(EndSeq,1,EndLength,EditFile)!=EndLength)
-      {
-        fclose(EditFile);
-        remove(Name);
-        RetCode=SAVEFILE_ERROR;
-        goto end;
-      }
-      CurPtr=CurPtr->Next;
-    }
-    if (fflush(EditFile)==EOF)
-    {
-      fclose(EditFile);
-      remove(Name);
-      RetCode=SAVEFILE_ERROR;
-      goto end;
-    }
-    SetEndOfFile(hEdit);
-    fclose(EditFile);
-  }
-
-end:
-  SetPreRedrawFunc(NULL);
-
-  if (FileAttributes!=-1)
-    SetFileAttributes(Name,FileAttributes|FA_ARCH);
-
-  if (Flags.Check(FEDITOR_MODIFIED) || NewFile)
-    Flags.Set(FEDITOR_WASCHANGED);
-
-  /* Этот кусок раскомметировать в том случае, если народ решит, что
-     для если файл был залочен и мы его переписали под други именем...
-     ...то "лочка" должна быть снята.
-  */
-//  if(SaveAs)
-//    Flags.Clear(FEDITOR_LOCKMODE);
-
-
-  /*$ 10.08.2000 skv
-    Modified->TextChanged
-  */
-  /* 28.12.2001 VVM
-    ! Проверить на успешную запись */
-  if (RetCode==SAVEFILE_SUCCESS)
-    TextChanged(0);
-  /* VVM $ */
-  /* skv$*/
-  Show();
-  return RetCode;
-}
-/* IS $ */
-/* IS $ */
-
 void Editor::DisplayObject()
 {
   if (!DisableOut)
@@ -1522,96 +1364,11 @@ void Editor::ShowEditor(int CurLineOnly)
       }
     }
 
-  ShowStatus();
+  if(HostFileEditor) HostFileEditor->ShowStatus();
 //_SVS(SysLog("Exit from ShowEditor"));
 }
 
 
-void Editor::ShowStatus()
-{
-  if (DisableOut || !HostFileEditor)
-    return;
-  SetColor(COL_EDITORSTATUS);
-  GotoXY(X1,Y1);
-  char TruncFileName[NM],StatusStr[NM],LineStr[50];
-  /* $ 08.06.2001 IS
-     - Баг: затирался стек, потому что, например, размер Title больше,
-       чем размер TruncFileName
-  */
-  strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FileName),
-          sizeof(TruncFileName)-1);
-  /* IS $ */
-  int NameLength=Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen() ? 19:25;
-  /* $ 11.07.2000 tran
-     + expand filename if console more when 80 column */
-  if (X2>80)
-     NameLength+=(X2-80);
-  /* tran 11.07.2000 $ */
-
-  if (*PluginTitle || *Title)
-    /* $ 20.09.2000 SVS
-      - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
-    */
-    /* $ 01.10.2000 IS
-      ! Показывать букву диска в статусной строке
-    */
-    TruncPathStr(TruncFileName,(ObjWidth<NameLength?ObjWidth:NameLength));
-    /* IS $ */
-    /* SVS $ */
-  else
-    /* $ 01.10.2000 IS
-      ! Показывать букву диска в статусной строке
-    */
-    TruncPathStr(TruncFileName,NameLength);
-    /* IS $ */
-  /* $ 14.02.2000 SVS
-     Динамический размер под количество строк
-  */
-  // предварительный расчет.
-  sprintf(LineStr,"%d/%d",NumLastLine,NumLastLine);
-  int SizeLineStr=strlen(LineStr);
-  if(SizeLineStr > 12)
-    NameLength-=(SizeLineStr-12);
-  else
-    SizeLineStr=12;
-
-  sprintf(LineStr,"%d/%d",NumLine+1,NumLastLine);
-  /* $ 13.02.2001 IS
-    ! Используем уже готовую AttrStr, которая сформирована в
-      GetFileAttributes
-  */
-  sprintf(StatusStr,"%-*s %c%c %10.10s %7s %*.*s %5s %-4d %3s",
-          NameLength,TruncFileName,Flags.Check(FEDITOR_MODIFIED) ? '*':' ',
-          (Flags.Check(FEDITOR_LOCKMODE) ? '-':' '),
-          UseDecodeTable ? TableSet.TableName:AnsiText ? "Win":"DOS",
-          MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
-          MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1,AttrStr);
-  /* IS $ */
-  /* SVS $ */
-  int StatusWidth=Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen()? ObjWidth-5:ObjWidth;
-  if (StatusWidth<0)
-    StatusWidth=0;
-  mprintf("%-*.*s",StatusWidth,StatusWidth,StatusStr);
-
-  {
-    const char *Str;
-    int Length;
-    CurLine->EditLine.GetBinaryString(Str,NULL,Length);
-    int CurPos=CurLine->EditLine.GetCurPos();
-    if (CurPos<Length)
-    {
-      GotoXY(X2-(Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen() ? 9:2),Y1);
-      SetColor(COL_EDITORSTATUS);
-      /* $ 27.02.2001 SVS
-      Показываем в зависимости от базы */
-      static char *FmtCharCode[3]={"%03o","%3d","%02Xh"};
-      mprintf(FmtCharCode[EdOpt.CharCodeBase%3],(unsigned char)Str[CurPos]);
-      /* SVS $ */
-    }
-  }
-  if (Opt.ViewerEditorClock && HostFileEditor!=NULL && HostFileEditor->IsFullScreen())
-    ShowTime(FALSE);
-}
 /*$ 10.08.2000 skv
   Wrapper for Modified.
   Set JustModified every call to 1
@@ -2745,7 +2502,7 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLL:
     {
       Flags.Swap(FEDITOR_LOCKMODE);
-      ShowStatus();
+      if(HostFileEditor) HostFileEditor->ShowStatus();
       return(TRUE);
     }
 
@@ -3577,7 +3334,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   } /* if */
   if (CurLine->EditLine.ProcessMouse(MouseEvent))
   {
-    ShowStatus();
+    if(HostFileEditor) HostFileEditor->ShowStatus();
     if (VBlockStart!=NULL)
       Show();
     else
@@ -5067,20 +4824,6 @@ int Editor::IsFileModified()
   return(Flags.Check(FEDITOR_MODIFIED));
 }
 
-
-void Editor::SetTitle(const char *Title)
-{
-  if (Title==NULL)
-    *Editor::Title=0;
-  else
-  /* $ 08.06.2001
-     - Баг: не учитывался размер Title, что приводило к порче памяти и
-       к падению Фара.
-  */
-    strncpy(Editor::Title, Title, sizeof(Editor::Title)-1);
-  /* IS $ */
-}
-
 // используется в FileEditor
 long Editor::GetCurPos()
 {
@@ -5101,11 +4844,6 @@ long Editor::GetCurPos()
 void Editor::SetPluginData(char *PluginData)
 {
   strcpy(Editor::PluginData,NullToEmpty(PluginData));
-}
-
-void Editor::SetPluginTitle(char *PluginTitle)
-{
-  strcpy(Editor::PluginTitle,NullToEmpty(PluginTitle));
 }
 
 void Editor::SetStringsTable()
@@ -5901,18 +5639,6 @@ int Editor::EditorControl(int Command,void *Param)
         CurPtr->EditLine.ReplaceTabs();
       }
       return(TRUE);
-    case ECTL_SETTITLE:
-      {
-        char *Title=(char *)Param;
-        /* $ 08.06.2001 IS
-           - Баг: не учитывался размер PluginTitle
-        */
-        strncpy(PluginTitle,NullToEmpty(Title),sizeof(PluginTitle)-1);
-        /* IS $ */
-        ShowStatus();
-        ScrBuf.Flush();
-      }
-      return(TRUE);
     // должно выполняется в FileEditor::EditorControl()
     case ECTL_READINPUT:
       {
@@ -5997,42 +5723,6 @@ int Editor::EditorControl(int Command,void *Param)
       }
       return(TRUE);
 
-    // должно выполняется в FileEditor::EditorControl()
-    case ECTL_SAVEFILE:
-      {
-        if (HostFileEditor!=NULL)
-        {
-          EditorSaveFile *esf=(EditorSaveFile *)Param;
-          char *Name=FileName;
-          int EOL=0;
-          if (esf!=NULL)
-          {
-            if (*esf->FileName)
-              Name=esf->FileName;
-            if (esf->FileEOL!=NULL)
-            {
-              if (strcmp(esf->FileEOL,DOS_EOL_fmt)==0)
-                EOL=1;
-              if (strcmp(esf->FileEOL,UNIX_EOL_fmt)==0)
-                EOL=2;
-              if (strcmp(esf->FileEOL,MAC_EOL_fmt)==0)
-                EOL=3;
-            }
-          }
-          // сохранение файла только через хост!
-          // Так до тех пор, пока обработчик ECTL_SAVEFILE не переедет в
-          // FileEditor::EditorControl()
-          return(HostFileEditor->SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,FileName)));
-        }
-        return FALSE;
-      }
-
-    // должно выполняется в FileEditor::EditorControl()
-    case ECTL_QUIT:
-      FrameManager->DeleteFrame(HostFileEditor);
-      if (HostFileEditor!=NULL)
-        HostFileEditor->SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...
-      return(TRUE);
     /*$ 07.09.2000 skv
       New ECTL parameter
     */
@@ -6367,25 +6057,6 @@ void Editor::Xlat()
   TextChanged(1);
 }
 /* SVS $ */
-
-/* $ 13.02.2001
-     Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
-     статуса.
-*/
-DWORD Editor::GetFileAttributes(LPCTSTR Name)
-{
-  DWORD attr=::GetFileAttributes(Name);
-  int ind=0;
-  if(0xFFFFFFFF!=attr)
-  {
-     if(attr&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]='R';
-     if(attr&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]='S';
-     if(attr&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]='H';
-  }
-  AttrStr[ind]=0;
-  return attr;
-}
-/* IS $ */
 
 /* $ 15.02.2001 IS
      Манипуляции с табуляцией на уровне всего загруженного файла.

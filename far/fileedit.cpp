@@ -5,10 +5,18 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.116 21.08.2002 $ */
+/* Revision: 1.117 04.09.2002 $ */
 
 /*
 Modify:
+  04.09.2002 SVS
+    + "Файл был изменен внешней программой"
+    ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
+      теперь это привелегия FileEditor`а
+    ! Команда ECTL_SAVEFILE обрабатывается в FileEditor::EditorControl
+    ! Команда ECTL_QUIT обрабатывается в FileEditor::EditorControl
+    ! Команда ECTL_SETTITLE обрабатывается в FileEditor::EditorControl
+    ! Код Editor::ShowStatus() переехал в FileEditor::ShowStatus()
   21.08.2002 SVS
     ! Уточнение про WaitKey
   13.07.2002 SVS
@@ -312,6 +320,7 @@ Modify:
 #include "namelist.hpp"
 #include "history.hpp"
 #include "cmdline.hpp"
+#include "scrbuf.hpp"
 #include "savescr.hpp"
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
@@ -383,7 +392,14 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
     return;
   }
 
+  /* $ 19.02.2001 IS
+       Я не учел, что для нового файла GetFileAttributes не вызывается...
+  */
+  *AttrStr=0;
+  /* IS $ */
   CurrentEditor=this;
+  FileAttributes=-1;
+  *PluginTitle=0;
   SetTitle(Title);
   RedrawTitle = FALSE;
   /* $ 07.05.2001 DJ */
@@ -496,7 +512,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   /* $ 15.12.2000 SVS
     - Shift-F4, новый файл. Выдает сообщение :-(
   */
-  DWORD FAttr=GetFileAttributes(Name);
+  DWORD FAttr=::GetFileAttributes(Name);
   /* $ 05.06.2001 IS
      + посылаем подальше всех, кто пытается отредактировать каталог
   */
@@ -722,7 +738,7 @@ int FileEditor::ProcessKey(int Key)
           if (!(isalpha(FullFileName[0]) && (FullFileName[1]==':') && !FullFileName[2]))
           {
             // а дальше? каталог существует?
-            if((FNAttr=GetFileAttributes(FullFileName)) == -1 ||
+            if((FNAttr=::GetFileAttributes(FullFileName)) == -1 ||
                               !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
                 //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
               )
@@ -732,7 +748,7 @@ int FileEditor::ProcessKey(int Key)
         }
 
         if(Key == KEY_F2 &&
-           (FNAttr=GetFileAttributes(FullFileName)) != -1 &&
+           (FNAttr=::GetFileAttributes(FullFileName)) != -1 &&
            !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
             SaveToSaveAs=FALSE;
 
@@ -783,7 +799,7 @@ int FileEditor::ProcessKey(int Key)
           if(!NameChanged)
             FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???
 
-          FNAttr=GetFileAttributes(EditDlg[2].Data);
+          FNAttr=::GetFileAttributes(EditDlg[2].Data);
           if (NameChanged && FNAttr != -1)
           {
             if (Message(MSG_WARNING,2,MSG(MEditTitle),EditDlg[2].Data,MSG(MEditExists),
@@ -818,7 +834,7 @@ int FileEditor::ProcessKey(int Key)
         ShowConsoleTitle();
         FarChDir(StartDir); //???
 
-        if(SaveFile(FullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2)==0)
+        if(SaveFile(FullFileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2) == SAVEFILE_ERROR)
         {
           if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
                       FileName,MSG(MRetry),MSG(MCancel))!=0)
@@ -845,7 +861,7 @@ int FileEditor::ProcessKey(int Key)
         // возможно здесь она и не нужна!
         // хотя, раз уж были изменени, то
         if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
-           GetFileAttributes(FullFileName) == -1) // а файл еще существует?
+           ::GetFileAttributes(FullFileName) == -1) // а файл еще существует?
         {
           switch(Message(MSG_WARNING,2,MSG(MEditTitle),
                          MSG(MEditSavedChangedNonFile),
@@ -863,7 +879,7 @@ int FileEditor::ProcessKey(int Key)
           }
         }
 
-        if(!FirstSave || FEdit->IsFileChanged() || GetFileAttributes(FullFileName)!=-1)
+        if(!FirstSave || FEdit->IsFileChanged() || ::GetFileAttributes(FullFileName)!=-1)
         {
           long FilePos=FEdit->GetCurPos();
           /* $ 01.02.2001 IS
@@ -915,7 +931,7 @@ int FileEditor::ProcessKey(int Key)
         /* $ 28.12.2001 DJ
            вынесем код в общую функцию
         */
-        if(GetFileAttributes(FullFileName) == -1) // а сам файл то еще на месте?
+        if(::GetFileAttributes(FullFileName) == -1) // а сам файл то еще на месте?
         {
           if(!CheckShortcutFolder(FullFileNameTemp,sizeof(FullFileNameTemp)-1,FALSE))
             return FALSE;
@@ -944,7 +960,7 @@ int FileEditor::ProcessKey(int Key)
       if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
       {
         if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменения?
-           GetFileAttributes(FullFileName) == -1 && !IsNewFile) // а сам файл то еще на месте?
+           ::GetFileAttributes(FullFileName) == -1 && !IsNewFile) // а сам файл то еще на месте?
         {
           switch(Message(MSG_WARNING,3,MSG(MEditTitle),
                          MSG(MEditSavedChangedNonFile),
@@ -1117,7 +1133,25 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 // сюды плавно переносить код из Editor::ReadFile()
 int FileEditor::ReadFile(const char *Name,int &UserBreak)
 {
-  return FEdit->ReadFile(Name,UserBreak);
+  int Ret=FEdit->ReadFile(Name,UserBreak);
+  GetLastInfo(Name,&FileInfo);
+  return Ret;
+}
+
+BOOL FileEditor::GetLastInfo(const char *Name,WIN32_FIND_DATA *FInfo)
+{
+  if(FInfo)
+  {
+    HANDLE FindHandle;
+    if ((FindHandle=FindFirstFile(Name,FInfo))!=INVALID_HANDLE_VALUE)
+    {
+      FindClose(FindHandle);
+      return TRUE;
+    }
+    else
+      memset(FInfo,0,sizeof(WIN32_FIND_DATA));
+  }
+  return FALSE;
 }
 
 // сюды плавно переносить код из Editor::SaveFile()
@@ -1154,20 +1188,47 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   }
 
   int NewFile=TRUE;
-  if ((FEdit->FileAttributes=GetFileAttributes(Name))!=-1)
+  if ((FileAttributes=::GetFileAttributes(Name))!=-1)
   {
+    // Проверка времени модификации...
+    WIN32_FIND_DATA FInfo;
+    if(GetLastInfo(Name,&FInfo) && *FileInfo.cFileName)
+    {
+      if(CompareFileTime(&FileInfo.ftLastWriteTime,&FInfo.ftLastWriteTime) ||
+          !(FInfo.nFileSizeHigh == FileInfo.nFileSizeHigh &&
+          FInfo.nFileSizeLow  == FInfo.nFileSizeLow))
+      {
+        SetMessageHelp("WarnEditorSavedEx");
+        switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),
+                MSG(MEditSave),MSG(MEditBtnSaveAs),MSG(MEditContinue)))
+        {
+          case -1:
+          case -2:
+          case 2:  // Continue Edit
+            return SAVEFILE_CANCEL;
+          case 1:  // Save as
+            if(ProcessKey(KEY_SHIFTF2))
+              return SAVEFILE_SUCCESS;
+            else
+              return SAVEFILE_CANCEL;
+          case 0:  // Save
+            break;
+        }
+      }
+    }
+
     NewFile=FALSE;
-    if (FEdit->FileAttributes & FA_RDONLY)
+    if (FileAttributes & FA_RDONLY)
     {
       int AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
                            MSG(MEditOvr),MSG(MYes),MSG(MNo));
       if (AskOverwrite!=0)
         return SAVEFILE_CANCEL;
 
-      SetFileAttributes(Name,FEdit->FileAttributes & ~FA_RDONLY); // сняты атрибуты
+      SetFileAttributes(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
     }
 
-    if (FEdit->FileAttributes & (FA_HIDDEN|FA_SYSTEM))
+    if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
       SetFileAttributes(Name,0);
   }
   else
@@ -1180,12 +1241,12 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
       Chr=*Ptr;
       *Ptr=0;
       DWORD FAttr=0;
-      if(GetFileAttributes(CreatedPath) == -1)
+      if(::GetFileAttributes(CreatedPath) == -1)
       {
         // и попробуем создать.
         // Раз уж
         CreatePath(CreatedPath);
-        FAttr=GetFileAttributes(CreatedPath);
+        FAttr=::GetFileAttributes(CreatedPath);
       }
       *Ptr=Chr;
       if(FAttr == -1)
@@ -1193,13 +1254,169 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     }
   }
 
-  int Ret=FEdit->SaveFile(Name,Ask,TextFormat,SaveAs);
+  //int Ret=FEdit->SaveFile(Name,Ask,TextFormat,SaveAs);
+  // ************************************
+  /* $ 12.02.2001 IS
+       Заменил локальную FileAttr на FileAttributes
+  */
+  /* $ 04.06.2001 IS
+       Убраны (с подачи SVS) потенциальные баги - выход из функции был до того,
+       как восстановятся атрибуты файла
+  */
+  int RetCode=SAVEFILE_SUCCESS;
+
+  if (TextFormat!=0)
+    FEdit->Flags.Set(FEDITOR_WASCHANGED);
+
+  switch(TextFormat)
+  {
+    case 1:
+      strcpy(FEdit->GlobalEOL,DOS_EOL_fmt);
+      break;
+    case 2:
+      strcpy(FEdit->GlobalEOL,UNIX_EOL_fmt);
+      break;
+    case 3:
+      strcpy(FEdit->GlobalEOL,MAC_EOL_fmt);
+      break;
+  }
+
+  {
+    FILE *EditFile;
+    //SaveScreen SaveScr;
+    /* $ 11.10.2001 IS
+       Если было произведено сохранение с любым результатом, то не удалять файл
+    */
+    FEdit->Flags.Clear(FEDITOR_DELETEONCLOSE|FEDITOR_DELETEONLYFILEONCLOSE);
+    /* IS $ */
+    CtrlObject->Plugins.CurEditor=this;
+//_D(SysLog("%08d EE_SAVE",__LINE__));
+    CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
+
+    DWORD FileFlags=FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN;
+    if (FileAttributes!=-1 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+      FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
+
+    HANDLE hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
+                 FileAttributes!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,FileFlags,NULL);
+    if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttributes!=-1)
+    {
+      _SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
+      hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
+                       FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+    }
+    if (hEdit==INVALID_HANDLE_VALUE)
+    {
+      _SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
+    int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
+    if (EditHandle==-1)
+    {
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
+    if ((EditFile=fdopen(EditHandle,"wb"))==NULL)
+    {
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
+
+    FEdit->UndoSavePos=FEdit->UndoDataPos;
+    FEdit->Flags.Clear(FEDITOR_UNDOOVERFLOW);
+
+//    ConvertNameToFull(Name,FileName, sizeof(FileName));
+    if (ConvertNameToFull(Name,FEdit->FileName, sizeof(FEdit->FileName)) >= sizeof(FEdit->FileName))
+    {
+      FEdit->Flags.Set(FEDITOR_OPENFAILED);
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
+    SetCursorType(FALSE,0);
+    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+    Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
+
+    struct EditList *CurPtr=FEdit->TopList;
+
+    while (CurPtr!=NULL)
+    {
+      const char *SaveStr, *EndSeq;
+      int Length;
+      CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
+      if (*EndSeq==0 && CurPtr->Next!=NULL)
+        EndSeq=*FEdit->GlobalEOL ? FEdit->GlobalEOL:DOS_EOL_fmt;
+      if (TextFormat!=0 && *EndSeq!=0)
+      {
+        if (TextFormat==1)
+          EndSeq=DOS_EOL_fmt;
+        else if (TextFormat==2)
+          EndSeq=UNIX_EOL_fmt;
+        else
+          EndSeq=MAC_EOL_fmt;
+        CurPtr->EditLine.SetEOL(EndSeq);
+      }
+      int EndLength=strlen(EndSeq);
+      if (fwrite(SaveStr,1,Length,EditFile)!=Length ||
+          fwrite(EndSeq,1,EndLength,EditFile)!=EndLength)
+      {
+        fclose(EditFile);
+        remove(Name);
+        RetCode=SAVEFILE_ERROR;
+        goto end;
+      }
+      CurPtr=CurPtr->Next;
+    }
+    if (fflush(EditFile)==EOF)
+    {
+      fclose(EditFile);
+      remove(Name);
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
+    SetEndOfFile(hEdit);
+    fclose(EditFile);
+  }
+
+end:
+  SetPreRedrawFunc(NULL);
+
+  if (FileAttributes!=-1)
+    SetFileAttributes(Name,FileAttributes|FA_ARCH);
+
+  if (FEdit->Flags.Check(FEDITOR_MODIFIED) || NewFile)
+    FEdit->Flags.Set(FEDITOR_WASCHANGED);
+
+  /* Этот кусок раскомметировать в том случае, если народ решит, что
+     для если файл был залочен и мы его переписали под други именем...
+     ...то "лочка" должна быть снята.
+  */
+//  if(SaveAs)
+//    Flags.Clear(FEDITOR_LOCKMODE);
+
+
+  /*$ 10.08.2000 skv
+    Modified->TextChanged
+  */
+  /* 28.12.2001 VVM
+    ! Проверить на успешную запись */
+  if (RetCode==SAVEFILE_SUCCESS)
+    FEdit->TextChanged(0);
+  /* VVM $ */
+  /* skv$*/
+  Show();
+  /* IS $ */
+  /* IS $ */
+
+  // ************************************
   IsNewFile=0;
 
   /* $ 09.02.2002 VVM
     + Обновить панели, если писали в текущий каталог */
-  if (Ret==SAVEFILE_SUCCESS)
+  if (RetCode==SAVEFILE_SUCCESS)
   {
+    GetLastInfo(Name,&FileInfo);
+
     Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
     char *FileName = PointToName((char *)Name);
     char FilePath[NM], PanelPath[NM];
@@ -1211,7 +1428,7 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
       ActivePanel->Update(UPDATE_KEEP_SELECTION);
   }
   /* VVM $ */
-  return Ret;
+  return RetCode;
 }
 
 int FileEditor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -1323,9 +1540,9 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
   return RetCode;
 }
 
-void FileEditor::SetPluginTitle(char *PluginTitle)
+void FileEditor::SetPluginTitle(const char *PluginTitle)
 {
-  FEdit->SetPluginTitle(PluginTitle);
+  strcpy(FileEditor::PluginTitle,NullToEmpty(PluginTitle));
 }
 
 BOOL FileEditor::SetFileName(const char *NewFileName)
@@ -1340,7 +1557,15 @@ BOOL FileEditor::SetFileName(const char *NewFileName)
 
 void FileEditor::SetTitle(const char *Title)
 {
-  FEdit->SetTitle(NullToEmpty(Title));
+  if (Title==NULL)
+    *FileEditor::Title=0;
+  else
+  /* $ 08.06.2001
+     - Баг: не учитывался размер Title, что приводило к порче памяти и
+       к падению Фара.
+  */
+    strncpy(FileEditor::Title, Title, sizeof(FileEditor::Title)-1);
+  /* IS $ */
 }
 
 void FileEditor::ChangeEditKeyBar()
@@ -1353,6 +1578,109 @@ void FileEditor::ChangeEditKeyBar()
   EditKeyBar.Redraw();
 }
 
+void FileEditor::ShowStatus()
+{
+  if (FEdit->DisableOut)
+    return;
+  SetColor(COL_EDITORSTATUS);
+  GotoXY(FEdit->X1,FEdit->Y1); //??
+  char TruncFileName[NM],StatusStr[NM],LineStr[50];
+  /* $ 08.06.2001 IS
+     - Баг: затирался стек, потому что, например, размер Title больше,
+       чем размер TruncFileName
+  */
+  strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FullFileName),sizeof(TruncFileName)-1);
+  /* IS $ */
+  int NameLength=Opt.ViewerEditorClock && IsFullScreen() ? 19:25;
+  /* $ 11.07.2000 tran
+     + expand filename if console more when 80 column */
+  if (FEdit->X2>80)
+     NameLength+=(FEdit->X2-80);
+  /* tran 11.07.2000 $ */
+
+  if (*PluginTitle || *Title)
+    /* $ 20.09.2000 SVS
+      - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
+    */
+    /* $ 01.10.2000 IS
+      ! Показывать букву диска в статусной строке
+    */
+    TruncPathStr(TruncFileName,(FEdit->ObjWidth<NameLength?FEdit->ObjWidth:NameLength));
+    /* IS $ */
+    /* SVS $ */
+  else
+    /* $ 01.10.2000 IS
+      ! Показывать букву диска в статусной строке
+    */
+    TruncPathStr(TruncFileName,NameLength);
+    /* IS $ */
+  /* $ 14.02.2000 SVS
+     Динамический размер под количество строк
+  */
+  // предварительный расчет.
+  sprintf(LineStr,"%d/%d",FEdit->NumLastLine,FEdit->NumLastLine);
+  int SizeLineStr=strlen(LineStr);
+  if(SizeLineStr > 12)
+    NameLength-=(SizeLineStr-12);
+  else
+    SizeLineStr=12;
+
+  sprintf(LineStr,"%d/%d",FEdit->NumLine+1,FEdit->NumLastLine);
+  /* $ 13.02.2001 IS
+    ! Используем уже готовую AttrStr, которая сформирована в
+      GetFileAttributes
+  */
+  sprintf(StatusStr,"%-*s %c%c %10.10s %7s %*.*s %5s %-4d %3s",
+          NameLength,TruncFileName,FEdit->Flags.Check(FEDITOR_MODIFIED) ? '*':' ',
+          (FEdit->Flags.Check(FEDITOR_LOCKMODE) ? '-':' '),
+          FEdit->UseDecodeTable ? FEdit->TableSet.TableName:FEdit->AnsiText ? "Win":"DOS",
+          MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
+          MSG(MEditStatusCol),FEdit->CurLine->EditLine.GetTabCurPos()+1,AttrStr);
+  /* IS $ */
+  /* SVS $ */
+  int StatusWidth=FEdit->ObjWidth - (Opt.ViewerEditorClock && IsFullScreen()?5:0);
+  if (StatusWidth<0)
+    StatusWidth=0;
+  mprintf("%-*.*s",StatusWidth,StatusWidth,StatusStr);
+
+  {
+    const char *Str;
+    int Length;
+    FEdit->CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+    int CurPos=FEdit->CurLine->EditLine.GetCurPos();
+    if (CurPos<Length)
+    {
+      GotoXY(FEdit->X2-(Opt.ViewerEditorClock && IsFullScreen() ? 9:2),FEdit->Y1);
+      SetColor(COL_EDITORSTATUS);
+      /* $ 27.02.2001 SVS
+      Показываем в зависимости от базы */
+      static char *FmtCharCode[3]={"%03o","%3d","%02Xh"};
+      mprintf(FmtCharCode[FEdit->EdOpt.CharCodeBase%3],(unsigned char)Str[CurPos]);
+      /* SVS $ */
+    }
+  }
+  if (Opt.ViewerEditorClock && IsFullScreen())
+    ShowTime(FALSE);
+}
+
+/* $ 13.02.2001
+     Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
+     статуса.
+*/
+DWORD FileEditor::GetFileAttributes(LPCTSTR Name)
+{
+  FileAttributes=::GetFileAttributes(Name);
+  int ind=0;
+  if(0xFFFFFFFF!=FileAttributes)
+  {
+     if(FileAttributes&FILE_ATTRIBUTE_READONLY) AttrStr[ind++]='R';
+     if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) AttrStr[ind++]='S';
+     if(FileAttributes&FILE_ATTRIBUTE_HIDDEN) AttrStr[ind++]='H';
+  }
+  AttrStr[ind]=0;
+  return FileAttributes;
+}
+/* IS $ */
 
 int FileEditor::EditorControl(int Command,void *Param)
 {
@@ -1368,6 +1696,15 @@ int FileEditor::EditorControl(int Command,void *Param)
 #endif
   switch(Command)
   {
+    case ECTL_SETTITLE:
+    {
+      // $ 08.06.2001 IS - Баг: не учитывался размер PluginTitle
+      strncpy(PluginTitle,NullToEmpty((char *)Param),sizeof(PluginTitle)-1);
+      ShowStatus();
+      ScrBuf.Flush();
+      return(TRUE);
+    }
+
     /* $ 07.08.2000 SVS
        Функция установки Keybar Labels
          Param = NULL - восстановить, пред. значение
@@ -1406,9 +1743,38 @@ int FileEditor::EditorControl(int Command,void *Param)
         }
         EditKeyBar.Show();
       }
-      return(TRUE);
+      return TRUE;
     }
     /* SVS $ */
+
+    case ECTL_SAVEFILE:
+    {
+      EditorSaveFile *esf=(EditorSaveFile *)Param;
+      char *Name=FullFileName;
+      int EOL=0;
+      if (esf!=NULL)
+      {
+        if (*esf->FileName)
+          Name=esf->FileName;
+        if (esf->FileEOL!=NULL)
+        {
+          if (strcmp(esf->FileEOL,DOS_EOL_fmt)==0)
+            EOL=1;
+          if (strcmp(esf->FileEOL,UNIX_EOL_fmt)==0)
+            EOL=2;
+          if (strcmp(esf->FileEOL,MAC_EOL_fmt)==0)
+            EOL=3;
+        }
+      }
+      return SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,FullFileName));
+    }
+
+    case ECTL_QUIT:
+    {
+      FrameManager->DeleteFrame(this);
+      SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...???
+      return(TRUE);
+    }
 
   }
 

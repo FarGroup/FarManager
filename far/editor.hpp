@@ -9,10 +9,13 @@ editor.hpp
 
 */
 
-/* Revision: 1.38 25.06.2002 $ */
+/* Revision: 1.39 04.09.2002 $ */
 
 /*
 Modify:
+  04.09.2002 SVS
+    !  ласс Editor "потер€л" свойство запоминать файлы самосто€тельно,
+      теперь это привелеги€ FileEditor`а
   25.06.2002 SVS
     ! классу Editor нафиг ненужен кейбар - это привелеги€ FileEditor
   14.06.2002 IS
@@ -194,9 +197,8 @@ class Editor:public ScreenObject
 {
   friend class FileEditor;
   private:
-    char Title[512];
     char PluginData[NM*2];
-    char PluginTitle[512];
+    char FileName[NM];
 
     struct EditList *TopList,*EndList,*TopScreen,*CurLine;
     /* $ 03.12.2001 IS теперь указатель, т.к. размер может мен€тьс€ */
@@ -206,18 +208,7 @@ class Editor:public ScreenObject
     int UndoOverflow;
     int UndoSavePos;
     int LastChangeStrPos;
-    char FileName[NM];
     int NumLastLine,NumLine;
-    /* $ 12.02.2001 IS
-         сюда запомним атрибуты файла при открытии, пригод€тс€ где-нибудь...
-    */
-    DWORD FileAttributes;
-    /* IS $ */
-    /* $ 13.02.2001 IS
-         —юда запомним буквы атрибутов, чтобы не вычисл€ть их много раз
-    */
-    char AttrStr[4];
-    /* IS $ */
     /* $ 26.02.2001 IS
          —юда запомним размер табул€ции и в дальнейшем будем использовать его,
          а не Opt.TabSize
@@ -260,7 +251,6 @@ class Editor:public ScreenObject
   private:
     void DisplayObject();
     void ShowEditor(int CurLineOnly);
-    void ShowStatus();
     void DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine);
     void InsertString();
     void Up();
@@ -291,11 +281,6 @@ class Editor:public ScreenObject
     void TextChanged(int State);
     /* skv $*/
 
-    /* $ 13.02.2001 IS
-         ќбертка вокруг одноименной функции из win32 api
-    */
-    DWORD GetFileAttributes(LPCTSTR);
-    /* IS $ */
     int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
     void Paste(char *Src=NULL);
     void Copy(int Append);
@@ -325,7 +310,6 @@ class Editor:public ScreenObject
 
   public:
     int ReadFile(const char *Name,int &UserBreak);
-    int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewFile=TRUE);
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void KeepInitParameters();
@@ -335,7 +319,6 @@ class Editor:public ScreenObject
     void SetTitle(const char *Title);
     long GetCurPos();
     void SetPluginData(char *PluginData);
-    void SetPluginTitle(char *PluginTitle);
     int EditorControl(int Command,void *Param);
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
     static void SetReplaceMode(int Mode);

@@ -1970,6 +1970,15 @@ will create the folder, provided that the path is correct (for
 example, a path starting with a non-existing drive letter would not be
 correct) and that you have enough rights to create the folder.
 
+@WarnEditorSavedEx
+$ #Warning: The file was changed by an external program#
+     The modification date and time of the file on the disk are not the
+same as those saved by FAR when the file was last accessed. This means that
+another program, another user (or even yourself in a different editor
+instance) changed the contents of the file on the disk.
+
+     If you press "Save", the file will be overwritten and all changes made
+by the external program will be lost.
 
 @DriveDlg
 $ #Change drive#

@@ -379,10 +379,12 @@
 "Cannot open the file"
 "Reading the file"
 "File has been modified"
+"The file was changed by an external program"
 
 "&Save"
 "Do &not save"
 "&Continue editing"
+"Save &as..."
 
 "is a read-only file"
 "already exists"

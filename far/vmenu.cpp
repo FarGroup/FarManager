@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.95 03.09.2002 $ */
+/* Revision: 1.96 05.09.2002 $ */
 
 /*
 Modify:
+  05.09.2002 SVS
+    ! Уточнение BugZ#611
   03.09.2002 SVS
     - BugZ#611 - Нелепая сортировка в меню плагинов
     ! функция SortItems имеет доп параметр Offset
@@ -2013,9 +2015,9 @@ static int __cdecl  SortItem(const struct MenuItem *el1,
 {
   char Name1[2*NM],Name2[2*NM];
   strncpy(Name1,((struct MenuItem *)el1)->PtrName(),sizeof(Name1));
-  RemoveChar(Name1,'&',FALSE); // TRUE ???
+  RemoveChar(Name1,'&',TRUE);
   strncpy(Name2,((struct MenuItem *)el2)->PtrName(),sizeof(Name2));
-  RemoveChar(Name2,'&',FALSE); // TRUE ???
+  RemoveChar(Name2,'&',TRUE);
   int Res=LocalStricmp(Name1+Param->Offset,Name2+Param->Offset);
   return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }

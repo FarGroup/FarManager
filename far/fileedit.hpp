@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.31 25.06.2002 $ */
+/* Revision: 1.32 04.09.2002 $ */
 
 /*
 Modify:
+  04.09.2002 SVS
+    + GetLastInfo() & FileInfo - информация о файле
   25.06.2002 SVS
     + IsFullScreen()
     ! классу Editor нафиг ненужен кейбар - это привелегия FileEditor
@@ -128,6 +130,10 @@ class FileEditor:public Frame
     char FullFileName[NM];
     char StartDir[NM];
     char NewTitle[NM];
+
+    char Title[512];
+    char PluginTitle[512];
+
     int FullScreen;
     /* $ 10.05.2001 DJ */
     int DisableHistory;
@@ -140,6 +146,18 @@ class FileEditor:public Frame
     int SaveToSaveAs;
     /* KM $ */
     int IsNewFile;
+
+    WIN32_FIND_DATA FileInfo;
+    /* $ 13.02.2001 IS
+         Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
+    */
+    char AttrStr[4];
+    /* IS $ */
+    /* $ 12.02.2001 IS
+         сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
+    */
+    DWORD FileAttributes;
+    /* IS $ */
 
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
@@ -165,6 +183,7 @@ class FileEditor:public Frame
   private:
     void DisplayObject();
     int ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
+    BOOL GetLastInfo(const char *Name,WIN32_FIND_DATA *FInfo);
 
   public:
     /* $ 14.06.2002 IS
@@ -227,13 +246,19 @@ class FileEditor:public Frame
     int ReadFile(const char *Name,int &UserBreak);
     int SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs);
     int EditorControl(int Command,void *Param);
-    void SetPluginTitle(char *PluginTitle);
+    void SetPluginTitle(const char *PluginTitle);
     void SetTitle(const char *Title);
     BOOL SetFileName(const char *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetLockEditor(BOOL LockMode);
     BOOL IsFullScreen(){return FullScreen;}
     void ChangeEditKeyBar();
+    void ShowStatus();
+    /* $ 13.02.2001 IS
+         Обертка вокруг одноименной функции из win32 api
+    */
+    DWORD GetFileAttributes(LPCTSTR);
+    /* IS $ */
 };
 
 #endif  // __FILEEDITOR_HPP__

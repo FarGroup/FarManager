@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.109 06.07.2002 $ */
+/* Revision: 1.110 04.09.2002 $ */
 
 /*
 Modify:
+  04.09.2002 SVS
+    + MEditAskSaveExt, MEditBtnSaveAs
   06.07.2002 VVM
     + MComspecNotFound
   22.05.2002 SVS
@@ -696,10 +698,12 @@ enum
   MEditCannotOpen,
   MEditReading,
   MEditAskSave,
+  MEditAskSaveExt,
 
   MEditSave,
   MEditNotSave,
   MEditContinue,
+  MEditBtnSaveAs,
 
   MEditRO,
   MEditExists,

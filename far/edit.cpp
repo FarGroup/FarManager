@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.87 19.08.2002 $ */
+/* Revision: 1.88 04.09.2002 $ */
 
 /*
 Modify:
+  04.09.2002 SVS
+    ! У функции SetInputMask параметр имеет сущность const +
+      небольшая оптимизация самой функции SetInputMask
   19.08.2002 SVS
     + EOL_TYPE_CHARS (с подачи IS)
   12.07.2002 SVS
@@ -341,7 +344,7 @@ Edit::~Edit()
   if (ColorList)
     free (ColorList);
   if (Mask)
-    delete[] Mask;
+    free(Mask);
   if(Str)
     free(Str);
 }
@@ -2071,17 +2074,15 @@ int Edit::GetLength()
 
 /* $ 12.08.2000 KM */
 // Функция установки маски ввода в объект Edit
-void Edit::SetInputMask(char *InputMask)
+void Edit::SetInputMask(const char *InputMask)
 {
   if (Mask)
-    delete[] Mask;
+    free(Mask);
+
   if (InputMask && *InputMask)
   {
-    int MaskLen=strlen(InputMask);
-    Mask=new char[MaskLen+1];
-    if (Mask==NULL)
+    if((Mask=strdup(InputMask)) == NULL)
       return;
-    strcpy(Mask,InputMask);
     RefreshStrByMask(TRUE);
   }
   else
@@ -2418,7 +2419,6 @@ void Edit::DisableEditOut(int Disable)
 {
   EditOutDisabled=Disable;
 }
-
 
 void Edit::DisableEncode(int Disable)
 {

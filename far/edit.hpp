@@ -7,10 +7,13 @@ edit.hpp
 
 */
 
-/* Revision: 1.23 18.05.2002 $ */
+/* Revision: 1.24 04.09.2002 $ */
 
 /*
 Modify:
+  04.09.2002 SVS
+    ! Структура EditList пеехала из editor.cpp в edit.hpp
+    ! У функции SetInputMask параметр имеет сущность const
   18.05.2002 SVS
     ! ФЛАГИ - сведем в кучу двухпозиционные переменные
   28.01.2002 SVS
@@ -239,7 +242,7 @@ class Edit:public ScreenObject
     /* $ 12.08.2000 KM
        Функции установки и получения маски ввода
     */
-    void  SetInputMask(char *InputMask);
+    void  SetInputMask(const char *InputMask);
     char* GetInputMask() {return Mask;}
     /* KM $ */
     void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};
@@ -274,6 +277,7 @@ class Edit:public ScreenObject
 
     static void DisableEditOut(int Disable);
     static void DisableEncode(int Disable);
+
     void SetDialogParent(DWORD Sets);
     void SetCursorType(int Visible,int Size);
     void GetCursorType(int &Visible,int &Size);
@@ -281,6 +285,14 @@ class Edit:public ScreenObject
     void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
     int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
     void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
+};
+
+
+struct EditList
+{
+  struct EditList *Prev;
+  struct EditList *Next;
+  Edit EditLine;
 };
 
 #endif  // __EDIT_HPP__

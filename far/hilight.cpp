@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.38 11.06.2002 $ */
+/* Revision: 1.39 06.09.2002 $ */
 
 /*
 Modify:
+  06.09.2002 SVS
+    ! Изменены и упорядочены маски расширений для архиваторов (добавлен 7z)
   11.06.2002 SVS
     - Крупные проблемы с раскраской (см. описание в 01439.Hilight.txt)
   24.05.2002 SVS
@@ -903,8 +905,8 @@ void SetHighlighting()
   static char *Masks[]={
     "*.*",
     CmdExt,
-    "*.rar,*.r[0-9][0-9],*.ar[cj],*.a[0-9][0-9],*.j,*.ac[bei],*.zip,*.z,*.jar,*.ice,*.lha,*.lzh,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.cab,*.chz,*.ha,*.h[ay]p,*.hpk,*.lim,*.[lw]sz,*.pa[ck],*.rk,*.rkv,*.rpm,*.sqz,*.bz,*.bz2,*.bzip,*.gz,*.tar,*.t[ag]z,*.uc2,*.x2,*.zoo,*.hqx,*.sea,*.sit,*.uue,*.xxe,*.ddi,*.tdr,*.xdf",
-    "*.bak,*.tmp",
+    "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[ag]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"
+    "*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     /* $ 25.09.2001  IS
        Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
        являются родительскими (их имена - две точки).
