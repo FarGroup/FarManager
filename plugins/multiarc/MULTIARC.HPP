@@ -157,6 +157,7 @@ class ArcPlugins
 
   public:
     int  IsArchive(char *Name,const unsigned char *Data,int DataSize);
+    BOOL IsArchive(int ArcPluginNumber, char *Name,const unsigned char *Data,int DataSize, DWORD* SFXSize);
     BOOL OpenArchive(int PluginNumber,char *Name,int *Type);
     int  GetArcItem(int PluginNumber,struct PluginPanelItem *Item,struct ArcItemInfo *Info);
     void CloseArchive(int PluginNumber,struct ArcInfo *Info);

@@ -103,47 +103,11 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
   DWORD CurSFXSize;
   int TrueArc=-1;
   int I, J;
-  struct PluginItem *CurPluginsData;
 
-/*  char *ExtPtr=strrchr(Name,'.');
-  if (ExtPtr!=NULL)
-  {
-    ExtPtr++;
-    for (CurPluginsData=PluginsData,I=0; I < PluginsCount; I++,CurPluginsData++)
+  for (I=0; I < PluginsCount; I++)
+  { 
+    if (IsArchive(I, Name, Data, DataSize, &CurSFXSize))
     {
-      for (J=0;;J++)
-      {
-        char FormatName[200],DefExt[NM];
-
-        if (!GetFormatName(I,J,FormatName,DefExt))
-          break;
-
-        if (stricmp(ExtPtr,DefExt)==0 && CurPluginsData->pIsArchive(Name,Data,DataSize))
-        {
-          if(CurPluginsData->pGetSFXPos)
-            CurSFXSize=CurPluginsData->pGetSFXPos();
-          else
-            CurSFXSize=0;
-          if(CurSFXSize <= MinSFXSize)
-          {
-            MinSFXSize=CurSFXSize;
-            TrueArc=I;
-          }
-          break;
-        }
-      }
-    }
-  }*/
-
-  for (CurPluginsData=PluginsData,I=0; I < PluginsCount; I++,CurPluginsData++)
-  {
-    if (CurPluginsData->pIsArchive && CurPluginsData->pIsArchive(Name,Data,DataSize))
-    {
-      if(CurPluginsData->pGetSFXPos)
-        CurSFXSize=CurPluginsData->pGetSFXPos();
-      else
-        CurSFXSize=0;
-
       if(CurSFXSize <= MinSFXSize)
       {
         MinSFXSize=CurSFXSize;
@@ -154,6 +118,20 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
   return TrueArc;
 }
 
+BOOL ArcPlugins::IsArchive(int ArcPluginNumber, char *Name,const unsigned char *Data,int DataSize, DWORD* SFXSize)
+{
+	struct PluginItem *CurPluginsData=PluginsData+ArcPluginNumber;
+	if (CurPluginsData->pIsArchive &&
+		CurPluginsData->pIsArchive(Name,Data,DataSize))
+	{
+      if(CurPluginsData->pGetSFXPos)
+        *SFXSize=CurPluginsData->pGetSFXPos();
+      else
+        *SFXSize=0;
+	  return TRUE;
+	}
+	return FALSE;
+}
 
 BOOL ArcPlugins::OpenArchive(int PluginNumber,char *Name,int *Type)
 {
