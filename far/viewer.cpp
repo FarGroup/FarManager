@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.51 26.03.2001 $ */
+/* Revision: 1.52 26.03.2001 $ */
 
 /*
 Modify:
+  26.03.2001 SVS
+    ! Корректировка ScrollBar`а по алгоритму "от процентов"
   26.03.2001 SVS
     + При вызове списка плагинов говорим манагеру о том, чтобы он искал
       предопределенный топик "Viewer" для Shift-F1 из списка плагинов
@@ -683,10 +685,9 @@ void Viewer::DisplayObject()
   if ( Opt.ViewerShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
-    ScrollBar(X2,Y1+1,Y2-Y1,FilePos,FileSize);
+    ScrollBar(X2,Y1+1,Y2-Y1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
   }
   /* tran 18.07.2000 $ */
-
 
   ShowStatus();
 }
@@ -887,16 +888,16 @@ void Viewer::ShowUp()
       mprintf("<");
     }
   }
-  ShowStatus();
   /* $ 18.07.2000 tran
      рисование скролбара */
   if ( Opt.ViewerShowScrollbar )
   {
     SetColor(COL_VIEWERSCROLLBAR);
-    ScrollBar(X2,Y1+1,Y2-Y1,FilePos,FileSize);
+    ScrollBar(X2,Y1+1,Y2-Y1,LastPage ? (!FilePos?0:100):ToPercent(FilePos,FileSize),100);
   }
   /* tran 18.07.2000 $ */
 
+  ShowStatus();
 }
 
 
