@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.70 03.09.2002 $ */
+/* Revision: 1.71 20.09.2002 $ */
 
 /*
 Modify:
+  20.09.2002 SKV
+    | Отключил cd net:server
   03.09.2002 SVS
     - BugZ#606 - не работают переменные окружения в ассоциациях
       не стояла проверка на символы ":\" для "распахнутой" строки...
@@ -1620,6 +1622,14 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     }
     /* OT $ */
 
+    /* $ 20.09.2002 SKV
+      Это отключает возможность выполнять такие команды как:
+      cd net:server и cd ftp://server/dir
+      Так как под ту же гребёнку попадают и
+      cd s&r:, cd make: и т.д., которые к смене
+      каталога не имеют никакого отношения.
+    */
+    /*
     if (CtrlObject->Plugins.ProcessCommandLine(NewDir))
     {
       CmdStr.SetString("");
@@ -1628,6 +1638,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
       Show();
       return(TRUE);
     }
+    */
+    /* SKV $ */
 
     char *ChPtr=strrchr(NewDir,'\"');
     if (ChPtr!=NULL)
