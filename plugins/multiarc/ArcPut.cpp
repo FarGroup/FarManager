@@ -579,6 +579,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         Recurse=TRUE;
         break;
       }
+
+    for (int I=0;I<ItemsNumber;I++) //!! $ 22.03.2002 AA временный фикс !!
+      PanelItem[I].UserData=0;
+
     int CommandType;
     if (DialogItems[PDI_ADDDELCHECK].Selected)
       CommandType=Recurse ? CMD_MOVERECURSE:CMD_MOVE;

@@ -132,7 +132,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
       {
         if(OpMode & OPM_FIND) //Silent
           return 0;
-        if (!GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
+        if(OpMode & OPM_VIEW || !GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
           return -1;
         break;
       }
