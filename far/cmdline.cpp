@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.67 09.01.2004 $ */
+/* Revision: 1.68 09.03.2004 $ */
 
 /*
 Modify:
+  09.03.2004 SVS
+    + CorrectRealScreenCoord() - корректировка размеров буфера
   09.01.2004 SVS
     + Opt.ExcludeCmdHistory
   25.09.2003 SVS
@@ -776,6 +778,13 @@ void CommandLine::ShowBackground()
 {
   if (BackgroundScreen){
     BackgroundScreen->RestoreArea();
+  }
+}
+
+void CommandLine::CorrectRealScreenCoord()
+{
+  if (BackgroundScreen) {
+    BackgroundScreen->CorrectRealScreenCoord();
   }
 }
 

@@ -7,10 +7,12 @@ savescr.hpp
 
 */
 
-/* Revision: 1.03 23.08.2002 $ */
+/* Revision: 1.04 09.03.2004 $ */
 
 /*
 Modify:
+  09.03.2004 SVS
+    + CorrectRealScreenCoord() - корректировка размеров буфера
   23.08.2002 SVS
     + SaveScreen::DumpBuffer
   21.05.2001 OT
@@ -45,6 +47,7 @@ class SaveScreen
     ~SaveScreen();
 
   public:
+    void CorrectRealScreenCoord();
     void SaveArea(int X1,int Y1,int X2,int Y2);
     void SaveArea();
     void RestoreArea(int RestoreCursor=TRUE);

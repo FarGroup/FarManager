@@ -5,10 +5,17 @@ execute.cpp
 
 */
 
-/* Revision: 1.98 01.03.2004 $ */
+/* Revision: 1.99 09.03.2004 $ */
 
 /*
 Modify:
+  09.03.2004 SVS
+    - SD> 2) окно far'a 102x37
+      SD> запускаю батник с одной лишь строкой
+      SD> if '%os%'=='Windows_NT' MODE CON: COLS=80 LINES=25
+      VC-версия трапается
+      BC-версия шнягу на экран выдает
+      Проверим размеры окна и вызовем CtrlObject->CmdLine->CorrectRealScreenCoord()
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -1490,6 +1497,8 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     ! В очередной раз проблемы с прорисовкой фона.
       Вроде бы теперь полегче стало :) */
   {
+    CONSOLE_SCREEN_BUFFER_INFO sbi0,sbi1;
+    GetConsoleScreenBufferInfo(hConOut,&sbi0);
     {
       RedrawDesktop Redraw(TRUE);
 
@@ -1502,6 +1511,10 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
         Code=-1;
       else
         Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
+
+      GetConsoleScreenBufferInfo(hConOut,&sbi1);
+      if(!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
+        CtrlObject->CmdLine->CorrectRealScreenCoord();
 
       //if(Code != -1)
       {

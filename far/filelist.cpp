@@ -5,10 +5,20 @@ filelist.cpp
 
 */
 
-/* Revision: 1.196 01.03.2004 $ */
+/* Revision: 1.197 09.03.2004 $ */
 
 /*
 Modify:
+  09.03.2004 SVS
+    - PP> 1. Put an empty disk into drive A:
+      PP> 2. Press CTRL+\ ("goto root folder" shortcut)
+      PP> +---- Error -----+
+      PP> ! File not found !
+      PP> !       \        !
+      PP> !       Ok       !
+      PP> +----------------+
+      если панель не PLUGIN_PANEL и новый каталог равен "\\", то просто
+      получим Root диска, чтобы не передавать в FarChDir("\\")
   01.03.2004 SVS
     - BugZ#1039 - схлопывание FAR при вставке длинной строки
   09.01.2004 SVS
@@ -2800,6 +2810,9 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
       ++Ptr;
     }
   }
+
+  if(PanelMode!=PLUGIN_PANEL && !strcmp(SetDir,"\\"))
+    GetPathRoot(CurDir,SetDir);
 
   if (!FarChDir(SetDir))
   {

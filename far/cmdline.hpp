@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.12 21.08.2003 $ */
+/* Revision: 1.13 09.03.2004 $ */
 
 /*
 Modify:
+  09.03.2004 SVS
+    + CorrectRealScreenCoord() - корректировка размеров буфера
   21.08.2003 SVS
     ! Сделаем LastCmdStr динамической переменной.
       Отсюда все остальные изменения
@@ -100,6 +102,7 @@ class CommandLine:public ScreenObject
     void SaveBackground(int X1,int Y1,int X2,int Y2);
     void SaveBackground();
     void ShowBackground();
+    void CorrectRealScreenCoord();
     /* OT $ */
     void ResizeConsole();
 };

@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.07 23.08.2002 $ */
+/* Revision: 1.08 09.03.2004 $ */
 
 /*
 Modify:
+  09.03.2004 SVS
+    + CorrectRealScreenCoord() - корректировка размеров буфера
   23.08.2002 SVS
     + SaveScreen::DumpBuffer
   06.06.2001 SVS
@@ -147,6 +149,13 @@ void SaveScreen::SaveArea()
   }
 }
 
+void SaveScreen::CorrectRealScreenCoord()
+{
+  if(X1 < 0) X1=0;
+  if(Y1 < 0) Y1=0;
+  if(X2 >= ScrX) X2=ScrX;
+  if(Y2 >= ScrY) Y2=ScrY;
+}
 
 void SaveScreen::AppendArea(SaveScreen *NewArea)
 {
