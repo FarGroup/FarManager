@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.08 24.09.2000 $ */
+/* Revision: 1.09 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 IS
+    + FileAttributes
   24.09.2000 SVS
     + Функция Xlat
   10.08.2000 skv
@@ -55,7 +57,11 @@ class Editor:public ScreenObject
     */
     int JustModified;
     /* skv $*/
-
+    /* $ 12.02.2001 IS
+         сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
+    */
+    DWORD FileAttributes;
+    /* IS $ */
     int WasChanged;
     int Overtype;
     int DisableOut;

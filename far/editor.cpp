@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.61 08.02.2001 $ */
+/* Revision: 1.62 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 IS
+    ! Атрибуты считываются только в двух местах, а не при каждом обновлении
+      статуса
   08.02.2001 skv
     - EEREDRAW при Ctrl-P, Ctrl-M
   03.02.2001 skv
@@ -409,10 +412,13 @@ int Editor::ReadFile(char *Name,int &UserBreak)
      Разумнее сначала проверить то, что вернула GetFileAttributes() :-)
   */
   {
-    DWORD FAttr=GetFileAttributes(Name);
+    /* $ 12.02.2001 IS
+         Запомним атрибуты
+    */
+    FileAttributes=GetFileAttributes(Name);
     if((Opt.EditorReadOnlyLock&1) &&
-       FAttr != -1 &&
-       (FAttr &
+       FileAttributes != -1 &&
+       (FileAttributes &
           (FILE_ATTRIBUTE_READONLY|
              /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
                 поэтому применяем маску 0110.0000 и
@@ -422,6 +428,7 @@ int Editor::ReadFile(char *Name,int &UserBreak)
           )
        )
      )
+    /* IS $ */
       LockMode=!LockMode;
   }
   /* SVS 15.12.2000 $ */
@@ -666,7 +673,9 @@ int Editor::ReadFile(char *Name,int &UserBreak)
   return(TRUE);
 }
 
-
+/* $ 12.02.2001 IS
+     Заменил локальную FileAttr на FileAttributes
+*/
 int Editor::SaveFile(char *Name,int Ask,int TextFormat)
 {
   /* $ 11.10.2000 SVS
@@ -678,7 +687,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
 
   FILE *EditFile;
   struct EditList *CurPtr;
-  int FileAttr,AskSave;
+  int AskSave;
   int NewFile=TRUE;
 
   if (TextFormat!=0)
@@ -720,19 +729,19 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
       }
     }
 
-    if ((FileAttr=GetFileAttributes(Name))!=-1)
+    if ((FileAttributes=GetFileAttributes(Name))!=-1)
     {
       NewFile=FALSE;
-      if (FileAttr & FA_RDONLY)
+      if (FileAttributes & FA_RDONLY)
       {
         int AskOverwrite;
         AskOverwrite=Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRO),
                              MSG(MEditOvr),MSG(MYes),MSG(MNo));
         if (AskOverwrite!=0)
           return(2);
-        SetFileAttributes(Name,FileAttr & ~FA_RDONLY);
+        SetFileAttributes(Name,FileAttributes & ~FA_RDONLY);
       }
-      if (FileAttr & (FA_HIDDEN|FA_SYSTEM))
+      if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
         SetFileAttributes(Name,0);
     }
 
@@ -740,12 +749,12 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
 
     DWORD Flags=FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN;
-    if (FileAttr!=-1 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    if (FileAttributes!=-1 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
       Flags|=FILE_FLAG_POSIX_SEMANTICS;
 
     HANDLE hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
-                 FileAttr!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,Flags,NULL);
-    if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttr!=-1)
+                 FileAttributes!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,Flags,NULL);
+    if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttributes!=-1)
       hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
                        FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
     if (hEdit==INVALID_HANDLE_VALUE)
@@ -803,8 +812,8 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
     fclose(EditFile);
   }
 
-  if (FileAttr!=-1)
-    SetFileAttributes(Name,FileAttr|FA_ARCH);
+  if (FileAttributes!=-1)
+    SetFileAttributes(Name,FileAttributes|FA_ARCH);
   if (Modified || NewFile)
     WasChanged|=1;
   /*$ 10.08.2000 skv
@@ -815,7 +824,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat)
   Show();
   return(1);
 }
-
+/* IS $ */
 
 void Editor::DisplayObject()
 {
@@ -994,13 +1003,16 @@ void Editor::ShowStatus()
   */
   char attrStr[4];
   int ind=0;
-  DWORD attr=GetFileAttributes(FileName);
-  if(attr!=0xFFFFFFFF)
+  /* $ 12.02.2001 IS
+       Теперь атрибуты не считываются в этой функции вообще
+  */
+  if(FileAttributes!=0xFFFFFFFF)
   {
-    if(attr&FILE_ATTRIBUTE_READONLY) attrStr[ind++]='R';
-    if(attr&FILE_ATTRIBUTE_SYSTEM) attrStr[ind++]='S';
-    if(attr&FILE_ATTRIBUTE_HIDDEN) attrStr[ind++]='H';
+    if(FileAttributes&FILE_ATTRIBUTE_READONLY) attrStr[ind++]='R';
+    if(FileAttributes&FILE_ATTRIBUTE_SYSTEM) attrStr[ind++]='S';
+    if(FileAttributes&FILE_ATTRIBUTE_HIDDEN) attrStr[ind++]='H';
   }
+  /* IS $ */
   attrStr[ind]=0;
   sprintf(StatusStr,"%-*s %c%c %10.10s %7s %-12.12s %5s %-4d %3s",
           NameLength,TruncFileName,Modified ? '*':' ',LockMode ? '-':' ',
