@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.291 03.10.2003 $ */
+/* Revision: 1.292 15.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 KM
+    ! DN_HOTKEY будем посылать всегда в обработчик диалога
+    ! Избавимся от кучи warning'ов
   03.10.2003 SVS
     - BugZ#962 - мигание курсора на окне диалога плагина без элементов с фокусом ввода
   25.09.2003 SVS
@@ -3045,9 +3048,8 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 */
 int Dialog::ProcessKey(int Key)
 {
-  int I,J;
+  int I;
   char Str[1024];
-  DlgEdit *CurEditLine;
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
   {
@@ -3307,7 +3309,7 @@ int Dialog::ProcessKey(int Key)
             (Key == KEY_SUBTRACT?0:
              ((Key == KEY_MULTIPLY)?2:
               Item[FocusPos].Selected)));
-        if(Item[FocusPos].Selected != CHKState)
+        if(Item[FocusPos].Selected != (int)CHKState)
           if(Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,CHKState))
           {
              Item[FocusPos].Selected=CHKState;
@@ -4141,7 +4143,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocusPos)
 {
-  int I,J;
   char Str[1024];
   DlgEdit *CurEditLine;
 
@@ -5380,7 +5381,7 @@ int Dialog::IsKeyHighlighted(const char *Str,int Key,int Translate,int AmpPos)
 */
 int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
 {
-  int I, Type, J;
+  int I, Type;
   DWORD Flags;
 
   for (I=0;I<ItemCount;I++)
@@ -5401,25 +5402,29 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
             Item[I].Y1==Item[I-1].Y1 &&                   // и оба в одну строку
             (I+1 < ItemCount && Item[I].Y1!=Item[I+1].Y1)) // ...и следующий контрол в другой строке
         {
-          if((Item[I-1].Flags&(DIF_DISABLE|DIF_HIDDEN)) != 0) // и не задисаблен
-             break;
-          // Сообщим о случивщемся факте процедуре обработки диалога
+          // Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
           if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
             break; // сказали не продолжать обработку...
+          // ... если предыдущий контрол задизаблен или невидим, тогда выходим.
+          if ((Item[I-1].Flags&(DIF_DISABLE|DIF_HIDDEN)) != 0) // и не задисаблен
+             break;
           I=ChangeFocus(I,-1,FALSE);
           DisableSelect=TRUE;
         }
         else if (Item[I].Type==DI_TEXT      || Item[I].Type==DI_VTEXT ||
                  Item[I].Type==DI_SINGLEBOX || Item[I].Type==DI_DOUBLEBOX)
         {
-          if(I+1 < ItemCount && // ...и следующий контрол
-            (Item[I+1].Flags&(DIF_DISABLE|DIF_HIDDEN)) != 0) // и не задисаблен
-             break;
-          // Сообщим о случивщемся факте процедуре обработки диалога
-          if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
-            break; // сказали не продолжать обработку...
-          I=ChangeFocus(I,1,FALSE);
-          DisableSelect=TRUE;
+          if(I+1 < ItemCount) // ...и следующий контрол
+          {
+            // Сначала сообщим о случившемся факте процедуре обработки диалога, а потом...
+            if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
+              break; // сказали не продолжать обработку...
+            // ... если следующий контрол задизаблен или невидим, тогда выходим.
+            if ((Item[I+1].Flags&(DIF_DISABLE|DIF_HIDDEN)) != 0) // и не задисаблен
+              break;
+            I=ChangeFocus(I,1,FALSE);
+            DisableSelect=TRUE;
+          }
         }
         /* $ 29.08.2000 SVS
            - Первый официальный альфа-баг - функция ProcessHighlighting
@@ -6683,7 +6688,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         else
           Param2&=1;
         CurItem->Selected=Param2;
-        if(CurItem->Selected != (unsigned int)Param2 && Dlg->DialogMode.Check(DMODE_SHOW))
+        if(CurItem->Selected != (int)Param2 && Dlg->DialogMode.Check(DMODE_SHOW))
         {
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();

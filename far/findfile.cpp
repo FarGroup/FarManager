@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.149 10.10.2003 $ */
+/* Revision: 1.150 15.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 KM
+    - ќбработаем переключение "гор€чих" клавиш
   10.10.2003 SVS
     - »з-за неверного услови€ в поисковике
        было:  else if (Param1>=19 || Param1<=24)
@@ -880,15 +882,21 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       return TRUE;
     }
     /* VVM $ */
-    case DN_KEY:
+    /* $ 15.10.2003 KM
+        ќбработаем "гор€чие" клавиши
+    */
+    case DN_HOTKEY:
     {
-      if (Param2==KEY_ALTT) // ќбработка "гор€чей" клавиши Alt-T
+      if (Param1==4)
+      {
         if (Dlg->Item[13].Selected)
           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6,0);
-      if (Param2==KEY_ALTC) // ќбработка "гор€чей" клавиши Alt-C
-        if (Dlg->Item[13].Selected)
-          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6,0);
+        else
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5,0);
+        return FALSE;
+      }
     }
+    /* KM $ */
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }

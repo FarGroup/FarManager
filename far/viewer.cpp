@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.148 03.10.2003 $ */
+/* Revision: 1.149 15.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 KM
+    - Ќе работали "гор€чие" клавиши дл€ строки "Search"
   03.10.2003 SVS
     + обработка KEY_MACRO_EDITSELECTED и KEY_MACRO_CHECKEOF во вьювере
   22.09.2003 KM
@@ -2759,6 +2761,23 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
     }
+    /* $ 15.10.2003 KM
+        ќбработаем "гор€чие" клавиши
+    */
+    case DN_HOTKEY:
+    {
+      if (Param1==1)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,6,(long)&Item);
+
+        if (Item.Param.Selected)
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,3,0);
+        else
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,2,0);
+        return FALSE;
+      }
+    }
+    /* KM $ */
   }
   /* KM $ */
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
