@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.06 21.02.2002 $ */
+/* Revision: 1.07 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 SVS
+    - некомпиляция под VC.
   21.02.2002 SVS
     ! Юзание mci-команд для масдая (хотя, WC, падла, не юзает msiSend...)
   13.02.2002 SVS
@@ -447,7 +449,8 @@ CLEANUP_AND_EXIT_APP:
       {
         dwReturn=mciStatParam.dwReturn==TRUE?FALSE:TRUE;
       }
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(__BORLANDC__)
+      // Трохе для сэбэ :-)
       else
       {
         char Buf[200];

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.93 19.02.2002 $ */
+/* Revision: 1.94 21.02.2002 $ */
 
 /*
 Modify:
+  21.02.2002 VVM
+    ! При запросе на остановку поиска ESC аналогичен ответу NO
   19.02.2002 VVM
     ! Ошибка поиска в плагине. Забыл скобки поставить...
   11.02.2002 SVS
@@ -830,10 +832,10 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         PauseSearch=TRUE;
         IsProcessAssignMacroKey++; // запретим спец клавиши
                                    // т.е. в этом диалоге нельзя нажать Alt-F9!
-        int LocalRes=TRUE;
+        int LocalRes=FALSE;
         if(Opt.Confirm.Esc && Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
-                      MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo))==1)
-          LocalRes=FALSE;
+                      MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo))==0)
+          LocalRes=TRUE;
         IsProcessAssignMacroKey--;
         PauseSearch=FALSE;
         StopSearch=LocalRes;
