@@ -452,9 +452,6 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),ListFileName,GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
 /* $ 25.07.2001 AA
-    совершенно ненужные и даже вредные строки
-    либо ListFile неинициализирован, либо=INVALID_HANDLE_VALUE
-    и в том и другом случае CloseHandle(ListFile) делать не нужно
     if(ListFile != INVALID_HANDLE_VALUE)
       CloseHandle(ListFile);
 25.07.2001 AA $*/
@@ -464,7 +461,13 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   char CurArcDir[NM];
   char Buf[3*NM];
 
-  strcpy(CurArcDir,ArcDir);
+/* $ 23.10.2001 AA */
+  if(NameOnly)
+    *CurArcDir=0;
+  else
+    strcpy( CurArcDir, ArcDir );
+/* 23.10.2001 AA $ */
+
   int Length=strlen(CurArcDir);
   if (Length>0 && CurArcDir[Length-1]!='\\')
     strcat(CurArcDir,"\\");
