@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.109 27.11.2001 $ */
+/* Revision: 1.110 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 SVS
+    ! В при сохранении настроек запоминаем каталог и текущий объект в любом
+      случае, независимо от типа панели - плагин или простая панель
   27.11.2001 DJ
     + параметр Local у EditorConfig и ViewerConfig (при вызове настроек
       конкретного редактора или вьюера не показываем глобальные
@@ -1450,10 +1453,10 @@ void SaveConfig(int Ask)
     Opt.LeftPanel.SortOrder=LeftPanel->GetSortOrder();
     Opt.LeftPanel.SortGroups=LeftPanel->GetSortGroups();
     Opt.LeftPanel.ShowShortNames=LeftPanel->GetShowShortNamesMode();
-    LeftPanel->GetCurDir(Opt.LeftFolder);
-    LeftPanel->GetCurName(Opt.LeftCurFile,OutText2);
     Opt.LeftSelectedFirst=LeftPanel->GetSelectedFirstMode();
   }
+  LeftPanel->GetCurDir(Opt.LeftFolder);
+  LeftPanel->GetCurBaseName(Opt.LeftCurFile,OutText2);
 
   if (RightPanel->GetMode()==NORMAL_PANEL)
   {
@@ -1463,10 +1466,10 @@ void SaveConfig(int Ask)
     Opt.RightPanel.SortOrder=RightPanel->GetSortOrder();
     Opt.RightPanel.SortGroups=RightPanel->GetSortGroups();
     Opt.RightPanel.ShowShortNames=RightPanel->GetShowShortNamesMode();
-    RightPanel->GetCurDir(Opt.RightFolder);
-    RightPanel->GetCurName(Opt.RightCurFile,OutText2);
     Opt.RightSelectedFirst=RightPanel->GetSelectedFirstMode();
   }
+  RightPanel->GetCurDir(Opt.RightFolder);
+  RightPanel->GetCurBaseName(Opt.RightCurFile,OutText2);
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
   for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)

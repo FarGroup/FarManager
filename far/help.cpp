@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.52 26.11.2001 $ */
+/* Revision: 1.53 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 SVS
+    ! ќпячатка в пред. патче
   26.11.2001 SVS
     + DoubliClock - свернуть/развернуть хелп.
     ! F1 в хелпе - всегда вызывать "Help"
@@ -1222,7 +1224,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   // DoubliClock - свернуть/развернуть хелп.
   if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
-      MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED &&
+      (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
       MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
   {
     ProcessKey(KEY_F5);

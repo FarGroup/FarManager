@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.183 23.11.2001 $ */
+/* Revision: 1.184 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 SVS
+    ! небольшое уточнение при DM_SETTEXT - не вызывать InitDialogObjects()
+      для строковых редакторов
   23.11.2001 SVS
     - Бага - если в singleline есть 0x0A или 0x0D, то... в общем не
       выводятся они
@@ -3329,7 +3332,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               ProcessKey(KEY_CTRLDOWN);
               return(TRUE);
             }
-            /* SVS $ */
 
             if (EditLine->ProcessMouse(MouseEvent))
             {
@@ -5402,6 +5404,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_SETTEXT:
       if(Param2)
       {
+        int NeedInit=TRUE;
         struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
         Len=0;
         switch(Type)
@@ -5456,6 +5459,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_EDIT:
           case DI_PSWEDIT:
           case DI_FIXEDIT:
+            NeedInit=FALSE;
             if((Len=did->PtrLength) == NULL)
             {
               strncpy(Ptr,(char *)did->PtrData,511);
@@ -5481,7 +5485,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           default:  // подразумеваем, что остались
             return 0;
         }
-        Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
+        if(NeedInit)
+          Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
         if(Dlg->DialogMode.Check(DMODE_SHOW)) // достаточно ли этого????!!!!
         {
           Dlg->ShowDialog(Param1);

@@ -7,10 +7,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.10 26.09.2001 $ */
+/* Revision: 1.11 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 SVS
+    + GetCurBaseName() выдает на гора имя файлового объекта под курсором
+      с учетом вложенности панельного плагина, т.е. имя самого верхнего
+      хост-файла в стеке.
   26.09.2001 SVS
     + Panel::NeedUpdatePanel() - нужно ли обновлять панели с учетом нового
       параметра Opt.AutoUpdateLimit
@@ -79,16 +83,7 @@ enum {NORMAL_PANEL,PLUGIN_PANEL};
 
 class Panel:public ScreenObject
 {
-  private:
-    int ChangeDiskMenu(int Pos,int FirstCall);
-    void FastFindShow(int FindX,int FindY);
-    void DragMessage(int X,int Y,int Move);
   protected:
-    void FastFind(int FirstKey);
-    void DrawSeparator(int Y);
-    void ShowScreensCount();
-    int IsDragging();
-
     char CurDir[NM];
     int Focus;
     int Type;
@@ -110,6 +105,17 @@ class Panel:public ScreenObject
     struct PanelViewSettings ViewSettings;
     int ProcessingPluginCommand;
 
+  private:
+    int ChangeDiskMenu(int Pos,int FirstCall);
+    void FastFindShow(int FindX,int FindY);
+    void DragMessage(int X,int Y,int Move);
+
+  protected:
+    void FastFind(int FirstKey);
+    void DrawSeparator(int Y);
+    void ShowScreensCount();
+    int IsDragging();
+
   public:
     Panel();
     virtual ~Panel();
@@ -126,6 +132,7 @@ class Panel:public ScreenObject
     virtual long GetLastSelectedSize(int64 *Size) {return(-1);};
     virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return(0);};
     virtual int GetCurName(char *Name,char *ShortName);
+    virtual int GetCurBaseName(char *Name,char *ShortName);
     virtual int GetFileName(char *Name,int Pos,int &FileAttr) {return(FALSE);};
     virtual int GetCurrentPos() {return(0);};
     virtual void SetFocus();
@@ -221,4 +228,4 @@ class Panel:public ScreenObject
     BOOL NeedUpdatePanel(Panel *AnotherPanel);
 };
 
-#endif	// __PANEL_HPP__
+#endif  // __PANEL_HPP__

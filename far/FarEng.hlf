@@ -80,7 +80,7 @@ and #Shift-F1# to view the help contents.
 @About
 $ #About FAR#
     FAR is a text mode file and archive manager for Windows 95/98/Me,
-Windows NT and Windows 2000. It supports #long file names# and provides
+Windows NT and Windows 2000/XP. It supports #long file names# and provides
 a wide set of file and folder operations.
 
     FAR is #shareware# software. You must ~register~@Register@ it to continue to
@@ -462,11 +462,11 @@ line, including dialogs and the ~internal editor~@Editor@.
 
   Right clicking outside the dialog works the same as pressing Enter.
 
-  Under Windows 2000, FAR Manager supports the ~mouse wheel~@MsWheel@.
+  Under Windows 2000/XP, FAR Manager supports the ~mouse wheel~@MsWheel@.
 
 @MsWheel
 $ #Mouse wheel support#
-   Under Windows 2000, FAR Manager supports the mouse wheel:
+   Under Windows 2000/XP, FAR Manager supports the mouse wheel:
 
    #Panels#
      Rotating the wheel scrolls the file list without changing the
@@ -784,7 +784,7 @@ size, number of files and subfolders in the folder, current disk cluster size,
 real files size, including files slack (sum of the unused cluster parts).
 Compressed size has meaning for NTFS drives only.
 
-    In Windows 2000, when viewing reparse points, the path to the source folder
+    In Windows 2000/XP, when viewing reparse points, the path to the source folder
 is also displayed.
 
 @DragAndDrop
@@ -1881,10 +1881,10 @@ to the file panel.
      - to delete a substituted (virtual) drive.
 
      - to eject disks from CD-ROM and removable drives.
-       To perform this operation on Windows NT/2000
+       To perform this operation on Windows NT/2000/XP
        administrator privileges are required.
        CD-ROM drives can be closed by pressing #Ins# (only
-       under Windows NT/2000).
+       under Windows NT/2000/XP).
 
 
     #Ctrl-1# - #Ctrl-8# switch the display of different information:
@@ -1990,7 +1990,7 @@ account.
 
     The Compressed, Encrypted attributes and Symbolic links are valid for
 NTFS drives only. The Encrypted attribute and Symbolic links can be used
-only in Windows 2000.
+only in Windows 2000/XP.
 
 @ViewerSettings
 $ #Viewer settings#
@@ -2161,11 +2161,11 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
     The "Compressed" and "Encrypted" attributes may be changed only on NTFS
-drives. The "Encrypted" attribute can be used in Windows 2000 only. These two
+drives. The "Encrypted" attribute can be used in Windows 2000/XP only. These two
 attributes are mutually exclusive, that is, you can set only one of them.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder information
-(NTFS/Windows 2000 only).
+(NTFS/Windows 2000/XP only).
 
   #File date and time#
 
@@ -2511,7 +2511,7 @@ disk space allocation and copies file extended attributes.
 
     When moving files, to determine whether the operation should be
 performed as a copy with subsequent deletion or as a direct move
-(within one physical drive), FAR takes into account Windows 2000
+(within one physical drive), FAR takes into account Windows 2000/XP
 ~symbolic links~@HardSymLink@.
 
 @HardSymLink
@@ -2547,15 +2547,15 @@ Hard links can only be created on the same drive as the source file.
 
     #Symbolic links#
 
-    NTFS starting with version 5.0 (Windows 2000) supports symbolic links
-(SymLink). Symbolic links between directories in Windows 2000 are known as
+    NTFS starting with version 5.0 (Windows 2000/XP) supports symbolic links
+(SymLink). Symbolic links between directories in Windows 2000/XP are known as
 "directory junctions". Directory junctions is a technology allowing to
 map any local directories to any other local directories. For example,
 if the directory D:\SYMLINK has C:\WINNT\SYSTEM32 as its target, a program
 accessing D:\SYMLINK\DRIVERS will actually access C:\WINNT\SYSTEM32\DRIVERS.
 
     FAR supports creating symbolic links only on local drives that have
-a file system supporting that capability (Windows 2000/NTFS 5.0). Unlike
+a file system supporting that capability (Windows 2000/XP/NTFS 5.0). Unlike
 hard links, symbolic links are not required to have a target on the same
 drive.
 
@@ -2567,7 +2567,7 @@ to a directory on an NTFS partition.
 $ #Error: copy/move onto itself.#
     You may not copy or move a file or folder onto itself.
 
-    This error can also happen under Windows 2000, if there are two
+    This error can also happen under Windows 2000/XP, if there are two
 directories, one of which is a ~symbolic link~@HardSymLink@ to another.
 
 @WarnCopyStream

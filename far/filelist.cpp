@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.108 26.11.2001 $ */
+/* Revision: 1.109 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 SVS
+    + GetCurBaseName() выдает на гора имя файлового объекта под курсором
+      с учетом вложенности панельного плагина, т.е. имя самого верхнего
+      хост-файла в стеке.
   26.11.2001 SVS
     ! Заюзаем PrepareDiskPath() для преобразования пути.
   24.11.2001 IS
@@ -2652,6 +2656,27 @@ int FileList::GetCurName(char *Name,char *ShortName)
   }
   strcpy(Name,ListData[CurFile].Name);
   strcpy(ShortName,ListData[CurFile].ShortName);
+  if (*ShortName==0)
+    strcpy(ShortName,Name);
+  return(TRUE);
+}
+
+int FileList::GetCurBaseName(char *Name,char *ShortName)
+{
+  *Name=*ShortName=0;
+  if (FileCount==0)
+    return(FALSE);
+  if(PanelMode==PLUGIN_PANEL && PluginsStack) // для плагинов
+  {
+    // берем самую основу (при вложенных)
+    strcpy(Name,PointToName(NullToEmpty(PluginsStack->HostFile)));
+  }
+  else if(PanelMode==NORMAL_PANEL)
+  {
+    strcpy(Name,ListData[CurFile].Name);
+    strcpy(ShortName,ListData[CurFile].ShortName);
+  }
+
   if (*ShortName==0)
     strcpy(ShortName,Name);
   return(TRUE);

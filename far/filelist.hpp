@@ -7,10 +7,14 @@ filelist.hpp
 
 */
 
-/* Revision: 1.20 09.11.2001 $ */
+/* Revision: 1.21 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 SVS
+    + GetCurBaseName() выдает на гора имя файлового объекта под курсором
+      с учетом вложенности панельного плагина, т.е. имя самого верхнего
+      хост-файла в стеке.
   09.11.2001 IS
     + openBracket, closeBracket
   25.10.2001 SVS
@@ -210,6 +214,7 @@ class FileList:public Panel
     long GetLastSelectedSize(int64 *Size);
     int GetLastSelectedItem(struct FileListItem *LastItem);
     int GetCurName(char *Name,char *ShortName);
+    int GetCurBaseName(char *Name,char *ShortName);
     void PushPlugin(HANDLE hPlugin,char *HostFile);
     int PopPlugin(int EnableRestoreViewMode);
     int FindFile(char *Name);

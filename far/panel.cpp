@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.72 26.11.2001 $ */
+/* Revision: 1.73 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 SVS
+    + GetCurBaseName() выдает на гора имя файлового объекта под курсором
+      с учетом вложенности панельного плагина, т.е. имя самого верхнего
+      хост-файла в стеке.
   26.11.2001 SVS
     ! Заюзаем PrepareDiskPath() для преобразования пути.
   19.11.2001 OT
@@ -1532,7 +1536,13 @@ void Panel::SetPluginCommand(int Command,void *Param)
 }
 
 
-int  Panel::GetCurName(char *Name,char *ShortName)
+int Panel::GetCurName(char *Name,char *ShortName)
+{
+  *Name=*ShortName=0;
+  return(FALSE);
+}
+
+int Panel::GetCurBaseName(char *Name,char *ShortName)
 {
   *Name=*ShortName=0;
   return(FALSE);
