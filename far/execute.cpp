@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.52 16.04.2002 $ */
+/* Revision: 1.53 17.04.2002 $ */
 
 /*
 Modify:
+  17.04.2002 VVM
+    ! ”точнение исполн€тора.
   16.04.2002 DJ
     ! пропускаем встроенную обработку cd, если нажат Shift-Enter
   02.04.2002 SVS
@@ -728,9 +730,11 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
         }
   }
 
-  strcpy(NewCmdStr,CmdStr);
-  if (ParPtr)
-    *ParPtr = 0;
+//  strcpy(NewCmdStr,CmdStr);
+//  if (ParPtr)
+//    *ParPtr = 0;
+  QuoteSpace(NewCmdStr);
+  QuoteFound = NewCmdStr[0] == '"';
   CmdPtr = NewCmdStr;
   //while (isspace(*CmdPtr))
   //  CmdPtr++;
@@ -823,12 +827,14 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
         //_tran(SysLog("2. execline=[%s]",ExecLine);)
         //_tran(SysLog("3. cmdptr=[%s]",CmdPtr);)
 
-        if ((PipeFound) && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
-          strcat(ExecLine, "\"");
+        int QuoteAll = FALSE;
+        if ((PipeFound && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish))) ||
+            (QuoteFound && NT && !SeparateWindow && !GUIType))
+          QuoteAll = TRUE;
+        if (QuoteAll) strcat(ExecLine, "\"");
         strcat(ExecLine, CmdPtr);
         strcat(ExecLine, NewCmdPar);
-        if ((PipeFound) && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
-          strcat(ExecLine, "\"");
+        if (QuoteAll) strcat(ExecLine, "\"");
         //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
       }
     }
