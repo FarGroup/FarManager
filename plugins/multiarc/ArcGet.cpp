@@ -12,7 +12,7 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
 {
   //костыль против зацикливания в FAR'е при Quick View архивов с паролем
   TRecur Recur;   //$ 07.04.2002 AA
-  if(Recur.Count>1 && OpMode&OPM_VIEW)
+  if(Recur.Count>1 && OpMode&(OPM_VIEW|OPM_QUICKVIEW))
     return 0;
 
   char SaveDir[NM];

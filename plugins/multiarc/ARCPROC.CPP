@@ -139,7 +139,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
   char Password[256];
   *Password=0;
 
-  int AskVolume=(OpMode & (OPM_FIND|OPM_VIEW|OPM_EDIT))==0 &&
+  int AskVolume=(OpMode & (OPM_FIND|OPM_VIEW|OPM_EDIT|OPM_QUICKVIEW))==0 &&
                 CurArcInfo.Volume && *CurDir==0 && ExitCode==0;
   struct PluginPanelItem MaskPanelItem;
 
