@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.74 06.05.2001 $ */
+/* Revision: 1.75 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SKV
+    + при detach console старое окно теперь "забывает" hotkey
+    - если при detach console нажаты "лишние" ctrl,alt,shift,
+      то срабатывать не должно.
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -550,9 +554,9 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
               if(pir->EventType==KEY_EVENT)
               {
                 if(vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
-                  (alt?(pir->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_ALT_PRESSED):1) &&
-                  (ctrl?(pir->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_CTRL_PRESSED):1) &&
-                  (shift?(pir->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED):1)
+                  (alt?(pir->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_ALT_PRESSED):!(pir->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_ALT_PRESSED)) &&
+                  (ctrl?(pir->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_CTRL_PRESSED):!(pir->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED || pir->Event.KeyEvent.dwControlKeyState&RIGHT_CTRL_PRESSED)) &&
+                  (shift?(pir->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED):!(pir->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED))
                   )
                 {
 
@@ -566,6 +570,17 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
                   CloseConsole();
                   FreeConsole();
                   AllocConsole();
+
+                  /*$ 17.05.2001 SKV
+                    если окно имело HOTKEY, то старое должно его забыть.
+                  */
+                  if(hFarWnd)
+                  {
+                    SendMessage(hFarWnd,WM_SETHOTKEY,0,(LPARAM)0);
+                  }
+                  /* SKV$*/
+
+
                   /*$ 20.03.2001 SKV
                     вот такой вот изврат :-\
                   */

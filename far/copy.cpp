@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.31 07.05.2001 $ */
+/* Revision: 1.32 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 SKV
+    - fix GetTimeText на предмет часов.
   07.05.2001 SVS
     ! Для Move на _том же_ диске отключаем Total
   06.05.2001 DJ
@@ -1779,8 +1781,14 @@ void static GetTimeText(int Time, char *TimeText)
   int Sec = Time;
   int Min = Sec/60;
   Sec-=(Min * 60);
-  int Hour = Min/24;
-  Min-=(Hour*24);
+  /*$ 17.05.2001 SKV
+    Хм. В часе 24 минуты??? :)
+    int Hour = Min/24;
+    Min-=(Hour*24);
+  */
+  int Hour = Min/60;
+  Min-=(Hour*60);
+  /* SKV$*/
   sprintf(TimeText,"%02d:%02d:%02d",Hour,Min,Sec);
 }
 /* VVM $ */
