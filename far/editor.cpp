@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.89 04.05.2001 $ */
+/* Revision: 1.90 05.05.2001 $ */
 
 /*
 Modify:
+  05.05.2001 IS
+    ! shift-home/end - приблизим поведение к тому, какое было до 592
   04.05.2001 OT
     + Неверно формировалось меню плагинов по F11 (NWZ)
       Изменился PluginSet::CommandsMenu()
@@ -1358,13 +1360,17 @@ int Editor::ProcessKey(int Key)
           BlockStartLine=NumLine;
         }
 
-        if (CurPos==0)
-        { // логика пока не ясна, блок просто скопирован из KEY_SHIFTLEFT
-          CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          if (SelStart==-1 || SelEnd==0)
-            CurLine->EditLine.Select(-1,0);
-        }
-        else
+        /* $ 05.05.2001 IS
+           ! Приблизим поведение к тому, какое было до 592
+        */
+        //if (CurPos==0)
+        //{ // логика пока не ясна, блок просто скопирован из KEY_SHIFTLEFT
+          //CurLine->EditLine.GetSelection(SelStart,SelEnd);
+          //if (SelStart==-1 || SelEnd==0)
+          //  CurLine->EditLine.Select(-1,0);
+        //}
+        //else
+        if(CurPos)
         {
           int EndPos=CurPos;
           if (EndPos>CurLine->EditLine.GetLength())
@@ -1373,11 +1379,21 @@ int Editor::ProcessKey(int Key)
           if (First) // выделяем заново
             CurLine->EditLine.Select(0,EndPos);
           else       // добавляем к уже выделенному
-            CurLine->EditLine.AddSelect(0,EndPos);
-
+          {
+            CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
+            CurLine->EditLine.Select(-1,0); // сбросим предыдущее выделение
+            if(SelStart>CurPos)
+              // курсор правее начала выделения, поэтому просто выделим все от
+              // курсора до начала строки
+              CurLine->EditLine.Select(0,EndPos);
+            else
+              // выделим с учетом предыдущего начала выделения
+              CurLine->EditLine.Select(0,SelStart);
+          }
           CurLine->EditLine.SetCurPos(0);
           CurPos=0;   // надо ли??
         }
+        /* IS $ */
       }
       // то, что я накуролесил, раньше делали эти две строки, оставил, чтобы
       // в случае чего далеко не искать
@@ -1419,10 +1435,20 @@ int Editor::ProcessKey(int Key)
           }
           else // выделяем вправо
           {
-            if (First) // выделяем заново
+            /* $ 05.05.2001 IS
+               ! Приблизим поведение к тому, какое было до 592
+            */
+            int SelStart, SelEnd;
+            CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
+            CurLine->EditLine.Select(-1,0); // сбросим предыдущее выделение
+            if (First || SelEnd<CurPos)
+              // выделяем заново или курсор находится правее конца выделения,
+              // поэтому просто выделим все от курсора до конца строки
               CurLine->EditLine.Select(CurPos, CurLength);
-            else       // добавляем к уже выделенному
-              CurLine->EditLine.AddSelect(CurPos, CurLength);
+            else
+              // выделим с учетом предыдущего конца выделения
+              CurLine->EditLine.Select(SelEnd,CurLength);
+            /* IS $ */
           }
           CurLine->EditLine.SetCurPos(CurLength);
           CurPos=CurLength;   // надо ли??
