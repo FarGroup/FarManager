@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.94 19.03.2002 $ */
+/* Revision: 1.95 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   19.03.2002 SVS
     - BugZ#371 - F2 -> разное поведение.
     + Save As... "Mac format (CR)"
@@ -341,7 +343,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   FEdit.SetHostFileEditor(this);
   _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
-  GetCurrentDirectory(sizeof(StartDir),StartDir);
+  FarGetCurDir(sizeof(StartDir),StartDir);
 
   if(!SetFileName(Name))
     return;
@@ -624,7 +626,7 @@ int FileEditor::ProcessKey(int Key)
     {
       BOOL Done=FALSE;
       char OldCurDir[4096];
-      GetCurrentDirectory(sizeof(OldCurDir),OldCurDir);
+      FarGetCurDir(sizeof(OldCurDir),OldCurDir);
 
       while(!Done) // бьемся до упора
       {
@@ -963,7 +965,7 @@ int FileEditor::ProcessKey(int Key)
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
   char OldCurDir[4096];
-  GetCurrentDirectory(sizeof(OldCurDir),OldCurDir);
+  FarGetCurDir(sizeof(OldCurDir),OldCurDir);
   while (1)
   {
     FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???

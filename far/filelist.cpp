@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.134 20.03.2002 $ */
+/* Revision: 1.135 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   20.03.2002 SVS
     - BugZ#369 - Ќесохранение пор€дка сортировки каталогов при выходе из архива
   19.03.2002 OT
@@ -432,7 +434,7 @@ FileList::FileList()
   }
   /* IS $ */
   Type=FILE_PANEL;
-  GetCurrentDirectory(sizeof(CurDir),CurDir);
+  FarGetCurDir(sizeof(CurDir),CurDir);
   hPlugin=INVALID_HANDLE_VALUE;
   Filter=NULL;
   ListData=NULL;
@@ -1451,7 +1453,7 @@ int FileList::ProcessKey(int Key)
             {
               struct PluginPanelItem PanelItem;
               char SaveDir[NM];
-              GetCurrentDirectory(sizeof(SaveDir),SaveDir);
+              FarGetCurDir(sizeof(SaveDir),SaveDir);
               if (GetFileAttributes(TempName)==0xffffffff)
               {
                 char FindName[NM];
@@ -2052,7 +2054,9 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
   /* $ 20.07.2001 VVM
     ! ѕроверить на непустую строку */
   if ((NewDir) && (*NewDir))
+  {
     ChangeDir(NewDir);
+  }
   /* VVM $ */
 }
 
@@ -2293,7 +2297,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
     }
   }*/
   /* IS $ */
-  GetCurrentDirectory(sizeof(CurDir),CurDir);
+  FarGetCurDir(sizeof(CurDir),CurDir);
 
   if(!IsUpdated)
     return(TRUE);

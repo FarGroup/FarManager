@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.21 01.03.2002 $ */
+/* Revision: 1.22 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   19.02.2002 SVS
@@ -123,7 +125,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     {
       struct PluginPanelItem PanelItem;
       char SaveDir[NM];
-      GetCurrentDirectory(sizeof(SaveDir),SaveDir);
+      FarGetCurDir(sizeof(SaveDir),SaveDir);
       if (FileNameToPluginItem(PStack->HostFile,&PanelItem))
         CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
       else
@@ -386,7 +388,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
       if (FarMkTempEx(TempDir) && CreateDirectory(TempDir,NULL))
       {
         char SaveDir[NM];
-        GetCurrentDirectory(sizeof(SaveDir),SaveDir);
+        FarGetCurDir(sizeof(SaveDir),SaveDir);
         sprintf(DizName,"%s\\%s",TempDir,DestPanel->PluginDizName);
         DestDiz->Flush("",DizName);
         if (Move)
@@ -484,7 +486,7 @@ void FileList::PluginToPluginFiles(int Move)
     if (CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,FALSE,TempDir,OPM_SILENT)==1)
     {
       char SaveDir[NM];
-      GetCurrentDirectory(sizeof(SaveDir),SaveDir);
+      FarGetCurDir(sizeof(SaveDir),SaveDir);
       FarChDir(TempDir);
       if (CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0)==1)
       {

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.44 20.03.2002 $ */
+/* Revision: 1.45 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   20.03.2002 IS
     + "if [not] exist" дружит теперь с масками файлов
     ! PrepareOSIfExist теперь принимает и возвращает const
@@ -660,7 +662,7 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
         if (isalpha(CmdStr[I]) && CmdStr[I+1]==':' && CmdStr[I+2]!='\\')
         {
           char SavePath[NM],PanelPath[NM],SetPathCmd[NM];
-          GetCurrentDirectory(sizeof(SavePath),SavePath);
+          FarGetCurDir(sizeof(SavePath),SavePath);
           PassivePanel->GetCurDir(PanelPath);
           sprintf(SetPathCmd,"%s /C chdir %s",CommandName,QuoteSpace(PanelPath));
           CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CreateFlags,NULL,NULL,&si,&pi);
@@ -1192,7 +1194,7 @@ const char* WINAPI PrepareOSIfExist(const char *CmdLine)
             if(CtrlObject)
               CtrlObject->CmdLine->GetCurDir(FullPath);
             else
-              GetCurrentDirectory(sizeof(FullPath),FullPath);
+              FarGetCurDir(sizeof(FullPath),FullPath);
             AddEndSlash(FullPath);
           }
           strcat(FullPath,ExpandedStr);

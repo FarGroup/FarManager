@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.140 20.03.2002 $ */
+/* Revision: 1.141 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    + FarGetCurDir()
   20.03.2002 IS
     ! PrepareOSIfExist теперь принимает и возвращает const
     + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
@@ -878,6 +880,11 @@ void CreatePath(char *Path);
 */
 BOOL FarChDir(const char *NewDir,BOOL ChangeDir=TRUE);
 /* IS $ */
+
+// обертка вокруг функции получения текущего пути.
+// для локального пути делает букву диска в uppercase
+DWORD FarGetCurDir(DWORD Length,char *Buffer);
+
 /*$ 27.09.2000 skv
 */
 void WINAPI DeleteBuffer(char* Buffer);

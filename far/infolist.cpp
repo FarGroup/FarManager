@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.28 16.01.2002 $ */
+/* Revision: 1.29 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   16.01.2002 SVS
     ! Косметика в кейбаре
   14.01.2002 IS
@@ -176,7 +178,7 @@ void InfoList::DisplayObject()
   AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   AnotherPanel->GetCurDir(CurDir);
   if (*CurDir==0)
-    GetCurrentDirectory(sizeof(CurDir),CurDir);
+    FarGetCurDir(sizeof(CurDir),CurDir);
 
   /* $ 01.02.2001 SVS
      В Win2K корректно отображать инфу при заходе в Juction каталог

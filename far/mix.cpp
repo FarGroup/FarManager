@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.116 20.03.2002 $ */
+/* Revision: 1.117 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    + FarGetCurDir()
+    ! GetCurrentDirectory -> FarGetCurDir
   20.03.2002 SVS
     - BugZ#111 - проблемы с буквами диска.
   20.03.2002 DJ
@@ -418,6 +421,19 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
 /* IS 22.01.2002 $ */
 /* IS 14.01.2002 $ */
 
+/* $ 20.03.2002 SVS
+ обертка вокруг функции получения текущего пути.
+ для локального пути переводит букву диска в uppercase
+*/
+DWORD FarGetCurDir(DWORD Length,char *Buffer)
+{
+  DWORD Result=GetCurrentDirectory(Length,Buffer);
+  if(Result && isalpha(*Buffer) && Buffer[1]==':' && (Buffer[2]==0 || Buffer[2]== '\\'))
+    *Buffer=toupper(*Buffer);
+  return Result;
+}
+/* SVS 20.03.2002 $ */
+
 DWORD NTTimeToDos(FILETIME *ft)
 {
   WORD DosDate,DosTime;
@@ -798,7 +814,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 
   if (NamePtr==Src && (NamePtr[0]!='.' || NamePtr[1]!=0))
   {
-    Result+=GetCurrentDirectory(DestSize,FullName);
+    Result+=FarGetCurDir(DestSize,FullName);
     Result+=AddEndSlash(FullName);
     if (Result < DestSize)
     {

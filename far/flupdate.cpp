@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.32 20.03.2002 $ */
+/* Revision: 1.33 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   20.03.2002 DJ
     ! UpdateIfRequired() должен сам сбрасывать UpdateRequired
   19.03.2002 DJ
@@ -194,7 +196,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible)
 
   char SaveDir[NM];
   *(int*)SaveDir=0;
-  GetCurrentDirectory(NM, SaveDir);
+  FarGetCurDir(NM, SaveDir);
   char OldCurDir[NM];
   strncpy(OldCurDir, CurDir, NM-1);
   if (!SetCurPath()){

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.28 12.03.2002 $ */
+/* Revision: 1.29 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   12.03.2002 SVS
     - Ќеверна€ работа GetPathRootOne в плане получени€ рута дл€ пути типа "1\"
   14.12.2001 IS
@@ -776,7 +778,7 @@ void GetPathRootOne(const char *Path,char *Root)
     if(!PathMayBeAbsolute(TempRoot))
     {
       char Temp[2048];
-      GetCurrentDirectory(sizeof(Temp)-2,Temp);
+      FarGetCurDir(sizeof(Temp)-2,Temp);
       AddEndSlash(Temp);
       strcat(Temp,TempRoot); //+(*TempRoot=='\\' || *TempRoot == '/'?1:0)); //??
       strncpy(TempRoot,Temp,sizeof(TempRoot)-1);

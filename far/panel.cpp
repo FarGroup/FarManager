@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.90 19.03.2002 $ */
+/* Revision: 1.91 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 SVS
+    ! GetCurrentDirectory -> FarGetCurDir
   19.03.2002 DJ
     ! при обработке FCTL_GET[ANOTHER]PANELINFO прочитаем данные, даже
       если панель невидима
@@ -313,7 +315,7 @@ void Panel::SetViewMode(int ViewMode)
 void Panel::ChangeDirToCurrent()
 {
   char NewDir[NM];
-  GetCurrentDirectory(sizeof(NewDir),NewDir);
+  FarGetCurDir(sizeof(NewDir),NewDir);
   SetCurDir(NewDir,TRUE);
 }
 
@@ -822,7 +824,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         return(-1);
     }
     char NewCurDir[NM];
-    GetCurrentDirectory(sizeof(NewCurDir),NewCurDir);
+    FarGetCurDir(sizeof(NewCurDir),NewCurDir);
     // BugZ#208. Если пути совпадают, то ничего не делаем.
     //_tran(SysLog("PanelMode=%i (%i), CurDir=[%s], NewCurDir=[%s]",PanelMode,GetType(),
     //            CurDir,NewCurDir);)
@@ -1343,7 +1345,7 @@ int  Panel::SetCurPath()
     if (!FarChDir(UpDir) && !FarChDir("\\"))
       ChangeDisk();
     else
-      GetCurrentDirectory(sizeof(CurDir),CurDir);
+      FarGetCurDir(sizeof(CurDir),CurDir);
     return FALSE;
   }
 
