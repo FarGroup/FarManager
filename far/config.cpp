@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.33 16.11.2000 $ */
+/* Revision: 1.34 24.11.2000 $ */
 
 /*
 Modify:
+  24.11.2000 SVS
+    - Проблема с Alt* при XLat
+    + SetAttrFolderRules задает поведение Ctrl-A на каталоге:
+      1 - отображать со снятой опцией "для подкаталогов" (по умолчанию)
+      0 - как и ранее
   16.11.2000 SVS
     ! Клавиши, вызывающие Xlat - теперь хранятся в реестре в текстовом виде
   05.11.2000 SVS
@@ -781,15 +786,19 @@ void ReadConfig()
      Альтернативные клавиши, вызывающие Xlat
      по умолчанию = KEY_CTRLSHIFTX
   */
+  /* $ 24.11.2000 SVS
+     Проблема с Alt* при XLat
+  */
   GetRegKey("XLat","AltEditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltEditorKey=KEY_CTRLSHIFTX;
+    Opt.XLat.XLatAltEditorKey=0;
   GetRegKey("XLat","AltCmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltCmdLineKey=KEY_CTRLSHIFTX;
+    Opt.XLat.XLatAltCmdLineKey=0;
   GetRegKey("XLat","AltDialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltDialogKey=KEY_CTRLSHIFTX;
+    Opt.XLat.XLatAltDialogKey=0;
+  /* SVS 24.11.2000 $ */
   /* SVS $ */
   /* SVS $ */
 
@@ -836,6 +845,14 @@ void ReadConfig()
   */
   GetRegKey("System","CmdHistoryRule",Opt.CmdHistoryRule,0);
   /* SVS $ */
+  /* $ 24.11.2000 SVS
+     + SetAttrFolderRules задает поведение Ctrl-A на каталоге:
+       1 - отображать со снятой опцией "для подкаталогов" (по умолчанию)
+       0 - как и ранее
+  */
+  GetRegKey("System","SetAttrFolderRules",Opt.SetAttrFolderRules,1);
+  /* SVS $ */
+
   GetRegKey("System","MaxPositionCache",Opt.MaxPositionCache,64);
   if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
     Opt.MaxPositionCache=64;

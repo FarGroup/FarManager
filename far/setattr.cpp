@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.05 16.11.2000 $ */
+/* Revision: 1.06 24.11.2000 $ */
 
 /*
 Modify:
+  24.11.2000 SVS
+    + Правило на счет установки атрибутов на каталоги
   16.11.2000 SVS
     ! массивы для масок имеют постоянный адрес прописки - объявлены как static
   11.11.2000 SVS
@@ -112,6 +114,30 @@ static void EmptyDialog(struct DialogItem *MultAttrDlg)
   MultAttrDlg[28].Data[0]=
   MultAttrDlg[29].Data[0]='\0';
 }
+
+/* $ 22.11.2000 SVS
+   Заполнение полей
+*/
+static void FillFileldDir(char *SelName,int FileAttr,struct DialogItem *MultAttrDlg)
+{
+  HANDLE FindHandle;
+  WIN32_FIND_DATA FindData;
+  if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
+  {
+    FindClose(FindHandle);
+    ConvertDate(&FindData.ftLastWriteTime, MultAttrDlg[22].Data,MultAttrDlg[23].Data,8,FALSE,FALSE,TRUE);
+    ConvertDate(&FindData.ftCreationTime,  MultAttrDlg[25].Data,MultAttrDlg[26].Data,8,FALSE,FALSE,TRUE);
+    ConvertDate(&FindData.ftLastAccessTime,MultAttrDlg[28].Data,MultAttrDlg[29].Data,8,FALSE,FALSE,TRUE);
+  }
+  MultAttrDlg[4].Selected=(FileAttr & FA_RDONLY)!=0;
+  MultAttrDlg[5].Selected=(FileAttr & FA_ARCH)!=0;
+  MultAttrDlg[6].Selected=(FileAttr & FA_HIDDEN)!=0;
+  MultAttrDlg[7].Selected=(FileAttr & FA_SYSTEM)!=0;
+  MultAttrDlg[8].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
+  MultAttrDlg[9].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+}
+/* SVS $ */
+
 
 void ShellSetFileAttributes(Panel *SrcPanel)
 {
@@ -398,6 +424,17 @@ void ShellSetFileAttributes(Panel *SrcPanel)
 
       EmptyDialog(MultAttrDlg);
 
+      /* $ 22.11.2000 SVS
+         если стоит "по новому показывать" и текущий элемент - каталог и
+         только он один, то выключим обработку для поддиректориев.
+      */
+      if(Opt.SetAttrFolderRules && SelCount==1 && (FileAttr & FA_DIREC))
+      {
+        MultAttrDlg[17].Selected=0;
+        FillFileldDir(SelName,FileAttr,MultAttrDlg);
+      }
+      /* SVS $ */
+
       {
         Dialog Dlg(MultAttrDlg,sizeof(MultAttrDlg)/sizeof(MultAttrDlg[0]));
         Dlg.SetHelp("FileAttrDlg");
@@ -452,23 +489,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
               EmptyDialog(MultAttrDlg);
 
               if(!MultAttrDlg[17].Selected)
-              {
-                HANDLE FindHandle;
-                WIN32_FIND_DATA FindData;
-                if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
-                {
-                  FindClose(FindHandle);
-                  ConvertDate(&FindData.ftLastWriteTime, MultAttrDlg[22].Data,MultAttrDlg[23].Data,8,FALSE,FALSE,TRUE);
-                  ConvertDate(&FindData.ftCreationTime,  MultAttrDlg[25].Data,MultAttrDlg[26].Data,8,FALSE,FALSE,TRUE);
-                  ConvertDate(&FindData.ftLastAccessTime,MultAttrDlg[28].Data,MultAttrDlg[29].Data,8,FALSE,FALSE,TRUE);
-                }
-                MultAttrDlg[4].Selected=(FileAttr & FA_RDONLY)!=0;
-                MultAttrDlg[5].Selected=(FileAttr & FA_ARCH)!=0;
-                MultAttrDlg[6].Selected=(FileAttr & FA_HIDDEN)!=0;
-                MultAttrDlg[7].Selected=(FileAttr & FA_SYSTEM)!=0;
-                MultAttrDlg[8].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-                MultAttrDlg[9].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-              }
+                FillFileldDir(SelName,FileAttr,MultAttrDlg);
               Dlg.InitDialogObjects();
               Dlg.Show();
               Sel17=MultAttrDlg[17].Selected;

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.44 08.11.2000 $ */
+/* Revision: 1.45 24.11.2000 $ */
 
 /*
 Modify:
+  24.11.2000 SVS
+    ! XLat сделаем несколько совершенной :-))) Что бы не зависеть от размера!
   08.11.2000 SVS
     - Бага в функции ConvertNameToFull.
   04.11.2000 SVS
@@ -2492,7 +2494,7 @@ char* WINAPI Xlat(
       if(PreLang != CurLang)
         CurLang=PreLang;
 
-        for(I=0; I < 20; I+=2)
+        for(I=0; I < sizeof(Opt.XLat.Rules[0]) && Opt.XLat.Rules[0][I]; I+=2)
           if(ChrOld == (BYTE)Opt.XLat.Rules[CurLang][I])
           {
              Chr=(BYTE)Opt.XLat.Rules[CurLang][I+1];
