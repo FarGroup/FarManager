@@ -7,10 +7,12 @@ findfile.hpp
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 SVS
+    + Обработчик диалога (без него нажатие на пимпу "[View]" заваливает ФАР)
   06.05.2001 DJ
     ! перетрях #include
   25.06.2000 SVS
@@ -19,20 +21,30 @@ Modify:
 */
 
 #undef SEARCH_ALL
-enum {SEARCH_ALL=0,SEARCH_ROOT,SEARCH_FROM_CURRENT,SEARCH_CURRENT_ONLY,
-  SEARCH_SELECTED};
+enum {
+  SEARCH_ALL=0,
+  SEARCH_ROOT,
+  SEARCH_FROM_CURRENT,
+  SEARCH_CURRENT_ONLY,
+  SEARCH_SELECTED
+};
 
 class SaveScreen;
 
 class FindFiles
 {
   private:
+    SaveScreen *FindSaveScr;
+
+  private:
     int FindFilesProcess();
     void SetPluginDirectory(char *FileName);
-    SaveScreen *FindSaveScr;
+    static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+
   public:
     FindFiles();
     ~FindFiles();
+
 };
 
 

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.29 04.06.2001 $ */
+/* Revision: 1.30 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 SVS
+    + Обработчик диалога (без него нажатие на пимпу "[View]" заваливает ФАР)
   04.06.2001 OT
      Подпорка для "естественного" обновления экрана
   03.06.2001 SVS
@@ -351,21 +353,33 @@ FindFiles::~FindFiles()
   delete FindSaveScr;
 }
 
+long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  if(Msg == DN_BTNCLICK)
+  {
+    if(Param1 == 6)
+    {
+      ((Dialog*)hDlg)->SetExitCode(6);
+      return TRUE;
+    }
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
 
 int FindFiles::FindFilesProcess()
 {
   FindSaveScr=new SaveScreen;
 
   static struct DialogData FindDlgData[]={
-    DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
-    DI_TEXT,3,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_TEXT,5,16,0,0,0,0,0,0,(char *)MFindSearchingIn,
-    DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindNewSearch,
-    DI_BUTTON,0,18,0,0,1,0,DIF_CENTERGROUP,1,(char *)MFindGoTo,
-    DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindView,
-    DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindPanel,
-    DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindStop
+  /* 00 */DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
+  /* 01 */DI_TEXT,3,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 02 */DI_TEXT,5,16,0,0,0,0,0,0,(char *)MFindSearchingIn,
+  /* 03 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 04 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindNewSearch,
+  /* 05 */DI_BUTTON,0,18,0,0,1,0,DIF_CENTERGROUP,1,(char *)MFindGoTo,
+  /* 06 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindView,
+  /* 07 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindPanel,
+  /* 08 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindStop
   };
   MakeDialogItems(FindDlgData,FindDlg);
 
@@ -403,7 +417,7 @@ int FindFiles::FindFilesProcess()
 
   {
     DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
-    Dialog *pDlg=new Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]));
+    Dialog *pDlg=new Dialog(FindDlg,sizeof(FindDlg)/sizeof(FindDlg[0]),FindDlgProc);
     pDlg->SetDynamicallyBorn(TRUE);
     pDlg->SetHelp("FindFile");
     /* $ 10.09.2000 SVS
