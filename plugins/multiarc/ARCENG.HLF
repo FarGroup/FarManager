@@ -47,6 +47,9 @@ password to decrypt archived files.
     Option #Extract without pathnames# forces extraction of all files
 to the same folder.
 
+    Включенная опция #Удалить из архива после распаковки# удалит файловые
+объекты из архива после распаковки.
+
     To immediately extract selected archived files to the current folder
 you may also use #Alt-F6#.
 

@@ -9,8 +9,9 @@
 
 "Extract"
 "&Extract to"
-"Extract &without pathnames"
 "Archive &password"
+"Extract &without pathnames"
+"&Delete from archive after extracting"
 "Extr&act"
 "&Cancel"
 

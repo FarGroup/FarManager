@@ -192,7 +192,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
     FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
   struct InitDialogItem InitItems[]={
-  /* 0 */{DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MExtractTitle},
+  /* 0 */{DI_DOUBLEBOX,3,1,72,13,0,0,0,0,(char *)MExtractTitle},
   /* 1 */{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MExtractTo},
   /* 2 */{DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath},
   /* 3 */{DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
@@ -201,9 +201,10 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   /* 6 */{DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
   /* 7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MExtrWithoutPaths},
   /* 8 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MBackground},
-  /* 9 */{DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-  /*10 */{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MExtrExtract},
-  /*11 */{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel},
+  /* 9 */{DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MExtrDel},
+  /*10 */{DI_TEXT,3,11,0,11,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /*11 */{DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(char *)MExtrExtract},
+  /*12 */{DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel},
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -225,12 +226,13 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
 
   Opt.UserBackground=0; // $ 14.02.2001 raVen //сброс галки "фоновая архивация"
   DialogItems[8].Selected=Opt.UserBackground;
+  DialogItems[9].Selected=Move;
 
   if ((OpMode & OPM_SILENT)==0)
   {
-    int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,14,"ExtrFromArc",
+    int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,15,"ExtrFromArc",
                 DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
-    if (AskCode!=10)
+    if (AskCode!=11)
       return -1;
     strcpy(DestPath,DialogItems[2].Data);
     Opt.UserBackground=DialogItems[8].Selected;
@@ -308,19 +310,24 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   if (OpMode & OPM_FIND)
     Opt.HideOutput=2;
   int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
+
   ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,
              DialogItems[5].Data,AllFilesMask,IgnoreErrors,
              (OpMode & OPM_VIEW)!=0,(OpMode & OPM_FIND),CurDir,CurArcInfo.Prefix);
+
   Opt.HideOutput=SaveHideOut;
   SetCurrentDirectory(SaveDir);
   if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
     if (!(OpMode & OPM_VIEW))
       return 0;
-  if (Move)
+
+  if (DialogItems[9].Selected)
     DeleteFiles(PanelItem,ItemsNumber,TRUE);
+
   if (Opt.UpdateDescriptions)
     for (int I=0;I<ItemsNumber;I++)
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
+
   return 1;
 }
 

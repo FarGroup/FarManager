@@ -9,8 +9,9 @@ enum LanguageID
 
   MExtractTitle,
   MExtractTo,
-  MExtrWithoutPaths,
   MExtrPassword,
+  MExtrWithoutPaths,
+  MExtrDel,
   MExtrExtract,
   MExtrCancel,
 
