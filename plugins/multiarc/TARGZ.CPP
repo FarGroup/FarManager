@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.14 05.03.2002 $ */
+/* Revision: 1.15 27.04.2002 $ */
 
 //#define USE_TAR_H
 
@@ -295,7 +295,8 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(TAR_hdr.header.size);
 
     DWORD PrevPosition=NextPosition;
-    NextPosition+=sizeof(TAR_hdr)+Item->PackSize;
+    // for LNKTYPE - only sizeof(TAR_hdr)
+    NextPosition+=sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0:Item->PackSize);
 
     if (NextPosition & 511)
       NextPosition+=512-(NextPosition & 511);
