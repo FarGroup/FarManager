@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.15 17.10.2002 $ */
+/* Revision: 1.16 08.04.2003 $ */
 
 /*
 Modify:
+  08.04.2003 SVS
+    + IsUpperOrLower[] - в ответ на "почему LocalIsupper держит пробел за большую букву"
   17.10.2002 SVS
     ! Закомменчу свои _SVS() ;-)
   10.04.2002 SVS
@@ -61,6 +63,7 @@ static int _cdecl LCSort(const void *el1,const void *el2);
 
 unsigned char LowerToUpper[256];
 unsigned char UpperToLower[256];
+unsigned char IsUpperOrLower[256];
 static unsigned char LCOrder[256];
 static unsigned char KeyToKey[256];
 
@@ -77,8 +80,10 @@ void LocalUpperInit()
     LowerToUpper[I]=UpperToLower[I]=I;
     OemToChar((char *)CvtStr,(char *)CvtStr);
     CharToOem((char *)CvtStr,(char *)ReverseCvtStr);
+    IsUpperOrLower[I]=0;
     if (IsCharAlpha(CvtStr[0]) && ReverseCvtStr[0]==I)
     {
+      IsUpperOrLower[I]=IsCharLower(CvtStr[0])?1:(IsCharUpper(CvtStr[0])?2:0);
       CharUpper((char *)CvtStr);
       CharToOem((char *)CvtStr,(char *)CvtStr);
       LowerToUpper[I]=CvtStr[0];
@@ -203,13 +208,13 @@ void InitKeysArray()
 
 int WINAPI LocalIslower(unsigned Ch)
 {
-  return(Ch<256 && LowerToUpper[Ch]!=Ch);
+  return(Ch<256 && IsUpperOrLower[Ch]==1);
 }
 
 
 int WINAPI LocalIsupper(unsigned Ch)
 {
-  return(Ch<256 && LowerToUpper[Ch]==Ch);
+  return(Ch<256 && IsUpperOrLower[Ch]==2);
 }
 
 int WINAPI LocalIsalpha(unsigned Ch)

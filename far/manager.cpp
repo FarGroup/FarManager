@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.82 21.01.2003 $ */
+/* Revision: 1.83 08.04.2003 $ */
 
 /*
 Modify:
+  08.04.2003 SVS
+    - Висюн ФАРа, если в плагиновом StartupInfo до старта манагера вызывается что-то активное
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -491,6 +493,8 @@ void Manager::ExecuteModal (Frame *Executed)
   }
 
   int ModalStartLevel=ModalStackCount;
+  int OriginalStartManager=StartManager;
+  StartManager=TRUE;
   while (1){
     Commit();
     if (ModalStackCount<=ModalStartLevel){
@@ -498,6 +502,7 @@ void Manager::ExecuteModal (Frame *Executed)
     }
     ProcessMainLoop();
   }
+  StartManager=OriginalStartManager;
   return;// GetModalExitCode();
 }
 

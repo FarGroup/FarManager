@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.112 05.03.2003 $ */
+/* Revision: 1.113 08.04.2003 $ */
 
 /*
 Modify:
+  08.03.2003 SVS
+    ! Ќебольшое уточнение логики диалога (доделано не все... иначе выпуск
+      п€терки отложитс€ - незначительный баг в логике не повредит самому
+      процессу копировани€)
   05.03.2003 SVS
     + _LOGCOPYR() - детальный лог процесса копировани€
     - BugZ#636 - Ќекорректный разбор списка целей копировани€
@@ -1220,12 +1224,18 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
 //// // _SVS(SysLog("SrcDir=%s",SrcDir));
 //// // _SVS(SysLog("Root=%s",Root));
     CDP->IsDTSrcFixed=GetDriveType(Root);
-    CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED || CDP->IsDTSrcFixed == DRIVE_CDROM;
+    CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED ||
+                      CDP->IsDTSrcFixed == DRIVE_CDROM ||
+                      (NT5 && WinVer.dwMinorVersion>0?DRIVE_REMOVABLE:0);
     GetVolumeInformation(Root,NULL,0,NULL,NULL,&CDP->FileSystemFlagsSrc,FSysNameSrc,sizeof(FSysNameSrc));
     CDP->FSysNTFS=!stricmp(FSysNameSrc,"NTFS")?TRUE:FALSE;
 //// // _SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
   }
 
+/*
+— сетевого на локаль - имеем задисабленную [ ] Symbolic link.
+— локали на сетевой  - происходит удачна€ попытка
+*/
   // 1. если источник находитс€ не на логическом диске
   if(CDP->IsDTSrcFixed || CDP->FSysNTFS)
   {
@@ -1278,7 +1288,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
           else
             *Selected5=0;
         }
-        else if(SameDisk && CDP->FSysNTFS) // это файл!
+        else if(SameDisk)// && CDP->FSysNTFS) // это файл!
         {
           *Selected5=0;
           *Flags8 &=~ DIF_DISABLE;
@@ -1309,13 +1319,13 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
             *Flags8 &=~ DIF_DISABLE;
           }
 
-          if(CDP->FilesPresent && SameDisk && CDP->FSysNTFS)
+          if(CDP->FilesPresent && SameDisk)// && CDP->FSysNTFS)
           {
 //            *Selected5=0;
             *Flags8 &=~ DIF_DISABLE;
           }
         }
-        else if(SameDisk && CDP->FSysNTFS) // это файл!
+        else if(SameDisk)// && CDP->FSysNTFS) // это файл!
         {
           *Selected5=0;
           *Flags8 &=~ DIF_DISABLE;

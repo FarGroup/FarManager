@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.113 17.03.2003 $ */
+/* Revision: 1.114 06.04.2003 $ */
 
 /*
 Modify:
+  06.04.2003 SVS
+    - "...хоткей '-' не срабатывает в меню "Команды внешних модулей" (F11),
+      если набирать на цифровой клавиатуре..."
   17.03.2003 SVS
     - BugZ#814 - DI_LISTBOX высотой 1 не отображается
     ! Подложка для DI_LISTBOX и DI_COMBOBOX рисуется цветом COL_*DIALOGLISTTEXT
@@ -1054,6 +1057,21 @@ int VMenu::ProcessKey(int Key)
   while (CallCount>0)
     Sleep(10);
   CallCount++;
+
+  if(!(Key&(KEY_MACRO_BASE|KEY_MACROSPEC_BASE)))
+  {
+    DWORD S=Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
+    DWORD K=Key&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));
+
+    if (K==KEY_MULTIPLY)
+      Key='*'|S;
+    else if (K==KEY_ADD)
+      Key='+'|S;
+    else if (K==KEY_SUBTRACT)
+      Key='-'|S;
+    else if (K==KEY_DIVIDE)
+      Key='/'|S;
+  }
 
   switch(Key)
   {
