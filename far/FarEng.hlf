@@ -98,7 +98,7 @@ after the 40-days trial period. Please read License.txt file for user license.
 File Far_Site.txt contains list of FAR registration sites. You also
 may read latest version of this list on:
 
-    http://www.rarsoft.com
+    ~http://www.rarsoft.com~@http://www.rarsoft.com@
 
 
 @KeyRef
@@ -1161,6 +1161,8 @@ $ #Internal viewer#
     #+#                  Go to next file
     #-#                  Go to previous file
     #Ctrl-O#             Show user screen
+    #Ctrl-Alt-Shift#     Temporarily show user screen
+                       (works so long as we keep these keys)
     #Ctrl-B#             Show/Hide functional key bar at the bottom
                           line.
     #Alt-BS, Ctrl-Z#     Undo position change
@@ -1272,6 +1274,8 @@ $ #Internal editor#
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification
    #Ctrl-O#                  Show user screen
+   #Ctrl-Alt-Shift#          Temporarily show user screen
+                           (works so long as we keep these keys)
    #Ctrl-Q#                  Treat the next key combination
                            as a character code
    #RightCtrl+<N>#           Save current position

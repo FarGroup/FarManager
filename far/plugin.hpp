@@ -6,10 +6,16 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.27 24.08.2000 $ */
+/* Revision: 1.28 25.08.2000 $ */
 
 /*
 Modify:
+  25.08.2000 SVS
+    ! Удалены из FSF функции:
+      memset, memcpy, memmove, memcmp,
+      strchr, strrchr, strstr, strtok, strpbrk
+    + Флаг FIB_BUTTONS - в функции InputBox если нужно - показываем
+      кнопки <Ok> & <Cancel>
   24.08.2000 SVS
     + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
     + Элемент DI_USERCONTROL - отрисовкой занимается плагин.
@@ -777,6 +783,11 @@ enum INPUTBOXFLAGS{
 */
   FIB_NOUSELASTHISTORY = 0x0008,
 /* SVS $ */
+/* $ 25.08.2000 SVS
+  Если нужно - показываем кнопки <Ok> & <Cancel>
+*/
+  FIB_BUTTONS          = 0x0010,
+/* SVS $ */
 };
 
 /* $ 25.07.2000 SVS
@@ -800,29 +811,11 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
   sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
   strtok, memset, strpbrk
 */
+// <C&C++>
 typedef int   (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
 typedef int   (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
+// </C&C++>
 typedef void  (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (WINAPIV *fcmp)(const void *, const void *));
-
-// Only C/C++!!!
-typedef void *(*FARSTDMEMCPY)(void *dest, const void *src, size_t n);
-typedef void *(*FARSTDMEMMOVE)(void *dest, const void *src, size_t n);
-typedef int   (*FARSTDMEMCMP)(const void *s1, const void *s2, size_t n);
-#if defined(__BORLANDC__)
-typedef char *(*FARSTDSTRCHR)(char *s, int c);
-typedef char *(*FARSTDSTRRCHR)(char *s, int c);
-typedef char *(*FARSTDSTRSTR)(char *s1, const char *s2);
-typedef char *(*FARSTDSTRTOK)(char *s1, const char *s2);
-typedef char *(*FARSTDSTRPBRK)(char *s1, const char *s2);
-#else
-typedef char *(*FARSTDSTRCHR)(const char *s, int c);
-typedef char *(*FARSTDSTRRCHR)(const char *s, int c);
-typedef char *(*FARSTDSTRSTR)(const char *s1, const char *s2);
-typedef char *(*FARSTDSTRTOK)(char *s1, const char *s2);
-typedef char *(*FARSTDSTRPBRK)(const char *s1, const char *s2);
-#endif
-typedef void *(*FARSTDMEMSET)(void *s, int c, size_t n);
-// End Only C/C++!!!
 /* IS $ */
 
 /* $ 07.07.2000 IS
@@ -872,19 +865,10 @@ typedef struct FarStandardFunctions
   FARSTDATOI    atoi;
   FARSTDATOI64  _atoi64;
   FARSTDITOA    itoa;
+  // <C&C++>
   FARSTDSPRINTF sprintf;
   FARSTDSSCANF  sscanf;
-  // Only C/C++!!!
-  FARSTDMEMSET  memset;
-  FARSTDMEMCPY  memcpy;
-  FARSTDMEMMOVE memmove;
-  FARSTDMEMCMP  memcmp;
-  FARSTDSTRCHR  strchr;
-  FARSTDSTRRCHR strrchr;
-  FARSTDSTRSTR  strstr;
-  FARSTDSTRTOK  strtok;
-  FARSTDSTRPBRK strpbrk;
-  // End Only C/C++!!!
+  // </C&C++>
   FARSTDQSORT qsort;
 
   FARSTDUNQUOTE Unquote;

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.14 24.08.2000 $ */
+/* Revision: 1.15 25.08.2000 $ */
 
 /*
 Modify:
+  25.08.2000 SVS
+    ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
+      сепаратор и кнопки <Ok> & <Cancel>
   24.08.2000 SVS
     + В функции KeyToText добавлена обработка клавиш
       KEY_CTRLALTSHIFTPRESS, KEY_CTRLALTSHIFTRELEASE
@@ -1141,29 +1144,62 @@ char *GetCommaWord(char *Src,char *Word)
   return(Src);
 }
 
-
+/* $ 25.08.2000 SVS
+   ! Функция GetString может при соответсвующем флаге (FIB_BUTTONS) отображать
+     сепаратор и кнопки <Ok> & <Cancel>
+*/
 /* $ 01.08.2000 SVS
   ! Функция ввода строки GetString имеет один параметр для всех флагов
 */
 /* $ 31.07.2000 SVS
    ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
 */
-int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
+int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic,DWORD Flags)
-//int EnableEmpty,int Password, int ExpandEnv)
 {
+  int Substract=3; // дополнительная величина :-)
+  int ExitCode;
+/*
+  0         1         2         3         4         5         6         7
+  0123456789012345678901234567890123456789012345678901234567890123456789012345
+║0                                                                             ║
+║1   ╔═══════════════════════════════ Title ═══════════════════════════════╗   ║
+║2   ║ Prompt                                                              ║   ║
+║3   ║ ███████████████████████████████████████████████████████████████████║   ║
+║4   ╟─────────────────────────────────────────────────────────────────────╢   ║
+║5   ║                         [ Ok ]   [ Cancel ]                         ║   ║
+║6   ╚═════════════════════════════════════════════════════════════════════╝   ║
+║7                                                                             ║
+*/
   static struct DialogData StrDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,72,4,0,0,0,0,"",
-    DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-    DI_EDIT,5,3,70,3,1,0,0,1,""
+/*      Type          X1 Y1 X2  Y2 Focus Flags             DefaultButton
+                                      Selected               Data
+*/
+/* 0 */ DI_DOUBLEBOX, 3, 1, 72, 4, 0, 0, 0,                0,"",
+/* 1 */ DI_TEXT,      5, 2,  0, 0, 0, 0, DIF_SHOWAMPERSAND,0,"",
+/* 2 */ DI_EDIT,      5, 3, 70, 3, 1, 0, 0,                1,"",
+/* 3 */ DI_TEXT,      0, 4,  0, 4, 0, 0, DIF_SEPARATOR,    0,"",
+/* 4 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,"",
+/* 5 */ DI_BUTTON,    0, 5,  0, 0, 0, 0, DIF_CENTERGROUP,  0,""
   };
   MakeDialogItems(StrDlgData,StrDlg);
+
+  if(Flags&FIB_BUTTONS)
+  {
+    Substract=0;
+    StrDlg[0].Y2+=2;
+    StrDlg[2].DefaultButton=0;
+    StrDlg[4].DefaultButton=1;
+    strcpy(StrDlg[4].Data,FarMSG(MOk));
+    strcpy(StrDlg[5].Data,FarMSG(MCancel));
+  }
 
   if(Flags&FIB_EXPANDENV)
   {
     StrDlg[2].Flags|=DIF_EDITEXPAND;
   }
+
   if (HistoryName!=NULL)
   {
     StrDlg[2].Selected=(int)HistoryName;
@@ -1173,25 +1209,41 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
     /* SVS $ */
   }
+
   if (Flags&FIB_PASSWORD)
     StrDlg[2].Type=DI_PSWEDIT;
-  strcpy(StrDlg[0].Data,Title);
-  strcpy(StrDlg[1].Data,SubTitle);
-  strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
+
+  if(Title)
+    strcpy(StrDlg[0].Data,Title);
+  if(Prompt)
+    strcpy(StrDlg[1].Data,Prompt);
+  if(SrcText)
+    strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
   StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
-  Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0]));
-  Dlg.SetPosition(-1,-1,76,6);
+
+  Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract);
+  Dlg.SetPosition(-1,-1,76,(Flags&FIB_BUTTONS)?8:6);
+
   if (HelpTopic!=NULL)
     Dlg.SetHelp(HelpTopic);
   Dlg.Process();
-  if (DestLength<1 || Dlg.GetExitCode()!=2 || !(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
-    return(FALSE);
-  strncpy(DestText,StrDlg[2].Data,DestLength-1);
-  DestText[DestLength-1]=0;
-  return(TRUE);
+
+  ExitCode=Dlg.GetExitCode();
+
+  if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
+  {
+    if(!(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
+      return(FALSE);
+    strncpy(DestText,StrDlg[2].Data,DestLength-1);
+    DestText[DestLength-1]=0;
+    return(TRUE);
+  }
+  return(FALSE);
 }
 /* SVS $*/
 /* 01.08.2000 SVS $*/
+/* 25.08.2000 SVS $*/
+
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
 {

@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.13 03.08.2000 $ */
+/* Revision: 1.14 25.08.2000 $ */
 
 /*
 Modify:
+  25.08.2000 SVS
+    ! Удалены из FSF функции:
+      memset, memcpy, memmove, memcmp, strchr, strrchr, strstr, strtok, strpbrk
   03.08.2000 tran 1.12
     + GetMinFarVersion export
       для определения минимально-неодходимой версии фара.
@@ -346,15 +349,6 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StandardFunctions.sprintf=FarSprintf;
     StandardFunctions.sscanf=FarSscanf;
     StandardFunctions.qsort=FarQsort;
-    StandardFunctions.memcpy=memcpy;
-    StandardFunctions.memmove=memmove;
-    StandardFunctions.memcmp=memcmp;
-    StandardFunctions.strchr=strchr;
-    StandardFunctions.strrchr=strrchr;
-    StandardFunctions.strstr=strstr;
-    StandardFunctions.strtok=strtok;
-    StandardFunctions.memset=memset;
-    StandardFunctions.strpbrk=strpbrk;
     StandardFunctions.atoi=FarAtoi;
     StandardFunctions._atoi64=FarAtoa64;
     StandardFunctions.itoa=FarItoa;

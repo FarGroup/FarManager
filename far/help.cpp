@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.02 13.07.2000 $ */
+/* Revision: 1.04 25.08.2000 $ */
 
 /*
 Modify:
+  25.08.2000 SVS
+    + CtrlAltShift - спрятать/показать помощь...
+    + URL активатор - это ведь так просто :-)))
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   28.06.2000
@@ -38,6 +41,49 @@ static SaveScreen *TopScreen=NULL;
 
 static char *PluginContents="__PluginContents__";
 static char *HelpOnHelpTopic="Help";
+
+/* $ 25.08.2000 SVS
+   Запуск URL-ссылок... ;-)
+   Это ведь так просто... ась?
+*/
+static BOOL RunURL(char *Protocol, char *URLPath)
+{
+  BOOL EditCode=FALSE;
+  if(Protocol && *Protocol && URLPath && *URLPath)
+  {
+    char *Buf=(char*)malloc(2048);
+    if(Buf)
+    {
+      HKEY hKey;
+      DWORD Disposition, DataSize=250;
+      strcpy(Buf,Protocol);
+      strcat(Buf,"\\shell\\open\\command");
+      if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
+      {
+        Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
+        RegCloseKey(hKey);
+        if(Disposition == ERROR_SUCCESS)
+        {
+          char *pp=strrchr(Buf,'%');
+
+          if(pp)
+            *pp='\0';
+          else
+            strcat(Buf," ");
+          STARTUPINFO si={0};
+          PROCESS_INFORMATION pi={0};
+          si.cb=sizeof(si);
+          strcat(Buf,URLPath);
+          EditCode=CreateProcess(NULL,Buf,NULL,NULL,
+                                       TRUE,0,NULL,NULL,&si,&pi);
+        }
+      }
+      free(Buf);
+    }
+  }
+  return EditCode;
+}
+/* SVS $ */
 
 Help::Help(char *Topic)
 {
@@ -435,8 +481,26 @@ void Help::OutString(char *Str)
           {
             strncpy(SelTopic,Str+2,sizeof(SelTopic));
             char *EndPtr=strchr(SelTopic,'@');
+            /* $ 25.08.2000 SVS
+               учтем, что может быть такой вариант: @@ или \@
+               этот вариант только для URL!
+            */
             if (EndPtr!=NULL)
-              *EndPtr=0;
+            {
+              if(*(EndPtr-1) == '\\')
+              {
+                memmove(EndPtr-1,EndPtr,strlen(EndPtr)+1);
+              }
+              else if(*(EndPtr+1) == '@')
+              {
+                memmove(EndPtr,EndPtr+1,strlen(EndPtr)+1);
+                EndPtr++;
+              }
+              EndPtr=strchr(EndPtr,'@');
+              if (EndPtr!=NULL)
+                *EndPtr=0;
+            }
+            /* SVS $ */
           }
         }
         else
@@ -467,9 +531,15 @@ void Help::OutString(char *Str)
     }
     if (*Str=='@')
     {
+      /* $ 25.08.2000 SVS
+         учтем, что может быть такой вариант: @@ или \@
+         этот вариант только для URL!
+      */
       while (*Str)
         if (*(++Str)=='@')
-          break;
+         if (*(Str-1)!='@' && *(Str-1)!='\\')
+           break;
+      /* SVS $ */
       Str++;
       continue;
     }
@@ -503,9 +573,15 @@ int Help::StringLen(char *Str)
     }
     if (*Str=='@')
     {
+      /* $ 25.08.2000 SVS
+         учтем, что может быть такой вариант: @@ или \@
+         этот вариант только для URL!
+      */
       while (*Str)
         if (*(++Str)=='@')
-          break;
+          if (*(Str-1)!='@' && *(Str-1)!='\\')
+            break;
+      /* SVS $ */
       Str++;
       continue;
     }
@@ -549,6 +625,18 @@ int Help::ProcessKey(int Key)
     case KEY_NONE:
     case KEY_IDLE:
       break;
+    /* $ 25.08.2000 SVS
+       + CtrlAltShift - спрятать/показать помощь...
+       // "ХАчу глянуть на то, что под диалогом..."
+    */
+    case KEY_CTRLALTSHIFTPRESS:
+    {
+       Hide();
+       WaitKey(KEY_CTRLALTSHIFTRELEASE);
+       Show();
+       return(TRUE);
+    }
+    /* SVS $ */
     case KEY_F1:
       strcpy(SelTopic,HelpOnHelpTopic);
       ProcessKey(KEY_ENTER);
@@ -657,6 +745,21 @@ int Help::ProcessKey(int Key)
         int CurFullScreen=FullScreenHelp;
         {
           char NewTopic[512];
+          /* $ 25.08.2000 SVS
+             URL активатор - это ведь так просто :-)))
+          */
+          {
+            strcpy(NewTopic,SelTopic);
+            char *p=strchr(NewTopic,':');
+            if(p && NewTopic[0] != ':') // наверное подразумевается URL
+            {
+              *p=0;
+              if(RunURL(NewTopic,SelTopic))
+                return(TRUE);
+            }
+            // а вот теперь попробуем...
+          }
+          /* SVS $ */
           if (*HelpPath && *SelTopic!='#' && strcmp(SelTopic,HelpOnHelpTopic)!=0)
           {
             if (*SelTopic==':')
@@ -666,6 +769,7 @@ int Help::ProcessKey(int Key)
           }
           else
             strcpy(NewTopic,SelTopic);
+
           Help NewHelp(NewTopic,KeepHelp,FullScreenHelp);
         }
         if (!KeepHelp)
@@ -900,3 +1004,4 @@ void Help::SetScreenPosition()
   Show();
 }
 /* tran $ */
+
