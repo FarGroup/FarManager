@@ -5,10 +5,13 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.06 12.03.2001 $ */
+/* Revision: 1.07 13.03.2001 $ */
 
 /*
 Modify:
+  13.03.2001 SVS
+    - в предыдущем патче неверно работали макросы - не была учтена ситуация
+      с макросами.
   12.03.2001 SVS
     ! Грязный Хак в функции GetString :-)
   12.02.2001 SVS
@@ -241,7 +244,7 @@ static long WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 //    char KeyText[50];
 //    KeyToText(Param2,KeyText);
 //    SysLog("%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed);
-    if(ShiftPressed && Param2 == KEY_ENTER)
+    if(ShiftPressed && Param2 == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
     {
       DWORD Arr[1]={KEY_SHIFTENTER};
       Dialog::SendDlgMessage(hDlg,Msg,Param1,(long)Arr);
