@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.18 07.09.2000 $ */
+/* Revision: 1.19 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 VVM 1.19
+    + Несколько префиксов у плагина, разделенных через ":"
+    + Если флаг PF_FULLCMDLINE - отдавать с префиксом
   07.09.2000 SVS
     + Функция GetFileOwner тоже доступна плагинам :-)
     + Функция GetNumberOfLinks тоже доступна плагинам :-)
@@ -1396,33 +1399,58 @@ int PluginsSet::ProcessCommandLine(char *Command)
   Prefix[PrefixLength]=0;
 
   int PluginPos=-1;
+  /* $ 07.09.2000 VVM 1.18
+     + Несколько префиксов у плагина, разделенных через ":"
+  */
+  DWORD PluginFlags = 0;
+  char PluginPrefix[512];
 
   for (int I=0;I<PluginsCount;I++)
+  {
     if (PluginsData[I].Cached)
     {
       int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
       if (RegNumber!=-1)
       {
-        char RegKey[100],PluginPrefix[512];
+        char RegKey[100];
         sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
         GetRegKey(RegKey,"CommandPrefix",PluginPrefix,"",sizeof(PluginPrefix));
-        if (LocalStricmp(Prefix,PluginPrefix)==0)
-        {
-          PluginPos=I;
-          break;
-        }
-      }
-    }
+        GetRegKey(RegKey,"Flags",PluginFlags,0);
+      } /* if */
+      else
+        continue;
+    } /* if */
     else
     {
       struct PluginInfo Info;
       if (GetPluginInfo(I,&Info))
-        if (LocalStricmp(Prefix,NullToEmpty(Info.CommandPrefix))==0)
-        {
-          PluginPos=I;
-          break;
-        }
-    }
+      {
+        strcpy(PluginPrefix,Info.CommandPrefix);
+        PluginFlags = Info.Flags;
+      } /* if */
+      else
+        continue;
+    } /* else */
+    if (PluginPrefix[0]==0)
+      continue;
+    char *PrStart = PluginPrefix;
+    while(1)
+    {
+      char *PrEnd = strchr(PrStart, ':');
+      if (LocalStrnicmp(Prefix, PrStart, PrEnd==NULL ? strlen(PrStart):(PrEnd-PrStart))==0)
+      {
+        PluginPos=I;
+        break;
+      } /* if */
+      if (PrEnd == NULL)
+        break;
+      PrStart = ++PrEnd;
+    } /* while */
+    if (PluginPos >= 0)
+      break;
+  } /* for */
+  /* VVM $ */
+
   if (PluginPos==-1)
     return(FALSE);
   if (!PreparePlugin(PluginPos) || PluginsData[PluginPos].pOpenPlugin==NULL)
@@ -1433,7 +1461,11 @@ int PluginsSet::ProcessCommandLine(char *Command)
   CtrlObject->CmdLine.SetString("");
 
   char PluginCommand[512];
-  strcpy(PluginCommand,Command+PrefixLength+1);
+  /* $ 07.09.2000 VVM 1.18
+    + Если флаг PF_FULLCMDLINE - отдавать с префиксом
+  */
+  strcpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1));
+  /* VVM $ */
   HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
   if (hPlugin!=INVALID_HANDLE_VALUE)
   {

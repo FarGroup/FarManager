@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.38 07.09.2000 $ */
+/* Revision: 1.39 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 VVM 1.39
+    + PF_FULLCMDLINE флаг для передачи плагину всей строки вместе с
+      префиксом
   07.09.2000 SVS 1.38
     + FSF.bsearch
     + FSF.GetFileOwner
@@ -1084,7 +1087,13 @@ enum PLUGIN_FLAGS {
   PF_PRELOAD        = 0x0001,
   PF_DISABLEPANELS  = 0x0002,
   PF_EDITOR         = 0x0004,
-  PF_VIEWER         = 0x0008
+  PF_VIEWER         = 0x0008,
+  /* $ 07.09.2000 VVM 1.38
+    + PF_FULLCMDLINE флаг для передачи плагину всей строки вместе с
+      префиксом
+  */
+  PF_FULLCMDLINE    = 0x0010,
+  /* VVM $ */
 };
 
 
