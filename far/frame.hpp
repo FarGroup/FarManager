@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.17 02.11.2001 $ */
+/* Revision: 1.18 20.12.2001 $ */
 
 /*
 Modify:
+  20.12.2001 IS
+    - Баг: MODALTYPE_* не были синхронизированы с WTYPE_*
   02.11.2001 SVS
     ! возвращаемое значение у GetTypeName() - модификатор const
   04.10.2001 OT
@@ -54,8 +56,11 @@ Modify:
 
 class KeyBar;
 
+// ПРОСЬБА НЕ ЗАБЫВАТЬ СИНХРОНИЗИРОВАТЬ ИЗМЕНЕНИЯ
+// WTYPE_* (plugin.hpp) и MODALTYPE_*!!!
+// (и не надо убирать этот комментарий, пока ситуация не изменится ;)
 enum { MODALTYPE_VIRTUAL,
-  MODALTYPE_PANELS,
+  MODALTYPE_PANELS=1,
   MODALTYPE_VIEWER,
   MODALTYPE_EDITOR,
   MODALTYPE_DIALOG,

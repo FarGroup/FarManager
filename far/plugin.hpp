@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.175 12.12.2001 $ */
+/* Revision: 1.176 20.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,12 +20,14 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  20.12.2001 IS
+    ! небольшое предупреждение по поводу изменени€ WTYPE_*
   12.12.2001 SVS
     ! BugZ#173. ƒл€ плагинов обконстантим параметр в FARSTDPOINTTONAME
   12.12.2001 DJ
     ! дл€ DM_SETTEXTLENGTH тоже нужно сохранить совместимость
-	! убрано дублирование PFLAGS_* и FPS_*
-	+ PFLAGS_REALNAMES
+  ! убрано дублирование PFLAGS_* и FPS_*
+  + PFLAGS_REALNAMES
   10.12.2001 SVS
     ! DM_SETREDRAW=DM_REDRAW, DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH,
       DM_LISTGET -> DM_LISTGETITEM
@@ -1438,6 +1440,9 @@ struct KeySequence{
 enum {
 #ifdef FAR_USE_INTERNALS
   WTYPE_VIRTUAL,
+  // ѕ–ќ—№Ѕј Ќ≈ «јЅџ¬ј“№ —»Ќ’–ќЌ»«»–ќ¬ј“№ »«ћ≈Ќ≈Ќ»я
+  // WTYPE_* и MODALTYPE_* (frame.hpp)!!!
+  // (и не надо убирать этот комментарий, пока ситуаци€ не изменитс€ ;)
 #endif // END FAR_USE_INTERNALS
   WTYPE_PANELS=1,
   WTYPE_VIEWER,
