@@ -7,10 +7,13 @@ filelist.hpp
 
 */
 
-/* Revision: 1.16 17.08.2001 $ */
+/* Revision: 1.17 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+    ! ¬место полей Color* в структе FileListItem используетс€
+      структура HighlightDataColor
   17.08.2001 VVM
     + FileListItem.CRC32
   09.08.2001 SVS
@@ -59,8 +62,8 @@ struct FileListItem
   char PrevSelected;
   char ShowFolderSize;
   char ShortNamePresent;
-  unsigned char Color,SelColor,CursorColor,CursorSelColor;
-  unsigned char MarkChar;
+  struct HighlightDataColor Colors;
+
   DWORD UnpSizeHigh;
   DWORD UnpSize;
   DWORD PackSizeHigh;

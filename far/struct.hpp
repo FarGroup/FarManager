@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.65 03.08.2001 $ */
+/* Revision: 1.66 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+    + сктруктура HighlightDataColor
   03.08.2001 IS
     + опция "разрешить мультикопирование/перемещение/создание связей":
       Opt.MultiCopy
@@ -659,6 +661,19 @@ struct ColorItem
   int StartPos;
   int EndPos;
   int Color;
+};
+
+/* ВРЕМЕННОЕ!!! воплощение будущих надежд :-))
+   Структура должна быть 16 байт!
+*/
+struct HighlightDataColor
+{
+  BYTE Color;
+  BYTE SelColor;
+  BYTE CursorColor;
+  BYTE CursorSelColor;
+  BYTE MarkChar;
+  BYTE Reserved[11];
 };
 
 #endif // __FARSTRUCT_HPP__

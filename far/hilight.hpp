@@ -7,10 +7,15 @@ Files highlighting
 
 */
 
-/* Revision: 1.05 12.07.2001 $ */
+/* Revision: 1.06 05.09.2001 $ */
 
 /*
 Modify:
+  12.07.2001 SVS
+    ! Вместо полей Color* в структе HighlightData используется
+      структура HighlightDataColor
+    ! Естественно, сокращено количество параметров у GetHiColor()
+    + функция ReWriteWorkColor - задел на будущее
   12.07.2001 SVS
     + Функция дублирования - DupHighlightData()
   06.07.2001 IS
@@ -31,6 +36,7 @@ Modify:
 */
 
 #include "CFileMask.hpp"
+#include "struct.hpp"
 
 /* $ 06.07.2001 IS
    вместо "рабочей" маски используем соответствующий класс
@@ -41,9 +47,11 @@ struct HighlightData
   CFileMask *FMasks;
   unsigned int IncludeAttr;
   unsigned int ExcludeAttr;
-  unsigned int Color,SelColor,CursorColor,CursorSelColor,MarkChar;
+  struct HighlightDataColor Colors;
 };
 /* IS $ */
+
+class VMenu;
 
 class HighlightFiles
 {
@@ -67,16 +75,18 @@ class HighlightFiles
     char *GetMask(int Idx);
     BOOL AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src=NULL);
     void DeleteMask(struct HighlightData *CurHighlightData);
+    void FillMenu(VMenu *HiMenu,int MenuPos);
 
   public:
     HighlightFiles();
     ~HighlightFiles();
 
   public:
-    void GetHiColor(char *Path,int Attr,unsigned char &Color,
-                    unsigned char &SelColor,unsigned char &CursorColor,
-                    unsigned char &CursorSelColor,unsigned char &MarkChar);
+    void GetHiColor(char *Path,int Attr,
+                    struct HighlightDataColor *Colors);
     void HiEdit(int MenuPos);
+
+    static void ReWriteWorkColor(struct HighlightDataColor *Colors=NULL);
 };
 
 // сама функция в hilight.cpp

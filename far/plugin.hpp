@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.138 17.08.2001 $ */
+/* Revision: 1.139 31.08.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  31.08.2001 IS
+    ! Все поля структуры CharTableSet кроме TableName теперь unsigned char.
   17.08.2001 VVM
     + PluginPanelItem.CRC32
   15.08.2001 SVS
@@ -1147,10 +1149,10 @@ enum { FCT_DETECT=0x40000000 };
 
 struct CharTableSet
 {
-  char DecodeTable[256];
-  char EncodeTable[256];
-  char UpperTable[256];
-  char LowerTable[256];
+  unsigned char DecodeTable[256];
+  unsigned char EncodeTable[256];
+  unsigned char UpperTable[256];
+  unsigned char LowerTable[256];
   char TableName[128];
 };
 

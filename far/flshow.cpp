@@ -5,10 +5,14 @@ flshow.cpp
 
 */
 
-/* Revision: 1.17 23.08.2001 $ */
+/* Revision: 1.18 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+    ! Немного оптимизации ;-)
+    ! Вместо полей Color* в структе FileListItem используется
+      структура HighlightDataColor
   23.08.2001 VVM
     ! Убран один лишний вызов. Остаток от предыдущего патча.
   01.08.2001 VVM
@@ -72,6 +76,7 @@ extern int ColumnTypeWidth[];
 
 //static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
 static char *VerticalLine[]={"\x0B3","\x0BA"};
+static char OutCharacter[2]={0,0};
 
 void FileList::DisplayObject()
 {
@@ -106,9 +111,10 @@ void FileList::ShowFileList(int Fast)
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   if (Opt.ShowColumnTitles)
   {
-    SetColor(COL_PANELTEXT);
-    GotoXY(X1+1,Y1+1);
-    mprintf("%*s",X2-X1-1,"");
+    SetScreen(X1+1,Y1+1,X2-1,Y1+1,' ',COL_PANELTEXT);
+    SetColor(COL_PANELTEXT); //???
+    //GotoXY(X1+1,Y1+1);
+    //mprintf("%*s",X2-X1-1,"");
   }
   for (int I=0,ColumnPos=X1+1;I<ViewSettings.ColumnCount;I++)
   {
@@ -117,45 +123,49 @@ void FileList::ShowFileList(int Fast)
     if (Opt.ShowColumnTitles)
     {
       char *Title="";
+      int IDMessage=-1;
       switch(ViewSettings.ColumnType[I] & 0xff)
       {
         case NAME_COLUMN:
-          Title=MSG(MColumnName);
+          IDMessage=MColumnName;
           break;
         case SIZE_COLUMN:
-          Title=MSG(MColumnSize);
+          IDMessage=MColumnSize;
           break;
         case PACKED_COLUMN:
-          Title=MSG(MColumnPacked);
+          IDMessage=MColumnPacked;
           break;
         case DATE_COLUMN:
-          Title=MSG(MColumnDate);
+          IDMessage=MColumnDate;
           break;
         case TIME_COLUMN:
-          Title=MSG(MColumnTime);
+          IDMessage=MColumnTime;
           break;
         case MDATE_COLUMN:
-          Title=MSG(MColumnModified);
+          IDMessage=MColumnModified;
           break;
         case CDATE_COLUMN:
-          Title=MSG(MColumnCreated);
+          IDMessage=MColumnCreated;
           break;
         case ADATE_COLUMN:
-          Title=MSG(MColumnAccessed);
+          IDMessage=MColumnAccessed;
           break;
         case ATTR_COLUMN:
-          Title=MSG(MColumnAttr);
+          IDMessage=MColumnAttr;
           break;
         case DIZ_COLUMN:
-          Title=MSG(MColumnDescription);
+          IDMessage=MColumnDescription;
           break;
         case OWNER_COLUMN:
-          Title=MSG(MColumnOwner);
+          IDMessage=MColumnOwner;
           break;
         case NUMLINK_COLUMN:
-          Title=MSG(MColumnMumLinks);
+          IDMessage=MColumnMumLinks;
           break;
       }
+      if(IDMessage != -1)
+        Title=MSG(IDMessage);
+
       if (PanelMode==PLUGIN_PANEL && Info.PanelModesArray!=NULL &&
           ViewMode<Info.PanelModesNumber &&
           Info.PanelModesArray[ViewMode].ColumnTitles!=NULL)
@@ -201,6 +211,7 @@ void FileList::ShowFileList(int Fast)
       MMenuSortByAccess,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
       MMenuSortByCompressedSize,MMenuSortByNumLinks};
     for (int I=0;I<sizeof(SortModes)/sizeof(SortModes[0]);I++)
+    {
       if (SortModes[I]==SortMode)
       {
         char *SortStr=MSG(SortStrings[I]);
@@ -212,12 +223,17 @@ void FileList::ShowFileList(int Fast)
           else
             GotoXY(X1+1,Y1);
           SetColor(COL_PANELCOLUMNTITLE);
-          mprintf("%c",SortOrder==1 ? LocalLower(Ch[1]):LocalUpper(Ch[1]));
+          OutCharacter[0]=SortOrder==1 ? LocalLower(Ch[1]):LocalUpper(Ch[1]);
+          Text(OutCharacter);
           if (Filter!=NULL && Filter->IsEnabled())
-            mprintf("*");
+          {
+            OutCharacter[0]='*';
+            Text(OutCharacter);
+          }
         }
         break;
       }
+    }
   }
 
   if (!Fast && GetFocus())
@@ -263,9 +279,10 @@ void FileList::ShowFileList(int Fast)
   Text(Title);
   if (FileCount==0)
   {
-    SetColor(COL_PANELTEXT);
-    GotoXY(X1+1,Y2-1);
-    mprintf("%*s",X2-X1-1,"");
+    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT);
+    SetColor(COL_PANELTEXT); //???
+    //GotoXY(X1+1,Y2-1);
+    //mprintf("%*s",X2-X1-1,"");
   }
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
@@ -309,39 +326,47 @@ void FileList::ShowFileList(int Fast)
 
 void FileList::SetShowColor(int Position)
 {
-  struct FileListItem *CurPtr;
+  DWORD ColorAttr=COL_PANELTEXT;
 
-  /* $ 22.05.2001 tran
-!      codeguard обругался... */
-  if (ListData==NULL)
+  if (ListData && Position < FileCount)
   {
-    SetColor(COL_PANELTEXT);
-    return;
+    struct FileListItem *CurPtr=ListData+Position;
+
+    if (CurFile==Position && Focus && FileCount > 0)
+    {
+      if (CurPtr->Selected)
+      {
+        if (CurPtr->Colors.CursorSelColor && Opt.Highlight)
+          ColorAttr=CurPtr->Colors.CursorSelColor;
+        else
+          ColorAttr=COL_PANELSELECTEDCURSOR;
+      }
+      else
+      {
+        if (CurPtr->Colors.CursorColor && Opt.Highlight)
+          ColorAttr=CurPtr->Colors.CursorColor;
+        else
+          ColorAttr=COL_PANELCURSOR;
+      }
+    }
+    else
+    {
+      if (CurPtr->Selected)
+      {
+        if (CurPtr->Colors.SelColor && Opt.Highlight)
+          ColorAttr=CurPtr->Colors.SelColor;
+        else
+          ColorAttr=COL_PANELSELECTEDTEXT;
+      }
+      else
+      {
+        if (CurPtr->Colors.Color && Opt.Highlight)
+          ColorAttr=CurPtr->Colors.Color;
+      }
+    }
   }
-  /* tran $ */
-  CurPtr=ListData+Position;
-  if (CurFile==Position && Focus && FileCount>0)
-    if (Position<FileCount && CurPtr->Selected)
-      if (CurPtr->CursorSelColor && Opt.Highlight)
-        SetColor(CurPtr->CursorSelColor);
-      else
-        SetColor(COL_PANELSELECTEDCURSOR);
-    else
-      if (Position<FileCount && CurPtr->CursorColor && Opt.Highlight)
-        SetColor(CurPtr->CursorColor);
-      else
-        SetColor(COL_PANELCURSOR);
-  else
-    if (Position<FileCount && CurPtr->Selected)
-      if (CurPtr->SelColor && Opt.Highlight)
-        SetColor(CurPtr->SelColor);
-      else
-        SetColor(COL_PANELSELECTEDTEXT);
-    else
-      if (Position<FileCount && CurPtr->Color && Opt.Highlight)
-        SetColor(CurPtr->Color);
-      else
-        SetColor(COL_PANELTEXT);
+
+  SetColor(ColorAttr);
 }
 
 
@@ -765,10 +790,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   Text(CurPtr->Selected ? SelectedChar:"  ");
                   Width-=2;
                 }
-                if (CurPtr->MarkChar && Opt.Highlight && Width>1)
+                if (CurPtr->Colors.MarkChar && Opt.Highlight && Width>1)
                 {
                   Width--;
-                  mprintf("%c",CurPtr->MarkChar);
+                  OutCharacter[0]=CurPtr->Colors.MarkChar;
+                  Text(OutCharacter);
                 }
                 char *NamePtr=ShowShortNames && *CurPtr->ShortName && !ShowStatus ?
                               CurPtr->ShortName:CurPtr->Name;
@@ -1039,9 +1065,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
   }
   if (!ShowStatus && !StatusShown && Opt.ShowPanelStatus)
   {
-    SetColor(COL_PANELTEXT);
-    GotoXY(X1+1,Y2-1);
-    mprintf("%*s",X2-X1-1,"");
+    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT);
+    SetColor(COL_PANELTEXT); //???
+    //GotoXY(X1+1,Y2-1);
+    //mprintf("%*s",X2-X1-1,"");
   }
   if (!ShowStatus)
   {

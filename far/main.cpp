@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.32 08.08.2001 $ */
+/* Revision: 1.33 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+    ! SetHighlighting() переехала в hilight.cpp
   08.08.2001 SVS
     + позволим для "far /e" работать переключалке F6
   06.08.2001 SVS
@@ -442,73 +444,6 @@ void ConvertOldSettings()
     }
   DeleteKeyTree("Highlight");
 }
-
-
-void SetHighlighting()
-{
-  if (CheckRegKey(RegColorsHighlight))
-    return;
-
-  int I;
-  char RegKey[80], *Ptr;
-  // сразу пропишем %PATHEXT%, а HighlightFiles::GetHiColor() сам подстановку
-  // сделает.
-  char CmdExt[512]="*.exe,*.com,*.bat,%PATHEXT%";
-  static char *Masks[]={
-    "*.*",
-    CmdExt,
-    "*.rar,*.r[0-9][0-9],*.ar[cj],*.a[0-9][0-9],*.j,*.ac[bei],*.zip,*.z,*.jar,*.ice,*.lha,*.lzh,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.cab,*.chz,*.ha,*.h[ay]p,*.hpk,*.lim,*.[lw]sz,*.pa[ck],*.rk,*.rkv,*.rpm,*.sqz,*.bz,*.bz2,*.bzip,*.gz,*.tar,*.t[ag]z,*.uc2,*.x2,*.zoo,*.hqx,*.sea,*.sit,*.uue,*.xxe,*.ddi,*.tdr,*.xdf",
-    "*.bak,*.tmp",
-    /* $ 07.07.2001  IS
-       Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
-       являются родительскими (их имена - две точки).
-    */
-    "*.*|..", // маска для каталогов
-    /* IS $ */
-  };
-  /* $ 06.07.2001 IS
-     Нечего дразнить судьбу - используем только OriginalMasks
-  */
-  struct HighlightData  StdHighlightData[]=
-  { /*
-     OriginalMask                NormalColor       SelectedCursorColor
-               IncludeAttributes       SelectedColor     MarkChar
-                       ExcludeAttributes     CursorColor             */
-    {Masks[0], NULL,     0x0002, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
-    {Masks[0], NULL,     0x0004, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
-    {Masks[4], NULL,     0x0010, 0x0000,   0x1F, 0x00, 0x3F, 0x00, 0x00},
-    {Masks[1], NULL,     0x0000, 0x0000,   0x1A, 0x00, 0x3A, 0x00, 0x00},
-    {Masks[2], NULL,     0x0000, 0x0000,   0x1D, 0x00, 0x3D, 0x00, 0x00},
-    {Masks[3], NULL,     0x0000, 0x0000,   0x16, 0x00, 0x36, 0x00, 0x00},
-  };
-
-  // для NT добавляем CMD
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-    strcat(CmdExt,",*.cmd");
-
-  Ptr=MkRegKeyHighlightName(RegKey);
-  for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
-  {
-    itoa(I,Ptr,10);
-    SetRegKey(RegKey,"Mask",StdHighlightData[I].OriginalMasks);
-  /* IS $ */
-    if(StdHighlightData[I].IncludeAttr)
-      SetRegKey(RegKey,"IncludeAttributes",StdHighlightData[I].IncludeAttr);
-    if(StdHighlightData[I].ExcludeAttr)
-      SetRegKey(RegKey,"ExcludeAttributes",StdHighlightData[I].ExcludeAttr);
-    if(StdHighlightData[I].Color)
-      SetRegKey(RegKey,"NormalColor",StdHighlightData[I].Color);
-    if(StdHighlightData[I].SelColor)
-      SetRegKey(RegKey,"SelectedColor",StdHighlightData[I].SelColor);
-    if(StdHighlightData[I].CursorColor)
-      SetRegKey(RegKey,"CursorColor",StdHighlightData[I].CursorColor);
-    if(StdHighlightData[I].CursorSelColor)
-      SetRegKey(RegKey,"SelectedCursorColor",StdHighlightData[I].CursorSelColor);
-    if(StdHighlightData[I].MarkChar)
-      SetRegKey(RegKey,"MarkChar",StdHighlightData[I].MarkChar);
-  }
-}
-
 
 /* $ 03.08.2000 SVS
   ! Не срабатывал шаблон поиска файлов для под-юзеров

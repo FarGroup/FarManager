@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.53 14.08.2001 $ */
+/* Revision: 1.54 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+    ! небольшое уточнение на размер меню (вроде от глюков избавились?)
   14.08.2001 SVS
     ! уточнение пересчета координат при автоцентировании
   07.08.2001 SVS
@@ -428,6 +430,7 @@ void VMenu::Hide()
   }
 
   Y2=-1;
+  X2=-1;
 
   VMFlags|=VMENU_UPDATEREQUIRED;
   CallCount--;
@@ -452,7 +455,7 @@ void VMenu::Show()
   if (X1<2)
     X1=2;
   if (X2<=0)
-    X2=X1+MaxLength+3;
+    X2=X1+MaxLength+2;
   if (!AutoCenter && X2>ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
     X1+=ScrX-4-X2;

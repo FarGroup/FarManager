@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.48 31.07.2001 $ */
+/* Revision: 1.49 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+    ! Для непостоянных блоков снимаем выделение
   31.07.2001 KM
     ! Для комбобокса сделаем отображение строки
       с первой позиции.
@@ -1853,6 +1855,13 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(FALSE);
   //SetClearFlag(0); // пусть едитор сам заботится о снятии клеар-текста?
   SetTabCurPos(MouseEvent->dwMousePosition.X - X1 + LeftPos);
+  /* $ 05.09.2001 SVS
+    Для непостоянных блоков снимаем выделение
+    А ТАК ЛИ Я СДЕЛАЛ?????
+  */
+  if (!PersistentBlocks)
+    Select(-1,0);
+  /* SVS $ */
   Show();
   return(TRUE);
 }

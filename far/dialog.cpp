@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.157 30.08.2001 $ */
+/* Revision: 1.158 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+   - √ор€ча€ клавиша, фокус ввода становитс€, но прорисовка не идет :-((
   30.08.2001 VVM
    + ƒл€ обычных строк отрубим посто€нные блоки
   15.08.2001 SVS
@@ -4285,6 +4287,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
         if(!DlgProc((HANDLE)this,DN_HOTKEY,I,Key))
           break; // сказали не продолжать обработку...
         ChangeFocus2(FocusPos,I);
+        ShowDialog();
         /* SVS $ */
         if ((Item[I].Type==DI_CHECKBOX || Item[I].Type==DI_RADIOBUTTON) &&
             (!DisableSelect || (Item[I].Flags & DIF_MOVESELECT)))
@@ -4303,7 +4306,6 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
           ProcessKey(KEY_CTRLDOWN);
           return(TRUE);
         }
-        ShowDialog();
         return(TRUE);
       }
   }

@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.11 17.08.2001 $ */
+/* Revision: 1.12 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 SVS
+    ! ¬место полей Color* в структе FileListItem используетс€
+      структура HighlightDataColor
   17.08.2001 VVM
     + FileListItem.CRC32
   22.06.2001 SKV
@@ -270,9 +273,7 @@ void FileList::ReadFileNames(int KeepSelection)
       CurPtr->PrevSelected=CurPtr->Selected=0;
       CurPtr->ShowFolderSize=0;
       if (Opt.Highlight)
-        CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,CurPtr->Color,
-                                       CurPtr->SelColor,CurPtr->CursorColor,
-                                       CurPtr->CursorSelColor,CurPtr->MarkChar);
+        CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,&CurPtr->Colors);
       CurPtr->SortGroup=DEFAULT_SORT_GROUP;
       CurPtr->DeleteDiz=FALSE;
       CurPtr->DizText=NULL;
@@ -374,9 +375,7 @@ void FileList::ReadFileNames(int KeepSelection)
           TotalFileSize+=int64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
-          CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,CurPtr->Color,
-                                         CurPtr->SelColor,CurPtr->CursorColor,
-                                         CurPtr->CursorSelColor,CurPtr->MarkChar);
+          CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,&CurPtr->Colors);
           if ((CurPtr->FileAttr & FA_DIREC)==0)
             CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
           else
@@ -605,9 +604,7 @@ void FileList::UpdatePlugin(int KeepSelection)
     if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
       CtrlObject->HiFiles->GetHiColor(
           (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:CurListData->Name,
-          CurListData->FileAttr,CurListData->Color,CurListData->SelColor,
-          CurListData->CursorColor,CurListData->CursorSelColor,
-          CurListData->MarkChar);
+          CurListData->FileAttr,&CurListData->Colors);
     if ((Info.Flags & OPIF_USESORTGROUPS) && (CurListData->FileAttr & FA_DIREC)==0)
       CurListData->SortGroup=CtrlObject->GrpSort->GetGroup(CurListData->Name);
     else
