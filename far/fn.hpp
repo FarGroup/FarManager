@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.206 08.06.2004 $ */
+/* Revision: 1.207 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    + UnExpandEnvString() è PathUnExpandEnvStr().
   08.06.2004 SVS
     + FAR_GetDriveType(), IsDriveTypeCDROM()
   31.05.2004 SVS
@@ -1049,6 +1051,10 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, long Param2);
 */
 DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dst, size_t size=8192);
 /* SVS $ */
+
+BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int DestSize);
+BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize);
+
 void WINAPI Unquote(char *Str);
 
 /* $ 07.07.2000 SVS

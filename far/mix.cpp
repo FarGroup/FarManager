@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.160 08.06.2004 $ */
+/* Revision: 1.161 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    + UnExpandEnvString() и PathUnExpandEnvStr().
+      Функции закомменчены, т.к. пока сейчас непотребны, а в будущем - чтобы не потерялись
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -1289,6 +1292,54 @@ DWORD WINAPI ExpandEnvironmentStr(const char *src, char *dest, size_t size)
 }
 /* IS $ */
 
+#if 0
+/*
+In: "C:\WINNT\SYSTEM32\FOO.TXT", "%SystemRoot%"
+Out: "%SystemRoot%\SYSTEM32\FOO.TXT"
+*/
+BOOL UnExpandEnvString(const char *Path, const char *EnvVar, char* Dest, int DestSize)
+{
+  int I;
+  char Temp[NM*2];
+  Temp[0] = 0;
+
+  ExpandEnvironmentStr(EnvVar, Temp, sizeof(Temp));
+  I = strlen(Temp);
+
+  if (CompareString(LOCALE_SYSTEM_DEFAULT, NORM_IGNORECASE, Temp, I, Path, I) == 2)
+  {
+    if (strlen(Path)-I+strlen(EnvVar) < DestSize)
+    {
+      strncpy(Dest, EnvVar, DestSize-1);
+      strncat(Dest, Path + I, DestSize-1);
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+BOOL PathUnExpandEnvStr(const char *Path, char* Dest, int DestSize)
+{
+  const char *StdEnv[]={
+     "%TEMP%",               // C:\Documents and Settings\Administrator\Local Settings\Temp
+     "%APPDATA%",            // C:\Documents and Settings\Administrator\Application Data
+     "%USERPROFILE%",        // C:\Documents and Settings\Administrator
+     "%ALLUSERSPROFILE%",    // C:\Documents and Settings\All Users
+     "%CommonProgramFiles%", // C:\Program Files\Common Files
+     "%ProgramFiles%",       // C:\Program Files
+     "%SystemRoot%",         // C:\WINNT
+  };
+
+  for(int I=0; I < sizeof(StdEnv)/sizeof(StdEnv[0]); ++I)
+  {
+    if(UnExpandEnvironmentString(Path, StdEnv[I], Dest, DestSize))
+      return TRUE;
+  }
+  strncpy(Dest, Path, DestSize-1);
+  return FALSE;
+
+}
+#endif
 
 /* $ 10.09.2000 tran
    FSF/FarRecurseSearch */

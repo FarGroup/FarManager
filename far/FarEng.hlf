@@ -3437,9 +3437,7 @@ $ #Macro command: commands, used inside the text of a macro command#
      ~$Date~@KeyMacroODate@       - insert current date/time
      ~$Exit~@KeyMacroOExit@       - stop macro playback
      ~$IClip~@KeyMacroOIClip@      - working with clipboard
-     ~$If-$Else~@KeyMacroOIf@   - condition operator
      ~$MMode~@KeyMacroOMMode@      - toggle macro display mode
-     ~$Rep~@KeyMacroORep@        - loop operator
      ~$Text~@KeyMacroOText@       - arbitrary text insertion
      ~$XLat~@KeyMacroOXLat@       - transliteration function
 
@@ -3626,119 +3624,6 @@ $ #Macro: $XLat - transliteration function#
    ~Keyboard macro commands (macro command)~@KeyMacro@
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
-@KeyMacroORep
-$ #Macro: $Rep - loop operator#
-   Special macro command '$Rep' allows to repeat any macro sequence
-given number of times.
-
-   #$Rep Count Sequence $EndRep#
-
-   Repeat 'Count' times the macro sequence 'Sequence'.
-   Up to 16 levels of recursion are allowed for the '$Rep' operator.
-
-   See also:
-
-   ~Keyboard macro commands (macro command)~@KeyMacro@
-   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
-
-@KeyMacroOIf
-$ #Macro: $If-$Else - condition operator#
-   Special macro command '$If-$Else' allows to create conditional branches of
-execution inside a macro sequence.
-
-   #$If [!]Condition $Then then-sequence [$Else else-sequence] $EndIf#
-
-   The 'Condition' can be any of the following keywords which are evaluated
-   #at the moment of execution# of the '$If' operator.
-
-     - check macro display mode
-
-       #DisableOutput#        screen output is disabled
-
-     - check current area of execution
-
-       #Shell#                file panels
-       #Viewer#               internal viewer
-       #Editor#               internal editor
-       #Dialog#               dialogs
-       #Search#               fast find
-       #Disks#                select drive menu
-       #MainMenu#             main menu
-       #Menu#                 other menus
-       #Help#                 help window
-       #Info#                 info panel
-       #QView#                quick view panel
-       #Tree#                 tree panel
-       #Other#                screen grabber
-
-     - check panel state
-
-       #?Panel.Visible#       panel is visible
-       #?Panel.Empty#         panel is empty
-       #?Panel.Plugin#        panel belongs to a plugin
-       #?Panel.Folder#        current item (under cursor) is a folder
-       #?Panel.Selected#      panel contains selected files/folders
-       #?Panel.Left#          panel is on the left side
-       #?Panel.Bof#           cursor is positioned on the first item
-       #?Panel.Eof#           cursor is positioned on the last item
-       #?Panel.Root#          panel is a root folder
-
-
-       instead of '?Panel' you should write:
-         'APanel' - for the active panel
-       or
-         'PPanel' - for the passive panel
-
-     - check various states, depending on location of macro execution
-
-       #Bof#                  begining of file is reached in the
-                            editor, viewer; in the panels - cursor
-                            is positioned on the first item; in
-                            dialog input lines - cursor is the
-                            start of the line; in lists/menus -
-                            cursor is positioned on the first item.
-       #Empty#                command line is empty; input line is
-                            empty; in the editor/viewer - empty file;
-                            list/menu is empty;
-       #Eof#                  end of file is reached in the editor,
-                            viewer; in the panels - cursor is
-                            positioned on the last item; in
-                            dialog input lines - cursor is the
-                            end of the line; in lists/menus -
-                            cursor is positioned on the last item.
-       #Selected#             selection block exists in input lines,
-                            editor, viewer or the command line.
-       #IClip#                FAR Manager works with the internal
-                            clipboard (see ~$IClip~@KeyMacroOIClip@)
-
-   'Condition' can be preceded by an '!' symbol which represents a logical
-"NOT" operator (negation). In this case the subsequent 'then-sequence' will be
-executed if the condition 'Condition' is false.
-
-   The '$Else Seq_else' portion of the '$If' operator can be omitted.
-   Up to 16 levels of recursion are allowed for the '$If' operator.
-
-    Examples.
-
-    A macro to list files one after another in the internal viewer, as
-in Outlook or The BAT! (Addons\Macros\View.Space.reg), is as following:
-
-    $If Eof $Then
-      CtrlF10 Shift
-      $If APanel.Eof $Then
-        $Exit
-      $Else
-        Add Home
-      $EndIf
-    $Else
-      PgDn
-    $EndIf
-
-
-   See also:
-
-   ~Keyboard macro commands (macro command)~@KeyMacro@
-   ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @Index
 $ #Index help file#

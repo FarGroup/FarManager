@@ -5,10 +5,13 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.05 09.06.2004 $ */
+/* Revision: 1.06 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    ! добавим вариант, когда не получилось определить (нехватка прав на доступ к девайсу) - в этом случае
+      максимум, что сможем определить - это DVD или нет.
   09.06.2004 SVS
     ! Попался привод - DVD читает, но не писатель (не CD-RW) - изменена логика.
     + работаем в NT-based (проверено так же на NT4 SP6a)
@@ -193,77 +196,7 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
   // анализ CD-привода
   if (RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
-#if defined(__BORLANDC__)
-//#pragma option push -b -a4 -pc -A- /*P_O_Push*/
-#pragma option -a4
-#elif defined(_MSC_VER)
-#pragma pack(push,4)
-#endif
-
-    typedef long LONG_PTR, *PLONG_PTR;
-    typedef unsigned long ULONG_PTR, *PULONG_PTR;
-
-    //#ifndef _NTDDSCSIH_
-    typedef struct _SCSI_PASS_THROUGH {
-        USHORT Length;
-        UCHAR ScsiStatus;
-        UCHAR PathId;
-        UCHAR TargetId;
-        UCHAR Lun;
-        UCHAR CdbLength;
-        UCHAR SenseInfoLength;
-        UCHAR DataIn;
-        ULONG DataTransferLength;
-        ULONG TimeOutValue;
-        ULONG_PTR DataBufferOffset;
-        ULONG SenseInfoOffset;
-        UCHAR Cdb[16];
-    } SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
-
-    #define SCSI_IOCTL_DATA_IN           1
-    #define IOCTL_SCSI_BASE                 FILE_DEVICE_CONTROLLER
-
-    //
-    // NtDeviceIoControlFile IoControlCode values for this device.
-    //
-    // Warning:  Remember that the low two bits of the code specify how the
-    //           buffers are passed to the driver!
-    //
-
-    #define IOCTL_SCSI_PASS_THROUGH         CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-    #define IOCTL_SCSI_PASS_THROUGH_DIRECT  CTL_CODE(IOCTL_SCSI_BASE, 0x0405, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-    //#endif
-
-    typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
-        SCSI_PASS_THROUGH Spt;
-        ULONG             Filler;      // realign buffers to double word boundary
-        UCHAR             SenseBuf[32];
-        UCHAR             DataBuf[512];
-    } SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
-
-
-    // Command Descriptor Block constants.
-    #define CDB6GENERIC_LENGTH         6
-
-    // SCSI CDB operation codes
-    #define SCSIOP_INQUIRY             0x12
-    #define SCSIOP_MODE_SENSE          0x1A
-    #define MODE_PAGE_CAPABILITIES  0x2A
-
-    #ifndef _INC_STDDEF
-
-    #undef offsetof
-    #define offsetof(s,m)   (size_t)&(((s *)0)->m)
-
-    #endif
-
-#if defined(__BORLANDC__)
-//#pragma option pop /*P_O_Push*/
-#pragma option -a.
-#elif defined(_MSC_VER)
-#pragma pack(pop)
-#endif
-
+    ULONG dwBytesReturned=0;
 
     char szVolumeName[20]="\\\\.\\ :";
     szVolumeName[4]=*RootDir;
@@ -276,7 +209,76 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
 
     if (hDevice != INVALID_HANDLE_VALUE)
     {
-      ULONG dwBytesReturned=0;
+      #if defined(__BORLANDC__)
+      //#pragma option push -b -a4 -pc -A- /*P_O_Push*/
+      #pragma option -a4
+      #elif defined(_MSC_VER)
+      #pragma pack(push,4)
+      #endif
+
+      typedef long LONG_PTR, *PLONG_PTR;
+      typedef unsigned long ULONG_PTR, *PULONG_PTR;
+
+      //#ifndef _NTDDSCSIH_
+      typedef struct _SCSI_PASS_THROUGH {
+          USHORT Length;
+          UCHAR ScsiStatus;
+          UCHAR PathId;
+          UCHAR TargetId;
+          UCHAR Lun;
+          UCHAR CdbLength;
+          UCHAR SenseInfoLength;
+          UCHAR DataIn;
+          ULONG DataTransferLength;
+          ULONG TimeOutValue;
+          ULONG_PTR DataBufferOffset;
+          ULONG SenseInfoOffset;
+          UCHAR Cdb[16];
+      } SCSI_PASS_THROUGH, *PSCSI_PASS_THROUGH;
+
+      #define SCSI_IOCTL_DATA_IN           1
+      #define IOCTL_SCSI_BASE                 FILE_DEVICE_CONTROLLER
+
+      //
+      // NtDeviceIoControlFile IoControlCode values for this device.
+      //
+      // Warning:  Remember that the low two bits of the code specify how the
+      //           buffers are passed to the driver!
+      //
+
+      #define IOCTL_SCSI_PASS_THROUGH         CTL_CODE(IOCTL_SCSI_BASE, 0x0401, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+      #define IOCTL_SCSI_PASS_THROUGH_DIRECT  CTL_CODE(IOCTL_SCSI_BASE, 0x0405, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
+      //#endif
+
+      typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
+          SCSI_PASS_THROUGH Spt;
+          ULONG             Filler;      // realign buffers to double word boundary
+          UCHAR             SenseBuf[32];
+          UCHAR             DataBuf[512];
+      } SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
+
+
+      // Command Descriptor Block constants.
+      #define CDB6GENERIC_LENGTH         6
+
+      // SCSI CDB operation codes
+      #define SCSIOP_INQUIRY             0x12
+      #define SCSIOP_MODE_SENSE          0x1A
+      #define MODE_PAGE_CAPABILITIES  0x2A
+
+      #ifndef _INC_STDDEF
+
+      #undef offsetof
+      #define offsetof(s,m)   (size_t)&(((s *)0)->m)
+
+      #endif
+
+      #if defined(__BORLANDC__)
+      //#pragma option pop /*P_O_Push*/
+      #pragma option -a.
+      #elif defined(_MSC_VER)
+      #pragma pack(pop)
+      #endif
 
       SCSI_PASS_THROUGH_WITH_BUFFERS      sptwb;
       BOOL                                status;
@@ -329,8 +331,6 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
                                length,
                                &dwBytesReturned,
                                FALSE);
-      CloseHandle(hDevice);
-
       if (status)
       {
         int CdRW=0,CdR=0,DvdR=0, DvdRW=0;
@@ -360,8 +360,206 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
             DrvType = DRIVE_DVD_ROM;
         }
       }
-      _SVS(else Message(MSG_ERRORTYPE,1,"FAR_GetDriveType()","","Ok"));
+      else // вариант, когда не получилось определить (нехватка прав на доступ к девайсу)
+      {    // в этом случае максимум, что сможем определить - это DVD или нет.
+        //#ifndef _NTDDSTOR_H_
 
+        #if defined(__BORLANDC__)
+        //#pragma option push -b -a4 -pc -A- /*P_O_Push*/
+        #pragma option -a4
+        #elif defined(_MSC_VER)
+        #pragma pack(push,4)
+        #endif
+
+        typedef enum _STORAGE_MEDIA_TYPE {
+            //
+            // Following are defined in ntdddisk.h in the MEDIA_TYPE enum
+            //
+            // Unknown,                // Format is unknown
+            // F5_1Pt2_512,            // 5.25", 1.2MB,  512 bytes/sector
+            // F3_1Pt44_512,           // 3.5",  1.44MB, 512 bytes/sector
+            // F3_2Pt88_512,           // 3.5",  2.88MB, 512 bytes/sector
+            // F3_20Pt8_512,           // 3.5",  20.8MB, 512 bytes/sector
+            // F3_720_512,             // 3.5",  720KB,  512 bytes/sector
+            // F5_360_512,             // 5.25", 360KB,  512 bytes/sector
+            // F5_320_512,             // 5.25", 320KB,  512 bytes/sector
+            // F5_320_1024,            // 5.25", 320KB,  1024 bytes/sector
+            // F5_180_512,             // 5.25", 180KB,  512 bytes/sector
+            // F5_160_512,             // 5.25", 160KB,  512 bytes/sector
+            // RemovableMedia,         // Removable media other than floppy
+            // FixedMedia,             // Fixed hard disk media
+            // F3_120M_512,            // 3.5", 120M Floppy
+            // F3_640_512,             // 3.5" ,  640KB,  512 bytes/sector
+            // F5_640_512,             // 5.25",  640KB,  512 bytes/sector
+            // F5_720_512,             // 5.25",  720KB,  512 bytes/sector
+            // F3_1Pt2_512,            // 3.5" ,  1.2Mb,  512 bytes/sector
+            // F3_1Pt23_1024,          // 3.5" ,  1.23Mb, 1024 bytes/sector
+            // F5_1Pt23_1024,          // 5.25",  1.23MB, 1024 bytes/sector
+            // F3_128Mb_512,           // 3.5" MO 128Mb   512 bytes/sector
+            // F3_230Mb_512,           // 3.5" MO 230Mb   512 bytes/sector
+            // F8_256_128,             // 8",     256KB,  128 bytes/sector
+            // F3_200Mb_512,           // 3.5",   200M Floppy (HiFD)
+            //
+
+            DDS_4mm = 0x20,            // Tape - DAT DDS1,2,... (all vendors)
+            MiniQic,                   // Tape - miniQIC Tape
+            Travan,                    // Tape - Travan TR-1,2,3,...
+            QIC,                       // Tape - QIC
+            MP_8mm,                    // Tape - 8mm Exabyte Metal Particle
+            AME_8mm,                   // Tape - 8mm Exabyte Advanced Metal Evap
+            AIT1_8mm,                  // Tape - 8mm Sony AIT
+            DLT,                       // Tape - DLT Compact IIIxt, IV
+            NCTP,                      // Tape - Philips NCTP
+            IBM_3480,                  // Tape - IBM 3480
+            IBM_3490E,                 // Tape - IBM 3490E
+            IBM_Magstar_3590,          // Tape - IBM Magstar 3590
+            IBM_Magstar_MP,            // Tape - IBM Magstar MP
+            STK_DATA_D3,               // Tape - STK Data D3
+            SONY_DTF,                  // Tape - Sony DTF
+            DV_6mm,                    // Tape - 6mm Digital Video
+            DMI,                       // Tape - Exabyte DMI and compatibles
+            SONY_D2,                   // Tape - Sony D2S and D2L
+            CLEANER_CARTRIDGE,         // Cleaner - All Drive types that support Drive Cleaners
+            CD_ROM,                    // Opt_Disk - CD
+            CD_R,                      // Opt_Disk - CD-Recordable (Write Once)
+            CD_RW,                     // Opt_Disk - CD-Rewriteable
+            DVD_ROM,                   // Opt_Disk - DVD-ROM
+            DVD_R,                     // Opt_Disk - DVD-Recordable (Write Once)
+            DVD_RW,                    // Opt_Disk - DVD-Rewriteable
+            MO_3_RW,                   // Opt_Disk - 3.5" Rewriteable MO Disk
+            MO_5_WO,                   // Opt_Disk - MO 5.25" Write Once
+            MO_5_RW,                   // Opt_Disk - MO 5.25" Rewriteable (not LIMDOW)
+            MO_5_LIMDOW,               // Opt_Disk - MO 5.25" Rewriteable (LIMDOW)
+            PC_5_WO,                   // Opt_Disk - Phase Change 5.25" Write Once Optical
+            PC_5_RW,                   // Opt_Disk - Phase Change 5.25" Rewriteable
+            PD_5_RW,                   // Opt_Disk - PhaseChange Dual Rewriteable
+            ABL_5_WO,                  // Opt_Disk - Ablative 5.25" Write Once Optical
+            PINNACLE_APEX_5_RW,        // Opt_Disk - Pinnacle Apex 4.6GB Rewriteable Optical
+            SONY_12_WO,                // Opt_Disk - Sony 12" Write Once
+            PHILIPS_12_WO,             // Opt_Disk - Philips/LMS 12" Write Once
+            HITACHI_12_WO,             // Opt_Disk - Hitachi 12" Write Once
+            CYGNET_12_WO,              // Opt_Disk - Cygnet/ATG 12" Write Once
+            KODAK_14_WO,               // Opt_Disk - Kodak 14" Write Once
+            MO_NFR_525,                // Opt_Disk - Near Field Recording (Terastor)
+            NIKON_12_RW,               // Opt_Disk - Nikon 12" Rewriteable
+            IOMEGA_ZIP,                // Mag_Disk - Iomega Zip
+            IOMEGA_JAZ,                // Mag_Disk - Iomega Jaz
+            SYQUEST_EZ135,             // Mag_Disk - Syquest EZ135
+            SYQUEST_EZFLYER,           // Mag_Disk - Syquest EzFlyer
+            SYQUEST_SYJET,             // Mag_Disk - Syquest SyJet
+            AVATAR_F2,                 // Mag_Disk - 2.5" Floppy
+            MP2_8mm,                   // Tape - 8mm Hitachi
+            DST_S,                     // Ampex DST Small Tapes
+            DST_M,                     // Ampex DST Medium Tapes
+            DST_L,                     // Ampex DST Large Tapes
+            VXATape_1,                 // Ecrix 8mm Tape
+            VXATape_2,                 // Ecrix 8mm Tape
+            STK_9840,                  // STK 9840
+            LTO_Ultrium,               // IBM, HP, Seagate LTO Ultrium
+            LTO_Accelis,               // IBM, HP, Seagate LTO Accelis
+            DVD_RAM,                   // Opt_Disk - DVD-RAM
+            AIT_8mm,                   // AIT2 or higher
+            ADR_1,                     // OnStream ADR Mediatypes
+            ADR_2
+        } STORAGE_MEDIA_TYPE, *PSTORAGE_MEDIA_TYPE;
+        //
+        // Define the different storage bus types
+        // Bus types below 128 (0x80) are reserved for Microsoft use
+        //
+        typedef enum _STORAGE_BUS_TYPE {
+            BusTypeUnknown = 0x00,
+            BusTypeScsi,
+            BusTypeAtapi,
+            BusTypeAta,
+            BusType1394,
+            BusTypeSsa,
+            BusTypeFibre,
+            BusTypeUsb,
+            BusTypeRAID,
+            BusTypeMaxReserved = 0x7F
+        } STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
+
+        typedef struct _DEVICE_MEDIA_INFO {
+            union {
+                struct {
+                    LARGE_INTEGER Cylinders;
+                    STORAGE_MEDIA_TYPE MediaType;
+                    ULONG TracksPerCylinder;
+                    ULONG SectorsPerTrack;
+                    ULONG BytesPerSector;
+                    ULONG NumberMediaSides;
+                    ULONG MediaCharacteristics; // Bitmask of MEDIA_XXX values.
+                } DiskInfo;
+
+                struct {
+                    LARGE_INTEGER Cylinders;
+                    STORAGE_MEDIA_TYPE MediaType;
+                    ULONG TracksPerCylinder;
+                    ULONG SectorsPerTrack;
+                    ULONG BytesPerSector;
+                    ULONG NumberMediaSides;
+                    ULONG MediaCharacteristics; // Bitmask of MEDIA_XXX values.
+                } RemovableDiskInfo;
+
+                struct {
+                    STORAGE_MEDIA_TYPE MediaType;
+                    ULONG   MediaCharacteristics; // Bitmask of MEDIA_XXX values.
+                    ULONG   CurrentBlockSize;
+                    STORAGE_BUS_TYPE BusType;
+
+                    //
+                    // Bus specific information describing the medium supported.
+                    //
+
+                    union {
+                        struct {
+                            UCHAR MediumType;
+                            UCHAR DensityCode;
+                        } ScsiInformation;
+                    } BusSpecificData;
+
+                } TapeInfo;
+            } DeviceSpecific;
+        } DEVICE_MEDIA_INFO, *PDEVICE_MEDIA_INFO;
+
+        typedef struct _GET_MEDIA_TYPES {
+            ULONG DeviceType;              // FILE_DEVICE_XXX values
+            ULONG MediaInfoCount;
+            DEVICE_MEDIA_INFO MediaInfo[1];
+        } GET_MEDIA_TYPES, *PGET_MEDIA_TYPES;
+
+        #define MEDIA_ERASEABLE         0x00000001
+        #define MEDIA_WRITE_ONCE        0x00000002
+        #define MEDIA_READ_ONLY         0x00000004
+        #define MEDIA_READ_WRITE        0x00000008
+        #define MEDIA_WRITE_PROTECTED   0x00000100
+        #define MEDIA_CURRENTLY_MOUNTED 0x80000000
+
+        #if !defined(IOCTL_STORAGE_GET_MEDIA_TYPES_EX)
+        #define IOCTL_STORAGE_GET_MEDIA_TYPES_EX      CTL_CODE(IOCTL_STORAGE_BASE, 0x0301, METHOD_BUFFERED, FILE_ANY_ACCESS)
+        #endif
+
+        #if defined(__BORLANDC__)
+        //#pragma option pop /*P_O_Push*/
+        #pragma option -a.
+        #elif defined(_MSC_VER)
+        #pragma pack(pop)
+        #endif
+
+        //#endif  // _NTDDSTOR_H_
+
+        GET_MEDIA_TYPES mediaTypes;
+
+        //  Простой как песня способ - даже плачу, ремируя его (блин малоинформативен)
+        if (DeviceIoControl(hDevice,IOCTL_STORAGE_GET_MEDIA_TYPES_EX,
+                NULL, 0, &mediaTypes, (DWORD)sizeof(mediaTypes), &dwBytesReturned, NULL) != 0)
+        {
+          #define FILE_DEVICE_DVD                 0x00000033
+          if(mediaTypes.DeviceType == FILE_DEVICE_DVD)
+            DrvType = DRIVE_DVD_ROM;
+        }
+      }
+      CloseHandle(hDevice);
     }
   }
 
