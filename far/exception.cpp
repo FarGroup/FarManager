@@ -5,10 +5,14 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.15 21.02.2002 $ */
+/* Revision: 1.16 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SVS
+    - BugZ#374 - Исключение плагина при выходе из фара
+      Ха! А манагер то уже зашутдовен. А в это время вылазит месагбокс...
+      В общем... раз вываливаем, то вывалим молча ;-)
   21.02.2002 SVS
     + В обработчике исключений выставляем флаг процесса обработки этого
       самого исключения (ProcessException) и блокируем некоторые клавиши.
@@ -184,7 +188,8 @@ int xfilter(
      else
        sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
 
-     Message(MSG_WARNING,1,
+     if(FrameManager && !FrameManager->ManagerIsDown())
+       Message(MSG_WARNING,1,
             xFromMSGTitle(From),
             MSG(MExcTrappedException),
             MSG(MExcCheckOnLousys),
@@ -216,7 +221,8 @@ int xfilter(
      }
 
      sprintf(Buf[0],MSG(MExcInvalidFuncResult),pName);
-     Message(MSG_WARNING, 1,
+     if(FrameManager && !FrameManager->ManagerIsDown())
+       Message(MSG_WARNING, 1,
                  xFromMSGTitle(From),
                  MSG(MExcTrappedException),
                  MSG(MExcCheckOnLousys),
@@ -246,7 +252,8 @@ int xfilter(
      if (!pName) pName=MSG(MExcUnknown);
 
      sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
-     Message(MSG_WARNING,1,
+     if(FrameManager && !FrameManager->ManagerIsDown())
+       Message(MSG_WARNING,1,
                xFromMSGTitle(From),
                MSG(MExcTrappedException),
                pName,

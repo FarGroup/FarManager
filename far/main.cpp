@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.57 27.06.2002 $ */
+/* Revision: 1.58 02.07.2002 $ */
 
 /*
 Modify:
+  02.07.2002 SVS
+    - /u USER отломали
   27.06.2002 SVS
     - Падение в масдае при старте ФАРа - нефига автодект TTF-шрифта
       в этой гребанной оси вызывать
@@ -256,9 +258,10 @@ printf(
 #if defined(USE_WFUNC)
 void DetectTTFFont(char *Path)
 {
-  char AppName[NM*2];
+  char AppName[NM*2], OptRegRoot[NM];
   strncpy(AppName,Path,sizeof(AppName)-1);
   SetRegRootKey(HKEY_CURRENT_USER);
+  strcpy(OptRegRoot,Opt.RegRoot);
   strcpy(Opt.RegRoot,"Console");
   ReplaceStrings(AppName,"\\","_",-1);
   if(!CheckRegKey(AppName))
@@ -269,7 +272,7 @@ void DetectTTFFont(char *Path)
   int FontFamily=GetRegKey(AppName,"FontFamily",0);
   if(FontFamily && Opt.UseTTFFont == -1)
     Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
-  strcpy(Opt.RegRoot,"Software\\Far");
+  strcpy(Opt.RegRoot,OptRegRoot);
 }
 #endif
 
