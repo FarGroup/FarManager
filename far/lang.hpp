@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.80 16.10.2001 $ */
+/* Revision: 1.81 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    + По поводу шифрования в Win2K
   16.10.2001 SVS
     + MCopyStreamN
   12.10.2001 SVS
@@ -1043,6 +1045,10 @@ enum
   MErrorAlreadyRemebered,
   MErrorNotLoggedOn,
   MErrorInvalidPassword,
+  MErrorNoRecoveryPolicy,
+  MErrorEncryptionFailed,
+  MErrorDecryptionFailed,
+  MErrorFileNotEncrypted,
 
   MCannotExecute,
   MScanningFolder,

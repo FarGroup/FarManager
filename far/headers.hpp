@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.10 25.04.2001 $ */
+/* Revision: 1.11 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    + По поводу шифрования в Win2K (борманд 5.02 об этих константах не ведает!)
   25.04.2001 SVS
     + FILE_SUPPORTS_REPARSE_POINTS
   08.04.2001 SVS
@@ -172,3 +174,12 @@ Modify:
 #if defined(__BORLANDC__)
   #pragma option -a.
 #endif
+
+//  The specified file could not be encrypted.
+#define ERROR_ENCRYPTION_FAILED          6000L
+//  The specified file could not be decrypted.
+#define ERROR_DECRYPTION_FAILED          6001L
+//  There is no valid encryption recovery policy configured for this system.
+#define ERROR_NO_RECOVERY_POLICY         6003L
+//  The specified file is not encrypted.
+#define ERROR_FILE_NOT_ENCRYPTED         6007L

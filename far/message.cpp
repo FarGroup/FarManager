@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.16 22.10.2001 $ */
+/* Revision: 1.17 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    + "Новый знания" о системных ошибках - по поводу шифрования в Win2K
   22.10.2001 SVS
     - Не проинициализированная переменная
     ! Заюзаем вместо +16 константу ADDSPACEFORPSTRFORMESSAGE
@@ -200,8 +202,8 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       if(*PtrStr)
         CountErrorLine++;
     }
-    if(CountErrorLine > 16)
-      CountErrorLine=16; //??
+    if(CountErrorLine > ADDSPACEFORPSTRFORMESSAGE)
+      CountErrorLine=ADDSPACEFORPSTRFORMESSAGE; //??
   }
 
   // заполняем массив...
@@ -448,9 +450,16 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
     {ERROR_DEVICE_ALREADY_REMEMBERED,MErrorAlreadyRemebered},
     {ERROR_NOT_LOGGED_ON,MErrorNotLoggedOn},
     {ERROR_INVALID_PASSWORD,MErrorInvalidPassword},
+
+    // "новые знания"
+    {ERROR_NO_RECOVERY_POLICY,MErrorNoRecoveryPolicy},
+    {ERROR_ENCRYPTION_FAILED,MErrorEncryptionFailed},
+    {ERROR_DECRYPTION_FAILED,MErrorDecryptionFailed},
+    {ERROR_FILE_NOT_ENCRYPTED,MErrorFileNotEncrypted},
   };
 
   DWORD LastError = GetLastError();
+  //_SVS(SysLog("LastError=%d (%x)",LastError,LastError));
 
   for(I=0; I < sizeof(ErrMsgs)/sizeof(ErrMsgs[0]); ++I)
     if(ErrMsgs[I].WinMsg == LastError)
@@ -472,6 +481,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
          + Заменим cr и lf на пробелы
       */
       RemoveUnprintableCharacters(ErrStr);
+      //_SVS(SysLog("LastErrorMsg=%s",ErrStr));
       /* IS $ */
       return(TRUE);
     }

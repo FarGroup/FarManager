@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.99 22.10.2001 $ */
+/* Revision: 1.100 22.10.2001 $ */
 
 /*
 Modify:
+  22.10.2001 SVS
+    - уточнение (восстановление) поведения Message для плагинов
   22.10.2001 SVS
     ! Заюзаем вместо +16 константу ADDSPACEFORPSTRFORMESSAGE
   21.10.2001 SVS
@@ -889,7 +891,6 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   if(Flags&FMSG_ALLINONE)
   {
     ItemsNumber=0;
-    ButtonsNumber=0;
     I=strlen((char *)Items)+2;
     if((SingleItems=(char *)malloc(I)) == NULL)
       return -1;
@@ -923,8 +924,9 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     // анализ количества строк и разбивка на пункты
     while (*Msg)
     {
-      MsgItems[++I]=Msg;
+      MsgItems[I]=Msg;
       Msg+=strlen(Msg)+1;
+      ++I;
     }
   }
   else
@@ -984,7 +986,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->LockRefresh(); // отменим прорисовку фрейма
-  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems,ItemsNumber,PluginNumber);
+  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->UnlockRefresh(); // теперь можно :-)
   //CheckScreenLock();
