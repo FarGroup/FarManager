@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.03 11.11.2004 $ */
+/* Revision: 1.04 15.02.2005 $ */
 
 /*
 Modify:
+  15.02.2005 SVS
+    + функция "S=itoa(N,Radix)"
   11.11.2004 SVS
     - BugZ#1188 - тест макропоследовательности (имена макро-функций)
   10.09.2004 SVS
@@ -632,6 +634,7 @@ static TMacroFunction macroFunction[]={
   {"IIF",            3,    MCODE_F_IIF},                 // V=iif(C,V1,V2)
   {"INDEX",          2,    MCODE_F_INDEX},               // S=index(S1,S2)
   {"INT",            1,    MCODE_F_INT},                 // N=int(V)
+  {"ITOA",           2,    MCODE_F_ITOA},                // S=itoa(N,radix)
   {"LEN",            1,    MCODE_F_LEN},                 // N=len(S)
   {"MAX",            2,    MCODE_F_MAX},                 // N=max(N1,N2)
   {"MSGBOX",         3,    MCODE_F_MSGBOX},              // MsgBox("Title","Text",flags)
@@ -643,7 +646,6 @@ static TMacroFunction macroFunction[]={
   {"LCASE",          1,    MCODE_F_LCASE},               // S=LCase(S1)
   {"XLAT",           1,    MCODE_F_XLAT},                // S=xlat(S)
 };
-
 
 DWORD funcLook(const char *s, int& nParam)
 {

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.328 08.02.2005 $ */
+/* Revision: 1.329 15.02.2005 $ */
 
 /*
 Modify:
+  15.02.2005 SVS
+    - BugZ#1201 - Дискриминация списков в Dlg.ItemType
   08.02.2005 WARP
     ! Если X2 в DI_TEXT <= 0, то делаем ширину равной длине строки
   04.02.2005 WARP
@@ -3288,13 +3290,13 @@ int Dialog::ProcessKey(int Key)
     case MCODE_V_DLGITEMTYPE:
       switch(Item[FocusPos].Type)
       {
-        case DI_EDIT:            return 1;
+        case DI_EDIT:            return DropDownOpened?0x8001:1;
         case DI_PSWEDIT:         return 2;
         case DI_FIXEDIT:         return 3;
         case DI_BUTTON:          return 4;
         case DI_CHECKBOX:        return 5;
         case DI_RADIOBUTTON:     return 6;
-        case DI_COMBOBOX:        return 7;
+        case DI_COMBOBOX:        return DropDownOpened?0x8007:7;
         case DI_LISTBOX:         return 8;
         case DI_USERCONTROL:     return 9;
       }

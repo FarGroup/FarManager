@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.09 14.02.2005 $ */
+/* Revision: 1.10 15.02.2005 $ */
 
 /*
 Modify:
+  15.02.2005 SVS
+    + MCODE_F_ITOA
   14.02.2005 SVS
     + MCODE_V_APANEL_OPIFLAGS, MCODE_V_PPANEL_OPIFLAGS, MCODE_V_CMDLINE_VALUE
   08.12.2004 SVS
@@ -130,6 +132,7 @@ enum MACRO_OP_CODE {
   MCODE_F_MSGBOX,                   // MsgBox("Title","Text",flags)
   MCODE_F_UCASE,                    // UpperCase
   MCODE_F_LCASE,                    // LowerCase
+  MCODE_F_ITOA,                     //
 
   /* ************************************************************************* */
   // булевые переменные - различные состояния

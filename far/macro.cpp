@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.136 14.02.2005 $ */
+/* Revision: 1.137 15.02.2005 $ */
 
 /*
 Modify:
+  15.02.2005 SVS
+    + функция "S=itoa(N,Radix)"
   14.02.2005 SVS
     + Добавлены слова "[A|P]Panel.OPIFlags"
       Содержат OpenPluginInfo::Flags для активной и пассивной панели.
@@ -1561,6 +1563,14 @@ static TVar indexFunc(TVar *param)
   return TVar(i ? i-s : -1l);
 }
 
+static TVar itoaFunc(TVar *param)
+{
+  char value[NM];
+  if(param[0].isInteger())
+    return TVar(ltoa(param[0].toInteger(),value,param[1].toInteger()));
+  return param[0];
+}
+
 static TVar rindexFunc(TVar *param)
 {
   const char *s = param[0].toString();
@@ -1620,7 +1630,6 @@ static TVar environFunc(TVar *param)
   }
   return TVar("");
 }
-
 
 static TVar fattrFunc(TVar *param)
 {
@@ -1908,6 +1917,12 @@ done:
             if ( eStack[ePos].isInteger() )
               eStack[ePos] = labs(eStack[ePos].i());
             break;
+
+          case MCODE_F_ITOA:
+            ePos--;
+            eStack[ePos] = itoaFunc(eStack+ePos);
+            break;
+
           case MCODE_F_MIN:
             ePos--;
             eStack[ePos] = ( eStack[ePos+1] < eStack[ePos] ) ? eStack[ePos+1] : eStack[ePos];
