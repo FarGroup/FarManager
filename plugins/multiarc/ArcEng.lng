@@ -111,7 +111,7 @@
 "Hide archivers output for &view operation"
 "Always &hide archivers output"
 "Process &Shift-F1 command"
-"Смена папки при позиционировании курсора на архив"
+"Change folder when setting the cursor on new archive"
 "Use last h&istory"
 "&Automatically reset "Exact archive filename""
 "Old style of the "Add to archive" dialog"

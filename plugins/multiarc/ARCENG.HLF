@@ -109,11 +109,12 @@ $ #Archive support configuration#
                         if you have another archive support plugin
                         installed, which processes Shift-F1 command.
 
- #Смена папки при#        После создания архива сменить папку
- #позиционировании#       при позиционировании курсора.
- #курсора на архив#       При отключенной опции курсор будет
-                        позиционироваться только если архив
-                        создается в текущем каталоге.
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
 
  #Use last command#       When adding files to archives, the last
  #from history#           used value of the archiver command line
