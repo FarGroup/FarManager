@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.169 29.01.2005 $ */
+/* Revision: 1.170 06.02.2005 $ */
 
 /*
 Modify:
+  06.02.2005 WARP
+    - Глюки со строкой результатов поиска
   29.01.2005 SVS
     - под BC & VC6.0 нет определения INVALID_FILE_ATTRIBUTES в h-файлах. Добавил.
   23.01.2005 SVS
@@ -2281,16 +2283,14 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       }
     }
 
-    statusCS.Enter();
-    sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
-    SetFarTitle (FindMessage);
-    statusCS.Leave();
-
     while (!StopSearch && FindMessageReady)
       Sleep(10);
   //  sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
 
     statusCS.Enter ();
+
+    sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
+    SetFarTitle (FindMessage);
 
     SearchDone=TRUE;
     FindMessageReady=TRUE;
