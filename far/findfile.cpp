@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.26 26.05.2001 $ */
+/* Revision: 1.27 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 OT
+    ! Процессор грузится на 100% после всех найденных файлов, возврат к старому :(... до лучших времен 
   26.05.2001 OT
     ! Починка AltF7 в NFZ
   25.05.2001 DJ
@@ -646,13 +648,9 @@ int FindFiles::FindFilesProcess()
           }
           FindMessageReady=FALSE;
         }
-
-        /* $ 12.05.2001 DJ
-           нафига спать-то, если все уже нашли???
-        */
-        if (!SearchDone)
-          Sleep(100);
-        /* DJ $ */
+		/* $ 30.05.2001 OT возврат к старому стилю */
+        Sleep(50);
+        /* OT $ */
       }
     }
 
@@ -879,7 +877,7 @@ void _cdecl PrepareFilesList(void *Param)
   sprintf(FindMessage,MSG(MFindDone),FileCount);
   SearchDone=TRUE;
   FindMessageReady=TRUE;
-  _endthread();
+//  _endthread(); излишество... по умолчанию процесс должен закончиться автоматом по выходу из процедуры
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -1286,7 +1284,7 @@ void _cdecl PreparePluginList(void *Param)
     sprintf(FindMessage,MSG(MFindDone),FileCount);
     FindMessageReady=TRUE;
     SearchDone=TRUE;
-    _endthread();
+//ОТ  _endthread(); излишество... по умолчанию процесс должен закончиться автоматом по выходу из процедуры
   }
 }
 #if defined(__BORLANDC__)

@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.24 29.05.2001 $ */
+/* Revision: 1.25 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 OT
+    - Борьба с отрисовкой панелей после исправления для борьбы с отрисовкой меню :))
   29.01.2001 VVM
     - Более точное исправление ALT+F4, хотя и не полное...
   28.05.2001 OT
@@ -603,6 +605,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             case KEY_ALTF4:
               if (RegVer)
               {
+                (*FrameManager)[0]->UnlockRefresh();
                 FILE *MenuFile;
                 char MenuFileName[NM];
                 strcpy(MenuFileName,Opt.TempPath);

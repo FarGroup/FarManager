@@ -5,10 +5,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.06 21.05.2001 $ */
+/* Revision: 1.07 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 OT
+    - Не прорисовывалась командная строка при сохранении/восстановлении буфера 
   21.05.2001 OT
     ! Про "Ресайзинг буфера консоли"
   11.05.2001 OT
@@ -37,7 +39,7 @@ Modify:
 RedrawDesktop::RedrawDesktop()
 {
   CtrlObject->CmdLine->ShowBackground();
-//  CtrlObject->CmdLine->Show();
+  CtrlObject->CmdLine->Show();
   LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
   RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
 }

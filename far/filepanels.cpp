@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.10 21.05.2001 $ */
+/* Revision: 1.11 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 OT
+    ! Перенос AltF9 в Manager::ProcessKey()
   21.05.2001 OT
     - Исправление поведения AltF9
   16.05.2001 DJ
@@ -485,13 +487,12 @@ int  FilePanels::ProcessKey(int Key)
         FindFiles FindFiles;
       }
       break;
+/* $ 29.05.2001 OT Перенос KEY_ALTF9 в Manager::ProcessKey(int Key)
     case KEY_ALTF9:
       _OT(SysLog("FilePanels::ProcessKey, KEY_ALTF9 pressed..."));
       SetVideoMode(FarAltEnter(-2));
       break;
-//      ChangeVideoMode(ScrY==24 ? 50:25);
-//      SetScreenPositions();
-//      break;
+$ */
     case KEY_CTRLUP:
       if (Opt.HeightDecrement<ScrY-7)
       {

@@ -7,10 +7,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.27 25.05.2001 $ */
+/* Revision: 1.28 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 OT
+    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched 
+      запоминается тот фрейм, откуда это меню запускалось. 
+      Чтобы потом он не перерисовавался, когда его не просят :)
   25.05.2001 DJ
     + SetColor()
   23.05.2001 SVS
@@ -131,6 +135,7 @@ Modify:
 #include "dialog.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
+#include "manager.hpp"
 
 /* $ 18.07.2000 SVS
    ! изменен вызов конструктора (isListBoxControl) с учетом необходимости
@@ -147,6 +152,11 @@ VMenu::VMenu(char *Title,       // заголовок меню
   int I;
   VMenu::VMFlags=Flags;
 /* SVS $ */
+
+/*& 28.05.2001 OT Запретить перерисовку фрема во время запуска меню */
+  FrameFromLaunched=FrameManager->GetCurrentFrame();
+  FrameFromLaunched->LockRefresh();
+/* OT &*/
 
   VMenu::ParentDialog=ParentDialog;
   VMFlags|=VMENU_UPDATEREQUIRED|VMENU_WRAPMODE;
@@ -216,6 +226,9 @@ VMenu::~VMenu()
     CtrlObject->Macro.SetMode(PrevMacroMode);
   Hide();
   DeleteItems();
+/*& 28.05.2001 OT Разрешить перерисовку фрейма, в котором создавалось это меню */
+  FrameFromLaunched->UnlockRefresh();
+/* OT &*/
 }
 
 
@@ -436,7 +449,7 @@ void VMenu::ShowMenu(int IsParent)
           BoxType==NO_BOX?0:(BoxType==SINGLE_BOX||BoxType==SHORT_SINGLE_BOX?2:1));
 
         if (I>0 && I<ItemCount-1 && SepWidth>3)
-          for (int J=0;Ptr[J+3]!=0;J++)
+          for (unsigned int J=0;Ptr[J+3]!=0;J++)
           {
             if (Item[I-1].Name[J]==0)
               break;
@@ -469,7 +482,7 @@ void VMenu::ShowMenu(int IsParent)
           if (!(Item[I].Flags&0x0000FFFF))
             Check=0x0FB;
           else
-            Check=Item[I].Flags&0x0000FFFF;
+            Check=(char)Item[I].Flags&0x0000FFFF;
 
         sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].Name);
         { // табуляции меняем только при показе!!!

@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.08 26.05.2001 */
+/* Revision: 1.09 30.05.2001 */
 
 /*
 Modify:
+  30.05.2001 OT
+    - Небольшая корректировка UnlockRefresh()
   26.05.2001 OT
     + Новый атрибут - DynamicallyBorn - показывает, статически или динамически был создан объект
     + SetDynamicallyBorn() и GetDynamicallyBorn()
@@ -102,7 +104,7 @@ class Frame: public ScreenObject
     void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
     int GetDynamicallyBorn(){return DynamicallyBorn;};
     void LockRefresh() {LockRefreshCount++;}
-    void UnlockRefresh() {LockRefreshCount--;}
+    void UnlockRefresh() {LockRefreshCount=(LockRefreshCount>0)?LockRefreshCount-1:0;}
     int Refreshable() {return !LockRefreshCount;}
 };
 

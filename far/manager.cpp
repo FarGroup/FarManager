@@ -5,10 +5,16 @@ manager.cpp
 
 */
 
-/* Revision: 1.27 28.05.2001 $ */
+/* Revision: 1.28 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 OT
+    - Баг типа memory leak после F6 в редакторе/вьюере. Исправлена функция UpdateCommit()
+    - Приведение CloseAll() и ExitAll() к канонами NFZ.
+    - Исправление ActivateCommit(). При некоторых обстоятельствах 
+      бестолку "проглатывался" ActivatedFrame.
+    + AltF9 работет теперь не только в панелях, но и ... везде :)
   28.05.2001 OT 
     - Исправление "Файл после F3 остается залоченным" (переписан DeleteCommit())
   26.05.2001 OT
@@ -146,39 +152,46 @@ Manager::~Manager()
 */
 BOOL Manager::ExitAll()
 {
-/*
-  // FrameList [0] - это панели, и им KEY_ESC посылать не нужно и бесполезно
-  for (int I=FrameCount-1; I>=1; I--)
-  {
-    Frame *CurFrame=FrameList[I];
-    CurFrame->Show();
-    CurFrame->ProcessKey(KEY_ESC);
-    if (CurFrame->GetExitCode() != XC_QUIT)
-    {
-      FramePos = I;
-      SetCurrentFrame (CurFrame);
+  bool EnterFlag=false;
+  int i;
+  do {
+    bool NoSavedFile=false;
+    int PrevFrameCount=FrameCount;
+    for (i=FrameCount-1; i>=1; i--,EnterFlag=false){
+      Frame *iFrame=FrameList[i];
+      if (!iFrame->GetCanLoseFocus(TRUE)){
+        NoSavedFile=true;
+        ActivateFrame(iFrame);
+        Commit();
+        iFrame->ProcessKey(KEY_ESC);
+        Commit();
+        EnterFlag=true;
+        break;
+      }
+    }
+    if (NoSavedFile && PrevFrameCount==FrameCount){
       return FALSE;
     }
-    else
-    {
-     delete CurFrame;
-     FrameCount--;
-    }
-  }
-*/
+  } while (EnterFlag);
   return TRUE;
 }
 /* IS $ */
 
 void Manager::CloseAll()
 {
-  for (int I=0;I<FrameCount;I++)
-  {
-    Frame *CurFrame=FrameList[I];
-    CurFrame->SetCanLoseFocus(FALSE);
-    CurFrame->Show();
-    CurFrame->ProcessKey(KEY_ESC);
-    delete CurFrame;
+  int i;
+  Frame *iFrame;
+  for (i=ModalStackCount-1;i>=0;i--){
+    iFrame=ModalStack[i];
+    DeleteFrame(iFrame);
+    DeleteCommit();
+    DeletedFrame=NULL;
+  }
+  for (i=FrameCount-1;i>=0;i--){
+    iFrame=(*this)[i];
+    DeleteFrame(iFrame);
+    DeleteCommit();
+    DeletedFrame=NULL;
   }
   /* $ 13.07.2000 SVS
      Здесь было "delete ModalList;", но перераспределение массива ссылок
@@ -241,7 +254,7 @@ void Manager::ExecuteModal (Frame *Executed)
 {
   _OT(SysLog("ExecuteModal(), Executed=%p, ExecutedFrame=%p",Executed,ExecutedFrame));
   if (!Executed && !ExecutedFrame){
-    return;// NULL; //?? Определить, какое значение правильно возвращать в этом случае
+    return;
   }
   if (Executed){
     if (ExecutedFrame) {
@@ -507,11 +520,14 @@ int  Manager::ProcessKey(int Key)
         DeactivateFrame(CurrentFrame,-1);
       _D(SysLog(-1));
       return TRUE;
+    case KEY_ALTF9:
+      _OT(SysLog("Manager::ProcessKey, KEY_ALTF9 pressed..."));
+      SetVideoMode(FarAltEnter(-2));
+      return TRUE;
     }
     CurrentFrame->UpdateKeyBar();
     CurrentFrame->ProcessKey(Key);
   }
-//  _D(SysLog("Manager::ProcessKey() ret=%i",ret));
   _D(SysLog(-1));
   return ret;
 }
@@ -622,8 +638,7 @@ void Manager::ActivateCommit()
 {
   _OT(SysLog("ActivateCommit(), ActivatedFrame=%p, DeactivatedFrame=%p",ActivatedFrame,DeactivatedFrame));
   if (DeactivatedFrame){
-      DeactivatedFrame->OnChangeFocus(0);
-      return;
+    DeactivatedFrame->OnChangeFocus(0);
   }
   if (CurrentFrame==ActivatedFrame){
     RefreshedFrame=ActivatedFrame;
@@ -676,13 +691,8 @@ void Manager::UpdateCommit()
   }
   int FrameIndex=IndexOf(DeletedFrame);
   if (-1!=FrameIndex){
-    for (int i=0; i<FrameCount; i++){
-      if (FrameList [i] == DeletedFrame){
-        FrameList [i] = InsertedFrame;
-        break;
-      }
-    }
-    ActivatedFrame=InsertedFrame;
+    ActivatedFrame=FrameList[FrameIndex] = InsertedFrame;
+    DeleteCommit();
   } else {
     Frame *iFrame=NULL;
     Frame *FoundModal=NULL;
@@ -755,10 +765,10 @@ void Manager::DeleteCommit()
         }
       }
     }
-  }
-  DeletedFrame->OnDestroy();
-  if (DeletedFrame->GetDynamicallyBorn()){
-    delete DeletedFrame;
+    if (DeletedFrame->GetDynamicallyBorn()){
+      DeletedFrame->OnDestroy();
+      delete DeletedFrame;
+    }
   }
 }
 

@@ -10,10 +10,14 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.13 25.05.2001 $ */
+/* Revision: 1.14 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 OT
+    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched 
+      запоминается тот фрейм, откуда это меню запускалось. 
+      Чтобы потом он не перерисовавался, когда его не просят :)
   25.05.2001 DJ
    + SetOneColor()
   21.05.2001 SVS
@@ -77,6 +81,7 @@ Modify:
 
 #include "modal.hpp"
 #include "plugin.hpp"
+#include "manager.hpp"
 
 /* $ 28.07.2000 SVS
    Цветовые атрибуты - индексы в массиве цветов
@@ -263,6 +268,8 @@ class VMenu: public Modal
     // функция посылки сообщений меню
     static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
     /* SVS $ */
+
+    Frame *FrameFromLaunched;
 };
 
 #endif	// __VMENU_HPP__
