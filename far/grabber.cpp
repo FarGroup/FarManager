@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.16 14.10.2003 $ */
+/* Revision: 1.17 07.05.2004 $ */
 
 /*
 Modify:
+  07.05.2004 SVS
+    - BugZ#566 - Недограбливаются диалоги, содержащие точки
   14.10.2003 SVS
     ! небольшая коррекция символов
   09.09.2003 SVS
@@ -149,6 +151,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
       Chr=PtrCharBuf->Char.UnicodeChar;
            if(Chr == 0xBB) Chr='>';
       else if(Chr == 0xAB) Chr='<';
+      else if(Chr < 0x20 && Opt.CleanAscii) Chr='.';
       else Chr=GetVidChar(*PtrCharBuf);
       *PtrCopyBuf++=Chr;
       *PtrCopyBuf=0;
