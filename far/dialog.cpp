@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.158 05.09.2001 $ */
+/* Revision: 1.159 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 VVM
+   + Использовать Opt.DialogsEditBlock для строк ввода
   05.09.2001 SVS
    - Горячая клавиша, фокус ввода становится, но прорисовка не идет :-((
   30.08.2001 VVM
@@ -1247,7 +1249,7 @@ int Dialog::InitDialogObjects(int ID)
       /* $ 30.08.2001 VVM
         + Для обычных строк отрубим постоянные блоки */
       if (!(ItemFlags&DIF_EDITOR))
-        DialogEdit->SetPersistentBlocks(FALSE);
+        DialogEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
       /*  VVM $ */
     }
     if (Type == DI_USERCONTROL)

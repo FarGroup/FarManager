@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.07 30.08.2001 $ */
+/* Revision: 1.08 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 VVM
+    + Использовать Opt.DialogsEditBlock
   30.08.2001 VVM
     ! Блоки в строке поиска непостоянны :)
   06.06.2001 SVS
@@ -31,6 +33,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "global.hpp"
 #include "foldtree.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
@@ -73,7 +76,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
         return;
       }
       FindEdit->SetEditBeyondEnd(FALSE);
-      FindEdit->SetPersistentBlocks(FALSE);
+      FindEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
       DrawEdit();
     }
 

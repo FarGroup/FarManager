@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.74 29.08.2001 $ */
+/* Revision: 1.75 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 VVM
+    + MConfigDialogsEditBlock - Для постоянных блоков в строках ввода
   29.08.2001 VVM
     + MUserMenuInvalidFormat
   08.08.2001 KM
@@ -407,6 +409,7 @@ enum
   MConfigSaver,
   MConfigSaverMinutes,
   MConfigDialogsEditHistory,
+  MConfigDialogsEditBlock,
   MConfigUsePromptFormat,
   MConfigAltGr,
   MConfigCopyTotal,

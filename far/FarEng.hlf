@@ -1498,6 +1498,10 @@ $ #Interface settings dialog#
                           to track such history, for example due to
                           security reasons, switch this option off.
 
+  #Persistent blocks#       Do not remove block selection after moving
+  #in edit controls#        the cursor in dialog edit, command line
+                          and folders history.
+
   #Set command line#        This option allows to set the default
   #prompt format#           FAR command line prompt. You may use
                           the following format variables:

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.91 09.08.2001 $ */
+/* Revision: 1.92 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 VVM
+    + Настройка для блоков в строках ввода F9/Options/Interface settings
   09.08.2001 OT
 		- F9|Options|Panel settings|Highlight files - не перерисовывается
   03.08.2001 IS
@@ -482,7 +484,7 @@ void InterfaceSettings()
     /* $ 26.07.2000 SVS
        + Разрешить ли автодополнение в строках ввода
     */
-  /* 00 */DI_DOUBLEBOX,3,1,52,19,0,0,0,0,(char *)MConfigInterfaceTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,52,20,0,0,0,0,(char *)MConfigInterfaceTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigClock,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigViewerEditorClock,
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigMouse,
@@ -492,16 +494,17 @@ void InterfaceSettings()
   /* 07 */DI_FIXEDIT,9,8,11,5,0,0,0,0,"",
   /* 08 */DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigSaverMinutes,
   /* 09 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
-  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigUsePromptFormat,
-  /* 11 */DI_EDIT,9,11,24,10,0,0,0,0,"",
-  /* 12 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigAltGr,
-  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigCopyTotal,
-  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
-  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigAutoComplete,
-  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
-  /* 17 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 18 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 19 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 10 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
+  /* 11 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigUsePromptFormat,
+  /* 12 */DI_EDIT,9,12,24,10,0,0,0,0,"",
+  /* 13 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAltGr,
+  /* 14 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MConfigCopyTotal,
+  /* 15 */DI_CHECKBOX,5,15,0,0,0,0,0,0,(char *)MConfigShowMenuScrollbar,
+  /* 16 */DI_CHECKBOX,5,16,0,0,0,0,0,0,(char *)MConfigAutoComplete,
+  /* 17 */DI_CHECKBOX,5,17,0,0,0,0,0,0,(char *)MConfigPgUpChangeDisk,
+  /* 18 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 20 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
 
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
@@ -520,20 +523,21 @@ void InterfaceSettings()
   CfgDlg[6].Selected=Opt.ScreenSaver;
   sprintf(CfgDlg[7].Data,"%d",Opt.ScreenSaverTime);
   CfgDlg[9].Selected=Opt.DialogsEditHistory;
-  CfgDlg[10].Selected=Opt.UsePromptFormat;
-  strcpy(CfgDlg[11].Data,Opt.PromptFormat);
-  CfgDlg[12].Selected=Opt.AltGr;
-  CfgDlg[13].Selected=Opt.CopyShowTotal;
-  CfgDlg[14].Selected=Opt.ShowMenuScrollbar;
-  CfgDlg[15].Selected=Opt.AutoComplete;
-  CfgDlg[16].Selected=Opt.PgUpChangeDisk;
+  CfgDlg[10].Selected=Opt.DialogsEditBlock;
+  CfgDlg[11].Selected=Opt.UsePromptFormat;
+  strcpy(CfgDlg[12].Data,Opt.PromptFormat);
+  CfgDlg[13].Selected=Opt.AltGr;
+  CfgDlg[14].Selected=Opt.CopyShowTotal;
+  CfgDlg[15].Selected=Opt.ShowMenuScrollbar;
+  CfgDlg[16].Selected=Opt.AutoComplete;
+  CfgDlg[17].Selected=Opt.PgUpChangeDisk;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("InterfSettings");
-    Dlg.SetPosition(-1,-1,56,21);
+    Dlg.SetPosition(-1,-1,56,22);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=18)
+    if (Dlg.GetExitCode()!=19)
       return;
   }
 
@@ -544,15 +548,16 @@ void InterfaceSettings()
   Opt.ShowMenuBar=CfgDlg[5].Selected;
   Opt.ScreenSaver=CfgDlg[6].Selected;
   Opt.DialogsEditHistory=CfgDlg[9].Selected;
+  Opt.DialogsEditBlock=CfgDlg[10].Selected;
   if ((Opt.ScreenSaverTime=atoi(CfgDlg[7].Data))<=0)
     Opt.ScreenSaver=Opt.ScreenSaverTime=0;
-  Opt.UsePromptFormat=CfgDlg[10].Selected;
-  strncpy(Opt.PromptFormat,CfgDlg[11].Data,sizeof(Opt.PromptFormat));
-  Opt.AltGr=CfgDlg[12].Selected;
-  Opt.CopyShowTotal=CfgDlg[13].Selected;
-  Opt.ShowMenuScrollbar=CfgDlg[14].Selected;
-  Opt.AutoComplete=CfgDlg[15].Selected;
-  Opt.PgUpChangeDisk=CfgDlg[16].Selected;
+  Opt.UsePromptFormat=CfgDlg[11].Selected;
+  strncpy(Opt.PromptFormat,CfgDlg[12].Data,sizeof(Opt.PromptFormat));
+  Opt.AltGr=CfgDlg[13].Selected;
+  Opt.CopyShowTotal=CfgDlg[14].Selected;
+  Opt.ShowMenuScrollbar=CfgDlg[15].Selected;
+  Opt.AutoComplete=CfgDlg[16].Selected;
+  Opt.PgUpChangeDisk=CfgDlg[17].Selected;
 
   SetFarConsoleMode();
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -942,6 +947,7 @@ static struct FARConfig{
   {1, REG_SZ,     NKeyScreen, "PromptFormat",Opt.PromptFormat,sizeof(Opt.PromptFormat),"$p>"},
 
   {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.DialogsEditHistory,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "DialogsEditBlock",&Opt.DialogsEditBlock,0, 0},
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
   {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CopyShowTotal,0, 0},

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.36 30.08.2001 $ */
+/* Revision: 1.37 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 VVM
+    + Использовать Opt.DialogsEditBlock
   30.08.2001 VVM
     ! В командной строке блоки всегда непостояные.
   23.08.2001 OT
@@ -124,7 +126,7 @@ CommandLine::CommandLine()
 {
   *CurDir=0;
   CmdStr.SetEditBeyondEnd(FALSE);
-  CmdStr.SetPersistentBlocks(FALSE);
+  CmdStr.SetPersistentBlocks(Opt.DialogsEditBlock);
   LastCmdPartLength=-1;
   *LastCmdStr=0;
   BackgroundScreen=NULL;

@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.66 05.09.2001 $ */
+/* Revision: 1.67 08.09.2001 $ */
 
 /*
 Modify:
+  08.09.2001 VVM
+    + Постоянные блоки в строках ввода - Opt.DialogsEditBlock;
+      0 - Блоки непостоянные
+      1 - Блоки постоянные
   05.09.2001 SVS
     + сктруктура HighlightDataColor
   03.08.2001 IS
@@ -352,6 +356,10 @@ struct Options
   int ScreenSaver;
   int ScreenSaverTime;
   int DialogsEditHistory;
+  /* $ 08.09.2001 VVM
+    + Постоянные блоки в строках ввода */
+  int DialogsEditBlock;
+  /* VVM $ */
   int UsePromptFormat;
   char PromptFormat[80];
   int AltGr;
