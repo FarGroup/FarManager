@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.44 28.04.2003 $ */
+/* Revision: 1.45 10.05.2003 $ */
 
 /*
 Modify:
+  10.05.2003 IS
+    + Облегчим CmpName за счет выноса проверки skippath наружу
+    - Ошибка: *Name*.* не находило Name
   28.04.2003 SVS
     - BugZ#876 - отображение размера больших файлов
   19.02.2003 SVS
@@ -216,14 +219,18 @@ char* WINAPI PointToFolderNameIfFolder(const char *Path)
 }
 /* IS $ */
 
-int CmpName(const char *pattern,const char *string,int skippath)
+/* $ 10.05.2003 IS
+   + Облегчим CmpName за счет выноса проверки skippath наружу
+   - Ошибка: *Name*.* не находило Name
+*/
+
+// IS: это реальное тело функции сравнения с маской, но использовать
+// IS: "снаружи" нужно не эту функцию, а CmpName (ее тело расположено
+// IS: после CmpName_Body)
+int CmpName_Body(const char *pattern,const char *string)
 {
   char stringc,patternc,rangec;
   int match;
-  static int depth=0;
-
-  if (skippath)
-    string=PointToName(const_cast<char*>(string));
 
   for (;; ++string)
   {
@@ -252,7 +259,7 @@ int CmpName(const char *pattern,const char *string,int skippath)
         */
         if (*pattern=='.')
         {
-          if (pattern[1]=='*' && pattern[2]==0 && depth==0)
+          if (pattern[1]=='*' && pattern[2]==0)
             return(TRUE);
           if (strpbrk (pattern, "*?[") == NULL)
           {
@@ -270,10 +277,7 @@ int CmpName(const char *pattern,const char *string,int skippath)
 
         while (*string)
         {
-          depth++;
-          int CmpCode=CmpName(pattern,string++,FALSE);
-          depth--;
-          if (CmpCode)
+          if (CmpName(pattern,string++,FALSE))
             return(TRUE);
         }
         return(FALSE);
@@ -323,6 +327,16 @@ int CmpName(const char *pattern,const char *string,int skippath)
     }
   }
 }
+
+// IS: функция для внешнего мира, использовать ее
+int CmpName(const char *pattern,const char *string,int skippath)
+{
+  if (skippath)
+    string=PointToName(const_cast<char*>(string));
+  return CmpName_Body(pattern,string);
+}
+
+/* IS 10.05.2003 $ */
 
 /* $ 09.10.2000 IS
     Генерация нового имени по маске
