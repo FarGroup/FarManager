@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.70 04.02.2002 $ */
+/* Revision: 1.71 07.03.2002 $ */
 
 /*
 Modify:
+  07.03.2002 SVS
+    - BugZ#340 - edit association
+      при вставке символа или куска из клипборда учтем максимальные
+      размеры (если MaxLength != -1)
   04.02.2002 SVS
     ! Вызываем самостоятельную функцию IsShiftKey()
   28.01.2002 SVS
@@ -1613,34 +1617,47 @@ int Edit::InsertKey(int Key)
   }
   else
   {
-    if (CurPos>=StrSize)
+    if(MaxLength == -1 || StrSize < MaxLength)
     {
-      if ((NewStr=(char *)realloc(Str,CurPos+2))==NULL)
-        return(FALSE);
-      Str=NewStr;
-      sprintf(&Str[StrSize],"%*s",CurPos-StrSize,"");
-      StrSize=CurPos+1;
-    }
-    else
-      if (!Overtype)
-        StrSize++;
-    if ((NewStr=(char *)realloc(Str,StrSize+1))==NULL)
-      return(TRUE);
-    Str=NewStr;
-
-    if (!Overtype)
-    {
-      memmove(Str+CurPos+1,Str+CurPos,StrSize-CurPos);
-      if (SelStart!=-1)
+      if (CurPos>=StrSize)
       {
-        if (SelEnd!=-1 && CurPos<SelEnd)
-          SelEnd++;
-        if (CurPos<SelStart)
-          SelStart++;
+        if ((NewStr=(char *)realloc(Str,CurPos+2))==NULL)
+          return(FALSE);
+        Str=NewStr;
+        sprintf(&Str[StrSize],"%*s",CurPos-StrSize,"");
+        StrSize=CurPos+1;
+      }
+      else
+        if (!Overtype)
+          StrSize++;
+      if ((NewStr=(char *)realloc(Str,StrSize+1))==NULL)
+        return(TRUE);
+      Str=NewStr;
+
+      if (!Overtype)
+      {
+        memmove(Str+CurPos+1,Str+CurPos,StrSize-CurPos);
+        if (SelStart!=-1)
+        {
+          if (SelEnd!=-1 && CurPos<SelEnd)
+            SelEnd++;
+          if (CurPos<SelStart)
+            SelStart++;
+        }
+      }
+      PrevCurPos=CurPos;
+      Str[CurPos++]=Key;
+    }
+    else if (Overtype)
+    {
+      if(CurPos < StrSize)
+      {
+        PrevCurPos=CurPos;
+        Str[CurPos++]=Key;
       }
     }
-    PrevCurPos=CurPos;
-    Str[CurPos++]=Key;
+    else
+      MessageBeep(MB_ICONHAND);
   }
   /* KM $ */
   Str[StrSize]=0;
@@ -1895,44 +1912,58 @@ void Edit::InsertBinaryString(const char *Str,int Length)
   }
   else
   {
-    if (CurPos>StrSize)
+    if(MaxLength != -1 && StrSize+Length > MaxLength)
     {
-      if ((NewStr=(char *)realloc(Edit::Str,CurPos+1))==NULL)
+      // коррекция вставляемого размера, если определен MaxLength
+      if(StrSize < MaxLength)
+      {
+        Length=MaxLength-StrSize;
+      }
+    }
+
+    if(MaxLength == -1 || StrSize+Length <= MaxLength)
+    {
+      if (CurPos>StrSize)
+      {
+        if ((NewStr=(char *)realloc(Edit::Str,CurPos+1))==NULL)
+          return;
+        Edit::Str=NewStr;
+        sprintf(&Edit::Str[StrSize],"%*s",CurPos-StrSize,"");
+        StrSize=CurPos;
+      }
+
+      int TmpSize=StrSize-CurPos;
+      char *TmpStr=new char[TmpSize+16];
+      if(!TmpStr)
         return;
+
+      memcpy(TmpStr,&Edit::Str[CurPos],TmpSize);
+
+      StrSize+=Length;
+      if ((NewStr=(char *)realloc(Edit::Str,StrSize+1))==NULL)
+      {
+        delete[] TmpStr;
+        return;
+      }
       Edit::Str=NewStr;
-      sprintf(&Edit::Str[StrSize],"%*s",CurPos-StrSize,"");
-      StrSize=CurPos;
-    }
-
-    int TmpSize=StrSize-CurPos;
-    char *TmpStr=new char[TmpSize+16];
-    if(!TmpStr)
-      return;
-
-    memcpy(TmpStr,&Edit::Str[CurPos],TmpSize);
-
-    StrSize+=Length;
-    if ((NewStr=(char *)realloc(Edit::Str,StrSize+1))==NULL)
-    {
+      memcpy(&Edit::Str[CurPos],Str,Length);
+      /* $ 15.08.2000 KM */
+      PrevCurPos=CurPos;
+      /* KM $ */
+      CurPos+=Length;
+      memcpy(Edit::Str+CurPos,TmpStr,TmpSize);
+      Edit::Str[StrSize]=0;
+      /* $ 13.07.2000 SVS
+         раз уж вызывали через new[]...
+      */
       delete[] TmpStr;
-      return;
-    }
-    Edit::Str=NewStr;
-    memcpy(&Edit::Str[CurPos],Str,Length);
-    /* $ 15.08.2000 KM */
-    PrevCurPos=CurPos;
-    /* KM $ */
-    CurPos+=Length;
-    memcpy(Edit::Str+CurPos,TmpStr,TmpSize);
-    Edit::Str[StrSize]=0;
-    /* $ 13.07.2000 SVS
-       раз уж вызывали через new[]...
-    */
-    delete[] TmpStr;
-    /* SVS $*/
+      /* SVS $*/
 
-    if (ConvertTabs)
-      ReplaceTabs();
+      if (ConvertTabs)
+        ReplaceTabs();
+    }
+    else
+      MessageBeep(MB_ICONHAND);
   }
   /* KM $ */
 }
