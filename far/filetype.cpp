@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.10 11.02.2001 $ */
+/* Revision: 1.11 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 SVS
+    ! Модификаторы для !@! и !$! - AFQS
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   14.01.2001 SVS
@@ -545,54 +547,73 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       /* $ 21.07.2000 IG
          Bug 15 (не работала комманда executable.exe !.!?ext:?!)
       */
-      if (strncmp(CurStr,"!@!",3)==0 && ListName!=NULL && CurStr[3] != '?')
+      if (strncmp(CurStr,"!@",2)==0 && ListName!=NULL)
       /* IG $ */
       {
-        /* $ 02.09.2000 tran
-           !@!, !#!@! bug */
-        if ( PassivePanel && ( ListName[NM] || AnotherPanel->MakeListFile(ListName+NM,FALSE)))
+        char Modifers[32]="", *Ptr;
+
+        if((Ptr=strchr(CurStr+2,'!')) != NULL)
         {
-          strcat(TmpStr,ListName+NM);
+          if(Ptr[1] != '?')
+          {
+            *Ptr=0;
+            strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
+            /* $ 02.09.2000 tran
+               !@!, !#!@! bug */
+            if ( PassivePanel && ( ListName[NM] || AnotherPanel->MakeListFile(ListName+NM,FALSE,Modifers)))
+            {
+              strcat(TmpStr,ListName+NM);
+            }
+            if ( !PassivePanel && (*ListName || CtrlObject->ActivePanel->MakeListFile(ListName,FALSE,Modifers)))
+            {
+              strcat(TmpStr,ListName);
+            }
+            /* tran $ */
+            CurStr+=Ptr-CurStr+1;
+            continue;
+          }
         }
-        if ( !PassivePanel && (*ListName || CtrlObject->ActivePanel->MakeListFile(ListName,FALSE)))
-        {
-          strcat(TmpStr,ListName);
-        }
-        /* tran $ */
-        CurStr+=3;
-//SysLog("!@! TmpStr=[%s]",TmpStr);
-        continue;
       }
       /* $ 21.07.2000 IG
          Bug 15 (не работала комманда executable.exe !.!?ext:?!)
       */
-      if (strncmp(CurStr,"!$!",3)==0 && ShortListName!=NULL && CurStr[3] != '?')
+      if (strncmp(CurStr,"!$",2)==0 && ShortListName!=NULL)
       /* IG $ */
       {
-        /* $ 02.09.2000 tran
-           !@!, !#!@! bug */
-        if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE)))
+        char Modifers[32]="", *Ptr;
+
+        if((Ptr=strchr(CurStr+2,'!')) != NULL)
         {
-          /* $ 01.11.2000 IS
-             Имя файла в данном случае должно быть коротким
-          */
-          ConvertNameToShort(ShortListName+NM,ShortListName+NM);
-          /* IS $ */
-          strcat(TmpStr,ShortListName+NM);
+          if(Ptr[1] != '?')
+          {
+            *Ptr=0;
+            strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
+            /* $ 02.09.2000 tran
+               !@!, !#!@! bug */
+            if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE,Modifers)))
+            {
+              /* $ 01.11.2000 IS
+                 Имя файла в данном случае должно быть коротким
+              */
+              ConvertNameToShort(ShortListName+NM,ShortListName+NM);
+              /* IS $ */
+              strcat(TmpStr,ShortListName+NM);
+            }
+            if ( !PassivePanel && (*ShortListName || CtrlObject->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
+            {
+              /* $ 01.11.2000 IS
+                 Имя файла в данном случае должно быть коротким
+              */
+              ConvertNameToShort(ShortListName,ShortListName);
+              /* IS $ */
+              strcat(TmpStr,ShortListName);
+            }
+            /* tran $ */
+            CurStr+=Ptr-CurStr+1;
+    //SysLog("!$! TmpStr=[%s]",TmpStr);
+            continue;
+          }
         }
-        if ( !PassivePanel && (*ShortListName || CtrlObject->ActivePanel->MakeListFile(ShortListName,TRUE)))
-        {
-          /* $ 01.11.2000 IS
-             Имя файла в данном случае должно быть коротким
-          */
-          ConvertNameToShort(ShortListName,ShortListName);
-          /* IS $ */
-          strcat(TmpStr,ShortListName);
-        }
-        /* tran $ */
-        CurStr+=3;
-//SysLog("!$! TmpStr=[%s]",TmpStr);
-        continue;
       }
       /* $ 21.07.2000 IG
          Bug 15 (не работала комманда executable.exe !.!?ext:?!)

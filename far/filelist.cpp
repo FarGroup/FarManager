@@ -5,10 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.25 09.02.2001 $ */
+/* Revision: 1.26 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 SVS
+    ! В ApplyCommand() не была возможность работы с модификаторами !@! и !$!
+      ВНИМАНИЕ!
+      При Ctrl-G снимается выделение для !@@! и !$! только для последнего
+      объекта - это бага!
   09.02.2001 IS
     + SetSelectedFirstMode
   29.01.2001 VVM
@@ -2549,9 +2554,10 @@ void FileList::ApplyCommand()
   while (GetSelName(SelName,FileAttr,SelShortName) && !CheckForEsc())
   {
     char ConvertedCommand[512];
+    char ListName[NM*2],ShortListName[NM*2];
     strcpy(ConvertedCommand,Command);
     {
-      int PreserveLFN=SubstFileName(ConvertedCommand,SelName,SelShortName,NULL,NULL);
+      int PreserveLFN=SubstFileName(ConvertedCommand,SelName,SelShortName,ListName,ShortListName);
       PreserveLongName PreserveName(SelShortName,PreserveLFN);
       Execute(ConvertedCommand,FALSE,FALSE);
       ClearLastGetSelection();

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.14 11.02.2001 $ */
+/* Revision: 1.15 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 SVS
+    ! Дополнительный параметр для MakeListFile - модификаторы
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   22.01.2001 VVM
@@ -703,7 +705,7 @@ void Panel::FastFindShow(int FindX,int FindY)
 }
 
 
-int Panel::MakeListFile(char *ListFileName,int ShortNames)
+int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 {
   FILE *ListFile;
   strcpy(ListFileName,Opt.TempPath);
@@ -714,13 +716,38 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames)
     Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MOk));
     return(FALSE);
   }
-  char FileName[NM],ShortName[NM];
+  char FileName[NM*2],ShortName[NM];
   int FileAttr;
   GetSelName(NULL,FileAttr);
   while (GetSelName(FileName,FileAttr,ShortName))
   {
     if (ShortNames)
       strcpy(FileName,ShortName);
+
+    if(Modifers && *Modifers)
+    {
+      if(strchr(Modifers,'F'))
+      {
+        char TempFileName[NM*2];
+        sprintf(TempFileName,"%s\\%s",CurDir,FileName);
+        if (ShortNames)
+          ConvertNameToShort(TempFileName,TempFileName);
+        strcpy(FileName,TempFileName);
+      }
+      if(strchr(Modifers,'Q'))
+        QuoteSpaceOnly(FileName);
+      if(strchr(Modifers,'A'))
+        OemToChar(FileName,FileName);
+
+      if(strchr(Modifers,'S'))
+      {
+        int I,Len=strlen(FileName);
+        for(I=0; I < Len; ++I)
+          if(FileName[I] == '\\')
+            FileName[I]='/';
+      }
+    }
+//SysLog("%s[%s] %s",__FILE__,Modifers,FileName);
     if (fprintf(ListFile,"%s\r\n",FileName)==EOF)
     {
       fclose(ListFile);

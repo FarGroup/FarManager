@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.01 09.02.2001 $ */
+/* Revision: 1.02 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 SVS
+    ! Дополнительный параметр для MakeListFile - модификаторы
   09.02.2001 IS
     + Get(Set)SelectedFirstMode
   25.06.2000 SVS
@@ -133,7 +135,7 @@ class Panel:public ScreenObject
     int GetFocus() {return(Focus);};
     int GetType() {return(Type);};
     void SetUpdateMode(int Mode) {EnableUpdate=Mode;};
-    int MakeListFile(char *ListFileName,int ShortNames);
+    int MakeListFile(char *ListFileName,int ShortNames,char *Modifers=NULL);
     int SetCurPath();
 
     struct PanelViewSettings ViewSettings;
