@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.82 02.08.2001 $ */
+/* Revision: 1.83 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    ! Уточнение поведения Alt-XX и Alt-Shift-XX для быстрого поиска.
+      Теперь все работает.
   02.08.2001 IS
     + Обработаем ассоциации файлов для alt-f3/f4,  ctrl-pgdn
   01.08.2001 SVS
@@ -1670,7 +1673,25 @@ int FileList::ProcessKey(int Key)
           Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255) &&
          Key != KEY_ALTBS && Key != (KEY_ALTBS|KEY_SHIFT)
         )
+      {
+//_SVS(char kk[64];KeyToText(Key,kk,sizeof(kk)));
+//_SVS(SysLog(">FastFind: Key=0x%08X (%s)",Key,kk));
+        // Скорректирем уже здесь нужные клавиши, т.к. WaitInFastFind
+        // в это время еще равно нулю.
+        static const char Code[]=")!@#$%^&*(";
+        if(Key >= KEY_ALTSHIFT0 && Key <= KEY_ALTSHIFT9)
+          Key=(DWORD)Code[Key-KEY_ALTSHIFT0];
+        else if((Key&(~(KEY_ALT+KEY_SHIFT))) == '/')
+          Key='?';
+        else if(Key == KEY_ALTSHIFT+'-')
+          Key='_';
+        else if(Key == KEY_ALTSHIFT+'=')
+          Key='+';
+//_SVS(KeyToText(Key,kk,sizeof(kk)));
+//_SVS(SysLog("<FastFind: Key=0x%08X (%s)",Key,kk));
+
         FastFind(Key);
+      }
       else
         break;
       return(TRUE);

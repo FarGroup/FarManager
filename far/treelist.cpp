@@ -5,10 +5,15 @@ Tree panel
 
 */
 
-/* Revision: 1.18 23.07.2001 $ */
+/* Revision: 1.19 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    ! Численное значение дельты (31) заменено на DELTA_TREECOUNT
+    ! сделаем внешний вид дерева на 1 символ уже.
+    - бага (со времен 1.64) в функции чтения кэша. Из-за этого не работало
+      обновление дерева при создании каталога
   23.07.2001 SVS
     + Для полноты картины: Shift-Enter дереве вызывает проводник
   18.06.2001 SVS
@@ -77,16 +82,21 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 
+
+#define DELTA_TREECOUNT	31
+#define TreeFileName "Tree.Far"
+#define TreeCacheFolderName "Tree.Cache"
+
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortCaseSensitive;
 static int TreeCmp(char *Str1,char *Str2);
 
-static char TreeLineSymbol[4][4]={
-  {0x20,0x20,0x20,0x00},
-  {0xB3,0x20,0x20,0x00},
-  {0xC0,0xC4,0xC4,0x00},
-  {0xC3,0xC4,0xC4,0x00},
+static char TreeLineSymbol[4][3]={
+  {0x20,0x20,/*0x20,*/0x00},
+  {0xB3,0x20,/*0x20,*/0x00},
+  {0xC0,0xC4,/*0xC4,*/0x00},
+  {0xC3,0xC4,/*0xC4,*/0x00},
 };
 
 static struct TreeListCache
@@ -96,8 +106,6 @@ static struct TreeListCache
   int TreeCount;
 } TreeCache;
 
-#define TreeFileName "Tree.Far"
-#define TreeCacheFolderName "Tree.Cache"
 
 TreeList::TreeList()
 {
@@ -930,7 +938,7 @@ void TreeList::ProcessEnter()
 int TreeList::ReadTreeFile()
 {
   char Name[NM],DirName[NM],LastDirName[NM],*ChPtr;
-  FILE *TreeFile;
+  FILE *TreeFile=NULL;
   int RootLength=strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
@@ -1090,7 +1098,8 @@ void TreeList::AddTreeName(char *Name)
       else
         break;
 
-    if ((TreeCount & 31)==0 && (NewPtr=(char *)realloc(ListName,(TreeCount+32+1)*NM))==NULL)
+    if ((TreeCount & DELTA_TREECOUNT)==0 &&
+      (NewPtr=(char *)realloc(ListName,(TreeCount+(DELTA_TREECOUNT+1)+1)*NM))==NULL)
     {
       /* $ 13.07.2000 SVS
          не надо смешивать new/delete с realloc
@@ -1134,7 +1143,8 @@ void TreeList::DelTreeName(char *Name)
     if (LocalStrnicmp(Name,DirName,Length=strlen(Name))==0 &&
         (DirName[Length]==0 || DirName[Length]=='\\'))
       continue;
-    if ((TreeCount & 31)==0 && (NewPtr=(char *)realloc(ListName,(TreeCount+32+1)*NM))==NULL)
+    if ((TreeCount & DELTA_TREECOUNT)==0 &&
+      (NewPtr=(char *)realloc(ListName,(TreeCount+(DELTA_TREECOUNT+1)+1)*NM))==NULL)
     {
       /* $ 13.07.2000 SVS
         не надо смешивать new/delete с realloc
@@ -1233,13 +1243,20 @@ void TreeList::ReadCache(char *TreeRoot)
 {
   char TreeName[NM],DirName[NM],*ChPtr;
   char *ListName;
-  FILE *TreeFile;
+  FILE *TreeFile=NULL;
+  /* $ 07.08.2001 SVS
+     Ну просто ОХРЕНЕТЬ!!!!
+     т.е. сначала сравниваем, а потом формируем имя? ню-ню.
+     Камень в огород ER.
+  */
+  sprintf(TreeName,"%s%s",TreeRoot,TreeFileName);
+
   if (strcmp(TreeName,TreeCache.TreeName)==0)
     return;
+  /* SVS $ */
   if (TreeCache.ListName!=NULL)
     FlushCache();
 
-  sprintf(TreeName,"%s%s",TreeRoot,TreeFileName);
   if (MustBeCached(TreeRoot) || (TreeFile=fopen(TreeName,"rb"))==NULL)
     if (!GetCacheTreeName(TreeRoot,TreeName,FALSE) || (TreeFile=fopen(TreeName,"rb"))==NULL)
     {
@@ -1251,7 +1268,8 @@ void TreeList::ReadCache(char *TreeRoot)
   {
     if ((ChPtr=strchr(DirName,'\n'))!=NULL)
       *ChPtr=0;
-    if ((TreeCache.TreeCount & 31)==0 && (ListName=(char *)realloc(TreeCache.ListName,(TreeCache.TreeCount+32+1)*NM))==NULL)
+    if ((TreeCache.TreeCount & DELTA_TREECOUNT)==0 &&
+      (ListName=(char *)realloc(TreeCache.ListName,(TreeCache.TreeCount+(DELTA_TREECOUNT+1)+1)*NM))==NULL)
     {
       fclose(TreeFile);
       return;
