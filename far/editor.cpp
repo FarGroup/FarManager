@@ -5,7 +5,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.05 11.07.2000 $ */
+/* Revision: 1.06 11.07.2000 $ */
 
 /*
 Modify:
@@ -23,6 +23,8 @@ Modify:
       берется из реестра (общий для редактирования)
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  11.07.2000 tran
+    + строка статуса рисуется с учетом ширины консоли.
 */
 
 #include "headers.hpp"
@@ -679,6 +681,12 @@ void Editor::ShowStatus()
   char TruncFileName[NM],StatusStr[NM],LineStr[50];
   strcpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FileName));
   int NameLength=Opt.ViewerEditorClock ? 19:25;
+  /* $ 11.07.2000 tran
+     + expand filename if console more when 80 column */
+  if (X2>80)
+     NameLength+=(X2-80);
+  /* tran 11.07.2000 $ */
+
   if (*PluginTitle || *Title)
     TruncStr(TruncFileName,ObjWidth);
   else
