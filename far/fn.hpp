@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.44 03.01.2001 $ */
+/* Revision: 1.45 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+   ! Описания MkLink, GetNumberOfLinks переехали в flink.hpp
   03.01.2001 SVS
    ! Дополнительный параметр у ConvertDate -
      "как взять формат даты - динамически или статически?"
@@ -183,7 +185,6 @@ void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 void InsertCommas(unsigned long Number,char *Dest);
 void DeleteDirTree(char *Dir);
-int MkLink(char *Src,char *Dest);
 int GetClusterSize(char *Root);
 void _cdecl CheckVersion(void *Param);
 void _cdecl ErrRegFn(void *Param);
@@ -330,7 +331,6 @@ void CenterStr(char *Src,char *Dest,int Length);
 char *GetCommaWord(char *Src,char *Word);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner);
-int WINAPI GetNumberOfLinks(char *Name);
 void ShowSeparator(int Length);
 void UseSameRegKey();
 void CloseSameRegKey();

@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.00 03.01.2001 $ */
+/* Revision: 1.01 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+    + Заглужки для CreateJunctionPoint, DeleteJunctionPoint
+    + GetJunctionPointInfo - получить инфу про Junc
   03.01.2001 SVS
     ! Выделение в качестве самостоятельного модуля
     + GetNumberOfLinks и MkLink переехали из mix.cpp
@@ -18,6 +21,125 @@ Modify:
 #pragma hdrstop
 
 #include "internalheaders.hpp"
+
+
+#if defined(__BORLANDC__)
+  #define CP_THREAD_ACP             3           // current thread's ANSI code page
+
+  #define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
+  // Predefined reparse tags.
+  // These tags need to avoid conflicting with IO_REMOUNT defined in ntos\inc\io.h
+  #define IO_REPARSE_TAG_RESERVED_ZERO             (0)
+  #define IO_REPARSE_TAG_RESERVED_ONE              (1)
+
+  // The value of the following constant needs to satisfy the following conditions:
+  //  (1) Be at least as large as the largest of the reserved tags.
+  //  (2) Be strictly smaller than all the tags in use.
+  #define IO_REPARSE_TAG_RESERVED_RANGE            IO_REPARSE_TAG_RESERVED_ONE
+  // The following constant represents the bits that are valid to use in
+  // reparse tags.
+  #define IO_REPARSE_TAG_VALID_VALUES     (0xE000FFFF)
+  // Macro to determine whether a reparse tag is a valid tag.
+  #define IsReparseTagValid(_tag) (                               \
+                    !((_tag) & ~IO_REPARSE_TAG_VALID_VALUES) &&   \
+                    ((_tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
+                   )
+  #define FILE_FLAG_OPEN_REPARSE_POINT    0x00200000
+  #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS) // REPARSE_DATA_BUFFER
+#endif
+struct TMN_REPARSE_DATA_BUFFER
+{
+  DWORD  ReparseTag;
+  WORD   ReparseDataLength;
+  WORD   Reserved;
+
+  // IO_REPARSE_TAG_MOUNT_POINT specifics follow
+  WORD   SubstituteNameOffset;
+  WORD   SubstituteNameLength;
+  WORD   PrintNameOffset;
+  WORD   PrintNameLength;
+  WCHAR  PathBuffer[1];
+
+  // Some helper functions
+  //BOOL Init(LPCSTR szJunctionPoint);
+  //BOOL Init(LPCWSTR wszJunctionPoint);
+  //int BytesForIoControl() const;
+};
+
+
+BOOL WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDirArg)
+{
+  return TRUE;
+}
+
+BOOL WINAPI DeleteJunctionPoint(LPCTSTR szDir)
+{
+  return TRUE;
+}
+
+DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
+              LPTSTR  szDestBuff,
+              DWORD   dwBuffSize)
+{
+  const DWORD FileAttr = GetFileAttributes(szMountDir);
+  if (FileAttr == 0xffffffff || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+  {
+    SetLastError(ERROR_PATH_NOT_FOUND);
+    return 0;
+  }
+
+  HANDLE hDir=CreateFile(szMountDir,GENERIC_READ|0,0,0,OPEN_EXISTING,
+          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
+
+  if (hDir == INVALID_HANDLE_VALUE)
+  {
+    SetLastError(ERROR_PATH_NOT_FOUND);
+    return 0;
+  }
+
+  char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+  TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
+
+  DWORD dwBytesReturned;
+  if (!DeviceIoControl(hDir,
+            FSCTL_GET_REPARSE_POINT,
+            NULL,
+            0,
+            (LPVOID)&rdb,
+            MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+            &dwBytesReturned,
+            0) ||
+    !IsReparseTagValid(rdb.ReparseTag))
+  {
+    CloseHandle(hDir);
+    return 0;
+  }
+
+  CloseHandle(hDir);
+
+  if (dwBuffSize < rdb.SubstituteNameLength / sizeof(TCHAR) + sizeof(TCHAR))
+  {
+    return rdb.SubstituteNameLength / sizeof(TCHAR) + sizeof(TCHAR);
+  }
+
+#ifdef UNICODE
+  lstrcpy(szDestBuff, rdb.PathBuffer);
+#else
+  if (!WideCharToMultiByte(CP_THREAD_ACP,
+              0,
+              rdb.PathBuffer,
+              rdb.SubstituteNameLength / sizeof(WCHAR) + 1,
+              szDestBuff,
+              dwBuffSize,
+              "",
+              FALSE))
+  {
+    //printf("WideCharToMultiByte failed (%d)\n", GetLastError());
+    return 0;
+  }
+#endif
+  return rdb.SubstituteNameLength / sizeof(TCHAR);
+}
 
 
 /* $ 07.09.2000 SVS
@@ -40,7 +162,7 @@ int WINAPI GetNumberOfLinks(char *Name)
 #if defined(__BORLANDC__)
 #pragma option -a4
 #endif
-int MkLink(char *Src,char *Dest)
+int WINAPI MkLink(char *Src,char *Dest)
 {
   struct CORRECTED_WIN32_STREAM_ID
   {
@@ -117,3 +239,4 @@ int MkLink(char *Src,char *Dest)
 #if defined(__BORLANDC__)
 #pragma option -a.
 #endif
+

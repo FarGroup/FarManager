@@ -8,10 +8,12 @@ internalheaders.hpp
 
 */
 
-/* Revision: 1.00 30.06.2000 $ */
+/* Revision: 1.01 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+    + flink.hpp
   30.06.2000 IS
     + Данный файл сделан для избавления куска файла, который встречается почти
       в каждом *.cpp
@@ -43,6 +45,9 @@ Modify:
 #endif
 #ifndef __FARFUNC_HPP__
 #include "fn.hpp"
+#endif
+#ifndef __FLINK_HPP__
+#include "flink.hpp"
 #endif
 #ifndef __FARGLOBAL_HPP__
 #include "global.hpp"
