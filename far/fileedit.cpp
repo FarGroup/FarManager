@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.114 12.07.2002 $ */
+/* Revision: 1.115 13.07.2002 $ */
 
 /*
 Modify:
+  13.07.2002 SVS
+    - До плагина не доходила клавиша F1.
+      Введем понятие пост обработка!
   12.07.2002 SVS
     ! Очередная "потеха" для "Editor Not File" - перенесем обработку F1
       из Editor в FileEditor
@@ -680,14 +683,6 @@ int FileEditor::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_F1:
-    {
-      {
-        Help Hlp ("Editor");
-      }
-      return(TRUE);
-    }
-
     /* $ 24.08.2000 SVS
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
@@ -1055,11 +1050,25 @@ int FileEditor::ProcessKey(int Key)
   if(Key&KEY_MACROSPEC_BASE) // исключаем MACRO
      return(FEdit->ProcessKey(Key));
   /* DJ $ */
+
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
   _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
   if (CtrlObject->Macro.IsExecuting() ||
     !ProcessEditorInput(FrameManager->GetLastInputRecord()))
   {
+    /* Обработка после плагина!
+       ИМЕННО сюда и писать те клавиши, которые могут доходить до плагина,
+       но которые так же что-то делают (например F1 - показ хелпа)
+    */
+    switch(Key)
+    {
+      case KEY_F1:
+      {
+        Help Hlp ("Editor");
+        return(TRUE);
+      }
+    }
+
     /* $ 22.03.2001 SVS
        Это помогло от залипания :-)
     */
