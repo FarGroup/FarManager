@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.199 26.09.2002 $ */
+/* Revision: 1.200 09.10.2002 $ */
 
 /*
 Modify:
+  09.10.2002 SKV
+    - selection bugs
   26.09.2002 SKV
     - еще раз удаление блока
     - еще раз выделение
@@ -1833,7 +1835,7 @@ int Editor::ProcessKey(int Key)
         }
         CurLine->EditLine.GetSelection(SelStart,SelEnd);
         CurPos=CurLine->EditLine.GetCurPos();
-        if (SelStart!=-1 && SelEnd==-1 || SelEnd>CurPos)
+        if (BlockStart==CurLine && SelStart!=-1 && SelEnd==-1 || SelEnd>CurPos)
         {
           /* $ 17.09.2002 SKV
             Убрано, ибо генерировало глюки.
@@ -2022,12 +2024,20 @@ int Editor::ProcessKey(int Key)
               if(SS==-1)
               {
                 NextPos=-1;
+                SelEnd=0;
               }
             }
             CurLine->Next->EditLine.Select(NextPos,SelEnd);
           }
-          BlockStart=CurLine->Next;
-          BlockStartLine=NumLine+1;
+          if(NextPos==-1)
+          {
+            BlockStart=NULL;
+            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+          }else
+          {
+            BlockStart=CurLine->Next;
+            BlockStartLine=NumLine+1;
+          }
         }
         else
         {
