@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.159 08.06.2004 $ */
+/* Revision: 1.160 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    ! В Viewer::vread буфер не 16К, а выделяем столько, сколько нужно!
+    - BugZ#1097 - невозможность поиска вхождений в юникод текстовом файле
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -2982,8 +2985,9 @@ void Viewer::Search(int Next,int FirstChar)
     /* KM $ */
 
     if (!Case && !SearchHex)
-      for (int I=0;I<SearchLength;I++)
-        SearchStr[I]=LocalUpper(SearchStr[I]);
+      LocalUpperBuf((char *)SearchStr,SearchLength);
+//      for (int I=0;I<SearchLength;I++)
+//        SearchStr[I]=LocalUpper(SearchStr[I]);
 
     SelectSize = 0;
     if (Next)
@@ -3014,7 +3018,10 @@ void Viewer::Search(int Next,int FirstChar)
          на -1, а CurPos не мог стать отрицательным и иногда
          выдавался неверный результат
       */
-      __int64 CurPos=LastSelPos;
+                             // BugZ#1097 - невозможность поиска вхождений в юникод текстовом файле
+      __int64 CurPos=LastSelPos+(VM.Unicode?1:0); // добавка к юникоду (+1), т.к. нихрена не ищет в первой строке.
+                             //^^^^^^^^^^^^^^^^^  ?????????
+
       /* KM $ */
       int BufSize=sizeof(Buf);
       if (ReverseSearch)
@@ -3344,11 +3351,14 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 {
   if(!SrcFile)
     return -1;
+
   if (VM.Unicode)
   {
-    char TmpBuf[16384+10];
-    int i;
-    char t;
+    // выделяем столько, сколько нужно!
+    char *TmpBuf=(char *)alloca(Size*2+16);
+    if(!TmpBuf)
+      return -1;
+
     int ReadSize=fread(TmpBuf,1,Size*2,SrcFile);
     TmpBuf[ReadSize]=0;
     /* $ 20.10.2000 tran
@@ -3356,12 +3366,12 @@ int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
     TmpBuf[ReadSize+1]=0;
     if ( FirstWord == 0x0FFFE )
     {
-        for ( i=0; i<ReadSize; i+=2 )
-        {
-            t=TmpBuf[i];
-            TmpBuf[i]=TmpBuf[i+1];
-            TmpBuf[i+1]=t;
-        }
+      for (int i=0; i<ReadSize; i+=2 )
+      {
+        char t=TmpBuf[i];
+        TmpBuf[i]=TmpBuf[i+1];
+        TmpBuf[i+1]=t;
+      }
     }
     /* tran $ */
     ReadSize+=(ReadSize & 1);
