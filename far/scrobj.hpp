@@ -7,10 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.06 11.07.2001 $ */ 
+/* Revision: 1.07 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 OT
+    Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
   11.07.2001 OT
     Перенос ShadowSaveScr из приватной области в protected
    23.06.2001
@@ -20,7 +22,7 @@ Modify:
       которым требуется выставить свои размеры, не прямям, а косвенным образом,
       зависяшим от состояния других объектов.
   21.05.2001 OT
-    + Реакция на изменение размера консоли 
+    + Реакция на изменение размера консоли
   06.05.2001 DJ
     ! перетрях #include
   15.07.2000 tran
@@ -37,9 +39,9 @@ class ScreenObject
 {
   private:
     virtual void DisplayObject() {};
-    int Visible;
     int EnableRestoreScreen;
   protected:
+    int Visible;
     SaveScreen *ShadowSaveScr;
     int X1,Y1,X2,Y2;
     int ObjWidth,ObjHeight;

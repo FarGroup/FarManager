@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.26 19.11.2001 $ */
+/* Revision: 1.27 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 OT
+    »справление поведени€ режима фуллскриновых панелей. 115 и 116 баги
   19.11.2001 VVM
     ! ActivePanel надо инициализировать до использовани€. ј иначе...
   13.11.2001 OT
@@ -131,11 +133,20 @@ void FilePanels::Init()
   RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
   SetCanLoseFocus(TRUE);
 
-  if (Opt.LeftPanel.Focus)
+  Panel *PassivePanel=NULL;
+  int PassiveIsLeftFlag=TRUE;
+
+  if (Opt.LeftPanel.Focus){
     ActivePanel=LeftPanel;
-  else
+    PassivePanel=RightPanel;
+    PassiveIsLeftFlag=FALSE;
+  } else {
     ActivePanel=RightPanel;
+    PassivePanel=LeftPanel;
+    PassiveIsLeftFlag=TRUE;
+  }
   ActivePanel->SetFocus();
+
 
   if (Opt.AutoSaveSetup)
   {
@@ -143,21 +154,29 @@ void FilePanels::Init()
       LeftPanel->InitCurDir(Opt.LeftFolder);
     if (GetFileAttributes(Opt.RightFolder)!=0xffffffff)
       RightPanel->InitCurDir(Opt.RightFolder);
-  }
-  else
-    if (*Opt.PassiveFolder)
-    {
-      Panel *PassivePanel=GetAnotherPanel(ActivePanel);
-      if (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)
-        PassivePanel->InitCurDir(Opt.PassiveFolder);
+  } else {
+    if (*Opt.PassiveFolder && (GetFileAttributes(Opt.PassiveFolder)!=0xffffffff)) {
+      PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
+  }
 
-  if (Opt.LeftPanel.Visible){
-    LeftPanel->Show();
+  //! ¬начале "показываем" пассивную панель
+  if(PassiveIsLeftFlag) {
+    if (Opt.LeftPanel.Visible){
+      LeftPanel->Show();
+    }
+    if (Opt.RightPanel.Visible){
+      RightPanel->Show();
+    }
+  } else {
+    if (Opt.RightPanel.Visible){
+      RightPanel->Show();
+    }
+    if (Opt.LeftPanel.Visible){
+      LeftPanel->Show();
+    }
   }
-  if (Opt.RightPanel.Visible){
-    RightPanel->Show();
-  }
+
 
   SetKeyBar(&MainKeyBar);
   MainKeyBar.SetOwner(this);
@@ -188,15 +207,18 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
     Opt.HeightDecrement=ScrY-7;
   if (Opt.HeightDecrement<0)
     Opt.HeightDecrement=0;
-  if (LeftFullScreen)
+  if (LeftFullScreen){
     LeftPanel->SetPosition(0,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
-  else
+    LeftPanel->ViewSettings.FullScreen=1;
+  } else {
     LeftPanel->SetPosition(0,Opt.ShowMenuBar,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
-  if (RightFullScreen)
+  }
+  if (RightFullScreen) {
     RightPanel->SetPosition(0,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
-  else
+    RightPanel->ViewSettings.FullScreen=1;
+  } else {
     RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
-  _OT(SysLog("[%p] FilePanels::SetPanelPositions() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+  }
 }
 
 void FilePanels::SetScreenPosition()
@@ -475,26 +497,30 @@ int  FilePanels::ProcessKey(int Key)
         Panel *Swap;
         LeftPanel->GetPosition(XL1,YL1,XL2,YL2);
         RightPanel->GetPosition(XR1,YR1,XR2,YR2);
-        if (XL2-XL1!=ScrX && XR2-XR1!=ScrX)
+        if (!LeftPanel->ViewSettings.FullScreen || !RightPanel->ViewSettings.FullScreen)
         {
           Opt.WidthDecrement=-Opt.WidthDecrement;
-          LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
-          RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-          Swap=LeftPanel;
-          LeftPanel=RightPanel;
-          RightPanel=Swap;
-          if (LastLeftFilePanel)
-            LastLeftFilePanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
-          if (LastRightFilePanel)
-            LastRightFilePanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
-          Swap=LastLeftFilePanel;
-          LastLeftFilePanel=LastRightFilePanel;
-          LastRightFilePanel=Swap;
-          SwapType=LastLeftType;
-          LastLeftType=LastRightType;
-          LastRightType=SwapType;
-          PanelFilter::SwapFilter();
+          if (!LeftPanel->ViewSettings.FullScreen){
+            LeftPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
+            if (LastLeftFilePanel)
+              LastLeftFilePanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,YR1,ScrX,YR2);
+          }
+          if(!RightPanel->ViewSettings.FullScreen){
+            RightPanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
+            if (LastRightFilePanel)
+              LastRightFilePanel->SetPosition(0,YL1,ScrX/2-Opt.WidthDecrement,YL2);
+          }
         }
+        Swap=LeftPanel;
+        LeftPanel=RightPanel;
+        RightPanel=Swap;
+        Swap=LastLeftFilePanel;
+        LastLeftFilePanel=LastRightFilePanel;
+        LastRightFilePanel=Swap;
+        SwapType=LastLeftType;
+        LastLeftType=LastRightType;
+        LastRightType=SwapType;
+        PanelFilter::SwapFilter();
       }
       FrameManager->RefreshFrame();
       break;

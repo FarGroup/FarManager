@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.70 12.11.2001 $ */
+/* Revision: 1.71 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 OT
+    Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
   12.11.2001 SVS
     ! откат 1041 до лучших времен.
   08.11.2001 SVS
@@ -1248,8 +1250,10 @@ void Panel::Show()
     }
     if (AnotherPanel->GetFocus())
     {
-      if (AnotherPanel->IsFullScreen())
+      if (AnotherPanel->IsFullScreen()){
+        Visible=TRUE;
         return;
+      }
       if (GetType()==FILE_PANEL && IsFullScreen())
       {
         ScreenObject::Show();
