@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.83 11.04.2001 $ */
+/* Revision: 1.84 20.04.2001 $ */
 
 /*
 Modify:
+  20.04.2001 IS
+    ! _Значительное_ ускорение выделения строки при помощи shift-home или
+      shift-end. Просьба сразу сообщать на малейшее отклонение от манеры
+      аналогичного поведения до этого патча, я вроде поэкспериментировал, но
+      мог что-нибудь и упустить.
   11.04.2001 SVS
     + Добавлена обработка Ctrl-Q - при вставки символа не удалялся блок
       (постоянные блоки выключены)
@@ -1323,8 +1328,48 @@ int Editor::ProcessKey(int Key)
       Pasting++;
       DisableOut++;
       Edit::DisableEditOut(TRUE);
-      while (CurLine->EditLine.GetCurPos()>0)
-        ProcessKey(KEY_SHIFTLEFT);
+      /* $ 20.04.2001 IS
+           Я не знаю, что двигало Женей (наверное, стремление упростить и
+           сократить код), но оно сказалось в худшую сторону на быстродействии.
+           Теперь выделяем все за один раз.
+      */
+      {
+        int First=FALSE, // будет TRUE, если выделяем заново, а не продолжаем
+            SelStart,SelEnd;
+        if (!MarkingBlock)
+        {
+          UnmarkBlock();
+          First=MarkingBlock=TRUE;
+          BlockStart=CurLine;
+          BlockStartLine=NumLine;
+        }
+
+        if (CurPos==0)
+        { // логика пока не ясна, блок просто скопирован из KEY_SHIFTLEFT
+          CurLine->EditLine.GetSelection(SelStart,SelEnd);
+          if (SelStart==-1 || SelEnd==0)
+            CurLine->EditLine.Select(-1,0);
+        }
+        else
+        {
+          int EndPos=CurPos;
+          if (EndPos>CurLine->EditLine.GetLength())
+            EndPos=-1; // если курсор за концом строки, то выделим ВСЮ строку
+
+          if (First) // выделяем заново
+            CurLine->EditLine.Select(0,EndPos);
+          else       // добавляем к уже выделенному
+            CurLine->EditLine.AddSelect(0,EndPos);
+
+          CurLine->EditLine.SetCurPos(0);
+          CurPos=0;   // надо ли??
+        }
+      }
+      // то, что я накуролесил, раньше делали эти две строки, оставил, чтобы
+      // в случае чего далеко не искать
+      //while (CurLine->EditLine.GetCurPos()>0)
+      //  ProcessKey(KEY_SHIFTLEFT);
+      /* IS $ */
       Pasting--;
       DisableOut--;
       Edit::DisableEditOut(FALSE);
@@ -1336,12 +1381,46 @@ int Editor::ProcessKey(int Key)
         DisableOut++;
         Edit::DisableEditOut(TRUE);
         int CurLength=CurLine->EditLine.GetLength();
-        if (CurPos>CurLength)
-          while (CurLine->EditLine.GetCurPos()>CurLength)
-            ProcessKey(KEY_SHIFTLEFT);
-        else
-          while (CurLine->EditLine.GetCurPos()<CurLength)
-            ProcessKey(KEY_SHIFTRIGHT);
+        /* $ 20.04.2001 IS
+             Выделяем все за один раз. Попробуйте выделить строку размером в 50
+             кил при помощи shift-end до этого патча и после. Почувствуйте
+             разницу :)
+        */
+        {
+          int First=FALSE; // будет TRUE, если выделяем заново, а не продолжаем
+          if (!MarkingBlock)
+          {
+            UnmarkBlock();
+            First=MarkingBlock=TRUE;
+            BlockStart=CurLine;
+            BlockStartLine=NumLine;
+          }
+
+          if(CurPos>CurLength) // мы за пределами строки, выделяем влево
+          {
+            if (First) // выделяем заново
+              CurLine->EditLine.Select(CurLength, -1);
+            else       // добавляем к уже выделенному
+              CurLine->EditLine.AddSelect(CurLength, -1);
+          }
+          else // выделяем вправо
+          {
+            if (First) // выделяем заново
+              CurLine->EditLine.Select(CurPos, CurLength);
+            else       // добавляем к уже выделенному
+              CurLine->EditLine.AddSelect(CurPos, CurLength);
+          }
+          CurLine->EditLine.SetCurPos(CurLength);
+          CurPos=CurLength;   // надо ли??
+        // опять-таки старый код, чтобы был перед глазами
+        //if (CurPos>CurLength)
+        //  while (CurLine->EditLine.GetCurPos()>CurLength)
+        //    ProcessKey(KEY_SHIFTLEFT);
+        //else
+        //  while (CurLine->EditLine.GetCurPos()<CurLength)
+        //    ProcessKey(KEY_SHIFTRIGHT);
+        }
+        /* IS $ */
         Pasting--;
         DisableOut--;
         Edit::DisableEditOut(FALSE);
