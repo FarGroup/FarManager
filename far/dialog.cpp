@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.103 23.05.2001 $ */
+/* Revision: 1.104 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 VVM
+   ! Отменил раскрытие комбобокса по KEY_DOWN. Ну невозможно работать...
   23.05.2001 SVS
    - Проблемы с горячими клавишами в меню - Part II (гады, в другом месте
      вылезли :-( )
@@ -1920,8 +1922,11 @@ int Dialog::ProcessKey(int Key)
     }
   }
 
-  if(Key == KEY_DOWN && Type == DI_COMBOBOX && (Item[FocusPos].Flags&DIF_DROPDOWNLIST))
-    Key=KEY_CTRLDOWN;
+  /* $ 23.05.2001 VVM
+    ! Ну невозможно работать с диалгами стало. */
+//  if(Key == KEY_DOWN && Type == DI_COMBOBOX && (Item[FocusPos].Flags&DIF_DROPDOWNLIST))
+//    Key=KEY_CTRLDOWN;
+  /* VVM $ */
 
   switch(Key)
   {
