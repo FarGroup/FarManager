@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.109 13.04.2002 $ */
+/* Revision: 1.110 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
   13.04.2002 KM
     ! Предыдущй патч не работал. Баг№445 был изничтожен ещё
       в 1347 патче.
@@ -69,7 +71,7 @@ Modify:
     + Задействуем функцию AbortMessage()
   04.03.2002 DJ
     ! нажатие Esc в диалоге подтверждения прерывания поиска поиск _не_
-	  прерывает
+    прерывает
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   21.02.2002 VVM
@@ -2503,8 +2505,8 @@ DWORD FindFiles::AddFindListItem(WIN32_FIND_DATA *FindData)
   return(FindListCount++);
 }
 
-DWORD FindFiles::AddArcListItem(char *ArcName, HANDLE hPlugin,
-                                DWORD dwFlags, char *RootPath)
+DWORD FindFiles::AddArcListItem(const char *ArcName, HANDLE hPlugin,
+                                DWORD dwFlags, const char *RootPath)
 {
   if ((ArcListCount == ArcListCapacity) &&
       (!ArcListGrow()))

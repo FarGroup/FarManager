@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.24 18.04.2002 $ */
+/* Revision: 1.25 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
   18.04.2002 SVS
     - BugZ#463 - Ext.: -> Edit: (а про "Ext." то я и забыл :-()
   18.03.2002 SVS
@@ -86,7 +88,7 @@ Modify:
 #include "vmenu.hpp"
 #include "lang.hpp"
 
-History::History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType)
+History::History(int TypeHistory,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType)
 {
   FreeHistory(FALSE);
   strncpy(History::RegKey,RegKey,sizeof(History::RegKey)-1);
@@ -148,7 +150,7 @@ void History::ReloadTitle()
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
 */
-void History::AddToHistory(char *Str,char *Title,int Type,int SaveForbid)
+void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveForbid)
 {
   if (!EnableAdd)
     return;
@@ -189,7 +191,7 @@ void History::AddToHistory(char *Str,char *Title,int Type,int SaveForbid)
 }
 
 
-void History::AddToHistoryLocal(char *Str,char *Title,int Type)
+void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 {
   if(!Str || *Str == 0)
     return;
@@ -485,7 +487,7 @@ BOOL History::ReadHistory()
 }
 
 
-int History::Select(char *Title,char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle)
+int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle)
 {
   struct MenuItem HistoryItem;
 

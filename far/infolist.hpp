@@ -7,10 +7,12 @@ infolist.hpp
 
 */
 
-/* Revision: 1.07 26.03.2002 $ */
+/* Revision: 1.08 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
   26.03.2002 DJ
     ! перенесем реализацию Update() в .cpp
   16.01.2002 SVS
@@ -75,9 +77,9 @@ class InfoList:public Panel
     void DisplayObject();
     void ShowDirDescription();
     void ShowPluginDescription();
-    void PrintText(char *Str);
+    void PrintText(const char *Str);
     void PrintText(int MsgID);
-    void PrintInfo(char *Str);
+    void PrintInfo(const char *Str);
     void PrintInfo(int MsgID);
     int  OpenDizFile(char *DizFile);
     void SetMacroMode(int Restore = FALSE);

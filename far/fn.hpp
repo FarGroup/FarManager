@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.147 05.04.2002 $ */
+/* Revision: 1.148 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    + const вариант PointToName
   05.04.2002 SVS
     + CheckShortcutFolder()
   04.04.2002 SVS
@@ -802,6 +804,7 @@ char* WINAPI TruncStrFromEnd(char *Str, int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
+const char* WINAPI PointToName(const char *Path);
 /* $ 20.03.2002 IS
     + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
       "name\" (оканчивается на слеш) возвращает указатель на name, а не

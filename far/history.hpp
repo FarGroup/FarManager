@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.10 18.03.2002 $ */
+/* Revision: 1.11 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
   18.03.2002 SVS
     + ReloadTitle() и EqualType()
   06.03.2002 SVS
@@ -65,25 +67,26 @@ class History
     unsigned int LastPtr0,CurLastPtr0;
     int EnableAdd,RemoveDups,KeepSelectedPos;
     int TypeHistory;
-    int *EnableSave,SaveTitle,SaveType;
+    const int *EnableSave;
+    int SaveTitle,SaveType;
     int LastSimilar;
     int ReturnSimilarTemplate;
     struct HistoryRecord LastStr[HISTORY_COUNT];
 
   private:
-    void AddToHistoryLocal(char *Str,char *Title,int Type);
+    void AddToHistoryLocal(const char *Str,const char *Title,int Type);
     void FreeHistory(BOOL FreeMemory=FALSE);
     BOOL EqualType(int Type1, int Type2);
 
   public:
-    History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
+    History(int TypeHistory,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
    ~History();
 
   public:
-    void AddToHistory(char *Str,char *Title=NULL,int Type=0,int SaveForbid=0);
+    void AddToHistory(const char *Str,const char *Title=NULL,int Type=0,int SaveForbid=0);
     BOOL ReadHistory();
     BOOL SaveHistory();
-    int  Select(char *Title,char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle=NULL);
+    int  Select(const char *Title,const char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle=NULL);
     void GetPrev(char *Str,int StrLength);
     void GetNext(char *Str,int StrLength);
     void SetFirst() {LastPtr=LastPtr0;CurLastPtr=CurLastPtr0;}

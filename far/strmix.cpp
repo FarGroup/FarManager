@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.38 25.04.2002 $ */
+/* Revision: 1.39 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    + const вариант PointToName
   25.04.2002 SVS
     - Ошибка в вычислении размера вставляемой строки в InsertString()
   03.04.2002 SVS
@@ -157,6 +159,18 @@ char* InsertCommas(int64 li,char *Dest)
 char* WINAPI PointToName(char *Path)
 {
   char *NamePtr=Path;
+  while (*Path)
+  {
+    if (*Path=='\\' || *Path=='/' || *Path==':' && Path==NamePtr+1)
+      NamePtr=Path+1;
+    Path++;
+  }
+  return(NamePtr);
+}
+
+const char *WINAPI PointToName(const char *Path)
+{
+  const char *NamePtr=Path;
   while (*Path)
   {
     if (*Path=='\\' || *Path=='/' || *Path==':' && Path==NamePtr+1)

@@ -5,10 +5,13 @@ infolist.cpp
 
 */
 
-/* Revision: 1.31 26.03.2002 $ */
+/* Revision: 1.32 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
+    - Баг в PrintInfo: меняли то, что иногда менять нельзя
   26.03.2002 DJ
     ! реализация Update() перенесена из .h; перерисовка делается, только если
       мы активный фрейм
@@ -480,7 +483,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void InfoList::PrintText(char *Str)
+void InfoList::PrintText(const char *Str)
 {
   if (WhereY()>Y2-1)
     return;
@@ -494,13 +497,20 @@ void InfoList::PrintText(int MsgID)
 }
 
 
-void InfoList::PrintInfo(char *Str)
+void InfoList::PrintInfo(const char *str)
 {
   if (WhereY()>Y2-1)
     return;
   int SaveColor=GetColor(),MaxLength=X2-WhereX()-2;
   if (MaxLength<0)
     MaxLength=0;
+  /* $ 25.04.2002 IS
+     Скопируем данные во внутренний буфер, т.к. TruncStr изменяет их, а этого
+     делать нельзя, т.к. str может указывать и на r/o-строку
+  */
+  char Str[NM*2];
+  strncpy(Str,str,sizeof(Str));
+  /* IS $ */
   TruncStr(Str,MaxLength);
   int Length=strlen(Str);
   int NewX=X2-Length-1;
@@ -588,7 +598,7 @@ void InfoList::ShowPluginDescription()
     int Y=Y2-Info.InfoLinesNumber+I;
     if (Y<=Y1)
       continue;
-    struct InfoPanelLine *InfoLine=&Info.InfoLines[I];
+    const struct InfoPanelLine *InfoLine=&Info.InfoLines[I];
     GotoXY(X1,Y);
     SetColor(COL_PANELBOX);
     Text(VertcalLine);

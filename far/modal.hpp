@@ -7,10 +7,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.07 26.07.2001 $ */
+/* Revision: 1.08 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
   26.07.2001 OT
     Косметическое исправление (борьба варнингами)
   18.07.2001 OT
@@ -59,7 +61,7 @@ class Modal: virtual public ScreenObject
     void WriteInput(int Key);
     void ProcessInput();
 
-    void SetHelp(char *Topic);
+    void SetHelp(const char *Topic);
     void ShowHelp();
 //    void SetScreenPosition(){inherited::SetScreenPosition();}
 

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.199 12.04.2002 $ */
+/* Revision: 1.200 25.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  25.04.2002 IS
+    ! внедрение const (OpenPluginInfo)
   12.04.2002 SVS
     + FCTL_GET[ANOTHER]PANELSHORTINFO
   08.04.2002 SVS
@@ -2264,21 +2266,21 @@ struct OpenPluginInfo
 {
   int                   StructSize;
   DWORD                 Flags;
-  char                 *HostFile;
-  char                 *CurDir;
-  char                 *Format;
+  const char           *HostFile;
+  const char           *CurDir;
+  const char           *Format;
   const char           *PanelTitle;
-  struct InfoPanelLine *InfoLines;
+  const struct InfoPanelLine *InfoLines;
   int                   InfoLinesNumber;
-  char                **DescrFiles;
+  const char * const   *DescrFiles;
   int                   DescrFilesNumber;
-  struct PanelMode     *PanelModesArray;
+  const struct PanelMode *PanelModesArray;
   int                   PanelModesNumber;
   int                   StartPanelMode;
   int                   StartSortMode;
   int                   StartSortOrder;
-  struct KeyBarTitles  *KeyBar;
-  char                 *ShortcutData;
+  const struct KeyBarTitles *KeyBar;
+  const char           *ShortcutData;
   long                  Reserverd;
 };
 

@@ -7,10 +7,12 @@ findfile.hpp
 
 */
 
-/* Revision: 1.12 07.04.2002 $ */
+/* Revision: 1.13 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
   07.04.2002 KM
     + _FINDLIST.Used - член структуры для определения необходимости
       попадания имени файла из списка во временную панель.
@@ -82,8 +84,8 @@ class FindFiles
     static BOOL FindListGrow();
     static BOOL ArcListGrow();
     static DWORD AddFindListItem(WIN32_FIND_DATA *FindData);
-    static DWORD AddArcListItem(char *ArcName, HANDLE hPlugin,
-                                DWORD dwFlags, char *RootPath);
+    static DWORD AddArcListItem(const char *ArcName, HANDLE hPlugin,
+                                DWORD dwFlags, const char *RootPath);
     static void ClearAllLists();
 
     int FindFilesProcess();

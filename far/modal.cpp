@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.11 30.03.2002 $ */
+/* Revision: 1.12 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 IS
+    ! внедрение const
   30.03.2002 OT
     - После исправления бага №314 (патч 1250) отвалилось закрытие
       фара по кресту.
@@ -124,7 +126,7 @@ void Modal::SetExitCode(int Code)
 }
 
 
-void Modal::SetHelp(char *Topic)
+void Modal::SetHelp(const char *Topic)
 {
   strncpy(HelpTopic,Topic,sizeof(HelpTopic)-1);
 }
