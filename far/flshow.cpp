@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.30 20.02.2003 $ */
+/* Revision: 1.31 03.03.2003 $ */
 
 /*
 Modify:
+  03.03.2003 SVS
+    ! Оформим парвильное окончание при выделении (для "21" было "файлов") с помощью __FormatEndSelectedPhrase()
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
     ! При отображении колонки ATTR_COLUMN откажимся от sprintf()
@@ -112,6 +114,23 @@ extern int ColumnTypeWidth[];
 //static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
 static char *VerticalLine[]={"\x0B3","\x0BA"};
 static char OutCharacter[2]={0,0};
+
+static int __FormatEndSelectedPhrase(int Count)
+{
+  int M_Fmt=MListFileSize;
+  if(Count != 1)
+  {
+    char StrItems[32];
+    itoa(Count,StrItems,10);
+    int LenItems=strlen(StrItems);
+    if(StrItems[LenItems-1] == '1' && Count != 11)
+      M_Fmt=MListFilesSize1;
+    else
+      M_Fmt=MListFilesSize2;
+  }
+  return M_Fmt;
+}
+
 
 void FileList::DisplayObject()
 {
@@ -440,10 +459,8 @@ void FileList::ShowSelectedSize()
   if (SelFileCount)
   {
     InsertCommas(SelFileSize,FormStr);
-    if (SelFileCount!=1)
-      sprintf(SelStr,MSG(MListFilesSize),FormStr,SelFileCount);
-    else
-      sprintf(SelStr,MSG(MListFileSize),FormStr);
+    sprintf(SelStr,MSG(__FormatEndSelectedPhrase(SelFileCount)),FormStr,SelFileCount);
+
     TruncStr(SelStr,X2-X1-1);
     Length=strlen(SelStr);
     SetColor(COL_PANELSELECTEDINFO);
@@ -480,11 +497,9 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   if (Opt.ShowPanelFree && (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
     InsertCommas(FreeDiskSize,FreeSize);
   if (Opt.ShowPanelTotals)
+  {
     if (!Opt.ShowPanelFree || *FreeSize==0)
-      if (TotalFileCount!=1)
-        sprintf(TotalStr,MSG(MListFilesSize),FormSize,TotalFileCount);
-      else
-        sprintf(TotalStr,MSG(MListFileSize),FormSize);
+      sprintf(TotalStr,MSG(__FormatEndSelectedPhrase(TotalFileCount)),FormSize,TotalFileCount);
     else
     {
       static unsigned char DHLine[4]={0x0CD,0x0CD,0x0CD,0x00};
@@ -496,6 +511,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
         sprintf(TotalStr," %s %s (%d) %s %s %s ",FormSize,MSG(MListMb),TotalFileCount,DHLine,FreeSize,MSG(MListMb));
       }
     }
+  }
   else
     sprintf(TotalStr,MSG(MListFreeSize),*FreeSize ? FreeSize:"???");
 

@@ -5,10 +5,16 @@ copy.cpp
 
 */
 
-/* Revision: 1.111 20.02.2003 $ */
+/* Revision: 1.112 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    + _LOGCOPYR() - детальный лог процесса копирования
+    - BugZ#636 - Некорректный разбор списка целей копирования
+    - BugZ#694 - Не работает копирование на линукс-разделы по сети.
+      (добавим диалог предупреждения при неудачной попытке наложить
+      атрибуты на dest-каталог)
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
@@ -438,6 +444,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int &ToPlugin,          // =?
                      char *PluginDestPath)   // =?
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::ShellCopy()"));
   /* $ 15.08.2002 IS
      Запретим дубли в списке целей
   */
@@ -460,8 +467,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
   // Сразу выциганим версию OS
 
-  _tran(SysLog("[%p] ShellCopy::ShellCopy() ",this));
-
   NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
   NT5=NT && WinVer.dwMajorVersion >= 5;
 
@@ -475,17 +480,19 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
               MSG(MCopyNotSupportLink1),
               MSG(MCopyNotSupportLink2),
               MSG(MOk));
+    _LOGCOPYR(SysLog("return -> %d NotSupportLink!!!",__LINE__));
     return;
   }
-  _tran(SysLog("[%p] ShellCopy::ShellCopy() 1",this));
 
   memset(&CDP,0,sizeof(CDP));
   CDP.IsDTSrcFixed=-1;
   CDP.IsDTDstFixed=-1;
 
   if ((CDP.SelCount=SrcPanel->GetSelCount())==0)
+  {
+    _LOGCOPYR(SysLog("return -> %d SelCount == 0",__LINE__));
     return;
-  _tran(SysLog("[%p] ShellCopy::ShellCopy() 2",this));
+  }
 
   *SelName=*RenamedName=*CopiedName=0;
 
@@ -494,9 +501,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     SrcPanel->GetSelName(NULL,CDP.FileAttr);
     SrcPanel->GetSelName(SelName,CDP.FileAttr);
     if (TestParentFolderName(SelName))
+    {
+      _LOGCOPYR(SysLog("return -> %d TestParentFolderName('%s') != 0",__LINE__,SelName));
       return;
+    }
   }
-  _tran(SysLog("[%p] ShellCopy::ShellCopy() 3",this));
 
   /* $ 26.05.2001 OT Запретить перерисовку панелей во время копирования */
   _tran(SysLog("call (*FrameManager)[0]->LockRefresh()"));
@@ -708,7 +717,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                   SrcDir,
                   CopyDlg[2].Data,
                   &CDP))
+    {
+      _LOGCOPYR(SysLog("return -> %d LinkRules() == 0",__LINE__));
       return;
+    }
     CopyDlg[5].Selected=Selected5;
   }
 
@@ -756,7 +768,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         */
         strcpy(CopyDlgValue,CopyDlg[2].Data);
         Opt.MultiCopy=CopyDlg[6].Selected;
-        if(!Opt.MultiCopy) // отключено multi*
+        if(!Opt.MultiCopy || !strpbrk(CopyDlg[2].Data,",;")) // отключено multi*
         {
            // уберем пробелы, лишние кавычки
            RemoveTrailingSpaces(CopyDlg[2].Data);
@@ -783,6 +795,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     {
       if (DestPlugin)
         ToPlugin=-1;
+      _LOGCOPYR(SysLog("return -> %d",__LINE__));
       return;
     }
   }
@@ -795,11 +808,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   if (DestPlugin && !strcmp(CopyDlg[2].Data,InitDestDir))
   {
     ToPlugin=TRUE;
+    _LOGCOPYR(SysLog("return -> %d",__LINE__));
     return;
   }
 
-  _tran(SysLog("[%p] ShellCopy::ShellCopy() 4",this));
-
+  _LOGCOPYR(SysLog("CopyDlg[2].Data='%s'",CopyDlg[2].Data));
   // Выставляем признак копирования в NUL
   /* $ 21.12.2002 IS
      Признак копирования в nul выставим в случаях, когда цель назначения:
@@ -828,6 +841,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   {
     if (*PluginDestPath!=NULL)
       strcpy(PluginDestPath,CopyDlg[2].Data);
+    _LOGCOPYR(SysLog("return -> %d",__LINE__));
     return;
   }
 
@@ -872,7 +886,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   {
     ShellCopy::Flags&=~FCOPY_MOVE;
     if(DestList.Set(CopyDlgValue)) // если список успешно "скомпилировался"
-      {
+    {
         const char *NamePtr;
         char NameTmp[NM];
 
@@ -883,7 +897,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         DestList.Reset();
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
-
           TotalFiles=0;
           TotalCopySize=TotalCopiedSize=0;
           TotalSkippedSize=CurCopiedSize=0;
@@ -895,6 +908,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           }
 
           strcpy(NameTmp, NamePtr);
+          _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,Move));
 
           // Если выделенных элементов больше 1 и среди них есть каталог, то всегда
           // делаем так, чтобы на конце был '\\'
@@ -950,7 +964,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
             DestDiz.Flush(DestDizPath);
           }
         }
-      }
+    }
+    _LOGCOPYR(else SysLog("Error: DestList.Set(CopyDlgValue) return FALSE"));
   }
   /* IS $ */
 
@@ -1195,20 +1210,20 @@ BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
     *Selected5=0;
     return TRUE;
   }
-//_SVS(SysLog("\n---"));
+//// // _SVS(SysLog("\n---"));
   // получаем полную инфу о источнике и приемнике
   if(CDP->IsDTSrcFixed == -1)
   {
     char FSysNameSrc[NM];
     ConvertNameToFull(SrcDir,Root, sizeof(Root));
     GetPathRoot(Root,Root);
-//_SVS(SysLog("SrcDir=%s",SrcDir));
-//_SVS(SysLog("Root=%s",Root));
+//// // _SVS(SysLog("SrcDir=%s",SrcDir));
+//// // _SVS(SysLog("Root=%s",Root));
     CDP->IsDTSrcFixed=GetDriveType(Root);
     CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED || CDP->IsDTSrcFixed == DRIVE_CDROM;
     GetVolumeInformation(Root,NULL,0,NULL,NULL,&CDP->FileSystemFlagsSrc,FSysNameSrc,sizeof(FSysNameSrc));
     CDP->FSysNTFS=!stricmp(FSysNameSrc,"NTFS")?TRUE:FALSE;
-//_SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
+//// // _SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
   }
 
   // 1. если источник находится не на логическом диске
@@ -1332,6 +1347,8 @@ ShellCopy::~ShellCopy()
 
 COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::CopyFileTree()"));
+  _LOGCOPYR(SysLog("Params: Dest='%s'",Dest));
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   //SaveScreen SaveScr;
   DWORD DestAttr;
@@ -1341,7 +1358,10 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   int Length,FileAttr;
 
   if ((Length=strlen(Dest))==0 || strcmp(Dest,".")==0)
+  {
+    _LOGCOPYR(SysLog("return COPY_FAILURE -> strlen('%s')=%d",Dest,Length));
     return COPY_FAILURE; //????
+  }
 
   SetCursorType(FALSE,0);
 
@@ -1353,7 +1373,10 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     /* $ 19.12.2001 VVM
       ! Не сканируем каталоги при создании линков */
     if (ShowTotalCopySize && !(ShellCopy::Flags&FCOPY_LINK) && !CalcTotalSize())
+    {
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> if (ShowTotalCopySize && !(ShellCopy::Flags&FCOPY_LINK) && !CalcTotalSize())"));
       return COPY_FAILURE;
+    }
   }
   else
     CurCopiedSize=0;
@@ -1394,6 +1417,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         else if ((Attr & FILE_ATTRIBUTE_DIRECTORY)==0)
         {
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCopyCannotCreateFolder),NewPath,MSG(MOk));
+          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d (CannotCreateFolder)",__LINE__));
           return COPY_FAILURE;
         }
       }
@@ -1414,8 +1438,11 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   // Основной цикл копирования одной порции.
   SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
   SrcPanel->GetSelName(NULL,FileAttr);
+  {
+  _LOGCOPYR(CleverSysLog Clev("Run process copy"));
   while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName))
   {
+    _LOGCOPYR(SysLog("SelName='%s', FileAttr=0x%08X, SelShortName='%s'",SelName,FileAttr,SelShortName));
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL))
     {
       char FullDest[NM];
@@ -1431,6 +1458,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         if(GetFileAttributes(DestDriveRoot) != -1)
           if(!GetVolumeInformation(DestDriveRoot,NULL,0,NULL,NULL,&DestFSFlags,DestFSName,sizeof(DestFSName)))
             *DestFSName=0;
+        _LOGCOPYR(SysLog("DestDriveRoot='%s', DestDriveType=%d, DestFSFlags=0x%08X, DestFSName='%s'",DestDriveRoot,DestDriveType,DestFSFlags,DestFSName));
       }
     }
 
@@ -1449,6 +1477,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       if(GetFileAttributes(SrcDriveRoot) != -1)
         if(!GetVolumeInformation(SrcDriveRoot,NULL,0,NULL,NULL,&SrcFSFlags,SrcFSName,sizeof(SrcFSName)))
           *SrcFSName=0;
+      _LOGCOPYR(SysLog("SrcDriveRoot='%s', SrcDriveType=%d, SrcFSFlags=0x%08X, SrcFSName='%s'",SrcDriveRoot,SrcDriveType,SrcFSFlags,SrcFSName));
     }
 
     if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -1457,10 +1486,12 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       SelectedFolderNameLength=0;
 
     KeepPathPos=PointToName(SelName)-SelName;
+    _LOGCOPYR(SysLog("%d KeepPathPos=%d",__LINE__,KeepPathPos));
     if(!stricmp(SrcDriveRoot,SelName) && (ShellCopy::Flags&FCOPY_CREATESYMLINK)) // но сначала посмотрим на "это корень диска?"
     {
+      _LOGCOPYR(SysLog("%d if(!stricmp(SrcDriveRoot,SelName) &&...",__LINE__));
       SrcData.dwFileAttributes=FILE_ATTRIBUTE_DIRECTORY;
-      //_SVS(SysLog("Dest='%s'",Dest));
+      //// // _SVS(SysLog("Dest='%s'",Dest));
     }
     else
     {
@@ -1473,6 +1504,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
                 SelName,MSG(MSkip),MSG(MCancel))==1)
         {
+          _LOGCOPYR(SysLog("return COPY_FAILURE -> MCopyCannotFind"));
           return COPY_FAILURE;
         }
         CopyStartTime = clock();
@@ -1481,6 +1513,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   //      int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
   //      TotalCopySize-=SubSize;
         /* VVM $ */
+        _LOGCOPYR(SysLog("%d continue;",__LINE__));
         continue;
       }
       FindClose(FindHandle);
@@ -1499,13 +1532,17 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       */
       switch(MkSymLink(SelName,Dest,ShellCopy::Flags))
       {
-        case 2: break;
+        case 2:
+          break;
         case 1:
             // Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
             if ((!(ShellCopy::Flags&FCOPY_CURRENTONLY)) && (ShellCopy::Flags&FCOPY_COPYLASTTIME))
               SrcPanel->ClearLastGetSelection();
+            _LOGCOPYR(SysLog("%d continue;",__LINE__));
             continue;
-        case 0: return COPY_FAILURE;
+        case 0:
+          _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+          return COPY_FAILURE;
       }
     }
 
@@ -1549,6 +1586,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
         if (CopyCode==COPY_CANCEL)
         {
+         _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
           return COPY_CANCEL;
         }
 
@@ -1568,11 +1606,14 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
     if (!(ShellCopy::Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
     {
+      _LOGCOPYR(SysLog("%d Call ShellCopyOneFile('%s',%p,'%s',%d,0)",__LINE__,NullToEmpty(SelName),&SrcData,NullToEmpty(Dest),KeepPathPos));
       CopyCode=ShellCopyOneFile(SelName,SrcData,Dest,KeepPathPos,0);
+      _LOGCOPYR(SysLog("return %d",CopyCode));
       ShellCopy::Flags&=~FCOPY_OVERWRITENEXT;
 
       if (CopyCode==COPY_CANCEL)
       {
+        _LOGCOPYR(SysLog("%d CopyCode==COPY_CANCEL",__LINE__));
         return COPY_CANCEL;
       }
 
@@ -1596,6 +1637,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     // если каталог - придется рекурсивно спускаться...
     if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
+      _LOGCOPYR(CleverSysLog Clev("if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)"));
       int SubCopyCode;
       char SubName[NM],FullName[NM];
       ScanTree ScTree(TRUE);
@@ -1608,6 +1650,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       ScTree.SetFindPath(SubName,"*.*");
       while (ScTree.GetNextName(&SrcData,FullName, sizeof (FullName)-1))
       {
+        _LOGCOPYR(SysLog("FullName='%s', SameDisk=%d",FullName,SameDisk));
         int AttemptToMove=FALSE;
 #if 0
         if(!SameDisk && (SrcData.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT) == (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT))
@@ -1629,6 +1672,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           switch(ShellCopyOneFile(FullName,SrcData,Dest,KeepPathPos,1))
           {
             case COPY_CANCEL:
+              _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
               return COPY_CANCEL;
 
             case COPY_NEXT:
@@ -1649,13 +1693,16 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
         if (AttemptToMove)
           OvrMode=1;
 
+        _LOGCOPYR(SysLog("%d Call ShellCopyOneFile('%s',%p,'%s',%d,0)",__LINE__,FullName,&SrcData,Dest,KeepPathPos));
         SubCopyCode=ShellCopyOneFile(FullName,SrcData,Dest,KeepPathPos,0);
+        _LOGCOPYR(SysLog("SubCopyCode=%d",SubCopyCode));
 
         if (AttemptToMove)
           OvrMode=SaveOvrMode;
 
         if (SubCopyCode==COPY_CANCEL)
         {
+          _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
           return COPY_CANCEL;
         }
 
@@ -1672,20 +1719,20 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
           {
             if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-                  _SVS(SysLog("************* %d (%s) ******************",__LINE__,FullName));
+                  // // _LOGCOPYR(SysLog("************* %d (%s) ******************",__LINE__,FullName));
               if (ScTree.IsDirSearchDone() || (SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
               {
                 if (SrcData.dwFileAttributes & FA_RDONLY)
                   SetFileAttributes(FullName,0);
-                  _SVS(SysLog("************* %d (%s) Pred FAR_RemoveDirectory ******************",__LINE__,FullName));
+                  // // _LOGCOPYR(SysLog("************* %d (%s) Pred FAR_RemoveDirectory ******************",__LINE__,FullName));
                 if (FAR_RemoveDirectory(FullName))
                   TreeList::DelTreeName(FullName);
-                else
-                  _SVS(SysLog("************* %d (%s) ******************",__LINE__,FullName));
+                  // // _LOGCOPYR(else SysLog("************* %d (%s) ******************",__LINE__,FullName));
               }
             }
             else if (DeleteAfterMove(FullName,SrcData.dwFileAttributes)==COPY_CANCEL)
             {
+              _LOGCOPYR(SysLog("return COPY_CANCEL -> %d DeleteAfterMove('%s',0x%08X) == COPY_CANCEL",__LINE__,FullName,SrcData.dwFileAttributes));
               return COPY_CANCEL;
             }
           }
@@ -1710,7 +1757,10 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     {
       int DeleteCode;
       if ((DeleteCode=DeleteAfterMove(SelName,FileAttr))==COPY_CANCEL)
+      {
+        _LOGCOPYR(SysLog("return COPY_CANCEL -> %d DeleteAfterMove('%s',0x%08X) == COPY_CANCEL",__LINE__,SelName,FileAttr));
         return COPY_CANCEL;
+      }
 
       if (DeleteCode==COPY_SUCCESS && *DestDizPath)
         SrcPanel->DeleteDiz(SelName,SelShortName);
@@ -1720,6 +1770,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
     {
       SrcPanel->ClearLastGetSelection();
     }
+  }
   }
 
   _tran(SysLog("[%p] ShellCopy::CopyFileTree() end",this));
@@ -1731,6 +1782,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
                                        const char *Dest, int KeepPathPos,
                                        int Rename)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::ShellCopyOneFile()"));
+  _LOGCOPYR(SysLog("Params: Src='%s', Dest='%s', KeepPathPos=%d, Rename=%d",Src, Dest,KeepPathPos,Rename));
   char DestPath[2*NM];
   DWORD DestAttr;
   HANDLE FindHandle;
@@ -1754,7 +1807,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     int AbortOp = ConfirmAbortOp();
     CopyStartTime = clock();
     if (AbortOp)
+    {
+      _LOGCOPYR(SysLog("return COPY_CANCEL -> %d Pressed ESC",__LINE__));
       return(COPY_CANCEL);
+    }
   }
 
   strcpy(DestPath,Dest);
@@ -1779,6 +1835,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       DestAttr=FILE_ATTRIBUTE_DIRECTORY;
   }
 
+  _LOGCOPYR(SysLog("NamePtr='%s', TestParentFolderName()=>%d",NamePtr,TestParentFolderName(NamePtr)));
   if (*NamePtr==0 || TestParentFolderName(NamePtr))
     DestAttr=FILE_ATTRIBUTE_DIRECTORY;
 
@@ -1789,12 +1846,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     FindClose(FindHandle);
     DestAttr=DestData.dwFileAttributes;
   }
+  _LOGCOPYR(SysLog("%d DestAttr=0x%08X",__LINE__,DestAttr));
 
   if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
   {
     int CmpCode;
     if ((CmpCode=CmpFullNames(Src,DestPath))!=0)
     {
+      _LOGCOPYR(SysLog("%d CmpCode=%d, CmpFullNames('%s','%s')",__LINE__,CmpCode,Src,DestPath));
       SameName=1;
       /* $ 25.05.2002 IS
          Проверим ту ситуацию, когда переименовывается _каталог_ в свое же
@@ -1817,9 +1876,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
                 Src,MSG(MCannotCopyFolderToItself2),MSG(MOk));
         CopyStartTime = clock();
+        _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
         return(COPY_CANCEL);
       }
     }
+    _LOGCOPYR(else SysLog("%d CmpFullNames() == 0",__LINE__));
 
     if (!SameName)
     {
@@ -1845,6 +1906,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         FindClose(FindHandle);
         DestAttr=DestData.dwFileAttributes;
       }
+      _LOGCOPYR(SysLog("%d DestPath='%s', DestAttr=0x%08X",__LINE__,DestPath,DestAttr));
     }
   }
 
@@ -1863,12 +1925,17 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     // проверка очередного монстрика на потоки
     switch(CheckStreams(Src,DestPath))
     {
-      case COPY_NEXT: return COPY_NEXT;
-      case COPY_CANCEL: return COPY_CANCEL;
+      case COPY_NEXT:
+        _LOGCOPYR(SysLog("return COPY_NEXT -> %d CheckStreams('%s','%s')",__LINE__,Src,DestPath));
+        return COPY_NEXT;
+      case COPY_CANCEL:
+        _LOGCOPYR(SysLog("return COPY_CANCEL -> %d CheckStreams('%s','%s')",__LINE__,Src,DestPath));
+        return COPY_CANCEL;
     }
 
     if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
     {
+      _LOGCOPYR(CleverSysLog Clev("if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)"));
       if (!Rename)
         strcpy(CopiedName,PointToName(DestPath));
 
@@ -1883,7 +1950,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           DWORD SetAttr=SrcData.dwFileAttributes;
           if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
             SetAttr&=~FA_RDONLY;
-          //_SVS(SysLog("SetAttr=0x%08X, DestAttr=0x%08X",SetAttr,DestAttr));
+
+          _LOGCOPYR(SysLog("%d SetAttr=0x%08X, DestAttr=0x%08X",__LINE__,SetAttr,DestAttr));
 
           if (SetAttr!=DestAttr)
             ShellSetAttr(DestPath,SetAttr);
@@ -1891,15 +1959,19 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           char SrcFullName[NM];
           if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
           {
+            _LOGCOPYR(SysLog("return COPY_NEXT -> %d ConvertNameToFull()-but",__LINE__));
             return(COPY_NEXT);
           }
-
+          _LOGCOPYR(SysLog("%d SrcFullName='%s', DestPath='%s', return ??;",__LINE__,SrcFullName,DestPath));
           return(strcmp(DestPath,SrcFullName)==0 ? COPY_NEXT:COPY_SUCCESS);
         }
 
         int Type=GetFileTypeByName(DestPath);
         if (Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE)
+        {
+          _LOGCOPYR(SysLog("return %d -> %d if (Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE)",(Rename ? COPY_NEXT:COPY_SUCCESS),__LINE__));
           return(Rename ? COPY_NEXT:COPY_SUCCESS);
+        }
       }
 
       if (Rename)
@@ -1908,6 +1980,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
         if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
         {
+          _LOGCOPYR(SysLog("return COPY_NEXT -> %d ConvertNameToFull()-but",__LINE__));
           return(COPY_NEXT);
         }
 
@@ -1918,8 +1991,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
           /* $ 25.05.2002 IS
              Отдельная обработка RenameToShortName для каталога.
           */
-          BOOL SuccessMove=RenameToShortName?MoveFileThroughTemp(Src,DestPath):
-                 MoveFile(Src,DestPath);
+          BOOL SuccessMove=RenameToShortName?MoveFileThroughTemp(Src,DestPath):MoveFile(Src,DestPath);
           if (SuccessMove)
           /* IS $ */
           {
@@ -1931,10 +2003,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
             if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
             {
+              _LOGCOPYR(SysLog("return COPY_NEXT -> %d ConvertNameToFull()-but",__LINE__));
               return(COPY_NEXT);
             }
 
             TreeList::RenTreeName(SrcFullName,DestFullName);
+            _LOGCOPYR(SysLog("return %d -> %d",(SameName ? COPY_NEXT:COPY_SUCCESS_MOVE),__LINE__));
             return(SameName ? COPY_NEXT:COPY_SUCCESS_MOVE);
           }
           else // $ 18.07.2001 VVM
@@ -1963,13 +2037,18 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
                 ConvertNameToReal(Src,SrcRealName,sizeof(SrcRealName));
                 switch(MkSymLink(SrcRealName,DestPath,FCOPY_LINK))
                 {
-                  case 2: return COPY_CANCEL;
+                  case 2:
+                    _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+                    return COPY_CANCEL;
                   case 1: break;
-                  case 0: return COPY_FAILURE;
+                  case 0:
+                    _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+                    return COPY_FAILURE;
                 }
               }
 #endif
               TreeList::AddTreeName(DestPath);
+              _LOGCOPYR(SysLog("return COPY_SUCCESS -> %d",__LINE__));
               return(COPY_SUCCESS);
             }
             else
@@ -1983,8 +2062,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
               switch (MsgCode)
               {
                 case 0:  continue;
-                case 1:  return (COPY_FAILURE);
-                default: return (COPY_CANCEL);
+                case 1:
+                  _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+                  return (COPY_FAILURE);
+                default:
+                  _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+                  return (COPY_CANCEL);
               } /* switch */
             } /* else */
             /* VVM $ */
@@ -1995,7 +2078,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
       SECURITY_ATTRIBUTES sa;
       if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sa))
-        return(COPY_CANCEL);
+      {
+        _LOGCOPYR(SysLog("return COPY_CANCEL -> %d GetSecurity()==0",__LINE__));
+        return COPY_CANCEL;
+      }
 
       while (!CreateDirectory(DestPath,(ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL))
       {
@@ -2007,7 +2093,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         CopyStartTime = clock();
 
         if (MsgCode!=0)
+        {
+          _LOGCOPYR(SysLog("return %d -> %d",((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT),__LINE__));
           return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
+        }
       }
 
       DWORD SetAttr=SrcData.dwFileAttributes;
@@ -2015,10 +2104,31 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
 
-      if(!ShellSetAttr(DestPath,SetAttr))
+      if(SetAttr != SrcData.dwFileAttributes && SetAttr != FILE_ATTRIBUTE_DIRECTORY && !(ShellCopy::Flags&FCOPY_SKIPSETATTRFLD)) // только 0x10 нужен!
       {
-         FAR_RemoveDirectory(DestPath);
-         return COPY_CANCEL;
+        while(!ShellSetAttr(DestPath,SetAttr))
+        {
+          int MsgCode;
+          CopyTime+= (clock() - CopyStartTime);
+          MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                          MSG(MCopyCannotChangeFolderAttr),DestPath,
+                          MSG(MCopyRetry),MSG(MCopySkip),MSG(MCopySkipAll),MSG(MCopyCancel));
+          CopyStartTime = clock();
+
+          if (MsgCode!=0)
+          {
+            if(MsgCode==1)
+              break;
+            if(MsgCode==2)
+            {
+              ShellCopy::Flags|=FCOPY_SKIPSETATTRFLD;
+              break;
+            }
+            FAR_RemoveDirectory(DestPath);
+            _LOGCOPYR(SysLog("return COPY_CANCEL -> %d ShellSetAttr('%s', 0x%08X)==0",__LINE__,DestPath,SetAttr));
+            return((MsgCode==-2 || MsgCode==3) ? COPY_CANCEL:COPY_NEXT);
+          }
+        }
       }
 #if 0
       // для источника, имеющего суть симлинка - создадим симлинк
@@ -2028,18 +2138,24 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         ConvertNameToReal(Src,SrcRealName,sizeof(SrcRealName));
         switch(MkSymLink(SrcRealName,DestPath,FCOPY_LINK))
         {
-          case 2: return COPY_CANCEL;
+          case 2:
+            _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+            return COPY_CANCEL;
           case 1: break;
-          case 0: return COPY_FAILURE;
+          case 0:
+            _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+            return COPY_FAILURE;
         }
       }
 #endif
       TreeList::AddTreeName(DestPath);
-      return(COPY_SUCCESS);
+      _LOGCOPYR(SysLog("return COPY_SUCCESS -> %d",__LINE__));
+      return COPY_SUCCESS;
     }
 
     if (DestAttr!=(DWORD)-1 && (DestAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
     {
+      _LOGCOPYR(SysLog("%d enter to !FILE_ATTRIBUTE_DIRECTORY",__LINE__));
       /* $ 25.05.2002 IS
          + Не проверяем RenameToShortName второй раз
          + Чтобы не делать лишнюю работу, проверяем сначала совпадение размера
@@ -2064,9 +2180,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
                if(!strcmp(PointToName(Src),PointToName(DestPath)))
                  CmpCode=2; // ошибка: новое имя идентично старому
                else
+               {
                  RenameToShortName = (!LocalStricmp(DestData.cFileName,
                    SrcData.cFileName) &&
                    0!=LocalStricmp(DestData.cAlternateFileName,SrcData.cFileName));
+                 _LOGCOPYR(SysLog("%d RenameToShortName=%d (LocalStricmp('%s','%s')=%d)",__LINE__,RenameToShortName,DestData.cAlternateFileName,SrcData.cFileName,LocalStricmp(DestData.cAlternateFileName,SrcData.cFileName)));
+               }
             }
             /* IS $ */
             if (CmpCode==2 || !Rename)
@@ -2075,6 +2194,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
               Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
                       Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
               CopyStartTime = clock();
+              _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
               return(COPY_CANCEL);
             }
           }
@@ -2086,14 +2206,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         CopyStartTime = clock();
 
         if (!AskCode)
+        {
+          _LOGCOPYR(SysLog("return RetCode=%d -> %d if (!AskCode)",RetCode,__LINE__));
           return((COPY_CODES)RetCode);
+        }
       }
     }
   }
   else
   {
     if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    {
+      _LOGCOPYR(SysLog("return return COPY_SUCCESS -> %d if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)",__LINE__));
       return COPY_SUCCESS;
+    }
 /*
     {
       char SrcFullName[NM];
@@ -2106,7 +2232,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   }
 
   int NWFS_Attr=(Opt.Nowell.MoveRO && !strcmp(DestFSName,"NWFS"))?TRUE:FALSE;
+  {
 
+  _LOGCOPYR(CleverSysLog Clev("while (1)"));
   while (1)
   {
     int CopyCode;
@@ -2151,7 +2279,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
             SetFileAttributes(SrcFullName,SrcData.dwFileAttributes);
 
           if(MoveLastError==ERROR_NOT_SAME_DEVICE)
-            return(COPY_FAILURE);
+          {
+            _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if(MoveLastError==ERROR_NOT_SAME_DEVICE)",__LINE__));
+            return COPY_FAILURE;
+          }
 
           SetLastError(MoveLastError);
         }
@@ -2170,7 +2301,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       }
       else
       {
+        _LOGCOPYR(SysLog("%d call ShellCopyFile()",__LINE__));
         CopyCode=ShellCopyFile(Src,SrcData,DestPath,(DWORD)-1,Append);
+        _LOGCOPYR(SysLog("%d CopyCode=%d",__LINE__,CopyCode));
 
         switch(CopyCode)
         {
@@ -2182,9 +2315,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
             MoveCode=FALSE;
             break;
           case COPY_CANCEL:
-            return(COPY_CANCEL);
+            _LOGCOPYR(SysLog("return COPY_CANCEL -> %d ",__LINE__));
+            return COPY_CANCEL;
           case COPY_NEXT:
-            return(COPY_NEXT);
+            _LOGCOPYR(SysLog("return COPY_NEXT -> %d ",__LINE__));
+            return COPY_NEXT;
         }
         AskDelete=1;
       }
@@ -2205,14 +2340,21 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
 
         TotalFiles++;
         if (AskDelete && DeleteAfterMove(Src,SrcData.dwFileAttributes)==COPY_CANCEL)
-          return(COPY_CANCEL);
+        {
+          _LOGCOPYR(SysLog("return COPY_CANCEL -> %d DeleteAfterMove()==COPY_CANCEL",__LINE__));
+          return COPY_CANCEL;
+        }
 
+        _LOGCOPYR(SysLog("return COPY_SUCCESS_MOVE -> %d",__LINE__));
         return(COPY_SUCCESS_MOVE);
       }
     }
     else
     {
+      _LOGCOPYR(SysLog("%d call ShellCopyFile('%s',%p,'%s',0x%08X,%d)",__LINE__,Src,&SrcData,DestPath,DestAttr,Append));
       CopyCode=ShellCopyFile(Src,SrcData,DestPath,DestAttr,Append);
+      _LOGCOPYR(SysLog("%d CopyCode=%d",__LINE__,CopyCode));
+
       if (CopyCode==COPY_SUCCESS)
       {
         strcpy(CopiedName,PointToName(DestPath));
@@ -2231,12 +2373,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         if(DestAttr!=-1 && Append)
           SetFileAttributes(DestPath,DestAttr);
 
-        return(COPY_SUCCESS);
+        _LOGCOPYR(SysLog("return COPY_SUCCESS -> %d",__LINE__));
+        return COPY_SUCCESS;
       }
       else if (CopyCode==COPY_CANCEL || CopyCode==COPY_NEXT)
       {
         if(DestAttr!=-1 && Append)
           SetFileAttributes(DestPath,DestAttr);
+        _LOGCOPYR(SysLog("return CopyCode [%d] -> %d",CopyCode,__LINE__));
         return((COPY_CODES)CopyCode);
       }
 
@@ -2245,7 +2389,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     }
     //????
     if(CopyCode == COPY_FAILUREREAD)
+    {
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if(CopyCode == COPY_FAILUREREAD)",__LINE__));
       return COPY_FAILURE;
+    }
     //????
 
     char Msg1[2*NM],Msg2[2*NM];
@@ -2275,12 +2422,15 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       {
         case -1:
         case  1:
+          _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
           return COPY_NEXT;
         case  2:
           SkipMode=1;
+          _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
           return COPY_NEXT;
         case -2:
         case  3:
+          _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
           return COPY_CANCEL;
       }
       /* KM $ */
@@ -2294,7 +2444,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
     CopyStartTime = clock();
 
     if (!AskCode)
+    {
+      _LOGCOPYR(SysLog("return RetCode=%d -> %d if (!AskCode)",RetCode,__LINE__));
       return((COPY_CODES)RetCode);
+    }
+  }
   }
 }
 
@@ -2340,18 +2494,18 @@ COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
 
 void ShellCopy::PR_ShellCopyMsg(void)
 {
-  _SVS(CleverSysLog clv("PR_ShellCopyMsg"));
-  _SVS(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+  // // _LOGCOPYR(CleverSysLog clv("PR_ShellCopyMsg"));
+  // // _LOGCOPYR(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
   LastShowTime = 0;
   ((ShellCopy*)PreRedrawParam.Param1)->ShellCopyMsg((char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
 void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 {
-  _SVS(CleverSysLog clv("ShellCopyMsg"));
+  // // _LOGCOPYR(CleverSysLog clv("ShellCopyMsg"));
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
-  //_SVS(SysLog("[%p] ShellCopy::ShellCopyMsg('%s','%s',%x)",this,Src,Dest,Flags));
+  //// // _LOGCOPYR(SysLog("[%p] ShellCopy::ShellCopyMsg('%s','%s',%x)",this,Src,Dest,Flags));
   #define BAR_SIZE  40
   static char Bar[BAR_SIZE+2]={0};
   if(!Bar[0])
@@ -2425,7 +2579,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 
   if (Src!=NULL)
   {
-    _SVS(SysLog(" ******************  ShowTotalCopySize=%d",ShowTotalCopySize));
+    // // _LOGCOPYR(SysLog(" ******************  ShowTotalCopySize=%d",ShowTotalCopySize));
     ShowBar(0,0,false);
     if (ShowTotalCopySize)
     {
@@ -2437,7 +2591,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
   PreRedrawParam.Param1=this;
   PreRedrawParam.Param2=Src;
   PreRedrawParam.Param3=Dest;
-  _SVS(SysLog("@@ShellCopyMsg 2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+  // // _LOGCOPYR(SysLog("@@ShellCopyMsg 2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
 }
 
 
@@ -2572,6 +2726,8 @@ int ShellCopy::DeleteAfterMove(const char *Name,int Attr)
 int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                              const char *DestName,DWORD DestAttr,int Append)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::ShellCopyFile()"));
+  _LOGCOPYR(SysLog("Params: SrcName='%s', DestName='%s', DestAttr=0x%08X",SrcName, DestName,DestAttr));
   OrigScrX=ScrX;
   OrigScrY=ScrY;
 
@@ -2581,27 +2737,38 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     FAR_DeleteFile(DestName);
     return(MkLink(SrcName,DestName) ? COPY_SUCCESS:COPY_FAILURE);
   }
+
   if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Opt.UseSystemCopy && !Append)
   {
     if (!Opt.CopyOpened)
     {
       HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
       if (SrcHandle==INVALID_HANDLE_VALUE)
-        return(COPY_FAILURE);
+      {
+        _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
+        return COPY_FAILURE;
+      }
       CloseHandle(SrcHandle);
     }
+    _LOGCOPYR(SysLog("call ShellSystemCopy('%s','%s',%p)",SrcName,DestName,SrcData));
     return(ShellSystemCopy(SrcName,DestName,SrcData));
   }
 
   SECURITY_ATTRIBUTES sa;
   if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
-    return(COPY_CANCEL);
+  {
+    _LOGCOPYR(SysLog("return COPY_CANCEL -> %d GetSecurity() == 0",__LINE__));
+    return COPY_CANCEL;
+  }
   int OpenMode=FILE_SHARE_READ;
   if (Opt.CopyOpened)
     OpenMode|=FILE_SHARE_WRITE;
   HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,OpenMode,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (SrcHandle==INVALID_HANDLE_VALUE)
-    return(COPY_FAILURE);
+  {
+    _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
+    return COPY_FAILURE;
+  }
 
   HANDLE DestHandle;
   DWORD AppendPos=0;
@@ -2619,7 +2786,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       DWORD LastError=GetLastError();
       CloseHandle(SrcHandle);
       SetLastError(LastError);
-      return(COPY_FAILURE);
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,LastError,LastError));
+      return COPY_FAILURE;
     }
 
     if (Append && (AppendPos=SetFilePointer(DestHandle,0,NULL,FILE_END))==0xFFFFFFFF)
@@ -2628,7 +2796,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       CloseHandle(SrcHandle);
       CloseHandle(DestHandle);
       SetLastError(LastError);
-      return(COPY_FAILURE);
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d SetFilePointer() == -1, LastError=%d (0x%08X)",__LINE__,LastError,LastError));
+      return COPY_FAILURE;
     }
   }
 
@@ -2668,7 +2837,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           FAR_DeleteFile(DestName);
         }
       }
-      return(COPY_CANCEL);
+      _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
+      return COPY_CANCEL;
     }
     DWORD BytesRead,BytesWritten;
 
@@ -2709,6 +2879,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
       SetLastError(LastError);
       SetErrorMode(OldErrMode);
       // return COPY_FAILUREREAD;
+      _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
       return COPY_FAILURE;
     }
     SetErrorMode(OldErrMode);
@@ -2752,7 +2923,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
                   SetFileAttributes(DestName,0);
                   FAR_DeleteFile(DestName);
                 }
-                return(COPY_FAILURE);
+                _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+                return COPY_FAILURE;
               }
               if (MsgCode==0)
               {
@@ -2795,6 +2967,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           if (!AskCode)
           {
             CloseHandle(SrcHandle);
+            _LOGCOPYR(SysLog("return COPY_CANCEL -> %d",__LINE__));
             return(COPY_CANCEL);
           }
           char DestDir[NM],*ChPtr;
@@ -2815,7 +2988,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
             CloseHandle(SrcHandle);
             CloseHandle(DestHandle);
             SetLastError(LastError);
-            return(COPY_FAILURE);
+            _LOGCOPYR(SysLog("return COPY_FAILURE -> %d",__LINE__));
+            return COPY_FAILURE;
           }
         }
         else
@@ -2846,7 +3020,11 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           ShowTitle(FALSE);
           SetLastError(LastError);
           if (SplitSkipped)
-            return(COPY_NEXT);
+          {
+            _LOGCOPYR(SysLog("return COPY_NEXT -> %d",__LINE__));
+            return COPY_NEXT;
+          }
+          _LOGCOPYR(SysLog("return (%d ? COPY_CANCEL:COPY_FAILURE) -> %d",SplitCancelled,__LINE__));
           return(SplitCancelled ? COPY_CANCEL:COPY_FAILURE);
         }
         break;
@@ -2893,7 +3071,8 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   else
     CloseHandle(SrcHandle);
 
-  return(COPY_SUCCESS);
+  _LOGCOPYR(SysLog("return COPY_SUCCESS -> %d",__LINE__));
+  return COPY_SUCCESS;
 }
 
 /* $ 30.01.2001 VVM
@@ -2917,8 +3096,8 @@ static void GetTimeText(int Time, char *TimeText)
 
 void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 {
-  _SVS(CleverSysLog clv("ShellCopy::ShowBar"));
-  _SVS(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
+  // // _LOGCOPYR(CleverSysLog clv("ShellCopy::ShowBar"));
+  // // _LOGCOPYR(SysLog("WrittenSize=%Ld ,TotalSize=%Ld, TotalBar=%d",WrittenSize,TotalSize,TotalBar));
   /* $ 14.09.2002 VVM
     + Показывать прогресс не чаще 1 раза в секунду */
   if ((WrittenSize > 0) && (WrittenSize < TotalSize) && (clock() - LastShowTime < 1000))
@@ -2954,7 +3133,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   Text(ProgressBar);
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
-  _SVS(SysLog("!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
+  // // _LOGCOPYR(SysLog("!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
   if (ShowCopyTime && (!ShowTotalCopySize || TotalBar))
   {
 //    CopyTime+= (clock() - CopyStartTime);
@@ -3275,7 +3454,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
     return(COPY_CANCEL);
 
-  //_SVS(SysLog("[%p] ShellCopy::ShellSystemCopy('%s','%s',..)",this,SrcName,DestName));
+  //// // _LOGCOPYR(SysLog("[%p] ShellCopy::ShellSystemCopy('%s','%s',..)",this,SrcName,DestName));
   ShellCopyMsg(SrcName,DestName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
 
   if (pCopyFileEx)
@@ -3318,8 +3497,8 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
       DWORD dwCallbackReason,HANDLE hSourceFile,HANDLE hDestinationFile,
       LPVOID lpData)
 {
-  _SVS(CleverSysLog clv("CopyProgressRoutine"));
-  _SVS(SysLog("dwStreamNumber=%d",dwStreamNumber));
+  // // _LOGCOPYR(CleverSysLog clv("CopyProgressRoutine"));
+  // // _LOGCOPYR(SysLog("dwStreamNumber=%d",dwStreamNumber));
 
   int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
   int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
@@ -3329,7 +3508,7 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   if (CheckForEscSilent())
   {
     CopyTime+= (clock() - CopyStartTime);
-    _SVS(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
+    // // _LOGCOPYR(SysLog("2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
     AbortOp = ConfirmAbortOp();
     IsChangeConsole=TRUE; // !!! Именно так; для того, чтобы апдейтить месаг
     CopyStartTime = clock();
@@ -3337,7 +3516,7 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 
   if(IsChangeConsole)
   {
-    _SVS(SysLog("IsChangeConsole 1"));
+    // // _LOGCOPYR(SysLog("IsChangeConsole 1"));
     ShellCopy::PR_ShellCopyMsg();
     OrigScrX=ScrX;
     OrigScrY=ScrY;
@@ -3460,6 +3639,8 @@ void ShellCopy::ShowTitle(int FirstTime)
 */
 int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::CmpFullNames()"));
+  _LOGCOPYR(SysLog("Params: Src='%s', Dest='%s'",Src, Dest));
   char SrcFullName[1024],DestFullName[1024];
   int I;
 
@@ -3473,24 +3654,35 @@ int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
   for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;
   DeleteEndSlash(SrcFullName);
+  _LOGCOPYR(SysLog("SrcFullName='%s'",SrcFullName));
   for (I=strlen(DestFullName)-1;I>0 && DestFullName[I]=='.';I--)
     DestFullName[I]=0;
   DeleteEndSlash(DestFullName);
+  _LOGCOPYR(SysLog("DestFullName='%s'",DestFullName));
 
+/*
+  if (LocalStricmp(SrcFullName,DestFullName)!=0)
+    return(0);
+
+  return(strcmp(PointToName(SrcFullName),PointToName(DestFullName))==0 ? 2:1);
+*/
   // избавимся от коротких имен
   if(IsLocalPath(SrcFullName))
   {
     I=RawConvertShortNameToLongName(SrcFullName,SrcFullName,sizeof(SrcFullName));
-      if(!I || I>=sizeof(SrcFullName))
-        return 2;
+    _LOGCOPYR(SysLog("RawConvertShortNameToLongName() -> SrcFullName='%s'",SrcFullName));
+    if(!I || I>=sizeof(SrcFullName))
+      return 2;
   }
   if(IsLocalPath(DestFullName))
   {
     I=RawConvertShortNameToLongName(DestFullName,DestFullName,sizeof(DestFullName));
+    _LOGCOPYR(SysLog("RawConvertShortNameToLongName() -> DestFullName='%s'",DestFullName));
     if(!I || I>=sizeof(DestFullName))
       return 2;
   }
 
+  _LOGCOPYR(SysLog("return LocalStricmp(SrcFullName,DestFullName)='%d'",LocalStricmp(SrcFullName,DestFullName)));
   return LocalStricmp(SrcFullName,DestFullName)==0;
 }
 /* IS $ */
@@ -3498,6 +3690,8 @@ int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
 // Кусок для создания SymLink для каталогов.
 int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::MkSymLink()"));
+  _LOGCOPYR(SysLog("Params: SelName='%s', Dest='%s', Flags=0x%08X",SelName,Dest,Flags));
   if (Flags&(FCOPY_LINK|FCOPY_VOLMOUNT))
   {
     char SrcFullName[NM], DestFullName[NM], SelOnlyName[NM];
@@ -3527,15 +3721,16 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 */
       Flags&=~FCOPY_LINK;
       Flags|=FCOPY_VOLMOUNT;
+      _LOGCOPYR(SysLog("Flags=0x%08X (transfer SymLink to VolMount)",Flags));
     }
     else
       if (ConvertNameToFull(SelName,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
         return 0;
-//_SVS(SysLog("Src: ConvertNameToFull('%s','%s')",SelName,SrcFullName));
+    _LOGCOPYR(SysLog("Src: ConvertNameToFull('%s','%s')",SelName,SrcFullName));
 
     if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
       return 0;
-//_SVS(SysLog("Dst: ConvertNameToFull('%s','%s')",Dest,DestFullName));
+    _LOGCOPYR(SysLog("Dst: ConvertNameToFull('%s','%s')",Dest,DestFullName));
 
 //    char *EndDestFullName=DestFullName+strlen(DestFullName);
     if(DestFullName[strlen(DestFullName)-1] == '\\')
@@ -3559,11 +3754,12 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
     }
 
     int JSAttr=GetFileAttributes(DestFullName);
-//_SVS(SysLog("DestFullName='%s' JSAttr=0x%08X",DestFullName,JSAttr));
+    _LOGCOPYR(SysLog("%d DestFullName='%s' JSAttr=0x%08X",__LINE__,DestFullName,JSAttr));
     if(JSAttr != -1 && (JSAttr&FILE_ATTRIBUTE_DIRECTORY)==FILE_ATTRIBUTE_DIRECTORY) // Существует такой?
     {
       if(CheckFolder(DestFullName) == CHKFLD_NOTEMPTY) // а пустой?
       {
+        _LOGCOPYR(SysLog("CheckFolder('%s') == CHKFLD_NOTEMPTY",DestFullName));
         // не пустой, ну что же, тогда пробуем сделать dest\srcname
         AddEndSlash(DestFullName);
         if(Flags&FCOPY_VOLMOUNT)
@@ -3577,12 +3773,13 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
           strcat(DestFullName,PtrSelName);
 
         int JSAttr=GetFileAttributes(DestFullName);
-//_SVS(SysLog("AddEndSlash: DestFullName='%s' JSAttr=0x%08X",DestFullName,JSAttr));
+         _LOGCOPYR(SysLog("%d DestFullName='%s' JSAttr=0x%08X",__LINE__,DestFullName,JSAttr));
         if(JSAttr != -1) // И такой тоже есть???
         {
-//_SVS(SysLog("Ops!"));
+          _LOGCOPYR(SysLog("Ops! Folder '%s' Exist!",DestFullName));
           if(CheckFolder(DestFullName) == CHKFLD_NOTEMPTY) // а пустой?
           {
+            _LOGCOPYR(SysLog("%d CheckFolder('%s') == CHKFLD_NOTEMPTY",__LINE__,DestFullName));
             if(!(Flags&FCOPY_NOSHOWMSGLINK))
             {
               if(Flags&FCOPY_VOLMOUNT)
@@ -3600,18 +3797,19 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
                       MSG(MCopyCannotCreateJunction),DestFullName,
                       MSG(MCopyFolderNotEmpty),MSG(MOk));
             }
+            _LOGCOPYR(SysLog("return 0 -> %d Unequivocally into mortuary",__LINE__));
             return 0; // однозначно в морг
           }
         }
         else // создаем.
         {
+           _LOGCOPYR(SysLog("%d CreateDirectory('%s')",__LINE__,DestFullName));
           if (CreateDirectory(DestFullName,NULL))
             TreeList::AddTreeName(DestFullName);
           else
             CreatePath(DestFullName);
-//_SVS(SysLog("Create folder '%s'",DestFullName));
         }
-        if(GetFileAttributes(DestFullName) == -1) // так. все очень даже плохо.
+        if(GetFileAttributes(DestFullName) == -1) // так, все очень даже плохо.
         {
           if(!(Flags&FCOPY_NOSHOWMSGLINK))
           {
@@ -3619,17 +3817,19 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
                       MSG(MCopyCannotCreateFolder),
                       DestFullName,MSG(MOk));
           }
+          _LOGCOPYR(SysLog("return 0 -> %d So, all very much even is bad: GetFileAttributes('%s') == -1",__LINE__,DestFullName));
           return 0;
         }
       }
     }
     else
     {
+      _LOGCOPYR(SysLog("Folder '%s' not exist. Create",DestFullName));
       if (CreateDirectory(DestFullName,NULL))
         TreeList::AddTreeName(DestFullName);
       else
         CreatePath(DestFullName);
-//_SVS(SysLog("Create folder '%s'",DestFullName));
+
       if(GetFileAttributes(DestFullName) == -1) // так. все очень даже плохо.
       {
         if(!(Flags&FCOPY_NOSHOWMSGLINK))
@@ -3637,15 +3837,17 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
                    MSG(MCopyCannotCreateFolder),DestFullName,MSG(MOk));
         }
+        _LOGCOPYR(SysLog("return 0 -> %d So, all very much even is bad: GetFileAttributes('%s') == -1",__LINE__,DestFullName));
         return 0;
       }
     }
-//_SVS(SysLog("('%s','%s')",SrcFullName,DestFullName));
+
+    _LOGCOPYR(SysLog("('%s','%s')",SrcFullName,DestFullName));
     if(Flags&FCOPY_LINK)
     {
       if(CreateJunctionPoint(SrcFullName,DestFullName))
       {
-//_SVS(SysLog("Ok: CreateJunctionPoint('%s','%s')",SrcFullName,DestFullName));
+        _LOGCOPYR(SysLog("Ok: CreateJunctionPoint('%s','%s')",SrcFullName,DestFullName));
         return 1;
       }
       else
@@ -3654,8 +3856,8 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
         {
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),
                  MSG(MCopyCannotCreateJunction),DestFullName,MSG(MOk));
-//_SVS(SysLog("Fail: CreateJunctionPoint('%s','%s')",SrcFullName,DestFullName));
         }
+        _LOGCOPYR(SysLog("Fail: CreateJunctionPoint('%s','%s')",SrcFullName,DestFullName));
         return 0;
       }
     }
@@ -3664,7 +3866,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
       int ResultVol=CreateVolumeMountPoint(SrcFullName,DestFullName);
       if(!ResultVol)
       {
-//_SVS(SysLog("Ok: CreateVolumeMountPoint('%s','%s')",SrcFullName,DestFullName));
+        _LOGCOPYR(SysLog("Ok: CreateVolumeMountPoint('%s','%s')",SrcFullName,DestFullName));
         return 1;
       }
       else
@@ -3696,11 +3898,12 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
               MsgBuf,
               MSG(MOk));
         }
-//_SVS(SysLog("Fail: CreateVolumeMountPoint('%s','%s')",SrcFullName,DestFullName));
+        _LOGCOPYR(SysLog("Fail: CreateVolumeMountPoint('%s','%s')",SrcFullName,DestFullName));
         return 0;
       }
     }
   }
+  _LOGCOPYR(SysLog("return 2 -> %d",__LINE__));
   return 2;
 }
 
@@ -3710,6 +3913,8 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 */
 int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
 {
+  _LOGCOPYR(CleverSysLog Clev("ShellCopy::ShellSetAttr()"));
+  _LOGCOPYR(SysLog("Params: Dest='%s', Attr=0x%08X",Dest,Attr));
   char Root[1024];
   char FSysNameDst[NM];
   DWORD FileSystemFlagsDst;
@@ -3721,30 +3926,40 @@ int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
     ConvertNameToFull(Dest,Root, sizeof(Root));
     GetPathRootOne(Root,Root);
     if(GetFileAttributes(Root) == -1)
+    {
+      _LOGCOPYR(SysLog("return 0 -> %d GetFileAttributes('%s') == -1",__LINE__,Root));
       return FALSE;
+    }
   }
 
   /* 18.06.2002 VVM
     ! Даже если не смогли получить информацию о томе - попытаемся выставить атрибуты
       У меня на новеловском томе при UNC-пути почему-то обламывается GetVolumeInformation() */
-//_SVS(SysLog("Copy: 0x%08X Dest='%s' Root='%s'",Attr,Dest,Root));
+  _LOGCOPYR(SysLog("%d 0x%08X Dest='%s' Root='%s'",__LINE__,Attr,Dest,Root));
   int GetInfoSuccess = GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
   if (GetInfoSuccess)
   {
-//_SVS(SysLog("Copy: %s (0x%08X) %c%c",FSysNameDst,FileSystemFlagsDst,(FileSystemFlagsDst&FS_FILE_COMPRESSION?'C':'.'),(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION?'E':'.')));
+     _LOGCOPYR(SysLog("GetVolumeInformation -> FS='%s' (Flags=0x%08X) %c%c",FSysNameDst,FileSystemFlagsDst,(FileSystemFlagsDst&FS_FILE_COMPRESSION?'C':'.'),(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION?'E':'.')));
      if(!(FileSystemFlagsDst&FS_FILE_COMPRESSION))
        Attr&=~FILE_ATTRIBUTE_COMPRESSED;
      if(!(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION))
        Attr&=~FILE_ATTRIBUTE_ENCRYPTED;
   }
   if (!SetFileAttributes(Dest,Attr))
+  {
+    _LOGCOPYR(SysLog("return 0 -> %d SetFileAttributes('%s',0x%08X) == 0",__LINE__,Dest,Attr));
     return FALSE;
+  }
     // При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
     // для каталога, если он есть
   if (GetInfoSuccess && (FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION) &&
      (Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
     if (!ESetFileEncryption(Dest,1,0))
+    {
+      _LOGCOPYR(SysLog("return 0 -> %d ESetFileEncryption('%s',1,0) == 0",__LINE__,Dest));
       return FALSE;
+    }
+  _LOGCOPYR(SysLog("return 1 -> %d",__LINE__));
   return TRUE;
   /* VVM $ */
 }

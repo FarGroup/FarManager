@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.118 27.01.2003 $ */
+/* Revision: 1.119 12.03.2003 $ */
 
 /*
 Modify:
+  12.03.2003 SVS
+    ! MListFilesSize -> MListFilesSize1, MListFilesSize2, MCopyCannotChangeFolderAttr
   27.01.2003 VVM
     + MViewSearchFromBegin, MViewSearchFromEnd
   10.01.2003 SVS
@@ -570,8 +572,9 @@ enum
   MLinkDlgTitle,
   MCopySecurity,
   MCopyOnlyNewerFiles,
-  MCopyMultiActions,
   MCopySymLink,
+  MCopySymLinkContents,
+  MCopyMultiActions,
   MCopyDlgCopy,
   MCopyDlgTree,
   MCopyDlgCancel,
@@ -605,6 +608,7 @@ enum
   MCannotCopyFolderToItself2,
 
   MCopyCannotCreateFolder,
+  MCopyCannotChangeFolderAttr,
   MCopyCannotRenameFolder,
   MCopyIgnore,
   MCopyRetry,
@@ -987,7 +991,8 @@ enum
   MListGb,
   MListTb,
   MListFileSize,
-  MListFilesSize,
+  MListFilesSize1,
+  MListFilesSize2,
   MListFreeSize,
 
   MDirInfoViewTitle,

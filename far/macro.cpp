@@ -5,10 +5,16 @@ macro.cpp
 
 */
 
-/* Revision: 1.92 20.02.2003 $ */
+/* Revision: 1.93 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    ! применим новые флаги FFPOL_*
+    - В диалоге назначения нельзя назначить Ctrl-F5 в качестве макроклавиши.
+    + Добавим KEY_NONE для "временных" макросов. Т.о. снятие лока будет как и у
+      "статик" макросов, т.е. не для последней клавиши, а как бы _после_ последней
+      ("последняя" в терминах того, что нам сунул плагин)
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   21.01.2003 SVS
@@ -633,7 +639,7 @@ int KeyMacro::ProcessKey(int Key)
   else if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // Начало записи?
   {
     // Полиция 18
-    if((Opt.Policies.DisabledOptions >> 18) & 1)
+    if(Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
       return FALSE;
 //    if(CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN))
 //      return FALSE;
@@ -1280,7 +1286,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
 
     // <Клавиши, которые не введешь в диалоге назначения>
     static const char * const PreDefKeyName[]={
-      "CtrlDown", "Enter", "Esc", "F1"
+      "CtrlDown", "Enter", "Esc", "F1", "CtrlF5"
     };
     for(I=0; I < sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0]); ++I)
       Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)PreDefKeyName[I]);
@@ -1576,9 +1582,9 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   struct MacroRecord NewMacroRAM2={0};
   memcpy(&NewMacroRAM2,MRec,sizeof(struct MacroRecord));
 
-  if(MRec->BufferSize > 1)
+//  if(MRec->BufferSize > 1)
   {
-    if((NewMacroRAM2.Buffer=(DWORD*)xf_malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
+    if((NewMacroRAM2.Buffer=(DWORD*)xf_malloc((MRec->BufferSize+1)*sizeof(DWORD))) == NULL)
     {
       return FALSE;
     }
@@ -1588,16 +1594,17 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   struct MacroRecord *NewMacroRAM;
   if((NewMacroRAM=(struct MacroRecord *)xf_realloc(MacroRAM,sizeof(MacroRecord)*(MacroRAMCount+1))) == NULL)
   {
-    if(MRec->BufferSize > 1)
+//    if(MRec->BufferSize > 1)
       xf_free(NewMacroRAM2.Buffer);
     return FALSE;
   }
 
   // теперь добавим в нашу "очередь" новые данные
-  if(MRec->BufferSize > 1)
+  if((MRec->BufferSize+1) > 1)
     memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
   else if(MRec->Buffer)
     NewMacroRAM2.Buffer=reinterpret_cast<DWORD*>(*MRec->Buffer);
+  NewMacroRAM2.Buffer[NewMacroRAM2.BufferSize++]=KEY_NONE; // доп.клавиша/пустышка
 
   MacroRAM=NewMacroRAM;
   NewMacroRAM=MacroRAM+MacroRAMCount;
@@ -1909,16 +1916,16 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
       return FALSE;
 
     int SelCount=ActivePanel->GetRealSelCount();
-	/* $ 20.03.2002 DJ
-	   для диалогов - на панель смотреть тоже не надо
-	*/
+    /* $ 20.03.2002 DJ
+       для диалогов - на панель смотреть тоже не надо
+    */
     if(Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG) // ??? видимо не весь диапазон !!!
     {
       if((CurFlags&MFLAGS_SELECTION) && SelCount < 1 ||
          (CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1)
         return FALSE;
     }
-	/* DJ $ */
+    /* DJ $ */
   }
 
   if(!CheckEditSelected(CurFlags))

@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.175 20.02.2003 $ */
+/* Revision: 1.176 04.03.2003 $ */
 
 /*
 Modify:
+  04.03.2003 SVS
+    - BugZ#795 -вывод команды затираетс€ командной строкой фара при возврате из программы
+      Ctrl-G Echo !.! Enter - псоледней строки нет (CAS - видна!)
   20.02.2003 SVS
     ! «аменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
@@ -1745,16 +1748,15 @@ int FileList::ProcessKey(int Key)
           else
           {
             int EnableExternal=(Key==KEY_F3 && Opt.UseExternalViewer ||
-                Key==KEY_ALTF3 && !Opt.UseExternalViewer) && *Opt.ExternalViewer;
+                                Key==KEY_ALTF3 && !Opt.UseExternalViewer) &&
+                                *Opt.ExternalViewer;
             /* $ 02.08.2001 IS обработаем ассоциации дл€ alt-f3 */
             BOOL Processed=FALSE;
             if(Key==KEY_ALTF3 &&
-               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_ALTVIEW,
-               PluginMode))
+               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_ALTVIEW,PluginMode))
                Processed=TRUE;
             else if(Key==KEY_F3 &&
-               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_VIEW,
-               PluginMode))
+               ProcessLocalFileTypes(FileName,ShortFileName,FILETYPE_VIEW,PluginMode))
                Processed=TRUE;
 
             if (!Processed || Key==KEY_CTRLSHIFTF3)
@@ -3964,6 +3966,7 @@ void FileList::ApplyCommand()
   strcpy(PrevCommand,Command);
   char SelName[NM],SelShortName[NM];
   int FileAttr;
+  int RdrwDskt=CtrlObject->MainKeyBar->IsVisible();
 
   RedrawDesktop Redraw(TRUE);
   SaveSelection();
@@ -3985,7 +3988,7 @@ void FileList::ApplyCommand()
   /*$ 23.07.2001 SKV
     что бы не затирать последнюю строку вывода.
   */
-  if(CtrlObject->MainKeyBar->IsVisible())
+  if(RdrwDskt)
   {
     ScrBuf.Scroll(1);
     ScrBuf.Flush();

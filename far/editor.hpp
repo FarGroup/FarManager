@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.41 17.12.2002 $ */
+/* Revision: 1.42 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    + Editor::ReadData, Editor::SaveData (пока невалидны с точки зрения работы)  - для DI_MEMOEDIT
   17.12.2002 SVS
     ! Изменены типы полей структуры InternalEditorBookMark
       (see класс FilePositionCache)
@@ -204,15 +206,19 @@ class Editor:public ScreenObject
 {
   friend class FileEditor;
   private:
-    struct EditList *TopList,*EndList,*TopScreen,*CurLine;
-    /* $ 03.12.2001 IS теперь указатель, т.к. размер может меняться */
-    struct EditorUndoData *UndoData;
-    /* IS $ */
+    struct EditList *TopList;
+    struct EditList *EndList;
+    struct EditList *TopScreen;
+    struct EditList *CurLine;
+
+    struct EditorUndoData *UndoData;  // $ 03.12.2001 IS: теперь указатель, т.к. размер может меняться
     int UndoDataPos;
     int UndoOverflow;
     int UndoSavePos;
+
     int LastChangeStrPos;
-    int NumLastLine,NumLine;
+    int NumLastLine;
+    int NumLine;
     /* $ 26.02.2001 IS
          Сюда запомним размер табуляции и в дальнейшем будем использовать его,
          а не Opt.TabSize
@@ -222,15 +228,14 @@ class Editor:public ScreenObject
     int DisableOut;
     int Pasting;
     char GlobalEOL[10];
+
     struct EditList *BlockStart;
     int BlockStartLine;
-
     struct EditList *VBlockStart;
     int VBlockX;
     int VBlockSizeX;
     int VBlockY;
     int VBlockSizeY;
-
     int BlockUndo;
 
     int MaxRightPos;
@@ -243,8 +248,12 @@ class Editor:public ScreenObject
     /* $ KM */
 
     struct CharTableSet TableSet;
-    int UseDecodeTable,TableNum,AnsiText;
-    int StartLine,StartChar;
+    int UseDecodeTable;
+    int TableNum;
+    int AnsiText;
+
+    int StartLine;
+    int StartChar;
 
     struct InternalEditorBookMark SavePos;
 
@@ -313,7 +322,11 @@ class Editor:public ScreenObject
     ~Editor();
 
   public:
-    int ReadFile(const char *Name,int &UserBreak);
+    int ReadFile(const char *Name,int &UserBreak);               // преобразование из файла в список
+
+    int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
+    int SaveData(LPBYTE DestBuf,int SizeDestBuf,int TextFormat); // преобразование из списка в буфер
+
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void KeepInitParameters();

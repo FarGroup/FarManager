@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.134 25.02.2003 $ */
+/* Revision: 1.135 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    ! применим новые флаги FFPOL_*
   25.02.2003 SVS
     - помино пути нужно восстанавливать еще и переменные окружени€ вида "=A:"
       (несколько криво, но...)
@@ -512,7 +514,7 @@ void PluginsSet::LoadPlugins()
     {
       // если пусто то прерываем поиск :-) независимо ни от чего...
                                        // ѕолици€ 20
-      if(Opt.PersonalPluginsPath[0] && !((Opt.Policies.DisabledOptions >> 20) & 1))
+      if(Opt.PersonalPluginsPath[0] && !(Opt.Policies.DisabledOptions&FFPOL_PERSONALPATH))
       {
         /* $ 01.08.2000 SVS
            ¬от здесь и расшир€ем значение пути!!!
@@ -2301,7 +2303,7 @@ void PluginsSet::ConfigureCurrent(int PNum,int INum)
 void PluginsSet::Configure(int StartPos)
 {
   // ѕолици€ 4 - ѕараметры внешних модулей
-  if((Opt.Policies.DisabledOptions >> 4) & 1)
+  if(Opt.Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
     return;
 
   {

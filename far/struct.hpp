@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.95 10.02.2003 $ */
+/* Revision: 1.96 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    + Opt.ScanJunction - сканировать так же симлинки.
   10.02.2003 SVS
     + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
   13.01.2003 SVS
@@ -749,6 +751,7 @@ struct Options
   DWORD PluginMaxReadData;
   int UseNumPad;
   int UseTTFFont;
+  int ScanJunction;
 
   int OnlyEditorViewerUsed; // =1, если старт был /e или /v
 

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.130 18.02.2003 $ */
+/* Revision: 1.131 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    ! Закоментим _SVS
   18.02.2003 SVS
     ! Детализация логов для ECTL_
   07.02.2003 SVS
@@ -1505,13 +1507,13 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
                  FileAttributes!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,FileFlags,NULL);
     if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttributes!=-1)
     {
-      _SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
+      //_SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
       hEdit=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
                        FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
     }
     if (hEdit==INVALID_HANDLE_VALUE)
     {
-      _SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
+      //_SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
       RetCode=SAVEFILE_ERROR;
       goto end;
     }

@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.218 25.02.2003 $ */
+/* Revision: 1.219 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    + Editor::ReadData, Editor::SaveData (пока невалидны с точки зрени€ работы) - дл€ DI_MEMOEDIT
+    ! «акоментим _SVS
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   14.02.2003 SVS
@@ -734,7 +737,7 @@ Editor::Editor()
 
 Editor::~Editor()
 {
-  _SVS(SysLog("[%p] Editor::~Editor()",this));
+  //_SVS(SysLog("[%p] Editor::~Editor()",this));
   FreeAllocatedData();
 
   KeepInitParameters();
@@ -745,20 +748,21 @@ Editor::~Editor()
 
 void Editor::FreeAllocatedData()
 {
-  _SVS(CleverSysLog Clev("Editor::FreeAllocatedData()"));
-  _SVS(DWORD I=0;SysLog("TopList=%p, EndList=%p _heapchk() = %d",TopList, EndList,_heapchk()));
-  _SVS(TRY){
+  //_SVS(CleverSysLog Clev("Editor::FreeAllocatedData()"));
+  //_SVS(DWORD I=0;SysLog("TopList=%p, EndList=%p _heapchk() = %d",TopList, EndList,_heapchk()));
+  //_SVS(TRY)
+  {
     while (EndList!=NULL)
     {
       struct EditList *Prev=EndList->Prev;
       delete EndList;
       EndList=Prev;
-     _SVS(I++);
+     //_SVS(I++);
     }
   }
-  _SVS(EXCEPT(EXCEPTION_EXECUTE_HANDLER){SysLog("I=%d EndList=%p{%p,%p} _heapchk() = %d",I,EndList,EndList->Next,EndList->Prev,_heapchk());});
+  //_SVS(EXCEPT(EXCEPTION_EXECUTE_HANDLER){SysLog("I=%d EndList=%p{%p,%p} _heapchk() = %d",I,EndList,EndList->Next,EndList->Prev,_heapchk());});
 
-  _SVS(SysLog("I=%d) _heapchk() = %d",I,_heapchk()));
+  //_SVS(SysLog("I=%d) _heapchk() = %d",I,_heapchk()));
 
   /* $ 03.12.2001 IS
      UndoData - указатель
@@ -1239,6 +1243,69 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   //_SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
   return(TRUE);
 }
+
+// преобразование из буфера в список
+int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
+{
+  return(TRUE);
+}
+
+// преобразование из списка в буфер
+int Editor::SaveData(LPBYTE DestBuf,int SizeDestBuf,int TextFormat)
+{
+#if 0
+  switch(TextFormat)
+  {
+    case 1:
+      strcpy(GlobalEOL,DOS_EOL_fmt);
+      break;
+    case 2:
+      strcpy(GlobalEOL,UNIX_EOL_fmt);
+      break;
+    case 3:
+      strcpy(GlobalEOL,MAC_EOL_fmt);
+      break;
+  }
+
+  struct EditList *CurPtr=TopList;
+
+  char *PDest=DestBuf;
+  int CurSize=0;
+  *PDest=0;
+
+  while (CurPtr!=NULL)
+  {
+    const char *SaveStr, *EndSeq;
+    int Length;
+
+    CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
+
+    if (*EndSeq==0 && CurPtr->Next!=NULL)
+      EndSeq=*GlobalEOL ? GlobalEOL:DOS_EOL_fmt;
+
+    if (TextFormat!=0 && *EndSeq!=0)
+    {
+      if (TextFormat==1)
+        EndSeq=DOS_EOL_fmt;
+      else if (TextFormat==2)
+        EndSeq=UNIX_EOL_fmt;
+      else
+        EndSeq=MAC_EOL_fmt;
+      CurPtr->EditLine.SetEOL(EndSeq);
+    }
+
+    // Ќужна проверка на SizeDestBuf !!!
+    strcpy(PDest,SaveStr);
+    strcat(PDest,EndSeq);
+    CurSize+=strlen(PDest);
+    PDest+=strlen(PDest);
+
+    CurPtr=CurPtr->Next;
+  }
+#endif
+  return(TRUE);
+}
+
 
 void Editor::DisplayObject()
 {

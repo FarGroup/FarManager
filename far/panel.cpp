@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.108 23.02.2003 $ */
+/* Revision: 1.109 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    ! Закоментим _SVS
   23.02.2003 SVS
     + BugZ#727 - [wish] Прикрутить Ctrl-R к меню выбора дисков
   20.02.2003 SVS
@@ -1175,17 +1177,17 @@ static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
 {
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && (Key&KEY_ALT))// && Key!=(KEY_ALT|0x3C))
   {
-    _SVS(SysLog("_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
+    // // _SVS(SysLog("_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
     if(rec->Event.KeyEvent.uChar.AsciiChar && (Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.AsciiChar) //???
       Key=(Key&0xFFFFFF00)|rec->Event.KeyEvent.uChar.AsciiChar;   //???
-    _SVS(SysLog("_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
+    // // _SVS(SysLog("_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
   }
   return Key;
 }
 
 void Panel::FastFind(int FirstKey)
 {
-  _SVS(CleverSysLog Clev("Panel::FastFind"));
+  // // _SVS(CleverSysLog Clev("Panel::FastFind"));
   INPUT_RECORD rec;
   char LastName[NM],Name[NM];
   int Key,KeyToProcess=0;
@@ -1208,13 +1210,13 @@ void Panel::FastFind(int FirstKey)
       if (FirstKey)
       {
         FirstKey=_CorrectFastFindKbdLayout(FrameManager->GetLastInputRecord(),FirstKey);
-        _SVS(SysLog("Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
-        _SVS(SysLog("if (FirstKey)"));
+        // // _SVS(SysLog("Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
+        // // _SVS(SysLog("if (FirstKey)"));
         Key=FirstKey;
       }
       else
       {
-        _SVS(SysLog("else if (FirstKey)"));
+        // // _SVS(SysLog("else if (FirstKey)"));
         Key=GetInputRecord(&rec);
         if (rec.EventType==MOUSE_EVENT)
         {
@@ -1231,7 +1233,7 @@ void Panel::FastFind(int FirstKey)
         KeyToProcess=KEY_NONE;
         break;
       }
-      _SVS(if (!FirstKey) SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
+      // // _SVS(if (!FirstKey) SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
         Key=tolower(Key-KEY_ALT_BASE);
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)

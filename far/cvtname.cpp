@@ -5,10 +5,13 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.06 25.02.2003 $ */
+/* Revision: 1.07 06.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    + немного логов
+    ! наработки по вопросу о символических связях
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.01.2003 SVS
@@ -272,6 +275,8 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 */
 int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 {
+  _SVS(CleverSysLog Clev("ConvertNameToReal()"));
+  _SVS(SysLog("Params: Src='%s'",Src));
   char TempDest[2048];
   BOOL IsAddEndSlash=FALSE; // =TRUE, если слеш добавляли самостоятельно
                             // в конце мы его того... удавим.
@@ -279,16 +284,19 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
   // Получим сначала полный путь до объекта обычным способом
   int Ret=ConvertNameToFull(Src,TempDest,sizeof(TempDest));
   //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
+  _SVS(SysLog("ConvertNameToFull('%s') -> '%s'",Src,TempDest));
 
   // остальное касается Win2K, т.к. в виндах ниже рангом нету некоторых
   // функций, позволяющих узнать истинное имя линка.
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
+    _SVS(CleverSysLog Clev("VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5"));
     DWORD FileAttr;
     char *Ptr, Chr;
 
     Ptr=TempDest+strlen(TempDest);
 
+    _SVS(SysLog("%d FileAttr=0x%08X",__LINE__,GetFileAttributes(TempDest)));
     // немного интелектуальности не помешает - корректную инфу мы
     // можем получить только если каталог будет завершен слешем!
     if((FileAttr=GetFileAttributes(TempDest)) != -1 && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
@@ -327,35 +335,40 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
       Chr=*Ptr;
       *Ptr=0;
       FileAttr=GetFileAttributes(TempDest);
+      _SVS(SysLog("%d FileAttr=0x%08X ('%s')",__LINE__,FileAttr,TempDest));
 
       // О! Это наш клиент - одна из "компонент" пути - симлинк
       if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
       {
         char TempDest2[1024];
 
-        // Получим инфу симлинке
-        if(GetJunctionPointInfo(TempDest,TempDest2,sizeof(TempDest2)))
+//        if(CheckParseJunction(TempDest,sizeof(TempDest)))
         {
-          // для случая монтированного диска (не имеющего букву)...
-          if(!strncmp(TempDest2+4,"Volume{",7))
+          _SVS(SysLog("%d Parse Junction",__LINE__));
+          // Получим инфу симлинке
+          if(GetJunctionPointInfo(TempDest,TempDest2,sizeof(TempDest2)))
           {
-            char JuncRoot[NM];
-            JuncRoot[0]=JuncRoot[1]=0;
-            // получим либо букву диска, либо...
-            GetPathRootOne(TempDest2+4,JuncRoot);
-            // ...но в любом случае пишем полностью.
-            strcpy(TempDest2+4,JuncRoot);
+            // для случая монтированного диска (не имеющего букву)...
+            if(!strncmp(TempDest2+4,"Volume{",7))
+            {
+              char JuncRoot[NM];
+              JuncRoot[0]=JuncRoot[1]=0;
+              // получим либо букву диска, либо...
+              GetPathRootOne(TempDest2+4,JuncRoot);
+              // ...но в любом случае пишем полностью.
+              strcpy(TempDest2+4,JuncRoot);
+            }
+            // небольшая метаморфоза с именем, дабы удалить ведущие "\\?\"
+            // но для "Volume{" начало всегда будет корректным!
+            memmove(TempDest2,TempDest2+4,strlen(TempDest2+4)+1);
+            *Ptr=Chr; // восстановим символ
+            DeleteEndSlash(TempDest2);
+            strcat(TempDest2,Ptr);
+            strcpy(TempDest,TempDest2);
+            Ret=strlen(TempDest);
+            // ВСЕ. Реальный путь у нас в кармане...
+            break;
           }
-          // небольшая метаморфоза с именем, дабы удалить ведущие "\\?\"
-          // но для "Volume{" начало всегда будет корректным!
-          memmove(TempDest2,TempDest2+4,strlen(TempDest2+4)+1);
-          *Ptr=Chr; // восстановим символ
-          DeleteEndSlash(TempDest2);
-          strcat(TempDest2,Ptr);
-          strcpy(TempDest,TempDest2);
-          Ret=strlen(TempDest);
-          // ВСЕ. Реальный путь у нас в кармане...
-          break;
         }
       }
       *Ptr=Chr;
@@ -367,6 +380,7 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 
   if(Dest && DestSize)
     strncpy(Dest,TempDest,DestSize-1);
+  _SVS(SysLog("return Dest='%s'",Dest));
   return Ret;
 }
 

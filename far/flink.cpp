@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.38 26.01.2003 $ */
+/* Revision: 1.39 06.03.2003 $ */
 
 /*
 Modify:
+  06.03.2003 SVS
+    + _LOGCOPYR() - детальный лог процесса копирования
+    ! наработки по вопросу о символических связях
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -453,29 +456,39 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
   return rdb.SubstituteNameLength / sizeof(TCHAR);
 }
 
-int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
+// предполагаем, что парсим только локальные диски
+int CheckParseJunction(char *Path,int SizePath)
 {
-  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-     WinVer.dwMajorVersion >= 5 &&
-     Src && *Src)
+  return TRUE;
+#if 0
+  if(IsLocalPath(Path))
   {
-    /* $ 27.09.2001 IS
-       ! Выделяем столько памяти, сколько нужно.
-       - Использовали размер указателя, а не размер буфера.
-       - Указывали не верный размер для strncpy
-    */
-    int TempSize=Max((int)(strlen(Src)+1),DestSize);
-    char *TempDest=(char *)alloca(TempSize);
-    strcpy(TempDest,Src);
-    AddEndSlash(TempDest);
-    DWORD Size=GetJunctionPointInfo(TempDest,TempDest,TempSize);
-    if(Size && Dest)
-      strncpy(Dest,TempDest,DestSize-1);
-    /* IS $ */
-    return Size;
+    char RootDir[4]="A:\\";
+    RootDir[0]=Path[0];
+    DWORD DriveType = GetDriveType(RootDir);
+    if(DriveType == DRIVE_REMOVABLE ||
+       DriveType == DRIVE_FIXED ||
+       DriveType == DRIVE_CDROM ||
+       DriveType == DRIVE_RAMDISK)
+      return 1;
+
+    if(DriveType == DRIVE_REMOTE)
+    {
+      char uni[1024];
+      DWORD uniSize = sizeof(uni);
+      if (WNetGetUniversalName(Path, UNIVERSAL_NAME_INFO_LEVEL, &uni, &uniSize) == NOERROR)
+      {
+        UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
+        strncpy(Path, lpuni->lpUniversalName, SizePath-1);
+      }
+      ConvertNameToReal(Path,Path, SizePath);
+      return 2;
+    }
   }
   return 0;
+#endif
 }
+
 
 /* $ 07.09.2000 SVS
    Функция GetNumberOfLinks тоже доступна плагинам :-)
@@ -862,6 +875,8 @@ void GetPathRootOne(const char *Path,char *Root)
 // полный проход ПО!!!
 void WINAPI GetPathRoot(const char *Path,char *Root)
 {
+  _LOGCOPYR(CleverSysLog Clev("GetPathRoot()"));
+  _LOGCOPYR(SysLog("Params: Path='%s'",Path));
   char TempRoot[1024], *TmpPtr;
   char NewPath[2048];
   /* $ 06.06.2002 VVM
@@ -886,8 +901,11 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
     else
       IsUNC = TRUE;
   }
+
+  _LOGCOPYR(SysLog("%d NewPath='%s', IsUNC=%d",__LINE__,NewPath,IsUNC));
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
+    _LOGCOPYR(CleverSysLog Clev("VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5"));
     DWORD FileAttr;
     char JuncName[NM];
 
@@ -903,11 +921,30 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
       while(Ptr >= CtlChar && strlen(TempRoot) > 2)
       {
         FileAttr=GetFileAttributes(TempRoot);
+        _LOGCOPYR(SysLog("GetFileAttributes('%s')=0x%08X",TempRoot,FileAttr));
         if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
         {
-          if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
+          int ParseJunc=CheckParseJunction(TempRoot,sizeof(TempRoot));
+          _LOGCOPYR(SysLog("CheckParseJunction('%s')=%d",TempRoot,ParseJunc));
+          if(ParseJunc && GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
           {
              GetPathRootOne(JuncName+4,Root);
+#if 0
+             _LOGCOPYR(SysLog("afret  GetPathRootOne() Root='%s', JuncName='%s'",Root,JuncName));
+               //CheckParseJunction('\\vr-srv002\userhome$\vskirdin\wwwroot')=2
+               //return -> 952 Root='F:\', JuncName='\??\F:\wwwroot'
+             if(TempRoot[0] == '\\' && TempRoot[1] == '\\' && IsLocalPath(Root))
+             {
+               char *Ptr=strchr(TempRoot+2,'\\');
+               if(Ptr)
+               {
+                 JuncName[5]='$';
+                 strcpy(Ptr+1,JuncName+4);
+                 strcpy(Root,TempRoot);
+               }
+             }
+#endif
+             _LOGCOPYR(SysLog("return -> %d Root='%s', JuncName='%s'",__LINE__,Root,JuncName));
              return;
           }
         } /* if */
@@ -916,11 +953,59 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
       } /* while */
     } /* if */
   } /* if */
+  _LOGCOPYR(SysLog("%d NewPath='%s'",__LINE__,NewPath));
   GetPathRootOne(NewPath,Root);
+  _LOGCOPYR(SysLog("return -> %d Root='%s'",__LINE__,Root));
   // Хмм... а ведь здесь может быть \\?\ и еже с ним
   //GetPathRootOne(Path+((strlen(Path) > 4 && Path[0]=='\\' && Path[2]=='?' && Path[3]=='\\')?4:0),Root);
   /* VVM $ */
 }
+
+int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
+{
+  _LOGCOPYR(CleverSysLog Clev("FarGetReparsePointInfo()"));
+  _LOGCOPYR(SysLog("Params: Src='%s'",Src));
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 && Src && *Src)
+  {
+    char Src2[2048];
+    strncpy(Src2,Src,sizeof(Src2)-1);
+    if(CheckParseJunction(Src2,sizeof(Src2)))
+    {
+      /* $ 27.09.2001 IS
+         ! Выделяем столько памяти, сколько нужно.
+         - Использовали размер указателя, а не размер буфера.
+         - Указывали не верный размер для strncpy
+      */
+      int TempSize=Max((int)(strlen(Src2)+1),DestSize);
+      char *TempDest=(char *)alloca(TempSize);
+      strcpy(TempDest,Src2);
+      AddEndSlash(TempDest);
+      DWORD Size=GetJunctionPointInfo(TempDest,TempDest,TempSize);
+      // Src2='\\vr-srv002\userhome$\vskirdin\wwwroot', TempDest='\??\F:\wwwroot'
+      _LOGCOPYR(SysLog("return -> %d Src2='%s', TempDest='%s'",__LINE__,Src2,TempDest));
+#if 0
+      if(Src2[0] == '\\' && Src2[1] == '\\' && IsLocalPath(TempDest+4))
+      {
+        char *Ptr=strchr(Src2+2,'\\');
+        if(Ptr)
+        {
+          TempDest[5]='$';
+          strcpy(Ptr+1,TempDest+4);
+          strcpy(TempDest,"\\??\\");
+          strcat(TempDest,Src2);
+        }
+      }
+#endif
+      if(Size && Dest)
+        strncpy(Dest,TempDest,DestSize-1);
+      /* IS $ */
+//      _LOGCOPYR(SysLog("return -> %d Dest='%s'",__LINE__,Dest));
+      return Size;
+    }
+  }
+  return 0;
+}
+
 
 // Verify that both files are on the same NTFS disk
 BOOL WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName)

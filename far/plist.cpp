@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.10 23.12.2002 $ */
+/* Revision: 1.11 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    + Полиция 21 - "Нельзя килять задачи"
   23.12.2002 SVS
     - BugZ#744 - [wish] работа Ctrl-R в окне списка задач
   17.12.2002 SVS
@@ -86,6 +88,10 @@ void ShowProcessList()
 
       case KEY_DEL:
         {
+          // Полиция 21
+          if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
+            break;
+
           HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
           if (ProcWnd!=NULL)
           {
@@ -145,6 +151,10 @@ void ShowProcessList()
 
 BOOL KillProcess(DWORD dwPID)
 {
+  // Полиция 21
+  if(Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
+   return FALSE;
+
   HANDLE hProcess;
   BOOL bRet;
   hProcess=OpenProcess(PROCESS_TERMINATE,FALSE,dwPID);

@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.112 04.02.2003 $ */
+/* Revision: 1.113 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    - BugZ#814 - DI_LISTBOX высотой 1 не отображается
+    ! Подложка для DI_LISTBOX и DI_COMBOBOX рисуется цветом COL_*DIALOGLISTTEXT
+    - очередные уточнения позиций
   04.02.2003 SVS
     - BugZ#788 - Криво считается ширина меню.
   30.01.2003 KM
@@ -628,7 +632,7 @@ void VMenu::Show()
     Y1=2;
     Y2=ScrY-2;
   }
-  if (X2>X1 && Y2>Y1)
+  if (X2>X1 && Y2+(VMFlags.Check(VMENU_SHOWNOBOX)?1:0)>Y1)
   {
     if(SelectPos == -1)
       SelectPos=SetSelectPos(0,1);
@@ -749,8 +753,11 @@ void VMenu::ShowMenu(int IsParent)
   */
   if (/*ItemCount==0 ||*/ X2<=X1 || Y2<=Y1)  /* DJ $ */
   {
-    CallCount--;
-    return;
+    if(!(VMFlags.Check(VMENU_SHOWNOBOX) && Y2==Y1))
+    {
+      CallCount--;
+      return;
+    }
   }
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   BoxChar2[1]=BoxChar[1]=0;
@@ -812,7 +819,12 @@ void VMenu::ShowMenu(int IsParent)
   }
 
   if (SelectPos<ItemCount)
-    Item[SelectPos].Flags|=LIF_SELECTED;
+  {
+    if(Item[SelectPos].Flags&LIF_DISABLE)
+      Item[SelectPos].Flags&=~LIF_SELECTED;
+    else
+      Item[SelectPos].Flags|=LIF_SELECTED;
+  }
 
   /* $ 02.12.2001 KM
      ! Предварительно, если нужно, настроим "горячие" клавиши.
@@ -828,6 +840,8 @@ void VMenu::ShowMenu(int IsParent)
     TopPos=SelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
   if (SelectPos<TopPos)
     TopPos=SelectPos;
+  if(TopPos<0)
+    TopPos=0;
 
   for (Y=Y1+((BoxType!=NO_BOX)?1:0),I=TopPos;Y<((BoxType!=NO_BOX)?Y2:Y2+1);Y++,I++)
   /* KM $ */
@@ -1789,12 +1803,12 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   if(!Item || !ItemCount)
     return -1;
 
-  int OrigPos=Pos, Pass=0;
+  int OrigPos=Pos, Pass=0, I=0;
 
   do
   {
-  	/* $ 21.02.2002 DJ
-	     в меню без WRAPMODE условие OrigPos == Pos никогда не выполнится =>
+    /* $ 21.02.2002 DJ
+       в меню без WRAPMODE условие OrigPos == Pos никогда не выполнится =>
        нужно использовать немного другую логику для выхода из цикла
   	*/
     if (Pos<0)
@@ -1828,8 +1842,10 @@ int VMenu::SetSelectPos(int Pos,int Direct)
     if(Pass)
       return SelectPos;
 
-    if(OrigPos == Pos) // круг пройден - ничего не найдено :-(
+    if (I>=ItemCount) // круг пройден - ничего не найдено :-(
       Pass++;
+
+    ++I;
   } while (1);
 
   /* $ 30.01.2003 KM
@@ -2074,7 +2090,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
       // Not VMENU_WARNDIALOG
       {
         { // VMENU_LISTBOX
-          COL_DIALOGLISTBOX,                         // подложка
+          COL_DIALOGLISTTEXT,                        // подложка
           COL_DIALOGLISTBOX,                         // рамка
           COL_DIALOGLISTTITLE,                       // заголовок - верхний и нижний
           COL_DIALOGLISTTEXT,                        // Текст пункта
@@ -2086,7 +2102,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_DIALOGLISTDISABLED,                    // Disabled
         },
         { // VMENU_COMBOBOX
-          COL_DIALOGCOMBOBOX,                         // подложка
+          COL_DIALOGCOMBOTEXT,                        // подложка
           COL_DIALOGCOMBOBOX,                         // рамка
           COL_DIALOGCOMBOTITLE,                       // заголовок - верхний и нижний
           COL_DIALOGCOMBOTEXT,                        // Текст пункта
@@ -2114,7 +2130,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
       // == VMENU_WARNDIALOG
       {
         { // VMENU_LISTBOX
-          COL_WARNDIALOGLISTBOX,                     // подложка
+          COL_WARNDIALOGLISTTEXT,                    // подложка
           COL_WARNDIALOGLISTBOX,                     // рамка
           COL_WARNDIALOGLISTTITLE,                   // заголовок - верхний и нижний
           COL_WARNDIALOGLISTTEXT,                    // Текст пункта
@@ -2126,7 +2142,7 @@ void VMenu::SetColors(struct FarListColors *Colors)
           COL_WARNDIALOGLISTDISABLED,                // Disabled
         },
         { // VMENU_COMBOBOX
-          COL_WARNDIALOGCOMBOBOX,                    // подложка
+          COL_WARNDIALOGCOMBOTEXT,                   // подложка
           COL_WARNDIALOGCOMBOBOX,                    // рамка
           COL_WARNDIALOGCOMBOTITLE,                  // заголовок - верхний и нижний
           COL_WARNDIALOGCOMBOTEXT,                   // Текст пункта

@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.64 04.02.2003 $ */
+/* Revision: 1.65 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    ! применим новые флаги FFPOL_*
   04.02.2003 SVS
     + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
       проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
@@ -590,7 +592,7 @@ int _cdecl main(int Argc, char *Argv[])
         case 'P':
         {
            // Полиция 19
-           if((Opt.Policies.DisabledOptions >> 19) & 1)
+           if(Opt.Policies.DisabledOptions&FFPOL_USEPSWITCH)
               break;
           /* $ 03.08.2000 SVS
             + Новый параметр "Вместо стандарного %FAR%\Plugins искать плагины из

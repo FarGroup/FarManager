@@ -6,10 +6,12 @@ scantree.cpp
 
 */
 
-/* Revision: 1.06 27.12.2002 $ */
+/* Revision: 1.07 06.03.2003 $ */
 
 /*
 Modify:
+  06.03.2003 SVS
+    + Opt.ScanJunction - сканировать так же симлинки.
   27.12.2002 VVM
     + Новый параметр ScanFlags. Разные флаги. Пока что только один SF_FILES_FIRST.
       Это параметр по умолчанию устанавливается в функции SetFindPath, если не задано братное.
@@ -149,7 +151,9 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
        Если каталог является SymLink (т.н. "Directory Junctions"),
        то в него не ломимся.
     */
-    if (((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC) && Recurse)
+    if (Recurse &&
+      ((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC ||
+          (fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Opt.ScanJunction))
     /* SVS $ */
     {
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)

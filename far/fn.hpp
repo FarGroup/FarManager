@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.178 20.02.2003 $ */
+/* Revision: 1.179 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    + SYSLOG_COPYR
+    + CheckParseJunction
   20.02.2003 SVS
     + TestParentFolderName() - вместо strcmp(Name,"..")
     ! xf_* будут __cdecl, т.к. юзаются в strdup.c, del.cpp и new.cpp
@@ -672,6 +675,7 @@ void PanelSettings();
 void InterfaceSettings();
 void SetConfirmations();
 void SetDizConfig();
+int  CheckParseJunction(char *Path,int SizePath);
 /* $ 27.11.2001 DJ
    параметр Local
 */
@@ -1200,6 +1204,12 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #define _NWZ(x)  x
 #else
 #define _NWZ(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_COPYR)
+#define _LOGCOPYR(x)  x
+#else
+#define _LOGCOPYR(x)
 #endif
 
 void OpenSysLog();

@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.80 25.02.2003 $ */
+/* Revision: 1.81 06.03.2003 $ */
 
 /*
 Modify:
+  06.03.2003 SVS
+    - BugZ#678 - Незапуск .msi по Shift-Enter
+    ! Закоментим _SVS
   25.02.2003 SVS
     ! Вернем "старое" поведение для выставление титла консоли, ибо строка
       "gzip foo.bar" намного понятнее выглядит, нежели "c:\usr\bin\gzip.EXE"
@@ -398,9 +401,9 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
     const char *ActionPtr;
     UserDefinedList ActionList(0,0,ULF_UNIQUE);
 
+    LONG RetEnum = ERROR_SUCCESS;
     if (RetPtr != NULL && ActionList.Set(Action))
     {
-      LONG RetEnum = ERROR_SUCCESS;
       char NewValue[512];
       HKEY hOpenKey;
       ActionList.Reset();
@@ -421,6 +424,8 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
     else
       strcat(Value,Action);
     /* VVM $ */
+    if(RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
+      RetPtr=NULL;
   }
   else
   {
@@ -884,7 +889,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   //_tran(SysLog("Execute: newCmdStr [%s]",NewCmdStr);)
 
   // Проверим, а не папку ли мы хотим открыть по Shift-Enter?
-  _SVS(SysLog("SeparateWindow=%d",SeparateWindow));
+  //_SVS(SysLog("SeparateWindow=%d",SeparateWindow));
   DWORD Attr=GetFileAttributes(NewCmdStr);
   if(SeparateWindow) //???
   {

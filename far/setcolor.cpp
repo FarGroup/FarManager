@@ -5,10 +5,13 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.24 10.02.2003 $ */
+/* Revision: 1.25 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    - Правим цвета для меню... а меню то и не прорисовалось!
+      Сделать Hide/Show мало. Нужно еще и апдейтить локальные копии палитр меню.
   10.02.2003 SVS
     - ШК> При настройке цветов интерфейса после изменения цвета для любого элемента
       ШК> часы исчезают и не появляются до выхода из настройки.
@@ -503,10 +506,15 @@ void GetColor(int PaletteIndex)
     MenuToRedraw1->Hide();
     FrameManager->RefreshFrame(); // рефрешим
     FrameManager->PluginCommit(); // коммитим.
+    MenuToRedraw1->SetColors();
     MenuToRedraw1->Show(); // кажем
+    MenuToRedraw2->SetColors();
     MenuToRedraw2->Show();
     if(MenuToRedraw3)
+    {
+      MenuToRedraw3->SetColors();
       MenuToRedraw3->Show();
+    }
     if(Opt.Clock)
       ShowTime(1);
     ScrBuf.Unlock(); // разрешаем прорисовку

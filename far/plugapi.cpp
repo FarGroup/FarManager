@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.154 20.02.2003 $ */
+/* Revision: 1.155 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    + ACTL_GETPOLICIES + FFPOL_* - пока дл€ внутреннего юзани€
   20.02.2003 SVS
     ! «аменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   04.02.2003 SVS
@@ -576,6 +578,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     case ACTL_GETINTERFACESETTINGS:
     case ACTL_GETCONFIRMATIONS:
     case ACTL_GETDESCSETTINGS:
+    case ACTL_GETPOLICIES:
       break;
     default:
      if (FrameManager && FrameManager->ManagerIsDown())
@@ -960,6 +963,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return Options;
     }
     /* DJ $ */
+
+    case ACTL_GETPOLICIES:
+    {
+      return Opt.Policies.DisabledOptions|(Opt.Policies.ShowHiddenDrives?FFPOL_SHOWHIDDENDRIVES:0);
+    }
 
   }
   return FALSE;

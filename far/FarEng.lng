@@ -234,8 +234,9 @@
 "Link"
 "Copy &access rights"
 "Only ne&wer file(s)"
+"&Symbolic link"
+"Cop&y contents of symbolic links"
 "Process &multiple destinations"
-"Sy&mbolic link"
 "&Copy"
 "F10-&Tree"
 "Ca&ncel"
@@ -269,6 +270,7 @@
 "onto itself"
 
 "Cannot create the folder"
+"Failed to set folder attributes"
 "Cannot rename the folder"
 "&Ignore"
 "&Retry"
@@ -669,6 +671,7 @@
 "G"
 "T"
 " %s bytes in 1 file "
+" %s bytes in %d files "
 " %s bytes in %d files "
 " %s free bytes "
 

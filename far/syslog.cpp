@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.38 18.02.2003 $ */
+/* Revision: 1.39 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    + SYSLOG_COPYR
   18.02.2003 SVS
     + _ESPT_ToName + _SysLog_LinearDump
     + DEF_ECTL_(DELETEBLOCK)
@@ -126,7 +128,7 @@ Modify:
 #include "frame.hpp"
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR)
   #define SYSLOG
  #endif
 #endif

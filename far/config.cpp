@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.144 10.02.2003 $ */
+/* Revision: 1.145 17.03.2003 $ */
 
 /*
 Modify:
+  17.03.2003 SVS
+    + Opt.ScanJunction - сканировать так же симлинки. По умолчанию включен
   10.02.2003 SVS
     + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
     ! Opt.Confirm.Esc - "все подтверждения по умолчанию должны быть включены"
@@ -1378,6 +1380,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
   {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate,-1, 0},
   {0, REG_DWORD,  NKeySystem,"UseNumPad",&Opt.UseNumPad,0, 0},
+  {0, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 

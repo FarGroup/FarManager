@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.33 20.02.2003 $ */
+/* Revision: 1.34 05.03.2003 $ */
 
 /*
 Modify:
+  05.03.2003 SVS
+    ! Закоментим _SVS
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
     ! В FileList::PluginPutFilesToNew() вместо индексного массива
@@ -109,7 +111,7 @@ Modify:
 
 void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {
-  _SVS(CleverSysLog("FileList::PushPlugin()"));
+  //_SVS(CleverSysLog("FileList::PushPlugin()"));
   DeleteAllDataToDelete();
   PluginsStack=(struct PluginsStackItem *)xf_realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
   struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
@@ -120,14 +122,14 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
   PStack->PrevSortMode=SortMode;
   PStack->PrevSortOrder=SortOrder;
   PluginsStackSize++;
-  _SVS(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
+  //_SVS(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
 }
 
 
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
-  _SVS(CleverSysLog("FileList::PopPlugin()"));
-  _SVS(PluginsStackItem_Dump("FileList::PopPlugin",PluginsStack,PluginsStackSize));
+  //_SVS(CleverSysLog("FileList::PopPlugin()"));
+  //_SVS(PluginsStackItem_Dump("FileList::PopPlugin",PluginsStack,PluginsStackSize));
   DeleteAllDataToDelete();
   if (PluginsStackSize==0)
   {
