@@ -5,10 +5,14 @@ checkver.cpp
 
 */
 
-/* Revision: 1.08 03.03.2002 $ */
+/* Revision: 1.09 28.02.2003 $ */
 
 /*
 Modify:
+  28.02.2003 SVS
+    + ¬ыставим DMODE_MSGINTERNAL перед работой диалога
+      (как вариант решени€ разногласий между BugZ#811 и BugZ#806)
+      по аналогии с Message
   03.03.2002 SVS
     ! ≈сли дл€ VC вставить ключ /Gr, то видим кучу багов :-/
   06.11.2001 SVS
@@ -121,6 +125,8 @@ void Register()
   Dialog Dlg(RegDlg,sizeof(RegDlg)/sizeof(RegDlg[0]));
   Dlg.SetPosition(-1,-1,76,10);
   Dlg.SetHelp("Register");
+  Dlg.SetDialogMode(DMODE_MSGINTERNAL);
+  FlushInputBuffer();
   Dlg.Process();
   if (Dlg.GetExitCode()!=6)
     return;
