@@ -5,7 +5,7 @@ config.cpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -19,6 +19,9 @@ Modify:
   04.07.2000 SVS
     ! ScrollBar Setting for Menus переехал из Options|Panel settings
       в Options|Interface settings
+  11.07.2000 SVS
+    ! Последниие 5 индексов внаглую перезаписываются (если на этих местах
+      стоят нули)
 */
 
 #include "headers.hpp"
@@ -450,6 +453,27 @@ void ReadConfig()
 {
   //                                                    было sizeof(Palette)
   GetRegKey("Colors","CurrentPalette",Palette,DefaultPalette,SizeArrayPalette);
+  /* $ 11.07.2000 SVS
+     Последниие несколько индексов внаглую перезаписываются (если на этих
+     местах стоят нули)
+  */
+  int I;
+  for(I=COL_DIALOGMENUSCROLLBAR-COL_FIRSTPALETTECOLOR;
+      I < (COL_DIALOGMENUSCROLLBAR-COL_FIRSTPALETTECOLOR)+4;
+      ++I)
+  {
+    if(!Palette[I])
+      if(!Palette[COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR])
+        Palette[I]=DefaultPalette[I];
+      else if(Palette[COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR] == 1)
+        Palette[I]=BlackPalette[I];
+      /*
+      else
+        в других случаях нифига ничего не делаем, т.к.
+        есть другие палитры...
+      */
+  }
+  /* SVS $ */
 
   GetRegKey("Screen","Clock",Opt.Clock,1);
   GetRegKey("Screen","ViewerEditorClock",Opt.ViewerEditorClock,0);

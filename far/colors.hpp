@@ -7,7 +7,7 @@ colors.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.07.2000 $ */
 
 /*
 Modify:
@@ -16,8 +16,11 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   29.06.2000 SVS
     + Цветовые атрибуты для Menu ScrollBar
+  11.07.2000 SVS
+    + 1 Служебная позиция перед новыми цветами :-)
 */
 
+// Стандартные цвета FAR Manager
 enum {
     F_BLACK=0,
     F_BLUE=FOREGROUND_BLUE,
@@ -144,7 +147,12 @@ enum PaletteColors
   COL_COMMANDLINESELECTED,
   COL_VIEWERARROWS,
 
-  /* 29.06.2000 SVS
+  /* $ 11.07.2000 SVS
+    + 1 Служебная позиция перед новыми цветами :-)
+  */
+  COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO,
+  /* SVS $ */
+  /* $ 29.06.2000 SVS
     Цветовые атрибуты для Menu ScrollBar
   */
   COL_DIALOGMENUSCROLLBAR,	// для случая History

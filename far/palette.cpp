@@ -5,7 +5,7 @@ palette.cpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   29.06.2000 SVS
     + Цветовые атрибуты для Menu ScrollBar
+  11.07.2000
+    + 1 Служебная позиция перед новыми цветами :-)
 */
 
 #include "headers.hpp"
@@ -68,13 +70,18 @@ unsigned char DefaultPalette[]=
   F_WHITE|B_BLACK,
   F_BLACK|B_LIGHTGRAY,
   F_YELLOW|B_BLUE,
+  /* $ 11.07.2000 SVS
+    + 1 Служебная позиция перед новыми цветами :-)
+  */
+  0,  // 1 - это есть default color
+  /* SVS $ */
   /* 29.06.2000 SVS
     Цветовые атрибуты для Menu ScrollBar
   */
   F_BLACK|B_LIGHTGRAY,
   F_WHITE|B_CYAN,
   /* SVS $ */
-  0,0,0
+  0,0
 };
 
 
@@ -122,14 +129,18 @@ unsigned char BlackPalette[]=
   F_BLACK|B_LIGHTGRAY,
   F_BLACK|B_LIGHTGRAY,
   F_WHITE|B_BLACK,
-
+  /* $ 11.07.2000 SVS
+    + 1 Служебная позиция перед новыми цветами :-)
+  */
+  1, // 1 - это есть default mono
+  /* SVS $ */
   /* 29.06.2000 SVS
     Цветовые атрибуты для Menu ScrollBar
   */
   F_BLACK|B_LIGHTGRAY,
   F_BLACK|B_LIGHTGRAY,
   /* SVS $ */
-  0,0,0
+  0,0
 };
 
 int SizeArrayPalette=sizeof(DefaultPalette)/sizeof(DefaultPalette[0]);
