@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.176 01.03.2005 $ */
+/* Revision: 1.177 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    + Opt.MsWheelDeltaHelp
   01.03.2005 SVS
     ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
     ! значение реестра "Panel\AutoChangeFolder" перемещено в "Panel\Tree\AutoChangeFolder"
@@ -1681,6 +1683,7 @@ static struct FARConfig{
     + Opt.MsWheelDeltaEdit - задает смещение для прокрутки в редакторе. */
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaView", &Opt.MsWheelDeltaView, 1, 0},
   {0, REG_DWORD,  NKeySystem,"MsWheelDeltaEdit", &Opt.MsWheelDeltaEdit, 1, 0},
+  {0, REG_DWORD,  NKeySystem,"MsWheelDeltaHelp", &Opt.MsWheelDeltaHelp, 1, 0},
   /* VVM $ */
   /* $ 28.04.2001 VVM
     + Opt.SubstNameRule битовая маска:

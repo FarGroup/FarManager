@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.87 17.01.2005 $ */
+/* Revision: 1.88 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    - BugZ#1291 - Дельта для прокрутки в поиске нет: Opt.MsWheelDelta -> Opt.MsWheelDeltaHelp
   17.01.2005 WARP
     ! Некоторые уточнения в спецификатор переноса строки.
   18.12.2004 WARP
@@ -1352,7 +1354,7 @@ int Help::ProcessKey(int Key)
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
     {
-      int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
+      int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaHelp;
       for (int i=0; i<Roll; i++)
         ProcessKey(KEY_UP);
       return(TRUE);
@@ -1360,7 +1362,7 @@ int Help::ProcessKey(int Key)
     case KEY_MSWHEEL_DOWN:
     case (KEY_MSWHEEL_DOWN | KEY_ALT):
     {
-      int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
+      int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaHelp;
       for (int i=0; i<Roll; i++)
         ProcessKey(KEY_DOWN);
       return(TRUE);

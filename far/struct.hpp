@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.121 01.03.2005 $ */
+/* Revision: 1.122 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    + Opt.MsWheelDeltaHelp
   01.03.2005 SVS
     + struct TreeOptions
     ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
@@ -889,6 +891,7 @@ struct Options
   /* VVM $ */
   int MsWheelDeltaView;
   int MsWheelDeltaEdit;
+  int MsWheelDeltaHelp;
   /* $ 28.04.2001 VVM
     + Opt.SubstNameRule битовая маска:
       0 - если установлен, то опрашивать сменные диски при GetSubstName()
