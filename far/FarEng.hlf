@@ -1183,6 +1183,7 @@ $ #Internal viewer#
     #Shift-F8#           Select custom character table
                        (see notes below)
     #Alt-F8#             ~Change current position~@ViewerGotoPos@
+    #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
     #Numpad5,F3,F10,Esc# Quit
     #Ctrl-F10#           Quit with positioning on the current file
     #F11#                Call "Plugin commands" menu
@@ -1300,10 +1301,10 @@ $ #Internal editor#
    #Shift-F8#                Select custom character table
                            (see notes below)
    #Alt-F8#                  ~Go to specified line and column~@EditorGotoPos@
+   #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
    #F10, Esc#                Quit
    #Shift-F10#               Save and quit
-   #Ctrl-F10#                Quit with positioning on the
-                           current file
+   #Ctrl-F10#                Quit with positioning on the current file
    #F11#                     Call "Plugin commands" menu
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification
@@ -1444,6 +1445,9 @@ $ #Viewer settings#
     If external viewer is assigned to F3 key, it will be executed
 only if ~associated~@FileAssoc@ viewer for the current file type is absent.
 
+    Pressing Alt-Shift-F9 allows to invoke viewer settings dialog in the
+~viewer~@Viewer@. The changes will come into force immediately.
+
 @EditorSettings
 $ #Editor settings#
     This dialog allows the default external and internal editor
@@ -1499,6 +1503,9 @@ settings to be changed.
 
     If external editor is assigned to F4 key, it will be executed only
 if ~associated~@FileAssoc@ editor for the current file type is absent.
+
+    Pressing Alt-Shift-F9 allows to invoke editor settings dialog in the
+~editor~@Editor@. The changes will come into force immediately.
 
 @DistTable
 $ #Auto detect character tables#

@@ -5,14 +5,18 @@ fileview.cpp
 
 */
 
-/* Revision: 1.14 16.12.2000 $ */
+/* Revision: 1.15 19.12.2000 $ */
 
 /*
 Modify:
+  19.12.2000 SVS
+    + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
+    - [*] Забыли "застолбить" место в LNG-файлах под клавишу F9 :-)
+      застолбить -застолбили, но не показывает.
   16.12.2000 tran 1.14
     ! Ctrl-F10 смотрит на пассивную панель
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   27.09.2000 SVS
@@ -140,7 +144,7 @@ void FileViewer::InitKeyBar(void)
 {
   /* $ 29.06.2000 tran
      добавил названия всех функциональных клавиш */
-  char *FViewKeys[]={MSG(MViewF1),MSG(MViewF2),MSG(MViewF3),MSG(MViewF4),MSG(MViewF5),DisableEdit ? "":MSG(MViewF6),MSG(MViewF7),MSG(MViewF8),"",MSG(MViewF10),MSG(MViewF11),MSG(MViewF12)};
+  char *FViewKeys[]={MSG(MViewF1),MSG(MViewF2),MSG(MViewF3),MSG(MViewF4),MSG(MViewF5),DisableEdit ? "":MSG(MViewF6),MSG(MViewF7),MSG(MViewF8),MSG(MViewF9),MSG(MViewF10),MSG(MViewF11),MSG(MViewF12)};
   char *FViewShiftKeys[]={MSG(MViewShiftF1),MSG(MViewShiftF2),MSG(MViewShiftF3),MSG(MViewShiftF4),MSG(MViewShiftF5),MSG(MViewShiftF6),MSG(MViewShiftF7),MSG(MViewShiftF8),MSG(MViewShiftF9),MSG(MViewShiftF10),MSG(MViewShiftF11),MSG(MViewShiftF12)};
   char *FViewAltKeys[]={MSG(MViewAltF1),MSG(MViewAltF2),MSG(MViewAltF3),MSG(MViewAltF4),MSG(MViewAltF5),MSG(MViewAltF6),MSG(MViewAltF7),MSG(MViewAltF8),MSG(MViewAltF9),MSG(MViewAltF10),MSG(MViewAltF11),MSG(MViewAltF12)};
   char *FViewCtrlKeys[]={MSG(MViewCtrlF1),MSG(MViewCtrlF2),MSG(MViewCtrlF3),MSG(MViewCtrlF4),MSG(MViewCtrlF5),MSG(MViewCtrlF6),MSG(MViewCtrlF7),MSG(MViewCtrlF8),MSG(MViewCtrlF9),MSG(MViewCtrlF10),MSG(MViewCtrlF11),MSG(MViewCtrlF12)};
@@ -334,6 +338,16 @@ int FileViewer::ProcessKey(int Key)
       return TRUE;
     }
     /* SVS $*/
+
+    /* $ 19.12.2000 SVS
+       Вызов диалога настроек (с подачи IS)
+    */
+    case KEY_ALTSHIFTF9:
+      ViewerConfig();
+      if ( Opt.ShowKeyBarViewer )
+        ViewKeyBar.Show();
+      return TRUE;
+    /* SVS $ */
 
     default:
       return(View.ProcessKey(Key));

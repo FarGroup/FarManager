@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.15 16.12.2000 $ */
+/* Revision: 1.16 19.12.2000 $ */
 
 /*
 Modify:
+  19.12.2000 SVS
+    + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
   16.12.2000 tran 1.15
     ! Ctrl-F10 смотрит на пассивную панель
   15.12.2000 SVS
@@ -423,6 +425,15 @@ int FileEditor::ProcessKey(int Key)
       return TRUE;
     }
     /* SVS $*/
+
+    /* $ 19.12.2000 SVS
+       Вызов диалога настроек (с подачи IS)
+    */
+    case KEY_ALTSHIFTF9:
+      EditorConfig();
+      EditKeyBar.Show();
+      return TRUE;
+    /* SVS $ */
 
     default:
       if (CtrlObject->Macro.IsExecuting() || !FEdit.ProcessEditorInput(&ReadRec))
