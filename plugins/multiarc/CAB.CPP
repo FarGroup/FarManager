@@ -202,7 +202,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   CharToOem( EndPos, Item->FindData.cFileName );
 
-  Item->FindData.dwFileAttributes=FileHeader.attribs;
+  #define _A_ENCRYPTED 8
+  Item->FindData.dwFileAttributes = FileHeader.attribs & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_ARCHIVE|FILE_ATTRIBUTE_DIRECTORY);
+  Info->Encrypted = FileHeader.attribs & _A_ENCRYPTED;
   Item->PackSize=0;
   Item->FindData.nFileSizeLow=FileHeader.cbFile;
   DosDateTimeToFileTime(FileHeader.date,FileHeader.time,&lft);
@@ -241,21 +243,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-    /*Extract               */"MsCab -i0 {-ap%%R} {%%S} x %%A @%%LMA",
-    /*Extract without paths */"MsCab -i0 {%%S} e %%A @%%LMA",
-    /*Test                  */"MsCab -i0 {%%S} t %%A @%%LMA",
-    /*Delete                */"MsCab -i0 {%%S} d %%A @%%LMA",
+    /*Extract               */"MsCab -i0 {-ap%%R} {-p%%P} {%%S} x %%A @%%LMA",
+    /*Extract without paths */"MsCab -i0 {-p%%P} {%%S} e %%A @%%LMA",
+    /*Test                  */"MsCab -i0 {-p%%P} {%%S} t %%A @%%LMA",
+    /*Delete                */"MsCab -i0 {-p%%P} {%%S} d %%A @%%LMA",
     /*Comment archive       */"",
     /*Comment files         */"",
     /*Convert to SFX        */"MsCab {%%S} s %%A",
     /*Lock archive          */"",
     /*Protect archive       */"",
     /*Recover archive       */"",
-    /*Add files             */"MsCab -i0 {-ap%%R} {%%S} a %%A @%%LMA",
-    /*Move files            */"MsCab -i0 {-ap%%R} {%%S} m %%A @%%LMA",
-    /*Add files and folders */"MsCab -r -i0 {-ap%%R} {%%S} a %%A @%%LMA",
-    /*Move files and folders*/"MsCab -r -i0 {-ap%%R} {%%S} m %%A @%%LMA",
-    /*"All files" mask      */"*.*"
+    /*Add files             */"MsCab -i0 -dirs {-ap%%R} {-p%%P} {%%S} a %%A @%%LNA",
+    /*Move files            */"MsCab -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNA",
+    /*Add files and folders */"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} a %%A @%%LNA",
+    /*Move files and folders*/"MsCab -r0 -i0 -dirs {-ap%%R} {-p%%P} {%%S} m %%A @%%LNA",
+    /*"All files" mask      */"*"
     };
     if (Command < sizeof(Commands)/sizeof(Commands[0]))
     {

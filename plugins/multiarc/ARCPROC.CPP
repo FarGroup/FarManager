@@ -106,7 +106,6 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     {
       Count=1;
       MenuItems[0].UserData=0xFFFFFFFF;
-      return FALSE;
     }
 
     int BreakCode;
