@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.185 19.05.2003 $ */
+/* Revision: 1.186 05.06.2003 $ */
 
 /*
 Modify:
+  05.06.2003 SVS
+    ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
   19.05.2003 SVS
     + DialogSettings()
   14.05.2003 SVS
@@ -489,7 +491,7 @@ void InitConsole(int FirstInit=TRUE);
 void InitRecodeOutTable(UINT cp=0);
 /* SKV$*/
 void CloseConsole();
-void SetFarConsoleMode();
+void SetFarConsoleMode(BOOL SetsActiveBuffer=FALSE);
 //OT
 void ChangeVideoMode(int NumLines,int NumColumns);
 void ChangeVideoMode(int Maximized);

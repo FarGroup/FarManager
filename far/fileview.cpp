@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.66 30.05.2003 $ */
+/* Revision: 1.67 05.06.2003 $ */
 
 /*
 Modify:
+  05.06.2003 SVS
+    - "view:a:\a F6" - не работает, в тоже время "view:A:\a F6" - работает
   30.05.2003 SVS
     + Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
       Пока закомментим (чтобы не потерялось)
@@ -471,11 +473,21 @@ int FileViewer::ProcessKey(int Key)
       {
         char ViewFileName[NM];
         View.GetFileName(ViewFileName);
-
+/*
         HANDLE hEdit=FAR_CreateFile(ViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
                                     OPEN_EXISTING,
                                     FILE_FLAG_SEQUENTIAL_SCAN|(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?FILE_FLAG_POSIX_SEMANTICS:0),
                                     NULL);
+*/
+        HANDLE hEdit=INVALID_HANDLE_VALUE;
+        if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+          hEdit=FAR_CreateFile(ViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
+            OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
+            NULL);
+        if(hEdit==INVALID_HANDLE_VALUE)
+          hEdit=FAR_CreateFile(ViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
+            OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+
         if (hEdit==INVALID_HANDLE_VALUE)
         {
           Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),ViewFileName,MSG(MOk));

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.224 06.05.2003 $ */
+/* Revision: 1.225 05.06.2003 $ */
 
 /*
 Modify:
+  05.06.2003 SVS
+    - XLat, если ничего не сконвертил, все равно ставит модификацию текста.
   05.06.2003 SKV
     - Правка выделения в тексте с табуляцией и режиме !CursorBeyonEOL.
   06.05.2003 SVS
@@ -6326,6 +6328,7 @@ void Editor::Xlat()
 {
   struct EditList *CurPtr;
   int Line;
+  BOOL DoXlat=FALSE;
 
   if (VBlockStart!=NULL)
   {
@@ -6346,6 +6349,7 @@ void Editor::Xlat()
       BlockUndo=TRUE;
       ::Xlat(CurPtr->EditLine.Str,TBlockX,TBlockX+CopySize,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
     }
+    DoXlat=TRUE;
   }
   else
   {
@@ -6371,6 +6375,7 @@ void Editor::Xlat()
         Line++;
         CurPtr=CurPtr->Next;
       }
+      DoXlat=TRUE;
     }
     else
     {
@@ -6380,7 +6385,7 @@ void Editor::Xlat()
          Обрабатываем только то слово, на котором стоит курсор, или то слово,
          что находится левее позиции курсора на 1 символ
       */
-      BOOL DoXlat=TRUE;
+      DoXlat=TRUE;
 
       if(strchr(Opt.XLat.WordDivForXlat,Str[start])!=NULL)
       {
@@ -6404,7 +6409,8 @@ void Editor::Xlat()
     /* IS $ */
   }
   BlockUndo=FALSE;
-  TextChanged(1);
+  if(DoXlat)
+    TextChanged(1);
 }
 /* SVS $ */
 

@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.76 19.05.2003 $ */
+/* Revision: 1.77 05.06.2003 $ */
 
 /*
 Modify:
+  05.06.2003 SVS
+    ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
   19.05.2003 SVS
     ! DetectTTFFont уехал из main.cpp в interf.cpp
     - Bug 893 - Символ \x7F отрисовывается на панели как '?'
@@ -384,11 +386,13 @@ void CloseConsole()
 }
 
 
-void SetFarConsoleMode()
+void SetFarConsoleMode(BOOL SetsActiveBuffer)
 {
   int Mode=ENABLE_WINDOW_INPUT;
   if (Opt.Mouse)
     Mode|=ENABLE_MOUSE_INPUT;
+  if(SetsActiveBuffer)
+    SetConsoleActiveScreenBuffer(hConOut);
   ChangeConsoleMode(Mode);
 }
 

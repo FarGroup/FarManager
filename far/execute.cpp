@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.83 06.05.2003 $ */
+/* Revision: 1.84 05.06.2003 $ */
 
 /*
 Modify:
+  05.06.2003 SVS
+    ! SetFarConsoleMode имеет параметр - нужно ли активировать буфер
   06.05.2003 SVS
     ! при смене кодовой страницы так же переинициализируем некоторое массивы
     ! попытка борьбы с синим фоном в 4NT при старте консоль
@@ -1302,7 +1304,7 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
     //ScrBuf.FillBuf();
     //ScrBuf.SetLockCount(PrevLockCount);
   }
-  SetFarConsoleMode();
+  SetFarConsoleMode(TRUE);
   /* $ 05.10.2001 IS
      - ќпечатка
      + ѕринудительна€ установка курсора, т.к. SetCursorType иногда не спасает
