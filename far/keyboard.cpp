@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.78 21.08.2002 $ */
+/* Revision: 1.79 16.09.2002 $ */
 
 /*
 Modify:
+  16.09.2002 SVS
+    - "При драгндропе ярлыка с рабюочего стола его путь вставляется не
+       полностью - интересно, почему?"
   21.08.2002 SVS
     ! WaitKey теперь возвращает код нажатой клавиши
   19.08.2002 SVS
@@ -253,7 +256,8 @@ Modify:
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 
-static int AltValue=0,ReturnAltValue,KeyCodeForALT_LastPressed=0;
+static unsigned int AltValue=0;
+static int ReturnAltValue,KeyCodeForALT_LastPressed=0;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static int RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
 #if defined(MOUSEKEY)
@@ -580,17 +584,75 @@ int GetInputRecord(INPUT_RECORD *rec)
           rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
       }
 
+#if 0
+      if(rec->EventType==KEY_EVENT)
+      {
+        // берем количество оставшейся порции эвентов
+        DWORD ReadCount2;
+        GetNumberOfConsoleInputEvents(hConInp,&ReadCount2);
+        // если их безобразно много, то просмотрим все на предмет KEY_EVENT
+        if(ReadCount2 > 1)
+        {
+          INPUT_RECORD *TmpRec=(INPUT_RECORD*)malloc(sizeof(INPUT_RECORD)*ReadCount2);
+          if(TmpRec)
+          {
+            DWORD ReadCount3;
+            INPUT_RECORD TmpRec2;
+            int I;
 
-//      _SVS(if(rec->EventType==KEY_EVENT)SysLog("%s",_INPUT_RECORD_Dump(rec)));
+            #if defined(USE_WFUNC_IN)
+            if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+              PeekConsoleInputW(hConInp,TmpRec,ReadCount2,&ReadCount3);
+            else
+              PeekConsoleInputA(hConInp,TmpRec,ReadCount2,&ReadCount3);
+            #else
+            PeekConsoleInput(hConInp,TmpRec,ReadCount2,&ReadCount3);
+            #endif
+            for(I=0; I < ReadCount2; ++I)
+            {
+              if(TmpRec[I].EventType!=KEY_EVENT)
+                break;
+
+              // удаляем из очереди
+              #if defined(USE_WFUNC_IN)
+              if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+                ReadConsoleInputW(hConInp,&TmpRec2,1,&ReadCount3);
+              else
+                ReadConsoleInputA(hConInp,&TmpRec2,1,&ReadCount3);
+              #else
+              ReadConsoleInput(hConInp,&TmpRec2,1,&ReadCount3);
+              #endif
+
+              if(TmpRec[I].Event.KeyEvent.bKeyDown==1)
+              {
+                if (TmpRec[I].Event.KeyEvent.uChar.AsciiChar != 0)
+                  WriteInput(TmpRec[I].Event.KeyEvent.uChar.AsciiChar,0);
+              }
+              else if(TmpRec[I].Event.KeyEvent.wVirtualKeyCode==0x12)
+              {
+                if (TmpRec[I].Event.KeyEvent.uChar.AsciiChar != 0)
+                  WriteInput(TmpRec[I].Event.KeyEvent.uChar.AsciiChar,0);
+              }
+            }
+            // освободим память
+            free(TmpRec);
+            return KEY_NONE;
+          }
+        }
+      }
+#endif
+
+      _SVS(if(rec->EventType==KEY_EVENT))
+        _SVS(SysLog("-- %s",_INPUT_RECORD_Dump(rec)));
 #if defined(USE_WFUNC_IN)
       WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
       if((UnicodeChar&0xFF00) && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       {
-        _SVS(if(rec->EventType==KEY_EVENT)SysLog(">GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
+        //_SVS(if(rec->EventType==KEY_EVENT)SysLog(">GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
         rec->Event.KeyEvent.uChar.UnicodeChar=0;
         UnicodeToAscii(&UnicodeChar,&rec->Event.KeyEvent.uChar.AsciiChar,sizeof(WCHAR));
         CharToOemBuff(&rec->Event.KeyEvent.uChar.AsciiChar,&rec->Event.KeyEvent.uChar.AsciiChar,1);
-        _SVS(if(rec->EventType==KEY_EVENT)SysLog("<GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
+        //_SVS(if(rec->EventType==KEY_EVENT)SysLog("<GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
       }
 #endif
       break;
@@ -762,7 +824,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     if((rec->Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) == 0 && ShiftState)
       rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
 */
-    _SVS(if(rec->EventType==KEY_EVENT)SysLog("%s",_INPUT_RECORD_Dump(rec)));
+    //_SVS(if(rec->EventType==KEY_EVENT)SysLog("%s",_INPUT_RECORD_Dump(rec)));
 
     DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 
@@ -1621,12 +1683,18 @@ int IsShiftKey(DWORD Key)
 // GetAsyncKeyState(VK_RSHIFT)
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
-  unsigned int ScanCode,KeyCode,CtrlState,AsciiChar;
+  //_SVS(CleverSysLog Clev("CalcKeyCode"));
+  union {
+    WCHAR UnicodeChar;
+    CHAR  AsciiChar;
+  } Char;
+
+  unsigned int ScanCode,KeyCode,CtrlState;
   CtrlState=rec->Event.KeyEvent.dwControlKeyState;
   ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
   KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
-  AsciiChar=rec->Event.KeyEvent.uChar.AsciiChar;
-  _SVS(if(KeyCode == VK_DECIMAL || KeyCode == VK_DELETE) SysLog("CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, AsciiChar,ShiftPressed,ShiftPressedLast));
+  Char.UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
+  //_SVS(if(KeyCode == VK_DECIMAL || KeyCode == VK_DELETE) SysLog("CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, Char.AsciiChar,ShiftPressed,ShiftPressedLast));
 
   if(NotMacros)
     *NotMacros=CtrlState&0x80000000?TRUE:FALSE;
@@ -1647,11 +1715,20 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     KeyCodeForALT_LastPressed=0;
     if (KeyCode==VK_MENU && AltValue!=0)
     {
-      FlushInputBuffer();
+      //FlushInputBuffer();//???
+      INPUT_RECORD TempRec;
+      DWORD ReadCount;
+      ReadConsoleInput(hConInp,&TempRec,1,&ReadCount);
+
       ReturnAltValue=TRUE;
-      AltValue&=255;
+#if defined(USE_WFUNC_IN)
+      AltValue&=0xFFFF;
+      rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
+#else
+      AltValue&=0x00FF;
       rec->Event.KeyEvent.uChar.AsciiChar=AltValue;
-      _SVS(SysLog("KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
+#endif
+      //_SVS(SysLog("KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);
     }
     else
@@ -1659,19 +1736,19 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   }
 
   if ((CtrlState & 9)==9)
-    if (AsciiChar!=0)
-      return(AsciiChar);
+    if (Char.AsciiChar!=0)
+      return(Char.AsciiChar);
     else
       CtrlPressed=0;
 
   if (Opt.AltGr && CtrlPressed && (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED))
-    if (AsciiChar=='\\')
+    if (Char.AsciiChar=='\\')
       return(KEY_CTRLBACKSLASH);
 
   if (KeyCode==VK_MENU)
     AltValue=0;
 
-  if (AsciiChar==0 && !CtrlPressed && !AltPressed)
+  if (Char.AsciiChar==0 && !CtrlPressed && !AltPressed)
   {
     if (KeyCode==0xc0)
       return(ShiftPressed ? '~':'`');
@@ -1679,28 +1756,28 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       return(ShiftPressed ? '"':'\'');
   }
 
-  if (AsciiChar<32 && (CtrlPressed || AltPressed))
+  if (Char.AsciiChar<32 && (CtrlPressed || AltPressed))
   {
     switch(KeyCode)
     {
       case 0xbc:
-        AsciiChar=',';
+        Char.AsciiChar=',';
         break;
       case 0xbe:
-        AsciiChar='.';
+        Char.AsciiChar='.';
         break;
       case 0xdb:
-        AsciiChar='[';
+        Char.AsciiChar='[';
         break;
       case 0xdc:
-        //AsciiChar=ScanCode==0x29?0x15:'\\'; //???
-        AsciiChar='\\';
+        //Char.AsciiChar=ScanCode==0x29?0x15:'\\'; //???
+        Char.AsciiChar='\\';
         break;
       case 0xdd:
-        AsciiChar=']';
+        Char.AsciiChar=']';
         break;
       case 0xde:
-        AsciiChar='\"';
+        Char.AsciiChar='\"';
         break;
     }
   }
@@ -1764,7 +1841,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
          (!Opt.UseNumPad && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
         )
       {   // CtrlObject->Macro.IsRecording()
-      _SVS(SysLog("IsProcessAssignMacroKey=%d",IsProcessAssignMacroKey));
+      //_SVS(SysLog("IsProcessAssignMacroKey=%d",IsProcessAssignMacroKey));
         if(IsProcessAssignMacroKey && Opt.UseNumPad)
         {
           return KEY_INS|KEY_ALT;
@@ -1787,26 +1864,28 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     }
 #endif
 
-    _SVS(SysLog("1 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+    //_SVS(SysLog("1 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
     if((CtrlState & ENHANCED_KEY)==0
       //(CtrlState&NUMLOCK_ON) && KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 ||
       // !(CtrlState&NUMLOCK_ON) && KeyCode < VK_NUMPAD0
       )
     {
-    _SVS(SysLog("2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+    //_SVS(SysLog("2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
       for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
+      {
         if (ScanCodes[I]==ScanCode)
         {
           if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
           {
             AltValue=AltValue*10+I;
             KeyCodeForALT_LastPressed=KeyCode;
-            _SVS(SysLog("3 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+            //_SVS(SysLog("3 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
           }
           if(AltValue!=0)
             return(KEY_NONE);
         }
+      }
     }
   }
 
@@ -1978,7 +2057,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
-_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -2016,8 +2095,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |0x%08X (%c)
       case VK_PAUSE:
         return(KEY_CTRLALT|KEY_BREAK);
     }
-    if (AsciiChar)
-      return(KEY_CTRL|KEY_ALT+AsciiChar);
+    if (Char.AsciiChar)
+      return(KEY_CTRL|KEY_ALT+Char.AsciiChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_MENU))
       return(KEY_NONE);
     if (KeyCode)
@@ -2028,14 +2107,14 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |0x%08X (%c)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
+//_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
     if (KeyCode>='0' && KeyCode<='9')
     {
       if(WaitInFastFind>0 &&
         CtrlObject->Macro.GetCurRecord(NULL,NULL) != 1 &&
         CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',-1) == -1)
       {
-        return(KEY_ALT+KEY_SHIFT+AsciiChar);
+        return(KEY_ALT+KEY_SHIFT+Char.AsciiChar);
       }
       else
         return(KEY_ALTSHIFT0+KeyCode-'0');
@@ -2090,12 +2169,12 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> NotMacros=%d 
       case VK_PAUSE:
         return(KEY_ALTSHIFT|KEY_BREAK);
     }
-    if (AsciiChar)
+    if (Char.AsciiChar)
     {
       if (Opt.AltGr && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
         if (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED)
-          return(AsciiChar);
-      return(KEY_ALT+KEY_SHIFT+AsciiChar);
+          return(Char.AsciiChar);
+      return(KEY_ALT+KEY_SHIFT+Char.AsciiChar);
     }
     if (!RealKey && (KeyCode==VK_MENU || KeyCode==VK_SHIFT))
       return(KEY_NONE);
@@ -2107,7 +2186,7 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> NotMacros=%d 
   /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
-_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -2145,8 +2224,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |0x%08X (
         case 0xbc:
           return(KEY_CTRL+KEY_SHIFT+KEY_COMMA);
       }
-    if (AsciiChar)
-      return(KEY_CTRL|KEY_SHIFT+AsciiChar);
+    if (Char.AsciiChar)
+      return(KEY_CTRL|KEY_SHIFT+Char.AsciiChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_SHIFT))
       return(KEY_NONE);
     if (KeyCode)
@@ -2179,7 +2258,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |0x%08X (
   /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
-_SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -2230,7 +2309,7 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-_SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),Char.AsciiChar,(Char.AsciiChar?Char.AsciiChar:' ')));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
@@ -2275,17 +2354,17 @@ _SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(Key
       case VK_PAUSE:
         return(KEY_ALT+KEY_BREAK);
     }
-    if (AsciiChar)
+    if (Char.AsciiChar)
     {
       if (Opt.AltGr && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
         if (rec->Event.KeyEvent.dwControlKeyState & RIGHT_ALT_PRESSED)
-          return(AsciiChar);
+          return(Char.AsciiChar);
       if(!Opt.ShiftsKeyRules || WaitInFastFind > 0)
-        return(LocalUpper(AsciiChar)+KEY_ALT);
+        return(LocalUpper(Char.AsciiChar)+KEY_ALT);
       else if(WaitInMainLoop ||
               !Opt.HotkeyRules //????
            )
-        return(KEY_ALT+AsciiChar);
+        return(KEY_ALT+Char.AsciiChar);
     }
     if (KeyCode==VK_CAPITAL)
       return(KEY_NONE);
@@ -2294,7 +2373,7 @@ _SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(Key
     return(KEY_ALT+KeyCode);
   }
 
-  if (AsciiChar)
-    return(AsciiChar);
+  if (Char.AsciiChar)
+    return(Char.AsciiChar);
   return(KEY_NONE);
 }
