@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.08 07.05.2001 $ */
+/* Revision: 1.09 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    + OnDestroy(), DisableHistory, DisableF6
   07.05.2001 DJ
     + добавлен NameList (пока только для передачи обратно во вьюер при
       повторном нажатии F6)
@@ -58,6 +60,10 @@ class FileEditor:public Frame
     char StartDir[NM];
     char NewTitle[NM];
     int FullScreen;
+    /* $ 10.05.2001 DJ */
+    int DisableHistory;
+    int EnableF6;
+    /* DJ $ */
   public:
     FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
@@ -88,10 +94,17 @@ class FileEditor:public Frame
     virtual char *GetTypeName(){return "[FileEdit]";}; ///
     virtual int GetType() { return MODALTYPE_EDITOR; }
 
-    virtual void OnChangeFocus(int i); ///
+    virtual void OnChangeFocus(int i);
+    /* $ 10.05.2001 DJ */
+    virtual void OnDestroy();
+    /* DJ $ */
 
     /* $ 07.05.2001 DJ */
     void SetNamesList (NamesList *Names);
+    /* DJ $ */
+    /* $ 10.05.2001 DJ */
+    void SetEnableF6 (int AEnableF6) { EnableF6 = AEnableF6; }
+    /* DJ $ */
 };
 
 #endif	// __FILEEDITOR_HPP__

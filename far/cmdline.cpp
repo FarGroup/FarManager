@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.19 07.05.2001 $ */
+/* Revision: 1.20 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    * ShowViewEditHistory()
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -219,44 +221,11 @@ int CommandLine::ProcessKey(int Key)
       CtrlObject->Plugins.CommandsMenu(FALSE,FALSE,0);
       return(TRUE);
     case KEY_ALTF11:
-      {
-        char Str[1024],ItemTitle[256];
-        int Type,SelectType;
-        if ((SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,Type,ItemTitle))==1 || SelectType==2)
-        {
-          if (SelectType!=2)
-            CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
-          CtrlObject->ViewHistory->SetAddMode(FALSE,Opt.FlagPosixSemantics?1:2,TRUE);
-
-          switch(Type)
-          {
-            case 0:
-              CtrlObject->FrameManager->AddFrame(new FileViewer(Str,TRUE));
-              break;
-            case 1:
-              CtrlObject->FrameManager->AddFrame(new FileEditor(Str,FALSE,TRUE));
-              break;
-            case 2:
-            case 3:
-            {
-              if (*Str!='@')
-                ExecString(Str,Type-2);
-              else
-              {
-                SaveScreen SaveScr;
-                CtrlObject->Cp()->LeftPanel->CloseFile();
-                CtrlObject->Cp()->RightPanel->CloseFile();
-                Execute(Str+1,Type-2);
-              }
-              break;
-            }
-          }
-          CtrlObject->ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
-        }
-        else
-          if (SelectType==3)
-            SetString(Str);
-      }
+      /* $ 10.05.2001 DJ
+         показ view/edit history вынесен в отдельную процедуру
+      */
+      ShowViewEditHistory();
+      /* DJ $ */
       CtrlObject->Cp()->Redraw();
       return(TRUE);
     case KEY_ALTF12:
@@ -740,3 +709,49 @@ int CommandLine::GetCurPos()
 {
   return(CmdStr.GetCurPos());
 }
+
+/* $ 10.05.2001 DJ
+   показ history по Alt-F11 вынесен в отдельную функцию
+*/
+
+void CommandLine::ShowViewEditHistory()
+{
+  char Str[1024],ItemTitle[256];
+  int Type,SelectType;
+  if ((SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,Type,ItemTitle))==1 || SelectType==2)
+  {
+    if (SelectType!=2)
+      CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
+    CtrlObject->ViewHistory->SetAddMode(FALSE,Opt.FlagPosixSemantics?1:2,TRUE);
+    
+    switch(Type)
+    {
+    case 0:
+      CtrlObject->FrameManager->AddFrame(new FileViewer(Str,TRUE));
+      break;
+    case 1:
+      CtrlObject->FrameManager->AddFrame(new FileEditor(Str,FALSE,TRUE));
+      break;
+    case 2:
+    case 3:
+      {
+        if (*Str!='@')
+          ExecString(Str,Type-2);
+        else
+        {
+          SaveScreen SaveScr;
+          CtrlObject->Cp()->LeftPanel->CloseFile();
+          CtrlObject->Cp()->RightPanel->CloseFile();
+          Execute(Str+1,Type-2);
+        }
+        break;
+      }
+    }
+    CtrlObject->ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);
+  }
+  else
+    if (SelectType==3)
+      SetString(Str);
+}
+
+/* DJ $ */

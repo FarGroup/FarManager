@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.18 06.05.2001 $ */
+/* Revision: 1.19 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    + поддержка F6 во вьюере/редакторе, вызванных из Find files
   06.05.2001 DJ
     ! перетрях #include
   05.05.2001 DJ
@@ -458,9 +460,9 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileViewer ShellViewer(FileFindData.cFileName,FALSE,FALSE,TRUE,-1,NULL,&ViewList);
-                      CtrlObject->FrameManager->ExecuteModal (ShellViewer);
-                    }
+                      FileViewer *ShellViewer = new FileViewer (FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);
+                      CtrlObject->FrameManager->ExecuteModalPtr (ShellViewer);
+                    }                                       
                     Dlg.Show();
                     FindList.Show();
                   }
@@ -469,8 +471,9 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileEditor ShellEditor(FileFindData.cFileName,FALSE,FALSE);
-                      CtrlObject->FrameManager->ExecuteModal (ShellEditor);
+                      FileEditor *ShellEditor = new FileEditor (FileFindData.cFileName,FALSE,FALSE);
+                      ShellEditor->SetEnableF6 (TRUE);
+                      CtrlObject->FrameManager->ExecuteModalPtr (ShellEditor);
                     }
                     Dlg.Show();
                     FindList.Show();

@@ -5,10 +5,15 @@ manager.cpp
 
 */
 
-/* Revision: 1.13 07.05.2001 $ */
+/* Revision: 1.14 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    + SwitchToPanels()
+    * GetFrameTypesCount() не учитывает фрейм, который мы собрались удалять
+    + ModalStack
+    - всякие перетряхи логики DestroyFrame() и иже с ними
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
@@ -65,6 +70,8 @@ Manager::Manager()
 {
   FrameList=NULL;
   FrameCount=FramePos=FrameListSize=0;
+  ModalStack=NULL;
+  ModalStackCount = ModalStackSize = 0;
 
   CurrentFrame=NULL;
   DestroyedFrame = NULL;
@@ -77,6 +84,8 @@ Manager::~Manager()
 {
   if (FrameList)
     free(FrameList);
+  if (ModalStack)
+    free(ModalStack);
 }
 
 
@@ -169,15 +178,14 @@ void Manager::AddFrame(Frame *NewFrame)
 
 void Manager::DestroyFrame(Frame *Killed)
 {
-    int i,j;
-    _D(SysLog(1,"Manager::DestroyFrame(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName()));
-    for ( i=0; i<FrameCount; i++ )
+  _D(SysLog(1,"Manager::DestroyFrame(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName()));
+  if (!FrameToReplace)
+    for (int i=0; i<FrameCount; i++ )
     {
         if ( FrameList[i]==Killed )
         {
             _D(SysLog("Manager::DestroyFrame(), found at i=%i,FramePos=%i delete and shrink list",i,FramePos));
-            Killed->OnDestroy();
-            for ( j=i+1; j<FrameCount; j++ )
+            for (int j=i+1; j<FrameCount; j++ )
                 FrameList[j-1]=FrameList[j];
             FrameCount--;
             if ( FramePos>=FrameCount )
@@ -186,22 +194,39 @@ void Manager::DestroyFrame(Frame *Killed)
             break;
         }
     }
-    if ( CurrentFrame==Killed )
+  if ( CurrentFrame==Killed )
+  {
+    if (FrameToReplace)
     {
-        if ( FrameCount )
-        {
-          SetCurrentFrame (FrameList[FramePos]);
-          _D(SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0x%p, '%s'",CurrentFrame,CurrentFrame->GetTypeName()));
-        }
-        else
-        {
-            CurrentFrame=0;
-            _D(SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0"));
-        }
+      FrameList [FramePos] = FrameToReplace;
+      SetCurrentFrame (FrameToReplace);
     }
-    _D(SysLog("Manager::DestroyFrame() end."));
-    _D(SysLog(-1));
-    DestroyedFrame = Killed;
+    else if (ModalStackCount > 0)  
+      SetCurrentFrame (ModalStack [--ModalStackCount]);
+    else
+    {
+      if ( FrameCount )
+      {
+        SetCurrentFrame (FrameList[FramePos]);
+        _D(SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0x%p, '%s'",CurrentFrame,CurrentFrame->GetTypeName()));
+      }
+      else
+      {
+        CurrentFrame=0;
+        _D(SysLog("Manager::DestroyFrame(), Killed==CurrentFrame, set new Current to 0"));
+      }
+    }
+  }
+  _D(SysLog("Manager::DestroyFrame() end."));
+  _D(SysLog(-1));
+  DestroyedFrame = Killed;
+}
+
+void Manager::DeleteDestroyedFrame()
+{
+  DestroyedFrame->OnDestroy();
+  delete DestroyedFrame;
+  DestroyedFrame = NULL;
 }
 
 /* $ 06.05.2001 DJ
@@ -219,6 +244,7 @@ void Manager::ReplaceCurrentFrame (Frame *NewFrame)
 
 int Manager::ExecuteModal (Frame &ModalFrame)
 {
+  ModalSaveState();
   AddFrame (&ModalFrame);
   ModalFrame.Show();
   DestroyedFrame = NULL;
@@ -227,6 +253,40 @@ int Manager::ExecuteModal (Frame &ModalFrame)
   int exitCode = ModalFrame.GetExitCode();
   DestroyedFrame = NULL;
   return exitCode;
+}
+
+/* $ 10.05.2001 DJ
+   в отличие от ExecuteModal(), поддерживает ReplaceCurrentFrame (F6)
+*/
+
+int Manager::ExecuteModalPtr (Frame *ModalFrame)
+{
+  ModalSaveState();
+  AddFrame (ModalFrame);
+  ModalFrame->Show();
+  DestroyedFrame = NULL;
+  while (DestroyedFrame != ModalFrame)
+  {
+    ProcessMainLoop();
+    if (FrameToReplace)
+    {
+      ModalFrame = FrameToReplace;
+      DeleteDestroyedFrame();
+      continue;
+    }
+  }
+  int exitCode = ModalFrame->GetExitCode();
+  DeleteDestroyedFrame();
+  return exitCode;
+}
+
+/* DJ */
+
+void Manager::ModalSaveState()
+{
+  if (ModalStackCount == ModalStackSize)
+    ModalStack = (Frame **) realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
+  ModalStack [ModalStackCount++] = CurrentFrame;
 }
 
 void Manager::NextFrame(int Increment)
@@ -317,10 +377,6 @@ void Manager::SelectFrame()
     ModalMenu.SetFlags(MENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
 
-//    sprintf(ModalMenuItem.Name,"&0. %-30s",MSG(MScreensPanels));
-//    ModalMenuItem.Selected=(ModalPos==ModalCount);
-//    ModalMenu.AddItem(&ModalMenuItem);
-
     for (int I=0;I<FrameCount;I++)
     {
       char Type[200],Name[NM],NumText[100];
@@ -353,6 +409,12 @@ void Manager::GetFrameTypesCount(int &Viewers,int &Editors)
   Viewers=Editors=0;
   for (int I=0;I<FrameCount;I++)
   {
+    /* $ 10.05.2001 DJ
+       не учитываем фрейм, который собираемся удалять
+    */
+    if (FrameList[I] == DestroyedFrame || FrameList [I]->GetExitCode() == XC_QUIT)
+      continue;
+    /* DJ $ */
     switch(FrameList[I]->GetType())
     {
       case MODALTYPE_VIEWER:
@@ -430,11 +492,21 @@ void Manager::ShowBackground()
 
 void Manager::ActivateFrameByPos (int NewPos)
 {
-  SetFramePos(FramePos);
+  SetFramePos(NewPos);
   NextFrame(0);
 }
 /* DJ $ */
 
+/* $ 10.05.2001 DJ
+   переключается на панели (фрейм с номером 0)
+*/
+
+void Manager::SwitchToPanels()
+{
+  ActivateFrameByPos (0);
+}
+
+/* DJ $ */
 
 void Manager::EnterMainLoop()
 {
@@ -443,23 +515,14 @@ void Manager::EnterMainLoop()
   {
     ProcessMainLoop();
     if (DestroyedFrame)
-    {
-      DestroyedFrame->OnDestroy();
-      delete DestroyedFrame;
-      DestroyedFrame = NULL;
-    }
-    if (FrameToReplace)
-    {
-      FrameList [FramePos] = FrameToReplace;
-      SetCurrentFrame (FrameToReplace);
-      FrameToReplace = NULL;
-    }
+      DeleteDestroyedFrame();
   }
 }
 
 
 void Manager::ProcessMainLoop()
 {
+  FrameToReplace = NULL;
   WaitInMainLoop=IsPanelsActive();
 
   WaitInFastFind++;
@@ -468,12 +531,10 @@ void Manager::ProcessMainLoop()
   WaitInMainLoop=FALSE;
   if (EndLoop)
     return;
-///    MainKeyBar->RedrawIfChanged();
   if (LastInputRecord.EventType==MOUSE_EVENT)
     ProcessMouse(&LastInputRecord.Event.MouseEvent);
   else
     ProcessKey(Key);
-///    MainKeyBar->RedrawIfChanged();
 }
 
 void Manager::ExitMainLoop(int Ask)
@@ -492,8 +553,8 @@ void Manager::ExitMainLoop(int Ask)
 int  Manager::ProcessKey(int Key)
 {
     int ret=FALSE;
-    char kn[32];
-    KeyToText(Key,kn);
+    _D(char kn[32]);
+    _D(KeyToText(Key,kn));
     _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
 
     if ( CurrentFrame)
@@ -531,7 +592,7 @@ int  Manager::ProcessKey(int Key)
         if ( ret )
         {
           // а так проверяем код выхода у того, кого надо
-          if (cw->GetExitCode()==XC_QUIT && !FrameToReplace)
+          if (cw->GetExitCode()==XC_QUIT)
             DestroyFrame(cw);
         }
     }
@@ -554,8 +615,6 @@ int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void Manager::PluginsMenu()
 {
   _D(SysLog(1));
- // Поменялся вызов коммандс Разобраться
-///    CtrlObject->Plugins.CommandsMenu(CurrentModal->GetTypeAndName(0,0),0,0);
   int curType = CurrentFrame->GetType();
   if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)
     CtrlObject->Plugins.CommandsMenu(curType,0,0);
@@ -564,7 +623,5 @@ void Manager::PluginsMenu()
 
 BOOL Manager::IsPanelsActive()
 {
-    if (CurrentFrame->GetTypeAndName(0,0)==MODALTYPE_PANELS )
-        return TRUE;
-    return FALSE;
+  return CurrentFrame->GetType() == MODALTYPE_PANELS;
 }

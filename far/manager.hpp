@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    + SwitchToPanels(), ModalStack, ModalSaveState(), ExecuteModalPtr()
   06.05.2001 DJ
     ! перетрях #include
     + ReplaceCurrentFrame(), ActivateFrameByPos()
@@ -36,6 +38,7 @@ class Manager
 {
   private:
     Frame **FrameList;
+    Frame **ModalStack;
     Frame *DestroyedFrame;
     Frame *FrameToReplace;
 
@@ -43,10 +46,14 @@ class Manager
 
     int  FrameCount,
          FrameListSize;
+    int  ModalStackCount, ModalStackSize;
     int  FramePos;
     int  UpdateRequired;
 
     INPUT_RECORD LastInputRecord;
+
+    void ModalSaveState();
+    void DeleteDestroyedFrame();
 
   public:
     Frame *CurrentFrame;  // текущий модал,
@@ -67,6 +74,7 @@ class Manager
     void DestroyFrame(Frame *Killed);
     void ReplaceCurrentFrame (Frame *NewFrame);
     int ExecuteModal(Frame &ModalFrame);
+    int ExecuteModalPtr (Frame *ModalFrame);
 
     void NextFrame(int Increment);
     void ActivateFrameByPos (int NewPos);
@@ -102,6 +110,9 @@ class Manager
 
     void PluginsMenu(); // вызываем меню по F11
     void CheckExited();
+    /* $ 10.05.2001 DJ */
+    void SwitchToPanels();
+    /* DJ $ */
 
     INPUT_RECORD *GetLastInputRecord() { return &LastInputRecord; }
 };

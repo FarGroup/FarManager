@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    * ShowViewEditHistory()
   06.05.2001 DJ
     ! перетрях #include
   25.06.2000 SVS
@@ -48,6 +50,9 @@ class CommandLine:public ScreenObject
     void InsertString(char *Str);
     void SetCurPos(int Pos);
     int GetCurPos();
+    /* $ 10.05.2001 DJ */
+    void ShowViewEditHistory();
+    /* DJ $ */
 };
 
 #endif	// __COMMANDLINE_HPP__

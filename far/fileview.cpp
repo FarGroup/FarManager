@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.26 07.05.2001 $ */
+/* Revision: 1.27 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    + Alt-F11 - view/edit history
+    + Ctrl-F10 всегда переключается на панели
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
@@ -86,6 +89,7 @@ Modify:
 #include "history.hpp"
 #include "manager.hpp"
 #include "fileedit.hpp"
+#include "cmdline.hpp"
 
 FileViewer::FileViewer(char *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,char *PluginData,
@@ -283,6 +287,11 @@ int FileViewer::ProcessKey(int Key)
                 CtrlObject->Cp()->ActivePanel->SetCurDir(DirTmp,TRUE);
             /* IS */
             CtrlObject->Cp()->ActivePanel->GoToFile(NameTmp);
+            /* $ 10.05.2001 DJ 
+               переключаемся на панели
+            */
+            CtrlObject->FrameManager->SwitchToPanels();
+            /* DJ $ */
           }
           /*else
           {
@@ -352,13 +361,14 @@ int FileViewer::ProcessKey(int Key)
         /* $ 06.05.2001 DJ
            обработка F6 под NWZ
         */
-        FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, TRUE,
+        FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, GetCanLoseFocus(),
           -2, FilePos, FALSE);
+        ShellEditor->SetEnableF6 (TRUE);
         /* $ 07.05.2001 DJ
            сохраняем NamesList
         */
         ShellEditor->SetNamesList (View.GetNamesList());
-        /* DJ */
+        /* DJ $ */
         CtrlObject->FrameManager->ReplaceCurrentFrame(ShellEditor);
         /* DJ $ */
         ShowTime(2);
@@ -402,6 +412,15 @@ int FileViewer::ProcessKey(int Key)
       View.Show();
       return TRUE;
     /* SVS $ */
+
+    /* $ 10.05.2001 DJ
+       Alt-F11 - show view/edit history
+    */
+    case KEY_ALTF11:
+      if (GetCanLoseFocus())
+        CtrlObject->CmdLine->ShowViewEditHistory();
+      return TRUE;
+    /* DJ $ */
 
     default:
 //      Этот кусок - на будущее (по аналогии с редактором :-)

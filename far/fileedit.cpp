@@ -5,10 +5,15 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.39 07.05.2001 $ */
+/* Revision: 1.40 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 DJ
+    + OnDestroy() (не работало добавление во view/edit history)
+    + FileEditor::DisableHistory, DisableF6
+    + Alt-F11 - показать историю
+    + при Ctrl-F10 переключаемся на панели
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   07.05.2001 DJ
@@ -125,6 +130,8 @@ Modify:
 #include "fileview.hpp"
 #include "manager.hpp"
 #include "namelist.hpp"
+#include "history.hpp"
+#include "cmdline.hpp"
 
 FileEditor::FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
@@ -154,6 +161,10 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
   KeyBarVisible = TRUE;
+  /* DJ $ */
+  /* $ 10.05.2001 DJ */
+  FileEditor::DisableHistory = DisableHistory;
+  EnableF6 = EnableSwitch;
   /* DJ $ */
   if (*Name==0)
     return;
@@ -262,7 +273,11 @@ void FileEditor::InitKeyBar(void)
 {
   /* $ 29.06.2000 tran
      добавил названия всех функциональных клавиш */
-  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),CanLoseFocus ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
+  /* $ 10.05.2001 DJ
+     смотрим на EnableF6 вместо CanLoseFocus
+  */
+  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableF6 ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
+  /* DJ $ */
   char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
   char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
   char *FEditCtrlKeys[]={MSG(MEditCtrlF1),MSG(MEditCtrlF2),MSG(MEditCtrlF3),MSG(MEditCtrlF4),MSG(MEditCtrlF5),MSG(MEditCtrlF6),MSG(MEditCtrlF7),MSG(MEditCtrlF8),MSG(MEditCtrlF9),MSG(MEditCtrlF10),MSG(MEditCtrlF11),MSG(MEditCtrlF12)};
@@ -425,7 +440,10 @@ int FileEditor::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_F6:
-      if (GetCanLoseFocus() &&
+      /* $ 10.05.2001 DJ
+         используем EnableF6
+      */
+      if (EnableF6 &&
           (FEdit.IsFileChanged() || GetFileAttributes(FullFileName)!=0xFFFFFFFF))
       {
         long FilePos=FEdit.GetCurPos();
@@ -440,7 +458,7 @@ int FileEditor::ProcessKey(int Key)
           /* $ 07.05.2001 DJ
              сохраняем NamesList
           */
-          FileViewer *Viewer = new FileViewer (FullFileName, TRUE, FALSE,
+          FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
             FALSE, FilePos, NULL, EditNamesList);
           /* DJ $ */
           CtrlObject->FrameManager->ReplaceCurrentFrame (Viewer);
@@ -449,6 +467,7 @@ int FileEditor::ProcessKey(int Key)
         /* IS $ */
         ShowTime(2);
       }
+      /* DJ $ */
       return(TRUE);
     /*$ 21.07.2000 SKV
         + выход с позиционированием на редактируемом файле по CTRLF10
@@ -491,6 +510,11 @@ int FileEditor::ProcessKey(int Key)
             CtrlObject->Cp()->ActivePanel->SetCurDir(StartDir,TRUE);
             CtrlObject->Cp()->ActivePanel->GoToFile(FileName);
           }
+          /* $ 10.05.2001 DJ
+             переключаемся в панели
+          */
+          CtrlObject->FrameManager->SwitchToPanels();
+          /* DJ $ */
         }
         return (TRUE);
       }
@@ -550,6 +574,15 @@ int FileEditor::ProcessKey(int Key)
       return TRUE;
     /* SVS $ */
 
+    /* $ 10.05.2001 DJ
+       Alt-F11 - показать view/edit history
+    */
+    case KEY_ALTF11:
+      if (GetCanLoseFocus())
+        CtrlObject->CmdLine->ShowViewEditHistory();
+      return TRUE;
+    /* DJ $ */
+
     default:
       /* $ 28.04.2001 DJ
          не передаем KEY_MACRO* плагину - поскольку ReadRec в этом случае
@@ -595,7 +628,7 @@ int FileEditor::ProcessQuitKey()
       break;
     FirstSave=0;
   }
-  return Frame::GetExitCode() == XC_QUIT;
+  return GetExitCode() == XC_QUIT;
 }
 
 
@@ -645,4 +678,14 @@ void FileEditor::OnChangeFocus(int f)
     {
         Show();
     }
+}
+
+/* $ 10.05.2001 DJ
+   добавление в view/edit history
+*/
+
+void FileEditor::OnDestroy()
+{
+  if (!DisableHistory)
+    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
 }
