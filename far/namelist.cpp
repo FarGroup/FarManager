@@ -1,3 +1,40 @@
+/*
+namelist.cpp
+
+Список имен файлов, используется в viewer при нажатии Gray+/Gray-
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#ifndef __ALLOC_H
+#include <alloc.h>
+#endif
+#ifndef __STRING_H
+#include <string.h>
+#endif
+#if !defined(__NEW_H)
+#pragma option -p-
+#include <new.h>
+#pragma option -p.
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __NAMELIST_HPP__
+#include "namelist.hpp"
+#endif
+
 NamesList::NamesList()
 {
   Names=CurName=NULL;

@@ -1,3 +1,21 @@
+#ifndef __PLUGINS_HPP__
+#define __PLUGINS_HPP__
+/*
+plugins.hpp
+
+Работа с плагинами (низкий уровень, кое-что повыше в flplugin.cpp)
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
 class SaveScreen;
 class Editor;
 
@@ -62,12 +80,6 @@ struct PluginItem
   PLUGINPROCESSEDITORINPUT pProcessEditorInput;
 };
 
-struct PluginHandle
-{
-  HANDLE InternalHandle;
-  int PluginNumber;
-};
-
 class PluginsSet
 {
   private:
@@ -121,6 +133,4 @@ class PluginsSet
     Editor *CurEditor;
 };
 
-enum {PLUGIN_FARGETFILE,PLUGIN_FARGETFILES,PLUGIN_FARPUTFILES,
-      PLUGIN_FARDELETEFILES,PLUGIN_FARMAKEDIRECTORY,PLUGIN_FAROTHER};
-
+#endif	// __PLUGINS_HPP__

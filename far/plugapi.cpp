@@ -1,31 +1,74 @@
-static int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
-                  unsigned int Flags,char *Title,char *Bottom,char *HelpTopic,
-                  int *BreakKeys,int *BreakCode,struct FarMenuItem *Item,
-                  int ItemsNumber);
-static int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
-                  char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
-static char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
-static int WINAPI FarMessageFn(int PluginNumber,unsigned int Flags,
-                  char *HelpTopic,char **Items,int ItemsNumber,
-                  int ButtonsNumber);
-static int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
-static HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
-static void WINAPI FarRestoreScreen(HANDLE hScreen);
-static int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
-                  int *pItemsNumber);
-static int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
-                  char *Dir,struct PluginPanelItem **pPanelItem,
-                  int *pItemsNumber);
-static void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem);
-static void ScanPluginDir();
-static int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
-                  int Y2,DWORD Flags);
-static int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
-                  int Y2,DWORD Flags,int StartLine,int StartChar);
-static int WINAPI FarCmpName(char *pattern,char *string,int skippath);
-static int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
-static void WINAPI FarText(int X,int Y,int Color,char *Str);
-static int WINAPI FarEditorControl(int Command,void *Param);
+/*
+plugapi.cpp
+
+API, доступное плагинам (диалоги, меню, ...)
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __DIR_H
+#include <dir.h>	// chdir
+#endif
+#ifndef __DOS_H
+#include <dos.h>	// FA_*
+#endif
+#ifndef __STRING_H
+#include <string.h>
+#endif
+#if !defined(__NEW_H)
+#pragma option -p-
+#include <new.h>
+#pragma option -p.
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __KEYS_HPP__
+#include "keys.hpp"
+#endif
+#ifndef __FARLANG_HPP__
+#include "lang.hpp"
+#endif
+#ifndef __COLOROS_HPP__
+#include "colors.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
+
+
+// declare in plugins.cpp
+extern int KeepUserScreen;
+extern char DirToSet[NM];
+
+
+void ScanPluginDir();
 
 int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
            unsigned int Flags,char *Title,char *Bottom,char *HelpTopic,
@@ -234,7 +277,7 @@ int WINAPI FarMessageFn(int PluginNumber,unsigned int Flags,char *HelpTopic,
 }
 
 
-static int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
+int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
   if (CtrlObject->LeftPanel==NULL || CtrlObject->RightPanel==NULL)
     return(0);
@@ -323,7 +366,7 @@ static int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 }
 
 
-static HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
+HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 {
   if (X2==-1)
     X2=ScrX;
@@ -333,7 +376,7 @@ static HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 }
 
 
-static void WINAPI FarRestoreScreen(HANDLE hScreen)
+void WINAPI FarRestoreScreen(HANDLE hScreen)
 {
   if (hScreen==NULL)
     ScrBuf.FillBuf();
@@ -341,7 +384,7 @@ static void WINAPI FarRestoreScreen(HANDLE hScreen)
 }
 
 
-static int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
+int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
 {
   PluginPanelItem *ItemsList=NULL;
@@ -405,7 +448,7 @@ static struct
   int ItemsNumber;
 } DirListNumbers[16];
 
-static int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
+int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
                   char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
 {
@@ -567,7 +610,7 @@ void ScanPluginDir()
 }
 
 
-static void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
+void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
 {
   if (PanelItem==NULL)
     return;
@@ -592,7 +635,7 @@ static void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
 
 
 #pragma warn -par
-static int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
+int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
                             int Y2,DWORD Flags)
 {
   if (X2==-1)
@@ -621,7 +664,7 @@ static int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
 }
 
 
-static int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
+int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
                             int Y2,DWORD Flags,int StartLine,int StartChar)
 {
   if (X2==-1)
@@ -638,13 +681,13 @@ static int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
 #pragma warn +par
 
 
-static int WINAPI FarCmpName(char *pattern,char *string,int skippath)
+int WINAPI FarCmpName(char *pattern,char *string,int skippath)
 {
   return(CmpName(pattern,string,skippath));
 }
 
 
-static int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
+int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 {
   if (Command==FCT_DETECT)
   {
@@ -671,7 +714,7 @@ static int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
 }
 
 
-static void WINAPI FarText(int X,int Y,int Color,char *Str)
+void WINAPI FarText(int X,int Y,int Color,char *Str)
 {
   if (Str==NULL)
   {
@@ -689,7 +732,7 @@ static void WINAPI FarText(int X,int Y,int Color,char *Str)
 }
 
 
-static int WINAPI FarEditorControl(int Command,void *Param)
+int WINAPI FarEditorControl(int Command,void *Param)
 {
   if (CtrlObject->Plugins.CurEditor==NULL)
     return(0);

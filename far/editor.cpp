@@ -1,4 +1,75 @@
-#include "common.hpp"
+/*
+editor.cpp
+
+Редактор
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __STDIO_H
+#include <stdio.h>
+#endif
+#ifndef __TIME_H
+#include <time.h>
+#endif
+#ifndef __IO_H
+#include <io.h>
+#endif
+#ifndef __DOS_H
+#include <dos.h>	// FA_*
+#endif
+#ifndef __STAT_H
+#include <sys\stat.h>	// S_IREAD...
+#endif
+#ifndef __FCNTL_H
+#include <fcntl.h>
+#endif
+#if !defined(__NEW_H)
+#pragma option -p-
+#include <new.h>
+#pragma option -p.
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __FARLANG_HPP__
+#include "lang.hpp"
+#endif
+#ifndef __KEYS_HPP__
+#include "keys.hpp"
+#endif
+#ifndef __COLOROS_HPP__
+#include "colors.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
 
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
@@ -1669,7 +1740,7 @@ int Editor::ProcessKey(int Key)
       {
         if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->EditLine.GetLength())
           return(ProcessKey(KEY_DEL));
-    
+
         if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
           if (Key>=32 && Key<256 || Key==KEY_ADD || Key==KEY_SUBTRACT ||
               Key==KEY_MULTIPLY || Key==KEY_DIVIDE || Key==KEY_TAB)

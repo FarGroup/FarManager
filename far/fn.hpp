@@ -1,3 +1,22 @@
+#ifndef __FARFUNC_HPP__
+#define __FARFUNC_HPP__
+/*
+fn.hpp
+
+Описания функцмй
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+
 void _export StartFAR();
 void Box(int x1,int y1,int x2,int y2,int Color,int Type);
 void InitConsole();
@@ -31,31 +50,48 @@ void PutRealText(int X1,int Y1,int X2,int Y2,void *Src);
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
-int GetInputRecord(INPUT_RECORD *rec);
-int PeekInputRecord(INPUT_RECORD *rec);
-int CalcKeyCode(INPUT_RECORD *rec,int RealKey);
 void WaitKey();
+int CopyKeyTree(char *Src,char *Dest,char *Skip);
 void WriteInput(int Key);
 void ShowTime(int ShowAlways);
-UDWORD NTTimeToDos(FILETIME *ft);
-void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
-                 int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE);
 int GetDateFormat();
 int GetDateSeparator();
 int GetTimeSeparator();
-int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
-            int DirectRun=FALSE);
 char* GetShellAction(char *FileName);
 void ScrollScreen(int Count);
-void ShellMakeDir(Panel *SrcPanel);
-void ShellDelete(Panel *SrcPanel,int Wipe);
-void ShellSetFileAttributes(Panel *SrcPanel);
-void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 int ScreenSaver(int EnableExit);
 void InsertCommas(unsigned long Number,char *Dest);
-void InsertCommas(int64 li,char *Dest);
-int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2=NULL,
-            char *Str3=NULL,char *Str4=NULL);
+void DeleteDirTree(char *Dir);
+int MkLink(char *Src,char *Dest);
+int GetClusterSize(char *Root);
+void _cdecl CheckVersion(void *Param);
+void _cdecl ErrRegFn(void *Param);
+void Register();
+char ToHex(char Ch);
+void InitDetectWindowedMode();
+void DetectWindowedMode();
+int IsWindowed();
+void RestoreIcons();
+void Log(char *fmt,...);
+void Unquote(char *Str);
+bool GetSubstName(char *LocalName,char *SubstName,int SubstSize);
+void BoxText(char *Str);
+int FarColorToReal(int FarColor);
+void ReopenConsole();
+void DeleteRegKey(char *Key);
+void DeleteRegValue(char *Key,char *Value);
+void DeleteKeyRecord(char *KeyMask,int Position);
+void InsertKeyRecord(char *KeyMask,int Position,int TotalKeys);
+void DeleteKeyTree(char *KeyName);
+void _cdecl CheckReg(void *Param);
+int CheckRegKey(char *Key);
+int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
+int IsFolderNotEmpty(char *Name);
+void RemoveHighlights(char *Str);
+int IsCaseMixed(char *Str);
+int IsCaseLower(char *Str);
+int DeleteFileWithFolder(char *FileName);
+char* FarMSG(int MsgID);
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,char *Str5,char *Str6=NULL,char *Str7=NULL);
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
@@ -105,7 +141,6 @@ void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color);
 int HiStrlen(char *Str);
-long filelen(FILE *FPtr);
 int GetErrorString(char *ErrStr);
 void ShowProcessList();
 int CopyToClipboard(char *Data);
@@ -114,14 +149,6 @@ char* PasteFromClipboard();
 char* PasteFormatFromClipboard(char *Format);
 int GetFileTypeByName(char *Name);
 void SetFarTitle(char *Title);
-int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,int64 &FileSize,
-               int64 &CompressedFileSize,int64 &RealSize,
-               unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak);
-int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
-               unsigned long &FileCount,int64 &FileSize,
-               int64 &CompressedFileSize);
 void AddEndSlash(char *Path);
 void LocalUpperInit();
 int LocalIslower(int Ch);
@@ -147,10 +174,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode);
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
-int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
-int PrepareTable(struct CharTableSet *TableSet,int TableNum);
 void GetPathRoot(char *Path,char *Root);
-void PrintFiles(Panel *SrcPanel);
 char *NullToEmpty(char *Str);
 void CenterStr(char *Src,char *Dest,int Length);
 char *GetCommaWord(char *Src,char *Word);
@@ -163,6 +187,14 @@ int GetNumberOfLinks(char *Name);
 void ShowSeparator(int Length);
 void UseSameRegKey();
 void CloseSameRegKey();
+
+#if defined(_INC_WINDOWS) || defined(_WINDOWS_)
+int GetInputRecord(INPUT_RECORD *rec);
+int PeekInputRecord(INPUT_RECORD *rec);
+int CalcKeyCode(INPUT_RECORD *rec,int RealKey);
+void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
+                 int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE);
+void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
 void SetRegRootKey(HKEY hRootKey);
 void SetRegKey(char *Key,char *ValueName,char *ValueData);
 void SetRegKey(char *Key,char *ValueName,DWORD ValueData);
@@ -173,38 +205,51 @@ int GetRegKey(char *Key,char *ValueName,DWORD Default);
 int GetRegKey(char *Key,char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
 HKEY CreateRegKey(char *Key);
 HKEY OpenRegKey(char *Key);
-void DeleteRegKey(char *Key);
-void DeleteRegValue(char *Key,char *Value);
-void DeleteKeyRecord(char *KeyMask,int Position);
-void InsertKeyRecord(char *KeyMask,int Position,int TotalKeys);
-void DeleteKeyTree(char *KeyName);
-int CheckRegKey(char *Key);
-int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
-int IsFolderNotEmpty(char *Name);
-void RemoveHighlights(char *Str);
-int IsCaseMixed(char *Str);
-int IsCaseLower(char *Str);
-int DeleteFileWithFolder(char *FileName);
-char* FarMSG(int MsgID);
-BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree);
-void DeleteDirTree(char *Dir);
-int MkLink(char *Src,char *Dest);
-int GetClusterSize(char *Root);
-void _cdecl CheckVersion(void *Param);
-void _cdecl ErrRegFn(void *Param);
-void Register();
-char ToHex(char Ch);
-void InitDetectWindowedMode();
-void DetectWindowedMode();
-int IsWindowed();
-void RestoreIcons();
-void Log(char *fmt,...);
-void Unquote(char *Str);
-bool GetSubstName(char *LocalName,char *SubstName,int SubstSize);
-void BoxText(char *Str);
-int FarColorToReal(int FarColor);
-void ReopenConsole();
+#endif
 
+
+#if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))
+UDWORD NTTimeToDos(FILETIME *ft);
+int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
+            int DirectRun=FALSE);
+#endif
+
+
+#ifdef __PANEL_HPP__
+void ShellMakeDir(Panel *SrcPanel);
+void ShellDelete(Panel *SrcPanel,int Wipe);
+void ShellSetFileAttributes(Panel *SrcPanel);
+void PrintFiles(Panel *SrcPanel);
+#endif
+
+#ifdef __INT64_HPP__
+BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree);
+void InsertCommas(int64 li,char *Dest);
+int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
+               unsigned long &FileCount,int64 &FileSize,
+               int64 &CompressedFileSize,int64 &RealSize,
+               unsigned long &ClusterSize,clock_t MsgWaitTime,
+               int EnhBreak);
+int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
+               unsigned long &FileCount,int64 &FileSize,
+               int64 &CompressedFileSize);
+#endif
+
+#ifdef __STDIO_H
+long filelen(FILE *FPtr);
+int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
+#endif
+
+#ifdef __PLUGIN_HPP__
+int PrepareTable(struct CharTableSet *TableSet,int TableNum);
+#endif
+
+
+int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2=NULL,
+            char *Str3=NULL,char *Str4=NULL);
+
+
+#if defined(_INC_WINDOWS) || defined(_WINDOWS_)
 ULARGE_INTEGER operator - (ULARGE_INTEGER &s1,unsigned int s2);
 ULARGE_INTEGER operator + (ULARGE_INTEGER &s1,unsigned int s2);
 ULARGE_INTEGER operator - (ULARGE_INTEGER &s1,ULARGE_INTEGER &s2);
@@ -218,4 +263,36 @@ ULARGE_INTEGER operator >> (ULARGE_INTEGER c1,unsigned int c2);
 BOOL operator < (ULARGE_INTEGER &c1,int c2);
 BOOL operator >= (ULARGE_INTEGER &c1,int c2);
 BOOL operator >= (ULARGE_INTEGER &c1,ULARGE_INTEGER &c2);
+#endif
 
+#ifdef __PLUGIN_HPP__
+// эти функции _были_ как static
+int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
+                  char *Dir,struct PluginPanelItem **pPanelItem,
+                  int *pItemsNumber);
+int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
+           unsigned int Flags,char *Title,char *Bottom,char *HelpTopic,
+           int *BreakKeys,int *BreakCode,struct FarMenuItem *Item,
+           int ItemsNumber);
+int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
+           char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber);
+char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId);
+int WINAPI FarMessageFn(int PluginNumber,unsigned int Flags,
+           char *HelpTopic,char **Items,int ItemsNumber,
+           int ButtonsNumber);
+int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param);
+HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2);
+void WINAPI FarRestoreScreen(HANDLE hScreen);
+int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
+           int *pItemsNumber);
+void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem);
+int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
+           int Y2,DWORD Flags);
+int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
+           int Y2,DWORD Flags,int StartLine,int StartChar);
+int WINAPI FarCmpName(char *pattern,char *string,int skippath);
+int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
+void WINAPI FarText(int X,int Y,int Color,char *Str);
+int WINAPI FarEditorControl(int Command,void *Param);
+#endif
+#endif	// __FARFUNC_HPP__

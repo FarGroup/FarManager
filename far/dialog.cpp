@@ -1,4 +1,61 @@
-#include "common.hpp"
+/*
+dialog.cpp
+
+Класс диалога
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __STRING_H
+#include <string.h>
+#endif
+#if !defined(__NEW_H)
+#pragma option -p-
+#include <new.h>
+#pragma option -p.
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __FARLANG_HPP__
+#include "lang.hpp"
+#endif
+#ifndef __KEYS_HPP__
+#include "keys.hpp"
+#endif
+#ifndef __COLOROS_HPP__
+#include "colors.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
+
 
 Dialog::Dialog(struct DialogItem *Item,int ItemCount)
 {
@@ -77,6 +134,9 @@ void Dialog::DisplayObject()
 }
 
 
+/*
+Инициализация элементов диалога.
+*/
 void Dialog::InitDialogObjects()
 {
   for (int I=0,TitleSet=0;I<ItemCount;I++)
@@ -168,7 +228,10 @@ void Dialog::DeleteDialogObjects()
     }
 }
 
-
+/*
+Сохраняет значение из полей редактирования.
+При установленном флаге DIF_HISTORY, сохраняет данные в реестре.
+*/
 void Dialog::GetDialogObjectsData()
 {
   int I;
@@ -181,7 +244,9 @@ void Dialog::GetDialogObjectsData()
     }
 }
 
-
+/*
+Отрисовка элементов диалога на экране.
+*/
 void Dialog::ShowDialog()
 {
   struct DialogItem *CurItem;
@@ -311,7 +376,10 @@ void Dialog::ShowDialog()
   }
 }
 
-
+/*
+Обработка данных от клавиатуры.
+Перекрывает BaseInput::ProcessKey.
+*/
 int Dialog::ProcessKey(int Key)
 {
   int FocusPos=0,I;
@@ -554,7 +622,10 @@ int Dialog::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLUP:
     case KEY_CTRLDOWN:
-      if (IsEdit(Type) && (Item[FocusPos].Flags & DIF_HISTORY) && Opt.DialogsEditHistory && Item[FocusPos].Selected)
+      if (IsEdit(Type) &&
+           (Item[FocusPos].Flags & DIF_HISTORY) &&
+           Opt.DialogsEditHistory &&
+           Item[FocusPos].Selected)
         SelectFromEditHistory((Edit *)(Item[FocusPos].ObjPtr),(char *)Item[FocusPos].Selected);
       return(TRUE);
     default:
@@ -613,6 +684,10 @@ int Dialog::ProcessKey(int Key)
 }
 
 
+/*
+Обработка данных от "мыши".
+Перекрывает BaseInput::ProcessMouse.
+*/
 int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   int FocusPos=0,I;
@@ -704,6 +779,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
+/*
+Изменяет фокус ввода (воздействие клавишами KEY_TAB, KEY_SHIFTTAB,
+KEY_UP, KEY_DOWN, а так же Alt-HotKey)
+*/
 int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 {
   while (1)
@@ -722,7 +801,11 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
   return(FocusPos);
 }
 
-
+/*
+Статический метод - преобразует данные об элементах диалога во внутреннее
+представление. Аналогичен функции InitDialogItems (см. "Far PlugRinG
+Russian Help Encyclopedia of Developer")
+*/
 void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
                         int Count)
 {
@@ -746,7 +829,10 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
   }
 }
 
-
+/*
+Проверяет тип элемента диалога на предмет строки ввода
+(DI_EDIT, DI_FIXEDIT, DI_PSWEDIT) и в случае успеха возвращает TRUE
+*/
 int Dialog::IsEdit(int Type)
 {
   return(Type==DI_EDIT || Type==DI_FIXEDIT || Type==DI_PSWEDIT);
@@ -758,6 +844,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
   char RegKey[80],KeyValue[80],Str[512];
   sprintf(RegKey,"SavedDialogHistory\\%s",HistoryName);
   {
+    // создание пустого вертикального меню
     VMenu HistoryMenu("",NULL,0,8);
     struct MenuItem HistoryItem;
     int EditX1,EditY1,EditX2,EditY2;
@@ -770,6 +857,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
     HistoryMenu.SetFlags(MENU_SHOWAMPERSAND);
     HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
+
+    // заполнение пунктов меню
     int ItemsCount=0;
     for (int I=0;I<16;I++)
     {
@@ -791,10 +880,13 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
     }
     if (ItemsCount==0)
       return;
+
     HistoryMenu.Show();
     while (!HistoryMenu.Done())
     {
       int Key=HistoryMenu.ReadInput();
+
+      // Del очищает историю команд.
       if (Key==KEY_DEL)
       {
         for (int I=0,Dest=0;I<16;I++)
@@ -806,6 +898,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
           sprintf(KeyValue,"Locked%d",I);
           GetRegKey(RegKey,KeyValue,Locked,0);
           DeleteRegValue(RegKey,KeyValue);
+
+          // залоченные пункты истории не удаляются
           if (Locked)
           {
             sprintf(KeyValue,"Line%d",Dest);
@@ -819,6 +913,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,char *HistoryName)
         SelectFromEditHistory(EditLine,HistoryName);
         return;
       }
+
+      // Ins защищает пункт истории от удаления.
       if (Key==KEY_INS)
       {
         sprintf(KeyValue,"Locked%d",HistoryMenu.GetSelectPos());

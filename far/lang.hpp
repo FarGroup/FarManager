@@ -1,4 +1,20 @@
-#define MAX_MSG 5000
+#ifndef __FARLANG_HPP__
+#define __FARLANG_HPP__
+/*
+lang.hpp
+
+Идентификаторы фаровских строк
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
 
 enum
 {
@@ -960,3 +976,4 @@ enum
 
   MReadFolderError,
 };
+#endif	// __FARLANG_HPP__

@@ -1,3 +1,21 @@
+#ifndef __FARFTP_HPP__
+#define __FARFTP_HPP__
+/*
+farftp.hpp
+
+Кусок wininet.h - ради кодов ошибок, используемых в message.cpp
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
 extern "C" {
 
 #define INTERNETAPI DECLSPEC_IMPORT
@@ -115,3 +133,4 @@ INTERNETAPI void WINAPI FtpLastReply(char *Buffer1,int MaxSize1,
 #define ERROR_FTP_TRANSFER_IN_PROGRESS          (INTERNET_ERROR_BASE + 110)
 #define ERROR_FTP_DROPPED                       (INTERNET_ERROR_BASE + 111)
 
+#endif	// __FARFTP_HPP__

@@ -1,3 +1,65 @@
+/*
+interf.cpp
+
+Консольные функции ввода-вывода
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __PROCESS_H
+#include <process.h>
+#endif
+#ifndef __STRING_H
+#include <string.h>
+#endif
+#if !defined(__NEW_H)
+#pragma option -p-
+#include <new.h>
+#pragma option -p.
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __KEYS_HPP__
+#include "keys.hpp"
+#endif
+#ifndef __FARLANG_HPP__
+#include "lang.hpp"
+#endif
+#ifndef __COLOROS_HPP__
+#include "colors.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
+
+
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 static void InitRecodeOutTable();
 
@@ -31,7 +93,8 @@ void InitConsole()
   SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
   GetVideoMode();
   ScrBuf.FillBuf();
-  memcpy(Palette,DefaultPalette,sizeof(Palette));
+  // было sizeof(Palette)
+  memcpy(Palette,DefaultPalette,SizeArrayPalette);
 }
 
 
@@ -425,45 +488,6 @@ void PutText(int X1,int Y1,int X2,int Y2,void *Src)
     ScrBuf.Write(X1,Y1+I,((PCHAR_INFO)Src)+Width*I,Width);
 }
 
-
-void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
-{
-  COORD Size,Corner;
-  SMALL_RECT Coord;
-  if (X2>ScrX) X2=ScrX;
-  if (Y2>ScrY) Y2=ScrY;
-  if (X1>X2) X1=X2;
-  if (Y1>Y2) Y1=Y2;
-  Size.X=X2-X1+1;
-  Size.Y=Y2-Y1+1;
-  Corner.X=0;
-  Corner.Y=0;
-  Coord.Left=X1;
-  Coord.Top=Y1;
-  Coord.Right=X2;
-  Coord.Bottom=Y2;
-  ReadConsoleOutput(hConOut,(PCHAR_INFO)Dest,Size,Corner,&Coord);
-}
-
-
-void PutRealText(int X1,int Y1,int X2,int Y2,void *Src)
-{
-  COORD Size,Corner;
-  SMALL_RECT Coord;
-  if (X2>ScrX) X2=ScrX;
-  if (Y2>ScrY) Y2=ScrY;
-  if (X1>X2) X1=X2;
-  if (Y1>Y2) Y1=Y2;
-  Size.X=X2-X1+1;
-  Size.Y=Y2-Y1+1;
-  Corner.X=0;
-  Corner.Y=0;
-  Coord.Left=X1;
-  Coord.Top=Y1;
-  Coord.Right=X2;
-  Coord.Bottom=Y2;
-  WriteConsoleOutput(hConOut,(PCHAR_INFO)Src,Size,Corner,&Coord);
-}
 
 
 int IsMouseButtonPressed()
@@ -1327,59 +1351,6 @@ int CheckForEsc()
   return(FALSE);
 }
 
-
-void Box(int x1,int y1,int x2,int y2,int Color,int Type)
-{
-  char OutStr[512];
-
-  if (x1>=x2 || y1>=y2)
-    return;
-  SetColor(Color);
-  if (Type==SINGLE_BOX || Type==SHORT_SINGLE_BOX)
-  {
-    memset(OutStr,'─',sizeof(OutStr));
-    GotoXY(x1+1,y1);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    GotoXY(x1+1,y2);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    memset(OutStr,'│',sizeof(OutStr));
-    GotoXY(x1,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x2,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x1,y1);
-    Text("┌");
-    GotoXY(x1,y2);
-    Text("└");
-    GotoXY(x2,y2);
-    Text("┘");
-    GotoXY(x2,y1);
-    Text("┐");
-  }
-  else
-  {
-    memset(OutStr,'═',sizeof(OutStr));
-    GotoXY(x1+1,y1);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    GotoXY(x1+1,y2);
-    mprintf("%.*s",x2-x1-1,OutStr);
-    memset(OutStr,'║',sizeof(OutStr));
-    GotoXY(x1,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x2,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
-    GotoXY(x1,y1);
-    Text("╔");
-    GotoXY(x1,y2);
-    Text("╚");
-    GotoXY(x2,y2);
-    Text("╝");
-    GotoXY(x2,y1);
-    Text("╗");
-  }
-}
-
-
 void ShowTime(int ShowAlways)
 {
   char ClockText[10];
@@ -1433,7 +1404,6 @@ void ShowTime(int ShowAlways)
   }
 }
 
-
 void BoxText(char *Str)
 {
   if (OutputCP!=437 && OutputCP!=866)
@@ -1450,4 +1420,97 @@ void BoxText(char *Str)
           break;
       }
   Text(Str);
+}
+
+/*
+Отрисовка прямоугольника.
+*/
+void Box(int x1,int y1,int x2,int y2,int Color,int Type)
+{
+  char OutStr[512];
+
+  if (x1>=x2 || y1>=y2)
+    return;
+  SetColor(Color);
+  if (Type==SINGLE_BOX || Type==SHORT_SINGLE_BOX)
+  {
+    memset(OutStr,'─',sizeof(OutStr));
+    GotoXY(x1+1,y1);
+    mprintf("%.*s",x2-x1-1,OutStr);
+    GotoXY(x1+1,y2);
+    mprintf("%.*s",x2-x1-1,OutStr);
+    memset(OutStr,'│',sizeof(OutStr));
+    GotoXY(x1,y1+1);
+    vmprintf("%.*s",y2-y1-1,OutStr);
+    GotoXY(x2,y1+1);
+    vmprintf("%.*s",y2-y1-1,OutStr);
+    GotoXY(x1,y1);
+    Text("┌");
+    GotoXY(x1,y2);
+    Text("└");
+    GotoXY(x2,y2);
+    Text("┘");
+    GotoXY(x2,y1);
+    Text("┐");
+  }
+  else
+  {
+    memset(OutStr,'═',sizeof(OutStr));
+    GotoXY(x1+1,y1);
+    mprintf("%.*s",x2-x1-1,OutStr);
+    GotoXY(x1+1,y2);
+    mprintf("%.*s",x2-x1-1,OutStr);
+    memset(OutStr,'║',sizeof(OutStr));
+    GotoXY(x1,y1+1);
+    vmprintf("%.*s",y2-y1-1,OutStr);
+    GotoXY(x2,y1+1);
+    vmprintf("%.*s",y2-y1-1,OutStr);
+    GotoXY(x1,y1);
+    Text("╔");
+    GotoXY(x1,y2);
+    Text("╚");
+    GotoXY(x2,y2);
+    Text("╝");
+    GotoXY(x2,y1);
+    Text("╗");
+  }
+}
+
+
+void PutRealText(int X1,int Y1,int X2,int Y2,void *Src)
+{
+  COORD Size,Corner;
+  SMALL_RECT Coord;
+  if (X2>ScrX) X2=ScrX;
+  if (Y2>ScrY) Y2=ScrY;
+  if (X1>X2) X1=X2;
+  if (Y1>Y2) Y1=Y2;
+  Size.X=X2-X1+1;
+  Size.Y=Y2-Y1+1;
+  Corner.X=0;
+  Corner.Y=0;
+  Coord.Left=X1;
+  Coord.Top=Y1;
+  Coord.Right=X2;
+  Coord.Bottom=Y2;
+  WriteConsoleOutput(hConOut,(PCHAR_INFO)Src,Size,Corner,&Coord);
+}
+
+void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
+{
+  COORD Size,Corner;
+  SMALL_RECT Coord;
+  if (X2>ScrX) X2=ScrX;
+  if (Y2>ScrY) Y2=ScrY;
+  if (X1>X2) X1=X2;
+  if (Y1>Y2) Y1=Y2;
+  Size.X=X2-X1+1;
+  Size.Y=Y2-Y1+1;
+  Corner.X=0;
+  Corner.Y=0;
+  Coord.Left=X1;
+  Coord.Top=Y1;
+  Coord.Right=X2;
+  Coord.Bottom=Y2;
+  ReadConsoleOutput(hConOut,(PCHAR_INFO)Dest,Size,Corner,&Coord);
 }

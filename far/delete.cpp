@@ -1,3 +1,68 @@
+/*
+delete.cpp
+
+Удаление файлов
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __DOS_H
+#include <dos.h>	// FA_*
+#endif
+#ifndef __DIR_H
+#include <dir.h>	// chdir
+#endif
+#ifndef __STRING_H
+#include <string.h>
+#endif
+#if !defined(__NEW_H)
+#pragma option -p-
+#include <new.h>
+#pragma option -p.
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __KEYS_HPP__
+#include "keys.hpp"
+#endif
+#ifndef __FARLANG_HPP__
+#include "lang.hpp"
+#endif
+#ifndef __COLOROS_HPP__
+#include "colors.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
+
+
 static void ShellDeleteMsg(char *Name,int Flags);
 static int AskDeleteReadOnly(char *Name,DWORD Attr);
 static int ShellRemoveFile(char *Name,char *ShortName,int Wipe);
@@ -7,8 +72,6 @@ static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
-
-enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {
@@ -132,7 +195,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           char FullName[NM];
           ScanTree ScTree(TRUE);
-  
+
           ScTree.SetFindPath(SelName,"*.*");
           while (ScTree.GetNextName(&FindData,FullName))
           {
@@ -167,7 +230,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                   continue;
                 }
               }
-  
+
               if (ScTree.IsDirSearchDone())
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)

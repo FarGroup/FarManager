@@ -1,57 +1,63 @@
-#include "const.hpp"
-#include "plugin.hpp"
-#include "classes.hpp"
-#include "fn.hpp"
-#include "lang.hpp"
+/*
+far.cpp
 
-#include "global.cpp"
-#include "int64.cpp"
-#include "namelist.cpp"
-#include "iswind.cpp"
-#include "history.cpp"
-#include "checkver.cpp"
-#include "scrbuf.cpp"
-#include "macro.cpp"
-#include "plugins.cpp"
-#include "manager.cpp"
-#include "poscache.cpp"
-#include "grabber.cpp"
-#include "lang.cpp"
-#include "palette.cpp"
-#include "dizlist.cpp"
-#include "grpsort.cpp"
-#include "print.cpp"
-#include "gettable.cpp"
-#include "foldtree.cpp"
-#include "ffolders.cpp"
-#include "help.cpp"
-#include "config.cpp"
-#include "registry.cpp"
-#include "setcolor.cpp"
-#include "ctrlobj.cpp"
-#include "scrobj.cpp"
-#include "panel.cpp"
-#include "scantree.cpp"
-#include "cmdline.cpp"
-#include "edit.cpp"
-#include "modal.cpp"
-#include "hmenu.cpp"
-#include "vmenu.cpp"
-#include "keybar.cpp"
-#include "menubar.cpp"
-#include "interf.cpp"
-#include "savescr.cpp"
-#include "local.cpp"
-#include "mix.cpp"
-#include "message.cpp"
-#include "mkdir.cpp"
-#include "delete.cpp"
-#include "setattr.cpp"
-#include "options.cpp"
-#include "scrsaver.cpp"
-#include "fileview.cpp"
-#include "fileedit.cpp"
-#include "smallobj.cpp"
+Функция main.
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __STDIO_H
+#include <stdio.h>
+#endif
+#ifndef __TIME_H
+#include <time.h>
+#endif
+#ifndef __PROCESS_H
+#include <process.h>
+#endif
+#ifndef __NEW_H
+#pragma option -p-
+#include <new.h>
+#pragma option -p.
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __FARLANG_HPP__
+#include "lang.hpp"
+#endif
+#ifndef __KEYS_HPP__
+#include "keys.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
 
 static void ConvertOldSettings();
 static void SetHighlighting();

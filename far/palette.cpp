@@ -1,3 +1,39 @@
+/*
+palette.cpp
+
+Таблица цветов
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __COLOROS_HPP__
+#include "colors.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
+
+
 unsigned char DefaultPalette[]=
 {
   F_WHITE|B_CYAN,F_WHITE|B_BLACK,F_YELLOW|B_CYAN,F_YELLOW|B_BLACK,
@@ -92,6 +128,7 @@ unsigned char BlackPalette[]=
   0,0,0,0,0
 };
 
+int SizeArrayPalette=sizeof(DefaultPalette)/sizeof(DefaultPalette[0]);
 unsigned char Palette[sizeof(DefaultPalette)/sizeof(DefaultPalette[0])];
 
 int FarColorToReal(int FarColor)

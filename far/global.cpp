@@ -1,46 +1,85 @@
-#ifdef EXTERNALVAR
-  #define EXTVAR extern
-#else
-  #define EXTVAR
+/*
+global.cpp
+
+Глобальные переменные
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __STDIO_H
+#include <stdio.h>
+#endif
+#ifndef __TIME_H
+#include <time.h>
 #endif
 
-EXTVAR Language Lang;
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
 
-EXTVAR ControlObject *CtrlObject;
 
-EXTVAR int ScrX,ScrY;
+Language Lang;
 
-EXTVAR int AltPressed,CtrlPressed,ShiftPressed;
-EXTVAR int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
-EXTVAR clock_t StartIdleTime;
+ControlObject *CtrlObject;
 
-EXTVAR DWORD InitialConsoleMode;
+int ScrX,ScrY;
 
-EXTVAR int WaitInMainLoop;
-EXTVAR clock_t StartExecTime;
+int AltPressed,CtrlPressed,ShiftPressed;
+int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
+clock_t StartIdleTime;
 
-EXTVAR struct Options Opt;
+DWORD InitialConsoleMode;
 
-EXTVAR OSVERSIONINFO WinVer;
+int WaitInMainLoop;
+clock_t StartExecTime;
 
-EXTVAR char FarPath[NM];
+struct Options Opt;
 
-EXTVAR char GlobalSearchString[512];
-EXTVAR int GlobalSearchCase;
-EXTVAR int GlobalSearchReverse;
+OSVERSIONINFO WinVer;
 
-EXTVAR int ScreenSaverActive;
+char FarPath[NM];
 
-EXTVAR char LastFarTitle[512];
+char GlobalSearchString[512];
+int GlobalSearchCase;
+int GlobalSearchReverse;
 
-EXTVAR ScreenBuf ScrBuf;
+int ScreenSaverActive;
 
-EXTVAR Editor *CurrentEditor;
-EXTVAR int CloseFAR;
+char LastFarTitle[512];
 
-EXTVAR int RegVer;
-EXTVAR char RegName[256];
+ScreenBuf ScrBuf;
 
-EXTVAR int CmpNameSearchMode;
-EXTVAR int DisablePluginsOutput;
-EXTVAR int CmdMode;
+Editor *CurrentEditor;
+int CloseFAR;
+
+int RegVer;
+char RegName[256];
+
+int CmpNameSearchMode;
+int DisablePluginsOutput;
+int CmdMode;

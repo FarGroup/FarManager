@@ -1,8 +1,47 @@
+/*
+iswind.cpp
+
+Проверка fullscreen/windowed
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
+
 static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
 
 static HWND hFarWnd;
 static BOOL WindowedMode=FALSE;
 static HICON hOldLargeIcon,hOldSmallIcon;
+
+void DetectWindowedMode()
+{
+  if (hFarWnd)
+    WindowedMode=!IsIconic(hFarWnd);
+}
 
 void InitDetectWindowedMode()
 {
@@ -14,7 +53,7 @@ void InitDetectWindowedMode()
     GetModuleFileName(NULL,FarName,sizeof(FarName));
     HICON hSmallIcon=NULL,hLargeIcon=NULL;
     ExtractIconEx(FarName,0,&hLargeIcon,&hSmallIcon,1);
-  
+
     if (hLargeIcon!=NULL)
       hOldLargeIcon=(HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
     if (hSmallIcon!=NULL)
@@ -22,13 +61,6 @@ void InitDetectWindowedMode()
   }
 
   DetectWindowedMode();
-}
-
-
-void DetectWindowedMode()
-{
-  if (hFarWnd)
-    WindowedMode=!IsIconic(hFarWnd);
 }
 
 

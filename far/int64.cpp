@@ -1,3 +1,27 @@
+/*
+int64.cpp
+
+64-битная арифметика
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+
+#ifndef __INT64_HPP__
+#include "int64.hpp"
+#endif
+
 int64::int64()
 {
   HighPart=LowPart=0;

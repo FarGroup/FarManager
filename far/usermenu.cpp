@@ -1,4 +1,60 @@
-#include "common.hpp"
+/*
+usermenu.cpp
+
+User menu и есть
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
+#define STRICT
+
+#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
+#include <windows.h>
+#endif
+#ifndef __DOS_H
+#include <dos.h>	// FA_*
+#endif
+#ifndef __DIR_H
+#include <dir.h>	// chdir
+#endif
+
+
+#ifndef __FARCONST_HPP__
+#include "farconst.hpp"
+#endif
+#ifndef __FARLANG_HPP__
+#include "lang.hpp"
+#endif
+#ifndef __KEYS_HPP__
+#include "keys.hpp"
+#endif
+#ifndef __COLOROS_HPP__
+#include "colors.hpp"
+#endif
+#ifndef __FARSTRUCT_HPP__
+#include "struct.hpp"
+#endif
+#ifndef __PLUGIN_HPP__
+#include "plugin.hpp"
+#endif
+#ifndef __CLASSES_HPP__
+#include "classes.hpp"
+#endif
+#ifndef __FARFUNC_HPP__
+#include "fn.hpp"
+#endif
+#ifndef __FARGLOBAL_HPP__
+#include "global.hpp"
+#endif
+
 
 static int ProcessSingleMenu(char *MenuKey,int MenuPos);
 static int DeleteMenuRecord(char *MenuKey,int DeletePos);
@@ -104,20 +160,20 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
     struct MenuItem UserMenuItem;
     UserMenuItem.Checked=UserMenuItem.Separator=*UserMenuItem.UserData=UserMenuItem.UserDataSize=0;
     int NumLine,ExitCode,FuncPos[12];
-  
+
     for (int I=0;I<sizeof(FuncPos)/sizeof(FuncPos[0]);I++)
       FuncPos[I]=-1;
-  
+
     char Name[NM],ShortName[NM];
     CtrlObject->ActivePanel->GetCurName(Name,ShortName);
-  
+
     {
       VMenu UserMenu(MainMenuTitle ? MSG(MMainMenuTitle):MSG(MLocalMenuTitle),NULL,0,ScrY-4);
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
-  
+
       NumLine=0;
-  
+
       while (1)
       {
         char ItemKey[512],HotKey[10],Label[512],MenuText[512];
@@ -129,7 +185,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
         int SubMenu;
         GetRegKey(ItemKey,"Submenu",SubMenu,0);
-  
+
         int FuncNum=0;
         if (strlen(HotKey)>1)
         {
@@ -148,11 +204,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           FuncPos[FuncNum-1]=ItemPos;
         NumLine++;
       }
-  
+
       *UserMenuItem.Name=0;
       UserMenuItem.Selected=(NumLine==MenuPos);
       UserMenu.AddItem(&UserMenuItem);
-  
+
       {
         UserMenu.Show();
         while (!UserMenu.Done())
@@ -235,15 +291,15 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       }
       ExitCode=UserMenu.GetExitCode();
     }
-  
+
     if (ExitCode<0 || ExitCode>=NumLine)
       return(TRUE);
-  
+
     char CurrentKey[512];
     int SubMenu;
     sprintf(CurrentKey,"UserMenu\\%s\\Item%d",MenuKey,ExitCode);
     GetRegKey(CurrentKey,"Submenu",SubMenu,0);
-  
+
     if (SubMenu)
     {
       char SubMenuKey[512];
@@ -253,20 +309,20 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       MenuPos=ExitCode;
       continue;
     }
-  
+
     int LeftVisible,RightVisible,PanelsHidden=0;
     int CurLine=0;
-  
+
     char CmdLineDir[NM];
     CtrlObject->CmdLine.GetCurDir(CmdLineDir);
-  
+
     while (1)
     {
       char LineName[50],Command[4096];
       sprintf(LineName,"Command%d",CurLine);
       if (!GetRegKey(CurrentKey,LineName,Command,"",sizeof(Command)))
         break;
-  
+
       char ListName[NM],ShortListName[NM];
       {
         int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);

@@ -1,3 +1,6 @@
+#ifndef __PLUGIN_HPP__
+#define __PLUGIN_HPP__
+
 #if defined(__BORLANDC__) && (__BORLANDC <= 0x520)
   #pragma option -a1
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100))
@@ -554,3 +557,5 @@ enum OPERATION_MODES {
 #else
   #pragma pack(pop)
 #endif
+
+#endif	// __PLUGIN_HPP__

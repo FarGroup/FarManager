@@ -1,3 +1,21 @@
+#ifndef __COLORS_HPP__
+#define __COLORS_HPP__
+/*
+colors.hpp
+
+Цвета
+
+*/
+
+/* Revision: 1.00 25.06.2000 $ */
+
+/*
+Modify:
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
+*/
+
 enum {
     F_BLACK=0,
     F_BLUE=FOREGROUND_BLUE,
@@ -125,3 +143,4 @@ enum PaletteColors
   COL_VIEWERARROWS,
 };
 
+#endif	// __COLORS_HPP__
