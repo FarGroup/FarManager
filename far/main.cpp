@@ -5,10 +5,14 @@ main.cpp
 
 */
 
-/* Revision: 1.42 09.01.2002 $ */
+/* Revision: 1.43 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    - "Сделали", блин. :-(
+      Считывание Opt.HotkeyRules должно быть раньше вызова LocalUpperInit
+      Хмм... а может его в этот самый LocalUpperInit и впиндюлить?
   09.01.2002 IS
     ! Сделаем LocalUpperInit в самом начале main, в противном случае ловим
       глюки, если используем LocalStricmp.
@@ -203,10 +207,6 @@ int _cdecl main(int Argc, char *Argv[])
 //  Opt.ExceptRules=-1;
 //_SVS(SysLog("Opt.ExceptRules=%d",Opt.ExceptRules));
 
-  /* $ 09.01.2002 IS только после этого можно использовать Local* */
-  LocalUpperInit();
-  /* IS $ */
-
   /* $ 30.12.2000 SVS
      Проинициализируем функции работы с атрибутами Encryped сразу после
      старта FAR
@@ -224,6 +224,14 @@ int _cdecl main(int Argc, char *Argv[])
      /co - cache only, */
   Opt.PluginsCacheOnly=FALSE;
   /* tran $ */
+  /* $ 28.12.2000 SVS
+   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
+  GetRegKey("Interface","HotkeyRules",Opt.HotkeyRules,1);
+  /* SVS $*/
+  /* $ 09.01.2002 IS только после этого можно использовать Local* */
+  LocalUpperInit();
+  /* IS $ */
+
   for (int I=1;I<Argc;I++)
     if ((Argv[I][0]=='/' || Argv[I][0]=='-') && Argv[I][1])
     {
@@ -344,10 +352,6 @@ int _cdecl main(int Argc, char *Argv[])
   SetFileApisToOEM();
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
   GetVersionEx(&WinVer);
-  /* $ 28.12.2000 SVS
-   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
-  GetRegKey("Interface","HotkeyRules",Opt.HotkeyRules,1);
-  /* SVS $*/
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
   /* $ 02.07.2001 IS
      Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое

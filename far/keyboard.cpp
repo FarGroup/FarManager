@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.59 27.12.2001 $ */
+/* Revision: 1.60 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    ! Устем правило Opt.HotkeyRules для Alt-буква
   27.12.2001 KM
     ! Обнулим KeyText в KeyToText (как и было раньше), в противном случае
       в буфере клавиши возвращался мусор!
@@ -1736,7 +1738,9 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
           return(AsciiChar);
       if(!Opt.ShiftsKeyRules || WaitInFastFind > 0)
         return(LocalUpper(AsciiChar)+KEY_ALT);
-      else if(WaitInMainLoop)
+      else if(WaitInMainLoop ||
+              !Opt.HotkeyRules //????
+           )
         return(KEY_ALT+AsciiChar);
     }
     if (KeyCode==VK_CAPITAL)

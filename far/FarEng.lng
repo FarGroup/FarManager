@@ -532,6 +532,7 @@
 "&Dos/Windows format (CR LF)"
 "&Unix format (LF)"
 "Cannot save the file"
+"File was changed, but, possible, its have deleted"
 
 "Name"
 "Size"

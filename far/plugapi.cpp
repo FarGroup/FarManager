@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.111 26.12.2001 $ */
+/* Revision: 1.112 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    ! Ќемного SYSLOG_KEYMACRO
+    ! ¬ременна€ отмена новых редакторных флагов
   26.12.2001 SVS
     + EF_USEEXISTING, EF_BREAKIFOPEN - поведение при открытии редактора
       помен€ли, а плагинам обломитс€ что ли?
@@ -1685,8 +1688,10 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   int DeleteOnClose=(Flags & EF_DELETEONCLOSE)?TRUE:FALSE;
   /* IS $ */
   int OpMode=FEOPMODE_QUERY;
+#if 0
   if((Flags&(EF_USEEXISTING|EF_BREAKIFOPEN)) != (EF_USEEXISTING|EF_BREAKIFOPEN))
     OpMode=(Flags&EF_USEEXISTING)?FEOPMODE_USEEXISTING:FEOPMODE_BREAKIFOPEN;
+#endif
 
   if (Flags & EF_NONMODAL)
   {
@@ -1723,9 +1728,11 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
    ExitCode = Editor.GetExitCode();
    if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
    {
+#if 0
      if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
        ExitCode = XC_OPEN_ERROR;
      else
+#endif
        ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
    }
   }
@@ -1811,9 +1818,22 @@ void WINAPI FarText(int X,int Y,int Color,const char *Str)
 
 int WINAPI FarEditorControl(int Command,void *Param)
 {
-  if (CtrlObject->Plugins.CurEditor==NULL)
-    return(0);
+#if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
+  {
+#if defined(SYSLOG_KEYMACRO)
+    if(Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
+    {
+#endif
+      _KEYMACRO(CleverSysLog SL("FarEditorControl()"));
+      _KEYMACRO(SysLog("Command=%s (%d) Param=0x%08X Macro.IsExecuting()=%d",ECTLToName(Command),Command,Param,CtrlObject->Macro.IsExecuting()));
+#if defined(SYSLOG_KEYMACRO)
+    }
+#endif
+    return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
+  }
+#else
   return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
+#endif
 }
 
 /* $ 27.09.2000 SVS

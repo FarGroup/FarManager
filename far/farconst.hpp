@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.57 25.12.2001 $ */
+/* Revision: 1.58 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    + XC_EXISTS - код возврата для редактора
   25.12.2001 SVS
     + HelpFormatLinkModule
   24.12.2001 SVS
@@ -288,7 +290,8 @@ enum {
     XC_OPEN_ERROR          = 0,
     XC_MODIFIED            = 1,
     XC_NOT_MODIFIED        = 2,
-    XC_LOADING_INTERRUPTED = 3
+    XC_LOADING_INTERRUPTED = 3,
+    XC_EXISTS              = 4,
 };
 
 /* DJ $ */

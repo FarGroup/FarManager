@@ -7,10 +7,13 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.24 26.12.2001 $ */
+/* Revision: 1.25 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    + FEOPMODE_NEWIFOPEN
+    ! FirstSave у ProcessQuitKey() - как параметр.
   26.12.2001 SVS
     + внедрение FEOPMODE_*
   25.12.2001 SVS
@@ -77,6 +80,7 @@ class NamesList;
 
 enum FEOPMODEEXISTFILE{
   FEOPMODE_QUERY        =0,
+  FEOPMODE_NEWIFOPEN    =1,
   FEOPMODE_USEEXISTING  =2,
   FEOPMODE_BREAKIFOPEN  =3,
 };
@@ -111,16 +115,18 @@ class FileEditor:public Frame
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
-               char *PluginData=NULL,int ToSaveAs=FALSE,int OpenModeExstFile=FEOPMODE_QUERY);
+               char *PluginData=NULL,int ToSaveAs=FALSE,
+               int OpenModeExstFile=FEOPMODE_QUERY);
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine,int StartChar,const char *Title,
                int X1,int Y1,int X2,int Y2, int DisableHistory,
-               BOOL DeleteOnClose=FALSE,int OpenModeExstFile=FEOPMODE_QUERY);
+               BOOL DeleteOnClose=FALSE,
+               int OpenModeExstFile=FEOPMODE_QUERY);
 
   private:
     void Show();
     void DisplayObject();
-    int ProcessQuitKey();
+    int ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
 
   public:
     /* $ 07.05.2001 DJ */
@@ -128,7 +134,7 @@ class FileEditor:public Frame
     /* DJ $ */
     void Init(const char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData,
-              int ToSaveAs, BOOL DeleteOnClose, int OpenModeExstFile);
+              int ToSaveAs, BOOL DeleteOnClose,int OpenModeExstFile);
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.180 08.01.2002 $ */
+/* Revision: 1.181 10.01.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  10.01.2002 SVS
+    + EEC_* - коды возвратов редактора
+    + EF_NEWIFOPEN - дополнительный флаг.
   08.01.2002 IS
     ! Доведем начатое SVS 28.12.2001 дело до конца.
   08.01.2002 SVS
@@ -1259,16 +1262,6 @@ enum VIEWER_FLAGS {
   VF_DISABLEHISTORY =0x00000008,
 };
 
-enum EDITOR_FLAGS {
-  EF_NONMODAL       =0x00000001,
-  EF_CREATENEW      =0x00000002,
-  EF_ENABLE_F6      =0x00000004,
-  EF_DISABLEHISTORY =0x00000008,
-  EF_DELETEONCLOSE  =0x00000010,
-  EF_USEEXISTING    =0x00000020,
-  EF_BREAKIFOPEN    =0x00000040,
-};
-
 typedef int (WINAPI *FARAPIVIEWER)(
   const char *FileName,
   const char *Title,
@@ -1278,6 +1271,32 @@ typedef int (WINAPI *FARAPIVIEWER)(
   int Y2,
   DWORD Flags
 );
+
+enum EDITOR_FLAGS {
+  EF_NONMODAL       =0x00000001,
+  EF_CREATENEW      =0x00000002,
+  EF_ENABLE_F6      =0x00000004,
+  EF_DISABLEHISTORY =0x00000008,
+  EF_DELETEONCLOSE  =0x00000010,
+#ifdef FAR_USE_INTERNALS
+  EF_USEEXISTING    =0x00000020,
+  EF_BREAKIFOPEN    =0x00000040,
+  EF_NEWIFOPEN      =0x00000080,
+#endif // END FAR_USE_INTERNALS
+};
+
+enum EDITOR_EXITCODE{
+  EEC_OPEN_ERROR          = 0,
+  EEC_MODIFIED            = 1,
+  EEC_NOT_MODIFIED        = 2,
+  EEC_LOADING_INTERRUPTED = 3,
+#ifdef FAR_USE_INTERNALS
+  EEC_OPENED_EXISTING     = 4,
+  EEC_ALREADY_EXISTS      = 5,
+  EEC_OPEN_NEWINSTANCE    = 6,
+  EEC_RELOAD              = 7,
+#endif // END FAR_USE_INTERNALS
+};
 
 typedef int (WINAPI *FARAPIEDITOR)(
   const char *FileName,

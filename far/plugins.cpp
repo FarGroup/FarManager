@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.100 25.12.2001 $ */
+/* Revision: 1.101 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    ! немного _KEYMACRO
   25.12.2001 SVS
     ! "Поправим" недоделку 1.6х по поводу попадания плагинов в кэш
   14.12.2001 IS
@@ -1139,7 +1141,9 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       /* $ 16.10.2000 SVS
          + Обработка исключений при вызове галимого плагина.
       */
-//_SVS(SysLog("**** Enter to Plugin ****"));
+      _KEYMACRO(SysLog("**** Enter to Plugin **** (%s)",PData->ModuleName));
+      _KEYMACRO(SysLog(1));
+
       CtrlObject->Macro.SetRedrawEditor(FALSE);
       SetFlags(PSIF_ENTERTOOPENPLUGIN);
       if(Opt.ExceptRules)
@@ -1163,7 +1167,9 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       }
       SkipFlags(PSIF_ENTERTOOPENPLUGIN);
       CtrlObject->Macro.SetRedrawEditor(TRUE);
-//_SVS(SysLog("**** Leave from Plugin ****"));
+
+      _KEYMACRO(SysLog(-1));
+      _KEYMACRO(SysLog("**** Leave from Plugin **** (%s)",PData->ModuleName));
       /* SVS $ */
       /*$ 10.08.2000 skv
         If we are in editor mode, and CurEditor defined,

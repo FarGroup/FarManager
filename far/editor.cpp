@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.141 07.01.2002 $ */
+/* Revision: 1.142 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    + ECTLToName - для логов
   07.01.2002 IS
     - Выделялось не то, что нужно, при использовании ctrl-shift-(left|right),
       если перед этим позиция была изменена плагином, а не самим Фаром, а при
@@ -446,6 +448,8 @@ enum {UNDO_NONE=0,UNDO_EDIT,UNDO_INSSTR,UNDO_DELSTR};
 
 Editor::Editor()
 {
+  _KEYMACRO(SysLog("Editor::Editor()"));
+  _KEYMACRO(SysLog(1));
   DeleteOnClose=FALSE; // ну мы же не самоубийцы, правда? ;-)
   /* $ 19.02.2001 IS
        Я не учел, что для нового файла GetFileAttributes не вызывается...
@@ -600,6 +604,8 @@ Editor::~Editor()
   }
 
   CurrentEditor=NULL;
+  _KEYMACRO(SysLog(-1));
+  _KEYMACRO(SysLog("Editor::~Editor()"));
 }
 
 
@@ -5059,9 +5065,41 @@ void Editor::VBlockShift(int Left)
 }
 
 
+#if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
+#define DEF_ECTL_(m) { m , #m }
+const char *ECTLToName(int Command)
+{
+  static struct ECTLName{
+    int Msg;
+    const char *Name;
+  } ECTL[]={
+    DEF_ECTL_(ECTL_GETSTRING),      DEF_ECTL_(ECTL_SETSTRING),
+    DEF_ECTL_(ECTL_INSERTSTRING),   DEF_ECTL_(ECTL_DELETESTRING),
+    DEF_ECTL_(ECTL_DELETECHAR),     DEF_ECTL_(ECTL_INSERTTEXT),
+    DEF_ECTL_(ECTL_GETINFO),        DEF_ECTL_(ECTL_SETPOSITION),
+    DEF_ECTL_(ECTL_SELECT),         DEF_ECTL_(ECTL_REDRAW),
+    DEF_ECTL_(ECTL_EDITORTOOEM),    DEF_ECTL_(ECTL_OEMTOEDITOR),
+    DEF_ECTL_(ECTL_TABTOREAL),      DEF_ECTL_(ECTL_REALTOTAB),
+    DEF_ECTL_(ECTL_EXPANDTABS),     DEF_ECTL_(ECTL_SETTITLE),
+    DEF_ECTL_(ECTL_READINPUT),      DEF_ECTL_(ECTL_PROCESSINPUT),
+    DEF_ECTL_(ECTL_ADDCOLOR),       DEF_ECTL_(ECTL_GETCOLOR),
+    DEF_ECTL_(ECTL_SAVEFILE),       DEF_ECTL_(ECTL_QUIT),
+    DEF_ECTL_(ECTL_SETKEYBAR),      DEF_ECTL_(ECTL_PROCESSKEY),
+    DEF_ECTL_(ECTL_SETPARAM),       DEF_ECTL_(ECTL_GETBOOKMARKS),
+  };
+  int I;
+  for(I=0; I < sizeof(ECTL)/sizeof(ECTL[0]); ++I)
+    if(ECTL[I].Msg == Command)
+      return ECTL[I].Name;
+  return "(Unknown)";
+}
+#endif
+
 int Editor::EditorControl(int Command,void *Param)
 {
   int I;
+  _ECTLLOG(CleverSysLog SL("EditorControl()"));
+  _ECTLLOG(SysLog("Command=%s (%d) Param=0x%08X",ECTLToName(Command),Command,Param));
   switch(Command)
   {
     case ECTL_GETSTRING:
@@ -5246,6 +5284,12 @@ int Editor::EditorControl(int Command,void *Param)
     case ECTL_SELECT:
       {
         struct EditorSelect *Sel=(struct EditorSelect *)Param;
+        _ECTLLOG(CleverSysLog SL("struct EditorSelect:"));
+        _ECTLLOG(SysLog("BlockType     =%d",Sel->BlockType));
+        _ECTLLOG(SysLog("BlockStartLine=%d",Sel->BlockStartLine));
+        _ECTLLOG(SysLog("BlockStartPos =%d",Sel->BlockStartPos));
+        _ECTLLOG(SysLog("BlockWidth    =%d",Sel->BlockWidth));
+        _ECTLLOG(SysLog("BlockHeight   =%d",Sel->BlockHeight));
         UnmarkBlock();
         if (Sel->BlockType==BTYPE_NONE)
           return(TRUE);
@@ -5346,6 +5390,16 @@ int Editor::EditorControl(int Command,void *Param)
         _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_READINPUT)"));
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         GetInputRecord(rec);
+#if defined(SYSLOG_KEYMACRO)
+        if(rec->EventType == KEY_EVENT)
+        {
+          SysLog("ECTL_READINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
+                           rec->Event.KeyEvent.bKeyDown,
+                           rec->Event.KeyEvent.wRepeatCount,
+                           rec->Event.KeyEvent.wVirtualKeyCode,
+                           rec->Event.KeyEvent.dwControlKeyState);
+        }
+#endif
       }
       return(TRUE);
     case ECTL_PROCESSINPUT:
@@ -5358,6 +5412,16 @@ int Editor::EditorControl(int Command,void *Param)
           ProcessMouse(&rec->Event.MouseEvent);
         else
         {
+#if defined(SYSLOG_KEYMACRO)
+          if(rec->EventType == KEY_EVENT)
+          {
+            SysLog("ECTL_PROCESSINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
+                             rec->Event.KeyEvent.bKeyDown,
+                             rec->Event.KeyEvent.wRepeatCount,
+                             rec->Event.KeyEvent.wVirtualKeyCode,
+                             rec->Event.KeyEvent.dwControlKeyState);
+          }
+#endif
           int Key=CalcKeyCode(rec,FALSE);
           _KEYMACRO(SysLog("Key=CalcKeyCode() = 0x%08X",Key));
           ProcessKey(Key);
@@ -5619,16 +5683,19 @@ struct EditList * Editor::GetStringByNumber(int DestLine)
 
 int Editor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
+  int RetCode;
 #if defined(SYSLOG_KEYMACRO)
-  CleverSysLog SL("Editor::ProcessEditorInput()");
-  if(Rec->EventType == KEY_EVENT)
-    SysLog("VKey=0x%04X",Rec->Event.KeyEvent.wVirtualKeyCode);
-  CtrlObject->Plugins.CurEditor=this;
-  int RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
-  SysLog("RetCode=%d",RetCode);
+  {
+    CleverSysLog SL("Editor::ProcessEditorInput()");
+    if(Rec->EventType == KEY_EVENT)
+      SysLog("VKey=0x%04X",Rec->Event.KeyEvent.wVirtualKeyCode);
+    CtrlObject->Plugins.CurEditor=this;
+    RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
+    SysLog("RetCode=%d",RetCode);
+  }
 #else
   CtrlObject->Plugins.CurEditor=this;
-  int RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
+  RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
 #endif
   return(RetCode);
 }

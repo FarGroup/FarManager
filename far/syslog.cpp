@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.20 24.12.2001 $ */
+/* Revision: 1.21 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    + SYSLOG_ECTL
   24.12.2001 SVS
     + Добавим в функции FarSysLog() в LOG-файл имя модуля.
   15.10.2001 SVS
@@ -74,7 +76,7 @@ Modify:
 #include "plugins.hpp"
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
   #define SYSLOG
  #endif
 #endif

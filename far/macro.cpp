@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.66 03.01.2002 $ */
+/* Revision: 1.67 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    ! Ќемного _KEYMACRO
   03.01.2001 IS
     ! ”странение "двойного отрицани€" в GetMacroSettings
   28.12.2001 SVS
@@ -590,8 +592,8 @@ int KeyMacro::ProcessKey(int Key)
         if (StartMacroPos==-1) // сбросим признак автостарта
           Macros[I].Flags&=~MFLAGS_RUNAFTERFARSTART2;
         IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
-//_SVS(SysLog("**** Start Of Execute Macro ****"));
-//_SVS(SysLog(1));
+       _KEYMACRO(SysLog("**** Start Of Execute Macro ****"));
+       _KEYMACRO(SysLog(1));
         return(TRUE);
       }
     }
@@ -815,8 +817,8 @@ done:
     SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
-//_SVS(SysLog(-1));
-//_SVS(SysLog("**** End Of Execute Macro ****"));
+    _KEYMACRO(SysLog(-1));
+    _KEYMACRO(SysLog("**** End Of Execute Macro ****"));
     return(FALSE);
   }
 

@@ -7,10 +7,12 @@ bitflags.hpp
 
 */
 
-/* Revision: 1.00 08.11.2001 $ */
+/* Revision: 1.01 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    + Новый конструктор
   08.11.2001 SVS
     + Успешно создан (осталось везде выставить то, что надо)
 */
@@ -21,6 +23,8 @@ class BitFlags{
 
   public:
     BitFlags(){Flags=0;}
+    BitFlags(DWORD Fl){Flags=Fl;}
+
     ~BitFlags(){}
 
   public:

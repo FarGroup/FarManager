@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.93 03.01.2002 $ */
+/* Revision: 1.94 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    + MEditSavedChangedNonFile
   03.01.2002 IS
     ! MEditDisableROFileModification -> MEditLockROFileModification
       MMacroSettingsDisableOutput -> MMacroSettingsEnableOutput
@@ -807,6 +809,7 @@ enum
   MEditSaveDOS,
   MEditSaveUnix,
   MEditCannotSave,
+  MEditSavedChangedNonFile,
 
   MColumnName,
   MColumnSize,

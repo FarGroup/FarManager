@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.124 25.12.2001 $ */
+/* Revision: 1.125 10.01.2002 $ */
 
 /*
 Modify:
+  10.01.2002 SVS
+    + SYSLOG_ECTL
   25.12.2001 SVS
     + AddEndSlash(char *Path,char TypeSlash) - с явно заданным слешем
   21.12.2001 SVS
@@ -855,8 +857,16 @@ void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Bu
 
 #if defined(_DEBUG) && defined(SYSLOG_KEYMACRO)
 #define _KEYMACRO(x)  x
+const char *ECTLToName(int Command);
 #else
 #define _KEYMACRO(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_ECTL)
+#define _ECTLLOG(x)  x
+const char *ECTLToName(int Command);
+#else
+#define _ECTLLOG(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_OT)
