@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.71 26.10.2001 $ */
+/* Revision: 1.72 13.11.2001 $ */
 
 /*
 Modify:
+  13.11.2001 VVM
+    ! Хм. Добавим папки на панель, если их искали...
   26.10.2001 KM
     + Добавлена опция "Искать каталоги", позволяющая искать не только файлы, но и каталоги.
     - Была попытка просматривать каталоги из архивов по F3.
@@ -1155,7 +1157,11 @@ int FindFiles::FindFilesProcess()
           int IsArchive = ((FindList[i].ArcIndex != LIST_INDEX_NONE) &&
                           !(ArcList[FindList[i].ArcIndex].Flags&OPIF_REALNAMES));
           // Добавляем только файлы или имена архивов
-          if (IsArchive || !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+          /* $ 13.11.2001 VVM
+            ! Хм. Добавим папки, если их искали... */
+          if (IsArchive || Opt.FindFolders ||
+              !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+          /* VVM $ */
           {
             if (IsArchive)
               strcpy(FileName,ArcList[FindList[i].ArcIndex].ArcName);
