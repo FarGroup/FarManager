@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.83 16.01.2002 $ */
+/* Revision: 1.84 21.01.2002 $ */
 
 /*
 Modify:
+  21.01.2002 SVS
+    - Bug#255 - Alt-Shift-Ins - каталог с другой панели
   16.01.2002 SVS
     - Вах. Забыли поставить "return TRUE" в FileEditor::SetFileName()
   15.01.2002 SVS
@@ -897,9 +899,11 @@ int FileEditor::ProcessKey(int Key)
 
 int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
+  char OldCurDir[4096];
+  GetCurrentDirectory(sizeof(OldCurDir),OldCurDir);
   while (1)
   {
-    FarChDir(StartDir); // ПОЧЕМУ?
+    FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???
     int SaveCode=SAVEFILE_SUCCESS;
     if(NeedQuestion)
     {
@@ -918,6 +922,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       break;
     FirstSave=0;
   }
+  FarChDir(OldCurDir);
   return GetExitCode() == XC_QUIT;
 }
 
