@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.44 11.07.2003 $ */
+/* Revision: 1.45 31.07.2003 $ */
 
 /*
 Modify:
+  31.07.2003 SVS
+    ! Для экспортнутых функций - сделаем проверку на CapsLock
   11.07.2003 SVS
     ! Уберем лишние варнинги
     + В _INPUT_RECORD_Dump() добавим FARMACRO_KEY_EVENT и 0
@@ -789,6 +791,9 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
 #if defined(SYSLOG_FARSYSLOG)
 void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
 {
+  if(!IsLogON())
+    return;
+
   char msg[MAX_LOG_LINE];
 
   va_list argptr;
@@ -817,11 +822,17 @@ void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
 
 void WINAPI _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
 {
+  if(!IsLogON())
+    return;
+
   SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,NULL);
 }
 
 void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *rec)
 {
+  if(!IsLogON())
+    return;
+
   SysLog("%s {%s}",ModuleName,_INPUT_RECORD_Dump(rec));
 }
 #endif
@@ -830,12 +841,18 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 CleverSysLog::CleverSysLog(char *Title)
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   SysLog(1,"%s{",Title?Title:"");
 #endif
 }
 CleverSysLog::~CleverSysLog()
 {
 #if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
   SysLog(-1,"}");
 #endif
 }

@@ -7,10 +7,14 @@ farconst.hpp
 
 */
 
-/* Revision: 1.69 25.07.2003 $ */
+/* Revision: 1.70 30.07.2003 $ */
 
 /*
 Modify:
+  30.07.2003 SVS
+    ! Вместо MFLAGS_INSIDEPLUGIN и MFLAGS_NOINSIDEPLUGIN введен один флаг MFLAGS_SENDKEYSTOPLUGINS,
+      в соотвествии с NT в макросах
+    ! немного документируем
   25.07.2003 SVS
     + MacroRecordAndExecuteType - коды возврата для KeyMacro::GetCurRecord()
   15.07.2003 SVS
@@ -212,65 +216,67 @@ enum {
 /* $ 02.08.2001 IS
      Новые константы для alt-f3, alt-f4 и ctrl-pgdn
 */
+// Работа с ассоциациями файлов
 enum {
-  FILETYPE_EXEC,    // Enter
-  FILETYPE_VIEW,    // F3
-  FILETYPE_EDIT,    // F4
-  FILETYPE_ALTEXEC, // Ctrl-PgDn
-  FILETYPE_ALTVIEW, // Alt-F3
-  FILETYPE_ALTEDIT  // Alt-F4
+  FILETYPE_EXEC,       // Enter
+  FILETYPE_VIEW,       // F3
+  FILETYPE_EDIT,       // F4
+  FILETYPE_ALTEXEC,    // Ctrl-PgDn
+  FILETYPE_ALTVIEW,    // Alt-F3
+  FILETYPE_ALTEDIT     // Alt-F4
 };
 /* IS $ */
 
-enum {DIZ_NOT_UPDATE,DIZ_UPDATE_IF_DISPLAYED,DIZ_UPDATE_ALWAYS};
+enum DIZUPDATETYPE {
+  DIZ_NOT_UPDATE,
+  DIZ_UPDATE_IF_DISPLAYED,
+  DIZ_UPDATE_ALWAYS
+};
 
 // *** Macros ***
-enum {
-  MACRO_OTHER,
-  MACRO_SHELL,
-  MACRO_VIEWER,
-  MACRO_EDITOR,
-  MACRO_DIALOG,
-  MACRO_SEARCH,
-  MACRO_DISKS,
-  MACRO_MAINMENU,
-  MACRO_MENU,
-  MACRO_HELP,
-  MACRO_INFOPANEL,
-  MACRO_QVIEWPANEL,
-  MACRO_TREEPANEL,
+// области действия макросов (начало исполнения)
+enum MACROMODEAREA {
+  MACRO_OTHER,         // Режим копирования текста с экрана, вертикальные меню
+  MACRO_SHELL,         // Файловые панели
+  MACRO_VIEWER,        // Внутренняя программа просмотра
+  MACRO_EDITOR,        // Редактор
+  MACRO_DIALOG,        // Диалоги
+  MACRO_SEARCH,        // Быстрый поиск в панелях
+  MACRO_DISKS,         // Меню выбора дисков
+  MACRO_MAINMENU,      // Основное меню
+  MACRO_MENU,          // Прочие меню
+  MACRO_HELP,          // Система помощи
+  MACRO_INFOPANEL,     // Информационная панель
+  MACRO_QVIEWPANEL,    // Панель быстрого просмотра
+  MACRO_TREEPANEL,     // Панель дерева папок
 
-  /* $ 05.04.2001 VVM
-    ! Должен быть всегда последним. Используется в циклах */
-  MACRO_LAST
-  /* VVM $ */
+  MACRO_LAST           // Должен быть всегда последним! Используется в циклах
 };
 
 // Флаги для макросов
-#define MFLAGS_MODEMASK            0x0000FFFF
-#define MFLAGS_DISABLEOUTPUT       0x00010000
-#define MFLAGS_RUNAFTERFARSTART    0x00020000
-#define MFLAGS_EMPTYCOMMANDLINE    0x00040000
-#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
-#define MFLAGS_NOFILEPANELS        0x00100000
-#define MFLAGS_NOPLUGINPANELS      0x00200000
-#define MFLAGS_NOFOLDERS           0x00400000
-#define MFLAGS_NOFILES             0x00800000
-#define MFLAGS_REUSEMACRO          0x02000000
-#define MFLAGS_SELECTION           0x04000000
-#define MFLAGS_NOSELECTION         0x08000000
-#define MFLAGS_INSIDEPLUGIN        0x10000000
-#define MFLAGS_NOINSIDEPLUGIN      0x20000000
-#define MFLAGS_RUNAFTERFARSTART2   0x40000000
-#define MFLAGS_DISABLEMACRO        0x80000000
+#define MFLAGS_MODEMASK            0x0000FFFF // маска для выделения области действия (области начала исполнения) макроса
+#define MFLAGS_DISABLEOUTPUT       0x00010000 // подавить обновление экрана во время выполнения макроса
+#define MFLAGS_RUNAFTERFARSTART    0x00020000 // этот макрос запускается при старте ФАРа
+#define MFLAGS_EMPTYCOMMANDLINE    0x00040000 // запускать, если командная линия пуста
+#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000 // запускать, если командная линия не пуста
+#define MFLAGS_NOFILEPANELS        0x00100000 // запускать, если это плагиновая панель
+#define MFLAGS_NOPLUGINPANELS      0x00200000 // запускать, если это файловая панель
+#define MFLAGS_NOFOLDERS           0x00400000 // запускать, если текущий объект "файл"
+#define MFLAGS_NOFILES             0x00800000 // запускать, если текущий объект "папка"
+#define MFLAGS_REUSEMACRO          0x02000000 // повторное использование макросов (вызов макроса из макроса)
+#define MFLAGS_SELECTION           0x04000000 // запускать, если есть выделение
+#define MFLAGS_NOSELECTION         0x08000000 // запускать, если есть нет выделения
+#define MFLAGS_SENDKEYSTOPLUGINS   0x10000000 // передавать клавиши во время записи/воспроизведения макроса
+#define MFLAGS_RUNAFTERFARSTART2   0x40000000 // признак того, что макрос стартанул при автостарте.
+#define MFLAGS_DISABLEMACRO        0x80000000 // этот макрос отключен
 
 // коды возврата для KeyMacro::GetCurRecord()
-enum MacroRecordAndExecuteType{
-  MACROMODE_NOMACRO=0,             // не в режиме макро
-  MACROMODE_EXECUTING=1,           // исполнение: без передачи плагину пимп
-  MACROMODE_EXECUTING_COMMON=2,    // исполнение: с передачей плагину пимп
-  MACROMODE_RECORDING=3,           // запись: без передачи плагину пимп
-  MACROMODE_RECORDING_COMMON=4,    // запись: с передачей плагину пимп
+enum MACRORECORDANDEXECUTETYPE{
+  MACROMODE_NOMACRO          =0,  // не в режиме макро
+  MACROMODE_EXECUTING        =1,  // исполнение: без передачи плагину пимп
+  MACROMODE_EXECUTING_COMMON =2,  // исполнение: с передачей плагину пимп
+  MACROMODE_RECORDING        =3,  // запись: без передачи плагину пимп
+  MACROMODE_RECORDING_COMMON =4,  // запись: с передачей плагину пимп
 };
 
 // **************************************************
@@ -292,10 +298,20 @@ enum {
 };
 
 // from plugins.hpp
-enum {PLUGIN_FARGETFILE,PLUGIN_FARGETFILES,PLUGIN_FARPUTFILES,
-      PLUGIN_FARDELETEFILES,PLUGIN_FARMAKEDIRECTORY,PLUGIN_FAROTHER};
+enum {
+  PLUGIN_FARGETFILE,
+  PLUGIN_FARGETFILES,
+  PLUGIN_FARPUTFILES,
+  PLUGIN_FARDELETEFILES,
+  PLUGIN_FARMAKEDIRECTORY,
+  PLUGIN_FAROTHER
+};
 
-enum {MODALTREE_ACTIVE=1,MODALTREE_PASSIVE=2,MODALTREE_FREE=3};
+enum {
+  MODALTREE_ACTIVE  =1,
+  MODALTREE_PASSIVE =2,
+  MODALTREE_FREE    =3
+};
 
 /* $ 27.09.2000 SVS
   +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
@@ -383,10 +399,10 @@ enum {
 // Количество закладок в редакторе/вьювере на одну позицию
 #define BOOKMARK_COUNT   10
 
-#define UnicodeToAscii(src,dst,lendst) WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
-#define UnicodeToOEM(src,dst,lendst) WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
-#define AsciiToUnicode(src,dst,lendst) MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
-#define OEMToUnicode(src,dst,lendst) MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
+#define UnicodeToAscii(src,dst,lendst)  WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+#define UnicodeToOEM(src,dst,lendst)    WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+#define AsciiToUnicode(src,dst,lendst)  MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
+#define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
 
 typedef void (*PREREDRAWFUNC)(void);
 typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);

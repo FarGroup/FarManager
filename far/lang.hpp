@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.125 15.07.2003 $ */
+/* Revision: 1.126 29.07.2003 $ */
 
 /*
 Modify:
+  29.07.2003 SVS
+    ! Удален MMacroSettingsInsidePlugin - за ненадобностью.
   15.07.2003 SVS
     + MMenuSortUseNumeric, MMacroSettingsInsidePlugin
   11.07.2003 SVS
@@ -1839,7 +1841,6 @@ enum
   MMacroSettingsCommandLine,
   MMacroSettingsPluginPanel,
   MMacroSettingsFolders,
-  MMacroSettingsInsidePlugin,
   MMacroSettingsSelectionPresent,
 
   MCannotSaveFile,

@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.96 17.06.2003 $ */
+/* Revision: 1.97 25.07.2003 $ */
 
 /*
 Modify:
+  25.07.2003 SVS
+    ! учтем новые коды возврата дл€ KeyMacro::GetCurRecord()
+    ! учтем новый FARMACRO_KEY_EVENT в CalcKeyCode(), иначе плагины получат KEY_NONE
   17.06.2003 SVS
     - Alt-256 не давал нам символ с кодом 0x00. ѕока закомментим кусочек один
   27.05.2003 SVS
@@ -1590,7 +1593,7 @@ int CheckForEscSilent()
   INPUT_RECORD rec;
   int Key;
 
-  if (!CtrlObject->Macro.IsExecuting() && PeekInputRecord(&rec))
+  if (CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO && PeekInputRecord(&rec))
   {
     int MMode=CtrlObject->Macro.GetMode();
     CtrlObject->Macro.SetMode(MACRO_LAST);
@@ -2033,7 +2036,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     ShiftPressed=(CtrlState & SHIFT_PRESSED);
   }
 
-  if (rec->EventType!=KEY_EVENT)
+  if (!(rec->EventType==KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT))
     return(KEY_NONE);
 
   if (!rec->Event.KeyEvent.bKeyDown)
@@ -2155,7 +2158,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   if (AltPressed && !CtrlPressed && !ShiftPressed)
   {
 #if 0
-    if (AltValue==0 && (!CtrlObject->Macro.IsRecording() || !Opt.UseNumPad))
+    if (AltValue==0 && (CtrlObject->Macro.IsRecording() == MACROMODE_NOMACRO || !Opt.UseNumPad))
     {
       // VK_INSERT  = 0x2D       AS-0 = 0x2D
       // VK_NUMPAD0 = 0x60       A-0  = 0x60
@@ -2437,8 +2440,8 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |%s|%s|",_VK
 _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
     if (KeyCode>='0' && KeyCode<='9')
     {
-      if(WaitInFastFind>0 &&
-        CtrlObject->Macro.GetCurRecord(NULL,NULL) != 1 &&
+      if(WaitInFastFind > 0 &&
+        CtrlObject->Macro.GetCurRecord(NULL,NULL) < MACROMODE_RECORDING &&
         CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',-1) == -1)
       {
         return(KEY_ALT+KEY_SHIFT+Char.AsciiChar);

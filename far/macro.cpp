@@ -5,10 +5,17 @@ macro.cpp
 
 */
 
-/* Revision: 1.97 15.07.2003 $ */
+/* Revision: 1.98 29.07.2003 $ */
 
 /*
 Modify:
+  29.07.2003 SVS
+    ! Уточнение логики работы макросов.
+    ! Вместо InsidePlugin и NoInsidePlugin вводим SendKeysToPlugins - Передавать плагинам нажатия клавиш из проигрывающего макроса.
+    ! По CtrlShift. - записывать макрос _не передавая_ нажатия плагинам, как бы
+      исправленое старое повидение
+      По Ctrl. - записывать макрос _передавая_ нажатия плагинам, новое повидение.
+    + Ввод в действие констант MACROMODE_*
   15.07.2003 SVS
     + Новая опция в настройках макроса - "Enable when plugin active"
     + KeyMacro::CheckInsidePlugin() - "мы внутри плагина?"
@@ -384,8 +391,7 @@ static struct TMacroKeywords {
   {1,  "ReuseMacro",         MFLAGS_REUSEMACRO,0},
   {1,  "Selection",          MFLAGS_SELECTION,0},
   {1,  "NoSelection",        MFLAGS_NOSELECTION,0},
-  {1,  "InsidePlugin",       MFLAGS_INSIDEPLUGIN,0},
-  {1,  "NoInsidePlugin",     MFLAGS_NOINSIDEPLUGIN,0},
+  {1,  "SendKeysToPlugins",  MFLAGS_SENDKEYSTOPLUGINS,0},
 
   {2,  "Windowed",           MCODE_WINDOWEDMODE,0},
   {2,  "APanel.IsEmpty",     MCODE_APANEL_ISEMPTY,0},
@@ -495,13 +501,13 @@ void KeyMacro::InitVars(BOOL InitedRAM)
   if(InitedRAM)
   {
     ReleaseTempBuffer(TRUE);
-    Executing=FALSE;
+    Executing=MACROMODE_NOMACRO;
   }
 
   RecBuffer=NULL;
   RecBufferSize=0;
 
-  Recording=FALSE;
+  Recording=MACROMODE_NOMACRO;
   InternalInput=FALSE;
 }
 
@@ -593,11 +599,13 @@ int KeyMacro::ProcessKey(int Key)
 //_SVS(SysLog(-1));
 //_SVS(SysLog("StartMode=%d",StartMode));
 
-      DWORD Flags=MFLAGS_DISABLEOUTPUT|MFLAGS_NOINSIDEPLUGIN;
+      // выставляем флаги по умолчанию.
+      DWORD Flags=MFLAGS_DISABLEOUTPUT|(Recording==MACROMODE_RECORDING_COMMON?MFLAGS_SENDKEYSTOPLUGINS:0);
 
       // добавим проверку на удаление
       // если удаляем, то не нужно выдавать диалог настройки.
-      if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
+      //if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
+      if (MacroKey != (DWORD)-1 && Key==KEY_CTRLSHIFTDOT && RecBufferSize)
       {
         if (!GetMacroSettings(MacroKey,Flags))
           MacroKey=(DWORD)-1;
@@ -635,7 +643,7 @@ int KeyMacro::ProcessKey(int Key)
         MacroPROM[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
       }
 
-      Recording=FALSE;
+      Recording=MACROMODE_NOMACRO;
       RecBuffer=NULL;
       RecBufferSize=0;
       ScrBuf.RestoreMacroChar();
@@ -674,8 +682,13 @@ int KeyMacro::ProcessKey(int Key)
     // Где мы?
     StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
     // тип записи - с вызовом диалога настроек или...
-    Recording=(Key==KEY_CTRLSHIFTDOT) ? 2:1;
-    if(RecBuffer) xf_free(RecBuffer);
+    // В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
+    // с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
+    Recording=(Key==KEY_CTRLDOT) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+
+    if(RecBuffer)
+      xf_free(RecBuffer);
+
     RecBuffer=NULL;
     RecBufferSize=0;
     ScrBuf.ResetShadow();
@@ -685,7 +698,7 @@ int KeyMacro::ProcessKey(int Key)
   }
   else
   {
-    if (!Executing) // Это еще не режим исполнения?
+    if (Executing == MACROMODE_NOMACRO) // Это еще не режим исполнения?
     {
       DWORD CurFlags;
 //_SVS(SysLog(">Key=%s",_FARKEY_ToName(Key)));
@@ -714,7 +727,8 @@ int KeyMacro::ProcessKey(int Key)
           LockScr=new LockScreen;
         }
 
-        Executing=TRUE;
+        // различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
+        Executing=CurFlags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
         PostTempKeyMacro(MacroPROM+I);
         ExecMacroPos=I;
         ExecKeyPos=0;
@@ -848,11 +862,10 @@ BOOL KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)
           }
           break;
         }
-        case MFLAGS_INSIDEPLUGIN: // $StopIf[Not] InsidePlugin
-        case MFLAGS_NOINSIDEPLUGIN: // $StopIf[Not] NoInsidePlugin
+        case MFLAGS_SENDKEYSTOPLUGINS: // $StopIf[Not] InsidePlugin
         {
           if(CtrlObject)
-            Cond=CtrlObject->Plugins.CurPluginItem?(Code == MFLAGS_INSIDEPLUGIN?TRUE:FALSE):(Code == MFLAGS_INSIDEPLUGIN?FALSE:TRUE); //??
+            Cond=CtrlObject->Plugins.CurPluginItem && Code == MFLAGS_SENDKEYSTOPLUGINS?TRUE:FALSE;
           break;
         }
       }
@@ -920,7 +933,7 @@ int KeyMacro::GetKey()
   if (InternalInput || !FrameManager->GetCurrentFrame())
     return(FALSE);
 
-  if(!Executing)
+  if(Executing == MACROMODE_NOMACRO)
   {
     if(!MacroRAM)
     {
@@ -942,13 +955,14 @@ int KeyMacro::GetKey()
     else if(ExecKeyPos>=MR->BufferSize)
     {
       ReleaseTempBuffer();
-      Executing=FALSE;
+      Executing=MACROMODE_NOMACRO;
       return(FALSE);
     }
     else
 */
     {
-      Executing=TRUE;
+      MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
+      Executing=MR->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
       ExecKeyPos=0; //?????????????????????????????????
     }
   }
@@ -988,13 +1002,13 @@ done:
     /* skv$*/
     if(LockScr) delete LockScr;
     LockScr=NULL;
-    Executing=FALSE;
+    Executing=MACROMODE_NOMACRO;
     ReleaseTempBuffer();
     // проверим - "а есть ли в временном стеке еще макрЫсы"?
     if(MacroRAMCount > 0)
     {
       // нашлось, запустим механизму по новой
-      Executing=TRUE;
+      Executing=MacroRAM->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
       ExecKeyPos=0;
     }
     SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
@@ -1061,7 +1075,7 @@ done:
   if(MR==MacroRAM && ExecKeyPos>=MR->BufferSize)
   {
     ReleaseTempBuffer();
-    Executing=FALSE;
+    Executing=MACROMODE_NOMACRO;
   }
 
 //_SVS(SysLog("%s.%s.Key=%s ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(MacroPROM[ExecMacroPos].Flags&MFLAGS_MODEMASK),_FARKEY_ToName(Key),ExecMacroPos,ExecKeyPos));
@@ -1075,7 +1089,7 @@ int KeyMacro::PeekKey()
   if (InternalInput)
     return(0);
 
-  if(!Executing && !MacroRAM || ExecKeyPos >= MR->BufferSize)
+  if(Executing == MACROMODE_NOMACRO && !MacroRAM || ExecKeyPos >= MR->BufferSize)
     return(FALSE);
 
   return KeyFromBuffer(MR,ExecKeyPos);
@@ -1303,7 +1317,7 @@ void KeyMacro::RunStartMacro()
         if(LockScr) delete LockScr;
         LockScr=new LockScreen;
       }
-      Executing=TRUE;
+      Executing=CurFlags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
       ExecMacroPos=CurPos;
       ExecKeyPos=0;
       // выставим признак того, что макрос стартанул при автостарте.
@@ -1537,18 +1551,17 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
 
   static struct DialogData MacroSettingsDlgData[]={
-  /* 00 */ DI_DOUBLEBOX,3,1,62,12,0,0,0,0,"",
+  /* 00 */ DI_DOUBLEBOX,3,1,62,11,0,0,0,0,"",
   /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroSettingsEnableOutput,
   /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
   /* 03 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */ DI_CHECKBOX,5,5,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsCommandLine,
   /* 05 */ DI_CHECKBOX,5,6,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsPluginPanel,
   /* 06 */ DI_CHECKBOX,5,7,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsFolders,
-  /* 07 */ DI_CHECKBOX,5,8,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsInsidePlugin,
-  /* 08 */ DI_CHECKBOX,5,9,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsSelectionPresent,
-  /* 09 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 07 */ DI_CHECKBOX,5,8,0,0,0,2,DIF_3STATE,0,(char *)MMacroSettingsSelectionPresent,
+  /* 08 */ DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 09 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 10 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(MacroSettingsDlgData,MacroSettingsDlg);
 
@@ -1564,16 +1577,15 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   MacroSettingsDlg[4].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
   MacroSettingsDlg[5].Selected=Set3State(Flags,MFLAGS_NOFILEPANELS,MFLAGS_NOPLUGINPANELS);
   MacroSettingsDlg[6].Selected=Set3State(Flags,MFLAGS_NOFILES,MFLAGS_NOFOLDERS);
-  MacroSettingsDlg[7].Selected=Set3State(Flags,MFLAGS_INSIDEPLUGIN,MFLAGS_NOINSIDEPLUGIN);
-  MacroSettingsDlg[8].Selected=Set3State(Flags,MFLAGS_SELECTION,MFLAGS_NOSELECTION);
+  MacroSettingsDlg[7].Selected=Set3State(Flags,MFLAGS_SELECTION,MFLAGS_NOSELECTION);
 
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
-  Dlg.SetPosition(-1,-1,66,14);
+  Dlg.SetPosition(-1,-1,66,13);
   Dlg.SetHelp("KeyMacroSetting");
   FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
   Dlg.Process();
   FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
-  if (Dlg.GetExitCode()!=10)
+  if (Dlg.GetExitCode()!=9)
     return(FALSE);
 
   Flags=MacroSettingsDlg[1].Selected?0:MFLAGS_DISABLEOUTPUT;
@@ -1585,9 +1597,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   Flags|=MacroSettingsDlg[6].Selected==2?0:
           (MacroSettingsDlg[6].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
   Flags|=MacroSettingsDlg[7].Selected==2?0:
-          (MacroSettingsDlg[7].Selected==0?MFLAGS_NOINSIDEPLUGIN:MFLAGS_INSIDEPLUGIN);
-  Flags|=MacroSettingsDlg[8].Selected==2?0:
-          (MacroSettingsDlg[8].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
+          (MacroSettingsDlg[7].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
 
   return(TRUE);
 }
@@ -1616,7 +1626,7 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-//  Executing=TRUE;
+//  Executing=MacroRAM->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
   if(ExecKeyPos == MacroRAM->BufferSize)
     ExecKeyPos=0;
   return TRUE;
@@ -1659,7 +1669,7 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-//  Executing=TRUE;
+//  Executing=MacroRAM->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
   if(ExecKeyPos == MacroRAM->BufferSize)
     ExecKeyPos=0;
   return TRUE;
@@ -1924,8 +1934,8 @@ BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags)
 
 BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
 {
-  if(CtrlObject &&  CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_NOINSIDEPLUGIN) ||
-     CtrlObject && !CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_INSIDEPLUGIN))
+  if(CtrlObject && CtrlObject->Plugins.CurPluginItem && !(CurFlags&MFLAGS_SENDKEYSTOPLUGINS)) // ?????
+  //if(CtrlObject && CtrlObject->Plugins.CurEditor && !(CurFlags&MFLAGS_SENDKEYSTOPLUGINS))
     return FALSE;
   return TRUE;
 }
@@ -1958,6 +1968,9 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
      Здесь вместо Check*() попробовать заюзать IfCondition()
      для исключения повторяющегося кода.
 */
+  if(!CheckInsidePlugin(CurFlags))
+    return FALSE;
+
   // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
   if(!CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
     return FALSE;
@@ -1966,9 +1979,6 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   if(ActivePanel!=NULL)// && (CurFlags&MFLAGS_MODEMASK)==MACRO_SHELL)
   {
-    if(!CheckInsidePlugin(CurFlags))
-      return FALSE;
-
     if(!CheckPanel(ActivePanel->GetMode(),CurFlags))
       return FALSE;
 
@@ -2011,7 +2021,8 @@ BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 }
 
 /*
-  Return: 0 - не в режиме макро, 1 - Recording, 2 - Executing
+  Return: 0 - не в режиме макро, 1 - Executing, 2 - Executing common, 3 - Recording, 4 - Recording common
+  See farconst.hpp::MacroRecordAndExecuteType
 */
 int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 {
@@ -2019,21 +2030,21 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
   {
     *KeyPos=Executing?ExecKeyPos:0;
     memset(RBuf,0,sizeof(struct MacroRecord));
-    if(!Recording)
+    if(Recording == MACROMODE_NOMACRO)
     {
       if(Executing)
       {
         memcpy(RBuf,MacroPROM+ExecMacroPos,sizeof(struct MacroRecord));
-        return 2;
+        return Executing;
       }
       memset(RBuf,0,sizeof(struct MacroRecord));
-      return 0;
+      return MACROMODE_NOMACRO;
     }
     RBuf->BufferSize=RecBufferSize;
     RBuf->Buffer=RecBuffer;
-    return 1;
+    return Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON;
   }
-  return Recording?1:(Executing?2:0);
+  return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Executing?Executing:MACROMODE_NOMACRO);
 }
 
 static int __cdecl SortMacros(const struct MacroRecord *el1,
@@ -2099,7 +2110,7 @@ void KeyMacro::DropProcess()
   {
     if(LockScr) delete LockScr;
     LockScr=NULL;
-    Executing=FALSE;
+    Executing=MACROMODE_NOMACRO;
     ReleaseTempBuffer();
   }
 }

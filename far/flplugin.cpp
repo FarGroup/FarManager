@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.36 08.07.2003 $ */
+/* Revision: 1.37 30.07.2003 $ */
 
 /*
 Modify:
+  30.07.2003 SVS
+    - BugZ#856 - —брос обратной сортировки после входа и выхода из плагина
   08.07.2003 SVS
     - ≈сли текущий элемент 1 и нет более выделени€ и этот элемент "..",
       то имеем багу с PI.SelectedItems[0] - здесь мусор!
@@ -158,10 +160,10 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
   CtrlObject->Plugins.ClosePlugin(hPlugin);
   // после ClosePlugin переменна€ SortOrder по каким-то волшебным причинам
   // становитс€ = -1 (хот€ допустимы 0 или 1)...
-  if(SortOrder==-1) // ...восстановим.
-  {
-    SortOrder=1; // как в конструкторе заказывали ;-)
-  }
+//  if(SortOrder==-1) // ...восстановим.
+//  {
+//    SortOrder=1; // как в конструкторе заказывали ;-)
+//  }
   if (PluginsStackSize>0)
   {
     hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;

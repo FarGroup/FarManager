@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.138 25.07.2003 $ */
+/* Revision: 1.139 29.07.2003 $ */
 
 /*
 Modify:
+  29.07.2003 SVS
+    ! Уточнение логики работы макросов.
+    + ECTL_PROCESSKEY _также_ выполняется в FileEditor::EditorControl()!
   25.07.2003 SVS
     ! выставим SetLastError в случае неудачи, чтобы корректно отобразить сообщение
       (используется новый член класса - DWORD SysErrorCode)
@@ -877,11 +880,14 @@ int FileEditor::ProcessKey(int Key)
   DWORD FNAttr;
   char *Ptr, Chr;
 
+  _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
+  _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
+
   if (Flags.Check(FFILEEDIT_REDRAWTITLE) && ((Key & 0x00ffffff) < KEY_END_FKEY))
     ShowConsoleTitle();
 
   // BugZ#488 - Shift=enter
-  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
+  if(ShiftPressed && Key == KEY_ENTER && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
   {
     Key=KEY_SHIFTENTER;
   }
@@ -992,13 +998,18 @@ int FileEditor::ProcessKey(int Key)
     /* DJ $ */
   }
 
-  _KEYMACRO(CleverSysLog SL("FileEditor::ProcessKey()"));
-  _KEYMACRO(SysLog("Key=%s Macro.IsExecuting()=%d",_FARKEY_ToName(Key),CtrlObject->Macro.IsExecuting()));
-#if 0
-  int ProcessedNext=TRUE;
+#if 1
+  BOOL ProcessedNext=TRUE;
 
-  if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON)
+  _SVS(if(Key=='n' || Key=='m'))
+    _SVS(SysLog("%d Key='%c'",__LINE__,Key));
+
+  if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(NULL,NULL) == MACROMODE_NOMACRO)
+  {
+    _SVS(if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
+      _SVS(SysLog("%d !!!! CtrlObject->Macro.GetCurRecord(NULL,NULL) != MACROMODE_NOMACRO !!!!",__LINE__));
     ProcessedNext=!ProcessEditorInput(FrameManager->GetLastInputRecord());
+  }
 
   if (ProcessedNext)
 #else
@@ -1006,6 +1017,7 @@ int FileEditor::ProcessKey(int Key)
     !ProcessEditorInput(FrameManager->GetLastInputRecord()))
 #endif
   {
+    _KEYMACRO(SysLog("if (ProcessedNext) => __LINE__=%d",__LINE__));
     switch(Key)
     {
       case KEY_F1:
@@ -1333,10 +1345,11 @@ int FileEditor::ProcessKey(int Key)
 
       default:
       {
+        _KEYMACRO(SysLog("default: __LINE__=%d",__LINE__));
         /* $ 22.03.2001 SVS
            Это помогло от залипания :-)
         */
-        if (Flags.Check(FFILEEDIT_FULLSCREEN) && !CtrlObject->Macro.IsExecuting())
+        if (Flags.Check(FFILEEDIT_FULLSCREEN) && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
           EditKeyBar.Show();
         /* SVS $ */
         if (!EditKeyBar.ProcessKey(Key))
@@ -1782,7 +1795,8 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
   int RetCode;
   _KEYMACRO(CleverSysLog SL("FileEditor::ProcessEditorInput()"));
-  _KEYMACRO(if(Rec->EventType == KEY_EVENT)SysLog("%cVKey=%s",(Rec->Event.KeyEvent.bKeyDown?0x19:0x18),_VK_KEY_ToName(Rec->Event.KeyEvent.wVirtualKeyCode)));
+  _KEYMACRO(if(Rec->EventType == KEY_EVENT)          SysLog("KEY_EVENT:          %cVKey=%s",(Rec->Event.KeyEvent.bKeyDown?0x19:0x18),_VK_KEY_ToName(Rec->Event.KeyEvent.wVirtualKeyCode)));
+  _KEYMACRO(if(Rec->EventType == FARMACRO_KEY_EVENT) SysLog("FARMACRO_KEY_EVENT: %cVKey=%s",(Rec->Event.KeyEvent.bKeyDown?0x19:0x18),_VK_KEY_ToName(Rec->Event.KeyEvent.wVirtualKeyCode)));
 
   CtrlObject->Plugins.CurEditor=this;
   RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
@@ -2185,15 +2199,21 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_READINPUT:
     {
-#if 0
+      _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_READINPUT)"));
+
       if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING)
-        return FALSE;
-#endif
+      {
+        _KEYMACRO(SysLog("%d if(CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING)",__LINE__));
+//        return FALSE;
+      }
+
       if(!Param)
+      {
+        _ECTLLOG(SysLog("Param = NULL"));
         return FALSE;
+      }
       else
       {
-        _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_READINPUT)"));
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         DWORD Key=GetInputRecord(rec);
         //if(Key==KEY_CONSOLE_BUFFER_RESIZE) //????
@@ -2201,11 +2221,12 @@ int FileEditor::EditorControl(int Command,void *Param)
 #if defined(SYSLOG_KEYMACRO)
         if(rec->EventType == KEY_EVENT)
         {
-          SysLog("ECTL_READINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
-                           rec->Event.KeyEvent.bKeyDown,
-                           rec->Event.KeyEvent.wRepeatCount,
-                           rec->Event.KeyEvent.wVirtualKeyCode,
-                           rec->Event.KeyEvent.dwControlKeyState);
+          SysLog("ECTL_READINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
+                             (rec->EventType == FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"KEY_EVENT"),
+                             rec->Event.KeyEvent.bKeyDown,
+                             rec->Event.KeyEvent.wRepeatCount,
+                             rec->Event.KeyEvent.wVirtualKeyCode,
+                             rec->Event.KeyEvent.dwControlKeyState);
         }
 #endif
       }
@@ -2214,23 +2235,30 @@ int FileEditor::EditorControl(int Command,void *Param)
 
     case ECTL_PROCESSINPUT:
     {
+      _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_PROCESSINPUT)"));
+
       if(!Param)
+      {
+        _ECTLLOG(SysLog("Param = NULL"));
         return FALSE;
+      }
       else
       {
-        _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_PROCESSINPUT)"));
-
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
         if (ProcessEditorInput(rec))
+        {
+          _ECTLLOG(SysLog("ProcessEditorInput(rec) => return 1 !!!"));
           return(TRUE);
+        }
         if (rec->EventType==MOUSE_EVENT)
           ProcessMouse(&rec->Event.MouseEvent);
         else
         {
 #if defined(SYSLOG_KEYMACRO)
-          if(rec->EventType == KEY_EVENT)
+          if(rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT)
           {
-            SysLog("ECTL_PROCESSINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
+            SysLog("ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
+                             (rec->EventType == FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"KEY_EVENT"),
                              rec->Event.KeyEvent.bKeyDown,
                              rec->Event.KeyEvent.wRepeatCount,
                              rec->Event.KeyEvent.wVirtualKeyCode,
@@ -2243,6 +2271,14 @@ int FileEditor::EditorControl(int Command,void *Param)
         }
       }
       return(TRUE);
+    }
+
+    case ECTL_PROCESSKEY:
+    {
+      _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_PROCESSKEY)"));
+      _ECTLLOG(SysLog("Key = %s",_FARKEY_ToName((DWORD)Param)));
+      ProcessKey((int)Param);
+      return TRUE;
     }
 
   }

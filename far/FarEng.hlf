@@ -3055,81 +3055,294 @@ available to child processes:
     #FARLANG#            name of the current interface language.
 
 @KeyMacro
-$ #Keyboard macros#
-    Keyboard macros may be used to redefine standard FAR keys,
-key combinations or to implement new keyboard commands.
+$ #Клавиатурные макрокоманды (макросы)#
+    Клавиатурные макрокоманды или макросы - это записанная последовательность
+нажатий клавиш, которую можно использовать для совершения одних и тех же
+действий произвольное количество раз.
 
-    To define a key macro press #Ctrl-<.># (Ctrl and dot key) followed by
-desired keys sequence, then Ctrl-<.> again and the key or key combination
-to which the macro should be assigned. FAR displays 'R' character
-in the upper left screen corner while recording a macro command.
+    Каждый макрос имеет следующие параметры:
 
-    To delete a macro and return the key its original function
-press Ctrl-<.> twice and then the key to which the macro was assigned.
+    - горячую клавишу, при нажатии на которую будет выполнена
+      записанная последовательность;
+    - набор дополнительных ~параметров~@KeyMacroSetting@, которые влияют на способ
+      и место воспроизведения FAR записанной последовательности;
 
-    In addition to standard FAR keys combinations it is possible to assign
-macros to Ctrl-Shift-<letter>, Ctrl-Alt-<letter> and Alt-Shift-<letter>.
+    Макросы могут содержать специальные ~команды~@KeyMacroCmds@, которые FAR
+при воспроизведении будет интерпретировать специальным образом, что позволяет
+создавать сложные конструкции.
 
-    FAR supports several independent macro sets: shell, viewer, editor and
-few other macro types. Macro sets are saved when the command "Save setup"
-from the ~Options menu~@OptMenu@ is executed.
+    Макросы, чаще всего, используются для:
 
-    To specify ~additional macro settings~@KeyMacroSetting@, start or finish macro
-recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select the desired
-options in the dialog.
+    1. Совершения одинаковых действий несколько раз, используя для
+       вызова последовательности этих действий одно сочетание кнопок.
+    2. Выполнения специальный функций, которые задаются специальными
+       командами в тексте макроса.
+    3. Переопределение стандартных сочетаний клавиш, которые
+       использует FAR для совершения тех или иных действий.
+
+    Основным применением макросов является определение кнопок для быстрого
+вызова внешних плагинов и переопределение действий FAR.
+
+
+    #Области действия макросов#
+
+    FAR позволяет создавать независимые макросы (макросы, у которых совпадает
+сочетание клавиш запуска) для различных областей.
+
+    Внимание: Область, к которой будет принадлежать макрос,
+              определяется тем местом, где его #начали# записывать.
+
+    В настоящий момент такими независимыми областями являются:
+
+    - файловые панели;
+    - внутренняя программа просмотра;
+    - редактор;
+    - диалоги;
+    - быстрый поиск в панелях;
+    - меню выбора дисков;
+    - основное меню;
+    - прочие меню;
+    - система помощи;
+    - информационная панель;
+    - панель быстрого просмотра;
+    - панель дерева папок;
+    - режим копирования текста с экрана, вертикальные меню.
+
+    Нельзя назначить действия на какое-либо сочетание клавиш, если
+это сочетание уже используется для воспроизведения макроса. При попытке
+назначить сочетание, используемое другим макросом, будет выдано предупреждение
+о том, что использующий это сочетание макрос будет удален.
+
+    Таким образом, вы можете иметь по одному макросу с одинаковым
+сочетанием клавиш запуска в каждой из перечисленных областей.
+
+
+    #Кнопки назначения#
+
+    Макрос может быть назначен на:
+
+    1. любую клавишу;
+    2. на сочетание клавиши с модификаторами Ctrl, Alt и Shift;
+    3. на сочетание клавиши с двумя модификаторами.
+       FAR позволяет использовать следующие двойные модификаторы:
+       Ctrl-Shift-<клавиша>, Ctrl-Alt-<клавиша> и Alt-Shift-<клавиша>
+
+    Макрос #не# может быть назначен на следующие клавиши и сочетания
+клавиш: Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>
+
+    Некоторые комбинации клавиш (в частности, Enter, Esc, F1,
+Ctrl-F5) невозможно ввести напрямую в диалоге назначения макроклавиши,
+поскольку они имеют специальные функции. Для того, чтобы назначить макрос на
+одну из таких комбинаций клавиш, выберите ее из выпадающего списка.
+
+    #Запись и воспроизведение макросов#
+
+    Макрос может выполняться FAR в двух основных режимах:
+
+    1. Общий режим: нажимаемые клавиши при записи
+       и воспроизведении #будут# передаваться плагинам.
+
+    2. Специальный режим: нажимаемые клавиши при записи
+       и воспроизведении #не будут# передаваться плагинам.
+
+    Например, если какой-то плагин обрабатывает сочетание клавиш
+Ctrl+A, то при специальном режиме работы макросов этот плагин не получит
+управления и не выполнит действия, которые он обычно выполняет при
+реакции на это сочетание клавиш.
+
+    Создание макроса выполняется следующими действиями:
+
+    1. Начало записи макроса.
+
+       Клавиша #Ctrl-<.># (Ctrl и клавишу с точкой) для записи
+       макроса в общем режиме и #Ctrl-Shift-<.># (Ctrl,
+       Shift и клавишу с точкой), для записи макроса в специальном
+       режиме.
+
+       После того как FAR начал запись макроса в левом верхнем
+       углу экрана будет отображаться символ '\4FR\-'.
+
+    2. Текст макроса.
+
+       FAR будет сохранять все нажимаемые клавиши со следующими
+       исключениями:
+
+       - будут сохранены только клавиши обрабатываемые FAR.
+         Т.е. если вы в процессе записи макроса из консоли FAR
+         запустите внешнюю программу, то FAR сохранит только
+         клавиши, нажатые до и после завершения внешней программы.
+
+    3. Окончание записи макроса.
+
+       Для указания об окончании записи макроса служат специальные
+       сочетания клавиш. Т.к. макрос может быть дополнительно
+       настроен, то таких сочетаний два: #Ctrl-<.># (Ctrl и клавишу
+       с точкой) и #Ctrl-Shift-<.># (Ctrl, Shift и клавишу с точкой).
+       При нажатии на первое сочетание запись макроса прекратится
+       и макрос будет использовать параметры воспроизведения,
+       принятые по умолчанию. При нажатии на второе сочетание клавиш
+       запись макроса прекратится и будет показан диалог с
+       ~параметрами~@KeyMacroSetting@ выполнения макроса.
+
+    4. Назначение сочетания клавиш для запуска макроса.
+
+       После окончания ввода текста макроса и назначения параметров
+       его выполнения будет показан диалог ~назначения клавиши~@KeyMacroSetting@,
+       в котором можно задать клавишу, которая будет использована
+       для воспроизведения записанной последовательности нажатия
+       клавиш.
+
+    #Удаление макроса#
+
+    Для того, чтобы удалить макрос, нужно записать пустой (не
+содержащий действий) макрос и присвоить ему горячую клавишу макроса,
+который вы хотите удалить.
+
+    Эту операцию можно выполнить осуществив следующие действия:
+
+    1. Начать запись макроса (Ctrl-<.>)
+    2. Закончить запись макроса (Ctrl-<.>)
+    3. Ввести или выбрать в диалоге назначения горячей клавиши
+       сочетание, макрос для которого вы хотите удалить
+
+    Внимание: после удаления макроса, сочетание клавиш,
+              используемое для его выполнения, начнет
+              выполнять свою первоначальную функцию.
+              Т.е. если это сочетание клавиш обрабатывалось
+              FAR или каким-либо плагином, то после удаления
+              макроса оно снова будет обрабатываться.
+
+@KeyMacroSetting
+$ #Параметры макрокоманды#
+    To specify additional ~macro command~@KeyMacro@ settings, start or
+finish macro recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select
+the desired options in the dialog:
+
+   #Allow screen output while executing macro#
+
+   If this option is not set during the macro command execution
+FAR Manager does not redraw the screen. All the updates will
+be displayed when the macro command playback is finished.
+
+   #Execute after FAR start#
+
+   Allows to execute the macro command immediately after the
+FAR Manager is started.
+
+   Macro command execution conditions:
+
+   #Empty command line#
+       [x] - execute only if the command line is empty
+       [ ] - execute only if the command line is not empty
+       [?] - ignore the command line state
+
+   #Plugin panel#
+       [x] - execute only if the current panel is a plugin panel
+       [ ] - execute only if the current panel is a file panel
+       [?] - ignore the panel type
+
+   #Execute for folders#
+       [x] - execute only if a folder is under the panel cursor
+       [ ] - execute only if a file is under the panel cursor
+       [?] - execute for both folders and files
+
+   #Selection exists#
+       [x] - execute only if there are marked files/directories
+             on the panel or a selected block in the editor
+       [ ] - execute only if there are no marked files/directories
+             on the panel or no selected block in the editor
+       [?] - ignore the block/file selection state
 
     Some key combinations (including Enter, Esc, F1 and Ctrl-F5) cannot be
 entered directly because they have special functions in the dialog.
 To assign a macro to one of those key combinations, select it from
 the drop-down list.
 
-@KeyMacroSetting
-$ #Macro command settings#
-    To specify additional ~macro command~@KeyMacro@ settings, start or
-finish macro recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select
-the desired options in the dialog:
+@KeyMacroCmds
+$ #Команды, используемы в тексте макросов#
+   FAR supports several special "pseudo-keys" that cannot be used when
+entering a macro in the standard way. They can be added to a macro only by
+editing the registry or by using special programs or plugins.
 
-  #Allow screen output while executing macro#
+   #$Date ["format"]#
 
-    If this option is not set during the macro command execution
-    FAR Manager does not redraw the screen. All the updates will
-    be displayed when the macro command playback is finished.
+   The current time is converted to a string according to the
+format "format". If the "format" argument is not specified,
+FAR will use the format string  "%a %b %d %H:%M:%S %Z %Y".
+This format is similar to the one used by the Unix 'date' utility. $Date
+supports the following date format specification (similar
+to the format used by the strftime function):
 
-  #Execute after FAR start#
+        %%   Percent sign
+        %a   Abbreviated weekday name (Sun)
+        %A   Full weekday name (Monday)
+        %b   Abbreviated month name (Jan)
+        %B   Full month name (January)
+        %c   Date and time representation in the format
+             "WDay Mnt Day HH:MM:SS yyyy"
+             (Mon Jan 10 04:11:54 2000)
+        %C   Century as a decimal number (00 - 99). 1992 => 19
+        %d   Day of the month as decimal number (01 - 31)
+        %D   Synonym for %x
+        %e   Synonym for %d, but the leading zero is replaced
+             with a space
+        %h   Synonym for %b
+        %H   Hour in 24-hour format (00 - 23)
+        %I   Hour in 12-hour format (01 - 12)
+        %j   Day of year as decimal number (001 - 366)
+        %k   Synonym for %H, but the leading zero is replaced
+             with a space
+        %l   Synonym for %I, but the leading zero is replaced
+             with a space
+        %L   Trigger for switching the language of month and weekday
+             names - English/localized.
+             FAR requests two sets of names from the system:
+             1) English names of months and weekdays
+             2) names according to the settings of the current user
+             (LOCALE_USER_DEFAULT).
+             By default the English names are used.
+        %m   Month as decimal number (1 - 12)
+        %m0  Similar to %m, but with a leading zero (01 - 12)
+        %mh  Current month as hexadecimal number (1 - C)
+        %M   Minute as decimal number (00 - 59)
+        %n   Line break `\n'
+             Note: When using this in editor macros, auto-indent
+             will not work.
+        %p   AM or PM
+        %r   Synonym for %I:%M:%S %p
+        %R   Synonym for %H:%M
+        %S   Second as decimal number (00 - 59)
+        %t   Tab character `\t'
+        %T   Synonym for %X
+        %U   Week of year as decimal number, with Sunday as first
+             day of week (00 - 53)
+        %v   Date in the format dd-mmm-yyyy (the month name is
+             uppercased)
+        %V   Week of year according to ISO 8601:
+             "If the week number containing January 1st has >= 4
+             days in the new year, then it is week 1; otherwise,
+             it is the last numbered week of the previous year
+             (52 or 53)"
+        %w   Week day as decimal number (0 - 6, Sunday is 0)
+        %U   Week of year as decimal number, with Monday as first
+             day of week (00 - 53)
+        %x   Date in the format dd<sep>mm<sep>yyyy (the separator
+             <sep> and the order of day, month and year are
+             determined by the regional settings)
+        %X   Time in the format HH<sep>MM<sep>SS (the separator
+             <sep> is determined by the regional settings)
+        %y   Year without century, as decimal number (00 - 99)
+        %Y   Year with century, as decimal number (19yy-20yy)
+        %Z   Time-zone name or abbreviation; no characters if
+             time zone is unknown
 
-    Allows to execute the macro command immediately after the
-    FAR Manager is started.
+   Arbitrary text in the format string must be in the OEM codepage.
 
-  Macro command execution conditions:
+   #$MMode 1#
 
-    #Empty command line#
-       [x] - execute only if the command line is empty
-       [ ] - execute only if the command line is not empty
-       [?] - ignore the command line state
+   Change macro mode. Toggles the display mode. Works as a trigger.
 
-    #Plugin panel#
-       [x] - execute only if the current panel is a plugin panel
-       [ ] - execute only if the current panel is a file panel
-       [?] - ignore the panel type
+   #$XLat#
 
-    #Execute for folders#
-       [x] - execute only if a folder is under the panel cursor
-       [ ] - execute only if a file is under the panel cursor
-       [?] - execute for both folders and files
-
-    #Enable when plugin active#
-       [x] - выполнять, только если любой плагин активен
-       [ ] - выполнять, только если нет активного плагина
-       [?] - не учитывать активность плагина
-
-       Если выбрана эта установка, макро-последовательность не
-       будет разворачиваться при работающем подключаемом модуле.
-       Вместо этого клавиатурное нажатие будет передано в модуль
-       как есть.
-
-    #Selection exists#
-       [x] - execute only if there are marked files/directories
-             on the panel or a selected block in the editor
-       [ ] - execute only if there are no marked files/directories
-             on the panel or no selected block in the editor
-       [?] - ignore the block/file selection state
+   Invokes the transliteration function. Works independently of
+what key is assigned in TechInfo##10.
