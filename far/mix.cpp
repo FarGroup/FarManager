@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.109 05.02.2002 $ */
+/* Revision: 1.110 15.02.2002 $ */
 
 /*
 Modify:
+  15.02.2002 VVM
+    ! Небольшие уточнения, фиксы
   05.02.2002 SVS
     ! У DeleteFileWithFolder параметр имеет суть const
   22.01.2002 IS
@@ -585,7 +587,7 @@ void CharBufferToSmallWarn(int BufSize, int FileNameSize)
 {
   char Buf2 [80];
   sprintf (Buf2,MSG(MBuffSizeTooSmall_2), FileNameSize, BufSize);
-  Message(MSG_WARNING,1,MSG(MWarning),MSG(MBuffSizeTooSmall_1),Buf2,MSG(MOk));
+  Message(MSG_WARNING,1,MSG(MError),MSG(MBuffSizeTooSmall_1),Buf2,MSG(MOk));
 }
 
 /* $ 02.07.2001 IS
@@ -744,8 +746,8 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
 //  char *AnsiName = (char *) malloc (DestSize);
   char *FullName = (char *) alloca (DestSize);
   char *AnsiName = (char *) alloca (DestSize);
-  *((int *)FullName) = 0;
-  *((int *)AnsiName) = 0;
+  *FullName = 0;
+  *AnsiName = 0;
 
 //  char FullName[NM],AnsiName[NM],
   char *NamePtr=PointToName(const_cast<char *>(Src));
