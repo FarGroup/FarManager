@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.325 02.02.2005 $ */
+/* Revision: 1.326 04.02.2005 $ */
 
 /*
 Modify:
+  04.02.2005 WARP
+    ! Уточнения к X2 в DM_TEXT
   02.02.2005 SVS
     + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
   31.01.2005 SVS
@@ -2112,6 +2114,11 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
   }
   switch(Type)
   {
+    case DI_TEXT:
+      CurItem->X2=(short)Rect->Right;
+      CurItem->Y2=0;
+      break;
+
     case DI_DOUBLEBOX:
     case DI_SINGLEBOX:
     case DI_USERCONTROL:
@@ -2174,7 +2181,7 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
         Rect.top=0;
 
       Rect.bottom=Rect.top;
-      Rect.right=Rect.left+Len;
+      //Rect.right=Rect.left+Len;
 
       if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {
