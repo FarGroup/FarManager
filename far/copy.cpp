@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.81 26.04.2002 $ */
+/* Revision: 1.82 06.05.2002 $ */
 
 /*
 Modify:
+  06.05.2002 VVM
+    - При подтверждении прерывания копирования скорректируем время копирования :)
   26.04.2002 SVS
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   24.04.2002 VVM
@@ -1516,7 +1518,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
   *RenamedName=*CopiedName=0;
 
-  if (CheckForEsc())
+  CopyTime+= (clock() - CopyStartTime);
+  int AbortOp=CheckForEsc();
+  CopyStartTime = clock();
+  if (AbortOp)
     return(COPY_CANCEL);
 
   strcpy(DestPath,Dest);
@@ -2289,7 +2294,10 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
   int64 WrittenSize(0,0);
   while (1)
   {
-    if (CheckForEsc())
+    CopyTime+= (clock() - CopyStartTime);
+    int AbortOp=CheckForEsc();
+    CopyStartTime = clock();
+    if (AbortOp)
     {
       CloseHandle(SrcHandle);
       if(!(ShellCopy::Flags&FCOPY_COPYTONUL))
@@ -2941,7 +2949,10 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
   int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
   int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
   ShellCopy::ShowBar(TransferredSize,TotalSize,false);
-  return(CheckForEsc() ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
+  CopyTime+= (clock() - CopyStartTime);
+  int AbortOp=CheckForEsc();
+  CopyStartTime = clock();
+  return(AbortOp ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
