@@ -1,6 +1,3 @@
-#if defined(DEXECUTE2)
-#include "execute2.cpp"
-#else
 /*
 execute.cpp
 
@@ -8,10 +5,16 @@ execute.cpp
 
 */
 
-/* Revision: 1.15 30.11.2001 $ */
+/* Revision: 1.16 02.12.2001 $ */
 
 /*
 Modify:
+  02.12.2001 SVS
+    ! Неверный откат. :-(( Вернем все обратно, но с небольшой правкой,
+      не будем изменять строку запуска, если явно не указано расширение, т.е.
+      если вводим "date" - исполняется внутренняя команда ком.проц., если
+      вводим "date.exe", то будет искаться и исполняться именно "date.exe"
+      В остальном все должно быть как и раньше.
   30.11.2001 SVS
     ! Почти полный откат предыдущих наворотов с пусковиком
   29.11.2001 SVS
@@ -73,6 +76,85 @@ Modify:
 #include "fn.hpp"
 #include "rdrwdsk.hpp"
 
+// Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
+// ГУЯХ PE-модуля
+static int IsCommandPEExeGUI(const char *FileName,DWORD *IsPEGUI)
+{
+  char NameFile[NM];
+  HANDLE hFile;
+  int Ret=FALSE;
+  *IsPEGUI=0;
+
+  if((hFile=CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
+  {
+    DWORD FileSizeLow, FileSizeHigh, ReadSize;
+    IMAGE_DOS_HEADER dos_head;
+
+    FileSizeLow=GetFileSize(hFile,&FileSizeHigh);
+
+    if(ReadFile(hFile,&dos_head,sizeof(IMAGE_DOS_HEADER),&ReadSize,NULL) &&
+       dos_head.e_magic == IMAGE_DOS_SIGNATURE)
+    {
+      Ret=TRUE;
+      /*  Если значение слова по смещению 18h (OldEXE - MZ) >= 40h,
+      то значение слова в 3Ch является смещением заголовка Windows. */
+      if (dos_head.e_lfarlc >= 0x40)
+      {
+        DWORD signature;
+        #include <pshpack1.h>
+        struct __HDR
+        {
+           DWORD signature;
+           IMAGE_FILE_HEADER _head;
+           IMAGE_OPTIONAL_HEADER opt_head;
+           // IMAGE_SECTION_HEADER section_header[];  /* actual number in NumberOfSections */
+        } header, *pheader;
+        #include <poppack.h>
+
+        if(SetFilePointer(hFile,dos_head.e_lfanew,NULL,FILE_BEGIN) != -1)
+        {
+          // читаем очередной заголовок
+          if(ReadFile(hFile,&header,sizeof(struct __HDR),&ReadSize,NULL))
+          {
+            signature=header.signature;
+            pheader=&header;
+
+            if(signature == IMAGE_NT_SIGNATURE) // PE
+            {
+              *IsPEGUI=header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
+            }
+            else if((WORD)signature == IMAGE_OS2_SIGNATURE) // NE
+            {
+              ; // NE,  хмм...  а как определить что оно ГУЕВОЕ?
+            }
+          }
+          else
+          {
+            ; // обломс вышел с чтением следующего заголовка ;-(
+          }
+        }
+        else
+        {
+          ; // видимо улетиели куда нить в трубу, т.к. dos_head.e_lfanew
+            // указал слишком в неправдоподное место (например это чистой
+            // воды DOS-файл
+        }
+      }
+      else
+      {
+        ; // Это конечно EXE, но не виндовое EXE
+      }
+    }
+    else
+    {
+      ; // это не исполняемый файл - у него нету заголовка MZ
+        // например, NLM-модуль или ошибка чтения :-)
+    }
+    CloseHandle(hFile);
+  }
+  return Ret;
+}
+
 char* GetShellAction(char *FileName)
 {
   char Value[80],*ExtPtr;
@@ -96,74 +178,195 @@ char* GetShellAction(char *FileName)
   return(*Action==0 ? NULL:Action);
 }
 
-DWORD IsCommandExeGUI(char *Command)
+
+/*
+ Фунция PrepareExecuteModule пытается найти исполняемый модуль (в т.ч. и по
+ %PATHEXT%). В случае успеха заменяет в Command порцию, ответственную за
+ исполянемый модуль на найденное значение, копирует результат в Dest и
+ пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
+ в отдельном окне и не ждать завершения).
+ В случае неудачи Dest не заполняется!
+ Return: TRUE/FALSE/-1 - нашли/не нашли/грубые ошибки.
+*/
+int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUIType)
 {
-  char FileName[4096],FullName[4096],*EndName,*FilePart;
+  int Ret, I;
+  char FileName[4096],FullName[4096], *Ptr;
+  int IsQuoted=FALSE;
+  int IsExistExt=FALSE;
+
+  // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
+  static char StdExecuteExt[NM]=".BAT;.CMD;.EXE;.COM;";
+  static int PreparePrepareExt=FALSE;
+
+  if(!PreparePrepareExt) // самоинициилизирующийся кусок
+  {
+#if 1
+    // если переменная %PATHEXT% доступна...
+    if((I=GetEnvironmentVariable("PATHEXT",FullName,sizeof(FullName)-1)) != 0)
+    {
+      FullName[I]=0;
+      // удаляем дубляжи из PATHEXT
+      static char const * const StdExecuteExt0[4]={".BAT;",".CMD;",".EXE;",".COM;"};
+      for(I=0; I < sizeof(StdExecuteExt0)/sizeof(StdExecuteExt0[0]); ++I)
+        ReplaceStrings(FullName,StdExecuteExt0[I],"",-1);
+    }
+
+    Ptr=strcat(StdExecuteExt,strcat(FullName,";")); //!!!
+#else
+    Ptr=StdExecuteExt;
+#endif
+    StdExecuteExt[strlen(StdExecuteExt)]=0;
+    while(*Ptr)
+    {
+      if(*Ptr == ';')
+        *Ptr=0;
+      ++Ptr;
+    }
+    PreparePrepareExt=TRUE;
+  }
+
+  /* Берем "исключения" из реестра, которые должны исполянться директом,
+     например, некоторые внутренние команды ком.процессора.
+  static char ExcludeCmds[4096];
+  static int PrepareExcludeCmds=FALSE;
+  if(!PrepareExcludeCmds)
+  {
+    GetRegKey("System","ExcludeCmds",(char*)ExcludeCmds,"",0);
+    PrepareExcludeCmds=TRUE;
+  }
+  */
+
+  *GUIType=FALSE; // GUIType всегда вначале инициализируется в FALSE
+  Ret=FALSE;
+
+  // Выделяем имя модуля
   if (*Command=='\"')
   {
     OemToChar(Command+1,FileName);
-    if ((EndName=strchr(FileName,'\"'))!=NULL)
-      *EndName=0;
+    if ((Ptr=strchr(FileName,'\"'))!=NULL)
+      *Ptr=0;
+    IsQuoted=TRUE;
   }
   else
   {
     OemToChar(Command,FileName);
-    if ((EndName=strpbrk(FileName," \t/"))!=NULL)
-      *EndName=0;
+    if ((Ptr=strpbrk(FileName," \t/"))!=NULL)
+      *Ptr=0;
   }
-  int GUIType=FALSE;
 
-  /* $ 07.09.2001 VVM
-    + Обработать переменные окружения */
+  if(!*FileName) // вот же, надо же... пустышку передали :-(
+    return -1;
+
+  /* $ 07.09.2001 VVM Обработать переменные окружения */
   ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
-  /* VVM $ */
+  // IsExistExt - если точки нету (расширения), то потом модифицировать не
+  // будем.
+  IsExistExt=strrchr(FileName,'.')!=NULL;
 
   SetFileApisToANSI();
 
-  /*$ 18.09.2000 skv
-    + to allow execution of c.bat in current directory,
-      if gui program c.exe exists somewhere in PATH,
-      in FAR's console and not in separate window.
-      for(;;) is just to prevent multiple nested ifs.
-  */
-  for(;;)
   {
-    sprintf(FullName,"%s.bat",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
-    sprintf(FullName,"%s.cmd",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
-  /* skv$*/
+    char *FilePart;
+    char *PtrFName=strrchr(strcpy(FullName,FileName),'.');
+    char *WorkPtrFName;
+    if(!PtrFName)
+      WorkPtrFName=FullName+strlen(FullName);
 
-    if (SearchPath(NULL,FileName,".exe",sizeof(FullName),FullName,&FilePart))
+    char *PtrExt=StdExecuteExt;
+    while(*PtrExt) // первый проход - в текущем каталоге
     {
-      SHFILEINFO sfi;
-      DWORD ExeType=SHGetFileInfo(FullName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
-      GUIType=HIWORD(ExeType)>=0x0300 && HIWORD(ExeType)<=0x1000 &&
-              /* $ 13.07.2000 IG
-                 в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-                 делать проверку побайтово.
-              */
-              HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
-              /* IG $ */
+      if(!PtrFName)
+        strcpy(WorkPtrFName,PtrExt);
+      if(GetFileAttributes(FullName)!=-1)
+      {
+        // GetFullPathName - это нужно, т.к. если тыкаем в date.exe
+        // в текущем каталоге, то нифига ничего доброго не получаем
+        // cmd.exe по каким то причинам вызыват внутренний date
+        GetFullPathName(FullName,sizeof(FullName),FullName,&FilePart);
+
+        Ret=TRUE;
+        break;
+      }
+      PtrExt+=strlen(PtrExt)+1;
     }
-/*$ 18.09.2000 skv
-    little trick.
-*/
-    break;
+
+    if(!Ret) // второй проход - по правилам SearchPath
+    {
+      PtrExt=StdExecuteExt;
+      while(*PtrExt)
+      {
+        if(!PtrFName)
+          strcpy(WorkPtrFName,PtrExt);
+        if(SearchPath(NULL,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
+        {
+          Ret=TRUE;
+          break;
+        }
+        PtrExt+=strlen(PtrExt)+1;
+      }
+
+      if(!Ret) // третий проход - лезим в реестр в "App Paths"
+      {
+        // В строке Command заменть исполняемый модуль на полный путь, который
+        // берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+        // Сначала смотрим в HKCU, затем - в HKLM
+        HKEY hKey;
+        HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE};
+        PtrExt=StdExecuteExt;
+        while(*PtrExt)
+        {
+          if(!PtrFName)
+            strcpy(WorkPtrFName,PtrExt);
+          for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
+          {
+            sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
+            if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+            {
+              DWORD Type, DataSize=sizeof(FullName);
+              RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullName,&DataSize);
+              RegCloseKey(hKey);
+              Ret=TRUE;
+              break;
+            }
+          }
+          if(Ret)
+            break;
+          PtrExt+=strlen(PtrExt)+1;
+        }
+      }
+    }
   }
-  /* skv$*/
+
+  if(Ret) // некоторые "подмены" данных
+  {
+    char TempStr[4096];
+    // сначала проверим...
+    IsCommandPEExeGUI(FullName,GUIType);
+    QuoteSpaceOnly(FullName);
+    QuoteSpaceOnly(FileName);
+    strncpy(TempStr,Command,sizeof(TempStr)-1);
+    CharToOem(FullName,FullName);
+    CharToOem(FileName,FileName);
+    ReplaceStrings(TempStr,FileName,FullName);
+    if(!DestSize)
+      DestSize=strlen(TempStr);
+    if(Dest && IsExistExt)
+      strncpy(Dest,TempStr,DestSize);
+  }
+
   SetFileApisToOEM();
-  return(GUIType);
+  return(Ret);
 }
 
-
-
+/* Функция-пускатель внешних процессов
+   Возвращает -1 в случае ошибки или...
+*/
 int Execute(char *CmdStr,          // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне?
             int DirectRun,         // Выполнять директом? (без CMD)
             int SetUpDirs)         // Нужно устанавливать каталоги?
-
 {
   char NewCmdStr[4096];
 
@@ -178,22 +381,29 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
     return -1;
   }
 
+  CONSOLE_SCREEN_BUFFER_INFO sbi;
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
-  char *CmdPtr;
+  int Visible,Size;
+  int PrevLockCount;
   char ExecLine[1024],CommandName[NM];
   char OldTitle[512];
-  int ExitCode;
+  DWORD GUIType;
+  int ExitCode=0;
+  int NT;
+  int OldNT;
+  DWORD CreateFlags;
+  char *CmdPtr;
+
   /* $ 13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
-  DWORD CreateFlags=CREATE_DEFAULT_ERROR_MODE;
+  CreateFlags=CREATE_DEFAULT_ERROR_MODE;
   /* VVM $ */
 
-  int Visible,Size;
   GetCursorType(Visible,Size);
   SetCursorType(TRUE,-1);
 
-  int PrevLockCount=ScrBuf.GetLockCount();
+  PrevLockCount=ScrBuf.GetLockCount();
   ScrBuf.SetLockCount(0);
   ScrBuf.Flush();
 
@@ -203,8 +413,8 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   memset(&si,0,sizeof(si));
   si.cb=sizeof(si);
 
-  int NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
-  int OldNT=NT && WinVer.dwMajorVersion<4;
+  NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
+  OldNT=NT && WinVer.dwMajorVersion<4;
 
   *CommandName=0;
   GetEnvironmentVariable("COMSPEC",CommandName,sizeof(CommandName));
@@ -228,81 +438,84 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   }
 
   CmdPtr=strcpy(NewCmdStr,CmdStr);
-//  while (isspace(*CmdPtr))
-//    CmdPtr++;
+  //while (isspace(*CmdPtr))
+  //  CmdPtr++;
 
-  DWORD GUIType=IsCommandExeGUI(CmdPtr);
+  // Поиск исполнятора....
+  PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,&GUIType);
 
-  if (DirectRun && !SeparateWindow)
-    strcpy(ExecLine,CmdPtr);
-  else
   {
-    sprintf(ExecLine,"%s /C",CommandName);
-    if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+    if (DirectRun && !SeparateWindow)
+      strcpy(ExecLine,CmdPtr);
+    else
     {
-      strcat(ExecLine," start");
-      if (AlwaysWaitFinish)
-        strcat(ExecLine," /wait");
-      if (NT && *CmdPtr=='\"')
-        strcat(ExecLine," \"\"");
-    }
-    strcat(ExecLine," ");
+      sprintf(ExecLine,"%s /C",CommandName);
+      if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+      {
+        strcat(ExecLine," start");
+        if (AlwaysWaitFinish)
+          strcat(ExecLine," /wait");
+        if (NT && *CmdPtr=='\"')
+          strcat(ExecLine," \"\"");
+      }
+      strcat(ExecLine," ");
 
-    char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
-    if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
+      char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
+      if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
+      {
+        strcat (ExecLine, "\"");
+        strcat (ExecLine, CmdPtr);
+        strcat (ExecLine, "\"");
+      }
+      else
+        strcat(ExecLine,CmdPtr);
+    }
+
+    SetFarTitle(CmdPtr);
+    FlushInputBuffer();
+
+    /*$ 15.03.2001 SKV
+      Надо запомнить параметры консоли ДО запуск и т.д.
+    */
+    GetConsoleScreenBufferInfo(hConOut,&sbi);
+    /* SKV$*/
+
+    ChangeConsoleMode(InitialConsoleMode);
+
+    if (SeparateWindow)
+      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:DETACHED_PROCESS;
+
+    if (SeparateWindow==2)
     {
-      strcat (ExecLine, "\"");
-      strcat (ExecLine, CmdPtr);
-      strcat (ExecLine, "\"");
+      char AnsiLine[NM];
+      SHELLEXECUTEINFO si;
+      OemToChar(CmdPtr,AnsiLine);
+
+      if (PointToName(AnsiLine)==AnsiLine)
+      {
+        char FullName[2*NM];
+        sprintf(FullName,".\\%s",AnsiLine);
+        strcpy(AnsiLine,FullName);
+      }
+
+      memset(&si,0,sizeof(si));
+      si.cbSize=sizeof(si);
+      si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
+      si.lpFile=AnsiLine;
+      si.lpVerb=GetShellAction((char *)si.lpFile);
+      si.nShow=SW_SHOWNORMAL;
+      SetFileApisToANSI();
+      ExitCode=ShellExecuteEx(&si);
+      SetFileApisToOEM();
+      pi.hProcess=si.hProcess;
     }
     else
-      strcat(ExecLine,CmdPtr);
+      ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,
+                             NULL,NULL,&si,&pi);
+
+    StartExecTime=clock();
   }
 
-  SetFarTitle(CmdPtr);
-  FlushInputBuffer();
-
-  /*$ 15.03.2001 SKV
-    Надо запомнить параметры консоли ДО запуск и т.д.
-  */
-  CONSOLE_SCREEN_BUFFER_INFO sbi;
-  GetConsoleScreenBufferInfo(hConOut,&sbi);
-  /* SKV$*/
-
-  ChangeConsoleMode(InitialConsoleMode);
-
-  if (SeparateWindow)
-    CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:DETACHED_PROCESS;
-
-  if (SeparateWindow==2)
-  {
-    char AnsiLine[NM];
-    SHELLEXECUTEINFO si;
-    OemToChar(CmdPtr,AnsiLine);
-
-    if (PointToName(AnsiLine)==AnsiLine)
-    {
-      char FullName[2*NM];
-      sprintf(FullName,".\\%s",AnsiLine);
-      strcpy(AnsiLine,FullName);
-    }
-
-    memset(&si,0,sizeof(si));
-    si.cbSize=sizeof(si);
-    si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-    si.lpFile=AnsiLine;
-    si.lpVerb=GetShellAction((char *)si.lpFile);
-    si.nShow=SW_SHOWNORMAL;
-    SetFileApisToANSI();
-    ExitCode=ShellExecuteEx(&si);
-    SetFileApisToOEM();
-    pi.hProcess=si.hProcess;
-  }
-  else
-    ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,
-                           NULL,NULL,&si,&pi);
-
-  StartExecTime=clock();
   if (ExitCode)
   {
     if (!SeparateWindow && !GUIType || AlwaysWaitFinish)
@@ -427,7 +640,8 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   else
   {
     if (SeparateWindow!=2)
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
+              SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
     ExitCode=-1;
   }
   SetFarConsoleMode();
@@ -757,7 +971,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
     DWORD DirAtt=GetFileAttributes(NewDir);
-    if (DirAtt!=0xffffffff && DirAtt & FILE_ATTRIBUTE_DIRECTORY && PathMayBeAbsolute(NewDir)){
+    if (DirAtt!=0xffffffff && DirAtt & FILE_ATTRIBUTE_DIRECTORY && PathMayBeAbsolute(NewDir))
+    {
       SetPanel->SetCurDir(NewDir,TRUE);
       return TRUE;
     }
@@ -791,4 +1006,3 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
   }
   return(FALSE);
 }
-#endif

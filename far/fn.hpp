@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.118 27.11.2001 $ */
+/* Revision: 1.119 02.12.2001 $ */
 
 /*
 Modify:
+  02.12.2001 SVS
+    ! PrepareDiskPath() имеет второй параметр по умолчанию TRUE
   27.11.2001 DJ
     + параметр Local у EditorConfig и ViewerConfig
   26.11.2001 SVS
@@ -1042,6 +1044,6 @@ char *WINAPI WordWrap(const char *SrcText,int Width,
 void SetPreRedrawFunc(PREREDRAWFUNC Func);
 
 int PathMayBeAbsolute(const char *Src);
-char* PrepareDiskPath(char *Path,BOOL CheckFullPath=FALSE);
+char* PrepareDiskPath(char *Path,BOOL CheckFullPath=TRUE);
 
 #endif  // __FARFUNC_HPP__

@@ -5,10 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.100 26.11.2001 $ */
+/* Revision: 1.101 02.12.2001 $ */
 
 /*
 Modify:
+  02.12.2001 SVS
+    ! ”точнение в RawConvertShortNameToLongName() дл€ входной строки
+      "C:\\", иначе лабуда полна€ получатс€ в параметре dest
+    ! –абочий вариант функции PrepareDiskPath() (осталось оптимизацию
+      кода сделать)
   26.11.2001 SVS
     + PrepareDiskPath()
   15.11.2001 OT
@@ -549,6 +554,13 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
 
   SrcSize=strlen(src);
 
+  if(SrcSize == 3 && src[1] == ':' && (src[2] == '\\' || src[2] == '/'))
+  {
+    strncpy(dest,src,maxsize);
+    *dest=toupper(*dest);
+    return SrcSize;
+  }
+
   char *Src, *Dest, *DestBuf=NULL,
        *SrcBuf=(char *)malloc(SrcSize+1);
 
@@ -572,16 +584,16 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        FinalSize=AddSize;
        DestBuf=(char *)malloc(AddSize+64);
        if(DestBuf)
-         {
-           DestSize=AddSize+64;
-           Dest=DestBuf;
-         }
+       {
+         DestSize=AddSize+64;
+         Dest=DestBuf;
+       }
        else
-         {
-           Error=TRUE;
-           FinalSize=0;
-           break;
-         }
+       {
+         Error=TRUE;
+         FinalSize=0;
+         break;
+       }
        strcpy(Dest, Src);
        Dest+=AddSize;
 
@@ -591,47 +603,47 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
 
      while(!Error)
      {
-        Slash=strchr(Src, '\\');
-        if(Slash) *Slash=0;
-        hFile=FindFirstFile(SrcBuf, &wfd);
-        if(hFile!=INVALID_HANDLE_VALUE)
-          {
-            FindClose(hFile);
-            AddSize=strlen(wfd.cFileName);
-            FinalSize+=AddSize;
-            if(FinalSize>=DestSize)
-            {
-              DestBuf=(char *)realloc(DestBuf, DestSize+64);
-              if(DestBuf)
-                {
-                  DestSize+=64;
-                  Dest=DestBuf+FinalSize-AddSize;
-                }
-              else
-                {
-                  Error=TRUE;
-                  FinalSize=0;
-                  break;
-                }
-            }
-            strcpy(Dest, wfd.cFileName);
-            Dest+=AddSize;
-            if(Slash)
-            {
-              *Dest=*Slash='\\';
-              ++Dest;
-              ++FinalSize;
-              ++Slash;
-              Slash=strchr(Src=Slash, '\\');
-            }
-            else
-              break;
-          }
-        else
-          {
-            Error=TRUE;
-            break;
-          }
+       Slash=strchr(Src, '\\');
+       if(Slash) *Slash=0;
+       hFile=FindFirstFile(SrcBuf, &wfd);
+       if(hFile!=INVALID_HANDLE_VALUE)
+       {
+         FindClose(hFile);
+         AddSize=strlen(wfd.cFileName);
+         FinalSize+=AddSize;
+         if(FinalSize>=DestSize)
+         {
+           DestBuf=(char *)realloc(DestBuf, DestSize+64);
+           if(DestBuf)
+           {
+             DestSize+=64;
+             Dest=DestBuf+FinalSize-AddSize;
+           }
+           else
+           {
+             Error=TRUE;
+             FinalSize=0;
+             break;
+           }
+         }
+         strcpy(Dest, wfd.cFileName);
+         Dest+=AddSize;
+         if(Slash)
+         {
+           *Dest=*Slash='\\';
+           ++Dest;
+           ++FinalSize;
+           ++Slash;
+           Slash=strchr(Src=Slash, '\\');
+         }
+         else
+           break;
+       }
+       else
+       {
+         Error=TRUE;
+         break;
+       }
      }
      break;
   }
@@ -1579,21 +1591,16 @@ char* PrepareDiskPath(char *Path,BOOL CheckFullPath)
   {
     if(isalpha(Path[0]) && Path[1]==':')
     {
-      Path[0]=toupper(Path[0]);
       if(CheckFullPath)
       {
-        ;
-        /* здесь проверка,  например на "WiNdOwS" - а нужно ли?
-           ≈сли кто-то будет делать, то надо учесть момент, что реальное им€
-           мне, например, удалось установить через спарку:
-           FindHandle=FindFirstFile(Path,&Data))
-           FindClose(FindHandle);
-           -> Data.cFileName
-           Ќо т.к. FindFirstFile дает только одно значение,  то здесь должен
-           быть цикл пробега по всей цепочке,  составл€ющей путь, с последующей
-           корректировкой переменной Path
-        */
+        char NPath[1024];
+        *NPath=0;
+        RawConvertShortNameToLongName(Path,NPath,sizeof(NPath));
+        if(*NPath)
+          strncpy(Path,NPath,strlen(Path));
       }
+      else
+        Path[0]=toupper(Path[0]);
     }
   }
   return Path;
