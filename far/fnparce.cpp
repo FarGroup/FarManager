@@ -5,10 +5,13 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.02 22.06.2001 $ */
+/* Revision: 1.03 29.06.2001 $ */
 
 /*
 Modify:
+  29.06.2001 IS
+    ! Продолжаем убирать обработку кавычек - выкосил все, что имело отношение к
+      "quote"
   22.06.2001 SVS
     ! Убираем обработку кавычек
   19.06.2001 SVS
@@ -57,8 +60,7 @@ int SubstFileName(char *Str,            // результирующая строка
   char AnotherName[NM],AnotherShortName[NM];
   char NameOnly[NM],ShortNameOnly[NM];
   char AnotherNameOnly[NM],AnotherShortNameOnly[NM];
-  char QuotedName[NM+2],QuotedShortName[NM+2];
-  char AnotherQuotedName[NM+2],AnotherQuotedShortName[NM+2];
+  char TmpName[NM+2],TmpShortName[NM+2];
   char CmdDir[NM];
   int PreserveLFN=FALSE;
 
@@ -92,13 +94,6 @@ _SVS(SysLog(1));
   strcpy(ShortNameOnly,ShortName);
   if ((ChPtr=strrchr(ShortNameOnly,'.'))!=NULL)
     *ChPtr=0;
-  QuoteSpace(NameOnly);
-  QuoteSpace(ShortNameOnly);
-
-  strcpy(QuotedName,Name);
-  strcpy(QuotedShortName,ShortName);
-  QuoteSpace(QuotedName);
-  QuoteSpace(QuotedShortName);
 
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
   AnotherPanel->GetCurName(AnotherName,AnotherShortName);
@@ -108,12 +103,7 @@ _SVS(SysLog(1));
   strcpy(AnotherShortNameOnly,AnotherShortName);
   if ((ChPtr=strrchr(AnotherShortNameOnly,'.'))!=NULL)
     *ChPtr=0;
-  strcpy(AnotherQuotedName,AnotherName);
-  strcpy(AnotherQuotedShortName,AnotherShortName);
-  QuoteSpace(AnotherQuotedName);
-  QuoteSpace(AnotherQuotedShortName);
 
-  int SkipQuotes=FALSE;
   char *DirBegin=NULL; // начало имени каталога (!?)
   int PassivePanel=FALSE; // первоначально речь идет про активную панель!
 _SVS(int Pass=1);
@@ -122,15 +112,7 @@ _SVS(int Pass=1);
   while (*CurStr)
   {
 _SVS(SysLog("***** Pass=%d",Pass));
-/*
-    if(isspace(*CurStr) && DirBegin && DirBegin != Str && *(DirBegin-1) != '"')
-    {
-      Unquote(DirBegin);
-      QuoteSpaceOnly(DirBegin);
-      DirBegin=NULL;
-_SVS(SysLog("Unquote? '%c' DirBegin=[%s] %d",*CurStr, DirBegin, SkipQuotes));
-    }
-*/
+
     // рассмотрим переключатели активности/пассивности панели.
     if (strncmp(CurStr,"!#",2)==0)
     {
@@ -145,10 +127,6 @@ _SVS(SysLog("PassivePanel=TRUE '%s'",CurStr));
 _SVS(SysLog("PassivePanel=FALSE '%s'",CurStr));
     }
 
-//    if (*CurStr=='\"')
-//      SkipQuotes=(CurStr==Str);
-
-//    if (!SkipQuotes)
     {
       // !! символ '!'
       if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
@@ -162,7 +140,7 @@ _SVS(SysLog("!! TmpStr=[%s]",TmpStr));
       // !.!      Длинное имя файла с расширением
       if (strncmp(CurStr,"!.!",3)==0 && CurStr[3] != '?')
       {
-        strcat(TmpStr,PassivePanel ? AnotherQuotedName:QuotedName);
+        strcat(TmpStr,PassivePanel ? AnotherName:Name);
         CurStr+=3;
 _SVS(SysLog("!.! TmpStr=[%s]",TmpStr));
         continue;
@@ -183,12 +161,12 @@ _SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
         char *Ext;
         if(CurStr[2] == '~')
         {
-          Ext=strrchr((PassivePanel ? AnotherQuotedShortName:QuotedShortName),'.');
+          Ext=strrchr((PassivePanel ? AnotherShortName:ShortName),'.');
           CurStr+=3;
         }
         else
         {
-          Ext=strrchr((PassivePanel ? AnotherQuotedName:QuotedName),'.');
+          Ext=strrchr((PassivePanel ? AnotherName:Name),'.');
           CurStr+=2;
         }
         if(Ext && *Ext)
@@ -213,7 +191,6 @@ _SVS(SysLog("!` TmpStr=[%s]",TmpStr));
         else
           *CurDir=0;
         strcat(CurDir,FileName);
-        QuoteSpace(CurDir);
         CurStr+=5;
         if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
         strcat(TmpStr,CurDir);
@@ -244,7 +221,6 @@ _SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
 //   если будет нужно - раскомментируем :-)
 //          if(FileAttrL & FA_DIREC)
 //            AddEndSlash(FileNameL);
-          QuoteSpaceOnly(FileNameL);
           strcat(TmpStr," ");
           strcat(TmpStr,FileNameL);
         }
@@ -323,7 +299,7 @@ _SVS(SysLog("!$! TmpStr=[%s]",TmpStr));
       // !-!      Короткое имя файла с расширением
       if (strncmp(CurStr,"!-!",3)==0 && CurStr[3] != '?')
       {
-        strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
+        strcat(TmpStr,PassivePanel ? AnotherShortName:ShortName);
         CurStr+=3;
 _SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
         continue;
@@ -333,7 +309,7 @@ _SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
       //          после выполнения команды, FAR восстановит его
       if (strncmp(CurStr,"!+!",3)==0 && CurStr[3] != '?')
       {
-        strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
+        strcat(TmpStr,PassivePanel ? AnotherShortName:ShortName);
         CurStr+=3;
         PreserveLFN=TRUE;
 _SVS(SysLog("!+! TmpStr=[%s]",TmpStr));
@@ -373,8 +349,8 @@ _SVS(SysLog("!: TmpStr=[%s]",TmpStr));
         CurStr+=2;
         if (*CurStr=='!')
         {
-          strcpy(QuotedName,Name);
-          strcpy(QuotedShortName,ShortName);
+          strcpy(TmpName,Name);
+          strcpy(TmpShortName,ShortName);
           if (strpbrk(Name,"\\:")!=NULL)
             *CurDir=0;
         }
@@ -397,15 +373,15 @@ _SVS(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
         CurStr+=2;
         if (*CurStr=='!')
         {
-          strcpy(QuotedName,Name);
-          strcpy(QuotedShortName,ShortName);
+          strcpy(TmpName,Name);
+          strcpy(TmpShortName,ShortName);
           if (strpbrk(Name,"\\:")!=NULL)
           {
             if (PointToName(ShortName)==ShortName)
             {
-              strcpy(QuotedShortName,CurDir);
-              AddEndSlash(QuotedShortName);
-              strcat(QuotedShortName,ShortName);
+              strcpy(TmpShortName,CurDir);
+              AddEndSlash(TmpShortName);
+              strcat(TmpShortName,ShortName);
             }
             *CurDir=0;
           }
@@ -436,19 +412,13 @@ _SVS(SysLog("! TmpStr=[%s]",TmpStr));
         continue;
       }
 
-    } // End: if (!SkipQuotes)
+    }
 
     strncat(TmpStr,CurStr,1);
     CurStr++;
 _SVS(++Pass);
   }
-/*
-  if(DirBegin && DirBegin != Str && *(DirBegin-1) != '"')
-  {
-    Unquote(DirBegin);
-    QuoteSpaceOnly(DirBegin);
-  }
-*/
+
   if (!IgnoreInput)
     ReplaceVariables(TmpStr);
   strcpy(Str,TmpStr);
