@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.59 31.05.2001 $ */
+/* Revision: 1.60 02.06.2001 $ */
 
 /*
 Modify:
+  02.06.2001 KM
+    + Ну уж так народ настаивает на кнопках в диалоге при открытии
+      файла по Shift-F4.
   31.05.2001 SVS
     ! Сносим лейбак по Alt-F6 для не NT
     ! Блокируем реакцию Alt-F6 для не NT
@@ -1056,6 +1059,9 @@ _SVS(SysLog("FileName='%s'",FileName));
         if (Key==KEY_SHIFTF4)
         {
           static char LastFileName[NM];
+          /* $ 02.06.2001 KM
+             + Ну уж так народ настаивает на кнопках в диалоге...
+          */
           /* $ 18.09.2000 SVS
              + При вызове редактора по Shift-F4 можно употреблять
                переменные среды.
@@ -1067,9 +1073,10 @@ _SVS(SysLog("FileName='%s'",FileName));
                          LastFileName,
                          sizeof(LastFileName),
                          NULL,
-                         FIB_EXPANDENV))
+                         FIB_BUTTONS|FIB_EXPANDENV))
             return(FALSE);
           /* SVS $ */
+          /* KM $ */
           strcpy(FileName,LastFileName);
           Unquote(FileName);
           RemoveTrailingSpaces(FileName);

@@ -5,10 +5,13 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 02.06.2001 $ */
 
 /*
 Modify:
+  02.06.2001 KM
+    + Маленькая модификация: добавлены кнопки [ OK ] и [ Cancel ]
+      в диалог создания каталога
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -32,17 +35,18 @@ Modify:
 #include "panel.hpp"
 #include "treelist.hpp"
 #include "ctrlobj.hpp"
+#include "plugin.hpp"
 
 void ShellMakeDir(Panel *SrcPanel)
 {
-  char DirName[NM];
-  if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder","",DirName,sizeof(DirName)))
-    return;
-  /* $ 31.07.2000 SVS
-     Расширим переменные среды!
+  /* $ 02.06.2001 KM
+     + Маленькая модификация: добавлены кнопки [ OK ] и [ Cancel ]
+       в диалог создания каталога
   */
-  ExpandEnvironmentStr(DirName, DirName, sizeof(DirName));
-  /* SVS $ */
+  char DirName[NM];
+  if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder","",DirName,sizeof(DirName),"MakeFolder",FIB_BUTTONS|FIB_EXPANDENV))
+    return;
+  /* KM $ */
   Unquote(DirName);
   if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirName))
     LocalStrupr(DirName);

@@ -781,7 +781,7 @@ $ #Files menu#
 
    #Rename or move#     Rename or move files and folders.
 
-   #Make folder#        Create new folder.
+   #Make folder#        ~Create~@MakeFolder@ new folder.
 
    #Delete#             Delete files and folders.
 
@@ -920,6 +920,17 @@ for following operations:
  - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
  - exit from FAR.
+
+
+@MakeFolder
+$ #Make folder#
+    This function allows you to create the folders. You can use environment
+variables in the input line, which are expanded to its values before creating
+the folder. Also you can create multiple folders at the same time: symply
+separate the folder names with backslash sign. For example:
+
+    #%USERDOMAIN%\%USERNAME%\Folder3#
+
 
 @FindFile
 $ #Find file#
