@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.152 08.08.2001 $ */
+/* Revision: 1.153 10.08.2001 $ */
 
 /*
 Modify:
+  10.08.2001 KM
+   - Ќеправильно работал DM_RESIZEDIALOG. «аметил когда делал
+     ресайзинг Alt-F7 при изменении размеров консоли.
+   - ¬ SetItemRect неверно выставл€лс€ X1 в 0 при переданном
+     параметре -1 (центрировать строку).
   08.08.2001 SVS
    + DM_GETITEMPOSITION
   07.08.2001 SVS
@@ -1285,7 +1290,11 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
   DialogItem *CurItem=&Item[ID];
   int Type=CurItem->Type;
 
-  CurItem->X1=(Rect->Left<0)?0:Rect->Left;
+  /* $ 10.08.2001 KM
+    - ќшибочно выставл€лс€ X1 в 0 при Rect->Left=-1 (центрировать текст).
+  */
+  CurItem->X1=(unsigned char)Rect->Left;
+  /* KM $ */
   CurItem->Y1=(Rect->Top<0)?0:Rect->Top;
 
   if (IsEdit(Type))
@@ -2045,7 +2054,6 @@ int Dialog::ProcessKey(int Key)
 {
   int I,J;
   char Str[1024];
-  char *PtrStr;
   Edit *CurEditLine;
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
@@ -5299,8 +5307,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       int W1,H1;
 
-      W1=Dlg->X2-Dlg->X1;
-      H1=Dlg->Y2-Dlg->Y1;
+      /* $ 10.08.2001 KM
+        - Ќеверно вычисл€лась ширина диалога.
+      */
+      W1=Dlg->X2-Dlg->X1+1;
+      H1=Dlg->Y2-Dlg->Y1+1;
+      /* KM $ */
       // сохранили
       Dlg->OldX1=Dlg->X1;
       Dlg->OldY1=Dlg->Y1;
@@ -5314,8 +5326,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         Dlg->X1=((COORD*)Param2)->X;
         Dlg->Y1=((COORD*)Param2)->Y;
-        Dlg->X2=W1;
-        Dlg->Y2=H1;
+        /* $ 10.08.2001 KM
+          - Ќеверно вычисл€лись координаты X2 и Y2.
+        */
+        Dlg->X2=W1-1;
+        Dlg->Y2=H1-1;
+        /* KM $ */
         Dlg->CheckDialogCoord();
       }
       else if(Param1 == 0)   // значит относительно
@@ -5330,15 +5346,17 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         OldH1=H1;
         W1=((COORD*)Param2)->X;
         H1=((COORD*)Param2)->Y;
-        if(Dlg->X1+W1 >= ScrX)  Dlg->X1=ScrX-W1;
-        if(Dlg->Y1+H1 >= ScrY)  Dlg->Y1=ScrY-H1;
+        if(Dlg->X1+W1>=ScrX)
+          Dlg->X1=ScrX-W1;
+        if(Dlg->Y1+H1>=ScrY)
+          Dlg->Y1=ScrY-H1;
 
         if (W1<OldW1 || H1<OldH1)
         {
           Dlg->SetDialogMode(DMODE_DRAWING);
           DialogItem *Item;
           SMALL_RECT Rect;
-          for (I=0; I<Dlg->ItemCount; I++)
+          for (I=0;I<Dlg->ItemCount;I++)
           {
             Item=Dlg->Item+I;
             Rect.Left=Item->X1;
@@ -5361,12 +5379,21 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       /* KM $ */
       // проверили и скорректировали
-      if(Dlg->X1 < 0)         Dlg->X1=0;
-      if(Dlg->Y1 < 0)         Dlg->Y1=0;
-      if(Dlg->X1+W1 >= ScrX)  Dlg->X1=ScrX-W1; //?
-      if(Dlg->Y1+H1 >= ScrY)  Dlg->Y1=ScrY-H1; //?
-      Dlg->X2=Dlg->X1+W1;
-      Dlg->Y2=Dlg->Y1+H1;
+      if(Dlg->X1<0)
+        Dlg->X1=0;
+      if(Dlg->Y1<0)
+        Dlg->Y1=0;
+      if(Dlg->X1+W1>=ScrX)
+        Dlg->X1=ScrX-W1; //?
+      if(Dlg->Y1+H1>=ScrY)
+        Dlg->Y1=ScrY-H1; //?
+      /* $ 10.08.2001 KM
+        - Ќеверно вычисл€лись координаты X2 и Y2.
+      */
+      Dlg->X2=Dlg->X1+W1-1;
+      Dlg->Y2=Dlg->Y1+H1-1;
+      /* KM $ */
+
       ((COORD*)Param2)->X=Dlg->X1;
       ((COORD*)Param2)->Y=Dlg->Y1;
 
@@ -5428,10 +5455,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         RECT Rect;
         if(Dlg->GetItemRect(Param1,Rect))
         {
-          ((SMALL_RECT *)Param2)->Left=Rect.left;
-          ((SMALL_RECT *)Param2)->Top=Rect.top;
-          ((SMALL_RECT *)Param2)->Right=Rect.right;
-          ((SMALL_RECT *)Param2)->Bottom=Rect.bottom;
+          ((SMALL_RECT *)Param2)->Left=(short)Rect.left;
+          ((SMALL_RECT *)Param2)->Top=(short)Rect.top;
+          ((SMALL_RECT *)Param2)->Right=(short)Rect.right;
+          ((SMALL_RECT *)Param2)->Bottom=(short)Rect.bottom;
           return TRUE;
         }
       }

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.47 08.08.2001 $ */
+/* Revision: 1.48 10.08.2001 $ */
 
 /*
 Modify:
+  10.08.2001 KM
+    + »зменение размеров диалога поиска при изменении размеров консоли.
   08.08.2001 KM
     ! √лобальный перетр€х поиска. 3-€ сери€
     !  ажетс€ удалось избавитс€ ещЄ от одного потенциально (и не только)
@@ -183,13 +185,15 @@ Modify:
 #include "scrbuf.hpp"
 #include "CFileMask.hpp"
 
+#define DLG_HEIGHT 21
+
 static char FindMask[NM],FindStr[SEARCHSTRINGBUFSIZE];
 /* $ 30.07.2000 KM
    ƒобавлена переменна€ WholeWords дл€ поиска по точному совпадению
 */
 static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives;
 /* KM $ */
-static int DlgWidth;
+static int DlgWidth,DlgHeight;
 static volatile int StopSearch,SearchDone,LastFoundNumber,FileCount,WriteDataUsed;
 static char FindMessage[200],LastDirName[NM];
 static int FindMessageReady,FindCountReady;
@@ -847,11 +851,57 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Sleep(10);
       return TRUE;
     }
-
+    /* 10.08.2001 KM
+       »зменение размеров диалога поиска при изменении размеров консоли.
+    */
     case DN_RESIZECONSOLE:
     {
-      break;
+      WaitForSingleObject(hMutex,INFINITE);
+
+      COORD coord=(*(COORD*)Param2);
+      SMALL_RECT rect;
+      int IncY=coord.Y-DlgHeight-4;
+      int I;
+
+      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+      for (I=0;I<10;I++)
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,I,FALSE);
+
+      Dialog::SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&rect);
+      coord.X=rect.Right-rect.Left+1;
+      DlgHeight+=(IncY>0)?IncY:IncY;
+      coord.Y=DlgHeight;
+
+      if (IncY>0)
+        Dialog::SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(long)&coord);
+
+      for (I=0;I<2;I++)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(long)&rect);
+        rect.Bottom+=(short)IncY;
+        Dialog::SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(long)&rect);
+      }
+
+      for (I=2;I<10;I++)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(long)&rect);
+        if (I==2)
+          rect.Left=-1;
+        rect.Top+=(short)IncY;
+        Dialog::SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(long)&rect);
+      }
+
+      if (!(IncY>0))
+        Dialog::SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(long)&coord);
+
+      for (I=0;I<10;I++)
+        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,I,TRUE);
+      Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+
+      ReleaseMutex(hMutex);
+      return TRUE;
     }
+    /* KM $ */
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -863,7 +913,7 @@ int FindFiles::FindFilesProcess()
   hMutex=CreateMutex(NULL,FALSE,NULL);
 
   static struct DialogData FindDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,0,0,(char *)MFindFileTitle,
   /* 01 */DI_LISTBOX,4,2,71,14,0,0,DIF_LISTNOBOX,0,(char*)0,
   /* 02 */DI_TEXT,-1,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 03 */DI_TEXT,5,16,0,0,0,0,0,0,(char *)MFindSearchingIn,
@@ -881,6 +931,8 @@ int FindFiles::FindFilesProcess()
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 
+  DlgHeight=DLG_HEIGHT;
+
   int IncY=ScrY>24 ? ScrY-24:0;
   FindDlg[0].Y2+=IncY;
   FindDlg[1].Y2+=IncY;
@@ -892,6 +944,8 @@ int FindFiles::FindFilesProcess()
   FindDlg[7].Y1+=IncY;
   FindDlg[8].Y1+=IncY;
   FindDlg[9].Y1+=IncY;
+
+  DlgHeight+=IncY;
 
   if (PluginMode)
   {
@@ -911,7 +965,7 @@ int FindFiles::FindFilesProcess()
   hDlg=(HANDLE)pDlg;
   pDlg->SetDynamicallyBorn(TRUE);
   pDlg->SetHelp("FindFile");
-  pDlg->SetPosition(-1,-1,76,21+IncY);
+  pDlg->SetPosition(-1,-1,76,DLG_HEIGHT+IncY);
 
   LastFoundNumber=0;
   SearchDone=FALSE;
