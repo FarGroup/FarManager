@@ -5,10 +5,21 @@ dialog.cpp
 
 */
 
-/* Revision: 1.57 05.12.2000 $ */
+/* Revision: 1.58 06.12.2000 $ */
 
 /*
 Modify:
+  06.12.2000 SVS
+   - Охрененная бага с SelectOnEntry() - эта функция вызывалась
+     до создания редактора!!!
+   ! Обработка кликания мыши вне диалога вынесена в DefDlgProc
+   ! Уточним логику работы:
+     1) DI_BUTTON: Если не старый стиль и кнопка "не для закрытия"
+                   (DIF_BTNNOCLOSE), то ничего не делаем, иначе -
+                   предлагаем закрыть диалог.
+     2) Если нажали Enter не на DI_BUTTON, то отрабатываем как и раньше
+        при условии, что есть кнопка с Default=1 и у этой кнопки не
+        выставлен флаг DIF_BTNNOCLOSE.
   05.12.2000 IS
    ! Все удалил в блоке, где проверяем, автодополнять или нет,
      и написал заново
@@ -553,9 +564,6 @@ int Dialog::InitDialogObjects(int ID)
   // ну вот и добрались до!
   Item[FocusPos].Focus=1;
 
-  // если будет редактор, то обязательно будет выделен.
-  SelectOnEntry(FocusPos);
-
   // а теперь все сначала и по полной программе...
   for (I=ID; I < InitItemCount; I++)
   {
@@ -792,6 +800,8 @@ int Dialog::InitDialogObjects(int ID)
       ((COORD *)(CurItem->ObjPtr))->Y=-1;
     }
   }
+  // если будет редактор, то обязательно будет выделен.
+  SelectOnEntry(FocusPos);
 
   // все объекты созданы!
   SetDialogMode(DMODE_CREATEOBJECTS);
@@ -1583,26 +1593,19 @@ int Dialog::ProcessKey(int Key)
         Item[FocusPos].Selected=1;
         // сообщение - "Кнокна кликнута"
         Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,0);
-        /* $ 18.08.2000 SVS
-           + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
+        /* $ 06.12.2000 SVS
+           Если не старый стиль и кнопка "не для закрытия" (DIF_BTNNOCLOSE), то
+           вываливаемся, иначе - предлагаем закрыть диалог.
         */
-        if((Item[FocusPos].Flags&DIF_BTNNOCLOSE))
-        {
-//          ShowDialog(); //???
+        if(!CheckDialogMode(DMODE_OLDSTYLE) && (Item[FocusPos].Flags&DIF_BTNNOCLOSE))
           return(TRUE);
-        }
+
+        ExitCode=FocusPos;
+        EndLoop=TRUE;
         /* SVS $ */
-        /* SVS 21.08.2000 $ */
-        /* $ 12.09.2000 SVS
-          ! Задаем поведение для кнопки с DefaultButton=1
-        */
-        if(CheckDialogMode(DMODE_OLDSTYLE) || Item[FocusPos].DefaultButton)
-        {
-          ExitCode=FocusPos;
-          EndLoop=TRUE;
-        }
         /* SVS $ */
       }
+#if 0
       else if(IsEdit(Type) || CheckDialogMode(DMODE_OLDSTYLE))
       {
         for (I=0;I<ItemCount;I++)
@@ -1617,6 +1620,23 @@ int Dialog::ProcessKey(int Key)
         if (ExitCode==-1)
           ExitCode=FocusPos;
       }
+#else
+      else
+      {
+        ExitCode=-1;
+        for (I=0;I<ItemCount;I++)
+          if (Item[I].DefaultButton && !(Item[I].Flags&DIF_BTNNOCLOSE))
+          {
+            if (!IsEdit(Item[I].Type))
+              Item[I].Selected=1;
+            ExitCode=I;
+          }
+      }
+
+      EndLoop=TRUE;
+      if (ExitCode==-1)
+        ExitCode=FocusPos;
+#endif
       return(TRUE);
 
     case KEY_ESC:
@@ -2212,20 +2232,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
     DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent);
-    /* $ 09.09.2000 SVS
-       Учтем DMODE_OLDSTYLE - вывалить из диалога, ткнув вне диалога
-       сможем только в старом стиле.
-    */
-    if(CheckDialogMode(DMODE_OLDSTYLE))
-    {
-      if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
-        ProcessKey(KEY_ESC);
-      else
-        ProcessKey(KEY_ENTER);
-    }
-    else
-      MessageBeep(MB_ICONHAND);
-    /* SVS $ */
     return(TRUE);
   }
 
@@ -3342,7 +3348,27 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   switch(Msg)
   {
     case DN_MOUSECLICK:
+    {
+      MOUSE_EVENT_RECORD *MouseEvent=(MOUSE_EVENT_RECORD *)Param2;
+      if(Param1 == -1)
+      {
+         /* $ 09.09.2000 SVS
+            Учтем DMODE_OLDSTYLE - вывалить из диалога, ткнув вне диалога
+            сможем только в старом стиле.
+         */
+         if(Dlg->CheckDialogMode(DMODE_OLDSTYLE))
+         {
+           if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+             Dlg->ProcessKey(KEY_ESC);
+           else
+             Dlg->ProcessKey(KEY_ENTER);
+         }
+         else
+           MessageBeep(MB_ICONHAND);
+         /* SVS $ */
+      }
       return 0;
+    }
 
     case DN_DRAWDLGITEM:
       return 0;
