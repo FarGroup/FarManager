@@ -226,6 +226,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   Item->FindData.dwFileAttributes=ZipHeader.Attr & 0x3f;
   Item->FindData.nFileSizeLow=ZipHeader.UnpSize;
   Item->PackSize=ZipHeader.PackSize;
+  Item->CRC32=ZipHeader.CRC;
   FILETIME lft;
   DosDateTimeToFileTime(HIWORD(ZipHeader.ftime),LOWORD(ZipHeader.ftime),&lft);
   LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
@@ -374,22 +375,23 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
+    // Correct commands for PKZIP 2.04g!
     static char *Commands[]={
-      "pkunzip -d -o {-s%%P} {%%S} %%a @%%lNM",
-      "pkunzip -o {-s%%P} {%%S} %%a @%%lNM",
-      "pkunzip -t {-s%%P} {%%S} %%a @%%lNM",
-      "pkzip -d {-b%%W} {%%S} %%a @%%lNM",
-      "pkzip -z {-b%%W} {%%S} %%a",
-      "pkzip -c {-b%%W} {%%S} %%a @%%lNM",
-      "zip2exe {%%S} %%a",
-      "",
-      "",
-      "pkzipfix {%%S} %%a",
-      "pkzip -a -whs {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
-      "pkzip -m -whs {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
-      "pkzip -a -whs -r -P {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
-      "pkzip -m -whs -r -P {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
-      "*.*"
+    /*Extract               */"pkunzip -d -o {-s%%P} {%%S} %%a @%%lNM",
+    /*Extract without paths */"pkunzip -o {-s%%P} {%%S} %%a @%%lNM",
+    /*Test                  */"pkunzip -t {-s%%P} {%%S} %%a @%%lNM",
+    /*Delete                */"pkzip -d {-b%%W} {%%S} %%a @%%lNM",
+    /*Comment archive       */"pkzip -z {-b%%W} {%%S} %%a",
+    /*Comment files         */"pkzip -c {-b%%W} {%%S} %%a @%%lNM",
+    /*Convert to SFX        */"zip2exe {%%S} %%a",
+    /*Lock archive          */"",
+    /*Protect archive       */"",
+    /*Recover archive       */"pkzipfix {%%S} %%a",
+    /*Add files             */"pkzip -a -whs {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
+    /*Move files            */"pkzip -m -whs {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
+    /*Add files and folders */"pkzip -a -whs -r -P {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
+    /*Move files and folders*/"pkzip -m -whs -r -P {-s%%P} {-b%%W} {%%S} %%a @%%lNM",
+    /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {

@@ -60,6 +60,73 @@ int ArcType;
 char ZipName[NM];
 char Prefix[32];
 
+void UnixToDos(long time, struct dosdate_t *d, struct time *t)
+{
+  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+  time -= 24L * 60L * 60L * 3652L + timezone;
+  t->ti_hund = 0;
+  t->ti_sec = time % 60;
+  time /= 60;
+  t->ti_min = time % 60;
+  time /= 60;
+  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
+  time %= 1461L * 24L;
+  if (time >= 366 * 24)
+  {
+    time -= 366 * 24;
+    d->year++;
+    d->year += (int)(time / (365 * 24));
+    time %= 365 * 24;
+  }
+  t->ti_hour = time % 24;
+  time /= 24;
+  time++;
+  if ((d->year & 3) == 0)
+  {
+    if (time > 60)
+      time--;
+    else
+      if (time == 60)
+      {
+        d->month = 2;
+        d->day = 29;
+        return;
+      }
+  }
+  for (d->month = 0; Days[d->month] < time; d->month++)
+    time -= Days[d->month];
+  d->month++;
+  d->day = time;
+}
+
+
+int IsTarHeader(const unsigned char *Data,int DataSize)
+{
+  int I;
+  struct TarHeader *Header;
+  if (DataSize<sizeof(TarHeader))
+    return(FALSE);
+  Header=(struct TarHeader *)Data;
+  for (I=0;Header->name[I];I++)
+    if (I==sizeof(Header->name) || Header->name[I]<' ')
+      return(FALSE);
+  for (I=0;I<&Header->linkflag-Header->mode;I++)
+    if (Header->mode[I]>'7' || Header->mode[I]<'0' && Header->mode[I]!=0 &&
+        Header->mode[I]!=' ')
+      return(FALSE);
+  DWORD Seconds=GetOctal(Header->timestamp);
+  if (Seconds<300000000 || Seconds>1500000000)
+    return(FALSE);
+  return(TRUE);
+}
+
+
+DWORD GetOctal(const char *Str)
+{
+  char *endptr;
+  return(strtoul(Str,&endptr,8));
+}
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   SFXSize=0;
@@ -288,21 +355,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case TAR_FORMAT:
     {
       static char *Commands[]={
-        "tar --force-local -xf %%A %%FSQ32768",
-        "%comspec% /c tar --force-local -O -xf %%A %%fSQ > %%fWQ",
-        "",
-        "tar --delete --force-local -f %%A %%FSQ32768",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "tar --force-local -rf %%A %%FSQ32768",
-        "tar --force-local --remove-files -rf %%A %%FSQ32768",
-        "tar --force-local -rf %%A %%FSQ32768",
-        "tar --force-local --remove-files -rf %%A %%FSQ32768",
-        "*"
+      /*Extract               */"tar --force-local -xf %%A %%FSQ32768",
+      /*Extract without paths */"%comspec% /c tar --force-local -O -xf %%A %%fSQ > %%fWQ",
+      /*Test                  */"",
+      /*Delete                */"tar --delete --force-local -f %%A %%FSQ32768",
+      /*Comment archive       */"",
+      /*Comment files         */"",
+      /*Convert to SFX        */"",
+      /*Lock archive          */"",
+      /*Protect archive       */"",
+      /*Recover archive       */"",
+      /*Add files             */"tar --force-local -rf %%A %%FSQ32768",
+      /*Move files            */"tar --force-local --remove-files -rf %%A %%FSQ32768",
+      /*Add files and folders */"tar --force-local -rf %%A %%FSQ32768",
+      /*Move files and folders*/"tar --force-local --remove-files -rf %%A %%FSQ32768",
+      /*"All files" mask      */"*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -314,21 +381,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case GZ_FORMAT:
     {
       static char *Commands[]={
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "gzip -t %%A",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "%COMSPEC% /c gzip -c %%fQ>%%A",
-        "gzip %%fQ",
-        "%COMSPEC% /c gzip -c %%fQ>%%A",
-        "gzip %%fQ",
-        "*"
+      /*Extract               */"%COMSPEC% /c gzip -cd %%A >%%fQ",
+      /*Extract without paths */"%COMSPEC% /c gzip -cd %%A >%%fQ",
+      /*Test                  */"gzip -t %%A",
+      /*Delete                */"",
+      /*Comment archive       */"",
+      /*Comment files         */"",
+      /*Convert to SFX        */"",
+      /*Lock archive          */"",
+      /*Protect archive       */"",
+      /*Recover archive       */"",
+      /*Add files             */"%COMSPEC% /c gzip -c %%fQ>%%A",
+      /*Move files            */"gzip %%fQ",
+      /*Add files and folders */"%COMSPEC% /c gzip -c %%fQ>%%A",
+      /*Move files and folders*/"gzip %%fQ",
+      /*"All files" mask      */"*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -340,21 +407,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case Z_FORMAT:
     {
       static char *Commands[]={
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "%COMSPEC% /c gzip -cd %%A >%%fQ",
-        "gzip -t %%A",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "*"
+      /*Extract               */"%COMSPEC% /c gzip -cd %%A >%%fQ",
+      /*Extract without paths */"%COMSPEC% /c gzip -cd %%A >%%fQ",
+      /*Test                  */"gzip -t %%A",
+      /*Delete                */"",
+      /*Comment archive       */"",
+      /*Comment files         */"",
+      /*Convert to SFX        */"",
+      /*Lock archive          */"",
+      /*Protect archive       */"",
+      /*Recover archive       */"",
+      /*Add files             */"",
+      /*Move files            */"",
+      /*Add files and folders */"",
+      /*Move files and folders*/"",
+      /*"All files" mask      */"*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -366,21 +433,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case BZ_FORMAT:
     {
       static char *Commands[]={
-        "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
-        "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
-        "%COMSPEC% /c bzip2 -cd %%A >nul",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "%COMSPEC% /c bzip2 -c %%fQ >%%A",
-        "bzip2 %%fQ",
-        "%COMSPEC% /c bzip2 -c %%fQ >%%A",
-        "bzip2 %%fQ",
-        "*"
+      /*Extract               */"%COMSPEC% /c bzip2 -cd %%A >%%fQ",
+      /*Extract without paths */"%COMSPEC% /c bzip2 -cd %%A >%%fQ",
+      /*Test                  */"%COMSPEC% /c bzip2 -cd %%A >nul",
+      /*Delete                */"",
+      /*Comment archive       */"",
+      /*Comment files         */"",
+      /*Convert to SFX        */"",
+      /*Lock archive          */"",
+      /*Protect archive       */"",
+      /*Recover archive       */"",
+      /*Add files             */"%COMSPEC% /c bzip2 -c %%fQ >%%A",
+      /*Move files            */"bzip2 %%fQ",
+      /*Add files and folders */"%COMSPEC% /c bzip2 -c %%fQ >%%A",
+      /*Move files and folders*/"bzip2 %%fQ",
+      /*"All files" mask      */"*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -391,72 +458,4 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     }
   }
   return(FALSE);
-}
-
-
-void UnixToDos(long time, struct dosdate_t *d, struct time *t)
-{
-  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-  time -= 24L * 60L * 60L * 3652L + timezone;
-  t->ti_hund = 0;
-  t->ti_sec = time % 60;
-  time /= 60;
-  t->ti_min = time % 60;
-  time /= 60;
-  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
-  time %= 1461L * 24L;
-  if (time >= 366 * 24)
-  {
-    time -= 366 * 24;
-    d->year++;
-    d->year += (int)(time / (365 * 24));
-    time %= 365 * 24;
-  }
-  t->ti_hour = time % 24;
-  time /= 24;
-  time++;
-  if ((d->year & 3) == 0)
-  {
-    if (time > 60)
-      time--;
-    else
-      if (time == 60)
-      {
-        d->month = 2;
-        d->day = 29;
-        return;
-      }
-  }
-  for (d->month = 0; Days[d->month] < time; d->month++)
-    time -= Days[d->month];
-  d->month++;
-  d->day = time;
-}
-
-
-int IsTarHeader(const unsigned char *Data,int DataSize)
-{
-  int I;
-  struct TarHeader *Header;
-  if (DataSize<sizeof(TarHeader))
-    return(FALSE);
-  Header=(struct TarHeader *)Data;
-  for (I=0;Header->name[I];I++)
-    if (I==sizeof(Header->name) || Header->name[I]<' ')
-      return(FALSE);
-  for (I=0;I<&Header->linkflag-Header->mode;I++)
-    if (Header->mode[I]>'7' || Header->mode[I]<'0' && Header->mode[I]!=0 &&
-        Header->mode[I]!=' ')
-      return(FALSE);
-  DWORD Seconds=GetOctal(Header->timestamp);
-  if (Seconds<300000000 || Seconds>1500000000)
-    return(FALSE);
-  return(TRUE);
-}
-
-
-DWORD GetOctal(const char *Str)
-{
-  char *endptr;
-  return(strtoul(Str,&endptr,8));
 }

@@ -153,6 +153,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     Info->Encrypted=TRUE;
   Info->DictSize=32;
 
+  Item->CRC32=ArjHeader.CRC;
   Item->FindData.dwFileAttributes=ArjHeader.AccessMode & 0x3f;
   Item->PackSize=ArjHeader.PackSize;
   Item->FindData.nFileSizeLow=ArjHeader.UnpSize;
@@ -193,22 +194,23 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
+    // Correct Commands for ARJ 2.7x!
     static char *Commands[]={
-      "arj x -+ {-g%%P} -v -y -p1 {%%S} -- %%a !%%LM",
-      "arj e -+ {-g%%P} -v -y -p1 {%%S} -- %%a !%%LM",
-      "arj t -+ -y {-g%%P} -v -p1 {%%S} -- %%a !%%LM",
-      "arj d -+ -y {-w%%W} -p {%%S} -- %%a !%%LM",
-      "arj c -+ -y {-w%%W} -z -p {%%S} -- %%a",
-      "arj c -+ -y {-w%%W} -p {%%S} -- %%a !%%LM",
-      "arj y -+ -je -y -p %%a",
-      "",
-      "arj t -+ -a1 -y {-g%%P} {-w%%W} -hk -p {%%S} -- %%a",
-      "arj x -+ -a1 {-g%%P} {-w%%W} -jr -p {%%S} -- %%a !%%LM",
-      "arj a -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
-      "arj m -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
-      "arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
-      "arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%a !%%LM",
-      "*.*"
+    /*Extract               */"arj x -+ {-g%%P} -v -y -p1 {-w%%W} -- %%A !%%LM",
+    /*Extract without paths */"arj e -+ {-g%%P} -v -y -p1 {-w%%W} -- %%A !%%LM",
+    /*Test                  */"arj t -+ -y {-g%%P} -v -p1 {-w%%W} -- %%A",
+    /*Delete                */"arj d -+ -y {-w%%W} -p1 {-w%%W} -- %%A !%%LNM",
+    /*Comment archive       */"arj c -+ -y {-w%%W} -z {-w%%W} -- %%A",
+    /*Comment files         */"arj c -+ -y {-w%%W} -p1 {-w%%W} -- %%A !%%LM",
+    /*Convert to SFX        */"arj y -+ -je -y -p {-w%%W} %%A",
+    /*Lock archive          */"",
+    /*Protect archive       */"arj t -hk -y {-w%%W} %%A",
+    /*Recover archive       */"arj q -y {-w%%W} %%A",
+    /*Add files             */"arj a -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*Move files            */"arj m -+ -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*Add files and folders */"arj a -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*Move files and folders*/"arj m -+ -r -y -a1 {-g%%P} {-w%%W} -p {%%S} -- %%A !%%LM",
+    /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {

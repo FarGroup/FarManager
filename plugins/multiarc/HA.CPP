@@ -39,6 +39,46 @@ static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
 static int timezone=0;
 
+void UnixToDos(long time, struct dosdate_t *d, struct time *t)
+{
+  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+  time -= 24L * 60L * 60L * 3652L + timezone;
+  t->ti_hund = 0;
+  t->ti_sec = time % 60;
+  time /= 60;
+  t->ti_min = time % 60;
+  time /= 60;
+  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
+  time %= 1461L * 24L;
+  if (time >= 366 * 24)
+  {
+    time -= 366 * 24;
+    d->year++;
+    d->year += (int)(time / (365 * 24));
+    time %= 365 * 24;
+  }
+  t->ti_hour = time % 24;
+  time /= 24;
+  time++;
+  if ((d->year & 3) == 0)
+  {
+    if (time > 60)
+      time--;
+    else
+      if (time == 60)
+      {
+        d->month = 2;
+        d->day = 29;
+        return;
+      }
+  }
+  for (d->month = 0; Days[d->month] < time; d->month++)
+    time -= Days[d->month];
+  d->month++;
+  d->day = time;
+}
+
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
   if (DataSize<26 || Data[0]!='H' || Data[1]!='A' || Data[3]>32)
@@ -114,6 +154,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   strncpy(Item->FindData.cFileName,Path,sizeof(Item->FindData.cFileName)-1);
   Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
   Item->FindData.dwFileAttributes=(Header.Type & 0xf)==0xe ? FILE_ATTRIBUTE_DIRECTORY:0;
+  Item->CRC32=Header.CRC;
   struct dosdate_t dt;
   struct time tm;
   UnixToDos(Header.FileTime,&dt,&tm);
@@ -157,21 +198,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "ha xay %%a %%FMQ",
-      "ha eay %%a %%FMQ",
-      "ha t %%a %%FMQ",
-      "ha d %%a %%FMQ",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "ha as2 %%a %%FQ",
-      "ha asm2 %%a %%FQ",
-      "ha asrd2 %%a %%FMQ",
-      "ha asmrd2 %%a %%FMQ",
-      "*.*"
+    /*Extract               */"ha xay %%a %%FMQ",
+    /*Extract without paths */"ha eay %%a %%FMQ",
+    /*Test                  */"ha t %%a %%FMQ",
+    /*Delete                */"ha d %%a %%FMQ",
+    /*Comment archive       */"",
+    /*Comment files         */"",
+    /*Convert to SFX        */"",
+    /*Lock archive          */"",
+    /*Protect archive       */"",
+    /*Recover archive       */"",
+    /*Add files             */"ha as2{%%S} %%a %%FQ",
+    /*Move files            */"ha asm2{%%S} %%a %%FQ",
+    /*Add files and folders */"ha asr2{%%S} %%a %%FMQ",
+    /*Move files and folders*/"ha asmr2{%%S} %%a %%FMQ",
+    /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
@@ -180,44 +221,4 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     }
   }
   return(FALSE);
-}
-
-
-void UnixToDos(long time, struct dosdate_t *d, struct time *t)
-{
-  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-  time -= 24L * 60L * 60L * 3652L + timezone;
-  t->ti_hund = 0;
-  t->ti_sec = time % 60;
-  time /= 60;
-  t->ti_min = time % 60;
-  time /= 60;
-  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
-  time %= 1461L * 24L;
-  if (time >= 366 * 24)
-  {
-    time -= 366 * 24;
-    d->year++;
-    d->year += (int)(time / (365 * 24));
-    time %= 365 * 24;
-  }
-  t->ti_hour = time % 24;
-  time /= 24;
-  time++;
-  if ((d->year & 3) == 0)
-  {
-    if (time > 60)
-      time--;
-    else
-      if (time == 60)
-      {
-        d->month = 2;
-        d->day = 29;
-        return;
-      }
-  }
-  for (d->month = 0; Days[d->month] < time; d->month++)
-    time -= Days[d->month];
-  d->month++;
-  d->day = time;
 }

@@ -106,7 +106,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   char FileName[NM];
   char PathName[NM];
   WORD PathSize=0;
-  WORD CRC16;
+  WORD CRC16=0;
 
   NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
 
@@ -137,6 +137,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   }
 
   ReadFile(ArcHandle,&CRC16,2,&ReadSize,NULL); // CRC-16
+  Item->CRC32=(DWORD)CRC16;
 
   PathName[0]=0;
   if(LzhHeader.FLevel == 1 || LzhHeader.FLevel == 2)
@@ -264,22 +265,23 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   if (Type==0)
   {
+    // Correct Commands for LHA 2.55!
     static char *Commands[]={
-      "lha x -a -c -d -m {%%S} %%a @%%lM",
-      "lha e -a -c -m {%%S} %%a @%%lM",
-      "lha t -m -r2 {%%S} %%a",
-      "lha d -a -m {-w%%W} {%%S} %%a @%%lM",
-      "",
-      "",
-      "lha s -m -x {%%S} %%a",
-      "",
-      "",
-      "",
-      "lha a -a -m {%%S} %%a @%%lM",
-      "lha m -a -m {%%S} %%a @%%lM",
-      "lha a -a -r -x -p -m {%%S} %%a @%%lM",
-      "lha m -a -r -x -p -m {%%S} %%a @%%lM",
-      "*.*"
+    /*Extract               */"lha x -a -c -d -m {-w%%W} %%a @%%lM",
+    /*Extract without paths */"lha e -a -c -m {-w%%W} %%a @%%lM",
+    /*Test                  */"lha t -r2 -a -m {-w%%W} %%a",
+    /*Delete                */"lha d -r2 -a -m {-w%%W} %%a @%%lM",
+    /*Comment archive       */"",
+    /*Comment files         */"",
+    /*Convert to SFX        */"lha s -x1 -a -m {-w%%W} %%a",
+    /*Lock archive          */"",
+    /*Protect archive       */"",
+    /*Recover archive       */"",
+    /*Add files             */"lha a -a -m {-w%%W} %%a @%%lM",
+    /*Move files            */"lha m -a -m {-w%%W} %%a @%%lM",
+    /*Add files and folders */"lha a -a -r -x -p -m {-w%%W} {%%S} %%a @%%lM",
+    /*Move files and folders*/"lha a -a -r -x -p -m {-w%%W} {%%S} %%a @%%lM",
+    /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {

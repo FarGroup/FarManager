@@ -140,6 +140,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       Item->FindData.dwFileAttributes=RarHeader.FileAttr;
       Item->PackSize=RarHeader.PackSize;
       Item->FindData.nFileSizeLow=RarHeader.UnpSize;
+      Item->CRC32=(DWORD)RarHeader.FileCRC;
       FILETIME lft;
       DosDateTimeToFileTime(HIWORD(RarHeader.FileTime),LOWORD(RarHeader.FileTime),&lft);
       LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
@@ -212,6 +213,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       if (!ReadFile(ArcHandle,&Item->FindData.cFileName,RarHeader.NameSize,&ReadSize,NULL) ||
           ReadSize!=RarHeader.NameSize)
         return(GETARC_READERROR);
+      Item->CRC32=RarHeader.FileCRC;
       Item->FindData.dwFileAttributes=RarHeader.FileAttr;
       Item->PackSizeHigh=PackSizeHigh;
       Item->PackSize=RarHeader.PackSize;
@@ -274,21 +276,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "rar x {-p%%P} {-ap%%R} -y -c- {%%S} %%A @%%LNM",
-      "rar e -av- {-p%%P} -y -c- {%%S} %%A @%%LNM",
-      "rar t -y {-p%%P} -c- {%%S} %%A @%%LNM",
-      "rar d -y {-w%%W} {%%S} %%A @%%LNM",
-      "rar c -y {-w%%W} {%%S} %%A",
-      "rar cf -y {-w%%W} {%%S} %%A {@%%LNM}",
-      "rar s -y {%%S} %%A",
-      "rar k -y {%%S} %%A",
-      "rar rr -y {%%S} %%A",
-      "rar r -y {%%S} %%A",
-      "rar a -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
-      "rar m -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
-      "rar a -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
-      "rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
-      "*.*"
+    /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- {%%S} %%A @%%LNM",
+    /*Extract without paths */"rar e -av- {-p%%P} -y -c- {%%S} %%A @%%LNM",
+    /*Test                  */"rar t -y {-p%%P} -c- {%%S} %%A @%%LNM",
+    /*Delete                */"rar d -y {-w%%W} {%%S} %%A @%%LNM",
+    /*Comment archive       */"rar c -y {-w%%W} {%%S} %%A",
+    /*Comment files         */"rar cf -y {-w%%W} {%%S} %%A {@%%LNM}",
+    /*Convert to SFX        */"rar s -y {%%S} %%A",
+    /*Lock archive          */"rar k -y {%%S} %%A",
+    /*Protect archive       */"rar rr -y {%%S} %%A",
+    /*Recover archive       */"rar r -y {%%S} %%A",
+    /*Add files             */"rar a -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+    /*Move files            */"rar m -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+    /*Add files and folders */"rar a -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+    /*Move files and folders*/"rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+    /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
