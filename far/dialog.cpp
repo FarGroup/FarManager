@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.14 04.08.2000 $ */
+/* Revision: 1.15 07.08.2000 $ */
 
 /*
 Modify:
+  07.08.2000 SVS
+   + В Функции выравнивания кооржинат про ListBox забыли!
   04.08.2000 SVS
     + FarListItems.CountItems -> FarListItems.ItemsNumber
   03.08.2000 tran
@@ -2659,19 +2661,21 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 /* $ 31.07.2000 tran
    + функция подравнивания координат edit классов */
+/* $ 07.08.2000 SVS
+   + а про ListBox забыли?*/
 void Dialog::AdjustEditPos(int dx, int dy)
 {
   struct DialogItem *CurItem;
   int I;
   int x1,x2,y1,y2;
 
-  Edit *DialogEdit;
+  ScreenObject *DialogEdit;
   for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
-    if (IsEdit(CurItem->Type))
+    if (IsEdit(CurItem->Type) || CurItem->Type == DI_LISTBOX)
     {
-       DialogEdit=(Edit *)CurItem->ObjPtr;
+       DialogEdit=(ScreenObject *)CurItem->ObjPtr;
        DialogEdit->GetPosition(x1,y1,x2,y2);
        x1+=dx;
        x2+=dx;
@@ -2681,4 +2685,5 @@ void Dialog::AdjustEditPos(int dx, int dy)
     }
   }
 }
+/* SVS $ */
 /* tran 31.07.2000 $ */
