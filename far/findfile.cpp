@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.72 13.11.2001 $ */
+/* Revision: 1.73 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 IS
+    - ищем каталоги только, когда поле "текст" пустое, иначе ерунда получается
+    + диалог поиска: не дадим включить поиск папок, если ищем текст
   13.11.2001 VVM
     ! Хм. Добавим папки на панель, если их искали...
   26.10.2001 KM
@@ -347,6 +350,10 @@ int _cdecl SortItems(const void *p1,const void *p2)
 
 long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
+  /* $ 15.11.2001 IS
+       запомним здесь состояние "Искать папки" между вызовами функции */
+  static BOOL FindFolders, LastFindFoldersEnabled;
+  /* IS $ */
   Dialog* Dlg=(Dialog*)hDlg;
   char *FindText=MSG(MFindFileText),*FindCode=MSG(MFindFileCodePage);
   char DataStr[NM];
@@ -387,6 +394,8 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         PrepareTable(&TableSet,TableNum);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)TableSet.TableName);
 
+      LastFindFoldersEnabled=FindFolders=Dlg->Item[13].Selected;
+
       return TRUE;
     }
     case DN_LISTCHANGE:
@@ -408,6 +417,37 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return TRUE;
     }
+    /* $ 15.11.2001 IS
+         не дадим включить поиск папок, если ищем текст
+    */
+    case DN_EDITCHANGE:
+    {
+      switch (Param1)
+      {
+         case 5: // Строка "Содержащий текст"
+           {
+             FarDialogItem &Item=*reinterpret_cast<FarDialogItem*>(Param2);
+             BOOL Enable=!*Item.Data;
+             Dialog::SendDlgMessage(hDlg,DM_ENABLE,13,Enable);
+             if(Enable)
+             {
+               if(FindFolders)
+                 Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 13, BSTATE_CHECKED);
+             }
+             else
+             {
+               if(LastFindFoldersEnabled)
+                  FindFolders=FarSendDlgMessage(hDlg, DM_GETCHECK, 13,
+                              0)==BSTATE_CHECKED;
+               Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 13, BSTATE_UNCHECKED);
+             }
+             LastFindFoldersEnabled=Enable;
+           }
+           break;
+      }
+      return TRUE;
+    }
+    /* IS $ */
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
@@ -541,7 +581,17 @@ FindFiles::FindFiles()
     if (!(FindAskDlg[12].Flags & DIF_DISABLE))
       FindAskDlg[12].Selected=SearchInArchives;
     /* DJ $ */
-    FindAskDlg[13].Selected=Opt.FindFolders;
+    /* $ 15.11.2001 IS
+       ищем каталоги только, когда поле "текст" пустое
+    */
+    if(*FindStr)
+    {
+      FindAskDlg[13].Selected=Opt.FindFolders;
+      FindAskDlg[13].Flags |= DIF_DISABLE;
+    }
+    else
+      FindAskDlg[13].Selected=Opt.FindFolders;
+    /* IS $ */
     FindAskDlg[16].Selected=FindAskDlg[17].Selected=0;
     FindAskDlg[18].Selected=FindAskDlg[19].Selected=0;
     FindAskDlg[20].Selected=0;
@@ -604,7 +654,11 @@ FindFiles::FindFiles()
     WholeWords=FindAskDlg[11].Selected;
     /* KM $ */
     SearchInArchives=FindAskDlg[12].Selected;
-    Opt.FindFolders=FindAskDlg[13].Selected;
+    /* $ 15.11.2001 IS
+       ищем каталоги только, когда поле "текст" пустое
+    */
+    Opt.FindFolders=FindAskDlg[13].Selected && !*FindStr;
+    /* IS $ */
     if (*FindStr)
     {
       strcpy(GlobalSearchString,FindStr);

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.45 13.11.2001 $ */
+/* Revision: 1.46 15.11.2001 $ */
 
 /*
 Modify:
+  15.11.2001 IS
+    - очеп€тка при предыдущем изменении :-(
   13.11.2001 IS
     - ѕосле xlat неправильно работал ctrl-end.
   02.11.2001 SVS
@@ -365,7 +367,7 @@ int CommandLine::ProcessKey(int Key)
         /* SVS $ */
         /* $ 13.11.2001 IS иначе неправильно работает ctrl-end */
         strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
-        LastCmdPartLength==strlen(LastCmdStr);
+        LastCmdPartLength=strlen(LastCmdStr);
         /* IS $ */
         return(TRUE);
       }
