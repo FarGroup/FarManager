@@ -9,6 +9,8 @@ dialog.cpp
 
 /*
 Modify:
+  07.08.2001 SVS
+   + DN_RESIZECONSOLE
   06.08.2001 SVS
    ! DM_GETTEXTLENGTH возвращает размер строки без учета '\0'
    ! заголовок ФАР меняет только если DM_SETTEXT был вызван для
@@ -4460,6 +4462,9 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_KEY:
       return FALSE;
     /* SVS $ */
+
+    case DN_RESIZECONSOLE:
+      return TRUE;
   }
 
   return 0;
@@ -5484,10 +5489,13 @@ int Dialog::FastHide()
 
 void Dialog::ResizeConsole()
 {
-  COORD c={-1,-1};
-  Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
+  COORD c;
   Resized=true;
   Hide();
+  c.X=ScrX+1; c.Y=ScrY+1;
+  Dialog::SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(long)&c);
+  c.X=c.Y=-1;
+  Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
 };
 
 void Dialog::OnDestroy()

@@ -8,10 +8,13 @@ global.hpp
 
 */
 
-/* Revision: 1.24 25.07.2001 $ */
+/* Revision: 1.25 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    + IsProcessVE_FindFile - идет процесс "вьювер/редактор" во время
+      поиска файлов?
   25.07.2001 SVS
     + IsProcessAssignMacroKey - идет процесс назначения клавиши в макросе?
   25.07.2001 SVS
@@ -171,6 +174,7 @@ extern BOOL LanguageLoaded;
 
 extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;
+extern BOOL IsProcessVE_FindFile;
 
 extern char *Copyright;
 

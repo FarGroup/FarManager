@@ -2502,6 +2502,10 @@ one at a time, а команда 'rar32 m !.!.rar !.!' перенесет все отмеченные файлы
 $ #Operating system commands#
     FAR Manager by itself processes the following operating system commands:
 
+    #CLS#
+
+    Clears the screen.
+
     #disk:#
 
     To change the current disk on the active panel to the specified disk.
@@ -2541,14 +2545,16 @@ is defined.
     will be executed if the file "file1" exists, the file "file2" does not
 exist and the environment variable "variable" is defined.
 
-    Any other commands will be sent to the operating system command
-processor.
+    Notes:
 
-    The commands listed above work in:
-    - ~Command line~@CmdLineCmd@
-    - ~Apply command~@ApplyCmd@
-    - ~User menu~@UserMenu@
-    - ~File associations~@FileAssoc@
+    1. Any other commands will be sent to the operating
+       system command processor.
+
+    2. The commands listed above work in:
+       - ~Command line~@CmdLineCmd@
+       - ~Apply command~@ApplyCmd@
+       - ~User menu~@UserMenu@
+       - ~File associations~@FileAssoc@
 
 @FAREnv
 $ #Переменные среды#

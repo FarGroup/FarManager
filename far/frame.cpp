@@ -241,3 +241,15 @@ void Frame::ResizeConsole()
     NextModal->ResizeConsole();
   }
 }
+
+bool Frame::HasSaveScreen()
+{
+  if (this->SaveScr||this->ShadowSaveScr){
+    return true;
+  }
+  return false;
+}
+
+//bool Frame::ifFullConsole() {
+//  return X1==0&&Y1==0&&X2>=ScrX&&Y2>=ScrY-1;
+//}

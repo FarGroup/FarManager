@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.132 01.08.2001 $ */
+/* Revision: 1.133 07.08.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  07.08.2001 SVS
+   + DN_RESIZECONSOLE
   01.08.2001 SVS
    ! Флаги FMENU_CUSTOMNAME, FDLG_CUSTOMNAME, FMSG_CUSTOMNAME в морг
   31.07.2001 IS
@@ -811,6 +813,7 @@ enum FarMessagesProc{
   DN_LISTCHANGE,
   DN_MOUSECLICK,
   DN_DRAGGED,
+  DN_RESIZECONSOLE,
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,

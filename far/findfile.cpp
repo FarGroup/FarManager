@@ -5,10 +5,22 @@ findfile.cpp
 
 */
 
-/* Revision: 1.44 01.08.2001 $ */
+/* Revision: 1.45 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    ! удален FindSaveScr - нафиг, к теропевту. И без него жизнь полна прекрас.
+    ! если идет режим поиска (все еще ищем), то отключим вывод помощи,
+      ибо... артефакты с прорисовкой. Вот когда закончится поиск, тогде хелп
+      будет доступен.
+    ! запрещаем во время поиска юзать некоторые манагерные клавиши кроме
+      KEY_CTRLALTSHIFTPRESS и KEY_ALTF9
+      (2KM: про Alt-F9 - здесь нужно следить DN_RESIZECONSOLE)
+    ! во время вызова редактора/вьювера разрешаем юзать клавиши:
+      Alt-F9 и F11 :-)
+    - ну и напоследок... используя "подвал" :-) корректно восстановим
+      экран после F3/F4:
   01.08.2001 KM
     ! Глобальный перетрях поиска. 2-я серия
     ! С подачи OT синхронизацию процессов
@@ -184,7 +196,6 @@ static int ContinueSearch;
 static int PluginMode;
 
 static HANDLE hMutex;
-static SaveScreen *FindSaveScr;
 
 /* $ 07.08.2000 KM
    Добавление переменной для борьбы с глюком при поиске в запароленном архиве
@@ -274,7 +285,6 @@ FindFiles::FindFiles()
   */
   static int LastCmpCase=0,LastWholeWords=0,LastUseAllTables=0,LastSearchInArchives=0;
   /* KM $ */
-  FindSaveScr=NULL;
   CmpCase=LastCmpCase;
   WholeWords=LastWholeWords;
   UseAllTables=LastUseAllTables;
@@ -497,7 +507,6 @@ FindFiles::~FindFiles()
   FileMaskForFindFile.Free();
   /* IS $ */
   ScrBuf.ResetShadow();
-  delete FindSaveScr;
 }
 
 long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
@@ -508,12 +517,24 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
   switch(Msg)
   {
+    case DN_HELP: // в режиме поиска отключим вывод помощи, ибо... артефакты с прорисовкой
+      return !SearchDone?NULL:Param2;
+
     case DN_KEY:
     {
       while (ListBox->GetCallCount())
         Sleep(10);
       if (IsPluginGetsFile)
         return TRUE;
+
+      // некторые спец.клавиши всеже отбработаем.
+      if(Param2 == KEY_CTRLALTSHIFTPRESS || Param2 == KEY_ALTF9)
+      {
+        IsProcessAssignMacroKey--;
+        FrameManager->ProcessKey(Param2);
+        IsProcessAssignMacroKey++;
+        return TRUE;
+      }
 
       if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) // [ Stop ] button
       {
@@ -585,9 +606,14 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               {
                 FileViewer ShellViewer (UserDataItem.FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
                 ShellViewer.SetDynamicallyBorn(FALSE);
+                IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
+                IsProcessVE_FindFile--;
+                // заставляем рефрешится экран
+                FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
               }
               WaitForSingleObject(hMutex,INFINITE);
+
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
               ReleaseMutex(hMutex);
@@ -601,7 +627,11 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 FileEditor ShellEditor (UserDataItem.FileFindData.cFileName,FALSE,FALSE);
                 ShellEditor.SetDynamicallyBorn(FALSE);
                 ShellEditor.SetEnableF6 (TRUE);
+                IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
+                IsProcessVE_FindFile--;
+                // заставляем рефрешится экран
+                FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
               }
               WaitForSingleObject(hMutex,INFINITE);
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
@@ -634,9 +664,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         if (ListBox && ListBox->GetItemCount())
         {
-          delete FindSaveScr;
-          FindSaveScr=NULL;
-
           WaitForSingleObject(hMutex,INFINITE);
           while (ListBox->GetCallCount())
             Sleep(10);
@@ -718,9 +745,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         if (ListBox && ListBox->GetItemCount() &&
             hPlugin==NULL || (Info.Flags & OPIF_REALNAMES))
         {
-          delete FindSaveScr;
-          FindSaveScr=NULL;
-
           WaitForSingleObject(hMutex,INFINITE);
           while (ListBox->GetCallCount())
             Sleep(10);
@@ -797,13 +821,17 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Sleep(10);
       return TRUE;
     }
+
+    case DN_RESIZECONSOLE:
+    {
+      break;
+    }
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 int FindFiles::FindFilesProcess()
 {
-  FindSaveScr=new SaveScreen;
   ContinueSearch=FALSE;
 
   hMutex=CreateMutex(NULL,FALSE,NULL);
@@ -880,13 +908,9 @@ int FindFiles::FindFilesProcess()
       return FALSE;
   }
 
+  IsProcessAssignMacroKey++; // отключим все спец. клавиши
   pDlg->Process();
-
-  if (FindSaveScr)
-  {
-    delete FindSaveScr;
-    FindSaveScr=NULL;
-  }
+  IsProcessAssignMacroKey--;
 
   CloseHandle(hMutex);
 

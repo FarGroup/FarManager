@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.32 10.07.2001 $ */
+/* Revision: 1.33 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    + Добавим обработку команды OS - CLS
   10.07.2001 SVS
     + Обработка KEY_MACROXLAT
   25.06.2001 SVS
@@ -636,6 +638,14 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
 
   if (!memicmp(CmdLine,"REM ",4) || !memicmp(CmdLine,"::",2))
   {
+    return TRUE;
+  }
+
+  if (!memicmp(CmdLine,"CLS",3))
+  {
+    SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
+    ScrBuf.ResetShadow();
+    ScrBuf.Flush();
     return TRUE;
   }
 

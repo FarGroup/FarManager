@@ -123,6 +123,8 @@ class Frame: virtual public ScreenObject
 //    int IndexOf(Frame *aFrame);
     bool RemoveModal(Frame *aFrame);
     void ResizeConsole();
+    bool HasSaveScreen();
+//    bool ifFullConsole();
 
 };
 

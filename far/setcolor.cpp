@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.17 26.07.2001 $ */
+/* Revision: 1.18 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    ! Уточнение принудительного рефреша
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   25.07.2001 OT
@@ -57,6 +59,7 @@ Modify:
 
 #include "global.hpp"
 #include "fn.hpp"
+#include "keys.hpp"
 #include "lang.hpp"
 #include "colors.hpp"
 #include "vmenu.hpp"
@@ -387,18 +390,14 @@ void GetColor(int PaletteIndex)
   if (GetColorDialog(NewColor))
   {
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
-    //ScrBuf.Lock();
-    MenuToRedraw2->Hide();
+    ScrBuf.Lock(); // отменяем всякую прорисовку
+    MenuToRedraw2->Hide(); // гасим
     MenuToRedraw1->Hide();
-
-    // принудительно рефрешим (КОСТЫЛЬ!)
-    FrameManager->RefreshFrame();
-    FrameManager->PluginCommit();
-
-    //CtrlObject->Cp()->SetScreenPosition();
-    MenuToRedraw1->Show();
+    FrameManager->RefreshFrame(); // рефрешим
+    MenuToRedraw1->Show(); // кажем
     MenuToRedraw2->Show();
-    //ScrBuf.Unlock();
+    ScrBuf.Unlock(); // разрешаем прорисовку
+    FrameManager->PluginCommit(); // коммитим.
   }
 }
 

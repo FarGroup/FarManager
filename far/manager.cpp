@@ -591,44 +591,55 @@ int  Manager::ProcessKey(int Key)
     }
 
     /*** А вот здесь - все остальное! ***/
-    if(!IsProcessAssignMacroKey) // в любом случае, кроме назначения макроса
+    if(!IsProcessAssignMacroKey || IsProcessVE_FindFile)
+       // в любом случае если кому-то ненужны все клавиши или
     {
+      /* ** Эти клавиши разрешены для работы вьювера/редактора
+            во время вызова онных из поиска файлов ** */
       switch(Key)
       {
-        case KEY_CTRLALTSHIFTPRESS:
-          if(!NotUseCAS)
-          {
-            if (CurrentFrame->FastHide()){
-              ImmediateHide();
-              WaitKey(KEY_CTRLALTSHIFTRELEASE);
-              FrameManager->RefreshFrame();
-            }
-          }
-          return TRUE;
         case KEY_F11:
           PluginsMenu();
           FrameManager->RefreshFrame();
-          _D(SysLog(-1));
-          return TRUE;
-        case KEY_F12:
-          if (CurrentFrame->GetCanLoseFocus())
-            FrameMenu();
-          _D(SysLog(-1));
-          return TRUE;
-        case KEY_CTRLTAB:
-          if (CurrentFrame->GetCanLoseFocus())
-            DeactivateFrame(CurrentFrame,1);
-            _D(SysLog(-1));
-          return TRUE;
-        case KEY_CTRLSHIFTTAB:
-          if (CurrentFrame->GetCanLoseFocus())
-            DeactivateFrame(CurrentFrame,-1);
           _D(SysLog(-1));
           return TRUE;
         case KEY_ALTF9:
           _OT(SysLog("Manager::ProcessKey, KEY_ALTF9 pressed..."));
           SetVideoMode(FarAltEnter(-2));
           return TRUE;
+      }
+
+      // а здесь то, что может быть запрещено везде :-)
+      if(!IsProcessVE_FindFile)
+      {
+        switch(Key)
+        {
+          case KEY_CTRLALTSHIFTPRESS:
+            if(!NotUseCAS)
+            {
+              if (CurrentFrame->FastHide()){
+                ImmediateHide();
+                WaitKey(KEY_CTRLALTSHIFTRELEASE);
+                FrameManager->RefreshFrame();
+              }
+            }
+            return TRUE;
+          case KEY_F12:
+            if (CurrentFrame->GetCanLoseFocus())
+              FrameMenu();
+            _D(SysLog(-1));
+            return TRUE;
+          case KEY_CTRLTAB:
+            if (CurrentFrame->GetCanLoseFocus())
+              DeactivateFrame(CurrentFrame,1);
+              _D(SysLog(-1));
+            return TRUE;
+          case KEY_CTRLSHIFTTAB:
+            if (CurrentFrame->GetCanLoseFocus())
+              DeactivateFrame(CurrentFrame,-1);
+            _D(SysLog(-1));
+            return TRUE;
+        }
       }
     }
     CurrentFrame->UpdateKeyBar();
@@ -1000,6 +1011,11 @@ BOOL Manager::PluginCommit()
 void Manager::ImmediateHide()
 {
   if (FramePos<0){
+    return;
+  }
+  // Сначала проверяем, есть ли у прятываемого фрейма SaveScreen
+  if (CurrentFrame->HasSaveScreen()) {
+    CurrentFrame->Hide();
     return;
   }
   if (ModalStackCount>0){

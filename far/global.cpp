@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.22 25.07.2001 $ */
+/* Revision: 1.23 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    + IsProcessVE_FindFile - идет процесс "вьювер/редактор" во время
+      поиска файлов?
   25.07.2001 SVS
     + IsProcessAssignMacroKey - идет процесс назначения клавиши в макросе?
   25.07.2001 SVS
@@ -92,6 +95,9 @@ BOOL NotUseCAS=FALSE;
 
 // идет процесс назначения клавиши в макросе?
 BOOL IsProcessAssignMacroKey=FALSE;
+
+// идет процесс "вьювер/редактор" во время поиска файлов?
+BOOL IsProcessVE_FindFile=FALSE;
 
 // идет процесс быстрого поиска в панелях?
 int WaitInFastFind=FALSE;
