@@ -5,10 +5,12 @@ class PreserveLongName
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+    ! Заголовки - к общему виду!
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -16,16 +18,7 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-
-#ifndef __FARCONST_HPP__
-#include "farconst.hpp"
-#endif
-#ifndef __PRESERVELONGNAME_HPP__
-#include "plognmn.hpp"
-#endif
-#ifndef __FARFUNC_HPP__
-#include "fn.hpp"
-#endif
+#include "internalheaders.hpp"
 
 PreserveLongName::PreserveLongName(char *ShortName,int Preserve)
 {

@@ -5,10 +5,12 @@ namelist.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+    ! Заголовки - к общему виду!
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -18,13 +20,7 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-
-#ifndef __FARCONST_HPP__
-#include "farconst.hpp"
-#endif
-#ifndef __NAMELIST_HPP__
-#include "namelist.hpp"
-#endif
+#include "internalheaders.hpp"
 
 NamesList::NamesList()
 {

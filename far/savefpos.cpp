@@ -5,10 +5,12 @@ class SaveFilePos
 
 */
 
-/* Revision: 1.02 09.08.2000 $ */
+/* Revision: 1.03 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+    ! Заголовки - к общему виду!
   09.08.2000 svs
     ! revert.  int64 -> long
   08.08.2000 tran 1.01
@@ -20,10 +22,7 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-
-#ifndef __SAVEFILEPOS_HPP__
-#include "savefpos.hpp"
-#endif
+#include "internalheaders.hpp"
 
 SaveFilePos::SaveFilePos(FILE *SaveFile)
 {

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.73 20.02.2001 $ */
+/* Revision: 1.74 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+   ! Пересмотр алгоритма IsKeyHighlighted с добавками Alt- на
+     сколько это возможно
   20.02.2001 SVS
    ! Уточнение поведения горячих клавиш с учетом Disabled & Hidden...
   20.02.2001 SVS
@@ -3370,48 +3373,51 @@ void Dialog::AddToEditHistory(char *AddStr,char *HistoryName,int MaxLen)
 /* Public, Static:
    Проверка на HotKey
 */
+/* $ 20.02.2001 SVS
+   Пересмотр алгоритма IsKeyHighlighted с добавками Alt- на
+   сколько это возможно*/
 int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
 {
   if ((Str=strchr(Str,'&'))==NULL)
     return(FALSE);
   int UpperStrKey=LocalUpper(Str[1]);
   /* $ 08.11.2000 SVS
-     Изменен пересчет кодов клавишь для hotkey (используются сканкоды)
+     Изменен пересчет кодов клавиш для hotkey (используются сканкоды)
   */
   /* 28.12.2000 SVS
     + добавлена обработка Opt.HotkeyRules */
-  if(!Opt.HotkeyRules)
+  if (Key < 256)
   {
-    if (Key<256)
-      return(UpperStrKey==LocalUpper(Key) ||
-             Translate && UpperStrKey==LocalUpper(LocalKeyToKey(Key)));
-    if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
-      return(Key-KEY_ALT0+'0'==UpperStrKey);
-    if (Key>=KEY_ALTA && Key<=KEY_ALT_BASE+255)
-    {
-      int AltKey=Key-KEY_ALTA+'A';
-      return(UpperStrKey==LocalUpper(AltKey) ||
-             Translate && UpperStrKey==LocalUpper(LocalKeyToKey(AltKey)));
-    }
+    int KeyToKey=LocalKeyToKey(Key);
+    return(UpperStrKey == LocalUpper(Key) ||
+      Translate &&
+      (!Opt.HotkeyRules && UpperStrKey==LocalUpper(KeyToKey) ||
+        Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==KeyToKey));
   }
-  else
+
+  if(Key&KEY_ALT)
   {
-    if (Key<256)
-      return(UpperStrKey==LocalUpper(Key) ||
-             Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(Key));
-    if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
-      return(Key-KEY_ALT0+'0'==UpperStrKey);
-    if (Key>=KEY_ALTA && Key<=KEY_ALT_BASE+255)
+    int AltKey=Key&(~KEY_ALT);
+    if (AltKey >= '0' && AltKey <= '9')
+      return(AltKey==UpperStrKey);
+
+    int AltKeyToKey=LocalKeyToKey(AltKey);
+    if (AltKey > ' ' && AltKey <= 255)
+//         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
+//          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
+//          AltKey==':'  || AltKey=='"' || AltKey=='~'))
     {
-      int AltKey=Key-KEY_ALTA+'A';
       return(UpperStrKey==LocalUpper(AltKey) ||
-             Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(AltKey));
+             Translate &&
+             (!Opt.HotkeyRules && UpperStrKey==LocalUpper(AltKeyToKey) ||
+                Opt.HotkeyRules && LocalKeyToKey(UpperStrKey)==AltKeyToKey));
     }
   }
   /* SVS $*/
   /* SVS $*/
   return(FALSE);
 }
+/* SVS $ */
 
 
 //////////////////////////////////////////////////////////////////////////

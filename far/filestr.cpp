@@ -5,10 +5,12 @@ filestr.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+    ! Заголовки - к общему виду!
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -18,10 +20,7 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-
-#ifndef __GETFILESTRING_HPP__
-#include "filestr.hpp"
-#endif
+#include "internalheaders.hpp"
 
 GetFileString::GetFileString(FILE *SrcFile)
 {

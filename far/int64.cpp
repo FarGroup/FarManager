@@ -5,10 +5,12 @@ int64.cpp
 
 */
 
-/* Revision: 1.01 16.10.2000 $ */
+/* Revision: 1.02 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 SVS
+    ! Заголовки - к общему виду!
   16.10.2000 SVS
     + __int64: функции =, Set
   25.06.2000 SVS
@@ -18,10 +20,7 @@ Modify:
 
 #include "headers.hpp"
 #pragma hdrstop
-
-#ifndef __INT64_HPP__
-#include "int64.hpp"
-#endif
+#include "internalheaders.hpp"
 
 int64::int64()
 {
