@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.13 04.04.2002 $ */
+/* Revision: 1.14 06.05.2003 $ */
 
 /*
 Modify:
+  06.05.2003 SVS
+    - Проблемы с VC после 1645
   04.04.2002 SVS
     - Хе... lfind видите ли им не понравился ;-((
   27.02.2002 SVS
@@ -142,6 +144,10 @@ Modify:
 #include <search.h>
 #endif
 #if _MSC_VER
+  #ifndef _INC_WCHAR
+    #include <wchar.h>
+    #define _wmemset wmemset
+  #endif
   #define _export
   #define FA_DIREC _A_SUBDIR
   #define FA_RDONLY _A_RDONLY
