@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.14 14.02.2002 $ */
+/* Revision: 1.15 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 DJ
+    + UpdateIfRequired(), UPDATE_IGNORE_VISIBLE
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   09.02.2002 VVM
@@ -84,7 +86,7 @@ enum {DRIVE_SHOW_TYPE=1,DRIVE_SHOW_NETNAME=2,DRIVE_SHOW_LABEL=4,
       DRIVE_SHOW_FILESYSTEM=8,DRIVE_SHOW_SIZE=16,DRIVE_SHOW_REMOVABLE=32,
       DRIVE_SHOW_PLUGINS=64,DRIVE_SHOW_CDROM=128};
 
-enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2};
+enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4};
 
 enum {NORMAL_PANEL,PLUGIN_PANEL};
 
@@ -160,6 +162,12 @@ class Panel:public ScreenObject
     */
     virtual int UpdateIfChanged(int UpdateMode) {return(0);};
     /* SKV$*/
+    /* $ 19.03.2002 DJ
+       UpdateIfRequired() - обновить, если апдейт был пропущен из-за того,
+       что панель невидима
+    */
+    virtual void UpdateIfRequired() {};
+    /* DJ $ */
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(char *Name,int Next) {return(FALSE);}
     virtual int GoToFile(char *Name) {return(TRUE);};

@@ -5,10 +5,13 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.89 21.02.2002 $ */
+/* Revision: 1.90 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 DJ
+    ! при обработке FCTL_GET[ANOTHER]PANELINFO прочитаем данные, даже
+      если панель невидима
   21.02.2002 SVS
     + Ќебольшой сервис, ал€ WC ;-) ≈сли CD-диск выдвинут и мы при выборе
       этого диска из меню жмакаем Enter, то... сначала всунем онный, а потом
@@ -1526,6 +1529,11 @@ void Panel::SetPluginCommand(int Command,void *Param)
       Panel *DestPanel=(Command==FCTL_GETPANELINFO) ? this:AnotherPanel;
       if (DestPanel==NULL)
         break;
+      /* $ 19.03.2002 DJ
+         обеспечим наличие данных
+      */
+      DestPanel->UpdateIfRequired();
+      /* DJ $ */
       switch(DestPanel->GetType())
       {
         case FILE_PANEL:

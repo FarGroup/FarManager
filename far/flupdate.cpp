@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.30 01.03.2002 $ */
+/* Revision: 1.31 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 DJ
+    ! возможность форсировать апдейт, даже если панель невидима
+    ! UpdateIfRequired()
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   14.02.2002 VVM
@@ -108,13 +111,17 @@ Modify:
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
+/* $ 19.03.2002 DJ
+   поддержка UPDATE_IGNORE_VISIBLE
+*/
+
 void FileList::Update(int Mode)
 {
   if (EnableUpdate)
     switch(PanelMode)
     {
       case NORMAL_PANEL:
-        ReadFileNames(Mode & UPDATE_KEEP_SELECTION);
+        ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
         break;
       case PLUGIN_PANEL:
         {
@@ -122,12 +129,12 @@ void FileList::Update(int Mode)
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           ProcessPluginCommand();
           if (PanelMode!=PLUGIN_PANEL)
-            ReadFileNames(Mode & UPDATE_KEEP_SELECTION);
+            ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
           else
             if ((Info.Flags & OPIF_REALNAMES) ||
                 CtrlObject->Cp()->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
                 (Mode & UPDATE_SECONDARY)==0)
-              UpdatePlugin(Mode & UPDATE_KEEP_SELECTION);
+              UpdatePlugin(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
         }
         ProcessPluginCommand();
         break;
@@ -135,12 +142,29 @@ void FileList::Update(int Mode)
   LastUpdateTime=clock();
 }
 
+/* DJ $ */
+
+/* $ 19.03.2002 DJ
+*/
+
+void FileList::UpdateIfRequired()
+{
+  if (UpdateRequired)
+    Update (UpdateRequiredMode | UPDATE_IGNORE_VISIBLE);
+}
+
+/* DJ $ */
 
 // ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manafer
 // при считывании дирректории
-void FileList::ReadFileNames(int KeepSelection)
+
+/* $ 19.03.2002 DJ
+   IgnoreVisible
+*/
+
+void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible)
 {
-  if (!IsVisible())
+  if (!IsVisible() && !IgnoreVisible)   /* DJ $ */
   {
     UpdateRequired=TRUE;
     UpdateRequiredMode=KeepSelection;
@@ -589,10 +613,13 @@ void FileList::MoveSelection(struct FileListItem *ListData,long FileCount,
   }
 }
 
+/* $ 19.03.2002 DJ
+   IgnoreVisible
+*/
 
-void FileList::UpdatePlugin(int KeepSelection)
+void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 {
-  if (!IsVisible())
+  if (!IsVisible() && !IgnoreVisible)    /* DJ $ */
   {
     UpdateRequired=TRUE;
     UpdateRequiredMode=KeepSelection;

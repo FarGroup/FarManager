@@ -7,10 +7,13 @@ filelist.hpp
 
 */
 
-/* Revision: 1.23 19.02.2002 $ */
+/* Revision: 1.24 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 DJ
+    + UpdateIfRequired()
+    + параметр IgnoreVisible
   19.02.2002 SVS
     ! ChangeDir() имеет доп.параметр.
   14.02.2002 VVM
@@ -207,8 +210,12 @@ class FileList:public Panel
     BOOL ChangeDir(char *NewDir,BOOL IsUpdated=TRUE);
     /* SVS $ */
     void CountDirSize();
-    void ReadFileNames(int KeepSelection);
-    void UpdatePlugin(int KeepSelection);
+    /* $ 19.03.2002 DJ
+       IgnoreVisible - обновить, даже если панель невидима
+    */
+    void ReadFileNames(int KeepSelection, int IgnoreVisible);
+    void UpdatePlugin(int KeepSelection, int IgnoreVisible);
+    /* DJ $ */
     void MoveSelection(struct FileListItem *FileList,long FileCount,
                        struct FileListItem *OldList,long OldFileCount);
     int GetSelCount();
@@ -271,6 +278,14 @@ class FileList:public Panel
     */
     virtual int UpdateIfChanged(int UpdateMode);
     /* SKV$*/
+
+    /* $ 19.03.2002 DJ
+       UpdateIfRequired() - обновить, если апдейт был пропущен из-за того,
+       что панель невидима
+    */
+    virtual void UpdateIfRequired();
+    /* DJ $ */
+
     void CreateChangeNotification(int CheckTree);
     void CloseChangeNotification();
     void SortFileList(int KeepPosition);
