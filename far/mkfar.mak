@@ -9,6 +9,9 @@
 # Modify: 04.07.2000 SVS +копирование hlf&lng файлов в final
 #                        +вставка переопределенных функцйи запроса памяти
 #
+# Modify: 12.07.2000 SVS +$(FARCMEM) - для включения в тестовых целях
+#                         модуля cmem
+#
 # make -fmkfar.mak [options]
 #   -DALLOC - вставляет переопределенные функции работы с памятью
 # Надо, иначе не будет перекомпиляция при изменении H*-файлов
@@ -162,24 +165,19 @@ FAROBJ=\
    $(OBJPATH)\ctrlobj.obj\
    $(OBJPATH)\flmodes.obj\
    $(OBJPATH)\flshow.obj\
+   $(OBJPATH)\farrtl.obj\
    $(OBJPATH)\main.obj
-
-!ifdef ALLOC
-FAROBJ2=$(FAROBJ) $(OBJPATH)\farrtl.obj
-!else
-FAROBJ2=$(FAROBJ)
-!endif
 
 Dep_fardexe = BccW32.cfg\
    far.def\
    $(OBJPATH)\far.res \
-   $(FAROBJ2)
+   $(FAROBJ)
 
 
 $(FINALPATH)\far.exe : $(Dep_fardexe)
   settitle "Linking..."
   $(TLINK32)  $(LINKFLAGS) @&&|
-$(LIBPATH)\c0x32.obj $(FAROBJ2)
+$(LIBPATH)\c0x32.obj $(FAROBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 far.def
@@ -225,6 +223,8 @@ $(OPTDEBUG)
 -Op
 -Ov
 -w-csu
+$(FARCMEM)
+$(FARALLOC)
 $(PRECOMPOPT)
 -I$(INCLUDEPATH)
 | $@

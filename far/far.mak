@@ -116,6 +116,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\viewer.obj"
 	-@erase "$(INTDIR)\vmenu.obj"
+	-@erase "$(INTDIR)\farrtl.obj"
 	-@erase "$(OUTDIR)\far.exe"
 
 "$(OUTDIR)" :
@@ -123,7 +124,7 @@ CLEAN :
 "$(INTDIR)" :
     if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
 
-CPP_PROJ=/nologo /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c
+CPP_PROJ=/nologo /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC)
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "NDEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
@@ -208,6 +209,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
+	"$(INTDIR)\farrtl.obj" \
 	"$(INTDIR)\far.res"
 
 "$(OUTDIR)\far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
@@ -312,6 +314,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\viewer.obj"
 	-@erase "$(INTDIR)\vmenu.obj"
+	-@erase "$(INTDIR)\farrtl.obj"
 	-@erase "$(OUTDIR)\far.exe"
 
 "$(OUTDIR)" :
@@ -319,7 +322,7 @@ CLEAN :
 "$(INTDIR)" :
     if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
 
-CPP_PROJ=/nologo /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c
+CPP_PROJ=/nologo /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC)
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "_DEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
@@ -404,6 +407,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
+	"$(INTDIR)\farrtl.obj" \
 	"$(INTDIR)\far.res"
 
 "$(OUTDIR)\far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
@@ -839,6 +843,9 @@ SOURCE=.\vmenu.cpp
 
 "$(INTDIR)\vmenu.obj" : $(SOURCE) "$(INTDIR)"
 
+SOURCE=.\farrtl.cpp
+
+"$(INTDIR)\farrtl.obj" : $(SOURCE) "$(INTDIR)"
 
 
 !ENDIF

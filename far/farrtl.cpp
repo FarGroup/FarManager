@@ -1,3 +1,5 @@
+#if defined(__BORLANDC__)
+#ifdef ALLOC
 /*
 farrtl.cpp
 
@@ -16,7 +18,11 @@ Modify:
     ! Добавил кучу проверок, почти заново написал все, но фар все равно
       рушится, если переопределить new/delete :-(((
   11.07.2000 SVS
-
+    ! Более разумное (с запасом) распределение памяти.
+  12.07.2000 SVS
+    ! Увеличение MEM_DELTA до 4095
+    + Включение операторов new/delete by IS
+    + Включение cmem в качестве смотрелки памяти.
 */
 
 #ifdef __cplusplus
@@ -35,7 +41,8 @@ void free(void *block);
 #include "headers.hpp"
 #pragma hdrstop
 
-#define MEM_DELTA	1023
+
+#define MEM_DELTA	4095
 
 static HANDLE FARHeapForNew=NULL;
 
@@ -85,37 +92,40 @@ void free(void *block)
   if(FARHeapForNew) HeapFree(FARHeapForNew,0,block);
 }
 
-#if 0 //пока без этого поработаем, ибо рушится фар по непонятным причинам
-void *operator new(size_t sz)
+#ifdef CMEM_INCLUDE
+#include "cmem.cpp"
+#else //у _меня_ - работает, но тестировать еще надо...
+
+#if 1
+/*
+    ! Свершилось!!! Народ, rtfm - рулезЪ forever :-)))
+      Скачал я таки стандарт по C++:
+         ftp://ftp.ldz.lv/pub/doc/ansi_iso_iec_14882_1998.pdf (размер 2860601)
+      А там все черным по белому... Короче, переопределил я new/delete как надо
+      (если быть точным, то пару способов не осуществил, т.к. мы без исключений
+      работаем), в крайнем случае, фар у _меня_ больше не грохается! Кому
+      интересны подробности, смотрите в указанном стандарте параграф 18.4
+*/
+void *operator new(size_t size)
  {
   extern new_handler _new_handler;
   void *p;
-  sz=sz?sz:1;
-  while((p=malloc(sz))==NULL)
+  size=size?size:1;
+  while((p=malloc(size))==NULL)
    {
     if(_new_handler!=NULL)_new_handler();
     else break;
    }
   return p;
  }
-void operator delete(void *v)
- {
-  if(v)free(v);
- }
-void *operator new[](size_t sz)
- {
-  extern new_handler _new_handler;
-  void *p;
-  sz=sz?sz:1;
-  while((p=malloc(sz))==NULL)
-   {
-    if(_new_handler!=NULL)_new_handler();
-    else break;
-   }
-  return p;
- }
-void operator delete[](void *v)
- {
-  if(v)free(v);
- }
+void *operator new[](size_t size) {return ::operator new(size);}
+void *operator new(size_t size, void *p) {return p;}
+void operator delete(void *p) {if(p)free(p);}
+void operator delete[](void *ptr) {::operator delete(ptr);}
 #endif
+
+#endif // CMEM_INCLUDE
+
+#endif // ALLOC
+#endif // defined(__BORLANDC__)
+
