@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.81 21.06.2004 $ */
+/* Revision: 1.82 08.07.2004 $ */
 
 /*
 Modify:
+  08.07.2004 SVS
+    + MACRO_COMMON
   21.06.2004 SVS
     + DRIVE_DVD_RAM
     + CDROM_DeviceCaps
@@ -273,6 +275,7 @@ enum MACROMODEAREA {
   MACRO_QVIEWPANEL,    // Панель быстрого просмотра
   MACRO_TREEPANEL,     // Панель дерева папок
 
+  MACRO_COMMON,        // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
   MACRO_LAST           // Должен быть всегда последним! Используется в циклах
 };
 

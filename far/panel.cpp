@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.131 07.07.2004 $ */
+/* Revision: 1.132 08.07.2004 $ */
 
 /*
 Modify:
+  08.07.2004 SVS
+    - В макросе: "%file=APanel.Current; Tab Home Alt< $Text %file"
+      не работает вставка текста в Alt< с помощью $Text "xx"
   07.07.2004 SVS
     ! Macro II
   01.07.2004 SVS
@@ -1356,7 +1359,7 @@ void Panel::FastFind(int FirstKey)
           else
             Key=KEY_ESC;
         }
-        else if (rec.EventType==KEY_EVENT || rec.EventType==FARMACRO_KEY_EVENT)
+        else if (!rec.EventType || rec.EventType==KEY_EVENT || rec.EventType==FARMACRO_KEY_EVENT)
         {
           // для вставки воспользуемся макродвижком...
           if(Key==KEY_CTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)
@@ -1376,6 +1379,16 @@ void Panel::FastFind(int FirstKey)
           {
             char TempName[NM*2];
             FindEdit.Xlat();
+            FindEdit.GetString(TempName,sizeof(TempName));
+            FindEdit.SetString("");
+            FastFindProcessName(&FindEdit,TempName,LastName,Name);
+            FastFindShow(FindX,FindY);
+            continue;
+          }
+          else if(Key == MCODE_OP_DATE || Key == MCODE_OP_PLAINTEXT)
+          {
+            char TempName[NM*2];
+            FindEdit.ProcessKey(Key);
             FindEdit.GetString(TempName,sizeof(TempName));
             FindEdit.SetString("");
             FastFindProcessName(&FindEdit,TempName,LastName,Name);

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.120 07.07.2004 $ */
+/* Revision: 1.121 08.07.2004 $ */
 
 /*
 Modify:
+  08.07.2004 SVS
+    + MACRO_COMMON
   07.07.2004 SVS & AN
     ! Macro II (ג מבשול עמ גסו סמגסול םמגמו)
   31.05.2004 SVS
@@ -440,6 +442,8 @@ struct TMacroKeywords MKeywords[] ={
   {0,  "Info",               MACRO_INFOPANEL,0},
   {0,  "QView",              MACRO_QVIEWPANEL,0},
   {0,  "Tree",               MACRO_TREEPANEL,0},
+  {0,  "Common",             MACRO_COMMON,0},
+
 
   // ÏÐÎ×ÅÅ
   {2,  "Bof",                MCODE_C_BOF,0},
@@ -2898,30 +2902,41 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
 {
   if(MacroLIB)
   {
-    int Pos,Len;
-    struct MacroRecord *MPtr;
-    if(ChechMode == -1)
+    for(int I=0; I < 2; ++I)
     {
-      Len=MacroLIBCount;
-      MPtr=MacroLIB;
-    }
-    else
-    {
-      Len=IndexMode[ChechMode][1];
-      if(!Len)
-       return -1;
-      MPtr=MacroLIB+IndexMode[ChechMode][0];
-//_SVS(SysLog("ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
-    }
-    for(Pos=0; Pos < Len; ++Pos, ++MPtr)
-    {
-      if (LocalUpper(MPtr->Key)==LocalUpper(Key) && MPtr->BufferSize > 0)
+      int Pos,Len;
+      struct MacroRecord *MPtr;
+      if(ChechMode == -1)
       {
-//        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
-//_SVS(SysLog("GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
-        if(!(MPtr->Flags&MFLAGS_DISABLEMACRO))
-          return Pos+((ChechMode >= 0)?IndexMode[ChechMode][0]:0);
+        Len=MacroLIBCount;
+        MPtr=MacroLIB;
       }
+      else
+      {
+        Len=IndexMode[ChechMode][1];
+        if(Len)
+          MPtr=MacroLIB+IndexMode[ChechMode][0];
+  //_SVS(SysLog("ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
+      }
+
+      if(Len)
+      {
+        for(Pos=0; Pos < Len; ++Pos, ++MPtr)
+        {
+          if (LocalUpper(MPtr->Key)==LocalUpper(Key) && MPtr->BufferSize > 0)
+          {
+    //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
+    //_SVS(SysLog("GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
+            if(!(MPtr->Flags&MFLAGS_DISABLEMACRO))
+              return Pos+((ChechMode >= 0)?IndexMode[ChechMode][0]:0);
+          }
+        }
+      }
+      // חהוסü סלמענטל םא MACRO_COMMON
+      if(ChechMode != -1 && !I)
+        ChechMode=MACRO_COMMON;
+      else
+        break;
     }
   }
   return -1;
