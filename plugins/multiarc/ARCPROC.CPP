@@ -1,3 +1,9 @@
+/*
+Modify:
+  13.04.2001 DJ
+   - перенос сброса Opt.Background в PutFiles в более подходящее место
+*/
+
 void PluginClass::GetCommandFormat(int Command,char *Format,int FormatSize)
 {
   *Format=0;
@@ -285,6 +291,14 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       ArcPluginNumber=ArcPluginType=0;
   }
   int ArcExitCode=1;
+
+  /* $ 14.02.2001 raVen
+     сброс галки "фоновая архивация" */
+  /* $ 13.04.2001 DJ
+     перенесен в более подходящее место */
+  Opt.UserBackground=0;
+  /* DJ $ */
+  /* raVen $ */
   while (1)
   {
     const char *ArcHistoryName="ArcName";
@@ -345,11 +359,11 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     strcpy(DialogItems[7].Data,Password1);
     strcpy(DialogItems[9].Data,Password2);
     DialogItems[11].Selected=Move;
-    /* $ 14.02.2001 raVen
-       сброс галки "фоновая архивация" */
-    Opt.Background=0;
-    /* raVen $ */
-    DialogItems[12].Selected=Opt.Background;
+    /* $ 13.04.2001 DJ
+       UserBackground instead of Background
+    */
+    DialogItems[12].Selected=Opt.UserBackground;
+    /* DJ $ */
 
     if ((OpMode & OPM_SILENT)==0)
     {
@@ -366,6 +380,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         strcpy(ArcName,DialogItems[2].Data);
         continue;
       }
+      Opt.UserBackground=DialogItems[12].Selected;
       if (AskCode==16)
       {
         SetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",ArcFormat);
@@ -374,7 +389,6 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       }
       if (AskCode!=14 || *DialogItems[2].Data==0)
         return(-1);
-      Opt.UserBackground=DialogItems[12].Selected;
       SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
     }
 

@@ -1,3 +1,9 @@
+/*
+Modify:
+  13.04.2001 DJ
+   - вместо QuoteSpace используется QuoteSpaceOnly из FSF
+*/
+
 int __isspace(int Chr)
 {
    return Chr == 0x09 || Chr == 0x0A || Chr == 0x0B || Chr == 0x0C || Chr == 0x0D || Chr == 0x20;
@@ -190,14 +196,6 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     Info.RestoreScreen(hScreen);
   }
   return(ExitCode);
-}
-
-
-char* QuoteSpace(char *Str)
-{
-  if (strchr(Str,' ')!=NULL)
-    return(QuoteText(Str));
-  return(Str);
 }
 
 

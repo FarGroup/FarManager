@@ -7,6 +7,9 @@
 
 /*
 Modify:
+  13.04.2001 DJ
+    - вместо QuoteSpace используется FSF.QuoteSpaceOnly
+    - вся необходимая механика для wincon.h уже есь в plugin.hpp
   19.02.2001 AS
     ! исключаем windows.h - он должен подключаться из plugin.hpp
                             после того как будет задано выравнивание
@@ -14,21 +17,12 @@ Modify:
     ! включаем stdlib.h - нужен для realloc
 */
 
-#ifdef _MSC_VER
-#  define _WINCON_
-#  include <windows.h>
-#  undef _WINCON_
-#  include "plugin.hpp"
-#  pragma pack(8)
-#  include <wincon.h>
-#else
 /* $ 19.02.2001 AS
   windows.h - подключается из plugin.hpp после указания выравнивания
 */
 //#  include <windows.h>
 /* AS $*/
 #  include "plugin.hpp"
-#endif
 
 //#include <stdio.h>
 //#include <conio.h>
@@ -200,7 +194,6 @@ DWORD WINAPI ThreadWhatWaitingForKillListFile(LPVOID par);
 /* tran 13.09.2000 $ */
 
 
-char* QuoteSpace(char *Str);
 char* QuoteText(char *Str);
 void ConvertNameToShort(const char *Src,char *Dest);
 void InitDialogItems(const struct InitDialogItem *Init,struct FarDialogItem *Item,

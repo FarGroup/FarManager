@@ -3,10 +3,12 @@
 
 */
 
-/* $Revision: 1.00 28.11.2000 $ */
+/* $Revision: 1.01 13.04.2001 $ */
 
 /*
 Modify:
+  13.04.2001 DJ
+   * вместо QuoteSpace используется FSF.QuoteSpaceOnly
   28.11.2000 AS
    ! правка '//' комбинаций
 */
@@ -30,7 +32,7 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
   strcpy(ArcCommand::ArcName,ArcName);
   strcpy(ArcCommand::ArcDir,ArcDir);
   strcpy(ArcCommand::RealArcDir,RealArcDir ? RealArcDir:"");
-  QuoteSpace(strcpy(ArcCommand::Password,Password));
+  FSF.QuoteSpaceOnly(strcpy(ArcCommand::Password,Password));
   strcpy(ArcCommand::AllFilesMask,AllFilesMask);
   GetTempPath(sizeof(TempPath),TempPath);
   *ListFileName=0;
@@ -233,7 +235,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         else
           strcpy(Command," ");
       }
-      QuoteSpace(Command);
+      FSF.QuoteSpaceOnly(Command);
       break;
     case 'a':
       {
@@ -261,7 +263,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             strcpy(Command," ");
         }
       }
-      QuoteSpace(Command);
+      FSF.QuoteSpaceOnly(Command);
       break;
     case 'D':
       *Command=0;
@@ -276,7 +278,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
                         LocalAllFilesMask,AnsiCode))
         return(-1);
       char QListName[NM+2];
-      QuoteSpace(strcpy(QListName,ListFileName));
+      FSF.QuoteSpaceOnly(strcpy(QListName,ListFileName));
       strcpy(Command,QListName);
       break;
     case 'P':
@@ -294,7 +296,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             Command[I]='/';
 /* AS $*/
       }
-      QuoteSpace(Command);
+      FSF.QuoteSpaceOnly(Command);
       break;
     case 'W':
       strcpy(Command,TempPath);
@@ -383,7 +385,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             }
 
             if (QuoteName==1)
-              QuoteSpace(Name);
+              FSF.QuoteSpaceOnly(Name);
             else
               if (QuoteName==2)
                 QuoteText(Name);
@@ -484,7 +486,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       char OutName[NM];
       FSF.sprintf(OutName,"%s%s",CurArcDir,FileName);
       if (QuoteName==1)
-        QuoteSpace(OutName);
+        FSF.QuoteSpaceOnly(OutName);
       else
         if (QuoteName==2)
           QuoteText(OutName);
@@ -500,7 +502,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       char OutName[NM];
       FSF.sprintf(OutName,"%s%s%c%s",CurArcDir,FileName,UseSlash ? '/':'\\',LocalAllFilesMask);
       if (QuoteName==1)
-        QuoteSpace(OutName);
+        FSF.QuoteSpaceOnly(OutName);
       else
         if (QuoteName==2)
           QuoteText(OutName);
