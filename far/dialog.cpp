@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.125 23.06.2001 $ */
+/* Revision: 1.126 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 KM
+   - Не работал клик на скролбаре в DI_LISTBOX.
   23.06.2001 KM
    - Не снимался признак активности комбобокса если с него
      уходили мышкой на DI_EDIT.
@@ -2896,7 +2898,12 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         ShowDialog();
 
         if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
-          ProcessKey(KEY_ENTER);
+        {
+          if (MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2)
+            Item[I].ListPtr->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
+          else
+            ProcessKey(KEY_ENTER);
+        }
         return TRUE;
       }
       else
