@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.84 20.04.2001 $ */
+/* Revision: 1.85 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 IS
+    + ctrl-shift-enter - вставить в строку полное имя редактируемого файла
   20.04.2001 IS
     ! _Значительное_ ускорение выделения строки при помощи shift-home или
       shift-end. Просьба сразу сообщать на малейшее отклонение от манеры
@@ -2468,6 +2470,17 @@ int Editor::ProcessKey(int Key)
       Show();
       return(TRUE);
     /* SVS $ */
+    /* $ 25.04.2001 IS
+         ctrl-shift-enter - вставить в строку полное имя редактируемого файла
+    */
+    case KEY_CTRLSHIFTENTER:
+      if(!LockMode)
+      {
+        if(EditorControl(ECTL_INSERTTEXT, FileName))
+           Show();
+      }
+      return (TRUE);
+    /* IS $ */
     default:
       {
         if ((Key==KEY_CTRLDEL || Key==KEY_CTRLT) && CurPos>=CurLine->EditLine.GetLength())
