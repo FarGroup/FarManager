@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.17 04.06.2001 $ */
+/* Revision: 1.18 10.06.2001 $ */
 
 /*
 Modify:
+  10.06.2001 SVS
+    + FindItem с двумя параметрами.
   04.06.2001 SVS
     ! Уточнение структуры MenuItem
   03.06.2001 KM
@@ -256,6 +258,7 @@ class VMenu: public Modal
     int  InsertItem(struct FarListInsert *NewItem);
     int  UpdateItem(struct FarList *NewItem);
     int  FindItem(struct FarListFind *FindItem);
+    int  FindItem(int StartIndex,char *Pattern);
 
     int  GetItemCount() {return(ItemCount);};
 

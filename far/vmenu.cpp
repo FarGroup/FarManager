@@ -7,10 +7,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.33 05.06.2001 $ */
+/* Revision: 1.34 10.06.2001 $ */
 
 /*
 Modify:
+  10.06.2001 SVS
+    + FindItem с двумя параметрами - для будущего ручного финдера в списке.
+    - не работал поиск, т.к. присутствовали символы '&'
   05.06.2001 KM
     - Избавление от маленькой дырочки в Set*Title.
   04.06.2001 SVS
@@ -1382,18 +1385,25 @@ void VMenu::SortItems(int Direction)
 }
 
 // return Pos || -1
-int VMenu::FindItem(struct FarListFind *FindItem)
+int VMenu::FindItem(struct FarListFind *FItem)
 {
-  if(FindItem && (DWORD)FindItem->StartIndex < (DWORD)ItemCount)
+  return FindItem(FItem->StartIndex,FItem->Pattern);
+}
+
+int VMenu::FindItem(int StartIndex,char *Pattern)
+{
+  char TmpBuf[130];
+  if((DWORD)StartIndex < (DWORD)ItemCount)
   {
-    char *Pattern=FindItem->Pattern;
-    for(int I=FindItem->StartIndex;I < ItemCount;I++)
-      if(CmpName(Pattern,Item[I].Name,0))
+    for(int I=StartIndex;I < ItemCount;I++)
+    {
+      memcpy(TmpBuf,Item[I].Name,sizeof(TmpBuf));
+      if(CmpName(Pattern,RemoveChar(TmpBuf,'&'),1))
         return I;
+    }
   }
   return -1;
 }
-
 
 BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
 {

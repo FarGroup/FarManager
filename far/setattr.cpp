@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.30 20.05.2001 $ */
+/* Revision: 1.31 10.06.2001 $ */
 
 /*
 Modify:
+  10.06.2001 SVS
+    - ошибка в логике при работе с атрибутами для каталога
   20.05.2001 SVS
     - воздействие на кнопки "текущее" и "пусто" приводило к закрытию дислога
     + реакция на клик мыши на лейбах Modification, Creation и Last access
@@ -182,6 +184,13 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               else if(State9 == 2)
                 Dialog::SendDlgMessage(hDlg,DM_SETCHECK,8,BSTATE_3STATE);
             }
+
+            // еще одна проверка
+            if(FocusPos == 8 && State8 && State9)
+              Dialog::SendDlgMessage(hDlg,DM_SETCHECK,9,BSTATE_UNCHECKED);
+            if(FocusPos == 9 && State9 && State8)
+              Dialog::SendDlgMessage(hDlg,DM_SETCHECK,8,BSTATE_UNCHECKED);
+
             DlgParam->OState9=State9;
             DlgParam->OState8=State8;
           }
@@ -424,9 +433,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     if (SelCount==0 || SelCount==1 && strcmp(SelName,"..")==0)
       return 0;
 
-    int FocusPos;
     int NewAttr;
-    int ModeDialog;
     int FolderPresent=FALSE, JunctionPresent=FALSE;
     char TimeText[6][100];
 

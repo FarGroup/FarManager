@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.116 08.06.2001 $ */
+/* Revision: 1.117 10.06.2001 $ */
 
 /*
 Modify:
+  10.06.2001 SVS
+   ! Для DM_LISTFINDSTRING вызовен немного другу функцию.
   08.06.2001 SVS
    + Пока возился с "вылезанием" клеаред-строки за пределы диалога...
      подумалось - а фигля это так несправедливо, что когда раскрываем
@@ -4197,7 +4199,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           {
             case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
             {
-              return ListBox->FindItem((struct FarListFind *)Param2);
+              return ListBox->FindItem(((struct FarListFind *)Param2)->StartIndex,
+                                       ((struct FarListFind *)Param2)->Pattern);
             }
 
             case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
