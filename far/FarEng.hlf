@@ -1192,6 +1192,7 @@ $ #Internal editor#
    #Ctrl-Shift+Cursor keys#  Select block
    #Alt+gray cursor keys#    Select vertical block
    #Alt-Shift+Cursor keys#   Select vertical block
+   #Ctrl-Alt+gray keys#      Select vertical block
    #Ctrl-A#                  Select all text
    #Ctrl-U#                  Deselect block
    #Shift-Ins, Ctrl-V#       Paste block from clipboard
