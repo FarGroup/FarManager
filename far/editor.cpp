@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.254 06.08.2004 $ */
+/* Revision: 1.255 07.10.2004 $ */
 
 /*
 Modify:
+  07.10.2004 SVS
+    - BugZ1168 - ¬ редакторе не работают длинные макросы
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -3448,7 +3450,7 @@ int Editor::ProcessKey(int Key)
       if (!Flags.Check(FEDITOR_LOCKMODE))
       {
         const char *Fmt = eStackAsString();
-        int SizeMacroText = 16+(*Fmt ? 0 : strlen(Opt.DateFormat));
+        int SizeMacroText = 16+(*Fmt ? strlen(Fmt) : strlen(Opt.DateFormat));
         if(Key == MCODE_OP_PLAINTEXT)
           SizeMacroText=strlen(Fmt)+1;
         SizeMacroText*=4+1;

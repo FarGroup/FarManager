@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.121 06.08.2004 $ */
+/* Revision: 1.122 07.10.2004 $ */
 
 /*
 Modify:
+  07.10.2004 SVS
+    - BugZ1168 - ¬ редакторе не работают длинные макросы
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   07.07.2004 SVS
@@ -1882,8 +1884,8 @@ int Edit::ProcessCtrlQ(void)
 int Edit::ProcessInsDate(void)
 {
   const char *Fmt = eStackAsString();
-  int SizeMacroText = 16+(*Fmt ? 0 : strlen(Opt.DateFormat));
-  SizeMacroText*=4;
+  int SizeMacroText = 16+(*Fmt ? strlen(Fmt) : strlen(Opt.DateFormat));
+  SizeMacroText*=4+1;
   char *TStr=(char*)alloca(SizeMacroText);
   if(!TStr)
     return FALSE;
