@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.12 06.02.2001 $ */
+/* Revision: 1.13 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 VVM
+    + GetWrapType()/SetWrapType()
   06.02.2001 IS
     + SelectPosOffSet;
   19.01.2001 SVS
@@ -172,6 +174,8 @@ class Viewer:public ScreenObject
     void EnableHideCursor(int HideCursor);
     int GetWrapMode();
     void SetWrapMode(int Wrap);
+    int GetWrapType();
+    void SetWrapType(int TypeWrap);
     void KeepInitParameters();
     void GetFileName(char *Name);
     void ShowConsoleTitle();

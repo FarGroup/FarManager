@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.49 12.02.2001 $ */
+/* Revision: 1.50 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 VVM
+    ! Сохранение параметра "Тип врапа"
   12.02.2001 SKV
     + ConsoleDetachKey
   09.02.2001 IS
@@ -1151,7 +1153,10 @@ void SaveConfig(int Ask)
      ! Opt.ViewerIsWrap
   */
   SetRegKey("Viewer","IsWrap",Opt.ViewerIsWrap);
-  GetRegKey("Viewer","Wrap",Opt.ViewerWrap);
+  /* $ 20.02.2001 VVM
+     ! Сохранять параметры надо с помощью SetRegKey, а не GetRegKey ;) */
+  SetRegKey("Viewer","Wrap",Opt.ViewerWrap);
+  /* VVM $ */
   /* SVS $*/
 
   SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);

@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.01 20.07.2000 $ */
+/* Revision: 1.02 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 VVM
+    ! Исправление поведения врапа. (Оторвал зависимость от вьюере)
   20.07.2000 tran 1.01
     - bug 21, реализовал два виртуальных метода
   25.06.2000 SVS
@@ -30,6 +32,8 @@ class QuickView:public Panel
     int Directory;
     unsigned long DirCount,FileCount,ClusterSize;
     int64 FileSize,CompressedFileSize,RealFileSize;
+    int OldWrapMode;
+    int OldWrapType;
   public:
     QuickView();
     ~QuickView();

@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.10 12.02.2001 $ */
+/* Revision: 1.11 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 VVM
+    ! Исправление поведения врапа. (Оторвал зависимость от вьюере)
   12.02.2001 SVS
     ! Выделенный текст отображается COL_PANELINFOTEXT (Highlighted info),
       а не COL_PANELSELECTEDTEXT (Selected text)
@@ -50,7 +52,11 @@ Modify:
     ! Для возможности 3-х позиционного Wrap`а статическая переменная
       LastWrapMode имеет не булевое значение, а обычный int
 */
-static int LastWrapMode=VIEW_UNWRAP;
+/* $ 20.02.2001 VVM
+    ! Врап хранится в 2х переменных. */
+static int LastWrapMode = -1;
+static int LastWrapType = -1;
+/* VVM $ */
 /* SVS $ */
 
 QuickView::QuickView()
@@ -61,6 +67,13 @@ QuickView::QuickView()
   *CurFileType=0;
   *TempName=0;
   Directory=0;
+  /* $ 20.02.2001 VVM
+    + Проинициализируем режим врап-а */
+  if (LastWrapMode < 0) {
+    LastWrapMode = Opt.ViewerIsWrap;
+    LastWrapType = Opt.ViewerWrap;
+  }
+  /* VVM $ */
 }
 
 
@@ -282,7 +295,13 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
   QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
   QView->SetStatusMode(0);
   QView->EnableHideCursor(0);
+  /* $ 20.02.2001 VVM
+      + Запомнить старое состояние врапа и потом восстановить. */
+  OldWrapMode = QView->GetWrapMode();
+  OldWrapType = QView->GetWrapType();
   QView->SetWrapMode(LastWrapMode);
+  QView->SetWrapType(LastWrapType);
+  /* VVM $ */
   strcpy(CurFileName,FileName);
 
   if ((ExtPtr=strrchr(CurFileName,'.'))!=NULL)
@@ -348,7 +367,13 @@ void QuickView::CloseFile()
 {
   if (QView!=NULL)
   {
+    /* $ 20.02.2001 VVM
+        ! Восстановить старое значение врапа */
     LastWrapMode=QView->GetWrapMode();
+    LastWrapType=QView->GetWrapType();
+    QView->SetWrapMode(OldWrapMode);
+    QView->SetWrapType(OldWrapType);
+    /* VVM $ */
     delete QView;
     QView=NULL;
   }
@@ -364,7 +389,13 @@ void QuickView::QViewDelTempName()
   {
     if (QView!=NULL)
     {
+      /* $ 20.02.2001 VVM
+          ! Восстановить старое значение врапа */
       LastWrapMode=QView->GetWrapMode();
+      LastWrapType=QView->GetWrapType();
+      QView->SetWrapMode(OldWrapMode);
+      QView->SetWrapType(OldWrapType);
+      /* VVM $ */
       delete QView;
       QView=NULL;
     }

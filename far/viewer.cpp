@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.46 06.02.2001 $ */
+/* Revision: 1.47 20.02.2001 $ */
 
 /*
 Modify:
+  20.02.2001 VVM
+    + GetWrapType()/SetWrapType()
   06.02.2001 IS
    - Бага с выделением, которую добавили, когда убрали показ начального пробела
      в юникодных файлах. См. SelectPosOffSet в SelectText
@@ -2088,6 +2090,18 @@ void Viewer::SetWrapMode(int Wrap)
 void Viewer::EnableHideCursor(int HideCursor)
 {
   Viewer::HideCursor=HideCursor;
+}
+
+
+int Viewer::GetWrapType()
+{
+  return(VM.TypeWrap);
+}
+
+
+void Viewer::SetWrapType(int TypeWrap)
+{
+  Viewer::VM.TypeWrap=TypeWrap;
 }
 
 
