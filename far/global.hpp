@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.57 11.11.2003 $ */
+/* Revision: 1.58 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + RightAltPressed,RightCtrlPressed,RightShiftPressed
   11.11.2003 SVS
     ! KeepUserScreen и DirToSet перенесены из plugins.cpp в global.cpp
   22.09.2003 KM
@@ -182,6 +184,7 @@ extern int PrevScrX,PrevScrY;
 extern HANDLE hConOut,hConInp;
 
 extern int AltPressed,CtrlPressed,ShiftPressed;
+extern int RightAltPressed,RightCtrlPressed,RightShiftPressed;
 extern int LButtonPressed, PrevLButtonPressed;
 extern int RButtonPressed, PrevRButtonPressed;
 extern int MButtonPressed, PrevMButtonPressed;

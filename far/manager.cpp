@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.85 13.10.2003 $ */
+/* Revision: 1.86 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    ! ѕробуем различать левый и правый CAS (попытка #1).
   13.10.2003 SVS
     ! RunGraber() вызываем в манагере, а в CalcKeyCode() просто вернем KEY_INS|KEY_ALT
   27.05.2003 SVS
@@ -1024,15 +1026,24 @@ int  Manager::ProcessKey(int Key)
         switch(Key)
         {
           case KEY_CTRLALTSHIFTPRESS:
+          case KEY_RCTRLALTSHIFTPRESS:
+          {
+            if(!(Opt.CASRule&1) && Key == KEY_CTRLALTSHIFTPRESS)
+              break;
+            if(!(Opt.CASRule&2) && Key == KEY_RCTRLALTSHIFTPRESS)
+              break;
             if(!NotUseCAS)
             {
-              if (CurrentFrame->FastHide()){
+              if (CurrentFrame->FastHide())
+              {
                 ImmediateHide();
-                WaitKey(KEY_CTRLALTSHIFTRELEASE);
+                WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
                 FrameManager->RefreshFrame();
               }
+              return TRUE;
             }
-            return TRUE;
+            break;
+          }
 
           case KEY_CTRLTAB:
           case KEY_CTRLSHIFTTAB:

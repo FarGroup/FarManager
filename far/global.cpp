@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.59 11.11.2003 $ */
+/* Revision: 1.60 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + RightAltPressed,RightCtrlPressed,RightShiftPressed
   11.11.2003 SVS
     ! KeepUserScreen и DirToSet перенесены из plugins.cpp в global.cpp
   22.09.2003 KM
@@ -195,6 +197,7 @@ int WaitInMainLoop=FALSE;
 // "дополнительная" очередь кодов клавиш
 FarQueue<DWORD> *KeyQueue=NULL;
 int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
+int RightAltPressed=0,RightCtrlPressed=0,RightShiftPressed=0;
 int LButtonPressed=0,RButtonPressed=0,MButtonPressed=0;
 int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
 int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.103 24.10.2003 $ */
+/* Revision: 1.104 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    ! Пробуем различать левый и правый CAS (попытка #1).
   24.10.2003 SVS
     ! уточнение FarNameToKey
   20.10.2003 SVS
@@ -329,12 +331,17 @@ Modify:
 
 static unsigned int AltValue=0;
 static int KeyCodeForALT_LastPressed=0;
-static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
-static int RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
+
 #if defined(MOUSEKEY)
 static int PrePreMouseEventFlags;
 #endif
+
+static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
+
+static int RightShiftPressedLast=FALSE,RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
+static BOOL IsKeyRCASPressed=FALSE; // Right CtrlAltShift - нажато или нет?
+
 static clock_t PressedLastTime,KeyPressedLastTime;
 static int ShiftState=0;
 static int AltEnter=-1;
@@ -390,6 +397,8 @@ struct TFKey3{
 };
 
 static struct TFKey3 FKeys1[]={
+  { KEY_RCTRLALTSHIFTRELEASE,24, "RightCtrlAltShiftRelease"},
+  { KEY_RCTRLALTSHIFTPRESS,  22, "RightCtrlAltShiftPress"},
   { KEY_CTRLALTSHIFTRELEASE, 19, "CtrlAltShiftRelease"},
   { KEY_CTRLALTSHIFTPRESS,   17, "CtrlAltShiftPress"},
 #if defined(MOUSEKEY)
@@ -918,7 +927,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
   {
     /* $ 28.04.2001 VVM
       + Не только обработаем сами смену фокуса, но и передадим дальше */
-    ShiftPressed=ShiftPressedLast=FALSE;
+    ShiftPressed=RightShiftPressedLast=ShiftPressedLast=FALSE;
     CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
     LButtonPressed=RButtonPressed=MButtonPressed=FALSE;
@@ -1044,16 +1053,25 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
     ShiftPressed=(CtrlState & SHIFT_PRESSED);
+    RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
+    RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
+    RightShiftPressed=(CtrlState & SHIFT_PRESSED); //???
     KeyPressedLastTime=CurClock;
     /* $ 24.08.2000 SVS
        + Добавление на реакцию KEY_CTRLALTSHIFTRELEASE
     */
-    if(IsKeyCASPressed && (!CtrlPressed || !AltPressed || !ShiftPressed))
+    if(IsKeyCASPressed && (Opt.CASRule&1) && (!CtrlPressed || !AltPressed || !ShiftPressed))
     {
       IsKeyCASPressed=FALSE;
-      return(KEY_CTRLALTSHIFTRELEASE);
+      return KEY_CTRLALTSHIFTRELEASE;
     }
-    /* SVS $ */
+
+    if(IsKeyRCASPressed && (Opt.CASRule&2) && (!RightCtrlPressed || !RightAltPressed || !ShiftPressed))
+    {
+      IsKeyRCASPressed=FALSE;
+      return KEY_RCTRLALTSHIFTRELEASE;
+    }
+/* SVS $ */
   }
 
   ReturnAltValue=FALSE;
@@ -1254,6 +1272,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
     DWORD KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
+    RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
+    RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
 
     // Для NumPad!
     if((CalcKey&(KEY_CTRL|KEY_SHIFT|KEY_ALT|KEY_RCTRL|KEY_RALT)) == KEY_SHIFT &&
@@ -1272,8 +1292,16 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
       int Key=-1;
       if (ShiftPressedLast && KeyCode==VK_SHIFT)
       {
-        Key=KEY_SHIFT;
-        //// // _SVS(SysLog("ShiftPressedLast, Key=KEY_SHIFT"));
+        if (ShiftPressedLast)
+        {
+          Key=KEY_SHIFT;
+          //// // _SVS(SysLog("ShiftPressedLast, Key=KEY_SHIFT"));
+        }
+        else if (RightShiftPressedLast)
+        {
+          Key=KEY_RSHIFT;
+          //// // _SVS(SysLog("RightShiftPressedLast, Key=KEY_RSHIFT"));
+        }
       }
       if (KeyCode==VK_CONTROL)
       {
@@ -1315,7 +1343,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
         return(Key);
     }
 
-    ShiftPressedLast=FALSE;
+    ShiftPressedLast=RightShiftPressedLast=FALSE;
     CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressedLast=RightAltPressedLast=FALSE;
 
@@ -1368,9 +1396,27 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
         case VK_CONTROL:
           if(!IsKeyCASPressed && CtrlPressed && AltPressed && ShiftPressed)
           {
-            IsKeyCASPressed=TRUE;
-            return (KEY_CTRLALTSHIFTPRESS);
+            if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed && (Opt.CASRule&2))
+            {
+              IsKeyRCASPressed=TRUE;
+              return (KEY_RCTRLALTSHIFTPRESS);
+            }
+            else if(Opt.CASRule&1)
+            {
+              IsKeyCASPressed=TRUE;
+              return (KEY_CTRLALTSHIFTPRESS);
+            }
           }
+          break;
+        case VK_LSHIFT:
+        case VK_LMENU:
+        case VK_LCONTROL:
+          if(!IsKeyRCASPressed && RightCtrlPressed && RightAltPressed && RightShiftPressed && (Opt.CASRule&2))
+          {
+            IsKeyRCASPressed=TRUE;
+            return (KEY_RCTRLALTSHIFTPRESS);
+          }
+          break;
       }
       /* SVS $ */
       return(KEY_NONE);
@@ -1413,6 +1459,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec)
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
     ShiftPressed=(CtrlState & SHIFT_PRESSED);
+    RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
+    RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
+    RightShiftPressed=(CtrlState & SHIFT_PRESSED);
 
     DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
     if (SwapButton && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !IsWindowed())
@@ -1543,7 +1592,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec)
 DWORD WaitKey(DWORD KeyWait)
 {
   int Visible,Size;
-  if(KeyWait == KEY_CTRLALTSHIFTRELEASE)
+  if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
   {
     GetCursorType(Visible,Size);
     SetCursorType(0,10);
@@ -1563,7 +1612,7 @@ DWORD WaitKey(DWORD KeyWait)
       break;
   }
 
-  if(KeyWait == KEY_CTRLALTSHIFTRELEASE)
+  if(KeyWait == KEY_CTRLALTSHIFTRELEASE || KeyWait == KEY_RCTRLALTSHIFTRELEASE)
     SetCursorType(Visible,Size);
 
   return Key;
@@ -2074,6 +2123,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
     ShiftPressed=(CtrlState & SHIFT_PRESSED);
+    RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
+    RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
+    RightShiftPressed=(CtrlState & SHIFT_PRESSED);
   }
 
   if (!(rec->EventType==KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT))
@@ -2162,7 +2214,24 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       case VK_SHIFT:
       case VK_MENU:
       case VK_CONTROL:
-        return (IsKeyCASPressed?KEY_CTRLALTSHIFTPRESS:KEY_CTRLALTSHIFTRELEASE);
+      {
+        if(RightCtrlPressed && RightAltPressed && RightShiftPressed && (Opt.CASRule&2))
+          return (IsKeyRCASPressed?KEY_RCTRLALTSHIFTPRESS:KEY_RCTRLALTSHIFTRELEASE);
+        else if(Opt.CASRule&1)
+          return (IsKeyCASPressed?KEY_CTRLALTSHIFTPRESS:KEY_CTRLALTSHIFTRELEASE);
+      }
+    }
+  }
+  if(RightCtrlPressed && RightAltPressed && RightShiftPressed)
+  {
+    switch(KeyCode)
+    {
+      case VK_RSHIFT:
+      case VK_RMENU:
+      case VK_RCONTROL:
+        if(Opt.CASRule&2)
+          return (IsKeyRCASPressed?KEY_RCTRLALTSHIFTPRESS:KEY_RCTRLALTSHIFTRELEASE);
+        break;
     }
   }
   /* SVS $*/
@@ -2424,6 +2493,55 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       return(Modif|KEY_SUBTRACT);
     case VK_ESCAPE:
       return(Modif|KEY_ESC);
+  }
+
+  /* ------------------------------------------------------------- */
+  if (CtrlPressed && AltPressed && ShiftPressed)
+  {
+_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAltShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
+    if (KeyCode>='A' && KeyCode<='Z')
+      return(KEY_SHIFT|KEY_CTRL|KEY_ALT+KeyCode);
+    if(Opt.ShiftsKeyRules) //???
+      switch(KeyCode)
+      {
+        case 0xc0:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'~');
+        case 0xbd:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'-');
+        case 0xbb:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+'=');
+        case 0xdc:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BACKSLASH);
+        case 0xdd:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BACKBRACKET);
+        case 0xdb:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_BRACKET);
+        case 0xde:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_QUOTE);
+        case 0xba:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_COLON);
+        case 0xbf:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_SLASH);
+        case 0xbe:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_DOT);
+        case 0xbc:
+          return(KEY_SHIFT+KEY_CTRL+KEY_ALT+KEY_COMMA);
+      }
+    switch(KeyCode)
+    {
+      case VK_DIVIDE:
+        return(KEY_SHIFT|KEY_CTRLALT|KEY_DIVIDE);
+      case VK_MULTIPLY:
+        return(KEY_SHIFT|KEY_CTRLALT|KEY_MULTIPLY);
+      case VK_PAUSE:
+        return(KEY_SHIFT|KEY_CTRLALT|KEY_BREAK);
+    }
+    if (Char.AsciiChar)
+      return(KEY_SHIFT|KEY_CTRL|KEY_ALT+Char.AsciiChar);
+    if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_MENU))
+      return(KEY_NONE);
+    if (KeyCode)
+      return(KEY_SHIFT|KEY_CTRL|KEY_ALT+KeyCode);
   }
 
   /* ------------------------------------------------------------- */
