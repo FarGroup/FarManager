@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.55 09.04.2002 $ */
+/* Revision: 1.56 11.05.2002 $ */
 
 /*
 Modify:
+  11.05.2002 SVS
+    - добавим недостающую скобоку в Text()
   09.04.2002 DJ
     ! попробуем организовать нормальный запуск под Win2000, даже если в .PIF
       стоит 300 строк
@@ -725,7 +727,7 @@ void Text(const char *Str)
   {
 #if defined(USE_WFUNC)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-      CharBuf[I].Char.UnicodeChar = Oem2Unicode[RecodeOutTable[static_cast<BYTE>(Str[I])];
+      CharBuf[I].Char.UnicodeChar = Oem2Unicode[RecodeOutTable[static_cast<BYTE>(Str[I])]];
     else
       CharBuf[I].Char.AsciiChar=RecodeOutTable[static_cast<BYTE>(Str[I])];
 #else

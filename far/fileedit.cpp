@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.98 29.04.2002 $ */
+/* Revision: 1.99 11.05.2002 $ */
 
 /*
 Modify:
+  11.05.2002 SVS
+    - BugZ#468 - File saving after, cancelation.
   29.04.2002 SVS
     - BugZ#488 - Shift=enter
   22.03.2002 SVS
@@ -865,7 +867,8 @@ int FileEditor::ProcessKey(int Key)
                          MSG(MEditSave),MSG(MEditNotSave),MSG(MEditContinue)))
           {
             case 0:
-              ProcessKey(KEY_F2);  // попытка сначала сохранить
+              if(!ProcessKey(KEY_F2))  // попытка сначала сохранить
+                NeedQuestion=0;
               FirstSave=0;
               break;
             case 1:
