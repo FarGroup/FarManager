@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.251 04.06.2002 $ */
+/* Revision: 1.252 06.06.2002 $ */
 
 /*
 Modify:
+  06.06.2002 KM
+    - Изничтожена несовместимость DM_GETTEXT с билдом 1282.
+    - Убрано ограничение в 1024 байта на длину получаемой
+      при помощи DM_GETTEXT строки.
+    - Удавлено падение фара при работе DI_EDIT с флагом
+      DIF_VAREDIT с сообщениями DM_[G|S]ETTEXT
   04.06.2002 SVS
     + DIF_CENTERTEXT
     + DIF_NOTCVTUSERCONTROL, если флаг не установлен - вызываем PutTextA
@@ -4207,6 +4213,7 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->Param.Selected=Data->Selected;
       Item->Flags=Data->Flags;
       Item->DefaultButton=Data->DefaultButton;
+      memmove(Item->Data.Data,Data->Data,sizeof(Item->Data.Data));
       if(InternalCall)
       {
         if(Dialog::IsEdit(Data->Type) && (EditPtr=(DlgEdit *)(Data->ObjPtr)) != NULL)
@@ -4226,7 +4233,6 @@ void Dialog::ConvertItem(int FromPlugin,
           EditPtr->GetString(PtrData,PtrLength);
         }
       }
-      memmove(Item->Data.Data,Data->Data,sizeof(Item->Data.Data));
     }
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
@@ -5757,7 +5763,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   struct DialogItem *CurItem=NULL;
   int Type=0;
   char *Ptr=NULL;
-  char Str[1024];
   int Len;
   struct FarDialogItem PluginDialogItem;
   // предварительно проверим...
@@ -6333,8 +6338,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_FIXEDIT:
             if(!CurItem->ObjPtr)
               break;
-            ((DlgEdit *)(CurItem->ObjPtr))->GetString(Str,sizeof(Str));
-            Ptr=Str;
+            /* $ 04.06.2002 KM
+                Уберём ограничение в 1024 байта, для чего возьмём
+                указатель на редактируемую строку.
+            */
+            Ptr=const_cast <char *>(((DlgEdit *)(CurItem->ObjPtr))->GetStringAddr());
+            /* KM $ */
 
           case DI_TEXT:
           case DI_VTEXT:
@@ -6354,7 +6363,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             if(!did->PtrLength)
               did->PtrLength=Len;
             else if(Len > did->PtrLength)
-              Len=did->PtrLength;
+              Len=did->PtrLength+1; // Прибавим 1, чтобы учесть нулевой байт.
 
             if(Len > 0 && did->PtrData)
             {
@@ -6458,6 +6467,17 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
         switch(Type)
         {
+          case DI_COMBOBOX:
+          case DI_EDIT:
+            if(CurItem->Flags&DIF_VAREDIT)
+            {
+              Ptr=(char *)did->PtrData;
+              Len=did->PtrLength+1; // Прибавим 1, чтобы учесть нулевой байт.
+              if(Len > CurItem->Ptr.PtrLength)
+                Len=CurItem->Ptr.PtrLength;
+              break;
+            }
+
           case DI_TEXT:
           case DI_VTEXT:
           case DI_SINGLEBOX:
@@ -6465,8 +6485,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_BUTTON:
           case DI_CHECKBOX:
           case DI_RADIOBUTTON:
-          case DI_COMBOBOX:
-          case DI_EDIT:
           case DI_PSWEDIT:
           case DI_FIXEDIT:
           case DI_LISTBOX: // меняет только текущий итем
