@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.83 18.04.2002 $ */
+/* Revision: 1.84 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 SVS
+    - BugZ#467 - Дублирующиеся хоткеи в Folders History
   18.04.2002 KM
     - Сбрасываем флаг "координаты установлены" у
       меню. Убивается баг:
@@ -1815,7 +1817,7 @@ struct MenuItem *VMenu::GetItemPtr(int Position)
 
 void VMenu::AssignHighlights(int Reverse)
 {
-  char Used[256];
+  BYTE Used[256];
   memset(Used,0,sizeof(Used));
 
   /* $ 02.12.2001 KM
@@ -1833,34 +1835,53 @@ void VMenu::AssignHighlights(int Reverse)
   int I, Delta=Reverse ? -1:1;
   for (I=(Reverse ? ItemCount-1:0); I >= 0 && I < ItemCount; I+=Delta)
   {
+    char Ch=0;
     const char *Name=Item[I].PtrName();
     const char *ChPtr=strchr(Name,'&');
-    if (ChPtr!=NULL && !VMFlags.Check(VMENU_SHOWAMPERSAND))
+
+    Item[I].AmpPos=-1;
+    if (ChPtr)
     {
-      Used[LocalUpper(ChPtr[1])]=TRUE;
-      Used[LocalLower(ChPtr[1])]=TRUE;
+      Ch=ChPtr[1];
+      if(VMFlags.Check(VMENU_SHOWAMPERSAND))
+      {
+        ChPtr=strchr(ChPtr+1,'&');
+        if(ChPtr)
+          Ch=ChPtr[1];
+      }
+    }
+
+    if(Ch && !Used[LocalUpper(Ch)] && !Used[LocalLower(Ch)])
+    {
+      Used[LocalUpper(Ch)]++;
+      Used[LocalLower(Ch)]++;
       Item[I].AmpPos=ChPtr-Name;
     }
-//_SVS(SysLog("Pre:   Item[I].AmpPos=%d Item[I].Name='%s'",Item[I].AmpPos,Item[I].PtrName()));
   }
+//_SVS(SysLogDump("Used Pre",0,Used,sizeof(Used),NULL));
+
+  // TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
   for (I=Reverse ? ItemCount-1:0;I>=0 && I<ItemCount;I+=Reverse ? -1:1)
   {
     const char *Name=Item[I].PtrName();
     const char *ChPtr=strchr(Name,'&');
     if (ChPtr==NULL || VMFlags.Check(VMENU_SHOWAMPERSAND))
+    {
       for (int J=0; Name[J]; J++)
-        if (Name[J]=='&' || !Used[Name[J]] && LocalIsalphanum(Name[J]))
+      {
+        char Ch=Name[J];
+        if((Ch =='&' || LocalIsalpha(Ch) || (Ch >= '0' && Ch <='9')) &&
+             !Used[LocalUpper(Ch)] && !Used[LocalLower(Ch)])
         {
-          Used[Name[J]]=TRUE;
-          Used[LocalUpper(Name[J])]=TRUE;
-          Used[LocalLower(Name[J])]=TRUE;
-          //memmove(Name+J+1,Name+J,strlen(Name+J)+1);
-          //Name[J]='&';
+          Used[LocalUpper(Ch)]++;
+          Used[LocalLower(Ch)]++;
           Item[I].AmpPos=J;
-//_SVS(SysLog("Post:   Item[I].AmpPos=%d Item[I].Name='%s'",Item[I].AmpPos,Item[I].Name));
           break;
         }
+      }
+    }
   }
+//_SVS(SysLogDump("Used Post",0,Used,sizeof(Used),NULL));
   VMFlags.Set(VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSEHIGHLIGHT:0));
   VMFlags.Skip(VMENU_SHOWAMPERSAND);
 }
