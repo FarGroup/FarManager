@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.89 05.02.2002 $ */
+/* Revision: 1.90 09.02.2002 $ */
 
 /*
 Modify:
+  09.02.2002 VVM
+    + Обновить панели, если писали в текущий каталог
   05.02.2002 SVS
     ! Технологический патч - про сислоги
   04.02.2002 SVS
@@ -1051,6 +1053,22 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
 
   int Ret=FEdit.SaveFile(Name,Ask,TextFormat,SaveAs);
   IsNewFile=0;
+
+  /* $ 09.02.2002 VVM
+    + Обновить панели, если писали в текущий каталог */
+  if (Ret==SAVEFILE_SUCCESS)
+  {
+    Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+    char *FileName = PointToName((char *)Name);
+    char FilePath[NM], PanelPath[NM];
+    strncpy(FilePath, Name, FileName - Name);
+    ActivePanel->GetCurDir(PanelPath);
+    AddEndSlash(PanelPath);
+    AddEndSlash(FilePath);
+    if (!strcmp(PanelPath, FilePath))
+      ActivePanel->Update(UPDATE_KEEP_SELECTION);
+  }
+  /* VVM $ */
   return Ret;
 }
 
