@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.162 10.03.2002 $ */
+/* Revision: 1.163 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 IS
+    - ѕопытка избавитьс€ от проблем выделени€ при наличии колорера и
+      Shift-Down, Shift-End (BugZ#319)
   10.03.2002 IS
     ! UnmarkEmptyBlock теперь нормально работает с вертикальными блоками
       (раньше их не видела вообще и снимала выделение даже при не пустом блоке)
@@ -1679,16 +1682,19 @@ int Editor::ProcessKey(int Key)
         */
         {
           int First=FALSE; // будет TRUE, если выдел€ем заново, а не продолжаем
-          /* $ 06.02.2002 IS
+          /* $ 18.03.2002 IS
              ƒобавим дополнительную проверку на наличие выделени€ - если
-             SelStart==SelEnd, то считаем, что выделени€ нет (такое могло быть
-             после плагинов)
+             размер выделени€ равен 0, то считаем, что выделени€ нет
+             (такое могло быть после плагинов)
           */
           int SelStart, SelEnd;
+          UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
           if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
           {
             CurLine->EditLine.GetSelection(SelStart,SelEnd);
-            if(SelStart!=-1 && SelStart==SelEnd)
+            if(SelStart!=-1 && (CurPos<SelStart || // если курсор до выделени€
+               (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделени€
+                (CurPos>SelStart && CurPos<SelEnd))))) // ... внутри выдлени€
               EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
             EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
           }
