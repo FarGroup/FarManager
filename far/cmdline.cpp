@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.30 22.06.2001 $ */
+/* Revision: 1.31 25.06.2001 $ */
 
 /*
 Modify:
+  25.06.2001 SVS
+    - неверно работало в "If exist" преобразование toFullName, не учитывался
+      факт того, что имя уже может иметь полный путь.
   22.06.2001 SKV
     - Update панелей после исполнения команды.
   18.06.2001 SVS
@@ -519,12 +522,15 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
 //_SVS(SysLog("Cmd='%s'",Cmd));
         if (ExpandEnvironmentStr(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
         {
-          char FullPath[8192];
-          if(CtrlObject)
-            CtrlObject->CmdLine->GetCurDir(FullPath);
-          else
-            GetCurrentDirectory(sizeof(FullPath),FullPath);
-          AddEndSlash(FullPath);
+          char FullPath[8192]="";
+          if(!(Cmd[1] == ':' || (Cmd[0] == '\\' && Cmd[1]=='\\')))
+          {
+            if(CtrlObject)
+              CtrlObject->CmdLine->GetCurDir(FullPath);
+            else
+              GetCurrentDirectory(sizeof(FullPath),FullPath);
+            AddEndSlash(FullPath);
+          }
           strcat(FullPath,ExpandedStr);
           ConvertNameToFull(FullPath,FullPath, sizeof(FullPath));
           DWORD FileAttr=GetFileAttributes(FullPath);

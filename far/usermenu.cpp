@@ -5,11 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.29 19.06.2001 $ */
+/* Revision: 1.30 25.06.2001 $ */
 
 /*
 Modify:
-  19.06.2001 IS
+  25.06.2001 SVS
+    ! перенос проверки "if exist" чуток пониже :-))
+  19.06.2001 SVS
     + Первая стадия: корректировка "if exist"
   17.06.2001 IS
     - Баг: выбиралось каким-то чудом то, что выбираться не должно, а именно -
@@ -744,7 +746,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           ЭТО выполняется всегда, т.к. парсинг всей строки идет, а надо
           проверить фазу "if exist ..\a.bat", а уж потом делать выводы...
         */
-        if(ExtractIfExistCommand(Command))
+        //if(ExtractIfExistCommand(Command))
         {
           int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
           PreserveLongName PreserveName(ShortName,PreserveLFN);
@@ -762,8 +764,13 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             PanelsHidden=TRUE;
           }*/
           /* IS $ */
-          if (*Command)
-            CtrlObject->CmdLine->ExecString(Command,FALSE);
+//          ;
+//_SVS(SysLog("!%s!",Command));
+          if(ExtractIfExistCommand(Command))
+          {
+            if (*Command)
+              CtrlObject->CmdLine->ExecString(Command,FALSE);
+          }
         }
       }
       if (*ListName)
