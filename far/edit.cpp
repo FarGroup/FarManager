@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.49 05.09.2001 $ */
+/* Revision: 1.50 14.09.2001 $ */
 
 /*
 Modify:
+  14.09.2001 SKV
+    - при ctrl-q надо вызывать DeleteBlock, а не RecurseProcessKey(KEY_DEL); :)
   05.09.2001 SVS
     ! Для непостоянных блоков снимаем выделение
   31.07.2001 KM
@@ -1369,7 +1371,9 @@ int Edit::ProcessCtrlQ(void)
   }
   EditOutDisabled++;
   if (!PersistentBlocks)
-    RecurseProcessKey(KEY_DEL);
+  {
+    DeleteBlock();
+  }
   else
     ClearFlag=0;
   EditOutDisabled--;
