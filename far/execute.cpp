@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.76 17.12.2002 $ */
+/* Revision: 1.77 17.03.2002 $ */
 
 /*
 Modify:
+  17.01.2003 VVM
+    ! Косметика
   17.12.2002 VVM
     - BugZ#678 - Незапуск .msi по Shift-Enter (вторая часть!)
   11.12.2002 VVM
@@ -1026,11 +1028,13 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         //_tran(SysLog("1. execline='%s'",ExecLine);)
 
         int QuoteAll = FALSE;
-        if ((PipeFound && (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))) ||
-            (QuoteFound && NT && ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI))
+// WINDOWS_GUI всегда пускается через ShellExecute
+//        if ((PipeFound && (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))) ||
+//            (QuoteFound && NT && ImageSubsystem != IMAGE_SUBSYSTEM_WINDOWS_GUI))
+        if ((PipeFound && SeparateWindow) || (QuoteFound && NT))
           QuoteAll = TRUE;
 
-        if (SeparateWindow || ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && (NT || AlwaysWaitFinish))
+        if (SeparateWindow)
         {
           strcat(ExecLine," start");
           if (AlwaysWaitFinish)
