@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.36 14.06.2001 $ */
+/* Revision: 1.37 21.06.2001 $ */
 
 /*
 Modify:
+  21.06.2001 SVS
+    ! Удалена функция WriteSequenceInput() за ненадобностью
   14.06.2001 OT
     ! "Бунт" ;-)
   08.06.2001 SVS
@@ -766,20 +768,6 @@ int WriteInput(int Key,DWORD Flags)
   }
   else
     return 0;
-}
-
-// Возвращает количество записанных из Sequence во внутреннюю очередь
-int WriteSequenceInput(struct SequenceKey *Sequence)
-{
-  if(Sequence && KeyQueue)
-  {
-    int I;
-    for(I=0; I < Sequence->Count; ++I)
-      if(!WriteInput(Sequence->Sequence[I],Sequence->Flags))
-        break;
-    return I;
-  }
-  return 0;
 }
 
 

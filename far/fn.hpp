@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.89 18.06.2001 $ */
+/* Revision: 1.90 21.06.2001 $ */
 
 /*
 Modify:
+  21.06.2001 SVS
+    ! Удалена функция WriteSequenceInput() за ненадобностью
   18.06.2001 SVS
     + ExtractIfExistCommand()
   11.06.2001 SVS
@@ -843,7 +845,6 @@ BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
    FSF/FarInputRecordToKey */
 int WINAPI InputRecordToKey(INPUT_RECORD *r);
 /* tran 31.08.2000 $ */
-int WriteSequenceInput(struct SequenceKey *Sequence);
 int GetInputRecord(INPUT_RECORD *rec);
 int PeekInputRecord(INPUT_RECORD *rec);
 int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);

@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.70 20.06.2001 $ */
+/* Revision: 1.71 21.06.2001 $ */
 
 /*
 Modify:
+  21.06.2001 SVS
+    ! ACTL_POSTSEQUENCEKEY -> ACTL_POSTKEYSEQUENCE - (с точки зрени€ eng)
+    ! SequenceKey           -> KeySequence
+    ! ¬ ACTL_GETWINDOWINFO добавим проверку Param на NULL
   20.06.2001 SVS
     ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY, в т.ч. механизм
       этой команды теперь основываетс€ на Macro API
@@ -409,15 +413,14 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return FALSE;
     }
 
-    case ACTL_POSTSEQUENCEKEY:
-      //return Param?WriteSequenceInput((struct SequenceKey*)Param):FALSE;
-      if(CtrlObject && Param && ((struct SequenceKey*)Param)->Count > 0)
+    case ACTL_POSTKEYSEQUENCE:
+      if(CtrlObject && Param && ((struct KeySequence*)Param)->Count > 0)
       {
         struct MacroRecord MRec;
-        MRec.Flags=(((struct SequenceKey*)Param)->Flags)<<16;
+        MRec.Flags=(((struct KeySequence*)Param)->Flags)<<16;
         MRec.Key=0;
-        MRec.BufferSize=((struct SequenceKey*)Param)->Count;
-        MRec.Buffer=((struct SequenceKey*)Param)->Sequence;
+        MRec.BufferSize=((struct KeySequence*)Param)->Count;
+        MRec.Buffer=((struct KeySequence*)Param)->Sequence;
         return CtrlObject->Macro.PostTempKeyMacro(&MRec);
       }
       return FALSE;
@@ -425,6 +428,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* $ 05.06.2001 tran
        новые ACTL_ дл€ работы с фреймами */
     case ACTL_GETWINDOWINFO:
+        if(Param)
         {
             WindowInfo *wi=(WindowInfo*)Param;
             Frame *f=FrameManager->operator[](wi->Pos);

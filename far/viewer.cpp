@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.66 08.06.2001 $ */
+/* Revision: 1.67 21.06.2001 $ */
 
 /*
 Modify:
+  21.06.2001 SVS
+    ! "Небольшое" увеличение размера буферов (костыли, одним словом :-(
   08.06.2001
     - Баги в некоторых местах из-за использования strcpy, а не strncpy, в
       результате чего гадили в память.
@@ -974,7 +976,7 @@ void Viewer::DrawScrollbar()
 
 void Viewer::ShowStatus()
 {
-  char Status[200],Name[512];
+  char Status[4096],Name[4096];
   if (!ShowStatusLine)
     return;
   /* $ 22.06.2000 IS
@@ -1182,7 +1184,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
 int Viewer::ProcessKey(int Key)
 {
   int Tmp,I;
-  char ReadStr[528];
+  char ReadStr[4096];
 
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
@@ -1893,8 +1895,8 @@ void Viewer::Search(int Next,int FirstChar)
   /* KM $ */
   MakeDialogItems(SearchDlgData,SearchDlg);
 
-  unsigned char SearchStr[256];
-  char MsgStr[256];
+  unsigned char SearchStr[512];
+  char MsgStr[512];
   unsigned long MatchPos;
   /* $ 01.08.2000 KM
      Добавлена новая переменная WholeWords
@@ -2146,7 +2148,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 void Viewer::ConvertToHex(char *SearchStr,int &SearchLength)
 {
-  char OutStr[256],*SrcPtr;
+  char OutStr[512],*SrcPtr;
   int OutPos=0,N=0;
   SrcPtr=SearchStr;
   while (*SrcPtr)
@@ -2518,7 +2520,7 @@ void Viewer::AdjustFilePos()
 {
   if (!VM.Hex)
   {
-    char Buf[1024];
+    char Buf[4096];
     long StartLinePos=-1,GotoLinePos=FilePos-sizeof(Buf);
     if (GotoLinePos<0)
       GotoLinePos=0;

@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.119 20.06.2001 $ */
+/* Revision: 1.120 21.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.06.2001 SVS
+   ! ACTL_POSTSEQUENCEKEY  -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
+   ! SKFLAGS_DISABLEOUTPUT -> KSFLAGS_DISABLEOUTPUT
+   ! SequenceKey           -> KeySequence
   20.06.2001 SVS
    ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY
    ! SKEY_NOTMACROS -> SKFLAGS_DISABLEOUTPUT
@@ -1038,7 +1042,7 @@ enum {
   ACTL_GETARRAYCOLOR,
   ACTL_EJECTMEDIA,
   ACTL_KEYMACRO,
-  ACTL_POSTSEQUENCEKEY,
+  ACTL_POSTKEYSEQUENCE,
   ACTL_GETWINDOWINFO,
   ACTL_GETWINDOWCOUNT,
   ACTL_SETCURRENTWINDOW
@@ -1069,11 +1073,11 @@ struct ActlKeyMacro{
   DWORD Reserved[3];
 };
 
-enum SequenceKeyFlags {
-  SKFLAGS_DISABLEOUTPUT       = 0x00000001,
+enum KeySequenceFlags {
+  KSFLAGS_DISABLEOUTPUT       = 0x00000001,
 };
 
-struct SequenceKey{
+struct KeySequence{
   DWORD Flags;
   int Count;
   DWORD *Sequence;
