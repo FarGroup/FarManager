@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.05 03.06.2001 $ */
+/* Revision: 1.06 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 SVS
@@ -42,7 +44,7 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
-  VMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
+  VFMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
   /* $ 31.01.2001 IS
      ! Теперь это меню более дружелюбно ;)
   */
@@ -89,7 +91,7 @@ void ShowProcessList()
         break;
     }
   }
-  if (ProcList.GetExitCode()>=0)
+  if (ProcList.VMenu::GetExitCode()>=0)
   {
     HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
     if (ProcWnd!=NULL)
@@ -125,7 +127,7 @@ BOOL KillProcess(DWORD dwPID)
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
-  VMenu *ProcList=(VMenu *)lParam;
+  VFMenu *ProcList=(VFMenu *)lParam;
   if (IsWindowVisible(hwnd) ||
       IsIconic(hwnd) && (GetWindowLong(hwnd,GWL_STYLE) & WS_DISABLED)==0)
   {

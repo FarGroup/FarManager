@@ -7,10 +7,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.05 14.06.2001 $ */
+/* Revision: 1.06 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   14.06.2001 OT
     ! "Бунт" ;-)
   06.05.2001 DJ
@@ -29,7 +31,7 @@ Modify:
 
 #include "scrobj.hpp"
 
-class Modal:public ScreenObject
+class Modal: virtual public ScreenObject
 {
   private:
     int     ReadKey,

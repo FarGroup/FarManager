@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.13 11.07.2001 $ */ 
+/* Revision: 1.14 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   09.07.2001 OT
@@ -58,13 +60,14 @@ enum { MODALTYPE_VIRTUAL,
   MODALTYPE_USER
 };
 
-class Frame: public ScreenObject
+class Frame: virtual public ScreenObject
 {
   friend class Manager;
   private:
-    Frame **ModalStack;
-    int  ModalStackCount, ModalStackSize;
-	  Frame *FrameToBack;
+//    Frame **ModalStack;
+//    int  ModalStackCount, ModalStackSize;
+    Frame *FrameToBack;
+    Frame *NextModal,*PrevModal;
 
   protected:
     int  DynamicallyBorn;
@@ -92,9 +95,10 @@ class Frame: public ScreenObject
     virtual int GetTypeAndName(char *Type,char *Name) {return(MODALTYPE_VIRTUAL);};
     virtual int GetType() { return MODALTYPE_VIRTUAL; }
 
-    virtual void OnDestroy() {};  // вызывается перед уничтожением окна
+    virtual void OnDestroy();  // вызывается перед уничтожением окна
     virtual void OnCreate() {};   // вызывается перед созданием окна
     virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
+    virtual void Refresh() {OnChangeFocus(1);};  // Просто перерисоваться :)
 
     void SetKeyBar(KeyBar *FrameKeyBar);
     void UpdateKeyBar();
@@ -105,10 +109,10 @@ class Frame: public ScreenObject
     virtual int GetMacroMode() { return MacroMode; }
     /* DJ $ */
     void Push(Frame* Modalized);
-    bool Pop();
-    Frame *operator[](int Index);
-    int operator[](Frame *ModalFarame);
-    int ModalCount() {return ModalStackCount;}
+//    bool Pop();
+//    Frame *operator[](int Index);
+//    int operator[](Frame *ModalFarame);
+//    int ModalCount() {return ModalStackCount;}
     void DestroyAllModal();
     void SetDynamicallyBorn(int Born) {DynamicallyBorn=Born;}
     int GetDynamicallyBorn(){return DynamicallyBorn;};
@@ -116,6 +120,10 @@ class Frame: public ScreenObject
     void UnlockRefresh();
     int Refreshable();
     virtual int FastHide();
+//    int IndexOf(Frame *aFrame);
+    bool RemoveModal(Frame *aFrame);
+    void ResizeConsole();
+
 };
 
 #endif // __FRAME_HPP__

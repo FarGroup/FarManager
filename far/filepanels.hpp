@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.08 11.07.2001 $ */ 
+/* Revision: 1.09 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   14.06.2001 OT
@@ -42,7 +44,6 @@ class FilePanels:public Frame
 {
   private:
     void DisplayObject();
-    int Focus;
     typedef class Frame inherited;
 
 
@@ -102,6 +103,7 @@ class FilePanels:public Frame
     void ResizeConsole();
 /* $ Введена для нужд CtrlAltShift OT */
     int FastHide();
+    void Refresh();
 };
 
 #endif // __FILEPANELS_HPP__

@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.08 03.06.2001 $ */
+/* Revision: 1.09 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 SVS
@@ -91,7 +93,7 @@ void PrintFiles(Panel *SrcPanel)
     else
       sprintf(Title,MSG(MPrintFilesTo),SelCount);
 
-    VMenu PrinterList(Title,NULL,0,ScrY-4);
+    VFMenu PrinterList(Title,NULL,0,ScrY-4);
     PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     PrinterList.SetPosition(-1,-1,0,0);
 
@@ -108,7 +110,7 @@ void PrintFiles(Panel *SrcPanel)
     }
 
     PrinterList.Process();
-    PrinterNumber=PrinterList.GetExitCode();
+    PrinterNumber=PrinterList.VMenu::GetExitCode();
     if (PrinterNumber<0)
     {
       /* $ 13.07.2000 SVS

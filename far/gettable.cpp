@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.08 03.06.2001 $ */
+/* Revision: 1.09 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   03.06.2001 IS
     - Баг: некорректно генерировалась кодовая таблица в PrepareTable, в
       частности, для cp1251 после этой функции символы 0x84 (открывающие
@@ -91,7 +93,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     return(TRUE);
   }
 
-  VMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
+  VFMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
   TableList.SetFlags(VMENU_WRAPMODE);
   TableList.SetPosition(-1,-1,0,0);
 
@@ -124,7 +126,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
 
   TableList.AssignHighlights(FALSE);
   TableList.Process();
-  int Pos=TableList.GetExitCode();
+  int Pos=TableList.VMenu::GetExitCode();
 
   if (Pos>UseUnicode && !PrepareTable(TableSet,Pos-1-UseUnicode))
     return(FALSE);

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.52 21.06.2001 $ */
+/* Revision: 1.53 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   21.06.2001 tran
     ! убран глюк AltF1,F1,esc      
   17.06.2001 KM
@@ -258,7 +260,11 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   DWORD UserData;
   {
     _tran(SysLog("create VMenu ChDisk"));
-    VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
+    VFMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
+    ChDisk.SetFlags(VMENU_NOTCENTER);
+    if ( this==CtrlObject->Cp()->LeftPanel){
+      ChDisk.SetFlags(VMENU_LEFTMOST);
+    }
     ChDisk.SetHelp("DriveDlg");
     /* $ 17.06.2001 KM
        ! Добавление WRAPMODE в меню.
@@ -669,7 +675,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
            самое простое и быстрое решение проблемы*/
         case KEY_F1:
           {
-            SaveScreen s;
+//            SaveScreen s;
             ChDisk.ProcessInput();
           }
           break;
@@ -699,7 +705,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
          и еще одна поправочка: не дает выйти из меню, если оно вызвано
          из quick view panel (в нем CurDir пустая)
       */
-      if (ChDisk.Done() && ChDisk.GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
+      if (ChDisk.Done() && ChDisk.VMenu::GetExitCode()<0 && *CurDir && strncmp(CurDir,"\\\\",2)!=0)
       {
         char RootDir[10];
         strncpy(RootDir,CurDir,3);
@@ -712,10 +718,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       /* tran $ */
       /* SVS $ */
     } // while (!Done)
-    if (ChDisk.GetExitCode()<0)
+    if (ChDisk.VMenu::GetExitCode()<0)
       return(-1);
     {
-      UserDataSize=ChDisk.GetExitCode()>DiskCount?2:3;
+      UserDataSize=ChDisk.VMenu::GetExitCode()>DiskCount?2:3;
       UserData=(DWORD)ChDisk.GetUserData(NULL,0);
     }
   }

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.36 11.07.2001 $ */ 
+/* Revision: 1.37 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   07.07.2001 IS
@@ -254,6 +256,12 @@ void Manager::InsertFrame(Frame *Inserted, int Index)
 void Manager::DeleteFrame(Frame *Deleted)
 {
   _OT(SysLog("DeleteFrame(), Deleted=%p",Deleted));
+  for (int i=0;i<FrameCount;i++){
+    Frame *iFrame=FrameList[i];
+    if(iFrame->RemoveModal(Deleted)){
+      return;
+    }
+  }
   if (!Deleted){
     DeletedFrame=CurrentFrame;
   } else {
@@ -272,6 +280,7 @@ void Manager::ModalizeFrame (Frame *Modalized, int Mode)
 {
   _OT(SysLog("ModalizeFrame(), Modalized=%p",Modalized));
   ModalizedFrame=Modalized;
+  Commit();
 }
 
 void Manager::ExecuteModal (Frame *Executed)
@@ -312,7 +321,7 @@ void Manager::FrameMenu()
   {
     struct MenuItem ModalMenuItem;
     memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
-    VMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
+    VFMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
     ModalMenu.SetHelp("ScrSwitch");
     ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
@@ -342,7 +351,7 @@ void Manager::FrameMenu()
       ModalMenu.AddItem(&ModalMenuItem);
     }
     ModalMenu.Process();
-    ExitCode=ModalMenu.GetExitCode();
+    ExitCode=ModalMenu.VMenu::GetExitCode();
   }
   if (ExitCode>=0)
   {
@@ -654,11 +663,10 @@ BOOL Manager::Commit()
 {
   _OT(SysLog(1));
   int Result = false;
-  if (DeletedFrame && (InsertedFrame||ModalizedFrame||ExecutedFrame)){
+  if (DeletedFrame && (InsertedFrame||ExecutedFrame)){
     UpdateCommit();
     DeletedFrame = NULL;
     InsertedFrame = NULL;
-    ModalizedFrame = NULL;
     ExecutedFrame=NULL;
     Result=true;
   } else if (ExecutedFrame) {
@@ -669,10 +677,9 @@ BOOL Manager::Commit()
     DeleteCommit();
     DeletedFrame = NULL;
     Result=true;
-  } else if (InsertedFrame||ModalizedFrame){
+  } else if (InsertedFrame){
     InsertCommit();
-    InsertedFrame =
-    ModalizedFrame = NULL;
+    InsertedFrame = NULL;
     Result=true;
   } else if(ActivatedFrame||DeactivatedFrame){
     ActivateCommit();
@@ -682,6 +689,10 @@ BOOL Manager::Commit()
   } else if (RefreshedFrame){
     RefreshCommit();
     RefreshedFrame=NULL;
+    Result=true;
+  } else if (ModalizedFrame){
+    ModalizeCommit();
+    ModalizedFrame=NULL;
     Result=true;
   }
   if (Result){
@@ -704,6 +715,8 @@ void Manager::ActivateCommit()
   int FrameIndex=IndexOf(ActivatedFrame);
   if (-1!=FrameIndex){
     FramePos=FrameIndex;
+    RefreshedFrame=CurrentFrame=ActivatedFrame;
+/*
     int ModalTopIndex=ActivatedFrame->ModalCount();
     if (ModalTopIndex>0)
     {
@@ -716,11 +729,14 @@ void Manager::ActivateCommit()
     } else {
       RefreshedFrame=CurrentFrame=ActivatedFrame;
     }
+*/
+
   } else if (ModalStackCount) {
     if (ModalStack[ModalStackCount-1]==ActivatedFrame){
       _OT(SysLog("[%p] Top Modal frame",ActivatedFrame));
       RefreshedFrame=CurrentFrame=ActivatedFrame;
     }
+/*
   } else {
     Frame *FoundFrame=NULL;
     for (int i=0;i<FrameCount;i++){
@@ -734,6 +750,7 @@ void Manager::ActivateCommit()
     if (FoundFrame){
       CurrentFrame=FoundFrame;
     }
+*/
   }
   /* DJ $ */
 }
@@ -752,6 +769,9 @@ void Manager::UpdateCommit()
     ActivatedFrame->FrameToBack=CurrentFrame;
     DeleteCommit();
   } else {
+    _OT(SysLog("UpdateCommit(). ОШИБКА Не найден удаляемый фрейм"));
+
+/*
     Frame *iFrame=NULL;
     Frame *FoundModal=NULL;
     for (int i=0;i<FrameCount;i++){
@@ -776,6 +796,7 @@ void Manager::UpdateCommit()
     } else {
       DeleteCommit();
     }
+*/
   }
 }
 
@@ -803,49 +824,29 @@ void Manager::DeleteCommit()
   else
   {
     int FrameIndex=IndexOf(DeletedFrame);
-    if (-1!=FrameIndex)
-    {
+    if (-1!=FrameIndex) {
       DeletedFrame->DestroyAllModal();
-      for (int j=FrameIndex; j<FrameCount-1; j++ )
-      {
+      for (int j=FrameIndex; j<FrameCount-1; j++ ){
         FrameList[j]=FrameList[j+1];
       }
       FrameCount--;
       if (DeletedFrame->FrameToBack==CtrlObject->Cp()){
-        if ( FramePos >= FrameCount )
-        {
+        if ( FramePos >= FrameCount ) {
           FramePos=0;
         }
         ActivatedFrame=FrameList[FramePos];
       } else {
         ActivatedFrame=DeletedFrame->FrameToBack;
       }
-    }
-    else
-    {
-      for (int i=0;i<FrameCount;i++)
-      {
+    } else {
+/*
+      for (int i=0;i<FrameCount;i++){
         Frame *iFrame=FrameList[i];
-        int ModalDeletedIndex=(*iFrame)[DeletedFrame];
-        if(ModalDeletedIndex>=0)
-        {
-          if (ModalDeletedIndex>0)
-          {
-            int iModalCount=iFrame->ModalCount();
-            for (int j=iModalCount;j>ModalDeletedIndex;j--)
-            {
-              iFrame->Pop();
-            }
-            ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
-          }
-          else
-          {
-            ActivatedFrame = iFrame;
-            iFrame->DestroyAllModal();
-          }
+        if(iFrame->RemoveModal(DeletedFrame)){
           break;
         }
       }
+*/
     }
   }
   for (int i=0;i<FrameCount;i++){
@@ -866,6 +867,7 @@ void Manager::DeleteCommit()
 void Manager::InsertCommit()
 {
   _OT(SysLog("InsertCommit(), InsertedFrame=%p",InsertedFrame));
+/*
   if (ModalizedFrame){
     int FrameIndex=IndexOf(CurrentFrame);
     if (FrameIndex==-1) {
@@ -880,7 +882,9 @@ void Manager::InsertCommit()
       CurrentFrame->Push(ModalizedFrame);
     }
     ActivatedFrame=ModalizedFrame;
-  } else if (InsertedFrame){
+  } else 
+*/
+  if (InsertedFrame){
     if (FrameListSize <= FrameCount)
     {
       FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
@@ -903,10 +907,12 @@ void Manager::RefreshCommit()
   if (RefreshedFrame->Refreshable()){
     RefreshedFrame->ShowConsoleTitle();
     // В режиме стека "освежаем" немодальный фрейм, с которого все началось...
+/*
     if (ModalStackCount>0&&FramePos>=0){
       (*this)[FramePos]->OnChangeFocus(1);
     }
-    RefreshedFrame->OnChangeFocus(1);
+*/
+    RefreshedFrame->Refresh();
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
 //_SVS(char Type[200]);
 //_SVS(char Name[200]);
@@ -969,4 +975,10 @@ void Manager::ImmediateHide()
     CtrlObject->CmdLine->ShowBackground();
   }
 }
+
+void Manager::ModalizeCommit()
+{
+  CurrentFrame->Push(ModalizedFrame);
+}
+
 /* OT $*/

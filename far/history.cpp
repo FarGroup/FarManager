@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.08 06.06.2001 $ */
+/* Revision: 1.09 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   06.06.2001 SVS
     ! Mix/Max
   04.06.2001 SVS
@@ -232,12 +234,13 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
   struct MenuItem HistoryItem;
   memset(&HistoryItem,0,sizeof(HistoryItem));
 
-  int Line,CurCmd,Code,I,Height=ScrY-8,StrPos;
+  int Line,Code,I,Height=ScrY-8,StrPos;
+  unsigned int CurCmd;
   int LineToStr[sizeof(LastStr)/sizeof(LastStr[0])+1];
   int RetCode=1;
 
   {
-    VMenu HistoryMenu(Title,NULL,0,Height);
+    VFMenu HistoryMenu(Title,NULL,0,Height);
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
@@ -271,7 +274,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
       StrPos=HistoryMenu.GetSelectPos();
       if (Key==KEY_CTRLENTER || Key==KEY_SHIFTENTER)
       {
-        HistoryMenu.SetExitCode(StrPos);
+        HistoryMenu.VMenu::SetExitCode(StrPos);
         RetCode=(Key==KEY_SHIFTENTER ? 2 : 3);
         continue;
       }
@@ -300,7 +303,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
           break;
       }
     }
-    if ((Code=HistoryMenu.GetExitCode())<0)
+    if ((Code=HistoryMenu.VMenu::GetExitCode())<0)
       return(0);
   }
 
@@ -324,7 +327,7 @@ void History::GetPrev(char *Str)
 {
   do
   {
-    int NewPtr=(CurLastPtr-1)%(sizeof(LastStr)/sizeof(LastStr[0]));
+    unsigned int NewPtr=(CurLastPtr-1)%(sizeof(LastStr)/sizeof(LastStr[0]));
     if (NewPtr!=LastPtr)
       CurLastPtr=NewPtr;
     else

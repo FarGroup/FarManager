@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.71 17.07.2001 $ */
+/* Revision: 1.72 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   17.07.2001 SVS
     + Shift-Enter на каталоге вызывает проводник
   02.07.2001 IS
@@ -2850,7 +2852,7 @@ void FileList::SelectSortMode()
 
   int SortCode;
   {
-    VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
+    VFMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
     /* $ 16.06.2001 KM
        ! Добавление WRAPMODE в меню.
     */
@@ -2858,7 +2860,7 @@ void FileList::SelectSortMode()
     /* KM $ */
     SortModeMenu.SetFlags(VMENU_WRAPMODE);
     SortModeMenu.Process();
-    if ((SortCode=SortModeMenu.GetExitCode())<0)
+    if ((SortCode=SortModeMenu.VMenu::GetExitCode())<0)
       return;
   }
   if (SortCode<sizeof(SortModes)/sizeof(SortModes[0]))

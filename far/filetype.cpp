@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.23 06.07.2001 $ */
+/* Revision: 1.24 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   06.07.2001 IS
     + Теперь в ассоциациях файлов можно использовать маски исключения, маски
       файлов можно брать в кавычки, маски файлов проверяются на корректность,
@@ -183,7 +185,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   if (CommandCount>1)
   {
     struct MenuItem TypesMenuItem;
-    VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
+    VFMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
     TypesMenu.SetHelp("FileAssoc");
     TypesMenu.SetFlags(VMENU_WRAPMODE);
     TypesMenu.SetPosition(-1,-1,0,0);
@@ -231,7 +233,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     if(!ActualCmdCount)
       return(TRUE);
     TypesMenu.Process();
-    int ExitCode=TypesMenu.GetExitCode();
+    int ExitCode=TypesMenu.VMenu::GetExitCode();
     if (ExitCode<0)
       return(TRUE);
     strcpy(Command,Commands[NumCommands[ExitCode]]);
@@ -446,7 +448,7 @@ void EditFileTypes(int MenuPos)
   struct MenuItem TypesMenuItem;
   int NumLine=0;
 
-  VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
+  VFMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
   TypesMenu.SetHelp("FileAssoc");
   TypesMenu.SetFlags(VMENU_WRAPMODE);
   TypesMenu.SetPosition(-1,-1,0,0);
@@ -527,7 +529,7 @@ void EditFileTypes(int MenuPos)
             break;
         }
       }
-      if (TypesMenu.GetExitCode()!=-1)
+      if (TypesMenu.VMenu::GetExitCode()!=-1)
       {
         TypesMenu.ClearDone();
         TypesMenu.WriteInput(KEY_F4);

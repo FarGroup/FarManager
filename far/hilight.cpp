@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.27 13.07.2001 $ */
+/* Revision: 1.28 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   13.07.2001 SVS
     + Ctrl-Up/Ctrl-Down в списке - движение групп в меню выбора.
   12.07.2001 SVS
@@ -296,7 +298,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
   {
     unsigned char VerticalLine=0x0B3;
-    VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
+    VFMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
     HiMenu.SetHelp("HighlightList");
     HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     HiMenu.SetPosition(-1,-1,0,0);
@@ -444,7 +446,7 @@ void HighlightFiles::HiEdit(int MenuPos)
              return;
           }
         }
-        if (HiMenu.GetExitCode()!=-1)
+        if (HiMenu.VMenu::GetExitCode()!=-1)
         {
           HiMenu.ClearDone();
           HiMenu.WriteInput(KEY_F4);

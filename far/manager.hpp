@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.18 11.07.2001 $ */ 
+/* Revision: 1.19 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   26.06.2001 SKV
@@ -110,10 +112,8 @@ class Manager
     void UpdateCommit();
     void InsertCommit();
     void DeleteCommit();
-    /* $ 21.05.2001 DJ */
-//    void DestructCommit();
-    /* DJ $ */
     void ExecuteCommit();
+    void ModalizeCommit();
 
   public:
     Manager();

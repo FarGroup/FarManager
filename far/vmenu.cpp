@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.41 11.07.2001 $ */
+/* Revision: 1.42 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    Новый класс VFMenu
   11.07.2001 SVS
     + Shift-F1 на равне с F1 может вызывать хелп. Это на тот случай, если мы
       в качестве хоткея назначили F1 (естественно хелп в такой ситуации не
@@ -199,8 +201,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
 /* SVS $ */
 
 /*& 28.05.2001 OT Запретить перерисовку фрема во время запуска меню */
-  FrameFromLaunched=FrameManager->GetCurrentFrame();
-  FrameFromLaunched->LockRefresh();
+//  FrameFromLaunched=FrameManager->GetCurrentFrame();
+//  FrameFromLaunched->LockRefresh();
 /* OT &*/
 
   VMenu::ParentDialog=ParentDialog;
@@ -278,7 +280,7 @@ VMenu::~VMenu()
   Hide();
   DeleteItems();
 /*& 28.05.2001 OT Разрешить перерисовку фрейма, в котором создавалось это меню */
-  FrameFromLaunched->UnlockRefresh();
+//  FrameFromLaunched->UnlockRefresh();
 /* OT &*/
 }
 
@@ -383,8 +385,8 @@ void VMenu::Hide()
 
 void VMenu::Show()
 {
-  while (CallCount>0)
-    Sleep(10);
+//  while (CallCount>0)
+//    Sleep(10);
   CallCount++;
   if(VMenu::VMFlags&VMENU_LISTBOX)
     BoxType=VMenu::VMFlags&VMENU_SHOWNOBOX?NO_BOX:SHORT_DOUBLE_BOX;
@@ -434,6 +436,7 @@ void VMenu::Show()
 //_SVS(SysLog("VMenu::Show()"));
     if(!(VMenu::VMFlags&VMENU_LISTBOX))
       ScreenObject::Show();
+//      Show();
     else
     {
       VMFlags|=VMENU_UPDATEREQUIRED;
@@ -450,8 +453,8 @@ void VMenu::Show()
 void VMenu::DisplayObject()
 {
 //_SVS(SysLog("VMFlags&VMENU_UPDATEREQUIRED=%d",VMFlags&VMENU_UPDATEREQUIRED));
-  if (!(VMFlags&VMENU_UPDATEREQUIRED))
-    return;
+//  if (!(VMFlags&VMENU_UPDATEREQUIRED))
+//    return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   VMFlags&=~VMENU_UPDATEREQUIRED;
   ExitCode=-1;
@@ -1500,6 +1503,48 @@ DWORD VMenu::ChangeFlags(DWORD Flags,BOOL Status)
     VMFlags&=~Flags;
   return VMFlags;
 }
+
+
+VFMenu::VFMenu(const char *Title,
+       struct MenuData *Data,int ItemCount,
+       int MaxHeight,
+       DWORD Flags,
+       FARWINDOWPROC Proc,
+       Dialog *ParentDialog):VMenu(Title,Data,ItemCount,MaxHeight,Flags,Proc,ParentDialog)
+{ 
+  SetDynamicallyBorn(false);
+  FrameManager->ModalizeFrame(this);
+}
+
+VFMenu::~VFMenu(){
+  FrameManager->DeleteFrame(this);
+  FrameManager->RefreshFrame();
+}
+
+
+void VFMenu::Process()
+{
+  VMenu::Process();
+}
+
+void VFMenu::ResizeConsole()
+{
+  ObjWidth=ObjHeight=0;
+  if (!this->CheckFlags(VMENU_NOTCENTER)){
+    Y2=X2=Y1=X1=-1;
+  } else {
+    X1=5;
+    if (!this->CheckFlags(VMENU_LEFTMOST) && ScrX>40){
+      X1=(ScrX+1)/2+5;
+    }
+    Y1=(ScrY+1-(this->ItemCount+5))/2;
+    if (Y1<1) Y1=1;
+    X2=Y2=0;
+    
+  }
+  SaveScr->Discard();
+}
+
 
 #ifndef _MSC_VER
 #pragma warn -par

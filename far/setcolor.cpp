@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.14 14.06.2001 $ */
+/* Revision: 1.15 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   16.06.2001 KM
     ! Добавление WRAPMODE в меню.
   14.06.2001 OT
@@ -287,7 +289,7 @@ void SetColors()
 
   {
     int GroupsCode;
-    VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
+    VFMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
     MenuToRedraw1=&GroupsMenu;
     GroupsMenu.SetPosition(2,1,0,0);
     /* $ 16.06.2001 KM
@@ -299,7 +301,7 @@ void SetColors()
     {
       GroupsMenu.ClearDone();
       GroupsMenu.Process();
-      if ((GroupsCode=GroupsMenu.GetExitCode())<0)
+      if ((GroupsCode=GroupsMenu.VMenu::GetExitCode())<0)
         break;
 
       if (GroupsCode==12)
@@ -359,14 +361,14 @@ void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size)
 {
   int ItemsCode;
 
-  VMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
+  VFMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
   MenuToRedraw2=&ItemsMenu;
   while (1)
   {
     ItemsMenu.SetPosition(17,5,0,0);
     ItemsMenu.ClearDone();
     ItemsMenu.Process();
-    if ((ItemsCode=ItemsMenu.GetExitCode())<0)
+    if ((ItemsCode=ItemsMenu.VMenu::GetExitCode())<0)
       break;
     GetColor(PaletteItems[ItemsCode]);
   }

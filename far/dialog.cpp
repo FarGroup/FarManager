@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.138 16.07.2001 $ */
+/* Revision: 1.139 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   16.07.2001 SVS
    + DM_SETHISTORY - управление историей
   12.07.2001 OT
@@ -5355,6 +5357,7 @@ void Dialog::ResizeConsole()
   COORD c={-1,-1};
   Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
   Resized=true;
+  Hide();
 };
 
 void Dialog::OnDestroy()

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.19 12.07.2001 $ */
+/* Revision: 1.20 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   12.07.2001 OT
     - Не инициализировались панель Tree Info, QView
   11.07.2001 OT
@@ -160,6 +162,7 @@ FilePanels::~FilePanels()
 void FilePanels::DisplayObject()
 {
   _OT(SysLog("[%p] FilePanels::DisplayObject()",this));
+  Redraw();
 }
 
 void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
@@ -187,6 +190,7 @@ void FilePanels::SetScreenPosition()
   TopMenuBar.SetPosition(0,0,ScrX,0);
   MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
   SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
+  SetPosition(0,0,ScrX,ScrY);
 
 }
 
@@ -761,7 +765,6 @@ int  FilePanels::GetTypeAndName(char *Type,char *Name)
 void FilePanels::OnChangeFocus(int f)
 {
   _OT(SysLog("FilePanels::OnChangeFocus(%i)",f));
-  Focus=f;
   /* $ 20.06.2001 tran
      баг с отрисовкой при копировании и удалении
      не учитывался LockRefreshCount */
@@ -773,6 +776,7 @@ void FilePanels::OnChangeFocus(int f)
     RightPanel->UpdateIfChanged(1);
     /* SKV$*/
     Redraw();
+    Frame::OnChangeFocus(1);
   }
 }
 
@@ -784,8 +788,8 @@ void FilePanels::Show()
 
 void FilePanels::Redraw()
 {
-    if ( Focus==0 )
-        return;
+//    if ( Focus==0 )
+//        return;
     _OT(SysLog("[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
     CtrlObject->CmdLine->ShowBackground();
     if (LeftPanel->IsVisible())
@@ -820,6 +824,7 @@ void FilePanels::ShowConsoleTitle()
 
 void FilePanels::ResizeConsole()
 {
+  Frame::ResizeConsole();
   CtrlObject->CmdLine->ResizeConsole();
   MainKeyBar.ResizeConsole();
   TopMenuBar.ResizeConsole();
@@ -830,4 +835,9 @@ void FilePanels::ResizeConsole()
 int FilePanels::FastHide()
 {
   return Opt.AllCtrlAltShiftRule & CASR_PANEL;
+}
+
+void FilePanels::Refresh()
+{
+  Frame::OnChangeFocus(1);
 }

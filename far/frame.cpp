@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.12 11.07.2001 $ */ 
+/* Revision: 1.13 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   23.06.2001 OT
@@ -52,18 +54,19 @@ Frame::Frame()
   ExitCode=-1;
   KeyBarVisible=MacroMode=0;
   FrameKeyBar=NULL;
-  ModalStack=NULL;
-  ModalStackCount = ModalStackSize=0;
+//  ModalStack=NULL;
+//  ModalStackCount = ModalStackSize=0;
   DynamicallyBorn=TRUE;
   LockRefreshCount=0;
   FrameToBack=NULL;
+  NextModal=PrevModal=NULL;
 }
 
 Frame::~Frame()
 {
   _OT(SysLog("[%p] Frame::~Frame()", this));
   DestroyAllModal();
-  free(ModalStack);
+//  free(ModalStack);
 }
 
 void Frame::SetKeyBar(KeyBar *FrameKeyBar)
@@ -73,8 +76,8 @@ void Frame::SetKeyBar(KeyBar *FrameKeyBar)
 
 void Frame::UpdateKeyBar()
 {
-    if ( FrameKeyBar!=NULL && KeyBarVisible )
-        FrameKeyBar->RedrawIfChanged();
+  if ( FrameKeyBar!=NULL && KeyBarVisible )
+    FrameKeyBar->RedrawIfChanged();
 }
 
 /* $ 12.05.2001 DJ */
@@ -85,29 +88,32 @@ int Frame::IsTopFrame()
 
 void Frame::OnChangeFocus (int focus)
 {
-
   if (focus) {
     Show();
-    for (int i=0;i<ModalStackCount;i++){
-      ModalStack[i]->Show();
+    if (NextModal) {
+      NextModal->Show();
     }
   }
 }
 /* DJ $ */
 
 void Frame::Push(Frame* Modalized){
-  if (ModalStackCount == ModalStackSize)
-    ModalStack = (Frame **) realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
-  ModalStack [ModalStackCount++] = Modalized;
+  if (!NextModal){
+    NextModal=Modalized;
+    NextModal->PrevModal=this;
+  } else {
+    NextModal->Push(Modalized);
+  }
 }
 
+/*
 bool Frame::Pop(){
-  if (ModalStackCount>0){
-    ModalStack[--ModalStackCount]->OnDestroy();
-    delete ModalStack[ModalStackCount];
-    return true;
-  } else {
+  if (!NextModal) {
     return false;
+  }
+  while (NextFrame->Pop()){
+    NextFrame->Pop();
+    return true;
   }
 }
 
@@ -131,12 +137,21 @@ int Frame::operator[](Frame *ModalFrame)
   }
   return Result;
 }
+*/
 
 void Frame::DestroyAllModal()
 {
-  while(Pop());
-//  ModalStackSize=0;
-//  ModalStackCount=0;
+  // найти вершину
+  Frame *Prev=this;
+  Frame *Next=NextModal;
+  while (NextModal){
+    Prev->NextModal=NULL;
+    Prev=Next;
+    Next=Next->NextModal;
+//    if (GetDynamicallyBorn())
+    
+  }
+
 }
 
 /*
@@ -174,4 +189,42 @@ int Frame::Refreshable()
 int Frame::FastHide()
 {
   return TRUE;
+}
+
+void Frame::OnDestroy()
+{
+  DestroyAllModal();
+}
+
+
+bool Frame::RemoveModal(Frame *aFrame)
+{
+  if (!aFrame) {
+    return false;
+  }
+  Frame *Prev=this;
+  Frame *Next=NextModal;
+  bool fFound=false;
+  while (Next){
+    if (Next==aFrame){
+      fFound=true;
+      break;
+    }
+    Prev=Next;
+    Next=Next->NextModal;
+  }
+  if (fFound){
+    RemoveModal(Next->NextModal);
+    Prev->NextModal=NULL;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void Frame::ResizeConsole()
+{
+  if (NextModal){
+    NextModal->ResizeConsole();
+  }
 }

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.75 16.07.2001 $ */
+/* Revision: 1.76 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    VFMenu
   16.07.2001 SVS
     + Обработка FarMenuItemEx в FarMenu
   26.06.2001 SVS
@@ -496,7 +498,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     return(-1);
   int ExitCode;
   {
-    VMenu FarMenu(Title,NULL,0,MaxHeight);
+    VFMenu FarMenu(Title,NULL,0,MaxHeight);
     FarMenu.SetPosition(X,Y,0,0);
     if (BreakCode!=NULL)
       *BreakCode=-1;
@@ -591,7 +593,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
           FarMenu.ProcessKey(ReadKey);
         }
     }
-    ExitCode=FarMenu.GetExitCode();
+    ExitCode=FarMenu.VMenu::GetExitCode();
   }
 //  CheckScreenLock();
   return(ExitCode);

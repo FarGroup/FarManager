@@ -5,10 +5,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.05 14.06.2001 $ */
+/* Revision: 1.06 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    Комсетика
   14.06.2001 OT
     ! "Бунт" ;-)
   12.05.2001 SVS
@@ -34,7 +36,7 @@ Modify:
 
 ScreenObject::ScreenObject()
 {
-  _OT(SysLog("[%p] ScreenObject::ScreenObject()", this));
+//  _OT(SysLog("[%p] ScreenObject::ScreenObject()", this));
   Visible=0;
   X1=Y1=X2=Y2=0;
   SaveScr=NULL;
@@ -48,7 +50,7 @@ ScreenObject::ScreenObject()
 
 ScreenObject::~ScreenObject()
 {
-  _OT(SysLog("[%p] ScreenObject::~ScreenObject()", this));
+//  _OT(SysLog("[%p] ScreenObject::~ScreenObject()", this));
   if (!EnableRestoreScreen)
   {
     if (ShadowSaveScr)

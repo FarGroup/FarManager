@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.22 30.06.2001 $ */
+/* Revision: 1.23 18.07.2001 $ */ 
 
 /*
 Modify:
+  18.07.2001 OT
+    Новый класс VFMenu. Добавлены константы, позоляющие ресайзить меню
   30.06.2001 KM
     + SetSelectPos(struct FarListPos *)
 	+ GetSelectPos(struct FarListPos *)
@@ -103,6 +105,7 @@ Modify:
 #include "modal.hpp"
 #include "plugin.hpp"
 #include "manager.hpp"
+#include "frame.hpp"
 
 #define VMENU_COLOR_COUNT  16
 
@@ -133,6 +136,8 @@ enum{
 #define VMENU_WRAPMODE              0x00008000
 #define VMENU_SHOWAMPERSAND         0x00010000
 #define VMENU_WARNDIALOG            0x00020000
+#define VMENU_NOTCENTER             0x00040000
+#define VMENU_LEFTMOST              0x00080000
 
 class Dialog;
 class SaveScreen;
@@ -164,10 +169,9 @@ struct MenuData
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
-class VMenu: public Modal
+class VMenu: virtual public Modal
 {
   private:
-    SaveScreen *SaveScr;
     char Title[100];
     char BottomTitle[100];
     int SelectPos,TopPos;
@@ -192,6 +196,7 @@ class VMenu: public Modal
     /* SVS $ */
 
   protected:
+    SaveScreen *SaveScr;
     struct MenuItem *Item;
     int ItemCount;
     /* $ 28.07.2000 SVS
@@ -307,4 +312,25 @@ class VMenu: public Modal
     Frame *FrameFromLaunched;
 };
 
+class VFMenu: virtual public VMenu, virtual public Frame
+{
+#pragma warning(disable:4250)
+public:
+    VFMenu(const char *Title,
+          struct MenuData *Data,int ItemCount,
+          int MaxHeight=0,
+          DWORD Flags=0,
+          FARWINDOWPROC Proc=NULL,
+          Dialog *ParentDialog=NULL);
+
+    ~VFMenu();
+public:
+    void Process();
+    void ResizeConsole();
+
+  
+};
+
+
 #endif	// __VMENU_HPP__
+
