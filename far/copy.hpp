@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.11 16.10.2001 $ */
+/* Revision: 1.12 17.10.2001 $ */
 
 /*
 Modify:
+  17.10.2001 SVS
+    ! Внедрение const
   16.10.2001 SVS
     + CheckStreams() - проверка наличия потоков
   03.08.2001 IS
@@ -138,7 +140,7 @@ class ShellCopy
     static void ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
     static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    static int MkSymLink(char *SelName,char *Dest,DWORD Flags);
+    static int MkSymLink(const char *SelName,const char *Dest,DWORD Flags);
 };
 
 

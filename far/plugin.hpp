@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.151 11.10.2001 $ */
+/* Revision: 1.152 17.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,7 +20,10 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
-  10.10.2001 IS
+  17.10.2001 SVS
+    + LINFO_* - хмм... почемуто не был описан :-(
+    ! FARSTDMKLINK - const параметры
+  10.10.2001 SVS
     - FAR_USE_INTERNALS неверно использован!!!!!!!!
   10.10.2001 IS
     + EF_DELETEONCLOSE
@@ -932,6 +935,15 @@ struct FarListDelete
   int Count;
 };
 
+enum {
+  LINFO_ALWAYSSCROLLBAR       =0x00000100,
+  LINFO_SHOWNOBOX             =0x00000400,
+  LINFO_AUTOHIGHLIGHT         =0x00000800,
+  LINFO_REVERSIHLIGHT         =0x00001000,
+  LINFO_WRAPMODE              =0x00008000,
+  LINFO_SHOWAMPERSAND         =0x00010000,
+};
+
 struct FarListInfo
 {
   DWORD Flags;
@@ -1628,7 +1640,7 @@ enum MKLINKOP{
 
   FLINK_SHOWERRMSG= 0x10000,
 };
-typedef int     (WINAPI *FARSTDMKLINK)(char *Src,char *Dest,DWORD Flags);
+typedef int     (WINAPI *FARSTDMKLINK)(const char *Src,const char *Dest,DWORD Flags);
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 
 enum FRSMODE{

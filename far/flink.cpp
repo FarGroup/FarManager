@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.25 16.10.2001 $ */
+/* Revision: 1.26 17.10.2001 $ */
 
 /*
 Modify:
+  17.10.2001 SVS
+    ! Внедрение const
   16.10.2001 SVS
     + EnumNTFSStreams() - получить информацию о потоках
     ! У функции CanCreateHardLinks второй параметр можно не указывать (это
@@ -437,7 +439,7 @@ int WINAPI GetNumberOfLinks(const char *Name)
 #if defined(__BORLANDC__)
 #pragma option -a4
 #endif
-int WINAPI MkLink(char *Src,char *Dest)
+int WINAPI MkLink(const char *Src,const char *Dest)
 {
   char FileSource[NM],FileDest[NM];
 
@@ -840,7 +842,7 @@ BOOL WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName)
   return FALSE;
 }
 
-int WINAPI FarMkLink(char *Src,char *Dest,DWORD Flags)
+int WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags)
 {
   if(Src && *Src && Dest && *Dest)
   {

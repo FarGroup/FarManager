@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.50 16.10.2001 $ */
+/* Revision: 1.51 17.10.2001 $ */
 
 /*
 Modify:
+  17.10.2001 SVS
+    ! Внедрение const
   16.10.2001 SVS
     + проверка очередного монстрика на потоки - для случая когда:
       1) не включена системная функция копирования
@@ -2710,7 +2712,7 @@ int ShellCopy::CmpFullNames(char *Src,char *Dest)
 }
 
 // Кусок для создания SymLink для каталогов.
-int ShellCopy::MkSymLink(char *SelName,char *Dest,DWORD Flags)
+int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
 {
   if (Flags&(FCOPY_LINK|FCOPY_VOLMOUNT))
   {

@@ -8,10 +8,12 @@ flink.hpp
 
 */
 
-/* Revision: 1.11 16.10.2001 $ */
+/* Revision: 1.12 17.10.2001 $ */
 
 /*
 Modify:
+  17.10.2001 SVS
+   ! Внедрение const
   16.10.2001 SVS
     + EnumNTFSStreams() - получить информацию о потоках
     ! немного const-модификаторов
@@ -42,8 +44,8 @@ Modify:
     + Описания MkLink, GetNumberOfLinks переехали из fn.hpp
 */
 
-int   WINAPI MkLink(char *Src,char *Dest);
-int   WINAPI FarMkLink(char *Src,char *Dest,DWORD Flags);
+int   WINAPI MkLink(const char *Src,const char *Dest);
+int   WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags);
 BOOL  WINAPI CanCreateHardLinks(const char *TargetFile,const char *HardLinkName);
 int   WINAPI GetNumberOfLinks(const char *Name);
 int   WINAPI CreateVolumeMountPoint(LPCTSTR SrcVolume,LPCTSTR LinkFolder);
