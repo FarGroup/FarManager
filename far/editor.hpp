@@ -9,12 +9,14 @@ editor.hpp
 
 */
 
-/* Revision: 1.23 25.06.2001 $ */
+/* Revision: 1.24 18.09.2001 $ */
 
 /*
 Modify:
+  18.08.2001 SVS
+    + параметр у функции Paste - для отработки $Date, у которой есть '%n'
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   25.06.2001 SVS
     - Падение ФАРа при поске в редакторе
   06.06.2001 SVS
@@ -243,7 +245,7 @@ class Editor:public ScreenObject
     DWORD GetFileAttributes(LPCTSTR);
     /* IS $ */
     int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
-    void Paste();
+    void Paste(char *Src=NULL);
     void Copy(int Append);
     void DeleteBlock();
     void UnmarkBlock();

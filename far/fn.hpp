@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.104 18.09.2001 $ */
+/* Revision: 1.105 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    + _ALGO & SYSLOG_ALGO - для "алгоритмов работы"
+      Внимание! Лог в последствии будет большим!
   18.09.2001 SVS
     + класс CleverSysLog - что бы при выходе из функции делал SysLog(-1)
   12.09.2001 SVS
@@ -756,6 +759,13 @@ void CheckHeap(int NumLine);
 #define _D(x)
 #endif
 
+// для "алгоритмов работы" - внимание! лог будет большим!
+#if defined(_DEBUG) && defined(SYSLOG_ALGO)
+#define _ALGO(x)  x
+#else
+#define _ALGO(x)
+#endif
+
 #if defined(_DEBUG) && defined(SYSLOG_OT)
 #define _OT(x)  x
 #else
@@ -922,6 +932,7 @@ extern "C" {
 void qsortex(char *base, unsigned int nel, unsigned int width,
             int (*comp_fp)(const void *, const void *,void*), void *user);
 
+char* mktemp(char *temp);
 #ifdef __cplusplus
 }
 #endif

@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.116 14.09.2001 $ */
+/* Revision: 1.117 18.09.2001 $ */
 
 /*
 Modify:
+  18.08.2001 SVS
+    ! параметр у функции Paste - для отработки $Date, у которой есть '%n',
+      соответственно изненен код обработки "клавиши" KEY_MACRODATE.
   14.09.2001 SVS
     ! Немного SysLog`ов
   13.09.2001 SKV
@@ -2687,18 +2690,40 @@ int Editor::ProcessKey(int Key)
     case KEY_MACRODATE:
       if (!LockMode)
       {
-        Pasting++;
-        TextChanged(1);
-        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
-                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-        if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+        char TStr[NM],Fmt[NM];
+        struct tm *time_now;
+        time_t secs_now;
+        tzset();
+        time(&secs_now);
+        time_now = localtime(&secs_now);
+        CtrlObject->Macro.GetMacroPlainText(Fmt);
+        if(!Fmt[0])
+          strcpy(Fmt,Opt.DateFormat);
+        if(StrFTime(TStr, sizeof(TStr),Fmt,time_now))
         {
-          MarkingBlock=MarkingVBlock=FALSE;
-          DeleteBlock();
+          char *Ptr=TStr;
+          while(*Ptr) // заменим 0x0A на 0x0D по правилам Paset ;-)
+          {
+            if(*Ptr == 10)
+              *Ptr=13;
+            ++Ptr;
+          }
+          Pasting++;
+          //_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),NULL));
+          TextChanged(1);
+          AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+          if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+          {
+            MarkingBlock=MarkingVBlock=FALSE;
+            DeleteBlock();
+          }
+          Paste(TStr);
+          if (!EdOpt.PersistentBlocks)
+            UnmarkBlock();
+          Pasting--;
+          Show();
         }
-        CurLine->EditLine.ProcessInsDate();
-        Pasting--;
-        Show();
       }
       return(TRUE);
     /* $ 25.04.2001 IS
@@ -3663,19 +3688,25 @@ BOOL Editor::Search(int Next)
 }
 /* SVS $ */
 
-void Editor::Paste()
+void Editor::Paste(char *Src)
 {
   if (LockMode)
     return;
-  char *ClipText=PasteFormatFromClipboard("FAR_VerticalBlock");
-  if (ClipText!=NULL)
+
+  char *ClipText=Src;
+  BOOL IsDeleteClipText=FALSE;
+
+  if(!ClipText)
   {
-    VPaste(ClipText);
-    return;
+    if ((ClipText=PasteFormatFromClipboard("FAR_VerticalBlock"))!=NULL)
+    {
+      VPaste(ClipText);
+      return;
+    }
+    if ((ClipText=PasteFromClipboard())==NULL)
+      return;
+    IsDeleteClipText=TRUE;
   }
-  ClipText=PasteFromClipboard();
-  if (ClipText==NULL)
-    return;
 
   if (*ClipText)
   {
@@ -3766,7 +3797,8 @@ void Editor::Paste()
     DisableOut--;
   }
   /* $ 07.05.2001 IS выделяли же в PasteFromClipboard как new [] */
-  delete [] ClipText;
+  if(IsDeleteClipText)
+    delete [] ClipText;
   /* IS $ */
   BlockUndo=FALSE;
 }

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.23 07.08.2001 $ */
+/* Revision: 1.24 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    ! "FarTmpXXXXXX" -> "FARTMPXXXXXX".
   07.08.2001 SVS
     + IsProcessVE_FindFile - идет процесс "вьювер/редактор" во время
       поиска файлов?
@@ -130,7 +132,7 @@ char MainPluginsPath[NM];
 /* SVS $ */
 
 char LastFarTitle[512];
-const char FarTmpXXXXXX[]="FarTmpXXXXXX";
+const char FarTmpXXXXXX[]="FARTMPXXXXXX";
 char RegColorsHighlight[]="Colors\\Highlight";
 
 

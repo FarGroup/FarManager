@@ -5,15 +5,18 @@ manager.cpp
 
 */
 
-/* Revision: 1.50 31.08.2001 $ */
+/* Revision: 1.51 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    ! Безхозный "_D(" заменен на "_OT(".
+      2OT: Ты не против? А то для _ALGO этот макрос всю масть сбивает :-)
   31.08.2001 OT
     - Закрытие ExitAll() при far -e и изменении оного
   23.08.2001 OT
-    - Исправление зависания фара по F10 из панелей с несохраненными файлами 
-      в редакторе. Криво была написана функция ExitAll() 
+    - Исправление зависания фара по F10 из панелей с несохраненными файлами
+      в редакторе. Криво была написана функция ExitAll()
   08.08.2001 OT
     - Исправление CtrlF10 в редакторе/вьюере
   28.07.2001 OT
@@ -409,7 +412,7 @@ int Manager::GetFrameCountByType(int Type)
 
 void Manager::SetFramePos(int NewPos)
 {
-  _D(SysLog("Manager::SetFramePos(), NewPos=%i",NewPos));
+  _OT(SysLog("Manager::SetFramePos(), NewPos=%i",NewPos));
   FramePos=NewPos;
 }
 
@@ -564,8 +567,8 @@ void Manager::ExitMainLoop(int Ask)
 int  Manager::ProcessKey(int Key)
 {
   int ret=FALSE;
-  _D(char kn[32]);
-  _D(KeyToText(Key,kn));
+  _OT(char kn[32]);
+  _OT(KeyToText(Key,kn));
   //    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
 
   if ( CurrentFrame)
@@ -601,7 +604,7 @@ int  Manager::ProcessKey(int Key)
         case KEY_F11:
           PluginsMenu();
           FrameManager->RefreshFrame();
-          _D(SysLog(-1));
+          _OT(SysLog(-1));
           return TRUE;
         case KEY_ALTF9:
           _OT(SysLog("Manager::ProcessKey, KEY_ALTF9 pressed..."));
@@ -627,17 +630,17 @@ int  Manager::ProcessKey(int Key)
           case KEY_F12:
             if (CurrentFrame->GetCanLoseFocus())
               FrameMenu();
-            _D(SysLog(-1));
+            _OT(SysLog(-1));
             return TRUE;
           case KEY_CTRLTAB:
             if (CurrentFrame->GetCanLoseFocus())
               DeactivateFrame(CurrentFrame,1);
-              _D(SysLog(-1));
+              _OT(SysLog(-1));
             return TRUE;
           case KEY_CTRLSHIFTTAB:
             if (CurrentFrame->GetCanLoseFocus())
               DeactivateFrame(CurrentFrame,-1);
-            _D(SysLog(-1));
+            _OT(SysLog(-1));
             return TRUE;
         }
       }
@@ -645,7 +648,7 @@ int  Manager::ProcessKey(int Key)
     CurrentFrame->UpdateKeyBar();
     CurrentFrame->ProcessKey(Key);
   }
-  _D(SysLog(-1));
+  _OT(SysLog(-1));
   return ret;
 }
 
@@ -656,17 +659,17 @@ int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if ( CurrentFrame)
         ret=CurrentFrame->ProcessMouse(MouseEvent);
 //    _D(SysLog("Manager::ProcessMouse() ret=%i",ret));
-    _D(SysLog(-1));
+    _OT(SysLog(-1));
     return ret;
 }
 
 void Manager::PluginsMenu()
 {
-  _D(SysLog(1));
+  _OT(SysLog(1));
   int curType = CurrentFrame->GetType();
   if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER)
     CtrlObject->Plugins.CommandsMenu(curType,0,0);
-  _D(SysLog(-1));
+  _OT(SysLog(-1));
 }
 
 BOOL Manager::IsPanelsActive()

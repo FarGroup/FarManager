@@ -190,6 +190,7 @@ FAROBJ=\
    $(OBJPATH)\plugins.obj\
    $(OBJPATH)\poscache.obj\
    $(OBJPATH)\print.obj\
+   $(OBJPATH)\mktemp.obj\
    $(OBJPATH)\qsortex.obj\
    $(OBJPATH)\qview.obj\
    $(OBJPATH)\rdrwdsk.obj\
