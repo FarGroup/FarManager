@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.42 26.02.2001 $ */
+/* Revision: 1.43 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 SVS
+   + EditorOptions.CharCodeBase - база вывода кода символа
   26.02.2001 VVM
    + Opt.ExceptCallDebugger - вызывать дебаггер или нет
    ! Opt.ExceptRules - битовая маска
@@ -277,6 +279,7 @@ struct EditorOptions
   int AutoDetectTable;
   int CursorBeyondEOL;
   int BSLikeDel;
+  int CharCodeBase;
 };
 /* IS $ */
 

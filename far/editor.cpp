@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.73 27.02.2001 $ */
+/* Revision: 1.74 28.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 SVS
+    + В статусной строке показываем код символа в зависимости от базы -
+      Oct, Dec или Hex
   27.02.2001 IS
     + Проверка нового размера табуляции на допустимые значения в SetTabSize
   26.02.2001 IS
@@ -1097,7 +1100,11 @@ void Editor::ShowStatus()
     {
       GotoXY(X2-(Opt.ViewerEditorClock ? 9:2),Y1);
       SetColor(COL_EDITORSTATUS);
-      mprintf("%3d",(unsigned char)Str[CurPos]);
+      /* $ 27.02.2001 SVS
+      Показываем в зависимости от базы */
+      static char *FmtCharCode[3]={"%03o","%3d","%02Xh"};
+      mprintf(FmtCharCode[EdOpt.CharCodeBase%3],(unsigned char)Str[CurPos]);
+      /* SVS $ */
     }
   }
   if (Opt.ViewerEditorClock)

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.53 26.02.2001 $ */
+/* Revision: 1.54 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 SVS
+    + Opt.EdOpt.CharCodeBase - В каком виде представлять в редакторе
+      в статусной строке код текущего символа
   26.02.2001 IS
     - Недочет в EditorConfig
   26.02.2001 VVM
@@ -869,6 +872,17 @@ void ReadConfig()
   GetRegKey("Editor","FileSizeLimit",(int&)Opt.EditorFileSizeLimitLo,(DWORD)0);
   GetRegKey("Editor","FileSizeLimitHi",(int&)Opt.EditorFileSizeLimitHi,(DWORD)0);
   /* SVS $ */
+
+  /* $ 27.02.2001 SVS
+     Opt.EdOpt.CharCodeBase - В каком виде представлять в редакторе
+     в статусной строке код текущего символа:
+     0 - oct
+     1 - dec
+     2 - hex
+  */
+  GetRegKey("Editor","CharCodeBase",Opt.EdOpt.CharCodeBase,1);
+  /* SVS $ */
+
   /* $ 05.09.2000 SVS
      CodeXLat - описывающая XLat-перекодировщик
   */

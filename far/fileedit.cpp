@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.22 26.02.2001 $ */
+/* Revision: 1.23 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 SVS
+    + Добавки по поводу базы вывода.
   26.02.2001 IS
     + В прошлый раз я не все доделал :(
       Теперь на самом деле большинство переменных, редактируемых в редакторе по
@@ -463,6 +465,7 @@ int FileEditor::ProcessKey(int Key)
       EdOpt.AutoIndent=FEdit.GetAutoIndent();
       EdOpt.AutoDetectTable=FEdit.GetAutoDetectTable();
       EdOpt.CursorBeyondEOL=FEdit.GetCursorBeyondEOL();
+      EdOpt.CharCodeBase=FEdit.GetCharCodeBase();
       //EdOpt.BSLikeDel=FEdit.GetBSLikeDel();
 
       EditorConfig(EdOpt);
@@ -475,6 +478,7 @@ int FileEditor::ProcessKey(int Key)
       FEdit.SetAutoIndent(EdOpt.AutoIndent);
       FEdit.SetAutoDetectTable(EdOpt.AutoDetectTable);
       FEdit.SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
+      FEdit.SetCharCodeBase(EdOpt.CharCodeBase);
       //FEdit.SetBSLikeDel(EdOpt.BSLikeDel);
       /* IS $ */
       FEdit.Show();

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.14 26.02.2001 $ */
+/* Revision: 1.15 27.02.2001 $ */
 
 /*
 Modify:
+  27.02.2001 SVS
+    + *CharCodeBase() - по поводу базы вывода
   26.02.2001 IS
     ! Часть самостоятельных переменных заменено соответствующими из
       EditorOptions. Надо было это сразу сделать, да я что-то стормозил :)
@@ -256,6 +258,9 @@ class Editor:public ScreenObject
     void SetBSLikeDel(int NewMode) { EdOpt.BSLikeDel=NewMode; }
     int  GetBSLikeDel(void) const {return EdOpt.BSLikeDel; }
     /* IS $ */
+
+    void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
+    int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
     /* $ tran 14.07.2000
       + goto to percent support */
