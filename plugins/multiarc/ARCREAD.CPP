@@ -5,6 +5,7 @@ PluginClass::PluginClass(int ArcPluginNumber)
   ArcData=NULL;
   ArcDataCount=0;
   PluginClass::ArcPluginNumber=ArcPluginNumber;
+  memset(&CurArcInfo,0,sizeof(struct ArcInfo));
   DizPresent=FALSE;
 }
 
@@ -141,6 +142,7 @@ int PluginClass::ReadArchive(char *Name)
     ArcDataCount++;
   }
   ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
+
   switch(GetItemCode)
   {
     case GETARC_BROKEN:

@@ -29,7 +29,9 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
   char Command[MAX_COMMAND_LENGTH];
   ArcCommand::PanelItem=PanelItem;
   ArcCommand::ItemsNumber=ItemsNumber;
-  strcpy(ArcCommand::PrefixFileName,Prefix);
+  *ArcCommand::PrefixFileName=0;
+  if(Prefix)
+    strcpy(ArcCommand::PrefixFileName,Prefix);
   strcpy(ArcCommand::ArcName,ArcName);
   strcpy(ArcCommand::ArcDir,ArcDir);
   strcpy(ArcCommand::RealArcDir,RealArcDir ? RealArcDir:"");
