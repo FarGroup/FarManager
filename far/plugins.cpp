@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.14 28.08.2000 $ */
+/* Revision: 1.15 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 tran
+    + FSF/FarInputRecordTokey
   31.08.2000 SVS
     ! изменение FSF-функций
       FSF.RemoveLeadingSpaces =FSF.LTrim
@@ -400,6 +402,10 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StandardFunctions.PasteFromClipboard=PasteFromClipboard;
     StandardFunctions.FarKeyToText=KeyToText;
     /* SVS $ */
+    /* $ 31.08.2000 tran
+       + InputRecordToKey*/
+    StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+    /* tran 31.08.2000 $ */
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
     StartupInfo.ModuleNumber=ModuleNumber;

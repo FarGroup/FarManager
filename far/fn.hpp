@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.17 29.08.2000 $ */
+/* Revision: 1.18 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 tran
+    + FSF/FarInputRecordToKey 
   29.08.2000 SVS
     + Дополнительный параметр у Message* - номер плагина.
   28.08.2000 SVS
@@ -437,6 +439,10 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
 void WINAPI KeyToText(int Key,char *KeyText,int Size=0);
 /* SVS $ */
 /* 01.08.2000 SVS $ */
+/* $ 31.08.2000 tran
+   FSF/FarInputRecordToKey */
+int WINAPI InputRecordToKey(INPUT_RECORD *r);
+/* tran 31.08.2000 $ */
 
 
 /* Программое переключение FulScreen <-> Windowed

@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.34 31.08.2000 $ */
+/* Revision: 1.35 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 tran 1.33
+    + FSF: int FarInputRecordToKey(INPUT_RECORD*r);
   31.08.2000 SVS
     ! изменение FSF-функций
       FSF.RemoveLeadingSpaces =FSF.LTrim
@@ -885,6 +887,10 @@ typedef char* (WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
 */
 typedef void (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
 /* 01.08.2000 SVS $*/
+/* $ 31.08.2000 tran
+   функция для преобразования INPUT_RECORD в int Key*/
+typedef int (WINAPI *FARSTDINPUTRECORDTOKEY)(INPUT_RECORD *r);
+/* tran 31.08.2000 $ */
 
 /* $ 28.08.2000 SVS
    Работа с локализованными строками
@@ -955,6 +961,10 @@ typedef struct FarStandardFunctions
   FARSTDPASTEFROMCLIPBOARD PasteFromClipboard;
   FARSTDKEYTOTEXT FarKeyToText;
   /* IS $ */
+  /* $ 31.08.2000 tran
+    + FarInputRecordToKey*/
+  FARSTDINPUTRECORDTOKEY FarInputRecordToKey;
+  /* tran 31.08.2000 $ */
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
 

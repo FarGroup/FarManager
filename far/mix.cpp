@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.17 29.08.2000 $ */
+/* Revision: 1.18 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 tran 1.18
+    + InputRecordToKey
   29.08.2000 SVS
     - Неверно отрабатывала функция FarSscanf
   28.08.2000 SVS
@@ -2005,3 +2007,13 @@ void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
     strcpy(KeyText0,KeyText);
 }
 /* SVS $ */
+
+/* tran 31.08.2000 $ 
+  FarInputRecordToKey */
+int WINAPI InputRecordToKey(INPUT_RECORD *r)
+{
+    return CalcKeyCode(r,TRUE);
+}
+/* tran 31.08.2000 $ */
+
+
