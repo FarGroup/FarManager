@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.18 25.06.2001 $ */
+/* Revision: 1.19 27.06.2001 $ */
 
 /*
 Modify:
+  27.06.2001 SVS
+    + LanguageLoaded
   25.06.2001 SVS
     ! ёзаем SEARCHSTRINGBUFSIZE
   21.05.2001 OT
@@ -127,3 +129,5 @@ const char FarTmpXXXXXX[]="FarTmpXXXXXX";
 BOOL IsCryptFileASupport=FALSE;
 
 char RegColorsHighlight[]="Colors\\Highlight";
+
+BOOL LanguageLoaded=FALSE;

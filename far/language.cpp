@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.09 03.06.2001 $ */
+/* Revision: 1.10 27.06.2001 $ */
 
 /*
 Modify:
+  27.06.2001 SVS
+    ! Позаботимся об информации про LanguageLoaded :-)
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 SVS
@@ -122,6 +124,7 @@ int Language::Init(char *Path,int CountNeed)
   }
   fclose(LangFile);
   SetLastError(LastError);
+  LanguageLoaded=TRUE;
   return(TRUE);
 }
 
@@ -139,6 +142,7 @@ void Language::Close()
   MsgAddr=NULL;
   MsgCount=0;
   MsgSize=0;
+  LanguageLoaded=FALSE;
 }
 
 

@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.20 25.06.2001 $ */
+/* Revision: 1.21 27.06.2001 $ */
 
 /*
 Modify:
+  27.06.2001 SVS
+    + LanguageLoaded
   25.06.2001 SVS
     ! ёзаем SEARCHSTRINGBUFSIZE
   21.05.2001 OT
@@ -159,5 +161,6 @@ extern BOOL IsCryptFileASupport;
 
 extern char RegColorsHighlight[];
 
+extern BOOL LanguageLoaded;
 
 #endif	// __FARGLOBAL_HPP__

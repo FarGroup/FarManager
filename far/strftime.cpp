@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.03 25.06.2001 $ */
+/* Revision: 1.04 27.06.2001 $ */
 
 /*
 Modify:
+  27.06.2001 SVS
+    - в StrFTime учтем момент, что LNG могут быть еще не загружены
   25.06.2001 IS
     ! Внедрение const
   25.06.2001 SVS
@@ -25,6 +27,7 @@ Modify:
 #pragma hdrstop
 
 #include "fn.hpp"
+#include "global.hpp"
 #include "lang.hpp"
 
 #define range(low, item, hi)	max(low, min(item, hi))
@@ -278,7 +281,7 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
   if(!Dest || !MaxSize)
     return 0;
 
-  if(CurLang == -1)
+  if(CurLang == -1 && LanguageLoaded)
     PrepareStrFTime();
 
   int TimeSeparator=GetTimeSeparator();

@@ -5,10 +5,14 @@ syslog.cpp
 
 */
 
-/* Revision: 1.10 25.06.2001 $ */
+/* Revision: 1.11 27.06.2001 $ */
 
 /*
 Modify:
+  27.06.2001 SVS
+    ! Неболшая переделка LOG-файла :-)
+      Теперь файлы складывается в каталог %FAR%\$Log и имеют имя
+      Far.YYYYMMDD.BILD.log - BILD=%05d
   25.06.2001 SVS
     ! Заюзаем внутреннюю функцию StrFTime вместо стандартной.
   16.05.2001 SVS
@@ -74,34 +78,43 @@ char *MakeSpace(void)
 FILE * OpenLogStream(char *file)
 {
 #if defined(SYSLOG)
-    time_t t;
-    struct tm *time_now;
-    char RealLogName[MAX_FILE];
-//    char rfile[MAX_FILE];
+  time_t t;
+  struct tm *time_now;
+  char RealLogName[NM*2];
+  SYSTEMTIME st;
 
-    time(&t);
-    time_now=localtime(&t);
-
-    StrFTime(RealLogName,MAX_FILE,file,time_now);
-    return _fsopen(RealLogName,"a+t",SH_DENYWR);
+  GetLocalTime(&st);
+  sprintf(RealLogName,"%s\\Far.%04d%02d%02d.%05d.log",
+      file,st.wYear,st.wMonth,st.wDay,HIWORD(FAR_VERSION));
+  return _fsopen(RealLogName,"a+t",SH_DENYWR);
 #else
-    return NULL;
+  return NULL;
 #endif
 }
 
 void OpenSysLog()
 {
 #if defined(SYSLOG)
-    if ( LogStream )
-        fclose(LogStream);
+  if ( LogStream )
+      fclose(LogStream);
+  DWORD Attr;
 
-    GetModuleFileName(NULL,LogFileName,sizeof(LogFileName));
-    strcpy(strrchr(LogFileName,'\\')+1,"far.log");
-    LogStream=OpenLogStream(LogFileName);
-    //if ( !LogStream )
-    //{
-    //    fprintf(stderr,"Can't open log file '%s'\n",LogFileName);
-    //}
+  GetModuleFileName(NULL,LogFileName,sizeof(LogFileName));
+  char *Ptr=strrchr(LogFileName,'\\');
+  strcpy(Ptr,"\\$Log");
+  Attr=GetFileAttributes(LogFileName);
+  if(Attr == -1)
+  {
+    if(!CreateDirectory(LogFileName,NULL))
+      *Ptr=0;
+  }
+  else if(!(Attr&FILE_ATTRIBUTE_DIRECTORY))
+    *Ptr=0;
+  LogStream=OpenLogStream(LogFileName);
+  //if ( !LogStream )
+  //{
+  //    fprintf(stderr,"Can't open log file '%s'\n",LogFileName);
+  //}
 #endif
 }
 
