@@ -1,3 +1,13 @@
+/*
+  RAR.CPP
+
+  Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
+
+  Copyright (c) 1996-2000 Eugene Roshal
+  Copyrigth (c) 2000-2002 FAR group
+*/
+/* $ Revision: 1.12 05.03.2002 $ */
+
 #include <windows.h>
 #include <string.h>
 #include <dos.h>

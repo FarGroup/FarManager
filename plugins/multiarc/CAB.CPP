@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $Revision: 1.05 31.01.2002 $ */
+/* $ Revision: 1.14 05.03.2002 $ */
 
 #include <windows.h>
 #include <string.h>

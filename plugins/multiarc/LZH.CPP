@@ -4,9 +4,9 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2001 FAR group
+  Copyrigth (c) 2000-2002 FAR group
 */
-/* $Revision: 1.04 22.12.2001 $ */
+/* $ Revision: 1.14 05.03.2002 $ */
 
 #include <windows.h>
 #include <string.h>

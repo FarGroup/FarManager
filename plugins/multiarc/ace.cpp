@@ -4,14 +4,15 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2001 FAR group
+  Copyrigth (c) 2000-2002 FAR group
 */
-/* $Revision: 1.02 31.05.2001 $ */
+/* $ Revision: 1.09 05.03.2002 $ */
 
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
 #include <malloc.h>
+#include <stddef.h>
 #include <memory.h>
 #include "plugin.hpp"
 #include "fmt.hpp"
@@ -111,7 +112,13 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
       DWORD crc=CRC_MASK;
       crc=getcrc(crc,&Header->HeaderType,Header->HeaderSize);
 #endif
+
+#ifndef offsetof
+#define offsetof( s_name, m_name )  (_SIZE_T)&(((s_name _FAR *)0)->m_name)
+#endif
+
       if (Header->HeaderType == 0
+          && Header->HeaderSize >= (sizeof(ACEHEADER)-offsetof(ACEHEADER,HeaderFlags))
 #if defined(CALC_CRC)
           && LOWORD(crc) == LOWORD(Header->CRC16)
 #endif
