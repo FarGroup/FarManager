@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.46 14.11.2001 $ */
+/* Revision: 1.47 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    + Local в ViewerConfig
   14.11.2001 SVS
     ! Ctrl-F10 не выходит, а только позиционирует
   02.11.2001 IS
@@ -428,7 +430,11 @@ int FileViewer::ProcessKey(int Key)
       ViOpt.ShowScrollbar=View.GetShowScrollbar();
       ViOpt.ShowArrows=View.GetShowArrows();
 
-      ViewerConfig(ViOpt);
+      /* $ 27.11.2001 DJ
+         Local в ViewerConfig
+      */
+      ViewerConfig(ViOpt,1);
+      /* DJ $ */
 
       View.SetTabSize(ViOpt.TabSize);
       View.SetAutoDetectTable(ViOpt.AutoDetectTable);

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.117 26.11.2001 $ */
+/* Revision: 1.118 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    + параметр Local у EditorConfig и ViewerConfig
   26.11.2001 SVS
     + PrepareDiskPath()
   22.11.2001 SVS
@@ -446,8 +448,12 @@ void PanelSettings();
 void InterfaceSettings();
 void SetConfirmations();
 void SetDizConfig();
-void ViewerConfig(struct ViewerOptions &ViOpt);
-void EditorConfig(struct EditorOptions &EdOpt);
+/* $ 27.11.2001 DJ
+   параметр Local
+*/
+void ViewerConfig(struct ViewerOptions &ViOpt,int Local=0);
+void EditorConfig(struct EditorOptions &EdOpt,int Local=0);
+/* DJ $ */
 void SetFolderInfoFiles();
 void ReadConfig();
 void SaveConfig(int Ask);

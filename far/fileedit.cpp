@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.72 26.11.2001 $ */
+/* Revision: 1.73 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    + Local в EditorConfig
   26.11.2001 VVM
     ! Использовать полное имя файла при CTRL+F10
   14.11.2001 SVS
@@ -703,7 +705,11 @@ int FileEditor::ProcessKey(int Key)
       FEdit.GetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
       //EdOpt.BSLikeDel=FEdit.GetBSLikeDel();
 
-      EditorConfig(EdOpt);
+      /* $ 27.11.2001 DJ
+         Local в EditorConfig
+      */
+      EditorConfig(EdOpt,1);
+      /* DJ $ */
       EditKeyBar.Show(); //???? Нужно ли????
 
       FEdit.SetTabSize(EdOpt.TabSize);

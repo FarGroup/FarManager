@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.108 21.11.2001 $ */
+/* Revision: 1.109 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    + параметр Local у EditorConfig и ViewerConfig (при вызове настроек
+      конкретного редактора или вьюера не показываем глобальные
+      системные настройки)
   21.11.2001 SVS
     ! ¬недрение DIF_AUTOMATION (с удаленем диалоговых процедур)
   20.11.2001 SVS
@@ -833,7 +837,10 @@ void SetDizConfig()
 /* $ 29.03.2001 IS
   + ѕо аналогии с редактором часть настроек переехала в ViewerOptions
 */
-void ViewerConfig(struct ViewerOptions &ViOpt)
+/* $ 27.11.2001 DJ
+   параметр Local
+*/
+void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX , 3, 1,47,17,0,0,0,0,(char *)MViewConfigTitle,                  //   0
@@ -877,17 +884,33 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
     *CfgDlg[10].Data=0;
   }
 
+  int DialogHeight=19;
+  if (Local)
+  {
+    int i;
+    for (i=1; i<=5; i++)
+      CfgDlg[i].Flags |= DIF_HIDDEN;
+    for (i=6; i<=15; i++)
+      CfgDlg[i].Y1 -= 6;
+    CfgDlg[0].Y2 -= 6;
+    CfgDlg[6].Y2 -= 6;
+    DialogHeight -= 6;
+  }
+
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("ViewerSettings");
-    Dlg.SetPosition(-1,-1,51,19);
+    Dlg.SetPosition(-1,-1,51,DialogHeight);
     Dlg.Process();
     if (Dlg.GetExitCode()!=DLG_VIEW_OK)
       return;
   }
 
-  Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
-  strncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer)-1);
+  if (!Local)
+  {
+    Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
+    strncpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data,sizeof(Opt.ExternalViewer)-1);
+  }
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
   Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
   /* $ 16.12.2000 IS
@@ -913,6 +936,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
   if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
     ViOpt.TabSize=8;
 }
+/* DJ $ */
 /* IS $ */
 /* tran 18.07.2000 $ */
 
@@ -930,7 +954,10 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
     лочить или нет
     орать или нет
 */
-void EditorConfig(struct EditorOptions &EdOpt)
+/* $ 27.11.2001 DJ
+   параметр Local и соответствующие модификации в коде
+*/
+void EditorConfig(struct EditorOptions &EdOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
   /*  0 */  DI_DOUBLEBOX,3,1,63,22,0,0,0,0,(char *)MEditConfigTitle,
@@ -984,17 +1011,33 @@ void EditorConfig(struct EditorOptions &EdOpt)
     *CfgDlg[18].Data=0;
   }
 
+  int DialogHeight=24;
+  if (Local)
+  {
+    int i;
+    for (i=1; i<=5; i++)
+      CfgDlg[i].Flags |= DIF_HIDDEN;
+    for (i=6; i<=20; i++)
+      CfgDlg[i].Y1 -= 6;
+    CfgDlg[0].Y2 -= 6;
+    CfgDlg[6].Y2 -= 6;
+    DialogHeight -= 6;
+  }
+
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("EditorSettings");
-    Dlg.SetPosition(-1,-1,67,24);
+    Dlg.SetPosition(-1,-1,67,DialogHeight);
     Dlg.Process();
     if (Dlg.GetExitCode()!=19)
       return;
   }
 
-  Opt.UseExternalEditor=CfgDlg[2].Selected;
-  strncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
+  if (!Local)
+  {
+    Opt.UseExternalEditor=CfgDlg[2].Selected;
+    strncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
+  }
   EdOpt.ExpandTabs=CfgDlg[7].Selected;
   EdOpt.PersistentBlocks=CfgDlg[8].Selected;
   EdOpt.DelRemovesBlocks=CfgDlg[9].Selected;
@@ -1022,6 +1065,7 @@ void EditorConfig(struct EditorOptions &EdOpt)
   if(CfgDlg[15].Selected) Opt.EditorReadOnlyLock|=1;
   if(CfgDlg[16].Selected) Opt.EditorReadOnlyLock|=2;
 }
+/* DJ $ */
 /* IS $ */
 /* IS $ */
 /* SVS $ */
