@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.05 02.09.2000 $ */
+/* Revision: 1.06 01.11.2000 $ */
 
 /*
 Modify:
+  01.11.2000 IS
+    - Имя файла в случае !$! должно быть коротким
   02.09.2000 tran
     - !@!, !#!@! bug
   01.08.2000 SVS
@@ -432,10 +434,20 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
            !@!, !#!@! bug */
         if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE)))
         {
+          /* $ 01.11.2000 IS
+             Имя файла в данном случае должно быть коротким
+          */
+          ConvertNameToShort(ShortListName+NM,ShortListName+NM);
+          /* IS $ */
           strcat(TmpStr,ShortListName+NM);
         }
         if ( !PassivePanel && (*ShortListName || CtrlObject->ActivePanel->MakeListFile(ShortListName,TRUE)))
         {
+          /* $ 01.11.2000 IS
+             Имя файла в данном случае должно быть коротким
+          */
+          ConvertNameToShort(ShortListName,ShortListName);
+          /* IS $ */
           strcat(TmpStr,ShortListName);
         }
         /* tran $ */
