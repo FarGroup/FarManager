@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.200 25.04.2002 $ */
+/* Revision: 1.201 25.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  25.04.2002 SVS
+    - BugZ#479 - struct FAR_FIND_DATA and C
   25.04.2002 IS
     ! внедрение const (OpenPluginInfo)
   12.04.2002 SVS
@@ -1248,7 +1250,7 @@ struct FAR_FIND_DATA
 struct PluginPanelItem
 {
 #ifdef _FAR_USE_FARFINDDATA
-  FAR_FIND_DATA   FindData;
+  struct FAR_FIND_DATA   FindData;
 #else
   WIN32_FIND_DATA FindData;
 #endif
