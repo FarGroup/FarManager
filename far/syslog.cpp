@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.30 24.05.2002 $ */
+/* Revision: 1.31 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    - Ошибки проектирования в _INPUT_RECORD_Dump
   24.05.2002 SVS
     + _INPUT_RECORD_Dump - вывод в лог информацию о INPUT_RECORD
   22.05.2002 SVS
@@ -764,7 +766,7 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
       break;
     case MOUSE_EVENT:
       sprintf(Records,
-            "MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
+            "MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
           rec->Event.MouseEvent.dwMousePosition.X,
           rec->Event.MouseEvent.dwMousePosition.Y,
           rec->Event.MouseEvent.dwButtonState,

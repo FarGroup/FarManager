@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.162 18.06.2002 $ */
+/* Revision: 1.163 25.06.2002 $ */
 
 /*
 Modify:
+  25.06.2002 SVS
+    - BugZ#565 - исчезает окно ввода пароля на фтп если мышой
+      Сбросим буфер иначе бардак с очередью сообщений!
   18.06.2002 SVS
     + IfGoHome()  - виртуальная функция. Код вынесен из
       Panel::ProcessDelDisk(), ибо нашлось применение еще в нескольких
@@ -2666,6 +2669,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     {
       if (PanelMode==PLUGIN_PANEL)
       {
+        FlushInputBuffer(); // !!!
         int ProcessCode=CtrlObject->Plugins.ProcessKey(hPlugin,VK_RETURN,ShiftPressed ? PKF_SHIFT:0);
         ProcessPluginCommand();
         if (ProcessCode)
