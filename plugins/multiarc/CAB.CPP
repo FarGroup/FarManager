@@ -4,9 +4,9 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2001 FAR group
+  Copyrigth (c) 2000-2002 FAR group
 */
-/* $Revision: 1.02 12.06.2001 $ */
+/* $Revision: 1.03 14.01.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -55,7 +55,9 @@ static DWORD UnpVer;
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  for (int I=0;I<(int)(DataSize-sizeof(struct CFHEADER));I++)
+  int I;
+
+  for( I=0; I <= (int)(DataSize-sizeof(struct CFHEADER)); I++ )
   {
     const unsigned char *D=Data+I;
     if (D[0]=='M' && D[1]=='S' && D[2]=='C' && D[3]=='F')
@@ -78,44 +80,65 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   struct CFHEADER MainHeader;
   DWORD ReadSize;
+  int I;
 
-  ArcHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                       NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-  if (ArcHandle==INVALID_HANDLE_VALUE)
-    return(FALSE);
+  ArcHandle = CreateFile( Name, GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+              NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL );
+  if (ArcHandle == INVALID_HANDLE_VALUE)
+    return FALSE;
 
   *Type=0;
 
   SetFilePointer(ArcHandle,SFXSize,NULL,FILE_BEGIN);
-  if (!ReadFile(ArcHandle,&MainHeader,sizeof(MainHeader),&ReadSize,NULL) ||
-      ReadSize!=sizeof(MainHeader))
+  I = SFXSize;
+  if (!ReadFile( ArcHandle, &MainHeader, sizeof(MainHeader), &ReadSize, NULL ) ||
+    ReadSize != sizeof(MainHeader) || !IsArchive( NULL, (u1*)&MainHeader, sizeof(MainHeader) ))
   {
-    CloseHandle(ArcHandle);
-    return(FALSE);
-  }
+    HANDLE hMapFile;
+    LPBYTE Data;
 
-  SetFilePointer(ArcHandle,SFXSize+MainHeader.coffFiles,NULL,FILE_BEGIN);
-  FilesNumber=MainHeader.cFiles;
-  UnpVer=MainHeader.versionMajor*256+MainHeader.versionMinor;
-  /* $ 12.06.2001
-     Mateusz Brsostek <mateuszb@inetia.pl>
-  */
-  if( FilesNumber && (MainHeader.flags & 1) )
-  {
-    char Name[ 276 ], *EndPos;
-
-    if( !ReadFile( ArcHandle, Name, sizeof(Name), &ReadSize, NULL ) || ReadSize <= 16 )
+    if ((ReadSize = GetFileSize( ArcHandle, NULL )) == 0xFFFFFFFF)
     {
     blad:
       CloseHandle( ArcHandle );
       return FALSE;
     }
-    if( *(WORD*)(Name + 8) == 0xFFFD || *(WORD*)(Name + 8) == 0xFFFF )
+    if (ReadSize > 1024*1024)
+      ReadSize = 1024*1024;
+    hMapFile = CreateFileMapping( ArcHandle, NULL, PAGE_READONLY, 0, ReadSize, NULL );
+    if (hMapFile == NULL)
+      goto blad;
+    Data = (LPBYTE)MapViewOfFile( hMapFile, FILE_MAP_READ, 0, 0, ReadSize );
+    CloseHandle( hMapFile );
+    if (Data == NULL)
+      goto blad;
+    I = IsArchive( NULL, Data, ReadSize );
+    if (I)
+      memcpy( &MainHeader, Data + SFXSize, sizeof(MainHeader) );
+    UnmapViewOfFile( Data );
+    if (I == 0)
+      goto blad;
+  }
+  else
+    SFXSize = I;
+
+  SetFilePointer(ArcHandle,SFXSize+MainHeader.coffFiles,NULL,FILE_BEGIN);
+  FilesNumber=MainHeader.cFiles;
+  UnpVer=MainHeader.versionMajor*256+MainHeader.versionMinor;
+
+  if( FilesNumber && (MainHeader.flags & 1) )
+  {
+    char Name[ 276 ], *EndPos;
+
+    if (!ReadFile( ArcHandle, Name, sizeof(Name), &ReadSize, NULL )
+        || ReadSize < 18)
+      goto blad;
+    if (*(WORD*)(Name + 8) == 0xFFFD || *(WORD*)(Name + 8) == 0xFFFF)
     {
       EndPos = Name + 16;
-      while( *EndPos && EndPos - Name < sizeof(Name) )
+      while (EndPos - Name < sizeof(Name) && *EndPos)
         EndPos++;
-      if( *EndPos )
+      if (EndPos - Name >= sizeof(Name))
         goto blad;
 
       SetFilePointer( ArcHandle, (EndPos-Name+1) - ReadSize, NULL, FILE_CURRENT );
@@ -139,52 +162,44 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     u2  date;
     u2  time;
     u2  attribs;
-    u1  szName[];
+    u1 szName[ NM ];
   } FileHeader;
 
   DWORD ReadSize;
+  char *EndPos;
+  FILETIME lft;
 
   if (FilesNumber-- == 0)
-    return(GETARC_EOF);
-  if (!ReadFile(ArcHandle,&FileHeader,sizeof(FileHeader),&ReadSize,NULL) ||
-      ReadSize!=sizeof(FileHeader))
-    return(GETARC_READERROR);
-  char Name[NM];
-  if (!ReadFile(ArcHandle,Name,sizeof(Name),&ReadSize,NULL))
-    return(GETARC_READERROR);
+    return GETARC_EOF;
+  if (!ReadFile(ArcHandle,&FileHeader,sizeof(FileHeader),&ReadSize,NULL)
+      || ReadSize < 18)
+    return GETARC_READERROR;
 
-  char *EndPos = Name;
-  while( *EndPos && EndPos - Name < sizeof(Name) )
+  EndPos = (char *)FileHeader.szName;
+  while (EndPos - (char*)&FileHeader < sizeof(FileHeader) && *EndPos)
     EndPos++;
-  if( *EndPos )
-    return(GETARC_BROKEN);
-  SetFilePointer(ArcHandle, (EndPos-Name+1) - ReadSize, NULL,FILE_CURRENT);
+  if (EndPos - (char*)&FileHeader >= sizeof(FileHeader))
+    return GETARC_BROKEN;
 
-  /* $ 06.05.2001
-     Mateusz Brsostek <mateuszb@inetia.pl>
-     supports more SFX CAB archives (for example ar500enu.exe -
-     Adobe Acrobat Reader 5.0 install file)
-  */
-  EndPos = Name;
-  while( *EndPos )
+  SetFilePointer( ArcHandle, (EndPos-(char*)&FileHeader+1) - ReadSize, NULL, FILE_CURRENT );
+
+  EndPos = (char *)FileHeader.szName;
+  while (*EndPos)
   {
-    if( *EndPos == '/' )
+    if (*EndPos == '/')
       *EndPos = '\\';
     EndPos++;
   }
 
-  if( Name[ 0 ] == '\\' && Name[ 1 ] != '\\' )
-    EndPos = Name + 1;
-  else
-    EndPos = Name;
+  EndPos = (char *)FileHeader.szName;
+  if (EndPos[ 0 ] == '\\' && EndPos[ 1 ] != '\\')
+    EndPos++;
 
-  CharToOem(EndPos,Item->FindData.cFileName);
-  /* MB $ */
+  CharToOem( EndPos, Item->FindData.cFileName );
 
   Item->FindData.dwFileAttributes=FileHeader.attribs;
   Item->PackSize=0;
   Item->FindData.nFileSizeLow=FileHeader.cbFile;
-  FILETIME lft;
   DosDateTimeToFileTime(FileHeader.date,FileHeader.time,&lft);
   LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
   Info->UnpVer=UnpVer;
@@ -223,18 +238,18 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     static char *Commands[]={
     /*Extract               */"MsCab {-sp%%R} x {%%S} %%A @%%LMA",
     /*Extract without paths */"MsCab e {%%S} %%A @%%LMA",
-    /*Test                  */"MsCab t {%%S} %%A @%%LMA",
-    /*Delete                */"MsCab -i0 d {%%S} %%A @%%LMA",
+    /*Test                  */"MsCab -i0 {%%S} t %%A @%%LMA",
+    /*Delete                */"MsCab -i0 {%%S} d %%A @%%LMA",
     /*Comment archive       */"",
     /*Comment files         */"",
-    /*Convert to SFX        */"",
+    /*Convert to SFX        */"MsCab {%%S} s %%A",
     /*Lock archive          */"",
     /*Protect archive       */"",
     /*Recover archive       */"",
-    /*Add files             */"MsCab -e -i0 {-ap%%R} {%%S} a %%A @%%LMA",
-    /*Move files            */"MsCab -e -i0 {-ap%%R} {%%S} m %%A @%%LMA",
-    /*Add files and folders */"MsCab -r -e -i0 {-ap%%R} {%%S} a %%A @%%LMA",
-    /*Move files and folders*/"MsCab -r -e -i0 {-ap%%R} {%%S} m %%A @%%LMA",
+    /*Add files             */"MsCab -i0 {-ap%%R} {%%S} a %%A @%%LMA",
+    /*Move files            */"MsCab -i0 {-ap%%R} {%%S} m %%A @%%LMA",
+    /*Add files and folders */"MsCab -r -i0 {-ap%%R} {%%S} a %%A @%%LMA",
+    /*Move files and folders*/"MsCab -r -i0 {-ap%%R} {%%S} m %%A @%%LMA",
     /*"All files" mask      */"*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
