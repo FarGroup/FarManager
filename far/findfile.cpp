@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.52 13.09.2001 $ */
+/* Revision: 1.53 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 OT
+    Падение при открытии файла (F3,F4) из поиска
   13.09.2001 KM
     - Не просматривались файлы, найденные в архиве, если поиск начинался
       не с корня архива, а из подкаталогов.
@@ -663,7 +665,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
               int SavePluginsOutput=DisablePluginsOutput;
               DisablePluginsOutput=TRUE;
-              HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(UserDataItem.FindFileArcName,(unsigned char *)Buffer,ReadSize);
+              hArc=CtrlObject->Plugins.OpenFilePlugin(UserDataItem.FindFileArcName,(unsigned char *)Buffer,ReadSize);
               DisablePluginsOutput=SavePluginsOutput;
 
               delete[] Buffer;
