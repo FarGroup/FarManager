@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.05 12.09.2000 $ */
+/* Revision: 1.06 13.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 OT
+    - Ошибка при отрисовки хелпа
   12.09.2000 SVS
     + Параметры у функции ReadHelp и конструктора, задающие маску поиска
       файлов.
@@ -939,6 +941,13 @@ int Help::IsReferencePresent()
 {
   CorrectPosition();
   int StrPos=FixCount+TopStr+CurY;
+  /* $ 19.09.2000 OT
+    Ошибка при отрисовки хелпа
+    */
+  if (StrPos >= StrCount) {
+    return FALSE;
+  }
+  /* OT 19.09.2000 $ */
   char *OutStr=HelpData+StrPos*MAX_HELP_STRING_LENGTH;
   return (strchr(OutStr,'@')!=NULL && strchr(OutStr,'~')!=NULL);
 }
@@ -1086,4 +1095,3 @@ void Help::SetScreenPosition()
   Show();
 }
 /* tran $ */
-
