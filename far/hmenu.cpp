@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.12 11.12.2002 $ */
+/* Revision: 1.13 10.11.2004 $ */
 
 /*
 Modify:
+  10.11.2004 SVS
+    + В HMenu и TreeList добавлена обработка MCODE_*
   11.12.2002 SVS
     - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
   24.05.2002 SVS
@@ -52,6 +54,7 @@ Modify:
 #include "vmenu.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
+#include "macroopcode.hpp"
 #include "panel.hpp"
 #include "savescr.hpp"
 #include "lockscrn.hpp"
@@ -109,6 +112,35 @@ int HMenu::ProcessKey(int Key)
       SelectPos=I;
       break;
     }
+
+  switch(Key)
+  {
+    case MCODE_OP_PLAINTEXT:
+    {
+      const char *str = eStackAsString();
+      if (!*str)
+        return FALSE;
+      Key=*str;
+      break;
+    }
+    case MCODE_C_EMPTY:
+      return ItemCount<=0;
+    case MCODE_C_EOF:
+      return SelectPos==ItemCount-1;
+    case MCODE_C_BOF:
+      return SelectPos==0;
+    case MCODE_C_SELECTED:
+      return ItemCount > 0 && SelectPos >= 0;
+/*
+    case MCODE_F_MENU_CHECKHOTKEY:
+    {
+      const char *str = eStackAsString(1);
+      if ( *str )
+        return CheckHighlights(*str);
+      return FALSE;
+    }
+*/
+  }
 
   switch(Key)
   {

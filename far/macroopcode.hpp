@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.04 09.11.2004 $ */
+/* Revision: 1.05 10.11.2004 $ */
 
 /*
 Modify:
+  10.11.2004 SVS
+    + [A|P]Panel.Count, [A|P]Panel.CurPos
   09.11.2004 SVS
     + MCODE_V_APANEL_TYPE, MCODE_V_PPANEL_TYPE, MCODE_C_APANEL_FILEPANEL, MCODE_C_PPANEL_FILEPANEL
   10.09.2004 SVS
@@ -156,14 +158,18 @@ enum MACRO_OP_CODE {
   // не булевые переменные
   MCODE_V_APANEL_CURRENT=KEY_MACRO_V_BASE,// APanel.Current - имя файла на активной панели
   MCODE_V_PPANEL_CURRENT,           // PPanel.Current - имя файла на пассивной панели
-  MCODE_V_APANEL_SELCOUNT,          // APanel.SelСount - активная панель:  число выделенных элементов
-  MCODE_V_PPANEL_SELCOUNT,          // PPanel.SelСount - пассивная панель: число выделенных элементов
+  MCODE_V_APANEL_SELCOUNT,          // APanel.SelCount - активная панель:  число выделенных элементов
+  MCODE_V_PPANEL_SELCOUNT,          // PPanel.SelCount - пассивная панель: число выделенных элементов
   MCODE_V_APANEL_PATH,              // APanel.Path - активная панель:  путь на панели
   MCODE_V_PPANEL_PATH,              // PPanel.Path - пассивная панель: путь на панели
   MCODE_V_APANEL_WIDTH,             // APanel.Path - активная панель:  путь на панели
   MCODE_V_PPANEL_WIDTH,             // PPanel.Path - пассивная панель: путь на панели
   MCODE_V_APANEL_TYPE,              // тип активной панели
   MCODE_V_PPANEL_TYPE,              // тип пассивной панели
+  MCODE_V_APANEL_COUNT,             // APanel.Count - активная панель:  число элементов
+  MCODE_V_PPANEL_COUNT,             // PPanel.Count - пассивная панель: число элементов
+  MCODE_V_APANEL_CURPOS,            // APanel.CurPos - активная панель:  текущий индекс
+  MCODE_V_PPANEL_CURPOS,            // PPanel.CurPos - пассивная панель: текущий индекс
   MCODE_V_EDITORSTATE,              // Editor.State
   MCODE_V_VIEWERSTATE,              // Viewer.State
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType

@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.14 09.11.2004 $ */
+/* Revision: 1.15 10.11.2004 $ */
 
 /*
 Modify:
+  10.11.2004 SVS
+    - некомпиляция checkver.cpp под бормандом.
   09.11.2004 SVS
     - выравнивание :-( При регистрации ФАР падал...
   06.08.2004 SKV
@@ -72,13 +74,13 @@ static const unsigned char MyName[]={
 static const char *GetDaysName(int wDayOfWeek)
 {
   static unsigned char Days[7][16]={
-    {(BYTE*)"\x0C\xF7\xF8\xB6\xF2\xB9\xFF\xBA\xF9\xF0\xB2\xFA"}, // "воскресенье",
-    {(BYTE*)"\x0c\xFA\xF8\xFA\xFD\xFD\xFF\xF0\xB0\xF0\xF6\xF5"}, // "понедельник",
-    {(BYTE*)"\x08\xF7\xB4\xF9\xB8\xF4\xF2\xF1"},                 // "вторник",
-    {(BYTE*)"\x06\xB4\xB6\xF2\xFC\xF9"},                         // "среда",
-    {(BYTE*)"\x08\xB2\xF3\xB5\xFA\xFC\xBA\xF8"},                 // "четверг",
-    {(BYTE*)"\x08\xFA\xB9\xB5\xF5\xF1\xBC\xFB"},                 // "пятница",
-    {(BYTE*)"\x08\xB4\xB5\xF6\xF9\xF7\xB8\xFB"},                 // "суббота"
+    {"\x0C\xF7\xF8\xB6\xF2\xB9\xFF\xBA\xF9\xF0\xB2\xFA"}, // "воскресенье",
+    {"\x0c\xFA\xF8\xFA\xFD\xFD\xFF\xF0\xB0\xF0\xF6\xF5"}, // "понедельник",
+    {"\x08\xF7\xB4\xF9\xB8\xF4\xF2\xF1"},                 // "вторник",
+    {"\x06\xB4\xB6\xF2\xFC\xF9"},                         // "среда",
+    {"\x08\xB2\xF3\xB5\xFA\xFC\xBA\xF8"},                 // "четверг",
+    {"\x08\xFA\xB9\xB5\xF5\xF1\xBC\xFB"},                 // "пятница",
+    {"\x08\xB4\xB5\xF6\xF9\xF7\xB8\xFB"},                 // "суббота"
   };
   if(Days[0][0])
   {

@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.15 28.10.2004 $ */
+/* Revision: 1.16 10.11.2004 $ */
 
 /*
 Modify:
+  10.11.2004 SVS
+    + TreeList::GetFileCount()
   28.10.2004 SVS
     + "Конструкторы" имен - TreeFileName() и TreeCacheFolderName()
       В дальнейшем нужно осуществить TODO по этим функциям!
@@ -126,6 +128,7 @@ class TreeList: public Panel
     int GoToFile(const char *Name);
     void ProcessEnter();
     int GetExitCode() {return ExitCode;}
+    virtual long GetFileCount() {return TreeCount;}
 
     virtual void SetTitle();
     virtual void SetFocus();

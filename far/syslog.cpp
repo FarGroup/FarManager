@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.49 03.06.2004 $ */
+/* Revision: 1.50 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 SVS
+    + SYSLOG_WARP
   03.06.2004 SVS
     ! уточнения в _FCTL_ToName
     - ошибка в _INPUT_RECORD_Dump - нехватало пятой спецификации '%c'
@@ -155,7 +157,7 @@ Modify:
 #endif
 
 #if !defined(SYSLOG)
- #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW)
+ #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(SYSLOG_WARP) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW)
   #define SYSLOG
  #endif
 #endif
@@ -687,7 +689,7 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
 //StartSysLog
     int I;
     char Type[NM],Name[NM*2];
-    fprintf(fp,"**** Очередь модальных фреймов ***\nFrameListSize=%d, FramePos=%d\n",Man->FrameListSize,Man->FramePos);
+    fprintf(fp,"**** Очередь модальных фреймов ***\nFrameListSize=%d, FramePos=%d, FrameCount=%d\n",Man->FrameListSize,Man->FramePos,Man->FrameCount);
     if(Man->FrameList)
     {
       for(I=0; I < Man->FrameCount; ++I)
@@ -695,8 +697,7 @@ void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
         if(Man->FrameList[I])
         {
           Man->FrameList[I]->GetTypeAndName(Type,Name);
-          fprintf(fp,"\tFrameList[%d] %p  Type='%s' Name='%s'\n",
-                      I,Man->FrameList[I],Type,Name);
+          fprintf(fp,"\tFrameList[%d] %p  Type='%s' Name='%s'\n",I,Man->FrameList[I],Type,Name);
         }
         else
           fprintf(fp,"\tFrameList[%d] NULL\n",I,Man->FrameList[I]);

@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.130 09.11.2004 $ */
+/* Revision: 1.131 10.11.2004 $ */
 
 /*
 Modify:
+  10.11.2004 SVS
+    + [A|P]Panel.Count, [A|P]Panel.CurPos
+    ! дл€ менюх найдем LastModal, иначе фигн€... тут, кстати, тоже засада, т.к....
   09.11.2004 SVS
     + MCODE_V_APANEL_TYPE, MCODE_V_PPANEL_TYPE, MCODE_C_APANEL_FILEPANEL, MCODE_C_PPANEL_FILEPANEL
     - “раблы с msgBox() - BugZ#1179 - ‘ункци€ MsgBox
@@ -504,9 +507,13 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.Selected",    MCODE_C_PPANEL_SELECTED,0},
   {2,  "APanel.Left",        MCODE_C_APANEL_LEFT,0},
   {2,  "PPanel.Left",        MCODE_C_PPANEL_LEFT,0},
+
   {2,  "APanel.Type",        MCODE_V_APANEL_TYPE,0},
   {2,  "PPanel.Type",        MCODE_V_PPANEL_TYPE,0},
-
+  {2,  "APanel.Count",       MCODE_V_APANEL_COUNT,0},
+  {2,  "PPanel.Count",       MCODE_V_PPANEL_COUNT,0},
+  {2,  "APanel.CurPos",      MCODE_V_APANEL_CURPOS,0},
+  {2,  "PPanel.CurPos",      MCODE_V_PPANEL_CURPOS,0},
   {2,  "APanel.Current",     MCODE_V_APANEL_CURRENT,0},
   {2,  "PPanel.Current",     MCODE_V_PPANEL_CURRENT,0},
   {2,  "APanel.SelCount",    MCODE_V_APANEL_SELCOUNT,0},
@@ -1019,15 +1026,27 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           Cond=UsedInternalClipboard;
           break;
 
-        // TODO: «ƒ≈—№ ѕќЋЌјя ’–≈Ќ№!!! CurFrame дл€ менюх (F2 или F11 или F9 Enter) всегда ссылаетс€ на панели. ѕ≈–≈—ћќ“–≈“№ !!!!!
         case MCODE_C_BOF:
         case MCODE_C_EOF:
         {
-          if(CurFrame)
+          int CurMMode=CtrlObject->Macro.GetMode();
+          if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
           {
-            //Cond=CurFrame->GetType();//==MODALTYPE_VMENU;
-            Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
+            Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
+//            f=f->GetTopModal();
+            while(f)
+            {
+              fo=f;
+              f=f->GetTopModal();
+            }
+            if(!f)
+              f=fo;
+            if(f)
+              Cond=f->ProcessKey(CheckCode);
           }
+          else
+            if(CurFrame)
+              Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
           break;
         }
 
@@ -1237,6 +1256,25 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
             Cond=SelPanel->GetType();
           break;
         }
+
+        case MCODE_V_APANEL_COUNT: // APanel.Count
+        case MCODE_V_PPANEL_COUNT: // PPanel.Count
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond=SelPanel->GetFileCount();
+          break;
+        }
+
+        case MCODE_V_APANEL_CURPOS: // APanel.CurPos
+        case MCODE_V_PPANEL_CURPOS: // PPanel.CurPos
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+            Cond=SelPanel->GetCurrentPos();
+          break;
+        }
+
         // *****************
 
         case MCODE_V_EDITORSTATE: // Editor.State
@@ -1797,10 +1835,18 @@ done:
           {
              long Result=0L;
              int CurMMode=CtrlObject->Macro.GetMode();
-             if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU)
+             if(CurMMode == MACRO_MAINMENU || CurMMode == MACRO_MENU || CurMMode == MACRO_DISKS)
              {
-               Frame *f=FrameManager->GetCurrentFrame();
-               f=f->GetTopModal();
+               Frame *f=FrameManager->GetCurrentFrame(), *fo=NULL;
+               //f=f->GetTopModal();
+               while(f)
+               {
+                 fo=f;
+                 f=f->GetTopModal();
+               }
+               if(!f)
+                 f=fo;
+
                if(f)
                  Result=f->ProcessKey(MCODE_F_MENU_CHECKHOTKEY);
              }

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.215 28.10.2004 $ */
+/* Revision: 1.216 09.11.2004 $ */
 
 /*
 Modify:
+  09.11.2004 SVS
+    + макрос _WARP
   28.10.2004 SVS
     + UnquoteExternal() - удаление внешних кавычек
   06.08.2004 SKV
@@ -1345,6 +1347,12 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 #define _DJ(x)  x
 #else
 #define _DJ(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_WARP)
+#define _WARP(x)  x
+#else
+#define _WARP(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_VVM)

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.60 01.11.2004 $ */
+/* Revision: 1.61 10.11.2004 $ */
 
 /*
 Modify:
+  10.11.2004 SVS
+    + ¬ HMenu и TreeList добавлена обработка MCODE_*
   01.11.2004 SVS
     - Gray+ и Gray- - не было автосмены папок
   28.10.2004 SVS
@@ -187,6 +189,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "help.hpp"
 #include "lockscrn.hpp"
+#include "macroopcode.hpp"
 #include "RefreshFrameManager.hpp"
 
 #define DELTA_TREECOUNT 31
@@ -862,6 +865,37 @@ int TreeList::ProcessKey(int Key)
       }
       return(TRUE);
     }
+  }
+
+  switch(Key)
+  {
+/*
+    case MCODE_OP_PLAINTEXT:
+    {
+      const char *str = eStackAsString();
+      if (!*str)
+        return FALSE;
+      Key=*str;
+      break;
+    }
+*/
+    case MCODE_C_EMPTY:
+      return TreeCount<=0;
+    case MCODE_C_EOF:
+      return CurFile==TreeCount-1;
+    case MCODE_C_BOF:
+      return CurFile==0;
+    case MCODE_C_SELECTED:
+      return FALSE;
+/*
+    case MCODE_F_MENU_CHECKHOTKEY:
+    {
+      const char *str = eStackAsString(1);
+      if ( *str )
+        return CheckHighlights(*str);
+      return FALSE;
+    }
+*/
   }
 
   switch(Key)
