@@ -579,6 +579,7 @@
 "File associations"
 "Edit: Del,Ins,F4"
 "Do you wish to delete association for"
+"Please specify a file mask"
 
 "Edit file associations"
 "A file &mask or several file masks:"

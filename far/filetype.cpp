@@ -5,10 +5,14 @@ filetype.cpp
 
 */
 
-/* Revision: 1.38 20.03.2002 $ */
+/* Revision: 1.39 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 DJ
+    ! если введена пустая маска, выдадим предупреждение, а не будем
+      молча закрывать диалог
+    ! корректно считаем ширину для описаний, содержащих метасимволы
   20.03.2002 IS
     ! немного const (из-за PrepareOSIfExist)
   18.03.2002 SVS
@@ -129,7 +133,11 @@ Modify:
 
 static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
-static int GetDescriptionWidth();
+/* $ 20.03.2002 DJ
+   передадим имя файла для подстановки
+*/
+static int GetDescriptionWidth (char *Name=NULL, char *ShortName=NULL);
+/* DJ $ */
 
 static unsigned char VerticalLine=0x0B3;
 
@@ -254,7 +262,11 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     TypesMenu.SetFlags(VMENU_WRAPMODE);
     TypesMenu.SetPosition(-1,-1,0,0);
 
-    int DizWidth=GetDescriptionWidth();
+    /* $ 20.03.2002 DJ
+       передадим имена файлов
+    */
+    int DizWidth=GetDescriptionWidth (Name, ShortName);
+    /* DJ $ */
     int ActualCmdCount=0; // отображаемых ассоциаций в меню
 
     for (int I=0;I<CommandCount;I++)
@@ -711,8 +723,17 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
     {
       Dlg.ClearDone();
       Dlg.Process();
-      if (Dlg.GetExitCode()!=19 || *EditDlg[2].Data==0)
+      /* $ 20.03.2002 DJ
+         сообщение, если не введена маска
+      */
+      if (Dlg.GetExitCode()!=19)
         return(FALSE);
+      if (*EditDlg[2].Data==0)
+      {
+        Message (MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MAssocNeedMask), MSG(MOk));
+        continue;
+      }
+      /* DJ $ */
       if(FMask.Set(EditDlg[2].Data, 0))
         break;
     }
@@ -734,22 +755,44 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
 }
 /* IS $ */
 
-int GetDescriptionWidth()
+/* $ 20.03.2002 DJ
+   передаем имена файлов, и считаем размер с учетом раскрытия метасимволов
+*/
+
+int GetDescriptionWidth (char *Name, char *ShortName)
 {
   int Width=0,NumLine=0;
   while (1)
   {
+    CFileMask FMask;
     char RegKey[80],Mask[512],Description[128];
     sprintf(RegKey,FTS.TypeFmt,NumLine);
     if (!GetRegKey(RegKey,FTS.Mask,Mask,"",sizeof(Mask)))
       break;
+    NumLine++;
+
+    if(!FMask.Set(Mask, FMF_SILENT))
+      continue;
+
     GetRegKey(RegKey,FTS.Desc,Description,"",sizeof(Description));
-    int CurWidth=HiStrlen(Description);
+    int CurWidth;
+    if (Name == NULL)
+      CurWidth = HiStrlen(Description);
+    else
+    {
+      if(!FMask.Compare(Name))
+        continue;
+      char ExpandedDesc [512];
+	  strcpy (ExpandedDesc, Description);
+      SubstFileName(ExpandedDesc,sizeof (ExpandedDesc),Name,ShortName,NULL,NULL,TRUE);
+      CurWidth = HiStrlen (ExpandedDesc);
+    }
     if (CurWidth>Width)
       Width=CurWidth;
-    NumLine++;
   }
   if (Width>ScrX/2)
     Width=ScrX/2;
   return(Width);
 }
+
+/* DJ $ */

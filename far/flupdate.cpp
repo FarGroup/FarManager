@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.31 19.03.2002 $ */
+/* Revision: 1.32 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 DJ
+    ! UpdateIfRequired() должен сам сбрасывать UpdateRequired
   19.03.2002 DJ
     ! возможность форсировать апдейт, даже если панель невидима
     ! UpdateIfRequired()
@@ -150,7 +152,10 @@ void FileList::Update(int Mode)
 void FileList::UpdateIfRequired()
 {
   if (UpdateRequired)
+  {
+    UpdateRequired = FALSE;
     Update (UpdateRequiredMode | UPDATE_IGNORE_VISIBLE);
+  }
 }
 
 /* DJ $ */

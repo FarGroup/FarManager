@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.99 19.03.2002 $ */
+/* Revision: 1.100 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 DJ
+    + MAssocNeedMask
   19.03.2002 SVS
     + MEditSaveMac
   12.03.2002 VVM
@@ -866,6 +868,7 @@ enum
   MAssocTitle,
   MAssocBottom,
   MAskDelAssoc,
+  MAssocNeedMask,
 
   MFileAssocTitle,
   MFileAssocMasks,
