@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.132 04.02.2003 $ */
+/* Revision: 1.133 05.02.2003 $ */
 
 /*
 Modify:
+  05.02.2003 VVM
+    - ѕосле загрузки плагина восстановим тот путь, что был.
   04.02.2003 SVS
     - BugZ#784 - “екущий каталог при загрузке плагина
   21.01.2003 SVS
@@ -730,8 +732,14 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   HMODULE hModule=CurPlugin.hModule;
   if(!hModule)
   {
+   /* $ 05.02.2003 VVM
+     - ѕосле загрузки плагина восстановим тот путь, что был */
+    char CurPath[4096];
+    FarGetCurDir(sizeof(CurPath)-1,CurPath);
     PrepareModulePath(CurPlugin.ModuleName);
     hModule=LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+    FarChDir(CurPath, TRUE);
+    /* VVM $ */
   }
 
   if (hModule==NULL)
