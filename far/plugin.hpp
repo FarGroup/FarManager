@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.111 03.06.2001 $ */
+/* Revision: 1.112 03.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  03.06.2001 SVS
+   ! Небольшое уточнение структуры FarListItemData (до 16 байт :-)
+   + Пара макросов для листа
   03.06.2001 SVS
    + DM_LISTGETDATA, DM_LISTSETDATA, FarListItemData
   30.05.2001 SVS
@@ -764,6 +767,7 @@ struct FarListItemData
   int   Index;
   int   DataSize;
   void *Data;
+  DWORD Reserved;
 };
 
 
@@ -824,6 +828,8 @@ struct FarDialogItemData
 #define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(long)&FLDItem);}
 #define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
 #define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
+#define DlgList_GetItemData(Info,hDlg,ID,Index)       Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
+#define DlgList_SetItemStr(Info,hDlg,ID,Index,Str)    {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(long)&FLID);}
 
 
 struct FarMenuItem

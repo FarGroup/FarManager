@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.12 31.05.2001 $ */
+/* Revision: 1.13 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 IS
+    + ChangePanel: "Наследуем" состояние режима "Помеченные файлы вперед"
   31.05.2001 SVS
     ! Сносим лейбак по Alt-F6 для не NT
   30.05.2001 OT
@@ -619,12 +621,15 @@ Panel* FilePanels::GetAnotherPanel(Panel *Current)
 }
 
 
+/* $ 03.06.2001 IS
+   + "Наследуем" состояние режима "Помеченные файлы вперед"
+*/
 Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Force)
 {
   Panel *NewPanel;
   SaveScreen *SaveScr=NULL;
   int OldType,X1,Y1,X2,Y2;
-  int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups;
+  int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst;
   int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition;
   int OldFullScreen,OldFocus,UseLastPanel=0;
 
@@ -639,6 +644,8 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
   OldSortGroups=Current->GetSortGroups();
   OldShowShortNames=Current->GetShowShortNamesMode();
   OldFocus=Current->GetFocus();
+
+  OldSelectedFirst=Current->GetSelectedFirstMode();
 
   LeftPosition=(Current==LeftPanel);
   Panel *(&LastFilePanel)=LeftPosition ? LastLeftFilePanel:LastRightFilePanel;
@@ -757,9 +764,11 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
     NewPanel->SetShowShortNamesMode(OldShowShortNames);
     NewPanel->SetPrevViewMode(OldViewMode);
     NewPanel->SetViewMode(OldViewMode);
+    NewPanel->SetSelectedFirstMode(OldSelectedFirst);
   }
   return(NewPanel);
 }
+/* IS $ */
 
 int  FilePanels::GetTypeAndName(char *Type,char *Name)
 {
