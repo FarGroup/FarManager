@@ -427,11 +427,12 @@ $ #Miscellaneous#
 
   Screen grabber allows to select and copy to the clipboard any screen area.
 Use arrow keys or click the left mouse button to move the cursor. To select
-text use Shift-arrow keys or press the left mouse button. Enter, Ctrl-Ins,
-right mouse button or doubleclick copy selected text to clipboard, Ctrl-
-<Gray +> adds it to the clipboard contents, Esc leaves the grabbing mode.
+text use Shift-arrow keys or drag the mouse while holding the left mouse
+button. Enter, Ctrl-Ins, right mouse button or doubleclick copy selected text
+to the clipboard, Ctrl- <Gray +> appends it to the clipboard contents,
+Esc leaves the grabbing mode.
 
-  Record ~keyboard macro~@KeyMacro@                                     #Ctrl-<.>#
+  Record a ~keyboard macro~@KeyMacro@                                   #Ctrl-<.>#
 
   History in dialog edit controls                 #Ctrl-Up, Ctrl-Down#
 
@@ -445,7 +446,7 @@ you will always have them in the history.
   Delete the current item in a dialog edit line history
   list (if it is not locked)                               #Shift-Del#
 
-  Поместить курсор в диалогах на элемент по умолчанию           #PgDn#
+  Set the dialog focus to the default element                   #PgDn#
 
   Insert a file name under cursor to dialog              #Shift-Enter#
 
@@ -454,8 +455,8 @@ you will always have them in the history.
   This key combination is valid for all edit controls except the command
 line, including dialogs and the ~internal editor~@Editor@.
 
-   #Ctrl-Enter# в диалогах вызывает действие по умолчанию (нажатие на
-кнопку по умолчанию или подобное по смыслу действие).
+  Pressing #Ctrl-Enter# in dialogs executes the default action (pushes
+the default button or does another similar thing).
 
   In dialogs, when the current control is a check box:
 
@@ -468,10 +469,10 @@ line, including dialogs and the ~internal editor~@Editor@.
 
   Right clicking outside the dialog works the same as pressing Enter.
 
-   Щелчок средней клавишей мыши с соответствующими модификаторами (Ctrl,
-Alt, Shift) в ~панелях~@PanelCmd@ аналогичен нажатию клавиши Enter. Для
-непустой ~командной строки~@CmdLineCmd@ будет исполнено ее содержимое.
-
+  Clicking the middle mouse button in the ~panels~@PanelCmd@ has the same
+effect as pressing the Enter key with the same modifiers (Ctrl, Alt,
+Shift). If the ~command line~@CmdLineCmd@ is not empty, its contents
+will be executed.
 
   Under Windows 2000/XP, FAR Manager supports the ~mouse wheel~@MsWheel@.
 
