@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.08 27.02.2002 $ */
+/* Revision: 1.09 08.05.2002 $ */
 
 /*
 Modify:
+  08.05.2002 VVM
+    - Используем вместо имени устройства его ID
   27.02.2002 SVS
     ! переезд #include "mmsystem.h" в headers.hpp
   21.02.2002 SVS
@@ -435,11 +437,14 @@ CLEANUP_AND_EXIT_APP:
     char Buf[4]="A:";
     *Buf=Letter;
     // Opens a CD audio device by specifying the device name.
-    mciOpenParms.lpstrDeviceType = "cdaudio";
+    /* $ 08.05.2002 VVM
+      - Используем вместо имени устройства его ID */
+    // mciOpenParms.lpstrDeviceType = "cdaudio";
+    mciOpenParms.lpstrDeviceType = (char *)MCI_ALL_DEVICE_ID;
     mciOpenParms.lpstrElementName=Buf;
-    if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
+    if ((dwReturn = pmciSendCommand(NULL, MCI_OPEN, MCI_OPEN_TYPE|MCI_OPEN_TYPE_ID|MCI_OPEN_ELEMENT, (DWORD)(LPVOID) &mciOpenParms)) != 0)
       return FALSE;
-
+    /* VVM $ */
     wDeviceID = mciOpenParms.wDeviceID;
     if(Flags&EJECT_READY)
     {
