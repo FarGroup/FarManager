@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.101 15.10.2003 $ */
+/* Revision: 1.102 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    - преобразование Key = FarNameToKey ("AltCtrlБуква") -> FarKeyToName (Key) работает
+      некорректно (возвращается Alt00000, вместо AltCtrlБуква
   15.10.2003 SVS
     + обработка вызова грабера при макросении
   13.10.2003 SVS
@@ -451,11 +454,11 @@ static struct TFKey3 FKeys1[]={
 };
 
 static struct TFKey3 ModifKeyName[]={
-  { KEY_CTRL   ,4 ,"Ctrl"},
   { KEY_RCTRL  ,5 ,"RCtrl"},
-  { KEY_ALT    ,3 ,"Alt"},
-  { KEY_RALT   ,4 ,"RAlt"},
   { KEY_SHIFT  ,5 ,"Shift"},
+  { KEY_CTRL   ,4 ,"Ctrl"},
+  { KEY_RALT   ,4 ,"RAlt"},
+  { KEY_ALT    ,3 ,"Alt"},
 //  { KEY_LCTRL  ,5 ,"LCtrl"},
 //  { KEY_LALT   ,4 ,"LAlt"},
 //  { KEY_LSHIFT ,6 ,"LShift"},
@@ -1675,15 +1678,15 @@ int CheckForEsc()
 
 static char *GetShiftKeyName(char *Name, DWORD Key,int& Len)
 {
-  if((Key&KEY_RCTRL) == KEY_RCTRL)   strcat(Name,ModifKeyName[1].Name);
-  else if(Key&KEY_CTRL)              strcat(Name,ModifKeyName[0].Name);
+  if((Key&KEY_RCTRL) == KEY_RCTRL)   strcat(Name,ModifKeyName[0].Name);
+  else if(Key&KEY_CTRL)              strcat(Name,ModifKeyName[2].Name);
 //  else if(Key&KEY_LCTRL)             strcat(Name,ModifKeyName[3].Name);
 
   if((Key&KEY_RALT) == KEY_RALT)     strcat(Name,ModifKeyName[3].Name);
-  else if(Key&KEY_ALT)               strcat(Name,ModifKeyName[2].Name);
+  else if(Key&KEY_ALT)               strcat(Name,ModifKeyName[4].Name);
 //  else if(Key&KEY_LALT)    strcat(Name,ModifKeyName[6].Name);
 
-  if(Key&KEY_SHIFT)                  strcat(Name,ModifKeyName[4].Name);
+  if(Key&KEY_SHIFT)                  strcat(Name,ModifKeyName[1].Name);
 //  else if(Key&KEY_LSHIFT)  strcat(Name,ModifKeyName[0].Name);
 //  else if(Key&KEY_RSHIFT)  strcat(Name,ModifKeyName[1].Name);
 
@@ -1711,16 +1714,20 @@ int WINAPI KeyNameToKey(const char *Name)
 //     return Key;
 
    int I, Pos, Len=strlen(Name);
+   char TmpName[128];
+   strncpy(TmpName,Name,sizeof(TmpName)-1);
 
    // пройдемся по всем модификаторам
-   for(Pos=I=0; Pos < Len && I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
+   for(Pos=I=0; I < sizeof(ModifKeyName)/sizeof(ModifKeyName[0]); ++I)
    {
-     if(!memicmp(Name+Pos,ModifKeyName[I].Name,ModifKeyName[I].Len))
+     if(strstr(TmpName,ModifKeyName[I].Name) && !(Key&ModifKeyName[I].Key))
      {
-       Pos+=ModifKeyName[I].Len;
+       ReplaceStrings(TmpName,ModifKeyName[I].Name,"",-1);
        Key|=ModifKeyName[I].Key;
+       Pos+=ModifKeyName[I].Len;
      }
    }
+   //Pos=strlen(TmpName);
 //// // _SVS(SysLog("Name=%s",Name));
    // если что-то осталось - преобразуем.
    if(Pos < Len)

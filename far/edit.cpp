@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.107 20.10.2003 $ */
+/* Revision: 1.108 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    ! переименование
+        KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
+    + Обработка KEY_MACRO_EMPTY, KEY_MACRO_EOF и KEY_MACRO_BOF
   20.10.2003 SVS
     ! Уточнение размера под вставку даты
   08.10.2003 SVS
@@ -921,6 +925,18 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 
 int Edit::ProcessKey(int Key)
 {
+  switch(Key)
+  {
+    case KEY_MACRO_EMPTY:
+      return GetLength()==0;
+    case KEY_MACRO_SELECTED:
+      return SelStart != -1 && SelStart < SelEnd;
+    case KEY_MACRO_EOF:
+      return CurPos >= StrSize;
+    case KEY_MACRO_BOF:
+      return CurPos==0;
+  }
+
   int I;
   switch(Key)
   {
@@ -946,13 +962,6 @@ int Edit::ProcessKey(int Key)
       Key=KEY_SHIFTDEL;
       break;
   }
-
-  /* $ 20.03.2002 DJ
-     обработаем KEY_MACRO_EDITSELECTED
-  */
-  if (Key == KEY_MACRO_EDITSELECTED)
-    return SelStart != -1 && SelStart < SelEnd;
-  /* DJ $ */
 
   int PrevSelStart=-1,PrevSelEnd=0;
 

@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.79 13.10.2003 $ */
+/* Revision: 1.80 22.10.2003 $ */
 
 /*
 Modify:
+  22.10.2003 SVS
+    - лишняя добавка к пути (лишний символ '\')
   13.10.2003 SVS
     ! Заготовка для мультисимвольного CtrlColorChar
   09.10.2003 SVS
@@ -1517,11 +1519,11 @@ int Help::JumpTopic(const char *JumpTopic)
       {
         if(*p == '\\')
         {
-          ++p;
+//          ++p;
           if(*p)
           {
             StackData.Flags|=FHELP_CUSTOMFILE;
-            strcpy(StackData.HelpMask,p);
+            strcpy(StackData.HelpMask,p+1);
             *strrchr(StackData.HelpMask,HelpEndLink)=0;
           }
           memmove(p,p2,strlen(p2)+1);

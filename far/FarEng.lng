@@ -274,6 +274,10 @@
 "Cannot copy the folder"
 "onto itself"
 
+"You may not copy files or folders"
+"You may not move files or folders"
+"higher than the root folder"
+
 "Cannot create the folder"
 "Failed to set folder attributes"
 "Cannot rename the folder"

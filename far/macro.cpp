@@ -5,10 +5,17 @@ macro.cpp
 
 */
 
-/* Revision: 1.108 15.10.2003 $ */
+/* Revision: 1.109 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    ! переименование
+        KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
+        KEY_MACRO_CHECKEOF     -> KEY_MACRO_EOF
+    + Обработка KEY_MACRO_EMPTY и KEY_MACRO_BOF
+    ! проверка различных состояний, в зависимости от контекста
+      исполнения макроса - Bof, Empty, Eof, Selected
   15.10.2003 SVS
     + GetMacroKeyInfo - информация об очередной макроклавише.
     + Сохранение/восстановление макроокружения.
@@ -372,12 +379,11 @@ Modify:
 #include "scrbuf.hpp"
 #include "udlist.hpp"
 
+
 enum MACRO_OP_CODE {
   // 1 словные операторы
 //MCODE_OP_SENDKEY=0x00800000,   // признак того, что остальные биты - обычная клавиша
-
   MCODE_OP_JMP=0x80000000,       // Jump, оставшиеся байты
-
   MCODE_OP_EXIT=KEY_MACROSPEC_BASE,// принудительно закончить выполнение макропоследовательности
   MCODE_OP_MACROMODE,            // сменить режим блокировки вывода на экран
   MCODE_OP_REP,                  // $rep - признак начала цикла
@@ -387,13 +393,23 @@ enum MACRO_OP_CODE {
   MCODE_OP_ELSE,                 // ... $else ...
   MCODE_OP_ENDIF,                // ... $endif
 
+  // функции
+  MCODE_F_XLAT,                  // вызывать XLat: Param=0 или 1
+
   // булевые условия
   MCODE_C_DISABLEOUTPUT,         // вывод запрещен?
   MCODE_C_WINDOWEDMODE,          // оконный режим?
   MCODE_C_SELECTED,              // выделенный блок есть?
+  MCODE_C_EOF,                   // конец файла/активного каталога?
+  MCODE_C_BOF,                   // начало файла/активного каталога?
+  MCODE_C_ISEMPTY,               // ком.строка пуста?
 
   MCODE_C_APANEL_ISEMPTY,        // активная панель:  пуста?
   MCODE_C_PPANEL_ISEMPTY,        // пассивная панель: пуста?
+  MCODE_C_APANEL_BOF,            // начало активного  каталога?
+  MCODE_C_PPANEL_BOF,            // начало пассивного каталога?
+  MCODE_C_APANEL_EOF,            // конец активного  каталога?
+  MCODE_C_PPANEL_EOF,            // конец пассивного каталога?
   MCODE_C_APANEL_VISIBLE,        // активная панель:  видима?
   MCODE_C_PPANEL_VISIBLE,        // пассивная панель: видима?
   MCODE_C_APANEL_PLUGIN,         // активная панель:  плагиновая?
@@ -404,13 +420,7 @@ enum MACRO_OP_CODE {
   MCODE_C_PPANEL_SELECTED,       // пассивная панель: выделенные элементы есть?
   MCODE_C_APANEL_LEFT,           // активная панель левая?
   MCODE_C_PPANEL_LEFT,           // пассивная панель левая?
-
-  MCODE_C_CMD_ISEMPTY,           // ком.строка пуста?
-
-  MCODE_C_VIEWER_EOF,            // достигнут конец просматриваемого файла?
-  MCODE_C_EDITOR_EOF,            // достигнут конец редактируемого файла?
 };
-
 
 // для диалога назначения клавиши
 struct DlgParam{
@@ -445,13 +455,18 @@ static struct TMacroKeywords {
   {0,  "Tree",               MACRO_TREEPANEL,0},
 
   // ПРОЧЕЕ
+  {2,  "Bof",                MCODE_C_BOF,0},
+  {2,  "Eof",                MCODE_C_EOF,0},
+  {2,  "Empty",              MCODE_C_ISEMPTY,0},
   {2,  "DisableOutput",      MCODE_C_DISABLEOUTPUT,0},
   {2,  "Selected",           MCODE_C_SELECTED,0},
-  {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
-  {2,  "Cmd.Empty",          MCODE_C_CMD_ISEMPTY,0},
 
   {2,  "APanel.Empty",       MCODE_C_APANEL_ISEMPTY,0},
   {2,  "PPanel.Empty",       MCODE_C_PPANEL_ISEMPTY,0},
+  {2,  "APanel.Bof",         MCODE_C_APANEL_BOF,0},
+  {2,  "PPanel.Bof",         MCODE_C_PPANEL_BOF,0},
+  {2,  "APanel.Eof",         MCODE_C_APANEL_EOF,0},
+  {2,  "PPanel.Eof",         MCODE_C_PPANEL_EOF,0},
   {2,  "APanel.Visible",     MCODE_C_APANEL_VISIBLE,0},
   {2,  "PPanel.Visible",     MCODE_C_PPANEL_VISIBLE,0},
   {2,  "APanel.Plugin",      MCODE_C_APANEL_PLUGIN,0},
@@ -463,10 +478,9 @@ static struct TMacroKeywords {
   {2,  "APanel.Left",        MCODE_C_APANEL_LEFT,0},
   {2,  "PPanel.Left",        MCODE_C_PPANEL_LEFT,0},
 
-  {2,  "Viewer.Eof",         MCODE_C_VIEWER_EOF,0},  // если достигнут конец файла во вьювере: Space=PgDn if View.Eof GrayPlus
-  {2,  "Editor.Eof",         MCODE_C_EDITOR_EOF,0},  // если достигнут конец файла во вьювере: Space=PgDn if View.Eof GrayPlus
-
+  {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
 },
+
 MKeywordsFlags[] ={
   // ФЛАГИ
   {1,  "DisableOutput",      MFLAGS_DISABLEOUTPUT,0},
@@ -902,6 +916,8 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
       Panel *PassivePanel=NULL;
       if(ActivePanel!=NULL)
         PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+      Frame* CurFrame=FrameManager->GetCurrentFrame();
+
       switch(CheckCode)
       {
         case MCODE_C_DISABLEOUTPUT: // DisableOutput?
@@ -912,40 +928,47 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
           Cond=FarAltEnter(-2)==0?1:0;
           break;
 
-        case MCODE_C_EDITOR_EOF:
-        case MCODE_C_VIEWER_EOF:
+        case MCODE_C_BOF:
+        case MCODE_C_EOF:
         {
-          int Mode=FrameManager->GetCurrentFrame()->GetMacroMode();
-          if(Mode == MACRO_VIEWER || Mode == MACRO_QVIEWPANEL || Mode == MACRO_EDITOR)
+          if(CurFrame)
           {
-            Frame* CurFrame=FrameManager->GetCurrentFrame();
-            if (CurFrame && (CurFrame->GetType()==MACRO_VIEWER || CurFrame->GetType()==MACRO_QVIEWPANEL || CurFrame->GetType()==MACRO_EDITOR))
-            {
-              Cond=CurFrame->ProcessKey(KEY_MACRO_CHECKEOF)?1:0;
-            }
+            Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?KEY_MACRO_BOF:KEY_MACRO_EOF)?1:0;
           }
+          break;
+        }
+
+        case MCODE_C_APANEL_BOF:
+        case MCODE_C_PPANEL_BOF:
+        case MCODE_C_APANEL_EOF:
+        case MCODE_C_PPANEL_EOF:
+        {
+          Panel *SelPanel=(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
+          if(SelPanel!=NULL)
+            Cond=SelPanel->ProcessKey(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?KEY_MACRO_BOF:KEY_MACRO_EOF)?1:0;
           break;
         }
 
         case MCODE_C_SELECTED:    // Selected?
         {
           int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MACRO_SHELL));
-          Frame* CurFrame=FrameManager->GetCurrentFrame();
           if (CurFrame && CurFrame->GetType()==NeedType)
           {
             int CurSelected;
             if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-              CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_EDITSELECTED);
+              CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_SELECTED);
             else
-              CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
-
+              CurSelected=CurFrame->ProcessKey(KEY_MACRO_SELECTED);
             Cond=CurSelected?1:0;
           }
           break;
         }
 
-        case MCODE_C_CMD_ISEMPTY:   // Cmd.Empty
-          Cond=CtrlObject->CmdLine->GetLength()==0;
+        case MCODE_C_ISEMPTY:   // Empty
+          if(CurFrame->GetType() == MACRO_SHELL)
+            Cond=CtrlObject->CmdLine->GetLength()==0;
+          else
+            Cond=CurFrame->ProcessKey(KEY_MACRO_EMPTY);
           break;
 
         case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
@@ -963,7 +986,6 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
           Panel *SelPanel=CheckCode==MCODE_C_APANEL_ISEMPTY?ActivePanel:PassivePanel;
           if(SelPanel!=NULL)
           {
-
             SelPanel->GetFileName(FileName,SelPanel->GetCurrentPos(),FileAttr);
             int GetFileCount=SelPanel->GetFileCount();
             Cond=GetFileCount == 0 ||
@@ -1129,6 +1151,9 @@ done:
     Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
+  _SVS(char KeyText[50]);
+  _SVS(::KeyToText(Key,KeyText));
+  _SVS(SysLog("%s",KeyText));
 
   if(Key&KEY_ALTDIGIT) // "подтасовка" фактов ;-)
   {
@@ -2448,9 +2473,9 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
     {
       int CurSelected;
       if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-        CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_EDITSELECTED);
+        CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_SELECTED);
       else
-        CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
+        CurSelected=CurFrame->ProcessKey(KEY_MACRO_SELECTED);
 
       if((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected ||
          (CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected)

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.130 09.10.2003 $ */
+/* Revision: 1.131 22.10.2003 $ */
 
 /*
 Modify:
+  22.10.2003 SVS
+    - BugZ#976 - перемещение (F6) папки из корня в ".."
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -993,6 +995,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
           strcpy(NameTmp, NamePtr);
           _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
+
+          if(!strcmp(NameTmp,"..") && IsLocalRootPath(SrcDir))
+          {
+            if(Message(MSG_WARNING,2,MSG(MError),MSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),MSG(MCannotCopyMoveToTwoDot),MSG(MCopySkip),MSG(MCopyCancel)) == 0)
+              continue;
+            break;
+          }
 
           if(CheckNulOrCon(NameTmp))
             ShellCopy::Flags|=FCOPY_COPYTONUL;

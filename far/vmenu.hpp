@@ -11,10 +11,13 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.50 14.10.2003 $ */
+/* Revision: 1.51 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    + GetPtrTitle() - для диалогов
+    ! VMenuCSection -> CSection
   14.10.2003 SVS
     + VMenuCSection
   17.06.2003 SVS
@@ -334,7 +337,7 @@ class VMenu: virtual public Modal, virtual public Frame
     /* SVS $ */
 
     short RLen[2];	              // реальные размеры 2-х половин
-    CRITICAL_SECTION VMenuCSection;
+    CRITICAL_SECTION CSection;
 
   protected:
     /* $ 13.04.2002 KM
@@ -391,6 +394,9 @@ class VMenu: virtual public Modal, virtual public Frame
 
     void SetTitle(const char *Title);
     char *GetTitle(char *Dest,int Size);
+    const char *GetPtrTitle() { return Title; }
+
+
     void SetBottomTitle(const char *BottomTitle);
     char *GetBottomTitle(char *Dest,int Size);
     void SetDialogStyle(int Style) {VMFlags.Change(VMENU_WARNDIALOG,Style);SetColors(NULL);}

@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.80 26.08.2003 $ */
+/* Revision: 1.81 23.10.2003 $ */
 
 /*
 Modify:
+  23.10.2003 SVS
+    ! небольша€ оптимизаци€ в Box и ScrollBar
   26.08.2003 SVS
     + TitleModified - выставл€етс€ когда прошла модификаци€ заголовка
       (это дл€ макросов).
@@ -1489,56 +1491,66 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 
   SetColor(Color);
   Type=(Type==SINGLE_BOX || Type==SHORT_SINGLE_BOX)?0:1;
+  int _width=x2-x1;
+  int _height=y2-y1;
 
 #if defined(USE_WFUNC)
   if(Opt.UseUnicodeConsole)
   {
-    WCHAR OutStr[4096];
+    WCHAR OutStr[4096], Chr;
     _wmemset(OutStr,BoxSymbols[ChrBox[Type][0]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
-    OutStr[x2-x1]=0;
+    OutStr[_width+1]=0;
 
     OutStr[0]=BoxSymbols[ChrBox[Type][2]-0x0B0];
-    OutStr[x2-x1]=BoxSymbols[ChrBox[Type][5]-0x0B0];
+    OutStr[_width]=BoxSymbols[ChrBox[Type][5]-0x0B0];
     GotoXY(x1,y1);
-    mprintfW(L"%.*s",x2-x1+1,OutStr);
+    TextW(OutStr);
+    //mprintfW(L"%.*s",x2-x1+1,OutStr);
 
     OutStr[0]=BoxSymbols[ChrBox[Type][3]-0x0B0];
-    OutStr[x2-x1]=BoxSymbols[ChrBox[Type][4]-0x0B0];
+    OutStr[_width]=BoxSymbols[ChrBox[Type][4]-0x0B0];
     GotoXY(x1,y2);
-    mprintfW(L"%.*s",x2-x1+1,OutStr);
+    TextW(OutStr);
+    //mprintfW(L"%.*s",x2-x1+1,OutStr);
 
     _wmemset(OutStr,BoxSymbols[ChrBox[Type][1]-0x0B0],sizeof(OutStr)/sizeof(*OutStr));
-    OutStr[y2-y1]=0;
+    OutStr[_height-1]=0;
 
     GotoXY(x1,y1+1);
-    vmprintfW(L"%.*s",y2-y1-1,OutStr);
+    VTextW(OutStr);
+    //vmprintfW(L"%.*s",y2-y1-1,OutStr);
     GotoXY(x2,y1+1);
-    vmprintfW(L"%.*s",y2-y1-1,OutStr);
+    VTextW(OutStr);
+    //vmprintfW(L"%.*s",y2-y1-1,OutStr);
   }
   else
 #endif
   {
-    char OutStr[4096];
+    char OutStr[4096], Chr;
     memset(OutStr,ChrBox[Type][0],sizeof(OutStr));
-    OutStr[x2-x1]=0;
+    OutStr[_width+1]=0;
 
     OutStr[0]=ChrBox[Type][2];
-    OutStr[x2-x1]=ChrBox[Type][5];
+    OutStr[_width]=ChrBox[Type][5];
     GotoXY(x1,y1);
-    mprintf("%.*s",x2-x1+1,OutStr);
+    Text(OutStr);
+    //mprintf("%.*s",x2-x1+1,OutStr);
 
     OutStr[0]=ChrBox[Type][3];
-    OutStr[x2-x1]=ChrBox[Type][4];
+    OutStr[_width]=ChrBox[Type][4];
     GotoXY(x1,y2);
-    mprintf("%.*s",x2-x1+1,OutStr);
+    Text(OutStr);
+    //mprintf("%.*s",x2-x1+1,OutStr);
 
     memset(OutStr,ChrBox[Type][1],sizeof(OutStr));
-    OutStr[y2-y1]=0;
+    OutStr[_height-1]=0;
 
     GotoXY(x1,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
+    VText(OutStr);
+    //vmprintf("%.*s",y2-y1-1,OutStr);
     GotoXY(x2,y1+1);
-    vmprintf("%.*s",y2-y1-1,OutStr);
+    VText(OutStr);
+    //vmprintf("%.*s",y2-y1-1,OutStr);
   }
 }
 /* SVS $ */
@@ -1634,19 +1646,27 @@ void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Tota
   if(Opt.UseUnicodeConsole)
   {
     WCHAR OutStr[4096];
-    _wmemset(OutStr,BoxSymbols[0xB0-0x0B0],Length);
-    OutStr[ThumbPos]=BoxSymbols[0xB2-0x0B0];
-    OutStr[Length]=0;
-    vmprintfW(L"%c%s%c",Oem2Unicode[0x1E],OutStr,Oem2Unicode[0x1F]);
+    if(Length > sizeof(OutStr)-3)
+       Length=sizeof(OutStr)-3;
+    _wmemset(OutStr+1,BoxSymbols[0xB0-0x0B0],Length);
+    OutStr[ThumbPos+1]=BoxSymbols[0xB2-0x0B0];
+    OutStr[0]=Oem2Unicode[0x1E];
+    OutStr[Length+1]=Oem2Unicode[0x1F];
+    OutStr[Length+2]=0;
+    VTextW(OutStr);
   }
   else
 #endif
   {
-    char OutStr[4096]; // $ 06.07.2000 tran: - trap under NT with console height > 210 was char OutStr[200] :)
-    memset(OutStr,0xB0,Length);
-    OutStr[ThumbPos]=0xB2;
-    OutStr[Length]=0;
-    vmprintf("%c%s%c",0x1E,OutStr,0x1F);
+    char OutStr[4096];
+    if(Length > sizeof(OutStr)-3)
+       Length=sizeof(OutStr)-3;
+    memset(OutStr+1,0xB0,Length);
+    OutStr[ThumbPos+1]=0xB2;
+    OutStr[0]=0x1E;
+    OutStr[Length+1]=0x1F;
+    OutStr[Length+2]=0;
+    VText(OutStr);
   }
 }
 

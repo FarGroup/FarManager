@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.150 16.10.2003 $ */
+/* Revision: 1.151 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    ! переименование
+        KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
+        KEY_MACRO_CHECKEOF     -> KEY_MACRO_EOF
+    + Обработка KEY_MACRO_EMPTY и KEY_MACRO_BOF
   14.10.2003 SVS
     ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
   15.10.2003 KM
@@ -2338,15 +2343,14 @@ int Viewer::ProcessKey(int Key)
       }
       return(TRUE);
 
-    case KEY_MACRO_EDITSELECTED:
-    {
+    case KEY_MACRO_EMPTY:
+      return FileSize==0;
+    case KEY_MACRO_SELECTED:
       return SelectSize==0?FALSE:TRUE;
-    }
-
-    case KEY_MACRO_CHECKEOF:
-    {
+    case KEY_MACRO_EOF:
       return LastPage || ViewFile==NULL;
-    }
+    case KEY_MACRO_BOF:
+      return !FilePos || ViewFile==NULL;
 
     default:
       if (Key>=' ' && Key<=255)

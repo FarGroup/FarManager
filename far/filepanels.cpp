@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.50 12.09.2003 $ */
+/* Revision: 1.51 23.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    + ќбработка KEY_MACRO_SELECTED, KEY_MACRO_EOF и KEY_MACRO_BOF
   12.09.2003 SVS
     - BugZ#952 - не восстанавливаютс€ сохраненные дириктории на панел€х.
       ¬ FilePanels::Init() каталоги Opt.LeftFolder и Opt.RightFolder
@@ -479,6 +481,14 @@ int  FilePanels::ProcessKey(int Key)
   {
     CtrlObject->CmdLine->ProcessKey(Key);
     return(TRUE);
+  }
+
+  switch(Key)
+  {
+    case KEY_MACRO_EOF:
+    case KEY_MACRO_BOF:
+    case KEY_MACRO_SELECTED:
+      return ActivePanel->ProcessKey(Key);
   }
 
   switch(Key)

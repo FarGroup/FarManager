@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.151 16.10.2003 $ */
+/* Revision: 1.152 23.10.2003 $ */
 
 /*
 Modify:
+  23.10.2003 SVS
+    ! вернем обратно вайлы и слипы
   16.10.2003 SVS
     ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
     + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
@@ -1340,6 +1342,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
 
+      while (ListBox->GetCallCount())
+        Sleep(10);
+
       if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
         FindPositionChanged = TRUE;
 
@@ -1354,12 +1359,16 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) // [ Stop ] button
       {
+//        while (ListBox->GetCallCount())
+//          Sleep(10);
         FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/* [ New search ] */,0);
         return TRUE;
       }
       else if (Param1==5 && (Param2==KEY_LEFT || Param2==KEY_SHIFTTAB)) // [ New search ] button
       {
+//        while (ListBox->GetCallCount())
+//          Sleep(10);
         FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/* [ Stop ] */,0);
         return TRUE;
@@ -1368,6 +1377,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                Param2==KEY_PGDN || Param2==KEY_HOME || Param2==KEY_END ||
                Param2==KEY_MSWHEEL_UP || Param2==KEY_MSWHEEL_DOWN)
       {
+//        while (ListBox->GetCallCount())
+//          Sleep(10);
         ListBox->ProcessKey(Param2);
         return TRUE;
       }
@@ -2461,6 +2472,8 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
          курсор не останавливается на пустых строках между каталогами
       */
       ListItem.Flags|=LIF_DISABLE;
+      while (ListBox->GetCallCount())
+        Sleep(10);
       // С подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках
       ListBox->SetUserData((void*)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
       ListItem.Flags&=~LIF_DISABLE;
@@ -2500,6 +2513,8 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       if (FindFileArcIndex != LIST_INDEX_NONE)
         FindList[ItemIndex].ArcIndex = FindFileArcIndex;
 
+      while (ListBox->GetCallCount())
+        Sleep(10);
       ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex),
                            ListBox->AddItem(&ListItem));
     }
@@ -2528,6 +2543,9 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   /* $ 17.01.2002 VVM
     ! Выделять будем не в структуре, а в списке. Дабы не двоилось выделение */
 //  ListItem.SetSelect(!FindFileCount);
+
+  while (ListBox->GetCallCount())
+    Sleep(10);
 
   int ListPos = ListBox->AddItem(&ListItem);
   ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex), ListPos);
@@ -2964,6 +2982,8 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         ItemData.PtrData=DataStr;
         ItemData.PtrLength=strlen(DataStr);
 
+        while (ListBox->GetCallCount())
+          Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
 
         FindCountReady=FALSE;
@@ -2990,6 +3010,8 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
 
         if (SearchDone)
         {
+          while (ListBox->GetCallCount())
+            Sleep(10);
           Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
           strncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
@@ -3015,6 +3037,8 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
           sprintf(DataStr,"%-*.*s %-*.*s",Wid1,Wid1,SearchStr,Wid2,Wid2,TruncPathStr(FindMessage,Wid2));
           ItemData.PtrData=DataStr;
           ItemData.PtrLength=strlen(DataStr);
+          while (ListBox->GetCallCount())
+            Sleep(10);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
         }
         FindMessageReady=FALSE;
@@ -3023,6 +3047,8 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
       if (LastFoundNumber && ListBox)
       {
         LastFoundNumber=0;
+        while (ListBox->GetCallCount())
+          Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
       }
     }

@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.70 30.05.2003 $ */
+/* Revision: 1.71 23.10.2003 $ */
 
 /*
 Modify:
+  23.10.2003 SVS
+    ! Dialog::GetDialogTitle возвращает const
+    + CRITICAL_SECTION CSection
   30.05.2003 SVS
     + DMODE_CLICKOUTSIDE - было нажатие мыши вне диалога?
   19.05.2003 SVS
@@ -444,6 +447,7 @@ class Dialog: public Frame
     */
     volatile int DropDownOpened;
     /* KM $ */
+    CRITICAL_SECTION CSection;
 
   private:
     void DisplayObject();
@@ -509,7 +513,7 @@ class Dialog: public Frame
     /* $ 19.05.2001 DJ
        возвращает заголовок диалога (текст первого текста или фрейма)
     */
-    char *GetDialogTitle();
+    const char *GetDialogTitle();
     /* DJ $ */
 
     /* $ 30.05.2000 KM

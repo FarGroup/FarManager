@@ -7,10 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.10 27.05.2003 $ */
+/* Revision: 1.11 22.10.2003 $ */
 
 /*
 Modify:
+  22.10.2003 SVS
+    + виртуальная функция VMProcess() - для макросов. На будущее
   27.05.2003 SVS
     ! Зачатки каптюризации мыши :-)
       Введен ScreenObject *ScreenObject::CaptureMouseObject, который
@@ -82,6 +84,7 @@ class ScreenObject
     virtual void SetPosition(int X1,int Y1,int X2,int Y2);
     virtual void SetScreenPosition();
     virtual void ResizeConsole(){};
+    virtual int  VMProcess(int OpCode,void *Param=NULL){return 0;};
 
     void SavePrevScreen();
     void Redraw();

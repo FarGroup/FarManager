@@ -5,10 +5,13 @@ language.cpp
 
 */
 
-/* Revision: 1.24 29.04.2003 $ */
+/* Revision: 1.25 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    - в .lng файле нельзя ставить пробелы после идентификатора .Language, типа .Language = %%,
+      только .Language=%%.
   29.04.2003 SVS
     ! из GetMsg вынесем код проверки в отдельную функцию CheckMsgId
   21.01.2003 SVS
@@ -321,7 +324,7 @@ FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Langu
 int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2)
 {
   char ReadStr[1024],FullParamName[64];
-  sprintf(FullParamName,".%s=",ParamName);
+  sprintf(FullParamName,".%s",ParamName);
   int Length=strlen(FullParamName);
   /* $ 29.11.2001 DJ
      не поганим позицию в файле; дальше @Contents не читаем
@@ -333,22 +336,26 @@ int Language::GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Para
   {
     if (strnicmp(ReadStr,FullParamName,Length)==0)
     {
-      strcpy(Param1,ReadStr+Length);
-      char *EndPtr=strchr(Param1,',');
-      if (Param2)
-        *Param2=0;
-      if (EndPtr!=NULL)
+      char *Ptr=strchr(ReadStr,'=');
+      if(Ptr)
       {
+        RemoveExternalSpaces(strcpy(Param1,Ptr+1));
+        char *EndPtr=strchr(Param1,',');
         if (Param2)
+          *Param2=0;
+        if (EndPtr!=NULL)
         {
-          strcpy(Param2,EndPtr+1);
-          RemoveTrailingSpaces(Param2);
+          if (Param2)
+          {
+            strcpy(Param2,EndPtr+1);
+            RemoveTrailingSpaces(Param2);
+          }
+          *EndPtr=0;
         }
-        *EndPtr=0;
+        RemoveTrailingSpaces(Param1);
+        Found = TRUE;
+        break;
       }
-      RemoveTrailingSpaces(Param1);
-      Found = TRUE;
-      break;
     }
     else if (!strnicmp (ReadStr, "@Contents", 9))
       break;

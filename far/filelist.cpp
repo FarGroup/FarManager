@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.191 10.10.2003 $ */
+/* Revision: 1.192 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    + Обработка KEY_MACRO_SELECTED, KEY_MACRO_EOF и KEY_MACRO_BOF
   10.10.2003 SVS
     - BugZ#969 - Shift-F4 в модальном редакторе.
   12.09.2003 SVS
@@ -973,6 +975,16 @@ int FileList::ProcessKey(int Key)
   struct FileListItem *CurPtr;
   int N, NeedRealName=FALSE;
   int CmdLength=CtrlObject->CmdLine->GetLength();
+
+  switch(Key)
+  {
+    case KEY_MACRO_EOF:
+      return CurFile == FileCount-1;
+    case KEY_MACRO_BOF:
+      return CurFile==0;
+    case KEY_MACRO_SELECTED:
+      return GetRealSelCount()>1;
+  }
 
   if (IsVisible())
   {

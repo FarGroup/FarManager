@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.151 09.10.2003 $ */
+/* Revision: 1.152 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    - FSF.FarRecursiveSearch, не может найти файл если в качестве маски задано
+      его короткое имя.
+      проверим так же и альтернативное имя
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -1270,7 +1274,7 @@ void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC 
     ScTree.SetFindPath(InitDir,"*");
     while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
     {
-      if (FMask.Compare(FindData.cFileName) &&
+      if ((FMask.Compare(FindData.cFileName) || FMask.Compare(FindData.cAlternateFileName)) &&
           Func(&FindData,FullName,Param) == 0)
           break;
     }

@@ -3572,34 +3572,44 @@ execution inside a macro sequence.
        #Tree#                 tree panel
        #Other#                screen grabber, vertical menus
 
-     - check state of the active panel
+     - check state of the panel
 
-       #APanel.Visible#       panel is visible
-       #APanel.Empty#         panel is empty
-       #APanel.Plugin#        panel belongs to a plugin
-       #APanel.Folder#        current item (under cursor) is a folder
-       #APanel.Selected#      panel contains selected files/folders
-       #APanel.Left#          active panel is on the left side
+       #?Panel.Visible#       panel is visible
+       #?Panel.Empty#         panel is empty
+       #?Panel.Plugin#        panel belongs to a plugin
+       #?Panel.Folder#        current item (under cursor) is a folder
+       #?Panel.Selected#      panel contains selected files/folders
+       #?Panel.Left#          panel is on the left side
+       #?Panel.Bof#           текущий файл/каталог первый
+       #?Panel.Eof#           текущий файл/каталог последний
 
-     - check state of the passive panel
 
-       #PPanel.Visible#       panel is visible
-       #PPanel.Empty#         panel is empty
-       #PPanel.Plugin#        panel belongs to a plugin
-       #PPanel.Folder#        current item is a folder
-       #PPanel.Selected#      panel contains selected files/folders
-       #PPanel.Left#          passive panel is on the left side
+       вместо '?Panel' необходимо прописать:
+         'APanel' - для активной панели
+       или
+         'PPanel' - для пассивной панели
 
-     - check state of editor/viewer/input line
-       (including selection block state in command line)
+     - проверка различных состояний, в зависимости от контекста
+       исполнения макроса
 
-       #Selected#             selection block present
-
-     - check other states
-
-       #Cmd.Empty#            command line is empty
-       #Editor.Eof#           reached end of file in the editor
-       #Viewer.Eof#           reached end of file in the viewer
+       #Bof#                  достигнуто начало файла в редакторе,
+                            программе просмотра; в панелях -
+                            текущий файл первый; в строках
+                            ввода в диалогах - в начале строки;
+                            в списках/меню - указатель установлен
+                            на первом пункте.
+       #Empty#                командная строка пуста; строка ввода
+                            пуста; в редакторе/программе просмотра
+                            пустой файл; список пуст.
+       #Eof#                  достигнут конец файла в редакторе,
+                            программе просмотра; в панелях -
+                            текущий файл последний; в строках
+                            ввода в диалогах - в конце строки;
+                            в списках/меню - указатель установлен
+                            на последнем пункте
+       #Selected#             выделен блок в строках ввода,
+                            в редакторе или программе просмотра,
+                            выделен блок в командной строке.
 
    'Condition' can be preceded by an '!' symbol which represents a logical
 "NOT" operator (negation). In this case the subsequent 'then-sequence' will be
@@ -3607,6 +3617,24 @@ executed if the condition 'Condition' is false.
 
    The '$Else Seq_else' portion of the '$If' operator can be omitted.
    Up to 16 levels of recursion are allowed for the '$If' operator.
+
+    Примеры.
+
+    Макрос для перелистывание файлов в программе просмотра
+по очереди как в Outlook или в The BAT! (Addons\Macros\View.Space.reg)
+выглядит следующим образом:
+
+    $If Eof $Then
+      CtrlF10 End
+      $If APanel.Eof $Then
+        $Exit
+      $Else
+        Add Home
+      $EndIf
+    $Else
+      PgDn
+    $EndIf
+
 
    See also:
 

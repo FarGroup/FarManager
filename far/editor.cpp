@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.238 20.10.2003 $ */
+/* Revision: 1.239 20.10.2003 $ */
 
 /*
 Modify:
+  20.10.2003 SVS
+    ! переименование
+        KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
+        KEY_MACRO_CHECKEOF     -> KEY_MACRO_EOF
+    + Обработка KEY_MACRO_EMPTY и KEY_MACRO_BOF
   20.10.2003 SVS
     ! Уточнение размера под вставку даты
   13.10.2003 SVS
@@ -1715,6 +1720,18 @@ int Editor::ProcessKey(int Key)
     }
   }
 
+  switch(Key)
+  {
+    case KEY_MACRO_EMPTY:
+      return !CurLine->Next && !CurLine->Prev; //??
+    case KEY_MACRO_EOF:
+      return !CurLine->Next && CurPos>=CurLine->EditLine.GetLength();
+    case KEY_MACRO_BOF:
+      return !CurLine->Prev && CurPos==0;
+    case KEY_MACRO_SELECTED:
+      return BlockStart || VBlockStart?TRUE:FALSE;
+  }
+
   if (Key==KEY_ALTD)
     Key=KEY_CTRLK;
 
@@ -3320,15 +3337,6 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_MACRO_CHECKEOF:
-      return !CurLine->Next && CurPos>=CurLine->EditLine.GetLength();
-
-    /* $ 25.04.2001 SVS
-       Для макросов - есть блок или нету
-    */
-    case KEY_MACRO_EDITSELECTED:
-      return BlockStart || VBlockStart?TRUE:FALSE;
-    /* SVS $ */
     default:
     {
       {

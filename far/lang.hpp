@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.134 16.10.2003 $ */
+/* Revision: 1.135 22.10.2003 $ */
 
 /*
 Modify:
+  22.10.2003 SVS
+    + MCannotCopyToTwoDot, MCannotMoveToTwoDot, MCannotCopyMoveToTwoDot,
   16.10.2003 SVS
     + MEditSavedChangedNonFile1
   16.10.2003 SVS
@@ -644,6 +646,10 @@ enum
 
   MCannotCopyFolderToItself1,
   MCannotCopyFolderToItself2,
+
+  MCannotCopyToTwoDot,
+  MCannotMoveToTwoDot,
+  MCannotCopyMoveToTwoDot,
 
   MCopyCannotCreateFolder,
   MCopyCannotChangeFolderAttr,

@@ -5,10 +5,20 @@ dialog.cpp
 
 */
 
-/* Revision: 1.292 15.10.2003 $ */
+/* Revision: 1.293 20.10.2003 $ */
 
 /*
 Modify:
+  23.10.2003 SVS
+    ! Dialog::GetDialogTitle возвращает const
+    + CRITICAL_SECTION CSection
+    - Если заголовок диалога начинается с числа, то это число отрезается в
+      заголовке окна Фара.
+    - Нажатие клавиши Tab в диалоге с единственным элементом приводило к
+      зависанию FAR.
+    + поле FarDialogItem.Data для DI_LISTBOX используется как верхний заголовок листа
+    + В качестве заголовка консоли принимается заголовок списка (DI_LISTBOX),
+      если в диалоге нет рамок и список первый элемент.
   15.10.2003 KM
     ! DN_HOTKEY будем посылать всегда в обработчик диалога
     ! Избавимся от кучи warning'ов
@@ -1117,6 +1127,8 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
   _DIALOG(SysLog("Item=%p, ItemCount=%d, DlgProc=%p, Param2=0x%08X",Item,ItemCount,DlgProc,InitParam));
   _tran(SysLog("[%p] Dialog::Dialog()",this));
 
+  InitializeCriticalSection(&CSection);
+
   if(!PHisLocked) // если некоторые элементы не инициализированы - сделаем это сейчас
   {
     PHisLocked=HisLocked+strlen(HisLocked);
@@ -1216,6 +1228,7 @@ Dialog::~Dialog()
   INPUT_RECORD rec;
   PeekInputRecord(&rec);
   delete OldTitle;
+  DeleteCriticalSection(&CSection);
   _DIALOG(CleverSysLog CL("Destroy Dialog"));
 }
 
@@ -1630,6 +1643,9 @@ int Dialog::InitDialogObjects(int ID)
         ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
         ListPtr->SetBoxType(SHORT_SINGLE_BOX);
+        // поле FarDialogItem.Data для DI_LISTBOX используется как верхний заголовок листа
+        if(!(ItemFlags&DIF_LISTNOBOX))
+          ListPtr->SetTitle(CurItem->Data);
         // удалим все итемы
         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
         if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
@@ -1882,10 +1898,11 @@ int Dialog::InitDialogObjects(int ID)
    определение Title вытащено в отдельную функцию
 */
 
-char *Dialog::GetDialogTitle()
+const char *Dialog::GetDialogTitle()
 {
-  struct DialogItem *CurItem;
+  struct DialogItem *CurItem, *CurItemList=NULL;
   int I;
+
   for(CurItem=Item,I=0; I < ItemCount; I++, CurItem++)
   {
     // по первому попавшемуся "тексту" установим заголовок консоли!
@@ -1895,10 +1912,16 @@ char *Dialog::GetDialogTitle()
     {
       char *Ptr=CurItem->Data;
       for (; *Ptr; Ptr++)
-        if (LocalIsalpha(*Ptr))
+        if (LocalIsalphanum(*Ptr))
           return(Ptr);
     }
+    else if(CurItem->Type==DI_LISTBOX && !I)
+      CurItemList=CurItem;
   }
+
+  if(CurItemList)
+    return (const char *)CurItemList->ListPtr->GetPtrTitle();
+
   return "";
 }
 
@@ -2544,6 +2567,7 @@ void Dialog::ShowDialog(int ID)
     if(!Dialog::SendDlgMessage((HANDLE)this,DN_DRAWDLGITEM,I,0))
        continue;
 
+    EnterCriticalSection(&CSection);
     int LenText;
     short CX1=CurItem->X1;
     short CY1=CurItem->Y1;
@@ -2858,6 +2882,7 @@ void Dialog::ShowDialog(int ID)
 
 /* ***************************************************************** */
     } // end switch(...
+    LeaveCriticalSection(&CSection);
   } // end for (I=...
 
   // КОСТЫЛЬ!
@@ -3066,6 +3091,20 @@ int Dialog::ProcessKey(int Key)
   if(ProcessMoveDialog(Key))
     return TRUE;
 
+  switch(Key)
+  {
+    case KEY_MACRO_EOF:
+    case KEY_MACRO_BOF:
+    case KEY_MACRO_SELECTED:
+    case KEY_MACRO_EMPTY:
+    {
+      if (IsEdit(Item[FocusPos].Type))
+        return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+      else if(Item[FocusPos].Type == DI_LISTBOX)
+        return Item[FocusPos].ListPtr->ProcessKey(Key);
+      return 0;
+    }
+  }
 
   // BugZ#488 - Shift=enter
   if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting() && Item[FocusPos].Type != DI_BUTTON)
@@ -3139,12 +3178,6 @@ int Dialog::ProcessKey(int Key)
 
   switch(Key)
   {
-    // $ 20.03.2002 DJ -  для корректной обработки [x] Selection exists в диалогах
-    case KEY_MACRO_EDITSELECTED:
-      if (IsEdit(Item[FocusPos].Type))
-        return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-      return FALSE;
-
     case KEY_F1:
       // Перед выводом диалога посылаем сообщение в обработчик
       //   и если вернули что надо, то выводим подсказку
@@ -4304,22 +4337,27 @@ int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
 int Dialog::Do_ProcessTab(int Next)
 {
   int I;
-  // Здесь с фокусом ОООЧЕНЬ ТУМАННО!!!
-  if (Item[FocusPos].Flags & DIF_EDITOR)
+  if(ItemCount > 1)
   {
-    I=FocusPos;
-    while (Item[I].Flags & DIF_EDITOR)
-      I=ChangeFocus(I,Next ? 1:-1,TRUE);
+    // Здесь с фокусом ОООЧЕНЬ ТУМАННО!!!
+    if (Item[FocusPos].Flags & DIF_EDITOR)
+    {
+      I=FocusPos;
+      while (Item[I].Flags & DIF_EDITOR)
+        I=ChangeFocus(I,Next ? 1:-1,TRUE);
+    }
+    else
+    {
+      I=ChangeFocus(FocusPos,Next ? 1:-1,TRUE);
+      if (!Next)
+        while (I>0 && (Item[I].Flags & DIF_EDITOR)!=0 &&
+               (Item[I-1].Flags & DIF_EDITOR)!=0 &&
+               ((DlgEdit *)Item[I].ObjPtr)->GetLength()==0)
+          I--;
+    }
   }
   else
-  {
-    I=ChangeFocus(FocusPos,Next ? 1:-1,TRUE);
-    if (!Next)
-      while (I>0 && (Item[I].Flags & DIF_EDITOR)!=0 &&
-             (Item[I-1].Flags & DIF_EDITOR)!=0 &&
-             ((DlgEdit *)Item[I].ObjPtr)->GetLength()==0)
-        I--;
-  }
+    I=FocusPos;
 
   int oldFocus=FocusPos;
   ChangeFocus2(FocusPos,I);
@@ -5808,6 +5846,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
+
   int I;
 
   _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
