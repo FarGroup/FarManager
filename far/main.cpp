@@ -5,10 +5,14 @@ main.cpp
 
 */
 
-/* Revision: 1.43 10.01.2002 $ */
+/* Revision: 1.44 11.01.2002 $ */
 
 /*
 Modify:
+  11.01.2002 IS
+    - "Сделал", блин :-(
+      Не в LocalUpperInit это нужно вставлять, а в отдельную функцию, а
+      LocalUpperInit должно делать только то, что положено и ни грамма больше.
   10.01.2002 SVS
     - "Сделали", блин. :-(
       Считывание Opt.HotkeyRules должно быть раньше вызова LocalUpperInit
@@ -224,10 +228,6 @@ int _cdecl main(int Argc, char *Argv[])
      /co - cache only, */
   Opt.PluginsCacheOnly=FALSE;
   /* tran $ */
-  /* $ 28.12.2000 SVS
-   + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев */
-  GetRegKey("Interface","HotkeyRules",Opt.HotkeyRules,1);
-  /* SVS $*/
   /* $ 09.01.2002 IS только после этого можно использовать Local* */
   LocalUpperInit();
   /* IS $ */
@@ -342,6 +342,12 @@ int _cdecl main(int Argc, char *Argv[])
     }
     else
       CharToOem(Argv[I],DestName);
+
+  /* $ 11.01.2002 IS
+     Инициализация массива клавиш. Должна быть после CopyGlobalSettings!
+  */
+  InitKeysArray();
+  /* IS $ */
 
   WaitForInputIdle(GetCurrentProcess(),0);
   char OldTitle[512];

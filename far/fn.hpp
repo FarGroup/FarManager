@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.125 10.01.2002 $ */
+/* Revision: 1.126 11.01.2002 $ */
 
 /*
 Modify:
+  11.01.2002 IS
+    + InitKeysArray
   10.01.2002 SVS
     + SYSLOG_ECTL
   25.12.2001 SVS
@@ -492,6 +494,9 @@ char* WINAPI PasteFromClipboardEx(int max);
 int GetFileTypeByName(const char *Name);
 void SetFarTitle(const char *Title);
 void LocalUpperInit();
+/* $ 11.01.2002 IS инициализация массива клавиш */
+void InitKeysArray();
+/* IS $ */
 /* $ 28.08.2000 SVS
    Модификация вызова под WINAPI
 */

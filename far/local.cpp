@@ -5,10 +5,14 @@ local.cpp
 
 */
 
-/* Revision: 1.09 27.11.2001 $ */
+/* Revision: 1.10 11.01.2002 $ */
 
 /*
 Modify:
+  11.01.2002 IS
+    + void InitKeysArray()
+      »нициализаци€ массива клавиш. ¬ызывать только после CopyGlobalSettings,
+      потому что только тогда GetRegKey считает правильные данные.
   27.11.2001 DJ
     - вс€ка€ мелочевка
   04.07.2001 SVS
@@ -87,7 +91,19 @@ void LocalUpperInit()
     LCOrder[I]=LCOrder[UpperToLower[I]];
   for (I=0;I<sizeof(KeyToKey)/sizeof(KeyToKey[0]);I++)
     KeyToKey[I]=I;
+}
 
+/* $ 11.01.2002 IS
+   »нициализаци€ массива клавиш.
+   ¬ызывать только после CopyGlobalSettings, потому что только тогда GetRegKey
+   считает правильные данные.
+*/
+void InitKeysArray()
+{
+  GetRegKey("Interface","HotkeyRules",Opt.HotkeyRules,1);
+  unsigned char CvtStr[2];
+  int I;
+  CvtStr[1]=0;
   HKL Layout[10];
   int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
   if (LayoutNumber<5)
@@ -142,7 +158,7 @@ void LocalUpperInit()
   /* SVS $ */
   /* SVS $ */
 }
-
+/* IS 11.01.2002 $ */
 
 int WINAPI LocalIslower(unsigned Ch)
 {
