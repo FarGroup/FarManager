@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.108 29.05.2002 $ */
+/* Revision: 1.109 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 IS
+    ! небольшая оптимизация там же - уберем лишний strlen
   29.05.2002 SVS
     ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
   28.05.2002 SVS
@@ -697,7 +699,7 @@ int FileEditor::ProcessKey(int Key)
           Chr=*Ptr;
           *Ptr=0;
           // В корне?
-          if (!((strlen(FullFileName)==2) && isalpha(FullFileName[0]) && (FullFileName[1]==':')))
+          if (!(isalpha(FullFileName[0]) && (FullFileName[1]==':') && !FullFileName[2]))
           {
             // а дальше? каталог существует?
             if((FNAttr=GetFileAttributes(FullFileName)) == -1 ||

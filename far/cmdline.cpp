@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.57 29.05.2002 $ */
+/* Revision: 1.58 30.05.2002 $ */
 
 /*
 Modify:
+  30.05.2002 IS
+    ! взял управление на себя :-) - тут IsLocalPath применять можно
+      безболезненно
   29.05.2002 SVS
     ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
   28.05.2002 SVS
@@ -529,7 +532,7 @@ void CommandLine::GetPrompt(char *DestStr)
           DestStr+=strlen(CurDir);
           break;
         case 'n':
-          if (isalpha(CurDir[0]) && CurDir[1]==':' && CurDir[2]=='\\')
+          if (IsLocalPath(CurDir) && CurDir[2]=='\\')
             *(DestStr++)=LocalUpper(*CurDir);
           else
             *(DestStr++)='?';
