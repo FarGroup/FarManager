@@ -8,10 +8,13 @@ global.hpp
 
 */
 
-/* Revision: 1.25 07.08.2001 $ */
+/* Revision: 1.26 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 SVS
+    ! В некоторых источниках говорится, что IsDebuggerPresent() есть только
+      в NT, так что... бум юзать ее динамически!
   07.08.2001 SVS
     + IsProcessVE_FindFile - идет процесс "вьювер/редактор" во время
       поиска файлов?
@@ -177,5 +180,8 @@ extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsProcessVE_FindFile;
 
 extern char *Copyright;
+
+typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
+extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 
 #endif	// __FARGLOBAL_HPP__

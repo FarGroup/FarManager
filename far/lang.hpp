@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.77 18.09.2001 $ */
+/* Revision: 1.78 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 SVS
+    ! удалим MExcUnload за ненадобностью
   18.09.2001 SVS
     + MExcFloat*,MCMLTargetTO
   11.09.2001 SVS
@@ -1545,7 +1547,6 @@ enum
   MExcStructField,
   MExcInvalidFuncResult,
   MExcAddress,
-  MExcUnload,
   MExcUnloadYes,
   MExcRAccess,
   MExcWAccess,

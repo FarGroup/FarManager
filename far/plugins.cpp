@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.93 27.09.2001 $ */
+/* Revision: 1.94 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 SVS
+    - Ошибка в PluginsSet::UnloadPlugin() - зачем ВСЮ структуру затирать то?
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -718,8 +720,10 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
 // причем без всяких ему объяснений
 void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin)
 {
-    FreeLibrary(CurPlugin.hModule);
-    memset(&CurPlugin,0,sizeof(CurPlugin));
+    BOOL Ret=FreeLibrary(CurPlugin.hModule);
+//_SVS(SysLog("UnloadPlugin(%s)",CurPlugin.ModuleName));
+    // Ну хоть имя то можно оставить :-(
+    memset(&CurPlugin.hModule,0,sizeof(CurPlugin)-NM);
     CurPlugin.DontLoadAgain=1;
 }
 

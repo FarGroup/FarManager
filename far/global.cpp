@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.24 18.09.2001 $ */
+/* Revision: 1.25 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 SVS
+    ! ¬ некоторых источниках говоритс€, что IsDebuggerPresent() есть только
+      в NT, так что... бум юзать ее динамически!
   18.09.2001 SVS
     ! "FarTmpXXXXXX" -> "FARTMPXXXXXX".
   07.08.2001 SVS
@@ -157,3 +160,5 @@ char RegName[256];
 int CmpNameSearchMode;
 int DisablePluginsOutput;
 int CmdMode;
+
+PISDEBUGGERPRESENT pIsDebuggerPresent=NULL;

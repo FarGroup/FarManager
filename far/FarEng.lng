@@ -274,8 +274,8 @@
 "onto itself"
 
 "File already exists"
-"Source"
-"Destination"
+"Existing"
+"New"
 "&Overwrite"
 "&All"
 "&Skip"
@@ -1319,7 +1319,6 @@
 "(structure <%s>, field <%s>)"
 "Function <%s> has returned illegal value"
 "Exception address: 0x%X in module:"
-"Do you wish to unload this plugin?"
 "The plugin will be Unloaded!"
 ""Attempt to read from the inaccessible address 0x%X""
 ""Attempt to write to the inaccessible address 0x%X""

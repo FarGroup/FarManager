@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.35 26.09.2001 $ */
+/* Revision: 1.36 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 SVS
+    ! если под дебагером, то отключаем исключения однозначно, иначе - смотря
+      что указал юзвер.
   26.09.2001 SVS
     + Полиция 19 - если у "полиции" выставлен 19-й бит - игнорировать /p
   16.09.2001 SVS
@@ -177,7 +180,14 @@ int _cdecl main(int Argc, char *Argv[])
   int StartLine=-1,StartChar=-1,RegOpt=FALSE;
   *EditName=*ViewName=*DestName=0;
   CmdMode=FALSE;
-  Opt.ExceptRules=-1;
+
+  // если под дебагером, то отключаем исключения однозначно,
+  //  иначе - смотря что указал юзвер.
+  if(!pIsDebuggerPresent)
+    pIsDebuggerPresent=(PISDEBUGGERPRESENT)GetProcAddress(GetModuleHandle("KERNEL32"),"IsDebuggerPresent");
+  Opt.ExceptRules=(pIsDebuggerPresent && pIsDebuggerPresent()?0:-1);
+//  Opt.ExceptRules=-1;
+//_SVS(SysLog("Opt.ExceptRules=%d",Opt.ExceptRules));
 
   /* $ 30.12.2000 SVS
      Проинициализируем функции работы с атрибутами Encryped сразу после

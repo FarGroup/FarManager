@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.07 18.09.2001 $ */
+/* Revision: 1.08 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 SVS
+    ! добавим некоторое бестыдное количество проверок в "писателя" событий!
   18.09.2001 SVS
     + EXCEPTION_FLT_* - немного обработки плавающей точки
   16.09.2001 SVS
@@ -61,9 +63,16 @@ int WriteEvent(DWORD DumpType, // FLOG_*
                DWORD RawDataFlags,
                EVENTPROC CallBackProc)
 {
-  static char FarEventFileName[MAX_PATH];
-  GetModuleFileName(NULL,FarEventFileName,sizeof(FarEventFileName));
-  strcpy(strrchr(FarEventFileName,'\\')+1,"farevent.dmp");
+  char FarEventFileName[2048];
+  *FarEventFileName=0;
+  if(!GetModuleFileName(NULL,FarEventFileName,sizeof(FarEventFileName)))
+    return 0;
+
+  char *PtrEFN=strrchr(FarEventFileName,'\\');
+  if(!PtrEFN)
+    return 0;
+
+  strcpy(PtrEFN+1,"farevent.dmp");
   HANDLE fp=CreateFile(FarEventFileName,
                GENERIC_READ|GENERIC_WRITE,
                FILE_SHARE_READ|FILE_SHARE_WRITE,
@@ -79,7 +88,7 @@ int WriteEvent(DWORD DumpType, // FLOG_*
   memset(&DumpHeader,0,sizeof(DumpHeader));
 
   // подготовим заголовок
-  if((Pos=GetFileSize(fp,NULL)) == -1 || !Pos)
+  if((Pos=GetFileSize(fp,NULL)) == -1 || Pos <= sizeof(CountDump))
     CountDump=0;
   else
   {
@@ -88,7 +97,13 @@ int WriteEvent(DWORD DumpType, // FLOG_*
   }
   CountDump++;
   SetFilePointer(fp,0,NULL,FILE_BEGIN);
-  WriteFile(fp,&CountDump,sizeof(CountDump),&Temp,NULL);
+  // если первый раз не удалось записать, то....
+  if(!WriteFile(fp,&CountDump,sizeof(CountDump),&Temp,NULL))
+  {
+    CloseHandle(fp);
+    return 0;
+  }
+
   // Чтобы вернутся для записи размера!
   BeginEventFilePos=SetFilePointer(fp,0,NULL,FILE_END);
 
@@ -112,7 +127,6 @@ int WriteEvent(DWORD DumpType, // FLOG_*
     memcpy(&SysHdr.WinVer,&WinVer,sizeof(OSVERSIONINFO));
     SysHdr.FARVersion=FAR_VERSION;
     WriteFile(fp,&SysHdr,sizeof(SysHdr),&Temp,NULL);
-
     DumpHeader.RecordsCount++;
     DumpHeader.DumpSize+=sizeof(struct SYSINFOHEADER);
   }
@@ -508,7 +522,7 @@ int xfilter(
    // EXCEPTION_CONTINUE_EXECUTION  ??????
    char *pName;
    int  I, rc, Ret=1;
-   char Buf[2][80];
+   char Buf[2][NM];
    char TruncFileName[2*NM];
    BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
 
@@ -564,7 +578,7 @@ int xfilter(
      else
        sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
 
-     Ret=Message(MSG_WARNING,1,
+     Message(MSG_WARNING,1,
             xFromMSGTitle(From),
             MSG(MExcTrappedException),
             MSG(MExcCheckOnLousys),
@@ -573,10 +587,6 @@ int xfilter(
             "\1",
             MSG(MExcUnloadYes),
             MSG(MOk));
-
-     if (!Opt.ExceptCallDebugger || Ret!=0)
-       Unload = TRUE;
-//       CtrlObject->Plugins.UnloadPlugin(*Module);
    } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
 
    // теперь обработаем исключение по возврату 0 вместо INVALID_HANDLE_VALUE
@@ -594,23 +604,21 @@ int xfilter(
        case EXCEPT_OPENPLUGIN_FINDLIST:
          pName="OpenPlugin(OPEN_FINDLIST)";
          break;
+       default:
+         pName="???";
+         break;
      }
 
      sprintf(Buf[0],MSG(MExcInvalidFuncResult),pName);
-     Ret=Message(MSG_WARNING, 2,
+     Message(MSG_WARNING, 1,
                  xFromMSGTitle(From),
                  MSG(MExcTrappedException),
                  MSG(MExcCheckOnLousys),
                  TruncPathStr(TruncFileName,40),
                  Buf[0],
                  "\1",
-                 MSG(MExcUnload),
-                 MSG(MYes), MSG(MNo));
-     if (Ret == 0)
-     {
-       Unload = TRUE;
-       Ret++; // Исключить вызов дебаггера при Ret == 0
-     }
+                 MSG(MExcUnloadYes),
+                 MSG(MOk));
    }
 
    else
@@ -632,23 +640,7 @@ int xfilter(
      if (!pName) pName=MSG(MExcUnknown);
 
      sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
-     if (Flags&1)
-     {
-       Ret=Message(MSG_WARNING,2,
-               xFromMSGTitle(From),
-               MSG(MExcTrappedException),
-               pName,
-               Buf[0],
-               TruncPathStr(TruncFileName,40),"\1",
-               MSG(MExcUnload),
-               MSG(MYes),
-               MSG(MNo));
-
-       if (Ret == 1)
-         Unload = TRUE; // CtrlObject->Plugins.UnloadPlugin(*Module);
-     }
-     else
-       Ret=Message(MSG_WARNING,1,
+     Message(MSG_WARNING,1,
                xFromMSGTitle(From),
                MSG(MExcTrappedException),
                pName,
@@ -656,20 +648,15 @@ int xfilter(
                TruncPathStr(TruncFileName,40),"\1",
                MSG(MExcUnloadYes),
                MSG(MOk));
-     /* skv$*/
    } /* else */
 
-   if (Unload)
-     CtrlObject->Plugins.UnloadPlugin(*Module);
+   // выгружаем паршивца ВСЕГДА!!!
+   CtrlObject->Plugins.UnloadPlugin(*Module);
 
    rc = EXCEPTION_EXECUTE_HANDLER;
    /* VVM $ */
-
-//   if(IsDebuggerPresent())
-//     rc = EXCEPTION_CONTINUE_SEARCH;
 
    if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
      rc=EXCEPTION_CONTINUE_SEARCH; //?
    return rc;
 }
-/* SVS $ */

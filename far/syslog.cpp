@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.17 24.09.2001 $ */
+/* Revision: 1.18 03.10.2001 $ */
 
 /*
 Modify:
+  03.10.2001 SVS
+    ! В некоторых источниках говорится, что IsDebuggerPresent() есть только
+      в NT, так что... бум юзать ее динамически!
   24.09.2001 SVS
     ! CleverSysLog - параметр у конструктора - "заголовок"
   18.09.2001 SVS
@@ -78,10 +81,6 @@ char         LogFileName[MAX_FILE];
 static FILE *LogStream=0;
 static int   Indent=0;
 static char *PrintTime(char *timebuf);
-
-extern "C" {
-WINBASEAPI BOOL WINAPI IsDebuggerPresent(VOID);
-};
 
 #endif
 
@@ -220,7 +219,7 @@ void SysLog(char *fmt,...)
     fflush(LogStream);
   }
   CloseSysLog();
-  if(IsDebuggerPresent())
+  if(pIsDebuggerPresent && pIsDebuggerPresent())
   {
     OutputDebugString(msg);
 #ifdef _MSC_VER
@@ -251,7 +250,7 @@ void SysLog(int l,char *fmt,...)
     fflush(LogStream);
   }
   CloseSysLog();
-  if(IsDebuggerPresent())
+  if(pIsDebuggerPresent && pIsDebuggerPresent())
   {
     OutputDebugString(msg);
   }
