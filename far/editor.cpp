@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.202 14.10.2002 $ */
+/* Revision: 1.203 18.10.2002 $ */
 
 /*
 Modify:
+  18.10.2002 SKV
+    - UnmarkEmptyBlock, не надо бурить его целиком.
   14.10.2002 SVS
     - BugZ#684 - ECTL_SETPOSITION с отрицательным столбцом
   14.10.2002 SKV
@@ -4470,8 +4472,11 @@ void Editor::UnmarkEmptyBlock()
       Block->EditLine.GetRealSelection(StartSel,EndSel);
       if (StartSel==-1)
         break;
-      if(StartSel!=EndSel) // выделено сколько-то символов
+      if(StartSel!=EndSel)// выделено сколько-то символов
+      {
         ++Lines;           // увеличим счетчик непустых строк
+        break;
+      }
       Block=Block->Next;
     }
     if(!Lines)             // если выделено ноль символов в ширину, то
