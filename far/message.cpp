@@ -5,10 +5,15 @@ message.cpp
 
 */
 
-/* Revision: 1.25 10.12.2002 $ */
+/* Revision: 1.26 13.01.2003 $ */
 
 /*
 Modify:
+  13.01.2003 IS
+    - Принудительно уберем запрет отрисовки экрана, если количество кнопок
+      в сообщении равно нулю и макрос закончил выполняться. Это необходимо,
+      чтобы заработал прогресс-бар от плагина, который был запущен при помощи
+      макроса запретом отрисовки (bugz#533).
   10.12.2002 SVS
     ! Применим MSG_KILLSAVESCREEN
   11.05.2002 SVS
@@ -76,6 +81,7 @@ Modify:
 #pragma hdrstop
 
 #include "global.hpp"
+#include "ctrlobj.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
 #include "lang.hpp"
@@ -411,9 +417,20 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     }
     Text(TmpStr);
   }
-  if (Buttons==0)
-    ScrBuf.Flush();
+  /* $ 13.01.2003 IS
+     - Принудительно уберем запрет отрисовки экрана, если количество кнопок
+       в сообщении равно нулю и макрос закончил выполняться. Это необходимо,
+       чтобы заработал прогресс-бар от плагина, который был запущен при помощи
+       макроса запретом отрисовки (bugz#533).
+  */
   free(Str);
+  if (Buttons==0)
+  {
+    if (ScrBuf.GetLockCount()>0 && !CtrlObject->Macro.PeekKey())
+      ScrBuf.SetLockCount(0);
+    ScrBuf.Flush();
+  }
+  /* IS $ */
   return(0);
 }
 
