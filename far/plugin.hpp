@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.78 19.01.2001 $ */
+/* Revision: 1.79 21.01.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.01.2001 IS
+    ! Для однообразия с редактором изменил пару названий:
+      VCTL_SETPOS -> VCTL_SETPOSITION
+      AnsiText -> AnsiMode
   19.01.2001 SVS
     ! перестановки в командах VIEWER_CONTROL_COMMANDS
     + некоторые структуры для Viewer API: ViewerSelect, ViewerSetPosition и
@@ -775,7 +779,7 @@ enum VIEWER_CONTROL_COMMANDS {
   VCTL_QUIT,
   VCTL_REDRAW,
   VCTL_SETKEYBAR,
-  VCTL_SETPOS,
+  VCTL_SETPOSITION,
   VCTL_SELECT,
 };
 
@@ -809,7 +813,7 @@ struct ViewerSetPosition
 struct ViewerMode{
   int UseDecodeTable;
   int TableNum;
-  int AnsiText;
+  int AnsiMode;
   int Unicode;
   int Wrap;
   int TypeWrap;

@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.40 19.01.2001 $ */
+/* Revision: 1.41 21.01.2001 $ */
 
 /*
 Modify:
+  21.01.2001 IS
+   ! Для однообразия с редактором изменил пару названий:
+      VCTL_SETPOS -> VCTL_SETPOSITION
+      AnsiText -> AnsiMode
   19.01.2001 SVS
     ! Изменен вызов функции GoTo() - три дополнительных параметра
     - Устранение висячих строк при переходе (функция GoTo)
@@ -167,9 +171,9 @@ Viewer::Viewer()
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
   VM.UseDecodeTable=InitUseDecodeTable;
   VM.TableNum=InitTableNum;
-  VM.AnsiText=InitAnsiText;
+  VM.AnsiMode=InitAnsiText;
 
-  if (VM.AnsiText && VM.TableNum==0)
+  if (VM.AnsiMode && VM.TableNum==0)
   {
     int UseUnicode=TRUE;
     GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
@@ -232,7 +236,7 @@ Viewer::~Viewer()
       if (TableChangedByUser)
       {
         Table=1;
-        if (VM.AnsiText)
+        if (VM.AnsiMode)
           Table=2;
         else
           if (VM.Unicode)
@@ -286,7 +290,7 @@ void Viewer::KeepInitParameters()
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
   InitUseDecodeTable=VM.UseDecodeTable;
   InitTableNum=VM.TableNum;
-  InitAnsiText=VM.AnsiText;
+  InitAnsiText=VM.AnsiMode;
   Opt.ViewerIsWrap=VM.Wrap;
   Opt.ViewerWrap=VM.TypeWrap;
   InitHex=VM.Hex;
@@ -390,7 +394,7 @@ int Viewer::OpenFile(char *Name,int warning)
     //if(ReadSize == sizeof(FirstWord) &&
     if(FirstWord == 0x0FEFF || FirstWord == 0x0FFFE)
     {
-      VM.AnsiText=VM.UseDecodeTable=0;
+      VM.AnsiMode=VM.UseDecodeTable=0;
       VM.Unicode=1;
       TableChangedByUser=TRUE;
       IsDecode=TRUE;
@@ -418,11 +422,11 @@ int Viewer::OpenFile(char *Name,int warning)
         case 0:
           break;
         case 1:
-          VM.AnsiText=VM.UseDecodeTable=VM.Unicode=0;
+          VM.AnsiMode=VM.UseDecodeTable=VM.Unicode=0;
           break;
         case 2:
           {
-            VM.AnsiText=TRUE;
+            VM.AnsiMode=TRUE;
             VM.UseDecodeTable=TRUE;
             VM.Unicode=0;
             VM.TableNum=0;
@@ -431,11 +435,11 @@ int Viewer::OpenFile(char *Name,int warning)
           }
           break;
         case 3:
-          VM.AnsiText=VM.UseDecodeTable=0;
+          VM.AnsiMode=VM.UseDecodeTable=0;
           VM.Unicode=1;
           break;
         default:
-          VM.AnsiText=VM.Unicode=0;
+          VM.AnsiMode=VM.Unicode=0;
           VM.UseDecodeTable=1;
           VM.TableNum=Table-3;
           PrepareTable(&TableSet,Table-5);
@@ -463,9 +467,9 @@ int Viewer::OpenFile(char *Name,int warning)
       FilePos*=2;
       SetFileSize();
     }
-    if (VM.AnsiText)
+    if (VM.AnsiMode)
     {
-      VM.AnsiText=FALSE;
+      VM.AnsiMode=FALSE;
       ChangeViewKeyBar();
     }
   }
@@ -887,7 +891,7 @@ void Viewer::ShowStatus()
     if (VM.UseDecodeTable)
       TableName=TableSet.TableName;
     else
-      if (VM.AnsiText)
+      if (VM.AnsiMode)
         TableName="Win";
       else
         TableName="DOS";
@@ -1182,7 +1186,7 @@ int Viewer::ProcessKey(int Key)
             if (TableChangedByUser)
             {
               Table=1;
-              if (VM.AnsiText)
+              if (VM.AnsiMode)
                 Table=2;
               else
                 if (VM.Unicode)
@@ -1263,7 +1267,7 @@ int Viewer::ProcessKey(int Key)
       Search(1,0);
       return(TRUE);
     case KEY_F8:
-      if ((VM.AnsiText=!VM.AnsiText)!=0)
+      if ((VM.AnsiMode=!VM.AnsiMode)!=0)
       {
         int UseUnicode=TRUE;
         GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
@@ -1275,7 +1279,7 @@ int Viewer::ProcessKey(int Key)
         SetFileSize();
       }
       VM.TableNum=0;
-      VM.UseDecodeTable=VM.AnsiText;
+      VM.UseDecodeTable=VM.AnsiMode;
       ChangeViewKeyBar();
       Show();
       LastSelPos=FilePos;
@@ -1294,7 +1298,7 @@ int Viewer::ProcessKey(int Key)
           VM.UseDecodeTable=GetTableCode;
           VM.Unicode=UseUnicode;
           SetFileSize();
-          VM.AnsiText=FALSE;
+          VM.AnsiMode=FALSE;
           ChangeViewKeyBar();
           Show();
           LastSelPos=FilePos;
@@ -1664,7 +1668,7 @@ void Viewer::ChangeViewKeyBar()
     else
       ViewKeyBar->Change(MSG(MViewF4),3);
 
-    if (VM.AnsiText)
+    if (VM.AnsiMode)
       ViewKeyBar->Change(MSG(MViewF8DOS),7);
     else
       ViewKeyBar->Change(MSG(MViewF8),7);
@@ -2407,7 +2411,7 @@ int Viewer::ViewerControl(int Command,void *Param)
                сюда же будет записано новое смещение
                В основном совпадает с переданным
     */
-    case VCTL_SETPOS:
+    case VCTL_SETPOSITION:
     {
       if(Param)
       {
