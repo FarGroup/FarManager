@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.37 02.06.2001 $ */
+/* Revision: 1.38 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 tran
+    *  инициализация NULL должна быть ДО ЛЮБЫХ Return из конструктора... 
+       падало на ".."
   02.06.2001 IS
     ! #define COPY* -> enum
     + Коректная (надеюсь) обработка списка целей с учетом кавычек
@@ -195,8 +198,15 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // *** Предварительные проверки
   // ***********************************************************************
   // Сразу выциганим версию OS
+
+  _tran(SysLog("[%p] ShellCopy::ShellCopy() ",this));
+
   NT=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT;
   NT5=NT && WinVer.dwMajorVersion >= 5;
+
+  /* $ 06.06.2001 tran
+     инициализация NULL должна быть ДО ЛЮБЫХ Return из конструктора... */
+  CopyBuffer=NULL;
 
   if(Link && !NT) // Создание линков только под NT
   {
@@ -206,12 +216,14 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
               MSG(MOk));
     return;
   }
+  _tran(SysLog("[%p] ShellCopy::ShellCopy() 1",this));
 
   memset(&CDP,0,sizeof(CDP));
   CDP.IsDTSrcFixed=-1;
 
   if ((CDP.SelCount=SrcPanel->GetSelCount())==0)
     return;
+  _tran(SysLog("[%p] ShellCopy::ShellCopy() 2",this));
 
   *SelName=*RenamedName=*CopiedName=0;
 
@@ -222,6 +234,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     if (strcmp(SelName,"..")==NULL)
       return;
   }
+  _tran(SysLog("[%p] ShellCopy::ShellCopy() 3",this));
 
   /* $ 26.05.2001 OT Запретить перерисовку панелей во время копирования */
   (*FrameManager)[0]->LockRefresh();
@@ -231,7 +244,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   GetRegKey("System", "CopyBufferSize", CopyBufferSize, COPY_BUFFER_SIZE);
   if (CopyBufferSize == 0)
     CopyBufferSize = COPY_BUFFER_SIZE;
-  CopyBuffer=NULL;
 
   CDP.thisClass=this;
   CDP.AltF10=0;
@@ -463,6 +475,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     return;
   }
 
+  _tran(SysLog("[%p] ShellCopy::ShellCopy() 4",this));
+
   /* $ 02.06.2001 IS
      ! Не нужно удалять пробелы и кавычки при мультикопировании, потому что
        все, что нужно будет сделано в DirList.Set
@@ -486,6 +500,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     return;
   }
 
+  _tran(SysLog("[%p] ShellCopy::ShellCopy() 5",this));
   if (Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && SrcPanel->IsDizDisplayed() ||
       Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
   {
@@ -825,7 +840,9 @@ ShellCopy::~ShellCopy()
 {
   /* $ 13.07.2000 SVS
        раз уж вызвали new[], то в придачу и delete[] надо... */
-  delete[] CopyBuffer;
+  _tran(SysLog("[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
+  if ( CopyBuffer )
+      delete[] CopyBuffer;
   /* SVS $ */
   /* $ 26.05.2001 OT
      Разрешить перерисовку панелей */
@@ -1440,7 +1457,7 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
 {
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
-  #define BAR_SIZE	40
+  #define BAR_SIZE  40
   static char Bar[BAR_SIZE+2]={0};
   if(!Bar[0])
     memset(Bar,0x0C4,BAR_SIZE);
