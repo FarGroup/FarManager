@@ -11,10 +11,13 @@ udlist.hpp
 
 */
 
-/* Revision: 1.04 01.08.2001 $ */
+/* Revision: 1.05 11.08.2001 $ */
 
 /*
 Modify:
+  11.08.2001 IS
+    + UDL_FLAGS
+    ! SetSeparators -> SetParameters
   01.08.2001 IS
     + GetTotal
   02.07.2001 IS
@@ -32,13 +35,22 @@ Modify:
 
 #include "farconst.hpp"
 
+enum UDL_FLAGS
+{
+  ULF_ADDASTERISK    =0x00000001, // добавл€ть '*' к концу элемента списка,
+                                  // если он не содержит '?', '*' и '.'
+  ULF_PACKASTERISKS  =0x00000002, // вместо "*.*" в список помещать просто "*"
+  ULF_PROCESSBRACKETS=0x00000004, // учитывать квадратные скобки при анализе
+                                  // строки инициализации
+};
+
 class UserDefinedList
 {
   private:
     DWORD Total;
     char *Data, *DataEnd, *DataCurrent;
     BYTE Separator1, Separator2;
-    BOOL ProcessBrackets, AddAsterisk;
+    BOOL ProcessBrackets, AddAsterisk, PackAsterisks;
 
   private:
     BOOL CheckSeparators() const; // проверка разделителей на корректность
@@ -51,12 +63,11 @@ class UserDefinedList
 
   public:
     // по умолчанию разделителем считаетс€ ';' и ',', а
-    // ProcessBrackets=FALSE, AddAsterisk=FALSE
+    // ProcessBrackets=FALSE, AddAsterisk=FALSE, PackAsterisks=FALSE
     UserDefinedList();
 
     // явно указываютс€ разделители. —м. описание SetSeparators
-    UserDefinedList(BYTE separator1, BYTE separator2,
-                    BOOL ProcessBrackets, BOOL AddAsterisk);
+    UserDefinedList(BYTE separator1, BYTE separator2, DWORD Flags);
     ~UserDefinedList() { Free(); }
 
   public:
@@ -71,8 +82,7 @@ class UserDefinedList
     // ¬озвращает FALSE, если один из разделителей €вл€етс€ кавычкой или
     // включена обработка скобок и один из разделителей €вл€етс€ квадратной
     // скобкой.
-    BOOL SetSeparators(BYTE Separator1, BYTE Separator2,
-                       BOOL ProcessBrackets, BOOL AddAsterisk);
+    BOOL SetParameters(BYTE Separator1, BYTE Separator2, DWORD Flags);
 
     // »нициализирует список. ѕринимает список, разделенный разделител€ми.
     // ¬озвращает FALSE при неудаче.

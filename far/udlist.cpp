@@ -8,10 +8,14 @@ udlist.cpp
 
 */
 
-/* Revision: 1.05 01.08.2001 $ */
+/* Revision: 1.06 11.08.2001 $ */
 
 /*
 Modify:
+  11.08.2001 IS
+    - Некритическая опечатка
+    ! SetSeparators -> SetParameters
+    + Обработка UDL_FLAGS
   01.08.2001 IS
     + Подсчет элементов в списке (Total)
   02.07.2001 IS
@@ -43,15 +47,14 @@ UserDefinedList::UserDefinedList()
 {
   Total=0;
   DataCurrent=Data=DataEnd=NULL;
-  SetSeparators(0,0,FALSE,FALSE);
+  SetParameters(0, 0, 0);
 }
 
-UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2,
-                                 BOOL processbrackets, BOOL addasterisk)
+UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2, DWORD Flags)
 {
   Total=0;
   DataCurrent=Data=DataEnd=NULL;
-  SetSeparators(separator1, separator2, processbrackets, addasterisk);
+  SetParameters(separator1, separator2, Flags);
 }
 
 void UserDefinedList::SetDefaultSeparators()
@@ -68,16 +71,21 @@ BOOL UserDefinedList::CheckSeparators() const
           );
 }
 
-BOOL UserDefinedList::SetSeparators(BYTE separator1, BYTE separator2,
-                                    BOOL processbrackets, BOOL addasterisk)
+BOOL UserDefinedList::SetParameters(BYTE separator1, BYTE separator2, DWORD Flags)
 {
   Free();
   Separator1=separator1;
   Separator2=separator2;
-  ProcessBrackets=processbrackets;
-  AddAsterisk=addasterisk;
+  ProcessBrackets=(Flags & ULF_PROCESSBRACKETS)?TRUE:FALSE;
+  AddAsterisk=(Flags & ULF_ADDASTERISK)?TRUE:FALSE;
+  PackAsterisks=(Flags & ULF_PACKASTERISKS)?TRUE:FALSE;
 
-  if(!Separator2 && !Separator2) SetDefaultSeparators();
+  if(!Separator1 && Separator2)
+  {
+     Separator1=Separator2;
+     Separator2=0;
+  }
+  if(!Separator1 && !Separator2) SetDefaultSeparators();
 
   return CheckSeparators();
 }
@@ -121,7 +129,14 @@ BOOL UserDefinedList::Set(const char *List)
             {
               if(Length)
               {
-                strncpy(DataEnd, CurList, Length);
+                if(PackAsterisks && 3==Length && 0==memcmp(CurList, "*.*", 3))
+                {
+                   *DataEnd='*';
+                   Length=1;
+                }
+                else
+                   strncpy(DataEnd, CurList, Length);
+
                 CurList+=RealLength;
                 DataEnd[Length]=0;
                 if(AddAsterisk && strpbrk(DataEnd,"?*.")==NULL)

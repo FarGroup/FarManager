@@ -5,10 +5,12 @@ FileMasksProcessor.cpp
 исключения).
 */
 
-/* Revision: 1.01 10.07.2001 $ */
+/* Revision: 1.02 11.08.2001 $ */
 
 /*
 Modify:
+  11.08.2001 IS
+    + Используем UDL_FLAGS:
   10.07.2001 SVS
     ! В морг для CPP-файлов if/endif
   01.07.2001 IS
@@ -38,7 +40,9 @@ void FileMasksProcessor::Free()
 BOOL FileMasksProcessor::Set(const char *masks, DWORD Flags)
 {
   // разделителем масок является не только запятая, но и точка с запятой!
-  Masks.SetSeparators(',',';',TRUE, (Flags&FMPF_ADDASTERISK)?TRUE:FALSE);
+  DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS;
+  if(Flags&FMPF_ADDASTERISK) flags|=ULF_ADDASTERISK;
+  Masks.SetParameters(',',';',flags);
   return Masks.Set(masks);
 }
 
