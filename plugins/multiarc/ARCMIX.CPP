@@ -212,7 +212,8 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   /* raVen $ */
 
   ExitCode2=ExitCode=CreateProcess(NULL,ExpandedCmd,NULL,NULL,HideOutput,
-            Opt.Background?CREATE_NEW_CONSOLE:0,NULL,NULL,&si,&pi);
+            (Opt.Background?CREATE_NEW_CONSOLE:0)|PriorityProcessCode[Opt.PriorityClass],
+            NULL,NULL,&si,&pi);
 
   LastError=!ExitCode?GetLastError():0;
   if (HideOutput)

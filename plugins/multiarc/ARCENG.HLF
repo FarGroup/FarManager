@@ -37,13 +37,16 @@ to encrypt files during archiving.
 to move rather than copy files to the archive. This option is turned
 on automatically if the key #F6# is used to add files to an archive.
 
-    The option #Background# starts the archiving process in a separate window.
-
     The option #Exact archive filename# allows to create archives with
 nonstandard extensions (if this is supported by the archiver). If the
 option is turned off, the extension defined in the
 ~Archiver command lines~@ArcSettings2@ dialog is appended to the name
 entered in the dialog.
+
+    The option #Background# starts the archiving process in a separate window.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
 
     Pressing the #Save settings# button saves the current archiver and
 switches for future usage.
@@ -55,6 +58,38 @@ switches for future usage.
 positioned to the new archive once the archiving operation is
 complete. (This is not done when the archiver is started in a
 separate window.)
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
 
 @ExtrFromArc
 $ #Extracting files from archive#

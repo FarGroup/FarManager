@@ -303,6 +303,7 @@ struct Options
      запуск процесса в фоне */
   int UserBackground;
   int Background;
+  int PriorityClass;
   /* tran 13.09.2000 $ */
   int OldUserBackground; // $ 02.07.2002 AY
   int UseLastHistory; // $ 18.05.2001 SVS
@@ -334,7 +335,9 @@ extern char *SortModes[];
 extern HANDLE heapNew;
 #endif
 
+extern DWORD PriorityProcessCode[];
 
+extern OSVERSIONINFO WinVer;
 /*
   Functions
 */

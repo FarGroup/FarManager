@@ -49,12 +49,14 @@ struct PutDlgData
 #define PDI_SEPARATOR1      12
 #define PDI_ADDDELCHECK     13
 #define PDI_EXACTNAMECHECK  14
-#define PDI_BGROUNDCHECK    15
-#define PDI_SEPARATOR2      16
-#define PDI_ADDBTN          17
-#define PDI_SELARCBTN       18
-#define PDI_SAVEBTN         19
-#define PDI_CANCELBTN       20
+#define PDI_PRIORLABEL      15
+#define PDI_PRIORCBOX       16
+#define PDI_BGROUNDCHECK    17
+#define PDI_SEPARATOR2      18
+#define PDI_ADDBTN          19
+#define PDI_SELARCBTN       20
+#define PDI_SAVEBTN         21
+#define PDI_CANCELBTN       22
 
 class SelectFormatComboBox
 {
@@ -432,6 +434,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   Opt.UserBackground=0;
   /* DJ $ */
   /* raVen $ */
+  Opt.PriorityClass=2;
+
   while (1)
   {
     GetRegKey(pdd.ArcFormat,"DefExt",pdd.DefExt,"",sizeof(pdd.DefExt));
@@ -442,6 +446,23 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     const char *ArcHistoryName="ArcName";
 
+/*
+  ã============================ Add to RAR ============================¬
+  ¦ Add to archive                                                     ¦
+  ¦ arcput                                                            ¦
+  ¦ Switches                                                           ¦
+  ¦ -md1024 -mm -m5 -s -rr -av                                        ¦
+  ¦--------------------------------------------------------------------¦
+  | Archive password                  Reenter password                 |
+  | ********************************  ******************************** |
+  ¦--------------------------------------------------------------------¦
+  ¦ [ ] Delete files after archiving             Priority of process   ¦
+  ¦ [ ] Exact archive filename                   ******************** ¦
+  ¦ [ ] Background                                                     |
+  ¦--------------------------------------------------------------------¦
+  ¦    [ Add ]  [ Select archiver ]  [ Save settings ]  [ Cancel ]     ¦
+  L====================================================================-
+*/
     struct InitDialogItem InitItems[]={
       /* 0*/{DI_DOUBLEBOX,3,1,72,15,0,0,0,0,""},
       /* 1*/{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc},
@@ -464,12 +485,14 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       /*12*/{DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
       /*13*/{DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MAddDelete},
       /*14*/{DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MExactArcName},
-      /*15*/{DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MBackground},
-      /*16*/{DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-      /*17*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd},
-      /*18*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect},
-      /*19*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
-      /*20*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
+      /*15*/{DI_TEXT,50,10,0,0,0,0,0,0,(char *)MPriorityOfProcess},
+      /*16*/{DI_COMBOBOX,50,11,70,11,0,0,DIF_DROPDOWNLIST,0,""},
+      /*17*/{DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MBackground},
+      /*18*/{DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+      /*19*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd},
+      /*20*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect},
+      /*21*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
+      /*22*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
     };
     struct FarDialogItem DialogItems[COUNT(InitItems)];
     InitDialogItems(InitItems,DialogItems,COUNT(InitItems));
@@ -481,6 +504,25 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     }*/
 
     SelectFormatComboBox Box(&DialogItems[PDI_SELARCCOMB], pdd.ArcFormat);
+
+    // <Prior>
+    FarListItem ListPriorItem[5];
+    for(I=0; I < sizeof(ListPriorItem)/sizeof(ListPriorItem[0]); ++I)
+    {
+      ListPriorItem[I].Flags=0;
+      strcpy(ListPriorItem[I].Text,GetMsg(MIdle_Priority_Class+I));
+    }
+    ListPriorItem[Opt.PriorityClass].Flags=LIF_SELECTED;
+    if(!(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5))
+    {
+      ListPriorItem[MBelow_Normal_Priority_Class-MIdle_Priority_Class].Flags=LIF_DISABLE;
+      ListPriorItem[MAbove_Normal_Priority_Class-MIdle_Priority_Class].Flags=LIF_DISABLE;
+    }
+    FarList ListPrior;
+    ListPrior.ItemsNumber=sizeof(ListPriorItem)/sizeof(ListPriorItem[0]);
+    ListPrior.Items=&ListPriorItem[0];
+    DialogItems[PDI_PRIORCBOX].ListItems=&ListPrior;
+    // </Prior>
 
     if(Opt.UseLastHistory)
       DialogItems[PDI_SWITCHESEDT].Flags|=DIF_USELASTHISTORY;
@@ -557,6 +599,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       strcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
       //strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001
       Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
+      Opt.PriorityClass=DialogItems[PDI_PRIORCBOX].ListPos;
 
       if(RestoreExactState)
         Opt.AdvFlags.ExactArcName=OldExactState;

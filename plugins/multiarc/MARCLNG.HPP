@@ -147,6 +147,13 @@ enum LanguageID
 
   MComment,
   MInputComment,
+
+  MPriorityOfProcess,
+  MIdle_Priority_Class,
+  MBelow_Normal_Priority_Class,
+  MNormal_Priority_Class,
+  MAbove_Normal_Priority_Class,
+  MHigh_Priority_Class,
 };
 
 #endif // __MARCLNG_HPP__

@@ -141,3 +141,10 @@
 
 "&Comment"
 "Enter a comment"
+
+"Pr&iority of process"
+"low"
+"below normal"
+"normal"
+"above normal"
+"high"
