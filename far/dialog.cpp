@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.322 29.01.2005 $ */
+/* Revision: 1.323 29.01.2005 $ */
 
 /*
 Modify:
+  29.01.2005 WARP
+    ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
   29.01.2005 WARP
     ! X2, Y2 и границы диалогов - ширина/высота контрола больше не может превышать ширину диалога.
   23.01.2005 SVS
@@ -1206,8 +1208,6 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
   _DIALOG(SysLog("Item=%p, ItemCount=%d, DlgProc=%p, Param2=0x%08X",Item,ItemCount,DlgProc,InitParam));
   _tran(SysLog("[%p] Dialog::Dialog()",this));
 
-  InitializeCriticalSection(&CSection);
-
   if(!PHisLocked) // если некоторые элементы не инициализированы - сделаем это сейчас
   {
     PHisLocked=HisLocked+strlen(HisLocked);
@@ -1307,7 +1307,6 @@ Dialog::~Dialog()
   INPUT_RECORD rec;
   PeekInputRecord(&rec);
   delete OldTitle;
-  DeleteCriticalSection(&CSection);
   _DIALOG(CleverSysLog CL("Destroy Dialog"));
 }
 
@@ -2698,7 +2697,6 @@ void Dialog::ShowDialog(int ID)
     if(!Dialog::SendDlgMessage((HANDLE)this,DN_DRAWDLGITEM,I,0))
        continue;
 
-    EnterCriticalSection(&CSection);
     int LenText;
     short CX1=CurItem->X1;
     short CY1=CurItem->Y1;
@@ -3037,7 +3035,6 @@ void Dialog::ShowDialog(int ID)
 
 /* ***************************************************************** */
     } // end switch(...
-    LeaveCriticalSection(&CSection);
   } // end for (I=...
 
   // КОСТЫЛЬ!

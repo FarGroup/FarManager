@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.78 27.12.2004 $ */
+/* Revision: 1.79 29.01.2005 $ */
 
 /*
 Modify:
+  29.01.2005 WARP
+    ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
   27.12.2004 WARP
     ! Сделал критические секции при практически всех вызовах Dialog & VMenu
   25.12.2004 WARP
@@ -473,8 +475,6 @@ class Dialog: public Frame
     */
     volatile int DropDownOpened;
     /* KM $ */
-    CRITICAL_SECTION CSection;
-
     CriticalSection CS;
 
     int RealWidth, RealHeight;

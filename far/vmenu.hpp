@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.58 08.12.2004 $ */
+/* Revision: 1.59 29.01.2005 $ */
 
 /*
 Modify:
+  29.01.2005 WARP
+    ! Небольшой cleanup (см. 01920.vmenu_dialog_cleanup.txt)
   08.12.2004 WARP
     ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   19.11.2004 WARP
@@ -335,7 +337,6 @@ class VMenu: virtual public Modal, virtual public Frame
     int MaxHeight;
     int MaxLength;
     int BoxType;
-    LONG CallCount;
     int PrevCursorVisible;
     int PrevCursorSize;
     int PrevMacroMode;
@@ -465,11 +466,6 @@ class VMenu: virtual public Modal, virtual public Frame
     int  FindItem(int StartIndex,const char *Pattern,DWORD Flags=0);
 
     int  GetItemCount() {return(ItemCount);};
-    /* $ 31.07.2001 KM
-      + Проверим, а не выполняется ли какая функа у нас...
-    */
-    int  GetCallCount() { return CallCount; };
-    /* KM $ */
 
     void *GetUserData(void *Data,int Size,int Position=-1);
     int  GetUserDataSize(int Position=-1);

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.168 23.01.2005 $ */
+/* Revision: 1.169 29.01.2005 $ */
 
 /*
 Modify:
+  29.01.2005 SVS
+    - под BC & VC6.0 нет определения INVALID_FILE_ATTRIBUTES в h-файлах. Добавил.
   23.01.2005 SVS
     - Поиск не мог перейти на pagefile.sys
   23.01.2005 SVS
@@ -2062,6 +2064,9 @@ int FindFiles::FindFilesProcess()
         if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
           FileName[Length-1]=0;
 
+        #if !defined(INVALID_FILE_ATTRIBUTES)
+        #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+        #endif
         if ( (GetFileAttributes(FileName)==INVALID_FILE_ATTRIBUTES) && (GetLastError () != ERROR_ACCESS_DENIED))
           break;
         {
