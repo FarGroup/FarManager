@@ -5,10 +5,13 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.25 12.09.2002 $ */
+/* Revision: 1.26 04.04.2003 $ */
 
 /*
 Modify:
+  04.04.2003 SVS
+    - BugZ#845 - вылазит строка за рамки диалога
+      Упс... а Prompt-то у нас может смело валить ФАР - "переполнение буфера"!!!
   12.09.2002 SVS
     ! Исключаем возможные симптомы by BugZ#593
   10.06.2002 SVS
@@ -506,7 +509,7 @@ int WINAPI GetString(const char *Title,const char *Prompt,
     strcpy(StrDlg[0].Data,Title);
   if(Prompt)
   {
-    strcpy(StrDlg[1].Data,Prompt);
+    TruncStrFromEnd(strncpy(StrDlg[1].Data,Prompt,sizeof(StrDlg[1].Data)-1),66);
     if(Flags&FIB_NOAMPERSAND)
       StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
   }
