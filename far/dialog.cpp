@@ -553,7 +553,7 @@ int Dialog::InitDialogObjects(int ID)
      if(FocusPos == -1 &&
         IsFocused(CurItem->Type) &&
         CurItem->Focus &&
-        !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS)))
+        !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
        FocusPos=I; // запомним первый фокусный элемент
      CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
                        //   что фокусов - как у дурочка фантиков
@@ -566,7 +566,8 @@ int Dialog::InitDialogObjects(int ID)
     for (I=0; I < ItemCount; I++) // по всем!!!!
     {
       CurItem=&Item[I];
-      if(IsFocused(CurItem->Type) && !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS)))
+      if(IsFocused(CurItem->Type) &&
+         !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
       {
         FocusPos=I;
         break;
@@ -952,6 +953,9 @@ void Dialog::ShowDialog(int ID)
   for (I=ID; I < DrawItemCount; I++)
   {
     CurItem=&Item[I];
+
+    if(CurItem->Flags&DIF_HIDDEN)
+      continue;
 
     /* $ 28.07.2000 SVS
        Перед прорисовкой каждого элемента посылаем сообщение
@@ -2289,7 +2293,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       /* $ 04.12.2000 SVS
          Исключаем из списка оповещаемых о мыши недоступные элементы
       */
-      if(Item[I].Flags&DIF_DISABLE)
+      if(Item[I].Flags&(DIF_DISABLE|DIF_HIDDEN))
         continue;
       /* SVS $ */
       int IX1=Item[I].X1+X1,
@@ -2336,7 +2340,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         /* $ 04.12.2000 SVS
            Исключаем из списка оповещаемых о мыши недоступные элементы
         */
-        if(Item[I].Flags&DIF_DISABLE)
+        if(Item[I].Flags&(DIF_DISABLE|DIF_HIDDEN))
           continue;
         /* SVS $ */
         Type=Item[I].Type;
@@ -2551,7 +2555,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 
       Type=Item[FocusPos].Type;
 
-      if(!(Item[FocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE)))
+      if(!(Item[FocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
       {
         if (Type==DI_LISTBOX || Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type) || Type==DI_USERCONTROL)
           break;
@@ -2584,7 +2588,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 {
   int FucusPosNeed=-1;
-  if(!(Item[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE)))
+  if(!(Item[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
   {
     if(CheckDialogMode(DMODE_INITOBJECTS))
       FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
@@ -3074,7 +3078,7 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
   for (I=0;I<ItemCount;I++)
   {
     if (!IsEdit(Item[I].Type) &&
-        (Item[I].Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE))==0)
+        (Item[I].Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN))==0)
       if (IsKeyHighlighted(Item[I].Data,Key,Translate))
       {
         int DisableSelect=FALSE;
@@ -3948,6 +3952,27 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
            CurItem->Flags|=DIF_DISABLE;
       }
       return (PrevFlags&DIF_DISABLE)?FALSE:TRUE;
+    }
+    /* SVS $ */
+
+    /* $ 03.01.2001 SVS
+        + показать/скрыть элемент
+        Param2: -1 - получить состояние
+                 0 - погасить
+                 1 - показать
+        Return:  предыдущее состояние
+    */
+    case DM_SHOWITEM:
+    {
+      DWORD PrevFlags=CurItem->Flags;
+      if(Param2 != -1)
+      {
+         if(Param2)
+           CurItem->Flags&=~DIF_HIDDEN;
+         else
+           CurItem->Flags|=DIF_HIDDEN;
+      }
+      return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
     }
     /* SVS $ */
   }

@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.76 25.12.2000 $ */
+/* Revision: 1.77 03.01.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  03.01.2001 SVS
+    + DIF_HIDDEN - элемент не видим
+    + DM_SHOWITEM показать/скрыть элемент
   25.12.2000 SVS
     ! ACTL_KEYMACRO поддерживает только 2 команды: MCMD_LOADALL, MCMD_SAVEALL
   23.12.2000 SVS
@@ -474,6 +477,7 @@ enum FarDialogItemFlags {
   DIF_LISTNOAMPERSAND =   0x20000UL,
   DIF_READONLY        =0x20000000UL,
   DIF_3STATE          =  0x800000UL,
+  DIF_HIDDEN          =0x10000000UL,
 };
 
 enum FarMessagesProc{
@@ -500,6 +504,7 @@ enum FarMessagesProc{
   DM_SETCURSORPOS,
   DM_GETTEXTPTR,
   DM_SETTEXTPTR,
+  DM_SHOWITEM,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

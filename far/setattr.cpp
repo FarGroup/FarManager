@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.10 03.01.2001 $ */
+/* Revision: 1.11 03.01.2001 $ */
 
 /*
 Modify:
+  03.01.2001 SVS
+    ! ускорим процесс за счет "необработки" подобных атрибут
+    - бага с переходами между контролами
   03.01.2001 SVS
     ! новый имидж диалога атрибутов - один интелектуальный диалог на
       все случаи жизни :-)
@@ -422,13 +425,12 @@ void ShellSetFileAttributes(Panel *SrcPanel)
       Dlg.Hide();
       Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting));
 
-      int TimeChanged=strcmp(TimeText[0],AttrDlg[16].Data)!=0 ||
-                      strcmp(TimeText[1],AttrDlg[17].Data)!=0 ||
-                      strcmp(TimeText[2],AttrDlg[19].Data)!=0 ||
-                      strcmp(TimeText[3],AttrDlg[20].Data)!=0 ||
-                      strcmp(TimeText[4],AttrDlg[22].Data)!=0 ||
-                      strcmp(TimeText[5],AttrDlg[23].Data)!=0;
-      if (TimeChanged)
+      if (!strcmp(TimeText[0],AttrDlg[16].Data) ||
+          !strcmp(TimeText[1],AttrDlg[17].Data) ||
+          !strcmp(TimeText[2],AttrDlg[19].Data) ||
+          !strcmp(TimeText[3],AttrDlg[20].Data) ||
+          !strcmp(TimeText[4],AttrDlg[22].Data) ||
+          !strcmp(TimeText[5],AttrDlg[23].Data))
       {
         FILETIME LastWriteTime,CreationTime,LastAccessTime;
         int SetWriteTime,SetCreationTime,SetLastAccessTime;
@@ -440,15 +442,18 @@ void ShellSetFileAttributes(Panel *SrcPanel)
                      SetLastAccessTime ? &LastAccessTime:NULL,FileAttr);
       }
 
-      if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-        ESetFileCompression(SelName,1,FileAttr);
-      else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
-        ESetFileCompression(SelName,0,FileAttr);
-      else if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-        ESetFileEncryption(SelName,1,FileAttr);
-      else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
-        ESetFileEncryption(SelName,0,FileAttr);
-      ESetFileAttributes(SelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
+      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
+      {
+        if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+          ESetFileCompression(SelName,1,FileAttr);
+        else if(!(NewAttr&FILE_ATTRIBUTE_COMPRESSED) && (FileAttr&FILE_ATTRIBUTE_COMPRESSED))
+          ESetFileCompression(SelName,0,FileAttr);
+        else if((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+          ESetFileEncryption(SelName,1,FileAttr);
+        else if(!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
+          ESetFileEncryption(SelName,0,FileAttr);
+        ESetFileAttributes(SelName,NewAttr&(~(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_COMPRESSED)));
+      }
     }
 
     /* Multi *********************************************************** */
@@ -481,7 +486,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
               Dlg.FastShow();
             }
             // если снимаем атрибуты для SubFolders
-            if(FocusPos == 11)
+            if(FocusPos == 11 && Sel11 != AttrDlg[11].Selected)
             {
               // убираем 3-State
               for(I=4; I <= 9; ++I)
@@ -500,8 +505,8 @@ void ShellSetFileAttributes(Panel *SrcPanel)
                   FillFileldDir(SelName,FileAttr,AttrDlg,0);
                 Dlg.InitDialogObjects();
                 Dlg.Show();
-                Sel11=AttrDlg[11].Selected;
               }
+              Sel11=AttrDlg[11].Selected;
             }
           }
           Dlg.GetDialogObjectsData();
@@ -568,34 +573,41 @@ void ShellSetFileAttributes(Panel *SrcPanel)
 
         if (CheckForEsc())
           break;
-        if (AttrDlg[8].Selected == 1) // -E +C
+
+        if(SetWriteTime || SetCreationTime || SetLastAccessTime)
+          if (!ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,
+                       SetCreationTime ? &CreationTime:NULL,
+                       SetLastAccessTime ? &LastAccessTime:NULL,FileAttr))
+            break;
+
+        if(((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
         {
-          if (!ESetFileCompression(SelName,1,FileAttr))
-            break; // неудача сжать :-(
-        }
-        else if (AttrDlg[9].Selected == 1) // +E -C
-        {
-          if (!ESetFileEncryption(SelName,1,FileAttr))
-            break; // неудача зашифровать :-(
-        }
-        else //???
-        if (AttrDlg[8].Selected == 0) // -C ?E
-        {
-          if (!ESetFileCompression(SelName,0,FileAttr))
-            break; // неудача разжать :-(
-        }
-        else if (AttrDlg[9].Selected == 0) // ?C -E
-        {
-          if (!ESetFileEncryption(SelName,0,FileAttr))
-            break; // неудача разшифровать :-(
+          if (AttrDlg[8].Selected == 1) // -E +C
+          {
+            if (!ESetFileCompression(SelName,1,FileAttr))
+              break; // неудача сжать :-(
+          }
+          else if (AttrDlg[9].Selected == 1) // +E -C
+          {
+            if (!ESetFileEncryption(SelName,1,FileAttr))
+              break; // неудача зашифровать :-(
+          }
+          else //???
+          if (AttrDlg[8].Selected == 0) // -C ?E
+          {
+            if (!ESetFileCompression(SelName,0,FileAttr))
+              break; // неудача разжать :-(
+          }
+          else if (AttrDlg[9].Selected == 0) // ?C -E
+          {
+            if (!ESetFileEncryption(SelName,0,FileAttr))
+              break; // неудача разшифровать :-(
+          }
+
+          if (!ESetFileAttributes(SelName,(FileAttr|SetAttr)&(~ClearAttr)))
+            break;
         }
 
-        if (!ESetFileTime(SelName,SetWriteTime ? &LastWriteTime:NULL,
-                     SetCreationTime ? &CreationTime:NULL,
-                     SetLastAccessTime ? &LastAccessTime:NULL,FileAttr))
-          break;
-        if (!ESetFileAttributes(SelName,(FileAttr|SetAttr)&(~ClearAttr)))
-          break;
         if ((FileAttr & FA_DIREC) && AttrDlg[11].Selected)
         {
           char FullName[NM];
@@ -610,39 +622,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
               Cancel=1;
               break;
             }
-            if (AttrDlg[8].Selected == 1) // -E +C
-            {
-              if (!ESetFileCompression(FullName,1,FindData.dwFileAttributes))
-              {
-                Cancel=1;
-                break; // неудача сжать :-(
-              }
-            }
-            else if (AttrDlg[9].Selected == 1) // +E -C
-            {
-              if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
-              {
-                Cancel=1;
-                break; // неудача зашифровать :-(
-              }
-            }
-            else //???
-            if (!AttrDlg[8].Selected) // -C ?E
-            {
-              if (!ESetFileCompression(FullName,0,FindData.dwFileAttributes))
-              {
-                Cancel=1;
-                break; // неудача разжать :-(
-              }
-            }
-            else if (!AttrDlg[9].Selected) // ?C -E
-            {
-              if (!ESetFileEncryption(FullName,0,FindData.dwFileAttributes))
-              {
-                Cancel=1;
-                break; // неудача разшифровать :-(
-              }
-            }
             if (!ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
                          SetCreationTime ? &CreationTime:NULL,
                          SetLastAccessTime ? &LastAccessTime:NULL,
@@ -651,10 +630,47 @@ void ShellSetFileAttributes(Panel *SrcPanel)
               Cancel=1;
               break;
             }
-            if (!ESetFileAttributes(FullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr)))
+            if(((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
+                 FindData.dwFileAttributes)
             {
-              Cancel=1;
-              break;
+              if (AttrDlg[8].Selected == 1) // -E +C
+              {
+                if (!ESetFileCompression(FullName,1,FindData.dwFileAttributes))
+                {
+                  Cancel=1;
+                  break; // неудача сжать :-(
+                }
+              }
+              else if (AttrDlg[9].Selected == 1) // +E -C
+              {
+                if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
+                {
+                  Cancel=1;
+                  break; // неудача зашифровать :-(
+                }
+              }
+              else //???
+              if (!AttrDlg[8].Selected) // -C ?E
+              {
+                if (!ESetFileCompression(FullName,0,FindData.dwFileAttributes))
+                {
+                  Cancel=1;
+                  break; // неудача разжать :-(
+                }
+              }
+              else if (!AttrDlg[9].Selected) // ?C -E
+              {
+                if (!ESetFileEncryption(FullName,0,FindData.dwFileAttributes))
+                {
+                  Cancel=1;
+                  break; // неудача разшифровать :-(
+                }
+              }
+              if (!ESetFileAttributes(FullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr)))
+              {
+                Cancel=1;
+                break;
+              }
             }
           }
         }
