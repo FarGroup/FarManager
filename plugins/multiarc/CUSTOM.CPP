@@ -1,12 +1,12 @@
 /*
-  CAB.CPP
+  CUSTOM.CPP
 
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.16 15.07.2002 $ */
+/* Revision: 1.16 01.08.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -86,7 +86,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     char TypeName[NM],Name[NM],Ext[NM],ID[512];
     int IDPos;
 
-    if (!GetSectionName(I,TypeName,sizeof(TypeName)-1))
+    if (!GetSectionName(I,TypeName,sizeof(TypeName)))
       break;
 
     GetPrivateProfileString(TypeName,Str_TypeName,TypeName,Name,sizeof(Name),FormatFileName);
@@ -158,7 +158,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   char TypeName[NM],Command[512];
 
-  if (!GetSectionName(CurType,TypeName,sizeof(TypeName)-1))
+  if (!GetSectionName(CurType,TypeName,sizeof(TypeName)))
     return(FALSE);
 
   GetPrivateProfileString(TypeName,"List","",Command,sizeof(Command),FormatFileName);
@@ -251,7 +251,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
 {
   char TypeName[NM],Command[512];
-  if (!GetSectionName(CurType,TypeName,sizeof(TypeName)-1))
+  if (!GetSectionName(CurType,TypeName,sizeof(TypeName)))
     return(FALSE);
   GetPrivateProfileString(TypeName,"List","",Command,sizeof(Command),FormatFileName);
   if (*Command==0)
@@ -567,7 +567,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   char TypeName[NM];
 
-  if (!GetSectionName(Type,TypeName,sizeof(TypeName)-1))
+  if (!GetSectionName(Type,TypeName,sizeof(TypeName)))
     return(FALSE);
 
   GetPrivateProfileString(TypeName,Str_TypeName,TypeName,FormatName,64,FormatFileName);
@@ -581,7 +581,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 {
   char TypeName[NM],FormatName[NM];
 
-  if (!GetSectionName(Type,TypeName,sizeof(TypeName)-1))
+  if (!GetSectionName(Type,TypeName,sizeof(TypeName)))
     return(FALSE);
 
   GetPrivateProfileString(TypeName,Str_TypeName,TypeName,FormatName,64,FormatFileName);
@@ -646,7 +646,7 @@ int GetSectionName(int Num, char *Name, int MaxSize)
     {
       if(!Num)
       {
-        strncpy(Name, Section, MaxSize);
+        strncpy(Name, Section, MaxSize-1);
         return TRUE;
       }
       Num--;
