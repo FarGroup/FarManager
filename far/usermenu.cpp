@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.43 29.08.2001 $ */
+/* Revision: 1.44 31.08.2001 $ */
 
 /*
 Modify:
+  31.08.2001 VVM
+    ! Ёпрст... Опять хоткеи...
   29.08.2001 VVM
     ! Хоткеи. Оказалось - не все :)
   28.08.2001 VVM
@@ -562,7 +564,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
       int AddHotKey = (*HotKey) && (!FuncNum);
-      sprintf(MenuText,"%s%-3.3s %-20.*s%s",AddHotKey?"&":"",HotKey,ScrX-12,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
+      sprintf(MenuText,"%s%-3.3s %-*.*s%s",AddHotKey?"&":"",HotKey,MaxLen,MaxLen,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
       /* VVM $ */
 
     /* tran 20.07.2000 $ */

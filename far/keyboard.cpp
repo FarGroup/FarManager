@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.43 24.07.2001 $ */
+/* Revision: 1.44 30.08.2001 $ */
 
 /*
 Modify:
+  30.08.2001 IS
+    ! При принудительном закрытии Фара пытаемся вести себя так же, как и при
+      нажатии на F10 в панелях, только не запрашиваем подтверждение закрытия,
+      если это возможно.
   24.07.2001 SVS
     ! Если ждем KEY_CTRLALTSHIFTRELEASE, то гасим курсор (!)
   23.07.2001 SVS
@@ -377,7 +381,15 @@ int GetInputRecord(INPUT_RECORD *rec)
     if (CloseFAR)
     {
       CloseFAR=FALSE;
-      FrameManager->IsAnyFrameModified(TRUE);
+      /* $ 30.08.2001 IS
+         При принудительном закрытии Фара пытаемся вести себя так же, как и при
+         нажатии на F10 в панелях, только не запрашиваем подтверждение закрытия,
+         если это возможно.
+      */
+      // FrameManager->IsAnyFrameModified(TRUE);
+      FrameManager->ExitMainLoop(FALSE);
+      return KEY_NONE;
+      /* IS $ */
     }
 
     if ((LoopCount & 15)==0)

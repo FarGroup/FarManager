@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.113 07.08.2001 $ */
+/* Revision: 1.114 30.08.2001 $ */
 
 /*
 Modify:
+  30.08.2001 IS
+    - Ќеопределенное поведение при использовании ECTL_SETPOSITION: режим
+      Overtype не мен€лс€, хот€ и должен был в этой функции.
   07.08.2001 IS
     + ќбработка ESPT_SETTABLE - смена кодировки.
   25.07.2001 IS
@@ -4976,8 +4979,14 @@ int Editor::EditorControl(int Command,void *Param)
           CurLine->EditLine.SetTabCurPos(Pos->CurTabPos);
         if (Pos->LeftPos!=-1)
           CurLine->EditLine.SetLeftPos(Pos->LeftPos);
+        /* $ 30.08.2001 IS
+           »зменение режима нужно выставл€ть сразу, в противном случае приход€т
+           глюки, т.к. плагинописатель думает, что режим изменен, и ведет себ€
+           соответствующе, в результате чего получает неопределенное поведение.
+        */
         if (Pos->Overtype!=-1)
-          Overtype=Pos->Overtype;
+          CurLine->EditLine.SetOvertypeMode(Overtype=Pos->Overtype);
+        /* IS $ */
         DisableOut--;
       }
       return(TRUE);

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.49 23.08.2001 $ */
+/* Revision: 1.50 31.08.2001 $ */
 
 /*
 Modify:
+  31.08.2001 OT
+    - Закрытие ExitAll() при far -e и изменении оного
   23.08.2001 OT
     - Исправление зависания фара по F10 из панелей с несохраненными файлами 
       в редакторе. Криво была написана функция ExitAll() 
@@ -208,7 +210,7 @@ Manager::~Manager()
 BOOL Manager::ExitAll()
 {
   int i;
-  for (i=FrameCount-1; i>=1; i--){
+  for (i=FrameCount-1; i>=0; i--){
     Frame *iFrame=FrameList[i];
     if (!iFrame->GetCanLoseFocus(TRUE)){
       ActivateFrame(iFrame);
