@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.232 20.04.2002 $ */
+/* Revision: 1.233 22.04.2002 $ */
 
 /*
 Modify:
+  22.04.2002 KM
+    - Убрана потерявшая свою актуальность функция OnDestroy.
+      Этим убит неприятный баг у двух диалогов в панелях:
+      После ресайзинга консоли у диалога перед его уничтожением
+      убивался ShadowSaveScr, что приводило к невосстановлению
+      под одним исходного изображения.
   20.04.2002 KM
     - Необходимо залочить прорисовку при DM_SHOWDIALOG=FALSE,
       в противном случае ОТКУДА менеджер узнает, что отрисовывать
@@ -1063,6 +1069,12 @@ void Dialog::Show()
   if(PreRedrawFunc)
      PreRedrawFunc();
 
+  /* $ 21.04.2002 KM
+      Мавр сделал своё дело - мавр может уходить!
+      Сбросим при показе диалога флаг ресайзинга консоли.
+  */
+  DialogMode.Skip(DMODE_RESIZED);
+  /* KM $ */
   if (!DialogMode.Check(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
   {                      //  элементы инициализируются при первом вызове.
     /* $ 28.07.2000 SVS
@@ -1079,11 +1091,13 @@ void Dialog::Show()
     DialogMode.Set(DMODE_INITOBJECTS);
   }
   CheckDialogCoord();
-  DialogMode.Set(DMODE_SHOW);
   /* $ 23.11.2001 VVM
     ! Раз уж мы наследники фрейма, неплохо бы посмотреть на лок прорисовки */
   if (!LockRefreshCount)
+  {
+    DialogMode.Set(DMODE_SHOW);
     ScreenObject::Show();
+  }
   /* VVM $ */
 }
 
@@ -5120,16 +5134,26 @@ void Dialog::ResizeConsole()
   Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
 };
 
-void Dialog::OnDestroy()
-{
-  if(DialogMode.Check(DMODE_RESIZED))
-  {
-    Frame *BFrame=FrameManager->GetBottomFrame();
-    if(BFrame)
-      BFrame->UnlockRefresh();
-    Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
-  }
-};
+//void Dialog::OnDestroy()
+//{
+//  /* $ 21.04.2002 KM
+//  //  Эта функция потеряла своё значение при текущем менеджере
+//  //  и системе создания и уничтожения фреймов.
+//  if(DialogMode.Check(DMODE_RESIZED))
+//  {
+//    Frame *BFrame=FrameManager->GetBottomFrame();
+//    if(BFrame)
+//      BFrame->UnlockRefresh();
+//    /* $ 21.04.2002 KM
+//        А вот этот DM_KILLSAVESCREEN здесь только вредит. Удаление
+//        диалога происходит без восстановления ShadowSaveScr и вот
+//        они: "артефакты" непрорисовки.
+//    */
+//    Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
+//    /* KM $ */
+//  }
+//  /* KM $ */
+//};
 
 //////////////////////////////////////////////////////////////////////////
 /* $ 28.07.2000 SVS

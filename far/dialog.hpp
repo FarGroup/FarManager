@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.55 08.04.2002 $ */
+/* Revision: 1.56 22.04.2002 $ */
 
 /*
 Modify:
+  22.04.2002 KM
+    ! Удалена функция OnDestroy - потеряла актуальность.
   08.04.2002 SVS
    + CtlColorDlgItem()
   11.03.2002 SVS
@@ -556,7 +558,7 @@ class Dialog: public Frame
     /* $ Введена для нужд CtrlAltShift OT */
     int FastHide();
     void ResizeConsole();
-    void OnDestroy();
+//    void OnDestroy();
 
     void SetListMouseReaction(BOOL Sets) {DialogMode.Change(DMODE_MOUSELIST,Sets);}
 
