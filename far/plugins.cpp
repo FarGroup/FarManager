@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.46 19.12.2000 $ */
+/* Revision: 1.47 29.12.2000 $ */
 
 /*
 Modify:
+  29.12.2000 IS
+    ! При настройке "параметров внешних модулей" закрывать окно с их
+      списком только при нажатии на ESC
   19.12.2000 IS
     + Shift-F9 в списке плагинов вызывает настройки редактора/программы
       просмотра, если этот список был вызван соответственно из
@@ -1677,68 +1680,77 @@ void PluginsSet::Configure()
   }
   PluginList.AssignHighlights(FALSE);
 
-  /* $ 18.12.2000 SVS
-     Shift-F1 в списке плагинов вызывает хелп по данному плагину
+  /* $ 29.12.2000 IS
+     ! При настройке "параметров внешних модулей" закрывать окно с их
+       списком только при нажатии на ESC
   */
-  PluginList.Show();
-  while (!PluginList.Done())
+  while(1)
   {
-    int SelPos=PluginList.GetSelectPos();
-    PluginList.GetUserData(Data,2,SelPos);
-    switch(PluginList.ReadInput())
-    {
-      case KEY_F1:
-      case KEY_SHIFTF1:
-        char PluginModuleName[NM*2];
-        strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
-        if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-           !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+      PluginList.ClearDone();
+      /* $ 18.12.2000 SVS
+         Shift-F1 в списке плагинов вызывает хелп по данному плагину
+      */
+      PluginList.Show();
+      while (!PluginList.Done())
+      {
+        int SelPos=PluginList.GetSelectPos();
+        PluginList.GetUserData(Data,2,SelPos);
+        switch(PluginList.ReadInput())
         {
-          //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
-          FarShowHelp(PluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+          case KEY_F1:
+          case KEY_SHIFTF1:
+            char PluginModuleName[NM*2];
+            strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+            if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+               !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+            {
+              //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+              FarShowHelp(PluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+            }
+            break;
+          default:
+            PluginList.ProcessInput();
+            break;
         }
-        break;
-      default:
-        PluginList.ProcessInput();
-        break;
-    }
-  }
-  /* SVS $ */
-
-  int ExitCode=PluginList.GetExitCode();
-  PluginList.Hide();
-  if (ExitCode<0)
-    return;
-
-  PluginList.GetUserData(Data,2,ExitCode);
-  int PNum=Data[0];
-  if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
-  {
-    //EXCEPTION_POINTERS *xp;
-    int Ret;
-    TRY{
-      Ret=PluginsData[PNum].pConfigure(Data[1]);
-    }
-    __except ( xfilter(EXCEPT_CONFIGURE,
-                      GetExceptionInformation(),&PluginsData[PNum],1) )
-    {
-      return;
-    }
-    if (Ret)
-    {
-      if (CtrlObject->LeftPanel->GetMode()==PLUGIN_PANEL)
-      {
-        CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-        CtrlObject->LeftPanel->Redraw();
       }
-      if (CtrlObject->RightPanel->GetMode()==PLUGIN_PANEL)
+      /* SVS $ */
+
+      int ExitCode=PluginList.GetExitCode();
+      PluginList.Hide();
+      if (ExitCode<0)
+        return;
+
+      PluginList.GetUserData(Data,2,ExitCode);
+      int PNum=Data[0];
+      if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
       {
-        CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
-        CtrlObject->RightPanel->Redraw();
+        //EXCEPTION_POINTERS *xp;
+        int Ret;
+        TRY{
+          Ret=PluginsData[PNum].pConfigure(Data[1]);
+        }
+        __except ( xfilter(EXCEPT_CONFIGURE,
+                          GetExceptionInformation(),&PluginsData[PNum],1) )
+        {
+          return;
+        }
+        if (Ret)
+        {
+          if (CtrlObject->LeftPanel->GetMode()==PLUGIN_PANEL)
+          {
+            CtrlObject->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+            CtrlObject->LeftPanel->Redraw();
+          }
+          if (CtrlObject->RightPanel->GetMode()==PLUGIN_PANEL)
+          {
+            CtrlObject->RightPanel->Update(UPDATE_KEEP_SELECTION);
+            CtrlObject->RightPanel->Redraw();
+          }
+        }
+        SavePluginSettings(PluginsData[PNum],PluginsData[PNum].FindData);
       }
-    }
-    SavePluginSettings(PluginsData[PNum],PluginsData[PNum].FindData);
   }
+  /* IS $ */
 }
 
 
