@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.06 24.07.2000 $ */
+/* Revision: 1.07 02.09.2000 $ */
 
 /*
 Modify:
+  02.09.2000 tran
+    - !@!, !#!@! bug
   28.07.2000 VVM
     + Обработка переменных окружения в названии меню
     - Исправлен баг с клавишей BkSpace
@@ -582,7 +584,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       if (!GetRegKey(CurrentKey,LineName,Command,"",sizeof(Command)))
         break;
 
-      char ListName[NM],ShortListName[NM];
+      char ListName[NM*2],ShortListName[NM*2];
       {
         int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
         PreserveLongName PreserveName(ShortName,PreserveLFN);
@@ -600,9 +602,13 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           CtrlObject->CmdLine.ExecString(Command,FALSE);
       }
       if (*ListName)
-        remove(ListName);
+          remove(ListName);
+      if (ListName[NM])
+          remove(ListName+NM);
       if (*ShortListName)
-        remove(ShortListName);
+          remove(ShortListName);
+      if (ShortListName[NM])
+          remove(ShortListName+NM);
       CurLine++;
     }
     if (PanelsHidden)

@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.04 01.08.2000 $ */
+/* Revision: 1.05 02.09.2000 $ */
 
 /*
 Modify:
+  02.09.2000 tran
+    - !@!, !#!@! bug
   01.08.2000 SVS
     ! Изменения, касаемые измений в структурах DialogItem
     ! в usermenu конструкция !?<title>?<init>! с расширением переменных среды!
@@ -32,7 +34,6 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
-
 
 static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
@@ -121,7 +122,9 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     strcpy(Command,Commands[ExitCode]);
   }
 
-  char ListName[NM],ShortListName[NM];
+  /* $ 02.09.2000 tran
+     [NM] -> [NM*2] */
+  char ListName[NM*2],ShortListName[NM*2];
   {
     int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName);
     PreserveLongName PreserveName(ShortName,PreserveLFN);
@@ -140,10 +143,17 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         Execute(Command+1,AlwaysWaitFinish);
       }
   }
+  /* $ 02.09.2000 tran
+     remove 4 files, not 2*/
   if (*ListName)
     remove(ListName);
+  if (*(ListName+NM))
+    remove(ListName+NM);
   if (*ShortListName)
     remove(ShortListName);
+  if (*(ShortListName+NM))
+    remove(ShortListName+NM);
+  /* tran $ */
   return(TRUE);
 }
 
@@ -252,7 +262,8 @@ int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish)
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish)
 {
   char ExecStr[512],FullExecStr[512];
-  char ListName[NM],ShortListName[NM],FullName[NM],FullShortName[NM];
+  char ListName[NM*2],ShortListName[NM*2];
+  char FullName[NM],FullShortName[NM];
   strcpy(ExecStr,Command);
   strcpy(FullExecStr,Command);
   {
@@ -276,8 +287,12 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
   }
   if (*ListName)
     remove(ListName);
+  if (ListName[NM])
+    remove(ListName+NM);
   if (*ShortListName)
     remove(ShortListName);
+  if (ShortListName[NM])
+    remove(ShortListName+NM);
 }
 
 
@@ -300,9 +315,16 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
   int PreserveLFN=FALSE;
   *TmpStr=0;
   if (ListName!=NULL)
+  {
     *ListName=0;
+    ListName[NM]=0;
+  }
   if (ShortListName!=NULL)
+  {
     *ShortListName=0;
+    ShortListName[NM]=0;
+  }
+
   strcpy(NameOnly,Name);
   if ((ChPtr=strrchr(NameOnly,'.'))!=NULL)
     *ChPtr=0;
@@ -333,6 +355,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
 
   int SkipQuotes=FALSE;
   CurStr=Str;
+//  SysLog("SubstrFileName: CurStr=[%s]",CurStr);
   while (*CurStr)
   {
     int PassivePanel=FALSE;
@@ -340,6 +363,7 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
     {
       CurStr+=2;
       PassivePanel=TRUE;
+//      SysLog("PassivePanel=TRUE");
     }
     if (*CurStr=='\"')
       SkipQuotes=(CurStr==Str);
@@ -384,10 +408,17 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       if (strncmp(CurStr,"!@!",3)==0 && ListName!=NULL && CurStr[3] != '?')
       /* IG $ */
       {
-        if (*ListName ||
-            PassivePanel && AnotherPanel->MakeListFile(ListName,FALSE) ||
-            !PassivePanel && CtrlObject->ActivePanel->MakeListFile(ListName,FALSE))
+        /* $ 02.09.2000 tran
+           !@!, !#!@! bug */
+        if ( PassivePanel && ( ListName[NM] || AnotherPanel->MakeListFile(ListName+NM,FALSE)))
+        {
+          strcat(TmpStr,ListName+NM);
+        }
+        if ( !PassivePanel && (*ListName || CtrlObject->ActivePanel->MakeListFile(ListName,FALSE)))
+        {
           strcat(TmpStr,ListName);
+        }
+        /* tran $ */
         CurStr+=3;
         continue;
       }
@@ -397,10 +428,17 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       if (strncmp(CurStr,"!$!",3)==0 && ShortListName!=NULL && CurStr[3] != '?')
       /* IG $ */
       {
-        if (*ShortListName ||
-            PassivePanel && AnotherPanel->MakeListFile(ShortListName,TRUE) ||
-            !PassivePanel && CtrlObject->ActivePanel->MakeListFile(ShortListName,TRUE))
+        /* $ 02.09.2000 tran
+           !@!, !#!@! bug */
+        if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE)))
+        {
+          strcat(TmpStr,ShortListName+NM);
+        }
+        if ( !PassivePanel && (*ShortListName || CtrlObject->ActivePanel->MakeListFile(ShortListName,TRUE)))
+        {
           strcat(TmpStr,ShortListName);
+        }
+        /* tran $ */
         CurStr+=3;
         continue;
       }
