@@ -7,10 +7,14 @@ findfile.hpp
 
 */
 
-/* Revision: 1.04 09.10.2001 $ */
+/* Revision: 1.05 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 VVM
+    ! Очередной перетрях поиска. Избавляемся от глобальных переменных,
+      которые могут конфликтовать. Список архивов теперь хранит хэндл
+      архива и флаги для этого архива.
   09.10.2001 VVM
     ! Переделка поиска - ускорение неимеверное :))))
   31.07.2001 KM
@@ -37,6 +41,8 @@ enum {
 
 typedef struct _ARCLIST {
   char ArcName[NM];
+  HANDLE hPlugin;  // Plugin handle
+  DWORD Flags;     // OpenPluginInfo.Flags
 } ARCLIST, *LPARCLIST;
 
 typedef struct _FINDLIST {
@@ -58,11 +64,11 @@ class FindFiles
     static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static long WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 
-    static void SetPluginDirectory(char *FileName);
+    static void SetPluginDirectory(char *FileName, HANDLE hPlugin);
     static void _cdecl PrepareFilesList(void *Param);
     static void _cdecl PreparePluginList(void *Param);
     static void _cdecl WriteDialogData(void *Param);
-    static void ScanPluginTree();
+    static void ScanPluginTree(HANDLE hPlugin, DWORD Flags);
     static int LookForString(char *Name);
     static int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr);
     static void ArchiveSearch(char *ArcName);

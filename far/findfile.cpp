@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.59 09.10.2001 $ */
+/* Revision: 1.60 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 VVM
+    ! Очередной перетрях поиска. Избавляемся от глобальных переменных,
+      которые могут конфликтовать. Список архивов теперь хранит хэндл
+      архива и флаги для этого архива.
   09.10.2001 VVM
     ! Переделка поиска - ускорение неимеверное :))))
   07.10.2001 SVS
@@ -254,9 +258,9 @@ static volatile int StopSearch,SearchDone,LastFoundNumber,FileCount,WriteDataUse
 static char FindMessage[200],LastDirName[NM];
 static int FindMessageReady,FindCountReady;
 static char PluginSearchPath[2*NM];
-static HANDLE hPlugin;
+//static HANDLE hPlugin;
 static HANDLE hDlg;
-static struct OpenPluginInfo Info;
+//static struct OpenPluginInfo Info;
 static int RecurseLevel;
 static int BreakMainThread;
 static int ContinueSearch;
@@ -458,7 +462,7 @@ FindFiles::FindFiles()
 
     {
       Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-      int PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
+      PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 
       if (PluginMode)
       {
@@ -677,9 +681,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           char *FileName=FindList[ItemIndex].FindData.cFileName;
           if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)
           {
-            HANDLE hArc=NULL;
             char *FindArcName = ArcList[FindList[ItemIndex].ArcIndex].ArcName;
-            if (!hPlugin)
+            if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
             {
               char *Buffer=new char[MAX_READ];
               FILE *ProcessFile=fopen(FindArcName,"rb");
@@ -694,14 +697,16 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
               int SavePluginsOutput=DisablePluginsOutput;
               DisablePluginsOutput=TRUE;
-              hArc=CtrlObject->Plugins.OpenFilePlugin(FindArcName,(unsigned char *)Buffer,ReadSize);
+              ArcList[FindList[ItemIndex].ArcIndex].hPlugin = CtrlObject->Plugins.OpenFilePlugin(FindArcName,(unsigned char *)Buffer,ReadSize);
               DisablePluginsOutput=SavePluginsOutput;
 
               delete[] Buffer;
 
-              if (hArc==(HANDLE)-2 || hArc==INVALID_HANDLE_VALUE)
+              if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == (HANDLE)-2 ||
+                  ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
               {
                 ReleaseMutex(hMutex);
+                ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
                 return TRUE;
               }
             }
@@ -712,7 +717,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
             mktemp(TempDir);
             IsPluginGetsFile=TRUE;
-            if (!CtrlObject->Plugins.GetFile(hPlugin?hPlugin:hArc,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
+            if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
             {
               RemoveDirectory(TempDir);
               IsPluginGetsFile=FALSE;
@@ -735,20 +740,23 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             if (Param2==KEY_F3)
             {
               NamesList ViewList;
-              if (!PluginMode || (Info.Flags & OPIF_REALNAMES))
+              // Возьмем все файлы, которые имеют реальные имена...
+//              if (!PluginMode || (Info.Flags & OPIF_REALNAMES))
               {
                 int ListSize=ListBox->GetItemCount();
                 DWORD Index;
                 for (int I=0;I<ListSize;I++)
                 {
                   Index = (DWORD)ListBox->GetUserData(NULL, 0, I);
-                  if (Index != LIST_INDEX_NONE)
+                  if ((Index != LIST_INDEX_NONE) &&
+                      ((FindList[Index].ArcIndex == LIST_INDEX_NONE) ||
+                       (ArcList[FindList[Index].ArcIndex].Flags & OPIF_REALNAMES)))
                   {
                     int Length=strlen(FindList[Index].FindData.cFileName);
                     if (Length>0 && FindList[Index].FindData.cFileName[Length-1]!='\\' &&
                         FindList[Index].ArcIndex == LIST_INDEX_NONE)
                       ViewList.AddName(FindList[Index].FindData.cFileName);
-                  }
+                  } /* if */
                 } /* for */
                 ViewList.SetCurName(FindList[ItemIndex].FindData.cFileName);
               }
@@ -831,28 +839,30 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           char *FileName=FindList[ItemIndex].FindData.cFileName;
           Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
 
-          if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE && !hPlugin)
+          if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)
           {
-            char ArcName[NM],ArcPath[NM];
-            strncpy(ArcName,ArcList[FindList[ItemIndex].ArcIndex].ArcName,sizeof(ArcName)-1);
-            if (FindPanel->GetType()!=FILE_PANEL)
-              FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
-            strcpy(ArcPath,ArcName);
-            *PointToName(ArcPath)=0;
-            FindPanel->SetCurDir(ArcPath,TRUE);
-            hPlugin=((FileList *)FindPanel)->OpenFilePlugin(ArcName,FALSE);
-            if (hPlugin==INVALID_HANDLE_VALUE || hPlugin==(HANDLE)-2)
+            if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
             {
-              ReleaseMutex(hMutex);
-              return FALSE;
-            }
-          }
-          if (hPlugin)
-          {
-            SetPluginDirectory(FileName);
+              char ArcName[NM],ArcPath[NM];
+              strncpy(ArcName,ArcList[FindList[ItemIndex].ArcIndex].ArcName,sizeof(ArcName)-1);
+              if (FindPanel->GetType()!=FILE_PANEL)
+                FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
+              strcpy(ArcPath,ArcName);
+              *PointToName(ArcPath)=0;
+              FindPanel->SetCurDir(ArcPath,TRUE);
+              ArcList[FindList[ItemIndex].ArcIndex].hPlugin=((FileList *)FindPanel)->OpenFilePlugin(ArcName,FALSE);
+              if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin==INVALID_HANDLE_VALUE ||
+                  ArcList[FindList[ItemIndex].ArcIndex].hPlugin==(HANDLE)-2)
+              {
+                ArcList[FindList[ItemIndex].ArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+                ReleaseMutex(hMutex);
+                return FALSE;
+              }
+            } /* if */
+            SetPluginDirectory(FileName, ArcList[FindList[ItemIndex].ArcIndex].hPlugin);
             ReleaseMutex(hMutex);
             return FALSE;
-          }
+          } /* if */
           char SetName[NM];
           int Length;
           if ((Length=strlen(FileName))==0)
@@ -916,8 +926,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         WaitForSingleObject(hMutex,INFINITE);
 
-        if (ListBox && ListBox->GetItemCount() &&
-            hPlugin==NULL || (Info.Flags & OPIF_REALNAMES))
+        if (ListBox && ListBox->GetItemCount())
         {
           while (ListBox->GetCallCount())
             Sleep(10);
@@ -966,7 +975,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               NewPanel->GoToFile(FindList[ItemIndex].FindData.cFileName);
             NewPanel->Show();
             NewPanel->SetFocus();
-            hPlugin=NULL;
+//            hPlugin=NULL; !!!!!!!!!!!!!!!
           }
           /* $ 13.07.2000 SVS
              использовали new[]
@@ -1084,9 +1093,6 @@ int FindFiles::FindFilesProcess()
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
-
   DlgHeight=DLG_HEIGHT;
 
   int IncY=ScrY>24 ? ScrY-24:0;
@@ -1106,19 +1112,18 @@ int FindFiles::FindFilesProcess()
   FindFileArcIndex = LIST_INDEX_NONE;
   if (PluginMode)
   {
-    hPlugin=ActivePanel->GetPluginHandle();
+    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+    HANDLE hPlugin=ActivePanel->GetPluginHandle();
+    struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+    FindFileArcIndex = AddArcListItem(Info.HostFile);
+    ArcList[FindFileArcIndex].hPlugin = hPlugin;
+    ArcList[FindFileArcIndex].Flags = Info.Flags;
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
-      FindFileArcIndex = AddArcListItem(Info.HostFile);
       FindDlg[8].Type=DI_TEXT;
       *FindDlg[8].Data=0;
     }
-  }
-  else
-  {
-    hPlugin=NULL;
-    memset(&Info,0,sizeof(Info));
   }
 
   DlgWidth=FindDlg[0].X2-FindDlg[0].X1-4;
@@ -1163,7 +1168,7 @@ int FindFiles::FindFilesProcess()
 }
 
 
-void FindFiles::SetPluginDirectory(char *FileName)
+void FindFiles::SetPluginDirectory(char *FileName, HANDLE hPlugin)
 {
   char Name[NM],*StartName,*EndName;
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -1316,20 +1321,23 @@ void FindFiles::ArchiveSearch(char *ArcName)
   }
   if (hArc==INVALID_HANDLE_VALUE)
     return;
+
   int SaveSearchMode=SearchMode;
-  HANDLE SaveHandle=hPlugin;
-  OpenPluginInfo SaveInfo=Info;
-  SearchMode=SEARCH_FROM_CURRENT;
-  hPlugin=hArc;
-  CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-  FindFileArcIndex = AddArcListItem(ArcName);
-  *LastDirName = 0;
-  PreparePluginList((void *)1);
-  FindFileArcIndex = LIST_INDEX_NONE;
+  DWORD SaveArcIndex = FindFileArcIndex;
+  {
+    SearchMode=SEARCH_FROM_CURRENT;
+    struct OpenPluginInfo Info;
+    CtrlObject->Plugins.GetOpenPluginInfo(hArc,&Info);
+    FindFileArcIndex = AddArcListItem(ArcName);
+    ArcList[FindFileArcIndex].hPlugin = hArc;
+    ArcList[FindFileArcIndex].Flags = Info.Flags;
+    *LastDirName = 0;
+    PreparePluginList((void *)1);
+    CtrlObject->Plugins.ClosePlugin(ArcList[FindFileArcIndex].hPlugin);
+    ArcList[FindFileArcIndex].hPlugin = INVALID_HANDLE_VALUE;
+  }
+  FindFileArcIndex = SaveArcIndex;
   SearchMode=SaveSearchMode;
-  Info=SaveInfo;
-  CtrlObject->Plugins.ClosePlugin(hPlugin);
-  hPlugin=SaveHandle;
 }
 
 /* $ 01.07.2001 IS
@@ -1338,10 +1346,14 @@ void FindFiles::ArchiveSearch(char *ArcName)
 int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
 {
   int FileFound=FileMaskForFindFile.Compare(FullName);
+  HANDLE hPlugin=INVALID_HANDLE_VALUE;
+  if (FindFileArcIndex != LIST_INDEX_NONE)
+    hPlugin = ArcList[FindFileArcIndex].hPlugin;
   while(FileFound)
   {
     if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) &&
-        (hPlugin==NULL || (Info.Flags & OPIF_FINDFOLDERS)==0))
+        ((hPlugin == INVALID_HANDLE_VALUE) ||
+         (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
       return FALSE;
 
     if (*FindStr && FileFound)
@@ -1351,7 +1363,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
         break;
       char SearchFileName[NM];
       int RemoveTemp=FALSE;
-      if (hPlugin && (Info.Flags & OPIF_REALNAMES)==0)
+      if (hPlugin && (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)==0)
       {
         char TempDir[NM];
         sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
@@ -1403,7 +1415,8 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
 
   sprintf(SizeText,"%10u",FindData->nFileSizeLow);
   char *DisplayName=FindData->cFileName;
-  if (hPlugin && (Info.Flags & OPIF_REALNAMES))
+  if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+      (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES))
     DisplayName=PointToName(DisplayName);
 
   sprintf(FileText," %-30.30s %10.10s",DisplayName,SizeText);
@@ -1697,12 +1710,15 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
   char SaveDir[NM];
 
   Sleep(100);
-  strcpy(SaveDir,Info.CurDir);
   *PluginSearchPath=0;
+  HANDLE hPlugin = ArcList[FindFileArcIndex].hPlugin;
+  struct OpenPluginInfo Info;
+  CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+  strcpy(SaveDir,Info.CurDir);
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
   RecurseLevel=0;
-  ScanPluginTree();
+  ScanPluginTree(hPlugin, ArcList[FindFileArcIndex].Flags);
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
   while (!StopSearch && FindMessageReady)
@@ -1718,7 +1734,7 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
 #pragma warn +par
 #endif
 
-void FindFiles::ScanPluginTree()
+void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
 {
   PluginPanelItem *PanelData=NULL;
   int ItemCount=0;
@@ -1736,7 +1752,7 @@ void FindFiles::ScanPluginTree()
       if (strcmp(CurName,".")==0 || strcmp(CurName,"..")==0)
         continue;
       char AddPath[2*NM];
-      if (Info.Flags & OPIF_REALNAMES)
+      if (Flags & OPIF_REALNAMES)
       {
         strcpy(FullName,CurName);
         strcpy(AddPath,CurName);
@@ -1761,7 +1777,7 @@ void FindFiles::ScanPluginTree()
       if (IsFileIncluded(CurPanelItem,CurName,CurPanelItem->FindData.dwFileAttributes))
         AddMenuRecord(FullName,AddPath,&CurPanelItem->FindData);
 
-      if (SearchInArchives && PluginMode && (Info.Flags & OPIF_REALNAMES))
+      if (SearchInArchives && (hPlugin != INVALID_HANDLE_VALUE) && (Flags & OPIF_REALNAMES))
         ArchiveSearch(FullName);
     }
   }
@@ -1781,7 +1797,7 @@ void FindFiles::ScanPluginTree()
           if (strlen(PluginSearchPath)<NM-2)
           {
             strcat(PluginSearchPath,"\x1");
-            ScanPluginTree();
+            ScanPluginTree(hPlugin, Flags);
             *strrchr(PluginSearchPath,'\x1')=0;
           }
           char *NamePtr=strrchr(PluginSearchPath,'\x1');
@@ -1942,5 +1958,7 @@ DWORD FindFiles::AddArcListItem(char *ArcName)
     return(LIST_INDEX_NONE);
   strncpy(ArcList[ArcListCount].ArcName, ArcName,
           sizeof(ArcList[ArcListCount].ArcName)-1);
+  ArcList[ArcListCount].hPlugin = INVALID_HANDLE_VALUE;
+  ArcList[ArcListCount].Flags = 0;
   return(ArcListCount++);
 }
