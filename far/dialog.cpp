@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.37 08.09.2000 $ */
+/* Revision: 1.38 11.09.2000 $ */
 
 /*
 Modify:
+  11.09.2000 SVS
+   + Ctrl-U в строках ввода снимает пометку блока
   09.09.2000 SVS
    + DIF_NOFOCUS - элемент не получает фокуса ввода (клавиатурой)
    + Стиль диалога DMODE_OLDSTYLE - диалог в старом стиле.
@@ -1719,6 +1721,18 @@ int Dialog::ProcessKey(int Key)
       {
         Edit *edt=(Edit *)Item[FocusPos].ObjPtr;
         int SelStart, SelEnd;
+
+        /* $ 11.09.2000 SVS
+           Ctrl-U в строках ввода снимает пометку блока
+        */
+        if(Key == KEY_CTRLU)
+        {
+          edt->SetClearFlag(0);
+          edt->Select(-1,0);
+          edt->Show();
+          return TRUE;
+        }
+        /* SVS $ */
 
         if (Item[FocusPos].Flags & DIF_EDITOR)
           switch(Key)
