@@ -5,10 +5,11 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.04 15.07.2000 $ */
+/* Revision: 1.05 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 tran 1.05
   15.07.2000 tran
     + а я код раздуваю :) вводя новый метод Redraw
   13.07.2000 SVS
@@ -120,6 +121,15 @@ void ControlObject::Init()
   _beginthread(CheckVersion,0x10000,NULL);
   LeftPanel->Update(0);
   RightPanel->Update(0);
+
+  /* $ 07.09.2000 tran
+    + Config//Current File */
+  if (Opt.AutoSaveSetup)
+  {
+      LeftPanel->GoToFile(Opt.LeftCurFile);
+      RightPanel->GoToFile(Opt.RightCurFile);
+  }
+  /* tran 07.09.2000 $ */
 
   if (Opt.LeftPanel.Visible)
     LeftPanel->Show();

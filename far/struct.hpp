@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.12 05.09.2000 $ */
+/* Revision: 1.13 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 tran 1.13
+   + Config//Current File
   05.09.2000 SVS 1.12
     + Структура CodeQWERTY, описывающая QWERTY-перекодировщик
     ! В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
@@ -160,6 +162,12 @@ struct Options
   int AutoChangeFolder;
   char LeftFolder[NM];
   char RightFolder[NM];
+  /* $ 07.09.2000 tran
+     + Config//Current File */
+  char LeftCurFile[NM];
+  char RightCurFile[NM];
+  /* tran 07.09.2000 $ */
+
   int SelectFolders;
   int ReverseSort;
   int ClearReadOnly;

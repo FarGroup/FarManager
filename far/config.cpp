@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.13 05.09.2000 $ */
+/* Revision: 1.14 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 tran 1.14
+    + Config//Current File
   05.09.2000 SVS 1.13
     + QWERTY - поддержка
   31.08.2000 SVS
@@ -698,6 +700,10 @@ void ReadConfig()
   GetRegKey("Panel\\Left","SortGroups",Opt.LeftPanel.SortGroups,0);
   GetRegKey("Panel\\Left","ShortNames",Opt.LeftPanel.ShowShortNames,0);
   GetRegKey("Panel\\Left","Folder",Opt.LeftFolder,"",sizeof(Opt.LeftFolder));
+  /* $ 07.09.2000 tran
+     + Config//Current File*/
+  GetRegKey("Panel\\Left","CurFile",Opt.LeftCurFile,"",sizeof(Opt.LeftCurFile));
+  /* tran 07.09.2000 $ */
 
   GetRegKey("Panel\\Right","Type",Opt.RightPanel.Type,0);
   GetRegKey("Panel\\Right","Visible",Opt.RightPanel.Visible,1);
@@ -708,6 +714,10 @@ void ReadConfig()
   GetRegKey("Panel\\Right","SortGroups",Opt.RightPanel.SortGroups,0);
   GetRegKey("Panel\\Right","ShortNames",Opt.RightPanel.ShowShortNames,0);
   GetRegKey("Panel\\Right","Folder",Opt.RightFolder,"",sizeof(Opt.RightFolder));
+  /* $ 07.09.2000 tran
+    + Config//Current File */
+  GetRegKey("Panel\\Right","CurFile",Opt.RightCurFile,"",sizeof(Opt.RightCurFile));
+  /* tran 07.09.2000 $ */
 
   GetRegKey("Panel\\Layout","ColumnTitles",Opt.ShowColumnTitles,1);
   GetRegKey("Panel\\Layout","StatusLine",Opt.ShowPanelStatus,1);
@@ -748,7 +758,7 @@ void ReadConfig()
 
 void SaveConfig(int Ask)
 {
-  char OutText[NM];
+  char OutText[NM],OutText2[NM];
 
   if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel))!=0)
     return;
@@ -866,6 +876,11 @@ void SaveConfig(int Ask)
     SetRegKey("Panel\\Left","ShortNames",LeftPanel->GetShowShortNamesMode());
     LeftPanel->GetCurDir(OutText);
     SetRegKey("Panel\\Left","Folder",OutText);
+    /* $ 07.09.2000 tran
+       + Config//Current File */
+    LeftPanel->GetCurName(OutText,OutText2);
+    SetRegKey("Panel\\Left","CurFile",OutText);
+    /* tran 07.09.2000 $ */
   }
 
   Panel *RightPanel=CtrlObject->RightPanel;
@@ -881,6 +896,11 @@ void SaveConfig(int Ask)
     SetRegKey("Panel\\Right","ShortNames",RightPanel->GetShowShortNamesMode());
     RightPanel->GetCurDir(OutText);
     SetRegKey("Panel\\Right","Folder",OutText);
+    /* $ 07.09.2000 tran
+       + Config//Current File*/
+    RightPanel->GetCurName(OutText,OutText2);
+    SetRegKey("Panel\\Right","CurFile",OutText);
+    /* tran 07.09.2000 $ */
   }
 
   SetRegKey("Panel\\Layout","ColumnTitles",Opt.ShowColumnTitles);
