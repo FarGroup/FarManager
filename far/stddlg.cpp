@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.00 21.01.2001 $ */
+/* Revision: 1.01 22.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    - Ну вот и первая бага в диалоге поиска/замены :-(
   21.01.2001 SVS
     ! Выделение в качестве самостоятельного модуля
     + Функция GetString переехала из mix.cpp
@@ -148,8 +150,8 @@ int WINAPI GetSearchReplaceString(
     if (Dlg.GetExitCode()!=10)
       return FALSE;
 
-    strncpy((char *)SearchStr,ReplaceDlg[2].Data,sizeof(SearchStr));
-    strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,sizeof(ReplaceStr));
+    strcpy((char *)SearchStr,ReplaceDlg[2].Data);
+    strcpy((char *)ReplaceStr,ReplaceDlg[4].Data);
     if(Case)       *Case=ReplaceDlg[6].Selected;
     if(WholeWords) *WholeWords=ReplaceDlg[7].Selected;
     if(Reverse)    *Reverse=ReplaceDlg[8].Selected;
@@ -202,7 +204,7 @@ int WINAPI GetSearchReplaceString(
     if (Dlg.GetExitCode()!=8)
       return FALSE;
 
-    strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
+    strcpy((char *)SearchStr,SearchDlg[2].Data);
     if(ReplaceStr) *ReplaceStr=0;
     if(Case)       *Case=SearchDlg[4].Selected;
     if(WholeWords) *WholeWords=SearchDlg[5].Selected;
