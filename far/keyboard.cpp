@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.45 14.09.2001 $ */
+/* Revision: 1.46 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    ! временно отменим "...теперь даже для макроса корректно заполняется..."
   14.09.2001 SVS
     - Бага в TranslateKeyToVK() - неверно формировалось поле для Shift-клавиш
     ! теперь даже для макроса корректно заполняется структура INPUT_RECORD
@@ -322,6 +324,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
+      rec->EventType=0;
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
@@ -332,6 +335,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       ScrBuf.Flush();
       TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
+      rec->EventType=0;
 //      memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }

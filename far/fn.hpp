@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.103 12.09.2001 $ */
+/* Revision: 1.104 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    + класс CleverSysLog - что бы при выходе из функции делал SysLog(-1)
   12.09.2001 SVS
     + ConvertNameToReal()
   09.09.2001 SVS
@@ -833,6 +835,13 @@ FILE *OpenLogStream(char *file);
 #define L_DEBUG1   4
 #define L_DEBUG2   5
 #define L_DEBUG3   6
+
+class CleverSysLog{ // ;-)
+  public:
+    CleverSysLog();
+    ~CleverSysLog();
+};
+
 
 #define MAX_ARG_LEN   4096
 #define MAX_LOG_LINE 10240

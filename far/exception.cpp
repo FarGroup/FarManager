@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.06 16.09.2001 $ */
+/* Revision: 1.07 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    + EXCEPTION_FLT_* - немного обработки плавающей точки
   16.09.2001 SVS
     ! Отключаемые исключения
     ! Удалена кнопка "Debug" за ненадобностью
@@ -497,6 +499,10 @@ int xfilter(
      {EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_FLT_DIVIDE_BY_ZERO,MExcFloatDivideByZero,EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_FLT_OVERFLOW,MExcFloatOverflow,EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_FLT_STACK_CHECK,MExcFloatStackOverflow,EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_FLT_UNDERFLOW,MExcFloatUnderflow,EXCEPTION_EXECUTE_HANDLER},
      // сюды добавляем.
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.46 12.09.2001 $ */
+/* Revision: 1.47 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    + добавляем "хоткей" для строки ввода пути назначения.
   12.09.2001 SVS
     - BugZ#15: Рекурсивное копирование Junction каталога самого на себя.
       В функции ShellCopy::CmpFullNames() вместо ConvertNameToFull()
@@ -312,7 +314,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* $ 03.08.2001 IS добавим новую опцию: мультикопирование */
   static struct DialogData CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MCopyDlgTitle,
-  /* 01 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCMLTargetTO,
   /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */  DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
@@ -321,7 +323,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* 07 */  DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 08 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
   /* 09 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgTree,
-  /* 10 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel
+  /* 10 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
+  /* 11 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
   };
   MakeDialogItems(CopyDlgData,CopyDlg);
 
@@ -376,7 +379,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       NItems=MCMLItems0;
     sprintf(CopyStr,MSG(NOper),CDP.SelCount,MSG(NItems));
   }
-  sprintf(CopyDlg[1].Data,"%.65s",CopyStr);
+  sprintf(CopyDlg[11].Data,"%.65s",CopyStr);
 
   // заголовки контролов
   strcpy(CopyDlg[5].Data,MSG(Link?MCopySymLink:MCopyOnlyNewerFiles));
@@ -463,6 +466,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       return;
     CopyDlg[5].Selected=Selected5;
   }
+
+  // корректирем позицию " to"
+  CopyDlg[1].X1=CopyDlg[1].X2=CopyDlg[11].X1+strlen(RemoveTrailingSpaces(CopyDlg[11].Data));
 
   // ***********************************************************************
   // *** Вывод и обработка диалога

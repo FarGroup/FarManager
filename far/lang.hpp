@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.76 11.09.2001 $ */
+/* Revision: 1.77 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    + MExcFloat*,MCMLTargetTO
   11.09.2001 SVS
     + MQuickViewVolMount, MSetAttrVolMount
   08.09.2001 VVM
@@ -479,6 +481,7 @@ enum
   MCopyFiles,
   MMoveFiles,
   MLinkFiles,
+  MCMLTargetTO,
   MCMLItems0,
   MCMLItemsA,
   MCMLItemsS,
@@ -1550,6 +1553,10 @@ enum
   MExcDivideByZero,
   MExcStackOverflow,
   MExcBreakPoint,
+  MExcFloatDivideByZero,
+  MExcFloatOverflow,
+  MExcFloatStackOverflow,
+  MExcFloatUnderflow,
   MExcUnknown,
   MExcDebugger,
 

@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.15 15.08.2001 $ */
+/* Revision: 1.16 18.09.2001 $ */
 
 /*
 Modify:
+  18.09.2001 SVS
+    + класс CleverSysLog - что бы при выходе из функции делал SysLog(-1)
   15.08.2001 OT
     - "Перевод строки" в дебагере среды VC
   25.07.2001 SVS
@@ -304,5 +306,19 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 
   if(InternalLog)
     CloseSysLog();
+#endif
+}
+
+// "Умный класс для SysLog
+CleverSysLog::CleverSysLog()
+{
+#if defined(SYSLOG)
+  SysLog(1);
+#endif
+}
+CleverSysLog::~CleverSysLog()
+{
+#if defined(SYSLOG)
+  SysLog(-1);
 #endif
 }
