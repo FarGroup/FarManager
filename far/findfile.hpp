@@ -7,10 +7,14 @@ findfile.hpp
 
 */
 
-/* Revision: 1.07 16.01.2002 $ */
+/* Revision: 1.08 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 VVM
+    + GetPluginFile() - получить файл для просмотра с панели плагина.
+      В отличие от предыдущего подхода - учитывает вложенность папок
+      и делает для них SetDirectory()
   16.01.2002 VVM
     ! В функцию AddMenuRecord не передается параметр Path, он там лишний...
   13.10.2001 VVM
@@ -82,7 +86,8 @@ class FindFiles
 //    static void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData);
     static void AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData);
     static void RereadPlugin(HANDLE hPlugin);
-
+    static int GetPluginFile(HANDLE hPlugin, struct PluginPanelItem *PanelItem,
+                             char *DestPath, char *ResultName);
   public:
     FindFiles();
     ~FindFiles();

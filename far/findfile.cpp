@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.89 18.01.2002 $ */
+/* Revision: 1.90 23.01.2002 $ */
 
 /*
 Modify:
+  23.01.2002 VVM
+    + GetPluginFile() - получить файл для просмотра с панели плагина.
+      В отличие от предыдущего подхода - учитывает вложенность папок
+      и делает для них SetDirectory()
   18.01.2002 VVM
     ! При вызове просмотра забыли создать временный каталог.
   17.01.2002 VVM
@@ -755,6 +759,42 @@ FindFiles::~FindFiles()
   ScrBuf.ResetShadow();
 }
 
+int FindFiles::GetPluginFile(HANDLE hPlugin, struct PluginPanelItem *PanelItem,
+                             char *DestPath, char *ResultName)
+{
+  char *FileName = PointToName(PanelItem->FindData.cFileName);
+  if (FileName == PanelItem->FindData.cFileName)
+    return(CtrlObject->Plugins.GetFile(hPlugin,PanelItem,DestPath,ResultName,OPM_SILENT|OPM_FIND));
+  char *NamePtr = PanelItem->FindData.cFileName;
+  while (*NamePtr)
+  {
+    if (*NamePtr=='\\' || *NamePtr=='/')
+    {
+      NamePtr++;
+      break;
+    }
+    NamePtr++;
+  }
+  if (!(*NamePtr))
+  // Разделителей нет. Каталоги не найдены...
+    return(CtrlObject->Plugins.GetFile(hPlugin,PanelItem,DestPath,ResultName,OPM_SILENT|OPM_FIND));
+  PluginPanelItem NewItem = *PanelItem;
+  strncpy(NewItem.FindData.cFileName, NamePtr, sizeof(NewItem.FindData.cFileName));
+  char PluginPath[NM];
+  int PluginPathLen = NamePtr-PanelItem->FindData.cFileName;
+  if (PluginPathLen > 1)
+  // Уберем последний слэш
+    PluginPathLen--;
+  strncpy(PluginPath, PanelItem->FindData.cFileName, PluginPathLen);
+  // Спустимся на один каталог к найденному файлу
+  if (!CtrlObject->Plugins.SetDirectory(hPlugin, PluginPath, OPM_SILENT|OPM_FIND))
+    return(0);
+  int Result = GetPluginFile(hPlugin, &NewItem, DestPath, ResultName);
+  // Вернемся назад
+  CtrlObject->Plugins.SetDirectory(hPlugin, "..", OPM_SILENT|OPM_FIND);
+  return(Result);
+}
+
 long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   Dialog* Dlg=(Dialog*)hDlg;
@@ -907,7 +947,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
             mktemp(TempDir);
             CreateDirectory(TempDir, NULL);
-            if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
+//            if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
+            if (!GetPluginFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName))
             {
               RemoveDirectory(TempDir);
               ReleaseMutex(hMutex);
