@@ -7,23 +7,21 @@ farconst.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 tran
+    ! Версия берется из авто-генерируемого farversion.hpp
 */
 
-// версия FAR Manager
-/*
-   HIWORD:  HIBYTE = 0    ??
-            LOBYTE = 1	- # betta
-   LOWORD:  HIBYTE = 1  - version Hi
-            LOBYTE = 65	- version Lo
-*/
-#define FAR_VERSION 0x00010141UL
+/* $ 29.06.2000 tran
+   вместо #define FAR_VERSION включаем farversion.hpp */
+#include "farversion.hpp"
+/* tran $ */
 
 #define FILE_ATTRIBUTE_REPARSE_POINT 0x400
 

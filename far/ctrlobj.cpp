@@ -5,13 +5,15 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.06.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  29.06.2000 tran
+    ! соощение о копирайте включается из copyright.inc
 */
 
 #include "headers.hpp"
@@ -771,7 +773,10 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
 
 void ControlObject::ShowCopyright()
 {
-  char *Copyright="┼н╚шоя╜ЭЁС Ю∙Ью┬тФёГЁЩЎШ╕ЙзСеЙйъЕїМ■ЧЁШь╠фзОоЯжЯйД╢Ж╢ЖжуЦёФ·Я┐эВёЩ°Ф";
+/* $ 29.06.2000 tran
+  берем char *CopyRight из inc файла */
+#include "copyright.inc"
+/* tran $ */
   char Str[256];
   strcpy(Str,Copyright);
   char Xor=17;

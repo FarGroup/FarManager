@@ -85,6 +85,8 @@ Far : BccW32.cfg $(Dep_Far)
 .cpp.obj:
   $(BCC32) -c -o$@ {$. }
 
+$(OBJPATH)\ctrlobj.obj: ctrlobj.cpp ctrlobj.hpp copyright.inc
+
 !ifdef ALLOC
 Dep_fardexe = BccW32.cfg\
    $(OBJPATH)\modal.obj\
