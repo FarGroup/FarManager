@@ -831,6 +831,7 @@
 	".\findfile.cpp"\
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
+	".\ClevMutex.hpp"\
 	".\CFileMask.hpp"\
 	".\chgprior.hpp"\
 	".\cmdline.hpp"\

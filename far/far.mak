@@ -125,9 +125,9 @@ LINK32_OBJS= \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
-    "$(INTDIR)\keyboard.obj" \
-    "$(INTDIR)\syslog.obj" \
-    "$(INTDIR)\fileattr.obj" \
+	"$(INTDIR)\keyboard.obj" \
+	"$(INTDIR)\syslog.obj" \
+	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\xlat.obj" \

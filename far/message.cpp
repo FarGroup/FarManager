@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.31 06.05.2003 $ */
+/* Revision: 1.32 20.06.2003 $ */
 
 /*
 Modify:
+  20.06.2003 SVS
+    + ѕри форматировании ErrStr (FarFormatText) укажим MaxLength-1, т.к.
+      замечено обрезание системных сообщений при выводе Message
   06.05.2003 SVS
     ! W-Console: в Message() вместо MakeSeparator() применен другой трюк с
       использованием DrawLine(). ¬ vmenu... там такое пока не прет :-(
@@ -237,7 +240,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     MaxLength=LenErrStr;
 
     // а теперь проврапим
-    PtrStr=FarFormatText(ErrStr,MaxLength,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
+    PtrStr=FarFormatText(ErrStr,MaxLength-1,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
     while((PtrStr=strchr(PtrStr,'\n')) != NULL)
     {
       *PtrStr++=0;
