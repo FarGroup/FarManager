@@ -5,10 +5,19 @@ macro.cpp
 
 */
 
-/* Revision: 1.135 11.01.2005 $ */
+/* Revision: 1.136 14.02.2005 $ */
 
 /*
 Modify:
+  14.02.2005 SVS
+    + ƒобавлены слова "[A|P]Panel.OPIFlags"
+      —одержат OpenPluginInfo::Flags дл€ активной и пассивной панели.
+      ≈сли панель не плагинова€, то = 0
+    + ƒобавлено слово "CmdLine.Value" - содержимое ком.строки.
+    ! ћатематика получени€ переменной среды вынесена в функцию environFunc
+    ! ћатематика функций "fattr" и "fexist" вынесены в отдельные функции
+      fattrFunc и fexistFunc.
+      ѕересмотрены в сторону работы не только на реальных панел€х.
   11.01.2005 SVS
     - BugZ#1218 - ѕозици€ курсора на панели
   05.01.2005 SVS
@@ -547,6 +556,8 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "PPanel.UNCPath",     MCODE_V_PPANEL_UNCPATH,0},
   {2,  "APanel.Width",       MCODE_V_APANEL_WIDTH,0},
   {2,  "PPanel.Width",       MCODE_V_PPANEL_WIDTH,0},
+  {2,  "APanel.OPIFlags",    MCODE_V_APANEL_OPIFLAGS,0},
+  {2,  "PPanel.OPIFlags",    MCODE_V_PPANEL_OPIFLAGS,0},
 
   {2,  "CmdLine.Bof",        MCODE_C_CMDLINE_BOF,0}, // курсор в начале cmd-строки редактировани€?
   {2,  "CmdLine.Eof",        MCODE_C_CMDLINE_EOF,0}, // курсор в конеце cmd-строки редактировани€?
@@ -554,6 +565,7 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "CmdLine.Selected",   MCODE_C_CMDLINE_SELECTED,0},
   {2,  "CmdLine.ItemCount",  MCODE_V_CMDLINE_ITEMCOUNT,0},
   {2,  "CmdLine.CurPos",     MCODE_V_CMDLINE_CURPOS,0},
+  {2,  "CmdLine.Value",      MCODE_V_CMDLINE_VALUE,0},
 
   {2,  "Editor.CurLine",     MCODE_V_EDITORCURLINE,0},  // текуща€ лини€ в редакторе (в дополнении к Count)
   {2,  "Editor.Lines",       MCODE_V_EDITORLINES,0},
@@ -1093,14 +1105,21 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
-        case MCODE_C_CMDLINE_BOF:              // "CmdLine.Bof" - курсор в начале cmd-строки редактировани€?
-        case MCODE_C_CMDLINE_EOF:              // "CmdLine.Eof" - курсор в конеце cmd-строки редактировани€?
+        case MCODE_C_CMDLINE_BOF:              // CmdLine.Bof - курсор в начале cmd-строки редактировани€?
+        case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конеце cmd-строки редактировани€?
         case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
         case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
         case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
         case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
         {
           Cond=CtrlObject->CmdLine->ProcessKey(CheckCode);
+          break;
+        }
+
+        case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
+        {
+          CtrlObject->CmdLine->GetString(FileName,sizeof(FileName)-1);
+          Cond=FileName;
           break;
         }
 
@@ -1284,6 +1303,20 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           }
           break;
         }
+
+        case MCODE_V_APANEL_OPIFLAGS:  // APanel.OPIFlags
+        case MCODE_V_PPANEL_OPIFLAGS:  // PPanel.OPIFlags
+        {
+          Panel *SelPanel = CheckCode == MCODE_V_APANEL_OPIFLAGS ? ActivePanel : PassivePanel;
+          if ( SelPanel != NULL )
+          {
+            struct OpenPluginInfo Info;
+            SelPanel->GetOpenPluginInfo(&Info);
+            Cond = (long)Info.Flags;
+          }
+          break;
+        }
+
 
         case MCODE_V_APANEL_PATH: // APanel.Path
         case MCODE_V_PPANEL_PATH: // PPanel.Path
@@ -1577,6 +1610,44 @@ static TVar msgBoxFunc(TVar *param)
 }
 
 
+static TVar environFunc(TVar *param)
+{
+  char Env[1024];
+  if(GetEnvironmentVariable(param->toString(),Env,sizeof(Env)))
+  {
+    FAR_CharToOem(Env,Env);
+    return TVar(Env);
+  }
+  return TVar("");
+}
+
+
+static TVar fattrFunc(TVar *param)
+{
+  char *Str = (char *)param[0].toString();
+  if(PathMayBeAbsolute(Str))
+    return TVar(GetFileAttributes(Str));
+  else
+  {
+    Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+    long Pos=ActivePanel->FindFile(Str);
+    if(Pos >= 0)
+    {
+      int FileAttr;
+      char FileName[NM*2];
+      ActivePanel->GetFileName(NULL,Pos,FileAttr);
+      return TVar(FileAttr);
+    }
+  }
+  return TVar(-1L);
+}
+
+static TVar fexistFunc(TVar *param)
+{
+  TVar attr=fattrFunc(param);
+  return TVar(attr.toInteger() != -1 ? 1L : 0L);
+}
+
 
 TVarTable glbVarTable, locVarTable;
 TVar eStack[MAXEXEXSTACK];
@@ -1862,17 +1933,8 @@ done:
             eStack[ePos] = indexFunc(eStack+ePos);
             break;
           case MCODE_F_ENVIRON:
-          {
-            char Env[1024];
-            if(GetEnvironmentVariable(eStack[ePos].toString(),Env,sizeof(Env)))
-            {
-              FAR_CharToOem(Env,Env);
-              eStack[ePos] = Env;
-            }
-            else
-              eStack[ePos] = "";
+            eStack[ePos] = environFunc(eStack+ePos);
             break;
-          }
           case MCODE_F_LEN:
             eStack[ePos] = strlen(eStack[ePos].toString());
             break;
@@ -1883,14 +1945,14 @@ done:
             LocalStrlwr((char *)eStack[ePos].toString()); //??? strlwr
             break;
           case MCODE_F_FEXIST:
-            eStack[ePos] = GetFileAttributes(eStack[ePos].toString()) != (DWORD)-1?1L:0L;
+            eStack[ePos] = fexistFunc(eStack+ePos);
             break;
           case MCODE_F_FSPLIT:
             ePos--;
             eStack[ePos] = fsplitFunc(eStack+ePos);
             break;
           case MCODE_F_FATTR:
-            eStack[ePos] = TVar(GetFileAttributes(eStack[ePos].toString()));
+            eStack[ePos] = fattrFunc(eStack+ePos);
             break;
           case MCODE_F_STRING:
             eStack[ePos].toString();

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.62 11.11.2004 $ */
+/* Revision: 1.63 14.02.2005 $ */
 
 /*
 Modify:
+  14.02.2005 SVS
+    + В TreeList добавлены функции GetFileName(), FindFile()
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   10.11.2004 SVS
@@ -1763,6 +1765,31 @@ int TreeList::GoToFile(const char *Name)
       return(TRUE);
     }
   return(FALSE);
+}
+
+int TreeList::FindFile(const char *Name)
+{
+  long I;
+  struct TreeItem *CurPtr;
+
+  for (CurPtr=ListData, I=0; I < TreeCount; I++, CurPtr++)
+  {
+    if (strcmp(Name,CurPtr->Name)==0)
+      return I;
+    if (LocalStricmp(Name,CurPtr->Name)==0)
+      return I;
+  }
+  return -1;
+}
+
+int TreeList::GetFileName(char *Name,int Pos,int &FileAttr)
+{
+  if (Pos < 0 || Pos >= TreeCount)
+    return FALSE;
+  if(Name)
+    strcpy(Name,ListData[Pos].Name);
+  FileAttr=FA_DIREC|GetFileAttributes(ListData[Pos].Name);
+  return TRUE;
 }
 
 int _cdecl SortList(const void *el1,const void *el2)

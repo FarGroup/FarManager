@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.08 07.12.2004 $ */
+/* Revision: 1.09 14.02.2005 $ */
 
 /*
 Modify:
+  14.02.2005 SVS
+    + MCODE_V_APANEL_OPIFLAGS, MCODE_V_PPANEL_OPIFLAGS, MCODE_V_CMDLINE_VALUE
   08.12.2004 SVS
     + Dlg.ItemCount, Dlg.CurPos, CmdLine.ItemCount, CmdLine.CurPos
   11.11.2004 SVS
@@ -184,6 +186,8 @@ enum MACRO_OP_CODE {
   MCODE_V_PPANEL_ITEMCOUNT,         // PPanel.ItemCount - пассивная панель: число элементов
   MCODE_V_APANEL_CURPOS,            // APanel.CurPos - активная панель:  текущий индекс
   MCODE_V_PPANEL_CURPOS,            // PPanel.CurPos - пассивная панель: текущий индекс
+  MCODE_V_APANEL_OPIFLAGS,          // APanel.OPIFlags - активная панель: флаги открытого плагина
+  MCODE_V_PPANEL_OPIFLAGS,          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
   MCODE_V_ITEMCOUNT,                // ItemCount - число элементов в текущем объекте
   MCODE_V_CURPOS,                   // CurPos - текущий индекс в текущем объекте
   MCODE_V_EDITORLINES,              // Editor.Lines - количество строк в редакторе
@@ -194,8 +198,10 @@ enum MACRO_OP_CODE {
   MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
   MCODE_V_DLGCURPOS,                // Dlg.CurPos
   MCODE_V_VIEWERSTATE,              // Viewer.State
+
   MCODE_V_CMDLINE_ITEMCOUNT,        // CmdLine.ItemCount
   MCODE_V_CMDLINE_CURPOS,           // CmdLine.CurPos
+  MCODE_V_CMDLINE_VALUE,            // CmdLine.Value
 };
 
 typedef enum MACRO_OP_CODE TFunction;

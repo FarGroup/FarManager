@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.42 08.11.2004 $ */
+/* Revision: 1.43 14.02.2005 $ */
 
 /*
 Modify:
+  14.02.2005 SVS
+    ! FileList::FindFile() перенесем в public секцию
   08.11.2004 WARP
     + GetShowColor()
   01.11.2004 SVS
@@ -274,7 +276,6 @@ class FileList:public Panel
     int GetCurBaseName(char *Name,char *ShortName);
     void PushPlugin(HANDLE hPlugin,char *HostFile);
     int PopPlugin(int EnableRestoreViewMode);
-    int FindFile(const char *Name);
     void CopyNames(int FillPathName=FALSE,int UNC=FALSE);
     void SelectSortMode();
     void ApplyCommand();
@@ -350,6 +351,7 @@ class FileList:public Panel
     int GetCurrentPos();
     int FindPartName(char *Name,int Next);
     int GoToFile(const char *Name);
+    int FindFile(const char *Name);
     int IsSelected(char *Name);
     void ProcessHostFile();
     void UpdateViewPanel();

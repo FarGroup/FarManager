@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.215 10.02.2005 $ */
+/* Revision: 1.216 14.02.2005 $ */
 
 /*
 Modify:
+  14.02.2005 SVS
+    ! У FileList::GetFileName() параметр Name может быть равен NULL.
+      Т.о. мы можем "не хочу имя, дай атрибут".
   10.02.2005 WARP
     ! Разрешим Shift-F2 на панелях с OPIF_REALNAMES, если они открыты не для hostfile.
   27.12.2004 SVS
@@ -4060,7 +4063,8 @@ int FileList::GetFileName(char *Name,int Pos,int &FileAttr)
 {
   if (Pos>=FileCount)
     return(FALSE);
-  strcpy(Name,ListData[Pos].Name);
+  if(Name)
+    strcpy(Name,ListData[Pos].Name);
   FileAttr=ListData[Pos].FileAttr;
   return(TRUE);
 }

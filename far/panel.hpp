@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.25 03.06.2004 $ */
+/* Revision: 1.26 14.02.2005 $ */
 
 /*
 Modify:
+  14.02.2005 SVS
+    + FindFile() включен в состав Panel (виртуальная функция)
   03.06.2004 SVS
     ! SetPluginCommand теперь возвращает TRUE/FALSE
   24.05.2004 SVS
@@ -199,6 +201,7 @@ class Panel:public ScreenObject
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(char *Name,int Next) {return(FALSE);}
     virtual int GoToFile(const char *Name) {return(TRUE);};
+    virtual int FindFile(const char *Name) {return -1;};
     virtual int IsSelected(char *Name) {return(FALSE);};
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима

@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.16 10.11.2004 $ */
+/* Revision: 1.17 14.02.2005 $ */
 
 /*
 Modify:
+  14.02.2005 SVS
+    + В TreeList добавлены функции GetFileName(), FindFile()
   10.11.2004 SVS
     + TreeList::GetFileCount()
   28.10.2004 SVS
@@ -126,9 +128,11 @@ class TreeList: public Panel
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     int FindPartName(char *Name,int Next);
     int GoToFile(const char *Name);
+    int FindFile(const char *Name);
     void ProcessEnter();
     int GetExitCode() {return ExitCode;}
     virtual long GetFileCount() {return TreeCount;}
+    virtual int GetFileName(char *Name,int Pos,int &FileAttr);
 
     virtual void SetTitle();
     virtual void SetFocus();
