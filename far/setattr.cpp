@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.02 20.10.2000 $ */
+/* Revision: 1.03 02.11.2000 $ */
 
 /*
 Modify:
+  02.11.2000 SVS
+    - исправляем баги :-)
   20.10.2000 SVS
     + Новый атрибут Encripted (NTFS/Win2K)
   14.08.2000 KM
@@ -192,9 +194,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
   if ((SelCount=SrcPanel->GetSelCount())==0)
     return;
 
-  strcpy(AttrDlg[14].Data,DateMask);
-  strcpy(MultAttrDlg[20].Data,DateMask);
-
   if (SelCount==1 || SrcPanel->GetMode()!=PLUGIN_PANEL)
   {
     if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&FileSystemFlags,NULL,0))
@@ -237,6 +236,8 @@ void ShellSetFileAttributes(Panel *SrcPanel)
       break;
   }
 
+  strcpy(AttrDlg[12].Data,DateMask);
+  strcpy(MultAttrDlg[20].Data,DateMask);
 
   {
     char SelName[NM];
