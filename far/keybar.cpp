@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.10 14.06.2001 $ */
+/* Revision: 1.11 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001
+    ! ProcessMouse: Owner меняем на FrameManager.
   14.06.2001 OT
     ! "Бунт" ;-)
   06.05.2001 DJ
@@ -47,6 +49,7 @@ Modify:
 #include "colors.hpp"
 #include "global.hpp"
 #include "keys.hpp"
+#include "manager.hpp"
 
 KeyBar::KeyBar()
 {
@@ -281,8 +284,13 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     Key+=KEY_F1;
   /* SVS $ */
 
-  if (Owner)
-    Owner->ProcessKey(Key);
+  /*$ 22.06.2001 SKV
+    Типа всё круто! :)
+  */
+  //if (Owner)
+    //Owner->ProcessKey(Key);
+      FrameManager->ProcessKey(Key);
+  /* SKV$*/
   return(TRUE);
 }
 
