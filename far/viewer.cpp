@@ -5,13 +5,16 @@ Internal viewer
 
 */
 
-/* Revision: 1.132 15.04.2003 $ */
+/* Revision: 1.133 15.04.2003 $ */
 
 /*
 Modify:
+  15.04.2003 SVS
+    - Нажав и удерживая кнопку мыши на верхней строке полосы прокрутки,
+      можно было промотать текст в программе просмотра за начало файла.
   15.04.2003 VVM
     ! Отступ делаем на 1/4 экрана, а не на 1/3
-	! После поиска с начала файла не предлагаем продолжить поиск.
+    ! После поиска с начала файла не предлагаем продолжить поиск.
   08.03.2003 IS
     + Заново определим символы конца строки при включении или выключении
       unicode, т.к. они другие при изменении unicode<->однобайтовая кодировка
@@ -2171,15 +2174,14 @@ int Viewer::ProcessKey(int Key)
 
 int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+  if ((MouseEvent->dwButtonState & 3)==0)
+    return(FALSE);
+
   /* $ 18.07.2000 tran
      просто для сокращения кода*/
   int MsX=MouseEvent->dwMousePosition.X;
   int MsY=MouseEvent->dwMousePosition.Y;
   /* tran 18.07.2000 $ */
-
-
-  if ((MouseEvent->dwButtonState & 3)==0)
-    return(FALSE);
 
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
@@ -2207,36 +2209,54 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         ProcessKey(KEY_UP);
     /* SVS $*/
     else if (MsY==Y2)
-      while (IsMouseButtonPressed())
-        ProcessKey(KEY_DOWN);
-    else if(MsY == Y1+2)
-        ProcessKey(KEY_CTRLHOME);
-    else if(MsY == Y2-2)
-        ProcessKey(KEY_CTRLEND);
-    else
     {
       while (IsMouseButtonPressed())
       {
-        INPUT_RECORD rec;
+//        _SVS(SysLog("Viewer/ KEY_DOWN= %i, %i",FilePos,FileSize));
+        ProcessKey(KEY_DOWN);
+      }
+    }
+    else if(MsY == Y1+2)
+      ProcessKey(KEY_CTRLHOME);
+    else if(MsY == Y2-1)
+      ProcessKey(KEY_CTRLEND);
+    else
+    {
+      INPUT_RECORD rec;
+      while (IsMouseButtonPressed())
+      {
         /* $ 14.05.2001 DJ
            более точное позиционирование; корректная работа на больших файлах
         */
         FilePos=(FileSize-1)/(Y2-ViewY1-1)*(MsY-ViewY1);
         /* DJ $ */
-        if ( FilePos>FileSize )
-            FilePos=FileSize;
-        //_SVS(SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent64(FilePos,FileSize),FilePos,FileSize));
-        if(ToPercent64(FilePos,FileSize) == 100)
-          ProcessKey(KEY_CTRLEND);
-        else
-        /* $ 27.04.2001 DJ
-           не рвем строки посередине
-        */
+        int Perc;
+        if(FilePos > FileSize)
         {
+          FilePos=FileSize;
+          Perc=100;
+        }
+        else if(FilePos < 0)
+        {
+          FilePos=0;
+          Perc=0;
+        }
+        else
+          Perc=ToPercent64(FilePos,FileSize);
+//_SVS(SysLog("Viewer/ ToPercent()=%i, %I64d, %I64d, Mouse=[%d:%d]",Perc,FilePos,FileSize,MsX,MsY));
+        if(Perc == 100)
+          ProcessKey(KEY_CTRLEND);
+        else if(!Perc)
+          ProcessKey(KEY_CTRLHOME);
+        else
+        {
+          /* $ 27.04.2001 DJ
+             не рвем строки посередине
+          */
           AdjustFilePos();
           Show();
+          /* DJ $ */
         }
-        /* DJ $ */
         GetInputRecord(&rec);
         MsX=rec.Event.MouseEvent.dwMousePosition.X;
         MsY=rec.Event.MouseEvent.dwMousePosition.Y;

@@ -5,10 +5,15 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.132 31.03.2003 $ */
+/* Revision: 1.133 14.04.2003 $ */
 
 /*
 Modify:
+  14.04.2003 SVS
+    - Перестали работать некоторые функциональные клавиши (например, F1 -
+      вызов помощи) во время работы плагинов, использующих ProcessEditorInput
+      (например, AutoWrap)
+      Перенесем ECTL_PROCESSINPUT и ECTL_READINPUT из Editor в FileEditor
   31.03.2003 SVS
     + добавим _ECTLLOG для ECTL_GETINFO
   05.03.2003 SVS
@@ -2102,6 +2107,64 @@ int FileEditor::EditorControl(int Command,void *Param)
     {
       FrameManager->DeleteFrame(this);
       SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...???
+      return(TRUE);
+    }
+
+    case ECTL_READINPUT:
+    {
+      if(!Param)
+        return FALSE;
+      else
+      {
+        _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_READINPUT)"));
+        INPUT_RECORD *rec=(INPUT_RECORD *)Param;
+        DWORD Key=GetInputRecord(rec);
+        //if(Key==KEY_CONSOLE_BUFFER_RESIZE) //????
+        //  Show();                          //????
+#if defined(SYSLOG_KEYMACRO)
+        if(rec->EventType == KEY_EVENT)
+        {
+          SysLog("ECTL_READINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
+                           rec->Event.KeyEvent.bKeyDown,
+                           rec->Event.KeyEvent.wRepeatCount,
+                           rec->Event.KeyEvent.wVirtualKeyCode,
+                           rec->Event.KeyEvent.dwControlKeyState);
+        }
+#endif
+      }
+      return(TRUE);
+    }
+
+    case ECTL_PROCESSINPUT:
+    {
+      if(!Param)
+        return FALSE;
+      else
+      {
+        _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl(ECTL_PROCESSINPUT)"));
+
+        INPUT_RECORD *rec=(INPUT_RECORD *)Param;
+        if (ProcessEditorInput(rec))
+          return(TRUE);
+        if (rec->EventType==MOUSE_EVENT)
+          ProcessMouse(&rec->Event.MouseEvent);
+        else
+        {
+#if defined(SYSLOG_KEYMACRO)
+          if(rec->EventType == KEY_EVENT)
+          {
+            SysLog("ECTL_PROCESSINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
+                             rec->Event.KeyEvent.bKeyDown,
+                             rec->Event.KeyEvent.wRepeatCount,
+                             rec->Event.KeyEvent.wVirtualKeyCode,
+                             rec->Event.KeyEvent.dwControlKeyState);
+          }
+#endif
+          int Key=CalcKeyCode(rec,FALSE);
+          _KEYMACRO(SysLog("Key=CalcKeyCode() = 0x%08X",Key));
+          ProcessKey(Key);
+        }
+      }
       return(TRUE);
     }
 

@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.221 15.04.2003 $ */
+/* Revision: 1.222 15.04.2003 $ */
 
 /*
 Modify:
+  15.04.2003 SVS
+    - ѕерестали работать некоторые функциональные клавиши (например, F1 -
+      вызов помощи) во врем€ работы плагинов, использующих ProcessEditorInput
+      (например, AutoWrap)
+      ѕеренесем ECTL_PROCESSINPUT и ECTL_READINPUT из Editor в FileEditor
   15.04.2003 VVM
     ! ѕосле поиска отступим на четверть и проверим на перекрытие диалогом замены
   31.03.2003 SVS
@@ -3986,6 +3991,7 @@ BOOL Editor::Search(int Next)
         if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
           FromTop=0;
         /* VVM $ */
+
         TmpPtr=CurLine=CurPtr;
         for (int i=0;i<FromTop;i++)
         {
@@ -5860,71 +5866,6 @@ int Editor::EditorControl(int Command,void *Param)
         AddUndoData(CurPtr->EditLine.GetStringAddr(),StringNumber,
                     CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
         CurPtr->EditLine.ReplaceTabs();
-      }
-      return(TRUE);
-    }
-
-    // должно выполн€етс€ в FileEditor::EditorControl()
-    case ECTL_READINPUT:
-    {
-      if(!Param)
-        return FALSE;
-      else
-      {
-        _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_READINPUT)"));
-        INPUT_RECORD *rec=(INPUT_RECORD *)Param;
-        DWORD Key=GetInputRecord(rec);
-        //if(Key==KEY_CONSOLE_BUFFER_RESIZE) //????
-        //  Show();                          //????
-#if defined(SYSLOG_KEYMACRO)
-        if(rec->EventType == KEY_EVENT)
-        {
-          SysLog("ECTL_READINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
-                           rec->Event.KeyEvent.bKeyDown,
-                           rec->Event.KeyEvent.wRepeatCount,
-                           rec->Event.KeyEvent.wVirtualKeyCode,
-                           rec->Event.KeyEvent.dwControlKeyState);
-        }
-#endif
-      }
-      return(TRUE);
-    }
-
-    // должно выполн€етс€ в FileEditor::EditorControl()
-    case ECTL_PROCESSINPUT:
-    {
-      if(!Param)
-        return FALSE;
-      else
-      {
-        _KEYMACRO(CleverSysLog SL("Editor::EditorControl(ECTL_PROCESSINPUT)"));
-        if(!HostFileEditor)
-        {
-          _ECTLLOG(SysLog("HostFileEditor == NULL"));
-          return(FALSE);
-        }
-
-        INPUT_RECORD *rec=(INPUT_RECORD *)Param;
-        if (HostFileEditor->ProcessEditorInput(rec))
-          return(TRUE);
-        if (rec->EventType==MOUSE_EVENT)
-          ProcessMouse(&rec->Event.MouseEvent);
-        else
-        {
-#if defined(SYSLOG_KEYMACRO)
-          if(rec->EventType == KEY_EVENT)
-          {
-            SysLog("ECTL_PROCESSINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
-                             rec->Event.KeyEvent.bKeyDown,
-                             rec->Event.KeyEvent.wRepeatCount,
-                             rec->Event.KeyEvent.wVirtualKeyCode,
-                             rec->Event.KeyEvent.dwControlKeyState);
-          }
-#endif
-          int Key=CalcKeyCode(rec,FALSE);
-          _KEYMACRO(SysLog("Key=CalcKeyCode() = 0x%08X",Key));
-          ProcessKey(Key);
-        }
       }
       return(TRUE);
     }

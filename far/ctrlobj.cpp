@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.47 25.02.2003 $ */
+/* Revision: 1.48 14.04.2003 $ */
 
 /*
 Modify:
+  14.04.2003 SVS
+    ! принудительно запоминаем и выставляем заголовок консоли после загрузки плагинов
   25.02.2003 SVS
     ! Вместо chdir применим FarChDir
   03.02.2003 SVS
@@ -249,8 +251,13 @@ void ControlObject::Init()
   FarChDir(StartCurDir, TRUE);
   Cp()->ActivePanel->SetFocus();
 
-  FrameManager->PluginCommit();
-  Plugins.LoadPlugins();
+  {
+    char OldTitle[512];
+    GetConsoleTitle(OldTitle,sizeof(OldTitle));
+    FrameManager->PluginCommit();
+    Plugins.LoadPlugins();
+    SetConsoleTitle(OldTitle);
+  }
 /*
   FarChDir(StartCurDir, TRUE);
 */
