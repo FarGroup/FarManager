@@ -7,10 +7,15 @@ manager.hpp
 
 */
 
-/* Revision: 1.25 25.03.2002 $ */
+/* Revision: 1.26 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 KM
+    + RedrawFramesInProcess - Признак перерисовки
+      всех фреймов. Необходим для предотвращения
+      переустановки заголовка консоли для всех
+      перерисовываемых фреймов, кроме верхнего.
   25.03.2002 SVS
     + ManagerIsDown()
   21.02.2002 SVS
@@ -104,6 +109,14 @@ class Manager
 
     int  EndLoop;            // Признак выхода из цикла
     INPUT_RECORD LastInputRecord;
+    /* $ 04.04.2002 KM */
+    int RedrawFramesInProcess;  // Признак перерисовки
+                                // всех фреймов. Необходим
+                                // для предотвращения установки
+                                // заголовка консоли для всех
+                                // перерисовываемых фреймов, кроме
+                                // верхнего.
+    /* KM $ */
     void StartupMainloop();
     Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 

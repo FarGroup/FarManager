@@ -5,10 +5,17 @@ manager.cpp
 
 */
 
-/* Revision: 1.66 30.03.2002 $ */
+/* Revision: 1.67 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 KM
+    - Удавлен ещё один артефакт, приводящий к неперерисовке
+      меню, вызванного из модального объекта. Проверялось так:
+      до этого патча делаем AltF7, вызываем меню дисков (AltD),
+      затем хелп (F1), затем AltF9, Esc - меню исчезло (!).
+    - Устранено мелькание заголовка консоли при использовании
+      CAS (Ctrl-Alt-Shift).
   30.03.2002 OT
     - После исправления бага №314 (патч 1250) отвалилось закрытие
       фара по кресту.
@@ -232,6 +239,8 @@ Manager::Manager()
   UnmodalizedFrame=NULL;
   ExecutedFrame=NULL;
   SemiModalBackFrame=NULL;
+
+  RedrawFramesInProcess=0;
 }
 
 Manager::~Manager()
@@ -1104,7 +1113,8 @@ void Manager::RefreshCommit()
   if (!RefreshedFrame)
     return;
   if (RefreshedFrame->Refreshable()){
-    RefreshedFrame->ShowConsoleTitle();
+    if (RedrawFramesInProcess==0)
+      RefreshedFrame->ShowConsoleTitle();
     RefreshedFrame->Refresh();
     if (!RefreshedFrame)
       return;
@@ -1150,8 +1160,14 @@ void Manager::ImmediateHide()
     CurrentFrame->Hide();
     return;
   }
+
+  // Фреймы перерисовываются, значит для нижних
+  // не выставляем заголовок консоли, чтобы не мелькал.
   if (ModalStackCount>0){
     int UnlockCount=0;
+    /* $ 04.04.2002 KM */
+    RedrawFramesInProcess++;
+    /* KM $ */
 
     while (!(*this)[FramePos]->Refreshable()){
       (*this)[FramePos]->UnlockRefresh();
@@ -1169,11 +1185,29 @@ void Manager::ImmediateHide()
         if (!(ModalStack[i]->FastHide() & CASR_HELP)){
           RefreshFrame(ModalStack[i]);
           Commit();
+          /* $ 04.04.2002 KM
+             Удавлен глюк. Забыли перерисовать меню, вызванное
+             из модального объекта из-за чего происходили
+             некоторые артефакты неперерисовки.
+          */
+          if (ModalStack[i]->NextModal){
+            RefreshFrame(ModalStack[i]->NextModal);
+            Commit();
+          }
+          /* KM $ */
         } else {
           break;
         }
       }
     }
+    /* $ 04.04.2002 KM
+       Перерисуем заголовок только у активного фрейма.
+       Этим мы предотвращаем мелькание заголовка консоли
+       при перерисовке всех фреймов.
+    */
+    RedrawFramesInProcess--;
+    CurrentFrame->ShowConsoleTitle();
+    /* KM $ */
 
   } else {
     CtrlObject->CmdLine->ShowBackground();

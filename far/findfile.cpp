@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.104 02.04.2002 $ */
+/* Revision: 1.105 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 KM
+    - При смене диска на плагиновый и обратно не обновлялось
+      состояние чекбокса "Искать в архивах".
   02.04.2002 KM
     + По просьбам трудящихся добавлен поиск по локальным дискам.
     + Давно хотел: в диалоге поиска при поиске с корня диска
@@ -571,6 +574,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         ItemData.PtrLength=strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,18,(long)&ItemData);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,(ActivePanel->GetMode()==PLUGIN_PANEL)?FALSE:TRUE);
       }
       else if (Param1==18)
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,TRUE);
