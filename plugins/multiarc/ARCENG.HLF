@@ -44,6 +44,11 @@ switches for future usage.
     Pressing the keys #Shift-F1# has the same effect as pushing the
 "Select archiver" button and allows to select the archiver type to use.
 
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
 @ExtrFromArc
 $ #Extracting files from archive#
     In this dialog you may enter the path to extract files and set the
