@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.12 07.12.2001 $ */
+/* Revision: 1.13 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    + Заюзаем горячие клавиши в промте (FIB_NOAMPERSAND)
   07.12.2001 IS
     + Cоздание нескольких каталогов за раз теперь опционально.
   26.09.2001 SVS
@@ -77,7 +79,7 @@ void ShellMakeDir(Panel *SrcPanel)
   {
     if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",
          DirName,DirName,sizeof(DirName),"MakeFolder",
-         FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX,&MultiMakeDir,
+         FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX,&MultiMakeDir,
          MSG(MMultiMakeDir)))
       return;
 

@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.79 03.03.2002 $ */
+/* Revision: 1.80 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Про курсор
   03.03.2002 SVS
     ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   27.02.2002 SVS
@@ -548,6 +550,8 @@ void VMenu::DisplayObject()
   VMFlags.Skip(VMENU_UPDATEREQUIRED);
   Modal::ExitCode=-1;
 
+  SetCursorType(0,10);
+
   if (!VMFlags.Check(VMENU_LISTBOX) && SaveScr==NULL)
   {
     if (!VMFlags.Check(VMENU_DISABLEDRAWBACKGROUND) && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
@@ -615,7 +619,6 @@ void VMenu::DisplayObject()
   }
   /* DJ $ */
   /* KM $ */
-  SetCursorType(0,10);
   ShowMenu(TRUE);
 }
 /* SVS $ */

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.42 28.02.2002 $ */
+/* Revision: 1.43 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Бадяга про курсор - там где нужно гасить, выставлялася 1
   28.02.2002 SVS
     - BugZ#318 - dot Shift-Enter
   26.02.2002 SVS
@@ -629,7 +631,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   /* VVM $ */
 
   GetCursorType(Visible,Size);
-  SetCursorType(TRUE,-1);
+  SetCursorType(0,-1);
 
   PrevLockCount=ScrBuf.GetLockCount();
   ScrBuf.SetLockCount(0);

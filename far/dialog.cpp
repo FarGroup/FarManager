@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.218 12.03.2002 $ */
+/* Revision: 1.219 18.03.2002 $ */
 
 /*
 Modify:
+  18.03.2002 SVS
+    ! Сепаратор должен быть цвета рамки, а не текста.
+    ! Бадяга про курсор - там где нужно гасить, выставлялася 1
   12.03.2002 SVS
     - Для DM_SETMOUSEEVENTNOTIFY - в доках одно, в коде совсем по другому :-(
     - BugZ#351, BugZ#352 - куски кода, ответственные _только_ за диалог
@@ -2012,6 +2015,7 @@ void Dialog::ShowDialog(int ID)
         if (CurItem->Flags & DIF_SETCOLOR)
           Attr=CurItem->Flags & DIF_COLORMASK;
         else
+        {
           if (CurItem->Flags & DIF_BOXCOLOR)
             Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
                   (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
@@ -2020,18 +2024,26 @@ void Dialog::ShowDialog(int ID)
             Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
                   (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
                   (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT);
+        }
 
         Attr=MAKELONG(
            MAKEWORD(FarColorToReal(Attr),
                    FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                       (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
                       (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))), // HIBYTE HiText
-             0);
+             ((CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))?
+               (MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
+                  (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
+                  (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)), // Box LOBYTE
+                 0))
+               :
+               0));
+
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
-        SetColor(Attr&0xFF);
 
         if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
+          SetColor(LOBYTE(HIWORD(Attr)));
           GotoXY(X1+(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
           if (DialogTooLong)
             ShowSeparator(DialogTooLong-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0/* -1 */),(CurItem->Flags&DIF_SEPARATOR2?3:1));
@@ -2039,6 +2051,7 @@ void Dialog::ShowDialog(int ID)
             ShowSeparator(X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:-1),(CurItem->Flags&DIF_SEPARATOR2?3:1));
         }
 
+        SetColor(Attr&0xFF);
         GotoXY(X1+X,Y1+Y);
 
         if (CurItem->Flags & DIF_SHOWAMPERSAND)
@@ -2142,7 +2155,7 @@ void Dialog::ShowDialog(int ID)
              Отключение мигающего курсора при перемещении диалога
           */
           if (!DialogMode.Check(DMODE_DRAGGED))
-            SetCursorType(1,-1);
+            SetCursorType(0,-1);
           MoveCursor(X1+CX1+1,Y1+CY1);
           /* KM $ */
         }
@@ -2296,7 +2309,7 @@ void Dialog::ShowDialog(int ID)
              Отключение мигающего курсора при перемещении диалога
           */
           if (!DialogMode.Check(DMODE_DRAGGED))
-            SetCursorType(1,-1);
+            SetCursorType(0,-1);
           EditPtr->Show();
           /* KM $ */
         }
@@ -2310,7 +2323,7 @@ void Dialog::ShowDialog(int ID)
            Отключение мигающего курсора при перемещении диалога
         */
         if (DialogMode.Check(DMODE_DRAGGED))
-          SetCursorType(FALSE,0);
+          SetCursorType(0,0);
         /* KM $ */
 
         if (CurItem->History && ((CurItem->Flags & DIF_HISTORY) && Opt.DialogsEditHistory ||
