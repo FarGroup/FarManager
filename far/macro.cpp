@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.41 20.06.2001 $ */
+/* Revision: 1.42 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    ! Небольшая доработка проверки макроклавиши
   20.06.2001 SVS
     - Некорретная работа функции PlayKeyMacro(MacroRecord*).
       Теперь бум все делать динамически и "у себя" :-)
@@ -464,7 +466,11 @@ int KeyMacro::ProcessKey(int Key)
     if (!Executing) // Это еще не режим исполнения?
     {
       DWORD CurFlags;
-      int I=GetIndex(LocalUpper(Key),
+      if((Key&0x00FFFFFF) < 0xFF)
+        Key=LocalKeyToKey(LocalUpper(Key&0x000000FF))|(Key&(~0x000000FF));
+      else
+        Key=LocalUpper(Key);
+      int I=GetIndex(Key,
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=Macros[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {

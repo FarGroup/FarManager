@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.01 19.06.2001 $ */
+/* Revision: 1.02 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SVS
+    ! Убираем обработку кавычек
   19.06.2001 SVS
     ! Исключим лишний прогон функции SubstFileName() - проверим, а есть ли
       символы '!' в строке.
@@ -120,6 +122,7 @@ _SVS(int Pass=1);
   while (*CurStr)
   {
 _SVS(SysLog("***** Pass=%d",Pass));
+/*
     if(isspace(*CurStr) && DirBegin && DirBegin != Str && *(DirBegin-1) != '"')
     {
       Unquote(DirBegin);
@@ -127,7 +130,7 @@ _SVS(SysLog("***** Pass=%d",Pass));
       DirBegin=NULL;
 _SVS(SysLog("Unquote? '%c' DirBegin=[%s] %d",*CurStr, DirBegin, SkipQuotes));
     }
-
+*/
     // рассмотрим переключатели активности/пассивности панели.
     if (strncmp(CurStr,"!#",2)==0)
     {
@@ -142,10 +145,10 @@ _SVS(SysLog("PassivePanel=TRUE '%s'",CurStr));
 _SVS(SysLog("PassivePanel=FALSE '%s'",CurStr));
     }
 
-    if (*CurStr=='\"')
-      SkipQuotes=(CurStr==Str);
+//    if (*CurStr=='\"')
+//      SkipQuotes=(CurStr==Str);
 
-    if (!SkipQuotes)
+//    if (!SkipQuotes)
     {
       // !! символ '!'
       if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
@@ -439,11 +442,13 @@ _SVS(SysLog("! TmpStr=[%s]",TmpStr));
     CurStr++;
 _SVS(++Pass);
   }
+/*
   if(DirBegin && DirBegin != Str && *(DirBegin-1) != '"')
   {
     Unquote(DirBegin);
     QuoteSpaceOnly(DirBegin);
   }
+*/
   if (!IgnoreInput)
     ReplaceVariables(TmpStr);
   strcpy(Str,TmpStr);
