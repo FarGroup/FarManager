@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.87 27.04.2001 $ */
+/* Revision: 1.88 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 SVS
+    - Ctrl-Q: не выставлялся признак модификации
+    - Ctrl-Q: не помещались данные в буфер отката
+    - XLat: не помещались данные в буфер отката
   27.04.2001 VVM
     + Обработка KEY_MSWHEEL_XXXX
   25.04.2001 SVS
@@ -2479,15 +2483,21 @@ int Editor::ProcessKey(int Key)
        Добавлена обработка Ctrl-Q
     */
     case KEY_CTRLQ:
-      Pasting++;
-      if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+      if (!LockMode)
       {
-        MarkingBlock=MarkingVBlock=FALSE;
-        DeleteBlock();
+        Pasting++;
+        TextChanged(1);
+        AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
+                        CurLine->EditLine.GetCurPos(),UNDO_EDIT);
+        if (!EdOpt.PersistentBlocks && BlockStart!=NULL)
+        {
+          MarkingBlock=MarkingVBlock=FALSE;
+          DeleteBlock();
+        }
+        CurLine->EditLine.ProcessCtrlQ();
+        Pasting--;
+        Show();
       }
-      CurLine->EditLine.ProcessCtrlQ();
-      Pasting--;
-      Show();
       return(TRUE);
     /* SVS $ */
     /* $ 25.04.2001 IS
@@ -5136,12 +5146,13 @@ void Editor::AdjustVBlock(int PrevX)
 void Editor::Xlat()
 {
   struct EditList *CurPtr;
+  int Line;
 
   if (VBlockStart!=NULL)
   {
     CurPtr=VBlockStart;
 
-    for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
+    for (Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
     {
       int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
       int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
@@ -5152,11 +5163,14 @@ void Editor::Xlat()
       int CopySize=Length-TBlockX;
       if (CopySize>TBlockSizeX)
          CopySize=TBlockSizeX;
+      AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine+Line,0,UNDO_EDIT);
+      BlockUndo=TRUE;
       ::Xlat(CurPtr->EditLine.Str,TBlockX,TBlockX+CopySize,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
     }
   }
   else
   {
+    Line=0;
     CurPtr=BlockStart;
     /* $ 25.11.2000 IS
          Если нет выделения, то обработаем текущее слово. Слово определяется на
@@ -5164,48 +5178,53 @@ void Editor::Xlat()
     */
     if(CurPtr!=NULL)
     {
-     while (CurPtr!=NULL)
-     {
-      int StartSel,EndSel;
-      CurPtr->EditLine.GetSelection(StartSel,EndSel);
-       if (StartSel==-1)
-        break;
-      if(EndSel == -1)
-        EndSel=strlen(CurPtr->EditLine.Str);
-      ::Xlat(CurPtr->EditLine.Str,StartSel,EndSel,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
-      CurPtr=CurPtr->Next;
-     }
+      while (CurPtr!=NULL)
+      {
+        int StartSel,EndSel;
+        CurPtr->EditLine.GetSelection(StartSel,EndSel);
+        if (StartSel==-1)
+          break;
+        if(EndSel == -1)
+          EndSel=strlen(CurPtr->EditLine.Str);
+        AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine+Line,0,UNDO_EDIT);
+        ::Xlat(CurPtr->EditLine.Str,StartSel,EndSel,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
+        BlockUndo=TRUE;
+        Line++;
+        CurPtr=CurPtr->Next;
+      }
     }
     else
     {
-     char *Str=CurLine->EditLine.Str;
-     int start=CurLine->EditLine.GetCurPos(), end, StrSize=strlen(Str);
-     /* $ 10.12.2000 IS
-        Обрабатываем только то слово, на котором стоит курсор, или то слово,
-        что находится левее позиции курсора на 1 символ
-     */
-     BOOL DoXlat=TRUE;
+      char *Str=CurLine->EditLine.Str;
+      int start=CurLine->EditLine.GetCurPos(), end, StrSize=strlen(Str);
+      /* $ 10.12.2000 IS
+         Обрабатываем только то слово, на котором стоит курсор, или то слово,
+         что находится левее позиции курсора на 1 символ
+      */
+      BOOL DoXlat=TRUE;
 
-     if(strchr(Opt.XLat.WordDivForXlat,Str[start])!=NULL)
-     {
-        if(start) start--;
-        DoXlat=(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL);
-     }
+      if(strchr(Opt.XLat.WordDivForXlat,Str[start])!=NULL)
+      {
+         if(start) start--;
+         DoXlat=(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL);
+      }
 
-     if(DoXlat)
-     {
+      if(DoXlat)
+      {
         while(start>=0 && strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL)
           start--;
         start++;
         end=start+1;
         while(end<StrSize && strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL)
           end++;
+        AddUndoData(Str,NumLine,start,UNDO_EDIT);
         ::Xlat(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
-     }
+      }
      /* IS $ */
     }
     /* IS $ */
   }
+  BlockUndo=FALSE;
   TextChanged(1);
 }
 /* SVS $ */
