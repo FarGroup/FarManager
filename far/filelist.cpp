@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.211 11.11.2004 $ */
+/* Revision: 1.212 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    ! Вместо кода "Вставить * путь" применена новая функция _MakePath1
+    + Добавлена корректная обработка KEY_CTRLSHIFTENTER
   11.11.2004 WARP
     - BugZ#1098 После захода в плагин с панели, расширенной до fullscreen, надо перерисовывать обе панели
   10.11.2004 WARP
@@ -1358,92 +1361,97 @@ int FileList::ProcessKey(int Key)
     /* VVM $ */
 
     case KEY_CTRLENTER:
+    case KEY_CTRLSHIFTENTER:
     case KEY_CTRLJ:
     case KEY_CTRLF:
-    /* 29.01.2001 VVM + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
-    case KEY_CTRLALTF:
+    case KEY_CTRLALTF:  // 29.01.2001 VVM + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла.
     {
       if (FileCount>0 && SetCurPath())
       {
         char FileName[2048];
-        int CurrentPath=FALSE;
-        CurPtr=ListData+CurFile;
-        strcpy(FileName,ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
-        if (TestParentFolderName(FileName))
+        if(Key==KEY_CTRLSHIFTENTER)
+          _MakePath1(Key,FileName,sizeof(FileName)-1, " ");
+        else
         {
-          if (PanelMode==PLUGIN_PANEL)
-            *FileName=0;
-          else
-            FileName[1]=0; // "."
+          int CurrentPath=FALSE;
+          CurPtr=ListData+CurFile;
+          strcpy(FileName,ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
+          if (TestParentFolderName(FileName))
+          {
+            if (PanelMode==PLUGIN_PANEL)
+              *FileName=0;
+            else
+              FileName[1]=0; // "."
 
-          if(Key!=KEY_CTRLALTF)
-            Key=KEY_CTRLF;
-          CurrentPath=TRUE;
-        }
-        if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
-        {
-          bool realName=PanelMode!=PLUGIN_PANEL;
-          struct OpenPluginInfo Info={0};
-          if (PanelMode==PLUGIN_PANEL)
-          {
-            CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+            if(Key!=KEY_CTRLALTF)
+              Key=KEY_CTRLF;
+            CurrentPath=TRUE;
           }
-          if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
+          if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
           {
-            if(!CreateFullPathName(CurPtr->Name,CurPtr->ShortName,CurPtr->FileAttr,
-                               FileName,sizeof(FileName)-1,Key==KEY_CTRLALTF))
-              return FALSE;
-          }
-          else
-          {
-            char FullName[NM];
-            strcpy(FullName,NullToEmpty(Info.CurDir));
-            /* $ 13.10.2000 tran
-              по Ctrl-f имя должно отвечать условиям на панели */
-            /* $ 20.10.2000 SVS
-               Сделаем фичу Ctrl-F опциональной!*/
-            if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
-              LocalStrupr(FullName);
-            /* SVS $ */
-            /* tran $ */
-            if (*FullName)
-              AddEndSlash(FullName,'\\');
-            /* $ 20.10.2000 SVS
-               Сделаем фичу Ctrl-F опциональной!*/
-            if(Opt.PanelCtrlFRule)
+            bool realName=PanelMode!=PLUGIN_PANEL;
+            struct OpenPluginInfo Info={0};
+            if (PanelMode==PLUGIN_PANEL)
             {
+              CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+            }
+            if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
+            {
+              if(!CreateFullPathName(CurPtr->Name,CurPtr->ShortName,CurPtr->FileAttr,
+                                 FileName,sizeof(FileName)-1,Key==KEY_CTRLALTF))
+                return FALSE;
+            }
+            else
+            {
+              char FullName[NM];
+              strcpy(FullName,NullToEmpty(Info.CurDir));
               /* $ 13.10.2000 tran
                 по Ctrl-f имя должно отвечать условиям на панели */
-              if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
-                LocalStrlwr(FileName);
-              if (ViewSettings.FileUpperToLowerCase)
-                if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(FileName))
-                   LocalStrlwr(FileName);
+              /* $ 20.10.2000 SVS
+                 Сделаем фичу Ctrl-F опциональной!*/
+              if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
+                LocalStrupr(FullName);
+              /* SVS $ */
               /* tran $ */
+              if (*FullName)
+                AddEndSlash(FullName,'\\');
+              /* $ 20.10.2000 SVS
+                 Сделаем фичу Ctrl-F опциональной!*/
+              if(Opt.PanelCtrlFRule)
+              {
+                /* $ 13.10.2000 tran
+                  по Ctrl-f имя должно отвечать условиям на панели */
+                if ( ViewSettings.FileLowerCase && !(CurPtr->FileAttr & FA_DIREC))
+                  LocalStrlwr(FileName);
+                if (ViewSettings.FileUpperToLowerCase)
+                  if (!(CurPtr->FileAttr & FA_DIREC) && !IsCaseMixed(FileName))
+                     LocalStrlwr(FileName);
+                /* tran $ */
+              }
+              /* SVS $*/
+              strcat(FullName,FileName);
+              strcpy(FileName,FullName);
             }
-            /* SVS $*/
-            strcat(FullName,FileName);
-            strcpy(FileName,FullName);
           }
-        }
-        if (CurrentPath)
-          AddEndSlash(FileName);
+          if (CurrentPath)
+            AddEndSlash(FileName);
 
-        // добавим первый префикс!
-        if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_CTRLJ))
-        {
-          char Prefix[NM*2];
-          /* $ 19.11.2001 IS оптимизация по скорости :) */
-          if(*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix))
+          // добавим первый префикс!
+          if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_CTRLJ))
           {
-            strcat(Prefix,FileName);
-            xstrncpy(FileName,Prefix,sizeof(FileName)-1);
+            char Prefix[NM*2];
+            /* $ 19.11.2001 IS оптимизация по скорости :) */
+            if(*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix))
+            {
+              strcat(Prefix,FileName);
+              xstrncpy(FileName,Prefix,sizeof(FileName)-1);
+            }
+            /* IS $ */
           }
-          /* IS $ */
+          if(Opt.QuotedName&QUOTEDNAME_INSERT)
+            QuoteSpace(FileName);
+          strcat(FileName," ");
         }
-        if(Opt.QuotedName&QUOTEDNAME_INSERT)
-          QuoteSpace(FileName);
-        strcat(FileName," ");
         CtrlObject->CmdLine->InsertString(FileName);
       }
       return(TRUE);
@@ -1453,74 +1461,14 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
     case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
     case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
-      NeedRealName=TRUE;
     case KEY_CTRLBRACKET:          // Вставить путь из левой панели
     case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
     case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
     case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
     {
-      {
-        Panel *SrcPanel=NULL;
-        switch(Key)
-        {
-          case KEY_CTRLALTBRACKET:
-          case KEY_CTRLBRACKET:
-            SrcPanel=CtrlObject->Cp()->LeftPanel;
-            break;
-          case KEY_CTRLALTBACKBRACKET:
-          case KEY_CTRLBACKBRACKET:
-            SrcPanel=CtrlObject->Cp()->RightPanel;
-            break;
-          case KEY_ALTSHIFTBRACKET:
-          case KEY_CTRLSHIFTBRACKET:
-            SrcPanel=CtrlObject->Cp()->ActivePanel;
-            break;
-          case KEY_ALTSHIFTBACKBRACKET:
-          case KEY_CTRLSHIFTBACKBRACKET:
-            SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-            break;
-        }
-
-        /* TODO: Здесь нужно учесть, что у TreeList тоже есть путь :-) */
-        if (SrcPanel->GetType()!=FILE_PANEL)
-          return(FALSE);
-
-        char PanelDir[2048];
-        if (SrcPanel->GetMode()!=PLUGIN_PANEL)
-        {
-          SrcPanel->GetCurDir(PanelDir);
-          if(NeedRealName)
-            CreateFullPathName(PanelDir,PanelDir,FA_DIREC,PanelDir,sizeof(PanelDir)-1,TRUE);
-          if (SrcPanel->GetShowShortNamesMode())
-            ConvertNameToShort(PanelDir,PanelDir);
-          AddEndSlash(PanelDir);
-        }
-        else
-        {
-          /* $ 20.09.2000 SVS
-             + Если у плагина есть префикс, то Ctrl-[ и еже с ним
-             подставят первый префикс.
-          */
-          FileList *SrcFilePanel=(FileList *)SrcPanel;
-          struct OpenPluginInfo Info;
-          CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->hPlugin,&Info);
-          /* $ 26.07.2002 SKV
-            В этом месте оптимизатору ВС++ сносило крышу.
-            Да так и читабельнее будет.
-            Было:
-            strcat(AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
-          */
-          AddPluginPrefix(SrcFilePanel,PanelDir);
-          strcat(PanelDir,NullToEmpty(Info.CurDir));
-          /* SKV $ */
-          /* SVS $ */
-        }
-
-        if(Opt.QuotedName&QUOTEDNAME_INSERT)
-          QuoteSpace(PanelDir);
-
+      char PanelDir[2048];
+      if(_MakePath1(Key,PanelDir,sizeof(PanelDir)-1, ""))
         CtrlObject->CmdLine->InsertString(PanelDir);
-      }
       return(TRUE);
     }
 

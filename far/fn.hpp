@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.216 09.11.2004 $ */
+/* Revision: 1.217 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + _MakePath1()
   09.11.2004 SVS
     + макрос _WARP
   28.10.2004 SVS
@@ -1609,6 +1611,8 @@ void doneMacroVarTable(int global);
 const char *eStackAsString(int Pos=0);
 
 BOOL GetMacroParseError(char *ErrMessage1,char *ErrMessage2,char *ErrMessage3);
+
+int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2);
 
 
 #endif  // __FARFUNC_HPP__

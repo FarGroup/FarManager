@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.125 09.11.2004 $ */
+/* Revision: 1.126 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    ! Вместо кода "Вставить * путь" применена новая функция _MakePath1
   09.11.2004 SVS
     ! пока пробел не добавляем для Shift-Enter. Это будет сделано позже, по человече.
   04.11.2004 SVS
@@ -844,94 +846,10 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
   {
     char PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (GetShortcutFolder(Key,PathName,PluginModule,PluginFile,PluginData))
-    {
       RetCode=TRUE;
-    }
   }
   else // Пути/имена?
-  {
-    int NeedRealName=FALSE;
-    switch(Key)
-    {
-      case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
-      case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
-      case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
-      case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
-        NeedRealName=TRUE;
-      case KEY_CTRLBRACKET:          // Вставить путь из левой панели
-      case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
-      case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
-      case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
-
-      case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
-      case KEY_SHIFTENTER:           // Текущий файл с актив.панели
-      {
-        Panel *SrcPanel=NULL;
-        switch(Key)
-        {
-          case KEY_CTRLALTBRACKET:
-          case KEY_CTRLBRACKET:
-            SrcPanel=CtrlObject->Cp()->LeftPanel;
-            break;
-          case KEY_CTRLALTBACKBRACKET:
-          case KEY_CTRLBACKBRACKET:
-            SrcPanel=CtrlObject->Cp()->RightPanel;
-            break;
-          case KEY_SHIFTENTER:
-          case KEY_ALTSHIFTBRACKET:
-          case KEY_CTRLSHIFTBRACKET:
-            SrcPanel=CtrlObject->Cp()->ActivePanel;
-            break;
-          case KEY_CTRLSHIFTENTER:
-          case KEY_ALTSHIFTBACKBRACKET:
-          case KEY_CTRLSHIFTBACKBRACKET:
-            SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-            break;
-        }
-
-        if (SrcPanel!=NULL)
-        {
-          if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER)
-          {
-            char ShortFileName[NM];
-            SrcPanel->GetCurName(PathName,ShortFileName);
-            if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
-              strcpy(PathName,ShortFileName);
-
-            if(Opt.QuotedName&QUOTEDNAME_INSERT)
-              QuoteSpace(PathName);
-            //strncat(PathName," ",sizeof(PathName)-1);
-          }
-          else
-          {
-            SrcPanel->GetCurDir(PathName);
-            if (SrcPanel->GetMode()!=PLUGIN_PANEL)
-            {
-              FileList *SrcFilePanel=(FileList *)SrcPanel;
-              SrcFilePanel->GetCurDir(PathName);
-              if(NeedRealName)
-                SrcFilePanel->CreateFullPathName(PathName,PathName,FA_DIREC,PathName,sizeof(PathName)-1,TRUE);
-              if (SrcFilePanel->GetShowShortNamesMode())
-                ConvertNameToShort(PathName,PathName);
-            }
-            else
-            {
-              FileList *SrcFilePanel=(FileList *)SrcPanel;
-              struct OpenPluginInfo Info;
-              CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
-              strcat(FileList::AddPluginPrefix(SrcFilePanel,PathName),NullToEmpty(Info.CurDir));
-            }
-            AddEndSlash(PathName);
-            if(Opt.QuotedName&QUOTEDNAME_INSERT)
-              QuoteSpace(PathName);
-          }
-
-          RetCode=TRUE;
-        }
-      }
-      break;
-    }
-  }
+    RetCode=_MakePath1(Key,PathName,sizeof(PathName)-1,"");
 
   // Если что-нить получилось, именно его и вставим (PathName)
   if(RetCode)
@@ -952,8 +870,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
       DeleteBlock();
 
     if(TableSet)
-       EncodeString(PathName,(unsigned char*)TableSet->EncodeTable,
-                    strlen(PathName));
+       EncodeString(PathName,(unsigned char*)TableSet->EncodeTable,strlen(PathName));
     char *Ptr=PathName;
     for (;*Ptr;Ptr++)
       InsertKey(*Ptr);

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.162 06.08.2004 $ */
+/* Revision: 1.163 11.11.2004 $ */
 
 /*
 Modify:
+  11.11.2004 SVS
+    + _MakePath1()
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   14.06.2004 SVS
@@ -1966,4 +1968,101 @@ BOOL ProcessOSAliases(char *Str,int SizeStr)
   }
 #endif
   return FALSE;
+}
+
+/*
+  Например, код для [A|P]Panel.UNCPath
+  _MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,FileName,sizeof(FileName)-1,"")
+*/
+int _MakePath1(DWORD Key,char *PathName,int PathNameSize, const char *Param2)
+{
+  int RetCode=FALSE;
+  int NeedRealName=FALSE;
+  *PathName=0;
+  switch(Key)
+  {
+    case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+    case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+    case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+    case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+      NeedRealName=TRUE;
+    case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+    case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+    case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+    case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+
+    case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
+    case KEY_SHIFTENTER:           // Текущий файл с актив.панели
+    {
+      Panel *SrcPanel=NULL;
+      FilePanels *Cp=CtrlObject->Cp();
+      switch(Key)
+      {
+        case KEY_CTRLALTBRACKET:
+        case KEY_CTRLBRACKET:
+          SrcPanel=Cp->LeftPanel;
+          break;
+        case KEY_CTRLALTBACKBRACKET:
+        case KEY_CTRLBACKBRACKET:
+          SrcPanel=Cp->RightPanel;
+          break;
+        case KEY_SHIFTENTER:
+        case KEY_ALTSHIFTBRACKET:
+        case KEY_CTRLSHIFTBRACKET:
+          SrcPanel=Cp->ActivePanel;
+          break;
+        case KEY_CTRLSHIFTENTER:
+        case KEY_ALTSHIFTBACKBRACKET:
+        case KEY_CTRLSHIFTBACKBRACKET:
+          SrcPanel=Cp->GetAnotherPanel(Cp->ActivePanel);
+          break;
+      }
+
+      if (SrcPanel!=NULL)
+      {
+        if(Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER)
+        {
+          char ShortFileName[NM];
+          SrcPanel->GetCurName(PathName,ShortFileName);
+          if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
+            strcpy(PathName,ShortFileName);
+        }
+        else
+        {
+          /* TODO: Здесь нужно учесть, что у TreeList тоже есть путь :-) */
+          if (SrcPanel->GetType()!=FILE_PANEL)
+            return(FALSE);
+
+          SrcPanel->GetCurDir(PathName);
+          if (SrcPanel->GetMode()!=PLUGIN_PANEL)
+          {
+            FileList *SrcFilePanel=(FileList *)SrcPanel;
+            SrcFilePanel->GetCurDir(PathName);
+            if(NeedRealName)
+              SrcFilePanel->CreateFullPathName(PathName,PathName,FA_DIREC,PathName,PathNameSize,TRUE);
+            if (SrcFilePanel->GetShowShortNamesMode())
+              ConvertNameToShort(PathName,PathName);
+          }
+          else
+          {
+            FileList *SrcFilePanel=(FileList *)SrcPanel;
+            struct OpenPluginInfo Info;
+            CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
+            FileList::AddPluginPrefix(SrcFilePanel,PathName);
+            strncat(PathName,NullToEmpty(Info.CurDir),PathNameSize);
+
+          }
+          AddEndSlash(PathName);
+        }
+
+        if(Opt.QuotedName&QUOTEDNAME_INSERT)
+          QuoteSpace(PathName);
+        strncat(PathName,NullToEmpty(Param2),PathNameSize);
+
+        RetCode=TRUE;
+      }
+    }
+    break;
+  }
+  return RetCode;
 }
