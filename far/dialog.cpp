@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.153 10.08.2001 $ */
+/* Revision: 1.154 11.08.2001 $ */
 
 /*
 Modify:
+  11.10.2001 KM
+   - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
+     выхода краёв диалога за границу экрана.
   10.08.2001 KM
    - Неправильно работал DM_RESIZEDIALOG. Заметил когда делал
      ресайзинг Alt-F7 при изменении размеров консоли.
@@ -1864,7 +1867,6 @@ void Dialog::ShowDialog(int ID)
           */
           if (!CheckDialogMode(DMODE_DRAGGED))
             SetCursorType(1,-1);
-          SelectOnEntry(I);
           EditPtr->Show();
           /* KM $ */
         }
@@ -5346,10 +5348,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         OldH1=H1;
         W1=((COORD*)Param2)->X;
         H1=((COORD*)Param2)->Y;
-        if(Dlg->X1+W1>=ScrX)
-          Dlg->X1=ScrX-W1;
-        if(Dlg->Y1+H1>=ScrY)
-          Dlg->Y1=ScrY-H1;
+        /* $ 11.10.2001 KM
+          - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
+            выхода краёв диалога за границу экрана.
+        */
+        if(Dlg->X1+W1>ScrX)
+          Dlg->X1=ScrX-W1+1;
+        if(Dlg->Y1+H1>ScrY)
+          Dlg->Y1=ScrY-H1+1;
+        /* KM $ */
 
         if (W1<OldW1 || H1<OldH1)
         {
@@ -5383,10 +5390,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dlg->X1=0;
       if(Dlg->Y1<0)
         Dlg->Y1=0;
-      if(Dlg->X1+W1>=ScrX)
-        Dlg->X1=ScrX-W1; //?
-      if(Dlg->Y1+H1>=ScrY)
-        Dlg->Y1=ScrY-H1; //?
+      /* $ 11.10.2001 KM
+        - Ещё одно уточнение при ресайзинге, с учётом предполагаемого
+          выхода краёв диалога за границу экрана.
+      */
+      if(Dlg->X1+W1>ScrX)
+        Dlg->X1=ScrX-W1+1;
+      if(Dlg->Y1+H1>ScrY)
+        Dlg->Y1=ScrY-H1+1;
+      /* KM $ */
       /* $ 10.08.2001 KM
         - Неверно вычислялись координаты X2 и Y2.
       */

@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.48 10.08.2001 $ */
+/* Revision: 1.49 11.08.2001 $ */
 
 /*
 Modify:
+  11.08.2001 KM
+    ! Вроде бы удалось нормально синхронизировать нити
+      и теперь вся информация о ходе поиска выводится
+      корректно.
   10.08.2001 KM
     + Изменение размеров диалога поиска при изменении размеров консоли.
   08.08.2001 KM
@@ -266,13 +270,13 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       if (UseAllTables)
         strcpy(TableSet.TableName,MSG(MFindFileAllTables));
-      else if (!UseDecodeTable)
-        strcpy(TableSet.TableName,MSG(MGetTableNormalText));
       else if (UseUnicode)
         strcpy(TableSet.TableName,"Unicode");
+      else if (!UseDecodeTable)
+        strcpy(TableSet.TableName,MSG(MGetTableNormalText));
       else
         PrepareTable(&TableSet,TableNum);
-      strcpy(Dlg->Item[7].Data,TableSet.TableName);
+      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)TableSet.TableName);
 
       return TRUE;
     }
@@ -280,17 +284,16 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       if (Param1==7)
       {
-        VMenu *ListBox=Dlg->Item[7].ListPtr;
-        UseDecodeTable=(Param2>0 && Param2<ListBox->GetItemCount()-1);
-        UseUnicode=(Param2==1);
-        UseAllTables=(Param2==ListBox->GetItemCount()-1);
+        UseAllTables=(Param2==0);
+        UseUnicode=(Param2==3);
+        UseDecodeTable=(Param2>=5);
         if (!UseAllTables)
         {
           strcpy(TableSet.TableName,MSG(MGetTableNormalText));
-          if (Param2>1)
+          if (Param2>=5)
           {
-            PrepareTable(&TableSet,Param2-2);
-            TableNum=Param2-2;
+            PrepareTable(&TableSet,Param2-5);
+            TableNum=Param2-5;
           }
         }
       }
@@ -323,13 +326,15 @@ FindFiles::FindFiles()
   IsPluginGetsFile=0;
   /* KM $ */
   FarList TableList;
-  FarListItem *TableItem=(FarListItem *)malloc(sizeof(FarListItem)*2);
+  FarListItem *TableItem=(FarListItem *)malloc(sizeof(FarListItem)*4);
   TableList.Items=TableItem;
-  TableList.ItemsNumber=2;
+  TableList.ItemsNumber=4;
 
-  memset(TableItem,0,sizeof(FarListItem)*2);
-  strcpy(TableItem[0].Text,MSG(MGetTableNormalText));
-  strcpy(TableItem[1].Text,"Unicode");
+  memset(TableItem,0,sizeof(FarListItem)*4);
+  strcpy(TableItem[0].Text,MSG(MFindFileAllTables));
+  TableItem[1].Flags=LIF_SEPARATOR;
+  strcpy(TableItem[2].Text,MSG(MGetTableNormalText));
+  strcpy(TableItem[3].Text,"Unicode");
 
   for (int I=0;;I++)
   {
@@ -337,24 +342,24 @@ FindFiles::FindFiles()
     int RetVal=FarCharTable(I,(char *)&cts,sizeof(cts));
     if (RetVal==-1)
       break;
-    TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(I+3));
+
+    if (I==0)
+    {
+      TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(I+5));
+      if (TableItem==NULL)
+        return;
+      TableItem[I+4].Text[0]=0;
+      TableItem[I+4].Flags=LIF_SEPARATOR;
+    }
+
+    TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(I+6));
     if (TableItem==NULL)
       return;
-    strcpy(TableItem[I+2].Text,cts.TableName);
-    TableItem[I+2].Flags=0;
+    strcpy(TableItem[I+5].Text,cts.TableName);
+    TableItem[I+5].Flags=0;
     TableList.Items=TableItem;
     TableList.ItemsNumber++;
   }
-
-  TableItem=(FarListItem *)realloc(TableItem,sizeof(FarListItem)*(TableList.ItemsNumber+2));
-  if (TableItem==NULL)
-    return;
-  TableItem[TableList.ItemsNumber].Text[0]=0;
-  TableItem[TableList.ItemsNumber].Flags=LIF_SEPARATOR;
-  strcpy(TableItem[TableList.ItemsNumber+1].Text,MSG(MFindFileAllTables));
-  TableItem[TableList.ItemsNumber+1].Flags=0;
-  TableList.Items=TableItem;
-  TableList.ItemsNumber+=2;
 
   do
   {
@@ -552,10 +557,15 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_KEY:
     {
+      WaitForSingleObject(hMutex,INFINITE);
+
       while (ListBox->GetCallCount())
         Sleep(10);
       if (IsPluginGetsFile)
+      {
+        ReleaseMutex(hMutex);
         return TRUE;
+      }
 
       // некторые спец.клавиши всеже отбработаем.
       if(Param2 == KEY_CTRLALTSHIFTPRESS || Param2 == KEY_ALTF9)
@@ -563,12 +573,12 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         IsProcessAssignMacroKey--;
         FrameManager->ProcessKey(Param2);
         IsProcessAssignMacroKey++;
+        ReleaseMutex(hMutex);
         return TRUE;
       }
 
       if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) // [ Stop ] button
       {
-        WaitForSingleObject(hMutex,INFINITE);
         while (ListBox->GetCallCount())
           Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/* [ New search ] */,0);
@@ -577,7 +587,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       else if (Param1==5 && (Param2==KEY_LEFT || Param2==KEY_SHIFTTAB)) // [ New search ] button
       {
-        WaitForSingleObject(hMutex,INFINITE);
         while (ListBox->GetCallCount())
           Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/* [ Stop ] */,0);
@@ -590,7 +599,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         if (ListBox && ListBox->GetItemCount())
         {
-          WaitForSingleObject(hMutex,INFINITE);
           while (ListBox->GetCallCount())
             Sleep(10);
           ListBox->ProcessKey(Param2);
@@ -601,9 +609,11 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       else if (Param2==KEY_F3 || Param2==KEY_F4)
       {
         if (!ListBox)
+        {
+          ReleaseMutex(hMutex);
           return TRUE;
+        }
 
-        WaitForSingleObject(hMutex,INFINITE);
         if ((ListBox->GetUserData(&UserDataItem,sizeof(UserDataItem)))!=0 &&
              ListBox->GetUserDataSize()==sizeof(UserDataItem))
         {
@@ -646,7 +656,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
-              ReleaseMutex(hMutex);
             }
             else
             {
@@ -666,7 +675,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               WaitForSingleObject(hMutex,INFINITE);
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
-              ReleaseMutex(hMutex);
             }
             SetConsoleTitle(OldTitle);
           }
@@ -674,6 +682,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         ReleaseMutex(hMutex);
         return TRUE;
       }
+      ReleaseMutex(hMutex);
       return FALSE;
     }
     case DN_BTNCLICK:
@@ -692,13 +701,13 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       else if (Param1==6) // [ Goto ] button pressed
       {
+        WaitForSingleObject(hMutex,INFINITE);
+
         if (ListBox && ListBox->GetItemCount())
         {
-          WaitForSingleObject(hMutex,INFINITE);
           while (ListBox->GetCallCount())
             Sleep(10);
           ListBox->GetUserData(&UserDataItem,sizeof(UserDataItem));
-          ReleaseMutex(hMutex);
 
           char *FileName=UserDataItem.FileFindData.cFileName;
           Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
@@ -714,21 +723,31 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             FindPanel->SetCurDir(ArcPath,TRUE);
             hPlugin=((FileList *)FindPanel)->OpenFilePlugin(ArcName,FALSE);
             if (hPlugin==INVALID_HANDLE_VALUE || hPlugin==(HANDLE)-2)
+            {
+              ReleaseMutex(hMutex);
               return FALSE;
+            }
           }
           if (hPlugin)
           {
             SetPluginDirectory(FileName);
+            ReleaseMutex(hMutex);
             return FALSE;
           }
           char SetName[NM];
           int Length;
           if ((Length=strlen(FileName))==0)
+          {
+            ReleaseMutex(hMutex);
             return FALSE;
+          }
           if (Length>1 && FileName[Length-1]=='\\' && FileName[Length-2]!=':')
             FileName[Length-1]=0;
           if (GetFileAttributes(FileName)==(DWORD)-1)
+          {
+            ReleaseMutex(hMutex);
             return FALSE;
+          }
 
           {
             char *NamePtr;
@@ -741,7 +760,10 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           }
 
           if (*FileName==0)
+          {
+            ReleaseMutex(hMutex);
             return FALSE;
+          }
           if (FindPanel->GetType()!=FILE_PANEL &&
               CtrlObject->Cp()->GetAnotherPanel(FindPanel)->GetType()==FILE_PANEL)
             FindPanel=CtrlObject->Cp()->GetAnotherPanel(FindPanel);
@@ -763,6 +785,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             FindPanel->GoToFile(SetName);
           FindPanel->Show();
         }
+        ReleaseMutex(hMutex);
         return FALSE;
       }
       else if (Param1==7) // [ View ] button pressed
@@ -772,10 +795,11 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       else if (Param1==8) // [ Panel ] button pressed
       {
+        WaitForSingleObject(hMutex,INFINITE);
+
         if (ListBox && ListBox->GetItemCount() &&
             hPlugin==NULL || (Info.Flags & OPIF_REALNAMES))
         {
-          WaitForSingleObject(hMutex,INFINITE);
           while (ListBox->GetCallCount())
             Sleep(10);
           int ListSize=ListBox->GetItemCount();
@@ -813,14 +837,13 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             NewPanel->SetFocus();
             hPlugin=NULL;
           }
-          ReleaseMutex(hMutex);
-
           /* $ 13.07.2000 SVS
              использовали new[]
           */
           delete[] PanelItems;
           /* SVS $ */
         }
+        ReleaseMutex(hMutex);
         return FALSE;
       }
     }
@@ -869,7 +892,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       Dialog::SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&rect);
       coord.X=rect.Right-rect.Left+1;
-      DlgHeight+=(IncY>0)?IncY:IncY;
+      DlgHeight+=IncY;
       coord.Y=DlgHeight;
 
       if (IncY>0)
@@ -1320,7 +1343,6 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   LastFoundNumber++;
   FileCount++;
   FindCountReady=TRUE;
-
   ReleaseMutex(hMutex);
 }
 
@@ -1629,11 +1651,11 @@ void FindFiles::WriteDialogData(void *Param)
   FarDialogItemData ItemData;
   char DataStr[NM];
   Dialog* Dlg=(Dialog*)hDlg;
-  VMenu *ListBox=Dlg->Item[1].ListPtr;
 
   WriteDataUsed=TRUE;
   while(1)
   {
+    VMenu *ListBox=Dlg->Item[1].ListPtr;
     if (ListBox)
     {
       WaitForSingleObject(hMutex,INFINITE);
@@ -1704,7 +1726,7 @@ void FindFiles::WriteDialogData(void *Param)
       ReleaseMutex(hMutex);
     }
 
-    if (StopSearch && SearchDone)
+    if (StopSearch && SearchDone && !FindMessageReady && !FindCountReady && !LastFoundNumber)
       break;
     Sleep(20);
   }
