@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.110 05.01.2005 $ */
+/* Revision: 1.111 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 SVS
+    - нужно указывать скока мы ходим вз€ть из реестра, а не "0"
   05.01.2005 WARP
     ! ¬ременно убрал экранирование & и ^ в исполн€торе.
   15.12.2004 WARP
@@ -687,7 +689,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   {
     if (!PrepareExcludeCmds)
     {
-      GetRegKey(strSystemExecutor,"ExcludeCmds",(char*)ExcludeCmds,"",0);
+      GetRegKey(strSystemExecutor,"ExcludeCmds",(char*)ExcludeCmds,"",sizeof(ExcludeCmds));
       Ptr=strcat(ExcludeCmds,";"); //!!!
       ExcludeCmds[strlen(ExcludeCmds)]=0;
       while(*Ptr)
