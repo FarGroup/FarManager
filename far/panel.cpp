@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.43 09.05.2001 $ */
+/* Revision: 1.44 10.05.2001 $ */
 
 /*
 Modify:
+  10.05.2001 SVS
+    - Косметика: при огромных размерах диска в меню "выбора диска" криво
+      показываются размеры (сдвиг вправо).
   09.05.2001 OT
     - исправление Panel::Show
   07.05.2001 SVS
@@ -309,8 +312,14 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           int64 TotalSize,TotalFree,UserFree;
           if (ShowDisk && GetDiskSize(RootDir,&TotalSize,&TotalFree,&UserFree))
           {
-            sprintf(TotalText,"%5d %.2s",(TotalSize/(1024*1024)).PLow(),MSG(MChangeDriveMb));
-            sprintf(FreeText,"%5d %.2s",(UserFree/(1024*1024)).PLow(),MSG(MChangeDriveMb));
+            /* $ 10.05.2001 SVS
+               Кривое форматирования вывода при охрененных размерах диска :-(
+            */
+//            sprintf(TotalText,"%5d %.2s",(TotalSize/(1024*1024)).PLow(),MSG(MChangeDriveMb));
+            FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,0);
+//            sprintf(FreeText,"%5d %.2s",(UserFree/(1024*1024)).PLow(),MSG(MChangeDriveMb));
+            FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,0);
+            /* SVS $ */
           }
           sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);
         }
