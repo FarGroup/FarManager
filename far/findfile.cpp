@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.02 13.07.2000 $ */
+/* Revision: 1.03 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 tran 1.03
+    + |DIF_USELASTHISTORY
   13.07.2000 SVS
     ! ฅชฎโฎเ๋ฅ ชฎเเฅชๆจจ ฏเจ จแฏฎซ์งฎข ญจจ new/delete/realloc
   11.07.2000 SVS
@@ -73,7 +75,7 @@ FindFiles::FindFiles()
     {
       DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
       DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
-      DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY,0,"",
+      DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
       DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR,0,"ฬออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออน",
       DI_TEXT,5,5,0,0,0,0,0,0,(char *)MFindFileText,
       DI_EDIT,5,6,70,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",

@@ -211,7 +211,7 @@ void Manager::SelectModal()
         strcpy(NumText,"&   ");
       /* $ 28.07.2000 tran
          файл усекает по ширине экрана */
-      TruncStr(Name,ScrX-40);
+      TruncPathStr(Name,ScrX-40);
       /*  добавляется "*" если файл изменен */
       sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(ModalList[I]->IsFileModified()?'*':' '),Name);
       /* tran 28.07.2000 $ */

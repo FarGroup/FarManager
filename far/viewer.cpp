@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.15 19.07.2000 $ */
+/* Revision: 1.16 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 tran 1.16
+    + |DIF_USELASTHISTORY
   19.07.2000 tran 1.15
     + при рисовке скролбара граница уменьшается на 1
   18.07.2000 tran 1.14
@@ -1429,7 +1431,7 @@ void Viewer::Search(int Next,int FirstChar)
   static struct DialogData SearchDlgData[]={
     DI_DOUBLEBOX,3,1,72,9,0,0,0,0,(char *)MViewSearchTitle,
     DI_TEXT,5,2,0,0,0,0,0,0,(char *)MViewSearchFor,
-    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
+    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MViewSearchForText,
     DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MViewSearchForHex,
@@ -1807,17 +1809,19 @@ void Viewer::GoTo()
   static struct DialogData GoToDlgData[]=
   {
     /* 0 */ DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(char *)MViewerGoTo,
-    /* 1 */ DI_EDIT,5,2,29,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",
+    /* 1 */ DI_EDIT,5,2,29,2,1,(DWORD)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,"",
     /* 2 */ DI_TEXT,3,3,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     /* 3 */ DI_RADIOBUTTON,5,4,0,0,0,0,DIF_GROUP,0,(char *)MGoToPercent,
     /* 4 */ DI_RADIOBUTTON,5,5,0,0,0,0,0,0,(char *)MGoToHex,
     /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MGoToDecimal,
   };
   MakeDialogItems(GoToDlgData,GoToDlg);
-  static char PrevLine[20];
+  /* $ 01.08.2000 tran
+     с DIF_USELASTHISTORY эот не нужно*/
+  //  static char PrevLine[20];
   static int PrevMode=0;
 
-  strcpy(GoToDlg[1].Data,PrevLine);
+  // strcpy(GoToDlg[1].Data,PrevLine);
   GoToDlg[3].Selected=GoToDlg[4].Selected=GoToDlg[5].Selected=0;
   if ( Hex )
     PrevMode=1;
@@ -1834,7 +1838,7 @@ void Viewer::GoTo()
          если ввести ffff при hex offset, то фар все равно никуда не шел */
     if (Dlg.GetExitCode()!=1 ) //|| !isdigit(*GoToDlg[1].Data))
       return;
-    strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
+    // strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
     DWORD Offset;
     /* $ 17.07.2000 tran
        тут для сокращения кода ввел ptr, который и анализирую */

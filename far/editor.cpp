@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.14 25.07.2000 $ */
+/* Revision: 1.15 01.08.2000 $ */
 
 /*
 Modify:
+   01.08.2000 tran 1.15
+    + DIF_USELASTHISTORY в диалогах поиска,замены и перехода
    25.07.2000 tran 1.14
     - Bug 22 (остатки)
       подправлены обработки alt-left,alt-right
@@ -2442,7 +2444,7 @@ void Editor::Search(int Next)
   static struct DialogData SearchDlgData[]={
     DI_DOUBLEBOX,3,1,72,9,0,0,0,0,(char *)MEditSearchTitle,
     DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
+    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
     DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchReverse,
@@ -2455,9 +2457,9 @@ void Editor::Search(int Next)
   static struct DialogData ReplaceDlgData[]={
     DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MEditReplaceTitle,
     DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
+    DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
-    DI_EDIT,5,5,70,3,0,(DWORD)ReplaceHistoryName,DIF_HISTORY,0,"",
+    DI_EDIT,5,5,70,3,0,(DWORD)ReplaceHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
     DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchReverse,
@@ -3000,12 +3002,14 @@ void Editor::GoToPosition()
   static struct DialogData GoToDlgData[]=
   {
     DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(char *)MEditGoToLine,
-    DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",
+    DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,1,"",
   };
   MakeDialogItems(GoToDlgData,GoToDlg);
-  static char PrevLine[40]={0};
+  /* $ 01.08.2000 tran
+    PrevLine теперь не нужно - USELASTHISTORY рулит */
+  //  static char PrevLine[40]={0};
 
-  strcpy(GoToDlg[1].Data,PrevLine);
+  //  strcpy(GoToDlg[1].Data,PrevLine);
   Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
   Dlg.SetPosition(-1,-1,25,5);
   Dlg.SetHelp("EditorGotoPos");
@@ -3014,7 +3018,7 @@ void Editor::GoToPosition()
   if (Dlg.GetExitCode()!=1 )
       return ;
   // Запомним ранее введенное значение в текущем сеансе работы FAR`а
-  strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
+  //  strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
 
   GetRowCol(GoToDlg[1].Data,&NewLine,&NewCol);
 

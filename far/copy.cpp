@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.04 31.07.2000 $ */
+/* Revision: 1.05 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 tran 1.05
+   + DIF_USELASTHISTORY в диалогах
   31.07.2000 SVS
    + Расширение переменных среды для строки ввода в диалоге Copy/Move!
   13.07.2000 SVS
@@ -58,11 +60,14 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   static struct DialogData CopyDlgData[]={
     DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MCopyDlgTitle,
     DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
+    /* $ 01.08.2000 tran
+       + |DIF_USELASTHISTORY :) */
     /* $ 31.07.2000 SVS
        + Расширение переменных среды!
     */
-    DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND,0,"",
+    DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY,0,"",
     /* SVS $ */
+    /* tran 01.08.2000 $ */
     DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MCopySecurity,
     DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
