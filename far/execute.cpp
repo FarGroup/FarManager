@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.07 19.11.2001 $ */
+/* Revision: 1.08 20.11.2001 $ */
 
 /*
 Modify:
+  20.11.2001 SVS
+    ! Уточнение пусковика.
   19.11.2001 SVS
     + GetExistAppPaths() - получить если надо путь из App Paths
     ! Функция IsCommandExeGUI() вторым параметром возврпащает полный путь
@@ -48,11 +50,12 @@ Modify:
 
 // Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
 // ГУЯХ PE-модуля
-DWORD IsCommandPEExeGUI(const char *FileName)
+int IsCommandPEExeGUI(const char *FileName,DWORD *IsPEGUI)
 {
   char NameFile[NM];
   HANDLE hFile;
-  DWORD IsPEGUI=0;
+  int Ret=FALSE;
+  *IsPEGUI=0;
 
   OemToChar(FileName, NameFile);
   SetFileApisToANSI();
@@ -66,6 +69,7 @@ DWORD IsCommandPEExeGUI(const char *FileName)
     if(ReadFile(hFile,&dos_head,sizeof(IMAGE_DOS_HEADER),&ReadSize,NULL) &&
        dos_head.e_magic == IMAGE_DOS_SIGNATURE)
     {
+      Ret=TRUE;
       /*  Если значение слова по смещению 18h (OldEXE - MZ) >= 40h,
       то значение слова в 3Ch является смещением заголовка Windows. */
       if (dos_head.e_lfarlc >= 0x40)
@@ -86,13 +90,12 @@ DWORD IsCommandPEExeGUI(const char *FileName)
           // читаем очередной заголовок
           if(ReadFile(hFile,&header,sizeof(struct __HDR),&ReadSize,NULL))
           {
-            BOOL isLE=FALSE;
             signature=header.signature;
             pheader=&header;
 
             if(signature == IMAGE_NT_SIGNATURE) // PE
             {
-              IsPEGUI=header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
+              *IsPEGUI=header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
             }
             else if((WORD)signature == IMAGE_OS2_SIGNATURE) // NE
             {
@@ -124,7 +127,7 @@ DWORD IsCommandPEExeGUI(const char *FileName)
     CloseHandle(hFile);
   }
   SetFileApisToOEM();
-  return IsPEGUI;
+  return Ret;
 }
 
 char* GetShellAction(char *FileName)
@@ -191,7 +194,7 @@ DWORD GetExistAppPaths(const char *Command,char *Dest,int DestSize)
       RegQueryValueEx(hKey,"", 0, &Type, (LPBYTE)FullKeyName,&DataSize);
       RegCloseKey(hKey);
       QuoteSpaceOnly(FullKeyName);
-      GUIType=IsCommandPEExeGUI(FullKeyName);
+      IsCommandPEExeGUI(FullKeyName,&GUIType);
       strncpy(TempStr,Command,sizeof(TempStr)-1);
       ReplaceStrings(TempStr,FileName,FullKeyName);
       strncpy(Dest,TempStr,DestSize);
@@ -202,8 +205,9 @@ DWORD GetExistAppPaths(const char *Command,char *Dest,int DestSize)
 }
 
 // Фунция возвращает тип файла и полный путь к нему (если он нашелся)
-DWORD IsCommandExeGUI(char *Command,char *FindName)
+int IsCommandExeGUI(char *Command,char *FindName,DWORD *GUIType)
 {
+  int Ret=FALSE;
   char FileName[4096],FullName[4096],*EndName,*FilePart;
   if (*Command=='\"')
   {
@@ -217,7 +221,7 @@ DWORD IsCommandExeGUI(char *Command,char *FindName)
     if ((EndName=strpbrk(FileName," \t/"))!=NULL)
       *EndName=0;
   }
-  int GUIType=FALSE;
+  *GUIType=FALSE;
 
   /* $ 07.09.2001 VVM
     + Обработать переменные окружения */
@@ -235,9 +239,17 @@ DWORD IsCommandExeGUI(char *Command,char *FindName)
   for(;;)
   {
     sprintf(FullName,"%s.bat",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
+    if(GetFileAttributes(FullName)!=-1)
+    {
+      Ret=TRUE;
+      break;
+    }
     sprintf(FullName,"%s.cmd",FileName);
-    if(GetFileAttributes(FullName)!=-1)break;
+    if(GetFileAttributes(FullName)!=-1)
+    {
+      Ret=TRUE;
+      break;
+    }
   /* skv$*/
 
     if (SearchPath(NULL,FileName,".exe",sizeof(FindName),FindName,&FilePart))
@@ -245,7 +257,10 @@ DWORD IsCommandExeGUI(char *Command,char *FindName)
 // ВНИМАНИЕ!!!!!!!!!!
 // ОЧЕНЬ спорный кусок!!!!!!
 #if 1
-      GUIType=IsCommandPEExeGUI(FindName);
+      char *Ptr=strrchr(FindName,'.');
+      if(!Ptr)
+        strcat(FindName,".exe");
+      IsCommandPEExeGUI(FindName,GUIType);
 #else
       SHFILEINFO sfi;
       DWORD ExeType=SHGetFileInfo(FindName,0,&sfi,sizeof(sfi),SHGFI_EXETYPE);
@@ -257,6 +272,7 @@ DWORD IsCommandExeGUI(char *Command,char *FindName)
               HIBYTE(ExeType)=='E' && (LOBYTE(ExeType)=='N' || LOBYTE(ExeType)=='P');
               /* IG $ */
 #endif
+      Ret=TRUE;
     }
 /*$ 18.09.2000 skv
     little trick.
@@ -265,7 +281,7 @@ DWORD IsCommandExeGUI(char *Command,char *FindName)
   }
   /* skv$*/
   SetFileApisToOEM();
-  return(GUIType);
+  return(Ret);
 }
 
 int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
@@ -326,8 +342,8 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 //    CmdPtr++;
 
   // Сначала посомтрим по правилам функции SearchPath
-  DWORD GUIType=IsCommandExeGUI(NewCmdStr,NewCmdStr);
-  if(!GUIType) // ... если не нашли - лезим в реестр в "App Paths"
+  DWORD GUIType;
+  if(!IsCommandExeGUI(NewCmdStr,NewCmdStr,&GUIType)) // ... если не нашли - лезим в реестр в "App Paths"
     GUIType=GetExistAppPaths(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1);
 
   if (DirectRun && !SeparateWindow)
@@ -524,7 +540,8 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   else
   {
     if (SeparateWindow!=2)
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
+              SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
     ExitCode=-1;
   }
   SetFarConsoleMode();
@@ -852,7 +869,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
       если уж нет, то тогда начинаем думать, что это директория плагинная
     */
     DWORD DirAtt=GetFileAttributes(NewDir);
-    if (DirAtt!=0xffffffff && DirAtt & FILE_ATTRIBUTE_DIRECTORY && PathMayBeAbsolute(NewDir)){
+    if (DirAtt!=0xffffffff && DirAtt & FILE_ATTRIBUTE_DIRECTORY && PathMayBeAbsolute(NewDir))
+    {
       SetPanel->SetCurDir(NewDir,TRUE);
       return TRUE;
     }

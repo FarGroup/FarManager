@@ -140,7 +140,6 @@
 "Save &folders history"
 "Save &view and edit history"
 "Use Windows &registered types"
-"Add plugin prefi&x to command line path"
 "Auto &save setup"
 "&Path for personal plugins:"
 
@@ -150,6 +149,8 @@
 "&Auto change folder"
 "Select &folders"
 "Allow re&verse sort modes"
+"&Disable automatic update of panels"
+"if object count exceeds"
 "Show &column titles"
 "Show &status line"
 "Show files &total information"
@@ -171,7 +172,7 @@
 "Set command line &prompt format"
 "Use right Alt as &AltGr"
 "Show &total copy progress indicator"
-"Show scrollbar in m&enus"
+"Show copying time information"
 "AutoCompl&ete in input lines"
 "Use Ctrl-Pg&Up to change drive"
 

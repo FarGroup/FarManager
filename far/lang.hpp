@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.84 09.11.2001 $ */
+/* Revision: 1.85 20.11.2001 $ */
 
 /*
 Modify:
+  20.11.2001 SVS
+    + MConfigCopyTimeRule, MConfigAutoUpdateLimit, MConfigAutoUpdateLimit2
+    ! удален MConfigSubstPluginPrefix, MConfigShowMenuScrollbar
   09.11.2001 IS
     + MPanelBracketsForLongName
   02.11.2001 SVS
@@ -403,7 +406,6 @@ enum
   MConfigSaveFoldersHistory,
   MConfigSaveViewHistory,
   MConfigRegisteredTypes,
-  MConfigSubstPluginPrefix,
   MConfigAutoSave,
   MConfigPersonalPath,
 
@@ -413,6 +415,8 @@ enum
   MConfigAutoChange,
   MConfigSelectFolders,
   MConfigReverseSort,
+  MConfigAutoUpdateLimit,
+  MConfigAutoUpdateLimit2,
   MConfigShowColumns,
   MConfigShowStatus,
   MConfigShowTotal,
@@ -434,7 +438,7 @@ enum
   MConfigUsePromptFormat,
   MConfigAltGr,
   MConfigCopyTotal,
-  MConfigShowMenuScrollbar,
+  MConfigCopyTimeRule,
   MConfigAutoComplete,
   MConfigPgUpChangeDisk,
 

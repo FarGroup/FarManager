@@ -1452,11 +1452,6 @@ $ #System settings dialog#
                           registered to process this file type
                           will be executed.
 
-  #Add plugin prefix#       If this option is enabled, FAR will automatically
-  #to command line path#    prepend a plugin prefix to any path inserted
-                          by commands for inserting a file name into the
-                          command line (Ctrl-F, Ctrl-[ and so on).
-
   #Auto save setup#         If checked, FAR will save setup
                           automatically. The current folders for
                           both panels will be also saved.
@@ -1486,6 +1481,16 @@ $ #Panel settings dialog#
   #Allow reverse#           If this option is on and the current file
   #sort modes#              panel sort mode is reselected, reverse
                           sort mode will be set.
+
+  #Disable automatic#       The mechanism for automatically updating
+  #update of panels#        the panels when the state of the file
+                          system changes will be disabled if the
+                          count of file objects exceeds the
+                          specified value.
+
+    The auto-update mechanism works only for FAT/FAT32/NTFS file
+    systems. The value of 0 means "update always". To force an
+    update of the panels, press Ctrl-R.
 
   #Show column titles#      Enable display of ~file panel~@FilePanel@ column titles.
 
@@ -1560,9 +1565,14 @@ $ #Interface settings dialog#
                           some additional time before starting
                           copying to calculate the total files size.
 
-  #Show scrollbar#          Enable display of scrollbars in menus
-  #in menu#                 (if the number of items in the menu is
-                          greater than the menu height)
+  #Show copying time#       Show information about average copying
+  #information#             speed, copying time and estimated remaining
+                          time in the copy dialog.
+
+    Since this function requires some time to gather statistics,
+    it is likely that you won't see any information if you're
+    copying many small files and the option "Show total copy
+    progress indicator" is disabled.
 
   #AutoComplete#            Allows to use the AutoComplete function
   #in input lines#          in input lines that have a history list
