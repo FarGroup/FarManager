@@ -126,8 +126,11 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
 }
 
 
-int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
-                          int Move,char *DestPath,int OpMode)
+int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
+                          int ItemsNumber,
+                          int Move,
+                          char *DestPath,
+                          int OpMode)
 {
   char SaveDir[NM];
   GetCurrentDirectory(sizeof(SaveDir),SaveDir);
@@ -274,24 +277,170 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   return(1);
 }
 
+struct PutDlgData{
+  PluginClass *Self;
+  char ArcFormat[NM];
+  char OriginalName[512];
+  char Password1[256];
+  char Password2[256];
+  char DefExt[NM];
+};
+
+#define MAM_SETDISABLE   DM_USER+1
+#define MAM_ARCSWITCHES  DM_USER+2
+#define MAM_SETNAME      DM_USER+3
+
+long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  char Buffer[512];
+  struct PutDlgData *pdd=(struct PutDlgData*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+
+  if(Msg == DN_INITDIALOG)
+  {
+    Info.SendDlgMessage(hDlg,DM_SETTEXTLENGTH,7,255);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTLENGTH,9,255);
+    Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
+    Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
+
+    GetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer,"",sizeof(Buffer));
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)Buffer);
+
+    FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
+
+    Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
+    return TRUE;
+  }
+  else if(Msg == DN_EDITCHANGE)
+  {
+    if(Param1 == 2)
+    {
+      FarDialogItem *Item=(FarDialogItem *)Param2;
+      Info.SendDlgMessage(hDlg,DM_ENABLE,14,Item->Data[0] != 0);
+    }
+  }
+  else if(Msg == DN_BTNCLICK)
+  {
+    switch(Param1)
+    {
+      case 15:
+      {
+        if (!pdd->Self->SelectFormat(pdd->ArcFormat,TRUE))
+          Info.SendDlgMessage(hDlg,DM_CLOSE,17,0);
+        else
+        {
+          pdd->Self->FormatToPlugin(pdd->ArcFormat,pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType);
+
+          GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
+          BOOL Ret=TRUE;
+          if (*Buffer==0)
+            Ret=ArcPlugin->GetFormatName(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,pdd->ArcFormat,Buffer);
+          if(!Ret)
+            pdd->DefExt[0]=0;
+          else
+            strncpy(pdd->DefExt,Buffer,sizeof(pdd->DefExt));
+
+          FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
+          Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
+
+          Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
+          Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
+          Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
+          Info.SendDlgMessage(hDlg,DM_SETFOCUS,2,0);
+        }
+        return TRUE;
+      }
+
+      case 17:
+        break;
+
+      case 14:
+      {
+        // проверка совпадения введенного пароля и подтверждения
+        char Password1[256],Password2[256];
+        Info.SendDlgMessage(hDlg,DM_GETTEXTPTR,7,(long)Password1);
+        Info.SendDlgMessage(hDlg,DM_GETTEXTPTR,9,(long)Password2);
+        if (strcmp(Password1,Password2))
+        {
+          const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
+          Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+          return TRUE;
+        }
+        break;
+      }
+
+      case 16:
+      {
+        SetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",pdd->ArcFormat);
+        Info.SendDlgMessage(hDlg,DM_GETTEXTPTR,4,(long)Buffer);
+        SetRegKey(HKEY_CURRENT_USER,pdd->ArcFormat,"AddSwitches",Buffer);
+        return TRUE;
+      }
+    }
+  }
+  else if(Msg == DN_CLOSE)
+  {
+    return Info.SendDlgMessage(hDlg,DM_ENABLE,14,-1) == TRUE ||
+           Param1 < 0 ||
+           Param1 == 17;
+  }
+  else if(Msg == MAM_SETDISABLE)
+  {
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,CmdNames[CMD_ADD],Buffer,"",sizeof(Buffer));
+    if(*Buffer == 0)
+      ArcPlugin->GetDefaultCommands(pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType,CMD_ADD,Buffer);
+    Info.SendDlgMessage(hDlg,DM_ENABLE,14,*Buffer != 0);
+  }
+  else if(Msg == MAM_ARCSWITCHES)
+  {
+    static char SwHistoryName[NM];
+    FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",pdd->ArcFormat);
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(long)SwHistoryName);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(long)"");
+  }
+  else if(Msg == MAM_SETNAME)
+  {
+    char ExtName[NM],*ExtPtr;
+    strcpy(Buffer,pdd->OriginalName);
+    if ((ExtPtr=strrchr(Buffer,'.'))==NULL ||
+        (ExtPtr && stricmp(++ExtPtr,pdd->DefExt) != 0))
+    {
+      if(Opt.AddExtArchive)
+      {
+        FSF.sprintf(ExtName,"%s.%s",Buffer,pdd->DefExt);
+        strcpy(Buffer,ExtName);
+      }
+    }
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)Buffer);
+  }
+
+  return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
 int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                           int Move,int OpMode)
 {
-  char Command[512],ArcFormat[100],AllFilesMask[32];
-  char Password1[256],Password2[256];
-  char DefExt[NM];
-  *Password1=*Password2=0;
   if (ItemsNumber==0)
     return(0);
+
+  char Command[512],AllFilesMask[32];
+  int ArcExitCode=1;
+  struct PutDlgData pdd={0};
+  char FullName[NM],ExtName[NM],*NamePtr,*ExtPtr;
+  BOOL Ret=TRUE;
+
+  pdd.Self=this;
+
+  *pdd.Password1=*pdd.Password2=0;
+
   if (ArcPluginNumber==-1)
   {
     char DefaultFormat[100];
     GetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",DefaultFormat,"",sizeof(DefaultFormat));
     if (!FormatToPlugin(DefaultFormat,ArcPluginNumber,ArcPluginType))
       ArcPluginNumber=ArcPluginType=0;
-    strcpy(ArcFormat,DefaultFormat);
+    strcpy(pdd.ArcFormat,DefaultFormat);
   }
-  int ArcExitCode=1;
 
   /* $ 14.02.2001 raVen
      сброс галки "фоновая архивация" */
@@ -302,6 +451,12 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   /* raVen $ */
   while (1)
   {
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,"DefExt",pdd.DefExt,"",sizeof(pdd.DefExt));
+    if (*pdd.DefExt==0)
+      Ret=ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,pdd.ArcFormat,pdd.DefExt);
+    if (!Ret)
+      return(0);
+
     const char *ArcHistoryName="ArcName";
     struct InitDialogItem InitItems[]={
       /* 0*/DI_DOUBLEBOX,3,1,72,14,0,0,0,0,"",
@@ -325,24 +480,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     };
     struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
     InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
+
     if(Opt.UseLastHistory)
       DialogItems[4].Flags|=DIF_USELASTHISTORY;
 
-    char FullName[NM],ExtName[NM],*NamePtr,*ExtPtr;
-    BOOL Ret=TRUE;
-
-    GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,"DefExt",DefExt,"",sizeof(DefExt));
-    if (*DefExt==0)
-      Ret=ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt);
-    if (!Ret)
-      return(0);
-
-    char SwHistoryName[NM];
-    FSF.sprintf(DialogItems[0].Data,GetMsg(MAddTitle),ArcFormat);
-    FSF.sprintf(SwHistoryName,"ArcSwitches\\%s",ArcFormat);
-    DialogItems[4].History=SwHistoryName;
-
-    GetRegKey(HKEY_CURRENT_USER,ArcFormat,"AddSwitches",DialogItems[4].Data,"",sizeof(DialogItems[4].Data));
     if (*ArcName)
       strcpy(DialogItems[2].Data,ArcName);
     else
@@ -371,65 +512,42 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         AnsiToOem(AnsiName,DialogItems[2].Data);
       }
     }
-    strcpy(DialogItems[7].Data,Password1);
-    strcpy(DialogItems[9].Data,Password2);
     DialogItems[11].Selected=Move;
     /* $ 13.04.2001 DJ
        UserBackground instead of Background
     */
     DialogItems[12].Selected=Opt.UserBackground;
     /* DJ $ */
-
-    char OriginalName[NM*2];
-    strcpy(OriginalName,DialogItems[2].Data);
+    strcpy(pdd.OriginalName,DialogItems[2].Data);
 
 //    if(!Opt.DeleteExtFile)
+
     {
       if ((ExtPtr=strrchr(DialogItems[2].Data,'.'))==NULL ||
-          (ExtPtr && stricmp(++ExtPtr,DefExt) != 0))
+          (ExtPtr && stricmp(++ExtPtr,pdd.DefExt) != 0))
       {
-        FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
-        strcpy(DialogItems[2].Data,ExtName);
+        if(Opt.AddExtArchive)
+        {
+          FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,pdd.DefExt);
+          strcpy(DialogItems[2].Data,ExtName);
+        }
       }
     }
 
-
     if ((OpMode & OPM_SILENT)==0)
     {
-      int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"AddToArc",
-                  DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
+      int AskCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,16,"AddToArc",
+                  DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]),
+                  0,0,PluginClass::PutDlgProc,(long)&pdd);
 
-      strcpy(Password1,DialogItems[7].Data);
-      strcpy(Password2,DialogItems[9].Data);
-      if (AskCode==15)
-      {
-        // Restore original name
-        strcpy(DialogItems[2].Data,OriginalName);
-
-        if (!SelectFormat(ArcFormat))
-          return(-1);
-        FormatToPlugin(ArcFormat,ArcPluginNumber,ArcPluginType);
-        strcpy(ArcName,DialogItems[2].Data);
-        continue;
-      }
+      strcpy(pdd.Password1,DialogItems[7].Data);
+      strcpy(pdd.Password2,DialogItems[9].Data);
       Opt.UserBackground=DialogItems[12].Selected;
-      if (AskCode==16)
-      {
-        SetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",ArcFormat);
-        SetRegKey(HKEY_CURRENT_USER,ArcFormat,"AddSwitches",DialogItems[4].Data);
-        continue;
-      }
       if (AskCode!=14 || *DialogItems[2].Data==0)
         return(-1);
       SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
     }
 
-    if (strcmp(Password1,Password2)!=0)
-    {
-      const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
-      Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
-      continue;
-    }
     int Recurse=FALSE;
     for (int I=0;I<ItemsNumber;I++)
       if (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -445,10 +563,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
 
-    GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[CommandType],Command,"",sizeof(Command));
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,CmdNames[CommandType],Command,"",sizeof(Command));
     if (*Command==0)
       ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CommandType,Command);
-    GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,"AllFilesMask",AllFilesMask,"",sizeof(AllFilesMask));
+    GetRegKey(HKEY_LOCAL_MACHINE,pdd.ArcFormat,"AllFilesMask",AllFilesMask,"",sizeof(AllFilesMask));
     if (*AllFilesMask==0)
       ArcPlugin->GetDefaultCommands(ArcPluginNumber,ArcPluginType,CMD_ALLFILESMASK,AllFilesMask);
     if (*CurDir && strstr(Command,"%%R")==NULL)
@@ -477,34 +595,14 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         strcat(Command,DialogItems[4].Data);
       }
 
-//    if(!Opt.DeleteExtFile)
-    {
-      if ((ExtPtr=strrchr(DialogItems[2].Data,'.'))==NULL ||
-          (ExtPtr && stricmp(++ExtPtr,DefExt) != 0))
-      {
-        FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
-        strcpy(DialogItems[2].Data,ExtName);
-      }
-    }
-
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,DialogItems[2].Data,"",
-                      Password1,AllFilesMask,IgnoreErrors,0,0,CurDir,
+                      pdd.Password1,AllFilesMask,IgnoreErrors,0,0,CurDir,
                       CurArcInfo.Prefix);
     if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
       ArcExitCode=0;
     if (ArcCmd.GetExecCode()==RETEXEC_ARCNOTFOUND)
       continue;
-
-//    if(Opt.DeleteExtFile) // Old!
-    {
-      if (strchr(DialogItems[2].Data,'.')==NULL)
-      {
-        FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
-        if (GetFileAttributes(ExtName)!=0xffffffff)
-          strcpy(DialogItems[2].Data,ExtName);
-      }
-    }
 
     if (GetFullPathName(DialogItems[2].Data,sizeof(FullName),FullName,&NamePtr))
       strcpy(ArcName,FullName);
@@ -517,50 +615,93 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 }
 
 
-int __cdecl FormatSort(struct FarMenuItem *Item1,struct FarMenuItem *Item2)
+int __cdecl FormatSort(struct FarMenuItemEx *Item1,struct FarMenuItemEx *Item2)
 {
   return FSF.LStricmp(Item1->Text,Item2->Text);
 }
 
-int PluginClass::SelectFormat(char *ArcFormat)
+int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
 {
   typedef int (__cdecl *FCmp)(const void *, const void *);
-  struct FarMenuItem *MenuItems=NULL, *NewMenuItems;
-  int MenuItemsNumber=0;
+  struct FarMenuItemEx *MenuItems=NULL, *NewMenuItems;
+  int MenuItemsNumber;
   char Format[100],DefExt[NM];
-  for (int I=0;;I++)
+  int BreakCode;
+  int BreakKeys[2]={VK_F4,0};
+  int ExitCode;
+  int I,J;
+
+  while(1)
   {
-    if (!ArcPlugin->GetFormatName(I,0,Format,DefExt))
-      break;
-    for (int J=0;;J++)
+    MenuItems=NULL;
+    MenuItemsNumber=0;
+    for (I=0;I < ArcPlugin->FmtCount();I++)
     {
-      if (!ArcPlugin->GetFormatName(I,J,Format,DefExt))
-        break;
-      NewMenuItems=(struct FarMenuItem *)realloc(MenuItems,(MenuItemsNumber+1)*sizeof(*MenuItems));
-      if (NewMenuItems==NULL)
+//      if (!ArcPlugin->GetFormatName(I,0,Format,DefExt))
+//        continue;
+
+      for (J=0;;J++)
       {
-        free(MenuItems);
-        return(FALSE);
+        if (!ArcPlugin->GetFormatName(I,J,Format,DefExt))
+          break;
+        NewMenuItems=(struct FarMenuItemEx *)realloc(MenuItems,
+                             (MenuItemsNumber+1)*sizeof(struct FarMenuItemEx));
+        if (NewMenuItems==NULL)
+        {
+          free(MenuItems);
+          return(FALSE);
+        }
+        MenuItems=NewMenuItems;
+        //memset(MenuItems+MenuItemsNumber,0,sizeof(struct FarMenuItem));
+        strncpy(MenuItems[MenuItemsNumber].Text,Format,sizeof(MenuItems[MenuItemsNumber].Text));
+        /*
+        MenuItems[MenuItemsNumber].Selected=(MenuItemsNumber==0 &&
+                                          *ArcFormat==0 ||
+                                          !stricmp(ArcFormat,Format));
+        */
+        MenuItems[MenuItemsNumber].Flags=(MenuItemsNumber==0 &&
+                                          *ArcFormat==0 ||
+                                          !stricmp(ArcFormat,Format))?
+                                          MIF_SELECTED:0;
+
+
+        if(AddOnly)
+        {
+          char Buffer[512];
+          GetRegKey(HKEY_LOCAL_MACHINE,Format,CmdNames[CMD_ADD],Buffer,"",sizeof(Buffer));
+          if(*Buffer == 0)
+            ArcPlugin->GetDefaultCommands(I,J,CMD_ADD,Buffer);
+          if(*Buffer == 0)
+            MenuItems[MenuItemsNumber].Flags|=MIF_DISABLE;
+        }
+
+        MenuItemsNumber++;
       }
-      MenuItems=NewMenuItems;
-      strcpy(MenuItems[MenuItemsNumber].Text,Format);
-      MenuItems[MenuItemsNumber].Selected=(MenuItemsNumber==0 && *ArcFormat==0 ||
-        strcmp(ArcFormat,Format)==0);
-      MenuItems[MenuItemsNumber].Checked=FALSE;
-      MenuItems[MenuItemsNumber].Separator=FALSE;
-      MenuItemsNumber++;
     }
+    if (MenuItemsNumber==0)
+      return(FALSE);
+
+    FSF.qsort(MenuItems,MenuItemsNumber,sizeof(struct FarMenuItemEx),(FCmp)FormatSort);
+
+    ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,
+                         FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE|FMENU_USEEXT,
+                         GetMsg(MSelectArchiver),GetMsg(MSelectF4),NULL,
+                         BreakKeys,&BreakCode,
+                         (struct FarMenuItem*)MenuItems,MenuItemsNumber);
+    if (ExitCode>=0)
+    {
+      strcpy(ArcFormat,MenuItems[ExitCode].Text);
+      if(BreakCode == 0)  // F4 pressed
+        ConfigCommands(ArcFormat);
+      else
+        break;
+    }
+    else
+      break;
+    free(MenuItems);
   }
-  if (MenuItemsNumber==0)
-    return(FALSE);
-
-  FSF.qsort(MenuItems,MenuItemsNumber,sizeof(struct FarMenuItem),(FCmp)FormatSort);
-
-  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-      GetMsg(MSelectArchiver),NULL,NULL,NULL,NULL,MenuItems,MenuItemsNumber);
-  if (ExitCode>=0)
-    strcpy(ArcFormat,MenuItems[ExitCode].Text);
-  delete MenuItems;
+  if(MenuItems)
+    free(MenuItems);
   return(ExitCode>=0);
 }
 

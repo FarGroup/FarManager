@@ -46,6 +46,7 @@ enum LanguageID
   MAddPswNotMatch,
 
   MSelectArchiver,
+  MSelectF4,
 
   MArcCmdTitle,
   MArcCmdTest,
@@ -109,10 +110,11 @@ enum LanguageID
   MGConfigHideAlways,
   MGConfigProcessShiftF1,
   MGConfigUseLastHistory,
+  MGConfigDeleteExtFile,
+  MGConfigAddExtArchive,
   MGConfigDizNames,
   MGConfigReadDiz,
   MGConfigUpdateDiz,
-  MGConfigDeleteExtFile,
 
   MArcSettingsExtract,
   MArcSettingsExtractWithoutPath,

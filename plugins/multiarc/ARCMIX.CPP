@@ -83,7 +83,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 #ifndef LIGHTGRAY
 #define LIGHTGRAY 7
 #endif
-	Info.Text(2,0,LIGHTGRAY,GetMsg(MWaitForExternalProgram));
+        Info.Text(2,0,LIGHTGRAY,GetMsg(MWaitForExternalProgram));
       }
       else
       {

@@ -46,6 +46,7 @@
 "Passwords do not match"
 
 "Select archive format"
+"F4 - Configure"
 
 "Archive commands"
 "&Test archive"
@@ -109,10 +110,11 @@
 "Always &hide archivers output"
 "Process &Shift-F1 command"
 "Use last command from h&istory"
+"Re&move file extension from archive name"
+"&Add archive extension to the filename"
 "Description &list names delimited with commas:"
 "&Read archive descriptions"
 "&Update archive descriptions"
-"Re&move file extension from archive name"
 
 "Extract"
 "Extract without paths"

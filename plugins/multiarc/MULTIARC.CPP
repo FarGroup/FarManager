@@ -10,7 +10,7 @@
 
 int WINAPI _export GetMinFarVersion(void)
 {
-  return MAKEFARVERSION(1,70,591);
+  return MAKEFARVERSION(1,70,822);
 }
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
@@ -26,6 +26,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   Opt.ProcessShiftF1=GetRegKey(HKEY_CURRENT_USER,"","ProcessShiftF1",1);
   Opt.UseLastHistory=GetRegKey(HKEY_CURRENT_USER,"","UseLastHistory",0);
   Opt.DeleteExtFile=GetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",1);
+  Opt.AddExtArchive=GetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",0);
 
   GetRegKey(HKEY_CURRENT_USER,"","DescriptionNames",Opt.DescriptionNames,
             "descript.ion,files.bbs",sizeof(Opt.DescriptionNames));
@@ -127,12 +128,6 @@ void WINAPI _export ExitFAR()
 void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
 {
   Info->StructSize=sizeof(*Info);
-  Info->Flags=0;
-  Info->DiskMenuStrings=NULL;
-  Info->DiskMenuNumbers=NULL;
-  Info->DiskMenuStringsNumber=0;
-  Info->PluginMenuStrings=NULL;
-  Info->PluginMenuStringsNumber=0;
   static char *PluginCfgStrings[1];
   PluginCfgStrings[0]=(char*)GetMsg(MCfgLine0);
   Info->PluginConfigStrings=PluginCfgStrings;
@@ -181,8 +176,15 @@ int WINAPI _export Configure(int ItemNumber)
         ConfigGeneral();
         break;
       case 1:
-        ConfigCommands();
+      {
+        char ArcFormat[100];
+        *ArcFormat=0;
+        while(PluginClass::SelectFormat(ArcFormat))
+        {
+          ConfigCommands(ArcFormat);
+        }
         break;
+      }
     }
     MenuItems[0].Selected=FALSE;
     MenuItems[1].Selected=FALSE;

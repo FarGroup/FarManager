@@ -449,7 +449,8 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   {
     const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),ListFileName,GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
-    CloseHandle(ListFile);
+    if(ListFile != INVALID_HANDLE_VALUE)
+      CloseHandle(ListFile);
     return(FALSE);
   }
 

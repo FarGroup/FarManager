@@ -89,12 +89,13 @@ class ArcPlugins
   public:
     ArcPlugins(const char *ModuleName);
     ~ArcPlugins();
-    int IsArchive(char *Name,const unsigned char *Data,int DataSize);
+    int  IsArchive(char *Name,const unsigned char *Data,int DataSize);
     BOOL OpenArchive(int PluginNumber,char *Name,int *Type);
-    int GetArcItem(int PluginNumber,struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+    int  GetArcItem(int PluginNumber,struct PluginPanelItem *Item,struct ArcItemInfo *Info);
     void CloseArchive(int PluginNumber,struct ArcInfo *Info);
     BOOL GetFormatName(int PluginNumber,int Type,char *FormatName,char *DefaultExt);
     BOOL GetDefaultCommands(int PluginNumber,int Type,int Command,char *Dest);
+    int  FmtCount() {return PluginsCount;}
 };
 
 
@@ -131,8 +132,9 @@ class PluginClass
     int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                  int Move,int OpMode);
     int ProcessKey(int Key,unsigned int ControlState);
-    static int SelectFormat(char *ArcFormat);
+    static int SelectFormat(char *ArcFormat,int AddOnly=FALSE);
     static int FormatToPlugin(char *Format,int &PluginNumber,int &PluginType);
+    static long WINAPI PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 };
 
 
@@ -213,6 +215,7 @@ int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
 int __isspace(int Chr);
 int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
 char *GetCommaWord(char *Src,char *Word,char Separator);
+int ConfigCommands(char *ArcFormat);
 
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
@@ -250,6 +253,7 @@ struct Options
   /* tran 13.09.2000 $ */
   int UseLastHistory; // $ 18.05.2001 SVS
   int DeleteExtFile; // $ 12.07.2001 SVS
+  int AddExtArchive; // $ 16.07.2001 SVS
 } Opt;
 
 char PluginRootKey[80];
