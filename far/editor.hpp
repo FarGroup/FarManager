@@ -9,10 +9,13 @@ editor.hpp
 
 */
 
-/* Revision: 1.34 04.02.2002 $ */
+/* Revision: 1.35 07.03.2002 $ */
 
 /*
 Modify:
+  07.03.2002 IS
+    + UnmarkEmptyBlock(): удалить выделение, если оно пустое (выделено ноль
+      символов в ширину)
   04.02.2002 SVS
     ! Editor::IsShiftKey() -> keyboard.cpp::IsShiftKey()
   28.01.2002 VVM
@@ -281,6 +284,11 @@ class Editor:public ScreenObject
     void Copy(int Append);
     void DeleteBlock();
     void UnmarkBlock();
+    /* $ 07.03.2002 IS
+         удалить выделение, если оно пустое (выделено ноль символов в ширину)
+    */
+    void UnmarkEmptyBlock();
+    /* IS $ */
     void ChangeEditKeyBar();
     void AddUndoData(const char *Str,int StrNum,int StrPos,int Type);
     void Undo();

@@ -6,10 +6,17 @@ editor.cpp
 
 */
 
-/* Revision: 1.160 06.03.2002 $ */
+/* Revision: 1.161 07.03.2002 $ */
 
 /*
 Modify:
+  07.03.2002 IS
+    + UnmarkEmptyBlock(): удалить выделение, если оно пустое (выделено ноль
+      символов в ширину)
+    ! BugZ#328: Del не работает, когда Shift-Left, Shift-Right, Del
+      ([ ] Постоянные блоки, [x] Del удаляет блоки)
+    ! BugZ#326: не корректная работа ESPT_CHARTABLE (выделение левого пункта
+      в меню по Shift-F8)
   06.03.2002 SVS
     - Бага с выделением при постоянных блоках.
   03.03.2002 SVS
@@ -2145,6 +2152,12 @@ int Editor::ProcessKey(int Key)
     case KEY_DEL:
       if (!EFlags.Check(FEDITOR_LOCKMODE))
       {
+        /* $ 07.03.2002 IS
+           Снимем выделение, если блок все равно пустой
+        */
+        if(!Pasting)
+          UnmarkEmptyBlock();
+        /* IS $ */
         if (!Pasting && EdOpt.DelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
           DeleteBlock();
         else
@@ -4260,6 +4273,29 @@ void Editor::UnmarkBlock()
   Show();
 }
 
+/* $ 07.03.2002 IS
+   Удалить выделение, если оно пустое (выделено ноль символов в ширину)
+*/
+void Editor::UnmarkEmptyBlock()
+{
+  if(BlockStart || VBlockStart)  // присутствует выделение
+  {
+    struct EditList *Block=BlockStart?BlockStart:VBlockStart;
+    int Lines=0,StartSel,EndSel;
+    while(Block) // пробегаем по всем выделенным строкам
+    {
+      Block->EditLine.GetSelection(StartSel,EndSel);
+      if (StartSel==-1)
+        break;
+      if(StartSel!=EndSel) // выделено сколько-то символов
+        ++Lines;           // увеличим счетчик непустых строк
+      Block=Block->Next;
+    }
+    if(!Lines)             // если выделено ноль символов в ширину, то
+      UnmarkBlock();       // перестанем морочить голову и снимем выделение
+  }
+}
+/* IS $ */
 
 /* $ 07.07.2000 tran & SVS
    + добавлена возможность переходить на колонку
@@ -5656,7 +5692,14 @@ int Editor::EditorControl(int Command,void *Param)
             else if(UseDecodeTable)
                rc=PrepareTable(&TableSet, TableNum);
 
-            if(!rc)
+            /* $ 07.03.2002 IS
+               Для того, чтобы по Shift-F8 выделялся правильный пункт увеличим
+               счетчик таблиц на 1, т.к. там нумерация идет не с 0, а с 1.
+            */
+            if(rc)
+               ++TableNum;
+            else
+            /* IS $ */
             {
               EFlags.Change(FEDITOR_TABLECHANGEDBYUSER,oldChangedByUser);
               TableNum=oldTableNum;
