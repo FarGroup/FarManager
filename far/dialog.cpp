@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.140 22.07.2001 $ */
+/* Revision: 1.141 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+   - Не освобождалась память, занятая под списки в DeleteDialogObjects()
   22.07.2001 SVS
    ! Пересмотрены параметры функции SelectFromComboBox() - ведь и так
      передаем указатель аж на цельный класс строки, так что...
@@ -1379,25 +1381,26 @@ void Dialog::DeleteDialogObjects()
 
   for (I=0; I < ItemCount; I++)
   {
-    if((CurItem=Item+I)->ObjPtr)
-      switch(CurItem->Type)
-      {
-        case DI_EDIT:
-        case DI_FIXEDIT:
-        case DI_PSWEDIT:
-        case DI_COMBOBOX:
+    CurItem=Item+I;
+    switch(CurItem->Type)
+    {
+      case DI_EDIT:
+      case DI_FIXEDIT:
+      case DI_PSWEDIT:
+      case DI_COMBOBOX:
+        if(CurItem->ObjPtr)
           delete (Edit *)(CurItem->ObjPtr);
-          if(CurItem->Type == DI_COMBOBOX && CurItem->ListPtr)
-             delete CurItem->ListPtr;
-          break;
-        case DI_LISTBOX:
-          delete CurItem->ListPtr;
-          break;
-        case DI_USERCONTROL:
+      case DI_LISTBOX:
+        if((CurItem->Type == DI_COMBOBOX || CurItem->Type == DI_LISTBOX) &&
+            CurItem->ListPtr)
+           delete CurItem->ListPtr;
+        break;
+      case DI_USERCONTROL:
+        if(CurItem->ObjPtr)
           delete (COORD *)(CurItem->ObjPtr);
-          break;
-      }
-   }
+        break;
+    }
+  }
 }
 
 
