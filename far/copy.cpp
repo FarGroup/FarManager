@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.123 11.07.2003 $ */
+/* Revision: 1.124 15.07.2003 $ */
 
 /*
 Modify:
+  15.07.2003 VVM
+    + При использовании SystemCopyRoutine прогресс так-же рисуется не чаще 5 раз в секунду.
   11.07.2003 SVS
     - Если в целях (multitarget) встречается con или nul, то имеем трабл.
     + CheckNulOrCon() - вынесена часть кода сюды
@@ -418,6 +420,9 @@ Modify:
 #include "manager.hpp"
 #include "constitle.hpp"
 #include "lockscrn.hpp"
+
+/* Интервал для прорисовки прогресс-бара. */
+#define COPY_TIMEOUT 200
 
 enum {COPY_BUFFER_SIZE  = 0x10000};
 
@@ -3233,7 +3238,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
 
     /* $ 14.09.2002 VVM
       + Показывать прогресс не чаще 5 раз в секунду */
-    if ((CurCopiedSize == FileSize) || (clock() - LastShowTime > 200))
+    if ((CurCopiedSize == FileSize) || (clock() - LastShowTime > COPY_TIMEOUT))
     {
       ShowBar(CurCopiedSize,FileSize,false);
       if (ShowTotalCopySize)
@@ -3711,14 +3716,16 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 
   CurCopiedSize = TransferredSize;
 
-  ShellCopy::ShowBar(TransferredSize,TotalSize,FALSE);
-  if (ShowTotalCopySize && dwStreamNumber==1)
+  if ((CurCopiedSize == TotalSize) || (clock() - LastShowTime > COPY_TIMEOUT))
   {
-    TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
-    ShellCopy::ShowBar(TotalCopiedSize,TotalCopySize,true);
-    ShellCopy::ShowTitle(FALSE);
+    ShellCopy::ShowBar(TransferredSize,TotalSize,FALSE);
+    if (ShowTotalCopySize && dwStreamNumber==1)
+    {
+      TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
+      ShellCopy::ShowBar(TotalCopiedSize,TotalCopySize,true);
+      ShellCopy::ShowTitle(FALSE);
+    }
   }
-
   return(AbortOp ? PROGRESS_CANCEL:PROGRESS_CONTINUE);
 }
 #if defined(__BORLANDC__)
