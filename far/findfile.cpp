@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.37 01.07.2001 $ */
+/* Revision: 1.38 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    ! FileMaskForFindFile.Set(NULL) -> FileMaskForFindFile.Free()
+    + ¬ернул автоматическое добавление '*' к концу маски при определенных
+      услови€х (это было отменено предыдущим патчем).
   01.07.2001
     + ћожно использовать маски исключени€ при установлении параметров поиска.
   25.06.2001 IS
@@ -334,7 +338,7 @@ FindFiles::FindFiles()
       if(!FindAskDlg[2].Data)             // если строка с масками пуста,
          strcpy(FindAskDlg[2].Data, "*"); // то считаем, что маска есть "*"
 
-      if(FileMaskForFindFile.Set(FindAskDlg[2].Data, 0))
+      if(FileMaskForFindFile.Set(FindAskDlg[2].Data, FMF_ADDASTERISK))
            break;
       /* IS $ */
     }
@@ -412,10 +416,10 @@ FindFiles::FindFiles()
 
 FindFiles::~FindFiles()
 {
-  /* $ 01.07.2001 IS
+  /* $ 02.07.2001 IS
      ќсвободим пам€ть.
   */
-  FileMaskForFindFile.Set(NULL, FMF_SILENT);
+  FileMaskForFindFile.Free();
   /* IS $ */
   ScrBuf.ResetShadow();
   delete FindSaveScr;

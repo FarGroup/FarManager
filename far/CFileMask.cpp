@@ -8,10 +8,12 @@ CFileMask.cpp
 
 */
 
-/* Revision: 1.00 01.07.2001 $ */
+/* Revision: 1.01 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    + Обработка FMF_ADDASTERISK
   01.07.2001 IS
     + Впервые в эфире
 */
@@ -51,6 +53,8 @@ BOOL CFileMask::Set(const char *Masks, DWORD Flags)
   Free();
   BOOL rc=FALSE;
   int Silent=Flags & FMF_SILENT;
+  DWORD flags=0;
+  if(Flags & FMF_ADDASTERISK) flags|=FMPF_ADDASTERISK;
   if (Masks && *Masks)
   {
     if(strchr(Masks, EXCLUDEMASKSEPARATOR))
@@ -62,7 +66,7 @@ BOOL CFileMask::Set(const char *Masks, DWORD Flags)
       FileMask=new FileMasksProcessor;
 
     if(FileMask)
-       rc=FileMask->Set(Masks, 0);
+       rc=FileMask->Set(Masks, flags);
 
     if(!rc)
       Free();

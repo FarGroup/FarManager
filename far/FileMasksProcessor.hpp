@@ -8,10 +8,13 @@ FileMasksProcessor.hpp
 исключения).
 */
 
-/* Revision: 1.00 01.07.2001 $ */
+/* Revision: 1.01 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    ! Метод Free стал public
+    + FMPF_ADDASTERISK
   01.07.2001 IS
     + Впервые в эфире
 */
@@ -19,19 +22,24 @@ Modify:
 #include "BaseFileMask.hpp"
 #include  "udlist.hpp"
 
+enum FMP_FLAGS
+{
+  FMPF_ADDASTERISK = 0x00000001 // Добавлять '*', если маска не содержит
+                                // ни одного из следующих
+                                // символов: '*', '?', '.'
+};
+
 class FileMasksProcessor:public BaseFileMask
 {
-private:
-    void Free();
-
 public:
     FileMasksProcessor();
-    ~FileMasksProcessor() { Free(); }
+    ~FileMasksProcessor() {}
 
 public:
     BOOL Set(const char *Masks, DWORD Flags);
     BOOL Compare(const char *Name);
     BOOL IsEmpty(void);
+    void Free();
 
 private:
     UserDefinedList Masks; // список масок файлов

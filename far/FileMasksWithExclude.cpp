@@ -8,10 +8,12 @@ FileMasksWithExclude.cpp
 исключения).
 */
 
-/* Revision: 1.00 01.07.2001 $ */
+/* Revision: 1.01 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    ! Воспользуемся тем, что доступен FileMasksProcessor.Free()
   01.07.2001 IS
     + Впервые в эфире
 */
@@ -27,8 +29,8 @@ FileMasksWithExclude::FileMasksWithExclude():BaseFileMask()
 
 void FileMasksWithExclude::Free()
 {
-    Include.Set(NULL, 0);
-    Exclude.Set(NULL, 0);
+    Include.Free();
+    Exclude.Free();
 }
 
 /*
@@ -37,7 +39,7 @@ void FileMasksWithExclude::Free()
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksWithExclude::Set(const char *masks, DWORD /*Flags*/)
+BOOL FileMasksWithExclude::Set(const char *masks, DWORD Flags)
 {
   Free();
   if(NULL==masks || !*masks) return FALSE;
@@ -58,7 +60,8 @@ BOOL FileMasksWithExclude::Set(const char *masks, DWORD /*Flags*/)
 
      if(rc)
      {
-        rc=Include.Set(*MasksStr?MasksStr:"*", 0);
+        rc=Include.Set(*MasksStr?MasksStr:"*",
+                       (Flags&FMPF_ADDASTERISK)?FMPF_ADDASTERISK:0);
         if(rc) rc=Exclude.Set(pExclude, 0);
      }
   }

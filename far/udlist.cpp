@@ -8,10 +8,12 @@ udlist.cpp
 
 */
 
-/* Revision: 1.03 12.06.2001 $ */
+/* Revision: 1.04 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    + AddAsterisk
   12.06.2001 IS
     + ѕри добавлении элементов списка игнорируютс€ заключительные и начальные
       пробелы. ≈сли нужно учитывать пробелы, то элемент списка должен быть
@@ -38,14 +40,14 @@ Modify:
 UserDefinedList::UserDefinedList()
 {
   DataCurrent=Data=DataEnd=NULL;
-  SetSeparators(0,0,FALSE);
+  SetSeparators(0,0,FALSE,FALSE);
 }
 
 UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2,
-                                 BOOL processbrackets)
+                                 BOOL processbrackets, BOOL addasterisk)
 {
   DataCurrent=Data=DataEnd=NULL;
-  SetSeparators(separator1, separator2, processbrackets);
+  SetSeparators(separator1, separator2, processbrackets, addasterisk);
 }
 
 void UserDefinedList::SetDefaultSeparators()
@@ -63,12 +65,13 @@ BOOL UserDefinedList::CheckSeparators() const
 }
 
 BOOL UserDefinedList::SetSeparators(BYTE separator1, BYTE separator2,
-                                    BOOL processbrackets)
+                                    BOOL processbrackets, BOOL addasterisk)
 {
   Free();
   Separator1=separator1;
   Separator2=separator2;
   ProcessBrackets=processbrackets;
+  AddAsterisk=addasterisk;
 
   if(!Separator2 && !Separator2) SetDefaultSeparators();
 
@@ -91,9 +94,19 @@ BOOL UserDefinedList::Set(const char *List)
   {
     if(*List!=Separator1 && *List!=Separator2)
       {
-        int Length=strlen(List), RealLength;
+        int Length=0, Commas=0, RealLength;
+        if(AddAsterisk)
+          while(List[Length])
+          {
+            if(','==List[Length]) ++Commas; // на столько будем увеличивать
+                                            // строку дл€ страховки
+            ++Length;
+          }
+        else
+          Length=strlen(List);
+
         {
-          Data=(char *)malloc(4+Length);
+          Data=(char *)malloc(4+Length+Commas);
           DataEnd=Data;
           if(Data)
           {
@@ -106,6 +119,12 @@ BOOL UserDefinedList::Set(const char *List)
                 strncpy(DataEnd, CurList, Length);
                 CurList+=RealLength;
                 DataEnd[Length]=0;
+                if(AddAsterisk && strpbrk(DataEnd,"?*.")==NULL)
+                {
+                  DataEnd[Length]='*';
+                  ++Length;
+                  DataEnd[Length]=0;
+                }
                 DataEnd+=Length+1;
               }
               else

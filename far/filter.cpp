@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.14 01.07.2001 $ */
+/* Revision: 1.15 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    ! IncludeMask(ExcludeMask).Set(NULL) -> IncludeMask(ExcludeMask).Free()
   01.07.2001 IS
     + Применяем специальный класс для работы с масками файлов (CFileMask)
     ! Внедрение const
@@ -455,8 +457,8 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
   if (Masks==NULL)
   {
     // Освободим память
-    IncludeMask.Set(NULL, FMF_SILENT);
-    ExcludeMask.Set(NULL, FMF_SILENT);
+    IncludeMask.Free();
+    ExcludeMask.Free();
     if(IncludeMaskStr) free(IncludeMaskStr);
     if(ExcludeMaskStr) free(ExcludeMaskStr);
     IncludeMaskStr=ExcludeMaskStr=NULL;
@@ -468,7 +470,7 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
 
   if(Exclude)
   {
-    ExcludeMask.Set(NULL, FMF_SILENT);
+    ExcludeMask.Free();
     oldsize=ExcludeMaskStr?strlen(ExcludeMaskStr):0;
     char *NewExcludeMaskStr=(char *)realloc(ExcludeMaskStr,addsize+oldsize);
     if (NewExcludeMaskStr==NULL)
@@ -489,7 +491,7 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
   }
   else
   {
-    IncludeMask.Set(NULL, FMF_SILENT);
+    IncludeMask.Free();
     oldsize=IncludeMaskStr?strlen(IncludeMaskStr):0;
     char *NewIncludeMaskStr=(char *)realloc(IncludeMaskStr,addsize+oldsize);
     if (NewIncludeMaskStr==NULL)

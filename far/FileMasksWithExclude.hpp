@@ -8,10 +8,12 @@ FileMasksWithExclude.hpp
 исключения).
 */
 
-/* Revision: 1.00 01.07.2001 $ */
+/* Revision: 1.01 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    ! Не вызываем Free из деструктора, нечего сущности плодить
   01.07.2001 IS
     + Впервые в эфире
 */
@@ -25,7 +27,7 @@ private:
 
 public:
     FileMasksWithExclude();
-    ~FileMasksWithExclude() { Free(); }
+    ~FileMasksWithExclude() {}
 
 public:
     BOOL Set(const char *Masks, DWORD Flags);

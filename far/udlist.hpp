@@ -11,10 +11,13 @@ udlist.hpp
 
 */
 
-/* Revision: 1.02 12.06.2001 $ */
+/* Revision: 1.03 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 IS
+    + AddAsterisk
+    ! Метод Free стал public
   12.06.2001 IS
     + Добавлено связанное с обработкой квадратных скобок
     + Функция для проверки корректности разделителей.
@@ -32,12 +35,11 @@ class UserDefinedList
   private:
     char *Data, *DataEnd, *DataCurrent;
     BYTE Separator1, Separator2;
-    BOOL ProcessBrackets;
+    BOOL ProcessBrackets, AddAsterisk;
 
   private:
     BOOL CheckSeparators() const; // проверка разделителей на корректность
     void SetDefaultSeparators();
-    void Free();
     const char *Skip(const char *Str, int &Length, int &RealLength, BOOL &Error);
 
   private:
@@ -46,11 +48,12 @@ class UserDefinedList
 
   public:
     // по умолчанию разделителем считается ';' и ',', а
-    // ProcessBrackets=FALSE
+    // ProcessBrackets=FALSE, AddAsterisk=FALSE
     UserDefinedList();
 
     // Явно указываются разделители. См. описание SetSeparators
-    UserDefinedList(BYTE separator1, BYTE separator2, BOOL ProcessBrackets);
+    UserDefinedList(BYTE separator1, BYTE separator2,
+                    BOOL ProcessBrackets, BOOL AddAsterisk);
     ~UserDefinedList() { Free(); }
 
   public:
@@ -60,10 +63,13 @@ class UserDefinedList
     // (т.е. в Set)
     // Если оба разделителя равны 0x00, то восстанавливаются разделители по
     // умолчанию (';' & ',').
+    // Если AddAsterisk равно TRUE, то к концу элемента списка будет
+    // добавляться '*', если этот элемент не содержит '?', '*' и '.'
     // Возвращает FALSE, если один из разделителей является кавычкой или
     // включена обработка скобок и один из разделителей является квадратной
     // скобкой.
-    BOOL SetSeparators(BYTE Separator1, BYTE Separator2, BOOL ProcessBrackets);
+    BOOL SetSeparators(BYTE Separator1, BYTE Separator2,
+                       BOOL ProcessBrackets, BOOL AddAsterisk);
 
     // Инициализирует список. Принимает список, разделенный разделителями.
     // Возвращает FALSE при неудаче.
@@ -75,6 +81,9 @@ class UserDefinedList
 
     // Выдает указатель на очередной элемент списка или NULL
     const char *GetNext(void);
+
+    // Освободить занятую память
+    void Free();
 
     // TRUE, если больше элементов в списке нет
     BOOL IsEmpty();

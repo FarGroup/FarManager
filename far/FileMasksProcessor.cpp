@@ -23,13 +23,11 @@ Modify:
 
 FileMasksProcessor::FileMasksProcessor():BaseFileMask()
 {
-    Masks.SetSeparators(',',';',TRUE); // разделителем масок является не только
-                                       // запятая, но и точка с запятой!
 }
 
 void FileMasksProcessor::Free()
 {
-    Masks.Set(NULL);
+    Masks.Free();
 }
 
 /*
@@ -38,8 +36,10 @@ void FileMasksProcessor::Free()
  длина одной из масок равна 0)
 */
 
-BOOL FileMasksProcessor::Set(const char *masks, DWORD /*Flags*/)
+BOOL FileMasksProcessor::Set(const char *masks, DWORD Flags)
 {
+  // разделителем масок является не только запятая, но и точка с запятой!
+  Masks.SetSeparators(',',';',TRUE, (Flags&FMPF_ADDASTERISK)?TRUE:FALSE);
   return Masks.Set(masks);
 }
 
