@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.03 07.07.2000 $ */
+/* Revision: 1.04 07.07.2000 $ */
 
 /*
 Modify:
@@ -22,6 +22,9 @@ Modify:
         RemoveLeadingSpaces
         RemoveTrailingSpaces
       Возвращают char*
+  07.07.2000 tran
+    - trap under win2000, or console height > 210
+      bug was in ScrollBar ! :)))
 */
 
 #include "headers.hpp"
@@ -1135,7 +1138,12 @@ int GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
 
 void ScrollBar(int X1,int Y1,int Length,int Current,int Total)
 {
-  char OutStr[200];
+  /* $ 06.07.2000 tran
+     - trap under NT with console height > 210
+       was char OutStr[200] :) */
+  char OutStr[4096];
+  /* tran 06.07.2000 $ */
+
   int ThumbPos;
   if ((Length-=2)<1)
     return;
