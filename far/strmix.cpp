@@ -5,10 +5,15 @@ strmix.cpp
 
 */
 
-/* Revision: 1.58 02.04.2005 $ */
+/* Revision: 1.59 02.04.2005 $ */
 
 /*
 Modify:
+  02.04.2005 AY
+    + ќбработка COLUMN_ECONOMIC в FileSizeToStr()
+      “.е. вернЄм пробел, а кто его хочет убрать ставит SE.
+    - ≈сли в FileSizeToStr() при COLUMN_FLOATSIZE остаток делени€ был меньше
+      чем 10% то размер после точки выводилс€ не правильно.
   02.04.2005 SVS
     ! уберем пробел, так "интереснее"
   02.04.2005 AY
@@ -925,6 +930,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
 
   int Commas=(ViewFlags & COLUMN_COMMAS);
   int FloatSize=(ViewFlags & COLUMN_FLOATSIZE);
+  int Economic=(ViewFlags & COLUMN_ECONOMIC);
 
   if (ViewFlags & COLUMN_THOUSAND)
   {
@@ -961,11 +967,14 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
       Sz = (OldSize=Sz) / Divider64F2;
       OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
       DWORD Decimal = (double)OldSize.Number.Part.LowPart/(double)Divider*100.0;
-      sprintf(Str,"%d.%d",Sz.Number.Part.LowPart,Decimal);
-      Width-=2;
+      sprintf(Str,"%d.%02d",Sz.Number.Part.LowPart,Decimal);
+      Width-=(Economic?1:2);
       if (Width<0)
         Width=0;
-      sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+      if (Economic)
+        sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+      else
+        sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
     }
     return DestStr;
   }
@@ -979,7 +988,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     sprintf(DestStr,"%*.*s",Width,Width,Str);
   else
   {
-    Width-=2;
+    Width-=(Economic?1:2);
     IndexB=-1;
     do{
       //Sz=(Sz+Divider2)/Divider64;
@@ -995,7 +1004,10 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
         sprintf(Str,"%I64d",Sz.Number.i64);
     } while(strlen(Str) > Width);
 
-    sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+    if (Economic)
+      sprintf(DestStr,"%*.*s%1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+    else
+      sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
   }
 
   return DestStr;

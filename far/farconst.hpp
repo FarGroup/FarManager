@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.87 02.04.2005 $ */
+/* Revision: 1.88 02.04.2005 $ */
 
 /*
 Modify:
+  02.04.2005 AY
+    + COLUMN_ECONOMIC - новый флаг для колонки размера
   02.04.2005 AY
     + COLUMN_FLOATSIZE - новый флаг для колонки размера
   05.03.2005 SVS
@@ -351,6 +353,7 @@ enum {
   COLUMN_BRIEF       =  0x02000000,
   COLUMN_MONTH       =  0x01000000,
   COLUMN_FLOATSIZE   =  0x00800000,
+  COLUMN_ECONOMIC    =  0x00400000,
 };
 
 // from plugins.hpp
