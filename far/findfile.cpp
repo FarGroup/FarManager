@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.119 28.06.2002 $ */
+/* Revision: 1.120 14.08.2002 $ */
 
 /*
 Modify:
+  14.08.2002 VVM
+    ! Уберем возможность переключения в активный редактор из окна поиска.
+      Манагер это не умеет...
   28.06.2002 VVM
     + При начале поиска фокус находится на кнопке [New search]
       Как только что-нибудь найдем - сменим его на [Go To], если небыло
@@ -1156,6 +1159,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
               ReleaseMutex(hDialogMutex);
               {
+/* $ 14.08.2002 VVM
+  ! Пока-что запретим из поиска переключаться в активный редактор.
+    К сожалению, манагер на это не способен сейчас
                 int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,SearchFileName);
                 int SwitchTo=FALSE;
                 if (FramePos!=-1)
@@ -1195,12 +1201,16 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                   (*FrameManager)[FramePos]->SetDynamicallyBorn(FALSE);
                   FrameManager->ActivateFrame(FramePos);
                   IsProcessVE_FindFile++;
-                  FrameManager->ExecuteNonModal();
+                  FrameManager->EnterModalEV();
+                  FrameManager->ExecuteModal ();
+                  FrameManager->ExitModalEV();
+//                  FrameManager->ExecuteNonModal();
                   IsProcessVE_FindFile--;
                   // заставляем рефрешится экран
                   FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
                 }
                 else
+*/
                 {
                   FileEditor ShellEditor (SearchFileName,FALSE,FALSE);
                   ShellEditor.SetDynamicallyBorn(FALSE);
