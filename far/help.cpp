@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.83 04.06.2004 $ */
+/* Revision: 1.84 07.06.2004 $ */
 
 /*
 Modify:
+  07.06.2004 SVS
+    - BugZ#1078 - Неверная реакция на попытку открытия несуществующих ссылок
   04.06.2004 SVS
     - BugZ#1078 - Неверная реакция на попытку открытия несуществующих ссылок
   27.05.2004 SVS
@@ -248,6 +250,7 @@ Modify:
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
+#include "BlockExtKey.hpp"
 
 
 // Стек возврата
@@ -387,7 +390,10 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
     if(!(Flags&FHELP_NOSHOWERROR))
     {
       if(!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
+      {
+        BlockExtKey blockExtKey;
         Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+      }
       ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
     }
   }
@@ -481,7 +487,10 @@ int Help::ReadHelp(const char *Mask)
     {
       ScreenObject::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
+      {
+        BlockExtKey blockExtKey;
         Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),Mask,MSG(MOk));
+      }
     }
     return FALSE;
   }
@@ -772,7 +781,10 @@ void Help::DisplayObject()
     {              // с нынешним манагером попадаем в бесконечный цикл.
       ErrorHelp=TRUE;
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
+      {
+        BlockExtKey blockExtKey;
         Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+      }
       ProcessKey(KEY_ALTF1);
     }
     return;
@@ -1342,6 +1354,7 @@ int Help::ProcessKey(int Key)
         IsNewTopic=TRUE;
         JumpTopic(HelpOnHelpTopic);
         IsNewTopic=FALSE;
+        ErrorHelp=FALSE;
       }
       return(TRUE);
     }
@@ -1354,6 +1367,7 @@ int Help::ProcessKey(int Key)
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
         JumpTopic(HelpContents);
+        ErrorHelp=FALSE;
         IsNewTopic=FALSE;
       }
       return(TRUE);
@@ -1367,6 +1381,7 @@ int Help::ProcessKey(int Key)
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
         JumpTopic(PluginContents);
+        ErrorHelp=FALSE;
         IsNewTopic=FALSE;
       }
       return(TRUE);
@@ -1381,6 +1396,7 @@ int Help::ProcessKey(int Key)
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
         JumpTopic(DocumentContents);
+        ErrorHelp=FALSE;
         IsNewTopic=FALSE;
       }
       return(TRUE);
@@ -1395,6 +1411,7 @@ int Help::ProcessKey(int Key)
       {
         Stack->Pop(&StackData);
         JumpTopic(StackData.HelpTopic);
+        ErrorHelp=FALSE;
         return(TRUE);
       }
       return ProcessKey(KEY_ESC);
@@ -1411,6 +1428,7 @@ int Help::ProcessKey(int Key)
           Stack->Pop(&StackData);
           ReadHelp(StackData.HelpMask); // вернем то, что отображали.
         }
+        ErrorHelp=FALSE;
         IsNewTopic=FALSE;
       }
       return(TRUE);
@@ -1589,7 +1607,10 @@ int Help::JumpTopic(const char *JumpTopic)
   {
     ErrorHelp=TRUE;
     if(!(StackData.Flags&FHELP_NOSHOWERROR))
+    {
+      BlockExtKey blockExtKey;
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+    }
     return FALSE;
   }
 //  ResizeConsole();
@@ -1600,6 +1621,7 @@ int Help::JumpTopic(const char *JumpTopic)
 #endif
     )
     MoveToReference(1,1);
+
   //FrameManager->ImmediateHide();
   FrameManager->RefreshFrame();
 
@@ -1752,7 +1774,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
   *StackData.SelTopic=0;
   DisableOut=TRUE;
 
-  while (*StackData.SelTopic==0)
+  if(!ErrorHelp) while (*StackData.SelTopic==0)
   {
     ReferencePresent=IsReferencePresent();
     if (Forward)
@@ -2118,6 +2140,8 @@ static int RunURL(char *Protocol, char *URLPath)
 
           Disposition=0;
           if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
+          {
+            BlockExtKey blockExtKey;
             Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
                         MSG(MHelpActivatorURL),
                         Buf,
@@ -2126,7 +2150,7 @@ static int RunURL(char *Protocol, char *URLPath)
                         "\x01",
                         MSG(MHelpActivatorQ),
                         MSG(MYes),MSG(MNo));
-
+          }
           EditCode=2; // Все Ok!
           if(Disposition == 0)
           {
@@ -2188,9 +2212,12 @@ void Help::OnChangeFocus(int Focus)
 void Help::ResizeConsole()
 {
   int OldIsNewTopic=IsNewTopic;
+  BOOL ErrCannotOpenHelp=ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
+  ScreenObject::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
   IsNewTopic=FALSE;
   delete TopScreen;
   TopScreen=NULL;
+
   Hide();
   if (Opt.FullScreenHelp)
   {
@@ -2200,10 +2227,12 @@ void Help::ResizeConsole()
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp(StackData.HelpMask);
+  ErrorHelp=FALSE;
 //  StackData.CurY--; // ЭТО ЕСМЬ КОСТЫЛЬ (пусть пока будет так!)
   StackData.CurX--;
   MoveToReference(1,1);
   IsNewTopic=OldIsNewTopic;
+  ScreenObject::Flags.Change(FHELPOBJ_ERRCANNOTOPENHELP,ErrCannotOpenHelp);
   FrameManager->ImmediateHide();
   FrameManager->RefreshFrame();
 }
