@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.66 30.09.2002 $ */
+/* Revision: 1.67 17.10.2002 $ */
 
 /*
 Modify:
+  17.10.2002 SVS
+    + Добавим в Do_ProcessNextCtrl() параметр про принудительную
+      прорисовку 2 элементов (старого и нового)
   30.09.2002 SVS
     ! SelectFromComboBox имеет первый параметр типа struct DialogItem
   23.09.2002 SVS
@@ -499,7 +502,7 @@ class Dialog: public Frame
     int ProcessMoveDialog(DWORD Key);
 
     int Do_ProcessTab(int Next);
-    int Do_ProcessNextCtrl(int Next);
+    int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
     int Do_ProcessFirstCtrl();
     int Do_ProcessSpace();
 

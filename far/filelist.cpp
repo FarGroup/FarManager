@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.167 27.08.2002 $ */
+/* Revision: 1.168 17.10.2002 $ */
 
 /*
 Modify:
+  17.10.2002 SVS
+    ! небольшое ускорение сравнятора (FileList::CopyNames) + немного
+      комментариев на будущее
   27.08.2002 SVS
     ! BugZ#596 - Шифт-вправо выделить файлы
       [*] В панели с одной колонкой Shift-Left/Right аналогично нажатию
@@ -3368,16 +3371,22 @@ void FileList::CompareDir()
   }
 
   ScrBuf.Flush();
+
+  // полностью снимаем выделение с обоих панелей
   ClearSelection();
   Another->ClearSelection();
 
   struct FileListItem *CurPtr, *AnotherCurPtr;
 
+  // помечаем ВСЕ, кроме каталогов на активной панели
   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
-    Select(CurPtr,(CurPtr->FileAttr & FA_DIREC)==0);
+    if((CurPtr->FileAttr & FA_DIREC)==0)
+      Select(CurPtr,TRUE);
 
+  // помечаем ВСЕ, кроме каталогов на пассивной панели
   for (AnotherCurPtr=Another->ListData,J=0; J < Another->FileCount; J++, AnotherCurPtr++)
-    Another->Select(AnotherCurPtr,(AnotherCurPtr->FileAttr & FA_DIREC)==0);
+    if((AnotherCurPtr->FileAttr & FA_DIREC)==0)
+      Another->Select(AnotherCurPtr,TRUE);
 
   int CompareFatTime=FALSE;
   if (PanelMode==PLUGIN_PANEL)
@@ -3407,11 +3416,15 @@ void FileList::CompareDir()
         CompareFatTime=TRUE;
   }
 
+  // теперь начнем цикл по снятию выделений
+  // каждый элемент активной панели...
   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
   {
+    // ...сравниваем с элементом пассивной панели...
     for (AnotherCurPtr=Another->ListData,J=0; J < Another->FileCount; J++, AnotherCurPtr++)
     {
       if (LocalStricmp(PointToName(CurPtr->Name),PointToName(AnotherCurPtr->Name))==0)
+      //if (LocalStricmp(CurPtr->Name,AnotherCurPtr->Name)==0)
       {
         int Cmp;
         if (CompareFatTime)
@@ -3435,10 +3448,10 @@ void FileList::CompareDir()
                        CurPtr->UnpSizeHigh!=AnotherCurPtr->UnpSizeHigh))
           continue;
 
-        if (Cmp < 1)
+        if (Cmp < 1 && CurPtr->Selected)
           Select(CurPtr,0);
 
-        if (Cmp > -1)
+        if (Cmp > -1 && AnotherCurPtr->Selected)
           Another->Select(AnotherCurPtr,0);
         break;
       }

@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.269 16.10.2002 $ */
+/* Revision: 1.270 17.10.2002 $ */
 
 /*
 Modify:
+  17.10.2002 SVS
+    + Добавим в Do_ProcessNextCtrl() параметр про принудительную
+      прорисовку 2 элементов (старого и нового)
+    - Бага с прорисовкой DIF_EDITOR - видно в UserMenu, когда в начале
+      первой строки жмем Enter - прорисовывается только 2 строки.
   16.10.2002 SKV
     - баги в выделении при автокомплите, в связи с изменениями в Edit
   10.10.2002 SVS
@@ -3093,12 +3098,9 @@ int Dialog::ProcessKey(int Key)
         if (EditorLastPos > FocusPos)
         {
           ((DlgEdit *)(Item[FocusPos].ObjPtr))->SetCurPos(0);
-          Do_ProcessNextCtrl(FALSE);
+          Do_ProcessNextCtrl(FALSE,FALSE);
         }
-        else
-        {
-          ShowDialog();
-        }
+        ShowDialog();
         return(TRUE);
       }
       else if (Item[FocusPos].Type==DI_BUTTON)
@@ -4104,7 +4106,7 @@ int Dialog::Do_ProcessFirstCtrl()
   return(TRUE);
 }
 
-int Dialog::Do_ProcessNextCtrl(int Up)
+int Dialog::Do_ProcessNextCtrl(int Up,BOOL IsRedraw)
 {
   int OldPos=FocusPos;
   int PrevPos=0;
@@ -4122,7 +4124,7 @@ int Dialog::Do_ProcessNextCtrl(int Up)
 
   if (Item[FocusPos].Type == DI_RADIOBUTTON && (Item[I].Flags & DIF_MOVESELECT))
     ProcessKey(KEY_SPACE);
-  else
+  else if(IsRedraw)
   {
     ShowDialog(OldPos);
     ShowDialog(FocusPos);
