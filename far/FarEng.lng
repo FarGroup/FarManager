@@ -526,7 +526,7 @@
 "Requested help topic not found"
 
 "Files highlighting"
-"Edit: Del,Ins,F4 [Ctrl+R - restore default highlighting]"
+"Edit: Del,Ins,F4 [Ctrl-R - default highlighting]"
 "Do you wish to delete highlighting for"
 "You will lose all changes!"
 "Do you wish to restore default highlighting?"

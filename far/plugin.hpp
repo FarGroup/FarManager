@@ -6,7 +6,7 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.04 06.07.2000 $ */
+/* Revision: 1.05 07.07.2000 $ */
 
 /*
 Modify:
@@ -23,13 +23,20 @@ Modify:
   06.07.2000 IS
     + Функция AdvControl (PluginStartupInfo)
     + Команда ACTL_GETFARVERSION для AdvControl
-    + Указатель на структуру FarStdFuncions в PluginStartupInfo - она содержит
-      указатели на полезные функции. Плагин должен обязательно скопировать ее
-      себе, если хочет использовать в дальнейшем.
-    + Указатели на функции в FarStdFuncions:
+    + Указатель на структуру FarStandardFunctions в PluginStartupInfo - она
+      содержит указатели на полезные функции. Плагин должен обязательно
+      скопировать ее себе, если хочет использовать в дальнейшем.
+    + Указатели на функции в FarStandardFunctions:
       Unquote, ExpandEnvironmentStr,
       sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
       strtok, memset, strpbrk
+  07.07.2000 IS
+    + Указатели на функции в FarStandardFunctions:
+      atoi, _atoi64, itoa, RemoveLeadingSpaces, RemoveTrailingSpaces,
+      RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
+      PointToName, GetPathRoot, AddEndSlash
+  10.07.2000 IS
+    ! Некоторые изменения с учетом голого C (по совету SVS)
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
@@ -463,7 +470,11 @@ typedef void (*FARSTDUNQUOTE)(
 typedef DWORD (*FARSTDEXPANDENVIRONMENTSTR)(
   char *src,
   char *dst,
+#ifdef __cplusplus
   size_t size=8192
+#else
+  size_t size
+#endif
 );
 /* IS $ */
 
@@ -486,10 +497,30 @@ typedef void *(*FARSTDMEMSET)(void *s, int c, size_t n);
 typedef char *(*FARSTDSTRPBRK)(char *s1, const char *s2);
 /* IS $ */
 
+/* $ 07.07.2000 IS
+  Эпопея продолжается :-)
+  atoi, _atoi64, itoa, RemoveLeadingSpaces, RemoveTrailingSpaces,
+  RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
+  PointToName, GetPathRoot, AddEndSlash
+*/
+typedef int (*FARSTDATOI)(const char *s);
+typedef __int64 (*FARSTDATOI64)(const char *s);
+typedef char *(*FARSTDITOA)(int value, char *string, int radix);
+typedef unsigned char *(*FARSTDREMOVELEADINGSPACES)(unsigned char *Str);
+typedef unsigned char *(*FARSTDREMOVETRAILINGSPACES)(unsigned char *Str);
+typedef unsigned char *(*FARSTDREMOVEEXTERNALSPACES)(unsigned char *Str);
+typedef char *(*FARSTDTRUNCSTR)(char *Str,int MaxLength);
+typedef char *(*FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
+typedef char *(*FARSTDQUOTESPACEONLY)(char *Str);
+typedef char *(*FARSTDPOINTTONAME)(char *Path);
+typedef void (*FARSTDGETPATHROOT)(char *Path,char *Root);
+typedef void (*FARSTDADDENDSLASH)(char *Path);
+/* IS $ */
+
 /* $ 06.07.2000 IS
    Полезные функции из far.exe
 */
-struct FarStandartFunctions
+typedef struct FarStandardFunctions
 {
   int StructSize;
   FARSTDUNQUOTE Unquote;
@@ -506,7 +537,23 @@ struct FarStandartFunctions
   FARSTDSTRTOK strtok;
   FARSTDMEMSET memset;
   FARSTDSTRPBRK strpbrk;
-};
+  /* $ 07.07.2000 IS
+    По просьбам трудящихся...
+  */
+  FARSTDATOI atoi;
+  FARSTDATOI64 _atoi64;
+  FARSTDITOA itoa;
+  FARSTDREMOVELEADINGSPACES RemoveLeadingSpaces;
+  FARSTDREMOVETRAILINGSPACES RemoveTrailingSpaces;
+  FARSTDREMOVEEXTERNALSPACES RemoveExternalSpaces;
+  FARSTDTRUNCSTR TruncStr;
+  FARSTDTRUNCPATHSTR TruncPathStr;
+  FARSTDQUOTESPACEONLY QuoteSpaceOnly;
+  FARSTDPOINTTONAME PointToName;
+  FARSTDGETPATHROOT GetPathRoot;
+  FARSTDADDENDSLASH AddEndSlash;
+  /* IS $ */
+}FARSTANDARDFUNCTIONS;
 /* IS $ */
 
 struct PluginStartupInfo
@@ -544,7 +591,7 @@ struct PluginStartupInfo
   /* $ 06.07.2000 IS
      Указатель на структуру с адресами полезных функций из far.exe
   */
-  FarStandartFunctions *FSF;
+  FARSTANDARDFUNCTIONS *FSF;
   /* IS $ */
 };
 

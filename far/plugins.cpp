@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.03 06.07.2000 $ */
+/* Revision: 1.04 07.07.2000 $ */
 
 /*
 Modify:
@@ -17,11 +17,15 @@ Modify:
   05.07.2000 IS
     + Функция AdvControl
   06.07.2000 IS
-    + Объявление структуры типа FarStandartFunctions (см. plugin.hpp)
+    + Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
       Инициализация ее членов:
          StructSize, Unquote, ExpandEnvironmentStr,
          sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr,
          strrchr, strstr, strtok, memset, strpbrk
+  07.07.2000 IS
+    + Инициализация: atoi, _atoi64, itoa, RemoveLeadingSpaces,
+      RemoveTrailingSpaces, RemoveExternalSpaces, TruncStr, TruncPathStr,
+      QuoteSpaceOnly, PointToName, GetPathRoot, AddEndSlash
 */
 
 #include "headers.hpp"
@@ -189,28 +193,47 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     struct PluginStartupInfo StartupInfo;
     StartupInfo.StructSize=sizeof(StartupInfo);
     /* $ 06.07.2000 IS
-      Объявление структуры типа FarStandartFunctions (см. plugin.hpp)
+      Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
       Инициализация ее членов:
          StructSize, Unquote, ExpandEnvironmentStr,
          sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr,
          strrchr, strstr, strtok, memset, strpbrk
     */
-    struct FarStandartFunctions StandartFunctions;
-    StandartFunctions.StructSize=sizeof(StandartFunctions);
-    StandartFunctions.Unquote=Unquote;
-    StandartFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
-    StandartFunctions.sprintf=sprintf;
-    StandartFunctions.sscanf=sscanf;
-    StandartFunctions.qsort=qsort;
-    StandartFunctions.memcpy=memcpy;
-    StandartFunctions.memmove=memmove;
-    StandartFunctions.memcmp=memcmp;
-    StandartFunctions.strchr=strchr;
-    StandartFunctions.strrchr=strrchr;
-    StandartFunctions.strstr=strstr;
-    StandartFunctions.strtok=strtok;
-    StandartFunctions.memset=memset;
-    StandartFunctions.strpbrk=strpbrk;
+    struct FarStandardFunctions StandardFunctions;
+    StandardFunctions.StructSize=sizeof(StandardFunctions);
+    StandardFunctions.Unquote=Unquote;
+    StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
+    StandardFunctions.sprintf=sprintf;
+    StandardFunctions.sscanf=sscanf;
+    StandardFunctions.qsort=qsort;
+    StandardFunctions.memcpy=memcpy;
+    StandardFunctions.memmove=memmove;
+    StandardFunctions.memcmp=memcmp;
+    StandardFunctions.strchr=strchr;
+    StandardFunctions.strrchr=strrchr;
+    StandardFunctions.strstr=strstr;
+    StandardFunctions.strtok=strtok;
+    StandardFunctions.memset=memset;
+    StandardFunctions.strpbrk=strpbrk;
+    /* IS $ */
+    /* $ 07.07.2000 IS
+     Эпопея продолжается... Инициализация: atoi, _atoi64, itoa,
+     RemoveLeadingSpaces, RemoveTrailingSpaces, RemoveExternalSpaces,
+     TruncStr, TruncPathStr, QuoteSpaceOnly, PointToName, GetPathRoot,
+     AddEndSlash
+    */
+    StandardFunctions.atoi=atoi;
+    StandardFunctions._atoi64=_atoi64;
+    StandardFunctions.itoa=itoa;
+    StandardFunctions.RemoveLeadingSpaces=RemoveLeadingSpaces;
+    StandardFunctions.RemoveTrailingSpaces=RemoveTrailingSpaces;
+    StandardFunctions.RemoveExternalSpaces=RemoveExternalSpaces;
+    StandardFunctions.TruncStr=TruncStr;
+    StandardFunctions.TruncPathStr=TruncPathStr;
+    StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
+    StandardFunctions.PointToName=PointToName;
+    StandardFunctions.GetPathRoot=GetPathRoot;
+    StandardFunctions.AddEndSlash=AddEndSlash;
     /* IS $ */
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
@@ -248,7 +271,7 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       Указатель на структуру с адресами полезных функций из far.exe
       Плагин должен обязательно скопировать ее себе, если хочет использовать.
     */
-    StartupInfo.FSF=&StandartFunctions;
+    StartupInfo.FSF=&StandardFunctions;
     /* IS $ */
     CurPlugin.pSetStartupInfo(&StartupInfo);
   }
