@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.73 18.03.2002 $ */
+/* Revision: 1.74 20.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 DJ
+    + обработка KEY_MEDIT_ISSELECTED
   18.03.2002 SVS
     ! Уточнения, в связи с введением Opt.Dialogs
   14.03.2002 SVS
@@ -858,6 +860,13 @@ int Edit::ProcessKey(int Key)
       Key=KEY_SHIFTDEL;
       break;
   }
+
+  /* $ 20.03.2002 DJ
+     обработаем KEY_MEDIT_ISSELECTED
+  */
+  if (Key == KEY_MEDIT_ISSELECTED)
+    return SelStart != -1 && SelStart < SelEnd;
+  /* DJ $ */
 
   int PrevSelStart=-1,PrevSelEnd=0;
 

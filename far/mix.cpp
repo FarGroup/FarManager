@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.114 01.03.2002 $ */
+/* Revision: 1.115 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 DJ
+    ! в GetDirInfo() вместо . покажем название того каталога, который сканируем
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   22.02.2002 SVS
@@ -991,6 +993,18 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   }
   GetPathRoot(FullDirName,DriveRoot);
 
+  /* $ 20.03.2002 DJ
+     для . - покажем имя родительского каталога
+  */
+  char *ShowDirName = DirName;
+  if (!strcmp (DirName, "."))
+  {
+    char *p = strrchr (FullDirName, '\\');
+    if (p)
+      ShowDirName = p + 1;
+  }
+  /* DJ */
+
   if ((ClusterSize=GetClusterSize(DriveRoot))==0)
   {
     DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
@@ -1039,7 +1053,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
     {
       SetCursorType(FALSE,0);
       SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
-      DrawGetDirInfoMsg(Title,DirName);
+      DrawGetDirInfoMsg(Title,ShowDirName);
 
       MsgOut=1;
     }

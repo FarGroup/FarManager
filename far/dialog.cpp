@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.220 18.03.2002 $ */
+/* Revision: 1.221 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 DJ
+    + обработка KEY_MEDIT_ISSELECTED для корректной работы флага
+      [x] Selection exists в диалоговых макросов
   18.03.2002 SVS
     - Блин, перелудил с курсором :-(
     ! Уточнения, в связи с введением Opt.Dialogs
@@ -3117,6 +3120,15 @@ int Dialog::ProcessKey(int Key)
       }
       /* SVS $ */
       return(TRUE);
+
+    /* $ 20.03.2002 DJ
+       для корректной обработки [x] Selection exists в диалогах
+    */
+    case KEY_MEDIT_ISSELECTED:
+      if (IsEdit(Type))
+        return ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+      return FALSE;
+    /* DJ $ */
 
     default:
       // для user-типа вываливаем

@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.73 03.03.2002 $ */
+/* Revision: 1.74 20.03.2002 $ */
 
 /*
 Modify:
+  20.03.2002 DJ
+    ! корректная обработка [x] Selection exists для диалогов
   03.03.2002 SVS
     - BugZ#262 - Несколько macro:post в usermenu не работают
   03.03.2002 SVS
@@ -1652,12 +1654,17 @@ int KeyMacro::GetSubKey(char *Mode)
   return -1;
 }
 
+/* $ 20.03.2002 DJ
+   задействуем механизм также и для диалогов
+*/
+
 BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
-  if(Mode==MACRO_EDITOR)
+  if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG)
   {
+    int NeedType = (Mode == MACRO_EDITOR) ? MODALTYPE_EDITOR : MODALTYPE_DIALOG;
     Frame* CurFrame=FrameManager->GetCurrentFrame();
-    if (CurFrame && CurFrame->GetType()==MODALTYPE_EDITOR)
+    if (CurFrame && CurFrame->GetType()==NeedType)
     {
       int CurSelected=CurFrame->ProcessKey(KEY_MEDIT_ISSELECTED);
       if((CurFlags&MFLAGS_SELECTION) && !CurSelected ||
@@ -1667,6 +1674,8 @@ BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
   }
   return TRUE;
 }
+
+/* DJ $ */
 
 BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags)
 {
@@ -1719,12 +1728,16 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
       return FALSE;
 
     int SelCount=ActivePanel->GetRealSelCount();
-    if(Mode!=MACRO_EDITOR) // ??? видимо не весь диапазон !!!
+	/* $ 20.03.2002 DJ
+	   для диалогов - на панель смотреть тоже не надо
+	*/
+    if(Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG) // ??? видимо не весь диапазон !!!
     {
       if((CurFlags&MFLAGS_SELECTION) && SelCount < 1 ||
          (CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1)
         return FALSE;
     }
+	/* DJ $ */
   }
 
   if(!CheckEditSelected(CurFlags))
