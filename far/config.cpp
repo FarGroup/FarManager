@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.114 10.12.2001 $ */
+/* Revision: 1.115 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 SVS
+    + Вызовем SaveHiData() в SaveConfig() для сохранения раскраски
   10.12.2001 SVS
     ! DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH
   07.12.2001 IS
@@ -352,6 +354,7 @@ Modify:
 #include "filter.hpp"
 #include "poscache.hpp"
 #include "findfile.hpp"
+#include "hilight.hpp"
 
 /* $ 03.08.2000 SVS
    Стандартный набор разделителей
@@ -1503,6 +1506,7 @@ void SaveConfig(int Ask)
   }
   RightPanel->GetCurDir(Opt.RightFolder);
   RightPanel->GetCurBaseName(Opt.RightCurFile,OutText2);
+  CtrlObject->HiFiles->SaveHiData();
   /* *************************************************** </ПРЕПРОЦЕССЫ> */
 
   for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)

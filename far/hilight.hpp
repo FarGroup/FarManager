@@ -7,10 +7,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.08 23.11.2001 $ */
+/* Revision: 1.09 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 SVS
+    ! SaveHiData() private -> public для юзания в SaveConfig()
   23.11.2001 SVS
     + GetHiColor(), работающая с кипой структур FileListItem
   25.09.2001 IS
@@ -73,7 +75,6 @@ class HighlightFiles
     int StartHiDataCount;
 
   private:
-    void SaveHiData();
     int EditRecord(int RecPos,int New);
     /* $ 07.07.2000 IS
       В эту функцию я вынес содержимое конструктора, чтобы использовать его
@@ -98,6 +99,8 @@ class HighlightFiles
                     struct HighlightDataColor *Colors);
     void GetHiColor(struct FileListItem *FileItem,int FileCount);
     void HiEdit(int MenuPos);
+
+    void SaveHiData();
 
     static void ReWriteWorkColor(struct HighlightDataColor *Colors=NULL);
 };

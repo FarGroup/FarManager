@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.34 23.11.2001 $ */
+/* Revision: 1.35 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 SVS
+    - BugZ#178 - При вызове SaveHiData() учтем  Opt.AutoSaveSetup
   23.11.2001 SVS
     + GetHiColor(), работающая с кипой структур FileListItem
   21.11.2001 SVS
@@ -545,7 +547,8 @@ void HighlightFiles::HiEdit(int MenuPos)
       {
          ScrBuf.Lock(); // отменяем всякую прорисовку
          HiMenu.Hide();
-         SaveHiData();
+         if(Opt.AutoSaveSetup)
+           SaveHiData();
          //FrameManager->RefreshFrame(); // рефрешим
 
          LeftPanel->Update(UPDATE_KEEP_SELECTION);

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.35 15.11.2001 $ */
+/* Revision: 1.36 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 SVS
+    ! Сделаем сроллинг перед выводом "лейбака"
   15,11,2001 SVS
     ! Для каждого из *History назначим тип.
     - При выставленном Interface\ShowMenuBar=1 ФАР при старте падал,
@@ -282,6 +284,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 #ifdef BETA
     mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
 #else
+    ScrollScreen(2+Line2?1:0);
     if(Line2)
     {
       GotoXY(0,ScrY-4);

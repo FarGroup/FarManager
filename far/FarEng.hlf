@@ -445,12 +445,17 @@ you will always have them in the history.
   Delete the current item in a dialog edit line history
   list (if it is not locked)                               #Shift-Del#
 
+  Поместить курсор в диалогах на элемент по умолчанию           #PgDn#
+
   Insert a file name under cursor to dialog              #Shift-Enter#
 
   Insert a file name from passive panel to dialog   #Ctrl-Shift-Enter#
 
   This key combination is valid for all edit controls except the command
 line, including dialogs and the ~internal editor~@Editor@.
+
+   #Ctrl-Enter# в диалогах вызывает действие по умолчанию (нажатие на
+кнопку по умолчанию или подобное по смыслу действие).
 
   In dialogs, when the current control is a check box:
 
