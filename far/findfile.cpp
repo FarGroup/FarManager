@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.135 20.02.2003 $ */
+/* Revision: 1.136 15.03.2003 $ */
 
 /*
 Modify:
+  15.03.2003 VVM
+    - Если диалог вызывается в цикле, то и DI_COMBOBOX надо инитить в цикле.
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   04.02.2003 VVM
@@ -823,7 +825,6 @@ FindFiles::FindFiles()
     for(I=16; I <= 21; ++I)
       FindAskDlg[I].Selected=0;
     FindAskDlg[16+SearchMode].Selected=1;
-    FindAskDlg[7].ListItems=&TableList;
 
     {
       if (PluginMode)
@@ -862,6 +863,8 @@ FindFiles::FindFiles()
     {
       int ExitCode;
       {
+        FindAskDlg[7].ListItems=&TableList;
+
         Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]),MainDlgProc);
 
         Dlg.SetHelp("FindFile");
