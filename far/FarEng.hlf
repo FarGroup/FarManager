@@ -1595,7 +1595,7 @@ the editor will jump to the middle of the text.
 @DriveDlg
 $ #Change drive#
     This menu allows to change the current drive of a panel,
-disconnect from anetwork drive or open a new ~plugin~@Plugins@ panel.
+disconnect from a network drive or open a new ~plugin~@Plugins@ panel.
 
     Select the item with the corresponding drive letter to change the
 drive or the item with the plugin name to create a new plugin panel.

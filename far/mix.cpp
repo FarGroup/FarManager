@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.71 28.04.2001 $ */
+/* Revision: 1.72 01.05.2001 $ */
 
 /*
 Modify:
+  01.05.2001 SVS
+    ! mktemp - создаем имена временных файлов в верхнем регистре (strupr)
   28.04.2001 VVM
     + GetSubstName() принимает тип носителя
   24.04.2001 SVS
@@ -1435,7 +1437,7 @@ char* WINAPI FarMkTemp(char *Dest, char *Prefix)
 //    if(GetTempFileName(TempPath,Pref,0,TempName))
     if(GetTempFileName(TempPath,Prefix,0,TempName))
     {
-      strcpy(Dest,TempName);
+      strcpy(Dest,strupr(TempName));
       return Dest;
     }
     /* SVS $ */

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.48 28.04.2001 $ */
+/* Revision: 1.49 01.05.2001 $ */
 
 /*
 Modify:
+  01.05.2001 SVS
+    - Вместо PluginNumber в FarDialogEx() залудил ItemsNumber :-(((
   28.04.2001 SVS
     + Обработка исключений в FarDialogEx() - равеновский чекер валил ФАР
       именно в диалогах, гад такой.
@@ -489,7 +491,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   if (DisablePluginsOutput || ItemsNumber <= 0 || !Item)
     return(-1);
 
-  if(ItemsNumber >= CtrlObject->Plugins.PluginsCount)
+  if(PluginNumber >= CtrlObject->Plugins.PluginsCount)
     return(-1); // к терапевту.
 
   struct DialogItem *InternalItem=new DialogItem[ItemsNumber];
