@@ -419,10 +419,31 @@ BOOL AddExt(char *Name, char *Ext)
   char *ExtPnt;
   if(Name && *Name && !SeekDefExtPoint(Name, Ext, &ExtPnt))
   {
+    // transform Ext
+    char NewExt[NM], *Ptr;
+    strncpy(NewExt,Ext,sizeof(NewExt));
+
+    int Up=0, Lw=0;
+    Ptr=Name;
+    while(*Ptr)
+    {
+      if(FSF.LIsAlpha(*Ptr))
+      {
+        if(FSF.LIsLower(*Ptr)) Lw++;
+        if(FSF.LIsUpper(*Ptr)) Up++;
+      }
+      ++Ptr;
+    }
+
+    if (Lw)
+      FSF.LStrlwr (NewExt);
+    else  if (Up)
+      FSF.LStrupr (NewExt);
+
     if(ExtPnt && !*(ExtPnt+1))
-      strcpy(ExtPnt+1, Ext);
+      strcpy(ExtPnt+1, NewExt);
     else
-      FSF.sprintf(Name+strlen(Name), ".%s", Ext);
+      FSF.sprintf(Name+strlen(Name), ".%s", NewExt);
     return TRUE;
   }
   return FALSE;
