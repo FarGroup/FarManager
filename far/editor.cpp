@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.161 07.03.2002 $ */
+/* Revision: 1.162 10.03.2002 $ */
 
 /*
 Modify:
+  10.03.2002 IS
+    ! UnmarkEmptyBlock теперь нормально работает с вертикальными блоками
+      (раньше их не видела вообще и снимала выделение даже при не пустом блоке)
   07.03.2002 IS
     + UnmarkEmptyBlock(): удалить выделение, если оно пустое (выделено ноль
       символов в ширину)
@@ -4273,6 +4276,9 @@ void Editor::UnmarkBlock()
   Show();
 }
 
+/* $ 10.03.2002 IS
+   ! Теперь нормально работает с вертикальными блоками
+*/
 /* $ 07.03.2002 IS
    Удалить выделение, если оно пустое (выделено ноль символов в ширину)
 */
@@ -4280,9 +4286,14 @@ void Editor::UnmarkEmptyBlock()
 {
   if(BlockStart || VBlockStart)  // присутствует выделение
   {
-    struct EditList *Block=BlockStart?BlockStart:VBlockStart;
     int Lines=0,StartSel,EndSel;
-    while(Block) // пробегаем по всем выделенным строкам
+    struct EditList *Block=BlockStart;
+    if(VBlockStart)
+    {
+      if(VBlockSizeX)
+        Lines=VBlockSizeY;
+    }
+    else while(Block) // пробегаем по всем выделенным строкам
     {
       Block->EditLine.GetSelection(StartSel,EndSel);
       if (StartSel==-1)
@@ -4295,7 +4306,8 @@ void Editor::UnmarkEmptyBlock()
       UnmarkBlock();       // перестанем морочить голову и снимем выделение
   }
 }
-/* IS $ */
+/* IS 07.03.2002 $ */
+/* IS 10.03.2002 $ */
 
 /* $ 07.07.2000 tran & SVS
    + добавлена возможность переходить на колонку
