@@ -5,7 +5,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 29.06.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   28.06.2000 tran
     - trap при размере вертикального блока более 1000 колонок
+  29.06.2000 IG
+    + CtrlAltLeft, CtrlAltRight для вертикальный блоков
 
 */
 
@@ -1588,6 +1590,78 @@ int Editor::ProcessKey(int Key)
       Pasting--;
       Show();
       return(TRUE);
+  /* $ 29.06.2000 IG
+      + CtrlAltLeft, CtrlAltRight для вертикальный блоков
+  */
+    case KEY_CTRLALTLEFT:
+      {
+        int SkipSpace=TRUE;
+        Pasting++;
+//        DisableOut++;
+//        Edit::DisableEditOut(TRUE);
+        while (1)
+        {
+          char *Str;
+          int Length;
+          CurLine->EditLine.GetBinaryString(&Str,NULL,Length);
+          int CurPos=CurLine->EditLine.GetCurPos();
+          if (CurPos>Length)
+          {
+            CurLine->EditLine.ProcessKey(KEY_END);
+            CurPos=CurLine->EditLine.GetCurPos();
+          }
+          if (CurPos==0)
+            break;
+          if (isspace(Str[CurPos-1]) || strchr(WordDiv,Str[CurPos-1])!=NULL)
+            if (SkipSpace)
+            {
+              ProcessKey(KEY_ALTSHIFTLEFT);
+              continue;
+            }
+            else
+              break;
+          SkipSpace=FALSE;
+          ProcessKey(KEY_ALTSHIFTLEFT);
+        }
+        Pasting--;
+//        DisableOut--;
+//        Edit::DisableEditOut(FALSE);
+//        Show();
+      }
+      return(TRUE);
+    case KEY_CTRLALTRIGHT:
+      {
+        int SkipSpace=TRUE;
+        Pasting++;
+        DisableOut++;
+        Edit::DisableEditOut(TRUE);
+        while (1)
+        {
+          char *Str;
+          int Length;
+          CurLine->EditLine.GetBinaryString(&Str,NULL,Length);
+          int CurPos=CurLine->EditLine.GetCurPos();
+          if (CurPos>=Length)
+            break;
+          if (isspace(Str[CurPos]) || strchr(WordDiv,Str[CurPos])!=NULL)
+            if (SkipSpace)
+            {
+              ProcessKey(KEY_ALTSHIFTRIGHT);
+              continue;
+            }
+            else
+              break;
+          SkipSpace=FALSE;
+          ProcessKey(KEY_ALTSHIFTRIGHT);
+        }
+        Pasting--;
+        DisableOut--;
+        Edit::DisableEditOut(FALSE);
+        Show();
+      }
+      return(TRUE);
+  /* IG $ */
+
     case KEY_ALTSHIFTUP:
     case KEY_ALTUP:
       if (CurLine->Prev==NULL)
@@ -3809,6 +3883,10 @@ int Editor::ProcessEditorInput(INPUT_RECORD *Rec)
 
 int Editor::IsShiftKey(int Key)
 {
+  /*
+     29.06.2000 IG
+     добавлены клавиши, чтобы не сбрасывалось выделение при их нажатии
+  */
   static int ShiftKeys[]={KEY_SHIFTLEFT,KEY_SHIFTRIGHT,KEY_SHIFTHOME,
                 KEY_SHIFTEND,KEY_SHIFTUP,KEY_SHIFTDOWN,KEY_SHIFTPGUP,
                 KEY_SHIFTPGDN,KEY_CTRLSHIFTHOME,KEY_CTRLSHIFTPGUP,
@@ -3818,8 +3896,11 @@ int Editor::IsShiftKey(int Key)
                 KEY_ALTSHIFTEND,KEY_ALTSHIFTHOME,KEY_ALTSHIFTPGDN,
                 KEY_ALTSHIFTPGUP,KEY_ALTUP,KEY_ALTLEFT,KEY_ALTDOWN,
                 KEY_ALTRIGHT,KEY_ALTHOME,KEY_ALTEND,KEY_ALTPGUP,KEY_ALTPGDN,
-                KEY_CTRLALTPGUP,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,KEY_CTRLALTEND
+                KEY_CTRLALTPGUP,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,KEY_CTRLALTEND,
+                KEY_CTRLALTLEFT, KEY_CTRLALTRIGHT
   };
+  /* IG $ */
+
   for (int I=0;I<sizeof(ShiftKeys)/sizeof(ShiftKeys[0]);I++)
     if (Key==ShiftKeys[I])
       return(TRUE);
