@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.32 29.08.2000 $ */
+/* Revision: 1.33 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+   ! При подмене темы помощи из диаловой процедуры...
+     короче, нужно вновь формировать контент!
   29.08.2000 SVS
    - Первый официальный альфа-баг - функция ProcessHighlighting
      MY> Работа с диалогами стала ГЛЮЧНАЯ. Я имею в виду горячие клавиши.
@@ -203,6 +206,11 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  /* $ 29.08.2000 SVS
+    Номер плагина, вызвавшего диалог (-1 = Main)
+  */
+  PluginNumber=-1;
+  /* SVS $ */
   /* $ 23.08.2000 SVS
     Режимы диалога.
   */
@@ -1195,7 +1203,22 @@ int Dialog::ProcessKey(int Key)
       PtrStr=(char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,(long)&HelpTopic[0]);
       if(PtrStr && *PtrStr)
       {
-        SetHelp(PtrStr);
+        /* $ 29.08.2000 SVS
+           ! При подмене темы помощи из диаловой процедуры...
+             короче, нужно вновь формировать контент!
+        */
+        if (*PtrStr==':')       // Main Topic?
+          strcpy(Str,PtrStr+1);
+        else if (*PtrStr=='#')  // уже сформировано?
+          strcpy(Str,PtrStr);
+        else                    // надо формировать...
+        {
+          strcpy(&Str[512],CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+          *PointToName(&Str[512])=0;
+          sprintf(Str,"#%s#%s",&Str[512],PtrStr);
+        }
+        SetHelp(Str);
+        /* SVS $ */
         ShowHelp();
       }
       /* SVS $ */

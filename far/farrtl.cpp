@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.06 14.08.2000 $ */
+/* Revision: 1.07 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    ! Уточнения для функций семейства seek под __int64
   14.08.2000 SVS
     + Функции семейства seek под __int64
   19.07.2000 SVS
@@ -252,7 +254,7 @@ static __int64 __lseek64(int fd, __int64 offset, int kind)
     DWORD  method;
 
     if ((unsigned)fd >= _nfile)
-        return __IOerror(ERROR_INVALID_HANDLE);
+        return (__int64)__IOerror(ERROR_INVALID_HANDLE);
 
     /* Translate the POSIX seek type to the NT method.
      */
@@ -268,7 +270,7 @@ static __int64 __lseek64(int fd, __int64 offset, int kind)
         method = FILE_END;
         break;
     default:
-        return ((long)__IOerror(ERROR_INVALID_FUNCTION));
+        return ((__int64)__IOerror(ERROR_INVALID_FUNCTION));
     }
 
     _openfd[fd] &= ~_O_EOF;      /* forget about ^Z      */
@@ -342,7 +344,7 @@ __int64 WINAPI ftell64(FILE *fp)
 
 int WINAPI fseek64 (FILE *fp, __int64 offset, int whence)
 {
-  return _lseeki64(fileno(fp),offset,whence);
+  return (int)_lseeki64(fileno(fp),offset,whence);
 }
 
 #endif

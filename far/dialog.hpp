@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.15 24.08.2000 $ */
+/* Revision: 1.16 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+   ! При подмене темы помощи из диаловой процедуры...
+     короче, нужно вновь формировать контент!
   24.08.2000 SVS
    + InitDialogObjects() имеет параметр - для выборочной реинициализации
      элементов
@@ -101,6 +104,11 @@ Modify:
 class Dialog:public Modal
 {
   private:
+    /* $ 29.08.2000 SVS
+       + Номер плагина, для формирования HelpTopic
+    */
+    int PluginNumber;
+    /* SVS $ */
     /* $ 23.08.2000 SVS
        + Переменная класса FocusPos
     */
@@ -266,6 +274,11 @@ class Dialog:public Modal
        Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
     */
     void Process();
+    /* SVS $ */
+    /* $ 29.08.2000 SVS
+       + Установить номер плагина, для формирования HelpTopic
+    */
+    void SetPluginNumber(int NewPluginNumber){PluginNumber=NewPluginNumber;}
     /* SVS $ */
 };
 

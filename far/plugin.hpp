@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.31 29.08.2000 $ */
+/* Revision: 1.32 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    ! Вот и глючек вылез с unsigned char во внутренней структуре DialogItem,
+      и из-за этого uchar элемент DI_USERCONTROL не может быть > 255 :-((((((
   29.08.2000 SVS
     + Плагин может запросить "месаг" из FAR*.LNG, для этого
       небходимо к MsgId (в функции GetMsg)добавить флаг FMI_GETFARMSGID
@@ -316,7 +319,7 @@ enum DialogItemTypes {
   DI_COMBOBOX,
   DI_LISTBOX,
 
-  DI_USERCONTROL=1000,
+  DI_USERCONTROL=255,
 };
 /* 24.08.2000 SVS $*/
 /* 28.07.2000 SVS $*/

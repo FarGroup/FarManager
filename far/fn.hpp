@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.16 28.08.2000 $ */
+/* Revision: 1.17 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    + Дополнительный параметр у Message* - номер плагина.
   28.08.2000 SVS
     + Модификация вызова под WINAPI у функций Local*
     ! уточнение для FarQsort
@@ -148,15 +150,25 @@ int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
 int DeleteFileWithFolder(char *FileName);
 char* FarMSG(int MsgID);
+/* $ 29.08.2000 SVS
+   Дополнительный параметр у Message* - номер плагина.
+*/
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
-            char *Str3,char *Str4,char *Str5,char *Str6=NULL,char *Str7=NULL);
+            char *Str3,char *Str4,char *Str5,char *Str6=NULL,char *Str7=NULL,
+            int PluginNumber=-1);
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,char *Str5,char *Str6,
-            char *Str7,char *Str8,char *Str9=NULL,char *Str10=NULL);
+            char *Str7,char *Str8,char *Str9=NULL,char *Str10=NULL,
+            int PluginNumber=-1);
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,char *Str5,char *Str6,char *Str7,
             char *Str8,char *Str9,char *Str10,char *Str11,char *Str12=NULL,
-            char *Str13=NULL,char *Str14=NULL);
+            char *Str13=NULL,char *Str14=NULL,
+            int PluginNumber=-1);
+int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2=NULL,
+            char *Str3=NULL,char *Str4=NULL,
+            int PluginNumber=-1);
+/* SVS $*/
 void SetMessageHelp(char *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);
@@ -300,9 +312,6 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 int PrepareTable(struct CharTableSet *TableSet,int TableNum);
 #endif
 
-
-int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2=NULL,
-            char *Str3=NULL,char *Str4=NULL);
 
 
 #if defined(_INC_WINDOWS) || defined(_WINDOWS_)

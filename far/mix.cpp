@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.16 28.08.2000 $ */
+/* Revision: 1.17 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    - Неверно отрабатывала функция FarSscanf
   28.08.2000 SVS
     ! уточнение для FarQsort
     ! Не FarAtoa64, но FarAtoi64
@@ -1715,14 +1717,45 @@ int WINAPIV FarSprintf(char *buffer,const char *format,...)
   va_end(argptr);
   return ret;
 }
+
+/* $ 29.08.2000 SVS
+   - Неверно отрабатывала функция FarSscanf
+   Причина - т.к. у VC нету vsscanf, то пришлось смоделировать (взять из
+   исходников VC sscanf и "нарисовать" ее сюда
+*/
+#if defined(_MSC_VER)
+extern "C" {
+int __cdecl _input (FILE *stream,const unsigned char *format,va_list arglist);
+};
+#endif
+
 int WINAPIV FarSscanf(const char *buffer, const char *format,...)
 {
+#if defined(_MSC_VER)
+  // полная копия внутренностей sscanf :-)
+  va_list arglist;
+  FILE str;
+  FILE *infile = &str;
+  int retval;
+
+  va_start(arglist, format);
+
+  infile->_flag = _IOREAD|_IOSTRG|_IOMYBUF;
+  infile->_ptr = infile->_base = (char *) buffer;
+  infile->_cnt = strlen(buffer);
+
+  retval = (_input(infile,(const unsigned char *)format,arglist));
+
+  return(retval);
+#else
   va_list argptr;
   va_start(argptr,format);
-  int ret=sscanf(buffer,format,argptr);
+  int ret=vsscanf(buffer,format,argptr);
   va_end(argptr);
   return ret;
+#endif
 }
+/* 29.08.2000 SVS $ */
 /* SVS $ */
 
 /* $ 25.07.2000 SVS

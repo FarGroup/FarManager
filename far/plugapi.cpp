@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.16 29.08.2000 $ */
+/* Revision: 1.17 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    + Для диалога запомним номер плагина, вызвавшего этот диалог. Сейчас
+      это для того, чтобы правильно отреагировать в Dialog API на DN_HELP
   29.08.2000 SVS
     ! Если PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), то подразумеваем, что
       хотим использовать "месаги" из САМОГО far*.lng
@@ -312,6 +315,11 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       }
       FarDialog.SetHelp(Topic);
     }
+    /* $ 29.08.2000 SVS
+       Запомним номер плагина - сейчас в основном для формирования HelpTopic
+    */
+    FarDialog.SetPluginNumber(PluginNumber);
+    /* SVS $ */
     FarDialog.Process();
     ExitCode=FarDialog.GetExitCode();
   }
@@ -395,10 +403,14 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
     }
     SetMessageHelp(Topic);
   }
+  /* $ 29.08.2000 SVS
+     Запомним номер плагина - сейчас в основном для формирования HelpTopic
+  */
   int MsgCode=Message(Flags,ButtonsNumber,Items[0],MsgItems[0],MsgItems[1],
               MsgItems[2],MsgItems[3],MsgItems[4],MsgItems[5],MsgItems[6],
               MsgItems[7],MsgItems[8],MsgItems[9],MsgItems[10],MsgItems[11],
-              MsgItems[12],MsgItems[13]);
+              MsgItems[12],MsgItems[13],PluginNumber);
+  /* SVS $ */
 //  CheckScreenLock();
   return(MsgCode);
 }

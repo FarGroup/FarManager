@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    + Дополнительный параметр у Message* - номер плагина.
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -27,33 +29,33 @@ static int MessageX1,MessageY1,MessageX2,MessageY2;
 static char MsgHelpTopic[80];
 
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
-            char *Str3,char *Str4)
+            char *Str3,char *Str4,int PluginNumber)
 {
   return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,NULL,NULL,NULL,
-                 NULL,NULL,NULL,NULL,NULL,NULL,NULL));
+                 NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
-            char *Str3,char *Str4,char *Str5,char *Str6,char *Str7)
+            char *Str3,char *Str4,char *Str5,char *Str6,char *Str7,int PluginNumber)
 {
   return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
-                 NULL,NULL,NULL,NULL,NULL,NULL,NULL));
+                 NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
 
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,char *Str5,char *Str6,char *Str7,
-            char *Str8,char *Str9,char *Str10)
+            char *Str8,char *Str9,char *Str10,int PluginNumber)
 {
   return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
-                 Str9,Str10,NULL,NULL,NULL,NULL));
+                 Str9,Str10,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
 
 int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
             char *Str3,char *Str4,char *Str5,char *Str6,char *Str7,
             char *Str8,char *Str9,char *Str10,char *Str11,char *Str12,
-            char *Str13,char *Str14)
+            char *Str13,char *Str14,int PluginNumber)
 {
   char TmpStr[256],ErrStr[256],HelpTopic[80];
   char *Str[14],*Btn[14];
@@ -188,6 +190,11 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
     Dlg.SetPosition(X1,Y1,X2,Y2);
     if (*HelpTopic)
       Dlg.SetHelp(HelpTopic);
+    /* $ 29.08.2000 SVS
+       Запомним номер плагина
+    */
+    Dlg.SetPluginNumber(PluginNumber);
+    /* SVS $ */
     if (Flags & MSG_WARNING)
       Dlg.SetWarningStyle(TRUE);
     FlushInputBuffer();
@@ -387,7 +394,6 @@ int GetErrorString(char *ErrStr)
   }
   return(TRUE);
 }
-
 
 void SetMessageHelp(char *Topic)
 {
