@@ -4,7 +4,7 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.02 05.07.2000 $ */
+/* Revision: 1.03 11.07.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,8 @@ Modify:
   05.07.2000 IS
     ! Добавил кучу проверок, почти заново написал все, но фар все равно
       рушится, если переопределить new/delete :-(((
+  11.07.2000 SVS
+
 */
 
 #ifdef __cplusplus
@@ -33,27 +35,47 @@ void free(void *block);
 #include "headers.hpp"
 #pragma hdrstop
 
+#define MEM_DELTA	1023
+
 static HANDLE FARHeapForNew=NULL;
 
 void *malloc(size_t size)
 {
-  void *p;
-  if(!FARHeapForNew) FARHeapForNew=GetProcessHeap();
-  if(FARHeapForNew) p=HeapAlloc(FARHeapForNew,HEAP_ZERO_MEMORY,size);
-//  if(p==NULL)MessageBox(NULL,"NULL","p",0);
-  return p;
+  return realloc(NULL,size);
 }
+
 
 void *realloc(void *block, size_t size)
 {
-  void *p;
+  void *p=NULL;
+  int size2;
+
   if(!FARHeapForNew) FARHeapForNew=GetProcessHeap();
+
   if(FARHeapForNew)
-   {
-    if (block) p=HeapReAlloc(FARHeapForNew,HEAP_ZERO_MEMORY,block,size);
-    else p=HeapAlloc(FARHeapForNew,HEAP_ZERO_MEMORY, size);
-   }
-//  if(p==NULL)MessageBox(NULL,"NULL","p",0);
+  {
+    if(!size)
+      HeapFree(FARHeapForNew,0,block);
+    else if (!block) // В первый раз даем столько, сколько
+                     // просят. Что-бы небыло лишнего расхода при единичном вызове
+      p=HeapAlloc(FARHeapForNew,HEAP_ZERO_MEMORY, size);
+    else
+    {
+      p=block;
+      // Required size, alligned to MEM_DELTA
+      size  = (size + MEM_DELTA) & (~MEM_DELTA);
+      // Current allocated size
+      size2 = HeapSize(FARHeapForNew,0,block);
+      if (size  > size2 ||          // Запросили больше, чем реально выделено
+          size2 - size > MEM_DELTA) // Надо освободить блок размером с MEM_DELTA или больше
+        p=HeapReAlloc(FARHeapForNew,HEAP_ZERO_MEMORY,block,size);
+      // else
+      /*
+          Ничего. Память в хипе уже выделена в прошлый раз и мы не трогаем его.
+          А программа считает, что произошли изменения...
+      */
+    }
+  }
   return p;
 }
 
