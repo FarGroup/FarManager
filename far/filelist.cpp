@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.147 11.04.2002 $ */
+/* Revision: 1.148 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 IS
+    + Учтем то, что Plugin.PutFiles может вернуть 2
   11.04.2002 SVS
     ! OPM_QUICKVIEW -> OPM_VIEW|OPM_QUICKVIEW
     - Сраный новел - применяем WNetGetUniversalName для чего угодно, только не для Novell`а
@@ -1557,7 +1559,7 @@ int FileList::ProcessKey(int Key)
               if (FileNameToPluginItem(TempName,&PanelItem))
               {
                 int PutCode=CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
-                if (PutCode==1)
+                if (PutCode==1 || PutCode==2)
                   SetPluginModified();
                 if (PutCode==0)
                   UploadFailed=TRUE;

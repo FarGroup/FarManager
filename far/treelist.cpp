@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.39 08.04.2002 $ */
+/* Revision: 1.40 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 IS
+    + Учтем то, что Plugin.PutFiles может вернуть 2
   08.04.2002 IS
     ! внедрение const
   26.03.2002 KM
@@ -750,7 +752,8 @@ int TreeList::ProcessKey(int Key)
           int ItemNumber=1;
           HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
           FileList::FileNameToPluginItem(ListData[CurFile].Name,ItemList);
-          if (CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0)==1)
+          int PutCode=CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0);
+          if (PutCode==1 || PutCode==2)
             AnotherPanel->SetPluginModified();
           /* $ 13.07.2000 SVS
              не надо смешивать new/delete с realloc

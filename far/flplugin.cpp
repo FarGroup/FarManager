@@ -5,10 +5,19 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.26 11.04.2002 $ */
+/* Revision: 1.27 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 IS
+    ! PluginPutFilesToAnother теперь int - возвращает то, что возвращает
+      PutFiles:
+      -1 - прервано пользовтелем
+       0 - неудача
+       1 - удача
+       2 - удача, курсор принудительно установлен на файл и заново его
+           устанавливать не нужно
+    + PluginPutFilesToNew учитывает код возврата PluginPutFilesToAnother
   11.04.2002 SVS
     ! ƒоп.ѕараметр у PluginGetPanelInfo - получать полную инфу или не полную
   10.04.2002 SVS
@@ -493,12 +502,14 @@ void FileList::PluginToPluginFiles(int Move)
   CreatePluginItemList(ItemList,ItemNumber);
   if (ItemList!=NULL && ItemNumber>0)
   {
-    if (CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,FALSE,TempDir,OPM_SILENT)==1)
+    int PutCode=CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,FALSE,TempDir,OPM_SILENT);
+    if (PutCode==1 || PutCode==2)
     {
       char SaveDir[NM];
       FarGetCurDir(sizeof(SaveDir),SaveDir);
       FarChDir(TempDir);
-      if (CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0)==1)
+      PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0);
+      if (PutCode==1 || PutCode==2)
       {
         if (!ReturnCurrentFile)
           ClearSelection();
@@ -588,8 +599,13 @@ void FileList::PluginPutFilesToNew()
     TmpPanel.SetPluginMode(hNewPlugin,"");
     TmpPanel.SetModalMode(TRUE);
     int PrevFileCount=FileCount;
-    PluginPutFilesToAnother(FALSE,&TmpPanel);
-    if (FileCount==PrevFileCount+1)
+    /* $ 12.04.2002 IS
+       ≈сли PluginPutFilesToAnother вернула число, отличное от 2, то нужно
+       попробовать установить курсор на созданный файл.
+    */
+    int rc=PluginPutFilesToAnother(FALSE,&TmpPanel);
+    if (rc!=2 && FileCount==PrevFileCount+1)
+    /* IS $ */
     {
       int LastPos=0;
       /* ћесто, где вычисл€ютс€ координаты вновьсозданного файла
@@ -608,20 +624,29 @@ void FileList::PluginPutFilesToNew()
 }
 
 
-void FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
+/* $ 12.04.2002 IS
+     PluginPutFilesToAnother теперь int - возвращает то, что возвращает
+     PutFiles:
+     -1 - прервано пользовтелем
+      0 - неудача
+      1 - удача
+      2 - удача, курсор принудительно установлен на файл и заново его
+          устанавливать не нужно (см. PluginPutFilesToNew)
+*/
+int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 {
   if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
-    return;
+    return 0;
   FileList *AnotherFilePanel=(FileList *)AnotherPanel;
   struct PluginPanelItem *ItemList;
-  int ItemNumber;
+  int ItemNumber,PutCode=0;
   SaveSelection();
   CreatePluginItemList(ItemList,ItemNumber);
   if (ItemList!=NULL && ItemNumber>0)
   {
     SetCurPath();
-    int PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,Move,0);
-    if (PutCode==1)
+    PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,Move,0);
+    if (PutCode==1 || PutCode==2)
     {
       if (!ReturnCurrentFile)
         ClearSelection();
@@ -640,6 +665,7 @@ void FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
       AnotherPanel->Redraw();
     }
   }
+  return PutCode;
 }
 
 

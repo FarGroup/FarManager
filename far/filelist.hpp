@@ -7,10 +7,13 @@ filelist.hpp
 
 */
 
-/* Revision: 1.29 11.04.2002 $ */
+/* Revision: 1.30 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 IS
+    ! PluginPutFilesToAnother теперь int - возвращает то, что возвращает
+      PutFiles
   11.04.2002 SVS
     ! Доп.Параметр у PluginGetPanelInfo - получать полную инфу или не полную
   10.04.2002 SVS
@@ -259,7 +262,8 @@ class FileList:public Panel
     void PluginToPluginFiles(int Move);
     void PluginHostGetFiles();
     void PluginPutFilesToNew();
-    void PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
+    // возвращает то, что возвращает PutFiles
+    int PluginPutFilesToAnother(int Move,Panel *AnotherPanel);
     void ProcessPluginCommand();
     void PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber);
     void ProcessCopyKeys(int Key);
