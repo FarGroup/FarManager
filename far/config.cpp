@@ -5,12 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.83 10.07.2001 $ */
+/* Revision: 1.84 16.07.2001 $ */
 
 /*
 Modify:
+  16.07.2001 SVS
+    ! Opt.AltF9 - по умолчанию = 0, т.е. отключено (подробнее см. описалово)
   10.07.2001 SKV
-    Redraw после изменения конфига.
+    ! Redraw после изменения конфига.
   04.07.2001 SVS
     + Opt.LCIDSort
   24.06.2001 KM
@@ -924,7 +926,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9,1, 0},
+  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, 0, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},

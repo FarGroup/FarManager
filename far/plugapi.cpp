@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.74 26.06.2001 $ */
+/* Revision: 1.75 16.07.2001 $ */
 
 /*
 Modify:
+  16.07.2001 SVS
+    + Обработка FarMenuItemEx в FarMenu
   26.06.2001 SVS
     ! __except -> EXCEPT
   26.06.2001 SKV
@@ -488,6 +490,8 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
            const char *HelpTopic, const int *BreakKeys,int *BreakCode,
            const struct FarMenuItem *Item, int ItemsNumber)
 {
+  int I;
+
   if (DisablePluginsOutput)
     return(-1);
   int ExitCode;
@@ -511,16 +515,29 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     }
     if (Bottom!=NULL)
       FarMenu.SetBottomTitle(Bottom);
-    for (int I=0;I<ItemsNumber;I++)
+
+    struct MenuItem CurItem;
+    memset(&CurItem,0,sizeof(CurItem));
+
+    if(Flags&FMENU_USEEXT)
     {
-      struct MenuItem CurItem;
-      memset(&CurItem,0,sizeof(CurItem));
-      CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
-      CurItem.Flags|=Item[I].Checked?(LIF_CHECKED|(Item[I].Checked&0xFFFF)):0;
-      CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
-      strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name));
-      FarMenu.AddItem(&CurItem);
+      struct FarMenuItemEx *ItemEx=(struct FarMenuItemEx*)Item;
+      for (I=0;I<ItemsNumber;I++)
+      {
+        CurItem.Flags=ItemEx[I].Flags;
+        strncpy(CurItem.Name,ItemEx[I].Text,sizeof(CurItem.Name));
+        FarMenu.AddItem(&CurItem);
+      }
     }
+    else
+      for (I=0;I<ItemsNumber;I++)
+      {
+        CurItem.Flags=Item[I].Checked?(LIF_CHECKED|(Item[I].Checked&0xFFFF)):0;
+        CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
+        CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
+        strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name));
+        FarMenu.AddItem(&CurItem);
+      }
 
     DWORD MenuFlags=0;
     if (Flags & FMENU_SHOWAMPERSAND)

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.137 12.07.2001 $ */
+/* Revision: 1.138 16.07.2001 $ */
 
 /*
 Modify:
+  16.07.2001 SVS
+   + DM_SETHISTORY - управление историей
   12.07.2001 OT
    - Исправление ситуации (после 816) F11->F4->Esc-> :(
   11.07.2001 OT
@@ -4544,6 +4546,27 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
       }
       return FALSE;
+
+    case DM_SETHISTORY: // Param1 = ID, Param2 = LPSTR HistoryName
+    {
+      if(Type==DI_EDIT || Type==DI_FIXEDIT)
+      {
+        if(Param2 && *(char *)Param2)
+        {
+          CurItem->Flags|=DIF_HISTORY;
+          CurItem->History=(char *)Param2;
+        }
+        else
+        {
+          CurItem->Flags&=~DIF_HISTORY;
+          CurItem->History=NULL;
+        }
+        Dlg->ShowDialog(Param1);
+        ScrBuf.Flush();
+        return TRUE;
+      }
+      return FALSE;
+    }
 
     case DM_ADDHISTORY:
       if(Param2 &&

@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.126 11.07.2001 $ */
+/* Revision: 1.127 16.07.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  16.07.2001 SVS
+   + FMENU_USEEXT & MENUITEMFLAGS & FarMenuItemEx
+   + DM_SETHISTORY - управление наличием истории у DI_EDIT & DI_FIXEDIT
   11.07.2001 OT
    + Новое "техническое" сообщения диалогу - DM_KILLSAVESCREEN
   30.06.2001 KM
@@ -510,6 +513,7 @@ enum {
   FMENU_AUTOHIGHLIGHT       =0x0004,
   FMENU_REVERSEAUTOHIGHLIGHT=0x0008,
   FMENU_SHOWNOBOX           =0x0010,
+  FMENU_USEEXT              =0x0020,
 };
 
 enum {
@@ -721,6 +725,8 @@ enum FarMessagesProc{
   DM_GETDROPDOWNOPENED,
   DM_SETDROPDOWNOPENED,
 
+  DM_SETHISTORY,
+
   DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
@@ -902,6 +908,19 @@ struct FarMenuItem
   int Selected;
   int Checked;
   int Separator;
+};
+
+enum MENUITEMFLAGS {
+  MIF_SELECTED = 0x00010000UL,
+  MIF_CHECKED  = 0x00020000UL,
+  MIF_SEPARATOR= 0x00040000UL,
+  MIF_DISABLE  = 0x00080000UL,
+};
+
+struct FarMenuItemEx
+{
+  DWORD Flags;
+  char Text[124];
 };
 
 
