@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.64 28.12.2000 $ */
+/* Revision: 1.65 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+   - Bug при использовании DM_SETDLGITEM - неверно устанавливался фокус ввода
   28.12.2000 SVS
    + добавлена обработка Opt.HotkeyRules
   25.12.2000 SVS
@@ -518,7 +520,12 @@ int Dialog::InitDialogObjects(int ID)
     InitItemCount=ID+1;
   }
 
-  FocusPos = -1; // будем искать сначала!
+  /* 04.01.2001 SVS
+     если FocusPos в пределах и элемент задисаблен, то ищем сначала. */
+  if(FocusPos >= 0 && FocusPos < ItemCount &&
+     (Item[FocusPos].Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
+    FocusPos = -1; // будем искать сначала!
+  /* SVS $ */
 
   // предварительный цикл по поводу кнопок и заголовка консоли
   for(I=ID, TitleSet=0; I < InitItemCount; I++)
