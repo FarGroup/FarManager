@@ -8,10 +8,18 @@ macro.cpp
 
 */
 
-/* Revision: 1.82 02.06.2002 $ */
+/* Revision: 1.83 17.08.2002 $ */
 
 /*
 Modify:
+  17.08.2002 SVS
+    ! ¬место DI_EDIT в диалоге назначени€ макроклавиши применен DI_COMBOBOX.
+      Ёто дает юзеру возможность выбрать некоторые клавиши, которые обычными
+      средствами не назначишь (Esc, Enter, F1).
+      ¬ предопределенном списке клавиша "CtrlDown" нужна дл€ того, чтобы
+      можно было бы открыть список не только мышкой, но и с клавиатуры.
+    ! AssignMacroKey() возвращает -1 вместо Esc, т.к. это в свете по€влени€
+      комбобокса будет правильно (иначе не назначишь клавишу Esc)
   02.06.2002 SVS
     ! ¬недрение const
   24.05.2002 SVS
@@ -277,6 +285,7 @@ Modify:
 #include "cmdline.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
+#include "udlist.hpp"
 
 enum MCONDITIONTYPE {
   MCODE_WINDOWEDMODE=MACRO_LAST+1, // оконный режим?
@@ -530,15 +539,15 @@ int KeyMacro::ProcessKey(int Key)
 
       // добавим проверку на удаление
       // если удал€ем, то не нужно выдавать диалог настройки.
-      if (MacroKey != KEY_ESC && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
+      if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
       {
         if (!GetMacroSettings(MacroKey,Flags))
-          MacroKey=KEY_ESC;
+          MacroKey=(DWORD)-1;
       }
       WaitInMainLoop=WaitInMainLoop0;
       InternalInput=FALSE;
 
-      if (MacroKey==KEY_ESC)
+      if (MacroKey==(DWORD)-1)
         delete RecBuffer;
       else
       {
@@ -1189,16 +1198,61 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
   {
     KMParam=(struct DlgParam *)Param2;
     LastKey=0;
+
+    // < лавиши, которые не введешь в диалоге назначени€>
+    static const char * const PreDefKeyName[]={
+      "CtrlDown", "Enter", "Esc", "F1"
+    };
+    for(I=0; I < sizeof(PreDefKeyName)/sizeof(PreDefKeyName[0]); ++I)
+      Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)PreDefKeyName[I]);
+/*
+    int KeySize=GetRegKeySize("KeyMacros","DlgKeys");
+    char *KeyStr;
+    if(KeySize &&
+       (KeyStr=(char*)malloc(KeySize+1)) != NULL &&
+       GetRegKey("KeyMacros","DlgKeys",KeyStr,"",KeySize)
+      )
+    {
+      UserDefinedList KeybList;
+      if(KeybList.Set(KeyStr))
+      {
+        KeybList.Start();
+        const char *OneKey;
+        *KeyText=0;
+        while(NULL!=(OneKey=KeybList.GetNext()))
+        {
+          strncpy(KeyText, OneKey, sizeof(KeyText)-1);
+          Dialog::SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)KeyText);
+        }
+      }
+      free(KeyStr);
+    }
+*/
+    Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)"");
+    // </ лавиши, которые не введешь в диалоге назначени€>
+
   }
-  else if(Msg == DM_KEY && (Param2&KEY_END_SKEY) < KEY_END_FKEY)
+  else if(Param1 == 2 && Msg == DN_EDITCHANGE)
+  {
+    LastKey=0;
+    Param2=KeyNameToKey(((struct FarDialogItem*)Param2)->Data.Data);
+    if(Param2 != -1)
+      goto M1;
+  }
+  else if(Msg == DN_KEY && (Param2&KEY_END_SKEY) < KEY_END_FKEY)
   {
 //_SVS(SysLog("Macro: Key=%s",_FARKEY_ToName(Param2)));
     // <ќбработка особых клавиш: F1 & Enter>
     // Esc & (Enter и предыдущий Enter) - не обрабатываем
     if(Param2 == KEY_ESC ||
-       Param2 == KEY_ENTER && LastKey == KEY_ENTER)
+       Param2 == KEY_ENTER && LastKey == KEY_ENTER ||
+       Param2 == KEY_CTRLDOWN ||
+       Param2 == KEY_F1
+      )
+    {
       return FALSE;
-
+    }
+/*
     // F1 - особый случай - нужно жать 2 раза
     // первый раз будет выведен хелп,
     // а второй раз - второй раз уже назначение
@@ -1207,12 +1261,12 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       LastKey=KEY_F1;
       return FALSE;
     }
-
+*/
     // Ѕыло что-то уже нажато и Enter`ом подтверждаем
     if(Param2 == KEY_ENTER && LastKey && LastKey != KEY_ENTER)
       return FALSE;
     // </ќбработка особых клавиш: F1 & Enter>
-
+M1:
     KeyMacro *MacroDlg=KMParam->Handle;
 
     if((Param2&0x00FFFFFF) > 0x7F && (Param2&0x00FFFFFF) < 0xFF)
@@ -1311,11 +1365,10 @@ DWORD KeyMacro::AssignMacroKey()
   | ________________________ |
   +--------------------------+
 */
-
   static struct DialogData MacroAssignDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,30,4,0,0,0,0,(char *)MDefineMacroTitle,
   /* 01 */ DI_TEXT,-1,2,0,0,0,0,DIF_BOXCOLOR|DIF_READONLY,0,(char *)MDefineMacro,
-  /* 02 */ DI_EDIT,5,3,28,3,1,0,0,1,"",
+  /* 02 */ DI_COMBOBOX,5,3,28,3,1,0,0,1,"",
   };
   MakeDialogItems(MacroAssignDlgData,MacroAssignDlg);
   struct DlgParam Param={this,0,StartMode};
@@ -1331,7 +1384,7 @@ DWORD KeyMacro::AssignMacroKey()
      «абыл сделать проверку на код возврата из диалога назначени€
   */
   if(Dlg.GetExitCode() == -1)
-    return KEY_ESC;
+    return (DWORD)-1;
   /* SVS $ */
   return Param.Key;
 }

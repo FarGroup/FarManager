@@ -2843,17 +2843,10 @@ from the ~Options menu~@OptMenu@ is executed.
 recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select the desired
 options in the dialog.
 
-    #Assigning a macro command to the F1 key#
-
-    When F1 is pressed for the first time, this help topic will be show.
-Pressing F1 again after closing the help will assign the macro command
-to the F1 key.
-
-    #Assigning a macro command to the Enter key#
-
-    To assign a macro command to the Enter key, you should press Enter
-twice. When Enter is pressed the first time, the key will be assigned;
-pressing it again will confirm the assignment and close the dialog.
+    Some key combinations (including Enter, Esc and F1) cannot be
+entered directly because they have special functions in the dialog.
+To assign a macro to one of those key combinations, select it from
+the drop-down list.
 
 @KeyMacroSetting
 $ #Macro command settings#

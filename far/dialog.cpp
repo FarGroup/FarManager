@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.257 07.08.2002 $ */
+/* Revision: 1.258 17.08.2002 $ */
 
 /*
 Modify:
+  17.08.2002 SVS
+    ! Обработка CtrlDown вынесена из обработчика клавиатуры в отдельную
+      функцию ProcessOpenComboBox, т.к. вызов ProcessKey(KEY_CTRLDOWN)
+      из мышиного обработчика приводит к побочным отрицательным эффектам
+    - Если DI_COMBOBOX заполнялся в DI_INITDIALOG, то выбор из такого
+      списка невозможен.
+    - Уточнение для DI_FIXEDIT размером в 1 символ - траблы однако
   07.08.2002 SVS
     - BugZ#584 - Обрезается вставляемый из клипборда текст.
   12.07.2002 SVS
@@ -1553,7 +1560,7 @@ int Dialog::InitDialogObjects(int ID)
         /* SVS $ */
         // если DI_FIXEDIT, то курсор сразу ставится на замену...
         //   ай-ай - было недокументированно :-)
-        DialogEdit->SetMaxLength(CurItem->X2-CurItem->X1+1+1); //??? +1 ???
+        DialogEdit->SetMaxLength(CurItem->X2-CurItem->X1+1+(CurItem->X2==CurItem->X1?0:1));
         DialogEdit->SetOvertypeMode(TRUE);
         /* $ 12.08.2000 KM
            Если тип строки ввода DI_FIXEDIT и установлен флаг DIF_MASKEDIT
@@ -3261,55 +3268,7 @@ int Dialog::ProcessKey(int Key)
     /* VVM $ */
     case KEY_CTRLUP:      case KEY_CTRLNUMPAD8:
     case KEY_CTRLDOWN:    case KEY_CTRLNUMPAD2:
-      // для user-типа вываливаем
-      if(Type == DI_USERCONTROL)
-        return TRUE;
-
-      CurEditLine=((DlgEdit *)(CurItem->ObjPtr));
-      if (IsEdit(Type) &&
-           (CurItem->Flags & DIF_HISTORY) &&
-           Opt.Dialogs.EditHistory &&
-           CurItem->History &&
-           !(CurItem->Flags & DIF_READONLY))
-      /* $ 26.07.2000 SVS
-         Передаем то, что в строке ввода в функцию выбора из истории
-         для выделения нужного пункта в истории.
-      */
-      {
-        char *PStr=Str;
-        int MaxLen=sizeof(CurItem->Data);
-        if(CurItem->Flags&DIF_VAREDIT)
-        {
-          MaxLen=CurItem->Ptr.PtrLength;
-          if((PStr=(char*)malloc(MaxLen+1)) == NULL)
-            return TRUE;//???
-        }
-        /* $ 27.04.2001 SVS
-           Оху%$@#&^%$&$%*%^$*^%$*^%$*^%$&*
-           Было: sizeof(MaxLen) ;-( - это типа размер данных.
-        */
-        CurEditLine->GetString(PStr,MaxLen);
-        /* SVS $ */
-        SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,PStr,MaxLen);
-        if(CurItem->Flags&DIF_VAREDIT)
-          free(PStr);
-      }
-      /* SVS $ */
-      /* $ 18.07.2000 SVS
-         + обработка DI_COMBOBOX - выбор из списка!
-      */
-      else if(Type == DI_COMBOBOX && CurItem->ListPtr &&
-              !(CurItem->Flags & DIF_READONLY) &&
-              CurItem->ListPtr->GetItemCount() > 0) //??
-      {
-        int MaxLen=(CurItem->Flags&DIF_VAREDIT)?
-                     CurItem->Ptr.PtrLength:
-                     sizeof(CurItem->Data);
-        if(SelectFromComboBox(CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
-          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
-      }
-      /* SVS $ */
-      return(TRUE);
+      return ProcessOpenComboBox(Type,CurItem,CurFocusPos);
 
     /* $ 20.03.2002 DJ
        для корректной обработки [x] Selection exists в диалогах
@@ -3804,7 +3763,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 FocusPos=I;
               }
               ShowDialog();
-              ProcessKey(KEY_CTRLDOWN);
+              ProcessOpenComboBox(Item[FocusPos].Type,Item+FocusPos,OldFocusPos); //OldFocusPos ???
+              //ProcessKey(KEY_CTRLDOWN);
               if(Item[I].Flags&DIF_NOFOCUS) //???
                 FocusPos=OldFocusPos;       //???
               return(TRUE);
@@ -3831,7 +3791,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             else
             {
               // Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
-              if (MsX==EditX2+1 && MsY==EditY1 && Item[I].History &&
+              if (MsX==EditX2+1 && MsY==EditY1 &&
+                  (Item[I].History ||
+                    (Type == DI_COMBOBOX && Item[I].ListPtr && Item[I].ListPtr->GetItemCount())
+                  ) &&
                   ((Item[I].Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory
                    || Type == DI_COMBOBOX))
 //                  ((Item[I].Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory))
@@ -3846,7 +3809,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 }
                 if(!(Item[I].Flags&DIF_HIDDEN))
                   ShowDialog(I);
-                ProcessKey(KEY_CTRLDOWN);
+                ProcessOpenComboBox(Item[FocusPos].Type,Item+FocusPos,OldFocusPos);//OldFocusPos???
+                //ProcessKey(KEY_CTRLDOWN);
                 if(Item[I].Flags&DIF_NOFOCUS) //???
                    FocusPos=OldFocusPos;      //???
                 return(TRUE);
@@ -4013,6 +3977,63 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 /* SVS 18.08.2000 $ */
 
+
+int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocusPos)
+{
+  int I,J;
+  char Str[1024];
+  DlgEdit *CurEditLine;
+
+  // для user-типа вываливаем
+  if(Type == DI_USERCONTROL)
+    return TRUE;
+
+  CurEditLine=((DlgEdit *)(CurItem->ObjPtr));
+  if (IsEdit(Type) &&
+       (CurItem->Flags & DIF_HISTORY) &&
+       Opt.Dialogs.EditHistory &&
+       CurItem->History &&
+       !(CurItem->Flags & DIF_READONLY))
+  /* $ 26.07.2000 SVS
+     Передаем то, что в строке ввода в функцию выбора из истории
+     для выделения нужного пункта в истории.
+  */
+  {
+    char *PStr=Str;
+    int MaxLen=sizeof(CurItem->Data);
+    if(CurItem->Flags&DIF_VAREDIT)
+    {
+      MaxLen=CurItem->Ptr.PtrLength;
+      if((PStr=(char*)malloc(MaxLen+1)) == NULL)
+        return TRUE;//???
+    }
+    /* $ 27.04.2001 SVS
+       Оху%$@#&^%$&$%*%^$*^%$*^%$*^%$&*
+       Было: sizeof(MaxLen) ;-( - это типа размер данных.
+    */
+    CurEditLine->GetString(PStr,MaxLen);
+    /* SVS $ */
+    SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,PStr,MaxLen);
+    if(CurItem->Flags&DIF_VAREDIT)
+      free(PStr);
+  }
+  /* SVS $ */
+  /* $ 18.07.2000 SVS
+     + обработка DI_COMBOBOX - выбор из списка!
+  */
+  else if(Type == DI_COMBOBOX && CurItem->ListPtr &&
+          !(CurItem->Flags & DIF_READONLY) &&
+          CurItem->ListPtr->GetItemCount() > 0) //??
+  {
+    int MaxLen=(CurItem->Flags&DIF_VAREDIT)?
+                 CurItem->Ptr.PtrLength:
+                 sizeof(CurItem->Data);
+    if(SelectFromComboBox(CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
+      Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
+  }
+  /* SVS $ */
+  return(TRUE);
+}
 
 int Dialog::ProcessRadioButton(int CurRB)
 {
@@ -5107,7 +5128,8 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
         // при ComboBox`е - "вываливаем" последний //????
         else if (Item[I].Type==DI_COMBOBOX)
         {
-          ProcessKey(KEY_CTRLDOWN);
+          ProcessOpenComboBox(Item[I].Type,Item+I,FocusPos);
+          //ProcessKey(KEY_CTRLDOWN);
           return(TRUE);
         }
         return(TRUE);
@@ -6728,7 +6750,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         if (Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0))
         {
-          Dlg->ProcessKey(KEY_CTRLDOWN);
+          Dlg->ProcessOpenComboBox(Type,CurItem,Param1); //?? Param1 ??
+          //Dlg->ProcessKey(KEY_CTRLDOWN);
           return TRUE;
         }
         else

@@ -5,10 +5,18 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.75 23.07.2002 $ */
+/* Revision: 1.76 17.08.2002 $ */
 
 /*
 Modify:
+  17.08.2002 SVS
+    - Траблы с Alt-Digit + NumLock=On под масдайкой.
+    - В масдае нажатие на Gray-Del всегда приводил к клавише Del, независимо
+      от состояния NumLock (при включенном NumLock ожидаем '.', но ее в
+      масдае нету).
+    - Наконец-то удавил гадину масдаевскую, вставляющую шифты - масдай
+      успевает подсовывать Shift в очередь при нажатии курсорных расширенных
+      клавиш... В т.ч. и NT... - ну.. "это совсем другая история, страна" ;-)
   23.07.2002 SKV
     + Пусть KEY_ALT тоже будет IsShiftKey :)
   30.05.2002 SVS
@@ -248,7 +256,7 @@ static int PrePreMouseEventFlags;
 #endif
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
 static clock_t PressedLastTime,KeyPressedLastTime;
-
+static int ShiftState=0;
 
 /* ----------------------------------------------------------------- */
 static struct TTable_KeyToVK{
@@ -502,6 +510,73 @@ int GetInputRecord(INPUT_RECORD *rec)
        ! Убрал подмену колесика */
     if (ReadCount!=0)
     {
+      // в масдае хрен знает что творится с расширенными курсорными клавишами ;-(
+      // Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
+      // ... иначе хреновень с эфектом залипшего шифта проскакивает
+      if(rec->EventType==KEY_EVENT && IsProcessAssignMacroKey)
+      {
+        if(rec->Event.KeyEvent.wVirtualKeyCode == VK_SHIFT)
+        {
+          if(rec->Event.KeyEvent.dwControlKeyState&ENHANCED_KEY)
+          {
+            /*
+            Left Right курсорные расширенные клавиши
+            MustDie:
+            Dn, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000120 (casa - cEcN)
+            Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000130 (caSa - cEcN)
+                          ^^                          ^            ^ !!! вот такое и прокинем ;-)
+            Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000120 (casa - cEcN)
+            Up, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000120 (casa - cEcN)
+            Dn, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000120 (casa - cEcN)
+            Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000130 (caSa - cEcN)
+            Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000120 (casa - cEcN)
+            Up, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000120 (casa - cEcN)
+            --------------------------------------------------------------
+            NT:
+            Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
+            Dn, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000130 (caSa - cEcN)
+            Up, 1, Vk=0x0025, Scan=0x004B Ctrl=0x00000130 (caSa - cEcN)
+            Dn, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000130 (caSa - cEcN)
+            Up, 1, Vk=0x0027, Scan=0x004D Ctrl=0x00000130 (caSa - cEcN)
+            Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
+            */
+            INPUT_RECORD pinp;
+            DWORD nread;
+            ReadConsoleInput(hConInp, &pinp, 1, &nread);
+            continue;
+          }
+
+          /* коррекция шифта, т.к.
+          NumLock=ON Shift-Numpad1
+             Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
+             Dn, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
+             Up, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
+          >>>Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
+             Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
+          винда вставляет лишний шифт
+          */
+          if(rec->Event.KeyEvent.bKeyDown)
+          {
+            if(!ShiftState)
+              ShiftState=TRUE;
+            else // Здесь удалим из очереди... этот самый кривой шифт
+            {
+              INPUT_RECORD pinp;
+              DWORD nread;
+              ReadConsoleInput(hConInp, &pinp, 1, &nread);
+              continue;
+            }
+          }
+          else if(!rec->Event.KeyEvent.bKeyDown)
+            ShiftState=FALSE;
+        }
+
+        if((rec->Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) == 0 && ShiftState)
+          rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
+      }
+
+
+//      _SVS(if(rec->EventType==KEY_EVENT)SysLog("%s",_INPUT_RECORD_Dump(rec)));
 #if defined(USE_WFUNC_IN)
       WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
       if((UnicodeChar&0xFF00) && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -623,6 +698,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
     LButtonPressed=RButtonPressed=MButtonPressed=FALSE;
+    ShiftState=FALSE;
     PressedLastTime=0;
 #if defined(USE_WFUNC_IN)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -650,6 +726,39 @@ int GetInputRecord(INPUT_RECORD *rec)
 
   if (rec->EventType==KEY_EVENT)
   {
+    /* коррекция шифта, т.к.
+    NumLock=ON Shift-Numpad1
+       Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
+       Dn, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
+       Up, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
+    >>>Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
+       Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
+    винда вставляет лишний шифт
+    */
+/*
+    if(rec->Event.KeyEvent.wVirtualKeyCode == VK_SHIFT)
+    {
+      if(rec->Event.KeyEvent.bKeyDown)
+      {
+        if(!ShiftState)
+          ShiftState=TRUE;
+        else // Здесь удалим из очереди... этот самый кривой шифт
+        {
+          INPUT_RECORD pinp;
+          DWORD nread;
+          ReadConsoleInput(hConInp, &pinp, 1, &nread);
+          return KEY_NONE;
+        }
+      }
+      else if(!rec->Event.KeyEvent.bKeyDown)
+        ShiftState=FALSE;
+    }
+
+    if((rec->Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) == 0 && ShiftState)
+      rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
+*/
+    _SVS(if(rec->EventType==KEY_EVENT)SysLog("%s",_INPUT_RECORD_Dump(rec)));
+
     DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 
     /* $ 28.06.2001 SVS
@@ -792,6 +901,30 @@ int GetInputRecord(INPUT_RECORD *rec)
       ReadConsoleInputA(hConInp,rec,1,&ReadCount);
 #else
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
+
+    // Эта фигня нужна только в диалоге назначения макро - остальное по барабану - и так работает
+    // ... иначе хреновень с эфектом залипшего шифта проскакивает
+    /* коррекция шифта, т.к.
+    NumLock=ON Shift-Numpad1
+       Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
+       Dn, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
+       Up, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
+    >>>Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
+       Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
+    винда вставляет лишний шифт
+    */
+    if(rec->Event.KeyEvent.wVirtualKeyCode == VK_SHIFT &&
+       rec->EventType==KEY_EVENT &&
+       IsProcessAssignMacroKey)
+    {
+      if(rec->Event.KeyEvent.bKeyDown)
+      {
+        if(!ShiftState)
+          ShiftState=TRUE;
+      }
+      else if(!rec->Event.KeyEvent.bKeyDown)
+        ShiftState=FALSE;
+    }
 #endif
   }
 
@@ -1482,7 +1615,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
   KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
   AsciiChar=rec->Event.KeyEvent.uChar.AsciiChar;
-  _SVS(if(KeyCode == VK_UP || KeyCode == VK_NUMPAD8) SysLog("CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, AsciiChar,ShiftPressed,ShiftPressedLast));
+  _SVS(if(KeyCode == VK_DECIMAL || KeyCode == VK_DELETE) SysLog("CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, AsciiChar,ShiftPressed,ShiftPressedLast));
 
   if(NotMacros)
     *NotMacros=CtrlState&0x80000000?TRUE:FALSE;
@@ -1507,7 +1640,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       ReturnAltValue=TRUE;
       AltValue&=255;
       rec->Event.KeyEvent.uChar.AsciiChar=AltValue;
-      //_SVS(SysLog("KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
+      _SVS(SysLog("KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);
     }
     else
@@ -1595,7 +1728,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     if(CtrlState&NUMLOCK_ON)
     {
       Modif2|=KEY_SHIFT;
-      if(KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9)
+      if(KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 || KeyCode == VK_DECIMAL)
       {
         Modif2&=~KEY_SHIFT;
       }
@@ -1643,19 +1776,22 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     }
 #endif
 
-    if((CtrlState&NUMLOCK_ON) && KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 ||
-       !(CtrlState&NUMLOCK_ON) && KeyCode < VK_NUMPAD0
+    _SVS(SysLog("1 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+    if((CtrlState & ENHANCED_KEY)==0
+      //(CtrlState&NUMLOCK_ON) && KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 ||
+      // !(CtrlState&NUMLOCK_ON) && KeyCode < VK_NUMPAD0
       )
     {
+    _SVS(SysLog("2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
       for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
-        if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
+        if (ScanCodes[I]==ScanCode)
         {
           if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
           {
             AltValue=AltValue*10+I;
             KeyCodeForALT_LastPressed=KeyCode;
-            _SVS(SysLog("AltNumPad -> CalcKeyCode -> KeyCode=%X  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",KeyCode,ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+            _SVS(SysLog("3 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
           }
           if(AltValue!=0)
             return(KEY_NONE);
@@ -1734,7 +1870,6 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD6:KEY_RIGHT);
     case VK_UP:
     case VK_NUMPAD8:
-      _SVS(SysLog("case VK_NUMPAD8:  Opt.UseNumPad=%08X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",Opt.UseNumPad,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       if(CtrlState&ENHANCED_KEY)
       {
         return(Modif|KEY_UP);
@@ -1790,13 +1925,15 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
     case VK_DECIMAL:
     case VK_DELETE:
+      _SVS(SysLog("case VK_DELETE:  Opt.UseNumPad=%08X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",Opt.UseNumPad,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       if(CtrlState&ENHANCED_KEY)
       {
         return(Modif|KEY_DEL);
       }
-      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_DECIMAL)
+      else if(NotShift && (CtrlState&NUMLOCK_ON) && KeyCode == VK_DECIMAL ||
+              (CtrlState&NUMLOCK_ON) && KeyCode == VK_DELETE && (WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)) // МАСДАЙ!
         return '.';
-      return Modif|(Opt.UseNumPad?Modif2:0)|KEY_DEL;
+      return Modif| (Opt.UseNumPad?Modif2:0)| KEY_DEL;
   }
 
   switch(KeyCode)

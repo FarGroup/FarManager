@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.61 18.05.2002 $ */
+/* Revision: 1.62 17.08.2002 $ */
 
 /*
 Modify:
+  17.08.2002 SVS
+    ! Обработка CtrlDown вынесена из обработчика клавиатуры в отдельную
+      функцию ProcessOpenComboBox, т.к. вызов ProcessKey(KEY_CTRLDOWN)
+      из мышиного обработчика приводит к побочным отрицательным эффектам
   18.05.2002 SVS
     ! OwnsItems -> DMODE_OWNSITEMS
   15.05.2002 SVS
@@ -475,6 +479,8 @@ class Dialog: public Frame
     */
     int  InitDialogObjects(int ID=-1);
     /* 24.08.2000 SVS $ */
+
+    int ProcessOpenComboBox(int Type,struct DialogItem *CurItem,int CurFocusPos);
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
