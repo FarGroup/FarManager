@@ -2,7 +2,7 @@
 @Contents
 $^#FAR version 1.70 beta 3. File and archive manager.#
 $^#Copyright (C) 1996-2000 Eugene Roshal.#
-$^#Copyright (C) 2000 FAR Group.#
+$^#Copyright (C) 2000-2001 FAR Group.#
    ~How to use help~@Help@
 
    ~About FAR~@About@
@@ -377,7 +377,7 @@ $ #Command line switches#
 
   /a       Disable display of characters with codes 0 - 31
            and 255.
-           May be useful when executing Far under telnet.
+           May be useful when executing FAR under telnet.
 
   /ag      Disable display of pseudographics characters.
 
@@ -409,7 +409,7 @@ $ #Command line switches#
 
            For example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
 
-  Far <filename> command starts Far and forces it to show <filename>
+  FAR <filename> command starts FAR and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>
 is a folder.
 
@@ -420,7 +420,7 @@ and emulate file systems. For example, archives support, FTP client,
 temporary panel and network browser are emulating file system plugins.
 
     All plugins are stored in separate folders within the 'Plugins' folder,
-which is in the same folder as Far.exe. When detecting a new plugin FAR
+which is in the same folder as FAR.EXE. When detecting a new plugin FAR
 saves information about it and later loads the plugin only when necessary,
 so unused plugins do not require additional memory. But if you are sure that
 some plugins are useless for you, you may remove them to save disk space.
@@ -591,7 +591,7 @@ operations.
 
     FAR stores folder tree information in the file named #Tree.Far# at root
 folder of each drive. For read-only drives this information is stored in the
-hidden folder Tree.Cache within the folder containing Far.exe.
+hidden folder Tree.Cache within the folder containing FAR.EXE.
 
     You can find a folder quickly with the help of #speed search# action.
 Hold the Alt key and type the folder name until you point to the right
@@ -860,7 +860,7 @@ separated from other text with space, tab sign, carriage return, line feed or
 standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./#.
 With "Table" button it is possible to change the character table for the
 text search. Option "Use all installed character tables" forces usage of
-all available to Far tables to search text in files with different coding.
+all available to FAR tables to search text in files with different coding.
 Set "Search in archives" to search also in known to FAR archive formats,
 but note that this option significantly decreases operation performance.
 FAR cannot search in nested archives.
@@ -1262,7 +1262,7 @@ $ #Internal viewer#
     Notes:
 
     1. Custom character tables are provided in "Addons\Tables"
-       subfolder of Far folder in the form of .reg files.
+       subfolder of FAR folder in the form of .reg files.
        Before any table may be used, it must be installed: just press
        Shift-Enter on the corresponding file.
 
@@ -1378,7 +1378,7 @@ $ #Internal editor#
     Notes:
 
     1. Custom character tables are provided in the "Addons\Tables"
-       subfolder of the Far folder in the form of .reg files.
+       subfolder of the FAR folder in the form of .reg files.
        Before any table may be used it must be installed: just press
        Shift-Enter on the corresponding file.
 
@@ -1910,7 +1910,7 @@ press Ctrl-<.> twice and then the key to which the macro was assigned.
     In addition to standard FAR keys combinations it is possible to assign
 macros to Ctrl-Shift-<letter>, Ctrl-Alt-<letter> and Alt-Shift-<letter>.
 
-    Far supports several independent macro sets: shell, viewer, editor and
+    FAR supports several independent macro sets: shell, viewer, editor and
 few other macro types. Macro sets are saved on the "Save setup" command from
 ~Options menu~@OptMenu@.
 
