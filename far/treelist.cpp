@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.41 27.04.2002 $ */
+/* Revision: 1.42 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   27.04.2002 SVS
     ! 8192 -> MAXSIZE_SHORTCUTDATA
   12.04.2002 IS
@@ -652,6 +654,7 @@ int TreeList::ProcessKey(int Key)
     return(FALSE);
   if (TreeCount==0 && Key!=KEY_CTRLR)
     return(FALSE);
+
   {
     char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (SaveFolderShortcut(Key,CurDir,"","",""))
@@ -678,23 +681,29 @@ int TreeList::ProcessKey(int Key)
     /* $ 08.12.2001 IS просят справку для "дерева", ее и покажем
     */
     case KEY_F1:
+    {
       {
          Help Hlp ("TreePanel");
       }
       return TRUE;
+    }
     /* IS $ */
+
     case KEY_SHIFTENTER:
     case KEY_CTRLENTER:
     case KEY_CTRLF:
-    case KEY_CTRLALTINS:
+    case KEY_CTRLALTINS:  case KEY_CTRLALTNUMPAD0:
+    {
       {
         char QuotedName[NM+2];
+        int CAIns=(Key == KEY_CTRLALTINS || Key == KEY_CTRLALTNUMPAD0);
+
         CurPtr=ListData+CurFile;
         if (strchr(CurPtr->Name,' ')!=NULL)
-          sprintf(QuotedName,"\"%s\"%s",CurPtr->Name,(Key == KEY_CTRLALTINS?"":" "));
+          sprintf(QuotedName,"\"%s\"%s",CurPtr->Name,(CAIns?"":" "));
         else
-          sprintf(QuotedName,"%s%s",CurPtr->Name,(Key == KEY_CTRLALTINS?"":" "));
-        if(Key == KEY_CTRLALTINS)
+          sprintf(QuotedName,"%s%s",CurPtr->Name,(CAIns?"":" "));
+        if(CAIns)
           CopyToClipboard(QuotedName);
         else if(Key == KEY_SHIFTENTER)
           Execute(QuotedName,FALSE,TRUE,TRUE);
@@ -702,39 +711,57 @@ int TreeList::ProcessKey(int Key)
           CtrlObject->CmdLine->InsertString(QuotedName);
       }
       return(TRUE);
+    }
+
     case KEY_CTRLBACKSLASH:
+    {
       CurFile=0;
       ProcessEnter();
       return(TRUE);
+    }
+
     case KEY_ENTER:
+    {
       if (!ModalMode && CtrlObject->CmdLine->GetLength()>0)
         break;
       ProcessEnter();
       return(TRUE);
+    }
+
     case KEY_F4:
     case KEY_CTRLA:
+    {
       if (SetCurPath())
         ShellSetFileAttributes(this);
       return(TRUE);
+    }
+
     case KEY_CTRLR:
+    {
       ReadTree();
       if (TreeCount>0)
         SyncDir();
       Redraw();
       break;
+    }
+
     case KEY_SHIFTF5:
     case KEY_SHIFTF6:
+    {
       if (SetCurPath())
       {
         int ToPlugin=0;
         ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,NULL);
       }
       return(TRUE);
+    }
+
     case KEY_F5:
     case KEY_DRAGCOPY:
     case KEY_F6:
     case KEY_ALTF6:
     case KEY_DRAGMOVE:
+    {
       if (SetCurPath() && TreeCount>0)
       {
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -771,10 +798,15 @@ int TreeList::ProcessKey(int Key)
         }
       }
       return(TRUE);
+    }
+
     case KEY_F7:
+    {
       if (SetCurPath())
         ShellMakeDir(this);
       return(TRUE);
+    }
+
     /*
       Удаление                                   Shift-Del, Shift-F8, F8
 
@@ -788,6 +820,7 @@ int TreeList::ProcessKey(int Key)
     case KEY_F8:
     case KEY_SHIFTDEL:
     case KEY_ALTDEL:
+    {
       if (SetCurPath())
       {
         int SaveOpt=Opt.DeleteToRecycleBin;
@@ -804,48 +837,74 @@ int TreeList::ProcessKey(int Key)
           ProcessKey(KEY_ENTER);
       }
       return(TRUE);
+    }
+
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
+    {
       Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
       return(TRUE);
+    }
+
     case KEY_MSWHEEL_DOWN:
     case (KEY_MSWHEEL_DOWN | KEY_ALT):
+    {
       Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
       return(TRUE);
-    case KEY_HOME:
+    }
+
+    case KEY_HOME:        case KEY_SHIFTNUMPAD7:
+    {
       Up(0x7fffff);
       if (Opt.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
-    case KEY_END:
+    }
+
+    case KEY_END:         case KEY_SHIFTNUMPAD1:
+    {
       Down(0x7fffff);
       if (Opt.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
-    case KEY_UP:
+    }
+
+    case KEY_UP:          case KEY_SHIFTNUMPAD8:
+    {
       Up(1);
       if (Opt.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
-    case KEY_DOWN:
+    }
+
+    case KEY_DOWN:        case KEY_SHIFTNUMPAD2:
+    {
       Down(1);
       if (Opt.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
-    case KEY_PGUP:
+    }
+
+    case KEY_PGUP:        case KEY_SHIFTNUMPAD9:
+    {
       CurTopFile-=Y2-Y1-3-ModalMode;
       CurFile-=Y2-Y1-3-ModalMode;
       DisplayTree(TRUE);
       if (Opt.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
-    case KEY_PGDN:
+    }
+
+    case KEY_PGDN:        case KEY_SHIFTNUMPAD3:
+    {
       CurTopFile+=Y2-Y1-3-ModalMode;
       CurFile+=Y2-Y1-3-ModalMode;
       DisplayTree(TRUE);
       if (Opt.AutoChangeFolder && !ModalMode)
         ProcessKey(KEY_ENTER);
       return(TRUE);
+    }
+
     default:
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
           Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)

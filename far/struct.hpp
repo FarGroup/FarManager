@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.87 22.05.2002 $ */
+/* Revision: 1.88 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Opt.UseNumPad
   22.05.2002 SVS
     + Opt.CloseCDGate
   05.04.2002 SVS
@@ -727,6 +729,7 @@ struct Options
   int FindFolders;
   int RestoreCPAfterExecute;
   DWORD PluginMaxReadData;
+  int UseNumPad;
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"

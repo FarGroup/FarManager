@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.246 18.05.2002 $ */
+/* Revision: 1.247 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   18.05.2002 SVS
     - DM_LISTADDSTR возвращал неверную инфу - не добавляемый индекс, а
       сколько всего в списке было, в принципе достаточно вычесть единицу...
@@ -2649,11 +2651,11 @@ int Dialog::ProcessKey(int Key)
     */
     switch (Key)
     {
-        case KEY_CTRLLEFT:
-        case KEY_CTRLHOME:
-        case KEY_HOME:
-            rr=Key == KEY_CTRLLEFT?10:X1;
-        case KEY_LEFT:
+        case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
+        case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
+        case KEY_HOME:      case KEY_NUMPAD7:
+            rr=Key == KEY_CTRLLEFT || Key == KEY_CTRLNUMPAD4?10:X1;
+        case KEY_LEFT:      case KEY_NUMPAD4:
             Hide();
             for ( I=0; I<rr; I++ )
                 if ( X1>0 )
@@ -2664,11 +2666,11 @@ int Dialog::ProcessKey(int Key)
                 }
             if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
-        case KEY_CTRLRIGHT:
-        case KEY_CTRLEND:
-        case KEY_END:
-            rr=Key == KEY_CTRLRIGHT?10:abs(X1-(ScrX - (X2-X1+1)))+1;
-        case KEY_RIGHT:
+        case KEY_CTRLRIGHT: case KEY_CTRLNUMPAD6:
+        case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
+        case KEY_END:       case KEY_NUMPAD1:
+            rr=Key == KEY_CTRLRIGHT || Key == KEY_CTRLNUMPAD6?10:abs(X1-(ScrX - (X2-X1+1)))+1;
+        case KEY_RIGHT:     case KEY_NUMPAD6:
             Hide();
             for ( I=0; I<rr; I++ )
                 if ( X2<ScrX )
@@ -2679,11 +2681,11 @@ int Dialog::ProcessKey(int Key)
                 }
             if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
-        case KEY_PGUP:
-        case KEY_CTRLPGUP:
-        case KEY_CTRLUP:
-            rr=Key == KEY_CTRLUP?5:Y1;
-        case KEY_UP:
+        case KEY_PGUP:      case KEY_NUMPAD9:
+        case KEY_CTRLPGUP:  case KEY_CTRLNUMPAD9:
+        case KEY_CTRLUP:    case KEY_CTRLNUMPAD8:
+            rr=Key == KEY_CTRLUP || Key == KEY_CTRLNUMPAD8?5:Y1;
+        case KEY_UP:        case KEY_NUMPAD8:
             Hide();
             for ( I=0; I<rr; I++ )
                 if ( Y1>0 )
@@ -2694,11 +2696,11 @@ int Dialog::ProcessKey(int Key)
                 }
             if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
-        case KEY_CTRLDOWN:
-        case KEY_CTRLPGDN:
-        case KEY_PGDN:
-            rr=Key == KEY_CTRLDOWN? 5: abs(Y1-(ScrY - (Y2-Y1+1)))+1;
-        case KEY_DOWN:
+        case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
+        case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
+        case KEY_PGDN:      case KEY_NUMPAD3:
+            rr=Key == KEY_CTRLDOWN || Key == KEY_CTRLNUMPAD2? 5: abs(Y1-(ScrY - (Y2-Y1+1)))+1;
+        case KEY_DOWN:      case KEY_NUMPAD2:
             Hide();
             for ( I=0; I<rr; I++ )
                 if ( Y2<ScrY )
@@ -2801,14 +2803,14 @@ int Dialog::ProcessKey(int Key)
   {
     switch(Key)
     {
-      case KEY_HOME:
-      case KEY_LEFT:
-      case KEY_END:
-      case KEY_RIGHT:
-      case KEY_UP:
-      case KEY_DOWN:
-      case KEY_PGUP:
-      case KEY_PGDN:
+      case KEY_HOME:     case KEY_NUMPAD7:
+      case KEY_LEFT:     case KEY_NUMPAD4:
+      case KEY_END:      case KEY_NUMPAD1:
+      case KEY_RIGHT:    case KEY_NUMPAD6:
+      case KEY_UP:       case KEY_NUMPAD8:
+      case KEY_DOWN:     case KEY_NUMPAD2:
+      case KEY_PGUP:     case KEY_NUMPAD9:
+      case KEY_PGDN:     case KEY_NUMPAD3:
       case KEY_MSWHEEL_UP:
       case KEY_MSWHEEL_DOWN:
         VMenu *List=CurItem->ListPtr;
@@ -3073,7 +3075,7 @@ int Dialog::ProcessKey(int Key)
       }
       return(TRUE);
 
-    case KEY_HOME:
+    case KEY_HOME: case KEY_NUMPAD7:
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
@@ -3102,8 +3104,8 @@ int Dialog::ProcessKey(int Key)
       }
       return(TRUE);
 
-    case KEY_LEFT:
-    case KEY_RIGHT:
+    case KEY_LEFT:  case KEY_NUMPAD4:
+    case KEY_RIGHT: case KEY_NUMPAD6:
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
@@ -3123,7 +3125,7 @@ int Dialog::ProcessKey(int Key)
               Item[I].Y1==CurItem->Y1)
           {
             int Dist=Item[I].X1-CurItem->X1;
-            if (Key==KEY_LEFT && Dist<0 || Key==KEY_RIGHT && Dist>0)
+            if ((Key==KEY_LEFT||Key==KEY_SHIFTNUMPAD4) && Dist<0 || (Key==KEY_RIGHT||Key==KEY_SHIFTNUMPAD6) && Dist>0)
               if (abs(Dist)<MinDist)
               {
                 MinDist=abs(Dist);
@@ -3143,8 +3145,8 @@ int Dialog::ProcessKey(int Key)
           }
       }
 
-    case KEY_UP:
-    case KEY_DOWN:
+    case KEY_UP:    case KEY_NUMPAD8:
+    case KEY_DOWN:  case KEY_NUMPAD2:
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
@@ -3153,7 +3155,7 @@ int Dialog::ProcessKey(int Key)
         int PrevPos=0;
         if (CurItem->Flags & DIF_EDITOR)
           PrevPos=((DlgEdit *)(CurItem->ObjPtr))->GetCurPos();
-        I=ChangeFocus(CurFocusPos,(Key==KEY_LEFT || Key==KEY_UP) ? -1:1,FALSE);
+        I=ChangeFocus(CurFocusPos,(Key==KEY_LEFT || Key==KEY_UP || Key == KEY_NUMPAD4 || Key == KEY_NUMPAD8) ? -1:1,FALSE);
         CurItem->Focus=0;
         Item[I].Focus=1;
         ChangeFocus2(CurFocusPos,I);
@@ -3168,7 +3170,7 @@ int Dialog::ProcessKey(int Key)
       }
       return(TRUE);
 
-    case KEY_END:
+    case KEY_END:  case KEY_NUMPAD1:
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
@@ -3177,7 +3179,7 @@ int Dialog::ProcessKey(int Key)
         ((DlgEdit *)(CurItem->ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
-    case KEY_PGDN:
+    case KEY_PGDN:   case KEY_NUMPAD3:
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
@@ -3203,8 +3205,8 @@ int Dialog::ProcessKey(int Key)
     case KEY_MSWHEEL_UP:
     case KEY_MSWHEEL_DOWN:
     /* VVM $ */
-    case KEY_CTRLUP:
-    case KEY_CTRLDOWN:
+    case KEY_CTRLUP:      case KEY_CTRLNUMPAD8:
+    case KEY_CTRLDOWN:    case KEY_CTRLNUMPAD2:
       // для user-типа вываливаем
       if(Type == DI_USERCONTROL)
         return TRUE;
@@ -3482,7 +3484,7 @@ int Dialog::ProcessKey(int Key)
             if(!CtrlObject->Macro.GetCurRecord(NULL,NULL) &&
                ((CurItem->Flags & DIF_HISTORY) || Type == DI_COMBOBOX))
             if((Opt.Dialogs.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
-               (!Opt.Dialogs.AutoComplete && Key == KEY_CTRLEND)
+               (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
               )
             {
               /* $ 05.12.2000 IS

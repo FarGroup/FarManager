@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.134 22.05.2002 $ */
+/* Revision: 1.135 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + ƒобавка в FarControl() логов дл€ _FCTLLOG
+    ! »з FarEditorControl выкошен код дл€ логов - перенесен в fileedit.cpp
   22.05.2002 SKV
     + ?F_IMMEDIATERETURN
   18.05.2002 SVS
@@ -1360,6 +1363,9 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
+  _FCTLLOG(CleverSysLog("Control"));
+  _FCTLLOG(SysLog("(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
+
   if(Command == FCTL_CHECKPANELSEXIST)
     return CmdMode == FALSE?TRUE:FALSE;
 
@@ -2098,22 +2104,7 @@ int WINAPI FarEditorControl(int Command,void *Param)
 {
   if (CtrlObject->Plugins.CurEditor==NULL || FrameManager->ManagerIsDown())
     return(0);
-#if defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL)
-  {
-#if defined(SYSLOG_KEYMACRO)
-    if(Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
-    {
-#endif
-      _KEYMACRO(CleverSysLog SL("FarEditorControl()"));
-      _KEYMACRO(SysLog("Command=%s (%d) Param=0x%08X Macro.IsExecuting()=%d",_ECTL_ToName(Command),Command,Param,CtrlObject->Macro.IsExecuting()));
-#if defined(SYSLOG_KEYMACRO)
-    }
-#endif
-    return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
-  }
-#else
   return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
-#endif
 }
 
 /* $ 27.09.2000 SVS

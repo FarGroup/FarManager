@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.154 22.05.2002 $ */
+/* Revision: 1.155 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + _INPUT_RECORD_Dump - вывод в лог информацию о INPUT_RECORD
+    + _FCTLLOG
+    + RunGraber()
   22.05.2002 SVS
     + _VCTL_ToName, _VCTLLOG
   22.05.2002 SVS
@@ -944,6 +948,7 @@ const char *_FCTL_ToName(int Command);
 const char *_DLGMSG_ToName(int Msg);
 const char *_ACTL_ToName(int Command);
 const char *_VCTL_ToName(int Command);
+const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus
@@ -985,6 +990,12 @@ void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Bu
 #define _ECTLLOG(x)  x
 #else
 #define _ECTLLOG(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_FCTL)
+#define _FCTLLOG(x)  x
+#else
+#define _FCTLLOG(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_ACTL)
@@ -1234,5 +1245,7 @@ __int64 ftell64(FILE *fp);
 int fseek64 (FILE *fp, __int64 offset, int whence);
 
 BOOL IsDiskInDrive(const char *Drive);
+
+BOOL RunGraber(void);
 
 #endif  // __FARFUNC_HPP__

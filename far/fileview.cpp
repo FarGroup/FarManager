@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.56 22.05.2002 $ */
+/* Revision: 1.57 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    ! Уточнения в FileViewer::ViewerControl для логов
   22.05.2002 SVS
     + ViewerControl()
   13.05.2002 VVM
@@ -341,7 +343,7 @@ int FileViewer::ProcessKey(int Key)
   if (RedrawTitle && ((Key & 0x00ffffff) < KEY_END_FKEY))
     ShowConsoleTitle();
 
-  if (Key!=KEY_F3 && Key!=KEY_NUMPAD5)
+  if (Key!=KEY_F3 && !(Key==KEY_NUMPAD5||Key==KEY_SHIFTNUMPAD5))
     F3KeyOnly=FALSE;
   switch(Key)
   {
@@ -390,7 +392,7 @@ int FileViewer::ProcessKey(int Key)
       return(TRUE);
     /* SVS $ */
     case KEY_F3:
-    case KEY_NUMPAD5:
+    case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
       if (F3KeyOnly)
         return(TRUE);
     case KEY_ESC:
@@ -548,6 +550,6 @@ int FileViewer::FastHide()
 int FileViewer::ViewerControl(int Command,void *Param)
 {
   _VCTLLOG(CleverSysLog SL("FileViewer::ViewerControl()"));
-  _VCTLLOG(SysLog("Command=%s (%d) Param=0x%08X",_VCTL_ToName(Command),Command,Param));
+  _VCTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_VCTL_ToName(Command),(int)Param,Param));
   return View.ViewerControl(Command,Param);
 }

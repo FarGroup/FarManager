@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.41 22.05.2002 $ */
+/* Revision: 1.42 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + InGrabber, FAR_VerticalBlock
   22.05.2002 SVS
     ! Editor -> FileEditor
   16.05.2002 SVS
@@ -226,5 +228,9 @@ extern BOOL ProcessException;
 extern BOOL ProcessShowClock;
 
 extern const char *FarTitleAddons;
+
+extern const char FAR_VerticalBlock[];
+
+extern int InGrabber;    // Мы сейчас в грабере?
 
 #endif  // __FARGLOBAL_HPP__

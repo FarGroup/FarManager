@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.43 29.04.2002 $ */
+/* Revision: 1.44 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   29.04.2002 SVS
     ! Орисовка. Задолбала. Уморила. Думаю этот костыль поможет.
   13.04.2002 KM
@@ -396,8 +398,8 @@ int  FilePanels::ProcessKey(int Key)
   if (!Key)
     return(TRUE);
 
-  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT
-      /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN */) &&
+  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD4 || Key==KEY_CTRLNUMPAD6
+      /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN || Key==KEY_CTRLNUMPAD8 || Key==KEY_CTRLNUMPAD2 */) &&
       (CtrlObject->CmdLine->GetLength()>0 ||
       !LeftPanel->IsVisible() && !RightPanel->IsVisible()))
   {
@@ -408,6 +410,7 @@ int  FilePanels::ProcessKey(int Key)
   switch(Key)
   {
     case KEY_TAB:
+    {
       if (ActivePanel==LeftPanel)
       {
         if (RightPanel->IsVisible())
@@ -417,7 +420,10 @@ int  FilePanels::ProcessKey(int Key)
         if (LeftPanel->IsVisible())
           LeftPanel->SetFocus();
       break;
+    }
+
     case KEY_CTRLF1:
+    {
       if (LeftPanel->IsVisible())
       {
         LeftPanel->Hide();
@@ -432,13 +438,19 @@ int  FilePanels::ProcessKey(int Key)
       }
       Redraw();
       break;
+    }
+
     case KEY_F1:
+    {
       if (!ActivePanel->ProcessKey(KEY_F1))
       {
         Help Hlp ("Contents");
       }
       return(TRUE);
+    }
+
     case KEY_CTRLF2:
+    {
       if (RightPanel->IsVisible())
       {
         RightPanel->Hide();
@@ -453,7 +465,10 @@ int  FilePanels::ProcessKey(int Key)
       }
       Redraw();
       break;
+    }
+
     case KEY_CTRLB:
+    {
       Opt.ShowKeyBar=!Opt.ShowKeyBar;
       /* $ 07.05.2001 DJ */
       KeyBarVisible = Opt.ShowKeyBar;
@@ -463,9 +478,12 @@ int  FilePanels::ProcessKey(int Key)
       SetScreenPosition();
       FrameManager->RefreshFrame();
       break;
+    }
+
     case KEY_CTRLL:
     case KEY_CTRLQ:
     case KEY_CTRLT:
+    {
       if (ActivePanel->IsVisible())
       {
         Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
@@ -509,11 +527,14 @@ int  FilePanels::ProcessKey(int Key)
         ActivePanel->SetFocus();
       }
       break;
+    }
+
     /* $ 19.09.2000 SVS
        + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
     */
 /* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_CTRLO:
+    {
       {
         int LeftVisible=LeftPanel->IsVisible();
         int RightVisible=RightPanel->IsVisible();
@@ -537,7 +558,10 @@ int  FilePanels::ProcessKey(int Key)
         }
       }
       break;
+    }
+
     case KEY_CTRLP:
+    {
       if (ActivePanel->IsVisible())
       {
         Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
@@ -549,10 +573,16 @@ int  FilePanels::ProcessKey(int Key)
       }
       FrameManager->RefreshFrame();
       break;
+    }
+
     case KEY_CTRLI:
+    {
       ActivePanel->EditFilter();
       return(TRUE);
+    }
+
     case KEY_CTRLU:
+    {
       if (LeftPanel->IsVisible() || RightPanel->IsVisible())
       {
         int XL1,YL1,XL2,YL2;
@@ -588,6 +618,8 @@ int  FilePanels::ProcessKey(int Key)
       }
       FrameManager->RefreshFrame();
       break;
+    }
+
     /* $ 08.04.2002 IS
        При смене диска установим принудительно текущий каталог на активной
        панели, т.к. система не знает ничего о том, что у Фара две панели, и
@@ -595,22 +627,32 @@ int  FilePanels::ProcessKey(int Key)
        панели
     */
     case KEY_ALTF1:
+    {
       LeftPanel->ChangeDisk();
       if(ActivePanel!=LeftPanel)
         ActivePanel->SetCurPath();
       break;
+    }
+
     case KEY_ALTF2:
+    {
       RightPanel->ChangeDisk();
       if(ActivePanel!=RightPanel)
         ActivePanel->SetCurPath();
       break;
+    }
     /* IS $ */
+
     case KEY_ALTF7:
+    {
       {
         FindFiles FindFiles;
       }
       break;
-    case KEY_CTRLUP:
+    }
+
+    case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
+    {
       if (Opt.HeightDecrement<ScrY-7)
       {
         Opt.HeightDecrement++;
@@ -618,7 +660,10 @@ int  FilePanels::ProcessKey(int Key)
         FrameManager->RefreshFrame();
       }
       break;
-    case KEY_CTRLDOWN:
+    }
+
+    case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
+    {
       if (Opt.HeightDecrement>0)
       {
         Opt.HeightDecrement--;
@@ -626,7 +671,10 @@ int  FilePanels::ProcessKey(int Key)
         FrameManager->RefreshFrame();
       }
       break;
-    case KEY_CTRLLEFT:
+    }
+
+    case KEY_CTRLLEFT: case KEY_CTRLNUMPAD4:
+    {
       if (Opt.WidthDecrement<ScrX/2-10)
       {
         Opt.WidthDecrement++;
@@ -634,7 +682,10 @@ int  FilePanels::ProcessKey(int Key)
         FrameManager->RefreshFrame();
       }
       break;
-    case KEY_CTRLRIGHT:
+    }
+
+    case KEY_CTRLRIGHT: case KEY_CTRLNUMPAD6:
+    {
       if (Opt.WidthDecrement>-(ScrX/2-10))
       {
         Opt.WidthDecrement--;
@@ -642,7 +693,10 @@ int  FilePanels::ProcessKey(int Key)
         FrameManager->RefreshFrame();
       }
       break;
+    }
+
     case KEY_CTRLCLEAR:
+    {
       if (Opt.WidthDecrement!=0)
       {
         Opt.WidthDecrement=0;
@@ -650,68 +704,108 @@ int  FilePanels::ProcessKey(int Key)
         FrameManager->RefreshFrame();
       }
       break;
+    }
+
     case KEY_F9:
+    {
       ShellOptions(0,NULL);
       return(TRUE);
+    }
+
     case KEY_SHIFTF10:
+    {
       ShellOptions(1,NULL);
       return(TRUE);
+    }
 
     case KEY_CTRL1:
+    {
       ActivePanel->SetViewMode(VIEW_1);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_1);
       break;
+    }
+
     case KEY_CTRL2:
+    {
       ActivePanel->SetViewMode(VIEW_2);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_2);
       break;
+    }
+
     case KEY_CTRL3:
+    {
       ActivePanel->SetViewMode(VIEW_3);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_3);
       break;
+    }
+
     case KEY_CTRL4:
+    {
       ActivePanel->SetViewMode(VIEW_4);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_4);
       break;
+    }
+
     case KEY_CTRL5:
+    {
       ActivePanel->SetViewMode(VIEW_5);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_5);
       break;
+    }
+
     case KEY_CTRL6:
+    {
       ActivePanel->SetViewMode(VIEW_6);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_6);
       break;
+    }
+
     case KEY_CTRL7:
+    {
       ActivePanel->SetViewMode(VIEW_7);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_7);
       break;
+    }
+
     case KEY_CTRL8:
+    {
       ActivePanel->SetViewMode(VIEW_8);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_8);
       break;
+    }
+
     case KEY_CTRL9:
+    {
       ActivePanel->SetViewMode(VIEW_9);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_9);
       break;
+    }
+
     case KEY_CTRL0:
+    {
       ActivePanel->SetViewMode(VIEW_0);
       ChangePanelToFilled(ActivePanel,FILE_PANEL);
       ActivePanel->SetViewMode(VIEW_0);
       break;
+    }
+
     default:
+    {
       if (!ActivePanel->ProcessKey(Key))
         CtrlObject->CmdLine->ProcessKey(Key);
       break;
+    }
   }
+
   // ВНИМАНИЕ! Костыль! Но Работает!
   if(Key >= KEY_CTRL0 && Key <= KEY_CTRL9)
   {

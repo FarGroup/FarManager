@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.36 22.03.2002 $ */
+/* Revision: 1.37 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   22.03.2002 SVS
     - strcpy - Fuck!
   14.12.2001 SVS
@@ -507,7 +509,7 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_F4:
           if (SelectPos>=HiMenu.GetItemCount()-1)
             break;
-        case KEY_INS:
+        case KEY_INS: case KEY_NUMPAD0:
           if (EditRecord(SelectPos,Key == KEY_INS))
             NeedUpdate=TRUE;
           break;
@@ -518,7 +520,7 @@ void HighlightFiles::HiEdit(int MenuPos)
               NeedUpdate=TRUE;
           }
           break;
-        case KEY_CTRLUP:
+        case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
           if (SelectPos > 0 && SelectPos < HiMenu.GetItemCount()-1)
           {
             struct HighlightData HData;
@@ -529,7 +531,7 @@ void HighlightFiles::HiEdit(int MenuPos)
             NeedUpdate=TRUE;
             break;
           }
-        case KEY_CTRLDOWN:
+        case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
           if (SelectPos < HiMenu.GetItemCount()-2)
           {
             struct HighlightData HData;

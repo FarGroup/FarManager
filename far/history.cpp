@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.25 25.04.2002 $ */
+/* Revision: 1.26 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   25.04.2002 IS
     ! внедрение const
   18.04.2002 SVS
@@ -567,7 +569,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
 
           case KEY_F3:
           case KEY_F4:
-          case KEY_NUMPAD5:
+          case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
           {
             HistoryMenu.Modal::SetExitCode(StrPos);
             Done=TRUE;
@@ -578,7 +580,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
              Фича - копирование из истории строки в Clipboard
           */
           case KEY_CTRLC:
-          case KEY_CTRLINS:
+          case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
           {
             Code=(int)HistoryMenu.GetUserData(NULL,sizeof(DWORD),StrPos);
             if(Code != -1)

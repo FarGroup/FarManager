@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.104 22.05.2002 $ */
+/* Revision: 1.105 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    ! Уточнения в FileEditor::EditorControl для логов
   22.05.2002 SVS
     + SetTitle()
     ! В Init добавлен вторым параметром - Title
@@ -1284,7 +1286,15 @@ void FileEditor::SetTitle(const char *Title)
 
 int FileEditor::EditorControl(int Command,void *Param)
 {
+#if defined(SYSLOG_KEYMACRO)
+  _KEYMACRO(CleverSysLog SL("FileEditor::EditorControl()"));
+  if(Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
+  {
+    _KEYMACRO(SysLog("(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)Param,Param,CtrlObject->Macro.IsExecuting()));
+  }
+#else
   _ECTLLOG(CleverSysLog SL("FileEditor::EditorControl()"));
-  _ECTLLOG(SysLog("Command=%s (%d) Param=0x%08X",_ECTL_ToName(Command),Command,Param));
+  _ECTLLOG(SysLog("(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
+#endif
   return FEdit->EditorControl(Command,Param);
 }

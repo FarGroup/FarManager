@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.89 18.05.2002 $ */
+/* Revision: 1.90 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   18.05.2002 SVS
     - BugZ#517 - Пустое меню плагинов (и их конфигов) нельзя закрыть мышкой.
   18.05.2002 SVS
@@ -950,6 +952,7 @@ int VMenu::ProcessKey(int Key)
   switch(Key)
   {
     case KEY_ENTER:
+    {
       if(VMenu::ParentDialog)
         VMenu::ParentDialog->ProcessKey(Key);
       else
@@ -958,8 +961,11 @@ int VMenu::ProcessKey(int Key)
         Modal::ExitCode=SelectPos;
       }
       break;
+    }
+
     case KEY_ESC:
     case KEY_F10:
+    {
       if(VMenu::ParentDialog)
         VMenu::ParentDialog->ProcessKey(Key);
       else
@@ -968,19 +974,28 @@ int VMenu::ProcessKey(int Key)
         Modal::ExitCode=-1;
       }
       break;
-    case KEY_HOME:
-    case KEY_CTRLHOME:
-    case KEY_CTRLPGUP:
+    }
+
+    case KEY_HOME:         case KEY_NUMPAD7:
+    case KEY_CTRLHOME:     case KEY_CTRLNUMPAD7:
+    case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
+    {
       SelectPos=SetSelectPos(0,1);
       ShowMenu(TRUE);
       break;
-    case KEY_END:
-    case KEY_CTRLEND:
-    case KEY_CTRLPGDN:
+    }
+
+    case KEY_END:          case KEY_NUMPAD1:
+    case KEY_CTRLEND:      case KEY_CTRLNUMPAD1:
+    case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
+    {
       SelectPos=SetSelectPos(ItemCount-1,-1);
       ShowMenu(TRUE);
       break;
-    case KEY_PGUP:
+    }
+
+    case KEY_PGUP:         case KEY_NUMPAD9:
+    {
       /* $ 22.07.2001 KM
        ! Исправление неточности перехода по PgUp/PgDn
          с установленным флагом VMENU_SHOWNOBOX (NO_BOX)
@@ -990,31 +1005,42 @@ int VMenu::ProcessKey(int Key)
       SelectPos=SetSelectPos(I,1);
       ShowMenu(TRUE);
       break;
-    case KEY_PGDN:
+    }
+
+    case KEY_PGDN:         case KEY_NUMPAD3:
+    {
       if((I=SelectPos+((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1)) >= ItemCount)
         I=ItemCount-1;
       SelectPos=SetSelectPos(I,-1);
       ShowMenu(TRUE);
       break;
+    }
+
       /* KM $ */
     /* $ 27.04.2001 VVM
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
     /* VVM $ */
-    case KEY_LEFT:
-    case KEY_UP:
+    case KEY_LEFT:         case KEY_NUMPAD4:
+    case KEY_UP:           case KEY_NUMPAD8:
+    {
       SelectPos=SetSelectPos(SelectPos-1,-1);
       ShowMenu(TRUE);
       break;
+    }
+
     /* $ 27.04.2001 VVM
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_DOWN:
     /* VVM $ */
-    case KEY_RIGHT:
-    case KEY_DOWN:
+    case KEY_RIGHT:        case KEY_NUMPAD6:
+    case KEY_DOWN:         case KEY_NUMPAD2:
+    {
       SelectPos=SetSelectPos(SelectPos+1,1);
       ShowMenu(TRUE);
       break;
+    }
+
     case KEY_TAB:
     case KEY_SHIFTTAB:
       if(VMenu::ParentDialog)

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.74 22.05.2002 $ */
+/* Revision: 1.75 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Обработка KEY_ALTINS (временно закомменчено, до выяснения обстоятельств)
   22.05.2002 SKV
     + удалён институт semimodal фрэймов, и всё что с ним связано.
     + У ExecuteNonModal своё цикл работы.
@@ -807,6 +809,13 @@ int  Manager::ProcessKey(int Key)
     /***   КОТОРЫЕ НЕЛЬЗЯ НАМАКРОСИТЬ    ***/
     switch(Key)
     {
+//      case (KEY_ALT|KEY_NUMPAD0):
+//      case (KEY_ALT|KEY_INS):
+//      {
+//        RunGraber();
+//        return TRUE;
+//      }
+
       case KEY_CONSOLE_BUFFER_RESIZE:
         Sleep(1);
         for (i=0;i<FrameCount;i++)

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.41 22.05.2002 $ */
+/* Revision: 1.42 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + InGrabber, FAR_VerticalBlock
   22.05.2002 SVS
     ! Editor -> FileEditor
   16.05.2002 SVS
@@ -218,3 +220,7 @@ BOOL ProcessException=FALSE;
 BOOL ProcessShowClock=FALSE;
 
 const char *FarTitleAddons=" - Far";
+
+const char FAR_VerticalBlock[]= "FAR_VerticalBlock";
+
+int InGrabber=FALSE;

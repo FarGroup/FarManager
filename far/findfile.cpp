@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.114 18.05.2002 $ */
+/* Revision: 1.115 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   16.05.2002 SVS
@@ -1004,7 +1006,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         ReleaseMutex(hDialogMutex);
         return TRUE;
       }
-      else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_F4)
+      else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5 || Param2==KEY_F4)
       {
         if (ListBox->GetItemCount()==0)
         {
@@ -1089,7 +1091,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             char OldTitle[512];
             GetConsoleTitle(OldTitle,sizeof(OldTitle));
 
-            if (Param2==KEY_F3 || Param2==KEY_NUMPAD5)
+            if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5)
             {
               NamesList ViewList;
               // Возьмем все файлы, которые имеют реальные имена...

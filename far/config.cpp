@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.136 22.05.2002 $ */
+/* Revision: 1.137 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Opt.UseNumPad
   22.05.2002 SVS
     + Opt.CloseCDGate
   05.04.2002 SVS
@@ -1339,7 +1341,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
   {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
   {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate,-1, 0},
-
+  {0, REG_DWORD,  NKeySystem,"UseNumPad",&Opt.UseNumPad,0, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 

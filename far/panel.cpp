@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.95 22.05.2002 $ */
+/* Revision: 1.96 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   22.05.2002 SVS
     ! Opt.CloseCDGate + IsDiskInDrive() перед монтированием CD
   15.05.2002 SVS
@@ -647,7 +649,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             }
           }
           break;
-        case KEY_CTRLPGUP:
+        case KEY_CTRLPGUP:  case KEY_CTRLNUMPAD9:
           if(Opt.PgUpChangeDisk)
             return -1;
           break;
@@ -655,7 +657,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
            Т.к. нет способа получить состояние "открытости" устройства,
            то добавим обработку Ins для CD - "закрыть диск"
         */
-        case KEY_INS:
+        case KEY_INS:       case KEY_NUMPAD0:
           if (SelPos<DiskCount)// && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
           {
 //            char MsgText[200], LocalName[50];
@@ -1053,7 +1055,7 @@ void Panel::FastFind(int FirstKey)
           if ((Key<32 || Key>=256) && Key!=KEY_BS && Key!=KEY_CTRLY &&
               Key!=KEY_CTRLBS && Key!=KEY_ALT && Key!=KEY_SHIFT &&
               Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
-              Key!=KEY_CTRLINS && Key!=KEY_SHIFTINS)
+              !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && !(Key==KEY_SHIFTINS||Key==KEY_SHIFTNUMPAD0))
           {
             KeyToProcess=Key;
             break;

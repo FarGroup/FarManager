@@ -5,10 +5,17 @@ Screen grabber
 
 */
 
-/* Revision: 1.08 14.11.2001 $ */
+/* Revision: 1.09 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    ! "FAR_VerticalBlock" -> FAR_VerticalBlock
+    ! Запуск грабера вынесен в отдельную функцию grabber.cpp::RunGraber()
+    ! Уточнения поведения грабера при работе с макросами
+    ! CopyGrabbedArea имеет доп.параметр
+    + немного заготовок для вертикального блока (а нужно ли ЭТО вообще?)
+    ! Дублирование Numpad и циферок (полезно при включенном NumLock)
   14.11.2001 SVS
     + В режиме грабера курсор по нажатию Shift-Ctrl-Arrows скачет на
       N позиций с выделением.
@@ -80,6 +87,7 @@ Grabber::Grabber()
 
   PrevArea=GArea;
   ResetArea=TRUE;
+  VerticalBlock=FALSE;
 
   Process();
   delete SaveScr;
@@ -92,7 +100,7 @@ Grabber::~Grabber()
 }
 
 
-void Grabber::CopyGrabbedArea(int Append)
+void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 {
   if (GArea.X1==-1)
     return;
@@ -146,7 +154,10 @@ void Grabber::CopyGrabbedArea(int Append)
       CopyBuf=AppendBuf;
     }
   }
-  CopyToClipboard(CopyBuf);
+  if(VerticalBlock)
+    CopyFormatToClipboard(FAR_VerticalBlock,CopyBuf);
+  else
+    CopyToClipboard(CopyBuf);
   /* $ 13.07.2000 SVS
      раз вызывали new[], то нужно вызывать delete[]
   */
@@ -206,17 +217,28 @@ int Grabber::ProcessKey(int Key)
         0,0 консоли.
     Не было учтено режима выполнения макроса.
   */
-  if ((ShiftPressed || CtrlObject->Macro.IsExecuting() && (Key&KEY_SHIFT)) &&
-     Key!=KEY_NONE && ResetArea)
+  if(CtrlObject->Macro.IsExecuting())
   {
-    GArea.X1=GArea.X2=GArea.CurX;
-    GArea.Y1=GArea.Y2=GArea.CurY;
-    ResetArea=FALSE;
+    if ((Key&KEY_SHIFT) && ResetArea)
+    {
+      GArea.X1=GArea.X2=GArea.CurX;
+      GArea.Y1=GArea.Y2=GArea.CurY;
+      ResetArea=FALSE;
+    }
+    else if(!(Key&KEY_SHIFT))
+      ResetArea=TRUE;
   }
   else
-    if (Key!=KEY_NONE && Key!=KEY_SHIFT &&
-        (!ShiftPressed || (CtrlObject->Macro.IsExecuting() && !(Key&KEY_SHIFT))))
+  {
+    if ((ShiftPressed || Key!=KEY_SHIFT) && (Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
+    {
+      GArea.X1=GArea.X2=GArea.CurX;
+      GArea.Y1=GArea.Y2=GArea.CurY;
+      ResetArea=FALSE;
+    }
+    else if (Key!=KEY_NONE && Key!=KEY_SHIFT && !ShiftPressed && !(Key&KEY_SHIFT))
       ResetArea=TRUE;
+  }
   /* SVS $ */
 
   switch(Key)
@@ -225,104 +247,104 @@ int Grabber::ProcessKey(int Key)
       SetExitCode(0);
       break;
     case KEY_ENTER:
-    case KEY_CTRLINS:
+    case KEY_CTRLINS:   case KEY_CTRLNUMPAD0:
     case KEY_CTRLADD:
-      CopyGrabbedArea(Key==KEY_CTRLADD);
+      CopyGrabbedArea(Key == KEY_CTRLADD,VerticalBlock);
       SetExitCode(1);
       break;
-    case KEY_LEFT:
+    case KEY_LEFT:      case KEY_NUMPAD4:   case '4':
       if (GArea.CurX>0)
         GArea.CurX--;
       break;
-    case KEY_RIGHT:
+    case KEY_RIGHT:     case KEY_NUMPAD6:   case '6':
       if (GArea.CurX<ScrX)
         GArea.CurX++;
       break;
-    case KEY_UP:
+    case KEY_UP:        case KEY_NUMPAD8:   case '8':
       if (GArea.CurY>0)
         GArea.CurY--;
       break;
-    case KEY_DOWN:
+    case KEY_DOWN:      case KEY_NUMPAD2:   case '2':
       if (GArea.CurY<ScrY)
         GArea.CurY++;
       break;
-    case KEY_HOME:
+    case KEY_HOME:      case KEY_NUMPAD7:   case '7':
       GArea.CurX=0;
       break;
-    case KEY_END:
+    case KEY_END:       case KEY_NUMPAD1:   case '1':
       GArea.CurX=ScrX;
       break;
-    case KEY_PGUP:
+    case KEY_PGUP:      case KEY_NUMPAD9:   case '9':
       GArea.CurY=0;
       break;
-    case KEY_PGDN:
+    case KEY_PGDN:      case KEY_NUMPAD3:   case '3':
       GArea.CurY=ScrY;
       break;
-    case KEY_CTRLHOME:
+    case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
       GArea.CurX=GArea.CurY=0;
       break;
-    case KEY_CTRLEND:
+    case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
       GArea.CurX=ScrX;
       GArea.CurY=ScrY;
       break;
-    case KEY_CTRLLEFT:
-    case KEY_CTRLSHIFTLEFT:
+    case KEY_CTRLLEFT:      case KEY_CTRLNUMPAD4:
+    case KEY_CTRLSHIFTLEFT: case KEY_CTRLSHIFTNUMPAD4:
       if ((GArea.CurX-=10)<0)
         GArea.CurX=0;
-      if(Key == KEY_CTRLSHIFTLEFT)
+      if(Key == KEY_CTRLSHIFTLEFT || Key == KEY_CTRLSHIFTNUMPAD4)
         GArea.X1=GArea.CurX;
       break;
-    case KEY_CTRLSHIFTRIGHT:
-    case KEY_CTRLRIGHT:
+    case KEY_CTRLRIGHT:      case KEY_CTRLNUMPAD6:
+    case KEY_CTRLSHIFTRIGHT: case KEY_CTRLSHIFTNUMPAD6:
       if ((GArea.CurX+=10)>ScrX)
         GArea.CurX=ScrX;
-      if(Key == KEY_CTRLSHIFTRIGHT)
+      if(Key == KEY_CTRLSHIFTRIGHT || Key == KEY_CTRLSHIFTNUMPAD6)
         GArea.X1=GArea.CurX;
       break;
-    case KEY_CTRLSHIFTUP:
-    case KEY_CTRLUP:
+    case KEY_CTRLUP:        case KEY_CTRLNUMPAD8:
+    case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8:
       if ((GArea.CurY-=5)<0)
         GArea.CurY=0;
-      if(Key == KEY_CTRLSHIFTUP)
+      if(Key == KEY_CTRLSHIFTUP || Key == KEY_CTRLSHIFTNUMPAD8)
         GArea.Y1=GArea.CurY;
       break;
-    case KEY_CTRLSHIFTDOWN:
-    case KEY_CTRLDOWN:
+    case KEY_CTRLDOWN:      case KEY_CTRLNUMPAD2:
+    case KEY_CTRLSHIFTDOWN: case KEY_CTRLSHIFTNUMPAD2:
       if ((GArea.CurY+=5)>ScrY)
         GArea.CurY=ScrY;
-      if(Key == KEY_CTRLSHIFTDOWN)
+      if(Key == KEY_CTRLSHIFTDOWN || Key == KEY_CTRLSHIFTNUMPAD8)
         GArea.Y1=GArea.CurY;
       break;
-    case KEY_SHIFTLEFT:
+    case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
       if (GArea.X1>0)
         GArea.X1--;
       GArea.CurX=GArea.X1;
       break;
-    case KEY_SHIFTRIGHT:
+    case KEY_SHIFTRIGHT: case KEY_SHIFTNUMPAD6:
       if (GArea.X1<ScrX)
         GArea.X1++;
       GArea.CurX=GArea.X1;
       break;
-    case KEY_SHIFTUP:
+    case KEY_SHIFTUP:    case KEY_SHIFTNUMPAD8:
       if (GArea.Y1>0)
         GArea.Y1--;
       GArea.CurY=GArea.Y1;
       break;
-    case KEY_SHIFTDOWN:
+    case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
       if (GArea.Y1<ScrY)
         GArea.Y1++;
       GArea.CurY=GArea.Y1;
       break;
-    case KEY_SHIFTHOME:
+    case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
       GArea.CurX=GArea.X1=0;
       break;
-    case KEY_SHIFTEND:
+    case KEY_SHIFTEND:   case KEY_SHIFTNUMPAD1:
       GArea.CurX=GArea.X1=ScrX;
       break;
-    case KEY_SHIFTPGUP:
+    case KEY_SHIFTPGUP:  case KEY_SHIFTNUMPAD9:
       GArea.CurY=GArea.Y1=0;
       break;
-    case KEY_SHIFTPGDN:
+    case KEY_SHIFTPGDN:  case KEY_SHIFTNUMPAD3:
       GArea.CurY=GArea.Y1=ScrY;
       break;
   }
@@ -362,6 +384,21 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       GArea.X1=GArea.CurX;
       GArea.Y1=GArea.CurY;
     }
+  //VerticalBlock=MouseEvent->dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
   DisplayObject();
   return(TRUE);
+}
+
+BOOL RunGraber(void)
+{
+  if (!InGrabber)
+  {
+    InGrabber=TRUE;
+    WaitInMainLoop=FALSE;
+    FlushInputBuffer();
+    Grabber Grabber;
+    InGrabber=FALSE;
+    return TRUE;
+  }
+  return FALSE;
 }

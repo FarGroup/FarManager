@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.34 27.04.2002 $ */
+/* Revision: 1.35 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   27.04.2002 SVS
     ! 8192 -> MAXSIZE_SHORTCUTDATA
   25.04.2002 IS
@@ -369,7 +371,7 @@ int InfoList::ProcessKey(int Key)
       return TRUE;
     /* DJ $ */
     case KEY_F3:
-    case KEY_NUMPAD5:
+    case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
       if (*DizFileName)
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);

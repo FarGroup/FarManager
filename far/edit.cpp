@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.79 18.05.2002 $ */
+/* Revision: 1.80 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
     ! ФЛАГИ - сведем в кучу двухпозиционные переменные
@@ -883,11 +885,12 @@ int Edit::ProcessKey(int Key)
   if (!ShiftPressed && !CtrlObject->Macro.IsExecuting() &&
   /* IG $ */
       !IsShiftKey(Key) && !Recurse &&
-      Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL &&
-      Key!=KEY_RALT && Key!=KEY_NONE)
+      Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE)
   {
     Flags.Skip(FEDITLINE_MARKINGBLOCK);
-    if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && Key!=KEY_CTRLINS && Key!=KEY_SHIFTDEL && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ && Key != KEY_SHIFTINS)
+    if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0) &&
+        Key!=KEY_SHIFTDEL && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
+        !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0)) //Key != KEY_SHIFTINS) //??
     {
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
@@ -947,7 +950,8 @@ int Edit::ProcessKey(int Key)
 
   switch(Key)
   {
-    case KEY_SHIFTLEFT:
+    case KEY_SHIFTLEFT: case KEY_SHIFTNUMPAD4:
+    {
       if (CurPos>0)
       {
         RecurseProcessKey(KEY_LEFT);
@@ -971,7 +975,10 @@ int Edit::ProcessKey(int Key)
         Show();
       }
       return(TRUE);
-    case KEY_SHIFTRIGHT:
+    }
+
+    case KEY_SHIFTRIGHT: case KEY_SHIFTNUMPAD6:
+    {
       if (!Flags.Check(FEDITLINE_MARKINGBLOCK))
       {
         Select(-1,0);
@@ -988,7 +995,10 @@ int Edit::ProcessKey(int Key)
         AddSelect(CurPos,CurPos+1);
       RecurseProcessKey(KEY_RIGHT);
       return(TRUE);
-    case KEY_CTRLSHIFTLEFT:
+    }
+
+    case KEY_CTRLSHIFTLEFT: case KEY_CTRLSHIFTNUMPAD4:
+    {
       /* $ 15.08.2000 KM */
       if (CurPos>StrSize)
       {
@@ -1018,7 +1028,10 @@ int Edit::ProcessKey(int Key)
       }
       Show();
       return(TRUE);
-    case KEY_CTRLSHIFTRIGHT:
+    }
+
+    case KEY_CTRLSHIFTRIGHT: case KEY_CTRLSHIFTNUMPAD6:
+    {
       if (CurPos>=StrSize)
         return(FALSE);
       RecurseProcessKey(KEY_SHIFTRIGHT);
@@ -1044,21 +1057,30 @@ int Edit::ProcessKey(int Key)
       }
       Show();
       return(TRUE);
-    case KEY_SHIFTHOME:
+    }
+
+    case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
+    {
       DisableEditOut(TRUE);
       while (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
       DisableEditOut(FALSE);
       Show();
       return(TRUE);
-    case KEY_SHIFTEND:
+    }
+
+    case KEY_SHIFTEND:  case KEY_SHIFTNUMPAD1:
+    {
       DisableEditOut(TRUE);
       while (CurPos<StrSize)
         RecurseProcessKey(KEY_SHIFTRIGHT);
       DisableEditOut(FALSE);
       Show();
       return(TRUE);
+    }
+
     case KEY_BS:
+    {
       if (CurPos<=0)
         return(FALSE);
       /* $ 15.08.2000 KM */
@@ -1074,13 +1096,15 @@ int Edit::ProcessKey(int Key)
       if (!RecurseProcessKey(KEY_DEL))
         Show();
       return(TRUE);
+    }
 
     /* $ 10.12.2000 tran
        KEY_SHIFTBS изменен на KEY_CTRLSHIFTBS*/
     /* $ 03.07.2000 tran
        + KEY_SHIFTBS - удялем от курсора до начала строки */
     case KEY_CTRLSHIFTBS:
-    /* tran $ */
+    {
+      /* tran $ */
       /* $ 19.08.2000 KM
          Немного изменён алгоритм удаления до начала строки.
          Теперь удаление работает и с маской ввода.
@@ -1090,10 +1114,12 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_BS);
       Show();
       return(TRUE);
+    }
       /* KM $ */
     /* tran 03.07.2000 $ */
 
     case KEY_CTRLBS:
+    {
       /* $ 15.08.2000 KM */
       if (CurPos>StrSize)
       {
@@ -1122,7 +1148,10 @@ int Edit::ProcessKey(int Key)
       DisableEditOut(FALSE);
       Show();
       return(TRUE);
+    }
+
     case KEY_CTRLQ:
+    {
       EditOutDisabled++;
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && (SelStart != -1 || Flags.Check(FEDITLINE_CLEARFLAG)))
         RecurseProcessKey(KEY_DEL);
@@ -1130,6 +1159,8 @@ int Edit::ProcessKey(int Key)
       EditOutDisabled--;
       Show();
       return(TRUE);
+    }
+
 #if defined(MOUSEKEY)
     case KEY_MACROSELWORD:
     {
@@ -1153,14 +1184,19 @@ int Edit::ProcessKey(int Key)
       return TRUE;
     }
 #endif
+
     case KEY_MACRODATE:
+    {
       if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
         RecurseProcessKey(KEY_DEL);
       ProcessInsDate();
       Show();
       return TRUE;
+    }
+
     case KEY_CTRLT:
     case KEY_CTRLDEL:
+    {
       if (CurPos>=StrSize)
         return(FALSE);
       DisableEditOut(TRUE);
@@ -1211,7 +1247,10 @@ int Edit::ProcessKey(int Key)
       DisableEditOut(FALSE);
       Show();
       return(TRUE);
+    }
+
     case KEY_CTRLY:
+    {
       /* $ 25.07.2000 tran
          + DropDown style */
       /* $ 03.07.2000 tran
@@ -1230,7 +1269,10 @@ int Edit::ProcessKey(int Key)
       Select(-1,0);
       Show();
       return(TRUE);
+    }
+
     case KEY_CTRLK:
+    {
       /* $ 25.07.2000 tran
          + DropDown style */
       /* $ 03.07.2000 tran
@@ -1256,24 +1298,33 @@ int Edit::ProcessKey(int Key)
       Str=(char *)realloc(Str,StrSize+1);
       Show();
       return(TRUE);
-    case KEY_HOME:
-    case KEY_CTRLHOME:
+    }
+
+    case KEY_HOME:        case KEY_NUMPAD7:
+    case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
+    {
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
       CurPos=0;
       Show();
       return(TRUE);
-    case KEY_END:
-    case KEY_CTRLEND:
+    }
+
+    case KEY_END:         case KEY_NUMPAD1:
+    case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
+    {
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
       CurPos=StrSize;
       Show();
       return(TRUE);
-    case KEY_LEFT:
+    }
+
+    case KEY_LEFT:        case KEY_NUMPAD4:
     case KEY_CTRLS:
+    {
       if (CurPos>0)
       {
         /* $ 15.08.2000 KM */
@@ -1283,19 +1334,28 @@ int Edit::ProcessKey(int Key)
         Show();
       }
       return(TRUE);
-    case KEY_RIGHT:
+    }
+
+    case KEY_RIGHT:       case KEY_NUMPAD6:
     case KEY_CTRLD:
+    {
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
       CurPos++;
       Show();
       return(TRUE);
-    case KEY_INS:
+    }
+
+    case KEY_INS:         case KEY_NUMPAD0:
+    {
       Flags.Swap(FEDITLINE_OVERTYPE);
       Show();
       return(TRUE);
+    }
+
     case KEY_DEL:
+    {
       /* $ 25.07.2000 tran
          + DropDown style */
       /* $ 03.07.2000 tran
@@ -1346,7 +1406,10 @@ int Edit::ProcessKey(int Key)
       /* KM $ */
       Show();
       return(TRUE);
-    case KEY_CTRLLEFT:
+    }
+
+    case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
+    {
       /* $ 15.08.2000 KM */
       PrevCurPos=CurPos;
       /* KM $ */
@@ -1367,7 +1430,10 @@ int Edit::ProcessKey(int Key)
       }
       Show();
       return(TRUE);
-    case KEY_CTRLRIGHT:
+    }
+
+    case KEY_CTRLRIGHT:   case KEY_CTRLNUMPAD6:
+    {
       if (CurPos>=StrSize)
         return(FALSE);
       /* $ 15.08.2000 KM */
@@ -1387,14 +1453,20 @@ int Edit::ProcessKey(int Key)
       }
       Show();
       return(TRUE);
+    }
+
     case KEY_SHIFTDEL:
+    {
       if (SelStart==-1 || SelStart>=SelEnd)
         return(FALSE);
       RecurseProcessKey(KEY_CTRLINS);
       DeleteBlock();
       Show();
       return(TRUE);
-    case KEY_CTRLINS:
+    }
+
+    case KEY_CTRLINS:     case KEY_CTRLNUMPAD0:
+    {
       if (!Flags.Check(FEDITLINE_PASSWORDMODE))
         if (SelStart==-1 || SelStart>=SelEnd)
           CopyToClipboard(Str);
@@ -1407,8 +1479,10 @@ int Edit::ProcessKey(int Key)
             Str[SelEnd]=Ch;
           }
       return(TRUE);
-    case KEY_SHIFTINS:
-      {
+    }
+
+    case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
+    {
         /* $ 15.10.2000 tran
            если строка ввода имет максимальную длину
            то их клипборда грузим не больше ее*/
@@ -1451,10 +1525,11 @@ int Edit::ProcessKey(int Key)
           delete[] ClipText;
         /* SVS $ */
         Show();
-      }
       return(TRUE);
+    }
+
     case KEY_SHIFTTAB:
-      {
+    {
         /* $ 15.08.2000 KM */
         PrevCurPos=CurPos;
         /* KM $ */
@@ -1463,14 +1538,16 @@ int Edit::ProcessKey(int Key)
         SetTabCurPos(CursorPos);
         /* OT $ */
         Show();
-      }
       return(TRUE);
+    }
+
     /* $ 13.02.2001 VVM
       + Обработка SHIFT+SPACE */
     case KEY_SHIFTSPACE:
       Key = KEY_SPACE;
     /* VVM $ */
     default:
+    {
 //      _D(SysLog("Key=0x%08X",Key));
 
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)
@@ -1491,6 +1568,7 @@ int Edit::ProcessKey(int Key)
         Show();
       }
       return(TRUE);
+    }
   }
   return(FALSE);
 }

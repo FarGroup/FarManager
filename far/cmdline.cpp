@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.54 05.04.2002 $ */
+/* Revision: 1.55 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   05.04.2002 SVS
     ! Продолжение для BugZ#239 (Folder shortcuts для несуществующих папок)
       Аналогичное поведение сделаем и для Alt-F12, ибо это правильно!
@@ -205,7 +207,7 @@ int CommandLine::ProcessKey(int Key)
 {
   char Str[2048], *PStr;
 
-  if (Key==KEY_CTRLEND && CmdStr.GetCurPos()==CmdStr.GetLength())
+  if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
     if (LastCmdPartLength==-1)
       strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
@@ -222,13 +224,13 @@ int CommandLine::ProcessKey(int Key)
     return(TRUE);
   }
 
-  if(Key == KEY_UP)
+  if(Key == KEY_UP || Key == KEY_NUMPAD8)
   {
     if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
       return(FALSE);
     Key=KEY_CTRLE;
   }
-  else if(Key == KEY_DOWN)
+  else if(Key == KEY_DOWN || Key == KEY_NUMPAD2)
   {
     if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
       return(FALSE);
@@ -369,10 +371,10 @@ int CommandLine::ProcessKey(int Key)
        ВНИМАНИЕ!
        Для сокращения кода этот кусок должен стоять перед "default"
     */
-    case KEY_ALTSHIFTLEFT:
-    case KEY_ALTSHIFTRIGHT:
-    case KEY_ALTSHIFTEND:
-    case KEY_ALTSHIFTHOME:
+    case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
+    case KEY_ALTSHIFTRIGHT: case KEY_ALTSHIFTNUMPAD6:
+    case KEY_ALTSHIFTEND:   case KEY_ALTSHIFTNUMPAD1:
+    case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
       Key&=~KEY_ALT;
 
     default:
@@ -406,10 +408,19 @@ int CommandLine::ProcessKey(int Key)
       */
       if (!Opt.EdOpt.PersistentBlocks)
       {
-        static int UnmarkKeys[]={KEY_LEFT,KEY_CTRLS,KEY_RIGHT,KEY_CTRLD,
-                   KEY_CTRLLEFT,KEY_CTRLRIGHT,KEY_CTRLHOME,KEY_CTRLEND,
-                   KEY_HOME,KEY_END
-                   };
+        static int UnmarkKeys[]={
+               KEY_LEFT,       KEY_NUMPAD4,
+               KEY_CTRLS,
+               KEY_RIGHT,      KEY_NUMPAD6,
+               KEY_CTRLD,
+               KEY_CTRLLEFT,   KEY_CTRLNUMPAD4,
+               KEY_CTRLRIGHT,  KEY_CTRLNUMPAD6,
+               KEY_CTRLHOME,   KEY_CTRLNUMPAD7,
+               KEY_CTRLEND,    KEY_CTRLNUMPAD1,
+               KEY_HOME,       KEY_NUMPAD7,
+               KEY_END,        KEY_NUMPAD1
+        };
+
         for (int I=0;I<sizeof(UnmarkKeys)/sizeof(UnmarkKeys[0]);I++)
           if (Key==UnmarkKeys[I])
           {

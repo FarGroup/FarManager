@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.97 22.05.2002 $ */
+/* Revision: 1.98 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   22.05.2002 SVS
     ! Viewer -> FileViewer
   18.05.2002 SVS
@@ -1302,7 +1304,7 @@ int Viewer::ProcessKey(int Key)
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
-  if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_CTRLINS && Key!=KEY_CTRLC)
+  if (Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && Key!=KEY_CTRLC)
     SelectSize=0;
   /* IS $ */
 
@@ -1345,10 +1347,19 @@ int Viewer::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_F1:
+    {
+      {
+        Help Hlp ("Viewer");
+      }
+      return(TRUE);
+    }
+
     /* $ 05.09.2001 VVM
       + Копирование выделения в клипбоард */
     case KEY_CTRLC:
-    case KEY_CTRLINS:
+    case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
+    {
       if (SelectSize)
       {
         char *SelData;
@@ -1371,10 +1382,13 @@ int Viewer::ProcessKey(int Key)
         } /* if */
       } /* if */
       return(TRUE);
+    }
     /* VVM $ */
+
     /* $ 18.07.2000 tran
        включить/выключить скролбар */
     case KEY_CTRLS:
+    {
         ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
         /* $ 10.03.2002 tran
            Bugz#275 - CtrlS должне работать глобально */
@@ -1382,8 +1396,11 @@ int Viewer::ProcessKey(int Key)
         /* tran $ */
         Show();
         return (TRUE);
+    }
     /* tran 18.07.2000 $ */
+
     case KEY_IDLE:
+    {
       {
         if(ViewFile)
         {
@@ -1426,8 +1443,11 @@ int Viewer::ProcessKey(int Key)
           ShowTime(FALSE);
       }
       return(TRUE);
+    }
+
     case KEY_ALTBS:
     case KEY_CTRLZ:
+    {
       {
         for (int I=1;I<sizeof(UndoAddr)/sizeof(UndoAddr[0]);I++)
         {
@@ -1446,8 +1466,11 @@ int Viewer::ProcessKey(int Key)
         }
       }
       return(TRUE);
+    }
+
     case KEY_ADD:
     case KEY_SUBTRACT:
+    {
       if (*TempViewName==0)
       {
         char Name[NM];
@@ -1505,13 +1528,10 @@ int Viewer::ProcessKey(int Key)
         }
       }
       return(TRUE);
-    case KEY_F1:
-      {
-        Help Hlp ("Viewer");
-      }
-      return(TRUE);
+    }
 
     case KEY_SHIFTF2:
+    {
       if(RegVer)
       {
         VM.TypeWrap=!VM.TypeWrap;
@@ -1523,8 +1543,10 @@ int Viewer::ProcessKey(int Key)
         LastSelPos=FilePos;
       }
       return TRUE;
+    }
 
     case KEY_F2:
+    {
       /* $ 12.07.200 SVS
         ! Wrap имеет 3 положения и...
       */
@@ -1538,20 +1560,32 @@ int Viewer::ProcessKey(int Key)
       /* SVS $ */
       LastSelPos=FilePos;
       return(TRUE);
+    }
+
     case KEY_F4:
+    {
       VM.Hex=!VM.Hex;
       ChangeViewKeyBar();
       Show();
       LastSelPos=FilePos;
       return(TRUE);
+    }
+
     case KEY_F7:
+    {
       Search(0,0);
       return(TRUE);
+    }
+
     case KEY_SHIFTF7:
     case KEY_SPACE:
+    {
       Search(1,0);
       return(TRUE);
+    }
+
     case KEY_F8:
+    {
       if ((VM.AnsiMode=!VM.AnsiMode)!=0)
       {
         int UseUnicode=TRUE;
@@ -1570,7 +1604,10 @@ int Viewer::ProcessKey(int Key)
       LastSelPos=FilePos;
       TableChangedByUser=TRUE;
       return(TRUE);
+    }
+
     case KEY_SHIFTF8:
+    {
       {
         int UseUnicode=TRUE;
         int GetTableCode=GetTable(&TableSet,FALSE,VM.TableNum,UseUnicode);
@@ -1591,37 +1628,48 @@ int Viewer::ProcessKey(int Key)
         }
       }
       return(TRUE);
+    }
+
     case KEY_ALTF8:
+    {
       if(ViewFile)
         GoTo();
       return(TRUE);
+    }
+
     case KEY_F11:
+    {
       CtrlObject->Plugins.CommandsMenu(MODALTYPE_VIEWER,0,"Viewer");
       Show();
       return(TRUE);
+    }
+
     /* $ 27.06.2001 VVM
       + С альтом скролим по 1 */
     /* $ 27.04.2001 VVM
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
-      {
-        int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
-        for (int i=0; i<Roll; i++)
-          ProcessKey(KEY_UP);
-        return(TRUE);
-      }
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_UP);
+      return(TRUE);
+    }
+
     case KEY_MSWHEEL_DOWN:
     case (KEY_MSWHEEL_DOWN | KEY_ALT):
-      {
-        int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
-        for (int i=0; i<Roll; i++)
-          ProcessKey(KEY_DOWN);
-        return(TRUE);
-      }
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_DOWN);
+      return(TRUE);
+    }
     /* VVM $ */
     /* VVM $ */
-    case KEY_UP:
+
+    case KEY_UP: case KEY_NUMPAD8:
+    {
       if (FilePos>0 && ViewFile)
       {
         Up();
@@ -1635,7 +1683,10 @@ int Viewer::ProcessKey(int Key)
       }
       LastSelPos=FilePos;
       return(TRUE);
-    case KEY_DOWN:
+    }
+
+    case KEY_DOWN: case KEY_NUMPAD2:
+    {
       if (!LastPage && ViewFile)
       {
         FilePos=SecondPos;
@@ -1643,7 +1694,10 @@ int Viewer::ProcessKey(int Key)
       }
       LastSelPos=FilePos;
       return(TRUE);
-    case KEY_PGUP:
+    }
+
+    case KEY_PGUP: case KEY_NUMPAD9:
+    {
       if(ViewFile)
       {
         for (I=ViewY1;I<Y2;I++)
@@ -1652,7 +1706,10 @@ int Viewer::ProcessKey(int Key)
         LastSelPos=FilePos;
       }
       return(TRUE);
-    case KEY_PGDN:
+    }
+
+    case KEY_PGDN: case KEY_NUMPAD3:
+    {
       if (LastPage || ViewFile==NULL)
         return(TRUE);
       vseek(ViewFile,FilePos,SEEK_SET);
@@ -1675,7 +1732,10 @@ int Viewer::ProcessKey(int Key)
       Show();
       LastSelPos=FilePos;
       return(TRUE);
-    case KEY_LEFT:
+    }
+
+    case KEY_LEFT: case KEY_NUMPAD4:
+    {
       if (LeftPos>0 && ViewFile)
       {
         if (VM.Hex && LeftPos>80-Width)
@@ -1685,7 +1745,10 @@ int Viewer::ProcessKey(int Key)
       }
       LastSelPos=FilePos;
       return(TRUE);
-    case KEY_RIGHT:
+    }
+
+    case KEY_RIGHT: case KEY_NUMPAD6:
+    {
       if (LeftPos<MAX_VIEWLINE && ViewFile)
       {
         LeftPos++;
@@ -1693,7 +1756,10 @@ int Viewer::ProcessKey(int Key)
       }
       LastSelPos=FilePos;
       return(TRUE);
-    case KEY_CTRLLEFT:
+    }
+
+    case KEY_CTRLLEFT: case KEY_CTRLNUMPAD4:
+    {
       if(ViewFile)
       {
         LeftPos-=20;
@@ -1703,7 +1769,10 @@ int Viewer::ProcessKey(int Key)
         LastSelPos=FilePos;
       }
       return(TRUE);
-    case KEY_CTRLRIGHT:
+    }
+
+    case KEY_CTRLRIGHT: case KEY_CTRLNUMPAD6:
+    {
       if(ViewFile)
       {
         LeftPos+=20;
@@ -1713,11 +1782,13 @@ int Viewer::ProcessKey(int Key)
         LastSelPos=FilePos;
       }
       return(TRUE);
-    case KEY_HOME:
-    case KEY_CTRLHOME:
+    }
+
+    case KEY_HOME:        case KEY_NUMPAD7:
+    case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
       if(ViewFile)
         LeftPos=0;
-    case KEY_CTRLPGUP:
+    case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
       if(ViewFile)
       {
         FilePos=0;
@@ -1725,11 +1796,12 @@ int Viewer::ProcessKey(int Key)
         LastSelPos=FilePos;
       }
       return(TRUE);
-    case KEY_END:
-    case KEY_CTRLEND:
+
+    case KEY_END:         case KEY_NUMPAD1:
+    case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
       if(ViewFile)
         LeftPos=0;
-    case KEY_CTRLPGDN:
+    case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
       if(ViewFile)
       {
         vseek(ViewFile,0,SEEK_END);
@@ -1742,6 +1814,7 @@ int Viewer::ProcessKey(int Key)
         LastSelPos=FilePos;
       }
       return(TRUE);
+
     default:
       if (Key>=' ' && Key<=255)
       {

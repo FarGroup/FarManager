@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.69 18.05.2002 $ */
+/* Revision: 1.70 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   25.04.2002 SVS
@@ -1132,28 +1134,41 @@ int Help::ProcessKey(int Key)
   {
     case KEY_NONE:
     case KEY_IDLE:
+    {
       break;
+    }
+
     case KEY_F5:
+    {
       Opt.FullScreenHelp=!Opt.FullScreenHelp;
       ResizeConsole();
       return(TRUE);
+    }
+
     case KEY_ESC:
     case KEY_F10:
+    {
       FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
       return(TRUE);
-    case KEY_HOME:
-    case KEY_CTRLHOME:
-    case KEY_CTRLPGUP:
+    }
+
+    case KEY_HOME:        case KEY_NUMPAD7:
+    case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
+    case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
+    {
       StackData.CurX=StackData.CurY=0;
       StackData.TopStr=0;
       FastShow();
       if (*StackData.SelTopic==0)
         MoveToReference(1,1);
       return(TRUE);
-    case KEY_END:
-    case KEY_CTRLEND:
-    case KEY_CTRLPGDN:
+    }
+
+    case KEY_END:         case KEY_NUMPAD1:
+    case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
+    case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
+    {
       StackData.CurX=StackData.CurY=0;
       StackData.TopStr=StrCount;
       FastShow();
@@ -1164,7 +1179,10 @@ int Help::ProcessKey(int Key)
         MoveToReference(0,1);
       }
       return(TRUE);
-    case KEY_UP:
+    }
+
+    case KEY_UP:          case KEY_NUMPAD8:
+    {
       if (StackData.TopStr>0)
       {
         StackData.TopStr--;
@@ -1180,7 +1198,10 @@ int Help::ProcessKey(int Key)
       else
         ProcessKey(KEY_SHIFTTAB);
       return(TRUE);
-    case KEY_DOWN:
+    }
+
+    case KEY_DOWN:        case KEY_NUMPAD2:
+    {
       if (StackData.TopStr<StrCount-FixCount-(Y2-Y1-1-FixSize))
       {
         StackData.TopStr++;
@@ -1194,29 +1215,33 @@ int Help::ProcessKey(int Key)
       else
         ProcessKey(KEY_TAB);
       return(TRUE);
+    }
+
     /* $ 26.07.2001 VVM
       + С альтом скролим по 1 */
     /* $ 07.05.2001 DJ
       + Обработка KEY_MSWHEEL_XXXX */
     case KEY_MSWHEEL_UP:
     case (KEY_MSWHEEL_UP | KEY_ALT):
-      {
-        int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
-        for (int i=0; i<Roll; i++)
-          ProcessKey(KEY_UP);
-        return(TRUE);
-      }
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_UP);
+      return(TRUE);
+    }
     case KEY_MSWHEEL_DOWN:
     case (KEY_MSWHEEL_DOWN | KEY_ALT):
-      {
-        int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
-        for (int i=0; i<Roll; i++)
-          ProcessKey(KEY_DOWN);
-        return(TRUE);
-      }
+    {
+      int Roll = Key & KEY_ALT?1:Opt.MsWheelDelta;
+      for (int i=0; i<Roll; i++)
+        ProcessKey(KEY_DOWN);
+      return(TRUE);
+    }
     /* DJ $ */
     /* VVM $ */
-    case KEY_PGUP:
+
+    case KEY_PGUP:      case KEY_NUMPAD9:
+    {
       StackData.CurX=StackData.CurY=0;
       StackData.TopStr-=Y2-Y1-2-FixSize;
       FastShow();
@@ -1226,7 +1251,10 @@ int Help::ProcessKey(int Key)
         MoveToReference(1,1);
       }
       return(TRUE);
-    case KEY_PGDN:
+    }
+
+    case KEY_PGDN:      case KEY_NUMPAD3:
+    {
       {
         int PrevTopStr=StackData.TopStr;
         StackData.TopStr+=Y2-Y1-2-FixSize;
@@ -1241,16 +1269,24 @@ int Help::ProcessKey(int Key)
         MoveToReference(1,1);
       }
       return(TRUE);
-    case KEY_RIGHT:
+    }
+
+    case KEY_RIGHT:   case KEY_NUMPAD6:
     case KEY_TAB:
+    {
       MoveToReference(1,0);
       return(TRUE);
-    case KEY_LEFT:
+    }
+
+    case KEY_LEFT:    case KEY_NUMPAD4:
     case KEY_SHIFTTAB:
+    {
       MoveToReference(0,0);
       return(TRUE);
+    }
 
     case KEY_F1:
+    {
       // не поганим SelTopic, если и так в Help on Help
       if(LocalStricmp(StackData.HelpTopic,HelpOnHelpTopic)!=0)
       {
@@ -1260,7 +1296,10 @@ int Help::ProcessKey(int Key)
         IsNewTopic=FALSE;
       }
       return(TRUE);
+    }
+
     case KEY_SHIFTF1:
+    {
       //   не поганим SelTopic, если и так в теме Contents
       if(LocalStricmp(StackData.HelpTopic,HelpContents)!=0)
       {
@@ -1270,7 +1309,10 @@ int Help::ProcessKey(int Key)
         IsNewTopic=FALSE;
       }
       return(TRUE);
+    }
+
     case KEY_SHIFTF2:
+    {
       //   не поганим SelTopic, если и так в PluginContents
       if(LocalStricmp(StackData.HelpTopic,PluginContents)!=0)
       {
@@ -1280,9 +1322,11 @@ int Help::ProcessKey(int Key)
         IsNewTopic=FALSE;
       }
       return(TRUE);
+    }
 
 #if defined(WORK_HELP_DOCUMS)
     case KEY_SHIFTF3: // Для "документов" :-)
+    {
       //   не поганим SelTopic, если и так в DocumentContents
       if(LocalStricmp(StackData.HelpTopic,DocumentContents)!=0)
       {
@@ -1292,10 +1336,12 @@ int Help::ProcessKey(int Key)
         IsNewTopic=FALSE;
       }
       return(TRUE);
+    }
 #endif
 
     case KEY_ALTF1:
     case KEY_BS:
+    {
       // Если стек возврата пуст - выходим их хелпа
       if(!Stack->isEmpty())
       {
@@ -1304,8 +1350,10 @@ int Help::ProcessKey(int Key)
         return(TRUE);
       }
       return ProcessKey(KEY_ESC);
+    }
 
     case KEY_ENTER:
+    {
       if (*StackData.SelTopic && LocalStricmp(StackData.HelpTopic,StackData.SelTopic)!=0)
       {
         Stack->Push(&StackData);
@@ -1318,14 +1366,20 @@ int Help::ProcessKey(int Key)
         IsNewTopic=FALSE;
       }
       return(TRUE);
+    }
 
 #if defined(WORK_HELP_FIND)
     case KEY_F7:
+    {
       Search(0);
       return(TRUE);
+    }
+
     case KEY_SHIFTF7:
+    {
       Search(1);
       return(TRUE);
+    }
 #endif
 
   }

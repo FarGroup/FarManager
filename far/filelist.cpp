@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.156 22.05.2002 $ */
+/* Revision: 1.157 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   22.05.2002 VVM
     - Пошлем сообщение о смене режима плагину _после_ смены режима.
   20.05.2002 IS
@@ -849,6 +851,7 @@ int FileList::ProcessKey(int Key)
       }
   }
   else
+  {
     /*$ 23.07.2001 SKV
       Пусть Ctrl-G, Ctrl-F, Ctrl-Shift-F, Ctrl-Enter работают
       при погашенных панелях.
@@ -865,6 +868,7 @@ int FileList::ProcessKey(int Key)
         )
     /* SKV$*/
       return(FALSE);
+  }
 
   if (!ShiftPressed && ShiftSelection!=-1)
   {
@@ -989,26 +993,34 @@ int FileList::ProcessKey(int Key)
     }
   }
 
-  //Key=NumPadToNavigate(Key); //NUMPAD
-
   switch(Key)
   {
     case KEY_F1:
+    {
       if (PanelMode==PLUGIN_PANEL && PluginPanelHelp(hPlugin))
         return(TRUE);
       return(FALSE);
+    }
+
     case KEY_ALTSHIFTF9:
+    {
       if (PanelMode==PLUGIN_PANEL)
         CtrlObject->Plugins.ConfigureCurrent(((struct PluginHandle *)hPlugin)->PluginNumber,0);
       else
         CtrlObject->Plugins.Configure();
       return TRUE;
+    }
+
     case KEY_SHIFTSUBTRACT:
+    {
       SaveSelection();
       ClearSelection();
       Redraw();
       return(TRUE);
+    }
+
     case KEY_SHIFTADD:
+    {
       SaveSelection();
       {
         struct FileListItem *CurPtr=ListData;
@@ -1020,46 +1032,57 @@ int FileList::ProcessKey(int Key)
         SortFileList(TRUE);
       Redraw();
       return(TRUE);
+    }
+
     case KEY_ADD:
       SelectFiles(SELECT_ADD);
       return(TRUE);
+
     case KEY_SUBTRACT:
       SelectFiles(SELECT_REMOVE);
       return(TRUE);
+
     case KEY_CTRLADD:
       SelectFiles(SELECT_ADDEXT);
       return(TRUE);
+
     case KEY_CTRLSUBTRACT:
       SelectFiles(SELECT_REMOVEEXT);
       return(TRUE);
+
     case KEY_ALTADD:
       SelectFiles(SELECT_ADDNAME);
       return(TRUE);
+
     case KEY_ALTSUBTRACT:
       SelectFiles(SELECT_REMOVENAME);
       return(TRUE);
+
     case KEY_MULTIPLY:
       SelectFiles(SELECT_INVERT);
       return(TRUE);
+
     case KEY_CTRLMULTIPLY:
       SelectFiles(SELECT_INVERTALL);
       return(TRUE);
-    case KEY_ALTLEFT:
+
+    case KEY_ALTLEFT:     // Прокрутка длинных имен и описаний
       LeftPos--;
       Redraw();
       return(TRUE);
-    case KEY_ALTRIGHT:
+
+    case KEY_ALTRIGHT:    // Прокрутка длинных имен и описаний
       LeftPos++;
       Redraw();
       return(TRUE);
 
-    case KEY_CTRLINS:
+    case KEY_CTRLINS:      case KEY_CTRLNUMPAD0:
       if (CmdLength>0)
         return(FALSE);
-    case KEY_CTRLSHIFTINS:     // копировать имена
-    case KEY_CTRLALTINS:       // копировать UNC-имена
-    case KEY_ALTSHIFTINS:      // копировать полные имена
-      CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS,
+    case KEY_CTRLSHIFTINS: case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
+    case KEY_CTRLALTINS:   case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
+    case KEY_ALTSHIFTINS:                              // копировать полные имена
+      CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0,
                 (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
       return(TRUE);
 
@@ -1090,6 +1113,7 @@ int FileList::ProcessKey(int Key)
     /* $ 29.01.2001 VVM
       + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
     case KEY_CTRLALTF:
+    {
     /* VVM $ */
       if (FileCount>0 && SetCurPath())
       {
@@ -1174,6 +1198,7 @@ int FileList::ProcessKey(int Key)
         CtrlObject->CmdLine->InsertString(FileName);
       }
       return(TRUE);
+    }
 
     case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
     case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
@@ -1184,6 +1209,7 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
     case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
     case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+    {
       {
         Panel *SrcPanel;
         switch(Key)
@@ -1235,6 +1261,8 @@ int FileList::ProcessKey(int Key)
         CtrlObject->CmdLine->InsertString(PanelDir);
       }
       return(TRUE);
+    }
+
     case KEY_CTRLA:
       if (PanelMode!=PLUGIN_PANEL ||
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
@@ -1244,6 +1272,7 @@ int FileList::ProcessKey(int Key)
           Show();
         }
       return(TRUE);
+
     case KEY_CTRLG:
       if (PanelMode!=PLUGIN_PANEL ||
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
@@ -1257,11 +1286,14 @@ int FileList::ProcessKey(int Key)
           AnotherPanel->Redraw();
         }
       return(TRUE);
+
     case KEY_CTRLZ:
       if (FileCount>0 && PanelMode==NORMAL_PANEL && SetCurPath())
         DescribeFiles();
       return(TRUE);
+
     case KEY_CTRLH:
+    {
       {
         Opt.ShowHidden=!Opt.ShowHidden;
         Update(UPDATE_KEEP_SELECTION);
@@ -1271,10 +1303,16 @@ int FileList::ProcessKey(int Key)
         AnotherPanel->Redraw();
       }
       return(TRUE);
+    }
+
     case KEY_CTRLM:
+    {
       RestoreSelection();
       return(TRUE);
+    }
+
     case KEY_CTRLR:
+    {
       Update(UPDATE_KEEP_SELECTION);
       Redraw();
       {
@@ -1286,12 +1324,18 @@ int FileList::ProcessKey(int Key)
         }
       }
       break;
+    }
+
     case KEY_CTRLN:
+    {
       ShowShortNames=!ShowShortNames;
       Redraw();
       return(TRUE);
+    }
+
     case KEY_ENTER:
     case KEY_SHIFTENTER:
+    {
       if (CmdLength>0 || FileCount==0)
       {
         // Для средней клавиши мыши и не пустой строке... исполним эту строку
@@ -1304,6 +1348,8 @@ int FileList::ProcessKey(int Key)
       }
       ProcessEnter(1,Key==KEY_SHIFTENTER);
       return(TRUE);
+    }
+
     case KEY_CTRLBACKSLASH:
     {
       BOOL NeedChangeDir=TRUE;
@@ -1322,11 +1368,16 @@ int FileList::ProcessKey(int Key)
       Show();
       return(TRUE);
     }
+
     case KEY_SHIFTF1:
+    {
       if (FileCount>0 && PanelMode!=PLUGIN_PANEL && SetCurPath())
         PluginPutFilesToNew();
       return(TRUE);
+    }
+
     case KEY_SHIFTF2:
+    {
       if (FileCount>0 && SetCurPath())
       {
         if (PanelMode==PLUGIN_PANEL)
@@ -1340,18 +1391,24 @@ int FileList::ProcessKey(int Key)
         PluginHostGetFiles();
       }
       return(TRUE);
+    }
+
     case KEY_SHIFTF3:
+    {
       ProcessHostFile();
       return(TRUE);
+    }
+
     case KEY_F3:
-    case KEY_NUMPAD5:
+    case KEY_NUMPAD5:      case KEY_SHIFTNUMPAD5:
     case KEY_ALTF3:
     case KEY_CTRLSHIFTF3:
     case KEY_F4:
     case KEY_ALTF4:
     case KEY_SHIFTF4:
     case KEY_CTRLSHIFTF4:
-      if (Key==KEY_NUMPAD5)
+    {
+      if (Key == KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
         Key=KEY_F3;
       if ((Key==KEY_SHIFTF4 || FileCount>0) && SetCurPath())
       {
@@ -1679,19 +1736,21 @@ int FileList::ProcessKey(int Key)
 //      CtrlObject->Cp()->Redraw();
       /* tran 15.07.2000 $ */
       return(TRUE);
+    }
+
     case KEY_F5:
     case KEY_F6:
     case KEY_ALTF6:
     case KEY_DRAGCOPY:
     case KEY_DRAGMOVE:
+    {
       if (FileCount>0 && SetCurPath())
         ProcessCopyKeys(Key);
       return(TRUE);
+    }
 
-    /* $ 27.09.2000 SVS
-       Печать текущего/выбранных файла/ов
-    */
-    case KEY_ALTF5:
+    case KEY_ALTF5:  // Печать текущего/выбранных файла/ов
+    {
       /* $ 11.03.2001 VVM
         ! Печать через pman только из файловых панелей. */
       if ((PanelMode!=PLUGIN_PANEL) &&
@@ -1701,10 +1760,11 @@ int FileList::ProcessKey(int Key)
       else if (FileCount>0 && SetCurPath())
         PrintFiles(this);
       return(TRUE);
-    /* SVS $ */
+    }
 
     case KEY_SHIFTF5:
     case KEY_SHIFTF6:
+    {
       if (FileCount>0 && SetCurPath())
       {
         int OldFileCount=FileCount,OldCurFile=CurFile;
@@ -1724,7 +1784,10 @@ int FileList::ProcessKey(int Key)
         }
       }
       return(TRUE);
+    }
+
     case KEY_F7:
+    {
       if (SetCurPath())
         if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
         {
@@ -1753,10 +1816,13 @@ int FileList::ProcessKey(int Key)
         else
           ShellMakeDir(this);
       return(TRUE);
+    }
+
     case KEY_F8:
     case KEY_SHIFTDEL:
     case KEY_SHIFTF8:
     case KEY_ALTDEL:
+    {
       if (FileCount>0 && SetCurPath())
       {
         if (Key==KEY_SHIFTF8)
@@ -1776,6 +1842,8 @@ int FileList::ProcessKey(int Key)
           ReturnCurrentFile=FALSE;
       }
       return(TRUE);
+    }
+
     /* $ 26.07.2001 VVM
        + С альтом скролим всегда по 1 */
     /* $ 26.04.2001 VVM
@@ -1784,37 +1852,45 @@ int FileList::ProcessKey(int Key)
     case (KEY_MSWHEEL_UP | KEY_ALT):
       Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
       return(TRUE);
+
     case KEY_MSWHEEL_DOWN:
     case (KEY_MSWHEEL_DOWN | KEY_ALT):
       Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
       return(TRUE);
     /* VVM $ */
     /* VVM $ */
-    case KEY_HOME:
+
+    case KEY_HOME:         case KEY_NUMPAD7:
       Up(0x7fffff);
       return(TRUE);
-    case KEY_END:
+
+    case KEY_END:          case KEY_NUMPAD1:
       Down(0x7fffff);
       return(TRUE);
-    case KEY_UP:
+
+    case KEY_UP:           case KEY_NUMPAD8:
       Up(1);
       return(TRUE);
-    case KEY_DOWN:
+
+    case KEY_DOWN:         case KEY_NUMPAD2:
       Down(1);
       return(TRUE);
-    case KEY_PGUP:
+
+    case KEY_PGUP:         case KEY_NUMPAD9:
       N=Columns*Height-1;
       CurTopFile-=N;
       CurFile-=N;
       ShowFileList(TRUE);
       return(TRUE);
-    case KEY_PGDN:
+
+    case KEY_PGDN:         case KEY_NUMPAD3:
       N=Columns*Height-1;
       CurTopFile+=N;
       CurFile+=N;
       ShowFileList(TRUE);
       return(TRUE);
-    case KEY_LEFT:
+
+    case KEY_LEFT:         case KEY_NUMPAD4:
       if (Columns>1 || CmdLength==0)
       {
         if (CurTopFile>=Height && CurFile-CurTopFile<Height)
@@ -1823,7 +1899,8 @@ int FileList::ProcessKey(int Key)
         return(TRUE);
       }
       return(FALSE);
-    case KEY_RIGHT:
+
+    case KEY_RIGHT:        case KEY_NUMPAD6:
       if (Columns>1 || CmdLength==0)
       {
         if (CurFile+Height<FileCount && CurFile-CurTopFile>=(Columns-1)*(Height))
@@ -1836,7 +1913,8 @@ int FileList::ProcessKey(int Key)
        оптимизация Shift-стрелок для Selected files first: делаем сортировку
        один раз
     */
-    case KEY_SHIFTHOME:
+    case KEY_SHIFTHOME:    case KEY_SHIFTNUMPAD7:
+    {
       InternalProcessKey++;
       DisableOut++;
       while (CurFile>0)
@@ -1848,7 +1926,10 @@ int FileList::ProcessKey(int Key)
         SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
-    case KEY_SHIFTEND:
+    }
+
+    case KEY_SHIFTEND:     case KEY_SHIFTNUMPAD1:
+    {
       InternalProcessKey++;
       DisableOut++;
       while (CurFile<FileCount-1)
@@ -1860,15 +1941,34 @@ int FileList::ProcessKey(int Key)
         SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
-    case KEY_SHIFTLEFT:
-    case KEY_SHIFTRIGHT:
+    }
+
+    case KEY_SHIFTPGUP:    case KEY_SHIFTNUMPAD9:
+    case KEY_SHIFTPGDN:    case KEY_SHIFTNUMPAD3:
+    {
+      N=Columns*Height-1;
+      InternalProcessKey++;
+      DisableOut++;
+      while (N--)
+        ProcessKey(Key==KEY_SHIFTPGUP||Key==KEY_SHIFTNUMPAD9? KEY_SHIFTUP:KEY_SHIFTDOWN);
+      InternalProcessKey--;
+      DisableOut--;
+      if (SelectedFirst)
+        SortFileList(TRUE);
+      ShowFileList(TRUE);
+      return(TRUE);
+    }
+
+    case KEY_SHIFTLEFT:    case KEY_SHIFTNUMPAD4:
+    case KEY_SHIFTRIGHT:   case KEY_SHIFTNUMPAD6:
+    {
       if (Columns>1)
       {
         int N=Height;
         InternalProcessKey++;
         DisableOut++;
         while (N--)
-          ProcessKey(Key==KEY_SHIFTLEFT ? KEY_SHIFTUP:KEY_SHIFTDOWN);
+          ProcessKey(Key==KEY_SHIFTLEFT || Key==KEY_SHIFTNUMPAD4? KEY_SHIFTUP:KEY_SHIFTDOWN);
         Select(ListData+CurFile,ShiftSelection);
         if (SelectedFirst)
           SortFileList(TRUE);
@@ -1880,21 +1980,11 @@ int FileList::ProcessKey(int Key)
         return(TRUE);
       }
       return(FALSE);
-    case KEY_SHIFTPGUP:
-    case KEY_SHIFTPGDN:
-      N=Columns*Height-1;
-      InternalProcessKey++;
-      DisableOut++;
-      while (N--)
-        ProcessKey(Key==KEY_SHIFTPGUP ? KEY_SHIFTUP:KEY_SHIFTDOWN);
-      InternalProcessKey--;
-      DisableOut--;
-      if (SelectedFirst)
-        SortFileList(TRUE);
-      ShowFileList(TRUE);
-      return(TRUE);
-    case KEY_SHIFTUP:
-    case KEY_SHIFTDOWN:
+    }
+
+    case KEY_SHIFTUP:      case KEY_SHIFTNUMPAD8:
+    case KEY_SHIFTDOWN:    case KEY_SHIFTNUMPAD2:
+    {
       if (FileCount==0)
         return(TRUE);
       CurPtr=ListData+CurFile;
@@ -1907,7 +1997,7 @@ int FileList::ProcessKey(int Key)
           ShiftSelection=!CurPtr->Selected;
       }
       Select(CurPtr,ShiftSelection);
-      if (Key==KEY_SHIFTUP)
+      if (Key==KEY_SHIFTUP || Key == KEY_SHIFTNUMPAD8)
         Up(1);
       else
         Down(1);
@@ -1915,8 +2005,11 @@ int FileList::ProcessKey(int Key)
         SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
+    }
     /* DJ $ */
-    case KEY_INS:
+
+    case KEY_INS:          case KEY_NUMPAD0:
+    {
       if (FileCount==0)
         return(TRUE);
       CurPtr=ListData+CurFile;
@@ -1926,36 +2019,48 @@ int FileList::ProcessKey(int Key)
         SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
+    }
+
     case KEY_CTRLF3:
       SetSortMode(BY_NAME);
       return(TRUE);
+
     case KEY_CTRLF4:
       SetSortMode(BY_EXT);
       return(TRUE);
+
     case KEY_CTRLF5:
       SetSortMode(BY_MTIME);
       return(TRUE);
+
     case KEY_CTRLF6:
       SetSortMode(BY_SIZE);
       return(TRUE);
+
     case KEY_CTRLF7:
       SetSortMode(UNSORTED);
       return(TRUE);
+
     case KEY_CTRLF8:
       SetSortMode(BY_CTIME);
       return(TRUE);
+
     case KEY_CTRLF9:
       SetSortMode(BY_ATIME);
       return(TRUE);
+
     case KEY_CTRLF10:
       SetSortMode(BY_DIZ);
       return(TRUE);
+
     case KEY_CTRLF11:
       SetSortMode(BY_OWNER);
       return(TRUE);
+
     case KEY_CTRLF12:
       SelectSortMode();
       return(TRUE);
+
     case KEY_SHIFTF11:
       SortGroups=!SortGroups;
       if (SortGroups)
@@ -1963,12 +2068,14 @@ int FileList::ProcessKey(int Key)
       SortFileList(TRUE);
       Show();
       return(TRUE);
+
     case KEY_SHIFTF12:
       SelectedFirst=!SelectedFirst;
       SortFileList(TRUE);
       Show();
       return(TRUE);
-    case KEY_CTRLPGUP:
+
+    case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
       /* $ 09.04.2001 SVS
          Не перерисовываем, если ChangeDir закрыла панель
       */
@@ -1994,17 +2101,18 @@ int FileList::ProcessKey(int Key)
       /* IS $ */
       /* SVS $ */
       return(TRUE);
-    case KEY_CTRLPGDN:
+
+    case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
       ProcessEnter(0,0);
       return(TRUE);
+
     default:
       if((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255 ||
           Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255) &&
          Key != KEY_ALTBS && Key != (KEY_ALTBS|KEY_SHIFT)
         )
       {
-//_SVS(char kk[64];KeyToText(Key,kk,sizeof(kk)));
-//_SVS(SysLog(">FastFind: Key=0x%08X (%s)",Key,kk));
+        //_SVS(SysLog(">FastFind: Key=%s",_FARKEY_ToName(Key)));
         // Скорректирем уже здесь нужные клавиши, т.к. WaitInFastFind
         // в это время еще равно нулю.
         static const char Code[]=")!@#$%^&*(";
@@ -2016,9 +2124,7 @@ int FileList::ProcessKey(int Key)
           Key='_';
         else if(Key == KEY_ALTSHIFT+'=')
           Key='+';
-//_SVS(KeyToText(Key,kk,sizeof(kk)));
-//_SVS(SysLog("<FastFind: Key=0x%08X (%s)",Key,kk));
-
+        //_SVS(SysLog("<FastFind: Key=%s",_FARKEY_ToName(Key)));
         FastFind(Key);
       }
       else

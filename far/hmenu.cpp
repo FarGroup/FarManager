@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.10 30.02.2002 $ */
+/* Revision: 1.11 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   30.03.2002 OT
     - После исправления бага №314 (патч 1250) отвалилось закрытие
       фара по кресту.
@@ -109,12 +111,19 @@ int HMenu::ProcessKey(int Key)
   {
     case KEY_NONE:
     case KEY_IDLE:
+    {
       return(FALSE);
+    }
+
     case KEY_F1:
+    {
       ShowHelp();
       return(TRUE);
+    }
+
     case KEY_ENTER:
-    case KEY_DOWN:
+    case KEY_DOWN:    case KEY_NUMPAD2:
+    {
       if (Item[SelectPos].SubMenu)
       {
         ProcessSubMenu(Item[SelectPos].SubMenu,Item[SelectPos].SubMenuSize,
@@ -128,7 +137,10 @@ int HMenu::ProcessKey(int Key)
         return(TRUE);
       }
       return(FALSE);
+    }
+
     case KEY_TAB:
+    {
       Item[SelectPos].Selected=0;
       /* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
       if(SelectPos != 0 && SelectPos != ItemCount-1)
@@ -149,42 +161,60 @@ int HMenu::ProcessKey(int Key)
       Item[SelectPos].Selected=1;
       ShowMenu();
       return(TRUE);
+    }
+
     case KEY_ESC:
     case KEY_F10:
+    {
       EndLoop=TRUE;
       Modal::ExitCode=-1;
       return(FALSE);
-    case KEY_HOME:
-    case KEY_CTRLHOME:
-    case KEY_CTRLPGUP:
+    }
+
+    case KEY_HOME:      case KEY_NUMPAD7:
+    case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
+    case KEY_CTRLPGUP:  case KEY_CTRLNUMPAD9:
+    {
       Item[SelectPos].Selected=0;
       Item[0].Selected=1;
       SelectPos=0;
       ShowMenu();
       return(TRUE);
-    case KEY_END:
-    case KEY_CTRLEND:
-    case KEY_CTRLPGDN:
+    }
+
+    case KEY_END:       case KEY_NUMPAD1:
+    case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
+    case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
+    {
       Item[SelectPos].Selected=0;
       Item[ItemCount-1].Selected=1;
       SelectPos=ItemCount-1;
       ShowMenu();
       return(TRUE);
-    case KEY_LEFT:
+    }
+
+    case KEY_LEFT:      case KEY_NUMPAD4:
+    {
       Item[SelectPos].Selected=0;
       if (--SelectPos<0)
         SelectPos=ItemCount-1;
       Item[SelectPos].Selected=1;
       ShowMenu();
       return(TRUE);
-    case KEY_RIGHT:
+    }
+
+    case KEY_RIGHT:     case KEY_NUMPAD6:
+    {
       Item[SelectPos].Selected=0;
       if (++SelectPos==ItemCount)
         SelectPos=0;
       Item[SelectPos].Selected=1;
       ShowMenu();
       return(TRUE);
+    }
+
     default:
+    {
       for (I=0;I<ItemCount;I++)
         if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE))
         {
@@ -206,6 +236,7 @@ int HMenu::ProcessKey(int Key)
           return(TRUE);
         }
       return(FALSE);
+    }
   }
 }
 

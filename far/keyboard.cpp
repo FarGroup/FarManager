@@ -5,10 +5,16 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.72 16.05.2002 $ */
+/* Revision: 1.73 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    ! Внедрение Numpad.
+    ! исправлена ситуация, когда для прочих событий в клавиатурнике
+      делается приведения рекорда к KEY_EVENT без предварительной очистки
+      структуры (от чего Autowrap и ему подобным - колбасит по полной
+      программе)
   16.05.2002 SVS
     - Фигня с мышью (пред.патч). Закомментим до лучших времен
       (сразу и не заметил, т.к. на LeftAlt на было назначено макроса)
@@ -304,7 +310,7 @@ static struct TFKey3 FKeys1[]={
   { KEY_DIVIDE,               6, "Divide"},
   { KEY_BREAK,                5, "Break"},
   { KEY_CLEAR,                5, "Clear"},
-  { KEY_NUMPAD5,              5, "Clear"},
+  //{ KEY_NUMPAD5,              5, "Clear"},
   { KEY_RIGHT,                5, "Right"},
   { KEY_ENTER,                5, "Enter"},
   { KEY_SPACE,                5, "Space"},
@@ -315,6 +321,16 @@ static struct TFKey3 FKeys1[]={
   { KEY_PGDN,                 4, "PgDn"},
   { KEY_APPS,                 4, "Apps"},
   { KEY_LWIN,                 4 ,"LWin"},
+  { KEY_NUMPAD0,              4 ,"Num0"},
+  { KEY_NUMPAD1,              4 ,"Num1"},
+  { KEY_NUMPAD2,              4 ,"Num2"},
+  { KEY_NUMPAD3,              4 ,"Num3"},
+  { KEY_NUMPAD4,              4 ,"Num4"},
+  { KEY_NUMPAD5,              4, "Num5"},
+  { KEY_NUMPAD6,              4 ,"Num6"},
+  { KEY_NUMPAD7,              4 ,"Num7"},
+  { KEY_NUMPAD8,              4 ,"Num8"},
+  { KEY_NUMPAD9,              4 ,"Num9"},
   { KEY_RWIN,                 4 ,"RWin"},
   { KEY_END,                  3, "End"},
   { KEY_INS,                  3, "Ins"},
@@ -481,33 +497,7 @@ int GetInputRecord(INPUT_RECORD *rec)
        ! Убрал подмену колесика */
     if (ReadCount!=0)
     {
-/*
-      switch(rec->EventType)
-      {
-        case FOCUS_EVENT:
-          SysLog("GetInputRecord(FOCUS_EVENT)");
-          break;
-        case WINDOW_BUFFER_SIZE_EVENT:
-          SysLog("GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)");
-          break;
-        case MENU_EVENT:
-          SysLog("GetInputRecord(MENU_EVENT)");
-          break;
-        case KEY_EVENT:
-          SysLog("GetInputRecord(KEY_EVENT), %s KState=0x%08X VK=0x%04X,",
-               (rec->Event.KeyEvent.bKeyDown?"Up":"Dn"),
-               rec->Event.KeyEvent.dwControlKeyState,
-               _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode));
-          break;
-        case MOUSE_EVENT:
-          //SysLog("GetInputRecord(MENU_EVENT)");
-          break;
-        default:
-          SysLog("GetInputRecord(??????_EVENT)");
-          break;
-
-      }
-*/
+      _SVS(if(rec->EventType==MENU_EVENT)SysLog("GetInputRecord= %s",_INPUT_RECORD_Dump(rec)));
       break;
     }
     /* VVM $ */
@@ -627,8 +617,10 @@ int GetInputRecord(INPUT_RECORD *rec)
 #else
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
 #endif
+    CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
+    memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
     rec->EventType=KEY_EVENT;
-    return(rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS);
+    return CalcKey;
     /* VVM $ */
   }
 
@@ -788,7 +780,13 @@ int GetInputRecord(INPUT_RECORD *rec)
     DWORD KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
     CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
-    ShiftPressed=(CtrlState & SHIFT_PRESSED);
+
+    // Для NumPad!
+    if((CalcKey&(KEY_CTRL|KEY_SHIFT|KEY_ALT|KEY_RCTRL|KEY_RALT)) == KEY_SHIFT &&
+       (CalcKey&KEY_MASKF) >= KEY_NUMPAD0 && (CalcKey&KEY_MASKF) <= KEY_NUMPAD9)
+      ShiftPressed=SHIFT_PRESSED;
+    else
+      ShiftPressed=(CtrlState & SHIFT_PRESSED);
 
     if (KeyCode==VK_F16 && ReadKey==VK_F16 || KeyCode==0)
       return(KEY_NONE);
@@ -799,21 +797,36 @@ int GetInputRecord(INPUT_RECORD *rec)
     {
       int Key=-1;
       if (ShiftPressedLast && KeyCode==VK_SHIFT)
+      {
         Key=KEY_SHIFT;
+        //_SVS(SysLog("ShiftPressedLast, Key=KEY_SHIFT"));
+      }
       if (KeyCode==VK_CONTROL)
       {
         if (CtrlPressedLast)
+        {
           Key=KEY_CTRL;
+          //_SVS(SysLog("CtrlPressedLast, Key=KEY_CTRL"));
+        }
         else if (RightCtrlPressedLast)
+        {
           Key=KEY_RCTRL;
+          //_SVS(SysLog("CtrlPressedLast, Key=KEY_RCTRL"));
+        }
       }
 
       if (KeyCode==VK_MENU)
       {
         if (AltPressedLast)
+        {
           Key=KEY_ALT;
+          //_SVS(SysLog("AltPressedLast, Key=KEY_ALT"));
+        }
         else if (RightAltPressedLast)
+        {
           Key=KEY_RALT;
+          //_SVS(SysLog("RightAltPressedLast, Key=KEY_RALT"));
+        }
       }
 
       if (Key!=-1 && !NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
@@ -833,9 +846,15 @@ int GetInputRecord(INPUT_RECORD *rec)
       if (KeyCode==VK_CONTROL && rec->Event.KeyEvent.bKeyDown)
       {
         if (CtrlState & RIGHT_CTRL_PRESSED)
+        {
           RightCtrlPressedLast=TRUE;
+          //_SVS(SysLog("RightCtrlPressedLast=TRUE;"));
+        }
         else
+        {
           CtrlPressedLast=TRUE;
+          //_SVS(SysLog("CtrlPressedLast=TRUE;"));
+        }
       }
 
     if (!ShiftPressedLast && !CtrlPressedLast && !RightCtrlPressedLast)
@@ -843,9 +862,13 @@ int GetInputRecord(INPUT_RECORD *rec)
       if (KeyCode==VK_MENU && rec->Event.KeyEvent.bKeyDown)
       {
         if (CtrlState & RIGHT_ALT_PRESSED)
+        {
           RightAltPressedLast=TRUE;
+        }
         else
+        {
           AltPressedLast=TRUE;
+        }
         PressedLastTime=CurClock;
       }
     }
@@ -943,6 +966,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 #if defined(MOUSEKEY)
     if(PrePreMouseEventFlags == DOUBLE_CLICK)
     {
+      memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
       rec->EventType = KEY_EVENT;
       return(KEY_NONE);
     }
@@ -952,6 +976,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:0)|
                  (CtrlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
                  (CtrlState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+      memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
       rec->EventType = KEY_EVENT;
     }
     else
@@ -972,7 +997,8 @@ int GetInputRecord(INPUT_RECORD *rec)
       /* SVS $ */
       /* $ 14.05.2002 VVM
         - сбросим тип евента вообще. Иначе бывают глюки (ProcessEditorInput) */
-      rec->EventType = 0;
+      memset(rec,0,sizeof(*rec)); // Иначе в ProcessEditorInput такая херь приходит - волосы дыбом становятся
+      rec->EventType = KEY_EVENT;
       /* VVM $ */
     } /* if */
     /* VVM $ */
@@ -1165,7 +1191,7 @@ int WINAPI KeyNameToKey(const char *Name)
        Key|=ModifKeyName[I].Key;
      }
    }
-//_D(SysLog("Name=%s",Name));
+//_SVS(SysLog("Name=%s",Name));
    // если что-то осталось - преобразуем.
    if(Pos < Len)
    {
@@ -1319,16 +1345,18 @@ int IsNavKey(DWORD Key)
 {
   static DWORD NavKeys[][2]={
     {0,KEY_CTRLC},
-    {0,KEY_INS},
-    {0,KEY_CTRLINS},
-    {1,KEY_LEFT},
-    {1,KEY_RIGHT},
-    {1,KEY_HOME},
-    {1,KEY_END},
-    {1,KEY_UP},
-    {1,KEY_DOWN},
-    {1,KEY_PGUP},
-    {1,KEY_PGDN},
+    {0,KEY_INS},      {0,KEY_NUMPAD0},
+    {0,KEY_CTRLINS},  {0,KEY_CTRLNUMPAD0},
+
+    {1,KEY_LEFT},     {1,KEY_NUMPAD4},
+    {1,KEY_RIGHT},    {1,KEY_NUMPAD6},
+    {1,KEY_HOME},     {1,KEY_NUMPAD7},
+    {1,KEY_END},      {1,KEY_NUMPAD1},
+    {1,KEY_UP},       {1,KEY_NUMPAD8},
+    {1,KEY_DOWN},     {1,KEY_NUMPAD2},
+    {1,KEY_PGUP},     {1,KEY_NUMPAD9},
+    {1,KEY_PGDN},     {1,KEY_NUMPAD3},
+    //!!!!!!!!!!!
   };
 
   for (int I=0; I < sizeof(NavKeys)/sizeof(NavKeys[0]); I++)
@@ -1340,23 +1368,44 @@ int IsNavKey(DWORD Key)
 
 int IsShiftKey(DWORD Key)
 {
-  /*
-     29.06.2000 IG
-     добавлены клавиши, чтобы не сбрасывалось выделение при их нажатии
-  */
-  static DWORD ShiftKeys[]={KEY_SHIFTLEFT,KEY_SHIFTRIGHT,KEY_SHIFTHOME,
-                KEY_SHIFTEND,KEY_SHIFTUP,KEY_SHIFTDOWN,KEY_SHIFTPGUP,
-                KEY_SHIFTPGDN,KEY_CTRLSHIFTHOME,KEY_CTRLSHIFTPGUP,
-                KEY_CTRLSHIFTEND,KEY_CTRLSHIFTPGDN,
-                KEY_CTRLSHIFTLEFT,KEY_CTRLSHIFTRIGHT,KEY_ALTSHIFTDOWN,
-                KEY_ALTSHIFTLEFT,KEY_ALTSHIFTRIGHT,KEY_ALTSHIFTUP,
-                KEY_ALTSHIFTEND,KEY_ALTSHIFTHOME,KEY_ALTSHIFTPGDN,
-                KEY_ALTSHIFTPGUP,KEY_ALTUP,KEY_ALTLEFT,KEY_ALTDOWN,
-                KEY_ALTRIGHT,KEY_ALTHOME,KEY_ALTEND,KEY_ALTPGUP,KEY_ALTPGDN,
-                KEY_CTRLALTPGUP,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,KEY_CTRLALTEND,
-                KEY_CTRLALTLEFT, KEY_CTRLALTRIGHT
+  static DWORD ShiftKeys[]={
+     KEY_SHIFTLEFT,          KEY_SHIFTNUMPAD4,
+     KEY_SHIFTRIGHT,         KEY_SHIFTNUMPAD6,
+     KEY_SHIFTHOME,          KEY_SHIFTNUMPAD7,
+     KEY_SHIFTEND,           KEY_SHIFTNUMPAD1,
+     KEY_SHIFTUP,            KEY_SHIFTNUMPAD8,
+     KEY_SHIFTDOWN,          KEY_SHIFTNUMPAD2,
+     KEY_SHIFTPGUP,          KEY_SHIFTNUMPAD9,
+     KEY_SHIFTPGDN,          KEY_SHIFTNUMPAD3,
+     KEY_CTRLSHIFTHOME,      KEY_CTRLSHIFTNUMPAD7,
+     KEY_CTRLSHIFTPGUP,      KEY_CTRLSHIFTNUMPAD9,
+     KEY_CTRLSHIFTEND,       KEY_CTRLSHIFTNUMPAD1,
+     KEY_CTRLSHIFTPGDN,      KEY_CTRLSHIFTNUMPAD3,
+     KEY_CTRLSHIFTLEFT,      KEY_CTRLSHIFTNUMPAD4,
+     KEY_CTRLSHIFTRIGHT,     KEY_CTRLSHIFTNUMPAD6,
+     KEY_ALTSHIFTDOWN,       KEY_ALTSHIFTNUMPAD2,
+     KEY_ALTSHIFTLEFT,       KEY_ALTSHIFTNUMPAD4,
+     KEY_ALTSHIFTRIGHT,      KEY_ALTSHIFTNUMPAD6,
+     KEY_ALTSHIFTUP,         KEY_ALTSHIFTNUMPAD8,
+     KEY_ALTSHIFTEND,        KEY_ALTSHIFTNUMPAD1,
+     KEY_ALTSHIFTHOME,       KEY_ALTSHIFTNUMPAD7,
+     KEY_ALTSHIFTPGDN,       KEY_ALTSHIFTNUMPAD3,
+     KEY_ALTSHIFTPGUP,       KEY_ALTSHIFTNUMPAD9,
+     KEY_CTRLALTPGUP,        KEY_CTRLALTNUMPAD9,
+     KEY_CTRLALTHOME,        KEY_CTRLALTNUMPAD7,
+     KEY_CTRLALTPGDN,        KEY_CTRLALTNUMPAD2,
+     KEY_CTRLALTEND,         KEY_CTRLALTNUMPAD1,
+     KEY_CTRLALTLEFT,        KEY_CTRLALTNUMPAD4,
+     KEY_CTRLALTRIGHT,       KEY_CTRLALTNUMPAD6,
+     KEY_ALTUP,
+     KEY_ALTLEFT,
+     KEY_ALTDOWN,
+     KEY_ALTRIGHT,
+     KEY_ALTHOME,
+     KEY_ALTEND,
+     KEY_ALTPGUP,
+     KEY_ALTPGDN,
   };
-  /* IG $ */
 
   for (int I=0;I<sizeof(ShiftKeys)/sizeof(ShiftKeys[0]);I++)
     if (Key==ShiftKeys[I])
@@ -1373,6 +1422,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
   KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
   AsciiChar=rec->Event.KeyEvent.uChar.AsciiChar;
+  _SVS(if(KeyCode == VK_UP || KeyCode == VK_NUMPAD8) SysLog("CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, AsciiChar,ShiftPressed,ShiftPressedLast));
 
   if(NotMacros)
     *NotMacros=CtrlState&0x80000000?TRUE:FALSE;
@@ -1439,6 +1489,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         AsciiChar='[';
         break;
       case 0xdc:
+        //AsciiChar=ScanCode==0x29?0x15:'\\'; //???
         AsciiChar='\\';
         break;
       case 0xdd:
@@ -1464,9 +1515,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     }
   }
   /* SVS $*/
-  DWORD Modif=(CtrlPressed?KEY_CTRL:0)|
-        (AltPressed?KEY_ALT:0)|
-        (ShiftPressed?KEY_SHIFT:0);
+  DWORD Modif=(CtrlPressed?KEY_CTRL:0)|(AltPressed?KEY_ALT:0)|(ShiftPressed?KEY_SHIFT:0);
 
   if (KeyCode>=VK_F1 && KeyCode<=VK_F12)
 //    return(Modif+KEY_F1+((KeyCode-VK_F1)<<8));
@@ -1474,100 +1523,224 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
   int NotShift=!CtrlPressed && !AltPressed && !ShiftPressed;
 
+  // Здесь полное шаманство, т.к. при включенном NumLock Статус Shift`а
+  // куда то нахрен пропадает (утомился выводить "формулу любви")
+  DWORD Modif2=0;
+
+  if(!(CtrlState&ENHANCED_KEY)) //(CtrlState&NUMLOCK_ON) // не затрагиваем серые клавиши.
+  {
+    Modif2=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                (CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+
+    if(CtrlState&NUMLOCK_ON)
+    {
+      Modif2|=KEY_SHIFT;
+      if(KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9)
+      {
+        Modif2&=~KEY_SHIFT;
+      }
+    }
+    else
+      Modif2|=GetAsyncKeyState(VK_SHIFT) < 0?KEY_SHIFT:0;
+  }
+
   if (AltPressed && !CtrlPressed && !ShiftPressed)
   {
-    static int InGrabber=FALSE;
-    if (AltValue==0 && !InGrabber && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
+#if 0
+    if (AltValue==0 && (!CtrlObject->Macro.IsRecording() || !Opt.UseNumPad))
     {
-      InGrabber=TRUE;
-      WaitInMainLoop=FALSE;
-      Grabber Grabber;
-      InGrabber=FALSE;
-      return(KEY_NONE);
-    }
-
-    static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
-    for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
-      if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
-      {
-        if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
+      // VK_INSERT  = 0x2D       AS-0 = 0x2D
+      // VK_NUMPAD0 = 0x60       A-0  = 0x60
+      /*
+        С грабером не все понятно - что, где и когда вызывать,
+        посему его оставим пока в покое.
+      */
+      if(//(CtrlState&NUMLOCK_ON)  && KeyCode==VK_NUMPAD0 && !(CtrlState&ENHANCED_KEY) ||
+         (Opt.UseNumPad && KeyCode==VK_INSERT && (CtrlState&ENHANCED_KEY)) ||
+         (!Opt.UseNumPad && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
+        )
+      {   // CtrlObject->Macro.IsRecording()
+      _SVS(SysLog("IsProcessAssignMacroKey=%d",IsProcessAssignMacroKey));
+        if(IsProcessAssignMacroKey && Opt.UseNumPad)
         {
-          AltValue=AltValue*10+I;
-          KeyCodeForALT_LastPressed=KeyCode;
-          //_SVS(SysLog("CalcKeyCode -> ScanCode=0x%0X AltValue=0x%0X (%c)",ScanCode,AltValue,AltValue));
+          return KEY_INS|KEY_ALT;
+        }
+        else
+        {
+          RunGraber();
         }
         return(KEY_NONE);
       }
+    }
+#else
+    if (AltValue==0)
+    {
+      if(KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0)
+      {
+        RunGraber();
+        return(KEY_NONE);
+      }
+    }
+#endif
+
+    if((CtrlState&NUMLOCK_ON) && KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 ||
+       !(CtrlState&NUMLOCK_ON) && KeyCode < VK_NUMPAD0
+      )
+    {
+      static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
+      for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
+        if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
+        {
+          if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
+          {
+            AltValue=AltValue*10+I;
+            KeyCodeForALT_LastPressed=KeyCode;
+            _SVS(SysLog("AltNumPad -> CalcKeyCode -> KeyCode=%X  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",KeyCode,ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+          }
+          if(AltValue!=0)
+            return(KEY_NONE);
+        }
+    }
   }
+
+  /*
+  NumLock=Off
+    Down
+      CtrlState=0100 KeyCode=0028 ScanCode=00000050 AsciiChar=00         ENHANCED_KEY
+      CtrlState=0100 KeyCode=0028 ScanCode=00000050 AsciiChar=00
+    Num2
+      CtrlState=0000 KeyCode=0028 ScanCode=00000050 AsciiChar=00
+      CtrlState=0000 KeyCode=0028 ScanCode=00000050 AsciiChar=00
+
+    Ctrl-8
+      CtrlState=0008 KeyCode=0026 ScanCode=00000048 AsciiChar=00
+    Ctrl-Shift-8               ^^!!!
+      CtrlState=0018 KeyCode=0026 ScanCode=00000048 AsciiChar=00
+
+  ------------------------------------------------------------------------
+  NumLock=On
+
+    Down
+      CtrlState=0120 KeyCode=0028 ScanCode=00000050 AsciiChar=00         ENHANCED_KEY
+      CtrlState=0120 KeyCode=0028 ScanCode=00000050 AsciiChar=00
+    Num2
+      CtrlState=0020 KeyCode=0062 ScanCode=00000050 AsciiChar=32
+      CtrlState=0020 KeyCode=0062 ScanCode=00000050 AsciiChar=32
+
+    Ctrl-8
+      CtrlState=0028 KeyCode=0068 ScanCode=00000048 AsciiChar=00
+    Ctrl-Shift-8               ^^!!!
+      CtrlState=0028 KeyCode=0026 ScanCode=00000048 AsciiChar=00
+  */
 
   /* ------------------------------------------------------------- */
   switch(KeyCode)
   {
     case VK_INSERT:
     case VK_NUMPAD0:
-      if (NotShift && KeyCode == VK_NUMPAD0)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_INS);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD0)
         return '0';
-      return(Modif|KEY_INS);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD0:KEY_INS);
     case VK_DOWN:
     case VK_NUMPAD2:
-      if (NotShift && KeyCode == VK_NUMPAD2)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_DOWN);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD2)
         return '2';
-      return(Modif|KEY_DOWN);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD2:KEY_DOWN);
     case VK_LEFT:
     case VK_NUMPAD4:
-      if (NotShift && KeyCode == VK_NUMPAD4)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_LEFT);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD4)
         return '4';
-      return(Modif|KEY_LEFT);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD4:KEY_LEFT);
     case VK_RIGHT:
     case VK_NUMPAD6:
-      if (NotShift && KeyCode == VK_NUMPAD6)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_RIGHT);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD6)
         return '6';
-      return(Modif|KEY_RIGHT);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD6:KEY_RIGHT);
     case VK_UP:
     case VK_NUMPAD8:
-      if (NotShift && KeyCode == VK_NUMPAD8)
+      _SVS(SysLog("case VK_NUMPAD8:  Opt.UseNumPad=%08X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",Opt.UseNumPad,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_UP);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD8)
         return '8';
-      return(Modif|KEY_UP);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD8:KEY_UP);
     case VK_END:
     case VK_NUMPAD1:
-      if (NotShift && KeyCode == VK_NUMPAD1)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_END);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD1)
         return '1';
-      return(Modif|KEY_END);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD1:KEY_END);
     case VK_HOME:
     case VK_NUMPAD7:
-      if (NotShift && KeyCode == VK_NUMPAD7)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_HOME);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD7)
         return '7';
-      return(Modif|KEY_HOME);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD7:KEY_HOME);
     case VK_NEXT:
     case VK_NUMPAD3:
-      if (NotShift && KeyCode == VK_NUMPAD3)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_PGDN);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD3)
         return '3';
-      return(Modif|KEY_PGDN);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD3:KEY_PGDN);
     case VK_PRIOR:
     case VK_NUMPAD9:
-      if (NotShift && KeyCode == VK_NUMPAD9)
+      if(CtrlState&ENHANCED_KEY)
+      {
+        return(Modif|KEY_PGUP);
+      }
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD9)
         return '9';
-      return(Modif|KEY_PGUP);
+      return Modif|(Opt.UseNumPad?Modif2|KEY_NUMPAD9:KEY_PGUP);
     case VK_CLEAR:
     case VK_NUMPAD5:
-      if (NotShift)
+      if(CtrlState&ENHANCED_KEY)
       {
-        if(KeyCode == VK_NUMPAD5)
-          return '5';
+        return(Modif|KEY_NUMPAD5);
       }
-      return(Modif|KEY_NUMPAD5);
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD5)
+        return '5';
+      return Modif|(Opt.UseNumPad?Modif2:0)|KEY_NUMPAD5;
+
     case VK_DECIMAL:
-      if(NotShift)
-        return (CtrlState & NUMLOCK_ON) ? '.':KEY_DEL;
     case VK_DELETE:
-      if(NotShift)
+      if(CtrlState&ENHANCED_KEY)
       {
-        if ((CtrlState & NUMLOCK_ON) && (CtrlState & ENHANCED_KEY)==0 &&
-           AsciiChar=='.')
-          return('.');
-        return(KEY_DEL);
+        return(Modif|KEY_DEL);
       }
-      return(Modif|KEY_DEL);
+      else if((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_DECIMAL)
+        return '.';
+      return Modif|(Opt.UseNumPad?Modif2:0)|KEY_DEL;
+  }
+
+  switch(KeyCode)
+  {
     case VK_APPS:
       return(Modif|KEY_APPS);
     case VK_LWIN:
@@ -1597,7 +1770,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
-_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("CtrlAlt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -1647,7 +1820,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X 
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
+_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("AltShift -> NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
     if (KeyCode>='0' && KeyCode<='9')
     {
       if(WaitInFastFind>0 &&
@@ -1726,7 +1899,7 @@ _SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("NotMacros=%d %9s|0x%08X (
   /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
-_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("CtrlShift -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1798,7 +1971,7 @@ _SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X
   /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
-_SVS(if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_CONTROL) SysLog("Ctrl -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1849,7 +2022,7 @@ _SVS(if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCod
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-_SVS(if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+_SVS(if(KeyCode!=VK_MENU) SysLog("Alt -> |0x%08X (%c)|0x%08X (%c)|",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {

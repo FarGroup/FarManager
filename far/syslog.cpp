@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.29 22.05.2002 $ */
+/* Revision: 1.30 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + _INPUT_RECORD_Dump - вывод в лог информацию о INPUT_RECORD
   22.05.2002 SVS
     + _VCTL_ToName
   05.05.2002 SVS
@@ -705,6 +707,100 @@ const char *_VK_KEY_ToName(int VkKey)
   }
   sprintf(Name,"\"VK_??????\" [%d/0x%04X]",VkKey,VkKey);
   return Name;
+#else
+  return "";
+#endif
+}
+
+const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
+{
+#if defined(SYSLOG)
+  static char Records[8192];
+
+  switch(rec->EventType)
+  {
+    case FOCUS_EVENT:
+      sprintf(Records,
+            "FOCUS_EVENT_RECORD: %s",
+          (rec->Event.FocusEvent.bSetFocus?"TRUE":"FALSE")
+        );
+      break;
+    case WINDOW_BUFFER_SIZE_EVENT:
+      sprintf(Records,
+            "WINDOW_BUFFER_SIZE_RECORD: Size = [%d, %d]",
+          rec->Event.WindowBufferSizeEvent.dwSize.X,
+          rec->Event.WindowBufferSizeEvent.dwSize.Y
+        );
+      break;
+    case MENU_EVENT:
+      sprintf(Records,
+            "MENU_EVENT_RECORD: CommandId = %d (0x%X) ",
+          rec->Event.MenuEvent.dwCommandId,
+          rec->Event.MenuEvent.dwCommandId
+        );
+      break;
+    case KEY_EVENT:
+      sprintf(Records,
+            "KEY_EVENT_RECORD: %s, %d, Vk=0x%04X, Scan=0x%04X uChar=[U='%C' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c - %c%c%c%c)",
+          (rec->Event.KeyEvent.bKeyDown?"Dn":"Up"),
+          rec->Event.KeyEvent.wRepeatCount,
+          rec->Event.KeyEvent.wVirtualKeyCode,
+          rec->Event.KeyEvent.wVirtualScanCode,
+          (rec->Event.KeyEvent.uChar.UnicodeChar && rec->Event.KeyEvent.uChar.UnicodeChar != 9 && rec->Event.KeyEvent.uChar.UnicodeChar != 0xd && rec->Event.KeyEvent.uChar.UnicodeChar != 0xa?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
+              rec->Event.KeyEvent.uChar.UnicodeChar,
+          (rec->Event.KeyEvent.uChar.AsciiChar && rec->Event.KeyEvent.uChar.AsciiChar != 0x0d && rec->Event.KeyEvent.uChar.AsciiChar != 0x9 && rec->Event.KeyEvent.uChar.AsciiChar !=0xA ?rec->Event.KeyEvent.uChar.AsciiChar:' '),
+              rec->Event.KeyEvent.uChar.AsciiChar,
+          rec->Event.KeyEvent.dwControlKeyState,
+            (rec->Event.KeyEvent.dwControlKeyState&LEFT_CTRL_PRESSED?'C':'c'),
+            (rec->Event.KeyEvent.dwControlKeyState&LEFT_ALT_PRESSED?'A':'a'),
+            (rec->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED?'S':'s'),
+            (rec->Event.KeyEvent.dwControlKeyState&RIGHT_ALT_PRESSED?'A':'a'),
+            (rec->Event.KeyEvent.dwControlKeyState&RIGHT_CTRL_PRESSED?'C':'c'),
+            (rec->Event.KeyEvent.dwControlKeyState&ENHANCED_KEY?'E':'e'),
+            (rec->Event.KeyEvent.dwControlKeyState&CAPSLOCK_ON?'C':'c'),
+            (rec->Event.KeyEvent.dwControlKeyState&NUMLOCK_ON?'N':'n'),
+            (rec->Event.KeyEvent.dwControlKeyState&SCROLLLOCK_ON?'S':'s')
+        );
+      break;
+    case MOUSE_EVENT:
+      sprintf(Records,
+            "MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
+          rec->Event.MouseEvent.dwMousePosition.X,
+          rec->Event.MouseEvent.dwMousePosition.Y,
+          rec->Event.MouseEvent.dwButtonState,
+            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED?'L':'l'),
+            (rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED?'R':'r'),
+            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED?'2':' '),
+            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED?'3':' '),
+            (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED?'4':' '),
+          rec->Event.MouseEvent.dwControlKeyState,
+            (rec->Event.MouseEvent.dwControlKeyState&LEFT_CTRL_PRESSED?'C':'c'),
+            (rec->Event.MouseEvent.dwControlKeyState&LEFT_ALT_PRESSED?'A':'a'),
+            (rec->Event.MouseEvent.dwControlKeyState&SHIFT_PRESSED?'S':'s'),
+            (rec->Event.MouseEvent.dwControlKeyState&RIGHT_ALT_PRESSED?'A':'a'),
+            (rec->Event.MouseEvent.dwControlKeyState&RIGHT_CTRL_PRESSED?'C':'c'),
+            (rec->Event.MouseEvent.dwControlKeyState&ENHANCED_KEY?'E':'e'),
+            (rec->Event.MouseEvent.dwControlKeyState&CAPSLOCK_ON?'C':'c'),
+            (rec->Event.MouseEvent.dwControlKeyState&NUMLOCK_ON?'N':'n'),
+            (rec->Event.MouseEvent.dwControlKeyState&SCROLLLOCK_ON?'S':'s'),
+          rec->Event.MouseEvent.dwEventFlags,
+            (rec->Event.MouseEvent.dwEventFlags==DOUBLE_CLICK?"(DblClick)":
+             (rec->Event.MouseEvent.dwEventFlags==MOUSE_MOVED?"(Moved)":
+              (rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED?"(Wheel)":"")))
+        );
+      if(rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED)
+      {
+        sprintf(Records+strlen(Records)," (Delta=%d)",(short)HIWORD(rec->Event.MouseEvent.dwButtonState));
+      }
+      break;
+    default:
+      sprintf(Records,
+            "??????_EVENT_RECORD: EventType = %d",
+          rec->EventType
+        );
+      break;
+  }
+  return Records;
 #else
   return "";
 #endif

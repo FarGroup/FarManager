@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.27 27.04.2002 $ */
+/* Revision: 1.28 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Дублирование Numpad-клавиш
   27.04.2002 SVS
     ! 8192 -> MAXSIZE_SHORTCUTDATA
   22.03.2002 SVS
@@ -291,7 +293,7 @@ int QuickView::ProcessKey(int Key)
     return TRUE;
   }
   /* DJ $ */
-  if (Key==KEY_F3 || Key==KEY_NUMPAD5)
+  if (Key==KEY_F3 || Key==KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
   {
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     if (AnotherPanel->GetType()==FILE_PANEL)

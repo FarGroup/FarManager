@@ -7,10 +7,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    ! CopyGrabbedArea имеет доп.параметр
   06.05.2001 DJ
     ! перетрях #include
   25.06.2000 SVS
@@ -29,15 +31,19 @@ struct GrabberArea
 class Grabber:Modal
 {
   private:
+    SaveScreen *SaveScr;
+    struct GrabberArea PrevArea;
+    struct GrabberArea GArea;
+    int ResetArea;
+    int PrevMacroMode;
+    int VerticalBlock;
+
+  private:
     void DisplayObject();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void CopyGrabbedArea(int Append);
+    void CopyGrabbedArea(int Append, int VerticalBlock);
 
-    SaveScreen *SaveScr;
-    struct GrabberArea PrevArea,GArea;
-    int ResetArea;
-    int PrevMacroMode;
   public:
     Grabber();
     ~Grabber();

@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.80 18.05.2002 $ */
+/* Revision: 1.81 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    + Обработка KEY_ALTINS
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   16.05.2002 SVS
@@ -900,6 +902,13 @@ done:
 
     case KEY_MACROSTOP:
       goto done;
+
+    case KEY_ALTINS:
+    {
+      if(RunGraber())
+        return KEY_NONE;
+      break;
+    }
 
     case KEY_MACROMODE:
       if (ExecKeyPos<MR->BufferSize)
