@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.330 17.02.2005 $ */
+/* Revision: 1.331 27.02.2005 $ */
 
 /*
 Modify:
+  27.02.2005 SVS
+    - BugZ#1279 - Сочетание устанавливающие флажок в третье состояние не должно работать на обычных флажках
+    - BugZ#1278 - Различное поведение Tab в раскрытом списке и раскрытом списке истории ввода
   17.02.2005 WARP
     - Накосячил в вертикальной границей контролов.
   15.02.2005 SVS
@@ -3368,6 +3371,8 @@ int Dialog::ProcessKey(int Key)
   {
     if(!(Item[FocusPos].Flags&DIF_3STATE))
     {
+      if(Key == KEY_MULTIPLY) // в CheckBox 2-state Gray* не работает!
+        Key = KEY_NONE;
       if((Key == KEY_ADD      && !Item[FocusPos].Selected) ||
          (Key == KEY_SUBTRACT &&  Item[FocusPos].Selected))
        Key=KEY_SPACE;
@@ -5231,9 +5236,14 @@ int Dialog::SelectFromComboBox(
         continue;
       }
       //int Key=
-      ComboBox->ReadInput();
+      int Key=ComboBox->ReadInput();
       // здесь можно добавить что-то свое, например,
       I=ComboBox->GetSelectPos();
+      if (Key==KEY_TAB) // Tab в списке - аналог Enter
+      {
+        ComboBox->ProcessKey(KEY_ENTER);
+        continue; //??
+      }
       if(I != Dest)
       {
         if(!DlgProc((HANDLE)this,DN_LISTCHANGE,CurFocusPos,I))

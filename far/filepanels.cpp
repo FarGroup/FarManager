@@ -5,10 +5,15 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.58 11.11.2004 $ */
+/* Revision: 1.59 28.02.2005 $ */
 
 /*
 Modify:
+  28.02.2005 SVS
+    - BugZ#1281 - Курсор на левой панели, обе отображены.
+                  Жмём CtrlF2 CtrlO CtrlF2 CtrlF2 CtrlO.
+                  Курсор на правой панели, а отображена левая.
+      Не был учтен вариант, когда активная панель скрыта :-)
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   06.08.2004 SKV
@@ -730,6 +735,13 @@ int  FilePanels::ProcessKey(int Key)
             LeftPanel->Show();
           if (RightStateBeforeHide)
             RightPanel->Show();
+          if (!ActivePanel->IsVisible())
+          {
+            if(ActivePanel == RightPanel)
+              LeftPanel->SetFocus();
+            else
+              RightPanel->SetFocus();
+          }
         }
       }
       break;
