@@ -277,12 +277,15 @@
 
 "Delete"
 "Do you wish to delete the folder"
+"Do you wish to delete the file"
 "Do you wish to delete"
 "Do you wish to move to the Recycle Bin the folder"
+"Do you wish to move to the Recycle Bin the file"
 "Do you wish to move to the Recycle Bin"
 "Do you wish to wipe the folder"
+"Do you wish to wipe the file"
 "Do you wish to wipe"
-"%d files"
+"items: %d"
 
 "Delete folder"
 "Delete files"

@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.06 28.11.2000 $ */
+/* Revision: 1.07 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 IS
+    ! Косметика в сообщениях - разные сообщения в зависимости от того,
+      какие и сколько элементов выделено.
   28.11.2000 SVS
     + Обеспечим корректную работу с SymLink (т.н. "Directory Junctions")
   11.11.2000 SVS
@@ -72,20 +75,30 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     strcpy(DeleteFilesMsg,SelName);
   }
   else
-    sprintf(DeleteFilesMsg,MSG(MAskDeleteFiles),SelCount);
+  /* $ 05.01.2001 IS
+  Вместо "файлов" пишем нейтральное - "элементов"
+  */
+    sprintf(DeleteFilesMsg,MSG(MAskDeleteItems),SelCount);
+  /* IS $ */
 
   if (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC))
   {
     char *DelMsg;
-    if (SelCount==1 && (FileAttr & FA_DIREC))
+    /* $ 05.01.2001 IS
+       ! Косметика в сообщениях - разные сообщения в зависимости от того,
+         какие и сколько элементов выделено.
+    */
+    BOOL folder=(FileAttr & FA_DIREC);
+    if (SelCount==1)
     {
+
       if (Wipe)
-        DelMsg=MSG(MAskWipeFolder);
+        DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
       else
         if (Opt.DeleteToRecycleBin)
-          DelMsg=MSG(MAskDeleteRecycleFolder);
+          DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
         else
-          DelMsg=MSG(MAskDeleteFolder);
+          DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
     }
     else
     {
@@ -97,6 +110,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         else
           DelMsg=MSG(MAskDelete);
     }
+    /* IS $ */
     if (Message(0,2,MSG(MDeleteTitle),DelMsg,DeleteFilesMsg,MSG(MDelete),MSG(MCancel))!=0)
       return;
   }
@@ -501,4 +515,3 @@ int WipeDirectory(char *Name)
   MoveFile(Name,TempName);
   return(RemoveDirectory(TempName));
 }
-

@@ -12,10 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.37 04.01.2001 $ */
+/* Revision: 1.39 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 IS
+    + MAskDeleteFile, MAskDeleteRecycleFile, MAskWipeFile
+    ! MAskDeleteFiles -> MAskDeleteItems
   05.01.2001 SVS
     + MInfoSUBST, MChangeDriveSUBST, MChangeDriveCannotDelSubst
   04.01.2001 SVS
@@ -398,12 +401,15 @@ enum
 
   MDeleteTitle,
   MAskDeleteFolder,
+  MAskDeleteFile,
   MAskDelete,
   MAskDeleteRecycleFolder,
+  MAskDeleteRecycleFile,
   MAskDeleteRecycle,
   MAskWipeFolder,
+  MAskWipeFile,
   MAskWipe,
-  MAskDeleteFiles,
+  MAskDeleteItems,
 
   MDeleteFolderTitle,
   MDeleteFilesTitle,
