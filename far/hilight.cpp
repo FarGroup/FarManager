@@ -5,10 +5,14 @@ Files highlighting
 
 */
 
-/* Revision: 1.24 04.06.2001 $ */
+/* Revision: 1.25 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    + Теперь в раскраске файлов можно использовать маски исключения, маски
+      файлов можно брать в кавычки, маски файлов проверяются на корректность,
+      можно использовать точку с запятой в качестве разделителя масок.
   04.06.2001 SVS
     ! корректно обработаем DN_BTNCLICK
   21.05.2001 SVS
@@ -106,7 +110,7 @@ void HighlightFiles::InitHighlightFiles()
 {
   HiData=NULL;
   HiDataCount=0;
-  char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE], *Masks=NULL;
+  char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE];
   char *Ptr=MkRegKeyHighlightName(RegKey); // Ptr указывает на нужное место :-)
   while (1)
   {
@@ -145,18 +149,20 @@ HighlightFiles::~HighlightFiles()
   ClearData();
 }
 
+/* $ 06.07.2001 IS "рабочей" маски теперь у нас нет */
 // вернуть шоумаску - маску, которая редактируется и отображается на экране
-// возможно это даже маска рабочая.
 char *HighlightFiles::GetMask(int Idx)
 {
-  struct HighlightData *HData=HiData+Idx;
-  return ((HData->OriginalMasks)?HData->OriginalMasks:HData->Masks);
+  return (HiData+Idx)->OriginalMasks;
 }
+/* IS $ */
 
 /* $ 01.05.2001 DJ
    оптимизированный формат хранения в Masks
 */
-
+/* $ 06.07.2001 IS
+   вместо "рабочей" маски используем соответствующий класс
+*/
 BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src)
 {
   char *Ptr, *OPtr;
@@ -168,16 +174,42 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct Highli
   // проверим
   if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
   {
-    int IQ1=(*(Ptr+9) == ',')?10:9;
+    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-Mask;
     // Если встречается %pathext%, то допишем в конец...
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-    Add_PATHEXT(Mask); // добавляем то, чего нету.
-    // в GroupStr находится рабочая маска
+
+    char Tmp1[HIGHLIGHT_MASK_SIZE], *pSeparator;
+    strcpy(Tmp1, Mask);
+    pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
+    if(pSeparator)
+    {
+      Ptr=Tmp1+offsetPtr;
+      if(Ptr>pSeparator) // PATHEXT находится в масках исключения
+        Add_PATHEXT(Mask); // добавляем то, чего нету.
+      else
+      {
+        char Tmp2[HIGHLIGHT_MASK_SIZE];
+        strcpy(Tmp2, pSeparator+1);
+        *pSeparator=0;
+        Add_PATHEXT(Tmp1);
+        sprintf(Mask, "%s|%s", Tmp1, Tmp2);
+      }
+    }
+    else
+      Add_PATHEXT(Mask); // добавляем то, чего нету.
   }
   // память под рабочую маску
-  if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+2)) == NULL)
+  CFileMask *FMasks;
+  if((FMasks=new CFileMask) == NULL)
   {
-    if(OPtr) free(OPtr);
+    free(OPtr);
+    return FALSE;
+  }
+
+  if(!FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
+  {
+    delete FMasks;
+    free(OPtr);
     return FALSE;
   }
 
@@ -185,20 +217,20 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct Highli
     memmove(Dest,Src,sizeof(struct HighlightData));
 
   // корректирем ссылки на маски.
-  Dest->Masks = Ptr;
-  CopyMaskStr (Dest->Masks, Mask);
+  Dest->FMasks=FMasks;
   Dest->OriginalMasks=OPtr;
   return TRUE;
 }
-
+/* IS $ */
 /* DJ $ */
 
+/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
 void HighlightFiles::DeleteMask(struct HighlightData *CurHighlightData)
 {
-  if(CurHighlightData->Masks)
+  if(CurHighlightData->FMasks)
   {
-    free(CurHighlightData->Masks);
-    CurHighlightData->Masks=NULL;
+    delete CurHighlightData->FMasks;
+    CurHighlightData->FMasks=NULL;
   }
   if(CurHighlightData->OriginalMasks)
   {
@@ -206,6 +238,7 @@ void HighlightFiles::DeleteMask(struct HighlightData *CurHighlightData)
     CurHighlightData->OriginalMasks=NULL;
   }
 }
+/* IS $ */
 
 void HighlightFiles::ClearData()
 {
@@ -222,7 +255,7 @@ void HighlightFiles::ClearData()
 /* $ 01.05.2001 DJ
    оптимизированный формат хранения Masks
 */
-
+/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
 void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
      unsigned char &SelColor,unsigned char &CursorColor,
      unsigned char &CursorSelColor,unsigned char &MarkChar)
@@ -234,14 +267,9 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
         (Attr & CurHiData->ExcludeAttr)==0)
     {
-       // ЗДЕСЬ МАСКА РАБОЧАЯ!!!
-      for (char *NamePtr=CurHiData->Masks; *NamePtr; NamePtr += strlen (NamePtr)+1)
-        if (Path==NULL && (strcmp(NamePtr,"*")==0 || strcmp(NamePtr,"*.*")==0) ||
-            Path!=NULL && CmpName(NamePtr,Path))
+      Path=Path?Path:""; // если Path==NULL, то считаем, что это пустая строка
+      if(CurHiData->FMasks->Compare(Path))
         {
-          if (Path!=NULL && Path[0]=='.' && Path[1]=='.' && Path[2]==0 &&
-              strcmp(NamePtr,"..")!=0)
-            continue;
           Color=CurHiData->Color;
           SelColor=CurHiData->SelColor;
           CursorColor=CurHiData->CursorColor;
@@ -252,7 +280,7 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     }
   }
 }
-
+/* IS $ */
 /* DJ $ */
 
 
@@ -558,12 +586,22 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
   Dlg.SetHelp("Highlight");
   Dlg.SetPosition(-1,-1,76,23);
-  Dlg.Process();
-  if (Dlg.GetExitCode() != 31) return(FALSE);
+  /* $ 06.07.2001 IS
+     Проверим маску на корректность
+  */
+  CFileMask FMask;
+  for(;;)
+  {
+    Dlg.ClearDone();
+    Dlg.Process();
+    if (Dlg.GetExitCode() != 31) return(FALSE);
+    if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
+      return(FALSE);
+    if(FMask.Set(static_cast<char *>(HiEditDlg[2].Ptr.PtrData), 0))
+      break;
+  }
+  /* IS $ */
   /* DJ $ */
-
-  if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
-    return(FALSE);
 
   EditData.IncludeAttr=EditData.ExcludeAttr=0;
   if (HiEditDlg[5].Selected)

@@ -7,10 +7,14 @@ Files highlighting
 
 */
 
-/* Revision: 1.03 23.04.2001 $ */
+/* Revision: 1.04 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    + В HighlightData используем вместо Masks (рабочая маска) соответствующий
+      класс.
+    ! В HighlightData OriginalMasks стал самым первым членом.
   23.04.2001 SVS
     ! КХЕ! Новый вз<ляд на %PATHEXT% - то что редактируем и то, что
       юзаем - разные сущности.
@@ -24,14 +28,20 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+#include "CFileMask.hpp"
+
+/* $ 06.07.2001 IS
+   вместо "рабочей" маски используем соответствующий класс
+*/
 struct HighlightData
 {
-  char *Masks;
   char *OriginalMasks;
+  CFileMask *FMasks;
   unsigned int IncludeAttr;
   unsigned int ExcludeAttr;
   unsigned int Color,SelColor,CursorColor,CursorSelColor,MarkChar;
 };
+/* IS $ */
 
 class HighlightFiles
 {
@@ -69,4 +79,4 @@ class HighlightFiles
 // сама функция в hilight.cpp
 char *MkRegKeyHighlightName(char *RegKey);
 
-#endif	// __HIGHLIGHTFILES_HPP__
+#endif  // __HIGHLIGHTFILES_HPP__

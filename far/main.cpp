@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.24 02.07.2001 $ */
+/* Revision: 1.25 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    ! »зменени€ в SetHighlighting в соответствие с изменени€ми в структуре
+      HighlightData
   02.07.2001 IS
     - Ѕаг: дублировались записи в PluginsCache в том случае, если far.exe был
       запущен с указанием короткого пути.
@@ -422,15 +425,18 @@ void SetHighlighting()
     "*.rar,*.r[0-9][0-9],*.arj,*.a[0-9][0-9],*.zip,*.lha,*.lzh,*.lsz,*.ain,*.ha,*.cab,*.uc2,*.j,*.uue,*.ice,*.arc,*.xxe,*.tar,*.tgz,*.gz,*.z,*.ace,*.pak,*.bz2,*.zoo,*.sit",
     "*.bak,*.tmp",
   };
+  /* $ 06.07.2001 IS
+     Ќечего дразнить судьбу - используем только OriginalMasks
+  */
   struct HighlightData  StdHighlightData[]=
   { /*
-     Mask                        NormalColor       SelectedCursorColor
+     OriginalMask                NormalColor       SelectedCursorColor
                IncludeAttributes       SelectedColor     MarkChar
                        ExcludeAttributes     CursorColor             */
     {Masks[0], NULL,     0x0002, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
     {Masks[0], NULL,     0x0004, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
     {Masks[0], NULL,     0x0010, 0x0000,   0x1F, 0x00, 0x3F, 0x00, 0x00},
-    {Masks[1], Masks[1], 0x0000, 0x0000,   0x1A, 0x00, 0x3A, 0x00, 0x00},
+    {Masks[1], NULL,     0x0000, 0x0000,   0x1A, 0x00, 0x3A, 0x00, 0x00},
     {Masks[2], NULL,     0x0000, 0x0000,   0x1D, 0x00, 0x3D, 0x00, 0x00},
     {Masks[3], NULL,     0x0000, 0x0000,   0x16, 0x00, 0x36, 0x00, 0x00},
   };
@@ -439,13 +445,12 @@ void SetHighlighting()
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strcat(CmdExt,",*.cmd");
 
-//  Add_PATHEXT(CmdExt);
-
   Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
   {
     itoa(I,Ptr,10);
-    SetRegKey(RegKey,"Mask",StdHighlightData[I].Masks);
+    SetRegKey(RegKey,"Mask",StdHighlightData[I].OriginalMasks);
+  /* IS $ */
     if(StdHighlightData[I].IncludeAttr)
       SetRegKey(RegKey,"IncludeAttributes",StdHighlightData[I].IncludeAttr);
     if(StdHighlightData[I].ExcludeAttr)

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.83 04.07.2001 $ */
+/* Revision: 1.84 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    + ќптимизаци€ и дополнительна€ проверка в Add_PATHEXT
   04.07.2001 SVS
     !  усок закомменченного кода про логи будет полезен в syslog.cpp
   02.07.2001 IS
@@ -1677,6 +1679,7 @@ DWORD WINAPI FarGetLogicalDrives(void)
 char *Add_PATHEXT(char *Dest)
 {
   char Buf[1024];
+  int l;
   if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)))
   {
     char Tmp[32]="*", ArgName[NM];
@@ -1684,8 +1687,11 @@ char *Add_PATHEXT(char *Dest)
 
     if((Ptr=GetCommaWord((Ptr=strlwr(Buf)),ArgName,';')) != NULL)
     {
-      if(*Dest && Dest[strlen(Dest)-1] != ',')
+      /* $ 06.07.2001 IS проверка на '|' (маски исключени€) */
+      l=strlen(Dest)-1;
+      if(*Dest && Dest[l]!=',' && Dest[l]!='|')
         strcat(Dest,",");
+      /* IS $ */
       while(Ptr)
       {
         strcpy(Tmp+1,ArgName);
@@ -1700,8 +1706,11 @@ char *Add_PATHEXT(char *Dest)
     }
   }
   // лишн€€ зап€та€ - в морг!
-  if(*Dest && Dest[strlen(Dest)-1] == ',')
-    Dest[strlen(Dest)-1]=0;
+  /* $ 06.07.2001 IS ќптимизаци€ по скорости */
+  l=strlen(Dest)-1;
+  if(*Dest && Dest[l] == ',')
+    Dest[l]=0;
+  /* IS $ */
   return Dest;
 }
 

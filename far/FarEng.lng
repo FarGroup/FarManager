@@ -547,7 +547,7 @@
 "Do you wish to delete association for"
 
 "Edit file associations"
-"A file &mask or several file masks delimited with commas:"
+"A file &mask or several file masks:"
 "&Description of the association:"
 "E&xecute command (used for Enter):"
 "&View command (used for F3):"
@@ -718,7 +718,7 @@
 "Do you wish to restore default highlighting?"
 
 "Edit files highlighting"
-"A file &mask or several file masks delimited with commas:"
+"A file &mask or several file masks:"
 "&Include attributes"
 "Read-only"
 "Hidden"
@@ -1165,7 +1165,7 @@
 "Edit: Del,Ins,F4"
 
 "Do you wish to delete the sort group"
-"A file mask or several file masks delimited with commas:"
+"A file mask or several file masks:"
 
 "Describe file"
 "Enter %s description"

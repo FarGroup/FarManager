@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.95 04.07.2001 $ */
+/* Revision: 1.96 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    ! Убрал CopyMaskStr, нефиг плодить сущности
   04.07.2001 SVS
     ! BoxText может рисовать вертикальный сепаратор
   04.07.2001 SVS
@@ -910,12 +912,6 @@ inline char LocalLowerFast (char c)
   extern unsigned char UpperToLower[256];  // in local.cpp
   return UpperToLower [c];
 }
-
-// копирование списка масок, разделенного запятыми, в список, разделенный
-// NULL (для sort groups и file highlighting)
-
-void CopyMaskStr (char *PDest, const char *PSrc);
-
 /* DJ $ */
 
 #if defined(USE_WFUNC)

@@ -5,11 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.16 25.76.2001 $ */
+/* Revision: 1.17 06.07.2001 $ */
 
 /*
 Modify:
-  02.07.2001 ШЫ
+  06.07.2001 IS
+    ! Убрал CopyMaskStr, нефиг плодить сущности
+  02.07.2001 IS
     ! Убрал обработку '-' и '^' из QuoteSpace. Это разрешенные символы, не
       нужно их брать в кавычки. Кому приспичит - настроят сами.
   25.06.2001 IS
@@ -698,33 +700,4 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     }
   }
   return DestStr;
-}
-
-/* $ 01.05.2001 DJ
-   копирование списка масок, разделенного запятыми, в список, разделенный
-   NULL (для sort groups и file highlighting)
-*/
-
-void CopyMaskStr (char *PDest, const char *PSrc)
-{
-  BOOL SkipBrackets=FALSE;
-
-  while (*PSrc)
-  {
-    if (*PSrc == '[' && strchr (PSrc+1, ']') != NULL)
-      SkipBrackets = TRUE;
-    if (*PSrc == ']')
-      SkipBrackets = FALSE;
-    if (*PSrc == ',' && !SkipBrackets)
-    {
-      *PDest++ = '\0';
-      PSrc++;
-      while (isspace (*PSrc))
-        PSrc++;
-    }
-    else
-      *PDest++ = *PSrc++;
-  }
-  *PDest = '\0';
-  *(PDest+1) = '\0';
 }

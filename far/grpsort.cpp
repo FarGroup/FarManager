@@ -5,10 +5,14 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.12 21.05.2001 $ */
+/* Revision: 1.13 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    + Теперь в группах сортировки можно использовать маски исключения, маски
+      файлов можно брать в кавычки, маски файлов проверяются на корректность,
+      можно использовать точку с запятой в качестве разделителя масок.
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -57,14 +61,17 @@ Modify:
 #include "panel.hpp"
 #include "vmenu.hpp"
 #include "ctrlobj.hpp"
+#include "CFileMask.hpp"
 
+/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
 struct GroupSortData
 {
-  char *Masks;
+  CFileMask *FMasks;
   char *OriginalMasks;
   int Group;
   int reserved; // для выравнивания на 16 :-)
 };
+/* IS $ */
 
 #define GROUPSORT_MASK_SIZE      2048
 
@@ -120,6 +127,10 @@ GroupSort::~GroupSort()
 /* $ 01.05.2001 DJ
    оптимизированный формат хранения в Masks
 */
+/* $ 06.07.2001 IS
+   + вместо "рабочей" маски используем соответствующий класс
+   ! не использую Add_PATHEXT
+*/
 BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
 {
   char *Ptr, *OPtr;
@@ -131,33 +142,59 @@ BOOL GroupSort::AddMask(struct GroupSortData *Dest,char *Mask,int Group)
   // проверим
   if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
   {
-    int IQ1=(*(Ptr+9) == ',')?10:9;
+    int IQ1=(*(Ptr+9) == ',')?10:9, offsetPtr=Ptr-Mask;
     // Если встречается %pathext%, то допишем в конец...
     memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-    Add_PATHEXT(Mask); // добавляем то, чего нету.
-    // в GroupStr находится рабочая маска
+
+    char Tmp1[GROUPSORT_MASK_SIZE], *pSeparator;
+    strcpy(Tmp1, Mask);
+    pSeparator=strchr(Tmp1, EXCLUDEMASKSEPARATOR);
+    if(pSeparator)
+    {
+      Ptr=Tmp1+offsetPtr;
+      if(Ptr>pSeparator) // PATHEXT находится в масках исключения
+        Add_PATHEXT(Mask); // добавляем то, чего нету.
+      else
+      {
+        char Tmp2[GROUPSORT_MASK_SIZE];
+        strcpy(Tmp2, pSeparator+1);
+        *pSeparator=0;
+        Add_PATHEXT(Tmp1);
+        sprintf(Mask, "%s|%s", Tmp1, Tmp2);
+      }
+    }
+    else
+      Add_PATHEXT(Mask); // добавляем то, чего нету.
   }
   // память под рабочую маску
-  if((Ptr=(char *)realloc(Dest->Masks,strlen(Mask)+2)) == NULL)
+  if((Dest->FMasks=new CFileMask) == NULL)
   {
-    if(OPtr) free(OPtr);
+    free(OPtr);
     return FALSE;
   }
 
-  Dest->Masks = Ptr;
-  CopyMaskStr (Dest->Masks, Mask);
+  if(!Dest->FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
+  {
+    delete Dest->FMasks;
+    Dest->FMasks=NULL;
+    free(OPtr);
+    return FALSE;
+  }
+
   Dest->OriginalMasks=OPtr;
   Dest->Group=Group;
   return TRUE;
 }
+/* IS $ */
 /* DJ $ */
 
+/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
 void GroupSort::DeleteMask(struct GroupSortData *CurGroupData)
 {
-  if(CurGroupData->Masks)
+  if(CurGroupData->FMasks)
   {
-    free(CurGroupData->Masks);
-    CurGroupData->Masks=NULL;
+    delete CurGroupData->FMasks;
+    CurGroupData->FMasks=NULL;
   }
   if(CurGroupData->OriginalMasks)
   {
@@ -165,31 +202,30 @@ void GroupSort::DeleteMask(struct GroupSortData *CurGroupData)
     CurGroupData->OriginalMasks=NULL;
   }
 }
+/* IS $ */
 
+/* $ 06.07.2001 IS "рабочей" маски теперь у нас нет */
 char *GroupSort::GetMask(int Idx)
 {
-  struct GroupSortData *GData=GroupData+Idx;
-  return ((GData->OriginalMasks)?GData->OriginalMasks:GData->Masks);
+  return (GroupData+Idx)->OriginalMasks;
 }
+/* IS $ */
 
 /* $ 01.05.2001 DJ
    оптимизированный формат хранения в Masks
 */
+/* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
 int GroupSort::GetGroup(char *Path)
 {
   for (int I=0;I<GroupCount;I++)
   {
     struct GroupSortData *CurGroupData=&GroupData[I];
-    char *NamePtr = CurGroupData->Masks;
-    while (*NamePtr)
-    {
-      if (CmpName(NamePtr,Path))
-        return(CurGroupData->Group);
-      NamePtr += strlen (NamePtr)+1;
-    }
+    if(CurGroupData->FMasks->Compare(Path))
+       return(CurGroupData->Group);
   }
   return(DEFAULT_SORT_GROUP);
 }
+/* IS $ */
 /* DJ $ */
 
 void GroupSort::EditGroups()
@@ -325,8 +361,23 @@ int GroupSort::EditGroupsMenu(int Pos)
           break;
         case KEY_INS:
           {
-            NewMasks[0]=0;
-            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks","",NewMasks,sizeof(NewMasks),HelpSortGroups))
+            /* $ 06.07.2001 IS
+               проверяем маску на корректность
+            */
+            *NewMasks=0;
+            CFileMask FMasks;
+            int ExitCode;
+            for(;;)
+            {
+               ExitCode=GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),
+                         "Masks","",NewMasks,sizeof(NewMasks),HelpSortGroups);
+               if(!ExitCode)
+                  break;
+               if(FMasks.Set(NewMasks, 0))
+                  break;
+            }
+            if (ExitCode)
+            /* IS $ */
             {
               memset(&NewGroup,0,sizeof(struct GroupSortData));
               if(AddMask(&NewGroup,NewMasks,UpperGroup ? 0:DEFAULT_SORT_GROUP+1))
@@ -353,7 +404,23 @@ int GroupSort::EditGroupsMenu(int Pos)
           {
             memcpy(&NewGroup,GroupData+ListPos,sizeof(struct GroupSortData));
             strcpy(NewMasks,GetMask(ListPos));
-            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks",NewMasks,NewMasks,sizeof(NewMasks),HelpSortGroups))
+            /* $ 06.07.2001 IS
+               проверяем маску на корректность
+            */
+            CFileMask FMasks;
+            int ExitCode;
+            for(;;)
+            {
+               ExitCode=GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),
+                                  "Masks",NewMasks,NewMasks,sizeof(NewMasks),
+                                  HelpSortGroups);
+               if(!ExitCode)
+                  break;
+               if(FMasks.Set(NewMasks, 0))
+                  break;
+            }
+            if (ExitCode)
+            /* IS $ */
             {
               if(AddMask(&NewGroup,NewMasks,UpperGroup ? 0:DEFAULT_SORT_GROUP+1))
               {

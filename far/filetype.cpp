@@ -5,12 +5,18 @@ filetype.cpp
 
 */
 
-/* Revision: 1.22 25.06.2001 $ */
+/* Revision: 1.23 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    + Теперь в ассоциациях файлов можно использовать маски исключения, маски
+      файлов можно брать в кавычки, маски файлов проверяются на корректность,
+      можно использовать точку с запятой в качестве разделителя масок.
+    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
+      (был когда-то, вроде, такой баг-репорт).
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   18.06.2001 SVS
     ! SubstFileName и ReplaceVariables переехали в новый модуль fnparce.cpp
   06.06.2001 SVS
@@ -81,6 +87,7 @@ Modify:
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "savescr.hpp"
+#include "CFileMask.hpp"
 
 static int DeleteTypeRecord(int DeletePos);
 static int EditTypeRecord(int EditPos,int TotalRecords,int NewRec);
@@ -123,8 +130,15 @@ BOOL ExtractIfExistCommand (char *CommandText)
    Вызывается для F3, F4 - ассоциации
    Enter в ком строке - ассоциации.
 */
+/* $ 06.07.2001
+   + Используем CFileMask вместо GetCommaWord, этим самым добиваемся того, что
+     можно использовать маски исключения
+   - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
+     (был когда-то, вроде, такой баг-репорт)
+*/
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish)
 {
+  CFileMask FMask; // для работы с масками файлов
   char Commands[32][512],Descriptions[32][128],Command[512];
   int NumCommands[32];
   int CommandCount=0;
@@ -134,10 +148,10 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     sprintf(RegKey,"Associations\\Type%d",I);
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
-    char NewCommand[512],ArgName[NM];
-    const char *NamePtr=Mask;
-    while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
-      if (CmpName(ArgName,Name))
+    if(FMask.Set(Mask, FMF_SILENT))
+    {
+      char NewCommand[512];
+      if(FMask.Compare(Name))
       {
         switch(Mode)
         {
@@ -150,18 +164,19 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
           case FILETYPE_EDIT:
             GetRegKey(RegKey,"Edit",NewCommand,"",sizeof(NewCommand));
             break;
+          default:
+            *NewCommand=0; // обнулим на всякий пожарный
         }
-        if (*NewCommand==0 || CommandCount>=sizeof(Commands)/sizeof(Commands[0]))
-          break;
-        if (strcmp(ArgName,"*.*")==0 || strcmp(ArgName,"*")==0)
-          if (CommandCount>0)
-            continue;
-        strcpy(Command,NewCommand);
-        strcpy(Commands[CommandCount],Command);
-        GetRegKey(RegKey,"Description",Descriptions[CommandCount],"",sizeof(Descriptions[0]));
-        CommandCount++;
-        break;
+
+        if (*NewCommand && CommandCount<sizeof(Commands)/sizeof(Commands[0]))
+        {
+          strcpy(Command,NewCommand);
+          strcpy(Commands[CommandCount],Command);
+          GetRegKey(RegKey,"Description",Descriptions[CommandCount],"",sizeof(Descriptions[0]));
+          CommandCount++;
+        }
       }
+    }
   }
   if (CommandCount==0)
     return(FALSE);
@@ -264,6 +279,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
   /* tran $ */
   return(TRUE);
 }
+/* IS $ */
 /* SVS $ */
 
 
@@ -574,9 +590,20 @@ int EditTypeRecord(int EditPos,int TotalRecords,int NewRec)
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
     Dlg.SetHelp("FileAssoc");
     Dlg.SetPosition(-1,-1,76,17);
-    Dlg.Process();
-    if (Dlg.GetExitCode()!=13 || *EditDlg[2].Data==0)
-      return(FALSE);
+    /* $ 06.07.2001 IS
+       Проверяем вводимую маску файлов на корректность
+    */
+    CFileMask FMask;
+    for(;;)
+    {
+      Dlg.ClearDone();
+      Dlg.Process();
+      if (Dlg.GetExitCode()!=13 || *EditDlg[2].Data==0)
+        return(FALSE);
+      if(FMask.Set(EditDlg[2].Data, 0))
+        break;
+    }
+    /* IS $ */
   }
 
   if (NewRec)
