@@ -6,10 +6,10 @@
   Archive Support API for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000 [ FAR group ]
+  Copyrigth (c) 2000-2001 FAR group
 */
 
-/* $Revision: 1.00 14.09.2000 $ */
+/* $Revision: 1.01 22.02.2001 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -60,7 +60,7 @@ struct ArcInfo
 };
 
 
-#if defined(__BORLANDC__) || defined(_MSC_VER)
+#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__)
 #ifdef __cplusplus
 extern "C" {
 #endif
