@@ -527,11 +527,12 @@
 ""
 //End of functional keys
 
-"Save file as"
+"Save file &as"
 "Change line breaks to:"
 "Do n&ot change"
 "&Dos/Windows format (CR LF)"
 "&Unix format (LF)"
+"&Mac format (CR)"
 "Cannot save the file"
 "The file is changed but the file or the folder containing"
 "this file was moved or deleted."

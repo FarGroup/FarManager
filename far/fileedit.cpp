@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.93 19.03.2002 $ */
+/* Revision: 1.94 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    - BugZ#371 - F2 -> разное поведение.
+    + Save As... "Mac format (CR)"
   19.03.2002 SVS
     - BugZ#373 - F4 Ctrl-O - виден курсор
   18.03.2002 SVS
@@ -631,11 +634,16 @@ int FileEditor::ProcessKey(int Key)
         {
           Chr=*Ptr;
           *Ptr=0;
+          // В корне?
           if (!((strlen(FullFileName)==2) && isalpha(FullFileName[0]) && (FullFileName[1]==':')))
+          {
+            // а дальше? каталог существует?
             if((FNAttr=GetFileAttributes(FullFileName)) == -1 ||
-                              !(FNAttr&FILE_ATTRIBUTE_DIRECTORY) ||
-                LocalStricmp(OldCurDir,FullFileName))
+                              !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
+                //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
+              )
               SaveToSaveAs=TRUE;
+          }
           *Ptr=Chr;
         }
 
@@ -651,7 +659,7 @@ int FileEditor::ProcessKey(int Key)
           const char *HistoryName="NewEdit";
           static struct DialogData EditDlgData[]=
           {
-            /* 0 */ DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MEditTitle,
+            /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
             /* 1 */ DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,(char *)MEditSaveAs,
             /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
             /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
@@ -659,19 +667,20 @@ int FileEditor::ProcessKey(int Key)
             /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
             /* 6 */ DI_RADIOBUTTON,5,7,0,0,0,0,0,0,(char *)MEditSaveDOS,
             /* 7 */ DI_RADIOBUTTON,5,8,0,0,0,0,0,0,(char *)MEditSaveUnix,
-            /* 8 */ DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-            /* 9 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-            /*10 */ DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+            /* 8 */ DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(char *)MEditSaveMac,
+            /* 9 */ DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+            /*10 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+            /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
           };
           MakeDialogItems(EditDlgData,EditDlg);
           strcpy(EditDlg[2].Data,(SaveToSaveAs?FullFileName:FileName));
-          EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=0;
+          EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
           EditDlg[5+TextFormat].Selected=TRUE;
           Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
-          Dlg.SetPosition(-1,-1,76,13);
+          Dlg.SetPosition(-1,-1,76,14);
           Dlg.SetHelp("FileSaveAs");
           Dlg.Process();
-          if (Dlg.GetExitCode()!=9 || *EditDlg[2].Data==0)
+          if (Dlg.GetExitCode()!=10 || *EditDlg[2].Data==0)
             return(FALSE);
           /* $ 07.06.2001 IS
              - Баг: нужно сначала убирать пробелы, а только потом кавычки
@@ -712,6 +721,8 @@ int FileEditor::ProcessKey(int Key)
             TextFormat=1;
           if (EditDlg[7].Selected)
             TextFormat=2;
+          if (EditDlg[8].Selected)
+            TextFormat=3;
           if(!NameChanged)
             FarChDir(OldCurDir);
         }

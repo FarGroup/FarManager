@@ -1876,6 +1876,10 @@ pressing #Shift-F2# and specifying the new name.
     Line breaks will be represented as a single character - Line
     Feed (LF), as used in UNIX.
 
+    #Mac format (CR)#
+    Line breaks will be represented as a single character - Carriage
+    Return (CR), as used in Mac OS.
+
 @EditorGotoPos
 $ #Go to specified line and column#
  This dialog allows to change the position in the internal editor.

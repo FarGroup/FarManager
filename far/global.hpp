@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.34 01.03.2002 $ */
+/* Revision: 1.35 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    + MAC_EOL_fmt
   01.03.2002 SVS
     ! FarTmpXXXXXX - удалено за ненадобностью.
   21.02.2002 SVS
@@ -202,7 +204,7 @@ extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 
 extern int WidthNameForMessage;
 
-extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[];
+extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[], MAC_EOL_fmt[];
 
 // TRUE, если старт был /e или /v
 extern int OnliEditorViewerUsed;

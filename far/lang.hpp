@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.98 12.03.2002 $ */
+/* Revision: 1.99 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    + MEditSaveMac
   12.03.2002 VVM
     + MDoYouWantToStopWork2
   02.03.2002 KM
@@ -817,6 +819,7 @@ enum
   MEditSaveOriginal,
   MEditSaveDOS,
   MEditSaveUnix,
+  MEditSaveMac,
   MEditCannotSave,
   MEditSavedChangedNonFile,
   MEditSavedChangedNonFile2,

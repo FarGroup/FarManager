@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.163 18.03.2002 $ */
+/* Revision: 1.164 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    + Легализуем формат MAC_EOL_fmt
   18.03.2002 IS
     - Попытка избавиться от проблем выделения при наличии колорера и
       Shift-Down, Shift-End (BugZ#319)
@@ -1096,6 +1098,9 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewF
     case 2:
       strcpy(GlobalEOL,UNIX_EOL_fmt);
       break;
+    case 3:
+      strcpy(GlobalEOL,MAC_EOL_fmt);
+      break;
   }
 
   {
@@ -1161,8 +1166,10 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs,int NewF
       {
         if (TextFormat==1)
           EndSeq=DOS_EOL_fmt;
-        else
+        else if (TextFormat==2)
           EndSeq=UNIX_EOL_fmt;
+        else
+          EndSeq=MAC_EOL_fmt;
         CurPtr->EditLine.SetEOL(EndSeq);
       }
       int EndLength=strlen(EndSeq);
@@ -5587,6 +5594,8 @@ int Editor::EditorControl(int Command,void *Param)
                 EOL=1;
               if (strcmp(esf->FileEOL,UNIX_EOL_fmt)==0)
                 EOL=2;
+              if (strcmp(esf->FileEOL,MAC_EOL_fmt)==0)
+                EOL=3;
             }
           }
           // сохранение файла только через хост!

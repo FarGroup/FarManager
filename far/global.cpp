@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.34 01.03.2002 $ */
+/* Revision: 1.35 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 SVS
+    + MAC_EOL_fmt
   01.03.2002 SVS
     ! FarTmpXXXXXX - удалено за ненадобностью.
   21.02.2002 SVS
@@ -188,7 +190,9 @@ struct PreRedrawParamStruct PreRedrawParam={0};
 
 int WidthNameForMessage=0;
 
-const char DOS_EOL_fmt[]="\r\n", UNIX_EOL_fmt[]="\n";
+const char DOS_EOL_fmt[]  ="\r\n",
+           UNIX_EOL_fmt[] ="\n",
+           MAC_EOL_fmt[]  ="\r";
 
 int OnliEditorViewerUsed=FALSE;
 
