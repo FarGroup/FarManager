@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.32 23.01.2002 $ */
+/* Revision: 1.33 23.02.2002 $ */
 
 /*
 Modify:
+  23.02.2002 DJ
+    - косметика от BoundsChecker
   23.01.2002 SVS
     - небольшая бага в AddEndSlash()
   19.01.2002 VVM
@@ -458,7 +460,7 @@ char* WINAPI RemoveLeadingSpaces(char *Str)
 // удалить конечные пробелы
 char* WINAPI RemoveTrailingSpaces(char *Str)
 {
-  if(!Str)
+  if(!Str || !*Str)
     return NULL;
 
   char *ChPtr;

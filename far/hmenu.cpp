@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.08 13.08.2001 $ */
+/* Revision: 1.09 23.02.2002 $ */
 
 /*
 Modify:
+  23.02.2002 DJ
+    - косметика от BoundsChecker
   13.08.2001 OT
     - исправление бага в вертикальном меню
   26.07.2001 OT
@@ -54,6 +56,9 @@ HMenu::HMenu(struct HMenuData *Item,int ItemCount)
   HMenu::ItemCount=ItemCount;
   /* $ 12.05.2001 DJ */
   SetRestoreScreenMode (TRUE);
+  /* DJ $ */
+  /* $ 23.02.2002 DJ */
+  VExitCode = -1;
   /* DJ $ */
   FrameManager->ModalizeFrame(this);
 }

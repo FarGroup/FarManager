@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.189 21.02.2002 $ */
+/* Revision: 1.190 23.02.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  23.02.2002 DJ
+    ! выкинута константа LINFO_ALWAYSSCROLLBAR как не несущая полезной
+      информации (она установлена для _любого_ списка)
   21.02.2002 SVS
     + EJECT_READY - только для внутренних целей...
   13.02.2002 SVS
@@ -971,7 +974,6 @@ struct FarListGetItem
 };
 
 enum {
-  LINFO_ALWAYSSCROLLBAR       =0x00000100,
   LINFO_SHOWNOBOX             =0x00000400,
   LINFO_AUTOHIGHLIGHT         =0x00000800,
   LINFO_REVERSEHIGHLIGHT      =0x00001000,

@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.212 21.02.2002 $ */
+/* Revision: 1.213 23.02.2002 $ */
 
 /*
 Modify:
+  23.02.2002 DJ
+    - не перерисовывалось меню после DM_LISTDELETE (NULL)
+    - еще немного корректировок позиций
+    - DM_LISTGETTITLES не мог правильно вернуть оба заголовка
+    - не было перерисовки после DM_LISTSETTITLES
   21.02.2002 SVS
     ! Проверим фрейм на NULL в OnDestroy().
   21.02.2002 DJ
@@ -1120,7 +1125,6 @@ void Dialog::ProcessCenterGroup(void)
 int Dialog::InitDialogObjects(int ID)
 {
   int I, J;
-  int Length,StartX;
   int Type;
   struct DialogItem *CurItem;
   int InitItemCount;
@@ -2325,10 +2329,11 @@ void Dialog::ShowDialog(int ID)
                           sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
             CurItem->ListPtr->SetColors(Colors);
           /* SVS $ */
-          if (CurItem->Focus)
-            CurItem->ListPtr->Show();
-          else
-            CurItem->ListPtr->FastShow();
+          /* $ 23.02.2002 DJ
+             теперь у нас есть флаг => Show() всегда должно нарисовать правильно
+          */
+          CurItem->ListPtr->Show();
+          /* DJ $ */
         }
         break;
       }
@@ -5154,6 +5159,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
             {
               ListBox->SortItems(Param2);
+              /* $ 23.02.2002 DJ
+                 корректировка позиции нужна, чтобы не было двух выделенных элементов
+              */
+              ListBox->AdjustSelectPos();
+              /* DJ $ */
               break;
             }
 
@@ -5167,6 +5177,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             case DM_LISTADDSTR: // Param1=ID Param2=String
             {
               Ret=ListBox->AddItem((char*)Param2);
+              /* $ 23.02.2002 DJ
+                 а вдруг это вообще первый элемент, на который можно поставить курсор?
+              */
+              ListBox->AdjustSelectPos();
+              /* DJ $ */
               break;
             }
 
@@ -5199,6 +5214,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             {
               if((Ret=ListBox->InsertItem((struct FarListInsert *)Param2)) == -1)
                 return -1;
+              /* $ 23.02.2002 DJ
+                 а вдруг добавили айтем с LIF_SELECTED?
+              */
+              ListBox->AdjustSelectPos();
+              /* DJ $ */
               break;
             }
 
@@ -5284,7 +5304,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
               ListBox->SetTitle((!ListTitle)?NULL:ListTitle->Title);
               ListBox->SetBottomTitle((!ListTitle)?NULL:ListTitle->Bottom);
-              return TRUE;
+              /* $ 23.02.2002 DJ
+                 а перерисовать?
+              */
+              break;   //return TRUE;
+              /* DJ $ */
             }
 
             case DM_LISTGETTITLES: // Param1=ID Param2=struct FarListTitles
@@ -5292,9 +5316,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               struct FarListTitles *ListTitle=(struct FarListTitles *)Param2;
               if(ListTitle)
               {
-                if (ListBox->GetTitle(ListTitle->Title,ListTitle->TitleLen) ||
-                    ListBox->GetTitle(ListTitle->Bottom,ListTitle->BottomLen))
+                /* $ 23.02.2002 DJ
+                   _нельзя_ по || объединять два выражения, оба из которых всегда
+                   должны выполняться, независимо от результата первого!
+                */
+                BOOL haveTitle = (ListBox->GetTitle(ListTitle->Title,ListTitle->TitleLen) != NULL);
+                BOOL haveBottom = (ListBox->GetTitle(ListTitle->Bottom,ListTitle->BottomLen) != NULL);
+                if (haveTitle || haveBottom)
                   return TRUE;
+                /* DJ $ */
               }
               return FALSE;
             }

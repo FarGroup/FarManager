@@ -8,10 +8,18 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.76 21.02.2002 $ */
+/* Revision: 1.77 23.02.2002 $ */
 
 /*
 Modify:
+  23.02.2002 DJ
+    - не перерисовывалось меню после DM_LISTDELETE (NULL)
+    ! Show() также использует флаг VMENU_LISTHASFOCUS
+    - после DM_LISTDELETE не ставим текущую позицию на сепаратор
+    - VMenu::GetTitle() неправильно возвращало пустой заголовок
+    - скорректирован алгоритм обрезания длинных заголовков меню
+    - обработка LIF_SELECTED в UpdateItem
+    - маскировка внутренних флагов в GetVMenuInfo
   21.02.2002 DJ
     ! корректная отрисовка списков, не имеющих фокуса
     - зависание, если в меню без WRAPMODE последний элемент - сепаратор
@@ -438,8 +446,19 @@ void VMenu::Show()
 //  while (CallCount>0)
 //    Sleep(10);
   CallCount++;
+  /* $ 23.02.2002 DJ
+     здесь тоже используем флаг LISTHASFOCUS
+  */
   if(VMFlags.Check(VMENU_LISTBOX))
-    BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_DOUBLE_BOX;
+  {
+    if (VMFlags.Check(VMENU_SHOWNOBOX))
+      BoxType=NO_BOX;
+    else if (VMFlags.Check (VMENU_LISTHASFOCUS))
+      BoxType=SHORT_DOUBLE_BOX;
+    else
+      BoxType=SHORT_SINGLE_BOX;
+  }
+  /* DJ $ */
 
   int AutoCenter=FALSE,AutoHeight=FALSE;
 
@@ -568,23 +587,28 @@ void VMenu::DisplayObject()
   /* $ 03.06.2001 KM
      ! Вернём DI_LISTBOX'у возможность задавать заголовок.
   */
-  int WidthTitle=MaxLength;
+  /* $ 23.02.2002 DJ
+     обрезаем длину заголовка не по длине заголовка, а по реальной ширине меню!
+  */
+  int MaxTitleLength = X2-X1-2;
+  int WidthTitle;
   if (*Title)
   {
-    if((WidthTitle=strlen(Title)) > MaxLength)
-      WidthTitle=MaxLength-1;
+    if((WidthTitle=strlen(Title)) > MaxTitleLength)
+      WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
     SetColor(VMenu::Colors[2]);
     mprintf(" %*.*s ",WidthTitle,WidthTitle,Title);
   }
   if (*BottomTitle)
   {
-    if((WidthTitle=strlen(BottomTitle)) > MaxLength)
-      WidthTitle=MaxLength-1;
+    if((WidthTitle=strlen(BottomTitle)) > MaxTitleLength)
+      WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
     SetColor(VMenu::Colors[2]);
     mprintf(" %*.*s ",WidthTitle,WidthTitle,BottomTitle);
   }
+  /* DJ $ */
   /* KM $ */
   SetCursorType(0,10);
   ShowMenu(TRUE);
@@ -604,7 +628,10 @@ void VMenu::ShowMenu(int IsParent)
   char TmpStr[1024];
   unsigned char BoxChar[2],BoxChar2[2];
   int Y,I;
-  if (ItemCount==0 || X2<=X1 || Y2<=Y1)
+  /* $ 23.02.2002 DJ
+     если в меню нету пунктов - это не значит, что не надо рисовать фон!
+  */
+  if (/*ItemCount==0 ||*/ X2<=X1 || Y2<=Y1)  /* DJ $ */
   {
     CallCount--;
     return;
@@ -624,7 +651,7 @@ void VMenu::ShowMenu(int IsParent)
   {
     if (VMFlags.Check(VMENU_SHOWNOBOX))
       BoxType = NO_BOX;
-    else if (VMFlags.Check (VMENU_LISTHASFOCUS))  
+    else if (VMFlags.Check (VMENU_LISTHASFOCUS))
       BoxType = SHORT_DOUBLE_BOX;
     else
       BoxType = SHORT_SINGLE_BOX;
@@ -1162,6 +1189,11 @@ void VMenu::DeleteItems()
   MaxLength=strlen(VMenu::Title)+2;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
+  /* $ 23.02.2002 DJ
+     а перерисовать?
+  */
+  VMFlags.Set(VMENU_UPDATEREQUIRED);
+  /* DJ $ */
 }
 
 
@@ -1199,6 +1231,12 @@ int VMenu::DeleteItem(int ID,int Count)
     SelectPos=ID;
     if(ID+Count == ItemCount)
       SelectPos--;
+    /* $ 23.02.2002 DJ
+       постараемся не ставить выделение на сепаратор
+    */
+    while (SelectPos > 0 &&(Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+      SelectPos--;
+    /* DJ $ */
   }
   if(SelectPos < 0)
     SelectPos=0;
@@ -1347,6 +1385,15 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
       free(PItem->UserData);
 
     memcpy(PItem,FarList2MenuItem(&NewItem->Item,&MItem),sizeof(struct MenuItem));
+
+    /* $ 23.02.2002 DJ
+       если элемент selected - поставим на него выделение
+    */
+    if (PItem->Flags & LIF_SELECTED && !(PItem->Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+      SelectPos = NewItem->Index;
+    AdjustSelectPos();
+    /* DJ $ */
+
     return TRUE;
   }
   return FALSE;
@@ -1601,7 +1648,7 @@ void VMenu::AdjustSelectPos()
   // если selection стоит в некорректном месте - сбросим его
   if (Item [SelectPos].Flags & (LIF_SEPARATOR | LIF_DISABLE))
     SelectPos = -1;
-    
+
   for (int i=0; i<ItemCount; i++)
   {
     if (Item [i].Flags & (LIF_SEPARATOR | LIF_DISABLE))
@@ -1647,8 +1694,12 @@ void VMenu::SetTitle(const char *Title)
 
 char *VMenu::GetTitle(char *Dest,int Size)
 {
-  if (Dest && *VMenu::Title)
+  /* $ 23.02.2002 DJ
+     Если заголовок пустой - это не значит, что его нельзя вернуть!
+  */
+  if (Dest /*&& *VMenu::Title*/)
     return strncpy(Dest,VMenu::Title,Size-1);
+  /* DJ $ */
   return NULL;
 }
 
@@ -1874,7 +1925,12 @@ BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
 {
   if(Info)
   {
-    Info->Flags=VMFlags.Flags;
+    /* $ 23.02.2002 DJ
+       нефиг показывать наши внутренние флаги
+    */
+    Info->Flags=VMFlags.Flags & (LINFO_SHOWNOBOX | LINFO_AUTOHIGHLIGHT
+      | LINFO_REVERSEHIGHLIGHT | LINFO_WRAPMODE | LINFO_SHOWAMPERSAND);
+    /* DJ $ */
     Info->ItemsNumber=ItemCount;
     Info->SelectPos=SelectPos;
     Info->TopPos=TopPos;
