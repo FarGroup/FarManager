@@ -5,12 +5,14 @@ message.cpp
 
 */
 
-/* Revision: 1.02 27.01.2001 $ */
+/* Revision: 1.03 02.02.2001 $ */
 
 /*
 Modify:
+  02.02.2001 SVS
+    ! Забыли сделать CharToOem в GetErrorString...
   27.01.2001 VVM
-   + Если GetErrorString не распознает ошибку - пытается узнать у системы
+    + Если GetErrorString не распознает ошибку - пытается узнать у системы
   29.08.2000 SVS
     + Дополнительный параметр у Message* - номер плагина.
   25.06.2000 SVS
@@ -397,7 +399,10 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
          + Если GetErrorString не распознает ошибку - пытается узнать у системы */
       if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
                         NULL, LastError, 0, ErrStr, StrSize, NULL))
+      {
+        CharToOem(ErrStr,ErrStr);
         return(TRUE);
+      }
     /* VVM $ */
       *ErrStr=0;
       return(FALSE);
