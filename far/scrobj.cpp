@@ -5,7 +5,7 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.06 18.07.2001 $ */ 
+/* Revision: 1.06 18.07.2001 $ */
 
 /*
 Modify:
@@ -93,7 +93,7 @@ void ScreenObject::GetPosition(int& X1,int& Y1,int& X2,int& Y2)
 
 void ScreenObject::Hide()
 {
-  _tran(SysLog("[%p] ScreenObject::Hide()",this));
+//  _tran(SysLog("[%p] ScreenObject::Hide()",this));
   if (!Visible)
     return;
   Visible=FALSE;
@@ -115,7 +115,7 @@ void ScreenObject::Hide0()
 
 void ScreenObject::Show()
 {
-  _tran(SysLog("[%p] ScreenObject::Show()",this));
+//  _tran(SysLog("[%p] ScreenObject::Show()",this));
   if (!SetPositionDone)
     return;
   SavePrevScreen();
@@ -138,7 +138,7 @@ void ScreenObject::SavePrevScreen()
 
 void ScreenObject::Redraw()
 {
-  _tran(SysLog("[%p] ScreenObject::Redraw()",this));
+//  _tran(SysLog("[%p] ScreenObject::Redraw()",this));
   if (IsVisible())
     Show();
 }

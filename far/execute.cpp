@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.31 18.01.2002 $ */
+/* Revision: 1.32 28.01.2002 $ */
 
 /*
 Modify:
+  28.01.2002 tran
+    ! тройные кавычки нужны не всегда.
   18.01.2002 VVM
     ! Избавимся от setdisk() -> FarChDir()
   16.01.2002 SVS
@@ -554,8 +556,12 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   char NewCmdStr[4096];
 
   // ПРЕДпроверка на вшивость
+  ////_tran(SysLog("Execute: CmdStr [%s]",CmdStr);)
+
   Unquote(strcpy(NewCmdStr,CmdStr));
   RemoveExternalSpaces(NewCmdStr);
+  //_tran(SysLog("Execute: newCmdStr [%s]",NewCmdStr);)
+
   // глянем на результат
   if(!*NewCmdStr || (strlen(NewCmdStr)==1 && strpbrk(NewCmdStr,"<>|:")!=NULL))
   {
@@ -691,12 +697,14 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           strcat(ExecLine,NewCmdStr);
           ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
           // </TODO>
-        }
+          //_tran(SysLog("Execute: ExecLine [%s]",ExecLine);)
+      }
       }
       else
       {
         int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
         sprintf(ExecLine,"%s /C",CommandName);
+        //_tran(SysLog("1. execline='%s'",ExecLine);)
 
         if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
         {
@@ -711,6 +719,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         }
 
         strcat(ExecLine," ");
+        //_tran(SysLog("2. execline=[%s]",ExecLine);)
+        //_tran(SysLog("3. cmdptr=[%s]",CmdPtr);)
 
         char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
         if (NT &&
@@ -719,26 +729,43 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
            )
         {
           strcat (ExecLine, "\"");
+          //_tran(SysLog("4. execline='%s'",ExecLine);)
 
-          // посчитаемся
+          /* $ 28.01.2002 tran
+             все эти считалки и лишние скобки нужны при запуске по start*/
           char *Ptr=CmdPtr;
           int NumSq=0;
-          while(*Ptr)
+          if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
           {
-            if(*Ptr == '\"')
-              NumSq++;
-            ++Ptr;
-          }
+          // посчитаемся
+            while(*Ptr)
+            {
+              if(*Ptr == '\"')
+                NumSq++;
+              ++Ptr;
+            }
+            //_tran(SysLog("NumSq=%i",NumSq);)
 
-          if(NumSq > 2)
-            strcat (ExecLine, "\"");
+            if(NumSq > 2)
+              strcat (ExecLine, "\"");
+            //_tran(SysLog("5. execline='%s'",ExecLine);)
+          }
           strcat (ExecLine, CmdPtr);
+          //_tran(SysLog("6. execline='%s'",ExecLine);)
           strcat (ExecLine, "\"");
-          if(NumSq > 2)
-            strcat (ExecLine, "\"");
+
+          //_tran(SysLog("7. execline='%s'",ExecLine);)
+          if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+          {
+            if(NumSq > 2)
+              strcat (ExecLine, "\"");
+            //_tran(SysLog("8. execline='%s'",ExecLine);)
+          }
+          /* tran $ */
         }
         else
           strcat(ExecLine,CmdPtr);
+        //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
       }
     }
 //_SVS(SysLog("ExecLine='%s'",ExecLine));
