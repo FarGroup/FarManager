@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.60 14.12.2000 $ */
+/* Revision: 1.61 15.12.2000 $ */
 
 /*
 Modify:
+  15.12.2000 SVS
+   ! При перемещении диалога повторяем поведение "бормандовых" сред.
+   ! Новый движок мышиного перемещения
   14.12.2000 SVS
    ! Дополнение цветов (пропустил :-)
    + Отмена реакции хоткеев для DIF_DISABLE
@@ -1340,10 +1343,15 @@ int Dialog::ProcessKey(int Key)
   if (CheckDialogMode(DMODE_DRAGGED)) // если диалог таскается
   {
     int rr=1;
+    /* $ 15.12.2000 SVS
+       При перемещении диалога повторяем поведение "бормандовых" сред.
+    */
     switch (Key)
     {
         case KEY_CTRLLEFT:
-            rr=10;
+        case KEY_CTRLHOME:
+        case KEY_HOME:
+            rr=Key == KEY_CTRLLEFT?10:X1;
         case KEY_LEFT:
             Hide();
             for ( I=0; I<rr; I++ )
@@ -1356,7 +1364,9 @@ int Dialog::ProcessKey(int Key)
             if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_CTRLRIGHT:
-            rr=10;
+        case KEY_CTRLEND:
+        case KEY_END:
+            rr=Key == KEY_CTRLRIGHT?10:abs(X1-(ScrX - (X2-X1+1)))+1;
         case KEY_RIGHT:
             Hide();
             for ( I=0; I<rr; I++ )
@@ -1369,8 +1379,9 @@ int Dialog::ProcessKey(int Key)
             if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_PGUP:
+        case KEY_CTRLPGUP:
         case KEY_CTRLUP:
-            rr=5;
+            rr=Key == KEY_CTRLUP?5:Y1;
         case KEY_UP:
             Hide();
             for ( I=0; I<rr; I++ )
@@ -1382,9 +1393,10 @@ int Dialog::ProcessKey(int Key)
                 }
             if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
-        case KEY_PGDN:
         case KEY_CTRLDOWN:
-            rr=5;
+        case KEY_CTRLPGDN:
+        case KEY_PGDN:
+            rr=Key == KEY_CTRLDOWN? 5: abs(Y1-(ScrY - (Y2-Y1+1)))+1;
         case KEY_DOWN:
             Hide();
             for ( I=0; I<rr; I++ )
@@ -1412,6 +1424,7 @@ int Dialog::ProcessKey(int Key)
             if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
     }
+    /* SVS $ */
     if(CheckDialogMode(DMODE_ALTDRAGGED))
     {
       SkipDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
@@ -2422,66 +2435,45 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
            ну раз попадаем - то будем перемещать */
         //SetDialogMode(DMODE_DRAGGED);
         OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
-        MsX=MouseX;
-        MsY=MouseY;
-        /* $ 11.08.2000 KM
-           Переменная, индицирующая первое попадание в процедуру
-           перемещения диалога.
-        */
-        static int First=TRUE;
-        /* KM $ */
+        // запомним delta места хватания и Left-Top диалогового окна
+        MsX=abs(X1-MouseX);
+        MsY=abs(Y1-MouseY);
         while (1)
         {
             int mb=IsMouseButtonPressed();
-            /* $ 09.08.2000 tran
-               - долой "салазки" :) */
-            /* $ 11.08.2000 KM
-               Если первый раз пришло сообщение о нажатой кнопке мыши,
-               то естественно мы проходим в процедуру перемещения, чтобы
-               корректно отобразить включение этого режима сразу же, а
-               не после начала движения.
+            /* $ 15.12.2000 SVS
+               Новый движок мышиного перемещения
             */
-            if ( mb==1 && MouseX==MsX && MouseY==MsY && !First )
-                continue;
-            MsX=MouseX;
-            MsY=MouseY;
-            /* KM $ */
-            /* tran 09.08.2000 $ */
-
-            int mx,my;
-//            SysLog("MouseMove:(), MouseX=%i, MousePrevX=%i,MouseY=%i, MousePrevY=%i",MouseX,PrevMouseX,MouseY,PrevMouseY);
+            int mx,my,X0,Y0;
             if ( mb==1 ) // left key, still dragging
             {
                 Hide();
-                /* 11.08.2000 KM
-                   Артефакт: если после первого запуска фара, не пермещая мышь
-                   нажать левую кнопку, чтобы переместить диалог, то из-за
-                   того, что к этому моменту PrevMouseX и PrevMouseY ещё не определены,
-                   также неопределённым получался прыжок диалога. Поэтому по первому
-                   входу в режим перемещения инициализируем переменные 0.
-                */
-                if (First)
-                  mx=my=0;
+                X0=X1;
+                Y0=Y1;
+                if(MouseX==PrevMouseX)
+                  mx=X1;
                 else
+                  mx=MouseX-MsX;
+                if(MouseY==PrevMouseY)
+                  my=Y1;
+                else
+                  my=MouseY-MsY;
+
+                if(mx >= 0 && mx+(X2-X1)<=ScrX)
                 {
-                  mx=MouseX-PrevMouseX;
-                  my=MouseY-PrevMouseY;
+                  X2=mx+(X2-X1);
+                  X1=mx;
+                  AdjustEditPos(X1-X0,0); //?
                 }
-                /* KM $ */
-                if ( X1+mx>=0 && X2+mx<=ScrX )
+                if(my >= 0 && my+(Y2-Y1)<=ScrY)
                 {
-                    X1+=mx;
-                    X2+=mx;
-                    AdjustEditPos(mx,0);
-                }
-                if ( Y1+my>=0 && Y2+my<=ScrY )
-                {
-                    Y1+=my;
-                    Y2+=my;
-                    AdjustEditPos(0,my);
+                  Y2=my+(Y2-Y1);
+                  Y1=my;
+                  AdjustEditPos(0,Y1-Y0); //?
                 }
                 Show();
             }
+            /* SVS $ */
             else if (mb==2) // right key, abort
             {
                 Hide();
@@ -2490,33 +2482,16 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 X2=OldX2;
                 Y1=OldY1;
                 Y2=OldY2;
-                /* $ 11.08.2000 KM
-                   При выходе из режима перемещения подготовим
-                   переменную для последующего корректного входа.
-                */
-                First=TRUE;
-                /* KM $ */
                 SkipDialogMode(DMODE_DRAGGED);
                 Show();
                 break;
             }
             else  // release key, drop dialog
             {
-                /* $ 11.08.2000 KM
-                   При выходе из режима перемещения подготовим
-                   переменную для последующего корректного входа.
-                */
-                First=TRUE;
-                /* KM $ */
                 SkipDialogMode(DMODE_DRAGGED);
                 Show();
                 break;
             }
-            /* $ 11.08.2000 KM
-               Всё хватит, первый раз мы уже заходили...
-            */
-            First=FALSE;
-            /* KM $ */
         }// while (1)
         /* tran 03.08.2000 $ */
       }
