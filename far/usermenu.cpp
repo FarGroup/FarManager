@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.42 28.08.2001 $ */
+/* Revision: 1.43 29.08.2001 $ */
 
 /*
 Modify:
+  29.08.2001 VVM
+    ! Хоткеи. Оказалось - не все :)
   28.08.2001 VVM
     ! Бага с однобуквенными хоткеями в меню. Теперь вроде-бы все учел :)
   24.08.2001 VVM
@@ -496,8 +498,8 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //        sprintf(MenuText,"%-3.3s& %-20.*s",HotKey,ScrX-12,Label);
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-20.*s",(*HotKey?"&":""),HotKey,ScrX-12,Label);
-//      sprintf(MenuText,"%s%-3.3s %-20.*s%s",(*HotKey?"&":""),HotKey,ScrX-12,Label,((strchr(Label, '&')!=NULL)?" ":""));
-      sprintf(MenuText,"%s%-3.3s %-20.*s%s",(*HotKey?"&":""),HotKey,ScrX-12,Label,(((strchr(Label, '&')==NULL)||(*HotKey))?"":" "));
+      int AddHotKey = (*HotKey) && (!FuncNum);
+      sprintf(MenuText,"%s%-3.3s %-20.*s%s",AddHotKey?"&":"",HotKey,ScrX-12,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
       /* VVM $ */
       MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
@@ -559,7 +561,8 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
 //        sprintf(MenuText,"%-3.3s& %-*.*s",HotKey,MaxLen,MaxLen,Label);
 //      else
 //        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
-      sprintf(MenuText,"%s%-3.3s %-20.*s%s",(*HotKey?"&":""),HotKey,ScrX-12,Label,(((strchr(Label, '&')==NULL)||(*HotKey))?"":" "));
+      int AddHotKey = (*HotKey) && (!FuncNum);
+      sprintf(MenuText,"%s%-3.3s %-20.*s%s",AddHotKey?"&":"",HotKey,ScrX-12,Label,((strchr(Label, '&')==NULL)||(AddHotKey))?"":" ");
       /* VVM $ */
 
     /* tran 20.07.2000 $ */
@@ -935,6 +938,24 @@ int DeleteMenuRecord(char *MenuKey,int DeletePos)
   return(TRUE);
 }
 
+/* $ 29.08.2001 VVM
+  + Добавим немного логики на закрытие диалога */
+int CanCloseDialog(char *Hotkey, char *Label)
+{
+  if (strcmp(Hotkey,"-") == 0)
+    return (TRUE);
+  if (strlen(Label) == 0)
+    return (FALSE);
+  if (strlen(Hotkey) < 2)
+    return(TRUE);
+  /* Проверить на правильность задания функциональной клавиши */
+  int FuncNum=atoi(&Hotkey[1]);
+  if (((*Hotkey == 'f') || (*Hotkey == 'F')) &&
+      ((FuncNum > 0) && (FuncNum < 13)))
+    return (TRUE);
+  return (FALSE);
+}
+/* VVM $ */
 
 int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
 {
@@ -1014,7 +1035,9 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
       Dlg.Process();
       if(18==Dlg.GetExitCode())
       {
-       if(!strcmp(EditDlg[2].Data,"-") || strlen(EditDlg[4].Data)) break;
+       if (CanCloseDialog(EditDlg[2].Data, EditDlg[4].Data))
+         break;
+       Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG(MUserMenuInvalidInput),MSG(MOk));
        Dlg.ClearDone();
       }
       else return FALSE;
@@ -1081,9 +1104,23 @@ int EditSubMenu(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
     Dlg.SetHelp("UserMenu");
     Dlg.SetPosition(-1,-1,76,10);
+    while(1)
+    {
+      Dlg.Process();
+      if(6==Dlg.GetExitCode())
+      {
+       if (CanCloseDialog(EditDlg[2].Data, EditDlg[4].Data))
+         break;
+       Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG(MUserMenuInvalidInput),MSG(MOk));
+       Dlg.ClearDone();
+      }
+      else return FALSE;
+    }
+/*
     Dlg.Process();
     if (Dlg.GetExitCode()!=6 || *EditDlg[4].Data==0)
       return(FALSE);
+*/
   }
   if (NewRec)
   {

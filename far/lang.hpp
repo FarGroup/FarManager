@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.73 08.08.2001 $ */
+/* Revision: 1.74 29.08.2001 $ */
 
 /*
 Modify:
+  29.08.2001 VVM
+    + MUserMenuInvalidFormat
   08.08.2001 KM
     + MFindFileCodePage
     ! MFindFileAllTables
@@ -1349,6 +1351,7 @@ enum
   MLocalMenuTitle,
   MAskDeleteMenuItem,
   MAskDeleteSubMenuItem,
+  MUserMenuInvalidInput,
 
   MEditMenuTitle,
   MEditMenuHotKey,
