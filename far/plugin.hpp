@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.214 21.06.2002 $ */
+/* Revision: 1.215 19.08.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,10 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  19.08.2002 SVS
+    + ECTL_DELETEBLOCK - удалить блок в редакторе. Функция вернет TRUE
+      в случае удачного удаления блока и FALSE, если редактор заблокирован
+      (пользователь нажат Ctrl-L) или нет выделенного блока.
   21.06.2002 SVS
     + ACTL_GETWCHARMODE для FAR_USE_INTERNALS
       "Сегодня ФАР рисует в окне с помощью W-функции или где?"
@@ -1819,6 +1823,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_SETPARAM,
   ECTL_GETBOOKMARKS,
   ECTL_TURNOFFMARKINGBLOCK,
+  ECTL_DELETEBLOCK,
 };
 
 enum EDITOR_SETPARAMETER_TYPES {

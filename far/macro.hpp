@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.22 02.06.2002 $ */
+/* Revision: 1.23 19.08.2002 $ */
 
 /*
 Modify:
+  19.08.2002 SVS
+    + KeyMacro::KeyFromBuffer() - юзать ее для получения нужной клавиши из
+      буфера
   02.06.2002 SVS
     ! Внедрение const
     ! ParseMacroString стала public
@@ -144,6 +147,7 @@ class KeyMacro
     BOOL CheckAll(DWORD CurFlags);
     void Sort(void);
     BOOL IfCondition(DWORD Key,DWORD Flags,DWORD Code);
+    DWORD KeyFromBuffer(struct MacroRecord *MR,int KeyPos);
 
   public:
     KeyMacro();

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.86 12.07.2002 $ */
+/* Revision: 1.87 19.08.2002 $ */
 
 /*
 Modify:
+  19.08.2002 SVS
+    + EOL_TYPE_CHARS (с подачи IS)
   12.07.2002 SVS
     ! Не сбрасываем Unchanged-состояние в строках ввода для Ctrl-Ins
   04.07.2002 SKV
@@ -275,6 +277,7 @@ static int EditEncodeDisabled=0;
 static int Recurse=0;
 
 enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
+static const char *EOL_TYPE_CHARS[]={"","\r","\n","\r\n"};
 
 // Идентификаторы масок
 #define EDMASK_ANY   'X' // позволяет вводить в строку ввода любой символ;
@@ -1909,21 +1912,7 @@ void Edit::GetBinaryString(const char *&Str,const char **EOL,int &Length)
 {
   Str=Edit::Str;
   if (EOL!=NULL)
-    switch(EndType)
-    {
-      case EOL_NONE:
-        *EOL="";
-        break;
-      case EOL_CR:
-        *EOL="\r";
-        break;
-      case EOL_LF:
-        *EOL="\n";
-        break;
-      case EOL_CRLF:
-        *EOL="\r\n";
-        break;
-    }
+    *EOL=EOL_TYPE_CHARS[EndType];
   Length=StrSize;
 }
 

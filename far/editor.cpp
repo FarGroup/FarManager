@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.189 06.08.2002 $ */
+/* Revision: 1.190 19.08.2002 $ */
 
 /*
 Modify:
+  19.08.2002 SVS
+    + ECTL_DELETEBLOCK - удалить блок в редакторе. ‘ункци€ вернет TRUE
+      в случае удачного удалени€ блока и FALSE, если редактор заблокирован
+      (пользователь нажат Ctrl-L) или нет выделенного блока.
   06.08.2002 IS
     - Ѕаг: падение в ECTL_SETSTRING при отрицательном StringLength.
       ѕровер€ем корректность StringLength и вернем FALSE, если оно меньше
@@ -6151,6 +6155,17 @@ int Editor::EditorControl(int Command,void *Param)
       return TRUE;
     }
     /* IS $ */
+
+    case ECTL_DELETEBLOCK:
+    {
+      if (Flags.Check(FEDITOR_LOCKMODE) || !(VBlockStart || BlockStart))
+        return FALSE;
+
+      Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+      DeleteBlock();
+      Show();
+      return TRUE;
+    }
   }
   return(FALSE);
 }

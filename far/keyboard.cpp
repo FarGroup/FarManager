@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.76 17.08.2002 $ */
+/* Revision: 1.77 19.08.2002 $ */
 
 /*
 Modify:
+  19.08.2002 SVS
+    + Аля SKV "Пусть KEY_CTRL тоже будет IsShiftKey" :)
+      (про дополнения в "BugZ#579 - сбрасывание выделения")
   17.08.2002 SVS
     - Траблы с Alt-Digit + NumLock=On под масдайкой.
     - В масдае нажатие на Gray-Del всегда приводил к клавише Del, независимо
@@ -1598,6 +1601,7 @@ int IsShiftKey(DWORD Key)
      KEY_ALTPGUP,
      KEY_ALTPGDN,
      KEY_ALT,
+     KEY_CTRL,
   };
 
   for (int I=0;I<sizeof(ShiftKeys)/sizeof(ShiftKeys[0]);I++)

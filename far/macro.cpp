@@ -1,6 +1,3 @@
-#if defined(DMACRO2)
-#include "macro2.cpp"
-#else
 /*
 macro.cpp
 
@@ -8,10 +5,19 @@ macro.cpp
 
 */
 
-/* Revision: 1.83 17.08.2002 $ */
+/* Revision: 1.84 19.08.2002 $ */
 
 /*
 Modify:
+  19.08.2002 SVS
+    ! При помещении в очередь очередного макроса Executing сразу не
+      выставляется (ибо действительно сейчас нет исполнения макроса).
+      Начало исполнения - либо Executing==TRUE, либо в очереди есть макро.
+    ! Если BufferSize == 1, то память под последовательность не выделяется,
+      а сам указатель Buffer используется как переменная типа DWORD, что
+      позволяет несколько подсократить накладыне расходы на выделение памяти.
+    + KeyMacro::KeyFromBuffer() - юзать ее для получения нужной клавиши из
+      буфера
   17.08.2002 SVS
     ! Вместо DI_EDIT в диалоге назначения макроклавиши применен DI_COMBOBOX.
       Это дает юзеру возможность выбрать некоторые клавиши, которые обычными
@@ -424,7 +430,7 @@ void KeyMacro::InitVars()
   if(MacroPROM)
   {
     for (int I=0;I<MacroPROMCount;I++)
-      if(MacroPROM[I].Buffer)
+      if(MacroPROM[I].BufferSize > 1 && MacroPROM[I].Buffer)
         free(MacroPROM[I].Buffer);
     free(MacroPROM);
   }
@@ -456,7 +462,7 @@ void KeyMacro::ReleaseTempBuffer(BOOL All)
     if(All || MacroRAMCount <= 1)
     {
       for (int I=0;I<MacroRAMCount;I++)
-        if(MacroRAM[I].Buffer)
+        if(MacroRAM[I].BufferSize > 1 && MacroRAM[I].Buffer)
           free(MacroRAM[I].Buffer);
       free(MacroRAM);
       MacroRAM=NULL;
@@ -464,7 +470,7 @@ void KeyMacro::ReleaseTempBuffer(BOOL All)
     }
     else
     {
-      if(MacroRAM->Buffer)
+      if(MacroRAM->BufferSize > 1 && MacroRAM->Buffer)
         free(MacroRAM->Buffer);
       MacroRAMCount--;
       memmove(MacroRAM,((BYTE*)MacroRAM)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*MacroRAMCount);
@@ -566,10 +572,13 @@ int KeyMacro::ProcessKey(int Key)
           }
           MacroPROMCount++;
         }
-        else
-          delete MacroPROM[Pos].Buffer;
+        else if(MacroPROM[Pos].BufferSize > 1 && MacroPROM[Pos].Buffer)
+          free(MacroPROM[Pos].Buffer);
         MacroPROM[Pos].Key=MacroKey;
-        MacroPROM[Pos].Buffer=RecBuffer;
+        if(RecBufferSize > 1)
+          MacroPROM[Pos].Buffer=RecBuffer;
+        else
+          (DWORD)(MacroPROM[Pos].Buffer)=*RecBuffer;
         MacroPROM[Pos].BufferSize=RecBufferSize;
         MacroPROM[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
       }
@@ -610,7 +619,7 @@ int KeyMacro::ProcessKey(int Key)
     StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
     // тип записи - с вызовом диалога настроек или...
     Recording=(Key==KEY_CTRLSHIFTDOT) ? 2:1;
-    delete RecBuffer;
+    free(RecBuffer);
     RecBuffer=NULL;
     RecBufferSize=0;
     ScrBuf.ResetShadow();
@@ -845,8 +854,15 @@ int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
 //_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Executing,FrameManager->GetCurrentFrame()));
-  if (InternalInput || !Executing || !FrameManager->GetCurrentFrame())
+  if (InternalInput || !FrameManager->GetCurrentFrame())
     return(FALSE);
+
+  if(!Executing)
+  {
+    if(!MacroRAM)
+      return(FALSE);
+    Executing=TRUE;
+  }
 
 initial:
   MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
@@ -900,13 +916,13 @@ done:
     return(FALSE);
   }
 
-  DWORD Key=MR->Buffer[ExecKeyPos++];
+  DWORD Key=KeyFromBuffer(MR,ExecKeyPos++);
   switch(Key)
   {
     case KEY_MACROSTOPIFNOT: // $StopIfNot Flag|Area
     case KEY_MACROSTOPIF:    // $StopIf Flag|Area
     {
-      if(IfCondition(Key,MR->Flags,MR->Buffer[ExecKeyPos++]))
+      if(IfCondition(Key,MR->Flags,KeyFromBuffer(MR,ExecKeyPos++)))
         goto done;
       goto begin;
     }
@@ -924,7 +940,7 @@ done:
     case KEY_MACROMODE:
       if (ExecKeyPos<MR->BufferSize)
       {
-        Key=MR->Buffer[ExecKeyPos++];
+        Key=KeyFromBuffer(MR,ExecKeyPos++);
         if(Key == '1')
         {
           DWORD Flags=MR->Flags;
@@ -953,10 +969,13 @@ done:
 int KeyMacro::PeekKey()
 {
   struct MacroRecord *MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
-  if (InternalInput || !Executing || ExecKeyPos >= MR->BufferSize)
+  if (InternalInput)
     return(0);
-  int Key=MR->Buffer[ExecKeyPos];
-  return(Key);
+
+  if(!Executing && !MacroRAM || ExecKeyPos >= MR->BufferSize)
+    return(FALSE);
+
+  return KeyFromBuffer(MR,ExecKeyPos);
 }
 
 DWORD KeyMacro::SwitchFlags(DWORD& Flags,DWORD Value)
@@ -990,6 +1009,12 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
 
   TextBuffer[0]=0;
 
+  if(BufferSize == 1)
+  {
+    if(KeyToText((DWORD)Buffer,MacroKeyText))
+      strcpy(TextBuffer,MacroKeyText);
+    return TextBuffer;
+  }
   for (J=0; J < BufferSize; J++)
   {
     if(KeyToText(Buffer[J],MacroKeyText))
@@ -1309,7 +1334,11 @@ M1:
       if(!DisFlags &&
          Mac->Buffer && MacroDlg->RecBuffer &&
          Mac->BufferSize == MacroDlg->RecBufferSize &&
-         !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)))
+         (
+           Mac->BufferSize >  1 && !memcmp(Mac->Buffer,MacroDlg->RecBuffer,MacroDlg->RecBufferSize*sizeof(DWORD)) ||
+           Mac->BufferSize == 1 && (DWORD)Mac->Buffer == (DWORD)MacroDlg->RecBuffer
+         )
+        )
         I=0;
       else
         I=Message(MSG_WARNING,2,MSG(MWarning),
@@ -1464,7 +1493,8 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
   // сначала смотрим на парсер
   if(!ParseMacroString(&NewMacroRAM2,KeyBuffer))
   {
-    free(NewMacroRAM2.Buffer);
+    if(NewMacroRAM2.BufferSize > 1)
+      free(NewMacroRAM2.Buffer);
     return FALSE;
   }
 
@@ -1479,7 +1509,7 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-  Executing=TRUE;
+//  Executing=TRUE;
   ExecKeyPos=0;
   return TRUE;
 }
@@ -1491,28 +1521,36 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
 
   struct MacroRecord NewMacroRAM2={0};
   memcpy(&NewMacroRAM2,MRec,sizeof(struct MacroRecord));
-  if((NewMacroRAM2.Buffer=(DWORD*)malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
+
+  if(MRec->BufferSize > 1)
   {
-    return FALSE;
+    if((NewMacroRAM2.Buffer=(DWORD*)malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
+    {
+      return FALSE;
+    }
   }
 
   // теперь попробуем выделить немного нужной памяти
   struct MacroRecord *NewMacroRAM;
   if((NewMacroRAM=(struct MacroRecord *)realloc(MacroRAM,sizeof(MacroRecord)*(MacroRAMCount+1))) == NULL)
   {
-    free(NewMacroRAM2.Buffer);
+    if(MRec->BufferSize > 1)
+      free(NewMacroRAM2.Buffer);
     return FALSE;
   }
 
   // теперь добавим в нашу "очередь" новые данные
-  memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
+  if(MRec->BufferSize > 1)
+    memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
+  else
+    (DWORD)(NewMacroRAM2.Buffer)=*MRec->Buffer;
 
   MacroRAM=NewMacroRAM;
   NewMacroRAM=MacroRAM+MacroRAMCount;
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-  Executing=TRUE;
+//  Executing=TRUE;
   ExecKeyPos=0;
   return TRUE;
 }
@@ -1520,15 +1558,16 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
 // Парсер строковых эквивалентов в коды клавиш
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 {
+  if(!CurMacro || !BufPtr || !*BufPtr)
+    return FALSE;
+
   int J,I;
   BOOL IsKeyWord2;
   DWORD KeyCode=KEY_NONE;
   DWORD PrevKeyKode=KEY_NONE; // для $StopIf
   int Size;
   char CurKeyText[NM*2];
-
-  if(!CurMacro || !BufPtr || !*BufPtr)
-    return FALSE;
+  DWORD *CurMacro_Buffer=NULL;
 
   IsKeyWord2=FALSE;
   // здесь структура сформирована, начинаем разбор последовательности,
@@ -1558,9 +1597,9 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
     {
       if((KeyCode=KeyNameToKey(CurKeyText)) == -1)
       {
-        if (CurMacro->Buffer!=NULL)
+        if (CurMacro_Buffer!=NULL)
         {
-          free(CurMacro->Buffer);
+          free(CurMacro_Buffer);
           CurMacro->Buffer=NULL;
         }
         CurMacro->BufferSize=0;
@@ -1646,20 +1685,31 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
     // код найден, добавим этот код в буфер последовательности.
     if (KeyCode!=-1)
     {
-      CurMacro->Buffer=(DWORD *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+Size));
-      if (CurMacro->Buffer==NULL)
+      CurMacro_Buffer=(DWORD *)realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacro->BufferSize+Size));
+      if (CurMacro_Buffer==NULL)
       {
+        CurMacro->Buffer=NULL;
+        CurMacro->BufferSize=0;
         return FALSE;
       }
-      CurMacro->Buffer[CurMacro->BufferSize]=KeyCode;
+      CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
 
       if(KeyCode == KEY_MACRODATE)
       {
-        memcpy(&CurMacro->Buffer[CurMacro->BufferSize+1],CurKeyText,(Size-1)*sizeof(DWORD));
+        memcpy(&CurMacro_Buffer[CurMacro->BufferSize+1],CurKeyText,(Size-1)*sizeof(DWORD));
       }
 
       CurMacro->BufferSize+=Size;
     }
+  }
+  if(CurMacro->BufferSize > 1)
+  {
+    CurMacro->Buffer=CurMacro_Buffer;
+  }
+  else
+  {
+    (DWORD)(CurMacro->Buffer)=*CurMacro_Buffer;
+    free(CurMacro_Buffer);
   }
   return TRUE;
 }
@@ -1903,4 +1953,8 @@ void KeyMacro::Sort(void)
 
 //_SVS(for(I=0; I < sizeof(IndexMode)/sizeof(IndexMode[0]); ++I)SysLog("IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
 }
-#endif // defined(DMACRO2)
+
+DWORD KeyMacro::KeyFromBuffer(struct MacroRecord *MR,int KeyPos)
+{
+  return (MR->BufferSize > 1)?MR->Buffer[KeyPos]:(DWORD)MR->Buffer;
+}

@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.64 27.06.2002 $ */
+/* Revision: 1.65 19.08.2002 $ */
 
 /*
 Modify:
+  19.08.2002 SVS
+    ! ”точнение SetFarTitle - мен€ем заголовок если сейчас исполнение
+      макроса и разрешен вывод или сейчас макроса не исполн€етс€.
   27.06.2002 SVS
     ! — подачи IS исключаем Tab из "празника жизни" (_Oem2Unicode)
   25.06.2002 SVS
@@ -1174,7 +1177,10 @@ void SetFarTitle(const char *Title)
     sprintf(FarTitle,"%.256s%s",Title,FarTitleAddons);
     if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
       OemToChar(FarTitle,FarTitle);
-    if(strcmp(OldFarTitle,FarTitle) && !CtrlObject->Macro.IsDsableOutput())
+    if(strcmp(OldFarTitle,FarTitle) &&
+      (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput() ||
+       !CtrlObject->Macro.IsExecuting())
+    )
     {
      //_SVS(SysLog("  FarTitle='%s'",FarTitle));
       SetConsoleTitle(FarTitle);
