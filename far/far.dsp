@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /Gr /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "FARTRY" /D "CREATE_JUNCTION" /YX /J /FD /c
+# ADD CPP /nologo /Gr /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "FARTRY" /D "CREATE_JUNCTION" /D "USE_WFUNC" /YX /J /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /Zp4 /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "FARTRY" /D "CREATE_JUNCTION" /D "DIRECT_RT" /D "SYSLOG_OT" /YX /J /FD /GZ /c
+# ADD CPP /nologo /Zp4 /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "FARTRY" /D "CREATE_JUNCTION" /D "DIRECT_RT" /D "SYSLOG" /D "USE_WFUNC" /D "FAR_ALPHA_VERSION" /YX /J /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -164,10 +164,6 @@ SOURCE=.\eject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\farexcpt.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\execute.cpp
 # End Source File
 # Begin Source File
@@ -177,6 +173,10 @@ SOURCE=.\far.def
 # Begin Source File
 
 SOURCE=.\far.rc
+# End Source File
+# Begin Source File
+
+SOURCE=.\farexcpt.cpp
 # End Source File
 # Begin Source File
 
@@ -599,11 +599,11 @@ SOURCE=.\editor.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\farexcpt.hpp
+SOURCE=.\farconst.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\farconst.hpp
+SOURCE=.\farexcpt.hpp
 # End Source File
 # Begin Source File
 

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.103 11.12.2002 $ */
+/* Revision: 1.104 15.01.2003 $ */
 
 /*
 Modify:
+  15.01.2003 SVS
+    ! Корректировка Fastind на предмет Alt-Б и еже с ним
   11.12.2002 VVM
     - При проверке сетевого диска под НТ и 9х разные ветки реестра.
   10.12.2002 SVS
@@ -1156,8 +1158,22 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 }
 /* DJ $ */
 
+// корректировка букв
+static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
+{
+  if(Key&KEY_ALT)// && Key!=(KEY_ALT|0x3C))
+  {
+    //_SVS(SysLog("_CorrectFastFindKbdLayout>>> %s",_FARKEY_ToName(Key)));
+    if((Key&KEY_MASKF) != rec->Event.KeyEvent.uChar.AsciiChar) //???
+      Key=(Key&0xFFFFFF00)|rec->Event.KeyEvent.uChar.AsciiChar;   //???
+    //_SVS(SysLog("_CorrectFastFindKbdLayout<<< %s",_FARKEY_ToName(Key)));
+  }
+  return Key;
+}
+
 void Panel::FastFind(int FirstKey)
 {
+//  _SVS(CleverSysLog Clev("Panel::FastFind"));
   INPUT_RECORD rec;
   char LastName[NM],Name[NM];
   int Key,KeyToProcess=0;
@@ -1178,21 +1194,32 @@ void Panel::FastFind(int FirstKey)
     while (!KeyToProcess)
     {
       if (FirstKey)
+      {
+        FirstKey=_CorrectFastFindKbdLayout(FrameManager->GetLastInputRecord(),FirstKey);
+//      _SVS(SysLog("Panel::FastFind  FirstKey=%s  %s",_FARKEY_ToName(FirstKey),_INPUT_RECORD_Dump(FrameManager->GetLastInputRecord())));
+//        _SVS(SysLog("if (FirstKey)"));
         Key=FirstKey;
+      }
       else
       {
+//        _SVS(SysLog("else if (FirstKey)"));
         Key=GetInputRecord(&rec);
         if (rec.EventType==MOUSE_EVENT)
+        {
           if ((rec.Event.MouseEvent.dwButtonState & 3)==0)
             continue;
           else
             Key=KEY_ESC;
+        }
+        else if (rec.EventType==KEY_EVENT)
+          Key=_CorrectFastFindKbdLayout(&rec,Key);
       }
       if (Key==KEY_ESC || Key==KEY_F10)
       {
         KeyToProcess=KEY_NONE;
         break;
       }
+//      _SVS(SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
         Key=tolower(Key-KEY_ALT_BASE);
       if (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255)

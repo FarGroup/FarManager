@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.87 10.01.2003 $ */
+/* Revision: 1.88 15.01.2003 $ */
 
 /*
 Modify:
+  15.01.2003 SVS
+    ! У FARGetKeybLayoutName первый параметр может быть NULL
   10.01.2003 SVS
     - "Доисправим" BugZ#488 - Shift=enter
       Если ЭТО был макрос и у него нету KEY_SHIFT, то обнулим ShiftPressed
@@ -474,6 +476,7 @@ int IsMouseButtonPressed()
 
 int GetInputRecord(INPUT_RECORD *rec)
 {
+//  _SVS(CleverSysLog Clev("GetInputRecord - main"));
   static int LastEventIdle=FALSE;
   DWORD ReadCount;
   DWORD LoopCount=0,CalcKey;
@@ -675,7 +678,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 #endif
 
 //      _SVS(if(rec->EventType==KEY_EVENT))
-        _SVS(SysLog("@@@> %s",_INPUT_RECORD_Dump(rec)));
+//        _SVS(SysLog("@@@> %s",_INPUT_RECORD_Dump(rec)));
 #if defined(USE_WFUNC_IN)
       WCHAR UnicodeChar=rec->Event.KeyEvent.uChar.UnicodeChar;
       if((UnicodeChar&0xFF00) && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
@@ -1515,7 +1518,7 @@ int WINAPI KeyNameToKey(const char *Name)
      return -1;
    DWORD Key=0;
 
-_SVS(SysLog("KeyNameToKey('%s')",Name));
+//_SVS(SysLog("KeyNameToKey('%s')",Name));
 
    // Это макроклавиша?
    if(Name[0] == '$' && Name[1])
@@ -1782,10 +1785,15 @@ int IsShiftKey(DWORD Key)
 char *FARGetKeybLayoutName(char *Dest,int DestSize)
 {
   typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEA)(LPSTR);
-  typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEW)(WCHAR*);
   static PGETCONSOLEKEYBOARDLAYOUTNAMEA pGetConsoleKeyboardLayoutNameA=NULL;
-  static PGETCONSOLEKEYBOARDLAYOUTNAMEW pGetConsoleKeyboardLayoutNameW=NULL;
   static int LoadedGCKLM=0;
+  static char Buffer[64];
+
+#if defined(USE_WFUNC_IN)
+  typedef BOOL (WINAPI *PGETCONSOLEKEYBOARDLAYOUTNAMEW)(WCHAR*);
+  static PGETCONSOLEKEYBOARDLAYOUTNAMEW pGetConsoleKeyboardLayoutNameW=NULL;
+  static WCHAR WBuffer[100];
+#endif
 
   if(!LoadedGCKLM) // && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT
   {
@@ -1810,11 +1818,15 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
   {
     case 1:
     {
-      char Buffer[100];
       if(pGetConsoleKeyboardLayoutNameA(Buffer))
       {
-        strncpy(Dest,Buffer,DestSize);
-        return Dest;
+        if(Dest)
+        {
+          strncpy(Dest,Buffer,DestSize);
+          return Dest;
+        }
+        else
+          return Buffer;
       }
       break;
     }
@@ -1822,10 +1834,9 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
 #if defined(USE_WFUNC_IN)
     case 2:
     {
-      WCHAR Buffer[100];
-      if(pGetConsoleKeyboardLayoutNameW(Buffer))
+      if(pGetConsoleKeyboardLayoutNameW(WBuffer))
       {
-        UnicodeToOEM(Buffer,Dest,DestSize);
+        UnicodeToOEM(WBuffer,Dest,DestSize);
         return Dest;
       }
       break;
@@ -2168,7 +2179,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 
     case VK_DECIMAL:
     case VK_DELETE:
-      _SVS(SysLog("case VK_DELETE:  Opt.UseNumPad=%08X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",Opt.UseNumPad,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+//      _SVS(SysLog("case VK_DELETE:  Opt.UseNumPad=%08X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",Opt.UseNumPad,CtrlState,GetAsyncKeyState(VK_SHIFT)));
       if(CtrlState&ENHANCED_KEY)
       {
         return(Modif|KEY_DEL);
