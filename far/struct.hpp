@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.47 16.03.2001 $ */
+/* Revision: 1.48 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SVS
+   + Opt.FullScreenHelp - для унификации интерфейса конфигурации
   16.03.2001 SVS
    + Opt.ChangeDriveDisconnetMode - для запоминания - как удалять мапленные
      диски (для CheckBox`а)
@@ -555,6 +557,7 @@ struct Options
   */
   int ConsoleDetachKey;
   /* SKV$*/
+  int FullScreenHelp;
 };
 
 

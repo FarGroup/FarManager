@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.88 16.02.2001 $ */
+/* Revision: 1.89 20.03.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  19.03.2001 SVS
+    ! DN_CLOSE=DM_CLOSE, DN_KEY=DM_KEY - для наглядности. :-)
   16.02.2001 IS
     + Добавлена проверка правильности выравнивания на основе известного
       размера PluginPanelItem - он должен быть равным 366. Если это не так, то
@@ -586,6 +588,10 @@ enum FarMessagesProc{
   DN_KILLFOCUS,
   DN_LISTCHANGE,
   DN_MOUSECLICK,
+
+
+  DN_CLOSE=DM_CLOSE,
+  DN_KEY=DM_KEY,
 
   DM_USER=0x4000,
 };

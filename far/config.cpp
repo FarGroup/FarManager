@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.58 16.03.2001 $ */
+/* Revision: 1.59 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SVS
+    ! основательная переделка SaveConfig и ReadConfig: введена структура
+      FARConfig в которой описывается ВСЕ, что проходит по линии реестра
+      (в основном все)
   16.03.2001 SVS
     ! В конфирм-диалоге операция Exit должна по смыслу стоять последней
     + Opt.ChangeDriveDisconnetMode
@@ -202,6 +206,31 @@ static char WordDiv0[257]="!%^&*()+|{}:\"<>?`-=\\[];',./";
 */
 static char WordDivForXlat0[257]=" \t!#$%^&*()+|=\\/@?";
 /* IS $ */
+
+char PersonalPluginsPath[1024];
+char KeyNameConsoleDetachKey[64];
+char szCtrlShiftX[]="CtrlShiftX";
+
+// KeyName
+char NKeyColors[]="Colors";
+char NKeyScreen[]="Screen";
+char NKeyInterface[]="Interface";
+char NKeyViewer[]="Viewer";
+char NKeyDialog[]="Dialog";
+char NKeyEditor[]="Editor";
+char NKeyXLat[]="XLat";
+char NKeySystem[]="System";
+char NKeyHelp[]="Help";
+char NKeyLanguage[]="Language";
+char NKeyConfirmations[]="Confirmations";
+char NKeyPanel[]="Panel";
+char NKeyPanelLeft[]="Panel\\Left";
+char NKeyPanelRight[]="Panel\\Right";
+char NKeyPanelLayout[]="Panel\\Layout";
+char NKeyLayout[]="Layout";
+char NKeyDescriptions[]="Descriptions";
+char NKeyKeyMacros[]="KeyMacros";
+
 
 void SystemSettings()
 {
@@ -745,18 +774,204 @@ void SetFolderInfoFiles()
 }
 
 
+// Структура, описывающая всю конфигурацию(!)
+static struct FARConfig{
+  int   IsSave;   // =1 - будет записываться в SaveConfig()
+  DWORD ValType;  // REG_DWORD, REG_SZ, REG_BINARY
+  char *KeyName;  // Имя ключа
+  char *ValName;  // Имя параметра
+  void *ValPtr;   // адрес переменной, куда помещаем данные
+  DWORD DefDWord; // он же размер данных для REG_SZ и REG_BINARY
+  char *DefStr;   // строка/данные по умолчанию
+} CFG[]={
+  {1, REG_BINARY, NKeyColors,"CurrentPalette",(char*)Palette,SizeArrayPalette,(char*)DefaultPalette},
+
+  {1, REG_DWORD,  NKeyScreen, "Clock", &Opt.Clock, 1, 0},
+  {1, REG_DWORD,  NKeyScreen, "ViewerEditorClock",&Opt.ViewerEditorClock,0, 0},
+  {1, REG_DWORD,  NKeyScreen, "KeyBar",&Opt.ShowKeyBar,1, 0},
+  {1, REG_DWORD,  NKeyScreen, "ScreenSaver",&Opt.ScreenSaver,1, 0},
+  {1, REG_DWORD,  NKeyScreen, "ScreenSaverTime",&Opt.ScreenSaverTime,5, 0},
+  {1, REG_DWORD,  NKeyScreen, "UsePromptFormat", &Opt.UsePromptFormat,0, 0},
+  {1, REG_SZ,     NKeyScreen, "PromptFormat",Opt.PromptFormat,sizeof(Opt.PromptFormat),"$p>"},
+
+  {1, REG_DWORD,  NKeyInterface, "DialogsEditHistory",&Opt.DialogsEditHistory,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
+  {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CopyShowTotal,0, 0},
+  {1, REG_DWORD,  NKeyInterface, "ShowMenuBar",&Opt.ShowMenuBar,0, 0},
+  {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.AutoComplete,0, 0},
+  {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
+  {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
+  {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
+
+  {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
+  {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"SaveViewerPos",&Opt.SaveViewerPos,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"SaveViewerShortPos",&Opt.SaveViewerShortPos,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"AutoDetectTable",&Opt.ViewerAutoDetectTable,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"TabSize",&Opt.ViewTabSize,8, 0},
+  {1, REG_DWORD,  NKeyViewer,"ShowKeyBar",&Opt.ShowKeyBarViewer,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"ShowArrows",&Opt.ViewerShowArrows,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"ShowScrollbar",&Opt.ViewerShowScrollbar,0, 0},
+  {1, REG_DWORD,  NKeyViewer,"IsWrap",&Opt.ViewerIsWrap,1, 0},
+  {1, REG_DWORD,  NKeyViewer,"Wrap",&Opt.ViewerWrap,0, 0},
+
+  {0, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.DlgEULBsClear,0, 0},
+
+  {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
+  {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"ExpandTabs",&Opt.EdOpt.ExpandTabs,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"TabSize",&Opt.EdOpt.TabSize,8, 0},
+  {1, REG_DWORD,  NKeyEditor,"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,1, 0},
+  {1, REG_DWORD,  NKeyEditor,"DelRemovesBlocks",&Opt.EdOpt.DelRemovesBlocks,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"AutoIndent",&Opt.EdOpt.AutoIndent,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"SaveEditorPos",&Opt.SaveEditorPos,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"SaveEditorShortPos",&Opt.SaveEditorShortPos,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"AutoDetectTable",&Opt.EdOpt.AutoDetectTable,0, 0},
+  {1, REG_DWORD,  NKeyEditor,"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
+  {0, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,2, 0},
+  {0, REG_SZ,     NKeyEditor,"WordDiv",Opt.WordDiv,sizeof(Opt.WordDiv),WordDiv0},
+  {0, REG_DWORD,  NKeyEditor,"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
+  {0, REG_DWORD,  NKeyEditor,"EditorF7Rules",&Opt.EditorF7Rules,1, 0},
+  {0, REG_DWORD,  NKeyEditor,"FileSizeLimit",&Opt.EditorFileSizeLimitLo,(DWORD)0, 0},
+  {0, REG_DWORD,  NKeyEditor,"FileSizeLimitHi",&Opt.EditorFileSizeLimitHi,(DWORD)0, 0},
+  {0, REG_DWORD,  NKeyEditor,"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
+
+  {0, REG_DWORD,  NKeyXLat,"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT, 0},
+  {0, REG_BINARY, NKeyXLat,"Table1",Opt.XLat.Table[0],sizeof(Opt.XLat.Table[0]),NULL},
+  {0, REG_BINARY, NKeyXLat,"Table2",Opt.XLat.Table[1],sizeof(Opt.XLat.Table[1]),NULL},
+  {0, REG_BINARY, NKeyXLat,"Rules1",Opt.XLat.Rules[0],sizeof(Opt.XLat.Rules[0]),NULL},
+  {0, REG_BINARY, NKeyXLat,"Rules2",Opt.XLat.Rules[1],sizeof(Opt.XLat.Rules[1]),NULL},
+  {0, REG_BINARY, NKeyXLat,"Rules3",Opt.XLat.Rules[2],sizeof(Opt.XLat.Rules[2]),NULL},
+  {0, REG_SZ,     NKeyXLat,"WordDivForXlat",Opt.XLat.WordDivForXlat,sizeof(Opt.XLat.WordDivForXlat),WordDivForXlat0},
+
+  {1, REG_DWORD,  NKeySystem,"SaveHistory",&Opt.SaveHistory,0, 0},
+  {1, REG_DWORD,  NKeySystem,"SaveFoldersHistory",&Opt.SaveFoldersHistory,0, 0},
+  {1, REG_DWORD,  NKeySystem,"SaveViewHistory",&Opt.SaveViewHistory,0, 0},
+  {1, REG_DWORD,  NKeySystem,"UseRegisteredTypes",&Opt.UseRegisteredTypes,1, 0},
+  {1, REG_DWORD,  NKeySystem,"AutoSaveSetup",&Opt.AutoSaveSetup,0, 0},
+  {1, REG_DWORD,  NKeySystem,"ClearReadOnly",&Opt.ClearReadOnly,0, 0},
+  {1, REG_DWORD,  NKeySystem,"DeleteToRecycleBin",&Opt.DeleteToRecycleBin,1, 0},
+  {0, REG_DWORD,  NKeySystem,"WipeSymbol",&Opt.WipeSymbol,0, 0},
+  {1, REG_DWORD,  NKeySystem,"UseSystemCopy",&Opt.UseSystemCopy,0, 0},
+  {1, REG_DWORD,  NKeySystem,"CopyOpened",&Opt.CopyOpened,1, 0},
+  {1, REG_DWORD,  NKeySystem,"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
+  {1, REG_DWORD,  NKeySystem,"InactivityExit",&Opt.InactivityExit,0, 0},
+  {1, REG_DWORD,  NKeySystem,"InactivityExitTime",&Opt.InactivityExitTime,15, 0},
+  {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS, 0},
+  {1, REG_DWORD,  NKeySystem,"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
+  {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FileSearchMode,SEARCH_ROOT, 0},
+  {1, REG_SZ,     NKeySystem,"FolderInfo",Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*"},
+  {1, REG_DWORD,  NKeySystem,"SubstPluginPrefix",&Opt.SubstPluginPrefix,0, 0},
+  {0, REG_DWORD,  NKeySystem,"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
+  {0, REG_DWORD,  NKeySystem,"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
+  {0, REG_DWORD,  NKeySystem,"MaxPositionCache",&Opt.MaxPositionCache,64, 0},
+  {0, REG_DWORD,  NKeySystem,"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
+  {0, REG_DWORD,  NKeySystem,"ExceptRules",&Opt.ExceptRules,0, 0},
+  {0, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 0, 0},
+  {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),""},
+  {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath),PersonalPluginsPath},
+
+  {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
+
+  {1, REG_SZ,     NKeyLanguage,"Main",Opt.Language,sizeof(Opt.Language),"English"},
+  {1, REG_SZ,     NKeyLanguage,"Help",Opt.HelpLanguage,sizeof(Opt.HelpLanguage),"English"},
+
+  {1, REG_DWORD,  NKeyConfirmations,"Copy",&Opt.Confirm.Copy,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"Move",&Opt.Confirm.Move,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"Drag",&Opt.Confirm.Drag,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"Delete",&Opt.Confirm.Delete,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"Esc",&Opt.Confirm.Esc,0, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"Exit",&Opt.Confirm.Exit,1, 0},
+
+  {1, REG_DWORD,  NKeyPanel,"ShowHidden",&Opt.ShowHidden,1, 0},
+  {1, REG_DWORD,  NKeyPanel,"Highlight",&Opt.Highlight,1, 0},
+  {1, REG_DWORD,  NKeyPanel,"AutoChangeFolder",&Opt.AutoChangeFolder,0, 0},
+  {1, REG_DWORD,  NKeyPanel,"SelectFolders",&Opt.SelectFolders,0, 0},
+  {1, REG_DWORD,  NKeyPanel,"ReverseSort",&Opt.ReverseSort,1, 0},
+  {0, REG_DWORD,  NKeyPanel,"RightClickRule",&Opt.PanelRightClickRule,2, 0},
+  {0, REG_DWORD,  NKeyPanel,"CtrlFRule",&Opt.PanelCtrlFRule,1, 0},
+  {0, REG_DWORD,  NKeyPanel,"CtrlAltShiftRule",&Opt.PanelCtrlAltShiftRule,0, 0},
+
+  {1, REG_DWORD,  NKeyPanelLeft,"Type",&Opt.LeftPanel.Type,0, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"Visible",&Opt.LeftPanel.Visible,1, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"Focus",&Opt.LeftPanel.Focus,1, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"ViewMode",&Opt.LeftPanel.ViewMode,2, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"SortMode",&Opt.LeftPanel.SortMode,1, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"SortOrder",&Opt.LeftPanel.SortOrder,1, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"SortGroups",&Opt.LeftPanel.SortGroups,0, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"ShortNames",&Opt.LeftPanel.ShowShortNames,0, 0},
+  {1, REG_SZ,     NKeyPanelLeft,"Folder",Opt.LeftFolder,sizeof(Opt.LeftFolder),""},
+  {1, REG_SZ,     NKeyPanelLeft,"CurFile",Opt.LeftCurFile,sizeof(Opt.LeftCurFile),""},
+  {1, REG_DWORD,  NKeyPanelLeft,"SelectedFirst",&Opt.LeftSelectedFirst,0,0},
+
+  {1, REG_DWORD,  NKeyPanelRight,"Type",&Opt.RightPanel.Type,0, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"Visible",&Opt.RightPanel.Visible,1, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"Focus",&Opt.RightPanel.Focus,0, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"ViewMode",&Opt.RightPanel.ViewMode,2, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"SortMode",&Opt.RightPanel.SortMode,1, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"SortOrder",&Opt.RightPanel.SortOrder,1, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"SortGroups",&Opt.RightPanel.SortGroups,0, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"ShortNames",&Opt.RightPanel.ShowShortNames,0, 0},
+  {1, REG_SZ,     NKeyPanelRight,"Folder",Opt.RightFolder,sizeof(Opt.RightFolder),""},
+  {1, REG_SZ,     NKeyPanelRight,"CurFile",Opt.RightCurFile,sizeof(Opt.RightCurFile),""},
+  {1, REG_DWORD,  NKeyPanelRight,"SelectedFirst",&Opt.RightSelectedFirst,0, 0},
+
+  {1, REG_DWORD,  NKeyPanelLayout,"ColumnTitles",&Opt.ShowColumnTitles,1, 0},
+  {1, REG_DWORD,  NKeyPanelLayout,"StatusLine",&Opt.ShowPanelStatus,1, 0},
+  {1, REG_DWORD,  NKeyPanelLayout,"TotalInfo",&Opt.ShowPanelTotals,1, 0},
+  {1, REG_DWORD,  NKeyPanelLayout,"FreeInfo",&Opt.ShowPanelFree,0, 0},
+  {1, REG_DWORD,  NKeyPanelLayout,"Scrollbar",&Opt.ShowPanelScrollbar,0, 0},
+  {1, REG_DWORD,  NKeyPanelLayout,"ScrollbarMenu",&Opt.ShowMenuScrollbar,0, 0},
+  {1, REG_DWORD,  NKeyPanelLayout,"ScreensNumber",&Opt.ShowScreensNumber,1, 0},
+  {1, REG_DWORD,  NKeyPanelLayout,"SortMode",&Opt.ShowSortMode,1, 0},
+
+  {1, REG_DWORD,  NKeyLayout,"HeightDecrement",&Opt.HeightDecrement,0, 0},
+  {1, REG_DWORD,  NKeyLayout,"WidthDecrement",&Opt.WidthDecrement,0, 0},
+  {1, REG_SZ,     NKeyLayout,"PassiveFolder",Opt.PassiveFolder,sizeof(Opt.PassiveFolder),""},
+  {1, REG_DWORD,  NKeyLayout,"FullscreenHelp",&Opt.FullScreenHelp,0, 0},
+
+  {1, REG_SZ,     NKeyDescriptions,"ListNames",Opt.Diz.ListNames,sizeof(Opt.Diz.ListNames),"Descript.ion,Files.bbs"},
+  {1, REG_DWORD,  NKeyDescriptions,"UpdateMode",&Opt.Diz.UpdateMode,DIZ_UPDATE_IF_DISPLAYED, 0},
+  {1, REG_DWORD,  NKeyDescriptions,"SetHidden",&Opt.Diz.SetHidden,TRUE, 0},
+  {1, REG_DWORD,  NKeyDescriptions,"StartPos",&Opt.Diz.StartPos,0, 0},
+
+  {0, REG_DWORD,  NKeyKeyMacros,"MacroReuseRules",&Opt.MacroReuseRules,0, 0},
+};
+
+
 void ReadConfig()
 {
-  //                                                    было sizeof(Palette)
-  GetRegKey("Colors","CurrentPalette",Palette,DefaultPalette,SizeArrayPalette);
-  /* $ 11.07.2000 SVS
-     Последниие несколько индексов внаглую перезаписываются (если на этих
-     местах стоят нули)
-  */
   int I;
-  /* $ 13.12.2000 SVS
-     Уточняем алгоритм "взятия" палитры.
-  */
+  char KeyNameFromReg[34];
+
+  /* <ПРЕПРОЦЕССЫ> *************************************************** */
+  // "Вспомним" путь для дополнительного поиска плагинов
+  SetRegRootKey(HKEY_LOCAL_MACHINE);
+  GetRegKey("System","TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  SetRegRootKey(HKEY_CURRENT_USER);
+  /* *************************************************** </ПРЕПРОЦЕССЫ> */
+
+  for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)
+  {
+    switch(CFG[I].ValType)
+    {
+      case REG_DWORD:
+       GetRegKey(CFG[I].KeyName,CFG[I].ValName,*(int *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
+       break;
+      case REG_SZ:
+       GetRegKey(CFG[I].KeyName,CFG[I].ValName,(char*)CFG[I].ValPtr,CFG[I].DefStr,CFG[I].DefDWord);
+       break;
+      case REG_BINARY:
+       GetRegKey(CFG[I].KeyName,CFG[I].ValName,(BYTE*)CFG[I].ValPtr,(BYTE*)CFG[I].DefStr,CFG[I].DefDWord);
+       break;
+    }
+  }
+
+  /* <ПОСТПРОЦЕССЫ> *************************************************** */
+  //   Уточняем алгоритм "взятия" палитры.
   for(I=COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR+1;
       I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
       ++I)
@@ -773,389 +988,45 @@ void ReadConfig()
       */
   }
   /* SVS 13.12.2000 $ */
-  /* SVS $ */
 
-  GetRegKey("Screen","Clock",Opt.Clock,1);
-  GetRegKey("Screen","ViewerEditorClock",Opt.ViewerEditorClock,0);
-  GetRegKey("Screen","KeyBar",Opt.ShowKeyBar,1);
-  GetRegKey("Screen","ScreenSaver",Opt.ScreenSaver,1);
-  GetRegKey("Screen","ScreenSaverTime",Opt.ScreenSaverTime,5);
-  GetRegKey("Screen","UsePromptFormat",Opt.UsePromptFormat,0);
-  GetRegKey("Screen","PromptFormat",Opt.PromptFormat,"$p>",sizeof(Opt.PromptFormat));
-
-  GetRegKey("Interface","DialogsEditHistory",Opt.DialogsEditHistory,1);
-  GetRegKey("Interface","Mouse",Opt.Mouse,1);
-  GetRegKey("Interface","AltGr",Opt.AltGr,1);
-  GetRegKey("Interface","CopyShowTotal",Opt.CopyShowTotal,0);
-  GetRegKey("Interface","ShowMenuBar",Opt.ShowMenuBar,0);
-  /* $ 27.07.2000 SVS
-     ! Opt.AutoComplete по умолчанию не активизирован,
-       дабы не шокировать публику :-)
-  */
-  GetRegKey("Interface","AutoComplete",Opt.AutoComplete,0);
-  /* SVS $*/
-  /* $ 22.01.2001 SVS
-     + Opt.CursorSize - Размер курсора ФАРа - в процентах от 1 до 100 :-)
-     Interface/CursorSize1 - для оконного режима
-     Interface/CursorSize2 - для полноэкранного режима
-  */
-  GetRegKey("Interface","CursorSize1",Opt.CursorSize[0],15);
-  GetRegKey("Interface","CursorSize2",Opt.CursorSize[1],10);
-  /* SVS $*/
-  /* $ 17.01.2001 SVS
-     ! Opt.ShiftsKeyRules
-     1 - использовать усовершенствованный механизм обработки клавиш
-         "`-=[]\;',./" (см. ниже). Alt-НеЛатинскийСимвол будет
-         транслироваться в Alt-ЛатинскийСимвол (кроме быстрого поиска),
-     0 - использовать механизм, совместимый с FAR версии 1.70 beta 2 и ниже.
-  */
-  GetRegKey("Interface","ShiftsKeyRules",Opt.ShiftsKeyRules,1);
-  /* SVS $*/
-
-  GetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer,"",sizeof(Opt.ExternalViewer));
-  GetRegKey("Viewer","UseExternalViewer",Opt.UseExternalViewer,0);
-  GetRegKey("Viewer","SaveViewerPos",Opt.SaveViewerPos,0);
-  GetRegKey("Viewer","SaveViewerShortPos",Opt.SaveViewerShortPos,0);
-  GetRegKey("Viewer","AutoDetectTable",Opt.ViewerAutoDetectTable,0);
-  GetRegKey("Viewer","TabSize",Opt.ViewTabSize,8);
-  /* $ 15.07.2000 tran
-     + Opt.ShowKeyBarViewer */
-  GetRegKey("Viewer","ShowKeyBar",Opt.ShowKeyBarViewer,1);
-  /* tran 15.07.2000 $ */
-  /* $ 18.07.2000 tran
-     + Opt.ViewerShowArrows, Opt.ViewerShowScrollbar*/
-  GetRegKey("Viewer","ShowArrows",Opt.ViewerShowArrows,1);
-  GetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar,0);
-  /* tran 18.07.2000 $ */
-  /* $ 31.08.2000 SVS
-     ! Opt.ViewerIsWrap
-  */
-  GetRegKey("Viewer","IsWrap",Opt.ViewerIsWrap,1);
   Opt.ViewerIsWrap&=1;
-  GetRegKey("Viewer","Wrap",Opt.ViewerWrap,0);
   if(RegVer) Opt.ViewerWrap&=1; else Opt.ViewerWrap=0;
-  /* SVS $*/
-
-  /* $ 11.09.2000 SVS
-     если EULBsClear = 1, то BS в диалогах для UnChanged строки
-     удаляет такую строку также, как и Del
-  */
-  GetRegKey("Dialog","EULBsClear",Opt.DlgEULBsClear,0);
-  /* SVS $*/
-
-  GetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor,"",sizeof(Opt.ExternalEditor));
-  GetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor,0);
-  GetRegKey("Editor","ExpandTabs",Opt.EdOpt.ExpandTabs,0);
-  GetRegKey("Editor","TabSize",Opt.EdOpt.TabSize,8);
-  GetRegKey("Editor","PersistentBlocks",Opt.EdOpt.PersistentBlocks,1);
-  GetRegKey("Editor","DelRemovesBlocks",Opt.EdOpt.DelRemovesBlocks,0);
-  GetRegKey("Editor","AutoIndent",Opt.EdOpt.AutoIndent,0);
-  GetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos,0);
-  GetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos,0);
-  GetRegKey("Editor","AutoDetectTable",Opt.EdOpt.AutoDetectTable,0);
-  GetRegKey("Editor","EditorCursorBeyondEOL",Opt.EdOpt.CursorBeyondEOL,1);
-  /* $ 29.11.2000 SVS
-   + Opt.EditorReadOnlyLock - лочить файл при открытии в редакторе, если
-     он имеет атрибуты R|S|H
-  */
-  GetRegKey("Editor","ReadOnlyLock",Opt.EditorReadOnlyLock,2);
-  /* SVS $ */
-  /* $ 03.08.2000 SVS
-     Записать разграничитель слов из реестра
-  */
-  GetRegKey("Editor","WordDiv",Opt.WordDiv,WordDiv0,sizeof(Opt.WordDiv));
-  /* SVS $ */
-
-  GetRegKey("Editor","BSLikeDel",Opt.EdOpt.BSLikeDel,1);
-
-  /* $ 03.08.2000 SVS
-     Исключаем случайное стирание разделителей ;-)
-  */
+  // Исключаем случайное стирание разделителей ;-)
   if(!strlen(Opt.WordDiv))
      strcpy(Opt.WordDiv,WordDiv0);
-  /* SVS $ */
-
-  /* $ 28.11.2000 SVS
-    + Opt.EditorF7Rules - Правило на счет поиска в редакторе
-    по умолчанию - новый стиль, т.е. != 0
-  */
-  GetRegKey("Editor","EditorF7Rules",Opt.EditorF7Rules,1);
-  /* SVS $ */
-  /* $ 29.11.2000 SVS
-   + Opt.EditorFileSizeLimit - минимально допустимый размер файла, после
-     которого будет выдан диалог о целесообразности открытия подобного
-     файла на редактирование
-  */
-  GetRegKey("Editor","FileSizeLimit",(int&)Opt.EditorFileSizeLimitLo,(DWORD)0);
-  GetRegKey("Editor","FileSizeLimitHi",(int&)Opt.EditorFileSizeLimitHi,(DWORD)0);
-  /* SVS $ */
-
-  /* $ 27.02.2001 SVS
-     Opt.EdOpt.CharCodeBase - В каком виде представлять в редакторе
-     в статусной строке код текущего символа:
-     0 - oct
-     1 - dec
-     2 - hex
-  */
-  GetRegKey("Editor","CharCodeBase",Opt.EdOpt.CharCodeBase,1);
-  /* SVS $ */
-
-  /* $ 05.09.2000 SVS
-     CodeXLat - описывающая XLat-перекодировщик
-  */
-  GetRegKey("XLat","Flags",(int&)Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT);
-  GetRegKey("XLat","Table1",(BYTE*)Opt.XLat.Table[0],(BYTE*)NULL,sizeof(Opt.XLat.Table[0]));
-  GetRegKey("XLat","Table2",(BYTE*)Opt.XLat.Table[1],(BYTE*)NULL,sizeof(Opt.XLat.Table[1]));
-  GetRegKey("XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],(BYTE*)NULL,sizeof(Opt.XLat.Rules[0]));
-  GetRegKey("XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],(BYTE*)NULL,sizeof(Opt.XLat.Rules[1]));
-  GetRegKey("XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],(BYTE*)NULL,sizeof(Opt.XLat.Rules[2]));
-  /* SVS $ */
-  /* $ 25.11.2000 IS
-     Записать разграничитель слов для XLat из реестра
-  */
-  GetRegKey("XLat","WordDivForXlat",Opt.XLat.WordDivForXlat,WordDivForXlat0,sizeof(Opt.XLat.WordDivForXlat));
-  /* IS $ */
-  /* $ 25.11.2000 IS
-     Исключаем случайное стирание разделителей
-  */
+  // Исключаем случайное стирание разделителей
   if(!strlen(Opt.XLat.WordDivForXlat))
      strcpy(Opt.XLat.WordDivForXlat,WordDivForXlat0);
-  /* IS $ */
-  /* $ 16.11.2000 SVS
-     Клавиши, вызывающие Xlat - теперь хранятся в реестре в текстовом виде
-  */
-  /* $ 24.09.2000 SVS
-     Клавиши, вызывающие Xlat
-  */
-  char KeyNameFromReg[34];
-  char szCtrlShiftX[]="CtrlShiftX";
-  GetRegKey("XLat","EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatEditorKey=KEY_CTRLSHIFTX;
-  GetRegKey("XLat","CmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatCmdLineKey=KEY_CTRLSHIFTX;
-  GetRegKey("XLat","DialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatDialogKey=KEY_CTRLSHIFTX;
-  /* SVS $ */
-  /* $ 04.11.2000 SVS
-     Альтернативные клавиши, вызывающие Xlat
-     по умолчанию = KEY_CTRLSHIFTX
-  */
-  /* $ 24.11.2000 SVS
-     Проблема с Alt* при XLat
-  */
-  GetRegKey("XLat","AltEditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltEditorKey=0;
-  GetRegKey("XLat","AltCmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltCmdLineKey=0;
-  GetRegKey("XLat","AltDialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
-  if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.XLat.XLatAltDialogKey=0;
-  /* SVS 24.11.2000 $ */
-  /* SVS $ */
-  /* SVS $ */
-
-  GetRegKey("System","SaveHistory",Opt.SaveHistory,0);
-  GetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory,0);
-  GetRegKey("System","SaveViewHistory",Opt.SaveViewHistory,0);
-  GetRegKey("System","UseRegisteredTypes",Opt.UseRegisteredTypes,1);
-  GetRegKey("System","AutoSaveSetup",Opt.AutoSaveSetup,0);
-
-  GetRegKey("Help","ActivateURL",Opt.HelpURLRules,1);
-
-  /* $ 15.07.2000 SVS
-     "Вспомним" путь для дополнительного поиска плагинов
-  */
-  {
-   /* $ 01.08.2000 SVS
-      "Вспомним" путь по шаблону!!!
-   */
-   SetRegRootKey(HKEY_LOCAL_MACHINE);
-   char PersonalPluginsPath[1024];
-   GetRegKey("System","TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
-   SetRegRootKey(HKEY_CURRENT_USER); //???????????????????????
-   GetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath,PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath));
-   /* 01.08.2000 SVS $ */
-  }
-  /* SVS $ */
-  GetRegKey("System","ClearReadOnly",Opt.ClearReadOnly,0);
-  GetRegKey("System","DeleteToRecycleBin",Opt.DeleteToRecycleBin,1);
-  GetRegKey("System","WipeSymbol",Opt.WipeSymbol,0);
-  GetRegKey("System","UseSystemCopy",Opt.UseSystemCopy,0);
-  /* $ 16.10.2000 SVS
-     ! System\CopyOpened по умолчанию установлен в 1 (разрешен)
-  */
-  GetRegKey("System","CopyOpened",Opt.CopyOpened,1);
-  /* SVS $ */
-  GetRegKey("System","CreateUppercaseFolders",Opt.CreateUppercaseFolders,0);
-  GetRegKey("System","InactivityExit",Opt.InactivityExit,0);
-  GetRegKey("System","InactivityExitTime",Opt.InactivityExitTime,15);
-  GetRegKey("System","DriveMenuMode",Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS);
-  GetRegKey("System","DriveDisconnetMode",Opt.ChangeDriveDisconnetMode,1);
-  GetRegKey("System","FileSearchMode",Opt.FileSearchMode,SEARCH_ROOT);
-  GetRegKey("System","FolderInfo",Opt.FolderInfoFiles,"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*",sizeof(Opt.FolderInfoFiles));
-  GetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix,0);
-  /* $ 24.09.2000 SVS
-     + CmdHistoryRule задает поведение Esc для командной строки
-  */
-  GetRegKey("System","CmdHistoryRule",Opt.CmdHistoryRule,0);
-  /* SVS $ */
-  /* $ 24.11.2000 SVS
-     + SetAttrFolderRules задает поведение Ctrl-A на каталоге:
-       1 - отображать со снятой опцией "для подкаталогов" (по умолчанию)
-       0 - как и ранее
-  */
-  GetRegKey("System","SetAttrFolderRules",Opt.SetAttrFolderRules,1);
-  /* SVS $ */
-
-  GetRegKey("System","MaxPositionCache",Opt.MaxPositionCache,64);
   if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
     Opt.MaxPositionCache=64;
-  /* $ 27.09.2000 SVS
-    + Opt.AllCtrlAltShiftRule битовые флаги, задают поведение Ctrl-Alt-Shift
-      По умолчанию все разрешено.
-  */
-  GetRegKey("System","AllCtrlAltShiftRule",Opt.AllCtrlAltShiftRule,0x0000FFFF);
-  /* SVS $ */
-  /* $ 27.11.2000 SVS
-    Opt.ExceptRules - Правило на счет вызова исключений
-     = 1 - показывать кнопку Debugger и если надо вызывать этот дебугер
-  */
-  GetRegKey("System","ExceptRules",Opt.ExceptRules,0);
-  /* SVS $ */
-  /* $ 26.02.2001 VVM
-    + Opt.ExceptCallDebugger */
   Opt.ExceptCallDebugger = Opt.ExceptRules & 0x00000001;
-  /* VVM $ */
-
-  GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
-  GetRegKey("Language","Help",Opt.HelpLanguage,"English",sizeof(Opt.HelpLanguage));
-
-  GetRegKey("Confirmations","Copy",Opt.Confirm.Copy,1);
-  GetRegKey("Confirmations","Move",Opt.Confirm.Move,1);
-  GetRegKey("Confirmations","Drag",Opt.Confirm.Drag,1);
-  GetRegKey("Confirmations","Delete",Opt.Confirm.Delete,1);
-  GetRegKey("Confirmations","DeleteFolder",Opt.Confirm.DeleteFolder,1);
-  GetRegKey("Confirmations","Exit",Opt.Confirm.Exit,1);
-  /* $ 09.02.2001 IS
-       Подтверждение нажатия Esc. По умолчанию отключено.
-  */
-  GetRegKey("Confirmations","Esc",Opt.Confirm.Esc,0);
-  /* IS $ */
-  /* $   15.03.2001 SVS
-       Подтверждение удаления мапленных дисков из меню дисков
-  */
-  GetRegKey("Confirmations","RemoveConnection",Opt.Confirm.RemoveConnection,1);
-  /* SVS $ */
-
-  GetRegKey("Panel","ShowHidden",Opt.ShowHidden,1);
-  GetRegKey("Panel","Highlight",Opt.Highlight,1);
-  GetRegKey("Panel","AutoChangeFolder",Opt.AutoChangeFolder,0);
-  GetRegKey("Panel","SelectFolders",Opt.SelectFolders,0);
-  GetRegKey("Panel","ReverseSort",Opt.ReverseSort,1);
-  /* $ 12.09.2000 SVS
-    + Panel/RightClickRule в реестре - задает поведение правой клавиши
-      мыши (это по поводу Bug#17)
-  */
-  GetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule,2);
   Opt.PanelRightClickRule%=3;
-  /* SVS $ */
-  /* $ 20.10.2000 SVS
-    + Panel/CtrlFRule в реестре - задает поведение Ctrl-F
-      Если = 0, то штампуется файл как есть, иначе - с учетом
-      отображения на панели
-  */
-  GetRegKey("Panel","CtrlFRule",Opt.PanelCtrlFRule,1);
-  /* SVS $ */
-  /* $ 19.09.2000 SVS
-    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
-  */
-  GetRegKey("Panel","CtrlAltShiftRule",Opt.PanelCtrlAltShiftRule,0);
   Opt.PanelCtrlAltShiftRule%=3;
-  /* SVS $ */
+  Help::SetFullScreenMode(Opt.FullScreenHelp);
+  Opt.ConsoleDetachKey=KeyNameToKey(KeyNameConsoleDetachKey);
+  if (Opt.EdOpt.TabSize<1 || Opt.EdOpt.TabSize>512)
+    Opt.EdOpt.TabSize=8;
+  if (Opt.ViewTabSize<1 || Opt.ViewTabSize>512)
+    Opt.ViewTabSize=8;
 
-  GetRegKey("Panel\\Left","Type",Opt.LeftPanel.Type,0);
-  GetRegKey("Panel\\Left","Visible",Opt.LeftPanel.Visible,1);
-  GetRegKey("Panel\\Left","Focus",Opt.LeftPanel.Focus,1);
-  GetRegKey("Panel\\Left","ViewMode",Opt.LeftPanel.ViewMode,2);
-  GetRegKey("Panel\\Left","SortMode",Opt.LeftPanel.SortMode,1);
-  GetRegKey("Panel\\Left","SortOrder",Opt.LeftPanel.SortOrder,1);
-  GetRegKey("Panel\\Left","SortGroups",Opt.LeftPanel.SortGroups,0);
-  GetRegKey("Panel\\Left","ShortNames",Opt.LeftPanel.ShowShortNames,0);
-  GetRegKey("Panel\\Left","Folder",Opt.LeftFolder,"",sizeof(Opt.LeftFolder));
-  /* $ 07.09.2000 tran
-     + Config//Current File*/
-  GetRegKey("Panel\\Left","CurFile",Opt.LeftCurFile,"",sizeof(Opt.LeftCurFile));
-  /* tran 07.09.2000 $ */
-  /* $ 09.02.2001 IS
-     + считаем состояние опции "помеченное вперед"
-  */
-  GetRegKey("Panel\\Left","SelectedFirst",Opt.LeftSelectedFirst,0);
-  /* IS $ */
-  GetRegKey("Panel\\Right","Type",Opt.RightPanel.Type,0);
-  GetRegKey("Panel\\Right","Visible",Opt.RightPanel.Visible,1);
-  GetRegKey("Panel\\Right","Focus",Opt.RightPanel.Focus,0);
-  GetRegKey("Panel\\Right","ViewMode",Opt.RightPanel.ViewMode,2);
-  GetRegKey("Panel\\Right","SortMode",Opt.RightPanel.SortMode,1);
-  GetRegKey("Panel\\Right","SortOrder",Opt.RightPanel.SortOrder,1);
-  GetRegKey("Panel\\Right","SortGroups",Opt.RightPanel.SortGroups,0);
-  GetRegKey("Panel\\Right","ShortNames",Opt.RightPanel.ShowShortNames,0);
-  GetRegKey("Panel\\Right","Folder",Opt.RightFolder,"",sizeof(Opt.RightFolder));
-  /* $ 07.09.2000 tran
-    + Config//Current File */
-  GetRegKey("Panel\\Right","CurFile",Opt.RightCurFile,"",sizeof(Opt.RightCurFile));
-  /* tran 07.09.2000 $ */
-
-  /* $ 09.02.2001 IS
-     + считаем состояние опции "помеченное вперед"
-  */
-  GetRegKey("Panel\\Right","SelectedFirst",Opt.RightSelectedFirst,0);
-  /* IS $ */
-  GetRegKey("Panel\\Layout","ColumnTitles",Opt.ShowColumnTitles,1);
-  GetRegKey("Panel\\Layout","StatusLine",Opt.ShowPanelStatus,1);
-  GetRegKey("Panel\\Layout","TotalInfo",Opt.ShowPanelTotals,1);
-  GetRegKey("Panel\\Layout","FreeInfo",Opt.ShowPanelFree,0);
-  GetRegKey("Panel\\Layout","Scrollbar",Opt.ShowPanelScrollbar,0);
-  /* $ 29.06.2000 SVS
-     + Показывать ли ScrollBar для Menu
-  */
-  GetRegKey("Panel\\Layout","ScrollbarMenu",Opt.ShowMenuScrollbar,0);
-  /* SVS $ */
-  GetRegKey("Panel\\Layout","ScreensNumber",Opt.ShowScreensNumber,1);
-  GetRegKey("Panel\\Layout","SortMode",Opt.ShowSortMode,1);
-
-  GetRegKey("Layout","HeightDecrement",Opt.HeightDecrement,0);
-  GetRegKey("Layout","WidthDecrement",Opt.WidthDecrement,0);
-  Help::SetFullScreenMode(GetRegKey("Layout","FullscreenHelp",0));
-
-  GetRegKey("Layout","PassiveFolder",Opt.PassiveFolder,"",sizeof(Opt.PassiveFolder));
-
-  GetRegKey("Descriptions","ListNames",Opt.Diz.ListNames,"Descript.ion,Files.bbs",sizeof(Opt.Diz.ListNames));
-  GetRegKey("Descriptions","UpdateMode",Opt.Diz.UpdateMode,DIZ_UPDATE_IF_DISPLAYED);
-  GetRegKey("Descriptions","SetHidden",Opt.Diz.SetHidden,TRUE);
-  GetRegKey("Descriptions","StartPos",Opt.Diz.StartPos,0);
-
-  /* $ 19.01.2001 SVS
-   + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
-     клавиш */
-  GetRegKey("KeyMacros","MacroReuseRules",Opt.MacroReuseRules,0);
-  /* SVS $ */
-
-  /* $ 30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость.
-      Зависит от настроек в реестре CopyTimeRule */
-  GetRegKey("System", "CopyTimeRule", Opt.CopyTimeRule, 0);
-  /* VVM $ */
-
-  /*$ 08.02.2001 SKV
-  */
-  GetRegKey("System", "ConsoleDetachKey", KeyNameFromReg, "", sizeof(KeyNameFromReg));
-  Opt.ConsoleDetachKey=KeyNameToKey(KeyNameFromReg);
-  /* SKV$*/
+  GetRegKey(NKeyXLat,"EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatEditorKey=KEY_CTRLSHIFTX;
+  GetRegKey(NKeyXLat,"CmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatCmdLineKey=KEY_CTRLSHIFTX;
+  GetRegKey(NKeyXLat,"DialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatDialogKey=KEY_CTRLSHIFTX;
+  GetRegKey(NKeyXLat,"AltEditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatAltEditorKey=0;
+  GetRegKey(NKeyXLat,"AltCmdLineKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatAltCmdLineKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatAltCmdLineKey=0;
+  GetRegKey(NKeyXLat,"AltDialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatAltDialogKey=0;
 
   FileList::ReadPanelModes();
   GetTempPath(sizeof(Opt.TempPath),Opt.TempPath);
@@ -1163,200 +1034,78 @@ void ReadConfig()
   AddEndSlash(Opt.TempPath);
   CtrlObject->EditorPosCache.Read("Editor\\LastPositions");
   CtrlObject->ViewerPosCache.Read("Viewer\\LastPositions");
-  if (Opt.EdOpt.TabSize<1 || Opt.EdOpt.TabSize>512)
-    Opt.EdOpt.TabSize=8;
-  if (Opt.ViewTabSize<1 || Opt.ViewTabSize>512)
-    Opt.ViewTabSize=8;
+  /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 
 
 void SaveConfig(int Ask)
 {
-  char OutText[NM],OutText2[NM];
+  char OutText2[NM];
+  int I;
 
   if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel))!=0)
     return;
 
-  //                                       было sizeof(Palette)
-  SetRegKey("Colors","CurrentPalette",Palette,SizeArrayPalette);
-  SetRegKey("Screen","Clock",Opt.Clock);
-  SetRegKey("Screen","ViewerEditorClock",Opt.ViewerEditorClock);
-  SetRegKey("Screen","KeyBar",Opt.ShowKeyBar);
-  SetRegKey("Screen","ScreenSaver",Opt.ScreenSaver);
-  SetRegKey("Screen","ScreenSaverTime",Opt.ScreenSaverTime);
-  SetRegKey("Screen","UsePromptFormat",Opt.UsePromptFormat);
-  SetRegKey("Screen","PromptFormat",Opt.PromptFormat);
-
-  SetRegKey("Interface","DialogsEditHistory",Opt.DialogsEditHistory);
-  SetRegKey("Interface","Mouse",Opt.Mouse);
-  SetRegKey("Interface","AltGr",Opt.AltGr);
-  SetRegKey("Interface","CopyShowTotal",Opt.CopyShowTotal);
-  SetRegKey("Interface","ShowMenuBar",Opt.ShowMenuBar);
-  SetRegKey("Interface","AutoComplete",Opt.AutoComplete);
-
-  SetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer);
-  SetRegKey("Viewer","UseExternalViewer",Opt.UseExternalViewer);
-  SetRegKey("Viewer","SaveViewerPos",Opt.SaveViewerPos);
-  SetRegKey("Viewer","SaveViewerShortPos",Opt.SaveViewerShortPos);
-  SetRegKey("Viewer","AutoDetectTable",Opt.ViewerAutoDetectTable);
-  SetRegKey("Viewer","TabSize",Opt.ViewTabSize);
-  /* $ 15.07.2000 tran
-     + Opt.ShowKeyBarViewer */
-  SetRegKey("Viewer","ShowKeyBar",Opt.ShowKeyBarViewer);
-  /* tran 15.07.2000 $ */
-  /* $ 18.07.2000 tran
-     + Opt.ViewerShowArrows, Opt.ViewerShowScrollbar*/
-  SetRegKey("Viewer","ShowArrows",Opt.ViewerShowArrows);
-  SetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar);
-  /* tran 18.07.2000 $ */
-  /* $ 31.08.2000 SVS
-     ! Opt.ViewerIsWrap
-  */
-  SetRegKey("Viewer","IsWrap",Opt.ViewerIsWrap);
-  /* $ 20.02.2001 VVM
-     ! Сохранять параметры надо с помощью SetRegKey, а не GetRegKey ;) */
-  SetRegKey("Viewer","Wrap",Opt.ViewerWrap);
-  /* VVM $ */
-  /* SVS $*/
-
-  SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);
-  SetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor);
-  SetRegKey("Editor","ExpandTabs",Opt.EdOpt.ExpandTabs);
-  SetRegKey("Editor","TabSize",Opt.EdOpt.TabSize);
-  SetRegKey("Editor","PersistentBlocks",Opt.EdOpt.PersistentBlocks);
-  SetRegKey("Editor","DelRemovesBlocks",Opt.EdOpt.DelRemovesBlocks);
-  SetRegKey("Editor","AutoIndent",Opt.EdOpt.AutoIndent);
-  SetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos);
-  SetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos);
-  SetRegKey("Editor","AutoDetectTable",Opt.EdOpt.AutoDetectTable);
-  SetRegKey("Editor","EditorCursorBeyondEOL",Opt.EdOpt.CursorBeyondEOL);
-
-  SetRegKey("System","SaveHistory",Opt.SaveHistory);
-  SetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory);
-  SetRegKey("System","SaveViewHistory",Opt.SaveViewHistory);
-  SetRegKey("System","UseRegisteredTypes",Opt.UseRegisteredTypes);
-  SetRegKey("System","AutoSaveSetup",Opt.AutoSaveSetup);
-  /* $ 15.07.2000 SVS
-     Сохраняем путь для дополнительного поиска плагинов
-  */
-  SetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath);
-  /* SVS $ */
-  SetRegKey("System","ClearReadOnly",Opt.ClearReadOnly);
-  SetRegKey("System","DeleteToRecycleBin",Opt.DeleteToRecycleBin);
-  SetRegKey("System","UseSystemCopy",Opt.UseSystemCopy);
-  SetRegKey("System","CopyOpened",Opt.CopyOpened);
-  SetRegKey("System","CreateUppercaseFolders",Opt.CreateUppercaseFolders);
-  SetRegKey("System","InactivityExit",Opt.InactivityExit);
-  SetRegKey("System","InactivityExitTime",Opt.InactivityExitTime);
-  SetRegKey("System","DriveMenuMode",Opt.ChangeDriveMode);
-  SetRegKey("System","DriveDisconnetMode",Opt.ChangeDriveDisconnetMode);
-  SetRegKey("System","FileSearchMode",Opt.FileSearchMode);
-  SetRegKey("System","FolderInfo",Opt.FolderInfoFiles);
-  SetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix);
-
-  SetRegKey("Language","Main",Opt.Language);
-  SetRegKey("Language","Help",Opt.HelpLanguage);
-
-  SetRegKey("Confirmations","Copy",Opt.Confirm.Copy);
-  SetRegKey("Confirmations","Move",Opt.Confirm.Move);
-  SetRegKey("Confirmations","Drag",Opt.Confirm.Drag);
-  SetRegKey("Confirmations","Delete",Opt.Confirm.Delete);
-  SetRegKey("Confirmations","DeleteFolder",Opt.Confirm.DeleteFolder);
-  SetRegKey("Confirmations","Exit",Opt.Confirm.Exit);
-  /* $ 09.02.2001 IS
-       Подтверждение нажатия Esc.
-  */
-  SetRegKey("Confirmations","Esc",Opt.Confirm.Esc);
-  /* IS $ */
-  /* $   15.03.2001 SVS
-       Подтверждение удаления мапленных дисков из меню дисков
-  */
-  SetRegKey("Confirmations","RemoveConnection",Opt.Confirm.RemoveConnection);
-  /* SVS $ */
-
-  SetRegKey("Panel","ShowHidden",Opt.ShowHidden);
-  SetRegKey("Panel","Highlight",Opt.Highlight);
-  SetRegKey("Panel","AutoChangeFolder",Opt.AutoChangeFolder);
-  SetRegKey("Panel","SelectFolders",Opt.SelectFolders);
-  SetRegKey("Panel","ReverseSort",Opt.ReverseSort);
-
+  /* <ПРЕПРОЦЕССЫ> *************************************************** */
   Panel *LeftPanel=CtrlObject->LeftPanel;
-  SetRegKey("Panel\\Left","Visible",LeftPanel->IsVisible());
-  SetRegKey("Panel\\Left","Focus",LeftPanel->GetFocus());
+  Panel *RightPanel=CtrlObject->RightPanel;
+
+  Opt.LeftPanel.Focus=LeftPanel->GetFocus();
+  Opt.LeftPanel.Visible=LeftPanel->IsVisible();
+  Opt.RightPanel.Focus=RightPanel->GetFocus();
+  Opt.RightPanel.Visible=RightPanel->IsVisible();
+
+  Opt.FullScreenHelp=Help::GetFullScreenMode();
+  CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(Opt.PassiveFolder);
+
   if (LeftPanel->GetMode()==NORMAL_PANEL)
   {
-    SetRegKey("Panel\\Left","Type",LeftPanel->GetType());
-    SetRegKey("Panel\\Left","ViewMode",LeftPanel->GetViewMode());
-    SetRegKey("Panel\\Left","SortMode",LeftPanel->GetSortMode());
-    SetRegKey("Panel\\Left","SortOrder",LeftPanel->GetSortOrder());
-    SetRegKey("Panel\\Left","SortGroups",LeftPanel->GetSortGroups());
-    SetRegKey("Panel\\Left","ShortNames",LeftPanel->GetShowShortNamesMode());
-    LeftPanel->GetCurDir(OutText);
-    SetRegKey("Panel\\Left","Folder",OutText);
-    /* $ 07.09.2000 tran
-       + Config//Current File */
-    LeftPanel->GetCurName(OutText,OutText2);
-    SetRegKey("Panel\\Left","CurFile",OutText);
-    /* tran 07.09.2000 $ */
-    /* $ 09.02.2001 IS
-       + сохраним состояние опции "помеченное вперед"
-    */
-    SetRegKey("Panel\\Left","SelectedFirst",LeftPanel->GetSelectedFirstMode());
-    /* IS $ */
+    Opt.LeftPanel.Type=LeftPanel->GetType();
+    Opt.LeftPanel.ViewMode=LeftPanel->GetViewMode();
+    Opt.LeftPanel.SortMode=LeftPanel->GetSortMode();
+    Opt.LeftPanel.SortOrder=LeftPanel->GetSortOrder();
+    Opt.LeftPanel.SortGroups=LeftPanel->GetSortGroups();
+    Opt.LeftPanel.ShowShortNames=LeftPanel->GetShowShortNamesMode();
+    LeftPanel->GetCurDir(Opt.LeftFolder);
+    LeftPanel->GetCurName(Opt.LeftCurFile,OutText2);
+    Opt.LeftSelectedFirst=LeftPanel->GetSelectedFirstMode();
   }
 
-  Panel *RightPanel=CtrlObject->RightPanel;
-  SetRegKey("Panel\\Right","Visible",RightPanel->IsVisible());
-  SetRegKey("Panel\\Right","Focus",RightPanel->GetFocus());
   if (RightPanel->GetMode()==NORMAL_PANEL)
   {
-    SetRegKey("Panel\\Right","Type",RightPanel->GetType());
-    SetRegKey("Panel\\Right","ViewMode",RightPanel->GetViewMode());
-    SetRegKey("Panel\\Right","SortMode",RightPanel->GetSortMode());
-    SetRegKey("Panel\\Right","SortOrder",RightPanel->GetSortOrder());
-    SetRegKey("Panel\\Right","SortGroups",RightPanel->GetSortGroups());
-    SetRegKey("Panel\\Right","ShortNames",RightPanel->GetShowShortNamesMode());
-    RightPanel->GetCurDir(OutText);
-    SetRegKey("Panel\\Right","Folder",OutText);
-    /* $ 07.09.2000 tran
-       + Config//Current File*/
-    RightPanel->GetCurName(OutText,OutText2);
-    SetRegKey("Panel\\Right","CurFile",OutText);
-    /* tran 07.09.2000 $ */
-    /* $ 09.02.2001 IS
-       + сохраним состояние опции "помеченное вперед"
-    */
-    SetRegKey("Panel\\Right","SelectedFirst",RightPanel->GetSelectedFirstMode());
-    /* IS $ */
+    Opt.RightPanel.Type=RightPanel->GetType();
+    Opt.RightPanel.ViewMode=RightPanel->GetViewMode();
+    Opt.RightPanel.SortMode=RightPanel->GetSortMode();
+    Opt.RightPanel.SortOrder=RightPanel->GetSortOrder();
+    Opt.RightPanel.SortGroups=RightPanel->GetSortGroups();
+    Opt.RightPanel.ShowShortNames=RightPanel->GetShowShortNamesMode();
+    RightPanel->GetCurDir(Opt.RightFolder);
+    RightPanel->GetCurName(Opt.RightCurFile,OutText2);
+    Opt.RightSelectedFirst=RightPanel->GetSelectedFirstMode();
+  }
+  /* *************************************************** </ПРЕПРОЦЕССЫ> */
+
+  for(I=0; I < sizeof(CFG)/sizeof(CFG[0]); ++I)
+  {
+    if(CFG[I].IsSave)
+      switch(CFG[I].ValType)
+      {
+        case REG_DWORD:
+         SetRegKey(CFG[I].KeyName,CFG[I].ValName,*(int *)CFG[I].ValPtr);
+         break;
+        case REG_SZ:
+         SetRegKey(CFG[I].KeyName,CFG[I].ValName,(char*)CFG[I].ValPtr);
+         break;
+        case REG_BINARY:
+         SetRegKey(CFG[I].KeyName,CFG[I].ValName,(BYTE*)CFG[I].ValPtr,CFG[I].DefDWord);
+         break;
+      }
   }
 
-  SetRegKey("Panel\\Layout","ColumnTitles",Opt.ShowColumnTitles);
-  SetRegKey("Panel\\Layout","StatusLine",Opt.ShowPanelStatus);
-  SetRegKey("Panel\\Layout","TotalInfo",Opt.ShowPanelTotals);
-  SetRegKey("Panel\\Layout","FreeInfo",Opt.ShowPanelFree);
-  SetRegKey("Panel\\Layout","Scrollbar",Opt.ShowPanelScrollbar);
-  /* $ 29.06.2000 SVS
-     + Показывать ли ScrollBar для Menu
-  */
-  SetRegKey("Panel\\Layout","ScrollbarMenu",Opt.ShowMenuScrollbar);
-  /* SVS $ */
-  SetRegKey("Panel\\Layout","ScreensNumber",Opt.ShowScreensNumber);
-  SetRegKey("Panel\\Layout","SortMode",Opt.ShowSortMode);
-
-  SetRegKey("Layout","HeightDecrement",Opt.HeightDecrement);
-  SetRegKey("Layout","WidthDecrement",Opt.WidthDecrement);
-  SetRegKey("Layout","FullscreenHelp",Help::GetFullScreenMode());
-
-  CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel)->GetCurDir(OutText);
-  SetRegKey("Layout","PassiveFolder",OutText);
-
-  SetRegKey("Descriptions","ListNames",Opt.Diz.ListNames);
-  SetRegKey("Descriptions","UpdateMode",Opt.Diz.UpdateMode);
-  SetRegKey("Descriptions","SetHidden",Opt.Diz.SetHidden);
-  SetRegKey("Descriptions","StartPos",Opt.Diz.StartPos);
-
+  /* <ПОСТПРОЦЕССЫ> *************************************************** */
   PanelFilter::SaveSelection();
   FileList::SavePanelModes();
   if (Ask)
     CtrlObject->Macro.SaveMacros();
+  /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
