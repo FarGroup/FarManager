@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.18 10.08.2000 $ */
+/* Revision: 1.19 11.08.2000 $ */
 
 /*
 Modify:
+  11.08.2000 SVS
+   + Данные, специфические для конкретного экземпляра диалога
+   + Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
+   ! Уточнение для DMSG_CLOSE
   11.08.2000 KM 1.18
    ! Убран дублирующий код, исправляющий некорректное перемещение диалога
      мышкой. Оказывается мы с Андреем сделали патчик в один день :)
@@ -135,6 +139,11 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
+  /* $ 11.08.2000 SVS
+    + Данные, специфические для конкретного экземпляра диалога
+  */
+  DataDialog=NULL;
+  /* SVS $ */
   CreateObjects=FALSE;
   InitObjects=FALSE;
   DialogTooLong=FALSE;
@@ -2312,6 +2321,19 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DMSG_INITDIALOG:
       return TRUE;
 
+    /* Сообщение DMSG_CLOSE посылается в обработчик диалога как сигнал,
+       сообщающий, что диалог будет закрыт.
+       Param1 = ID элемента, который имел фокус ввода в момент нажатия
+                  Ctrl-Enter или ID элемента, у которого поле
+                  DefaultButton = 1 если было нажатие Eneter
+                -2 нажали KEY_BREAK
+                -1 KEY_ESC или KEY_F10
+       Param2 = 0
+       Return = TRUE - да, согласен с выходом из диалога
+                FALSE - продолжить функционирование.
+       Диалог закроется всегда (не взирая на то, что вернула функция)
+       если выход был по Ctrl+Break
+    */
     case DMSG_CLOSE:
       return TRUE;
 
@@ -2800,3 +2822,27 @@ void Dialog::AdjustEditPos(int dx, int dy)
 }
 /* SVS $ */
 /* tran 31.07.2000 $ */
+
+/* $ 11.08.2000 SVS
+   Работа с доп. данными экземпляра диалога
+   Пока простое копирование (присвоение)
+*/
+void Dialog::SetDialogData(void* NewDataDialog)
+{
+  DataDialog=NewDataDialog;
+}
+/* SVS $ */
+
+/* $ 11.08.2000 SVS
+   + Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
+*/
+void Dialog::Process()
+{
+  do{
+    Modal::Process();
+    if(DlgProc((HANDLE)this,DMSG_CLOSE,ExitCode,0) || ExitCode == -2)
+      break;
+  }while(1);
+}
+/* SVS $ */
+

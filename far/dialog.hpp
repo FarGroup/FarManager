@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.10 10.08.2000 $ */
+/* Revision: 1.11 11.08.2000 $ */
 
 /*
 Modify:
+  11.08.2000 SVS
+   + Данные, специфические для конкретного экземпляра диалога
+   + Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
   10.08.2000 SVS
    + переменная IsMovedDialog - можно ли двигать диалог :-)
    + функция установки IsMovedDialog
@@ -66,6 +69,11 @@ Modify:
 class Dialog:public Modal
 {
   private:
+    /* $ 11.08.2000 SVS
+      + Данные, специфические для конкретного экземпляра диалога
+    */
+    void *DataDialog;
+    /* SVS $ */
     struct DialogItem *Item;    // массив элементов диалога
     int ItemCount;              // количество элементов диалога
 
@@ -187,6 +195,18 @@ class Dialog:public Modal
     */
     void SetModeMoving(int IsMoving) {IsMovedDialog=IsMoving;};
     int  GetModeMoving(void) {return IsMovedDialog;};
+    /* SVS $ */
+    /* $ 11.08.2000 SVS
+       Работа с доп. данными экземпляра диалога
+    */
+    void SetDialogData(void* NewDataDialog);
+    void* GetDialogData(void) {return DataDialog;};
+    /* SVS $ */
+
+    /* $ 11.08.2000 SVS
+       Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
+    */
+    void Process();
     /* SVS $ */
 };
 
