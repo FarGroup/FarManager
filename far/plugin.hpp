@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.90 20.03.2001 $ */
+/* Revision: 1.91 21.03.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.03.2001 VVM
+    + Флаг EF_CREATENEW для редактора - создать новый файл (аналог SHIFT+F4)
   20.03.2001 tran 1.89
     + FarRecursiveSearch - добавлен void *param
   19.03.2001 SVS
@@ -736,11 +738,13 @@ typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
 typedef void (WINAPI *FARAPIFREEDIRLIST)(struct PluginPanelItem *PanelItem);
 
 enum VIEWER_FLAGS {
-  VF_NONMODAL=1,VF_DELETEONCLOSE=2
+  VF_NONMODAL      =1,
+  VF_DELETEONCLOSE =2,
 };
 
 enum EDITOR_FLAGS {
-  EF_NONMODAL=1
+  EF_NONMODAL      =1,
+  EF_CREATENEW     =2,
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.40 28.02.2001 $ */
+/* Revision: 1.41 21.03.2001 $ */
 
 /*
 Modify:
+  21.03.2001 VVM
+    + Обработка флага EF_CREATENEW
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   11.02.2001 SVS
@@ -1108,10 +1110,14 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
    немодального редактора, если есть соответствующий флаг
   */
   int ExitCode;
+  /* $ 21.03.2001 VVM
+    + Обработка флага EF_CREATENEW */
+  int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
+  /* VVM $ */
   if (Flags & EF_NONMODAL)
   {
    ExitCode=FALSE;
-   FileEditor *Editor=new FileEditor(FileName,FALSE,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    if(Editor)
      {
       CtrlObject->ModalManager.AddModal(Editor);
@@ -1120,7 +1126,7 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
   }
   else
   {
-   FileEditor Editor(FileName,FALSE,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
    SetConsoleTitle(OldTitle);
    return(Editor.GetExitCode());
   }
