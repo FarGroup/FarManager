@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.31 18.04.2002 $ */
+/* Revision: 1.32 25.04.2002 $ */
 
 /*
 Modify:
+  25.04.2002 SVS
+    - BugZ#466 - Ошибка создания симлинка (продолжение эпопеи)
   18.04.2002 SVS
     - BugZ#466 - Ошибка создания симлинка
       Так же, если не удавалось создать символическую связь... оставался
@@ -408,6 +410,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
     //printf("WideCharToMultiByte failed (%d)\n", GetLastError());
     return 0;
   }
+  CharToOemBuff(szDestBuff,szDestBuff,dwBuffSize); // !!!
 #endif
   return rdb.SubstituteNameLength / sizeof(TCHAR);
 }
