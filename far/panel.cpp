@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.107 20.02.2003 $ */
+/* Revision: 1.108 23.02.2003 $ */
 
 /*
 Modify:
+  23.02.2003 SVS
+    + BugZ#727 - [wish] Прикрутить Ctrl-R к меню выбора дисков
   20.02.2003 SVS
     ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   03.02.2003 SVS
@@ -942,6 +944,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           break;
         /* SVS $ */
+        case KEY_CTRLR:
+          return(SelPos);
+
         /* $ 21.06.2001 tran
            типа костыль...
            самое простое и быстрое решение проблемы*/
@@ -1327,6 +1332,7 @@ void Panel::SetFocus()
     CtrlObject->Cp()->ActivePanel->KillFocus();
     CtrlObject->Cp()->ActivePanel=this;
   }
+
   if (!GetFocus())
   {
     CtrlObject->Cp()->RedrawKeyBar();
@@ -1542,8 +1548,6 @@ int  Panel::SetCurPath()
   if (GetMode()==PLUGIN_PANEL)
     return TRUE;
 
-  char UpDir[NM],*ChPtr;
-
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=PLUGIN_PANEL)
   {
@@ -1557,24 +1561,47 @@ int  Panel::SetCurPath()
     }
   }
 
-  strcpy(UpDir,CurDir);
-  if ((ChPtr=strrchr(UpDir,'\\'))!=NULL)
-    *ChPtr=0;
-
   if (!FarChDir(CurDir) || GetFileAttributes(CurDir)==0xFFFFFFFF)
   {
-    if (!FarChDir(UpDir) && !FarChDir("\\"))
+   // здесь на выбор :-)
+#if 1
+    while(!FarChDir(CurDir))
     {
-      if(!FrameManager->ManagerStarted())
-        IfGoHome(*CurDir);
-      else
+      BOOL IsChangeDisk=FALSE;
+      char Root[1024];
+      GetPathRoot(CurDir,Root);
+      if(GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
+        IsChangeDisk=TRUE;
+      else if(CheckFolder(CurDir) == CHKFLD_NOTACCESS)
+      {
+        if(FarChDir(Root))
+          SetCurDir(Root,TRUE);
+        else
+          IsChangeDisk=TRUE;
+      }
+      if(IsChangeDisk)
         ChangeDisk();
     }
-    else
-      FarGetCurDir(sizeof(CurDir),CurDir);
+#else
+    do{
+      BOOL IsChangeDisk=FALSE;
+      char Root[1024];
+      GetPathRoot(CurDir,Root);
+      if(GetDriveType(Root) == DRIVE_REMOVABLE && !IsDiskInDrive(Root))
+        IsChangeDisk=TRUE;
+      else if(CheckFolder(CurDir) == CHKFLD_NOTACCESS)
+      {
+        if(FarChDir(Root))
+          SetCurDir(Root,TRUE);
+        else
+          IsChangeDisk=TRUE;
+      }
+      if(IsChangeDisk)
+        ChangeDisk();
+    } while(!FarChDir(CurDir));
+#endif
     return FALSE;
   }
-
   return TRUE;
 }
 /* IS $ */

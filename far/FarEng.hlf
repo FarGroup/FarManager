@@ -2091,6 +2091,8 @@ cancels drive selection and closes the menu.
 root directory of the selected drives (works only for disk drives and
 not for plugins).
 
+    #Ctrl-R# allows to refresh the disk selection menu.
+
 @DisconnectDrive
 $ #Disconnect network drive#
   You can disconnect a network drive by pressing #Del# in the ~Change Drive
