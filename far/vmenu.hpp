@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.40 18.05.2002 $ */
+/* Revision: 1.41 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    + SetMaxHeight()
   18.05.2002 SVS
     ! MouseDown -> VMENU_MOUSEDOWN
   28.04.2002 KM
@@ -456,6 +458,7 @@ class VMenu: virtual public Modal, virtual public Frame
     */
     virtual int GetType() { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
     /* KM $ */
+    void SetMaxHeight(int NewMaxHeight);
 };
 
 

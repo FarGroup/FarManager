@@ -5,10 +5,15 @@ interf.cpp
 
 */
 
-/* Revision: 1.59 30.05.2002 $ */
+/* Revision: 1.60 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    ! GetVidChar стал inline в fn.hpp, код, ответственный за юникод
+      перекочевал в GetVidCharW (из-за "for").
+    ! Text немного перелужен (раскрутка стека, etc.)
+    ! SetVidChar стал inline
   30.05.2002 SVS
     ! ¬ USE_WFUNC, вместо проверки на тип операционки заюзаем Opt.UseTTFFont
     ! InitRecodeOutTable() - самосто€тельна€ (не статическа€), исправлена так,
@@ -766,19 +771,33 @@ void Text(int X, int Y, int Color, const char *Str)
 
 void Text(const char *Str)
 {
-  int Length=strlen(Str);
+  int Length=strlen(Str), I;
   if (CurX+Length>ScrX)
     Length=ScrX-CurX+1;
   if (Length<=0)
     return;
-  CHAR_INFO CharBuf[1024];
+  CHAR_INFO CharBuf[1024], *PtrCharBuf;
   if (Length >= sizeof(CharBuf))
     Length=sizeof(CharBuf)-1;
 
-  for (int I=0;I<Length;I++)
+  PtrCharBuf=CharBuf;
+#if defined(USE_WFUNC)
+  if(Opt.UseTTFFont)
   {
-    SetVidChar(CharBuf[I],RecodeOutTable[(BYTE)Str[I]]);
-    CharBuf[I].Attributes=CurColor;
+    for (I=0; I < Length; I++, ++PtrCharBuf)
+    {
+      PtrCharBuf->Char.UnicodeChar=Oem2Unicode[RecodeOutTable[(BYTE)Str[I]]];
+      PtrCharBuf->Attributes=CurColor;
+    }
+  }
+  else
+#endif
+  {
+    for (I=0; I < Length; I++, ++PtrCharBuf)
+    {
+      PtrCharBuf->Char.AsciiChar=RecodeOutTable[(BYTE)Str[I]];
+      PtrCharBuf->Attributes=CurColor;
+    }
   }
   ScrBuf.Write(CurX,CurY,CharBuf,Length);
   CurX+=Length;
@@ -941,7 +960,6 @@ void GetText(int X1,int Y1,int X2,int Y2,void *Dest)
 {
   ScrBuf.Read(X1,Y1,X2,Y2,(CHAR_INFO *)Dest);
 }
-
 
 void PutText(int X1,int Y1,int X2,int Y2,void *Src)
 {
@@ -1218,33 +1236,21 @@ char* MakeSeparator(int Length,char *DestStr,int Type)
 }
 
 #if defined(USE_WFUNC)
-BYTE GetVidChar(CHAR_INFO CI)
+BYTE GetVidCharW(CHAR_INFO CI)
 {
-  if(Opt.UseTTFFont)
-  {
-
-    for(int I=0; I < 256; ++I)
-      if(CI.Char.UnicodeChar == Oem2Unicode[I])
-        return (BYTE)I;
-    return 0;
-    /*
-    char AsciiChar;
-    BOOL UsedDefChar=FALSE;
-    WideCharToMultiByte(CP_OEMCP,0,
-          &CI.Char.UnicodeChar,1,
-          &AsciiChar,1,
-          NULL,&UsedDefChar);
-    return AsciiChar;
-    */
-  }
-  return CI.Char.AsciiChar;
+  for(int I=0; I < 256; ++I)
+    if(CI.Char.UnicodeChar == Oem2Unicode[I])
+      return (BYTE)I;
+  return 0;
+  /*
+  char AsciiChar;
+  BOOL UsedDefChar=FALSE;
+  WideCharToMultiByte(CP_OEMCP,0,
+        &CI.Char.UnicodeChar,1,
+        &AsciiChar,1,
+        NULL,&UsedDefChar);
+  return AsciiChar;
+  */
 }
 
-void SetVidChar(CHAR_INFO& CI,BYTE Chr)
-{
-  if(Opt.UseTTFFont)
-    CI.Char.UnicodeChar = Oem2Unicode[Chr];
-  else
-    CI.Char.AsciiChar=Chr;
-}
 #endif

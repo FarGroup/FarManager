@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.90 24.05.2002 $ */
+/* Revision: 1.91 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    - BugZ#412 - bug в combobox'ах
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   18.05.2002 SVS
@@ -174,8 +176,8 @@ Modify:
       будет вызываться)
   30.06.2001 KM
     ! Языковое уточненение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
-  + GetSelectPos(struct FarListPos *)
-  + SetSelectPos(struct FarListPos *)
+    + GetSelectPos(struct FarListPos *)
+    + SetSelectPos(struct FarListPos *)
     ! Небольшое изменение в функции UpdateRequired: теперь она возвращает
       TRUE и при условии, что выставлен флаг VMENU_UPDATEREQUIRED
   29.06.2001 SVS
@@ -416,7 +418,6 @@ VMenu::VMenu(const char *Title,       // заголовок меню
     AddItem(&NewItem);
   }
 
-  VMenu::MaxHeight=MaxHeight;
   BoxType=DOUBLE_BOX;
   for (SelectPos=0,I=0;I<ItemCount;I++)
   {
@@ -426,8 +427,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
     if (Item[I].Flags&LIF_SELECTED)
       SelectPos=I;
   }
-  if(MaxLength > ScrX-8)
-    MaxLength=ScrX-8;
+  SetMaxHeight(MaxHeight);
   /* $ 28.07.2000 SVS
      Установим цвет по умолчанию
   */
@@ -1631,6 +1631,13 @@ int VMenu::GetSelectPos(struct FarListPos *ListPos)
   ListPos->SelectPos=GetSelectPos();
   ListPos->TopPos=TopPos;
   return ListPos->SelectPos;
+}
+
+void VMenu::SetMaxHeight(int NewMaxHeight)
+{
+  VMenu::MaxHeight=NewMaxHeight;
+  if(MaxLength > ScrX-8) //
+    MaxLength=ScrX-8;
 }
 
 // установить курсор и верхний итем

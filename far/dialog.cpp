@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.248 28.05.2002 $ */
+/* Revision: 1.249 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    - BugZ#412 - bug в combobox'ах
+      (при изменении размеров листа добавим вызов функции VMenu::SetMaxHeight)
   28.05.2002 SVS
     - BugZ#532 - Alt-256  = '\0' в строках ввода
       Символ 0x00 не будет участвовать в автокомплите, ибо...
@@ -1734,6 +1737,7 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
       CurItem->Y2=(short)Rect->Bottom;
       CurItem->ListPtr->SetPosition(X1+Rect->Left, Y1+Rect->Top,
                                     X1+Rect->Right,Y1+Rect->Bottom);
+      CurItem->ListPtr->SetMaxHeight(CurItem->Y2-CurItem->Y1+1);
   }
   switch(Type)
   {

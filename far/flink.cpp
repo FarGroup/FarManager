@@ -5,10 +5,13 @@ flink.cpp
 
 */
 
-/* Revision: 1.33 30.05.2002 $ */
+/* Revision: 1.34 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    - Бага при создании симлинка с subst-диска (проверим и поправим)
+    + SetLastError в нужных местах
   30.05.2002 SVS
     - Ошибка создания симлинка ("Атака клоунов") - добавим обновление панелей
   25.04.2002 SVS
@@ -255,9 +258,23 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
     if (!GetFullPathName(SrcFolder, sizeof(szFullDir), szFullDir, &pFilePart) ||
       GetFileAttributes(szFullDir) == -1)
     {
+      SetLastError(ERROR_PATH_NOT_FOUND);
       return FALSE;
     }
-    strcat(szDestDir, szFullDir);
+
+    char *PtrFullDir=szFullDir;
+    // проверка на subst
+    if(IsLocalPath(szFullDir))
+    {
+      char LocalName[8], SubstName[NM];
+      sprintf(LocalName,"%c:",*szFullDir);
+      if(GetSubstName(DRIVE_NOT_INIT,LocalName,SubstName,sizeof(SubstName)))
+      {
+        strcat(szDestDir, SubstName);
+        PtrFullDir=szFullDir+3;
+      }
+    }
+    strcat(szDestDir, PtrFullDir);
   }
 
   char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
@@ -265,6 +282,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
 
   size_t cchDest = strlen(szDestDir) + 1;
   if (cchDest > 512) {
+    SetLastError(ERROR_NOT_ENOUGH_MEMORY);
     return FALSE;
   }
 
@@ -314,8 +332,10 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
             &dwBytes,
             0))
   {
+    DWORD LastErr=GetLastError();
     CloseHandle(hDir);
     DeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
+    SetLastError(LastErr);
     return 0;
   }
   CloseHandle(hDir);
@@ -333,6 +353,7 @@ BOOL WINAPI DeleteJunctionPoint(LPCTSTR szDir)
           0);
   if (hDir == INVALID_HANDLE_VALUE)
   {
+    SetLastError(ERROR_PATH_NOT_FOUND);
     return FALSE;
   }
 

@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.159 30.05.2002 $ */
+/* Revision: 1.160 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    ! GetVidChar стал inline в fn.hpp, код, ответственный за юникод
+      перекочевал в GetVidCharW (из-за "for").
+    ! SetVidChar стал inline
   30.05.2002 SVS
     + InitRecodeOutTable()
     ! GetVidChar и SetVidChar оперируют байтами
@@ -400,6 +404,7 @@ Modify:
 
 #include "int64.hpp"
 #include "farconst.hpp"
+#include "global.hpp"
 
 /* $ 07.07.2000 IS
    Функция перешла сюда из main.cpp
@@ -1215,8 +1220,23 @@ inline char LocalLowerFast (char c)
 /* DJ $ */
 
 #if defined(USE_WFUNC)
-BYTE GetVidChar(CHAR_INFO CI);
-void SetVidChar(CHAR_INFO& CI,BYTE Chr);
+BYTE GetVidCharW(CHAR_INFO CI);
+inline BYTE GetVidChar(CHAR_INFO CI)
+{
+  if(Opt.UseTTFFont)
+    return GetVidCharW(CI);
+  return CI.Char.AsciiChar;
+}
+
+inline void SetVidChar(CHAR_INFO& CI,BYTE Chr)
+{
+  extern WCHAR Oem2Unicode[];
+  if(Opt.UseTTFFont)
+    CI.Char.UnicodeChar = Oem2Unicode[Chr];
+  else
+    CI.Char.AsciiChar=Chr;
+}
+
 #else
 #define GetVidChar(CI)     (CI).Char.AsciiChar
 #define SetVidChar(CI,Chr) (CI).Char.AsciiChar=Chr

@@ -5,10 +5,13 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.17 30.05.2002 $ */
+/* Revision: 1.18 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    ! ScreenBuf::Flush - изменен порядок в уловии - сначал проверим атрибуты, а потом
+      символы (т.к. для получения символов вызываются функции)
   30.05.2002 SVS
     ! В USE_WFUNC, вместо проверки на тип операционки заюзаем Opt.UseTTFFont
   18.05.2002 SVS
@@ -313,8 +316,8 @@ void ScreenBuf::Flush()
       {
         for (int J=0; J < BufX; J++, ++PtrBuf, ++PtrShadow)
         {
-          if (GetVidChar(*PtrBuf) != GetVidChar(*PtrShadow) ||
-              PtrBuf->Attributes  != PtrShadow->Attributes)
+          if (PtrBuf->Attributes  != PtrShadow->Attributes ||
+              GetVidChar(*PtrBuf) != GetVidChar(*PtrShadow))
           {
             if (WriteX1>J)
               WriteX1=J;

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.159 29.05.2002 $ */
+/* Revision: 1.160 31.05.2002 $ */
 
 /*
 Modify:
+  31.05.2002 SVS
+    - BugZ#541 - Не работает F7 при погашенных панелях
   29.05.2002 SVS
     ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
   28.05.2002 SVS
@@ -868,7 +870,8 @@ int FileList::ProcessKey(int Key)
         Key!=KEY_CTRLBRACKET &&
         Key!=KEY_CTRLBACKBRACKET &&
         Key!=KEY_CTRLSHIFTBRACKET &&
-        Key!=KEY_CTRLSHIFTBACKBRACKET
+        Key!=KEY_CTRLSHIFTBACKBRACKET &&
+        Key!=KEY_F7
         )
     /* SKV$*/
       return(FALSE);
