@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.30 16.01.2002 $ */
+/* Revision: 1.31 18.01.2002 $ */
 
 /*
 Modify:
+  18.01.2002 VVM
+    ! Избавимся от setdisk() -> FarChDir()
   16.01.2002 SVS
     - Тот же самый BugZ#238. Немного увеличим буфера (до 4096 размер под FullPath)
   15.01.2002 SVS
@@ -1162,14 +1164,13 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   RemoveTrailingSpaces(CmdLine);
   if (!SeparateWindow && isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
   {
-    int NewDisk=toupper(CmdLine[0])-'A';
-    setdisk(NewDisk);
-    if (getdisk()!=NewDisk)
+    char NewDir[10];
+    sprintf(NewDir,"%c:",toupper(CmdLine[0]));
+    FarChDir(CmdLine);
+    if (getdisk()!=NewDir[0]-'A')
     {
-      char NewDir[10];
-      sprintf(NewDir,"%c:\\",NewDisk+'A');
+      strcat(NewDir,"\\");
       FarChDir(NewDir);
-      // setdisk(NewDisk); FarChDir умеет менять диск
     }
     SetPanel->ChangeDirToCurrent();
     return(TRUE);

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.80 14.01.2002 $ */
+/* Revision: 1.81 18.01.2002 $ */
 
 /*
 Modify:
+  18.01.2002 VVM
+    ! Избавимся от setdisk() - используем FarChDir
   14.01.2002 IS
     ! chdir -> FarChDir
   28.12.2001 DJ
@@ -761,7 +763,8 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     {
       int NumDisk=LOBYTE(LOWORD(UserData))-'A';
       char MsgStr[NM],NewDir[NM];
-      setdisk(NumDisk);
+      sprintf(NewDir,"%c:",LOBYTE(LOWORD(UserData)));
+      FarChDir(NewDir);
       CtrlObject->CmdLine->GetCurDir(NewDir);
       if (toupper(*NewDir)==LOBYTE(LOWORD(UserData)))
         FarChDir(NewDir);
@@ -770,7 +773,6 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         char RootDir[NM];
         sprintf(RootDir,"%c:\\",LOBYTE(LOWORD(UserData)));
         FarChDir(RootDir);
-        // setdisk(NumDisk); FarChDir умеет менять диск
         if (getdisk()==NumDisk)
           break;
       }
