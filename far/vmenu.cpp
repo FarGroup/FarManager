@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.51 06.08.2001 $ */
+/* Revision: 1.52 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    - неверно в прошлой серии велся пересчет координат.
   06.08.2001 SVS
     - бага с MaxLength - небыло контроля на длину титла
   01.08.2001 KM
@@ -451,14 +453,13 @@ void VMenu::Show()
     X2=X1+MaxLength+4;
   if (!AutoCenter && X2>ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
-    X1=2;
-    X2=ScrX-2;
-    /*
     X1+=ScrX-4-X2;
     X2=ScrX-4;
     if (X1<2)
+    {
       X1=2;
-    */
+      X2=ScrX-2;
+    }
   }
   if (X2>ScrX-2)
     X2=ScrX-2;
@@ -623,11 +624,11 @@ void VMenu::ShowMenu(int IsParent)
       break;
     case SINGLE_BOX:
     case SHORT_SINGLE_BOX:
-      *BoxChar=0x0B3;
+      *BoxChar=0x0B3; // |
       break;
     case DOUBLE_BOX:
     case SHORT_DOUBLE_BOX:
-      *BoxChar=0x0BA;
+      *BoxChar=0x0BA; // ||
       break;
   }
   if (SelectPos<ItemCount)

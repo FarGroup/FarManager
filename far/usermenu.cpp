@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.36 06.08.2001 $ */
+/* Revision: 1.37 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    + Хоткей ' ' теперь не жилец :-)
+    ! по разному оформляем строку для меню - Если хоткей - Fx, то
+      '&' в лейбаке игнорируется - это обычный символ и он не удаляется!!!
   06.08.2001 SVS
     ! Избаляемся от рекурсии в трех местах (Ins, Del, F4), для этого
       кусок кода по заполнению менюхи вынесен в отдельную функцию FillUserMenu()
@@ -470,7 +474,10 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
     }
     else
     {
-      sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
+      if(FuncNum>0) // Для Fx ограничим хоткеи
+        sprintf(MenuText,"%-3.3s& %-20.*s",HotKey,ScrX-12,Label);
+      else
+        sprintf(MenuText,"%s%-3.3s %-20.*s",(*HotKey?"&":""),HotKey,ScrX-12,Label);
       MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
       MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
     } /* else */
@@ -524,7 +531,10 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
     {
     /* $ 20.07.2000 tran
        %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
-      sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,MaxLen,Label);
+      if(FuncNum>0) // Для Fx ограничим хоткеи
+        sprintf(MenuText,"%-3.3s& %-*.*s",HotKey,MaxLen,MaxLen,Label);
+      else
+        sprintf(MenuText,"%s%-3.3s %-*.*s",(*HotKey?"&":""),HotKey,MaxLen,MaxLen,Label);
 
     /* tran 20.07.2000 $ */
       if (SubMenu)
@@ -537,6 +547,7 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
           SubMenuSymbol[1]='>';
         /* SVS $ */
         strcat(MenuText,SubMenuSymbol);
+//_SVS(SysLog("%2d - '%s'",HiStrlen(MenuText),MenuText));
       }
       strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
       UserMenuItem.SetSelect(NumLine==MenuPos);
@@ -631,6 +642,9 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
               continue;
             }
           }
+          else if(Key == ' ') // исключаем пробел из "хоткеев"!
+            continue;
+
           switch(Key)
           {
             case KEY_DEL:
@@ -890,8 +904,8 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   /* 04 */DI_EDIT,5,5,70,3,0,0,0,0,"",
   /* 05 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 06 */DI_TEXT,5,7,0,0,0,0,0,0,(char *)MEditMenuCommands,
-  /* 07 */DI_EDIT,5,8,70,3,0,0,DIF_EDITOR,0,"",
-  /* 08 */DI_EDIT,5,9,70,3,0,0,DIF_EDITOR,0,"",
+  /* 07 */DI_EDIT,5, 8,70,3,0,0,DIF_EDITOR,0,"",
+  /* 08 */DI_EDIT,5, 9,70,3,0,0,DIF_EDITOR,0,"",
   /* 09 */DI_EDIT,5,10,70,3,0,0,DIF_EDITOR,0,"",
   /* 10 */DI_EDIT,5,11,70,3,0,0,DIF_EDITOR,0,"",
   /* 11 */DI_EDIT,5,12,70,3,0,0,DIF_EDITOR,0,"",
@@ -974,8 +988,7 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   }
 
   SetRegKey(ItemKey,"HotKey",EditDlg[2].Data);
-  SetRegKey(ItemKey,"Label",
-    (*EditDlg[2].Data?RemoveChar(EditDlg[4].Data,'&',TRUE):EditDlg[4].Data));
+  SetRegKey(ItemKey,"Label",EditDlg[4].Data);
   SetRegKey(ItemKey,"Submenu",(DWORD)0);
 
   int CommandNumber=0,I;

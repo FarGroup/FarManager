@@ -1,3 +1,6 @@
+#if defined(DHELP2)
+#include "help2.hpp"
+#else
 #ifndef __HELP_HPP__
 #define __HELP_HPP__
 /*
@@ -7,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.18 05.08.2001 $ */
+/* Revision: 1.19 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    ! косметика - для собственных нужд (по поводу help2.?pp)
   05.08.2001 SVS
     + AddTitle() - добавить титл.
   01.08.2001 SVS
@@ -144,3 +149,4 @@ class Help:public Frame
 };
 
 #endif	// __HELP_HPP__
+#endif // defined(DHELP2)

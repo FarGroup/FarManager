@@ -1,3 +1,6 @@
+#if defined(DHELP2)
+#include "help2.cpp"
+#else
 /*
 help.cpp
 
@@ -5,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.38 05.08.2001 $ */
+/* Revision: 1.39 07.08.2001 $ */
 
 /*
 Modify:
+  07.08.2001 SVS
+    ! косметика - для собственных нужд (по поводу help2.?pp)
   05.08.2001 SVS
     + AddTitle() - добавить титл.
     ! В Help::MkTopic() исключим возможность повторного формирования топика,
@@ -1597,3 +1602,4 @@ void CallBackStack::PrintStack(const char *Title)
   }
   SysLog(-1);
 }
+#endif // defined(DHELP2)
