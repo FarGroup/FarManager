@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + путь для поиска основных плагинов
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
   07.07.2000 SVS
@@ -64,6 +66,11 @@ extern int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
 extern int WaitInMainLoop;
 
 extern char FarPath[NM];
+/* $ 03.08.2000 SVS
+    + путь для поиска основных плагинов
+*/
+extern char MainPluginsPath[NM];
+/* SVS $ */
 
 extern char GlobalSearchString[512];
 extern int GlobalSearchCase;

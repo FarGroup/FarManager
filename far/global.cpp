@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.01 07.07.2000 $ */
+/* Revision: 1.02 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + путь для поиска основных плагинов
   07.07.2000 SVS
     + Разграничитель слов из реестра (общий для редактирования)
   25.06.2000 SVS
@@ -45,6 +47,11 @@ struct Options Opt;
 OSVERSIONINFO WinVer;
 
 char FarPath[NM];
+/* $ 03.08.2000 SVS
+    + путь для поиска основных плагинов
+*/
+char MainPluginsPath[NM];
+/* SVS $ */
 
 char GlobalSearchString[512];
 int GlobalSearchCase;

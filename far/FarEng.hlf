@@ -392,6 +392,13 @@ $ #Command line switches#
            is read from the stdin. For example, "dir|far /v -"
            will view dir command output.
 
+  /p[<path>]
+           Search "main" plugins in the directory, specified in <path>.
+           If <path> not specified, "main" plugins will not be loaded.
+           In <path> possibled use the Environment Variables.
+
+           For example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
+
   Far <filename> command starts Far and forces it to show <filename>
 contents if it is an archive or show folder contents if <filename>
 is a folder.
@@ -1017,7 +1024,8 @@ $ #System settings dialog#
                           will be saved also.
 
   #Path for#                Indicate a full path, where FAR will
-  #personal plugins#        search additional plugins.
+  #personal plugins#        search "personal" plugins (possible use
+                          the Environment Variables).
 
 @PanelSettings
 $ #Panel settings dialog#

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.11 01.08.2000 $ */
+/* Revision: 1.12 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + Учтем, что можут быть указан параметр -P в командной строке...
   01.08.2000 SVS
     ! Расширение дополнительного пути для поиска персональных плагином
       происходит непосредственно перед поиском
@@ -116,7 +118,15 @@ void PluginsSet::LoadPlugins()
   ScanTree ScTree(FALSE,TRUE);
   for(IPath=0; IPath < 2; ++IPath)
   {
-    sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
+    /* $ 03.08.2000 SVS
+       Учтем, что можут быть указан параметр -P в командной строке
+    */
+    if(Opt.MainPluginDir)
+      sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
+    else
+      strcpy(PluginsDir,MainPluginsPath);
+    /* SVS $ */
+
     if(!IPath)
     {
       // если пусто то прерываем поиск :-) независимо ни от чего...
@@ -136,6 +146,12 @@ void PluginsSet::LoadPlugins()
       else
         continue; // продолжем дальше
     }
+    /* $ 03.08.2000 SVS
+       Может быть случай, когда вообще без плагинов запускаемся!!!
+    */
+    if(!PluginsDir[0])
+      continue;
+    /* SVS $ */
 
     ScTree.SetFindPath(PluginsDir,"*.*");
     while (ScTree.GetNextName(&FindData,FullName))

@@ -5,10 +5,15 @@ far.cpp
 
 */
 
-/* Revision: 1.01 06.07.2000 $ */
+/* Revision: 1.02 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    ! Не срабатывал шаблон поиска файлов для под-юзеров
+    + Новый параметр "Вместо стандарного %FAR%\Plugins искать плагины из
+      указанного пути". При этом персональные тоже грузится будут.
+      IMHO нехрен этому параметру делать в системных настройках!!!
   07.07.2000 IS
     - Декларация SetHighlighting перешла в fn.cpp
   07.07.2000 SVS
@@ -43,9 +48,15 @@ int _cdecl main(int Argc, char *Argv[])
   CmdMode=FALSE;
 
   strcpy(Opt.RegRoot,"Software\\Far");
+  /* $ 03.08.2000 SVS
+     По умолчанию - брать плагины из основного каталога
+  */
+  Opt.MainPluginDir=TRUE;
+  /* SVS $ */
 
   for (int I=1;I<Argc;I++)
     if ((Argv[I][0]=='/' || Argv[I][0]=='-') && Argv[I][1])
+    {
       switch(toupper(Argv[I][1]))
       {
         case 'A':
@@ -95,7 +106,31 @@ int _cdecl main(int Argc, char *Argv[])
             I++;
           }
           break;
+        case 'P':
+        {
+          /* $ 03.08.2000 SVS
+            + Новый параметр "Вместо стандарного %FAR%\Plugins искать плагины из
+              указанного пути". При этом персональные тоже грузится будут.
+              IMHO нехрен этому параметру делать в системных настройках!!!
+              /P[<путь>]
+              Причем, <путь> может содержать Env-переменные
+          */
+          if (Argv[I][2])
+          {
+            ExpandEnvironmentStrings(&Argv[I][2],MainPluginsPath,sizeof(MainPluginsPath));
+          }
+          else
+          {
+            // если указан -P без <путь>, то, считаем, что основные
+            //  плагины не загружать вооообще!!!
+            MainPluginsPath[0]=0;
+          }
+          Opt.MainPluginDir=FALSE;
+          break;
+          /* SVS $*/
+        }
       }
+    }
     else
       CharToOem(Argv[I],DestName);
 
@@ -118,6 +153,12 @@ int _cdecl main(int Argc, char *Argv[])
   LocalUpperInit();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
   *PointToName(FarPath)=0;
+  /* $ 03.08.2000 SVS
+     Если не указан параметр -P
+  */
+  if(Opt.MainPluginDir)
+    sprintf(MainPluginsPath,"%s%s",FarPath,PluginsFolderName);
+  /* SVS $*/
   InitDetectWindowedMode();
   InitConsole();
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
@@ -214,12 +255,25 @@ void SetHighlighting()
 }
 
 
+/* $ 03.08.2000 SVS
+  ! Не срабатывал шаблон поиска файлов для под-юзеров
+*/
 void CopyGlobalSettings()
 {
-  if (CheckRegKey(""))
+  if (CheckRegKey("")) // при существующем - вываливаемся
     return;
+  // такого извера нету - перенесем данные!
   SetRegRootKey(HKEY_LOCAL_MACHINE);
   CopyKeyTree("Software\\Far",Opt.RegRoot,"Software\\Far\\Users\0");
   SetRegRootKey(HKEY_CURRENT_USER);
   CopyKeyTree("Software\\Far",Opt.RegRoot,"Software\\Far\\Users\0Software\\Far\\PluginsCache\0");
+  //  "Вспомним" путь по шаблону!!!
+  SetRegRootKey(HKEY_LOCAL_MACHINE);
+  GetRegKey("System","TemplatePluginsPath",Opt.PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  // удалим!!!
+  DeleteRegKey("System");
+  // запишем новое значение!
+  SetRegRootKey(HKEY_CURRENT_USER);
+  SetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath);
 }
+/* SVS $ */

@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.06 01.08.2000 $ */
+/* Revision: 1.07 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 SVS
+    + Добавка в Options: MainPluginDir - использовать основной путь для
+      поиска плагинов...
   01.08.2000 SVS
     ! Изменения в структурах Dialog*
   26.07.2000 SVS
@@ -107,6 +110,11 @@ struct DizOptions
 
 struct Options
 {
+  /* $ 03.08.2000 SVS
+     TRUE - использовать стандартный путь к основным плагинам
+  */
+  int MainPluginDir;
+  /* SVS $*/
   int Clock;
   int ViewerEditorClock;
   int Mouse;
