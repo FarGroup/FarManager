@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.59 07.05.2001 $ */
+/* Revision: 1.60 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 DJ
+    * более точное позиционирование скроллбара, особенно на _очень_ больших файлах
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   06.05.2001 DJ
@@ -1633,7 +1635,11 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       while (IsMouseButtonPressed())
       {
         INPUT_RECORD rec;
-        FilePos=(FileSize-1)*(MsY-Y1)/(Y2-Y1-1);
+        /* $ 14.05.2001 DJ
+           более точное позиционирование; корректная работа на больших файлах
+        */
+        FilePos=(FileSize-1)/(Y2-ViewY1-1)*(MsY-ViewY1);
+        /* DJ $ */
         if ( FilePos>FileSize )
             FilePos=FileSize;
         //_D(SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent(FilePos,FileSize),FilePos,FileSize));

@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.20 12.05.2001 $ */
+/* Revision: 1.21 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 DJ
+    * дизейблим, а не прячем Search in archives на плагиновой панели
+    * колесо чтоб работало :-)
   12.05.2001 DJ
     * курсор не останавливается на пустых строках между каталогами
   10.05.2001 DJ
@@ -197,11 +200,12 @@ FindFiles::FindFiles()
         struct OpenPluginInfo Info;
         HANDLE hPlugin=ActivePanel->GetPluginHandle();
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+        /* $ 14.05.2001 DJ
+           дизейблим, а не прячем
+        */
         if ((Info.Flags & OPIF_REALNAMES)==0)
-        {
-          FindAskDlg[10].Type=DI_TEXT;
-          *FindAskDlg[10].Data=0;
-        }
+          FindAskDlg[10].Flags |= DIF_DISABLE;
+        /* DJ $ */
       }
     }
 
@@ -210,7 +214,12 @@ FindFiles::FindFiles()
     FindAskDlg[7].Selected=CmpCase;
     FindAskDlg[8].Selected=WholeWords;
     FindAskDlg[9].Selected=UseAllTables;
-    FindAskDlg[10].Selected=SearchInArchives;
+    /* $ 14.05.2001 DJ
+       не селектим чекбокс, если нельзя искать в архивах
+    */
+    if (!(FindAskDlg[10].Flags & DIF_DISABLE))
+      FindAskDlg[10].Selected=SearchInArchives;
+    /* DJ $ */
     FindAskDlg[12].Selected=FindAskDlg[13].Selected=0;
     FindAskDlg[14].Selected=FindAskDlg[15].Selected=0;
     FindAskDlg[16].Selected=0;
@@ -540,12 +549,17 @@ int FindFiles::FindFilesProcess()
               continue;
             }
           }
+          /* $ 14.05.2001 DJ
+             колесо чтоб работало :-)
+          */
           if (Key==KEY_UP || Key==KEY_DOWN || Key==KEY_PGUP ||
-              Key==KEY_PGDN || Key==KEY_HOME || Key==KEY_END)
+              Key==KEY_PGDN || Key==KEY_HOME || Key==KEY_END ||
+              Key==KEY_MSWHEEL_UP || Key==KEY_MSWHEEL_DOWN)
           {
             ListPosChanged=TRUE;
             FindList.ProcessKey(Key);
           }
+          /* DJ $ */
           else
           {
             if (Key!=KEY_ENTER || !FindDlg[5].Focus || FindList.GetUserData(NULL,0))
