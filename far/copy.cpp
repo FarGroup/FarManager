@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.35 30.05.2001 $ */
+/* Revision: 1.36 01.06.2001 $ */
 
 /*
 Modify:
+  01.06.2001 SVS
+    ! — FAT&CDFS -> NTFS можно делать symlink! Ќо при условии, что
+      CD монтирован на NTFS!!!
   30.05.2001 SVS
     ! ShellCopy::CreatePath выведена из класса в отдельню функцию
     ! полностью переработанный конструктор класса
@@ -658,10 +661,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
                          char *SrcDir,char *DstDir,struct CopyDlgParam *CDP)
 {
-  char FSysNameDst[NM],Root[1024];
-  DWORD FileSystemFlagsDst;
-  int IsDTDstFixed;
-
+  char Root[1024];
   *Flags7|=DIF_DISABLE; // дисаблим сразу!
   *Flags5|=DIF_DISABLE;
 
@@ -670,33 +670,37 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
     *Selected5=0;
     return TRUE;
   }
-
+_SVS(SysLog("\n---"));
   // получаем полную инфу о источнике и приемнике
   if(CDP->IsDTSrcFixed == -1)
   {
     char FSysNameSrc[NM];
     ConvertNameToFull(SrcDir,Root, sizeof(Root));
     GetPathRoot(Root,Root);
-    CDP->IsDTSrcFixed=GetDriveType(Root) == DRIVE_FIXED;
+_SVS(SysLog("SrcDir=%s",SrcDir));
+_SVS(SysLog("Root=%s",Root));
+    CDP->IsDTSrcFixed=GetDriveType(Root);
+    CDP->IsDTSrcFixed=CDP->IsDTSrcFixed == DRIVE_FIXED || CDP->IsDTSrcFixed == DRIVE_CDROM;
     GetVolumeInformation(Root,NULL,0,NULL,NULL,&CDP->FileSystemFlagsSrc,FSysNameSrc,sizeof(FSysNameSrc));
     CDP->FSysNTFS=!stricmp(FSysNameSrc,"NTFS")?TRUE:FALSE;
+_SVS(SysLog("FSysNameSrc=%s",FSysNameSrc));
   }
 
   // 1. если источник находитс€ не на логическом диске
-  if(CDP->IsDTSrcFixed &&
-     // 2. если источник находитс€ на логическом диске, отличном от NTFS
-     CDP->FSysNTFS)
+  if(CDP->IsDTSrcFixed)
   {
+    char FSysNameDst[NM];
+    DWORD FileSystemFlagsDst;
+
     ConvertNameToFull(DstDir,Root, sizeof(Root));
     GetPathRoot(Root,Root);
     if(GetFileAttributes(Root) == -1)
       return TRUE;
 
     GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst));
-    IsDTDstFixed=GetDriveType(Root) == DRIVE_FIXED;
 
     // 3. если приемник находитс€ не на логическом диске
-    if(IsDTDstFixed &&
+    if(GetDriveType(Root) == DRIVE_FIXED &&
        GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlagsDst,FSysNameDst,sizeof(FSysNameDst)) &&
        // 4. если источник находитс€ на логическом диске, отличном от NTFS
        !stricmp(FSysNameDst,"NTFS")
@@ -710,7 +714,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
         {
           // . если источник находитс€ на логическом диске NTFS, но не поддерживающим repase point
           if(NT5 &&
-             (CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS) &&
+//             (CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS) &&
              (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS))
           {
             *Flags5 &=~ DIF_DISABLE;
@@ -722,7 +726,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
           else
             *Selected5=0;
         }
-        else if(SameDisk) // это файл!
+        else if(SameDisk && CDP->FSysNTFS) // это файл!
         {
           *Selected5=0;
           *Flags7 &=~ DIF_DISABLE;
@@ -730,19 +734,17 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
       }
       else
       {
-        if(NT5 &&
-           (CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS) &&
-           (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS))
+        if(NT5 && (FileSystemFlagsDst&FILE_SUPPORTS_REPARSE_POINTS))
         {
           if(CDP->FolderPresent)
           {
             *Flags5 &=~ DIF_DISABLE;
             *Flags7 &=~ DIF_DISABLE;
           }
-          else
+          else if(CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS)
             *Selected5=0;
         }
-        else if(SameDisk) // это файл!
+        else if(SameDisk && CDP->FSysNTFS) // это файл!
         {
           *Selected5=0;
           *Flags7 &=~ DIF_DISABLE;
@@ -884,7 +886,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
        (ShellCopy::Flags&FCOPY_CREATESYMLINK)
       )
     {
-      _SVS(SysLog("\n---"));
+      //_SVS(SysLog("\n---"));
 
       switch(MkSymLink(SelName,Dest,ShellCopy::Flags))
       {

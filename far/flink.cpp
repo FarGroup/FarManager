@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.17 30.05.2001 $ */
+/* Revision: 1.18 01.06.2001 $ */
 
 /*
 Modify:
+  01.06.2001 SVS
+    + Добавки для вывода лога.
   30.05.2001 SVS
     + FarMkLink()
     ! Удалена за ненадобностью проверка на CREATE_JUNCTION (полностью)
@@ -199,6 +201,9 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
     return FALSE;
 
+_SVS(SysLog("SrcFolder=%s",SrcFolder));
+_SVS(SysLog("LinkFolder=%s",LinkFolder));
+
   char szDestDir[1024];
   if (SrcFolder[0] == '\\' && SrcFolder[1] == '?')
     strcpy(szDestDir, SrcFolder);
@@ -215,6 +220,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
     }
     strcat(szDestDir, szFullDir);
   }
+_SVS(SysLog("szLinkDir=%s",szDestDir));
 
   char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
   TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;

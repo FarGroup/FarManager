@@ -250,13 +250,13 @@
 "&Cancel"
 
 "Cannot create the symlink"
-"Каталог назначения должен быть пустым"
+"Target directory must be empty"
 
 "Volume mount points error"
 "Retrieving volume name for '%s' failed"
 "Attempt to volume mount '%s'"
 "at '%s' failed"
-"Функция монтирования дисков не поддерживается"
+"Volume mounting is not supported"
 "Disk_%c"
 
 "Cannot copy the file"

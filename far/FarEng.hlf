@@ -2201,6 +2201,10 @@ panel mode) and sort the files by hard link number.
 В отличие от хардлинков, симлинки не обязательно должны указывать на тот
 же диск.
 
+    Напрямую делать символические связи на каталоги CD-ROM нельзя, но
+можно это ограничение обойти, смонтировав CD-ROM диск на каталог
+HTFS-раздела.
+
 @ScrSwitch
 $ #Screens switching#
     FAR allows to open several instances of the internal viewer and editor
