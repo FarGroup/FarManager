@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.45 22.01.2002 $ */
+/* Revision: 1.46 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    - BugZ#201 - Shift of command prompt after exiting FAR
+    + OnliEditorViewerUsed,  =TRUE, если старт был /e или /v
   22.01.2002 SVS
     - BugZ#263 - Opening non-existent file in viewer (beta 4 only)
   11.01.2002 IS
@@ -415,6 +418,7 @@ int _cdecl main(int Argc, char *Argv[])
     if (*EditName || *ViewName)
     {
       NotUseCAS=TRUE;
+      OnliEditorViewerUsed=TRUE;
       Panel *DummyPanel=new Panel;
       CmdMode=TRUE;
       _tran(SysLog("create dummy panels"));
@@ -444,6 +448,7 @@ int _cdecl main(int Argc, char *Argv[])
     }
     else
     {
+      OnliEditorViewerUsed=FALSE;
       NotUseCAS=FALSE;
       if (RegOpt)
         Register();
@@ -476,6 +481,7 @@ int _cdecl main(int Argc, char *Argv[])
     SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
     ScrBuf.ResetShadow();
     ScrBuf.Flush();
+    MoveRealCursor(0,0);
   }
 
   SetConsoleTitle(OldTitle);

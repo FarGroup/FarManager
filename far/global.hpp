@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.31 14.01.2002 $ */
+/* Revision: 1.32 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    + OnliEditorViewerUsed,  =TRUE, если старт был /e или /v
   14.01.2002 SVS
     + DOS_EOL_fmt[], UNIX_EOL_fmt (из editor.cpp)
   26.11.2001 SVS
@@ -203,5 +205,8 @@ extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 extern int WidthNameForMessage;
 
 extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[];
+
+// TRUE, если старт был /e или /v
+extern int OnliEditorViewerUsed;
 
 #endif  // __FARGLOBAL_HPP__

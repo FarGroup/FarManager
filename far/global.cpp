@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.31 15.01.2002 $ */
+/* Revision: 1.32 22.01.2002 $ */
 
 /*
 Modify:
+  22.01.2002 SVS
+    + OnliEditorViewerUsed,  =TRUE, если старт был /e или /v
   15.01.2002 SVS
     ! Изменен формат шаблона для имен временных файлов FarTmpXXXXXX
   14.01.2002 SVS
@@ -184,3 +186,6 @@ struct PreRedrawParamStruct PreRedrawParam={0};
 int WidthNameForMessage=0;
 
 const char DOS_EOL_fmt[]="\r\n", UNIX_EOL_fmt[]="\n";
+
+int OnliEditorViewerUsed=FALSE;
+
