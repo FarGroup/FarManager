@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.22 23.06.2001 $ */
+/* Revision: 1.23 29.06.2001 $ */
 
 /*
 Modify:
+  29.06.2001 OT
+    ! Косметика оказалась ... с душком-с :( Отменяем :)
   23.06.2001 OT
     ! косметика для команд far -v/-e. Не нужны нам теперь панели-болванки.
   29.05.2001 tran
@@ -310,7 +312,11 @@ int _cdecl main(int Argc, char *Argv[])
     ControlObject CtrlObj;
     if (*EditName || *ViewName)
     {
+      Panel *DummyPanel=new Panel;
       CmdMode=TRUE;
+      _tran(SysLog("create dummy panels"));
+      CtrlObj.CreateFilePanels();
+      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
       CtrlObj.Plugins.LoadPlugins();
       if (*EditName)
       {
@@ -323,6 +329,9 @@ int _cdecl main(int Argc, char *Argv[])
         _tran(SysLog("make shellviewer, %p",ShellViewer));
       }
       FrameManager->EnterMainLoop();
+      CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
+      delete DummyPanel;
+      _tran(SysLog("editor/viewer closed, delete dummy panels"));
     }
     else
     {

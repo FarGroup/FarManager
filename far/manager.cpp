@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.33 26.06.2001 $ */
+/* Revision: 1.34 29.06.2001 $ */
 
 /*
 Modify:
+  29.06.2001 OT
+    - Зацикливание при UpdateCommit()
   26.06.2001 SKV
     + PluginCommit(); вызов ACTL_COMMIT
   23.06.2001 OT
@@ -726,6 +728,7 @@ void Manager::UpdateCommit()
   int FrameIndex=IndexOf(DeletedFrame);
   if (-1!=FrameIndex){
     ActivatedFrame=FrameList[FrameIndex] = InsertedFrame;
+    ActivatedFrame->FrameToBack=CurrentFrame;
     DeleteCommit();
   } else {
     Frame *iFrame=NULL;

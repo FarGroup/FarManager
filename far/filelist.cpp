@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.68 25.06.2001 $ */
+/* Revision: 1.69 29.06.2001 $ */
 
 /*
 Modify:
+  29.06.2001 OT
+   - Баг с вызовом редактора из плагина
   25.06.2001 IS
    ! Внедрение const
   23.06.2001 OT
@@ -1192,6 +1194,7 @@ int FileList::ProcessKey(int Key)
                 if (PluginMode)
                 {
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                  ShellEditor.SetDynamicallyBorn(false);
                   FrameManager->ExecuteModal();//OT
                   UploadFile=ShellEditor.IsFileChanged();
                   Modaling=TRUE;///
