@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.107 14.12.2004 $ */
+/* Revision: 1.108 15.12.2004 $ */
 
 /*
 Modify:
+  15.12.2004 SVS
+    - BugZ#1119 -  Неправильный разбор cmd строки для запуска
   14.12.2004 WARP
     ! Немного поломал executor. (see 01875.Executor.txt)
   06.08.2004 SKV
@@ -1189,7 +1191,6 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
             sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
           else if (NT && *CmdPtr=='\"')
             strncat(ExecLine," \"\"",sizeof(ExecLine)-1);
-//          ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
         }
 
         strncat(ExecLine," ",sizeof(ExecLine)-1);
@@ -1203,6 +1204,13 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
       }
     }
+
+    if (SeparateWindow)
+    {
+      ReplaceStrings(ExecLine,"^","^^",-1);
+      ReplaceStrings(ExecLine,"&","^&",-1);
+    }
+
 //_SVS(SysLog("ExecLine='%s'",ExecLine));
     // если запуск через ShellExecuteEx(), то нефига ставить заголовок
     /* $ 22.03.2002 IS
