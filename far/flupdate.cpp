@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.18 13.11.2001 $ */
+/* Revision: 1.19 22.11.2001 $ */
 
 /*
 Modify:
+  22.11.2001 VVM
+    + Раскрасить ".." при OPIF_ADDDOTS
   13.11.2001 OT
     ! Попытка исправить создание каталогов на пассивной панели по F7
   24.10.2001 SVS
@@ -666,6 +668,13 @@ void FileList::UpdatePlugin(int KeepSelection)
   {
     struct FileListItem *CurPtr;
     AddParentPoint((CurPtr=ListData+FileCount),FileCount);
+    /* $ 22.11.2001 VVM
+      + Не забыть раскрасить :) */
+    if ((Info.Flags & OPIF_USEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
+      CtrlObject->HiFiles->GetHiColor(
+          (Info.Flags & OPIF_USEATTRHIGHLIGHTING) ? NULL:CurPtr->Name,
+          CurPtr->FileAttr,&CurPtr->Colors);
+    /* VVM $ */
     if (Info.HostFile && *Info.HostFile)
     {
       WIN32_FIND_DATA FindData;
