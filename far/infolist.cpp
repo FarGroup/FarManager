@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.02 20.07.2000 $ */
+/* Revision: 1.03 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+    + Покажем инфу, что ЭТО - SUBST-диск
   20.07.2000 tran
     - артефакт при f3 (при наличии dirinfo)
   11.07.2000 SVS
@@ -107,6 +109,19 @@ void InfoList::DisplayObject()
         *DiskType=0;
         break;
     }
+    /* 05.01.2001 SVS
+       + Информация про Subst-тип диска
+    */
+    {
+      char LocalName[8],SubstName[NM];
+      sprintf(LocalName,"%c:",*DriveRoot);
+      if(GetSubstName(LocalName,SubstName,sizeof(SubstName)))
+      {
+        strcpy(DiskType,MSG(MInfoSUBST));
+        DriveType=DRIVE_SUSTITUTE;
+      }
+    }
+    /* SVS $ */
     char DiskName[NM];
     if (DriveRoot[0] && DriveRoot[1]==':')
       sprintf(DiskName,"%c:",toupper(*DriveRoot));

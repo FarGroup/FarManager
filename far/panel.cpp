@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.10 14.12.2000 $ */
+/* Revision: 1.11 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+    + Попробуем удалить SUBST диск
+    + Покажем инфу, что ЭТО - SUBST-диск
   14.12.2000 SVS
     + Попробуем сделать Eject для съемных дисков в меню выбора дисковода.
   11.11.2000 SVS
@@ -164,7 +167,19 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               sprintf(DiskType,"%*s",strlen(MSG(MChangeDriveFixed)),"");
               break;
           }
-
+          /* 05.01.2001 SVS
+             + Информация про Subst-тип диска
+          */
+          {
+            char LocalName[8],SubstName[NM];
+            sprintf(LocalName,"%c:",*RootDir);
+            if(GetSubstName(LocalName,SubstName,sizeof(SubstName)))
+            {
+              strcpy(DiskType,MSG(MChangeDriveSUBST));
+              DriveType=DRIVE_SUSTITUTE;
+            }
+          }
+          /* SVS $ */
           strcat(MenuText,DiskType);
         }
 
@@ -222,7 +237,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           if (!NetPathShown)
           {
-            char LocalName[NM],SubstName[NM];
+            char LocalName[8],SubstName[NM];
             sprintf(LocalName,"%c:",*RootDir);
 
             if (GetSubstName(LocalName,SubstName,sizeof(SubstName)))
@@ -389,6 +404,34 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               {
                 EjectVolume(*Letter,0);
                 return(SelPos);
+              }
+              /* SVS $ */
+              /* $ 05.01.2001 SVS
+                 Пробуем удалить SUBST-драйв.
+              */
+              if(DriveType == DRIVE_SUSTITUTE)
+              {
+                char DosDeviceName[16];
+                sprintf(DosDeviceName,"%c:",*Letter);
+                if(!DelSubstDrive(DosDeviceName))
+                  return(SelPos);
+                else
+                {
+                  int LastError=GetLastError();
+                  char MsgText[200];
+                  sprintf(MsgText,MSG(MChangeDriveCannotDelSubst),DosDeviceName);
+                  if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
+                    if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,
+                            "\x1",MSG(MChangeDriveOpenFiles),
+                            MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
+                    {
+                      if(!DelSubstDrive(DosDeviceName))
+                        return(SelPos);
+                    }
+                    else
+                      break;
+                  Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
+                }
               }
               /* SVS $ */
 

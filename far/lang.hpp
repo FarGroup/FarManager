@@ -16,6 +16,8 @@ lang.hpp
 
 /*
 Modify:
+  05.01.2001 SVS
+    + MInfoSUBST, MChangeDriveSUBST, MChangeDriveCannotDelSubst
   04.01.2001 SVS
     + MMacroSettingsIgnoreFileFolders,
     + MMacroSettingsFolders,
@@ -804,6 +806,7 @@ enum
   MInfoNetwork,
   MInfoCDROM,
   MInfoRAM,
+  MInfoSUBST,
   MInfoDisk,
   MInfoDiskTotal,
   MInfoDiskFree,
@@ -962,10 +965,12 @@ enum
   MChangeDriveNetwork,
   MChangeDriveCDROM,
   MChangeDriveRAM,
+  MChangeDriveSUBST,
   MChangeDriveLabelAbsent,
   MChangeDriveMb,
   MChangeDriveCannotReadDisk,
   MChangeDriveCannotDisconnect,
+  MChangeDriveCannotDelSubst,
   MChangeDriveOpenFiles,
   MChangeDriveAskDisconnect,
   MChangeVolumeInUse,

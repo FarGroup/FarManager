@@ -1406,11 +1406,16 @@ from network drive or open a new ~plugin~@Plugins@ panel.
 item with plugin name to create new plugin panel. If the panel type is not
 a ~file panel~@FilePanel@, it will be changed to the file panel.
 
-    Del key may be used to disconnect from network drives.
+    #Del# key can be used:
 
-    Del key can be used to eject disks from CD-ROM and removable
-drives. To perform this operation on Windows NT/2000 administration
-privileges are required.
+     - to disconnect from network drives.
+
+     - deletes a substituted (virtual) drive.
+
+     - to eject disks from CD-ROM and removable drives.
+       To perform this operation on Windows NT/2000 administration
+       privileges are required.
+
 
     #Ctrl-1# - #Ctrl-8# switches display of different information:
 

@@ -126,6 +126,7 @@ FAROBJ=\
    $(OBJPATH)\scrsaver.obj\
    $(OBJPATH)\keybar.obj\
    $(OBJPATH)\print.obj\
+   $(OBJPATH)\strmix.obj\
    $(OBJPATH)\iswind.obj\
    $(OBJPATH)\global.obj\
    $(OBJPATH)\history.obj\

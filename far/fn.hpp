@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.46 04.01.2001 $ */
+/* Revision: 1.47 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+   ! Функция GetSubstName переехала в flink.hpp
   04.01.2001 SVS
    + KeyNameMacroToKey() и TranslateKeyToVK()
   04.01.2001 SVS
@@ -197,7 +199,6 @@ void DetectWindowedMode();
 int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
-bool GetSubstName(char *LocalName,char *SubstName,int SubstSize);
 void BoxText(char *Str);
 int FarColorToReal(int FarColor);
 void ReopenConsole();
@@ -647,5 +648,6 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
                   FILETIME *CreationTime,FILETIME *LastAccessTime,
                   int FileAttr);
 /* SVS $ */
+int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength);
 
 #endif  // __FARFUNC_HPP__

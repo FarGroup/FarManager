@@ -41,6 +41,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\strmix.obj"
 	-@erase "$(INTDIR)\flink.obj"
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
@@ -145,6 +146,7 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
+	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \
@@ -255,6 +257,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\strmix.obj"
 	-@erase "$(INTDIR)\flink.obj"
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
@@ -360,6 +363,7 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
+	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \

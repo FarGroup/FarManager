@@ -5,12 +5,15 @@ flink.cpp
 
 */
 
-/* Revision: 1.03 04.01.2001 $ */
+/* Revision: 1.04 05.01.2001 $ */
 
 /*
 Modify:
-  05.01.2000 OT 
-    - Косметика, из-за которой не компилился под VC :) 
+  05.01.2001 SVS
+    + Функция GetSubstName - переехала из mix.cpp
+    + Функция DelSubstDrive - удаление Subst драйвера
+  05.01.2000 OT
+    - Косметика, из-за которой не компилился под VC :)
   04.01.2001 SVS
     + Заглушки для CreateJunctionPoint, DeleteJunctionPoint
     + GetJunctionPointInfo - получить инфу про Junc
@@ -27,7 +30,7 @@ Modify:
 
 //#if defined(__BORLANDC__)
 // current thread's ANSI code page
-  #define CP_THREAD_ACP             3           
+  #define CP_THREAD_ACP             3
 
   #define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
   // Predefined reparse tags.
@@ -48,7 +51,7 @@ Modify:
                     ((_tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
                    )
   #define FILE_FLAG_OPEN_REPARSE_POINT    0x00200000
-  #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS) 
+  #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS)
 // REPARSE_DATA_BUFFER
 //#endif
 struct TMN_REPARSE_DATA_BUFFER
@@ -243,4 +246,43 @@ int WINAPI MkLink(char *Src,char *Dest)
 #if defined(__BORLANDC__)
 #pragma option -a.
 #endif
+
+/* $ 05.01.2001 SVS
+   Функция DelSubstDrive - удаление Subst драйвера
+   Return: -1 - это либо не SUBST-драйвер, либо OS не та.
+            0 - все удалено на ура
+            1 - ошибка при удалении.
+*/
+int DelSubstDrive(char *DosDeviceName)
+{
+  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+  {
+    char NtDeviceName[512];
+    if (QueryDosDevice(DosDeviceName,NtDeviceName,sizeof(NtDeviceName))==0)
+      return(-1);
+    if (strncmp(NtDeviceName,"\\??\\",4)!=0)
+      return(-1);
+    return !DefineDosDevice(DDD_RAW_TARGET_PATH|
+                       DDD_REMOVE_DEFINITION|
+                       DDD_EXACT_MATCH_ON_REMOVE,
+                       DosDeviceName, NtDeviceName)?1:0;
+  }
+  return(-1);
+}
+/* SVS $ */
+
+BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize)
+{
+  if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+  {
+    char Name[512]="";
+    if (QueryDosDevice(LocalName,Name,sizeof(Name))==0)
+      return(FALSE);
+    if (strncmp(Name,"\\??\\",4)!=0)
+      return(FALSE);
+    strncpy(SubstName,Name+4,SubstSize);
+    return(TRUE);
+  }
+  return(FALSE);
+}
 

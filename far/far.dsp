@@ -95,6 +95,10 @@ SOURCE=.\flink.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\strmix.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\eject.cpp
 # End Source File
 # Begin Source File

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.14 25.12.2000 $ */
+/* Revision: 1.15 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+    + DRIVE_SUSTITUTE - это про SUBST-диски.
   25.12.2000 SVS
     ! MACRO_ переехали из plugin.hpp :-)
   23.12.2000 SVS
@@ -246,6 +248,8 @@ enum EceptFunctionsType{
 #define TRY	__try
 #endif
 /* SVS $ */
+
+#define DRIVE_SUSTITUTE     0x0F
 
 
 #endif // __FARCONST_HPP__
