@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.11 22.03.2002 $ */
+/* Revision: 1.12 22.04.2002 $ */
 
 /*
 Modify:
+  22.04.2002 KM
+    - Затычка: запрет на AltF9 в помощи. Пока.
   22.03.2002 SVS
     - strcpy - Fuck!
   18.03.2002 SVS
@@ -108,7 +110,15 @@ int FolderTree::ProcessKey(int Key)
   {
     case KEY_F1:
       {
+        /* $ 22.04.2002 KM
+            Поставим пока запрет на AltF9 в дереве,
+            пока класс дерева не переписан на совместимость
+            с Frame.
+        */
+        IsProcessAssignMacroKey++;
         Help Hlp ("FindFolder");
+        IsProcessAssignMacroKey--;
+        /* KM $ */
       }
       break;
     case KEY_ESC:
