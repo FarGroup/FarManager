@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.58 20.03.2001 $ */
+/* Revision: 1.59 04.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 VVM
+    + MSetAttrBlank
   20.03.2001 tran
     + MCheckingFileInPlugin
   20.03.2001 SVS
@@ -1092,6 +1094,7 @@ enum
   MSetAttrLastAccess,
   MSetAttrCurrent,
   MSetAttrSet,
+  MSetAttrBlank,
 
   MSetAttrTimeTitle1,
   MSetAttrTimeTitle2,

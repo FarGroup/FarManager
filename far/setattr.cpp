@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.19 03.04.2001 $ */
+/* Revision: 1.20 04.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 VVM
+    + ญฎฏช  [ Blank ] ข คจ ซฎฃฅ. ็จแโจโ์ ฏฎซ๏ ค โ๋/ขเฅฌฅญจ.
   03.04.2001 SVS
     ! FillFileldDir -> FillingOfFields ;-)
   28.02.2001 SVS
@@ -234,7 +236,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 15   บ Modification      .  .       :  :   บ   16
 16   บ Creation          .  .       :  :   บ   17
 17   บ Last access       .  .       :  :   บ   18
-18   บ                 [ Current ]         บ   19
+18   บ               [ Current ] [ Blank ] บ   19
 19   วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ   20
 20   บ         [ Set ]  [ Cancel ]         บ   21
 21   ศอออออออออออออออออออออออออออออออออออออผ   22
@@ -265,11 +267,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 21 */DI_TEXT,    5,17,0,0,0,0,0,0,(char *)MSetAttrLastAccess,
   /* 22 */DI_FIXEDIT,21,17,30,17,0,0,DIF_MASKEDIT,0,"",
   /* 23 */DI_FIXEDIT,32,17,39,17,0,0,DIF_MASKEDIT,0,"",
-  /* 24 */DI_BUTTON,21,18,0,0,0,0,0,0,(char *)MSetAttrCurrent,
-  /* 25 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 26 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
-  /* 27 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
-  /* 28 */DI_TEXT,-1,4,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 24 */DI_BUTTON,19,18,0,0,0,0,0,0,(char *)MSetAttrCurrent,
+  /* 25 */DI_BUTTON,31,18,0,0,0,0,0,0,(char *)MSetAttrBlank,
+  /* 26 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 27 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
+  /* 28 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /* 29 */DI_TEXT,-1,4,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
   };
   MakeDialogItems(AttrDlgData,AttrDlg);
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
@@ -369,7 +372,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           if(LenJunction)
           {
              //"\??\D:\Junc\Src\"
-             sprintf(AttrDlg[28].Data,MSG(MSetAttrJunction),TruncPathStr(JuncName+4,29));
+             sprintf(AttrDlg[29].Data,MSG(MSetAttrJunction),TruncPathStr(JuncName+4,29));
              AttrDlg[0].Y2++;
              for(I=3; I  < DlgCountItems; ++I)
              {
@@ -493,23 +496,32 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             }
           }
           Dlg.GetDialogObjectsData();
-          if (Dlg.GetExitCode()!=24)
+
+          int Code = Dlg.GetExitCode();
+
+          if ((Code!=24) && (Code!=25))
             break;
-          FILETIME ft;
-          GetSystemTimeAsFileTime(&ft);
-          ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
-          if (AttrDlg[24].Focus)
+
+          if (Code == 24)
           {
-            AttrDlg[24].Focus=0;
-            AttrDlg[16].Focus=1;
+            FILETIME ft;
+            GetSystemTimeAsFileTime(&ft);
+            ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
           }
+          else
+          {
+            AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=0;
+            AttrDlg[19].Data[0]=AttrDlg[20].Data[0]=0;
+            AttrDlg[22].Data[0]=AttrDlg[23].Data[0]=0;
+          }
+          Dlg.SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,16,0);
           Dlg.ClearDone();
           Dlg.InitDialogObjects();
         }
 
-        if (Dlg.GetExitCode()!=26)
+        if (Dlg.GetExitCode()!=28)
           return 0;
 
         Dlg.Hide();
@@ -671,24 +683,33 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             }
           }
           Dlg.GetDialogObjectsData();
-          if (Dlg.GetExitCode()!=24)
+
+          int Code = Dlg.GetExitCode();
+
+          if ((Code!=24) && (Code!=25))
             break;
-          FILETIME ft;
-          GetSystemTimeAsFileTime(&ft);
-          ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-          ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
-          if (AttrDlg[24].Focus)
+
+          if (Code == 24)
           {
-            AttrDlg[24].Focus=0;
-            AttrDlg[16].Focus=1;
+            FILETIME ft;
+            GetSystemTimeAsFileTime(&ft);
+            ConvertDate(&ft,AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(&ft,AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(&ft,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
           }
+          else
+          {
+            AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=0;
+            AttrDlg[19].Data[0]=AttrDlg[20].Data[0]=0;
+            AttrDlg[22].Data[0]=AttrDlg[23].Data[0]=0;
+          }
+          Dlg.SendDlgMessage((HANDLE)&Dlg,DM_SETFOCUS,16,0);
           Dlg.ClearDone();
           Dlg.InitDialogObjects();
           Dlg.Show();
         }
 
-        if (Dlg.GetExitCode()!=26)
+        if (Dlg.GetExitCode()!=28)
           return 0;
       }
 

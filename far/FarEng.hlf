@@ -1722,11 +1722,11 @@ attributes are mutually exclusive, that is, you can set only one of them.
 
     - last access time.
 
-    On FAT drives, hours, minutes and seconds of the last access time
+    On FAT drives the hours, minutes and seconds of the last access time
 are always equal to zero.
 
     If you want to keep the file time unchanged, leave the corresponding
-field empty.
+field empty. You may press #Blank# button to clear all date and time fields.
 
     The #Current# button fills the file time fields with the current time.
 
