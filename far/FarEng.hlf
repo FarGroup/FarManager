@@ -6,7 +6,7 @@ $^#File and archive manager#
 $^#<%FV1%>.<%FV2%><%FV3%> build <%FV4%>#
 $^#Copyright (C) 1996-2000 Eugene Roshal#
 $^#Copyright (C) 2000-<%YEAR%> FAR Group#
-   ~Index help file~@Index@
+   ~Help file index~@Index@
    ~How to use help~@Help@
 
    ~About FAR~@About@
@@ -207,7 +207,7 @@ $ #Keyboard reference#
  ~Miscellaneous~@MiscCmd@
 
 @PanelCmd
-$ #Panel control commands #
+$ #Panel control commands  #
  #Common panel commands#
 
   Change active panel                                            #Tab#
@@ -951,7 +951,7 @@ is enabled.
 to the same file.
 
 @DragAndDrop
-$ #Copy: drag and drop files#
+$ #Copying: drag and drop files#
     It is possible to perform #Copy# and #Move# file operations using
 #drag and drop#. Press left mouse button on the source file or folder,
 drag it to the another panel and release the mouse button.
@@ -2344,7 +2344,7 @@ dialog (menu item Options | Panel settings).
 through the "~Options~@OptMenu@" menu (item "Files highlighting").
 
 @HighlightList
-$ #File highlighting: control keys#
+$ #Files highlighting: control keys#
     The ~file highlighting~@Highlight@ groups menu allows you to perform
 various operations with the list of the groups. The following key
 combinations are available:

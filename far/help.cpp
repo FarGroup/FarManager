@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.82 27.05.2004 $ */
+/* Revision: 1.83 04.06.2004 $ */
 
 /*
 Modify:
+  04.06.2004 SVS
+    - BugZ#1078 - Ќеверна€ реакци€ на попытку открыти€ несуществующих ссылок
   27.05.2004 SVS
     - BugZ#1086 - нельз€ перейти на последний топик ни по end ни через PgDn
   01.03.2004 SVS
@@ -370,8 +372,10 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
     ReadHelp(StackData.HelpMask);
   }
 
+
   if (HelpData!=NULL)
   {
+    ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
     InitKeyBar();
     MacroMode = MACRO_HELP;
     MoveToReference(1,1);
@@ -1579,6 +1583,8 @@ int Help::JumpTopic(const char *JumpTopic)
     *StackData.HelpPath=0;
     ReadHelp(StackData.HelpMask);
   }
+  ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+
   if (!HelpData)
   {
     ErrorHelp=TRUE;
