@@ -7,10 +7,13 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.09 14.12.2001 $ */
+/* Revision: 1.10 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    ! В ProcessOSCommands учтем вариант запуска с SeparateWindow!=0
+      (решает багу BugZ#197)
   14.12.2001 IS
     + GetStringAddr()
   02.11.2001 SVS
@@ -44,7 +47,7 @@ class CommandLine:public ScreenObject
     void DisplayObject();
     int CmdExecute(char *CmdLine,int AlwaysWaitFinish,int SeparateWindow,
                    int DirectRun);
-    int ProcessOSCommands(char *CmdLine);
+    int ProcessOSCommands(char *CmdLine,int SeparateWindow);
     void GetPrompt(char *DestStr);
     Edit CmdStr;
     char CurDir[NM];

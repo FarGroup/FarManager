@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.59 21.12.2001 $ */
+/* Revision: 1.60 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    ! Уточнение.
   21.12.2001 SVS
     - Bug: не работала ссылка вида
       "@<c:\program files\far\plugins\multiarc\multiarc.dll>"
@@ -1217,10 +1219,12 @@ int Help::JumpTopic(const char *JumpTopic)
      LocalStricmp(StackData.SelTopic,PluginContents) &&
      LocalStricmp(StackData.SelTopic,DocumentContents))
   {
-    ; // :-)
-    if(HelpMask)
-      free(HelpMask);
-    HelpMask=NULL;
+    if(strrchr(NewTopic,'>'))
+    {
+      if(HelpMask)
+        free(HelpMask);
+      HelpMask=NULL;
+    }
   }
   else
   {

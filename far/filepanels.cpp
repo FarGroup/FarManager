@@ -5,10 +5,13 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.31 24.12.2001 $ */
+/* Revision: 1.32 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    - BugZ#198 - Ctrl-Up/Down при непустой командной строке
+      Временная отмена KEY_CTRLUP и KEY_CTRLDOWN (передача в CmdLine)
   24.12.2001 VVM
     + GetTypeAndName возвращает имя файла на панелях TREE, QVIEW, FILE
   11.12.2001 SVS
@@ -363,8 +366,8 @@ int  FilePanels::ProcessKey(int Key)
   if (!Key)
     return(TRUE);
 
-  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT ||
-       Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN) &&
+  if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT
+      /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN */) &&
       (CtrlObject->CmdLine->GetLength()>0 ||
       !LeftPanel->IsVisible() && !RightPanel->IsVisible()))
   {

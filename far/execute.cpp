@@ -5,10 +5,14 @@ execute.cpp
 
 */
 
-/* Revision: 1.26 21.12.2001 $ */
+/* Revision: 1.27 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    - BugZ#193: не работает <, >, | (в 9х)
+    + проверка на вшивость на подступах - если введено нечто вроде "|" или ">"
+      или "<" (т.е. один символ) - то... в морг.
   21.12.2001 SVS
     - Bug: после запуска компилятора Java от MS, jvc.exe симолы псевдографики
            в пользовательском интерфейсе Far'а заменяются на русские буквы.
@@ -545,7 +549,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   Unquote(strcpy(NewCmdStr,CmdStr));
   RemoveExternalSpaces(NewCmdStr);
   // глянем на результат
-  if(!*NewCmdStr)
+  if(!*NewCmdStr || (strlen(NewCmdStr)==1 && strpbrk(NewCmdStr,"<>|:")!=NULL))
   {
     // А может просто запустить CMD или проводник?
     // если "да", то этот куско нужно ниже перенести.
@@ -681,7 +685,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
             strcat(ExecLine," /wait");
 
           if(Pipe)
-            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
+           sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
           else if (NT && *CmdPtr=='\"')
             strcat(ExecLine," \"\"");
         }
@@ -689,8 +693,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         strcat(ExecLine," ");
 
         char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
-        if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd ||
-            Pipe && *CmdPtr != '\"')
+        if (NT && (*CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd ||
+            Pipe && *CmdPtr != '\"'))
         {
           strcat (ExecLine, "\"");
           strcat (ExecLine, CmdPtr);
@@ -700,7 +704,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           strcat(ExecLine,CmdPtr);
       }
     }
-
+//_SVS(SysLog("ExecLine='%s'",ExecLine));
     SetFarTitle(CmdPtr);
     FlushInputBuffer();
 
@@ -954,7 +958,7 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
       if (CurDir[0] && CurDir[1]==':')
         chdir(CurDir);
       CmdStr.SetString("");
-      if (ProcessOSCommands(CmdLine))
+      if (ProcessOSCommands(CmdLine,SeparateWindow))
         Code=-1;
       else
         Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
@@ -1113,7 +1117,7 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
 /* SVS $ */
 
 
-int CommandLine::ProcessOSCommands(char *CmdLine)
+int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
 {
   Panel *SetPanel;
   int Length;
@@ -1121,7 +1125,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
   if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
     SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
   RemoveTrailingSpaces(CmdLine);
-  if (isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
+  if (!SeparateWindow && isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
   {
     int NewDisk=toupper(CmdLine[0])-'A';
     setdisk(NewDisk);

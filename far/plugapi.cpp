@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.109 22.12.2001 $ */
+/* Revision: 1.110 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    - Бага с прорисовкой (при заходе в битый архив выводится месаг, но потом
+      панели не обновляются, или просмотр HLF-файла - аналогично)
+    ! Для LIF_SEPARATOR обнуляем пункт меню.
   22.12.2001 VVM
     + ACTL_GETWINDOWINFO: Если Pos == -1 то берем текущий фрейм
   07.12.2001 IS
@@ -757,7 +761,10 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
         CurItem.Flags=ItemEx->Flags;
-        strncpy(CurItem.Name,ItemEx->Text,sizeof(CurItem.Name)-1);
+        if(ItemEx->Flags&LIF_SEPARATOR)
+          CurItem.Name[0]=0;
+        else
+          strncpy(CurItem.Name,ItemEx->Text,sizeof(CurItem.Name)-1);
         FarMenu.AddItem(&CurItem);
       }
     }
@@ -767,7 +774,10 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         CurItem.Flags=Item[I].Checked?(LIF_CHECKED|(Item[I].Checked&0xFFFF)):0;
         CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
         CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
-        strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
+        if(CurItem.Flags&LIF_SEPARATOR)
+          CurItem.Name[0]=0;
+        else
+          strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
         FarMenu.AddItem(&CurItem);
       }
 
@@ -1241,7 +1251,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETUSERSCREEN:
       if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
         return(FALSE);
-      KeepUserScreen=TRUE;
+      KeepUserScreen++;
       CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand++;
       CtrlObject->Cp()->RightPanel->ProcessingPluginCommand++;
       ScrBuf.FillBuf();
@@ -1251,6 +1261,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
         CtrlObject->CmdLine->Hide();
         SaveScr.RestoreArea(FALSE);
       }
+      KeepUserScreen--;
       CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand--;
       CtrlObject->Cp()->RightPanel->ProcessingPluginCommand--;
       return(TRUE);

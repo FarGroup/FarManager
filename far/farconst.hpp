@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.55 01.11.2001 $ */
+/* Revision: 1.56 24.12.2001 $ */
 
 /*
 Modify:
+  24.12.2001 SVS
+    - Bug - про хелп. Забыл исправить HelpFormatLink
   01.11.2001 SVS
     ! MakeDialogItems перехала в dialog.hpp из farconst.hpp
   26.10.2001 VVM
@@ -135,7 +137,7 @@ Modify:
 #define HelpFileMask "*.hlf"
 #define HelpBeginLink '<'
 #define HelpEndLink '>'
-#define HelpFormatLink "<%s>%s"
+#define HelpFormatLink "<%s\\>%s"
 
 typedef unsigned char    UBYTE;
 typedef unsigned short   UWORD;
