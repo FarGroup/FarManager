@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.15 31.08.2000 $ */
+/* Revision: 1.16 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 tran 1.16
+    + PluginsSet::LoadPluginsFromCache()
   31.08.2000 tran
     + FSF/FarInputRecordTokey
   31.08.2000 SVS
@@ -135,6 +137,15 @@ void PluginsSet::LoadPlugins()
   int IPath;
   char PluginsDir[NM],FullName[NM];
   WIN32_FIND_DATA FindData;
+
+  /* $ 01.09.2000 tran
+     '/co' switch */
+  if ( Opt.PluginsCacheOnly )
+  {
+      LoadPluginsFromCache();
+      return ;
+  }
+  /* tran $ */
   ScanTree ScTree(FALSE,TRUE);
   for(IPath=0; IPath < 2; ++IPath)
   {
@@ -234,6 +245,65 @@ void PluginsSet::LoadPlugins()
     }
 }
 
+/* $ 01.09.2000 tran
+   Load cache only plugins  - '/co' switch */
+void PluginsSet::LoadPluginsFromCache()
+{
+   /*
+    [HKEY_CURRENT_USER\Software\Far\PluginsCache\Plugin0]
+    "Name"="C:\\PROGRAM FILES\\FAR\\Plugins\\ABOOK\\AddrBook.dll"
+    "ID"="e400a14def00a37ea900"
+    "DiskMenuString0"="Address Book"
+    "PluginMenuString0"="Address Book"
+    "PluginConfigString0"="Address Book"
+    "PluginConfigString1"="Address: E-Mail"
+    "PluginConfigString2"="Address: Birthday"
+    "PluginConfigString3"="Address: Phone number"
+    "PluginConfigString4"="Address: Fidonet"
+    "CommandPrefix"=""
+    "Flags"=dword:00000000
+
+    [HKEY_CURRENT_USER\Software\Far\PluginsCache\Plugin0\Exports]
+    "OpenPlugin"=dword:00000001
+    "OpenFilePlugin"=dword:00000000
+    "SetFindList"=dword:00000000
+    "ProcessEditorInput"=dword:00000000
+    "ProcessEditorEvent"=dword:00000000
+  */
+    int I;  
+    char PlgKey[512];
+    char RegKey[100];
+    struct PluginItem CurPlugin;
+    for (I=0;;I++)
+    {
+        if (!EnumRegKey("PluginsCache",I,PlgKey,sizeof(PlgKey)))
+        break;
+
+        memset(&CurPlugin,0,sizeof(CurPlugin));
+                            //  012345678901234567890
+        strcpy(RegKey,PlgKey); // "PLuginsCache\PluginXX"
+        GetRegKey(RegKey,"Name",CurPlugin.ModuleName,"",NM);
+        strcat(RegKey,"\\");
+        strcat(RegKey,"Exports");
+        CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
+        CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
+        CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
+        CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
+        CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+        CurPlugin.CachePos=atoi(PlgKey+19);
+        struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
+        if (NewPluginsData==NULL)
+            break;
+        PluginsData=NewPluginsData;
+        CurPlugin.Cached=TRUE;
+        // вот тут это поле не заполнено, надеюсь, что оно не критично
+        // CurPlugin.FindData=FindData;
+        PluginsData[PluginsCount]=CurPlugin;
+        PluginsCount++;
+    }
+    qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
+}
+/* tran $ */
 
 int _cdecl PluginsSort(const void *el1,const void *el2)
 {

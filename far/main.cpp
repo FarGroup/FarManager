@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.03 03.08.2000 $ */
+/* Revision: 1.04 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 tran
+    + /co switch
   03.08.2000 SVS
     ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
@@ -55,7 +57,10 @@ int _cdecl main(int Argc, char *Argv[])
   */
   Opt.MainPluginDir=TRUE;
   /* SVS $ */
-
+  /* $ 01.09.2000 tran 
+     /co - cache only, */
+  Opt.PluginsCacheOnly=FALSE;
+  /* tran $ */
   for (int I=1;I<Argc;I++)
     if ((Argv[I][0]=='/' || Argv[I][0]=='-') && Argv[I][1])
     {
@@ -131,6 +136,15 @@ int _cdecl main(int Argc, char *Argv[])
           break;
           /* SVS $*/
         }
+        /* $ 01.09.2000 tran
+           /co switch support */
+        case 'C':
+            if (toupper(Argv[I][2])=='O')
+            {
+                Opt.PluginsCacheOnly=TRUE;
+            }
+            break;
+        /* tran $ */
       }
     }
     else

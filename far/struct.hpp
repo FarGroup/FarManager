@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.10 31.08.2000 $ */
+/* Revision: 1.11 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 tran 1.11
+    + Options.PluginsCacheOnly - грузить плагины только из кеша
   31.08.2000 SVS
     ! DialogItem.Flags, DialogData.Flags - тип DWORD
     - не сохраняется тип врапа.
@@ -232,6 +234,10 @@ struct Options
   */
   int ViewerTypeWrap;
   /* SVS $*/
+  /* $ 01.09.2000 tran
+     seting by '/co' switch, not saved in registry. */
+  int PluginsCacheOnly;
+  /* tran $ */
 };
 
 

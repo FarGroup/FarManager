@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.01 03.08.2000 $ */
+/* Revision: 1.02 01.09.2000 $ */
 
 /*
 Modify:
+  01.09.2000 tran 1.02
+    + PluginsSet::LoadPluginsFromCache()
   03.08.2000 tran 1.01
     + GetFarMinVersion
       и три новых метода
@@ -105,6 +107,7 @@ class PluginsSet
     PluginsSet();
     ~PluginsSet();
     void LoadPlugins();
+    void LoadPluginsFromCache();
     HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
     HANDLE OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
     HANDLE OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber);
