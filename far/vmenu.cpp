@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.55 09.09.2001 $ */
+/* Revision: 1.56 12.09.2001 $ */
 
 /*
 Modify:
+  12.09.2001 SVS
+    - BugZ#10: F6, Ctrl-Down - "курсор" стоит не на верхней строке.
+               Так и должно быть? Мне кажется - нет, должен "предлагаться"
+               последний вариант из списка.
   09.09.2001 SVS
     ! Очредное уточнение на размер меню (вроде от глюков избавились!)
   05.09.2001 SVS
@@ -1612,7 +1616,7 @@ int VMenu::FindItem(int StartIndex,char *Pattern,DWORD Flags)
       if(Flags&LIFIND_NOPATTERN)
       {
         if (!LocalStrnicmp(RemoveChar(TmpBuf,'&'),Pattern,
-               Min((int)strlen(Pattern),(int)sizeof(Item[I].Name))))
+               Max((int)strlen(Pattern),(int)strlen(Item[I].Name))))
           return I;
       }
       else

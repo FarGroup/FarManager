@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.84 09.09.2001 $ */
+/* Revision: 1.85 12.09.2001 $ */
 
 /*
 Modify:
+  12.09.2001 SVS
+    - BugZ#9 - кусок кода, ответственный за прорисоку редактора по окончания
+          макроса перенесен из KeyMacro::GetKey() в PluginsSet::OpenPlugin()
   09.09.2001 SVS
     ! В функция PluginsSet::Configure() и PluginsSet::CommandsMenu()
       общий код назначения хоктеев вынесен в отдельную "стандартную"
@@ -1035,7 +1038,9 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
          + Обработка исключений при вызове галимого плагина.
       */
       TRY {
+//_SVS(SysLog("**** Enter to Plugin ****"));
          hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
+//_SVS(SysLog("**** Leave from Plugin ****"));
          /* $ 26.02.2201 VVM
              ! Выгрузить плагин, если вернули NULL */
          if (!hInternal)
@@ -1047,6 +1052,25 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
         hInternal=INVALID_HANDLE_VALUE;
       }
       /* SVS $ */
+      /*$ 10.08.2000 skv
+        If we are in editor mode, and CurEditor defined,
+        we need to call this events.
+        EE_REDRAW 2 - to notify that text changed.
+        EE_REDRAW 0 - to notify that whole screen updated
+        ->Show() to actually update screen.
+
+        This duplication take place since ShowEditor method
+        will NOT send this event while screen is locked.
+      */
+      if(OpenFrom == OPEN_EDITOR &&
+         CtrlObject->Plugins.CurEditor &&
+         CtrlObject->Plugins.CurEditor->IsVisible())
+      {
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+        CtrlObject->Plugins.CurEditor->Show();
+      }
+      /* skv$*/
       if (hInternal!=INVALID_HANDLE_VALUE)
       {
         PluginHandle *hPlugin=new PluginHandle;
