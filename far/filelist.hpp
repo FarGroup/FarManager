@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.27 08.04.2002 $ */
+/* Revision: 1.28 10.04.2002 $ */
 
 /*
 Modify:
+  10.04.2002 SVS
+    + ProcessOneHostFile - обработка одного хост-файла
   08.04.2002 IS
     ! внедрение const
   05.04.2002 SVS
@@ -261,6 +263,7 @@ class FileList:public Panel
     void ProcessCopyKeys(int Key);
     void ReadSortGroups();
     void AddParentPoint(struct FileListItem *CurPtr,long CurFilePos);
+    int  ProcessOneHostFile(int Idx);
 
     static void TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
            unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount);

@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.13 26.03.2002 $ */
+/* Revision: 1.14 10.04.2002 $ */
 
 /*
 Modify:
+  10.04.2002 SVS
+    ! Технологический патч.
   26.03.2002 IS
     + InitLCIDSort - инициализация системозависимой сортировки строк.
       Вызывать только после CopyGlobalSettings, потому что только тогда
@@ -187,6 +189,11 @@ void InitKeysArray()
       }
     }
   }
+  _SVS(SysLogDump("KeyToKey calculate",0,KeyToKey,sizeof(KeyToKey),NULL));
+  unsigned char KeyToKeyMap[256];
+  if(GetRegKey("System","KeyToKeyMap",KeyToKeyMap,KeyToKey,sizeof(KeyToKeyMap)))
+    memcpy(KeyToKey,KeyToKeyMap,sizeof(KeyToKey));
+  _SVS(SysLogDump("KeyToKey readed",0,KeyToKey,sizeof(KeyToKey),NULL));
   /* SVS $ */
   /* SVS $ */
 }

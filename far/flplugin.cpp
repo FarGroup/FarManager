@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.24 05.04.2002 $ */
+/* Revision: 1.25 10.04.2002 $ */
 
 /*
 Modify:
+  10.04.2002 SVS
+    - BugZ#353 - Команды из меню Shift-F3 не работают на нескольких выделенных архивах
   05.04.2002 SVS
     ! Вместо числа 0x20000 заюзаем Opt.PluginMaxReadData
   22.03.2002 SVS
@@ -585,6 +587,12 @@ void FileList::PluginPutFilesToNew()
     if (FileCount==PrevFileCount+1)
     {
       int LastPos=0;
+      /* Место, где вычисляются координаты вновьсозданного файла
+         Позиционирование происходит на файл с максимальной датой
+         создания файла. Посему, если какой-то злобный буратино поимел
+         в текущем каталоге файло с датой создания поболее текущей,
+         то корреткного позиционирования не произойдет!
+      */
       for (int I=1; I < FileCount; I++)
         if (CompareFileTime(&ListData[I].CreationTime,&ListData[LastPos].CreationTime)==1)
           LastPos=I;
@@ -649,12 +657,17 @@ void FileList::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 }
 
 
+/*
+   Функция для вызова команды "Архивные команды" (Shift-F3)
+*/
 void FileList::ProcessHostFile()
 {
   if (FileCount>0 && SetCurPath())
   {
-    SaveSelection();
     int Done=FALSE;
+
+    SaveSelection();
+
     if (PanelMode==PLUGIN_PANEL && *PluginsStack[PluginsStackSize-1].HostFile)
     {
       struct PluginPanelItem *ItemList;
@@ -670,29 +683,41 @@ void FileList::ProcessHostFile()
         Redraw();
       }
       DeletePluginItemList(ItemList,ItemNumber);
+      if (Done)
+        ClearSelection();
     }
     else
     {
-      HANDLE hNewPlugin=OpenPluginForFile(ListData[CurFile].Name);
-      if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
+      int SCount=GetRealSelCount();
+      if(SCount > 0)
       {
-        struct PluginPanelItem *ItemList;
-        int ItemNumber;
-        if (CtrlObject->Plugins.GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))
+        struct FileListItem *CurPtr=ListData;
+        for(int I=0; I < FileCount; ++I, CurPtr++)
         {
-          /* $ 26.04.2001 DJ
-             в ProcessHostFile не передавался OPM_TOPLEVEL
-          */
-          Done=CtrlObject->Plugins.ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
-          /* DJ $ */
-          CtrlObject->Plugins.FreeFindData(hNewPlugin,ItemList,ItemNumber);
+          if (CurPtr->Selected)
+          {
+            Done=ProcessOneHostFile(I);
+            if(Done == 1)
+              Select(CurPtr,0);
+            else if(Done == -1)
+              continue;
+            else       // Если ЭТО убрать, то... будем жать ESC до потере пулься
+              break;   //
+          }
         }
-        CtrlObject->Plugins.ClosePlugin(hNewPlugin);
+
+        if (SelectedFirst)
+          SortFileList(TRUE);
+      }
+      else
+      {
+        if((Done=ProcessOneHostFile(CurFile)) == 1)
+         ClearSelection();
       }
     }
+
     if (Done)
     {
-      ClearSelection();
       Update(UPDATE_KEEP_SELECTION);
       Redraw();
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -701,6 +726,38 @@ void FileList::ProcessHostFile()
     }
   }
 }
+
+/*
+  Обработка одного хост-файла.
+  Return:
+    -1 - Этот файл никаким плагином не поддержан
+     0 - Плагин вернул FALSE
+     1 - Плагин вернул TRUE
+*/
+int FileList::ProcessOneHostFile(int Idx)
+{
+  int Done=-1;
+
+  HANDLE hNewPlugin=OpenPluginForFile(ListData[Idx].Name);
+
+  if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
+  {
+    struct PluginPanelItem *ItemList;
+    int ItemNumber;
+    if (CtrlObject->Plugins.GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))
+    {
+      /* $ 26.04.2001 DJ
+         в ProcessHostFile не передавался OPM_TOPLEVEL
+      */
+      Done=CtrlObject->Plugins.ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
+      /* DJ $ */
+      CtrlObject->Plugins.FreeFindData(hNewPlugin,ItemList,ItemNumber);
+    }
+    CtrlObject->Plugins.ClosePlugin(hNewPlugin);
+  }
+  return Done;
+}
+
 
 
 void FileList::SetPluginMode(HANDLE hPlugin,char *PluginFile)
