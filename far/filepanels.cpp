@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.15 20.06.2001 $ */
+/* Revision: 1.16 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SKV
+    + update панелей при получении фокуса
   20.06.2001 tran
     - bug с отрисовкой при копировании
       смотреть в OnChangeFocus
@@ -779,9 +781,15 @@ void FilePanels::OnChangeFocus(int f)
   _OT(SysLog("FilePanels::OnChangeFocus(%i)",f));
   Focus=f;
   /* $ 20.06.2001 tran
-     баг с отрисовкой при копировании и удалении 
+     баг с отрисовкой при копировании и удалении
      не учитывался LockRefreshCount */
   if ( f && LockRefreshCount==0) {
+    /*$ 22.06.2001 SKV
+      + update панелей при получении фокуса
+    */
+    LeftPanel->UpdateIfChanged(1);
+    RightPanel->UpdateIfChanged(1);
+    /* SKV$*/
     Redraw();
   }
 }

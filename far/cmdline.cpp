@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.29 18.06.2001 $ */
+/* Revision: 1.30 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SKV
+    - Update панелей после исполнения команды.
   18.06.2001 SVS
     - Во время проверки "If exist" не учитывался текущий каталог.
   17.06.2001 IS
@@ -401,8 +403,14 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
   int Code;
   {
     RedrawDesktop Redraw;
-    CtrlObject->Cp()->LeftPanel->CloseChangeNotification();
-    CtrlObject->Cp()->RightPanel->CloseChangeNotification();
+    /*$ 22.06.2001 SKV
+      Если не закомментарить это, то они не пересоздадуться,
+      если update'а не случится.
+      А если вызывать Update, то глюки с отрисовкой.
+    */
+    //CtrlObject->Cp()->LeftPanel->CloseChangeNotification();
+    //CtrlObject->Cp()->RightPanel->CloseChangeNotification();
+    /* SKV$*/
     CtrlObject->Cp()->LeftPanel->CloseFile();
     CtrlObject->Cp()->RightPanel->CloseFile();
     ScrollScreen(1);
@@ -418,6 +426,15 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     GetCursorPos(CurX,CurY);
     if (CurY>=Y1-1)
       ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
+    /*$ 22.06.2001 SKV
+      При Update почему-то глючит перерисовка.
+      Параметр 1 - Force update, иначе только раз в 2 секунды можно.
+    */
+    //CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+    //CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1);
+    CtrlObject->Cp()->RightPanel->UpdateIfChanged(1);
+    /* SKV$*/
   }
   ScrBuf.Flush();
   return(Code);

@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.09 06.05.2001 $ */
+/* Revision: 1.10 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SKV
+    ! UpdateIfChanged - добавлен параметр Force.
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -412,29 +414,31 @@ void FileList::ReadFileNames(int KeepSelection)
   SetTitle();
 }
 
-
-int FileList::UpdateIfChanged()
+/*$ 22.06.2001 SKV
+  Добавлен параметр для вызова после исполнения команды.
+*/
+int FileList::UpdateIfChanged(int Force)
 {
-  if (IsVisible() && clock()-LastUpdateTime>2000)
+  if (IsVisible() && (clock()-LastUpdateTime>2000 || Force))
   {
-    ProcessPluginEvent(FE_IDLE,NULL);
+    if(!Force)ProcessPluginEvent(FE_IDLE,NULL);
     if (PanelMode==NORMAL_PANEL && hListChange!=NULL)
       if (WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0)
       {
         Update(UPDATE_KEEP_SELECTION);
-        Show();
+        if(!Force)Show();
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         if (AnotherPanel->GetType()==INFO_PANEL)
         {
           AnotherPanel->Update(UPDATE_KEEP_SELECTION);
-          AnotherPanel->Redraw();
+          if(!Force)AnotherPanel->Redraw();
         }
         return(TRUE);
       }
   }
   return(FALSE);
 }
-
+/* SKV$*/
 
 void FileList::CreateChangeNotification(int CheckTree)
 {

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.12 06.05.2001 $ */
+/* Revision: 1.13 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SKV
+    + Параметр Force у UpdateIfChanged.
   06.05.2001 DJ
     + перетрях #include
   30.04.2001 DJ
@@ -60,11 +62,11 @@ struct FileListItem
   DWORD NumberOfLinks;
   DWORD UserFlags;
   DWORD UserData;
-  
+
   FILETIME WriteTime;
   FILETIME CreationTime;
   FILETIME AccessTime;
-  
+
   DWORD FileAttr;
   int Position;
   int SortGroup;
@@ -223,7 +225,12 @@ class FileList:public Panel
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void SetFocus();
     void Update(int Mode);
-    int UpdateIfChanged();
+    /*$ 22.06.2001 SKV
+      Параметр для игнорирования времени последнего Update.
+      Используется для Update после исполнения команды.
+    */
+    int UpdateIfChanged(int Force=0);
+    /* SKV$*/
     void CreateChangeNotification(int CheckTree);
     void CloseChangeNotification();
     void SortFileList(int KeepPosition);

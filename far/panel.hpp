@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.07 06.05.2001 $ */
+/* Revision: 1.08 22.06.2001 $ */
 
 /*
 Modify:
+  22.06.2001 SKV
+    + Параметр Force у UpdateIfChanged.
   06.05.2001 DJ
     ! перетрях #include
   30.04.2001 DJ
@@ -117,7 +119,12 @@ class Panel:public ScreenObject
     virtual void SetFocus();
     virtual void KillFocus();
     virtual void Update(int Mode) {};
-    virtual int UpdateIfChanged() {return(0);};
+    /*$ 22.06.2001 SKV
+      Параметр для игнорирования времени последнего Update.
+      Используется для Update после исполнения команды.
+    */
+    virtual int UpdateIfChanged(int Force=0) {return(0);};
+    /* SKV$*/
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(char *Name,int Next) {return(FALSE);}
     virtual int GoToFile(char *Name) {return(TRUE);};
