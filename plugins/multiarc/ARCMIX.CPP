@@ -120,6 +120,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 
   char ExpandedCmd[MAX_COMMAND_LENGTH];
   ExpandEnvironmentStrings(CmdStr,ExpandedCmd,sizeof(ExpandedCmd));
+  FSF.LTrim(ExpandedCmd); //$ AA 12.11.2001
 
   char SaveTitle[512];
   GetConsoleTitle(SaveTitle,sizeof(SaveTitle));
@@ -139,7 +140,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
             Opt.Background?CREATE_NEW_CONSOLE:0,NULL,NULL,&si,&pi);
 
   LastError=!ExitCode?GetLastError():0;
-  /**/char Buf32[32]; wsprintf(Buf32, "%lu", LastError); 
+  /**/char Buf32[32]; wsprintf(Buf32, "%lu", LastError);
   if (HideOutput)
   {
     SetStdHandle(STD_OUTPUT_HANDLE,StdOutput);

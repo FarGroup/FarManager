@@ -25,7 +25,7 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
 /* AS $*/
   if (*FormatString==0)
     return;
-  char QPassword[NM+5],QTempPath[NM+5];
+  //char QPassword[NM+5],QTempPath[NM+5];
   char Command[MAX_COMMAND_LENGTH];
   ArcCommand::PanelItem=PanelItem;
   ArcCommand::ItemsNumber=ItemsNumber;

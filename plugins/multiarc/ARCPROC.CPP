@@ -141,18 +141,18 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
     FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
   struct InitDialogItem InitItems[]={
-  /* 0 */  DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MExtractTitle,
-  /* 1 */  DI_TEXT,5,2,0,0,0,0,0,0,(char *)MExtractTo,
-  /* 2 */  DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath,
-  /* 3 */  DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 4 */  DI_TEXT,5,5,0,0,0,0,0,0,(char *)MExtrPassword,
-  /* 5 */  DI_PSWEDIT,5,6,35,5,0,0,0,0,"",
-  /* 6 */  DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 7 */  DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MExtrWithoutPaths,
-  /* 8 */  DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MBackground,
-  /* 9 */  DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /*10 */  DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MExtrExtract,
-  /*11 */  DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel
+  /* 0 */{DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MExtractTitle},
+  /* 1 */{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MExtractTo},
+  /* 2 */{DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath},
+  /* 3 */{DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /* 4 */{DI_TEXT,5,5,0,0,0,0,0,0,(char *)MExtrPassword},
+  /* 5 */{DI_PSWEDIT,5,6,35,5,0,0,0,0,""},
+  /* 6 */{DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /* 7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MExtrWithoutPaths},
+  /* 8 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MBackground},
+  /* 9 */{DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /*10 */{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MExtrExtract},
+  /*11 */{DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel},
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -375,8 +375,10 @@ int PluginClass::FormatToPlugin(char *Format,int &PluginNumber,int &PluginType)
   char PluginFormat[100],DefExt[NM];
   for (int I=0;;I++)
   {
+    /* $ AA 12.11.2001//заремлено, чтобы нормально работали нестандартные модули
     if (!ArcPlugin->GetFormatName(I,0,PluginFormat,DefExt))
       break;
+    AA 12.11.2001 $ */
     for (int J=0;;J++)
     {
       if (!ArcPlugin->GetFormatName(I,J,PluginFormat,DefExt))
