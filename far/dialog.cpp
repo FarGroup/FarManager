@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.196 12.12.2001 $ */
+/* Revision: 1.197 17.12.2001 $ */
 
 /*
 Modify:
+  17.12.2001 KM
+    ! Пусть диалог сам заботится о ширине собственного заголовка.
+      > IS "Если ввести слишком длинную маску, то она рисуется за краями
+      диалога. TruncStr забыл что ли сделать?"
   12.12.2001 SVS
     - BugZ#172 - unchanged & history
   10.12.2001 SVS
@@ -1887,10 +1891,14 @@ void Dialog::ShowDialog(int ID)
 
         if (*CurItem->Data)
         {
-          char Title[200];
+          /* $ 17.12.2001 KM
+            ! Пусть диалог сам заботится о ширине собственного заголовка.
+          */
+          char Title[512];
           int XB;
 
-          sprintf(Title," %s ",CurItem->Data);
+          sprintf(Title," %s ",TruncStrFromEnd(CurItem->Data,(CurItem->X2-CurItem->X1>7)?CurItem->X2-CurItem->X1-7:4));
+          /* KM $ */
           XB=X1+CurItem->X1+(CurItem->X2-CurItem->X1+1-HiStrlen(Title))/2;
 
           if (CurItem->Flags & DIF_LEFTTEXT && X1+CurItem->X1+1 < XB)

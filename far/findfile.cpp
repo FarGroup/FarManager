@@ -5,10 +5,18 @@ findfile.cpp
 
 */
 
-/* Revision: 1.82 16.12.2001 $ */
+/* Revision: 1.84 18.12.2001 $ */
 
 /*
 Modify:
+  18.12.2001 KM
+    - > IS "p.s. заметил на 1127 билде: если искать какую-нибудь (длинную?)
+      строку, то при повторном поиске (выбрать "Новый поиск" в диалоге
+      поиска) строка поиска будет содержать эту строчку, но усеченную
+      по ширине.  Например, я искал "FROM_LEFT_2ND_BUTTON_PRESSED", после
+      выбора "Новый поиск" получил "...PRESSED".... Кстати, и ищется
+      файлах в обоих случаях не "FROM_LEFT_2ND_BUTTON_PRESSED", а
+      "...PRESSED" (где-то ты там оригинальную строку поиска портишь)"
   16.12.2001 KM
     - Наконец-то удавлен баг с торможением клавиш курсора во время
       поиска в архивах. Дело оказалось в моей прошлогодней правке
@@ -1182,8 +1190,9 @@ int FindFiles::FindFilesProcess()
     sprintf(Title,"%s",MSG(MFindFileTitle));
   if (*FindStr)
   {
-    char Temp[NM];
-    sprintf(Temp," \"%s\"",TruncStr(FindStr,10));
+    char Temp[NM],FStr[NM];
+    strcpy(FStr,FindStr);
+    sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
     sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
   }
   else
@@ -2159,8 +2168,9 @@ void FindFiles::WriteDialogData(void *Param)
         char SearchStr[NM];
         if (*FindStr)
         {
-          char Temp[NM];
-          sprintf(Temp," \"%s\"",TruncStr(FindStr,10));
+          char Temp[NM],FStr[NM];
+          strcpy(FStr,FindStr);
+          sprintf(Temp," \"%s\"",TruncStrFromEnd(FStr,10));
           sprintf(SearchStr,MSG(MFindSearchingIn),Temp);
         }
         else
