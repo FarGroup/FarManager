@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.50 10.12.2000 $ */
+/* Revision: 1.51 15.12.2000 $ */
 
 /*
 Modify:
+  15.12.2000 SVS
+    ! Уточнение по поводу того, что вернула GetFileAttributes()
   10.12.2000 IS
     ! Обрабатываем при Xlat только то слово, на котором стоит курсор, или то
       слово, что находится левее позиции курсора на 1 символ
@@ -368,18 +370,26 @@ int Editor::ReadFile(char *Name,int &UserBreak)
   /* $ 03.12.2000 SVS
      System или Hidden - задаются отдельно
   */
-  if((Opt.EditorReadOnlyLock&1) &&
-     (GetFileAttributes(Name) &
-        (FILE_ATTRIBUTE_READONLY|
-           /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
-              поэтому применяем маску 0110.0000 и
-              сдвигаем на свое место => 0000.0110 и получаем
-              те самые нужные атрибуты  */
-           ((Opt.EditorReadOnlyLock&0x60)>>4)
-        )
+  /* $ 15.12.2000 SVS
+     Разумнее сначала проверить то, что вернула GetFileAttributes() :-)
+  */
+  {
+    DWORD FAttr=GetFileAttributes(Name);
+    if((Opt.EditorReadOnlyLock&1) &&
+       FAttr != -1 &&
+       (FAttr &
+          (FILE_ATTRIBUTE_READONLY|
+             /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
+                поэтому применяем маску 0110.0000 и
+                сдвигаем на свое место => 0000.0110 и получаем
+                те самые нужные атрибуты  */
+             ((Opt.EditorReadOnlyLock&0x60)>>4)
+          )
+       )
      )
-   )
-    LockMode=!LockMode;
+      LockMode=!LockMode;
+  }
+  /* SVS 15.12.2000 $ */
   /* SVS 03.12.2000 $ */
   /* SVS $ */
 

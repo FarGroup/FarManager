@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.13 03.12.2000 $ */
+/* Revision: 1.14 15.12.2000 $ */
 
 /*
 Modify:
+  15.12.2000 SVS
+    - Shift-F4, новый файл. Выдает сообщение :-(
   03.12.2000 SVS
     + "Если файл имеет атрибут ReadOnly..." здесь System и Hidden - задаются
       отдельно.
@@ -97,8 +99,13 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   /* $ 03.12.2000 SVS
      System или Hidden - задаются отдельно
   */
+  /* $ 15.12.2000 SVS
+    - Shift-F4, новый файл. Выдает сообщение :-(
+  */
+  DWORD FAttr=GetFileAttributes(Name);
   if((Opt.EditorReadOnlyLock&2) &&
-     (GetFileAttributes(Name) &
+     FAttr != -1 &&
+     (FAttr &
         (FILE_ATTRIBUTE_READONLY|
            /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
               поэтому применяем маску 0110.0000 и
@@ -108,6 +115,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
         )
      )
   )
+  /* SVS $ */
   {
     if(Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditRSH),
                              MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
