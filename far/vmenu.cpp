@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.133 07.07.2004 $ */
+/* Revision: 1.134 08.07.2004 $ */
 
 /*
 Modify:
+  08.07.2004 SVS
+    + обработка MCODE_OP_PLAINTEXT в VMenu
   07.07.2004 SVS
     ! Macro II
   30.06.2004 SVS
@@ -1150,6 +1152,14 @@ int VMenu::ProcessKey(int Key)
 
   switch(Key)
   {
+    case MCODE_OP_PLAINTEXT:
+    {
+      const char *str = eStackAsString();
+      if (!*str)
+        return FALSE;
+      Key=*str;
+      break;
+    }
     case MCODE_C_EMPTY:
       return ItemCount<=0;
     case MCODE_C_EOF:
