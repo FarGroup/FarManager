@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.35 10.10.2003 $ */
+/* Revision: 1.36 16.10.2003 $ */
 
 /*
 Modify:
+  16.10.2003 SVS
+    + ERROR_NO_ASSOCIATION
   10.10.2003 SVS
     - BugZ#516 - Message() in editor after Dialog()
   25.08.2003 SVS
@@ -536,6 +538,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
     {ERROR_ENCRYPTION_FAILED,MErrorEncryptionFailed},
     {ERROR_DECRYPTION_FAILED,MErrorDecryptionFailed},
     {ERROR_FILE_NOT_ENCRYPTED,MErrorFileNotEncrypted},
+    {ERROR_NO_ASSOCIATION,MErrorNoAssociation},
   };
 
   DWORD LastError = GetLastError();

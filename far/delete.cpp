@@ -5,10 +5,14 @@ delete.cpp
 
 */
 
-/* Revision: 1.62 09.10.2003 $ */
+/* Revision: 1.63 15.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 SVS
+    ! Изменение в подстановке - SE_ERR_DLLNOTFOUND имеет не ERROR_FILE_NOT_FOUND но ERROR_SHARING_VIOLATION
+    + Сохраним первый вариант кода возврата SHFileOperation() и именно его выдадим за результаты,
+      потому, как второй вызов SHFileOperation() возвращает 0x402 - ху из?
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -860,7 +864,7 @@ int RemoveToRecycleBin(const char *Name)
     {SE_ERR_PNF,ERROR_PATH_NOT_FOUND},
     {SE_ERR_ACCESSDENIED,ERROR_ACCESS_DENIED},
     {SE_ERR_OOM,ERROR_OUTOFMEMORY},
-    {SE_ERR_DLLNOTFOUND,ERROR_FILE_NOT_FOUND},
+    {SE_ERR_DLLNOTFOUND,ERROR_SHARING_VIOLATION},
     {SE_ERR_SHARE,ERROR_SHARING_VIOLATION},
     {SE_ERR_NOASSOC,ERROR_BAD_COMMAND},
   };
@@ -882,7 +886,9 @@ int RemoveToRecycleBin(const char *Name)
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
   SetFileApisTo(APIS2ANSI);
+  DWORD ErrCode=0;
   DWORD RetCode=SHFileOperation(&fop);
+  DWORD RetCode2=RetCode;
   /* $ 26.01.2003 IS
        + Если не удалось удалить объект (например, имя имеет пробел на конце)
          и это не связано с прерыванием удаления пользователем, то попробуем
@@ -910,7 +916,7 @@ int RemoveToRecycleBin(const char *Name)
   if(RetCode)
   {
     for(int I=0; I < sizeof(SHErrorCode2LastErrorCode)/sizeof(SHErrorCode2LastErrorCode[0]); ++I)
-      if(SHErrorCode2LastErrorCode[I].SHError == RetCode)
+      if(SHErrorCode2LastErrorCode[I].SHError == RetCode2)
       {
         SetLastError(SHErrorCode2LastErrorCode[I].LCError);
         return FALSE;

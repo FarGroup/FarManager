@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.132 05.10.2003 $ */
+/* Revision: 1.133 16.10.2003 $ */
 
 /*
 Modify:
+  16.10.2003 SVS
+    + MErrorNoAssociation
   05.10.2003 KM
     + Добавлено много новых идентификаторов MFileFilter*
     + MFindUseFilter, MFindUsingFilter, MFindFileSetFilter
@@ -1394,6 +1396,7 @@ enum
   MErrorEncryptionFailed,
   MErrorDecryptionFailed,
   MErrorFileNotEncrypted,
+  MErrorNoAssociation,
 
   MErrorFullPathNameLong,
 

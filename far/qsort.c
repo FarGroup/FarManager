@@ -5,10 +5,12 @@ To implement the qsort() routine for sorting arrays.
 
 */
 
-/* Revision: 1.01 08.07.2003 $ */
+/* Revision: 1.02 15.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 SVS
+    ! небольшой перетрях сорцов
   08.07.2003 SVS
     ! ну... скажем совершенно новый файл. педелка с оптимизаций
   07.07.2003 SVS
@@ -49,9 +51,9 @@ void __cdecl qsort (
 }
 
 /* prototypes for local routines */
-static void __inline shortsort(char *lo, char *hi, size_t width,
+static void  shortsort(char *lo, char *hi, size_t width,
                 int (__cdecl *comp)(const void *, const void *));
-static void __inline swap(char *p, char *q, size_t width);
+static void  swap(char *p, char *q, size_t width);
 
 /* this parameter defines the cutoff between using quick sort and
    insertion sort for arrays; arrays with lengths shorter or equal to the
@@ -309,7 +311,7 @@ recurse:
 *
 *******************************************************************************/
 
-static void __inline shortsort (
+static void  shortsort (
     char *lo,
     char *hi,
     size_t width,
@@ -364,7 +366,7 @@ static void __inline shortsort (
 *
 *******************************************************************************/
 
-static void __inline swap(
+static void  swap(
     char *a,
     char *b,
     size_t width
@@ -382,9 +384,9 @@ static void __inline swap(
 
 /* Always compile this module for speed, not size */
 /* prototypes for local routines */
-static void __inline shortsort_m(char *lo, char *hi, size_t width,
+static void  shortsort_m(char *lo, char *hi, size_t width,
                 int (__cdecl *comp)(const void *, const void *), void* t);
-static void __inline swap_m(char *p, char *q, size_t width, void* t);
+static void  swap_m(char *p, char *q, size_t width, void* t);
 
 /* this parameter defines the cutoff between using quick sort and
    insertion sort for arrays; arrays with lengths shorter or equal to the
@@ -614,7 +616,7 @@ recurse:
 *
 *******************************************************************************/
 
-static void __inline shortsort_m (
+static void  shortsort_m (
     char *lo,
     char *hi,
     size_t width,
@@ -622,25 +624,25 @@ static void __inline shortsort_m (
     void* t
     )
 {
-    char *p, *max;
+    char *p, *ptrmax;
 
     /* Note: in assertions below, i and j are alway inside original bound of
        array to sort. */
 
     while (hi > lo) {
         /* A[i] <= A[j] for i <= j, j > hi */
-        max = lo;
+        ptrmax = lo;
         for (p = lo+width; p <= hi; p += width) {
-            /* A[i] <= A[max] for lo <= i < p */
-            if (comp(p, max) > 0) {
-                max = p;
+            /* A[i] <= A[ptrmax] for lo <= i < p */
+            if (comp(p, ptrmax) > 0) {
+                ptrmax = p;
             }
-            /* A[i] <= A[max] for lo <= i <= p */
+            /* A[i] <= A[ptrmax] for lo <= i <= p */
         }
 
-        /* A[i] <= A[max] for lo <= i <= hi */
+        /* A[i] <= A[ptrmax] for lo <= i <= hi */
 
-        swap_m(max, hi, width, t);
+        swap_m(ptrmax, hi, width, t);
 
         /* A[i] <= A[hi] for i <= hi, so A[i] <= A[j] for i <= j, j >= hi */
 
@@ -670,7 +672,7 @@ static void __inline shortsort_m (
 *
 *******************************************************************************/
 
-static void __inline swap_m(
+static void  swap_m(
     char *a,
     char *b,
     size_t width,

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.100 13.10.2003 $ */
+/* Revision: 1.101 15.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 SVS
+    + обработка вызова грабера при макросении
   13.10.2003 SVS
     ! RunGraber() вызываем в манагере, а в CalcKeyCode() просто вернем KEY_INS|KEY_ALT
   04.10.2003 SVS
@@ -509,7 +511,7 @@ int IsMouseButtonPressed()
   return(0);
 }
 
-int GetInputRecord(INPUT_RECORD *rec)
+DWORD GetInputRecord(INPUT_RECORD *rec)
 {
   // // _SVS(CleverSysLog Clev("GetInputRecord - main"));
   static int LastEventIdle=FALSE;
@@ -544,6 +546,18 @@ int GetInputRecord(INPUT_RECORD *rec)
     CalcKey=KeyQueue->Get();
     NotMacros=CalcKey&0x80000000?1:0;
     CalcKey&=~0x80000000;
+    //???
+    if(CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
+    {
+      if(CtrlObject->Macro.ProcessKey(CalcKey))
+      {
+        RunGraber();
+        rec->EventType=0;
+        CalcKey=KEY_NONE;
+      }
+      return(CalcKey);
+    }
+
     if (!NotMacros)
     {
       _KEYMACRO(CleverSysLog Clev("CALL(1) CtrlObject->Macro.ProcessKey()"));
@@ -1039,6 +1053,18 @@ int GetInputRecord(INPUT_RECORD *rec)
 
   ReturnAltValue=FALSE;
   CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
+/*
+  if(CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
+  {
+    if(CtrlObject->Macro.ProcessKey(CalcKey))
+    {
+      RunGraber();
+      rec->EventType=0;
+      CalcKey=KEY_NONE;
+    }
+    return(CalcKey);
+  }
+*/
 //// // _SVS(SysLog("1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
   if (ReturnAltValue && !NotMacros)
   {
@@ -1469,7 +1495,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   return(CalcKey);
 }
 
-int PeekInputRecord(INPUT_RECORD *rec)
+DWORD PeekInputRecord(INPUT_RECORD *rec)
 {
   DWORD ReadCount;
   DWORD Key;
@@ -2006,7 +2032,7 @@ char *FARGetKeybLayoutName(char *Dest,int DestSize)
 
 
 // GetAsyncKeyState(VK_RSHIFT)
-int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
+DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
 //_SVS(CleverSysLog Clev("CalcKeyCode"));
 //_SVS(SysLog("CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
@@ -2182,9 +2208,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     {
       if(KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0)
       {
-        return KEY_INS|KEY_ALT;
-        //RunGraber();
-        //return(KEY_NONE);
+        if(CtrlObject && CtrlObject->Macro.IsRecording())
+          CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT);
+        RunGraber();
+        return(KEY_NONE);
       }
     }
 #endif

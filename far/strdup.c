@@ -41,7 +41,7 @@ char * __cdecl strdup (const char * string)
   if(string)
   {
     char *memory;
-    if(memory = xf_malloc(strlen(string) + 1))
+    if((memory = xf_malloc(strlen(string) + 1)) != NULL)
        return strcpy(memory,string);
   }
   return(NULL);

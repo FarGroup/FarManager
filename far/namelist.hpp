@@ -7,10 +7,14 @@ namelist.hpp
 
 */
 
-/* Revision: 1.01 06.05.2001 $ */
+/* Revision: 1.02 14.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    ! Перетрях в NamesList.
+    ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
+    + NamesList::Init()
   06.05.2001 DJ
     ! перетрях #include
   25.06.2000 SVS
@@ -27,18 +31,25 @@ class NamesList
     char *CurName;
     int CurNamePos;
     int NamesNumber;
-    int NamesSize;
+    DWORD NamesSize;
+    DWORD MemSize;
 
     char CurDir[NM];
+
+  private:
+    void Init();
+
   public:
-    NamesList();
+    NamesList(DWORD MemSize=0);
     ~NamesList();
+
+  public:
     void AddName(char *Name);
     bool GetNextName(char *Name);
     bool GetPrevName(char *Name);
     void SetCurName(char *Name);
     void MoveData(NamesList *Dest);
-    void GetCurDir(char *Dir);
+    void GetCurDir(char *Dir,int DestSize);
     void SetCurDir(char *Dir);
 };
 

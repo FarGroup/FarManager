@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.15 09.09.2003 $ */
+/* Revision: 1.16 14.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    ! небольшая коррекция символов
   09.09.2003 SVS
     - Ctrl-U полность не сбрасывал выделение
   05.09.2003 SVS
@@ -129,6 +131,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
   int BufSize=(GWidth+3)*GHeight;
   CHAR_INFO *CharBuf=new CHAR_INFO[BufSize], *PtrCharBuf;
   char *CopyBuf=(char *)xf_malloc(BufSize), *PtrCopyBuf;
+  WORD Chr;
   GetText(X1,Y1,X2,Y2,CharBuf);
   *CopyBuf=0;
   PtrCharBuf=CharBuf;
@@ -143,7 +146,11 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
     }
     for (int J=0;J<GWidth;J++, ++PtrCharBuf)
     {
-      *PtrCopyBuf++=GetVidChar(*PtrCharBuf);
+      Chr=PtrCharBuf->Char.UnicodeChar;
+           if(Chr == 0xBB) Chr='>';
+      else if(Chr == 0xAB) Chr='<';
+      else Chr=GetVidChar(*PtrCharBuf);
+      *PtrCopyBuf++=Chr;
       *PtrCopyBuf=0;
     }
     for (int K=strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)

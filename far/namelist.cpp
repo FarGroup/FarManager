@@ -5,10 +5,14 @@ namelist.cpp
 
 */
 
-/* Revision: 1.07 21.01.2003 $ */
+/* Revision: 1.08 14.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    ! Перетрях в NamesList.
+    ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
+    + NamesList::Init()
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -35,33 +39,39 @@ Modify:
 #include "fn.hpp"
 #include "namelist.hpp"
 
-NamesList::NamesList()
+NamesList::NamesList(DWORD _MemSize)
 {
-  Names=CurName=NULL;
-  CurNamePos=NamesNumber=NamesSize=0;
-  *CurDir=0;
+  Init();
+  if((MemSize=_MemSize) > 0)
+  {
+    Names=(char *)xf_malloc(MemSize);
+    if (!Names)
+      MemSize=0;
+    else
+      *Names=0;
+  }
 }
-
 
 NamesList::~NamesList()
 {
-  /* $ 13.07.2000 SVS
-     распределение памяти было чрезе realloc
-  */
-  if(Names) xf_free(Names);
-  /* SVS $ */
+  if(Names)
+    xf_free(Names);
 }
 
 
 void NamesList::AddName(char *Name)
 {
   int Length=strlen(Name)+1;
-  char *NewNames=(char *)xf_realloc(Names,NamesSize+Length);
-  if (NewNames==NULL)
-    return;
-  Names=NewNames;
+  if(NamesSize+Length >= MemSize)
+  {
+    char *NewNames=(char *)xf_realloc(Names,NamesSize+Length);
+    if (NewNames==NULL)
+      return;
+    Names=NewNames;
+  }
   memcpy(Names+NamesSize,Name,Length);
   NamesSize+=Length;
+  MemSize+=Length;
   NamesNumber++;
 }
 
@@ -93,7 +103,7 @@ bool NamesList::GetPrevName(char *Name)
 void NamesList::SetCurName(char *Name)
 {
   char *CheckName=Names;
-  int NamePos=0;
+  DWORD NamePos=0;
   while (NamePos<NamesNumber)
     if (strcmp(Name,CheckName)==0)
     {
@@ -112,22 +122,41 @@ void NamesList::SetCurName(char *Name)
 void NamesList::MoveData(NamesList *Dest)
 {
   Dest->Names=Names;
-  Dest->CurName=CurName;
-  Dest->CurNamePos=CurNamePos;
+  if(CurName)
+  {
+    Dest->CurName=CurName;
+    Dest->CurNamePos=CurNamePos;
+  }
+  else
+  {
+    Dest->CurName=Names;
+    Dest->CurNamePos=0;
+  }
   Dest->NamesNumber=NamesNumber;
   Dest->NamesSize=NamesSize;
   strcpy(Dest->CurDir,CurDir);
-  Names=CurName=NULL;
+  Init();
 }
 
 
-void NamesList::GetCurDir(char *Dir)
+void NamesList::GetCurDir(char *Dir,int DestSize)
 {
-  strcpy(Dir,CurDir);
+  if(*CurDir)
+    strncpy(Dir,CurDir,DestSize);
+  else
+    *Dir=0;
 }
 
 
 void NamesList::SetCurDir(char *Dir)
 {
-  PrepareDiskPath(strcpy(CurDir,Dir),sizeof(CurDir)-1);
+  PrepareDiskPath(strncpy(CurDir,Dir,sizeof(CurDir)),sizeof(CurDir)-1);
+}
+
+void NamesList::Init()
+{
+  Names=CurName=NULL;
+  CurNamePos=NamesNumber=0;
+  NamesSize=MemSize=0;
+  *CurDir=0;
 }

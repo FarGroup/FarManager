@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.150 15.10.2003 $ */
+/* Revision: 1.151 16.10.2003 $ */
 
 /*
 Modify:
+  16.10.2003 SVS
+    ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
+    + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
+    ! цикл со счетчиком и Sleep(10) убраны в пользу критических секций
   15.10.2003 KM
     - Обработаем переключение "горячих" клавиш
   10.10.2003 SVS
@@ -862,7 +866,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       if ((Param1==5) && (!FindFoldersChanged))
       // Строка "Содержащий текст"
       {
-        BOOL Checked = (*Item.Data.Data)?FALSE:Opt.FindFolders;
+        BOOL Checked = (*Item.Data.Data)?FALSE:Opt.FindOpt.FindFolders;
         if (Checked)
           Dialog::SendDlgMessage(hDlg, DM_SETCHECK, 15, BSTATE_CHECKED);
         else
@@ -929,7 +933,7 @@ FindFiles::FindFiles()
   if (!RegVer)
     LastSearchInSymLink=0;
   SearchInSymLink=LastSearchInSymLink;
-  SearchMode=Opt.FileSearchMode;
+  SearchMode=Opt.FindOpt.FileSearchMode;
   strncpy(FindMask,LastFindMask,sizeof(FindMask)-1);
   strncpy(FindStr,LastFindStr,sizeof(FindStr)-1);
   BreakMainThread=0;
@@ -1039,7 +1043,7 @@ FindFiles::FindFiles()
 
 
     if (!*FindStr)
-      FindAskDlg[15].Selected=Opt.FindFolders;
+      FindAskDlg[15].Selected=Opt.FindOpt.FindFolders;
     for(I=19; I <= 24; ++I)
       FindAskDlg[I].Selected=0;
     FindAskDlg[19+SearchMode].Selected=1;
@@ -1169,7 +1173,7 @@ FindFiles::FindFiles()
     SearchHex=FindAskDlg[13].Selected;
     SearchInArchives=FindAskDlg[14].Selected;
     if (FindFoldersChanged)
-      Opt.FindFolders=FindAskDlg[15].Selected;
+      Opt.FindOpt.FindFolders=FindAskDlg[15].Selected;
 
     if (RegVer && !PluginMode)
       SearchInSymLink=FindAskDlg[16].Selected;
@@ -1202,7 +1206,7 @@ FindFiles::FindFiles()
         SearchMode=SEARCH_SELECTED;
     if (SearchFromChanged)
     {
-      Opt.FileSearchMode=SearchMode;
+      Opt.FindOpt.FileSearchMode=SearchMode;
     }
     LastCmpCase=CmpCase;
     /* $ 30.07.2000 KM
@@ -1234,7 +1238,8 @@ FindFiles::~FindFiles()
   ScrBuf.ResetShadow();
 
   // Уничтожим объект фильтра
-  delete Filter;
+  if(Filter)
+    delete Filter;
 
   DeleteCriticalSection(&FindFilesCSection);
 }
@@ -1335,9 +1340,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         return TRUE;
       }
 
-      while (ListBox->GetCallCount())
-        Sleep(10);
-
       if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
         FindPositionChanged = TRUE;
 
@@ -1352,16 +1354,12 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       if (Param1==9 && (Param2==KEY_RIGHT || Param2==KEY_TAB)) // [ Stop ] button
       {
-//        while (ListBox->GetCallCount())
-//          Sleep(10);
         FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/* [ New search ] */,0);
         return TRUE;
       }
       else if (Param1==5 && (Param2==KEY_LEFT || Param2==KEY_SHIFTTAB)) // [ New search ] button
       {
-//        while (ListBox->GetCallCount())
-//          Sleep(10);
         FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/* [ Stop ] */,0);
         return TRUE;
@@ -1370,8 +1368,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                Param2==KEY_PGDN || Param2==KEY_HOME || Param2==KEY_END ||
                Param2==KEY_MSWHEEL_UP || Param2==KEY_MSWHEEL_DOWN)
       {
-//        while (ListBox->GetCallCount())
-//          Sleep(10);
         ListBox->ProcessKey(Param2);
         return TRUE;
       }
@@ -1471,31 +1467,38 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
             if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_SHIFTNUMPAD5)
             {
-              NamesList ViewList;
+              EnterCriticalSection(&FindFilesCSection);
+              int ListSize=ListBox->GetItemCount();
+              LeaveCriticalSection(&FindFilesCSection);
+              NamesList ViewList(Opt.FindOpt.CollectFiles?0:ListSize*NM*3+1);
               // Возьмем все файлы, которые имеют реальные имена...
+              if(Opt.FindOpt.CollectFiles)
               {
-                int ListSize=ListBox->GetItemCount();
+                EnterCriticalSection(&FindFilesCSection);
                 DWORD Index;
                 for (int I=0;I<ListSize;I++)
                 {
                   Index = (DWORD)ListBox->GetUserData(NULL, 0, I);
+                  LPFINDLIST PtrFindList=FindList+Index;
                   if ((Index != LIST_INDEX_NONE) &&
-                      ((FindList[Index].ArcIndex == LIST_INDEX_NONE) ||
-                       (ArcList[FindList[Index].ArcIndex].Flags & OPIF_REALNAMES)))
+                      ((PtrFindList->ArcIndex == LIST_INDEX_NONE) ||
+                       (ArcList[PtrFindList->ArcIndex].Flags & OPIF_REALNAMES)))
                   {
-                    int Length=strlen(FindList[Index].FindData.cFileName);
                     // Не учитывали файлы в архивах с OPIF_REALNAMES
-                    if (Length>0 && !(FindList[Index].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-                      ViewList.AddName(FindList[Index].FindData.cFileName);
+                    if (*PtrFindList->FindData.cFileName && !(PtrFindList->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+                      ViewList.AddName(PtrFindList->FindData.cFileName);
                   } /* if */
                 } /* for */
                 ViewList.SetCurName(FindList[ItemIndex].FindData.cFileName);
+                LeaveCriticalSection(&FindFilesCSection);
               }
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-              Mutex.Unlock();
+              //Mutex.Unlock();
               {
-                FileViewer ShellViewer (SearchFileName,FALSE,FALSE,FALSE,-1,NULL,(FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)?NULL:&ViewList);
+                EnterCriticalSection(&FindFilesCSection);
+                FileViewer ShellViewer (SearchFileName,FALSE,FALSE,FALSE,-1,NULL,(FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)?NULL:(Opt.FindOpt.CollectFiles?&ViewList:NULL));
+                LeaveCriticalSection(&FindFilesCSection);
                 ShellViewer.SetDynamicallyBorn(FALSE);
                 ShellViewer.SetEnableF6(TRUE);
                 // FindFileArcIndex нельзя здесь использовать
@@ -1503,6 +1506,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 if ((FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE) &&
                     (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
                   ShellViewer.SetSaveToSaveAs(TRUE);
+                Mutex.Unlock();
                 IsProcessVE_FindFile++;
                 FrameManager->EnterModalEV();
                 FrameManager->ExecuteModal();
@@ -1510,8 +1514,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 IsProcessVE_FindFile--;
                 // заставляем рефрешится экран
                 FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+                Mutex.Lock();
               }
-              Mutex.Lock();
+              //Mutex.Lock();
 
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
               Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
@@ -1907,7 +1912,7 @@ int FindFiles::FindFilesProcess()
           */
           /* $ 13.11.2001 VVM
             ! Хм. Добавим папки, если их искали... */
-          if (IsArchive || Opt.FindFolders ||
+          if (IsArchive || Opt.FindOpt.FindFolders ||
               !(FindList[i].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) &&
               !SearchHex)
           /* VVM $ */
@@ -2302,7 +2307,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
     /* $ 17.01.2002 VVM
       ! Поскольку работу с поиском в папках вынесли в диалог -
         флаг в плагине потерял свою актуальность */
-    if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && ((Opt.FindFolders==0) || SearchHex))
+    if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && ((Opt.FindOpt.FindFolders==0) || SearchHex))
 //        ((hPlugin == INVALID_HANDLE_VALUE) ||
 //        (ArcList[FindFileArcIndex].Flags & OPIF_FINDFOLDERS)==0))
       return FALSE;
@@ -2456,8 +2461,6 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
          курсор не останавливается на пустых строках между каталогами
       */
       ListItem.Flags|=LIF_DISABLE;
-      while (ListBox->GetCallCount())
-        Sleep(10);
       // С подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках
       ListBox->SetUserData((void*)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
       ListItem.Flags&=~LIF_DISABLE;
@@ -2497,8 +2500,6 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       if (FindFileArcIndex != LIST_INDEX_NONE)
         FindList[ItemIndex].ArcIndex = FindFileArcIndex;
 
-      while (ListBox->GetCallCount())
-        Sleep(10);
       ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex),
                            ListBox->AddItem(&ListItem));
     }
@@ -2527,9 +2528,6 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   /* $ 17.01.2002 VVM
     ! Выделять будем не в структуре, а в списке. Дабы не двоилось выделение */
 //  ListItem.SetSelect(!FindFileCount);
-
-  while (ListBox->GetCallCount())
-    Sleep(10);
 
   int ListPos = ListBox->AddItem(&ListItem);
   ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex), ListPos);
@@ -2966,8 +2964,6 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         ItemData.PtrData=DataStr;
         ItemData.PtrLength=strlen(DataStr);
 
-        while (ListBox->GetCallCount())
-          Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
 
         FindCountReady=FALSE;
@@ -2994,8 +2990,6 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
 
         if (SearchDone)
         {
-          while (ListBox->GetCallCount())
-            Sleep(10);
           Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
           strncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
@@ -3021,8 +3015,6 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
           sprintf(DataStr,"%-*.*s %-*.*s",Wid1,Wid1,SearchStr,Wid2,Wid2,TruncPathStr(FindMessage,Wid2));
           ItemData.PtrData=DataStr;
           ItemData.PtrLength=strlen(DataStr);
-          while (ListBox->GetCallCount())
-            Sleep(10);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
         }
         FindMessageReady=FALSE;
@@ -3031,8 +3023,6 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
       if (LastFoundNumber && ListBox)
       {
         LastFoundNumber=0;
-        while (ListBox->GetCallCount())
-          Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
       }
     }

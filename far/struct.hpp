@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.109 13.10.2003 $ */
+/* Revision: 1.110 14.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
+    + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
   13.10.2003 SVS
     ! переименование:
       Opt.KeyMacroRecord1  -> Opt.KeyMacroCtrlDot
@@ -564,6 +567,12 @@ struct LoadPluginsOptions{
   /* SVS $*/
 };
 
+struct FindFileOptions{
+  int FindFolders;
+  int CollectFiles;
+  int FileSearchMode;
+};
+
 struct Options
 {
   int Clock;
@@ -662,7 +671,9 @@ struct Options
   int SetupArgv; // количество каталогов в комюстроке ФАРа
   int ChangeDriveMode;
   int ChangeDriveDisconnetMode;
-  int FileSearchMode;
+
+  struct FindFileOptions FindOpt;
+
   char TempPath[NM];
   int HeightDecrement;
   int WidthDecrement;
@@ -861,7 +872,6 @@ struct Options
   int CloseCDGate;       // автомонтирование CD
 
   DWORD LCIDSort;
-  int FindFolders;
   int RestoreCPAfterExecute;
   int ExecuteUseAppPath;
   DWORD PluginMaxReadData;

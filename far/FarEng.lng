@@ -1065,6 +1065,7 @@
 "The specified file could not be encrypted"
 "The specified file could not be decrypted"
 "The specified file is not encrypted"
+"No application is associated with the specified file for this operation"
 
 "The full pathname is too long"
 

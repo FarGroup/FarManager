@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.119 06.10.2003 $ */
+/* Revision: 1.120 14.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    + VMenuCSection
+    ! цикл со счетчиком и Sleep(10) убраны в пользу критических секций
   06.10.2003 SVS
     - BugZ#966 - У диалога съезжает рамка при его перещении
       Для VMENU_LISTBOX не делаем операцию "X2=ScrX-2;"
@@ -451,6 +454,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
 {
   int I;
   SetDynamicallyBorn(false);
+  InitializeCriticalSection(&VMenuCSection);
 
   VMenu::VMFlags.Set(Flags);
   VMenu::VMFlags.Clear(VMENU_MOUSEDOWN);
@@ -554,6 +558,7 @@ VMenu::~VMenu()
 /*& 28.05.2001 OT Разрешить перерисовку фрейма, в котором создавалось это меню */
 //  FrameFromLaunched->UnlockRefresh();
 /* OT &*/
+  DeleteCriticalSection(&VMenuCSection);
   SetCursorType(PrevCursorVisible,PrevCursorSize);
   if (!VMFlags.Check(VMENU_LISTBOX))
   {
@@ -564,10 +569,7 @@ VMenu::~VMenu()
 
 void VMenu::Hide()
 {
-  while (CallCount>0)
-    Sleep(10);
-
-  InterlockedIncrement(&CallCount);
+  EnterCriticalSection(&VMenuCSection);
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
   if(!VMFlags.Check(VMENU_LISTBOX) && SaveScr)
@@ -581,7 +583,7 @@ void VMenu::Hide()
 //  X2=-1;
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  InterlockedDecrement(&CallCount);
+  LeaveCriticalSection(&VMenuCSection);
 }
 
 
@@ -591,7 +593,7 @@ void VMenu::Show()
     return;
 //  while (CallCount>0)
 //    Sleep(10);
-  InterlockedIncrement(&CallCount);
+  EnterCriticalSection(&VMenuCSection);
   /* $ 23.02.2002 DJ
      здесь тоже используем флаг LISTHASFOCUS
   */
@@ -675,7 +677,7 @@ void VMenu::Show()
       DisplayObject();
     }
   }
-  InterlockedDecrement(&CallCount);
+  LeaveCriticalSection(&VMenuCSection);
 }
 
 /* $ 28.07.2000 SVS
@@ -1090,10 +1092,6 @@ int VMenu::ProcessKey(int Key)
       return(FALSE);
     }
 
-  while (CallCount>0)
-    Sleep(10);
-  InterlockedIncrement(&CallCount);
-
   if(!(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE || (Key&MCODE_OP_SENDKEY)))
   {
     DWORD S=Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
@@ -1228,10 +1226,8 @@ int VMenu::ProcessKey(int Key)
             CheckKeyHiOrAcc(Key,1,TRUE);
         }
       }
-      InterlockedDecrement(&CallCount);
       return(FALSE);
   }
-  InterlockedDecrement(&CallCount);
   return(TRUE);
 }
 
@@ -1357,9 +1353,6 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
   }
 
-  while (CallCount>0)
-    Sleep(10);
-
   /* $ 06.07.2000 tran
      + mouse support for menu scrollbar
      */
@@ -1464,9 +1457,7 @@ int VMenu::DeleteItem(int ID,int Count)
   if(Count <= 0)
     return ItemCount;
 
-  while (CallCount>0)
-    Sleep(10);
-  InterlockedIncrement(&CallCount);
+  EnterCriticalSection(&VMenuCSection);
 
   int OldItemSelected=-1;
   for(I=0; I < ItemCount; ++I)
@@ -1532,7 +1523,7 @@ int VMenu::DeleteItem(int ID,int Count)
   if(SelectPos > -1)
     Item[SelectPos].Flags|=LIF_SELECTED;
 
-  InterlockedDecrement(&CallCount);
+  LeaveCriticalSection(&VMenuCSection);
   return(ItemCount);
 }
 /* SVS $ */
@@ -1542,9 +1533,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   if(!NewItem)
     return -1; //???
 
-  while (CallCount>0)
-    Sleep(10);
-  InterlockedIncrement(&CallCount);
+  EnterCriticalSection(&VMenuCSection);
 
   struct MenuItem *NewPtr;
   int Length;
@@ -1558,7 +1547,10 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   if ((ItemCount & 255)==0)
   {
     if ((NewPtr=(struct MenuItem *)xf_realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
+    {
+      LeaveCriticalSection(&VMenuCSection);
       return(0);
+    }
     Item=NewPtr;
   }
 
@@ -1622,7 +1614,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
 //  if(VMFlags.Check(VMENU_LISTBOXSORT))
 //    SortItems(0);
-  InterlockedDecrement(&CallCount);
+  LeaveCriticalSection(&VMenuCSection);
   return(ItemCount++);
 }
 
@@ -1705,13 +1697,9 @@ int VMenu::GetUserDataSize(int Position)
 {
   if (ItemCount==0)
     return(0);
-  while (CallCount>0)
-    Sleep(10);
-  InterlockedIncrement(&CallCount);
-
+  EnterCriticalSection(&VMenuCSection);
   int DataSize=Item[GetPosition(Position)].UserDataSize;
-
-  InterlockedDecrement(&CallCount);
+  LeaveCriticalSection(&VMenuCSection);
   return(DataSize);
 }
 
@@ -1734,8 +1722,7 @@ int VMenu::_SetUserData(struct MenuItem *PItem,
       SizeReal=strlen((const char*)Data)+1;
 
     // если размер данных Size=0 или Size больше 4 байт (sizeof(void*))
-    if(!Size ||
-        Size > sizeof(PItem->UserData)) // если в 4 байта не влезаем, то...
+    if(!Size || Size > sizeof(PItem->UserData)) // если в 4 байта не влезаем, то...
     {
       // размер больше 4 байт?
       if(SizeReal > sizeof(PItem->UserData))
@@ -2046,9 +2033,11 @@ void VMenu::SetBoxType(int BoxType)
 
 int VMenu::GetPosition(int Position)
 {
+  EnterCriticalSection(&VMenuCSection);
   int DataPos=(Position==-1) ? SelectPos : Position;
   if (DataPos>=ItemCount)
     DataPos=ItemCount-1;
+  LeaveCriticalSection(&VMenuCSection);
   return DataPos;
 }
 
@@ -2057,9 +2046,6 @@ int VMenu::GetSelection(int Position)
 {
   if (ItemCount==0)
     return(0);
-  while (CallCount>0)
-    Sleep(10);
-
   int DataPos=GetPosition(Position);
   if (Item[DataPos].Flags&LIF_SEPARATOR)
     return(0);
@@ -2070,8 +2056,6 @@ int VMenu::GetSelection(int Position)
 
 void VMenu::SetSelection(int Selection,int Position)
 {
-  while (CallCount>0)
-    Sleep(10);
   if (ItemCount==0)
     return;
   Item[GetPosition(Position)].SetCheck(Selection);
@@ -2082,8 +2066,6 @@ struct MenuItem *VMenu::GetItemPtr(int Position)
 {
   if (ItemCount==0)
     return NULL;
-  while (CallCount>0)
-    Sleep(10);
   return Item+GetPosition(Position);
 }
 
@@ -2327,6 +2309,7 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
 
   int I;
   //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
+  EnterCriticalSection(&VMenuCSection);
   if(!SortForDataDWORD) // обычная сортировка
     qsortex((char *)Item,
           ItemCount,
@@ -2343,13 +2326,14 @@ void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
 
   // скорректируем SelectPos
   for(I=0; I < ItemCount; ++I)
-    if (Item[I].Flags & LIF_SELECTED && !(Item[I].Flags & (LIF_SEPARATOR | LIF_DISABLE)))
+    if ((Item[I].Flags & LIF_SELECTED) && !(Item[I].Flags & (LIF_SEPARATOR | LIF_DISABLE)))
     {
       SelectPos=I;
       break;
     }
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
+  LeaveCriticalSection(&VMenuCSection);
 }
 
 // return Pos || -1
@@ -2389,6 +2373,7 @@ BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
 {
   if(Info)
   {
+    EnterCriticalSection(&VMenuCSection);
     /* $ 23.02.2002 DJ
        нефиг показывать наши внутренние флаги
     */
@@ -2401,6 +2386,7 @@ BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
     Info->MaxHeight=MaxHeight;
     Info->MaxLength=MaxLength;
     memset(&Info->Reserved,0,sizeof(Info->Reserved));
+    LeaveCriticalSection(&VMenuCSection);
     return TRUE;
   }
   return FALSE;
@@ -2413,11 +2399,9 @@ int VMenu::SetUserData(void *Data,   // Данные
 {
   if (ItemCount==0 || Position < 0)
     return(0);
-  while (CallCount>0)
-    Sleep(10);
-  InterlockedIncrement(&CallCount);
+  EnterCriticalSection(&VMenuCSection);
   int DataSize=VMenu::_SetUserData(Item+GetPosition(Position),Data,Size);
-  InterlockedDecrement(&CallCount);
+  LeaveCriticalSection(&VMenuCSection);
   return DataSize;
 }
 
@@ -2427,11 +2411,9 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
   void *PtrData=NULL;
   if (ItemCount || Position < 0)
   {
-    while (CallCount>0)
-      Sleep(10);
-    InterlockedIncrement(&CallCount);
+    EnterCriticalSection(&VMenuCSection);
     PtrData=VMenu::_GetUserData(Item+GetPosition(Position),Data,Size);
-    InterlockedDecrement(&CallCount);
+    LeaveCriticalSection(&VMenuCSection);
   }
   return(PtrData);
 }

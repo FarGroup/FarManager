@@ -5,10 +5,15 @@ execute.cpp
 
 */
 
-/* Revision: 1.90 09.10.2003 $ */
+/* Revision: 1.91 16.10.2003 $ */
 
 /*
 Modify:
+  16.10.2003 SVS
+    ! ≈сли в ассоциаци€х нету "command" или этот параметр реестра
+      пуст - не вызываем ShellExecuteEx().
+      “ак же добавлен флаг SEE_MASK_FLAG_NO_UI, чтобы ‘ј– выбывал сообщени€
+      (если что - убрать!).
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -393,13 +398,14 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 // по имени файла (по его расширению) получить команду активации
 // ƒополнительно смотритс€ гуевость команды-активатора
 // (чтобы не ждать завершени€)
-char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
+char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
   char Value[512];
   const char *ExtPtr;
   char *RetPtr;
   LONG ValueSize;
 
+  Error=0;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
   if ((ExtPtr=strrchr(FileName,'.'))==NULL)
@@ -539,6 +545,11 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
             *Ptr=0;
         }
         IsCommandPEExeGUI(Command,ImageSubsystem);
+      }
+      else
+      {
+        Error=ERROR_NO_ASSOCIATION;
+        RetPtr=NULL;
       }
     }
   }
@@ -968,6 +979,7 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
   char OldTitle[512];
   DWORD ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
   int ExitCode=1;
+  DWORD _LastErrCode=0;
 
   int ExecutorType = GetRegKey("System\\Executor","Type",0);
   // частный случай - т.с. затычка, но нужно конкретное решение!
@@ -1174,22 +1186,31 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
       // ???
 
       memset(&si,0,sizeof(si));
-      si.cbSize=sizeof(si);
-      si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-      si.lpFile=AnsiCmdStr;
-      si.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)si.lpFile,ImageSubsystem);
-      si.nShow=SW_SHOWNORMAL;
-      if (AnsiCmdPar[0])
-        si.lpParameters = AnsiCmdPar;
-      SetFileApisTo(APIS2ANSI);
-      ExitCode=ShellExecuteEx(&si);
-      SetFileApisTo(APIS2OEM);
-      pi.hProcess=si.hProcess;
+      si.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)AnsiCmdStr,ImageSubsystem,_LastErrCode);
+      if(!_LastErrCode)
+      {
+        si.cbSize=sizeof(si);
+        si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_FLAG_NO_UI;
+        si.lpFile=AnsiCmdStr;
+        si.nShow=SW_SHOWNORMAL;
+        if (AnsiCmdPar[0])
+          si.lpParameters = AnsiCmdPar;
+        SetFileApisTo(APIS2ANSI);
+        ExitCode=ShellExecuteEx(&si);
+        if(!ExitCode)
+          _LastErrCode=GetLastError();
+        SetFileApisTo(APIS2OEM);
+        pi.hProcess=si.hProcess;
+      }
+      else
+        ExitCode=0;
     }
     else
     {
       SetRealColor(F_LIGHTGRAY|B_BLACK); // попытка борьбы с синим фоном в 4NT при старте консоль
       ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,NULL,NULL,&si,&pi);
+      if(!ExitCode)
+        _LastErrCode=GetLastError();
     }
 
     StartExecTime=clock();
@@ -1335,13 +1356,13 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
   }
   else
   {
-    if (SeparateWindow!=2)
+    //if (SeparateWindow!=2)
     {
+      SetLastError(_LastErrCode);
       //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
       //        SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
       //        ^^^^^^^^^^^^^^^^^ зачем? Ёто никогда не работает - см. выше
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
-                CmdPtr,MSG(MOk));
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),CmdPtr,MSG(MOk));
     }
     ExitCode=-1;
     //ScrBuf.FillBuf();

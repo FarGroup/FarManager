@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.49 17.06.2003 $ */
+/* Revision: 1.50 14.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    + VMenuCSection
   17.06.2003 SVS
     ! VMenu::CallCount сделаем как LONG
   27.05.2003 SVS
@@ -332,6 +334,7 @@ class VMenu: virtual public Modal, virtual public Frame
     /* SVS $ */
 
     short RLen[2];	              // реальные размеры 2-х половин
+    CRITICAL_SECTION VMenuCSection;
 
   protected:
     /* $ 13.04.2002 KM

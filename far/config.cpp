@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.161 13.10.2003 $ */
+/* Revision: 1.162 14.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
+    + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
   13.10.2003 SVS
     ! переименование:
       Opt.KeyMacroRecord1  -> Opt.KeyMacroCtrlDot
@@ -1352,7 +1355,7 @@ static struct FARConfig{
   /* $ 24.10.2001 KM
      Запомнить флаг разрешения поиска каталогов в Alt-F7
   */
-  {1, REG_DWORD,  NKeyInterface, "FindFolders",&Opt.FindFolders, 1, 0},
+  {1, REG_DWORD,  NKeyInterface, "FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
   /* KM $ */
   {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
 
@@ -1421,7 +1424,8 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"InactivityExitTime",&Opt.InactivityExitTime,15, 0},
   {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS, 0},
   {1, REG_DWORD,  NKeySystem,"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
-  {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
+  {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FindOpt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
+  {0, REG_DWORD,  NKeySystem,"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
   /* $ 17.09.2003 KM */
   {1, REG_BINARY, NKeySystem,"FindCharTable",&Opt.CharTable, sizeof(Opt.CharTable), 0},
   /* KM $ */

@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.29 04.10.2003 $ */
+/* Revision: 1.30 15.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 SVS
+    + GetMacroKeyInfo - информация об очередной макроклавише.
+    + Сохранение/восстановление макроокружения.
   04.10.2003 SVS
     ! Куча переделок - все описание см. 01715.Macro.txt
   26.09.2003 SVS
@@ -107,6 +110,16 @@ struct MacroRecord
   DWORD *Buffer;
 };
 
+#define STACKLEVEL	16
+
+struct MacroState
+{
+  int MacroPC;
+  int ExecLIBPos;
+  int MacroWORKCount;
+  struct MacroRecord *MacroWORK; // т.н. текущее исполнение
+};
+
 /* $TODO:
     1. Удалить IndexMode[], Sort()
     2. Из MacroLIB сделать
@@ -124,18 +137,16 @@ class KeyMacro
     int IsRedrawEditor;
 
     int Mode;
-    int MacroPC;
-    int ExecLIBPos;
     int StartMode;
+
+    struct MacroState Work;
+    struct MacroState PCStack[STACKLEVEL];
+    int CurPCStack;
 
     // сюда "могут" писать только при чтении макросов (занесение нового),
     // а исполнять через MacroWORK
     int MacroLIBCount;
     struct MacroRecord *MacroLIB;
-
-    // т.н. MacroWORK - текущее исполнение
-    int MacroWORKCount;
-    struct MacroRecord *MacroWORK;
 
     int IndexMode[MACRO_LAST][2];
 
@@ -179,6 +190,10 @@ class KeyMacro
     int GetKey();
     int PeekKey();
 
+    int PushState();
+    int PopState();
+    int GetLevelState(){return CurPCStack;};
+
     int  IsRecording() {return(Recording);};
     int  IsExecuting() {return(Executing);};
     int  IsExecutingLastKey();
@@ -214,6 +229,7 @@ class KeyMacro
 
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);
+    static int   GetMacroKeyInfo(int Mode,int Pos,char *KeyName,char *Description,int DescriptionSize);
     static char *MkTextSequence(DWORD *Buffer,int BufferSize);
     // из строкового представления макроса сделать MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr);

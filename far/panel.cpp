@@ -5,10 +5,16 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.115 13.10.2003 $ */
+/* Revision: 1.116 16.10.2003 $ */
 
 /*
 Modify:
+  15.10.2003 SVS
+    - ѕосле предыдущего патча перестал работать Shift-Ins в макросах дл€ квиксерча
+      ¬оспользуемс€ новой возможность макродвижка - сохранение/восстановление своего
+      состо€ни€, т.е. если сейчас выполнение макроса, то сохраним состо€ние,
+      запостим (Ctrl-V) новый макрос, после отработки этого макроса возобновим
+      выполнение предыдущего, вызвав PopState
   13.10.2003 SVS
     - BugZ#973 - panels QuickSearch wish
   09.10.2003 SVS
@@ -1286,6 +1292,7 @@ void Panel::FastFind(int FirstKey)
                     ++PtrClipText;
                   }
                   *PtrPtr=0;
+                  CtrlObject->Macro.PushState();
                   CtrlObject->Macro.PostNewMacro(Ptr,0);
                   xf_free(Ptr);
                 }
@@ -1368,8 +1375,11 @@ void Panel::FastFind(int FirstKey)
               strcpy(LastName,Name);
             else
             {
-              if(CtrlObject->Macro.IsExecuting()) // если вставка макросом...
-                CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
+              if(CtrlObject->Macro.IsExecuting())// && CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
+              {
+                //CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
+                CtrlObject->Macro.PopState();
+              }
               FindEdit.SetString(LastName);
               strcpy(Name,LastName);
             }

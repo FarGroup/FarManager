@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.149 15.10.2003 $ */
+/* Revision: 1.150 16.10.2003 $ */
 
 /*
 Modify:
+  14.10.2003 SVS
+    ! NamesList::GetCurDir - имеет доп. параметр - требуемый размер.
   15.10.2003 KM
     - Не работали "горячие" клавиши для строки "Search"
   03.10.2003 SVS
@@ -1443,21 +1445,21 @@ void Viewer::ShowStatus()
     Показывать полное имя файла во вьюере
     Was: strcpy(Name,*Title ? Title:FileName);
   */
-  if(*Title) strcpy(Name,Title);
+  if(*Title)
+    strcpy(Name,Title);
   else
   {
     /* $ 30.06.2000 tran
        - double path when show file from temp panel */
-    if ( ! (FileName[1]==':' && FileName[2]=='\\') )
+    if (!(FileName[1]==':' && FileName[2]=='\\'))
     {
-        ViewNamesList.GetCurDir(Name);
-        if(int len=strlen(Name))
-            if(Name[len-1]!='\\')
-                strcat(Name,"\\");
-        strcat(Name,FileName);
+      ViewNamesList.GetCurDir(Name,sizeof(Name)-1);
+      if(*Name)
+        AddEndSlash(Name);
+      strcat(Name,FileName);
     }
     else
-        strcpy(Name,FileName);
+      strcpy(Name,FileName);
     /* tran $ */
   }
   /* IS $  */
@@ -1475,17 +1477,16 @@ void Viewer::ShowStatus()
   char TmpTableName[32];
   if (VM.Unicode)
     TableName="Unicode";
+  else if (VM.UseDecodeTable)
+  {
+    strncpy(TmpTableName,TableSet.TableName,sizeof(TmpTableName));
+    TableName=RemoveChar(TmpTableName,'&',TRUE);
+  }
+  else if (VM.AnsiMode)
+    TableName="Win";
   else
-    if (VM.UseDecodeTable)
-    {
-      strncpy(TmpTableName,TableSet.TableName,sizeof(TmpTableName));
-      TableName=RemoveChar(TmpTableName,'&',TRUE);
-    }
-    else
-      if (VM.AnsiMode)
-        TableName="Win";
-      else
-        TableName="DOS";
+    TableName="DOS";
+
   const char *StatusFormat="%-*s %10.10s %13I64u %7.7s %-4I64d %s%3d%%";
   sprintf(Status,StatusFormat,
           NameLength,Name,TableName,
@@ -1907,8 +1908,9 @@ int Viewer::ProcessKey(int Key)
           if (PointToName(Name)==Name)
           {
             char ViewDir[NM];
-            ViewNamesList.GetCurDir(ViewDir);
-            FarChDir(ViewDir);
+            ViewNamesList.GetCurDir(ViewDir,sizeof(ViewDir)-1);
+            if(*ViewDir)
+              FarChDir(ViewDir);
           }
           /* $ 04.07.2000 tran
              + параметер 'warning' в OpenFile в данном месте он TRUE

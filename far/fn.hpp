@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.194 09.10.2003 $ */
+/* Revision: 1.195 16.10.2003 $ */
 
 /*
 Modify:
+  16.10.2003 SVS
+    ! функции, возвращающие код клавиши возвращают не int, а DWORD
   09.10.2003 SVS
     + SetFileApisTo() с параметром APIS2ANSI или APIS2OEM вместо SetFileApisToANSI() и SetFileApisToOEM()
   23.09.2003 KM
@@ -611,7 +613,7 @@ void ShowTime(int ShowAlways);
 int GetDateFormat();
 int GetDateSeparator();
 int GetTimeSeparator();
-char* GetShellAction(char *FileName);
+char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error);
 void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 char* InsertCommas(unsigned long Number,char *Dest);
@@ -1392,9 +1394,9 @@ BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
    FSF/FarInputRecordToKey */
 int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 /* tran 31.08.2000 $ */
-int GetInputRecord(INPUT_RECORD *rec);
-int PeekInputRecord(INPUT_RECORD *rec);
-int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
+DWORD GetInputRecord(INPUT_RECORD *rec);
+DWORD PeekInputRecord(INPUT_RECORD *rec);
+DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
 /* $ 24.08.2000 SVS
  + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
 */
