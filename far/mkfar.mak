@@ -292,12 +292,18 @@ Far.def
    @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) FarRus.hlf > $(FINALPATH)\FarRus.hlf
    @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
    @copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
-
    -@if exist plugin.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
    -@if exist fmt.hpp awk -f plugins.awk -v p1=1 -v p2=70 fmt.hpp > $(FARINCLUDE)\fmt.hpp
    -@if exist fmt.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
    -@if exist farcolor.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas farcolor.pas > $(FARINCLUDE)\farcolor.pas
    -@if exist farkeys.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas farkeys.pas > $(FARINCLUDE)\farkeys.pas
+!ifdef ILINK
+	-@if not exist $(FINALPATH)\Far.ilc del $(FINALPATH)\Far.ilc  >nul
+	-@if not exist $(FINALPATH)\Far.ild del $(FINALPATH)\Far.ild  >nul
+	-@if not exist $(FINALPATH)\Far.ilf del $(FINALPATH)\Far.ilf  >nul
+	-@if not exist $(FINALPATH)\Far.ils del $(FINALPATH)\Far.ils  >nul
+	-@if not exist $(FINALPATH)\Far.tds del $(FINALPATH)\Far.tds  >nul
+!endif
 
 
 # Compiler configuration file

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.168 04.10.2002 $ */
+/* Revision: 1.169 04.11.2002 $ */
 
 /*
 Modify:
+  07.11.2002 SVS
+    + Для отладочных целей, для плагинов - FarSysLog_INPUT_RECORD_Dump()
+      (доступно только под дебугинфой)
   04.10.2002 SVS
     + ConvertCurrentPalette()
   18.09.2002 VVM
@@ -1027,6 +1030,7 @@ extern "C" {
 #endif
 void WINAPIV _export FarSysLog(char *ModuleName,int Level,char *fmt,...);
 void WINAPI  _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
+void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *rec);
 #ifdef __cplusplus
 };
 #endif

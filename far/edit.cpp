@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.91 16.10.2002 $ */
+/* Revision: 1.92 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    ! Для ReturnAltValue не делаем енкоде для клавиши.
+      Это позволяет Alt-212 всегда иметь в нужной кодировке
   16.10.2002 SKV
     - падение в DeleteBlock
   14.10.2002 SKV
@@ -935,7 +938,7 @@ int Edit::ProcessKey(int Key)
     }
 
   }
-  if (!EditEncodeDisabled && Key<256 && TableSet)
+  if (!EditEncodeDisabled && Key<256 && TableSet && !ReturnAltValue)
     Key=TableSet->EncodeTable[Key];
 
   /* $ 11.09.2000 SVS

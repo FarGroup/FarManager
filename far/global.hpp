@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.43 14.07.2002 $ */
+/* Revision: 1.44 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    ! ReturnAltValue уехала из keyboard.cpp в global.cpp
   14.07.2002 SVS
     ! новые константы PluginsFolderName, HelpFileMask, HelpFormatLinkModule
       переехали из farconst.hpp в global.?pp
@@ -150,6 +152,7 @@ extern int RButtonPressed, PrevRButtonPressed;
 extern int MButtonPressed, PrevMButtonPressed;
 extern int PrevMouseX,PrevMouseY,MouseX,MouseY;
 extern int PreMouseEventFlags,MouseEventFlags;
+extern int ReturnAltValue;
 
 extern int WaitInMainLoop;
 extern int WaitInFastFind;

@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.148 27.10.2002 $ */
+/* Revision: 1.149 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    ! ” FarMessageFn() параметр PluginNumber может быть равен -1
+      ѕри этом хелп недоступен!
+    - ƒл€ ACTL_GETFARHWND указатель на окно (под некоторыми прогами) == NULL
+      ¬ этом случае продетектим по новой
   27.10.2002 DJ
     ! переименуем FARColor в FarSetColors (дл€ единообрази€ в именовании и,
       оп€ть же, чтобы было пон€тно, что к чему)
@@ -446,8 +451,9 @@ void ScanPluginDir();
    —делано дл€ того, чтобы не дублировать код GetString.
 */
 int WINAPI FarInputBox(const char *Title,const char *Prompt,
-                     const char *HistoryName,const char *SrcText,
-    char *DestText,int DestLength,const char *HelpTopic,DWORD Flags)
+                       const char *HistoryName,const char *SrcText,
+                       char *DestText,int DestLength,
+                       const char *HelpTopic,DWORD Flags)
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
@@ -465,7 +471,8 @@ int WINAPI FarInputBox(const char *Title,const char *Prompt,
   ‘ункци€ вывода помощи
 */
 BOOL WINAPI FarShowHelp(const char *ModuleName,
-                        const char *HelpTopic,DWORD Flags)
+                        const char *HelpTopic,
+                        DWORD Flags)
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
@@ -823,6 +830,8 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
        пригодитс€ плагинам */
     case ACTL_GETFARHWND:
     {
+      if(!hFarWnd)
+        InitDetectWindowedMode();
       return (int)hFarWnd;
     }
     /* tran $ */
@@ -1328,7 +1337,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
     return(-1);
 
-  if((DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
+  if(PluginNumber != -1 && (DWORD)PluginNumber >= (DWORD)CtrlObject->Plugins.PluginsCount)
     return(-1); // к терапевту.
 
   char *SingleItems=NULL;
@@ -1438,6 +1447,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   /* tran $ */
 
   // запоминаем топик
+  if(PluginNumber != -1)
   {
     char Topic[512];
     if(Help::MkTopic(PluginNumber,HelpTopic,Topic))

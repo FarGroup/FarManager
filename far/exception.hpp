@@ -7,10 +7,13 @@ exception.cpp
 
 */
 
-/* Revision: 1.06 19.02.2002 $ */
+/* Revision: 1.07 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    + флаги EX_PLUGINITEMWORKFLAGS, EX_PLUGINITEMCALLFUNCFLAGS
+    ! поле PLUGINRECORD.Next сделаем пока как PLUGINRECORD.Reserved1
   19.02.2002 SVS
     ! ВСЕ СОВСЕМ ИНАЧЕ :-)
   25.01.2002 SVS
@@ -82,16 +85,55 @@ struct SYSINFOHEADER{     // информация о системе
   OSVERSIONINFO WinVer;   // версия виндов
 };
 
+// флаги для поля PluginItem.WorkFlags
+enum EX_PLUGINITEMWORKFLAGS{
+  EXPIWF_CACHED        = 0x00000001, // кешируется
+  EXPIWF_PRELOADED     = 0x00000002, //
+  EXPIWF_DONTLOADAGAIN = 0x00000004, // не загружать плагин снова, ставится в
+                                   //   результате проверки требуемой версии фара
+};
+
+// флаги для поля PluginItem.FuncFlags - активности функций
+enum EX_PLUGINITEMCALLFUNCFLAGS{
+  EXPICFF_LOADED               = 0x00000001, // DLL загружен ;-)
+  EXPICFF_SETSTARTUPINFO       = 0x00000002, //
+  EXPICFF_OPENPLUGIN           = 0x00000004, //
+  EXPICFF_OPENFILEPLUGIN       = 0x00000008, //
+  EXPICFF_CLOSEPLUGIN          = 0x00000010, //
+  EXPICFF_GETPLUGININFO        = 0x00000020, //
+  EXPICFF_GETOPENPLUGININFO    = 0x00000040, //
+  EXPICFF_GETFINDDATA          = 0x00000080, //
+  EXPICFF_FREEFINDDATA         = 0x00000100, //
+  EXPICFF_GETVIRTUALFINDDATA   = 0x00000200, //
+  EXPICFF_FREEVIRTUALFINDDATA  = 0x00000400, //
+  EXPICFF_SETDIRECTORY         = 0x00000800, //
+  EXPICFF_GETFILES             = 0x00001000, //
+  EXPICFF_PUTFILES             = 0x00002000, //
+  EXPICFF_DELETEFILES          = 0x00004000, //
+  EXPICFF_MAKEDIRECTORY        = 0x00008000, //
+  EXPICFF_PROCESSHOSTFILE      = 0x00010000, //
+  EXPICFF_SETFINDLIST          = 0x00020000, //
+  EXPICFF_CONFIGURE            = 0x00040000, //
+  EXPICFF_EXITFAR              = 0x00080000, //
+  EXPICFF_PROCESSKEY           = 0x00100000, //
+  EXPICFF_PROCESSEVENT         = 0x00200000, //
+  EXPICFF_PROCESSEDITOREVENT   = 0x00400000, //
+  EXPICFF_COMPARE              = 0x00800000, //
+  EXPICFF_PROCESSEDITORINPUT   = 0x01000000, //
+  EXPICFF_MINFARVERSION        = 0x02000000, //
+  EXPICFF_PROCESSVIEWEREVENT   = 0x04000000, //
+};
+
 struct PLUGINRECORD{      // информация о плагине
   DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
   DWORD SizeRec;          // Размер
-  struct RECHEADER *Next; // Следующий элемент в списке
+  DWORD Reserved1;
 
-  DWORD WorkFlags;      // рабочие флаги текущего плагина
-  DWORD FuncFlags;      // битовые маски эксп.функций плагина (бит есть - ест и функция)
-  DWORD CallFlags;      // битовые маски вызова эксп.функций плагина
+  DWORD WorkFlags;        // рабочие флаги текущего плагина
+  DWORD FuncFlags;        // битовые маски эксп.функций плагина (бит есть - ест и функция)
+  DWORD CallFlags;        // битовые маски вызова эксп.функций плагина
 
-  short CachePos;       // позиция в кеше
+  short CachePos;         // позиция в кеше
   DWORD SysID;
 
   struct {
@@ -107,7 +149,7 @@ struct PLUGINRECORD{      // информация о плагине
     char     cAlternateFileName[14];
   } FindData;
 
-  DWORD Reserved[2];    // разерв :-)
+  DWORD Reserved2[2];    // разерв :-)
 
   DWORD SizeModuleName;
   //char ModuleName[0];
@@ -230,6 +272,7 @@ enum ExceptFunctionsType{
   EXCEPT_PROCESSVIEWEREVENT,
   EXCEPT_PROCESSVIEWERINPUT,
   EXCEPT_FARDIALOG,
+  EXCEPT_FAREDITOR,
 };
 
 typedef BOOL (WINAPI *FARPROCESSEVENT)(struct FARExceptionState * Context);
@@ -240,7 +283,7 @@ int WriteEvent(DWORD DumpType, // FLOG_*
                void *RawData=NULL,DWORD RawDataSize=0,
                DWORD RawDataFlags=0,DWORD RawType=RAWTYPE_BINARY);
 
-int xfilter(
+DWORD WINAPI xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
     struct PluginItem *Module,// модуль, приведший к исключению.

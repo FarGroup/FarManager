@@ -6,11 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.205 04.11.2002 $ */
+/* Revision: 1.206 07.11.2002 $ */
 
 /*
 Modify:
-  04.11.2002
+  07.11.2002 SVS
+    ! Немного _SVS() для отладки :-)
+  04.11.2002 SKV
     - Undo на последней строке
   28.10.2002
     - выделение с табами.
@@ -609,6 +611,7 @@ Modify:
 #include "fileedit.hpp"
 #include "savescr.hpp"
 #include "scrbuf.hpp"
+#include "farexcpt.hpp"
 
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
@@ -692,7 +695,7 @@ Editor::Editor()
 
 Editor::~Editor()
 {
-  _OT(SysLog("[%p] Editor::~Editor()",this));
+  _SVS(SysLog("[%p] Editor::~Editor()",this));
   if (EdOpt.SavePos && CtrlObject!=NULL)
   {
     int ScreenLinePos=CalcDistance(TopScreen,CurLine,-1);
@@ -721,6 +724,7 @@ Editor::~Editor()
                (EdOpt.SaveShortPos?SavePos.ScreenLine:NULL),
                (EdOpt.SaveShortPos?SavePos.LeftPos:NULL));
   }
+
 
   FreeAllocatedData();
 
@@ -778,16 +782,21 @@ void Editor::SetDeleteOnClose(int NewMode)
 
 void Editor::FreeAllocatedData()
 {
-//_SVS(DWOk.rRD I=0);
-//_SVS(SysLog("TopList=%p, EndList=%p",TopList, EndList));
-  while (EndList!=NULL)
-  {
-    struct EditList *Prev=EndList->Prev;
-//_SVS(if(I > 400000)SysLog("%ld %p",I,Prev));
-    delete EndList;
-    EndList=Prev;
-//_SVS(I++);
+  _SVS(CleverSysLog Clev("Editor::FreeAllocatedData()"));
+  _SVS(DWORD I=0;SysLog("TopList=%p, EndList=%p _heapchk() = %d",TopList, EndList,_heapchk()));
+  _SVS(TRY){
+    while (EndList!=NULL)
+    {
+      struct EditList *Prev=EndList->Prev;
+      delete EndList;
+      EndList=Prev;
+     _SVS(I++);
+    }
   }
+  _SVS(EXCEPT(EXCEPTION_EXECUTE_HANDLER){SysLog("I=%d EndList=%p{%p,%p} _heapchk() = %d",I,EndList,EndList->Next,EndList->Prev,_heapchk());});
+
+  _SVS(SysLog("I=%d) _heapchk() = %d",I,_heapchk()));
+
   /* $ 03.12.2001 IS
      UndoData - указатель
   */
@@ -945,6 +954,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+    GetFileString GetStr(EditFile);
     //SaveScreen SaveScr;
     NumLastLine=0;
     /* $ 12.01.2002 IS
@@ -953,7 +963,6 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     */
     *GlobalEOL=0;
     /* IS $ */
-    GetFileString GetStr(EditFile);
     char *Str;
     int StrLength,GetCode;
 
@@ -974,6 +983,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         return(FALSE);
       }
       LastLineCR=0;
+
       if ((++Count & 0xfff)==0 && clock()-StartTime>500)
       {
         if (CheckForEsc())
@@ -1031,7 +1041,6 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       EndList->EditLine.SetCurPos(0);
       EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->EditLine.SetEditorMode(TRUE);
-
       NumLastLine++;
     }
     SetPreRedrawFunc(NULL);
@@ -1238,6 +1247,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 //_D(SysLog("%08d EE_READ",__LINE__));
   CtrlObject->Plugins.ProcessEditorEvent(EE_READ,NULL);
+  _SVS(SysLog("Editor::ReadFile _heapchk() = %d",_heapchk()));
   return(TRUE);
 }
 
@@ -1281,7 +1291,8 @@ void Editor::ShowEditor(int CurLineOnly)
     if(TopScreen->Prev)
     {
       TopScreen=TopScreen->Prev;
-    }else
+    }
+    else
     {
       break;
     }
@@ -1319,6 +1330,7 @@ void Editor::ShowEditor(int CurLineOnly)
       CurPos=CurLine->EditLine.GetTabCurPos();
     }
   }
+
   if (!Pasting)
   {
     /*$ 10.08.2000 skv
@@ -1336,12 +1348,14 @@ void Editor::ShowEditor(int CurLineOnly)
       {
         Flags.Clear(FEDITOR_JUSTMODIFIED);
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
-      }else
+      }
+      else
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
       /* skv$*/
     }
     /* skv$*/
   }
+
   if (!CurLineOnly)
   {
     LeftPos=CurLine->EditLine.GetLeftPos();
@@ -1716,6 +1730,7 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     }
+
     case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
     {
       if (CurPos==0 && CurLine->Prev==NULL)return TRUE;

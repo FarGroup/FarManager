@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.271 28.10.2002 $ */
+/* Revision: 1.272 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    - BugZ#691 - теперь у скрытого ListBox (как в принципе и у любого скрытого
+      контрола) самовольно изменяются координаты.
+    - Dialog: При перемещении курсора нефига отрисовывать весь диалог.
+      Достаточно текущего контрола.
   28.10.2002 SVS
     - BugZ#691 - USERCONTROL вместе с LISTBOX
   27.10.2002 DJ
@@ -5679,6 +5684,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           for (I=0;I<Dlg->ItemCount;I++)
           {
             Item=Dlg->Item+I;
+            if(Item->Flags&DIF_HIDDEN)
+              continue;
             Rect.Left=Item->X1;
             Rect.Top=Item->Y1;
             if (Item->X2>=W1)
@@ -6336,7 +6343,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         {
            // что-то одно надо убрать :-)
            MoveCursor(Coord.X+Dlg->X1,Coord.Y+Dlg->Y1); // ???
-           Dlg->ShowDialog(); //???
+           Dlg->ShowDialog(Param1); //???
         }
         return TRUE;
       }

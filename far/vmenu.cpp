@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.103 29.10.2002 $ */
+/* Revision: 1.104 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    - ListBox некорректно отрисовывается при отрисовки диалога,
+      расположенного вплотную к по правому краю экрана
   29.10.2002 SVS
     ! скорректируем SelectPos после сортировки
   22.10.2002 SVS
@@ -567,7 +570,7 @@ void VMenu::Show()
     if (X2<=0)
       X2=X1+MaxLength+4;
   }
-  if (!AutoCenter && X2 > ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
+  if (!AutoCenter && X2 > ScrX-(VMFlags.Check(VMENU_LISTBOX)?2:4)+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
     X1+=ScrX-4-X2;
     X2=ScrX-4;

@@ -373,6 +373,7 @@
 	".\dialog.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\farexcpt.hpp"\
 	".\farconst.hpp"\
 	".\fileedit.hpp"\
 	".\filestr.hpp"\

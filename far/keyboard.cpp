@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.80 18.09.2002 $ */
+/* Revision: 1.81 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    ! ReturnAltValue уехала из keyboard.cpp в global.cpp
   18.09.2002 VVM
     + SheckForEscSilent() - проверить на ESC безо всяких запросов пользователя
     + CinfirmAbortOp()    - спросить у пользователя подтверждение прерывания
@@ -261,7 +263,7 @@ Modify:
 #include "savescr.hpp"
 
 static unsigned int AltValue=0;
-static int ReturnAltValue,KeyCodeForALT_LastPressed=0;
+static int KeyCodeForALT_LastPressed=0;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static int RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
 #if defined(MOUSEKEY)

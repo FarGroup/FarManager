@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.43 14.07.2002 $ */
+/* Revision: 1.44 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    ! ReturnAltValue уехала из keyboard.cpp в global.cpp
   14.07.2002 SVS
     ! новые константы PluginsFolderName, HelpFileMask, HelpFormatLinkModule
       переехали из farconst.hpp в global.?pp
@@ -160,6 +162,10 @@ int LButtonPressed=0,RButtonPressed=0,MButtonPressed=0;
 int PrevLButtonPressed=0, PrevRButtonPressed=0, PrevMButtonPressed=0;
 int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
 int PreMouseEventFlags=0,MouseEventFlags=0;
+
+// только что был ввод Alt-Цифира?
+int ReturnAltValue=0;
+
 
 CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo={0};
 CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo={0};

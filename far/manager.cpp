@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.79 08.10.2002 $ */
+/* Revision: 1.80 07.11.2002 $ */
 
 /*
 Modify:
+  07.11.2002 SVS
+    ! Не компиляция под Borland 5.5
   08.10.2002 SVS
     - BugZ#675 - Неправильно вычисляется ширина меню со списком окон
   26.09.2002 SVS
@@ -501,7 +503,8 @@ int Manager::GetModalExitCode()
 int Manager::CountFramesWithName(const char *Name, BOOL IgnoreCase)
 {
    int Counter=0;
-   int (__cdecl *cmpfunc)(const char *s1, const char *s2)=IgnoreCase?LocalStricmp:strcmp;
+   typedef int (__cdecl *cmpfunc_t)(const char *s1, const char *s2);
+   cmpfunc_t cmpfunc=IgnoreCase?(cmpfunc_t)LocalStricmp:(cmpfunc_t)strcmp;
    char Type[200],curName[NM];
    for (int I=0;I<FrameCount;I++)
    {

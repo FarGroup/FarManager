@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.118 01.10.2002 $ */
+/* Revision: 1.119 07.11.2002 $ */
 
 /*
 Modify:
+  07.11.2002 SVS
+    - BugZ#660 - "Reading: %d files" в заголовке окна редактора
+      Перенес код из функции сохранение в функцию выхода из редактора.
+      Поломаться ничего не должно :-))
   01.10.2002 SVS
     - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
   04.09.2002 SVS
@@ -1118,6 +1122,24 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       break;
     if (SaveCode==SAVEFILE_SUCCESS)
     {
+      /* $ 09.02.2002 VVM
+        + Обновить панели, если писали в текущий каталог */
+      //if (NeedQuestion)
+      {
+        GetLastInfo(FullFileName,&FileInfo);
+
+        Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+        char *FileName = PointToName((char *)FullFileName);
+        char FilePath[NM], PanelPath[NM];
+        strncpy(FilePath, FullFileName, FileName - FullFileName);
+        ActivePanel->GetCurDir(PanelPath);
+        AddEndSlash(PanelPath);
+        AddEndSlash(FilePath);
+        if (!strcmp(PanelPath, FilePath))
+          ActivePanel->Update(UPDATE_KEEP_SELECTION);
+      }
+      /* VVM $ */
+
       FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
       break;
@@ -1127,6 +1149,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       break;
     FirstSave=0;
   }
+
   FarChDir(OldCurDir);
   return GetExitCode() == XC_QUIT;
 }
@@ -1413,23 +1436,6 @@ end:
   // ************************************
   IsNewFile=0;
 
-  /* $ 09.02.2002 VVM
-    + Обновить панели, если писали в текущий каталог */
-  if (RetCode==SAVEFILE_SUCCESS)
-  {
-    GetLastInfo(Name,&FileInfo);
-
-    Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
-    char *FileName = PointToName((char *)Name);
-    char FilePath[NM], PanelPath[NM];
-    strncpy(FilePath, Name, FileName - Name);
-    ActivePanel->GetCurDir(PanelPath);
-    AddEndSlash(PanelPath);
-    AddEndSlash(FilePath);
-    if (!strcmp(PanelPath, FilePath))
-      ActivePanel->Update(UPDATE_KEEP_SELECTION);
-  }
-  /* VVM $ */
   return RetCode;
 }
 

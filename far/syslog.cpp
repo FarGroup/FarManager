@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.33 23.08.2002 $ */
+/* Revision: 1.34 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    + Для отладочных целей, для плагинов - FarSysLog_INPUT_RECORD_Dump()
+      (доступно только под дебугинфой)
   23.08.2002 SVS
     + SaveScreenDumpBuffer()
   02.07.2002 SVS
@@ -540,6 +543,11 @@ void WINAPIV _export FarSysLog(char *ModuleName,int l,char *fmt,...)
 void WINAPI _export FarSysLogDump(char *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
 {
   SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,NULL);
+}
+
+void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *rec)
+{
+  SysLog("%s {%s}",ModuleName,_INPUT_RECORD_Dump(rec));
 }
 #endif
 

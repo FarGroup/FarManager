@@ -5,10 +5,13 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.17 10.09.2002 $ */
+/* Revision: 1.18 04.11.2002 $ */
 
 /*
 Modify:
+  04.11.2002 SVS
+    ! Дадим возможность вызова внешнего обработчика исключений ("FarEvent.svc")
+    + Попытка корректно обработать переполнение стека!
   10.09.2002 SVS
     ! strcpy -> strncpy
   02.07.2002 SVS
@@ -85,6 +88,8 @@ Modify:
 
 #define MAX_DELTA_CODE  100
 
+static DWORD _xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,DWORD Flags);
+
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
                struct PluginItem *Module,
@@ -106,7 +111,32 @@ static char* xFromMSGTitle(int From)
     return MSG(MExceptTitle);
 }
 
-int xfilter(
+
+DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp,struct PluginItem *Module,DWORD Flags)
+{
+  static DWORD stack[1024];
+  DWORD Result;
+
+  if (xp->ExceptionRecord->ExceptionCode == STATUS_STACK_OVERFLOW)
+  {
+    stack[0] = 0;
+    stack[1] = (DWORD)From;
+    stack[2] = (DWORD)xp;
+    stack[3] = (DWORD)Module;
+    stack[4] = Flags;
+    xp->ContextRecord->Esp = (DWORD)(&stack);
+    xp->ContextRecord->Eip = (DWORD)(&xfilter);
+
+    Result=(DWORD)EXCEPTION_CONTINUE_EXECUTION;
+  }
+  else
+    Result=_xfilter(From,xp,Module,Flags);
+
+  return Result;
+}
+
+
+static DWORD _xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
     struct PluginItem *Module,// модуль, приведший к исключению.
@@ -115,6 +145,92 @@ int xfilter(
 {
    ProcessException=TRUE;
    BlockExtKey blockExtKey;
+
+   DWORD Result = EXCEPTION_EXECUTE_HANDLER;
+   BOOL Res=FALSE;
+
+   if(GetRegKey("System\\Exception","Used",0))
+   {
+     static char FarEventSvc[512];
+     if(GetRegKey("System\\Exception","FarEvent.svc",FarEventSvc,"",sizeof(FarEventSvc)-1) && FarEventSvc[0])
+     {
+       HMODULE m = LoadLibrary(FarEventSvc);
+       if (m)
+       {
+         typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
+                                                const struct PLUGINRECORD *Module,
+                                                const struct PluginStartupInfo *LocalStartupInfo,
+                                                LPDWORD Result);
+
+         ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
+
+         if (p)
+         {
+           static struct PluginStartupInfo LocalStartupInfo;
+           memset(&LocalStartupInfo,0,sizeof(LocalStartupInfo));
+           static struct FarStandardFunctions LocalStandardFunctions;
+           memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
+
+           CtrlObject->Plugins.CreatePluginStartupInfo(&LocalStartupInfo,
+                                           &LocalStandardFunctions,
+                                           FarEventSvc,
+                                           -1);
+           static char RootKey[NM];
+           strncpy(RootKey,Opt.RegRoot,sizeof(RootKey)-1);
+           LocalStartupInfo.RootKey=RootKey;
+
+           static struct PLUGINRECORD PlugRec;
+           memset(&PlugRec,0,sizeof(PlugRec));
+           if(Module)
+           {
+             PlugRec.TypeRec=RTYPE_PLUGIN;
+             PlugRec.SizeRec=sizeof(struct PLUGINRECORD);
+
+             memcpy(&PlugRec.FindData,&Module->FindData,sizeof(PlugRec.FindData));
+             PlugRec.SysID=Module->SysID;
+             PlugRec.WorkFlags=Module->WorkFlags.Flags;
+             PlugRec.CallFlags=Module->FuncFlags.Flags;
+
+             PlugRec.FuncFlags=0;
+             PlugRec.FuncFlags|=Module->pSetStartupInfo?PICFF_SETSTARTUPINFO:0;
+             PlugRec.FuncFlags|=Module->pOpenPlugin?PICFF_OPENPLUGIN:0;
+             PlugRec.FuncFlags|=Module->pOpenFilePlugin?PICFF_OPENFILEPLUGIN:0;
+             PlugRec.FuncFlags|=Module->pClosePlugin?PICFF_CLOSEPLUGIN:0;
+             PlugRec.FuncFlags|=Module->pGetPluginInfo?PICFF_GETPLUGININFO:0;
+             PlugRec.FuncFlags|=Module->pGetOpenPluginInfo?PICFF_GETOPENPLUGININFO:0;
+             PlugRec.FuncFlags|=Module->pGetFindData?PICFF_GETFINDDATA:0;
+             PlugRec.FuncFlags|=Module->pFreeFindData?PICFF_FREEFINDDATA:0;
+             PlugRec.FuncFlags|=Module->pGetVirtualFindData?PICFF_GETVIRTUALFINDDATA:0;
+             PlugRec.FuncFlags|=Module->pFreeVirtualFindData?PICFF_FREEVIRTUALFINDDATA:0;
+             PlugRec.FuncFlags|=Module->pSetDirectory?PICFF_SETDIRECTORY:0;
+             PlugRec.FuncFlags|=Module->pGetFiles?PICFF_GETFILES:0;
+             PlugRec.FuncFlags|=Module->pPutFiles?PICFF_PUTFILES:0;
+             PlugRec.FuncFlags|=Module->pDeleteFiles?PICFF_DELETEFILES:0;
+             PlugRec.FuncFlags|=Module->pMakeDirectory?PICFF_MAKEDIRECTORY:0;
+             PlugRec.FuncFlags|=Module->pProcessHostFile?PICFF_PROCESSHOSTFILE:0;
+             PlugRec.FuncFlags|=Module->pSetFindList?PICFF_SETFINDLIST:0;
+             PlugRec.FuncFlags|=Module->pConfigure?PICFF_CONFIGURE:0;
+             PlugRec.FuncFlags|=Module->pExitFAR?PICFF_EXITFAR:0;
+             PlugRec.FuncFlags|=Module->pProcessKey?PICFF_PROCESSKEY:0;
+             PlugRec.FuncFlags|=Module->pProcessEvent?PICFF_PROCESSEVENT:0;
+             PlugRec.FuncFlags|=Module->pProcessEditorEvent?PICFF_PROCESSEDITOREVENT:0;
+             PlugRec.FuncFlags|=Module->pCompare?PICFF_COMPARE:0;
+             PlugRec.FuncFlags|=Module->pProcessEditorInput?PICFF_PROCESSEDITORINPUT:0;
+             PlugRec.FuncFlags|=Module->pMinFarVersion?PICFF_MINFARVERSION:0;
+             PlugRec.FuncFlags|=Module->pProcessViewerEvent?PICFF_PROCESSVIEWEREVENT:0;
+             PlugRec.CachePos=Module->CachePos;
+           }
+
+           Res=p(xp,&PlugRec,&LocalStartupInfo,&Result);
+         }
+         FreeLibrary(m);
+       }
+     }
+   }
+
+   if(Res)
+     return Result;
+
 
    struct __ECODE {
      DWORD Code;     // код исключения
@@ -134,7 +250,8 @@ int xfilter(
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
    char *pName;
-   int  I, rc, Ret=1;
+   int  I, Ret=1;
+   DWORD rc;
    char Buf[2][NM];
    char TruncFileName[2*NM];
    BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
@@ -150,7 +267,7 @@ int xfilter(
    //         содержимого регистров...
    // CONTEXT *xc = xp->ContextRecord;
 
-   rc = EXCEPTION_EXECUTE_HANDLER;
+   rc = Result;// EXCEPTION_EXECUTE_HANDLER;
 
    /*$ 23.01.2001 skv
      Неизвестное исключение не стоит игнорировать.

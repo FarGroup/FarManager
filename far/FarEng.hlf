@@ -1081,7 +1081,7 @@ create multiple folders in a single operation. In this case, folder names
 should be separated with the character "#;#" or "#,#". If the option is
 enabled and the name of the folder contains a character "#;#" (or "#,#"),
 it must be enclosed in quotes. For example, if the user enters
-#C:\Foo1;"E:\foo,2;";D:\foo3#, folders called "#C:\Foo1#", "#E:\foo,2#"
+#C:\Foo1;"E:\foo,2;";D:\foo3#, folders called "#C:\Foo1#", "#E:\foo,2;#"
 and "#D:\foo3#" will be created.
 
 @FindFile
@@ -1906,6 +1906,17 @@ $ #Internal editor#
        Shift-Enter on the corresponding file.
 
     2. #Alt-U#/#Alt-I# indent the current line if no block is selected.
+
+    3. Alt-Код символа на дополнительной клавиатуре вставляет в
+       редактируемую строку символ с указанным кодом, причем никаких
+       перекодировок в текущую кодировку редактора при этом не
+       производится.
+
+    4. Если вы перетаскиваете имя файла из Проводника в редактор
+       FAR, то оно вставляется в текущую строку только и только в
+       OEM-кодировке (DOS), текущая кодировка редактора при этом
+       не учитывается. Эта особенность будет изменена в следующих
+       версиях FAR.
 
 @FileSaveAs
 $ #Save file as...#
