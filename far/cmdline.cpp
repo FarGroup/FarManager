@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.13 11.04.2001 $ */
+/* Revision: 1.14 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 DJ
+    * обработка @ в IF EXIST
+    * обработка кавычек внутри имени файла в IF EXIST
   11.04.2001 SVS
     ! Для Alt-F11 и Alt-F12 - теперь будут свои конкретные темы помощи, а не
       абстрактное описание команд командной строки (не нужное для этих
@@ -445,6 +448,17 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
   int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
                // > 0 - эсть такая конструкция
 
+  /* $ 25.04.2001 DJ
+     обработка @ в IF EXIST
+  */
+  if (*PtrCmd == '@')
+  {
+    // здесь @ игнорируется; ее вставит в правильное место функция
+    // ExtractIfExistCommand в filetype.cpp
+    PtrCmd++;
+    while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
+  }
+  /* DJ $ */
   while(1)
   {
     if (!PtrCmd || !*PtrCmd || memicmp(PtrCmd,"IF ",3))
@@ -462,33 +476,41 @@ char* WINAPI PrepareOSIfExist(char *CmdLine)
     {
       PtrCmd+=6; while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd; if(!*PtrCmd) break;
       CmdStart=PtrCmd;
-      if(*PtrCmd == '"')
-        PtrCmd=strchr(PtrCmd+1,'"');
 
-      if(PtrCmd && *PtrCmd)
+      /* $ 25.04.01 DJ
+         обработка кавычек внутри имени файла в IF EXIST
+      */
+      BOOL InQuotes=FALSE;
+      while (*PtrCmd)
       {
-        PtrCmd=strchr(PtrCmd,' ');
-        if(PtrCmd && *PtrCmd && *PtrCmd == ' ')
-        {
-          char ExpandedStr[8192];
-          memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
-          Cmd[PtrCmd-CmdStart]=0;
-          Unquote(Cmd);
+        if (*PtrCmd == '\"')
+          InQuotes = !InQuotes;
+        else if (*PtrCmd == ' ' && !InQuotes)
+          break;
+        PtrCmd++;
+      }
+
+      if(PtrCmd && *PtrCmd && *PtrCmd == ' ')
+      {
+        char ExpandedStr[8192];
+        memmove(Cmd,CmdStart,PtrCmd-CmdStart+1);
+        Cmd[PtrCmd-CmdStart]=0;
+        Unquote(Cmd);
 //SysLog(Cmd);
-          if (ExpandEnvironmentStrings(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
-          {
-            DWORD FileAttr=GetFileAttributes(ExpandedStr);
+        if (ExpandEnvironmentStrings(Cmd,ExpandedStr,sizeof(ExpandedStr))!=0)
+        {
+          DWORD FileAttr=GetFileAttributes(ExpandedStr);
 //SysLog("%08X ExpandedStr=%s",FileAttr,ExpandedStr);
-            if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
-            {
-              while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
-              Exist++;
-            }
-            else
-              return "";
+          if(FileAttr != (DWORD)-1 && !Not || FileAttr == (DWORD)-1 && Not)
+          {
+            while(*PtrCmd && isspace(*PtrCmd)) ++PtrCmd;
+            Exist++;
           }
+          else
+            return "";
         }
       }
+      /* DJ $ */
     }
     // "IF [NOT] DEFINED variable command"
     else if (*PtrCmd && !memicmp(PtrCmd,"DEFINED ",8))

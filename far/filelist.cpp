@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.41 24.04.2001 $ */
+/* Revision: 1.42 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 DJ
+    - оптимизация Shift-стрелок для Selected first
+    * если SetDirectory вернуло FALSE, Update() делается с UPDATE_KEEP_SELECTION
   24.01.2001 SVS
     - Выделения файлов (с подачи DJ)
   24.04.2001 IS
@@ -1285,6 +1288,10 @@ int FileList::ProcessKey(int Key)
         return(TRUE);
       }
       return(FALSE);
+    /* $ 25.04.2001 DJ
+       оптимизация Shift-стрелок для Selected files first: делаем сортировку
+       один раз
+    */
     case KEY_SHIFTHOME:
       InternalProcessKey++;
       DisableOut++;
@@ -1293,6 +1300,8 @@ int FileList::ProcessKey(int Key)
       ProcessKey(KEY_SHIFTUP);
       InternalProcessKey--;
       DisableOut--;
+      if (SelectedFirst)
+        SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
     case KEY_SHIFTEND:
@@ -1303,6 +1312,8 @@ int FileList::ProcessKey(int Key)
       ProcessKey(KEY_SHIFTDOWN);
       InternalProcessKey--;
       DisableOut--;
+      if (SelectedFirst)
+        SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
     case KEY_SHIFTLEFT:
@@ -1319,6 +1330,8 @@ int FileList::ProcessKey(int Key)
           SortFileList(TRUE);
         InternalProcessKey--;
         DisableOut--;
+        if (SelectedFirst)
+          SortFileList(TRUE);
         ShowFileList(TRUE);
         return(TRUE);
       }
@@ -1332,6 +1345,8 @@ int FileList::ProcessKey(int Key)
         ProcessKey(Key==KEY_SHIFTPGUP ? KEY_SHIFTUP:KEY_SHIFTDOWN);
       InternalProcessKey--;
       DisableOut--;
+      if (SelectedFirst)
+        SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
     case KEY_SHIFTUP:
@@ -1352,10 +1367,11 @@ int FileList::ProcessKey(int Key)
         Up(1);
       else
         Down(1);
-      if (SelectedFirst)
+      if (SelectedFirst && !InternalProcessKey)
         SortFileList(TRUE);
       ShowFileList(TRUE);
       return(TRUE);
+    /* DJ $ */
     case KEY_INS:
       if (FileCount==0)
         return(TRUE);
@@ -1584,6 +1600,11 @@ BOOL FileList::ChangeDir(char *NewDir)
 
     CtrlObject->FolderHistory->AddToHistory(NullToEmpty(Info.CurDir),Info.Format,1);
 
+    /* $ 25.04.01 DJ
+       при неудаче SetDirectory не сбрасываем выделение
+    */
+    BOOL SetDirectorySuccess = TRUE;
+    /* DJ $ */
     int UpperFolder=(strcmp(SetDir,"..")==0);
     if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
     {
@@ -1604,10 +1625,17 @@ BOOL FileList::ChangeDir(char *NewDir)
     else
     {
       strcpy(FindDir,NullToEmpty(Info.CurDir));
-      CtrlObject->Plugins.SetDirectory(hPlugin,SetDir,0);
+      /* $ 25.04.01 DJ
+         при неудаче SetDirectory не сбрасываем выделение
+      */
+      SetDirectorySuccess=CtrlObject->Plugins.SetDirectory(hPlugin,SetDir,0);
     }
     ProcessPluginCommand();
-    Update(0);
+    if (SetDirectorySuccess)
+      Update(0);
+    else
+      Update(UPDATE_KEEP_SELECTION);
+    /* DJ $ */
     if (PluginClosed && PrevDataStackSize>0)
     {
       PrevDataStackSize--;

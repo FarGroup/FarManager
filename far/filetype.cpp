@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.13 28.02.2001 $ */
+/* Revision: 1.14 25.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 DJ
+    * обработка @ в ассоциациях IF EXIST
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
@@ -60,6 +62,33 @@ static int GetDescriptionWidth();
 static void ReplaceVariables(char *Str);
 
 static unsigned char VerticalLine=0x0B3;
+
+/* $ 25.04.2001 DJ
+   обработка @ в IF EXIST: функция, которая извлекает команду из строки
+   с IF EXIST с учетом @ и возвращает TRUE, если условие IF EXIST
+   выполено, и FALSE в противном случае/
+*/
+
+BOOL ExtractIfExistCommand (char *CommandText)
+{
+  char *PtrCmd=PrepareOSIfExist(CommandText);
+  if(PtrCmd)
+  {
+    if(!*PtrCmd) // Во! Условие не выполнено!!!
+                 // (например, пока рассматривали менюху, в это время)
+                 // какой-то злобный чебурашка стер файл!
+      return FALSE;
+    // прокинем "if exist"
+    if (*CommandText == '@')
+      memmove(CommandText+1,PtrCmd,strlen(PtrCmd)+1);
+    else
+      memmove(CommandText,PtrCmd,strlen(PtrCmd)+1);
+  }
+  return TRUE;
+}
+
+/* DJ $ */
+
 
 /* $ 14.01.2001 SVS
    Добавим интелектуальности.
@@ -123,22 +152,19 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
 
     for (int I=0;I<CommandCount;I++)
     {
-      char CommandText[512],MenuText[512], *PtrCmd;
+      char CommandText[512],MenuText[512];
       memset(&TypesMenuItem,0,sizeof(TypesMenuItem));
       strcpy(CommandText,Commands[I]);
       SubstFileName(CommandText,Name,ShortName,NULL,NULL,TRUE);
 
       // все "подставлено", теперь проверим условия "if exist"
-      PtrCmd=PrepareOSIfExist(CommandText);
-      if(PtrCmd)
-      {
-        if(!*PtrCmd) // Во! Условие не выполнено!!!
-                     // (например, пока рассматривали менюху, в это время)
-                     // какой-то злобный чебурашка стер файл!
-          continue;
-        // прокинем "if exist"
-        memmove(CommandText,PtrCmd,strlen(PtrCmd)+1);
-      }
+      /* $ 25.04.2001 DJ
+         обработка @ в IF EXIST
+      */
+      if (!ExtractIfExistCommand (CommandText))
+        continue;
+      /* DJ $ */
+
       // запомним индекс оригинальной команды из мессива Commands
       NumCommands[ActualCmdCount++]=I;
 
@@ -177,17 +203,12 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName);
 
     // Снова все "подставлено", теперь проверим условия "if exist"
-    char *PtrCmd=PrepareOSIfExist(Command);
-    if(PtrCmd) // NULL - считаем что все УГУ
-    {
-      if(!*PtrCmd) // Во! Условие не выполнено!!!
-                   // (например, пока рассматривали менюху, в это время)
-                   // какой-то злобный чебурашка стер файл!
-        return TRUE;
-
-      // прокинем "if exist"
-      memmove(Command,PtrCmd,strlen(PtrCmd)+1);
-    }
+    /* $ 25.04.2001 DJ
+       обработка @ в IF EXIST
+    */
+    if (!ExtractIfExistCommand (Command))
+      return TRUE;
+    /* DJ $ */
     PreserveLongName PreserveName(ShortName,PreserveLFN);
     if (*Command)
       if (*Command!='@')
@@ -328,23 +349,17 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
   char ExecStr[512],FullExecStr[512];
   char ListName[NM*2],ShortListName[NM*2];
   char FullName[NM],FullShortName[NM];
-  char *PtrCmd;
   strcpy(ExecStr,Command);
   strcpy(FullExecStr,Command);
   {
     int PreserveLFN=SubstFileName(ExecStr,Name,ShortName,ListName,ShortListName);
     // Снова все "подставлено", теперь проверим условия "if exist"
-    PtrCmd=PrepareOSIfExist(ExecStr);
-    if(PtrCmd) // NULL - считаем что все УГУ
-    {
-      if(!*PtrCmd) // Во! Условие не выполнено!!!
-                   // (например, пока рассматривали менюху, в это время)
-                   // какой-то злобный чебурашка стер файл!
-        return;
-
-      // прокинем "if exist"
-      memmove(ExecStr,PtrCmd,strlen(PtrCmd)+1);
-    }
+    /* $ 25.04.2001 DJ
+       обработка @ в IF EXIST
+    */
+    if (!ExtractIfExistCommand (ExecStr))
+      return;
+    /* DJ $ */
 
     PreserveLongName PreserveName(ShortName,PreserveLFN);
 
@@ -355,17 +370,12 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     ConvertNameToShort(FullName,FullShortName);
     SubstFileName(FullExecStr,FullName,FullShortName,ListName,ShortListName);
     // Снова все "подставлено", теперь проверим условия "if exist"
-    PtrCmd=PrepareOSIfExist(FullExecStr);
-    if(PtrCmd) // NULL - считаем что все УГУ
-    {
-      if(!*PtrCmd) // Во! Условие не выполнено!!!
-                   // (например, пока рассматривали менюху, в это время)
-                   // какой-то злобный чебурашка стер файл!
-        return;
-
-      // прокинем "if exist"
-      memmove(FullExecStr,PtrCmd,strlen(PtrCmd)+1);
-    }
+    /* $ 25.04.2001 DJ
+       обработка @ в IF EXIST
+    */
+    if (!ExtractIfExistCommand (FullExecStr))
+      return;
+    /* DJ $ */
     CtrlObject->ViewHistory->AddToHistory(FullExecStr,MSG(MHistoryExt),AlwaysWaitFinish+2);
 
     if (*ExecStr!='@')
