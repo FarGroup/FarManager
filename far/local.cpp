@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.08 04.07.2001 $ */
+/* Revision: 1.09 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    - всякая мелочевка
   04.07.2001 SVS
     + Opt.LCIDSort
   25.06.2001 IS
@@ -201,19 +203,30 @@ unsigned WINAPI LocalLower(unsigned UpperChar)
   return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
 }
 
+/* $ 27.11.2001 DJ
+   устраняем неоднозначность :-)
+*/
 
 void WINAPI LocalStrupr(char *s1)
 {
   while (*s1)
-    *s1=LowerToUpper[*(s1++)];
+  {
+    *s1=LowerToUpper[*s1];
+    s1++;
+  }
 }
 
 
 void WINAPI LocalStrlwr(char *s1)
 {
   while (*s1)
-    *s1=UpperToLower[*(s1++)];
+  {
+  *s1=UpperToLower[*s1];
+  s1++;
+  }
 }
+
+/* DJ $ */
 
 
 int WINAPI LStricmp(const char *s1,const char *s2)

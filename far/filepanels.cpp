@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.27 19.11.2001 $ */
+/* Revision: 1.28 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    - мелочевка
   19.11.2001 OT
     Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
   19.11.2001 VVM
@@ -317,11 +319,15 @@ void FilePanels::DeletePanel(Panel *Deleted)
 {
   if (Deleted==NULL)
     return;
-  delete Deleted;
+  /* $ 27.11.2001 DJ
+     не будем использовать указатель после того, как его удалили
+  */
   if (Deleted==LastLeftFilePanel)
     LastLeftFilePanel=NULL;
   if (Deleted==LastRightFilePanel)
     LastRightFilePanel=NULL;
+  delete Deleted;
+  /* DJ $ */
 }
 
 int  FilePanels::ProcessKey(int Key)

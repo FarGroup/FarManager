@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.80 12.10.2001 $ */
+/* Revision: 1.81 27.10.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    - косметика от BoundsChecker
   12.10.2001 SKV
     - клик на status line'е отрабатывать только если он есть
   11.10.2001 IS
@@ -1848,7 +1850,10 @@ void Viewer::Up()
     BufSize--;
     Skipped++;
   }
-  for (I=BufSize-1;I>=-1;I--)
+  /* $ 27.11.2001 DJ
+     не обращаемся за границу массива (было I>=-1)
+  */
+  for (I=BufSize-1;I>=0;I--)   /* DJ $ */
   {
     if (Buf[I]==CRSym || I==-1)
       if (!VM.Wrap)

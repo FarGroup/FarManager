@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.53 27.11.2001 $ */
+/* Revision: 1.54 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    - забыли инициализировать CtrlTabSize
   27.11.2001 SVS
     ! ќпячатка в пред. патче
   26.11.2001 SVS
@@ -259,6 +261,12 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   */
   CurColor=COL_HELPTEXT;
   /* SVS $ */
+
+  /* $ 27.11.2001 DJ
+     не забудем инициализировать
+  */
+  CtrlTabSize = 8;
+  /* DJ $ */
 
   HelpMask=Mask?strdup(Mask):NULL; // сохраним маску файла
 

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.57 23.11.2001 $ */
+/* Revision: 1.58 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    - устраняем memory allocation conflict для ColorList
   23.11.2001 SVS
     ! IsDialogParent может иметь 3 значения: EDPARENT_*
     + Вместо длинного "if(Mask[...)" введена функция CheckCharMask()
@@ -284,7 +286,7 @@ Edit::Edit()
 Edit::~Edit()
 {
   if (ColorList!=NULL)
-    delete ColorList;
+    free (ColorList);
   /* $ 12.08.2000 KM
      Если мы выделяли память под Mask, то её надо освободить.
   */
@@ -2296,7 +2298,7 @@ int Edit::DeleteColor(int ColorPos)
   ColorCount=Dest;
   if (ColorCount==0)
   {
-    delete ColorList;
+    free (ColorList);
     ColorList=NULL;
   }
   return(DelCount!=0);

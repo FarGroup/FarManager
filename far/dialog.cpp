@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.184 27.11.2001 $ */
+/* Revision: 1.185 27.11.2001 $ */
 
 /*
 Modify:
+  27.11.2001 DJ
+    - memory leak
   27.11.2001 SVS
     ! небольшое уточнение при DM_SETTEXT - не вызывать InitDialogObjects()
       для строковых редакторов
@@ -4281,6 +4283,11 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       if(AddLine == I)
         continue;
       HisTemp[J].Str=His[I].Str;
+      /* $ 27.11.2001 DJ
+         это потом освобождать не надо
+      */
+      His[I].Str = NULL;
+      /* DJ $ */
       HisTemp[J].Locked=1;
       ++J;
     }
@@ -4294,6 +4301,11 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       if(AddLine == I)
         continue;
       HisTemp[J].Str=His[I].Str;
+      /* $ 27.11.2001 DJ
+         это потом освобождать не надо
+      */
+      His[I].Str=NULL;
+      /* DJ $ */
       HisTemp[J].Locked=0;
       ++J;
     }
@@ -4334,6 +4346,15 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       ++J;
     }
   }
+
+  /* $ 27.11.2001 DJ
+     не забудем освободить оставшуюся память
+  */
+  for (I=0; I<HISTORY_COUNT; I++)
+    if (His[I].Str)
+      free(His[I].Str);
+  /* DJ $ */
+
   SetRegKey(RegKey,"Flags",1);
   return TRUE;
 }
