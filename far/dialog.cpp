@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.65 04.01.2001 $ */
+/* Revision: 1.66 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+   - Bug - DM_KEY не реагировал на то, что возвращает пользовательская функция
   04.01.2001 SVS
    - Bug при использовании DM_SETDLGITEM - неверно устанавливался фокус ввода
   28.12.2000 SVS
@@ -1363,6 +1365,16 @@ int Dialog::ProcessKey(int Key)
   char *PtrStr;
   Edit *CurEditLine;
 
+  if (Key==KEY_NONE || Key==KEY_IDLE)
+  {
+    /* $ 28.07.2000 SVS
+       Передадим этот факт в обработчик :-)
+    */
+    DlgProc((HANDLE)this,DN_ENTERIDLE,0,0);
+    /* SVS $ */
+    return(FALSE);
+  }
+
   /* $ 31.07.2000 tran
      + перемещение диалога по экрану */
   if (CheckDialogMode(DMODE_DRAGGED)) // если диалог таскается
@@ -1472,16 +1484,6 @@ int Dialog::ProcessKey(int Key)
   }
   /* tran 31.07.2000 $ */
 
-  if (Key==KEY_NONE || Key==KEY_IDLE)
-  {
-    /* $ 28.07.2000 SVS
-       Передадим этот факт в обработчик :-)
-    */
-    DlgProc((HANDLE)this,DN_ENTERIDLE,0,0);
-    /* SVS $ */
-    return(FALSE);
-  }
-
   // "ХАчу глянуть на то, что под диалогом..."
   if(Key == KEY_CTRLALTSHIFTPRESS && CheckDialogMode(DMODE_SHOW))
   {
@@ -1497,7 +1499,8 @@ int Dialog::ProcessKey(int Key)
   int Type=Item[FocusPos].Type;
 
   if(!CheckDialogMode(DMODE_KEY))
-    DlgProc((HANDLE)this,DM_KEY,FocusPos,Key);
+    if(DlgProc((HANDLE)this,DM_KEY,FocusPos,Key))
+      return TRUE;
 
   // небольшая оптимизация
   if(Type==DI_CHECKBOX)
