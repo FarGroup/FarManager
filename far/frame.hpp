@@ -8,20 +8,22 @@ frame.hpp
 
 */
 
-/* Revision: 1.04 12.05.2001 */
+/* Revision: 1.05 14.05.2001 */
 
 /*
   Modify:
-    12.05.2001 DJ
-      ! отрисовка по OnChangeFocus сделана дефолтным поведением
-    12.05.2001 DJ
-      + IsTopFrame(), GetMacroMode()
-    07.05.2001 DJ
-      ! причешем идентификаторы
-    06.05.2001 DJ
-      ! перетрях #include
-    05.05.2001 DJ
-      created
+  14.05.2001 OT
+    ! метод GetCanLoseFocus() стал виртуальным и введен параметр по умолчанию
+  12.05.2001 DJ
+    ! отрисовка по OnChangeFocus сделана дефолтным поведением
+  12.05.2001 DJ
+    + IsTopFrame(), GetMacroMode()
+  07.05.2001 DJ
+    ! причешем идентификаторы
+  06.05.2001 DJ
+    ! перетрях #include
+  05.05.2001 DJ
+    created
 */
 
 #include "scrobj.hpp"
@@ -51,7 +53,7 @@ class Frame: public ScreenObject
     Frame();
     virtual ~Frame();
 
-    int  GetCanLoseFocus() { return(CanLoseFocus); };
+    virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); };
     void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };
     int  GetExitCode() { return ExitCode; };
     void SetExitCode(int Code) { ExitCode=Code; };

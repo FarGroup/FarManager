@@ -7,12 +7,14 @@ manager.hpp
 
 */
 
-/* Revision: 1.08 12.05.2001 $ */
+/* Revision: 1.09 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 OT
+    ! Изменение порядка вызова параметров ReplaceFrame (для единообразия и удобства)
   12.05.2001 DJ
-    ! FrameManager оторван от CtrlObject, выкинут ExecuteModalPtr, 
+    ! FrameManager оторван от CtrlObject, выкинут ExecuteModalPtr,
       ReplaceCurrentFrame заменен на ReplaceFrame, GetCurrentFrame()
   10.05.2001 DJ
     + SwitchToPanels(), ModalStack, ModalSaveState(), ExecuteModalPtr()
@@ -41,12 +43,12 @@ class Manager
 {
   private:
     Frame **FrameList;
-    Frame **ModalStack;      // сюда запоминается фрейм, который был активным 
+    Frame **ModalStack;      // сюда запоминается фрейм, который был активным
                              // перед вызовом ExecuteModal()
     Frame *DestroyedFrame;
     Frame *FrameToReplace;   // фрейм, на который мы собираемся заменять
     Frame *CurrentFrame;     // текущий модал
-    
+
     int  EndLoop;
 
     int  FrameCount,
@@ -63,6 +65,8 @@ class Manager
     void ActivateNextFrame();
 
     void SetCurrentFrame (Frame *NewCurFrame);
+    /*$ 13.05.2001 OT */
+    void SetCurrentFrame (int FrameIndex);
     void SelectFrame(); // show window menu (F12)
 
   public:
@@ -72,7 +76,8 @@ class Manager
   public:
     void AddFrame(Frame *NewFrame);
     void DestroyFrame(Frame *Killed);
-    void ReplaceFrame (Frame *OldFrame, Frame *NewFrame);
+    void ReplaceFrame (Frame *NewFrame, Frame *OldFrame=NULL);
+    void ReplaceFrame (Frame *NewFrame, int FramePos);
     int ExecuteModal (Frame &ModalFrame);
 
     void NextFrame(int Increment);
@@ -96,7 +101,7 @@ class Manager
 
     void SetFramePos(int NewPos);
 
-    int  FindFrameByFile(int ModalType,char *FileName);
+    int  FindFrameByFile(int ModalType,char *FileName,char *Dir=NULL);
 
     void ShowBackground();
 
@@ -117,6 +122,10 @@ class Manager
     /* $ 12.05.2001 DJ */
     Frame *GetCurrentFrame() { return CurrentFrame; }
     /* DJ $ */
+
+    /*$ 13.05.2001 OT */
+    Frame *operator[](int Index);
+    int operator[](Frame *Frame);
 };
 
 extern Manager *FrameManager;

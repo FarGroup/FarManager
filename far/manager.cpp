@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.17 12.05.2001 $ */
+/* Revision: 1.18 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 OT
+    - Борьба с F4 -> ReloadAgain
   12.05.2001 DJ
     ! Убран ModalFrame.Show() в Manager::ExecuteModal()
   12.05.2001 DJ
@@ -251,20 +253,35 @@ void Manager::DeleteDestroyedFrame()
    заменена на более общую функцию (с подачи ОТ)
 */
 
-void Manager::ReplaceFrame (Frame *OldFrame, Frame *NewFrame)
+void Manager::ReplaceFrame (Frame *NewFrame, Frame *OldFrame)
 {
+  if (!OldFrame){
+    OldFrame=CurrentFrame;
+  }
   DestroyedFrame = OldFrame;
   DestroyedFrame->OnChangeFocus (0);
-  if (OldFrame == CurrentFrame)
+  if (OldFrame == CurrentFrame){
     FrameToReplace = NewFrame;
-  else
-    for (int i=0; i<FrameCount; i++)
-      if (FrameList [i] == OldFrame)
-        FrameList [i] = NewFrame;
+  } else {
+    for (int i=0; i<FrameCount; i++){
+      if (FrameList [i] == OldFrame){
+        FrameToReplace = FrameList [i] = NewFrame;
+        break;
+      }
+    }
+  }
 }
 
 /* DJ $ */
 /* DJ $ */
+
+void Manager::ReplaceFrame (Frame *NewFrame, int FramePos)
+{
+  if (FramePos<0||FramePos>=FrameCount){
+    return;
+  } 
+  ReplaceFrame(NewFrame,this->FrameList[FramePos]);
+}
 
 
 /* $ 10.05.2001 DJ
@@ -326,13 +343,30 @@ void Manager::NextFrame(int Increment)
   _D(SysLog(-1));
 }
 
+void Manager::SetCurrentFrame (int FrameIndex)
+{
+  CurrentFrame=this->operator[](FrameIndex);
+  if (!CurrentFrame){
+    FramePos=FrameIndex;
+    CurrentFrame->ShowConsoleTitle();
+    CurrentFrame->OnChangeFocus(1);
+    CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
+  } else {
+    SetCurrentFrame (FrameList[0]);
+  }
+}
 
 void Manager::SetCurrentFrame (Frame *NewCurFrame)
 {
-  CurrentFrame = NewCurFrame;
-  CurrentFrame->ShowConsoleTitle();
-  CurrentFrame->OnChangeFocus(1);
-  CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
+  FramePos=this->operator[](NewCurFrame);
+  if (FramePos!=-1){
+    CurrentFrame = NewCurFrame;
+    CurrentFrame->ShowConsoleTitle();
+    CurrentFrame->OnChangeFocus(1);
+    CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
+  } else {
+    SetCurrentFrame(0);
+  }
 }
 
 
@@ -414,18 +448,27 @@ void Manager::SetFramePos(int NewPos)
   FramePos=NewPos;
 }
 
-int  Manager::FindFrameByFile(int ModalType,char *FileName)
+/*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
+int  Manager::FindFrameByFile(int ModalType,char *FileName,char *Dir)
 {
+  char bufFileName[NM];
+  char *FullFileName=FileName;
+  if (Dir){
+    strcpy(bufFileName,Dir);
+    AddEndSlash(bufFileName);
+    strcat(bufFileName,FileName);
+    FullFileName=bufFileName;
+  }
   for (int I=0;I<FrameCount;I++)
   {
     char Type[200],Name[NM];
     if (FrameList[I]->GetTypeAndName(Type,Name)==ModalType)
-      if (LocalStricmp(Name,FileName)==0)
+      if (LocalStricmp(Name,FullFileName)==0)
         return(I);
   }
   return(-1);
 }
-
+/* 11.05.2001 OT $*/
 
 void Manager::ShowBackground()
 {
@@ -466,6 +509,8 @@ void Manager::EnterMainLoop()
     ProcessMainLoop();
     if (DestroyedFrame)
       DeleteDestroyedFrame();
+    if (FrameToReplace)
+      SetCurrentFrame(FrameToReplace);
   }
 }
 
@@ -575,3 +620,23 @@ BOOL Manager::IsPanelsActive()
 {
   return CurrentFrame->GetType() == MODALTYPE_PANELS;
 }
+
+Frame *Manager::operator[](int Index)
+{
+  if (Index<0||Index>=FrameCount){
+    return NULL;
+  } 
+  return FrameList[Index];
+}
+
+int Manager::operator[](Frame *Frame)
+{
+  int Result=-1;
+  for (int i=0;i<FrameCount;i++){
+    if (Frame==FrameList[i]){
+      Result=i;
+    }
+  }
+  return Result;
+}
+

@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.10 12.05.2001 $ */
+/* Revision: 1.11 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 OT
+    - Борьба с F4 -> ReloadAgain
   12.05.2001 DJ
     ! отрисовка по OnChangeFocus перенесена в Frame
   10.05.2001 DJ
@@ -106,6 +108,8 @@ class FileEditor:public Frame
     /* $ 10.05.2001 DJ */
     void SetEnableF6 (int AEnableF6) { EnableF6 = AEnableF6; }
     /* DJ $ */
+    int GetCanLoseFocus(int DynamicMode=FALSE);
+
 };
 
 #endif	// __FILEEDITOR_HPP__

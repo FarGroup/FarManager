@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.42 12.05.2001 $ */
+/* Revision: 1.44 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 OT
+    - Борьба с F4 -> ReloadAgain
   12.05.2001 DJ
     ! отрисовка по OnChangeFocus перенесена в Frame
   11.05.2001 OT
@@ -184,25 +186,38 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
     return;
   }
 
+  /*$ 11.05.2001 OT */
   if (EnableSwitch)
   {
     int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);
-    if (FramePos!=-1)
-    {
-      int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
-                          MSG(MCurrent),MSG(MReload));
-      switch(MsgCode)
-      {
+    if (FramePos!=-1) {
+      int SwitchTo=FALSE;
+      if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE)) {
+        int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
+          MSG(MCurrent),MSG(MReload));
+        switch(MsgCode){
         case 0:
-          FrameManager->ActivateFrameByPos (FramePos);
-          return;
+          SwitchTo=TRUE;
+          break;
         case 1:
+          FrameManager->ReplaceFrame(this,FramePos);
+          SetExitCode(-2);
           break;
         default:
+          SetExitCode(XC_QUIT);
           return;
+        }
+      } else {
+        SwitchTo=TRUE;
+      }
+      if (SwitchTo) {
+        FrameManager->ActivateFrameByPos(FramePos);
+        SetExitCode(TRUE);
+        return ;
       }
     }
   }
+  /* 11.05.2001 OT $*/
 
   /* $ 29.11.2000 SVS
      Если файл имеет атрибут ReadOnly или System или Hidden,
@@ -473,7 +488,7 @@ int FileEditor::ProcessKey(int Key)
           FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
             FALSE, FilePos, NULL, EditNamesList);
           /* DJ $ */
-          FrameManager->ReplaceFrame (this, Viewer);
+          FrameManager->ReplaceFrame (Viewer, this);
           /* DJ $ */
         }
         /* IS $ */
@@ -691,4 +706,16 @@ void FileEditor::OnDestroy()
 {
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
+}
+
+int FileEditor::GetCanLoseFocus(int DynamicMode)
+{
+  if (DynamicMode) {
+    if (FEdit.IsFileModified()){
+      return FALSE;
+    }
+  } else {
+    return CanLoseFocus;
+  }
+  return TRUE;
 }

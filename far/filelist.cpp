@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.52 11.05.2001 $ */
+/* Revision: 1.53 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 OT
+    - Борьба с F4 -> ReloadAgain
   11.05.2001 VVM
     - Различные баги
   08.05.2001 SVS
@@ -1125,8 +1127,17 @@ int FileList::ProcessKey(int Key)
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-                  FrameManager->AddFrame(ShellEditor);
-                  Modaling=FALSE;///
+                  int ExitCode=ShellEditor->GetExitCode();
+                  if (XC_QUIT==ExitCode) {
+                    delete ShellEditor;
+                    return TRUE;
+                  } else if (-1==ExitCode){
+                    FrameManager->AddFrame(ShellEditor);
+                    Modaling=FALSE;
+                    break;
+                  } else if (-2==ExitCode){
+                    return TRUE;
+                  }
                 }
             if (PluginMode && UploadFile)
             {

@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.29 12.05.2001 $ */
+/* Revision: 1.30 14.05.2001 $ */
 
 /*
 Modify:
+  14.05.2001 OT
+    ! Изменение порядка вызова параметров ReplaceFrame (для единообразия и удобства)
   12.05.2001 DJ
     ! отрисовка по OnChangeFocus перенесена в Frame
     ! убран дублирующийся ExitCode
@@ -367,7 +369,7 @@ int FileViewer::ProcessKey(int Key)
         */
         ShellEditor->SetNamesList (View.GetNamesList());
         /* DJ $ */
-        FrameManager->ReplaceFrame(this, ShellEditor);
+        FrameManager->ReplaceFrame(ShellEditor, this);
         /* DJ $ */
         ShowTime(2);
       }
