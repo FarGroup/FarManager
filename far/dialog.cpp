@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.316 05.01.2005 $ */
+/* Revision: 1.317 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 WARP
+    - DN_EDITCHANGE от комбо-бокса приходило с ID не того элемента
   05.01.2005 WARP
     - BugZ#1213 Исправляем косяки с новым центрированием диалогов
   27.12.2004 WARP
@@ -4181,7 +4183,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 FocusPos=I;
               }
               ShowDialog();
-              ProcessOpenComboBox(Item[FocusPos].Type,Item+FocusPos,OldFocusPos); //OldFocusPos ???
+              ProcessOpenComboBox(Item[FocusPos].Type,Item+FocusPos,FocusPos);
               //ProcessKey(KEY_CTRLDOWN);
               if(Item[I].Flags&DIF_NOFOCUS) //???
                 FocusPos=OldFocusPos;       //???
@@ -4227,7 +4229,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 }
                 if(!(Item[I].Flags&DIF_HIDDEN))
                   ShowDialog(I);
-                ProcessOpenComboBox(Item[FocusPos].Type,Item+FocusPos,OldFocusPos);//OldFocusPos???
+                ProcessOpenComboBox(Item[FocusPos].Type,Item+FocusPos,FocusPos);
                 //ProcessKey(KEY_CTRLDOWN);
                 if(Item[I].Flags&DIF_NOFOCUS) //???
                    FocusPos=OldFocusPos;      //???
