@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.24 12.03.2001 $ */
+/* Revision: 1.25 14.03.2001 $ */
 
 /*
 Modify:
+  14.03.2001 SVS
+    + Зарезервирован кусок кода для создания SymLink для каталогов.
   12.03.2001 SVS
     ! Коррекция в связи с изменениями в классе int64
   06.03.2001 SVS
@@ -624,7 +626,23 @@ void ShellCopy::CopyFileTree(char *Dest)
         strcpy(CopiedName,SelName);
       SrcPanel->CopyDiz(SelName,SelShortName,CopiedName,CopiedName,&DestDiz);
     }
-
+#if defined(CREATE_JUNCTION)
+    // Кусок для создания SymLink для каталогов.
+    if (Link && (SrcData.dwFileAttributes & FA_DIREC))
+    {
+      char SrcFullName[NM], DestFullName[NM];
+      if (ConvertNameToFull(SelName,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
+        return;
+      if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
+        return;
+      strcat(DestFullName,SelName);
+      if(CreateJunctionPoint(SrcFullName,DestFullName))
+        continue;
+      else
+        return;
+    }
+    else
+#endif
     if (SrcData.dwFileAttributes & FA_DIREC)
     {
       int SubCopyCode;

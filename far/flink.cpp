@@ -9,6 +9,9 @@ flink.cpp
 
 /*
 Modify:
+  14.03.2001 SVS
+    + Зарезервирован кусок кода для создания SymLink для каталогов
+      в функции CreateJunctionPoint
   13.03.2001 SVS
     ! Добавлен необходимый код в функцию DeleteJunctionPoint()
   13.03.2001 SVS
@@ -117,8 +120,83 @@ static PGETVOLUMENAMEFORVOLUMEMOUNTPOINT pGetVolumeNameForVolumeMountPoint=NULL;
 static PDELETEVOLUMEMOUNTPOINT pDeleteVolumeMountPoint=NULL;
 
 
-BOOL WINAPI CreateJunctionPoint(LPCTSTR szMountDir, LPCTSTR szDestDirArg)
+BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
 {
+#if defined(CREATE_JUNCTION)
+  if (!LinkFolder || !SrcFolder || !*LinkFolder || !*SrcFolder)
+    return FALSE;
+
+  char szDestDir[1024];
+  if (SrcFolder[0] == '\\' && SrcFolder[1] == '?')
+    strcpy(szDestDir, SrcFolder);
+  else
+  {
+    LPTSTR pFilePart;
+    char szFullDir[1024];
+
+    strcpy(szDestDir, "\\??\\");
+    if (!GetFullPathName(SrcFolder, 1024, szFullDir, &pFilePart) ||
+      GetFileAttributes(szFullDir) == -1)
+    {
+      return FALSE;
+    }
+    strcat(szDestDir, szFullDir);
+  }
+
+  char szBuff[MAXIMUM_REPARSE_DATA_BUFFER_SIZE] = { 0 };
+  TMN_REPARSE_DATA_BUFFER& rdb = *(TMN_REPARSE_DATA_BUFFER*)szBuff;
+
+  size_t cchDest = strlen(szDestDir) + 1;
+  if (cchDest > 512) {
+    return FALSE;
+  }
+  wchar_t wszDestMountPoint[512];
+  if (!MultiByteToWideChar(CP_THREAD_ACP,
+              MB_PRECOMPOSED,
+              szDestDir,
+              cchDest,
+              wszDestMountPoint,
+              cchDest))
+  {
+    return FALSE;
+  }
+
+  size_t nDestMountPointBytes = lstrlenW(wszDestMountPoint) * 2;
+  rdb.ReparseTag           = IO_REPARSE_TAG_MOUNT_POINT;
+  rdb.ReparseDataLength    = nDestMountPointBytes + 12;
+  rdb.Reserved             = 0;
+  rdb.SubstituteNameOffset = 0;
+  rdb.SubstituteNameLength = nDestMountPointBytes;
+  rdb.PrintNameOffset      = nDestMountPointBytes + 2;
+  rdb.PrintNameLength      = 0;
+  lstrcpyW(rdb.PathBuffer, wszDestMountPoint);
+
+
+  HANDLE hDir=CreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
+          FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
+
+  if (hDir == INVALID_HANDLE_VALUE)
+  {
+    SetLastError(ERROR_PATH_NOT_FOUND);
+    return FALSE;
+  }
+  DWORD dwBytes;
+#define TMN_REPARSE_DATA_BUFFER_HEADER_SIZE \
+      FIELD_OFFSET(TMN_REPARSE_DATA_BUFFER, SubstituteNameOffset)
+  if(!DeviceIoControl(hDir,
+            FSCTL_SET_REPARSE_POINT,
+            (LPVOID)&rdb,
+            rdb.ReparseDataLength + TMN_REPARSE_DATA_BUFFER_HEADER_SIZE,
+            NULL,
+            0,
+            &dwBytes,
+            0))
+  {
+    CloseHandle(hDir);
+    return 0;
+  }
+  CloseHandle(hDir);
+#endif
   return TRUE;
 }
 

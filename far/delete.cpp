@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.13 13.03.2001 $ */
+/* Revision: 1.14 14.03.2001 $ */
 
 /*
 Modify:
+  14.03.2001 SVS
+    - Неверный анализ кода возврата функции SHFileOperation(),
+      коей файл удаляется в корзину.
   13.03.2001 SVS
     + Обработка "удаления" линков - Part I
   13.03.2001 SVS
@@ -502,9 +505,27 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
   return(RetCode);
 }
 
-
+/* 14.03.2001 SVS
+   Неверный анализ кода возврата функции SHFileOperation(),
+   коей файл удаляется в корзину.
+*/
 int RemoveToRecycleBin(char *Name)
 {
+  static struct {
+    DWORD SHError;
+    DWORD LCError;
+  }
+  SHErrorCode2LastErrorCode[]=
+  {
+    {SE_ERR_FNF,ERROR_FILE_NOT_FOUND},
+    {SE_ERR_PNF,ERROR_PATH_NOT_FOUND},
+    {SE_ERR_ACCESSDENIED,ERROR_ACCESS_DENIED},
+    {SE_ERR_OOM,ERROR_OUTOFMEMORY},
+    {SE_ERR_DLLNOTFOUND,ERROR_FILE_NOT_FOUND},
+    {SE_ERR_SHARE,ERROR_SHARING_VIOLATION},
+    {SE_ERR_NOASSOC,ERROR_BAD_COMMAND},
+  };
+
   SHFILEOPSTRUCT fop;
   char FullName[NM+1];
 //  ConvertNameToFull(Name,FullName, sizeof(FullName));
@@ -522,11 +543,21 @@ int RemoveToRecycleBin(char *Name)
   if (Opt.DeleteToRecycleBin)
     fop.fFlags|=FOF_ALLOWUNDO;
   SetFileApisToANSI();
-  int RetCode=SHFileOperation(&fop)==0 && !fop.fAnyOperationsAborted;
+  int RetCode=SHFileOperation(&fop);
   SetFileApisToOEM();
+  if(RetCode)
+  {
+    for(int I=0; I < sizeof(SHErrorCode2LastErrorCode)/sizeof(SHErrorCode2LastErrorCode[0]); ++I)
+      if(SHErrorCode2LastErrorCode[I].SHError == RetCode)
+      {
+        SetLastError(SHErrorCode2LastErrorCode[I].LCError);
+        return FALSE;
+      }
+  }
+  RetCode=!fop.fAnyOperationsAborted;
   return(RetCode);
 }
-
+/* SVS $ */
 
 int WipeFile(char *Name)
 {

@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.05 27.02.2001 $ */
+/* Revision: 1.06 14.03.2001 $ */
 
 /*
 Modify:
+  14.03.2001 SVS
+    ! Если GetLastError() вернул ERROR_SUCCESS, то нефига показывать
+      инфу про успешное выполнение в сообщении об ошибке.
   27.02.2001 VVM
     ! Отрисовка сепаратора - функцией MakeSeparator()
   02.02.2001 IS
@@ -92,7 +95,7 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
 
   StrCount-=Buttons;
 
-  if (Flags & MSG_ERRORTYPE && GetErrorString(ErrStr, sizeof(ErrStr)))
+  if ((Flags & MSG_ERRORTYPE) && GetErrorString(ErrStr, sizeof(ErrStr)))
   {
     for (int I=sizeof(Str)/sizeof(Str[0])-1;I>0;I--)
       Str[I]=Str[I-1];
@@ -398,7 +401,8 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
     default:
     /* $ 27.01.2001 VVM
          + Если GetErrorString не распознает ошибку - пытается узнать у системы */
-      if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+      if (LastError != ERROR_SUCCESS && // нефига показывать лажу...
+          FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
                         NULL, LastError, 0, ErrStr, StrSize, NULL))
       {
         CharToOem(ErrStr,ErrStr);
