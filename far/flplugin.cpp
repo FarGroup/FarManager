@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.12 14.06.2001 $ */
+/* Revision: 1.13 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 IS
+    + Сохраним старое выделение в PluginSetSelection и в PluginClearSelection
   14.06.2001 SVS
     - Коррекция по поводу: "Надоело распаковывать some.foo.rar в каталог some\"
   17.05.2001 SVS
@@ -723,6 +725,9 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info)
 
 void FileList::PluginSetSelection(struct PanelInfo *Info)
 {
+  /* $ 06.07.2001 IS Сохраним старое выделение */
+  SaveSelection();
+  /* IS $ */
   for (int I=0;I<FileCount && I<Info->ItemsNumber;I++)
   {
     int Selection=(Info->PanelItems[I].Flags & PPIF_SELECTED)!=0;
@@ -770,6 +775,9 @@ int FileList::ProcessPluginEvent(int Event,void *Param)
 
 void FileList::PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNumber)
 {
+  /* $ 06.07.2001 IS Сохраним старое выделение */
+  SaveSelection();
+  /* IS $ */
   int FileNumber=0,PluginNumber=0;
   while (PluginNumber<ItemNumber)
   {
