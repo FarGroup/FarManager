@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.07 26.07.2000 $ */
+/* Revision: 1.08 26.07.2000 $ */
 
 /*
 Modify:
+  26.07.2000 SVS
+   + Ну наконец-то - долгожданный нередактируемый ComboBox
   26.07.2000 SVS
    + AutoComplite: Для DIF_HISTORY.
   25.07.2000 SVS
@@ -253,6 +255,14 @@ void Dialog::InitDialogObjects()
         CurItem->ObjPtr=new Edit;
 
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
+      /* $ 26.07.2000 SVS
+         Ну наконец-то - долгожданный нередактируемый ComboBox
+      */
+      if (CurItem->Flags & DIF_DROPDOWNLIST)
+      {
+         DialogEdit->DropDownBox=1;
+      }
+      /* SVS $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
       DialogEdit->SetObjectColor(WarningStyle ? COL_WARNDIALOGEDIT:COL_DIALOGEDIT,COL_DIALOGEDITSELECTED);
@@ -810,7 +820,8 @@ int Dialog::ProcessKey(int Key)
          + обработка DI_COMBOBOX - выбор из списка!
       */
       else if(Type == DI_COMBOBOX && Item[FocusPos].Selected)
-        SelectFromComboBox((Edit *)(Item[FocusPos].ObjPtr),(struct FarListItem *)Item[FocusPos].Selected);
+        SelectFromComboBox((Edit *)(Item[FocusPos].ObjPtr),
+                      (struct FarListItem *)Item[FocusPos].Selected);
       /* SVS $ */
       return(TRUE);
 
@@ -1454,6 +1465,10 @@ void Dialog::SelectFromComboBox(
     if (ExitCode<0)
       return;
     ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
+    /* Запомним текущее состояние */
+    for (I=0;ListItems[I].Text[0];I++)
+      ListItems[I].Selected=0;
+    ListItems[ComboBoxMenu.GetSelectPos()].Selected=1;
   }
   EditLine->SetString(Str);
   EditLine->SetLeftPos(0);

@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.02 21.76.2000 $ */
+/* Revision: 1.03 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 tran
+    + DropDownBox style
   21.07.2000 tran
     + ReplaceSpaces()
   03.07.2000 tran
@@ -104,6 +106,11 @@ class Edit:public ScreenObject
 #ifdef SHITHAPPENS
     void ReplaceSpaces(int i);
 #endif
+    /* $ 25.07.2000 tran
+       + DropDownBox style */
+    int DropDownBox;
+    /* tran 25.07.2000 $ */
+
 };
 
-#endif	// __EDIT_HPP__
+#endif  // __EDIT_HPP__

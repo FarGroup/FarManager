@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.08 26.07.2000 $ */
+/* Revision: 1.09 26.07.2000 $ */
 
 /*
 Modify:
+  26.08.2000 tran
+    + DropDownBox стиль
   26.07.2000 SVS
     - Bugs #??
       В строках ввода при выделенном блоке нажимаем BS и вместо
@@ -83,6 +85,11 @@ Edit::Edit()
     + ReadOnly deafult value */
   ReadOnly=0;
   /* tran 03.07.2000 $ */
+  /* $ 26.07.2000 tran
+     + DropDownBox style */
+  DropDownBox=0;
+  /* tran 26.07.2000 $ */
+
 }
 
 
@@ -100,6 +107,17 @@ Edit::~Edit()
 
 void Edit::DisplayObject()
 {
+  /* $ 26.07.2000 tran
+    + dropdown style */
+  if ( DropDownBox )
+  {
+    ClearFlag=0; // при дроп-даун нам не нужно никакого unchanged text
+    SelStart=0;
+    SelEnd=StrSize; // а также считаем что все выделено -
+                    //    надо же отличаться от обычных Edit
+  }
+  /* tran 26.07.2000 $ */
+
   if (EditOutDisabled)
     return;
   FastShow();
@@ -107,6 +125,12 @@ void Edit::DisplayObject()
     SetCursorType(1,99);
   else
     SetCursorType(1,-1);
+  /* $ 26.07.2000 tran
+     при DropDownBox курсор выключаем
+     не знаю даже - попробовал но не очень красиво вышло */
+  if ( DropDownBox )
+    SetCursorType(0,10);
+  /* tran 26.07.2000 $ */
   MoveCursor(X1+CursorPos-LeftPos,Y1);
 }
 
@@ -167,7 +191,12 @@ void Edit::FastShow()
     ShowString(Str,TabSelStart,TabSelEnd);
     CursorPos=CurPos;
   }
-  ApplyColor();
+  /* $ 26.07.2000 tran
+     при дроп-даун цвета нам не нужны */
+  if ( !DropDownBox )
+      ApplyColor();
+  /* tran 26.07.2000 $ */
+
 #ifdef SHITHAPPENS
   ReplaceSpaces(1);
 #endif
@@ -318,13 +347,17 @@ int Edit::ProcessKey(int Key)
 
   int PrevSelStart=-1,PrevSelEnd=0;
 
+  /* $ 25.07.2000 tran
+     при дроп-даун, нам Ctrl-l не нужен */
   /* $ 03.07.2000 tran
      + обработка Ctrl-L как переключателя состояния ReadOnly  */
-  if ( Key==KEY_CTRLL )
+  if ( !DropDownBox && Key==KEY_CTRLL )
   {
     ReadOnly=ReadOnly?0:1;
   }
   /* tran 03.07.2000 $ */
+  /* tran 25.07.2000 $ */
+
 
   /* $ 26.07.2000 SVS
      Bugs #??
@@ -636,11 +669,14 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLY:
+      /* $ 25.07.2000 tran
+         + DropDown style */
       /* $ 03.07.2000 tran
          + обработка ReadOnly */
-      if ( ReadOnly )
+      if ( DropDownBox || ReadOnly )
         return (TRUE);
       /* tran 03.07.2000 $ */
+      /* tran 25.07.2000 $ */
       CurPos=0;
       *Str=0;
       StrSize=0;
@@ -649,11 +685,14 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_CTRLK:
+      /* $ 25.07.2000 tran
+         + DropDown style */
       /* $ 03.07.2000 tran
          + обработка ReadOnly */
-      if ( ReadOnly )
+      if ( DropDownBox || ReadOnly )
         return (TRUE);
       /* tran 03.07.2000 $ */
+      /* tran 25.07.2000 $ */
       if (CurPos>=StrSize)
         return(FALSE);
       if (!EditBeyondEnd)
@@ -699,11 +738,14 @@ int Edit::ProcessKey(int Key)
       Show();
       return(TRUE);
     case KEY_DEL:
+      /* $ 25.07.2000 tran
+         + DropDown style */
       /* $ 03.07.2000 tran
          + обработка ReadOnly */
-      if ( ReadOnly )
+      if ( DropDownBox || ReadOnly )
         return (TRUE);
       /* tran 03.07.2000 $ */
+      /* tran 25.07.2000 $ */
       if (CurPos>=StrSize)
         return(FALSE);
       if (SelStart!=-1)
@@ -841,9 +883,11 @@ int Edit::ProcessKey(int Key)
 int Edit::InsertKey(int Key)
 {
   char *NewStr;
+  /* $ 25.07.2000 tran
+     + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( DropDownBox || ReadOnly )
     return (TRUE);
   /* tran 03.07.2000 $ */
   if (Key==KEY_TAB && Overtype)
@@ -903,6 +947,10 @@ char* Edit::GetStringAddr()
 }
 
 
+/* $ 25.07.2000 tran
+   примечание:
+   в этом методе DropDownBox не обрабатывается
+   ибо именно этот метод вызывается для установки из истории */
 void Edit::SetString(char *Str)
 {
   /* $ 03.07.2000 tran
@@ -930,6 +978,11 @@ void Edit::SetEOL(char *EOL)
 }
 
 
+/* $ 25.07.2000 tran
+   примечание:
+   в этом методе DropDownBox не обрабатывается
+   ибо он вызывается только из SetString и из класса Editor
+   в Dialog он нигде не вызывается */
 void Edit::SetBinaryString(char *Str,int Length)
 {
   /* $ 03.07.2000 tran
@@ -1014,11 +1067,15 @@ int Edit::GetSelString(char *Str,int MaxSize)
 
 void Edit::InsertString(char *Str)
 {
+  /* $ 25.07.2000 tran
+     + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( DropDownBox || ReadOnly )
     return;
   /* tran 03.07.2000 $ */
+  /* tran 25.07.2000 $ */
+
   Select(-1,0);
   InsertBinaryString(Str,strlen(Str));
 }
@@ -1028,9 +1085,11 @@ void Edit::InsertBinaryString(char *Str,int Length)
 {
   char *NewStr;
 
+  /* $ 25.07.2000 tran
+     + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( DropDownBox || ReadOnly )
     return;
   /* tran 03.07.2000 $ */
 
@@ -1318,11 +1377,15 @@ void Edit::SetTables(struct CharTableSet *TableSet)
 
 void Edit::DeleteBlock()
 {
+  /* $ 25.07.2000 tran
+     + drop-down */
   /* $ 03.07.2000 tran
      + обработка ReadOnly */
-  if ( ReadOnly )
+  if ( DropDownBox || ReadOnly )
     return;
   /* tran 03.07.2000 $ */
+  /* tran 25.07.2000 $ */
+
   if (SelStart==-1 || SelStart>=SelEnd)
     return;
   memmove(Str+SelStart,Str+SelEnd,StrSize-SelEnd+1);
