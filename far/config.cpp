@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.129 12.03.2002 $ */
+/* Revision: 1.130 14.03.2002 $ */
 
 /*
 Modify:
+  14.03.2002 IS
+    ! Когда избавлялись от двойного отрицания получилась путаница с опцией
+      "Блокировать редактирование файлов с атрибутом R/O"
   12.03.2002 VVM
     + Opt.Confirm.EscTwiceToInterrupt
       Задает поведение диалога при прерывании операции.
@@ -1084,7 +1087,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
   /* IS $ */
   sprintf(CfgDlg[17].Data,"%d",EdOpt.TabSize);
   CfgDlg[14].Selected=EdOpt.CursorBeyondEOL;
-  CfgDlg[15].Selected=!(Opt.EditorReadOnlyLock & 1);
+  CfgDlg[15].Selected=Opt.EditorReadOnlyLock & 1;
   CfgDlg[16].Selected=Opt.EditorReadOnlyLock & 2;
 
   if (!RegVer)
@@ -1145,7 +1148,7 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
     EdOpt.TabSize=8;
   EdOpt.CursorBeyondEOL=CfgDlg[14].Selected;
   Opt.EditorReadOnlyLock&=~3;
-  if(!CfgDlg[15].Selected) Opt.EditorReadOnlyLock|=1;
+  if(CfgDlg[15].Selected) Opt.EditorReadOnlyLock|=1;
   if(CfgDlg[16].Selected) Opt.EditorReadOnlyLock|=2;
 }
 /* IS 03.01.2002 $ */
