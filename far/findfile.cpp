@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.61 12.10.2001 $ */
+/* Revision: 1.62 13.10.2001 $ */
 
 /*
 Modify:
+  13.10.2001 VVM
+    ! Баг при поиске в темп-панели.
+    + Новая функция - очистить списки. Что-бы небыло перерасхода памяти
+      после нажатия на [New search]
   12.10.2001 VVM
     ! Устраняем падение при поиске строки. Забыл, что
       INVALID_HANDLE_VALEU <> 0 ;)
@@ -415,12 +419,11 @@ FindFiles::FindFiles()
   }
 
   FindList = NULL;
-  FindListCapacity = FindListCount = 0;
   ArcList = NULL;
-  ArcListCapacity = ArcListCount = 0;
 
   do
   {
+    ClearAllLists();
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
     static char H2Separator[72]={0};
     /* $ 30.07.2000 KM
@@ -602,8 +605,7 @@ FindFiles::~FindFiles()
   */
   FileMaskForFindFile.Free();
   /* IS $ */
-  free(FindList);
-  free(ArcList);
+  ClearAllLists();
   ScrBuf.ResetShadow();
 }
 
@@ -1112,7 +1114,6 @@ int FindFiles::FindFilesProcess()
 
   DlgHeight+=IncY;
 
-  FindFileArcIndex = LIST_INDEX_NONE;
   if (PluginMode)
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -1120,6 +1121,8 @@ int FindFiles::FindFilesProcess()
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     FindFileArcIndex = AddArcListItem(Info.HostFile);
+    if (FindFileArcIndex == LIST_INDEX_NONE)
+      return(FALSE);
     ArcList[FindFileArcIndex].hPlugin = hPlugin;
     ArcList[FindFileArcIndex].Flags = Info.Flags;
     if ((Info.Flags & OPIF_REALNAMES)==0)
@@ -1954,14 +1957,25 @@ DWORD FindFiles::AddFindListItem(WIN32_FIND_DATA *FindData)
 
 DWORD FindFiles::AddArcListItem(char *ArcName)
 {
-  if (!(ArcName && *ArcName))
-    return(LIST_INDEX_NONE);
   if ((ArcListCount == ArcListCapacity) &&
       (!ArcListGrow()))
     return(LIST_INDEX_NONE);
-  strncpy(ArcList[ArcListCount].ArcName, ArcName,
+  strncpy(ArcList[ArcListCount].ArcName, NullToEmpty(ArcName),
           sizeof(ArcList[ArcListCount].ArcName)-1);
   ArcList[ArcListCount].hPlugin = INVALID_HANDLE_VALUE;
   ArcList[ArcListCount].Flags = 0;
   return(ArcListCount++);
+}
+
+void FindFiles::ClearAllLists()
+{
+  if (FindList)
+    free(FindList);
+  if (ArcList)
+    free(ArcList);
+  FindList = NULL;
+  FindListCapacity = FindListCount = 0;
+  ArcList = NULL;
+  ArcListCapacity = ArcListCount = 0;
+  FindFileArcIndex = LIST_INDEX_NONE;
 }

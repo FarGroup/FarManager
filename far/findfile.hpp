@@ -7,10 +7,14 @@ findfile.hpp
 
 */
 
-/* Revision: 1.05 12.10.2001 $ */
+/* Revision: 1.06 13.10.2001 $ */
 
 /*
 Modify:
+  13.10.2001 VVM
+    ! Баг при поиске в темп-панели.
+    + Новая функция - очистить списки. Что-бы небыло перерасхода памяти
+      после нажатия на [New search]
   12.10.2001 VVM
     ! Очередной перетрях поиска. Избавляемся от глобальных переменных,
       которые могут конфликтовать. Список архивов теперь хранит хэндл
@@ -59,6 +63,7 @@ class FindFiles
     static BOOL ArcListGrow();
     static DWORD AddFindListItem(WIN32_FIND_DATA *FindData);
     static DWORD AddArcListItem(char *ArcName);
+    static void ClearAllLists();
 
     int FindFilesProcess();
     static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
