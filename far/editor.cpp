@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.222 15.04.2003 $ */
+/* Revision: 1.223 28.04.2003 $ */
 
 /*
 Modify:
+  28.04.2003 SVS
+    ! Изменены параметры SaveData + немного очередных уточнений
   15.04.2003 SVS
     - Перестали работать некоторые функциональные клавиши (например, F1 -
       вызов помощи) во время работы плагинов, использующих ProcessEditorInput
@@ -1256,13 +1258,109 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 // преобразование из буфера в список
 int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
 {
+#if defined(PROJECT_DI_MEMOEDIT)
+  struct EditList *PrevPtr;
+  int Count=0,LastLineCR=0;
+
+  UserBreak=0;
+
+  {
+    GetFileString GetStr(EditFile);
+    NumLastLine=0;
+    *GlobalEOL=0;
+    char *Str;
+    int StrLength,GetCode;
+
+    if (EdOpt.AutoDetectTable)
+    {
+      UseDecodeTable=DetectTable(EditFile,&TableSet,TableNum);
+      AnsiText=FALSE;
+    }
+
+    while ((GetCode=GetStr.GetString(&Str,StrLength))!=0)
+    {
+      if (GetCode==-1)
+      {
+        return(FALSE);
+      }
+      LastLineCR=0;
+
+      char *CurEOL;
+      if (!LastLineCR && ((CurEOL=(char *)memchr(Str,'\r',StrLength))!=NULL ||
+          (CurEOL=(char *)memchr(Str,'\n',StrLength))!=NULL))
+      {
+        strncpy(GlobalEOL,CurEOL,sizeof(GlobalEOL)-1);
+        GlobalEOL[sizeof(GlobalEOL)-1]=0;
+        LastLineCR=1;
+      }
+
+      if (NumLastLine!=0)
+      {
+        EndList->Next=new struct EditList;
+        if (EndList->Next==NULL)
+        {
+          return(FALSE);
+        }
+        PrevPtr=EndList;
+        EndList=EndList->Next;
+        EndList->Prev=PrevPtr;
+        EndList->Next=NULL;
+      }
+
+      EndList->EditLine.SetTabSize(EdOpt.TabSize);
+      EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
+      EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
+      EndList->EditLine.SetBinaryString(Str,StrLength);
+      EndList->EditLine.SetCurPos(0);
+      EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+      EndList->EditLine.SetEditorMode(TRUE);
+      NumLastLine++;
+    }
+
+    if (LastLineCR && ((EndList->Next=new struct EditList)!=NULL))
+    {
+      PrevPtr=EndList;
+      EndList=EndList->Next;
+      EndList->Prev=PrevPtr;
+      EndList->Next=NULL;
+      EndList->EditLine.SetTabSize(EdOpt.TabSize);
+      EndList->EditLine.SetPersistentBlocks(EdOpt.PersistentBlocks);
+      EndList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
+      EndList->EditLine.SetString("");
+      EndList->EditLine.SetCurPos(0);
+      EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
+      EndList->EditLine.SetEditorMode(TRUE);
+      NumLastLine++;
+    }
+  }
+  if (NumLine>0)
+    NumLastLine--;
+  if (NumLastLine==0)
+    NumLastLine=1;
+
+  if (UseDecodeTable)
+    for (struct EditList *CurPtr=TopList;CurPtr!=NULL;CurPtr=CurPtr->Next)
+      CurPtr->EditLine.SetTables(&TableSet);
+  else
+    TableNum=0;
+#endif
   return(TRUE);
 }
 
-// преобразование из списка в буфер
-int Editor::SaveData(LPBYTE DestBuf,int SizeDestBuf,int TextFormat)
+/*
+  Editor::SaveData - преобразование из списка в буфер
+
+    DestBuf     - куда сохраняем (выделяется динамически!)
+    SizeDestBuf - размер сохранения
+    TextFormat  - тип концовки строк
+*/
+int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
 {
-#if 0
+#if defined(PROJECT_DI_MEMOEDIT)
+  char *PDest=NULL;
+  SizeDestBuf=0; // общий размер = 0
+
+  // выставляем EOL
   switch(TextFormat)
   {
     case 1:
@@ -1276,12 +1374,9 @@ int Editor::SaveData(LPBYTE DestBuf,int SizeDestBuf,int TextFormat)
       break;
   }
 
+  int StrLength=0;
+  // прйдемся по списку строк
   struct EditList *CurPtr=TopList;
-
-  char *PDest=DestBuf;
-  int CurSize=0;
-  *PDest=0;
-
   while (CurPtr!=NULL)
   {
     const char *SaveStr, *EndSeq;
@@ -1289,6 +1384,7 @@ int Editor::SaveData(LPBYTE DestBuf,int SizeDestBuf,int TextFormat)
 
     CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
 
+    // выставляем концовку строк
     if (*EndSeq==0 && CurPtr->Next!=NULL)
       EndSeq=*GlobalEOL ? GlobalEOL:DOS_EOL_fmt;
 
@@ -1303,10 +1399,22 @@ int Editor::SaveData(LPBYTE DestBuf,int SizeDestBuf,int TextFormat)
       CurPtr->EditLine.SetEOL(EndSeq);
     }
 
-    // Нужна проверка на SizeDestBuf !!!
+    if (Length >= StrLength)
+    {
+      char *NewStr=(char *)xf_realloc(PDest,StrLength+Length+16);
+      if (NewStr==NULL)
+      {
+        if(PDest)
+          xf_free(PDest);
+        return FALSE;
+      }
+      PDest=NewStr;
+      StrLength+=Length+16;
+    }
+
     strcpy(PDest,SaveStr);
     strcat(PDest,EndSeq);
-    CurSize+=strlen(PDest);
+    SizeDestBuf+=strlen(PDest);
     PDest+=strlen(PDest);
 
     CurPtr=CurPtr->Next;

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.42 05.03.2003 $ */
+/* Revision: 1.43 28.04.2003 $ */
 
 /*
 Modify:
+  28.04.2003 SVS
+    ! Изменены параметры SaveData
   05.03.2003 SVS
     + Editor::ReadData, Editor::SaveData (пока невалидны с точки зрения работы)  - для DI_MEMOEDIT
   17.12.2002 SVS
@@ -325,7 +327,7 @@ class Editor:public ScreenObject
     int ReadFile(const char *Name,int &UserBreak);               // преобразование из файла в список
 
     int ReadData(LPCSTR SrcBuf,int SizeSrcBuf);                  // преобразование из буфера в список
-    int SaveData(LPBYTE DestBuf,int SizeDestBuf,int TextFormat); // преобразование из списка в буфер
+    int SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat); // преобразование из списка в буфер
 
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.49 21.04.2003 $ */
+/* Revision: 1.50 22.04.2003 $ */
 
 /*
 Modify:
+  22.04.2003 SVS
+    ! strcpy -> strNcpy
   21.04.2003 SVS
     ! Если _beginthread вернула -1, то вызовен функцию CheckVersion() напрямую
   14.04.2003 SVS
@@ -208,7 +210,7 @@ void ControlObject::Init()
   GotoXY(0,ScrY-2);
 
   char TruncRegName[512];
-  strcpy(TruncRegName,RegName);
+  strncpy(TruncRegName,RegName,sizeof(TruncRegName)-1);
   char *CountPtr=strstr(TruncRegName," - (");
   if (CountPtr!=NULL && isdigit(CountPtr[4]) && strchr(CountPtr+5,'/')!=NULL &&
       strchr(CountPtr+6,')')!=NULL)

@@ -5,10 +5,12 @@ checkver.cpp
 
 */
 
-/* Revision: 1.10 21.04.2003 $ */
+/* Revision: 1.11 22.04.2003 $ */
 
 /*
 Modify:
+  22.04.2003 SVS
+    ! strcpy -> strNcpy
   21.04.2003 SVS
     ! Уточним. Если трид не удалось создать, то функции вызываются напрамую, но
       если не предпренять спец.мер, то _endthread вываливат сам ФАР.
@@ -136,8 +138,8 @@ void Register()
   if (Dlg.GetExitCode()!=6)
     return;
   char RegName[256],RegCode[256],RegData[256];
-  strcpy(RegName,RegDlg[2].Data);
-  strcpy(RegCode,RegDlg[4].Data);
+  strncpy(RegName,RegDlg[2].Data,sizeof(RegName)-1);
+  strncpy(RegCode,RegDlg[4].Data,sizeof(RegCode)-1);
   int Length=strlen(RegName);
   if (*RegName==0 || *RegCode==0)
     return;

@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.23 21.01.2003 $ */
+/* Revision: 1.24 29.04.2003 $ */
 
 /*
 Modify:
+  29.04.2003 SVS
+    ! из GetMsg вынесем код проверки в отдельную функцию CheckMsgId
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -227,8 +229,7 @@ void Language::ConvertString(char *Src,char *Dest)
   *Dest=0;
 }
 
-
-char* Language::GetMsg(int MsgId)
+BOOL Language::CheckMsgId(int MsgId)
 {
   /* $ 19.03.2002 DJ
      при отрицательном индексе - также покажем сообщение об ошибке
@@ -256,10 +257,18 @@ char* Language::GetMsg(int MsgId)
         exit(0);
     }
     /* DJ $ */
-    return("");
+    return FALSE;
   }
+  return TRUE;
+}
+
+char* Language::GetMsg(int MsgId)
+{
+  if(!CheckMsgId(MsgId))
+    return "";
   return(MsgAddr[MsgId]);
 }
+
 
 FILE* Language::OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang)
 {

@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.74 26.02.2003 $ */
+/* Revision: 1.75 22.04.2003 $ */
 
 /*
 Modify:
+  22.04.2003 SVS
+    - BugZ#851 - Wrong error message by ShowHelp
   26.02.2003 SVS
     + ”кажем что именно не найдено в ERROR-месаге
   21.01.2003 SVS
@@ -363,7 +365,11 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
   {
     ErrorHelp=TRUE;
     if(!(Flags&FHELP_NOSHOWERROR))
-      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+    {
+      if(!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
+        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
+      ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
+    }
   }
 
 #if defined(WORK_HELP_FIND)
@@ -451,8 +457,12 @@ int Help::ReadHelp(const char *Mask)
   if (HelpFile==NULL)
   {
     ErrorHelp=TRUE;
-//    if(!(StackData.Flags&FHELP_NOSHOWERROR))
-//      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
+    if(!ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
+    {
+      ScreenObject::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
+      if(!(StackData.Flags&FHELP_NOSHOWERROR))
+        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),Mask,MSG(MOk));
+    }
     return FALSE;
   }
 
@@ -788,7 +798,7 @@ void Help::FastShow()
         {
           GotoXY(X1,Y1+I+1);
           SetColor(COL_HELPBOX);
-          ShowSeparator(X2-X1+1);
+          ShowSeparator(X2-X1+1,1);
         }
         continue;
       }

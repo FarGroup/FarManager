@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.60 20.09.2002 $ */
+/* Revision: 1.61 22.04.2003 $ */
 
 /*
 Modify:
+  22.04.2003 SVS
+    ! strcpy -> strNcpy
   20.09.2002 SVS
     - BugZ#619 - ftp: /pub в истории папок
   06.08.2002 SVS
@@ -224,7 +226,7 @@ int CommandLine::ProcessKey(int Key)
   {
     if (LastCmdPartLength==-1)
       strncpy(LastCmdStr,CmdStr.GetStringAddr(),sizeof(LastCmdStr)-1);
-    strcpy(Str,LastCmdStr);
+    strncpy(Str,LastCmdStr,sizeof(Str)-1);
     int CurCmdPartLength=strlen(Str);
     CtrlObject->CmdHistory->GetSimilar(Str,LastCmdPartLength);
     if (LastCmdPartLength==-1)
@@ -463,7 +465,7 @@ int CommandLine::ProcessKey(int Key)
 
 void CommandLine::SetCurDir(const char *CurDir)
 {
-  PrepareDiskPath(strcpy(CommandLine::CurDir,CurDir),sizeof(CommandLine::CurDir)-1);
+  PrepareDiskPath(strncpy(CommandLine::CurDir,CurDir,sizeof(CommandLine::CurDir)-1),sizeof(CommandLine::CurDir)-1);
 }
 
 
@@ -519,7 +521,7 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void CommandLine::GetPrompt(char *DestStr)
 {
   char FormatStr[512],ExpandedFormatStr[512];
-  strcpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g");
+  strncpy(FormatStr,Opt.UsePromptFormat ? Opt.PromptFormat:"$p$g",sizeof(FormatStr)-1);
   char *Format=FormatStr;
   if (Opt.UsePromptFormat)
   {

@@ -7,10 +7,12 @@ language.hpp
 
 */
 
-/* Revision: 1.06 14.07.2001 $ */
+/* Revision: 1.07 29.04.2003 $ */
 
 /*
 Modify:
+  29.04.2003 SVS
+    ! из GetMsg вынесем код проверки в отдельную функцию CheckMsgId
   14.07.2002 IS
     ! внедрение const
   24.12.2001 SVS
@@ -36,17 +38,24 @@ class VMenu;
 class Language
 {
   private:
-    void ConvertString(char *Src,char *Dest);
     char **MsgAddr;
     char *MsgList;
     long MsgSize;
     int MsgCount;
     char MessageFile[NM];
+
+  private:
+    void ConvertString(char *Src,char *Dest);
+    BOOL CheckMsgId(int MsgId);
+
   public:
     Language();
+
+  public:
     int Init(char *Path,int CountNeed=-1);
     void Close();
     char* GetMsg(int MsgId);
+
     static FILE* OpenLangFile(const char *Path,const char *Mask,const char *Language,char *FileName,BOOL StrongLang=FALSE);
     static int GetLangParam(FILE *SrcFile,char *ParamName,char *Param1,char *Param2);
     /* $ 01.09.2000 SVS

@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.25 14.07.2002 $ */
+/* Revision: 1.26 22.04.2003 $ */
 
 /*
 Modify:
+  22.04.2003 SVS
+    + FHELPOBJ_ERRCANNOTOPENHELP - индикатор ошибки
   14.07.2002 IS
     ! внедрение const
   24.12.2001 SVS
@@ -102,6 +104,10 @@ struct StackHelpData
 enum HELPDOCUMENTSHELPTYPE{
   HIDX_PLUGINS,                 // Индекс плагинов
   HIDX_DOCUMS,                  // Индекс документов
+};
+
+enum {
+  FHELPOBJ_ERRCANNOTOPENHELP  = 0x80000000,
 };
 
 class Help:public Frame

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.43 19.02.2003 $ */
+/* Revision: 1.44 28.04.2003 $ */
 
 /*
 Modify:
+  28.04.2003 SVS
+    - BugZ#876 - отображение размера больших файлов
   19.02.2003 SVS
     + TestParentFolderName() - вместо strcmp(Name,"..")
   21.01.2003 SVS
@@ -828,7 +830,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     IndexDiv=1;
   }
 
-  int64 Sz(SizeHigh,Size);
+  int64 Sz(SizeHigh,Size), Divider2(0,Divider/2),Divider64(0,Divider), OldSize;
 
   if (Commas)
     InsertCommas(Sz,Str);
@@ -842,7 +844,11 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     Width-=2;
     IndexB=-1;
     do{
-      Sz=Sz/int64(Divider);
+      //Sz=(Sz+Divider2)/Divider64;
+      Sz = (OldSize=Sz) / Divider64;
+      if ((OldSize % Divider64) > Divider2)
+        Sz++;
+
       IndexB++;
 
       if (Commas)

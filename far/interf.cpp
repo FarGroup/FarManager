@@ -5,10 +5,15 @@ interf.cpp
 
 */
 
-/* Revision: 1.73 21.04.2003 $ */
+/* Revision: 1.74 29.04.2003 $ */
 
 /*
 Modify:
+  29.04.2003 SVS
+    ! _Oem2Unicode:
+      "...Well, to be exact, you could place 0x221a on position 0xFB (this is a
+      checkmark used to indicate currently selected menuitem). Now FAR displays
+      this character - u, and after this change the character will be &#8730;.."
   21.04.2003 SVS
     + RegistrationBugs - =TRUE, если трид создать не удалось.
     + PrevFarAltEnterMode - для тестирования "Alt-Enetr"
@@ -443,7 +448,7 @@ void InitRecodeOutTable(UINT cp)
     /*E0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
            0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
     /*F0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-           0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+           0x0000, 0x0000, 0x0000, 0x221A, 0x0000, 0x0000, 0x0000, 0x0000,
     };
 
     // перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)

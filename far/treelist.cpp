@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.49 26.02.2003 $ */
+/* Revision: 1.50 22.04.2003 $ */
 
 /*
 Modify:
+  22.04.2003 SVS
+    ! strcpy -> strNcpy
   26.02.2003 SVS
     - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
   24.02.2003 SVS
@@ -273,8 +275,8 @@ TreeList::~TreeList()
 
 void TreeList::SetRootDir(char *NewRootDir)
 {
-  strcpy(Root,NewRootDir);
-  strcpy(CurDir,NewRootDir);
+  strncpy(Root,NewRootDir,sizeof(Root)-1);
+  strncpy(CurDir,NewRootDir,sizeof(CurDir)-1);
 }
 
 void TreeList::DisplayObject()
@@ -318,7 +320,7 @@ void TreeList::DisplayTree(int Fast)
 
   CorrectPosition();
   if (TreeCount>0)
-    strcpy(CurDir,ListData[CurFile].Name);
+    strncpy(CurDir,ListData[CurFile].Name,sizeof(CurDir)-1);
   if (!Fast)
   {
     Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
@@ -561,7 +563,7 @@ void TreeList::SaveTreeFile()
   int RootLength=strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
-  strcpy(Name,Root);
+  strncpy(Name,Root,sizeof(CurDir)-1);
   strcat(Name,TreeFileName);
   // получим и сразу сбросим атрибуты (если получится)
   DWORD FileAttributes=GetFileAttributes(Name);
@@ -602,20 +604,20 @@ int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
                             FileSystemName,sizeof(FileSystemName)))
     return(FALSE);
   char FolderName[NM];
-  strcpy(FolderName,FarPath);
+  strncpy(FolderName,FarPath,sizeof(FolderName)-1);
   strcat(FolderName,TreeCacheFolderName);
   if (CreateDir)
   {
     mkdir(FolderName);
     SetFileAttributes(FolderName,FA_HIDDEN);
   }
-  char RemoteName[NM];
+  char RemoteName[NM*3];
   *RemoteName=0;
   if (*Root=='\\')
     strcpy(RemoteName,Root);
   else
   {
-    char LocalName [10];
+    char LocalName [8];
     strcpy (LocalName, "A:");
     *LocalName=*Root;
     DWORD RemoteNameSize=sizeof(RemoteName);
@@ -1080,7 +1082,7 @@ void TreeList::CorrectPosition()
 void TreeList::SetCurDir(char *NewDir,int ClosePlugin)
 {
   char SetDir[NM];
-  strcpy(SetDir,NewDir);
+  strncpy(SetDir,NewDir,sizeof(SetDir)-1);
   if (TreeCount==0)
     Update(0);
   if (TreeCount>0 && !SetDirPosition(SetDir))
@@ -1266,7 +1268,7 @@ int TreeList::ReadTreeFile()
   ListData=NULL;
   TreeCount=0;
   *LastDirName=0;
-  strcpy(DirName,Root);
+  strncpy(DirName,Root,sizeof(DirName)-1);
   while (fgets(DirName+RootLength,sizeof(DirName)-RootLength,TreeFile)!=NULL)
   {
    if (LocalStricmp(DirName,LastDirName)==0)
