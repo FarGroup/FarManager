@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.14 24.01.2001 $ */
+/* Revision: 1.15 02.02.2001 $ */
 
 /*
 Modify:
+  02.02.2001 VVM
+    ! Переделал функции Text(...). Т.к. они вызываются очень часто,
+      то основной вывод будет идти в Text(char *Str)
   24.01.2001 SVS
     + Инициализация клавиатурной очереди KeyQueue,
       размером  = 1024 кода клавиши
@@ -336,19 +339,27 @@ void GetRealCursorType(int &Visible,int &Size)
 /* $ 23.07.2000 SVS
    + две полных функции Text
 */
+/* $ 02.02.2001 VVM
+    ! Переделал функции Text(...). Т.к. они вызываются очень часто,
+      то основной вывод будет идти в Text(char *Str) */
 void Text(int X, int Y, int Color, char *Str)
 {
-  int Length=strlen(Str);
   CurColor=FarColorToReal(Color);
   if (X<0) X=0;
   if (Y<0) Y=0;
   CurX=X;
   CurY=Y;
+  Text(Str);
+}
+
+void Text(char *Str)
+{
+  int Length=strlen(Str);
   if (CurX+Length>ScrX)
     Length=ScrX-CurX+1;
   if (Length<=0)
     return;
-  CHAR_INFO CharBuf[1024]={0};
+  CHAR_INFO CharBuf[1024];
   for (int I=0;I<Length;I++)
   {
     CharBuf[I].Char.AsciiChar=RecodeOutTable[Str[I]];
@@ -358,11 +369,6 @@ void Text(int X, int Y, int Color, char *Str)
   CurX+=Length;
 }
 
-void Text(char *Str)
-{
-  Text(CurX,CurY,CurColor,Str);
-}
-
 void Text(int X, int Y, int Color,int MsgId)
 {
   Text(X,Y,Color,MSG(MsgId));
@@ -370,8 +376,9 @@ void Text(int X, int Y, int Color,int MsgId)
 
 void Text(int MsgId)
 {
-  Text(CurX,CurY,CurColor,MSG(MsgId));
+  Text(MSG(MsgId));
 }
+/* VVM $ */
 /* SVS $ */
 
 void VText(char *Str)
