@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.86 12.09.2001 $ */
+/* Revision: 1.87 13.09.2001 $ */
 
 /*
 Modify:
+  13.09.2001 SKV
+    - не грузить .dll если она не экспортирует ни одной far plugin api функции.
   12.09.2001 SVS
     + FSF.ConvertNameToReal
   12.09.2001 SVS
@@ -605,6 +607,43 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetProcAddress(hModule,"ProcessEditorEvent");
   CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetProcAddress(hModule,"ProcessViewerEvent");
   CurPlugin.pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(hModule,"GetMinFarVersion");
+  /*$ 13.09.2001 SKV
+    Если плагин не экспортирует ни одной
+    функции, то не будем его грузить.
+  */
+  if(!(CurPlugin.pSetStartupInfo ||
+    CurPlugin.pOpenPlugin ||
+    CurPlugin.pOpenFilePlugin ||
+    CurPlugin.pClosePlugin ||
+    CurPlugin.pGetPluginInfo ||
+    CurPlugin.pGetOpenPluginInfo ||
+    CurPlugin.pGetFindData ||
+    CurPlugin.pFreeFindData ||
+    CurPlugin.pGetVirtualFindData ||
+    CurPlugin.pFreeVirtualFindData ||
+    CurPlugin.pSetDirectory ||
+    CurPlugin.pGetFiles ||
+    CurPlugin.pPutFiles ||
+    CurPlugin.pDeleteFiles ||
+    CurPlugin.pMakeDirectory ||
+    CurPlugin.pProcessHostFile ||
+    CurPlugin.pSetFindList ||
+    CurPlugin.pConfigure ||
+    CurPlugin.pExitFAR ||
+    CurPlugin.pProcessKey ||
+    CurPlugin.pProcessEvent ||
+    CurPlugin.pCompare ||
+    CurPlugin.pProcessEditorInput ||
+    CurPlugin.pProcessEditorEvent ||
+    CurPlugin.pProcessViewerEvent ||
+    CurPlugin.pMinFarVersion))
+  {
+    FreeLibrary(hModule);
+    CurPlugin.hModule=0;
+    CurPlugin.DontLoadAgain=TRUE;
+    return FALSE;
+  }
+  /* SKV$*/
   if (ModuleNumber!=-1 && Init)
   {
     /* $ 22.05.2001 DJ
