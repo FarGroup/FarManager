@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.01 29.08.2000 $ */
+/* Revision: 1.02 27.01.2001 $ */
 
 /*
 Modify:
+  27.01.2001 VVM
+   + Если GetErrorString не распознает ошибку - пытается узнать у системы
   29.08.2000 SVS
     + Дополнительный параметр у Message* - номер плагина.
   25.06.2000 SVS
@@ -84,7 +86,7 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
 
   StrCount-=Buttons;
 
-  if (Flags & MSG_ERRORTYPE && GetErrorString(ErrStr))
+  if (Flags & MSG_ERRORTYPE && GetErrorString(ErrStr, sizeof(ErrStr)))
   {
     for (int I=sizeof(Str)/sizeof(Str[0])-1;I>0;I--)
       Str[I]=Str[I-1];
@@ -268,9 +270,11 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 }
 
 
-int GetErrorString(char *ErrStr)
+int GetErrorString(char *ErrStr, DWORD StrSize)
 {
-  switch(GetLastError())
+  int LastError = GetLastError();
+
+  switch(LastError)
   {
     case ERROR_INVALID_FUNCTION:
       strcpy(ErrStr,MSG(MErrorInvalidFunction));
@@ -389,6 +393,12 @@ int GetErrorString(char *ErrStr)
       strcpy(ErrStr,MSG(MErrorInvalidPassword));
       break;
     default:
+    /* $ 27.01.2001 VVM
+         + Если GetErrorString не распознает ошибку - пытается узнать у системы */
+      if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+                        NULL, LastError, 0, ErrStr, StrSize, NULL))
+        return(TRUE);
+    /* VVM $ */
       *ErrStr=0;
       return(FALSE);
   }

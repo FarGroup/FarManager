@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.53 25.01.2001 $ */
+/* Revision: 1.54 27.01.2001 $ */
 
 /*
 Modify:
+  27.01.2001 VVM
+   + Дополнительный параметр у GetErrorString - резмер буфера
   25.01.2001 SVS
    ! WriteInput - имеет дополнительный параметр - флаги
    ! TranslateKeyToVK - имеет дополнительный параметр - указатель на эвенты.
@@ -290,7 +292,10 @@ void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color);
 int HiStrlen(char *Str);
-int GetErrorString(char *ErrStr);
+/* $ 27.01.2001 VVM
+   + Дополнительный параметр у GetErrorString - резмер буфера */
+int GetErrorString(char *ErrStr, DWORD StrSize);
+/* VVM $ */
 void ShowProcessList();
 int CopyFormatToClipboard(char *Format,char *Data);
 char* PasteFormatFromClipboard(char *Format);
