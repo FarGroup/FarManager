@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.41 21.01.2001 $ */
+/* Revision: 1.42 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 IS
+   !  Внимание! Возможно, это не совсем верное решение проблемы
+      выделения из плагинов, но мне пока другого в голову не пришло.
+      Я приравниваю SelectSize нулю _только_ в Process*
   21.01.2001 IS
    ! Для однообразия с редактором изменил пару названий:
       VCTL_SETPOS -> VCTL_SETPOSITION
@@ -682,7 +686,13 @@ void Viewer::ShowHex()
         {
           SelPos=strlen(OutStr);
           SelSize=SelectSize;
-          SelectSize=0;
+          /* $ 22.01.2001 IS
+              Внимание! Возможно, это не совсем верное решение проблемы
+              выделения из плагинов, но мне пока другого в голову не пришло.
+              Я приравниваю SelectSize нулю в Process*
+          */
+          //SelectSize=0;
+          /* IS $ */
         }
 
         if ((Ch=getc(ViewFile))==EOF || (Ch1=getc(ViewFile))==EOF)
@@ -722,7 +732,13 @@ void Viewer::ShowHex()
         {
           SelPos=strlen(OutStr);
           SelSize=SelectSize;
-          SelectSize=0;
+          /* $ 22.01.2001 IS
+              Внимание! Возможно, это не совсем верное решение проблемы
+              выделения из плагинов, но мне пока другого в голову не пришло.
+              Я приравниваю SelectSize нулю в Process*
+          */
+          //SelectSize=0;
+          /* IS $ */
         }
         if ((Ch=vgetc(ViewFile))==EOF)
         {
@@ -1002,7 +1018,13 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       {
         SelPos=OutPtr;
         SelSize=SelectSize;
-        SelectSize=0;
+        /* $ 22.01.2001 IS
+            Внимание! Возможно, это не совсем верное решение проблемы
+            выделения из плагинов, но мне пока другого в голову не пришло.
+            Я приравниваю SelectSize нулю в Process*
+        */
+        //SelectSize=0;
+        /* IS $ */
       }
 
       if (MaxSize-- == 0)
@@ -1054,6 +1076,12 @@ int Viewer::ProcessKey(int Key)
 {
   int Tmp,I;
   char ReadStr[528];
+
+  /* $ 22.01.2001 IS
+       Происходят какие-то манипуляции -> снимем выделение
+  */
+  if(Key!=KEY_IDLE && Key!=KEY_NONE) SelectSize=0;
+  /* IS $ */
 
   if (!InternalKey && !LastKeyUndo && (FilePos!=UndoAddr[0] || LeftPos!=UndoLeft[0]))
   {
@@ -1442,6 +1470,12 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   if ((MouseEvent->dwButtonState & 3)==0)
     return(FALSE);
+
+  /* $ 22.01.2001 IS
+       Происходят какие-то манипуляции -> снимем выделение
+  */
+  SelectSize=0;
+  /* IS $ */
 
   /* $ 18.07.2000 tran
      обработка сколбара */
