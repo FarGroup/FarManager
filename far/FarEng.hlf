@@ -1721,8 +1721,10 @@ $ #Internal viewer#
     #Ctrl-Right#         20 characters right
     #PgUp#               Page up
     #PgDn#               Page down
-    #Home#               Start of file
-    #End#                End of file
+    #Home#               Start of lines on the screen
+    #End#                End of lines on the screen
+    #Ctrl-Home#          Start of file
+    #Ctrl-End#           End of file
 
     #F1#                 Help
     #F2#                 Toggle line wrap/unwrap

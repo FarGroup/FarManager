@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.120 24.01.2003 $ */
+/* Revision: 1.121 25.01.2003 $ */
 
 /*
 Modify:
+  25.01.2003 VVM
+    - При включении врапа LeftPos всегда становится = 0
+    + Клавиши Home/End позиционируют на начало/конец строк на экране
   24.01.2003 KM
     ! По окончании поиска отступим от верха экрана на
       треть отображаемой высоты. А то уж действительно
@@ -901,7 +904,8 @@ void Viewer::DisplayObject()
       ReadString(OutStr[I],-1,MAX_VIEWLINEB,&SelPos,&SelSize);
       SetColor(COL_VIEWERTEXT);
       GotoXY(X1,Y);
-      if (strlen((char *)OutStr[I])>(unsigned) LeftPos)
+      int StrLength = strlen((char *)OutStr[I]);
+      if (StrLength > LeftPos)
       {
         /* $ 18.10.2000 SVS
            -Bug: Down Down Up & первый пробел
@@ -932,16 +936,16 @@ void Viewer::DisplayObject()
         /* VVM $ */
         {
           if (AdjustSelPosition)
-	  {
+          {
             LeftPos=X1+SelPos+SaveSelectSize-XX2;
             SelectSize=SaveSelectSize;
             AdjustSelPosition = FALSE;
             Show();
             return;
-	  }
+          }
         } /* if */
         else
-		{
+        {
           SetColor(COL_VIEWERSELECTEDTEXT);
           GotoXY(SelX1,Y);
           if (SelSize>XX2-SelX1+1)
@@ -952,24 +956,24 @@ void Viewer::DisplayObject()
           if (SelSize>0)
             mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
           /* IS $ */
-		} /* else */
+        } /* else */
       }
 
       /* $ 18.07.2000 tran -
          проверка флага
       */
-      if (strlen(&OutStr[I][(int)LeftPos]) > Width && ViOpt.ShowArrows)
-	  {
+      if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
+      {
         GotoXY(XX2,Y);
         SetColor(COL_VIEWERARROWS);
         mprintf(">");
-	  }
+      }
       if (LeftPos>0 && *OutStr[I]!=0  && ViOpt.ShowArrows)
-	  {
+      {
         GotoXY(X1,Y);
         SetColor(COL_VIEWERARROWS);
         mprintf("<");
-	  }
+      }
     } /* for */
   } // if (Hex)  - else
 
@@ -1174,20 +1178,20 @@ void Viewer::ShowUp()
       mprintf("%*s",Width,"");
 
     if (SelectPos >= StrFilePos[I] + LeftPos && SelectPos <= StrFilePos[I] + strlen(OutStr[I]))
-	{
+    {
       int SelPos = SelectPos - StrFilePos[I];
-	  int SelSize = SelectSize;
+      int SelSize = SelectSize;
       int SelX1=(int)((__int64)X1+SelPos - LeftPos);
-	  if (SelPos - LeftPos < Width)
-	  {
-	    SetColor(COL_VIEWERSELECTEDTEXT);
+      if (SelPos - LeftPos < Width)
+      {
+        SetColor(COL_VIEWERSELECTEDTEXT);
         GotoXY(SelX1,Y);
         if (SelSize>XX2-SelX1+1)
           SelSize=XX2-SelX1+1;
         if (SelSize>0)
           mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
-	  }
-	}
+      }
+    }
 
     if (strlen(&OutStr[I][(int)LeftPos])>Width && ViOpt.ShowArrows)
     {
@@ -1531,15 +1535,15 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-	case KEY_CTRLU:
-	{
-		if (SelectSize)
-		{
-			SelectSize = 0;
-			Show();
-		}
-		return(TRUE);
-	}
+    case KEY_CTRLU:
+    {
+      if (SelectSize)
+      {
+        SelectSize = 0;
+        Show();
+      }
+      return(TRUE);
+    }
 
     /* $ 05.09.2001 VVM
       + Копирование выделения в клипбоард */
@@ -1733,7 +1737,10 @@ int Viewer::ProcessKey(int Key)
       {
         VM.TypeWrap=!VM.TypeWrap;
         if(!VM.Wrap)
+        {
           VM.Wrap=!VM.Wrap;
+          LeftPos = 0;
+        }
         ChangeViewKeyBar();
         Show();
         Opt.ViewerWrap=VM.TypeWrap;
@@ -1749,6 +1756,8 @@ int Viewer::ProcessKey(int Key)
       */
       VM.Wrap=!VM.Wrap;
       ChangeViewKeyBar();
+      if (VM.Wrap)
+        LeftPos = 0;
       Show();
       /* $ 31.08.2000 SVS
         Сохраняем тип врапа
@@ -1982,7 +1991,15 @@ int Viewer::ProcessKey(int Key)
     }
 
     case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
+      // Перейти на начало строк
+      if (ViewFile)
+      {
+        LeftPos = 0;
+        Show();
+      }
+      return(TRUE);
     case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
+      // Перейти на начало файла
       if(ViewFile)
         LeftPos=0;
     case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
@@ -1995,7 +2012,25 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
+        // Перейти на конец строк
+        if (ViewFile)
+        {
+          int I, Y, Len, MaxLen = 0;
+          for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+          {
+             Len = strlen(OutStr[I]);
+             if (Len > MaxLen)
+               MaxLen = Len;
+          } /* for */
+          if (MaxLen > Width)
+            LeftPos = MaxLen - Width;
+          else
+            LeftPos = 0;
+          Show();
+        } /* if */
+        return(TRUE);
     case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
+      // Перейти на конец файла
       if(ViewFile)
         LeftPos=0;
     case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
@@ -2489,10 +2524,10 @@ void Viewer::Search(int Next,int FirstChar)
           SearchStr[I]=LocalUpper(SearchStr[I]);
 
     SelectSize = 0;
-	if (Next)
-		LastSelPos = SelectPos + 1;
-	else
-		LastSelPos = FilePos;
+    if (Next)
+      LastSelPos = SelectPos + 1;
+    else
+      LastSelPos = FilePos;
 
     vseek(ViewFile,LastSelPos,SEEK_SET);
     Match=0;
@@ -3147,7 +3182,7 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
   {
     AdjustSelPosition = TRUE;
     Show();
-	AdjustSelPosition = FALSE;
+    AdjustSelPosition = FALSE;
   }
 }
 /* SVS $ */
