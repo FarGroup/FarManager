@@ -5,10 +5,13 @@ headers.cpp
 
 */
 
-/* Revision: 1.11 22.10.2001 $ */
+/* Revision: 1.12 27.02.2002 $ */
 
 /*
 Modify:
+  27.02.2002 SVS
+    + mmsystem.h при условии, что выставлен флаг __USE_MCI, который
+      компилит ФАР с юзанием константами для mciSendCommand
   22.10.2001 SVS
     + По поводу шифрования в Win2K (борманд 5.02 об этих константах не ведает!)
   25.04.2001 SVS
@@ -183,3 +186,7 @@ Modify:
 #define ERROR_NO_RECOVERY_POLICY         6003L
 //  The specified file is not encrypted.
 #define ERROR_FILE_NOT_ENCRYPTED         6007L
+
+#if !defined(__USE_MCI)
+#include <mmsystem.h>
+#endif

@@ -26,7 +26,9 @@ Modified by Joe Huffman (d.b.a Prototronics) June 11, 1987 from Ray Gardner's,
 **    Oct. 1978, and Corrigendum, Comm. ACM, June 1979.
 */
 
-#include <stdlib.h>
+#define __NEW_H
+#include "headers.hpp"
+#pragma hdrstop
 
 void iswap (int *a, int *b);      /* swap ints */
 void cswap (char *a, char *b);    /* swap chars */

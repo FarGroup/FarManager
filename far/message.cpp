@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.19 26.10.2001 $ */
+/* Revision: 1.20 27.02.2002 $ */
 
 /*
 Modify:
+  27.02.2002 SVS
+    ! Косметика для компиляции с debug-инфой под BC
   26.10.2001 SVS
     ! небольшие уточнения размеров
   23.10.2001 SVS
@@ -62,9 +64,6 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
-static int MessageX1,MessageY1,MessageX2,MessageY2;
-static char MsgHelpTopic[80];
-
 #include "global.hpp"
 #include "fn.hpp"
 #include "plugin.hpp"
@@ -73,6 +72,10 @@ static char MsgHelpTopic[80];
 #include "dialog.hpp"
 #include "farftp.hpp"
 #include "scrbuf.hpp"
+
+static int MessageX1,MessageY1,MessageX2,MessageY2;
+static char MsgHelpTopic[80];
+
 
 int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,

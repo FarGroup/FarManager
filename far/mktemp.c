@@ -1,7 +1,6 @@
-#include <windows.h>
-#include <string.h>
-#include <io.h>
-#include <process.h>
+#define __NEW_H
+#include "headers.hpp"
+#pragma hdrstop
 
 #ifdef _MSC_VER
 #pragma intrinsic (strcmp)       /* don't use the unsafe version */

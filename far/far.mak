@@ -49,12 +49,6 @@ INTDIR=$(OUTDIR)\obj
 !endif
 CODDIR=$(OUTDIR)\cod
 
-!IF  "$(CFG)" == "far - Win32 Release"
-USEDEBUG=NDEBUG
-!ELSE
-USEDEBUG=_DEBUG
-!ENDIF
-
 DEF_FILE= \
 	".\far.def"
 
@@ -159,25 +153,38 @@ LINK32_OBJS= \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
 	"$(INTDIR)\farrtl.obj" \
+	"$(INTDIR)\cmem.obj" \
 	"$(INTDIR)\far.res"
 
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
 
 BSC32_SBRS= \
 
-RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
+RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
+
+!IF  "$(CFG)" == "far - Win32 Release"
+!MESSAGE far - Win32 Release.
+
+USEDEBUG=NDEBUG
+
+CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /Zp4 /MT /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+
+LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
+
+!ELSE
+!MESSAGE far - Win32 Debug.
+
+USEDEBUG=_DEBUG
+
+CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+
+LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
+
+!ENDIF
 
 
 ALL : "$(OUTDIR)\Far.exe" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
 
-# ************************************************************************
-!IF  "$(CFG)" == "far - Win32 Release"
-!MESSAGE far - Win32 Release.
-# ************************************************************************
-
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /Zp4 /MT /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
-
-LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:".\far.def" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
 
 "$(OUTDIR)\Far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -195,32 +202,6 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
    @if exist ".\fmt.hpp" awk -f plugins.awk -v p1=1 -v p2=70 ".\fmt.hpp" > "$(FARINCLUDE)\fmt.hpp"
    @if exist ".\fmt.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\fmt.pas" > "$(FARINCLUDE)\fmt.pas"
 
-# ************************************************************************
-!ELSEIF  "$(CFG)" == "far - Win32 Debug"
-!MESSAGE far - Win32 Debug.
-# ************************************************************************
-
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
-
-LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:".\far.def" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
-
-"$(OUTDIR)\Far.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
-    $(LINK32) @<<
-  $(LINK32_FLAGS) $(LINK32_OBJS)
-<<
-   @if exist "$(OUTDIR)\FarEng.hlf" del "$(OUTDIR)\FarEng.hlf" >nul
-   @if exist "$(OUTDIR)\FarRus.hlf" del "$(OUTDIR)\FarRus.hlf"  >nul
-   @if exist "$(OUTDIR)\FarEng.lng" del "$(OUTDIR)\FarEng.lng"  >nul
-   @if exist "$(OUTDIR)\FarRus.lng" del "$(OUTDIR)\FarRus.lng"  >nul
-   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarEng.hlf" > "$(OUTDIR)\FarEng.hlf"
-   @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) ".\FarRus.hlf" > "$(OUTDIR)\FarRus.hlf"
-   @copy ".\FarEng.lng" "$(OUTDIR)\FarEng.lng" >nul
-   @copy ".\FarRus.lng" "$(OUTDIR)\FarRus.lng" >nul
-   @if exist ".\plugin.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\plugin.pas" > "$(FARINCLUDE)\plugin.pas"
-   @if exist ".\fmt.hpp" awk -f plugins.awk -v p1=1 -v p2=70 ".\fmt.hpp" > "$(FARINCLUDE)\fmt.hpp"
-   @if exist ".\fmt.pas" awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas ".\fmt.pas" > "$(FARINCLUDE)\fmt.pas"
-
-!ENDIF
 
 # ************************************************************************
 # зависимости
@@ -231,26 +212,6 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
 <<
 
 .cpp{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
-<<
-
-.cxx{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
-<<
-
-.c{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
-<<
-
-.cpp{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
-<<
-
-.cxx{$(INTDIR)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $<
 <<

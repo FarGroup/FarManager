@@ -1,5 +1,6 @@
-#include <string.h>
-#include <memory.h>
+#define __NEW_H
+#include "headers.hpp"
+#pragma hdrstop
 
 // dest и src НЕ ДОЛЖНЫ пересекаться
 // maxlen - максимальное число символов, которое можно скопировать

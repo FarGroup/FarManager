@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.190 23.02.2002 $ */
+/* Revision: 1.191 27.02.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,10 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  27.02.2002 SVS
+    ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
+    + LIF_UPDATEKEEPUSERDATA - "не убивать юзердату при обновлении"
+    ! Ќебольша€ логическа€ перетасовка строк :-))
   23.02.2002 DJ
     ! выкинута константа LINFO_ALWAYSSCROLLBAR как не несуща€ полезной
       информации (она установлена дл€ _любого_ списка)
@@ -902,20 +906,22 @@ enum FarMessagesProc{
 #endif // END FAR_USE_INTERNALS
 };
 
-enum LISTITEMFLAGS {
-  LIF_SELECTED = 0x00010000UL,
-  LIF_CHECKED  = 0x00020000UL,
-  LIF_SEPARATOR= 0x00040000UL,
-  LIF_DISABLE  = 0x00080000UL,
-#ifdef FAR_USE_INTERNALS
-  LIF_GRAYED   = 0x00100000UL,
-#endif // END FAR_USE_INTERNALS
-};
-
 enum CHECKEDSTATE {
   BSTATE_UNCHECKED = 0,
   BSTATE_CHECKED   = 1,
   BSTATE_3STATE    = 2
+};
+
+
+enum LISTITEMFLAGS {
+  LIF_SELECTED           = 0x00010000UL,
+  LIF_CHECKED            = 0x00020000UL,
+  LIF_SEPARATOR          = 0x00040000UL,
+  LIF_DISABLE            = 0x00080000UL,
+#ifdef FAR_USE_INTERNALS
+  LIF_GRAYED             = 0x00100000UL,
+  LIF_UPDATEKEEPUSERDATA = 0x80000000UL,
+#endif // END FAR_USE_INTERNALS
 };
 
 struct FarListItem
@@ -923,12 +929,6 @@ struct FarListItem
   DWORD Flags;
   char  Text[128];
   DWORD Reserved[3];
-};
-
-struct FarList
-{
-  int ItemsNumber;
-  struct FarListItem *Items;
 };
 
 struct FarListUpdate
@@ -943,6 +943,12 @@ struct FarListInsert
   struct FarListItem Item;
 };
 
+struct FarListGetItem
+{
+  int ItemIndex;
+  struct FarListItem Item;
+};
+
 struct FarListPos
 {
   int SelectPos;
@@ -950,7 +956,7 @@ struct FarListPos
 };
 
 enum{
-  LIFIND_NOPATTERN = 0x00000001,
+  LIFIND_EXACTMATCH = 0x00000001,
 };
 
 struct FarListFind
@@ -965,12 +971,6 @@ struct FarListDelete
 {
   int StartIndex;
   int Count;
-};
-
-struct FarListGetItem
-{
-  int ItemIndex;
-  struct FarListItem Item;
 };
 
 enum {
@@ -1000,10 +1000,10 @@ struct FarListItemData
   DWORD Reserved;
 };
 
-struct FarDialogItemData
+struct FarList
 {
-  int   PtrLength;
-  char *PtrData;
+  int ItemsNumber;
+  struct FarListItem *Items;
 };
 
 struct FarListTitles
@@ -1051,6 +1051,11 @@ struct FarDialogItem
   ;
 };
 
+struct FarDialogItemData
+{
+  int   PtrLength;
+  char *PtrData;
+};
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 

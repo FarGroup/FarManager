@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.11 26.02.2002 $ */
+/* Revision: 1.12 27.02.2002 $ */
 
 /*
 Modify:
+  27.02.2002 SVS
+    ! кусок кода вынесен нафиг в cmem.cpp
   26.02.2002 SVS
     - Бага с RTL VC (теперь все нормально с V64 под MSVC!)
   22.02.2002 SVS
@@ -51,128 +53,6 @@ Modify:
 #pragma hdrstop
 #include "fn.hpp"
 #include "farconst.hpp"
-
-#if defined(__BORLANDC__)
-#ifdef ALLOC
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-typedef unsigned size_t;
-
-void *malloc(size_t size);
-void *realloc(void *block, size_t size);
-void *calloc(size_t nitems, size_t size);
-void free(void *block);
-
-#ifdef __cplusplus
-}
-#endif
-
-#define MEM_DELTA	4095
-
-static HANDLE FARHeapForNew=NULL;
-
-void *calloc(size_t nitems, size_t size)
-{
-  return realloc(NULL,size*nitems);
-}
-
-
-void *malloc(size_t size)
-{
-  return realloc(NULL,size);
-}
-
-
-void *realloc(void *block, size_t size)
-{
-  void *p=NULL;
-  int size2;
-
-  if(!FARHeapForNew) FARHeapForNew=GetProcessHeap();
-
-  if(FARHeapForNew)
-  {
-    if(!size)
-    {
-      if(block)
-        HeapFree(FARHeapForNew,0,block);
-    }
-    else if (!block) // В первый раз даем столько, сколько
-    {
-                     // просят. Что-бы небыло лишнего расхода при единичном вызове
-      p=HeapAlloc(FARHeapForNew,HEAP_ZERO_MEMORY, size);
-    }
-    else
-    {
-      p=block;
-      // Required size, alligned to MEM_DELTA
-      size  = (size + MEM_DELTA) & (~MEM_DELTA);
-      // Current allocated size
-      size2 = HeapSize(FARHeapForNew,0,block);
-      if (size  > size2 ||          // Запросили больше, чем реально выделено
-          size2 - size > MEM_DELTA) // Надо освободить блок размером с MEM_DELTA или больше
-      {
-        p=HeapReAlloc(FARHeapForNew,HEAP_ZERO_MEMORY,block,size);
-      }
-      // else
-      /*
-          Ничего. Память в хипе уже выделена в прошлый раз и мы не трогаем его.
-          А программа считает, что произошли изменения...
-      */
-    }
-  }
-  return p;
-}
-
-void free(void *block)
-{
- if(block!=NULL)
- {
-  if(!FARHeapForNew) FARHeapForNew=GetProcessHeap();
-  if(FARHeapForNew) HeapFree(FARHeapForNew,0,block);
- }
-}
-
-#ifdef CMEM_INCLUDE
-#include "cmem.cpp"
-#else //у _меня_ - работает, но тестировать еще надо...
-
-#if 1
-/*
-    ! Свершилось!!! Народ, rtfm - рулезЪ forever :-)))
-      Скачал я таки стандарт по C++:
-         ftp://ftp.ldz.lv/pub/doc/ansi_iso_iec_14882_1998.pdf (размер 2860601)
-      А там все черным по белому... Короче, переопределил я new/delete как надо
-      (если быть точным, то пару способов не осуществил, т.к. мы без исключений
-      работаем), в крайнем случае, фар у _меня_ больше не грохается! Кому
-      интересны подробности, смотрите в указанном стандарте параграф 18.4
-*/
-void *operator new(size_t size)
- {
-  extern new_handler _new_handler;
-  void *p=NULL;
-  size=size?size:1;
-  while((p=malloc(size))==NULL)
-   {
-    if(_new_handler!=NULL)_new_handler();
-    else break;
-   }
-  return p;
- }
-void *operator new[](size_t size) {return ::operator new(size);}
-void *operator new(size_t size, void *p) {return p;}
-void operator delete(void *p) {free(p);}
-void operator delete[](void *ptr) {::operator delete(ptr);}
-#endif
-
-#endif // CMEM_INCLUDE
-
-#endif // ALLOC
-#endif // defined(__BORLANDC__)
-
-
 
 /* $ 19.07.2000 SVS
   - Из-за различий в реализации функции getdisk в BC & VC

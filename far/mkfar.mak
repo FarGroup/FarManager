@@ -46,22 +46,29 @@ OBJPATH=OBJ
 .path.c   = .
 .path.exe = $(FINALPATH)
 
+
 !ifdef DEBUG
-OPTDEBUG=-v
+OPTDEBUG=-v -R -y
 OPTDEBUG2=
-CSMFILE=fard.csm
+CSMFILE=Far.csm
+OPTLINKDEBUG=-v
+# FAR_STDHDR_OBJ - это как раз тот файл, в котором все говно по DEBUG инфе из стд.хёдеров
+FAR_STDHDR_OBJ="$(OBJPATH)\Far.#00"
 !else
-OPTDEBUG=-v-
+OPTDEBUG=-v- -R- -y-
 OPTDEBUG2=-DNDEBUG
 CSMFILE=Far.csm
+OPTLINKDEBUG=-v-
+FAR_STDHDR_OBJ=
 !endif
 
 
 !ifdef PRECOMP
-PRECOMPOPT=-H=$(OBJPATH)\$(CSMFILE)
+PRECOMPOPT=-H -H=$(OBJPATH)\$(CSMFILE)
 !else
 PRECOMPOPT=-H-
 !endif
+
 
 #
 # Borland C++ tools
@@ -81,12 +88,9 @@ BRC32   = $(BCCPATH)\bin\Brc32
 #
 # Options
 #
-LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTDEBUG) -s -V4.0
+LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
 
-# а зачем дублировать опции тут и в bccw32.cfg?
-#CCFLAGS = -WC -WM -K -d -f- $(OPTDEBUG) -R- -k- -x- -RT -Og -Ot -Z -O -Oe -Ol -Ob -Om -Op -Ov -w-csu $(PRECOMPOPT) -I$(INCLUDEPATH)
-# SVS: надо! т.к. проблемы с длиной ком. строки под масдаем
-#      пока оставим пустой
+
 CCFLAGS =
 
 
@@ -189,7 +193,11 @@ FAROBJ=\
    $(OBJPATH)\xlat.obj\
    $(OBJPATH)\farexcpt.obj\
    $(OBJPATH)\strncpy.obj\
+   $(OBJPATH)\cmem.obj\
    $(OBJPATH)\main.obj
+
+
+
 
 # ************************************************************************
 ALL : BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
@@ -241,7 +249,7 @@ $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
   @settitle "Linking..."
   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
   @$(TLINK32)  $(LINKFLAGS) @&&|
-$(LIBPATH)\c0x32.obj $(FAROBJ)
+$(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 Far.def
@@ -252,7 +260,7 @@ $(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
   @settitle "Linking..."
   @if not exist $(FINALPATH) mkdir $(FINALPATH)
   @$(TLINK32)  $(LINKFLAGS) @&&|
-$(LIBPATH)\c0x32.obj $(FAROBJ)
+$(LIBPATH)\c0x32.obj $(FAROBJ) $(FAR_STDHDR_OBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 Far.def
@@ -282,6 +290,7 @@ Far.def
    @if exist fmt.hpp awk -f plugins.awk -v p1=1 -v p2=70 fmt.hpp > $(FARINCLUDE)\fmt.hpp
    @if exist fmt.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
 
+
 # Compiler configuration file
 # Для тех, у кого длина ком. строки ограничена
 BccW32.cfg : mkfar.mak cc.bat
@@ -291,7 +300,6 @@ BccW32.cfg : mkfar.mak cc.bat
 -K
 -d
 -f-
--R-
 -k-
 -RT
 -Og

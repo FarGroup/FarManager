@@ -5,10 +5,12 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.07 21.02.2002 $ */
+/* Revision: 1.08 27.02.2002 $ */
 
 /*
 Modify:
+  27.02.2002 SVS
+    ! переезд #include "mmsystem.h" в headers.hpp
   21.02.2002 SVS
     - некомпиляция под VC.
   21.02.2002 SVS
@@ -30,9 +32,9 @@ Modify:
   22.12.2000 SVS
     + Выделение в качестве самостоятельного модуля
 */
+#define __USE_MCI    1
 
 #include "headers.hpp"
-#include "mmsystem.h"
 #pragma hdrstop
 
 #include "plugin.hpp"
@@ -40,7 +42,6 @@ Modify:
 #include "lang.hpp"
 #include "global.hpp"
 
-#define __USE_MCI    1
 
 /* $ 14.12.2000 SVS
    Добавлен код для выполнения Eject съемных носителей для

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.214 26.02.2002 $ */
+/* Revision: 1.215 27.02.2002 $ */
 
 /*
 Modify:
+  27.02.2002 SVS
+    ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
   26.02.2002 SVS
     - BugZ#325 - FDLG_SMALLDIALOG не работает
   23.02.2002 DJ
@@ -4170,7 +4172,7 @@ int Dialog::SelectFromComboBox(
     // Выставим то, что есть в строке ввода!
     // if(EditLine->DropDownBox == 1) //???
     EditLine->GetString(Str,MaxLen);
-    ComboBox->SetSelectPos(ComboBox->FindItem(0,Str,LIFIND_NOPATTERN),1);
+    ComboBox->SetSelectPos(ComboBox->FindItem(0,Str,LIFIND_EXACTMATCH),1);
 
     ComboBox->Show();
 
@@ -4314,7 +4316,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
         break;
 
       // выставим селекшин
-      Dest=Opt.DlgSelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_NOPATTERN):-1;
+      Dest=Opt.DlgSelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_EXACTMATCH):-1;
       HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       /*$ 14.06.2001 OT */

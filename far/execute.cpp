@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.40 19.02.2002 $ */
+/* Revision: 1.41 26.02.2002 $ */
 
 /*
 Modify:
+  26.02.2002 SVS
+    ! "." и ".." по Shift-Enter рисуем AS IS, без модификации.
   19.02.2002 SVS
     ! В исполняторе юзаем только *ConsoleTitle, т.е. апишные...
   18.02.2002 SVS
@@ -829,7 +831,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       SHELLEXECUTEINFO si;
       OemToChar(CmdPtr,AnsiLine);
 
-      if (PointToName(AnsiLine)==AnsiLine)
+      if (PointToName(AnsiLine)==AnsiLine && strcmp(AnsiLine,".") && strcmp(AnsiLine,".."))
       {
         char FullName[4096];
         sprintf(FullName,".\\%s",AnsiLine);

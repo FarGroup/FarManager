@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.77 23.02.2002 $ */
+/* Revision: 1.78 27.02.2002 $ */
 
 /*
 Modify:
+  27.02.2002 SVS
+    + LIF_UPDATEKEEPUSERDATA - "не убивать юзердату при обновлении"
+    ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
   23.02.2002 DJ
     - не перерисовывалось меню после DM_LISTDELETE (NULL)
     ! Show() также использует флаг VMENU_LISTHASFOCUS
@@ -1381,7 +1384,7 @@ int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
     struct MenuItem MItem;
     // Освободим память... от ранее занятого ;-)
     struct MenuItem *PItem=Item+NewItem->Index;
-    if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
+    if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData && !(NewItem->Item.Flags&LIF_UPDATEKEEPUSERDATA))
       free(PItem->UserData);
 
     memcpy(PItem,FarList2MenuItem(&NewItem->Item,&MItem),sizeof(struct MenuItem));
@@ -1535,6 +1538,7 @@ struct MenuItem *VMenu::FarList2MenuItem(const struct FarListItem *FItem,
 //    MItem->AccelKey=FItem->AccelKey;
     strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name)-1);
     MItem->Flags&=~MIF_USETEXTPTR;
+    MItem->Flags&=~LIF_UPDATEKEEPUSERDATA;
     //VMenu::_SetUserData(MItem,FItem->UserData,FItem->UserDataSize); //???
     // А здесь надо вычислять AmpPos????
     return MItem;
@@ -1906,7 +1910,7 @@ int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)
       NamePtr=Item[I].PtrName();
       int LenNamePtr=strlen(NamePtr);
       memcpy(TmpBuf,NamePtr,Min((int)LenNamePtr+1,(int)sizeof(TmpBuf)));
-      if(Flags&LIFIND_NOPATTERN)
+      if(Flags&LIFIND_EXACTMATCH)
       {
         if(!LocalStrnicmp(RemoveChar(TmpBuf,'&'),Pattern,Max(LenPattern,LenNamePtr)))
           return I;

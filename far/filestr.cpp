@@ -5,10 +5,12 @@ filestr.cpp
 
 */
 
-/* Revision: 1.04 25.01.2002 $ */
+/* Revision: 1.05 26.02.2002 $ */
 
 /*
 Modify:
+  26.02.2002 SVS
+    ! Удалим тестовый кусок.
   25.01.2002 SVS
     + Задаваемый размер FBufSize для буферизации чтения.
       Явление возможно временное - тестеры покажут.
@@ -42,14 +44,6 @@ GetFileString::GetFileString(FILE *SrcFile)
   /* SVS $ */
   StrLength=1024;
   GetFileString::SrcFile=SrcFile;
-
-  // Внимание!
-  // Данный кусок для тестеров! после чего либо выкидываем,
-  // либо оставляем оптимал
-  int FBufSize;
-  if((FBufSize=GetRegKey("System","FBufSize",0)) != 0)
-    setvbuf(SrcFile,NULL,(GetRegKey("System","FBufMode",0)%3),FBufSize);
-  //
 
   ReadPos=ReadSize=0;
 }

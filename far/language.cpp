@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.17 25.01.2002 $ */
+/* Revision: 1.18 27.02.2002 $ */
 
 /*
 Modify:
+  27.02.2002 SVS
+    ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
   25.01.2002 SVS
     ! Обрежим пробелы и слева и справа при чтении из LNG-файла
   24.12.2001 SVS
@@ -370,7 +372,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
             Если в каталог с ФАРом положить еще один HLF с одноименным
             языком, то... фигня получается при выборе языка.
          */
-         if(LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_NOPATTERN) == -1)
+         if(LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_EXACTMATCH) == -1)
          {
            LangMenuItem.SetSelect(LocalStricmp(Dest,LangName)==0);
            LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
