@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.55 04.12.2000 $ */
+/* Revision: 1.56 04.12.2000 $ */
 
 /*
 Modify:
+  04.12.2000 SVS
+   - перебор с DIF_NOFOCUS :-(
+   - При удаление в предыдущем патче - прихватил нужную строку :-(
+   ! Для DI_USERCONTROL - для копирования Data используется memmove()
   04.12.2000 SVS
    ! Проблемы с фокусом ввода:
      "Ctrl-A Alt-N Enter - фокус ввода не устанавливался в поле даты."
@@ -2110,27 +2114,19 @@ int Dialog::ProcessKey(int Key)
              ((Item[FocusPos].Flags & DIF_HISTORY) || Type == DI_COMBOBOX)
             )
           {
-            /* $ 01.08.2000 SVS
-               Небольшой глючек с AutoComplete
-            */
-            int CurPos=edt->GetCurPos();
-            /* SVS $*/
             /* $ 03.12.2000 IS
                Флаг для указания - автодополнять или нет.
             */
             int DoAutoComplete=TRUE;
             /* IS $*/
+            /* $ 01.08.2000 SVS
+               Небольшой глючек с AutoComplete
+            */
+            int CurPos=edt->GetCurPos();
+            /* SVS $*/
             //text to search for
             edt->GetString(Str,sizeof(Str));
-            edt->GetSelection(SelStart,SelEnd);
-            /* $ 03.12.2000 IS
-              Тут баг был, imho. Нужно именно "<", а не "<=".
-            */
-            if(SelStart < 0)
-            /* IS $ */
-              SelStart=sizeof(Str);
-            else
-              SelStart++;
+
 
             /* $ 03.12.2000 IS
                Не автодополнять, если после курсора есть невыделенные символы.
@@ -2138,20 +2134,39 @@ int Dialog::ProcessKey(int Key)
             */
             if(Opt.EditorPersistentBlocks)
             {
+              /* $ 03.12.2000 IS
+                Тут баг был, imho. Нужно именно "<", а не "<=".
+              */
+              /* $ 04.12.2000 SVS
+                 Этот кусок только для персистентных блоков
+              */
+              edt->GetSelection(SelStart,SelEnd);
+              if(SelStart < 0)
+              /* IS $ */
+                SelStart=sizeof(Str);
+              else
+                SelStart++;
+              /* SVS $ */
+//SysLog("\n0) Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
               if(SelStart<SelEnd && (CurPos<SelStart || SelEnd<strlen(Str)))
                  DoAutoComplete=FALSE;
 
               // удалим остаток строки
               if(DoAutoComplete && CurPos <= SelEnd)
               {
+//SysLog("1) Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
                 Str[CurPos]=0;
                 edt->Select(CurPos,sizeof(Str)); //select the appropriate text
                 edt->DeleteBlock();
                 edt->FastShow();
+//SysLog("2) Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
               }
             }
             /* IS $ */
 
+            SelEnd=strlen(Str);
+
+            //find the string in the list
             /* $ 03.12.2000 IS
                  Учитываем флаг DoAutoComplete
             */
@@ -2159,8 +2174,10 @@ int Dialog::ProcessKey(int Key)
                          (void *)Item[FocusPos].Selected,Str))
             /* IS $ */
             {
+//SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos);
               edt->SetString(Str);
               edt->Select(SelEnd,sizeof(Str)); //select the appropriate text
+              //edt->Select(CurPos,sizeof(Str)); //select the appropriate text
               /* $ 01.08.2000 SVS
                  Небольшой глючек с AutoComplete
               */
@@ -2241,7 +2258,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       /* $ 04.12.2000 SVS
          Исключаем из списка оповещаемых о мыши недоступные элементы
       */
-      if(Item[I].Flags&(DIF_DISABLE|DIF_NOFOCUS))
+      if(Item[I].Flags&DIF_DISABLE)
         continue;
       /* SVS $ */
       int IX1=Item[I].X1+X1,
@@ -2288,7 +2305,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         /* $ 04.12.2000 SVS
            Исключаем из списка оповещаемых о мыши недоступные элементы
         */
-        if(Item[I].Flags&(DIF_DISABLE|DIF_NOFOCUS))
+        if(Item[I].Flags&DIF_DISABLE)
           continue;
         /* SVS $ */
         Type=Item[I].Type;
@@ -2645,7 +2662,14 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->Selected=Data->Selected;
       Item->Flags=Data->Flags;
       Item->DefaultButton=Data->DefaultButton;
-      strcpy(Item->Data,Data->Data);
+      /* $ 04.12.2000 SVS
+         У DI_USERCONTROL могут в Data быть бинарные данные
+      */
+      if(Data->Type == DI_USERCONTROL)
+        memmove(Item->Data,Data->Data,512);
+      else
+        strcpy(Item->Data,Data->Data);
+      /* SVS $ */
     }
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
@@ -2659,7 +2683,14 @@ void Dialog::ConvertItem(int FromPlugin,
       Data->Selected=Item->Selected;
       Data->Flags=Item->Flags;
       Data->DefaultButton=Item->DefaultButton;
-      strcpy(Data->Data,Item->Data);
+      /* $ 04.12.2000 SVS
+         У DI_USERCONTROL могут в Data быть бинарные данные
+      */
+      if(Item->Type == DI_USERCONTROL)
+        memmove(Data->Data,Item->Data,512);
+      else
+        strcpy(Data->Data,Item->Data);
+      /* SVS $ */
     }
 }
 /* SVS $ */
@@ -2765,6 +2796,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
     /* $ 28.07.2000 SVS
        Введенные буковки не затрагиваем, а дополняем недостающее.
     */
+//SysLog("FindInEditForAC()  FindStr=%s Str=%s",FindStr,&Str[strlen(FindStr)]);
     strcat(FindStr,&Str[strlen(FindStr)]);
     /* SVS $ */
   }
