@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.74 29.10.2001 $ */
+/* Revision: 1.75 30.10.2001 $ */
 
 /*
 Modify:
+  30.10.2001 SVS
+    + Opt.CPAJHefuayor
   29.10.2001 IS
     ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
   26.10.2001 KM
@@ -673,6 +675,9 @@ struct Options
   int HelpTabSize;
   int DlgSelectFromHistory;
   int FindFolders;
+
+  int CPAJHefuayor; // производное от "Close Plugin And Jump:
+                  // Highly experimental feature, use at your own risk"
 
   char DateFormat[80]; // Для $Date
   struct PoliciesOptions Policies;

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.155 29.10.2001 $ */
+/* Revision: 1.156 30.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  30.10.2001 SVS
+    ! FarListUpdate.Items -> FarListUpdate.Item
+    ! WTYPE_VIRTUAL - частна€ собственность
   29.10.2001 IS
     + ESPT_SAVEFILEPOSITION
   23.10.2001 SVS
@@ -909,7 +912,7 @@ struct FarList
 struct FarListUpdate
 {
   int Index;
-  struct FarListItem *Items;
+  struct FarListItem *Item;
 };
 
 struct FarListInsert
@@ -1291,8 +1294,10 @@ struct KeySequence{
 };
 
 enum {
+#ifdef FAR_USE_INTERNALS
   WTYPE_VIRTUAL,
-  WTYPE_PANELS,
+#endif // END FAR_USE_INTERNALS
+  WTYPE_PANELS=1,
   WTYPE_VIEWER,
   WTYPE_EDITOR,
   WTYPE_DIALOG,

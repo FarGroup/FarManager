@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.61 13.10.2001 $ */
+/* Revision: 1.62 30.10.2001 $ */
 
 /*
 Modify:
+  30.10.2001 SVS
+    - Ошибка инженерной мысли :-) в VMenu::FindItem() - забыли передать
+      флаги.
   13.10.2001 VVM
     ! Теперь меню не реагирует на отпускание клавиши мышки, если клавиша была нажата не в меню.
   12.10.2001 VVM
@@ -1633,7 +1636,7 @@ void VMenu::SortItems(int Direction)
 // return Pos || -1
 int VMenu::FindItem(const struct FarListFind *FItem)
 {
-  return FindItem(FItem->StartIndex,FItem->Pattern);
+  return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
 
 int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)

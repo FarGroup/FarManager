@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.66 29.10.2001 $ */
+/* Revision: 1.67 30.10.2001 $ */
 
 /*
 Modify:
+  30.10.2001 SVS
+    + HEFUAYOR: если плагин закрывается и передает в качестве каталога нечто,
+      связанное с префиксами, то... выполним эти префиксы. Фича опциональная
+      и по умолчанию пока отрублена
   29.10.2001 SVS
     ! уточнение Panel::SetCurPath()
   24.10.2001 SVS
@@ -1371,6 +1375,8 @@ void Panel::SetPluginCommand(int Command,void *Param)
       break;
     case FCTL_CLOSEPLUGIN:
       strcpy((char *)PluginParam,NullToEmpty((char *)Param));
+      if(Opt.CPAJHefuayor)
+        CtrlObject->Plugins.ProcessCommandLine((char *)PluginParam);
       break;
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
