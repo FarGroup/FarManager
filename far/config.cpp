@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.52 26.02.2001 $ */
+/* Revision: 1.53 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 IS
+    - Недочет в EditorConfig
   26.02.2001 VVM
     + Opt.ExceptCallDebugger
   21.02.2001 IS
@@ -656,7 +658,7 @@ void EditorConfig(struct EditorOptions &EdOpt)
   CfgDlg[2].Selected=Opt.UseExternalEditor;
   CfgDlg[3].Selected=!Opt.UseExternalEditor;
   strcpy(CfgDlg[5].Data,Opt.ExternalEditor);
-  CfgDlg[7].Selected=Opt.EdOpt.ExpandTabs;
+  CfgDlg[7].Selected=EdOpt.ExpandTabs;
   CfgDlg[8].Selected=EdOpt.PersistentBlocks;
   CfgDlg[9].Selected=EdOpt.DelRemovesBlocks;
   CfgDlg[10].Selected=EdOpt.AutoIndent;
@@ -689,7 +691,7 @@ void EditorConfig(struct EditorOptions &EdOpt)
 
   Opt.UseExternalEditor=CfgDlg[2].Selected;
   strcpy(Opt.ExternalEditor,CfgDlg[5].Data);
-  Opt.EdOpt.ExpandTabs=CfgDlg[7].Selected;
+  EdOpt.ExpandTabs=CfgDlg[7].Selected;
   EdOpt.PersistentBlocks=CfgDlg[8].Selected;
   EdOpt.DelRemovesBlocks=CfgDlg[9].Selected;
   EdOpt.AutoIndent=CfgDlg[10].Selected;

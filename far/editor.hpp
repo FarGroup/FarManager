@@ -9,10 +9,17 @@ editor.hpp
 
 */
 
-/* Revision: 1.13 15.02.2001 $ */
+/* Revision: 1.14 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 IS
+    ! Часть самостоятельных переменных заменено соответствующими из
+      EditorOptions. Надо было это сразу сделать, да я что-то стормозил :)
+    + SetAutoIndent/GetAutoIndent
+      SetAutoDetectTable/GetAutoDetectTable
+      SetCursorBeyondEOL/GetCursorBeyondEOL
+      SetBSLikeDel/GetBSLikeDel
   15.02.2001 IS
     + Локальные переменные, в которых запоминается то, что храниться в
       настройках редактора:
@@ -85,23 +92,11 @@ class Editor:public ScreenObject
     */
     char AttrStr[4];
     /* IS $ */
-    /* $ 14.02.2001 IS
+    /* $ 26.02.2001 IS
          Сюда запомним размер табуляции и в дальнейшем будем использовать его,
          а не Opt.TabSize
     */
-    int TabSize;
-    /* IS $ */
-    /* $ 15.02.2001 IS
-         Сюда запомним состояние режима "Пробелы вместо табуляции"
-         и в дальнейшем будем использовать его, а не Opt.EditorExpandTabs
-    */
-    int ConvertTabs;
-    /* IS $ */
-    /* $ 15.02.2001 IS
-         Различные опции из настроек редактора теперь запоминаются локально
-    */
-    int DelRemovesBlocks;
-    int PersistentBlocks;
+    struct EditorOptions EdOpt;
     /* IS $ */
     int WasChanged;
     int Overtype;
@@ -234,26 +229,32 @@ class Editor:public ScreenObject
     static int IsShiftKey(int Key);
     static void SetReplaceMode(int Mode);
 
-    /* $ 14.02.2001 IS
-         Функции чтения/установления размера табуляции
-    */
-    void SetTabSize(int NewSize);
-    int  GetTabSize(void) {return TabSize; }
-    /* IS $ */
-    /* $ 15.02.2001 IS
-         Функции чтения/установления режима ConvertTabs.
-    */
-    void SetConvertTabs(int NewMode);
-    int  GetConvertTabs(void) {return ConvertTabs; }
-    /* IS $ */
-    /* $ 15.02.2001 IS
+    /* $ 26.02.2001 IS
          Функции чтения/установления текущих настроек редактирования
     */
+    void SetTabSize(int NewSize);
+    int  GetTabSize(void) const {return EdOpt.TabSize; }
+
+    void SetConvertTabs(int NewMode);
+    int  GetConvertTabs(void) const {return EdOpt.ExpandTabs; }
+
     void SetDelRemovesBlocks(int NewMode);
-    int  GetDelRemovesBlocks(void) {return DelRemovesBlocks; }
+    int  GetDelRemovesBlocks(void) const {return EdOpt.DelRemovesBlocks; }
 
     void SetPersistentBlocks(int NewMode);
-    int  GetPersistentBlocks(void) {return PersistentBlocks; }
+    int  GetPersistentBlocks(void) const {return EdOpt.PersistentBlocks; }
+
+    void SetAutoIndent(int NewMode) { EdOpt.AutoIndent=NewMode; }
+    int  GetAutoIndent(void) const {return EdOpt.AutoIndent; }
+
+    void SetAutoDetectTable(int NewMode) { EdOpt.AutoDetectTable=NewMode; }
+    int  GetAutoDetectTable(void) const {return EdOpt.AutoDetectTable; }
+
+    void SetCursorBeyondEOL(int NewMode);
+    int  GetCursorBeyondEOL(void) const {return EdOpt.CursorBeyondEOL; }
+
+    void SetBSLikeDel(int NewMode) { EdOpt.BSLikeDel=NewMode; }
+    int  GetBSLikeDel(void) const {return EdOpt.BSLikeDel; }
     /* IS $ */
 
     /* $ tran 14.07.2000

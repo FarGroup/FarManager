@@ -5,10 +5,15 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.21 21.02.2001 $ */
+/* Revision: 1.22 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 IS
+    + В прошлый раз я не все доделал :(
+      Теперь на самом деле большинство переменных, редактируемых в редакторе по
+      alt-shift-f9, локальные, кроме настроек внешнего редактора и опций
+      "Сохранять позицию файла", "Сохранять закладки"
   21.02.2001 IS
     + При обработке alt-shift-f9 работаем с локальными переменными
   15.02.2001 IS
@@ -446,21 +451,31 @@ int FileEditor::ProcessKey(int Key)
        Вызов диалога настроек (с подачи IS)
     */
     case KEY_ALTSHIFTF9:
-      /* $ 21.02.2001 IS
+      /* $ 26.02.2001 IS
            Работа с локальной копией EditorOptions
       */
       struct EditorOptions EdOpt;
-      memcpy(&EdOpt, &Opt.EdOpt, sizeof(EditorOptions));
-      EdOpt.DelRemovesBlocks=FEdit.GetDelRemovesBlocks();
-      EdOpt.PersistentBlocks=FEdit.GetPersistentBlocks();
+
       EdOpt.TabSize=FEdit.GetTabSize();
       EdOpt.ExpandTabs=FEdit.GetConvertTabs();
+      EdOpt.PersistentBlocks=FEdit.GetPersistentBlocks();
+      EdOpt.DelRemovesBlocks=FEdit.GetDelRemovesBlocks();
+      EdOpt.AutoIndent=FEdit.GetAutoIndent();
+      EdOpt.AutoDetectTable=FEdit.GetAutoDetectTable();
+      EdOpt.CursorBeyondEOL=FEdit.GetCursorBeyondEOL();
+      //EdOpt.BSLikeDel=FEdit.GetBSLikeDel();
+
       EditorConfig(EdOpt);
       EditKeyBar.Show(); //???? Нужно ли????
+
       FEdit.SetTabSize(EdOpt.TabSize);
       FEdit.SetConvertTabs(EdOpt.ExpandTabs);
-      FEdit.SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
       FEdit.SetPersistentBlocks(EdOpt.PersistentBlocks);
+      FEdit.SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
+      FEdit.SetAutoIndent(EdOpt.AutoIndent);
+      FEdit.SetAutoDetectTable(EdOpt.AutoDetectTable);
+      FEdit.SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
+      //FEdit.SetBSLikeDel(EdOpt.BSLikeDel);
       /* IS $ */
       FEdit.Show();
       return TRUE;
