@@ -5,10 +5,14 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.19 11.02.2002 $ */
+/* Revision: 1.20 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    - Добавлен VMENU_NOTCHANGE, который предотвращает скачки
+      меню по экрану при AltF9 в диалоге редактирования цветов.
+      Убран SaveScreen.
   11.02.2002 SVS
     + Добавка в меню - акселератор - решение BugZ#299
   07.08.2001 SVS
@@ -302,14 +306,19 @@ void SetColors()
     int GroupsCode;
     VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,sizeof(Groups)/sizeof(Groups[0]),0);
     MenuToRedraw1=&GroupsMenu;
-    GroupsMenu.SetPosition(2,1,0,0);
-    /* $ 16.06.2001 KM
-       ! Добавление WRAPMODE в меню.
-    */
-    GroupsMenu.SetFlags(VMENU_WRAPMODE);
-    /* KM $ */
     while (1)
     {
+      GroupsMenu.SetPosition(2,1,0,0);
+      /* $ 16.06.2001 KM
+         ! Добавление WRAPMODE в меню.
+      */
+      /* $ 13.04.2002 KM
+        - Добавлен VMENU_NOTCHANGE, который предотвращает скачки
+          меню по экрану при AltF9 в диалоге редактирования цветов.
+      */
+      GroupsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
+      /* KM $ */
+      /* KM $ */
       GroupsMenu.ClearDone();
       GroupsMenu.Process();
       if ((GroupsCode=GroupsMenu.Modal::GetExitCode())<0)
@@ -377,6 +386,12 @@ void SetItemColors(struct MenuData *Items,int *PaletteItems,int Size)
   while (1)
   {
     ItemsMenu.SetPosition(17,5,0,0);
+    /* $ 09.04.2002 KM
+      - Добавлен VMENU_NOTCHANGE, который предотвращает скачки
+        меню по экрану при AltF9 в диалоге редактирования цветов.
+    */
+    ItemsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
+    /* KM $ */
     ItemsMenu.ClearDone();
     ItemsMenu.Process();
     if ((ItemsCode=ItemsMenu.Modal::GetExitCode())<0)
@@ -520,7 +535,7 @@ int GetColorDialog(unsigned int &Color)
     /* $ 18.05.2001 DJ
        обработка установки цвета вынесена в функцию-обработчик диалога
     */
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
     Dialog Dlg(ColorDlg,sizeof(ColorDlg)/sizeof(ColorDlg[0]), GetColorDlgProc, (long) &CurColor);
     Dlg.SetPosition(37,2,75,16);
     Dlg.Process();

@@ -5,10 +5,15 @@ manager.cpp
 
 */
 
-/* Revision: 1.68 07.04.2002 $ */
+/* Revision: 1.69 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    - Устранён важный момент неперерисовки, когда один
+      над другим находится несколько объектов VMenu. Пример:
+      настройка цветов. Теперь AltF9 в диалоге настройки
+      цветов корректно перерисовывает меню.
   07.04.2002 KM
     - Надо бы ещё и прорефрешить меню, находящееся над диалогом,
       иначе при активации ещё одного диалога поверх меню, с
@@ -614,6 +619,19 @@ void Manager::RefreshFrame(Frame *Refreshed)
   } else {
     RefreshedFrame=CurrentFrame;
   }
+  /* $ 13.04.2002 KM
+    - Вызываем принудительный Commit() для фрейма имеющего члена
+      NextModal, это означает что активным сейчас является
+      VMenu, а значит Commit() сам не будет вызван после возврата
+      из функции.
+      Устраняет ещё один момент неперерисовки, когда один над
+      другим находится несколько объектов VMenu. Пример:
+      настройка цветов. Теперь AltF9 в диалоге настройки
+      цветов корректно перерисовывает меню.
+  */
+  if (RefreshedFrame && RefreshedFrame->NextModal)
+    Commit();
+  /* KM $ */
 }
 
 void Manager::RefreshFrame(int Index)
@@ -725,6 +743,11 @@ int  Manager::ProcessKey(int Key)
         for (i=0;i<ModalStackCount;i++)
         {
           ModalStack[i]->ResizeConsole();
+          /* $ 13.04.2002 KM
+            - А теперь проресайзим все NextModal...
+          */
+          ResizeAllModal(ModalStack[i]);
+          /* KM $ */
         }
         ImmediateHide();
         FrameManager->RefreshFrame();
@@ -1119,18 +1142,6 @@ void Manager::RefreshCommit()
     if (!IsRedrawFramesInProcess)
       RefreshedFrame->ShowConsoleTitle();
     RefreshedFrame->Refresh();
-    /* $ 07.04.2002 KM
-      - Надо бы ещё и прорефрешить меню, находящееся
-        над диалогом, иначе при активации диалога над меню
-        и удалении его, меню перемещалось под первый
-        диалог (точнее первый диалог рисовался поверх меню).
-    */
-    if (RefreshedFrame && RefreshedFrame->NextModal)
-    {
-      RefreshFrame(RefreshedFrame->NextModal);
-      Commit();
-    }
-    /* KM $ */
     if (!RefreshedFrame)
       return;
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
@@ -1256,3 +1267,18 @@ BOOL Manager::ifDoubleInstance()
   }
   return TRUE;
 }
+
+/*  Вызов ResizeConsole для всех NextModal у
+    модального фрейма. KM
+*/
+void Manager::ResizeAllModal(Frame *ModalFrame)
+{
+  if (!ModalFrame->NextModal)
+    return;
+  Frame *iModal=ModalFrame->NextModal;
+  while (iModal) {
+    iModal->ResizeConsole();
+    iModal=iModal->NextModal;
+  }
+}
+/* KM $ */

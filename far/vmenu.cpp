@@ -8,10 +8,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.81 02.04.2002 $ */
+/* Revision: 1.82 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    - Добавим проверку на существование буфера сохранения,
+      т.к. ResizeConsole вызывается теперь для всех экземпляров
+      VMenu при AltF9.
   02.04.2002 SVS
     - BugZ#416 - Listbox with DIF_LISTNOBOX does not work correctly
   18.03.2002 SVS
@@ -870,7 +874,7 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
   int I;
   struct MenuItem *CurItem;
 
-  if(VMFlags.Check(VMENU_LISTBOX)) // не забудем сбросить EndLoop для листбокса, 
+  if(VMFlags.Check(VMENU_LISTBOX)) // не забудем сбросить EndLoop для листбокса,
     EndLoop=FALSE;                 // иначе не будут работать хоткеи в активном списке
 
   for (CurItem=Item,I=0; I < ItemCount; I++, ++CurItem)
@@ -1997,9 +2001,18 @@ void VMenu::Process()
 
 void VMenu::ResizeConsole()
 {
-  SaveScr->Discard();
-  delete SaveScr;
-  SaveScr=NULL;
+  /* $ 13.04.2002 KM
+    - Добавим проверку на существование буфера сохранения,
+      т.к. ResizeConsole вызывается теперь для всех экземпляров
+      VMenu при AltF9.
+  */
+  if (SaveScr)
+  {
+    SaveScr->Discard();
+    delete SaveScr;
+    SaveScr=NULL;
+  }
+  /* KM $ */
   if (this->CheckFlags(VMENU_NOTCHANGE))
   {
     return;

@@ -5,10 +5,17 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.18 08.10.2001 $ */
+/* Revision: 1.19 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    - Изменения в ResizeConsole() для корректной отрисовки
+      нескольких экземпляров меню друг над другом.
+    ! В OnChangeFocus убрана проверка на Visible объекта,
+      т.к. в момент её вызова Visible кажется всегда был
+      false, в связи с чем не происходила перерисовка всех
+      фреймов вместе с меню.
   04.10.2001 OT
     Отмена 956 патча
   30.07.2001 OT
@@ -100,9 +107,15 @@ void Frame::OnChangeFocus (int focus)
     Show();
     Frame *iModal=NextModal;
     while (iModal) {
-      if (!iModal->IsVisible()){
-        break;
-      }
+    /* $ 13.04.2002 KM
+      ! Скорее всего здесь эта проверка на Visible не нужна,
+        поскольку она мешала перерисовке фрейма с активным
+        меню над ним.
+    */
+//      if (!iModal->IsVisible()){
+//        break;
+//      }
+      /* KM $ */
       iModal->Show();
       iModal=iModal->NextModal;
     }
@@ -237,12 +250,12 @@ bool Frame::RemoveModal(Frame *aFrame)
   }
 }
 
+/* $ 13.04.2002 KM */
 void Frame::ResizeConsole()
 {
-  if (NextModal){
-    NextModal->ResizeConsole();
-  }
+  FrameManager->ResizeAllModal(this);
 }
+/* KM $ */
 
 bool Frame::HasSaveScreen()
 {

@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.108 09.04.2002 $ */
+/* Revision: 1.109 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    ! Предыдущй патч не работал. Баг№445 был изничтожен ещё
+      в 1347 патче.
   09.04.2002 SVS
     - BugZ#445 - Перетаскивание диалога поиска порождает мусор
   07.04.2002 KM
@@ -587,13 +590,11 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
         IsRedrawFramesInProcess--;
 
-        Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
-          PrepareDriveNameStr(SearchFromRoot,sizeof(SearchFromRoot));
-          ItemData.PtrLength=strlen(SearchFromRoot);
-          ItemData.PtrData=SearchFromRoot;
-          Dialog::SendDlgMessage(hDlg,DM_SETTEXT,18,(long)&ItemData);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,(ActivePanel->GetMode()==PLUGIN_PANEL)?FALSE:TRUE);
-        Dialog::SendDlgMessage(hDlg,DM_SHOWDIALOG,TRUE,0);
+        PrepareDriveNameStr(SearchFromRoot,sizeof(SearchFromRoot));
+        ItemData.PtrLength=strlen(SearchFromRoot);
+        ItemData.PtrData=SearchFromRoot;
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXT,18,(long)&ItemData);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,(ActivePanel->GetMode()==PLUGIN_PANEL)?FALSE:TRUE);
       }
       else if (Param1==18)
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,TRUE);

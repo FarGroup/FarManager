@@ -7,10 +7,13 @@ manager.hpp
 
 */
 
-/* Revision: 1.27 07.04.2002 $ */
+/* Revision: 1.28 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    ! ResizeAllModal - для вызова ResizeConsole для всех
+      NextModal у модального фрейма.
   07.04.2002 KM
     ! RedraFramesInProcess -> IsRedrawFramesInProcess
       перемещён в global.cpp
@@ -225,6 +228,12 @@ class Manager
 
 /* $ Введена для нужд CtrlAltShift OT */
     void ImmediateHide();
+    /* $ 13.04.2002 KM
+      Для вызова ResizeConsole для всех NextModal у
+      модального фрейма.
+    */
+    void ResizeAllModal(Frame *ModalFrame);
+    /* KM $ */
     Frame *GetBottomFrame() { return (*this)[FramePos]; }
 
     BOOL ManagerIsDown() {return EndLoop;}

@@ -11,10 +11,15 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.37 21.02.2002 $ */
+/* Revision: 1.38 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    - ??? я не пон€л зачем в классе свой член SaveScr,
+      если в ScreenObj он уже есть. »спользу€ SaveScr из
+      ScreenObj удалось избавитьс€ от неперерисовок при
+      ресайзинге консоли.
   21.02.2002 DJ
     ! корректна€ отрисовка списков, имеющих рамку, но не имеющих фокуса
     + функци€ корректировки текущей позиции в меню
@@ -183,7 +188,7 @@ enum{
 /* $ 21.02.2002 DJ
    меню €вл€етс€ списком в диалоге и имеет фокус
 */
-#define VMENU_LISTHASFOCUS          0x00200000   
+#define VMENU_LISTHASFOCUS          0x00200000
 /* DJ $ */
 
 class Dialog;
@@ -292,7 +297,12 @@ class VMenu: virtual public Modal, virtual public Frame
     short RLen[2];	              // реальные размеры 2-х половин
 
   protected:
-    SaveScreen *SaveScr;
+    /* $ 13.04.2002 KM
+      - ??? я не пон€л зачем здесь свой член SaveScr,
+        если в ScreenObj уже есть этот член.
+    */
+//    SaveScreen *SaveScr;
+    /* KM $ */
     struct MenuItem *Item;
     int ItemCount;
     /* $ 28.07.2000 SVS

@@ -5,10 +5,14 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.41 08.04.2002 $ */
+/* Revision: 1.42 13.04.2002 $ */
 
 /*
 Modify:
+  13.04.2002 KM
+    ! ??? Я не понял зачем Redraw в OnChangeFocus, если
+      Redraw вызывается следом во Frame::OnChangeFocus и там
+      благополучно перерисовывает панели.
   08.04.2002 IS
     + При смене диска по Alt-(F1|F2) установим принудительно текущий каталог
       на активной панели, т.к. система не знает ничего о том, что у Фара две
@@ -919,7 +923,11 @@ void FilePanels::OnChangeFocus(int f)
     CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
     ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
     /* SKV$*/
-    Redraw();
+    /* $ 13.04.2002 KM
+      ! ??? Я не понял зачем здесь Redraw, если
+        Redraw вызывается следом во Frame::OnChangeFocus.
+//    Redraw();
+    /* KM $ */
     Frame::OnChangeFocus(1);
   }
 }
