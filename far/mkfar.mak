@@ -63,9 +63,9 @@ FAR_STDHDR_OBJ=
 
 
 !ifdef MACRODRIVE2
-MACROS=macro2.obj
+MACROS=$(OBJPATH)\macro2.obj
 !else
-MACROS=macro.obj
+MACROS=$(OBJPATH)\macro.obj
 !endif
 
 
@@ -164,7 +164,8 @@ FAROBJ=\
    $(OBJPATH)\language.obj\
    $(OBJPATH)\local.obj\
    $(OBJPATH)\lockscrn.obj\
-   $(OBJPATH)\$(MACROS)\
+   $(MACROS)\
+   $(OBJPATH)\syntax.obj\
    $(OBJPATH)\manager.obj\
    $(OBJPATH)\filefilter.obj\
    $(OBJPATH)\menubar.obj\

@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.33 26.05.2004 $ */
+/* Revision: 1.34 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    + добавки MACRODRIVE2
   26.05.2004 SVS
     ! MkTextSequence() - третий параметр - некомпиленный текст макроса
   15.12.2003 SVS
@@ -105,6 +107,9 @@ Modify:
     ! ¬ыделение в качестве самосто€тельного модул€
 */
 #include "farconst.hpp"
+#if defined(MACRODRIVE2)
+#include "syntax.hpp"
+#endif
 
 class Panel;
 
@@ -181,7 +186,11 @@ class KeyMacro
     BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags, BOOL IsPassivePanel);
     BOOL CheckAll(int CheckMode,DWORD CurFlags);
     void Sort(void);
+#if defined(MACRODRIVE2)
+    TVar FARPseudoVariable(DWORD Flags,DWORD Code);
+#else
     int  IfCondition(DWORD Key,DWORD Flags,DWORD Code);
+#endif
     DWORD GetOpCode(struct MacroRecord *MR,int PC);
     DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
 

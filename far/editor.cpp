@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.249 29.05.2004 $ */
+/* Revision: 1.250 15.06.2004 $ */
 
 /*
 Modify:
+  15.06.2004 SVS
+    - BugZ#1096 - shiftins в залоченном файле - двойное выделение.
   29.05.2004 SVS
     - BugZ#1048 - Сдвигается влево отображение в редакторе по CtrlShiftEnd
       Строку "CurLine->EditLine.ObjWidth=X2-X1;" нужно было ставить до
@@ -2416,6 +2418,8 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLP:
     case KEY_CTRLM:
     {
+      if (Flags.Check(FEDITOR_LOCKMODE))
+        return TRUE;
       if (BlockStart!=NULL || VBlockStart!=NULL)
       {
         int SelStart,SelEnd;
@@ -2458,6 +2462,8 @@ int Editor::ProcessKey(int Key)
     }
     case KEY_CTRLD:
     {
+      if (Flags.Check(FEDITOR_LOCKMODE))
+        return TRUE;
       Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       DeleteBlock();
       Show();
@@ -2467,6 +2473,8 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLV:
     case KEY_SHIFTINS: case KEY_SHIFTNUMPAD0:
     {
+      if (Flags.Check(FEDITOR_LOCKMODE))
+        return TRUE;
       /* $ 10.04.2001 SVS
          Забыли Pasting выставить :-(
       */

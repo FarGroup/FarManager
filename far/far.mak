@@ -49,63 +49,64 @@ INTDIR=$(OUTDIR)\obj
 !endif
 CODDIR=$(OUTDIR)\cod
 
-DEF_FILE= \
-	".\far.def"
+DEF_FILE=".\far.def"
+
+!ifdef MACRODRIVE2
+MACROS=$(INTDIR)\macro2.obj
+!else
+MACROS=$(INTDIR)\macro.obj
+!endif
+
 
 # —юды добавл€ть то, что должно быть в проекте, в смысле сорцы
 LINK32_OBJS= \
-	"$(INTDIR)\FileMasksProcessor.obj" \
-	"$(INTDIR)\FileMasksWithExclude.obj" \
 	"$(INTDIR)\CFileMask.obj" \
-	"$(INTDIR)\stddlg.obj" \
-	"$(INTDIR)\constitle.obj" \
-	"$(INTDIR)\frame.obj" \
-	"$(INTDIR)\RefreshFrameManager.obj" \
-	"$(INTDIR)\strmix.obj" \
-	"$(INTDIR)\flink.obj" \
-	"$(INTDIR)\cvtname.obj" \
-	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \
 	"$(INTDIR)\chgprior.obj" \
+	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\cmdline.obj" \
+	"$(INTDIR)\cmem.obj" \
 	"$(INTDIR)\config.obj" \
-	"$(INTDIR)\udlist.obj" \
+	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
-	"$(INTDIR)\delete.obj" \
-	"$(INTDIR)\farexcpt.obj" \
-	"$(INTDIR)\qsortex.obj" \
-	"$(INTDIR)\mktemp.obj" \
-	"$(INTDIR)\execute.obj" \
-	"$(INTDIR)\strncpy.obj" \
-	"$(INTDIR)\strdup.obj" \
-	"$(INTDIR)\new.obj" \
+	"$(INTDIR)\cvtname.obj" \
 	"$(INTDIR)\del.obj" \
+	"$(INTDIR)\delete.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
-	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\dlgedit.obj" \
-	"$(INTDIR)\farqueue.obj" \
+	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\editor.obj" \
+	"$(INTDIR)\eject.obj" \
+	"$(INTDIR)\execute.obj" \
+	"$(INTDIR)\farexcpt.obj" \
+	"$(INTDIR)\farqueue.obj" \
+	"$(INTDIR)\farrtl.obj" \
 	"$(INTDIR)\farwinapi.obj" \
 	"$(INTDIR)\ffolders.obj" \
+	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filefilter.obj" \
-	"$(INTDIR)\strftime.obj" \
 	"$(INTDIR)\filelist.obj" \
+	"$(INTDIR)\FileMasksProcessor.obj" \
+	"$(INTDIR)\FileMasksWithExclude.obj" \
+	"$(INTDIR)\fileowner.obj" \
+	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
-	"$(INTDIR)\fileowner.obj" \
-	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\filter.obj" \
 	"$(INTDIR)\findfile.obj" \
+	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\flmodes.obj" \
 	"$(INTDIR)\flplugin.obj" \
 	"$(INTDIR)\flshow.obj" \
 	"$(INTDIR)\flupdate.obj" \
+	"$(INTDIR)\fnparce.obj" \
 	"$(INTDIR)\foldtree.obj" \
+	"$(INTDIR)\frame.obj" \
 	"$(INTDIR)\gettable.obj" \
 	"$(INTDIR)\global.obj" \
 	"$(INTDIR)\grabber.obj" \
@@ -119,24 +120,21 @@ LINK32_OBJS= \
 	"$(INTDIR)\interf.obj" \
 	"$(INTDIR)\iswind.obj" \
 	"$(INTDIR)\keybar.obj" \
+	"$(INTDIR)\keyboard.obj" \
 	"$(INTDIR)\language.obj" \
 	"$(INTDIR)\local.obj" \
 	"$(INTDIR)\lockscrn.obj" \
-	"$(INTDIR)\macro.obj" \
+	"$(MACROS)" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
-	"$(INTDIR)\keyboard.obj" \
-	"$(INTDIR)\syslog.obj" \
-	"$(INTDIR)\fileattr.obj" \
-	"$(INTDIR)\clipboard.obj" \
-	"$(INTDIR)\eject.obj" \
-	"$(INTDIR)\xlat.obj" \
 	"$(INTDIR)\mix.obj" \
 	"$(INTDIR)\mkdir.obj" \
+	"$(INTDIR)\mktemp.obj" \
 	"$(INTDIR)\modal.obj" \
 	"$(INTDIR)\namelist.obj" \
+	"$(INTDIR)\new.obj" \
 	"$(INTDIR)\options.obj" \
 	"$(INTDIR)\palette.obj" \
 	"$(INTDIR)\panel.obj" \
@@ -146,8 +144,10 @@ LINK32_OBJS= \
 	"$(INTDIR)\plugins.obj" \
 	"$(INTDIR)\poscache.obj" \
 	"$(INTDIR)\print.obj" \
+	"$(INTDIR)\qsortex.obj" \
 	"$(INTDIR)\qview.obj" \
 	"$(INTDIR)\rdrwdsk.obj" \
+	"$(INTDIR)\RefreshFrameManager.obj" \
 	"$(INTDIR)\registry.obj" \
 	"$(INTDIR)\savefpos.obj" \
 	"$(INTDIR)\savescr.obj" \
@@ -157,13 +157,21 @@ LINK32_OBJS= \
 	"$(INTDIR)\scrsaver.obj" \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
+	"$(INTDIR)\stddlg.obj" \
+	"$(INTDIR)\strdup.obj" \
+	"$(INTDIR)\strftime.obj" \
+	"$(INTDIR)\strmix.obj" \
+	"$(INTDIR)\strncpy.obj" \
+	"$(INTDIR)\SYNTAX.obj" \
+	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\treelist.obj" \
+	"$(INTDIR)\udlist.obj" \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
-	"$(INTDIR)\farrtl.obj" \
-	"$(INTDIR)\cmem.obj" \
+	"$(INTDIR)\xlat.obj" \
 	"$(INTDIR)\far.res"
+
 
 LINK32_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib
 

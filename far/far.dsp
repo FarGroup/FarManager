@@ -560,6 +560,16 @@ SOURCE=.\cmdline.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RefreshFrameManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SYNTAX.CPP
+# End Source File
+# Begin Source File
+
+
+
 SOURCE=.\colors.hpp
 
 !IF  "$(CFG)" == "far - Win32 Release"

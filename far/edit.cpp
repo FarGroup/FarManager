@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.118 31.05.2004 $ */
+/* Revision: 1.119 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    + добавки MACRODRIVE2
   31.05.2004 SVS
     ! выкинем нафиг MCODE_OP_SENDKEY - ненужен
   29.05.2004 SVS
@@ -1870,6 +1872,20 @@ int Edit::ProcessCtrlQ(void)
 
 int Edit::ProcessInsDate(void)
 {
+#if defined(MACRODRIVE2)
+  const char *str = eStackAsString();
+  int SizeMacroText = 16+(*str ? 0 : strlen(Opt.DateFormat));
+  SizeMacroText*=4;
+  char *TStr=(char*)alloca(SizeMacroText);
+  if(!TStr)
+    return FALSE;
+
+  if(MkStrFTime(TStr,SizeMacroText,str))
+  {
+    InsertString(TStr);
+    return TRUE;
+  }
+#else
   int SizeMacroText=CtrlObject->Macro.GetPlainTextSize()+8;
   SizeMacroText+=8+(!SizeMacroText?strlen(Opt.DateFormat):0);
   SizeMacroText*=4;
@@ -1884,11 +1900,20 @@ int Edit::ProcessInsDate(void)
     InsertString(TStr);
     return TRUE;
   }
+#endif
   return FALSE;
 }
 
 int Edit::ProcessInsPlainText(void)
 {
+#if defined(MACRODRIVE2)
+  const char *str = eStackAsString();
+  if ( *str )
+  {
+    InsertString(str);
+    return TRUE;
+  }
+#else
   int SizeMacroText=CtrlObject->Macro.GetPlainTextSize();
   if(SizeMacroText)
   {
@@ -1901,6 +1926,7 @@ int Edit::ProcessInsPlainText(void)
     InsertString(TStr);
     return TRUE;
   }
+#endif
   return FALSE;
 }
 

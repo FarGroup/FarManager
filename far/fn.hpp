@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.207 14.06.2004 $ */
+/* Revision: 1.208 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    + добавки MACRODRIVE2
   14.06.2004 SVS
     + UnExpandEnvString() и PathUnExpandEnvStr().
   08.06.2004 SVS
@@ -1562,5 +1564,11 @@ BOOL RunGraber(void);
 
 BOOL ProcessOSAliases(char *Str,int SizeStr);
 int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCmdPar,int SizeNewCmdPar);
+
+#if defined(MACRODRIVE2)
+void initMacroVarTable(int global);
+void doneMacroVarTable(int global);
+const char *eStackAsString(void);
+#endif
 
 #endif  // __FARFUNC_HPP__

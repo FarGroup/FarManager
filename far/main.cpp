@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.74 01.03.2004 $ */
+/* Revision: 1.75 14.06.2004 $ */
 
 /*
 Modify:
+  14.06.2004 SVS
+    + добавки MACRODRIVE2
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -792,6 +794,10 @@ int _cdecl main(int Argc, char *Argv[])
   }
   /* IS $ */
 
+#if defined(MACRODRIVE2)
+  initMacroVarTable(0);
+  initMacroVarTable(1);
+#endif
 
   int Result;
   if(Opt.ExceptRules)
@@ -805,6 +811,11 @@ int _cdecl main(int Argc, char *Argv[])
   }
   else
     Result=MainProcess(EditName,ViewName,DestName[0],DestName[1],StartLine,StartChar,RegOpt);
+
+#if defined(MACRODRIVE2)
+  doneMacroVarTable(1);
+  doneMacroVarTable(0);
+#endif
 
   SetConsoleTitle(OldTitle);
   _OT(SysLog("[[[[[Exit of FAR]]]]]]]]]"));
