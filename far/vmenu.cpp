@@ -8,10 +8,17 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.116 27.05.2003 $ */
+/* Revision: 1.117 17.06.2003 $ */
 
 /*
 Modify:
+  17.06.2003
+   - Bug: теперь в плагинах заголовки на листах по€вл€ютс€ только на
+          пустых листах, а на листах с элементами - нет.
+   - Bug: при удалении из DI_LISTBOX после 1663 курсор скакал на поз.0
+          сделаем более правильное решение - вычислим "правильную" позицию
+   ! ¬место CallCount++ и CallCount-- применим InterlockedIncrement(&CallCount)
+     и InterlockedDecrement(&CallCount)
   27.05.2003 SVS
     + VMenu::DrawTitles() - кусок кода, прорисовывающий заголовки вынесен в
       эту функцию. Ёто бага про
@@ -554,7 +561,8 @@ void VMenu::Hide()
 {
   while (CallCount>0)
     Sleep(10);
-  CallCount++;
+
+  InterlockedIncrement(&CallCount);
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
   if(!VMFlags.Check(VMENU_LISTBOX) && SaveScr)
@@ -568,7 +576,7 @@ void VMenu::Hide()
 //  X2=-1;
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
-  CallCount--;
+  InterlockedDecrement(&CallCount);
 }
 
 
@@ -578,7 +586,7 @@ void VMenu::Show()
     return;
 //  while (CallCount>0)
 //    Sleep(10);
-  CallCount++;
+  InterlockedIncrement(&CallCount);
   /* $ 23.02.2002 DJ
      здесь тоже используем флаг LISTHASFOCUS
   */
@@ -662,7 +670,7 @@ void VMenu::Show()
       DisplayObject();
     }
   }
-  CallCount--;
+  InterlockedDecrement(&CallCount);
 }
 
 /* $ 28.07.2000 SVS
@@ -763,7 +771,7 @@ void VMenu::DrawTitles()
 */
 void VMenu::ShowMenu(int IsParent)
 {
-  CallCount++;
+  InterlockedIncrement(&CallCount);
 
 //_SVS(SysLog("VMenu::ShowMenu()"));
   char TmpStr[1024];
@@ -776,7 +784,7 @@ void VMenu::ShowMenu(int IsParent)
   {
     if(!(VMFlags.Check(VMENU_SHOWNOBOX) && Y2==Y1))
     {
-      CallCount--;
+      InterlockedDecrement(&CallCount);
       return;
     }
   }
@@ -810,11 +818,14 @@ void VMenu::ShowMenu(int IsParent)
   }
   /* DJ $ */
   /* KM $ */
-  if((!IsParent || !ItemCount) && VMFlags.Check(VMENU_LISTBOX))
+  if(VMFlags.Check(VMENU_LISTBOX))
   {
-    if(ItemCount)
-      BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
-    SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
+    if((!IsParent || !ItemCount))
+    {
+      if(ItemCount)
+        BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
+      SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
+    }
     if (BoxType!=NO_BOX)
       Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
     DrawTitles();
@@ -837,7 +848,7 @@ void VMenu::ShowMenu(int IsParent)
 
   if (ItemCount <= 0)
   {
-    CallCount--;
+    InterlockedDecrement(&CallCount);
     return;
   }
 
@@ -1018,7 +1029,7 @@ void VMenu::ShowMenu(int IsParent)
   /* 18.07.2000 SVS $ */
   /* SVS $ */
   /* tran $ */
-  CallCount--;
+  InterlockedDecrement(&CallCount);
 }
 /* 28.07.2000 SVS $ */
 
@@ -1076,7 +1087,7 @@ int VMenu::ProcessKey(int Key)
 
   while (CallCount>0)
     Sleep(10);
-  CallCount++;
+  InterlockedIncrement(&CallCount);
 
   if(!(Key&(KEY_MACRO_BASE|KEY_MACROSPEC_BASE)))
   {
@@ -1212,10 +1223,10 @@ int VMenu::ProcessKey(int Key)
             CheckKeyHiOrAcc(Key,1,TRUE);
         }
       }
-      CallCount--;
+      InterlockedDecrement(&CallCount);
       return(FALSE);
   }
-  CallCount--;
+  InterlockedDecrement(&CallCount);
   return(TRUE);
 }
 
@@ -1450,12 +1461,24 @@ int VMenu::DeleteItem(int ID,int Count)
 
   while (CallCount>0)
     Sleep(10);
-  CallCount++;
+  InterlockedIncrement(&CallCount);
 
+  int OldItemSelected=-1;
   for(I=0; I < ItemCount; ++I)
   {
+    if(Item[I].Flags & LIF_SELECTED)
+      OldItemSelected=I;
     Item [I].Flags&=~LIF_SELECTED;
   }
+
+  if(OldItemSelected >= ID)
+  {
+    if(ID+Count >= ItemCount)
+      OldItemSelected=ID-1;
+  }
+
+  if(OldItemSelected < 0)
+    OldItemSelected=0;
 
   // Ќадобно удалить данные, чтоб потери по пам€ти не были
   for(I=0; I < Count; ++I)
@@ -1500,20 +1523,23 @@ int VMenu::DeleteItem(int ID,int Count)
     VMFlags.Set(VMENU_UPDATEREQUIRED);
   }
 
-  SelectPos=SetSelectPos(0,1);
+  SelectPos=SetSelectPos(OldItemSelected,1);
   if(SelectPos > -1)
     Item[SelectPos].Flags|=LIF_SELECTED;
 
-  CallCount--;
+  InterlockedDecrement(&CallCount);
   return(ItemCount);
 }
 /* SVS $ */
 
 int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 {
+  if(!NewItem)
+    return -1; //???
+
   while (CallCount>0)
     Sleep(10);
-  CallCount++;
+  InterlockedIncrement(&CallCount);
 
   struct MenuItem *NewPtr;
   int Length;
@@ -1531,7 +1557,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     Item=NewPtr;
   }
 
-  // ≈сли < 0 - однозначно ставим в нудевую позицию, т.е добавка сверху
+  // ≈сли < 0 - однозначно ставим в нулевую позицию, т.е добавка сверху
   if(PosAdd < 0)
     PosAdd=0;
 
@@ -1591,7 +1617,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     AssignHighlights(VMFlags.Check(VMENU_REVERSEHIGHLIGHT));
 //  if(VMFlags.Check(VMENU_LISTBOXSORT))
 //    SortItems(0);
-  CallCount--;
+  InterlockedDecrement(&CallCount);
   return(ItemCount++);
 }
 
@@ -1621,8 +1647,10 @@ int VMenu::AddItem(const struct FarList *List)
   {
     struct MenuItem MItem;
     struct FarListItem *FItem=List->Items;
+//    InterlockedIncrement(&CallCount);
     for (int J=0; J < List->ItemsNumber; J++, ++FItem)
       AddItem(FarList2MenuItem(FItem,&MItem));
+//    InterlockedDecrement(&CallCount);
   }
   return ItemCount;
 }
@@ -1674,11 +1702,11 @@ int VMenu::GetUserDataSize(int Position)
     return(0);
   while (CallCount>0)
     Sleep(10);
-  CallCount++;
+  InterlockedIncrement(&CallCount);
 
   int DataSize=Item[GetPosition(Position)].UserDataSize;
 
-  CallCount--;
+  InterlockedDecrement(&CallCount);
   return(DataSize);
 }
 
@@ -2378,13 +2406,13 @@ int VMenu::SetUserData(void *Data,   // ƒанные
                        int Size,     // –азмер, если =0 то предполагаетс€, что в Data-строка
                        int Position) // номер итема
 {
-  if (ItemCount==0)
+  if (ItemCount==0 || Position < 0)
     return(0);
   while (CallCount>0)
     Sleep(10);
-  CallCount++;
+  InterlockedIncrement(&CallCount);
   int DataSize=VMenu::_SetUserData(Item+GetPosition(Position),Data,Size);
-  CallCount--;
+  InterlockedDecrement(&CallCount);
   return DataSize;
 }
 
@@ -2392,13 +2420,13 @@ int VMenu::SetUserData(void *Data,   // ƒанные
 void* VMenu::GetUserData(void *Data,int Size,int Position)
 {
   void *PtrData=NULL;
-  if (ItemCount)
+  if (ItemCount || Position < 0)
   {
     while (CallCount>0)
       Sleep(10);
-    CallCount++;
+    InterlockedIncrement(&CallCount);
     PtrData=VMenu::_GetUserData(Item+GetPosition(Position),Data,Size);
-    CallCount--;
+    InterlockedDecrement(&CallCount);
   }
   return(PtrData);
 }

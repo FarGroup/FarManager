@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.42 14.05.2003 $ */
+/* Revision: 1.43 17.06.2003 $ */
 
 /*
 Modify:
+  17.06.2003 SVS
+    + DN_DRAWDIALOGDONE
   14.05.2003 SVS
     + GetOpenPluginInfo_Dump()
   16.04.2003 SVS
@@ -1389,6 +1391,7 @@ const char *_DLGMSG_ToName(int Msg)
     DEF_MESSAGE(DM_ALLKEYMODE),         DEF_MESSAGE(DM_LISTGETDATASIZE),
     DEF_MESSAGE(DN_ACTIVATEAPP),
     DEF_MESSAGE(DM_GETSELECTION),       DEF_MESSAGE(DM_SETSELECTION),
+    DEF_MESSAGE(DN_DRAWDIALOGDONE),
   };
   int I;
 

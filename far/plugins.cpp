@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.141 06.06.2003 $ */
+/* Revision: 1.142 17.06.2003 $ */
 
 /*
 Modify:
+  17.06.2003 SVS
+    - отвалились относительные пути для /p
   06.06.2003 SVS
     ! переделаем алгоритм обхода путей при загрузке плагинов, применив класс UserDefinedList
   19.05.2003 SVS
@@ -534,6 +536,12 @@ void PluginsSet::LoadPlugins()
       // расширяем значение пути
       ExpandEnvironmentStr(NamePtr,FullName,sizeof(FullName));
       Unquote(FullName); //??? здесь ХЗ
+      if(!PathMayBeAbsolute(FullName))
+      {
+        strncpy(PluginsDir,FarPath,sizeof(PluginsDir)-1);
+        strcat(PluginsDir,FullName);
+        strcpy(FullName,PluginsDir);
+      }
       // Получим реальное значение полного длинного пути с учетом символических связей.
       ConvertNameToReal(FullName,FullName,sizeof(FullName));
       RawConvertShortNameToLongName(FullName,FullName,sizeof(FullName));
