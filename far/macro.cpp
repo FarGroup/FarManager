@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.11 22.12.2000 $ */
+/* Revision: 1.12 22.12.2000 $ */
 
 /*
 Modify:
+  22.12.2000 SVS
+    - Отвлекли - забыл сбросить новые 2 флага :-(
   22.12.2000 SVS
     - При неправильно выбранных названиях начинается суматоха :-(
       После 333 патча перестали работать макросы ВЕЗДЕ!
@@ -210,7 +212,7 @@ int KeyMacro::ProcessKey(int Key)
       }
 
       int DisableOutput=TRUE,EmptyCommandLine=FALSE,NotEmptyCommandLine=FALSE;
-      int FilePanels=TRUE,PluginPanels=TRUE;
+      int FilePanels=FALSE,PluginPanels=FALSE;
       int RunAfterStart=FALSE;
 
       if (Key==KEY_CTRLSHIFTDOT || Recording==2)
