@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.14 29.11.2001 $ */
+/* Revision: 1.15 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   29.11.2001 DJ
     ! GetLangParam() читает файл только до @Contents и не забывает
       восстановить позицию
@@ -252,9 +254,9 @@ FILE* Language::OpenLangFile(char *Path,char *Mask,char *Language,char *FileName
     else
     {
       char LangName[100];
-      if (GetLangParam(LangFile,"Language",LangName,NULL) && stricmp(LangName,Language)==0)
+      if (GetLangParam(LangFile,"Language",LangName,NULL) && LocalStricmp(LangName,Language)==0)
         break;
-      if (stricmp(LangName,"English")==0)
+      if (LocalStricmp(LangName,"English")==0)
         strcpy(EngFileName,FileName);
       fclose(LangFile);
       LangFile=NULL;
@@ -362,7 +364,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
          */
          if(LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_NOPATTERN) == -1)
          {
-           LangMenuItem.SetSelect(stricmp(Dest,LangName)==0);
+           LangMenuItem.SetSelect(LocalStricmp(Dest,LangName)==0);
            LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
          }
          /* SVS $ */
@@ -396,7 +398,7 @@ int Language::GetOptionsParam(FILE *SrcFile,char *KeyName,char *Value)
       if((Ptr=strchr(FullParamName,'=')) == NULL)
         continue;
       *Ptr++=0;
-      if (!stricmp(RemoveExternalSpaces(FullParamName),KeyName))
+      if (!LocalStricmp(RemoveExternalSpaces(FullParamName),KeyName))
       {
         strcpy(Value,RemoveExternalSpaces(Ptr));
         return(TRUE);

@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.11 16.11.2001 $ */
+/* Revision: 1.12 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   16.11.2001 SVS
     ! добавим проверку в Set`ах
   06.11.2001 SVS
@@ -348,7 +350,7 @@ int CopyKeyTree(const char *Src,const char *Dest,const char *Skip)
       bool Found=false;
       const char *SkipName=Skip;
       while (!Found && *SkipName)
-        if (stricmp(SrcKeyName,SkipName)==0)
+        if (LocalStricmp(SrcKeyName,SkipName)==0)
           Found=true;
         else
           SkipName+=strlen(SkipName)+1;

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.135 14.12.2001 $ */
+/* Revision: 1.136 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   14.12.2001 IS
     ! внедрение const в соответствии с изменениями класса Edit
   10.12.2001 SVS
@@ -5364,7 +5366,7 @@ int Editor::EditorControl(int Command,void *Param)
               EOL=2;
           }
         }
-        return(SaveFile(Name,FALSE,EOL,!stricmp(Name,FileName)));
+        return(SaveFile(Name,FALSE,EOL,!LocalStricmp(Name,FileName)));
       }
     case ECTL_QUIT:
       FrameManager->DeleteFrame(HostFileEditor);

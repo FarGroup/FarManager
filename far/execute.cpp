@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.23 08.12.2001 $ */
+/* Revision: 1.24 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   08.12.2001 SVS
     ! Уточнения в новом исполняторе - теперь вид шаблона исполнения задается
       по другому.
@@ -349,7 +351,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
     char *Ptr=ExcludeCmds;
     while(*Ptr)
     {
-      if(!stricmp(FileName,Ptr))
+      if(!LocalStricmp(FileName,Ptr))
       {
         return TRUE;
       }

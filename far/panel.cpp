@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.77 14.12.2001 $ */
+/* Revision: 1.78 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   14.12.2001 VVM
     ! Ошибочка в NeedUpdatePanel
   12.12.2001 DJ
@@ -1477,24 +1479,24 @@ void Panel::SetPluginCommand(int Command,void *Param)
           struct OpenPluginInfo PInfo;
           DestFilePanel->GetOpenPluginInfo(&PInfo);
           strcpy(Info->CurDir,PInfo.CurDir);
-		  /* $ 12.12.2001 DJ
-		     обработаем флаги
-		  */
-		  if (PInfo.Flags & OPIF_REALNAMES)
-		    Info->Flags |= PFLAGS_REALNAMES;
-		  if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
-		    Info->Flags &= ~PFLAGS_HIGHLIGHT;
-		  /* DJ $ */
+          /* $ 12.12.2001 DJ
+             обработаем флаги
+          */
+          if (PInfo.Flags & OPIF_REALNAMES)
+            Info->Flags |= PFLAGS_REALNAMES;
+          if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
+            Info->Flags &= ~PFLAGS_HIGHLIGHT;
+          /* DJ $ */
           Reenter--;
         }
         DestFilePanel->PluginGetPanelInfo(Info);
       }
-	  /* $ 12.12.2001 DJ
-	     на неплагиновой панели - всегда реальные имена
-	  */
-	  if (!Info->Plugin)
-        Info->Flags |= PFLAGS_REALNAMES;
-	  /* DJ $ */
+      /* $ 12.12.2001 DJ
+         на неплагиновой панели - всегда реальные имена
+      */
+      if (!Info->Plugin)
+          Info->Flags |= PFLAGS_REALNAMES;
+      /* DJ $ */
       break;
     }
     case FCTL_SETSELECTION:
@@ -1672,7 +1674,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
   /* Обновить, если обновление разрешено и пути совпадают */
   if ((!Opt.AutoUpdateLimit || GetFileCount() <= Opt.AutoUpdateLimit) &&
-      stricmp(AnotherPanel->CurDir,CurDir)==0)
+      LocalStricmp(AnotherPanel->CurDir,CurDir)==0)
     return TRUE;
   return FALSE;
 }

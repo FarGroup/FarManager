@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.26 17.10.2001 $ */
+/* Revision: 1.27 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   17.10.2001 SVS
     ! Внедрение const
   16.10.2001 SVS
@@ -751,7 +753,7 @@ void GetPathRootOne(const char *Path,char *Root)
                   Drive, // input volume mount point or directory
                   TempRoot, // output volume name buffer
                   sizeof(TempRoot)) &&       // size of volume name buffer
-           !stricmp(TempRoot+4,Path))
+           !LocalStricmp(TempRoot+4,Path))
         {
            strcpy(Root,Drive);
            return;

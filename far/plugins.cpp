@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.98 07.12.2001 $ */
+/* Revision: 1.99 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   07.12.2001 IS
     ! GetString -> FarInputBox
   05.12.2001 SVS
@@ -417,7 +419,7 @@ void PluginsSet::LoadPlugins()
         */
         ExpandEnvironmentStr(Opt.PersonalPluginsPath,FullName,sizeof(FullName));
         // проверка на вшивость!
-        if(stricmp(PluginsDir,FullName))
+        if(LocalStricmp(PluginsDir,FullName))
           strcpy(PluginsDir,FullName);
         else
           continue; // продолжем дальше

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.114 11.12.2001 $ */
+/* Revision: 1.115 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 IS
+    ! stricmp -> LocalStricmp
   11.12.2001 SVS
     - BugZ#168 -  олЄсико мышки не входит в каталог при непустой ком.строке
       (дл€ средней клавиши мыши и не пустой строке... исполним эту строку)
@@ -2920,7 +2922,7 @@ void FileList::CompareDir()
     GetPathRoot(Another->CurDir,RootDir2);
     if (GetVolumeInformation(RootDir1,NULL,0,NULL,NULL,NULL,FileSystemName1,sizeof(FileSystemName1)) &&
         GetVolumeInformation(RootDir2,NULL,0,NULL,NULL,NULL,FileSystemName2,sizeof(FileSystemName2)))
-      if (stricmp(FileSystemName1,FileSystemName2)!=0)
+      if (LocalStricmp(FileSystemName1,FileSystemName2)!=0)
         CompareFatTime=TRUE;
   }
 
