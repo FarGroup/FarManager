@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.04 06.09.2000 $ */
+/* Revision: 1.05 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 SVS
+    ! Еще одна поправочка (с подачи AT) для Bug#12:
+      еще косяк, не дает выйти из меню, если у нас текущий путь - UNC
+      "\\server\share\"
   06.09.2000 tran
     - правя баг, внесли пару новых:
        1. strncpy не записывает 0 в конец строки
@@ -430,7 +434,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
          1. strncpy не записывает 0 в конец строки
          2. GetDriveType вызывается постоянно, что грузит комп.
       */
-      if (ChDisk.Done() && ChDisk.GetExitCode()<0)
+      /* $ 07.09.2000 SVS
+         Еще одна поправочка (с подачи AT):
+             еще косяк, не дает выйти из меню, если у нас текущий путь - UNC
+             "\\server\share\"
+      */
+      if (ChDisk.Done() && ChDisk.GetExitCode()<0 && strncmp(CurDir,"\\\\",2)!=0)
       {
         char RootDir[10];
         strncpy(RootDir,CurDir,3);
@@ -438,6 +447,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         if (GetDriveType(RootDir)==DRIVE_NO_ROOT_DIR)
           ChDisk.ClearDone();
       }
+      /* SVS $ */
       /* tran $ */
       /* SVS $ */
     }
