@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.75 01.07.2001 $ */
+/* Revision: 1.65 18.07.2001 $ */
 
 /*
 Modify:
+  18.07.2001 VVM
+    + MCopyCannotRenameFolder
+    + MCopyIgnore
   01.07.2001 IS
     + MIncorrectMask
   22.06.2001 SVS
@@ -461,6 +464,8 @@ enum
   MCannotCopyFolderToItself2,
 
   MCopyCannotCreateFolder,
+  MCopyCannotRenameFolder,
+  MCopyIgnore,
   MCopyRetry,
   MCopySkip,
   MCopyCancel,

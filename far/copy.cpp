@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.41 27.06.2001 $ */
+/* Revision: 1.42 18.07.2001 $ */
 
 /*
 Modify:
+  18.07.2001 VVM
+    + Если не удалось переименовать каталог - сказать об этом пользователю
+      и спросить - "что делать?"
   27.06.2001 SVS
     - неверная работа мультикопи.
   19.06.2001 SVS
@@ -1315,22 +1318,40 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName)){
           return(COPY_NEXT);
         }
-        if (MoveFile(Src,DestPath))
+        /* $ 18.07.2001 VVM
+          + Пытаемся переименовать, пока не отменят */
+        while (1)
         {
-          if (PointToName(DestPath)==DestPath)
-            strcpy(RenamedName,DestPath);
-          else
-            strcpy(CopiedName,PointToName(DestPath));
+          if (MoveFile(Src,DestPath))
+          {
+            if (PointToName(DestPath)==DestPath)
+              strcpy(RenamedName,DestPath);
+            else
+              strcpy(CopiedName,PointToName(DestPath));
 //          ConvertNameToFull(DestPath,DestFullName, sizeof(DestFullName));
-          if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName)){
-            return(COPY_NEXT);
+            if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName)){
+              return(COPY_NEXT);
+            }
+            TreeList::RenTreeName(SrcFullName,DestFullName);
+            return(SameName ? COPY_NEXT:COPY_SUCCESS_MOVE);
           }
-          TreeList::RenTreeName(SrcFullName,DestFullName);
-          return(SameName ? COPY_NEXT:COPY_SUCCESS_MOVE);
-        }
-        else
-          return(COPY_FAILURE);
-      }
+          else
+          /* $ 18.07.2001 VVM
+            + Спросить, что делать, если не смогли переименовать каталог */
+          {
+            int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                                  MSG(MCopyCannotRenameFolder),Src,MSG(MCopyRetry),
+                                  MSG(MCopyIgnore),MSG(MCopyCancel));
+            switch (MsgCode)
+            {
+              case 0:  continue;
+              case 1:  return (COPY_FAILURE);
+              default: return (COPY_CANCEL);
+            } /* switch */
+          } /* else */
+        } /* while */
+        /* VVM $ */
+      }  
 
       SECURITY_ATTRIBUTES sa;
       if ((ShellCopy::Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,&sa))
