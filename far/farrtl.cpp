@@ -26,6 +26,12 @@ Modify:
   12.07.2000 IS
     ! В new заменил "void *p" на "void *p=NULL" (SVS забыл это сделать...)
     ! Проверка на NULL "переехала" из delete в free
+  13.07.2000 SVS (с подачи VVM)
+    ! VVM> Где я выделил - если block = NULL, то 95/98 возвращают
+      VVM> ошибку, а НТ проглатывает...
+      VVM> if(!size)
+      VVM>   HeapFree(FARHeapForNew,0,block);
+
 */
 
 #ifdef __cplusplus
@@ -72,10 +78,15 @@ void *realloc(void *block, size_t size)
   if(FARHeapForNew)
   {
     if(!size)
-      HeapFree(FARHeapForNew,0,block);
+    {
+      if(block)
+        HeapFree(FARHeapForNew,0,block);
+    }
     else if (!block) // В первый раз даем столько, сколько
+    {
                      // просят. Что-бы небыло лишнего расхода при единичном вызове
       p=HeapAlloc(FARHeapForNew,HEAP_ZERO_MEMORY, size);
+    }
     else
     {
       p=block;
@@ -85,7 +96,9 @@ void *realloc(void *block, size_t size)
       size2 = HeapSize(FARHeapForNew,0,block);
       if (size  > size2 ||          // Запросили больше, чем реально выделено
           size2 - size > MEM_DELTA) // Надо освободить блок размером с MEM_DELTA или больше
+      {
         p=HeapReAlloc(FARHeapForNew,HEAP_ZERO_MEMORY,block,size);
+      }
       // else
       /*
           Ничего. Память в хипе уже выделена в прошлый раз и мы не трогаем его.
