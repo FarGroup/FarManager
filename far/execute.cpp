@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.115 28.03.2005 $ */
+/* Revision: 1.116 03.04.2005 $ */
 
 /*
 Modify:
+  03.04.2005 WARP
+    ! Изменения в execut'оре на предмет работы в 9x
   28.03.2005 SVS
     - BugZ#1091 - Неполноценная команда cd
     + добавил обработку "cd ~" - переход в "свой" каталог. Сделал для себя :-)
@@ -995,6 +997,8 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 {
   int nResult = -1;
 
+  bool bIsNT = (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT);
+
     char NewCmdStr[4096];
     char NewCmdPar[4096];
     char ExecLine[4096];
@@ -1099,6 +1103,8 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   if ( dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI )
     SeparateWindow = 2;
 
+  ScrBuf.Flush ();
+
   if ( SeparateWindow == 2 )
   {
         FAR_OemToChar (NewCmdStr, NewCmdStr);
@@ -1129,7 +1135,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
   }
   else
   {
-    if ( WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT )
+    if ( !bIsNT )
     {
       char FarTitle[2*NM];
 
@@ -1143,7 +1149,6 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
     else
       SetConsoleTitle(CmdStr);
 
-
     char TempStr[4096];
 
     ExpandEnvironmentStrings (NewCmdStr, TempStr, sizeof (TempStr)-1);
@@ -1156,10 +1161,10 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
     bool bDoubleQ = false;
 
-    if ( strpbrk (NewCmdStr, ")(&^") )
+    if ( bIsNT && strpbrk (NewCmdStr, ")(&^") )
       bDoubleQ = true;
 
-    if ( *NewCmdPar || bDoubleQ )
+    if ( (bIsNT && *NewCmdPar) || bDoubleQ )
       strcat (ExecLine, "\"");
 
     strcat (ExecLine, NewCmdStr);
@@ -1170,7 +1175,7 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
       strcat (ExecLine, NewCmdPar);
     }
 
-    if ( *NewCmdPar || bDoubleQ)
+    if ( (bIsNT && *NewCmdPar) || bDoubleQ)
       strcat (ExecLine, "\"");
 
     // // попытка борьбы с синим фоном в 4NT при старте консоль
