@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.14 21.08.2000 $ */
+/* Revision: 1.15 23.08.2000 $ */
 
 /*
 Modify:
+   23.08.2000 SVS
+    - исправление глюкавости моих рук :-(((
    13.08.2000 KM
     + Функция GetNextCursorPos - вычисляет положение курсора в строке
       с учётом Mask.
@@ -179,6 +181,7 @@ void Edit::DisplayObject()
   MoveCursor(X1+CursorPos-LeftPos,Y1);
 }
 
+
 /* $ 12.08.2000 KM
    Вычисление нового положения курсора в строке с учётом Mask.
 */
@@ -261,7 +264,6 @@ void Edit::FastShow()
   if (Mask && *Mask)
     RefreshStrByMask();
   /* KM $ */
-
 #ifdef SHITHAPPENS
   ReplaceSpaces(0);
 #endif
@@ -773,30 +775,20 @@ int Edit::ProcessKey(int Key)
       DisableEditOut(TRUE);
 //      while (CurPos>0 && isspace(Str[CurPos-1]))
 //        RecurseProcessKey(KEY_BS);
-      /* $ 19.08.2000 KM
-         Поставим пока заглушку на удаление, если
-         используется маска ввода.
-      */
-      if (Mask && *Mask)
+      while (1)
       {
-      }
-      else
-      {
-        while (1)
-        {
-          int StopDelete=FALSE;
-          if (CurPos<StrSize-1 && isspace(Str[CurPos]) && !isspace(Str[CurPos+1]))
-            StopDelete=TRUE;
-          RecurseProcessKey(KEY_DEL);
-          if (CurPos>=StrSize || StopDelete)
-            break;
-          /* $ 03.08.2000 SVS
-            ! WordDiv -> Opt.WordDiv
-          */
-          if (strchr(Opt.WordDiv,Str[CurPos])!=NULL)
-            break;
-          /* SVS $*/
-        }
+        int StopDelete=FALSE;
+        if (CurPos>1 && isspace(Str[CurPos-1])!=isspace(Str[CurPos-2]))
+          StopDelete=TRUE;
+        RecurseProcessKey(KEY_BS);
+        if (CurPos==0 || StopDelete)
+          break;
+        /* $ 03.08.2000 SVS
+          ! WordDiv -> Opt.WordDiv
+        */
+        if (strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
+          break;
+        /* SVS $ */
       }
       DisableEditOut(FALSE);
       Show();
@@ -822,20 +814,30 @@ int Edit::ProcessKey(int Key)
       DisableEditOut(TRUE);
 //      while (CurPos<StrSize && isspace(Str[CurPos]))
 //        RecurseProcessKey(KEY_DEL);
-      while (1)
+      /* $ 19.08.2000 KM
+         Поставим пока заглушку на удаление, если
+         используется маска ввода.
+      */
+      if (Mask && *Mask)
       {
-        int StopDelete=FALSE;
-        if (CurPos<StrSize-1 && isspace(Str[CurPos]) && !isspace(Str[CurPos+1]))
-          StopDelete=TRUE;
-        RecurseProcessKey(KEY_DEL);
-        if (CurPos>=StrSize || StopDelete)
-          break;
-        /* $ 03.08.2000 SVS
-          ! WordDiv -> Opt.WordDiv
-        */
-        if (strchr(Opt.WordDiv,Str[CurPos])!=NULL)
-          break;
-        /* SVS $*/
+      }
+      else
+      {
+        while (1)
+        {
+          int StopDelete=FALSE;
+          if (CurPos<StrSize-1 && isspace(Str[CurPos]) && !isspace(Str[CurPos+1]))
+            StopDelete=TRUE;
+          RecurseProcessKey(KEY_DEL);
+          if (CurPos>=StrSize || StopDelete)
+            break;
+          /* $ 03.08.2000 SVS
+            ! WordDiv -> Opt.WordDiv
+          */
+          if (strchr(Opt.WordDiv,Str[CurPos])!=NULL)
+            break;
+          /* SVS $*/
+        }
       }
       DisableEditOut(FALSE);
       Show();
@@ -1521,6 +1523,7 @@ void Edit::RefreshStrByMask()
   }
 }
 /* KM $ */
+
 
 int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
