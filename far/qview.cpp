@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.05 20.07.2000 $ */
+/* Revision: 1.06 04.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 tran 1.06
+     Gray+, Gray- передвигают курсор на другой панели
   20.07.2000 tran
     - bug#21, пустой заголовок консоли
       теперь он верный всегда
@@ -186,6 +188,17 @@ int QuickView::ProcessKey(int Key)
       AnotherPanel->ProcessKey(KEY_F3);
     return(TRUE);
   }
+  /* $ 04.08.2000 tran
+     Gray+, Gray- передвигают курсор на другой панели*/
+  if (Key==KEY_ADD || Key==KEY_SUBTRACT)
+  {
+    Panel *AnotherPanel=CtrlObject->GetAnotherPanel(this);
+    if (AnotherPanel->GetType()==FILE_PANEL)
+      AnotherPanel->ProcessKey(Key==KEY_ADD?KEY_DOWN:KEY_UP);
+    return(TRUE);
+  }
+  /* tran 04.08.2000 $ */
+
   if (QView!=NULL && !Directory && Key>=256)
     return(QView->ProcessKey(Key));
   return(FALSE);
