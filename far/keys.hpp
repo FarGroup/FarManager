@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.17 25.10.2001 $ */
+/* Revision: 1.18 21.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  21.12.2001 SVS
+    + KEY_MACROSELWORD, KEY_MSLDBLCLICK, KEY_MSRDBLCLICK
   25.10.2001 SVS
     + KEY_ALTSHIFTBRACKET, KEY_ALTSHIFTBACKBRACKET, KEY_CTRLALTBRACKET
       KEY_CTRLALTBACKBRACKET
@@ -170,6 +172,12 @@ enum BaseDefKeyboard
 
   KEY_MSWHEEL_UP           =0x00000203,
   KEY_MSWHEEL_DOWN         =0x00000204,
+#ifdef FAR_USE_INTERNALS
+#if defined(MOUSEKEY)
+  KEY_MSLDBLCLICK          =0x00000205,
+  KEY_MSRDBLCLICK          =0x00000206,
+#endif
+#endif
 
   KEY_END_FKEY             =0x00000FFF,
 
@@ -193,6 +201,10 @@ enum BaseDefKeyboard
   KEY_MACROXLAT,
 
   KEY_MEDIT_ISSELECTED,
+
+#if defined(MOUSEKEY)
+  KEY_MACROSELWORD,
+#endif
 
   KEY_MACROSPEC_BASE       =0x00C00000,
   // отсюда начинаются коды специализированных макро-кодов,

@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.63 10.12.2001 $ */
+/* Revision: 1.64 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    + MOUSEKEY
   10.12.2001 SVS
     ! Вызовим SetFarTitle(NULL) после завершения исполнения макроса.
   23.11.2001 VVM
@@ -304,6 +306,9 @@ static struct TKeyCodeName{
 } KeyMacroCodes[]={
 //   { KEY_MACROSTOPIFNOT,          10, "$StopIfNot"}, // $StopIfNot условие
 //   { KEY_MACROSTOPIF,              7, "$StopIf"},  // $StopIf условие
+#if defined(MOUSEKEY)
+   { KEY_MACROSELWORD,             8, "$SelWord" },
+#endif
    { KEY_MACROMODE,                6, "$MMode" },
    { KEY_MACRODATE,                5, "$Date"  }, // $Date "%d-%a-%Y"
    { KEY_MACROSTOP,                5, "$Stop"  },

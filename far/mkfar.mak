@@ -40,12 +40,6 @@ FINALPATH=final
 .path.c   = .
 .path.exe = $(FINALPATH)
 
-!ifdef TRY
-OPTEXT=-x -DFARTRY
-!else
-OPTEXT=-x- -DNDEBUG
-!endif
-
 !ifdef DEBUG
 OPTDEBUG=-v
 OPTDEBUG2=
@@ -293,14 +287,14 @@ BccW32.cfg : mkfar.mak cc.bat
 -Op
 -Ov
 -w-csu
+-x
 -I$(INCLUDEPATH)
 $(FARCMEM)
 $(FARALLOC)
 $(PRECOMPOPT)
 $(OPTDEBUG)
 $(OPTDEBUG2)
-$(OPTEXT)
 $(FARSYSLOG)
 $(FARADDMACRO)
-$(CREATE_JUNCTION)
+$(FUTUREMACRO)
 | $@

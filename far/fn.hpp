@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.122 07.12.2001 $ */
+/* Revision: 1.123 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    + CalcWordFromString - "вычисление" слова
   07.12.2001 SVS
     ! ” Execute команда (первый параметр) - const
   07.12.2001 IS
@@ -1067,5 +1069,9 @@ void SetPreRedrawFunc(PREREDRAWFUNC Func);
 
 int PathMayBeAbsolute(const char *Src);
 char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
+
+#if defined(MOUSEKEY)
+const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End);
+#endif
 
 #endif  // __FARFUNC_HPP__

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.55 08.12.2001 $ */
+/* Revision: 1.56 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    + DOUBLE_CLICK as Macro
   08.12.2001 SVS
     - Бага в KeyNameToKey() - например, для "ShiftFooBar" выдаст KEY_SHIFT,
       Лечится путем сравнения Pos и Len, т.е. в нормальной ситуации должно
@@ -186,6 +188,9 @@ Modify:
 static int AltValue=0,ReturnAltValue,KeyCodeForALT_LastPressed=0;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static int RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
+#if defined(MOUSEKEY)
+static int PrePreMouseEventFlags;
+#endif
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
 static clock_t PressedLastTime,KeyPressedLastTime;
 
@@ -243,6 +248,10 @@ struct TFKey3{
 static struct TFKey3 FKeys1[]={
   { KEY_CTRLALTSHIFTRELEASE, 19, "CtrlAltShiftRelease"},
   { KEY_CTRLALTSHIFTPRESS,   17, "CtrlAltShiftPress"},
+#if defined(MOUSEKEY)
+  { KEY_MSLDBLCLICK,         11, "MsLDblClick"},
+  { KEY_MSRDBLCLICK,         11, "MsRDblClick"},
+#endif
   { KEY_MSWHEEL_DOWN,        11, "MsWheelDown"},
   { KEY_MSWHEEL_UP,           9, "MsWheelUp"},
   { KEY_BACKSLASH,            9, "BackSlash"},
@@ -803,7 +812,9 @@ int GetInputRecord(INPUT_RECORD *rec)
   {
     // проверка на Swap клавиш мыши
     static int SwapButton=GetSystemMetrics(SM_SWAPBUTTON);
-
+#if defined(MOUSEKEY)
+    PrePreMouseEventFlags=PreMouseEventFlags;
+#endif
     PreMouseEventFlags=MouseEventFlags;
     MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 
@@ -831,6 +842,23 @@ int GetInputRecord(INPUT_RECORD *rec)
     PrevMouseY=MouseY;
     MouseX=rec->Event.MouseEvent.dwMousePosition.X;
     MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
+#if defined(MOUSEKEY)
+    if(PrePreMouseEventFlags == DOUBLE_CLICK)
+    {
+      rec->EventType = KEY_EVENT;
+      return(KEY_NONE);
+    }
+    if (MouseEventFlags == DOUBLE_CLICK && (LButtonPressed || RButtonPressed))
+    {
+      CalcKey=LButtonPressed?KEY_MSLDBLCLICK:KEY_MSRDBLCLICK;
+      DWORD SMState=rec->Event.MouseEvent.dwControlKeyState;
+      CalcKey |= (SMState&SHIFT_PRESSED?KEY_SHIFT:0)|
+                 (SMState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)?KEY_CTRL:0)|
+                 (SMState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED)?KEY_ALT:0);
+      rec->EventType = KEY_EVENT;
+    }
+    else
+#endif
     /* $ 26.04.2001 VVM
        + Обработка колесика мышки под 2000. */
     if (MouseEventFlags == MOUSE_WHEELED)

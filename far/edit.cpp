@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.61 21.12.2001 $ */
+/* Revision: 1.62 21.12.2001 $ */
 
 /*
 Modify:
+  21.12.2001 SVS
+    + KEY_MACROSELWORD
   21.12.2001 SVS
     - BugZ#187 - Ctrl-X не работает в диалогах
   14.12.2001 IS
@@ -1097,6 +1099,29 @@ int Edit::ProcessKey(int Key)
       ProcessCtrlQ();
       Show();
       return(TRUE);
+#if defined(MOUSEKEY)
+    case KEY_MACROSELWORD:
+    {
+      int OldCurPos=CurPos;
+      int SStart, SEnd;
+      PrevSelStart=SelStart;
+      PrevSelEnd=SelEnd;
+
+      if(CurPos >= SelStart && CurPos <= SelEnd)
+      { // выделяем ВСЮ строку при повторном двойном клике
+        Select(0,StrSize);
+      }
+      else
+      {
+        int SStart, SEnd;
+        CalcWordFromString(Str,CurPos,&SStart,&SEnd);
+        Select(SStart,++SEnd);
+      }
+      CurPos=OldCurPos; // возвращаем обратно
+      Show();
+      return TRUE;
+    }
+#endif
     case KEY_MACRODATE:
       if (!PersistentBlocks)
         RecurseProcessKey(KEY_DEL);

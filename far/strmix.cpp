@@ -996,3 +996,83 @@ char *WINAPI WordWrap(const char *SrcText,int Width,
   free(newtext);
   return DestText;
 }
+
+
+#if defined(MOUSEKEY)
+/*
+  Ptr=CalcWordFromString(Str,I,&Start,&End);
+  strncpy(Dest,Ptr,End-Start+1);
+  Dest[End-Start+1]=0;
+
+  возвращает указатель на начало слова
+*/
+const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End)
+{
+  int I, J, StartWPos, EndWPos;
+  DWORD DistLeft, DistRight;
+  int StrSize=strlen(Str);
+  char WordDiv[sizeof(Opt.WordDiv)+16];
+  strcpy(WordDiv,Opt.WordDiv);
+  strcat(WordDiv," \t\n\r");
+
+  if(strchr(WordDiv,Str[CurPos]))
+  {
+    // вычисляем дистанцию - куда копать, где ближе слово - слева или справа
+    I=J=CurPos;
+
+    // копаем влево
+    DistLeft=-1;
+    while(I >= 0 && strchr(WordDiv,Str[I]))
+    {
+      DistLeft++;
+      I--;
+    }
+    if(I < 0)
+      DistLeft=-1;
+
+    // копаем вправо
+    DistRight=-1;
+    while(J < StrSize && strchr(WordDiv,Str[J]))
+    {
+      DistRight++;
+      J++;
+    }
+    if(J >= StrSize)
+      DistRight=-1;
+
+    if(DistLeft > DistRight) // ?? >=
+      EndWPos=StartWPos=J;
+    else
+      EndWPos=StartWPos=I;
+  }
+  else // здесь все оби, т.е. стоим на буковке
+    EndWPos=StartWPos=CurPos;
+
+  while(StartWPos >= 0)
+    if(strchr(WordDiv,Str[StartWPos]))
+    {
+      StartWPos++;
+      break;
+    }
+    else
+      StartWPos--;
+  while(EndWPos < StrSize)
+    if(strchr(WordDiv,Str[EndWPos]))
+    {
+      EndWPos--;
+      break;
+    }
+    else
+      EndWPos++;
+
+  if(StartWPos < 0)
+    StartWPos=0;
+  if(EndWPos >= StrSize)
+    EndWPos=StrSize;
+
+  *Start=StartWPos;
+  *End=EndWPos;
+
+  return Str+StartWPos;
+}
+#endif
