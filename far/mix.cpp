@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.61 16.03.2001 $ */
+/* Revision: 1.62 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SKV
+    - еще один фикс с размером консоли при детаче.
   16.03.2001 SVS
     + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
   15.03.2001 SKV
@@ -515,10 +517,18 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
                   CloseConsole();
                   FreeConsole();
                   AllocConsole();
+                  /*$ 20.03.2001 SKV
+                    вот такой вот изврат :-\
+                  */
                   SetConsoleScreenBufferSize(hConOut,sbi.dwSize);
                   SetConsoleWindowInfo(hConOut,TRUE,&sbi.srWindow);
+                  SetConsoleScreenBufferSize(hConOut,sbi.dwSize);
+
+                  /* SKV$*/
+
                   Sleep(100);
                   InitConsole(0);
+
                   hFarWnd=0;
                   InitDetectWindowedMode();
 
