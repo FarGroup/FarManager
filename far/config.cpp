@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.06 26.07.2000 $ */
+/* Revision: 1.07 27.07.2000 $ */
 
 /*
 Modify:
+  27.07.2000 SVS
+    ! Opt.AutoComplete по умолчанию не активизирован,
+      дабы не шокировать публику :-)
   26.07.2000 SVS
     + Opt.AutoComplete & дополнение диалога настройки интерфейса
   18.07.2000 tran 1.05
@@ -550,7 +553,12 @@ void ReadConfig()
   GetRegKey("Interface","AltGr",Opt.AltGr,1);
   GetRegKey("Interface","CopyShowTotal",Opt.CopyShowTotal,0);
   GetRegKey("Interface","ShowMenuBar",Opt.ShowMenuBar,0);
-  GetRegKey("Interface","AutoComplete",Opt.AutoComplete,1);
+  /* $ 27.07.2000 SVS
+     ! Opt.AutoComplete по умолчанию не активизирован,
+       дабы не шокировать публику :-)
+  */
+  GetRegKey("Interface","AutoComplete",Opt.AutoComplete,0);
+  /* SVS $*/
 
   GetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer,"",sizeof(Opt.ExternalViewer));
   GetRegKey("Viewer","UseExternalViewer",Opt.UseExternalViewer,0);
