@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.28 23.10.2001 $ */
+/* Revision: 1.29 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    + MouseEventFlags, PreMouseEventFlags - типы эвентов мыши
   23.10.2001 SVS
     + WidthNameForMessage - 38% для размера усечения имени в месагах-процессах
   21.10.2001 SVS
@@ -92,7 +94,7 @@ Modify:
 #include "farversion.inc"
 /* SVS $ */
 
-OSVERSIONINFO WinVer;
+OSVERSIONINFO WinVer={0};
 
 struct Options Opt;
 
@@ -119,9 +121,10 @@ int WaitInMainLoop=FALSE;
 
 // "дополнительная" очередь кодов клавиш
 FarQueue<DWORD> *KeyQueue=NULL;
-int AltPressed,CtrlPressed,ShiftPressed;
-int LButtonPressed,RButtonPressed,MButtonPressed;
-int PrevMouseX,PrevMouseY,MouseX,MouseY;
+int AltPressed=0,CtrlPressed=0,ShiftPressed=0;
+int LButtonPressed=0,RButtonPressed=0,MButtonPressed=0;
+int PrevMouseX=0,PrevMouseY=0,MouseX=0,MouseY=0;
+int PreMouseEventFlags=0,MouseEventFlags=0;
 
 CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo;
 CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo;

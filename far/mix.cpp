@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.99 15.11.2001 $ */
+/* Revision: 1.100 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    + PrepareDiskPath()
   15.11.2001 OT
     Исправление поведения cd c:\ на активном панельном плагине
   02.11.2001 SVS
@@ -1567,4 +1569,32 @@ int PathMayBeAbsolute(const char *Src)
   if (Src && strlen(Src)>=2 && isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\' || Src[0]=='/' && Src[1]=='/')
     return TRUE;
   return FALSE;
+}
+
+// Косметические преобразования строки пути.
+// CheckFullPath пока не используется
+char* PrepareDiskPath(char *Path,BOOL CheckFullPath)
+{
+  if(Path)
+  {
+    if(isalpha(Path[0]) && Path[1]==':')
+    {
+      Path[0]=toupper(Path[0]);
+      if(CheckFullPath)
+      {
+        ;
+        /* здесь проверка,  например на "WiNdOwS" - а нужно ли?
+           Если кто-то будет делать, то надо учесть момент, что реальное имя
+           мне, например, удалось установить через спарку:
+           FindHandle=FindFirstFile(Path,&Data))
+           FindClose(FindHandle);
+           -> Data.cFileName
+           Но т.к. FindFirstFile дает только одно значение,  то здесь должен
+           быть цикл пробега по всей цепочке,  составляющей путь, с последующей
+           корректировкой переменной Path
+        */
+      }
+    }
+  }
+  return Path;
 }

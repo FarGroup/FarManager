@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.116 22.11.2001 $ */
+/* Revision: 1.117 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    + PrepareDiskPath()
   22.11.2001 SVS
     + У Execute() добавлен параметр - SetUpDirs "Нужно устанавливать каталоги?"
       Это как раз про ту войну, когда Костя "отлучил" кусок кода про
@@ -1034,5 +1036,6 @@ char *WINAPI WordWrap(const char *SrcText,int Width,
 void SetPreRedrawFunc(PREREDRAWFUNC Func);
 
 int PathMayBeAbsolute(const char *Src);
+char* PrepareDiskPath(char *Path,BOOL CheckFullPath=FALSE);
 
 #endif  // __FARFUNC_HPP__

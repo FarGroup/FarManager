@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.46 15.11.2001 $ */
+/* Revision: 1.47 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    ! Заюзаем PrepareDiskPath() для преобразования пути.
   15.11.2001 IS
     - очепятка при предыдущем изменении :-(
   13.11.2001 IS
@@ -409,7 +411,7 @@ int CommandLine::ProcessKey(int Key)
 
 void CommandLine::SetCurDir(char *CurDir)
 {
-  strcpy(CommandLine::CurDir,CurDir);
+  PrepareDiskPath(strcpy(CommandLine::CurDir,CurDir));
 }
 
 

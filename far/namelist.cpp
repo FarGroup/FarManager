@@ -5,10 +5,12 @@ namelist.cpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    ! Заюзаем PrepareDiskPath() для преобразования пути.
   06.05.2001 DJ
     ! перетрях #include
   20.02.2001 SVS
@@ -23,6 +25,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "fn.hpp"
 #include "namelist.hpp"
 
 NamesList::NamesList()
@@ -119,5 +122,5 @@ void NamesList::GetCurDir(char *Dir)
 
 void NamesList::SetCurDir(char *Dir)
 {
-  strcpy(CurDir,Dir);
+  PrepareDiskPath(strcpy(CurDir,Dir));
 }

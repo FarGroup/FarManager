@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.29 23.10.2001 $ */
+/* Revision: 1.30 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    + MouseEventFlags, PreMouseEventFlags - типы эвентов мыши
   23.10.2001 SVS
     + WidthNameForMessage - 38% для размера усечения имени в месагах-процессах
   21.10.2001 SVS
@@ -116,6 +118,7 @@ extern HANDLE hConOut,hConInp;
 
 extern int AltPressed,CtrlPressed,ShiftPressed;
 extern int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
+extern int PreMouseEventFlags,MouseEventFlags;
 /* $ 23.08.2000 SVS
     + MButtonPressed - для средней клавиши мыши.
 */

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.53 20.11.2001 $ */
+/* Revision: 1.54 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    + MouseEventFlags, PreMouseEventFlags - типы эвентов мыши
   20.11.2001 SVS
     ! В обработку FOCUS_EVENT добавим также обнуление LButtonPressed,
       RButtonPressed и MButtonPressed
@@ -797,6 +799,10 @@ int GetInputRecord(INPUT_RECORD *rec)
   {
     // проверка на Swap клавиш мыши
     static int SwapButton=GetSystemMetrics(SM_SWAPBUTTON);
+
+    PreMouseEventFlags=MouseEventFlags;
+    MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
+
     if (SwapButton && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !IsWindowed())
     {
       DWORD CtrlState=rec->Event.MouseEvent.dwButtonState;
@@ -823,7 +829,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
     /* $ 26.04.2001 VVM
        + Обработка колесика мышки под 2000. */
-    if (rec->Event.MouseEvent.dwEventFlags & MOUSE_WHEELED)
+    if (MouseEventFlags == MOUSE_WHEELED)
     { // Обработаем колесо и заменим на спец.клавиши
       short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
       CalcKey = (zDelta>0)?KEY_MSWHEEL_UP:KEY_MSWHEEL_DOWN;

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.107 24.11.2001 $ */
+/* Revision: 1.108 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    ! Заюзаем PrepareDiskPath() для преобразования пути.
   24.11.2001 IS
     - Баг при обработке F4 и Alt-F4: когда вызывался внешний редактор
       на панели плагина, не дожидались его закрытия.
@@ -1919,7 +1921,7 @@ BOOL FileList::ChangeDir(char *NewDir)
   Panel *AnotherPanel;
   char FindDir[NM],SetDir[NM];
 
-  strcpy(SetDir,NewDir);
+  PrepareDiskPath(strcpy(SetDir,NewDir));
 
   if (strcmp(SetDir,"..")!=0 && strcmp(SetDir,"\\")!=0)
     UpperFolderTopFile=CurTopFile;

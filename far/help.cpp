@@ -8,10 +8,13 @@ help.cpp
 
 */
 
-/* Revision: 1.51 26.11.2001 $ */
+/* Revision: 1.52 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    + DoubliClock - свернуть/развернуть хелп.
+    ! F1 в хелпе - всегда вызывать "Help"
   26.11.2001 VVM
     ! Теперь хелп не реагирует на отпускание клавиши мышки, если клавиша была нажата не в хелпе.
   01.11.2001 SVS
@@ -226,7 +229,7 @@ class CallBackStack
 
 static const char *PluginContents="__PluginContents__";
 static const char *DocumentContents="__DocumentContents__";
-static const char *HelpOnHelpTopic="Help";
+static const char *HelpOnHelpTopic=":Help";
 static const char *HelpContents="Contents";
 
 static int RunURL(char *Protocol, char *URLPath);
@@ -1128,7 +1131,9 @@ int Help::JumpTopic(const char *JumpTopic)
       sprintf(NewTopic,HelpFormatLink,StackData.HelpPath,StackData.SelTopic);
   }
   else
-    strcpy(NewTopic,StackData.SelTopic);
+  {
+    strcpy(NewTopic,StackData.SelTopic+(!strcmp(StackData.SelTopic,HelpOnHelpTopic)?1:0));
+  }
 
 //_SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
   if(*StackData.SelTopic != ':' &&
@@ -1193,7 +1198,9 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
       MouseEvent->dwMousePosition.Y<Y1 || MouseEvent->dwMousePosition.Y>Y2)
   {
-    ProcessKey(KEY_ESC);
+    // Вываливаем если предыдущий эвент не был двойным кликом
+    if(PreMouseEventFlags != DOUBLE_CLICK)
+      ProcessKey(KEY_ESC);
     return(TRUE);
   }
   if (MouseX==X2 && (MouseEvent->dwButtonState & 1))
@@ -1212,6 +1219,14 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         ProcessKey(KEY_DOWN);
       return(TRUE);
     }
+  }
+  // DoubliClock - свернуть/развернуть хелп.
+  if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
+      MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED &&
+      MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
+  {
+    ProcessKey(KEY_F5);
+    return(TRUE);
   }
   if (MouseEvent->dwMousePosition.Y<Y1+1+FixSize)
   {

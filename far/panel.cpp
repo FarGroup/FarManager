@@ -5,12 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.71 19.11.2001 $ */
+/* Revision: 1.72 26.11.2001 $ */
 
 /*
 Modify:
+  26.11.2001 SVS
+    ! Заюзаем PrepareDiskPath() для преобразования пути.
   19.11.2001 OT
-    Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
+    - Исправление поведения режима фуллскриновых панелей. 115 и 116 баги
   12.11.2001 SVS
     ! откат 1041 до лучших времен.
   08.11.2001 SVS
@@ -1155,7 +1157,7 @@ void Panel::GetCurDir(char *CurDir)
 #endif
 void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 {
-  strcpy(Panel::CurDir,CurDir);
+  PrepareDiskPath(strcpy(Panel::CurDir,CurDir));
 }
 #if defined(__BORLANDC__)
 #pragma warn +par
@@ -1164,7 +1166,7 @@ void Panel::SetCurDir(char *CurDir,int ClosePlugin)
 
 void Panel::InitCurDir(char *CurDir)
 {
-  strcpy(Panel::CurDir,CurDir);
+  PrepareDiskPath(strcpy(Panel::CurDir,CurDir));
 }
 
 
@@ -1184,9 +1186,8 @@ int  Panel::SetCurPath()
   if (GetMode()==PLUGIN_PANEL)
     return TRUE;
 
-  char UpDir[NM],Drive[4],*ChPtr;
-
-  strcpy(Drive,"=A:");
+  char UpDir[NM],*ChPtr;
+  static char Drive[4]="=A:"; // нефига каждый раз делать strcpy.
 
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=PLUGIN_PANEL)
@@ -1194,7 +1195,7 @@ int  Panel::SetCurPath()
     if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
         toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
     {
-      toupper(Drive[1]=AnotherPanel->CurDir[0]);
+      Drive[1]=toupper(AnotherPanel->CurDir[0]);
       SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
     }
   }
@@ -1214,7 +1215,7 @@ int  Panel::SetCurPath()
 
   if (isalpha(CurDir[0]) && CurDir[1]==':')
   {
-    toupper(Drive[1]=CurDir[0]);
+    Drive[1]=toupper(CurDir[0]);
     SetEnvironmentVariable(Drive,CurDir);
   }
   return TRUE;
