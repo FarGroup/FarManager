@@ -5,12 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.48 20.10.2000 $ */
+/* Revision: 1.49 23.10.2000 $ */
 
 /*
 Modify:
+  23.10.2000 SVS
+    + DM_SETEDITPOS, DM_GETEDITPOS -
+      позиционирование курсора в строках редактирования.
   20.10.2000 SVS
-    + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
+   + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
   16.10.2000 tran 1.47
    + для EDIT полей выставляется ограничение в 511 символов
   27.09.2000 SVS
@@ -3177,6 +3180,27 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
   switch(Msg)
   {
+    /* $ 23.10.2000 SVS
+       Получить/установить позицию в строках редактирования
+    */
+    case DM_GETEDITPOS:
+      if (IsEdit(Type))
+      {
+        ((COORD*)Param2)->X=((Edit *)(CurItem->ObjPtr))->GetCurPos();
+        ((COORD*)Param2)->Y=0;
+        return TRUE;
+      }
+      return FALSE;
+
+    case DM_SETEDITPOS:
+      if (IsEdit(Type))
+      {
+        ((Edit *)(CurItem->ObjPtr))->SetCurPos(((COORD*)Param2)->X);
+        return TRUE;
+      }
+      return FALSE;
+    /* SVS $ */
+
     case DM_SETTEXT:
       if(Param2) // если здесь NULL, то это еще один способ получить размер
       {
