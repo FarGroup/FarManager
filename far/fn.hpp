@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.71 30.03.2001 $ */
+/* Revision: 1.72 03.04.2001 $ */
 
 /*
 Modify:
+  03.04.2001 SVS
+   + Add_PATHEXT()
   30.03.2001 SVS
    + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
      скрытых логических дисков
@@ -739,6 +741,8 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
                                 int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
 DWORD WINAPI FarGetLogicalDrives(void);
+
+char *Add_PATHEXT(char *Dest);
 
 #ifdef __cplusplus
 extern "C" {

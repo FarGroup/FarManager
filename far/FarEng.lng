@@ -367,7 +367,7 @@
 "&Skip"
 "&Cancel"
 
-"Go to positon"
+"Go to position"
 
 "Folder shortcuts"
 "Edit: Del,Ins,F4"
@@ -1089,14 +1089,14 @@
 "FAR folder"
 "Registry"
 "Local menu"
-"Do you wish to delete menu item"
+"Do you wish to delete the menu item"
 
 "Edit user menu"
 "&Hot key:"
 "&Label:"
 "&Commands:"
 
-"Do you wish to insert new command or new menu?"
+"Do you wish to insert a new command or a new menu?"
 "Insert command"
 "Insert menu"
 
@@ -1132,7 +1132,7 @@
 "Sort groups"
 "Edit: Del,Ins,F4"
 
-"Do you wish to delete sort group"
+"Do you wish to delete the sort group"
 "A file mask or several file masks delimited with commas:"
 
 "Describe file"
@@ -1200,12 +1200,12 @@
 
 "Define macro"
 "Press the desired key"
-"MacroKey '%s' already defined. Sequence:"
-"Macrokey '%s' is not active. Sequence:"
-"MacroKey '%s' will be removed. Sequence:"
+"Macro key '%s' already defined. Sequence:"
+"Macro key '%s' is not active. Sequence:"
+"Macro key '%s' will be removed. Sequence:"
 "Redefine?"
 "Delete?"
-"(macrokey is not active)"
+"(macro key is not active)"
 "Overwrite"
 "Try another key"
 
@@ -1274,7 +1274,7 @@
 "User password"
 
 "Cannot read folder contents"
-"This plugin requeired higher FAR version"
+"This plugin requires higher FAR version"
 "Required FAR version is %d.%d.%d. Current FAR version is %d.%d.%d"
 
 "Buffer allocated for file name too small."
@@ -1352,6 +1352,7 @@
 "Operation has been interrupted"
 " Do you really want to cancel it? "
 
-"File checking in plugin now"
+"The file is being checked by the plugin"
+
 
 "Evaluation version"

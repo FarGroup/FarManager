@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.18 28.02.2001 $ */
+/* Revision: 1.19 03.04.2001 $ */
 
 /*
 Modify:
+  03.04.2001 SVS
+    ! FillFileldDir -> FillingOfFields ;-)
   28.02.2001 SVS
     - Бага в Win2K с взаимоисключениями Сжатого и Шифрованного атрибута
     + Выставляем заголовок консоли во время процесса установки атрибутов
@@ -169,7 +171,7 @@ static void EmptyDialog(struct DialogItem *AttrDlg,int ClrAttr,int SelCount1)
 /* $ 22.11.2000 SVS
    Заполнение полей
 */
-static void FillFileldDir(char *SelName,int FileAttr,
+static void FillingOfFields(char *SelName,int FileAttr,
                           struct DialogItem *AttrDlg,
                           int SetAttr)
 {
@@ -352,7 +354,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         AttrDlg[11].Selected=Opt.SetAttrFolderRules == 1?0:1;
         if(Opt.SetAttrFolderRules)
         {
-          FillFileldDir(SelName,FileAttr,AttrDlg,1);
+          FillingOfFields(SelName,FileAttr,AttrDlg,1);
           // убираем 3-State
           for(I=4; I <= 9; ++I)
             AttrDlg[I].Flags&=~DIF_3STATE;
@@ -630,7 +632,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                     }
                   }
                   if(!AttrDlg[11].Selected)
-                    FillFileldDir(SelName,FileAttr,AttrDlg,0);
+                    FillingOfFields(SelName,FileAttr,AttrDlg,0);
                   RefreshNeed=TRUE;
                 }
               }

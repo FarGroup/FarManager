@@ -5,10 +5,13 @@ far.cpp
 
 */
 
-/* Revision: 1.14 02.04.2001 $ */
+/* Revision: 1.15 03.04.2001 $ */
 
 /*
 Modify:
+  03.04.2001 SVS
+    ! CmdExt - полностью переработан с учетом %PATHEXT% и WinNT (*.cmd)
+    ! Уточнение архиваторных расширений.
   02.04.2001 SVS
     ! Добавлено "некоторое" количество расширений в раскраску для архивов.
     + *.vbs,*.js - подсветка как у исполняемых файлов.
@@ -345,10 +348,13 @@ void SetHighlighting()
 
   int I;
   char RegKey[80];
+  // сразу пропишем %PATHEXT%, а HighlightFiles::GetHiColor() сам подстановку
+  // сделает.
+  char CmdExt[512]="*.exe,*.com,*.bat,%PATHEXT%";
   static char *Masks[]={
     "*.*",
-    "*.exe,*.com,*.bat,*.cmd,*.vbs,*.js",
-    "*.rar,*.r[0-9][0-9],*.arj,*.a[0-9][0-9],*.zip,*.lzh,*.ain,*.ha,*.lsz,*.cab,*.uc2,*.j,*.uue,*.lha,*.tgz,*.ice,*.arc,*.xxe,*.tar,*.gz,*.ace,*.pak,*.q,*.bz2",
+    CmdExt,
+    "*.rar,*.r[0-9][0-9],*.arj,*.a[0-9][0-9],*.zip,*.lha,*.lzh,*.lsz,*.ain,*.ha,*.cab,*.uc2,*.j,*.uue,*.ice,*.arc,*.xxe,*.tar,*.tgz,*.gz,*.z,*.ace,*.pak,*.bz2,*.zoo,*.sit",
     "*.bak,*.tmp",
   };
   struct HighlightData  StdHighlightData[]=
@@ -363,6 +369,10 @@ void SetHighlighting()
     {Masks[2], 0x0000, 0x0000,   0x1D, 0x00, 0x3D, 0x00, 0x00},
     {Masks[3], 0x0000, 0x0000,   0x16, 0x00, 0x36, 0x00, 0x00},
   };
+
+  // для NT добавляем CMD
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    strcat(CmdExt,",*.cmd");
 
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
   {

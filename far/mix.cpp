@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.65 30.03.2001 $ */
+/* Revision: 1.66 03.04.2001 $ */
 
 /*
 Modify:
+  03.04.2001 SVS
+    + Add_PATHEXT()
   30.03.2001 SVS
     + FarGetLogicalDrives - оболочка вокруг GetLogicalDrives, с учетом
       скрытых логических дисков
@@ -1492,4 +1494,34 @@ DWORD WINAPI FarGetLogicalDrives(void)
     }
   }
   return LogicalDrivesMask&(~NoDrives);
+}
+
+// Преобразование корявого формата PATHEXT в ФАРовский :-)
+// Функции передается нужные расширения, она лишь добавляет то, что есть
+//   в %PATHEXT% и  нету в Dest.
+char *Add_PATHEXT(char *Dest)
+{
+  char Buf[1024];
+  if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)))
+  {
+    char Tmp[32]="*";
+    char *Ptr;
+
+    strlwr(Buf);
+    Ptr = strtok(Buf, ";");
+    if(*Dest && Dest[strlen(Dest)-1] != ',')
+      strcat(Dest,",");
+    while(Ptr)
+    {
+      strcpy(Tmp+1,Ptr);
+      Ptr = strtok(NULL, ";");
+      if(!strstr(Dest,Tmp))
+      {
+        strcat(Dest,Tmp);
+        if(Ptr)
+          strcat(Dest,",");
+      }
+    }
+  }
+  return Dest;
 }

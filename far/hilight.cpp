@@ -5,12 +5,15 @@ Files highlighting
 
 */
 
-/* Revision: 1.13 02.04.2001 $ */
+/* Revision: 1.14 03.04.2001 $ */
 
 /*
 Modify:
+  03.04.2001 SVS
+    ! Из-за галимого формата переменной %pathext% - немного коррекции кода.
+    + Показ символа пометки в меню
   02.04.2001 VVM
-  + В масках можно задавать переменные окружения
+    + В масках можно задавать переменные окружения
   01.03.2001 SVS
     ! Переезд ветки "Highlight" в "Colors\Highlight"
   27.02.2001 VVM
@@ -133,7 +136,24 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
       /* $ 02.04.2001 VVM
         + В масках можно задавать переменные окружения */
       char ArgName[NM], ExpandedStr[8192];
-      int Copied = ExpandEnvironmentStrings(CurHiData->Masks,ExpandedStr,sizeof(ExpandedStr));
+      /* $ 03.04.2001 SVS
+         Из-за галимого формата переменной %pathext% - немного коррекции кода.
+      */
+      int Copied;
+      {
+        char TempStr[2048];
+        char *Ptr=strstr(strlwr(strcpy(TempStr,NullToEmpty(CurHiData->Masks))),"%pathext%");
+        if(Ptr)
+        {
+          int IQ1=(*(Ptr+9) == ',')?10:9;
+          // Если встречается %pathext%, то допишем в конец...
+          memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
+          Add_PATHEXT(TempStr); // добавляем то, чего нету.
+        }
+        Copied = ExpandEnvironmentStrings(TempStr,ExpandedStr,sizeof(ExpandedStr));
+      }
+      /* SVS $ */
+
       if ((Copied==0) || (Copied > sizeof(ExpandedStr)))
         strcpy(ExpandedStr, CurHiData->Masks);
       char *NamePtr = ExpandedStr;
@@ -172,7 +192,11 @@ void HighlightFiles::HiEdit(int MenuPos)
     for (int I=0;I<HiDataCount;I++)
     {
       struct HighlightData *CurHiData=&HiData[I];
-      sprintf(HiMenuItem.Name,"%c%c%c%c%c%c%c %c %c%c%c%c%c%c%c %c %.60s",
+      sprintf(HiMenuItem.Name,"%c %c %c%c%c%c%c%c%c %c %c%c%c%c%c%c%c %c %.60s",
+        (CurHiData->MarkChar?CurHiData->MarkChar:' '), // добавим показ символа
+
+        VerticalLine,
+
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_READONLY) ? 'R':'.',
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':'.',
         (CurHiData->IncludeAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':'.',
