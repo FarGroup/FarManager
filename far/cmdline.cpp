@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.25 26.05.2001 $ */
+/* Revision: 1.26 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 OT
+    - »справление отрисовки консоли при наличии Qinfo и или других "настандартных" панелей
   26.05.2001 OT
     - ¬ыпр€мление логики вызовов в NFZ
   17.05.2001 OT
@@ -395,9 +397,6 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     CtrlObject->Cp()->RightPanel->CloseChangeNotification();
     CtrlObject->Cp()->LeftPanel->CloseFile();
     CtrlObject->Cp()->RightPanel->CloseFile();
-
-//    CtrlObject->CmdLine->ShowBackground();
-//    CtrlObject->CmdLine->Show();
     ScrollScreen(1);
     MoveCursor(X1,Y1);
     if (CurDir[0] && CurDir[1]==':')
@@ -411,10 +410,6 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     GetCursorPos(CurX,CurY);
     if (CurY>=Y1-1)
       ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
-    CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-    CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-//    GotoXY(X1,Y1);
-//    mprintf("%*s",X2-X1+1,"");
   }
   ScrBuf.Flush();
   return(Code);

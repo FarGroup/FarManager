@@ -368,6 +368,7 @@ void FileEditor::InitKeyBar(void)
 
 FileEditor::~FileEditor()
 {
+  _OT(SysLog("[%p] FileEditor::~FileEditor()",this));
   if (EditNamesList)
     delete EditNamesList;
 }
@@ -735,6 +736,7 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnDestroy()
 {
+  _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
   if (!DisableHistory)
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
 }

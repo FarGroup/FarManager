@@ -415,6 +415,7 @@ Editor::Editor()
 
 Editor::~Editor()
 {
+  _OT(SysLog("[%p] Editor::~Editor()",this));
   if (Opt.SaveEditorPos && CtrlObject!=NULL)
   {
     int ScreenLinePos=CalcDistance(TopScreen,CurLine,-1);

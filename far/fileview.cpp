@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.35 05.06.2001 $ */
+/* Revision: 1.36 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 OT
+    ! отменен OnChangeFocus за отсутствием состава ... необходимости :)
+    + добавлен деструктор ~FileViewer()... с косметическими целями
   05.06.2001 tran
     + класс FileView - добавлен OnChangeFocus
   27.05.2001 DJ
@@ -339,24 +342,6 @@ int FileViewer::ProcessKey(int Key)
     case KEY_CTRLO:
       FrameManager->ShowBackground();
       WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
-/*
-      Hide();
-      if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
-        CtrlObject->FrameManager->ShowBackground();
-      else
-      {
-        ViewKeyBar.Hide();
-        if(Opt.AllCtrlAltShiftRule & CASR_VIEWER)
-          WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
-      }
-      /* $ 21.07.2000 tran
-         - артефакт при Ctrl-O* /
-      if ( Opt.ShowKeyBarViewer )
-        ViewKeyBar.Show();
-      else
-        ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
-      /* tran 21.07.2000 $ * /
-*/
         Show();
       return(TRUE);
     /* SVS $ */
@@ -497,8 +482,14 @@ void FileViewer::SetScreenPosition()
 }
 /* tran $ */
 
+FileViewer::~FileViewer()
+{
+  _OT(SysLog("[%p] ~FileViewer::FileViewer()",this));
+}
+
 void FileViewer::OnDestroy()
 {
+  _OT(SysLog("[%p] FileViewer::OnDestroy()",this));
   if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
   {
     char FullFileName[NM];
@@ -508,9 +499,3 @@ void FileViewer::OnDestroy()
   }
 }
 
-void FileViewer::OnChangeFocus(int f)
-{
-    _tran(SysLog("[%p] FileViewer::OnChangeFocus(int f), f=%i",f));
-    if ( f )
-        Show();
-}

@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.15 28.05.2001 $ */
+/* Revision: 1.16 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 OT
+    - Перемудрил зачем-то с ExecuteFrame()...
   28.05.2001 OT
     ! RefreshFrame() по умолчанию обновляет текущий фрейм
   26.05.2001 OT
@@ -125,7 +127,7 @@ class Manager
     void RefreshFrame(Frame *Refreshed=NULL);
     void RefreshFrame(int Index);
 // Функции для запуска модальных фреймов.
-    void ExecuteFrame(Frame *Executed, int DynamicallyBorn=FALSE);
+    void ExecuteFrame(Frame *Executed);
     void ExecuteModal (Frame *Executed=NULL); // возвращает то, что возвращает ModalExitCode();
   private:
 //    bool IsModalExit();

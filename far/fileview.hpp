@@ -7,10 +7,13 @@ fileview.hpp
 
 */
 
-/* Revision: 1.09 05.06.2001 $ */
+/* Revision: 1.10 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 OT
+    ! отменен OnChangeFocus за отсутствием состава ... необходимости :)
+    + добавлен деструктор ~FileViewer()... с косметическими целями
   05.06.2001 tran
     + класс FileView - добавлен OnChangeFocus
   15.05.2001 OT
@@ -64,6 +67,7 @@ class FileViewer:public Frame
                int X1,int Y1,int X2,int Y2);
     void Init(char *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,char *PluginData,NamesList *ViewNamesList);
+    ~FileViewer();
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */
@@ -85,8 +89,6 @@ class FileViewer:public Frame
     /* $ 12.05.2001 DJ */
     void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; }
     /* DJ $ */
-
-    virtual void OnChangeFocus(int f);
 };
 
 #endif  // __FILEVIEWER_HPP__

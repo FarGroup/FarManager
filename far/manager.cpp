@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.29 04.06.2001 $ */
+/* Revision: 1.30 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 OT
+    - Исправлены баги приводившие к утечкам памяти в ситуации: AltF7->Enter->F3->F6->F6->:((
+    - Перемудрил зачем-то с ExecuteFrame()...
   04.06.2001 OT
      Подпорка для "естественного" обновления экрана
   30.05.2001 OT
@@ -423,10 +426,9 @@ void Manager::RefreshFrame(int Index)
   RefreshFrame((*this)[Index]);
 }
 
-void Manager::ExecuteFrame(Frame *Executed, int DynamicallyBorn)
+void Manager::ExecuteFrame(Frame *Executed)
 {
-  _OT(SysLog("ExecuteFrame(), Executed=%p, DynamicallyBorn=%i",Executed,DynamicallyBorn));
-  Executed->SetDynamicallyBorn(DynamicallyBorn);
+  _OT(SysLog("ExecuteFrame(), Executed=%p",Executed));
   ExecutedFrame=Executed;
 }
 
@@ -770,10 +772,10 @@ void Manager::DeleteCommit()
         }
       }
     }
-    if (DeletedFrame->GetDynamicallyBorn()){
-      DeletedFrame->OnDestroy();
-      delete DeletedFrame;
-    }
+  }
+  DeletedFrame->OnDestroy();
+  if (DeletedFrame->GetDynamicallyBorn()){
+    delete DeletedFrame;
   }
 }
 
