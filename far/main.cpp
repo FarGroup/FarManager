@@ -310,14 +310,24 @@ int _cdecl main(int Argc, char *Argv[])
     {
       Panel *DummyPanel=new Panel;
       CmdMode=TRUE;
+      _tran(SysLog("create dummy panels"));
+      CtrlObj.CreateFilePanels();
       CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
       CtrlObj.Plugins.LoadPlugins();
       if (*EditName)
-        FileEditor ShellEditor(EditName,TRUE,FALSE,StartLine,StartChar);
+      {
+        FileEditor *ShellEditor=new FileEditor(EditName,TRUE,FALSE,StartLine,StartChar);
+        _tran(SysLog("make shelleditor %p",ShellEditor));
+      }
       if (*ViewName)
-        FileViewer ShellViewer(ViewName,FALSE);
-      delete DummyPanel;
+      {
+        FileViewer *ShellViewer=new FileViewer(ViewName,FALSE);
+        _tran(SysLog("make shellviewer, %p",ShellViewer));
+      }
+      FrameManager->EnterMainLoop();
       CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=NULL;
+      delete DummyPanel;
+      _tran(SysLog("editor/viewer closed, delete dummy panels"));
     }
     else
     {

@@ -70,6 +70,8 @@ class ControlObject
   public:
     FilePanels *Cp();
 
+    void CreateFilePanels(); 
+
     CommandLine *CmdLine;
     History *CmdHistory,*FolderHistory,*ViewHistory;
     KeyBar *MainKeyBar;

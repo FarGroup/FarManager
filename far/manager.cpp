@@ -127,6 +127,8 @@ Manager::Manager()
 {
   FrameList=NULL;
   FrameCount=FramePos=FrameListSize=0;
+  FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
+
   ModalStack=NULL;
   ModalStackSize = ModalStackCount = 0;
   EndLoop = FALSE;
@@ -446,11 +448,21 @@ void Manager::SwitchToPanels()
 
 /* DJ $ */
 
+
+int Manager::HaveAnyFrame()
+{
+    if ( FrameCount || InsertedFrame || DeletedFrame || ActivatedFrame || RefreshedFrame ||
+         ModalizedFrame || DeactivatedFrame || ExecutedFrame || CurrentFrame)
+        return 1;
+    return 0;
+}
+
 void Manager::EnterMainLoop()
 {
   WaitInFastFind=0;
-  while (!EndLoop)
+  while (!EndLoop && HaveAnyFrame())
   {
+    _tran(SysLog("Manager::MainLoop(), HaveAnyFrame=%i",HaveAnyFrame()));
     ProcessMainLoop();
     Commit();
   }
@@ -569,7 +581,7 @@ BOOL Manager::IsPanelsActive()
 
 Frame *Manager::operator[](int Index)
 {
-  if (Index<0||Index>=FrameCount){
+  if (Index<0||Index>=FrameCount ||FrameList==0){
     return NULL;
   }
   return FrameList[Index];
@@ -734,40 +746,58 @@ void Manager::UpdateCommit()
 void Manager::DeleteCommit()
 {
   _OT(SysLog("DeleteCommit(), DeletedFrame=%p",DeletedFrame));
-  if (!DeletedFrame){
+  if (!DeletedFrame)
+  {
     return;
   }
-  if (ModalStackCount&&(DeletedFrame==ModalStack[ModalStackCount-1])){
+  if (ModalStackCount&&(DeletedFrame==ModalStack[ModalStackCount-1]))
+  {
     ModalStackCount--;
-    if (ModalStackCount){
+    if (ModalStackCount)
+    {
       ActivatedFrame=ModalStack[ModalStackCount-1];
-    } else {
+    }
+    else 
+    {
       ActivatedFrame=FrameList[FramePos];
     }
-  } else {
+  }
+  else 
+  {
     int FrameIndex=IndexOf(DeletedFrame);
-    if (-1!=FrameIndex){
+    if (-1!=FrameIndex)
+    {
       DeletedFrame->DestroyAllModal();
-      for (int j=FrameIndex; j<FrameCount-1; j++ ){
+      for (int j=FrameIndex; j<FrameCount-1; j++ )
+      {
         FrameList[j]=FrameList[j+1];
       }
       FrameCount--;
-      if ( FramePos>=FrameCount ){
+      if ( FramePos>=FrameCount )
+      {
         FramePos=0;
       }
       ActivatedFrame=FrameList[FramePos];
-    } else {
-      for (int i=0;i<FrameCount;i++){
+    } 
+    else 
+    {
+      for (int i=0;i<FrameCount;i++)
+      {
         Frame *iFrame=FrameList[i];
         int ModalDeletedIndex=(*iFrame)[DeletedFrame];
-        if(ModalDeletedIndex>=0){
-          if (ModalDeletedIndex>0){
+        if(ModalDeletedIndex>=0)
+        {
+          if (ModalDeletedIndex>0)
+          {
             int iModalCount=iFrame->ModalCount();
-            for (int j=iModalCount;j>ModalDeletedIndex;j--){
+            for (int j=iModalCount;j>ModalDeletedIndex;j--)
+            {
               iFrame->Pop();
             }
             ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
-          } else {
+          } 
+          else 
+          {
             ActivatedFrame = iFrame;
             iFrame->DestroyAllModal();
           }
@@ -777,7 +807,11 @@ void Manager::DeleteCommit()
     }
   }
   DeletedFrame->OnDestroy();
-  if (DeletedFrame->GetDynamicallyBorn()){
+  if (DeletedFrame->GetDynamicallyBorn())
+  {
+    _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
+    if ( CurrentFrame==DeletedFrame )
+        CurrentFrame=0;
     delete DeletedFrame;
   }
 }
@@ -821,8 +855,10 @@ void Manager::RefreshCommit()
   if (RefreshedFrame->Refreshable()){
     RefreshedFrame->ShowConsoleTitle();
     // В режиме стека "освежаем" немодальный фрейм, с которого все началось...
-    if (ModalStackCount>0){
-      (*this)[FramePos]->OnChangeFocus(1);
+    if (ModalStackCount>0 )
+    {
+      if ((*this)[FramePos])
+        (*this)[FramePos]->OnChangeFocus(1);
     }
     RefreshedFrame->OnChangeFocus(1);
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());

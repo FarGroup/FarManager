@@ -178,6 +178,10 @@ void ControlObject::Init()
   Plugins.LoadPlugins();
 }
 
+void ControlObject::CreateFilePanels()
+{
+  FPanels=new FilePanels();
+}
 
 ControlObject::~ControlObject()
 {

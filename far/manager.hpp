@@ -181,6 +181,8 @@ class Manager
     /* DJ $ */
 
     int IndexOfStack(Frame *Frame);
+
+    int HaveAnyFrame();
 };
 
 extern Manager *FrameManager;
