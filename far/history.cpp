@@ -5,10 +5,14 @@ history.cpp
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   06.05.2001 DJ
     ! перетрях #include
   09.04.2001 SVS
@@ -230,7 +234,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
 
   {
     VMenu HistoryMenu(Title,NULL,0,Height);
-    HistoryMenu.SetFlags(MENU_SHOWAMPERSAND);
+    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);
@@ -246,13 +250,13 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
           strcpy(Record,LastStr[CurCmd].Name);
         TruncStr(Record,Min(ScrX-12,sizeof(HistoryItem.Name)-1));
         strcpy(HistoryItem.Name,Record);
-        HistoryItem.Selected=(CurCmd==CurLastPtr);
+        HistoryItem.SetSelect(CurCmd==CurLastPtr);
         LineToStr[Line++]=CurCmd;
         HistoryMenu.AddItem(&HistoryItem);
       }
     }
     sprintf(HistoryItem.Name,"%20s","");
-    HistoryItem.Selected=(CurLastPtr==LastPtr);
+    HistoryItem.SetSelect(CurLastPtr==LastPtr);
     LineToStr[Line]=-1;
     HistoryMenu.AddItem(&HistoryItem);
     HistoryMenu.AssignHighlights(TRUE);

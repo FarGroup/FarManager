@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.02 12.05.2001 $ */
+/* Revision: 1.03 20.05.2001 $ */
 
 /*
 Modify:
+  20.05.2001 SVS
+    ! Константы MENU_ - в морг
   12.05.2001 DJ
     - EnableRestoreScreen=TRUE
   06.05.2001 DJ
@@ -211,7 +213,7 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
   Position=-1;
   SubMenu=new VMenu("",Data,DataCount);
   SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
-  SubMenu->SetFlags(MENU_WRAPMODE);
+  SubMenu->SetFlags(VMENU_WRAPMODE);
   SubMenu->SetHelp(SubMenuHelp);
   SubMenu->SetPosition(X,Y,0,0);
   SubMenu->Show();

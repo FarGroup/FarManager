@@ -5,10 +5,14 @@ Files highlighting
 
 */
 
-/* Revision: 1.22 18.05.2001 $ */
+/* Revision: 1.23 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   18.05.2001 DJ
     ! HighlightFiles::EditRecord() переписан с использованием функции-
       обработчика диалога
@@ -259,7 +263,7 @@ void HighlightFiles::HiEdit(int MenuPos)
     unsigned char VerticalLine=0x0B3;
     VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
     HiMenu.SetHelp("Highlight");
-    HiMenu.SetFlags(MENU_WRAPMODE|MENU_SHOWAMPERSAND);
+    HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     HiMenu.SetPosition(-1,-1,0,0);
     HiMenu.SetBottomTitle(MSG(MHighlightBottom));
     for (int I=0;I<HiDataCount;I++)
@@ -293,11 +297,11 @@ void HighlightFiles::HiEdit(int MenuPos)
         VerticalLine,
 
         GetMask(I));
-      HiMenuItem.Selected=(I==MenuPos);
+      HiMenuItem.SetSelect(I==MenuPos);
       HiMenu.AddItem(&HiMenuItem);
     }
     *HiMenuItem.Name=0;
-    HiMenuItem.Selected=(HiDataCount==MenuPos);
+    HiMenuItem.SetSelect(HiDataCount==MenuPos);
     HiMenu.AddItem(&HiMenuItem);
 
     {

@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.45 12.05.2001 $ */
+/* Revision: 1.46 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   12.05.2001 DJ
     - FCTL_REDRAW[ANOTHER]PANEL обрабатывается только тогда, когда панели
       являются активным фреймом
@@ -341,9 +344,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           ShowSpecial=TRUE;
         }
         if (FirstCall)
-          ChDiskItem.Selected=(I==Pos);
+          ChDiskItem.SetSelect(I==Pos);
         else
-          ChDiskItem.Selected=(MenuLine==Pos);
+          ChDiskItem.SetSelect(MenuLine==Pos);
         strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
         if (strlen(MenuText)>4)
           ShowSpecial=TRUE;
@@ -460,17 +463,17 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       if (PluginMenuItemsCount>0)
       {
         memset(&ChDiskItem,0,sizeof(ChDiskItem));
-        ChDiskItem.Separator=1;
+        ChDiskItem.Flags|=LIF_SEPARATOR;
         ChDiskItem.UserDataSize=0;
         ChDisk.AddItem(&ChDiskItem);
-        ChDiskItem.Separator=0;
+        ChDiskItem.Flags&=~LIF_SEPARATOR;
         for (int I=0;I<PluginMenuItemsCount;I++)
         {
           int MinPos=0;
           for (int J=0;J<PluginMenuItemsCount;J++)
             if (PluginMenuItems[J].Name[1]<PluginMenuItems[MinPos].Name[1])
               MinPos=J;
-          PluginMenuItems[MinPos].Selected=!FirstCall && (Pos==DiskCount+1+I);
+          PluginMenuItems[MinPos].SetSelect(!FirstCall && (Pos==DiskCount+1+I));
           ChDisk.AddItem(&PluginMenuItems[MinPos]);
           PluginMenuItems[MinPos].Name[1]='9'+1;
         }

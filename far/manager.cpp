@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.20 16.05.2001 $ */
+/* Revision: 1.21 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   16.05.2001 DJ
     ! возвращение ExecuteModal()
   15.05.2001 OT
@@ -438,7 +442,7 @@ void Manager::FrameMenu()
     memset(&ModalMenuItem,0,sizeof(ModalMenuItem));
     VMenu ModalMenu(MSG(MScreensTitle),NULL,0,ScrY-4);
     ModalMenu.SetHelp("ScrSwitch");
-    ModalMenu.SetFlags(MENU_WRAPMODE);
+    ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
 
     for (int I=0;I<FrameCount;I++)
@@ -455,7 +459,7 @@ void Manager::FrameMenu()
       /*  добавляется "*" если файл изменен */
       sprintf(ModalMenuItem.Name,"%s%-20s %c %s",NumText,Type,(FrameList[I]->IsFileModified()?'*':' '),Name);
       /* tran 28.07.2000 $ */
-      ModalMenuItem.Selected=(I==FramePos);
+      ModalMenuItem.SetSelect(I==FramePos);
       ModalMenu.AddItem(&ModalMenuItem);
     }
     ModalMenu.Process();

@@ -5,10 +5,14 @@ filter.cpp
 
 */
 
-/* Revision: 1.09 06.05.2001 $ */
+/* Revision: 1.10 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -117,7 +121,7 @@ void PanelFilter::FilterEdit()
 int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
 {
   char Title[512],Masks[PANELFILTER_MASK_SIZE];
-  struct MenuItem ListItem={0};
+  struct MenuItem ListItem;
   int ExitCode;
   {
     int I;
@@ -126,7 +130,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     FilterList.SetHelp("Filter");
     FilterList.SetPosition(-1,-1,0,0);
     FilterList.SetBottomTitle(MSG(MFilterBottom));
-    FilterList.SetFlags(MENU_SHOWAMPERSAND);
+    FilterList.SetFlags(VMENU_SHOWAMPERSAND);
 
     if (Pos>FilterDataCount)
       Pos=0;
@@ -135,13 +139,13 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     {
       memset(&ListItem,0,sizeof(ListItem));
       sprintf(ListItem.Name,"%-30.30s %c %-30.30s",FilterData[I].Title,VerticalLine,FilterData[I].Masks);
-      ListItem.Selected=(I == Pos);
-      ListItem.Flags=0;
+      if(I == Pos)
+        ListItem.Flags|=LIF_SELECTED;
       ListItem.UserDataSize=strlen(FilterData[I].Masks);
       if(ListItem.UserDataSize >= sizeof(ListItem.UserData))
       {
         ListItem.PtrData=FilterData[I].Masks;
-        ListItem.Flags=1;
+        ListItem.Flags|=LIF_PTRDATA;
       }
       else
         strcpy(ListItem.UserData,FilterData[I].Masks);
@@ -149,17 +153,17 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       if (HostPanel==CtrlObject->Cp()->LeftPanel)
       {
         if (FilterData[I].LeftPanelInclude)
-          ListItem.Checked='+';
+          ListItem.SetCheck('+');
         else
           if (FilterData[I].LeftPanelExclude)
-            ListItem.Checked='-';
+            ListItem.SetCheck('-');
       }
       else
         if (FilterData[I].RightPanelInclude)
-          ListItem.Checked='+';
+          ListItem.SetCheck('+');
         else
           if (FilterData[I].RightPanelExclude)
-            ListItem.Checked='-';
+            ListItem.SetCheck('-');
       FilterList.AddItem(&ListItem);
     }
 
@@ -167,7 +171,8 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     if (FilterDataCount==0)
     {
       sprintf(ListItem.Name,"%-30.30s %c",MSG(MNoCustomFilters),VerticalLine);
-      ListItem.Selected=(Pos==0);
+      if(!Pos)
+        ListItem.Flags|=LIF_SELECTED;
       FilterList.AddItem(&ListItem);
     }
 
@@ -227,24 +232,23 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
     memset(&ListItem,0,sizeof(ListItem));
     if (ExtCount>0)
     {
-      ListItem.Separator=1;
+      ListItem.Flags|=LIF_SEPARATOR;
       FilterList.AddItem(&ListItem);
     }
 
-    ListItem.Separator=0;
+    ListItem.Flags&=~LIF_SEPARATOR;
     for (I=0;I<ExtCount;I++)
     {
       char *CurExtPtr=ExtPtr+I*NM;
       if (I>0 && LocalStricmp(CurExtPtr-NM,CurExtPtr)==0)
         continue;
       sprintf(ListItem.Name,"%-30.30s %c %-30.30s",MSG(MPanelFileType),VerticalLine,CurExtPtr);
-      ListItem.Selected=0;
-      ListItem.Flags=0;
+      ListItem.Flags&=~LIF_SELECTED;
       ListItem.UserDataSize=strlen(CurExtPtr)+1;
       if(ListItem.UserDataSize >= sizeof(ListItem.UserData))
       {
         ListItem.PtrData=FilterData[I].Masks;
-        ListItem.Flags=1;
+        ListItem.Flags|=LIF_PTRDATA;
       }
       else
         strncpy(ListItem.UserData,CurExtPtr,min((int)sizeof(ListItem.UserData)-1,ListItem.UserDataSize));

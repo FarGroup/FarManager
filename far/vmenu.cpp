@@ -7,10 +7,18 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.21 18.05.2001 $ */
+/* Revision: 1.22 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! VMENU_DRAWBACKGROUND -> VMENU_DISABLEDRAWBACKGROUND
+    ! MENU_* выкинуты
+    ! DialogStyle -> VMENU_WARNDIALOG
+    ! struct MenuData
+      Поля Selected, Checked и Separator преобразованы в DWORD Flags
+    ! struct MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   18.05.2001 SVS
     ! UpdateRequired -> VMENU_UPDATEREQUIRED
     ! DrawBackground -> VMENU_DRAWBACKGROUND
@@ -128,7 +136,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
 /* SVS $ */
 
   VMenu::ParentDialog=ParentDialog;
-  VMFlags|=VMENU_UPDATEREQUIRED|VMENU_DRAWBACKGROUND|VMENU_WRAPMODE;
+  VMFlags|=VMENU_UPDATEREQUIRED|VMENU_WRAPMODE;
   VMFlags&=~VMENU_SHOWAMPERSAND;
   CallCount=0;
   TopPos=0;
@@ -156,14 +164,11 @@ VMenu::VMenu(char *Title,       // заголовок меню
     else
       strcpy(NewItem.Name,Data[I].Name);
     NewItem.AmpPos=-1;
-    NewItem.Selected=Data[I].Selected;
-    NewItem.Checked=Data[I].Checked;
-    NewItem.Separator=Data[I].Separator;
+    NewItem.Flags=Data[I].Flags;
     AddItem(&NewItem);
   }
 
   VMenu::MaxHeight=MaxHeight;
-  DialogStyle=0;
   BoxType=DOUBLE_BOX;
   /* $ 01.08.2000 SVS
    - Bug в конструкторе, если передали NULL для Title
@@ -175,7 +180,7 @@ VMenu::VMenu(char *Title,       // заголовок меню
     int Length=strlen(Item[I].Name);
     if (Length>MaxLength)
       MaxLength=Length;
-    if (Item[I].Selected)
+    if (Item[I].Flags&LIF_SELECTED)
       SelectPos=I;
   }
   /* $ 28.07.2000 SVS
@@ -308,12 +313,12 @@ void VMenu::DisplayObject()
 
   if (!(VMenu::VMFlags&VMENU_LISTBOX) && SaveScr==NULL)
   {
-    if ((VMFlags&VMENU_DRAWBACKGROUND) && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
+    if (!(VMFlags&VMENU_DISABLEDRAWBACKGROUND) && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
       SaveScr=new SaveScreen(X1-2,Y1-1,X2+4,Y2+2);
     else
       SaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
   }
-  if (VMFlags&VMENU_DRAWBACKGROUND)
+  if (!(VMFlags&VMENU_DISABLEDRAWBACKGROUND))
   {
     /* $ 23.07.2000 SVS
        Тень для ListBox ненужна
@@ -398,7 +403,7 @@ void VMenu::ShowMenu(int IsParent)
       break;
   }
   if (SelectPos<ItemCount)
-    Item[SelectPos].Selected=1;
+    Item[SelectPos].Flags|=LIF_SELECTED;
   if (SelectPos>TopPos+Y2-Y1-2)
     TopPos=SelectPos-(Y2-Y1-2);
   if (SelectPos<TopPos)
@@ -407,7 +412,7 @@ void VMenu::ShowMenu(int IsParent)
   {
     GotoXY(X1,Y);
     if (I<ItemCount)
-      if (Item[I].Separator)
+      if (Item[I].Flags&LIF_SEPARATOR)
       {
         int SepWidth=X2-X1+1;
         char *Ptr=TmpStr+1;
@@ -438,17 +443,17 @@ void VMenu::ShowMenu(int IsParent)
         Text((char*)BoxChar);
         GotoXY(X2,Y);
         Text((char*)BoxChar);
-        if (Item[I].Selected)
+        if (Item[I].Flags&LIF_SELECTED)
           SetColor(VMenu::Colors[6]);
         else
-          SetColor(VMenu::Colors[3]);
+          SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);
         GotoXY(X1+1,Y);
         char Check=' ';
-        if (Item[I].Checked)
-          if (Item[I].Checked==1)
+        if (Item[I].Flags&LIF_CHECKED)
+          if (!(Item[I].Flags&0x0000FFFF))
             Check=0x0FB;
           else
-            Check=Item[I].Checked;
+            Check=Item[I].Flags&0x0000FFFF;
         sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].Name);
         { // табуляции меняем только при показе!!!
           // для сохранение оригинальной строки!!!
@@ -458,10 +463,15 @@ void VMenu::ShowMenu(int IsParent)
         }
         int Col;
 
-        if (Item[I].Selected)
-            Col=VMenu::Colors[7];
+        if(!(Item[I].Flags&LIF_DISABLE))
+        {
+          if (Item[I].Flags&LIF_SELECTED)
+              Col=VMenu::Colors[7];
+          else
+              Col=VMenu::Colors[4];
+        }
         else
-            Col=VMenu::Colors[4];
+          Col=VMenu::Colors[9];
         if(VMFlags&VMENU_SHOWAMPERSAND)
           Text(TmpStr);
         else
@@ -546,8 +556,14 @@ int VMenu::AddItem(struct MenuItem *NewItem,int PosAdd)
   Length=strlen(Item[PosAdd].Name);
   if (Length>MaxLength)
     MaxLength=Length;
-  if (Item[PosAdd].Selected)
+  if (Item[PosAdd].Flags&LIF_SELECTED)
     SelectPos=PosAdd;
+  if(Item[PosAdd].Flags&0x0000FFFF)
+  {
+    if((Item[PosAdd].Flags&0x0000FFFF) == 1)
+      Item[PosAdd].Flags&=~0x0000FFFF;
+    Item[PosAdd].Flags|=LIF_CHECKED;
+  }
   if(VMFlags&(VMENU_AUTOHIGHLIGHT|VMENU_REVERSIHLIGHT))
     AssignHighlights(VMFlags&VMENU_REVERSIHLIGHT);
 //  if(VMenu::VMFlags&VMENU_LISTBOXSORT)
@@ -614,14 +630,9 @@ struct FarListItem *VMenu::MenuItem2FarList(struct MenuItem *MItem,
   if(FItem && MItem)
   {
     memset(FItem,0,sizeof(struct FarListItem));
-    FItem->Flags|=MItem->Separator?LIF_SEPARATOR:0;
-    FItem->Flags|=MItem->Selected?LIF_SELECTED:0;
-    FItem->Flags|=MItem->Disabled?LIF_DISABLE:0;
+    FItem->Flags|=MItem->Flags;
 
-    if(MItem->Checked)
-      FItem->Flags|=LIF_CHECKED|(MItem->Checked!=1?(MItem->Checked&0xFFFF):0);
-
-    if(!MItem->Flags) // != LIF_PTRDATA
+    if(!(MItem->Flags&LIF_PTRDATA)) // != LIF_PTRDATA
     {
       strncpy(FItem->Text,MItem->Name,sizeof(FItem->Text)); // MItem->UserData?
       // коррекция на &
@@ -647,26 +658,14 @@ struct MenuItem *VMenu::FarList2MenuItem(struct FarListItem *FItem,
   if(FItem && MItem)
   {
     memset(MItem,0,sizeof(struct MenuItem));
-    MItem->Separator=FItem->Flags&LIF_SEPARATOR;
-    MItem->Selected=FItem->Flags&LIF_SELECTED;
-    /* $ 15.05.2001 KM
-       Восстановлена работа Checked.
-    */
-    if (FItem->Flags&LIF_CHECKED)
-      MItem->Checked=FItem->Flags&0xFFFF ? FItem->Flags&0xFFFF : 1;
-    else
-      MItem->Checked=FALSE;
-    /* KM $ */
-    MItem->Disabled=FItem->Flags&LIF_DISABLE;
-    // здесь нужно добавить проверку на LIF_PTRDATA!!!
-    MItem->Flags=0;
+    MItem->Flags=FItem->Flags;
     MItem->PtrData=NULL;
     if(FItem->Flags&LIF_PTRDATA)
     {
       memcpy(MItem->Name,FItem->Ptr.PtrData,sizeof(MItem->Name));
       MItem->UserDataSize=FItem->Ptr.PtrLength;
       MItem->PtrData=FItem->Ptr.PtrData;
-      MItem->Flags=1;
+      MItem->Flags=LIF_PTRDATA;
       if(FItem->Ptr.PtrLength < sizeof(MItem->UserData))
         memcpy(MItem->UserData,FItem->Ptr.PtrData,FItem->Ptr.PtrLength);
     }
@@ -719,7 +718,7 @@ int VMenu::DeleteItem(int ID,int Count)
 
   memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*Count); //???
 
-  if (Item[ID].Selected)
+  if (Item[ID].Flags&LIF_SELECTED)
   {
     if(ID == ItemCount)
       SelectPos--;
@@ -832,8 +831,8 @@ int VMenu::ProcessKey(int Key)
       for (I=0;I<ItemCount;I++)
         if (Dialog::IsKeyHighlighted(Item[I].Name,Key,FALSE))
         {
-          Item[SelectPos].Selected=0;
-          Item[I].Selected=1;
+          Item[SelectPos].Flags&=~LIF_SELECTED;
+          Item[I].Flags|=LIF_SELECTED;
           SelectPos=I;
           ShowMenu(TRUE);
           if(!VMenu::ParentDialog)
@@ -847,8 +846,8 @@ int VMenu::ProcessKey(int Key)
         for (I=0;I<ItemCount;I++)
           if (Dialog::IsKeyHighlighted(Item[I].Name,Key,TRUE))
             {
-              Item[SelectPos].Selected=0;
-              Item[I].Selected=1;
+              Item[SelectPos].Flags&=~LIF_SELECTED;
+              Item[I].Flags|=LIF_SELECTED;
               SelectPos=I;
               ShowMenu(TRUE);
               if(!VMenu::ParentDialog)
@@ -887,7 +886,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
         Pos=ItemCount-1;
     }
 
-    if(!Item[Pos].Separator && !Item[Pos].Disabled)
+    if(!(Item[Pos].Flags&LIF_SEPARATOR) && !(Item[Pos].Flags&LIF_DISABLE))
       break;
 
     Pos+=Direct;
@@ -899,8 +898,8 @@ int VMenu::SetSelectPos(int Pos,int Direct)
       Pass++;
   } while (1);
 
-  Item[SelectPos].Selected=0;
-  Item[Pos].Selected=1;
+  Item[SelectPos].Flags&=~LIF_SELECTED;
+  Item[Pos].Flags|=LIF_SELECTED;
   return Pos;
 }
 
@@ -984,7 +983,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         MsPos=0;
         Delta=1;
       }
-      if(!Item[MsPos].Separator && !Item[MsPos].Disabled)
+      if(!(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
         SelectPos=SetSelectPos(MsPos,Delta); //??
       ShowMenu(TRUE);
       return(TRUE);
@@ -1019,12 +1018,12 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* tran 06.07.2000 $ */
   {
     MsPos=TopPos+MsY-Y1-1;
-    if (MsPos<ItemCount && !Item[MsPos].Separator && !Item[MsPos].Disabled)
+    if (MsPos<ItemCount && !(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
     {
       if (MouseX!=PrevMouseX || MouseY!=PrevMouseY || MouseEvent->dwEventFlags==0)
       {
-        Item[SelectPos].Selected=0;
-        Item[MsPos].Selected=1;
+        Item[SelectPos].Flags&=~LIF_SELECTED;
+        Item[MsPos].Flags|=LIF_SELECTED;
         SelectPos=MsPos;
         ShowMenu(TRUE);
       }
@@ -1060,31 +1059,6 @@ void VMenu::SetBoxType(int BoxType)
   VMenu::BoxType=BoxType;
 }
 
-
-void VMenu::SetFlags(unsigned int Flags)
-{
-  VMFlags|=VMENU_UPDATEREQUIRED;
-
-  if(Flags & MENU_DISABLEDRAWBACKGROUND)
-    VMFlags&=~VMENU_DRAWBACKGROUND;
-  else
-    VMFlags|=VMENU_DRAWBACKGROUND;
-  if(Flags & MENU_WRAPMODE)
-    VMFlags|=VMENU_WRAPMODE;
-  else
-    VMFlags&=~VMENU_WRAPMODE;
-  if(Flags & MENU_SHOWAMPERSAND)
-    VMFlags|=VMENU_SHOWAMPERSAND;
-  else
-    VMFlags&=~VMENU_SHOWAMPERSAND;
-  if(VMenu::VMFlags&VMENU_LISTBOX)
-  {
-    if(Flags&FMENU_SHOWNOBOX)
-      VMenu::VMFlags|=VMENU_SHOWNOBOX;
-  }
-}
-
-
 int VMenu::GetUserData(void *Data,int Size,int Position)
 {
   if (ItemCount==0)
@@ -1101,7 +1075,7 @@ int VMenu::GetUserData(void *Data,int Size,int Position)
      - BUG with no \0 setting */
   if (DataSize>0 && Size>0 && Data!=NULL)
   {
-    char *Ptr=(Item[DataPos].Flags&1)?Item[DataPos].PtrData:Item[DataPos].UserData;
+    char *Ptr=(Item[DataPos].Flags&LIF_PTRDATA)?Item[DataPos].PtrData:Item[DataPos].UserData;
     memmove(Data,Ptr,Min(Size,DataSize));
     // вот тут кое-кто забыл в конец строки 0 записать....
     ((char*)Data)[Min(Size,DataSize)]=0;
@@ -1122,9 +1096,9 @@ int VMenu::GetSelection(int Position)
   int Pos=(Position==-1) ? SelectPos : Position;
   if (Pos>=ItemCount)
     Pos=ItemCount-1;
-  if (Item[Pos].Separator)
+  if (Item[Pos].Flags&LIF_SEPARATOR)
     return(0);
-  return(Item[Pos].Checked);
+  return(Item[Pos].Flags&LIF_CHECKED);
 }
 
 
@@ -1137,7 +1111,7 @@ void VMenu::SetSelection(int Selection,int Position)
   int Pos=(Position==-1) ? SelectPos : Position;
   if (Pos>=ItemCount)
     Pos=ItemCount-1;
-  Item[Pos].Checked=Selection;
+  Item[Pos].SetCheck(Selection);
 }
 
 /* $ 20.09.2000 SVS
@@ -1161,11 +1135,6 @@ struct MenuItem *VMenu::GetItemPtr(int Position)
 #pragma warn +par
 #endif
 /* SVS $*/
-
-int VMenu::GetSelectPos()
-{
-  return(SelectPos);
-}
 
 void VMenu::AssignHighlights(int Reverse)
 {
@@ -1214,6 +1183,7 @@ void VMenu::SetColors(short *Colors)
       VMenu::Colors[I]=Colors[I];
   else
   {
+    int DialogStyle=CheckFlags(VMENU_WARNDIALOG);
     VMenu::Colors[0]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT;
     VMenu::Colors[1]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX;
     VMenu::Colors[2]=COL_MENUTITLE;
@@ -1223,6 +1193,7 @@ void VMenu::SetColors(short *Colors)
     VMenu::Colors[6]=DialogStyle ? COL_DIALOGMENUSELECTEDTEXT:COL_MENUSELECTEDTEXT;
     VMenu::Colors[7]=DialogStyle ? COL_DIALOGMENUSELECTEDHIGHLIGHT:COL_MENUSELECTEDHIGHLIGHT;
     VMenu::Colors[8]=DialogStyle ? COL_DIALOGMENUSCROLLBAR: COL_MENUSCROLLBAR;
+    VMenu::Colors[9]=DialogStyle ? COL_DIALOGLISTDISABLED: COL_MENUDISABLEDTEXT;
   }
 }
 
@@ -1301,7 +1272,7 @@ BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
 {
   if(Info)
   {
-    Info->Flags=0;
+    Info->Flags=VMFlags;
     Info->ItemsNumber=ItemCount;
     Info->SelectPos=SelectPos;
     Info->TopPos=TopPos;
@@ -1311,4 +1282,12 @@ BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
     return TRUE;
   }
   return FALSE;
+}
+
+DWORD VMenu::ChangeFlags(DWORD Flags,BOOL Status)
+{
+  if(Status)
+    VMFlags|=Flags;
+  else
+    VMFlags&=~Flags;
 }

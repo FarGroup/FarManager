@@ -5,10 +5,14 @@ filetype.cpp
 
 */
 
-/* Revision: 1.18 17.05.2001 $ */
+/* Revision: 1.19 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! Константы MENU_ - в морг
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   17.05.2001 SVS
     ! Для конструкции !? для строки редактирования добавлен флаг
       DIF_USELASTHISTORY - при однотипных операциях ооох как помогает :-)
@@ -160,7 +164,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
     struct MenuItem TypesMenuItem;
     VMenu TypesMenu(MSG(MSelectAssocTitle),NULL,0,ScrY-4);
     TypesMenu.SetHelp("FileAssoc");
-    TypesMenu.SetFlags(MENU_WRAPMODE);
+    TypesMenu.SetFlags(VMENU_WRAPMODE);
     TypesMenu.SetPosition(-1,-1,0,0);
 
     int DizWidth=GetDescriptionWidth();
@@ -200,7 +204,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
       strcat(MenuText,CommandText);
       TruncStr(MenuText,sizeof(TypesMenuItem.Name)-1);
       strcpy(TypesMenuItem.Name,MenuText);
-      TypesMenuItem.Selected=(I==0);
+      TypesMenuItem.SetSelect(I==0);
       TypesMenu.AddItem(&TypesMenuItem);
     }
     if(!ActualCmdCount)
@@ -801,7 +805,7 @@ void EditFileTypes(int MenuPos)
 
   VMenu TypesMenu(MSG(MAssocTitle),NULL,0,ScrY-4);
   TypesMenu.SetHelp("FileAssoc");
-  TypesMenu.SetFlags(MENU_WRAPMODE);
+  TypesMenu.SetFlags(VMENU_WRAPMODE);
   TypesMenu.SetPosition(-1,-1,0,0);
   TypesMenu.SetBottomTitle(MSG(MAssocBottom));
 
@@ -831,12 +835,12 @@ void EditFileTypes(int MenuPos)
     strcat(MenuText,Mask);
     TruncStr(MenuText,sizeof(TypesMenuItem.Name)-1);
     strcpy(TypesMenuItem.Name,MenuText);
-    TypesMenuItem.Selected=(NumLine==MenuPos);
+    TypesMenuItem.SetSelect(NumLine==MenuPos);
     TypesMenu.AddItem(&TypesMenuItem);
     NumLine++;
   }
   *TypesMenuItem.Name=0;
-  TypesMenuItem.Selected=(NumLine==MenuPos);
+  TypesMenuItem.SetSelect(NumLine==MenuPos);
   TypesMenu.AddItem(&TypesMenuItem);
 
   {

@@ -5,10 +5,14 @@ gettable.cpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   06.05.2001 DJ
     ! перетрях #include
   11.02.2001 SVS
@@ -83,18 +87,18 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
   }
 
   VMenu TableList(MSG(MGetTableTitle),NULL,0,ScrY-4);
-  TableList.SetFlags(MENU_WRAPMODE);
+  TableList.SetFlags(VMENU_WRAPMODE);
   TableList.SetPosition(-1,-1,0,0);
 
   struct MenuItem ListItem;
   memset(&ListItem,0,sizeof(ListItem));
-  ListItem.Selected=(TableNum==0);
+  ListItem.SetSelect(!TableNum);
   strcpy(ListItem.Name,MSG(MGetTableNormalText));
   TableList.AddItem(&ListItem);
 
   if (UseUnicode)
   {
-    ListItem.Selected=(TableNum==1);
+    ListItem.SetSelect(TableNum==1);
     strcpy(ListItem.Name,"Unicode");
     TableList.AddItem(&ListItem);
     mx=1;
@@ -109,7 +113,7 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
     sprintf(t,"CodeTables\\%s",ItemName);
     GetRegKey(t,"TableName",t2,ItemName,128);
     strcpy(ListItem.Name,t2);
-    ListItem.Selected=(I+1+UseUnicode == TableNum);
+    ListItem.SetSelect(I+1+UseUnicode == TableNum);
     TableList.AddItem(&ListItem);
   }
 

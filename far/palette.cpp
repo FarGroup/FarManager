@@ -5,10 +5,12 @@ palette.cpp
 
 */
 
-/* Revision: 1.07 06.05.2001 $ */
+/* Revision: 1.08 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    + COL_MENUDISABLEDTEXT
   06.05.2001 DJ
     ! перетрях #include
   04.12.2000 SVS
@@ -104,8 +106,14 @@ unsigned char DefaultPalette[]=
   F_DARKGRAY|B_CYAN,        // COL_WARNDIALOGEDITDISABLED
   F_DARKGRAY|B_CYAN,        // COL_WARNDIALOGLISTDISABLED
   /* SVS $ */
+  F_DARKGRAY|B_CYAN,//COL_MENUDISABLEDTEXT
   0,
-  0
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };
 
 
@@ -181,8 +189,15 @@ unsigned char BlackPalette[]=
   F_LIGHTGRAY|B_DARKGRAY,   // COL_WARNDIALOGEDITDISABLED
   F_LIGHTGRAY|B_DARKGRAY,   // COL_WARNDIALOGLISTDISABLED
   /* SVS $ */
+  F_DARKGRAY|B_LIGHTGRAY,//COL_MENUDISABLEDTEXT
+
   0,
-  0
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
 };
 
 int SizeArrayPalette=sizeof(DefaultPalette)/sizeof(DefaultPalette[0]);

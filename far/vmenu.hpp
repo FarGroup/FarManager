@@ -10,10 +10,18 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.11 18.05.2001 $ */
+/* Revision: 1.12 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+   ! VMENU_DRAWBACKGROUND -> VMENU_DISABLEDRAWBACKGROUND
+   ! MENU_* выкинуты
+   ! DialogStyle -> VMENU_WARNDIALOG
+   ! struct MenuData
+     Поля Selected, Checked и Separator преобразованы в DWORD Flags
+   ! struct MenuItem
+     Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   18.05.2001 SVS
    ! UpdateRequired -> VMENU_UPDATEREQUIRED
    ! DrawBackground -> VMENU_DRAWBACKGROUND
@@ -80,23 +88,21 @@ enum{
   VMenuColorSeparator=5, // separator
   VMenuColorSelected=6,  // Выбранный
   VMenuColorHSelect=7,   // Выбранный - HotKey
-  VMenuColorScrollBar=8  // ScrollBar
+  VMenuColorScrollBar=8, // ScrollBar
+  VMenuColorDisabled=9,  // Disabled
 };
 /* SVS */
 
-/* $ 01.08.2000 SVS
-   Константы для флагов - для конструктора
-*/
-#define VMENU_ALWAYSSCROLLBAR 0x00000100
-#define VMENU_LISTBOX	      0x00000200
-#define VMENU_SHOWNOBOX       0x00000400
-#define VMENU_AUTOHIGHLIGHT	  0x00000800
-#define VMENU_REVERSIHLIGHT	  0x00001000
-#define VMENU_UPDATEREQUIRED  0x00002000
-#define VMENU_DRAWBACKGROUND  0x00004000
-#define VMENU_WRAPMODE        0x00008000
-#define VMENU_SHOWAMPERSAND   0x00010000
-/* SVS $ */
+#define VMENU_ALWAYSSCROLLBAR       0x00000100
+#define VMENU_LISTBOX	            0x00000200
+#define VMENU_SHOWNOBOX             0x00000400
+#define VMENU_AUTOHIGHLIGHT	        0x00000800
+#define VMENU_REVERSIHLIGHT	        0x00001000
+#define VMENU_UPDATEREQUIRED        0x00002000
+#define VMENU_DISABLEDRAWBACKGROUND 0x00004000
+#define VMENU_WRAPMODE              0x00008000
+#define VMENU_SHOWAMPERSAND         0x00010000
+#define VMENU_WARNDIALOG            0x00020000
 
 class Dialog;
 class SaveScreen;
@@ -105,23 +111,26 @@ struct MenuItem
 {
   DWORD Flags;
   char Name[128];
-  unsigned char Selected;
-  unsigned char Checked;
-  unsigned char Separator;
-  unsigned char Disabled;
+
   char  UserData[sizeof(WIN32_FIND_DATA)+NM+10];
   int   UserDataSize;
   char *PtrData;
   short AmpPos;              // Позиция автоназначенной подсветки
+
+  DWORD SetCheck(int Value){ if(Value) {Flags|=LIF_CHECKED; if(Value!=1) Flags|=Value&0xFFFF;} else Flags&=~(0xFFFF|LIF_CHECKED); return Flags;}
+  DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+  DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
 
 struct MenuData
 {
   char *Name;
-  unsigned char Selected;
-  unsigned char Checked;
-  unsigned char Separator;
+  DWORD Flags;
+
+  DWORD SetCheck(int Value){ if(Value) Flags|=((Value&0xFFFF)|LIF_CHECKED); else Flags&=~(0xFFFF|LIF_CHECKED); return Flags;}
+  DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+  DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
 class VMenu: public Modal
@@ -134,7 +143,6 @@ class VMenu: public Modal
     int MaxHeight;
     int MaxLength;
     int BoxType;
-    int DialogStyle;
     int CallCount;
     int PrevMacroMode;
     /* $ 18.07.2000 SVS
@@ -158,7 +166,7 @@ class VMenu: public Modal
     /* $ 28.07.2000 SVS
        Цветовые атрибуты
     */
-    short Colors[9];
+    short Colors[16];
     /* SVS */
 
   private:
@@ -190,10 +198,14 @@ class VMenu: public Modal
     void Hide();
 
     void SetBottomTitle(char *BottomTitle);
-    void SetDialogStyle(int Style) {DialogStyle=Style;SetColors(NULL);};
-    void SetUpdateRequired(int SetUpdate) {if(SetUpdate)VMFlags|=VMENU_UPDATEREQUIRED;else VMFlags&=~VMENU_UPDATEREQUIRED;}
+    void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style);SetColors(NULL);}
+    void SetUpdateRequired(int SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
     void SetBoxType(int BoxType);
-    void SetFlags(unsigned int Flags);
+
+    void SetFlags(DWORD Flags){ VMFlags|=Flags; }
+    void SkipFlags(DWORD Flags){ VMFlags&=~Flags; }
+    int  CheckFlags(DWORD Flags){ return(VMFlags&Flags); }
+    DWORD ChangeFlags(DWORD Flags,BOOL Status);
 
     void AssignHighlights(int Reverse);
     void SetColors(short *Colors=NULL);
@@ -221,7 +233,7 @@ class VMenu: public Modal
 
     int  GetItemCount() {return(ItemCount);};
     int  GetUserData(void *Data,int Size,int Position=-1);
-    int  GetSelectPos();
+    int  GetSelectPos() {return SelectPos;}
     int  SetSelectPos(int Pos,int Direct);
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);

@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.55 16.05.2001 $ */
+/* Revision: 1.56 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -2731,24 +2734,25 @@ void FileList::SelectSortMode()
 {
   struct MenuData SortMenu[]=
   {
-    (char *)MMenuSortByName,1,0,0,
-    (char *)MMenuSortByExt,0,0,0,
-    (char *)MMenuSortByModification,0,0,0,
-    (char *)MMenuSortBySize,0,0,0,
-    (char *)MMenuUnsorted,0,0,0,
-    (char *)MMenuSortByCreation,0,0,0,
-    (char *)MMenuSortByAccess,0,0,0,
-    (char *)MMenuSortByDiz,0,0,0,
-    (char *)MMenuSortByOwner,0,0,0,
-    (char *)MMenuSortByCompressedSize,0,0,0,
-    (char *)MMenuSortByNumLinks,0,0,0,
-    "",0,0,1,
-    (char *)MMenuSortUseGroups,0,0,0,
-    (char *)MMenuSortSelectedFirst,0,0,0
+    (char *)MMenuSortByName,LIF_SELECTED,
+    (char *)MMenuSortByExt,0,
+    (char *)MMenuSortByModification,0,
+    (char *)MMenuSortBySize,0,
+    (char *)MMenuUnsorted,0,
+    (char *)MMenuSortByCreation,0,
+    (char *)MMenuSortByAccess,0,
+    (char *)MMenuSortByDiz,0,
+    (char *)MMenuSortByOwner,0,
+    (char *)MMenuSortByCompressedSize,0,
+    (char *)MMenuSortByNumLinks,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuSortUseGroups,0,
+    (char *)MMenuSortSelectedFirst,0
   };
 
-  SortMenu[12].Checked=GetSortGroups();
-  SortMenu[13].Checked=SelectedFirst;
+  int SG=GetSortGroups();
+  SortMenu[12].SetCheck(SG);
+  SortMenu[13].SetCheck(SelectedFirst);
 
   static int SortModes[]={BY_NAME,BY_EXT,BY_MTIME,BY_SIZE,UNSORTED,
     BY_CTIME,BY_ATIME,BY_DIZ,BY_OWNER,BY_COMPRESSEDSIZE,BY_NUMLINKS};
@@ -2756,7 +2760,7 @@ void FileList::SelectSortMode()
   for (int I=0;I<sizeof(SortModes)/sizeof(SortModes[0]);I++)
     if (SortMode==SortModes[I])
     {
-      SortMenu[I].Checked=SortOrder==1 ? '+':'-';
+      SortMenu[I].SetCheck(SortOrder==1 ? '+':'-');
       break;
     }
 

@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! Константы MENU_ - в морг
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -87,7 +89,7 @@ int ShowFolderShortcutMenu(int Pos)
 {
   struct MenuItem ListItem;
   VMenu FolderList(MSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
-  FolderList.SetFlags(MENU_SHOWAMPERSAND);
+  FolderList.SetFlags(VMENU_SHOWAMPERSAND);
   FolderList.SetHelp("FolderShortcuts");
   FolderList.SetPosition(-1,-1,0,0);
   FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
@@ -102,7 +104,7 @@ int ShowFolderShortcutMenu(int Pos)
     if (*FolderName==0)
       strcpy(FolderName,MSG(MShortcutNone));
     sprintf(ListItem.Name,"%s+%d   %s",MSG(MRightCtrl),I,FolderName);
-    ListItem.Selected=(I == Pos);
+    ListItem.SetSelect(I == Pos);
     FolderList.AddItem(&ListItem);
   }
 

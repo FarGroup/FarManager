@@ -5,10 +5,14 @@ print.cpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   06.05.2001 DJ
     ! перетрях #include
   27.02.2001 VVM
@@ -86,7 +90,7 @@ void PrintFiles(Panel *SrcPanel)
       sprintf(Title,MSG(MPrintFilesTo),SelCount);
 
     VMenu PrinterList(Title,NULL,0,ScrY-4);
-    PrinterList.SetFlags(MENU_WRAPMODE|MENU_SHOWAMPERSAND);
+    PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
     PrinterList.SetPosition(-1,-1,0,0);
 
     AddToPrintersMenu(&PrinterList,pi,Returned);
@@ -238,10 +242,10 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     if ((pi[I].Attributes & PRINTER_ATTRIBUTE_DEFAULT) && !DefaultPrinterFound)
     {
       DefaultPrinterFound=TRUE;
-      ListItem.Selected=TRUE;
+      ListItem.SetSelect(TRUE);
     }
     else
-      ListItem.Selected=FALSE;
+      ListItem.SetSelect(FALSE);
     PrinterList->AddItem(&ListItem);
   }
 }

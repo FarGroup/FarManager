@@ -7,10 +7,12 @@ colors.hpp
 
 */
 
-/* Revision: 1.05 13.12.2000 $ */
+/* Revision: 1.06 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    + COL_MENUDISABLEDTEXT
   13.12.2000 SVS
     + COL_LASTPALETTECOLOR
   04.12.2000 SVS
@@ -186,7 +188,7 @@ enum PaletteColors
   /* SVS 04.12.2000 $ */
 
 
-
+  COL_MENUDISABLEDTEXT,
 
   /* $ 13.12.2000 SVS
      Этот пункт должен быть самым последним!!!!!!

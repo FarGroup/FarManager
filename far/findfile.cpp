@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.23 16.05.2001 $ */
+/* Revision: 1.24 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      ѕол€ Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    !  онстанты MENU_ - в морг
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -396,7 +400,7 @@ int FindFiles::FindFilesProcess()
     VMenu FindList("",NULL,0,13+IncY);
     FindList.SetDialogStyle(TRUE);
     FindList.SetBoxType(NO_BOX);
-    FindList.SetFlags(MENU_DISABLEDRAWBACKGROUND|MENU_SHOWAMPERSAND);
+    FindList.SetFlags(VMENU_DISABLEDRAWBACKGROUND|VMENU_SHOWAMPERSAND);
     int DlgX1,DlgY1,DlgX2,DlgY2;
     Dlg.GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
     FindList.SetPosition(DlgX1+4,DlgY1+1,DlgX2-4,DlgY2-5);
@@ -1007,7 +1011,7 @@ void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
     strcpy(PathName,".\\");
   if (LocalStricmp(PathName,LastDirName)!=0)
   {
-    ListItem.Selected=0;
+    ListItem.Flags&=~LIF_SELECTED;
     if (*LastDirName!=0)
     {
       ListItem.UserDataSize=0;
@@ -1015,9 +1019,9 @@ void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
       /* $ 12.05.2001 DJ
          курсор не останавливаетс€ на пустых строках между каталогами
       */
-      ListItem.Disabled = 1;
+      ListItem.Flags|=LIF_DISABLE;
       FilesListMenu->AddItem(&ListItem);
-      ListItem.Disabled = 0;
+      ListItem.Flags&=~LIF_DISABLE;
       /* DJ $ */
     }
     strcpy(LastDirName,PathName);
@@ -1052,7 +1056,7 @@ void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
     ListItem.UserDataSize+=NM;
   }
   strcpy(ListItem.Name,MenuText);
-  ListItem.Selected=(FileCount==0);
+  ListItem.SetSelect(!FileCount);
   FilesListMenu->AddItem(&ListItem);
   LastFoundNumber++;
   FileCount++;

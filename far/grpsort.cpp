@@ -5,10 +5,14 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.11 07.05.2001 $ */
+/* Revision: 1.12 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   07.05.2001 DJ
     ! оптимизация
   06.05.2001 DJ
@@ -237,7 +241,7 @@ int GroupSort::EditGroupsMenu(int Pos)
   memset(&ListItem,0,sizeof(ListItem));
 
   VMenu GroupList(MSG(MSortGroupsTitle),NULL,0,ScrY-4);
-  GroupList.SetFlags(MENU_WRAPMODE|MENU_SHOWAMPERSAND);
+  GroupList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
   GroupList.SetHelp(HelpSortGroups);
   GroupList.SetPosition(-1,-1,0,0);
   GroupList.SetBottomTitle(MSG(MSortGroupsBottom));
@@ -248,32 +252,32 @@ int GroupSort::EditGroupsMenu(int Pos)
     if (GroupData[GroupPos].Group>DEFAULT_SORT_GROUP)
       break;
     strncpy(ListItem.Name,GetMask(GroupPos),sizeof(ListItem.Name));
-    ListItem.Selected=(I == Pos);
+    ListItem.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem);
     GroupPos++;
   }
   int UpperGroupCount=GroupPos;
 
   *ListItem.Name=0;
-  ListItem.Selected=(I == Pos);
+  ListItem.SetSelect(I == Pos);
   GroupList.AddItem(&ListItem);
-  ListItem.Selected=0;
-  ListItem.Separator=TRUE;
+  ListItem.Flags&=~LIF_SELECTED;
+  ListItem.Flags|=LIF_SEPARATOR;
   GroupList.AddItem(&ListItem);
-  ListItem.Separator=0;
+  ListItem.Flags&=~LIF_SEPARATOR;
   I+=2;
 
   memset(&ListItem2,0,sizeof(ListItem2));
   for (;GroupPos<GroupCount;I++)
   {
     strncpy(ListItem2.Name,GetMask(GroupPos),sizeof(ListItem2.Name));
-    ListItem2.Selected=(I == Pos);
+    ListItem2.SetSelect(I == Pos);
     GroupList.AddItem(&ListItem2);
     GroupPos++;
   }
 
   *ListItem.Name=0;
-  ListItem.Selected=(GroupCount+2 == Pos);
+  ListItem.SetSelect(GroupCount+2 == Pos);
   GroupList.AddItem(&ListItem);
 
   GroupList.Show();

@@ -5,10 +5,13 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -63,19 +66,19 @@ void FileList::SetFilePanelModes()
   {
     struct MenuData ModeListMenu[]=
     {
-      (char *)MEditPanelModesBrief,0,0,0,
-      (char *)MEditPanelModesMedium,0,0,0,
-      (char *)MEditPanelModesFull,0,0,0,
-      (char *)MEditPanelModesWide,0,0,0,
-      (char *)MEditPanelModesDetailed,0,0,0,
-      (char *)MEditPanelModesDiz,0,0,0,
-      (char *)MEditPanelModesLongDiz,0,0,0,
-      (char *)MEditPanelModesOwners,0,0,0,
-      (char *)MEditPanelModesLinks,0,0,0,
-      (char *)MEditPanelModesAlternative,0,0,0
+      (char *)MEditPanelModesBrief,0,
+      (char *)MEditPanelModesMedium,0,
+      (char *)MEditPanelModesFull,0,
+      (char *)MEditPanelModesWide,0,
+      (char *)MEditPanelModesDetailed,0,
+      (char *)MEditPanelModesDiz,0,
+      (char *)MEditPanelModesLongDiz,0,
+      (char *)MEditPanelModesOwners,0,
+      (char *)MEditPanelModesLinks,0,
+      (char *)MEditPanelModesAlternative,0
     };
     int ModeNumber;
-    ModeListMenu[CurMode].Selected=TRUE;
+    ModeListMenu[CurMode].SetSelect(1);
     {
       VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,sizeof(ModeListMenu)/sizeof(ModeListMenu[0]),ScrY-4);
       ModeList.SetPosition(-1,-1,0,0);

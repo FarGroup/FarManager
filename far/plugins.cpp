@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.67 16.05.2001 $ */
+/* Revision: 1.68 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   16.05.2001 SVS
     ! Метод DumpPluginsInfo - в морг. Есть "штатные" средства записи
       информации о плагинах :-)
@@ -1613,7 +1617,7 @@ void PluginsSet::Configure()
   int MenuItemNumber=0;
   int I, J;
   VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
-  PluginList.SetFlags(MENU_WRAPMODE);
+  PluginList.SetFlags(VMENU_WRAPMODE);
   PluginList.SetPosition(-1,-1,0,0);
 
   LoadIfCacheAbsent();
@@ -1639,7 +1643,7 @@ void PluginsSet::Configure()
           GetRegKey(RegKey,Value,ListItem.Name,"",sizeof(ListItem.Name));
           if (*ListItem.Name==0)
             break;
-          ListItem.Selected=(MenuItemNumber++ == 0);
+          ListItem.SetSelect(MenuItemNumber++ == 0);
           PluginList.AddItem(&ListItem);
         }
     }
@@ -1656,7 +1660,7 @@ void PluginsSet::Configure()
         ListItem.UserData[1]=J;
         ListItem.UserDataSize=2;
         strcpy(ListItem.Name,NullToEmpty(Info.PluginConfigStrings[J]));
-        ListItem.Selected=(MenuItemNumber++ == 0);
+        ListItem.SetSelect(MenuItemNumber++ == 0);
         PluginList.AddItem(&ListItem);
       }
     }
@@ -1749,7 +1753,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
   /* OT $ */
 
   VMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
-  PluginList.SetFlags(MENU_WRAPMODE);
+  PluginList.SetFlags(VMENU_WRAPMODE);
   PluginList.SetPosition(-1,-1,0,0);
   PluginList.SetHelp("Plugins");
 
@@ -1800,7 +1804,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
               sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
             else
               sprintf(ListItem.Name,"   %s",Name);
-          ListItem.Selected=(MenuItemNumber++ == StartPos);
+          ListItem.SetSelect(MenuItemNumber++ == StartPos);
           PluginList.AddItem(&ListItem);
         }
       }
@@ -1833,7 +1837,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
             sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
           else
             sprintf(ListItem.Name,"   %s",Name);
-        ListItem.Selected=(MenuItemNumber++ == StartPos);
+        ListItem.SetSelect(MenuItemNumber++ == StartPos);
         PluginList.AddItem(&ListItem);
       }
     }

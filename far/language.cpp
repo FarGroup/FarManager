@@ -5,10 +5,14 @@ language.cpp
 
 */
 
-/* Revision: 1.07 17.05.2001 $ */
+/* Revision: 1.08 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      ѕол€ Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    !  онстанты MENU_ - в морг
   17.05.2001 OT
     ! выравнивание сообщений на границу 4 байт.
   06.05.2001 DJ
@@ -301,7 +305,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   memset(&LangMenuItem,0,sizeof(LangMenuItem));
   VMenu *LangMenu=new VMenu(Title,NULL,0,ScrY-4);
   *MenuPtr=LangMenu;
-  LangMenu->SetFlags(MENU_WRAPMODE);
+  LangMenu->SetFlags(VMENU_WRAPMODE);
   LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 
   char FullName[NM];
@@ -317,7 +321,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
     if (GetLangParam(LangFile,"Language",LangName,LangDescr))
     {
       sprintf(LangMenuItem.Name,"%.40s",*LangDescr ? LangDescr:LangName);
-      LangMenuItem.Selected=(stricmp(Dest,LangName)==0);
+      LangMenuItem.SetSelect(stricmp(Dest,LangName)==0);
       strcpy(LangMenuItem.UserData,LangName);
       LangMenuItem.UserDataSize=strlen(LangName)+1;
       LangMenu->AddItem(&LangMenuItem);

@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.59 16.05.2001 $ */
+/* Revision: 1.60 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   16.05.2001 DJ
     ! proof-of-concept
   16.05.2001 SVS
@@ -424,9 +428,9 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     for (int I=0;I<ItemsNumber;I++)
     {
       struct MenuItem CurItem={0};
-      CurItem.Selected=Item[I].Selected;
-      CurItem.Checked=Item[I].Checked;
-      CurItem.Separator=Item[I].Separator;
+      CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
+      CurItem.Flags|=Item[I].Checked?LIF_CHECKED:0;
+      CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
       *CurItem.UserData=CurItem.UserDataSize=0;
       strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name));
       FarMenu.AddItem(&CurItem);
@@ -434,9 +438,9 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
 
     DWORD MenuFlags=0;
     if (Flags & FMENU_SHOWAMPERSAND)
-      MenuFlags|=MENU_SHOWAMPERSAND;
+      MenuFlags|=VMENU_SHOWAMPERSAND;
     if (Flags & FMENU_WRAPMODE)
-      MenuFlags|=FMENU_WRAPMODE;
+      MenuFlags|=VMENU_WRAPMODE;
     if (Flags & FMENU_AUTOHIGHLIGHT)
       FarMenu.AssignHighlights(FALSE);
     if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)

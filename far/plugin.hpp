@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.106 18.05.2001 $ */
+/* Revision: 1.107 21.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.05.2001 SVS
+    + DM_RESIZEDIALOG
+    + DM_SETITEMPOSITION
   18.05.2001 SVS
     + DM_LISTINSERT, DM_LISTINFO, DM_LISTFINDSTRING
     + DM_GETCHECK, DM_SETCHECK, DM_SET3STATE
@@ -645,6 +648,9 @@ enum FarMessagesProc{
   DM_LISTINSERT,
   DM_LISTFINDSTRING,
   DM_LISTINFO,
+
+  DM_RESIZEDIALOG,
+  DM_SETITEMPOSITION,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

@@ -5,10 +5,14 @@ options.cpp
 
 */
 
-/* Revision: 1.08 12.05.2001 $ */
+/* Revision: 1.09 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      ѕол€ Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! OptionsDisabled убрана. ѕункты дизабл€тс€ перед показом.
   12.05.2001 DJ
     * нажатие Shift-F10 перед тем, как нажималось F9, показывает меню дл€
       активной панели, а не всегда дл€ левой
@@ -51,128 +55,127 @@ Modify:
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 
-int OptionsDisabled(int i);
-
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
+  int I;
   struct MenuData LeftMenu[]=
   {
-    (char *)MMenuBriefView,1,0,0,
-    (char *)MMenuMediumView,0,0,0,
-    (char *)MMenuFullView,0,0,0,
-    (char *)MMenuWideView,0,0,0,
-    (char *)MMenuDetailedView,0,0,0,
-    (char *)MMenuDizView,0,0,0,
-    (char *)MMenuLongDizView,0,0,0,
-    (char *)MMenuOwnersView,0,0,0,
-    (char *)MMenuLinksView,0,0,0,
-    (char *)MMenuAlternativeView,0,0,0,
-    "",0,0,1,
-    (char *)MMenuInfoPanel,0,0,0,
-    (char *)MMenuTreePanel,0,0,0,
-    (char *)MMenuQuickView,0,0,0,
-    "",0,0,1,
-    (char *)MMenuSortModes,0,0,0,
-    (char *)MMenuLongNames,0,0,0,
-    (char *)MMenuTogglePanel,0,0,0,
-    (char *)MMenuReread,0,0,0,
-    (char *)MMenuChangeDrive,0,0,0
+    (char *)MMenuBriefView,LIF_SELECTED,
+    (char *)MMenuMediumView,0,
+    (char *)MMenuFullView,0,
+    (char *)MMenuWideView,0,
+    (char *)MMenuDetailedView,0,
+    (char *)MMenuDizView,0,
+    (char *)MMenuLongDizView,0,
+    (char *)MMenuOwnersView,0,
+    (char *)MMenuLinksView,0,
+    (char *)MMenuAlternativeView,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuInfoPanel,0,
+    (char *)MMenuTreePanel,0,
+    (char *)MMenuQuickView,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuSortModes,0,
+    (char *)MMenuLongNames,0,
+    (char *)MMenuTogglePanel,0,
+    (char *)MMenuReread,0,
+    (char *)MMenuChangeDrive,0
   };
 
   struct MenuData FilesMenu[]=
   {
-    (char *)MMenuView,1,0,0,
-    (char *)MMenuEdit,0,0,0,
-    (char *)MMenuCopy,0,0,0,
-    (char *)MMenuMove,0,0,0,
-    (char *)MMenuCreateFolder,0,0,0,
-    (char *)MMenuDelete,0,0,0,
-    "",0,0,1,
-    (char *)MMenuAdd,0,0,0,
-    (char *)MMenuExtract,0,0,0,
-    (char *)MMenuArchiveCommands,0,0,0,
-    "",0,0,1,
-    (char *)MMenuAttributes,0,0,0,
-    (char *)MMenuApplyCommand,0,0,0,
-    (char *)MMenuDescribe,0,0,0,
-    "",0,0,1,
-    (char *)MMenuSelectGroup,0,0,0,
-    (char *)MMenuUnselectGroup,0,0,0,
-    (char *)MMenuInvertSelection,0,0,0,
-    (char *)MMenuRestoreSelection,0,0,0
+    (char *)MMenuView,LIF_SELECTED,
+    (char *)MMenuEdit,0,
+    (char *)MMenuCopy,0,
+    (char *)MMenuMove,0,
+    (char *)MMenuCreateFolder,0,
+    (char *)MMenuDelete,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuAdd,0,
+    (char *)MMenuExtract,0,
+    (char *)MMenuArchiveCommands,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuAttributes,0,
+    (char *)MMenuApplyCommand,0,
+    (char *)MMenuDescribe,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuSelectGroup,0,
+    (char *)MMenuUnselectGroup,0,
+    (char *)MMenuInvertSelection,0,
+    (char *)MMenuRestoreSelection,0
   };
 
 
   struct MenuData CmdMenu[]=
   {
-    (char *)MMenuFindFile,1,0,0,
-    (char *)MMenuHistory,0,0,0,
-    (char *)MMenuVideoMode,0,0,0,
-    (char *)MMenuFindFolder,0,0,0,
-    (char *)MMenuViewHistory,0,0,0,
-    (char *)MMenuFoldersHistory,0,0,0,
-    "",0,0,1,
-    (char *)MMenuSwapPanels,0,0,0,
-    (char *)MMenuTogglePanels,0,0,0,
-    (char *)MMenuCompareFolders,0,0,0,
-    "",0,0,1,
-    (char *)MMenuUserMenu,0,0,0,
-    (char *)MMenuFileAssociations,0,0,0,
-    (char *)MMenuFolderShortcuts,0,0,0,
-    (char *)MMenuEditSortGroups,0,0,0,
-    (char *)MMenuFilter,0,0,0,
-    "",0,0,1,
-    (char *)MMenuPluginCommands,0,0,0,
-    (char *)MMenuWindowsList,0,0,0,
-    (char *)MMenuProcessList,0,0,0
+    (char *)MMenuFindFile,LIF_SELECTED,
+    (char *)MMenuHistory,0,
+    (char *)MMenuVideoMode,0,
+    (char *)MMenuFindFolder,0,
+    (char *)MMenuViewHistory,0,
+    (char *)MMenuFoldersHistory,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuSwapPanels,0,
+    (char *)MMenuTogglePanels,0,
+    (char *)MMenuCompareFolders,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuUserMenu,0,
+    (char *)MMenuFileAssociations,0,
+    (char *)MMenuFolderShortcuts,0,
+    (char *)MMenuEditSortGroups,0,
+    (char *)MMenuFilter,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuPluginCommands,0,
+    (char *)MMenuWindowsList,0,
+    (char *)MMenuProcessList,0
   };
 
 
   struct MenuData OptionsMenu[]=
   {
-    (char *)MMenuSystemSettings,1,0,0,
-    (char *)MMenuPanelSettings,0,0,0,
-    (char *)MMenuInterface,0,0,0,
-    (char *)MMenuLanguages,0,0,0,
-    (char *)MMenuPluginsConfig,0,0,0,
-    "",0,0,1,
-    (char *)MMenuConfirmation,0,0,0,
-    (char *)MMenuFilePanelModes,0,0,0,
-    (char *)MMenuFileDescriptions,0,0,0,
-    (char *)MMenuFolderInfoFiles,0,0,0,
-    "",0,0,1,
-    (char *)MMenuViewer,0,0,0,
-    (char *)MMenuEditor,0,0,0,
-    "",0,0,1,
-    (char *)MMenuColors,0,0,0,
-    (char *)MMenuFilesHighlighting,0,0,0,
-    "",0,0,1,
-    (char *)MMenuSaveSetup,0,0,0
+    (char *)MMenuSystemSettings,LIF_SELECTED,
+    (char *)MMenuPanelSettings,0,
+    (char *)MMenuInterface,0,
+    (char *)MMenuLanguages,0,
+    (char *)MMenuPluginsConfig,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuConfirmation,0,
+    (char *)MMenuFilePanelModes,0,
+    (char *)MMenuFileDescriptions,0,
+    (char *)MMenuFolderInfoFiles,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuViewer,0,
+    (char *)MMenuEditor,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuColors,0,
+    (char *)MMenuFilesHighlighting,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuSaveSetup,0
   };
 
 
   struct MenuData RightMenu[]=
   {
-    (char *)MMenuBriefView,1,0,0,
-    (char *)MMenuMediumView,0,0,0,
-    (char *)MMenuFullView,0,0,0,
-    (char *)MMenuWideView,0,0,0,
-    (char *)MMenuDetailedView,0,0,0,
-    (char *)MMenuDizView,0,0,0,
-    (char *)MMenuLongDizView,0,0,0,
-    (char *)MMenuOwnersView,0,0,0,
-    (char *)MMenuLinksView,0,0,0,
-    (char *)MMenuAlternativeView,0,0,0,
-    "",0,0,1,
-    (char *)MMenuInfoPanel,0,0,0,
-    (char *)MMenuTreePanel,0,0,0,
-    (char *)MMenuQuickView,0,0,0,
-    "",0,0,1,
-    (char *)MMenuSortModes,0,0,0,
-    (char *)MMenuLongNames,0,0,0,
-    (char *)MMenuTogglePanelRight,0,0,0,
-    (char *)MMenuReread,0,0,0,
-    (char *)MMenuChangeDriveRight,0,0,0
+    (char *)MMenuBriefView,LIF_SELECTED,
+    (char *)MMenuMediumView,0,
+    (char *)MMenuFullView,0,
+    (char *)MMenuWideView,0,
+    (char *)MMenuDetailedView,0,
+    (char *)MMenuDizView,0,
+    (char *)MMenuLongDizView,0,
+    (char *)MMenuOwnersView,0,
+    (char *)MMenuLinksView,0,
+    (char *)MMenuAlternativeView,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuInfoPanel,0,
+    (char *)MMenuTreePanel,0,
+    (char *)MMenuQuickView,0,
+    "",LIF_SEPARATOR,
+    (char *)MMenuSortModes,0,
+    (char *)MMenuLongNames,0,
+    (char *)MMenuTogglePanelRight,0,
+    (char *)MMenuReread,0,
+    (char *)MMenuChangeDriveRight,0
   };
 
 
@@ -188,6 +191,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   static int LastHItem=-1,LastVItem=0;
   int HItem,VItem;
 
+  // дисаблим
+  if (Opt.Policies.DisabledOptions)
+    for(I=0; I < sizeof(OptionsMenu)/sizeof(OptionsMenu[0]); ++I)
+      OptionsMenu[I].SetDisable((Opt.Policies.DisabledOptions >> I) & 1);
+
   switch(CtrlObject->Cp()->LeftPanel->GetType())
   {
     case FILE_PANEL:
@@ -195,23 +203,23 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
         int MenuLine=CtrlObject->Cp()->LeftPanel->GetViewMode()-VIEW_0;
         if (MenuLine<10)
           if (MenuLine==0)
-            LeftMenu[9].Checked=1;
+            LeftMenu[9].SetCheck(1);
           else
-            LeftMenu[MenuLine-1].Checked=1;
+            LeftMenu[MenuLine-1].SetCheck(1);
       }
       break;
     case INFO_PANEL:
-      LeftMenu[11].Checked=1;
+      LeftMenu[11].SetCheck(1);
       break;
     case TREE_PANEL:
-      LeftMenu[12].Checked=1;
+      LeftMenu[12].SetCheck(1);
       break;
     case QVIEW_PANEL:
-      LeftMenu[13].Checked=1;
+      LeftMenu[13].SetCheck(1);
       break;
   }
 
-  LeftMenu[16].Checked=!CtrlObject->Cp()->LeftPanel->GetShowShortNamesMode();
+  LeftMenu[16].SetCheck(!CtrlObject->Cp()->LeftPanel->GetShowShortNamesMode());
 
   switch(CtrlObject->Cp()->RightPanel->GetType())
   {
@@ -220,24 +228,24 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
         int MenuLine=CtrlObject->Cp()->RightPanel->GetViewMode()-VIEW_0;
         if (MenuLine<10)
           if (MenuLine==0)
-            RightMenu[9].Checked=1;
+            RightMenu[9].SetCheck(1);
           else
-            RightMenu[MenuLine-1].Checked=1;
+            RightMenu[MenuLine-1].SetCheck(1);
       }
       break;
     case INFO_PANEL:
-      RightMenu[11].Checked=1;
+      RightMenu[11].SetCheck(1);
       break;
     case TREE_PANEL:
-      RightMenu[12].Checked=1;
+      RightMenu[12].SetCheck(1);
       break;
     case QVIEW_PANEL:
-      RightMenu[13].Checked=1;
+      RightMenu[13].SetCheck(1);
       break;
   }
 
 
-  RightMenu[16].Checked=!CtrlObject->Cp()->RightPanel->GetShowShortNamesMode();
+  RightMenu[16].SetCheck(!CtrlObject->Cp()->RightPanel->GetShowShortNamesMode());
 
   {
     HMenu HOptMenu(MainMenu,sizeof(MainMenu)/sizeof(MainMenu[0]));
@@ -260,8 +268,8 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       }
       MainMenu[0].Selected=0;
       MainMenu[HItemToShow].Selected=1;
-      VMenuTable[HItemToShow][0].Selected=0;
-      VMenuTable[HItemToShow][LastVItem].Selected=1;
+      VMenuTable[HItemToShow][0].SetSelect(0);
+      VMenuTable[HItemToShow][LastVItem].SetSelect(1);
       /* DJ $ */
       HOptMenu.Show();
       ChangeMacroMode MacroMode(MACRO_MAINMENU);
@@ -432,12 +440,6 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       }
       break;
     case 3:
-      /* $ 05.09.2000 tran
-        + обработка разрешени€ настройки
-      */
-      if ( !OptionsDisabled(VItem) )
-        break;
-      /* tran 05.09.2000 $ */
       switch(VItem)
       {
         case 0:
@@ -546,14 +548,3 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
     LastVItem=VItem;
   }
 }
-
-/* $ 05.09.2000 tran
-   функци€ проверки разрешенности конфигурации */
-int OptionsDisabled(int I)
-{
-  if (Opt.Policies.DisabledOptions)
-    if ((Opt.Policies.DisabledOptions >> I) & 1)
-       return FALSE;
-  return TRUE;
-}
-/* tran 05.09.2000 $ */

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.34 06.05.2001 $ */
+/* Revision: 1.35 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! Константы MENU_ - в морг
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 SVS
@@ -149,10 +151,6 @@ enum {
 // from plugins.hpp
 enum {PLUGIN_FARGETFILE,PLUGIN_FARGETFILES,PLUGIN_FARPUTFILES,
       PLUGIN_FARDELETEFILES,PLUGIN_FARMAKEDIRECTORY,PLUGIN_FAROTHER};
-
-
-// for class VMenu
-enum {MENU_SHOWAMPERSAND=1,MENU_WRAPMODE=2,MENU_DISABLEDRAWBACKGROUND=4};
 
 enum {MODALTREE_ACTIVE=1,MODALTREE_PASSIVE=2,MODALTREE_FREE=3};
 

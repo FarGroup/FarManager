@@ -5,10 +5,14 @@ plist.cpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
+    ! Константы MENU_ - в морг
   06.05.2001 DJ
     ! перетрях #include
   11.02.2001 SVS
@@ -40,7 +44,7 @@ void ShowProcessList()
   /* $ 31.01.2001 IS
      ! Теперь это меню более дружелюбно ;)
   */
-  ProcList.SetFlags(MENU_WRAPMODE);
+  ProcList.SetFlags(VMENU_WRAPMODE);
   /* IS $ */
   ProcList.SetHelp("TaskList");
   ProcList.SetPosition(-1,-1,0,0);

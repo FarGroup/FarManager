@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.21 07.05.2001 $ */
+/* Revision: 1.22 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   07.05.2001 SVS
     ! 'ФАР пускается с ключем -a. В меню по F2 пункты с подменю справа
       обозначаюися ".". Хотелось бы ">".'
@@ -508,8 +511,8 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         */
         if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
         {
-          UserMenuItem.Separator=1;
-          UserMenuItem.Selected=0;
+          UserMenuItem.Flags|=LIF_SEPARATOR;
+          UserMenuItem.Flags|=LIF_SELECTED;
           if (NumLine==MenuPos)
             MenuPos++;
         }
@@ -531,8 +534,8 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
             strcat(MenuText,SubMenuSymbol);
           }
           strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
-          UserMenuItem.Selected=(NumLine==MenuPos);
-          UserMenuItem.Separator=0;
+          UserMenuItem.SetSelect(NumLine==MenuPos);
+          UserMenuItem.Flags&=~LIF_SEPARATOR;
         }
         /* VVM $ */
         int ItemPos=UserMenu.AddItem(&UserMenuItem);
@@ -541,8 +544,9 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         NumLine++;
       }
 
-      *UserMenuItem.Name=UserMenuItem.Separator=0;
-      UserMenuItem.Selected=(NumLine==MenuPos);
+      *UserMenuItem.Name=0;
+      UserMenuItem.Flags&=LIF_SEPARATOR;
+      UserMenuItem.SetSelect(NumLine==MenuPos);
       UserMenu.AddItem(&UserMenuItem);
 
       {

@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.100 18.05.2001 $ */
+/* Revision: 1.101 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+   + DM_SETITEMPOSITION - резерв на будущее (кусок еще не оттестирован)
+   + DM_RESIZEDIALOG
+   ! struct MenuData|MenuItem
+     Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   18.05.2001 DJ
    ! Dialog унаследован от Frame
   18.05.2001 SVS
@@ -818,11 +823,11 @@ int Dialog::InitDialogObjects(int ID)
            ! Исправлена подсветка в DI_LISTBOX
         */
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-          CurItem->ListPtr->SetFlags(MENU_SHOWAMPERSAND);
+          CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
         if(ItemFlags&DIF_LISTNOBOX)
           CurItem->ListPtr->SetFlags(VMENU_SHOWNOBOX);
         if(ItemFlags&DIF_LISTWRAPMODE)
-          CurItem->ListPtr->SetFlags(MENU_WRAPMODE);
+          CurItem->ListPtr->SetFlags(VMENU_WRAPMODE);
         CurItem->ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
         CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
@@ -859,12 +864,12 @@ int Dialog::InitDialogObjects(int ID)
         if(ItemFlags & DIF_DROPDOWNLIST)
            DialogEdit->DropDownBox=1;
         if(ItemFlags&DIF_LISTWRAPMODE)
-          CurItem->ListPtr->SetFlags(MENU_WRAPMODE);
+          CurItem->ListPtr->SetFlags(VMENU_WRAPMODE);
         /* $ 15.05.2001 KM
            Добавим подсветку в DI_COMBOBOX
         */
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-          CurItem->ListPtr->SetFlags(MENU_SHOWAMPERSAND);
+          CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
 
         CurItem->ListPtr->AssignHighlights(FALSE);
         /* KM $ */
@@ -2018,7 +2023,8 @@ int Dialog::ProcessKey(int Key)
         */
         Item[FocusPos].Selected=1;
         // сообщение - "Кнокна кликнута"
-        Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,0);
+        if(Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,0))
+          return TRUE;
         /* $ 06.12.2000 SVS
            Если не старый стиль и кнопка "не для закрытия" (DIF_BTNNOCLOSE), то
            вываливаемся, иначе - предлагаем закрыть диалог.
@@ -3414,7 +3420,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       EditX2=ScrX;
 
     memset(&HistoryItem,0,sizeof(HistoryItem));
-    HistoryMenu.SetFlags(MENU_SHOWAMPERSAND);
+    HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 
@@ -3435,11 +3441,11 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       sprintf(KeyValue,fmtLocked,I);
 
       GetRegKey(RegKey,KeyValue,(int)Checked,0);
-      HistoryItem.Checked=Checked;
+      HistoryItem.SetCheck(Checked);
       /* $ 26.07.2000 SVS
          Выставим Selected при полном совпадении строки ввода и истории
       */
-      if((HistoryItem.Selected=(!Dest && !strcmp(IStr,Str[I]))?TRUE:FALSE) == TRUE)
+      if(HistoryItem.SetSelect((!Dest && !strcmp(IStr,Str[I]))?TRUE:FALSE) == TRUE)
          Dest++;
       /* SVS $ */
       strncpy(HistoryItem.Name,Str[I],sizeof(HistoryItem.Name)-1);
@@ -3448,7 +3454,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       else
       {
         HistoryItem.PtrData=Str[I];
-        HistoryItem.Flags=1;
+        HistoryItem.Flags|=LIF_PTRDATA;
       }
       HistoryItem.UserDataSize=strlen(Str[I])+1;
       HistoryMenu.AddItem(&HistoryItem);
@@ -3784,7 +3790,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
   if(!CheckDialogMode(DMODE_CREATEOBJECTS))
     return;
 
-  ScreenObject *DialogEdit;
+  ScreenObject *DialogScrObject;
   for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
@@ -3793,15 +3799,15 @@ void Dialog::AdjustEditPos(int dx, int dy)
         CurItem->ListPtr && Type == DI_LISTBOX)
     {
        if(Type == DI_LISTBOX)
-         DialogEdit=(ScreenObject *)CurItem->ListPtr;
+         DialogScrObject=(ScreenObject *)CurItem->ListPtr;
        else
-         DialogEdit=(ScreenObject *)CurItem->ObjPtr;
-       DialogEdit->GetPosition(x1,y1,x2,y2);
+         DialogScrObject=(ScreenObject *)CurItem->ObjPtr;
+       DialogScrObject->GetPosition(x1,y1,x2,y2);
        x1+=dx;
        x2+=dx;
        y1+=dy;
        y2+=dy;
-       DialogEdit->SetPosition(x1,y1,x2,y2);
+       DialogScrObject->SetPosition(x1,y1,x2,y2);
     }
   }
 }
@@ -3935,7 +3941,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       return TRUE;
 
     case DN_BTNCLICK:
-      return TRUE;
+      return ((Type==DI_BUTTON)?FALSE:TRUE);
 
     case DN_LISTCHANGE:
       return TRUE;
@@ -4073,12 +4079,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 if(Items)
                 {
                   memset(Items,0,sizeof(struct FarListItem));
-                  Items->Flags|=ListMenuItem->Separator?LIF_SEPARATOR:0;
-                  Items->Flags|=ListMenuItem->Selected?LIF_SELECTED:0;
-                  Items->Flags|=ListMenuItem->Checked?LIF_CHECKED:0;
-                  Items->Flags|=ListMenuItem->Disabled?LIF_DISABLE:0;
-                  Items->Flags|=ListMenuItem->Flags&1?LIF_PTRDATA:0;
-                  if(ListMenuItem->Flags&1)
+                  Items->Flags=ListMenuItem->Flags;
+                  if(ListMenuItem->Flags&LIF_PTRDATA)
                   {
                     Items->Ptr.PtrData=ListMenuItem->PtrData;
                     Items->Ptr.PtrLength=ListMenuItem->UserDataSize;
@@ -4626,6 +4628,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     }
     /* SVS $ */
+
+    case DM_SETITEMPOSITION: // Param2 = SMALL_RECT
+    {
+      // Dlg->ResizeItem(Param1,)
+      return FALSE;
+    }
+
+    case DM_RESIZEDIALOG:
+      return Dialog::SendDlgMessage(hDlg,DM_MOVEDIALOG,-1,Param2);
 
     /* $ 30.08.2000 SVS
         + программное перемещение диалога

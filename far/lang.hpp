@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.65 20.05.2001 $ */
+/* Revision: 1.66 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    + MSetColorMenuDisabled, MSetColorHMenuDisabled
   20.05.2001 IS
     + MEditDisableROFileModification, MEditWarningBeforeOpenROFile
   30.04.2001 DJ
@@ -1196,6 +1198,7 @@ enum
   MSetColorMenuSelected,
   MSetColorMenuHighlighted,
   MSetColorMenuSelectedHighlighted,
+  MSetColorMenuDisabled,
   MSetColorMenuBox,
   MSetColorMenuTitle,
   MSetColorMenuScrollBar,

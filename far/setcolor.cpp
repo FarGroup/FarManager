@@ -5,10 +5,13 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.09 18.05.2001 $ */
+/* Revision: 1.10 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 SVS
+    ! struct MenuData|MenuItem
+      ѕол€ Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
   18.05.2001 DJ
     ! GetColorDialog() переписан с использованием функции-обработчика диалога
   06.05.2001 DJ
@@ -55,38 +58,38 @@ void SetColors()
 {
   struct MenuData Groups[]=
   {
-    (char *)MSetColorPanel,1,0,0,
-    (char *)MSetColorDialog,0,0,0,
-    (char *)MSetColorWarning,0,0,0,
-    (char *)MSetColorMenu,0,0,0,
-    (char *)MSetColorHMenu,0,0,0,
-    (char *)MSetColorKeyBar,0,0,0,
-    (char *)MSetColorCommandLine,0,0,0,
-    (char *)MSetColorClock,0,0,0,
-    (char *)MSetColorViewer,0,0,0,
-    (char *)MSetColorEditor,0,0,0,
-    (char *)MSetColorHelp,0,0,0,
-    "",0,0,1,
-    (char *)MSetDefaultColors,0,0,0,
-    (char *)MSetBW,0,0,0
+    (char *)MSetColorPanel,LIF_SELECTED,
+    (char *)MSetColorDialog,0,
+    (char *)MSetColorWarning,0,
+    (char *)MSetColorMenu,0,
+    (char *)MSetColorHMenu,0,
+    (char *)MSetColorKeyBar,0,
+    (char *)MSetColorCommandLine,0,
+    (char *)MSetColorClock,0,
+    (char *)MSetColorViewer,0,
+    (char *)MSetColorEditor,0,
+    (char *)MSetColorHelp,0,
+    "",LIF_SEPARATOR,
+    (char *)MSetDefaultColors,0,
+    (char *)MSetBW,0
   };
 
   struct MenuData PanelItems[]=
   {
-    (char *)MSetColorPanelNormal,1,0,0,
-    (char *)MSetColorPanelSelected,0,0,0,
-    (char *)MSetColorPanelHighlightedInfo,0,0,0,
-    (char *)MSetColorPanelDragging,0,0,0,
-    (char *)MSetColorPanelBox,0,0,0,
-    (char *)MSetColorPanelNormalCursor,0,0,0,
-    (char *)MSetColorPanelSelectedCursor,0,0,0,
-    (char *)MSetColorPanelNormalTitle,0,0,0,
-    (char *)MSetColorPanelSelectedTitle,0,0,0,
-    (char *)MSetColorPanelColumnTitle,0,0,0,
-    (char *)MSetColorPanelTotalInfo,0,0,0,
-    (char *)MSetColorPanelSelectedInfo,0,0,0,
-    (char *)MSetColorPanelScrollbar,0,0,0,
-    (char *)MSetColorPanelScreensNumber,0,0,0,
+    (char *)MSetColorPanelNormal,LIF_SELECTED,
+    (char *)MSetColorPanelSelected,0,
+    (char *)MSetColorPanelHighlightedInfo,0,
+    (char *)MSetColorPanelDragging,0,
+    (char *)MSetColorPanelBox,0,
+    (char *)MSetColorPanelNormalCursor,0,
+    (char *)MSetColorPanelSelectedCursor,0,
+    (char *)MSetColorPanelNormalTitle,0,
+    (char *)MSetColorPanelSelectedTitle,0,
+    (char *)MSetColorPanelColumnTitle,0,
+    (char *)MSetColorPanelTotalInfo,0,
+    (char *)MSetColorPanelSelectedInfo,0,
+    (char *)MSetColorPanelScrollbar,0,
+    (char *)MSetColorPanelScreensNumber,0,
   };
   int PanelPaletteItems[]={
     COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELINFOTEXT,
@@ -104,31 +107,31 @@ void SetColors()
   */
   struct MenuData DialogItems[]=
   {
-    (char *)MSetColorDialogNormal,1,0,0,
-    (char *)MSetColorDialogHighlighted,0,0,0,
-    (char *)MSetColorDialogBox,0,0,0,
-    (char *)MSetColorDialogBoxTitle,0,0,0,
-    (char *)MSetColorDialogHighlightedBoxTitle,0,0,0,
-    (char *)MSetColorDialogTextInput,0,0,0,
-    (char *)MSetColorDialogUnchangedTextInput,0,0,0,
-    (char *)MSetColorDialogSelectedTextInput,0,0,0,
-    (char *)MSetColorDialogButtons,0,0,0,
-    (char *)MSetColorDialogSelectedButtons,0,0,0,
-    (char *)MSetColorDialogHighlightedButtons,0,0,0,
-    (char *)MSetColorDialogSelectedHighlightedButtons,0,0,0,
-    (char *)MSetColorDialogListText,0,0,0,
-    (char *)MSetColorDialogSelectedListText,0,0,0,
+    (char *)MSetColorDialogNormal,LIF_SELECTED,
+    (char *)MSetColorDialogHighlighted,0,
+    (char *)MSetColorDialogBox,0,
+    (char *)MSetColorDialogBoxTitle,0,
+    (char *)MSetColorDialogHighlightedBoxTitle,0,
+    (char *)MSetColorDialogTextInput,0,
+    (char *)MSetColorDialogUnchangedTextInput,0,
+    (char *)MSetColorDialogSelectedTextInput,0,
+    (char *)MSetColorDialogButtons,0,
+    (char *)MSetColorDialogSelectedButtons,0,
+    (char *)MSetColorDialogHighlightedButtons,0,
+    (char *)MSetColorDialogSelectedHighlightedButtons,0,
+    (char *)MSetColorDialogListText,0,
+    (char *)MSetColorDialogSelectedListText,0,
     /* 06.07.2000 SVS
        + добавил в меню два ранее "скрытых пункта" :-)))
     */
-    (char *)MSetColorDialogMenuHighLight,0,0,0,
-    (char *)MSetColorDialogMenuSelectedHighLight,0,0,0,
+    (char *)MSetColorDialogMenuHighLight,0,
+    (char *)MSetColorDialogMenuSelectedHighLight,0,
     /* SVS $ */
-    (char *)MSetColorDialogMenuScrollBar,0,0,0, // полоса прокрутки дл€ списка
+    (char *)MSetColorDialogMenuScrollBar,0, // полоса прокрутки дл€ списка
 
-    (char *)MSetColorDialogDisabled,0,0,0,
-    (char *)MSetColorDialogEditDisabled,0,0,0,
-    (char *)MSetColorDialogListDisabled,0,0,0,
+    (char *)MSetColorDialogDisabled,0,
+    (char *)MSetColorDialogEditDisabled,0,
+    (char *)MSetColorDialogListDisabled,0,
   };
   int DialogPaletteItems[]={
     COL_DIALOGTEXT,COL_DIALOGHIGHLIGHTTEXT,COL_DIALOGBOX,
@@ -146,20 +149,20 @@ void SetColors()
 
   struct MenuData WarnDialogItems[]=
   {
-    (char *)MSetColorWarningNormal,1,0,0,
-    (char *)MSetColorWarningHighlighted,0,0,0,
-    (char *)MSetColorWarningBox,0,0,0,
-    (char *)MSetColorWarningBoxTitle,0,0,0,
-    (char *)MSetColorWarningHighlightedBoxTitle,0,0,0,
-    (char *)MSetColorWarningTextInput,0,0,0,
-    (char *)MSetColorWarningButtons,0,0,0,
-    (char *)MSetColorWarningSelectedButtons,0,0,0,
-    (char *)MSetColorWarningHighlightedButtons,0,0,0,
-    (char *)MSetColorWarningSelectedHighlightedButtons,0,0,0,
+    (char *)MSetColorWarningNormal,LIF_SELECTED,
+    (char *)MSetColorWarningHighlighted,0,
+    (char *)MSetColorWarningBox,0,
+    (char *)MSetColorWarningBoxTitle,0,
+    (char *)MSetColorWarningHighlightedBoxTitle,0,
+    (char *)MSetColorWarningTextInput,0,
+    (char *)MSetColorWarningButtons,0,
+    (char *)MSetColorWarningSelectedButtons,0,
+    (char *)MSetColorWarningHighlightedButtons,0,
+    (char *)MSetColorWarningSelectedHighlightedButtons,0,
 
-    (char *)MSetColorWarningDisabled,0,0,0,
-    (char *)MSetColorWarningEditDisabled,0,0,0,
-    (char *)MSetColorWarningListDisabled,0,0,0,
+    (char *)MSetColorWarningDisabled,0,
+    (char *)MSetColorWarningEditDisabled,0,
+    (char *)MSetColorWarningListDisabled,0,
   };
   int WarnDialogPaletteItems[]={
     COL_WARNDIALOGTEXT,COL_WARNDIALOGHIGHLIGHTTEXT,COL_WARNDIALOGBOX,
@@ -174,27 +177,28 @@ void SetColors()
     */
   struct MenuData MenuItems[]=
   {
-    (char *)MSetColorMenuNormal,1,0,0,
-    (char *)MSetColorMenuSelected,0,0,0,
-    (char *)MSetColorMenuHighlighted,0,0,0,
-    (char *)MSetColorMenuSelectedHighlighted,0,0,0,
-    (char *)MSetColorMenuBox,0,0,0,
-    (char *)MSetColorMenuTitle,0,0,0,
-    (char *)MSetColorMenuScrollBar,0,0,0
+    (char *)MSetColorMenuNormal,LIF_SELECTED,
+    (char *)MSetColorMenuSelected,0,
+    (char *)MSetColorMenuHighlighted,0,
+    (char *)MSetColorMenuSelectedHighlighted,0,
+    (char *)MSetColorMenuDisabled,0,
+    (char *)MSetColorMenuBox,0,
+    (char *)MSetColorMenuTitle,0,
+    (char *)MSetColorMenuScrollBar,0
   };
   int MenuPaletteItems[]={
     COL_MENUTEXT,COL_MENUSELECTEDTEXT,COL_MENUHIGHLIGHT,
-    COL_MENUSELECTEDHIGHLIGHT,COL_MENUBOX,COL_MENUTITLE,
-    COL_MENUSCROLLBAR
+    COL_MENUSELECTEDHIGHLIGHT,COL_MENUDISABLEDTEXT,
+    COL_MENUBOX,COL_MENUTITLE,COL_MENUSCROLLBAR,
     /* SVS $ */
   };
 
   struct MenuData HMenuItems[]=
   {
-    (char *)MSetColorHMenuNormal,1,0,0,
-    (char *)MSetColorHMenuSelected,0,0,0,
-    (char *)MSetColorHMenuHighlighted,0,0,0,
-    (char *)MSetColorHMenuSelectedHighlighted,0,0,0
+    (char *)MSetColorHMenuNormal,LIF_SELECTED,
+    (char *)MSetColorHMenuSelected,0,
+    (char *)MSetColorHMenuHighlighted,0,
+    (char *)MSetColorHMenuSelectedHighlighted,0
   };
   int HMenuPaletteItems[]={
     COL_HMENUTEXT,COL_HMENUSELECTEDTEXT,COL_HMENUHIGHLIGHT,
@@ -203,9 +207,9 @@ void SetColors()
 
   struct MenuData KeyBarItems[]=
   {
-    (char *)MSetColorKeyBarNumbers,1,0,0,
-    (char *)MSetColorKeyBarNames,0,0,0,
-    (char *)MSetColorKeyBarBackground,0,0,0
+    (char *)MSetColorKeyBarNumbers,LIF_SELECTED,
+    (char *)MSetColorKeyBarNames,0,
+    (char *)MSetColorKeyBarBackground,0
   };
   int KeyBarPaletteItems[]={
     COL_KEYBARNUM,COL_KEYBARTEXT,COL_KEYBARBACKGROUND
@@ -213,9 +217,9 @@ void SetColors()
 
   struct MenuData CommandLineItems[]=
   {
-    (char *)MSetColorCommandLineNormal,1,0,0,
-    (char *)MSetColorCommandLineSelected,0,0,0,
-    (char *)MSetColorCommandLinePrefix,0,0,0
+    (char *)MSetColorCommandLineNormal,LIF_SELECTED,
+    (char *)MSetColorCommandLineSelected,0,
+    (char *)MSetColorCommandLinePrefix,0
   };
   int CommandLinePaletteItems[]={
     COL_COMMANDLINE,COL_COMMANDLINESELECTED,COL_COMMANDLINEPREFIX
@@ -223,7 +227,7 @@ void SetColors()
 
   struct MenuData ClockItems[]=
   {
-    (char *)MSetColorClockNormal,1,0,0
+    (char *)MSetColorClockNormal,LIF_SELECTED
   };
   int ClockPaletteItems[]={
     COL_CLOCK
@@ -233,11 +237,11 @@ void SetColors()
      новый пунт дл€ MenuScrollbar*/
   struct MenuData ViewerItems[]=
   {
-    (char *)MSetColorViewerNormal,1,0,0,
-    (char *)MSetColorViewerSelected,0,0,0,
-    (char *)MSetColorViewerStatus,0,0,0,
-    (char *)MSetColorViewerArrows,0,0,0,
-    (char *)MSetColorViewerScrollbar,0,0,0
+    (char *)MSetColorViewerNormal,LIF_SELECTED,
+    (char *)MSetColorViewerSelected,0,
+    (char *)MSetColorViewerStatus,0,
+    (char *)MSetColorViewerArrows,0,
+    (char *)MSetColorViewerScrollbar,0
   };
   int ViewerPaletteItems[]={
     COL_VIEWERTEXT,COL_VIEWERSELECTEDTEXT,COL_VIEWERSTATUS,COL_VIEWERARROWS,COL_VIEWERSCROLLBAR
@@ -247,9 +251,9 @@ void SetColors()
 
   struct MenuData EditorItems[]=
   {
-    (char *)MSetColorEditorNormal,1,0,0,
-    (char *)MSetColorEditorSelected,0,0,0,
-    (char *)MSetColorEditorStatus,0,0,0
+    (char *)MSetColorEditorNormal,LIF_SELECTED,
+    (char *)MSetColorEditorSelected,0,
+    (char *)MSetColorEditorStatus,0
   };
   int EditorPaletteItems[]={
     COL_EDITORTEXT,COL_EDITORSELECTEDTEXT,COL_EDITORSTATUS
@@ -257,13 +261,13 @@ void SetColors()
 
   struct MenuData HelpItems[]=
   {
-    (char *)MSetColorHelpNormal,1,0,0,
-    (char *)MSetColorHelpHighlighted,0,0,0,
-    (char *)MSetColorHelpReference,0,0,0,
-    (char *)MSetColorHelpSelectedReference,0,0,0,
-    (char *)MSetColorHelpBox,0,0,0,
-    (char *)MSetColorHelpBoxTitle,0,0,0,
-    (char *)MSetColorHelpScrollbar,0,0,0,
+    (char *)MSetColorHelpNormal,LIF_SELECTED,
+    (char *)MSetColorHelpHighlighted,0,
+    (char *)MSetColorHelpReference,0,
+    (char *)MSetColorHelpSelectedReference,0,
+    (char *)MSetColorHelpBox,0,
+    (char *)MSetColorHelpBoxTitle,0,
+    (char *)MSetColorHelpScrollbar,0,
   };
   int HelpPaletteItems[]={
     COL_HELPTEXT,COL_HELPHIGHLIGHTTEXT,COL_HELPTOPIC,COL_HELPSELECTEDTOPIC,

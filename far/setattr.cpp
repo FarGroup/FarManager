@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.29 18.05.2001 $ */
+/* Revision: 1.30 20.05.2001 $ */
 
 /*
 Modify:
+  20.05.2001 SVS
+    - воздействие на кнопки "текущее" и "пусто" приводило к закрытию дислога
+    + реакция на клик мыши на лейбах Modification, Creation и Last access
+      перемещает фокус ввода на ближайшее поле ввода.
   18.05.2001 SVS
     ! Вся логика работы диалога перенесена на уровень диалогой процедуры.
       Осталось и инициализирующую часть впихнуть по назначению ;-)
@@ -134,7 +138,7 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   switch(Msg)
   {
     case DN_BTNCLICK:
-      if(Param1 >= 4 && Param2 <= 9 || Param2 == 11)
+      if(Param1 >= 4 && Param1 <= 9 || Param1 == 11)
       {
         DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
         DlgParam->OriginalCBAttr[Param1-4] = Param2;
@@ -246,28 +250,32 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             DlgParam->OState11=State11;
           }
         }
+        return TRUE;
+      }
+      else if(Param1 == 24 || Param1 == 25) // Set All? / Clear All?
+      {
+        Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 24?-1:0);
+        Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 24?-1:0);
+        Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 24?-1:0);
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
+        return TRUE;
       }
       break;
 
     case DN_MOUSECLICK:
      {
        //_SVS(SysLog("Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
-       if(Param1 >= 15 && Param1 <= 23 &&
-          ((MOUSE_EVENT_RECORD*)Param2)->dwEventFlags == DOUBLE_CLICK)
+       if(Param1 >= 15 && Param1 <= 23)
        {
-         // Дадим Менеджеру диалогов "попотеть"
-         Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-         Dialog::SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
+         if(((MOUSE_EVENT_RECORD*)Param2)->dwEventFlags == DOUBLE_CLICK)
+         {
+           // Дадим Менеджеру диалогов "попотеть"
+           Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+           Dialog::SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
+         }
          if(Param1 == 15 || Param1 == 18 || Param1 == 21)
-           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1+1,0);
-         return TRUE;
-       }
-       else if(Param1 == 24 || Param1 == 25) // Set All? / Clear All?
-       {
-         Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 24?-1:0);
-         Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 24?-1:0);
-         Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 24?-1:0);
-         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
+           Param1++;
+         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0);
          return TRUE;
        }
      }
@@ -362,8 +370,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 21 */DI_TEXT,    5,17,0,0,0,0,0,0,(char *)MSetAttrLastAccess,
   /* 22 */DI_FIXEDIT,21,17,30,17,0,0,DIF_MASKEDIT,0,"",
   /* 23 */DI_FIXEDIT,32,17,39,17,0,0,DIF_MASKEDIT,0,"",
-  /* 24 */DI_BUTTON,19,18,0,0,0,0,0,0,(char *)MSetAttrCurrent,
-  /* 25 */DI_BUTTON,31,18,0,0,0,0,0,0,(char *)MSetAttrBlank,
+  /* 24 */DI_BUTTON,19,18,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MSetAttrCurrent,
+  /* 25 */DI_BUTTON,31,18,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MSetAttrBlank,
   /* 26 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 27 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
   /* 28 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
