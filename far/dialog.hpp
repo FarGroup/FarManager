@@ -10,10 +10,16 @@ dialog.hpp
 
 */
 
-/* Revision: 1.12 18.08.2000 $ */
+/* Revision: 1.13 22.08.2000 $ */
 
 /*
 Modify:
+  22.08.2000 SVS
+   ! С моим английским вообще ни как :-((
+     IsMovedDialog -> IsCanMove
+     SetModeMoving -> SetMoveEnable
+     GetModeMoving -> GetMoveEnable
+   ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
   18.08.2000 SVS
    + Флаг IsEnableRedraw - разрешающий/запрещающий перерисовку диалога
    + DialogMode - Флаги текущего режима диалога
@@ -82,7 +88,7 @@ class Dialog:public Modal
     /* $ 10.08.2000 SVS
        можно ли двигать диалог :-)
     */
-    int IsMovedDialog;
+    int IsCanMove;
     /* SVS $ */
 
     /* $ 11.08.2000 SVS
@@ -125,7 +131,11 @@ class Dialog:public Modal
 
     void DisplayObject();
     void DeleteDialogObjects();
-    void ShowDialog();
+    /* $ 22.08.2000 SVS
+      ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
+    */
+    void ShowDialog(int ID=-1);
+    /* SVS $ */
 
     /* $ 28.07.2000 SVS
        + Изменяет фокус ввода между двумя элементами.
@@ -212,8 +222,8 @@ class Dialog:public Modal
     /* $ 10.08.2000 SVS
        можно ли двигать диалог :-)
     */
-    void SetModeMoving(int IsMoving) {IsMovedDialog=IsMoving;};
-    int  GetModeMoving(void) {return IsMovedDialog;};
+    void SetModeMoving(int IsMoving) {IsCanMove=IsMoving;};
+    int  GetModeMoving(void) {return IsCanMove;};
     /* SVS $ */
     /* $ 11.08.2000 SVS
        Работа с доп. данными экземпляра диалога

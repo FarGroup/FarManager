@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.12 18.08.2000 $ */
+/* Revision: 1.13 22.08.2000 $ */
 
 /*
 Modify:
+  22.08.2000 SVS
+    ! Исключаем ненужные вызовы из FarText.
   18.08.2000 tran 1.12
     + Flags parameter in FarShowHelp
   09.08.2000 tran 1.11
@@ -859,9 +861,11 @@ void WINAPI FarText(int X,int Y,int Color,char *Str)
   }
   else
   {
-    GotoXY(X,Y);
-    SetColor(Color);
-    Text(Str);
+    /* $ 22.08.2000 SVS
+       Исключаем ненужные вызовы из FarText.
+    */
+    Text(X,Y,Color,Str);
+    /* SVS $ */
   }
 }
 

@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.23 21.08.2000 $ */
+/* Revision: 1.24 22.08.2000 $ */
 
 /*
 Modify:
+  22.08.2000 SVS
+   ! С моим английским вообще ни как :-((
+     IsMovedDialog -> IsCanMove
+   ! DMSG_PAINT -> DMSG_DRAWDIALOG
+   ! DMSG_DRAWITEM -> DMSG_DRAWDLGITEM
+   ! DMSG_CHANGELIST -> DMSG_LISTCHANGE
+   ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
   21.08.2000 SVS 1.23
    ! Описание сообщений убрано - смотрите в хелпе :-)))
    ! Самыми последними в этом файле должны быть DefDlgProc и SendDlgMessage
@@ -177,7 +184,7 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   /* $ 10.08.2000 SVS
      Изначально диалоги можно таскать
   */
-  IsMovedDialog=TRUE;
+  IsCanMove=TRUE;
   /* SVS $ */
   /* $ 18.08.2000 SVS
   */
@@ -618,39 +625,55 @@ void Dialog::GetDialogObjectsData()
     }
 }
 
+/* $ 22.08.2000 SVS
+  ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
+*/
 /* Private:
    Отрисовка элементов диалога на экране.
 */
-void Dialog::ShowDialog()
+void Dialog::ShowDialog(int ID)
 {
   struct DialogItem *CurItem;
   int X,Y;
-  int I;
+  int I,DrawItemCount;
   unsigned long Attr;
 
   /* $ 18.08.2000 SVS
      Если не разрешена отрисовка, то вываливаем.
   */
-  if(IsEnableRedraw)
+  if(IsEnableRedraw || (ID+1 > ItemCount))
     return;
   /* SVS $ */
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  /* $ 28.07.2000 SVS
-     Перед прорисовкой диалога посылаем сообщение в обработчик
-  */
-  DlgProc((HANDLE)this,DMSG_PAINT,0,0);
-  /* SVS $ */
+  if(ID == -1) // рисуем все?
+  {
+    /* $ 28.07.2000 SVS
+       Перед прорисовкой диалога посылаем сообщение в обработчик
+    */
+      DlgProc((HANDLE)this,DMSG_DRAWDIALOG,0,0);
+    /* SVS $ */
 
-  /* $ 28.07.2000 SVS
-     перед прорисовкой подложки окна диалога...
-  */
-  Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDIALOG,0,WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
-  SetScreen(X1,Y1,X2,Y2,' ',Attr);
-  /* SVS $ */
+    /* $ 28.07.2000 SVS
+       перед прорисовкой подложки окна диалога...
+    */
+    Attr=DlgProc((HANDLE)this,DMSG_CTLCOLORDIALOG,0,WarningStyle ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+    SetScreen(X1,Y1,X2,Y2,' ',Attr);
+    /* SVS $ */
+  }
 
-  for (I=0; I < ItemCount; I++)
+  if(ID == -1) // рисуем все?
+  {
+    ID=0;
+    DrawItemCount=ItemCount;
+  }
+  else
+  {
+    DrawItemCount=ID+1;
+  }
+
+  for (I=ID; I < DrawItemCount; I++)
   {
     CurItem=&Item[I];
 
@@ -658,15 +681,17 @@ void Dialog::ShowDialog()
        Перед прорисовкой каждого элемента посылаем сообщение
        посредством функции SendDlgMessage - в ней делается все!
     */
-    Dialog::SendDlgMessage((HANDLE)this,DMSG_DRAWITEM,I,0);
+    Dialog::SendDlgMessage((HANDLE)this,DMSG_DRAWDLGITEM,I,0);
     /* SVS $ */
     /* $ 28.07.2000 SVS
        перед прорисовкой каждого элемента диалога выясним атритубы отрисовки
     */
     switch(CurItem->Type)
     {
+/* ***************************************************************** */
       case DI_SINGLEBOX:
       case DI_DOUBLEBOX:
+      {
         Attr=MAKELONG(
           MAKEWORD(FarColorToReal(WarningStyle ? COL_WARNDIALOGBOXTITLE:COL_DIALOGBOXTITLE), // Title LOBYTE
                  FarColorToReal(WarningStyle ? COL_WARNDIALOGHIGHLIGHTTEXT:COL_DIALOGHIGHLIGHTTEXT)),// HiText HIBYTE
@@ -695,8 +720,11 @@ void Dialog::ShowDialog()
           HiText(Title,HIBYTE(LOWORD(Attr)));
         }
         break;
+      }
 
+/* ***************************************************************** */
       case DI_TEXT:
+      {
         if (CurItem->X1==(unsigned char)-1)
           X=(X2-X1+1-HiStrlen(CurItem->Data))/2;
         else
@@ -740,8 +768,11 @@ void Dialog::ShowDialog()
           HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
 
         break;
+      }
 
+/* ***************************************************************** */
       case DI_VTEXT:
+      {
         if (CurItem->Flags & DIF_BOXCOLOR)
           Attr=WarningStyle ? COL_WARNDIALOGBOX:COL_DIALOGBOX;
         else
@@ -755,7 +786,9 @@ void Dialog::ShowDialog()
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
         VText(CurItem->Data);
         break;
+      }
 
+/* ***************************************************************** */
       /* $ 18.07.2000 SVS
          + обработка элемента DI_COMBOBOX
       */
@@ -822,6 +855,7 @@ void Dialog::ShowDialog()
         /* SVS $ */
       }
 
+/* ***************************************************************** */
       /* $ 01.08.2000 SVS
          Обычный ListBox
       */
@@ -848,8 +882,10 @@ void Dialog::ShowDialog()
       }
       /* 01.08.2000 SVS $ */
 
+/* ***************************************************************** */
       case DI_CHECKBOX:
       case DI_RADIOBUTTON:
+      {
         if (CurItem->Flags & DIF_SETCOLOR)
           Attr=(CurItem->Flags & DIF_COLORMASK);
         else
@@ -885,8 +921,11 @@ void Dialog::ShowDialog()
         }
 
         break;
+      }
 
+/* ***************************************************************** */
       case DI_BUTTON:
+      {
         GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
 
         /* $ 18.08.2000 SVS
@@ -912,7 +951,9 @@ void Dialog::ShowDialog()
         SetColor(Attr&0xFF);
         HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
         break;
+      }
 
+/* ***************************************************************** */
     } // end switch(...
     /* 28.07.2000 SVS $ */
   } // end for (I=...
@@ -935,6 +976,7 @@ void Dialog::ShowDialog()
   }
   /* SVS $ */
 }
+/* SVS 22.08.2000 $ */
 
 /* Public, Virtual:
    Обработка данных от клавиатуры.
@@ -1030,9 +1072,9 @@ int Dialog::ProcessKey(int Key)
   }
 
   /* $ 10.08.2000 SVS
-     Двигаем, если разрешено! (IsMovedDialog)
+     Двигаем, если разрешено! (IsCanMove)
   */
-  if (Key == KEY_CTRLF5 && IsMovedDialog)
+  if (Key == KEY_CTRLF5 && IsCanMove)
   /* SVS 10.08.2000 $*/
   {
     // включаем флаг и запоминаем координаты
@@ -1744,9 +1786,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     //   Сюда попадаем в том случае, если мышь не попала на активные элементы
     //
     /* $ 10.08.2000 SVS
-       Двигаем, если разрешено! (IsMovedDialog)
+       Двигаем, если разрешено! (IsCanMove)
     */
-    if (IsMovedDialog)
+    if (IsCanMove)
     {
       /* $ 03.08.2000 tran
          ну раз попадаем - то будем перемещать */
@@ -2422,10 +2464,17 @@ void Dialog::SelectFromComboBox(
     /* SVS $ */
 
     ComboBoxMenu.Show();
+//    Dest=ComboBoxMenu.GetSelectPos();
     while (!ComboBoxMenu.Done())
     {
       int Key=ComboBoxMenu.ReadInput();
       // здесь можно добавить что-то свое, например,
+//      I=ComboBoxMenu.GetSelectPos();
+//      if(I != Dest)
+//      {
+//        Dest=I;
+//        DlgProc((HANDLE)this,DMSG_LISTCHANGE,,(long)List);
+//      }
       //  обработку multiselect ComboBox
       ComboBoxMenu.ProcessInput();
     }
@@ -2535,7 +2584,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DMSG_HELP:
       return Param2;
 
-    case DMSG_PAINT:
+    case DMSG_DRAWDIALOG:
       return 0;
 
     case DMSG_CTLCOLORDIALOG:
@@ -2565,7 +2614,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DMSG_MOUSECLICK:
       return 0;
 
-    case DMSG_DRAWITEM:
+    case DMSG_DRAWDLGITEM:
       return 0;
 
     case DMSG_HOTKEY:
@@ -2577,7 +2626,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DMSG_BTNCLICK:
       return TRUE;
 
-    case DMSG_CHANGELIST:
+    case DMSG_LISTCHANGE:
       return TRUE;
   }
 
@@ -2620,7 +2669,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_SINGLEBOX:
           case DI_DOUBLEBOX:
             strcpy(Ptr,(char *)Param2);
-            //Dlg->Show();
+            Dlg->ShowDialog(Param1);
+            ScrBuf.Flush();
             return strlen((char *)Param2)+1;
 
           case DI_BUTTON:
@@ -2644,7 +2694,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             return 0;
         }
         Dlg->InitDialogObjects(); // переинициализируем элементы диалога
-        SendDlgMessage(hDlg,DMSG_SETREDRAW,0,0);
+        Dlg->ShowDialog(Param1);
+        ScrBuf.Flush();
         return strlen((char *)Param2)+1;
       }
       return 0;
@@ -2659,7 +2710,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return 0;
 
-    case DMSG_CHANGELIST:
+    case DMSG_LISTCHANGE:
       return Dlg->DlgProc(hDlg,Msg,Param1,(long)&CurItem->ListItems);
 
     case DMSG_EDITCHANGE:
@@ -2672,7 +2723,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DMSG_BTNCLICK:
       return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
 
-    case DMSG_DRAWITEM:
+    case DMSG_DRAWDLGITEM:
       // преобразуем данные для!
       Dialog::ConvertItem(0,&PluginDialogItem,CurItem,1);
       Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
