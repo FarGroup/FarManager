@@ -5,10 +5,13 @@ flshow.cpp
 
 */
 
-/* Revision: 1.38 18.05.2004 $ */
+/* Revision: 1.39 29.05.2004 $ */
 
 /*
 Modify:
+  29.05.2004 SVS
+    - BugZ#847 - рамка слева от колонки с именем файла не подсвечивается
+      (вроде артефактов не замечено :-))
   18.05.2004 SVS
     ! IsNumeric() переехала из flshow.cpp в panel.hpp
   19.02.2004 SVS
@@ -1122,7 +1125,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
         GotoXY(CurX+ColumnWidth+1,CurY);
       else
       {
-        if (K>=ColumnCount-1 || (ColumnTypes[K+1] & 0xff)==NAME_COLUMN)
+        if (K>=ColumnCount-1 || ((ColumnTypes[K] & 0xff)==NAME_COLUMN && (ColumnTypes[K+1] & 0xff)==NAME_COLUMN))
           SetColor(COL_PANELBOX);
         GotoXY(CurX+ColumnWidth,CurY);
         if (K==ColumnCount-1)
