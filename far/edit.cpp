@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.90 14.10.2002 $ */
+/* Revision: 1.91 16.10.2002 $ */
 
 /*
 Modify:
+  16.10.2002 SKV
+    - падение в DeleteBlock
   14.10.2002 SKV
     ! выделение
   17.09.2002 SKV
@@ -2470,18 +2472,22 @@ void Edit::DeleteBlock()
   }
   else
   {
-    memmove(Str+SelStart,Str+SelEnd,StrSize-SelEnd+1);
-    StrSize-=SelEnd-SelStart;
-    if (CurPos>SelStart)
-      if (CurPos<SelEnd)
-        CurPos=SelStart;
+    int From=SelStart,To=SelEnd;
+    if(From>StrSize)From=StrSize;
+    if(To>StrSize)To=StrSize;
+    memmove(Str+From,Str+To,StrSize-To+1);
+    StrSize-=To-From;
+    if (CurPos>From)
+      if (CurPos<To)
+        CurPos=From;
       else
-        CurPos-=SelEnd-SelStart;
+        CurPos-=To-From;
     Str=(char *)realloc(Str,StrSize+1);
   }
 
   /* KM $ */
   SelStart=-1;
+  SelEnd=0;
   Flags.Clear(FEDITLINE_MARKINGBLOCK);
   // OT: Проверка на корректность поведени строки при удалении и вставки
   if (Flags.Check((FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE)))

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.268 10.10.2002 $ */
+/* Revision: 1.269 16.10.2002 $ */
 
 /*
 Modify:
+  16.10.2002 SKV
+    - баги в выделении при автокомплите, в связи с изменениями в Edit
   10.10.2002 SVS
     - BugZ#661 - DI_CHECKBOX&DefaultButton
   04.10.2002 SVS
@@ -3518,7 +3520,7 @@ int Dialog::ProcessKey(int Key)
                 if(DoAutoComplete && CurPos <= SelEnd)
                 {
                   PStr[CurPos]=0;
-                  edt->Select(CurPos,MaxLen); //select the appropriate text
+                  edt->Select(CurPos,edt->GetLength()); //select the appropriate text
                   edt->DeleteBlock();
                   edt->FastShow();
                 }
@@ -3537,7 +3539,7 @@ int Dialog::ProcessKey(int Key)
               {
   //_D(SysLog("Coplete: Str=%s SelStart=%d SelEnd=%d CurPos=%d",Str,SelStart,SelEnd, CurPos));
                 edt->SetString(PStr);
-                edt->Select(SelEnd,MaxLen); //select the appropriate text
+                edt->Select(SelEnd,edt->GetLength()); //select the appropriate text
                 //edt->Select(CurPos,sizeof(Str)); //select the appropriate text
                 /* $ 01.08.2000 SVS
                    Небольшой глючек с AutoComplete
