@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.132 03.12.2001 $ */
+/* Revision: 1.133 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 IS
+    ! UndoData - теперь указатель. –азмер буфера undo можно изменить
+      через реестр.
   03.12.2001 VVM
     ! 1. »меем 2 строки, втона€ длиннее первой.
       2. ¬стаем на 2 строку впозиции после конца первой, но до второй.
@@ -477,7 +480,12 @@ Editor::Editor()
   TopList->EditLine.SetEditorMode(TRUE);
   TopList->Prev=NULL;
   TopList->Next=NULL;
-  memset(UndoData,0,sizeof(UndoData));
+  /* $ 03.12.2001 IS размер буфера undo теперь может мен€тьс€ */
+  UndoData=static_cast<EditorUndoData*>
+    (malloc(Opt.EditorUndoSize*sizeof(EditorUndoData)));
+  if(UndoData)
+    memset(UndoData,0,Opt.EditorUndoSize*sizeof(EditorUndoData));
+  /* IS $ */
   UndoDataPos=0;
   StartLine=StartChar=-1;
   *GlobalEOL=0;
@@ -539,9 +547,17 @@ Editor::~Editor()
     delete EndList;
     EndList=Prev;
   }
-  for (int I=0;I<sizeof(UndoData)/sizeof(UndoData[0]);I++)
-    if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
-      delete UndoData[I].Str;
+  /* $ 03.12.2001 IS
+     UndoData - указатель
+  */
+  if(UndoData)
+  {
+    for (int I=0;I<Opt.EditorUndoSize;++I)
+      if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
+        delete UndoData[I].Str;
+    free(UndoData);
+  }
+  /* IS $ */
   KeepInitParameters();
 
   if (!OpenFailed)
@@ -4315,15 +4331,18 @@ void Editor::ChangeEditKeyBar()
 }
 
 
+/* $ 03.12.2001 IS
+   UndoData - теперь указатель
+*/
 void Editor::AddUndoData(char *Str,int StrNum,int StrPos,int Type)
 {
   int PrevUndoDataPos;
-  if (DisableUndo)
+  if (DisableUndo || !UndoData)
     return;
   if (StrNum==-1)
     StrNum=NumLine;
   if ((PrevUndoDataPos=UndoDataPos-1)<0)
-    PrevUndoDataPos=sizeof(UndoData)/sizeof(UndoData[0])-1;
+    PrevUndoDataPos=Opt.EditorUndoSize-1;
   if (!NewUndo && Type==UNDO_EDIT && UndoData[PrevUndoDataPos].Type==UNDO_EDIT &&
       StrNum==UndoData[PrevUndoDataPos].StrNum &&
       (abs(StrPos-UndoData[PrevUndoDataPos].StrPos)<=1 ||
@@ -4347,18 +4366,23 @@ void Editor::AddUndoData(char *Str,int StrNum,int StrPos,int Type)
   }
   else
     UndoData[UndoDataPos].Str=NULL;
-  if (++UndoDataPos==sizeof(UndoData)/sizeof(UndoData[0]))
+  if (++UndoDataPos==Opt.EditorUndoSize)
     UndoDataPos=0;
   if (UndoDataPos==UndoSavePos)
     UndoOverflow=TRUE;
 }
+/* IS $ */
 
-
+/* $ 03.12.2001 IS
+   UndoData - теперь указатель
+*/
 void Editor::Undo()
 {
+  if(!UndoData)
+    return;
   int NewPos=UndoDataPos-1;
   if (NewPos<0)
-    NewPos=sizeof(UndoData)/sizeof(UndoData[0])-1;
+    NewPos=Opt.EditorUndoSize-1;
   if (UndoData[NewPos].Type==UNDO_NONE)
     return;
   UnmarkBlock();
@@ -4412,7 +4436,7 @@ void Editor::Undo()
   /* skv $*/
   DisableUndo=FALSE;
 }
-
+/* IS $ */
 
 void Editor::SelectAll()
 {

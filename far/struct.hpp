@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.76 01.11.2001 $ */
+/* Revision: 1.77 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 IS
+    + Opt.EditorUndoSize - размер буфера undo в редакторе
   01.11.2001 SVS
     ! уберем Opt.CPAJHefuayor ;-(
   30.10.2001 SVS
@@ -417,6 +419,11 @@ struct Options
        опция "разрешить мультикопирование/перемещение/создание связей"
   */
   int MultiCopy;
+  /* IS $ */
+  /* $ 03.12.2001 IS
+       размер буфера undo в редакторе
+  */
+  int EditorUndoSize;
   /* IS $ */
   int CreateUppercaseFolders;
   int UseRegisteredTypes;

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.110 27.11.2001 $ */
+/* Revision: 1.111 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 IS
+    + Считываем Opt.EditorUndoSize - размер буфера undo
   27.11.2001 SVS
     ! В при сохранении настроек запоминаем каталог и текущий объект в любом
       случае, независимо от типа панели - плагин или простая панель
@@ -1160,6 +1162,9 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,"AutoDetectTable",&Opt.EdOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyEditor,"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
   {1, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
+  /* $ 03.12.2001 IS размер буфера undo в редакторе */
+  {0, REG_DWORD,  NKeyEditor,"EditorUndoSize",&Opt.EditorUndoSize,2048,0},
+  /* IS $ */
   {0, REG_SZ,     NKeyEditor,"WordDiv",Opt.WordDiv,sizeof(Opt.WordDiv),WordDiv0},
   {0, REG_DWORD,  NKeyEditor,"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
   {0, REG_DWORD,  NKeyEditor,"EditorF7Rules",&Opt.EditorF7Rules,1, 0},
@@ -1374,6 +1379,15 @@ void ReadConfig()
 
   Opt.ViewerIsWrap&=1;
   if(RegVer) Opt.ViewerWrap&=1; else Opt.ViewerWrap=0;
+
+  /* $ 03.12.2001 IS
+      Если EditorUndoSize слишком маленькое или слишком большое,
+      то сделаем размер undo такой же, как и в старых версиях
+  */
+  if(Opt.EditorUndoSize<64 || Opt.EditorUndoSize>(0x7FFFFFFF-2))
+    Opt.EditorUndoSize=64;
+  /* IS $ */
+
   // Исключаем случайное стирание разделителей ;-)
   if(!strlen(Opt.WordDiv))
      strcpy(Opt.WordDiv,WordDiv0);

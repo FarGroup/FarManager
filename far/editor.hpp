@@ -9,10 +9,13 @@ editor.hpp
 
 */
 
-/* Revision: 1.27 29.10.2001 $ */
+/* Revision: 1.28 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 IS
+    ! UndoData теперь указатель, т.к. размер может меняться
+    ! Убрал EDITOR_UNDO_COUNT, т.к. вместо него теперь Opt.EditorUndoSize
   29.10.2001 IS
     + GetSavePosMode/SetSavePosMode
   21.10.2001 SVS
@@ -98,8 +101,6 @@ Modify:
 class FileEditor;
 class KeyBar;
 
-#define EDITOR_UNDO_COUNT   64
-
 struct InternalEditorBookMark{
   long Line[BOOKMARK_COUNT];
   long Cursor[BOOKMARK_COUNT];
@@ -139,7 +140,9 @@ class Editor:public ScreenObject
     /* IS $ */
     KeyBar *EditKeyBar;
     struct EditList *TopList,*EndList,*TopScreen,*CurLine;
-    struct EditorUndoData UndoData[EDITOR_UNDO_COUNT];
+    /* $ 03.12.2001 IS теперь указатель, т.к. размер может меняться */
+    struct EditorUndoData *UndoData;
+    /* IS $ */
     int UndoDataPos;
     int UndoOverflow;
     int UndoSavePos;
