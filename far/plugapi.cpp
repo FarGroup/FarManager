@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.17 29.08.2000 $ */
+/* Revision: 1.18 30.08.2000 $ */
 
 /*
 Modify:
+  30.08.2000 SVS
+    ! Пал смертью храбрых флаг FMI_GETFARMSGID
   29.08.2000 SVS
     + Для диалога запомним номер плагина, вызвавшего этот диалог. Сейчас
       это для того, чтобы правильно отреагировать в Dialog API на DN_HELP
@@ -352,31 +354,19 @@ char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
   return(CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId));
 }
 
-/* $ 29.08.2000 SVS
-  ! Если PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), то подразумеваем, что
-    хотим использовать "месаги" из САМОГО far*.lng
-*/
 char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 {
-  if(MsgId&FMI_GETFARMSGID)
+  if (PluginNumber<PluginsCount)
   {
-     return FarMSG(MsgId&(~FMI_GETFARMSGID));
+    struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
+    char Path[NM];
+    strcpy(Path,CurPlugin->ModuleName);
+    *PointToName(Path)=0;
+    if (CurPlugin->Lang.Init(Path))
+      return(CurPlugin->Lang.GetMsg(MsgId));
   }
-  else
-  {
-    if (PluginNumber<PluginsCount)
-    {
-      struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
-      char Path[NM];
-      strcpy(Path,CurPlugin->ModuleName);
-      *PointToName(Path)=0;
-      if (CurPlugin->Lang.Init(Path))
-        return(CurPlugin->Lang.GetMsg(MsgId));
-    }
-    return("");
-  }
+  return("");
 }
-/* SVS $ */
 
 
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,

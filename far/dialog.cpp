@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.33 29.08.2000 $ */
+/* Revision: 1.34 30.08.2000 $ */
 
 /*
 Modify:
+  30.08.2000 SVS
+   + Метод Hide()
+   + Режим диалога DMODE_SHOW - Диалог виден?
+   ! уточнения для IsEnableRedraw
+   + DM_MOVEDIALOG - перемещение диалога.
+   ! Изменение цветов для ComboBox(DowpDownList)
   29.08.2000 SVS
    ! При подмене темы помощи из диаловой процедуры...
      короче, нужно вновь формировать контент!
@@ -322,6 +328,15 @@ void Dialog::Show()
   ScreenObject::Show();
 }
 
+/* $ 30.08.2000 SVS
+  Цель перехвата данной функции - управление видимостью...
+*/
+void Dialog::Hide()
+{
+  ScreenObject::Hide();
+  SkipDialogMode(DMODE_SHOW);
+}
+/* SVS $*/
 
 //////////////////////////////////////////////////////////////////////////
 /* Private, Virtual:
@@ -882,20 +897,30 @@ void Dialog::ShowDialog(int ID)
         /* $ 15.08.2000 SVS
            ! Для DropDownList цвета обрабатываем по иному
         */
+        /* $ 30.08.2000 SVS
+           ! "Цвета, видите ли, ему не понравились" :-)
+        */
         Attr=EditPtr->GetObjectColor();
-        if(CurItem->Type == DI_COMBOBOX && (CurItem->Flags & DIF_DROPDOWNLIST) && !CurItem->Focus)
+        if(CurItem->Type == DI_COMBOBOX && (CurItem->Flags & DIF_DROPDOWNLIST))
         {
-          Attr=MAKEWORD(FarColorToReal(Attr&0xFF),FarColorToReal(EditPtr->GetObjectColorUnChanged()));
+          DWORD AAA=Attr&0xFF;
+          Attr=MAKEWORD(FarColorToReal(AAA),
+                 FarColorToReal((!CurItem->Focus)?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED));
+          Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
+            MAKEWORD(FarColorToReal(AAA), // EditLine - UnChanched Color
+            FarColorToReal(COL_DIALOGTEXT) // HistoryLetter
+           ));
         }
         else
         {
           Attr=MAKEWORD(FarColorToReal(Attr&0xFF),FarColorToReal(COL_DIALOGEDITSELECTED));
+          Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
+             MAKEWORD(FarColorToReal(EditPtr->GetObjectColorUnChanged()), // EditLine - UnChanched Color
+             FarColorToReal(COL_DIALOGTEXT) // HistoryLetter
+             ));
         }
         /* SVS $ */
-        Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
-           MAKEWORD(FarColorToReal(EditPtr->GetObjectColorUnChanged()), // EditLine - UnChanched Color
-           FarColorToReal(COL_DIALOGTEXT) // HistoryLetter
-           ));
+        /* SVS $ */
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
 
         EditPtr->SetObjectColor(Attr&0xFF,HIBYTE(LOWORD(Attr)),LOBYTE(HIWORD(Attr)));
@@ -1058,6 +1083,7 @@ void Dialog::ShowDialog(int ID)
 
 
   SkipDialogMode(DMODE_DRAWING);  // конец отрисовки диалога!!!
+  SetDialogMode(DMODE_SHOW); // диалог на экране!
 }
 /* SVS 22.08.2000 $ */
 
@@ -1076,7 +1102,7 @@ int Dialog::ProcessKey(int Key)
 
   /* $ 31.07.2000 tran
      + перемещение диалога по экрану */
-  if ( CheckDialogMode(DMODE_DRAGGED) ) // если диалог таскается
+  if ( CheckDialogMode(DMODE_DRAGGED)) // если диалог таскается
   {
     int rr=1;
     switch (Key)
@@ -1180,7 +1206,7 @@ int Dialog::ProcessKey(int Key)
   }
 
   // "ХАчу глянуть на то, что под диалогом..."
-  if(Key == KEY_CTRLALTSHIFTPRESS)
+  if(Key == KEY_CTRLALTSHIFTPRESS && CheckDialogMode(DMODE_SHOW))
   {
       Hide();
       WaitKey(KEY_CTRLALTSHIFTRELEASE);
@@ -1786,6 +1812,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   if (MouseEvent->dwButtonState==0)
     return(FALSE);
+  if(!CheckDialogMode(DMODE_SHOW))
+    return FALSE;
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
@@ -2896,8 +2924,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_SINGLEBOX:
           case DI_DOUBLEBOX:
             strncpy(Ptr,(char *)Param2,512);
-            Dlg->ShowDialog(Param1);
-            ScrBuf.Flush();
+            if(Dlg->CheckDialogMode(DMODE_SHOW))
+            {
+              Dlg->ShowDialog(Param1);
+              ScrBuf.Flush();
+            }
             return strlen((char *)Param2)+1;
 
           case DI_BUTTON:
@@ -2921,8 +2952,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             return 0;
         }
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-        Dlg->ShowDialog(Param1);
-        ScrBuf.Flush();
+        if(Dlg->CheckDialogMode(DMODE_SHOW)) // достаточно ли этого????!!!!
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
         return strlen((char *)Param2)+1;
       }
       return 0;
@@ -2966,6 +3000,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(!Dialog::IsFocused(Type))
         return FALSE;
       Dlg->ChangeFocus(Param1,1,0);
+//      Dlg->ChangeFocus2(Param1,1,0);
       return TRUE;
 
     case DM_GETTEXT:
@@ -3073,8 +3108,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         CurItem->Type=Type;
         // еще разок, т.к. данные могли быть изменены
         Dlg->InitDialogObjects(Param1);
-        Dlg->ShowDialog(Param1);
-        ScrBuf.Flush();
+        if(Dlg->CheckDialogMode(DMODE_SHOW))
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
         return TRUE;
       }
       return FALSE;
@@ -3099,15 +3137,18 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
        + показать/спрятать диалог.
     */
     case DM_SHOWDIALOG:
-      if(Param1)
+//      if(!Dlg->IsEnableRedraw)
       {
-        if(!Dlg->IsVisible())
-          Dlg->Show();
-      }
-      else
-      {
-        if(Dlg->IsVisible())
-          Dlg->Hide();
+        if(Param1)
+        {
+          if(!Dlg->IsVisible())
+            Dlg->Show();
+        }
+        else
+        {
+          if(Dlg->IsVisible())
+            Dlg->Hide();
+        }
       }
       return 0;
     /* SVS $ */
@@ -3169,8 +3210,53 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     }
     /* SVS $ */
-  }
 
+    /* $ 30.08.2000 SVS
+        + программное перемещение диалога
+    */
+    case DM_MOVEDIALOG:
+    {
+      int W1,H1;
+
+      W1=Dlg->X2-Dlg->X1;
+      H1=Dlg->Y2-Dlg->Y1;
+      // сохранили
+      Dlg->OldX1=Dlg->X1;
+      Dlg->OldY1=Dlg->Y1;
+      Dlg->OldX2=Dlg->X2;
+      Dlg->OldY2=Dlg->Y2;
+      // переместили
+      if(Param1)   // абсолютно?
+      {
+        Dlg->X1=((COORD*)Param2)->X;
+        Dlg->Y1=((COORD*)Param2)->Y;
+      }
+      else         // значит относительно
+      {
+        Dlg->X1+=((COORD*)Param2)->X;
+        Dlg->Y1+=((COORD*)Param2)->Y;
+      }
+
+      // проверили и скорректировали
+      if(Dlg->X1 < 0)         Dlg->X1=0;
+      if(Dlg->Y1 < 0)         Dlg->Y1=0;
+      if(Dlg->X1+W1 >= ScrX)  Dlg->X1=ScrX-W1; //?
+      if(Dlg->Y1+H1 >= ScrY)  Dlg->Y1=ScrY-H1; //?
+      Dlg->X2=Dlg->X1+W1;
+      Dlg->Y2=Dlg->Y1+H1;
+      ((COORD*)Param2)->X=Dlg->X1;
+      ((COORD*)Param2)->Y=Dlg->Y1;
+
+      I=Dlg->IsVisible();
+      if(I) Dlg->Hide();
+      // приняли.
+      Dlg->AdjustEditPos(Dlg->X1-Dlg->OldX1,Dlg->Y1-Dlg->OldY1);
+      if(I) Dlg->Show(); // только если диалог был виден
+
+      return Param2;
+    }
+    /* SVS $ */
+  }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.
   return Dlg->DlgProc(hDlg,Msg,Param1,Param2);

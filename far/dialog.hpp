@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.16 29.08.2000 $ */
+/* Revision: 1.17 30.08.2000 $ */
 
 /*
 Modify:
+  30.08.2000 SVS
+   + Режим диалога DMODE_SHOW - Диалог виден?
+   + Метод Hide()
   29.08.2000 SVS
    ! При подмене темы помощи из диаловой процедуры...
      короче, нужно вновь формировать контент!
@@ -96,6 +99,7 @@ Modify:
 #define DMODE_DRAGGED		0x00000008 // диалог двигается?
 #define DMODE_ISCANMOVE		0x00000010 // можно ли двигать диалог?
 #define DMODE_KEY		0x00002000 // Идет посылка клавиш?
+#define DMODE_SHOW              0x00004000 // Диалог виден?
 
 // Флаги для функции ConvertItem
 #define CVTITEM_TOPLUGIN	0
@@ -202,6 +206,11 @@ class Dialog:public Modal
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Show();
+    /* $ 30.08.2000 SVS
+       Надобно перехватить Hide()
+    */
+    void Hide();
+    /* SVS $ */
     void FastShow() {ShowDialog();}
     /* $ 28.07.2000 SVS
        Теперь InitDialogObjects возвращает ID элемента
