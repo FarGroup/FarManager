@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.18 23.10.2001 $ */
+/* Revision: 1.19 26.10.2001 $ */
 
 /*
 Modify:
+  26.10.2001 SVS
+    ! небольшие уточнения размеров
   23.10.2001 SVS
     ! неверное(!) применение strncpy
   22.10.2001 SVS
@@ -231,7 +233,10 @@ int Message(DWORD Flags,int Buttons,const char *Title,
 
   MessageX1=X1=(ScrX-MaxLength)/2-4;
   MessageX2=X2=X1+MaxLength+9;
-  MessageY1=Y1=(ScrY-StrCount)/2-4;
+  Y1=(ScrY-StrCount)/2-2;
+  if(Y1 < 0)
+    Y1=0;
+  MessageY1=Y1;
 
   if (Flags & MSG_DOWN)
   {

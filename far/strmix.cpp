@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.27 23.10.2001 $ */
+/* Revision: 1.28 26.10.2001 $ */
 
 /*
 Modify:
+  26.10.2001 SVS
+    ! В HiStrlen() НУЖНО! проверить Str на NULL
   23.10.2001 SVS
     - Подводные камни в CenterStr()
   22.10.2001 SVS
@@ -519,18 +521,20 @@ char *RemoveChar(char *Str,char Target,BOOL Dup)
 int HiStrlen(const char *Str,BOOL Dup)
 {
   int Length=0;
-  while (*Str)
-  {
-    if (*Str!='&')
-      Length++;
-    else
-      if(Dup && Str[1] == '&')
-      {
+
+  if(Str && *Str)
+    while (*Str)
+    {
+      if (*Str!='&')
         Length++;
-        ++Str;
-      }
-    Str++;
-  }
+      else
+        if(Dup && Str[1] == '&')
+        {
+          Length++;
+          ++Str;
+        }
+      Str++;
+    }
   return(Length);
 }
 

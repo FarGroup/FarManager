@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.100 22.10.2001 $ */
+/* Revision: 1.101 26.10.2001 $ */
 
 /*
 Modify:
+  26.10.2001 SVS
+    - неверно инициализировался массив MsgItems в FarMessageFn()
   22.10.2001 SVS
     - уточнение (восстановление) поведения Message для плагинов
   22.10.2001 SVS
@@ -914,7 +916,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     return(-1);
   }
 
-  memset(MsgItems,0,sizeof(MsgItems));
+  memset(MsgItems,0,sizeof(char*)*(ItemsNumber+ADDSPACEFORPSTRFORMESSAGE));
 
   if(Flags&FMSG_ALLINONE)
   {
@@ -935,6 +937,11 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
       MsgItems[I]=Items[I];
   }
 
+  // ограничение на строки
+  if(ItemsNumber > ScrY-2)
+  {
+    ItemsNumber=ScrY-2-(Flags&0x000F0000?1:0);
+  }
 
   /* $ 22.03.2001 tran
      ItemsNumber++ -> ++ItemsNumber
