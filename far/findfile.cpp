@@ -5,10 +5,17 @@ findfile.cpp
 
 */
 
-/* Revision: 1.74 22.11.2001 $ */
+/* Revision: 1.75 22.11.2001 $ */
 
 /*
 Modify:
+  22.11.2001 KM
+    - «абыли однако, что DN_BTNCLICK работает со всеми "нажимающимис€"
+      контролами, только с кнопками немного по-другому, поэтому простое
+      нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
+    + ¬о врем€ поиска нажали Esc - выдаЄтс€ стандартный запрос на останов
+      операции (если опци€ включена) или просто поиск останавливаетс€
+      (раньше он ещЄ и выходил из него).
   22.11.2001 VVM
     ! —брасыватьсосто€ние FindFolders при вводе текста.
       Ќо только если не мен€ли этот состо€ние вручную
@@ -311,7 +318,7 @@ static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives;
 /* KM $ */
 static int FindFoldersChanged;
 static int DlgWidth,DlgHeight;
-static volatile int StopSearch,SearchDone,LastFoundNumber,FileCount,WriteDataUsed;
+static volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FileCount,WriteDataUsed;
 static char FindMessage[200],LastDirName[NM];
 static int FindMessageReady,FindCountReady;
 static char PluginSearchPath[2*NM];
@@ -423,9 +430,18 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Ќо только если не мен€ли этот состо€ние вручную */
     case DN_BTNCLICK:
     {
+      /* $ 22.11.2001 KM
+         - «абыли однако, что DN_BTNCLICK работает со всеми "нажимающимис€"
+           контролами, только с кнопками немного по-другому, поэтому простое
+           нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
+      */
       if (Param1==13)
+      {
         FindFoldersChanged = TRUE;
-      return TRUE;
+        return TRUE;
+      }
+      return FALSE;
+      /* KM $ */
     }
     case DN_EDITCHANGE:
     {
@@ -717,6 +733,21 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_KEY:
     {
+      if (!StopSearch && Param2==KEY_ESC)
+      {
+        PauseSearch=TRUE;
+        IsProcessAssignMacroKey++; // запретим спец клавиши
+                                   // т.е. в этом диалоге нельз€ нажать Alt-F9!
+        int LocalRes=TRUE;
+        if(Opt.Confirm.Esc && Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
+                      MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo))==1)
+          LocalRes=FALSE;
+        IsProcessAssignMacroKey--;
+        PauseSearch=FALSE;
+        StopSearch=LocalRes;
+        return TRUE;
+      }
+
       if (!ListBox)
         return TRUE;
 
@@ -1140,6 +1171,7 @@ int FindFiles::FindFilesProcess()
   LastFoundNumber=0;
   SearchDone=FALSE;
   StopSearch=FALSE;
+  PauseSearch=FALSE;
   WriteDataUsed=FALSE;
   FileCount=0;
   FindExitIndex = LIST_INDEX_NONE;
@@ -1395,6 +1427,9 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
       while (!StopSearch && ScTree.GetNextName(&FindData,FullName))
       {
+        while (PauseSearch)
+          Sleep(10);
+
         if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
           strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
@@ -1914,6 +1949,9 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
   {
     for (int I=0;I<ItemCount && !StopSearch;I++)
     {
+      while (PauseSearch)
+        Sleep(10);
+
       PluginPanelItem *CurPanelItem=PanelData+I;
       char *CurName=CurPanelItem->FindData.cFileName;
       char FullName[2*NM];
@@ -2004,7 +2042,7 @@ void FindFiles::WriteDialogData(void *Param)
   while(1)
   {
     VMenu *ListBox=Dlg->Item[1].ListPtr;
-    if (ListBox)
+    if (ListBox && !PauseSearch)
     {
       WaitForSingleObject(hMutex,INFINITE);
 
