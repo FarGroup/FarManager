@@ -199,8 +199,14 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           return(GETARC_EOF);
         NextPositionHigh+=PackSizeHigh;
       }
+      //if (RarHeader.NameSize>sizeof(Item->FindData.cFileName)-1)
+      //  return(GETARC_BROKEN);
       if (RarHeader.NameSize>sizeof(Item->FindData.cFileName)-1)
-        return(GETARC_BROKEN);
+      {
+        RarHeader.NameSize=sizeof(Item->FindData.cFileName)-1;
+        Item->FindData.cFileName[RarHeader.NameSize]=0;
+      }
+
       if (RarHeader.HostOS>=3)
         RarHeader.FileAttr=(RarHeader.Flags & 0x00e0)==0x00e0 ? 0x10:0x20;
       if (!ReadFile(ArcHandle,&Item->FindData.cFileName,RarHeader.NameSize,&ReadSize,NULL) ||
