@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.54 08.04.2002 $ */
+/* Revision: 1.55 09.04.2002 $ */
 
 /*
 Modify:
+  09.04.2002 DJ
+    ! попробуем организовать нормальный запуск под Win2000, даже если в .PIF
+      стоит 300 строк
   08.04.2002 SVS
     ! ¬ FlushInputBuffer() очистим так же и инфу про мышь
   02.04.2002 SVS
@@ -248,8 +251,29 @@ void InitConsole(int FirstInit)
 
   SetFarConsoleMode();
   SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
+  /* $ 09.04.2002 DJ
+     если мы под NT и размер консольного буфера больше размера окна, выставим
+     их равными
+  */
   if(FirstInit)
+  {
     GetVideoMode(InitScreenBufferInfo);
+    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    {
+      if (InitScreenBufferInfo.srWindow.Left != 0 ||
+        InitScreenBufferInfo.srWindow.Top != 0 ||
+        InitScreenBufferInfo.srWindow.Right != InitScreenBufferInfo.dwSize.X-1 ||
+        InitScreenBufferInfo.srWindow.Bottom != InitScreenBufferInfo.dwSize.Y-1)
+      {
+        COORD newSize;
+        newSize.X = InitScreenBufferInfo.srWindow.Right - InitScreenBufferInfo.srWindow.Left + 1;
+        newSize.Y = InitScreenBufferInfo.srWindow.Bottom - InitScreenBufferInfo.srWindow.Top + 1;
+        SetConsoleScreenBufferSize (hConOut, newSize);
+        GetVideoMode (InitScreenBufferInfo);
+      }
+    }
+  }
+  /* DJ $ */
   GetVideoMode(CurScreenBufferInfo);
   ScrBuf.FillBuf();
   // было sizeof(Palette)

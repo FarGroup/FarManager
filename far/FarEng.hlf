@@ -1461,15 +1461,18 @@ $ #System settings dialog#
                           Bin can be performed only for local hard
                           disks.
 
-  #Use system copy#         Use Windows function CopyFileEx
-  #routine#                 (or CopyFile if CopyFileEx not available)
-                          instead of internal copy implementation
-                          to copy files. It may be useful on NTFS,
-                          because CopyFileEx performs a more rational
-                          disk space allocation and copies file
-                          extended attributes.
+  #Use system copy#         Use the file copy functions provided by
+  #routine#                 the operating system instead of internal
+                          file copy implementation. It may be useful
+                          on NTFS, because the system function
+                          (CopyFileEx) performs a more rational disk
+                          space allocation and copies file extended
+                          attributes. On the other hand, when using
+                          the system function, the possibility to
+                          split files when ~copying~@CopyFiles@ or moving is not
+                          available.
 
-  #Copy files opened#       Allows to copy files, which are opened
+  #Copy files opened#       Allows to copy files that are opened
   #for writing#             by other programs for writing. This mode
                           is handy to copy a file opened for a long
                           time, but it could be dangerous, if a file
@@ -2558,8 +2561,8 @@ terminate the name with backslash. Also in the Copy dialog you may press
 to select from the passive file panel tree. #Shift-F10# allows to open
 the tree for the path entered in the input line (if several paths are
 entered, only the first one is taken into account). If the option "Process
-multiple filenames" is enabled, the dialog selected in the tree is appended
-to the edit line.
+multiple destinations" is enabled, the dialog selected in the tree is
+appended to the edit line.
 
     The possibility of copying, moving and renaming files for plugins
 depends upon the plugin module functionality.
@@ -2596,8 +2599,8 @@ performed as a copy with subsequent deletion or as a direct move
     FAR handles copying to #con# in the same way as copying to #nul# -
 that is, the file is read from the disk but not written anywhere.
 
-    Состояние опций "Копировать права доступа" и "Только новые/обновленные
-файлы" действуют только на текущий сеанс копирования.
+    The options "Copy access rights" and "Only newer files" affect only
+the current copy session and are not saved for later copy operations.
 
 @HardSymLink
 $ #Hard and Symbolic link#
