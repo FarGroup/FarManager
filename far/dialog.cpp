@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.41 18.09.2000 $ */
+/* Revision: 1.42 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+   + DIF_READONLY - флаг для строк редактирования
+      (пока! для строк редактирования).
   18.09.2000 SVS
    ! Уточнения для SelectOnEntry
    ! Маска не должна быть пустой (строка из пробелов не учитывается)!
@@ -604,6 +607,14 @@ int Dialog::InitDialogObjects(int ID)
       if (CurItem->Flags & DIF_DROPDOWNLIST)
       {
          DialogEdit->DropDownBox=1;
+      }
+      /* SVS $ */
+      /* $ 18.09.2000 SVS
+         ReadOnly!
+      */
+      if (CurItem->Flags & DIF_READONLY)
+      {
+         DialogEdit->ReadOnly=1;
       }
       /* SVS $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,

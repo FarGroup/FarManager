@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.51 18.09.2000 $ */
+/* Revision: 1.52 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    + DIF_READONLY - флаг для строк редактирования
+      (пока! для строк редактирования).
   18.09.2000 SVS
     ! Функция DialogEx имеет 2 дополнительных параметра (Future)
     ! переделки в struct PluginStartupInfo!!!!
@@ -442,6 +445,12 @@ enum FarDialogItemFlags {
     + Флаг DIF_LISTNOAMPERSAND
 */
   DIF_LISTNOAMPERSAND =   0x20000UL,
+/* SVS $ */
+/* $ 18.09.2000 SVS
+  + DIF_READONLY - флаг для строк редактирования
+     (пока! для строк редактирования).
+*/
+  DIF_READONLY        =0x20000000UL,
 /* SVS $ */
 };
 /* KM $ */

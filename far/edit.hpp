@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.06 21.08.2000 $ */
+/* Revision: 1.07 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    + класс Dialog является "другом" (т.е. полноправным совладельцем)
   12.08.2000 KM 1.06
     + Новые функции SetInputMask и GetInputMask для установки и получения маски ввода.
     + Новая переменная Mask, которая хранит маску ввода для данного объекта Edit.
@@ -38,8 +40,11 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
+class Dialog;
+
 class Edit:public ScreenObject
 {
+  friend class Dialog;
   private:
     void   DisplayObject();
     void   ShowString(char *ShowStr,int TabSelStart,int TabSelEnd);
