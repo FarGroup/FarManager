@@ -5,15 +5,17 @@ setattr.cpp
 
 */
 
-/* Revision: 1.33 17.07.2001 $ */
+/* Revision: 1.34 11.09.2001 $ */
 
 /*
 Modify:
+  11.09.2001 SVS
+    - BugZ#7: Уточнение по поводу слинкованной файловой системы отличной от NTFS.
   17.07.2001 SKV
-   - баг в ReadFileTime. Псевдопотенциальный, в debug срабатывал всегда.
-   ! закомментировал несколько неюзаемых переменных, сократив кол-во варнингов
+    - баг в ReadFileTime. Псевдопотенциальный, в debug срабатывал всегда.
+    ! закомментировал несколько неюзаемых переменных, сократив кол-во варнингов
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   10.06.2001 SVS
     - ошибка в логике при работе с атрибутами для каталога
   20.05.2001 SVS
@@ -520,6 +522,22 @@ int ShellSetFileAttributes(Panel *SrcPanel)
                 (LenJunction?
                    TruncPathStr(JuncName+4,29):
                    MSG(MSetAttrUnknownJunction)));
+
+          /* $ 11.09.2001 SVS
+             Уточнение по поводу слинкованной файловой системы отличной от
+             NTFS.
+          */
+          DlgParam.FileSystemFlags=0;
+          GetPathRoot(SelName,JuncName);
+          if (GetVolumeInformation(JuncName,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,NULL,0))
+          {
+            if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
+              AttrDlg[8].Flags|=DIF_DISABLE;
+
+            if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
+              AttrDlg[9].Flags|=DIF_DISABLE;
+          }
+          /* SVS $ */
         }
       }
       else
