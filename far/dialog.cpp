@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.267 04.10.2002 $ */
+/* Revision: 1.268 10.10.2002 $ */
 
 /*
 Modify:
+  10.10.2002 SVS
+    - BugZ#661 - DI_CHECKBOX&DefaultButton
   04.10.2002 SVS
     - BugZ#666 - Неразбериха с цветами
     + VMENU_DISABLED - говорит о том, что ВЕСЬ список (как элемент диалога) заблокирован
@@ -3131,8 +3133,8 @@ int Dialog::ProcessKey(int Key)
                // ProcessKey(KEY_DOWN); // на твой вкус :-)
                return TRUE;
             }
-            if (!IsEdit(Item[I].Type))
-              Item[I].Selected=1;
+//            if (!(IsEdit(Item[I].Type) || Item[I].Type == DI_CHECKBOX || Item[I].Type == DI_RADIOBUTTON))
+//              Item[I].Selected=1;
             ExitCode=I;
             break;
           }

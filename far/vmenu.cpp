@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.100 08.10.2002 $ */
+/* Revision: 1.101 10.10.2002 $ */
 
 /*
 Modify:
+  10.10.2002 SVS
+    ! Уточнение BugZ#675.
   08.10.2002 SVS
     - BugZ#675 - Неправильно вычисляется ширина меню со списком окон
   04.10.2002 SVS
@@ -839,8 +841,10 @@ void VMenu::ShowMenu(int IsParent)
           else
             Check=(char)Item[I].Flags&0x0000FFFF;
 
-        //sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].PtrName());
-        sprintf(TmpStr,"%c %s",Check,Item[I].PtrName());
+        if(HiStrlen(Item[I].PtrName(),TRUE) > X2-X1-3)
+          sprintf(TmpStr,"%c %.*s",Check,X2-X1-3,Item[I].PtrName());
+        else
+          sprintf(TmpStr,"%c %s",Check,Item[I].PtrName());
         { // табуляции меняем только при показе!!!
           // для сохранение оригинальной строки!!!
           char *TabPtr;
