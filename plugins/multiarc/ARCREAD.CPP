@@ -191,6 +191,8 @@ int PluginClass::ReadArchive(char *Name)
 
   ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
 
+  int ret = TRUE;
+
   if(GetItemCode != GETARC_EOF && GetItemCode != GETARC_SUCCESS)
   {
     switch(GetItemCode)
@@ -212,11 +214,13 @@ int PluginClass::ReadArchive(char *Name)
     const char *MsgItems[]={GetMsg(MError),NameMsg,GetMsg(GetItemCode),GetMsg(MOk)};
     FSF.TruncPathStr(strncpy(NameMsg,Name,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+    if (ArcData==NULL)
+      ret=FALSE;
   }
 
   Info.RestoreScreen(NULL);
   Info.RestoreScreen(hScreen);
-  return TRUE;
+  return ret;
 }
 
 
