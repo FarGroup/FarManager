@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.89 11.11.2004 $ */
+/* Revision: 1.90 02.02.2005 $ */
 
 /*
 Modify:
+  02.02.2005 SVS
+    ! ShowBackground() теперь возвращает TRUE/FALSE
   11.11.2004 SVS
     + Manager::GetTopModal() - возвращает top-модал или сам фрейм, если у фрейма нету модалов
   04.06.2004 SVS
@@ -668,14 +670,15 @@ int  Manager::FindFrameByFile(int ModalType,char *FileName,char *Dir)
 }
 /* 11.05.2001 OT $*/
 
-void Manager::ShowBackground()
+BOOL Manager::ShowBackground()
 {
   if (!RegVer)
   {
     Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
-    return;
+    return FALSE;
   }
   CtrlObject->CmdLine->ShowBackground();
+  return TRUE;
 }
 
 

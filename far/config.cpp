@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.174 06.01.2005 $ */
+/* Revision: 1.175 02.02.2005 $ */
 
 /*
 Modify:
+  02.02.2005 SVS
+    + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
   06.01.2005 WARP
     ! ƒобавки к трехпозиционному ExpandTabs
   25.12.2004 WARP
@@ -1581,6 +1583,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyDialog,"EditLine",&Opt.Dialogs.EditLine,0, 0},
   {1, REG_DWORD,  NKeyDialog,"MouseButton",&Opt.Dialogs.MouseButton,0xFFFF, 0},
   {0, REG_DWORD,  NKeyDialog,"DelRemovesBlocks",&Opt.Dialogs.DelRemovesBlocks,1, 0},
+  {0, REG_DWORD,  NKeyDialog,"CBoxMaxHeight",&Opt.Dialogs.CBoxMaxHeight,8, 0},
 
   {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
   {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},

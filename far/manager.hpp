@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.35 11.11.2004 $ */
+/* Revision: 1.36 02.02.2005 $ */
 
 /*
 Modify:
+  02.02.2005 SVS
+    ! ShowBackground() теперь возвращает TRUE/FALSE
   11.11.2004 SVS
     + Manager::GetTopModal() - возвращает top-модал или сам фрейм, если у фрейма нету модалов
   10.12.2002 SVS
@@ -238,7 +240,7 @@ class Manager
     BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
     void SetFramePos(int NewPos);
     int  FindFrameByFile(int ModalType,char *FileName,char *Dir=NULL);
-    void ShowBackground();
+    BOOL ShowBackground();
 
     void EnterMainLoop();
     void ProcessMainLoop();

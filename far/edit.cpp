@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.130 06.01.2005 $ */
+/* Revision: 1.131 02.02.2005 $ */
 
 /*
 Modify:
+  02.02.2005 SVS
+    - BugZ#1246 - ћакросы производ€щие манипулирование курсором не снимают выделение в пол€х ввода
   06.01.2005 WARP
     ! ƒобавки к трехпозиционному ExpandTabs
   23.12.2004 WARP
@@ -974,10 +976,9 @@ int Edit::ProcessKey(int Key)
   }
   /* SVS $ */
 
-  /* $ 04.07.2000 IG
-     добавлена проврерка на запуск макроса (bug8) */
-  if (!ShiftPressed && !CtrlObject->Macro.IsExecuting() &&
-  /* IG $ */
+  int _Macro_IsExecuting=CtrlObject->Macro.IsExecuting();
+  // $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
+  if (!ShiftPressed && (!_Macro_IsExecuting || IsNavKey(Key) && _Macro_IsExecuting) &&
       !IsShiftKey(Key) && !Recurse &&
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL && Key!=KEY_RALT && Key!=KEY_NONE)
   {

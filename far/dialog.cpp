@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.324 31.01.2005 $ */
+/* Revision: 1.325 02.02.2005 $ */
 
 /*
 Modify:
+  02.02.2005 SVS
+    + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
   31.01.2005 SVS
     ! уточнение для "обрезания" :-)
   29.01.2005 WARP
@@ -1777,7 +1779,7 @@ int Dialog::InitDialogObjects(int ID)
         CurItem->ObjPtr=new DlgEdit;
         if(Type == DI_COMBOBOX)
         {
-          CurItem->ListPtr=new VMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
+          CurItem->ListPtr=new VMenu("",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
         }
         CurItem->SelStart=-1;
       }
@@ -5301,7 +5303,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
   {
     // создание пустого вертикального меню
-    VMenu HistoryMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR);
+    VMenu HistoryMenu("",NULL,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR);
 
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)

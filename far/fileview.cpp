@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.68 06.08.2004 $ */
+/* Revision: 1.69 02.02.2005 $ */
 
 /*
 Modify:
+  02.02.2005 SVS
+    - BugZ#1242 - Ctrl-Tab заело
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   05.06.2003 SVS
@@ -455,10 +457,12 @@ int FileViewer::ProcessKey(int Key)
     case KEY_CTRLO:
       if(!Opt.OnlyEditorViewerUsed)
       {
-        FrameManager->ShowBackground();
-        SetCursorType(FALSE,0);
-        WaitKey();
-        FrameManager->RefreshFrame();
+        if(FrameManager->ShowBackground())
+        {
+          SetCursorType(FALSE,0);
+          WaitKey();
+          FrameManager->RefreshFrame();
+        }
       }
       return(TRUE);
     /* SVS $ */

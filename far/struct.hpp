@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.119 30.08.2004 $ */
+/* Revision: 1.120 02.02.2005 $ */
 
 /*
 Modify:
+  02.02.2005 SVS
+    + DialogsOptions.CBoxMaxHeight - максимальный размер открываемого списка (по умолчанию=8)
   30.08.2004 SVS
     + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
   18.05.2004 SVS
@@ -525,6 +527,7 @@ struct DialogsOptions{
   DWORD EditLine;           // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
   int   MouseButton;        // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
   int   DelRemovesBlocks;
+  int   CBoxMaxHeight;      // максимальный размер открываемого списка (по умолчанию=8)
 };
 
 struct NowellOptions{
