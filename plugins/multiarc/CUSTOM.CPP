@@ -41,7 +41,6 @@
 BOOL WINAPI OpenArchivePipe(const char *Name,int *Type);
 int GetString(char *Str,int MaxSize);
 int HexCharToNum(int HexChar);
-void ConvertNameToShort(const char *Src,char *Dest);
 int GetSectionName(int Num,char *Name,int MaxSize);
 void FillFormat(const char *TypeName);
 
@@ -196,6 +195,213 @@ DWORD WINAPI _export GetSFXPos(void)
   return 0;
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+
+class MetaReplacer
+{
+	char *m_command;
+	char *m_fileName;
+	char *m_shortName;
+
+	class Meta
+	{
+	public:
+		enum Type
+		{
+			invalidType = -1,
+			archiveName,
+			shortArchiveName
+		};
+
+		enum Flags
+		{
+			quoteWithSpaces = 1,
+			quoteAll = 2,
+			useForwardSlashes = 4,
+			useNameOnly = 8,
+			usePathOnly = 16,
+			useANSI = 32
+		};
+
+	private:
+		bool			m_isValid;
+		Type			m_type;
+		unsigned int	m_flags;
+		int				m_length;
+
+	public:
+		Meta(const char *start)
+			:	m_isValid(false),
+				m_type(invalidType),
+				m_flags(0),
+				m_length(0)
+		{
+			if((start[0] != '%') || (start[1] != '%'))
+				return;
+
+		    char typeChars[] = {'A', 'a'};
+			char flagChars[] = {'Q', 'q', 'S', 'W', 'P', 'A'};
+
+			for(int i = 0; i < sizeof(typeChars); ++i)
+				if(start[2] == typeChars[i])
+					m_type = (Type)i;
+
+			if(m_type == invalidType)
+				return;
+
+			const char *p = start + 3;
+
+			for(; *p; ++p)
+			{
+				bool isFlagChar = false;
+				for(int i = 0; i < sizeof(flagChars); ++i)
+					if(*p == flagChars[i])
+					{
+						m_flags |= 1 << i;
+						isFlagChar = true;
+					}
+
+				if(!isFlagChar)
+					break;
+			}
+
+			m_length = p - start;
+
+			m_isValid = true;
+
+		}
+
+		bool isValidMeta() const
+		{
+			return m_isValid;
+		}
+
+		Type getType() const
+		{
+			return m_type;
+		}
+
+		unsigned int getFlags() const
+		{
+			return m_flags;
+		}
+
+		int getLength() const
+		{
+			return m_length;
+		}
+	};
+
+	static void convertNameToShort(const char *Src, char *Dest)
+	{
+		char ShortName[NM],AnsiName[NM];
+		int AnsiApis = AreFileApisANSI();
+
+		if(!AnsiApis)
+			SetFileApisToANSI();
+
+		OemToChar(Src, AnsiName);
+
+		if(GetShortPathName(AnsiName,ShortName,sizeof(ShortName)) && *ShortName)
+			CharToOem(ShortName, Dest);
+		else
+			strcpy(Dest, Src);
+
+		if(!AnsiApis)
+			SetFileApisToOEM();
+	}
+
+public:
+	MetaReplacer(const char *command, const char *arcName)
+		:	m_command(new char[strlen(command) + sizeof(char)]),
+			m_fileName(new char[strlen(arcName) + sizeof(char)]),
+			m_shortName(new char[NM])
+	{
+		strcpy(m_command, command);
+		strcpy(m_fileName, arcName);
+		convertNameToShort(m_fileName, m_shortName);
+	}
+
+	virtual ~MetaReplacer()
+	{
+		delete m_command;
+		delete m_fileName;
+		delete m_shortName;
+	}
+
+	void replaceTo(char *buffer)
+	{
+		char *dest = buffer;
+		*dest = 0;
+
+		bool bReplacedSomething = false;
+
+		for(const char *command = m_command; *command;)
+		{
+			Meta m(command);
+			if(!m.isValidMeta())
+			{
+				*dest++ = *command++;
+				*dest = 0;
+				continue;
+			}
+
+			command += m.getLength();
+			bReplacedSomething = true;
+
+			const char *var = (m.getType() == Meta::archiveName) ? m_fileName : m_shortName;
+			char *lastSlash = strrchr(var, '\\');
+
+			if(m.getFlags() & Meta::useNameOnly)
+			{
+				var = lastSlash ? lastSlash + 1 : var;
+			}
+			else if(m.getFlags() & Meta::usePathOnly)
+			{
+				if(lastSlash)
+					*lastSlash = 0;
+			}
+
+			bool bQuote = (m.getFlags() & Meta::quoteAll)
+						|| ((m.getFlags() & Meta::quoteWithSpaces) && strchr(var, ' '));
+
+			if(bQuote)
+				strcat(dest, "\"");
+
+			strcat(dest, var);
+
+			if(bQuote)
+				strcat(dest, "\"");
+
+			if(m.getFlags() & Meta::useForwardSlashes)
+			{
+				for(; *dest; ++dest)
+					if(*dest == '\\')
+						*dest = '/';
+			}
+
+
+			if(lastSlash)
+				*lastSlash = '\\';
+
+			while(*dest)
+				dest++;
+
+		}
+
+		if(!bReplacedSomething)		// there were no meta-symbols, should use old-style method
+		{
+			strcat(buffer, " ");
+			strcat(buffer, m_shortName);
+		}
+
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
   char TypeName[NM],Command[512];
@@ -213,10 +419,8 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
   ArcChapters=-1;
 
-  char ShortName[NM];
-  ConvertNameToShort(Name,ShortName);
-  strcat(Command," ");
-  strcat(Command,ShortName);
+  MetaReplacer meta(Command, Name);
+  meta.replaceTo(Command);
 
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -302,10 +506,9 @@ BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
     return(FALSE);
   *Type=CurType;
 
-  strcat(Command," ");
-  char ShortName[NM];
-  strcat(Command,GetShortPathName(Name,ShortName,sizeof(ShortName))?
-                 ShortName:Name);
+
+  MetaReplacer meta(Command, Name);
+  meta.replaceTo(Command);
 
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -884,27 +1087,6 @@ int HexCharToNum(int HexChar)
       return(HexChar-'A'+10);
   return(0);
 }
-
-
-void ConvertNameToShort(const char *Src,char *Dest)
-{
-  char ShortName[NM],AnsiName[NM];
-  int AnsiApis=AreFileApisANSI();
-
-  if (!AnsiApis)
-    SetFileApisToANSI();
-
-  OemToChar(Src,AnsiName);
-
-  if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)) && *ShortName)
-    CharToOem(ShortName,Dest);
-  else
-    strcpy(Dest,Src);
-
-  if (!AnsiApis)
-    SetFileApisToOEM();
-}
-
 
 int GetSectionName(int Num, char *Name, int MaxSize)
 {
