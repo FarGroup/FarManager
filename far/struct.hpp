@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.41 21.02.2001 $ */
+/* Revision: 1.42 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+   + Opt.ExceptCallDebugger - вызывать дебаггер или нет
+   ! Opt.ExceptRules - битовая маска
   21.02.2001 IS
    ! Часть настроек редактора переехала в EditorOptions
   12.02.2001 SKV
@@ -492,6 +495,10 @@ struct Options
   /* $ 27.11.2000 SVS
    + Opt.ExceptRules - Правило на счет вызова исключений */
   int ExceptRules;
+  /* $ 26.02.2001 VVM
+   + Opt.ExceptCallDebugger - вызывать дебаггер при исключении */
+  int ExceptCallDebugger;
+  /* VVM $ */
   /* SVS $ */
   /* $ 28.11.2000 SVS
    + Opt.EditorF7Rules - Правило на счет поиска в редакторе */

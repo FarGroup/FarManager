@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.54 26.02.2001 $ */
+/* Revision: 1.55 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    ! Уточнение для обработки NULL в OpenPlugin
+    + Обработка исключения при OpenPlugin(OPEN_FINDLIST)
   26.02.2001 VVM
     ! Обработка NULL после OpenPlugin
   11.02.2001 SVS
@@ -228,11 +231,11 @@ static int xfilter(
      // сюды добавляем.
    };
    // EXCEPTION_CONTINUE_EXECUTION  ??????
-   char *Ptr;
-   int I;
-   int rc, Ret=1;
-   char Buf[2][64];
+   char *pName;
+   int  I, rc, Ret=1;
+   char Buf[2][80];
    char TruncFileName[2*NM];
+   BOOL Unload = FALSE; // Установить в истину, если плагин нужно выгрузить
 
    // получим запись исключения
    EXCEPTION_RECORD *xr = xp->ExceptionRecord;
@@ -246,111 +249,139 @@ static int xfilter(
    /*$ 23.01.2001 skv
      Неизвестное исключение не стоит игнорировать.
    */
-   Ptr=NULL;
+   pName=NULL;
    strcpy(TruncFileName,NullToEmpty(Module->ModuleName));
-   if(From != EXCEPT_GETPLUGININFO_DATA && From != EXCEPT_GETOPENPLUGININFO_DATA)
+
+   /* $ 26.02.2001 VVM
+       ! Обработка STATUS_INVALIDFUNCTIONRESULT */
+   if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA) 
+   {
+     I = 0;
+     static const char *NameField[2][3]={
+       {"DiskMenuStrings","PluginMenuStrings","PluginConfigStrings"},
+       {"InfoLines","DescrFiles","PanelModesArray"},};
+     switch(From)
+     {
+       case EXCEPT_GETPLUGININFO_DATA:
+         pName = "PluginInfo";
+         I = 0;
+         break;
+       case EXCEPT_GETOPENPLUGININFO_DATA:
+         pName = "OpenPluginInfo";
+         I = 1;
+         break;
+     }
+    
+     if(xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
+        xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
+     {
+       sprintf(Buf[0],
+           MSG(MExcStructField),
+           pName,
+           NameField[I][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
+     }
+     else
+       sprintf(Buf[0],MSG(MExcStructWrongFilled),pName);
+    
+     Ret=Message(MSG_WARNING,
+            (Opt.ExceptCallDebugger?2:1),
+            xFromMSGTitle(From),
+            MSG(MExcTrappedException),
+            MSG(MExcCheckOnLousys),
+            TruncPathStr(TruncFileName,40),
+            Buf[0],
+            "\1",
+            MSG(MExcUnloadYes),
+            (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MOk)),
+            (Opt.ExceptCallDebugger?MSG(MOk):NULL));
+    
+     if (!Opt.ExceptCallDebugger || Ret!=0)
+       Unload = TRUE;
+//       CtrlObject->Plugins.UnloadPlugin(*Module);
+   } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
+
+   else if (xr->ExceptionCode == STATUS_INVALIDFUNCTIONRESULT)
+   {
+     switch (From)
+     {
+       case EXCEPT_OPENPLUGIN:
+         sprintf(Buf[0],MSG(MExcInvalidFuncResult),"OpenPlugin");
+         break;
+       case EXCEPT_OPENFILEPLUGIN:
+         sprintf(Buf[0],MSG(MExcInvalidFuncResult),"OpenFilePlugin");
+         break;
+     } /* switch */
+     Ret=Message(MSG_WARNING, 2,
+                 xFromMSGTitle(From),
+                 MSG(MExcTrappedException),
+                 MSG(MExcCheckOnLousys),
+                 TruncPathStr(TruncFileName,40),
+                 Buf[0],
+                 "\1",
+                 MSG(MExcUnload),
+                 MSG(MYes), MSG(MNo));
+     if (Ret == 0) {
+       Unload = TRUE;
+       Ret++; // Исключить вызов дебаггера при Ret == 0
+     }
+   } /* STATUS_INVALIDFUNCTIONRESULT */
+
+   else
    {
      // просмотрим "знакомые" FAR`у исключения и обработаем...
      for(I=0; I < sizeof(ECode)/sizeof(ECode[0]); ++I)
        if(ECode[I].Code == xr->ExceptionCode)
        {
-         Ptr=MSG(ECode[I].IdMsg);
+         pName=MSG(ECode[I].IdMsg);
          rc=ECode[I].RetCode;
          if(xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
          {
            sprintf(Buf[1],MSG(xr->ExceptionInformation[0]+MExcRAccess),xr->ExceptionInformation[1]);
-           Ptr=Buf[1];
+           pName=Buf[1];
          }
          break;
        }
-
-     if(!Ptr)Ptr=MSG(MExcUnknown);
-
+     
+     if (!pName) pName=MSG(MExcUnknown);
+     
      sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
-     if(Flags&1)
+     if (Flags&1)
      {
-       Ret=Message(MSG_WARNING,(Opt.ExceptRules?3:2),
+       Ret=Message(MSG_WARNING,(Opt.ExceptCallDebugger?3:2),
                xFromMSGTitle(From),
                MSG(MExcTrappedException),
-               Ptr,
+               pName,
                Buf[0],
                TruncPathStr(TruncFileName,40),"\1",
-               MSG(MExcUnload),
-               (Opt.ExceptRules?MSG(MExcDebugger):MSG(MYes)),
-               (Opt.ExceptRules?MSG(MYes):MSG(MNo)),
-               (Opt.ExceptRules?MSG(MNo):NULL));
-       if(Opt.ExceptRules && Ret == 1 || !Opt.ExceptRules && !Ret)
-         CtrlObject->Plugins.UnloadPlugin(*Module);
+               MSG(MExcUnload),       
+               (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MYes)),
+               (Opt.ExceptCallDebugger?MSG(MYes):MSG(MNo)),
+               (Opt.ExceptCallDebugger?MSG(MNo):NULL));
+       if ((Opt.ExceptCallDebugger && Ret == 1) || 
+           (!Opt.ExceptCallDebugger && Ret == 0))
+         Unload = TRUE; // CtrlObject->Plugins.UnloadPlugin(*Module);
      }
      else
-       Ret=Message(MSG_WARNING,(Opt.ExceptRules?2:1),
+       Ret=Message(MSG_WARNING,(Opt.ExceptCallDebugger?2:1),
                xFromMSGTitle(From),
                MSG(MExcTrappedException),
-               Ptr,
+               pName,
                Buf[0],
                TruncPathStr(TruncFileName,40),"\1",
                MSG(MExcUnloadYes),
-               (Opt.ExceptRules?MSG(MExcDebugger):MSG(MOk)),
-               (Opt.ExceptRules?MSG(MOk):NULL));
+               (Opt.ExceptCallDebugger?MSG(MExcDebugger):MSG(MOk)),
+               (Opt.ExceptCallDebugger?MSG(MOk):NULL));
      /* skv$*/
-   }
-   else // однозначно выгружаем эту бяку :-(
-   {
-     char OutBuf[128];
-     char *PtrNameStruct=NULL;
-     int NStructFrom=0;
-     static const char *NameField[2][3]={
-       {"DiskMenuStrings","PluginMenuStrings","PluginConfigStrings"},
-       {"InfoLines","DescrFiles","PanelModesArray"},
-     };
-     switch(From)
-     {
-       case EXCEPT_GETPLUGININFO_DATA:
-         PtrNameStruct="PluginInfo";
-         NStructFrom=0;
-         break;
-       case EXCEPT_GETOPENPLUGININFO_DATA:
-         PtrNameStruct="OpenPluginInfo";
-         NStructFrom=1;
-         break;
-     }
+   } /* else */
 
-     if(xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
-        xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
-     {
-       sprintf(OutBuf,
-           MSG(MExcStructField),
-           PtrNameStruct,
-           NameField[NStructFrom][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
-     }
-     else
-       sprintf(OutBuf,MSG(MExcStructWrongFilled),PtrNameStruct);
+   if (Unload)
+     CtrlObject->Plugins.UnloadPlugin(*Module);
 
-     Ret=Message(MSG_WARNING,
-            (Opt.ExceptRules?2:1),
-            xFromMSGTitle(From),
-            MSG(MExcTrappedException),
-            MSG(MExcCheckOnLousys),
-            TruncPathStr(TruncFileName,40),
-            OutBuf,
-            "\1",
-            MSG(MExcUnloadYes),
-            (Opt.ExceptRules?MSG(MExcDebugger):MSG(MOk)),
-            (Opt.ExceptRules?MSG(MOk):NULL));
-
-     if(!Opt.ExceptRules || Ret == 1)
-       CtrlObject->Plugins.UnloadPlugin(*Module);
-
-     if(!Opt.ExceptRules)
-       // не забудем про продолжение исполнения
-       rc=EXCEPTION_EXECUTE_HANDLER;
-   }
-
-   // Вот здесь есть подозрение - нужно ли вообще это EXCEPTION_CONTINUE_SEARCH?
-   if(Opt.ExceptRules && !Ret)
-   {
+   if (Opt.ExceptCallDebugger && Ret==0)
      rc = EXCEPTION_CONTINUE_SEARCH;
-   }
+   else
+     rc = EXCEPTION_EXECUTE_HANDLER;
+   /* VVM $ */
 
    DumpExceptionInfo(xp);
    if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
@@ -1083,16 +1114,18 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
 
       TRY {
          hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
+         /* $ 26.02.2201 VVM
+             ! Выгрузить плагин, если вернули NULL */
+         if (!hInternal)
+           RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
+         /* VVM $ */
       }
       __except ( xfilter(EXCEPT_OPENPLUGIN,
                     GetExceptionInformation(),&PluginsData[PluginNumber],1) )  {
         hInternal=INVALID_HANDLE_VALUE;
       }
       /* SVS $ */
-      /* $ 26.02.2001 VVM
-          ! Обработка NULL после OpenPlugin */
-      if ((hInternal) && (hInternal!=INVALID_HANDLE_VALUE))
-      /* VVM $ */
+      if (hInternal!=INVALID_HANDLE_VALUE)
       {
         PluginHandle *hPlugin=new PluginHandle;
         hPlugin->InternalHandle=hInternal;
@@ -1131,6 +1164,8 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
       TRY
       {
          hInternal=PluginsData[I].pOpenFilePlugin(NamePtr,Data,DataSize);
+         if (!hInternal)
+           RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
       }
       __except ( xfilter(EXCEPT_OPENFILEPLUGIN,
                    GetExceptionInformation(),&PluginsData[I],1) )  {
@@ -1159,11 +1194,23 @@ HANDLE PluginsSet::OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber
     if (PluginsData[I].pOpenPlugin && PluginsData[I].pSetFindList &&
         PreparePlugin(I))
     {
-      HANDLE hInternal=PluginsData[I].pOpenPlugin(OPEN_FINDLIST,0);
       /* $ 26.02.2001 VVM
-          ! Обработка NULL после OpenPlugin */
-      if ((hInternal) && (hInternal!=INVALID_HANDLE_VALUE))
+          + Обработка исключения при OpenPlugin(OPEN_FINDLIST) */
+      HANDLE hInternal;
+      TRY {
+         hInternal = PluginsData[I].pOpenPlugin(OPEN_FINDLIST,0);
+         /* $ 26.02.2201 VVM
+             ! Выгрузить плагин, если вернули NULL */
+         if (!hInternal)
+           RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
+         /* VVM $ */
+      }
+      __except ( xfilter(EXCEPT_OPENPLUGIN,
+                    GetExceptionInformation(),&PluginsData[I],1) )  {
+        hInternal=INVALID_HANDLE_VALUE;
+      }
       /* VVM $ */
+      if (hInternal!=INVALID_HANDLE_VALUE)
       {
         //EXCEPTION_POINTERS *xp;
         BOOL Ret;
@@ -1987,10 +2034,7 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
     if (Viewer)
       OpenCode=OPEN_VIEWER;
     HANDLE hPlugin=OpenPlugin(Data[0],OpenCode,Data[1]);
-    /* $ 26.02.2001 VVM
-        ! Обработка NULL после OpenPlugin */
-    if ((hPlugin) && (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer))
-    /* VVM $ */
+    if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
     {
       Panel *NewPanel=CtrlObject->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
       NewPanel->SetPluginMode(hPlugin,"");
@@ -2210,10 +2254,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
   strcpy(PluginCommand,Command+(PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1));
   /* VVM $ */
   HANDLE hPlugin=OpenPlugin(PluginPos,OPEN_COMMANDLINE,(int)PluginCommand);
-  /* $ 26.02.2001 VVM
-      ! Обработка NULL после OpenPlugin */
-  if ((hPlugin) && (hPlugin!=INVALID_HANDLE_VALUE))
-  /* VVM $ */
+  if (hPlugin!=INVALID_HANDLE_VALUE)
   {
     Panel *NewPanel=CtrlObject->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
     NewPanel->SetPluginMode(hPlugin,"");
@@ -2261,11 +2302,8 @@ int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
     {
       HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(int)Data);
 
-      /* $ 26.02.2001 VVM
-          ! Обработка NULL после OpenPlugin */
-      if ((hNewPlugin) && (hNewPlugin!=INVALID_HANDLE_VALUE &&
-        (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL)))
-      /* VVM $ */
+      if (hNewPlugin!=INVALID_HANDLE_VALUE &&
+         (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
       {
         int CurFocus=CtrlObject->ActivePanel->GetFocus();
         Panel *NewPanel=CtrlObject->ChangePanel(CtrlObject->ActivePanel,FILE_PANEL,TRUE,TRUE);

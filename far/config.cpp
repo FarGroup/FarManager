@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.51 21.02.2001 $ */
+/* Revision: 1.52 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    + Opt.ExceptCallDebugger
   21.02.2001 IS
     + Работа в EditorConfig идет со структурой EditorOptions
     ! Opt.EditorBSLikeDel -> Opt.EdOpt.BSLikeDel
@@ -986,10 +988,14 @@ void ReadConfig()
   /* SVS $ */
   /* $ 27.11.2000 SVS
     Opt.ExceptRules - Правило на счет вызова исключений
-     =1 - показывать кнопку Debugger и если надо вызывать этот дебугер
+     = 1 - показывать кнопку Debugger и если надо вызывать этот дебугер
   */
   GetRegKey("System","ExceptRules",Opt.ExceptRules,0);
   /* SVS $ */
+  /* $ 26.02.2001 VVM
+    + Opt.ExceptCallDebugger */
+  Opt.ExceptCallDebugger = Opt.ExceptRules & 0x00000001;
+  /* VVM $ */
 
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
   GetRegKey("Language","Help",Opt.HelpLanguage,"English",sizeof(Opt.HelpLanguage));

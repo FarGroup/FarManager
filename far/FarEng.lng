@@ -1244,6 +1244,7 @@
 "Incorrect information is passed from module:"
 "(the fields of structure <%s> are wrong filled)"
 "(structure <%s>, field <%s>)"
+"Function <%s> has returned illegal value"
 "Exception address: 0x%X in module:"
 "Do you wish to unload this plugin?"
 "The plugin will be Unloaded!"

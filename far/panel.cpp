@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.16 26.02.2001 $ */
+/* Revision: 1.17 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    - Отмена предыдущего патча
   26.02.2001 VVM
     ! Обработка NULL после OpenPlugin
   14.02.2001 SVS
@@ -586,10 +588,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     if (UserDataSize==2)
     {
       HANDLE hPlugin=CtrlObject->Plugins.OpenPlugin(DiskLetter[0],OPEN_DISKMENU,DiskLetter[1]);
-      /* $ 26.02.2001 VVM
-          ! Обработка NULL после OpenPlugin */
-      if ((hPlugin) && (hPlugin!=INVALID_HANDLE_VALUE))
-      /* VVM $ */
+      if (hPlugin!=INVALID_HANDLE_VALUE)
       {
         Focus=GetFocus();
         Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,TRUE);

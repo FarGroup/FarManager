@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.20 25.02.2001 $ */
+/* Revision: 1.21 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    + STATUS_INVALIDFUNCTIONRESULT - когда функция вернула недопустимое значение
   25.02.2001 VVM
     + Флаги для ReadDiz() - RDF_*
   11.02.2001 SVS
@@ -261,6 +263,7 @@ enum ReadDizFlags {
 /* VVM $ */
 
 #define STATUS_STRUCTWRONGFILLED       0xE0001000
+#define STATUS_INVALIDFUNCTIONRESULT   0xE0002000
 
 #if defined(__BORLANDC__)
 #define TRY	try

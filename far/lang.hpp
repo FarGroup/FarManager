@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.51 22.02.2001 $ */
+/* Revision: 1.52 26.02.2001 $ */
 
 /*
 Modify:
+  26.02.2001 VVM
+    + MExcInvalidFuncResult
   22.02.2001 SVS
     + MMacroDis* - по поводу дизабленных макросов
   09.02.2001 IS
@@ -1376,6 +1378,7 @@ enum
   MExcCheckOnLousys,
   MExcStructWrongFilled,
   MExcStructField,
+  MExcInvalidFuncResult,
   MExcAddress,
   MExcUnload,
   MExcUnloadYes,
