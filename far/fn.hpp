@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.108 26.09.2001 $ */
+/* Revision: 1.109 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 IS
+    + TruncStrFromEnd
   26.09.2001 SVS
     + DeleteEndSlash (с подачи IS)
   24.09.2001 SVS
@@ -662,6 +664,7 @@ char* WINAPI RemoveExternalSpaces(char *Str);
 char* WINAPI RemoveUnprintableCharacters(char *Str);
 /* IS $ */
 char* WINAPI TruncStr(char *Str,int MaxLength);
+char* WINAPI TruncStrFromEnd(char *Str, int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);

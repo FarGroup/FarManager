@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.61 27.09.2001 $ */
+/* Revision: 1.62 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 IS
+    - косметические дефекты при усечении длинных строк
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -357,7 +359,9 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           if (Opt.ChangeDriveMode & DRIVE_SHOW_LABEL)
           {
-            TruncStr(VolumeName,LabelWidth);
+            /* $ 01.10.2001 IS метку усекаем с конца */
+            TruncStrFromEnd(VolumeName,LabelWidth);
+            /* IS $ */
             sprintf(MenuText+strlen(MenuText),"%c%-*s",VerticalLine,LabelWidth,VolumeName);
           }
           if (Opt.ChangeDriveMode & DRIVE_SHOW_FILESYSTEM)
@@ -1166,8 +1170,9 @@ void Panel::DragMessage(int X,int Y,int Move)
     if (MsgX<0)
     {
       MsgX=0;
-      TruncStr(DragMsg,ScrX);
-      Length=strlen(DragMsg);
+      /* $ 01.10.2001 IS усекаем с конца, иначе теряется инф.нагрузка */
+      Length=strlen(TruncStrFromEnd(DragMsg,ScrX));
+      /* IS $ */
     }
   }
   else

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.22 27.09.2001 $ */
+/* Revision: 1.23 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 IS
+    + TruncStrFromEnd - обрезать строку с правой стороны
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.09.2001 SVS
@@ -355,6 +357,19 @@ char* WINAPI QuoteSpaceOnly(char *Str)
   return(Str);
 }
 
+char* WINAPI TruncStrFromEnd(char *Str, int MaxLength)
+{
+  if(Str)
+  {
+    int Length = strlen(Str);
+    if (Length > MaxLength)
+    {
+      if(MaxLength>3) memcpy(Str+MaxLength-3,"...",3);
+      Str[MaxLength]=0;
+    }
+  }
+  return Str;
+}
 
 char* WINAPI TruncStr(char *Str,int MaxLength)
 {

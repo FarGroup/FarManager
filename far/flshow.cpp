@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.19 27.09.2001 $ */
+/* Revision: 1.20 01.10.2001 $ */
 
 /*
 Modify:
+  01.10.2001 IS
+    ! демонстрация функции TruncStrFromEnd
   27.09.2001 IS
     - Левый размер при использовании strncpy
   05.09.2001 SVS
@@ -459,15 +461,7 @@ void FileList::ShowTotalSize(struct OpenPluginInfo &Info)
   SetColor(COL_PANELTOTALINFO);
   /* $ 01.08.2001 VVM
     + Обрезаем строчку справа, а не слева */
-  {
-    int MaxLength = X2-X1-1;
-    int Length = strlen(TotalStr);
-    if (Length > MaxLength)
-    {
-      memcpy(TotalStr+MaxLength-3,"...",3);
-      TotalStr[MaxLength]=0;
-    }
-  }
+  TruncStrFromEnd(TotalStr, X2-X1-1);
   /* VVM $ */
   Length=strlen(TotalStr);
   GotoXY(X1+(X2-X1+1-Length)/2,Y2);
