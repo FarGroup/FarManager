@@ -6,10 +6,12 @@ scantree.cpp
 
 */
 
-/* Revision: 1.04 26.03.2002 $ */
+/* Revision: 1.05 23.06.2002 $ */
 
 /*
 Modify:
+  23.06.2002 SVS
+    ! ннбольшая оптимизация кода
   26.03.2002 DJ
     ! GetNextName() принимает размер буфера для имени файла
   25.06.2001 IS
@@ -94,7 +96,8 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
         continue;
       }
     }
-    if (Done || strcmp(fdata->cFileName,"..")!=0 && strcmp(fdata->cFileName,".")!=0)
+    char *FileName=fdata->cFileName;
+    if (Done || !(*FileName=='.' && (!FileName[1] || FileName[1]=='.' && !FileName[2])))
       break;
   }
 
@@ -131,13 +134,12 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
     }
   }
   else
+  {
     /* $ 28.11.2000 SVS
        Если каталог является SymLink (т.н. "Directory Junctions"),
        то в него не ломимся.
     */
-    if ((fdata->dwFileAttributes & FA_DIREC) &&
-       !(fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
-       Recurse)
+    if (((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC) && Recurse)
     /* SVS $ */
     {
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
@@ -152,6 +154,8 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       SecondPass[FindHandleCount]=0;
       return(TRUE);
     }
+  }
+
   /* $ 26.03.2002 DJ
      если имя слишком длинное - пропустим и вернем следующее
   */

@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.27 15.06.2002 $ */
+/* Revision: 1.28 22.06.2002 $ */
 
 /*
 Modify:
+  22.06.2002 SVS
+    ! Исправление исправлений в 1444 (предыдущие исправления ;-)
   15.06.2002 VVM
     ! Скорректировать позицию после подготовки режима панели. Т.к. колонки могут
       измениться и надо-юы сдвинуть курсор. (bug #472)
@@ -118,7 +120,10 @@ void FileList::DisplayObject()
 void FileList::ShowFileList(int Fast)
 {
   if (DisableOut)
+  {
+    CorrectPosition();
     return;
+  }
   char Title[NM];
   int Length;
   struct OpenPluginInfo Info;
