@@ -1,8 +1,16 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "..\\fmt.hpp"
-#include "d:\lang\bc5\far\plugin.hpp"
+#include "plugin.hpp"
+#include "fmt.hpp"
+
+#if defined(__BORLANDC__)
+  #pragma option -a1
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+  #pragma pack(1)
+#else
+  #pragma pack(push,1)
+#endif
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
@@ -279,3 +287,5 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   }
   return(FALSE);
 }
+
+

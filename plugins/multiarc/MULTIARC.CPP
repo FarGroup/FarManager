@@ -8,10 +8,19 @@
 #include "arcreg.cpp"
 
 
+
+int WINAPI _export GetMinFarVersion(void)
+{
+  return FARMANAGERVERSION;
+}
+
 void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
-  sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);
+  ::FSF=*Info->FSF;
+  ::Info.FSF=&::FSF;
+
+  ::FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);
   if (ArcPlugin==NULL)
     ArcPlugin=new ArcPlugins(Info->ModuleName);
   Opt.HideOutput=GetRegKey(HKEY_CURRENT_USER,"","HideOutput",0);
@@ -20,11 +29,12 @@ void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
             "descript.ion,files.bbs",sizeof(Opt.DescriptionNames));
   Opt.ReadDescriptions=GetRegKey(HKEY_CURRENT_USER,"","ReadDescriptions",0);
   Opt.UpdateDescriptions=GetRegKey(HKEY_CURRENT_USER,"","UpdateDescriptions",0);
+  Opt.UserBackground=GetRegKey(HKEY_CURRENT_USER,"","Background",0);
 }
 
 
 HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,
-                                     unsigned int DataSize)
+                                     int DataSize)
 {
   if (ArcPlugin==NULL)
     return(INVALID_HANDLE_VALUE);
@@ -121,9 +131,8 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   Info->DiskMenuStringsNumber=0;
   Info->PluginMenuStrings=NULL;
   Info->PluginMenuStringsNumber=0;
-  static char *PluginCfgStrings[2];
-  PluginCfgStrings[0]=GetMsg(MCfgLine1);
-  PluginCfgStrings[1]=GetMsg(MCfgLine2);
+  static char *PluginCfgStrings[1];
+  PluginCfgStrings[0]=GetMsg(MCfgLine0);
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
 }
@@ -152,12 +161,30 @@ int WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
 
 int WINAPI _export Configure(int ItemNumber)
 {
-  switch(ItemNumber)
-  {
-    case 0:
-      return(ConfigGeneral());
-    case 1:
-      return(ConfigCommands());
-  }
+  struct FarMenuItem MenuItems[2];
+  memset(MenuItems,0,sizeof(MenuItems));
+  strcpy(MenuItems[0].Text,GetMsg(MCfgLine1));
+  strcpy(MenuItems[1].Text,GetMsg(MCfgLine2));
+  MenuItems[0].Selected=TRUE;
+
+  do{
+    ItemNumber=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_WRAPMODE,
+                       GetMsg(MCfgLine0),NULL,NULL,NULL,NULL,MenuItems,
+                       sizeof(MenuItems)/sizeof(MenuItems[0]));
+    switch(ItemNumber)
+    {
+      case -1:
+        return(FALSE);
+      case 0:
+        ConfigGeneral();
+        break;
+      case 1:
+        ConfigCommands();
+        break;
+    }
+    MenuItems[0].Selected=FALSE;
+    MenuItems[1].Selected=FALSE;
+    MenuItems[ItemNumber].Selected=TRUE;
+  }while(1);
   return(FALSE);
 }

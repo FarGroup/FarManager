@@ -7,14 +7,14 @@ ArcPlugins::ArcPlugins(char *ModuleName)
   if ((NamePtr=strrchr(PluginsFolder,'\\'))==NULL)
     return;
   strcpy(NamePtr,"\\Formats\\");
-  sprintf(PluginsMask,"%s*.fmt",PluginsFolder);
+  FSF.sprintf(PluginsMask,"%s*.fmt",PluginsFolder);
   HANDLE FindHandle;
   WIN32_FIND_DATA fdata;
   int Done=((FindHandle=FindFirstFile(PluginsMask,&fdata))==INVALID_HANDLE_VALUE);
   while (!Done)
   {
     char PluginName[NM];
-    sprintf(PluginName,"%s%s",PluginsFolder,fdata.cFileName);
+    FSF.sprintf(PluginName,"%s%s",PluginsFolder,fdata.cFileName);
     HMODULE hModule=LoadLibrary(PluginName);
     if (hModule!=NULL)
     {
@@ -32,8 +32,14 @@ ArcPlugins::ArcPlugins(char *ModuleName)
       CurPlugin.pCloseArchive=(PLUGINCLOSEARCHIVE)GetProcAddress(hModule,"CloseArchive");
       CurPlugin.pGetFormatName=(PLUGINGETFORMATNAME)GetProcAddress(hModule,"GetFormatName");
       CurPlugin.pGetDefaultCommands=(PLUGINGETDEFAULTCOMMANDS)GetProcAddress(hModule,"GetDefaultCommands");
+      CurPlugin.pSetFarInfo=(PLUGINSETFARINFO)GetProcAddress(hModule,"SetFarInfo");
+
       if (CurPlugin.pLoadFormatModule)
         CurPlugin.pLoadFormatModule(PluginName);
+
+      if (CurPlugin.pSetFarInfo)
+        CurPlugin.pSetFarInfo(&Info);
+
       PluginsData[PluginsCount]=CurPlugin;
       PluginsCount++;
     }
@@ -118,3 +124,4 @@ BOOL ArcPlugins::GetDefaultCommands(int PluginNumber,int Type,int Command,
     return(PluginsData[PluginNumber].pGetDefaultCommands(Type,Command,Dest));
   return(FALSE);
 }
+

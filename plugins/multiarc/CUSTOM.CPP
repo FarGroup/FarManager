@@ -1,11 +1,29 @@
-#include <windows.h>
 #include <stdio.h>
 #include <string.h>
-#include "..\\fmt.hpp"
-#include "d:\lang\bc5\far\plugin.hpp"
+
+#ifdef _MSC_VER
+#  define _WINCON_
+#  include <windows.h>
+#  undef _WINCON_
+#include "plugin.hpp"
+#  pragma pack(8)
+#  include <wincon.h>
+#else
+#  include <windows.h>
+#include "plugin.hpp"
+#endif
+
+#include "fmt.hpp"
 
 #undef isspace
 #define isspace(c) ((c)==' ' || (c)=='\t')
+
+#ifdef _MSC_VER
+#pragma comment(lib,"user32.lib")
+#pragma comment(linker, "-subsystem:console")
+#pragma comment(linker, "-merge:.rdata=.text")
+#endif
+
 
 BOOL WINAPI OpenArchivePipe(char *Name,int *Type);
 int GetString(char *Str,int MaxSize);
@@ -46,7 +64,7 @@ BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize)
     IDPos=GetPrivateProfileInt(TypeName,"IDPos",-1,FormatFileName);
     if (*ID)
     {
-      unsigned char IDData[256],*CurID=ID;
+      unsigned char IDData[256],*CurID=(unsigned char*)&ID[0];
       int IDLength=0;
       while (1)
       {
@@ -191,11 +209,10 @@ BOOL WINAPI OpenArchivePipe(char *Name,int *Type)
     return(FALSE);
   *Type=CurType;
 
-  char ShortName[NM];
-  if (!GetShortPathName(Name,ShortName,sizeof(ShortName)))
-    return(FALSE);
   strcat(Command," ");
-  strcat(Command,ShortName);
+  char ShortName[NM];
+  strcat(Command,GetShortPathName(Name,ShortName,sizeof(ShortName))?
+                 ShortName:Name);
 
   STARTUPINFO si;
   PROCESS_INFORMATION pi;

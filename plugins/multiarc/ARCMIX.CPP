@@ -1,10 +1,49 @@
+int __isspace(int Chr)
+{
+   return Chr == 0x09 || Chr == 0x0A || Chr == 0x0B || Chr == 0x0C || Chr == 0x0D || Chr == 0x20;
+}
+
+
 char *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
 
 
-int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle)
+/* $ 13.09.2000 tran
+   запуск треда для ожидания момента убийства лист файла */
+void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list)
+{
+    if ( pi==0 || list==0 || *list==0)
+        return;
+    KillStruct *ks;
+    DWORD dummy;
+
+    ks=(KillStruct*)GlobalAlloc(GPTR,sizeof(KillStruct));
+    if ( ks==0 )
+        return ;
+
+    ks->hThread=pi->hThread;
+    ks->hProcess=pi->hProcess;
+    strcpy(ks->ListFileName,list);
+
+    CreateThread(NULL,0xf000,ThreadWhatWaitingForKillListFile,ks,0 /* no flags */,&dummy);
+}
+
+DWORD WINAPI ThreadWhatWaitingForKillListFile(LPVOID par)
+{
+    KillStruct *ks=(KillStruct*)par;
+
+    WaitForSingleObject(ks->hProcess,INFINITE);
+    CloseHandle(ks->hThread);
+    CloseHandle(ks->hProcess);
+    DeleteFile(ks->ListFileName);
+    GlobalFree((LPVOID)ks);
+    return SUPER_PUPER_ZERO;
+}
+/* tran 13.09.2000 $ */
+
+int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName)
 {
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -35,7 +74,10 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle)
       if (Silent)
       {
         hScreen=Info.SaveScreen(0,0,-1,0);
-        Info.Text(2,0,LIGHTGRAY,GetMsg(MWaitForExternalProgram));
+#ifndef LIGHTGRAY
+#define LIGHTGRAY 7
+#endif
+	Info.Text(2,0,LIGHTGRAY,GetMsg(MWaitForExternalProgram));
       }
       else
       {
@@ -53,7 +95,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle)
     GetConsoleScreenBufferInfo(StdOutput,&csbi);
 
     char Blank[1024];
-    sprintf(Blank,"%*s",csbi.dwSize.X,"");
+    FSF.sprintf(Blank,"%*s",csbi.dwSize.X,"");
     for (int Y=0;Y<csbi.dwSize.Y;Y++)
       Info.Text(0,Y,LIGHTGRAY,Blank);
     Info.Text(0,0,0,NULL);
@@ -78,7 +120,8 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle)
   if (ShowTitle)
     SetConsoleTitle(ExpandedCmd);
 
-  ExitCode=CreateProcess(NULL,ExpandedCmd,NULL,NULL,HideOutput,0,NULL,NULL,&si,&pi);
+  ExitCode=CreateProcess(NULL,ExpandedCmd,NULL,NULL,HideOutput,
+            Opt.Background?CREATE_NEW_CONSOLE:0,NULL,NULL,&si,&pi);
 
   if (HideOutput)
   {
@@ -99,10 +142,21 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle)
         ;
       CloseHandle(hChildStdoutRd);
     }
-    WaitForSingleObject(pi.hProcess,INFINITE);
-    GetExitCodeProcess(pi.hProcess,(LPDWORD)&ExitCode);
-    CloseHandle(pi.hThread);
-    CloseHandle(pi.hProcess);
+    /* $ 13.09.2000 tran
+       фоновой выполнение */
+    if ( !Opt.Background )
+    {
+        WaitForSingleObject(pi.hProcess,INFINITE);
+        GetExitCodeProcess(pi.hProcess,(LPDWORD)&ExitCode);
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
+    else
+    {
+        StartThreadForKillListFile(&pi,ListFileName); // нехай за процессом тред следит, и файл бъет тапком
+        ExitCode=0;
+    }
+    /* tran 13.09.2000 $ */
   }
   SetConsoleTitle(SaveTitle);
   SetConsoleMode(StdInput,ConsoleMode);
@@ -130,14 +184,6 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle)
 }
 
 
-void AddEndSlash(char *Path)
-{
-  int Length=strlen(Path);
-  if (Length==0 || Path[Length-1]!='\\')
-    strcat(Path,"\\");
-}
-
-
 char* QuoteSpace(char *Str)
 {
   if (strchr(Str,' ')!=NULL)
@@ -149,7 +195,7 @@ char* QuoteSpace(char *Str)
 char* QuoteText(char *Str)
 {
   char *TmpStr=new char[strlen(Str)+3];
-  sprintf(TmpStr,"\"%s\"",Str);
+  FSF.sprintf(TmpStr,"\"%s\"",Str);
   strcpy(Str,TmpStr);
   delete TmpStr;
   return(Str);
@@ -191,23 +237,10 @@ void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
 }
 
 
-char* PointToName(char *Path)
-{
-  char *NamePtr=Path;
-  while (*Path)
-  {
-    if (*Path=='\\' || *Path=='/' || *Path==':')
-      NamePtr=Path+1;
-    Path++;
-  }
-  return(NamePtr);
-}
-
-
 void InsertCommas(unsigned long Number,char *Dest)
 {
   int I;
-  sprintf(Dest,"%u",Number);
+  FSF.sprintf(Dest,"%u",Number);
   for (I=strlen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
@@ -250,14 +283,15 @@ int CheckForEsc()
   while (1)
   {
     INPUT_RECORD rec;
-    static HANDLE hConInp=GetStdHandle(STD_INPUT_HANDLE);
+    /*static*/ HANDLE hConInp=GetStdHandle(STD_INPUT_HANDLE);
     DWORD ReadCount;
     PeekConsoleInput(hConInp,&rec,1,&ReadCount);
     if (ReadCount==0)
       break;
     ReadConsoleInput(hConInp,&rec,1,&ReadCount);
     if (rec.EventType==KEY_EVENT)
-      if (rec.Event.KeyEvent.wVirtualKeyCode==VK_ESCAPE)
+      if (rec.Event.KeyEvent.wVirtualKeyCode==VK_ESCAPE &&
+          rec.Event.KeyEvent.bKeyDown)
         ExitCode=TRUE;
   }
   return(ExitCode);

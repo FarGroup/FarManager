@@ -23,11 +23,12 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
   {
     PrevFileNameNumber=-1;
     strcpy(Command,FormatString);
-    if (!ProcessCommand(Command,CommandType,IgnoreErrors,Silent))
+    if (!ProcessCommand(Command,CommandType,IgnoreErrors,Silent,ListFileName))
       NameNumber=-1;
     if (*ListFileName)
     {
-      remove(ListFileName);
+      if ( !Opt.Background )
+        DeleteFile(ListFileName);
       *ListFileName=0;
     }
   } while (NameNumber!=-1 && NameNumber<ItemsNumber);
@@ -35,7 +36,7 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
 
 int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
-                               int Silent)
+                               int Silent,char *ListFileName)
 {
   MaxAllowedExitCode=0;
   DeleteBraces(Command);
@@ -59,13 +60,13 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
     int Hide=Opt.HideOutput;
     if (Hide==1 && CommandType==0 || CommandType==2)
       Hide=0;
-    ExecCode=Execute(this,Command,Hide,Silent,!*Password);
+    ExecCode=Execute(this,Command,Hide,Silent,!*Password,ListFileName);
     if (ExecCode<=MaxAllowedExitCode)
       ExecCode=0;
     if (!IgnoreErrors && ExecCode!=0)
     {
       char ErrMsg[200];
-      sprintf(ErrMsg,GetMsg(MArcNonZero),ExecCode);
+      FSF.sprintf(ErrMsg,GetMsg(MArcNonZero),ExecCode);
       char *MsgItems[]={GetMsg(MError),ArcName,ErrMsg,GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       return(FALSE);
@@ -127,7 +128,8 @@ void ArcCommand::DeleteBraces(char *Command)
 
 int ArcCommand::ReplaceVar(char *Command,int &Length)
 {
-  if (Command[0]!='%' || Command[1]!='%' || !isalpha(Command[2]))
+  char Chr=Command[2]&(~0x20);
+  if (Command[0]!='%' || Command[1]!='%' || Chr < 'A' || Chr > 'Z')
     return(FALSE);
   char SaveStr[MAX_COMMAND_LENGTH],LocalAllFilesMask[NM];
   int QuoteName=0,UseSlash=FALSE,FolderMask=FALSE,FolderName=FALSE;
@@ -141,18 +143,19 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
   while (1)
   {
     int BreakScan=FALSE;
-    if (Command[2]=='F' && isdigit(Command[VarLength]))
+    Chr=Command[VarLength];
+    if (Command[2]=='F' && Chr >= '0' && Chr <= '9')
     {
-      MaxNamesLength=atoi(&Command[VarLength]);
-      while (isdigit(Command[VarLength]))
-        VarLength++;
+      MaxNamesLength=FSF.atoi(&Command[VarLength]);
+      while (Chr >= '0' && Chr <= '9')
+        Chr=Command[++VarLength];
       continue;
     }
-    if (Command[2]=='E' && isdigit(Command[VarLength]))
+    if (Command[2]=='E' && Chr >= '0' && Chr <= '9')
     {
-      MaxAllowedExitCode=atoi(&Command[VarLength]);
-      while (isdigit(Command[VarLength]))
-        VarLength++;
+      MaxAllowedExitCode=FSF.atoi(&Command[VarLength]);
+      while (Chr >= '0' && Chr <= '9')
+        Chr=Command[++VarLength];
       continue;
     }
     switch(Command[VarLength])
@@ -207,7 +210,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
         OemToChar(Command,Command);
       if (PathOnly)
       {
-        char *NamePtr=PointToName(Command);
+        char *NamePtr=FSF.PointToName(Command);
         if (NamePtr!=Command)
           *(NamePtr-1)=0;
         else
@@ -217,7 +220,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       break;
     case 'a':
       {
-        int Dot=strchr(PointToName(ArcName),'.')!=NULL;
+        int Dot=strchr(FSF.PointToName(ArcName),'.')!=NULL;
         ConvertNameToShort(ArcName,Command);
         char *Slash=strrchr(ArcName,'\\');
         if (GetFileAttributes(ArcName)==0xFFFFFFFF && Slash!=NULL && Slash!=ArcName)
@@ -228,13 +231,13 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           ConvertNameToShort(Path,Command);
           strcat(Command,Slash);
         }
-        if (Dot && strchr(PointToName(Command),'.')==NULL)
+        if (Dot && strchr(FSF.PointToName(Command),'.')==NULL)
           strcat(Command,".");
         if (AnsiCode)
           OemToChar(Command,Command);
         if (PathOnly)
         {
-          char *NamePtr=PointToName(Command);
+          char *NamePtr=FSF.PointToName(Command);
           if (NamePtr!=Command)
             *(NamePtr-1)=0;
           else
@@ -297,7 +300,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           int IncreaseNumber=0,FileAttr;
           if (*NextFileName)
           {
-            sprintf(Name,"%s%s",CurArcDir,NextFileName);
+            FSF.sprintf(Name,"%s%s",CurArcDir,NextFileName);
             *NextFileName=0;
             FileAttr=0;
           }
@@ -314,7 +317,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             if (N>=ItemsNumber)
               break;
 
-            sprintf(Name,"%s%s",CurArcDir,PanelItem[N].FindData.cFileName);
+            FSF.sprintf(Name,"%s%s",CurArcDir,PanelItem[N].FindData.cFileName);
             FileAttr=PanelItem[N].FindData.dwFileAttributes;
             PrevFileNameNumber=N;
           }
@@ -323,12 +326,12 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           if (NameOnly)
           {
             char NewName[NM];
-            strcpy(NewName,PointToName(Name));
+            strcpy(NewName,FSF.PointToName(Name));
             strcpy(Name,NewName);
           }
           if (PathOnly)
           {
-            char *NamePtr=PointToName(Name);
+            char *NamePtr=FSF.PointToName(Name);
             if (NamePtr!=Name)
               *(NamePtr-1)=0;
             else
@@ -341,11 +344,11 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
             {
               char FolderMaskName[NM];
-              sprintf(FolderMaskName,"%s\\%s",Name,LocalAllFilesMask);
+              FSF.sprintf(FolderMaskName,"%s\\%s",Name,LocalAllFilesMask);
               if (PathOnly)
               {
                 strcpy(FolderMaskName,Name);
-                char *NamePtr=PointToName(FolderMaskName);
+                char *NamePtr=FSF.PointToName(FolderMaskName);
                 if (NamePtr!=FolderMaskName)
                   *(NamePtr-1)=0;
                 else
@@ -393,16 +396,31 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
                 int UseSlash,int FolderName,int NameOnly,int PathOnly,
                 int FolderMask,char *LocalAllFilesMask,int AnsiCode)
 {
-  FILE *ListFile;
-  strcpy(ListFileName,TempPath);
-  strcat(ListFileName,"FarTmpXXXXXX");
-  if (mktemp(ListFileName)==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
+//  FILE *ListFile;
+  HANDLE ListFile;
+  DWORD WriteSize;
+  SECURITY_ATTRIBUTES sa;
+
+  sa.nLength=sizeof(sa);
+  sa.lpSecurityDescriptor=NULL;
+  sa.bInheritHandle=TRUE;
+
+  if (FSF.MkTemp(ListFileName,"Far")==NULL ||
+     (ListFile=CreateFile(ListFileName,GENERIC_WRITE,
+                   FILE_SHARE_READ|FILE_SHARE_WRITE,
+                   &sa,CREATE_ALWAYS,
+                   FILE_FLAG_SEQUENTIAL_SCAN,NULL)) == INVALID_HANDLE_VALUE)
+
   {
-    char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
+    char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),ListFileName,GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+    CloseHandle(ListFile);
     return(FALSE);
   }
+
   char CurArcDir[NM];
+  char Buf[3*NM];
+
   strcpy(CurArcDir,ArcDir);
   int Length=strlen(CurArcDir);
   if (Length>0 && CurArcDir[Length-1]!='\\')
@@ -422,18 +440,18 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     if (NameOnly)
     {
       char NewName[NM];
-      strcpy(NewName,PointToName(FileName));
+      strcpy(NewName,FSF.PointToName(FileName));
       strcpy(FileName,NewName);
     }
     if (PathOnly)
-      *PointToName(FileName)=0;
+      *FSF.PointToName(FileName)=0;
     int FileAttr=PanelItem[I].FindData.dwFileAttributes;
 
     int Error=FALSE;
     if (((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || FolderName))
     {
       char OutName[NM];
-      sprintf(OutName,"%s%s",CurArcDir,FileName);
+      FSF.sprintf(OutName,"%s%s",CurArcDir,FileName);
       if (QuoteName==1)
         QuoteSpace(OutName);
       else
@@ -441,12 +459,15 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
           QuoteText(OutName);
       if (AnsiCode)
         OemToChar(OutName,OutName);
-      Error=fprintf(ListFile,"%s\r\n",OutName)==EOF;
+
+      strcpy(Buf,OutName);strcat(Buf,"\r\n");
+      Error=WriteFile(ListFile,Buf,strlen(Buf),&WriteSize,NULL) == FALSE;
+      //Error=fwrite(Buf,1,strlen(Buf),ListFile) != strlen(Buf);
     }
     if (!Error && (FileAttr & FILE_ATTRIBUTE_DIRECTORY) && FolderMask)
     {
       char OutName[NM];
-      sprintf(OutName,"%s%s%c%s",CurArcDir,FileName,UseSlash ? '/':'\\',LocalAllFilesMask);
+      FSF.sprintf(OutName,"%s%s%c%s",CurArcDir,FileName,UseSlash ? '/':'\\',LocalAllFilesMask);
       if (QuoteName==1)
         QuoteSpace(OutName);
       else
@@ -454,25 +475,33 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
           QuoteText(OutName);
       if (AnsiCode)
         OemToChar(OutName,OutName);
-      Error=fprintf(ListFile,"%s\r\n",OutName)==EOF;
+      strcpy(Buf,OutName);strcat(Buf,"\r\n");
+      Error=WriteFile(ListFile,Buf,strlen(Buf),&WriteSize,NULL) == FALSE;
+      //Error=fwrite(Buf,1,strlen(Buf),ListFile) != strlen(Buf);
     }
     if (Error)
     {
-      fclose(ListFile);
-      remove(ListFileName);
+      CloseHandle(ListFile);
+      DeleteFile(ListFileName);
       char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       return(FALSE);
     }
   }
-  if (fclose(ListFile)==EOF)
+
+  CloseHandle(ListFile);
+/*
+  if (!CloseHandle(ListFile))
   {
-    clearerr(ListFile);
-    fclose(ListFile);
-    remove(ListFileName);
+    // clearerr(ListFile);
+    CloseHandle(ListFile);
+    DeleteFile(ListFileName);
     char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
     return(FALSE);
   }
+*/
   return(TRUE);
 }
+
+

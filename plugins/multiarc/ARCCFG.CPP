@@ -93,11 +93,11 @@ int ConfigCommands()
 
     struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
     InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
-    int Length,MaxLength=0;
-    for (int I=1;I<=29;I+=2)
+    int Length,MaxLength=0, I,J;
+    for (I=1;I<=29;I+=2)
       if ((Length=strlen(DialogItems[I].Data))>MaxLength)
         MaxLength=Length;
-    for (int I=2,J=0;I<=30;I+=2,J++)
+    for (I=2,J=0;I<=30;I+=2,J++)
     {
       char *Command=DialogItems[I].Data;
       DialogItems[I].X1=6+MaxLength;
@@ -113,8 +113,9 @@ int ConfigCommands()
                  DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
     if (ExitCode!=32)
       continue;
-    for (int I=2,J=0;I<=30;I+=2,J++)
+    for (I=2,J=0;I<=30;I+=2,J++)
       SetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[J],DialogItems[I].Data);
   }
   return(TRUE);
 }
+

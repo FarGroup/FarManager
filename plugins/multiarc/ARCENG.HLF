@@ -29,6 +29,8 @@ to encrypt files during archiving.
     Option #Delete files after archiving# forces the archiver to move
 rather than copy files.
 
+    Option #Background# starts process of archiving in a separate window.
+
     The #Save settings# choice saves the current archiver and switches
 for future usage.
 

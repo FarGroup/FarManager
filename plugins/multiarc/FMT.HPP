@@ -1,19 +1,35 @@
+#ifndef __FARFMT_HPP__
+#define __FARFMT_HPP__
+/*
+  FMT.HPP
+
+  Archive Support API for FAR Manager 1.70 and MultiArc plugin
+
+  Copyright (c) 1996-2000 Eugene Roshal
+  Copyrigth (c) 2000 [ FAR group ]
+*/
+
+/* $Revision: 1.00 14.09.2000 $ */
+
+#if defined(__BORLANDC__)
+  #pragma option -a2
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+  #pragma pack(2)
+  #if defined(__LCC__)
+    #define _export __declspec(dllexport)
+  #endif
+#else
+  #pragma pack(push,2)
+  #if _MSC_VER
+    #define _export
+  #endif
+#endif
+
 #define GETARC_EOF               0
 #define GETARC_SUCCESS           1
 #define GETARC_BROKEN            2
 #define GETARC_UNEXPEOF          3
 #define GETARC_READERROR         4
-
-extern "C" {
-DWORD WINAPI _export LoadFormatModule(char *ModuleName);
-BOOL WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize);
-BOOL WINAPI _export OpenArchive(char *Name,int *Type);
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info);
-BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt);
-BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest);
-}
-
 
 struct ArcItemInfo
 {
@@ -42,3 +58,34 @@ struct ArcInfo
   int Lock;
   DWORD Flags;
 };
+
+
+#if defined(__BORLANDC__) || defined(_MSC_VER)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+DWORD WINAPI _export LoadFormatModule(char *ModuleName);
+void  WINAPI _export SetFarInfo(struct PluginStartupInfo *Info);
+
+BOOL  WINAPI _export IsArchive(char *Name,const unsigned char *Data,int DataSize);
+BOOL  WINAPI _export OpenArchive(char *Name,int *TypeArc);
+int   WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+BOOL  WINAPI _export CloseArchive(struct ArcInfo *Info);
+BOOL  WINAPI _export GetFormatName(int TypeArc,char *FormatName,char *DefaultExt);
+BOOL  WINAPI _export GetDefaultCommands(int TypeArc,int Command,char *Dest);
+
+#ifdef __cplusplus
+};
+#endif
+#endif
+
+#if defined(__BORLANDC__)
+  #pragma option -a.
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+  #pragma pack()
+#else
+  #pragma pack(pop)
+#endif
+
+#endif /* __FARFMT_HPP__ */

@@ -97,8 +97,9 @@
 
 "Archive operation"
 
-"Archive support: general"
-"Archive support: command lines"
+"Archive support"
+"&General"
+"&Command lines"
 
 "Archive support configuration"
 "Do &not hide archivers output"
@@ -124,3 +125,5 @@
 "Add files and folders"
 "Move files and folders"
 ""All files" mask"
+"&Background"
+

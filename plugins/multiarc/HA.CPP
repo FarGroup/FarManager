@@ -1,10 +1,39 @@
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include "..\\fmt.hpp"
-#include "d:\lang\bc5\far\plugin.hpp"
+#include "plugin.hpp"
+#include "fmt.hpp"
 
-void UnixToDos(long time, struct date *d, struct time *t);
+#if defined(__BORLANDC__)
+  #pragma option -a1
+#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
+  #pragma pack(1)
+  #if defined(__LCC__)
+    #define _export __declspec(dllexport)
+  #endif
+#else
+  #pragma pack(push,1)
+  #if _MSC_VER
+    #define _export
+  #endif
+#endif
+
+#if _MSC_VER
+struct dosdate_t {
+   unsigned char day;       /* 1-31 */
+   unsigned char month;     /* 1-12 */
+   unsigned int  year;      /* 1980 - 2099 */
+   unsigned char dayofweek; /* 0 - 6 (0=Sunday) */
+};
+struct time {
+   unsigned char ti_min;      /* minutes */
+   unsigned char ti_hour;     /* hours */
+   unsigned char ti_hund;     /* hundredths of seconds */
+   unsigned char ti_sec;      /* seconds */
+};
+#endif
+
+void UnixToDos(long time, struct dosdate_t *d, struct time *t);
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
@@ -85,13 +114,13 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   strncpy(Item->FindData.cFileName,Path,sizeof(Item->FindData.cFileName)-1);
   Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
   Item->FindData.dwFileAttributes=(Header.Type & 0xf)==0xe ? FILE_ATTRIBUTE_DIRECTORY:0;
-  struct date dt;
+  struct dosdate_t dt;
   struct time tm;
   UnixToDos(Header.FileTime,&dt,&tm);
   SYSTEMTIME st;
-  st.wYear=dt.da_year;
-  st.wMonth=dt.da_mon;
-  st.wDay=dt.da_day;
+  st.wYear=dt.year;
+  st.wMonth=dt.month;
+  st.wDay=dt.day;
   st.wHour=tm.ti_hour;
   st.wMinute=tm.ti_min;
   st.wSecond=tm.ti_sec;
@@ -155,7 +184,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 }
 
 
-void UnixToDos(long time, struct date *d, struct time *t)
+void UnixToDos(long time, struct dosdate_t *d, struct time *t)
 {
   static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
   time -= 24L * 60L * 60L * 3652L + timezone;
@@ -164,32 +193,32 @@ void UnixToDos(long time, struct date *d, struct time *t)
   time /= 60;
   t->ti_min = time % 60;
   time /= 60;
-  d->da_year = 1980 + (int)((time / (1461L * 24L)) << 2);
+  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
   time %= 1461L * 24L;
   if (time >= 366 * 24)
   {
     time -= 366 * 24;
-    d->da_year++;
-    d->da_year += (int)(time / (365 * 24));
+    d->year++;
+    d->year += (int)(time / (365 * 24));
     time %= 365 * 24;
   }
   t->ti_hour = time % 24;
   time /= 24;
   time++;
-  if ((d->da_year & 3) == 0)
+  if ((d->year & 3) == 0)
   {
     if (time > 60)
       time--;
     else
       if (time == 60)
       {
-        d->da_mon = 2;
-        d->da_day = 29;
+        d->month = 2;
+        d->day = 29;
         return;
       }
   }
-  for (d->da_mon = 0; Days[d->da_mon] < time; d->da_mon++)
-    time -= Days[d->da_mon];
-  d->da_mon++;
-  d->da_day = time;
+  for (d->month = 0; Days[d->month] < time; d->month++)
+    time -= Days[d->month];
+  d->month++;
+  d->day = time;
 }

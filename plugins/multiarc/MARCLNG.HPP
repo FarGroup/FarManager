@@ -97,6 +97,7 @@ enum LanguageID
 
   MWaitForExternalProgram,
 
+  MCfgLine0,
   MCfgLine1,
   MCfgLine2,
 
@@ -124,4 +125,6 @@ enum LanguageID
   MArcSettingsAddRecurse,
   MArcSettingsMoveRecurse,
   MArcSettingsAllFilesMask,
+
+  MBackground,
 };

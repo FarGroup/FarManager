@@ -22,7 +22,7 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
     char Msg[512];
     if (ItemsNumber==1)
     {
-      sprintf(Msg,GetMsg(MDeleteFile),PanelItem[0].FindData.cFileName);
+      FSF.sprintf(Msg,GetMsg(MDeleteFile),PanelItem[0].FindData.cFileName);
       MsgItems[1]=Msg;
     }
     if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
@@ -30,7 +30,7 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
     if (ItemsNumber>1)
     {
       char Msg[100];
-      sprintf(Msg,GetMsg(MDeleteNumberOfFiles),ItemsNumber);
+      FSF.sprintf(Msg,GetMsg(MDeleteNumberOfFiles),ItemsNumber);
       MsgItems[1]=Msg;
       if (Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
         return(FALSE);
@@ -83,7 +83,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
   if (AskVolume)
   {
     char VolMsg[300];
-    sprintf(VolMsg,GetMsg(MExtrVolume),PointToName(ArcName));
+    FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
     char *MsgItems[]={"",VolMsg,GetMsg(MExtrVolumeAsk1),
                       GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                       GetMsg(MExtrAllVolumes)};
@@ -108,7 +108,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
       if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
           (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       {
-        if (!GetPassword(Password,PointToName(ArcName)))
+        if (!GetPassword(Password,FSF.PointToName(ArcName)))
           return(FALSE);
         break;
       }
@@ -129,20 +129,21 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   if (ItemsNumber==0)
     return(0);
   if (*DestPath)
-    AddEndSlash(DestPath);
+    FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
   struct InitDialogItem InitItems[]={
-    DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MExtractTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MExtractTo,
-    DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath,
-    DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_TEXT,5,5,0,0,0,0,0,0,(char *)MExtrPassword,
-    DI_PSWEDIT,5,6,35,5,0,0,0,0,"",
-    DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MExtrWithoutPaths,
-    DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MExtrExtract,
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel
+  /* 0 */  DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MExtractTitle,
+  /* 1 */  DI_TEXT,5,2,0,0,0,0,0,0,(char *)MExtractTo,
+  /* 2 */  DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath,
+  /* 3 */  DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 4 */  DI_TEXT,5,5,0,0,0,0,0,0,(char *)MExtrPassword,
+  /* 5 */  DI_PSWEDIT,5,6,35,5,0,0,0,0,"",
+  /* 6 */  DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 7 */  DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MExtrWithoutPaths,
+  /* 8 */  DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MBackground,
+  /* 9 */  DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*10 */  DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MExtrExtract,
+  /*11 */  DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MExtrCancel
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -162,17 +163,22 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       }
   }
 
+  DialogItems[8].Selected=Opt.UserBackground;
 
   if ((OpMode & OPM_SILENT)==0)
   {
-    int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,13,"ExtrFromArc",
+    int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,14,"ExtrFromArc",
                 DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
-    if (AskCode!=9)
+    if (AskCode!=10)
       return(-1);
     strcpy(DestPath,DialogItems[2].Data);
+    Opt.UserBackground=DialogItems[8].Selected;
+    SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
   }
 
   LastWithoutPathsState=DialogItems[7].Selected;
+
+  Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
 
   int SpaceOnly=TRUE;
   for (int I=0;DestPath[I]!=0;I++)
@@ -196,7 +202,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
 
   if (*DestPath && DestPath[strlen(DestPath)-1]!=':')
-    AddEndSlash(DestPath);
+    FSF.AddEndSlash(DestPath);
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
 
   struct PluginPanelItem MaskPanelItem;
@@ -204,7 +210,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   if (AskVolume)
   {
     char VolMsg[300];
-    sprintf(VolMsg,GetMsg(MExtrVolume),PointToName(ArcName));
+    FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
     char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
                       GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                       GetMsg(MExtrAllVolumes)};
@@ -231,7 +237,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
           (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       {
-        if (!GetPassword(DialogItems[5].Data,PointToName(ArcName)))
+        if (!GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
           return(-1);
         break;
       }
@@ -279,23 +285,24 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     const char *ArcHistoryName="ArcName";
     const char *SwHistoryName="ArcSwitches";
     struct InitDialogItem InitItems[]={
-      DI_DOUBLEBOX,3,1,72,13,0,0,0,0,"",
-      DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc,
-      DI_EDIT,5,3,70,3,1,(DWORD)ArcHistoryName,DIF_HISTORY,0,"",
-      DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSwitches,
-      DI_EDIT,5,5,70,3,0,(DWORD)SwHistoryName,DIF_HISTORY,0,"",
-      DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_TEXT,5,7,0,0,0,0,0,0,(char *)MAddPassword,
-      DI_PSWEDIT,5,8,35,8,0,0,0,0,"",
-      DI_TEXT,40,7,0,0,0,0,0,0,(char *)MAddReenterPassword,
-      DI_PSWEDIT,40,8,70,8,0,0,0,0,"",
-      DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MAddDelete,
-      DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd,
-      DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect,
-      DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSave,
-      DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel
+  /* 0 */    DI_DOUBLEBOX,3,1,72,14,0,0,0,0,"",
+  /* 1 */    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc,
+  /* 2 */    DI_EDIT,5,3,70,3,1,(DWORD)ArcHistoryName,DIF_HISTORY,0,"",
+  /* 3 */    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSwitches,
+  /* 4 */    DI_EDIT,5,5,70,3,0,(DWORD)SwHistoryName,DIF_HISTORY,0,"",
+  /* 5 */    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 6 */    DI_TEXT,5,7,0,0,0,0,0,0,(char *)MAddPassword,
+  /* 7 */    DI_PSWEDIT,5,8,35,8,0,0,0,0,"",
+  /* 8 */    DI_TEXT,40,7,0,0,0,0,0,0,(char *)MAddReenterPassword,
+  /* 9 */    DI_PSWEDIT,40,8,70,8,0,0,0,0,"",
+  /*10 */    DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*11 */    DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MAddDelete,
+  /*12 */    DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MBackground,
+  /*13 */    DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /*14 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd,
+  /*15 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect,
+  /*16 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSave,
+  /*17 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel
     };
     struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
     InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
@@ -303,7 +310,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     char DefExt[NM];
     if (!ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
       return(0);
-    sprintf(DialogItems[0].Data,GetMsg(MAddTitle),ArcFormat);
+    FSF.sprintf(DialogItems[0].Data,GetMsg(MAddTitle),ArcFormat);
     GetRegKey(HKEY_CURRENT_USER,ArcFormat,"AddSwitches",DialogItems[4].Data,"",sizeof(DialogItems[4].Data));
     if (*ArcName)
       strcpy(DialogItems[2].Data,ArcName);
@@ -320,7 +327,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       {
         char CurDir[NM];
         GetCurrentDirectory(sizeof(CurDir),CurDir);
-        strcpy(DialogItems[2].Data,PointToName(CurDir));
+        strcpy(DialogItems[2].Data,FSF.PointToName(CurDir));
       }
       char AnsiName[NM];
       OemToAnsi(DialogItems[2].Data,AnsiName);
@@ -333,15 +340,16 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     strcpy(DialogItems[7].Data,Password1);
     strcpy(DialogItems[9].Data,Password2);
     DialogItems[11].Selected=Move;
+    DialogItems[12].Selected=Opt.Background;
 
     if ((OpMode & OPM_SILENT)==0)
     {
-      int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,15,"AddToArc",
+      int AskCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,16,"AddToArc",
                   DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]));
 
       strcpy(Password1,DialogItems[7].Data);
       strcpy(Password2,DialogItems[9].Data);
-      if (AskCode==14)
+      if (AskCode==15)
       {
         if (!SelectFormat(ArcFormat))
           return(-1);
@@ -349,14 +357,16 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         strcpy(ArcName,DialogItems[2].Data);
         continue;
       }
-      if (AskCode==15)
+      if (AskCode==16)
       {
         SetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",ArcFormat);
         SetRegKey(HKEY_CURRENT_USER,ArcFormat,"AddSwitches",DialogItems[4].Data);
         continue;
       }
-      if (AskCode!=13 || *DialogItems[2].Data==0)
+      if (AskCode!=14 || *DialogItems[2].Data==0)
         return(-1);
+      Opt.UserBackground=DialogItems[12].Selected;
+      SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
     }
 
     if (strcmp(Password1,Password2)!=0)
@@ -377,6 +387,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       CommandType=Recurse ? CMD_MOVERECURSE:CMD_MOVE;
     else
       CommandType=Recurse ? CMD_ADDRECURSE:CMD_ADD;
+
+    Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
 
     GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[CommandType],Command,"",sizeof(Command));
     if (*Command==0)
@@ -421,7 +433,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       char ArcFormat[100],DefExt[NM];
       if (ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
       {
-        sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
+        FSF.sprintf(ExtName,"%s.%s",DialogItems[2].Data,DefExt);
         if (GetFileAttributes(ExtName)!=0xffffffff)
           strcpy(DialogItems[2].Data,ExtName);
       }
@@ -508,7 +520,7 @@ int PluginClass::GetPassword(char *Password,char *FileName)
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
   InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
 
-  sprintf(DialogItems[1].Data,GetMsg(MGetPasswordForFile),FileName);
+  FSF.sprintf(DialogItems[1].Data,GetMsg(MGetPasswordForFile),FileName);
   if (Info.Dialog(Info.ModuleNumber,-1,-1,76,6,NULL,DialogItems,
       sizeof(DialogItems)/sizeof(DialogItems[0]))<0)
     return(FALSE);
@@ -548,3 +560,4 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
   }
   return(FALSE);
 }
+

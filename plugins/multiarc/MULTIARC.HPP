@@ -1,34 +1,31 @@
-#include <windows.h>
-#include <stdio.h>
-#include <conio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dos.h>
-#include <dir.h>
-#include <time.h>
-#include "d:\lang\bc5\far\plugin.hpp"
+#ifdef _MSC_VER
+#  define _WINCON_
+#  include <windows.h>
+#  undef _WINCON_
+#  include "plugin.hpp"
+#  pragma pack(8)
+#  include <wincon.h>
+#else
+#  include <windows.h>
+#  include "plugin.hpp"
+#endif
+
+//#include <stdio.h>
+//#include <conio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <dos.h>
+//#include <direct.h>
+//#include <time.h>
+
 #include "marclng.hpp"
-#include "formats\fmt.hpp"
+#include "fmt.hpp"
+//#ifdef _MSC_VER
+//#include <io.h>  //for mktemp()
+//#endif
 
 #define MAX_COMMAND_LENGTH 32768
 
-extern "C" {
-void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info);
-HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,unsigned int DataSize);
-void WINAPI _export ClosePlugin(HANDLE hPlugin);
-void WINAPI _export GetPluginInfo(struct PluginInfo *Info);
-void WINAPI _export GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info);
-int WINAPI _export GetFindData(HANDLE hPlugin,struct PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
-void WINAPI _export FreeFindData(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
-int WINAPI _export SetDirectory(HANDLE hPlugin,char *Dir,int OpMode);
-int WINAPI _export DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-int WINAPI _export GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,char *DestPath,int OpMode);
-int WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
-int WINAPI _export ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
-int WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
-int WINAPI _export Configure(int ItemNumber);
-void WINAPI _export ExitFAR();
-}
 
 typedef DWORD (WINAPI *PLUGINLOADFORMATMODULE)(char *ModuleName);
 typedef BOOL (WINAPI *PLUGINISARCHIVE)(char *Name,const unsigned char *Data,int DataSize);
@@ -37,6 +34,10 @@ typedef int (WINAPI *PLUGINGETARCITEM)(struct PluginPanelItem *Item,struct ArcIt
 typedef BOOL (WINAPI *PLUGINCLOSEARCHIVE)(struct ArcInfo *Info);
 typedef BOOL (WINAPI *PLUGINGETFORMATNAME)(int Type,char *FormatName,char *DefaultExt);
 typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest);
+/* $ 13.09.2000 tran
+  + Fmt.SetFarInfo */
+typedef void (WINAPI *PLUGINSETFARINFO)(struct PluginStartupInfo *plg);
+/* tran 13.09.2000 $ */
 
 struct PluginItem
 {
@@ -49,6 +50,7 @@ struct PluginItem
   PLUGINCLOSEARCHIVE pCloseArchive;
   PLUGINGETFORMATNAME pGetFormatName;
   PLUGINGETDEFAULTCOMMANDS pGetDefaultCommands;
+  PLUGINSETFARINFO pSetFarInfo;
 };
 
 
@@ -110,7 +112,7 @@ class PluginClass
 class ArcCommand
 {
   private:
-    int ProcessCommand(char *Command,int CommandType,int IgnoreErrors,int Silent);
+    int ProcessCommand(char *Command,int CommandType,int IgnoreErrors,int Silent,char *ListFileName=0);
     void DeleteBraces(char *Command);
     int ReplaceVar(char *Command,int &Length);
     int MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
@@ -154,19 +156,34 @@ int ConfigGeneral();
 int ConfigCommands();
 
 char *GetMsg(int MsgId);
-int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle);
-void AddEndSlash(char *Path);
+int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
+
+/* $ 13.09.2000 tran
+   разное для ожидания процесса, чтобы убить лист-файл */
+struct KillStruct
+{
+    char ListFileName[260];
+    HANDLE hProcess;
+    HANDLE hThread;
+};
+
+void StartThreadForKillListFile(PROCESS_INFORMATION *pi,char *list);
+DWORD WINAPI ThreadWhatWaitingForKillListFile(LPVOID par);
+#define SUPER_PUPER_ZERO (0)
+/* tran 13.09.2000 $ */
+
+
 char* QuoteSpace(char *Str);
 char* QuoteText(char *Str);
 void ConvertNameToShort(char *Src,char *Dest);
 void InitDialogItems(struct InitDialogItem *Init,struct FarDialogItem *Item,
                      int ItemsNumber);
-char* PointToName(char *Path);
 void InsertCommas(unsigned long Number,char *Dest);
 int ToPercent(long N1,long N2);
 int IsCaseMixed(char *Str);
 int CheckForEsc();
 int LocalStrnicmp(char *Str1,char *Str2,int Length);
+int __isspace(int Chr);
 
 void SetRegKey(HKEY hRoot,char *Key,char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,char *Key,char *ValueName,DWORD ValueData);
@@ -175,6 +192,7 @@ int GetRegKey(HKEY hRoot,char *Key,char *ValueName,int &ValueData,DWORD Default)
 int GetRegKey(HKEY hRoot,char *Key,char *ValueName,DWORD Default);
 
 struct PluginStartupInfo Info;
+struct FarStandardFunctions FSF;
 class ArcPlugins *ArcPlugin=NULL;
 
 enum {CMD_EXTRACT=0,CMD_EXTRACTWITHOUTPATH,CMD_TEST,CMD_DELETE,CMD_COMMENT,
@@ -194,6 +212,11 @@ struct Options
   char DescriptionNames[NM];
   int ReadDescriptions;
   int UpdateDescriptions;
+  /* $ 13.09.2000 tran
+     запуск процесса в фоне */
+  int UserBackground;
+  int Background;
+  /* tran 13.09.2000 $ */
 } Opt;
 
 char PluginRootKey[80];

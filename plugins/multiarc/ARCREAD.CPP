@@ -35,7 +35,7 @@ int PluginClass::ReadArchive(char *Name)
   if (!ArcPlugin->OpenArchive(ArcPluginNumber,Name,&ArcPluginType))
     return(FALSE);
   strcpy(ArcName,Name);
-  if (strchr(PointToName(ArcName),'.')==NULL)
+  if (strchr(FSF.PointToName(ArcName),'.')==NULL)
     strcat(ArcName,".");
 
   memset(&ItemsInfo,0,sizeof(ItemsInfo));
@@ -44,7 +44,7 @@ int PluginClass::ReadArchive(char *Name)
 
   HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
 
-  clock_t StartTime=clock();
+  DWORD StartTime=GetTickCount();//clock();
   int WaitMessage=FALSE;
   int AllocatedCount=0;
 
@@ -69,10 +69,10 @@ int PluginClass::ReadArchive(char *Name)
         Info.RestoreScreen(hScreen);
         return(-1);
       }
-      if (clock()-StartTime>500)
+      if (GetTickCount()-StartTime>500)
       {
         char FilesMsg[100];
-        sprintf(FilesMsg,GetMsg(MArcReadFiles),ArcDataCount);
+        FSF.sprintf(FilesMsg,GetMsg(MArcReadFiles),ArcDataCount);
         char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),
                           Name,FilesMsg};
         Info.Message(Info.ModuleNumber,WaitMessage ? FMSG_KEEPBACKGROUND:0,NULL,MsgItems,
@@ -279,7 +279,7 @@ int PluginClass::SetDirectory(char *Dir,int OpMode)
       strcpy(CurDir,Dir);
     else
     {
-      AddEndSlash(CurDir);
+      FSF.AddEndSlash(CurDir);
       strcat(CurDir,Dir);
     }
   }
@@ -298,9 +298,9 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   char FormatName[100];
   static char Format[100],DefExt[NM],Title[NM];
   ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,FormatName,DefExt);
-  sprintf(Format,GetMsg(MArcFormat),FormatName);
+  FSF.sprintf(Format,GetMsg(MArcFormat),FormatName);
   Info->Format=Format;
-  sprintf(Title," %s:%s",FormatName,PointToName(ArcName));
+  FSF.sprintf(Title," %s:%s",FormatName,FSF.PointToName(ArcName));
   if (*CurDir)
   {
     strcat(Title,"\\");
@@ -313,15 +313,15 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   static struct InfoPanelLine InfoLines[14];
 
   memset(InfoLines,0,sizeof(InfoLines));
-  sprintf(InfoLines[0].Text,GetMsg(MInfoTitle),PointToName(ArcName));
+  FSF.sprintf(InfoLines[0].Text,GetMsg(MInfoTitle),FSF.PointToName(ArcName));
   InfoLines[0].Separator=TRUE;
-  sprintf(InfoLines[1].Text,GetMsg(MInfoArchive));
+  FSF.sprintf(InfoLines[1].Text,GetMsg(MInfoArchive));
   strcpy(InfoLines[1].Data,FormatName);
   if (ItemsInfo.UnpVer!=0)
-    sprintf(InfoLines[1].Data+strlen(InfoLines[1].Data)," %d.%d",
+    FSF.sprintf(InfoLines[1].Data+strlen(InfoLines[1].Data)," %d.%d",
             ItemsInfo.UnpVer/256,ItemsInfo.UnpVer%256);
   if (*ItemsInfo.HostOS)
-    sprintf(InfoLines[1].Data+strlen(InfoLines[1].Data),"/%s",ItemsInfo.HostOS);
+    FSF.sprintf(InfoLines[1].Data+strlen(InfoLines[1].Data),"/%s",ItemsInfo.HostOS);
   strcpy(InfoLines[2].Text,GetMsg(MInfoArcType));
   if (ItemsInfo.Solid)
     strcpy(InfoLines[2].Data,GetMsg(MInfoSolid));
@@ -355,15 +355,15 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   if (ItemsInfo.DictSize==0)
     strcpy(InfoLines[9].Data,"???");
   else
-    sprintf(InfoLines[9].Data,"%d %s",ItemsInfo.DictSize,GetMsg(MInfoDictKb));
+    FSF.sprintf(InfoLines[9].Data,"%d %s",ItemsInfo.DictSize,GetMsg(MInfoDictKb));
   strcpy(InfoLines[10].Text,GetMsg(MInfoTotalFiles));
-  sprintf(InfoLines[10].Data,"%d",ArcDataCount);
+  FSF.sprintf(InfoLines[10].Data,"%d",ArcDataCount);
   strcpy(InfoLines[11].Text,GetMsg(MInfoTotalSize));
   InsertCommas(TotalSize,InfoLines[11].Data);
   strcpy(InfoLines[12].Text,GetMsg(MInfoPackedSize));
   InsertCommas(PackedSize,InfoLines[12].Data);
   strcpy(InfoLines[13].Text,GetMsg(MInfoRatio));
-  sprintf(InfoLines[13].Data,"%d%%",ToPercent(PackedSize,TotalSize));
+  FSF.sprintf(InfoLines[13].Data,"%d%%",ToPercent(PackedSize,TotalSize));
 
   Info->InfoLines=InfoLines;
   Info->InfoLinesNumber=sizeof(InfoLines)/sizeof(InfoLines[0]);
@@ -373,7 +373,7 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   char *NamePtr=DescrFilesString;
   while (DescrFilesNumber<sizeof(DescrFiles)/sizeof(DescrFiles[0]))
   {
-    while (isspace(*NamePtr))
+    while (__isspace(*NamePtr))
       NamePtr++;
     if (*NamePtr==0)
       break;
@@ -393,3 +393,4 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   KeyBar.AltTitles[6-1]=GetMsg(MAltF6);
   Info->KeyBar=&KeyBar;
 }
+
