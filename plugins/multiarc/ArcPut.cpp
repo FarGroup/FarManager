@@ -471,7 +471,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       else
       {
 #endif //_ARC_UNDER_CURSOR_
-        pdd.OldExactState=Opt.AutoResetExactArcName?FALSE:Opt.ExactArcName;
+        pdd.OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
 #ifdef _GROOP_NAME_
         GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data);
 #else //_GROOP_NAME_
@@ -526,8 +526,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
         return -1;
       //SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground); // $ 06.02.2002 AA
-      Opt.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
-      SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
+      Opt.AdvFlags.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
+
+      //SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
+      SetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", Opt.AdvFlags);
     }
 
     char *Ext;

@@ -33,7 +33,7 @@ int ConfigGeneral()
   DialogItems[6].Selected=Opt.UseLastHistory;
 //  DialogItems[7].Param.Selected=Opt.DeleteExtFile;
 //  DialogItems[8].Param.Selected=Opt.AddExtArchive;
-  DialogItems[7].Selected=Opt.AutoResetExactArcName;
+  DialogItems[7].Selected=Opt.AdvFlags.AutoResetExactArcName;
   strcpy(DialogItems[11].Data,Opt.DescriptionNames);
   DialogItems[12].Selected=Opt.ReadDescriptions;
   DialogItems[13].Selected=Opt.UpdateDescriptions;
@@ -50,7 +50,7 @@ int ConfigGeneral()
 
   //Opt.DeleteExtFile=DialogItems[7].Param.Selected;
   //Opt.AddExtArchive=DialogItems[8].Param.Selected;
-  Opt.AutoResetExactArcName=DialogItems[7].Selected;
+  Opt.AdvFlags.AutoResetExactArcName=DialogItems[7].Selected;
 
   strcpy(Opt.DescriptionNames,DialogItems[11].Data);
   Opt.ReadDescriptions=DialogItems[12].Selected;
@@ -64,7 +64,8 @@ int ConfigGeneral()
 
   //SetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",Opt.DeleteExtFile);
   //SetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",Opt.AddExtArchive);
-  SetRegKey(HKEY_CURRENT_USER,"","AutoResetExactArcName",Opt.AutoResetExactArcName);
+  //SetRegKey(HKEY_CURRENT_USER,"","AutoResetExactArcName",Opt.AutoResetExactArcName);
+  SetRegKey(HKEY_CURRENT_USER,"","AdvFlags",Opt.AdvFlags);
 
   return TRUE;
 }

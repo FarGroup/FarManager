@@ -280,6 +280,20 @@ char *CmdNames[]={"Extract","ExtractWithoutPath","Test","Delete",
 
 #define F_ENCRYPTED 1
 
+struct MAAdvFlags
+{
+  unsigned ExactArcName         :1;
+  unsigned AutoResetExactArcName:1;
+  unsigned GroopName            :1;
+  unsigned ArcUnderCursor       :1;
+  unsigned MenuWrapMode         :2;
+  unsigned NewDialogStyle       :1;
+  unsigned                      :25;
+
+  operator int(){return *((int *)this);}
+  MAAdvFlags &operator=(int Flags){return *this=*((MAAdvFlags *)&Flags);}
+};
+
 struct Options
 {
   int HideOutput;
@@ -295,8 +309,9 @@ struct Options
   int UseLastHistory; // $ 18.05.2001 SVS
   //int DeleteExtFile; // $ 12.07.2001 SVS
   //int AddExtArchive; // $ 16.07.2001 SVS
-  BOOL AutoResetExactArcName; // $ 2?.11.2001 AA
-  BOOL ExactArcName;   // $ 30.11.2001 AA
+  //BOOL AutoResetExactArcName; // $ 2?.11.2001 AA
+  //BOOL ExactArcName;   // $ 30.11.2001 AA
+  MAAdvFlags AdvFlags; //$ 06.03.2002 AA
 } Opt;
 
 char PluginRootKey[80];

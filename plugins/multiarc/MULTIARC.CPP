@@ -34,8 +34,10 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 
   //Opt.DeleteExtFile=GetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",1);
   //Opt.AddExtArchive=GetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",0);
-  Opt.AutoResetExactArcName=GetRegKey(HKEY_CURRENT_USER,"","AutoResetExactArcName",1);
-  Opt.ExactArcName=GetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", 0);
+
+  //Opt.AutoResetExactArcName=GetRegKey(HKEY_CURRENT_USER,"","AutoResetExactArcName",1);
+  //Opt.ExactArcName=GetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", 0);
+  Opt.AdvFlags=GetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", 0);
 
   GetRegKey(HKEY_CURRENT_USER,"","DescriptionNames",Opt.DescriptionNames,
             "descript.ion,files.bbs",sizeof(Opt.DescriptionNames));
