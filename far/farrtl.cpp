@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.17 25.02.2003 $ */
+/* Revision: 1.18 01.06.2003 $ */
 
 /*
 Modify:
+  01.06.2003 SVS
+    ! FAR_CreateFile переехал из farrtl.cpp в farwinapi.cpp
   25.02.2003 SVS
     ! применим счетчик CallNewDelete/CallMallocFree для отладки
   20.02.2003 SVS
@@ -400,25 +402,3 @@ void *__cdecl xf_realloc(void *__block, size_t __size)
 #endif
   return Ptr;
 }
-
-/* $ 26.01.2003 IS
-     + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
-       ее вместо CreateFile
-*/
-// открыть файл, вод возврата аналогичен CreateFile
-HANDLE WINAPI FAR_CreateFile(
-    LPCTSTR lpFileName,     // pointer to name of the file
-    DWORD dwDesiredAccess,  // access (read-write) mode
-    DWORD dwShareMode,      // share mode
-    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
-    DWORD dwCreationDistribution, // how to create
-    DWORD dwFlagsAndAttributes,   // file attributes
-    HANDLE hTemplateFile          // handle to file with attributes to copy
-   )
-{
-  HANDLE hFile=CreateFile(lpFileName,dwDesiredAccess,dwShareMode,
-    lpSecurityAttributes, dwCreationDistribution,dwFlagsAndAttributes,
-    hTemplateFile);
-  return hFile;
-}
-/* IS $ */

@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.69 19.05.2003 $ */
+/* Revision: 1.70 30.05.2003 $ */
 
 /*
 Modify:
+  30.05.2003 SVS
+    + DMODE_CLICKOUTSIDE - было нажатие мыши вне диалога?
   19.05.2003 SVS
     + Добавка к DialogItem - SelStart, SelEnd. Отвечают за сохранение
       параметров выделения в строках редактирования
@@ -261,6 +263,7 @@ Modify:
 #define DMODE_OWNSITEMS     0x00080000 // если TRUE, Dialog освобождает список Item в деструкторе
 #define DMODE_NODRAWSHADOW  0x00100000 // не рисовать тень?
 #define DMODE_NODRAWPANEL   0x00200000 // не рисовать подложку?
+#define DMODE_CLICKOUTSIDE  0x20000000 // было нажатие мыши вне диалога?
 #define DMODE_MSGINTERNAL   0x40000000 // Внутренняя Message?
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 

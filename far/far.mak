@@ -87,6 +87,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\dlgedit.obj" \
 	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\editor.obj" \
+	"$(INTDIR)\farwinapi.obj" \
 	"$(INTDIR)\ffolders.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\strftime.obj" \

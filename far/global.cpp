@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.53 06.05.2003 $ */
+/* Revision: 1.54 01.06.2003 $ */
 
 /*
 Modify:
+  01.06.2003 SVS
+    + _localLastError
   06.05.2003 SVS
     + BoxSymbols[] - массив символов пвсевдографики
   21.04.2003 SVS
@@ -284,3 +286,5 @@ int PrevFarAltEnterMode=-1;
 #endif
 
 WCHAR BoxSymbols[64];
+
+int _localLastError=0;

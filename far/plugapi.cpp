@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.156 06.05.2003 $ */
+/* Revision: 1.157 30.05.2003 $ */
 
 /*
 Modify:
+  30.05.2003 SVS
+    + ACTL_GETPLUGINMAXREADDATA
   06.05.2003 SVS
     ! Opt.UseTTFFont заменена на Opt.UseUnicodeConsole - так вернее
     - траблы с макросами:
@@ -584,6 +586,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     case ACTL_GETCONFIRMATIONS:
     case ACTL_GETDESCSETTINGS:
     case ACTL_GETPOLICIES:
+    case ACTL_GETPLUGINMAXREADDATA:
       break;
     default:
      if (FrameManager && FrameManager->ManagerIsDown())
@@ -614,6 +617,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return FarAltEnter((int)Param);
     }
     /* SVS $ */
+
+    case ACTL_GETPLUGINMAXREADDATA:
+    {
+      return Opt.PluginMaxReadData;
+    }
 
     case ACTL_GETWCHARMODE:
     {

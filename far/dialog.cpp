@@ -5,10 +5,18 @@ dialog.cpp
 
 */
 
-/* Revision: 1.286 28.05.2003 $ */
+/* Revision: 1.287 30.05.2003 $ */
 
 /*
 Modify:
+  30.05.2003 SVS
+    - "...даже не знаю, баг или фича. Если нажать кнопку мыши в пределах
+       диалога и, не отпуская её, протянуть мышь за его пределы и отпустить,
+       то FAR ведет себя так, как если бы мы просто кликнули за пределами
+       диалога, т.е. при "левом" нажатии - молча закрывает, а при "правом" -
+       "нажимает" дефолтную кнопку.
+         IMHO поведение не совсем очевидное. Юзеры часто "накалываются" на
+       этом, пытаясь мышью выделить блок в строке ввода в диалоге..."
   28.05.2003 SVS
     ! Opt.EdOpt.PersistentBlocks -> Opt.Dialogs.EditBlock
   19.05.2003 SVS
@@ -3738,18 +3746,29 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && MouseEventFlags != MOUSE_MOVED)
   {
-    if(!DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent))
+    if(DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent))
     {
+//      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
       if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed)
         ProcessKey(KEY_ESC);
+//      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && ScreenObject::CaptureMouseObject)
       else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed)
         ProcessKey(KEY_ENTER);
     }
+
+    if (MouseEvent->dwButtonState)
+      DialogMode.Set(DMODE_CLICKOUTSIDE);
+      //ScreenObject::SetCapture(this);
+
     return(TRUE);
   }
 
   if (MouseEvent->dwButtonState==0)
+  {
+    DialogMode.Clear(DMODE_CLICKOUTSIDE);
+//    ScreenObject::SetCapture(NULL);
     return(FALSE);
+  }
 
   if (MouseEvent->dwEventFlags==0 || MouseEvent->dwEventFlags==DOUBLE_CLICK)
   {

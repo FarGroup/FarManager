@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.59 21.04.2003 $ */
+/* Revision: 1.60 01.06.2003 $ */
 
 /*
 Modify:
+  01.06.2003 SVS
+    ! FAR_DeleteFile и FAR_RemoveDirectory переехали из delete.cpp в farwinapi.cpp
   21.04.2003 SVS
     + Opt.DelThreadPriority
     ! Исключим лишние телодвижения, если LastError входит в диапазон
@@ -186,72 +188,9 @@ static int WipeDirectory(const char *Name);
 static void PR_ShellDeleteMsg(void);
 
 static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
-static int localLastError;
 static clock_t DeleteStartTime;
 
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
-
-/* $ 26.01.2003 IS
-    + FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
-      RemoveDirectory, просьба и впредь их использовать для удаления
-      соответственно файлов и каталогов.
-*/
-// удалить файл, код возврата аналогичен DeleteFile
-BOOL WINAPI FAR_DeleteFile(const char *FileName)
-{
-  // IS: сначала попробуем удалить стандартной функцией, чтобы
-  // IS: не осуществлять лишние телодвижения
-  BOOL rc=DeleteFile(FileName);
-  if(!rc) // IS: вот тут лишние телодвижения и начнем...
-  {
-    SetLastError((localLastError = GetLastError()));
-    if(CheckErrorForProcessed(localLastError))
-    {
-      char FullName[NM*2]="\\\\?\\";
-      // IS: +4 - чтобы не затереть наши "\\?\"
-      if(ConvertNameToFull(FileName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
-      {
-        // IS: проверим, а вдруг уже есть есть нужные символы в пути
-        if( (FullName[4]=='/' && FullName[5]=='/') ||
-            (FullName[4]=='\\' && FullName[5]=='\\') )
-          rc=DeleteFile(FullName+4);
-        // IS: нужных символов в пути нет, поэтому используем наши
-        else
-          rc=DeleteFile(FullName);
-      }
-    }
-  }
-  return rc;
-}
-
-// удалить каталог, код возврата аналогичен RemoveDirectory
-BOOL WINAPI FAR_RemoveDirectory(const char *DirName)
-{
-  // IS: сначала попробуем удалить стандартной функцией, чтобы
-  // IS: не осуществлять лишние телодвижения
-  BOOL rc=RemoveDirectory(DirName);
-  if(!rc) // IS: вот тут лишние телодвижения и начнем...
-  {
-    SetLastError((localLastError = GetLastError()));
-    if(CheckErrorForProcessed(localLastError))
-    {
-      char FullName[NM+16]="\\\\?\\";
-      // IS: +4 - чтобы не затереть наши "\\?\"
-      if(ConvertNameToFull(DirName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
-      {
-        // IS: проверим, а вдруг уже есть есть нужные символы в пути
-        if( (FullName[4]=='/' && FullName[5]=='/') ||
-            (FullName[4]=='\\' && FullName[5]=='\\') )
-          rc=RemoveDirectory(FullName+4);
-        // IS: нужных символов в пути нет, поэтому используем наши
-        else
-          rc=RemoveDirectory(FullName);
-      }
-    }
-  }
-  return rc;
-}
-/* IS $ */
 
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {
@@ -497,7 +436,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         if (!SymLink && (!Opt.DeleteToRecycleBin || Wipe))
         {
           char FullName[NM];
-          ScanTree ScTree(TRUE);
+          ScanTree ScTree(TRUE,TRUE);
           ScTree.SetFindPath(SelName,"*.*", 0);
           while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
           {
@@ -851,11 +790,11 @@ int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
   {
     if (Wipe)
     {
-      if (WipeDirectory(Name) || (localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
+      if (WipeDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && WipeDirectory(ShortName)))
         break;
     }
     else
-      if (FAR_RemoveDirectory(Name) || (localLastError != ERROR_ACCESS_DENIED && FAR_RemoveDirectory(ShortName)))
+      if (FAR_RemoveDirectory(Name) || (_localLastError != ERROR_ACCESS_DENIED && FAR_RemoveDirectory(ShortName)))
         break;
     /* $ 19.01.2003 KM
        Добавлен Skip и Skip all
@@ -1011,7 +950,7 @@ int WipeFile(const char *Name)
   char TempName[NM];
   if(MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE)))
     return(FAR_DeleteFile(TempName));
-  SetLastError((localLastError = GetLastError()));
+  SetLastError((_localLastError = GetLastError()));
   return FALSE;
 }
 
@@ -1022,7 +961,7 @@ int WipeDirectory(const char *Name)
   BOOL Ret=MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
   if(!Ret)
   {
-    SetLastError((localLastError = GetLastError()));
+    SetLastError((_localLastError = GetLastError()));
     return FALSE;
   }
   return(FAR_RemoveDirectory(TempName));
@@ -1042,7 +981,7 @@ int DeleteFileWithFolder(const char *FileName)
       return(FAR_RemoveDirectory(FolderName));
     }
   }
-  SetLastError((localLastError = GetLastError()));
+  SetLastError((_localLastError = GetLastError()));
   return FALSE;
 }
 
@@ -1054,7 +993,7 @@ void DeleteDirTree(const char *Dir)
     return;
   char FullName[NM];
   WIN32_FIND_DATA FindData;
-  ScanTree ScTree(TRUE);
+  ScanTree ScTree(TRUE,TRUE);
 
   ScTree.SetFindPath(Dir,"*.*",0);
   while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))

@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.65 14.05.2003 $ */
+/* Revision: 1.66 30.05.2003 $ */
 
 /*
 Modify:
+  30.05.2003 SVS
+    + Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
+      Пока закомментим (чтобы не потерялось)
   14.05.2003 VVM
     + ViewerOptions.PersistentBlocks;
   02.03.2003 SVS
@@ -395,6 +398,19 @@ int FileViewer::ProcessKey(int Key)
     F3KeyOnly=FALSE;
   switch(Key)
   {
+#if 0
+    /* $ 30.05.2003 SVS
+       Фича :-) Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер
+       Пока закомментим
+    */
+    case KEY_SHIFTF4:
+    {
+      if(!Opt.OnlyEditorViewerUsed)
+        CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
+      return TRUE;
+    }
+    /* $ SVS */
+#endif
     /* $ 22.07.2000 tran
        + выход по ctrl-f10 с установкой курсора на файл */
     case KEY_CTRLF10:

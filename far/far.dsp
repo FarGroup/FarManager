@@ -188,6 +188,10 @@ SOURCE=.\farrtl.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\farwinapi.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ffolders.cpp
 # End Source File
 # Begin Source File

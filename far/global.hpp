@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.51 06.05.2003 $ */
+/* Revision: 1.52 01.06.2003 $ */
 
 /*
 Modify:
+  01.06.2003 SVS
+    + _localLastError
   06.05.2003 SVS
     + BoxSymbols[] - массив символов пвсевдографики
   21.04.2003 SVS
@@ -287,4 +289,5 @@ extern int PrevFarAltEnterMode;
 
 extern WCHAR BoxSymbols[];
 
+extern int _localLastError;
 #endif  // __FARGLOBAL_HPP__

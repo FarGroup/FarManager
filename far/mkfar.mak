@@ -202,6 +202,7 @@ FAROBJ=\
    $(OBJPATH)\treelist.obj\
    $(OBJPATH)\usermenu.obj\
    $(OBJPATH)\viewer.obj\
+   $(OBJPATH)\farwinapi.obj\
    $(OBJPATH)\vmenu.obj\
    $(OBJPATH)\frame.obj\
    $(OBJPATH)\xlat.obj\

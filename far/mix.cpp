@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.138 17.04.2003 $ */
+/* Revision: 1.139 01.06.2003 $ */
 
 /*
 Modify:
+  01.06.2003 SVS
+    ! ¬ FarRecursiveSearch() учтем новый параметр конструктора ScanTree - FRS_SCANJUNCTION.
   17.04.2003 SVS
     + IsLocalRootPath()
   26.01.2003 IS
@@ -850,6 +852,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   DirCount=FileCount=0;
   FileSize=CompressedFileSize=RealSize=0;
   ScTree.SetFindPath(DirName,"*.*");
+
   while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
     if (!CtrlObject->Macro.IsExecuting())
@@ -1203,7 +1206,7 @@ void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC 
     CFileMask FMask;
     if(!FMask.Set(Mask, FMF_SILENT)) return;
 
-    ScanTree ScTree(Flags& FRS_RETUPDIR,Flags & FRS_RECUR);
+    ScanTree ScTree(Flags& FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANJUNCTION);
     WIN32_FIND_DATA FindData;
     char FullName[NM];
 

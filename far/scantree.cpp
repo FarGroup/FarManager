@@ -6,10 +6,12 @@ scantree.cpp
 
 */
 
-/* Revision: 1.07 06.03.2003 $ */
+/* Revision: 1.08 01.06.2003 $ */
 
 /*
 Modify:
+  01.06.2003 SVS
+    ! переходим на BitFlags
   06.03.2003 SVS
     + Opt.ScanJunction - сканировать так же симлинки.
   27.12.2002 VVM
@@ -39,10 +41,11 @@ Modify:
 #include "scantree.hpp"
 #include "fn.hpp"
 
-ScanTree::ScanTree(int RetUpDir,int Recurse)
+ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
 {
-  ScanTree::RetUpDir=RetUpDir;
-  ScanTree::Recurse=Recurse;
+  Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
+  Flags.Change(FSCANTREE_RECUR,Recurse);
+  Flags.Change(FSCANTREE_SCANJUNCTION,(ScanJunction==-1?Opt.ScanJunction:ScanJunction));
   Init();
 }
 
@@ -60,20 +63,19 @@ void ScanTree::Init()
 {
   memset(FindHandle,0,sizeof(FindHandle));
   FindHandleCount=0;
-  SecondDirName=0;
   memset(SecondPass,0,sizeof(SecondPass));
-  ScanFlags = 0;
+  Flags.Clear(FSCANTREE_FILESFIRST);
 }
 
 
 void ScanTree::SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags)
 {
   Init();
-  strcpy(FindPath,Path);
+  strncpy(FindMask,Mask,sizeof(FindMask)-1);
+  strncpy(FindPath,Path,sizeof(FindPath)-1);
   AddEndSlash(FindPath);
-  strcpy(FindMask,Mask);
   strcat(FindPath,FindMask);
-  ScanFlags = NewScanFlags;
+  Flags.Flags=(Flags.Flags&0x0000FFFF)|(NewScanFlags&0xFFFF0000);
 }
 
 
@@ -81,14 +83,15 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
 {
   int Done;
   char *ChPtr;
-  SecondDirName=0;
+  Flags.Clear(FSCANTREE_SECONDDIRNAME);
   while (1)
   {
     if (FindHandle[FindHandleCount]==0)
       Done=((FindHandle[FindHandleCount]=FindFirstFile(FindPath,fdata))==INVALID_HANDLE_VALUE);
     else
       Done=!FindNextFile(FindHandle[FindHandleCount],fdata);
-    if (ScanFlags & SF_FILES_FIRST)
+
+    if (Flags.Check(FSCANTREE_FILESFIRST))
     {
       if (SecondPass[FindHandleCount])
       {
@@ -108,6 +111,7 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
         }
       }
     } /* if */
+
     char *FileName=fdata->cFileName;
     if (Done || !(*FileName=='.' && (!FileName[1] || FileName[1]=='.' && !FileName[2])))
       break;
@@ -120,26 +124,32 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       FindClose(FindHandle[FindHandleCount]);
       FindHandle[FindHandleCount]=0;
     }
+
     if (FindHandleCount==0)
       return(FALSE);
     else
     {
       FindHandle[FindHandleCount--]=0;
+
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
         *ChPtr=0;
-      if (RetUpDir)
+
+      if (Flags.Check(FSCANTREE_RETUPDIR))
       {
         HANDLE UpHandle;
         strcpy(FullName,FindPath);
         UpHandle=FindFirstFile(FullName,fdata);
         FindClose(UpHandle);
       }
+
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
         *(ChPtr+1)=0;
+
       strcat(FindPath,FindMask);
-      if (RetUpDir)
+
+      if (Flags.Check(FSCANTREE_RETUPDIR))
       {
-        SecondDirName=1;
+        Flags.Set(FSCANTREE_SECONDDIRNAME);
         return(TRUE);
       }
       return(GetNextName(fdata,FullName, BufSize));
@@ -151,9 +161,9 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
        Если каталог является SymLink (т.н. "Directory Junctions"),
        то в него не ломимся.
     */
-    if (Recurse &&
+    if (Flags.Check(FSCANTREE_RECUR) &&
       ((fdata->dwFileAttributes & (FA_DIREC|FILE_ATTRIBUTE_REPARSE_POINT)) == FA_DIREC ||
-          (fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Opt.ScanJunction))
+          (fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && Flags.Check(FSCANTREE_SCANJUNCTION)))
     /* SVS $ */
     {
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
@@ -162,8 +172,10 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
       strcpy(FullName,FindPath);
       strcat(FindPath,"\\");
       strcat(FindPath,FindMask);
+
       if (strlen(FindPath)>NM)
         return(FALSE);
+
       FindHandle[++FindHandleCount]=0;
       SecondPass[FindHandleCount]=0;
       return(TRUE);
@@ -176,8 +188,10 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
   if (strlen (FindPath) < BufSize)
   {
     strcpy(FullName,FindPath);
+
     if ((ChPtr=strrchr(FullName,'\\'))!=NULL)
       *(ChPtr+1)=0;
+
     if (strlen (FullName) + strlen (fdata->cFileName) < BufSize)
     {
       strcat (FullName, fdata->cFileName);
@@ -192,15 +206,21 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize)
 void ScanTree::SkipDir()
 {
   char *ChPtr;
+
   if (FindHandleCount==0)
     return;
+
   HANDLE Handle=FindHandle[FindHandleCount];
   if (Handle!=INVALID_HANDLE_VALUE && Handle!=0)
     FindClose(Handle);
+
   FindHandle[FindHandleCount--]=0;
+
   if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
     *ChPtr=0;
+
   if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
     *(ChPtr+1)=0;
+
   strcat(FindPath,FindMask);
 }

@@ -5,10 +5,13 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.07 26.01.2003 $ */
+/* Revision: 1.08 30.05.2003 $ */
 
 /*
 Modify:
+  30.05.2003 SVS
+    - Не выставлялся атрибут Compressed для файлового объекта, имеющего ReadOnly.
+      Вернее... При смене атрибута с Encripted на Compressed... имеющего ReadOnly.
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -117,13 +120,14 @@ int ESetFileCompression(const char *Name,int State,int FileAttr)
   if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
     return 1;
 
+  int Ret=1;
+  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
+    SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
+
   // Drop Encryption
   if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
     SetFileEncryption(Name,0);
 
-  int Ret=1;
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
   while (!SetFileCompression(Name,State))
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)

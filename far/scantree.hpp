@@ -8,10 +8,12 @@ scantree.hpp
 
 */
 
-/* Revision: 1.05 27.12.2002 $ */
+/* Revision: 1.06 01.06.2003 $ */
 
 /*
 Modify:
+  01.06.2003 SVS
+    ! переходим на BitFlags
   27.12.2002 VVM
     + Новый параметр ScanFlags. Разные флаги. Пока что только один SF_FILES_FIRST.
   23.06.2002 SVS
@@ -28,34 +30,40 @@ Modify:
 */
 
 #include "farconst.hpp"
+#include "bitflags.hpp"
 
-#define SF_FILES_FIRST 0x00000001   // Сканирование каталга за два прохода. Сначала файлы, затем каталоги
+enum{
+  FSCANTREE_RETUPDIR      = 0x00000001, // = FRS_RETUPDIR
+  FSCANTREE_RECUR         = 0x00000002, // = FRS_RECUR
+  FSCANTREE_SCANJUNCTION  = 0x00000004, // = FRS_SCANJUNCTION
+  FSCANTREE_SECONDDIRNAME = 0x00000080,
+
+  FSCANTREE_FILESFIRST    = 0x00010000, // Сканирование каталга за два прохода. Сначала файлы, затем каталоги
+};
 
 class ScanTree
 {
   private:
+    BitFlags Flags;
     HANDLE FindHandle[NM/2];
     int SecondPass[NM/2];
     int FindHandleCount;
-    int RetUpDir;
-    int Recurse;
-    int SecondDirName;
-    char FindPath[2*NM];
+    char FindPath[4*NM];
     char FindMask[NM];
-    DWORD ScanFlags;
 
   private:
     void Init();
 
   public:
-    ScanTree(int RetUpDir,int Recurse=1);
+    ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1);
     ~ScanTree();
 
   public:
-    void SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags = SF_FILES_FIRST);
+    // 3-й параметр - флаги из старшего слова
+    void SetFindPath(const char *Path,const char *Mask, const DWORD NewScanFlags = FSCANTREE_FILESFIRST);
     int GetNextName(WIN32_FIND_DATA *fdata,char *FullName, size_t BufSize);
     void SkipDir();
-    int IsDirSearchDone() {return(SecondDirName);};
+    int IsDirSearchDone() {return Flags.Check(FSCANTREE_SECONDDIRNAME);};
 };
 
 

@@ -499,6 +499,14 @@
 	".\struct.hpp"\
 
 
+"$(INTDIR)\farwinapi.obj" : \
+	".\farwinapi.cpp"\
+	".\fn.hpp"\
+	".\global.hpp"\
+	".\headers.hpp"\
+
+
+
 "$(INTDIR)\ffolders.obj" : \
 	".\ffolders.cpp"\
 	".\bitflags.hpp"\
@@ -2014,6 +2022,7 @@
 
 "$(INTDIR)\scantree.obj" : \
 	".\scantree.cpp"\
+	".\bitflags.hpp"\
 	".\farconst.hpp"\
 	".\fn.hpp"\
 	".\global.hpp"\

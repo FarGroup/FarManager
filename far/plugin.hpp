@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.228 27.05.2003 $ */
+/* Revision: 1.229 30.05.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,12 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  30.05.2003 SVS
+    + ACTL_GETPLUGINMAXREADDATA
+    ! ACTL_GETWCHARMODE доступна
+    + FRS_SCANJUNCTION
+    + FFPOL_MAINMENUDIALOGS
+    ! DM_GETSELECTION/DM_SETSELECTION доступны
   27.05.2003 SVS
     +  онстанта FARMACRO_KEY_EVENT определ€ет тип входного сообщени€
       структуры INPUT_RECORD, которое передаетс€ в ProcessEditorInput
@@ -978,10 +984,8 @@ enum FarMessagesProc{
 
   DM_LISTGETDATASIZE,
 
-#ifdef FAR_USE_INTERNALS
   DM_GETSELECTION,
   DM_SETSELECTION,
-#endif // END FAR_USE_INTERNALS
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -1622,8 +1626,9 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETCONFIRMATIONS,
   ACTL_GETDESCSETTINGS,
   ACTL_SETARRAYCOLOR,
-#ifdef FAR_USE_INTERNALS
   ACTL_GETWCHARMODE,
+  ACTL_GETPLUGINMAXREADDATA,
+#ifdef FAR_USE_INTERNALS
   ACTL_GETPOLICIES,
 #endif // END FAR_USE_INTERNALS
 };
@@ -1635,6 +1640,7 @@ enum FarPoliciesFlags{
   FFPOL_MAINMENUINTERFACE     = 0x00000004,
   FFPOL_MAINMENULANGUAGE      = 0x00000008,
   FFPOL_MAINMENUPLUGINS       = 0x00000010,
+  FFPOL_MAINMENUDIALOGS       = 0x00000020,
   FFPOL_MAINMENUCONFIRMATIONS = 0x00000040,
   FFPOL_MAINMENUPANELMODE     = 0x00000080,
   FFPOL_MAINMENUFILEDESCR     = 0x00000100,
@@ -2194,8 +2200,9 @@ typedef int (WINAPI *FRSUSERFUNC)(
 );
 
 enum FRSMODE{
-  FRS_RETUPDIR = 0x0001,
-  FRS_RECUR    = 0x0002
+  FRS_RETUPDIR      = 0x0001,
+  FRS_RECUR         = 0x0002,
+  FRS_SCANJUNCTION  = 0x0004,
 };
 
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
