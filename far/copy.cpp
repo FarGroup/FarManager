@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.07 09.08.2000 $ */
+/* Revision: 1.08 14.08.2000 $ */
 
 /*
 Modify:
+  14.08.2000 SVS
+   ! Данные, усеченные до 40 символов... :-(
+     А потом используются (CopyDlg[2].Data) по полной программе...
   09.08.2000 KM
    ! Добавлена проверка на режим перемещения диалога
      в ShellCopy::ShellCopy, чтобы избежать в этом режиме
@@ -190,7 +193,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
         {
           struct OpenPluginInfo Info;
           AnotherPanel->GetOpenPluginInfo(&Info);
-          sprintf(CopyDlg[2].Data,"%.40s:",NullToEmpty(Info.Format));
+          /* $ 14.08.2000 SVS
+             Данные, усеченные до 40 символов... :-(
+             А потом используются (CopyDlg[2].Data) по полной программе...
+             "%.40s:" -> "%s:"
+          */
+          sprintf(CopyDlg[2].Data,"%s:",NullToEmpty(Info.Format));
+          /* SVS $ */
           while (strlen(CopyDlg[2].Data)<2)
             strcat(CopyDlg[2].Data,":");
         }
