@@ -8,10 +8,12 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.08 01.08.2000 $ */
+/* Revision: 1.09 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 tran 1.09
+   - BUG с не записью \0 в конец строки в GetUserData
   01.08.2000 SVS
    + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
      самостоятельно или из другой функции ;-)
@@ -844,8 +846,17 @@ int VMenu::GetUserData(void *Data,int Size,int Position)
   if (DataPos>=ItemCount)
     DataPos=ItemCount-1;
   int DataSize=Item[DataPos].UserDataSize;
+//  SysLog("VMenu::GetUserData: Size=%i, DataSize=%i",Size,DataSize);
+  /* $ 29.08.2000 tran
+     - BUG with no \0 setting */
   if (DataSize>0 && Size>0 && Data!=NULL)
+  {
     memcpy(Data,Item[DataPos].UserData,Min(Size,DataSize));
+    // вот тут кое-кто забыл в конец строки 0 записать....
+    ((char*)Data)[Min(Size,DataSize)]=0;
+  }
+  /* tran 29.08.2000 $ */
+
   CallCount--;
   return(DataSize);
 }
