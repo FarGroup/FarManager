@@ -9,25 +9,10 @@ plugins.cpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  01.07.2000 IS
-    + Функция вывода помощи в api
-  05.07.2000 IS
-    + Функция AdvControl
-  06.07.2000 IS
-    + Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
-      Инициализация ее членов:
-         StructSize, Unquote, ExpandEnvironmentStr,
-         sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr,
-         strrchr, strstr, strtok, memset, strpbrk
-  07.07.2000 IS
-    + Инициализация: atoi, _atoi64, itoa, RemoveLeadingSpaces,
-      RemoveTrailingSpaces, RemoveExternalSpaces, TruncStr, TruncPathStr,
-      QuoteSpaceOnly, PointToName, GetPathRoot, AddEndSlash
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
+  15.07.2000 SVS
+     + Добавка в виде задания дополнительного пути для поиска плагинов
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
   13.07.2000 IS
     - Пофикшен трап при входе в редактор (PluginsSet::ProcessEditorInput)
       Решения подсказал tran.
@@ -35,10 +20,24 @@ Modify:
       неправильном переводе под VC: переменная I изменялась во всех циклах
       (внимательнее над быть, вашу мать $%#...)
       Решения подсказал tran.
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  15.07.2000 SVS
-     + Добавка в виде задания дополнительного пути для поиска плагинов
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  07.07.2000 IS
+    + Инициализация: atoi, _atoi64, itoa, RemoveLeadingSpaces,
+      RemoveTrailingSpaces, RemoveExternalSpaces, TruncStr, TruncPathStr,
+      QuoteSpaceOnly, PointToName, GetPathRoot, AddEndSlash
+  06.07.2000 IS
+    + Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
+      Инициализация ее членов:
+      StructSize, Unquote, ExpandEnvironmentStr, sprintf, sscanf, qsort,
+      memcpy, memmove, memcmp, strchr, strrchr, strstr, strtok, memset, strpbrk
+  05.07.2000 IS
+    + Функция AdvControl
+  01.07.2000 IS
+    + Функция вывода помощи в api
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

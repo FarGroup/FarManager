@@ -9,11 +9,11 @@ language.cpp
 
 /*
 Modify:
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"

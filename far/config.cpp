@@ -9,27 +9,26 @@ config.cpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  29.06.2000 SVS
-    + Показывать ли ScrollBar для Menu
-  30.06.2000 SVS
-    - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
-  04.07.2000 SVS
-    ! ScrollBar Setting for Menus переехал из Options|Panel settings
-      в Options|Interface settings
-  11.07.2000 SVS
-    ! Последниие 5 индексов внаглую перезаписываются (если на этих местах
-      стоят нули)
-  15.07.2000 SVS
-     + Добавка в виде задания дополнительного пути для поиска плагинов
-  15.07.2000 tran
-    + Opt.ShowKeyBarViewer
   18.07.2000 tran 1.05
     + Opt.ShowViewerArrows, Opt.ShowViewerScrollbar
       изменил диалог ViewerSetting
-
+  15.07.2000 tran
+    + Opt.ShowKeyBarViewer
+  15.07.2000 SVS
+     + Добавка в виде задания дополнительного пути для поиска плагинов
+  11.07.2000 SVS
+    ! Последниие 5 индексов внаглую перезаписываются (если на этих местах
+      стоят нули)
+  04.07.2000 SVS
+    ! ScrollBar Setting for Menus переехал из Options|Panel settings
+      в Options|Interface settings
+  30.06.2000 SVS
+    - Кнопки залезли на рамку :-) в диалоге Options|Panel settings
+  29.06.2000 SVS
+    + Показывать ли ScrollBar для Menu
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"
@@ -390,8 +389,8 @@ void ViewerConfig()
     DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  12 *new
     DI_BUTTON    , 0,15, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  13 , was 11
     DI_BUTTON    , 0,15, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  14 , was 12
-  };                                                                          
-  MakeDialogItems(CfgDlgData,CfgDlg);                                         
+  };
+  MakeDialogItems(CfgDlgData,CfgDlg);
 
   CfgDlg[DLG_VIEW_USE_F3].Selected=Opt.UseExternalViewer;
   CfgDlg[DLG_VIEW_USE_ALTF3].Selected=!Opt.UseExternalViewer;

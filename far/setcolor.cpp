@@ -9,17 +9,17 @@ setcolor.cpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  29.06.2000 SVS
-    + Новый пункт для настройки цветов Menu для Menu Scrollbar
+  18.03.2000 tran 1.03
+    + COL_VIEWERSCROLLBAR
   06.07.2000 SVS
     + Новый пункт для настройки цветов
         COL_DIALOGMENUHIGHLIGHT
         COL_DIALOGMENUSELECTEDHIGHLIGHT
-  18.03.2000 tran 1.03
-    + COL_VIEWERSCROLLBAR
+  29.06.2000 SVS
+    + Новый пункт для настройки цветов Menu для Menu Scrollbar
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

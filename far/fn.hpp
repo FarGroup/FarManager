@@ -11,24 +11,24 @@ fn.hpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  03.07.2000 IS
-    + Функция вывода помощи
-  05.07.2000 SVS
-    + Функция ExpandEnvironmentStr
+  18.07.2000 tran 1.06
+    ! изменил тип аргумента у ScrollBar с 'int' на 'unsigned long'
+      нужно для Viewer
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  07.07.2000 IS
+    + SetHighlighting из main.cpp
   07.07.2000 SVS
     + Дополнительная функция обработки строк: RemoveExternalSpaces
   06.07.2000 IS
     + Функция FarAdvControl
-  07.07.2000 IS
-    + SetHighlighting из main.cpp
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  18.07.2000 tran 1.06
-    ! изменил тип аргумента у ScrollBar с 'int' на 'unsigned long'
-      нужно для Viewer
+  05.07.2000 SVS
+    + Функция ExpandEnvironmentStr
+  03.07.2000 IS
+    + Функция вывода помощи
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 

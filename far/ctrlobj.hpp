@@ -11,11 +11,11 @@ ctrlobj.hpp
 
 /*
 Modify:
+  15.07.2000 tran
+    + new method Redraw()
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
-  15.07.2000 tran
-    + new method Redraw()
 */
 
 class ControlObject:public BaseInput

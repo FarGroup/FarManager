@@ -9,19 +9,19 @@ interf.cpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  06.07.2000 SVS
+    - Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
   28.06.2000 tran
     - NT Console resize bug
       adding resize support in GetInputRecord for modal window like
       Viewer, Editor, Help
-  06.07.2000 SVS
-    - Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

@@ -10,16 +10,21 @@
 
 /*
 Modify:
-  26.06.2000 SVS
-    ! Подготовка Master Copy
-  28.06.2000 SVS
-    + Для MSVC тоже требуется extern "C" при декларации
-      экспортируемых функций + коррекция на Borland C++ 5.5
-  03.07.2000 IS
-    + Функция вывода помощи в api
-  05.06.2000 SVS
-    + DI_EDIT имеет флаг DIF_EDITEXPAND - расширение переменных среды
-      в enum FarDialogItemFlags
+  18.07.2000 SVS
+    + Введен новый элемент: DI_COMBOBOX и флаг DIF_DROPDOWNLIST
+      (для нередактируемого DI_COMBOBOX - пока не реализовано!)
+  12.07.2000 IS
+    + Флаги  редактора:
+      EF_NONMODAL - открытие немодального редактора
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  10.07.2000 IS
+    ! Некоторые изменения с учетом голого C (по совету SVS)
+  07.07.2000 IS
+    + Указатели на функции в FarStandardFunctions:
+      atoi, _atoi64, itoa, RemoveLeadingSpaces, RemoveTrailingSpaces,
+      RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
+      PointToName, GetPathRoot, AddEndSlash
   06.07.2000 IS
     + Функция AdvControl (PluginStartupInfo)
     + Команда ACTL_GETFARVERSION для AdvControl
@@ -30,21 +35,16 @@ Modify:
       Unquote, ExpandEnvironmentStr,
       sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
       strtok, memset, strpbrk
-  07.07.2000 IS
-    + Указатели на функции в FarStandardFunctions:
-      atoi, _atoi64, itoa, RemoveLeadingSpaces, RemoveTrailingSpaces,
-      RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
-      PointToName, GetPathRoot, AddEndSlash
-  10.07.2000 IS
-    ! Некоторые изменения с учетом голого C (по совету SVS)
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  12.07.2000 IS
-    + Флаги  редактора:
-      EF_NONMODAL - открытие немодального редактора
-  18.07.2000 SVS
-    + Введен новый элемент: DI_COMBOBOX и флаг DIF_DROPDOWNLIST
-      (для нередактируемого DI_COMBOBOX - пока не реализовано!)
+  05.06.2000 SVS
+    + DI_EDIT имеет флаг DIF_EDITEXPAND - расширение переменных среды
+      в enum FarDialogItemFlags
+  03.07.2000 IS
+    + Функция вывода помощи в api
+  28.06.2000 SVS
+    + Для MSVC тоже требуется extern "C" при декларации
+      экспортируемых функций + коррекция на Borland C++ 5.5
+  26.06.2000 SVS
+    ! Подготовка Master Copy
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)

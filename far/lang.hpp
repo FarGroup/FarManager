@@ -6,8 +6,7 @@ lang.hpp
 Идентификаторы фаровских строк
 
 Внимание - не ставьте комментарии внутри enum!
-           а lngedit собъется
-           только в истории изменений
+           а lngedit собъется только в истории изменений
 
            также в lng Файле не ставьте более 2х комментариев
            подряд.
@@ -17,35 +16,35 @@ lang.hpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  29.06.2000 SVS
-    + Новый пункт для Options|Panel settings
-      [ ] Show scrollbar into Menus
-    + Новый пункт для настройки цветов Menu для Menu Scrollbar
-  29.06.2000 tran
-    + пустышки для всех функциональных клавиш в viewer & editor
-  04.07.2000 SVS
-    ! Scroll bar в меню переехал из Options|Panel settings
-      в Options|Interface settings
-  06.07.2000 SVS
-    + Добавка
-      MSetColorDialogMenuHighLight,
-      MSetColorDialogMenuSelectedHighLight,
-  06.07.2000 tran
-    ! выправка ланг файлов
+  18.07.2000 tran
+    + Новые константы в связи с ScrollBar in Viewer
+  15.07.2000 SVS
+    + Константа MConfigPersonalPath
+  12.07.2000 SVS
+    + Константа MViewF2WWrap
   07.07.2000 IS
     + Пункты для сообщения о подтверждении восстановления раскраски файлов по
       умолчанию: MHighlightWarning, MHighlightAskRestore,
     ! В lng-файлах изменилась строка MHighlightBottom - добавил информацию о
       "Ctrl+R"
-  12.07.2000 SVS
-    + Константа MViewF2WWrap
-  15.07.2000 SVS
-    + Константа MConfigPersonalPath
-  18.07.2000 tran
-    + Новые константы в связи с ScrollBar in Viewer
+  06.07.2000 tran
+    ! выправка ланг файлов
+  06.07.2000 SVS
+    + Добавка
+      MSetColorDialogMenuHighLight,
+      MSetColorDialogMenuSelectedHighLight,
+  04.07.2000 SVS
+    ! Scroll bar в меню переехал из Options|Panel settings
+      в Options|Interface settings
+  29.06.2000 tran
+    + пустышки для всех функциональных клавиш в viewer & editor
+  29.06.2000 SVS
+    + Новый пункт для Options|Panel settings
+      [ ] Show scrollbar into Menus
+    + Новый пункт для настройки цветов Menu для Menu Scrollbar
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 enum

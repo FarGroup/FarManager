@@ -11,26 +11,25 @@ Internal viewer
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  04.07.2000 tran
-    + 'warning' parameter in OpenFile() method
-  10.07.2000 tran
-    + увеличение длины строки - с 512 на MAX_VIEWLINE
-      MAX_VIEWLINEB = MAX_VIEWLINE + 16
-  12.07.2000 SVS
-    - из-за увеличения длины строки до 0x800 вылетал FAR
-      по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
-  12.07.2000 tran
-    ! OutStr are dynamic, new, delete,
-      and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
+  19.07.2000 tran 1/06
+    + Viewer::Width, ::XX2
   18.07.2000 tran 1.05
     * изменил тип параметра у SetFilePos()
       на unsigned
-  19.07.2000 tran 1/06
-    + Viewer::Width, ::XX2
-
+  12.07.2000 tran
+    ! OutStr are dynamic, new, delete,
+      and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
+  12.07.2000 SVS
+    - из-за увеличения длины строки до 0x800 вылетал FAR
+      по Alt-F7. Сократим MAX_VIEWLINE до 1024 (0x400)
+  10.07.2000 tran
+    + увеличение длины строки - с 512 на MAX_VIEWLINE
+      MAX_VIEWLINEB = MAX_VIEWLINE + 16
+  04.07.2000 tran
+    + 'warning' parameter in OpenFile() method
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 /* $ 12.07.2000 SVS

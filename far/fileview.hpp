@@ -11,12 +11,12 @@ fileview.hpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 class FileViewer:public Modal

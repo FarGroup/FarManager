@@ -9,14 +9,14 @@ Parent class для модальных объектов
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
+  11.07.2000 tran
+    - trap if no lang files found
   29.06.2000 tran
     - (NT Console resize bug)
       adding virtual method SetScreenPosition
-  11.07.2000 tran
-    - trap if no lang files found
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

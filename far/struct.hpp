@@ -11,17 +11,17 @@ struct.hpp
 
 /*
 Modify:
+  18.07.2000 tran 1.04
+    + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
+  15.07.2000 tran
+    + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
+  15.07.2000 SVS
+    + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
+  29.06.2000 SVS
+    + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
-  29.06.2000 SVS
-    + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
-  15.07.2000 SVS
-    + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
-  15.07.2000 tran
-    + добавлен аттрибут показа KeyBar в Viewer - Options::ShowKeyBarViewer
-  18.07.2000 tran 1.04
-    + Opt.ViewerShowScrollBar, Opt.ViewerShowArrows
 */
 
 struct PanelOptions

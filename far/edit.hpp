@@ -11,11 +11,11 @@ edit.hpp
 
 /*
 Modify:
+  03.07.2000 tran
+    + ReadOnly style
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
-  03.07.2000 tran
-    + ReadOnly style
 */
 
 class Edit:public ScreenObject

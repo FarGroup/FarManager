@@ -9,17 +9,17 @@ help.cpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  26.06.2000 IS
-    - Глюк с хелпом по f1, shift+f2, end
-      (решение предложил IG)
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
   28.06.2000
     - NT Console resize
       adding SetScreenPosition method
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
+  26.06.2000 IS
+    - Глюк с хелпом по f1, shift+f2, end
+      (решение предложил IG)
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

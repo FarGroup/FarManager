@@ -9,22 +9,22 @@ vmenu.cpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  28.06.2000 tran
-    + вертикальный скролбар в меню при необходимости
-  29.06.2000 SVS
-    ! Показывать ScrollBar в меню если включена опция ShowMenuScrollbar
-  06.07.2000 tran
-    + mouse support for menu scrollbar
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
   18.07.2000 SVS
    ! изменен вызов конструктора (пареметр isAlwaysScrollBar) с учетом
      необходимости scrollbar в DI_COMBOBOX (и в будущем - DI_LISTBOX)
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  06.07.2000 tran
+    + mouse support for menu scrollbar
+  29.06.2000 SVS
+    ! Показывать ScrollBar в меню если включена опция ShowMenuScrollbar
+  28.06.2000 tran
+    + вертикальный скролбар в меню при необходимости
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

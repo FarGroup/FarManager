@@ -9,12 +9,12 @@ Parent class для всех screen objects
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
   15.07.2000 tran
     + add new dirty method - Hide0(), jys set Visible to False
       used in FileViewer, for keybar hiding
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

@@ -11,12 +11,12 @@ Parent class для модальных объектов
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
   29.06.2000 tran
     - (NT Console resize bug)
       adding virtual method SetScreenPosition
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 class Modal:public ScreenObject

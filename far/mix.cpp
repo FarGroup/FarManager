@@ -9,31 +9,31 @@ mix.cpp
 
 /*
 Modify:
-  25.06.2000 SVS
-    ! Подготовка Master Copy
-    ! Выделение в качестве самостоятельного модуля
-  28.06.2000 IS
-    ! Функция Unquote стала универсальной
-  05.07.2000 SVS
-    + Добавлена функция ExpandEnvironmentStr
+  18.07.2000 tran 1.08
+    ! изменил типа аргумента у ScrollBar
+  13.07.2000 IG
+    - в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
+      делать проверку побайтово (функция IsCommandExeGUI)
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
+  11.07.2000 SVS
+    ! Изменения для возможности компиляции под BC & VC
+  07.07.2000 tran
+    - trap under win2000, or console height > 210
+      bug was in ScrollBar ! :)))
   07.07.2000 SVS
     + Дополнительная функция обработки строк: RemoveExternalSpaces
     ! Изменен тип 2-х функций:
         RemoveLeadingSpaces
         RemoveTrailingSpaces
       Возвращают char*
-  07.07.2000 tran
-    - trap under win2000, or console height > 210
-      bug was in ScrollBar ! :)))
-  11.07.2000 SVS
-    ! Изменения для возможности компиляции под BC & VC
-  13.07.2000 SVS
-    ! Некоторые коррекции при использовании new/delete/realloc
-  13.07.2000 IG
-    - в VC, похоже, нельзя сказать так: 0x4550 == 'PE', надо
-      делать проверку побайтово (функция IsCommandExeGUI)
-  18.07.2000 tran 1.08
-    ! изменил типа аргумента у ScrollBar
+  05.07.2000 SVS
+    + Добавлена функция ExpandEnvironmentStr
+  28.06.2000 IS
+    ! Функция Unquote стала универсальной
+  25.06.2000 SVS
+    ! Подготовка Master Copy
+    ! Выделение в качестве самостоятельного модуля
 */
 
 #include "headers.hpp"

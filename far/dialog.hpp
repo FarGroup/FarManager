@@ -11,11 +11,11 @@ dialog.hpp
 
 /*
 Modify:
+  18.07.2000 SVS
+    + функция SelectFromComboBox для выбора из DI_COMBOBOX
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
-  18.07.2000 SVS
-    + функция SelectFromComboBox для выбора из DI_COMBOBOX
 */
 
 class Dialog:public Modal
