@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.152 08.05.2002 $ */
+/* Revision: 1.153 14.05.2002 $ */
 
 /*
 Modify:
+  14.05.2002 VVM
+    - ѕри нажатии среднего колеса проверим на "движени€" мышкой.
+      „то-бы не циклить и не скакать бешенно по панел€м.
   08.05.2002 SVS
     !  осотыли про FullScreen (уточнение приоритетов показа активной/пассивной панели)
     ! проверка на NULL перед free()
@@ -2498,7 +2501,8 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 17.12.2001 IS
     ! новшество от ¬асили€ - опционально
   */
-  if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED
+  if ((MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
+      && (!MouseEvent->dwEventFlags)
       && Opt.PanelMiddleClickRule)
   /* IS $ */
   {
