@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.21 13.02.2002 $ */
+/* Revision: 1.22 16.03.2002 $ */
 
 /*
 Modify:
+  16.03.2002 IS
+    ! В Фильтрах тоже можно использовать маски-иключения.
   13.02.2002 SVS
     ! Уборка варнингов
   25.12.2001 SVS
@@ -681,7 +683,11 @@ int PanelFilter::EditRecord(char *Title,char *Masks)
       Dlg.Process();
       if (Dlg.GetExitCode()!=6 || *(char *)EditDlg[4].Ptr.PtrData==0)
         return(FALSE);
-      if(CheckMask.Set((const char *)EditDlg[4].Ptr.PtrData, FMF_FORBIDEXCLUDE))
+      /* $ 16.03.2002 IS
+         В Фильтрах тоже можно использовать маски-иключения.
+      */
+      if(CheckMask.Set((const char *)EditDlg[4].Ptr.PtrData, 0))
+      /* IS $ */
         break;
     }
     /* IS $ */

@@ -2468,7 +2468,8 @@ For example, you have to do this when a mask contains any of the delimiter
 characters (a comma or a semicolon), so that the mask doesn't get confused
 with a list.
 
-    In some commands (~Find files~@FindFile@, file ~selection~@SelectFiles@,
+    In some commands (~find files~@FindFile@,
+~file panel filter~@Filter@, file ~selection~@SelectFiles@,
 file ~associations~@FileAssoc@, ~sort groups~@SortGroups@ and
 ~file highlighting~@Highlight@) you may use exclude masks. An #exclude mask#
 is one or multiple file masks that must not be matched by the files
