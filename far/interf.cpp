@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.61 04.06.2002 $ */
+/* Revision: 1.62 06.06.2002 $ */
 
 /*
 Modify:
+  06.06.2002 SVS
+    - некомпиляция под VC
   04.06.2002 SVS
     + TextToCharInfo
     + PutTextA (с конвертацией)
@@ -969,8 +971,9 @@ void PutTextA(int X1,int Y1,int X2,int Y2,const void *Src)
 {
   int Width=X2-X1+1;
   int I,Y;
-  for (Y=Y1;Y<=Y2;++Y,(CHAR_INFO *)Src+=Width)
-    ScrBuf.WriteA(X1,Y,(CHAR_INFO *)Src,Width);
+  CHAR_INFO *SrcPtr=(CHAR_INFO*)Src;
+  for (Y=Y1;Y<=Y2;++Y,SrcPtr+=Width)
+    ScrBuf.WriteA(X1,Y,SrcPtr,Width);
 }
 #endif
 
@@ -979,8 +982,9 @@ void PutText(int X1,int Y1,int X2,int Y2,const void *Src)
   int Width=X2-X1+1;
   int I,Y;
 
-  for (Y=Y1;Y<=Y2;++Y,(CHAR_INFO *)Src+=Width)
-    ScrBuf.Write(X1,Y,(CHAR_INFO *)Src,Width);
+  CHAR_INFO *SrcPtr=(CHAR_INFO*)Src;
+  for (Y=Y1;Y<=Y2;++Y,SrcPtr+=Width)
+    ScrBuf.Write(X1,Y,SrcPtr,Width);
 }
 
 

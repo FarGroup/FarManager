@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.80 24.05.2002 $ */
+/* Revision: 1.81 06.06.2002 $ */
 
 /*
 Modify:
+  06.06.2002 SVS
+    ! коррекция вставляемого размера в Edit::SetBinaryString, если определен MaxLength
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   18.05.2002 SVS
@@ -1805,6 +1807,13 @@ void Edit::SetBinaryString(const char *Str,int Length)
   if ( Flags.Check(FEDITLINE_READONLY) )
     return;
   /* tran 03.07.2000 $ */
+
+  // коррекция вставляемого размера, если определен MaxLength
+  if(MaxLength != -1 && Length > MaxLength)
+  {
+    Length=MaxLength; // ??
+  }
+
   if (Length>0 && !Flags.Check(FEDITLINE_PARENT_SINGLELINE))
   {
     if (Str[Length-1]=='\r')
