@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.89 17.09.2002 $ */
+/* Revision: 1.90 14.10.2002 $ */
 
 /*
 Modify:
+  14.10.2002 SKV
+    ! выделение
   17.09.2002 SKV
     - правка выделения
   04.09.2002 SVS
@@ -652,7 +654,7 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
        ! У DropDowList`а выделение по полной программе - на всю видимую длину
          ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
     */
-    if (TabSelStart>=EditLength || !AllString && TabSelStart>=StrSize ||
+    if (TabSelStart>=EditLength /*|| !AllString && TabSelStart>=StrSize*/ ||
         TabSelEnd<TabSelStart)
     {
       if(Flags.Check(FEDITLINE_DROPDOWNBOX))
@@ -2370,8 +2372,8 @@ void Edit::Select(int Start,int End)
     SelStart=-1;
     SelEnd=0;
   }
-  if (SelEnd>StrSize)
-    SelEnd=StrSize;
+//  if (SelEnd>StrSize)
+//    SelEnd=StrSize;
 }
 
 
@@ -2407,7 +2409,7 @@ void Edit::GetSelection(int &Start,int &End)
   End=SelEnd;
 
   if (End>StrSize)
-    End=StrSize;
+    End=-1;//StrSize;
   if (Start>StrSize)
     Start=StrSize;
 }

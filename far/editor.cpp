@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.200 09.10.2002 $ */
+/* Revision: 1.201 14.10.2002 $ */
 
 /*
 Modify:
+  14.10.2002 SKV
+    ! выделение переписано заново
   09.10.2002 SKV
     - selection bugs
   26.09.2002 SKV
@@ -1463,7 +1465,7 @@ int Editor::ProcessKey(int Key)
       else
       {
         int StartSel,EndSel;
-        BlockStart->EditLine.GetSelection(StartSel,EndSel);
+        BlockStart->EditLine.GetRealSelection(StartSel,EndSel);
         if (StartSel==-1 || StartSel==EndSel)
           UnmarkBlock();
       }
@@ -1499,6 +1501,48 @@ int Editor::ProcessKey(int Key)
     SavePos.LeftPos[Pos]=CurLine->EditLine.GetLeftPos();
     SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
     return(TRUE);
+  }
+  int SelStart,SelEnd;
+  int SelFirst=FALSE;
+  int SelAtBeginning=FALSE;
+  switch(Key)
+  {
+    case KEY_SHIFTLEFT:    case KEY_SHIFTRIGHT:
+    case KEY_SHIFTUP:      case KEY_SHIFTDOWN:
+    case KEY_SHIFTHOME:    case KEY_SHIFTEND:
+    case KEY_SHIFTNUMPAD4: case KEY_SHIFTNUMPAD6:
+    case KEY_SHIFTNUMPAD8: case KEY_SHIFTNUMPAD2:
+    case KEY_SHIFTNUMPAD7: case KEY_SHIFTNUMPAD1:
+    {
+      UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
+      CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
+      if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
+      {
+        if(SelStart!=-1 && (CurPos<SelStart || // если курсор до выделения
+           (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделения
+            (CurPos>SelStart && CurPos<SelEnd)))) &&
+           CurPos<CurLine->EditLine.GetLength()) // ... внутри выдления
+          Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+        Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+      }
+      if (!Flags.Check(FEDITOR_MARKINGBLOCK))
+      /* IS $ */
+      {
+        UnmarkBlock();
+        Flags.Set(FEDITOR_MARKINGBLOCK);
+        BlockStart=CurLine;
+        BlockStartLine=NumLine;
+        SelFirst=TRUE;
+        SelStart=SelEnd=CurPos;
+      }else
+      {
+        SelAtBeginning=CurLine==BlockStart && CurPos==SelStart;
+        if(SelStart==-1)
+        {
+          SelStart=SelEnd=CurPos;
+        }
+      }
+    }
   }
 
   switch(Key)
@@ -1557,7 +1601,13 @@ int Editor::ProcessKey(int Key)
       DisableOut++;
       Edit::DisableEditOut(TRUE);
       for (I=Y1+1;I<Y2;I++)
+      {
         ProcessKey(KEY_SHIFTUP);
+        if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+        {
+          CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+        }
+      }
       Pasting--;
       DisableOut--;
       Edit::DisableEditOut(FALSE);
@@ -1571,7 +1621,13 @@ int Editor::ProcessKey(int Key)
       DisableOut++;
       Edit::DisableEditOut(TRUE);
       for (I=Y1+1;I<Y2;I++)
+      {
         ProcessKey(KEY_SHIFTDOWN);
+        if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+        {
+          CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+        }
+      }
       Pasting--;
       DisableOut--;
       Edit::DisableEditOut(FALSE);
@@ -1584,63 +1640,20 @@ int Editor::ProcessKey(int Key)
       Pasting++;
       DisableOut++;
       Edit::DisableEditOut(TRUE);
-      /* $ 20.04.2001 IS
-           Я не знаю, что двигало Женей (наверное, стремление упростить и
-           сократить код), но оно сказалось в худшую сторону на быстродействии.
-           Теперь выделяем все за один раз.
-      */
+      if(SelAtBeginning)
       {
-        int First=FALSE, // будет TRUE, если выделяем заново, а не продолжаем
-            SelStart,SelEnd;
-        if (!Flags.Check(FEDITOR_MARKINGBLOCK))
+        CurLine->EditLine.Select(0,SelEnd);
+      }else
+      {
+        if(SelStart==0)
         {
-          UnmarkBlock();
-          First=TRUE; Flags.Set(FEDITOR_MARKINGBLOCK);
-          BlockStart=CurLine;
-          BlockStartLine=NumLine;
-        }
-
-        /* $ 24.05.2001 IS
-           ! Приблизим поведение к тому, какое было до 592
-        */
-        //if (CurPos==0)
-        //{ // логика пока не ясна, блок просто скопирован из KEY_SHIFTLEFT
-          //CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          //if (SelStart==-1 || SelEnd==0)
-          //  CurLine->EditLine.Select(-1,0);
-        //}
-        //else
-        if(CurPos)
+          CurLine->EditLine.Select(-1,0);
+        }else
         {
-          int EndPos=CurPos, CurLength=CurLine->EditLine.GetLength();
-          if (EndPos>CurLength)
-            EndPos=-1; // если курсор за концом строки, то выделим ВСЮ строку
-
-          if (First) // выделяем заново
-            CurLine->EditLine.Select(0,EndPos);
-          else       // добавляем к уже выделенному
-          {
-            CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
-            if(SelStart<CurPos)
-            {
-              if(SelStart>CurLength)
-                CurLine->EditLine.Select(0,-1);
-              else
-                CurLine->EditLine.Select(0,SelStart);
-            }
-            else
-              CurLine->EditLine.Select(0,SelEnd);
-          }
-          CurLine->EditLine.SetCurPos(0);
-          CurPos=0;   // надо ли??
+          CurLine->EditLine.Select(0,SelStart);
         }
-        /* IS $ */
       }
-      // то, что я накуролесил, раньше делали эти две строки, оставил, чтобы
-      // в случае чего далеко не искать
-      //while (CurLine->EditLine.GetCurPos()>0)
-      //  ProcessKey(KEY_SHIFTLEFT);
-      /* IS $ */
+      ProcessKey(KEY_HOME);
       Pasting--;
       DisableOut--;
       Edit::DisableEditOut(FALSE);
@@ -1656,74 +1669,22 @@ int Editor::ProcessKey(int Key)
         DisableOut++;
         Edit::DisableEditOut(TRUE);
         int CurLength=CurLine->EditLine.GetLength();
-        /* $ 20.04.2001 IS
-             Выделяем все за один раз. Попробуйте выделить строку размером в 50
-             кил при помощи shift-end до этого патча и после. Почувствуйте
-             разницу :)
-        */
-        {
-          int First=FALSE; // будет TRUE, если выделяем заново, а не продолжаем
-          /* $ 18.03.2002 IS
-             Добавим дополнительную проверку на наличие выделения - если
-             размер выделения равен 0, то считаем, что выделения нет
-             (такое могло быть после плагинов)
-          */
-          int SelStart, SelEnd;
-          UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
-          if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
-          {
-            CurLine->EditLine.GetSelection(SelStart,SelEnd);
-            if(SelStart!=-1 && (CurPos<SelStart || // если курсор до выделения
-               (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделения
-                (CurPos>SelStart && CurPos<SelEnd)))) &&
-               CurPos<CurLine->EditLine.GetLength()) // ... внутри выдления
-              Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-            Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-          }
-          if (!Flags.Check(FEDITOR_MARKINGBLOCK))
-          /* IS $ */
-          {
-            UnmarkBlock();
-            First=TRUE; Flags.Set(FEDITOR_MARKINGBLOCK);
-            BlockStart=CurLine;
-            BlockStartLine=NumLine;
-          }
 
-          /* $ 24.05.2001 IS
-             ! Приблизим поведение к тому, какое было до 592
-          */
-          CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
-          if(CurPos>CurLength) // мы за пределами строки
+        if(!SelAtBeginning || SelFirst)
+        {
+          CurLine->EditLine.Select(SelStart,CurLength);
+        }else
+        {
+          if(SelEnd!=-1)
           {
-            if (First || (SelStart > CurLength)) // выделяем заново или есть блок за пределами строки
-              CurLine->EditLine.Select(CurLength, -1);
-            else       // убираем выделение от позиции курсора до конца строки
-              CurLine->EditLine.Select(SelStart, CurLength);
-          }
-          else // выделяем вправо
+            CurLine->EditLine.Select(SelEnd,CurLength);
+          }else
           {
-            if(First)
-              // выделяем заново
-              CurLine->EditLine.Select(CurPos, CurLength);
-            else if(SelEnd==-1)
-              CurLine->EditLine.Select(CurLength, SelEnd);
-            else if(SelEnd<=CurPos)
-              CurLine->EditLine.Select(SelStart, CurLength);
-            else
-              CurLine->EditLine.Select(SelEnd, CurLength);
-            /* IS $ */
+            CurLine->EditLine.Select(CurLength,-1);
           }
-          CurLine->EditLine.SetCurPos(CurLength);
-          CurPos=CurLength;   // надо ли??
-        // опять-таки старый код, чтобы был перед глазами
-        //if (CurPos>CurLength)
-        //  while (CurLine->EditLine.GetCurPos()>CurLength)
-        //    ProcessKey(KEY_SHIFTLEFT);
-        //else
-        //  while (CurLine->EditLine.GetCurPos()<CurLength)
-        //    ProcessKey(KEY_SHIFTRIGHT);
         }
-        /* IS $ */
+        ProcessKey(KEY_END);
+
         Pasting--;
         DisableOut--;
         Edit::DisableEditOut(FALSE);
@@ -1747,161 +1708,73 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     }
-
     case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
     {
-      if (CurPos>0 || CurLine->Prev!=NULL)
+      if (CurPos==0 && CurLine->Prev==NULL)return TRUE;
+      if (CurPos==0) //курсор в начале строки
       {
-        /* $ 19.01.2002 IS
-           Сверим позицию курсора и существующего выделения, если есть
-           противоречие, то начнем новое выделение
-        */
-        int SelStart,SelEnd;
-        if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
+        if(SelAtBeginning) //курсор в начале блока
         {
-          CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          /* $ 04.02.2002 IS уточним условие */
-          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd && CurPos<CurLine->EditLine.GetLength())))
-          /* IS $ */
-            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-          Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-        }
-        /* IS 19.01.2002 $ */
-
-        if (!Flags.Check(FEDITOR_MARKINGBLOCK))
+          BlockStart=CurLine->Prev;
+          CurLine->Prev->EditLine.Select(CurLine->Prev->EditLine.GetLength(),-1);
+        }else // курсор в конце блока
         {
-          UnmarkBlock();
-          Flags.Set(FEDITOR_MARKINGBLOCK);
+          CurLine->EditLine.Select(-1,0);
+          CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
+          CurLine->Prev->EditLine.Select(SelStart,CurLine->Prev->EditLine.GetLength());
         }
-        if (CurPos==0)
+      }else
+      {
+        if(SelAtBeginning || SelFirst)
         {
-          CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          if (SelStart==-1 || SelEnd==0)
-            CurLine->EditLine.Select(-1,0);
-        }
-        int LeftPos=CurLine->EditLine.GetLeftPos();
-        Pasting++;
-        ProcessKey(KEY_LEFT);
-        Pasting--;
-        CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
-        CurPos=CurLine->EditLine.GetCurPos();
-        if (SelStart!=-1 && SelStart<=CurPos)
+          CurLine->EditLine.Select(SelStart-1,SelEnd);
+        }else
         {
-          if (CurPos==0)
-            CurLine->EditLine.Select(-1,0);
-          else
-            CurLine->EditLine.Select(SelStart,CurPos);
+          CurLine->EditLine.Select(SelStart,SelEnd-1);
         }
-        else
-        {
-          int EndPos=CurPos+1;
-          int Length=CurLine->EditLine.GetLength();
-          if (EndPos>Length)
-            EndPos=-1;
-          CurLine->EditLine.AddSelect(CurPos,EndPos);
-          BlockStart=CurLine;
-          BlockStartLine=NumLine;
-        }
-        ShowEditor(LeftPos!=0 && LeftPos==CurLine->EditLine.GetLeftPos());
       }
+      int LeftPos=CurLine->EditLine.GetLeftPos();
+      EditList *OldCur=CurLine;
+      Pasting++;
+      ProcessKey(KEY_LEFT);
+      Pasting--;
+
+      ShowEditor(OldCur==CurLine && LeftPos==CurLine->EditLine.GetLeftPos());
       return(TRUE);
     }
 
     case KEY_SHIFTRIGHT:  case KEY_SHIFTNUMPAD6:
     {
+      if(CurLine->Next==NULL && CurPos==CurLine->EditLine.GetLength() &&
+         !EdOpt.CursorBeyondEOL)
       {
-        /* $ 19.01.2002 IS
-           Сверим позицию курсора и существующего выделения, если есть
-           противоречие, то начнем новое выделение
-        */
-        int Deselecting=0;
-        int SelStart,SelEnd;
-        if(Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
+        return TRUE;
+      }
+      if(SelAtBeginning)
+      {
+        CurLine->EditLine.Select(SelStart+1,SelEnd);
+      }else
+      {
+        CurLine->EditLine.Select(SelStart,SelEnd+1);
+      }
+      EditList *OldCur=CurLine;
+      int OldLeft=CurLine->EditLine.GetLeftPos();
+      Pasting++;
+      ProcessKey(KEY_RIGHT);
+      Pasting--;
+      if(OldCur!=CurLine)
+      {
+        if(SelAtBeginning)
         {
-          CurLine->EditLine.GetSelection(SelStart,SelEnd);
-          /* $ 04.02.2002 IS уточним условие */
-          if(SelStart!=-1 && (CurPos<SelStart || (SelEnd!=-1 && CurPos>SelEnd && CurPos<CurLine->EditLine.GetLength())))
-          /* IS $ */
-            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-          Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-        }
-        /* IS 19.01.2002 $ */
-        if (!Flags.Check(FEDITOR_MARKINGBLOCK))
-        {
-          UnmarkBlock();
-          Flags.Set(FEDITOR_MARKINGBLOCK);
+          OldCur->EditLine.Select(-1,0);
           BlockStart=CurLine;
           BlockStartLine=NumLine;
-        }
-        CurLine->EditLine.GetSelection(SelStart,SelEnd);
-        CurPos=CurLine->EditLine.GetCurPos();
-        if (BlockStart==CurLine && SelStart!=-1 && SelEnd==-1 || SelEnd>CurPos)
+        }else
         {
-          /* $ 17.09.2002 SKV
-            Убрано, ибо генерировало глюки.
-          */
-/*          if (CurPos+1==SelEnd || CurPos>=CurLine->EditLine.GetLength())
-          {
-            CurLine->EditLine.Select(-1,0);
-            BlockStart=CurLine->Next;
-            BlockStartLine=NumLine+1;
-          }
-          else*/
-          /* SKV $ */
-          CurLine->EditLine.Select(CurPos+1,SelEnd);
-          Deselecting=1;
+          OldCur->EditLine.Select(SelStart,-1);
         }
-        else
-        {
-          if(CurPos==CurLine->EditLine.GetLength())
-          {
-            CurLine->EditLine.AddSelect(CurPos,-1);
-          }else
-          {
-            CurLine->EditLine.AddSelect(CurPos,CurPos+1);
-          }
-          if (CurLine->Prev!=NULL)
-          {
-            CurLine->Prev->EditLine.GetSelection(SelStart,SelEnd);
-            if (SelStart==-1)
-            {
-              BlockStart=CurLine;
-              BlockStartLine=NumLine;
-            }
-          }
-          else
-          {
-            BlockStart=CurLine;
-            BlockStartLine=NumLine;
-          }
-        }
-        Pasting++;
-        struct EditList *PrevLine=CurLine;
-        ProcessKey(KEY_RIGHT);
-        if (CurLine!=PrevLine)
-        {
-          int SelStart,SelEnd;
-          PrevLine->EditLine.GetSelection(SelStart,SelEnd);
-          if (SelEnd>SelStart && SelStart!=-1)
-          {
-            PrevLine->EditLine.Select(SelStart,-1);
-            CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-//_D(SysLog("%08d EE_REDRAW",__LINE__));
-            CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
-            PrevLine->EditLine.FastShow();
-          }
-          if(!EdOpt.CursorBeyondEOL && SelStart>=PrevLine->EditLine.GetLength() &&
-             PrevLine==BlockStart && Deselecting)
-          {
-            PrevLine->EditLine.Select(-1,0);
-            BlockStart=CurLine;
-          }
-        }
-        Pasting--;
       }
-      CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-//_D(SysLog("%08d EE_REDRAW",__LINE__));
-      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
+      ShowEditor(OldCur==CurLine && OldLeft==CurLine->EditLine.GetLeftPos());
       return(TRUE);
     }
 
@@ -1996,117 +1869,113 @@ int Editor::ProcessKey(int Key)
 
     case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
     {
-      if (CurLine->Next!=NULL)
+      if (CurLine->Next==NULL)return TRUE;
+      if(SelAtBeginning)//Снимаем выделение
       {
-        int SelStart,SelEnd,NextPos;
-        int TabCurPos=CurLine->EditLine.GetTabCurPos();
-        if (!Flags.Check(FEDITOR_MARKINGBLOCK))
-        {
-          UnmarkBlock();
-          Flags.Set(FEDITOR_MARKINGBLOCK);
-          BlockStart=CurLine;
-          BlockStartLine=NumLine;
-        }
-        CurLine->Next->EditLine.GetSelection(SelStart,SelEnd);
-        CurLine->Next->EditLine.SetTabCurPos(TabCurPos);
-        NextPos=CurLine->Next->EditLine.GetCurPos();
-        if (SelStart!=-1)
+        if(SelEnd==-1)
         {
           CurLine->EditLine.Select(-1,0);
-          if (SelEnd!=-1 && NextPos>SelEnd)
-            CurLine->Next->EditLine.Select(SelEnd,NextPos);
-          else
+          BlockStart=CurLine->Next;
+          BlockStartLine=NumLine+1;
+        }else
+        {
+          CurLine->EditLine.Select(SelEnd,-1);
+        }
+        CurLine->Next->EditLine.GetRealSelection(SelStart,SelEnd);
+        if(SelStart==-1)
+        {
+          SelStart=0;
+          SelEnd=CurPos;
+        }else
+        {
+          if(SelEnd!=-1 && SelEnd<CurPos)
           {
-            if(CurLine->Next->Next)
-            {
-              int SS,SE;
-              CurLine->Next->Next->EditLine.GetSelection(SS,SE);
-              if(SS==-1)
-              {
-                NextPos=-1;
-                SelEnd=0;
-              }
-            }
-            CurLine->Next->EditLine.Select(NextPos,SelEnd);
-          }
-          if(NextPos==-1)
-          {
-            BlockStart=NULL;
-            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+            SelStart=SelEnd;
+            SelEnd=CurPos;
           }else
           {
-            BlockStart=CurLine->Next;
-            BlockStartLine=NumLine+1;
+            SelStart=CurPos;
           }
         }
-        else
+        if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
         {
-          CurLine->EditLine.AddSelect(CurPos,-1);
-          CurLine->Next->EditLine.Select(0,NextPos);
+          SelEnd=CurLine->Next->EditLine.GetLength();
         }
-        /* $ 24.06.2002 SKV
-          Было бы неплохо сбросить флажок то :)
-        */
-        Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-        /* SKV $ */
-        Down();
-        Show();
+        if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Next->EditLine.GetLength())
+        {
+          SelStart=CurLine->Next->EditLine.GetLength();
+        }
+        CurLine->Next->EditLine.Select(SelStart,SelEnd);
+      }else //расширяем выделение
+      {
+        CurLine->EditLine.Select(SelStart,-1);
+        SelStart=0;
+        SelEnd=CurPos;
       }
+      if(!EdOpt.CursorBeyondEOL)
+      {
+        SelEnd=SelEnd>CurLine->Next->EditLine.GetLength()?
+               CurLine->Next->EditLine.GetLength():SelEnd;
+      }
+      CurLine->Next->EditLine.Select(SelStart,SelEnd);
+      Down();
+      Show();
       return(TRUE);
     }
 
     case KEY_SHIFTUP: case KEY_SHIFTNUMPAD8:
     {
-      if (CurLine->Prev!=NULL)
+      if (CurLine->Prev==NULL)return NULL;
+      if(SelAtBeginning || SelFirst) // расширяем выделение
       {
-        int SelStart,SelEnd,PrevPos;
-        int TabCurPos=CurLine->EditLine.GetTabCurPos();
-        if (!Flags.Check(FEDITOR_MARKINGBLOCK))
+        CurLine->EditLine.Select(0,SelEnd);
+        SelStart=CurPos;
+        if(!EdOpt.CursorBeyondEOL && CurPos>CurLine->Prev->EditLine.GetLength())
         {
-          UnmarkBlock();
-          Flags.Set(FEDITOR_MARKINGBLOCK);
+          SelStart=CurLine->Prev->EditLine.GetLength();
         }
-        CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
-        CurLine->Prev->EditLine.SetTabCurPos(TabCurPos);
-        PrevPos=CurLine->Prev->EditLine.GetCurPos();
-        if(!EdOpt.CursorBeyondEOL && PrevPos>=CurLine->Prev->EditLine.GetLength())
-        {
-          PrevPos=CurLine->Prev->EditLine.GetLength();
-        }
-        if (SelStart!=-1)
+        CurLine->Prev->EditLine.Select(SelStart,-1);
+        BlockStart=CurLine->Prev;
+        BlockStartLine=NumLine-1;
+      }else // снимаем выделение
+      {
+        if(SelStart==0)
         {
           CurLine->EditLine.Select(-1,0);
-          if (PrevPos<SelStart)
-            CurLine->Prev->EditLine.Select(PrevPos,SelStart);
-          else
-          {
-            if(SelStart==PrevPos)
-            {
-              CurLine->Prev->EditLine.Select(-1,0);
-              if(CurLine->Prev==BlockStart)BlockStart=NULL;
-            }else
-            {
-              CurLine->Prev->EditLine.Select(SelStart,PrevPos);
-            }
-          }
+        }else
+        {
+          CurLine->EditLine.Select(0,SelStart);
         }
-        else
+        CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
+        if(SelStart==-1)
         {
           BlockStart=CurLine->Prev;
           BlockStartLine=NumLine-1;
-          /* $ 10.07.2002 SKV
-            Разрулить это в AddSelect не получается,
-            ибо поведение должно быть разным при Shift-Left/Right,
-            когда курсор за концом строки, и при Shift-Down,
-            когда он, опять таки, попадает за конец строки.
-          */
-          CurLine->EditLine.AddSelect(0,CurLine->EditLine.GetLength()>=CurPos?CurPos:-1);
-          /* SKV $ */
-          CurLine->Prev->EditLine.Select(PrevPos,-1);
+          SelStart=CurPos;
+          SelEnd=-1;
+        }else
+        {
+          if(CurPos<SelStart)
+          {
+            SelEnd=SelStart;
+            SelStart=CurPos;
+          }else
+          {
+            SelEnd=CurPos;
+          }
+          if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Prev->EditLine.GetLength())
+          {
+            SelEnd=CurLine->Prev->EditLine.GetLength();
+          }
+          if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Prev->EditLine.GetLength())
+          {
+            SelStart=CurLine->Prev->EditLine.GetLength();
+          }
         }
-        Up();
-        Show();
+        CurLine->Prev->EditLine.Select(SelStart,SelEnd);
       }
+      Up();
+      Show();
       return(TRUE);
     }
 
@@ -4420,6 +4289,7 @@ void Editor::DeleteBlock()
       меняем на Real что б ловить выделение за концом строки.
     */
     CurPtr->EditLine.GetRealSelection(StartSel,EndSel);
+    if(EndSel!=-1 && EndSel>CurPtr->EditLine.GetLength())EndSel=-1;
     /* SKV $ */
     if (StartSel==-1)
       break;
@@ -4440,6 +4310,13 @@ void Editor::DeleteBlock()
         break;
     }
     int Length=CurPtr->EditLine.GetLength();
+    if (StartSel!=0 || EndSel!=0)
+    {
+      BlockUndo=UndoNext;
+      AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine,
+                  CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
+      UndoNext=TRUE;
+    }
     /* $ 17.09.2002 SKV
       опять про выделение за концом строки.
       InsertBinaryString добавит trailing space'ов
@@ -4451,13 +4328,6 @@ void Editor::DeleteBlock()
       CurPtr->EditLine.InsertBinaryString("",0);
     }
     /* SKV $ */
-    if (StartSel!=0 || EndSel!=0)
-    {
-      BlockUndo=UndoNext;
-      AddUndoData(CurPtr->EditLine.GetStringAddr(),BlockStartLine,
-                  CurPtr->EditLine.GetCurPos(),UNDO_EDIT);
-      UndoNext=TRUE;
-    }
     const char *CurStr,*EndSeq;
     CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
     // дальше будет realloc, поэтому тут malloc.
@@ -4595,7 +4465,7 @@ void Editor::UnmarkEmptyBlock()
     }
     else while(Block) // пробегаем по всем выделенным строкам
     {
-      Block->EditLine.GetSelection(StartSel,EndSel);
+      Block->EditLine.GetRealSelection(StartSel,EndSel);
       if (StartSel==-1)
         break;
       if(StartSel!=EndSel) // выделено сколько-то символов
