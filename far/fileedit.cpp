@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.51 06.06.2001 $ */
+/* Revision: 1.52 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 IS
+    - Баг (сохранение файла): нужно сначала убирать пробелы, а только потом
+      кавычки
   06.06.2001 IS
     - мелкий фикс моего последнего патча
   05.06.2001 IS
@@ -470,8 +473,12 @@ int FileEditor::ProcessKey(int Key)
           Dlg.Process();
           if (Dlg.GetExitCode()!=9 || *EditDlg[2].Data==0)
             return(FALSE);
-          Unquote(EditDlg[2].Data);
+          /* $ 07.06.2001 IS
+             - Баг: нужно сначала убирать пробелы, а только потом кавычки
+          */
           RemoveTrailingSpaces(EditDlg[2].Data);
+          Unquote(EditDlg[2].Data);
+          /* IS $ */
           NameChanged=LocalStricmp(EditDlg[2].Data,FileName)!=0;
           strcpy(FileName,EditDlg[2].Data);
 //          ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));

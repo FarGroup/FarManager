@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.62 03.06.2001 $ */
+/* Revision: 1.63 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 IS
+    - Баг (shift-f4): нужно сначала убирать пробелы, а только потом кавычки
   03.06.2001 OT
     + Узаконим Alt-Shift-F9
   03.06.2001 OT
@@ -1088,8 +1090,12 @@ _SVS(SysLog("FileName='%s'",FileName));
           /* SVS $ */
           /* KM $ */
           strcpy(FileName,LastFileName);
-          Unquote(FileName);
+          /* $ 07.06.2001 IS
+             - Баг: нужно сначала убирать пробелы, а только потом кавычки
+          */
           RemoveTrailingSpaces(FileName);
+          Unquote(FileName);
+          /* IS $ */
           ConvertNameToShort(FileName,ShortFileName);
           if (*FileName && (FileName[1]==':' ||
               FileName[0]=='\\' && FileName[1]=='\\'))

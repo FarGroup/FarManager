@@ -5,12 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.38 06.06.2001 $ */
+/* Revision: 1.39 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 IS
+    - Баг (в обработке имени): нужно сначала убирать пробелы, а только потом
+      кавычки
   06.06.2001 tran
-    *  инициализация NULL должна быть ДО ЛЮБЫХ Return из конструктора... 
+    *  инициализация NULL должна быть ДО ЛЮБЫХ Return из конструктора...
        падало на ".."
   02.06.2001 IS
     ! #define COPY* -> enum
@@ -482,8 +485,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
        все, что нужно будет сделано в DirList.Set
   */
   #ifdef COPY_NOMULTICOPY
-  Unquote(CopyDlg[2].Data);
+  /* $ 07.06.2001 IS
+     - Баг: нужно сначала убирать пробелы, а только потом кавычки
+  */
   RemoveTrailingSpaces(CopyDlg[2].Data);
+  Unquote(CopyDlg[2].Data);
+  /* IS $ */
   #endif
   /* IS $ */
 
