@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.39 22.03.2002 $ */
+/* Revision: 1.40 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 VVM
+   GoToFile() - Если пассивная панель - плагиновая, то не прыгаем на нее
   22.03.2002 SVS
     - strcpy - Fuck!
   19.03.2002 OT
@@ -974,18 +976,25 @@ void FilePanels::Refresh()
 }
 
 /* $ 28.12.2001 DJ
-   обработка Ctrl-F10 из вьюера и редактора
-*/
+   обработка Ctrl-F10 из вьюера и редактора */
 /* $ 31.12.2001 VVM
-   Не портим переданное имя файла...
-*/
+   Не портим переданное имя файла... */
+/* $ 26.03.2002 VVM
+   Если пассивная панель - плагиновая, то не прыгаем на нее */
 void FilePanels::GoToFile (char *FileName)
 {
   if(strchr(FileName,'\\') || strchr(FileName,'/'))
   {
     char ADir[NM],PDir[NM];
-    GetAnotherPanel(ActivePanel)->GetCurDir(PDir);
-    AddEndSlash (PDir);
+    Panel *PassivePanel = GetAnotherPanel(ActivePanel);
+    int PassiveMode = PassivePanel->GetMode();
+    if (PassiveMode == NORMAL_PANEL)
+    {
+      PassivePanel->GetCurDir(PDir);
+      AddEndSlash (PDir);
+    }
+    else
+      PDir[0] = 0;
     ActivePanel->GetCurDir(ADir);
     AddEndSlash (ADir);
 
@@ -1000,8 +1009,8 @@ void FilePanels::GoToFile (char *FileName)
          панелях, тем самым добиваемся того, что выделение с элементов
          панелей не сбрасывается.
     */
-    BOOL AExist=LocalStricmp(ADir,NameDir)==0,
-         PExist=LocalStricmp(PDir,NameDir)==0;
+    BOOL AExist=LocalStricmp(ADir,NameDir)==0;
+    BOOL PExist=(PassiveMode==NORMAL_PANEL) && (LocalStricmp(PDir,NameDir)==0);
     // если нужный путь есть на пассивной панели
     if (!AExist && PExist)
       ProcessKey(KEY_TAB);
@@ -1015,7 +1024,7 @@ void FilePanels::GoToFile (char *FileName)
   }
 }
 
-/* DJ $ */
+/* VVM $ */
 
 /* $ 16.01.2002	OT
    переопределенный виртуальный метод от Frame
