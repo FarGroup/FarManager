@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.106 01.08.2002 $ */
+/* Revision: 1.107 15.08.2002 $ */
 
 /*
 Modify:
+  15.08.2002 IS
+    - Косметический баг: для обычного (не HEX) режима, если последняя строка
+      не содержит перевод строки, крутанем вверх на один раз больше - иначе
+      визуально обработка End (и подобных) на такой строке отличается от
+      обработки Down.
   01.08.2002 tran
     ! в hex режиме при показе unicode не показывался текст при обратном порядке
   26.07.2002 IS
@@ -1857,10 +1862,26 @@ int Viewer::ProcessKey(int Key)
     case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
       if(ViewFile)
       {
-        vseek(ViewFile,0,SEEK_END);
+        /* $ 15.08.2002 IS
+           Для обычного режима, если последняя строка не содержит перевод
+           строки, крутанем вверх на один раз больше - иначе визуально
+           обработка End (и подобных) на такой строке отличается от обработки
+           Down.
+        */
+        unsigned int max_counter=Y2-ViewY1;
+        if(VM.Hex)
+          vseek(ViewFile,0,SEEK_END);
+        else
+        {
+          vseek(ViewFile,-1,SEEK_END);
+          int LastSym=vgetc(ViewFile);
+          if(LastSym!=EOF && LastSym!=CRSym)
+            ++max_counter;
+        }
         FilePos=vtell(ViewFile);
-        for (I=0;I<Y2-ViewY1;I++)
+        for (I=0;I<max_counter;I++)
           Up();
+        /* IS 15.08.2002 $ */
         if (VM.Hex)
           FilePos&=~(VM.Unicode ? 0x7:0xf);
         Show();
