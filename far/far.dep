@@ -991,6 +991,9 @@
 	".\plugin.hpp"\
 	".\scrobj.hpp"\
 	".\vmenu.hpp"\
+	".\ctrlobj.hpp"\
+	".\filepanels.hpp"\
+	".\panel.hpp"\
 
 
 .\infolist.cpp : \

@@ -5,10 +5,12 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.04 14.06.2001 $ */
+/* Revision: 1.05 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 SVS
+    + Обработка KEY_TAB на внешних менюхах - для макросов.
   14.06.2001 OT
     ! "Бунт" ;-)
   20.05.2001 SVS
@@ -31,6 +33,9 @@ Modify:
 #include "keys.hpp"
 #include "dialog.hpp"
 #include "vmenu.hpp"
+#include "ctrlobj.hpp"
+#include "filepanels.hpp"
+#include "panel.hpp"
 
 HMenu::HMenu(struct HMenuData *Item,int ItemCount)
 {
@@ -104,6 +109,27 @@ int HMenu::ProcessKey(int Key)
         return(TRUE);
       }
       return(FALSE);
+    case KEY_TAB:
+      Item[SelectPos].Selected=0;
+      /* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
+      if(SelectPos != 0 && SelectPos != ItemCount-1)
+      {
+        if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel)
+          SelectPos=0;
+        else
+          SelectPos=ItemCount-1;
+      }
+      else
+      /**/
+      {
+        if(SelectPos==0)
+          SelectPos=ItemCount-1;
+        else
+          SelectPos=0;
+      }
+      Item[SelectPos].Selected=1;
+      ShowMenu();
+      return(TRUE);
     case KEY_ESC:
     case KEY_F10:
       EndLoop=TRUE;
@@ -237,7 +263,7 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
     }
     else
     {
-      if (Key==KEY_LEFT || Key==KEY_RIGHT)
+      if (Key==KEY_LEFT || Key==KEY_RIGHT || Key == KEY_TAB)
       {
         delete SubMenu;
         SubMenu=NULL;

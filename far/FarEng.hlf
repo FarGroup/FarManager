@@ -743,8 +743,15 @@ pressing the left mouse button.
 @Menus
 $ #Menus#
     To choose an action from the menu you may press F9 or click on top
-of the screen. Use the Shift-F10 key combination to select the last used menu
-command.
+of the screen.
+
+    При активизации по клавише #F9# автоматически выбирается меню,
+соответствующее активной панели. При активном меню клавиша #Tab# позволяет
+переключаться между меню левой и правой панелей. Если выбрано меню "Файлы",
+"Команды" или "Параметры", клавиша #Tab# переключает на меню пассивной
+панели.
+
+    Use the Shift-F10 key combination to select the last used menu command.
 
     Read the following topics for information about a particular menu:
 
@@ -798,13 +805,13 @@ settings respectively. These menus include the following items:
 
 @FilesMenu
 $ #Files menu#
-   #View#               View files, count folder sizes.
+   #View#               ~View files~@Viewer@, count folder sizes.
 
-   #Edit#               Edit files.
+   #Edit#               ~Edit~@Editor@ files.
 
-   #Copy#               Copy files and folders.
+   #Copy#               ~Copy~@CopyFiles@ files and folders.
 
-   #Rename or move#     Rename or move files and folders.
+   #Rename or move#     ~Rename or move~@CopyFiles@ files and folders.
 
    #Make folder#        ~Create~@MakeFolder@ new folder.
 

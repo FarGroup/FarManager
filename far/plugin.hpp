@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.122 25.06.2001 $ */
+/* Revision: 1.122 26.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  26.06.2001 SVS
+   ! Перенесем DM_GETDROPDOWNOPENED и DM_SETDROPDOWNOPENED в "обычное"
+     место и дадим ход в публику :-)
   25.06.2001 IS
    ! Внедрение const, чтобы было как можно меньше отличий от "официального"
      plugin.hpp
@@ -704,6 +707,9 @@ enum FarMessagesProc{
   DM_RESIZEDIALOG,
   DM_SETITEMPOSITION,
 
+  DM_GETDROPDOWNOPENED,
+  DM_SETDROPDOWNOPENED,
+
   DN_FIRST=0x1000,
   DN_BTNCLICK,
   DN_CTLCOLORDIALOG,
@@ -724,9 +730,6 @@ enum FarMessagesProc{
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,
-
-  DM_GETDROPDOWNOPENED=DN_FIRST-2,
-  DM_SETDROPDOWNOPENED=DN_FIRST-1,
 
   DM_USER=0x4000,
 };
