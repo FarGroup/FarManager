@@ -7,11 +7,15 @@ edit.hpp
 
 */
 
-/* Revision: 1.08 24.09.2000 $ */
+/* Revision: 1.09 16.11.2000 $ */
 
 /*
 Modify:
-  24.09.2000 SVS $
+  16.11.2000 KM & SVS
+    + KeyMatchedMask - Проверяет: попадает ли символ в разрешённый
+      диапазон символов, пропускаемых маской
+    ! Кометика (от SVS :-)
+  24.09.2000 SVS
     + Класс Editor - друг
     + Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
   18.09.2000 SVS
@@ -50,21 +54,8 @@ class Edit:public ScreenObject
 {
   friend class Dialog;
   friend class Editor;
+
   private:
-    void   DisplayObject();
-    void   ShowString(char *ShowStr,int TabSelStart,int TabSelEnd);
-    int    InsertKey(int Key);
-    int    RecurseProcessKey(int Key);
-    void   DeleteBlock();
-    void   ApplyColor();
-    /* $ 12.08.2000 KM
-       Внутренняя функция которая парсит Mask и возвращает
-       следующее возможное положение курсора в строке ввода,
-       + функция обновляющая содержимое Str на основании Mask.
-    */
-    int    GetNextCursorPos(int Position,int Where);
-    void   RefreshStrByMask();
-    /* KM $ */
     char  *Str;
     /* $ 12.08.2000 KM
        Переменная для хранения маски ввода
@@ -102,10 +93,33 @@ class Edit:public ScreenObject
     int    ReadOnly;
     /* tran 03.07.2000 $ */
 
-  public:
+  private:
+    void   DisplayObject();
+    void   ShowString(char *ShowStr,int TabSelStart,int TabSelEnd);
+    int    InsertKey(int Key);
+    int    RecurseProcessKey(int Key);
+    void   DeleteBlock();
+    void   ApplyColor();
+    /* $ 12.08.2000 KM
+       Внутренняя функция которая парсит Mask и возвращает
+       следующее возможное положение курсора в строке ввода,
+       + функция обновляющая содержимое Str на основании Mask.
+    */
+    int    GetNextCursorPos(int Position,int Where);
+    void   RefreshStrByMask(int InitMode=FALSE);
+    /* KM $ */
+    /* $ 15.11.2000 KM
+       Проверяет: попадает ли символ в разрешённый
+       диапазон символов, пропускаемых маской
+    */
+    int KeyMatchedMask(int Key);
+    /* KM $ */
 
+  public:
     Edit();
     ~Edit();
+
+  public:
     void  Show() {DisplayObject();}
     void  FastShow();
     int   ProcessKey(int Key);
@@ -171,8 +185,6 @@ class Edit:public ScreenObject
     int   DeleteColor(int ColorPos);
     int   GetColor(struct ColorItem *col,int Item);
 
-    static void DisableEditOut(int Disable);
-    static void DisableEncode(int Disable);
 #ifdef SHITHAPPENS
     void ReplaceSpaces(int i);
 #endif
@@ -185,6 +197,9 @@ class Edit:public ScreenObject
     */
     void Xlat(void);
     /* SVS $ */
+
+    static void DisableEditOut(int Disable);
+    static void DisableEncode(int Disable);
 };
 
 #endif  // __EDIT_HPP__

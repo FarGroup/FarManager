@@ -5,10 +5,18 @@ edit.cpp
 
 */
 
-/* Revision: 1.23 20.10.2000 $ */
+/* Revision: 1.23 15.11.2000 $ */
 
 /*
 Modify:
+   15.11.2000 KM 1.23 (номер верный)
+    + Функция KeyMatchedMask проверяет позволяемость символу
+      быть введённым на основании заданной маски.
+    ! Теперь Str не может быть длиннее маски и для Str задан параметр
+      MaxLength, равный длине маски.
+    - Исправлен баг со вставкой строки символов в строку с маской.
+    ! Убрано разрешение ввода пробелов в цифровых масках.
+    + Заработал CtrlDel в строках с маской.
    20.10.2000 SVS
     ! Уточнение для масок.
    16.10.2000 tran
@@ -597,7 +605,14 @@ int Edit::ProcessKey(int Key)
       }
       DeleteBlock();
       /* tran 03.07.2000 $ */
-      InsertString(ShortcutFolder);
+      /* $ 12.11.2000 KM
+         Некоторые изменения вставки шортката в строку ввода с маской.
+         Предотвращает сдвиг курсора, если маска не совпадает с типом
+         вставляемого значения.
+      */
+      for (int I=0;ShortcutFolder[I]!=0;I++)
+        InsertKey(ShortcutFolder[I]);
+      /* KM $ */
       Show();
       return(TRUE);
     }
@@ -628,7 +643,14 @@ int Edit::ProcessKey(int Key)
           }
           DeleteBlock();
           /* tran 03.07.2000 $ */
-          InsertString(FileName);
+          /* $ 12.11.2000 KM
+             Некоторые изменения вставки имени файла в строку ввода с маской.
+             Предотвращает сдвиг курсора, если маска не совпадает с типом
+             вставляемого значения.
+          */
+          for (int I=0;FileName[I]!=0;I++)
+            InsertKey(FileName[I]);
+          /* KM $ */
           Show();
         }
       }
@@ -875,6 +897,23 @@ int Edit::ProcessKey(int Key)
       */
       if (Mask && *Mask)
       {
+        /* $ 12.11.2000 KM
+           Добавим код для удаления части строки
+           с учётом маски.
+        */
+        int MaskLen=strlen(Mask);
+        int ptr=CurPos;
+        while(ptr<MaskLen)
+        {
+          ptr++;
+          if ((Mask[ptr]!='X' && Mask[ptr]!='9' && Mask[ptr]!='#' && Mask[ptr]!='A') ||
+             (isspace(Str[ptr]) && !isspace(Str[ptr+1])) ||
+             (strchr(Opt.WordDiv,Str[ptr])!=NULL))
+            break;
+        }
+        for (int i=0;i<ptr-CurPos;i++)
+          RecurseProcessKey(KEY_DEL);
+        /* KM $ */
       }
       else
       {
@@ -1196,20 +1235,12 @@ int Edit::InsertKey(int Key)
     int MaskLen=strlen(Mask);
     if (CurPos<MaskLen)
     {
-      int Inserted=FALSE;
-      if (Mask[CurPos]=='X')
-        Inserted=TRUE;
-      else if (Mask[CurPos]=='#' && (isdigit(Key) || Key==' ' || Key=='-'))
-        Inserted=TRUE;
-      /* 20.10.2000 SVS
-         Допускается в числах вводить пробел.
+      /* $ 15.11.2000 KM
+         Убран кусок кода и сделана функция KeyMatchedMask,
+         проверяющая разрешение символа на ввод по маске.
       */
-      else if (Mask[CurPos]=='9' && (isdigit(Key) || Key==' '))
-        Inserted=TRUE;
-      /* SVS $ */
-      else if (Mask[CurPos]=='A' && LocalIsalpha(Key))
-        Inserted=TRUE;
-      if (Inserted)
+      /* KM $*/
+      if (KeyMatchedMask(Key))
       {
         if (!Overtype)
         {
@@ -1224,7 +1255,11 @@ int Edit::InsertKey(int Key)
               while(Mask[j-1]!='X' && Mask[j-1]!='9' && Mask[j-1]!='#' && Mask[j-1]!='A')
               {
                 if (j<=CurPos)
-                  continue;
+                  /* $ 15.11.2000 KM
+                     Замена continue на break
+                  */
+                  break;
+                  /* KM $ */
                 j--;
               }
               Str[i]=Str[j-1];
@@ -1369,28 +1404,26 @@ void Edit::SetBinaryString(char *Str,int Length)
   /* $ 15.08.2000 KM
      Работа с маской
   */
+  /* $ 12.11.2000 KM
+     Убран кусок кода от SVS проверяющий конец строки.
+     Он не работал НИКОГДА.
+  */
+  CurPos=0;
   if (Mask && *Mask)
   {
-    /* $ 20.10.2000 SVS
-       Забыли проверить на конец строки :-)
-    */
-    RefreshStrByMask();
-    int EOStr=FALSE;
-    for (int i=0;i<strlen(Mask);i++)
+    for (int i=0;i<strlen(Mask) && Str[i];i++)
     {
-      if(!EOStr && !Str[i])
-        EOStr=TRUE;
-
       if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
-        InsertKey(!EOStr?Str[i]:' ');
+        InsertKey(Str[i]);
       else
       {
         PrevCurPos=CurPos;
         CurPos++;
       }
     }
-    /* SVS $ */
+    RefreshStrByMask();
   }
+  /* KM $ */
   else
   {
     char *NewStr=(char *)realloc(Edit::Str,Length+1);
@@ -1486,26 +1519,37 @@ void Edit::InsertBinaryString(char *Str,int Length)
   */
   if (Mask && *Mask)
   {
-    RefreshStrByMask();
     int Pos=CurPos;
     int MaskLen=strlen(Mask);
     if (Pos<MaskLen)
     {
       int StrLen=(MaskLen-Pos>Length)?Length:MaskLen-Pos;
-      for (int i=Pos,j=0;i<StrLen+Pos;i++)
+      /* $ 15.11.2000 KM
+         Внесены исправления для правильной работы PasteFromClipboard
+         в строке с маской
+      */
+      for (int i=Pos,j=0;j<StrLen+Pos && Str[j];)
       {
         if (Mask[i]=='X' || Mask[i]=='9' || Mask[i]=='#' || Mask[i]=='A')
         {
-          InsertKey(Str[j]);
+          int goLoop=FALSE;
+          if (KeyMatchedMask(Str[j]))
+            InsertKey(Str[j]);
+          else
+            goLoop=TRUE;
           j++;
+          if (goLoop) continue;
         }
         else
         {
           PrevCurPos=CurPos;
           CurPos++;
         }
+        i++;
       }
+      /* KM $ */
     }
+    RefreshStrByMask();
   }
   else
   {
@@ -1565,7 +1609,7 @@ void Edit::SetInputMask(char *InputMask)
     if (Mask==NULL)
       return;
     strcpy(Mask,InputMask);
-    RefreshStrByMask();
+    RefreshStrByMask(TRUE);
   }
   else
     Mask=NULL;
@@ -1573,13 +1617,18 @@ void Edit::SetInputMask(char *InputMask)
 
 
 // Функция обновления состояния строки ввода по содержимому Mask
-void Edit::RefreshStrByMask()
+void Edit::RefreshStrByMask(int InitMode)
 {
   int i;
   if (Mask && *Mask)
   {
     int MaskLen=strlen(Mask);
-    if (StrSize<MaskLen)
+    /* $12.11.2000 KM
+       Некоторые изменения в работе с маской.
+       Теперь Str не может быть длиннее Mask и
+       MaxLength будет равна длине маски.
+    */
+    if (StrSize!=MaskLen)
     {
       char *NewStr=(char *)realloc(Str,MaskLen+1);
       if (NewStr==NULL)
@@ -1587,11 +1636,14 @@ void Edit::RefreshStrByMask()
       Str=NewStr;
       for (i=StrSize;i<MaskLen;i++)
         Str[i]=' ';
-      StrSize=MaskLen;
+      StrSize=MaxLength=MaskLen;
       Str[StrSize]=0;
     }
+    /* KM $ */
     for (i=0;i<MaskLen;i++)
     {
+      if (InitMode)
+        Str[i]=' ';
       if (Mask[i]!='X' && Mask[i]!='9' && Mask[i]!='#' && Mask[i]!='A')
         Str[i]=Mask[i];
     }
@@ -2017,3 +2069,27 @@ void Edit::Xlat(void)
   }
 }
 /* SVS $ */
+
+/* $ 15.11.2000 KM
+   Проверяет: попадает ли символ в разрешённый
+   диапазон символов, пропускаемых маской
+*/
+int Edit::KeyMatchedMask(int Key)
+{
+  int Inserted=FALSE;
+  if (Mask[CurPos]=='X')
+    Inserted=TRUE;
+  else if (Mask[CurPos]=='#' && (isdigit(Key) || Key==' ' || Key=='-'))
+    Inserted=TRUE;
+  /* $ 15.11.2000 KM
+     Убрано разрешение пробелов в цифровой маске.
+  */
+  else if (Mask[CurPos]=='9' && (isdigit(Key)))
+    Inserted=TRUE;
+  /* KM $ */
+  else if (Mask[CurPos]=='A' && LocalIsalpha(Key))
+    Inserted=TRUE;
+  
+  return Inserted;
+}
+/* KM $ */

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.04 11.11.2000 $ */
+/* Revision: 1.05 16.11.2000 $ */
 
 /*
 Modify:
+  16.11.2000 SVS
+    ! массивы для масок имеют постоянный адрес прописки - объявлены как static
   11.11.2000 SVS
     - "сложности" с криптованием :-))))
   02.11.2000 SVS
@@ -115,6 +117,12 @@ void ShellSetFileAttributes(Panel *SrcPanel)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
+  /* $ 16.11.2000 SVS
+    ! массивы для масок имеют постоянный адрес прописки - объявлены как static
+  */
+  static char DMask[20],TMask[20];
+  /* SVS $*/
+
   /* $ 11.11.2000 SVS
      получим функции криптования
   */
@@ -143,7 +151,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
   */
   int DateSeparator=GetDateSeparator();
   int TimeSeparator=GetTimeSeparator();
-  char DMask[20],TMask[20];
 
   sprintf(DMask,"99%c99%c9999",DateSeparator,DateSeparator);
   sprintf(TMask,"99%c99%c99",TimeSeparator,TimeSeparator);
