@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.98 21.08.2002 $ */
+/* Revision: 1.99 22.08.2002 $ */
 
 /*
 Modify:
+  22.01.2002 IS
+    ! Автохоткеи назначаем после основных (меню выбора дисков)
   21.01.2002 IS
     + Снимем ограничение на количество пунктов плагинов в меню выбора дисков
   18.06.2002 SVS
@@ -563,12 +565,15 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     /* $ 21.01.2002 IS
        Снимем ограничение на количество пунктов плагинов в меню вообще(!)
     */
+    /* $ 22.01.2002 IS
+       Автохоткеи назначаем после основных
+    */
     int PluginMenuItemsCount=0;
     if (Opt.ChangeDriveMode & DRIVE_SHOW_PLUGINS)
     {
       int UsedNumbers[10];
       memset(UsedNumbers,0,sizeof(UsedNumbers));
-      TArray<ChDiskPluginItem> MPItems;
+      TArray<ChDiskPluginItem> MPItems, MPItemsNoHotkey;
       ChDiskPluginItem OneItem;
       /* $ 15.03.2001 IS
            Список дополнительных хоткеев, для случая, когда плагинов,
@@ -597,53 +602,122 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (!ItemPresent)
             break;
 
-          if(PluginTextNumber<10) // IS: хотей указан явно
+          if(!PluginTextNumber) // IS: автохоткей, назначим потом
+            HotKey=-1; // "-1" -  признак автохоткея
+          else
           {
-            // IS: проверим, а не занят ли хоткей
-            // IS: если занят, то будем искать его с самого начала - нуля,
-            // IS: а не со следующего
-            if(UsedNumbers[PluginTextNumber])
+            if(PluginTextNumber<10) // IS: хотей указан явно
             {
-              PluginTextNumber=0;
-              while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
-                PluginTextNumber++;
+              // IS: проверим, а не занят ли хоткей
+              // IS: если занят, то будем искать его с самого начала - нуля,
+              // IS: а не со следующего
+              if(UsedNumbers[PluginTextNumber])
+              {
+                PluginTextNumber=0;
+                while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
+                  PluginTextNumber++;
+              }
+              UsedNumbers[PluginTextNumber%10]=1;
             }
-            UsedNumbers[PluginTextNumber%10]=1;
+
+            if(PluginTextNumber<10)
+              HotKey=PluginTextNumber+'0';
+            else if(AHKPos<AHKSize)
+              HotKey=AdditionalHotKey[AHKPos];
+            else
+              HotKey=0;
           }
 
-          /* $ 21.08.2002 IS
+          /* $ 22.08.2002 IS
                Используем дополнительные хоткеи, а не просто '#', как раньше.
           */
-          if(PluginTextNumber<10)
+          *MenuText=0;
+          if(HotKey<0)
+            strncpy(MenuText,ShowSpecial?PluginText:"",
+              sizeof(MenuText)-1-4); // -4 - добавка для хоткея
+          else if(PluginTextNumber<10)
           {
-            HotKey=PluginTextNumber+'0';
             sprintf(MenuText,"&%c: %s", HotKey,
               ShowSpecial ? PluginText:"");
           }
           else if(AHKPos<AHKSize)
           {
-            HotKey=AdditionalHotKey[AHKPos];
             sprintf(MenuText,"&%c: %s", HotKey,
               ShowSpecial ? PluginText:"");
             ++AHKPos;
           }
-          else if(ShowSpecial) // не добавляем пустые строки!
+          else if(ShowSpecial) // IS: не добавляем пустые строки!
           {
             HotKey=0;
             sprintf(MenuText,"   %s", PluginText);
           }
           /* IS $ */
-          strncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
-          OneItem.Item.UserDataSize=0;
-          OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
-          OneItem.HotKey=HotKey;
-          if(!MPItems.addItem(OneItem))
+          if(HotKey>-1 && *MenuText) // IS: не добавляем пустые строки!
           {
-            Done=TRUE;
-            break;
+            strncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+            OneItem.Item.UserDataSize=0;
+            OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
+            OneItem.HotKey=HotKey;
+            if(!MPItems.addItem(OneItem))
+            {
+              Done=TRUE;
+              break;
+            }
+          }
+          else if(HotKey<0) // IS: назначение автохоткеей отложим на потом
+          {
+            strncpy(OneItem.Item.Name,MenuText,sizeof(ChDiskItem.Name)-1);
+            OneItem.Item.UserDataSize=0;
+            OneItem.Item.UserData=(char*)MAKELONG(PluginNumber,PluginItem);
+            OneItem.HotKey=HotKey;
+            if(!MPItemsNoHotkey.addItem(OneItem))
+            {
+              Done=TRUE;
+              break;
+            }
           }
         }
         ++PluginNumber;
+      }
+
+      // IS: теперь произведем назначение автохоткеев
+      PluginTextNumber=0;
+      for(int i=0;;++i)
+      {
+        ChDiskPluginItem *item=MPItemsNoHotkey.getItem(i);
+        if(item)
+        {
+          if(UsedNumbers[PluginTextNumber])
+          {
+            while (PluginTextNumber<10 && UsedNumbers[PluginTextNumber])
+              PluginTextNumber++;
+          }
+          UsedNumbers[PluginTextNumber%10]=1;
+
+          *MenuText=0;
+          if(PluginTextNumber<10)
+          {
+            item->HotKey=PluginTextNumber+'0';
+            sprintf(MenuText,"&%c: %s", item->HotKey, item->Item.Name);
+          }
+          else if(AHKPos<AHKSize)
+          {
+            item->HotKey=AdditionalHotKey[AHKPos];
+            sprintf(MenuText,"&%c: %s", item->HotKey, item->Item.Name);
+            ++AHKPos;
+          }
+          else if(ShowSpecial) // IS: не добавляем пустые строки!
+          {
+            item->HotKey=0;
+            sprintf(MenuText,"   %s", item->Item.Name);
+          }
+
+          strncpy(item->Item.Name, MenuText, sizeof(item->Item.Name)-1);
+          if(*item->Item.Name && !MPItems.addItem(*item))
+            break;
+        }
+        else
+          break;
       }
 
       MPItems.Sort();
@@ -661,6 +735,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           ChDisk.AddItem(&MPItems.getItem(I)->Item);
       }
     }
+    /* IS 22.08.2002 $ */
     /* IS 21.08.2002 $ */
 
     int X=X1+5;
