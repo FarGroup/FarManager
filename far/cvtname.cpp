@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.02 28.05.2002 $ */
+/* Revision: 1.03 21.06.2002 $ */
 
 /*
 Modify:
+  21.06.2002 VVM
+    ! При поиске линков учтем UNC пути и не работаем с именем сервера как с диском
   28.05.2002 SVS
     ! применим функцию  IsLocalPath()
     ! Номер ревизии приведен в порядок (кто-то когда то забыл подправить)
@@ -290,12 +292,19 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
       }
     }
 
+    /* $ 21.06.2002 VVM
+      ! Учтем UNC пути */
+    char *CtrlChar = TempDest;
+    if (strlen(TempDest) > 2 && TempDest[0]=='\\' && TempDest[1]=='\\')
+      CtrlChar= strchr(TempDest+2, '\\');
+    /* VVM $ */
     // обычный цикл прохода имени от корня
-    while(1)
+    while(CtrlChar)
     {
       while(Ptr > TempDest && *Ptr != '\\')
         --Ptr;
-      if(*Ptr != '\\')
+      // Если имя UNC, то работаем до имени сервера, не дальше...
+      if(*Ptr != '\\' || Ptr == CtrlChar)
         break;
 
       Chr=*Ptr;
