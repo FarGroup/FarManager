@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.195 09.01.2004 $ */
+/* Revision: 1.196 01.03.2004 $ */
 
 /*
 Modify:
+  01.03.2004 SVS
+    - BugZ#1039 - схлопывание FAR при вставке длинной строки
   09.01.2004 SVS
     + Opt.ExcludeCmdHistory
   13.11.2003 SVS
@@ -1672,7 +1674,7 @@ int FileList::ProcessKey(int Key)
 
         if (Key==KEY_SHIFTF4)
         {
-          static char LastFileName[NM];
+          static char LastFileName[NM]="";
           /* $ 02.06.2001 KM
              + Ќу уж так народ настаивает на кнопках в диалоге...
           */
@@ -3211,7 +3213,7 @@ int FileList::IsSelected(char *Name)
 
 int FileList::FindPartName(char *Name,int Next)
 {
-  char Mask[NM];
+  char Mask[NM*2];
   int I;
   struct FileListItem *CurPtr;
 
@@ -3219,9 +3221,9 @@ int FileList::FindPartName(char *Name,int Next)
      Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
   */
   int DirFind = 0;
-  int Length = strlen(Name);
+  int Length = Min((int)strlen(Name),(int)(sizeof(Mask)-1));
 
-  strcpy(Mask,Name);
+  strncpy(Mask,Name,sizeof(Mask)-1);
   if ( Length > 0 && (Name[Length-1] == '/' || Name[Length-1] == '\\') )
   {
     DirFind = 1;
