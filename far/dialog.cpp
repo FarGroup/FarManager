@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.62 21.12.2000 $ */
+/* Revision: 1.63 25.12.2000 $ */
 
 /*
 Modify:
+  25.12.2000 SVS
+   - Забыл сделать возврат из функции для DM_GETTEXTPTR
   21.12.2000 SVS
    ! Ctr-Break теперь недействителен, т.е. все зависит от того
      что вернет обработчик.
@@ -3539,7 +3541,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         struct FarDialogItemData IData;
         IData.DataPtr=(char *)Param2;
         IData.DataLength=0;
-        Dialog::SendDlgMessage(hDlg,DM_GETTEXT,Param1,(long)&IData);
+        return Dialog::SendDlgMessage(hDlg,DM_GETTEXT,Param1,(long)&IData);
       }
 
     case DM_GETTEXT:
