@@ -5,10 +5,12 @@ cddrv.cpp
 
 */
 
-/* Revision: 1.0 21.06.2004 $ */
+/* Revision: 1.01 28.06.2004 $ */
 
 /*
 Modify:
+  28.06.2004 SVS
+    - Некомпиляция - старые версии H-файлов в BCC 5.02 :-(
   21.06.2004 SVS
     + добавлен в проект.
       Исходный  - EnumCD (http://support.microsoft.com/default.aspx?scid=kb;en-us;305184)
@@ -200,7 +202,158 @@ typedef struct _SCSI_PASS_THROUGH_WITH_BUFFERS {
     UCHAR             DataBuf[512];
 } SCSI_PASS_THROUGH_WITH_BUFFERS, *PSCSI_PASS_THROUGH_WITH_BUFFERS;
 
+
+
 #if defined(__BORLANDC__)
+
+#if (__BORLANDC__  <= 0x0520)
+
+#define IOCTL_STORAGE_GET_MEDIA_TYPES_EX CTL_CODE(IOCTL_STORAGE_BASE, 0x0301, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
+#define FILE_DEVICE_DVD                 0x00000033
+
+//
+// IOCTL_STORAGE_GET_MEDIA_TYPES_EX will return an array of DEVICE_MEDIA_INFO
+// structures, one per supported type, embedded in the GET_MEDIA_TYPES struct.
+//
+
+typedef enum _STORAGE_MEDIA_TYPE {
+    DDS_4mm = 0x20,            // Tape - DAT DDS1,2,... (all vendors)
+    MiniQic,                   // Tape - miniQIC Tape
+    Travan,                    // Tape - Travan TR-1,2,3,...
+    QIC,                       // Tape - QIC
+    MP_8mm,                    // Tape - 8mm Exabyte Metal Particle
+    AME_8mm,                   // Tape - 8mm Exabyte Advanced Metal Evap
+    AIT1_8mm,                  // Tape - 8mm Sony AIT1
+    DLT,                       // Tape - DLT Compact IIIxt, IV
+    NCTP,                      // Tape - Philips NCTP
+    IBM_3480,                  // Tape - IBM 3480
+    IBM_3490E,                 // Tape - IBM 3490E
+    IBM_Magstar_3590,          // Tape - IBM Magstar 3590
+    IBM_Magstar_MP,            // Tape - IBM Magstar MP
+    STK_DATA_D3,               // Tape - STK Data D3
+    SONY_DTF,                  // Tape - Sony DTF
+    DV_6mm,                    // Tape - 6mm Digital Video
+    DMI,                       // Tape - Exabyte DMI and compatibles
+    SONY_D2,                   // Tape - Sony D2S and D2L
+    CLEANER_CARTRIDGE,         // Cleaner - All Drive types that support Drive Cleaners
+    CD_ROM,                    // Opt_Disk - CD
+    CD_R,                      // Opt_Disk - CD-Recordable (Write Once)
+    CD_RW,                     // Opt_Disk - CD-Rewriteable
+    DVD_ROM,                   // Opt_Disk - DVD-ROM
+    DVD_R,                     // Opt_Disk - DVD-Recordable (Write Once)
+    DVD_RW,                    // Opt_Disk - DVD-Rewriteable
+    MO_3_RW,                   // Opt_Disk - 3.5" Rewriteable MO Disk
+    MO_5_WO,                   // Opt_Disk - MO 5.25" Write Once
+    MO_5_RW,                   // Opt_Disk - MO 5.25" Rewriteable (not LIMDOW)
+    MO_5_LIMDOW,               // Opt_Disk - MO 5.25" Rewriteable (LIMDOW)
+    PC_5_WO,                   // Opt_Disk - Phase Change 5.25" Write Once Optical
+    PC_5_RW,                   // Opt_Disk - Phase Change 5.25" Rewriteable
+    PD_5_RW,                   // Opt_Disk - PhaseChange Dual Rewriteable
+    ABL_5_WO,                  // Opt_Disk - Ablative 5.25" Write Once Optical
+    PINNACLE_APEX_5_RW,        // Opt_Disk - Pinnacle Apex 4.6GB Rewriteable Optical
+    SONY_12_WO,                // Opt_Disk - Sony 12" Write Once
+    PHILIPS_12_WO,             // Opt_Disk - Philips/LMS 12" Write Once
+    HITACHI_12_WO,             // Opt_Disk - Hitachi 12" Write Once
+    CYGNET_12_WO,              // Opt_Disk - Cygnet/ATG 12" Write Once
+    KODAK_14_WO,               // Opt_Disk - Kodak 14" Write Once
+    MO_NFR_525,                // Opt_Disk - Near Field Recording (Terastor)
+    NIKON_12_RW,               // Opt_Disk - Nikon 12" Rewriteable
+    IOMEGA_ZIP,                // Mag_Disk - Iomega Zip
+    IOMEGA_JAZ,                // Mag_Disk - Iomega Jaz
+    SYQUEST_EZ135,             // Mag_Disk - Syquest EZ135
+    SYQUEST_EZFLYER,           // Mag_Disk - Syquest EzFlyer
+    SYQUEST_SYJET,             // Mag_Disk - Syquest SyJet
+    AVATAR_F2,                 // Mag_Disk - 2.5" Floppy
+    MP2_8mm,                   // Tape - 8mm Hitachi
+    DST_S,                     // Ampex DST Small Tapes
+    DST_M,                     // Ampex DST Medium Tapes
+    DST_L,                     // Ampex DST Large Tapes
+    VXATape_1,                 // Ecrix 8mm Tape
+    VXATape_2,                 // Ecrix 8mm Tape
+    STK_EAGLE,                 // STK Eagle
+    LTO_Ultrium,               // IBM, HP, Seagate LTO Ultrium
+    LTO_Accelis                // IBM, HP, Seagate LTO Accelis
+} STORAGE_MEDIA_TYPE, *PSTORAGE_MEDIA_TYPE;
+
+#define MEDIA_ERASEABLE         0x00000001
+#define MEDIA_WRITE_ONCE        0x00000002
+#define MEDIA_READ_ONLY         0x00000004
+#define MEDIA_READ_WRITE        0x00000008
+
+#define MEDIA_WRITE_PROTECTED   0x00000100
+#define MEDIA_CURRENTLY_MOUNTED 0x80000000
+
+//
+// Define the different storage bus types
+// Bus types below 128 (0x80) are reserved for Microsoft use
+//
+
+typedef enum _STORAGE_BUS_TYPE {
+    BusTypeUnknown = 0x00,
+    BusTypeScsi,
+    BusTypeAtapi,
+    BusTypeAta,
+    BusType1394,
+    BusTypeSsa,
+    BusTypeFibre,
+    BusTypeUsb,
+    BusTypeRAID,
+    BusTypeMaxReserved = 0x7F
+} STORAGE_BUS_TYPE, *PSTORAGE_BUS_TYPE;
+
+typedef struct _DEVICE_MEDIA_INFO {
+    union {
+        struct {
+            LARGE_INTEGER Cylinders;
+            STORAGE_MEDIA_TYPE MediaType;
+            DWORD TracksPerCylinder;
+            DWORD SectorsPerTrack;
+            DWORD BytesPerSector;
+            DWORD NumberMediaSides;
+            DWORD MediaCharacteristics; // Bitmask of MEDIA_XXX values.
+        } DiskInfo;
+
+        struct {
+            LARGE_INTEGER Cylinders;
+            STORAGE_MEDIA_TYPE MediaType;
+            DWORD TracksPerCylinder;
+            DWORD SectorsPerTrack;
+            DWORD BytesPerSector;
+            DWORD NumberMediaSides;
+            DWORD MediaCharacteristics; // Bitmask of MEDIA_XXX values.
+        } RemovableDiskInfo;
+
+        struct {
+            STORAGE_MEDIA_TYPE MediaType;
+            DWORD   MediaCharacteristics; // Bitmask of MEDIA_XXX values.
+            DWORD   CurrentBlockSize;
+            STORAGE_BUS_TYPE BusType;
+
+            //
+            // Bus specific information describing the medium supported.
+            //
+
+            union {
+                struct {
+                    BYTE  MediumType;
+                    BYTE  DensityCode;
+                } ScsiInformation;
+            } BusSpecificData;
+
+        } TapeInfo;
+    } DeviceSpecific;
+} DEVICE_MEDIA_INFO, *PDEVICE_MEDIA_INFO;
+
+typedef struct _GET_MEDIA_TYPES {
+    DWORD DeviceType;              // FILE_DEVICE_XXX values
+    DWORD MediaInfoCount;
+    DEVICE_MEDIA_INFO MediaInfo[1];
+} GET_MEDIA_TYPES, *PGET_MEDIA_TYPES;
+
+#endif
+
+
 //#pragma option pop /*P_O_Push*/
 #pragma option -a.
 #elif defined(_MSC_VER)
