@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.14 18.07.2001 $ */ 
+/* Revision: 1.15 22.09.2001 $ */
 
 /*
 Modify:
+  22.09.2001 OT
+    Вызов Viewer и Editor из меню плагина засовывает куда-то в background window
   18.07.2001 OT
     VFMenu
   11.07.2001 OT
@@ -60,6 +62,12 @@ enum { MODALTYPE_VIRTUAL,
   MODALTYPE_USER
 };
 
+enum ModalBehaviourType{
+  MBT_DEFAULT,
+  MBT_MODAL,
+  MBT_NONMODAL,
+};
+
 class Frame: virtual public ScreenObject
 {
   friend class Manager;
@@ -68,6 +76,7 @@ class Frame: virtual public ScreenObject
 //    int  ModalStackCount, ModalStackSize;
     Frame *FrameToBack;
     Frame *NextModal,*PrevModal;
+    enum ModalBehaviourType mbtype;
 
   protected:
     int  DynamicallyBorn;
@@ -87,6 +96,8 @@ class Frame: virtual public ScreenObject
 
     virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); };
     void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };
+    void SetModalBehaviour(enum ModalBehaviourType mbt) {mbtype=mbt;};
+    virtual enum ModalBehaviourType GetModalBehaviour() {return mbtype;};
     int  GetExitCode() { return ExitCode; };
     virtual void SetExitCode(int Code) { ExitCode=Code; };
 
@@ -125,6 +136,8 @@ class Frame: virtual public ScreenObject
     void ResizeConsole();
     bool HasSaveScreen();
 //    bool ifFullConsole();
+
+    void SetBackFrame(Frame *BackFrame);
 
 };
 

@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.16 30.07.2001 $ */
+/* Revision: 1.17 22.09.2001 $ */
 
 /*
 Modify:
+  22.09.2001 OT
+    Вызов Viewer и Editor из меню плагина засовывает куда-то в background window
   30.07.2001 OT
     - Очередное исправление отрисовки меню
   26.07.2001 OT
@@ -53,7 +55,7 @@ Modify:
 #include "keybar.hpp"
 #include "manager.hpp"
 
-Frame::Frame()
+Frame::Frame():mbtype(MBT_DEFAULT)
 {
   _OT(SysLog("[%p] Frame::Frame()", this));
   CanLoseFocus=FALSE;
@@ -250,6 +252,7 @@ bool Frame::HasSaveScreen()
   return false;
 }
 
-//bool Frame::ifFullConsole() {
-//  return X1==0&&Y1==0&&X2>=ScrX&&Y2>=ScrY-1;
-//}
+void Frame::SetBackFrame(Frame *BackFrame)
+{
+  FrameToBack=BackFrame;
+}

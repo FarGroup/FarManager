@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.52 21.09.2001 $ */
+/* Revision: 1.53 22.09.2001 $ */
 
 /*
 Modify:
+  22.09.2001 OT
+    Вызов Viewer и Editor из меню плагина засовывает куда-то в background window
   21.09.2001 SVS
     ! расширим диалог
   18.09.2001 SVS
@@ -634,15 +636,18 @@ int  Manager::ProcessKey(int Key)
               FrameMenu();
             _OT(SysLog(-1));
             return TRUE;
+
           case KEY_CTRLTAB:
-            if (CurrentFrame->GetCanLoseFocus())
-              DeactivateFrame(CurrentFrame,1);
-              _OT(SysLog(-1));
-            return TRUE;
           case KEY_CTRLSHIFTTAB:
-            if (CurrentFrame->GetCanLoseFocus())
-              DeactivateFrame(CurrentFrame,-1);
-            _OT(SysLog(-1));
+            if (CurrentFrame->GetModalBehaviour()==MBT_NONMODAL){
+              // Удаляем из модального стека
+              SwapModeFrame(CurrentFrame);
+              CurrentFrame->SetModalBehaviour(MBT_DEFAULT);
+              _OT(SysLog(-1));
+            } else if (CurrentFrame->GetCanLoseFocus()){
+              DeactivateFrame(CurrentFrame,KEY_CTRLTAB==Key?1:-1);
+              _OT(SysLog(-1));
+            }
             return TRUE;
         }
       }
@@ -1080,3 +1085,25 @@ void Manager::UnmodalizeCommit()
   UnmodalizedFrame=NULL;
 }
 /* OT $*/
+
+void Manager::SwapModeFrame(Frame *SwapedFrame)
+{
+  int ModalIndex=IndexOfStack(SwapedFrame);
+  if (-1==ModalIndex){
+    return; // Нет такого фрейма в модальном стека
+  }
+  int SaveDBF=SwapedFrame->GetDynamicallyBorn();
+  SwapedFrame->SetDynamicallyBorn(FALSE);
+  DeletedFrame=SwapedFrame;
+  DeleteCommit();
+  DeletedFrame=NULL;
+  SwapedFrame->SetDynamicallyBorn(SaveDBF);
+  Frame *RealActivatedFrame=ActivatedFrame;
+
+
+  InsertedFrame=SwapedFrame;
+  InsertCommit();
+  SwapedFrame->SetBackFrame((*this)[0]);
+  InsertedFrame=NULL;
+  ActivatedFrame=RealActivatedFrame;
+}

@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.20 19.07.2001 $ */ 
+/* Revision: 1.21 22.09.2001 $ */
 
 /*
 Modify:
+  22.09.2001 OT
+    Вызов Viewer и Editor из меню плагина засовывает куда-то в background window
   19.07.2001 OT
     Добавились новые члены и методв типа UnmodalizeХХХ + мини документация
   18.07.2001 OT
@@ -81,7 +83,7 @@ class Manager
     /*$ Претенденты на ... */
     Frame *InsertedFrame;   // Фрейм, который будет добавлен в конец немодальной очереди
     Frame *DeletedFrame;    // Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
-    Frame *ActivatedFrame;  // Фрейм, который необходимо активировать после каких нибудь изменений  
+    Frame *ActivatedFrame;  // Фрейм, который необходимо активировать после каких нибудь изменений
     Frame *RefreshedFrame;  // Фрейм, который нужно просто освежить, т.е. перерисовать
     Frame *ModalizedFrame;  // Фрейм, который становится в "очередь" к текущему немодальному фрейму
     Frame *UnmodalizedFrame;// Фрейм, убираюющийся из "очереди" немодального фрейма
@@ -93,21 +95,23 @@ class Manager
 
 
     int  EndLoop;            // Признак выхода из цикла
-    INPUT_RECORD LastInputRecord; 
+    INPUT_RECORD LastInputRecord;
     void StartupMainloop();
     void FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 
     BOOL Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
                            // Она в цикле вызывает себя, пока хотябы один из указателей отличен от NULL
     // Функции, "подмастерья начальника" - Commit'a
-    void RefreshCommit();  // 
-    void ActivateCommit(); // 
+    void RefreshCommit();  //
+    void ActivateCommit(); //
     void UpdateCommit();   // выполняется тогда, когда нужно заменить один фрейм на другой
     void InsertCommit();
     void DeleteCommit();
     void ExecuteCommit();
-    void ModalizeCommit();  
+    void ModalizeCommit();
     void UnmodalizeCommit();
+    // Удаляет фрейм из модального стека, помещая его в немодальную очередь.
+    void SwapModeFrame(Frame *);
 
   public:
     Manager();
@@ -116,8 +120,8 @@ class Manager
   public:
     // Эти функции можно безопасно вызывать практически из любого места кода
     // они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
-    void InsertFrame(Frame *NewFrame, int Index=-1); 
-    void DeleteFrame(Frame *Deleted=NULL);           
+    void InsertFrame(Frame *NewFrame, int Index=-1);
+    void DeleteFrame(Frame *Deleted=NULL);
     void DeleteFrame(int Index);
     void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
@@ -129,7 +133,7 @@ class Manager
     void ExecuteFrame(Frame *Executed);
     void ExecuteModal (Frame *Executed=NULL); // возвращает то, что возвращает ModalExitCode();
 
-    //  Функции, которые работают с очередью немодально фрейма. 
+    //  Функции, которые работают с очередью немодально фрейма.
     //  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
     void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE);
     void UnmodalizeFrame (Frame *Unmodalized);
