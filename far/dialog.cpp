@@ -10,6 +10,9 @@ dialog.cpp
 /*
 Modify:
   23.05.2001 SVS
+   - Проблемы с горячими клавишами в меню - Part II (гады, в другом месте
+     вылезли :-( )
+  23.05.2001 SVS
    - Проблемы с горячими клавишами в меню.
   21.05.2001 DJ
    + обработка смены фокуса
@@ -3686,7 +3689,10 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos)
       return FALSE;
     Str=Str+AmpPos;
     AmpPos=0;
+    if(Str[AmpPos] == '&')
+      AmpPos++;
   }
+//_SVS(SysLog("'%s' (%d)",Str+AmpPos,AmpPos));
   int UpperStrKey=LocalUpper(Str[AmpPos]);
   /* $ 08.11.2000 SVS
      Изменен пересчет кодов клавиш для hotkey (используются сканкоды)
