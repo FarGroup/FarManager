@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.23 09.01.2001 $ */
+/* Revision: 1.24 29.01.2001 $ */
 
 /*
 Modify:
+  29.01.2001 VVM
+    + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла.
   09.01.2001 SVS
     - Для KEY_XXX_BASE нужно прибавить 0x01
   21.12.2000 SVS
@@ -565,6 +567,10 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLENTER:
     case KEY_CTRLJ:
     case KEY_CTRLF:
+    /* $ 29.01.2001 VVM
+      + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
+    case KEY_CTRLALTF:
+    /* VVM $ */
       if (FileCount>0 && SetCurPath())
       {
         char FileName[NM],temp[NM];
@@ -574,10 +580,10 @@ int FileList::ProcessKey(int Key)
         if (strcmp(FileName,"..")==0)
         {
           strcpy(FileName,".");
-          Key=KEY_CTRLF;
+          Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
           CurrentPath=TRUE;
         }
-        if (Key==KEY_CTRLF)
+        if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
         {
           struct OpenPluginInfo Info;
           if (PanelMode==PLUGIN_PANEL)
@@ -590,6 +596,20 @@ int FileList::ProcessKey(int Key)
             }
             if (ShowShortNames)
               ConvertNameToShort(FileName,FileName);
+
+            /* $ 29.01.2001 VVM
+              + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
+            if (Key==KEY_CTRLALTF) {
+              Key = KEY_CTRLF;
+              char uni[1024];
+              DWORD uniSize = sizeof(uni);
+              if (WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL, 
+                                           &uni, &uniSize) == NOERROR) {
+                UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
+                strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
+              } /* if */
+            } /* if */
+            /* VVM $ */
             /* $ 20.10.2000 SVS
                Сделаем фичу Ctrl-F опциональной!*/
             if(Opt.PanelCtrlFRule)
