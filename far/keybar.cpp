@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.01 02.08.2000 $ */
+/* Revision: 1.02 07.08.2000 $ */
 
 /*
 Modify:
+  07.08.2000 SVS
+    + Изменение любого Label - функция Change(Group,...)
   02.08.2000 SVS
     + Дополнительные индикаторы
       CtrlShiftName, AltShiftName, CtrlAltName
@@ -181,6 +183,39 @@ void KeyBar::Change(char *NewStr,int Pos)
 {
   strncpy(KeyName[Pos],NewStr,sizeof(KeyName[Pos]));
 }
+
+/* $ 07.08.2000 SVS
+   Изменение любого Label
+*/
+void KeyBar::Change(int Group,char *NewStr,int Pos)
+{
+  switch(Group)
+  {
+    case KBL_MAIN:
+      strncpy(KeyName[Pos],NewStr,sizeof(KeyName[Pos]));
+      break;
+    case KBL_SHIFT:
+      strncpy(ShiftKeyName[Pos],NewStr,sizeof(ShiftKeyName[Pos]));
+      break;
+    case KBL_CTRL:
+      strncpy(CtrlKeyName[Pos],NewStr,sizeof(CtrlKeyName[Pos]));
+      break;
+    case KBL_ALT:
+      strncpy(AltKeyName[Pos],NewStr,sizeof(AltKeyName[Pos]));
+      break;
+    case KBL_CTRLSHIFT:
+      strncpy(CtrlShiftKeyName[Pos],NewStr,sizeof(CtrlShiftKeyName[Pos]));
+      break;
+    case KBL_ALTSHIFT:
+      strncpy(AltShiftKeyName[Pos],NewStr,sizeof(AltShiftKeyName[Pos]));
+      break;
+    case KBL_CTRLALT:
+      strncpy(CtrlAltKeyName[Pos],NewStr,sizeof(CtrlAltKeyName[Pos]));
+      break;
+  }
+}
+/* SVS $ */
+
 
 /* $ 02.08.2000 SVS
    Новые индикаторы

@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.16 04.08.2000 $ */
+/* Revision: 1.17 07.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 SVS
+    + ECTL_SETKEYBAR - функция установки KeyBar Labels в редакторе
   04.08.2000 SVS
     + FarListItems.CountItems -> FarListItems.ItemsNumber
   03.08.2000 SVS
@@ -538,15 +540,18 @@ enum EDITOR_EVENTS {
   EE_READ,EE_SAVE,EE_REDRAW,EE_CLOSE
 };
 
+/* $ 07.08.2000 SVS
+   + ECTL_SETKEYBAR - управление метками в редакторе
+*/
 enum EDITOR_CONTROL_COMMANDS {
   ECTL_GETSTRING,ECTL_SETSTRING,ECTL_INSERTSTRING,ECTL_DELETESTRING,
   ECTL_DELETECHAR,ECTL_INSERTTEXT,ECTL_GETINFO,ECTL_SETPOSITION,
   ECTL_SELECT,ECTL_REDRAW,ECTL_EDITORTOOEM,ECTL_OEMTOEDITOR,
   ECTL_TABTOREAL,ECTL_REALTOTAB,ECTL_EXPANDTABS,ECTL_SETTITLE,
   ECTL_READINPUT,ECTL_PROCESSINPUT,ECTL_ADDCOLOR,ECTL_GETCOLOR,
-  ECTL_SAVEFILE,ECTL_QUIT
+  ECTL_SAVEFILE,ECTL_QUIT,ECTL_SETKEYBAR
 };
-
+/* SVS $*/
 
 struct EditorGetString
 {
@@ -828,11 +833,6 @@ struct PluginStartupInfo
   FARAPICHARTABLE CharTable;
   FARAPITEXT Text;
   FARAPIEDITORCONTROL EditorControl;
-  /* $ 03.07.2000 IS
-     Функция вывода помощи
-  */
-  FARAPISHOWHELP ShowHelp;
-  /* IS $ */
   /* $ 06.07.2000 IS
      Функция, которая будет действовать и в редакторе, и в панелях, и...
   */
@@ -850,6 +850,11 @@ struct PluginStartupInfo
   FARAPIDEFDLGPROC DefDlgProc;
   FARAPIINPUTBOX InputBox;
   /* SVS $ */
+  /* $ 03.07.2000 IS
+     Функция вывода помощи
+  */
+  FARAPISHOWHELP ShowHelp;
+  /* IS $ */
   /* $ 06.07.2000 IS
      Указатель на структуру с адресами полезных функций из far.exe
   */

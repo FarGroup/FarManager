@@ -7,10 +7,12 @@ Keybar
 
 */
 
-/* Revision: 1.01 02.08.2000 $ */
+/* Revision: 1.02 07.08.2000 $ */
 
 /*
 Modify:
+  07.08.2000 SVS
+    + Изменение любого Label - функция Change(Group,...)
   02.08.2000 SVS
     + Дополнительные индикаторы
       CtrlShiftName, AltShiftName, CtrlAltName
@@ -19,6 +21,20 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+/* $ 07.08.2000 SVS
+   Группы меток
+*/
+enum {
+  KBL_MAIN=0,
+  KBL_SHIFT,
+  KBL_CTRL,
+  KBL_ALT,
+  KBL_CTRLSHIFT,
+  KBL_ALTSHIFT,
+  KBL_CTRLALT
+};
+/* SVS $ */
 
 class KeyBar:public ScreenObject
 {
@@ -57,8 +73,14 @@ class KeyBar:public ScreenObject
     /* SVS $*/
     void SetDisableMask(int Mask);
     void Change(char *NewStr,int Pos);
+
+    /* $ 07.08.2000 SVS
+       Изменение любого Label
+    */
+    void Change(int Group,char *NewStr,int Pos);
+    /* SVS $ */
+
     void RedrawIfChanged();
 };
-
 
 #endif	// __KEYBAR_HPP__

@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.03 21.07.2000 $ */
+/* Revision: 1.04 07.08.2000 $ */
 
 /*
 Modify:
+  07.08.2000 SVS
+    + добавил названия расширенных функциональных клавиш
+    + Функция инициализации KeyBar Labels - InitKeyBar()
   21.07.2000 SKV
     + выход с позиционированием на редактируемом файле по CTRLF10
   29.06.2000 tran
@@ -101,6 +104,22 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   EditKeyBar.SetOwner(this);
   EditKeyBar.SetPosition(X1,Y2,X2,Y2);
 
+  /* $ 07.08.2000 SVS
+    ! Код, касаемый KeyBar вынесен в отдельную функцию */
+  InitKeyBar();
+  /* SVS $*/
+
+  Process();
+  ExitCode=IsFileChanged() ? 1 : 2;
+  if (!DisableHistory)
+    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
+}
+
+/* $ 07.08.2000 SVS
+  Функция инициализации KeyBar Labels
+*/
+void FileEditor::InitKeyBar(void)
+{
   /* $ 29.06.2000 tran
      добавил названия всех функциональных клавиш */
   char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableSwitch ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
@@ -108,20 +127,30 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
   char *FEditCtrlKeys[]={MSG(MEditCtrlF1),MSG(MEditCtrlF2),MSG(MEditCtrlF3),MSG(MEditCtrlF4),MSG(MEditCtrlF5),MSG(MEditCtrlF6),MSG(MEditCtrlF7),MSG(MEditCtrlF8),MSG(MEditCtrlF9),MSG(MEditCtrlF10),MSG(MEditCtrlF11),MSG(MEditCtrlF12)};
   /* tran $ */
+  /* $ 07.08.2000 SVS
+     добавил названия расширенных функциональных клавиш */
+  char *FEditAltShiftKeys[]={MSG(MEditAltShiftF1),MSG(MEditAltShiftF2),MSG(MEditAltShiftF3),MSG(MEditAltShiftF4),MSG(MEditAltShiftF5),MSG(MEditAltShiftF6),MSG(MEditAltShiftF7),MSG(MEditAltShiftF8),MSG(MEditAltShiftF9),MSG(MEditAltShiftF10),MSG(MEditAltShiftF11),MSG(MEditAltShiftF12)};
+  char *FEditCtrlShiftKeys[]={MSG(MEditCtrlShiftF1),MSG(MEditCtrlShiftF2),MSG(MEditCtrlShiftF3),MSG(MEditCtrlShiftF4),MSG(MEditCtrlShiftF5),MSG(MEditCtrlShiftF6),MSG(MEditCtrlShiftF7),MSG(MEditCtrlShiftF8),MSG(MEditCtrlShiftF9),MSG(MEditCtrlShiftF10),MSG(MEditCtrlShiftF11),MSG(MEditCtrlShiftF12)};
+  char *FEditCtrlAltKeys[]={MSG(MEditCtrlAltF1),MSG(MEditCtrlAltF2),MSG(MEditCtrlAltF3),MSG(MEditCtrlAltF4),MSG(MEditCtrlAltF5),MSG(MEditCtrlAltF6),MSG(MEditCtrlAltF7),MSG(MEditCtrlAltF8),MSG(MEditCtrlAltF9),MSG(MEditCtrlAltF10),MSG(MEditCtrlAltF11),MSG(MEditCtrlAltF12)};
+  /* SVS $*/
 
   EditKeyBar.Set(FEditKeys,sizeof(FEditKeys)/sizeof(FEditKeys[0]));
   EditKeyBar.SetShift(FEditShiftKeys,sizeof(FEditShiftKeys)/sizeof(FEditShiftKeys[0]));
   EditKeyBar.SetAlt(FEditAltKeys,sizeof(FEditAltKeys)/sizeof(FEditAltKeys[0]));
   EditKeyBar.SetCtrl(FEditCtrlKeys,sizeof(FEditCtrlKeys)/sizeof(FEditCtrlKeys[0]));
+
+  /* $ 07.08.2000 SVS
+     добавил названия расширенных функциональных клавиш */
+  EditKeyBar.SetCtrlAlt(FEditCtrlAltKeys,sizeof(FEditCtrlAltKeys)/sizeof(FEditCtrlAltKeys[0]));
+  EditKeyBar.SetCtrlShift(FEditCtrlShiftKeys,sizeof(FEditCtrlShiftKeys)/sizeof(FEditCtrlShiftKeys[0]));
+  EditKeyBar.SetAltShift(FEditAltShiftKeys,sizeof(FEditAltShiftKeys)/sizeof(FEditAltShiftKeys[0]));
+  /* SVS $ */
+
   EditKeyBar.Show();
   SetKeyBar(&EditKeyBar);
   FEdit.SetEditKeyBar(&EditKeyBar);
-  Process();
-  ExitCode=IsFileChanged() ? 1 : 2;
-  if (!DisableHistory)
-    CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
 }
-
+/* SVS $ */
 
 void FileEditor::Process()
 {

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.17 04.08.2000 $ */
+/* Revision: 1.18 07.08.2000 $ */
 
 /*
 Modify:
+   07.08.2000 SVS
+    + ECTL_SETKEYBAR - Функция установки Keybar Labels
    03.08.2000 KM 1.17
     ! В функцию Search добавлена возможность поиска целых слов.
    03.08.2000 SVS 1.16
@@ -3769,6 +3771,7 @@ void Editor::VBlockShift(int Left)
 
 int Editor::EditorControl(int Command,void *Param)
 {
+  int I;
   switch(Command)
   {
     case ECTL_GETSTRING:
@@ -3948,7 +3951,7 @@ int Editor::EditorControl(int Command,void *Param)
         {
           BlockStart=CurPtr;
           BlockStartLine=Sel->BlockStartLine;
-          for (int I=0;I<Sel->BlockHeight;I++)
+          for (I=0;I<Sel->BlockHeight;I++)
           {
             int SelStart=(I==0) ? Sel->BlockStartPos:0;
             int SelEnd=(I<Sel->BlockHeight-1) ? -1:Sel->BlockStartPos+Sel->BlockWidth;
@@ -4100,6 +4103,47 @@ int Editor::EditorControl(int Command,void *Param)
       if (HostFileEditor!=NULL)
         HostFileEditor->SetExitCode(0);
       return(TRUE);
+    /* $ 07.08.2000 SVS
+       Функция установки Keybar Labels
+         Param = NULL - восстановить, пред. значение
+         Param = -1   - обновить полосу (перерисовать)
+         Param = KeyBarTitles
+    */
+    case ECTL_SETKEYBAR:
+    {
+      struct KeyBarTitles *Kbt=(struct KeyBarTitles*)Param;
+      if(!Kbt)
+      {        // восстановить пред значение!
+        if (HostFileEditor!=NULL)
+          HostFileEditor->InitKeyBar();
+      }
+      else
+      {
+        if((long)Param != (long)-1) // не только перерисовать?
+        {
+          for(I=0; I < 12; ++I)
+          {
+            if(Kbt->Titles[I])
+              EditKeyBar->Change(KBL_MAIN,Kbt->Titles[I],I);
+            if(Kbt->CtrlTitles[I])
+              EditKeyBar->Change(KBL_CTRL,Kbt->CtrlTitles[I],I);
+            if(Kbt->AltTitles[I])
+              EditKeyBar->Change(KBL_ALT,Kbt->AltTitles[I],I);
+            if(Kbt->ShiftTitles[I])
+              EditKeyBar->Change(KBL_SHIFT,Kbt->ShiftTitles[I],I);
+            if(Kbt->CtrlShiftTitles[I])
+              EditKeyBar->Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[I],I);
+            if(Kbt->AltShiftTitles[I])
+              EditKeyBar->Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[I],I);
+            if(Kbt->CtrlAltTitles[I])
+              EditKeyBar->Change(KBL_CTRLALT,Kbt->CtrlAltTitles[I],I);
+          }
+        }
+        EditKeyBar->Show();
+      }
+      return(TRUE);
+    }
+    /* SVS $ */
   }
   return(FALSE);
 }

@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 07.08.2000 $ */
 
 /*
 Modify:
+  07.08.2000 SVS
+    + Функция инициализации KeyBar Labels - InitKeyBar()
   28.06.2000 tran
     - NT Console resize bug
       adding SetScreenPosition method
@@ -43,6 +45,11 @@ class FileEditor:public Modal
                int X1,int Y1,int X2,int Y2);
     void Init(char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData);
+    /* $ 07.08.2000 SVS
+       Функция инициализации KeyBar Labels
+    */
+    void InitKeyBar(void);
+    /* SVS $ */
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     int GetTypeAndName(char *Type,char *Name);
