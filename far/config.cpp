@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.34 24.11.2000 $ */
+/* Revision: 1.35 25.11.2000 $ */
 
 /*
 Modify:
+  25.11.2000 IS
+    + Стандартный набор разделителей для функции Xlat (WordDivForXlat)
   24.11.2000 SVS
     - Проблема с Alt* при XLat
     + SetAttrFolderRules задает поведение Ctrl-A на каталоге:
@@ -133,6 +135,12 @@ Modify:
 */
 static char WordDiv0[257]="!%^&*()+|{}:\"<>?`-=\\[];',./";
 /* SVS $ */
+
+/* $ 25.11.2000 IS
+   Стандартный набор разделителей для функции Xlat
+*/
+static char WordDivForXlat0[257]=" \t!#$%^&*()+|\"=\\[]/@?";
+/* IS $ */
 
 void SystemSettings()
 {
@@ -746,6 +754,7 @@ void ReadConfig()
   */
   GetRegKey("Editor","WordDiv",Opt.WordDiv,WordDiv0,sizeof(Opt.WordDiv));
   /* SVS $ */
+
   GetRegKey("Editor","BSLikeDel",Opt.EditorBSLikeDel,1);
 
   /* $ 03.08.2000 SVS
@@ -754,6 +763,7 @@ void ReadConfig()
   if(!strlen(Opt.WordDiv))
      strcpy(Opt.WordDiv,WordDiv0);
   /* SVS $ */
+
   /* $ 05.09.2000 SVS
      CodeXLat - описывающая XLat-перекодировщик
   */
@@ -764,6 +774,17 @@ void ReadConfig()
   GetRegKey("XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],(BYTE*)NULL,sizeof(Opt.XLat.Rules[1]));
   GetRegKey("XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],(BYTE*)NULL,sizeof(Opt.XLat.Rules[2]));
   /* SVS $ */
+  /* $ 25.11.2000 IS
+     Записать разграничитель слов для XLat из реестра
+  */
+  GetRegKey("XLat","WordDivForXlat",Opt.XLat.WordDivForXlat,WordDivForXlat0,sizeof(Opt.XLat.WordDivForXlat));
+  /* IS $ */
+  /* $ 25.11.2000 IS
+     Исключаем случайное стирание разделителей
+  */
+  if(!strlen(Opt.XLat.WordDivForXlat))
+     strcpy(Opt.XLat.WordDivForXlat,WordDivForXlat0);
+  /* IS $ */
   /* $ 16.11.2000 SVS
      Клавиши, вызывающие Xlat - теперь хранятся в реестре в текстовом виде
   */

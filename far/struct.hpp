@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.25 24.11.2000 $ */
+/* Revision: 1.26 25.11.2000 $ */
 
 /*
 Modify:
+  25.11.2000 IS
+   + Разграничитель слов из реестра для функции Xlat (WordDivForXlat)
   24.11.2000 SVS
    ! XLat.Rules - 3 по 30 правил, вместо 10
    + Правило на счет установки атрибутов на каталоги
@@ -196,6 +198,11 @@ struct CodeXLAT{
   int XLatAltCmdLineKey;
   int XLatAltDialogKey;
   /* SVS $*/
+  /* $ 25.11.2000 IS
+     Разграничитель слов из реестра для функции Xlat
+  */
+  char WordDivForXlat[256];
+  /* IS $ */
   BYTE Table[2][81]; // [0] non-english буквы, [1] english буквы
   BYTE Rules[3][60]; // 3 по 30 правил:
                     //  [0] "если предыдущий символ латинский"

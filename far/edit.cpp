@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.23 15.11.2000 $ */
+/* Revision: 1.24 25.11.2000 $ */
 
 /*
 Modify:
+   25.11.2000 IS
+    + Если нет выделения, то обработаем текущее слово. Слово определяется на
+      основе специальной группы разделителей.
    15.11.2000 KM 1.23 (номер верный)
     + Функция KeyMatchedMask проверяет позволяемость символу
       быть введённым на основании заданной маски.
@@ -2067,6 +2070,25 @@ void Edit::Xlat(void)
     ::Xlat(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
     Show();
   }
+/* $ 25.11.2000 IS
+   Если нет выделения, то обработаем текущее слово. Слово определяется на
+   основе специальной группы разделителей.
+*/
+  else
+  {
+   int start=CurPos, end=CurPos+1, StrSize=strlen(Str);
+   if(StrSize>CurPos)
+   {
+    while (start>0 && !(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL &&
+           strchr(Opt.XLat.WordDivForXlat,Str[start-1])!=NULL)) start--;
+
+    while (end<StrSize && !(strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL &&
+           strchr(Opt.XLat.WordDivForXlat,Str[end-1])!=NULL)) end++;
+    ::Xlat(Str,start,end,TableSet,Opt.XLat.Flags);
+    Show();
+   }
+  }
+/* IS $ */
 }
 /* SVS $ */
 
@@ -2089,7 +2111,7 @@ int Edit::KeyMatchedMask(int Key)
   /* KM $ */
   else if (Mask[CurPos]=='A' && LocalIsalpha(Key))
     Inserted=TRUE;
-  
+
   return Inserted;
 }
 /* KM $ */

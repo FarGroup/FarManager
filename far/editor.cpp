@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.43 04.11.2000 $ */
+/* Revision: 1.44 25.11.2000 $ */
 
 /*
 Modify:
+  25.11.2000 IS
+    + Если нет выделения, то обработаем текущее слово. Слово определяется на
+      основе специальной группы разделителей.
   04.11.2000 SVS
     + Проверка на альтернативную клавишу при XLat-перекодировке
   03.11.2000 OT
@@ -2159,9 +2162,12 @@ int Editor::ProcessKey(int Key)
         /* $ 04.11.2000 SVS
            Проверка на альтернативную клавишу
         */
+        /* $ 25.11.2000 IS
+           Теперь Xlat работает даже при отсутствии выделения
+        */
         if((Opt.XLat.XLatEditorKey && Key == Opt.XLat.XLatEditorKey ||
-            Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey) &&
-           (VBlockStart || BlockStart))
+            Opt.XLat.XLatAltEditorKey && Key == Opt.XLat.XLatAltEditorKey))
+        /* IS  $ */
         {
           Xlat();
           Show();
@@ -4666,17 +4672,40 @@ void Editor::Xlat()
   else
   {
     CurPtr=BlockStart;
-    while (CurPtr!=NULL)
+    /* $ 25.11.2000 IS
+         Если нет выделения, то обработаем текущее слово. Слово определяется на
+         основе специальной группы разделителей.
+    */
+    if(CurPtr!=NULL)
     {
+     while (CurPtr!=NULL)
+     {
       int StartSel,EndSel;
       CurPtr->EditLine.GetSelection(StartSel,EndSel);
-      if (StartSel==-1)
+       if (StartSel==-1)
         break;
       if(EndSel == -1)
         EndSel=strlen(CurPtr->EditLine.Str);
       ::Xlat(CurPtr->EditLine.Str,StartSel,EndSel,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
       CurPtr=CurPtr->Next;
+     }
     }
+    else
+    {
+     char *Str=CurLine->EditLine.Str;
+     int start=CurLine->EditLine.GetCurPos(), end, StrSize=strlen(Str);
+     end=start+1;
+     if(StrSize>start)
+     {
+       while (start>0 && !(strchr(Opt.XLat.WordDivForXlat,Str[start])==NULL &&
+              strchr(Opt.XLat.WordDivForXlat,Str[start-1])!=NULL)) start--;
+
+       while (end<StrSize && !(strchr(Opt.XLat.WordDivForXlat,Str[end])==NULL &&
+               strchr(Opt.XLat.WordDivForXlat,Str[end-1])!=NULL)) end++;
+       ::Xlat(Str,start,end,CurLine->EditLine.TableSet,Opt.XLat.Flags);
+     }
+    }
+    /* IS $ */
   }
   TextChanged(1);
 }
