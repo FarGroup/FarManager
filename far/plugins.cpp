@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.23 10.09.2000 $ */
+/* Revision: 1.24 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 IS 1.21
+    - Забыли проверку Info.CommandPrefix на NULL сделать, соответственно фар
+      иногда с конвульсиями помирал, теперь - нет.
   10.09.2000 tran 1.21
     + FSF/FarRecurseSearch
   10.09.2000 SVS
@@ -1444,7 +1447,13 @@ int PluginsSet::ProcessCommandLine(char *Command)
       struct PluginInfo Info;
       if (GetPluginInfo(I,&Info))
       {
-        strcpy(PluginPrefix,Info.CommandPrefix);
+        /* $ 10.09.2000 IS
+             Вай, вай, как не хорошо... Забыли проверку Info.CommandPrefix на
+             NULL сделать, соответственно фар иногда с конвульсиями помирал,
+             теперь - нет.
+        */
+        strcpy(PluginPrefix,NullToEmpty(Info.CommandPrefix));
+        /* IS $ */
         PluginFlags = Info.Flags;
       } /* if */
       else
