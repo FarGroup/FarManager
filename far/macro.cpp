@@ -5,10 +5,15 @@ macro.cpp
 
 */
 
-/* Revision: 1.19 09.01.2001 $ */
+/* Revision: 1.20 18.01.2001 $ */
 
 /*
 Modify:
+  18.01.2001 SVS
+    ! немного оптимизации кода
+    + Функции поиска макроклавиши и определения размера этой клавиши
+    + Хотелка - выдавать предупреждения, что такая клавиша существует
+      или подтверждение желания удалить макроклавишу.
   09.01.2001 SVS
     - Бага с пропаданием диалога назначения во время изменения файловой
       структуры в панелях.
@@ -104,16 +109,26 @@ static const char *MacroModeName[]={
 
 static const char *MacroModeNameOther="Other";
 
+// тип временного буфера
 enum MacroTempType{
   MTEMP_POINTER,  // передано откуда то
   MTEMP_DYNAMIC,  // использовалось выделение памяти
 };
 
+// для диалога назначения клавиши
+struct DlgParam{
+  KeyMacro *Handle;
+  DWORD Key;
+  int Mode;
+};
+
+// Коды МАКРОКЛАВИШ
 enum{
   KEY_MACROSTOP=KEY_MACROSPEC_BASE,
   KEY_MACROMODE,
 };
 
+// транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName{
   int Key;
   int Len;
@@ -129,11 +144,14 @@ static struct TKeyCodeName{
    { KEY_MACROMODE,                          6, "$MMODE" },
 };
 
+// функция преобразования кода макроклавиши в текст
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 {
   if(!KeyText0)
      return FALSE;
+
   char KeyText[32]="";
+
   for (int I=0;I<sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]);I++)
     if (Key==KeyMacroCodes[I].Key)
     {
@@ -154,15 +172,6 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
   return TRUE;
 }
 
-int WINAPI KeyNameMacroToKey(char *Name)
-{
-  // пройдемся по всем модификаторам
-  for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)
-    if(!memicmp(Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
-      return KeyMacroCodes[I].Key;
-  return -1;
-}
-
 KeyMacro::KeyMacro()
 {
   TempMacroType=MTEMP_POINTER;
@@ -173,6 +182,12 @@ KeyMacro::KeyMacro()
   LoadMacros();
 }
 
+KeyMacro::~KeyMacro()
+{
+  InitVars();
+}
+
+// инициализация всех переменных
 void KeyMacro::InitVars()
 {
   if(Macros)
@@ -202,7 +217,8 @@ void KeyMacro::InitVars()
   InternalInput=FALSE;
 }
 
-// удаление временного буфера
+// удаление временного буфера, если он создавался динамически
+// (динамически - значит в PlayMacros передали строку.
 void KeyMacro::ReleaseTempBuffer()
 {
   if(TempMacroType == MTEMP_DYNAMIC && TempMacro)
@@ -215,6 +231,7 @@ void KeyMacro::ReleaseTempBuffer()
   TempMacroType=MTEMP_POINTER;
 }
 
+// загрузка ВСЕХ макросов из реестра
 int KeyMacro::LoadMacros()
 {
   int Ret=FALSE;
@@ -235,6 +252,8 @@ int KeyMacro::LoadMacros()
     Ret+=ReadMacros(MACRO_HELP,Buffer,TEMP_BUFFER_SIZE);
     Ret+=ReadMacros(MACRO_OTHER,Buffer,TEMP_BUFFER_SIZE);
 
+    // выставим код возврата - если не все ВСЕ загрузились, то
+    // будет FALSE
     Ret=(Ret < 9)?FALSE:TRUE;
     delete Buffer;
   }
@@ -242,66 +261,42 @@ int KeyMacro::LoadMacros()
   return Ret;
 }
 
-
-KeyMacro::~KeyMacro()
+// функция преобразования названия в код макроклавиши
+// вернет -1, если нет эквивалента!
+int WINAPI KeyNameMacroToKey(char *Name)
 {
-  InitVars();
+  // пройдемся по всем модификаторам
+  for(int I=0; I < sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]); ++I)
+    if(!memicmp(Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
+      return KeyMacroCodes[I].Key;
+  return -1;
 }
-
 
 int KeyMacro::ProcessKey(int Key)
 {
   if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE)
     return(FALSE);
-  if (Recording)
+
+  if (Recording) // Идет запись?
   {
-    if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT)
+    if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // признак конца записи?
     {
-      int MacroKey;
+      DWORD MacroKey;
+      int WaitInMainLoop0=WaitInMainLoop;
+      InternalInput=TRUE;
+      WaitInMainLoop=FALSE;
+      MacroKey=AssignMacroKey();
+      WaitInMainLoop=WaitInMainLoop0;
+      InternalInput=FALSE;
 
-#if 0
-      {
-        SaveScreen SaveScr;
-        SetCursorType(FALSE,0);
-        Message(0,0,MSG(MDefineMacroTitle),MSG(MDefineMacro));
-        InternalInput=TRUE;
-        do {
-          INPUT_RECORD rec;
-          MacroKey=GetInputRecord(&rec);
-        } while (MacroKey>=KEY_NONE && MacroKey<=KEY_END_SKEY);
-        InternalInput=FALSE;
-      }
-#else
+      DWORD Flags=MFLAGS_DISABLEOUTPUT;
+
+      // добавим проверку на удаление
+      // если удаляем, то не нужно выдавать диалог настройки.
+      if (MacroKey != KEY_ESC && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
       {
         InternalInput=TRUE;
-        int WaitInMainLoop0=WaitInMainLoop;
-        WaitInMainLoop=FALSE;
-        MacroKey=AssignMacroKey();
-        WaitInMainLoop=WaitInMainLoop0;
-        InternalInput=FALSE;
-      }
-#endif
-/*
-{
-char KeyText[50];
-::KeyToText(MacroKey,KeyText);
-SysLog("ProcessKey) MacroKey=0x%08X  %s",MacroKey,KeyText);
-}
-
-*/
-
-      int DisableOutput=TRUE,EmptyCommandLine=FALSE,NotEmptyCommandLine=FALSE;
-      int NoFilePanels=FALSE,NoPluginPanels=FALSE;
-      int RunAfterStart=FALSE;
-      int NoFolders=FALSE, NoFiles=FALSE;
-
-      if (MacroKey != KEY_ESC && (Key==KEY_CTRLSHIFTDOT || Recording==2))
-      {
-        InternalInput=TRUE;
-        if (!GetMacroSettings(MacroKey,DisableOutput,RunAfterStart,
-                              EmptyCommandLine,NotEmptyCommandLine,
-                              NoFilePanels,NoPluginPanels,
-                              NoFolders,NoFiles))
+        if (!GetMacroSettings(MacroKey,Flags))
           MacroKey=KEY_ESC;
         InternalInput=FALSE;
       }
@@ -328,26 +323,9 @@ SysLog("ProcessKey) MacroKey=0x%08X  %s",MacroKey,KeyText);
         else
           delete Macros[Pos].Buffer;
         Macros[Pos].Key=MacroKey;
-        Macros[Pos].Buffer=RecBuffer;
+        Macros[Pos].Buffer=(DWORD*)RecBuffer;
         Macros[Pos].BufferSize=RecBufferSize;
-/*{
-char KeyText[50];
-int J;
-for(J=0; J < RecBufferSize; ++J)
-{
-  ::KeyToText(RecBuffer[J],KeyText);
-  SysLog("Save RecBuffer[%d]=0x%08X  %s\n",J,RecBuffer[J],KeyText);
-}
-} */
-        Macros[Pos].Flags=StartMode&MFLAGS_MODEMASK;
-        Macros[Pos].Flags|=DisableOutput?MFLAGS_DISABLEOUTPUT:0;
-        Macros[Pos].Flags|=RunAfterStart?MFLAGS_RUNAFTERSTART:0;
-        Macros[Pos].Flags|=EmptyCommandLine?MFLAGS_EMPTYCOMMANDLINE:0;
-        Macros[Pos].Flags|=NotEmptyCommandLine?MFLAGS_NOTEMPTYCOMMANDLINE:0;
-        Macros[Pos].Flags|=NoFilePanels?MFLAGS_NOFILEPANELS:0;
-        Macros[Pos].Flags|=NoPluginPanels?MFLAGS_NOPLUGINPANELS:0;
-        Macros[Pos].Flags|=NoFolders?MFLAGS_NOFOLDERS:0;
-        Macros[Pos].Flags|=NoFiles?MFLAGS_NOFILES:0;
+        Macros[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
       }
 
       Recording=FALSE;
@@ -359,9 +337,9 @@ for(J=0; J < RecBufferSize; ++J)
       WaitInFastFind++;
       return(TRUE);
     }
-    else
+    else // процесс записи продолжается.
     {
-      if (Key>=KEY_NONE && Key<=KEY_END_SKEY)
+      if (Key>=KEY_NONE && Key<=KEY_END_SKEY) // специальные клавиши прокинем
         return(FALSE);
       RecBuffer=(int *)realloc(RecBuffer,sizeof(*RecBuffer)*(RecBufferSize+1));
       if (RecBuffer==NULL)
@@ -370,85 +348,89 @@ for(J=0; J < RecBufferSize; ++J)
       return(FALSE);
     }
   }
-  else
-    if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT)
-    {
-      if(LockScr) delete LockScr;
-      LockScr=NULL;
+  else if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // Начало записи?
+  {
+    if(LockScr) delete LockScr;
+    LockScr=NULL;
 
-      if (Mode==MACRO_SHELL && !WaitInMainLoop)
-        StartMode=MACRO_OTHER;
-      else
-        StartMode=Mode;
-      Recording=(Key==KEY_CTRLSHIFTDOT) ? 2:1;
-      delete RecBuffer;
-      RecBuffer=NULL;
-      RecBufferSize=0;
-      ScrBuf.ResetShadow();
-      ScrBuf.Flush();
-      WaitInFastFind--;
-      return(TRUE);
-    }
-    else
+    // Где мы?
+    StartMode=(Mode==MACRO_SHELL && !WaitInMainLoop)?MACRO_OTHER:Mode;
+    // тип записи - с вызовом диалога настроек или...
+    Recording=(Key==KEY_CTRLSHIFTDOT) ? 2:1;
+    delete RecBuffer;
+    RecBuffer=NULL;
+    RecBufferSize=0;
+    ScrBuf.ResetShadow();
+    ScrBuf.Flush();
+    WaitInFastFind--;
+    return(TRUE);
+  }
+  else
+  {
+    if (!Executing) // Это еще не режим исполнения?
     {
-      if (!Executing)
+      int I=GetIndex(LocalUpper(Key),
+                    (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
+      if(I != -1)
       {
-        int CurMode=(Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode;
-        for (int I=0;I<MacrosNumber;I++)
-          if (LocalUpper(Macros[I].Key)==LocalUpper(Key) &&
-              (Macros[I].Flags&MFLAGS_MODEMASK)==CurMode &&
-              Macros[I].BufferSize>0)
+//SysLog("KeyMacro: %d (I=%d Key=0x%08X)",__LINE__,I,Key);
+        // проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
+        int CmdLength=CtrlObject->CmdLine.GetLength();
+        if ((Macros[I].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
+            (Macros[I].Flags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
+          return(FALSE);
+
+        // проверки панели и типа файла
+        Panel *ActivePanel=CtrlObject->ActivePanel;
+        if(ActivePanel!=NULL)// && (Macros[I].Flags&MFLAGS_MODEMASK)==MACRO_SHELL)
+        {
+          int PanelMode=ActivePanel->GetMode();
+          char FileName[NM*2];
+          int FileAttr=-1;
+          if(PanelMode == PLUGIN_PANEL)
           {
-            int CmdLength=CtrlObject->CmdLine.GetLength();
-            if ((Macros[I].Flags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength!=0 ||
-                (Macros[I].Flags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0)
-              return(FALSE);
-            Panel *ActivePanel=CtrlObject->ActivePanel;
-            if(ActivePanel!=NULL)// && (Macros[I].Flags&MFLAGS_MODEMASK)==MACRO_SHELL)
-            {
-              int PanelMode=ActivePanel->GetMode();
-              char FileName[NM*2];
-              int FileAttr=-1;
-              if(PanelMode == PLUGIN_PANEL)
-              {
-                if(Macros[I].Flags&MFLAGS_NOPLUGINPANELS)
-                  return FALSE;
-              }
-              if(PanelMode == NORMAL_PANEL)
-              {
-                if(Macros[I].Flags&MFLAGS_NOFILEPANELS)
-                  return FALSE;
-              }
-              ActivePanel->GetFileName(FileName,ActivePanel->GetCurrentPos(),FileAttr);
-              if(FileAttr != -1)
-              {
-                if((FileAttr&FA_DIREC) && (Macros[I].Flags&MFLAGS_NOFOLDERS) ||
-                   !(FileAttr&FA_DIREC) && (Macros[I].Flags&MFLAGS_NOFILES))
-                  return FALSE;
-              }
-            }
-            if (Macros[I].Flags&MFLAGS_DISABLEOUTPUT)
-            {
-              if(LockScr) delete LockScr;
-              LockScr=new LockScreen;
-            }
-            Executing=TRUE;
-            ExecMacroPos=I;
-            ExecKeyPos=0;
-            return(TRUE);
+            if(Macros[I].Flags&MFLAGS_NOPLUGINPANELS)
+              return FALSE;
           }
+          if(PanelMode == NORMAL_PANEL)
+          {
+            if(Macros[I].Flags&MFLAGS_NOFILEPANELS)
+              return FALSE;
+          }
+          ActivePanel->GetFileName(FileName,ActivePanel->GetCurrentPos(),FileAttr);
+          if(FileAttr != -1)
+          {
+            if((FileAttr&FA_DIREC) && (Macros[I].Flags&MFLAGS_NOFOLDERS) ||
+               !(FileAttr&FA_DIREC) && (Macros[I].Flags&MFLAGS_NOFILES))
+              return FALSE;
+          }
+        }
+        // Подавлять вывод?
+        if (Macros[I].Flags&MFLAGS_DISABLEOUTPUT)
+        {
+          if(LockScr) delete LockScr;
+          LockScr=new LockScreen;
+        }
+        Executing=TRUE;
+        ExecMacroPos=I;
+        ExecKeyPos=0;
+        return(TRUE);
       }
-      return(FALSE);
     }
+    return(FALSE);
+  }
 }
 
-
+// Получить очередной код клавиши из макроса
 int KeyMacro::GetKey()
 {
+  struct MacroRecord *MR;
+
   if (InternalInput || !Executing)
     return(FALSE);
 
-  struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+initial:
+  MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
 
 begin:
   if (ExecKeyPos>=MR->BufferSize || MR->Buffer==NULL)
@@ -488,7 +470,8 @@ done:
     ReleaseTempBuffer();
     return(FALSE);
   }
-  int Key=MR->Buffer[ExecKeyPos++];
+
+  DWORD Key=MR->Buffer[ExecKeyPos++];
   switch(Key)
   {
     case KEY_MACROSTOP:
@@ -518,10 +501,11 @@ done:
         goto begin;
       }
   }
+//SysLog("Key=0x%08X ExecMacroPos=%d", Key,ExecMacroPos);
   return(Key);
 }
 
-
+// Проверить - еслть ли еще клавиша?
 int KeyMacro::PeekKey()
 {
   struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
@@ -539,6 +523,7 @@ DWORD KeyMacro::SwitchFlags(DWORD& Flags,DWORD Value)
 }
 
 
+// Сохранение ВСЕХ макросов
 void KeyMacro::SaveMacros()
 {
   for (int I=0;I<MacrosNumber;I++)
@@ -558,7 +543,8 @@ void KeyMacro::SaveMacros()
     for (int J=0;J<Macros[I].BufferSize;J++)
     {
       char MacroKeyText[50];
-      ::KeyToText(Macros[I].Buffer[J],MacroKeyText);
+      DWORD Key=Macros[I].Buffer[J];
+      KeyToText(Key,MacroKeyText);
       int NewSize=TextBufferSize+strlen(MacroKeyText);
       if (TextBufferSize!=0)
         NewSize++;
@@ -566,7 +552,8 @@ void KeyMacro::SaveMacros()
       if (TextBuffer==NULL)
         continue;
       sprintf(TextBuffer+TextBufferSize,"%s%s",
-              TextBufferSize==0 ? "":" ",MacroKeyText);
+              (TextBufferSize==0 ? "":" "),
+              MacroKeyText);
       TextBufferSize=NewSize;
     }
     SetRegKey(RegKeyName,"Sequence",TextBuffer);
@@ -651,32 +638,8 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     CurMacro->Flags|=GetRegKey(RegKeyName,"NoFolders",0)?MFLAGS_NOFOLDERS:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"NoFiles",0)?MFLAGS_NOFILES:0;
 
-    char *BufPtr=Buffer;
-    while (1)
-    {
-      while (isspace(*BufPtr))
-        BufPtr++;
-      if (*BufPtr==0)
-        break;
-      char *CurBufPtr=BufPtr;
-      while (*BufPtr && !isspace(*BufPtr))
-        BufPtr++;
-      int Length=BufPtr-CurBufPtr;
-      char CurKeyText[50];
-      memcpy(CurKeyText,CurBufPtr,Length);
-      CurKeyText[Length]=0;
-      KeyCode=KeyNameToKey(CurKeyText);
-      if (KeyCode!=-1)
-      {
-        CurMacro->Buffer=(int *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
-        if (CurMacro->Buffer==NULL)
-        {
-          return FALSE;
-        }
-        CurMacro->Buffer[CurMacro->BufferSize]=KeyCode;
-        CurMacro->BufferSize++;
-      }
-    }
+    if(!ParseMacroString(CurMacro,Buffer))
+      return FALSE;
     MacrosNumber++;
   }
   return TRUE;
@@ -739,49 +702,57 @@ void KeyMacro::RunStartMacro()
   StartMacroPos=-1;
 }
 
-/* $ 21.12.2000 SVS
-   Подсократим код.
-*/
-char* KeyMacro::GetSubKey(int Mode)
-{
-  return (char *)((Mode >= MACRO_SHELL && Mode <= MACRO_HELP)?
-            MacroModeName[Mode]:
-            (Mode == MACRO_OTHER?MacroModeNameOther:""));
-}
-
-int KeyMacro::GetSubKey(char *Mode)
-{
-  if(!stricmp(MacroModeNameOther,Mode))
-    return MACRO_OTHER;
-
-  int I;
-  for(I=MACRO_SHELL; I <= MACRO_HELP; ++I)
-    if(!stricmp(MacroModeName[I],Mode))
-      return I;
-  return -1;
-}
-
-
 // обработчик диалогового окна назначения клавиши
-long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   char KeyText[50];
-  static int *Key, LastKey;
+  static int LastKey;
+  static struct DlgParam *KMParam=NULL;
+
   if(Msg == DN_INITDIALOG)
-    Key=(int *)Param2;
+    KMParam=(struct DlgParam *)Param2;
   else if(Msg == DM_KEY)
   {
+    // Esc & Enter - не обрабатываем
     if(Param2 == KEY_ESC || Param2 == KEY_ENTER)
       return FALSE;
+    // F1 - особый случай - нужно жать 2 раза
+    // первый раз будет выведен хелп,
+    // а второй раз - второй раз уже назначение
     if(Param2 == KEY_F1 && LastKey!=KEY_F1)
     {
       LastKey=KEY_F1;
       return FALSE;
     }
+    KeyMacro *MacroDlg=KMParam->Handle;
 
-    *Key=Param2;
+    KMParam->Key=(DWORD)Param2;
     KeyToText(Param2,KeyText);
-//SysLog("0x%08X (%s)",Param2,KeyText);
+
+    // если УЖЕ есть такой макрос...
+    if(MacroDlg->GetIndex(Param2,KMParam->Mode) != -1)
+    {
+      char Buf[256];
+
+      // выведем сообщение.
+      // Если размер буфера нулевой - удаление
+      //  Иначе - перезапись
+      sprintf(Buf,
+        MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey:MMacroReDefinedKey),
+        KeyText);
+      if(!Message(MSG_WARNING,2,MSG(MWarning),
+            Buf,
+            MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:MMacroReDefinedKey2),
+            MSG(MYes),MSG(MNo)))
+      {
+        // в любом случае - вываливаемся
+        Dialog::SendDlgMessage(hDlg,DM_CLOSE,1,0);
+        return TRUE;
+      }
+      // здесь - здесь мы нажимали "Нет", ну а на нет и суда нет
+      //  и значит очистим поле ввода.
+      KeyText[0]=0;
+    }
     Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)KeyText);
     LastKey=Param2;
     if(Param2 == KEY_F1 && LastKey==KEY_F1)
@@ -790,14 +761,14 @@ long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == DN_CTLCOLORDLGITEM) // сбросим Unchanged
   {
-    Param2&=0xFF00FFFFU;
+    Param2&=0xFF00FFFFU;      // Unchanged у нас сидит в младшем байте старшего слова
     Param2|=(Param2&0xFF)<<16;
     return Param2;
   }
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-int KeyMacro::AssignMacroKey()
+DWORD KeyMacro::AssignMacroKey()
 {
 /*
   ╔══════ Define macro ══════╗
@@ -812,29 +783,21 @@ int KeyMacro::AssignMacroKey()
   /* 02 */ DI_EDIT,5,3,28,3,1,0,0,1,"",
   };
   MakeDialogItems(MacroAssignDlgData,MacroAssignDlg);
-  int Key=0;
+  struct DlgParam Param={this,0,Mode};
 
-  Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Key);
+  Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,34,6);
   Dlg.SetHelp("KeyMacro");
   Dlg.Process();
-  return Key;
+  return Param.Key;
 }
 
-int KeyMacro::GetMacroSettings(
-         int Key,
-         int &DisableOutput,
-         int &RunAfterStart,
-         int &EmptyCommandLine,
-         int &NotEmptyCommandLine,
-         int &NoFilePanels,
-         int &NoPluginPanels,
-         int &NoFolders,
-         int &NoFiles)
+int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 {
+
   static struct DialogData MacroSettingsDlgData[]={
   /* 00 */ DI_DOUBLEBOX,3,1,62,19,0,0,0,0,"",
-  /* 01 */ DI_CHECKBOX,5,2,0,0,1,1,0,0,(char *)MMacroSettingsDisableOutput,
+  /* 01 */ DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MMacroSettingsDisableOutput,
   /* 02 */ DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MMacroSettingsRunAfterStart,
 //  /* 03 */ DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MMacroSettingsExactCollation,
   /* 03 */ DI_TEXT,5,4,0,0,0,0,0,0,"",
@@ -861,8 +824,17 @@ int KeyMacro::GetMacroSettings(
   char KeyText[66];
   KeyToText(Key,KeyText);
   sprintf(MacroSettingsDlg[0].Data,MSG(MMacroSettingsTitle),KeyText);
-  if(!(Key&0xFF000000))
+  if(!(Key&0x7F000000))
     MacroSettingsDlg[3].Flags|=DIF_DISABLE;
+
+  MacroSettingsDlg[1].Selected=Flags&MFLAGS_DISABLEOUTPUT?1:0;
+  MacroSettingsDlg[2].Selected=Flags&MFLAGS_RUNAFTERSTART?1:0;
+  MacroSettingsDlg[6].Selected=Flags&MFLAGS_EMPTYCOMMANDLINE?1:0;
+  MacroSettingsDlg[7].Selected=Flags&MFLAGS_NOTEMPTYCOMMANDLINE?1:0;
+  MacroSettingsDlg[11].Selected=Flags&MFLAGS_NOFILEPANELS?1:0;
+  MacroSettingsDlg[10].Selected=Flags&MFLAGS_NOPLUGINPANELS?1:0;
+  MacroSettingsDlg[15].Selected=Flags&MFLAGS_NOFOLDERS?1:0;
+  MacroSettingsDlg[14].Selected=Flags&MFLAGS_NOFILES?1:0;
 
   Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]));
   Dlg.SetPosition(-1,-1,66,21);
@@ -870,14 +842,15 @@ int KeyMacro::GetMacroSettings(
   Dlg.Process();
   if (Dlg.GetExitCode()!=17)
     return(FALSE);
-  DisableOutput=MacroSettingsDlg[1].Selected;
-  RunAfterStart=MacroSettingsDlg[2].Selected;
-  EmptyCommandLine=MacroSettingsDlg[6].Selected;
-  NotEmptyCommandLine=MacroSettingsDlg[7].Selected;
-  NoFilePanels=MacroSettingsDlg[11].Selected;
-  NoPluginPanels=MacroSettingsDlg[10].Selected;
-  NoFolders=MacroSettingsDlg[15].Selected;
-  NoFiles=MacroSettingsDlg[14].Selected;
+
+  Flags=MacroSettingsDlg[1].Selected?MFLAGS_DISABLEOUTPUT:0;
+  Flags|=MacroSettingsDlg[2].Selected?MFLAGS_RUNAFTERSTART:0;
+  Flags|=MacroSettingsDlg[6].Selected?MFLAGS_EMPTYCOMMANDLINE:0;
+  Flags|=MacroSettingsDlg[7].Selected?MFLAGS_NOTEMPTYCOMMANDLINE:0;
+  Flags|=MacroSettingsDlg[11].Selected?MFLAGS_NOFILEPANELS:0;
+  Flags|=MacroSettingsDlg[10].Selected?MFLAGS_NOPLUGINPANELS:0;
+  Flags|=MacroSettingsDlg[15].Selected?MFLAGS_NOFOLDERS:0;
+  Flags|=MacroSettingsDlg[14].Selected?MFLAGS_NOFILES:0;
 
   return(TRUE);
 }
@@ -929,7 +902,7 @@ int KeyMacro::PlayKeyMacro(struct MacroRecord *MRec)
   return TRUE;
 }
 
-
+// Парсер строковых эквивалентов в коды клавиш
 int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 {
   int J;
@@ -956,11 +929,12 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     CurKeyText[Length]=0;
 
     // в CurKeyText - название клавиши. Попробуем отыскать ее код...
-    int KeyCode=KeyNameToKey(CurKeyText);
+    DWORD KeyCode;
+    KeyCode=KeyNameToKey(CurKeyText);
     // код найден, добавим этот код в буфер последовательности.
     if (KeyCode!=-1)
     {
-      CurMacro->Buffer=(int *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
+      CurMacro->Buffer=(DWORD *)realloc(CurMacro->Buffer,sizeof(*CurMacro->Buffer)*(CurMacro->BufferSize+1));
       if (CurMacro->Buffer==NULL)
       {
         return FALSE;
@@ -973,3 +947,52 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 }
 
 
+// Функция получения индекса нужного макроса в массиве
+// Ret=-1 - не найден таковой.
+// если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
+int KeyMacro::GetIndex(int Key, int ChechMode)
+{
+  int Pos;
+  if(Macros)
+    for(Pos=0; Pos < MacrosNumber; ++Pos)
+//      if (Macros[Pos].Key==Key && Macros[Pos].BufferSize)
+      if (LocalUpper(Macros[Pos].Key)==LocalUpper(Key) && Macros[Pos].BufferSize > 0)
+        if((Macros[Pos].Flags&MFLAGS_MODEMASK) == ChechMode || ChechMode == -1)
+          return Pos;
+  return -1;
+}
+
+// получение размера, занимаемого указанным макросом
+// Ret= 0 - не найден таковой.
+// если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
+int KeyMacro::GetRecordSize(int Key, int CheckMode)
+{
+  int Pos=GetIndex(Key,CheckMode);
+  if(Pos == -1)
+    return 0;
+  return sizeof(struct MacroRecord)+Macros[Pos].BufferSize;
+}
+
+/* $ 21.12.2000 SVS
+   Подсократим код.
+*/
+// получить название моды по коду
+char* KeyMacro::GetSubKey(int Mode)
+{
+  return (char *)((Mode >= MACRO_SHELL && Mode <= MACRO_HELP)?
+            MacroModeName[Mode]:
+            (Mode == MACRO_OTHER?MacroModeNameOther:""));
+}
+
+// получить код моды по имени
+int KeyMacro::GetSubKey(char *Mode)
+{
+  if(!stricmp(MacroModeNameOther,Mode))
+    return MACRO_OTHER;
+
+  int I;
+  for(I=MACRO_SHELL; I <= MACRO_HELP; ++I)
+    if(!stricmp(MacroModeName[I],Mode))
+      return I;
+  return -1;
+}

@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.41 14.01.2001 $ */
+/* Revision: 1.42 17.01.2001 $ */
 
 /*
 Modify:
+  17.01.2001 SVS
+    + MMacroReDefinedKey, MMacroReDefinedKey2, MMacroDeleteKey, MMacroDeleteKey2,
   14.01.2001 SVS
     + MHighlightJunction, MSetAttrJunction
   05.01.2001 SVS
@@ -1292,6 +1294,10 @@ enum
 
   MDefineMacroTitle,
   MDefineMacro,
+  MMacroReDefinedKey,
+  MMacroReDefinedKey2,
+  MMacroDeleteKey,
+  MMacroDeleteKey2,
 
   MMacroSettingsTitle,
   MMacroSettingsDisableOutput,

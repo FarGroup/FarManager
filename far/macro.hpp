@@ -7,10 +7,14 @@ macro.hpp
 
 */
 
-/* Revision: 1.05 04.01.2001 $ */
+/* Revision: 1.06 17.01.2001 $ */
 
 /*
 Modify:
+  17.01.2001 SVS
+    + функции получения индекса макроса и размера под макропоследовательность:
+       int GetIndex(int Key, int Mode);
+       int GetRecordSize(int Key, int Mode);
   04.01.2001 SVS
     ! изменен ReadMacros и GetMacroSettings
     + функция AssignMacroKey
@@ -36,7 +40,7 @@ struct MacroRecord
   DWORD Flags;
   int   Key;
   int   BufferSize;
-  int  *Buffer;
+  DWORD *Buffer;
 };
 
 class KeyMacro
@@ -49,7 +53,10 @@ class KeyMacro
 
     struct MacroRecord *Macros;
     int MacrosNumber;
+    // тип записи - с вызовом диалога настроек или...
+    // 0 - нет записи, 1 - простая запись, 2 - вызов диалога настроек
     int Recording;
+
     int *RecBuffer;
     int RecBufferSize;
     int Executing;
@@ -65,18 +72,15 @@ class KeyMacro
 
   private:
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
-    int AssignMacroKey();
-    int GetMacroSettings(int Key,
-                         int &DisableOutput,int &RunAfterStart,
-                         int &EmptyCommandLine,int &NotEmptyCommandLine,
-                         int &FilePanels,int &PluginPanels,
-                         int &NoFolders,int &NoFiles);
+    DWORD AssignMacroKey();
+    int GetMacroSettings(int Key,DWORD &Flags);
     void InitVars();
     void ReleaseTempBuffer(); // удалить временный буфер
 
     // из строкового представления макроса сделать MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr);
     DWORD SwitchFlags(DWORD& Flags,DWORD Value);
+    static long WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 
   public:
     KeyMacro();
@@ -101,6 +105,11 @@ class KeyMacro
 
     int  LoadMacros();
     void SaveMacros();
+
+    // Функция получения индекса нужного макроса в массиве
+    int GetIndex(int Key, int Mode);
+    // получение размера, занимаемого указанным макросом
+    int GetRecordSize(int Key, int Mode);
 
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);

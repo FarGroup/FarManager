@@ -1183,6 +1183,10 @@
 
 "Define macro"
 "Press the desired key"
+"MacroKey '%s' already defined"
+"Redefine?"
+"MacroKey '%s' will be removed"
+"Delete?"
 
 "Macro settings for '%s'"
 "&Disable screen output while executing macro"
