@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.15 27.04.2002 $ */
+/* Revision: 1.16 06.06.2002 $ */
 
 //#define USE_TAR_H
 
@@ -360,26 +360,26 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
    static const char * Commands[4][15]=
    {
      { // TAR_FORMAT
-       "tar --force-local -xf %%A %%FSQ32768",
-       "%comspec% /c tar --force-local -O -xf %%A %%fSQ > %%fWQ",
+       "tar --force-local -xf %%A %%FSq32768",
+       "%comspec% /c tar --force-local -O -xf %%A %%fSq > %%fWq",
        "",
-       "tar --delete --force-local -f %%A %%FSQ32768",
-       "",
-       "",
+       "tar --delete --force-local -f %%A %%FSq32768",
        "",
        "",
        "",
        "",
-       "tar --force-local -rf %%A %%FSQ32768",
-       "tar --force-local --remove-files -rf %%A %%FSQ32768",
-       "tar --force-local -rf %%A %%FSQ32768",
-       "tar --force-local --remove-files -rf %%A %%FSQ32768",
+       "",
+       "",
+       "tar --force-local -rf %%A %%FSq32768",
+       "tar --force-local --remove-files -rf %%A %%FSq32768",
+       "tar --force-local -rf %%A %%FSq32768",
+       "tar --force-local --remove-files -rf %%A %%FSq32768",
        "*"
      },
 
      { // GZ_FORMAT
-       "%COMSPEC% /c gzip -cd %%A >%%fQ",
-       "%COMSPEC% /c gzip -cd %%A >%%fQ",
+       "%COMSPEC% /c gzip -cd %%A >%%fq",
+       "%COMSPEC% /c gzip -cd %%A >%%fq",
        "gzip -t %%A",
        "",
        "",
@@ -388,16 +388,16 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
        "",
        "",
        "",
-       "%COMSPEC% /c gzip -c %%fQ >%%A",
-       "gzip %%fQ",
-       "%COMSPEC% /c gzip -c %%fQ >%%A",
-       "gzip %%fQ",
+       "%COMSPEC% /c gzip -c %%fq >%%A",
+       "gzip %%fq",
+       "%COMSPEC% /c gzip -c %%fq >%%A",
+       "gzip %%fq",
        "*"
      },
 
      { // Z_FORMAT
-       "%COMSPEC% /c gzip -cd %%A >%%fQ",
-       "%COMSPEC% /c gzip -cd %%A >%%fQ",
+       "%COMSPEC% /c gzip -cd %%A >%%fq",
+       "%COMSPEC% /c gzip -cd %%A >%%fq",
        "gzip -t %%A",
        "",
        "",
@@ -414,8 +414,8 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
      },
 
      { // BZ_FORMAT
-       "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
-       "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
+       "%COMSPEC% /c bzip2 -cd %%A >%%fq",
+       "%COMSPEC% /c bzip2 -cd %%A >%%fq",
        "%COMSPEC% /c bzip2 -cd %%A >nul",
        "",
        "",
@@ -424,10 +424,10 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
        "",
        "",
        "",
-       "%COMSPEC% /c bzip2 -c %%fQ >%%A",
-       "bzip2 %%fQ",
-       "%COMSPEC% /c bzip2 -c %%fQ >%%A",
-       "bzip2 %%fQ",
+       "%COMSPEC% /c bzip2 -c %%fq >%%A",
+       "bzip2 %%fq",
+       "%COMSPEC% /c bzip2 -c %%fq >%%A",
+       "bzip2 %%fq",
        "*"
      },
    };
