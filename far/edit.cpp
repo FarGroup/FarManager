@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.122 07.10.2004 $ */
+/* Revision: 1.123 10.10.2004 $ */
 
 /*
 Modify:
+  10.10.2004 KM
+    - Bug #1131 (1165) - после исправления Bug #1122 привнесён баг с невозможностью
+      выйти за пределы строки в редакторе при установленном Cursor beyond end of line.
   07.10.2004 SVS
     - BugZ1168 - В редакторе не работают длинные макросы
   06.08.2004 SKV
@@ -2619,7 +2622,13 @@ int Edit::RealPosToTab(int Pos)
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 
-  for (TabPos=0,I=0;I<Pos && Str[I];I++)
+  /* $ 10.10.2004 KM
+     После исправления Bug #1122 привнесён баг с невозможностью
+     выйти за пределы строки в редакторе при установленном
+     Cursor beyond end of line.
+  */
+  for (TabPos=0,I=0;I<Pos && ((Flags.Check(FEDITLINE_EDITBEYONDEND))?TRUE:Str[I]);I++)
+  /* KM $ */
   {
     if (I>=StrSize)
     {
@@ -2642,7 +2651,13 @@ int Edit::TabPosToReal(int Pos)
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
 
-  for (TabPos=0,I=0;TabPos<Pos && Str[I];I++)
+  /* $ 10.10.2004 KM
+     После исправления Bug #1122 привнесён баг с невозможностью
+     выйти за пределы строки в редакторе при установленном
+     Cursor beyond end of line.
+  */
+  for (TabPos=0,I=0;TabPos<Pos && ((Flags.Check(FEDITLINE_EDITBEYONDEND))?TRUE:Str[I]);I++)
+  /* KM $ */
   {
     if (Str[I]=='\t')
     {
