@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.115 05.02.2002 $ */
+/* Revision: 1.116 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    + Добавка в меню - акселератор - решение BugZ#299
+    ! Сепаратор может иметь лэйб только для варианта с Ex
   05.02.2002 SVS
     ! Технологический патч про отладку
   30.01.2002 DJ
@@ -824,25 +827,25 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
         CurItem.Flags=ItemEx->Flags;
-        if(ItemEx->Flags&LIF_SEPARATOR)
-          CurItem.Name[0]=0;
-        else
-          strncpy(CurItem.Name,ItemEx->Text,sizeof(CurItem.Name)-1);
+        strncpy(CurItem.Name,ItemEx->Text,sizeof(CurItem.Name)-1);
+        CurItem.AccelKey=(ItemEx->Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
         FarMenu.AddItem(&CurItem);
       }
     }
     else
+    {
       for (I=0;I<ItemsNumber;I++)
       {
         CurItem.Flags=Item[I].Checked?(LIF_CHECKED|(Item[I].Checked&0xFFFF)):0;
         CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
         CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
-        if(CurItem.Flags&LIF_SEPARATOR)
+        if(Item[I].Separator)
           CurItem.Name[0]=0;
         else
           strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
         FarMenu.AddItem(&CurItem);
       }
+    }
 
     DWORD MenuFlags=0;
     if (Flags & FMENU_SHOWAMPERSAND)

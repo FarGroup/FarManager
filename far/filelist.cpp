@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.128 24.01.2002 $ */
+/* Revision: 1.129 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    + ƒобавка в меню - акселератор - решение BugZ#299
   24.01.2002 VVM
     ! hListChange инициализируем INVALID_HANDLE_VALUE.
       ¬се-таки под виндами с хендлами работаем, а не в с€х с указател€ми :)
@@ -3361,20 +3363,20 @@ void FileList::SelectSortMode()
 {
   struct MenuData SortMenu[]=
   {
-    (char *)MMenuSortByName,LIF_SELECTED,
-    (char *)MMenuSortByExt,0,
-    (char *)MMenuSortByModification,0,
-    (char *)MMenuSortBySize,0,
-    (char *)MMenuUnsorted,0,
-    (char *)MMenuSortByCreation,0,
-    (char *)MMenuSortByAccess,0,
-    (char *)MMenuSortByDiz,0,
-    (char *)MMenuSortByOwner,0,
-    (char *)MMenuSortByCompressedSize,0,
-    (char *)MMenuSortByNumLinks,0,
-    "",LIF_SEPARATOR,
-    (char *)MMenuSortUseGroups,0,
-    (char *)MMenuSortSelectedFirst,0
+    (char *)MMenuSortByName,LIF_SELECTED,KEY_CTRLF3,
+    (char *)MMenuSortByExt,0,KEY_CTRLF4,
+    (char *)MMenuSortByModification,0,KEY_CTRLF5,
+    (char *)MMenuSortBySize,0,KEY_CTRLF6,
+    (char *)MMenuUnsorted,0,KEY_CTRLF7,
+    (char *)MMenuSortByCreation,0,KEY_CTRLF8,
+    (char *)MMenuSortByAccess,0,KEY_CTRLF9,
+    (char *)MMenuSortByDiz,0,KEY_CTRLF10,
+    (char *)MMenuSortByOwner,0,KEY_CTRLF11,
+    (char *)MMenuSortByCompressedSize,0,0,
+    (char *)MMenuSortByNumLinks,0,0,
+    "",LIF_SEPARATOR,0,
+    (char *)MMenuSortUseGroups,0,KEY_SHIFTF11,
+    (char *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
   };
 
   int SG=GetSortGroups();

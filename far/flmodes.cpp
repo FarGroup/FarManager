@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.09 26.07.2001 $ */
+/* Revision: 1.10 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    + Добавка в меню - акселератор - решение BugZ#299
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -76,16 +78,16 @@ void FileList::SetFilePanelModes()
   {
     struct MenuData ModeListMenu[]=
     {
-      (char *)MEditPanelModesBrief,0,
-      (char *)MEditPanelModesMedium,0,
-      (char *)MEditPanelModesFull,0,
-      (char *)MEditPanelModesWide,0,
-      (char *)MEditPanelModesDetailed,0,
-      (char *)MEditPanelModesDiz,0,
-      (char *)MEditPanelModesLongDiz,0,
-      (char *)MEditPanelModesOwners,0,
-      (char *)MEditPanelModesLinks,0,
-      (char *)MEditPanelModesAlternative,0
+      (char *)MEditPanelModesBrief,0,0,
+      (char *)MEditPanelModesMedium,0,0,
+      (char *)MEditPanelModesFull,0,0,
+      (char *)MEditPanelModesWide,0,0,
+      (char *)MEditPanelModesDetailed,0,0,
+      (char *)MEditPanelModesDiz,0,0,
+      (char *)MEditPanelModesLongDiz,0,0,
+      (char *)MEditPanelModesOwners,0,0,
+      (char *)MEditPanelModesLinks,0,0,
+      (char *)MEditPanelModesAlternative,0,0,
     };
     int ModeNumber;
     ModeListMenu[CurMode].SetSelect(1);

@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.51 05.02.2002 $ */
+/* Revision: 1.52 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+   ! OriginalListItems к терапевту... - юзаем DlgProc
   05.02.2002 SVS
    + DialogItem.OriginalListItems
   21.01.2002 SVS
@@ -254,13 +256,13 @@ struct DialogItem
     char *History;
     char *Mask;
     struct FarList *ListItems;
+    int  ListPos;
     CHAR_INFO *VBuf;
   };
   DWORD Flags;
   unsigned char DefaultButton;
   union {
     char Data[512];
-    int  ListPos;
     struct {
       DWORD PtrFlags;
       int   PtrLength;
@@ -275,7 +277,6 @@ struct DialogItem
   // прочее
   void *ObjPtr;
   VMenu *ListPtr;
-  struct FarList *OriginalListItems;
   DlgUserControl *UCData;
 };
 
@@ -294,6 +295,7 @@ struct DialogData
     char *History;
     char *Mask;
     struct FarList *ListItems;
+    int  ListPos;
     CHAR_INFO *VBuf;
   };
   DWORD Flags;
@@ -486,16 +488,6 @@ class Dialog: public Frame
     static void DataToItem(struct DialogData *Data,struct DialogItem *Item,
                            int Count);
     static int IsKeyHighlighted(char *Str,int Key,int Translate,int AmpPos=-1);
-    /* $ 23.07.2000 SVS
-       функция обработки диалога (по умолчанию)
-    */
-    static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
-    /* SVS $ */
-    /* $ 28.07.2000 SVS
-       функция посылки сообщений диалогу
-    */
-    static long WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2);
-    /* SVS $ */
 
     /* $ 31.07.2000 tran
        метод для перемещения диалога */
@@ -563,6 +555,11 @@ class Dialog: public Frame
                         DWORD UncheckedSet,DWORD UncheckedSkip,
                         DWORD CheckedSet,DWORD CheckedSkip,
                         DWORD Checked3Set=0,DWORD Checked3Skip=0);
+
+    /* $ 23.07.2000 SVS: функция обработки диалога (по умолчанию) */
+    static long WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+    /* $ 28.07.2000 SVS: функция посылки сообщений диалогу */
+    static long WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2);
 };
 
 #endif // __DIALOG_HPP__

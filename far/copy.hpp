@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.14 06.12.2001 $ */
+/* Revision: 1.15 12.02.2002 $ */
 
 /*
 Modify:
+  12.02.2002 SVS
+    + COPY_FAILUREREAD
   06.12.2001 VVM
     + FCOPY_COPYLASTTIME
   21.10.2001 SVS
@@ -62,6 +64,7 @@ enum COPY_CODES {
   COPY_CANCEL,
   COPY_NEXT,
   COPY_FAILURE,
+  COPY_FAILUREREAD,
   COPY_SUCCESS,
   COPY_SUCCESS_MOVE
 };

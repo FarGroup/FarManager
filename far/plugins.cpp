@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.107 28.01.2002 $ */
+/* Revision: 1.108 12.02.2002 $ */
 
 /*
 Modify:
+  12.02.2002 SVS
+    ! В ветке PluginHotkeys храним полные пути к плагинам. Это так же решает
+      (или в основном так же) проблему BugZ#302
   28.01.2002 SVS
     + Код, ответственный за создание и предварительного заполнения структур
       PluginStartupInfo и FarStandardFunctions вынесен в отдельную функцию:
@@ -2453,21 +2456,41 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
 
 int PluginsSet::GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey)
 {
-  unsigned int FarPathLength=strlen(FarPath);
   *RegKey=0;
-  if (FarPathLength<strlen(PluginsData[PluginNumber].ModuleName))
+  char PluginName[NM], *Ptr;
+  strcpy(PluginName,PluginsData[PluginNumber].ModuleName);
+  for (Ptr=PluginName;*Ptr;++Ptr)
   {
-    char PluginName[NM];
-    strcpy(PluginName,PluginsData[PluginNumber].ModuleName+FarPathLength);
-    for (int I=0;PluginName[I]!=0;I++)
-      if (PluginName[I]=='\\')
-        PluginName[I]='/';
-    if (ItemNumber>0)
-      sprintf(PluginName+strlen(PluginName),"%%%d",ItemNumber);
-    sprintf(RegKey,"PluginHotkeys\\%s",PluginName);
-    return(TRUE);
+    if (*Ptr=='\\')
+      *Ptr='/';
   }
-  return(FALSE);
+  if (ItemNumber>0)
+    sprintf(Ptr,"%%%d",ItemNumber);
+
+  sprintf(RegKey,"PluginHotkeys\\%s",PluginName);
+
+#if 1
+  // конвертация - потом убрать
+  unsigned int FarPathLength=strlen(FarPath);
+  if (FarPathLength < strlen(PluginsData[PluginNumber].ModuleName))
+  {
+    char OldRevKey[NM];
+    sprintf(OldRevKey,"PluginHotkeys\\%s",PluginName+FarPathLength);
+    if(CheckRegKey(OldRevKey))
+    {
+      char ConfHotkey[32];
+      char Hotkey[32];
+      GetRegKey(OldRevKey,"ConfHotkey",ConfHotkey,"",sizeof(ConfHotkey));
+      GetRegKey(OldRevKey,"Hotkey",Hotkey,"",sizeof(Hotkey));
+      if(*ConfHotkey)
+        SetRegKey(RegKey,"ConfHotkey",ConfHotkey);
+      if(*Hotkey)
+        SetRegKey(RegKey,"Hotkey",Hotkey);
+      DeleteRegKey(OldRevKey); //??? А нужно?
+    }
+  }
+#endif
+  return(TRUE);
 }
 
 

@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.33 16.01.2002 $ */
+/* Revision: 1.34 12.02.2002 $ */
 
 /*
 Modify:
+  12.02.2002 SVS
+    - BugZ#303 - Колёсико мыши в дереве
+      Сделаем по аналогии с наФигацией в обычной панели.
   16.01.2002 SVS
     - BugZ#249 - Непрорисовка при создании дерева
     - Бага - не отрисовывалась текущий каталог в поз. (Y2-1)
@@ -782,6 +785,14 @@ int TreeList::ProcessKey(int Key)
           ProcessKey(KEY_ENTER);
       }
       return(TRUE);
+    case KEY_MSWHEEL_UP:
+    case (KEY_MSWHEEL_UP | KEY_ALT):
+      Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
+      return(TRUE);
+    case KEY_MSWHEEL_DOWN:
+    case (KEY_MSWHEEL_DOWN | KEY_ALT):
+      Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
+      return(TRUE);
     case KEY_HOME:
       Up(0x7fffff);
       if (Opt.AutoChangeFolder && !ModalMode)
@@ -845,6 +856,12 @@ void TreeList::Down(int Count)
   DisplayTree(TRUE);
 }
 
+void TreeList::Scroll(int Count)
+{
+  CurFile+=Count;
+  CurTopFile+=Count;
+  DisplayTree(TRUE);
+}
 
 void TreeList::CorrectPosition()
 {

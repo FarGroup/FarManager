@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.208 11.02.2002 $ */
+/* Revision: 1.209 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    ! Уточнение типа Param2 у DM_LISTUPDATE - должен быть типа FarListUpdate
+    ! При выходе из диалога юзается ListPosвместо ListItems
   11.02.2002 SVS
     + DM_LISTGETDATASIZE
     ! dialog.cpp::MsgToName() - syslog.cpp::_DLGMSG_ToName()
@@ -1216,7 +1219,6 @@ int Dialog::InitDialogObjects(int ID)
       {
         CurItem->ListPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
                         VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
-        CurItem->OriginalListItems=CurItem->ListItems;
       }
 
       if(CurItem->ListPtr)
@@ -1269,7 +1271,6 @@ int Dialog::InitDialogObjects(int ID)
         if(Type == DI_COMBOBOX)
         {
           CurItem->ListPtr=new VMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,Parent*/);
-          CurItem->OriginalListItems=CurItem->ListItems;
         }
       }
 
@@ -1794,17 +1795,20 @@ void Dialog::GetDialogObjectsData()
       }
 
       case DI_LISTBOX:
+      /*
         if(CurItem->ListPtr)
         {
           CurItem->ListPos=CurItem->ListPtr->GetSelectPos();
           break;
         }
+      */
+        break;
       /**/
     }
-
+#if 0
     if((Type == DI_COMBOBOX || Type == DI_LISTBOX) &&
        CurItem->ListPtr && CurItem->ListItems &&
-       CurItem->OriginalListItems == CurItem->ListItems)
+       DlgProc == Dialog::DefDlgProc)
     {
       int ListPos=CurItem->ListPtr->GetSelectPos();
       if(ListPos < CurItem->ListItems->ItemsNumber)
@@ -1814,6 +1818,12 @@ void Dialog::GetDialogObjectsData()
         CurItem->ListItems->Items[ListPos].Flags|=LIF_SELECTED;
       }
     }
+#else
+    if((Type == DI_COMBOBOX || Type == DI_LISTBOX))
+    {
+      CurItem->ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
+    }
+#endif
   }
 }
 
@@ -5113,20 +5123,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           int Ret=TRUE;
           switch(Msg)
           {
-            case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
-            {
-              return ListBox->FindItem(((struct FarListFind *)Param2)->StartIndex,
-                                       ((struct FarListFind *)Param2)->Pattern,
-                                       ((struct FarListFind *)Param2)->Flags);
-            }
-
-            case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
-            {
-              if((Ret=ListBox->InsertItem((struct FarListInsert *)Param2)) == -1)
-                return -1;
-              break;
-            }
-
             case DM_LISTINFO:// Param1=ID Param2=FarListInfo
             {
               return ListBox->GetVMenuInfo((struct FarListInfo*)Param2);
@@ -5136,6 +5132,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             {
               ListBox->SortItems(Param2);
               break;
+            }
+
+            case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
+            {
+              return ListBox->FindItem(((struct FarListFind *)Param2)->StartIndex,
+                                       ((struct FarListFind *)Param2)->Pattern,
+                                       ((struct FarListFind *)Param2)->Flags);
             }
 
             case DM_LISTADDSTR: // Param1=ID Param2=String
@@ -5164,6 +5167,42 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               break;
             }
 
+            case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
+            {
+              if((Ret=ListBox->InsertItem((struct FarListInsert *)Param2)) == -1)
+                return -1;
+              break;
+            }
+
+            case DM_LISTUPDATE: // Param1=ID Param2=FarListUpdate: Index=Index, Items=Src
+            {
+              if(Param2 && ListBox->UpdateItem((struct FarListUpdate *)Param2))
+                break;
+              return FALSE;
+            }
+
+            case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
+            {
+              struct FarListGetItem *ListItems=(struct FarListGetItem *)Param2;
+              if(!ListItems)
+                return FALSE;
+              struct MenuItem *ListMenuItem;
+              if((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemIndex)) != NULL)
+              {
+                //ListItems->ItemIndex=1;
+                struct FarListItem *Item=&ListItems->Item;
+                memset(Item,0,sizeof(struct FarListItem));
+                Item->Flags=ListMenuItem->Flags;
+                strncpy(Item->Text,ListMenuItem->Name,sizeof(Item->Text)-1);
+                /*
+                if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
+                   Item->UserData=ListMenuItem->UserData;
+                */
+                return TRUE;
+              }
+              return FALSE;
+            }
+
             case DM_LISTGETDATA: // Param1=ID Param2=Index
             {
               if(Param2 < ListBox->GetItemCount())
@@ -5190,6 +5229,22 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               }
               return 0;
             }
+
+            /* $ 02.12.2001 KM
+               + Сообщение для добавления в список строк, с удалением
+                 уже существующих, т.с. "чистая" установка
+            */
+            case DM_LISTSET: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
+            {
+              struct FarList *ListItems=(struct FarList *)Param2;
+              if(!ListItems)
+                return FALSE;
+              ListBox->DeleteItems();
+              Ret=ListBox->AddItem(ListItems);
+              break;
+            }
+            /* KM $ */
+            //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
 
             case DM_LISTSETTITLES: // Param1=ID Param2=struct FarListTitles
             {
@@ -5230,46 +5285,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               /* KM $ */
               break; // т.к. нужно перерисовать!
             }
-
-            case DM_LISTUPDATE: // Param1=ID Param2=FarList: Index=Index, Items=Src
-            {
-              if(Param2 && ListBox->UpdateItem((struct FarList *)Param2))
-                break;
-              return FALSE;
-            }
-
-            case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
-            {
-              struct FarListGetItem *ListItems=(struct FarListGetItem *)Param2;
-              if(!ListItems)
-                return FALSE;
-              struct MenuItem *ListMenuItem;
-              if((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemIndex)) != NULL)
-              {
-                //ListItems->ItemIndex=1;
-                struct FarListItem *Item=&ListItems->Item;
-                memset(Item,0,sizeof(struct FarListItem));
-                Item->Flags=ListMenuItem->Flags;
-                strncpy(Item->Text,ListMenuItem->Name,sizeof(Item->Text)-1);
-                return TRUE;
-              }
-              return FALSE;
-            }
-            /* $ 02.12.2001 KM
-               + Сообщение для добавления в список строк, с удалением
-                 уже существующих, т.с. "чистая" установка
-            */
-            case DM_LISTSET: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
-            {
-              struct FarList *ListItems=(struct FarList *)Param2;
-              if(!ListItems)
-                return FALSE;
-              ListBox->DeleteItems();
-              Ret=ListBox->AddItem(ListItems);
-              break;
-            }
-            /* KM $ */
-            //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
 
             case DM_LISTSETMOUSEREACTION: // Param1=ID Param2=TRUE/FALSE Ret=OldSets
             {
@@ -5838,6 +5853,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
       {
         Dialog::ConvertItem(CVTITEM_TOPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
+        if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
+          ((struct FarDialogItem *)Param2)->Param.ListPos=CurItem->ListPtr?CurItem->ListPtr->GetSelectPos():0;
 /*
         if(IsEdit(Type))
         {

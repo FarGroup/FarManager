@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.186 11.02.2002 $ */
+/* Revision: 1.187 11.02.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,12 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  11.02.2002 SVS
+    ! Переделки FarListItem, FarListUpdate, FarListInsert, FarMenuItemEx
+      - размер FarMenuItemEx.Text = 130 + AccelKey (в FAR нотации)
+      - у FarListUpdate и FarListInsert вместо указателей - объекты
+      - у FarListItem - размер и добавки
+    ! FarDialogItem.Data.ListPos -> FarDialogItem.Param.ListPos
   11.02.2002 SVS
     + DM_LISTGETDATASIZE
   06.02.2002 DJ
@@ -893,6 +899,9 @@ enum LISTITEMFLAGS {
   LIF_CHECKED  = 0x00020000UL,
   LIF_SEPARATOR= 0x00040000UL,
   LIF_DISABLE  = 0x00080000UL,
+#ifdef FAR_USE_INTERNALS
+  LIF_GRAYED   = 0x00100000UL,
+#endif // END FAR_USE_INTERNALS
 };
 
 enum CHECKEDSTATE {
@@ -904,8 +913,8 @@ enum CHECKEDSTATE {
 struct FarListItem
 {
   DWORD Flags;
-  char Text[128];
-  DWORD Reserved;
+  char  Text[130];
+  DWORD Reserved[3];
 };
 
 struct FarList
@@ -917,13 +926,13 @@ struct FarList
 struct FarListUpdate
 {
   int Index;
-  struct FarListItem *Item;
+  struct FarListItem Item;
 };
 
 struct FarListInsert
 {
   int Index;
-  struct FarListItem *Item;
+  struct FarListItem Item;
 };
 
 struct FarListPos
@@ -984,6 +993,12 @@ struct FarListItemData
   DWORD Reserved;
 };
 
+struct FarDialogItemData
+{
+  int   PtrLength;
+  char *PtrData;
+};
+
 struct FarListTitles
 {
   int   TitleLen;
@@ -1003,6 +1018,7 @@ struct FarDialogItem
     const char *History;
     const char *Mask;
     struct FarList *ListItems;
+    int  ListPos;
     CHAR_INFO *VBuf;
   }
 #ifdef _FAR_NO_NAMELESS_UNIONS
@@ -1014,7 +1030,6 @@ struct FarDialogItem
   union
   {
     char Data[512];
-    int  ListPos;
     struct
     {
       DWORD PtrFlags;
@@ -1027,12 +1042,6 @@ struct FarDialogItem
   Data
 #endif
   ;
-};
-
-struct FarDialogItemData
-{
-  int   PtrLength;
-  char *PtrData;
 };
 
 
@@ -1135,12 +1144,17 @@ enum MENUITEMFLAGS {
   MIF_CHECKED  = 0x00020000UL,
   MIF_SEPARATOR= 0x00040000UL,
   MIF_DISABLE  = 0x00080000UL,
+#ifdef FAR_USE_INTERNALS
+  MIF_GRAYED   = 0x00100000UL,
+#endif // END FAR_USE_INTERNALS
 };
 
 struct FarMenuItemEx
 {
   DWORD Flags;
-  char Text[128];
+  char  Text[130];
+  DWORD AccelKey;
+  DWORD Reserved;
   DWORD UserData;
 };
 

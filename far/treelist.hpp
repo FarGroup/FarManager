@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.10 24.12.2001 $ */
+/* Revision: 1.11 12.02.2002 $ */
 
 /*
 Modify:
+  12.02.2002 SVS
+    + Scroll()
   24.12.2001 VVM
     ! GetCurName в предке объ€влено как virtual!!!
   11.12.2001 SVS
@@ -68,6 +70,7 @@ class TreeList: public Panel
     void DisplayTreeName(char *Name,int Pos);
     void Up(int Count);
     void Down(int Count);
+    void Scroll(int Count);
     void CorrectPosition();
     static int MsgReadTree(int TreeCount,int &FirstCall);
     void FillLastData();

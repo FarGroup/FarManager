@@ -11,10 +11,14 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.34 03.12.2001 $ */
+/* Revision: 1.35 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    + Член AccelKey в MenuData и MenuItem
+    + BitFlags
+    ! у функции UpdateItem() параметр должен быть типа FarListUpdate
   01.12.2001 DJ
     - корректный MenuItem::SetCheck()
   02.12.2001 KM
@@ -130,6 +134,7 @@ Modify:
 #include "plugin.hpp"
 #include "manager.hpp"
 #include "frame.hpp"
+#include "bitflags.hpp"
 
 /* $ 30.11.2001 DJ
    значение приведено в соответствие с действительностью
@@ -178,12 +183,16 @@ struct MenuItem
 {
   DWORD  Flags;                  // Флаги пункта
   char   Name[130];              // Текст пункта
-  short  AmpPos;                 // Позиция автоназначенной подсветки
+  DWORD  AccelKey;
   int    UserDataSize;           // Размер пользовательских данных
   union {                        // Пользовательские данные:
     char  *UserData;             // - указатель!
     char   Str4[4];              // - strlen(строка)+1 <= 4
   };
+
+  short AmpPos;                  // Позиция автоназначенной подсветки
+  short Len[2];		             // размеры 2-х частей
+  short Idx2;		             // начало 2-й части
 
   /* $ 01.12.2001 DJ
      исправим баг, заодно нормально отформатируем код
@@ -210,6 +219,7 @@ struct MenuData
 {
   char *Name;
   DWORD Flags;
+  DWORD AccelKey;
 
   /* $ 01.12.2001 DJ
      исправим баг, заодно нормально отформатируем код
@@ -250,8 +260,8 @@ class VMenu: virtual public Modal, virtual public Frame
        + переменная, отвечающая за отображение scrollbar в
          DI_LISTBOX & DI_COMBOBOX
     */
-    DWORD VMFlags;
-    DWORD VMOldFlags;
+    BitFlags VMFlags;
+    BitFlags VMOldFlags;
     /* SVS $ */
 
     /* $ 01.08.2000 SVS
@@ -261,6 +271,8 @@ class VMenu: virtual public Modal, virtual public Frame
     Dialog *ParentDialog;
     FARWINDOWPROC VMenuProc;      // функция обработки меню
     /* SVS $ */
+
+    short RLen[2];	              // реальные размеры 2-х половин
 
   protected:
     SaveScreen *SaveScr;
@@ -272,13 +284,15 @@ class VMenu: virtual public Modal, virtual public Frame
     short Colors[VMENU_COLOR_COUNT];
     /* SVS */
 
+  public:
+    Frame *FrameFromLaunched;
+
   private:
     void DisplayObject();
     void ShowMenu(int IsParent=0);
     int  GetPosition(int Position);
-
-  public:
-    Frame *FrameFromLaunched;
+    static int _SetUserData(struct MenuItem *PItem,void *Data,int Size);
+    static void* _GetUserData(struct MenuItem *PItem,void *Data,int Size);
 
   public:
     /* $ 18.07.2000 SVS
@@ -300,6 +314,8 @@ class VMenu: virtual public Modal, virtual public Frame
     /* 01.08.2000 SVS $ */
     /* SVS $ */
     ~VMenu();
+
+  public:
     void FastShow() {ShowMenu();}
     void Show();
     void Hide();
@@ -308,14 +324,14 @@ class VMenu: virtual public Modal, virtual public Frame
     char *GetTitle(char *Dest,int Size);
     void SetBottomTitle(const char *BottomTitle);
     char *GetBottomTitle(char *Dest,int Size);
-    void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style);SetColors(NULL);}
-    void SetUpdateRequired(int SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
+    void SetDialogStyle(int Style) {VMFlags.Change(VMENU_WARNDIALOG,Style);SetColors(NULL);}
+    void SetUpdateRequired(int SetUpdate) {VMFlags.Change(VMENU_UPDATEREQUIRED,SetUpdate);}
     void SetBoxType(int BoxType);
 
-    void SetFlags(DWORD Flags){ VMFlags|=Flags; }
-    void SkipFlags(DWORD Flags){ VMFlags&=~Flags; }
-    int  CheckFlags(DWORD Flags){ return(VMFlags&Flags); }
-    DWORD ChangeFlags(DWORD Flags,BOOL Status);
+    void SetFlags(DWORD Flags){ VMFlags.Set(Flags); }
+    void SkipFlags(DWORD Flags){ VMFlags.Skip(Flags); }
+    int  CheckFlags(DWORD Flags){ return VMFlags.Check(Flags); }
+    DWORD ChangeFlags(DWORD Flags,BOOL Status) {return VMFlags.Change(Flags,Status);}
 
     void AssignHighlights(int Reverse);
     void SetColors(short *Colors=NULL);
@@ -342,7 +358,7 @@ class VMenu: virtual public Modal, virtual public Frame
     int  AddItem(const char *NewStrItem);
 
     int  InsertItem(const struct FarListInsert *NewItem);
-    int  UpdateItem(const struct FarList *NewItem);
+    int  UpdateItem(const struct FarListUpdate *NewItem);
     int  FindItem(const struct FarListFind *FindItem);
     int  FindItem(int StartIndex,const char *Pattern,DWORD Flags=0);
 
@@ -376,8 +392,8 @@ class VMenu: virtual public Modal, virtual public Frame
     void SortItems(int Direction=0);
     BOOL GetVMenuInfo(struct FarListInfo* Info);
 
-    static struct MenuItem *FarList2MenuItem(struct FarListItem *Items,struct MenuItem *ListItem);
-    static struct FarListItem *MenuItem2FarList(struct MenuItem *ListItem,struct FarListItem *Items);
+    static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);
+    static struct FarListItem *MenuItem2FarList(const struct MenuItem *ListItem,struct FarListItem *Item);
 
     /* $ 01.08.2000 SVS
        функция обработки меню (по умолчанию)

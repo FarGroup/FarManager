@@ -5,10 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.64 16.01.2002 $ */
+/* Revision: 1.65 11.02.2002 $ */
 
 /*
 Modify:
+  11.02.2002 SVS
+    ! Нефига юзать "Copy access rights" при копировании на плагиновую панель.
+      Хотя... тут можно уточнить про REALFILES
+    + Выставим SetErrorMode() для того, чтобы сраные винды не лезли со своими
+      гуевыми месагами (хотя, блин, все равно лезут, но редко :-))
   16.01.2002 SVS
     - подлянка с FILE_ATTRIBUTE_ENCRYPTED
   14.01.2002 IS
@@ -255,6 +260,7 @@ struct CopyDlgParam {
   int FolderPresent;
   int FilesPresent;
   int OnlyNewerFiles;
+  int CopySecurity;
   char FSysNTFS;
   char PluginFormat[32]; // я думаю этого достаточно.
   DWORD FileSystemFlagsSrc;
@@ -453,8 +459,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   else if(PanelMode == PLUGIN_PANEL)
   {
     // Если противоположная панель - плагин, то дисаблим OnlyNewer
-    CDP.OnlyNewerFiles=CopyDlg[5].Selected=0;
+    CDP.CopySecurity=CDP.OnlyNewerFiles=0;
+    CopyDlg[4].Selected=CopyDlg[5].Selected=0;
     CopyDlg[5].Flags|=DIF_DISABLE;
+    CopyDlg[4].Flags|=DIF_DISABLE;
   }
 
   AnotherPanel->GetCurDir(DestDir);
@@ -821,10 +829,11 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Param1 == 2)
       {
         char SrcDir[NM];
-        struct FarDialogItem DItem5,DItem8;
+        struct FarDialogItem DItem4,DItem5,DItem8;
         DlgParam->thisClass->SrcPanel->GetCurDir(SrcDir);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,8,(long)&DItem8);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,4,(long)&DItem4);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,5,(long)&DItem5);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,8,(long)&DItem8);
 
         // Это создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
@@ -842,19 +851,25 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           strupr(strncpy(Buf,DItem2->Data.Data,sizeof(Buf)-1));
           if(*DlgParam->PluginFormat && strstr(Buf,DlgParam->PluginFormat))
           {
+            DItem4.Flags|=DIF_DISABLE;
             DItem5.Flags|=DIF_DISABLE;
             DlgParam->OnlyNewerFiles=DItem5.Param.Selected;
+            DlgParam->CopySecurity=DItem4.Param.Selected;
+            DItem4.Param.Selected=0;
             DItem5.Param.Selected=0;
           }
           else
           {
+            DItem4.Flags&=~DIF_DISABLE;
             DItem5.Flags&=~DIF_DISABLE;
             DItem5.Param.Selected=DlgParam->OnlyNewerFiles;
+            DItem4.Param.Selected=DlgParam->CopySecurity;
           }
         }
 
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,8,(long)&DItem8);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,4,(long)&DItem4);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,5,(long)&DItem5);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,8,(long)&DItem8);
       }
       break;
 
@@ -1588,6 +1603,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
   while (1)
   {
+    int CopyCode;
     int64 SaveCopySize=CurCopySize;
     int64 SaveTotalSize=TotalCopySize;
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Rename)
@@ -1615,11 +1631,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       }
       else
       {
-        switch(ShellCopyFile(Src,SrcData,DestPath,(DWORD)-1,Append))
+        CopyCode=ShellCopyFile(Src,SrcData,DestPath,(DWORD)-1,Append);
+        switch(CopyCode)
         {
           case COPY_SUCCESS:
             MoveCode=TRUE;
             break;
+          case COPY_FAILUREREAD:
           case COPY_FAILURE:
             MoveCode=FALSE;
             break;
@@ -1649,7 +1667,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     }
     else
     {
-      int CopyCode;
       if ((CopyCode=ShellCopyFile(Src,SrcData,DestPath,DestAttr,Append))==COPY_SUCCESS)
       {
         strcpy(CopiedName,PointToName(DestPath));
@@ -1669,6 +1686,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         if (CopyCode==COPY_CANCEL || CopyCode==COPY_NEXT)
           return((COPY_CODES)CopyCode);
     }
+    //????
+    if(CopyCode == COPY_FAILUREREAD)
+      return COPY_FAILURE;
+    //????
+
     char Msg1[2*NM],Msg2[2*NM];
     sprintf(Msg1,(ShellCopy::Flags&FCOPY_LINK) ? MSG(MCannotLink):
                    (ShellCopy::Flags&FCOPY_MOVE) ? MSG(MCannotMove):
@@ -2039,12 +2061,13 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
 
     if (CopyBufSize < CopyBufferSize)
       StartTime=clock();
-
+    UINT OldErrMode=SetErrorMode(SEM_NOOPENFILEERRORBOX|SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);
     while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
     {
       CopyTime+= (clock() - CopyStartTime);
       int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-                            MSG(MCopyReadError),SrcName,MSG(MRetry),MSG(MCancel));
+                            MSG(MCopyReadError),SrcName,
+                            MSG(MRetry),MSG(MCancel));
       CopyStartTime = clock();
       if (MsgCode==0)
         continue;
@@ -2067,8 +2090,11 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
       ShowBar(0,0,false);
       ShowTitle(FALSE);
       SetLastError(LastError);
-      return(COPY_FAILURE);
+      SetErrorMode(OldErrMode);
+      // return COPY_FAILUREREAD;
+      return COPY_FAILURE;
     }
+    SetErrorMode(OldErrMode);
     if (BytesRead==0)
       break;
 
