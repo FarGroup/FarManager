@@ -5,10 +5,13 @@ main.cpp
 
 */
 
-/* Revision: 1.50 08.04.2002 $ */
+/* Revision: 1.51 18.04.2002 $ */
 
 /*
 Modify:
+  18.04.2002 SKV
+    + потрогаем floating point что бы VC++ его подключил.
+    + ifdef что бы компилировалось под VC 7.0
   08.04.2002 SVS
     ! Расквочим строку MainPluginsPath
   26.03.2002 IS
@@ -219,6 +222,15 @@ int _cdecl main(int Argc, char *Argv[])
   *EditName=*ViewName=*DestName=0;
   CmdMode=FALSE;
 
+  /*$ 18.04.2002 SKV
+    Попользуем floating point что бы проинициализировался vc-ный fprtl.
+  */
+#ifdef _MSC_VER
+  float x=1.1f;
+  char buf[15];
+  sprintf(buf,"%f",x);
+#endif
+
   // если под дебагером, то отключаем исключения однозначно,
   //  иначе - смотря что указал юзвер.
 #if defined(_DEBUGEXC)
@@ -384,7 +396,11 @@ int _cdecl main(int Argc, char *Argv[])
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
 
+#if _MSC_VER>=1300
+  _set_new_handler(0);
+#else
   set_new_handler(0);
+#endif
 
   SetFileApisToOEM();
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);

@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.169 04.04.2002 $ */
+/* Revision: 1.170 18.04.2002 $ */
 
 /*
 Modify:
+  18.04.2002 SKV
+    ! При чтении позиции из кэша разворачиваем палки / в \
+    ! Перепозиционирование курсора и topline при alt-f9 в конце длинного файла.
   04.04.2002 SVS
     ! ECTL_TURNOFFMARKINGBLOK -> ECTL_TURNOFFMARKINGBLOCK
   04.04.2002 IS
@@ -959,7 +962,13 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       if (*PluginData)
         sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
       else
+      {
         strcpy(CacheName,FileName);
+        for(int i=0;CacheName[i];i++)
+        {
+          if(CacheName[i]=='/')CacheName[i]='\\';
+        }
+      }
       unsigned int Table;
       CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
                (EdOpt.SaveShortPos?SavePos.Line:NULL),
@@ -1023,7 +1032,13 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         if (*PluginData)
           sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
         else
+        {
           strcpy(CacheName,FileName);
+          for(int i=0;CacheName[i];i++)
+          {
+            if(CacheName[i]=='/')CacheName[i]='\\';
+          }
+        }
         unsigned int Table;
         CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
                (EdOpt.SaveShortPos?SavePos.Line:NULL),
@@ -1269,12 +1284,38 @@ void Editor::ShowEditor(int CurLineOnly)
   CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
   /* skv$*/
 
+  /* 17.04.2002 skv
+    Что б курсор не бегал при Alt-F9 в конце длинного файла.
+    Если на экране есть свободное место, и есть текст сверху,
+    перепозиционируем.
+  */
+
+  while(CalcDistance(TopScreen,NULL,Y2-Y1-1)<Y2-Y1-1)
+  {
+    if(TopScreen->Prev)
+    {
+      TopScreen=TopScreen->Prev;
+    }else
+    {
+      break;
+    }
+  }
+  /*
+    если курсор удруг оказался "за экраном",
+    подвинем экран под курсор, а не
+    курсор загоним в экран.
+  */
+
   while (CalcDistance(TopScreen,CurLine,-1)>=Y2-Y1)
   {
-    DisableOut=TRUE;
-    ProcessKey(KEY_UP);
-    DisableOut=FALSE;
+    TopScreen=TopScreen->Next;
+    //DisableOut=TRUE;
+    //ProcessKey(KEY_UP);
+    //DisableOut=FALSE;
   }
+
+
+  /* skv $ */
 
   CurPos=CurLine->EditLine.GetTabCurPos();
   if (!EdOpt.CursorBeyondEOL)

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.69 13.04.2002 $ */
+/* Revision: 1.70 18.04.2002 $ */
 
 /*
 Modify:
+  18.04.2002 SKV
+    - фикс деактиватора.
   13.04.2002 KM
     - Устранён важный момент неперерисовки, когда один
       над другим находится несколько объектов VMenu. Пример:
@@ -997,9 +999,13 @@ BOOL Manager::Commit()
 void Manager::DeactivateCommit()
 {
   _OT(SysLog("DeactivateCommit(), DeactivatedFrame=%p",DeactivatedFrame));
-  if (!DeactivatedFrame){
+  /*$ 18.04.2002 skv
+    Если нечего активировать, то в общем-то не надо и деактивировать.
+  */
+  if (!DeactivatedFrame || !ActivatedFrame){
     return;
   }
+  /* skv $*/
   if (!ActivatedFrame){
     _OT("WARNING!!!!!!!!");
   }
@@ -1095,7 +1101,22 @@ void Manager::DeleteCommit()
   //
   if (ifDoubI && ActivatedFrame!=SemiModalBackFrame){
 //    ModalStackCount++;
-    ModalStack[ModalStackCount++]=ActivatedFrame;
+    /*
+    //блин. это окозалось не решением.
+    //но что-то делать надо. только вот где???
+    for(int i=0;i<ModalStackCount;i++)
+    {
+      if(ModalStack[i]==ActivatedFrame)
+      {
+        break;
+      }
+    }
+
+    if(i==ModalStackCount)
+    {
+    */
+      ModalStack[ModalStackCount++]=ActivatedFrame;
+    //}
   }
 
   DeletedFrame->OnDestroy();
