@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.54 26.11.2001 $ */
+/* Revision: 1.55 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 SVS
+    - Бага в KeyNameToKey() - например, для "ShiftFooBar" выдаст KEY_SHIFT,
+      Лечится путем сравнения Pos и Len, т.е. в нормальной ситуации должно
+      быть Pos == Len
   26.11.2001 SVS
     + MouseEventFlags, PreMouseEventFlags - типы эвентов мыши
   20.11.2001 SVS
@@ -1033,10 +1037,12 @@ int WINAPI KeyNameToKey(const char *Name)
    if(Pos < Len)
    {
      // сначала - FKeys1
+     const char* Ptr=Name+Pos;
      for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
-       if (!memicmp(Name+Pos,FKeys1[I].Name,FKeys1[I].Len))
+       if (!memicmp(Ptr,FKeys1[I].Name,FKeys1[I].Len))
        {
          Key|=FKeys1[I].Key;
+         Pos+=FKeys1[I].Len;
          break;
        }
      if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]) && (Len == 1 || Pos == Len-1))
@@ -1047,12 +1053,13 @@ int WINAPI KeyNameToKey(const char *Name)
 //         if (Key&(0xFF000000-KEY_SHIFT))
 //           Chr=LocalUpper(Chr);
          Key|=Chr;
+         Pos++;
        }
      }
    }
 //_SVS(SysLog("Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 
-   return (!Key)? -1: Key;
+   return (!Key || Pos < Len)? -1: Key;
 }
 /* SVS $*/
 

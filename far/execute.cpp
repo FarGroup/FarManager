@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.22 07.12.2001 $ */
+/* Revision: 1.23 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 SVS
+    ! Уточнения в новом исполняторе - теперь вид шаблона исполнения задается
+      по другому.
   07.12.2001 SVS
     ! Уточнения в новом исполняторе (их еще будет море ;-))
     ! Из CommandLine::CmdExecute() гашение панелей перенесено в RedrawDesktop
@@ -632,9 +635,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           char TemplExecuteStart[512];
           char TemplExecuteWait[512];
           // <TODO: здесь надо по другому переделать>
-          GetRegKey("System\\Executor","Normal",TemplExecute,"%s /c %s %s",sizeof(TemplExecute));
-          GetRegKey("System\\Executor","Start",TemplExecuteStart,"%s /c start %s %s",sizeof(TemplExecuteStart));
-          GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%s /c start /wait %s %s",sizeof(TemplExecuteWait));
+          GetRegKey("System\\Executor","Normal",TemplExecute,"%COMSPEC% /c",sizeof(TemplExecute));
+          GetRegKey("System\\Executor","Start",TemplExecuteStart,"%COMSPEC% /c start",sizeof(TemplExecuteStart));
+          GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%COMSPEC% /c start /wait",sizeof(TemplExecuteWait));
 
           char *Fmt=TemplExecute;
           if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
@@ -647,10 +650,10 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           if (NT && *NewCmdStr == '\"' && *CmdEnd == '\"' &&
              strchr(NewCmdStr+1, '\"') != CmdEnd && SeparateWindow!=2)
             InsertQuote(NewCmdStr);
-          sprintf(ExecLine,Fmt,
-                           CommandName,
-                           (Fmt!=TemplExecute && NT && *CmdPtr=='\"'?"\"\"":""),
-                           NewCmdStr);
+          strncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
+          strcat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "));
+          strcat(ExecLine,NewCmdStr);
+          ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
           // </TODO>
         }
       }
@@ -691,7 +694,12 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     ChangeConsoleMode(InitialConsoleMode);
 
     if (SeparateWindow)
+    {
       CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:0;//DETACHED_PROCESS;
+      if(ExecutorType && (GUIType&3) == 1)
+        CreateFlags|=CREATE_NEW_CONSOLE;
+    }
+
 
     if (SeparateWindow==2)
     {
@@ -833,11 +841,11 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       }
       /* SKV$*/
     }
-    else if(ExecutorType && !(GUIType&2))// && AlwaysWaitFinish)
+    else if(ExecutorType && !SeparateWindow)//!(GUIType&2))// && AlwaysWaitFinish)
     {
       // поставим 800 мс, думаю хватит... хотя...
       // при нынешнем положении дел - это нафиг ненать (надо проверить!)
-      WaitForSingleObject(pi.hProcess,800);//INFINITE);
+      WaitForSingleObject(pi.hProcess,INFINITE);//INFINITE);
     }
 
 //    int CurScrX=ScrX,CurScrY=ScrY;
