@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.191 02.09.2003 $ */
+/* Revision: 1.192 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    ! Удаляем нафиг FolderContentReady - ведь есть же CheckFolder!!!
+    ! У CheckFolder - параметр есть "const"
   02.09.2003 SVS
     ! У функции CheckShortcutFolder добавился параметр Silent - чтобы сработать тихо :-)
     + Новая функция FolderContentReady(const char *Dir) - возвращает TRUE, если
@@ -631,7 +634,6 @@ void BoxTextW(WCHAR *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
 void ConvertCurrentPalette();
 void ReopenConsole();
-int CheckFolder(char *Name);
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
 int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-1);
@@ -851,7 +853,7 @@ void UseSameRegKey();
 void CloseSameRegKey();
 
 
-BOOL FolderContentReady(const char *Dir);
+int CheckFolder(const char *Name);
 int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silent=FALSE);
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))

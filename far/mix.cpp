@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.145 02.09.2003 $ */
+/* Revision: 1.146 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    ! Мля, турдно быть тупорылым :-(
+      Удаляем нафиг FolderContentReady - ведь есть же CheckFolder!!!
+    ! У CheckFolder - параметр есть "const"
   02.09.2003 SVS
     ! У функции CheckShortcutFolder добавился параметр Silent - чтобы сработать тихо :-)
     + Новая функция FolderContentReady(const char *Dir) - возвращает TRUE, если
@@ -481,22 +485,6 @@ __int64 filelen64(FILE *FPtr)
 }
 
 
-BOOL FolderContentReady(const char *Dir)
-{
-  BOOL Ret=FALSE;
-  if(Dir && *Dir)
-  {
-    WIN32_FIND_DATA fdata;
-    char Buf[2048];
-    strncpy(Buf,Dir,sizeof(Buf)-6);
-    strcat(Buf,"\\*.*");
-    HANDLE FindHandle=FindFirstFile(Buf,&fdata);
-    Ret=(FindHandle == INVALID_HANDLE_VALUE)?FALSE:TRUE;
-    FindClose(FindHandle);
-  }
-  return Ret;
-}
-
 /* $ 14.01.2002 IS
    Установка нужного диска и каталога и установление соответствующей переменной
    окружения. В случае успеха возвращается не ноль.
@@ -533,13 +521,17 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     *CurDir=toupper(*CurDir);
     if(ChangeDir)
     {
-      if(FolderContentReady(CurDir))
+      if(CheckFolder(CurDir) != CHKFLD_NOTACCESS)
         rc=SetCurrentDirectory(CurDir);
     }
   }
   else
   {
     strncpy(CurDir,NewDir,sizeof(CurDir)-1);
+    if(!strcmp(CurDir,"\\"))
+    {
+      FarGetCurDir(sizeof(CurDir),CurDir);
+    }
     char *Chr=CurDir;
     while(*Chr)
     {
@@ -548,7 +540,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
     if(ChangeDir)
     {
-      if(FolderContentReady(NewDir))
+      if(CheckFolder(NewDir) != CHKFLD_NOTACCESS)
         rc=SetCurrentDirectory(NewDir);
     }
   }
@@ -1015,7 +1007,7 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
    0 - пусто
   -1 - нет доступа
 */
-int CheckFolder(char *Path)
+int CheckFolder(const char *Path)
 {
   HANDLE FindHandle;
   char FindPath[NM*2];
