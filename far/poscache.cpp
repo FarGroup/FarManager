@@ -5,10 +5,14 @@ poscache.cpp
 
 */
 
-/* Revision: 1.08 06.06.2001 $ */
+/* Revision: 1.09 17.06.2001 $ */
 
 /*
 Modify:
+  17.06.2001 IS
+    ! Сменился формат записи - имя файла теперь берется в кавычки, т.к. оно
+      может содержать разделители
+    ! Для работы со списком используем не GetCommaWord, а UserDefinedList
   06.06.2001 SVS
     ! От конкретных чисел переходим к макросам + небольшая оптимизация.
   22.05.2001 tran
@@ -37,7 +41,12 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 
-static char EmptyPos[]="0,0,0,0,0,$";
+/* $ 17.06.2001 IS
+   + Имя файла должно быть взято в кавычки, т.к. оно может содержать
+     символы-разделители
+*/
+static char EmptyPos[]="0,0,0,0,0,\"$\"";
+/* IS $ */
 
 FilePositionCache::FilePositionCache()
 {
@@ -197,31 +206,44 @@ void FilePositionCache::Read(char *Key)
     }
     else
     {
-      char ArgData[2*NM],*DataPtr=DataStr;
-      for (int J=0;(DataPtr=GetCommaWord(DataPtr,ArgData))!=NULL;J++)
+      /* $ 17.06.2001 IS
+         ! Применяем интеллектуальный класс, а не GetCommaWord, которая не
+           учитывает кавычки
+      */
+      UserDefinedList DataList('\"', 0, FALSE);
+      int J=0;
+      const char *DataPtr;
+      char ArgData[2*NM];
+      if(DataList.Set(DataStr))
       {
-        if (*ArgData=='$')
-          strcpy(Names+I*3*NM,ArgData+1);
-        else
-          switch(J)
-          {
-            case 0:
-              Positions[I*5+0]=atoi(ArgData);
-              break;
-            case 1:
-              Positions[I*5+1]=atoi(ArgData);
-              break;
-            case 2:
-              Positions[I*5+2]=atoi(ArgData);
-              break;
-            case 3:
-              Positions[I*5+3]=atoi(ArgData);
-              break;
-            case 4:
-              Positions[I*5+4]=atoi(ArgData);
-              break;
-          }
+         DataList.Start();
+         while(NULL!=(DataPtr=DataList.GetNext()))
+         {
+           if(*DataPtr=='$')
+              strcpy(Names+I*3*NM,DataPtr+1);
+           else
+             switch(J)
+             {
+               case 0:
+                 Positions[I*5+0]=atoi(DataPtr);
+                 break;
+               case 1:
+                 Positions[I*5+1]=atoi(DataPtr);
+                 break;
+               case 2:
+                 Positions[I*5+2]=atoi(DataPtr);
+                 break;
+               case 3:
+                 Positions[I*5+3]=atoi(DataPtr);
+                 break;
+               case 4:
+                 Positions[I*5+4]=atoi(DataPtr);
+                 break;
+             }
+           ++J;
+         }
       }
+      /* IS $ */
     }
     sprintf(SubKey,"Short%d",I);
     memset(DataStr,0xff,(BOOKMARK_COUNT*4)*sizeof(long));
@@ -242,8 +264,13 @@ void FilePositionCache::Save(char *Key)
       Pos-=Opt.MaxPositionCache;
     char SubKey[100],DataStr[512];
     sprintf(SubKey,"Item%d",I);
-    sprintf(DataStr,"%d,%d,%d,%d,%d,$%s",Positions[Pos*5+0],Positions[Pos*5+1],
+    /* $ 17.06.2001 IS
+       + Имя файла должно быть взято в кавычки, т.к. оно может содержать
+         символы-разделители
+    */
+    sprintf(DataStr,"%d,%d,%d,%d,%d,\"$%s\"",Positions[Pos*5+0],Positions[Pos*5+1],
             Positions[Pos*5+2],Positions[Pos*5+3],Positions[Pos*5+4],&Names[Pos*3*NM]);
+    /* IS $ */
     SetRegKey(Key,SubKey,DataStr);
     if((Opt.SaveViewerShortPos && Opt.SaveViewerPos) ||
        (Opt.SaveEditorShortPos && Opt.SaveEditorPos))

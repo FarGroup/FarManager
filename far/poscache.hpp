@@ -7,10 +7,12 @@ poscache.hpp
 
 */
 
-/* Revision: 1.02 02.04.2001 $ */
+/* Revision: 1.03 17.06.2001 $ */
 
 /*
 Modify:
+  17.06.2001 IS
+    + include "udlist.hpp"
   02.04.2001 VVM
     + int FindPosition()
   24.09.2000 SVS
@@ -19,6 +21,8 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+
+#include "udlist.hpp"
 
 #define MAX_POSITIONS 64
 
