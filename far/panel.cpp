@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.86 06.02.2002 $ */
+/* Revision: 1.87 09.02.2002 $ */
 
 /*
 Modify:
+  09.02.2002 VVM
+    ! Когда жмет Del на сидюке - не надо сдвигать позицию.
   06.02.2002 tran
     ! Bugz#208 - уточняем еще раз - панель должна быть FILE_PANEL
       а не TREE, INFO, QUICK и пр.
@@ -656,10 +658,11 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             */
             if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
-              if (ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData)))
+              int Code = ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData));
+              if (Code != DRIVE_DEL_FAIL)
               /* $ 19.01.2002 VVM
                 + Если диск был последним - в конце и останемся */
-                return (((DiskCount-SelPos)==1) && (SelPos > 0))?SelPos-1:SelPos;
+                return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
               /* VVM $ */
             }
             /* DJ $ */
@@ -841,7 +844,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
    обработка Del в меню дисков
 */
 
-BOOL Panel::ProcessDelDisk (char Drive, int DriveType)
+int Panel::ProcessDelDisk (char Drive, int DriveType)
 {
   // если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
   // удалению
@@ -896,7 +899,7 @@ BOOL Panel::ProcessDelDisk (char Drive, int DriveType)
   if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
   {
     EjectVolume(Drive,0);
-    return TRUE;
+    return DRIVE_DEL_EJECT;
   }
   /* SVS $ */
   /* $ 05.01.2001 SVS
@@ -905,7 +908,7 @@ BOOL Panel::ProcessDelDisk (char Drive, int DriveType)
   if(DriveType == DRIVE_SUBSTITUTE)
   {
     if(!DelSubstDrive(DiskLetter))
-      return TRUE;
+      return DRIVE_DEL_SUCCESS;
     else
     {
       int LastError=GetLastError();
@@ -916,20 +919,20 @@ BOOL Panel::ProcessDelDisk (char Drive, int DriveType)
                 MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
         {
           if(!DelSubstDrive(DiskLetter))
-            return TRUE;
+            return DRIVE_DEL_SUCCESS;
         }
         else
-          return FALSE;
+          return DRIVE_DEL_FAIL;
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
     }
-    return FALSE; // блин. в прошлый раз забыл про это дело...
+    return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
   }
   /* SVS $ */
 
   if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(Drive,UpdateProfile))
   {
     if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
-      return TRUE;
+      return DRIVE_DEL_SUCCESS;
     else
     {
       int LastError=GetLastError();
@@ -940,18 +943,18 @@ BOOL Panel::ProcessDelDisk (char Drive, int DriveType)
                 MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel))==0)
         {
           if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
-            return TRUE;
+            return DRIVE_DEL_SUCCESS;
         }
         else
-          return FALSE;
+          return DRIVE_DEL_FAIL;
       char RootDir[50];
       sprintf(RootDir,"%c:\\",*DiskLetter);
       if (GetDriveType(RootDir)==DRIVE_REMOTE)
         Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
     }
-    return FALSE;
+    return DRIVE_DEL_FAIL;
   }
-  return FALSE;
+  return DRIVE_DEL_FAIL;
 }
 /* DJ $ */
 

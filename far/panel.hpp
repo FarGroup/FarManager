@@ -7,10 +7,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.12 28.12.2001 $ */
+/* Revision: 1.13 09.02.2002 $ */
 
 /*
 Modify:
+  09.02.2002 VVM
+    ! ProcessDelDisk возвращает
+      enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT}
   28.12.2001 DJ
     ! обработка Del в меню дисков вынесена в отдельную функцию
   27.11.2001 SVS
@@ -83,6 +86,8 @@ enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2};
 
 enum {NORMAL_PANEL,PLUGIN_PANEL};
 
+enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT};
+
 class Panel:public ScreenObject
 {
   protected:
@@ -112,7 +117,7 @@ class Panel:public ScreenObject
     /* $ 28.12.2001 DJ
        обработка Del в меню дисков
     */
-    BOOL ProcessDelDisk (char Drive, int DriveType);
+    int ProcessDelDisk (char Drive, int DriveType);
     /* DJ $ */
     void FastFindShow(int FindX,int FindY);
     void DragMessage(int X,int Y,int Move);
