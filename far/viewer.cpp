@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.91 01.03.2002 $ */
+/* Revision: 1.92 10.03.2002 $ */
 
 /*
 Modify:
+  10.03.2002 tran
+    ! Bugz#275 - CtrlS должен работать глобально
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   15.02.2002 SVS
@@ -1361,6 +1363,10 @@ int Viewer::ProcessKey(int Key)
        включить/выключить скролбар */
     case KEY_CTRLS:
         ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
+        /* $ 10.03.2002 tran
+           Bugz#275 - CtrlS должне работать глобально */
+        Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
+        /* tran $ */
         Show();
         return (TRUE);
     /* tran 18.07.2000 $ */
