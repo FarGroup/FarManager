@@ -1,0 +1,17 @@
+LIBRARY
+EXPORTS
+	SetStartupInfo
+	OpenFilePlugin
+	ClosePlugin
+	GetPluginInfo
+	GetOpenPluginInfo
+	GetFindData
+	FreeFindData
+	SetDirectory
+	DeleteFiles
+	GetFiles
+	PutFiles
+	ProcessHostFile
+	ProcessKey
+	Configure
+	ExitFAR

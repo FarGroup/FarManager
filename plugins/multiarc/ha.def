@@ -1,0 +1,8 @@
+LIBRARY
+EXPORTS
+	IsArchive
+	OpenArchive
+    GetArcItem
+    CloseArchive
+    GetFormatName
+    GetDefaultCommands

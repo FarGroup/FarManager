@@ -1,0 +1,29 @@
+#include <windows.h>
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+1 VERSIONINFO
+FILEVERSION 1, 15, 0, 0
+PRODUCTVERSION 1, 70, 6, 0
+FILEOS 4
+FILEFLAGS 0
+FILETYPE 2
+FILESUBTYPE 0
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "000004E4"
+  {
+   VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
+   VALUE "FileDescription", "Second-level plugin module for FAR Manager and MultiArc plugin\000\000"
+   VALUE "FileVersion", "1.15\000\000"
+   VALUE "InternalName", "arj\000\000"
+   VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © FAR Group, 2000-2004\000\000"
+   VALUE "OriginalFilename", "ARJ.FMT\000\000"
+   VALUE "ProductName", "MultiArc\000\000"
+   VALUE "ProductVersion", "1.70 beta 6\000\000"
+  }
+ }
+ BLOCK "VarFileInfo"
+ {
+   VALUE "Translation", 0x0, 1252
+ }
+}

@@ -1,0 +1,395 @@
+PluginClass::PluginClass(int ArcPluginNumber)
+{
+  *ArcName=0;
+  *CurDir=0;
+  ArcData=NULL;
+  ArcDataCount=0;
+  PluginClass::ArcPluginNumber=ArcPluginNumber;
+  DizPresent=FALSE;
+}
+
+
+PluginClass::~PluginClass()
+{
+  for (int I=0;I<ArcDataCount;I++)
+    if (ArcData[I].Description!=NULL)
+      delete ArcData[I].Description;
+  delete ArcData;
+}
+
+
+int PluginClass::ReadArchive(char *Name)
+{
+  delete ArcData;
+  ArcData=NULL;
+  ArcDataCount=0;
+
+  DizPresent=FALSE;
+
+  HANDLE ArcFindHandle;
+  ArcFindHandle=FindFirstFile(Name,&ArcFindData);
+  FindClose(ArcFindHandle);
+
+  if (ArcFindHandle==INVALID_HANDLE_VALUE)
+    return(FALSE);
+  if (!ArcPlugin->OpenArchive(ArcPluginNumber,Name,&ArcPluginType))
+    return(FALSE);
+  strcpy(ArcName,Name);
+  if (strchr(PointToName(ArcName),'.')==NULL)
+    strcat(ArcName,".");
+
+  memset(&ItemsInfo,0,sizeof(ItemsInfo));
+  memset(&CurArcInfo,0,sizeof(CurArcInfo));
+  TotalSize=PackedSize=0;
+
+  HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
+
+  clock_t StartTime=clock();
+  int WaitMessage=FALSE;
+  int AllocatedCount=0;
+
+  int GetItemCode;
+  while (1)
+  {
+    PluginPanelItem CurArcData;
+    struct ArcItemInfo CurItemInfo;
+    memset(&CurArcData,0,sizeof(CurArcData));
+    memset(&CurItemInfo,0,sizeof(CurItemInfo));
+    GetItemCode=ArcPlugin->GetArcItem(ArcPluginNumber,&CurArcData,&CurItemInfo);
+    if (GetItemCode!=GETARC_SUCCESS)
+      break;
+    if ((ArcDataCount & 0x1f)==0)
+    {
+      if (CheckForEsc())
+      {
+        delete ArcData;
+        ArcData=NULL;
+        ArcDataCount=0;
+        ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
+        Info.RestoreScreen(hScreen);
+        return(-1);
+      }
+      if (clock()-StartTime>500)
+      {
+        char FilesMsg[100];
+        sprintf(FilesMsg,GetMsg(MArcReadFiles),ArcDataCount);
+        char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),
+                          Name,FilesMsg};
+        Info.Message(Info.ModuleNumber,WaitMessage ? FMSG_KEEPBACKGROUND:0,NULL,MsgItems,
+                   sizeof(MsgItems)/sizeof(MsgItems[0]),0);
+        WaitMessage=TRUE;
+      }
+    }
+    if (*CurItemInfo.Description)
+    {
+      CurArcData.Description=new char[strlen(CurItemInfo.Description)+1];
+      if (CurArcData.Description)
+        strcpy(CurArcData.Description,CurItemInfo.Description);
+      DizPresent=TRUE;
+    }
+    if (strcmp(ItemsInfo.HostOS,CurItemInfo.HostOS)!=0)
+      if (*ItemsInfo.HostOS)
+        strcpy(ItemsInfo.HostOS,GetMsg(MSeveralOS));
+      else
+        strcpy(ItemsInfo.HostOS,CurItemInfo.HostOS);
+    CurArcData.Flags=0;
+    ItemsInfo.Solid|=CurItemInfo.Solid;
+    ItemsInfo.Comment|=CurItemInfo.Comment;
+    ItemsInfo.Encrypted|=CurItemInfo.Encrypted;
+    if (CurItemInfo.Encrypted)
+      CurArcData.Flags|=F_ENCRYPTED;
+    if (CurItemInfo.DictSize>ItemsInfo.DictSize)
+      ItemsInfo.DictSize=CurItemInfo.DictSize;
+    if (CurItemInfo.UnpVer>ItemsInfo.UnpVer)
+      ItemsInfo.UnpVer=CurItemInfo.UnpVer;
+
+    *CurArcData.FindData.cAlternateFileName=0;
+    for (int I=0;CurArcData.FindData.cFileName[I];I++)
+      if (CurArcData.FindData.cFileName[I]=='/')
+        CurArcData.FindData.cFileName[I]='\\';
+    char *NamePtr=CurArcData.FindData.cFileName;
+/*    while (*NamePtr=='\\')
+      NamePtr++;
+    if (NamePtr[0]=='.')
+    {
+      if (NamePtr[1]=='\\')
+        NamePtr+=2;
+      else
+        if (NamePtr[1]=='.' && NamePtr[2]=='\\')
+          NamePtr+=3;
+    }*/
+    if (NamePtr!=CurArcData.FindData.cFileName)
+      memmove(CurArcData.FindData.cFileName,NamePtr,strlen(NamePtr)+1);
+    int Length=strlen(CurArcData.FindData.cFileName);
+    if (Length>0 && (CurArcData.FindData.cFileName[Length-1]=='\\'))
+    {
+      CurArcData.FindData.cFileName[Length-1]=0;
+      CurArcData.FindData.dwFileAttributes|=FILE_ATTRIBUTE_DIRECTORY;
+    }
+    PluginPanelItem *NewArcData=ArcData;
+    if (ArcDataCount>=AllocatedCount)
+    {
+      AllocatedCount=AllocatedCount+256+AllocatedCount/4;
+      NewArcData=(PluginPanelItem *)realloc(ArcData,AllocatedCount*sizeof(*ArcData));
+    }
+    if (NewArcData==NULL)
+      break;
+    TotalSize+=CurArcData.FindData.nFileSizeLow;
+    PackedSize+=CurArcData.PackSize;
+    ArcData=NewArcData;
+    ArcData[ArcDataCount]=CurArcData;
+    ArcDataCount++;
+  }
+  ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
+  switch(GetItemCode)
+  {
+    case GETARC_BROKEN:
+      {
+        char *MsgItems[]={GetMsg(MError),Name,GetMsg(MBadArchive),GetMsg(MOk)};
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+      }
+      break;
+    case GETARC_UNEXPEOF:
+      {
+        char *MsgItems[]={GetMsg(MError),Name,GetMsg(MUnexpEOF),GetMsg(MOk)};
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+      }
+      break;
+    case GETARC_READERROR:
+      {
+        char *MsgItems[]={GetMsg(MError),Name,GetMsg(MReadError),GetMsg(MOk)};
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+      }
+      break;
+  }
+  Info.RestoreScreen(hScreen);
+  return(TRUE);
+}
+
+
+int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode)
+{
+  HANDLE ArcFindHandle;
+  WIN32_FIND_DATA NewArcFindData;
+  ArcFindHandle=FindFirstFile(ArcName,&NewArcFindData);
+  FindClose(ArcFindHandle);
+
+  if (ArcFindHandle==INVALID_HANDLE_VALUE)
+    return(FALSE);
+  if (CompareFileTime(&NewArcFindData.ftLastWriteTime,&ArcFindData.ftLastWriteTime)!=0 ||
+      NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow || ArcData==NULL)
+    if (ReadArchive(ArcName)!=TRUE)
+      return(FALSE);
+
+  int CurDirLength=strlen(CurDir);
+  *pPanelItem=NULL;
+  *pItemsNumber=0;
+  for (int I=0;I<ArcDataCount;I++)
+  {
+    char Name[NM];
+    PluginPanelItem CurItem=ArcData[I];
+    bool Append=false;
+    strcpy(Name,CurItem.FindData.cFileName);
+    if (Name[0]=='\\')
+      Append=true;
+    if (Name[0]=='.' && (Name[1]=='\\' || Name[1]=='.' && Name[2]=='\\'))
+      Append=true;
+    if (!Append && strlen(Name)>CurDirLength && strnicmp(Name,CurDir,CurDirLength)==0 &&
+        (CurDirLength==0 || Name[CurDirLength]=='\\'))
+    {
+      char *StartName,*EndName;
+      StartName=Name+CurDirLength+(CurDirLength!=0);
+      if ((EndName=strchr(StartName,'\\'))!=NULL)
+      {
+        *EndName=0;
+        CurItem.FindData.dwFileAttributes=FILE_ATTRIBUTE_DIRECTORY;
+        CurItem.FindData.nFileSizeLow=CurItem.PackSize=0;
+      }
+      strcpy(CurItem.FindData.cFileName,StartName);
+      Append=true;
+      if (CurItem.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        for (int J=0;J<*pItemsNumber;J++)
+          if ((*pPanelItem)[J].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            if (stricmp(CurItem.FindData.cFileName,(*pPanelItem)[J].FindData.cFileName)==0)
+              Append=false;
+    }
+    if (Append)
+    {
+      PluginPanelItem *NewPanelItem=(PluginPanelItem *)realloc(*pPanelItem,(*pItemsNumber+1)*sizeof(PluginPanelItem));
+      if (NewPanelItem==NULL)
+        break;
+      *pPanelItem=NewPanelItem;
+      NewPanelItem[*pItemsNumber]=CurItem;
+      (*pItemsNumber)++;
+    }
+  }
+  return(TRUE);
+}
+
+
+void PluginClass::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
+{
+  delete PanelItem;
+}
+
+
+int PluginClass::SetDirectory(char *Dir,int OpMode)
+{
+  if (*Dir=='\\')
+    if (*(++Dir)==0)
+    {
+      *CurDir=0;
+      return(TRUE);
+    }
+  if (strcmp(Dir,"..")==0)
+  {
+    if (*CurDir==0)
+      return(FALSE);
+    char *Slash=strrchr(CurDir,'\\');
+    if (Slash!=NULL)
+      *Slash=0;
+    else
+      *CurDir=0;
+  }
+  else
+  {
+    int Found=FALSE;
+    int CurDirLength=strlen(CurDir);
+    if (CurDirLength!=0)
+      CurDirLength++;
+    int NewDirLength=strlen(Dir);
+    for (int I=0;I<ArcDataCount;I++)
+    {
+      char *CurName=ArcData[I].FindData.cFileName;
+
+      if (strlen(CurName)>=CurDirLength+NewDirLength &&
+          LocalStrnicmp(CurName+CurDirLength,Dir,NewDirLength)==0)
+      {
+        char Ch=CurName[CurDirLength+NewDirLength];
+        if (Ch=='\\' || Ch=='/' || Ch==0)
+        {
+          Found=TRUE;
+          break;
+        }
+      }
+    }
+    if (!Found)
+      return(FALSE);
+    if (*CurDir==0 || *Dir==0 || strchr(Dir,'\\')!=0)
+      strcpy(CurDir,Dir);
+    else
+    {
+      AddEndSlash(CurDir);
+      strcat(CurDir,Dir);
+    }
+  }
+  return(TRUE);
+}
+
+
+void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
+{
+  Info->StructSize=sizeof(*Info);
+  Info->Flags=OPIF_USEFILTER|OPIF_USESORTGROUPS|OPIF_USEHIGHLIGHTING|
+              OPIF_ADDDOTS|OPIF_COMPAREFATTIME;
+  Info->HostFile=ArcName;
+  Info->CurDir=CurDir;
+
+  char FormatName[100];
+  static char Format[100],DefExt[NM],Title[NM];
+  ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,FormatName,DefExt);
+  sprintf(Format,GetMsg(MArcFormat),FormatName);
+  Info->Format=Format;
+  sprintf(Title," %s:%s",FormatName,PointToName(ArcName));
+  if (*CurDir)
+  {
+    strcat(Title,"\\");
+    strcat(Title,CurDir);
+  }
+  strcat(Title," ");
+
+  Info->PanelTitle=Title;
+
+  static struct InfoPanelLine InfoLines[14];
+
+  memset(InfoLines,0,sizeof(InfoLines));
+  sprintf(InfoLines[0].Text,GetMsg(MInfoTitle),PointToName(ArcName));
+  InfoLines[0].Separator=TRUE;
+  sprintf(InfoLines[1].Text,GetMsg(MInfoArchive));
+  strcpy(InfoLines[1].Data,FormatName);
+  if (ItemsInfo.UnpVer!=0)
+    sprintf(InfoLines[1].Data+strlen(InfoLines[1].Data)," %d.%d",
+            ItemsInfo.UnpVer/256,ItemsInfo.UnpVer%256);
+  if (*ItemsInfo.HostOS)
+    sprintf(InfoLines[1].Data+strlen(InfoLines[1].Data),"/%s",ItemsInfo.HostOS);
+  strcpy(InfoLines[2].Text,GetMsg(MInfoArcType));
+  if (ItemsInfo.Solid)
+    strcpy(InfoLines[2].Data,GetMsg(MInfoSolid));
+  if (CurArcInfo.SFXSize)
+  {
+    if (*InfoLines[2].Data)
+      strcat(InfoLines[2].Data," ");
+    strcat(InfoLines[2].Data,GetMsg(MInfoSFX));
+  }
+  if (CurArcInfo.Volume)
+  {
+    if (*InfoLines[2].Data)
+      strcat(InfoLines[2].Data," ");
+    strcat(InfoLines[2].Data,GetMsg(MInfoVolume));
+  }
+  if (*InfoLines[2].Data==0)
+    strcpy(InfoLines[2].Data,GetMsg(MInfoNormal));
+  strcpy(InfoLines[3].Text,GetMsg(MInfoArcComment));
+  strcpy(InfoLines[3].Data,CurArcInfo.Comment ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+  strcpy(InfoLines[4].Text,GetMsg(MInfoFileComments));
+  strcpy(InfoLines[4].Data,ItemsInfo.Comment ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+  strcpy(InfoLines[5].Text,GetMsg(MInfoPasswords));
+  strcpy(InfoLines[5].Data,ItemsInfo.Encrypted ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+  strcpy(InfoLines[6].Text,GetMsg(MInfoRecovery));
+  strcpy(InfoLines[6].Data,CurArcInfo.Recovery ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+  strcpy(InfoLines[7].Text,GetMsg(MInfoLock));
+  strcpy(InfoLines[7].Data,CurArcInfo.Lock ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+  strcpy(InfoLines[8].Text,GetMsg(MInfoAuthVer));
+  strcpy(InfoLines[8].Data,(CurArcInfo.Flags & AF_AVPRESENT) ? GetMsg(MInfoPresent):GetMsg(MInfoAbsent));
+  strcpy(InfoLines[9].Text,GetMsg(MInfoDict));
+  if (ItemsInfo.DictSize==0)
+    strcpy(InfoLines[9].Data,"???");
+  else
+    sprintf(InfoLines[9].Data,"%d %s",ItemsInfo.DictSize,GetMsg(MInfoDictKb));
+  strcpy(InfoLines[10].Text,GetMsg(MInfoTotalFiles));
+  sprintf(InfoLines[10].Data,"%d",ArcDataCount);
+  strcpy(InfoLines[11].Text,GetMsg(MInfoTotalSize));
+  InsertCommas(TotalSize,InfoLines[11].Data);
+  strcpy(InfoLines[12].Text,GetMsg(MInfoPackedSize));
+  InsertCommas(PackedSize,InfoLines[12].Data);
+  strcpy(InfoLines[13].Text,GetMsg(MInfoRatio));
+  sprintf(InfoLines[13].Data,"%d%%",ToPercent(PackedSize,TotalSize));
+
+  Info->InfoLines=InfoLines;
+  Info->InfoLinesNumber=sizeof(InfoLines)/sizeof(InfoLines[0]);
+  static char *DescrFiles[32],DescrFilesString[256];
+  strcpy(DescrFilesString,Opt.DescriptionNames);
+  int DescrFilesNumber=0;
+  char *NamePtr=DescrFilesString;
+  while (DescrFilesNumber<sizeof(DescrFiles)/sizeof(DescrFiles[0]))
+  {
+    while (isspace(*NamePtr))
+      NamePtr++;
+    if (*NamePtr==0)
+      break;
+    DescrFiles[DescrFilesNumber++]=NamePtr;
+    if ((NamePtr=strchr(NamePtr,','))==NULL)
+      break;
+    *(NamePtr++)=0;
+  }
+  Info->DescrFiles=DescrFiles;
+  if (!Opt.ReadDescriptions || DizPresent)
+    Info->DescrFilesNumber=0;
+  else
+    Info->DescrFilesNumber=DescrFilesNumber;
+  static struct KeyBarTitles KeyBar;
+  memset(&KeyBar,0,sizeof(KeyBar));
+  KeyBar.ShiftTitles[1-1]="";
+  KeyBar.AltTitles[6-1]=GetMsg(MAltF6);
+  Info->KeyBar=&KeyBar;
+}
