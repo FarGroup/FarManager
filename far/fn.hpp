@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.37 20.10.2000 $ */
+/* Revision: 1.38 23.10.2000 $ */
 
 /*
 Modify:
+  23.10.2000 SVS
+   ! Узаконненая версия SysLog :-)
   20.10.2000 SVS
    ! ProcessName: Flags должен быть DWORD, а не int
   20.10.2000 SVS
@@ -580,5 +582,32 @@ void WINAPI DeleteBuffer(char* Buffer);
 };
 #endif
 /* SVS $ */
-void SysLog(char *fmt,...);
+
+void SysLog(int l);
+void SysLog(char *msg,...);
+
+void OpenSysLog();
+void CloseSysLog();
+
+struct TUserLog
+{
+    FILE *Stream;
+    int   Level;
+};
+
+
+FILE *OpenLogStream(char *file);
+
+#define L_ERR      1
+#define L_WARNING  2
+#define L_INFO     3
+#define L_DEBUG1   4
+#define L_DEBUG2   5
+#define L_DEBUG3   6
+
+#define MAX_ARG_LEN   4096
+#define MAX_LOG_LINE 10240
+
+#define MAX_FILE 260
+
 #endif  // __FARFUNC_HPP__

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.36 20.10.2000 $ */
+/* Revision: 1.37 23.10.2000 $ */
 
 /*
 Modify:
+  23.10.2000 SVS
+    ! Узаконненая версия SysLog :-)
+      Задолбался я ставить комметарии после AT ;-)
   20.10.2000 SVS
     ! ProcessName: Flags должен быть DWORD, а не int
   20.10.2000 SVS
@@ -2495,26 +2498,88 @@ void WINAPI DeleteBuffer(char *Buffer)
 }
 /* skv$*/
 
+#if defined(SYSLOG)
+char         LogFileName[MAX_FILE];
+static FILE *LogStream=0;
+static int   Indent=0;
+#endif
+
+FILE * OpenLogStream(char *file)
+{
+#if defined(SYSLOG)
+    time_t t;
+    struct tm *time_now;
+    char RealLogName[MAX_FILE];
+//    char rfile[MAX_FILE];
+
+    time(&t);
+    time_now=localtime(&t);
+
+    strftime(RealLogName,MAX_FILE,file,time_now);
+    return _fsopen(RealLogName,"a+t",SH_DENYWR);
+#endif
+}
+
+void OpenSysLog()
+{
+#if defined(SYSLOG)
+    if ( LogStream )
+        fclose(LogStream);
+
+    GetModuleFileName(NULL,LogFileName,sizeof(LogFileName));
+    strcpy(strrchr(LogFileName,'\\')+1,"far.log");
+    LogStream=OpenLogStream(LogFileName);
+    //if ( !LogStream )
+    //{
+    //    fprintf(stderr,"Can't open log file '%s'\n",LogFileName);
+    //}
+#endif
+}
+
+void CloseSysLog(void)
+{
+#if defined(SYSLOG)
+    fclose(LogStream);
+    LogStream=0;
+#endif
+}
+
+void SysLog(int i)
+{
+#if defined(SYSLOG)
+    Indent+=i;
+    if ( Indent<0 )
+        Indent=0;
+#endif
+}
+
 void SysLog(char *fmt,...)
 {
 #if defined(SYSLOG)
-  va_list argptr;
-  va_start(argptr,fmt);
-  char OutStr[1024];
-  vsprintf(OutStr,fmt,argptr);
+    char spaces[]="                                                                                                                                                       ";
+    char msg[MAX_LOG_LINE];
+    time_t t;
+    struct tm *tm;
+    char timebuf[64];
 
-  char FarFileName[NM];
-  GetModuleFileName(NULL,FarFileName,sizeof(FarFileName));
-  strcpy(strrchr(FarFileName,'\\')+1,"far.log");
-  FILE *LogFile=fopen(FarFileName,"r+b");
-  if (LogFile!=NULL)
-  {
-    SYSTEMTIME tm;
-    GetLocalTime(&tm);
-    fseek(LogFile,0,2);
-    fprintf(LogFile,"%02d:%02d:%02d %s\r\n",tm.wHour,tm.wMinute,tm.wSecond,OutStr);
-    fclose(LogFile);
-  }
-  va_end(argptr);
+    va_list argptr;
+    va_start( argptr, fmt );
+
+    vsprintf( msg, fmt, argptr );
+    va_end(argptr);
+
+    time (&t);
+    tm = localtime (&t);
+    strftime (timebuf, sizeof (timebuf), "%d.%m.%Y %H:%M:%S", tm);
+
+    OpenSysLog();
+    if ( LogStream )
+    {
+        spaces[Indent]=0;
+        fprintf(LogStream,"%s %s %s\n",timebuf,spaces,msg);
+        fflush(LogStream);
+    }
+    CloseSysLog();
 #endif
 }
+
