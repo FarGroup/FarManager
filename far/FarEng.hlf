@@ -2166,6 +2166,11 @@ is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
+    В строке ввода может указываться как одна цель для копирования или
+перемещения, так и несколько. В последнем случае цели должны быть разделены
+символом-разделителем "#;#". Если цели содержит в своем имени символ ";",
+то эта цель должна быть взята в кавычки.
+
 @HardSymLink
 $ #Hard and Symbolic link#
     On NTFS partitions you can create #hard links# and #symbolic links#

@@ -120,6 +120,10 @@ SOURCE=.\copy.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\udlist.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\farexcpt.cpp
 # End Source File
 # Begin Source File
@@ -493,6 +497,10 @@ SOURCE=.\constitle.hpp
 # Begin Source File
 
 SOURCE=.\copy.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\udlist.hpp
 # End Source File
 # Begin Source File
 

@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.69 30.05.2001 $ */
+/* Revision: 1.70 02.06.2001 $ */
 
 /*
 Modify:
+  02.06.2001 IS
+    + MCopyIncorrectTargetList - сообщение о неправильном списке целей при
+      копировании или перемещении
   30.05.2001 SVS
     + MCMLItems* - про окончания для диалога попирования
     + MCopyCannotCreateJunction, MCopyFolderNotEmpty, MCopyCannotCreateVolMount,
@@ -431,6 +434,8 @@ enum
   MCMLItems0,
   MCMLItemsA,
   MCMLItemsS,
+
+  MCopyIncorrectTargetList,
 
   MCopyNotSupportLink1,
   MCopyNotSupportLink2,

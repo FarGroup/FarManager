@@ -1,5 +1,8 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
+.\udlist.cpp : \
+	".\udlist.hpp"\
+
 .\farexcpt.cpp : \
 	".\farexcpt.hpp"\
 	".\chgmmode.hpp"\
@@ -517,6 +520,7 @@
 
 .\copy.cpp : \
     ".\filepanels.hpp"\
+	".\udlist.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\cmdline.hpp"\

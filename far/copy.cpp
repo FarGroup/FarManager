@@ -5,10 +5,16 @@ copy.cpp
 
 */
 
-/* Revision: 1.36 01.06.2001 $ */
+/* Revision: 1.37 02.06.2001 $ */
 
 /*
 Modify:
+  02.06.2001 IS
+    ! #define COPY* -> enum
+    + Коректная (надеюсь) обработка списка целей с учетом кавычек
+    + Проверка списка целей на корректность
+    ! Некоторые манипуляции из-за мультикопирования делаются для каждой цели
+      отдельно
   01.06.2001 SVS
     ! С FAT&CDFS -> NTFS можно делать symlink! Но при условии, что
       CD монтирован на NTFS!!!
@@ -127,13 +133,15 @@ Modify:
 #include "savescr.hpp"
 #include "manager.hpp"
 
-#define COPY_BUFFER_SIZE 0x10000
+enum {COPY_BUFFER_SIZE  = 0x10000};
 
 /* $ 30.01.2001 VVM
    + Константы для правил показа
    + Рабочие перменные */
-#define COPY_RULE_NUL   0x0001
-#define COPY_RULE_FILES 0x0002
+enum {
+  COPY_RULE_NUL    = 0x0001,
+  COPY_RULE_FILES  = 0x0002,
+};
 
 static int ShowCopyTime;
 static clock_t CopyStartTime;
@@ -337,7 +345,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
   else if(PanelMode == PLUGIN_PANEL)
   {
-    // Если противоположная панель - плагин, то дисаблим OnlyNever
+    // Если противоположная панель - плагин, то дисаблим OnlyNewer
     CopyDlg[5].Flags|=DIF_DISABLE;
   }
 
@@ -410,8 +418,32 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     Dlg.SetPosition(-1,-1,76,11);
 
 //    Dlg.Show();
+    /* $ 02.06.2001 IS
+       + Проверим список целей и поднимем тревогу, если он содержит ошибки
+    */
+    #ifdef COPY_NOMULTICOPY
     Dlg.Process();
     int DlgExitCode=Dlg.GetExitCode();
+    #else
+    int DlgExitCode;
+    for(;;)
+    {
+      Dlg.ClearDone();
+      Dlg.Process();
+      DlgExitCode=Dlg.GetExitCode();
+      if(DlgExitCode == 7)
+      {
+        if(DestList.Set(CopyDlg[2].Data))
+          break;
+        else
+          Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
+                  MSG(MCopyIncorrectTargetList), MSG(MOk));
+      }
+      else
+        break;
+    }
+    #endif
+    /* IS $ */
     if(DlgExitCode == 9 || DlgExitCode < 0 || (CopyDlg[7].Flags&DIF_DISABLE))
     {
       if (DestPlugin)
@@ -431,19 +463,21 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     return;
   }
 
+  /* $ 02.06.2001 IS
+     ! Не нужно удалять пробелы и кавычки при мультикопировании, потому что
+       все, что нужно будет сделано в DirList.Set
+  */
+  #ifdef COPY_NOMULTICOPY
   Unquote(CopyDlg[2].Data);
   RemoveTrailingSpaces(CopyDlg[2].Data);
+  #endif
+  /* IS $ */
 
   // Выставляем признак копирования в NUL
   ShellCopy::Flags|=(!stricmp(CopyDlg[2].Data,"nul"))?FCOPY_COPYTONUL:0;
 
-  // Если выделенных элементов больше 1 и среди них есть каталог, то всегда
-  // делаем так, чтобы на конце был '\\'
   if(CDP.SelCount==1 || (ShellCopy::Flags&FCOPY_COPYTONUL))
     AddSlash=FALSE; //???
-
-  if(AddSlash)
-      AddEndSlash(CopyDlg[2].Data);
 
   if (DestPlugin==2)
   {
@@ -474,18 +508,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     if (CopyDlg[2].Data[I]=='/')
       CopyDlg[2].Data[I]='\\';
 
-  // Для перемещение одного объекта скинем просчет "тотала"
-  if (CDP.SelCount==1 && Move && strpbrk(CopyDlg[2].Data,":\\")==NULL)
-    ShowTotalCopySize=FALSE;
-
-  if(Move) // при перемещении "тотал" так же скидывается для "того же диска"
-  {
-    char SrcDir[NM];
-    SrcPanel->GetCurDir(SrcDir);
-    if(IsSameDisk(SrcDir,CopyDlg[2].Data))
-      ShowTotalCopySize=FALSE;
-  }
-
   // нужно ли показывать время копирования?
   ShowCopyTime = Opt.CopyTimeRule & ((ShellCopy::Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES);
 
@@ -500,22 +522,64 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
      то нужно парсить CopyDlg[2].Data на предмет MultiCopy и
      вызывать CopyFileTree нужное количество раз.
   */
+  /* $ 02.06.2001 IS
+     + Коректная обработка списка целей с учетом кавычек
+  */
   {
-    char ArgName[NM],*NamePtr=CopyDlg[2].Data;
     ShellCopy::Flags&=~FCOPY_MOVE;
-    while (NamePtr && *NamePtr)
-    {
-      NamePtr=GetCommaWord(NamePtr,ArgName,';');
-      RemoveTrailingSpaces(ArgName);
+    if(DestList.Set(CopyDlg[2].Data)) // если список успешно "скомпилировался"
+      {
+        const char *NamePtr;
+        char NameTmp[NM];
+        DestList.Start();
+        while(NULL!=(NamePtr=DestList.GetNext()))
+        {
+          if(DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
+            ShellCopy::Flags|=Move?FCOPY_MOVE:0; // только для последней операции
 
-      if(!NamePtr || !*NamePtr) // нужно учесть моменты связанные с операцией Move.
-        ShellCopy::Flags|=Move?FCOPY_MOVE:0; // только для последней операции
+          strcpy(NameTmp, NamePtr);
 
-      if(CopyFileTree(ArgName) == COPY_CANCEL)
-        break;
-    }
+          // Если выделенных элементов больше 1 и среди них есть каталог, то всегда
+          // делаем так, чтобы на конце был '\\'
+          if(AddSlash)
+              AddEndSlash(NameTmp);
+
+          // Для перемещение одного объекта скинем просчет "тотала"
+          if (CDP.SelCount==1 && Move && strpbrk(NameTmp,":\\")==NULL)
+            ShowTotalCopySize=FALSE;
+
+          if(Move) // при перемещении "тотал" так же скидывается для "того же диска"
+          {
+            char SrcDir[NM];
+            SrcPanel->GetCurDir(SrcDir);
+            if(IsSameDisk(SrcDir,NameTmp))
+              ShowTotalCopySize=FALSE;
+          }
+
+          if(CopyFileTree(NameTmp) == COPY_CANCEL)
+            break;
+        }
+      }
   }
+  /* IS $ */
 #else
+  // Если выделенных элементов больше 1 и среди них есть каталог, то всегда
+  // делаем так, чтобы на конце был '\\'
+  if(AddSlash)
+      AddEndSlash(CopyDlg[2].Data);
+
+  // Для перемещение одного объекта скинем просчет "тотала"
+  if (CDP.SelCount==1 && Move && strpbrk(CopyDlg[2].Data,":\\")==NULL)
+    ShowTotalCopySize=FALSE;
+
+  if(Move) // при перемещении "тотал" так же скидывается для "того же диска"
+  {
+    char SrcDir[NM];
+    SrcPanel->GetCurDir(SrcDir);
+    if(IsSameDisk(SrcDir,CopyDlg[2].Data))
+      ShowTotalCopySize=FALSE;
+  }
+
   CopyFileTree(CopyDlg[2].Data);
 #endif
 

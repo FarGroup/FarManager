@@ -233,6 +233,8 @@
 "s"
 "s"
 
+"Incorrect target list!"
+
 "The link creation feature"
 "is available only under Windows NT/2000"
 
@@ -1484,6 +1486,7 @@
 " Do you really want to cancel it? "
 
 "The file is being checked by the plugin"
+
 "Dialog"
 
 "Evaluation version"

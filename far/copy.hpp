@@ -7,10 +7,14 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.07 30.05.2001 $ */
+/* Revision: 1.08 02.06.2001 $ */
 
 /*
 Modify:
+  02.06.2001 IS
+    ! #define FCOPY* -> enum
+      ну, не люблю дефайны (начитался Скотта Мейерса)
+    + #include "udlist" & DestList
   30.05.2001 SVS
     ! ShellCopy::CreatePath выведена из класса в отдельню функцию
     + CopyDlgProc()
@@ -37,6 +41,7 @@ Modify:
 
 #include "dizlist.hpp"
 #include "int64.hpp"
+#include "udlist.hpp"
 
 class Panel;
 
@@ -48,17 +53,19 @@ enum COPY_CODES {
   COPY_SUCCESS_MOVE
 };
 
-#define FCOPY_COPYTONUL      0x00000001 // Признак копирования в NUL
-#define FCOPY_CURRENTONLY    0x00000002 //
-#define FCOPY_ONLYNEWERFILES 0x00000004 // Copy only newer files
-#define FCOPY_CREATESYMLINK  0x00000004
-#define FCOPY_OVERWRITENEXT  0x00000008
-#define FCOPY_LINK           0x00000010
-#define FCOPY_MOVE           0x00000040
-#define FCOPY_DIZREAD        0x00000080
-#define FCOPY_COPYSECURITY   0x00000100
-#define FCOPY_NOSHOWMSGLINK  0x00000200
-#define FCOPY_VOLMOUNT       0x00000400
+enum COPY_FLAGS {
+  FCOPY_COPYTONUL       = 0x00000001, // Признак копирования в NUL
+  FCOPY_CURRENTONLY     = 0x00000002, //
+  FCOPY_ONLYNEWERFILES  = 0x00000004, // Copy only newer files
+  FCOPY_CREATESYMLINK   = 0x00000004,
+  FCOPY_OVERWRITENEXT   = 0x00000008,
+  FCOPY_LINK            = 0x00000010,
+  FCOPY_MOVE            = 0x00000040,
+  FCOPY_DIZREAD         = 0x00000080,
+  FCOPY_COPYSECURITY    = 0x00000100,
+  FCOPY_NOSHOWMSGLINK   = 0x00000200,
+  FCOPY_VOLMOUNT        = 0x00000400,
+};
 
 class ShellCopy
 {
@@ -88,6 +95,9 @@ class ShellCopy
     int SrcDriveType;
     char SrcDriveRoot[NM];
     int SelectedFolderNameLength;
+    #ifndef COPY_NOMULTICOPY
+    UserDefinedList DestList; // хранение списка целей
+    #endif
 
   private:
     COPY_CODES CopyFileTree(char *Dest);

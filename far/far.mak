@@ -53,6 +53,7 @@ CLEAN :
 	-@erase "$(INTDIR)\chgprior.obj"
 	-@erase "$(INTDIR)\cmdline.obj"
 	-@erase "$(INTDIR)\config.obj"
+	-@erase "$(INTDIR)\udlist.obj"
 	-@erase "$(INTDIR)\copy.obj"
 	-@erase "$(INTDIR)\ctrlobj.obj"
 	-@erase "$(INTDIR)\delete.obj"
@@ -164,6 +165,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\chgprior.obj" \
 	"$(INTDIR)\cmdline.obj" \
 	"$(INTDIR)\config.obj" \
+	"$(INTDIR)\udlist.obj" \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
 	"$(INTDIR)\delete.obj" \
@@ -283,6 +285,7 @@ CLEAN :
 	-@erase "$(INTDIR)\filepanels.obj"
 	-@erase "$(INTDIR)\cmdline.obj"
 	-@erase "$(INTDIR)\config.obj"
+	-@erase "$(INTDIR)\udlist.obj"
 	-@erase "$(INTDIR)\copy.obj"
 	-@erase "$(INTDIR)\ctrlobj.obj"
 	-@erase "$(INTDIR)\delete.obj"
@@ -393,6 +396,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\chgprior.obj" \
 	"$(INTDIR)\cmdline.obj" \
 	"$(INTDIR)\config.obj" \
+	"$(INTDIR)\udlist.obj"\
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
 	"$(INTDIR)\frame.obj" \
@@ -558,6 +562,10 @@ SOURCE=.\cmdline.cpp
 SOURCE=.\config.cpp
 
 "$(INTDIR)\config.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\udlist.cpp
+
+"$(INTDIR)\udlist.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\copy.cpp
