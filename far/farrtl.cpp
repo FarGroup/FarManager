@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.20 09.08.2004 $ */
+/* Revision: 1.21 09.10.2004 $ */
 
 /*
 Modify:
+  09.10.2004 SVS
+    - BugZ#1170 - Strange viewer behaviour if filesize > 0xFFFFFFFF
   09.08.2004 SKV
     - ftell64, fseek64 fix.
   06.08.2004 SKV
@@ -243,24 +245,29 @@ __int64 ftell64(FILE *fp)
 #else
 
 #include <io.h>
-//extern "C"{
-//_CRTIMP __int64 __cdecl _ftelli64 (FILE *str);
-//_CRTIMP int __cdecl _fseeki64 (FILE *stream, __int64 offset, int whence);
-//};
+#ifndef FAR_MSVCRT
+extern "C"{
+_CRTIMP __int64 __cdecl _ftelli64 (FILE *str);
+_CRTIMP int __cdecl _fseeki64 (FILE *stream, __int64 offset, int whence);
+};
+#endif
 
 __int64 ftell64(FILE *fp)
 {
-  //return _ftelli64(fp);
-  //return _telli64(fileno(fp));
+#ifndef FAR_MSVCRT
+  return _ftelli64(fp);
+#else
   fpos_t pos;
   if(fgetpos(fp,&pos)!=0)return 0;
   return pos;
+#endif
 }
 
 int fseek64 (FILE *fp, __int64 offset, int whence)
 {
-  //return _fseeki64(fp,offset,whence);
-  //return _lseeki64(fileno(fp),offset,whence);
+#ifndef FAR_MSVCRT
+  return _fseeki64(fp,offset,whence);
+#else
   switch(whence)
   {
     case SEEK_SET:return fsetpos(fp,&offset);
@@ -281,6 +288,7 @@ int fseek64 (FILE *fp, __int64 offset, int whence)
     }
   }
   return -1;
+#endif
 }
 
 #endif
