@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.236 10.10.2003 $ */
+/* Revision: 1.237 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! ESPT_WORDDIV -> ESPT_SETWORDDIV (NotInternal)
   10.10.2003 SVS
     + EditorOptions.WordDiv
     + ESPT_WORDDIV
@@ -6135,7 +6137,7 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  Type        =%s",_ESPT_ToName(espar->Type)));
         switch(espar->Type)
         {
-          case ESPT_WORDDIV:
+          case ESPT_SETWORDDIV:
             _ECTLLOG(SysLog("  cParam      =[%s]",espar->Param.cParam));
             SetWordDiv((!espar->Param.cParam || !*espar->Param.cParam)?Opt.WordDiv:espar->Param.cParam);
             break;

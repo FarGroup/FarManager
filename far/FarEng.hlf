@@ -114,10 +114,10 @@ $ #Command line switches#
         and 255.
         May be useful when executing FAR under telnet.
 
-  #/ag#   Disable display of pseudographics characters.
+  #/ag#   Disable display of pseudo-graphic characters.
 
   #/8#    Forces FAR to work with console, not using
-        unicode capabilies.
+        unicode capabilities.
         The option works only under Windows NT 4 or later.
 
   #/e[<line>[:<pos>]] <filename>#
@@ -134,7 +134,7 @@ $ #Command line switches#
         Search for "main" plugins in the folder given in <path>.
         Several search paths may be given separated by ';'.
 
-        Example: far /p%SystemRoot%\Profiles\%USERNAME%\FAR
+        Example: far /p%SystemRoot%\\Profiles\\%USERNAME%\\FAR
 
   #/co#   Forces FAR to load plugins from cache only.
         Plugins are loaded faster this way, but new or changed
@@ -330,6 +330,10 @@ the part of the filename that you have already entered.
    Besides the filename characters, you can also use the wildcard
 characters '*' and '?'.
 
+   Insertion of text, pasted from clipboard (Ctrl-V or Shift-Ins), to
+the fast find dialog will continue as long as there is a match found.
+
+
 @CmdLineCmd
 $ #Command line commands#
  #Common command line commands#
@@ -357,7 +361,7 @@ $ #Command line commands#
 
      In the ~fast find~@FastFind@ mode, Ctrl-Enter does not insert a
      file name, but instead cycles the files matching the
-     filemask entered in the fast find box.
+     file mask entered in the fast find box.
 
   Insert current file name from the passive panel   #Ctrl-Shift-Enter#
   Insert full file name from the active panel                 #Ctrl-F#
@@ -527,7 +531,7 @@ details.
     in the ~drive selection menu~@DriveDlg@. Pressing Shift-Enter
     on "#..#" opens the current directory in the Explorer.
 
-  Change to the root folder                                   #Ctrl-\#
+  Change to the root folder                                   #Ctrl-\\#
 
   Change folder, enter an archive (also a SFX archive)     #Ctrl-PgDn#
 
@@ -700,12 +704,12 @@ later through ~keyboard macro commands~@KeyMacro@.
 
 
 @PluginsReviews
-$ #Overview of plugin capabilites#
+$ #Overview of plugin capabilities#
     The FAR manager is so tightly integrated with its plugins that it
 is simply meaningless to talk about FAR and not to mention the plugins.
 Plugins present an almost limitless expansion of the features of FAR.
 
-    Without going into details, some of the capabililities can be noted:
+    Without going into details, some of the capabilities can be noted:
 
   * Syntax highlighting in program source texts.
   * Working with FTP-servers (including access through proxy).
@@ -729,7 +733,7 @@ Plugins present an almost limitless expansion of the features of FAR.
   * Connection and debugging of queries to ODBC-compatible
     databases.
   * RAS service control.
-  * External programs executing (compilers, convertors etc.) while
+  * External programs executing (compilers, converters etc.) while
     editing text in FAR editor.
   * Windows help files contents displaying (.hlp and .chm)
   * Calculators with different possibilities.
@@ -1114,15 +1118,15 @@ variables in the input line, which are expanded to their values before creating
 the folder. Also you can create multiple nested subfolders at the same time:
 simply separate the folder names with the backslash character. For example:
 
-    #%USERDOMAIN%\%USERNAME%\Folder3#
+    #%USERDOMAIN%\\%USERNAME%\\Folder3#
 
     If the option "#Process multiple names#" is enabled, it is possible to
 create multiple folders in a single operation. In this case, folder names
 should be separated with the character "#;#" or "#,#". If the option is
 enabled and the name of the folder contains a character "#;#" (or "#,#"),
 it must be enclosed in quotes. For example, if the user enters
-#C:\Foo1;"E:\foo,2;";D:\foo3#, folders called "#C:\Foo1#", "#E:\foo,2;#"
-and "#D:\foo3#" will be created.
+#C:\\Foo1;"E:\\foo,2;";D:\\foo3#, folders called "#C:\\Foo1#", "#E:\\foo,2;#"
+and "#D:\\foo3#" will be created.
 
 @FindFile
 $ #Find file#
@@ -1142,7 +1146,7 @@ sensitive comparison.
 
     The option #Whole words# will let to find only the text that
 is separated from other text with spaces, tab characters, line breaks or
-standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./#.
+standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
     By checking the #Search for hex# option you can search for the files
 containing hexadecimal sequence of the specified bytes. In this case
@@ -1178,11 +1182,12 @@ The search origin is saved in the configuration. Also while in the find
 dialog one can change disk drive of the search. This option is enabled
 when #Search from the root folder# is selected.
 
-    Для поиска файлов, попадающих под определённые условия, используйте переключатель
-#Использовать фильтр#. Настройка условий ~фильтра~@OpFilter@ осуществляется кнопкой #Фильтр#.
+    Check the #Use filter# checkbox to search for files according to
+user defined conditions. Press the #Filter# button to open the
+conditions configuration ~dialog~@OpFilter@.
 
 @FindFileResult
-$ #Результаты поиска файла#
+$ #Find file results#
     While ~search~@FindFile@ is in progress or when it is finished, you may use
 the cursor keys to scroll the files list and the buttons to perform
 required actions.
@@ -1226,54 +1231,48 @@ characters of the folder.
 
 @OpFilter
 $ #Operations filter#
-    Фильтр операций служит для обработки определённых групп файлов
-по заданным пользователем параметрам, при соблюдении которых файл
-будет обработан использующей его операцией. Фильтр может настраиваться
-по разным типам параметров, и может включать в себя:
+    Operations filter is used to process certain file groups according
+to conditions specified by the user, if those conditions are met by some
+file it will be processed by a corresponding operation. A filter may include
+any of the following condition sets:
 
-     - одну или несколько ~маскок файлов~@FileMasks@;
+     - one or several ~file masks~@FileMasks@;
 
-     - минимальный и максимальный размер файла включительно,
-       указывая их как в байтах, так и в килобайтах;
+     - min and max file size, given in bytes or kilo bytes;
 
-     - начальную дату и дату окончания действия фильтра,
-       указывая дату последней модификации, дату создания
-       файла или дату последнего доступа к файлу;
+     - starting and ending file date/time, including creation,
+       last modification and last access dates/times;
 
-     - атрибуты включения и атрибуты исключения.
+     - inclusion and exclusion attributes;
 
-    Файл попадает в условия фильтра, если:
+    Filter conditions are met by a file if:
 
-     - включен анализ масок файла и его имя соответствует
-       хотя бы одной маске. Если анализ масок отключен, то
-       имя файла не имеет значения;
+     - file mask analysis is on and its name matches any of
+       the given file masks. If mask analysis is off, file
+       name is ignored;
 
-     - включен анализ размера файла и он попадает в введённый
-       диапазон. Если в качестве одной или обеих границ
-       диапазона введён #0#, тогда размер по этой границе
-       не ограничивается;
+     - file size analysis is on and its size is in the given
+       range. If #0# is entered in one or both of the range
+       limits then the file size of that limit is not limited;
 
-     - включен анализ даты файла и она попадает в введённый
-       диапазон и сответствует установленному типу:
-       дате последней модификации, дате создания или дате
-       последнего доступа к файлу. Если одно или оба поля
-       с датами пусто, тогда дата по этому полю не
-       ограничивается;
+     - file date/time analysis is on and its date/time is in
+       the given range and corresponds to the given type:
+       last modification date, creation date or last access
+       date. If one or both of the date/time limit fields are
+       empty then the date/time for that type is not limited.
 
-     - включен анализ атрибутов файла и он имеет все атрибуты
-       включения и не имеет атрибутов исключения:
-       #[x]# - атрибут включения - файл должен иметь
-             указанный атрибут.
-       #[ ]# - атрибут исключения - файл не должен иметь
-             указанный атрибут.
-       #[?]# - указанный атрибут не влияет на фильтр.
+     - file attributes analysis is on and it has all of the
+       inclusion attributes and none of the exclusion attributes:
+       #[x]# - inclusion attribute - file must have this attribute.
+       #[ ]# - exclusion attribute - file must not have this attribute.
+       #[?]# - ignore this attribute.
 
-    Атрибуты #Сжатый# и #Зашифрованный# используются только
-на дисках с файловой системой NTFS. При этом атрибут #Зашифрованный#
-используется только в Windows 2000/XP.
+    The #Compressed# and #Encrypted# attributes are used only on disks
+with the NTFS file system. Although the #Encrypted# attribute is used
+only in Windows 2000/XP.
 
-    Для быстрого отключения одного или нескольких условий фильтра
-отключите соответствующие опции.
+    To quickly disable one or several conditions, uncheck the corresponding
+checkboxes.
 
 @History
 $ #History#
@@ -1531,7 +1530,7 @@ $ #Special symbols#
     #!&#       List of selected files
     #!&~~#      List of selected short file names
     #!:#       Current drive
-    #!\#       Current path
+    #!\\#       Current path
     #!/#       Short name of the current path
 
     #!?<title>?<init>!#
@@ -1542,7 +1541,7 @@ $ #Special symbols#
              Several such symbols are allowed in the same line,
              for example:
 
-             grep !?Search for:?! !?In:?*.*!|c:\far\far.exe -v -
+             grep !?Search for:?! !?In:?*.*!|c:\\far\\far.exe -v -
 
     #!###       "!##" modifier specified before a file association
              symbol forces it (and all the following characters)
@@ -1554,7 +1553,7 @@ $ #Special symbols#
              symbol forces it (and all the following characters)
              to refer to the active panel (see note 4).
              For example, !^!.! denotes a current file name on
-             the active panel, !##!\!^!.! - a file on the passive
+             the active panel, !##!\\!^!.! - a file on the passive
              panel with the same name as the name of the current
              file on the active panel.
 
@@ -1564,13 +1563,13 @@ $ #Special symbols#
 corresponding to the special character. No additional characters (for
 example, quotes) are added, and you should add them yourself if it is
 needed. For example, if a program used in the associations requires
-a file name to be enclosed in quptes, you should specify #program.exe "!.!"#
+a file name to be enclosed in quotes, you should specify #program.exe "!.!"#
 and not #program.exe !.!#.
 
    2. The following modifiers may be used with the associations !@@! and !$! :
 
      'Q' - enclose names containing spaces in quotes;
-     'S' - use '/' instead of '\' in pathnames;
+     'S' - use '/' instead of '\\' in pathnames;
      'F' - use full pathnames;
      'A' - use ANSI encoding.
 
@@ -1586,7 +1585,7 @@ when the command is executed.
 effect of these prefixes continues up to the next similar prefix. For
 example:
 
-    if exist !##!\!^!.! diff -c -p !##!\!^!.! !\!.!
+    if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
 
   "If the same file exists on the passive panel as the file under
    the cursor on the active panel, show the differences between
@@ -1883,7 +1882,7 @@ $ #Internal viewer#
     #Ctrl-Shift-0..9#    Set a bookmark 0..9 at the current position
     #LeftCtrl-0..9#      Go to bookmark 0..9
 
-    #Ctrl-Ins, Ctrl-C#   Copy the text highlighed as a result of
+    #Ctrl-Ins, Ctrl-C#   Copy the text highlighted as a result of
                        the search to the clipboard.
     #Ctrl-U#             Remove the highlighting of the search results.
 
@@ -1891,7 +1890,7 @@ $ #Internal viewer#
 
     Notes:
 
-    1. Custom character tables are provided in "Addons\Tables"
+    1. Custom character tables are provided in "Addons\\Tables"
        subfolder of FAR folder in the form of .reg files.
        Before any table may be used, it must be installed:
        just press Shift-Enter on the corresponding file.
@@ -1911,7 +1910,7 @@ $ #Internal viewer#
        fit in this number of columns, it will be split into several
        lines, even if the word wrap mode is turned off.
 
-    5. FAR ~searches~@ViewerSearch@ the first occurence of the string (F7) from
+    5. FAR ~searches~@ViewerSearch@ the first occurrence of the string (F7) from
        the beginning of the area currently displayed.
 
 @ViewerGotoPos
@@ -2068,7 +2067,7 @@ $ #Internal editor#
 
     Notes:
 
-    1. Custom character tables are provided in the "Addons\Tables"
+    1. Custom character tables are provided in the "Addons\\Tables"
        subfolder of the FAR folder in the form of .reg files.
        Before any table may be used it must be installed: just press
        Shift-Enter on the corresponding file.
@@ -2437,13 +2436,13 @@ into force immediately but will affect only the current session.
 $ #Auto detect character tables#
     If you use several character tables and have installed the
 table with the character frequency distribution for your language (for
-example, for Russian the table "Addons\Tables\Russian\Dist.Rus.reg"
+example, for Russian the table "Addons\\Tables\\Russian\\Dist.Rus.reg"
 should be installed), FAR will try to choose the most suitable
 character table for viewing/editing a file. Note that correct
 detection is not guaranteed, especially for small or non-typical text
 files.
 
-    You can find some character tables in the "Addons\Tables" folder
+    You can find some character tables in the "Addons\\Tables" folder
 of the root FAR folder.
 
 @FileAttrDlg
@@ -2872,10 +2871,10 @@ performed as a copy with subsequent deletion or as a direct move
 (within one physical drive), FAR takes into account Windows 2000/XP
 ~symbolic links~@HardSymLink@.
 
-    FAR handles copying to #con# in the same way as copying to #nul# or #\\.\nul# -
+    FAR handles copying to #con# in the same way as copying to #nul# or #\\\\.\\nul# -
 that is, the file is read from the disk but not written anywhere.
 
-    When files are moved to #nul#, #\\.\nul# or #con#, they are not deleted
+    When files are moved to #nul#, #\\\\.\\nul# or #con#, they are not deleted
 from the disk.
 
     The options "Copy access rights" and "Only newer files" affect only
@@ -2960,8 +2959,8 @@ Hard links can only be created on the same drive as the source file.
 (SymLink). Symbolic links between directories in Windows 2000/XP are known as
 "directory junctions". Directory junctions is a technology allowing to
 map any local directories to any other local directories. For example,
-if the directory D:\SYMLINK has C:\WINNT\SYSTEM32 as its target, a program
-accessing D:\SYMLINK\DRIVERS will actually access C:\WINNT\SYSTEM32\DRIVERS.
+if the directory D:\\SYMLINK has C:\\WINNT\\SYSTEM32 as its target, a program
+accessing D:\\SYMLINK\\DRIVERS will actually access C:\\WINNT\\SYSTEM32\\DRIVERS.
 
     FAR supports creating symbolic links only on local drives that have
 a file system supporting that capability (Windows 2000/XP/NTFS 5.0). Unlike
@@ -3111,12 +3110,10 @@ $ #Environment variables#
     On startup, FAR Manager sets the following environment variables
 available to child processes:
 
-    #FARHOME#            "домашний каталог" FAR Manager
+    #FARLANG#            the name of the current interface language.
 
-    #FARLANG#            name of the current interface language.
-
-    #FARUSER#            the name of the user given in the /u
-                       ~command line~@CmdLine@ parameter.
+    #FARUSER#            the name of the current user given by the /u
+                       ~command line~@CmdLine@ option.
 
 @KeyMacro
 $ #Keyboard macro commands (macro command)#
@@ -3201,7 +3198,7 @@ $ #Hotkeys#
        Ctrl-Shift-<key>, Ctrl-Alt-<key> and Alt-Shift-<key>
 
     A macro command #can't# be assigned to the following key combinations:
-Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>
+Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>, Ctrl-Alt, Ctrl-Shift, Shift-Alt
 
     It is impossible to enter some key combinations (in particular Enter, Esc,
 F1, Ctrl-F5) in the hotkey assignment dialog because of their special
@@ -3216,8 +3213,8 @@ $ #Recording and playing-back macro commands#
        playing-back #will be# sent to plugins.
 
     2. Special mode: keys pressed during the recording or the
-       playing-back #will not be# sent to plugins,
-       перехватывающим события в редакторе.
+       playing-back #will not be# sent to plugins that intercept
+       editor events.
 
     For example, if some plugin processes the key combination - Ctrl+A,
 then in the special mode this plugin will not receive focus and will not
@@ -3305,8 +3302,8 @@ be displayed when the macro command playback is finished.
    Allows to execute the macro command immediately after the
 FAR Manager is started.
 
-   Для активной и пассивной панелей возможны следующие условия,
-активизирующие макрокоманду:
+   The following execution conditions can be applied for the active and
+passive panels:
 
      #Plugin panel#
          [x] - execute only if the current panel is a plugin panel
@@ -3325,24 +3322,25 @@ FAR Manager is started.
                on the panel
          [?] - ignore the file selection state
 
-   Прочие условия активизирующие макрокоманду:
+   Other execution conditions:
 
      #Empty command line#
          [x] - execute only if the command line is empty
          [ ] - execute only if the command line is not empty
          [?] - ignore the command line state
 
-     #Отмечен блок#
-        [x] - выполнять, только если выделен блок в редакторе,
-              программе просмотра, командной строке или в строке
-              ввода в диалоге.
-        [ ] - выполнять, если нет отмеченного блока
-        [?] - игнорировать состояние отметки блока
+     #Selection block present#
+         [x] - execute only if there is a selection block present
+              in the editor, viewer, command line or dialog
+              input line
+         [ ] - execute only if there is no selection present
+         [?] - ignore selection state
 
 
    Notes:
 
-   1. FAR, перед активацией макрокоманды, проверяет все описанные выше условия.
+   1. Before executing a macro command, all of the above conditions are
+checked.
 
    2. Some key combinations (including Enter, Esc, F1 and Ctrl-F5) cannot be
 entered directly because they have special functions in the dialog.
@@ -3351,35 +3349,35 @@ the drop-down list.
 
 @KeyMacroCmds
 $ #Commands, used inside the text of a macro command#
-   FAR поддерживает некоторые специальные псевдоклавиши, которые невозможно
-использовать во время ~записи макроса~@KeyMacroRecPlay@ стандартным образом:
+   Several pseudo-keys that cannot be entered during standard
+~macro recording~@KeyMacroRecPlay@ are supported by FAR Manager:
 
-     ~$Date~@KeyMacroODate@       - вставка текущего времени
-     ~$Exit~@KeyMacroOExit@       - прервать выполнение макрокоманды
-     ~$If-$Else~@KeyMacroOIf@   - условный оператор
-     ~$MMode~@KeyMacroOMMode@      - сменить режим макроса
-     ~$Rep~@KeyMacroORep@        - оператор цикла
-     ~$Text~@KeyMacroOText@       - вставка произвольного текста
-     ~$XLat~@KeyMacroOXLat@       - функция транслитерации
+     ~$Date~@KeyMacroODate@       - insert current date/time
+     ~$Exit~@KeyMacroOExit@       - stop macro playback
+     ~$If-$Else~@KeyMacroOIf@   - condition operator
+     ~$MMode~@KeyMacroOMMode@      - toggle macro display mode
+     ~$Rep~@KeyMacroORep@        - loop operator
+     ~$Text~@KeyMacroOText@       - arbitrary text insertion
+     ~$XLat~@KeyMacroOXLat@       - transliteration function
 
-   Добавить перечисленные специальные макроклавиши в ~макрос~@KeyMacro@
-можно только путем ручной правки реестра или путем применения специальных
-программ/плагинов.
+
+   To add the above commands to a ~macro sequence~@KeyMacro@ you will have to
+manually edit the registry or to use a special program/plugin.
 
     See also:
 
     ~Keyboard macro commands (macro command)~@KeyMacro@
 
 @KeyMacroODate
-$ #$Date - вставка текущего времени#
-   Специальная макрокоманда '$Date' предназначена для
-вставки текущей даты/времени.
+$ #$Date - insertion of current date/time#
+   The special macro command '$Date' is intended for insertion of
+current date/time.
 
    #$Date ["format"]#
 
    The current time is converted to a string according to the
 format "format". If the "format" argument is not specified,
-FAR will use the format string  "%a %b %d %H:%M:%S %Z %Y".
+FAR will use the format string "%a %b %d %H:%M:%S %Z %Y".
 This format is similar to the one used by the Unix 'date' utility. $Date
 supports the following date format specification (similar
 to the format used by the strftime function):
@@ -3416,14 +3414,14 @@ to the format used by the strftime function):
         %m0  Similar to %m, but with a leading zero (01 - 12)
         %mh  Current month as hexadecimal number (1 - C)
         %M   Minute as decimal number (00 - 59)
-        %n   Line break `\n'
+        %n   Line break `\\n'
              Note: When using this in editor macros, auto-indent
              will not work.
         %p   AM or PM
         %r   Synonym for %I:%M:%S %p
         %R   Synonym for %H:%M
         %S   Second as decimal number (00 - 59)
-        %t   Tab character `\t'
+        %t   Tab character `\\t'
         %T   Synonym for %X
         %U   Week of year as decimal number, with Sunday as first
              day of week (00 - 53)
@@ -3451,12 +3449,12 @@ to the format used by the strftime function):
 
    The following escape sequences are allowed:
 
-    \"   The '"' character
-    \\   The '\' character
-    \%   The '%' character (same as '%%')
-    \n   New line `\n' (same as '%n')
-    \t   Tab `\t' (same as '%t')
-    \xNN Hex code of characters in the OEM code page
+    \\"   The '"' character
+    \\\\   The '\\' character
+    \\%   The '%' character (same as '%%')
+    \\n   New line `\\n' (same as '%n')
+    \\t   Tab `\\t' (same as '%t')
+    \\xNN Hex code of characters in the OEM code page
 
 
     See also:
@@ -3465,9 +3463,9 @@ to the format used by the strftime function):
     ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOText
-$ #$Text - вставка произвольного текста#
-   Специальная макрокоманда '$Text' предназначена для
-вставки произвольного текста.
+$ #$Text - insertion of arbitrary text#
+   Special macro command '$Text' is intended for insertion of arbitrary
+text.
 
    #$Text "string"#
 
@@ -3477,13 +3475,13 @@ $ #$Text - вставка произвольного текста#
 sequence containing lengths of arbitrary text and will also lower memory
 usage in such macro sequences.
 
-   In the '$Text' macro commands the following escape sequences are allowed:
+   The following escape sequences are allowed inside the 'string' argument:
 
-        \"   The '"' character
-        \\   The '\' character
-        \n   New line `\n'
-        \t   Tab `\t'
-        \xNN Hex code of characters in the OEM code page
+        \\"   The '"' character
+        \\\\   The '\\' character
+        \\n   New line `\\n'
+        \\t   Tab `\\t'
+        \\xNN Hex code of characters in the OEM code page
 
    See also:
 
@@ -3491,9 +3489,9 @@ usage in such macro sequences.
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOMMode
-$ #$MMode - сменить режим макроса#
-   Специальная макрокоманда '$MMode' позволяет изменять режим
-перерисовки экрана во время проигрывания макропоследовательности.
+$ #$MMode - toggle macro display mode#
+   Special macro command '$MMode' allows to toggle the display
+mode while playing-back the macro sequence.
 
    #$MMode 1#
 
@@ -3505,11 +3503,10 @@ $ #$MMode - сменить режим макроса#
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOExit
-$ #$Exit - прервать выполнение макрокоманды#
-    Специальная макрокоманда '$Exit' прерывает выполнение
-макропоследовательности.
+$ #$Exit - stop macro playback#
+   Special macro command '$Exit' stops the playback of a macro sequence.
 
-    #$Exit#
+   #$Exit#
 
    See also:
 
@@ -3518,8 +3515,8 @@ $ #$Exit - прервать выполнение макрокоманды#
 
 
 @KeyMacroOXLat
-$ #$XLat - функция транслитерации#
-    Специальная макрокоманда '$XLat' вызывает функцию транслитерации.
+$ #$XLat - transliteration function#
+   Special macro command '$XLat' calls the transliteration function.
 
    #$XLat#
 
@@ -3531,14 +3528,14 @@ $ #$XLat - функция транслитерации#
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroORep
-$ #$Rep - оператор цикла#
-   Специальная макрокоманда '$Rep' позволяет организовать циклическое
-выполнение некоторой последовательности комбинации клавиш.
+$ #$Rep - loop operator#
+   Special macro command '$Rep' allows to repeat any macro sequence
+given number of times.
 
    #$Rep Count Sequence $EndRep#
 
-   Повторить 'Count' раз последовательность комбинации клавиш
-'Sequence'. Допускается 16 уровней вложения оператора $Rep
+   Repeat 'Count' times the macro sequence 'Sequence'.
+   Up to 16 levels of recursion are allowed for the '$Rep' operator.
 
    See also:
 
@@ -3546,73 +3543,70 @@ $ #$Rep - оператор цикла#
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOIf
-$ #$If-$Else - условный оператор#
-   Специальная макрокоманда '$If-$Else' позволяет организовать
-в макросах процесс ветвления макропоследовательности.
+$ #$If-$Else - condition operator#
+   Special macro command '$If-$Else' allows to create conditional branches of
+execution inside a macro sequence.
 
    #$If [!]Condition $Then then-sequence [$Else else-sequence] $EndIf#
 
-   'Condition' может быть одним из нижеследующих ключевых слов,
-значение которых проверяется #на момент исполнения# оператора '$If':
+   The 'Condition' can be any of the following keywords which are evaluated
+   #at the moment of execution# of the '$If' operator.
 
-     - проверка флагов макрокоманды
+     - check macro display mode
 
-       #DisableOutput#        запрещена перерисовка экрана
+       #DisableOutput#        screen output is disabled
 
-     - проверка области, в которой исполняется в данный момент
-       макропоследовательность.
+     - check current area of execution
 
-       #Shell#                файловые панели
-       #Viewer#               внутренняя программа просмотра
-       #Editor#               редактор
-       #Dialog#               диалоги
-       #Search#               быстрый поиск в панелях
-       #Disks#                меню выбора дисков
-       #MainMenu#             основное меню
-       #Menu#                 прочие меню
-       #Help#                 система помощи
-       #Info#                 информационная панель
-       #QView#                панель быстрого просмотра
-       #Tree#                 панель дерева папок
-       #Other#                режим копирования текста с экрана,
-                            вертикальные меню
+       #Shell#                file panels
+       #Viewer#               internal viewer
+       #Editor#               internal editor
+       #Dialog#               dialogs
+       #Search#               fast find
+       #Disks#                select drive menu
+       #MainMenu#             main menu
+       #Menu#                 other menus
+       #Help#                 help window
+       #Info#                 info panel
+       #QView#                quick view panel
+       #Tree#                 tree panel
+       #Other#                screen grabber, vertical menus
 
-     - проверка состояний активной панели
+     - check state of the active panel
 
-       #APanel.Visible#       панель видима
-       #APanel.Empty#         панель пуста
-       #APanel.Plugin#        плагиновая панель
-       #APanel.Folder#        текущий элемент панели - папка
-       #APanel.Selected#      на панели есть отмеченные файлы/папки
-       #APanel.Left#          активная панель слева
+       #APanel.Visible#       panel is visible
+       #APanel.Empty#         panel is empty
+       #APanel.Plugin#        panel belongs to a plugin
+       #APanel.Folder#        current item (under cursor) is a folder
+       #APanel.Selected#      panel contains selected files/folders
+       #APanel.Left#          active panel is on the left side
 
-     - проверка состояний пассивной панели
+     - check state of the passive panel
 
-       #PPanel.Visible#       панель видима
-       #PPanel.Empty#         панель пуста
-       #PPanel.Plugin#        плагиновая панель
-       #PPanel.Folder#        текущий элемент панели - папка
-       #PPanel.Selected#      на панели есть отмеченные файлы/папки
-       #PPanel.Left#          пассивная панель слева
+       #PPanel.Visible#       panel is visible
+       #PPanel.Empty#         panel is empty
+       #PPanel.Plugin#        panel belongs to a plugin
+       #PPanel.Folder#        current item is a folder
+       #PPanel.Selected#      panel contains selected files/folders
+       #PPanel.Left#          passive panel is on the left side
 
-     - проверка состояний строк ввода/редактора/программы просмотра
-       (в том числе - выделения блока в командной строке)
+     - check state of editor/viewer/input line
+       (including selection block state in command line)
 
-       #Selected#             выделен блок
+       #Selected#             selection block present
 
-     - проверка различных состояний
+     - check other states
 
-       #Cmd.Empty#            командная строка пуста
-       #Editor.Eof#           достигнут конец файла в редакторе
-       #Viewer.Eof#           достигнут конец файла в программе
-                            просмотра.
+       #Cmd.Empty#            command line is empty
+       #Editor.Eof#           reached end of file in the editor
+       #Viewer.Eof#           reached end of file in the viewer
 
-   Непосредственно перед 'Condition' может стоять символ '!',
-который обозначает операцию "НЕТ" (отрицание). В этом случае
-последовательность 'then-sequence' будет исполняться, если
-условие 'Condition' ложно.
+   'Condition' can be preceded by an '!' symbol which represents a logical
+"NOT" operator (negation). In this case the subsequent 'then-sequence' will be
+executed if the condition 'Condition' is false.
 
-   Часть оператора '$Else Seq_else' может отсутствовать.
+   The '$Else Seq_else' portion of the '$If' operator can be omitted.
+   Up to 16 levels of recursion are allowed for the '$If' operator.
 
    See also:
 

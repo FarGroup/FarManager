@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.84 27.05.2003 $ */
+/* Revision: 1.85 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! RunGraber() вызываем в манагере, а в CalcKeyCode() просто вернем KEY_INS|KEY_ALT
   27.05.2003 SVS
     ! «ачатки каптюризации мыши :-)
       ¬веден ScreenObject *ScreenObject::CaptureMouseObject, который
@@ -933,12 +935,12 @@ int  Manager::ProcessKey(int Key)
     /***    ќ“ќ–џ≈ Ќ≈Ћ№«я Ќјћј –ќ—»“№    ***/
     switch(Key)
     {
-//      case (KEY_ALT|KEY_NUMPAD0):
-//      case (KEY_ALT|KEY_INS):
-//      {
-//        RunGraber();
-//        return TRUE;
-//      }
+      case (KEY_ALT|KEY_NUMPAD0):
+      case (KEY_ALT|KEY_INS):
+      {
+        RunGraber();
+        return TRUE;
+      }
 
       case KEY_CONSOLE_BUFFER_RESIZE:
         Sleep(1);

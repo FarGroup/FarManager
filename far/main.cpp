@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.72 09.10.2003 $ */
+/* Revision: 1.73 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! в морг "FARHOME", так в морг.
   09.10.2003 SVS
     - Если фигню подсунули в комстроке, типа %1 %2 %3, то нафиг все...
   09.10.2003 SVS
@@ -732,7 +734,6 @@ int _cdecl main(int Argc, char *Argv[])
      if(s && s<sizeof(tmpFarPath))
         strcpy(FarPath, tmpFarPath);
   }
-  SetEnvironmentVariable("FARHOME",FarPath);
   AddEndSlash(FarPath);
   /* IS $ */
   /* $ 03.08.2000 SVS

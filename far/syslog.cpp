@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.45 31.07.2003 $ */
+/* Revision: 1.46 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    + ESPT_SETWORDDIV
   31.07.2003 SVS
     ! Для экспортнутых функций - сделаем проверку на CapsLock
   11.07.2003 SVS
@@ -962,6 +964,7 @@ const char *_ESPT_ToName(int Command)
     DEF_ESPT_(CHARTABLE),
     DEF_ESPT_(SAVEFILEPOSITION),
     DEF_ESPT_(LOCKMODE),
+    DEF_ESPT_(SETWORDDIV),
   };
   int I;
   static char Name[512];

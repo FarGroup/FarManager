@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.27 03.06.2003 $ */
+/* Revision: 1.28 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! Заготовка для мультисимвольного CtrlColorChar
   03.06.2003 SVS
     + HELPMODE_CLICKOUTSIDE  - было нажатие мыши вне хелпа?
   22.04.2003 SVS
@@ -132,7 +134,7 @@ class Help:public Frame
     int   MouseDown;
 
     int   DisableOut;           // TRUE - не выводить на экран
-    BYTE  CtrlColorChar;        // CtrlColorChar - опция! для спецсимвола-
+    char  CtrlColorChar[16];    // CtrlColorChar - опция! для спецсимвола-
                                 //   символа - для атрибутов
     int   CurColor;             // CurColor - текущий цвет отрисовки
     int   CtrlTabSize;          // CtrlTabSize - опция! размер табуляции

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.99 04.10.2003 $ */
+/* Revision: 1.100 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! RunGraber() вызываем в манагере, а в CalcKeyCode() просто вернем KEY_INS|KEY_ALT
   04.10.2003 SVS
     ! RunStartMacro() - "всегда"
   26.09.2003 SVS
@@ -2180,8 +2182,9 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     {
       if(KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0)
       {
-        RunGraber();
-        return(KEY_NONE);
+        return KEY_INS|KEY_ALT;
+        //RunGraber();
+        //return(KEY_NONE);
       }
     }
 #endif

@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.108 10.10.2003 $ */
+/* Revision: 1.109 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! переименование:
+      Opt.KeyMacroRecord1  -> Opt.KeyMacroCtrlDot
+      Opt.KeyMacroRecord2  -> Opt.KeyMacroCtrlShiftDot
   10.10.2003 SVS
     + EditorOptions.WordDiv
   05.10.2003 KM
@@ -784,8 +788,8 @@ struct Options
      клавиш */
   int MacroReuseRules;
   /* SVS $ */
-  DWORD KeyMacroRecord1; // аля KEY_CTRLDOT
-  DWORD KeyMacroRecord2; // аля KEY_CTRLSHIFTDOT
+  DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT
+  DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
   /* $ 22.01.2001 SVS
    + Opt.CursorSize - Размер курсора ФАРа :-)
      клавиш */

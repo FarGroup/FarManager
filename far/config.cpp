@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.160 10.10.2003 $ */
+/* Revision: 1.161 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! переименование:
+      Opt.KeyMacroRecord1  -> Opt.KeyMacroCtrlDot
+      Opt.KeyMacroRecord2  -> Opt.KeyMacroCtrlShiftDot
   10.10.2003 SVS
     + проинициализируем Opt.EdOpt.WordDiv
   05.10.2003 KM
@@ -1689,12 +1693,13 @@ void ReadConfig()
   if (Opt.ViOpt.TabSize<1 || Opt.ViOpt.TabSize>512)
     Opt.ViOpt.TabSize=8;
 
-  GetRegKey(NKeyKeyMacros,"KeyRecord1",KeyNameFromReg,szCtrlDot,sizeof(KeyNameFromReg)-1);
-  if((Opt.KeyMacroRecord1=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.KeyMacroRecord1=KEY_CTRLDOT;
-  GetRegKey(NKeyKeyMacros,"KeyRecord2",KeyNameFromReg,szCtrlShiftDot,sizeof(KeyNameFromReg)-1);
-  if((Opt.KeyMacroRecord2=KeyNameToKey(KeyNameFromReg)) == -1)
-    Opt.KeyMacroRecord2=KEY_CTRLSHIFTDOT;
+  GetRegKey(NKeyKeyMacros,"KeyRecordCtrlDot",KeyNameFromReg,szCtrlDot,sizeof(KeyNameFromReg)-1);
+  if((Opt.KeyMacroCtrlDot=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.KeyMacroCtrlDot=KEY_CTRLDOT;
+
+  GetRegKey(NKeyKeyMacros,"KeyRecordCtrlShiftDot",KeyNameFromReg,szCtrlShiftDot,sizeof(KeyNameFromReg)-1);
+  if((Opt.KeyMacroCtrlShiftDot=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
   GetRegKey(NKeyXLat,"EditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)

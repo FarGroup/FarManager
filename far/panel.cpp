@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.114 09.10.2003 $ */
+/* Revision: 1.115 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    - BugZ#973 - panels QuickSearch wish
   09.10.2003 SVS
     - BugZ#858 - проблемы с [Drive]
   12.09.2003 SVS
@@ -1263,7 +1265,37 @@ void Panel::FastFind(int FirstKey)
             Key=KEY_ESC;
         }
         else if (rec.EventType==KEY_EVENT)
+        {
+          // для вставки воспользуемся макродвижком...
+          if(Key==KEY_CTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)
+          {
+            char *ClipText=PasteFromClipboard();
+            if(ClipText && *ClipText)
+            {
+              if(strlen(ClipText) <= NM*2) // сделаем разумное ограничение на размер...
+              {
+                char *Ptr=(char *)xf_malloc(strlen(ClipText)*2+8);
+                if(Ptr)
+                {
+                  // ... предварительно разобрав последовательность на "буква<space>"
+                  char *PtrClipText=ClipText, *PtrPtr=Ptr;
+                  while(*PtrClipText)
+                  {
+                    *PtrPtr++=*PtrClipText;
+                    *PtrPtr++=' ';
+                    ++PtrClipText;
+                  }
+                  *PtrPtr=0;
+                  CtrlObject->Macro.PostNewMacro(Ptr,0);
+                  xf_free(Ptr);
+                }
+              }
+              delete[] ClipText;
+            }
+            continue;
+          }
           Key=_CorrectFastFindKbdLayout(&rec,Key);
+        }
       }
       if (Key==KEY_ESC || Key==KEY_F10)
       {
@@ -1336,6 +1368,8 @@ void Panel::FastFind(int FirstKey)
               strcpy(LastName,Name);
             else
             {
+              if(CtrlObject->Macro.IsExecuting()) // если вставка макросом...
+                CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
               FindEdit.SetString(LastName);
               strcpy(Name,LastName);
             }

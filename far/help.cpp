@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.78 09.10.2003 $ */
+/* Revision: 1.79 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! Заготовка для мультисимвольного CtrlColorChar
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -486,10 +488,10 @@ int Help::ReadHelp(const char *Mask)
   *ReadStr=0;
   if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
   {
-    CtrlColorChar=ReadStr[0];
+    strncpy(CtrlColorChar,ReadStr,sizeof(CtrlColorChar)-1);
   }
   else
-    CtrlColorChar=0;
+    CtrlColorChar[0]=0;
 
   /* $ 29.11.2001 DJ
      запомним, чего там написано в PluginContents
@@ -886,15 +888,15 @@ void Help::OutString(const char *Str)
     if (Str[0]=='~' && Str[1]=='~' ||
         Str[0]=='#' && Str[1]=='#' ||
         Str[0]=='@' && Str[1]=='@' ||
-        (CtrlColorChar && Str[0]==CtrlColorChar && Str[1]==CtrlColorChar)
-        )
+        (*CtrlColorChar && Str[0]==*CtrlColorChar && Str[1]==*CtrlColorChar)
+       )
     {
       OutStr[OutPos++]=*Str;
       Str+=2;
       continue;
     }
 
-    if (*Str=='~' || *Str=='#' || *Str==HelpBeginLink || *Str==0 || *Str == CtrlColorChar)
+    if (*Str=='~' || *Str=='#' || *Str==HelpBeginLink || *Str==0 || *Str == *CtrlColorChar)
     {
       OutStr[OutPos]=0;
       if (Topic)
@@ -978,7 +980,7 @@ void Help::OutString(const char *Str)
       Str++;
       continue;
     }
-    if (*Str == CtrlColorChar)
+    if (*Str == *CtrlColorChar)
     {
       WORD Chr;
 
@@ -1026,7 +1028,7 @@ int Help::StringLen(const char *Str)
     if (Str[0]=='~' && Str[1]=='~' ||
         Str[0]=='#' && Str[1]=='#' ||
         Str[0]=='@' && Str[1]=='@' ||
-        (CtrlColorChar && Str[0]==CtrlColorChar && Str[1]==CtrlColorChar)
+        (*CtrlColorChar && Str[0]==*CtrlColorChar && Str[1]==*CtrlColorChar)
        )
     {
       Length++;
@@ -1049,7 +1051,7 @@ int Help::StringLen(const char *Str)
     /* $ 01.09.2000 SVS
        учтем наше нововведение \XX или \-
     */
-    if(*Str == CtrlColorChar)
+    if(*Str == *CtrlColorChar)
     {
       if(Str[1] == '-')
       {
@@ -1812,7 +1814,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
   StackData.TopStr=0;
   TopicFound=TRUE;
   StackData.CurX=StackData.CurY=0;
-  CtrlColorChar=0;
+  CtrlColorChar[0]=0;
 
   char *PtrTitle, *ContentsName;
   char Path[NM],FullFileName[NM],*PtrPath,*Slash;

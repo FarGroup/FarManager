@@ -5,10 +5,15 @@ macro.cpp
 
 */
 
-/* Revision: 1.106 10.10.2003 $ */
+/* Revision: 1.107 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! переименование:
+      Opt.KeyMacroRecord1  -> Opt.KeyMacroCtrlDot
+      Opt.KeyMacroRecord2  -> Opt.KeyMacroCtrlShiftDot
+    - неверно работала запись макроса после отработки диалога параметров - флаги портились
   10.10.2003 SVS
     + добавлена проверка условия выделения в ком.строке для "Selected"
     - Ошибка при декомпиляции макроса - пропадал $Else
@@ -670,7 +675,7 @@ int KeyMacro::ProcessKey(int Key)
 
   if (Recording) // Идет запись?
   {
-    if (Key==Opt.KeyMacroRecord1 || Key==Opt.KeyMacroRecord2) // признак конца записи?
+    if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // признак конца записи?
     {
       DWORD MacroKey;
       int WaitInMainLoop0=WaitInMainLoop;
@@ -689,12 +694,12 @@ int KeyMacro::ProcessKey(int Key)
 //_SVS(SysLog("StartMode=%d",StartMode));
 
       // выставляем флаги по умолчанию.
-      DWORD Flags=MFLAGS_DISABLEOUTPUT|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS)|MFLAGS_NEEDSAVEMACRO; // ???
+      DWORD Flags=MFLAGS_DISABLEOUTPUT; // ???
 
       // добавим проверку на удаление
       // если удаляем, то не нужно выдавать диалог настройки.
       //if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-      if (MacroKey != (DWORD)-1 && Key==KEY_CTRLSHIFTDOT && RecBufferSize)
+      if (MacroKey != (DWORD)-1 && Key==Opt.KeyMacroCtrlShiftDot && RecBufferSize)
       {
         if (!GetMacroSettings(MacroKey,Flags))
           MacroKey=(DWORD)-1;
@@ -729,7 +734,7 @@ int KeyMacro::ProcessKey(int Key)
         else if(RecBuffer)
           MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>(*RecBuffer);
         MacroLIB[Pos].BufferSize=RecBufferSize;
-        MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
+        MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
       }
 
       Recording=MACROMODE_NOMACRO;
@@ -760,7 +765,7 @@ int KeyMacro::ProcessKey(int Key)
       return(FALSE);
     }
   }
-  else if (Key==Opt.KeyMacroRecord1 || Key==Opt.KeyMacroRecord2) // Начало записи?
+  else if (Key==Opt.KeyMacroCtrlDot || Key==Opt.KeyMacroCtrlShiftDot) // Начало записи?
   {
     // Полиция 18
     if(Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
@@ -776,7 +781,7 @@ int KeyMacro::ProcessKey(int Key)
     // тип записи - с вызовом диалога настроек или...
     // В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
     // с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-    Recording=(Key==KEY_CTRLDOT) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+    Recording=(Key==Opt.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
     if(RecBuffer)
       xf_free(RecBuffer);

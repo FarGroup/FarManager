@@ -5,10 +5,21 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.144 10.10.2003 $ */
+/* Revision: 1.145 13.10.2003 $ */
 
 /*
 Modify:
+  13.10.2003 SVS
+    ! Те плагин, кто работал по схеме
+         while (!Done)
+         {
+           Info.EditorControl(ECTL_READINPUT,&rec);
+           Info.EditorControl(ECTL_PROCESSINPUT,&rec);
+         }
+       не давали выполняться макросам, например:
+       1. Вызываем DrawLine
+       2. Вызываем макрос Ctrl-D=$Date "%d.%Y"
+       3. вылазит лишь 'Y'
   10.10.2003 SVS
     ! Shift-F4 только для немодалов!
   09.10.2003 SVS
@@ -2239,7 +2250,15 @@ int FileEditor::EditorControl(int Command,void *Param)
       else
       {
         INPUT_RECORD *rec=(INPUT_RECORD *)Param;
-        DWORD Key=GetInputRecord(rec);
+        DWORD Key;
+        while(1)
+        {
+          Key=GetInputRecord(rec);
+          if((!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT) && Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE) // исключаем MACRO
+             ProcessKey(Key);
+          else
+            break;
+        }
         //if(Key==KEY_CONSOLE_BUFFER_RESIZE) //????
         //  Show();                          //????
 #if defined(SYSLOG_KEYMACRO)
@@ -2279,7 +2298,7 @@ int FileEditor::EditorControl(int Command,void *Param)
         else
         {
 #if defined(SYSLOG_KEYMACRO)
-          if(rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT)
+          if(!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT)
           {
             SysLog("ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
                              (rec->EventType == FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"KEY_EVENT"),
