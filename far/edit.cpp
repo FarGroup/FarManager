@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.115 22.04.2004 $ */
+/* Revision: 1.116 24.05.2004 $ */
 
 /*
 Modify:
+  24.05.2004 SVS
+    - BugZ#1030 - множественная вставка из буфера обмена в окно поиска сигнатур
   22.04.2004 SVS
     - BugZ#1063 - Макросы в диалогах (недочет в пред.патче)
   14.04.2004 SVS
@@ -1765,6 +1767,7 @@ int Edit::ProcessKey(int Key)
             else
               ClipText[I]=' ';
           }
+
         if (Flags.Check(FEDITLINE_CLEARFLAG))
         {
           LeftPos=0;
@@ -2253,6 +2256,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
     int MaskLen=strlen(Mask);
     if (Pos<MaskLen)
     {
+      //_SVS(SysLog("InsertBinaryString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
       int StrLen=(MaskLen-Pos>Length)?Length:MaskLen-Pos;
       /* $ 15.11.2000 KM
          Внесены исправления для правильной работы PasteFromClipboard
@@ -2263,8 +2267,11 @@ void Edit::InsertBinaryString(const char *Str,int Length)
         if (CheckCharMask(Mask[i]))
         {
           int goLoop=FALSE;
-          if (KeyMatchedMask(Str[j]))
+          if (j < Length && KeyMatchedMask(Str[j]))
+          {
             InsertKey(Str[j]);
+            //_SVS(SysLog("InsertBinaryString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
+          }
           else
             goLoop=TRUE;
           j++;
@@ -2280,6 +2287,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
       /* KM $ */
     }
     RefreshStrByMask();
+    //_SVS(SysLog("InsertBinaryString ==> Edit::Str='%s'",Edit::Str));
   }
   else
   {
