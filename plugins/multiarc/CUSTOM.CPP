@@ -635,21 +635,25 @@ void ConvertNameToShort(const char *Src,char *Dest)
 }
 
 
-int GetSectionName(int Num,char *Name,int MaxSize)
+int GetSectionName(int Num, char *Name, int MaxSize)
 {
-  char Buf[8192],*Section=Buf;
-
-  GetPrivateProfileSectionNames(Buf,sizeof(Buf),FormatFileName);
-
-  while (Num-- > 0)
+  char Buf[8192];
+  char *Section=Buf;
+  GetPrivateProfileSectionNames(Buf, sizeof(Buf), FormatFileName);
+  while(*Section)
   {
-    if (*Section==0)
-      return(FALSE);
+    if(*Section!=';')
+    {
+      if(!Num)
+      {
+        strncpy(Name, Section, MaxSize);
+        return TRUE;
+      }
+      Num--;
+    }
     Section+=strlen(Section)+1;
   }
-
-  strncpy(Name,Section,MaxSize);
-  return(TRUE);
+  return FALSE;
 }
 
 void FillFormat(const char *TypeName)
