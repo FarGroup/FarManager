@@ -5,10 +5,14 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.13 30.09.2002 $ */
+/* Revision: 1.14 13.12.2002 $ */
 
 /*
 Modify:
+  13.12.2002 SVS
+    ! Из функции SubstFileName парсер метасимволов вынесен в отдельную процедуру.
+      Это позволит сделать функцию рекурсивной... а в последствии
+      ввести операторные скобоки
   30.09.2002 VVM
     - Вместо strcpy будем пользовать strncpy.
   12.08.2002 SVS
@@ -55,9 +59,35 @@ Modify:
 #include "global.hpp"
 #include "lang.hpp"
 
+struct TSubstData
+{
+  // параметры функции SubstFileName
+  char *Name;           // Длинное имя
+  char *ShortName;      // Короткое имя
+  char *ListName;       // Длинное имя файла-списка
+  char *ShortListName;  // Короткое имя файла-списка
+
+  // локальные переменные
+  char AnotherName[NM];
+  char AnotherShortName[NM];
+  char NameOnly[NM];
+  char ShortNameOnly[NM];
+  char AnotherNameOnly[NM];
+  char AnotherShortNameOnly[NM];
+  char CmdDir[NM];
+  int  PreserveLFN;
+  int  PassivePanel;
+
+  Panel *AnotherPanel;
+  Panel *ActivePanel;
+};
+
+
 static void ReplaceVariables(char *Str);
+static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *TempStr,int MaxTempStrSize);
 
 // Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
+
 /*
   SubstFileName()
   Преобразование метасимволов ассоциации файлов в реальные значения
@@ -73,6 +103,8 @@ int SubstFileName(char *Str,            // результирующая строка
                   int   IgnoreInput,    // TRUE - не исполнять "!?<title>?<init>!"
                   char *CmdLineDir)     // Каталог исполнения
 {
+  _SVS(CleverSysLog clv(Str));
+
   /* $ 19.06.2001 SVS
     ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
     нужно будет либо убрать эту проверку либо изменить условие (последнее
@@ -81,24 +113,27 @@ int SubstFileName(char *Str,            // результирующая строка
   if(!strchr(Str,'!'))
     return FALSE;
   /* SVS $ */
-  char TmpStr[8192],*CurStr,*ChPtr;
-  char AnotherName[NM],AnotherShortName[NM];
-  char NameOnly[NM],ShortNameOnly[NM];
-  char AnotherNameOnly[NM],AnotherShortNameOnly[NM];
-  char TmpName[NM+2],TmpShortName[NM+2];
-  char CmdDir[NM];
-  int PreserveLFN=FALSE;
 
-_SVS(SysLog("'%s'",Str));
-_SVS(SysLog(1));
+  struct TSubstData SubstData, *PSubstData=&SubstData;
+  char *ChPtr;
+
+  // Сделаем пока поболее - 10240, но везде нужно проверять размер... (see below)
+  char TmpStr[10240];
+  char *CurStr;
+
+  // <PreProcess>
+  *TmpStr=0; // пока пусто.
+
+  PSubstData->Name=Name;                    // Длинное имя
+  PSubstData->ShortName=ShortName;          // Короткое имя
+  PSubstData->ListName=ListName;            // Длинное имя файла-списка
+  PSubstData->ShortListName=ShortListName;  // Короткое имя файла-списка
 
   // Если имя текущего каталога не задано...
   if (CmdLineDir!=NULL)
-    strcpy(CmdDir,CmdLineDir);
+    strcpy(PSubstData->CmdDir,CmdLineDir);
   else // ...спросим у ком.строки
-    CtrlObject->CmdLine->GetCurDir(CmdDir);
-
-  *TmpStr=0; // пока пусто.
+    CtrlObject->CmdLine->GetCurDir(PSubstData->CmdDir);
 
   // подготовим имена файлов-списков (если нужно)
   if (ListName!=NULL)
@@ -106,6 +141,7 @@ _SVS(SysLog(1));
     *ListName=0;
     ListName[NM]=0;
   }
+
   if (ShortListName!=NULL)
   {
     *ShortListName=0;
@@ -113,375 +149,464 @@ _SVS(SysLog(1));
   }
 
   // Предварительно получим некоторые "константы" :-)
-  strcpy(NameOnly,Name);
-  if ((ChPtr=strrchr(NameOnly,'.'))!=NULL)
-    *ChPtr=0;
-  strcpy(ShortNameOnly,ShortName);
-  if ((ChPtr=strrchr(ShortNameOnly,'.'))!=NULL)
+  strcpy(PSubstData->NameOnly,Name);
+  if ((ChPtr=strrchr(PSubstData->NameOnly,'.'))!=NULL)
     *ChPtr=0;
 
-  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-  AnotherPanel->GetCurName(AnotherName,AnotherShortName);
-  strcpy(AnotherNameOnly,AnotherName);
-  if ((ChPtr=strrchr(AnotherNameOnly,'.'))!=NULL)
-    *ChPtr=0;
-  strcpy(AnotherShortNameOnly,AnotherShortName);
-  if ((ChPtr=strrchr(AnotherShortNameOnly,'.'))!=NULL)
+  strcpy(PSubstData->ShortNameOnly,ShortName);
+  if ((ChPtr=strrchr(PSubstData->ShortNameOnly,'.'))!=NULL)
     *ChPtr=0;
 
-  char *DirBegin=NULL; // начало имени каталога (!?)
-  int PassivePanel=FALSE; // первоначально речь идет про активную панель!
-_SVS(int Pass=1);
+  PSubstData->ActivePanel=CtrlObject->Cp()->ActivePanel;
+  PSubstData->AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
+  PSubstData->AnotherPanel->GetCurName(PSubstData->AnotherName,PSubstData->AnotherShortName);
+  strcpy(PSubstData->AnotherNameOnly,PSubstData->AnotherName);
+  if ((ChPtr=strrchr(PSubstData->AnotherNameOnly,'.'))!=NULL)
+    *ChPtr=0;
+
+  strcpy(PSubstData->AnotherShortNameOnly,PSubstData->AnotherShortName);
+  if ((ChPtr=strrchr(PSubstData->AnotherShortNameOnly,'.'))!=NULL)
+    *ChPtr=0;
+
+  PSubstData->PreserveLFN=FALSE;
+  PSubstData->PassivePanel=FALSE; // первоначально речь идет про активную панель!
+  // </PreProcess>
+
+  _SVS(int Pass=1);
 
   CurStr=Str;
   while (*CurStr)
   {
-_SVS(SysLog("***** Pass=%d",Pass));
-
-    // рассмотрим переключатели активности/пассивности панели.
-    if (strncmp(CurStr,"!#",2)==0)
+    _SVS(SysLog("***** Pass=%d",Pass));
+    if(*CurStr == '!')
+      CurStr=_SubstFileName(CurStr,PSubstData,TmpStr,sizeof(TmpStr)-strlen(TmpStr)-1);
+    else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
     {
-      CurStr+=2;
-      PassivePanel=TRUE;
-_SVS(SysLog("PassivePanel=TRUE '%s'",CurStr));
+      strncat(TmpStr,CurStr,1);
+      CurStr++;
     }
-    if (strncmp(CurStr,"!^",2)==0)
-    {
-      CurStr+=2;
-      PassivePanel=FALSE;
-_SVS(SysLog("PassivePanel=FALSE '%s'",CurStr));
-    }
-
-    {
-      // !! символ '!'
-      if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
-      {
-        strncat(TmpStr,"!",sizeof (TmpStr)-1);
-        CurStr+=2;
-_SVS(SysLog("!! TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !.!      Длинное имя файла с расширением
-      if (strncmp(CurStr,"!.!",3)==0 && CurStr[3] != '?')
-      {
-        strncat(TmpStr,PassivePanel ? AnotherName:Name, sizeof (TmpStr)-1);
-        CurStr+=3;
-_SVS(SysLog("!.! TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !~       Короткое имя файла без расширения
-      if (strncmp(CurStr,"!~",2)==0)
-      {
-        strncat(TmpStr,PassivePanel ? AnotherShortNameOnly:ShortNameOnly, sizeof (TmpStr)-1);
-        CurStr+=2;
-_SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !`  Длинное расширение файла без имени
-      if (strncmp(CurStr,"!`",2)==0)
-      {
-        char *Ext;
-        if(CurStr[2] == '~')
-        {
-          Ext=strrchr((PassivePanel ? AnotherShortName:ShortName),'.');
-          CurStr+=3;
-        }
-        else
-        {
-          Ext=strrchr((PassivePanel ? AnotherName:Name),'.');
-          CurStr+=2;
-        }
-        if(Ext && *Ext)
-          strncat(TmpStr,++Ext, sizeof (TmpStr)-1);
-_SVS(SysLog("!` TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !\!.!  Полное имя файла
-      if (strncmp(CurStr,"!\\!.!",5)==0 && CurStr[5] != '?')
-      {
-        char CurDir[NM];
-        char *FileName=PassivePanel ? AnotherName:Name;
-        if (strpbrk(FileName,"\\:")==NULL)
-        {
-          if (PassivePanel)
-            AnotherPanel->GetCurDir(CurDir);
-          else
-            strcpy(CurDir,CmdDir);
-          AddEndSlash(CurDir);
-        }
-        else
-          *CurDir=0;
-        strncat(CurDir,FileName,sizeof (CurDir)-1);
-        CurStr+=5;
-        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
-_SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !& !&~  список файлов разделенных пробелом.
-      if (!strncmp(CurStr,"!&~",3) && CurStr[3] != '?' ||
-          !strncmp(CurStr,"!&",2) && CurStr[2] != '?')
-      {
-        char FileNameL[NM],ShortNameL[NM];
-        Panel *WPanel=PassivePanel?AnotherPanel:CtrlObject->Cp()->ActivePanel;
-        int FileAttrL;
-        int ShortN0=FALSE;
-        int CntSkip=2;
-        if(CurStr[2] == '~')
-        {
-          ShortN0=TRUE;
-          CntSkip++;
-        }
-        WPanel->GetSelName(NULL,FileAttrL);
-        int First = TRUE;
-        while (WPanel->GetSelName(FileNameL,FileAttrL,ShortNameL))
-        {
-          if (ShortN0)
-            strcpy(FileNameL,ShortNameL);
-          else // в список все же должно попасть имя в кавычках.
-            QuoteSpaceOnly(FileNameL);
-// Вот здесь фиг его знает - нужно/ненужно...
-//   если будет нужно - раскомментируем :-)
-//          if(FileAttrL & FA_DIREC)
-//            AddEndSlash(FileNameL);
-          // А нужен ли нам пробел в самом начале?
-          if (First)
-            First = FALSE;
-          else
-            strncat(TmpStr," ", sizeof (TmpStr)-1);
-          strncat(TmpStr,FileNameL, sizeof (TmpStr)-1);
-		  /* $ 05.03.2002 DJ
-		     если в буфер больше не влезет - выйдем из цикла
-		  */
-		  if (strlen (TmpStr) >= sizeof (TmpStr)-1)
-            break;
-		  /* DJ $ */
-        }
-        CurStr+=CntSkip;
-_SVS(SysLog("!& TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !@  Имя файла, содержащего имена помеченных файлов
-      if (strncmp(CurStr,"!@",2)==0)
-      {
-        char Modifers[32]="", *Ptr;
-
-        if((Ptr=strchr(CurStr+2,'!')) != NULL)
-        {
-          if(Ptr[1] != '?')
-          {
-            *Ptr=0;
-            strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
-            /* $ 02.09.2000 tran
-               !@!, !#!@! bug */
-            if(ListName!=NULL)
-            {
-              if ( PassivePanel && ( ListName[NM] || AnotherPanel->MakeListFile(ListName+NM,FALSE,Modifers)))
-              {
-                strncat(TmpStr,ListName+NM, sizeof (TmpStr)-1);
-              }
-              if ( !PassivePanel && (*ListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ListName,FALSE,Modifers)))
-              {
-                strncat(TmpStr,ListName, sizeof (TmpStr)-1);
-              }
-            }
-            else
-            {
-              strncat(TmpStr,CurStr, sizeof (TmpStr)-1);
-              strncat(TmpStr,Modifers, sizeof (TmpStr)-1);
-              strncat(TmpStr,"!", sizeof (TmpStr)-1);
-            }
-            /* tran $ */
-            CurStr+=Ptr-CurStr+1;
-            continue;
-          }
-        }
-      }
-
-      // !$!      Имя файла, содержащего короткие имена помеченных файлов
-      if (strncmp(CurStr,"!$",2)==0)
-      {
-        char Modifers[32]="", *Ptr;
-
-        if((Ptr=strchr(CurStr+2,'!')) != NULL)
-        {
-          if(Ptr[1] != '?')
-          {
-            *Ptr=0;
-            strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
-            /* $ 02.09.2000 tran
-               !@!, !#!@! bug */
-            if(ShortListName!=NULL)
-            {
-              if ( PassivePanel && (ShortListName[NM] || AnotherPanel->MakeListFile(ShortListName+NM,TRUE,Modifers)))
-              {
-                /* $ 01.11.2000 IS
-                   Имя файла в данном случае должно быть коротким
-                */
-                ConvertNameToShort(ShortListName+NM,ShortListName+NM);
-                /* IS $ */
-                strncat(TmpStr,ShortListName+NM, sizeof (TmpStr)-1);
-              }
-              if ( !PassivePanel && (*ShortListName || CtrlObject->Cp()->ActivePanel->MakeListFile(ShortListName,TRUE,Modifers)))
-              {
-                /* $ 01.11.2000 IS
-                   Имя файла в данном случае должно быть коротким
-                */
-                ConvertNameToShort(ShortListName,ShortListName);
-                /* IS $ */
-                strncat(TmpStr,ShortListName, sizeof (TmpStr)-1);
-              }
-              /* tran $ */
-            }
-            else
-            {
-              strncat(TmpStr,CurStr, sizeof (TmpStr)-1);
-              strncat(TmpStr,Modifers, sizeof (TmpStr)-1);
-              strncat(TmpStr,"!", sizeof (TmpStr)-1);
-            }
-            CurStr+=Ptr-CurStr+1;
-_SVS(SysLog("!$! TmpStr=[%s]",TmpStr));
-            continue;
-          }
-        }
-      }
-
-      // !-!      Короткое имя файла с расширением
-      if (strncmp(CurStr,"!-!",3)==0 && CurStr[3] != '?')
-      {
-        strncat(TmpStr,PassivePanel ? AnotherShortName:ShortName, sizeof (TmpStr)-1);
-        CurStr+=3;
-_SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !+!      Аналогично !-!, но если длинное имя файла утеряно
-      //          после выполнения команды, FAR восстановит его
-      if (strncmp(CurStr,"!+!",3)==0 && CurStr[3] != '?')
-      {
-        strncat(TmpStr,PassivePanel ? AnotherShortName:ShortName, sizeof (TmpStr)-1);
-        CurStr+=3;
-        PreserveLFN=TRUE;
-_SVS(SysLog("!+! TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !:       Текущий диск
-      if (strncmp(CurStr,"!:",2)==0)
-      {
-        char CurDir[NM];
-        if (*Name && Name[1]==':')
-          strcpy(CurDir,Name);
-        else
-          if (PassivePanel)
-            AnotherPanel->GetCurDir(CurDir);
-          else
-            strcpy(CurDir,CmdDir);
-        CurDir[2]=0;
-        if (*CurDir && CurDir[1]!=':')
-          *CurDir=0;
-        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
-        CurStr+=2;
-_SVS(SysLog("!: TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !\       Текущий путь
-      if (strncmp(CurStr,"!\\",2)==0)
-      {
-        char CurDir[NM];
-        if (PassivePanel)
-          AnotherPanel->GetCurDir(CurDir);
-        else
-          strcpy(CurDir,CmdDir);
-        AddEndSlash(CurDir);
-        CurStr+=2;
-        if (*CurStr=='!')
-        {
-          strcpy(TmpName,Name);
-          strcpy(TmpShortName,ShortName);
-          if (strpbrk(Name,"\\:")!=NULL)
-            *CurDir=0;
-        }
-        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
-_SVS(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
-        continue;
-      }
-
-      // !/       Короткое имя текущего пути
-      if (strncmp(CurStr,"!/",2)==0)
-      {
-        char CurDir[NM];
-        if (PassivePanel)
-          AnotherPanel->GetCurDir(CurDir);
-        else
-          strcpy(CurDir,CmdDir);
-        ConvertNameToShort(CurDir,CurDir);
-        AddEndSlash(CurDir);
-        CurStr+=2;
-        if (*CurStr=='!')
-        {
-          strcpy(TmpName,Name);
-          strcpy(TmpShortName,ShortName);
-          if (strpbrk(Name,"\\:")!=NULL)
-          {
-            if (PointToName(ShortName)==ShortName)
-            {
-              strcpy(TmpShortName,CurDir);
-              AddEndSlash(TmpShortName);
-              strcat(TmpShortName,ShortName);
-            }
-            *CurDir=0;
-          }
-        }
-        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strncat(TmpStr,CurDir, sizeof (TmpStr)-1);
-_SVS(SysLog("!/ TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !?<title>?<init>!
-      if (strncmp(CurStr,"!?",2)==0 && strchr(CurStr+2,'!')!=NULL)
-      {
-        char *NewCurStr=strchr(CurStr+2,'!')+1;
-        strncat(TmpStr,CurStr,NewCurStr-CurStr);
-        CurStr=NewCurStr;
-_SVS(SysLog("!? TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-      // !        Длинное имя файла без расширения
-      if (*CurStr=='!')
-      {
-        if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
-        strncat(TmpStr,PointToName(PassivePanel ? AnotherNameOnly:NameOnly), sizeof (TmpStr)-1);
-        CurStr++;
-_SVS(SysLog("! TmpStr=[%s]",TmpStr));
-        continue;
-      }
-
-    }
-
-    strncat(TmpStr,CurStr,1);
-    CurStr++;
-_SVS(++Pass);
+    _SVS(++Pass);
   }
 
   if (!IgnoreInput)
     ReplaceVariables(TmpStr);
   strncpy(Str,TmpStr,StrSize-1);
 
-_SVS(SysLog(-1));
-_SVS(SysLog("[%s]\n",Str));
-  return(PreserveLFN);
+  _SVS(SysLog("[%s]\n",Str));
+  return(PSubstData->PreserveLFN);
+}
+
+static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *TmpStr,int MaxTempStrSize)
+{
+  _SVS(CleverSysLog clv("*** _SubstFileName ***"));
+
+//  char TmpName[NM+2];
+//  char TmpShortName[NM+2];
+//  char *DirBegin=NULL; // начало имени каталога (!?)
+#if 0
+  // "НАЧАЛО" операторных скобок
+  if(*CurStr == '(')
+  {
+    if(*++CurStr != '(')
+    {
+      char *PCurStr=strchr(CurStr,')');
+      if(PCurStr)
+      {
+        *PCurStr=0;
+        _SubstFileName(CurStr,PSubstData,TmpStr,MaxTempStrSize);
+        CurStr=PCurStr+1;
+      }
+    }
+    return CurStr;
+  }
+#endif
+
+  // рассмотрим переключатели активности/пассивности панели.
+  if (strncmp(CurStr,"!#",2)==0)
+  {
+    CurStr+=2;
+    PSubstData->PassivePanel=TRUE;
+    _SVS(SysLog("PassivePanel=TRUE '%s'",CurStr));
+    return CurStr;
+  }
+
+  if (strncmp(CurStr,"!^",2)==0)
+  {
+    CurStr+=2;
+    PSubstData->PassivePanel=FALSE;
+    _SVS(SysLog("PassivePanel=FALSE '%s'",CurStr));
+    return CurStr;
+  }
+
+  // !! символ '!'
+  if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
+  {
+    strncat(TmpStr,"!",MaxTempStrSize-1);
+    CurStr+=2;
+    _SVS(SysLog("!! TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !.!      Длинное имя файла с расширением
+  if (strncmp(CurStr,"!.!",3)==0 && CurStr[3] != '?')
+  {
+    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherName:PSubstData->Name, MaxTempStrSize-1);
+    CurStr+=3;
+    _SVS(SysLog("!.! TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !~       Короткое имя файла без расширения
+  if (strncmp(CurStr,"!~",2)==0)
+  {
+    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortNameOnly:PSubstData->ShortNameOnly, MaxTempStrSize-1);
+    CurStr+=2;
+    _SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !`  Длинное расширение файла без имени
+  if (strncmp(CurStr,"!`",2)==0)
+  {
+    char *Ext;
+    if(CurStr[2] == '~')
+    {
+      Ext=strrchr((PSubstData->PassivePanel ? PSubstData->AnotherShortName:PSubstData->ShortName),'.');
+      CurStr+=3;
+    }
+    else
+    {
+      Ext=strrchr((PSubstData->PassivePanel ? PSubstData->AnotherName:PSubstData->Name),'.');
+      CurStr+=2;
+    }
+    if(Ext && *Ext)
+      strncat(TmpStr,++Ext, MaxTempStrSize-1);
+    _SVS(SysLog("!` TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !\!.!  Полное имя файла
+  if (strncmp(CurStr,"!\\!.!",5)==0 && CurStr[5] != '?')
+  {
+    char CurDir[NM];
+    char *FileName=PSubstData->PassivePanel ? PSubstData->AnotherName:PSubstData->Name;
+    if (strpbrk(FileName,"\\:")==NULL)
+    {
+      if (PSubstData->PassivePanel)
+        PSubstData->AnotherPanel->GetCurDir(CurDir);
+      else
+        strcpy(CurDir,PSubstData->CmdDir);
+      AddEndSlash(CurDir);
+    }
+    else
+      *CurDir=0;
+    strncat(CurDir,FileName,sizeof (CurDir)-1);
+    CurStr+=5;
+//    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
+    strncat(TmpStr,CurDir, MaxTempStrSize-1);
+    _SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !& !&~  список файлов разделенных пробелом.
+  if (!strncmp(CurStr,"!&~",3) && CurStr[3] != '?' ||
+      !strncmp(CurStr,"!&",2) && CurStr[2] != '?')
+  {
+    char FileNameL[NM],ShortNameL[NM];
+    Panel *WPanel=PSubstData->PassivePanel?PSubstData->AnotherPanel:PSubstData->ActivePanel;
+    int FileAttrL;
+    int ShortN0=FALSE;
+    int CntSkip=2;
+    if(CurStr[2] == '~')
+    {
+      ShortN0=TRUE;
+      CntSkip++;
+    }
+    WPanel->GetSelName(NULL,FileAttrL);
+    int First = TRUE;
+    while (WPanel->GetSelName(FileNameL,FileAttrL,ShortNameL))
+    {
+      if (ShortN0)
+        strcpy(FileNameL,ShortNameL);
+      else // в список все же должно попасть имя в кавычках.
+        QuoteSpaceOnly(FileNameL);
+// Вот здесь фиг его знает - нужно/ненужно...
+//   если будет нужно - раскомментируем :-)
+//          if(FileAttrL & FA_DIREC)
+//            AddEndSlash(FileNameL);
+      // А нужен ли нам пробел в самом начале?
+      if (First)
+        First = FALSE;
+      else
+        strncat(TmpStr," ", MaxTempStrSize-1);
+      strncat(TmpStr,FileNameL, MaxTempStrSize-1);
+      /* $ 05.03.2002 DJ
+         если в буфер больше не влезет - выйдем из цикла
+      */
+      if (strlen (TmpStr) >= MaxTempStrSize-1)
+        break;
+      /* DJ $ */
+    }
+    CurStr+=CntSkip;
+    _SVS(SysLog("!& TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !@  Имя файла, содержащего имена помеченных файлов
+  if (strncmp(CurStr,"!@",2)==0)
+  {
+    char Modifers[32]="", *Ptr;
+
+    if((Ptr=strchr(CurStr+2,'!')) != NULL)
+    {
+      if(Ptr[1] != '?')
+      {
+        *Ptr=0;
+        strncpy(Modifers,CurStr+2,sizeof(Modifers)-1);
+        /* $ 02.09.2000 tran
+           !@!, !#!@! bug */
+        if(PSubstData->ListName!=NULL)
+        {
+          if ( PSubstData->PassivePanel && ( PSubstData->ListName[NM] || PSubstData->AnotherPanel->MakeListFile(PSubstData->ListName+NM,FALSE,Modifers)))
+          {
+            strncat(TmpStr,PSubstData->ListName+NM, MaxTempStrSize-1);
+          }
+          if ( !PSubstData->PassivePanel && (*PSubstData->ListName || PSubstData->ActivePanel->MakeListFile(PSubstData->ListName,FALSE,Modifers)))
+          {
+            strncat(TmpStr,PSubstData->ListName, MaxTempStrSize-1);
+          }
+        }
+        else
+        {
+          strncat(TmpStr,CurStr, MaxTempStrSize-1);
+          strncat(TmpStr,Modifers, MaxTempStrSize-1);
+          strncat(TmpStr,"!", MaxTempStrSize-1);
+        }
+        /* tran $ */
+        CurStr+=Ptr-CurStr+1;
+        return CurStr;
+      }
+    }
+  }
+
+  // !$!      Имя файла, содержащего короткие имена помеченных файлов
+  if (strncmp(CurStr,"!$",2)==0)
+  {
+    char Modifers[32]="", *Ptr;
+
+    if((Ptr=strchr(CurStr+2,'!')) != NULL)
+    {
+      if(Ptr[1] != '?')
+      {
+        *Ptr=0;
+        strncpy(Modifers,CurStr+2,MaxTempStrSize-1);
+        /* $ 02.09.2000 tran
+           !@!, !#!@! bug */
+        if(PSubstData->ShortListName!=NULL)
+        {
+          if ( PSubstData->PassivePanel && (PSubstData->ShortListName[NM] || PSubstData->AnotherPanel->MakeListFile(PSubstData->ShortListName+NM,TRUE,Modifers)))
+          {
+            /* $ 01.11.2000 IS
+               Имя файла в данном случае должно быть коротким
+            */
+            ConvertNameToShort(PSubstData->ShortListName+NM,PSubstData->ShortListName+NM);
+            /* IS $ */
+            strncat(TmpStr,PSubstData->ShortListName+NM, MaxTempStrSize-1);
+          }
+          if ( !PSubstData->PassivePanel && (*PSubstData->ShortListName || PSubstData->ActivePanel->MakeListFile(PSubstData->ShortListName,TRUE,Modifers)))
+          {
+            /* $ 01.11.2000 IS
+               Имя файла в данном случае должно быть коротким
+            */
+            ConvertNameToShort(PSubstData->ShortListName,PSubstData->ShortListName);
+            /* IS $ */
+            strncat(TmpStr,PSubstData->ShortListName, MaxTempStrSize-1);
+          }
+          /* tran $ */
+        }
+        else
+        {
+          strncat(TmpStr,CurStr, MaxTempStrSize-1);
+          strncat(TmpStr,Modifers, MaxTempStrSize-1);
+          strncat(TmpStr,"!", MaxTempStrSize-1);
+        }
+        CurStr+=Ptr-CurStr+1;
+        _SVS(SysLog("!$! TmpStr=[%s]",TmpStr));
+        return CurStr;
+      }
+    }
+  }
+
+  // !-!      Короткое имя файла с расширением
+  if (strncmp(CurStr,"!-!",3)==0 && CurStr[3] != '?')
+  {
+    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
+    CurStr+=3;
+    _SVS(SysLog("!-! TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !+!      Аналогично !-!, но если длинное имя файла утеряно
+  //          после выполнения команды, FAR восстановит его
+  if (strncmp(CurStr,"!+!",3)==0 && CurStr[3] != '?')
+  {
+    strncat(TmpStr,PSubstData->PassivePanel ? PSubstData->AnotherShortName:PSubstData->ShortName, MaxTempStrSize-1);
+    CurStr+=3;
+    PSubstData->PreserveLFN=TRUE;
+    _SVS(SysLog("!+! TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !:       Текущий диск
+  if (strncmp(CurStr,"!:",2)==0)
+  {
+    char CurDir[NM];
+    if (*PSubstData->Name && PSubstData->Name[1]==':')
+      strcpy(CurDir,PSubstData->Name);
+    else
+      if (PSubstData->PassivePanel)
+        PSubstData->AnotherPanel->GetCurDir(CurDir);
+      else
+        strcpy(CurDir,PSubstData->CmdDir);
+    CurDir[2]=0;
+    if (*CurDir && CurDir[1]!=':')
+      *CurDir=0;
+//    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
+    strncat(TmpStr,CurDir, MaxTempStrSize-1);
+    CurStr+=2;
+    _SVS(SysLog("!: TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !\       Текущий путь
+  if (strncmp(CurStr,"!\\",2)==0)
+  {
+    char CurDir[NM];
+    if (PSubstData->PassivePanel)
+      PSubstData->AnotherPanel->GetCurDir(CurDir);
+    else
+      strcpy(CurDir,PSubstData->CmdDir);
+    AddEndSlash(CurDir);
+    CurStr+=2;
+    if (*CurStr=='!')
+    {
+//      strcpy(TmpName,PSubstData->Name);
+//      strcpy(TmpShortName,PSubstData->ShortName);
+      if (strpbrk(PSubstData->Name,"\\:")!=NULL)
+        *CurDir=0;
+    }
+//    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
+    strncat(TmpStr,CurDir, MaxTempStrSize-1);
+    _SVS(SysLog("!\\ TmpStr=[%s] CurDir=[%s]",TmpStr, CurDir));
+    return CurStr;
+  }
+
+  // !/       Короткое имя текущего пути
+  if (strncmp(CurStr,"!/",2)==0)
+  {
+    char CurDir[NM];
+    if (PSubstData->PassivePanel)
+      PSubstData->AnotherPanel->GetCurDir(CurDir);
+    else
+      strcpy(CurDir,PSubstData->CmdDir);
+    ConvertNameToShort(CurDir,CurDir);
+    AddEndSlash(CurDir);
+    CurStr+=2;
+    if (*CurStr=='!')
+    {
+//      strcpy(TmpName,PSubstData->Name);
+//      strcpy(TmpShortName,PSubstData->ShortName);
+      if (strpbrk(PSubstData->Name,"\\:")!=NULL)
+      {
+//        if (PointToName(PSubstData->ShortName)==PSubstData->ShortName)
+//        {
+//          strcpy(TmpShortName,CurDir);
+//          AddEndSlash(TmpShortName);
+//          strcat(TmpShortName,PSubstData->ShortName);
+//        }
+        *CurDir=0;
+      }
+    }
+//    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
+    strncat(TmpStr,CurDir, MaxTempStrSize-1);
+    _SVS(SysLog("!/ TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !?<title>?<init>!
+  if (strncmp(CurStr,"!?",2)==0 && strchr(CurStr+2,'!')!=NULL)
+  {
+#if 0
+    // "НАЧАЛО" операторных скобок
+    char *Ptr=(CurStr+=2), *Ptr2;
+    char TempStr2[2048];
+
+    strcat(TmpStr,"!?");
+    while(*Ptr)
+    {
+      if(*Ptr == '(' && Ptr[1] != '(')
+      {
+        Ptr2=Ptr+1;
+        *TempStr2=0;
+        while(*Ptr)
+        {
+          if(*Ptr == ')' && Ptr[1] != ')')
+          {
+            *Ptr=0;
+            while (*Ptr2)
+            {
+              if(*Ptr2 == '!')
+              {
+                Ptr2=_SubstFileName(Ptr2,PSubstData,TempStr2,sizeof(TempStr2));
+                strncat(TmpStr,TempStr2,strlen(TempStr2));
+              }
+              else
+              {
+                strncat(TmpStr,Ptr2,1);
+                Ptr2++;
+              }
+            }
+            *Ptr=')';
+            break;
+          }
+          Ptr++;
+        }
+        if(*Ptr == 0)
+          break;
+      }
+      else if(*Ptr == '!')
+      {
+        strcat(TmpStr,"!");
+        break;
+      }
+      else if(*Ptr == '?')
+      {
+        strcat(TmpStr,"?");
+      }
+      else
+        strncat(TmpStr,Ptr,1);
+      Ptr++;
+    }
+    CurStr=Ptr;
+#else
+    char *NewCurStr=strchr(CurStr+2,'!')+1;
+    strncat(TmpStr,CurStr,NewCurStr-CurStr);
+    CurStr=NewCurStr;
+#endif
+    _SVS(SysLog("!? TmpStr=[%s]",TmpStr));
+    return CurStr;
+  }
+
+  // !        Длинное имя файла без расширения
+  if (*CurStr=='!')
+  {
+//    if(!DirBegin) DirBegin=TmpStr+strlen(TmpStr);
+    strncat(TmpStr,PointToName(PSubstData->PassivePanel ? PSubstData->AnotherNameOnly:PSubstData->NameOnly), MaxTempStrSize-1);
+    CurStr++;
+    _SVS(SysLog("! TmpStr=[%s]",TmpStr));
+  }
+
+  return CurStr;
 }
 
 

@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.89 10.12.2002 $ */
+/* Revision: 1.90 13.12.2002 $ */
 
 /*
 Modify:
+  13.12.2002 SVS
+    - BugZ#699 - Бесконечный цикл при использовании ACTL_POSTKEYSEQUENCE
+      Теперь забыли про редактор :-(
   10.12.2002 SVS
     - BugZ#699 - Бесконечный цикл при использовании ACTL_POSTKEYSEQUENCE
       Продолжение эпопеи - отвалился KSFLAGS_DISABLEOUTPUT
@@ -879,6 +882,16 @@ int KeyMacro::GetKey()
   {
     if(!MacroRAM)
     {
+      if(Mode==MACRO_EDITOR &&
+         IsRedrawEditor &&
+         CtrlObject->Plugins.CurEditor &&
+         CtrlObject->Plugins.CurEditor->IsVisible() &&
+         LockScr)
+      {
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+        CtrlObject->Plugins.CurEditor->Show();
+      }
       if(LockScr) delete LockScr;
       LockScr=NULL;
       return(FALSE);
