@@ -14,6 +14,8 @@
 # Modify: 06.12.2000 SVS + $(OBJPATH)\mix.obj: mix.cpp cc.bat
 #              чтобы ручками не удалять mix.obj, если выставлен флаг SYSLOG
 #
+# Modify: 30.12.2000 SVS + fileattr
+#
 # make -fmkfar.mak [options]
 #   -DALLOC - вставляет переопределенные функции работы с памятью
 # Надо, иначе не будет перекомпиляция при изменении H*-файлов
@@ -186,6 +188,7 @@ FAROBJ=\
    $(OBJPATH)\flshow.obj\
    $(OBJPATH)\farrtl.obj\
    $(OBJPATH)\syslog.obj\
+   $(OBJPATH)\fileattr.obj\
    $(OBJPATH)\main.obj
 
 Dep_fardexe = BccW32.cfg\

@@ -5,10 +5,13 @@ far.cpp
 
 */
 
-/* Revision: 1.07 28.12.2000 $ */
+/* Revision: 1.08 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+    + Проинициализируем функции работы с атрибутами Encryped сразу после
+      старта FAR
   28.12.2000 SVS
     + Opt.HotkeyRules - Правило на счет выбора механизма хоткеев
   21.12.2000 SVS
@@ -57,6 +60,13 @@ int _cdecl main(int Argc, char *Argv[])
   int StartLine=-1,StartChar=-1,RegOpt=FALSE;
   *EditName=*ViewName=*DestName=0;
   CmdMode=FALSE;
+
+  /* $ 30.12.2000 SVS
+     Проинициализируем функции работы с атрибутами Encryped сразу после
+     старта FAR
+  */
+  GetEncryptFunctions();
+  /* SVS $ */
 
   strcpy(Opt.RegRoot,"Software\\Far");
   /* $ 03.08.2000 SVS

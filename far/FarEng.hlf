@@ -135,7 +135,7 @@ $ #Panel control commands#
 
  #File panel commands#
 
-  Select/deselect file                        #Ins, Shift+Cursor keys#
+  Select/deselect file                        #Ins, Shift-Cursor keys#
   Select group                                                #Gray +#
   Deselect group                                              #Gray -#
   Invert selection                                            #Gray *#
@@ -338,8 +338,8 @@ which refer to the same data.
   Change folder, enter to archive (also to SFX archive)    #Ctrl-PgDn#
   Change folder to parent                                  #Ctrl-PgUp#
 
-  Create shortcut to the current folder               #Ctrl+Shift+<N>#
-  Use folder shortcut                                  #RightCtrl+<N>#
+  Create shortcut to the current folder               #Ctrl-Shift-<N>#
+  Use folder shortcut                                  #RightCtrl-<N>#
 
   Set ~file attributes~@FileAttrDlg@                                         #Ctrl-A#
   ~Apply command~@ApplyCmd@ to selected files                             #Ctrl-G#
@@ -351,7 +351,7 @@ $ #Miscellaneous#
 
   Screen grabber allows to select and copy to the clipboard any screen area.
 Use arrow keys or click the left mouse button to move the cursor. To select
-text use Shift+arrow keys or press the left mouse button. Enter, Ctrl-Ins,
+text use Shift-arrow keys or press the left mouse button. Enter, Ctrl-Ins,
 right mouse button or doubleclick copy selected text to clipboard, Ctrl-
 <Gray +> adds it to the clipboard contents, Esc discards grabbing.
 
@@ -968,7 +968,7 @@ you may call user menu from parent folder by pressing BkSpace key.
 
     You may add command separator to user menu. To do this, you must add
 new menu command, define "-" as "hot key" and leave field "Label" empty.
-To delete menu separator, you must switch to file mode with ALT+F4 key.
+To delete menu separator, you must switch to file mode with Alt-F4 key.
 
     For execution of a user menu command select it with cursor movement
 keys and press Enter. You may press the hot key, assigned to required
@@ -1255,9 +1255,9 @@ $ #Internal viewer#
                           line.
     #Ctrl-S#             Show/Hide ScrollBar.
     #Alt-BS, Ctrl-Z#     Undo position change
-    #RightCtrl+<N>#      Sets bookmark in the current position
+    #RightCtrl-<N>#      Sets bookmark in the current position
                        (N must be '0'..'9')
-    #LeftCtrl+<N>#       Go to bookmark <N>
+    #LeftCtrl-<N>#       Go to bookmark <N>
 
     Notes:
 
@@ -1325,11 +1325,11 @@ $ #Internal editor#
 
   Block operations
 
-   #Shift+Cursor keys#       Select block
-   #Ctrl-Shift+Cursor keys#  Select block
-   #Alt+gray cursor keys#    Select vertical block
-   #Alt-Shift+Cursor keys#   Select vertical block
-   #Ctrl-Alt+gray keys#      Select vertical block
+   #Shift-Cursor keys#       Select block
+   #Ctrl-Shift-Cursor keys#  Select block
+   #Alt-gray cursor keys#    Select vertical block
+   #Alt-Shift-Cursor keys#   Select vertical block
+   #Ctrl-Alt-gray keys#      Select vertical block
    #Ctrl-A#                  Select all text
    #Ctrl-U#                  Deselect block
    #Shift-Ins, Ctrl-V#       Paste block from clipboard
@@ -1371,9 +1371,9 @@ $ #Internal editor#
                            (as long as these keys are held down)
    #Ctrl-Q#                  Treat the next key combination
                            as a character code
-   #RightCtrl+<N>#           Sets bookmark in the current position
+   #RightCtrl-<N>#           Sets bookmark in the current position
                            (N must be '0'..'9')
-   #LeftCtrl+<N>#            Go to bookmark <N>
+   #LeftCtrl-<N>#            Go to bookmark <N>
 
     Notes:
 
@@ -1608,9 +1608,9 @@ field empty.
 @FolderShortcuts
 $ #Folder shortcuts#
     Folder shortcuts are designed to provide fast access to frequently
-used folders. Press Ctrl+Shift+<N>, where N is '0'..'9', to create a shortcut
+used folders. Press Ctrl-Shift-<N>, where N is '0'..'9', to create a shortcut
 to the current folder. To change to the folder recorded in the shortcut,
-press RightCtrl+<N>. If RightCtrl+<N> pressed in edit line, it inserts shortcut
+press RightCtrl-<N>. If RightCtrl-<N> pressed in edit line, it inserts shortcut
 path to the line.
 
     The #Show folder shortcuts# item in the ~Commands menu~@CmdMenu@ may be
@@ -1802,7 +1802,7 @@ file masks. For example, to select all documents, you may enter
 $ #Selecting files#
     To process several ~file panel~@FilePanel@ files and folders,
 they may be selected using different methods. #Ins# selects the file under
-the cursor and moves the cursor down, #Shift+Cursor keys# moves the cursor
+the cursor and moves the cursor down, #Shift-Cursor keys# moves the cursor
 in different directions.
 
     #Gray +# and #Gray -# perform group select and deselect,

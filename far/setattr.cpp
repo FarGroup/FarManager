@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.08 21.12.2000 $ */
+/* Revision: 1.09 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+    ! Функции для работы с файловыми атрибутами вынесены в fileattr.cpp
   21.12.2000 SVS
     ! Если папка одна, то включение "Process subfolders" не очищает
       область с атрибутами.
@@ -40,21 +42,8 @@ Modify:
 #include "internalheaders.hpp"
 /* IS $ */
 
-typedef BOOL (WINAPI *PEncryptFileA)(LPCSTR lpFileName);
-typedef BOOL (WINAPI *PDecryptFileA)(LPCSTR lpFileName, DWORD dwReserved);
-static PEncryptFileA pEncryptFileA=NULL;
-static PDecryptFileA pDecryptFileA=NULL;
-static BOOL IsCryptFileASupport=FALSE;
-
-static int ESetFileAttributes(char *Name,int Attr);
-static int ESetFileCompression(char *Name,int State,int FileAttr);
-static int SetFileCompression(char *Name,int State);
-static int ESetFileEncryption(char *Name,int State,int FileAttr);
-static int SetFileEncryption(char *Name,int State);
 static int ReadFileTime(FILETIME *FileTime,char *SrcDate,char *SrcTime);
-static int ESetFileTime(char *Name,FILETIME *LastWriteTime,
-                         FILETIME *CreationTime,FILETIME *LastAccessTime,
-                         int FileAttr);
+
 
 static void IncludeExcludeAttrib(int FocusPos,struct DialogItem *Item, int FocusPosSet, int FocusPosSkip)
 {
@@ -66,36 +55,6 @@ static void IncludeExcludeAttrib(int FocusPos,struct DialogItem *Item, int Focus
 
 
 // Compress & Encripted
-static int CEAttrib(char *SelName,int FileAttr,struct DialogItem *Item,int C, int E)
-{
-  int FocusPos=1;
-
-  if(Item[C].Selected && !(FileAttr & FILE_ATTRIBUTE_COMPRESSED))
-  {
-    if(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)
-      FocusPos=ESetFileEncryption(SelName,0,FileAttr);
-    if(FocusPos)
-      return ESetFileCompression(SelName,1,FileAttr);
-  }
-  else if(Item[E].Selected && !(FileAttr & FILE_ATTRIBUTE_ENCRYPTED))
-  {
-// Этот кусок не нужен, т.к. функция криптования сама умеет разжимать
-// сжатые файлы.
-//    if(FileAttr & FILE_ATTRIBUTE_COMPRESSED)
-//      FocusPos=ESetFileCompression(SelName,0,FileAttr);
-//    if(FocusPos)
-    return ESetFileEncryption(SelName,1,FileAttr);
-  }
-  else if(!Item[C].Selected && (FileAttr & FILE_ATTRIBUTE_COMPRESSED))
-  {
-    return ESetFileCompression(SelName,0,FileAttr);
-  }
-  else if(!Item[E].Selected && (FileAttr & FILE_ATTRIBUTE_ENCRYPTED))
-  {
-    return ESetFileEncryption(SelName,0,FileAttr);
-  }
-  return FALSE;
-}
 
 static void EmptyDialog(struct DialogItem *MultAttrDlg,int ClrAttr)
 {
@@ -158,28 +117,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
     ! массивы для масок имеют постоянный адрес прописки - объявлены как static
   */
   static char DMask[20],TMask[20];
-  /* SVS $*/
-
-  /* $ 11.11.2000 SVS
-     получим функции криптования
-  */
-  if(!pEncryptFileA)
-  {
-    // работает только под Win2000! Если не 2000, то не надо и показывать эту опцию.
-    pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle("kernel32"),"EncryptFileA");
-    if(!pEncryptFileA)
-      pEncryptFileA = (PEncryptFileA)GetProcAddress(GetModuleHandle("ADVAPI32"),"EncryptFileA");
-  }
-
-  if(!pDecryptFileA)
-  {
-    pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle("kernel32"),"DecryptFileA");
-    if(!pDecryptFileA)
-      pDecryptFileA = (PDecryptFileA)GetProcAddress(GetModuleHandle("ADVAPI32"),"DecryptFileA");
-  }
-
-  if(pDecryptFileA && pEncryptFileA)
-    IsCryptFileASupport=TRUE;
   /* SVS $*/
 
   /* $ 14.08.2000 KM
@@ -275,31 +212,14 @@ void ShellSetFileAttributes(Panel *SrcPanel)
       if ((FileSystemFlags & FS_FILE_COMPRESSION)==0)
       {
         AttrDlg[8].Flags|=DIF_DISABLE;
-//        AttrDlg[8].Type=DI_TEXT;
-        // хотелка - не показывать про компрессию
-        //strcat(AttrDlg[8].Data,MSG(MSetAttrNTFSOnly));
-//        AttrDlg[8].Data[0]=0;
-
         MultAttrDlg[8].Flags|=DIF_DISABLE;
         MultAttrDlg[14].Flags|=DIF_DISABLE;
-//        MultAttrDlg[8].Type=DI_TEXT;
-//        MultAttrDlg[14].Type=DI_TEXT;
-        // хотелка - не показывать про компрессию
-        //MultAttrDlg[13].X1+=4;
-        //strcat(MultAttrDlg[13].Data,MSG(MSetAttrNTFSOnly));
-//        MultAttrDlg[14].Data[0]=0;
       }
       if ((FileSystemFlags & FS_FILE_ENCRYPTION)==0)
       {
-        //AttrDlg[9].Type=DI_TEXT;
-        //AttrDlg[9].Data[0]=0;
         AttrDlg[9].Flags|=DIF_DISABLE;
-
         MultAttrDlg[9].Flags|=DIF_DISABLE;
         MultAttrDlg[15].Flags|=DIF_DISABLE;
-//        MultAttrDlg[9].Type=DI_TEXT;
-//        MultAttrDlg[15].Type=DI_TEXT;
-//        MultAttrDlg[15].Data[0]=0;
       }
     }
   }
@@ -430,7 +350,10 @@ void ShellSetFileAttributes(Panel *SrcPanel)
                      SetCreationTime ? &CreationTime:NULL,
                      SetLastAccessTime ? &LastAccessTime:NULL,FileAttr);
       }
-      CEAttrib(SelName,FileAttr,AttrDlg,8,9);
+      if(AttrDlg[8].Selected)
+        ESetFileCompression(SelName,(!(FileAttr & FILE_ATTRIBUTE_COMPRESSED)?1:0),FileAttr);
+      else if(AttrDlg[9].Selected)
+        ESetFileEncryption(SelName,(!(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?1:0),FileAttr);
       ESetFileAttributes(SelName,NewAttr);
     }
 
@@ -565,17 +488,11 @@ void ShellSetFileAttributes(Panel *SrcPanel)
           break;
         if (MultAttrDlg[8].Selected) // -E +C
         {
-          if (!ESetFileEncryption(SelName,0,FileAttr))
-            break; // неудача дешифровать :-(
-          if (!ESetFileCompression(SelName,1,FileAttr))
+          if(!ESetFileCompression(SelName,1,FileAttr))
             break; // неудача сжать :-(
         }
         else if (MultAttrDlg[9].Selected) // +E -C
         {
-          // Этот кусок не нужен, т.к. функция криптования сама умеет
-          // разжимать сжатые файлы.
-          //if (!ESetFileCompression(SelName,0,FileAttr))
-          //  break; // неудача разжать :-(
           if (!ESetFileEncryption(SelName,1,FileAttr))
             break; // неудача зашифровать :-(
         }
@@ -613,11 +530,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             }
             if (MultAttrDlg[8].Selected) // -E +C
             {
-              if (!ESetFileEncryption(FullName,0,FindData.dwFileAttributes))
-              {
-                Cancel=1;
-                break; // неудача дешифровать :-(
-              }
               if (!ESetFileCompression(FullName,1,FindData.dwFileAttributes))
               {
                 Cancel=1;
@@ -626,10 +538,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             }
             else if (MultAttrDlg[9].Selected) // +E -C
             {
-              // Этот кусок не нужен, т.к. функция криптования сама умеет
-              // разжимать сжатые файлы.
-              //if (!ESetFileCompression(FullName,0,FileAttr))
-              //  break; // неудача разжать :-(
               if (!ESetFileEncryption(FullName,1,FindData.dwFileAttributes))
               {
                 Cancel=1;
@@ -682,116 +590,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
 }
 
 
-int ESetFileAttributes(char *Name,int Attr)
-{
-  while (!SetFileAttributes(Name,Attr))
-  {
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-             MSG(MSetAttrCannotFor),Name,MSG(MRetry),MSG(MSkip),MSG(MCancel));
-    if (Code==1 || Code<0)
-      break;
-    if (Code==2)
-      return(FALSE);
-  }
-  return(TRUE);
-}
-
-
-int ESetFileCompression(char *Name,int State,int FileAttr)
-{
-  if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
-    return(TRUE);
-
-  int Ret=TRUE;
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
-  while (!SetFileCompression(Name,State))
-  {
-    if (GetLastError()==ERROR_INVALID_FUNCTION)
-      break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrCompressedCannotFor),Name,MSG(MRetry),
-                MSG(MSkip),MSG(MCancel));
-    if (Code==1 || Code<0)
-      break;
-    if (Code==2)
-    {
-      Ret=FALSE;
-      break;
-    }
-  }
-  // Set ReadOnly
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr);
-  return(Ret);
-}
-
-
-static int SetFileCompression(char *Name,int State)
-{
-  HANDLE hFile=CreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
-                 FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
-                 FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
-  if (hFile==INVALID_HANDLE_VALUE)
-    return(FALSE);
-  USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
-  UDWORD Result;
-  int RetCode=DeviceIoControl(hFile,FSCTL_SET_COMPRESSION,&NewState,
-                              sizeof(NewState),NULL,0,&Result,NULL);
-  CloseHandle(hFile);
-  return(RetCode);
-}
-
-/* $ 20.10.2000 SVS
-   Новый атрибут Encripted
-*/
-static int ESetFileEncryption(char *Name,int State,int FileAttr)
-{
-  if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
-    return(TRUE);
-
-  if(!IsCryptFileASupport)
-    return(TRUE);
-
-  int Ret=TRUE;
-  // Drop ReadOnly
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
-
-  while (!SetFileEncryption(Name,State))
-  {
-    if (GetLastError()==ERROR_INVALID_FUNCTION)
-      break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrEncryptedCannotFor),Name,MSG(MRetry),
-                MSG(MSkip),MSG(MCancel));
-    if (Code==1 || Code<0)
-      break;
-    if (Code==2)
-    {
-      Ret=FALSE;
-      break;
-    }
-  }
-
-  // Set ReadOnly
-  if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
-    SetFileAttributes(Name,FileAttr);
-
-  return(Ret);
-}
-
-static int SetFileEncryption(char *Name,int State)
-{
-  // заодно и проверяется успешность получения адреса API...
-  if(State)
-     return pEncryptFileA ? (*pEncryptFileA)(Name) : FALSE;
-  else
-     return pDecryptFileA ? (*pDecryptFileA)(Name, 0) : FALSE;
-}
-/* SVS $ */
-
-int ReadFileTime(FILETIME *FileTime,char *SrcDate,char *SrcTime)
+static int ReadFileTime(FILETIME *FileTime,char *SrcDate,char *SrcTime)
 {
   FILETIME ft;
   SYSTEMTIME st;
@@ -852,39 +651,3 @@ int ReadFileTime(FILETIME *FileTime,char *SrcDate,char *SrcTime)
   LocalFileTimeToFileTime(&ft,FileTime);
   return(TRUE);
 }
-
-
-int ESetFileTime(char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,
-                  FILETIME *LastAccessTime,int FileAttr)
-{
-  if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
-      (FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-    return(TRUE);
-  while (1)
-  {
-    if (FileAttr & FA_RDONLY)
-      SetFileAttributes(Name,FileAttr & ~FA_RDONLY);
-    HANDLE hFile=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                 NULL,OPEN_EXISTING,
-                 (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
-    int SetTime;
-    if (hFile==INVALID_HANDLE_VALUE)
-      SetTime=FALSE;
-    else
-    {
-      SetTime=SetFileTime(hFile,CreationTime,LastAccessTime,LastWriteTime);
-      CloseHandle(hFile);
-    }
-    if (SetTime)
-      break;
-    int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                MSG(MSetAttrTimeCannotFor),Name,MSG(MRetry),
-                MSG(MSkip),MSG(MCancel));
-    if (Code==1 || Code<0)
-      break;
-    if (Code==2)
-      return(FALSE);
-  }
-  return(TRUE);
-}
-

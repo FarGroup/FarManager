@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.08 22.12.2000 $ */
+/* Revision: 1.09 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+    + IsCryptFileASupport
   22.12.2000 SVS
     + hConOut,hConInp плавно перетекли из interf.cpp
   07.12.2000 SVS
@@ -104,3 +106,5 @@ int DisablePluginsOutput;
 int CmdMode;
 
 const char FarTmpXXXXXX[]="FarTmpXXXXXX";
+
+BOOL IsCryptFileASupport=FALSE;

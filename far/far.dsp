@@ -304,6 +304,10 @@ SOURCE=.\syslog.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\fileattr.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\keyboard.cpp
 # End Source File
 # Begin Source File

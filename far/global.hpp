@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.10 22.12.2000 $ */
+/* Revision: 1.11 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+    + IsCryptFileASupport
   22.12.2000 SVS
     + hConOut,hConInp
   07.12.2000 SVS
@@ -136,5 +138,7 @@ extern const char FarTmpXXXXXX[];
 */
 extern const DWORD FAR_VERSION;
 /* SVS $ */
+
+extern BOOL IsCryptFileASupport;
 
 #endif	// __FARGLOBAL_HPP__

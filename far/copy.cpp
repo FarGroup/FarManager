@@ -5,10 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.14 14.12.2000 $ */
+/* Revision: 1.15 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+    - При копировании/переносе забыли выставить FILE_ATTRIBUTE_ENCRYPTED
+      для каталога, если он есть
+    ! Опция "[ ] Только новые/обновленные файлы" теперь не "прячется", а
+      просто задисаблена
   14.12.2000 SVS
     + Copy to "NUL"
   03.11.2000 OT
@@ -121,12 +126,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
      Если противоположная панель - плагин, то не показываем
      "[ ] Только новые/обновленные файлы"
   */
+  /* $ 30.12.2000 SVS
+     нефига от народа прятать эту опцию - мы ее просто задисаблим.
+  */
   if(PanelMode == PLUGIN_PANEL)
-  {
-    CopyDlg[5].Data[0]=0;
-    CopyDlg[5].Selected=0;
-    CopyDlg[5].Type=DI_TEXT;
-  }
+    CopyDlg[5].Flags|=DIF_DISABLE;
+  /* SVS $ */
   /* SVS $ */
 
   CopyBuffer=NULL;
@@ -778,6 +783,17 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       if (SrcDriveType==DRIVE_CDROM && Opt.ClearReadOnly && (SetAttr & FA_RDONLY))
         SetAttr&=~FA_RDONLY;
       SetFileAttributes(DestPath,SetAttr);
+      /* $ 30.12.2000 SVS
+         При копировании/переносе забыли выставить FILE_ATTRIBUTE_ENCRYPTED
+         для каталога, если он есть
+      */
+      if(SetAttr&FILE_ATTRIBUTE_ENCRYPTED)
+        if(!ESetFileEncryption(DestPath,1,0))
+        {
+           RemoveDirectory(DestPath);
+           return COPY_CANCEL;
+        }
+      /* SVS $*/
       TreeList::AddTreeName(DestPath);
       return(COPY_SUCCESS);
     }

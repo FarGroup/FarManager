@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.42 26.12.2000 $ */
+/* Revision: 1.43 30.12.2000 $ */
 
 /*
 Modify:
+  30.12.2000 SVS
+   + Функции работы с атрибутами файлов "опубликованы"
   26.12.2000 SVS
    + KeyMacroToText()
   14.12.2000 SVS
@@ -626,5 +628,17 @@ FILE *OpenLogStream(char *file);
 BOOL EjectVolume(char Letter,DWORD Flags);
 
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
+
+/* $ 30.12.2000 SVS
+   Функции работы с атрибутами файлов "опубликованы"
+*/
+int GetEncryptFunctions(void);
+int ESetFileAttributes(const char *Name,int Attr);
+int ESetFileCompression(const char *Name,int State,int FileAttr);
+int ESetFileEncryption(const char *Name,int State,int FileAttr);
+int ESetFileTime(const char *Name,FILETIME *LastWriteTime,
+                  FILETIME *CreationTime,FILETIME *LastAccessTime,
+                  int FileAttr);
+/* SVS $ */
 
 #endif  // __FARFUNC_HPP__
