@@ -57,25 +57,42 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
 
 int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode)
 {
-  struct FarMenuItem MenuItems[7];
+  struct ArcCmdMenuData{ int Msg, Cmd; };
+  static const ArcCmdMenuData MenuData[]=
+  {
+    {MArcCmdTest,         CMD_TEST        },
+    {MArcCmdComment,      CMD_COMMENT     },
+    {MArcCmdCommentFiles, CMD_COMMENTFILES},
+    {MArcCmdSFX,          CMD_SFX         },
+    {MArcCmdRecover,      CMD_RECOVER     },
+    {MArcCmdProtect,      CMD_PROTECT     },
+    {MArcCmdLock,         CMD_LOCK        },
+  };
+
+  struct FarMenuItem MenuItems[COUNT(MenuData)];
   memset(MenuItems,0,sizeof(MenuItems));
   MenuItems[0].Selected=TRUE;
-  strcpy(MenuItems[0].Text,GetMsg(MArcCmdTest));
-  strcpy(MenuItems[1].Text,GetMsg(MArcCmdComment));
-  strcpy(MenuItems[2].Text,GetMsg(MArcCmdCommentFiles));
-  strcpy(MenuItems[3].Text,GetMsg(MArcCmdSFX));
-  strcpy(MenuItems[4].Text,GetMsg(MArcCmdRecover));
-  strcpy(MenuItems[5].Text,GetMsg(MArcCmdProtect));
-  strcpy(MenuItems[6].Text,GetMsg(MArcCmdLock));
-  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,0,GetMsg(MArcCmdTitle),NULL,
-      "ArcCmd",NULL,NULL,MenuItems,sizeof(MenuItems)/sizeof(MenuItems[0]));
-  if (ExitCode<0)
-    return(FALSE);
-  FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
+  int Count=0;
   char Command[512],AllFilesMask[32];
-  const int Commands[]={CMD_TEST,CMD_COMMENT,CMD_COMMENTFILES,CMD_SFX,
-                        CMD_RECOVER,CMD_PROTECT,CMD_LOCK};
-  int CommandType=Commands[ExitCode];
+  for(int i=0; i<COUNT(MenuData); i++)
+  {
+    GetCommandFormat(MenuData[i].Cmd, Command, sizeof(Command));
+    if(*Command /*&& !(MenuData[i].Cmd==CMD_COMMENTFILES && ItemsNumber!=1)*/)
+    {
+      strcpy(MenuItems[Count].Text, GetMsg(MenuData[i].Msg));
+      *((int *)(MenuItems[Count++].Text+124))=MenuData[i].Cmd;
+    }
+  }
+  if(!Count)
+    return FALSE;
+  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,0,GetMsg(MArcCmdTitle),NULL,
+      "ArcCmd",NULL,NULL,MenuItems,Count);
+  if(ExitCode<0)
+    return FALSE;
+  FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+  int CommandType=*((int *)(MenuItems[ExitCode].Text+124));
+
   GetCommandFormat(CommandType,Command,sizeof(Command));
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
   int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
@@ -119,7 +136,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
         break;
       }
 
-  ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,"",Password,AllFilesMask,
+  ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,ArcName,CurDir,Password,AllFilesMask,
                     IgnoreErrors,CommandType==CMD_COMMENT || CommandType==CMD_COMMENTFILES ? 2:0,0,
                     CurDir,CurArcInfo.Prefix);
   return(IgnoreErrors || ArcCmd.GetExecCode()==0);
