@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.33 08.11.2002 $ */
+/* Revision: 1.34 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    ! Некоторые переменные класса заменены на флаги
   08.11.2002 SVS
     ! Editor::PluginData уехал в FileEditor::PluginData
     ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
@@ -120,13 +122,25 @@ enum FEOPMODEEXISTFILE{
   FEOPMODE_BREAKIFOPEN  =3,
 };
 
+enum FFILEEDIT_FLAGS{
+  FFILEEDIT_NEW            = 0x00010000,  // Этот файл СОВЕРШЕННО! новый или его успели стереть! Нету такого и все тут.
+  FFILEEDIT_REDRAWTITLE    = 0x00020000,  // Нужно редравить заголовок?
+  FFILEEDIT_FULLSCREEN     = 0x00040000,  // Полноэкранный режим?
+  FFILEEDIT_DISABLEHISTORY = 0x00080000,  // Запретить запись в историю?
+  FFILEEDIT_ENABLEF6       = 0x00100000,  // Переключаться во вьювер можно?
+  FFILEEDIT_SAVETOSAVEAS   = 0x00200000,  // $ 17.08.2001 KM  Добавлено для поиска по AltF7.
+                                          //   При редактировании найденного файла из архива для
+                                          //   клавиши F2 сделать вызов ShiftF2.
+  FFILEEDIT_ISNEWFILE      = 0x00400000,
+};
+
+
 class FileEditor:public Frame
 {
   private:
     typedef class Frame inherited;
 
     Editor *FEdit;
-    int RedrawTitle;
     KeyBar EditKeyBar;
 
     /* $ 07.05.2001 DJ */
@@ -140,19 +154,6 @@ class FileEditor:public Frame
     char Title[512];
     char PluginTitle[512];
     char PluginData[NM*2];
-
-    int FullScreen;
-    /* $ 10.05.2001 DJ */
-    int DisableHistory;
-    int EnableF6;
-    /* DJ $ */
-    /* $ 17.08.2001 KM
-      Добавлено для поиска по AltF7. При редактировании найденного файла из
-      архива для клавиши F2 сделать вызов ShiftF2.
-    */
-    int SaveToSaveAs;
-    /* KM $ */
-    int IsNewFile;
 
     WIN32_FIND_DATA FileInfo;
     /* $ 13.02.2001 IS
@@ -214,44 +215,34 @@ class FileEditor:public Frame
               int StartLine,int StartChar,int DisableHistory,char *PluginData,
               int ToSaveAs, int DeleteOnClose,int OpenModeExstFile);
     /* IS $ */
-    /* $ 07.08.2000 SVS
-       Функция инициализации KeyBar Labels
-    */
-    void InitKeyBar(void);
-    /* SVS $ */
+
+    void InitKeyBar(void);                            // $ 07.08.2000 SVS - Функция инициализации KeyBar Labels
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void ShowConsoleTitle();
     int IsFileChanged() {return(FEdit->IsFileChanged());};
     virtual int IsFileModified() {return(FEdit->IsFileModified());};
-    /* $ 28.06.2000 tran
-       NT Console resize - resize editor */
-    void SetScreenPosition();
-    /* tran $ */
+
+    void SetScreenPosition();                         // $ 28.06.2000 tran - NT Console resize - resize editor
 
     virtual int GetTypeAndName(char *Type,char *Name);
-    virtual const char *GetTypeName(){return "[FileEdit]";}; ///
+    virtual const char *GetTypeName(){return "[FileEdit]";};
     virtual int GetType() { return MODALTYPE_EDITOR; }
 
-    /* $ 10.05.2001 DJ */
-    virtual void OnDestroy();
-    /* DJ $ */
 
-    /* $ 07.05.2001 DJ */
-    void SetNamesList (NamesList *Names);
-    /* DJ $ */
-    /* $ 10.05.2001 DJ */
-    void SetEnableF6 (int AEnableF6) { EnableF6 = AEnableF6; InitKeyBar(); }
-    /* DJ $ */
+    virtual void OnDestroy();                         // $ 10.05.2001 DJ
+    void SetNamesList (NamesList *Names);             // $ 07.05.2001 DJ
+
     int GetCanLoseFocus(int DynamicMode=FALSE);
-    /* $ Введена для нужд CtrlAltShift OT */
-    int FastHide();
 
+    int FastHide();                                   // $ OT - Введена для нужд CtrlAltShift
+
+    void SetEnableF6 (int AEnableF6) { Flags.Change(FFILEEDIT_ENABLEF6,AEnableF6); InitKeyBar(); }  // $ 10.05.2001 DJ
     /* $ 17.08.2001 KM
       Добавлено для поиска по AltF7. При редактировании найденного файла из
       архива для клавиши F2 сделать вызов ShiftF2.
     */
-    void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
+    void SetSaveToSaveAs(int ToSaveAs) { Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs); InitKeyBar(); }
     /* KM $ */
 
     /* $ 08.12.2001 OT
@@ -269,14 +260,12 @@ class FileEditor:public Frame
     BOOL SetFileName(const char *NewFileName);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void SetLockEditor(BOOL LockMode);
-    BOOL IsFullScreen(){return FullScreen;}
+    BOOL IsFullScreen(){return Flags.Check(FFILEEDIT_FULLSCREEN);}
     void ChangeEditKeyBar();
     void ShowStatus();
-    /* $ 13.02.2001 IS
-         Обертка вокруг одноименной функции из win32 api
-    */
-    DWORD GetFileAttributes(LPCTSTR);
-    /* IS $ */
+
+    DWORD GetFileAttributes(LPCTSTR);                 // $ 13.02.2001 IS - Обертка вокруг одноименной функции из win32 api
+
     void SetPluginData(char *PluginData);
     char *GetPluginData(void){return PluginData;};
 };

@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.122 10.12.2002 $ */
+/* Revision: 1.123 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 SVS
+    - BugZ#292 - CtrlF10 на новых файлах ошибаетс€.
+    ! Ќекоторые переменные класса заменены на флаги
   10.12.2002 SVS
     - BugZ#720 - far /v file + Ctrl-O
   10.11.2002 SKV
@@ -340,6 +343,7 @@ Modify:
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 
+
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
                        char *PluginData,int ToSaveAs, int OpenModeExstFile)
@@ -347,7 +351,7 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   _KEYMACRO(SysLog("FileEditor::FileEditor(1)"));
   _KEYMACRO(SysLog(1));
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
-  FullScreen=TRUE;
+  Flags.Set(FFILEEDIT_FULLSCREEN);
   Init(Name,NULL,CreateNewFile,EnableSwitch,StartLine,StartChar,
        DisableHistory,PluginData,ToSaveAs,FALSE,OpenModeExstFile);
 }
@@ -367,7 +371,7 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   if(Y1<0) Y1=0;
   /* IS $ */
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
-  FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
+  Flags.Change(FFILEEDIT_FULLSCREEN,(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY));
   Init(Name,Title,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",
        FALSE,DeleteOnClose,OpenModeExstFile);
 }
@@ -482,20 +486,19 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   FileAttributes=-1;
   *PluginTitle=0;
   SetTitle(Title);
-  RedrawTitle = FALSE;
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
   KeyBarVisible = TRUE;
   /* DJ $ */
   /* $ 10.05.2001 DJ */
-  FileEditor::DisableHistory = DisableHistory;
-  EnableF6 = EnableSwitch;
+  Flags.Change(FFILEEDIT_DISABLEHISTORY,DisableHistory);
+  Flags.Change(FFILEEDIT_ENABLEF6,EnableSwitch);
   /* DJ $ */
   /* $ 17.08.2001 KM
     ƒобавлено дл€ поиска по AltF7. ѕри редактировании найденного файла из
     архива дл€ клавиши F2 сделать вызов ShiftF2.
   */
-  SaveToSaveAs=ToSaveAs;
+  Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs);
   /* KM $ */
 
   if (*Name==0)
@@ -637,7 +640,11 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
      ѕри создании файла с нул€ так же посылаем плагинам событие EE_READ, дабы
      не нарушать однообразие.
   */
-  IsNewFile=CreateNewFile;
+  if(FAttr == -1)
+    Flags.Set(FFILEEDIT_NEW);
+
+  Flags.Change(FFILEEDIT_ISNEWFILE,CreateNewFile);
+
   if (!ReadFile(FullFileName,UserBreak))
   {
     if(!CreateNewFile || UserBreak)
@@ -694,9 +701,9 @@ void FileEditor::InitKeyBar(void)
      смотрим на EnableF6 вместо CanLoseFocus
   */
   char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),MSG(MEditF6),MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
-  if(SaveToSaveAs)
+  if(Flags.Check(FFILEEDIT_SAVETOSAVEAS))
     FEditKeys[2-1]=MSG(MEditShiftF2);
-  if(!EnableF6)
+  if(!Flags.Check(FFILEEDIT_ENABLEF6))
     FEditKeys[6-1]="";
   if(!GetCanLoseFocus())
     FEditKeys[12-1]="";
@@ -749,7 +756,7 @@ void FileEditor::SetNamesList (NamesList *Names)
 
 void FileEditor::Show()
 {
-  if (FullScreen)
+  if (Flags.Check(FFILEEDIT_FULLSCREEN))
   {
     EditKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
     EditKeyBar.Redraw();
@@ -780,7 +787,7 @@ int FileEditor::ProcessKey(int Key)
   DWORD FNAttr;
   char *Ptr, Chr;
 
-  if (RedrawTitle && ((Key & 0x00ffffff) < KEY_END_FKEY))
+  if (Flags.Check(FFILEEDIT_REDRAWTITLE) && ((Key & 0x00ffffff) < KEY_END_FKEY))
     ShowConsoleTitle();
 
   // BugZ#488 - Shift=enter
@@ -835,7 +842,7 @@ int FileEditor::ProcessKey(int Key)
                               !(FNAttr&FILE_ATTRIBUTE_DIRECTORY)
                 //|| LocalStricmp(OldCurDir,FullFileName)  // <- это видимо лишнее.
               )
-              SaveToSaveAs=TRUE;
+              Flags.Set(FFILEEDIT_SAVETOSAVEAS);
           }
           *Ptr=Chr;
         }
@@ -843,11 +850,11 @@ int FileEditor::ProcessKey(int Key)
         if(Key == KEY_F2 &&
            (FNAttr=::GetFileAttributes(FullFileName)) != -1 &&
            !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
-            SaveToSaveAs=FALSE;
+            Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 
         static int TextFormat=0;
         int NameChanged=FALSE;
-        if (Key==KEY_SHIFTF2 || SaveToSaveAs)
+        if (Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS))
         {
           const char *HistoryName="NewEdit";
           static struct DialogData EditDlgData[]=
@@ -866,7 +873,7 @@ int FileEditor::ProcessKey(int Key)
             /*11 */ DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
           };
           MakeDialogItems(EditDlgData,EditDlg);
-          strncpy(EditDlg[2].Data,(SaveToSaveAs?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
+          strncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
           EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
           EditDlg[5+TextFormat].Selected=TRUE;
 
@@ -885,7 +892,7 @@ int FileEditor::ProcessKey(int Key)
           Unquote(EditDlg[2].Data);
           /* IS $ */
 
-          NameChanged=LocalStricmp(EditDlg[2].Data,(SaveToSaveAs?FullFileName:FileName))!=0;
+          NameChanged=LocalStricmp(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName))!=0;
           /* $ 01.08.2001 tran
              этот кусок перенесен повыше и вместо FileName
              используес€ EditDlg[2].Data */
@@ -947,7 +954,7 @@ int FileEditor::ProcessKey(int Key)
       /* $ 10.05.2001 DJ
          используем EnableF6
       */
-      if (EnableF6)
+      if (Flags.Check(FFILEEDIT_ENABLEF6))
       {
         int FirstSave=1, NeedQuestion=1;
         // проверка на "а может это говно удалили уже?"
@@ -993,7 +1000,7 @@ int FileEditor::ProcessKey(int Key)
                сохран€ем NamesList
             */
             FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
-               FALSE, FilePos, NULL, EditNamesList, SaveToSaveAs);
+               FALSE, FilePos, NULL, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS));
             /* DJ $ */
   //OT          FrameManager->InsertFrame (Viewer);
             /* DJ $ */
@@ -1031,10 +1038,16 @@ int FileEditor::ProcessKey(int Key)
           strcat(FullFileNameTemp,"\\."); // дл€ вваливани€ внутрь :-)
         }
 
+        if(Flags.Check(FFILEEDIT_NEW))
+        {
+          UpdateFileList();
+          Flags.Clear(FFILEEDIT_NEW);
+        }
+
         {
           SaveScreen Sc;
           CtrlObject->Cp()->GoToFile (FullFileNameTemp);
-          RedrawTitle = TRUE;
+          Flags.Set(FFILEEDIT_REDRAWTITLE);
         }
         /* DJ $ */
         /* VVM $ */
@@ -1053,7 +1066,7 @@ int FileEditor::ProcessKey(int Key)
       if(Key != KEY_SHIFTF10)    // KEY_SHIFTF10 не учитываем!
       {
         if(FEdit->IsFileChanged() &&  // в текущем сеансе были изменени€?
-           ::GetFileAttributes(FullFileName) == -1 && !IsNewFile) // а сам файл то еще на месте?
+           ::GetFileAttributes(FullFileName) == -1 && !Flags.Check(FFILEEDIT_ISNEWFILE)) // а сам файл то еще на месте?
         {
           switch(Message(MSG_WARNING,3,MSG(MEditTitle),
                          MSG(MEditSavedChangedNonFile),
@@ -1212,7 +1225,7 @@ int FileEditor::ProcessKey(int Key)
     /* $ 22.03.2001 SVS
        Ёто помогло от залипани€ :-)
     */
-    if (FullScreen && !CtrlObject->Macro.IsExecuting())
+    if (Flags.Check(FFILEEDIT_FULLSCREEN) && !CtrlObject->Macro.IsExecuting())
       EditKeyBar.Show();
     /* SVS $ */
     if (!EditKeyBar.ProcessKey(Key))
@@ -1412,6 +1425,9 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
       break;
   }
 
+  if(::GetFileAttributes(Name) == -1)
+    Flags.Set(FFILEEDIT_NEW);
+
   {
     FILE *EditFile;
     //SaveScreen SaveScr;
@@ -1543,7 +1559,7 @@ end:
   /* IS $ */
 
   // ************************************
-  IsNewFile=0;
+  Flags.Clear(FFILEEDIT_ISNEWFILE);
 
   return RetCode;
 }
@@ -1571,7 +1587,7 @@ void FileEditor::ShowConsoleTitle()
   char Title[NM+20];
   sprintf(Title,MSG(MInEditor),PointToName(FileName));
   SetFarTitle(Title);
-  RedrawTitle = FALSE;
+  Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 
 
@@ -1580,7 +1596,7 @@ void FileEditor::ShowConsoleTitle()
  resize editor */
 void FileEditor::SetScreenPosition()
 {
-  if (FullScreen)
+  if (Flags.Check(FFILEEDIT_FULLSCREEN))
   {
     SetPosition(0,0,ScrX,ScrY);
   }
@@ -1594,7 +1610,7 @@ void FileEditor::SetScreenPosition()
 void FileEditor::OnDestroy()
 {
   _OT(SysLog("[%p] FileEditor::OnDestroy()",this));
-  if (!DisableHistory)
+  if (!Flags.Check(FFILEEDIT_DISABLEHISTORY))
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),
                   (FEdit->Flags.Check(FEDITOR_LOCKMODE)?4:1));
   /* $ 19.10.2001 OT
@@ -1716,7 +1732,7 @@ void FileEditor::ShowStatus()
   */
   strncpy(TruncFileName,*PluginTitle ? PluginTitle:(*Title ? Title:FullFileName),sizeof(TruncFileName)-1);
   /* IS $ */
-  int NameLength=Opt.ViewerEditorClock && IsFullScreen() ? 19:25;
+  int NameLength=Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
   /* $ 11.07.2000 tran
      + expand filename if console more when 80 column */
   if (FEdit->X2>80)
@@ -1773,7 +1789,7 @@ void FileEditor::ShowStatus()
           MSG(MEditStatusCol),FEdit->CurLine->EditLine.GetTabCurPos()+1,AttrStr);
   /* IS $ */
   /* SVS $ */
-  int StatusWidth=FEdit->ObjWidth - (Opt.ViewerEditorClock && IsFullScreen()?5:0);
+  int StatusWidth=FEdit->ObjWidth - (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)?5:0);
   if (StatusWidth<0)
     StatusWidth=0;
   mprintf("%-*.*s",StatusWidth,StatusWidth,StatusStr);
@@ -1785,7 +1801,7 @@ void FileEditor::ShowStatus()
     int CurPos=FEdit->CurLine->EditLine.GetCurPos();
     if (CurPos<Length)
     {
-      GotoXY(FEdit->X2-(Opt.ViewerEditorClock && IsFullScreen() ? 9:2),FEdit->Y1);
+      GotoXY(FEdit->X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 9:2),FEdit->Y1);
       SetColor(COL_EDITORSTATUS);
       /* $ 27.02.2001 SVS
       ѕоказываем в зависимости от базы */
@@ -1794,7 +1810,7 @@ void FileEditor::ShowStatus()
       /* SVS $ */
     }
   }
-  if (Opt.ViewerEditorClock && IsFullScreen())
+  if (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))
     ShowTime(FALSE);
 }
 
