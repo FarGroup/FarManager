@@ -5,12 +5,14 @@ fileview.cpp
 
 */
 
-/* Revision: 1.04 15.07.2000 $ */
+/* Revision: 1.05 21.07.2000 $ */
 
 /*
 Modify:
+  21.07.2000 tran 1.05
+      - артефакт при CtrlO при выключенном кейбаре
   15.07.2000 tran
-    + CtrlB выключает/включает keybar
+      + CtrlB выключает/включает keybar
   04.07.2000 tran
     + не показывать мессаг бакс при невозвожности открыть файл
   29.06.2000 tran
@@ -177,7 +179,13 @@ int FileViewer::ProcessKey(int Key)
         ViewKeyBar.Hide();
         WaitKey();
       }
-      ViewKeyBar.Show();
+      /* $ 21.07.2000 tran
+         - артефакт при Ctrl-O*/
+      if ( Opt.ShowKeyBarViewer )
+        ViewKeyBar.Show();
+      else
+        ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
+      /* tran 21.07.2000 $ */
       Show();
       return(TRUE);
     case KEY_CTRLTAB:
