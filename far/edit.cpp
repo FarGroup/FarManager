@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.37 11.04.2001 $ */
+/* Revision: 1.38 13.04.2001 $ */
 
 /*
 Modify:
+  13.04.2001 OT
+    - Исправляет ситуацию (не до конца) с дерганьем строк в редакторе
   13.04.2001 SVS
     ! Обработка Ctrl-Q вынесена в отдельную функцию ProcessCtrlQ(), т.к.
       используется в editor.cpp
@@ -1938,7 +1940,9 @@ int Edit::RealPosToTab(int Pos)
     if (Str[I]=='\t')
       TabPos+=TabSize - (TabPos % TabSize);
     else
-      if (Str[I]==0)
+      /* $ 13.04.2001 OT */
+      if (I>StrSize)
+      /* OT */
       {
         TabPos+=Pos-I;
         break;
@@ -1967,7 +1971,9 @@ int Edit::TabPosToReal(int Pos)
       TabPos=NewTabPos;
     }
     else
-      if (Str[I]==0)
+      /* $ 13.04.2001 OT */
+      if (I>StrSize)
+      /* OT */
       {
         I+=Pos-TabPos;
         break;
