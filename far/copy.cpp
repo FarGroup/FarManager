@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.140 13.12.2004 $ */
+/* Revision: 1.141 14.12.2004 $ */
 
 /*
 Modify:
+  14.12.2004 WARP
+    - Неверно считалось общее количество файлов в папках в новом диалоге копирования.
   13.12.2004 WARP
     + Проценты в диалоге копирования/перемещения.
     ! "Обработано файлов: %d из %d" при включенном показе общего индикатора.
@@ -3914,7 +3916,7 @@ bool ShellCopy::CalcTotalSize()
           return(false);
         }
         TotalCopySize+=FileSize;
-        TotalFilesToProcess++;
+        TotalFilesToProcess += FileCount;
       }
     }
     else
