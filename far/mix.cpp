@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.157 06.05.2004 $ */
+/* Revision: 1.158 17.05.2004 $ */
 
 /*
 Modify:
+  17.05.2004 SVS
+    - BugZ#1073 - "File not found" при смене директории.
   06.05.2004 SVS
     + PartCmdLine()
     + ProcessOSAliases() - пока пустышка. Введена для того, чтобы потом рыть только в одном месте - здесь.
@@ -503,6 +505,7 @@ Modify:
 #include "udlist.hpp"
 #include "manager.hpp"
 #include "lockscrn.hpp"
+#include "lasterror.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -1105,6 +1108,10 @@ int CheckFolder(const char *Path)
   // первая проверка - че-нить считать можем?
   if((FindHandle=FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)
   {
+    GuardLastError lstError;
+    if(lstError.Get() == ERROR_FILE_NOT_FOUND)
+      return CHKFLD_EMPTY;
+
     // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
     // поэтому посмотрим на Root
     GetPathRootOne(Path,FindPath);
@@ -1119,6 +1126,17 @@ int CheckFolder(const char *Path)
     {
       if(strcmp(Path,FindPath))
         return CHKFLD_NOTFOUND;
+#if 0
+      DWORD Attr=GetFileAttributes(Path);
+      if(Attr != 0xFFFFFFFF && (Attr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+      {
+        ConvertNameToFull(Path,FindPath,LenFindPath);
+        GetPathRoot(FindPath,FindPath);
+        // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
+        if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
+          return CHKFLD_EMPTY;
+      }
+#endif
     }
 
     return CHKFLD_NOTACCESS;

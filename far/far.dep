@@ -1612,6 +1612,7 @@
 	".\headers.hpp"\
 	".\int64.hpp"\
 	".\keybar.hpp"\
+	".\lasterror.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
 	".\language.hpp"\

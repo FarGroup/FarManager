@@ -2082,11 +2082,9 @@ $ #Internal editor#
    #Ctrl-<Gray +>#           Append block to clipboard
    #Ctrl-D#                  Delete block
    #Ctrl-P#                  Copy block to current cursor position
-                           (in persistent blocks mode only, Буфер
-                           Обмена не изменяется)
+                           (in persistent blocks mode only)
    #Ctrl-M#                  Move block to current cursor position
-                           (in persistent blocks mode only, Буфер
-                           Обмена не изменяется)
+                           (in persistent blocks mode only)
    #Alt-U#                   Shift block left
    #Alt-I#                   Shift block right
 
@@ -3421,7 +3419,7 @@ $ #Commands, used inside the text of a macro command#
 
      ~$Date~@KeyMacroODate@       - insert current date/time
      ~$Exit~@KeyMacroOExit@       - stop macro playback
-     ~$IClip~@KeyMacroOIClip@      - работа с буфером обмена
+     ~$IClip~@KeyMacroOIClip@      - working with clipboard
      ~$If-$Else~@KeyMacroOIf@   - condition operator
      ~$MMode~@KeyMacroOMMode@      - toggle macro display mode
      ~$Rep~@KeyMacroORep@        - loop operator
@@ -3557,20 +3555,20 @@ usage in such macro sequences.
    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOIClip
-$ #$IClip - работа с буфером обмена#
-    По умолчанию FAR, в операциях запоминания/вставки данных, работает
-с Буфером Обмена Windows. Макрокоманда '$IClip' позволяет в пределах
-одного макроса переключать внутренние механизмы FAR для работы с/без
-использования Буфера Обмена Windows.
+$ #$IClip - working with clipboard#
+    By default FAR Manager works with the Windows Clipboard for
+copy/paste operations. The '$IClip' macro command allows to switch,
+within the limits of a macro sequence, the internal FAR mechanism for
+working with/without the Windows Clipboard.
 
     #$IClip#
 
-    Работает как триггер.
+    Works as a trigger.
 
-    См. так же:
+    See also:
 
-    ~Клавиатурные макрокоманды (макросы)~@KeyMacro@
-    ~Команды, используемы в тексте макросов~@KeyMacroCmds@
+    ~Keyboard macro commands (macro command)~@KeyMacro@
+    ~Commands, used inside the text of a macro command~@KeyMacroCmds@
 
 @KeyMacroOMMode
 $ #$MMode - toggle macro display mode#
@@ -3693,8 +3691,8 @@ execution inside a macro sequence.
                             cursor is positioned on the last item.
        #Selected#             selection block exists in input lines,
                             editor, viewer or the command line.
-       #IClip#                FAR работает с внутренним буфером
-                            обмена (см. ~$IClip~@KeyMacroOIClip@)
+       #IClip#                FAR Manager works with the internal
+                            clipboard (see ~$IClip~@KeyMacroOIClip@)
 
    'Condition' can be preceded by an '!' symbol which represents a logical
 "NOT" operator (negation). In this case the subsequent 'then-sequence' will be

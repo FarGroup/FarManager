@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.246 11.05.2004 $ */
+/* Revision: 1.247 17.05.2004 $ */
 
 /*
 Modify:
+  17.05.2004 SVS
+    - BugZ#1080 - Редактор. CtrlIns/CtrlC без выделения не работают
   11.05.2004 SVS
     ! В связи с введением макрокоманды $IClip уточним работу с
       UsedInternalClipboard для Ctrl-P и Ctrl-M
@@ -2395,7 +2397,7 @@ int Editor::ProcessKey(int Key)
     case KEY_CTRLC:
     case KEY_CTRLINS:    case KEY_CTRLNUMPAD0:
     {
-      if (!EdOpt.PersistentBlocks && BlockStart==NULL && VBlockStart==NULL)
+      if (/*!EdOpt.PersistentBlocks && */BlockStart==NULL && VBlockStart==NULL)
       {
         BlockStart=CurLine;
         BlockStartLine=NumLine;

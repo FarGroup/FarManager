@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.103 06.05.2004 $ */
+/* Revision: 1.104 17.05.2004 $ */
 
 /*
 Modify:
+  17.05.2004 SVS
+    ! небольшие уточнение в запускаторе в порыве исправить падение на ассоциациях
   06.05.2004 SVS
     ! Кусок кода, разбивающий ком.строку на исполнятор и параметры вынесен в PartCmdLine()
   27.04.2004 SVS
@@ -441,13 +443,13 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 // (чтобы не ждать завершения)
 char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
-  char Value[512];
+  char Value[1024];
   const char *ExtPtr;
   char *RetPtr;
   LONG ValueSize;
   const char command_action[]="\\command";
 
-  Error=0;
+  Error=ERROR_SUCCESS;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
   if ((ExtPtr=strrchr(FileName,'.'))==NULL)
@@ -464,7 +466,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
   if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
-  static char Action[80];
+  static char Action[512];
   ValueSize=sizeof(Action);
   LONG RetQuery = RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize);
 
@@ -480,25 +482,25 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     LONG RetEnum = ERROR_SUCCESS;
     if (RetPtr != NULL && ActionList.Set(Action))
     {
-      char NewValue[512];
+      char NewValue[1024];
       HKEY hOpenKey;
       ActionList.Reset();
       while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
       {
         strncpy(NewValue, Value, sizeof(NewValue) - 1);
-        strcat(NewValue, ActionPtr);
-        strcat(NewValue, command_action);
+        strncat(NewValue, ActionPtr, sizeof(NewValue) - 1);
+        strncat(NewValue, command_action, sizeof(NewValue) - 1);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          strcat(Value, ActionPtr);
-          RetPtr = strcpy(Action,ActionPtr);
+          strncat(Value, ActionPtr, sizeof(Value) - 1);
+          RetPtr = strncpy(Action,ActionPtr,sizeof(Action)-1);
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* while */
     } /* if */
     else
-      strcat(Value,Action);
+      strncat(Value,Action, sizeof(Value) - 1);
     /* VVM $ */
     if(RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
       RetPtr=NULL;
@@ -516,7 +518,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
   if (RetPtr==NULL)
   {
     LONG RetEnum = ERROR_SUCCESS;
-    char NewValue[512];
+    char NewValue[1024];
     DWORD dwIndex = 0;
     DWORD dwKeySize = 0;
     FILETIME ftLastWriteTime;
@@ -525,12 +527,12 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     // Сначала проверим "open"...
     strcpy(Action,"open");
     strncpy(NewValue, Value, sizeof(NewValue) - 1);
-    strcat(NewValue, Action);
-    strcat(NewValue, command_action);
+    strncat(NewValue, Action, sizeof(NewValue) - 1);
+    strncat(NewValue, command_action, sizeof(NewValue) - 1);
     if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
     {
       RegCloseKey(hOpenKey);
-      strcat(Value, Action);
+      strncat(Value, Action, sizeof(Value) - 1);
       RetPtr = Action;
       RetEnum = ERROR_NO_MORE_ITEMS;
     } /* if */
@@ -544,12 +546,12 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       {
         // Проверим наличие "команды" у этого ключа
         strncpy(NewValue, Value, sizeof(NewValue) - 1);
-        strcat(NewValue, Action);
-        strcat(NewValue, command_action);
+        strncat(NewValue, Action, sizeof(NewValue) - 1);
+        strncat(NewValue, command_action, sizeof(NewValue) - 1);
         if (RegOpenKey(HKEY_CLASSES_ROOT,NewValue,&hOpenKey)==ERROR_SUCCESS)
         {
           RegCloseKey(hOpenKey);
-          strcat(Value, Action);
+          strncat(Value, Action, sizeof(Value) - 1);
           RetPtr = Action;
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
@@ -560,7 +562,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 
   if (RetPtr != NULL)
   {
-    strcat(Value,command_action);
+    strncat(Value,command_action, sizeof(Value) - 1);
 
     // а теперь проверим ГУЕвость запускаемой проги
     if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
@@ -996,7 +998,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   char OldTitle[512];
   DWORD ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
   int ExitCode=1;
-  DWORD _LastErrCode=0;
+  DWORD _LastErrCode=ERROR_SUCCESS;
 
   int ExecutorType = GetRegKey(strSystemExecutor,"Type",0);
   // частный случай - т.с. затычка, но нужно конкретное решение!
@@ -1195,15 +1197,16 @@ _SVS(SysLog("ExecLine='%s'",ExecLine));
     {
       char AnsiCmdStr[4096];
       char AnsiCmdPar[4096];
-      SHELLEXECUTEINFO si;
       FAR_OemToChar(CmdPtr, AnsiCmdStr);
       FAR_OemToChar(NewCmdPar, AnsiCmdPar);
 
       if (PointToName(AnsiCmdStr)==AnsiCmdStr && strcmp(AnsiCmdStr,".") && !TestParentFolderName(AnsiCmdStr))
       {
-        char FullName[4096];
-        sprintf(FullName,".\\%s",AnsiCmdStr);
-        strcpy(AnsiCmdStr,FullName);
+        //char FullName[4096];
+        //sprintf(FullName,".\\%s",AnsiCmdStr);
+        //strcpy(AnsiCmdStr,FullName);
+        memmove(AnsiCmdStr+2,AnsiCmdStr,Min((int)strlen(AnsiCmdStr),(int)(sizeof(AnsiCmdStr)-3))+1);
+        memcpy(AnsiCmdStr,".\\",2);
       }
       Unquote(AnsiCmdStr); // т.к. нафиг это ненужно?
       // ???
@@ -1213,22 +1216,41 @@ _SVS(SysLog("ExecLine='%s'",ExecLine));
         strcat(AnsiCmdStr,".");
       // ???
 
-      memset(&si,0,sizeof(si));
-      si.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)AnsiCmdStr,ImageSubsystem,_LastErrCode);
+      SHELLEXECUTEINFO SEInfo;
+      memset(&SEInfo,0,sizeof(SEInfo));
+      SEInfo.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)AnsiCmdStr,ImageSubsystem,_LastErrCode);
       if(!_LastErrCode)
       {
-        si.cbSize=sizeof(si);
-        si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_FLAG_NO_UI;
-        si.lpFile=AnsiCmdStr;
-        si.nShow=SW_SHOWNORMAL;
+        SEInfo.cbSize=sizeof(SEInfo);
+        SEInfo.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_FLAG_NO_UI;
+        SEInfo.lpFile=AnsiCmdStr;
+        SEInfo.nShow=SW_SHOWNORMAL;
         if (AnsiCmdPar[0])
-          si.lpParameters = AnsiCmdPar;
+          SEInfo.lpParameters = AnsiCmdPar;
         SetFileApisTo(APIS2ANSI);
-        ExitCode=ShellExecuteEx(&si);
+_SVS(SysLog("SHELLEXECUTEINFO{"));
+_SVS(SysLog(" cbSize=       %d",SEInfo.cbSize));
+_SVS(SysLog(" fMask=        %08X",SEInfo.fMask));
+_SVS(SysLog(" hwnd;         %08X",SEInfo.hwnd));
+_SVS(SysLog(" lpVerb=       %s",SEInfo.lpVerb));
+_SVS(SysLog(" lpFile=       %s",SEInfo.lpFile));
+_SVS(SysLog(" lpParameters= %s",SEInfo.lpParameters));
+_SVS(SysLog(" lpDirectory=  %s",SEInfo.lpDirectory));
+_SVS(SysLog(" nShow=        %d",SEInfo.nShow));
+_SVS(SysLog(" hInstApp=     0x%08X",SEInfo.hInstApp));
+_SVS(SysLog(" lpIDList=     0x%08X",SEInfo.lpIDList));
+_SVS(SysLog(" lpClass=      %s",SEInfo.lpClass));
+_SVS(SysLog(" hkeyClass=    0x%08X",SEInfo.hkeyClass));
+_SVS(SysLog(" dwHotKey=     0x%08X",SEInfo.dwHotKey));
+_SVS(SysLog(" hIcon=        0x%08X",SEInfo.hIcon));
+_SVS(SysLog(" hProcess=     0x%08X (%d)",SEInfo.hProcess,SEInfo.hProcess));
+_SVS(SysLog("};"));
+
+        ExitCode=ShellExecuteEx(&SEInfo);
         if(!ExitCode)
           _LastErrCode=GetLastError();
         SetFileApisTo(APIS2OEM);
-        pi.hProcess=si.hProcess;
+        pi.hProcess=SEInfo.hProcess;
       }
       else
         ExitCode=0;

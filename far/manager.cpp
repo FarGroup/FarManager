@@ -5,10 +5,14 @@ manager.cpp
 
 */
 
-/* Revision: 1.86 18.12.2003 $ */
+/* Revision: 1.87 17.05.2004 $ */
 
 /*
 Modify:
+  17.05.2004 SVS
+    ! Для cl.exe (тот, что Microsoft позиционирует как freeware, version
+      13.10.3052) сделаем уточнение для Test_EXCEPTION_STACK_OVERFLOW.
+      Щёб не матерился.
   18.12.2003 SVS
     ! Пробуем различать левый и правый CAS (попытка #1).
   13.10.2003 SVS
@@ -832,13 +836,19 @@ void Manager::ExitMainLoop(int Ask)
 
 #if defined(FAR_ALPHA_VERSION)
 #include <float.h>
-
+#if defined(_MSC_VER)
+#pragma warning( push )
+#pragma warning( disable : 4717)
+#endif
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
    char Buffer[1024]; /* чтобы быстрее рвануло */
    strcpy( Buffer, "zzzz" );
    Test_EXCEPTION_STACK_OVERFLOW( Buffer );
 }
+#if defined(_MSC_VER)
+#pragma warning( pop )
+#endif
 #endif
 
 
