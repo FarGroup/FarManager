@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.35 11.09.2001 $ */
+/* Revision: 1.36 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    - В деревяхе Ctrl-A неверно отображало инфу для симлинков.
   11.09.2001 SVS
     + для "volume mount point" укажем что это именно монтированный том и по
       возможности (если имя диска есть) покажем букву диска. Для прочих
@@ -440,7 +442,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(SelName,FileAttr);
-
     if (SelCount==0 || SelCount==1 && strcmp(SelName,"..")==0)
       return 0;
 
@@ -480,6 +481,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       if((FileAttr & FA_DIREC))
       {
+        if(SelName[strlen(SelName)-1] != '\\')
+        {
+          AddEndSlash(SelName);
+          FileAttr=GetFileAttributes(SelName);
+          SelName[strlen(SelName)-1]=0;
+        }
+        //_SVS(SysLog("SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
         AttrDlg[11].Flags&=~DIF_DISABLE;
         AttrDlg[11].Selected=Opt.SetAttrFolderRules == 1?0:1;
         if(Opt.SetAttrFolderRules)
