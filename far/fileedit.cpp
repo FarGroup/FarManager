@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.90 09.02.2002 $ */
+/* Revision: 1.91 26.02.2002 $ */
 
 /*
 Modify:
+  26.02.2002 VVM
+    ! При поиске папки (запись файла) учтем корень диска или "текущий каталог"
   09.02.2002 VVM
     + Обновить панели, если писали в текущий каталог
   05.02.2002 SVS
@@ -624,11 +626,11 @@ int FileEditor::ProcessKey(int Key)
         {
           Chr=*Ptr;
           *Ptr=0;
-          if((FNAttr=GetFileAttributes(FullFileName)) == -1 ||
-                            !(FNAttr&FILE_ATTRIBUTE_DIRECTORY) ||
-              LocalStricmp(OldCurDir,FullFileName)
-            )
-            SaveToSaveAs=TRUE;
+          if (!((strlen(FullFileName)==2) && isalpha(FullFileName[0]) && (FullFileName[1]==':')))
+            if((FNAttr=GetFileAttributes(FullFileName)) == -1 ||
+                              !(FNAttr&FILE_ATTRIBUTE_DIRECTORY) ||
+                LocalStricmp(OldCurDir,FullFileName))
+              SaveToSaveAs=TRUE;
           *Ptr=Chr;
         }
 
