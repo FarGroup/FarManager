@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.03 13.07.2000 $ */
+/* Revision: 1.04 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 SVS
+   + Расширение переменных среды для строки ввода в диалоге Copy/Move!
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   11.07.2000 SVS
@@ -56,7 +58,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   static struct DialogData CopyDlgData[]={
     DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MCopyDlgTitle,
     DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-    DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
+    /* $ 31.07.2000 SVS
+       + Расширение переменных среды!
+    */
+    DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND,0,"",
+    /* SVS $ */
     DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MCopySecurity,
     DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",

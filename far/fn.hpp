@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.08 24.07.2000 $ */
+/* Revision: 1.09 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 SVS
+    ! функция GetString имеет еще один параметр - расширение среды
   24.07.2000 SVS
     ! Все функции, попадающие в разряд FSF должны иметь WINAPI!!!
   23.07.2000 SVS
@@ -374,9 +376,13 @@ int WINAPIV FarSprintf(char *buffer,const char *format,...);
 int WINAPIV FarSscanf(const char *buffer, const char *format,...);
 int WINAPI CopyToClipboard(char *Data);
 char* WINAPI PasteFromClipboard(void);
+/* $ 31.07.2000 SVS
+    ! функция GetString имеет еще один параметр - расширение среды
+*/
 int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic=NULL,int EnableEmpty=FALSE,
-    int Password=FALSE);
+    int Password=FALSE,int ExpandEnv=FALSE);
+/* SVS $ */
 void WINAPI KeyToText(int Key,char *KeyText);
 /* SVS $ */
 

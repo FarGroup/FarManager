@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.01 25.07.2000 $ */
+/* Revision: 1.02 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 SVS
+    ! Расширим переменные среды в диалоге создания каталога
   25.07.2000 IG
     - Bug 24 (не перечитывалась панель, после неудачного вложенного создания директорий)
   25.06.2000 SVS
@@ -30,6 +32,11 @@ void ShellMakeDir(Panel *SrcPanel)
   char DirName[NM];
   if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder","",DirName,sizeof(DirName)))
     return;
+  /* $ 31.07.2000 SVS
+     Расширим переменные среды!
+  */
+  ExpandEnvironmentStr(DirName, DirName, sizeof(DirName));
+  /* SVS $ */
   Unquote(DirName);
   if (Opt.CreateUppercaseFolders && !IsCaseMixed(DirName))
     LocalStrupr(DirName);

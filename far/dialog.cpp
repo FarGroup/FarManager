@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.09 28.07.2000 $ */
+/* Revision: 1.10 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 SVS
+   ! В History должно заносится значение (для DIF_EXPAND...) перед
+     расширением среды!
+   + Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
+     то подстанавливаем первое значение из History
+   - Отключена возможность для DI_PSWEDIT иметь History...
+     ...Что бы небыло повадно... и для повыщения защиты, т.с.
   28.07.2000 SVS
    ! Переметр Edit *EditLine в функции FindInEditForAC нафиг ненужен!
    - Небольшой баг с автозавершением:
@@ -306,7 +313,14 @@ int Dialog::InitDialogObjects()
          FarColorToReal(WarningStyle ? COL_WARNDIALOGEDIT:COL_DIALOGEDIT),
          FarColorToReal(COL_DIALOGEDITSELECTED));
       if (CurItem->Type==DI_PSWEDIT)
+      {
         DialogEdit->SetPasswordMode(TRUE);
+        /* $ 31.07.2000 SVS
+          ...Что бы небыло повадно... и для повыщения защиты, т.с.
+        */
+        CurItem->Flags&=~DIF_HISTORY;
+        /* SVS $ */
+      }
 
       if (CurItem->Type==DI_FIXEDIT)
       {
@@ -325,6 +339,20 @@ int Dialog::InitDialogObjects()
           DialogEdit->SetEditBeyondEnd(FALSE);
           DialogEdit->SetClearFlag(1);
         }
+
+      /* $ 31.07.2000 SVS
+         Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
+         то подстанавливаем первое значение из History
+      */
+      if((CurItem->Flags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY) &&
+         !CurItem->Data[0])
+      {
+        char RegKey[80],KeyValue[80];
+        sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->Selected);
+        GetRegKey(RegKey,"Line0",CurItem->Data,"",sizeof(CurItem->Data));
+      }
+      /* SVS $ */
+
       /* $ 18.03.2000 SVS
          Если это ComBoBox и данные не установлены, то берем из списка
          при условии, что хоть один из пунктов имеет Selected != 0
@@ -402,15 +430,20 @@ void Dialog::GetDialogObjectsData()
     if (IsEdit(Item[I].Type))
     {
       ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
+      if (ExitCode>=0 && (Item[I].Flags & DIF_HISTORY) && Item[I].Selected && Opt.DialogsEditHistory)
+        AddToEditHistory(Item[I].Data,(char *)Item[I].Selected);
+      /* $ 31.07.2000 SVS
+         ! В History должно заносится значение (для DIF_EXPAND...) перед
+          расширением среды!
+      */
       /*$ 05.07.2000 SVS $
       Проверка - этот элемент предполагает расширение переменных среды?
       т.к. функция GetDialogObjectsData() может вызываться самостоятельно
       Но надо проверить!*/
       if(Item[I].Flags&DIF_EDITEXPAND)
          ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
-      /* end */
-      if (ExitCode>=0 && (Item[I].Flags & DIF_HISTORY) && Item[I].Selected && Opt.DialogsEditHistory)
-        AddToEditHistory(Item[I].Data,(char *)Item[I].Selected);
+      /* SVS $ */
+      /* 31.07.2000 SVS $ */
     }
 }
 
@@ -1979,11 +2012,14 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
        элемента диалога - ввели символ в окне редактирования, переключили
        CheckBox (RadioButton),...
        Param1 = ID элемента диалога.
-       Param2 = 0
-       Return = 0
+       Param2 = Указатель на структуру FarDialogItem, описывающую элемент для
+                отрисовки.
+       Return = TRUE - разрешить изменение (и соответственно отрисовку того,
+                что пользователь ввёл)
+                FALSE - запретить изменение.
     */
     case DMSG_CHANGEITEM:
-      return 0;
+      return TRUE;
   }
 
   return 0;
@@ -2080,8 +2116,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
        элемента диалога - ввели символ в окне редактирования, переключили
        CheckBox (RadioButton),...
        Param1 = ID элемента диалога.
-       Param2 = 0
-       Return = 0
+       Param2 = Указатель на структуру FarDialogItem, описывающую элемент для
+                отрисовки.
+       Return = TRUE - разрешить изменение (и соответственно отрисовку того,
+                что пользователь ввёл)
+                FALSE - запретить изменение.
        Здесь это сообшение формирует запрос к функции диалога!
     */
     case DMSG_CHANGEITEM:
@@ -2093,6 +2132,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
        Return = 0
        Здесь это сообшение формирует запрос к функции диалога!
     */
+      // преобразуем данные для!
+      Dialog::ConvertItem(0,&PluginDialogItem,CurItem,1);
+      I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
+      Dialog::ConvertItem(1,&PluginDialogItem,CurItem,1);
+      return I;
+
     case DMSG_DRAWITEM:
       // преобразуем данные для!
       Dialog::ConvertItem(0,&PluginDialogItem,CurItem,1);

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.10 25.07.2000 $ */
+/* Revision: 1.11 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 SVS
+    ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
+    ! Если в GetString указан History, то добавляется еще и DIF_USELASTHISTORY
   25.07.2000 SVS
     ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
     ! Функции, попадающие в разряд FSF должны иметь WINAPI!!!
@@ -1130,8 +1133,12 @@ char *GetCommaWord(char *Src,char *Word)
 }
 
 
+/* $ 31.07.2000 SVS
+   ! Функция GetString имеет еще один параметр - расширять ли переменные среды!
+*/
 int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
-    char *DestText,int DestLength,char *HelpTopic,int EnableEmpty,int Password)
+    char *DestText,int DestLength,char *HelpTopic,int EnableEmpty,int Password,
+    int ExpandEnv)
 {
   static struct DialogData StrDlgData[]=
   {
@@ -1140,10 +1147,15 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     DI_EDIT,5,3,70,3,1,0,0,1,""
   };
   MakeDialogItems(StrDlgData,StrDlg);
+
+  if(ExpandEnv)
+  {
+    StrDlg[2].Flags|=DIF_EDITEXPAND;
+  }
   if (HistoryName!=NULL)
   {
     StrDlg[2].Selected=(int)HistoryName;
-    StrDlg[2].Flags|=DIF_HISTORY;
+    StrDlg[2].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
   }
   if (Password)
     StrDlg[2].Type=DI_PSWEDIT;
@@ -1162,7 +1174,7 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
   DestText[DestLength-1]=0;
   return(TRUE);
 }
-
+/* SVS $*/
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
 {

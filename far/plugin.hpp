@@ -6,10 +6,14 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.11 28.07.2000 $ */
+/* Revision: 1.12 31.07.2000 $ */
 
 /*
 Modify:
+  31.07.2000 SVS
+    + Флаг DIF_USELASTHISTORY для строк ввода.
+      если у строки ввода есть история то начальное значение брать первым
+      из истории
   28.07.2000 SVS
     + Введен новый элемент DI_LISTBOX (зарезервировано место)
     + Сообщения для обработки диалога, имееющий место быть :-)
@@ -238,6 +242,12 @@ enum FarDialogItemFlags {
   DIF_HISTORY         = 0x40000,
   DIF_EDITEXPAND      = 0x80000,
   DIF_DROPDOWNLIST    =0x100000,
+/* $ 31.07.2000 SVS
+  если у строки ввода есть история
+  то начальное значение брать первым из истории
+*/
+  DIF_USELASTHISTORY  =0x200000,
+/* SVS $ */
 };
 /* SVS $ */
 
@@ -617,7 +627,8 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
   int   DestLength,
   char *HelpTopic,
   int   EnableEmpty,
-  int   Password
+  int   Password,
+  int   ExpandEnv
 );
 /* SVS $*/
 
