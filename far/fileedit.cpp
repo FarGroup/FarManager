@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.69 29.10.2001 $ */
+/* Revision: 1.70 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 IS
+    - отрицательные координаты левого верхнего угла заменяются на нулевые
   29.10.2001 IS
     + Обновим настройки "сохранять позицию файла" и "сохранять закладки" после
       смены настроек по alt-shift-f9.
@@ -217,6 +219,12 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
             int StartLine,int StartChar,const char *Title,
             int X1,int Y1,int X2,int Y2,int DisableHistory, BOOL DeleteOnClose)
 {
+  /* $ 02.11.2001 IS
+       отрицательные координаты левого верхнего угла заменяются на нулевые
+  */
+  if(X1<0) X1=0;
+  if(Y1<0) Y1=0;
+  /* IS $ */
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   FEdit.SetTitle(Title);

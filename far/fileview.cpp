@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.44 12.10.2001 $ */
+/* Revision: 1.45 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 IS
+    - отрицательные координаты левого верхнего угла заменяются на нулевые
   12.10.2001 VVM
     ! Неправильно запоминалось имя файла в истории.
   11.10.2001 IS
@@ -150,6 +152,12 @@ FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
 {
   _OT(SysLog("[%p] FileViewer::FileViewer(II variant...)", this));
   DisableEdit=TRUE;
+  /* $ 02.11.2001 IS
+       отрицательные координаты левого верхнего угла заменяются на нулевые
+  */
+  if(X1<0) X1=0;
+  if(Y1<0) Y1=0;
+  /* IS $ */
   SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   View.SetTitle(Title);
