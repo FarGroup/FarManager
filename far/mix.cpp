@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.56 14.02.2001 $ */
+/* Revision: 1.57 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 VVM
+    ! GetFileOwner()::Под НТ/2000 переменная Needed устанавливается
+      независимо от результат.
   14.02.2001 SKV
     ! доработка фитчи отделения консоли.
   12.02.2001 SKV
@@ -978,8 +981,11 @@ int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner)
   int GetCode=GetFileSecurity(AnsiName,si,sd,sizeof(sddata),&Needed);
   SetFileApisToOEM();
 
-  if (!GetCode || Needed!=0)
+  /* $ 21.02.2001 VVM
+      ! Под НТ/2000 переменная Needed устанавливается независимо от результат. */
+  if (!GetCode || (Needed>sizeof(sddata)))
     return(FALSE);
+  /* VVM $ */
   PSID pOwner;
   BOOL OwnerDefaulted;
   if (!GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
