@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.18 10.06.2001 $ */
+/* Revision: 1.19 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 SVS
+    ! число -> VMENU_COLOR_COUNT
   10.06.2001 SVS
     + FindItem с двум€ параметрами.
   04.06.2001 SVS
@@ -94,6 +96,8 @@ Modify:
 #include "modal.hpp"
 #include "plugin.hpp"
 #include "manager.hpp"
+
+#define VMENU_COLOR_COUNT  16
 
 /* $ 28.07.2000 SVS
    ÷ветовые атрибуты - индексы в массиве цветов
@@ -186,7 +190,7 @@ class VMenu: public Modal
     /* $ 28.07.2000 SVS
        ÷ветовые атрибуты
     */
-    short Colors[16];
+    short Colors[VMENU_COLOR_COUNT];
     /* SVS */
 
   private:

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.120 14.06.2001 $ */
+/* Revision: 1.121 14.06.2001 $ */
 
 /*
 Modify:
+  14.06.2001 SVS
+   ! число -> VMENU_COLOR_COUNT
   14.06.2001 OT
    - баг Панели->F5->CtrlDown->трап
      неверно инициализировался массив цветов для меню истории :((
@@ -1720,7 +1722,7 @@ void Dialog::ShowDialog(int ID)
           /* $ 21.08.2000 SVS
              Перед отрисовкой спросим об изменении цветовых атрибутов
           */
-          short Colors[9];
+          short Colors[VMENU_COLOR_COUNT];
           CurItem->ListPtr->GetColors(Colors);
           if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
                           sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
@@ -3503,7 +3505,7 @@ int Dialog::SelectFromComboBox(
       EditX2=ScrX;
     ComboBox->SetPosition(EditX1,EditY1+1,EditX2,0);
     // Перед отрисовкой спросим об изменении цветовых атрибутов
-    short Colors[9];
+    short Colors[VMENU_COLOR_COUNT];
     ComboBox->GetColors(Colors);
     if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
                     sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
@@ -3626,7 +3628,7 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
 
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       /*$ 14.06.2001 OT */
-      short Colors[16];
+      short Colors[VMENU_COLOR_COUNT];
       /* OT $*/
       HistoryMenu.GetColors(Colors);
       if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
