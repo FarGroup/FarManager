@@ -1,5 +1,5 @@
 /*
-  LZH.HPP
+  LZH.CPP
 
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 

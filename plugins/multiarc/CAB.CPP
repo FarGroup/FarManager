@@ -1,3 +1,13 @@
+/*
+  CAB.CPP
+
+  Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
+
+  Copyright (c) 1996-2000 Eugene Roshal
+  Copyrigth (c) 2000-2001 FAR group
+*/
+/* $Revision: 1.01 08.05.2001 $ */
+
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
@@ -119,7 +129,27 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     return(GETARC_BROKEN);
   SetFilePointer(ArcHandle,-(ReadSize-(EndPos-Name+1)),NULL,FILE_CURRENT);
 
-  CharToOem(Name,Item->FindData.cFileName);
+  /* $ 06.05.2001
+     Mateusz Brsostek <mateuszb@inetia.pl>
+     supports more SFX CAB archives (for example ar500enu.exe -
+     Adobe Acrobat Reader 5.0 install file)
+  */
+  EndPos = Name;
+  while( *EndPos )
+  {
+    if( *EndPos == '/' )
+      *EndPos = '\\';
+    EndPos++;
+  }
+
+  if( Name[ 0 ] == '\\' && Name[ 1 ] != '\\' )
+    EndPos = Name + 1;
+  else
+    EndPos = Name;
+
+  CharToOem(EndPos,Item->FindData.cFileName);
+  /* MB $ */
+
   Item->FindData.dwFileAttributes=FileHeader.attribs;
   Item->PackSize=0;
   Item->FindData.nFileSizeLow=FileHeader.cbFile;
