@@ -5,10 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.154 15.05.2002 $ */
+/* Revision: 1.155 20.05.2002 $ */
 
 /*
 Modify:
+  20.05.2002 IS
+    + При обработке маски в SelectFiles, если работаем с именем файла на
+      панели, берем каждую квадратную скобку в имени при образовании маски
+      в скобки, чтобы подобные имена захватывались полученной маской - это
+      специфика, диктуемая CmpName.
   15.05.2002 SKV
     + зафиксируем вход в модальный редактор
   14.05.2002 VVM
@@ -3002,8 +3007,15 @@ void FileList::SelectFiles(int Mode)
 
   struct FileListItem *CurPtr;
   static char PrevMask[NM]="*.*";
-  char Mask[NM]="*.*";
+  /* $ 20.05.2002 IS
+     При обработке маски, если работаем с именем файла на панели,
+     берем каждую квадратную скобку в имени при образовании маски в скобки,
+     чтобы подобные имена захватывались полученной маской - это специфика,
+     диктуемая CmpName.
+  */
+  char Mask[NM]="*.*", RawMask[NM];
   int Selection,I;
+  bool WrapBrackets=false; // говорит о том, что нужно взять кв.скобки в скобки
 
   if (CurFile>=FileCount)
     return;
@@ -3025,7 +3037,8 @@ void FileList::SelectFiles(int Mode)
     if (DotPtr!=NULL)
     {
       // Учтем тот момент, что расширение может содержать символы-разделители
-      sprintf(Mask, "\"*.%s\"", DotPtr+1);
+      sprintf(RawMask, "\"*.%s\"", DotPtr+1);
+      WrapBrackets=true;
     }
     else
       strcpy(Mask,"*.");
@@ -3035,12 +3048,13 @@ void FileList::SelectFiles(int Mode)
     if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
     {
       // Учтем тот момент, что имя может содержать символы-разделители
-      sprintf(Mask,"\"%s", CurName);
-      char *DotPtr=strrchr(Mask,'.');
+      sprintf(RawMask,"\"%s", CurName);
+      char *DotPtr=strrchr(RawMask,'.');
       if (DotPtr!=NULL)
         strcpy(DotPtr,".*\"");
       else
-        strcat(Mask,".*\"");
+        strcat(RawMask,".*\"");
+      WrapBrackets=true;
       Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
     }
     else
@@ -3073,6 +3087,25 @@ void FileList::SelectFiles(int Mode)
       }
   SaveSelection();
 
+  if(WrapBrackets) // возьмем кв.скобки в скобки, чтобы получить
+  {                // работоспособную маску
+     const char *src=RawMask;
+     const int maxlen=sizeof(Mask)-1;
+     int dest=0;
+     for(;*src && dest<maxlen;++src)
+     {
+       if(*src==']' || *src=='[')
+       {
+         Mask[dest++]='[';
+         Mask[dest++]=*src;
+         Mask[dest++]=']';
+       }
+       else
+         Mask[dest++]=*src;
+     }
+     Mask[dest]=0;
+  }
+  /* IS 20.05.2002 $ */
   if(FileMask.Set(Mask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
   {                                  // дальше в зависимости от успеха
                                      // компиляции
