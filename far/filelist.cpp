@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.16 03.11.2000 $ */
+/* Revision: 1.17 09.11.2000 $ */
 
 /*
 Modify:
+  09.11.2000 OT
+    ! F3 на ".." в плагинах
   03.11.2000 OT
     ! Введение проверки возвращаемого значения 
   02.11.2000 OT
@@ -2517,6 +2519,50 @@ void FileList::CountDirSize()
   unsigned long DirCount,DirFileCount,ClusterSize;;
   int64 FileSize,CompressedFileSize,RealFileSize;
   unsigned long SelDirCount=0;
+  /* $ 09.11.2000 OT
+    F3 на ".." в плагинах
+  */
+  if ( PanelMode==PLUGIN_PANEL && !CurFile && !strcmp(ListData->Name,"..")){
+    struct FileListItem *DoubleDotDir = NULL;
+    if (SelFileCount){
+      DoubleDotDir = ListData;
+      for (int I=0;I<FileCount;I++){
+        struct FileListItem *CurPtr=ListData+I;
+        if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC)){
+          DoubleDotDir = NULL;
+          break;
+        }
+      }
+    } else {
+      DoubleDotDir = ListData;
+    }
+    if (DoubleDotDir){
+      DoubleDotDir->ShowFolderSize=1;
+      DoubleDotDir->UnpSize     = 0;
+      DoubleDotDir->UnpSizeHigh = 0;
+      DoubleDotDir->PackSize    = 0;
+      DoubleDotDir->PackSizeHigh= 0;
+      for (int I=1;I<FileCount;I++){
+        struct FileListItem *CurPtr=ListData+I;
+        if (CurPtr->FileAttr & FA_DIREC){
+          if (GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize)) {
+            DoubleDotDir->UnpSize+=FileSize.LowPart;
+            DoubleDotDir->UnpSizeHigh+=FileSize.HighPart;
+            DoubleDotDir->PackSize+=CompressedFileSize.LowPart;
+            DoubleDotDir->PackSizeHigh+=CompressedFileSize.HighPart;
+          }
+        } else {
+          DoubleDotDir->UnpSize     += CurPtr->UnpSize;
+          DoubleDotDir->UnpSizeHigh += CurPtr->UnpSizeHigh;
+          DoubleDotDir->PackSize    += CurPtr->PackSize;
+          DoubleDotDir->PackSizeHigh+= CurPtr->PackSizeHigh;
+        }
+      }
+    }
+  }
+  /* OT $*/
+  
+
   for (int I=0;I<FileCount;I++)
   {
     struct FileListItem *CurPtr=ListData+I;
