@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.112 18.12.2003 $ */
+/* Revision: 1.113 07.01.2004 $ */
 
 /*
 Modify:
+  07.01.2004 SVS
+    + XLat.XLatFastFindKey и XLat.XLatAltFastFindKey - транслитерация для FastFind
+    + Opt.ExecuteShowErrorMessage
   18.12.2003 SVS
     + DialogsOptions.MouseButton - Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
       Бит есть - функция работает
@@ -430,6 +433,7 @@ struct CodeXLAT{
   int XLatEditorKey;
   int XLatCmdLineKey;
   int XLatDialogKey;
+  int XLatFastFindKey;
   /* SVS $*/
   /* $ 04.11.2000 SVS
      В Opt добавлены альтернативные клавиши, вызывающие функцию Xlat
@@ -437,6 +441,7 @@ struct CodeXLAT{
   int XLatAltEditorKey;
   int XLatAltCmdLineKey;
   int XLatAltDialogKey;
+  int XLatAltFastFindKey;
   /* SVS $*/
   /* $ 25.11.2000 IS
      Разграничитель слов из реестра для функции Xlat
@@ -875,7 +880,9 @@ struct Options
 
   DWORD LCIDSort;
   int RestoreCPAfterExecute;
+  int ExecuteShowErrorMessage;
   int ExecuteUseAppPath;
+
   DWORD PluginMaxReadData;
   int UseNumPad;
   int CASRule;

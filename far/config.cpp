@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.164 18.12.2003 $ */
+/* Revision: 1.165 07.01.2004 $ */
 
 /*
 Modify:
+  07.01.2004 SVS
+    + XLat.XLatFastFindKey и XLat.XLatAltFastFindKey - транслитерация для FastFind
+    + Opt.ExecuteShowErrorMessage
   18.12.2003 SVS
     - BugZ#997 - TechInfo. Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
     + HistoryCount
@@ -1515,6 +1518,7 @@ static struct FARConfig{
 
   {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
   {0, REG_DWORD,  NKeySystemExecutor,"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
+  {0, REG_DWORD,  NKeySystemExecutor,"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 
@@ -1741,6 +1745,10 @@ void ReadConfig()
   GetRegKey(NKeyXLat,"DialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
     Opt.XLat.XLatDialogKey=0;
+  GetRegKey(NKeyXLat,"FastFindKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatFastFindKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatFastFindKey=0;
+
   GetRegKey(NKeyXLat,"AltEditorKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatAltEditorKey=KeyNameToKey(KeyNameFromReg)) == -1)
     Opt.XLat.XLatAltEditorKey=0;
@@ -1750,6 +1758,11 @@ void ReadConfig()
   GetRegKey(NKeyXLat,"AltDialogKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
   if((Opt.XLat.XLatAltDialogKey=KeyNameToKey(KeyNameFromReg)) == -1)
     Opt.XLat.XLatAltDialogKey=0;
+  GetRegKey(NKeyXLat,"AltFastFindKey",KeyNameFromReg,szCtrlShiftX,sizeof(KeyNameFromReg)-1);
+  if((Opt.XLat.XLatAltFastFindKey=KeyNameToKey(KeyNameFromReg)) == -1)
+    Opt.XLat.XLatAltFastFindKey=0;
+
+
   for(I=0; I < 2; ++I)
   {
     for(J=1; J < sizeof(Opt.XLat.Table[0]); ++J)

@@ -1879,6 +1879,7 @@
 "{}"
 
 "Environment variable %COMSPEC% not defined!"
+"'%s' is not recognized as an internal or external command, operable program or batch file.\n"
 
 "Cannot open the file"
 

@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.21 11.07.2003 $ */
+/* Revision: 1.22 07.01.2004 $ */
 
 /*
 Modify:
+  07.01.2004 SVS
+    + FastFindProcessName() - подбор имени файла :-)
   11.07.2003 SVS
     + NumericSort
   13.01.2003 SVS
@@ -110,6 +112,7 @@ enum {DRIVE_DEL_FAIL, DRIVE_DEL_SUCCESS, DRIVE_DEL_EJECT};
 enum {UIC_UPDATE_NORMAL, UIC_UPDATE_FORCE, UIC_UPDATE_FORCE_NOTIFICATION};
 
 class VMenu;
+class Edit;
 class Panel:public ScreenObject
 {
   protected:
@@ -142,6 +145,7 @@ class Panel:public ScreenObject
     int ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu);
     /* DJ $ */
     void FastFindShow(int FindX,int FindY);
+    void FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,char *Name);
     void DragMessage(int X,int Y,int Move);
 
   protected:

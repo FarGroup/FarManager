@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.119 07.01.2004 $ */
+/* Revision: 1.120 07.01.2004 $ */
 
 /*
 Modify:
+  07.01.2004 SVS
+    + FastFindProcessName() - подбор имени файла :-)
+    - BugZ#992 - XLat в FastFind
   07.01.2004 SVS
     - AA> вставляю из буфера обмена в пустое инксеч-окно всякую ерунду. чего-то
       AA> находится и подсветка на это "чего-то" перемещается. но по CtrlEnter
@@ -1227,6 +1230,42 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 }
 /* DJ $ */
 
+
+void Panel::FastFindProcessName(Edit *FindEdit,const char *Src,char *LastName,char *Name)
+{
+  if(strlen(Src) <= NM*2) // сделаем разумное ограничение на размер...
+  {
+    char *Ptr=(char *)xf_malloc(strlen(Src)*2+32);
+    if(Ptr)
+    {
+      strcpy(Ptr,Src);
+      Unquote(Ptr);
+      char *EndPtr=Ptr+strlen(Ptr);
+      DWORD Key;
+      while(1)
+      {
+        if (FindPartName(Ptr,FALSE))
+        {
+          Key=*(EndPtr-1);
+          *EndPtr=0;
+          FindEdit->SetString(Ptr);
+          strcpy(LastName,Ptr);
+          strcpy(Name,Ptr);
+          FindEdit->Show();
+          break;
+        }
+        if(EndPtr == Ptr)
+        {
+          Key=KEY_NONE;
+          break;
+        }
+        *--EndPtr=0;
+      }
+      xf_free(Ptr);
+    }
+  }
+}
+
 // корректировка букв
 static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
 {
@@ -1288,39 +1327,22 @@ void Panel::FastFind(int FirstKey)
             char *ClipText=PasteFromClipboard();
             if(ClipText && *ClipText)
             {
-              if(strlen(ClipText) <= NM*2) // сделаем разумное ограничение на размер...
-              {
-                char *Ptr=(char *)xf_malloc(strlen(ClipText)*2+32);
-                if(Ptr)
-                {
-                  Unquote(ClipText);
-                  strcpy(Ptr,ClipText);
-                  char *EndPtr=Ptr+strlen(Ptr);
-                  while(1)
-                  {
-                    if (FindPartName(Ptr,FALSE))
-                    {
-                      Key=*(EndPtr-1);
-                      *EndPtr=0;
-                      FindEdit.SetString(Ptr);
-                      strcpy(LastName,Ptr);
-                      strcpy(Name,Ptr);
-                      FindEdit.Show();
-                      FastFindShow(FindX,FindY);
-                      break;
-                    }
-                    if(EndPtr == Ptr)
-                    {
-                      Key=KEY_NONE;
-                      break;
-                    }
-                    *--EndPtr=0;
-                  }
-                  xf_free(Ptr);
-                }
-              }
+              FastFindProcessName(&FindEdit,ClipText,LastName,Name);
+              FastFindShow(FindX,FindY);
               delete[] ClipText;
             }
+            continue;
+          }
+          else if((Opt.XLat.XLatFastFindKey && Key == Opt.XLat.XLatFastFindKey ||
+                   Opt.XLat.XLatAltFastFindKey && Key == Opt.XLat.XLatAltFastFindKey) ||
+                  Key == KEY_MACRO_XLAT)
+          {
+            char TempName[NM*2];
+            FindEdit.Xlat();
+            FindEdit.GetString(TempName,sizeof(TempName));
+            FindEdit.SetString("");
+            FastFindProcessName(&FindEdit,TempName,LastName,Name);
+            FastFindShow(FindX,FindY);
             continue;
           }
           else
@@ -1332,6 +1354,7 @@ void Panel::FastFind(int FirstKey)
         KeyToProcess=KEY_NONE;
         break;
       }
+
       // // _SVS(if (!FirstKey) SysLog("Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
       if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
         Key=tolower(Key-KEY_ALT_BASE);

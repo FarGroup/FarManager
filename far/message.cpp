@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.37 05.01.2004 $ */
+/* Revision: 1.38 07.01.2004 $ */
 
 /*
 Modify:
+  07.01.2004 SVS
+    ! очередное уточнение MaxLe...
   05.01.2004 SVS
     ! очередная корректировка MaxLength
   16.10.2003 SVS
@@ -256,6 +258,9 @@ int Message(DWORD Flags,int Buttons,const char *Title,
       LenErrStr=MaxLength;
 
     if(MaxLength > LenErrStr && MaxLength >= MAX_WIDTH_MESSAGE)
+      MaxLength=LenErrStr;
+
+    if(MaxLength < LenErrStr && LenErrStr < MAX_WIDTH_MESSAGE)
       MaxLength=LenErrStr;
 
     // а теперь проврапим

@@ -2200,6 +2200,7 @@ enum
   MPanelBracketsForLongName,
 
   MComspecNotFound,
+  MExecuteErrorMessage,
 
   MOpenPluginCannotOpenFile,
 

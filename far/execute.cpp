@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.94 05.01.2004 $ */
+/* Revision: 1.95 08.01.2004 $ */
 
 /*
 Modify:
+  08.01.2004 SVS
+    + учтем опцию Opt.ExecuteShowErrorMessage и выведем текст на экран, а не в месагбоксе
   05.01.2004 SVS
     ! Уточнение запускатора (про "far.exe/?")
   05.01.2004 SVS
@@ -1400,7 +1402,20 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
       //        SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
       //        ^^^^^^^^^^^^^^^^^ зачем? Это никогда не работает - см. выше
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),CmdPtr,MSG(MOk));
+      if(Opt.ExecuteShowErrorMessage)
+      {
+        SetMessageHelp("ErrCannotExecute");
+        Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),CmdPtr,MSG(MOk));
+      }
+      else
+      {
+        char OutStr[2048];
+        sprintf(OutStr,MSG(MExecuteErrorMessage),CmdPtr);
+        char *PtrStr=FarFormatText(OutStr,ScrX,OutStr,sizeof(OutStr),"\n",0);
+        printf(PtrStr);
+        ScrBuf.FillBuf();
+      }
+
     }
     ExitCode=-1;
     //ScrBuf.FillBuf();

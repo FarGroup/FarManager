@@ -333,6 +333,11 @@ characters '*' and '?'.
    Insertion of text, pasted from clipboard (Ctrl-V or Shift-Ins), to
 the fast find dialog will continue as long as there is a match found.
 
+   It is possible to use the transliteration function while entering
+text in the search field. If used the entered text will be transliterated
+and a new match corresponding to the new text will be searched. See
+TechInfo##10 on how to set the hotkey for the transliteration.
+
 
 @CmdLineCmd
 $ #Command line commands#
@@ -552,6 +557,24 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
   Set ~file attributes~@FileAttrDlg@                                         #Ctrl-A#
   ~Apply command~@ApplyCmd@ to selected files                             #Ctrl-G#
   ~Describe~@FileDiz@ selected files                                     #Ctrl-Z#
+
+@ErrCannotExecute
+$ #Error: Cannot execute#
+  The program you tries to execute is not recognized as an internal or
+external command, operable program or batch file.
+
+  When executing the contents of the command line, FAR searches for
+the executable in the following sequence (sequentially
+substituting all extensions listed in the environment variable
+%PATHEXT%, starting with the extensions ".BAT;.CMD;.EXE;.COM;"):
+
+  1. The current directory
+  2. The directories that are listed in the PATH environment variable
+  3. Windows 95/98/Me: The Windows system directory.
+     Windows NT/2000 or later: The 32-bit Windows system directory.
+  4. Windows NT/2000 or later: The 16-bit Windows system directory.
+  5. The Windows directory.
+
 
 @MiscCmd
 $ #Miscellaneous#
