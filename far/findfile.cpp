@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.79 03.12.2001 $ */
+/* Revision: 1.80 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 VVM
+    - Не рисуем диалог при активном скрин-сэйвере
   03.12.2001 DJ
     - корректный показ имен файлов с амперсандами
   01.12.2001 KM
@@ -2071,7 +2073,10 @@ void FindFiles::WriteDialogData(void *Param)
   while(1)
   {
     VMenu *ListBox=Dlg->Item[1].ListPtr;
-    if (ListBox && !PauseSearch)
+    /* $ 11.12.2001 VVM
+      - Не рисуем диалог при активном скрин-сэйвере */
+    if (ListBox && !PauseSearch && !ScreenSaverActive)
+    /* VVM $ */
     {
       WaitForSingleObject(hMutex,INFINITE);
 
