@@ -79,6 +79,7 @@ int PluginClass::ReadArchive(char *Name)
         ArcData=NULL;
         ArcDataCount=0;
         ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
+        Info.RestoreScreen(NULL);
         Info.RestoreScreen(hScreen);
         return -1;
       }
@@ -200,6 +201,7 @@ int PluginClass::ReadArchive(char *Name)
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
   }
 
+  Info.RestoreScreen(NULL);
   Info.RestoreScreen(hScreen);
   return TRUE;
 }
