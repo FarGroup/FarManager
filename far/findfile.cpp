@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.07 10.08.2000 $ */
+/* Revision: 1.08 21.10.2000 $ */
 
 /*
 Modify:
+  21.10.2000 SVS
+    ! Добавка для поиска в FFFE-файлах.
   10.09.2000 SVS
     - Запрещаем двигать диалог результатов поиска!
   07.08.2000 KM
@@ -979,6 +981,8 @@ int LookForString(char *Name)
   */
   int FirstIteration=TRUE;
   /* KM $ */
+  int ReverseBOM=FALSE;
+  int IsFirst=FALSE;
   while (!StopSearch && (ReadSize=fread(Buf,1,sizeof(Buf),SrcFile))>0)
   {
     int DecodeTableNum=0;
@@ -986,7 +990,32 @@ int LookForString(char *Name)
     int RealReadSize=ReadSize;
 
     if (UseAllTables || UseUnicode)
+    {
       memcpy(SaveBuf,Buf,ReadSize);
+
+      /* $ 21.10.2000 SVS
+         Хреново получилось, в лоб так сказать, но ищет в FFFE-файлах
+      */
+      if(!IsFirst)
+      {
+        IsFirst=TRUE;
+        if(*(WORD*)Buf == 0xFFFE) // The text contains the Unicode
+           ReverseBOM=TRUE;       // byte-reversed byte-order mark
+                                  // (Reverse BOM) 0xFFFE as its first character.
+      }
+
+      if(ReverseBOM)
+      {
+        BYTE Chr;
+        for(int I=0; I < ReadSize; I+=2)
+        {
+          Chr=SaveBuf[I];
+          SaveBuf[I]=SaveBuf[I+1];
+          SaveBuf[I+1]=Chr;
+        }
+      }
+      /* SVS $ */
+    }
 
     while (1)
     {

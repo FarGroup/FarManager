@@ -1208,7 +1208,7 @@
 "Plugin call error"
 "Exception occurred:"
 "Exception address: 0x%X in module:"
-"To Unload a this plugin?"
+"Do you wish to unload this plugin?"
 "The plugin will be Unloaded!"
 ""Attempt to read from the inaccessible address 0x%X""
 ""Attempt to write to the inaccessible address 0x%X""

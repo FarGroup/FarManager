@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.01 04.08.2000 $ */
+/* Revision: 1.02 21.10.2000 $ */
 
 /*
 Modify:
+  21.10.2000 SVS
+    + Переменная Copy_Buffer_Size -  размер буфера для копирования
   04.08.2000 SVS
     + Опция "Only newer file(s)"
   25.06.2000 SVS
@@ -37,6 +39,11 @@ class ShellCopy
        Copy only newer files
     */
     int OnlyNewerFiles;
+    /* SVS $ */
+    /* $ 21.10.2000 SVS
+       Для последующего использования... - размер буфера для копирования
+    */
+    DWORD Copy_Buffer_Size;
     /* SVS $ */
     int CopySecurity;
     long TotalFiles;

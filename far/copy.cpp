@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.09 11.10.2000 $ */
+/* Revision: 1.10 21.10.2000 $ */
 
 /*
 Modify:
+  21.10.2000 SVS
+   + Проинициализируем новую переменную Copy_Buffer_Size в стандартное
+     значение = 64К
   11.10.2000 SVS
    ! Если Dest-панель плагиновая, то не показываем "[ ] Only never..."
   14.08.2000 SVS
@@ -96,6 +99,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   int SelCount,DestPlugin;
 
   *SelName=0;
+
+  /* $ 21.10.2000 SVS
+     Проинициализируем Copy_Buffer_Size в стандартное значение
+  */
+  Copy_Buffer_Size=COPY_BUFFER_SIZE;
+  /* SVS $ */
 
   ShowTotalCopySize=Opt.CopyShowTotal != 0;
 
@@ -1146,7 +1155,11 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
       return(COPY_CANCEL);
     }
     DWORD BytesRead,BytesWritten;
-    while (!ReadFile(SrcHandle,CopyBuffer,COPY_BUFFER_SIZE,&BytesRead,NULL))
+    /* $ 21.10.2000 SVS
+       Размер буфера копирования - величина переменная
+    */
+    while (!ReadFile(SrcHandle,CopyBuffer,Copy_Buffer_Size,&BytesRead,NULL))
+    /* SVS $ */
     {
       if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
                   MSG(MCopyReadError),SrcName,MSG(MRetry),MSG(MCancel))==0)
