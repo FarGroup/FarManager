@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.319 11.01.2005 $ */
+/* Revision: 1.320 23.01.2005 $ */
 
 /*
 Modify:
+  23.01.2005 WARP
+    ! Пара гвоздей в Dialog'и (см. 01915.dialog.DN_CLOSE.txt)
   11.01.2005 SVS
     ! корректировка костыля для DI_TEXT
     - BugZ#1226 - CurPos и ItemCount в диалогах в полях ввода
@@ -5930,7 +5932,7 @@ void Dialog::CloseDialog()
   CriticalSectionLock Lock(CS);
 
   GetDialogObjectsData();
-  if (DlgProc ((HANDLE)this,DM_CLOSE,ExitCode,0))
+  if (DlgProc ((HANDLE)this,DN_CLOSE,ExitCode,0))
   {
     DialogMode.Set(DMODE_ENDLOOP);
     Hide();
@@ -6224,7 +6226,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   _DIALOG(CleverSysLog CL("Dialog.SendDlgMessage()"));
   _DIALOG(SysLog("hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
-  if(!Dlg)
+  if ( !Dlg || Dlg->DialogMode.Check(DMODE_ENDLOOP) )
     return 0;
 
   // Сообщения, касаемые только диалога и не затрагивающие элементы
