@@ -7,10 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.02 06.05.2001 $ */
+/* Revision: 1.03 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    + Реакция на изменение размера консоли 
   06.05.2001 DJ
     ! перетрях #include
   15.07.2000 tran
@@ -51,6 +53,7 @@ class ScreenObject
     void SavePrevScreen();
     void Redraw();
     void SetPosition(int X1,int Y1,int X2,int Y2);
+    virtual void ResizeConsole(){};
     void GetPosition(int& X1,int& Y1,int& X2,int& Y2);
     int IsVisible() { return(Visible); };
     void SetVisible(int Visible) {ScreenObject::Visible=Visible;};

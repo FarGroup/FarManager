@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.01 11.05.2001 $ */
+/* Revision: 1.05 11.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    ! ћетоды дл€ работы с измен€ющимс€ буфером экрана.
   11.05.2001 OT
     ! ќтрисовка Background
   06.05.2001 DJ
@@ -102,13 +104,13 @@ void SaveScreen::RestoreArea(int RestoreCursor)
 
 void SaveScreen::SaveArea(int X1,int Y1,int X2,int Y2)
 {
-  ScreenBuf=new char[(X2-X1+1)*(Y2-Y1+1)*4+10];
-  if (!ScreenBuf)
-    return;
   SaveScreen::X1=X1;
   SaveScreen::Y1=Y1;
   SaveScreen::X2=X2;
   SaveScreen::Y2=Y2;
+  ScreenBuf=new char[ScreenBufSize()];
+  if (!ScreenBuf)
+    return;
   if (RealScreen)
   {
     GetRealText(X1,Y1,X2,Y2,ScreenBuf);
@@ -153,3 +155,86 @@ void SaveScreen::AppendArea(SaveScreen *NewArea)
         if (Y>=NewArea->Y1 && Y<=NewArea->Y2)
           Buf[X-X1+(X2-X1+1)*(Y-Y1)]=NewBuf[X-NewArea->X1+(NewArea->X2-NewArea->X1+1)*(Y-NewArea->Y1)];
 }
+
+/* $ 21.05.2001 OT  ћетоды дл€ работы с измен€ющимс€ буфером экрана */
+void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
+//  Corner definition:
+//  0 --- 1
+//  |     |
+//  2 --- 3
+{
+  int OWi=X2-X1+1, OHe=Y2-Y1+1, iY=0;
+  if (OWi==NewX && OHe==NewY){
+    return;
+  }
+
+  int NX1,NX2,NY1,NY2;
+  NX1=NX2=NY1=NY2=0;
+  char *NewBuf = new char[ScreenBufSize(NewX,NewY)];
+  CleanupBuffer(NewBuf,NewX,NewY);
+  int NewWidth=min(OWi,NewX);
+  int NewHeight=min(OHe,NewY);
+  int iYReal;
+  int ToIndex;
+  int FromIndex;
+  if (Corner & 2){
+    NY2=Y1+NewY-1;NY1=NY2-NewY+1;
+  } else{
+    NY1=Y1;NY2=NY1+NewY-1;
+  }
+  if (Corner & 1){
+    NX2=X1+NewX-1;NX1=NX2-NewX+1;
+  } else{
+    NX1=X1;NX2=NX1+NewX-1;
+  }
+  for (iY=0;iY<NewHeight;iY++){
+    if (Corner & 2){
+      if (OHe>NewY){
+        iYReal=OHe-NewY+iY;
+        FromIndex=iYReal*OWi;
+        ToIndex=iY*NewX;
+      } else {
+        iYReal=NewY-OHe+iY;
+        ToIndex=iYReal*NewX;
+        FromIndex=iY*OWi;
+      }
+    } 
+    if (Corner & 1){
+      if (OWi>NewX){
+        FromIndex+=OWi-NewX;
+      } else {
+        ToIndex+=NewX-OWi;
+      }
+    }
+    CharCopy(NewBuf, ToIndex, ScreenBuf, FromIndex, NewWidth);
+  }
+  delete ScreenBuf;
+  ScreenBuf=NewBuf;
+  X1=NX1;Y1=NY1;X2=NX2;Y2=NY2;
+
+}
+
+
+int SaveScreen::ScreenBufSize()
+{
+  return ScreenBufSize( X2-X1+1, Y2-Y1+1);
+}
+
+int SaveScreen::ScreenBufSize(int Width,int Height)
+{
+  return Height*Width*sizeof(CHAR_INFO);
+}
+
+void SaveScreen::CharCopy(char *ToBuffer,int ToIndex, char *FromBuffer, int FromIndex, int Count)
+{
+  memcpy(ToBuffer+ToIndex*sizeof(CHAR_INFO),FromBuffer+FromIndex*sizeof(CHAR_INFO),Count*sizeof(CHAR_INFO));
+}
+
+void SaveScreen::CleanupBuffer(char *Buffer, int Height, int Width)
+{
+  int BufSize=Height*Width;
+  for (int i=0;i<BufSize;i++){
+    *(int*)&Buffer[i*sizeof(CHAR_INFO)]=0x00070020;
+  }
+}
+/* 21.05.2001 OT  $ */

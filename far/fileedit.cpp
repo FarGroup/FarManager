@@ -182,7 +182,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
     return;
   FEdit.SetPluginData(PluginData);
   FEdit.SetHostFileEditor(this);
-  _D(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
+  _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
   SetCanLoseFocus(EnableSwitch);
   GetCurrentDirectory(sizeof(StartDir),StartDir);
   strcpy(FileName,Name);
@@ -282,7 +282,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   InitKeyBar();
   /* SVS $*/
 
-   MacroMode=MACRO_EDITOR; 
+   MacroMode=MACRO_EDITOR;
    FrameManager->InsertFrame(this);
 
 }

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.09 16.05.2001 $ */
+/* Revision: 1.10 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    - Исправление поведения AltF9
   16.05.2001 DJ
     ! proof-of-concept
   16.05.2001 SVS
@@ -147,6 +149,7 @@ void FilePanels::SetPanelPositions(int LeftFullScreen,int RightFullScreen)
     RightPanel->SetPosition(0,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
   else
     RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar,ScrX,ScrY-1-(Opt.ShowKeyBar!=0)-Opt.HeightDecrement);
+  _OT(SysLog("[%p] FilePanels::SetPanelPositions() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }
 
 void FilePanels::SetScreenPositions()
@@ -154,11 +157,12 @@ void FilePanels::SetScreenPositions()
   RedrawDesktop Redraw;
 //  CtrlObject->CmdLine->Hide();
 
-  _OT(SysLog("FilePanels::SetScreenPositions()"));
   CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar!=0),ScrX,ScrY-(Opt.ShowKeyBar!=0));
   TopMenuBar.SetPosition(0,0,ScrX,0);
   MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
   SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
+
+  _OT(SysLog("[%p] FilePanels::SetScreenPositions() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }
 
 void FilePanels::RedrawKeyBar()
@@ -482,9 +486,12 @@ int  FilePanels::ProcessKey(int Key)
       }
       break;
     case KEY_ALTF9:
-      ChangeVideoMode(ScrY==24 ? 50:25);
-      SetScreenPositions();
+      _OT(SysLog("FilePanels::ProcessKey, KEY_ALTF9 pressed..."));
+      SetVideoMode(FarAltEnter(-2));
       break;
+//      ChangeVideoMode(ScrY==24 ? 50:25);
+//      SetScreenPositions();
+//      break;
     case KEY_CTRLUP:
       if (Opt.HeightDecrement<ScrY-7)
       {
@@ -769,7 +776,7 @@ void FilePanels::OnChangeFocus(int f)
 
 void FilePanels::Show()
 {
-    _OT(SysLog("FilePanels::Show()"));
+    _OT(SysLog("[%p] FilePanels::Show() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
     Frame::Show();
 }
 
@@ -777,7 +784,7 @@ void FilePanels::Redraw()
 {
     if ( Focus==0 )
         return;
-    _OT(SysLog("FilePanels::Redraw()"));
+    _OT(SysLog("[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
     CtrlObject->CmdLine->ShowBackground();
     if (LeftPanel->IsVisible())
         LeftPanel->Show();
@@ -800,4 +807,12 @@ void FilePanels::ShowConsoleTitle()
 {
   if (ActivePanel)
     ActivePanel->SetTitle();
+}
+
+void FilePanels::ResizeConsole()
+{
+  CtrlObject->CmdLine->ResizeConsole();
+  //  SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
+  SetScreenPositions();
+  _OT(SysLog("[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 }

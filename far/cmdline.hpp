@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.03 11.05.2001 $ */
+/* Revision: 1.04 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 OT
+    - Отрисовка при изменении размеров консоли - ResizeConsole().
   11.05.2001 OT
     ! Новые методы для отрисовки Background
   10.05.2001 DJ
@@ -61,6 +63,7 @@ class CommandLine:public ScreenObject
     void SaveBackground();
     void ShowBackground();
     /* OT $ */
+    void ResizeConsole();
 };
 
 #endif	// __COMMANDLINE_HPP__

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.23 15.05.2001 $ */
+/* Revision: 1.24 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 OT
+    - Отрисовка при изменении размеров консоли - ResizeConsole().
   15.05.2001 OT
     ! NWZ -> NFZ
   12.05.2001 DJ
@@ -392,8 +394,8 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     CtrlObject->Cp()->LeftPanel->CloseFile();
     CtrlObject->Cp()->RightPanel->CloseFile();
 
-    CtrlObject->CmdLine->ShowBackground();
-    CtrlObject->CmdLine->Show();
+//    CtrlObject->CmdLine->ShowBackground();
+//    CtrlObject->CmdLine->Show();
     ScrollScreen(1);
     MoveCursor(X1,Y1);
     if (CurDir[0] && CurDir[1]==':')
@@ -407,8 +409,6 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     GetCursorPos(CurX,CurY);
     if (CurY>=Y1-1)
       ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
-    CtrlObject->CmdLine->SaveBackground();
-    CtrlObject->CmdLine->Show();
     CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
     CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 //    GotoXY(X1,Y1);
@@ -798,3 +798,8 @@ void CommandLine::ShowBackground()
   BackgroundScreen->RestoreArea();
 }
 
+void CommandLine::ResizeConsole()
+{
+  BackgroundScreen->Resize(ScrX+1,ScrY+1,2);
+//  this->DisplayObject();
+}

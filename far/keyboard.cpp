@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.30 07.05.2001 $ */
+/* Revision: 1.31 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 OT
+    + при изменении размера консоли генерим KEY_CONSOLE_BUFFER_RESIZE.
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
   07.05.2001 SVS
@@ -117,6 +119,7 @@ static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static int RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
 static clock_t PressedLastTime,KeyPressedLastTime;
+
 
 /* ----------------------------------------------------------------- */
 static struct TTable_KeyToVK{
@@ -367,7 +370,6 @@ int GetInputRecord(INPUT_RECORD *rec)
                 if ((DWORD)Key==KEY_NONE || (DWORD)Key!=KEY_SHIFT && tmprec.Event.KeyEvent.bKeyDown)
                   break;
               }
-
               CtrlObject->Cp()->SetScreenPositions();
               ScrBuf.ResetShadow();
               ScrBuf.Flush();
@@ -459,41 +461,22 @@ int GetInputRecord(INPUT_RECORD *rec)
     ReadConsole(hConInp,&ReadKey,1,&ReadCount,NULL);
     if (ReadKey==13 && CalcKey!=KEY_ENTER)
       ReadConsole(hConInp,&ReadKey,1,&ReadCount,NULL);
-    rec->Event.KeyEvent.uChar.AsciiChar=ReadKey;
+    rec->Event.KeyEvent.uChar.AsciiChar=(char) ReadKey;
   }
   else
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
 
+  /*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
+  if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
+  {
+    GetVideoMode(CurScreenBufferInfo);
+    return(KEY_CONSOLE_BUFFER_RESIZE);
+  }
+  /* 17.05.2001 $ */
+
   if (EnableShowTime)
     ShowTime(1);
 
-  if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
-  {
-    if (WaitInMainLoop)
-    {
-      GetVideoMode();
-      CtrlObject->Cp()->SetScreenPositions();
-    }
-    /* $ 28.06.2000 tran
-       NT Console resize support for Editor, Viewer, Help */
-    else
-    {
-      /* 06.07.2000 SVS
-        Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
-      */
-      /*
-      GetVideoMode();
-      Modal * CurModal=CtrlObject->ModalManager.ActiveModal;
-      if (CurModal)
-      {
-        // CtrlObject->Cp()->SetScreenPositions();
-        // CurModal->SetScreenPosition();
-      }
-      /* SVS $ */
-    }
-    /* tran $ */
-    return(KEY_NONE);
-  }
 
   if (rec->EventType==KEY_EVENT)
   {
@@ -850,9 +833,9 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   {
     FKey=(Key&0xFF)&(~0x20);
     if (FKey >= 'A' && FKey <= 'Z')
-      KeyText[Len]=Key&0xFF;
+      KeyText[Len]=(char)Key&0xFF;
     else if ((Key&0xFF) > 0 && (Key&0xFF) < 256)
-      KeyText[Len]=Key&0xFF;
+      KeyText[Len]=(char)Key&0xFF;
   }
 
   if(!KeyText[0])
@@ -1037,7 +1020,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   }
   if (AltPressed && !CtrlPressed && !ShiftPressed)
   {
-    static int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
+    static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
     for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
       if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
       {

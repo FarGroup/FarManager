@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.23 22.05.2001 $ */
+/* Revision: 1.24 21.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 OT
+    + Добавился RefreshedFrame
   22.05.2001 DJ
     ! в ExecuteModal() прежде всего делаем явный commit (если остались 
       подвисшие операции, возможны разные глюки)
@@ -103,6 +105,7 @@ Manager::Manager()
   ModalStack=NULL;
   ModalStackSize = ModalStackCount = 0;
   EndLoop = FALSE;
+  RefreshedFrame=NULL;
 
   CurrentFrame  = NULL;
   InsertedFrame = NULL;
@@ -486,6 +489,36 @@ void Manager::ActivateFrame(int Index)
   ActivatedFrame=this->operator[](Index);
 }
 
+void Manager::DeactivateFrame (Frame *Deactivated,int Direction)
+{
+  FramePos+=Direction;
+  if (Direction>0){
+    if (FramePos>=FrameCount){
+      FramePos=0;
+    }
+  } else {
+    if (FramePos<0) {
+      FramePos=FrameCount-1;
+    }
+  }
+  ActivateFrame(FramePos);
+}
+
+void Manager::RefreshFrame(Frame *Refreshed)
+{
+  if (ActivatedFrame)
+    return;
+  RefreshedFrame=Refreshed;
+}
+void Manager::RefreshFrame(int Index)
+{
+  RefreshFrame((*this)[Index]);
+}
+
+
+
+
+
 /* $ 10.05.2001 DJ
    переключается на панели (фрейм с номером 0)
 */
@@ -548,8 +581,16 @@ int  Manager::ProcessKey(int Key)
   if ( CurrentFrame)
   {
     //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
+    int i;
     switch(Key)
     {
+    case KEY_CONSOLE_BUFFER_RESIZE:
+//      CtrlObject->CmdLine->ResizeConsole();
+      for (i=0;i<FrameCount;i++){
+        FrameList[i]->ResizeConsole();
+      }
+      CurrentFrame->Redraw();
+      return TRUE;
     case KEY_F11:
       PluginsMenu();
       _D(SysLog(-1));
@@ -626,21 +667,6 @@ int Manager::IndexOf(Frame *Frame)
   return Result;
 }
 
-void Manager::DeactivateFrame (Frame *Deactivated,int Direction)
-{
-  FramePos+=Direction;
-  if (Direction>0){
-    if (FramePos>=FrameCount){
-      FramePos=0;
-    }
-  } else {
-    if (FramePos<0) {
-      FramePos=FrameCount-1;
-    }
-  }
-  ActivateFrame(FramePos);
-}
-
 
 BOOL Manager::Commit()
 {
@@ -664,6 +690,10 @@ BOOL Manager::Commit()
     ActivateCommit();
     DeactivatedFrame=NULL;
     ActivatedFrame=NULL;
+    Result=true;
+  } else if (RefreshedFrame){
+    RefreshCommit();
+    RefreshedFrame=NULL;
     Result=true;
   }
   /* $ 21.05.2001 DJ */
@@ -843,6 +873,13 @@ void Manager::InsertCommit()
     }
     FrameCount++;
   }
+}
+
+void Manager::RefreshCommit()
+{
+  if (!RefreshedFrame)
+    return;
+  RefreshedFrame->Show();
 }
 
 /* $ 21.05.2001 DJ */

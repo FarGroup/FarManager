@@ -1,11 +1,9 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
 .\farexcpt.cpp : \
-	".\baseinp.hpp"\
 	".\farexcpt.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -38,7 +36,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -67,11 +64,9 @@
 	".\vmenu.hpp"\
 
 .\filepanels.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -103,7 +98,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -133,10 +127,8 @@
 
 .\checkver.cpp : \
     ".\filepanels.hpp"\
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -168,7 +160,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -199,10 +190,8 @@
 
 .\chgmmode.cpp : \
     ".\filepanels.hpp"\
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -234,7 +223,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -272,10 +260,8 @@
 
 
 .\clipboard.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -308,7 +294,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -339,10 +324,8 @@
 
 
 .\cmdline.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -375,7 +358,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -406,10 +388,8 @@
 
 
 .\config.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -442,7 +422,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -473,10 +452,8 @@
 
 
 .\constitle.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
     ".\filepanels.hpp"\
@@ -509,7 +486,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -540,11 +516,9 @@
 
 
 .\copy.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -576,7 +550,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -607,10 +580,8 @@
 
 
 .\ctrlobj.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -644,7 +615,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -675,10 +645,8 @@
 
 
 .\delete.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -711,7 +679,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -742,10 +709,8 @@
 
 
 .\dialog.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -778,7 +743,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -809,10 +773,8 @@
 
 
 .\dizlist.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
     ".\filepanels.hpp"\
@@ -845,7 +807,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -876,11 +837,9 @@
 
 
 .\edit.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -912,7 +871,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -943,10 +901,8 @@
 
 
 .\editor.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -979,7 +935,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1010,10 +965,8 @@
 
 
 .\eject.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1046,7 +999,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1082,10 +1034,8 @@
 
 
 .\farqueue.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1118,7 +1068,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1154,10 +1103,8 @@
 
 
 .\ffolders.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1190,7 +1137,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1221,11 +1167,9 @@
 
 
 .\fileattr.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
     ".\filepanels.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1257,7 +1201,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1288,10 +1231,8 @@
 
 
 .\fileedit.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1324,7 +1265,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1355,10 +1295,8 @@
 
 
 .\filelist.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1391,7 +1329,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1422,10 +1359,8 @@
 
 
 .\filestr.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1458,7 +1393,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1489,10 +1423,8 @@
 
 
 .\filetype.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1525,7 +1457,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1556,11 +1487,9 @@
 
 
 .\fileview.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
     ".\filepanels.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1592,7 +1521,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1623,10 +1551,8 @@
 
 
 .\filter.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1659,7 +1585,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1690,10 +1615,8 @@
 
 
 .\findfile.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1726,7 +1649,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1757,10 +1679,8 @@
 
 
 .\flink.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1793,7 +1713,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1824,10 +1743,8 @@
 
 
 .\flmodes.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1860,7 +1777,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1891,11 +1807,9 @@
 
 
 .\flplugin.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
     ".\filepanels.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1927,7 +1841,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -1958,10 +1871,8 @@
 
 
 .\flshow.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -1994,7 +1905,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2025,10 +1935,8 @@
 
 
 .\flupdate.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2061,7 +1969,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2092,10 +1999,8 @@
 
 
 .\foldtree.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2128,7 +2033,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2159,10 +2063,8 @@
 
 
 .\gettable.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2195,7 +2097,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2226,11 +2127,9 @@
 
 
 .\global.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
     ".\filepanels.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2263,7 +2162,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2294,10 +2192,8 @@
 
 
 .\grabber.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2329,7 +2225,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2361,10 +2256,8 @@
 
 
 .\grpsort.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2396,7 +2289,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2428,10 +2320,8 @@
 
 
 .\help.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2463,7 +2353,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2495,10 +2384,8 @@
 
 
 .\hilight.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2530,7 +2417,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
     ".\filepanels.hpp"\
 	".\keys.hpp"\
@@ -2562,10 +2448,8 @@
 
 
 .\history.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2598,7 +2482,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2629,10 +2512,8 @@
 
 
 .\hmenu.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2665,7 +2546,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2696,10 +2576,8 @@
 
 
 .\infolist.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2732,7 +2610,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2763,10 +2640,8 @@
 
 
 .\int64.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2799,7 +2674,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2830,10 +2704,8 @@
 
 
 .\interf.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2866,7 +2738,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2897,11 +2768,9 @@
 
 
 .\iswind.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -2933,7 +2802,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -2964,10 +2832,8 @@
 
 
 .\keybar.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3000,7 +2866,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3031,10 +2896,8 @@
 
 
 .\keyboard.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3067,7 +2930,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3098,10 +2960,8 @@
 
 
 .\language.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3134,7 +2994,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3165,10 +3024,8 @@
 
 
 .\local.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3201,7 +3058,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3232,11 +3088,9 @@
 
 
 .\lockscrn.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3268,7 +3122,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3299,10 +3152,8 @@
 
 
 .\macro.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3335,7 +3186,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3366,10 +3216,8 @@
 
 
 .\main.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3402,7 +3250,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3433,10 +3280,8 @@
 
 
 .\manager.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3469,7 +3314,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3500,10 +3344,8 @@
 
 
 .\menubar.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3536,7 +3378,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3567,11 +3408,9 @@
 
 
 .\message.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3603,7 +3442,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3634,10 +3472,8 @@
 
 
 .\mix.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3670,7 +3506,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3701,10 +3536,8 @@
 
 
 .\mkdir.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3737,7 +3570,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3768,10 +3600,8 @@
 
 
 .\modal.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3804,7 +3634,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3835,10 +3664,8 @@
 
 
 .\namelist.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3871,7 +3698,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3902,11 +3728,9 @@
 
 
 .\options.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -3938,7 +3762,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -3969,10 +3792,8 @@
 
 
 .\palette.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4005,7 +3826,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4036,10 +3856,8 @@
 
 
 .\panel.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4072,7 +3890,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4103,10 +3920,8 @@
 
 
 .\plist.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4139,7 +3954,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4170,10 +3984,8 @@
 
 
 .\plognmn.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4206,7 +4018,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4237,11 +4048,9 @@
 
 
 .\plugapi.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4273,7 +4082,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4304,11 +4112,9 @@
 
 
 .\plugins.cpp : \
-	".\baseinp.hpp"\
 	".\farexcpt.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4341,7 +4147,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4372,10 +4177,8 @@
 
 
 .\poscache.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4408,7 +4211,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4439,10 +4241,8 @@
 
 
 .\print.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4475,7 +4275,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4506,10 +4305,8 @@
 
 
 .\qview.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4542,7 +4339,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4573,10 +4369,8 @@
 
 
 .\rdrwdsk.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4609,7 +4403,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4640,10 +4433,8 @@
 
 
 .\registry.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4676,7 +4467,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4707,10 +4497,8 @@
 
 
 .\savefpos.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4743,7 +4531,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4774,10 +4561,8 @@
 
 
 .\savescr.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4810,7 +4595,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4841,10 +4625,8 @@
 
 
 .\scantree.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4877,7 +4659,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4908,11 +4689,9 @@
 
 
 .\scrbuf.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -4944,7 +4723,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -4975,10 +4753,8 @@
 
 
 .\scrobj.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5011,7 +4787,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5042,10 +4817,8 @@
 
 
 .\scrsaver.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5078,7 +4851,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5109,10 +4881,8 @@
 
 
 .\setattr.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5145,7 +4915,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5176,10 +4945,8 @@
 
 
 .\setcolor.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5212,7 +4979,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5243,11 +5009,9 @@
 
 
 .\stddlg.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5280,7 +5044,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5311,10 +5074,8 @@
 
 
 .\strmix.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5347,7 +5108,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5378,10 +5138,8 @@
 
 
 .\syslog.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5414,7 +5172,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5445,10 +5202,8 @@
 
 
 .\treelist.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5481,7 +5236,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5512,10 +5266,8 @@
 
 
 .\usermenu.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5548,7 +5300,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5579,11 +5330,9 @@
 
 
 .\viewer.cpp : \
-	".\baseinp.hpp"\
     ".\filepanels.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5615,7 +5364,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5646,10 +5394,8 @@
 
 
 .\vmenu.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5682,7 +5428,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\
@@ -5713,10 +5458,8 @@
 
 
 .\xlat.cpp : \
-	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
-	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\constitle.hpp"\
@@ -5749,7 +5492,6 @@
 	".\hmenu.hpp"\
 	".\infolist.hpp"\
 	".\int64.hpp"\
-	".\internalheaders.hpp"\
 	".\keybar.hpp"\
 	".\keys.hpp"\
 	".\lang.hpp"\

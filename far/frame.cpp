@@ -62,7 +62,6 @@ void Frame::SetKeyBar(KeyBar *FrameKeyBar)
 
 void Frame::UpdateKeyBar()
 {
-    _OT(SysLog("Frame::UpdateKeyBar(), FrameKeyBar=0x%p",FrameKeyBar));
     if ( FrameKeyBar!=NULL && KeyBarVisible )
         FrameKeyBar->RedrawIfChanged();
 }

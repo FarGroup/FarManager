@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.12 21.05.2001 $ */
+/* Revision: 1.13 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    + Добавился RefreshedFrame
   21.05.2001 DJ
     ! чистка внутренностей; в связи с появлением нового типа фреймов
       выкинуто GetFrameTypesCount(); отложенное удаление фрейма
@@ -61,6 +63,7 @@ class Manager
     Frame *ActivatedFrame; // претендент на то, чтобы стать
 //    Frame *UpdatedFrame;   // FrameToReplace
 //    Frame *UpdatingFrame;  //
+    Frame *RefreshedFrame;
     Frame *ModalizedFrame;
     Frame *DeactivatedFrame;
     /* OT $*/
@@ -88,6 +91,7 @@ class Manager
 
     // Исполнение приговора
     BOOL Commit();
+    void RefreshCommit();
     void ActivateCommit();
     void UpdateCommit();
     void InsertCommit();
@@ -108,7 +112,9 @@ class Manager
     void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE); // вместо ExecuteModal
     void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
-    void ActivateFrame (int Index);  //вместо NextFrame(int Increment);
+    void ActivateFrame (int Index);  //вместо ActivateFrameByPos (int NewPos);
+    void RefreshFrame(Frame *Refreshed);
+    void RefreshFrame(int Index);
 
 
     int ExecuteModal (Frame &ModalFrame);

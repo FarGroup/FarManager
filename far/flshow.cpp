@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.11 16.05.2001 $ */
+/* Revision: 1.12 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.201 OT
+    - Баг с определением, режиме панели -  на весь экран, или только на половину :)
   16.05.2001 SVS
     ! _D() -> _OT()  ;-)
   07.05.2001 SVS
@@ -1020,7 +1022,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 int FileList::IsFullScreen()
 {
-  return(X2-X1>=ScrX);
+  return this->ViewSettings.FullScreen;
 }
 
 

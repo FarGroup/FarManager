@@ -8,10 +8,13 @@ global.hpp
 
 */
 
-/* Revision: 1.18 12.05.2001 $ */
+/* Revision: 1.19 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    + Переменные CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo
+      нужны для более естественного поведения AltF9
   12.05.2001 DJ
     ! еще перетряхи #include: убран #include "ctrlobj.hpp", а указатель на 
       CtrlObject переехал в ctrlobj.hpp; еще немного переездов
@@ -81,6 +84,8 @@ extern struct Options Opt;
 class Editor;
 extern Editor *CurrentEditor;
 
+
+extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
 extern int ScrX,ScrY;
 extern HANDLE hConOut,hConInp;
 

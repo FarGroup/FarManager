@@ -7,10 +7,12 @@ keys.hpp
 
 */
 
-/* Revision: 1.11 28.04.2001 $ */
+/* Revision: 1.12 17.05.2001 $ */
 
 /*
 Modify:
+  17.05.2001 OT
+    + KEY_CONSOLE_BUFFER_RESIZE - изменился размер консоли.
   28.04.2001 VVM
     + KEY_FOCUS_CHANGED - посылается при получении/потере фокуса окном.
   26.04.2001 VVM
@@ -132,6 +134,7 @@ enum BaseDefKeyboard
   KEY_MSWHEEL_DOWN         =0x00000204,
 
   KEY_FOCUS_CHANGED        =0x00000205,
+  KEY_CONSOLE_BUFFER_RESIZE=0x00000206,
 
   KEY_END_FKEY             =0x00000FFF,
 

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.82 16.05.2001 $ */
+/* Revision: 1.83 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    - Исправление поведения AltF9
   16.05.2001 SVS
    + _D(x) Для Мельникова!
     ! DumpExceptionInfo переименован в WriteEvent и переехал в farexcpt.hpp
@@ -234,8 +236,12 @@ void InitConsole(int setpal=1);
 /* SKV$*/
 void CloseConsole();
 void SetFarConsoleMode();
-void ChangeVideoMode(int NumLines,int NumColumns=80);
-void GetVideoMode();
+//OT
+void ChangeVideoMode(int NumLines,int NumColumns);
+void ChangeVideoMode(int Maximized);
+void SetVideoMode(int ConsoleMode);
+void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi);
+//OT
 void GotoXY(int X,int Y);
 int WhereX();
 int WhereY();

@@ -464,19 +464,11 @@ SOURCE=.\farexcpt.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\baseinp.hpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\chgmmode.hpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\chgprior.hpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\classes.hpp
 # End Source File
 # Begin Source File
 
@@ -621,10 +613,6 @@ SOURCE=.\infolist.hpp
 # Begin Source File
 
 SOURCE=.\int64.hpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\internalheaders.hpp
 # End Source File
 # Begin Source File
 

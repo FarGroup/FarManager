@@ -5,10 +5,12 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.05 11.05.2001 $ */
+/* Revision: 1.06 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    ! Про "Ресайзинг буфера консоли"
   11.05.2001 OT
     ! Отрисовка Background
   06.05.2001 DJ
@@ -35,20 +37,16 @@ Modify:
 RedrawDesktop::RedrawDesktop()
 {
   CtrlObject->CmdLine->ShowBackground();
+//  CtrlObject->CmdLine->Show();
   LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
   RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
-/*
-  CtrlObject->Cp()->LeftPanel->Hide();
-  CtrlObject->Cp()->RightPanel->Hide();
-  CtrlObject->MainKeyBar->Hide();
-  CtrlObject->TopMenuBar->Hide();
-*/
 }
 
 
 RedrawDesktop::~RedrawDesktop()
 {
-//  CtrlObject->CmdLine->Show();
+  CtrlObject->CmdLine->SaveBackground();
+  CtrlObject->CmdLine->Show();
   if (Opt.ShowKeyBar)
     CtrlObject->MainKeyBar->Show();
   if (Opt.ShowMenuBar)

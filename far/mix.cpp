@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.75 17.05.2001 $ */
+/* Revision: 1.76 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    ! Задисаблено изменение размера консоли в Execute()
   17.05.2001 SKV
     + при detach console старое окно теперь "забывает" hotkey
     - если при detach console нажаты "лишние" ctrl,alt,shift,
@@ -628,9 +630,10 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
     }
     int CurScrX=ScrX,CurScrY=ScrY;
 //    ReopenConsole();
-    GetVideoMode();
-    if (CurScrX!=ScrX || CurScrY!=ScrY)
-      CtrlObject->Cp()->SetScreenPositions();
+
+//OT    GetVideoMode();
+//OT    if (CurScrX!=ScrX || CurScrY!=ScrY)
+//OT      CtrlObject->Cp()->SetScreenPositions();
     GetExitCodeProcess(pi.hProcess,(LPDWORD)&ExitCode);
     if (SeparateWindow!=2)
       CloseHandle(pi.hThread);

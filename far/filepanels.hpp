@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.05 15.05.2001 $ */
+/* Revision: 1.06 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 OT
+    + Реакция на изменение размеров консоли virtual void ResizeConsole();
   15.05.2001 OT
     ! NWZ -> NFZ
   11.05.2001 OT
@@ -56,6 +58,7 @@ class FilePanels:public Frame
     Panel* ChangePanelToFilled(Panel *Current,int NewType);
     Panel* ChangePanel(Panel *Current,int NewType,int CreateNew,int Force);
     void   SetPanelPositions(int LeftFullScreen,int RightFullScreen);
+    void   SetPanelPositions();
 
     void   SetupKeyBar();
 
@@ -92,6 +95,8 @@ class FilePanels:public Frame
 
     void RedrawKeyBar(); // virtual
     virtual void ShowConsoleTitle();
+//OT
+    virtual void ResizeConsole();
 };
 
 #endif // __FILEPANELS_HPP__
