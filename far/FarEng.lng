@@ -1251,7 +1251,7 @@
 "Buffer allocated for file name too small."
 "Required %d bytes, but allocated only %d ones"
 
-"?"
+"*"
 "Field '%s...' will be truncated to %d bytes."
 
 // Help KeyBar F1-12

@@ -5,10 +5,15 @@ setattr.cpp
 
 */
 
-/* Revision: 1.13 14.01.2001 $ */
+/* Revision: 1.14 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+    + Больше интелектуальности диалогу установки атрибутов !!!! :-)))
+      Теперь, для случая Multi, если есть подряд идущие атрибуты, то
+      они изначально инициализируются как надо - либо [x] либо [ ] либо
+      [*] для случая если "не все"
   14.01.2001 SVS
     + обработка случая, если ЭТО SymLink
   04.01.2001 SVS
@@ -243,7 +248,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
 
   char DateMask[100];
   DWORD FileSystemFlags;
-  int SelCount, I;
+  int SelCount, I, J;
 
   if (SrcPanel->GetMode()==PLUGIN_PANEL || (SelCount=SrcPanel->GetSelCount())==0)
     return;
@@ -379,22 +384,37 @@ void ShellSetFileAttributes(Panel *SrcPanel)
       EmptyDialog(AttrDlg,1,0);
 
       strcpy(AttrDlg[2].Data,MSG(MSetAttrSelectedObjects));
+      // выставим -1 - потом учтем этот факт :-)
+      for(I=4; I <= 9; ++I)
+        AttrDlg[I].Selected=0;
+
       // проверка - есть ли среди выделенных - каталоги?
+      // так же проверка на атрибуты
+      J=0;
       SrcPanel->GetSelName(NULL,FileAttr);
       while (SrcPanel->GetSelName(SelName,FileAttr))
       {
-        if(FileAttr & FA_DIREC)
+        if(!J && (FileAttr & FA_DIREC))
         {
           FolderPresent=TRUE;
           AttrDlg[11].Flags&=~DIF_DISABLE;
-          break;
+          J++;
         }
+        AttrDlg[4].Selected+=(FileAttr & FA_RDONLY)?1:0;
+        AttrDlg[5].Selected+=(FileAttr & FA_ARCH)?1:0;
+        AttrDlg[6].Selected+=(FileAttr & FA_HIDDEN)?1:0;
+        AttrDlg[7].Selected+=(FileAttr & FA_SYSTEM)?1:0;
+        AttrDlg[8].Selected+=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)?1:0;
+        AttrDlg[9].Selected+=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?1:0;
       }
       SrcPanel->GetSelName(NULL,FileAttr);
       SrcPanel->GetSelName(SelName,FileAttr);
-      // выставим "неопределенку"
+      // выставим "неопределенку" или то, что нужно
       for(I=4; I <= 9; ++I)
-        AttrDlg[I].Selected=2;
+      {
+        J=AttrDlg[I].Selected;
+        AttrDlg[I].Selected=(J >= SelCount)?1:((!J)?0:2);
+      }
     }
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)

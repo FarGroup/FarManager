@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.11 03.01.2001 $ */
+/* Revision: 1.12 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+    ! Проблемы с курсором при больших разрешениях - ставим тот курсор в
+      SetCursorType, который был до запуска ФАРа.
   03.01.2001 SVS
     + Функции SetFarTitle, ScrollBar, ShowSeparator
       переехали из mix.cpp
@@ -270,7 +273,7 @@ void GetCursorPos(int& X,int& Y)
 void SetCursorType(int Visible,int Size)
 {
   if (Size==-1 || !Visible)
-    Size=IsWindowed() ? 15:10;
+    Size=InitCurSize;//IsWindowed()?15:10;
 
   ScrBuf.SetCursorType(Visible,Size);
 }
