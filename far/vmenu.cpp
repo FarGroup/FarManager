@@ -8,23 +8,27 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.44 21.07.2001 $ */
+/* Revision: 1.45 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 KM
+    - Не устанавливался тип рамки при первом вызове
+      ShowMenu с параметром TRUE, что давало неверную
+      отрисовку меню.
   21.07.2001 KM
     ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
     ! Переработка обработки мыши в меню с флагом VMENU_SHOWNOBOX.
 
-    Теперь DI_LISTBOX с выставленным флагом DIF_LISTNOBOX и меню
-    с флагом VMENU_SHOWNOBOX рисуются без лишних окантовывающих пробелов
-    вокруг списка, что автоматически позволяет использовать DI_LISTBOX в
-    диалогах, не опасаясь затирания рамки самого диалога пустым местом от
-    списка.
+      Теперь DI_LISTBOX с выставленным флагом DIF_LISTNOBOX и меню
+      с флагом VMENU_SHOWNOBOX рисуются без лишних окантовывающих пробелов
+      вокруг списка, что автоматически позволяет использовать DI_LISTBOX в
+      диалогах, не опасаясь затирания рамки самого диалога пустым местом от
+      списка.
   19.07.2001 OT
-    VFMenu - продолжение исправления
+    - VFMenu - продолжение исправления
   18.07.2001 OT
-    Новый класс VFMenu
+    + Новый класс VFMenu
   11.07.2001 SVS
     + Shift-F1 на равне с F1 может вызывать хелп. Это на тот случай, если мы
       в качестве хоткея назначили F1 (естественно хелп в такой ситуации не
@@ -549,6 +553,14 @@ void VMenu::ShowMenu(int IsParent)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   BoxChar2[1]=BoxChar[1]=0;
 
+  /* $ 22.07.2001 KM
+   - Не устанавливался тип рамки при первом вызове
+     ShowMenu с параметром TRUE, что давало неверную
+     отрисовку меню.
+  */
+  if (VMenu::VMFlags&VMENU_LISTBOX)
+    BoxType=VMenu::VMFlags&VMENU_SHOWNOBOX?NO_BOX:SHORT_DOUBLE_BOX;
+  /* KM $ */
   if(!IsParent && (VMenu::VMFlags&VMENU_LISTBOX))
   {
     BoxType=VMenu::VMFlags&VMENU_SHOWNOBOX?NO_BOX:SHORT_SINGLE_BOX;

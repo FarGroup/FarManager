@@ -5,12 +5,18 @@ findfile.cpp
 
 */
 
-/* Revision: 1.39 20.07.2001 $ */
+/* Revision: 1.40 22.07.2001 $ */
 
 /*
 Modify:
+  22.07.2001 KM
+    ! Данное изменение было сделано из-за изменений в обработке
+      в vmenu.cpp флага NO_BOX, после чего неверно отрисовался
+      список в этом "старом" поиске.
+      Сделано только для новой альфы, поэтому не имеет ни изменений
+      номера версии, ни комментариев.
   20.07.2001 OT
-    Исправление бага с отрисовкой по AltF7. Убран ранее поставленый костыль
+    - Исправление бага с отрисовкой по AltF7. Убран ранее поставленый костыль
   02.07.2001 IS
     ! FileMaskForFindFile.Set(NULL) -> FileMaskForFindFile.Free()
     + Вернул автоматическое добавление '*' к концу маски при определенных
@@ -515,7 +521,7 @@ int FindFiles::FindFilesProcess()
 
     int DlgX1,DlgY1,DlgX2,DlgY2;
     pDlg->GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
-    FindList.SetPosition(DlgX1+4,DlgY1+1,DlgX2-4,DlgY2-5);
+    FindList.SetPosition(DlgX1+4,DlgY1+2,DlgX2-4,DlgY2-6);
     FindList.Show();
     LastFoundNumber=0;
 
