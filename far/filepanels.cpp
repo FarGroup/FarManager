@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.37 15.02.2002 $ */
+/* Revision: 1.38 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 OT
+    - Исправление #96
   15.02.2002 SVS
     ! Вызов ShowProcessList() вынесен в манагер
   14.02.2002 VVM
@@ -715,13 +717,14 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 {
   Panel *NewPanel;
   SaveScreen *SaveScr=NULL;
-  int OldType,X1,Y1,X2,Y2;
+  // OldType не инициализировался...
+  int OldType=Current->GetType(),X1,Y1,X2,Y2;
   int OldViewMode,OldSortMode,OldSortOrder,OldSortGroups,OldSelectedFirst;
   int OldShowShortNames,OldPanelMode,LeftPosition,ChangePosition;
   int OldFullScreen,OldFocus,UseLastPanel=0;
 
   OldPanelMode=Current->GetMode();
-  if (!Force && NewType==(OldType=Current->GetType()) && OldPanelMode==NORMAL_PANEL)
+  if (!Force && NewType==OldType && OldPanelMode==NORMAL_PANEL)
     return(Current);
   OldViewMode=Current->GetPrevViewMode();
   OldFullScreen=Current->IsFullScreen();

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.132 05.03.2002 $ */
+/* Revision: 1.133 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 OT
+    - Исправление #96
   05.03.2002
     - передадим размер буфера в SubstFileName
   01.03.2002 SVS
@@ -2556,18 +2558,27 @@ void FileList::SetViewMode(int ViewMode)
   if (!OldDiz && NewDiz)
     ReadDiz();
 
+  if (PanelMode==PLUGIN_PANEL)
+  {
+    char ColumnTypes[80],ColumnWidths[80];
+//    SetScreenPosition();
+    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
+        ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
+    ProcessPluginEvent(FE_CHANGEVIEWMODE,ColumnTypes);
+  }
+
   if (ViewSettings.FullScreen && !CurFullScreen)
   {
     Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
     int AnotherVisible=AnotherPanel->IsVisible();
-    Hide();
-    AnotherPanel->Hide();
+//    Hide();
+//    AnotherPanel->Hide();
     if (Y2>0)
       SetPosition(0,Y1,ScrX,Y2);
     FileList::ViewMode=ViewMode;
-    if (AnotherVisible)
-      AnotherPanel->Show();
-    Show();
+//    if (AnotherVisible)
+//      AnotherPanel->Show();
+//    Show();
   }
   else
     if (!ViewSettings.FullScreen && CurFullScreen)
@@ -2575,31 +2586,24 @@ void FileList::SetViewMode(int ViewMode)
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
       int AnotherVisible=AnotherPanel->IsVisible();
       int CurrentVisible=IsVisible();
-      Hide();
-      AnotherPanel->Hide();
+//      Hide();
+//      AnotherPanel->Hide();
       if (Y2>0)
         if (this==CtrlObject->Cp()->LeftPanel)
           SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
         else
           SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
       FileList::ViewMode=ViewMode;
-      if (AnotherVisible)
-        AnotherPanel->Show();
-      if (CurrentVisible)
-        Show();
+//      if (AnotherVisible)
+//        AnotherPanel->Show();
+//      if (CurrentVisible)
+//        Show();
     }
     else
     {
       FileList::ViewMode=ViewMode;
       FrameManager->RefreshFrame();
     }
-  if (PanelMode==PLUGIN_PANEL)
-  {
-    char ColumnTypes[80],ColumnWidths[80];
-    ViewSettingsToText(ViewSettings.ColumnType,ViewSettings.ColumnWidth,
-        ViewSettings.ColumnCount,ColumnTypes,ColumnWidths);
-    ProcessPluginEvent(FE_CHANGEVIEWMODE,ColumnTypes);
-  }
   if (ResortRequired)
   {
     SortFileList(TRUE);

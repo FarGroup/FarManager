@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.112 05.03.2002 $ */
+/* Revision: 1.113 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 OT
+    - Исправление #96
   05.03.2002 DJ
     ! вылет из-за переполнения буфера в PluginsSet::ProcessCommandLine()
   21.02.2002 SVS
@@ -2159,15 +2161,20 @@ void PluginsSet::ConfigureCurrent(int PNum,int INum)
 
     if (Ret)
     {
+      Panel *pPanel=NULL;
       if (CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
       {
-        CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-        CtrlObject->Cp()->LeftPanel->Redraw();
+        pPanel= CtrlObject->Cp()->LeftPanel;
+        pPanel->Update(UPDATE_KEEP_SELECTION);
+        pPanel->SetViewMode(pPanel->GetViewMode());
+        pPanel->Redraw();
       }
       if (CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
       {
-        CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-        CtrlObject->Cp()->RightPanel->Redraw();
+        pPanel= CtrlObject->Cp()->RightPanel;
+        pPanel->Update(UPDATE_KEEP_SELECTION);
+        pPanel->SetViewMode(pPanel->GetViewMode());
+        pPanel->Redraw();
       }
     }
     SavePluginSettings(*PData,PData->FindData);

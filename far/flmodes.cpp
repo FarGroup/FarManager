@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.10 11.02.2002 $ */
+/* Revision: 1.11 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 OT
+    - Исправление #96
   11.02.2002 SVS
     + Добавка в меню - акселератор - решение BugZ#299
   26.07.2001 SVS
@@ -184,8 +186,8 @@ void FileList::SetFilePanelModes()
     CtrlObject->Cp()->SetScreenPosition();
     int LeftMode=CtrlObject->Cp()->LeftPanel->GetViewMode();
     int RightMode=CtrlObject->Cp()->RightPanel->GetViewMode();
-    CtrlObject->Cp()->LeftPanel->SetViewMode(ModeNumber);
-    CtrlObject->Cp()->RightPanel->SetViewMode(ModeNumber);
+//    CtrlObject->Cp()->LeftPanel->SetViewMode(ModeNumber);
+//    CtrlObject->Cp()->RightPanel->SetViewMode(ModeNumber);
     CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
     CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
     CtrlObject->Cp()->LeftPanel->Redraw();
