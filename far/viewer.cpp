@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.124 28.01.2003 $ */
+/* Revision: 1.125 29.01.2003 $ */
 
 /*
 Modify:
+  29.01.2003 VVM
+    + CtrlU не только сбрасывает выделение, но и перемещает маркер "Начало поиска"
+      на начало экрана.
   28.01.2003 VVM
     ! Поменял местами Home/End и CtrlHome/CtrlEnd
     ! SVS> исходный патч мною корректированный!
@@ -1553,6 +1556,7 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_CTRLU:
     {
+      SelectPos = FilePos;
       if (SelectSize)
       {
         SelectSize = 0;
