@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.03 05.01.2001 $ */
+/* Revision: 1.04 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+    - И снова CalcKeyCode - не работал Alt-Ins
   05.01.2001 SVS
     - База в "вычислителе" клавиш :-(
   04.01.2001 SVS
@@ -836,6 +838,19 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
   if (KeyCode>=VK_F1 && KeyCode<=VK_F12)
     return(Modif+KEY_F1+((KeyCode-VK_F1)<<8));
 
+  if (AltPressed && !CtrlPressed && !ShiftPressed)
+  {
+    static int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
+    for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
+      if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
+      {
+        if (RealKey)
+          AltValue=AltValue*10+I;
+        return(KEY_NONE);
+      }
+
+  }
+
 //  if(CtrlPressed || AltPressed || ShiftPressed)
   {
     int NotShift=!CtrlPressed && !AltPressed && !ShiftPressed;
@@ -843,6 +858,18 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
     {
       case VK_INSERT:
       case VK_NUMPAD0:
+        if (AltPressed && !CtrlPressed && !ShiftPressed)
+        {
+          static int InGrabber=FALSE;
+          if (AltValue==0 && !InGrabber && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
+          {
+            InGrabber=TRUE;
+            WaitInMainLoop=FALSE;
+            Grabber Grabber;
+            InGrabber=FALSE;
+            return(KEY_NONE);
+          }
+        }
         if (NotShift && KeyCode == VK_NUMPAD0)
           return '0';
         return(Modif|KEY_INS);
@@ -1042,24 +1069,6 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
   }
   if (AltPressed)
   {
-    static int InGrabber=FALSE;
-    if (AltValue==0 && !InGrabber && (KeyCode==VK_INSERT || KeyCode==VK_NUMPAD0))
-    {
-      InGrabber=TRUE;
-      WaitInMainLoop=FALSE;
-      Grabber Grabber;
-      InGrabber=FALSE;
-      return(KEY_NONE);
-    }
-    static int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
-    for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
-      if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
-      {
-        if (RealKey)
-          AltValue=AltValue*10+I;
-        return(KEY_NONE);
-      }
-
     switch(KeyCode)
     {
       case 0xbc:
