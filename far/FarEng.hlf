@@ -11,6 +11,7 @@ $^#Copyright (C) 2000 FAR Group.#
    ~Keyboard reference~@KeyRef@
    ~Command line switches~@CmdLine@
    ~Plugins support~@Plugins@
+   ~Plugin possibilities review~@PluginsReviews@
 
    ~Panels:~@Panels@  ~File panel~@FilePanel@
             ~Tree panel~@TreePanel@
@@ -460,6 +461,63 @@ on this plugin will be shown.
 "CD" in the command line may be used to change the plugin file system
 folder. Unlike "CD" "CHDIR" command always treats the specified parameter as
 a real folder name regardless a file panel type.
+
+@PluginsReviews
+$ #Plugin possibilities review#
+    The FAR manager shell as far as possible integrated with its
+plugins, so to talk about FAR and do not talk about plugins is simply
+senselessly. Plugins are extremely widen FAR manager possibilities,
+adding and modifying them.
+
+    Not falling into details one can note only some of these
+possibilities:
+
+  * syntax highlighting in program source texts.
+  * working with FTP-servers (including access through proxy).
+  * simultaneous symbols search and replace in much number of files,
+    using regular expressions.
+  * files groups renaming with possibility of use a complex
+    compound masks, consisting of substitution symbols and
+    templates.
+  * NNTP/SMTP/POP3/IMAP4 clients and sending a messages to a pager.
+  * working with non-standard text screen resolutions.
+  * Texts code conversion in view of national code tables.
+  * Manipulating with contents of Recycle Bin.
+  * Process priority control on local or network PC.
+  * Words autocomplete in editor and working with templates.
+  * Windows system registry editing.
+  * Creating and modifying Windows shortcuts.
+  * Files an text manipulating, making FIDO working more comfortable.
+  * Files UU-encode and UU-decode.
+  * WinAmp control and MP3-tags modifying.
+  * Quake PAK-files processing.
+  * Printers control, both connected to PC and network.
+  * Connection and debugging of queries to ODBC-compatible
+    databases.
+  * RAS service control.
+  * External programs executing (compilers, convertors etc.) while
+    editing text in FAR editor.
+  * Windows help files contents displaying (.hlp and .chm)
+  * Calculators with different possibilities.
+  * Different games :-)
+  * Spell checker functions while editing text in FAR editor.
+  * Removable drives directory preparation and much more...
+
+    It is useless to enumerate all the functions, which are provided
+by FAR and its plugins, because their list is constantly increased. As
+an information source, which can be used to search for concrete
+plugins, one can recommend:
+  - PlugRinG site
+    ~http://www.uic.nnov.ru/~~ruiv/plugring/downld/~@http://www.uic.nnov.ru/~ruiv/plugring/cgi-bin/downld.cgi?Lang=Eng@
+  - USENET echo conference
+    ~news:fido7.far.support~@news:fido7.far.support@
+    ~news:fido7.far.development~@news:fido7.far.development@
+  - FidoNet echo conference
+    far.support
+    far.development
+  - Free email group service
+    ~http://www.egroups.com/group/plugring~@http://www.egroups.com/group/plugring@
+
 
 @Panels
 $ #Panels#
