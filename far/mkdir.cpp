@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.08 05.06.2001 $ */
+/* Revision: 1.09 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    ! уточнение поведени€ механизма создани€ каталогов
   05.06.2001 IS
     + ќтмена предыдущего патча VVM
   05.06.2001 VVM
@@ -61,6 +63,13 @@ void ShellMakeDir(Panel *SrcPanel)
   {
     if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",DirName,DirName,sizeof(DirName),"MakeFolder",FIB_BUTTONS|FIB_EXPANDENV))
       return;
+
+    // это по поводу создани€ одиночного каталога, который
+    // начинаетс€ с пробела! „тобы ручками не заключать
+    // такой каталог в кавычки
+    if(strpbrk(DirName,";,") == NULL)
+      if(*DirName != '"')
+         QuoteSpaceOnly(DirName);
 
     // оставил в назидание потомкам. ни в коем случае нельз€ убирать кавычки из
     // DirName, т.к. из-за этого нарушаетс€ логика работы в DirList.Set

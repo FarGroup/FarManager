@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.17 18.06.2001 $ */
+/* Revision: 1.18 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    + Для полноты картины: Shift-Enter дереве вызывает проводник
   18.06.2001 SVS
     - Вот же елы палы :-( Вместо MACRO_TREEPANEL макромода стояла
       MACRO_INFOPANEL. К чему бы это?
@@ -550,6 +552,7 @@ int TreeList::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_SHIFTENTER:
     case KEY_CTRLENTER:
     case KEY_CTRLF:
     case KEY_CTRLALTINS:
@@ -562,6 +565,8 @@ int TreeList::ProcessKey(int Key)
           sprintf(QuotedName,"%s%s",CurPtr->Name,(Key == KEY_CTRLALTINS?"":" "));
         if(Key == KEY_CTRLALTINS)
           CopyToClipboard(QuotedName);
+        else if(Key == KEY_SHIFTENTER)
+          Execute(QuotedName,FALSE,TRUE,TRUE);
         else
           CtrlObject->CmdLine->InsertString(QuotedName);
       }

@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.54 22.07.2001 $ */
+/* Revision: 1.55 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    ! Вернем обратно режим отображения размера в меню выбора диска
+      но несколько расширим размеры (+1) числа и сократим "MB" до "M"
   22.07.2001 SVS
     + Повторное нажатие CtrlPgUp в меню выбора дисков гасит это меню.
     + Shift-Enter в меню выбора дисков вызывает проводник для данного диска
@@ -357,10 +360,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             /* $ 10.05.2001 SVS
                Кривое форматирования вывода при охрененных размерах диска :-(
             */
-//            sprintf(TotalText,"%5d %.2s",(TotalSize/(1024*1024)).PLow(),MSG(MChangeDriveMb));
-            FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,0);
-//            sprintf(FreeText,"%5d %.2s",(UserFree/(1024*1024)).PLow(),MSG(MChangeDriveMb));
-            FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,0);
+            sprintf(TotalText,"%6d %1.1s",(TotalSize/(1024*1024)).PLow(),MSG(MChangeDriveMb));
+//            FileSizeToStr(TotalText,TotalSize.PHigh(),TotalSize.PLow(),8,0,1);
+            sprintf(FreeText,"%6d %1.1s",(UserFree/(1024*1024)).PLow(),MSG(MChangeDriveMb));
+//            FileSizeToStr(FreeText,UserFree.PHigh(),UserFree.PLow(),8,0,1);
             /* SVS $ */
           }
           sprintf(MenuText+strlen(MenuText),"%c%-8s%c%-8s",VerticalLine,TotalText,VerticalLine,FreeText);
