@@ -1023,10 +1023,10 @@ sensitive comparison.
 is separated from other text with spaces, tab characters, line breaks or
 standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./#.
 
-    The option #"Use all installed character tables"# forces usage of
-all character tables available to FAR to search text in files with
-different codepages. The pull down list on the right of this option
-allows to select the concrete character table for the text search.
+    The #"Using character table"# pull down list allows to select the concrete
+character table for the text search or forces usage of all character tables
+available to FAR by selecting #All character tables# item to search text in files
+with different codepages.
 
     If the option #"Search in archives"# is set, FAR also performs the search in
 archives with known formats. However, using this option significantly
