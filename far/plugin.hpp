@@ -8,13 +8,18 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.87 16.02.2001 $ */
+/* Revision: 1.88 16.02.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  16.02.2001 IS
+    + Добавлена проверка правильности выравнивания на основе известного
+      размера PluginPanelItem - он должен быть равным 366. Если это не так, то
+      если определено STRICT, то компилирование вообще прекратится, иначе -
+      будет выдан warning
   16.02.2001 IS
     + команда ECTL_SETPARAM - изменить некую настройку редактора
     + EDITOR_SETPARAMETER_TYPES - тип настройки
@@ -371,6 +376,16 @@ struct PluginPanelItem
   DWORD           UserData;
   DWORD           Reserved[3];
 };
+
+#if defined(__BORLANDC__)
+#if sizeof(PluginPanelItem) != 366
+#if defined(STRICT)
+#error Incorrect alignment: sizeof(PluginPanelItem)!=366
+#else
+#pragma message Incorrect alignment: sizeof(PluginPanelItem)!=366
+#endif
+#endif
+#endif
 
 #define PPIF_PROCESSDESCR 0x80000000
 #define PPIF_SELECTED     0x40000000
