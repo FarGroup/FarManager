@@ -103,7 +103,7 @@ Far : BccW32.cfg $(Dep_Far)
   @$(BCC32) -c -o$@ {$. }
 
 $(OBJPATH)\ctrlobj.obj: ctrlobj.cpp ctrlobj.hpp copyright.inc
-$(OBJPATH)\mix.obj: mix.cpp cc.bat
+$(OBJPATH)\syslog.obj: syslog.cpp cc.bat
 $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc
 
 FAROBJ=\
@@ -158,6 +158,10 @@ FAROBJ=\
    $(OBJPATH)\flupdate.obj\
    $(OBJPATH)\flplugin.obj\
    $(OBJPATH)\scantree.obj\
+   $(OBJPATH)\keyboard.obj\
+   $(OBJPATH)\clipboard.obj\
+   $(OBJPATH)\eject.obj\
+   $(OBJPATH)\xlat.obj\
    $(OBJPATH)\mix.obj\
    $(OBJPATH)\plist.obj\
    $(OBJPATH)\hilight.obj\
@@ -181,6 +185,7 @@ FAROBJ=\
    $(OBJPATH)\flmodes.obj\
    $(OBJPATH)\flshow.obj\
    $(OBJPATH)\farrtl.obj\
+   $(OBJPATH)\syslog.obj\
    $(OBJPATH)\main.obj
 
 Dep_fardexe = BccW32.cfg\

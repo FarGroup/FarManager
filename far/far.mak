@@ -88,7 +88,12 @@ CLEAN :
 	-@erase "$(INTDIR)\manager.obj"
 	-@erase "$(INTDIR)\menubar.obj"
 	-@erase "$(INTDIR)\message.obj"
+	-@erase "$(INTDIR)\keyboard.obj"
+	-@erase "$(INTDIR)\clipboard.obj"
+	-@erase "$(INTDIR)\eject.obj"
+	-@erase "$(INTDIR)\xlat.obj"
 	-@erase "$(INTDIR)\mix.obj"
+	-@erase "$(INTDIR)\syslog.obj"
 	-@erase "$(INTDIR)\mkdir.obj"
 	-@erase "$(INTDIR)\modal.obj"
 	-@erase "$(INTDIR)\namelist.obj"
@@ -184,6 +189,11 @@ LINK32_OBJS= \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
+   "$(INTDIR)\keyboard.obj" \
+   "$(INTDIR)\syslog.obj" \
+	"$(INTDIR)\clipboard.obj" \
+	"$(INTDIR)\eject.obj" \
+	"$(INTDIR)\xlat.obj" \
 	"$(INTDIR)\mix.obj" \
 	"$(INTDIR)\mkdir.obj" \
 	"$(INTDIR)\modal.obj" \
@@ -288,6 +298,11 @@ CLEAN :
 	-@erase "$(INTDIR)\manager.obj"
 	-@erase "$(INTDIR)\menubar.obj"
 	-@erase "$(INTDIR)\message.obj"
+	-@erase "$(INTDIR)\keyboard.obj"
+	-@erase "$(INTDIR)\syslog.obj"
+	-@erase "$(INTDIR)\clipboard.obj"
+	-@erase "$(INTDIR)\eject.obj"
+	-@erase "$(INTDIR)\xlat.obj"
 	-@erase "$(INTDIR)\mix.obj"
 	-@erase "$(INTDIR)\mkdir.obj"
 	-@erase "$(INTDIR)\modal.obj"
@@ -385,6 +400,11 @@ LINK32_OBJS= \
 	"$(INTDIR)\manager.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
+   "$(INTDIR)\keyboard.obj" \
+   "$(INTDIR)\syslog.obj" \
+	"$(INTDIR)\clipboard.obj" \
+	"$(INTDIR)\eject.obj" \
+	"$(INTDIR)\xlat.obj" \
 	"$(INTDIR)\mix.obj" \
 	"$(INTDIR)\mkdir.obj" \
 	"$(INTDIR)\modal.obj" \
@@ -708,11 +728,29 @@ SOURCE=.\message.cpp
 
 "$(INTDIR)\message.obj" : $(SOURCE) "$(INTDIR)"
 
+SOURCE=.\keyboard.cpp
+
+"$(INTDIR)\keyboard.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\syslog.cpp
+
+"$(INTDIR)\syslog.obj" : $(SOURCE) "$(INTDIR)"
 
 SOURCE=.\mix.cpp
 
 "$(INTDIR)\mix.obj" : $(SOURCE) "$(INTDIR)"
 
+SOURCE=.\clipboard.cpp
+
+"$(INTDIR)\clipboard.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\eject.cpp
+
+"$(INTDIR)\eject.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\xlat.cpp
+
+"$(INTDIR)\xlat.obj" : $(SOURCE) "$(INTDIR)"
 
 SOURCE=.\mkdir.cpp
 

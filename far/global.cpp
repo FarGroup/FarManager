@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.07 07.12.2000 $ */
+/* Revision: 1.08 22.12.2000 $ */
 
 /*
 Modify:
+  22.12.2000 SVS
+    + hConOut,hConInp плавно перетекли из interf.cpp
   07.12.2000 SVS
     + Версия берется из файла farversion.inc
   11.11.2000 SVS
@@ -48,6 +50,7 @@ Language Lang;
 ControlObject *CtrlObject;
 
 int ScrX,ScrY;
+HANDLE hConOut,hConInp;
 
 int AltPressed,CtrlPressed,ShiftPressed;
 int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;

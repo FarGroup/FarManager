@@ -87,6 +87,18 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\clipboard.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\eject.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\xlat.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\checkver.cpp
 # End Source File
 # Begin Source File
@@ -285,6 +297,14 @@ SOURCE=.\menubar.cpp
 # Begin Source File
 
 SOURCE=.\message.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\syslog.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\keyboard.cpp
 # End Source File
 # Begin Source File
 

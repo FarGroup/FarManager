@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.09 07.12.2000 $ */
+/* Revision: 1.10 22.12.2000 $ */
 
 /*
 Modify:
+  22.12.2000 SVS
+    + hConOut,hConInp
   07.12.2000 SVS
     + Описание версии FAR_VERSION - как константа.
   11.11.2000 SVS
@@ -71,6 +73,7 @@ extern Editor *CurrentEditor;
 #endif
 
 extern int ScrX,ScrY;
+extern HANDLE hConOut,hConInp;
 
 extern int AltPressed,CtrlPressed,ShiftPressed;
 extern int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
