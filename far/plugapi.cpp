@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.76 18.07.2001 $ */ 
+/* Revision: 1.77 19.07.2001 $ */ 
 
 /*
 Modify:
+  19.07.2001 OT
+    Мелкий баг с неотрисовкой
   18.07.2001 OT
     VFMenu
   16.07.2001 SVS
@@ -727,6 +729,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   }
   /* DJ $ */
 //  CheckScreenLock();
+  FrameManager->RefreshFrame();
   return(ExitCode);
 }
 #ifndef _MSC_VER

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.85 17.07.2001 $ */
+/* Revision: 1.86 19.07.2001 $ */ 
 
 /*
 Modify:
+  19.07.2001 OT
+    AltF9 - к первоначальному положению :)
   17.07.2001 SVS
     ! Opt.AltF9 - уточнение поведения для разных платформ
   16.07.2001 SVS
@@ -928,7 +930,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
+  {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, 1, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},

@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.37 18.07.2001 $ */ 
+/* Revision: 1.38 19.07.2001 $ */ 
 
 /*
 Modify:
+  19.07.2001 OT
+    Äîáàâèëèñü íîâûå ÷ëåíû è ìåòîäâ òèïà UnmodalizeÕÕÕ
   18.07.2001 OT
     VFMenu
   11.07.2001 OT
@@ -157,9 +159,8 @@ Manager::Manager()
   ActivatedFrame= NULL;
   DeactivatedFrame=NULL;
   ModalizedFrame=NULL;
+  UnmodalizedFrame=NULL;
   ExecutedFrame=NULL;
-
-  DisableDelete = FALSE;
 }
 
 Manager::~Manager()
@@ -280,6 +281,12 @@ void Manager::ModalizeFrame (Frame *Modalized, int Mode)
 {
   _OT(SysLog("ModalizeFrame(), Modalized=%p",Modalized));
   ModalizedFrame=Modalized;
+  Commit();
+}
+
+void Manager::UnmodalizeFrame (Frame *Unmodalized)
+{
+  UnmodalizedFrame=Unmodalized;
   Commit();
 }
 
@@ -694,6 +701,10 @@ BOOL Manager::Commit()
     ModalizeCommit();
     ModalizedFrame=NULL;
     Result=true;
+  } else if (UnmodalizedFrame){
+    UnmodalizeCommit();
+    UnmodalizedFrame=NULL;
+    Result=true;
   }
   if (Result){
     Result=Commit();
@@ -859,7 +870,7 @@ void Manager::DeleteCommit()
   {
     _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
     if ( CurrentFrame==DeletedFrame )
-        CurrentFrame=0;
+      CurrentFrame=0;
     delete DeletedFrame;
   }
 }
@@ -980,5 +991,25 @@ void Manager::ModalizeCommit()
 {
   CurrentFrame->Push(ModalizedFrame);
 }
+
+void Manager::UnmodalizeCommit()
+{
+  int i;
+  Frame *iFrame;
+  for (i=0;i<FrameCount;i++){
+    iFrame=FrameList[i];
+    if(iFrame->RemoveModal(UnmodalizedFrame)){
+      return;
+    }
+  } 
+  for (i=0;i<ModalStackCount;i++){
+    iFrame=ModalStack[i];
+    if(iFrame->RemoveModal(UnmodalizedFrame)){
+      return;
+    }
+  } 
+
+}
+
 
 /* OT $*/

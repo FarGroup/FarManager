@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.79 18.07.2001 $ */ 
+/* Revision: 1.80 19.07.2001 $ */ 
 
 /*
 Modify:
+  19.07.2001 OT
+    - F11->плагин с диалогом->CAS -> зачем-то появлялось меню :)
   18.07.2001 OT
     VFMenu
   10.07.2001 SKV
@@ -1852,49 +1854,81 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
   Viewer = ModalType==MODALTYPE_VIEWER;
   /* OT $ */
 
-  VFMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
-  PluginList.SetFlags(VMENU_WRAPMODE);
-  PluginList.SetPosition(-1,-1,0,0);
-  PluginList.SetHelp("Plugins");
-
-  LoadIfCacheAbsent();
-
   DWORD Data;
-  char FirstHotKey[512];
-  int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
-
-  for (int I=0;I<PluginsCount;I++)
   {
-    char HotRegKey[512],HotKey[100];
-    *HotKey=0;
-    if (PluginsData[I].Cached)
+    VFMenu PluginList(MSG(MPluginCommandsMenuTitle),NULL,0,ScrY-4);
+    PluginList.SetFlags(VMENU_WRAPMODE);
+    PluginList.SetPosition(-1,-1,0,0);
+    PluginList.SetHelp("Plugins");
+    
+    LoadIfCacheAbsent();
+    
+    char FirstHotKey[512];
+    int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
+    
+    for (int I=0;I<PluginsCount;I++)
     {
-      char RegKey[100],Value[100];
-      int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
-      if (RegNumber==-1)
-        continue;
-      else
+      char HotRegKey[512],HotKey[100];
+      *HotKey=0;
+      if (PluginsData[I].Cached)
       {
-        sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
-        int Flags=GetRegKey(RegKey,"Flags",0);
-        /* todo: тут надо не смотреть на Editor/Viewer
-                 а сделать четкий анализ на ModalType */
-        if (Editor && (Flags & PF_EDITOR)==0 ||
+        char RegKey[100],Value[100];
+        int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
+        if (RegNumber==-1)
+          continue;
+        else
+        {
+          sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
+          int Flags=GetRegKey(RegKey,"Flags",0);
+          /* todo: тут надо не смотреть на Editor/Viewer
+          а сделать четкий анализ на ModalType */
+          if (Editor && (Flags & PF_EDITOR)==0 ||
             Viewer && (Flags & PF_VIEWER)==0 ||
             !Editor && !Viewer && (Flags & PF_DISABLEPANELS))
+            continue;
+          for (int J=0;;J++)
+          {
+            *HotKey=0;
+            if (GetHotKeyRegKey(I,J,HotRegKey))
+              GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
+            struct MenuItem ListItem;
+            memset(&ListItem,0,sizeof(ListItem));
+            sprintf(Value,"PluginMenuString%d",J);
+            char Name[sizeof(ListItem.Name)];
+            GetRegKey(RegKey,Value,Name,"",sizeof(Name));
+            if (*Name==0)
+              break;
+            if (!HotKeysPresent)
+              strcpy(ListItem.Name,Name);
+            else
+              if (*HotKey)
+                sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+              else
+                sprintf(ListItem.Name,"   %s",Name);
+              ListItem.SetSelect(MenuItemNumber++ == StartPos);
+              Data=MAKELONG(I,J);
+              PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
+          }
+        }
+      }
+      else
+      {
+        struct PluginInfo Info;
+        if (!GetPluginInfo(I,&Info))
           continue;
-        for (int J=0;;J++)
+        if (Editor && (Info.Flags & PF_EDITOR)==0 ||
+          Viewer && (Info.Flags & PF_VIEWER)==0 ||
+          !Editor && !Viewer && (Info.Flags & PF_DISABLEPANELS))
+          continue;
+        for (int J=0;J<Info.PluginMenuStringsNumber;J++)
         {
           *HotKey=0;
           if (GetHotKeyRegKey(I,J,HotRegKey))
             GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
           struct MenuItem ListItem;
           memset(&ListItem,0,sizeof(ListItem));
-          sprintf(Value,"PluginMenuString%d",J);
           char Name[sizeof(ListItem.Name)];
-          GetRegKey(RegKey,Value,Name,"",sizeof(Name));
-          if (*Name==0)
-            break;
+          strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name));
           if (!HotKeysPresent)
             strcpy(ListItem.Name,Name);
           else
@@ -1902,66 +1936,35 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
               sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
             else
               sprintf(ListItem.Name,"   %s",Name);
-          ListItem.SetSelect(MenuItemNumber++ == StartPos);
-          Data=MAKELONG(I,J);
-          PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
+            ListItem.SetSelect(MenuItemNumber++ == StartPos);
+            Data=MAKELONG(I,J);
+            PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
         }
       }
     }
-    else
+    PluginList.AssignHighlights(FALSE);
+    PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
+    
+    PluginList.Show();
+    
+    while (!PluginList.Done())
     {
-      struct PluginInfo Info;
-      if (!GetPluginInfo(I,&Info))
-        continue;
-      if (Editor && (Info.Flags & PF_EDITOR)==0 ||
-          Viewer && (Info.Flags & PF_VIEWER)==0 ||
-          !Editor && !Viewer && (Info.Flags & PF_DISABLEPANELS))
-        continue;
-      for (int J=0;J<Info.PluginMenuStringsNumber;J++)
+      int SelPos=PluginList.GetSelectPos();
+      char RegKey[512];
+      
+      Data=(DWORD)PluginList.GetUserData(NULL,NULL,SelPos);
+      switch(PluginList.ReadInput())
       {
-        *HotKey=0;
-        if (GetHotKeyRegKey(I,J,HotRegKey))
-          GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
-        struct MenuItem ListItem;
-        memset(&ListItem,0,sizeof(ListItem));
-        char Name[sizeof(ListItem.Name)];
-        strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name));
-        if (!HotKeysPresent)
-          strcpy(ListItem.Name,Name);
-        else
-          if (*HotKey)
-            sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
-          else
-            sprintf(ListItem.Name,"   %s",Name);
-        ListItem.SetSelect(MenuItemNumber++ == StartPos);
-        Data=MAKELONG(I,J);
-        PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
-      }
-    }
-  }
-  PluginList.AssignHighlights(FALSE);
-  PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-
-  PluginList.Show();
-
-  while (!PluginList.Done())
-  {
-    int SelPos=PluginList.GetSelectPos();
-    char RegKey[512];
-
-    Data=(DWORD)PluginList.GetUserData(NULL,NULL,SelPos);
-    switch(PluginList.ReadInput())
-    {
       /* $ 18.12.2000 SVS
-         Shift-F1 в списке плагинов вызывает хелп по данному плагину
-      */
+      Shift-F1 в списке плагинов вызывает хелп по данному плагину
+        */
       case KEY_SHIFTF1:
-      {
-        // Вызываем нужный топик, который передали в CommandsMenu()
-        FarShowHelp(PluginsData[LOWORD(Data)].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
-        break;
-      }
-      /* SVS $ */
+        {
+          // Вызываем нужный топик, который передали в CommandsMenu()
+          FarShowHelp(PluginsData[LOWORD(Data)].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+          break;
+        }
+        /* SVS $ */
       case KEY_ALTF11:
         WriteEvent(FLOG_PLUGINSINFO,NULL,NULL,NULL,0,0,NULL);
         break;
@@ -1972,11 +1975,11 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           static struct DialogData PluginDlgData[]=
           {
             DI_DOUBLEBOX,3,1,60,4,0,0,0,0,(char *)MPluginHotKeyTitle,
-            DI_TEXT,5,2,0,0,0,0,0,0,(char *)MPluginHotKey,
-            DI_FIXEDIT,5,3,5,3,1,0,0,1,""
+              DI_TEXT,5,2,0,0,0,0,0,0,(char *)MPluginHotKey,
+              DI_FIXEDIT,5,3,5,3,1,0,0,1,""
           };
           MakeDialogItems(PluginDlgData,PluginDlg);
-
+          
           {
             GetRegKey(RegKey,"Hotkey",PluginDlg[2].Data,"",sizeof(PluginDlg[2].Data));
             Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
@@ -1989,11 +1992,11 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
             PluginDlg[2].Data[1]=0;
             if (*PluginDlg[2].Data==0 || *PluginDlg[2].Data==' ')
               SetRegKey(RegKey,"Hotkey","");
-              //DeleteRegKey(RegKey);
+            //DeleteRegKey(RegKey);
             else
               SetRegKey(RegKey,"Hotkey",PluginDlg[2].Data);
             PluginList.Hide();
-///            return(CommandsMenu(Editor,Viewer,SelPos));
+            ///            return(CommandsMenu(Editor,Viewer,SelPos));
             return(CommandsMenu(ModalType,SelPos));///
           }
         }
@@ -2001,15 +2004,16 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       default:
         PluginList.ProcessInput();
         break;
+      }
     }
+    int ExitCode=PluginList.VMenu::GetExitCode();
+    
+    PluginList.Hide();
+    if (ExitCode<0)
+      return(FALSE);
+    ScrBuf.Flush();
+    Data=(DWORD)PluginList.GetUserData(NULL,0,ExitCode);
   }
-  int ExitCode=PluginList.VMenu::GetExitCode();
-
-  PluginList.Hide();
-  if (ExitCode<0)
-    return(FALSE);
-  ScrBuf.Flush();
-  Data=(DWORD)PluginList.GetUserData(NULL,0,ExitCode);
   if (PreparePlugin(LOWORD(Data)) && PluginsData[LOWORD(Data)].pOpenPlugin!=NULL)
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;

@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.42 18.07.2001 $ */ 
+/* Revision: 1.43 19.07.2001 $ */ 
 
 /*
 Modify:
+  19.07.2001 OT
+    VFMenu - продолжение исправлени€
   18.07.2001 OT
     Ќовый класс VFMenu
   11.07.2001 SVS
@@ -1517,7 +1519,7 @@ VFMenu::VFMenu(const char *Title,
 }
 
 VFMenu::~VFMenu(){
-  FrameManager->DeleteFrame(this);
+  FrameManager->UnmodalizeFrame(this);
   FrameManager->RefreshFrame();
 }
 

@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.19 18.07.2001 $ */ 
+/* Revision: 1.20 19.07.2001 $ */ 
 
 /*
 Modify:
+  19.07.2001 OT
+    Добавились новые члены и методв типа UnmodalizeХХХ + мини документация
   18.07.2001 OT
     VFMenu
   11.07.2001 OT
@@ -66,78 +68,74 @@ class Frame;
 class Manager
 {
   private:
-    Frame **FrameList;
-    /* $ 16.05.2001 DJ */
-    Frame **ModalStack;
-    int ModalStackSize, ModalStackCount;
-    /* DJ $ */
+    Frame **ModalStack;     // Стек модальных фреймов
+    int ModalStackCount;    // Размер стека модальных фреймов
+    int ModalStackSize;     // Буфер стека модальных фреймов
+
+    Frame **FrameList;       // Очередь модальных фреймов
+    int  FrameCount;         // Размер немодальной очереди
+    int  FrameListSize;      // размер буфера под немодальную очередь
+    int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
+                             // текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
 
     /*$ Претенденты на ... */
-    Frame *InsertedFrame;
-    Frame *DeletedFrame;   // DestroyedFrame
-    Frame *ActivatedFrame; // претендент на то, чтобы стать
-//    Frame *UpdatedFrame;   // FrameToReplace
-//    Frame *UpdatingFrame;  //
-    Frame *RefreshedFrame;
-    Frame *ModalizedFrame;
-    Frame *DeactivatedFrame;
-    /* OT $*/
-    /* $ 21.05.2001 DJ */
-//    Frame *FrameToDestruct;  // отложенное удаление для корректной посылки OnChangeFocus(0)
-    /* DJ $ */
-    Frame *ExecutedFrame;
+    Frame *InsertedFrame;   // Фрейм, который будет добавлен в конец немодальной очереди
+    Frame *DeletedFrame;    // Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
+    Frame *ActivatedFrame;  // Фрейм, который необходимо активировать после каких нибудь изменений  
+    Frame *RefreshedFrame;  // Фрейм, который нужно просто освежить, т.е. перерисовать
+    Frame *ModalizedFrame;  // Фрейм, который становится в "очередь" к текущему немодальному фрейму
+    Frame *UnmodalizedFrame;// Фрейм, убираюющийся из "очереди" немодального фрейма
+    Frame *DeactivatedFrame;// Фрейм, который указывает на предудущий активный фрейм
+    Frame *ExecutedFrame;   // Фрейм, которого вскорости нужно будет поставить на вершину модального сттека
 
-    Frame *CurrentFrame;     // текущий модал
+    Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке
+                             // его можно получить с помощью FrameManager->GetCurrentFrame();
 
-    int DisableDelete;
 
-    int  EndLoop;
-    int  FrameCount,
-         FrameListSize;
-    int  FramePos;
-
-    INPUT_RECORD LastInputRecord;
-
-//OT    void ModalSaveState();
-
-  private:
-
+    int  EndLoop;            // Признак выхода из цикла
+    INPUT_RECORD LastInputRecord; 
     void StartupMainloop();
     void FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 
-    // Исполнение приговора
-    BOOL Commit();
-    void RefreshCommit();
-    void ActivateCommit();
-    void UpdateCommit();
+    BOOL Commit();         // завершает транзакцию по изменениям в очереди и стеке фреймов
+                           // Она в цикле вызывает себя, пока хотябы один из указателей отличен от NULL
+    // Функции, "подмастерья начальника" - Commit'a
+    void RefreshCommit();  // 
+    void ActivateCommit(); // 
+    void UpdateCommit();   // выполняется тогда, когда нужно заменить один фрейм на другой
     void InsertCommit();
     void DeleteCommit();
     void ExecuteCommit();
-    void ModalizeCommit();
+    void ModalizeCommit();  
+    void UnmodalizeCommit();
 
   public:
     Manager();
     ~Manager();
 
   public:
-    // Эти функции вызываются из объектов ядра
-    void InsertFrame(Frame *NewFrame, int Index=-1);
-    void DeleteFrame(Frame *Deleted=NULL);
+    // Эти функции можно безопасно вызывать практически из любого места кода
+    // они как бы накапливают информацию о том, что нужно будет сделать с фреймами при следующем вызове Commit()
+    void InsertFrame(Frame *NewFrame, int Index=-1); 
+    void DeleteFrame(Frame *Deleted=NULL);           
     void DeleteFrame(int Index);
-    void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE);
     void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
     void ActivateFrame (int Index);  //вместо ActivateFrameByPos (int NewPos);
     void RefreshFrame(Frame *Refreshed=NULL);
     void RefreshFrame(int Index);
-// Функции для запуска модальных фреймов.
+
+    // Функции для запуска модальных фреймов.
     void ExecuteFrame(Frame *Executed);
     void ExecuteModal (Frame *Executed=NULL); // возвращает то, что возвращает ModalExitCode();
+
+    //  Функции, которые работают с очередью немодально фрейма. 
+    //  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
+    void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE);
+    void UnmodalizeFrame (Frame *Unmodalized);
   private:
-//    bool IsModalExit();
     int GetModalExitCode();
     int ModalExitCode;
-//OT
   public:
     void CloseAll();
     /* $ 29.12.2000 IS
@@ -163,7 +161,6 @@ class Manager
     int  FindFrameByFile(int ModalType,char *FileName,char *Dir=NULL);
     void ShowBackground();
 
-    // new methods
     void EnterMainLoop();
     void ProcessMainLoop();
     void ExitMainLoop(int Ask);
@@ -181,7 +178,6 @@ class Manager
     Frame *GetCurrentFrame() { return CurrentFrame; }
     /* DJ $ */
 
-    /*$ 13.05.2001 OT */
     Frame *operator[](int Index);
 
     /* $ 19.05.2001 DJ
@@ -191,12 +187,10 @@ class Manager
     /* DJ $ */
 
     int IndexOfStack(Frame *Frame);
-
     int HaveAnyFrame();
 
 /* $ Введена для нужд CtrlAltShift OT */
     void ImmediateHide();
-
     Frame *GetBottomFrame() { return (*this)[FramePos]; }
 };
 

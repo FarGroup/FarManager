@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.13 19.07.2001 $ */
+/* Revision: 1.14 19.07.2001 $ */ 
 
 /*
 Modify:
+  19.07.2001 OT
+    Замена CtrlObject->Cp()->ProcessKey на FrameManager->ProcessKey
   19.07.2001 SVS
     - Не работала смена видеорежима из меню
   11.07.2001 SVS
@@ -328,7 +330,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
             CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLN);
             break;
           case 17:
-            CtrlObject->Cp()->ProcessKey(KEY_CTRLF1);
+            FrameManager->ProcessKey(KEY_CTRLF1);
             break;
           case 18:
             CtrlObject->Cp()->LeftPanel->ProcessKey(KEY_CTRLR);
@@ -342,22 +344,22 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       switch(VItem)
       {
         case 0:
-          CtrlObject->Cp()->ProcessKey(KEY_F3);
+          FrameManager->ProcessKey(KEY_F3);
           break;
         case 1:
-          CtrlObject->Cp()->ProcessKey(KEY_F4);
+          FrameManager->ProcessKey(KEY_F4);
           break;
         case 2:
-          CtrlObject->Cp()->ProcessKey(KEY_F5);
+          FrameManager->ProcessKey(KEY_F5);
           break;
         case 3:
-          CtrlObject->Cp()->ProcessKey(KEY_F6);
+          FrameManager->ProcessKey(KEY_F6);
           break;
         case 4:
-          CtrlObject->Cp()->ProcessKey(KEY_F7);
+          FrameManager->ProcessKey(KEY_F7);
           break;
         case 5:
-          CtrlObject->Cp()->ProcessKey(KEY_F8);
+          FrameManager->ProcessKey(KEY_F8);
           break;
         case 7:
           CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
@@ -395,29 +397,28 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       switch(VItem)
       {
         case 0: // Find file
-          CtrlObject->Cp()->ProcessKey(KEY_ALTF7);
+          FrameManager->ProcessKey(KEY_ALTF7);
           break;
         case 1: // History
-          CtrlObject->Cp()->ProcessKey(KEY_ALTF8);
+          FrameManager->ProcessKey(KEY_ALTF8);
           break;
         case 2: // Video mode
-          //CtrlObject->Cp()->ProcessKey(KEY_ALTF9);
-          SetVideoMode(FarAltEnter(-2));
+          FrameManager->ProcessKey(KEY_ALTF9);
           break;
         case 3: // Find folder
-          CtrlObject->Cp()->ProcessKey(KEY_ALTF10);
+          FrameManager->ProcessKey(KEY_ALTF10);
           break;
         case 4: // File view history
-          CtrlObject->Cp()->ProcessKey(KEY_ALTF11);
+          FrameManager->ProcessKey(KEY_ALTF11);
           break;
         case 5: // Folders history
-          CtrlObject->Cp()->ProcessKey(KEY_ALTF12);
+          FrameManager->ProcessKey(KEY_ALTF12);
           break;
         case 7: // Swap panels
-          CtrlObject->Cp()->ProcessKey(KEY_CTRLU);
+          FrameManager->ProcessKey(KEY_CTRLU);
           break;
         case 8: // Panels On/Off
-          CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
+          FrameManager->ProcessKey(KEY_CTRLO);
           break;
         case 9: // Compare folders
           CtrlObject->Cp()->ActivePanel->CompareDir();
@@ -541,7 +542,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
             CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLN);
             break;
           case 17:
-            CtrlObject->Cp()->ProcessKey(KEY_CTRLF2);
+            FrameManager->ProcessKey(KEY_CTRLF2);
             break;
           case 18:
             CtrlObject->Cp()->RightPanel->ProcessKey(KEY_CTRLR);
