@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.27 14.02.2001 $ */
+/* Revision: 1.28 21.02.2001 $ */
 
 /*
 Modify:
+  21.02.2001 SKV
+    - перерисовка FileList при DOUBLE_CLICK без простого клика перед ним.
   14.02.2001 VVM
     + Ctrl: вставляет имя файла с пассивной панели.
     + CtrlAlt: вставляет UNC-имя файла с пассивной панели
@@ -1665,6 +1667,17 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if (ProcessCode)
           return(TRUE);
       }
+      /*$ 21.02.2001 SKV
+        Если пришел DOUBLE_CLICK без предшевствующего ему
+        простого клика, то курсор не перерисовывается.
+        Перересуем его.
+        По идее при нормальном DOUBLE_CLICK, будет
+        двойная перерисовка...
+        Но мы же вызываем Fast=TRUE...
+        Вроде всё должно быть ок.
+      */
+      ShowFileList(TRUE);
+      /* SKV$*/
       ProcessEnter(1,ShiftPressed!=0);
       return(TRUE);
     }
