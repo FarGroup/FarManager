@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.76 23.11.2001 $ */
+/* Revision: 1.77 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 KM
+    - БЛИН! Правил глюк и глюк добавил :-(
+      Перестали работать чекбоксы и радиобатоны.
   23.11.2001 VVM
     ! Немного изменений, что-бы отрисовка диалога не перекрывала сообщение.
   22.11.2001 KM
@@ -432,17 +435,21 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Но только если не меняли этот состояние вручную */
     case DN_BTNCLICK:
     {
+      /* $ 23.11.2001 KM
+         - БЛИН! Правил глюк и глюк добавил :-(
+           Перестали работать чекбоксы и радиобатоны.
+      */
       /* $ 22.11.2001 KM
          - Забыли однако, что DN_BTNCLICK работает со всеми "нажимающимися"
            контролами, только с кнопками немного по-другому, поэтому простое
            нажатие ENTER на кнопках Find или Cancel ни к чему не приводило.
       */
-      if (Param1==13)
-      {
+      if (Param1==22 || Param2==23) // [ Find ] или [ Cancel ]
+        return FALSE;
+      else if (Param1==13)
         FindFoldersChanged = TRUE;
-        return TRUE;
-      }
-      return FALSE;
+      return TRUE;
+      /* KM $ */
       /* KM $ */
     }
     case DN_EDITCHANGE:
