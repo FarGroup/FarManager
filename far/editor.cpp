@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.64 14.02.2001 $ */
+/* Revision: 1.65 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2000 SVS
+    ! Динамический размер под количество строк
   14.02.2001 VVM
     + При отсутствии блока AltU/AltI сдвигают текущую строчку
   13.02.2001 IS
@@ -1001,17 +1003,29 @@ void Editor::ShowStatus()
     */
     TruncPathStr(TruncFileName,NameLength);
     /* IS $ */
+  /* $ 14.02.2000 SVS
+     Динамический размер под количество строк
+  */
+  // предварительный расчет.
+  sprintf(LineStr,"%d/%d",NumLastLine,NumLastLine);
+  int SizeLineStr=strlen(LineStr);
+  if(SizeLineStr > 12)
+    NameLength-=(SizeLineStr-12);
+  else
+    SizeLineStr=12;
+
   sprintf(LineStr,"%d/%d",NumLine+1,NumLastLine);
   /* $ 13.02.2001 IS
     ! Используем уже готовую AttrStr, которая сформирована в
       GetFileAttributes
   */
-  sprintf(StatusStr,"%-*s %c%c %10.10s %7s %-12.12s %5s %-4d %3s",
+  sprintf(StatusStr,"%-*s %c%c %10.10s %7s %*.*s %5s %-4d %3s",
           NameLength,TruncFileName,Modified ? '*':' ',LockMode ? '-':' ',
           UseDecodeTable ? TableSet.TableName:AnsiText ? "Win":"DOS",
-          MSG(MEditStatusLine),LineStr,
+          MSG(MEditStatusLine),SizeLineStr,SizeLineStr,LineStr,
           MSG(MEditStatusCol),CurLine->EditLine.GetTabCurPos()+1,AttrStr);
   /* IS $ */
+  /* SVS $ */
   int StatusWidth=Opt.ViewerEditorClock ? ObjWidth-5:ObjWidth;
   if (StatusWidth<0)
     StatusWidth=0;
@@ -3810,7 +3824,7 @@ void Editor::BlockLeft()
     /* $ 14.02.2001 VVM
       + Блока нет - сделаем его искусственно */
     if (MoveLine) {
-      StartSel = 0; EndSel = -1; 
+      StartSel = 0; EndSel = -1;
     }
     /* VVM $ */
     if (StartSel==-1)
@@ -3891,7 +3905,7 @@ void Editor::BlockRight()
     /* $ 14.02.2001 VVM
       + Блока нет - сделаем его искусственно */
     if (MoveLine) {
-      StartSel = 0; EndSel = -1; 
+      StartSel = 0; EndSel = -1;
     }
     /* VVM $ */
     if (StartSel==-1)

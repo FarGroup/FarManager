@@ -1921,7 +1921,7 @@ files and folders:
   Rename or move the file under the cursor                #Shift-F6#
   regardless of selection
 
-    On an NTFS partition it is also possible to create hard file links
+    On an NTFS partition it is also possible to create ~hard file links~@HardLink@
 using #Alt-F6# command, so you may have several file names referring
 to the same data.
 
@@ -1955,6 +1955,27 @@ dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
 not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
+
+@HardLink
+$ #Hard link#
+    A #hard link# is an additional directory entry for the given file.
+When a hard link is created, the file is not copied itself, but receives
+one more name or location, while its previous name and location remain
+intact. Since the moment of its creation, a hard link is
+indistinguishable from the original entry. The only difference is that
+short file names are not created for hard links, and so they cannot be
+seen from DOS programs.
+
+    When the file's size or date changes, all of the corresponding directory
+entries are updated automatically. When a file is deleted, it is not
+deleted physically until all the hard links pointing at it will be
+deleted. The deletion order doesn't matter.
+
+    FAR can create hard links and can show the number of the file's hard
+links in a separate column (by default, it's the last column in the 9th
+panel mode) and sort the files by hard link number.
+
+    Hard links are supported in NTFS since NT 4.0.
 
 @ScrSwitch
 $ #Screens switching#
