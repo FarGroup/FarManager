@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.37 24.05.2002 $ */
+/* Revision: 1.38 11.06.2002 $ */
 
 /*
 Modify:
+  11.06.2002 SVS
+    -  рупные проблемы с раскраской (см. описание в 01439.Hilight.txt)
   24.05.2002 SVS
     + ƒублирование Numpad-клавиш
   22.03.2002 SVS
@@ -230,10 +232,21 @@ char *HighlightFiles::GetMask(int Idx)
 BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMask,struct HighlightData *Src)
 {
   char *Ptr, *OPtr;
+
+  if(Src)
+  {
+    // пам€ть под оригинал - OriginalMasks
+    if((OPtr=(char *)malloc(strlen(Mask)+1)) == NULL)
+      return FALSE;
+    memmove(Dest,Src,sizeof(struct HighlightData));
+  }
+  else
+  {
+    // пам€ть под оригинал - OriginalMasks
+    if((OPtr=(char *)realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
+      return FALSE;
+  }
   /* ќбработка %PATHEXT% */
-  // пам€ть под оригинал - OriginalMasks
-  if((OPtr=(char *)realloc(Dest->OriginalMasks,strlen(Mask)+1)) == NULL)
-    return FALSE;
   strcpy(OPtr,Mask); // сохран€ем оригинал.
   // проверим
   if((Ptr=strchr(Mask,'%')) != NULL && !strnicmp(Ptr,"%PATHEXT%",9))
@@ -285,8 +298,6 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMa
   }
   Dest->IgnoreMask=IgnoreMask;
   /* IS $ */
-  if(Src)
-    memmove(Dest,Src,sizeof(struct HighlightData));
 
   // корректирем ссылки на маски.
   Dest->FMasks=FMasks;
@@ -748,35 +759,37 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   /* $ 18.05.2001 DJ
      обработка взаимоисключений и кнопок перенесена в обработчик диалога
   */
-  Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
-  Dlg.SetHelp(HLS.HighlightEdit);
-  Dlg.SetPosition(-1,-1,76,23);
-  Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);
-
-
-  /* $ 06.07.2001 IS
-     ѕроверим маску на корректность
-  */
-  CFileMask FMask;
-  for(;;)
   {
-    Dlg.ClearDone();
-    Dlg.Process();
-    if (Dlg.GetExitCode() != 31)
-      return(FALSE);
-    if((FALSE!=(EditData.IgnoreMask=!HiEditDlg[1].Selected)))
-    {
-      if (!*Mask) strcpy(Mask, "*"); // дл€ красоты и во избежание непри€тностей
-      break; // не провер€ем маску лишний раз
-    }
-    if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
-      return(FALSE);
-    if(FMask.Set(static_cast<char *>(HiEditDlg[2].Ptr.PtrData), 0))
-      break;
-  }
-  /* IS $ */
-  /* DJ $ */
+    Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
+    Dlg.SetHelp(HLS.HighlightEdit);
+    Dlg.SetPosition(-1,-1,76,23);
+    Dlg.SetAutomation(1,2,DIF_DISABLE,0,0,DIF_DISABLE);
 
+
+    /* $ 06.07.2001 IS
+       ѕроверим маску на корректность
+    */
+    CFileMask FMask;
+    for(;;)
+    {
+      Dlg.ClearDone();
+      Dlg.Process();
+      if (Dlg.GetExitCode() != 31)
+        return(FALSE);
+      if((FALSE!=(EditData.IgnoreMask=!HiEditDlg[1].Selected)))
+      {
+        if (!*Mask)
+          strcpy(Mask, "*"); // дл€ красоты и во избежание непри€тностей
+        break; // не провер€ем маску лишний раз
+      }
+      if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
+        return(FALSE);
+      if(FMask.Set(static_cast<char *>(HiEditDlg[2].Ptr.PtrData), 0))
+        break;
+    }
+    /* IS $ */
+  }
+  /* DJ $ */
   EditData.IncludeAttr=EditData.ExcludeAttr=0;
   if (HiEditDlg[5].Selected)
     EditData.IncludeAttr|=FILE_ATTRIBUTE_READONLY;
@@ -841,8 +854,10 @@ int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,B
 {
   struct HighlightData *NewHiData;
   struct HighlightData HData={0};
+  char TmpMask[HIGHLIGHT_MASK_SIZE];
 
-  if(!AddMask(&HData,Mask,IgnoreMask,EditData))
+  strncpy(TmpMask,Mask,sizeof(TmpMask)-1);
+  if(!AddMask(&HData,TmpMask,IgnoreMask,EditData))
     return FALSE;
 
   if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
