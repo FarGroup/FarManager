@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.170 10.01.2003 $ */
+/* Revision: 1.171 10.01.2003 $ */
 
 /*
 Modify:
+  18.01.2003 VVM
+    - В DeleteListData память освободим через free()
   10.01.2003 SVS
     - Панели не погашены.
       Выделяем кучу файлов, жмем Ctrl-G вводим, например такое:
@@ -627,8 +629,11 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
         delete CurPtr->CustomColumnData[J];
       delete CurPtr->CustomColumnData;
     }
+    /* $ 18.01.2003 VVM
+      - Выделяли через malloc() и освобождать будем через free() */
     if (CurPtr->UserFlags & PPIF_USERDATA)
-      delete (void *)CurPtr->UserData;
+      free((void *)CurPtr->UserData);
+    /* VVM $ */
     if (CurPtr->DizText && CurPtr->DeleteDiz)
       delete CurPtr->DizText;
   }
