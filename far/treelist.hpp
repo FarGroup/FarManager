@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.07 24.10.2001 $ */
+/* Revision: 1.08 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    - бага с прорисовкой при вызове дерева из диалога копирования
   24.10.2001 VVM
     + TreeIsPrepared - устанавливается после чтения дерева с диска/файла.
   22.10.2001 SVS
@@ -45,6 +47,17 @@ class TreeList: public Panel
   private:
     int TreeIsPrepared;
     int PrevMacroMode;
+    struct TreeItem *ListData;
+    char Root[NM];
+    long TreeCount;
+    long WorkDir;
+    long GetSelPosition;
+    int UpdateRequired;
+    int CaseSensitiveSort;
+    int ExitCode; // актуально только для дерева, вызванного из копира!
+    int IsPanel;
+
+  private:
     void SetMacroMode(int Restore = FALSE);
     void DisplayObject();
     void DisplayTree(int Fast);
@@ -65,16 +78,11 @@ class TreeList: public Panel
     int GetSelCount();
     int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL);
 
-    struct TreeItem *ListData;
-    char Root[NM];
-    long TreeCount;
-    long WorkDir;
-    long GetSelPosition;
-    int UpdateRequired;
-    int CaseSensitiveSort;
   public:
-    TreeList();
+    TreeList(int IsPanel=TRUE);
     ~TreeList();
+
+  public:
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 //    void KillFocus();
@@ -89,6 +97,7 @@ class TreeList: public Panel
     int FindPartName(char *Name,int Next);
     int GoToFile(char *Name);
     void ProcessEnter();
+    int GetExitCode() {return ExitCode;}
     static void AddTreeName(char *Name);
     static void DelTreeName(char *Name);
     static void RenTreeName(char *SrcName,char *DestName);

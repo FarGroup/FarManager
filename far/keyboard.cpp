@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.50 21.10.2001 $ */
+/* Revision: 1.51 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    ! CheckForEsc() - нажатие Esc в диалоге равносильно нажатию кнопки Yes
+      Плюс - запрещение Alt-F9 и скринсавер.
   21.10.2001 SVS
     + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
       диалогов)
@@ -166,6 +169,7 @@ Modify:
 #include "grabber.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
+#include "savescr.hpp"
 
 static int AltValue=0,ReturnAltValue,KeyCodeForALT_LastPressed=0;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
@@ -906,10 +910,14 @@ int CheckForEsc()
   if (!CtrlObject->Macro.IsExecuting() && PeekInputRecord(&rec) &&
       ((Key=GetInputRecord(&rec))==KEY_ESC || Key==KEY_BREAK))
   {
+    SaveScreen SaveScr; // НУЖЕН! Избавляет от некоторых подводных багов
     BOOL rc=TRUE;
-    if(Opt.Confirm.Esc)
-       rc=0==Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
-                     MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo));
+    IsProcessAssignMacroKey++; // запретим спец клавиши
+                               // т.е. в этом диалоге нельзя нажать Alt-F9!
+    if(Opt.Confirm.Esc && Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
+                  MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo)) == 1)
+       rc=FALSE;
+    IsProcessAssignMacroKey--;
     return rc;
   }
   return(FALSE);

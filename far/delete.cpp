@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.32 23.10.2001 $ */
+/* Revision: 1.33 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    - Уберем флаг MSG_KEEPBACKGROUND для месага.
   23.10.2001 SVS
     ! немного уточнений по поводу вывода текущего обрабатываемого файла
   22.10.2001 SVS
@@ -103,7 +105,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 
-static void ShellDeleteMsg(char *Name,int Flags);
+static void ShellDeleteMsg(char *Name);
 static int AskDeleteReadOnly(char *Name,DWORD Attr);
 static int ShellRemoveFile(char *Name,char *ShortName,int Wipe);
 static int ERemoveDirectory(char *Name,char *ShortName,int Wipe);
@@ -264,7 +266,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     SetPreRedrawFunc(PR_ShellDeleteMsg);
-    ShellDeleteMsg("",0);
+    ShellDeleteMsg("");
     if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
                 DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
       goto done;
@@ -290,7 +292,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     SetPreRedrawFunc(PR_ShellDeleteMsg);
-    ShellDeleteMsg("",0);
+    ShellDeleteMsg("");
 
     ReadOnlyDeleteMode=-1;
 
@@ -348,7 +350,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               Cancel=1;
               break;
             }
-            ShellDeleteMsg(FullName,MSG_KEEPBACKGROUND);
+            ShellDeleteMsg(FullName);
             char ShortName[NM];
             strcpy(ShortName,FullName);
             if (*FindData.cAlternateFileName)
@@ -427,7 +429,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
         if (!Cancel)
         {
-          ShellDeleteMsg(SelName,MSG_KEEPBACKGROUND);
+          ShellDeleteMsg(SelName);
           if (FileAttr & FA_RDONLY)
             SetFileAttributes(SelName,0);
           int DeleteCode;
@@ -452,7 +454,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
       }
       else
       {
-        ShellDeleteMsg(SelName,MSG_KEEPBACKGROUND);
+        ShellDeleteMsg(SelName);
         int AskCode=AskDeleteReadOnly(SelName,FileAttr);
         if (AskCode==DELETE_CANCEL)
           break;
@@ -510,10 +512,10 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel)
 
 static void PR_ShellDeleteMsg(void)
 {
-  ShellDeleteMsg((char*)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+  ShellDeleteMsg((char*)PreRedrawParam.Param1);
 }
 
-void ShellDeleteMsg(char *Name,int Flags)
+void ShellDeleteMsg(char *Name)
 {
   char DelName[NM];
 
@@ -525,8 +527,7 @@ void ShellDeleteMsg(char *Name,int Flags)
   TruncPathStr(DelName,Width);
   CenterStr(DelName,DelName,Width+4);
 
-  Message(Flags,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
-  PreRedrawParam.Flags=Flags;
+  Message(0,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
   PreRedrawParam.Param1=Name;
 }
 

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.26 24.10.2001 $ */
+/* Revision: 1.27 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    - бага с прорисовкой при вызове дерева из диалога копирования
   24.10.2001 VVM
     ! После сканирования диска перерисовать другую панель.
   24.10.2001 VVM
@@ -124,7 +126,7 @@ static struct TreeListCache
 } TreeCache;
 
 
-TreeList::TreeList()
+TreeList::TreeList(int IsPanel)
 {
   Type=TREE_PANEL;
   ListData=NULL;
@@ -136,6 +138,8 @@ TreeList::TreeList()
   CaseSensitiveSort=FALSE;
   PrevMacroMode = -1;
   TreeIsPrepared = FALSE;
+  ExitCode=1;
+  TreeList::IsPanel=IsPanel;
 }
 
 
@@ -160,20 +164,23 @@ void TreeList::DisplayObject()
 {
   if (UpdateRequired)
     Update(0);
-  Panel *RootPanel=GetRootPanel();
-  if (RootPanel->GetType()==FILE_PANEL)
+  if(ExitCode)
   {
-    int RootCaseSensitive=((FileList *)RootPanel)->IsCaseSensitive();
-    if (RootCaseSensitive!=CaseSensitiveSort)
+    Panel *RootPanel=GetRootPanel();
+    if (RootPanel->GetType()==FILE_PANEL)
     {
-      CaseSensitiveSort=RootCaseSensitive;
-      StaticSortCaseSensitive=CaseSensitiveSort;
-      qsort(ListData,TreeCount,sizeof(*ListData),SortList);
-      FillLastData();
-      SyncDir();
+      int RootCaseSensitive=((FileList *)RootPanel)->IsCaseSensitive();
+      if (RootCaseSensitive!=CaseSensitiveSort)
+      {
+        CaseSensitiveSort=RootCaseSensitive;
+        StaticSortCaseSensitive=CaseSensitiveSort;
+        qsort(ListData,TreeCount,sizeof(*ListData),SortList);
+        FillLastData();
+        SyncDir();
+      }
     }
+    DisplayTree(FALSE);
   }
-  DisplayTree(FALSE);
 }
 
 
@@ -296,6 +303,12 @@ void TreeList::Update(int Mode)
   if (!ReadTreeFile())
     RetFromReadTree=ReadTree();
   TreeIsPrepared = TRUE;
+
+  if(!RetFromReadTree && !IsPanel)
+  {
+    ExitCode=0;
+    return;
+  }
 
   if (RetFromReadTree && TreeCount>0 && ((Mode & UPDATE_KEEP_SELECTION)==0 || LastTreeCount!=TreeCount))
   {

@@ -5,10 +5,13 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.08 08.09.2001 $ */
+/* Revision: 1.09 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    + дополнительный параметр у FolderTree - "ЭТО НЕ ПАНЕЛЬ!"
+    - бага с прорисовкой при вызове дерева из диалога копирования
   08.09.2001 VVM
     + Использовать Opt.DialogsEditBlock
   30.08.2001 VVM
@@ -43,7 +46,7 @@ Modify:
 #include "help.hpp"
 #include "savescr.hpp"
 
-FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,int TY2)
+FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,int TY2,int IsPanel)
 {
   SetRestoreScreenMode(FALSE);
   SaveScreen SaveScr;
@@ -51,7 +54,7 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
     *ResultFolder=0;
   *NewFolder=0;
   SetPosition(TX1,TY1,TX2,TY2);
-  if ((Tree=new TreeList)==NULL)
+  if ((Tree=new TreeList(IsPanel))==NULL)
     return;
   {
     *LastName=0;
@@ -61,28 +64,32 @@ FolderTree::FolderTree(char *ResultFolder,int ModalMode,int TX1,int TY1,int TX2,
       Tree->SetRootDir(ResultFolder);
     Tree->Update(0);
     Tree->Show();
-    if(ModalMode == MODALTREE_FREE)
+    // если было прерывание в процессе сканирования и это было дерево копира...
+    if(Tree->GetExitCode())
     {
-      Tree->Update(UPDATE_KEEP_SELECTION);
-      Tree->GoToFile(ResultFolder);
-      Tree->Redraw();
-    }
-    MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
-    MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
-    {
-      if ((FindEdit=new Edit)==NULL)
+      if(ModalMode == MODALTREE_FREE)
       {
-        delete Tree;
-        return;
+        Tree->Update(UPDATE_KEEP_SELECTION);
+        Tree->GoToFile(ResultFolder);
+        Tree->Redraw();
       }
-      FindEdit->SetEditBeyondEnd(FALSE);
-      FindEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
-      DrawEdit();
+      MakeShadow(X1+2,Y2+1,X2+2,Y2+1);
+      MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
+      {
+        if ((FindEdit=new Edit)==NULL)
+        {
+          delete Tree;
+          return;
+        }
+        FindEdit->SetEditBeyondEnd(FALSE);
+        FindEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
+        DrawEdit();
+      }
+
+      Process();
+      delete FindEdit;
+
     }
-
-    Process();
-
-    delete FindEdit;
     delete Tree;
   }
   strcpy(ResultFolder,NewFolder);

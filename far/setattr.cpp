@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.41 23.10.2001 $ */
+/* Revision: 1.42 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    - Уберем флаг MSG_KEEPBACKGROUND для месага.
   23.10.2001 SVS
     - неверное выставлялись атрибуты для нескольких объектов
     ! немного уточнений по поводу вывода текущего обрабатываемого файла
@@ -158,7 +160,7 @@ struct SetAttrDlgParam{
 static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
                        char *OSrcDate,char *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
-void ShellSetFileAttributesMsg(char *Name,int Flags);
+void ShellSetFileAttributesMsg(char *Name);
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
@@ -373,10 +375,10 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 static void PR_ShellSetFileAttributesMsg(void)
 {
-  ShellSetFileAttributesMsg((char *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+  ShellSetFileAttributesMsg((char *)PreRedrawParam.Param1);
 }
 
-void ShellSetFileAttributesMsg(char *Name,int Flags)
+void ShellSetFileAttributesMsg(char *Name)
 {
   char OutFileName[NM];
 
@@ -395,8 +397,7 @@ void ShellSetFileAttributesMsg(char *Name,int Flags)
     *OutFileName=0;
     CenterStr(OutFileName,OutFileName,Width+2); // подготавливаем нужную ширину (вид!)
   }
-  Message(Flags,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
-  PreRedrawParam.Flags=Flags;
+  Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
   PreRedrawParam.Param1=Name;
 }
 
@@ -750,7 +751,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     // </Dialog>
 
     SetPreRedrawFunc(PR_ShellSetFileAttributesMsg);
-    ShellSetFileAttributesMsg(NULL,0);
+    ShellSetFileAttributesMsg(NULL);
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
@@ -837,7 +838,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       {
 //_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 //    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
-        ShellSetFileAttributesMsg(SelName,MSG_KEEPBACKGROUND);
+        ShellSetFileAttributesMsg(SelName);
 
         if (CheckForEsc())
           break;
@@ -880,7 +881,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           ScTree.SetFindPath(SelName,"*.*");
           while (ScTree.GetNextName(&FindData,FullName))
           {
-            ShellSetFileAttributesMsg(FullName,MSG_KEEPBACKGROUND);
+            ShellSetFileAttributesMsg(FullName);
             if (CheckForEsc())
             {
               Cancel=1;

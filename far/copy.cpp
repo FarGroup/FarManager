@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.53 22.10.2001 $ */
+/* Revision: 1.54 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 SVS
+    + выставим дополнительный параметр у FolderTree - "ЭТО НЕ ПАНЕЛЬ!"
   22.10.2001 SVS
     - Артефакт с прорисовкой после внедрения CALLBACK-функции (когда 1 панель
       погашена - остается кусок месагбокса)
@@ -844,7 +846,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                (DlgParam->AltF10==1?MODALTREE_PASSIVE:
                   (DlgParam->AltF10==2?MODALTREE_FREE:
                      MODALTREE_ACTIVE)),
-               25,2,ScrX-7,ScrY-5);
+               25,2,ScrX-7,ScrY-5,FALSE);
         }
         if (*NewFolder)
         {
