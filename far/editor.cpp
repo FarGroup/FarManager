@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.176 22.05.2002 $ */
+/* Revision: 1.177 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SKV
+    - пробел меняем на 0x0d, получаем зависание. (Bugz#524)
   22.05.2002 SVS
     ! CurrentEditor инициализируется в FileEditor
   18.05.2002 SVS
@@ -3933,6 +3935,15 @@ BOOL Editor::Search(int Next)
                   CurLine->EditLine.SetOvertypeMode(TRUE);
                   continue;
                 }
+                /* $ 24.05.2002 SKV
+                  Если реплэйсим на Enter, то overtype не спасёт.
+                  Нужно сначала удалить то, что заменяем.
+                */
+                if(Ch==0x0d)
+                {
+                  ProcessKey(KEY_DEL);
+                }
+                /* SKV $ */
                 if (Ch!=KEY_BS && Ch!=KEY_DEL)
                   ProcessKey(Ch);
               }

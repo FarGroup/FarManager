@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.20 26.03.2002 $ */
+/* Revision: 1.21 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SKV
+    - На всякий случай проверяем на NULL то, от чего вызывается delete [] в Close()
   26.03.2002 DJ
     ! не выводим сообщение в GetMsg(), если менеджер уже в дауне
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
@@ -159,10 +161,10 @@ void Language::Close()
   /* $ 13.07.2000 SVS
      ни кто не вызывал запрос памяти через new :-)
   */
-  free(MsgList);
+  if(MsgList)free(MsgList);
   MsgList=NULL;
   /* ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-  delete[] MsgAddr;
+  if(MsgAddr)delete[] MsgAddr;
   /* SVS $ */
   MsgAddr=NULL;
   MsgCount=0;
