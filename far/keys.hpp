@@ -7,10 +7,12 @@ keys.hpp
 
 */
 
-/* Revision: 1.01 23.07.2000 $ */
+/* Revision: 1.02 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + KEY_CTRLALTSHIFTPRESS, KEY_CTRLALTSHIFTRELEASE :-)
   23.07.2000 SVS
     + Клавиши:
        Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
@@ -447,6 +449,8 @@ enum
   KEY_SHIFT,
   KEY_RALT,
   KEY_RCTRL,
+  KEY_CTRLALTSHIFTPRESS,
+  KEY_CTRLALTSHIFTRELEASE,
 
   KEY_CTRL_BASE,
   KEY_END_CTRL_BASE=KEY_CTRL_BASE+256,

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.04 07.08.2000 $ */
+/* Revision: 1.05 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
   07.08.2000 SVS
     + добавил названия расширенных функциональных клавиш
     + Функция инициализации KeyBar Labels - InitKeyBar()
@@ -182,6 +184,10 @@ int FileEditor::ProcessKey(int Key)
 {
   switch(Key)
   {
+    /* $ 24.08.2000 SVS
+       + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
+    */
+    case KEY_CTRLALTSHIFTPRESS:
     case KEY_CTRLO:
       Hide();
       if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)
@@ -189,11 +195,12 @@ int FileEditor::ProcessKey(int Key)
       else
       {
         EditKeyBar.Hide();
-        WaitKey();
+        WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       }
       EditKeyBar.Show();
       Show();
       return(TRUE);
+    /* SVS $ */
     case KEY_CTRLTAB:
     case KEY_CTRLSHIFTTAB:
     case KEY_F12:

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.13 09.08.2000 $ */
+/* Revision: 1.14 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + В функции KeyToText добавлена обработка клавиш
+      KEY_CTRLALTSHIFTPRESS, KEY_CTRLALTSHIFTRELEASE
   09.08.2000 SVS
     + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
       истории задается отдельно!!! (int function GetString())
@@ -1802,7 +1805,8 @@ void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       KEY_CTRLALTPGUP,KEY_CTRLALTENTER,KEY_SHIFTBS,KEY_APPS,
       KEY_CTRLAPPS,KEY_ALTAPPS,KEY_SHIFTAPPS,
       KEY_CTRLSHIFTAPPS,KEY_ALTSHIFTAPPS,KEY_CTRLALTAPPS,
-      KEY_LWIN,KEY_RWIN
+      KEY_LWIN,KEY_RWIN,
+      KEY_CTRLALTSHIFTPRESS,KEY_CTRLALTSHIFTRELEASE
     };
     static char *KeyNames[]={
       "BS","Tab","Enter","Esc","Space","Home","End","Up",
@@ -1834,7 +1838,8 @@ void WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       "CtrlAltEnter","ShiftBS",
       "Apps","CtrlApps","AltApps","ShiftApps",
       "CtrlShiftApps","AltShiftApps","CtrlAltApps",
-      "LWin","RWin"
+      "LWin","RWin",
+      "CtrlAltShiftPress","CtrlAltShiftRelease"
     };
     /* SVS $ */
 

@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.07 07.08.2000 $ */
+/* Revision: 1.08 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
   07.08.2000 SVS
     + добавил названия расширенных функциональных клавиш
   22.07.2000 tran 1.06
@@ -226,6 +228,10 @@ int FileViewer::ProcessKey(int Key)
       Show();
       return (TRUE);
     /* tran 15.07.2000 $ */
+    /* $ 24.08.2000 SVS
+       + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
+    */
+    case KEY_CTRLALTSHIFTPRESS:
     case KEY_CTRLO:
       Hide();
       if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)
@@ -233,7 +239,7 @@ int FileViewer::ProcessKey(int Key)
       else
       {
         ViewKeyBar.Hide();
-        WaitKey();
+        WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       }
       /* $ 21.07.2000 tran
          - артефакт при Ctrl-O*/
@@ -244,6 +250,7 @@ int FileViewer::ProcessKey(int Key)
       /* tran 21.07.2000 $ */
       Show();
       return(TRUE);
+    /* SVS $ */
     case KEY_CTRLTAB:
     case KEY_CTRLSHIFTTAB:
     case KEY_F12:

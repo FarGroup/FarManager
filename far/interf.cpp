@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.07 23.08.2000 $ */
+/* Revision: 1.08 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+    + Добавление на реакцию KEY_CTRLALTSHIFTPRESS & KEY_CTRLALTSHIFTRELEASE
   23.08.2000 SVS
     + Код для средней клавиши мыши :-) (ну есть у меня дома эта хрень...)
   09.08.2000 KM
@@ -62,6 +65,8 @@ static clock_t PressedLastTime,KeyPressedLastTime;
 static int OutputCP;
 static unsigned char RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
+
+static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
 
 void InitConsole()
 {
@@ -584,6 +589,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       CloseFAR=FALSE;
       CtrlObject->ModalManager.IsAnyModalModified(TRUE);
     }
+
     if ((LoopCount & 15)==0)
     {
       clock_t CurTime=clock();
@@ -674,6 +680,16 @@ int GetInputRecord(INPUT_RECORD *rec)
     AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
     ShiftPressed=(CtrlState & SHIFT_PRESSED);
     KeyPressedLastTime=CurClock;
+
+    /* $ 24.08.2000 SVS
+       + Добавление на реакцию KEY_CTRLALTSHIFTRELEASE
+    */
+    if(IsKeyCASPressed && (!CtrlPressed || !AltPressed || !ShiftPressed))
+    {
+      IsKeyCASPressed=FALSE;
+      return(KEY_CTRLALTSHIFTRELEASE);
+    }
+    /* SVS $ */
   }
 
   ReturnAltValue=FALSE;
@@ -793,7 +809,24 @@ int GetInputRecord(INPUT_RECORD *rec)
 
     if (KeyCode==VK_SHIFT || KeyCode==VK_MENU || KeyCode==VK_CONTROL ||
         KeyCode==VK_NUMLOCK || KeyCode==VK_SCROLL)
+    {
+      /* $ 24.08.2000 SVS
+         + Добавление на реакцию KEY_CTRLALTSHIFTPRESS
+      */
+      switch(KeyCode)
+      {
+        case VK_SHIFT:
+        case VK_MENU:
+        case VK_CONTROL:
+          if(!IsKeyCASPressed && CtrlPressed && AltPressed && ShiftPressed)
+          {
+            IsKeyCASPressed=TRUE;
+            return (KEY_CTRLALTSHIFTPRESS);
+          }
+      }
+      /* SVS $ */
       return(KEY_NONE);
+    }
     Panel::EndDrag();
   }
   if (rec->EventType==MOUSE_EVENT)
@@ -909,6 +942,21 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
         break;
     }
   }
+
+  /* $ 24.08.2000 SVS
+     "Персональные 100 грамм" :-)
+  */
+  if(CtrlPressed && AltPressed && ShiftPressed)
+  {
+    switch(KeyCode)
+    {
+      case VK_SHIFT:
+      case VK_MENU:
+      case VK_CONTROL:
+        return (IsKeyCASPressed?KEY_CTRLALTSHIFTPRESS:KEY_CTRLALTSHIFTRELEASE);
+    }
+  }
+  /* SVS $*/
 
   if (CtrlPressed && AltPressed)
   {
@@ -1377,16 +1425,26 @@ int PeekInputRecord(INPUT_RECORD *rec)
 }
 
 
-void WaitKey()
+/* $ 24.08.2000 SVS
+ + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+     Если KeyWait = -1 - как и раньше
+*/
+void WaitKey(int KeyWait)
 {
   while (1)
   {
     INPUT_RECORD rec;
     int Key=GetInputRecord(&rec);
-    if (Key!=KEY_NONE && Key!=KEY_IDLE)
+    if(KeyWait == -1)
+    {
+      if (Key!=KEY_NONE && Key!=KEY_IDLE)
+        break;
+    }
+    else if(Key == KeyWait)
       break;
   }
 }
+/* SVS $ */
 
 
 void WriteInput(int Key)

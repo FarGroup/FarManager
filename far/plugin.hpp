@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.26 23.08.2000 $ */
+/* Revision: 1.27 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
+    + Элемент DI_USERCONTROL - отрисовкой занимается плагин.
   23.08.2000 SVS
     ! Уточнения категорий DMSG_* -> DM_ (месаг) & DN_ (нотифи)
     + DM_KEY        - послать/получить клавишу(ы)
@@ -271,6 +274,10 @@ typedef char* (WINAPI *FARAPIGETMSG)(
 /* $ 28.07.2000 SVS
   + Введен новый элемент DI_LISTBOX (пока зарезервирован!!!)
 */
+/* $ 24.08.2000 SVS
+  + Элемент DI_USERCONTROL - отрисовкой занимается плагин.
+    На будущее - "нормальные" элементы вставлять перед этим контролом.
+*/
 enum DialogItemTypes {
   DI_TEXT,
   DI_VTEXT,
@@ -284,7 +291,10 @@ enum DialogItemTypes {
   DI_RADIOBUTTON,
   DI_COMBOBOX,
   DI_LISTBOX,
+
+  DI_USERCONTROL=1000,
 };
+/* 24.08.2000 SVS $*/
 /* 28.07.2000 SVS $*/
 
 /* $ 12.08.2000 KM
@@ -448,6 +458,7 @@ enum {
   ACTL_GETFARVERSION,
   ACTL_CONSOLEMODE,
   ACTL_GETSYSWORDDIV, // получить строку с символами разделителями слов
+  ACTL_WAITKEY,       // ожидать клавишу.
 };
 /* IS $ */
 

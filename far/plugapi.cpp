@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.14 23.08.2000 $ */
+/* Revision: 1.15 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
   23.08.2000 SVS
     ! Все Flags приведены к одному виду -> DWORD.
       Модифицированы:
@@ -128,6 +130,18 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       /* tran 09.08.2000 $ */
       return strlen(Opt.WordDiv);
     /* SVS $ */
+
+    /* $ 24.08.2000 SVS
+       ожидать определенную (или любую) клавишу
+       (int)Param - внутренний код клавиши, которую ожидаем, или -1
+       если все равно какую клавишу ждать.
+       возвращает 0;
+    */
+    case ACTL_WAITKEY:
+      WaitKey((int)Param);
+      return 0;
+    /* SVS $ */
+
  }
  return FALSE;
 }

@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.26 24.08.2000 $ */
+/* Revision: 1.27 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+   ! Охрененная дыра!!!! (дальше только матом)... это про ComboBox
+     Этого лучше не знать...
+   + CtrlAltShift - спрятать/показать диалог...
+   + Элемент DI_USERCONTROL - отрисовкой занимается плагин.
   24.08.2000 SVS
    ! Критическая ошибка - с фокусов не порядки...
      перестарался с ChangeFocus()
@@ -549,9 +554,8 @@ int Dialog::InitDialogObjects()
       */
       if (Type==DI_COMBOBOX && CurItem->Data[0] == 0 && CurItem->ListItems)
       {
-        struct FarListItem *ListItems=
-                   ((struct FarList *)CurItem->ListItems)->Items;
-        int Length=((struct FarList *)CurItem->ListItems)->ItemsNumber;
+        struct FarListItem *ListItems=CurItem->ListItems->Items;
+        int Length=CurItem->ListItems->ItemsNumber;
 
         for (J=0; J < Length; J++)
         {
@@ -701,6 +705,10 @@ void Dialog::ShowDialog(int ID)
     */
     switch(CurItem->Type)
     {
+/* ***************************************************************** */
+      case DI_USERCONTROL:
+        break; //уже наприсовали :-)))
+
 /* ***************************************************************** */
       case DI_SINGLEBOX:
       case DI_DOUBLEBOX:
@@ -1112,6 +1120,15 @@ int Dialog::ProcessKey(int Key)
     return(FALSE);
   }
 
+  // "ХАчу глянуть на то, что под диалогом..."
+  if(Key == KEY_CTRLALTSHIFTPRESS)
+  {
+      Hide();
+      WaitKey(KEY_CTRLALTSHIFTRELEASE);
+      Show();
+      return(TRUE);
+  }
+
   int Type=Item[FocusPos].Type;
 
   if(!CheckDialogMode(DMODE_KEY))
@@ -1330,6 +1347,10 @@ int Dialog::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_HOME:
+      // для user-типа вываливаем
+      if(Type == DI_USERCONTROL)
+        return TRUE;
+
       if (IsEdit(Type))
       {
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
@@ -1364,6 +1385,10 @@ int Dialog::ProcessKey(int Key)
 
     case KEY_LEFT:
     case KEY_RIGHT:
+      // для user-типа вываливаем
+      if(Type == DI_USERCONTROL)
+        return TRUE;
+
       if (IsEdit(Type))
       {
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
@@ -1405,6 +1430,10 @@ int Dialog::ProcessKey(int Key)
 
     case KEY_UP:
     case KEY_DOWN:
+      // для user-типа вываливаем
+      if(Type == DI_USERCONTROL)
+        return TRUE;
+
       /* $ 01.08.2000 SVS
          Обычный ListBox
       */
@@ -1432,12 +1461,20 @@ int Dialog::ProcessKey(int Key)
       return(TRUE);
 
     case KEY_END:
+      // для user-типа вываливаем
+      if(Type == DI_USERCONTROL)
+        return TRUE;
+
       if (IsEdit(Type))
       {
         ((Edit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
         return(TRUE);
       }
     case KEY_PGDN:
+      // для user-типа вываливаем
+      if(Type == DI_USERCONTROL)
+        return TRUE;
+
       /* $ 01.08.2000 SVS
          Обычный ListBox
       */
@@ -1466,6 +1503,10 @@ int Dialog::ProcessKey(int Key)
 
     case KEY_CTRLUP:
     case KEY_CTRLDOWN:
+      // для user-типа вываливаем
+      if(Type == DI_USERCONTROL)
+        return TRUE;
+
       CurEditLine=((Edit *)(Item[FocusPos].ObjPtr));
       if (IsEdit(Type) &&
            (Item[FocusPos].Flags & DIF_HISTORY) &&
@@ -1493,6 +1534,10 @@ int Dialog::ProcessKey(int Key)
       return(TRUE);
 
     default:
+      // для user-типа вываливаем
+      if(Type == DI_USERCONTROL)
+        return TRUE;
+
       /* $ 01.08.2000 SVS
          Обычный ListBox
       */
@@ -1691,7 +1736,20 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
            DN_MOUSECLICK - первично.
         */
         if(MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2 && MsX <= X1+Item[I].X2)
+        {
+           // для user-типа подготовим координаты мыши
+           if(Type == DI_USERCONTROL)
+           {
+             MouseEvent->dwMousePosition.X-=X1;
+             MouseEvent->dwMousePosition.Y-=Y1;
+           }
            DlgProc((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent);
+           if(Type == DI_USERCONTROL)
+           {
+              ChangeFocus2(FocusPos,I);
+              return(TRUE);
+           }
+        }
         /* SVS $ */
 
         /* $ 01.08.2000 SVS
@@ -1915,6 +1973,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 /* $ 28.07.2000 SVS
    Довесок для сообщений DN_KILLFOCUS & DN_SETFOCUS
 */
+/* $ 24.08.2000 SVS
+   Добавка для DI_USERCONTROL
+*/
 int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 {
   int Type,OrigFocusPos=FocusPos;
@@ -1937,7 +1998,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 
       Type=Item[FocusPos].Type;
 
-      if (Type==DI_LISTBOX || Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type))
+      if (Type==DI_LISTBOX || Type==DI_BUTTON || Type==DI_CHECKBOX || IsEdit(Type) || Type==DI_USERCONTROL)
         break;
       if (Type==DI_RADIOBUTTON && (!SkipGroup || Item[FocusPos].Selected))
         break;
@@ -1956,6 +2017,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 //    DlgProc((HANDLE)this,DN_GOTFOCUS,FocusPos,0);
   return(FocusPos);
 }
+/* SVS $ */
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -2077,6 +2139,9 @@ int Dialog::IsEdit(int Type)
 /* $ 28.07.2000 SVS
    Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
 */
+/* $ 24.08.2000 SVS
+   Добавка для DI_USERCONTROL
+*/
 int Dialog::IsFocused(int Type)
 {
   return(Type==DI_EDIT ||
@@ -2086,8 +2151,10 @@ int Dialog::IsFocused(int Type)
          Type==DI_BUTTON ||
          Type==DI_CHECKBOX ||
          Type==DI_RADIOBUTTON ||
-         Type==DI_LISTBOX);
+         Type==DI_LISTBOX ||
+         Type==DI_USERCONTROL);
 }
+/* 24.08.2000 SVS $ */
 /* SVS $ */
 
 
@@ -2448,82 +2515,83 @@ void Dialog::SelectFromComboBox(
   struct FarListItem *ListItems=List->Items;
   int EditX1,EditY1,EditX2,EditY2;
   int I,Dest;
+
+  // создание пустого вертикального меню
+  //  с обязательным показом ScrollBar
+  VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,this*/);
+
+  EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
+  if (EditX2-EditX1<20)
+    EditX2=EditX1+20;
+  if (EditX2>ScrX)
+    EditX2=ScrX;
+  ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
+  ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
+  ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
+
+  // заполнение пунктов меню
+  /* Последний пункт списка - ограничититель - в нем Tetx[0]
+     должен быть равен '\0'
+  */
+  for (Dest=I=0;I < List->ItemsNumber;I++)
   {
-    // создание пустого вертикального меню
-    //  с обязательным показом ScrollBar
-    VMenu ComboBoxMenu("",NULL,0,8,VMENU_ALWAYSSCROLLBAR,NULL/*,this*/);
-
-    EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
-    if (EditX2-EditX1<20)
-      EditX2=EditX1+20;
-    if (EditX2>ScrX)
-      EditX2=ScrX;
-    ComboBoxMenu.SetFlags(MENU_SHOWAMPERSAND);
-    ComboBoxMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
-    ComboBoxMenu.SetBoxType(SHORT_SINGLE_BOX);
-
-    // заполнение пунктов меню
-    /* Последний пункт списка - ограничититель - в нем Tetx[0]
-       должен быть равен '\0'
-    */
-    for (Dest=I=0;I < List->ItemsNumber;I++)
-    {
-      /* $ 28.07.2000 SVS
-         Выставим Selected при полном совпадении строки ввода и списка
-      */
-      if(IStr && *IStr)
-      {
-        if((ComboBoxItem.Selected=(!Dest && !strcmp(IStr,ListItems[I].Text))?TRUE:FALSE) == TRUE)
-           Dest++;
-      }
-      else
-         ComboBoxItem.Selected=ListItems[I].Flags&LIF_SELECTED;
-
-      ComboBoxItem.Separator=ListItems[I].Flags&LIF_SEPARATOR;
-      ComboBoxItem.Checked=ListItems[I].Flags&LIF_CHECKED;
-      /* 01.08.2000 SVS $ */
-      /* SVS $ */
-      strcpy(ComboBoxItem.Name,ListItems[I].Text);
-      strcpy(ComboBoxItem.UserData,ListItems[I].Text);
-      ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
-      ComboBoxMenu.AddItem(&ComboBoxItem);
-    }
-
     /* $ 28.07.2000 SVS
-       Перед отрисовкой спросим об изменении цветовых атрибутов
+       Выставим Selected при полном совпадении строки ввода и списка
     */
-    short Colors[9];
-    ComboBoxMenu.GetColors(Colors);
-    if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
-                    sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-      ComboBoxMenu.SetColors(Colors);
-    /* SVS $ */
 
-    ComboBoxMenu.Show();
-//    Dest=ComboBoxMenu.GetSelectPos();
-    while (!ComboBoxMenu.Done())
+    if(IStr && *IStr)
     {
-      int Key=ComboBoxMenu.ReadInput();
-      // здесь можно добавить что-то свое, например,
-//      I=ComboBoxMenu.GetSelectPos();
-//      if(I != Dest)
-//      {
-//        Dest=I;
-//        DlgProc((HANDLE)this,DN_LISTCHANGE,,(long)List);
-//      }
-      //  обработку multiselect ComboBox
-      ComboBoxMenu.ProcessInput();
+      if((ComboBoxItem.Selected=(!Dest && !strcmp(IStr,ListItems[I].Text))?TRUE:FALSE) == TRUE)
+         Dest++;
     }
+    else
+       ComboBoxItem.Selected=ListItems[I].Flags&LIF_SELECTED;
 
-    int ExitCode=ComboBoxMenu.GetExitCode();
-    if (ExitCode<0)
-      return;
-    ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
-    /* Запомним текущее состояние */
-    for (I=0;ListItems[I].Text[0];I++)
-      ListItems[I].Flags&=~LIF_SELECTED;
-    ListItems[ComboBoxMenu.GetSelectPos()].Flags|=LIF_SELECTED;
+    ComboBoxItem.Separator=ListItems[I].Flags&LIF_SEPARATOR;
+    ComboBoxItem.Checked=ListItems[I].Flags&LIF_CHECKED;
+    /* 01.08.2000 SVS $ */
+    /* SVS $ */
+    strcpy(ComboBoxItem.Name,ListItems[I].Text);
+    strcpy(ComboBoxItem.UserData,ListItems[I].Text);
+    ComboBoxItem.UserDataSize=strlen(ListItems[I].Text);
+    ComboBoxMenu.AddItem(&ComboBoxItem);
   }
+
+  /* $ 28.07.2000 SVS
+     Перед отрисовкой спросим об изменении цветовых атрибутов
+  */
+  short Colors[9];
+  ComboBoxMenu.GetColors(Colors);
+  if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
+                  sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
+    ComboBoxMenu.SetColors(Colors);
+  /* SVS $ */
+
+  ComboBoxMenu.Show();
+//  Dest=ComboBoxMenu.GetSelectPos();
+  while (!ComboBoxMenu.Done())
+  {
+    int Key=ComboBoxMenu.ReadInput();
+    // здесь можно добавить что-то свое, например,
+//    I=ComboBoxMenu.GetSelectPos();
+//    if(I != Dest)
+//    {
+//      Dest=I;
+//      DlgProc((HANDLE)this,DN_LISTCHANGE,,(long)List);
+//    }
+    //  обработку multiselect ComboBox
+    ComboBoxMenu.ProcessInput();
+  }
+
+  int ExitCode=ComboBoxMenu.GetExitCode();
+  if (ExitCode<0)
+    return;
+  /* Запомним текущее состояние */
+  for (I=0; I < List->ItemsNumber; I++)
+    ListItems[I].Flags&=~LIF_SELECTED;
+  ListItems[ExitCode].Flags|=LIF_SELECTED;
+  ComboBoxMenu.GetUserData(Str,sizeof(Str),ExitCode);
+
   EditLine->SetString(Str);
   EditLine->SetLeftPos(0);
   Redraw();
@@ -2704,7 +2772,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   if(Param1 >= Dlg->ItemCount)
     return 0;
 
-  CurItem=&Dlg->Item[Param1];
+//  CurItem=&Dlg->Item[Param1];
+  CurItem=Dlg->Item+Param1;
   Type=CurItem->Type;
   Ptr=CurItem->Data;
 
@@ -2715,11 +2784,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         switch(Type)
         {
+          case DI_USERCONTROL:
           case DI_TEXT:
           case DI_VTEXT:
           case DI_SINGLEBOX:
           case DI_DOUBLEBOX:
-            strcpy(Ptr,(char *)Param2);
+            strncpy(Ptr,(char *)Param2,512);
             Dlg->ShowDialog(Param1);
             ScrBuf.Flush();
             return strlen((char *)Param2)+1;
@@ -2808,6 +2878,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             ((char *)Param2)[Len]=0;
             break;
 
+          case DI_USERCONTROL:
           case DI_TEXT:
           case DI_VTEXT:
           case DI_SINGLEBOX:
@@ -2847,6 +2918,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             Len-=4;
           break;
 
+        case DI_USERCONTROL:
         case DI_TEXT:
         case DI_VTEXT:
         case DI_SINGLEBOX:

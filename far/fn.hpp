@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.14 23.08.2000 $ */
+/* Revision: 1.15 24.08.2000 $ */
 
 /*
 Modify:
+  24.08.2000 SVS
+    + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
   23.08.2000 SVS
     ! Все Flags приведены к одному виду -> DWORD.
       Модифицированы:
@@ -96,7 +98,11 @@ void PutRealText(int X1,int Y1,int X2,int Y2,void *Src);
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
-void WaitKey();
+/* $ 24.08.2000 SVS
+ + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+*/
+void WaitKey(int KeyWait=-1);
+/* SVS $ */
 int CopyKeyTree(char *Src,char *Dest,char *Skip);
 void WriteInput(int Key);
 void ShowTime(int ShowAlways);

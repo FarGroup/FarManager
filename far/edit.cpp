@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.15 23.08.2000 $ */
+/* Revision: 1.16 24.08.2000 $ */
 
 /*
 Modify:
+   24.08.2000 SVS
+    ! У DropDowList`а выделение по полной программе - на всю видимую длину
+      ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
    23.08.2000 SVS
     - исправление глюкавости моих рук :-(((
    13.08.2000 KM
@@ -380,9 +383,22 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
       if ((TabSelEnd-=LeftPos)<0)
         TabSelEnd=0;
     sprintf(OutStr,"%-*.*s",EditLength,EditLength,LeftPos>StrSize ? "":&ShowStr[LeftPos]);
+    /* $ 24.08.2000 SVS
+       ! У DropDowList`а выделение по полной программе - на всю видимую длину
+         ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
+    */
     if (TabSelStart>=EditLength || !AllString && TabSelStart>=StrSize ||
         TabSelEnd<TabSelStart)
-      Text(OutStr);
+    {
+      if(DropDownBox)
+      {
+        SetColor(SelColor);
+        mprintf("%*s",X2-X1+1,OutStr);
+      }
+      else
+        Text(OutStr);
+    }
+    /* SVS $ */
     else
     {
       mprintf("%.*s",TabSelStart,OutStr);
