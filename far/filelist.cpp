@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.197 09.03.2004 $ */
+/* Revision: 1.198 12.03.2004 $ */
 
 /*
 Modify:
+  12.03.2004 SVS
+    - Уточнение предыдущего патча (про Ctrl-\). Был не учтен вариант, когда
+      том прилинкован на NTFS в качестве каталога, но буквы не имеет.
   09.03.2004 SVS
     - PP> 1. Put an empty disk into drive A:
       PP> 2. Press CTRL+\ ("goto root folder" shortcut)
@@ -2812,7 +2815,15 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
   }
 
   if(PanelMode!=PLUGIN_PANEL && !strcmp(SetDir,"\\"))
+  {
+#if 1    // если поставить 0, то ФАР будет выкидыват в корень того диска, который подмаплен на файловую систему
+    GetPathRootOne(CurDir,SetDir);
+#else
     GetPathRoot(CurDir,SetDir);
+    if(!strncmp(SetDir,"\\\\?\\Volume{",11)) // случай, когда том прилинкован на NTFS в качестве каталога, но буквы не имеет.
+      GetPathRootOne(CurDir,SetDir);
+#endif
+  }
 
   if (!FarChDir(SetDir))
   {
