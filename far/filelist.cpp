@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.213 11.11.2004 $ */
+/* Revision: 1.214 27.12.2004 $ */
 
 /*
 Modify:
+  27.12.2004 SVS
+    - BugZ#1206 - Числовая сортировка в меню расположена не так как нужно
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   11.11.2004 SVS
@@ -4088,9 +4090,9 @@ void FileList::SelectSortMode()
    /* 09 */(char *)MMenuSortByCompressedSize,0,0,
    /* 10 */(char *)MMenuSortByNumLinks,0,0,
    /* 11 */"",LIF_SEPARATOR,0,
-   /* 12 */(char *)MMenuSortUseGroups,0,KEY_SHIFTF11,
-   /* 13 */(char *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
-   /* 14 */(char *)MMenuSortUseNumeric,0,0,
+   /* 12 */(char *)MMenuSortUseNumeric,0,0,
+   /* 13 */(char *)MMenuSortUseGroups,0,KEY_SHIFTF11,
+   /* 14 */(char *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
   };
 
   static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
@@ -4106,9 +4108,9 @@ void FileList::SelectSortMode()
     }
 
   int SG=GetSortGroups();
-  SortMenu[12].SetCheck(SG);
-  SortMenu[13].SetCheck(SelectedFirst);
-  SortMenu[14].SetCheck(NumericSort);
+  SortMenu[12].SetCheck(NumericSort);
+  SortMenu[13].SetCheck(SG);
+  SortMenu[14].SetCheck(SelectedFirst);
 
   int SortCode;
   {
@@ -4129,13 +4131,13 @@ void FileList::SelectSortMode()
   else
     switch(SortCode)
     {
-      case 12:
+      case 13:
         ProcessKey(KEY_SHIFTF11);
         break;
-      case 13:
+      case 14:
         ProcessKey(KEY_SHIFTF12);
         break;
-      case 14:
+      case 12:
         NumericSort=NumericSort?0:1;
         Update(UPDATE_KEEP_SELECTION);
         Redraw();
