@@ -7,10 +7,14 @@ findfile.hpp
 
 */
 
-/* Revision: 1.08 23.01.2002 $ */
+/* Revision: 1.09 30.01.2002 $ */
 
 /*
 Modify:
+  30.01.2002 VVM
+   + В структуру _ARCLIST добавлено поле RootPath - путь на панели плагина
+     сразу после открытия для поиска. Нужен для корректного просмотра файлов
+     в момент поиска на панели плагина.
   23.01.2002 VVM
     + GetPluginFile() - получить файл для просмотра с панели плагина.
       В отличие от предыдущего подхода - учитывает вложенность папок
@@ -51,8 +55,9 @@ enum {
 
 typedef struct _ARCLIST {
   char ArcName[NM];
-  HANDLE hPlugin;  // Plugin handle
-  DWORD Flags;     // OpenPluginInfo.Flags
+  HANDLE hPlugin;    // Plugin handle
+  DWORD Flags;       // OpenPluginInfo.Flags
+  char RootPath[NM]; // Root path in plugin after opening.
 } ARCLIST, *LPARCLIST;
 
 typedef struct _FINDLIST {
@@ -68,14 +73,15 @@ class FindFiles
     static BOOL FindListGrow();
     static BOOL ArcListGrow();
     static DWORD AddFindListItem(WIN32_FIND_DATA *FindData);
-    static DWORD AddArcListItem(char *ArcName);
+    static DWORD AddArcListItem(char *ArcName, HANDLE hPlugin,
+                                DWORD dwFlags, char *RootPath);
     static void ClearAllLists();
 
     int FindFilesProcess();
     static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static long WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 
-    static void SetPluginDirectory(char *FileName, HANDLE hPlugin);
+    static void SetPluginDirectory(char *DirName, HANDLE hPlugin);
     static void _cdecl PrepareFilesList(void *Param);
     static void _cdecl PreparePluginList(void *Param);
     static void _cdecl WriteDialogData(void *Param);
@@ -85,8 +91,8 @@ class FindFiles
     static void ArchiveSearch(char *ArcName);
 //    static void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData);
     static void AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData);
-    static void RereadPlugin(HANDLE hPlugin);
-    static int GetPluginFile(HANDLE hPlugin, struct PluginPanelItem *PanelItem,
+//    static void RereadPlugin(HANDLE hPlugin);
+    static int GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                              char *DestPath, char *ResultName);
   public:
     FindFiles();
