@@ -5,10 +5,12 @@ palette.cpp
 
 */
 
-/* Revision: 1.04 13.09.2000 $ */
+/* Revision: 1.05 06.10.2000 $ */
 
 /*
 Modify:
+  06.10.2000 SVS
+    - попытка №1 исправить падение ФАРы в ночное время :-)
   13.09.2000 tran 1.04
     + COL_COMMANDLINEPREFIX
   18.07.2000 tran 1.03
@@ -189,6 +191,6 @@ int FarColorToReal(int FarColor)
   if (FarColor<COL_FIRSTPALETTECOLOR)
     return(FarColor);
   else
-    return(Palette[FarColor-COL_FIRSTPALETTECOLOR]);
+    return(Palette[(FarColor-COL_FIRSTPALETTECOLOR)%SizeArrayPalette]);
 }
 
