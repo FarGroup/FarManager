@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.110 21.01.2003 $ */
+/* Revision: 1.111 30.01.2003 $ */
 
 /*
 Modify:
+  30.01.2003 KM
+    - Нашёл ещё причину падения фара в поиске. Как выяснилось
+      это происходило в SetSelectPos, если SelectPos был равен -1.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -1822,7 +1825,12 @@ int VMenu::SetSelectPos(int Pos,int Direct)
       Pass++;
   } while (1);
 
-  Item[SelectPos].Flags&=~LIF_SELECTED;
+  /* $ 30.01.2003 KM
+     - Иногда фар падал. Как выяснилось если SelectPos был равен -1.
+  */
+  if (SelectPos!=-1)
+    Item[SelectPos].Flags&=~LIF_SELECTED;
+  /* KM $ */
   Item[Pos].Flags|=LIF_SELECTED;
   SelectPos=Pos;
   /* $ 01.07.2001 KM
