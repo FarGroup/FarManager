@@ -14,6 +14,10 @@ dialog.hpp
 
 /*
 Modify:
+  23.06.2001 KM
+   + Функции программного открытия/закрытия комбобокса и хистори
+     и получения статуса открытости/закрытости комбобокса и хистори.
+   + Переменная DropDownOpened для хранения статуса комбобокса и хистори.
   04.06.2001 SVS
    ! HISTORY_COUNT -> farconst.hpp
    ! AddToEditHistory() - параметр про размер теперь нафиг ненужен.
@@ -285,6 +289,12 @@ class Dialog: public Frame
     */
     int OwnsItems;
     /* DJ $ */
+    /* $ 23.06.2001 KM
+       + Содержит статус комбобокса и хистори:
+         TRUE - открыт, FALSE - закрыт.
+    */
+    volatile int DropDownOpened;
+    /* KM $ */
 
   private:
     /* $ 18.08.2000 SVS
@@ -358,6 +368,14 @@ class Dialog: public Frame
        Меняет координаты или размер итема диалога.
     */
     BOOL SetItemRect(int ID,SMALL_RECT *Rect);
+    /* KM $ */
+
+    /* $ 23.06.2001 KM
+       + Функции программного открытия/закрытия комбобокса и хистори
+         и получения статуса открытости/закрытости комбобокса и хистори.
+    */
+    volatile void SetDropDownOpened(int Status){ DropDownOpened=Status; }
+    volatile int GetDropDownOpened(){ return DropDownOpened; }
     /* KM $ */
 
   public:

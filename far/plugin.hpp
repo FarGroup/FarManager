@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.120 21.06.2001 $ */
+/* Revision: 1.121 23.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  23.06.2001 KM
+   + DM_GETDROPDOWNOPENED - определить, открыт ли в диалоге комбобокс или хистори.
+   + DM_SETDROPDOWNOPENED - открыть или закрыть программным путём комбобокс или хистори.
   21.06.2001 SVS
    ! ACTL_POSTSEQUENCEKEY  -> ACTL_POSTKEYSEQUENCE - (с точки зрения eng)
    ! SKFLAGS_DISABLEOUTPUT -> KSFLAGS_DISABLEOUTPUT
@@ -718,6 +721,9 @@ enum FarMessagesProc{
 
   DN_CLOSE=DM_CLOSE,
   DN_KEY=DM_KEY,
+
+  DM_GETDROPDOWNOPENED=DN_FIRST-2,
+  DM_SETDROPDOWNOPENED=DN_FIRST-1,
 
   DM_USER=0x4000,
 };

@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.124 20.06.2001 $ */
+/* Revision: 1.125 23.06.2001 $ */
 
 /*
 Modify:
+  23.06.2001 KM
+   - Не снимался признак активности комбобокса если с него
+     уходили мышкой на DI_EDIT.
+   + DM_GETDROPDOWNOPENED - определить, открыт ли в диалоге комбобокс или хистори.
+   + DM_SETDROPDOWNOPENED - открыть или закрыть программным путём комбобокс или хистори.
   20.06.2001 SVS
    - "функция DM_GETTEXTLENGTH возвращает 0 длину для всех DI_EDIT"
   19.06.2001 SVS
@@ -582,6 +587,9 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   */
   SetDialogMode(DMODE_ISCANMOVE);
   /* SVS $ */
+  /* $ 23.06.2001 KM */
+  SetDropDownOpened(FALSE);
+  /* KM $ */
   /* $ 18.08.2000 SVS
   */
   /*
@@ -3006,18 +3014,19 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
             {
               EditLine->SetClearFlag(0); // а может это делать в самом edit?
               ChangeFocus2(FocusPos,I);
-              ShowDialog(I); // нужен ли только один контрол или весь диалог?
+              /* $ 23.06.2001 KM
+                 ! Оказалось нужно перерисовывать весь диалог иначе
+                   не снимался признак активности с комбобокса с которго уходим.
+              */
+              ShowDialog(); // нужен ли только один контрол или весь диалог?
+              /* KM $ */
               return(TRUE);
             }
             else
             {
-              /* $ 18.07.2000 SVS
-                 + Проверка на тип элемента DI_COMBOBOX
-              */
+              // Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
               if (MsX==EditX2+1 && MsY==EditY1 && Item[I].History &&
-                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory
-                   || Type == DI_COMBOBOX))
-              /* SVS $ */
+                  ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory))
               {
                 EditLine->SetClearFlag(0); // раз уж покусились на, то и...
                 ChangeFocus2(FocusPos,I);
@@ -3539,11 +3548,17 @@ int Dialog::SelectFromComboBox(
                     sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
       ComboBox->SetColors(Colors);
 
+    SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
     ComboBox->Show();
 
     Dest=ComboBox->GetSelectPos();
     while (!ComboBox->Done())
     {
+      if (!GetDropDownOpened())
+      {
+        ComboBox->ProcessKey(KEY_ESC);
+        continue;
+      }
       int Key=ComboBox->ReadInput();
       // здесь можно добавить что-то свое, например,
       I=ComboBox->GetSelectPos();
@@ -3560,8 +3575,11 @@ int Dialog::SelectFromComboBox(
     }
     ComboBox->ClearDone();
     ComboBox->Hide();
-
-    Dest=ComboBox->GetExitCode();
+    if (GetDropDownOpened()) // Закрылся не программным путём?
+      Dest=ComboBox->GetExitCode();
+    else
+      Dest=-1;
+    SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
     if (Dest<0)
     {
       free(Str);
@@ -3623,6 +3641,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
     HistoryMenu.SetPosition(EditX1,EditY1+1,EditX2,0);
     HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
+    
+    SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 
     while(!Done)
     {
@@ -3667,6 +3687,13 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       // основной цикл обработки
       while (!HistoryMenu.Done())
       {
+        if (!GetDropDownOpened())
+        {
+          HistoryMenu.ProcessKey(KEY_ESC);
+          Done=TRUE;
+          continue;
+        }
+
         int Key=HistoryMenu.ReadInput();
 
         if (Key==KEY_TAB) // Tab в списке хистори - аналог Enter
@@ -3780,6 +3807,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         IsOk=TRUE;
       }
     }
+    
+    SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
   }
 
   if(IsOk)
@@ -4916,7 +4945,38 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
     }
     /* SVS $ */
-
+    /* $ 23.06.2001 KM */
+    case DM_GETDROPDOWNOPENED: // Param1=0; Param2=0
+      return Dlg->GetDropDownOpened();
+    case DM_SETDROPDOWNOPENED: // Param1=ID; Param2={TRUE|FALSE}
+      if (!Param2) // Закрываем любой открытый комбобокс или историю
+      {
+        if (Dlg->GetDropDownOpened())
+        {
+          Dlg->SetDropDownOpened(FALSE);
+          Sleep(10);
+        }
+        return TRUE;
+      }
+      else if (Param2 && (Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT || 
+               Type==DI_PSWEDIT) && (CurItem->Flags&DIF_HISTORY)))) // Открываем заданный в Param1 комбобокс или историю
+      {
+        if (Dlg->GetDropDownOpened())
+        {
+          Dlg->SetDropDownOpened(FALSE);
+          Sleep(10);
+        }
+        
+        if (Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1,0))
+        {
+          Dlg->ProcessKey(KEY_CTRLDOWN);
+          return TRUE;
+        }
+        else
+          return FALSE;
+      }
+      return FALSE;
+    /* KM $ */
     case DM_SETITEMPOSITION: // Param1 = ID; Param2 = SMALL_RECT
       return Dlg->SetItemRect((int)Param1,(SMALL_RECT*)Param2);
 
