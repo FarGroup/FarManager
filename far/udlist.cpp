@@ -8,10 +8,13 @@ udlist.cpp
 
 */
 
-/* Revision: 1.09 15.08.2002 $ */
+/* Revision: 1.10 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 DJ
+    - При ULF_ADDASTERISK выделялось на 1 байт памяти меньше, чем надо,
+      что приводило к падению после find files
   15.08.2002 IS
     + Использование TArray
     + ULF_UNIQUE,  ULF_SORT
@@ -240,7 +243,11 @@ BOOL UserDefinedList::Set(const char *List, BOOL AddToList)
               if(AddAsterisk && strpbrk(item.Str,"?*.")==NULL)
               {
                 Length=strlen(item.Str);
-                item.Str=static_cast<char*>(realloc(item.Str, Length+1));
+                /* $ 18.09.2002 DJ
+                   выделялось на 1 байт меньше, чем надо
+                */
+                item.Str=static_cast<char*>(realloc(item.Str, Length+2));
+                /* DJ $ */
                 if(item.Str)
                 {
                   item.Str[Length]='*';

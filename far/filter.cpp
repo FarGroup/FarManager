@@ -5,10 +5,15 @@ filter.cpp
 
 */
 
-/* Revision: 1.24 03.04.2002 $ */
+/* Revision: 1.25 18.09.2002 $ */
 
 /*
 Modify:
+  18.09.2002 DJ
+    ! Исправлено падение после закрытия диалога Find files, если
+      в нем была введена маска, не заканчивающаяся на звездочку.
+    ! Теперь выдается сообщение, если в диалоге редактирования
+      фильтра (Ctrl-I) не введена маска.
   03.04.2002 SVS
     - BugZ#413 - Не отображается текущий фильтр  - закомментировано!!!!!!!!
     + ParseAndAddMasks() - выявлять и если надо добавлять очередную маску
@@ -216,7 +221,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       FilterList.AddItem(&ListItem);
     }
 
-    char FileName[NM],*ExtPtr=NULL, *NewPtr;
+    char FileName[NM],*ExtPtr=NULL;
     WIN32_FIND_DATA fdata;
     int FileAttr,ExtCount=0;
 
@@ -286,7 +291,7 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         case '-':
         {
           int Check=FilterList.GetSelection(),NewCheck;
-          if (Key=='-') 
+          if (Key=='-')
             NewCheck=(Check=='-') ? 0:'-';
           else if (Key=='+')
             NewCheck=(Check=='+') ? 0:'+';
@@ -352,12 +357,12 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
               free(Ptr);
               break;
             }
-            
+
             FilterData=NewFilterData;
-            
+
             for (int I=FilterDataCount-1;I>=SelPos;I--)
               FilterData[I+1]=FilterData[I];
-            
+
             FilterDataCount++;
             memset(FilterData+SelPos,0,sizeof(struct FilterDataRecord));
             strncpy(FilterData[SelPos].Title,Title,sizeof(FilterData[0].Title)-1);
@@ -485,10 +490,10 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
     IncludeMask.Free();
     ExcludeMask.Free();
 
-    if(IncludeMaskStr) 
+    if(IncludeMaskStr)
       free(IncludeMaskStr);
 
-    if(ExcludeMaskStr) 
+    if(ExcludeMaskStr)
       free(ExcludeMaskStr);
 
     IncludeMaskStr=ExcludeMaskStr=NULL;
@@ -532,7 +537,7 @@ void PanelFilter::AddMasks(const char *Masks,int Exclude)
 
     if (NewIncludeMaskStr==NULL)
        return;
-    
+
     IncludeMaskStr=NewIncludeMaskStr;
     if(OldSize)
     {
@@ -581,10 +586,10 @@ void PanelFilter::InitFilter()
   while (1)
   {
     char FilterTitle[200],FilterMask[PANELFILTER_MASK_SIZE], *Ptr;
-    
+
     itoa(FilterDataCount,PtrRegKey,10);
     GetRegKey(RegKey,"Title",FilterTitle,"",sizeof(FilterTitle));
-    
+
     if (!GetRegKey(RegKey,"Mask",FilterMask,"",sizeof(FilterMask)))
       break;
 
@@ -697,14 +702,25 @@ int PanelFilter::EditRecord(char *Title,char *Masks)
     {
       Dlg.ClearDone();
       Dlg.Process();
-      if (Dlg.GetExitCode()!=6 || *(char *)EditDlg[4].Ptr.PtrData==0)
+      /* $ 18.09.2002 DJ
+         сообщение, если не введена маска
+      */
+      const char *FilterMask = static_cast<const char *> (EditDlg[4].Ptr.PtrData);
+      if (Dlg.GetExitCode()!=6)
         return(FALSE);
+      if (FilterMask[0]==0)
+      {
+        Message (MSG_DOWN|MSG_WARNING,1,MSG(MWarning),MSG(MAssocNeedMask), MSG(MOk));
+        continue;
+      }
+
       /* $ 16.03.2002 IS
          В Фильтрах тоже можно использовать маски-иключения.
       */
-      if(CheckMask.Set((const char *)EditDlg[4].Ptr.PtrData, 0))
+      if(CheckMask.Set(FilterMask, 0))
       /* IS $ */
         break;
+      /* DJ $ */
     }
     /* IS $ */
   }
@@ -757,7 +773,7 @@ int PanelFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileA
   if ((NewPtr=(char *)realloc(*ExtPtr,NM*(ExtCount+1))) == NULL)
     return 0;
   *ExtPtr=NewPtr;
-  
+
   NewPtr=*ExtPtr+ExtCount*NM;
   strncpy(NewPtr,Mask,NM-2);
 
@@ -774,7 +790,7 @@ int PanelFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileA
 */
 //!!! Если нужно "решить" BugZ#413, то раскомментировать ЭТОТ кусок!!!
     *NewPtr=0;
-  
+
   ExtCount++;
 
   return 1;
@@ -784,4 +800,3 @@ int _cdecl ExtSort(const void *el1,const void *el2)
 {
   return LocalStricmp((char *)el1,(char *)el2);
 }
-
