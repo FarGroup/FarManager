@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.03 23.12.2000 $ */
+/* Revision: 1.04 26.12.2000 $ */
 
 /*
 Modify:
+  26.12.2000 SVS
+    + SwitchFlags()
   23.12.2000 SVS
     + int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     + int PlayKeyMacro(struct MacroRecord *MRec)
@@ -73,6 +75,7 @@ class KeyMacro
 
     // из строкового представления макроса сделать MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr);
+    DWORD SwitchFlags(DWORD& Flags,DWORD Value);
 
   public:
     KeyMacro();

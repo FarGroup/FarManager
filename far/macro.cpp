@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.14 25.12.2000 $ */
+/* Revision: 1.15 26.12.2000 $ */
 
 /*
 Modify:
+  26.12.2000 SVS
+    + KeyMacroToText()
+    ! Скинируем до END_FARKEY_BASE
+    + Обработка спец-макроклавиш.
   25.12.2000 SVS
     ! MFLAGS_ вернулись из plugin.hpp
   23.12.2000 SVS
@@ -91,6 +95,47 @@ enum MacroTempType{
   MTEMP_DYNAMIC,  // использовалось выделение памяти
 };
 
+enum{
+  KEY_MACROSTOP=KEY_MACROSPEC_BASE,
+  KEY_MACROMODE,
+};
+
+BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
+{
+  if(!KeyText0)
+     return FALSE;
+  char KeyText[32]="";
+  struct TKeyCodeName{
+    int Key;
+    char *Name;
+  } KeyCodes[]={
+     { KEY_MACRODAY,                           "$DAY"   },
+     { KEY_MACROMONTH,                         "$MONTH" },
+     { KEY_MACROYEAR,                          "$YEAR"  },
+
+     { KEY_MACROSTOP,                          "$STOP"  },
+     { KEY_MACROMODE,                          "$MMODE" },
+  };
+  for (int I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)
+    if (Key==KeyCodes[I].Key)
+    {
+      strcpy(KeyText,KeyCodes[I].Name);
+      break;
+    }
+
+  if(!KeyText[0])
+  {
+    *KeyText0='\0';
+    return FALSE;
+  }
+  if(Size > 0)
+    strncpy(KeyText0,KeyText,Size);
+  else
+    strcpy(KeyText0,KeyText);
+
+  return TRUE;
+}
+
 
 KeyMacro::KeyMacro()
 {
@@ -154,14 +199,14 @@ int KeyMacro::LoadMacros()
 
   if(Buffer)
   {
-    struct TKeyNames *KeyNames=new TKeyNames[KEY_LAST_BASE];
+    struct TKeyNames *KeyNames=new TKeyNames[END_FARKEY_BASE];
     if(KeyNames)
     {
       int CountKeyNames, I;
 
-      for (CountKeyNames=I=0; CountKeyNames < KEY_LAST_BASE;++I)
+      for (CountKeyNames=I=0; CountKeyNames < END_FARKEY_BASE;++I)
       {
-        if(I == KEY_LAST_BASE)
+        if(I == END_FARKEY_BASE)
           break;
         if(::KeyToText(I,KeyNames[CountKeyNames].Name))
         {
@@ -354,8 +399,10 @@ int KeyMacro::GetKey()
 
   struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
 
+begin:
   if (ExecKeyPos>=MR->BufferSize || MR->Buffer==NULL)
   {
+done:
     /*$ 10.08.2000 skv
       If we are in editor mode, and CurEditor defined,
       we need to call this events.
@@ -391,6 +438,35 @@ int KeyMacro::GetKey()
     return(FALSE);
   }
   int Key=MR->Buffer[ExecKeyPos++];
+  switch(Key)
+  {
+    case KEY_MACROSTOP:
+      goto done;
+
+    case KEY_MACROMODE:
+      if (ExecKeyPos<MR->BufferSize)
+      {
+        Key=MR->Buffer[ExecKeyPos++];
+        if(Key == '1')
+        {
+          DWORD Flags=MR->Flags;
+          if(Flags&MFLAGS_DISABLEOUTPUT) // если был - удалим
+          {
+            if(LockScr) delete LockScr;
+            LockScr=NULL;
+          }
+
+          SwitchFlags(MR->Flags,MFLAGS_DISABLEOUTPUT);
+
+          if(MR->Flags&MFLAGS_DISABLEOUTPUT) // если стал - залочим
+          {
+            if(LockScr) delete LockScr;
+            LockScr=new LockScreen;
+          }
+        }
+        goto begin;
+      }
+  }
   return(Key);
 }
 
@@ -402,6 +478,13 @@ int KeyMacro::PeekKey()
     return(0);
   int Key=MR->Buffer[ExecKeyPos];
   return(Key);
+}
+
+DWORD KeyMacro::SwitchFlags(DWORD& Flags,DWORD Value)
+{
+  if(Flags&Value) Flags&=~Value;
+  else Flags|=Value;
+  return Flags;
 }
 
 
@@ -760,4 +843,5 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
   }
   return TRUE;
 }
+
 

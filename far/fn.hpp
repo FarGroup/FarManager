@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.41 14.12.2000 $ */
+/* Revision: 1.42 26.12.2000 $ */
 
 /*
 Modify:
+  26.12.2000 SVS
+   + KeyMacroToText()
   14.12.2000 SVS
    + EjectVolume()
   02.11.2000 OT
@@ -622,5 +624,7 @@ FILE *OpenLogStream(char *file);
 
 
 BOOL EjectVolume(char Letter,DWORD Flags);
+
+BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
 
 #endif  // __FARFUNC_HPP__

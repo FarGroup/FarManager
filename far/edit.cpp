@@ -5,10 +5,14 @@ edit.cpp
 
 */
 
-/* Revision: 1.29 21.12.2000 $ */
+/* Revision: 1.30 26.12.2000 $ */
 
 /*
 Modify:
+  26.12.2000 SVS
+    ! KEY_DTDAY   -> KEY_MACRODAY
+      KEY_DTMONTH -> KEY_MACROMONTH
+      KEY_DTYEAR  -> KEY_MACROYEAR
    21.12.2000 SVS
     + Обработка пвсевдоклавиш:
       KEY_DTDAY - текущий день месяца - "$Day"
@@ -1212,15 +1216,15 @@ int Edit::ProcessKey(int Key)
     /* $ 21.12.2000 SVS
        Недольшое безобразие с проникновением в "чужой огород" :-)
     */
-    case KEY_DTMONTH:
-    case KEY_DTDAY:
-    case KEY_DTYEAR:
+    case KEY_MACRODAY:
+    case KEY_MACROMONTH:
+    case KEY_MACROYEAR:
     {
       SYSTEMTIME st;
       char Buf[16];
       GetLocalTime(&st);
-      sprintf(Buf,"%0*d",(Key==KEY_DTYEAR?4:2),
-            (Key==KEY_DTYEAR?st.wYear:(Key==KEY_DTDAY?st.wDay:st.wMonth)));
+      sprintf(Buf,"%0*d",(Key==KEY_MACROYEAR?4:2),
+            (Key==KEY_MACROYEAR?st.wYear:(Key==KEY_MACRODAY?st.wDay:st.wMonth)));
       InsertString(Buf);
       Show();
       return(TRUE);

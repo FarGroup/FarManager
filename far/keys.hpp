@@ -7,10 +7,18 @@ keys.hpp
 
 */
 
-/* Revision: 1.05 21.12.2000 $ */
+/* Revision: 1.06 26.12.2000 $ */
 
 /*
 Modify:
+  26.12.2000 SVS
+    + KEY_MACRO_BASE - для макросов. Соответственно изменены названия:
+      KEY_DTDAY   -> KEY_MACRODAY
+      KEY_DTMONTH -> KEY_MACROMONTH
+      KEY_DTYEAR  -> KEY_MACROYEAR
+      END_FARKEY_BASE - дальшу уже некуда :-)
+      Т.о. KEY_LAST_BASE - это для официального опубликования, а
+        END_FARKEY_BASE - это истинный предел :-)
   21.12.2000 SVS
     + 3 пвсевдоклавиши для макросов: KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR
       т.е. текущий день, месяц, год. Это так, в качестве полезного
@@ -465,10 +473,6 @@ enum
   KEY_LWIN,
   KEY_RWIN,
 
-  KEY_DTDAY,
-  KEY_DTMONTH,
-  KEY_DTYEAR,
-
   KEY_CTRL_BASE=0x1000,
   KEY_END_CTRL_BASE=KEY_CTRL_BASE+256,
 
@@ -484,7 +488,23 @@ enum
   KEY_RCTRL9,
 
   KEY_LAST_BASE,
-};
 
+  //
+  KEY_MACRO_BASE=KEY_LAST_BASE+1,
+  // сюды писать обобщенные макро-команды,
+  // которые доступны в других модулях
+
+  KEY_MACRODAY,
+  KEY_MACROMONTH,
+  KEY_MACROYEAR,
+
+  KEY_LAST_MACRO_BASE,
+  KEY_MACROSPEC_BASE=KEY_LAST_MACRO_BASE+1,
+  // отсюда начинаются коды специализированных макро-кодов,
+  // объявленных в macro.cpp
+  // на все про все - 256 кодов
+
+  END_FARKEY_BASE=KEY_MACROSPEC_BASE+256,
+};
 
 #endif	// __FARKEYS_HPP__

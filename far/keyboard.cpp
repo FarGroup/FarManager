@@ -5,10 +5,12 @@ keymix.cpp
 
 */
 
-/* Revision: 1.00 22.12.2000 $ */
+/* Revision: 1.01 26.12.2000 $ */
 
 /*
 Modify:
+  26.12.2000 SVS
+    + вызов KeyMacroToText() (функция определена в macro.cpp)
   22.12.2000 SVS
     + Выделение в качестве самостоятельного модуля, после чего можно смело
       ваять интерфейс пвсевдоклавиатурного драйвера :-)
@@ -623,7 +625,6 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       KEY_LWIN,KEY_RWIN,
       KEY_CTRLALTSHIFTPRESS,KEY_CTRLALTSHIFTRELEASE,
       KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL,
-      KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR,
     };
     static char *KeyNames[]={
       "BS","Tab","Enter","Esc","Space","Home","End","Up",
@@ -658,7 +659,6 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       "LWin","RWin",
       "CtrlAltShiftPress","CtrlAltShiftRelease",
       "CtrlShiftDel", "AltShiftDel",
-      "$Day", "$Month", "$Year",
     };
     /* SVS 08.09.2000 $ */
     /* SVS $ */
@@ -671,7 +671,9 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       }
     if(I  == sizeof(KeyCodes)/sizeof(KeyCodes[0]))
     {
-      if (Key<256)
+      if(KeyMacroToText(Key,KeyText,Size))
+         Key=-1;
+      else if (Key<256)
       {
         fmtNum=14;
         Key=Key0;
