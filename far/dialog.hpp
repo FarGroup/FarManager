@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.75 06.07.2004 $ */
+/* Revision: 1.76 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 WARP
+    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   06.07.2004 SVS
     + CheckHighlights для Macro II
   28.02.2004 SVS
@@ -257,6 +259,7 @@ Modify:
 #include "plugin.hpp"
 #include "vmenu.hpp"
 #include "bitflags.hpp"
+#include "CriticalSections.hpp"
 
 // Флаги текущего режима диалога
 #define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?
@@ -467,6 +470,8 @@ class Dialog: public Frame
     volatile int DropDownOpened;
     /* KM $ */
     CRITICAL_SECTION CSection;
+
+    CriticalSection CS;
 
   private:
     void DisplayObject();

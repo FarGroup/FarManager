@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.57 19.11.2004 $ */
+/* Revision: 1.58 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 WARP
+    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   19.11.2004 WARP
     + LastAddedItem
   06.07.2004 SVS
@@ -191,6 +193,7 @@ Modify:
 #include "manager.hpp"
 #include "frame.hpp"
 #include "bitflags.hpp"
+#include "CriticalSections.hpp"
 
 /* $ 30.11.2001 DJ
    значение приведено в соответствие с действительностью
@@ -356,6 +359,8 @@ class VMenu: virtual public Modal, virtual public Frame
     short RLen[2];                // реальные размеры 2-х половин
     CRITICAL_SECTION CSection;
     ConsoleTitle *OldTitle;     // предыдущий заголовок
+
+    CriticalSection CS;
 
   protected:
     /* $ 13.04.2002 KM

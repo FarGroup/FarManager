@@ -7,10 +7,12 @@ scrbuf.hpp
 
 */
 
-/* Revision: 1.06 04.06.2002 $ */
+/* Revision: 1.07 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 WARP
+    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   04.06.2002 SVS
     + ScreenBuf::WriteA - с конвертацией
   18.05.2002 SVS
@@ -29,6 +31,7 @@ Modify:
 */
 
 #include "bitflags.hpp"
+#include "CriticalSections.hpp"
 
 class ScreenBuf
 {
@@ -45,6 +48,8 @@ class ScreenBuf
     int CurVisible,CurSize;
 
     int LockCount;
+
+    CriticalSection CS;
 
   public:
     ScreenBuf();

@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.141 01.12.2004 $ */
+/* Revision: 1.142 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 WARP
+    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   01.12.2004 WARP
     ! Устраняем лишние перерисовки VMenu
   19.11.2004 WARP
@@ -637,6 +639,8 @@ VMenu::~VMenu()
 
 void VMenu::Hide()
 {
+  CriticalSectionLock Lock(CS);
+
   while (CallCount>0)
     Sleep(10);
 
@@ -662,6 +666,8 @@ void VMenu::Hide()
 
 void VMenu::Show()
 {
+  CriticalSectionLock Lock(CS);
+
   int OldX1 = X1, OldY1 = Y1, OldX2 = X2, OldY2 = Y2;
 
   if(LockRefreshCount)
@@ -767,6 +773,7 @@ void VMenu::Show()
 */
 void VMenu::DisplayObject()
 {
+  CriticalSectionLock Lock(CS);
 //_SVS(SysLog("VMFlags&VMENU_UPDATEREQUIRED=%d",VMFlags.Check(VMENU_UPDATEREQUIRED)));
 //  if (!(VMFlags&VMENU_UPDATEREQUIRED))
 //    return;
@@ -835,6 +842,8 @@ void VMenu::DisplayObject()
 
 void VMenu::DrawTitles()
 {
+  CriticalSectionLock Lock(CS);
+
   int MaxTitleLength = X2-X1-2;
   int WidthTitle;
   if (*Title)
@@ -861,6 +870,8 @@ void VMenu::DrawTitles()
 */
 void VMenu::ShowMenu(int IsParent)
 {
+  CriticalSectionLock Lock(CS);
+
   EnterCriticalSection(&CSection);
   InterlockedIncrement(&CallCount);
 
@@ -1145,6 +1156,8 @@ BOOL VMenu::UpdateRequired(void)
 
 BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
   struct MenuItem *CurItem;
 
@@ -1177,6 +1190,8 @@ BOOL VMenu::CheckKeyHiOrAcc(DWORD Key,int Type,int Translate)
 
 int VMenu::ProcessKey(int Key)
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
 
   if (Key==KEY_NONE || Key==KEY_IDLE)
@@ -1372,6 +1387,8 @@ int VMenu::ProcessKey(int Key)
 
 int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+  CriticalSectionLock Lock(CS);
+
   int MsPos,MsX,MsY;
   int XX2;
 
@@ -1591,6 +1608,8 @@ void VMenu::DeleteItems()
 */
 int VMenu::DeleteItem(int ID,int Count)
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
 
   if(ID < 0 || ID >= ItemCount || Count <= 0)
@@ -1683,6 +1702,8 @@ int VMenu::DeleteItem(int ID,int Count)
 
 int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 {
+  CriticalSectionLock Lock(CS);
+
   if(!NewItem)
     return -1; //???
 
@@ -1787,6 +1808,8 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 
 int  VMenu::AddItem(const char *NewStrItem)
 {
+  CriticalSectionLock Lock(CS);
+
   struct FarList FarList0;
   struct FarListItem FarListItem0;
 
@@ -1807,6 +1830,8 @@ int  VMenu::AddItem(const char *NewStrItem)
 
 int VMenu::AddItem(const struct FarList *List)
 {
+  CriticalSectionLock Lock(CS);
+
   if(List && List->Items)
   {
     struct MenuItem MItem;
@@ -1821,6 +1846,8 @@ int VMenu::AddItem(const struct FarList *List)
 
 int VMenu::UpdateItem(const struct FarListUpdate *NewItem)
 {
+  CriticalSectionLock Lock(CS);
+
   if(NewItem && (DWORD)NewItem->Index < (DWORD)ItemCount)
   {
     struct MenuItem MItem;
@@ -2014,6 +2041,8 @@ void VMenu::SetMaxHeight(int NewMaxHeight)
 // установить курсор и верхний итем
 int VMenu::SetSelectPos(struct FarListPos *ListPos)
 {
+  CriticalSectionLock Lock(CS);
+
   int Ret=SetSelectPos(ListPos->SelectPos,1);
   int OldTopPos=TopPos;
   if(Ret > -1)
@@ -2043,6 +2072,8 @@ int VMenu::SetSelectPos(struct FarListPos *ListPos)
 // переместить курсор с учетом Disabled & Separator
 int VMenu::SetSelectPos(int Pos,int Direct)
 {
+  CriticalSectionLock Lock(CS);
+
   if(!Item || !ItemCount)
     return -1;
 
@@ -2118,6 +2149,8 @@ int VMenu::SetSelectPos(int Pos,int Direct)
 
 void VMenu::AdjustSelectPos()
 {
+  CriticalSectionLock Lock(CS);
+
   if (!Item || !ItemCount)
     return;
 
@@ -2174,6 +2207,8 @@ void VMenu::AdjustSelectPos()
 
 void VMenu::SetTitle(const char *Title)
 {
+  CriticalSectionLock Lock(CS);
+
   int Length;
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   Title=NullToEmpty(Title);
@@ -2218,6 +2253,8 @@ char *VMenu::GetTitle(char *Dest,int Size)
 
 void VMenu::SetBottomTitle(const char *BottomTitle)
 {
+  CriticalSectionLock Lock(CS);
+
   int Length;
   VMFlags.Set(VMENU_UPDATEREQUIRED);
   BottomTitle=NullToEmpty(BottomTitle);
@@ -2269,6 +2306,8 @@ int VMenu::GetSelection(int Position)
 
 void VMenu::SetSelection(int Selection,int Position)
 {
+  CriticalSectionLock Lock(CS);
+
   while (CallCount>0)
     Sleep(10);
   if (ItemCount==0)
@@ -2288,6 +2327,8 @@ struct MenuItem *VMenu::GetItemPtr(int Position)
 
 BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
 {
+  CriticalSectionLock Lock(CS);
+
   for (int I=0; I < ItemCount; I++)
   {
     char Ch=0;
@@ -2320,6 +2361,8 @@ BOOL VMenu::CheckHighlights(BYTE CheckSymbol)
 
 void VMenu::AssignHighlights(int Reverse)
 {
+  CriticalSectionLock Lock(CS);
+
   BYTE Used[256];
   memset(Used,0,sizeof(Used));
 
@@ -2394,6 +2437,8 @@ void VMenu::AssignHighlights(int Reverse)
 */
 void VMenu::SetColors(struct FarListColors *Colors)
 {
+  CriticalSectionLock Lock(CS);
+
   if(Colors)
     memmove(VMenu::Colors,Colors->Colors,sizeof(VMenu::Colors));
   else
@@ -2551,6 +2596,8 @@ static int __cdecl  SortItemDataDWORD(const struct MenuItem *el1,
 // Offset - начало сравнения! по умолчанию =0
 void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
 {
+  CriticalSectionLock Lock(CS);
+
   typedef int (__cdecl *qsortex_fn)(const void*,const void*,void*);
   struct SortItemParam Param;
   Param.Direction=Direction;
@@ -2642,6 +2689,8 @@ int VMenu::SetUserData(void *Data,   // Данные
                        int Size,     // Размер, если =0 то предполагается, что в Data-строка
                        int Position) // номер итема
 {
+  CriticalSectionLock Lock(CS);
+
   if (ItemCount==0 || Position < 0)
     return(0);
   while (CallCount>0)
@@ -2675,6 +2724,8 @@ void VMenu::Process()
 
 void VMenu::ResizeConsole()
 {
+  CriticalSectionLock Lock(CS);
+
   /* $ 13.04.2002 KM
     - Добавим проверку на существование буфера сохранения,
       т.к. ResizeConsole вызывается теперь для всех экземпляров

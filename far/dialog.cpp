@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.310 19.11.2004 $ */
+/* Revision: 1.311 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 WARP
+    ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   19.11.2004 SVS
     - воздействие мышкой на скроллбаре в результирующем диалоге поиска
       ...диалог закрывался после отпускания кнопки.
@@ -1287,6 +1289,8 @@ Dialog::~Dialog()
 
 void Dialog::CheckDialogCoord(void)
 {
+  CriticalSectionLock Lock(CS);
+
   DialogTooLong=0; // Т.к. консоль у нас может постоянно изменяться, то эта
                    // инициализация необходима как воздух
 
@@ -1379,6 +1383,7 @@ void Dialog::InitDialog(void)
 */
 void Dialog::Show()
 {
+  CriticalSectionLock Lock(CS);
   _tran(SysLog("[%p] Dialog::Show()",this));
 
   if(!DialogMode.Check(DMODE_INITOBJECTS))
@@ -1425,6 +1430,7 @@ void Dialog::Show()
 */
 void Dialog::Hide()
 {
+  CriticalSectionLock Lock(CS);
   _tran(SysLog("[%p] Dialog::Hide()",this));
   if(!DialogMode.Check(DMODE_INITOBJECTS))
     return;
@@ -1440,6 +1446,8 @@ void Dialog::Hide()
 */
 void Dialog::DisplayObject()
 {
+  CriticalSectionLock Lock(CS);
+
   if(DialogMode.Check(DMODE_SHOW))
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -1450,6 +1458,8 @@ void Dialog::DisplayObject()
 // пересчитать координаты для элементов с DIF_CENTERGROUP
 void Dialog::ProcessCenterGroup(void)
 {
+  CriticalSectionLock Lock(CS);
+
   int I, J;
   int Length,StartX;
   int Type;
@@ -2029,6 +2039,8 @@ void Dialog::ProcessLastHistory (struct DialogItem *CurItem, int MsgIndex)
 */
 BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
 {
+  CriticalSectionLock Lock(CS);
+
   if (ID >= ItemCount)
     return FALSE;
 
@@ -2550,6 +2562,8 @@ DWORD Dialog::CtlColorDlgItem(int ItemPos,int Type,int Focus,DWORD Flags)
 */
 void Dialog::ShowDialog(int ID)
 {
+  CriticalSectionLock Lock(CS);
+
   char Str[1024];
   struct DialogItem *CurItem;
   int X,Y;
@@ -3010,6 +3024,8 @@ int Dialog::LenStrItem(int ID,char *Str)
 
 int Dialog::ProcessMoveDialog(DWORD Key)
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
   /* $ 31.07.2000 tran
      + перемещение диалога по экрану */
@@ -3142,6 +3158,8 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 */
 int Dialog::ProcessKey(int Key)
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
   char Str[1024];
 
@@ -3865,6 +3883,8 @@ int Dialog::ProcessKey(int Key)
 */
 int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+  CriticalSectionLock Lock(CS);
+
   int I;
   int MsX,MsY;
   int Type;
@@ -4584,6 +4604,8 @@ int Dialog::Do_ProcessSpace()
 */
 int Dialog::ChangeFocus(int CurFocusPos,int Step,int SkipGroup)
 {
+  CriticalSectionLock Lock(CS);
+
   int Type,OrigFocusPos=CurFocusPos;
 //  int FucusPosNeed=-1;
   // В функцию обработки диалога здесь передаем сообщение,
@@ -4636,6 +4658,8 @@ int Dialog::ChangeFocus(int CurFocusPos,int Step,int SkipGroup)
 */
 int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 {
+  CriticalSectionLock Lock(CS);
+
   int FucusPosNeed=-1;
   if(!(Item[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
   {
@@ -5856,6 +5880,8 @@ int Dialog::FastHide()
 
 void Dialog::ResizeConsole()
 {
+  CriticalSectionLock Lock(CS);
+
   COORD c;
   DialogMode.Set(DMODE_RESIZED);
 

@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.23 06.05.2003 $ */
+/* Revision: 1.24 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 WARP
+    ! Ïàò÷ äëÿ ïîèñêà #1. Ïîäğîáíåå 01864.FindFile.txt
   06.05.2003 SVS
     ! Opt.UseTTFFont çàìåíåíà íà Opt.UseUnicodeConsole - òàê âåğíåå
   04.02.2003 SVS
@@ -120,6 +122,8 @@ ScreenBuf::~ScreenBuf()
 */
 void ScreenBuf::AllocBuf(int X,int Y)
 {
+  CriticalSectionLock Lock(CS);
+
   if (X==BufX && Y==BufY)
     return;
   if(Buf) delete[] Buf;
@@ -145,6 +149,8 @@ void ScreenBuf::AllocBuf(int X,int Y)
 */
 void ScreenBuf::FillBuf()
 {
+  CriticalSectionLock Lock(CS);
+
   COORD Size,Corner;
   SMALL_RECT Coord;
   Size.X=BufX;
@@ -205,6 +211,8 @@ void ScreenBuf::FillBuf()
 */
 void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
 {
+  CriticalSectionLock Lock(CS);
+
   if (Y>=BufY || TextLength==0)
     return;
   if(X+TextLength >= BufX)
@@ -223,6 +231,8 @@ void ScreenBuf::Write(int X,int Y,const CHAR_INFO *Text,int TextLength)
 #if defined(USE_WFUNC)
 void ScreenBuf::WriteA(int X,int Y,const CHAR_INFO *Text,int TextLength)
 {
+  CriticalSectionLock Lock(CS);
+
   if (Y>=BufY || TextLength==0)
     return;
   if(X+TextLength >= BufX)
@@ -267,6 +277,8 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
 */
 void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 {
+  CriticalSectionLock Lock(CS);
+
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
   int I, J;
@@ -290,6 +302,8 @@ void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 */
 void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
 {
+  CriticalSectionLock Lock(CS);
+
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
   int I, J;
@@ -314,6 +328,8 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,int Color)
 */
 void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 {
+  CriticalSectionLock Lock(CS);
+
   int Width=X2-X1+1;
   int Height=Y2-Y1+1;
   int I, J;
@@ -342,6 +358,8 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 */
 void ScreenBuf::Flush()
 {
+  CriticalSectionLock Lock(CS);
+
   if (LockCount>0)
     return;
 
@@ -475,6 +493,8 @@ void ScreenBuf::ResetShadow()
 
 void ScreenBuf::MoveCursor(int X,int Y)
 {
+  CriticalSectionLock Lock(CS);
+
   CurX=X;
   CurY=Y;
   SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
@@ -521,6 +541,8 @@ void ScreenBuf::RestoreMacroChar()
 */
 void ScreenBuf::Scroll(int Num)
 {
+  CriticalSectionLock Lock(CS);
+
   if(Num > 0 && Num < BufY)
     memcpy(Buf,Buf+Num*BufX,(BufY-Num)*BufX*sizeof(CHAR_INFO));
 #ifdef DIRECT_SCREEN_OUT
