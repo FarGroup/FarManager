@@ -5,10 +5,16 @@ main.cpp
 
 */
 
-/* Revision: 1.30 27.07.2001 $ */
+/* Revision: 1.31 06.08.2001 $ */
 
 /*
 Modify:
+  06.08.2001 SVS
+    + Ключ "/do" документирован только для "меня" :-)
+      Он появится в far /? только тогда, когда ФАР скомпилен с макросом
+      DIRECT_RT
+      (все время забываю что это за хрень :-)
+    - для очистки после выхода нужен Flush() :-(
   27.07.2001 SVS
     + Ключ "/co" документирован.
   24.07.2001 SVS
@@ -112,6 +118,7 @@ Modify:
 #include "hilight.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
+#include "scrbuf.hpp"
 #include "language.hpp"
 
 #ifdef DIRECT_RT
@@ -145,6 +152,10 @@ printf(
 "      View the specified file. If <filename> is -, data is read from the stdin.\n"
 " /co\n"
 "      Forces FAR to load plugins from the cache only.\n"
+#ifdef DIRECT_RT
+" /do\n"
+"      Direct output.\n"
+#endif
 );
 }
 
@@ -401,6 +412,8 @@ int _cdecl main(int Argc, char *Argv[])
     }
     // очистим за собой!
     SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
+    ScrBuf.ResetShadow();
+    ScrBuf.Flush();
   }
 
   SetConsoleTitle(OldTitle);

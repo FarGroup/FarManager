@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.71 03.08.2001 $ */
+/* Revision: 1.72 06.08.2001 $ */
 
 /*
 Modify:
+  06.08.2001 SVS
+    + MAskDeleteSubMenuItem
   03.08.2001 IS
     + Для диалога копирования/перемещения: MCopyMultiActions
   02.08.2001 IS
@@ -1342,6 +1344,7 @@ enum
   MMainMenuREG,
   MLocalMenuTitle,
   MAskDeleteMenuItem,
+  MAskDeleteSubMenuItem,
 
   MEditMenuTitle,
   MEditMenuHotKey,

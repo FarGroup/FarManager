@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.50 01.08.2001 $ */
+/* Revision: 1.51 06.08.2001 $ */
 
 /*
 Modify:
+  06.08.2001 SVS
+    - бага с MaxLength - небыло контроля на длину титла
   01.08.2001 KM
     ! Ещё однго небольшое исправление.
       Добавлен инкремент/декремент CallCount
@@ -291,6 +293,8 @@ VMenu::VMenu(const char *Title,       // заголовок меню
     if (Item[I].Flags&LIF_SELECTED)
       SelectPos=I;
   }
+  if(MaxLength > ScrX-8)
+    MaxLength=ScrX-8;
   /* $ 28.07.2000 SVS
      Установим цвет по умолчанию
   */
@@ -341,6 +345,9 @@ void VMenu::DeleteItems()
   Item=NULL;
   ItemCount=0;
   SelectPos=TopPos=0;
+  MaxLength=strlen(VMenu::Title)+2;
+  if(MaxLength > ScrX-8)
+    MaxLength=ScrX-8;
 }
 
 
@@ -432,6 +439,7 @@ void VMenu::Show()
     BoxType=VMenu::VMFlags&VMENU_SHOWNOBOX?NO_BOX:SHORT_DOUBLE_BOX;
 
   int AutoCenter=FALSE,AutoHeight=FALSE;
+
   if (X1==-1)
   {
     X1=(ScrX-MaxLength-4)/2;
@@ -443,13 +451,18 @@ void VMenu::Show()
     X2=X1+MaxLength+4;
   if (!AutoCenter && X2>ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
+    X1=2;
+    X2=ScrX-2;
+    /*
     X1+=ScrX-4-X2;
     X2=ScrX-4;
     if (X1<2)
       X1=2;
+    */
   }
   if (X2>ScrX-2)
     X2=ScrX-2;
+
   if (Y1==-1)
   {
     if (MaxHeight!=0 && MaxHeight<ItemCount)
@@ -543,17 +556,22 @@ void VMenu::DisplayObject()
   /* $ 03.06.2001 KM
      ! Вернём DI_LISTBOX'у возможность задавать заголовок.
   */
+  int WidthTitle=MaxLength;
   if (*Title)
   {
-    GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1);
+    if((WidthTitle=strlen(Title)) > MaxLength)
+      WidthTitle=MaxLength-1;
+    GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
     SetColor(VMenu::Colors[2]);
-    mprintf(" %s ",Title);
+    mprintf(" %*.*s ",WidthTitle,WidthTitle,Title);
   }
   if (*BottomTitle)
   {
-    GotoXY(X1+(X2-X1-1-strlen(BottomTitle))/2,Y2);
+    if((WidthTitle=strlen(BottomTitle)) > MaxLength)
+      WidthTitle=MaxLength-1;
+    GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
     SetColor(VMenu::Colors[2]);
-    mprintf(" %s ",BottomTitle);
+    mprintf(" %*.*s ",WidthTitle,WidthTitle,BottomTitle);
   }
   /* KM $ */
   SetCursorType(0,10);
@@ -812,6 +830,8 @@ int VMenu::AddItem(struct MenuItem *NewItem,int PosAdd)
   Length=strlen(Item[PosAdd].Name);
   if (Length>MaxLength)
     MaxLength=Length;
+  if(MaxLength > ScrX-8)
+    MaxLength=ScrX-8;
   if (Item[PosAdd].Flags&LIF_SELECTED)
     SelectPos=PosAdd;
   if(Item[PosAdd].Flags&0x0000FFFF)
@@ -1269,6 +1289,8 @@ void VMenu::SetTitle(const char *Title)
   Length=strlen(Title)+2;
   if (Length > MaxLength)
     MaxLength=Length;
+  if(MaxLength > ScrX-8)
+    MaxLength=ScrX-8;
 }
 
 
@@ -1289,6 +1311,8 @@ void VMenu::SetBottomTitle(const char *BottomTitle)
   Length=strlen(BottomTitle)+2;
   if (Length > MaxLength)
     MaxLength=Length;
+  if(MaxLength > ScrX-8)
+    MaxLength=ScrX-8;
 }
 
 

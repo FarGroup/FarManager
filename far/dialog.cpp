@@ -5,10 +5,18 @@ dialog.cpp
 
 */
 
-/* Revision: 1.150 05.08.2001 $ */
+/* Revision: 1.151 06.08.2001 $ */
 
 /*
 Modify:
+  06.08.2001 SVS
+   ! DM_GETTEXTLENGTH возвращает размер строки без учета '\0'
+   ! заголовок ФАР меняет только если DM_SETTEXT был вызван для
+     соответствующих элементов (SetFarTitle(Dlg->GetDialogTitle()))
+   ! Проверка на видимость диалога (будет полезна в следующих патчах,
+     когда манагер будет вызывать Hide() диалога - для Alt-F7+CAS)
+   ! Немного скорректированы цвета для строки редактирования (2IS: проверь
+     на себе)
   05.08.2001 SVS
    ! Перетрях в математике добавления истории (Dialog::AddToEditHistory)
    - Бага с селекшинами при выборе из хистори.
@@ -733,34 +741,6 @@ Dialog::~Dialog()
   SetConsoleTitle(OldConsoleTitle);
 }
 
-
-//////////////////////////////////////////////////////////////////////////
-/* Public, Virtual:
-   Расчет значений координат окна диалога и вызов функции
-   ScreenObject::Show() для вывода диалога на экран.
-*/
-void Dialog::Show()
-{
-  _tran(SysLog("[%p] Dialog::Show()",this));
-  if (!CheckDialogMode(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
-  {                      //  элементы инициализируются при первом вызове.
-    /* $ 28.07.2000 SVS
-       Укажем процедуре, что у нас все Ок!
-    */
-    CheckDialogCoord();
-    if(DlgProc((HANDLE)this,DN_INITDIALOG,InitDialogObjects(),DataDialog))
-    {
-      // еще разок, т.к. данные могли быть изменены
-      InitDialogObjects();
-    }
-    SetFarTitle(GetDialogTitle());
-    // все объекты проинициализированы!
-    SetDialogMode(DMODE_INITOBJECTS);
-  }
-  CheckDialogCoord();
-  ScreenObject::Show();
-}
-
 void Dialog::CheckDialogCoord(void)
 {
   if (X1 == -1) // задано центрирование диалога по горизонтали?
@@ -798,14 +778,42 @@ void Dialog::CheckDialogCoord(void)
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/* Public, Virtual:
+   Расчет значений координат окна диалога и вызов функции
+   ScreenObject::Show() для вывода диалога на экран.
+*/
+void Dialog::Show()
+{
+  _tran(SysLog("[%p] Dialog::Show()",this));
+  if (!CheckDialogMode(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
+  {                      //  элементы инициализируются при первом вызове.
+    /* $ 28.07.2000 SVS
+       Укажем процедуре, что у нас все Ок!
+    */
+    CheckDialogCoord();
+    if(DlgProc((HANDLE)this,DN_INITDIALOG,InitDialogObjects(),DataDialog))
+    {
+      // еще разок, т.к. данные могли быть изменены
+      InitDialogObjects();
+    }
+    SetFarTitle(GetDialogTitle());
+    // все объекты проинициализированы!
+    SetDialogMode(DMODE_INITOBJECTS);
+  }
+  CheckDialogCoord();
+  SetDialogMode(DMODE_SHOW);
+  ScreenObject::Show();
+}
+
 /* $ 30.08.2000 SVS
   Цель перехвата данной функции - управление видимостью...
 */
 void Dialog::Hide()
 {
   _tran(SysLog("[%p] Dialog::Hide()",this));
-  ScreenObject::Hide();
   SkipDialogMode(DMODE_SHOW);
+  ScreenObject::Hide();
 }
 /* SVS $*/
 
@@ -815,10 +823,13 @@ void Dialog::Hide()
 */
 void Dialog::DisplayObject()
 {
-  ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  if(!CheckDialogMode(DMODE_SMALLDIALOG))
-    Shadow();              // "наводим" тень
-  ShowDialog();          // "нарисуем" диалог.
+  if(CheckDialogMode(DMODE_SHOW))
+  {
+    ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+    if(!CheckDialogMode(DMODE_SMALLDIALOG))
+      Shadow();              // "наводим" тень
+    ShowDialog();          // "нарисуем" диалог.
+  }
 }
 
 
@@ -1082,11 +1093,11 @@ int Dialog::InitDialogObjects(int ID)
       /* tran $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
-      DialogEdit->SetObjectColor(
-         FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
-             ((ItemFlags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
-             ((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)),
-         FarColorToReal((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED));
+//      DialogEdit->SetObjectColor(
+//         FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+//             ((ItemFlags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
+//             ((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)),
+//         FarColorToReal((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED));
       if (CurItem->Type==DI_PSWEDIT)
       {
         DialogEdit->SetPasswordMode(TRUE);
@@ -1530,6 +1541,7 @@ void Dialog::ShowDialog(int ID)
   if(IsEnableRedraw ||                 // разрешена прорисовка ?
      (ID+1 > ItemCount) ||             // а номер в рамках дозволенного?
      CheckDialogMode(DMODE_DRAWING) || // диалог рисуется?
+     !CheckDialogMode(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
      !CheckDialogMode(DMODE_INITOBJECTS))
     return;
   /* SVS $ */
@@ -1760,45 +1772,71 @@ void Dialog::ShowDialog(int ID)
         /* $ 15.08.2000 SVS
            ! Для DropDownList цвета обрабатываем по иному
         */
-        /* $ 30.08.2000 SVS
-           ! "Цвета, видите ли, ему не понравились" :-)
-        */
-        Attr=EditPtr->GetObjectColor();
         if(CurItem->Type == DI_COMBOBOX && (CurItem->Flags & DIF_DROPDOWNLIST))
         {
-          DWORD AAA=Attr&0xFF;
-          Attr=MAKEWORD(FarColorToReal(AAA),
-                 FarColorToReal((!CurItem->Focus)?
-                  (CheckDialogMode(DMODE_WARNINGSTYLE) ?
-                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
-                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)
-                  ):
-                  (CheckDialogMode(DMODE_WARNINGSTYLE) ?
-                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITSELECTED):
-                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
-                  )
-                 )
-                );
-          Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
-            MAKEWORD(FarColorToReal(AAA), // EditLine - UnChanched Color
-            FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
-               ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
-               ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)
-              )) // HistoryLetter
-           );
+          if(CheckDialogMode(DMODE_WARNINGSTYLE))
+            Attr=MAKELONG(
+              MAKEWORD( //LOWORD
+                // LOLO (Text)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT),
+                // LOHI (Select)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+              ),
+              MAKEWORD( //HIWORD
+                // HILO (Unchanged)
+                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                // HIHI (History)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
+              )
+            );
+          else
+            Attr=MAKELONG(
+              MAKEWORD( //LOWORD
+                // LOLO (Text)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:(!CurItem->Focus?COL_DIALOGEDIT:COL_DIALOGEDITSELECTED)),
+                // LOHI (Select)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+              ),
+              MAKEWORD( //HIWORD
+                // HILO (Unchanged)
+                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                // HIHI (History)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)
+              )
+            );
         }
         else
         {
-          Attr=MAKEWORD(FarColorToReal(Attr&0xFF),
-            (CheckDialogMode(DMODE_WARNINGSTYLE) ?
-              FarColorToReal(((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT)):
-              FarColorToReal(((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED))
-            )
-          );
-          Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
-             MAKEWORD(FarColorToReal(EditPtr->GetObjectColorUnChanged()), // EditLine - UnChanched Color
-             FarColorToReal(((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)) // HistoryLetter
-             ));
+          if(CheckDialogMode(DMODE_WARNINGSTYLE))
+            Attr=MAKELONG(
+              MAKEWORD( //LOWORD
+                // LOLO (Text)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT),
+                // LOHI (Select)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+              ),
+              MAKEWORD( //HIWORD
+                // HILO (Unchanged)
+                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                // HIHI (History)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
+              )
+            );
+          else
+            Attr=MAKELONG(
+              MAKEWORD( //LOWORD
+                // LOLO (Text)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT),
+                // LOHI (Select)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED)
+              ),
+              MAKEWORD( //HIWORD
+                // HILO (Unchanged)
+                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                // HIHI (History)
+                FarColorToReal((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT)
+              )
+            );
         }
         /* SVS $ */
         /* SVS $ */
@@ -2187,7 +2225,8 @@ int Dialog::ProcessKey(int Key)
           if(!DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,NewListPos))
           {
             List->SetSelection(CheckedListItem,CurListPos);
-            ShowDialog(FocusPos);
+            if(CheckDialogMode(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
+              ShowDialog(FocusPos);
           }
         return(TRUE);
     }
@@ -2297,7 +2336,9 @@ int Dialog::ProcessKey(int Key)
           ProcessKey(KEY_DOWN);
         }
         else
+        {
           ShowDialog();
+        }
         return(TRUE);
       }
       else if (Type==DI_BUTTON)
@@ -2536,7 +2577,9 @@ int Dialog::ProcessKey(int Key)
             if (Item[MinPos].Flags & DIF_MOVESELECT)
               ProcessKey(KEY_SPACE);
             else
+            {
               ShowDialog();
+            }
             return(TRUE);
           }
       }
@@ -2560,7 +2603,9 @@ int Dialog::ProcessKey(int Key)
         if (Item[I].Flags & DIF_MOVESELECT)
           ProcessKey(KEY_SPACE);
         else
+        {
           ShowDialog();
+        }
       }
       return(TRUE);
 
@@ -2980,8 +3025,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
       {
         if(FocusPos != I)
+        {
           ChangeFocus2(FocusPos,I);
-        ShowDialog();
+          ShowDialog();
+        }
 
         if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
         {
@@ -3130,7 +3177,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
               {
                 EditLine->SetClearFlag(0); // раз уж покусились на, то и...
                 ChangeFocus2(FocusPos,I);
-                ShowDialog(I);
+                if(!(Item[I].Flags&DIF_HIDDEN))
+                  ShowDialog(I);
                 ProcessKey(KEY_CTRLDOWN);
                 return(TRUE);
               }
@@ -4856,7 +4904,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             did->PtrLength=0;
             break;
         }
-        return Len;
+        return Len-(!Len?0:1);
       }
       // здесь умышленно не ставим return, т.к. хотим получить размер
       // следовательно сразу должен идти "case DM_GETTEXTLENGTH"!!!
@@ -4908,7 +4956,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           Len=0;
           break;
       }
-      return Len;
+      return Len-(!Len?0:1);;
 
     case DM_SETTEXTPTR:
     {
@@ -4952,10 +5000,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             if(Dlg->CheckDialogMode(DMODE_SHOW))
             {
+              SetFarTitle(Dlg->GetDialogTitle());
               Dlg->ShowDialog(Param1);
               ScrBuf.Flush();
             }
-            return Len;
+            return Len-(!Len?0:1);
 
           case DI_BUTTON:
           case DI_CHECKBOX:
@@ -5004,13 +5053,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             return 0;
         }
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-        SetFarTitle(Dlg->GetDialogTitle());
         if(Dlg->CheckDialogMode(DMODE_SHOW)) // достаточно ли этого????!!!!
         {
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();
         }
-        return strlen((char *)Ptr)+1; //???
+        return strlen((char *)Ptr); //???
       }
       return 0;
 
@@ -5083,9 +5131,38 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
       if(!Dlg->IsEnableRedraw)
         if(Dlg->CheckDialogMode(DMODE_INITOBJECTS))
-          Dlg->Show();
+        {
+          Dlg->ShowDialog();
+          ScrBuf.Flush();
+//          Dlg->Show();
+        }
       return 0;
     /* SVS $ */
+
+    /* $ 03.01.2001 SVS
+        + показать/скрыть элемент
+        Param2: -1 - получить состояние
+                 0 - погасить
+                 1 - показать
+        Return:  предыдущее состояние
+    */
+    case DM_SHOWITEM:
+    {
+      DWORD PrevFlags=CurItem->Flags;
+      if(Param2 != -1)
+      {
+         if(Param2)
+           CurItem->Flags&=~DIF_HIDDEN;
+         else
+           CurItem->Flags|=DIF_HIDDEN;
+        if(Dlg->CheckDialogMode(DMODE_SHOW) && !(CurItem->Flags&DIF_HIDDEN))
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
+      }
+      return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
+    }
 
     /* $ 23.08.2000 SVS
        + показать/спрятать диалог.
@@ -5313,30 +5390,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     /* SVS $ */
 
-    /* $ 03.01.2001 SVS
-        + показать/скрыть элемент
-        Param2: -1 - получить состояние
-                 0 - погасить
-                 1 - показать
-        Return:  предыдущее состояние
-    */
-    case DM_SHOWITEM:
-    {
-      DWORD PrevFlags=CurItem->Flags;
-      if(Param2 != -1)
-      {
-         if(Param2)
-           CurItem->Flags&=~DIF_HIDDEN;
-         else
-           CurItem->Flags|=DIF_HIDDEN;
-        if(Dlg->CheckDialogMode(DMODE_SHOW) && !(CurItem->Flags&DIF_HIDDEN))
-        {
-          Dlg->ShowDialog(Param1);
-          ScrBuf.Flush();
-        }
-      }
-      return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
-    }
     /* SVS $ */
     case DM_KILLSAVESCREEN:
       {

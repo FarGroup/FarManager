@@ -5,10 +5,16 @@ User menu и есть
 
 */
 
-/* Revision: 1.35 26.07.2001 $ */
+/* Revision: 1.36 06.08.2001 $ */
 
 /*
 Modify:
+  06.08.2001 SVS
+    ! Избаляемся от рекурсии в трех местах (Ins, Del, F4), для этого
+      кусок кода по заполнению менюхи вынесен в отдельную функцию FillUserMenu()
+    + SubMenu теперь имеют нормальный заголовок, соответствующий
+      названию подменю - для этого в ProcessSingleMenu() добавлен параметр -
+      Title
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   18.07.2001 OT
@@ -119,7 +125,8 @@ Modify:
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 
-static int ProcessSingleMenu(char *MenuKey,int MenuPos);
+static int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title=NULL);
+static int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Name,char *ShortName);
 static int DeleteMenuRecord(char *MenuKey,int DeletePos);
 static int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec);
 static int EditSubMenu(char *MenuKey,int EditPos,int TotalRecords,int NewRec);
@@ -418,11 +425,142 @@ void ProcessUserMenu(int EditMenu)
 }
 
 
+int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Name,char *ShortName)
+{
+  int NumLine=0;
+  struct MenuItem UserMenuItem;
+  memset(&UserMenuItem,0,sizeof(UserMenuItem));
+
+  UserMenu.DeleteItems();
+
+  /* $ 20.07.2000 tran
+     + лишний проход для вычисления максимальной длины строки */
+  int MaxLen=20;
+
+  while (1)
+  {
+    int MenuTextLen;
+    char ItemKey[512],HotKey[10],Label[512],MenuText[512];
+    sprintf(ItemKey,"%s\\Item%d",MenuKey,NumLine);
+    if (!GetRegKey(ItemKey,"HotKey",HotKey,"",sizeof(HotKey)))
+      break;
+    if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
+      break;
+    SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
+    /* $ 28.07.2000 VVM
+       + Обработка переменных окружения
+    */
+    ExpandEnvironmentStr(Label, Label, sizeof(Label));
+    /* VVM $ */
+
+    int FuncNum=0;
+    if (strlen(HotKey)>1)
+    {
+      FuncNum=atoi(&HotKey[1]);
+      if (FuncNum<1 || FuncNum>12)
+        FuncNum=1;
+      sprintf(HotKey,"F%d",FuncNum);
+    }
+    /* $ 14.10.2000 VVM
+       + Разделитель меню, если Метка пуста, а ХотКей="-"
+    */
+    if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
+    {
+     // Nothing to do
+    }
+    else
+    {
+      sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
+      MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
+      MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
+    } /* else */
+    /* VVM $ */
+    NumLine++;
+  }
+
+  // коррекция максимальной длины
+  if(MaxLen > ScrX-14)
+    MaxLen = ScrX-14;
+
+  NumLine=0;
+
+  while (1)
+  {
+    char ItemKey[512],HotKey[10],Label[512],MenuText[512];
+    sprintf(ItemKey,"%s\\Item%d",MenuKey,NumLine);
+    if (!GetRegKey(ItemKey,"HotKey",HotKey,"",sizeof(HotKey)))
+      break;
+    if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
+      break;
+    SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
+    /* $ 28.07.2000 VVM
+       + Обработка переменных окружения
+    */
+    ExpandEnvironmentStr(Label, Label, sizeof(Label));
+    /* VVM $ */
+
+    int SubMenu;
+    GetRegKey(ItemKey,"Submenu",SubMenu,0);
+
+    int FuncNum=0;
+    if (strlen(HotKey)>1)
+    {
+      FuncNum=atoi(&HotKey[1]);
+      if (FuncNum<1 || FuncNum>12)
+        FuncNum=1;
+      sprintf(HotKey,"F%d",FuncNum);
+    }
+    /* $ 14.10.2000 VVM
+       + Разделитель меню, если Метка пуста, а ХотКей="-"
+    */
+    if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
+    {
+      UserMenuItem.Flags|=LIF_SEPARATOR;
+      UserMenuItem.Flags&=~LIF_SELECTED;
+      if (NumLine==MenuPos)
+        MenuPos++;
+    }
+    else
+    {
+    /* $ 20.07.2000 tran
+       %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
+      sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,MaxLen,Label);
+
+    /* tran 20.07.2000 $ */
+      if (SubMenu)
+      {
+        /* $ 07.05.2001 SVS
+           FAR 1.70.3 b591. Пускается с ключем -a. В меню по F2 пункты с
+           подменю справа обозначаюися ".". Хотелось бы ">".
+        */
+        if(Opt.CleanAscii)
+          SubMenuSymbol[1]='>';
+        /* SVS $ */
+        strcat(MenuText,SubMenuSymbol);
+      }
+      strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
+      UserMenuItem.SetSelect(NumLine==MenuPos);
+      UserMenuItem.Flags&=~LIF_SEPARATOR;
+    }
+    /* VVM $ */
+    int ItemPos=UserMenu.AddItem(&UserMenuItem);
+    if (FuncNum>0)
+      FuncPos[FuncNum-1]=ItemPos;
+    NumLine++;
+  }
+
+  *UserMenuItem.Name=0;
+  UserMenuItem.Flags&=~LIF_SEPARATOR;
+  UserMenuItem.SetSelect(NumLine==MenuPos);
+  UserMenu.AddItem(&UserMenuItem);
+  return NumLine;
+}
+
 /* $ 14.07.2000 VVM
    + Вместо TRUE/FALSE возвращает коды EC_*
 */
 /* VVM $ */
-int ProcessSingleMenu(char *MenuKey,int MenuPos)
+int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
 {
   while (1)
   {
@@ -436,29 +574,31 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 
     char Name[NM],ShortName[NM];
     CtrlObject->Cp()->ActivePanel->GetCurName(Name,ShortName);
-
     {
       /* $ 24.07.2000 VVM
        + При показе главного меню в заголовок добавляет тип - FAR/Registry
       */
       char MenuTitle[128];
-      switch (MenuMode)
-      {
-      case MM_LOCAL:
-        strcpy(MenuTitle,MSG(MLocalMenuTitle));
-        break;
-      case MM_FAR:
-        sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),MSG(MMainMenuFAR));
-        break;
-      default:
+      if(Title && *Title)
+        strncpy(MenuTitle,Title,sizeof(MenuTitle));
+      else
+        switch (MenuMode)
         {
-          char *Ptr=MSG(MMainMenuREG);
-          if(*Ptr)
-            sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),Ptr);
-          else
-            sprintf(MenuTitle,"%s",MSG(MMainMenuTitle));
-        }
-      } /* switch */
+        case MM_LOCAL:
+          strcpy(MenuTitle,MSG(MLocalMenuTitle));
+          break;
+        case MM_FAR:
+          sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),MSG(MMainMenuFAR));
+          break;
+        default:
+          {
+            char *Ptr=MSG(MMainMenuREG);
+            if(*Ptr)
+              sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),Ptr);
+            else
+              sprintf(MenuTitle,"%s",MSG(MMainMenuTitle));
+          }
+        } /* switch */
       VMenu UserMenu(MenuTitle,NULL,0,ScrY-4);
       /* VVM $ */
 
@@ -470,127 +610,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
 
-      NumLine=0;
-
-      /* $ 20.07.2000 tran
-         + лишний проход для вычисления максимальной длины строки */
-      int MaxLen=20;
-
-      while (1)
-      {
-        int MenuTextLen;
-        char ItemKey[512],HotKey[10],Label[512],MenuText[512];
-        sprintf(ItemKey,"%s\\Item%d",MenuKey,NumLine);
-        if (!GetRegKey(ItemKey,"HotKey",HotKey,"",sizeof(HotKey)))
-          break;
-        if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
-          break;
-        SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
-        /* $ 28.07.2000 VVM
-           + Обработка переменных окружения
-        */
-        ExpandEnvironmentStr(Label, Label, sizeof(Label));
-        /* VVM $ */
-
-        int FuncNum=0;
-        if (strlen(HotKey)>1)
-        {
-          FuncNum=atoi(&HotKey[1]);
-          if (FuncNum<1 || FuncNum>12)
-            FuncNum=1;
-          sprintf(HotKey,"F%d",FuncNum);
-        }
-        /* $ 14.10.2000 VVM
-           + Разделитель меню, если Метка пуста, а ХотКей="-"
-        */
-        if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
-        {
-         // Nothing to do
-        }
-        else
-        {
-          sprintf(MenuText,"%s%-3.3s %-20.*s",FuncNum>0 ? "":"&",HotKey,ScrX-12,Label);
-          MenuTextLen=strlen(MenuText)-(FuncNum>0?1:0);
-          MaxLen=(MaxLen<MenuTextLen ? MenuTextLen : MaxLen);
-        } /* else */
-        /* VVM $ */
-        NumLine++;
-      }
-
-      // коррекция максимальной длины
-      if(MaxLen > ScrX-14)
-        MaxLen = ScrX-14;
-
-      NumLine=0;
-
-      while (1)
-      {
-        char ItemKey[512],HotKey[10],Label[512],MenuText[512];
-        sprintf(ItemKey,"%s\\Item%d",MenuKey,NumLine);
-        if (!GetRegKey(ItemKey,"HotKey",HotKey,"",sizeof(HotKey)))
-          break;
-        if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
-          break;
-        SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
-        /* $ 28.07.2000 VVM
-           + Обработка переменных окружения
-        */
-        ExpandEnvironmentStr(Label, Label, sizeof(Label));
-        /* VVM $ */
-
-        int SubMenu;
-        GetRegKey(ItemKey,"Submenu",SubMenu,0);
-
-        int FuncNum=0;
-        if (strlen(HotKey)>1)
-        {
-          FuncNum=atoi(&HotKey[1]);
-          if (FuncNum<1 || FuncNum>12)
-            FuncNum=1;
-          sprintf(HotKey,"F%d",FuncNum);
-        }
-        /* $ 14.10.2000 VVM
-           + Разделитель меню, если Метка пуста, а ХотКей="-"
-        */
-        if ((strlen(Label)==0) && (strcmp(HotKey,"-")==0))
-        {
-          UserMenuItem.Flags|=LIF_SEPARATOR;
-          UserMenuItem.Flags&=~LIF_SELECTED;
-          if (NumLine==MenuPos)
-            MenuPos++;
-        }
-        else
-        {
-        /* $ 20.07.2000 tran
-           %-20.*s поменял на %-*.*s и используется MaxLen как максимальная длина */
-          sprintf(MenuText,"%s%-3.3s %-*.*s",FuncNum>0 ? "":"&",HotKey,MaxLen,MaxLen,Label);
-        /* tran 20.07.2000 $ */
-          if (SubMenu)
-          {
-            /* $ 07.05.2001 SVS
-               FAR 1.70.3 b591. Пускается с ключем -a. В меню по F2 пункты с
-               подменю справа обозначаюися ".". Хотелось бы ">".
-            */
-            if(Opt.CleanAscii)
-              SubMenuSymbol[1]='>';
-            /* SVS $ */
-            strcat(MenuText,SubMenuSymbol);
-          }
-          strncpy(UserMenuItem.Name,MenuText,sizeof(UserMenuItem.Name));
-          UserMenuItem.SetSelect(NumLine==MenuPos);
-          UserMenuItem.Flags&=~LIF_SEPARATOR;
-        }
-        /* VVM $ */
-        int ItemPos=UserMenu.AddItem(&UserMenuItem);
-        if (FuncNum>0)
-          FuncPos[FuncNum-1]=ItemPos;
-        NumLine++;
-      }
-
-      *UserMenuItem.Name=0;
-      UserMenuItem.Flags&=~LIF_SEPARATOR;
-      UserMenuItem.SetSelect(NumLine==MenuPos);
-      UserMenu.AddItem(&UserMenuItem);
+      NumLine=FillUserMenu(UserMenu,MenuKey,MenuPos,FuncPos,Name,ShortName);
 
       {
         MenuModified=TRUE;
@@ -615,33 +635,36 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
           {
             case KEY_DEL:
               if (SelectPos<NumLine)
+              {
                 if (DeleteMenuRecord(MenuKey,SelectPos))
                 {
-                  UserMenu.Hide();
-                  RetCode=ProcessSingleMenu(MenuKey,SelectPos);
+                  UserMenu.Hide(); // спрячем
+                  // "изнасилуем" (перезаполним :-)
+                  NumLine=FillUserMenu(UserMenu,MenuKey,SelectPos,FuncPos,Name,ShortName);
+                  // заставим манагер менюхи корректно отрисовать ширину и
+                  // высоту, а заодно и скорректировать вертикальные позиции
+                  UserMenu.SetPosition(-1,-1,-1,-1);
+                  // заставим перерисоваться ;-)
                   MenuModified=TRUE;
-                  return(RetCode);
                 }
-              break;
-            case KEY_INS:
-              if (EditMenuRecord(MenuKey,SelectPos,NumLine,1))
-              {
-                UserMenu.Hide();
-                RetCode=ProcessSingleMenu(MenuKey,SelectPos);
-                MenuModified=TRUE;
-                return(RetCode);
               }
               break;
+            case KEY_INS:
             case KEY_F4:
             case KEY_SHIFTF4:
-              if (SelectPos<NumLine)
-                if (EditMenuRecord(MenuKey,SelectPos,NumLine,0))
+              if (Key != KEY_INS && SelectPos>=NumLine)
+                break;
+              else
+              {
+                if (EditMenuRecord(MenuKey,SelectPos,NumLine,Key == KEY_INS))
                 {
+                // все махинации аналогичны при Del
                   UserMenu.Hide();
-                  RetCode=ProcessSingleMenu(MenuKey,SelectPos);
+                  NumLine=FillUserMenu(UserMenu,MenuKey,SelectPos,FuncPos,Name,ShortName);
+                  UserMenu.SetPosition(-1,-1,-1,-1);
                   MenuModified=TRUE;
-                  return(RetCode);
                 }
+              }
               break;
             case KEY_ALTF4:
               if (RegVer)
@@ -728,12 +751,14 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 
     if (SubMenu)
     {
-      char SubMenuKey[512];
+      char SubMenuKey[512],SubMenuLabel[128];
       sprintf(SubMenuKey,"%s\\Item%d",MenuKey,ExitCode);
+      if(!GetRegKey(SubMenuKey,"Label",SubMenuLabel,"",sizeof(SubMenuLabel)))
+        SubMenuLabel[0]=0;
 /* $ 14.07.2000 VVM
    ! Если закрыли подменю, то остаться. Инече передать управление выше
 */
-      MenuPos=ProcessSingleMenu(SubMenuKey,0);
+      MenuPos=ProcessSingleMenu(SubMenuKey,0,SubMenuLabel);
       if (MenuPos!=EC_CLOSE_LEVEL)
         return(MenuPos);
 /* VVM $ */
@@ -839,10 +864,13 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 int DeleteMenuRecord(char *MenuKey,int DeletePos)
 {
   char RecText[200],ItemName[200],RegKey[512];
+  int SubMenu;
   sprintf(RegKey,"%s\\Item%d",MenuKey,DeletePos);
   GetRegKey(RegKey,"Label",RecText,"",sizeof(RecText));
+  GetRegKey(RegKey,"Submenu",SubMenu,0);
   sprintf(ItemName,"\"%s\"",RecText);
-  if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(MAskDeleteMenuItem),
+  if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),
+          MSG(!SubMenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),
               ItemName,MSG(MDelete),MSG(MCancel))!=0)
     return(FALSE);
   MenuModified=TRUE;
