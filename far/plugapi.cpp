@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.68 06.06.2001 $ */
+/* Revision: 1.69 19.06.2001 $ */
 
 /*
 Modify:
+  19.06.2001
+    - Баг: не работало автоопределение кодировки после 268.
   06.06.2001 SVS
     - Во время исполнения макроса в меню игнорировались BreakKeys.
   05.06.2001 tran
@@ -1329,8 +1331,13 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     FILE *DataFile;
     strcpy(DataFileName,Opt.TempPath);
     strcat(DataFileName,FarTmpXXXXXX);
+    /* $ 19.06.2001
+       - Баг: не работало автоопределение.
+         Эх, Валя, зачем же ты return -1 закомментарил в 268??
+    */
     if (mktemp(DataFileName)==NULL || (DataFile=fopen(DataFileName,"w+b"))==NULL)
-    //if (FarMkTemp(DataFileName,"Far")==NULL || (DataFile=fopen(DataFileName,"w+b"))==NULL)      return(-1);
+      return(-1);
+    /* IS $ */
     fwrite(Buffer,1,BufferSize,DataFile);
     fseek(DataFile,0,SEEK_SET);
     CharTableSet TableSet;
