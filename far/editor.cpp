@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.38 11.10.2000 $ */
+/* Revision: 1.39 16.10.2000 $ */
 
 /*
 Modify:
+   16.10.2000 tran 1.39
+    ! первый поиск идет с текущей позиции, а следующий - со следующей (FGWL#10)
    11.10.2000 SVS
     ! Bs удаляет блок так же, как и Del
     - "Редактировали, залочили, при выходе - потеряли файл :-("
@@ -2793,8 +2795,11 @@ void Editor::Search(int Next)
     Match=0;
     UserBreak=0;
     CurPos=CurLine->EditLine.GetCurPos();
-    if (!ReplaceMode && !ReverseSearch)
+    /* $ 16.10.2000 tran
+       CurPos увеличивается при следующем поиске */
+    if (!ReplaceMode && !ReverseSearch && Next)
       CurPos++;
+    /* tran $ */
 
     NewNumLine=NumLine;
     CurPtr=CurLine;
