@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.110 02.05.2003 $ */
+/* Revision: 1.111 08.05.2003 $ */
 
 /*
 Modify:
+  08.05.2003 SVS
+    - BugZ#888 - две строки подстветки в драйв меню
   02.05.2003 SVS
     - BugZ#727 - [wish] Прикрутить Ctrl-R к меню выбора дисков
       Теперь поправлен:
@@ -446,7 +448,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
   char DiskType[100],RootDir[10],DiskLetter[50];
   DWORD Mask,DiskMask;
   int DiskCount,Focus,I,J;
-  int ShowSpecial=FALSE;
+  int ShowSpecial=FALSE, SetSelected=FALSE;
 
   memset(&ChDiskItem,0,sizeof(ChDiskItem));
   *DiskLetter=0;
@@ -577,10 +579,20 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
           }
           ShowSpecial=TRUE;
         }
+
         if (FirstCall)
+        {
           ChDiskItem.SetSelect(I==Pos);
+          if(!SetSelected)
+            SetSelected=(I==Pos);
+        }
         else if(Pos < DiskCount)
+        {
           ChDiskItem.SetSelect(MenuLine==Pos);
+          if(!SetSelected)
+            SetSelected=(MenuLine==Pos);
+        }
+
         strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name)-1);
         if (strlen(MenuText)>4)
           ShowSpecial=TRUE;
@@ -765,8 +777,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         ChDiskItem.Flags&=~LIF_SEPARATOR;
         for (int I=0;I<PluginMenuItemsCount;++I)
         {
-          if(Pos > DiskCount)
+          if(Pos > DiskCount && !SetSelected)
+          {
             MPItems.getItem(I)->Item.SetSelect(DiskCount+I+1==Pos);
+            if(!SetSelected)
+              SetSelected=DiskCount+I+1==Pos;
+          }
           ChDisk.AddItem(&MPItems.getItem(I)->Item);
         }
       }
