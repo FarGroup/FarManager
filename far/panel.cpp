@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.82 19.01.2002 $ */
+/* Revision: 1.83 31.01.2002 $ */
 
 /*
 Modify:
+  31.01.2002 SVS
+    - BugZ#208 - Несохранение позиции в панели.
   19.01.2002 VVM
     ! При удалении последнего диска из меню остаемся на предыдущем диске
   18.01.2002 VVM
@@ -787,14 +789,23 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       if (Message(MSG_WARNING,2,MSG(MError),MsgStr,MSG(MRetry),MSG(MCancel))!=0)
         return(-1);
     }
-    char CurDir[NM];
-    GetCurrentDirectory(sizeof(CurDir),CurDir);
-    Focus=GetFocus();
-    Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,FALSE);
-    NewPanel->SetCurDir(CurDir,TRUE);
-    NewPanel->Show();
-    if (Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
-      NewPanel->SetFocus();
+    char NewCurDir[NM];
+    GetCurrentDirectory(sizeof(NewCurDir),NewCurDir);
+    // BugZ#208. Если пути совпадают, то ничего не делаем.
+    if(LocalStricmp(CurDir,NewCurDir))
+    {
+      Focus=GetFocus();
+      Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,FALSE);
+      NewPanel->SetCurDir(NewCurDir,TRUE);
+      NewPanel->Show();
+      if (Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
+        NewPanel->SetFocus();
+    }
+    else
+    {
+      // А нужно ли делать здесь Update????
+      Update(UPDATE_KEEP_SELECTION);
+    }
   }
   else
     if (UserDataSize==2)
