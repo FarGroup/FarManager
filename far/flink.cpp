@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.34 31.05.2002 $ */
+/* Revision: 1.35 06.06.2002 $ */
 
 /*
 Modify:
+  06.06.2002 VVM
+    ! В функции GetPathRoot учтем UNC пути.
   31.05.2002 SVS
     - Бага при создании симлинка с subst-диска (проверим и поправим)
     + SetLastError в нужных местах
@@ -845,31 +847,63 @@ void GetPathRootOne(const char *Path,char *Root)
 void WINAPI GetPathRoot(const char *Path,char *Root)
 {
   char TempRoot[1024], *TmpPtr;
+  char NewPath[2048];
+  /* $ 06.06.2002 VVM
+    ! Учтем UNC пути */
+  int IsUNC = FALSE;
+  int PathLen = strlen(Path);
+  strncpy(NewPath, Path, sizeof(NewPath)-1);
+  // Проверим имя на UNC
+  if (PathLen > 2 && Path[0] == '\\' && Path[1] == '\\')
+  {
+    if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
+        PathLen > 3 && Path[2] == '?' && Path[3] == '\\')
+    { // Проверим на длинное UNC имя под NT
+      strncpy(NewPath, &Path[4], sizeof(NewPath)-1);
+      if (PathLen > 8 && strncmp(NewPath, "UNC\\", 4)==0)
+      {
+        IsUNC = TRUE;
+        strncpy(NewPath, "\\",  sizeof(NewPath)-1);
+        strncat(NewPath, &Path[7], sizeof(NewPath)-1);
+      }
+    }
+    else
+      IsUNC = TRUE;
+  }
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
     DWORD FileAttr;
     char JuncName[NM];
 
-    strncpy(TempRoot,Path,sizeof(TempRoot)-1);
+    strncpy(TempRoot,NewPath,sizeof(TempRoot)-1);
     TmpPtr=TempRoot;
-    while(strlen(TempRoot) > 2)
+
+    char *CtlChar = NULL; // Указатель на начало реального пути в UNC. Без имени сервера
+    if (IsUNC)
+      CtlChar = strchr(TmpPtr+2,'\\');
+    if (!IsUNC || CtlChar)
     {
-      FileAttr=GetFileAttributes(TempRoot);
-      if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
-      {
-        if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
-        {
-           GetPathRootOne(JuncName+4,Root);
-           return;
-        }
-      }
       char *Ptr=strrchr(TmpPtr,'\\');
-      if(Ptr) *Ptr=0; else break;
-    }
-  }
-  //GetPathRootOne(Path,Root);
+      while(Ptr >= CtlChar && strlen(TempRoot) > 2)
+      {
+        FileAttr=GetFileAttributes(TempRoot);
+        if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+        {
+          if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
+          {
+             GetPathRootOne(JuncName+4,Root);
+             return;
+          }
+        } /* if */
+        if(Ptr) *Ptr=0; else break;
+        Ptr=strrchr(TmpPtr,'\\');
+      } /* while */
+    } /* if */
+  } /* if */
+  GetPathRootOne(NewPath,Root);
   // Хмм... а ведь здесь может быть \\?\ и еже с ним
-  GetPathRootOne(Path+((strlen(Path) > 4 && Path[0]=='\\' && Path[2]=='?' && Path[3]=='\\')?4:0),Root);
+  //GetPathRootOne(Path+((strlen(Path) > 4 && Path[0]=='\\' && Path[2]=='?' && Path[3]=='\\')?4:0),Root);
+  /* VVM $ */
 }
 
 // Verify that both files are on the same NTFS disk
