@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.32 05.03.2001 $ */
+/* Revision: 1.33 11.03.2001 $ */
 
 /*
 Modify:
+  11.03.2001 VVM
+    ! Печать через pman только из файловых панелей.
   05.03.2001 SVS
     ! Исключаем Alt-[Shift-]-Bs из быстрого поиска
   28.02.2001 IS
@@ -1099,7 +1101,11 @@ int FileList::ProcessKey(int Key)
        Печать текущего/выбранных файла/ов
     */
     case KEY_ALTF5:
-      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+      /* $ 11.03.2001 VVM
+        ! Печать через pman только из файловых панелей. */
+      if ((PanelMode!=PLUGIN_PANEL) &&
+      /* VVM $ */
+         (CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1))
          CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_FILEPANEL,0); // printman
       else if (FileCount>0 && SetCurPath())
         PrintFiles(this);
