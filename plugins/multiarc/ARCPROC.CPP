@@ -142,7 +142,7 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
   GetCommandFormat(CommandType,Command,sizeof(Command));
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
   int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
-  char Password[256];
+  char Password[512];
   *Password=0;
 
   int AskVolume=(OpMode & (OPM_FIND|OPM_VIEW|OPM_EDIT|OPM_QUICKVIEW))==0 &&
@@ -315,21 +315,6 @@ int PluginClass::FormatToPlugin(char *Format, int &PluginNumber, int &PluginType
         return TRUE;
       }
     }
-  }
-  return FALSE;
-}
-
-
-int PluginClass::GetPassword(char *Password,const char *FileName)
-{
-  char Prompt[NM],InPass[80];
-  FSF.sprintf(Prompt,GetMsg(MGetPasswordForFile),FileName);
-  if(Info.InputBox((const char*)GetMsg(MGetPasswordTitle),
-                  (const char*)Prompt,NULL,NULL,
-                  InPass,sizeof(InPass),NULL,FIB_PASSWORD|FIB_ENABLEEMPTY))
-  {
-    strcpy(Password,InPass);
-    return TRUE;
   }
   return FALSE;
 }

@@ -16,11 +16,18 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   ::Info=*Info;
   ::FSF=*Info->FSF;
   ::Info.FSF=&::FSF;
+
+  TIME_ZONE_INFORMATION tzi;
+  if (GetTimeZoneInformation(&tzi)!=0xFFFFFFFF)
+    timezone=tzi.Bias*60;
+
   FarVER=::Info.AdvControl(::Info.ModuleNumber,ACTL_GETFARVERSION,NULL);
 
   ::FSF.sprintf(PluginRootKey,"%s\\MultiArc",Info->RootKey);
+
   if (ArcPlugin==NULL)
     ArcPlugin=new ArcPlugins(Info->ModuleName);
+
   Opt.HideOutput=GetRegKey(HKEY_CURRENT_USER,"","HideOutput",0);
   Opt.ProcessShiftF1=GetRegKey(HKEY_CURRENT_USER,"","ProcessShiftF1",1);
   Opt.UseLastHistory=GetRegKey(HKEY_CURRENT_USER,"","UseLastHistory",0);

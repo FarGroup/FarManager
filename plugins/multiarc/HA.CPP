@@ -35,66 +35,15 @@
 #pragma comment(linker, "/merge:.text=.")
 #endif
 
-#if _MSC_VER
-struct dosdate_t {
-   unsigned char day;       /* 1-31 */
-   unsigned char month;     /* 1-12 */
-   unsigned int  year;      /* 1980 - 2099 */
-   unsigned char dayofweek; /* 0 - 6 (0=Sunday) */
-};
-struct time {
-   unsigned char ti_min;      /* minutes */
-   unsigned char ti_hour;     /* hours */
-   unsigned char ti_hund;     /* hundredths of seconds */
-   unsigned char ti_sec;      /* seconds */
-};
-#endif
-
-void UnixToDos(long time, struct dosdate_t *d, struct time *t);
-
 static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
-static int timezone=0;
 
-void UnixToDos(long time, struct dosdate_t *d, struct time *t)
+static struct MultiArcStartupInfo MAInfo;
+
+void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *MAInfo)
 {
-  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-  time -= 24L * 60L * 60L * 3652L + timezone;
-  t->ti_hund = 0;
-  t->ti_sec = time % 60;
-  time /= 60;
-  t->ti_min = time % 60;
-  time /= 60;
-  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
-  time %= 1461L * 24L;
-  if (time >= 366 * 24)
-  {
-    time -= 366 * 24;
-    d->year++;
-    d->year += (int)(time / (365 * 24));
-    time %= 365 * 24;
-  }
-  t->ti_hour = time % 24;
-  time /= 24;
-  time++;
-  if ((d->year & 3) == 0)
-  {
-    if (time > 60)
-      time--;
-    else
-      if (time == 60)
-      {
-        d->month = 2;
-        d->day = 29;
-        return;
-      }
-  }
-  for (d->month = 0; Days[d->month] < time; d->month++)
-    time -= Days[d->month];
-  d->month++;
-  d->day = time;
+  ::MAInfo=*MAInfo;
 }
-
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -117,10 +66,6 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   *Type=0;
 
   FileSize=GetFileSize(ArcHandle,NULL);
-
-  TIME_ZONE_INFORMATION tzi;
-  if (GetTimeZoneInformation(&tzi)!=0xFFFFFFFF)
-    timezone=-tzi.Bias*60;
 
   NextPosition=4;
   return(TRUE);
@@ -172,20 +117,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
   Item->FindData.dwFileAttributes=(Header.Type & 0xf)==0xe ? FILE_ATTRIBUTE_DIRECTORY:0;
   Item->CRC32=Header.CRC;
-  struct dosdate_t dt;
-  struct time tm;
-  UnixToDos(Header.FileTime,&dt,&tm);
-  SYSTEMTIME st;
-  st.wYear=dt.year;
-  st.wMonth=dt.month;
-  st.wDay=dt.day;
-  st.wHour=tm.ti_hour;
-  st.wMinute=tm.ti_min;
-  st.wSecond=tm.ti_sec;
-  st.wMilliseconds=tm.ti_hund*10;
-  FILETIME lft;
-  SystemTimeToFileTime(&st,&lft);
-  LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
+  MAInfo.UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
   Item->FindData.nFileSizeLow=Header.UnpSize;
   Item->FindData.nFileSizeHigh=0;
   Item->PackSize=Header.PackSize;

@@ -65,7 +65,20 @@ int WINAPI ArcPlugins::LoadFmtModules(const WIN32_FIND_DATA *fdata,
       CurPlugin.pLoadFormatModule(PluginName);
 
     if (CurPlugin.pSetFarInfo)
-      CurPlugin.pSetFarInfo(&Info);
+    {
+      static struct MultiArcStartupInfo MAInfo0={0};
+      struct MultiArcStartupInfo MAInfoTmp;
+
+      if(!MAInfo0.FARInfo)
+      {
+        MAInfo0.FARInfo=&::Info;
+        MAInfo0.GetPassword=GetPassword;
+        MAInfo0.UnixTimeToFileTime=UnixTimeToFileTime;
+      }
+
+      memcpy(&MAInfoTmp,&MAInfo0,sizeof(struct MultiArcStartupInfo));
+      CurPlugin.pSetFarInfo(&MAInfoTmp);
+    }
 
     struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(plugins->PluginsData,
                             sizeof(struct PluginItem)*(plugins->PluginsCount+1));

@@ -57,9 +57,9 @@ struct FarStandardFunctions *FSF;
 
 const char Str_TypeName[]="TypeName";
 
-void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *MAInfo)
 {
-  FSF=Info->FSF;
+  FSF=MAInfo->FARInfo->FSF;
 }
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName)

@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
 
-/* $Revision: 1.06 12.02.2002 $ */
+/* Revision: 1.07 02.07.2002 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -24,6 +24,18 @@
     #define _export
   #endif
 #endif
+
+struct PluginStartupInfo;
+
+typedef int  (WINAPI *MAGETPASSWORD)(char *Password,const char *FileName);
+typedef void (WINAPI *MAUNIXTIMETOFILETIME)(DWORD UnixTime,FILETIME *FileTime);
+
+struct MultiArcStartupInfo{
+  const struct PluginStartupInfo *FARInfo;
+  MAGETPASSWORD        GetPassword;
+  MAUNIXTIMETOFILETIME UnixTimeToFileTime;
+};
+
 
 enum GETARC_CODE
 {
@@ -69,7 +81,7 @@ extern "C"{
 #endif
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName);
-void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info);
+void  WINAPI _export SetFarInfo(const struct MultiArcStartupInfo *Info);
 
 BOOL  WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize);
 DWORD WINAPI _export GetSFXPos(void);

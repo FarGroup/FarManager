@@ -122,7 +122,7 @@ typedef int (WINAPI *PLUGINGETARCITEM)(struct PluginPanelItem *Item,struct ArcIt
 typedef BOOL (WINAPI *PLUGINCLOSEARCHIVE)(struct ArcInfo *Info);
 typedef BOOL (WINAPI *PLUGINGETFORMATNAME)(int Type,char *FormatName,char *DefaultExt);
 typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest);
-typedef void (WINAPI *PLUGINSETFARINFO)(const struct PluginStartupInfo *plg);
+typedef void (WINAPI *PLUGINSETFARINFO)(const struct MultiArcStartupInfo *plg);
 typedef DWORD (WINAPI *PLUGINGETSFXPOS)(void);
 
 struct PluginItem
@@ -187,7 +187,6 @@ class PluginClass
     BOOL GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt);//$ AA 29.11.2001
     BOOL GetFormatName(char *FormatName, char *DefExt=NULL); //$ AA 25.11.2001
     void GetCommandFormat(int Command,char *Format,int FormatSize);
-    int GetPassword(char *Password,const char *FileName);
     void FreeArcData();
 
   public:
@@ -321,6 +320,7 @@ extern struct PluginStartupInfo Info;
 extern class ArcPlugins *ArcPlugin;
 extern int FarVER;
 extern char *CmdNames[];
+extern int timezone;
 
 #ifdef _NEW_ARC_SORT_
 extern char IniFile[];
@@ -373,5 +373,10 @@ int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,int &ValueData,DW
 int GetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD Default);
 void DeleteRegKey(HKEY hRoot,const char *Key);
 void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
+
+
+int WINAPI GetPassword(char *Password,const char *FileName);
+void WINAPI UnixToDos(long time, struct dosdate_t *d, struct time *t);
+void WINAPI UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime);
 
 #endif // __MULTIARC_HPP__
