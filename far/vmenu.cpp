@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.54 05.09.2001 $ */
+/* Revision: 1.55 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 SVS
+    ! Очредное уточнение на размер меню (вроде от глюков избавились!)
   05.09.2001 SVS
     ! небольшое уточнение на размер меню (вроде от глюков избавились?)
   14.08.2001 SVS
@@ -455,8 +457,8 @@ void VMenu::Show()
   if (X1<2)
     X1=2;
   if (X2<=0)
-    X2=X1+MaxLength+2;
-  if (!AutoCenter && X2>ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
+    X2=X1+MaxLength+4;
+  if (!AutoCenter && X2 > ScrX-4+2*(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
   {
     X1+=ScrX-4-X2;
     X2=ScrX-4;

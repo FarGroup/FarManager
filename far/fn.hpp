@@ -7,14 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.101 07.08.2001 $ */
+/* Revision: 1.102 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 SVS
+    + GetMenuHotKey()
   07.08.2001 IS
     ! FarCharTable: второй параметр теперь не const, потому что он может
-      меняться.
- в FarCharTable.
+      меняться. в FarCharTable.
   03.08.2001 IS
     + InsertQuote
   31.07.2001 IS
@@ -939,5 +940,12 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 
 void PrepareStrFTime(void);
 int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct tm *t);
+
+BOOL WINAPI GetMenuHotKey(char *HotKey,int LenHotKey,
+                          char *DlgHotKeyTitle,
+                          char *DlgHotKeyText,
+                          char *HelpTopic,
+                          char *RegKey,
+                          char *RegValueName);
 
 #endif  // __FARFUNC_HPP__

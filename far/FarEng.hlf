@@ -1573,6 +1573,7 @@ $ #Internal viewer#
     #Shift-F8#           Select custom character table
                        (see notes below)
     #Alt-F8#             ~Change current position~@ViewerGotoPos@
+    #Alt-F9#             Toggles the size of the FAR console window
     #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
     #Numpad5,F3,F10,Esc# Quit
     #Ctrl-F10#           Quit and position to the current file
@@ -1725,7 +1726,8 @@ $ #Internal editor#
    #F8#                      Toggle DOS/Windows text
    #Shift-F8#                Select custom character table
                            (see notes below)
-   #Alt-F8#                  ~Go to specified line and column~@EditorGotoPos@
+   #Alt-F8#                  ~Go to~@EditorGotoPos@ specified line and column
+   #Alt-F9#                  Toggles the size of the FAR console window
    #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
    #F10, Esc#                Quit
    #Shift-F10#               Save and quit

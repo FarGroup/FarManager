@@ -5,10 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.83 26.07.2001 $ */
+/* Revision: 1.84 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 SVS
+    ! В функция PluginsSet::Configure() и PluginsSet::CommandsMenu()
+      общий код назначения хоктеев вынесен в отдельную "стандартную"
+      функцию GetMenuHotKey(). Это даст возможность ввести проверку
+      на дубликаты среди хоткеев и несколько подсократит код.
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   24.07.2001 IS
@@ -1802,34 +1807,18 @@ void PluginsSet::Configure(int StartPos)
           case KEY_F4:
             if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
             {
-              int ExitCode;
-              static struct DialogData PluginDlgData[]=
+              if(GetMenuHotKey(NULL,1,
+                        (char *)MPluginHotKeyTitle,
+                        (char *)MPluginHotKey,
+                        NULL,RegKey,"ConfHotkey"))
               {
-                DI_DOUBLEBOX,3,1,60,4,0,0,0,0,(char *)MPluginHotKeyTitle,
-                DI_TEXT,5,2,0,0,0,0,0,0,(char *)MPluginHotKey,
-                DI_FIXEDIT,5,3,5,3,1,0,0,1,""
-              };
-              MakeDialogItems(PluginDlgData,PluginDlg);
-
-              {
-                GetRegKey(RegKey,"ConfHotkey",PluginDlg[2].Data,"",sizeof(PluginDlg[2].Data));
-                Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
-                Dlg.SetPosition(-1,-1,64,6);
-                Dlg.Process();
-                ExitCode=Dlg.GetExitCode();
-              }
-              if (ExitCode==2)
-              {
-                PluginDlg[2].Data[1]=0;
-                if (*PluginDlg[2].Data==0 || *PluginDlg[2].Data==' ')
-                  SetRegKey(RegKey,"ConfHotkey","");
-                  //DeleteRegKey(RegKey);
-                else
-                  SetRegKey(RegKey,"ConfHotkey",PluginDlg[2].Data);
                 PluginList.Hide();
                 Configure(SelPos);
                 return;
               }
+              /* Грязный хак :-( */
+              PluginList.Hide();
+              PluginList.Show();
             }
             break;
           default:
@@ -1981,34 +1970,18 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       case KEY_F4:
         if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
         {
-          int ExitCode;
-          static struct DialogData PluginDlgData[]=
+          if(GetMenuHotKey(NULL,1,
+                           (char *)MPluginHotKeyTitle,
+                           (char *)MPluginHotKey,
+                           NULL,RegKey,"Hotkey"))
           {
-            DI_DOUBLEBOX,3,1,60,4,0,0,0,0,(char *)MPluginHotKeyTitle,
-              DI_TEXT,5,2,0,0,0,0,0,0,(char *)MPluginHotKey,
-              DI_FIXEDIT,5,3,5,3,1,0,0,1,""
-          };
-          MakeDialogItems(PluginDlgData,PluginDlg);
-
-          {
-            GetRegKey(RegKey,"Hotkey",PluginDlg[2].Data,"",sizeof(PluginDlg[2].Data));
-            Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
-            Dlg.SetPosition(-1,-1,64,6);
-            Dlg.Process();
-            ExitCode=Dlg.GetExitCode();
-          }
-          if (ExitCode==2)
-          {
-            PluginDlg[2].Data[1]=0;
-            if (*PluginDlg[2].Data==0 || *PluginDlg[2].Data==' ')
-              SetRegKey(RegKey,"Hotkey","");
-            //DeleteRegKey(RegKey);
-            else
-              SetRegKey(RegKey,"Hotkey",PluginDlg[2].Data);
             PluginList.Hide();
             ///            return(CommandsMenu(Editor,Viewer,SelPos));
             return(CommandsMenu(ModalType,SelPos));///
           }
+          /* Грязный хак :-( */
+          PluginList.Hide();
+          PluginList.Show();
         }
         break;
       default:

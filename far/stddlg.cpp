@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.15 01.08.2001 $ */
+/* Revision: 1.16 09.09.2001 $ */
 
 /*
 Modify:
+  09.09.2001 SVS
+    + GetMenuHotKey()
   01.08.2001 SVS
     ! Если хотя бы один из последних трех параметров функции
       GetSearchReplaceString равен NULL, то произведем метаморфозы диалогов
@@ -582,4 +584,79 @@ int WINAPI GetNameAndPassword(char *Title,char *UserName,char *Password,char *He
     OemToChar(Password,Password);
   }
   return(TRUE);
+}
+
+/* Диалог назначения горячей клавиши
+   либо из реестра данные берутся (высший приоритет), либо из
+   параметра "HotKey".
+   Либо HotKey=NULL либо RegKey=NULL, но не оба сразу!
+
+   !!! СЮДА МОЖНО ДОБАВИТЬ КОД ПРОВЕРКИ ДУБЛЕЙ СРЕДИ ГОРЯЧИХ КЛАВИШ !!!
+
+   Return: TRUE  - все ОБИ
+           FALSE - отменили назначение хоткея
+*/
+BOOL WINAPI GetMenuHotKey(char *HotKey,          // хоткей, может быть =NULL
+                          int LenHotKey,         // блина хоткея (мин. = 1)
+                          char *DlgHotKeyTitle,  // заголовок диалога
+                          char *DlgHotKeyText,   // prompt назначения
+                          char *HelpTopic,       // темя помощи, может быть =NULL
+                          char *RegKey,          // ключ, откуда берем значение, может быть =NULL
+                          char *RegValueName)    // название параметра из реестра, может быть =NULL
+{
+  int ExitCode;
+/*
+г================ Assign plugin hot key =================¬
+¦ Enter hot key (letter or digit)                        ¦
+¦ _                                                      ¦
+L========================================================-
+*/
+  static struct DialogData PluginDlgData[]=
+  {
+    /* 00 */DI_DOUBLEBOX,3,1,60,4,0,0,0,0,"",
+    /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,"",
+    /* 02 */DI_FIXEDIT,5,3,5,3,1,0,0,1,""
+  };
+
+  if(DlgHotKeyTitle) PluginDlgData[0].Data=(char*)DlgHotKeyTitle;
+  if(DlgHotKeyText)  PluginDlgData[1].Data=(char*)DlgHotKeyText;
+
+  MakeDialogItems(PluginDlgData,PluginDlg);
+
+  if(RegKey && *RegKey)
+    GetRegKey(RegKey,RegValueName,PluginDlg[2].Data,"",sizeof(PluginDlg[2].Data));
+  else if(HotKey)
+    strcpy(PluginDlg[2].Data,HotKey);
+  else
+    PluginDlg[2].Data[0]=0;
+
+  PluginDlg[2].X2+=LenHotKey-1; // расширим, если надо
+
+  {
+    Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
+    if(HelpTopic)
+      Dlg.SetHelp(HelpTopic);
+    Dlg.SetPosition(-1,-1,64,6);
+    Dlg.Process();
+    ExitCode=Dlg.GetExitCode();
+  }
+
+  if (ExitCode==2)
+  {
+    PluginDlg[2].Data[LenHotKey]=0;
+    if(RegKey && *RegKey)
+    {
+      RemoveLeadingSpaces(PluginDlg[2].Data);
+      if (*PluginDlg[2].Data==0)
+        SetRegKey(RegKey,RegValueName,"");
+        //DeleteRegKey(RegKey);
+      else
+        SetRegKey(RegKey,RegValueName,PluginDlg[2].Data);
+    }
+
+    if(HotKey) // скопируем, если надо
+      strcpy(HotKey,PluginDlg[2].Data);
+    return TRUE;
+  }
+  return FALSE;
 }
