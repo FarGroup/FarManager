@@ -616,7 +616,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 #ifdef _ARC_UNDER_CURSOR_
 BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 {
-  if(!GetRegKey(HKEY_CURRENT_USER,"","ArcUnderCursor",1))
+  if(!GetRegKey(HKEY_CURRENT_USER,"","ArcUnderCursor",0))
     return FALSE;
 
   PanelInfo pi;
@@ -673,7 +673,7 @@ BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
 #ifdef _GROOP_NAME_
 void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
 {
-  BOOL NoGroop=!GetRegKey(HKEY_CURRENT_USER,"","GroopName",1);
+  BOOL NoGroop=!GetRegKey(HKEY_CURRENT_USER,"","GroopName",0);
 
   char *Name=Items->FindData.cFileName;
   char *Dot=strrchr(Name, '.');

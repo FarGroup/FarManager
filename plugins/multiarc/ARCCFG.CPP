@@ -1,7 +1,7 @@
 int ConfigGeneral()
 {
   struct InitDialogItem InitItems[]={
-  /*  0 */{DI_DOUBLEBOX,3,1,72,17,0,0,0,0,(char *)MGConfigTitle},
+  /*  0 */{DI_DOUBLEBOX,3,1,72,16,0,0,0,0,(char *)MGConfigTitle},
   /*  1 */{DI_RADIOBUTTON,5,2,0,0,1,0,DIF_GROUP,0,(char *)MGConfigHideNone},
   /*  2 */{DI_RADIOBUTTON,5,3,0,0,0,0,0,0,(char *)MGConfigHideView},
   /*  3 */{DI_RADIOBUTTON,5,4,0,0,0,0,0,0,(char *)MGConfigHideAlways},
@@ -12,16 +12,16 @@ int ConfigGeneral()
   //*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigDeleteExtFile},
   //*  8 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MGConfigAddExtArchive},
   /*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigAutoOffExactArcName},
-  /*  8 */{DI_CHECKBOX,5,9,0,0,0,1,DIF_DISABLE,0,(char *)MGConfigOldDialogStyle},
+  /*  8 */{DI_CHECKBOX,5,9,0,0,0,1,DIF_DISABLE|DIF_HIDDEN,0,(char *)MGConfigOldDialogStyle},
 
-  /*  9 */{DI_TEXT,5,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-  /* 10 */{DI_TEXT,5,11,0,0,0,0,0,0,(char *)MGConfigDizNames},
-  /* 11 */{DI_EDIT,5,12,70,10,0,0,0,0,""},
-  /* 12 */{DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MGConfigReadDiz},
-  /* 13 */{DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MGConfigUpdateDiz},
-  /* 14 */{DI_TEXT,5,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-  /* 15 */{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
-  /* 16 */{DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel},
+  /*  9 */{DI_TEXT,5,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /* 10 */{DI_TEXT,5,10,0,0,0,0,0,0,(char *)MGConfigDizNames},
+  /* 11 */{DI_EDIT,5,11,70,10,0,0,0,0,""},
+  /* 12 */{DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MGConfigReadDiz},
+  /* 13 */{DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MGConfigUpdateDiz},
+  /* 14 */{DI_TEXT,5,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+  /* 15 */{DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk},
+  /* 16 */{DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel},
   };
 
   struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
@@ -37,7 +37,7 @@ int ConfigGeneral()
   strcpy(DialogItems[11].Data.Data,Opt.DescriptionNames);
   DialogItems[12].Param.Selected=Opt.ReadDescriptions;
   DialogItems[13].Param.Selected=Opt.UpdateDescriptions;
-  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,19,"ArcSettings1",DialogItems,
+  int ExitCode=Info.Dialog(Info.ModuleNumber,-1,-1,76,18,"ArcSettings1",DialogItems,
                            sizeof(DialogItems)/sizeof(DialogItems[0]));
   if (ExitCode==16 || ExitCode < 0)
     return FALSE;

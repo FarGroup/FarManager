@@ -100,12 +100,9 @@ $ #Archive support configuration#
                         switches will be placed in the "Switches"
                         edit line.
 
- #Автосброс настройки#
- #"Точное соответствие#
- #имени архива"#
-
- #Старый стиль диалога#
- #"Добавить к архиву"#
+ #Автосброс настройки#    "Точное соответствие имени архива" будет
+ #"Точное соответствие#   выключаться при каждом открытии диалога
+ #имени архива"#          "Добавить к архиву"
 
  #Description list#       Names of files with ~descriptions~@:FileDiz@ of archived
  #names delimited#        files.
