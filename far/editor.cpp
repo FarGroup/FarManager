@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.95 16.05.2001 $ */
+/* Revision: 1.96 19.05.2001 $ */
 
 /*
 Modify:
+  19.05.2001 IS
+    - Решение проблемы непрошеной конвертации табуляции (которая должна быть
+      добавлена в начало строки при автоотступе) в пробелы при вставке
+      чего-либо из буфера обмена.
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -3559,19 +3563,34 @@ void Editor::Paste()
     }
     BlockStart=CurLine;
     BlockStartLine=NumLine;
-    int StartPos=CurLine->EditLine.GetCurPos();
+    /* $ 19.05.2001 IS
+       Решение проблемы непрошеной конвертации табуляции (которая должна быть
+       добавлена в начало строки при автоотступе) в пробелы.
+    */
+    int StartPos=CurLine->EditLine.GetCurPos(),
+        oldAutoIndent=EdOpt.AutoIndent;
+
     for (int I=0;ClipText[I]!=0;)
       if (ClipText[I]!=10)
         if (ClipText[I]==13)
         {
           CurLine->EditLine.Select(StartPos,-1);
           StartPos=0;
+          EdOpt.AutoIndent=FALSE;
           ProcessKey(KEY_ENTER);
           BlockUndo=TRUE;
           I++;
         }
         else
         {
+          if(EdOpt.AutoIndent)       // первый символ вставим так, чтобы
+          {                          // сработал автоотступ
+            ProcessKey(ClipText[I]);
+            I++;
+            StartPos=CurLine->EditLine.GetCurPos();
+            if(StartPos) StartPos--;
+          }
+
           int Pos=I;
           while (ClipText[Pos]!=0 && ClipText[Pos]!=10 && ClipText[Pos]!=13)
             Pos++;
@@ -3589,7 +3608,11 @@ void Editor::Paste()
         }
       else
         I++;
+
+    EdOpt.AutoIndent=oldAutoIndent;
+
     CurLine->EditLine.Select(StartPos,CurLine->EditLine.GetCurPos());
+    /* IS $ */
 
     if (SaveOvertype)
     {
@@ -4525,8 +4548,15 @@ void Editor::VPaste(char *ClipText)
           {
             ProcessKey(KEY_END);
             ProcessKey(KEY_ENTER);
-            for (int I=0;I<StartPos;I++)
-              ProcessKey(' ');
+            /* $ 19.05.2001 IS
+               Не вставляем пробелы тогда, когда нас об этом не просят, а
+               именно - при включенном автоотступе ничего вставлять не нужно,
+               оно само вставится и в другом месте.
+            */
+            if(!EdOpt.AutoIndent)
+              for (int I=0;I<StartPos;I++)
+                ProcessKey(' ');
+            /* IS $ */
           }
         }
         else
