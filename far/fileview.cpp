@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.61 23.12.2002 $ */
+/* Revision: 1.62 26.12.2002 $ */
 
 /*
 Modify:
+    - BugZ#754 - открытие редатора с большИми у2, х2
+      Проверим координаты в Init
   23.12.2002 SVS
     + Wish - В LNG-файлах отдельные позиции лейбаков для /e и /v
   10.12.2002 SVS
@@ -188,8 +190,24 @@ FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
   /* $ 02.11.2001 IS
        отрицательные координаты левого верхнего угла заменяются на нулевые
   */
-  if(X1<0) X1=0;
-  if(Y1<0) Y1=0;
+  if(X1 < 0)
+    X1=0;
+  if(X2 < 0 || X2 > ScrX)
+    X2=ScrX;
+  if(Y1 < 0)
+    Y1=0;
+  if(Y2 < 0 || Y2 > ScrY)
+    Y2=ScrY;
+  if(X1 >= X2)
+  {
+    X1=0;
+    X2=ScrX;
+  }
+  if(Y1 >= Y2)
+  {
+    Y1=0;
+    Y2=ScrY;
+  }
   /* IS $ */
   SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);

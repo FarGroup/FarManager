@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.274 10.12.2002 $ */
+/* Revision: 1.275 27.12.2002 $ */
 
 /*
 Modify:
+  27.12.2002 SVS
+    - Enter в DI_COMBOBOX не срабатывал, т.к. обрабатывался в коде обработки DIF_EDITOR`а
   10.12.2002 SVS
     ! Добавим LockScr - плавнее отрисовка!
   10.12.2002 SVS
@@ -3101,7 +3103,7 @@ int Dialog::ProcessKey(int Key)
 
     case KEY_ENTER:
     {
-      if (IsEdit(Item[FocusPos].Type) &&  (Item[FocusPos].Flags & DIF_EDITOR) && !(Item[FocusPos].Flags & DIF_READONLY))
+      if (Item[FocusPos].Type != DI_COMBOBOX && IsEdit(Item[FocusPos].Type) &&  (Item[FocusPos].Flags & DIF_EDITOR) && !(Item[FocusPos].Flags & DIF_READONLY))
       {
         int EditorLastPos;
         for (EditorLastPos=I=FocusPos;I<ItemCount;I++)

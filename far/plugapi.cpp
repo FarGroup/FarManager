@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.150 11.12.2002 $ */
+/* Revision: 1.151 26.12.2002 $ */
 
 /*
 Modify:
+  26.12.2002 SVS
+    ! Из FarViewer и FarEditor проверка координат вынесена в конструкторы этих объектов
   11.12.2002 SVS
     - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
   04.11.2002 SVS
@@ -1973,10 +1975,6 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
 {
   if (FrameManager->ManagerIsDown())
     return FALSE;
-  if (X2==-1)
-    X2=ScrX;
-  if (Y2==-1)
-    Y2=ScrY;
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   /* $ 09.09.2001 IS */
@@ -2056,10 +2054,6 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
 {
   if (FrameManager->ManagerIsDown())
     return EEC_OPEN_ERROR;
-  if (X2==-1)
-    X2=ScrX;
-  if (Y2==-1)
-    Y2=ScrY;
   char OldTitle[512];
   GetConsoleTitle(OldTitle,sizeof(OldTitle));
   /* $ 12.07.2000 IS
