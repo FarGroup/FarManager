@@ -5,12 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.69 25.06.2001 $ */
+/* Revision: 1.70 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 IS
+    - Баг: при копировании строки заголовка брался немного не тот размер
+      (я напортачил в 732).
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   25.06.2001 SVS
     ! Юзаем SEARCHSTRINGBUFSIZE
     + Немного логики в диалог поиска :-)
@@ -2275,11 +2278,11 @@ void Viewer::SetTitle(const char *Title)
   if (Title==NULL)
     *Viewer::Title=0;
   else
-  /* $ 08.06.2001 IS
+  /* $ 10.07.2001 IS
      - Баг: не учитывался размер Title, что приводило к порче памяти и
        к падению Фара.
   */
-    strncpy(Viewer::Title,Title,sizeof(Title)-1);
+    strncpy(Viewer::Title,Title,sizeof(Viewer::Title)-1);
   /* IS $ */
 }
 
