@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.110 01.10.2002 $ */
+/* Revision: 1.111 05.10.2002 $ */
 
 /*
 Modify:
+  05.10.2002 IS
+    - Баг: непредсказуемое поведение после обработке VCTL_QUIT, если вьювер
+      является панелью. Решение: VCTL_QUIT в этом случае не обрабатывается
+      вообще.
   01.10.2002 SVS
     - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
   29.09.2002 IS
@@ -322,6 +326,8 @@ Modify:
 #include "poscache.hpp"
 #include "help.hpp"
 #include "dialog.hpp"
+#include "panel.hpp"
+#include "filepanels.hpp"
 #include "fileview.hpp"
 #include "savefpos.hpp"
 #include "savescr.hpp"
@@ -3087,14 +3093,22 @@ int Viewer::ViewerControl(int Command,void *Param)
     // Param=0
     case VCTL_QUIT:
     {
-      /* $ 29.09.2002 IS
-         без этого не закрывался вьюер, а просили именно это
+      /* $ 05.10.2002 IS
+         Разрешаем выполнение VCTL_QUIT только для вьюера, который
+         не является панелью
       */
-      FrameManager->DeleteFrame(HostFileViewer);
-      /* IS $ */
-      if (HostFileViewer!=NULL)
-        HostFileViewer->SetExitCode(0);
-      return(TRUE);
+      if(!CtrlObject->Cp()->ActivePanel->IsVisible())
+      {
+        /* $ 29.09.2002 IS
+           без этого не закрывался вьюер, а просили именно это
+        */
+        FrameManager->DeleteFrame(HostFileViewer);
+        /* IS $ */
+        if (HostFileViewer!=NULL)
+          HostFileViewer->SetExitCode(0);
+        return(TRUE);
+      }
+      /* IS 05.10.2002 $ */
     }
   }
   return(FALSE);
