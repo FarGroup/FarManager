@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.08 11.02.2001 $ */
+/* Revision: 1.09 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SVS
+    + Функция ClearData - очистка HiData
+    - устранение утечки памяти (после 440-го)
   11.02.2001 SVS
     ! Введение DIF_VAREDIT позволило расширить размер под маски до
       HIGHLIGHT_MASK_SIZE символов
@@ -66,7 +69,10 @@ void HighlightFiles::InitHighlightFiles()
     if(!(Masks=(char*)malloc(strlen(Mask)+1)))
       break;
     if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+    {
+      free(Masks);
       break;
+    }
     HiData=NewHiData;
     CurHiData=&HiData[HiDataCount];
     memset(CurHiData,0,sizeof(*CurHiData));
@@ -87,6 +93,11 @@ void HighlightFiles::InitHighlightFiles()
 
 HighlightFiles::~HighlightFiles()
 {
+  ClearData();
+}
+
+void HighlightFiles::ClearData()
+{
   if(HiData)
   {
     for(int I=0; I < HiDataCount; ++I)
@@ -94,8 +105,9 @@ HighlightFiles::~HighlightFiles()
         free(HiData[I].Masks);
     free(HiData);
   }
+  HiData=NULL;
+  HiDataCount=0;
 }
-
 
 void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
      unsigned char &SelColor,unsigned char &CursorColor,
@@ -191,7 +203,7 @@ void HighlightFiles::HiEdit(int MenuPos)
               DeleteKeyTree("Highlight");
               SetHighlighting();
               HiMenu.Hide();
-              delete(HiData);
+              ClearData();
               InitHighlightFiles();
               LeftPanel->Update(UPDATE_KEEP_SELECTION);
               LeftPanel->Redraw();
@@ -207,6 +219,8 @@ void HighlightFiles::HiEdit(int MenuPos)
                             MSG(MHighlightAskDel),HiData[SelectPos].Masks,
                             MSG(MDelete),MSG(MCancel))!=0)
                   break;
+                if(HiData[SelectPos].Masks)
+                  free(HiData[SelectPos].Masks);
                 for (int I=SelectPos+1;I<ItemCount;I++)
                   HiData[I-1]=HiData[I];
                 HiDataCount--;
@@ -421,7 +435,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
     }
     Dlg.InitDialogObjects();
   }
-  if (*HiEditDlg[2].Data==0)
+  if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
     return(FALSE);
 
   EditData.IncludeAttr=EditData.ExcludeAttr=0;
@@ -491,7 +505,10 @@ int HighlightFiles::EditRecord(int RecPos,int New)
       return FALSE;
 
     if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
+    {
+      free(Ptr);
       return(FALSE);
+    }
 
     HiDataCount++;
     HiData=NewHiData;

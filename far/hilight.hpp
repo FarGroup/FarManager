@@ -7,10 +7,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.01 07.07.2000 $ */
+/* Revision: 1.02 12.07.2000 $ */
 
 /*
 Modify:
+  12.02.2001 SVS
+    + Функция ClearData - очистка HiData
   07.07.2000 IS
     + Новая функция InitHighlightFiles, в которую я вынес содержимое
       конструктора. Нужна, чтобы повторно использовать один и тот же код.
@@ -34,6 +36,7 @@ class HighlightFiles
     */
     void InitHighlightFiles();
     /* IS $ */
+    void ClearData();
   public:
     HighlightFiles();
     ~HighlightFiles();

@@ -5,10 +5,13 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.03 11.02.2001 $ */
+/* Revision: 1.04 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SVS
+    ! Не был назначен Хелп для ввода маски группы сортировки
+    - устранение утечки памяти (после 440-го)
   11.02.2001 SVS
     ! Введение DIF_VAREDIT позволило расширить размер под маски
   11.02.2001 SVS
@@ -42,11 +45,14 @@ GroupSort::GroupSort()
     GetRegKey("SortGroups",GroupName,GroupStr,"",sizeof(GroupStr));
     if (*GroupStr==0)
       break;
-    if(!(Ptr=(char *)malloc(strlen(GroupStr)+1)))
+    if((Ptr=(char *)malloc(strlen(GroupStr)+1)) == NULL)
       break;
     struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
     if (NewGroupData==NULL)
+    {
+      free(Ptr);
       break;
+    }
     GroupData=NewGroupData;
     GroupData[GroupCount].Masks=Ptr;
     strcpy(GroupData[GroupCount].Masks,GroupStr);
@@ -59,12 +65,16 @@ GroupSort::GroupSort()
     GetRegKey("SortGroups",GroupName,GroupStr,"",sizeof(GroupStr));
     if (*GroupStr==0)
       break;
-    if(!(GroupData[GroupCount].Masks=(char *)malloc(strlen(GroupStr)+1)))
+    if((Ptr=(char *)malloc(strlen(GroupStr)+1)) == NULL)
       break;
     struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
     if (NewGroupData==NULL)
+    {
+      free(Ptr);
       break;
+    }
     GroupData=NewGroupData;
+    GroupData[GroupCount].Masks=Ptr;
     strcpy(GroupData[GroupCount].Masks,GroupStr);
     GroupData[GroupCount].Group=I+DEFAULT_SORT_GROUP+1;
     GroupCount++;
@@ -140,13 +150,14 @@ void GroupSort::EditGroups()
 int GroupSort::EditGroupsMenu(int Pos)
 {
   char NewMasks[GROUPSORT_MASK_SIZE], *Ptr;
+  char *HelpSortGroups="SortGroups";
   struct MenuItem ListItem;
   struct MenuItem ListItem2;
   memset(&ListItem,0,sizeof(ListItem));
 
   VMenu GroupList(MSG(MSortGroupsTitle),NULL,0,ScrY-4);
   GroupList.SetFlags(MENU_WRAPMODE|MENU_SHOWAMPERSAND);
-  GroupList.SetHelp("SortGroups");
+  GroupList.SetHelp(HelpSortGroups);
   GroupList.SetPosition(-1,-1,0,0);
   GroupList.SetBottomTitle(MSG(MSortGroupsBottom));
 
@@ -213,12 +224,15 @@ int GroupSort::EditGroupsMenu(int Pos)
         case KEY_DEL:
           if (ListPos<GroupCount)
           {
-            char GroupName[1024];
-            sprintf(GroupName,"\"%s\"",GroupData[ListPos].Masks);
+            char GroupName[72]="\"";
+            strncpy(GroupName+1,GroupData[ListPos].Masks,sizeof(GroupName)-4);
+            strcat(GroupName,"\"");
             if (Message(MSG_WARNING,2,MSG(MSortGroupsTitle),
                         MSG(MSortGroupsAskDel),GroupName,
                         MSG(MDelete),MSG(MCancel))!=0)
               break;
+
+            free(GroupData[ListPos].Masks);
 
             for (int I=ListPos+1;I<GroupCount;I++)
               GroupData[I-1]=GroupData[I];
@@ -228,19 +242,22 @@ int GroupSort::EditGroupsMenu(int Pos)
           break;
         case KEY_INS:
           {
-            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks","",NewMasks,sizeof(NewMasks)))
+            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks","",NewMasks,sizeof(NewMasks),HelpSortGroups))
             {
-              if(!(Ptr=(char *)malloc(strlen(NewMasks)+1)))
+              if((Ptr=(char *)malloc(strlen(NewMasks)+1)) == NULL)
                 break;
               struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
               if (NewGroupData==NULL)
+              {
+                free(Ptr);
                 break;
+              }
               GroupData=NewGroupData;
               GroupCount++;
               for (int I=GroupCount-1;I>ListPos;I--)
                 GroupData[I]=GroupData[I-1];
               GroupData[ListPos].Masks=Ptr;
-              strncpy(GroupData[ListPos].Masks,NewMasks,strlen(NewMasks));
+              strcpy(GroupData[ListPos].Masks,NewMasks);
               GroupData[ListPos].Group=UpperGroup ? 0:DEFAULT_SORT_GROUP+1;
               return(SelPos);
             }
@@ -251,12 +268,11 @@ int GroupSort::EditGroupsMenu(int Pos)
           if (ListPos<GroupCount)
           {
             strcpy(NewMasks,GroupData[ListPos].Masks);
-            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks",NewMasks,NewMasks,sizeof(NewMasks)))
+            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks",NewMasks,NewMasks,sizeof(NewMasks),HelpSortGroups))
             {
-              Ptr=GroupData[ListPos].Masks;
-              if(strlen(Ptr) < strlen(NewMasks))
-                Ptr=(char *)realloc(Ptr,strlen(NewMasks)+1);
-              if(Ptr)
+              if(strlen(GroupData[ListPos].Masks) < strlen(NewMasks))
+                Ptr=(char *)realloc(GroupData[ListPos].Masks,strlen(NewMasks)+1);
+              if(Ptr == NULL)
                 break;
               GroupData[ListPos].Masks=Ptr;
               strcpy(GroupData[ListPos].Masks,NewMasks);

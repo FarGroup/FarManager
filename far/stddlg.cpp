@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.04 11.02.2001 $ */
+/* Revision: 1.05 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 SVS
+    ! Ops. Баги в GetString :-)
   11.02.2001 SVS
     ! Изменения в GetString с учетом флага DIF_VAREDIT
   28.01.2001 SVS
@@ -326,7 +328,11 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
 
   if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
   {
-    if(!(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
+    if(!(Flags&FIB_ENABLEEMPTY) &&
+       (!(StrDlg[2].Flags&DIF_VAREDIT) && *StrDlg[2].Data==0 ||
+        (StrDlg[2].Flags&DIF_VAREDIT) && *(char *)StrDlg[2].Ptr.PtrData==0
+       )
+      )
       return(FALSE);
     if(!(StrDlg[2].Flags&DIF_VAREDIT))
     {
