@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.06 09.08.2000 $ */
+/* Revision: 1.07 11.08.2000 $ */
 
 /*
 Modify:
+  11.09.2000 SVS
+    - Bug #17: Логика такова - если колонка полностью пуста, то
+      действия аналогичны нажатию левой клавиши, иначе отмечаем файл.
   09.08.2000 SVS
     ! Для Ctrl-Z ненужно брать предыдущее значение!
       ставим соответствующий флаг!
@@ -1464,7 +1467,10 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       return(TRUE);
     }
     else
-      if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
+      /* $ 11.09.2000 SVS
+         Bug #17: Выделяем при условии, что колонка ПОЛНОСТЬЮ пуста.
+      */
+      if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !IsEmpty)
       {
         if (MouseEvent->dwEventFlags==0)
           MouseSelection=!CurPtr->Selected;
@@ -1472,6 +1478,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         if (SelectedFirst)
           SortFileList(TRUE);
       }
+      /* SVS $ */
     ShowFileList(TRUE);
     return(TRUE);
   }
@@ -1534,6 +1541,11 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (CurColumn>1)
     CurFile+=(CurColumn-1)*Height;
   CorrectPosition();
+  /* $ 11.09.2000 SVS
+     Bug #17: Проверим на ПОЛНОСТЬЮ пустую колонку.
+  */
+  IsEmpty=((CurColumn-1)*Height > FileCount);
+  /* SVS $ */
 }
 
 

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 11.09.2000 $ */
 
 /*
 Modify:
+  11.09.2000 SVS
+    + Переменная IsEmpty, указывающая на полностью пустую колонку
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -22,6 +24,47 @@ Modify:
 
 class FileList:public Panel
 {
+  private:
+    PanelFilter *Filter;
+    DizList Diz;
+    int DizRead;
+    char PluginDizName[NM];
+    struct FileListItem *ListData;
+    long FileCount;
+    struct PrevDataItem *PrevDataStack;
+    int PrevDataStackSize;
+    HANDLE hListChange;
+    struct PluginsStackItem *PluginsStack;
+    int PluginsStackSize;
+    HANDLE hPlugin;
+    long UpperFolderTopFile,LastCurFile;
+    long ReturnCurrentFile;
+    long SelFileCount;
+    int64 SelFileSize;
+    long GetSelPosition,LastSelPosition;
+    long TotalFileCount;
+    int64 TotalFileSize;
+    int64 FreeDiskSize;
+    clock_t LastUpdateTime;
+    int Height,Columns;
+    int LeftPos;
+    int ShiftSelection;
+    int MouseSelection;
+    int SelectedFirst;
+    /* $ 11.09.2000 SVS
+       Переменная IsEmpty, указывающая на полностью пустую колонку
+    */
+    int IsEmpty;
+    /* SVS $ */
+    int AccessTimeUpdateRequired;
+
+    PluginPanelItem *DataToDelete[32];
+    int DataSizeToDelete[32];
+    int DataToDeleteCount;
+    int UpdateRequired,UpdateRequiredMode;
+    int SortGroupsRead;
+    int InternalProcessKey;
+
   private:
     void DisplayObject();
     void DeleteListData(struct FileListItem *(&ListData),long &FileCount);
@@ -65,11 +108,6 @@ class FileList:public Panel
     int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
                             int &ColumnCount,int FullScreen);
     void PrepareViewSettings(int ViewMode,struct OpenPluginInfo *PlugInfo);
-    static void TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
-           unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount);
-    static void ViewSettingsToText(unsigned int *ViewColumnTypes,
-           int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
-           char *ColumnWidths);
 
     void PluginDelete();
     void PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemList,
@@ -86,43 +124,17 @@ class FileList:public Panel
     void ProcessCopyKeys(int Key);
     void ReadSortGroups();
 
-    PanelFilter *Filter;
-    DizList Diz;
-    int DizRead;
-    char PluginDizName[NM];
-    struct FileListItem *ListData;
-    long FileCount;
-    struct PrevDataItem *PrevDataStack;
-    int PrevDataStackSize;
-    HANDLE hListChange;
-    struct PluginsStackItem *PluginsStack;
-    int PluginsStackSize;
-    HANDLE hPlugin;
-    long UpperFolderTopFile,LastCurFile;
-    long ReturnCurrentFile;
-    long SelFileCount;
-    int64 SelFileSize;
-    long GetSelPosition,LastSelPosition;
-    long TotalFileCount;
-    int64 TotalFileSize;
-    int64 FreeDiskSize;
-    clock_t LastUpdateTime;
-    int Height,Columns;
-    int LeftPos;
-    int ShiftSelection;
-    int MouseSelection;
-    int SelectedFirst;
-    int AccessTimeUpdateRequired;
+    static void TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
+           unsigned int *ViewColumnTypes,int *ViewColumnWidths,int &ColumnCount);
+    static void ViewSettingsToText(unsigned int *ViewColumnTypes,
+           int *ViewColumnWidths,int ColumnCount,char *ColumnTitles,
+           char *ColumnWidths);
 
-    PluginPanelItem *DataToDelete[32];
-    int DataSizeToDelete[32];
-    int DataToDeleteCount;
-    int UpdateRequired,UpdateRequiredMode;
-    int SortGroupsRead;
-    int InternalProcessKey;
   public:
     FileList();
     ~FileList();
+
+  public:
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -157,7 +169,6 @@ class FileList:public Panel
     void CopyDiz(char *Name,char *ShortName,char *DestName,
                  char *DestShortName,DizList *DestDiz);
     int IsFullScreen();
-    static int IsModeFullScreen(int Mode);
     int IsCaseSensitive();
     int IsDizDisplayed();
     int IsColumnDisplayed(int Type);
@@ -178,6 +189,7 @@ class FileList:public Panel
     static int FileNameToPluginItem(char *Name,PluginPanelItem *pi);
     static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
     static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
+    static int IsModeFullScreen(int Mode);
 };
 
 #endif	// __FILELIST_HPP__
