@@ -7,7 +7,7 @@ struct.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.02 15.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   29.06.2000 SVS
     + Добавлен атрибут показа Scroll Bar в меню - Options::ShowMenuScrollbar
+  15.07.2000 SVS
+    + Opt.PersonalPluginsPath - путь для поиска персональных плагинов
 */
 
 struct PanelOptions
@@ -172,6 +174,12 @@ struct Options
   char HelpLanguage[80];
   int SmallIcon;
   char RegRoot[NM];
+  /* $ 15.07.2000 SVS
+    + путь для поиска персональных плагинов, большой размер из-зи того,
+      что здесь может стоять сетевой путь...
+  */
+  char PersonalPluginsPath[1024];
+  /* SVS $*/
 };
 
 

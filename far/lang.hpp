@@ -13,7 +13,7 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.06 12.07.2000 $ */
+/* Revision: 1.07 15.07.2000 $ */
 
 /*
 Modify:
@@ -42,6 +42,8 @@ Modify:
       "Ctrl+R"
   12.07.2000 SVS
     + Константа MViewF2WWrap
+  15.07.2000 SVS
+     + Константа MConfigPersonalPath
 */
 
 enum
@@ -139,6 +141,7 @@ enum
   MConfigSaveViewHistory,
   MConfigRegisteredTypes,
   MConfigAutoSave,
+  MConfigPersonalPath,
 
   MConfigPanelTitle,
   MConfigHidden,

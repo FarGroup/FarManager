@@ -1014,6 +1014,9 @@ $ #System settings dialog#
                           automatically. Both panel current folders
                           will be saved also.
 
+  #Path for#                Indicate a full path, where FAR will
+  #personal plugins#        search additional plugins.
+
 @PanelSettings
 $ #Panel settings dialog#
   #Show hidden and#         Enable to show files with Hidden

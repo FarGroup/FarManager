@@ -5,7 +5,7 @@ config.cpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 15.07.2000 $ */
 
 /*
 Modify:
@@ -22,6 +22,8 @@ Modify:
   11.07.2000 SVS
     ! Последниие 5 индексов внаглую перезаписываются (если на этих местах
       стоят нули)
+  15.07.2000 SVS
+     + Добавка в виде задания дополнительного пути для поиска плагинов
 */
 
 #include "headers.hpp"
@@ -35,24 +37,31 @@ Modify:
 
 void SystemSettings()
 {
+  /* $ 15.07.2000 SVS
+     + Добавка в виде задания дополнительного пути для поиска плагинов
+  */
   static struct DialogData CfgDlgData[]={
-    DI_DOUBLEBOX,3,1,52,16,0,0,0,0,(char *)MConfigSystemTitle,
-    DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigRO,
-    DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigRecycleBin,
-    DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
-    DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigCopySharing,
-    DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
-    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigInactivity,
-    DI_FIXEDIT,9,8,11,6,0,0,0,0,"",
-    DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigInactivityMinutes,
-    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigSaveHistory,
-    DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
-    DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
-    DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
-    DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAutoSave,
-    DI_TEXT,5,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /*  0 */  DI_DOUBLEBOX,3,1,52,18,0,0,0,0,(char *)MConfigSystemTitle,
+  /*  1 */  DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MConfigRO,
+  /*  2 */  DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigRecycleBin,
+  /*  3 */  DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigSystemCopy,
+  /*  4 */  DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigCopySharing,
+  /*  5 */  DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigCreateUppercaseFolders,
+  /*  6 */  DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MConfigInactivity,
+  /*  7 */  DI_FIXEDIT,9,8,11,6,0,0,0,0,"",
+  /*  8 */  DI_TEXT,13,8,0,0,0,0,0,0,(char *)MConfigInactivityMinutes,
+  /*  9 */  DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MConfigSaveHistory,
+  /* 10 */  DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MConfigSaveFoldersHistory,
+  /* 11 */  DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MConfigSaveViewHistory,
+  /* 12 */  DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MConfigRegisteredTypes,
+  /* 13 */  DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MConfigAutoSave,
+
+  /* 14 */  DI_TEXT,5,14,0,0,0,0,0,0,(char *)MConfigPersonalPath,
+  /* 15 */  DI_EDIT,5,15,50,15,0,0,DIF_EDITEXPAND,0,"", // расширяемый!
+
+  /* 16 */  DI_TEXT,5,16,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 17 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 18 */  DI_BUTTON,0,17,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -69,12 +78,14 @@ void SystemSettings()
   CfgDlg[11].Selected=Opt.SaveViewHistory;
   CfgDlg[12].Selected=Opt.UseRegisteredTypes;
   CfgDlg[13].Selected=Opt.AutoSaveSetup;
+  strcpy(CfgDlg[15].Data,Opt.PersonalPluginsPath);
+
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("SystemSettings");
-    Dlg.SetPosition(-1,-1,56,18);
+    Dlg.SetPosition(-1,-1,56,20);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=15)
+    if (Dlg.GetExitCode()!=17)
       return;
   }
 
@@ -91,6 +102,8 @@ void SystemSettings()
   Opt.SaveViewHistory=CfgDlg[11].Selected;
   Opt.UseRegisteredTypes=CfgDlg[12].Selected;
   Opt.AutoSaveSetup=CfgDlg[13].Selected;
+  strncpy(Opt.PersonalPluginsPath,CfgDlg[15].Data,sizeof(Opt.PersonalPluginsPath));
+  /* SVS $ */
 }
 
 
@@ -510,6 +523,11 @@ void ReadConfig()
   GetRegKey("System","SaveViewHistory",Opt.SaveViewHistory,0);
   GetRegKey("System","UseRegisteredTypes",Opt.UseRegisteredTypes,1);
   GetRegKey("System","AutoSaveSetup",Opt.AutoSaveSetup,0);
+  /* $ 15.07.2000 SVS
+     "Вспомним" путь для дополнительного поиска плагинов
+  */
+  GetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  /* SVS $ */
   GetRegKey("System","ClearReadOnly",Opt.ClearReadOnly,0);
   GetRegKey("System","DeleteToRecycleBin",Opt.DeleteToRecycleBin,1);
   GetRegKey("System","UseSystemCopy",Opt.UseSystemCopy,0);
@@ -639,6 +657,11 @@ void SaveConfig(int Ask)
   SetRegKey("System","SaveViewHistory",Opt.SaveViewHistory);
   SetRegKey("System","UseRegisteredTypes",Opt.UseRegisteredTypes);
   SetRegKey("System","AutoSaveSetup",Opt.AutoSaveSetup);
+  /* $ 15.07.2000 SVS
+     Сохраняем путь для дополнительного поиска плагинов
+  */
+  SetRegKey("System","PersonalPluginsPath",Opt.PersonalPluginsPath);
+  /* SVS $ */
   SetRegKey("System","ClearReadOnly",Opt.ClearReadOnly);
   SetRegKey("System","DeleteToRecycleBin",Opt.DeleteToRecycleBin);
   SetRegKey("System","UseSystemCopy",Opt.UseSystemCopy);

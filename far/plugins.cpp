@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.07 13.07.2000 $ */
+/* Revision: 1.08 15.07.2000 $ */
 
 /*
 Modify:
@@ -37,6 +37,8 @@ Modify:
       Решения подсказал tran.
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
+  15.07.2000 SVS
+     + Добавка в виде задания дополнительного пути для поиска плагинов
 */
 
 #include "headers.hpp"
@@ -91,42 +93,60 @@ void PluginsSet::SendExit()
 
 void PluginsSet::LoadPlugins()
 {
+  /* $ 15.07.2000 SVS
+     Плагины ищутся сначала в персональном каталоге, а потом в "системном"
+     для того, чтобы перекрыть "системные" своими... :-)
+  */
+  int IPath;
   char PluginsDir[NM],FullName[NM];
-  sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
   WIN32_FIND_DATA FindData;
   ScanTree ScTree(FALSE,TRUE);
-  ScTree.SetFindPath(PluginsDir,"*.*");
-  while (ScTree.GetNextName(&FindData,FullName))
-    if (CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0)
+  for(IPath=0; IPath < 2; ++IPath)
+  {
+    if(!IPath)
     {
-      struct PluginItem CurPlugin;
-      memset(&CurPlugin,0,sizeof(CurPlugin));
-      strcpy(CurPlugin.ModuleName,FullName);
-      int CachePos=GetCacheNumber(FullName,&FindData,0);
-      int LoadCached=(CachePos!=-1);
-      if (LoadCached)
-      {
-        char RegKey[100];
-        sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
-        CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
-        CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
-        CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
-        CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
-        CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
-        CurPlugin.CachePos=CachePos;
-      }
-      if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
-      {
-        struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
-        if (NewPluginsData==NULL)
-          break;
-        PluginsData=NewPluginsData;
-        CurPlugin.Cached=LoadCached;
-        CurPlugin.FindData=FindData;
-        PluginsData[PluginsCount]=CurPlugin;
-        PluginsCount++;
-      }
+      // если пусто то прерываем поиск :-) независимо ни от чего...
+      if(Opt.PersonalPluginsPath[0])
+        strcpy(PluginsDir,Opt.PersonalPluginsPath);
+      else
+        continue; // продолжем дальше
     }
+    else
+      sprintf(PluginsDir,"%s%s",FarPath,PluginsFolderName);
+
+    ScTree.SetFindPath(PluginsDir,"*.*");
+    while (ScTree.GetNextName(&FindData,FullName))
+      if (CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0)
+      {
+        struct PluginItem CurPlugin;
+        memset(&CurPlugin,0,sizeof(CurPlugin));
+        strcpy(CurPlugin.ModuleName,FullName);
+        int CachePos=GetCacheNumber(FullName,&FindData,0);
+        int LoadCached=(CachePos!=-1);
+        if (LoadCached)
+        {
+          char RegKey[100];
+          sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
+          CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
+          CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
+          CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
+          CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
+          CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+          CurPlugin.CachePos=CachePos;
+        }
+        if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
+        {
+          struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
+          if (NewPluginsData==NULL)
+            break;
+          PluginsData=NewPluginsData;
+          CurPlugin.Cached=LoadCached;
+          CurPlugin.FindData=FindData;
+          PluginsData[PluginsCount]=CurPlugin;
+          PluginsCount++;
+        }
+      }
+  }
   qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
 
   int NewPlugin=FALSE;
