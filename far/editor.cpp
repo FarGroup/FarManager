@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.103 08.06.2001 $ */
+/* Revision: 1.104 10.06.2001 $ */
 
 /*
 Modify:
+  10.06.2001 IS
+    - Баг: зачем-то при продолжении _обратного_ поиска прокручивались на шаг
+      _вперед_.
   08.06.2001 IS
     - Баги в некоторых местах из-за использования strcpy, а не strncpy, в
       результате чего гадили в память.
@@ -3371,9 +3374,15 @@ BOOL Editor::Search(int Next)
        - В предыдущем исправлении было задано неверное условие для
          правила EditorF7Rules
     */
-    if((!Opt.EditorF7Rules && !ReplaceMode && !ReverseSearch) ||
-       (Opt.EditorF7Rules && Next))
-      CurPos++;
+    /* $ 10.06.2001 IS
+       - Баг: зачем-то при продолжении _обратного_ поиска прокручивались на шаг
+         _вперед_.
+    */
+    if(!ReverseSearch &&
+       ((!Opt.EditorF7Rules && !ReplaceMode) || (Opt.EditorF7Rules && Next))
+      )
+        CurPos++;
+    /* IS $ */
     /* SVS $ */
     /* SVS $ */
     /* tran $ */

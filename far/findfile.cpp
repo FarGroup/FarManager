@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.31 09.06.2001 $ */
+/* Revision: 1.32 10.06.2001 $ */
 
 /*
 Modify:
+  10.06.2001 IS
+    + Покажем текущее имя кодовой таблицы в диалоге параметров поиска в файлах.
   09.06.2001 IS
     ! При переходе к найденному не меняем каталог, если мы уже в нем находимся.
       Тем самым добиваемся того, что выделение с элементов панели не
@@ -197,7 +199,7 @@ FindFiles::FindFiles()
       /* 06 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
       /* 07 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
       /* 08 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
-      /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindFileAllTables,
+      /* 09 */DI_CHECKBOX,5,10,0,0,0,0,0,0,"",
       /* 10 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MFindArchives,
       /* 11 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR,0,"",
       /* 12 */DI_RADIOBUTTON,5,13,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
@@ -259,6 +261,33 @@ FindFiles::FindFiles()
     while (1)
     {
       Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]));
+
+      /* $ 10.06.2001 IS
+         + Покажем текущее имя кодовой таблицы
+      */
+      {
+        char *fmt=MSG(MFindFileAllTables), TableName[128];
+
+        if(!UseDecodeTable)
+          strcpy(TableSet.TableName, MSG(MGetTableNormalText));
+        else if(UseUnicode)
+          strcpy(TableSet.TableName, "Unicode");
+        else
+          PrepareTable(&TableSet,TableNum-2);
+
+        int MsgLength=62-strlen(fmt), TableLength=strlen(TableSet.TableName);
+        if (MsgLength+3<TableLength)
+        {
+          strncpy(TableName, TableSet.TableName, MsgLength);
+          strcpy(TableName+MsgLength,"...");
+        }
+        else
+          strcpy(TableName, TableSet.TableName);
+
+        sprintf(FindAskDlg[9].Data, fmt, TableName);
+      }
+      /* IS $ */
+
       Dlg.SetHelp("FindFile");
       Dlg.SetPosition(-1,-1,76,22);
       Dlg.Process();
