@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.02 23.07.2000 $ */
+/* Revision: 1.03 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 SVS
+   ! новый параметр в конструкторе
   23.07.2000 SVS
    + Куча ремарок в исходниках :-)
    + Функция обработки диалога (по умолчанию) - забито место :-)
@@ -55,7 +57,7 @@ class Dialog:public Modal
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
   public:
-    Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc=NULL);
+    Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc=NULL,long Param=NULL);
     ~Dialog();
 
   public:

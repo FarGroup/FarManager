@@ -6,10 +6,16 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.08 18.07.2000 $ */
+/* Revision: 1.10 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 SVS
+    ! Некоторое упорядочение в FarStandardFunctions
+    + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
+    + FSF-функция KeyToText
+    ! WINAPI для сервисных дополнительных функций
+    + Функция-диалог ввода тестовой строки InputBox
   23.07.2000 SVS
     + DialogEx, SendDlgMessage, DefDlgProc,
     ! WINAPI для сервисных дополнительных функций
@@ -111,25 +117,27 @@ typedef int (WINAPI *FARAPIMENU)(
 /* $ 23.07.2000 SVS
    Для обработчика диалога
 */
+// тип функции обработчика диалога
 typedef long (WINAPI *FARDIALOGPROC)(
   HANDLE hDlg,
-  int Msg,
-  int Param1,
-  long Param2
+  int    Msg,
+  int    Param1,
+  long   Param2
 );
 
+// обмен сообщениями с обработчиком диалога
 typedef long (WINAPI *FARAPISENDDLGMESSAGE)(
   HANDLE hDlg,
-  int Msg,
-  int Param1,
-  long Param2
+  int    Msg,
+  int    Param1,
+  long   Param2
 );
 
 typedef long (WINAPI *FARAPIDEFDLGPROC)(
   HANDLE hDlg,
-  int Msg,
-  int Param1,
-  long Param2
+  int    Msg,
+  int    Param1,
+  long   Param2
 );
 /* SVS $ */
 
@@ -143,7 +151,10 @@ typedef int (WINAPI *FARAPIDIALOG)(
   struct FarDialogItem *Item,
   int                   ItemsNumber
 );
-
+/* $ 25.07.2000 SVS
+   Дополнительный параметр Param, который будет передан
+   в обработчик диалога в WM_INITDIALOG
+*/
 typedef int (WINAPI *FARAPIDIALOGEX)(
   int                   PluginNumber,
   int                   X1,
@@ -153,8 +164,10 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   char                 *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber,
-  FARDIALOGPROC         DlgProc
+  FARDIALOGPROC         DlgProc,
+  long                  Param
 );
+/* SVS $ */
 
 enum {
   FMSG_WARNING=1,
@@ -259,7 +272,10 @@ enum {FCTL_CLOSEPLUGIN,FCTL_GETPANELINFO,FCTL_GETANOTHERPANELINFO,
 /* $ 06.07.2000 IS
   Для AdvControl
 */
-enum {ACTL_GETFARVERSION};
+enum {
+  ACTL_GETFARVERSION,
+  ACTL_CONSOLEMODE
+};
 /* IS $ */
 
 enum {PTYPE_FILEPANEL,PTYPE_TREEPANEL,PTYPE_QVIEWPANEL,PTYPE_INFOPANEL};
@@ -534,33 +550,45 @@ struct EditorSaveFile
 /* $ 06.07.2000 IS
   Убирает ВСЕ начальные и заключительные кавычки
 */
-typedef void (*FARSTDUNQUOTE)(
- char *Str
-);
+typedef void (WINAPI *FARSTDUNQUOTE)(char *Str);
 /* IS $ */
 
 /* $ 06.07.2000 IS
   Расширение строки с учетом переменных окружения
 */
-typedef DWORD (*FARSTDEXPANDENVIRONMENTSTR)(
+typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
   char *src,
   char *dst,
-#ifdef __cplusplus
-  size_t size=8192
-#else
   size_t size
-#endif
 );
 /* IS $ */
+
+/* $ 25.07.2000 SVS
+   Функция ввода строки
+*/
+typedef int (WINAPI *FARAPIINPUTBOX)(
+  char *Title,
+  char *SubTitle,
+  char *HistoryName,
+  char *SrcText,
+  char *DestText,
+  int   DestLength,
+  char *HelpTopic,
+  int   EnableEmpty,
+  int   Password
+);
+/* SVS $*/
 
 /* $ 06.07.2000 IS
   А это что? Отгадайте сами :-)
   sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
   strtok, memset, strpbrk
 */
-typedef int   (*FARSTDSPRINTF)(char *buffer,const char *format,...);
-typedef int   (*FARSTDSSCANF)(const char *s, const char *format,...);
-typedef void  (*FARSTDQSORT)(void *base, size_t nelem, size_t width, int ( *fcmp)(const void *, const void *));
+typedef int   (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
+typedef int   (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
+typedef void  (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (WINAPIV *fcmp)(const void *, const void *));
+
+// Only C/C++!!!
 typedef void *(*FARSTDMEMCPY)(void *dest, const void *src, size_t n);
 typedef void *(*FARSTDMEMMOVE)(void *dest, const void *src, size_t n);
 typedef int   (*FARSTDMEMCMP)(const void *s1, const void *s2, size_t n);
@@ -578,6 +606,7 @@ typedef char *(*FARSTDSTRTOK)(char *s1, const char *s2);
 typedef char *(*FARSTDSTRPBRK)(const char *s1, const char *s2);
 #endif
 typedef void *(*FARSTDMEMSET)(void *s, int c, size_t n);
+// End Only C/C++!!!
 /* IS $ */
 
 /* $ 07.07.2000 IS
@@ -586,52 +615,60 @@ typedef void *(*FARSTDMEMSET)(void *s, int c, size_t n);
   RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
   PointToName, GetPathRoot, AddEndSlash
 */
-typedef int (*FARSTDATOI)(const char *s);
-typedef __int64 (*FARSTDATOI64)(const char *s);
-typedef char *(*FARSTDITOA)(int value, char *string, int radix);
-#if defined(__BORLANDC__)
-typedef unsigned char *(*FARSTDREMOVELEADINGSPACES)(unsigned char *Str);
-typedef unsigned char *(*FARSTDREMOVETRAILINGSPACES)(unsigned char *Str);
-typedef unsigned char *(*FARSTDREMOVEEXTERNALSPACES)(unsigned char *Str);
-#else
-typedef char *(*FARSTDREMOVELEADINGSPACES)(char *Str);
-typedef char *(*FARSTDREMOVETRAILINGSPACES)(char *Str);
-typedef char *(*FARSTDREMOVEEXTERNALSPACES)(char *Str);
-#endif
-typedef char *(*FARSTDTRUNCSTR)(char *Str,int MaxLength);
-typedef char *(*FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
-typedef char *(*FARSTDQUOTESPACEONLY)(char *Str);
-typedef char *(*FARSTDPOINTTONAME)(char *Path);
-typedef void (*FARSTDGETPATHROOT)(char *Path,char *Root);
-typedef void (*FARSTDADDENDSLASH)(char *Path);
+typedef int (WINAPI *FARSTDATOI)(const char *s);
+typedef __int64 (WINAPI *FARSTDATOI64)(const char *s);
+typedef char *(WINAPI *FARSTDITOA)(int value, char *string, int radix);
+typedef char *(WINAPI *FARSTDREMOVELEADINGSPACES)(char *Str);
+typedef char *(WINAPI *FARSTDREMOVETRAILINGSPACES)(char *Str);
+typedef char *(WINAPI *FARSTDREMOVEEXTERNALSPACES)(char *Str);
+typedef char *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
+typedef char *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
+typedef char *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
+typedef char *(WINAPI *FARSTDPOINTTONAME)(char *Path);
+typedef void  (WINAPI *FARSTDGETPATHROOT)(char *Path,char *Root);
+typedef void  (WINAPI *FARSTDADDENDSLASH)(char *Path);
 /* IS $ */
+/* $ 25.07.2000 SVS
+   Дополнительные функции
+*/
+typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(char *Data);
+typedef char* (WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
+typedef void (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText);
 
+/* SVS $*/
 /* $ 06.07.2000 IS
    Полезные функции из far.exe
+*/
+/* $ 07.07.2000 IS
+   По просьбам трудящихся...
+  atoi, _atoi64;  itoa;  RemoveLeadingSpaces;  RemoveTrailingSpaces;
+ RemoveExternalSpaces;  TruncStr;  TruncPathStr;  QuoteSpaceOnly;
+ PointToName;  GetPathRoot;  AddEndSlash;
 */
 typedef struct FarStandardFunctions
 {
   int StructSize;
+
+  FARSTDATOI    atoi;
+  FARSTDATOI64  _atoi64;
+  FARSTDITOA    itoa;
+  FARSTDSPRINTF sprintf;
+  FARSTDSSCANF  sscanf;
+  // Only C/C++!!!
+  FARSTDMEMSET  memset;
+  FARSTDMEMCPY  memcpy;
+  FARSTDMEMMOVE memmove;
+  FARSTDMEMCMP  memcmp;
+  FARSTDSTRCHR  strchr;
+  FARSTDSTRRCHR strrchr;
+  FARSTDSTRSTR  strstr;
+  FARSTDSTRTOK  strtok;
+  FARSTDSTRPBRK strpbrk;
+  // End Only C/C++!!!
+  FARSTDQSORT qsort;
+
   FARSTDUNQUOTE Unquote;
   FARSTDEXPANDENVIRONMENTSTR ExpandEnvironmentStr;
-  FARSTDSPRINTF sprintf;
-  FARSTDSSCANF sscanf;
-  FARSTDQSORT qsort;
-  FARSTDMEMCPY memcpy;
-  FARSTDMEMMOVE memmove;
-  FARSTDMEMCMP memcmp;
-  FARSTDSTRCHR strchr;
-  FARSTDSTRRCHR strrchr;
-  FARSTDSTRSTR strstr;
-  FARSTDSTRTOK strtok;
-  FARSTDMEMSET memset;
-  FARSTDSTRPBRK strpbrk;
-  /* $ 07.07.2000 IS
-    По просьбам трудящихся...
-  */
-  FARSTDATOI atoi;
-  FARSTDATOI64 _atoi64;
-  FARSTDITOA itoa;
   FARSTDREMOVELEADINGSPACES RemoveLeadingSpaces;
   FARSTDREMOVETRAILINGSPACES RemoveTrailingSpaces;
   FARSTDREMOVEEXTERNALSPACES RemoveExternalSpaces;
@@ -641,6 +678,9 @@ typedef struct FarStandardFunctions
   FARSTDPOINTTONAME PointToName;
   FARSTDGETPATHROOT GetPathRoot;
   FARSTDADDENDSLASH AddEndSlash;
+  FARSTDCOPYTOCLIPBOARD CopyToClipboard;
+  FARSTDPASTEFROMCLIPBOARD PasteFromClipboard;
+  FARSTDKEYTOTEXT FarKeyToText;
   /* IS $ */
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
@@ -681,10 +721,13 @@ struct PluginStartupInfo
      Функции для обработчика диалога
        - обмен сообщениями
        - функция по умолчанию
+       - функция получения строки
+       - функция переключения FulScreen <-> Windowed
   */
   FARAPIDIALOGEX DialogEx;
   FARAPISENDDLGMESSAGE SendDlgMessage;
   FARAPIDEFDLGPROC DefDlgProc;
+  FARAPIINPUTBOX InputBox;
   /* SVS $ */
   /* $ 06.07.2000 IS
      Указатель на структуру с адресами полезных функций из far.exe
@@ -830,6 +873,7 @@ enum OPERATION_MODES {
 #ifdef __cplusplus
 extern "C"{
 #endif
+// Exported Functions
 
 void   WINAPI _export ClosePlugin(HANDLE hPlugin);
 int    WINAPI _export Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.06 23.07.2000 $ */
+/* Revision: 1.07 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 SVS
+    + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
   23.07.2000 SVS
     + Функция FarDefDlgProc обработки диалога по умолчанию
     + Функция FarSendDlgMessage - посылка сообщения диалогу
@@ -73,9 +75,22 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 {
  switch(Command)
  {
-  case ACTL_GETFARVERSION:
-    *(DWORD*)Param=FAR_VERSION;
-    return TRUE;
+    case ACTL_GETFARVERSION:
+      *(DWORD*)Param=FAR_VERSION;
+      return TRUE;
+    /* $ 25.07.2000 SVS
+       + Программое переключение FulScreen <-> Windowed (ACTL_CONSOLEMODE)
+       mode = -2 - получить текущее состояние
+              -1 - как тригер
+               0 - Windowed
+               1 - FulScreen
+       Return
+               0 - Windowed
+               1 - FulScreen
+    */
+    case ACTL_CONSOLEMODE:
+      return FarAltEnter(*(int*)Param);
+    /* SVS $ */
  }
  return FALSE;
 }
@@ -195,12 +210,12 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
 {
-  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL);
+  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL,NULL);
 }
 
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-           FARDIALOGPROC DlgProc)
+           FARDIALOGPROC DlgProc,long Param)
 
 {
   if (DisablePluginsOutput)
@@ -225,7 +240,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   }
 
   {
-    Dialog FarDialog(InternalItem,ItemsNumber,DlgProc);
+    Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
     if (HelpTopic!=NULL)
     {
@@ -325,6 +340,7 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
   if (CtrlObject->LeftPanel==NULL || CtrlObject->RightPanel==NULL)
     return(0);
+
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.05 23.07.2000 $ */
+/* Revision: 1.06 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 SVS
+   + Новый параметр в конструкторе
   23.07.2000 SVS
    + Куча ремарок в исходниках :-)
    + Изменен вызов конструтора - добавка в виде функции обработки
@@ -48,7 +50,7 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 /* Public:
    Конструктор класса Dialog
 */
-Dialog::Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc)
+Dialog::Dialog(struct DialogItem *Item,int ItemCount,FARDIALOGPROC DlgProc,long Param)
 {
   CreateObjects=FALSE;
   InitObjects=FALSE;

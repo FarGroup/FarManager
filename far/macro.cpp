@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.03 23.07.2000 $ */
+/* Revision: 1.04 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 SVS
+    ! Функция KeyToText сделана самосотоятельной - вошла в состав
+      FSF
   23.07.2000 SVS
     + Клавиши:
        Ctrl- Shift- Alt- CtrlShift- AltShift- CtrlAlt- Apps :-)
@@ -303,191 +306,14 @@ void KeyMacro::SaveMacros()
   }
 }
 
-
+/* $ 25.07.2000 SVS
+   Функция KeyToText сделана самосотоятельной - вошла в состав FSF
+*/
 void KeyMacro::KeyToText(int Key,char *KeyText)
 {
-  if (Key>=KEY_F1 && Key<=KEY_F12)
-  {
-    sprintf(KeyText,"F%d",Key-KEY_F1+1);
-    return;
-  }
-  if (Key>=KEY_CTRLF1 && Key<=KEY_CTRLF12)
-  {
-    sprintf(KeyText,"CtrlF%d",Key-KEY_CTRLF1+1);
-    return;
-  }
-  if (Key>=KEY_ALTF1 && Key<=KEY_ALTF12)
-  {
-    sprintf(KeyText,"AltF%d",Key-KEY_ALTF1+1);
-    return;
-  }
-  if (Key>=KEY_SHIFTF1 && Key<=KEY_SHIFTF12)
-  {
-    sprintf(KeyText,"ShiftF%d",Key-KEY_SHIFTF1+1);
-    return;
-  }
-  if (Key>=KEY_CTRLA && Key<=KEY_CTRLZ)
-  {
-    sprintf(KeyText,"Ctrl%c",Key-KEY_CTRLA+'A');
-    return;
-  }
-  if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
-  {
-    sprintf(KeyText,"Ctrl%c",Key-KEY_CTRL0+'0');
-    return;
-  }
-  if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
-  {
-    sprintf(KeyText,"RCtrl%c",Key-KEY_RCTRL0+'0');
-    return;
-  }
-  if (Key>=KEY_CTRLSHIFTF1 && Key<=KEY_CTRLSHIFTF12)
-  {
-    sprintf(KeyText,"CtrlShiftF%d",Key-KEY_CTRLSHIFTF1+1);
-    return;
-  }
-  if (Key>=KEY_ALTSHIFTF1 && Key<=KEY_ALTSHIFTF12)
-  {
-    sprintf(KeyText,"AltShiftF%d",Key-KEY_ALTSHIFTF1+1);
-    return;
-  }
-  if (Key>=KEY_CTRLALTF1 && Key<=KEY_CTRLALTF12)
-  {
-    sprintf(KeyText,"CtrlAltF%d",Key-KEY_CTRLALTF1+1);
-    return;
-  }
-  if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
-  {
-    sprintf(KeyText,"CtrlShift%c",Key-KEY_CTRLSHIFT0+'0');
-    return;
-  }
-  if (Key>=KEY_CTRLSHIFTA && Key<=KEY_CTRLSHIFTZ)
-  {
-    sprintf(KeyText,"CtrlShift%c",Key-KEY_CTRLSHIFTA+'A');
-    return;
-  }
-  if (Key>=KEY_ALTSHIFTA && Key<=KEY_ALTSHIFTZ)
-  {
-    sprintf(KeyText,"AltShift%c",Key-KEY_ALTSHIFTA+'A');
-    return;
-  }
-  if (Key>=KEY_CTRLALTA && Key<=KEY_CTRLALTZ)
-  {
-    sprintf(KeyText,"CtrlAlt%c",Key-KEY_CTRLALTA+'A');
-    return;
-  }
-  if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
-  {
-    sprintf(KeyText,"Alt%c",Key-KEY_ALT0+'0');
-    return;
-  }
-  if (Key>=KEY_ALTA && Key<=KEY_ALTZ)
-  {
-    sprintf(KeyText,"Alt%c",Key-KEY_ALTA+'A');
-    return;
-  }
-  /* $ 23.07.2000 SVS
-     + KEY_LWIN (VK_LWIN), KEY_RWIN (VK_RWIN)
-  */
-  static int KeyCodes[]={
-    KEY_BS,KEY_TAB,KEY_ENTER,KEY_ESC,KEY_SPACE,KEY_HOME,KEY_END,KEY_UP,
-    KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_PGUP,KEY_PGDN,KEY_INS,KEY_DEL,KEY_NUMPAD5,
-    KEY_CTRLBRACKET,KEY_CTRLBACKBRACKET,KEY_CTRLCOMMA,KEY_CTRLDOT,KEY_CTRLBS,
-    KEY_CTRLQUOTE,KEY_CTRLSLASH,
-    KEY_CTRLENTER,KEY_CTRLTAB,KEY_CTRLSHIFTINS,KEY_CTRLSHIFTDOWN,
-    KEY_CTRLSHIFTLEFT,KEY_CTRLSHIFTRIGHT,KEY_CTRLSHIFTUP,KEY_CTRLSHIFTEND,
-    KEY_CTRLSHIFTHOME,KEY_CTRLSHIFTPGDN,KEY_CTRLSHIFTPGUP,
-    KEY_CTRLSHIFTSLASH,KEY_CTRLSHIFTBACKSLASH,
-    KEY_CTRLSHIFTSUBTRACT,KEY_CTRLSHIFTADD,KEY_CTRLSHIFTENTER,KEY_ALTADD,
-    KEY_ALTSUBTRACT,KEY_ALTMULTIPLY,KEY_ALTDOT,KEY_ALTCOMMA,KEY_ALTINS,
-    KEY_ALTDEL,KEY_ALTBS,KEY_ALTHOME,KEY_ALTEND,KEY_ALTPGUP,KEY_ALTPGDN,
-    KEY_ALTUP,KEY_ALTDOWN,KEY_ALTLEFT,KEY_ALTRIGHT,
-    KEY_CTRLDOWN,KEY_CTRLLEFT,KEY_CTRLRIGHT,KEY_CTRLUP,
-    KEY_CTRLEND,KEY_CTRLHOME,KEY_CTRLPGDN,KEY_CTRLPGUP,KEY_CTRLBACKSLASH,
-    KEY_CTRLSUBTRACT,KEY_CTRLADD,KEY_CTRLMULTIPLY,KEY_CTRLCLEAR,KEY_ADD,
-    KEY_SUBTRACT,KEY_MULTIPLY,KEY_BREAK,KEY_SHIFTINS,KEY_SHIFTDEL,
-    KEY_SHIFTEND,KEY_SHIFTHOME,KEY_SHIFTLEFT,KEY_SHIFTUP,KEY_SHIFTRIGHT,
-    KEY_SHIFTDOWN,KEY_SHIFTPGUP,KEY_SHIFTPGDN,KEY_SHIFTENTER,KEY_SHIFTTAB,
-    KEY_SHIFTADD,KEY_SHIFTSUBTRACT,KEY_CTRLINS,KEY_CTRLDEL,KEY_CTRLSHIFTDOT,
-    KEY_CTRLSHIFTTAB,KEY_DIVIDE,KEY_CTRLSHIFTBS,KEY_ALT,KEY_CTRL,KEY_SHIFT,
-    KEY_RALT,KEY_RCTRL,KEY_CTRLSHIFTBRACKET,KEY_CTRLSHIFTBACKBRACKET,
-    KEY_ALTSHIFTINS,KEY_ALTSHIFTDOWN,KEY_ALTSHIFTLEFT,KEY_ALTSHIFTRIGHT,
-    KEY_ALTSHIFTUP,KEY_ALTSHIFTEND,KEY_ALTSHIFTHOME,KEY_ALTSHIFTPGDN,
-    KEY_ALTSHIFTPGUP,KEY_ALTSHIFTENTER,
-    KEY_CTRLALTINS,KEY_CTRLALTDOWN,KEY_CTRLALTLEFT,KEY_CTRLALTRIGHT,
-    KEY_CTRLALTUP,KEY_CTRLALTEND,KEY_CTRLALTHOME,KEY_CTRLALTPGDN,
-    KEY_CTRLALTPGUP,KEY_CTRLALTENTER,KEY_SHIFTBS,KEY_APPS,
-    KEY_CTRLAPPS,KEY_ALTAPPS,KEY_SHIFTAPPS,
-    KEY_CTRLSHIFTAPPS,KEY_ALTSHIFTAPPS,KEY_CTRLALTAPPS,
-    KEY_LWIN,KEY_RWIN
-  };
-  static char *KeyNames[]={
-    "BS","Tab","Enter","Esc","Space","Home","End","Up",
-    "Down","Left","Right","PgUp","PgDn","Ins","Del","Clear",
-    "Ctrl[","Ctrl]","Ctrl,","Ctrl.","CtrlBS",
-    "Ctrl\"","Ctrl/",
-    "CtrlEnter","CtrlTab","CtrlShiftIns","CtrlShiftDown",
-    "CtrlShiftLeft","CtrlShiftRight","CtrlShiftUp","CtrlShiftEnd",
-    "CtrlShiftHome","CtrlShiftPgDn","CtrlShiftPgUp",
-    "CtrlShiftSlash","CtrlShiftBackSlash",
-    "CtrlShiftSubtract","CtrlShiftAdd","CtrlShiftEnter","AltAdd",
-    "AltSubtract","AltMultiply","Alt.","Alt,","AltIns",
-    "AltDel","AltBS","AltHome","AltEnd","AltPgUp","AltPgDn",
-    "AltUp","AltDown","AltLeft","AltRight",
-    "CtrlDown","CtrlLeft","CtrlRight","CtrlUp",
-    "CtrlEnd","CtrlHome","CtrlPgDn","CtrlPgUp","CtrlBackSlash",
-    "CtrlSubtract","CtrlAdd","CtrlMultiply","CtrlClear","Add",
-    "Subtract","Multiply","Break","ShiftIns","ShiftDel",
-    "ShiftEnd","ShiftHome","ShiftLeft","ShiftUp","ShiftRight",
-    "ShiftDown","ShiftPgUp","ShiftPgDn","ShiftEnter","ShiftTab",
-    "ShiftAdd","ShiftSubtract","CtrlIns","CtrlDel","CtrlShiftDot",
-    "CtrlShiftTab","Divide","CtrlShiftBS","Alt","Ctrl","Shift",
-    "RAlt","RCtrl","CtrlShift[","CtrlShift]",
-    "AltShiftIns","AltShiftDown","AltShiftLeft","AltShiftRight",
-    "AltShiftUp","AltShiftEnd","AltShiftHome","AltShiftPgDn",
-    "AltShiftPgUp","AltShiftEnter",
-    "CtrlAltIns","CtrlAltDown","CtrlAltLeft","CtrlAltRight",
-    "CtrlAltUp","CtrlAltEnd","CtrlAltHome","CtrlAltPgDn","CtrlAltPgUp",
-    "CtrlAltEnter","ShiftBS",
-    "Apps","CtrlApps","AltApps","ShiftApps",
-    "CtrlShiftApps","AltShiftApps","CtrlAltApps",
-    "LWin","RWin"
-  };
-  /* SVS $ */
-  int I;
-
-  for (I=0;I<sizeof(KeyCodes)/sizeof(KeyCodes[0]);I++)
-    if (Key==KeyCodes[I])
-    {
-      strcpy(KeyText,KeyNames[I]);
-      return;
-    }
-  if (Key<256)
-    sprintf(KeyText,"%c",Key);
-  else
-    if (Key>KEY_CTRL_BASE && Key<KEY_END_CTRL_BASE)
-      sprintf(KeyText,"Ctrl%c",Key-KEY_CTRL_BASE);
-    else
-      if (Key>KEY_ALT_BASE && Key<KEY_END_ALT_BASE)
-        sprintf(KeyText,"Alt%c",Key-KEY_ALT_BASE);
-      else
-        if (Key>KEY_CTRLSHIFT_BASE && Key<KEY_END_CTRLSHIFT_BASE)
-          sprintf(KeyText,"CtrlShift%c",Key-KEY_CTRLSHIFT_BASE);
-        else
-          if (Key>KEY_ALTSHIFT_BASE && Key<KEY_END_ALTSHIFT_BASE)
-            sprintf(KeyText,"AltShift%c",Key-KEY_ALTSHIFT_BASE);
-          else
-            if (Key>KEY_CTRLALT_BASE && Key<KEY_END_CTRLALT_BASE)
-              sprintf(KeyText,"CtrlAlt%c",Key-KEY_CTRLALT_BASE);
-            else
-              *KeyText=0;
-  for (I=0;KeyText[I]!=0;I++)
-    if (KeyText[I]=='\\')
-    {
-      strcpy(KeyText+I,"BackSlash");
-      break;
-    }
+  ::KeyToText(Key,KeyText);
 }
+/* SVS $ */
 
 
 void KeyMacro::ReadMacros(int ReadMode)

@@ -5,10 +5,12 @@ iswind.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 25.07.2000 $ */
 
 /*
 Modify:
+  25.07.2000 SVS
+    + Программое переключение FulScreen <-> Windowed
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -28,6 +30,11 @@ static BOOL CALLBACK IsWindowedEnumProc(HWND hwnd,LPARAM lParam);
 static HWND hFarWnd;
 static BOOL WindowedMode=FALSE;
 static HICON hOldLargeIcon,hOldSmallIcon;
+
+typedef BOOL (WINAPI *PROCSETCONSOLEDISPLAYMODEELLWND)(HANDLE,DWORD,LPDWORD);
+typedef BOOL (WINAPI *PROCGETCONSOLEDISPLAYMODE)(LPDWORD);
+static PROCSETCONSOLEDISPLAYMODEELLWND SetConsoleDisplayMode=NULL;
+static PROCGETCONSOLEDISPLAYMODE GetConsoleDisplayMode=NULL;
 
 void DetectWindowedMode()
 {
@@ -86,3 +93,44 @@ void RestoreIcons()
     }
   }
 }
+
+/* $ 25.07.2000 SVS
+   Программое переключение FulScreen <-> Windowed
+   (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
+   mode = -2 - получить текущее состояние
+          -1 - как тригер
+           0 - Windowed
+           1 - FulScreen
+   Return
+           0 - Windowed
+           1 - FulScreen
+*/
+int FarAltEnter(int mode)
+{
+  if(mode != -2)
+  {
+    if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    {
+      DWORD dwOldMode;
+      if(!SetConsoleDisplayMode)
+      {
+        HMODULE hKernel32 = GetModuleHandle("kernel32");
+        SetConsoleDisplayMode = (PROCSETCONSOLEDISPLAYMODEELLWND)GetProcAddress(hKernel32,"SetConsoleDisplayMode");
+        GetConsoleDisplayMode = (PROCGETCONSOLEDISPLAYMODE)GetProcAddress(hKernel32,"GetConsoleDisplayMode");
+      }
+      SetConsoleDisplayMode(GetStdHandle(STD_OUTPUT_HANDLE),
+           (mode == -1)?(IsWindowed()?1:0):(mode&1),&dwOldMode);
+    }
+    else if (hFarWnd) // win9x
+    {
+      //Windows9X посылает сообщение WM_COMMAND со специальным идентификатором,
+      //когда пользователь нажимает ALT+ENTER:
+      #define ID_SWITCH_CONSOLEMODE 0xE00F
+      SendMessage(hFarWnd,WM_COMMAND,ID_SWITCH_CONSOLEMODE,
+           (mode == -1)?(IsWindowed()?1:0):(mode&1));
+    }
+  }
+  DetectWindowedMode();
+  return IsWindowed()?0:1;
+}
+/* SVS $*/

@@ -5,10 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.09 23.07.2000 $ */
+/* Revision: 1.10 25.07.2000 $ */
 
 /*
 Modify:
+  23.07.2000 SVS
+     + Функции
+       - Ввод тестовой строки
+       - FSF-функция KeyToName
+       - FSF: работа с буфером обмена CopyToClipboard, PasteFromClipboard
   23.07.2000 SVS
      + Функции для обработчика диалога
        - расширенная функция диалога FarDialogEx;
@@ -237,14 +242,19 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
          StructSize, Unquote, ExpandEnvironmentStr,
          sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr,
          strrchr, strstr, strtok, memset, strpbrk
+     $ 07.07.2000 IS
+       Эпопея продолжается... Инициализация: atoi, _atoi64, itoa,
+       RemoveLeadingSpaces, RemoveTrailingSpaces, RemoveExternalSpaces,
+       TruncStr, TruncPathStr, QuoteSpaceOnly, PointToName, GetPathRoot,
+       AddEndSlash
     */
     struct FarStandardFunctions StandardFunctions;
     StandardFunctions.StructSize=sizeof(StandardFunctions);
     StandardFunctions.Unquote=Unquote;
     StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
-    StandardFunctions.sprintf=sprintf;
-    StandardFunctions.sscanf=sscanf;
-    StandardFunctions.qsort=qsort;
+    StandardFunctions.sprintf=FarSprintf;
+    StandardFunctions.sscanf=FarSscanf;
+    StandardFunctions.qsort=FarQsort;
     StandardFunctions.memcpy=memcpy;
     StandardFunctions.memmove=memmove;
     StandardFunctions.memcmp=memcmp;
@@ -254,16 +264,9 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StandardFunctions.strtok=strtok;
     StandardFunctions.memset=memset;
     StandardFunctions.strpbrk=strpbrk;
-    /* IS $ */
-    /* $ 07.07.2000 IS
-     Эпопея продолжается... Инициализация: atoi, _atoi64, itoa,
-     RemoveLeadingSpaces, RemoveTrailingSpaces, RemoveExternalSpaces,
-     TruncStr, TruncPathStr, QuoteSpaceOnly, PointToName, GetPathRoot,
-     AddEndSlash
-    */
-    StandardFunctions.atoi=atoi;
-    StandardFunctions._atoi64=_atoi64;
-    StandardFunctions.itoa=itoa;
+    StandardFunctions.atoi=FarAtoi;
+    StandardFunctions._atoi64=FarAtoa64;
+    StandardFunctions.itoa=FarItoa;
     StandardFunctions.RemoveLeadingSpaces=RemoveLeadingSpaces;
     StandardFunctions.RemoveTrailingSpaces=RemoveTrailingSpaces;
     StandardFunctions.RemoveExternalSpaces=RemoveExternalSpaces;
@@ -274,6 +277,13 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StandardFunctions.GetPathRoot=GetPathRoot;
     StandardFunctions.AddEndSlash=AddEndSlash;
     /* IS $ */
+    /* $ 25.07.2000 SVS
+       Моя очередь продолжать эпопею :-)
+    */
+    StandardFunctions.CopyToClipboard=CopyToClipboard;
+    StandardFunctions.PasteFromClipboard=PasteFromClipboard;
+    StandardFunctions.FarKeyToText=KeyToText;
+    /* SVS $ */
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
     StartupInfo.ModuleNumber=ModuleNumber;
@@ -315,6 +325,10 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StartupInfo.DialogEx=FarDialogEx;
     StartupInfo.SendDlgMessage=FarSendDlgMessage;
     StartupInfo.DefDlgProc=FarDefDlgProc;
+    /* $ 25.07.2000 SVS
+       Функция-стандартный диалог ввода текста
+    */
+    StartupInfo.InputBox=GetString;
     /* SVS $ */
     /* 06.07.2000 IS
       Указатель на структуру с адресами полезных функций из far.exe

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.07 23.07.2000 $ */
+/* Revision: 1.08 24.07.2000 $ */
 
 /*
 Modify:
+  24.07.2000 SVS
+    ! Все функции, попадающие в разряд FSF должны иметь WINAPI!!!
   23.07.2000 SVS
     + Функция FarDialogEx - расширенный диалог
     + Функция FarDefDlgProc обработки диалога по умолчанию
@@ -101,7 +103,6 @@ void DetectWindowedMode();
 int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
-void Unquote(char *Str);
 bool GetSubstName(char *LocalName,char *SubstName,int SubstSize);
 void BoxText(char *Str);
 int FarColorToReal(int FarColor);
@@ -133,29 +134,11 @@ void SetMessageHelp(char *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);
 int IsMouseButtonPressed();
-char* PointToName(char *Path);
 int CmpName(char *pattern,char *string,int skippath=TRUE);
 int CheckForEsc();
 void ShowHeap();
 void CheckHeap(int NumLine=0);
 char* QuoteSpace(char *Str);
-char* QuoteSpaceOnly(char *Str);
-char* TruncStr(char *Str,int MaxLength);
-char* TruncPathStr(char *Str,int MaxLength);
-/* $ 07.07.2000 SVS
-   + удалить пробелы снаружи
-   ! изменен тип возврата
-*/
-#ifndef _MSC_VER
-unsigned char* RemoveLeadingSpaces(unsigned char *Str);
-unsigned char* RemoveTrailingSpaces(unsigned char *Str);
-unsigned char* RemoveExternalSpaces(unsigned char *Str);
-#else
-char* RemoveLeadingSpaces(char *Str);
-char* RemoveTrailingSpaces(char *Str);
-char* RemoveExternalSpaces(char *Str);
-#endif
-/* SVS $ */
 int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish);
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish);
@@ -183,13 +166,10 @@ int GetColorDialog(unsigned int &Color);
 int HiStrlen(char *Str);
 int GetErrorString(char *ErrStr);
 void ShowProcessList();
-int CopyToClipboard(char *Data);
 int CopyFormatToClipboard(char *Format,char *Data);
-char* PasteFromClipboard();
 char* PasteFormatFromClipboard(char *Format);
 int GetFileTypeByName(char *Name);
 void SetFarTitle(char *Title);
-void AddEndSlash(char *Path);
 void LocalUpperInit();
 int LocalIslower(int Ch);
 int LocalIsupper(int Ch);
@@ -214,13 +194,9 @@ int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode);
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
-void GetPathRoot(char *Path,char *Root);
 char *NullToEmpty(char *Str);
 void CenterStr(char *Src,char *Dest,int Length);
 char *GetCommaWord(char *Src,char *Word);
-int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
-    char *DestText,int DestLength,char *HelpTopic=NULL,int EnableEmpty=FALSE,
-    int Password=FALSE);
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int GetFileOwner(char *Computer,char *Name,char *Owner);
 int GetNumberOfLinks(char *Name);
@@ -355,7 +331,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 //  Функция расширенного диалога
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
-      FARDIALOGPROC Proc);
+      FARDIALOGPROC Proc,long Param);
 //  Функция обработки диалога по умолчанию
 long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 // Посылка сообщения диалогу
@@ -363,10 +339,58 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1, long Param2);
 
 /* SVS $ */
 #endif
+
+
+/* $ 24.07.2000 SVS
+   Те функции, которые попадают в FSF
+   Должны иметь WINAPI
+*/
 /* $ 05.07.2000 SVS
    Расширение переменной среды
 */
-DWORD ExpandEnvironmentStr(char *src, char *dst, size_t size=8192);
+DWORD WINAPI ExpandEnvironmentStr(char *src, char *dst, size_t size=8192);
 /* SVS $ */
+void WINAPI Unquote(char *Str);
+
+/* $ 07.07.2000 SVS
+   + удалить пробелы снаружи
+   ! изменен тип возврата
+*/
+char* WINAPI RemoveLeadingSpaces(char *Str);
+char* WINAPI RemoveTrailingSpaces(char *Str);
+char* WINAPI RemoveExternalSpaces(char *Str);
+/* SVS $ */
+char* WINAPI TruncStr(char *Str,int MaxLength);
+char* WINAPI TruncPathStr(char *Str,int MaxLength);
+char* WINAPI QuoteSpaceOnly(char *Str);
+char* WINAPI PointToName(char *Path);
+void  WINAPI GetPathRoot(char *Path,char *Root);
+void  WINAPI AddEndSlash(char *Path);
+char *WINAPI FarItoa(int value, char *string, int radix);
+__int64 WINAPI FarAtoa64(const char *s);
+int WINAPI FarAtoi(const char *s);
+void WINAPI FarQsort(void *base, size_t nelem, size_t width, int (WINAPIV *fcmp)(const void *, const void *));
+int WINAPIV FarSprintf(char *buffer,const char *format,...);
+int WINAPIV FarSscanf(const char *buffer, const char *format,...);
+int WINAPI CopyToClipboard(char *Data);
+char* WINAPI PasteFromClipboard(void);
+int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
+    char *DestText,int DestLength,char *HelpTopic=NULL,int EnableEmpty=FALSE,
+    int Password=FALSE);
+void WINAPI KeyToText(int Key,char *KeyText);
+/* SVS $ */
+
+
+/* Программое переключение FulScreen <-> Windowed
+   (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
+   mode = -2 - GetMode
+          -1 - как тригер
+           0 - Windowed
+           1 - FulScreen
+   Return
+           0 - Windowed
+           1 - FulScreen
+*/
+int FarAltEnter(int mode);
 
 #endif  // __FARFUNC_HPP__
