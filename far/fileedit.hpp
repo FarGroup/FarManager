@@ -7,10 +7,15 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.17 11.07.2001 $ */ 
+/* Revision: 1.18 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 KM
+    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
+      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
+      найденного файла из архива.
+    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   25.06.2001 IS
@@ -81,10 +86,16 @@ class FileEditor:public Frame
     int DisableHistory;
     int EnableF6;
     /* DJ $ */
+    /* $ 17.08.2001 KM
+      Добавлено для поиска по AltF7. При редактировании найденного файла из
+      архива для клавиши F2 сделать вызов ShiftF2.
+    */
+    int SaveToSaveAs;
+    /* KM $ */
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
-               char *PluginData=NULL);
+               char *PluginData=NULL,int ToSaveAs=FALSE);
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine,int StartChar,const char *Title,
                int X1,int Y1,int X2,int Y2);
@@ -92,7 +103,7 @@ class FileEditor:public Frame
     virtual ~FileEditor();
     /* DJ $ */
     void Init(const char *Name,int CreateNewFile,int EnableSwitch,
-              int StartLine,int StartChar,int DisableHistory,char *PluginData);
+              int StartLine,int StartChar,int DisableHistory,char *PluginData,int ToSaveAs);
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */
@@ -119,11 +130,18 @@ class FileEditor:public Frame
     void SetNamesList (NamesList *Names);
     /* DJ $ */
     /* $ 10.05.2001 DJ */
-    void SetEnableF6 (int AEnableF6) { EnableF6 = AEnableF6; }
+    void SetEnableF6 (int AEnableF6) { EnableF6 = AEnableF6; InitKeyBar(); }
     /* DJ $ */
     int GetCanLoseFocus(int DynamicMode=FALSE);
 /* $ Введена для нужд CtrlAltShift OT */
     int FastHide();
+
+    /* $ 17.08.2001 KM
+      Добавлено для поиска по AltF7. При редактировании найденного файла из
+      архива для клавиши F2 сделать вызов ShiftF2.
+    */
+    void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
+    /* KM $ */
 
 };
 

@@ -7,10 +7,15 @@ fileview.hpp
 
 */
 
-/* Revision: 1.13 11.07.2001 $ */ 
+/* Revision: 1.14 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 KM
+    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
+      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
+      найденного файла из архива.
+    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   25.06.2001 IS
@@ -64,15 +69,21 @@ class FileViewer:public Frame
     int DisableHistory;
     char Name[NM];
     typedef class Frame inherited;
+    /* $ 17.08.2001 KM
+      Добавлено для поиска по AltF7. При редактировании найденного файла из
+      архива для клавиши F2 сделать вызов ShiftF2.
+    */
+    int SaveToSaveAs;
+    /* KM $ */
 
   public:
     FileViewer(const char *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
                int DisableEdit=FALSE,long ViewStartPos=-1,char *PluginData=NULL,
-               NamesList *ViewNamesList=NULL);
+               NamesList *ViewNamesList=NULL,int ToSaveAs=FALSE);
     FileViewer(const char *Name,int EnableSwitch,const char *Title,
                int X1,int Y1,int X2,int Y2);
     void Init(const char *Name,int EnableSwitch,int DisableHistory,
-              long ViewStartPos,char *PluginData,NamesList *ViewNamesList);
+              long ViewStartPos,char *PluginData,NamesList *ViewNamesList,int ToSaveAs);
     ~FileViewer();
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
@@ -89,10 +100,17 @@ class FileViewer:public Frame
     virtual int GetType() { return MODALTYPE_VIEWER; }
 
     /* $ 12.05.2001 DJ */
-    void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; }
+    void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; InitKeyBar(); }
     /* DJ $ */
 /* $ Введена для нужд CtrlAltShift OT */
     int FastHide();
+
+    /* $ 17.08.2001 KM
+      Добавлено для поиска по AltF7. При редактировании найденного файла из
+      архива для клавиши F2 сделать вызов ShiftF2.
+    */
+    void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
+    /* KM $ */
 };
 
 #endif  // __FILEVIEWER_HPP__

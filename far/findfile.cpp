@@ -5,10 +5,16 @@ findfile.cpp
 
 */
 
-/* Revision: 1.49 11.08.2001 $ */
+/* Revision: 1.50 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 KM
+    ! При редактировании найденного файла из архива функция "Сохранить"
+      заменяется на функцию "Сохранить в", вызывая диалог для ввода имени.
+    + Добавлена кнопка "View" в диалог поиска при поиске файла изнутри архива.
+    - Поправлена реакция на клавиши серый + и - в просмотре файлов, теперь
+      в списке просмотра присутствуют только не архивные файлы.
   15.08.2001 KM
     ! Глобальный перетрях поиска. 5-я серия
     + Добавлены возможности при поиске в архивах:
@@ -697,7 +703,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                        ListBox->GetUserDataSize(I)==sizeof(ListFindData))
                   {
                     int Length=strlen(ListFindData.FileFindData.cFileName);
-                    if (Length>0 && ListFindData.FileFindData.cFileName[Length-1]!='\\')
+                    if (Length>0 && ListFindData.FileFindData.cFileName[Length-1]!='\\' &&
+                        !*ListFindData.FindFileArcName)
                       ViewList.AddName(ListFindData.FileFindData.cFileName);
                   }
                 ViewList.SetCurName(UserDataItem.FileFindData.cFileName);
@@ -706,8 +713,11 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
               Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
               ReleaseMutex(hMutex);
               {
-                FileViewer ShellViewer (SearchFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
+                FileViewer ShellViewer (SearchFileName,FALSE,FALSE,FALSE,-1,NULL,(*UserDataItem.FindFileArcName)?NULL:&ViewList);
                 ShellViewer.SetDynamicallyBorn(FALSE);
+                ShellViewer.SetEnableF6(TRUE);
+                if (*UserDataItem.FindFileArcName)
+                  ShellViewer.SetSaveToSaveAs(TRUE);
                 IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
                 IsProcessVE_FindFile--;
@@ -728,6 +738,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 FileEditor ShellEditor (SearchFileName,FALSE,FALSE);
                 ShellEditor.SetDynamicallyBorn(FALSE);
                 ShellEditor.SetEnableF6 (TRUE);
+                if (*UserDataItem.FindFileArcName)
+                  ShellEditor.SetSaveToSaveAs(TRUE);
                 IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
                 IsProcessVE_FindFile--;
@@ -776,7 +788,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           char *FileName=UserDataItem.FileFindData.cFileName;
           Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
 
-          if (UserDataItem.FindFileArcName[0])
+          if (*UserDataItem.FindFileArcName && !hPlugin)
           {
             char ArcName[NM],ArcPath[NM];
             strncpy(ArcName,UserDataItem.FindFileArcName,NM);
@@ -1046,14 +1058,16 @@ int FindFiles::FindFilesProcess()
 
   DlgHeight+=IncY;
 
+  *FindFileArcName=0;
   if (PluginMode)
   {
     hPlugin=ActivePanel->GetPluginHandle();
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
-      FindDlg[7].Type=FindDlg[8].Type=DI_TEXT;
-      *FindDlg[7].Data=*FindDlg[8].Data=0;
+      strcpy(FindFileArcName,Info.HostFile);
+      FindDlg[8].Type=DI_TEXT;
+      *FindDlg[8].Data=0;
     }
   }
   else
@@ -1109,9 +1123,7 @@ void FindFiles::SetPluginDirectory(char *FileName)
     CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
   strcpy(Name,FileName);
   StartName=Name;
-  while ((EndName=strchr(StartName,'\x1'))!=NULL ||
-         (Info.Flags & OPIF_REALNAMES) && (EndName=strchr(StartName,'\\'))!=NULL)
-
+  while ((EndName=strchr(StartName,'\\'))!=NULL)
   {
     *EndName=0;
     RereadPlugin(hPlugin);

@@ -5,10 +5,16 @@ fileview.cpp
 
 */
 
-/* Revision: 1.39 11.07.2001 $ */ 
+/* Revision: 1.40 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 KM
+    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
+      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
+      найденного файла из архива.
+    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
+    - Убрана в KeyBar надпись на клавишу F12 при CanLoseFocus=TRUE
   11.07.2001 OT
     Перенос CtrlAltShift в Manager
   25.06.2001 IS
@@ -120,13 +126,13 @@ Modify:
 
 FileViewer::FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,char *PluginData,
-                       NamesList *ViewNamesList)
+                       NamesList *ViewNamesList,int ToSaveAs)
 {
   _OT(SysLog("[%p] FileViewer::FileViewer(I variant...)", this));
   FileViewer::DisableEdit=DisableEdit;
   SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
-  Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList);
+  Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList,ToSaveAs);
 }
 
 
@@ -138,13 +144,13 @@ FileViewer::FileViewer(const char *Name,int EnableSwitch,const char *Title,
   SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   View.SetTitle(Title);
-  Init(Name,EnableSwitch,TRUE,-1,"",NULL);
+  Init(Name,EnableSwitch,TRUE,-1,"",NULL,FALSE);
 }
 
 
 void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
                       long ViewStartPos,char *PluginData,
-                      NamesList *ViewNamesList)
+                      NamesList *ViewNamesList,int ToSaveAs)
 {
   ViewKeyBar.SetOwner(this);
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
@@ -163,6 +169,13 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
   DisableHistory=disableHistory; ///
   strcpy(Name,name); ///
   SetCanLoseFocus(EnableSwitch);
+
+  /* $ 17.08.2001 KM
+    Добавлено для поиска по AltF7. При редактировании найденного файла из
+    архива для клавиши F2 сделать вызов ShiftF2.
+  */
+  SaveToSaveAs=ToSaveAs;
+  /* KM $ */
 
   /* $ 07.08.2000 SVS
     ! Код, касаемый KeyBar вынесен в отдельную функцию */
@@ -210,7 +223,7 @@ void FileViewer::InitKeyBar(void)
 {
   /* $ 29.06.2000 tran
      добавил названия всех функциональных клавиш */
-  char *FViewKeys[]={MSG(MViewF1),MSG(MViewF2),MSG(MViewF3),MSG(MViewF4),MSG(MViewF5),DisableEdit ? "":MSG(MViewF6),MSG(MViewF7),MSG(MViewF8),MSG(MViewF9),MSG(MViewF10),MSG(MViewF11),MSG(MViewF12)};
+  char *FViewKeys[]={MSG(MViewF1),MSG(MViewF2),MSG(MViewF3),MSG(MViewF4),MSG(MViewF5),DisableEdit ? "":MSG(MViewF6),MSG(MViewF7),MSG(MViewF8),MSG(MViewF9),MSG(MViewF10),MSG(MViewF11),(GetCanLoseFocus())?MSG(MViewF12):""};
   char *FViewShiftKeys[]={MSG(MViewShiftF1),MSG(MViewShiftF2),MSG(MViewShiftF3),MSG(MViewShiftF4),MSG(MViewShiftF5),MSG(MViewShiftF6),MSG(MViewShiftF7),MSG(MViewShiftF8),MSG(MViewShiftF9),MSG(MViewShiftF10),MSG(MViewShiftF11),MSG(MViewShiftF12)};
   char *FViewAltKeys[]={MSG(MViewAltF1),MSG(MViewAltF2),MSG(MViewAltF3),MSG(MViewAltF4),MSG(MViewAltF5),MSG(MViewAltF6),MSG(MViewAltF7),MSG(MViewAltF8),MSG(MViewAltF9),MSG(MViewAltF10),MSG(MViewAltF11),MSG(MViewAltF12)};
   char *FViewCtrlKeys[]={MSG(MViewCtrlF1),MSG(MViewCtrlF2),MSG(MViewCtrlF3),MSG(MViewCtrlF4),MSG(MViewCtrlF5),MSG(MViewCtrlF6),MSG(MViewCtrlF7),MSG(MViewCtrlF8),MSG(MViewCtrlF9),MSG(MViewCtrlF10),MSG(MViewCtrlF11),MSG(MViewCtrlF12)};
@@ -366,7 +379,7 @@ int FileViewer::ProcessKey(int Key)
         long FilePos=View.GetFilePos();
         /* $ 06.05.2001 DJ обработка F6 под NWZ */
         FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, GetCanLoseFocus(),
-          -2, FilePos, FALSE);
+          -2, FilePos, FALSE, NULL, SaveToSaveAs);
         ShellEditor->SetEnableF6 (TRUE);
         /* $ 07.05.2001 DJ сохраняем NamesList */
         ShellEditor->SetNamesList (View.GetNamesList());

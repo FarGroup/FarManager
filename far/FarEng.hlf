@@ -1059,9 +1059,10 @@ required actions.
 
    #Cancel#          Close the search dialog.
 
-    F3 and F4 may be used to view and edit found files,
-but viewing and editing is not supported for plugin emulated
-file systems.
+    F3 and F4 may be used to view and edit found files. Also
+viewing and editing is supported for plugin emulated file systems.
+Note, that saving editor changes by F2 key in emulated file system
+will perform #SaveAs# operation, instead of common #Save#.
 
 @FindFolder
 $ #Find folder#

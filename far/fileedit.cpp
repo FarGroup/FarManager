@@ -5,10 +5,16 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.59 01.08.2001 $ */
+/* Revision: 1.60 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 KM
+    + Добавлена функция SetSaveToSaveAs для установки дефолтной реакции
+      на клавишу F2 в вызов ShiftF2 для поиска, в случае редактирования
+      найденного файла из архива.
+    ! Изменён конструктор и функция Init для работы SaveToSaveAs.
+    - Убрана в KeyBar надпись на клавишу F12 при CanLoseFocus=TRUE
   01.08.2001 tran
     - bug с Shift-F2, существующее имя, esc. F2
   23.07.2001 SVS
@@ -179,12 +185,12 @@ Modify:
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
-                       char *PluginData)
+                       char *PluginData,int ToSaveAs)
 {
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
   Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,
-       DisableHistory,PluginData);
+       DisableHistory,PluginData,ToSaveAs);
 }
 
 
@@ -195,13 +201,13 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   FEdit.SetTitle(Title);
-  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,TRUE,"");
+  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,TRUE,"",FALSE);
 }
 
 
 void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
-                      char *PluginData)
+                      char *PluginData,int ToSaveAs)
 {
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
@@ -211,6 +217,12 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   FileEditor::DisableHistory = DisableHistory;
   EnableF6 = EnableSwitch;
   /* DJ $ */
+  /* $ 17.08.2001 KM
+    Добавлено для поиска по AltF7. При редактировании найденного файла из
+    архива для клавиши F2 сделать вызов ShiftF2.
+  */
+  SaveToSaveAs=ToSaveAs;
+  /* KM $ */
   if (*Name==0)
     return;
   FEdit.SetPluginData(PluginData);
@@ -371,7 +383,7 @@ void FileEditor::InitKeyBar(void)
   /* $ 10.05.2001 DJ
      смотрим на EnableF6 вместо CanLoseFocus
   */
-  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableF6 ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
+  char *FEditKeys[]={MSG(MEditF1),(SaveToSaveAs)?MSG(MEditShiftF2):MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),EnableF6 ? MSG(MEditF6):"",MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),(GetCanLoseFocus())?MSG(MEditF12):""};
   /* DJ $ */
   char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
   char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
@@ -468,7 +480,7 @@ int FileEditor::ProcessKey(int Key)
       {
         static int TextFormat=0;
         int NameChanged=FALSE;
-        if (Key==KEY_SHIFTF2)
+        if (Key==KEY_SHIFTF2 || SaveToSaveAs)
         {
           const char *HistoryName="NewEdit";
           static struct DialogData EditDlgData[]=
@@ -554,7 +566,7 @@ int FileEditor::ProcessKey(int Key)
              сохраняем NamesList
           */
           FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
-            FALSE, FilePos, NULL, EditNamesList);
+            FALSE, FilePos, NULL, EditNamesList, SaveToSaveAs);
           /* DJ $ */
 //OT          FrameManager->InsertFrame (Viewer);
           /* DJ $ */
