@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.63 26.02.2003 $ */
+/* Revision: 1.64 02.03.2003 $ */
 
 /*
 Modify:
+  02.03.2003 SVS
+    - забыл закрыть поток, блин :-(
   26.02.2003 SVS
     ! Перед переключением в редактор проверим доступность файла на редактирование
   26.12.2002
@@ -461,6 +463,7 @@ int FileViewer::ProcessKey(int Key)
           Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),ViewFileName,MSG(MOk));
           return(TRUE);
         }
+        CloseHandle(hEdit);
 
         /* $ 11.10.2001 IS
             Если переключаемся в редактор, то удалять файл уже не
