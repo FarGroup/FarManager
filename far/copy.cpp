@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.139 08.12.2004 $ */
+/* Revision: 1.140 13.12.2004 $ */
 
 /*
 Modify:
+  13.12.2004 WARP
+    + Проценты в диалоге копирования/перемещения.
+    ! "Обработано файлов: %d из %d" при включенном показе общего индикатора.
+    ! Диалог копирования шире на 6 символов.
   08.12.2004 SVS
     ! "...т.е. последовательно разрешать шаринг все более другой...."
   04.11.2004 SVS
@@ -478,6 +482,8 @@ enum {
   COPY_RULE_NUL    = 0x0001,
   COPY_RULE_FILES  = 0x0002,
 };
+
+static TotalFilesToProcess;
 
 static int ShowCopyTime;
 static clock_t CopyStartTime;
@@ -2764,7 +2770,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
 
   //// // _LOGCOPYR(SysLog("[%p] ShellCopy::ShellCopyMsg('%s','%s',%x)",this,Src,Dest,Flags));
-  #define BAR_SIZE  40
+  #define BAR_SIZE  46
   static char Bar[BAR_SIZE+2]={0};
   if(!Bar[0])
     memset(Bar,0x0C4,BAR_SIZE);
@@ -2780,7 +2786,9 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
       sprintf(TotalMsg," %s ",MSG(MCopyDlgTotal));
     int TotalLength=strlen(TotalMsg);
     memcpy(BarStr+(strlen(BarStr)-TotalLength+1)/2,TotalMsg,TotalLength);
-    *FilesStr=0;
+//    *FilesStr=0;
+
+    sprintf (FilesStr, MSG(MCopyProcessedTotal),TotalFiles, TotalFilesToProcess);
   }
   else
   {
@@ -2799,11 +2807,11 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
 
   if (Src!=NULL)
   {
-    sprintf(SrcName,"%-40s",Src);
-    TruncPathStr(SrcName,40);
+    sprintf(SrcName,"%-46s",Src);
+    TruncPathStr(SrcName,46);
   }
-  sprintf(DestName,"%-40s",Dest);
-  TruncPathStr(DestName,40);
+  sprintf(DestName,"%-46s",Dest);
+  TruncPathStr(DestName,46);
 
   SetMessageHelp("CopyFiles");
   if (Src==NULL)
@@ -2812,28 +2820,30 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
                        "",MSG(MCopyScanning),
                        DestName,"","",BarStr,"");
   else
-/* $ 30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость. */
-    if ((ShellCopy::Flags&FCOPY_MOVE))
+  {
+    bool Move = ShellCopy::Flags&FCOPY_MOVE;
+
+    if ( ShowTotalCopySize )
     {
-      if (ShowCopyTime)
-        Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,Bar,"");
+      if ( ShowCopyTime )
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,"",Bar,FilesStr,Bar,"");
       else
-        Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,"",Bar,FilesStr);
     }
     else
     {
-      if (ShowCopyTime)
-        Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,Bar,"");
+      if ( ShowCopyTime )
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,Bar,"");
       else
-        Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
+        Message(Flags, 0, MSG(Move?MMoveDlgTitle:MCopyDlgTitle),MSG(Move?MCopyMoving:MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
     }
-/* VVM $ */
+  }
+
   int MessageX1,MessageY1,MessageX2,MessageY2;
   GetMessagePosition(MessageX1,MessageY1,MessageX2,MessageY2);
   BarX=MessageX1+5;
   BarY=MessageY1+6;
-  BarLength=MessageX2-MessageX1-9;
+  BarLength=MessageX2-MessageX1-9-5; //-5 для процентов
 
   if (Src!=NULL)
   {
@@ -3421,6 +3431,15 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
   SetColor(COL_DIALOGTEXT);
   GotoXY(BarX,BarY+(TotalBar ? 2:0));
   Text(ProgressBar);
+
+  GotoXY(BarX+BarLength,BarY+(TotalBar ? 2:0));
+
+  char Percents[5];
+
+  sprintf (Percents, "%4d%%", ToPercent (WrittenSize.PLow(), TotalSize.PLow()));
+
+  Text (Percents);
+
 /* $ 30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость. */
   // // _LOGCOPYR(SysLog("!!!!!!!!!!!!!! ShowCopyTime=%d ,ShowTotalCopySize=%d, TotalBar=%d",ShowCopyTime,ShowTotalCopySize,TotalBar));
@@ -3469,7 +3488,7 @@ int ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
       GetTimeText(TimeLeft, TimeLeftStr);
       sprintf(TimeStr,MSG(MCopyTimeInfo), WorkTimeStr, TimeLeftStr, CPS, c);
     }
-    GotoXY(BarX,BarY+4);
+    GotoXY(BarX,BarY+(TotalBar?6:4));
     Text(TimeStr);
   }
   return (TRUE);
@@ -3874,6 +3893,7 @@ bool ShellCopy::CalcTotalSize()
   int FileAttr;
 
   TotalCopySize=CurCopiedSize=0;
+  TotalFilesToProcess = 0;
 
   ShellCopyMsg(NULL,"",MSG_LEFTALIGN);
 
@@ -3894,13 +3914,17 @@ bool ShellCopy::CalcTotalSize()
           return(false);
         }
         TotalCopySize+=FileSize;
+        TotalFilesToProcess++;
       }
     }
     else
     {
       int64 FileSize;
       if (SrcPanel->GetLastSelectedSize(&FileSize)!=-1)
+      {
         TotalCopySize+=FileSize;
+        TotalFilesToProcess++;
+      }
     }
   }
   // TODO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
