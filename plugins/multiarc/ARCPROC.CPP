@@ -279,6 +279,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 {
   char Command[512],ArcFormat[100],AllFilesMask[32];
   char Password1[256],Password2[256];
+  char DefExt[NM];
   *Password1=*Password2=0;
   if (ItemsNumber==0)
     return(0);
@@ -288,6 +289,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     GetRegKey(HKEY_CURRENT_USER,"","DefaultFormat",DefaultFormat,"",sizeof(DefaultFormat));
     if (!FormatToPlugin(DefaultFormat,ArcPluginNumber,ArcPluginType))
       ArcPluginNumber=ArcPluginType=0;
+    strcpy(ArcFormat,DefaultFormat);
   }
   int ArcExitCode=1;
 
@@ -302,31 +304,30 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   {
     const char *ArcHistoryName="ArcName";
     struct InitDialogItem InitItems[]={
-  /* 0 */    DI_DOUBLEBOX,3,1,72,14,0,0,0,0,"",
-  /* 1 */    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc,
-  /* 2 */    DI_EDIT,5,3,70,3,1,(DWORD)ArcHistoryName,DIF_HISTORY,0,"",
-  /* 3 */    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSwitches,
-  /* 4 */    DI_EDIT,5,5,70,3,0,0,DIF_HISTORY,0,"",
-  /* 5 */    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 6 */    DI_TEXT,5,7,0,0,0,0,0,0,(char *)MAddPassword,
-  /* 7 */    DI_PSWEDIT,5,8,35,8,0,0,0,0,"",
-  /* 8 */    DI_TEXT,40,7,0,0,0,0,0,0,(char *)MAddReenterPassword,
-  /* 9 */    DI_PSWEDIT,40,8,70,8,0,0,0,0,"",
-  /*10 */    DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /*11 */    DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MAddDelete,
-  /*12 */    DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MBackground,
-  /*13 */    DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /*14 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd,
-  /*15 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect,
-  /*16 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSave,
-  /*17 */    DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel
+      /* 0*/DI_DOUBLEBOX,3,1,72,14,0,0,0,0,"",
+      /* 1*/DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc,
+      /* 2*/DI_EDIT,5,3,70,3,1,(DWORD)ArcHistoryName,DIF_HISTORY,0,"",
+      /* 3*/DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSwitches,
+      /* 4*/DI_EDIT,5,5,70,3,0,0,DIF_HISTORY,0,"",
+      /* 5*/DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /* 6*/DI_TEXT,5,7,0,0,0,0,0,0,(char *)MAddPassword,
+      /* 7*/DI_PSWEDIT,5,8,35,8,0,0,0,0,"",
+      /* 8*/DI_TEXT,40,7,0,0,0,0,0,0,(char *)MAddReenterPassword,
+      /* 9*/DI_PSWEDIT,40,8,70,8,0,0,0,0,"",
+      /*10*/DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /*11*/DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MAddDelete,
+      /*12*/DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MBackground,
+      /*13*/DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      /*14*/DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd,
+      /*15*/DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect,
+      /*16*/DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSave,
+      /*17*/DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel
     };
     struct FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
     InitDialogItems(InitItems,DialogItems,sizeof(InitItems)/sizeof(InitItems[0]));
     if(Opt.UseLastHistory)
       DialogItems[4].Flags|=DIF_USELASTHISTORY;
 
-    char DefExt[NM];
     char FullName[NM],ExtName[NM],*NamePtr,*ExtPtr;
     BOOL Ret=TRUE;
 
@@ -382,7 +383,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     char OriginalName[NM*2];
     strcpy(OriginalName,DialogItems[2].Data);
 
-    if(!Opt.DeleteExtFile)
+//    if(!Opt.DeleteExtFile)
     {
       if ((ExtPtr=strrchr(DialogItems[2].Data,'.'))==NULL ||
           (ExtPtr && stricmp(++ExtPtr,DefExt) != 0))
@@ -476,7 +477,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         strcat(Command,DialogItems[4].Data);
       }
 
-    if(!Opt.DeleteExtFile)
+//    if(!Opt.DeleteExtFile)
     {
       if ((ExtPtr=strrchr(DialogItems[2].Data,'.'))==NULL ||
           (ExtPtr && stricmp(++ExtPtr,DefExt) != 0))
@@ -492,8 +493,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                       CurArcInfo.Prefix);
     if (!IgnoreErrors && ArcCmd.GetExecCode()!=0)
       ArcExitCode=0;
+    if (ArcCmd.GetExecCode()==RETEXEC_ARCNOTFOUND)
+      continue;
 
-    if(Opt.DeleteExtFile) // Old!
+//    if(Opt.DeleteExtFile) // Old!
     {
       if (strchr(DialogItems[2].Data,'.')==NULL)
       {

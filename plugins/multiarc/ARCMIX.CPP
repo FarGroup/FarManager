@@ -53,7 +53,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 {
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
-  int ExitCode;
+  int ExitCode,ExitCode2,LastError;
 
   memset(&si,0,sizeof(si));
   si.cb=sizeof(si);
@@ -135,9 +135,10 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   }
   /* raVen $ */
 
-  ExitCode=CreateProcess(NULL,ExpandedCmd,NULL,NULL,HideOutput,
+  ExitCode2=ExitCode=CreateProcess(NULL,ExpandedCmd,NULL,NULL,HideOutput,
             Opt.Background?CREATE_NEW_CONSOLE:0,NULL,NULL,&si,&pi);
 
+  LastError=!ExitCode?GetLastError():0;
   if (HideOutput)
   {
     SetStdHandle(STD_OUTPUT_HANDLE,StdOutput);
@@ -145,7 +146,23 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     CloseHandle(hChildStdoutWr);
   }
 
-  if (ExitCode)
+  SetLastError(LastError);
+  char ExecuteName[NM];
+  strcpy(ExecuteName,ExpandedCmd);
+  char *Ptr=strchr(ExecuteName,' ');
+  if(Ptr)
+    *Ptr=0;
+  if(!ExitCode2 || !FindExecuteFile(ExecuteName,NULL,0))
+  {
+    char Msg[100];
+    FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),ExecuteName);
+    const char *MsgItems[]={GetMsg(MError),Msg,GetMsg(MOk)};
+    Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,
+                 NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
+    ExitCode=RETEXEC_ARCNOTFOUND;
+  }
+
+  if (ExitCode && ExitCode!=RETEXEC_ARCNOTFOUND)
   {
     if (HideOutput)
     {
@@ -195,6 +212,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     Info.RestoreScreen(NULL);
     Info.RestoreScreen(hScreen);
   }
+
   return(ExitCode);
 }
 
@@ -317,4 +335,70 @@ int LocalStrnicmp(const char *Str1,const char *Str2,int Length)
   CharLower(AnsiStr1);
   CharLower(AnsiStr2);
   return(strcmp(AnsiStr1,AnsiStr2));
+}
+
+char *GetCommaWord(char *Src,char *Word,char Separator)
+{
+  int WordPos,SkipBrackets;
+  if (*Src==0)
+    return(NULL);
+  SkipBrackets=FALSE;
+  for (WordPos=0;*Src!=0;Src++,WordPos++)
+  {
+    if (*Src=='[' && strchr(Src+1,']')!=NULL)
+      SkipBrackets=TRUE;
+    if (*Src==']')
+      SkipBrackets=FALSE;
+    if (*Src==Separator && !SkipBrackets)
+    {
+      Word[WordPos]=0;
+      Src++;
+      while (isspace(*Src))
+        Src++;
+      return(Src);
+    }
+    else
+      Word[WordPos]=*Src;
+  }
+  Word[WordPos]=0;
+  return(Src);
+}
+
+int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
+{
+  char Env[512];
+  char TempDestName[1024],*FilePart;
+  char Ext[64],*PtrExt;
+
+  if((PtrExt=strrchr(OriginalName,'.')) == NULL)
+  {
+    if(!GetEnvironmentVariable("PATHEXT",Env,sizeof(Env)))
+      strcpy(Env,".exe;.com;.bat;.cmd");
+
+    PtrExt=Env;
+    while(1)
+    {
+      if((PtrExt=GetCommaWord(PtrExt,Ext,';')) == NULL)
+        break;
+      if(SearchPath(NULL,OriginalName,Ext,
+               sizeof(TempDestName),	// size, in characters, of buffer
+               TempDestName,	// address of buffer for found filename
+               &FilePart)) 	// address of pointer to file component
+      {
+        if(DestName)
+          strncpy(DestName,TempDestName,SizeDest);
+        return TRUE;
+      }
+    }
+  }
+  else if(SearchPath(NULL,OriginalName,PtrExt,
+               sizeof(TempDestName),	// size, in characters, of buffer
+               TempDestName,	// address of buffer for found filename
+               &FilePart)) 	// address of pointer to file component
+  {
+    if(DestName)
+      strncpy(DestName,TempDestName,SizeDest);
+    return TRUE;
+  }
+  return FALSE;
 }

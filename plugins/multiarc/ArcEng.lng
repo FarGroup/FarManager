@@ -59,6 +59,7 @@
 "Archiver reported exit code %d"
 "Required archiver command is not available"
 "Cannot create list file"
+"Cannot find executable file '%s'"
 
 "%s archive"
 

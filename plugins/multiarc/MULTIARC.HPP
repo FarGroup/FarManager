@@ -211,6 +211,8 @@ int IsCaseMixed(const char *Str);
 int CheckForEsc();
 int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
 int __isspace(int Chr);
+int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
+char *GetCommaWord(char *Src,char *Word,char Separator);
 
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
@@ -251,3 +253,5 @@ struct Options
 } Opt;
 
 char PluginRootKey[80];
+
+#define RETEXEC_ARCNOTFOUND 0x40000

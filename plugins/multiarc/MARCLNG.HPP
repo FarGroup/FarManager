@@ -59,6 +59,7 @@ enum LanguageID
   MArcNonZero,
   MArcCommandNotFound,
   MCannotCreateListFile,
+  MCannotFindArchivator,
 
   MArcFormat,
 

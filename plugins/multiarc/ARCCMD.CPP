@@ -81,6 +81,10 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
     if (Hide==1 && CommandType==0 || CommandType==2)
       Hide=0;
     ExecCode=Execute(this,Command,Hide,Silent,!*Password,ListFileName);
+    if(ExecCode==RETEXEC_ARCNOTFOUND)
+    {
+      return FALSE;
+    }
     if (ExecCode<=MaxAllowedExitCode)
       ExecCode=0;
     if (!IgnoreErrors && ExecCode!=0)
