@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.164 27.06.2002 $ */
+/* Revision: 1.165 26.07.2002 $ */
 
 /*
 Modify:
+  26.07.2002 SKV
+    ! косметика. workaround бага оптимизатора VC++.
   27.06.2002 SVS
     - Падение ФАРа (у Мамаева, Home в панели FarFTP) из-за того, что CurFile
       мог принимать весьма интересные значения, далекие от правды (от
@@ -1278,7 +1280,15 @@ int FileList::ProcessKey(int Key)
           FileList *SrcFilePanel=(FileList *)SrcPanel;
           struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->hPlugin,&Info);
-          strcat(AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
+          /* $ 26.07.2002 SKV
+            В этом месте оптимизатору ВС++ сносило крышу.
+            Да так и читабельнее будет.
+            Было:
+            strcat(AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
+          */
+          AddPluginPrefix(SrcFilePanel,PanelDir);
+          strcat(PanelDir,NullToEmpty(Info.CurDir));
+          /* SKV $ */
           /* SVS $ */
         }
 
@@ -4289,6 +4299,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 */
 char* FileList::AddPluginPrefix(FileList *SrcPanel,char *Prefix)
 {
+  if(!Prefix)return "";
   Prefix[0]=0;
   if(Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
   {
