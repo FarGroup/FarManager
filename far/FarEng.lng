@@ -1202,6 +1202,15 @@
 "&Hex offset"
 "&Decimal offset"
 
+"Error of a call of a Plugin"
+"Trapped Exception:"
+"Address of exception 0x%X, Module:"
+""Attempt of reading to the inaccessible address 0x%X""
+""Attempt of writing to the inaccessible address 0x%X""
+""Attempt to access an array element that is out of bounds""
+""Divide by zero""
+""The plugin used up its stack""
+
 "Cannot read folder contents"
 "This plugin requeired higher FAR version"
 "Required FAR version is %d.%d. Current FAR version is %d.%d"

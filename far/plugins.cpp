@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.34 12.10.2000 $ */
+/* Revision: 1.35 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 SVS
+    + Обработка исключений при вызове галимого плагина (пока только при вызове
+      двух функций - OpenPlugin и OpenFilePlugin).
   12.10.2000 tran
     + /co & PF_PRELOAD = friendship.
     + PluginsSet::DumpPluginsInfo(), call by AltF11 in plugins menu
@@ -142,6 +145,72 @@ int KeepUserScreen;
 char DirToSet[NM];
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
+
+/* $ 16.10.2000 SVS
+   Простенький обработчик исключений.
+*/
+static int xfilter(
+    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
+    EXCEPTION_POINTERS *xp,   // данные ситуации
+    char *ModuleName)         // имя модуля, приведшего к исключению.
+{
+   struct __ECODE {
+     DWORD Code;     // код исключения
+     DWORD IdMsg;    // ID сообщения из LNG-файла
+     DWORD RetCode;  // Что вернем?
+   } ECode[]={
+     {EXCEPTION_ACCESS_VIOLATION, MExcRAccess, EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_ARRAY_BOUNDS_EXCEEDED, MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
+     // сюды добавляем.
+   };
+
+   char *Ptr;
+   int I;
+   int rc;
+   char Buf[2][64];
+
+   // получим запись исключения
+   EXCEPTION_RECORD *xr = xp->ExceptionRecord;
+
+   // CONTEXT можно использовать для отображения или записи в лог
+   //         содержимого регистров...
+   // CONTEXT *xc = xp->ContextRecord;
+
+   rc = EXCEPTION_CONTINUE_SEARCH;
+   Ptr=NULL;
+
+   // просмотрим "знакомые" FAR`у исключения и обработаем...
+   for(I=0; I < sizeof(ECode)/sizeof(ECode[0]); ++I)
+     if(ECode[I].Code == xr->ExceptionCode)
+     {
+       Ptr=MSG(ECode[I].IdMsg);
+       rc=ECode[I].RetCode;
+       if(xr->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+       {
+         sprintf(Buf[1],MSG(xr->ExceptionInformation[0]+MExcRAccess),xr->ExceptionInformation[1]);
+         Ptr=Buf[1];
+       }
+       break;
+     }
+
+   if(Ptr)
+   {
+     char TruncFileName[2*NM];
+     sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
+     strcpy(TruncFileName,ModuleName);
+     Message(MSG_WARNING,1,
+               MSG(MExceptTitle),
+               MSG(MExcTrappedException),
+               Ptr,
+               Buf[0],
+               TruncPathStr(TruncFileName,40),"\1",MSG(MOk));
+   }
+   return rc;
+}
+/* SVS $ */
+
 
 PluginsSet::PluginsSet()
 {
@@ -795,7 +864,23 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
   if (PluginNumber<PluginsCount && PluginsData[PluginNumber].pOpenPlugin)
     if (PreparePlugin(PluginNumber))
     {
-      HANDLE hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
+      /* $ 16.10.2000 SVS
+         + Обработка исключений при вызове галимого плагина.
+      */
+      HANDLE hInternal;
+      EXCEPTION_POINTERS *xp;
+
+      #if defined(__BORLANDC__)
+      try {
+      #else
+      __try {
+      #endif
+         hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
+      }
+      __except ( xfilter(0, xp = GetExceptionInformation(),PluginsData[PluginNumber].ModuleName) )  {
+        hInternal=INVALID_HANDLE_VALUE;
+      }
+      /* SVS $ */
       if (hInternal!=INVALID_HANDLE_VALUE)
       {
         PluginHandle *hPlugin=new PluginHandle;
@@ -826,7 +911,24 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
         ConvertNameToFull(Name,FullName);
         NamePtr=FullName;
       }
-      HANDLE hInternal=PluginsData[I].pOpenFilePlugin(NamePtr,Data,DataSize);
+      /* $ 16.10.2000 SVS
+         + Обработка исключений при вызове галимого плагина.
+      */
+      HANDLE hInternal;
+      EXCEPTION_POINTERS *xp;
+
+      #if defined(__BORLANDC__)
+      try {
+      #else
+      __try {
+      #endif
+         hInternal=PluginsData[I].pOpenFilePlugin(NamePtr,Data,DataSize);
+      }
+      __except ( xfilter(1, xp = GetExceptionInformation(),PluginsData[I].ModuleName) )  {
+        hInternal=INVALID_HANDLE_VALUE;
+      }
+      /* SVS $ */
+
       if (hInternal==(HANDLE)-2)
         return((HANDLE)-2);
       if (hInternal!=INVALID_HANDLE_VALUE)

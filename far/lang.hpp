@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.20 27.09.2000 $ */
+/* Revision: 1.21 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 SVS
+    + MExc* - для Исключений
   27.09.2000 SVS
     + MHelpActivatorFormat
     + MHelpActivatorURL
@@ -1260,6 +1262,15 @@ enum
   MGoToPercent,
   MGoToHex,
   MGoToDecimal,
+
+  MExceptTitle,
+  MExcTrappedException,
+  MExcAddress,
+  MExcRAccess,
+  MExcWAccess,
+  MExcOutOfBounds,
+  MExcDivideByZero,
+  MExcStackOverflow,
 
   MReadFolderError,
   MPlgBadVers,

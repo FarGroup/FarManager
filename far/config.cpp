@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.27 11.10.2000 $ */
+/* Revision: 1.28 16.10.2000 $ */
 
 /*
 Modify:
+  16.10.2000 SVS
+    ! System\CopyOpened по умолчанию установлен в 1 (разрешен)
   11.10.2000 SVS
    + Opt.EditorBSLikeDel - если = 0, то BS действует как в FAR 1.65
   05.10.2000 SVS
@@ -776,7 +778,11 @@ void ReadConfig()
   GetRegKey("System","ClearReadOnly",Opt.ClearReadOnly,0);
   GetRegKey("System","DeleteToRecycleBin",Opt.DeleteToRecycleBin,1);
   GetRegKey("System","UseSystemCopy",Opt.UseSystemCopy,0);
-  GetRegKey("System","CopyOpened",Opt.CopyOpened,0);
+  /* $ 16.10.2000 SVS
+     ! System\CopyOpened по умолчанию установлен в 1 (разрешен)
+  */
+  GetRegKey("System","CopyOpened",Opt.CopyOpened,1);
+  /* SVS $ */
   GetRegKey("System","CreateUppercaseFolders",Opt.CreateUppercaseFolders,0);
   GetRegKey("System","InactivityExit",Opt.InactivityExit,0);
   GetRegKey("System","InactivityExitTime",Opt.InactivityExitTime,15);

@@ -32,6 +32,7 @@ RSC=rc.exe
 
 OUTDIR=.\Release
 INTDIR=.\Release\obj
+CODDIR=".\\Release\\cod\\"
 # Begin Custom Macros
 OutDir=.\Release
 # End Custom Macros
@@ -123,15 +124,17 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 "$(INTDIR)" :
     if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
+"$(CODDIR)" :
+    if not exist "$(CODDIR)/$(NULL)" mkdir "$(CODDIR)"
 
-CPP_PROJ=/nologo /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC)
+CPP_PROJ=/nologo $(FARTRY) /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)"
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "NDEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
 BSC32_SBRS= \
 
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:".\far.def" /out:"$(OUTDIR)\far.exe"
+LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:".\far.def" /out:"$(OUTDIR)\far.exe" /map:"$(OUTDIR)\far.map"
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
@@ -321,15 +324,17 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 "$(INTDIR)" :
     if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
+"$(CODDIR)" :
+    if not exist "$(CODDIR)/$(NULL)" mkdir "$(CODDIR)"
 
-CPP_PROJ=/nologo /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC)
+CPP_PROJ=/nologo $(FARTRY) /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)"
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "_DEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
 BSC32_SBRS= \
 
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:".\far.def" /out:"$(OUTDIR)\far.exe"
+LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:".\far.def" /out:"$(OUTDIR)\far.exe" /map:"$(OUTDIR)\far.map"
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
