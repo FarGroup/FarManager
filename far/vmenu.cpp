@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.26 23.05.2001 $ */
+/* Revision: 1.27 25.05.2001 $ */
 
 /*
 Modify:
+  25.05.2001 DJ
+    + SetColor()
   23.05.2001 SVS
     - Проблемы с горячими клавишами в меню (Part II) - ни тебе инициализации
       AmpPos при добавлении пунктов, да еще и разницу между имененм и
@@ -1242,6 +1244,18 @@ void VMenu::GetColors(short *Colors)
 }
 
 /* SVS $*/
+
+/* $ 25.05.2001 DJ
+   установка одного цвета
+*/
+
+void VMenu::SetOneColor (int Index, short Color)
+{
+  if (Index >= 0 && Index < sizeof(Colors) / sizeof (Colors [0]))
+    Colors [Index]=Color;
+}
+
+/* DJ $ */
 
 #ifndef _MSC_VER
 #pragma warn -par

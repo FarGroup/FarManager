@@ -5,16 +5,18 @@ manager.cpp
 
 */
 
-/* Revision: 1.25 23.05.2001 $ */
+/* Revision: 1.26 25.05.2001 $ */
 
 /*
 Modify:
+  25.05.2001 DJ
+    - »справлен трап при закрытии Alt-F7.
   23.05.2001 OT
     - »справление бага - удаление Frame, не внесенного в список FrameList
   22.05.2001 OT
     + ƒобавилс€ RefreshedFrame
   22.05.2001 DJ
-    ! в ExecuteModal() прежде всего делаем €вный commit (если остались 
+    ! в ExecuteModal() прежде всего делаем €вный commit (если остались
       подвисшие операции, возможны разные глюки)
   21.05.2001 DJ
     ! чистка внутренностей; в св€зи с по€влением нового типа фреймов
@@ -846,10 +848,12 @@ void Manager::DeleteCommit()
         break;
       }
     }
-    if (!fFound){
-      DeletedFrame->OnDestroy();
-      delete DeletedFrame;
-    }
+    /* $ 25.05.2001 DJ
+       исправлен трап при закрытии Alt-F7
+    */
+    if (!fFound)
+      FrameToDestruct = DeletedFrame;
+    /* DJ $ */
   }
 }
 

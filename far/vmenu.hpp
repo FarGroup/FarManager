@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.12 21.05.2001 $ */
+/* Revision: 1.13 25.05.2001 $ */
 
 /*
 Modify:
+  25.05.2001 DJ
+   + SetOneColor()
   21.05.2001 SVS
    ! VMENU_DRAWBACKGROUND -> VMENU_DISABLEDRAWBACKGROUND
    ! MENU_* выкинуты
@@ -210,6 +212,10 @@ class VMenu: public Modal
     void AssignHighlights(int Reverse);
     void SetColors(short *Colors=NULL);
     void GetColors(short *Colors);
+
+    /* $ 25.05.2001 DJ */
+    void SetOneColor (int Index, short Color);
+    /* DJ $ */
 
     int  ProcessKey(int Key);
     int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

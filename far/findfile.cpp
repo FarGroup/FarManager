@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.24 21.05.2001 $ */
+/* Revision: 1.25 25.05.2001 $ */
 
 /*
 Modify:
+  25.05.2001 DJ
+    - ставим правильный цвет для disabled строчек
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -401,6 +403,13 @@ int FindFiles::FindFilesProcess()
     FindList.SetDialogStyle(TRUE);
     FindList.SetBoxType(NO_BOX);
     FindList.SetFlags(VMENU_DISABLEDRAWBACKGROUND|VMENU_SHOWAMPERSAND);
+
+    /* $ 25.05.2001 DJ
+       ставим правильный цвет для disabled строчек
+    */
+    FindList.SetOneColor (VMenuColorDisabled, COL_DIALOGTEXT);
+    /* DJ $ */
+
     int DlgX1,DlgY1,DlgX2,DlgY2;
     Dlg.GetPosition(DlgX1,DlgY1,DlgX2,DlgY2);
     FindList.SetPosition(DlgX1+4,DlgY1+1,DlgX2-4,DlgY2-5);
