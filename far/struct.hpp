@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.118 18.05.2004 $ */
+/* Revision: 1.119 30.08.2004 $ */
 
 /*
 Modify:
+  30.08.2004 SVS
+    + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
   18.05.2004 SVS
     + В структуру PanelOptions добавлен член NumericSort
   07.05.2004 SVS
@@ -821,6 +823,8 @@ struct Options
      клавиш */
   int MacroReuseRules;
   /* SVS $ */
+  int IgnoreErrorBadPathName;
+
   DWORD KeyMacroCtrlDot; // аля KEY_CTRLDOT
   DWORD KeyMacroCtrlShiftDot; // аля KEY_CTRLSHIFTDOT
   /* $ 22.01.2001 SVS

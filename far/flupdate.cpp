@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.51 06.08.2004 $ */
+/* Revision: 1.52 30.08.2004 $ */
 
 /*
 Modify:
+  30.08.2004 SVS
+    + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   08.06.2004 SVS
@@ -514,7 +516,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   SetPreRedrawFunc(NULL);
 
   int ErrCode=GetLastError();
-  if (ErrCode!=ERROR_SUCCESS && ErrCode!=ERROR_NO_MORE_FILES && ErrCode!=ERROR_FILE_NOT_FOUND)
+  if (!(ErrCode==ERROR_SUCCESS || ErrCode==ERROR_NO_MORE_FILES || ErrCode==ERROR_FILE_NOT_FOUND ||
+        (ErrCode==ERROR_BAD_PATHNAME && WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT && Opt.IgnoreErrorBadPathName)))
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
   FindClose(FindHandle);

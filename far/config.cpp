@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.170 06.08.2004 $ */
+/* Revision: 1.171 30.08.2004 $ */
 
 /*
 Modify:
+  30.08.2004 SVS
+    + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   20.05.2004 SVS
@@ -1541,6 +1543,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"UseNumPad",&Opt.UseNumPad,0, 0},
   {0, REG_DWORD,  NKeySystem,"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
   {1, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
+  {0, REG_DWORD,  NKeySystem,"IgnoreErrorBadPathName",&Opt.IgnoreErrorBadPathName,0, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 
