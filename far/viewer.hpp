@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.26 25.02.2003 $ */
+/* Revision: 1.27 24.04.2003 $ */
 
 /*
 Modify:
+  24.04.2003
+    + Новая функция ShowDown() используется при нажатии на "стрелка вниз"
   25.02.2003 SVS
     + SelectFlags, GetSelectedParam - что бы была возможность восстановить выделение
   03.02.2003 VVM
@@ -232,6 +234,7 @@ class Viewer:public ScreenObject
     void Up();
     void ShowHex();
     void ShowUp();
+    void ShowDown();
     void ShowStatus();
     /* $ 27.04.2001 DJ
        функции для рисования скроллбара, для корректировки ширины в

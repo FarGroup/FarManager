@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.133 15.04.2003 $ */
+/* Revision: 1.135 24.04.2003 $ */
 
 /*
 Modify:
+  24.04.2003 VVM
+    + Новая функция ShowDown() используется при нажатии на "стрелка вниз"
   15.04.2003 SVS
     - Нажав и удерживая кнопку мыши на верхней строке полосы прокрутки,
       можно было промотать текст в программе просмотра за начало файла.
@@ -970,7 +972,7 @@ void Viewer::DisplayObject()
 
       if (SelSize && SelPos >= LeftPos)
       {
-        int SelX1=(int)((__int64)X1+SelPos-LeftPos);
+        int SelX1=X1+SelPos-LeftPos;
         /* $ 12.07.2000 SVS
            ! Wrap - трех позиционный
         */
@@ -1181,7 +1183,6 @@ void Viewer::ShowHex()
   }
 }
 
-
 void Viewer::ShowUp()
 {
   int Y,I;
@@ -1205,6 +1206,93 @@ void Viewer::ShowUp()
   SecondPos=StrFilePos[1];
 
   ReadString(OutStr[0],(int)(SecondPos-FilePos),MAX_VIEWLINEB,NULL,NULL);
+
+  for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
+  {
+    SetColor(COL_VIEWERTEXT);
+    GotoXY(X1,Y);
+    int StrLength = strlen(OutStr[I]);
+    if (StrLength > LeftPos)
+    {
+      /* $ 18.10.2000 SVS
+         -Bug: Down Down Up & первый пробел
+      */
+      if(VM.Unicode && (FirstWord == 0x0FEFF || FirstWord == 0x0FFFE) && !I && !LeftPos && !StrFilePos[I])
+        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos+1]);
+      else
+        mprintf("%-*.*s",Width,Width,&OutStr[I][(int)LeftPos]);
+      /* SVS $ */
+    }
+    else
+      mprintf("%*s",Width,"");
+
+    if (SelectPos >= StrFilePos[I] + LeftPos && SelectPos <= StrFilePos[I] + StrLength)
+    {
+      __int64 SelPos, SelSize;
+      char OutStrTmp[MAX_VIEWLINEB];
+      __int64 SavePos = vtell(ViewFile);
+      vseek(ViewFile,StrFilePos[I],SEEK_SET);
+      ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
+      vseek(ViewFile,SavePos,SEEK_SET);
+      int SelX1=(int)((__int64)X1+SelPos - LeftPos);
+      if (SelPos - LeftPos < Width)
+      {
+        SetColor(COL_VIEWERSELECTEDTEXT);
+        GotoXY(SelX1,Y);
+        if (SelSize>XX2-SelX1+1)
+          SelSize=XX2-SelX1+1;
+        if (SelSize>0)
+          mprintf("%.*s",(int)SelSize,&OutStr[I][(int)(SelPos+SelectPosOffSet)]);
+      }
+    }
+
+    if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
+    {
+      GotoXY(XX2,Y);
+      SetColor(COL_VIEWERARROWS);
+      mprintf(">");
+    }
+    if (LeftPos>0 && *OutStr[I]!=0 && ViOpt.ShowArrows)
+    {
+      GotoXY(X1,Y);
+      SetColor(COL_VIEWERARROWS);
+      mprintf("<");
+    }
+  }
+
+  /* $ 27.04.2001 DJ
+     отрисовка скроллбара - в отдельную функцию
+  */
+  DrawScrollbar();
+  /* DJ $ */
+  ShowStatus();
+}
+
+void Viewer::ShowDown()
+{
+  int Y,I;
+
+  /* $ 27.04.2001 DJ
+     вычисление ширины - в отдельную функцию
+  */
+  AdjustWidth();
+  /* DJ $ */
+
+  if (HideCursor)
+    SetCursorType(0,10);
+
+  for (I=0; I<Y2-ViewY1;I++)
+  {
+    StrFilePos[I]=StrFilePos[I+1];
+    strcpy(OutStr[I],OutStr[I+1]);
+  }
+  FilePos = StrFilePos[0];
+  SecondPos = StrFilePos[1];
+
+  vseek(ViewFile,StrFilePos[Y2-ViewY1],SEEK_SET);
+  ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
+  StrFilePos[Y2-ViewY1] = vtell(ViewFile);
+  ReadString(OutStr[Y2-ViewY1],-1,MAX_VIEWLINEB,NULL,NULL);
 
   for (I=0,Y=ViewY1;Y<=Y2;Y++,I++)
   {
@@ -1966,8 +2054,8 @@ int Viewer::ProcessKey(int Key)
     {
       if (!LastPage && ViewFile)
       {
-        FilePos=SecondPos;
-        Show();
+        //FilePos=SecondPos;
+        ShowDown();
       }
 //      LastSelPos=FilePos;
       return(TRUE);
@@ -2828,7 +2916,7 @@ void Viewer::Search(int Next,int FirstChar)
       if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
                   MSG(MViewSearchCannotFind), MsgStr,
                   (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
-                  MSG(MHYes), MSG(MHNo)) == 0)
+                   MSG(MHYes), MSG(MHNo)) == 0)
         Search(2,0);
     }
     /* VVM $ */
