@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.92 10.03.2002 $ */
+/* Revision: 1.93 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 IS
+    ! Опция "Только целые слова" доступна для изменения даже, когда
+      включен режим "Искать 16-ричный код"
   10.03.2002 tran
     ! Bugz#275 - CtrlS должен работать глобально
   01.03.2002 SVS
@@ -2021,7 +2024,6 @@ long WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     if(Param1 == 4 || Param1 == 5)
     {
       Dialog::SendDlgMessage(hDlg,DM_ENABLE,6,(Param1 == 4));
-      Dialog::SendDlgMessage(hDlg,DM_ENABLE,7,(Param1 == 4));
       return TRUE;
     }
   }
@@ -2084,7 +2086,6 @@ void Viewer::Search(int Next,int FirstChar)
   if(SearchDlg[5].Selected)
   {
     SearchDlg[6].Flags|=DIF_DISABLE;
-    SearchDlg[7].Flags|=DIF_DISABLE;
   }
 
   if (!Next)

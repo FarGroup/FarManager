@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.116 26.03.2002 $ */
+/* Revision: 1.117 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 IS
+    ! Внедрение const
   26.03.2002 DJ
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
   22.03.2002 SVS
@@ -1397,7 +1399,7 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
 }
 
 
-HANDLE PluginsSet::OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber)
+HANDLE PluginsSet::OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginItem *PData=PluginsData;

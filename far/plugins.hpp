@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.23 20.03.2002 $ */
+/* Revision: 1.24 28.04.2002 $ */
 
 /*
 Modify:
+  28.04.2002 IS
+    ! Внедрение const
   20.03.2002 IS
     ! ProcessCommandLine принимает const
   28.01.2002 SVS
@@ -101,7 +103,7 @@ typedef int (WINAPI *PLUGINPROCESSHOSTFILE)(HANDLE hPlugin,struct PluginPanelIte
 typedef int (WINAPI *PLUGINPROCESSKEY)(HANDLE hPlugin,int Key,unsigned int ControlState);
 typedef int (WINAPI *PLUGINPUTFILES)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
 typedef int (WINAPI *PLUGINSETDIRECTORY)(HANDLE hPlugin,const char *Dir,int OpMode);
-typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
+typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 typedef void (WINAPI *PLUGINSETSTARTUPINFO)(const struct PluginStartupInfo *Info);
 typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 
@@ -261,7 +263,7 @@ class PluginsSet
     void LoadPluginsFromCache();
     HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
     HANDLE OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
-    HANDLE OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber);
+    HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,int ItemsNumber);
     void ClosePlugin(HANDLE hPlugin);
     int GetPluginInfo(int PluginNumber,struct PluginInfo *Info);
     void GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info);

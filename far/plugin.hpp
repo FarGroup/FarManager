@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.202 27.04.2002 $ */
+/* Revision: 1.203 28.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  28.04.2002 IS
+    ! внедрение const (SetFindList)
   27.04.2002 SVS
     + MAXSIZE_SHORTCUTDATA дл€ "облагораживани€" OpenPluginInfo.ShortcutData
   25.04.2002 SVS
@@ -2348,7 +2350,7 @@ int    WINAPI _export ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *Pan
 int    WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
 int    WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
 int    WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode);
-int    WINAPI _export SetFindList(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
+int    WINAPI _export SetFindList(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
 
 #ifdef FAR_USE_INTERNALS
