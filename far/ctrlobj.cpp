@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.42 17.12.2002 $ */
+/* Revision: 1.43 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    ! Загрузка плагинов перенесена чуток пониже...
   17.12.2002 SVS
     ! ViewerPosCache и EditorPosCache теперь сильно различаются (see класс FilePositionCache).
       ViewerPosCache работает с типом кэша FPOSCACHE_64,
@@ -218,14 +220,14 @@ void ControlObject::Init()
     this->MainKeyBar->Show();
 
   FrameManager->InsertFrame(FPanels);
-  FrameManager->PluginCommit();
-
-  Plugins.LoadPlugins();
 
   char StartCurDir[NM];
   Cp()->ActivePanel->GetCurDir(StartCurDir);
   chdir(StartCurDir);
   Cp()->ActivePanel->SetFocus();
+
+  FrameManager->PluginCommit();
+  Plugins.LoadPlugins();
 
 //  _SVS(SysLog("ActivePanel->GetCurDir='%s'",StartCurDir));
 //  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog("AnotherPanel->GetCurDir='%s'",PPP));

@@ -1262,7 +1262,7 @@ $ #Task list#
 contains a task window title.
 
     From the task list you may switch to the task window,
-or kill the task with the Del key. Be careful when killing a task.
+or kill the task with the #Del# key. Be careful when killing a task.
 It stops the task immediately, and any unsaved information will be lost,
 so it should be used only when really necessary, for example
 to interrupt a program which does not respond.
@@ -1270,6 +1270,8 @@ to interrupt a program which does not respond.
     The task list may be called either from ~Commands menu~@CmdMenu@ or
 using #Ctrl-W#. The keyboard shortcut Ctrl-W can also be used in the
 viewer or the editor.
+
+    #Ctrl-R# allows to refresh the task list.
 
 @CompFolders
 $ #Compare folders#

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.75 11.12.2002 $ */
+/* Revision: 1.76 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 VVM
+    - BugZ#678 - Незапуск .msi по Shift-Enter (вторая часть!)
   11.12.2002 VVM
     - Opps. Уберем грязь от экспериментов...
   11.12.2002 VVM
@@ -401,7 +403,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem)
         {
           RegCloseKey(hOpenKey);
           strcat(Value, ActionPtr);
-          RetPtr = Action;
+          RetPtr = strcpy(Action,ActionPtr);
           RetEnum = ERROR_NO_MORE_ITEMS;
         } /* if */
       } /* while */

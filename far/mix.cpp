@@ -5,10 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.133 11.12.2002 $ */
+/* Revision: 1.134 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    - BugZ#736 - падение фара на старте при включенном QView
+      Учтем тот факт, что манагер еще не работает!
+    - BugZ#728 - непрорисовка во время сканирования директорий при копировании
+      (дергается изображение)
   11.12.2002 SVS
     - учтем вариант с KEY_CONSOLE_BUFFER_RESIZE (динамическое изменение размера консоли)
     - В PR_DrawGetDirInfoMsg была бага - вместо Param2 стояло Param1
@@ -757,13 +762,26 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                int EnhBreak)
 {
   class RefreshFrameManeger{
+    private:
+      int OScrX,OScrY;
+      clock_t MsgWaitTime;
     public:
-      RefreshFrameManeger(){}
+      RefreshFrameManeger(int OScrX,int OScrY, int MsgWaitTime)
+      {
+        RefreshFrameManeger::OScrX=OScrX;
+        RefreshFrameManeger::OScrY=OScrY;
+        RefreshFrameManeger::MsgWaitTime=MsgWaitTime;
+      }
       ~RefreshFrameManeger()
       {
-        LockScreen LckScr;
-        FrameManager->ResizeAllFrame();
-        FrameManager->GetCurrentFrame()->Show();
+        if (!FrameManager || !FrameManager->ManagerStarted())
+          return;
+        else if(OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=0xffffffff)
+        {
+          LockScreen LckScr;
+          FrameManager->ResizeAllFrame();
+          FrameManager->GetCurrentFrame()->Show();
+        }
       }
   };
 
@@ -794,7 +812,9 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   /* DJ */
 
   ConsoleTitle OldTitle;
-  RefreshFrameManeger frref;
+  RefreshFrameManeger frref(ScrX,ScrY,MsgWaitTime);
+
+  PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 
   if ((ClusterSize=GetClusterSize(DriveRoot))==0)
   {
@@ -828,12 +848,12 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
         case KEY_ESC:
         case KEY_BREAK:
           GetInputRecord(&rec);
-          SetPreRedrawFunc(NULL);
+          SetPreRedrawFunc(OldPreRedrawFunc);
           return(0);
         default:
           if (EnhBreak)
           {
-            SetPreRedrawFunc(NULL);
+            SetPreRedrawFunc(OldPreRedrawFunc);
             return(-1);
           }
           GetInputRecord(&rec);
@@ -874,7 +894,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
       }
     }
   }
-  SetPreRedrawFunc(NULL);
+  SetPreRedrawFunc(OldPreRedrawFunc);
   return(1);
 }
 

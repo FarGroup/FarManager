@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.08 24.02.2002 $ */
+/* Revision: 1.09 17.12.2002 $ */
 
 /*
 Modify:
+  17.12.2002 SVS
+    + Ctrl-R позволяет обновить список задач.
   24.02.2002 SVS
     ! Активизация процесса с подачи MY.
   26.07.2001 SVS
@@ -66,6 +68,19 @@ void ShowProcessList()
     int Key=ProcList.ReadInput();
     switch(Key)
     {
+      case KEY_CTRLR:
+      {
+        ProcList.Hide();
+        ProcList.DeleteItems();
+        if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
+        {
+          ProcList.Modal::SetExitCode(-1);
+          break;
+        }
+        ProcList.Show();
+        break;
+      }
+
       case KEY_DEL:
         {
           HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
