@@ -19,6 +19,8 @@ lang.hpp
 
 /*
 Modify:
+  17.06.2001 SVS
+    + MListSymLink
   07.06.2001 SVS
     + MSetColorClockNormalEditor, MSetColorClockNormalViewer
   05.06.2001 IS
@@ -719,6 +721,7 @@ enum
 
   MListUp,
   MListFolder,
+  MListSymLink,
   MListMb,
   MListKb,
   MListFileSize,

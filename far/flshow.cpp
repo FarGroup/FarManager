@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.14 14.06.2001 $ */
+/* Revision: 1.15 17.06.2001 $ */
 
 /*
 Modify:
+  17.06.2001 SVS
+    ! MListSymLink & MListFolder
   14.06.2001 OT
     ! "Бунт" ;-)
   22.05.2001 tran
@@ -849,18 +851,19 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                   Width--;
                   Text("~");
                 }
-                if (!Packed && (CurPtr->FileAttr & FA_DIREC) && !CurPtr->ShowFolderSize)
+                if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
+                  char *PtrName;
                   if (strcmp(CurPtr->Name,"..")==0)
-                    if ((int) strlen(MSG(MListUp))<=Width-2)
-                      sprintf(Str,"<%s>",MSG(MListUp));
-                    else
-                      strcpy(Str,MSG(MListUp));
+                    PtrName=MSG(MListUp);
                   else
-                    if (strlen(MSG(MListFolder))<=Width-2)
-                      sprintf(Str,"<%s>",MSG(MListFolder));
-                    else
-                      strcpy(Str,MSG(MListFolder));
+                    PtrName=MSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
+
+                  if (strlen(PtrName) <= Width-2)
+                    sprintf(Str,"<%s>",PtrName);
+                  else
+                    strcpy(Str,PtrName);
+
                   mprintf("%*.*s",Width,Width,Str);
                 }
                 else

@@ -189,12 +189,15 @@ $ #Panel control commands#
   1. If the command line is empty, #Ctrl-Ins# copies selected file
      names from a panel to the clipboard like #Ctrl-Shift-Ins#;
 
-  2. If "Allow reverse sort modes" option in ~Panel settings~@PanelSettings@
+  2. #Ctrl-Alt-Ins# puts the full path to the current file into the
+     clipboard.
+
+  3. If "Allow reverse sort modes" option in ~Panel settings~@PanelSettings@
      dialog is enabled, pressing the same sort key second time
      toggles the sort direction from ascending to descending
      and vice versa;
 
-  3. Alt-Left and Alt-Right combinations, used to scroll long names
+  4. Alt-Left and Alt-Right combinations, used to scroll long names
      and descriptions, work only with non-numpad Left and Right keys.
      This is due to the fact that when Alt is pressed, numpad cursor
      keys are used to enter characters via their decimal codes.
