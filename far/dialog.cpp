@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.329 15.02.2005 $ */
+/* Revision: 1.330 17.02.2005 $ */
 
 /*
 Modify:
+  17.02.2005 WARP
+    - Накосячил в вертикальной границей контролов.
   15.02.2005 SVS
     - BugZ#1201 - Дискриминация списков в Dlg.ItemType
   08.02.2005 WARP
@@ -2724,7 +2726,7 @@ void Dialog::ShowDialog(int ID)
       CX2 = X2-X1;
 
     if ( CY2 > Y2-Y1 )
-      CY2 = X2-X1;
+      CY2 = Y2-Y1;
 
     short CW=CX2-CX1+1;
     BOOL DisabledItem=CurItem->Flags&DIF_DISABLE?TRUE:FALSE;
