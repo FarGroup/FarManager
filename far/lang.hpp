@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.43 19.01.2001 $ */
+/* Revision: 1.44 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 skv
+    + MExcBreakPoint, MExcUnknown
   19.01.2001 SVS
     ! данные с MRegTitle по MListEval перенесены в конец списка.
       MListEval - должен быть всегда последним - за ним ни чего не писать
@@ -1359,6 +1361,8 @@ enum
   MExcOutOfBounds,
   MExcDivideByZero,
   MExcStackOverflow,
+  MExcBreakPoint,
+  MExcUnknown,
   MExcDebugger,
 
   MReadFolderError,

@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.47 29.12.2000 $ */
+/* Revision: 1.48 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 skv
+    + Добавил EXCEPTION_BREAKPOINT в список известных
+    + Unknown Exception на не известные.
   29.12.2000 IS
     ! При настройке "параметров внешних модулей" закрывать окно с их
       списком только при нажатии на ESC
@@ -208,12 +211,13 @@ static int xfilter(
      {EXCEPTION_ARRAY_BOUNDS_EXCEEDED, MExcOutOfBounds, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_INT_DIVIDE_BY_ZERO,MExcDivideByZero, EXCEPTION_EXECUTE_HANDLER},
      {EXCEPTION_STACK_OVERFLOW,MExcStackOverflow, EXCEPTION_EXECUTE_HANDLER},
+     {EXCEPTION_BREAKPOINT,MExcBreakPoint, EXCEPTION_EXECUTE_HANDLER},
      // сюды добавляем.
    };
 
    char *Ptr;
    int I;
-   int rc, Ret;
+   int rc, Ret=1;
    char Buf[2][64];
    char TruncFileName[2*NM];
 
@@ -226,6 +230,9 @@ static int xfilter(
 
    rc = EXCEPTION_EXECUTE_HANDLER;
 
+   /*$ 23.01.2001 skv
+     Неизвестное исключение не стоит игнорировать.
+   */
    Ptr=NULL;
    strcpy(TruncFileName,NullToEmpty(Module->ModuleName));
    if(From != EXCEPT_GETPLUGININFO_DATA)
@@ -244,35 +251,35 @@ static int xfilter(
          break;
        }
 
-     if(Ptr)
+     if(!Ptr)Ptr=MSG(MExcUnknown);
+
+     sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
+     if(Flags&1)
      {
-       sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
-       if(Flags&1)
-       {
-         Ret=Message(MSG_WARNING,(Opt.ExceptRules?3:2),
-                 xFromMSGTitle(From),
-                 MSG(MExcTrappedException),
-                 Ptr,
-                 Buf[0],
-                 TruncPathStr(TruncFileName,40),"\1",
-                 MSG(MExcUnload),
-                 (Opt.ExceptRules?MSG(MExcDebugger):MSG(MYes)),
-                 (Opt.ExceptRules?MSG(MYes):MSG(MNo)),
-                 (Opt.ExceptRules?MSG(MNo):NULL));
-         if(Opt.ExceptRules && Ret == 1 || !Opt.ExceptRules && !Ret)
-           CtrlObject->Plugins.UnloadPlugin(*Module);
-       }
-       else
-         Ret=Message(MSG_WARNING,(Opt.ExceptRules?2:1),
-                 xFromMSGTitle(From),
-                 MSG(MExcTrappedException),
-                 Ptr,
-                 Buf[0],
-                 TruncPathStr(TruncFileName,40),"\1",
-                 MSG(MExcUnloadYes),
-                 (Opt.ExceptRules?MSG(MExcDebugger):MSG(MOk)),
-                 (Opt.ExceptRules?MSG(MOk):NULL));
+       Ret=Message(MSG_WARNING,(Opt.ExceptRules?3:2),
+               xFromMSGTitle(From),
+               MSG(MExcTrappedException),
+               Ptr,
+               Buf[0],
+               TruncPathStr(TruncFileName,40),"\1",
+               MSG(MExcUnload),
+               (Opt.ExceptRules?MSG(MExcDebugger):MSG(MYes)),
+               (Opt.ExceptRules?MSG(MYes):MSG(MNo)),
+               (Opt.ExceptRules?MSG(MNo):NULL));
+       if(Opt.ExceptRules && Ret == 1 || !Opt.ExceptRules && !Ret)
+         CtrlObject->Plugins.UnloadPlugin(*Module);
      }
+     else
+       Ret=Message(MSG_WARNING,(Opt.ExceptRules?2:1),
+               xFromMSGTitle(From),
+               MSG(MExcTrappedException),
+               Ptr,
+               Buf[0],
+               TruncPathStr(TruncFileName,40),"\1",
+               MSG(MExcUnloadYes),
+               (Opt.ExceptRules?MSG(MExcDebugger):MSG(MOk)),
+               (Opt.ExceptRules?MSG(MOk):NULL));
+     /* skv$*/
    }
    else // однозначно выгружаем эту бяку :-(
    {
