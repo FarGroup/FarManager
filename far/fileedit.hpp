@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.16 25.06.2001 $ */
+/* Revision: 1.17 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   25.06.2001 IS
    ! Внедрение const
   14.06.2001 OT
@@ -120,6 +122,8 @@ class FileEditor:public Frame
     void SetEnableF6 (int AEnableF6) { EnableF6 = AEnableF6; }
     /* DJ $ */
     int GetCanLoseFocus(int DynamicMode=FALSE);
+/* $ Введена для нужд CtrlAltShift OT */
+    int FastHide();
 
 };
 

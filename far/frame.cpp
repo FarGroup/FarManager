@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.11 23.06.2001 $ */
+/* Revision: 1.12 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   23.06.2001 OT
     - Решение проблемы "старика Мюллера"
   20.06.2001 tran
@@ -154,16 +156,22 @@ int Frame::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void Frame::LockRefresh()
 {
-    LockRefreshCount++;
+  LockRefreshCount++;
 }
 
 void Frame::UnlockRefresh()
 {
-    LockRefreshCount=(LockRefreshCount>0)?LockRefreshCount-1:0;
+  LockRefreshCount=(LockRefreshCount>0)?LockRefreshCount-1:0;
 }
 
 
 int Frame::Refreshable()
 {
-    return LockRefreshCount==0;
+  return LockRefreshCount==0;
+}
+
+
+int Frame::FastHide()
+{
+  return TRUE;
 }

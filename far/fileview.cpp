@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.38 25.06.2001 $ */
+/* Revision: 1.39 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   25.06.2001 IS
    ! Внедрение const
   14.06.2001 OT
@@ -340,13 +342,11 @@ int FileViewer::ProcessKey(int Key)
     /* $ 24.08.2000 SVS
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
-    case KEY_CTRLALTSHIFTPRESS:
-      if(!(Opt.AllCtrlAltShiftRule & CASR_VIEWER))
-        return TRUE;
+/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_CTRLO:
       FrameManager->ShowBackground();
-      WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
-        Show();
+      WaitKey();
+      FrameManager->RefreshFrame();
       return(TRUE);
     /* SVS $ */
     case KEY_F3:
@@ -488,4 +488,9 @@ void FileViewer::OnDestroy()
       return ;
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
+}
+
+int FileViewer::FastHide()
+{
+  return Opt.AllCtrlAltShiftRule & CASR_VIEWER;
 }

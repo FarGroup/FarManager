@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.55 06.07.2001 $ */
+/* Revision: 1.56 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   06.07.2001 IS
     - При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
       не нарушать однообразие.
@@ -431,9 +433,6 @@ int FileEditor::ProcessKey(int Key)
     /* $ 24.08.2000 SVS
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
-    case KEY_CTRLALTSHIFTPRESS:
-      if(!(Opt.AllCtrlAltShiftRule & CASR_EDITOR))
-        return(TRUE);
     case KEY_CTRLO:
       /*$ 27.09.2000 skv
         To prevent redraw in macro with Ctrl-O
@@ -441,24 +440,10 @@ int FileEditor::ProcessKey(int Key)
       FEdit.Hide();
       /* skv$*/
       FrameManager->ShowBackground();
-      WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
+      WaitKey(-1);
       Show();
       return(TRUE);
-/*
-      Hide();
-      if (CtrlObject->Cp()->LeftPanel!=CtrlObject->Cp()->RightPanel)
-        CtrlObject->FrameManager->ShowBackground();
-
-      else
-      {
-        EditKeyBar.Hide();
-        if(Opt.AllCtrlAltShiftRule & CASR_EDITOR)
-          WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
-      }
-      EditKeyBar.Show();
-      Show();
-      return(TRUE);
-    /* SVS $ */
+/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_F2:
     case KEY_SHIFTF2:
       {
@@ -776,4 +761,9 @@ int FileEditor::GetCanLoseFocus(int DynamicMode)
     return CanLoseFocus;
   }
   return TRUE;
+}
+
+int FileEditor::FastHide()
+{
+  return Opt.AllCtrlAltShiftRule & CASR_EDITOR;
 }

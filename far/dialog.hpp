@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.33 09.07.2001 $ */ 
+/* Revision: 1.34 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   09.07.2001 OT
     Исправление MacroMode для диалогов
   23.06.2001 KM
@@ -490,8 +492,12 @@ class Dialog: public Frame
     /* $ 20.05.2001 DJ */
     virtual void OnChangeFocus (int Focus);
     /* DJ $ */
-
     int GetMacroMode();
+
+/* $ Введена для нужд CtrlAltShift OT */
+    int FastHide();
+    void ResizeConsole();
+    void OnDestroy();
 
 };
 

@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.12 09.07.2001 $ */ 
+/* Revision: 1.13 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   09.07.2001 OT
     Исправление MacroMode для диалогов
   23.06.2001 OT
@@ -113,6 +115,7 @@ class Frame: public ScreenObject
     void LockRefresh();
     void UnlockRefresh();
     int Refreshable();
+    virtual int FastHide();
 };
 
 #endif // __FRAME_HPP__

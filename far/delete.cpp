@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.21 09.07.2001 $ */
+/* Revision: 1.22 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   09.07.2001 SVS
     ! Небольшой антураж вокруг имени удаляемого файла.
   19.06.2001 SVS
@@ -119,7 +121,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   // Удаление в корзину только для  FIXED-дисков
   {
     char Root[1024];
-    char FSysNameSrc[NM];
+//    char FSysNameSrc[NM];
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(SelName,FileAttr);
     ConvertNameToFull(SelName,Root, sizeof(Root));

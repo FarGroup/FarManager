@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.07 14.06.2001 $ */
+/* Revision: 1.08 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   14.06.2001 OT
     ! "Бунт" ;-)
   21.05.2001 OT
@@ -98,6 +100,8 @@ class FilePanels:public Frame
     void RedrawKeyBar(); // virtual
     virtual void ShowConsoleTitle();
     void ResizeConsole();
+/* $ Введена для нужд CtrlAltShift OT */
+    int FastHide();
 };
 
 #endif // __FILEPANELS_HPP__

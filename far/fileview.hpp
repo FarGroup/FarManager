@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.12 25.06.2001 $ */
+/* Revision: 1.13 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   25.06.2001 IS
    ! Внедрение const
   14.06.2001 OT
@@ -89,6 +91,8 @@ class FileViewer:public Frame
     /* $ 12.05.2001 DJ */
     void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; }
     /* DJ $ */
+/* $ Введена для нужд CtrlAltShift OT */
+    int FastHide();
 };
 
 #endif  // __FILEVIEWER_HPP__

@@ -7,10 +7,12 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.05 23.06.2001 $ */
+/* Revision: 1.06 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос ShadowSaveScr из приватной области в protected
    23.06.2001
     ! Убран член под названиес Type, который нигде не используется...
    14.06.2001
@@ -35,10 +37,10 @@ class ScreenObject
 {
   private:
     virtual void DisplayObject() {};
-    SaveScreen *ShadowSaveScr;
     int Visible;
     int EnableRestoreScreen;
   protected:
+    SaveScreen *ShadowSaveScr;
     int X1,Y1,X2,Y2;
     int ObjWidth,ObjHeight;
     int SetPositionDone;

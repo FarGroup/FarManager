@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.17 26.06.2001 $ */
+/* Revision: 1.18 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   26.06.2001 SKV
     + PluginCommit(); (ACTL_COMMIT)
   06.06.2001 OT
@@ -191,6 +193,11 @@ class Manager
     int IndexOfStack(Frame *Frame);
 
     int HaveAnyFrame();
+
+/* $ Введена для нужд CtrlAltShift OT */
+    void ImmediateHide();
+
+    Frame *GetBottomFrame() { return (*this)[FramePos]; }
 };
 
 extern Manager *FrameManager;

@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.17 10.07.2001 $ */
+/* Revision: 1.18 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   10.07.2001 SKV
     + keybar
   22.06.2001 SKV
@@ -376,40 +378,7 @@ int  FilePanels::ProcessKey(int Key)
     /* $ 19.09.2000 SVS
        + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
     */
-    case KEY_CTRLALTSHIFTPRESS:
-    {
-      if(Opt.AllCtrlAltShiftRule & CASR_PANEL)
-      {
-        /* $ 19.09.2000 SVS
-         + Opt.PanelCtrlAltShiftRule задает поведение
-           Ctrl-Alt-Shift для панелей.
-        */
-        int LeftVisible=LeftPanel->IsVisible();
-        int RightVisible=RightPanel->IsVisible();
-        int CmdLineVisible=CtrlObject->CmdLine->IsVisible();
-        int KeyBarVisible=FilePanels::KeyBarVisible;//MainKeyBar.IsVisible();
-        CtrlObject->CmdLine->ShowBackground();
-
-        LeftPanel->Hide();
-        RightPanel->Hide();
-        if(!Opt.PanelCtrlAltShiftRule)
-          CtrlObject->CmdLine->Show();
-        if(Opt.PanelCtrlAltShiftRule == 2)
-          MainKeyBar.Hide();
-        if(Opt.PanelCtrlAltShiftRule)
-          CtrlObject->CmdLine->Hide();
-
-        WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
-        if (LeftVisible)      LeftPanel->Show();
-        if (RightVisible)     RightPanel->Show();
-        if (CmdLineVisible)   CtrlObject->CmdLine->Show();
-        if (KeyBarVisible)    MainKeyBar.Show();
-        /* SVS $ */
-      }
-      break;
-    }
-    /* SVS $ */
-
+/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_CTRLO:
       {
         int LeftVisible=LeftPanel->IsVisible();
@@ -847,4 +816,9 @@ void FilePanels::ResizeConsole()
   TopMenuBar.ResizeConsole();
   SetScreenPosition();
   _OT(SysLog("[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+}
+
+int FilePanels::FastHide()
+{
+  return Opt.AllCtrlAltShiftRule & CASR_PANEL;
 }

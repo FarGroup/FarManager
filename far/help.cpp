@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.29 10.07.2001 $ */
+/* Revision: 1.30 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   10.07.2001 OT
     - Возвращены переменные static SaveScreen *TopScreen и TopLevel :)
   20.06.2001 SVS
@@ -848,17 +850,7 @@ int Help::ProcessKey(int Key)
        + CtrlAltShift - спрятать/показать помощь...
        // "ХАчу глянуть на то, что под диалогом..."
     */
-    case KEY_CTRLALTSHIFTPRESS:
-    {
-       if(Opt.AllCtrlAltShiftRule & CASR_HELP)
-       {
-         Hide();
-         WaitKey(KEY_CTRLALTSHIFTRELEASE);
-         Show();
-       }
-       return(TRUE);
-    }
-    /* SVS $ */
+/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_F1:
       /* $ 16.04.2001 SVS
          - не поганим SelTopic, если и так в Help on Help
@@ -1498,6 +1490,8 @@ void Help::OnChangeFocus(int focus)
 
 void Help::ResizeConsole()
 {
+  delete TopScreen;
+  TopScreen=NULL;
   Hide();
   if (FullScreenHelp)
   {
@@ -1508,4 +1502,9 @@ void Help::ResizeConsole()
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp(HelpMask);
   FrameManager->RefreshFrame();
+}
+
+int Help::FastHide()
+{
+  return Opt.AllCtrlAltShiftRule & CASR_HELP;
 }

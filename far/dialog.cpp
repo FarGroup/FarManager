@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.135 10.07.2001 $ */
+/* Revision: 1.136 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   10.07.2001 SVS
    + Обработка KEY_MACROXLAT
   09.07.2001 OT
@@ -568,6 +570,7 @@ Modify:
 #include "help.hpp"
 #include "scrbuf.hpp"
 #include "manager.hpp"
+#include "savescr.hpp"
 
 static char HisLocked[16]="Locked", *PHisLocked=NULL;
 static char HisLine[16]  ="Line", *PHisLine=NULL;
@@ -2093,16 +2096,7 @@ int Dialog::ProcessKey(int Key)
   /* tran 31.07.2000 $ */
 
   // "ХАчу глянуть на то, что под диалогом..."
-  if(Key == KEY_CTRLALTSHIFTPRESS && CheckDialogMode(DMODE_SHOW))
-  {
-    if(Opt.AllCtrlAltShiftRule & CASR_DIALOG)
-    {
-      Hide();
-      WaitKey(KEY_CTRLALTSHIFTRELEASE);
-      Show();
-    }
-    return(TRUE);
-  }
+/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
 
   int Type=Item[FocusPos].Type;
 
@@ -5245,6 +5239,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return (PrevFlags&DIF_HIDDEN)?FALSE:TRUE;
     }
     /* SVS $ */
+    case DM_KILLSAVESCREEN:
+      {
+        if (Dlg->SaveScr) Dlg->SaveScr->Discard();
+        if (Dlg->ShadowSaveScr) Dlg->ShadowSaveScr->Discard();
+        return TRUE;
+      }
   }
 
   // Все, что сами не отрабатываем - посылаем на обработку обработчику.
@@ -5318,5 +5318,22 @@ int Dialog::GetMacroMode()
 {
   return MACRO_DIALOG;
 }
+
+int Dialog::FastHide()
+{
+  return Opt.AllCtrlAltShiftRule & CASR_DIALOG;
+}
+
+void Dialog::ResizeConsole()
+{
+  COORD c={-1,-1};
+  Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
+};
+
+void Dialog::OnDestroy()
+{
+  FrameManager->GetBottomFrame()->UnlockRefresh();
+  Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
+};
 
 //////////////////////////////////////////////////////////////////////////

@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.12 31.05.2001 $ */
+/* Revision: 1.13 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   31.05.2001 OT
     + ResizeConsole() - как реакция на изменившийся размер консоли.
   15.05.2001 OT
@@ -127,6 +129,8 @@ class Help:public Frame
     /* tran $ */
     void OnChangeFocus(int focus); // вызывается при смене фокуса
     void ResizeConsole();
+/* $ Введена для нужд CtrlAltShift OT */
+    int FastHide();
 };
 
 #endif	// __HELP_HPP__

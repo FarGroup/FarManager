@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.35 07.07.2001 $ */
+/* Revision: 1.36 11.07.2001 $ */ 
 
 /*
 Modify:
+  11.07.2001 OT
+    Перенос CtrlAltShift в Manager
   07.07.2001 IS
     + При выборе фреймов (F12), если фреймов больше 10, то используем для
       горячих клавиш буквы латинского алфавита, т.о. получаем всего не 10,
@@ -533,6 +535,13 @@ int  Manager::ProcessKey(int Key)
     int i;
     switch(Key)
     {
+    case KEY_CTRLALTSHIFTPRESS:
+      if (CurrentFrame->FastHide()){
+        ImmediateHide();
+        WaitKey(KEY_CTRLALTSHIFTRELEASE);
+        FrameManager->RefreshFrame();
+      }
+      return TRUE;
     case KEY_CONSOLE_BUFFER_RESIZE:
       _OT(SysLog("[%p] Manager::ProcessKey(KEY_CONSOLE_BUFFER_RESIZE)",this));
       for (i=0;i<FrameCount;i++){
@@ -541,6 +550,7 @@ int  Manager::ProcessKey(int Key)
       for (i=0;i<ModalStackCount;i++){
         ModalStack[i]->ResizeConsole();
       }
+      ImmediateHide();
       FrameManager->RefreshFrame();
       return TRUE;
     case KEY_F11:
@@ -926,3 +936,37 @@ BOOL Manager::PluginCommit()
   return Commit();
 }
 /* SKV$*/
+
+/* $ Введена для нужд CtrlAltShift OT */
+void Manager::ImmediateHide()
+{
+  if (ModalStackCount>0){
+    int UnlockCount=0;
+
+    while (!(*this)[FramePos]->Refreshable()){
+      (*this)[FramePos]->UnlockRefresh();
+      UnlockCount++;
+    }
+    RefreshFrame((*this)[FramePos]);
+
+    Commit();
+    for (int i=0;i<UnlockCount;i++){
+      (*this)[FramePos]->LockRefresh();
+    }
+
+    if (ModalStackCount>1){
+      for (int i=0;i<ModalStackCount;i++){
+        if (!(ModalStack[i]->FastHide() & CASR_HELP)){
+          RefreshFrame(ModalStack[i]);
+          Commit();
+        } else {
+          break;
+        }
+      }
+    }
+
+  } else {
+    CtrlObject->CmdLine->ShowBackground();
+  }
+}
+/* OT $*/

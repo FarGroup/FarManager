@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.125 01.07.2001 $ */
+/* Revision: 1.126 11.07.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  11.07.2001 OT
+   + Новое "техническое" сообщения диалогу - DM_KILLSAVESCREEN
   30.06.2001 KM
    ! Языковое уточнение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
    + Новая структура FarListPos.
@@ -741,6 +743,8 @@ enum FarMessagesProc{
   DN_KEY=DM_KEY,
 
   DM_USER=0x4000,
+
+  DM_KILLSAVESCREEN=DN_FIRST-1,
 };
 
 enum LISTITEMFLAGS {
