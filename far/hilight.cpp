@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.11 27.02.2001 $ */
+/* Revision: 1.12 01.03.2001 $ */
 
 /*
 Modify:
+  01.03.2001 SVS
+    ! Переезд ветки "Highlight" в "Colors\Highlight"
   27.02.2001 VVM
     ! Символы, зависимые от кодовой страницы
       /[\x01-\x08\x0B-\x0C\x0E-\x1F\xB0-\xDF\xF8-\xFF]/
@@ -68,7 +70,7 @@ void HighlightFiles::InitHighlightFiles()
   char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE], *Masks=NULL;
   while (1)
   {
-    sprintf(RegKey,"Highlight\\Group%d",HiDataCount);
+    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,HiDataCount);
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
     struct HighlightData *NewHiData,*CurHiData;
@@ -212,7 +214,7 @@ void HighlightFiles::HiEdit(int MenuPos)
                             MSG(MHighlightWarning),MSG(MHighlightAskRestore),
                             MSG(MYes),MSG(MCancel))!=0)
                  break;
-              DeleteKeyTree("Highlight");
+              DeleteKeyTree(RegColorsHighlight);
               SetHighlighting();
               HiMenu.Hide();
               ClearData();
@@ -300,7 +302,7 @@ void HighlightFiles::SaveHiData()
   {
     struct HighlightData *CurHiData=&HiData[I];
     char RegKey[80];
-    sprintf(RegKey,"Highlight\\Group%d",I);
+    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,I);
     SetRegKey(RegKey,"Mask",CurHiData->Masks);
     SetRegKey(RegKey,"IncludeAttributes",CurHiData->IncludeAttr);
     SetRegKey(RegKey,"ExcludeAttributes",CurHiData->ExcludeAttr);
@@ -313,7 +315,7 @@ void HighlightFiles::SaveHiData()
   for (I=HiDataCount;I<StartHiDataCount;I++)
   {
     char RegKey[80];
-    sprintf(RegKey,"Highlight\\Group%d",I);
+    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,I);
     DeleteRegKey(RegKey);
   }
 }

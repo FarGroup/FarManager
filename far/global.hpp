@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.13 24.01.2001 $ */
+/* Revision: 1.14 01.03.2001 $ */
 
 /*
 Modify:
+  01.03.2001 SVS
+    + RegColorsHighlight - для сокращения
   24.01.2001 SVS
     + KeyQueue - внутренняя очередь клавиатуры
   09.01.2001 SVS
@@ -149,5 +151,9 @@ extern const DWORD FAR_VERSION;
 /* SVS $ */
 
 extern BOOL IsCryptFileASupport;
+
+
+extern char RegColorsHighlight[];
+
 
 #endif	// __FARGLOBAL_HPP__

@@ -5,10 +5,15 @@ far.cpp
 
 */
 
-/* Revision: 1.09 19.01.2001 $ */
+/* Revision: 1.10 01.03.2001 $ */
 
 /*
 Modify:
+  01.03.2001 SVS
+    ! Унифицирована функция SetHighlighting() - в последствии проще будет
+      изменять или добавлять - меняем лишь массив.
+    ! При старте ФАР переносит данные в реестре из "Highlight" в
+      "Colors\Highlight". Ветка "Highlight" прибивается.
   19.01.2001 SVS
     + FAR.EXE /?
     + проверка на количество строк (MListEval)
@@ -294,34 +299,66 @@ int _cdecl main(int Argc, char *Argv[])
 
 void ConvertOldSettings()
 {
+  // Конвертим реестр :-) Бывает же такое...
+  if(!CheckRegKey(RegColorsHighlight))
+    if(CheckRegKey("Highlight"))
+    {
+      char NameSrc[NM],NameDst[NM];
+      strcpy(NameSrc,Opt.RegRoot);
+      strcat(NameSrc,"\\Highlight");
+      strcpy(NameDst,Opt.RegRoot);
+      strcat(NameDst,RegColorsHighlight);
+      CopyKeyTree(NameSrc,NameDst,"\0");
+    }
+  DeleteKeyTree("Highlight");
 }
 
 
 void SetHighlighting()
 {
-  if (CheckRegKey("Highlight"))
+  if (CheckRegKey(RegColorsHighlight))
     return;
-  SetRegKey("Highlight\\Group0","Mask","*.*");
-  SetRegKey("Highlight\\Group0","IncludeAttributes",2);
-  SetRegKey("Highlight\\Group0","NormalColor",19);
-  SetRegKey("Highlight\\Group0","CursorColor",56);
-  SetRegKey("Highlight\\Group1","Mask","*.*");
-  SetRegKey("Highlight\\Group1","IncludeAttributes",4);
-  SetRegKey("Highlight\\Group1","NormalColor",19);
-  SetRegKey("Highlight\\Group1","CursorColor",56);
-  SetRegKey("Highlight\\Group2","Mask","*.*");
-  SetRegKey("Highlight\\Group2","IncludeAttributes",16);
-  SetRegKey("Highlight\\Group2","NormalColor",31);
-  SetRegKey("Highlight\\Group2","CursorColor",63);
-  SetRegKey("Highlight\\Group3","Mask","*.exe,*.com,*.bat,*.cmd");
-  SetRegKey("Highlight\\Group3","NormalColor",26);
-  SetRegKey("Highlight\\Group3","CursorColor",58);
-  SetRegKey("Highlight\\Group4","Mask","*.rar,*.arj,*.zip,*.lzh");
-  SetRegKey("Highlight\\Group4","NormalColor",29);
-  SetRegKey("Highlight\\Group4","CursorColor",61);
-  SetRegKey("Highlight\\Group5","Mask","*.bak,*.tmp");
-  SetRegKey("Highlight\\Group5","NormalColor",22);
-  SetRegKey("Highlight\\Group5","CursorColor",54);
+
+  int I;
+  char RegKey[80];
+  static char *Masks[]={
+    "*.*",
+    "*.exe,*.com,*.bat,*.cmd",
+    "*.rar,*.arj,*.zip,*.lzh",
+    "*.bak,*.tmp",
+  };
+  struct HighlightData  StdHighlightData[]=
+  { /*
+     Mask                        NormalColor       SelectedCursorColor
+               IncludeAttributes       SelectedColor     MarkChar
+                       ExcludeAttributes     CursorColor             */
+    {Masks[0], 0x0002, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
+    {Masks[0], 0x0004, 0x0000,   0x13, 0x00, 0x38, 0x00, 0x00},
+    {Masks[0], 0x0010, 0x0000,   0x1F, 0x00, 0x3F, 0x00, 0x00},
+    {Masks[1], 0x0000, 0x0000,   0x1A, 0x00, 0x3A, 0x00, 0x00},
+    {Masks[2], 0x0000, 0x0000,   0x1D, 0x00, 0x3D, 0x00, 0x00},
+    {Masks[3], 0x0000, 0x0000,   0x16, 0x00, 0x36, 0x00, 0x00},
+  };
+
+  for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
+  {
+    sprintf(RegKey,"%s\\Group%d",RegColorsHighlight,I);
+    SetRegKey(RegKey,"Mask",StdHighlightData[I].Masks);
+    if(StdHighlightData[I].IncludeAttr)
+      SetRegKey(RegKey,"IncludeAttributes",StdHighlightData[I].IncludeAttr);
+    if(StdHighlightData[I].ExcludeAttr)
+      SetRegKey(RegKey,"ExcludeAttributes",StdHighlightData[I].ExcludeAttr);
+    if(StdHighlightData[I].Color)
+      SetRegKey(RegKey,"NormalColor",StdHighlightData[I].Color);
+    if(StdHighlightData[I].SelColor)
+      SetRegKey(RegKey,"SelectedColor",StdHighlightData[I].SelColor);
+    if(StdHighlightData[I].CursorColor)
+      SetRegKey(RegKey,"CursorColor",StdHighlightData[I].CursorColor);
+    if(StdHighlightData[I].CursorSelColor)
+      SetRegKey(RegKey,"SelectedCursorColor",StdHighlightData[I].CursorSelColor);
+    if(StdHighlightData[I].MarkChar)
+      SetRegKey(RegKey,"MarkChar",StdHighlightData[I].MarkChar);
+  }
 }
 
 

@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.11 24.01.2001 $ */
+/* Revision: 1.12 01.03.2001 $ */
 
 /*
 Modify:
+  01.03.2001 SVS
+    + RegColorsHighlight - для сокращения
   24.01.2001 SVS
     + KeyQueue - внутренняя очередь клавиатуры
   09.01.2001 SVS
@@ -116,3 +118,5 @@ int CmdMode;
 const char FarTmpXXXXXX[]="FarTmpXXXXXX";
 
 BOOL IsCryptFileASupport=FALSE;
+
+char RegColorsHighlight[]="Colors\\Highlight";
