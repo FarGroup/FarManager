@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.25 11.11.2000 $ */
+/* Revision: 1.26 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
     ! Используем конструкцию FarMkTemp()
   03.11.2000 OT
@@ -932,10 +934,10 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
   {
     char DataFileName[NM];
     FILE *DataFile;
-    //strcpy(DataFileName,Opt.TempPath);
-    //strcat(DataFileName,FarTmpXXXXXX);
-    //if (mktemp(DataFileName)==NULL || (DataFile=fopen(DataFileName,"w+b"))==NULL)
-    if (FarMkTemp(DataFileName,"Far")==NULL || (DataFile=fopen(DataFileName,"w+b"))==NULL)      return(-1);
+    strcpy(DataFileName,Opt.TempPath);
+    strcat(DataFileName,FarTmpXXXXXX);
+    if (mktemp(DataFileName)==NULL || (DataFile=fopen(DataFileName,"w+b"))==NULL)
+    //if (FarMkTemp(DataFileName,"Far")==NULL || (DataFile=fopen(DataFileName,"w+b"))==NULL)      return(-1);
     fwrite(Buffer,1,BufferSize,DataFile);
     fseek(DataFile,0,SEEK_SET);
     CharTableSet TableSet;

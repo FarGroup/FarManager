@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.18 11.11.2000 $ */
+/* Revision: 1.19 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
     ! Используем конструкцию FarMkTemp()
   09.11.2000 OT
@@ -867,10 +869,10 @@ int FileList::ProcessKey(int Key)
 
         if (PluginMode)
         {
-          //strcpy(TempDir,Opt.TempPath);
-          //strcat(TempDir,FarTmpXXXXXX);
-          //if (mktemp(TempDir)==NULL)
-          if(!FarMkTemp(TempDir,"Far"))
+          strcpy(TempDir,Opt.TempPath);
+          strcat(TempDir,FarTmpXXXXXX);
+          if (mktemp(TempDir)==NULL)
+          //if(!FarMkTemp(TempDir,"Far"))
             return(TRUE);
           CreateDirectory(TempDir,NULL);
           sprintf(TempName,"%s\\%s",TempDir,PointToName(FileName));
@@ -1313,10 +1315,10 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (PluginMode)
     {
       char TempDir[NM];
-      //strcpy(TempDir,Opt.TempPath);
-      //strcat(TempDir,FarTmpXXXXXX);
-      //if (mktemp(TempDir)==NULL)
-      if(!FarMkTemp(TempDir,"Far"))
+      strcpy(TempDir,Opt.TempPath);
+      strcat(TempDir,FarTmpXXXXXX);
+      if (mktemp(TempDir)==NULL)
+      //if(!FarMkTemp(TempDir,"Far"))
         return;
       CreateDirectory(TempDir,NULL);
       struct PluginPanelItem PanelItem;
@@ -2127,11 +2129,11 @@ void FileList::UpdateViewPanel()
       if ((CurPtr->FileAttr & FA_DIREC)==0)
       {
         char TempDir[NM],FileName[NM];
-        //strcpy(FileName,CurPtr->Name);
-        //strcpy(TempDir,Opt.TempPath);
-        //strcat(TempDir,FarTmpXXXXXX);
-        //if (mktemp(TempDir)==NULL)
-        if(!FarMkTemp(TempDir,"Far"))
+        strcpy(FileName,CurPtr->Name);
+        strcpy(TempDir,Opt.TempPath);
+        strcat(TempDir,FarTmpXXXXXX);
+        if (mktemp(TempDir)==NULL)
+        //if(!FarMkTemp(TempDir,"Far"))
           return;
         CreateDirectory(TempDir,NULL);
         struct PluginPanelItem PanelItem;

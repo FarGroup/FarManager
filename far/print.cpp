@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.02 11.11.2000 $ */
+/* Revision: 1.03 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
     ! Используем конструкцию FarMkTemp()
   13.07.2000 SVS
@@ -139,10 +141,10 @@ void PrintFiles(Panel *SrcPanel)
       FILE *SrcFile=NULL;
       if (PluginMode)
       {
-        //strcpy(TempDir,Opt.TempPath);
-        //strcat(TempDir,FarTmpXXXXXX);
-        //if (mktemp(TempDir)!=NULL)
-        if(FarMkTemp(TempDir,"Far"))
+        strcpy(TempDir,Opt.TempPath);
+        strcat(TempDir,FarTmpXXXXXX);
+        if (mktemp(TempDir)!=NULL)
+        //if(FarMkTemp(TempDir,"Far"))
         {
           CreateDirectory(TempDir,NULL);
           struct FileListItem ListItem;

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.09 11.11.2000 $ */
+/* Revision: 1.10 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
     ! Используем конструкцию FarMkTemp()
   21.10.2000 SVS
@@ -841,9 +843,9 @@ int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
       if (hPlugin && (Info.Flags & OPIF_REALNAMES)==0)
       {
         char TempDir[NM];
-//        sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
-//        mktemp(TempDir);
-        CreateDirectory(FarMkTemp(TempDir,"Far"),NULL);
+        sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
+        mktemp(TempDir);
+        CreateDirectory(TempDir,NULL);
         /* $ 07.08.2000 KM
            Добавление переменных для борьбы с глюком при поиске в запароленном архиве
         */

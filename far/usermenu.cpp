@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.09 11.11.2000 $ */
+/* Revision: 1.10 11.11.2000 $ */
 
 /*
 Modify:
+  11.11.2000 SVS
+    ! FarMkTemp() - убираем (как всегда - то ставим, то тут же убираем :-(((
   11.11.2000 SVS
     ! Используем конструкцию FarMkTemp()
   14.10.2000 VVM
@@ -511,10 +513,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
               {
                 FILE *MenuFile;
                 char MenuFileName[NM];
-                //strcpy(MenuFileName,Opt.TempPath);
-                //strcat(MenuFileName,FarTmpXXXXXX);
-                //if (mktemp(MenuFileName)==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
-                if (FarMkTemp(MenuFileName,"Far")==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
+                strcpy(MenuFileName,Opt.TempPath);
+                strcat(MenuFileName,FarTmpXXXXXX);
+                if (mktemp(MenuFileName)==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
+                //if (FarMkTemp(MenuFileName,"Far")==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
                   break;
                 MenuRegToFile(MenuRootKey,MenuFile);
                 fclose(MenuFile);
