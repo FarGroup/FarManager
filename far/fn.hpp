@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.208 14.06.2004 $ */
+/* Revision: 1.209 21.06.2004 $ */
 
 /*
 Modify:
+  21.06.2004 SVS
+   + GetCDDeviceCaps(), GetCDDeviceTypeByCaps();
+   ! ” FAR_GetDriveType добавилс€ опциональный параметр - дл€ CD
+     возвращаетс€ тип читаемых дисков - CDROM_DeviceCaps.
   14.06.2004 SVS
     + добавки MACRODRIVE2
   14.06.2004 SVS
@@ -701,8 +705,6 @@ HANDLE WINAPI FAR_CreateFile(
     HANDLE hTemplateFile          // handle to file with attributes to copy
    );
 /* IS $ */
-UINT FAR_GetDriveType(LPCTSTR RootDir);
-BOOL IsDriveTypeCDROM(UINT DriveType);
 
 void WINAPI SetFileApisTo(int Type);
 BOOL WINAPI FAR_OemToCharBuff(LPCSTR lpszSrc,LPTSTR lpszDst,DWORD cchDstLength);
@@ -1556,6 +1558,11 @@ __int64 ftell64(FILE *fp);
 int fseek64 (FILE *fp, __int64 offset, int whence);
 
 BOOL IsDiskInDrive(const char *Drive);
+
+CDROM_DeviceCaps GetCDDeviceCaps(HANDLE hDevice);
+UINT GetCDDeviceTypeByCaps(CDROM_DeviceCaps caps);
+BOOL IsDriveTypeCDROM(UINT DriveType);
+UINT FAR_GetDriveType(LPCTSTR RootDir,CDROM_DeviceCaps *caps=NULL);
 
 BOOL IsLocalPath(const char *Path);
 BOOL IsLocalRootPath(const char *Path);

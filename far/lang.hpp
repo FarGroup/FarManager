@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.144 14.06.2004 $ */
+/* Revision: 1.145 21.06.2004 $ */
 
 /*
 Modify:
+  21.06.2004 SVS
+    + MInfoDVD_RAM, MChangeDriveDVD_RAM
   14.06.2004 KM
     + MFileFilterAttrD
   09.06.2004 SVS
@@ -1378,6 +1380,7 @@ enum
   MInfoCD_RWDVD,
   MInfoDVD_ROM,
   MInfoDVD_RW,
+  MInfoDVD_RAM,
   MInfoRAM,
   MInfoSUBST,
   MInfoDisk,
@@ -1552,6 +1555,7 @@ enum
   MChangeDriveCD_RWDVD,
   MChangeDriveDVD_ROM,
   MChangeDriveDVD_RW,
+  MChangeDriveDVD_RAM,
   MChangeDriveRAM,
   MChangeDriveSUBST,
   MChangeDriveLabelAbsent,

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.128 09.06.2004 $ */
+/* Revision: 1.129 21.06.2004 $ */
 
 /*
 Modify:
+  21.06.2004 SVS
+    + DRIVE_DVD_RAM
   09.06.2004 SVS
     + DRIVE_CD_RWDVD
   08.06.2004 SVS
@@ -550,6 +552,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {DRIVE_CD_RWDVD,MChangeDriveCD_RWDVD},
             {DRIVE_DVD_ROM,MChangeDriveDVD_ROM},
             {DRIVE_DVD_RW,MChangeDriveDVD_RW},
+            {DRIVE_DVD_RAM,MChangeDriveDVD_RAM},
             {DRIVE_RAMDISK,MChangeDriveRAM},
           };
           for(J=0; J < sizeof(DrTMsg)/sizeof(DrTMsg[1]); ++J)

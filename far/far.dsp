@@ -88,6 +88,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\cddrv.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CFileMask.cpp
 # End Source File
 # Begin Source File
@@ -440,6 +444,10 @@ SOURCE=.\registry.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RefreshFrameManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\savefpos.cpp
 # End Source File
 # Begin Source File
@@ -559,16 +567,6 @@ SOURCE=.\ClevMutex.hpp
 SOURCE=.\cmdline.hpp
 # End Source File
 # Begin Source File
-
-SOURCE=.\RefreshFrameManager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SYNTAX.CPP
-# End Source File
-# Begin Source File
-
-
 
 SOURCE=.\colors.hpp
 
@@ -784,6 +782,10 @@ InputPath=.\keys.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\lasterror.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\lang.hpp
 # End Source File
 # Begin Source File
@@ -867,6 +869,10 @@ SOURCE=.\rdrwdsk.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RefreshFrameManager.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\res.hpp
 # End Source File
 # Begin Source File
@@ -896,6 +902,10 @@ SOURCE=.\struct.hpp
 # Begin Source File
 
 SOURCE=.\syslog.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TList.hpp
 # End Source File
 # Begin Source File
 
