@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.21 23.03.2001 $ */
+/* Revision: 1.22 12.04.2001 $ */
 
 /*
 Modify:
+  12.04.2001 SVS
+   + CheckDialogCoord() - проверка и корректировка координат диалога
   23.03.2001 SVS
    ! У функции ConvertItem() новый параметр InternalCall - сейчас
      используется только для DN_EDITCHANGE
@@ -224,6 +226,7 @@ class Dialog:public Modal
     void SelectOnEntry(int Pos);
     /* SVS $ */
 
+    void CheckDialogCoord(void);
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);

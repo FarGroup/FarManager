@@ -933,6 +933,7 @@
 "Change file attributes for"
 "selected objects"
 "Link: %s"
+"(data not available)"
 "&Read only"
 "&Archive"
 "&Hidden"

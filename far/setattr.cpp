@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.23 09.04.2001 $ */
+/* Revision: 1.24 12.04.2001 $ */
 
 /*
 Modify:
+  12.04.2001 SVS
+    ! Для FILE_ATTRIBUTE_REPARSE_POINT всегда показываем "Link to:",
+      но, если данные не доступны - так и говорим - "НЕТУ!"
   09.04.2001 SVS
     - нужно было использовать локальные копии для параметров SrcDate и SrcTime
       в функции ReadFileTime
@@ -429,19 +432,21 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         {
           char JuncName[NM*2];
           DWORD LenJunction=GetJunctionPointInfo(SelName,JuncName,sizeof(JuncName));
-          if(LenJunction)
+          //"\??\D:\Junc\Src\" или "\\?\Volume{..."
+
+          AttrDlg[0].Y2++;
+          for(I=3; I  < DlgCountItems; ++I)
           {
-             //"\??\D:\Junc\Src\"
-             sprintf(AttrDlg[29].Data,MSG(MSetAttrJunction),TruncPathStr(JuncName+4,29));
-             AttrDlg[0].Y2++;
-             for(I=3; I  < DlgCountItems; ++I)
-             {
-               AttrDlg[I].Y1++;
-               AttrDlg[I].Y2++;
-             }
-             DlgCountItems++;
-             JunctionPresent=TRUE;
+            AttrDlg[I].Y1++;
+            AttrDlg[I].Y2++;
           }
+          DlgCountItems++;
+          JunctionPresent=TRUE;
+
+          sprintf(AttrDlg[29].Data,MSG(MSetAttrJunction),
+                (LenJunction?
+                   TruncPathStr(JuncName+4,29):
+                   MSG(MSetAttrUnknownJunction)));
         }
       }
       else

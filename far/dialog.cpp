@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.80 02.04.2001 $ */
+/* Revision: 1.81 12.04.2001 $ */
 
 /*
 Modify:
+  12.04.2001 SVS
+   ! Дополнительная проверка для DM_SETDLGITEM на смену типа котрола.
+     Нефига пока менять - ядро еще не готово к метаморфозам. Потом как нить.
+   + CheckDialogCoord() - проверка и корректировка координат диалога
+   ! не был реализован механизм центрирования диалога для DM_MOVEDIALOG
+     это когда координаты = -1, и задано абсолютное смещение.
   02.04.2001 SVS
    + исключим смену режима RO для поля ввода с клавиатуры
   23.03.2001 SVS
@@ -461,6 +467,13 @@ Dialog::~Dialog()
 */
 void Dialog::Show()
 {
+  CheckDialogCoord();
+  // вызывает DisplayObject()
+  ScreenObject::Show();
+}
+
+void Dialog::CheckDialogCoord(void)
+{
   if (X1 == -1) // задано центрирование диалога по горизонтали?
   {             //   X2 при этом = ширине диалога.
     X1=(ScrX - X2 + 1)/2;
@@ -491,8 +504,6 @@ void Dialog::Show()
     else
       Y2+=Y1-1;
   }
-  // вызывает DisplayObject()
-  ScreenObject::Show();
 }
 
 /* $ 30.08.2000 SVS
@@ -4144,7 +4155,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
 
     case DM_SETDLGITEM:
-      if(Param2)
+      if(Param2 &&
+         Type == ((struct FarDialogItem *)Param2)->Type) // пока нефига менять тип
       {
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
         CurItem->Type=Type;
@@ -4275,6 +4287,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         Dlg->X1=((COORD*)Param2)->X;
         Dlg->Y1=((COORD*)Param2)->Y;
+//        if(Dlg->X1 == -1 || Dlg->Y1 == -1)
+        Dlg->CheckDialogCoord();
       }
       else         // значит относительно
       {

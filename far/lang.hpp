@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.61 08.04.2001 $ */
+/* Revision: 1.62 12.04.2001 $ */
 
 /*
 Modify:
+  12.04.2001 SVS
+    + MSetAttrUnknownJunction
   08.04.2001 SVS
     + MCopyNotSupportLinkX
   06.04.2001 SVS
@@ -1091,6 +1093,7 @@ enum
   MSetAttrFor,
   MSetAttrSelectedObjects,
   MSetAttrJunction,
+  MSetAttrUnknownJunction,
   MSetAttrRO,
   MSetAttrArchive,
   MSetAttrHidden,
