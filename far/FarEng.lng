@@ -726,7 +726,7 @@
 "&Panel"
 "&Stop"
 
-"Search done (%d files found)"
+"Search done. Found %d file(s) and %d folder(s)"
 "&Cancel"
 
 "Found"

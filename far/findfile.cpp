@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.85 28.12.2001 $ */
+/* Revision: 1.86 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2002 VVM
+    ! Исправление поиска в подкаталогах архивов
+    + Информация о количестве найденных файлов и каталогов разделена.
   28.12.2001 SVS
     ! Правка с учетом изменений структур (про анонимный union)
   18.12.2001 KM
@@ -360,7 +363,7 @@ static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives;
 /* KM $ */
 static int FindFoldersChanged;
 static int DlgWidth,DlgHeight;
-static volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FileCount,WriteDataUsed;
+static volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FindFileCount,FindDirCount,WriteDataUsed;
 static char FindMessage[200],LastDirName[NM];
 static int FindMessageReady,FindCountReady;
 static char PluginSearchPath[2*NM];
@@ -1271,7 +1274,7 @@ int FindFiles::FindFilesProcess()
   StopSearch=FALSE;
   PauseSearch=FALSE;
   WriteDataUsed=FALSE;
-  FileCount=0;
+  FindFileCount=FindDirCount=0;
   FindExitIndex = LIST_INDEX_NONE;
   FindExitCode = FIND_EXIT_NONE;
   *FindMessage=*LastDirName=FindMessageReady=FindCountReady=0;
@@ -1550,7 +1553,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
   while (!StopSearch && FindMessageReady)
     Sleep(10);
-  sprintf(FindMessage,MSG(MFindDone),FileCount);
+  sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
   SearchDone=TRUE;
   FindMessageReady=TRUE;
 }
@@ -1753,14 +1756,9 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
         (ArcList[FindFileArcIndex].ArcName) &&
         (*ArcList[FindFileArcIndex].ArcName))
     {
-      char ArcPathName[NM*2],DirName[NM];
+      char ArcPathName[NM*2];
       sprintf(ArcPathName,"%s:%s",ArcList[FindFileArcIndex].ArcName,*PathName=='.' ? "\\":PathName);
       strcpy(PathName,ArcPathName);
-      ScanTree Tree(FALSE,SearchMode!=SEARCH_CURRENT_ONLY);
-      strcpy(DirName,ArcList[FindFileArcIndex].ArcName);
-      *PointToName(DirName)=0;
-      Tree.SetFindPath(DirName,PointToName(ArcList[FindFileArcIndex].ArcName));
-      Tree.GetNextName(FindData,ArcList[FindFileArcIndex].ArcName);
     }
     strcpy(SizeText,MSG(MFindFileFolder));
     sprintf(FileText,"%-50.50s     <%6.6s>",TruncPathStr(PathName,50),SizeText);
@@ -1797,16 +1795,18 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
         FindList[ItemIndex].ArcIndex = FindFileArcIndex;
     }
     strcpy(ListItem.Name,MenuText);
-    ListItem.SetSelect(!FileCount);
+    ListItem.SetSelect(!FindFileCount);
 
     while (ListBox->GetCallCount())
       Sleep(10);
     ListBox->SetUserData((void*)ItemIndex,sizeof(ItemIndex),
                          ListBox->AddItem(&ListItem));
+    FindFileCount++;
   }
+  else
+    FindDirCount++;
 
   LastFoundNumber++;
-  FileCount++;
   FindCountReady=TRUE;
   ReleaseMutex(hMutex);
 }
@@ -2023,7 +2023,7 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
     Sleep(10);
   if (Param==NULL)
   {
-    sprintf(FindMessage,MSG(MFindDone),FileCount);
+    sprintf(FindMessage,MSG(MFindDone),FindFileCount,FindDirCount);
     FindMessageReady=TRUE;
     SearchDone=TRUE;
   }
@@ -2156,7 +2156,7 @@ void FindFiles::WriteDialogData(void *Param)
 
       if (FindCountReady)
       {
-        sprintf(DataStr," %s: %d ",MSG(MFindFound),FileCount);
+        sprintf(DataStr," %s: %d ",MSG(MFindFound),FindFileCount+FindDirCount);
         ItemData.PtrData=DataStr;
         ItemData.PtrLength=strlen(DataStr);
 
