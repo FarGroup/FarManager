@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.24 01.03.2001 $ */
+/* Revision: 1.25 18.03.2001 $ */
 
 /*
 Modify:
+  18.03.2001 IS
+    ! Поменял местами проверку при открытии на "только для чтения" и
+      "уже открыт", тем самым избавились от ситуации, когда задавался вопрос
+      "вы уверены, что хотите редактировать r/o файл" для ужЕ открытых файлов.
   01.03.2001 IS
     - Баг: не учитывалось, закрылся ли файл на самом деле по ctrl-f10
   27.02.2001 SVS
@@ -117,6 +121,27 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
     return;
   }
 
+  if (EnableSwitch)
+  {
+    int ModalPos=CtrlObject->ModalManager.FindModalByFile(MODALTYPE_EDITOR,FullFileName);
+    if (ModalPos!=-1)
+    {
+      int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
+                          MSG(MCurrent),MSG(MReload));
+      switch(MsgCode)
+      {
+        case 0:
+          CtrlObject->ModalManager.SetModalPos(ModalPos);
+          CtrlObject->ModalManager.NextModal(0);
+          return;
+        case 1:
+          break;
+        default:
+          return;
+      }
+    }
+  }
+
   /* $ 29.11.2000 SVS
      Если файл имеет атрибут ReadOnly или System или Hidden,
      И параметр на запрос выставлен, то сначала спросим.
@@ -152,26 +177,6 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   /* SVS 03.12.2000 $ */
   /* SVS $ */
 
-  if (EnableSwitch)
-  {
-    int ModalPos=CtrlObject->ModalManager.FindModalByFile(MODALTYPE_EDITOR,FullFileName);
-    if (ModalPos!=-1)
-    {
-      int MsgCode=Message(0,2,MSG(MEditTitle),FullFileName,MSG(MAskReload),
-                          MSG(MCurrent),MSG(MReload));
-      switch(MsgCode)
-      {
-        case 0:
-          CtrlObject->ModalManager.SetModalPos(ModalPos);
-          CtrlObject->ModalManager.NextModal(0);
-          return;
-        case 1:
-          break;
-        default:
-          return;
-      }
-    }
-  }
   FEdit.SetPosition(X1,Y1,X2,Y2-1);
   FEdit.SetStartPos(StartLine,StartChar);
   int UserBreak;
