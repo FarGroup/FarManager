@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.11 23.06.2001 */
+/* Revision: 1.12 09.07.2001 $ */ 
 
 /*
 Modify:
+  09.07.2001 OT
+    Исправление MacroMode для диалогов
   23.06.2001 OT
     - Решение проблемы "старика Мюллера"
   20.06.2001 tran
@@ -98,7 +100,7 @@ class Frame: public ScreenObject
 
     /* $ 12.05.2001 DJ */
     int IsTopFrame();
-    int GetMacroMode() { return MacroMode; }
+    virtual int GetMacroMode() { return MacroMode; }
     /* DJ $ */
     void Push(Frame* Modalized);
     bool Pop();

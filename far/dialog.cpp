@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.133 04.07.2001 $ */
+/* Revision: 1.134 09.07.2001 $ */ 
 
 /*
 Modify:
+  09.07.2001 OT
+    Исправление MacroMode для диалогов
   04.07.2001 SVS
    + DIF_SEPARATOR для DI_VTEXT
    + {-1,-1} для DI_VTEXT
@@ -5307,5 +5309,10 @@ void Dialog::OnChangeFocus (int Focus)
 }
 
 /* DJ $ */
+
+int Dialog::GetMacroMode() 
+{
+  return MACRO_DIALOG; 
+}
 
 //////////////////////////////////////////////////////////////////////////
