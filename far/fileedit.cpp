@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.45 15.05.2001 $ */
+/* Revision: 1.46 19.05.2001 $ */
 
 /*
 Modify:
+  19.05.2001 DJ
+    ! лечим последствия NFZ
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 OT
@@ -202,7 +204,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
           SwitchTo=TRUE;
           break;
         case 1:
-          FrameManager->ReplaceFrame(this,FramePos);
+          FrameManager->DeleteFrame(FramePos);
           SetExitCode(-2);
           break;
         default:
@@ -486,7 +488,7 @@ int FileEditor::ProcessKey(int Key)
           FileViewer *Viewer = new FileViewer (FullFileName, GetCanLoseFocus(), FALSE,
             FALSE, FilePos, NULL, EditNamesList);
           /* DJ $ */
-          FrameManager->ReplaceFrame (Viewer, this);
+          FrameManager->InsertFrame (Viewer);
           /* DJ $ */
         }
         /* IS $ */

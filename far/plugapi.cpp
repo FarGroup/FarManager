@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.60 21.05.2001 $ */
+/* Revision: 1.61 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 DJ
+    + FDLG_NONMODAL
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -558,15 +560,22 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     return -1;
   }
 
+  /* $ 19.05.2001 DJ
+     немодальные диалоги!
+     и пусть диалог сам освободит свои айтема (после закрытия)
+  */
   TRY
   {
-    Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
-    FarDialog.SetPosition(X1,Y1,X2,Y2);
+    Dialog *FarDialog = new Dialog(InternalItem,ItemsNumber,DlgProc,Param);
+    FarDialog->SetPosition(X1,Y1,X2,Y2);
 
-    if(Flags&FDLG_WARNING)
-      FarDialog.SetDialogMode(DMODE_WARNINGSTYLE);
-    if(Flags&FDLG_SMALLDIALOG)
-      FarDialog.SetDialogMode(DMODE_SMALLDIALOG);
+    if(Flags & FDLG_WARNING)
+      FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
+    if(Flags & FDLG_SMALLDIALOG)
+      FarDialog->SetDialogMode(DMODE_SMALLDIALOG);
+    if(Flags & FDLG_NONMODAL)
+      FarDialog->SetCanLoseFocus(TRUE);
+    FarDialog->SetOwnsItems(TRUE);
 
     if (HelpTopic!=NULL)
     {
@@ -579,28 +588,34 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
         *PointToName(Path)=0;
         sprintf(Topic,"#%s#%s",Path,HelpTopic);
       }
-      FarDialog.SetHelp(Topic);
+      FarDialog->SetHelp(Topic);
     }
     /* $ 29.08.2000 SVS
        Запомним номер плагина - сейчас в основном для формирования HelpTopic
     */
-    FarDialog.SetPluginNumber(PluginNumber);
+    FarDialog->SetPluginNumber(PluginNumber);
     /* SVS $ */
-    FarDialog.Process();
-    ExitCode=FarDialog.GetExitCode();
 
-    Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+    if (Flags & FDLG_NONMODAL)
+    {
+      FrameManager->InsertFrame (FarDialog);
+      ExitCode=0;
+    }
+    else
+    {
+      FarDialog->Process();
+      ExitCode=FarDialog->GetExitCode();
+
+      Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+      delete FarDialog;
+    }
   }
   __except (xfilter(EXCEPT_FARDIALOG,
                    GetExceptionInformation(),CurPlugin,1))
   {
     ;
   }
-  /* $ 13.07.2000 SVS
-     для new[] нужен delete[]
-  */
-  delete[] InternalItem;
-  /* SVS $*/
+  /* DJ $ */
 //  CheckScreenLock();
   return(ExitCode);
 }

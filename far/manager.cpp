@@ -1,14 +1,17 @@
 /*
 manager.cpp
 
-Переключение между несколькими file panels, viewers, editors
+Переключение между несколькими file panels, viewers, editors, dialogs
 
 */
 
-/* Revision: 1.21 21.05.2001 $ */
+/* Revision: 1.22 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 DJ
+    ! чистка внутренностей; в связи с появлением нового типа фреймов
+      выкинуто GetFrameTypesCount(); не посылалось OnChangeFocus(0)
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -104,6 +107,9 @@ Manager::Manager()
   ActivatedFrame= NULL;
   DeactivatedFrame=NULL;
   ModalizedFrame=NULL;
+  /* $ 21.05.2001 DJ */
+  FrameToDestruct = NULL;
+  /* DJ $ */
 
   DisableDelete = FALSE;
 }
@@ -291,43 +297,6 @@ void Manager::DeleteDeletedFrame()
    заменить текущий фрейм на указанный (используется для обработки F6)
 */
 
-/* $ 12.05.2001 DJ
-   заменена на более общую функцию (с подачи ОТ)
-*/
-
-void Manager::ReplaceFrame (Frame *Inserted, Frame *Deleted)
-{
-/*
-  if (!OldFrame){
-    OldFrame=CurrentFrame;
-  }
-  DeletedFrame = OldFrame;
-  DeletedFrame->OnChangeFocus (0);
-  if (OldFrame == CurrentFrame){
-    FrameToReplace = NewFrame;
-  } else {
-    for (int i=0; i<FrameCount; i++){
-      if (FrameList [i] == OldFrame){
-        FrameToReplace = FrameList [i] = NewFrame;
-        break;
-      }
-    }
-  }
-*/
-}
-
-/* DJ $ */
-/* DJ $ */
-
-void Manager::ReplaceFrame (Frame *NewFrame, int FramePos)
-{
-  if (FramePos<0||FramePos>=FrameCount){
-    return;
-  }
-  ReplaceFrame(NewFrame,this->FrameList[FramePos]);
-}
-
-
 /* $ 10.05.2001 DJ
    поддерживает ReplaceFrame (F6)
 */
@@ -378,32 +347,6 @@ void Manager::ModalSaveState()
   _DJ(SysLog ("ModalSaveState: CurrentFrame=%08x", CurrentFrame));
   ModalStack [ModalStackCount++] = CurrentFrame;
 }
-
-/*
-void Manager::NextFrame(int Increment)
-{
-  _D(SysLog(1,"Manager::NextFrame(), FramePos=%i, Increment=%i, FrameCount=%i",FramePos,Increment,FrameCount));
-  if (FrameCount>0)
-  {
-    FramePos+=Increment;
-    if (FramePos<0)
-      FramePos=FrameCount-1;
-  }
-  if (FramePos>=FrameCount)
-    FramePos=0;
-  _D(SysLog("Manager::NextFrame(), new FramePos=%i",FramePos));
-  Frame *CurFrame=FrameList[FramePos];
-
-  if (CurrentFrame)
-    CurrentFrame->OnChangeFocus(0);
-
-  SetCurrentFrame (CurFrame);
-
-  _D(SysLog("Manager::NextFrame(), set CurrentFrame=0x%p, %s",CurrentFrame,CurrentFrame->GetTypeName()));
-  _D(SysLog(-1));
-}
-*/
-
 
 /*
 void Manager::SetCurrentFrame (int FrameIndex)
@@ -473,9 +416,9 @@ void Manager::FrameMenu()
 }
 
 
-void Manager::GetFrameTypesCount(int &Viewers,int &Editors)
+int Manager::GetFrameCountByType(int Type)
 {
-  Viewers=Editors=0;
+  int ret=0;
   for (int I=0;I<FrameCount;I++)
   {
     /* $ 10.05.2001 DJ
@@ -484,23 +427,6 @@ void Manager::GetFrameTypesCount(int &Viewers,int &Editors)
     if (FrameList[I] == DeletedFrame || FrameList [I]->GetExitCode() == XC_QUIT)
       continue;
     /* DJ $ */
-    switch(FrameList[I]->GetType())
-    {
-      case MODALTYPE_VIEWER:
-        Viewers++;
-        break;
-      case MODALTYPE_EDITOR:
-        Editors++;
-        break;
-    }
-  }
-}
-
-int  Manager::GetFrameCountByType(int Type)
-{
-  int ret=0;
-  for (int I=0;I<FrameCount;I++)
-  {
     if (FrameList[I]->GetType()==Type)
       ret++;
   }
@@ -678,11 +604,13 @@ Frame *Manager::operator[](int Index)
   return FrameList[Index];
 }
 
-int Manager::operator[](Frame *Frame)
+int Manager::IndexOf(Frame *Frame)
 {
   int Result=-1;
-  for (int i=0;i<FrameCount;i++){
-    if (Frame==FrameList[i]){
+  for (int i=0;i<FrameCount;i++)
+  {
+    if (Frame==FrameList[i])
+    {
       Result=i;
       break;
     }
@@ -730,6 +658,14 @@ BOOL Manager::Commit()
     ActivatedFrame=NULL;
     Result=true;
   }
+  /* $ 21.05.2001 DJ */
+  else if (FrameToDestruct)
+  {
+    DestructCommit();
+    FrameToDestruct = NULL;
+    Result=true;
+  }
+  /* DJ $ */
   if (Result){
     Result=Commit();
   }
@@ -746,11 +682,17 @@ void Manager::ActivateCommit()
   if (CurrentFrame==ActivatedFrame){
     return;
   }
-  int FrameIndex=this->operator[](ActivatedFrame);
+  /* $ 21.05.2001 DJ
+     не посылалось OnChangeFocus(0) :-E
+  */
+  Frame *PrevCurrentFrame = CurrentFrame;
+  /* DJ $ */
+  int FrameIndex=IndexOf(ActivatedFrame);
   if (-1!=FrameIndex){
     FramePos=FrameIndex;
     int ModalTopIndex=ActivatedFrame->ModalCount();
-    if (ModalTopIndex>0){
+    if (ModalTopIndex>0)
+    {
       ActivatedFrame->OnChangeFocus(TRUE);
       for (int i=0;i<ModalTopIndex-1;i++){
         Frame *iModal=(*ActivatedFrame)[i];
@@ -774,15 +716,23 @@ void Manager::ActivateCommit()
       CurrentFrame=FoundFrame;
     }
   }
-  CurrentFrame->ShowConsoleTitle();
-  CurrentFrame->OnChangeFocus(1);
-  CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
-
+  /* $ 21.05.2001 DJ
+     не посылалось OnChangeFocus(0) :-E
+  */
+  if (PrevCurrentFrame != CurrentFrame)
+  {
+    if (PrevCurrentFrame)
+      PrevCurrentFrame->OnChangeFocus (0);
+    CurrentFrame->ShowConsoleTitle();
+    CurrentFrame->OnChangeFocus(1);
+    CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
+  }
+  /* DJ $ */
 }
 
 void Manager::UpdateCommit()
 {
-  int FrameIndex=this->operator[](DeletedFrame);
+  int FrameIndex=IndexOf(DeletedFrame);
   if (-1!=FrameIndex){
     for (int i=0; i<FrameCount; i++){
       if (FrameList [i] == DeletedFrame){
@@ -791,10 +741,7 @@ void Manager::UpdateCommit()
       }
     }
     ActivatedFrame=InsertedFrame;
-    DeletedFrame->OnDestroy();
-    if (!DisableDelete)
-      delete DeletedFrame;
-    DisableDelete = TRUE;
+    FrameToDestruct = DeletedFrame;
   } else {
     Frame *iFrame=NULL;
     for (int i=0;i<FrameCount;i++){
@@ -822,7 +769,7 @@ void Manager::DeleteCommit()
   if (!DeletedFrame){
     return;
   }
-  int FrameIndex=this->operator[](DeletedFrame);
+  int FrameIndex=IndexOf(DeletedFrame);
   if (-1!=FrameIndex){
     DeletedFrame->DestroyAllModal();
     for (int i=0; i<FrameCount; i++ ){
@@ -833,13 +780,10 @@ void Manager::DeleteCommit()
         if ( FramePos>=FrameCount ){
           FramePos=0;
         }
-        DeletedFrame->OnDestroy();
         break;
       }
     }
-    if (!DisableDelete)
-      delete DeletedFrame;
-    DisableDelete = FALSE;
+    FrameToDestruct = DeletedFrame;
     if (!ActivatedFrame)
       ActivatedFrame=FrameList[FramePos];
   } else {
@@ -866,7 +810,7 @@ void Manager::DeleteCommit()
 void Manager::InsertCommit()
 {
   if (ModalizedFrame){
-    int FrameIndex=this->operator[](CurrentFrame);
+    int FrameIndex=IndexOf(CurrentFrame);
     if (FrameIndex==-1) {
       for (int i=0;i<FrameCount;i++){
         Frame *iFrame=FrameList[i];
@@ -892,3 +836,15 @@ void Manager::InsertCommit()
     FrameCount++;
   }
 }
+
+/* $ 21.05.2001 DJ */
+
+void Manager::DestructCommit()
+{
+  FrameToDestruct->OnDestroy();
+  if (!DisableDelete)
+    delete FrameToDestruct;
+  DisableDelete = FALSE;
+}
+
+/* DJ $ */

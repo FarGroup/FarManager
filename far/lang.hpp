@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.66 21.05.2001 $ */
+/* Revision: 1.67 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 DJ
+    + MDialogType
   21.05.2001 SVS
     + MSetColorMenuDisabled, MSetColorHMenuDisabled
   20.05.2001 IS
@@ -1628,6 +1630,8 @@ enum
   MDoYouWantToStopWork,
 
   MCheckingFileInPlugin,
+
+  MDialogType,
 
   MListEval
 

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.101 21.05.2001 $ */
+/* Revision: 1.102 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 DJ
+   + обработка смены фокуса
   21.05.2001 SVS
    + DM_SETITEMPOSITION - резерв на будущее (кусок еще не оттестирован)
    + DM_RESIZEDIALOG
@@ -465,6 +467,9 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   HelpTopic = NULL;
   EndLoop = FALSE;
   /* DJ $ */
+  /* $ 19.05.2001 DJ */
+  OwnsItems = FALSE;
+  /* DJ $ */
   /* $ 29.08.2000 SVS
     Номер плагина, вызвавшего диалог (-1 = Main)
   */
@@ -545,6 +550,13 @@ Dialog::~Dialog()
     delete [] HelpTopic;
   /* DJ $ */
 
+  /* $ 19.05.2001 DJ
+     если мы владеем айтемами, удаляем их
+  */
+  if (OwnsItems)
+    delete [] Item;
+  /* DJ $ */
+
   PeekInputRecord(&rec);
   SetConsoleTitle(OldConsoleTitle);
 }
@@ -568,6 +580,7 @@ void Dialog::Show()
       // еще разок, т.к. данные могли быть изменены
       InitDialogObjects();
     }
+    SetFarTitle(GetDialogTitle());
     // все объекты проинициализированы!
     SetDialogMode(DMODE_INITOBJECTS);
   }
@@ -649,7 +662,7 @@ void Dialog::DisplayObject()
 */
 int Dialog::InitDialogObjects(int ID)
 {
-  int I, J, TitleSet;
+  int I, J;
   int Length,StartX;
   int Type;
   struct DialogItem *CurItem;
@@ -676,8 +689,8 @@ int Dialog::InitDialogObjects(int ID)
     FocusPos = -1; // будем искать сначала!
   /* SVS $ */
 
-  // предварительный цикл по поводу кнопок и заголовка консоли
-  for(I=ID, TitleSet=0; I < InitItemCount; I++)
+  // предварительный цикл по поводу кнопок
+  for(I=ID; I < InitItemCount; I++)
   {
     CurItem=&Item[I];
     ItemFlags=CurItem->Flags;
@@ -693,19 +706,6 @@ int Dialog::InitDialogObjects(int ID)
       sprintf(BracketedTitle,"[ %s ]",CurItem->Data);
       strcpy(CurItem->Data,BracketedTitle);
     }
-
-    // по первому попавшемуся "тексту" установим заголовок консоли!
-    if (!TitleSet &&             // при условии, что еще не устанавливали
-         (Type==DI_TEXT ||
-          Type==DI_DOUBLEBOX ||
-          Type==DI_SINGLEBOX))
-      for (J=0;CurItem->Data[J]!=0;J++)
-        if (LocalIsalpha(CurItem->Data[J]))
-        {
-          SetFarTitle(CurItem->Data+J);
-          TitleSet=TRUE;
-          break;
-        }
 
      // предварительный поик фокуса
      if(FocusPos == -1 &&
@@ -1056,6 +1056,31 @@ int Dialog::InitDialogObjects(int ID)
 }
 /* 24.08.2000 SVS $ */
 
+
+/* $ 19.05.2001 DJ
+   определение Title вытащено в отдельную функцию
+*/
+
+char *Dialog::GetDialogTitle()
+{
+  for(int I=0; I < ItemCount; I++)
+  {
+    DialogItem *CurItem=&Item[I];
+
+    // по первому попавшемуся "тексту" установим заголовок консоли!
+    if ((CurItem->Type==DI_TEXT ||
+          CurItem->Type==DI_DOUBLEBOX ||
+          CurItem->Type==DI_SINGLEBOX))
+    {
+      for (int J=0;CurItem->Data[J]!=0;J++)
+        if (LocalIsalpha(CurItem->Data[J]))
+          return(CurItem->Data+J);
+    }
+  }
+  return "";
+}
+
+/* DJ $ */
 
 BOOL Dialog::GetItemRect(int I,RECT& Rect)
 {
@@ -4466,6 +4491,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             return 0;
         }
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
+        SetFarTitle(Dlg->GetDialogTitle());
         if(Dlg->CheckDialogMode(DMODE_SHOW)) // достаточно ли этого????!!!!
         {
           Dlg->ShowDialog(Param1);
@@ -4492,6 +4518,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         //if (CheckDialogMode(DMODE_INITOBJECTS)) //???
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
+        SetFarTitle(Dlg->GetDialogTitle());
         return MaxLen;
       }
       return 0;
@@ -4521,6 +4548,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         CurItem->Type=Type;
         // еще разок, т.к. данные могли быть изменены
         Dlg->InitDialogObjects(Param1);
+        SetFarTitle(Dlg->GetDialogTitle());
         if(Dlg->CheckDialogMode(DMODE_SHOW))
         {
           Dlg->ShowDialog(Param1);
@@ -4764,7 +4792,35 @@ void Dialog::ClearDone()
 void Dialog::SetExitCode(int Code)
 {
   ExitCode=Code;
-  CloseDialog();
+  EndLoop = TRUE;
+  //CloseDialog();
+}
+
+/* DJ $ */
+
+/* $ 19.05.2001 DJ
+   возвращаем наше название для меню по F12
+*/
+
+int Dialog::GetTypeAndName (char *Type, char *Name)
+{
+  strcpy (Type, MSG(MDialogType));
+  strcpy (Name, GetDialogTitle());
+  return MODALTYPE_DIALOG;
+}
+
+/* DJ $ */
+
+/* $ 21.05.2001 DJ
+   обработка смены фокуса
+*/
+
+void Dialog::OnChangeFocus (int Focus)
+{
+  if (Focus)
+    Show();
+  else
+    Hide();
 }
 
 /* DJ $ */

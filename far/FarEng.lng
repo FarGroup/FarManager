@@ -1471,5 +1471,6 @@
 " Do you really want to cancel it? "
 
 "The file is being checked by the plugin"
+"Dialog"
 
 "Evaluation version"

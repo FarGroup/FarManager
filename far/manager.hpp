@@ -7,10 +7,13 @@ manager.hpp
 
 */
 
-/* Revision: 1.11 16.05.2001 $ */
+/* Revision: 1.12 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 DJ
+    ! чистка внутренностей; в связи с появлением нового типа фреймов
+      выкинуто GetFrameTypesCount(); отложенное удаление фрейма
   16.05.2001 DJ
     ! возвращение ExecuteModal()
   15.05.2001 OT
@@ -61,8 +64,10 @@ class Manager
     Frame *ModalizedFrame;
     Frame *DeactivatedFrame;
     /* OT $*/
-
-//    Frame *ModalFrame;
+    /* $ 21.05.2001 DJ */
+    Frame *FrameToDestruct;  // отложенное удаление для корректной посылки OnChangeFocus(0)
+    /* DJ $ */
+      
     Frame *CurrentFrame;     // текущий модал
 
     int DisableDelete;
@@ -75,7 +80,6 @@ class Manager
     INPUT_RECORD LastInputRecord;
 
     void ModalSaveState();
-//    void DeleteDestroyedFrame();
 
   private:
 
@@ -88,7 +92,9 @@ class Manager
     void UpdateCommit();
     void InsertCommit();
     void DeleteCommit();
-
+    /* $ 21.05.2001 DJ */
+    void DestructCommit();
+    /* DJ $ */
 
   public:
     Manager();
@@ -99,8 +105,6 @@ class Manager
     void InsertFrame(Frame *NewFrame, int Index=-1);
     void DeleteFrame(Frame *Deleted=NULL);
     void DeleteFrame(int Index);
-    void ReplaceFrame (Frame *Inserted, Frame *Deleted=NULL);
-    void ReplaceFrame (Frame *Inserted, int FramePos);
     void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE); // вместо ExecuteModal
     void DeactivateFrame (Frame *Deactivated,int Direction);
     void ActivateFrame (Frame *Activated);
@@ -108,9 +112,6 @@ class Manager
 
 
     int ExecuteModal (Frame &ModalFrame);
-
-//    void NextFrame(int Increment);
-//    void ActivateFrameByPos (int NewPos);
 
     void CloseAll();
     /* $ 29.12.2000 IS
@@ -123,7 +124,6 @@ class Manager
     BOOL IsAnyFrameModified(int Activate);
 
     int  GetFrameCount() {return(FrameCount);};
-    void GetFrameTypesCount(int &Viewers,int &Editors);
     int  GetFrameCountByType(int Type);
 
     BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
@@ -151,7 +151,12 @@ class Manager
 
     /*$ 13.05.2001 OT */
     Frame *operator[](int Index);
-    int operator[](Frame *Frame);
+
+    /* $ 19.05.2001 DJ
+       operator[] (Frame *) -> IndexOf
+    */
+    int IndexOf(Frame *Frame);
+    /* DJ $ */
 };
 
 extern Manager *FrameManager;

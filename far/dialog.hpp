@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.29 17.05.2001 $ */
+/* Revision: 1.30 19.05.2001 $ */
 
 /*
 Modify:
+  19.05.2001 DJ
+   + OwnsItems
   17.05.2001 DJ
    ! Dialog унаследован от Frame
    + CloseDialog()
@@ -272,6 +274,12 @@ class Dialog: public Frame
     int  EndLoop;
     /* DJ $ */
 
+    /* $ 19.05.2001 DJ
+       если true, Dialog освобождает список Item в деструкторе
+    */
+    int OwnsItems;
+    /* DJ $ */
+
   private:
     /* $ 18.08.2000 SVS
       + SetDialogMode - ”правление флагами текущего режима диалога
@@ -333,6 +341,12 @@ class Dialog: public Frame
 
     void CheckDialogCoord(void);
     BOOL GetItemRect(int I,RECT& Rect);
+
+    /* $ 19.05.2001 DJ
+       возвращает заголовок диалога (текст первого текста или фрейма)
+    */
+    char *GetDialogTitle();
+    /* DJ $ */
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
@@ -427,12 +441,22 @@ class Dialog: public Frame
     /* $ 17.05.2001 DJ */
     void SetHelp(const char *Topic);
     void ShowHelp();
-    int Done() const 
+    int Done() const
       { return EndLoop; }
     void ClearDone();
     virtual void SetExitCode (int Code);
 
     void CloseDialog();
+    /* DJ $ */
+
+    /* $ 19.05.2001 DJ */
+    void SetOwnsItems (int AOwnsItems) { AOwnsItems = OwnsItems; }
+    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual int GetType() { return MODALTYPE_DIALOG; }
+    /* DJ $ */
+
+    /* $ 20.05.2001 DJ */
+    virtual void OnChangeFocus (int Focus);
     /* DJ $ */
 };
 

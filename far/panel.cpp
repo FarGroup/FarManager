@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.46 21.05.2001 $ */
+/* Revision: 1.47 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 DJ
+    ! в связи с появлением нового типа немодальных окон переписана отрисовка
+      счетчика фоновых экранов
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -1209,19 +1212,26 @@ void Panel::ShowScreensCount()
 {
   if (Opt.ShowScreensNumber && X1==0)
   {
-    int Viewers,Editors;
-    FrameManager->GetFrameTypesCount(Viewers,Editors);
-    if (Viewers>0 || Editors>0)
+    /* $ 19.05.2001 DJ
+       переписано для показа диалогов
+    */
+    int Viewers=FrameManager->GetFrameCountByType (MODALTYPE_VIEWER);
+    int Editors=FrameManager->GetFrameCountByType (MODALTYPE_EDITOR);
+    int Dialogs=FrameManager->GetFrameCountByType (MODALTYPE_DIALOG);
+    if (Viewers>0 || Editors>0 || Dialogs > 0)
     {
       char ScreensText[100];
-      if (Editors==0)
-        sprintf(ScreensText,"[%d]",Viewers);
-      else
-        sprintf(ScreensText,"[%d+%d]",Viewers,Editors);
+      sprintf(ScreensText,"[%d", Viewers);
+      if (Editors > 0)
+        sprintf (ScreensText+strlen (ScreensText), "+%d", Editors);
+      if (Dialogs > 0)
+        sprintf (ScreensText+strlen (ScreensText), ",%d", Dialogs);
+      strcat (ScreensText, "]");
       GotoXY(Opt.ShowColumnTitles ? X1:X1+2,Y1);
       SetColor(COL_PANELSCREENSNUMBER);
       Text(ScreensText);
     }
+    /* DJ $ */
   }
 }
 

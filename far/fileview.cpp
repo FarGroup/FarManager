@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.31 15.05.2001 $ */
+/* Revision: 1.32 20.05.2001 $ */
 
 /*
 Modify:
+  20.05.2001 DJ
+    - починим макросы
   15.05.2001 OT
     ! NWZ -> NFZ
   14.05.2001 OT
@@ -133,6 +135,9 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
   /* $ 07.05.2001 DJ */
   KeyBarVisible = Opt.ShowKeyBarViewer;
+  /* DJ $ */
+  /* $ 20.05.2001 DJ */
+  MacroMode = MACRO_VIEWER;
   /* DJ $ */
   View.SetPluginData(PluginData);
   /* $ 07.08.2000 SVS

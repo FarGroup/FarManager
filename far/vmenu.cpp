@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.22 21.05.2001 $ */
+/* Revision: 1.23 21.05.2001 $ */
 
 /*
 Modify:
+  21.05.2001 DJ
+    - Забыли вернуть значение в VMenu::ChangeFlags()
   21.05.2001 SVS
     ! VMENU_DRAWBACKGROUND -> VMENU_DISABLEDRAWBACKGROUND
     ! MENU_* выкинуты
@@ -1290,4 +1292,5 @@ DWORD VMenu::ChangeFlags(DWORD Flags,BOOL Status)
     VMFlags|=Flags;
   else
     VMFlags&=~Flags;
+  return VMFlags;
 }
