@@ -9,7 +9,7 @@
   Copyrigth (c) 2000-<%YEAR%> FAR group
 */
 
-/* $Revision: 1.05 08.01.2002 $ */
+/* $Revision: 1.06 12.02.2002 $ */
 
 #if defined(__BORLANDC__)
   #pragma option -a2
@@ -60,7 +60,6 @@ struct ArcInfo
   int Lock;
   DWORD Flags;
   DWORD Reserved;
-  char Prefix[32];
 };
 
 

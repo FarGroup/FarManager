@@ -16,7 +16,7 @@ Modify:
 ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                        char *FormatString,char *ArcName,char *ArcDir,
                        char *Password,char *AllFilesMask,int IgnoreErrors,
-                       int CommandType,int ASilent,char *RealArcDir,char *Prefix)
+                       int CommandType,int ASilent,char *RealArcDir)
 {
 
   Silent=ASilent;
@@ -33,15 +33,13 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
   char Command[MAX_COMMAND_LENGTH];
   ArcCommand::PanelItem=PanelItem;
   ArcCommand::ItemsNumber=ItemsNumber;
-  *ArcCommand::PrefixFileName=0;
-  if(Prefix)
-    strcpy(ArcCommand::PrefixFileName,Prefix);
   strcpy(ArcCommand::ArcName,ArcName);
   strcpy(ArcCommand::ArcDir,ArcDir);
   strcpy(ArcCommand::RealArcDir,RealArcDir ? RealArcDir:"");
   FSF.QuoteSpaceOnly(strcpy(ArcCommand::Password,Password));
   strcpy(ArcCommand::AllFilesMask,AllFilesMask);
   GetTempPath(sizeof(TempPath),TempPath);
+  *PrefixFileName=0;
   *ListFileName=0;
   NameNumber=-1;
   *NextFileName=0;
@@ -357,8 +355,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       if (PanelItem!=NULL)
       {
         char CurArcDir[NM];
-        strcpy(CurArcDir,PrefixFileName);
-        strcat(CurArcDir,ArcDir);
+        strcpy(CurArcDir,ArcDir);
         int Length=strlen(CurArcDir);
         if (Length>0 && CurArcDir[Length-1]!='\\')
           strcat(CurArcDir,"\\");
@@ -375,7 +372,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
           int IncreaseNumber=0,FileAttr;
           if (*NextFileName)
           {
-            FSF.sprintf(Name,"%s%s",CurArcDir,NextFileName);
+            FSF.sprintf(Name,"%s%s%s",PrefixFileName,CurArcDir,NextFileName);
             *NextFileName=0;
             FileAttr=0;
           }
@@ -392,7 +389,11 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             if (N>=ItemsNumber)
               break;
 
-            FSF.sprintf(Name,"%s%s",CurArcDir,PanelItem[N].FindData.cFileName);
+            *PrefixFileName=0;
+            if(PanelItem[N].UserData)
+              strncpy(PrefixFileName,(char *)PanelItem[N].UserData,sizeof(PrefixFileName)-1);
+            PrefixFileName[sizeof(PrefixFileName)-1]=0;
+            FSF.sprintf(Name,"%s%s%s",PrefixFileName,CurArcDir,PanelItem[N].FindData.cFileName);
             FileAttr=PanelItem[N].FindData.dwFileAttributes;
             PrevFileNameNumber=N;
           }
@@ -421,7 +422,7 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             {
               char FolderMaskName[NM];
               //strcpy(LocalAllFilesMask,PrefixFileName);
-              FSF.sprintf(FolderMaskName,"%s%s\\%s",PrefixFileName,Name,LocalAllFilesMask);
+              FSF.sprintf(FolderMaskName,"%s\\%s",Name,LocalAllFilesMask);
               if (PathOnly)
               {
                 strcpy(FolderMaskName,Name);
@@ -548,6 +549,10 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
       *Ptr=0;
     }
     int FileAttr=PanelItem[I].FindData.dwFileAttributes;
+    *PrefixFileName=0;
+    if(PanelItem[I].UserData)
+      strncpy(PrefixFileName,(char *)PanelItem[I].UserData,sizeof(PrefixFileName)-1);
+    PrefixFileName[sizeof(PrefixFileName)-1]=0;
 
     int Error=FALSE;
     if (((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || FolderName))

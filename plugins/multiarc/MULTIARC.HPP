@@ -121,7 +121,7 @@ class PluginClass
   private:
     char ArcName[NM];
     char CurDir[NM];
-    PluginPanelItem *ArcData;
+    struct PluginPanelItem *ArcData;
     int ArcDataCount;
     WIN32_FIND_DATA ArcFindData;
     int ArcPluginNumber;
@@ -139,6 +139,7 @@ class PluginClass
     BOOL GetFormatName(char *FormatName, char *DefExt=NULL); //$ AA 25.11.2001
     void GetCommandFormat(int Command,char *Format,int FormatSize);
     int GetPassword(char *Password,const char *FileName);
+    void FreeArcData();
 
   public:
     PluginClass(int ArcPluginNumber);
@@ -177,8 +178,8 @@ class ArcCommand
     char NextFileName[NM];
     int NameNumber;
     int PrevFileNameNumber;
-    char ListFileName[NM];
     char PrefixFileName[32];
+    char ListFileName[NM];
     unsigned int ExecCode;
     unsigned int MaxAllowedExitCode;
     int Silent; // $ 07.02.2002 AA
@@ -198,7 +199,7 @@ class ArcCommand
     ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                char *FormatString,char *ArcName,char *ArcDir,char *Password,
                char *AllFilesMask,int IgnoreErrors,int CommandType=0,
-               int Silent=0,char *RealArcDir=NULL,char *Prefix=NULL);
+               int Silent=0,char *RealArcDir=NULL);
     ~ArcCommand(); //$ AA 25.11.2001
 
   public:

@@ -74,7 +74,6 @@ DWORD NextPosition,SFXSize,FileSize;
 int timezone=0;
 int ArcType;
 char ZipName[NM];
-char Prefix[32];
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -108,7 +107,6 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     else
       ZipName[Dot-NamePtr-1]=0;
   }
-  memset(Prefix,0,sizeof(Prefix));
   return(TRUE);
 }
 
@@ -233,7 +231,6 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
         EndPos = AdjustTARFileName (LongName);
       else
         EndPos = AdjustTARFileName (Header.name);
-
       strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
       Item->FindData.dwFileAttributes=(GetOctal(Header.mode) & 0x4000) || ((Header.linkflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
       UnixTimeToFileTime(GetOctal(Header.timestamp),&Item->FindData.ftLastWriteTime);
@@ -255,7 +252,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
         return GETARC_BROKEN;
       LongName = (char *)HeapAlloc(GetProcessHeap(), 0, Item->PackSize);
       DWORD BytesRead;
-      ReadFile (ArcHandle,LongName,Item->PackSize,&BytesRead,NULL);
+      ReadFile(ArcHandle,LongName,Item->PackSize,&BytesRead,NULL);
       if (BytesRead != Item->PackSize)
       {
         HeapFree (GetProcessHeap(),0,LongName);
@@ -272,10 +269,6 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 
 BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
-  if(Info)
-  {
-    strcpy(Info->Prefix,Prefix);
-  }
   return(CloseHandle(ArcHandle));
 }
 
@@ -476,15 +469,7 @@ char *AdjustTARFileName(char *FileName)
       *EndPos = '\\';
     EndPos++;
   }
-
-  EndPos = FileName;
-  if( *EndPos == '.') ++EndPos;
-  if( *EndPos == '.') ++EndPos;
-  if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
-
-  if(EndPos != FileName && !Prefix[0] && (strcmp(FileName,".\\") || strcmp(FileName,"..\\")))
-    memcpy(Prefix,FileName,min((int)sizeof(Prefix)-1,(int)(EndPos-FileName)));
-  return EndPos;
+  return FileName;
 }
 
 

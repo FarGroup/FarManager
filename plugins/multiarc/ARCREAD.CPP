@@ -12,19 +12,26 @@ PluginClass::PluginClass(int ArcPluginNumber)
 
 PluginClass::~PluginClass()
 {
-  for (int I=0;I<ArcDataCount;I++)
-    if (ArcData[I].Description!=NULL)
-      delete ArcData[I].Description;
-  delete ArcData;
+  FreeArcData();
 }
 
-
-int PluginClass::ReadArchive(char *Name)
+void PluginClass::FreeArcData()
 {
+  for (int I=0;I<ArcDataCount;I++)
+  {
+    if (ArcData[I].Description!=NULL)
+      delete ArcData[I].Description;
+    if(ArcData[I].UserData)
+      free((void *)ArcData[I].UserData);
+  }
   delete ArcData;
   ArcData=NULL;
   ArcDataCount=0;
+}
 
+int PluginClass::ReadArchive(char *Name)
+{
+  FreeArcData();
   DizPresent=FALSE;
 
   HANDLE ArcFindHandle;
@@ -55,7 +62,7 @@ int PluginClass::ReadArchive(char *Name)
 
   while (1)
   {
-    PluginPanelItem CurArcData;
+    struct PluginPanelItem CurArcData;
     struct ArcItemInfo CurItemInfo;
     memset(&CurArcData,0,sizeof(CurArcData));
     memset(&CurItemInfo,0,sizeof(CurItemInfo));
@@ -121,9 +128,26 @@ int PluginClass::ReadArchive(char *Name)
         *NamePtr='\\';
 
     NamePtr=CurArcData.FindData.cFileName;
+    char *EndPos=NamePtr;
+    if(*EndPos == '.') ++EndPos;
+    if(*EndPos == '.') ++EndPos;
+    if(*EndPos == '\\') ++EndPos;
+    if(*EndPos == '\\') ++EndPos;
+    if(EndPos != NamePtr)
+    {
+      char *Pref=(char *)malloc((int)(EndPos-NamePtr)+1);
+      if(Pref)
+      {
+        memcpy(Pref,NamePtr,(int)(EndPos-NamePtr));
+        Pref[(int)(EndPos-NamePtr)]=0;
+        CurArcData.UserData=(DWORD)Pref;
+      }
+    }
+    else
+      CurArcData.UserData=0;
 
-    if (NamePtr!=CurArcData.FindData.cFileName)
-      memmove(CurArcData.FindData.cFileName,NamePtr,strlen(NamePtr)+1);
+    if (EndPos!=CurArcData.FindData.cFileName)
+      memmove(CurArcData.FindData.cFileName,EndPos,strlen(EndPos)+1);
 
     int Length=strlen(CurArcData.FindData.cFileName);
 
@@ -133,7 +157,7 @@ int PluginClass::ReadArchive(char *Name)
       CurArcData.FindData.dwFileAttributes|=FILE_ATTRIBUTE_DIRECTORY;
     }
 
-    PluginPanelItem *NewArcData=ArcData;
+    struct PluginPanelItem *NewArcData=ArcData;
 
     if (ArcDataCount>=AllocatedCount)
     {

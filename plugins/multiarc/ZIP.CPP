@@ -28,7 +28,6 @@
 static HANDLE ArcHandle;
 static DWORD SFXSize,NextPosition,FileSize;
 static int ArcComment,Truncated,FirstRecord;
-char Prefix[32];
 
 struct ZipHeader
 {
@@ -73,7 +72,6 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     if (IsValidHeader(CurData, DataEnd))
     {
       SFXSize=CurData-Data;
-      memset(Prefix,0,sizeof(Prefix));
       return(TRUE);
     }
   }
@@ -237,20 +235,6 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     EndPos++;
   }
 
-  EndPos = Item->FindData.cFileName;
-  if( *EndPos == '.') ++EndPos;
-  if( *EndPos == '.') ++EndPos;
-  if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
-
-  if(EndPos != Item->FindData.cFileName)
-  {
-    if(!Prefix[0] && (strcmp(Item->FindData.cFileName,".\\") || strcmp(Item->FindData.cFileName,"..\\")))
-      memcpy(Prefix,Item->FindData.cFileName,min((int)sizeof(Prefix)-1,(int)(EndPos-Item->FindData.cFileName)));
-    Item->FindData.cFileName[0]='\0';
-    strcat(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix));
-  }
-
-
 /*// Commented out as since NTFS file times support scans the extra field
   // and the file comment is also readed.
   // ZipHeader.PackSize is skipped later (see below)
@@ -385,7 +369,6 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if(Info)
   {
-    strcpy(Info->Prefix,Prefix);
     Info->SFXSize=SFXSize;
     Info->Comment=ArcComment;
   }

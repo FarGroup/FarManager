@@ -588,7 +588,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,
                       DialogItems[PDI_ARCNAMEEDT].Data,"",pdd.Password1,
-                      AllFilesMask,IgnoreErrors,0,0,CurDir,CurArcInfo.Prefix);
+                      AllFilesMask,IgnoreErrors,0,0,CurDir);
 
     //последующие операции (тестирование и тд) не должны быть фоновыми
     Opt.Background=0; // $ 06.02.2002 AA

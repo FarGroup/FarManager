@@ -1,5 +1,6 @@
 #include "multiarc.hpp"
 #include "arcread.cpp"
+#include "ArcGet.cpp"
 #include "ArcPut.cpp"
 #include "arcproc.cpp"
 #include "arcmix.cpp"
@@ -11,7 +12,7 @@
 
 int WINAPI _export GetMinFarVersion(void)
 {
-  return MAKEFARVERSION(1,70,1235);
+  return MAKEFARVERSION(1,70,1237);
 }
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
