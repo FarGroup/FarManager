@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.10 21.12.2000 $ */
+/* Revision: 1.11 03.01.2001 $ */
 
 /*
 Modify:
+  03.01.2001 SVS
+    + Функции SetFarTitle, ScrollBar, ShowSeparator
+      переехали из mix.cpp
   22.12.2000 SVS
     ! Перетасовка исходников
       IsMouseButtonPressed -> keyboard.cpp
@@ -669,3 +672,50 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
   Coord.Bottom=Y2;
   ReadConsoleOutput(hConOut,(PCHAR_INFO)Dest,Size,Corner,&Coord);
 }
+
+void SetFarTitle(char *Title)
+{
+  char FarTitle[2*NM];
+  sprintf(FarTitle,"%.256s - Far",Title);
+  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+    OemToChar(FarTitle,FarTitle);
+  SetConsoleTitle(FarTitle);
+}
+
+void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)
+{
+  /* $ 06.07.2000 tran
+     - trap under NT with console height > 210
+       was char OutStr[200] :) */
+  char OutStr[4096];
+  /* tran 06.07.2000 $ */
+
+  int ThumbPos;
+  if ((Length-=2)<1)
+    return;
+  if (Total>0)
+    ThumbPos=Length*Current/Total;
+  else
+    ThumbPos=0;
+  if (ThumbPos>=Length)
+    ThumbPos=Length-1;
+  GotoXY(X1,Y1);
+  memset(OutStr,'░',Length);
+  OutStr[ThumbPos]='▓';
+  OutStr[Length]=0;
+  vmprintf("%s",OutStr);
+}
+
+void ShowSeparator(int Length)
+{
+  if (Length>1)
+  {
+    char Separator[1024];
+    memset(Separator,'─',Length);
+    Separator[0]='╟';
+    Separator[Length-1]='╢';
+    Separator[Length]=0;
+    BoxText(Separator);
+  }
+}
+

@@ -91,6 +91,10 @@ SOURCE=.\clipboard.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\flink.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\eject.cpp
 # End Source File
 # Begin Source File

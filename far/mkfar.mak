@@ -141,6 +141,7 @@ FAROBJ=\
    $(OBJPATH)\vmenu.obj\
    $(OBJPATH)\qview.obj\
    $(OBJPATH)\editor.obj\
+   $(OBJPATH)\flink.obj\
    $(OBJPATH)\options.obj\
    $(OBJPATH)\edit.obj\
    $(OBJPATH)\viewer.obj\

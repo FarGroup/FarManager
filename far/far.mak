@@ -41,6 +41,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\flink.obj"
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
 	-@erase "$(INTDIR)\chgprior.obj"
@@ -144,6 +145,7 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
+	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \
 	"$(INTDIR)\chgprior.obj" \
@@ -253,6 +255,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\flink.obj"
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
 	-@erase "$(INTDIR)\chgprior.obj"
@@ -357,6 +360,7 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
+	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \
 	"$(INTDIR)\chgprior.obj" \
@@ -500,6 +504,9 @@ SOURCE=.\checkver.cpp
 
 "$(INTDIR)\checkver.obj" : $(SOURCE) "$(INTDIR)"
 
+SOURCE=.\flink.cpp
+
+"$(INTDIR)\flink.obj" : $(SOURCE) "$(INTDIR)"
 
 SOURCE=.\chgmmode.cpp
 
