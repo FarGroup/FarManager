@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.127 11.11.2004 $ */
+/* Revision: 1.128 17.12.2004 $ */
 
 /*
 Modify:
+  17.12.2004 SVS
+    - переделаем Edit::TabPosToReal, народ жалуется на падение ФАРа (что, в принципе, и так видно, что проверка на конец строки ведется после анализа '\t')
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   11.11.2004 SVS
@@ -2582,6 +2584,11 @@ int Edit::TabPosToReal(int Pos)
   for (TabPos=0,I=0;TabPos<Pos && ((Flags.Check(FEDITLINE_EDITBEYONDEND))?TRUE:Str[I]);I++)
   /* KM $ */
   {
+    if (I>StrSize)
+    {
+      I+=Pos-TabPos;
+      break;
+    }
     if (Str[I]=='\t')
     {
       int NewTabPos=TabPos+TabSize - (TabPos % TabSize);
@@ -2590,15 +2597,7 @@ int Edit::TabPosToReal(int Pos)
       TabPos=NewTabPos;
     }
     else
-      /* $ 13.04.2001 OT */
-      if (I>StrSize)
-      /* OT */
-      {
-        I+=Pos-TabPos;
-        break;
-      }
-      else
-        TabPos++;
+      TabPos++;
   }
   return(I);
 }
