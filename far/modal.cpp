@@ -5,7 +5,7 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 11.07.2000 $ */
 
 /*
 Modify:
@@ -15,6 +15,8 @@ Modify:
   29.06.2000 tran
     - (NT Console resize bug)
       adding virtual method SetScreenPosition
+  11.07.2000 tran
+    - trap if no lang files found
 */
 
 #include "headers.hpp"
@@ -42,8 +44,13 @@ void Modal::Process()
   Show();
   /* $ 29.06.2000 tran
      установка ActiveModal в CtrlObject (NT Console resize) */
-  CtrlObject->ModalManager.ActiveModal=this;
+  /* $ 11.07.2000 tran
+     just add checking for CtrlObject */
+  if ( CtrlObject )
+     CtrlObject->ModalManager.ActiveModal=this;
   /* tran $ */
+  /* tran 11.07.2000 $ */
+
   while (!Done())
   {
     ReadInput();
@@ -52,7 +59,8 @@ void Modal::Process()
   GetDialogObjectsData();
   /* $ 29.06.2000 tran
      установка ActiveModal в CtrlObject (NT Console resize) */
-  CtrlObject->ModalManager.ActiveModal=0;
+  if ( CtrlObject )
+     CtrlObject->ModalManager.ActiveModal=0;
   /* tran $ */
 }
 
