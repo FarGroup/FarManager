@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.85 31.07.2003 $ */
+/* Revision: 1.86 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    ! уточнение кода возврата функции CheckFolder()
   31.07.2003 VVM
     ! Некорректное определение типа исполняемого файла.
   05.06.2003 SVS
@@ -1737,7 +1739,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     char ExpandedDir[8192];
     if (ExpandEnvironmentStr(NewDir,ExpandedDir,sizeof(ExpandedDir))!=0)
     {
-      if(CheckFolder(ExpandedDir) == CHKFLD_NOTACCESS)
+      if(CheckFolder(ExpandedDir) <= CHKFLD_NOTACCESS)
         return FALSE;
 
       if (!FarChDir(ExpandedDir))

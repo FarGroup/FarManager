@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.146 02.09.2003 $ */
+/* Revision: 1.147 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    ! Очередное уточнение CheckFolder() - думаю последнее :-)
   02.09.2003 SVS
     ! Мля, турдно быть тупорылым :-(
       Удаляем нафиг FolderContentReady - ведь есть же CheckFolder!!!
@@ -502,6 +504,7 @@ __int64 filelen64(FILE *FPtr)
 BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
 {
   BOOL rc=FALSE;
+  int ChkFld;
   char CurDir[NM*2], Drive[4]="=A:";
   if(isalpha(*NewDir) && NewDir[1]==':' && NewDir[2]==0)// если указана только
   {                                                     // буква диска, то путь
@@ -521,7 +524,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     *CurDir=toupper(*CurDir);
     if(ChangeDir)
     {
-      if(CheckFolder(CurDir) != CHKFLD_NOTACCESS)
+      if(CheckFolder(CurDir) > CHKFLD_NOTACCESS)
         rc=SetCurrentDirectory(CurDir);
     }
   }
@@ -529,9 +532,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
   {
     strncpy(CurDir,NewDir,sizeof(CurDir)-1);
     if(!strcmp(CurDir,"\\"))
-    {
-      FarGetCurDir(sizeof(CurDir),CurDir);
-    }
+      FarGetCurDir(sizeof(CurDir),CurDir); // здесь берем корень
     char *Chr=CurDir;
     while(*Chr)
     {
@@ -540,7 +541,7 @@ BOOL FarChDir(const char *NewDir, BOOL ChangeDir)
     }
     if(ChangeDir)
     {
-      if(CheckFolder(NewDir) != CHKFLD_NOTACCESS)
+      if(CheckFolder(NewDir) > CHKFLD_NOTACCESS)
         rc=SetCurrentDirectory(NewDir);
     }
   }
@@ -1003,34 +1004,60 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
 }
 
 /*
-   1 - не пусто
-   0 - пусто
-  -1 - нет доступа
+  Функция CheckFolder возвращает одно состояний тестируемого каталога:
+
+    CHKFLD_NOTEMPTY   (1) - не пусто
+    CHKFLD_EMPTY      (0) - пусто
+    CHKFLD_NOTACCESS (-1) - нет доступа
+    CHKFLD_ERROR     (-2) - ошибка (параметры - дерьмо или нехватило памяти для выделения промежуточных буферов)
 */
 int CheckFolder(const char *Path)
 {
+  if(!(Path || *Path)) // проверка на вшивость
+    return CHKFLD_ERROR;
+
+  char *FindPath=(char *)alloca(strlen(Path)+8); // здесь alloca - чтобы _точно_ хватило на все про все.
+  if(!FindPath)
+    return CHKFLD_ERROR;
+
   HANDLE FindHandle;
-  char FindPath[NM*2];
   WIN32_FIND_DATA fdata;
   int Done=FALSE;
 
-  strncpy(FindPath,Path,sizeof(FindPath)-5); // здесь 5 для '\*.*' и 0x00
+  // сообразим маску для поиска.
+  strcpy(FindPath,Path);
   AddEndSlash(FindPath);
   strcat(FindPath,"*.*");
-  if((FindHandle=FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)
-    return CHKFLD_NOTACCESS;
 
+  // первая проверка - че-нить считать можем?
+  if((FindHandle=FindFirstFile(FindPath,&fdata)) == INVALID_HANDLE_VALUE)
+  {
+    // собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
+    // поэтому посмотрим на Root
+    GetPathRootOne(Path,FindPath);
+
+    // проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
+    if(GetFileAttributes(FindPath)!=0xFFFFFFFF)
+      return CHKFLD_EMPTY;
+
+    return CHKFLD_NOTACCESS;
+  }
+
+  // Ок. Что-то есть. Попробуем ответить на вопрос "путой каталог?"
   while(!Done)
   {
     if (fdata.cFileName[0] == '.' && (fdata.cFileName[1] == 0 || fdata.cFileName[1] == '.' && fdata.cFileName[2] == 0))
-      ;
+      ; // игнорируем "." и ".."
     else
     {
+      // что-то есть, отличное от "." и ".." - каталог не пуст
       FindClose(FindHandle);
       return CHKFLD_NOTEMPTY;
     }
     Done=!FindNextFile(FindHandle,&fdata);
   }
+
+  // однозначно каталог пуст
   FindClose(FindHandle);
   return CHKFLD_EMPTY;
 }

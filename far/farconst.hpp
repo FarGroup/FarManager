@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.71 25.08.2003 $ */
+/* Revision: 1.72 02.09.2003 $ */
 
 /*
 Modify:
+  02.09.2003 SVS
+    + CHKFLD_ERROR
   25.08.2003 SVS
     ! Не SendKeysToPlugins, но NoSendKeysToPlugins, иначе нифига не получается.
   30.07.2003 SVS
@@ -418,6 +420,7 @@ enum FFTMODE{
 };
 
 enum CHECKFOLDERCONST{ // for CheckFolder()
+  CHKFLD_ERROR     = -2,
   CHKFLD_NOTACCESS = -1,
   CHKFLD_EMPTY     =  0,
   CHKFLD_NOTEMPTY  =  1,
