@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.07 05.01.2001 $ */
+/* Revision: 1.08 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+    ! в зависимости от числа ставим нужное окончание для удаления
   05.01.2001 IS
     ! Косметика в сообщениях - разные сообщения в зависимости от того,
       какие и сколько элементов выделено.
@@ -75,11 +77,28 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     strcpy(DeleteFilesMsg,SelName);
   }
   else
+  /* $ 05.01.2001 SVS
+     в зависимости от числа ставим нужное окончание*/
+  {
   /* $ 05.01.2001 IS
   Вместо "файлов" пишем нейтральное - "элементов"
   */
-    sprintf(DeleteFilesMsg,MSG(MAskDeleteItems),SelCount);
+    char *Ends;
+    char StrItems[16];
+    itoa(SelCount,StrItems,10);
+    int LenItems=strlen(StrItems);
+    if((LenItems >= 2 && StrItems[LenItems-2] == '1') ||
+           StrItems[LenItems-1] >= '5' ||
+           StrItems[LenItems-1] == '0')
+      Ends=MSG(MAskDeleteItemsS);
+    else if(StrItems[LenItems-1] == '1')
+      Ends=MSG(MAskDeleteItems0);
+    else
+      Ends=MSG(MAskDeleteItemsA);
+    sprintf(DeleteFilesMsg,MSG(MAskDeleteItems),SelCount,Ends);
   /* IS $ */
+  }
+  /* SVS $ */
 
   if (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FA_DIREC))
   {

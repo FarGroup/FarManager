@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.39 05.01.2001 $ */
+/* Revision: 1.40 05.01.2001 $ */
 
 /*
 Modify:
+  05.01.2001 SVS
+    + MAskDeleteItems0,   MAskDeleteItemsA,   MAskDeleteItemsS,
   05.01.2001 IS
     + MAskDeleteFile, MAskDeleteRecycleFile, MAskWipeFile
     ! MAskDeleteFiles -> MAskDeleteItems
@@ -410,6 +412,9 @@ enum
   MAskWipeFile,
   MAskWipe,
   MAskDeleteItems,
+  MAskDeleteItems0,
+  MAskDeleteItemsA,
+  MAskDeleteItemsS,
 
   MDeleteFolderTitle,
   MDeleteFilesTitle,

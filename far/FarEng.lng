@@ -285,7 +285,10 @@
 "Do you wish to wipe the folder"
 "Do you wish to wipe the file"
 "Do you wish to wipe"
-"items: %d"
+"%d item%s"
+"(s)"
+"(s)"
+"(s)"
 
 "Delete folder"
 "Delete files"
