@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.11 13.07.2000 $ */
+/* Revision: 1.12 15.07.2000 $ */
 
 /*
 Modify:
@@ -41,6 +41,8 @@ Modify:
       and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
+  15.07.2000 SVS
+    ! Wrap должен показываться следующий, а не текущий
 */
 
 #include "headers.hpp"
@@ -1272,12 +1274,16 @@ void Viewer::ChangeViewKeyBar()
     /* $ 12.07.2000 SVS
        Wrap имеет 3 позиции
     */
+    /* $ 15.07.2000 SVS
+       Wrap должен показываться следующий, а не текущий
+    */
     if (Wrap == VIEW_UNWRAP)
-      ViewKeyBar->Change(MSG(MViewF2Unwrap),1);
-    else if (Wrap == VIEW_WRAP)
       ViewKeyBar->Change(MSG(MViewF2),1);
-    else
+    else if (Wrap == VIEW_WRAP)
       ViewKeyBar->Change(MSG(MViewF2WWrap),1);
+    else
+      ViewKeyBar->Change(MSG(MViewF2Unwrap),1);
+    /* SVS $ */
     /* SVS $ */
 
     if (Hex)
