@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.311 08.12.2004 $ */
+/* Revision: 1.312 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 SVS
+    + Dlg.ItemCount, Dlg.CurPos
+    ! обработка типа контрола вынесена из macro.cpp в dialog.cpp
   08.12.2004 WARP
     ! Патч для поиска #1. Подробнее 01864.FindFile.txt
   19.11.2004 SVS
@@ -3192,7 +3195,29 @@ int Dialog::ProcessKey(int Key)
       return 0;
     }
     case MCODE_V_DLGITEMTYPE:
-      return Item[FocusPos].Type;
+      switch(Item[FocusPos].Type)
+      {
+        case DI_EDIT:            return 1;
+        case DI_PSWEDIT:         return 2;
+        case DI_FIXEDIT:         return 3;
+        case DI_BUTTON:          return 4;
+        case DI_CHECKBOX:        return 5;
+        case DI_RADIOBUTTON:     return 6;
+        case DI_COMBOBOX:        return 7;
+        case DI_LISTBOX:         return 8;
+        case DI_USERCONTROL:     return 9;
+      }
+      return 0;
+
+    case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
+    {
+      return ItemCount;
+    }
+
+    case MCODE_V_DLGCURPOS:    // Dlg.CurPos
+    {
+      return FocusPos+1;
+    }
 
     case MCODE_F_MENU_CHECKHOTKEY:
     {

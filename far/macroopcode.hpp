@@ -5,10 +5,12 @@ OpCode для макросов
 
 */
 
-/* Revision: 1.06 11.11.2004 $ */
+/* Revision: 1.08 07.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 SVS
+    + Dlg.ItemCount, Dlg.CurPos, CmdLine.ItemCount, CmdLine.CurPos
   11.11.2004 SVS
     + [A|P]Panel.UNCPath
     ! [A|P]Panel.Count переименован в [A|P]Panel.ItemCount
@@ -188,8 +190,12 @@ enum MACRO_OP_CODE {
   MCODE_V_EDITORCURLINE,            // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
   MCODE_V_EDITORCURPOS,             // Editor.CurPos - текущая поз. в редакторе
   MCODE_V_EDITORSTATE,              // Editor.State
-  MCODE_V_VIEWERSTATE,              // Viewer.State
   MCODE_V_DLGITEMTYPE,              // Dlg.ItemType
+  MCODE_V_DLGITEMCOUNT,             // Dlg.ItemCount
+  MCODE_V_DLGCURPOS,                // Dlg.CurPos
+  MCODE_V_VIEWERSTATE,              // Viewer.State
+  MCODE_V_CMDLINE_ITEMCOUNT,        // CmdLine.ItemCount
+  MCODE_V_CMDLINE_CURPOS,           // CmdLine.CurPos
 };
 
 typedef enum MACRO_OP_CODE TFunction;

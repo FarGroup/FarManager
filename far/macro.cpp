@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.132 11.11.2004 $ */
+/* Revision: 1.133 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 SVS
+    + Dlg.ItemCount, Dlg.CurPos, CmdLine.ItemCount, CmdLine.CurPos
+    ! обработка типа контрола вынесена из macro.cpp в dialog.cpp
   11.11.2004 SVS
     + [A|P]Panel.UNCPath
     ! [A|P]Panel.Count переименован в [A|P]Panel.ItemCount
@@ -500,6 +503,9 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "Selected",           MCODE_C_SELECTED,0},
   {2,  "IClip",              MCODE_C_ICLIP,0},
 
+  {2,  "ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
+  {2,  "CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
+
   {2,  "APanel.Empty",       MCODE_C_APANEL_ISEMPTY,0},
   {2,  "PPanel.Empty",       MCODE_C_PPANEL_ISEMPTY,0},
   {2,  "APanel.Bof",         MCODE_C_APANEL_BOF,0},
@@ -542,15 +548,19 @@ struct TMacroKeywords MKeywords[] ={
   {2,  "CmdLine.Eof",        MCODE_C_CMDLINE_EOF,0}, // курсор в конеце cmd-строки редактирования?
   {2,  "CmdLine.Empty",      MCODE_C_CMDLINE_EMPTY,0},
   {2,  "CmdLine.Selected",   MCODE_C_CMDLINE_SELECTED,0},
+  {2,  "CmdLine.ItemCount",  MCODE_V_CMDLINE_ITEMCOUNT,0},
+  {2,  "CmdLine.CurPos",     MCODE_V_CMDLINE_CURPOS,0},
 
-  {2,  "ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
-  {2,  "CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
   {2,  "Editor.CurLine",     MCODE_V_EDITORCURLINE,0},  // текущая линия в редакторе (в дополнении к Count)
   {2,  "Editor.Lines",       MCODE_V_EDITORLINES,0},
   {2,  "Editor.CurPos",      MCODE_V_EDITORCURPOS,0},
   {2,  "Editor.State",       MCODE_V_EDITORSTATE,0},
-  {2,  "Viewer.State",       MCODE_V_VIEWERSTATE,0},
+
   {2,  "Dlg.ItemType",       MCODE_V_DLGITEMTYPE,0},
+  {2,  "Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
+  {2,  "Dlg.CurPos",         MCODE_V_DLGCURPOS,0},
+
+  {2,  "Viewer.State",       MCODE_V_VIEWERSTATE,0},
 
   {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
 },
@@ -1079,10 +1089,12 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
-        case MCODE_C_CMDLINE_BOF: // "CmdLine.Bof" - курсор в начале cmd-строки редактирования?
-        case MCODE_C_CMDLINE_EOF: // "CmdLine.Eof" - курсор в конеце cmd-строки редактирования?
-        case MCODE_C_CMDLINE_EMPTY: // CmdLine.Empty
-        case MCODE_C_CMDLINE_SELECTED: // CmdLine.Selected
+        case MCODE_C_CMDLINE_BOF:              // "CmdLine.Bof" - курсор в начале cmd-строки редактирования?
+        case MCODE_C_CMDLINE_EOF:              // "CmdLine.Eof" - курсор в конеце cmd-строки редактирования?
+        case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
+        case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
+        case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
+        case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
         {
           Cond=CtrlObject->CmdLine->ProcessKey(CheckCode);
           break;
@@ -1129,22 +1141,13 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
           break;
         }
 
-        case MCODE_V_DLGITEMTYPE: // Dlg.ItemType
+        case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
+        case MCODE_V_DLGCURPOS:    // Dlg.CurPos
+        case MCODE_V_DLGITEMTYPE:  // Dlg.ItemType
         {
           if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG) // ?? Mode == MACRO_DIALOG ??
           {
-            switch(CurFrame->ProcessKey(MCODE_V_DLGITEMTYPE))
-            {
-              case DI_EDIT:            Cond=1l; break;
-              case DI_PSWEDIT:         Cond=2l; break;
-              case DI_FIXEDIT:         Cond=3l; break;
-              case DI_BUTTON:          Cond=4l; break;
-              case DI_CHECKBOX:        Cond=5l; break;
-              case DI_RADIOBUTTON:     Cond=6l; break;
-              case DI_COMBOBOX:        Cond=7l; break;
-              case DI_LISTBOX:         Cond=8l; break;
-              case DI_USERCONTROL:     Cond=9l; break;
-            }
+            Cond=CurFrame->ProcessKey(CheckCode);
           }
           break;
         }

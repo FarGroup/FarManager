@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.21 11.07.2003 $ */
+/* Revision: 1.22 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 SVS
+    - BugZ#1197 - Открытие главного меню мышкой
   11.07.2003 SVS
     ! переинициализируем массив KMGTbStr (обозначение килобайт, мегабайт,...) вызовом __PrepareKMGTbStr()
   19.05.2003 SVS
@@ -307,8 +309,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       VMenuTable[HItemToShow][LastVItem].SetSelect(1);
       /* DJ $ */
       HOptMenu.Show();
-      ChangeMacroMode MacroMode(MACRO_MAINMENU);
-      HOptMenu.ProcessKey(KEY_DOWN);
+
+      {
+        ChangeMacroMode MacroMode(MACRO_MAINMENU);
+        HOptMenu.ProcessKey(KEY_DOWN);
+      }
+
     }
     else
       if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel &&
@@ -319,11 +325,15 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       }
     if (MouseEvent!=NULL)
     {
+      ChangeMacroMode MacroMode(MACRO_MAINMENU);
       HOptMenu.Show();
       HOptMenu.ProcessMouse(MouseEvent);
     }
-    ChangeMacroMode MacroMode(MACRO_MAINMENU);
-    HOptMenu.Process();
+
+    {
+      ChangeMacroMode MacroMode(MACRO_MAINMENU);
+      HOptMenu.Process();
+    }
     HOptMenu.GetExitCode(HItem,VItem);
   }
 

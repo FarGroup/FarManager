@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.76 11.11.2004 $ */
+/* Revision: 1.77 08.12.2004 $ */
 
 /*
 Modify:
+  08.12.2004 SVS
+    + CmdLine.ItemCount, CmdLine.CurPos
   11.11.2004 SVS
     + Обработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS
   04.11.2004 SVS
@@ -281,6 +283,8 @@ int CommandLine::ProcessKey(int Key)
     return CmdStr.ProcessKey(Key-MCODE_C_CMDLINE_BOF+MCODE_C_BOF);
   if(Key == MCODE_V_ITEMCOUNT || Key == MCODE_V_CURPOS)
     return CmdStr.ProcessKey(Key);
+  if(Key == MCODE_V_CMDLINE_ITEMCOUNT || Key == MCODE_V_CMDLINE_CURPOS)
+    return CmdStr.ProcessKey(Key-MCODE_V_CMDLINE_ITEMCOUNT+MCODE_V_ITEMCOUNT);
 
   if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
   {
