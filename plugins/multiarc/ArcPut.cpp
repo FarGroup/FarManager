@@ -611,6 +611,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       //SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
       SetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", Opt.AdvFlags);
 
+      FSF.Unquote(DialogItems[PDI_ARCNAMEEDT].Data);
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
       {
         Opt.PriorityClass=2;
