@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.80 21.01.2001 $ */
+/* Revision: 1.81 23.01.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  23.01.2001 SVS
+    + SKEY_NOTMACROS - не использовать бинденные клавиши в SequenceKey
+    + ViewerInfo.LeftPos и ViewerInfo.Reserved3;
   21.01.2001 SVS
     + struct SequenceKey
     + ACTL_PROCESSSEQUENCEKEY
@@ -734,6 +737,10 @@ enum FarHelpFlags{
 
 typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
 
+enum {
+  SKEY_NOTMACROS  = 0x00000001,
+};
+
 struct SequenceKey{
   DWORD Flags;
   int Count;
@@ -845,6 +852,8 @@ struct ViewerInfo
   DWORD  Options;
   int    TabSize;
   struct ViewerMode CurMode;
+  int    LeftPos;
+  DWORD  Reserved3;
 };
 
 typedef int (WINAPI *FARAPIVIEWERCONTROL)(

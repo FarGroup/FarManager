@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.07 21.01.2001 $ */
+/* Revision: 1.08 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+    ! CalcKeyCode - дополнительный параметр - проверка на макросы.
+    ! Исключения вызовов макросов при указании "не использовать макросы"
   21.01.2001 SVS
     ! Уточнения в WriteInput!
     ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
@@ -197,6 +200,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   DWORD ReadCount;
   unsigned int LoopCount=0,CalcKey;
   unsigned int ReadKey=0;
+  int NotMacros=FALSE;
 
   if (CtrlObject!=NULL)
   {
@@ -350,9 +354,9 @@ int GetInputRecord(INPUT_RECORD *rec)
   }
 
   ReturnAltValue=FALSE;
-  CalcKey=CalcKeyCode(rec,TRUE);
+  CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
 //SysLog("1) CalcKey=0x%08X",CalcKey);
-  if (ReturnAltValue)
+  if (ReturnAltValue && !NotMacros)
   {
     if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
       CalcKey=KEY_NONE;
@@ -430,7 +434,7 @@ int GetInputRecord(INPUT_RECORD *rec)
         else
           if (RightAltPressedLast)
             Key=KEY_RALT;
-      if (Key!=-1 && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
+      if (Key!=-1 && !NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(Key))
         Key=KEY_NONE;
       if (Key!=-1)
         return(Key);
@@ -520,7 +524,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   if (ReadKey!=0 && !GrayKey)
     CalcKey=ReadKey;
 
-  if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
+  if (!NotMacros && CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
     CalcKey=KEY_NONE;
 
   return(CalcKey);
@@ -563,17 +567,19 @@ int WriteInput(int Key)
 {
   INPUT_RECORD rec;
   DWORD WriteCount;
+  DWORD NotMacros=(DWORD)Key&0x80000000;
   int VirtKey,ControlState=0;
+
   if(TranslateKeyToVK(Key,VirtKey,ControlState))
     Key=VirtKey;
   rec.EventType=KEY_EVENT;
   rec.Event.KeyEvent.bKeyDown=1;
   rec.Event.KeyEvent.wRepeatCount=1;
   rec.Event.KeyEvent.wVirtualKeyCode=rec.Event.KeyEvent.wVirtualScanCode=Key;
-  if (Key>255)
+  if (((DWORD)Key&(~0x80000000))>255)
     Key=0;
   rec.Event.KeyEvent.uChar.UnicodeChar=rec.Event.KeyEvent.uChar.AsciiChar=Key;
-  rec.Event.KeyEvent.dwControlKeyState=ControlState;
+  rec.Event.KeyEvent.dwControlKeyState=ControlState|NotMacros;
   return WriteConsoleInput(hConInp,&rec,1,&WriteCount);
 }
 
@@ -583,7 +589,7 @@ int WriteSequenceInput(struct SequenceKey *Sequence)
   {
     int I;
     for(I=0; I < Sequence->Count; ++I)
-      if(!WriteInput(Sequence->Sequence[I]))
+      if(!WriteInput(Sequence->Sequence[I]|(Sequence->Flags&SKEY_NOTMACROS?0x80000000:0)))
         return FALSE;
     return TRUE;
   }
@@ -769,13 +775,17 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState)
 
 
 // GetAsyncKeyState(VK_RSHIFT)
-int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
+int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
 {
   unsigned int ScanCode,KeyCode,CtrlState,AsciiChar;
   CtrlState=rec->Event.KeyEvent.dwControlKeyState;
   ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
   KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
   AsciiChar=rec->Event.KeyEvent.uChar.AsciiChar;
+
+  if(NotMacros)
+    *NotMacros=CtrlState&0x80000000?TRUE:FALSE;
+//  CtrlState&=~0x80000000;
 
   if (!RealKey)
   {
@@ -1139,7 +1149,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey)
     {
       case VK_DIVIDE:
         return(KEY_DIVIDE);
-      case KEY_BREAK:
+      case VK_CANCEL:
         return(KEY_BREAK);
     }
   }

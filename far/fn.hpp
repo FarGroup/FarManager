@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.50 22.01.2001 $ */
+/* Revision: 1.51 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+   ! CalcKeyCode - новый параметр.
   22.01.2001 SVS
    ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
   20.01.2001 SVS
@@ -180,13 +182,7 @@ void PutRealText(int X1,int Y1,int X2,int Y2,void *Src);
 void mprintf(char *fmt,...);
 void mprintf(int MsgId,...);
 void vmprintf(char *fmt,...);
-/* $ 24.08.2000 SVS
- + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
-*/
-void WaitKey(int KeyWait=-1);
-/* SVS $ */
 int CopyKeyTree(char *Src,char *Dest,char *Skip);
-int WriteInput(int Key);
 void ShowTime(int ShowAlways);
 int GetDateFormat();
 int GetDateSeparator();
@@ -346,9 +342,6 @@ void UseSameRegKey();
 void CloseSameRegKey();
 
 #if defined(_INC_WINDOWS) || defined(_WINDOWS_)
-int GetInputRecord(INPUT_RECORD *rec);
-int PeekInputRecord(INPUT_RECORD *rec);
-int CalcKeyCode(INPUT_RECORD *rec,int RealKey);
 void ConvertDate(FILETIME *ft,char *DateText,char *TimeText,int TimeLength,
         int Brief=FALSE,int TextMonth=FALSE,int FullYear=FALSE,int DynInit=FALSE);
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent);
@@ -530,16 +523,6 @@ char* WINAPI PasteFromClipboard(void);
 int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
     char *DestText,int DestLength,char *HelpTopic=NULL,DWORD Flags=0);
 /* SVS $ */
-// ! дополнительный параметра у KeyToText - размер данных
-//   Size=0 - по максимуму!
-BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
-/* SVS $ */
-/* 01.08.2000 SVS $ */
-/* $ 31.08.2000 tran
-   FSF/FarInputRecordToKey */
-int WINAPI InputRecordToKey(INPUT_RECORD *r);
-/* tran 31.08.2000 $ */
-
 
 /* Программое переключение FulScreen <-> Windowed
    (с подачи "Vasily V. Moshninov" <vmoshninov@newmail.ru>)
@@ -592,14 +575,6 @@ char* WINAPI FarMkTemp(char *Dest, char *Prefix);
 /* IS $*/
 /* SVS $*/
 
-
-/* $ 24.09.2000 SVS
- + Функция KeyNameToKey - получение кода клавиши по имени
-   Если имя не верно или нет такого - возвращается -1
-*/
-int WINAPI KeyNameToKey(char *Name);
-/* SVS $*/
-
 /*$ 27.09.2000 skv
 */
 void WINAPI DeleteBuffer(char* Buffer);
@@ -640,10 +615,6 @@ FILE *OpenLogStream(char *file);
 
 BOOL EjectVolume(char Letter,DWORD Flags);
 
-BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
-int WINAPI KeyNameMacroToKey(char *Name);
-int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState);
-
 /* $ 30.12.2000 SVS
    Функции работы с атрибутами файлов "опубликованы"
 */
@@ -668,6 +639,36 @@ int WINAPI GetSearchReplaceString(
          int *Case,
          int *WholeWords,
          int *Reverse);
+
+
+BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
+int WINAPI KeyNameMacroToKey(char *Name);
+int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState);
+/* $ 24.09.2000 SVS
+ + Функция KeyNameToKey - получение кода клавиши по имени
+   Если имя не верно или нет такого - возвращается -1
+*/
+int WINAPI KeyNameToKey(char *Name);
+/* SVS $*/
+// ! дополнительный параметра у KeyToText - размер данных
+//   Size=0 - по максимуму!
+BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
+/* SVS $ */
+/* 01.08.2000 SVS $ */
+/* $ 31.08.2000 tran
+   FSF/FarInputRecordToKey */
+int WINAPI InputRecordToKey(INPUT_RECORD *r);
+/* tran 31.08.2000 $ */
 int WriteSequenceInput(struct SequenceKey *Sequence);
+int GetInputRecord(INPUT_RECORD *rec);
+int PeekInputRecord(INPUT_RECORD *rec);
+int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros=NULL);
+/* $ 24.08.2000 SVS
+ + Пераметр у фунции WaitKey - возможность ожидать конкретную клавишу
+*/
+void WaitKey(int KeyWait=-1);
+/* SVS $ */
+int WriteInput(int Key);
+
 
 #endif  // __FARFUNC_HPP__

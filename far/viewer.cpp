@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.42 22.01.2001 $ */
+/* Revision: 1.43 23.01.2001 $ */
 
 /*
 Modify:
+  23.01.2001 SVS
+   + Заполнение Info->LeftPos в VCTL_GETINFO.
   22.01.2001 IS
    !  Внимание! Возможно, это не совсем верное решение проблемы
       выделения из плагинов, но мне пока другого в голову не пришло.
@@ -2432,9 +2434,11 @@ int Viewer::ViewerControl(int Command,void *Param)
         if (Opt.SaveViewerPos)         Info->Options|=VOPT_SAVEFILEPOSITION;
         if (Opt.ViewerAutoDetectTable) Info->Options|=VOPT_AUTODETECTTABLE;
         Info->TabSize=Opt.ViewTabSize;
+
+        // сюды писать добавки
         if(Info->StructSize >= sizeof(struct ViewerInfo))
         {
-          // сюды писать добавки
+          Info->LeftPos=LeftPos;
         }
         return(TRUE);
       }
