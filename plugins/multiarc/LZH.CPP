@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.21 01.08.2002 $ */
+/* Revision: 1.22 25.06.2004 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -35,6 +35,17 @@
 #pragma comment(linker, "/merge:.text=.")
 #endif
 
+// OS ID - Host OS
+static struct OSIDType{
+  BYTE Type;
+  char Name[15];
+} OSID[]={
+  {'M',"MS-DOS"},   {'2',"OS/2"},     {'9',"OS9"},
+  {'K',"OS/68K"},   {'3',"OS/386"},   {'H',"HUMAN"},
+  {'U',"Unix"},     {'C',"CP/M"},     {'F',"FLEX"},
+  {'m',"Mac"},      {'R',"Runser"},
+};
+
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize;
 
@@ -51,19 +62,116 @@ void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
   ;
 }
 
+struct LZH_Level0 {
+/* 00 */ BYTE  HeadSize;      // Header Size in Bytes
+/* 01 */ BYTE  CheckSum;      // Header Checksum
+/* 02 */ BYTE  HeadID[3];     // Header ID Code
+/* 05 */ BYTE  Method;        // Compression Method
+/* 06 */ BYTE  free1;
+/* 07 */ DWORD PackSize;      // Packed File Size
+/* 11 */ DWORD UnpSize;       // Original File Size not decompressed yet
+/* 15 */ WORD  FTime;         // File Time an Date Stamp
+/* 17 */ WORD  FDate;         // File Time an Date Stamp
+/* 19 */ BYTE  FAttr;         // File Attributes
+/* 20 */ BYTE  FLevel;        // level = 0x00
+/*
+Level 0
+   21      1 byte   Filename / path length in bytes (f)
+   22     (f)bytes  Filename / path
+   22+(f)  2 bytes  CRC-16 of original file
+   24+(f) (n)bytes  Compressed data
+*/
+};
+
+struct LZH_Level1 {
+/* 00 */ BYTE  HeadSize;      // Header Size in Bytes
+/* 01 */ BYTE  CheckSum;      // Header Checksum
+/* 02 */ BYTE  HeadID[3];     // Header ID Code
+/* 05 */ BYTE  Method;        // Compression Method
+/* 06 */ BYTE  free1;
+/* 07 */ DWORD PackSize;      // Packed File Size
+/* 11 */ DWORD UnpSize;       // Original File Size not decompressed yet
+/* 15 */ WORD  FTime;         // File Time an Date Stamp
+/* 17 */ WORD  FDate;         // File Time an Date Stamp
+/* 19 */ BYTE  Reserved;      // =x020
+/* 20 */ BYTE  FLevel;        // level = 0x01
+/*
+Level 1
+   21      1 byte   Filename / path length in bytes (f)
+   22     (f)bytes  Filename / path
+   22+(f)  2 bytes  CRC-16 of original file
+   24+(f)  1 byte   OS ID
+   25+(f)  2 bytes  Next header size(x) (0 means no extension header)
+[ // Extension headers
+           1 byte   Extension type
+       (x)-3 bytes  Extension fields
+           2 bytes  Next header size(x) (0 means no next extension header)
+]*
+          (n)bytes  Compressed data
+*/
+};
+
+
+
+struct LZH_Level2 {
+/* 00 */ WORD  HeadSize;      // Total size of archived file header (h)
+/* 02 */ BYTE  HeadID[3];     // Header ID Code
+/* 05 */ BYTE  Method;        // Compression Method
+/* 06 */ BYTE  free1;
+/* 07 */ DWORD PackSize;      // Packed File Size
+/* 11 */ DWORD UnpSize;       // Original File Size not decompressed yet
+/* 15 */ WORD  FTime;         // File Time an Date Stamp
+/* 17 */ WORD  FDate;         // File Time an Date Stamp
+/* 19 */ BYTE  Reserved;      //
+/* 20 */ BYTE  FLevel;        // level = 0x02
+/*
+Level 2
+[
+ 21      2 bytes  CRC-16 of original file
+ 23      1 byte   OS ID
+ 24      2 bytes  Next header size(x) (0 means no extension header)
+         1 byte   Extension type
+     (x)-3 bytes  Extension fields
+         2 bytes  Next header size(x) (0 means no next extension header)
+]*
+        (n)bytes  Compressed data
+*/
+};
+
+typedef union {
+  struct LZH_Level0 l0;
+  struct LZH_Level1 l1;
+  struct LZH_Level2 l2;
+} LZH_Header;
+
+BOOL CheckLZHHeader(struct LZH_Level0 *lzh)
+{
+  return lzh->HeadID[0]=='-' && lzh->HeadID[1]=='l' && (lzh->HeadID[2]=='h' || lzh->HeadID[2]=='z') &&
+        (lzh->Method>='0' && lzh->Method<='9' || lzh->Method=='d' || lzh->Method=='s' || lzh->Method=='d') &&
+        lzh->free1 == '-' &&
+        lzh->FLevel >= 0 && lzh->FLevel <= 2;
+}
+
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  for (int I=2;I<DataSize-5;I++)
+  for (int I=0;I<DataSize-5;I++)
   {
-    const unsigned char *D=Data+I;
-    if (D[0]=='-' && D[1]=='l' && (D[2]=='h' || D[2]=='z') &&
-        (D[3]>='0' && D[3]<='9' || D[3]=='d' || D[3]=='s' || D[3]=='d') &&
-        D[4]=='-' &&
-        D[20-2] >= 0 && D[20-2] <= 2 // Level ={0-2}
-       )
+    struct LZH_Level0 *lzh=(struct LZH_Level0*)(Data+I);
+    if(CheckLZHHeader(lzh))
     {
-      SFXSize=I-2;
-      return(TRUE);
+      const unsigned char *D=Data+I;
+      if(lzh->FLevel == 0 && D[21] > 0 && D[22] != 0 && (lzh->HeadSize-2-(int)D[21]) == sizeof(struct LZH_Level0)-1)
+      {
+        SFXSize=I;
+        return(TRUE);
+      }
+
+      if((lzh->FLevel == 1) || (lzh->FLevel == 2)) // !TODO:
+      {
+        SFXSize=I;
+        return(TRUE);
+      }
     }
   }
   return(FALSE);
@@ -85,27 +193,11 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
-  struct LZHHd
-  {
-    BYTE  HeadSize;     // Header Size in Bytes
-    BYTE  HeadChk;      // Header Checksum
-    BYTE  HeadID[3];    // Header ID Code
-    BYTE  Method;       // Compression Method
-    BYTE  free1;
-    DWORD PackSize;     // Packed File Size
-    DWORD UnpSize;      // Original File Size not decompressed yet
-    WORD FTime;         // File Time an Date Stamp
-    WORD FDate;         // File Time an Date Stamp
-    BYTE FAttr;         // File Attributes
-    BYTE FLevel;        // level = ?
-    // .....
-  } LzhHeader;
+  LZH_Header LzhHeader;
 
   int I;
   DWORD ReadSize;
-  BYTE OsId=0;
-  char FileName[NM];
-  char PathName[NM];
+
   WORD PathSize=0;
   WORD CRC16=0;
 
@@ -114,39 +206,64 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if (NextPosition==0xFFFFFFFF)
     return(GETARC_READERROR);
 
-  if (NextPosition>FileSize)
+  if (NextPosition > FileSize)
     return(GETARC_UNEXPEOF);
 
-  if (!ReadFile(ArcHandle,&LzhHeader,sizeof(LzhHeader),&ReadSize,NULL))
+  if (!ReadFile(ArcHandle,&LzhHeader.l0,sizeof(struct LZH_Level0),&ReadSize,NULL))
     return(GETARC_READERROR);
 
-  if(ReadSize<=10 ||
-      !(LzhHeader.HeadID[0]=='-' && LzhHeader.HeadID[1]=='l' &&
-        (LzhHeader.HeadID[2]=='h' || LzhHeader.HeadID[2]=='z')
-       )
-    )
+  if(ReadSize<=10 || !CheckLZHHeader(&LzhHeader.l0))
     return(GETARC_EOF);
 
-  Item->FindData.cFileName[0]=0;
-  if(LzhHeader.FLevel != 2)
+  // Offset = 21
+
+  BYTE OsId=0;
+  char FileName[NM];
+  FileName[0]=0;
+  char PathName[NM];
+  PathName[0]=0;
+  DWORD Attr=0;
+
+  if(LzhHeader.l0.FLevel < 2)
   {
-    BYTE FnLen;
-    ReadFile(ArcHandle,&FnLen,1,&ReadSize,NULL);
-    if(FnLen > 0)
-      ReadFile(ArcHandle,FileName,FnLen,&ReadSize,NULL);
-    FileName[FnLen]=0;
+    BYTE FNameLen;
+    ReadFile(ArcHandle,&FNameLen,1,&ReadSize,NULL);
+    // Offset 22
+
+    if(FNameLen > 0)
+      ReadFile(ArcHandle,FileName,(DWORD)FNameLen,&ReadSize,NULL);
+    else if(LzhHeader.l0.FLevel == 0)
+      return(GETARC_BROKEN); //???
+
+    // Offset 22+(f)
+    FileName[(DWORD)FNameLen]=0;
+    ReadFile(ArcHandle,&CRC16,2,&ReadSize,NULL); // CRC-16
+
+    // Offset 24+(f)
+    if(LzhHeader.l0.FLevel == 1)
+      ReadFile(ArcHandle,&OsId,1,&ReadSize,NULL); // OS ID
+      // Offset 25+(f)
+    else
+    {
+      OsId='M';
+      Attr=(DWORD)LzhHeader.l0.FAttr;
+    }
+  }
+  else
+  {
+    // Offset = 21
+    ReadFile(ArcHandle,&CRC16,2,&ReadSize,NULL); // CRC-16
+    // Offset 23
+    ReadFile(ArcHandle,&OsId,1,&ReadSize,NULL); // OS ID
+    // Offset 24
   }
 
-  ReadFile(ArcHandle,&CRC16,2,&ReadSize,NULL); // CRC-16
-  Item->CRC32=(DWORD)CRC16;
 
-  PathName[0]=0;
-  if(LzhHeader.FLevel == 1 || LzhHeader.FLevel == 2)
+  // Offset: L1=25+(f), L2=24
+  if(LzhHeader.l0.FLevel >= 1)
   {
     WORD NextHeaderSize;
     BYTE ExtType, FileNameSize;
-
-    ReadFile(ArcHandle,&OsId,1,&ReadSize,NULL); // OS ID
 
     do {
       ReadFile(ArcHandle,&NextHeaderSize,2,&ReadSize,NULL); // Next Header Size
@@ -155,80 +272,135 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
       ReadFile(ArcHandle,&ExtType,1,&ReadSize,NULL); // Extension type
 
-      if(ExtType == 0x01) // File name header
+      switch(ExtType)
       {
-        ReadFile(ArcHandle,FileName,NextHeaderSize-3,&ReadSize,NULL);
-        FileName[NextHeaderSize-3]=0;
+        case 0x00: // Common header
+        {
+          /*
+             1 byte   Extension type (0x00)
+             2 bytes  CRC-16 of header
+            [1 bytes  Information] (Optional)
+             2 bytes  Next header size
+          */
+          ReadFile(ArcHandle,&CRC16,2,&ReadSize,NULL); // CRC-16
+          if(NextHeaderSize-3-2 >= 0)
+            SetFilePointer(ArcHandle,NextHeaderSize-3-2,NULL,FILE_CURRENT); //???
+          break;
+        }
+
+        case 0x01: // File name header
+        {
+          /*
+             1 byte   Extension type (0x01)
+             ? bytes  File name
+             2 bytes  Next header size
+          */
+          ReadFile(ArcHandle,FileName,NextHeaderSize-3,&ReadSize,NULL);
+          FileName[NextHeaderSize-3]=0;
+          break;
+        }
+
+        case 0x02: // Directory name header
+        {
+          /*
+             1 byte   Extension type (0x02)
+             ? bytes  Directory name
+             2 bytes  Next header size
+          */
+          ReadFile(ArcHandle,PathName,NextHeaderSize-3,&ReadSize,NULL);
+          PathName[PathSize=NextHeaderSize-3]=0;
+
+          // Convert 0xFF to '\'
+          for (I=0;PathName[I];I++)
+            if (PathName[I]=='\xff')
+              PathName[I]='\\';
+
+          if(PathName[strlen(PathName)-1] != '\\')
+            strcat(PathName,"\\");
+
+          if(!FileName[0])
+            Attr=FILE_ATTRIBUTE_DIRECTORY;
+          break;
+        }
+
+        case 0x40: // MS-DOS attribute header
+        {
+          /*
+             1 byte   Extension type (0x40)
+             2 bytes  Attr
+             2 bytes  Next header size
+          */
+          ReadFile(ArcHandle,&Attr,2,&ReadSize,NULL);
+          if(NextHeaderSize-3-2 >= 0)
+            SetFilePointer(ArcHandle,NextHeaderSize-3-2,NULL,FILE_CURRENT); //???
+          //Attr &= 0x3f;
+          break;
+        }
+
+        case 0x3F: // Comment header
+        {
+          /*
+             1 byte   Extension type (0x3f)
+             ? bytes  Comments
+             2 bytes  Next header size
+          */
+          DWORD NeedSeek=0;
+          int NeedRead=NextHeaderSize-3;
+          if(NeedRead >= sizeof(Info->Description))
+          {
+            NeedRead=sizeof(Info->Description)-1;
+            NeedSeek=NeedRead-NextHeaderSize-3;
+          }
+          ReadFile(ArcHandle,Info->Description,NeedRead,&ReadSize,NULL);
+          Info->Description[NeedRead]=0;
+          if(NeedSeek)
+            SetFilePointer(ArcHandle,NeedSeek,NULL,FILE_CURRENT); //???
+          break;
+        }
+
+        default:
+          SetFilePointer(ArcHandle,NextHeaderSize-3,NULL,FILE_CURRENT);
       }
-      else if(ExtType == 0x02) // Directory name header
-      {
-        ReadFile(ArcHandle,PathName,NextHeaderSize-3,&ReadSize,NULL);
-        PathName[PathSize=NextHeaderSize-3]=0;
-
-        // Convert 0xFF to '\'
-        for (I=0;PathName[I];I++)
-          if (PathName[I]=='\xff')
-            PathName[I]='\\';
-
-        if(PathName[strlen(PathName)-1] != '\\')
-          strcat(PathName,"\\");
-
-        if(!FileName[0])
-          LzhHeader.FAttr=FILE_ATTRIBUTE_DIRECTORY;
-
-        strcpy(Item->FindData.cFileName,PathName);
-      }
-      else // Skip other
-        SetFilePointer(ArcHandle,NextHeaderSize-3,NULL,FILE_CURRENT);
-
     } while(NextHeaderSize != 0);
   }
 
+  Item->CRC32=(DWORD)CRC16;
+
   // correct NextPosition
   DWORD PrevPosition=NextPosition;
-  if(LzhHeader.FLevel == 2)
-    CRC16=*(WORD*)&LzhHeader.HeadSize;
+  if(LzhHeader.l0.FLevel == 2)
+    ReadSize=*(WORD*)&LzhHeader.l0.HeadSize;
   else
-    CRC16=(WORD)LzhHeader.HeadSize+2;
-  NextPosition+=LzhHeader.PackSize+CRC16;
+    ReadSize=(WORD)LzhHeader.l0.HeadSize+2;
+  NextPosition+=LzhHeader.l0.PackSize+ReadSize;
 
   if (PrevPosition>=NextPosition || PathSize>NM)
     return(GETARC_BROKEN);
 
   strcat(Item->FindData.cFileName,FileName);
 
-  Item->FindData.dwFileAttributes=LzhHeader.FAttr & 0x3f;
+  Item->FindData.dwFileAttributes=Attr;
 
   //<????>
-  if(LzhHeader.Method == '0' ||
-      (LzhHeader.Method == '4' && LzhHeader.HeadID[2] == 'z'))
-    Item->PackSize=LzhHeader.UnpSize;
+  if(LzhHeader.l0.Method == '0' || (LzhHeader.l0.Method == '4' && LzhHeader.l0.HeadID[2] == 'z'))
+    Item->PackSize=LzhHeader.l0.UnpSize;
   else
-    Item->PackSize=(LzhHeader.Method == 'd')?0:LzhHeader.PackSize;
+    Item->PackSize=(LzhHeader.l0.Method == 'd')?0:LzhHeader.l0.PackSize;
   //</????>
-  Item->FindData.nFileSizeLow=LzhHeader.UnpSize;
+  Item->FindData.nFileSizeLow=LzhHeader.l0.UnpSize;
 
   FILETIME lft;
-  if(LzhHeader.FLevel == 2) // level-2, Original file time stamp(UNIX type, seconds since 1970)
+  if(LzhHeader.l0.FLevel == 2) // level-2, Original file time stamp(UNIX type, seconds since 1970)
   {
-    UnixTimeToFileTime(MAKELONG(LzhHeader.FTime,LzhHeader.FDate),&Item->FindData.ftLastWriteTime);
+    UnixTimeToFileTime(MAKELONG(LzhHeader.l0.FTime,LzhHeader.l0.FDate),&Item->FindData.ftLastWriteTime);
   }
   else  // Original file date/time (Generic time stamp)
   {
-    DosDateTimeToFileTime(LzhHeader.FDate,LzhHeader.FTime,&lft);
+    DosDateTimeToFileTime(LzhHeader.l0.FDate,LzhHeader.l0.FTime,&lft);
     LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
   }
 
   // OS ID - Host OS
-  static struct OSIDType{
-    BYTE Type;
-    char Name[15];
-  } OSID[]={
-    {'M',"MS-DOS"},   {'2',"OS/2"},     {'9',"OS9"},
-    {'K',"OS/68K"},   {'3',"OS/386"},   {'H',"HUMAN"},
-    {'U',"Unix"},     {'C',"CP/M"},     {'F',"FLEX"},
-    {'m',"Mac"},      {'R',"Runser"},
-  };
   for(I=0; I < sizeof(OSID)/sizeof(OSID[0]); ++I)
   {
     if(OSID[I].Type == OsId)
@@ -248,13 +420,13 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {{'h','4'},4},   {{'h','5'},8},
     {{'z','s'},2},   {{'z','4'},0},
     {{'h','6'},32},  {{'h','7'},64},
-    {{'h','d'},0},
+    {{'h','d'},0},   {{'z','5'},4},
   };
   Info->DictSize=0;
   for(I=0; I < sizeof(DictSize)/sizeof(DictSize[0]); ++I)
   {
-    if(DictSize[I].Type[0] == LzhHeader.HeadID[2] &&
-       DictSize[I].Type[1] == LzhHeader.Method)
+    if(DictSize[I].Type[0] == LzhHeader.l0.HeadID[2] &&
+       DictSize[I].Type[1] == LzhHeader.l0.Method)
     {
       Info->DictSize=DictSize[I].Size;
       break;
