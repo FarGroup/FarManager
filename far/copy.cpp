@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.68 18.03.2002 $ */
+/* Revision: 1.69 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 VVM
+    - Уберем отрицательное время копирования. Может возникнуть при
+      дозаписи файла в момент копирования.
   18.03.2002 SVS
     - В NT4 не создавались жесткие связи для каталогов
       (вернее для файлов в каталогах)
@@ -2384,6 +2387,8 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     CopyStartTime = clock();
     int WorkTime = CopyTime/1000;
     int64 SizeLeft = OldTotalSize - OldWrittenSize;
+    if (SizeLeft < 0)
+      SizeLeft = 0;
 
     int TimeLeft;
     char TimeStr[100];
@@ -2396,7 +2401,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
     {
       int CPS = (OldWrittenSize/WorkTime).PLow();
       TimeLeft = (CPS)?(SizeLeft/CPS).PLow():0;
-      strcpy(c," ");
+      c[0]=' ';
       if (CPS > 99999) {
         c[0]='K';
         CPS = CPS/1024;
