@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.35 21.05.2001 $ */
+/* Revision: 1.36 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    ! Перетасовка для MACRO_OTHER
   21.05.2001 SVS
     ! Константы MENU_ - в морг
   06.05.2001 DJ
@@ -118,14 +120,14 @@ enum {FILETYPE_EXEC,FILETYPE_VIEW,FILETYPE_EDIT};
 enum {DIZ_NOT_UPDATE,DIZ_UPDATE_IF_DISPLAYED,DIZ_UPDATE_ALWAYS};
 
 enum {
+  MACRO_OTHER,
   MACRO_SHELL,MACRO_VIEWER,MACRO_EDITOR,MACRO_DIALOG,MACRO_SEARCH,
   MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,
   MACRO_INFOPANEL,MACRO_QVIEWPANEL,MACRO_TREEPANEL,
   /* $ 05.04.2001 VVM
     ! Должен быть всегда последним. Используется в циклах */
-  MACRO_LAST,
+  MACRO_LAST
   /* VVM $ */
-  MACRO_OTHER=0x1000
 };
 
 #define MakeDialogItems(Data,Item) \

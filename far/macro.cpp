@@ -5,10 +5,14 @@ macro.cpp
 
 */
 
-/* Revision: 1.38 22.05.2001 $ */
+/* Revision: 1.39 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    ! "‘окусные" клавиши попадали в диалог назначени€ макро
+    ! Ќемного ускорени€ в функции GetIndex() за счет сортированного списка
+      макросов и наличи€ массива индексов.
   22.05.2001 SVS
     - автостартующий макрос не работал - кушалс€ первый кей :-(
       из-за того, что по сути не было автивного модала...
@@ -171,11 +175,11 @@ Modify:
 
 
 static const char *MacroModeName[]={
+  "Other",
   "Shell", "Viewer", "Editor", "Dialog", "Search",
   "Disks", "MainMenu", "Help",
   "Info", "QView", "Tree"
 };
-static const char *MacroModeNameOther="Other";
 
 static struct TMacroFlagsName {
   char *Name;
@@ -235,8 +239,9 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
   if(!KeyText0)
      return FALSE;
 
-  char KeyText[32]="";
+  char KeyText[128];
 
+  KeyText[0]='\0';
   for (int I=0;I<sizeof(KeyMacroCodes)/sizeof(KeyMacroCodes[0]);I++)
     if (Key==KeyMacroCodes[I].Key)
     {
@@ -329,23 +334,16 @@ int KeyMacro::LoadMacros()
 
   if(Buffer)
   {
-    Ret+=ReadMacros(MACRO_SHELL,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_VIEWER,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_EDITOR,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_DIALOG,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_SEARCH,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_DISKS,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_MAINMENU,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_HELP,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_INFOPANEL,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_QVIEWPANEL,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_TREEPANEL,Buffer,TEMP_BUFFER_SIZE);
-    Ret+=ReadMacros(MACRO_OTHER,Buffer,TEMP_BUFFER_SIZE);
-
+    int I;
+    for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
+      if(!ReadMacros(I,Buffer,TEMP_BUFFER_SIZE))
+        break;
+    delete[] Buffer;
     // выставим код возврата - если не все ¬—≈ загрузились, то
     // будет FALSE
-    Ret=(Ret < 12)?FALSE:TRUE;
-    delete[] Buffer;
+    Ret=(I == MACRO_LAST)?TRUE:FALSE;
+    if(Ret)
+      KeyMacro::Sort();
   }
   Mode=MACRO_SHELL;
   return Ret;
@@ -419,10 +417,11 @@ int KeyMacro::ProcessKey(int Key)
       Recording=FALSE;
       RecBuffer=NULL;
       RecBufferSize=0;
-      if (Opt.AutoSaveSetup)
-        SaveMacros();
       ScrBuf.RestoreMacroChar();
       WaitInFastFind++;
+      KeyMacro::Sort();
+      if (Opt.AutoSaveSetup)
+        SaveMacros();
       return(TRUE);
     }
     else // процесс записи продолжаетс€.
@@ -562,7 +561,7 @@ done:
         goto begin;
       }
   }
-_SVS(SysLog("Key=0x%08X ExecMacroPos=%d ExecKeyPos=%d", Key,ExecMacroPos,ExecKeyPos));
+//_SVS(SysLog("Key=0x%08X ExecMacroPos=%d ExecKeyPos=%d", Key,ExecMacroPos,ExecKeyPos));
   return(Key);
 }
 
@@ -759,8 +758,9 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
     KMParam=(struct DlgParam *)Param2;
     LastKey=0;
   }
-  else if(Msg == DM_KEY)
+  else if(Msg == DM_KEY && (Param2&KEY_END_SKEY) < KEY_END_FKEY)
   {
+//_SVS(SysLog("Macro: Key=0x%08X",Param2));
     // <ќбработка особых клавиш: F1 & Enter>
     // Esc & (Enter и предыдущий Enter) - не обрабатываем
     if(Param2 == KEY_ESC ||
@@ -930,8 +930,8 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   char KeyText[66];
   KeyToText(Key,KeyText);
   sprintf(MacroSettingsDlg[0].Data,MSG(MMacroSettingsTitle),KeyText);
-  if(!(Key&0x7F000000))
-    MacroSettingsDlg[3].Flags|=DIF_DISABLE;
+//  if(!(Key&0x7F000000))
+//    MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 
   MacroSettingsDlg[1].Selected=Flags&MFLAGS_DISABLEOUTPUT?1:0;
   MacroSettingsDlg[2].Selected=Flags&MFLAGS_RUNAFTERFARSTART?1:0;
@@ -1059,13 +1059,28 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 // если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийс€
 int KeyMacro::GetIndex(int Key, int ChechMode)
 {
-  int Pos;
   if(Macros)
-    for(Pos=0; Pos < MacrosNumber; ++Pos)
-//      if (Macros[Pos].Key==Key && Macros[Pos].BufferSize)
-      if (LocalUpper(Macros[Pos].Key)==LocalUpper(Key) && Macros[Pos].BufferSize > 0)
-        if((Macros[Pos].Flags&MFLAGS_MODEMASK) == ChechMode || ChechMode == -1)
-          return Pos;
+  {
+    int Pos=0,EndPos=MacrosNumber;
+    struct MacroRecord *MPtr;
+    if(ChechMode == MACRO_LAST)
+      ChechMode=-1;
+    if(ChechMode >= 0)
+    {
+      Pos=IndexMode[ChechMode];
+      if(Pos == -1)
+        Pos=0;
+      if(ChechMode+1 < MACRO_LAST)
+        EndPos=IndexMode[ChechMode+1];
+      if(EndPos == -1)
+        EndPos=MacrosNumber;
+    }
+    for(MPtr=Macros+Pos; Pos < EndPos; ++Pos, ++MPtr)
+      if (LocalUpper(MPtr->Key)==LocalUpper(Key) &&
+        MPtr->BufferSize > 0)
+//        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
+        return Pos;
+  }
   return -1;
 }
 
@@ -1086,19 +1101,14 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 // получить название моды по коду
 char* KeyMacro::GetSubKey(int Mode)
 {
-  return (char *)((Mode >= MACRO_SHELL && Mode < MACRO_LAST)?
-            MacroModeName[Mode]:
-            (Mode == MACRO_OTHER?MacroModeNameOther:""));
+  return (char *)((Mode >= MACRO_OTHER && Mode < MACRO_LAST)?MacroModeName[Mode]:"");
 }
 
 // получить код моды по имени
 int KeyMacro::GetSubKey(char *Mode)
 {
-  if(!stricmp(MacroModeNameOther,Mode))
-    return MACRO_OTHER;
-
   int I;
-  for(I=MACRO_SHELL; I < MACRO_LAST; ++I)
+  for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
     if(!stricmp(MacroModeName[I],Mode))
       return I;
   return -1;
@@ -1186,19 +1196,57 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
 */
 int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 {
-  *KeyPos=Executing?ExecKeyPos:0;
-  memset(RBuf,0,sizeof(struct MacroRecord));
-  if(!Recording)
+  if(KeyPos && RBuf)
   {
-    if(Executing)
-    {
-      memcpy(RBuf,Macros+ExecMacroPos,sizeof(struct MacroRecord));
-      return 2;
-    }
+    *KeyPos=Executing?ExecKeyPos:0;
     memset(RBuf,0,sizeof(struct MacroRecord));
-    return 0;
+    if(!Recording)
+    {
+      if(Executing)
+      {
+        memcpy(RBuf,Macros+ExecMacroPos,sizeof(struct MacroRecord));
+       return 2;
+      }
+      memset(RBuf,0,sizeof(struct MacroRecord));
+      return 0;
+    }
+    RBuf->BufferSize=RecBufferSize;
+    RBuf->Buffer=RecBuffer;
+    return 1;
   }
-  RBuf->BufferSize=RecBufferSize;
-  RBuf->Buffer=RecBuffer;
+  return Recording?1:(Executing?2:0);
+}
+
+static int _cdecl SortMacros(const struct MacroRecord *el1,
+                           const struct MacroRecord *el2)
+{
+  int Mode1, Mode2;
+  if((Mode1=(el1->Flags&MFLAGS_MODEMASK)) == (Mode2=(el2->Flags&MFLAGS_MODEMASK)))
+    return 0;
+  if(Mode1 < Mode2)
+    return -1;
   return 1;
+}
+
+// —ортировка элементов списка
+void KeyMacro::Sort(void)
+{
+  typedef int (*qsort_fn)(const void*,const void*);
+  // сортируем
+  qsort(Macros,
+        MacrosNumber,
+        sizeof(struct MacroRecord),
+        (qsort_fn)SortMacros);
+  // перестраиваем индекс начал
+  struct MacroRecord *MPtr;
+  int I,J;
+  int CurMode=-1;
+  memset(IndexMode,0xFF,sizeof(IndexMode));
+  for(MPtr=Macros,J=I=0; I < MacrosNumber; ++I,++MPtr)
+    if((MPtr->Flags&MFLAGS_MODEMASK) != CurMode)
+    {
+      CurMode=MPtr->Flags&MFLAGS_MODEMASK;
+      IndexMode[J++]=I;
+    }
+//_SVS(for(I=0; I < sizeof(IndexMode)/sizeof(IndexMode[0]); ++I)SysLog("IndexMode[%d]=%d",I,IndexMode[I]));
 }

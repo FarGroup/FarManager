@@ -11,6 +11,9 @@ macro.hpp
 
 /*
 Modify:
+  23.05.2001 SVS
+    + Sort()
+    + IndexMode - массив начала макросов в Macros
   16.05.2001 SVS
     + GetCurRecord() - для дампа
   06.05.2001 DJ
@@ -45,6 +48,7 @@ Modify:
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
 */
+#include "farconst.hpp"
 
 class Panel;
 
@@ -71,6 +75,7 @@ class KeyMacro
     int Recording;
 
     DWORD *RecBuffer;
+    int IndexMode[MACRO_LAST];
     int RecBufferSize;
     int Executing;
     int ExecMacroPos;
@@ -101,6 +106,7 @@ class KeyMacro
     BOOL CheckCmdLine(int CmdLength,DWORD Flags);
     BOOL CheckFileFolder(Panel *ActivePanel,DWORD CurFlags);
     BOOL CheckAll(DWORD CurFlags);
+    void Sort(void);
 
   public:
     KeyMacro();
@@ -126,6 +132,7 @@ class KeyMacro
     int  LoadMacros();
     void SaveMacros();
 
+    int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST?Mode:MACRO_LAST];}
     // Функция получения индекса нужного макроса в массиве
     int GetIndex(int Key, int Mode);
     // получение размера, занимаемого указанным макросом

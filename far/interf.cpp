@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.25 22.05.2001 $ */
+/* Revision: 1.26 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    ! немного увеличим размеры локальных буферов для отрисовки (по мотивам
+      Alt-F9)
   22.05.2001 tran
     ! по результам прогона на CodeGuard
   21.05.2001 OT
@@ -600,7 +603,7 @@ void mprintf(char *fmt,...)
 {
   va_list argptr;
   va_start(argptr,fmt);
-  char OutStr[1024];
+  char OutStr[2048];
   vsprintf(OutStr,fmt,argptr);
   Text(OutStr);
   va_end(argptr);
@@ -610,7 +613,7 @@ void mprintf(int MsgId,...)
 {
   va_list argptr;
   va_start(argptr,MsgId);
-  char OutStr[1024];
+  char OutStr[2048];
   vsprintf(OutStr,MSG(MsgId),argptr);
   Text(OutStr);
   va_end(argptr);
@@ -620,7 +623,7 @@ void vmprintf(char *fmt,...)
 {
   va_list argptr;
   va_start(argptr,fmt);
-  char OutStr[1024];
+  char OutStr[2048];
   vsprintf(OutStr,fmt,argptr);
   VText(OutStr);
   va_end(argptr);
@@ -666,7 +669,6 @@ void PutText(int X1,int Y1,int X2,int Y2,void *Src)
   for (int I=0;I<Y2-Y1+1;I++)
     ScrBuf.Write(X1,Y1+I,((PCHAR_INFO)Src)+Width*I,Width);
 }
-
 
 
 void ShowTime(int ShowAlways)
@@ -756,7 +758,7 @@ void BoxText(char *Str)
 */
 void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
-  char OutStr[2048];
+  char OutStr[4096];
   static char ChrBox[2][6]={
     {0xC4,0xB3,0xDA,0xC0,0xD9,0xBF},
     {0xCD,0xBA,0xC9,0xC8,0xBC,0xBB},
@@ -866,7 +868,7 @@ void ShowSeparator(int Length,int Type)
 {
   if (Length>1)
   {
-    char Separator[1024];
+    char Separator[4096];
     MakeSeparator(Length,Separator,Type);
     BoxText(Separator);
   }

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.31 17.05.2001 $ */
+/* Revision: 1.32 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    ! Макрос на Alt+Shift+Цифра
   17.05.2001 OT
     + при изменении размера консоли генерим KEY_CONSOLE_BUFFER_RESIZE.
   07.05.2001 SVS
@@ -447,7 +449,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 
   ReturnAltValue=FALSE;
   CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
-//_D(SysLog("1) CalcKey=0x%08X",CalcKey));
+//_SVS(SysLog("1) CalcKey=0x%08X",CalcKey));
   if (ReturnAltValue && !NotMacros)
   {
     if (CtrlObject!=NULL && CtrlObject->Macro.ProcessKey(CalcKey))
@@ -812,7 +814,7 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   if(!KeyText0)
      return FALSE;
 
-  char KeyText[66];
+  char KeyText[128];
   int I, Len;
   DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFF;
 
@@ -1175,10 +1177,12 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed && ShiftPressed)
   {
-//_D(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
+//_SVS(if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("NotMacros=%d %9s|0x%08X (%c)|0x%08X (%c)|WaitInMainLoop=%d WaitInFastFind=%d",*NotMacros,"AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '),WaitInMainLoop,WaitInFastFind));
     if (KeyCode>='0' && KeyCode<='9')
     {
-      if(WaitInFastFind>0)
+      if(WaitInFastFind>0 &&
+        CtrlObject->Macro.GetCurRecord(NULL,NULL) != 1 &&
+        CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',-1) == -1)
         return(KEY_ALT+KEY_SHIFT+AsciiChar);
       else
         return(KEY_ALTSHIFT0+KeyCode-'0');

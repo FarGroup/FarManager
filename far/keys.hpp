@@ -5,12 +5,18 @@ keys.hpp
 
 Внутренние фаровские имена клавиш
 
+ВНИМАНИЕ!
+  Новые пвсевдоклавиши, типа KEY_FOCUS_CHANGED и KEY_CONSOLE_BUFFER_RESIZE
+  добавлять между KEY_END_FKEY и KEY_END_SKEY
 */
 
-/* Revision: 1.12 17.05.2001 $ */
+/* Revision: 1.13 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    ! KEY_FOCUS_CHANGED и KEY_CONSOLE_BUFFER_RESIZE перенесены ниже
+      KEY_END_FKEY
   17.05.2001 OT
     + KEY_CONSOLE_BUFFER_RESIZE - изменился размер консоли.
   28.04.2001 VVM
@@ -133,9 +139,6 @@ enum BaseDefKeyboard
   KEY_MSWHEEL_UP           =0x00000203,
   KEY_MSWHEEL_DOWN         =0x00000204,
 
-  KEY_FOCUS_CHANGED        =0x00000205,
-  KEY_CONSOLE_BUFFER_RESIZE=0x00000206,
-
   KEY_END_FKEY             =0x00000FFF,
 
   KEY_NONE                 =0x00001001,
@@ -143,6 +146,9 @@ enum BaseDefKeyboard
   KEY_DRAGCOPY             =0x00001003,
   KEY_DRAGMOVE             =0x00001004,
   KEY_LOCKSCREEN           =0x00001005,
+
+  KEY_FOCUS_CHANGED        =0x00001006,
+  KEY_CONSOLE_BUFFER_RESIZE=0x00001007,
 
   KEY_END_SKEY             =0x0000FFFF,
   KEY_LAST_BASE            =KEY_END_SKEY,
