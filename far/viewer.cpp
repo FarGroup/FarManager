@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.05 04.07.2000 $ */
+/* Revision: 1.06 10.07.2000 $ */
 
 /*
 Modify:
@@ -26,6 +26,10 @@ Modify:
   04.07.2000 tran
     + параметер warning в методе OpenFile()
       нужно для QuickView
+  10.07.2000 tran
+    ! увеличение длины строки с 512 до MAX_VIEWLINE (2048)
+      изменений по тексту - 8, "512" заменено на MAX_VIEWLINE,
+      а "511" на MAX_VIEWLINE-1
 */
 
 #include "headers.hpp"
@@ -379,7 +383,7 @@ void Viewer::DisplayObject()
       if (SelSize && SelPos>=LeftPos)
       {
         int SelX1=X1+SelPos-LeftPos;
-        if (!Wrap && SelX1+SaveSelectSize-1>X2 && LeftPos<512)
+        if (!Wrap && SelX1+SaveSelectSize-1>X2 && LeftPos<MAX_VIEWLINE)
         {
           LeftPos+=4;
           SelectSize=SaveSelectSize;
@@ -400,7 +404,7 @@ void Viewer::DisplayObject()
 
 void Viewer::ShowHex()
 {
-  char OutStr[512],TextStr[20];
+  char OutStr[MAX_VIEWLINE],TextStr[20];
   int SelPos,SelSize,EndFile,TextPos,Ch,Ch1,X,Y;
   SelSize=0;
 
@@ -996,7 +1000,7 @@ int Viewer::ProcessKey(int Key)
       LastSelPos=FilePos;
       return(TRUE);
     case KEY_RIGHT:
-      if (LeftPos<512)
+      if (LeftPos<MAX_VIEWLINE)
       {
         LeftPos++;
         Show();
@@ -1015,8 +1019,8 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLRIGHT:
       LeftPos+=20;
-      if (LeftPos>512)
-        LeftPos=512;
+      if (LeftPos>MAX_VIEWLINE)
+        LeftPos=MAX_VIEWLINE;
       Show();
       LastSelPos=FilePos;
       return(TRUE);
@@ -1080,7 +1084,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void Viewer::Up()
 {
-  char Buf[512];
+  char Buf[MAX_VIEWLINE];
   int BufSize,StrPos,Skipped,I,J;
   BufSize=Min(sizeof(Buf),FilePos);
   if (BufSize==0)
@@ -1402,7 +1406,7 @@ void Viewer::Search(int Next,int FirstChar)
       if (Length-LeftPos>ObjWidth || Length<LeftPos)
       {
         LeftPos=Length;
-        if (LeftPos>511 || LeftPos<0)
+        if (LeftPos>(MAX_VIEWLINE-1) || LeftPos<0)
           LeftPos=0;
         else
           if (LeftPos>10)
@@ -1596,6 +1600,8 @@ void Viewer::GoTo()
 
   strcpy(GoToDlg[1].Data,PrevLine);
   GoToDlg[3].Selected=GoToDlg[4].Selected=GoToDlg[5].Selected=0;
+  if ( Hex )
+    PrevMode=1;
   GoToDlg[PrevMode+3].Selected=TRUE;
 
   {

@@ -7,7 +7,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.01 04.07.2000 $ */
+/* Revision: 1.02 10.07.2000 $ */
 
 /*
 Modify:
@@ -16,8 +16,12 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   04.07.2000 tran
     + 'warning' parameter in OpenFile() method
+  10.07.2000 tran
+    + увеличение длины строки - с 512 на MAX_VIEWLINE
+      MAX_VIEWLINEB = MAX_VIEWLINE + 16
 */
-
+#define MAX_VIEWLINE  0x800
+#define MAX_VIEWLINEB 0x80f
 
 class Viewer:public ScreenObject
 {
@@ -43,7 +47,7 @@ class Viewer:public ScreenObject
 
     NamesList ViewNamesList;
     KeyBar *ViewKeyBar;
-    char OutStr[MAXSCRY+1][528];
+    char OutStr[MAXSCRY+1][MAX_VIEWLINEB];
     int StrFilePos[MAXSCRY+1];
     char FileName[NM];
     char FullFileName[NM];
@@ -108,5 +112,4 @@ class Viewer:public ScreenObject
     void SetNamesList(NamesList *List);
 };
 
-#endif	// __VIEWER_HPP__
-
+#endif // __VIEWER_HPP__

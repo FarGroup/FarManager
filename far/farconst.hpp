@@ -7,7 +7,7 @@ farconst.hpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 10.06.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,12 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   29.06.2000 tran
     ! Версия берется из авто-генерируемого farversion.hpp
+  10.07.2000 tran
+    ! увеличено MAXSCRY с 120 до 300
+      иначе под вин200 фар падает на Viewer
+      там эта константа используется в качестве размера массива
+      видимых строк.
+      увеличивать выше не имеет смысла...
 */
 
 /* $ 29.06.2000 tran
@@ -46,7 +52,11 @@ typedef unsigned long    UDWORD;
 #define  FALSE        0
 #define  TRUE         1
 
-#define  MAXSCRY     120
+/* $ 10.07.2000 tran
+   ! modified MAXSCRY from 120 to 300
+   on win200, with Console height FAR work, but trap on viewer... */
+#define  MAXSCRY     300
+/* tran 10.07.2000 $ */
 
 #define  NM          260
 
