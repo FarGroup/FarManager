@@ -1426,9 +1426,11 @@ $ #System settings dialog#
                           registered to process this file type
                           will be executed.
 
-  #Add plugins' prefixes#   If checked, FAR will automatically add
-  #into path#               a prefix of a plugin at the beginning of
-                          the path in the ~command line~@CmdLineCmd@.
+  #Add plugins' prefixes#   Если эта опция включена, то FAR в операциях
+  #into path#               вставки пути к объекту на панели плагина
+                          (Ctrl-F, Ctrl-[ ...) автоматически добавит
+                          префикс плагина перед вставляемым путем в
+                          ~command line~@CmdLineCmd@.
 
   #Auto save setup#         If checked, FAR will save setup
                           automatically. The current folders for

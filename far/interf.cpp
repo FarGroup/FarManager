@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.39 04.10.2001 $ */
+/* Revision: 1.40 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
+      диалогов)
   04.10.2001 SVS
     ! В SetFarTitle сначала сравним старое значение заголовка консоли,
       а уж потом выставим значение... Инача получаем моргание (при
@@ -449,6 +452,8 @@ void GetVideoMode(CONSOLE_SCREEN_BUFFER_INFO &csbi)
   GetConsoleScreenBufferInfo(hConOut,&csbi);
   ScrX=csbi.dwSize.X-1;
   ScrY=csbi.dwSize.Y-1;
+  if(PrevScrX == -1) PrevScrX=ScrX;
+  if(PrevScrY == -1) PrevScrY=ScrY;
 _OT(SysLog("ScrX=%d ScrY=%d",ScrX,ScrY));
   ScrBuf.AllocBuf(csbi.dwSize.X,csbi.dwSize.Y);
   _OT(ViewConsoleInfo());

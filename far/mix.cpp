@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.95 10.10.2001 $ */
+/* Revision: 1.96 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   10.10.2001 SVS
     ! Часть кода, ответственная за "пусковик" внешних прилад вынесена
       в отдельный модуль execute.cpp
@@ -806,6 +808,18 @@ int GetFileTypeByName(const char *Name)
 }
 
 
+static void DrawGetDirInfoMsg(char *Title,char *Name)
+{
+  Message(0,0,Title,MSG(MScanningFolder),Name);
+  PreRedrawParam.Param1=Title;
+  PreRedrawParam.Param2=Name;
+}
+
+static void PR_DrawGetDirInfoMsg(void)
+{
+  DrawGetDirInfoMsg((char *)PreRedrawParam.Param1,(char *)PreRedrawParam.Param1);
+}
+
 int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
@@ -859,10 +873,14 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
         case KEY_ESC:
         case KEY_BREAK:
           GetInputRecord(&rec);
+          SetPreRedrawFunc(NULL);
           return(0);
         default:
           if (EnhBreak)
+          {
+            SetPreRedrawFunc(NULL);
             return(-1);
+          }
           GetInputRecord(&rec);
           break;
       }
@@ -870,7 +888,9 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
     if (!MsgOut && MsgWaitTime!=0xffffffff && clock()-StartTime > MsgWaitTime)
     {
       SetCursorType(FALSE,0);
-      Message(0,0,Title,MSG(MScanningFolder),DirName);
+      SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
+      DrawGetDirInfoMsg(Title,DirName);
+
       MsgOut=1;
     }
     if (FindData.dwFileAttributes & FA_DIREC)
@@ -897,6 +917,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
       }
     }
   }
+  SetPreRedrawFunc(NULL);
   return(1);
 }
 
@@ -1521,4 +1542,10 @@ void CreatePath(char *Path)
   }
   if (CreateDirectory(Path,NULL))
     TreeList::AddTreeName(Path);
+}
+
+void SetPreRedrawFunc(PREREDRAWFUNC Func)
+{
+  if((PreRedrawFunc=Func) == NULL)
+    memset(&PreRedrawParam,0,sizeof(PreRedrawParam));
 }

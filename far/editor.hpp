@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.25 10.10.2001 $ */
+/* Revision: 1.26 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   10.10.2001 IS
     + обработка DeleteOnClose
   18.08.2001 SVS
@@ -269,6 +271,7 @@ class Editor:public ScreenObject
     void VPaste(char *ClipText);
     void VBlockShift(int Left);
     struct EditList * GetStringByNumber(int DestLine);
+    static void EditorShowMsg(const char *Title,const char *Msg, const char* Name);
 
   public:
     Editor();
@@ -341,6 +344,7 @@ class Editor:public ScreenObject
     void AdjustVBlock(int PrevX);
     /* tran 21.07.2000 $ */
     void Xlat();
+    static void PR_EditorShowMsg(void);
 };
 
 #endif // __EDITOR_HPP__

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.29 01.10.2001 $ */
+/* Revision: 1.30 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   01.10.2001 IS
     ! перерисовка панелей после операции удаления, чтобы убрать все ошметки от
       сообщений
@@ -104,6 +106,7 @@ static int RemoveToRecycleBin(char *Name);
 static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
 static void ShellDeleteUpdatePanels(Panel *SrcPanel);
+static void PR_ShellDeleteMsg(void);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
 
@@ -124,7 +127,6 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
   FrameFromLaunched->LockRefresh();
 /* OT &*/
-
 
   DeleteAllFolders=!Opt.Confirm.DeleteFolder;
 
@@ -254,8 +256,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   if (Opt.Confirm.Delete && SelCount>1)
   {
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
+    SetPreRedrawFunc(PR_ShellDeleteMsg);
     ShellDeleteMsg("",0);
     if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MDeleteFilesTitle),MSG(MAskDelete),
                 DeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel))!=0)
@@ -279,8 +282,9 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
   {
     int Cancel=0;
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
+    SetPreRedrawFunc(PR_ShellDeleteMsg);
     ShellDeleteMsg("",0);
 
     ReadOnlyDeleteMode=-1;
@@ -466,6 +470,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   SetConsoleTitle(OldTitle);
 
 done:
+  SetPreRedrawFunc(NULL);
   Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
 /*& 31.05.2001 OT Разрешить перерисовку фрейма */
   FrameFromLaunched->UnlockRefresh();
@@ -497,12 +502,19 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel)
   }
 }
 
+static void PR_ShellDeleteMsg(void)
+{
+  ShellDeleteMsg((char*)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+}
+
 void ShellDeleteMsg(char *Name,int Flags)
 {
   char DelName[NM];
   CenterStr(Name,DelName,30);
   TruncPathStr(DelName,30);
   Message(Flags,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
+  PreRedrawParam.Flags=Flags;
+  PreRedrawParam.Param1=Name;
 }
 
 

@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.11 27.09.2001 $ */
+/* Revision: 1.12 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   27.09.2001 IS
     - Левый размер при использовании strncpy
   26.07.2001 SVS
@@ -56,6 +58,11 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
                               int PrinterNumber);
 
 static int DefaultPrinterFound;
+
+static void PR_PrintMsg(void)
+{
+  Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
+}
 
 void PrintFiles(Panel *SrcPanel)
 {
@@ -140,9 +147,11 @@ void PrintFiles(Panel *SrcPanel)
     return;
   }
   {
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    Message(0,0,MSG(MPrintTitle),MSG(MPreparingForPrinting));
+
+    SetPreRedrawFunc(PR_PrintMsg);
+    PR_PrintMsg();
 
     HANDLE hPlugin=SrcPanel->GetPluginHandle();
     int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
@@ -214,12 +223,14 @@ void PrintFiles(Panel *SrcPanel)
         SrcPanel->ClearLastGetSelection();
       else
       {
+        SetPreRedrawFunc(NULL); //??
         if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
                     SelName,MSG(MSkip),MSG(MCancel))!=0)
           break;
       }
     }
     ClosePrinter(hPrinter);
+    SetPreRedrawFunc(NULL);
   }
   SrcPanel->Redraw();
   /* $ 13.07.2000 SVS

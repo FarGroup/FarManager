@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.51 17.10.2001 $ */
+/* Revision: 1.52 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   17.10.2001 SVS
     ! Внедрение const
   16.10.2001 SVS
@@ -654,7 +656,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           SrcPanel->SaveSelection();
 
           // собственно - один проход копирования
-          if(CopyFileTree(NameTmp) == COPY_CANCEL)
+          SetPreRedrawFunc(ShellCopy::PR_ShellCopyMsg);
+          int I=CopyFileTree(NameTmp);
+          SetPreRedrawFunc(NULL);
+
+          if(I == COPY_CANCEL)
           {
             NeedDizUpdate=TRUE;
             break;
@@ -986,7 +992,7 @@ ShellCopy::~ShellCopy()
 COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  SaveScreen SaveScr;
+  //SaveScreen SaveScr;
   DWORD DestAttr;
   _tran(SysLog("[%p] ShellCopy::CopyFileTree()",this));
 
@@ -1659,6 +1665,11 @@ COPY_CODES ShellCopy::CheckStreams(const char *Src,const char *DestPath)
   return COPY_SUCCESS;
 }
 
+void ShellCopy::PR_ShellCopyMsg(void)
+{
+  ((ShellCopy*)PreRedrawParam.Param1)->ShellCopyMsg((char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+}
+
 void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
 {
   char FilesStr[100],BarStr[100],SrcName[NM],DestName[NM];
@@ -1743,6 +1754,10 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
       ShowTitle(FALSE);
     }
   }
+  PreRedrawParam.Flags=Flags;
+  PreRedrawParam.Param1=this;
+  PreRedrawParam.Param2=Src;
+  PreRedrawParam.Param3=Dest;
 }
 
 

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.51 16.10.2001 $ */
+/* Revision: 1.52 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    ! PREREDRAWFUNC и PISDEBUGGERPRESENT переехали из global.hpp
   16.10.2001 SVS
     + ћакросы-преобразовалки: UnicodeToAscii() и UnicodeToOEM()
   16.09.2001 SVS
@@ -314,5 +316,8 @@ enum {
 
 #define UnicodeToAscii(src,dst,lendst) WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
 #define UnicodeToOEM(src,dst,lendst) WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+
+typedef void (*PREREDRAWFUNC)(void);
+typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
 
 #endif // __FARCONST_HPP__

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.39 12.10.2001 $ */
+/* Revision: 1.40 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   12.10.2001 SVS
     ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
       Opt.SetAttrFolderRules!
@@ -150,6 +152,8 @@ struct SetAttrDlgParam{
 
 static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
                        char *OSrcDate,char *OSrcTime);
+static void PR_ShellSetFileAttributesMsg(void);
+void ShellSetFileAttributesMsg(char *Name);
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
@@ -362,6 +366,22 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
+static void PR_ShellSetFileAttributesMsg(void)
+{
+  ShellSetFileAttributesMsg((char *)PreRedrawParam.Param1);
+}
+
+void ShellSetFileAttributesMsg(char *Name)
+{
+  char OutFileName[72];
+  if(Name && *Name)
+    CenterStr(TruncPathStr(strcpy(OutFileName,Name),40),OutFileName,44);
+  else
+    *OutFileName=0;
+  Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),OutFileName);
+  PreRedrawParam.Param1=Name;
+}
+
 int ShellSetFileAttributes(Panel *SrcPanel)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -445,6 +465,9 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       return 0;
   }
 
+  char FullName[NM];
+
+  FullName[strlen(FullName)+1]=0;
   memset(&DlgParam,0,sizeof(DlgParam));
 
   DlgParam.FileSystemFlags=0;
@@ -463,7 +486,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     FILETIME LastWriteTime,CreationTime,LastAccessTime;
     int SetWriteTime,SetCreationTime,SetLastAccessTime;
 
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
 
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(SelName,FileAttr);
@@ -708,6 +731,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     }
     // </Dialog>
 
+    SetPreRedrawFunc(PR_ShellSetFileAttributesMsg);
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
       int NewAttr;
@@ -719,7 +743,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       if (AttrDlg[8].Selected)        NewAttr|=FILE_ATTRIBUTE_COMPRESSED;
       if (AttrDlg[9].Selected)        NewAttr|=FILE_ATTRIBUTE_ENCRYPTED;
 
-      Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting));
+      ShellSetFileAttributesMsg(NULL);
 
       SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
       SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
@@ -753,7 +777,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     else
     {
       int SetAttr,ClearAttr,Cancel=0;
-      char OldConsoleTitle[NM], OutFileName[72];//,TmpFileName[72];
+      char OldConsoleTitle[NM];//,TmpFileName[72];
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
       SetAttr=0;  ClearAttr=0;
@@ -787,12 +811,12 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       SetFarTitle(MSG(MSetAttrTitle));
 
       SrcPanel->GetSelName(NULL,FileAttr);
+
       while (SrcPanel->GetSelName(SelName,FileAttr) && !Cancel)
       {
 //_SVS(SysLog("SelName='%s'\n\tFileAttr =0x%08X\n\tSetAttr  =0x%08X\n\tClearAttr=0x%08X\n\tResult   =0x%08X",
 //    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
-        Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),
-          CenterStr(TruncPathStr(strcpy(OutFileName,SelName),40),OutFileName,44));
+        ShellSetFileAttributesMsg(SelName);
 
         if (CheckForEsc())
           break;
@@ -845,8 +869,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           ScTree.SetFindPath(SelName,"*.*");
           while (ScTree.GetNextName(&FindData,FullName))
           {
-            Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),
-              CenterStr(TruncPathStr(strcpy(OutFileName,FullName),40),OutFileName,44));
+            ShellSetFileAttributesMsg(FullName);
             if (CheckForEsc())
             {
               Cancel=1;
@@ -913,6 +936,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       } // END: while (SrcPanel->GetSelName(...))
       SetConsoleTitle(OldConsoleTitle);
     }
+    SetPreRedrawFunc(NULL);
   }
 
   SrcPanel->SaveSelection();

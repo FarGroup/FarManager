@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.02 14.05.2001 $ */
+/* Revision: 1.03 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 SVS
+    - бага с выставлением шифровани€ дл€ файлов с русскими буквицами.
   14.05.2001 SVS
     ѕри выставлении даты/времени RO атрибут снимали, а возвращать забывали :-(
   06.05.2001 DJ
@@ -26,7 +28,6 @@ Modify:
 
 typedef BOOL (WINAPI *PEncryptFileA)(LPCSTR lpFileName);
 typedef BOOL (WINAPI *PDecryptFileA)(LPCSTR lpFileName, DWORD dwReserved);
-
 
 static PEncryptFileA pEncryptFileA=NULL;
 static PDecryptFileA pDecryptFileA=NULL;
@@ -134,15 +135,26 @@ int ESetFileCompression(const char *Name,int State,int FileAttr)
 /* $ 20.10.2000 SVS
    Ќовый атрибут Encripted
 */
+
 static int SetFileEncryption(const char *Name,int State)
 {
+  class ApisToANSI{
+    public:
+     ApisToANSI() {SetFileApisToANSI();}
+    ~ApisToANSI() {SetFileApisToOEM();}
+  };
+
+  char AnsiName[NM];
+
+  ApisToANSI Apis;
+  OemToChar(Name,AnsiName);
+
   // заодно и провер€етс€ успешность получени€ адреса API...
   if(State)
-     return pEncryptFileA ? (*pEncryptFileA)(Name) : FALSE;
+     return pEncryptFileA ? (*pEncryptFileA)(AnsiName) : FALSE;
   else
-     return pDecryptFileA ? (*pDecryptFileA)(Name, 0) : FALSE;
+     return pDecryptFileA ? (*pDecryptFileA)(AnsiName, 0) : FALSE;
 }
-
 /*
   ƒл€ безусловного выставлени€ атрибута FILE_ATTRIBUTE_ENCRYPTED
   необходимо в качестве параметра FileAttr передать значение 0

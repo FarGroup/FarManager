@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.24 07.10.2001 $ */
+/* Revision: 1.25 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + Addeded WordWrap
   07.10.2001 SVS
     + InsertString()
   01.10.2001 IS
@@ -770,4 +772,189 @@ char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize)
   memmove(Str+Pos+InsLen, Str+Pos, strlen(Str+Pos)+1);
   memcpy(Str+Pos, InsStr, InsLen);
   return Str;
+}
+
+/*
+From PHP 4.x.x
+—ворачивает буфер по заданному количеству символов, использу€ разделительную
+строку. ¬озвращает строку SrcText свЄрнутую в колонке, заданной параметром
+Width. —трока рубитс€ при помощи параметра Break.
+
+≈сли параметр Cut установлен в 1, то строка всегда сворачиваетс€ по заданной
+ширине. “ак если у вас есть слово, которое больше заданной ширины, то оно
+будет разрезано на части.
+
+Example 1.
+wordwrap( "The quick brown fox jumped over the lazy dog.", 20 ,"\n", 0);
+Ётот пример отобразит:
+---
+The quick brown fox
+jumped over the lazy dog.
+---
+
+Example 2.
+wordwrap( "A very long woooooooooooord.", 8, "\n", 1);
+Ётот пример отобразит:
+
+---
+A very
+long
+wooooooo
+ooooord.
+---
+
+*/
+char *WINAPI WordWrap(const char *SrcText,int Width,
+                      char *DestText,int MaxLen,
+                      const char* Break, int Cut)
+{
+  long i=0, l=0, pgr=0, linelength=0, last=0, breakcharlen, docut=0;
+  const char *text, *breakchar;
+  char *newtext;
+
+  text = SrcText;
+  linelength = Width;
+  breakchar = Break; // "\n"
+  breakcharlen = strlen(Break);
+  docut = Cut;
+
+  /* Special case for a single-character break as it needs no
+     additional storage space */
+
+  if (breakcharlen == 1 && docut == 0)
+  {
+    newtext = strdup (text);
+    if(!newtext)
+      return NULL;
+
+    while (newtext[i] != '\0')
+    {
+      /* prescan line to see if it is greater than linelength */
+      l = 0;
+      while (newtext[i+l] != breakchar[0])
+      {
+        if (newtext[i+l] == '\0')
+        {
+          l--;
+          break;
+        }
+        l++;
+      }
+      if (l >= linelength)
+      {
+        pgr = l;
+        l = linelength;
+        /* needs breaking; work backwards to find previous word */
+        while (l >= 0)
+        {
+          if (newtext[i+l] == ' ')
+          {
+            newtext[i+l] = breakchar[0];
+            break;
+          }
+          l--;
+        }
+        if (l == -1)
+        {
+          /* couldn't break is backwards, try looking forwards */
+          l = linelength;
+          while (l <= pgr)
+          {
+            if(newtext[i+l] == ' ')
+            {
+              newtext[i+l] = breakchar[0];
+              break;
+            }
+            l++;
+          }
+        }
+      }
+      i += l+1;
+    }
+  }
+  else
+  {
+    /* Multiple character line break */
+    newtext = (char*)malloc(strlen(SrcText) * (breakcharlen+1)+1);
+    if(!newtext)
+      return NULL;
+
+    newtext[0] = '\0';
+
+    i = 0;
+    while (text[i] != '\0')
+    {
+      /* prescan line to see if it is greater than linelength */
+      l = 0;
+      while (text[i+l] != '\0')
+      {
+        if (text[i+l] == breakchar[0])
+        {
+          if (breakcharlen == 1 || strncmp(text+i+l, breakchar, breakcharlen)==0)
+            break;
+        }
+        l++;
+      }
+      if (l >= linelength)
+      {
+        pgr = l;
+        l = linelength;
+
+        /* needs breaking; work backwards to find previous word */
+        while (l >= 0)
+        {
+          if (text[i+l] == ' ')
+          {
+            strncat(newtext, text+last, i+l-last);
+            strcat(newtext, breakchar);
+            last = i + l + 1;
+            break;
+          }
+          l--;
+        }
+        if (l == -1)
+        {
+          /* couldn't break it backwards, try looking forwards */
+          l = linelength - 1;
+          while (l <= pgr)
+          {
+            if (docut == 0)
+            {
+              if (text[i+l] == ' ')
+              {
+                strncat(newtext, text+last, i+l-last);
+                strcat(newtext, breakchar);
+                last = i + l + 1;
+                break;
+              }
+            }
+            if (docut == 1)
+            {
+              if (text[i+l] == ' ' || l > i-last)
+              {
+                strncat(newtext, text+last, i+l-last+1);
+                strcat(newtext, breakchar);
+                last = i + l + 1;
+                break;
+              }
+            }
+            l++;
+          }
+        }
+        i += l+1;
+      }
+      else
+      {
+        i += (l ? l : 1);
+      }
+    }
+
+    if (i+l > last)
+    {
+      strcat(newtext, text+last);
+    }
+  }
+  strncpy(DestText,newtext,MaxLen);
+  free(newtext);
+  return DestText;
 }

@@ -5,12 +5,14 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.03 25.05.2001 $ */
+/* Revision: 1.04 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   06.05.2001 DJ
     ! перетрях #include
   13.07.2000 SVS
@@ -75,12 +77,17 @@ void DizList::Reset()
   IndexCount=0;
 }
 
+void DizList::PR_ReadingMsg(void)
+{
+  Message(0,0,"",MSG(MReadingDiz));
+}
 
 void DizList::Read(char *Path,char *DizName)
 {
   Reset();
 
   const char *NamePtr=Opt.Diz.ListNames;
+
   while (1)
   {
     if (DizName!=NULL)
@@ -98,17 +105,19 @@ void DizList::Read(char *Path,char *DizName)
     if ((DizFile=fopen(DizFileName,"rb"))!=NULL)
     {
       char DizText[MAX_DIZ_LENGTH];
-      SaveScreen *SaveScr=NULL;
+      //SaveScreen *SaveScr=NULL;
       clock_t StartTime=clock();
+
+      SetPreRedrawFunc(DizList::PR_ReadingMsg);
       while (fgets(DizText,sizeof(DizText),DizFile)!=NULL)
       {
         if ((DizCount & 127)==0 && clock()-StartTime>1000)
         {
-          if (SaveScr==NULL)
+          //if (SaveScr==NULL)
           {
-            SaveScr=new SaveScreen;
+            //SaveScr=new SaveScreen;
             SetCursorType(FALSE,0);
-            Message(0,0,"",MSG(MReadingDiz));
+            PR_ReadingMsg();
           }
           if (CheckForEsc())
             break;
@@ -116,7 +125,9 @@ void DizList::Read(char *Path,char *DizName)
         RemoveTrailingSpaces(DizText);
         AddRecord(DizText);
       }
-      delete SaveScr;
+      SetPreRedrawFunc(NULL);
+
+      //delete SaveScr;
       fclose(DizFile);
       BuildIndex();
       return;

@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.169 18.10.2001 $ */
+/* Revision: 1.170 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    ! вызов CALLBACK-функции (в месаге DN_RESIZECONSOLE) перемещен в "нужное место"
+    ! Изменена логина добавления в историю:
+      "если в истории есть строка, равная без учета регистра той,
+      которую добавляем, то удалить старую строку и добавить новую".
+      (на самом деле, просто добавляем не оригинал, а добавляемую строку!)
   18.10.2001 SVS
     + DIF_SEPARATOR2 - двойной сепаратор
     + вызов CALLBACK-функции (в месаге DN_RESIZECONSOLE)
@@ -839,6 +845,10 @@ void Dialog::CheckDialogCoord(void)
 void Dialog::Show()
 {
   _tran(SysLog("[%p] Dialog::Show()",this));
+
+  if(PreRedrawFunc)
+     PreRedrawFunc();
+
   if (!CheckDialogMode(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
   {                      //  элементы инициализируются при первом вызове.
     /* $ 28.07.2000 SVS
@@ -4170,8 +4180,8 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
     J=0;
   else // ...не только можно, но и нужно!
   {
-    // добавляем в начало
-    HisTemp[0].Str=(AddLine == -1)?strdup(AddStr):His[AddLine].Str;
+    // добавляем в начало с учетом добавляемого
+    HisTemp[0].Str=strdup(AddStr);
     HisTemp[0].Locked=(AddLine == -1)?0:His[AddLine].Locked;
     J=1;
   }
@@ -4537,17 +4547,24 @@ int Dialog::FastHide()
 void Dialog::ResizeConsole()
 {
   COORD c;
-  Resized=true;
+  Resized=TRUE;
   Hide();
+  // коррекция относительного положения диалога (чтобы не центрировать :-)
   c.X=ScrX+1; c.Y=ScrY+1;
   Dialog::SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(long)&c);
+
+  // !!!!!!!!!!! здесь нужно правильно вычислить положение !!!!!!!!!!!
+  //c.X=((X1*100/PrevScrX)*ScrX)/100;
+  //c.Y=((Y1*100/PrevScrY)*ScrY)/100;
+  // !!!!!!!!!!! здесь нужно правильно вычислить положение !!!!!!!!!!!
   c.X=c.Y=-1;
   Dialog::SendDlgMessage((HANDLE)this,DM_MOVEDIALOG,TRUE,(long)&c);
 };
 
 void Dialog::OnDestroy()
 {
-  if (Resized){
+  if (Resized)
+  {
     FrameManager->GetBottomFrame()->UnlockRefresh();
     Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
   }
@@ -4605,7 +4622,7 @@ const char *MsgToName(int Msg)
     DEF_MESSAGE(DN_INITDIALOG),        DEF_MESSAGE(DN_KILLFOCUS),
     DEF_MESSAGE(DN_LISTCHANGE),        DEF_MESSAGE(DN_MOUSECLICK),
     DEF_MESSAGE(DN_DRAGGED),           DEF_MESSAGE(DN_RESIZECONSOLE),
-    DEF_MESSAGE(DN_MOUSEEVENT),        DEF_MESSAGE(DN_CLOSE=DM_CLOSE),
+    DEF_MESSAGE(DN_MOUSEEVENT),        DEF_MESSAGE(DN_CLOSE),
     DEF_MESSAGE(DN_KEY),               DEF_MESSAGE(DM_USER),
     DEF_MESSAGE(DM_KILLSAVESCREEN),    DEF_MESSAGE(DM_ALLKEYMODE),
   };
@@ -5736,8 +5753,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
 
     case DN_RESIZECONSOLE:
-      if(PreRedrawFunc)
-        PreRedrawFunc();
       break;
   }
 

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.21 27.09.2001 $ */
+/* Revision: 1.22 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   27.09.2001 IS
     - Левый размер при использовании strncpy
   24.09.2001 VVM
@@ -297,7 +299,7 @@ void TreeList::Update(int Mode)
 void TreeList::ReadTree()
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  SaveScreen SaveScr;
+  //SaveScreen SaveScr;
   ScanTree ScTree(FALSE);
   WIN32_FIND_DATA fdata;
   char FullName[NM];
@@ -325,6 +327,7 @@ void TreeList::ReadTree()
   int FirstCall=TRUE;
   TreeStartTime = clock();
   ScTree.SetFindPath(Root,"*.*");
+  SetPreRedrawFunc(TreeList::PR_MsgReadTree);
   while (ScTree.GetNextName(&fdata,FullName))
   {
     if (!(fdata.dwFileAttributes & FA_DIREC))
@@ -343,6 +346,7 @@ void TreeList::ReadTree()
     }
     strcpy(ListData[TreeCount++].Name,FullName);
   }
+  SetPreRedrawFunc(NULL);
   StaticSortCaseSensitive=CaseSensitiveSort=FALSE;
   qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
@@ -482,6 +486,12 @@ void TreeList::SyncDir()
 }
 
 
+void TreeList::PR_MsgReadTree(void)
+{
+  int FirstCall=1;
+  TreeList::MsgReadTree(PreRedrawParam.Flags,FirstCall);
+}
+
 int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 {
   char NumStr[100];
@@ -492,6 +502,7 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
     sprintf(NumStr,"%d",TreeCount);
     Message(FirstCall ? 0:MSG_KEEPBACKGROUND,0,MSG(MTreeTitle),
             MSG(MReadingTree),NumStr);
+    PreRedrawParam.Flags=TreeCount;
     FirstCall=FALSE;
   }
   /* VVM $ */
@@ -1214,7 +1225,7 @@ void TreeList::RenTreeName(char *SrcName,char *DestName)
 void TreeList::ReadSubTree(char *Path)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  SaveScreen SaveScr;
+  //SaveScreen SaveScr;
   ScanTree ScTree(FALSE);
   WIN32_FIND_DATA fdata;
   char FullName[NM],DirName[NM];
@@ -1227,6 +1238,7 @@ void TreeList::ReadSubTree(char *Path)
 
   int FirstCall=TRUE;
   ScTree.SetFindPath(DirName,"*.*");
+  SetPreRedrawFunc(TreeList::PR_MsgReadTree);
   while (ScTree.GetNextName(&fdata,FullName))
     if (fdata.dwFileAttributes & FA_DIREC)
     {
@@ -1234,6 +1246,7 @@ void TreeList::ReadSubTree(char *Path)
         break;
       AddTreeName(FullName);
     }
+  SetPreRedrawFunc(NULL);
 }
 
 

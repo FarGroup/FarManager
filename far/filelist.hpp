@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.18 01.10.2001 $ */
+/* Revision: 1.19 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + AddPluginPrefix()
   01.10.2001 SVS
     + AddParentPoint() - общий код по добавлению ".."
     + UpdateColorItems() - колоризация итемов
@@ -307,6 +309,7 @@ class FileList:public Panel
     static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
     static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
     static int IsModeFullScreen(int Mode);
+    static char* AddPluginPrefix(FileList *SrcPanel,char *Prefix);
 };
 
 #endif	// __FILELIST_HPP__

@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.12 17.10.2001 $ */
+/* Revision: 1.13 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   17.10.2001 SVS
     ! Внедрение const
   16.10.2001 SVS
@@ -141,6 +143,7 @@ class ShellCopy
     static void ShowTitle(int FirstTime);
     static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static int MkSymLink(const char *SelName,const char *Dest,DWORD Flags);
+    static void PR_ShellCopyMsg(void);
 };
 
 

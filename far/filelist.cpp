@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.95 11.10.2001 $ */
+/* Revision: 1.96 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + Для Ctrl-F и еже с ним добавим ПЕРВЫЙ(!) префикс плагина
   11.10.2001 VVM
     + Восстанавливаем позицию верхнего файла на экране после выхода из архива.
       Актуально при хождении по каталогам внутри архива и возврате в панели.
@@ -848,7 +850,9 @@ int FileList::ProcessKey(int Key)
         {
           struct OpenPluginInfo Info;
           if (PanelMode==PLUGIN_PANEL)
+          {
             CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+          }
           if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
           {
             /* $ 02.04.2001 IS
@@ -985,6 +989,15 @@ int FileList::ProcessKey(int Key)
         }
         if (CurrentPath)
           AddEndSlash(FileName);
+
+        // добавим первый префикс!
+        if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix)
+        {
+          char Prefix[NM*2];
+          strcat(AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix),FileName);
+          strncpy(FileName,Prefix,sizeof(FileName)-1);
+        }
+
         QuoteSpace(FileName);
         if(Key == KEY_CTRLALTINS)
         {
@@ -1036,21 +1049,9 @@ int FileList::ProcessKey(int Key)
              + Если у плагина есть префикс, то Ctrl-[ и еже с ним
              подставят первый префикс.
           */
-          PanelDir[0]=0;
-          if(Opt.SubstPluginPrefix)
-          {
-            struct PluginInfo PInfo;
-            CtrlObject->Plugins.GetPluginInfo(((struct PluginHandle *)SrcFilePanel->hPlugin)->PluginNumber,&PInfo);
-            if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
-            {
-              strcpy(PanelDir,PInfo.CommandPrefix);
-              char *Ptr=strchr(PanelDir,':');
-              if(Ptr) *++Ptr=0; else strcat(PanelDir,":");
-            }
-          }
           struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->hPlugin,&Info);
-          strcat(PanelDir,NullToEmpty(Info.CurDir));
+          strcat(AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
           /* SVS $ */
         }
         QuoteSpace(PanelDir);
@@ -3525,4 +3526,21 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
   sprintf(StartTopic,HelpFormatLink,Path,"Contents");
   Help PanelHelp(StartTopic);
   return(TRUE);
+}
+
+char* FileList::AddPluginPrefix(FileList *SrcPanel,char *Prefix)
+{
+  Prefix[0]=0;
+  if(Opt.SubstPluginPrefix)
+  {
+    struct PluginInfo PInfo;
+    CtrlObject->Plugins.GetPluginInfo(((struct PluginHandle *)SrcPanel->hPlugin)->PluginNumber,&PInfo);
+    if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
+    {
+      strcpy(Prefix,PInfo.CommandPrefix);
+      char *Ptr=strchr(Prefix,':');
+      if(Ptr) *++Ptr=0; else strcat(Prefix,":");
+    }
+  }
+  return Prefix;
 }

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.111 15.10.2001 $ */
+/* Revision: 1.112 18.10.2001 $ */
 
 /*
 Modify:
+  18.10.2001 SVS
+    ! У функций Message параметр Flags имеет суть "DWORD"
+    + WordWrap()
   15.10.2001 SVS
     + Экспортируемые FarSysLog и FarSysLogDump только под SYSLOG_FARSYSLOG
     + _DIALOG & SYSLOG_DIALOG
@@ -379,24 +382,26 @@ char* FarMSG(int MsgID);
 /* $ 29.08.2000 SVS
    Дополнительный параметр у Message* - номер плагина.
 */
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
+            const char *Str2=NULL,const char *Str3=NULL,const char *Str4=NULL,
+            int PluginNumber=-1);
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,
             const char *Str5,const char *Str6=NULL,const char *Str7=NULL,
             int PluginNumber=-1);
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,
             const char *Str5,const char *Str6,const char *Str7,
             const char *Str8,const char *Str9=NULL,const char *Str10=NULL,
             int PluginNumber=-1);
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,
             const char *Str5,const char *Str6,const char *Str7,
             const char *Str8,const char *Str9,const char *Str10,
             const char *Str11,const char *Str12=NULL,const char *Str13=NULL,
             const char *Str14=NULL, int PluginNumber=-1);
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
-            const char *Str2=NULL,const char *Str3=NULL,const char *Str4=NULL,
-            int PluginNumber=-1);
+int Message(DWORD Flags,int Buttons,const char *Title,const char * const *Items,
+            int ItemsNumber,int PluginNumber=-1);
 /* SVS $*/
 void SetMessageHelp(const char *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
@@ -1008,5 +1013,11 @@ BOOL WINAPI GetMenuHotKey(char *HotKey,int LenHotKey,
                           char *HelpTopic,
                           char *RegKey,
                           char *RegValueName);
+
+char *WINAPI WordWrap(const char *SrcText,int Width,
+                      char *DestText,int MaxLen,
+                      const char* Break, int Cut);
+
+void SetPreRedrawFunc(PREREDRAWFUNC Func);
 
 #endif  // __FARFUNC_HPP__

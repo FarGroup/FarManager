@@ -8,10 +8,14 @@ global.hpp
 
 */
 
-/* Revision: 1.27 19.10.2001 $ */
+/* Revision: 1.28 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    ! PREREDRAWFUNC и PISDEBUGGERPRESENT переехали в farconst.hpp
+    + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
+      диалогов)
   19.10.2001 SVS
     + PreRedraw* - для исправления BugZ#85
   03.10.2001 SVS
@@ -105,6 +109,7 @@ extern Editor *CurrentEditor;
 
 extern CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo, CurScreenBufferInfo;
 extern int ScrX,ScrY;
+extern int PrevScrX,PrevScrY;
 extern HANDLE hConOut,hConInp;
 
 extern int AltPressed,CtrlPressed,ShiftPressed;
@@ -181,13 +186,11 @@ extern BOOL NotUseCAS;
 extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsProcessVE_FindFile;
 
-typedef void (*PREREDRAWFUNC)(void);
 extern PREREDRAWFUNC PreRedrawFunc;
 extern struct PreRedrawParamStruct PreRedrawParam;
 
 extern char *Copyright;
 
-typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);
 extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 
 #endif	// __FARGLOBAL_HPP__

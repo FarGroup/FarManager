@@ -5,10 +5,14 @@ message.cpp
 
 */
 
-/* Revision: 1.14 27.09.2001 $ */
+/* Revision: 1.15 18.10.2001 $ */
 
 /*
 Modify:
+  18.10.2001 SVS
+    ! У функций Message параметр Flags имеет суть "DWORD"
+    + Новый вариант Message - без ограничения на количество строк
+    ! "немног" оптимизации кода.
   27.09.2001 IS
     - Левый размер при использовании strncpy
   24.09.2001 SVS
@@ -60,7 +64,7 @@ static char MsgHelpTopic[80];
 #include "farftp.hpp"
 #include "scrbuf.hpp"
 
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,
             int PluginNumber)
 {
@@ -68,7 +72,7 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
                  NULL,NULL,NULL,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,
             const char *Str5,const char *Str6,const char *Str7,
             int PluginNumber)
@@ -78,7 +82,7 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
 }
 
 
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,
             const char *Str5,const char *Str6,const char *Str7,
             const char *Str8,const char *Str9,const char *Str10,
@@ -88,89 +92,139 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
                  Str9,Str10,NULL,NULL,NULL,NULL,PluginNumber));
 }
 
-
-int Message(int Flags,int Buttons,const char *Title,const char *Str1,
+int Message(DWORD Flags,int Buttons,const char *Title,const char *Str1,
             const char *Str2,const char *Str3,const char *Str4,
             const char *Str5,const char *Str6,const char *Str7,
             const char *Str8,const char *Str9,const char *Str10,
             const char *Str11,const char *Str12,const char *Str13,
             const char *Str14,int PluginNumber)
 {
-  char TmpStr[256],ErrStr[256],HelpTopic[80];
-  const char *Str[14],*Btn[14];
-  int X1,Y1,X2,Y2;
-  int Length,MaxLength,BtnLength,StrCount,I;
-  int ErrStrPresent = FALSE;
-  char ErrStr2[256];
-
-  strcpy(HelpTopic,MsgHelpTopic);
-  *MsgHelpTopic=0;
+  int StrCount;
+  const char *Str[14];
 
   Str[0]=Str1;   Str[1]=Str2;   Str[2]=Str3;   Str[3]=Str4;
   Str[4]=Str5;   Str[5]=Str6;   Str[6]=Str7;   Str[7]=Str8;
   Str[8]=Str9;   Str[9]=Str10;  Str[10]=Str11; Str[11]=Str12;
   Str[12]=Str13; Str[13]=Str14;
 
-  Btn[0]=Str1;   Btn[1]=Str2;   Btn[2]=Str3;   Btn[3]=Str4;
-  Btn[4]=Str5;   Btn[5]=Str6;   Btn[6]=Str7;   Btn[7]=Str8;
-  Btn[8]=Str9;   Btn[9]=Str10;  Btn[10]=Str11; Btn[11]=Str12;
-  Btn[12]=Str13; Btn[13]=Str14;
-
   StrCount=0;
   while (StrCount<sizeof(Str)/sizeof(Str[0]) && Str[StrCount]!=NULL)
     StrCount++;
 
-  for (I=0;I<Buttons;I++)
-    Btn[I]=Btn[StrCount-Buttons+I];
+  return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
+}
 
-  StrCount-=Buttons;
+int Message(DWORD Flags,int Buttons,const char *Title,
+            const char * const *Items,int ItemsNumber,
+            int PluginNumber)
+{
+  char TmpStr[256],ErrStr[2048];
+  int X1,Y1,X2,Y2;
+  int Length,MaxLength,BtnLength,I, J, StrCount;
+  BOOL ErrorSets;
+  const char **Str;
+  char *PtrStr;
+  const char *CPtrStr;
 
-  if ((Flags & MSG_ERRORTYPE) && GetErrorString(ErrStr, sizeof(ErrStr)))
-  {
-    for (int I=sizeof(Str)/sizeof(Str[0])-1;I>0;I--)
-      Str[I]=Str[I-1];
-    Str[0]=ErrStr;
-    StrCount++;
-    ErrStrPresent = TRUE;
-  }
+  // *** Подготовка данных ***
+  if (Flags & MSG_ERRORTYPE)
+    ErrorSets=GetErrorString(ErrStr, sizeof(ErrStr));
 
-  for (BtnLength=0,I=0;I<Buttons;I++)
-    BtnLength+=HiStrlen(Btn[I])+2;
+  // выделим память под рабочий массив указателей на строки (+запас 16)
+  Str=(const char **)malloc((ItemsNumber+16) * sizeof(char*));
+  if(!Str)
+    return -1;
+
+  StrCount=ItemsNumber-Buttons;
+
+  // предварительный обсчет максимального размера.
+  for (BtnLength=0,I=0;I<Buttons;I++) //??
+    BtnLength+=HiStrlen(Items[I+StrCount])+2;
 
   for (MaxLength=BtnLength,I=0;I<StrCount;I++)
   {
-    if ((Length=strlen(Str[I]))>MaxLength)
+    if ((Length=strlen(Items[I]))>MaxLength)
       MaxLength=Length;
   }
 
-  if (MaxLength<strlen(Title)+2)
-    MaxLength=strlen(Title)+2;
+  // учтем так же размер заголовка
+  if(Title && *Title)
+  {
+    I=strlen(Title)+2;
+    if (MaxLength < I)
+      MaxLength=I;
+  }
 
+  // певая коррекция максимального размера
   if (MaxLength>ScrX-15)
     MaxLength=ScrX-15;
-  /* $ 19.09.2001 VVM
-    + Если сообщение об ошибке слишком длинное - перенесем его... */
-  if ((ErrStrPresent) && (strlen(Str[0]) > MaxLength))
+
+  // теперь обработаем MSG_ERRORTYPE
+  int CountErrorLine=0;
+
+  if ((Flags & MSG_ERRORTYPE) && ErrorSets)
   {
-    int DotPos = MaxLength - 1;
-    for (I=MaxLength;I>=0;I--)
+    // подсчет количества строк во врапенном сообщениеи
+    ++CountErrorLine;
+    //InsertQuote(ErrStr); // оквочим
+
+    // вычисление "красивого" размера
+    int LenErrStr=strlen(ErrStr);
+    if(LenErrStr > ScrX-15)
     {
-      if (Str[0][I] == '.')
+      // половина меньше?
+      if(LenErrStr/2 < ScrX-15)
       {
-        DotPos = I;
-        break;
-      } /* if */
-    } /* for */
-    strcpy(ErrStr2,&ErrStr[DotPos+1]);
-    ErrStr[DotPos+1] = 0;
-    for (I=sizeof(Str)/sizeof(Str[0])-2;I>1;I--)
-      Str[I]=Str[I-1];
-    Str[1]=ErrStr2;
-  } /* if */
-  /* VVM $ */
+        // а половина + 1/3?
+        if((LenErrStr+LenErrStr/3)/2 < ScrX-15)
+          LenErrStr=(LenErrStr+LenErrStr/3)/2;
+        else
+          LenErrStr/=2;
+      }
+      else
+        LenErrStr=ScrX-15;
+    }
+    else if(LenErrStr < MaxLength)
+      LenErrStr=MaxLength;
+    MaxLength=LenErrStr;
+
+    // а теперь проврапим
+    PtrStr=WordWrap(ErrStr,MaxLength,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
+    while((PtrStr=strchr(PtrStr,'\n')) != NULL)
+    {
+      *PtrStr++=0;
+      if(*PtrStr)
+        CountErrorLine++;
+    }
+    if(CountErrorLine > 16)
+      CountErrorLine=16; //??
+  }
+
+  // заполняем массив...
+  CPtrStr=ErrStr;
+  for (I=0; I < CountErrorLine;I++)
+  {
+    Str[I]=CPtrStr;
+    CPtrStr+=strlen(CPtrStr)+1;
+    if(!*CPtrStr) // два идущих подряд нуля - "хандец" всему
+    {
+      ++I;
+      break;
+    }
+  }
+
+  for (J=0; J < ItemsNumber; ++J, ++I)
+  {
+    Str[I]=Items[J];
+  }
+
+
+  StrCount+=CountErrorLine;
+
   MessageX1=X1=(ScrX-MaxLength)/2-4;
   MessageX2=X2=X1+MaxLength+9;
   MessageY1=Y1=(ScrY-StrCount)/2-4;
+
   if (Flags & MSG_DOWN)
   {
     int NewY=ScrY/2-4;
@@ -182,87 +236,95 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
   }
   MessageY2=Y2=Y1+StrCount+3;
 
+  char HelpTopic[80];
+  strcpy(HelpTopic,MsgHelpTopic);
+  *MsgHelpTopic=0;
+
+  // *** Вариант с Диалогом ***
+
   if (Buttons>0)
   {
-    static struct DialogData MsgDlgData[]={
-      DI_DOUBLEBOX,0,0,0,0,0,0,0,0,"",
+    int ItemCount;
+    struct DialogItem *PtrMsgDlg;
+    struct DialogItem *MsgDlg=(struct DialogItem *)
+                              malloc((ItemCount=StrCount+Buttons+1)*
+                                     sizeof(struct DialogItem));
+    if(!MsgDlg)
+    {
+      free(Str);
+      return -1;
+    }
 
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-      DI_TEXT,0,0,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
+    memset(MsgDlg,0,ItemCount*sizeof(struct DialogItem));
 
-      DI_BUTTON,0,0,0,0,1,0,DIF_CENTERGROUP|DIF_NOBRACKETS,1,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,"",
-      DI_BUTTON,0,0,0,0,0,0,DIF_CENTERGROUP|DIF_NOBRACKETS,0,""
-    };
-    MakeDialogItems(MsgDlgData,MsgDlg);
     int RetCode;
     MessageY2=++Y2;
+
+    MsgDlg[0].Type=DI_DOUBLEBOX;
     MsgDlg[0].X1=3;
     MsgDlg[0].Y1=1;
     MsgDlg[0].X2=X2-X1-3;
     MsgDlg[0].Y2=Y2-Y1-1;
 
-    for (I=0;I<Buttons;I++)
-    {
-      MsgDlg[I+13].Y1=Y2-Y1-2;
-      sprintf(MsgDlg[I+13].Data," %s ",Btn[I]);
-    }
+    if(Title && *Title)
+      strcpy(MsgDlg[0].Data,Title);
 
-    strcpy(MsgDlg[0].Data,Title);
-
-    for (I=0;I<StrCount;I++)
+    int TypeItem=DI_TEXT;
+    DWORD FlagsItem=DIF_SHOWAMPERSAND;
+    BOOL IsButton=FALSE;
+    int CurItem=0;
+    for(PtrMsgDlg=MsgDlg+1,I=1; I < ItemCount; ++I, ++PtrMsgDlg, ++CurItem)
     {
-      int CurItem=I+1;
-      if (Flags & MSG_LEFTALIGN)
-        MsgDlg[CurItem].X1=5;
-      else
-        MsgDlg[CurItem].X1=-1;
-      MsgDlg[CurItem].Y1=I+2;
-      strncpy(MsgDlg[CurItem].Data,Str[I],ScrX-15);
-      if (*MsgDlg[CurItem].Data==1)
+      if(I==StrCount+1)
       {
-        MsgDlg[CurItem].Flags|=DIF_BOXCOLOR|DIF_SEPARATOR;
-        *MsgDlg[CurItem].Data=0;
+        PtrMsgDlg->Focus=1;
+        PtrMsgDlg->DefaultButton=1;
+        TypeItem=DI_BUTTON;
+        FlagsItem=DIF_CENTERGROUP|DIF_NOBRACKETS;
+        IsButton=TRUE;
       }
-      MsgDlg[CurItem].Data[ScrX-15]=0;
+
+      PtrMsgDlg->Type=TypeItem;
+      PtrMsgDlg->Flags=FlagsItem;
+      CPtrStr=Str[CurItem];
+      if(IsButton)
+      {
+        PtrMsgDlg->Y1=Y2-Y1-2;
+        sprintf(PtrMsgDlg->Data," %s ",CPtrStr);
+      }
+      else
+      {
+        PtrMsgDlg->X1=(Flags & MSG_LEFTALIGN)?5:-1;
+        PtrMsgDlg->Y1=I+1;
+        char Chr=*CPtrStr;
+        if(Chr == 1 || Chr == 2)
+        {
+          CPtrStr++;
+          PtrMsgDlg->Flags|=DIF_BOXCOLOR|(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
+        }
+        strncpy(PtrMsgDlg->Data,CPtrStr,Min((int)ScrX-15,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
+      }
     }
-    Dialog Dlg(MsgDlg,Buttons+13);
-    Dlg.SetPosition(X1,Y1,X2,Y2);
-    if (*HelpTopic)
-      Dlg.SetHelp(HelpTopic);
-    /* $ 29.08.2000 SVS
-       Запомним номер плагина
-    */
-    Dlg.SetPluginNumber(PluginNumber);
-    /* SVS $ */
-    if (Flags & MSG_WARNING)
-      Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
-    FlushInputBuffer();
-    Dlg.Process();
-    RetCode=Dlg.GetExitCode();
-    return((RetCode<0) ? RetCode:RetCode-13);
+
+    {
+      Dialog Dlg(MsgDlg,ItemCount);
+      Dlg.SetPosition(X1,Y1,X2,Y2);
+      if (*HelpTopic)
+        Dlg.SetHelp(HelpTopic);
+      Dlg.SetPluginNumber(PluginNumber); // Запомним номер плагина
+      if (Flags & MSG_WARNING)
+        Dlg.SetDialogMode(DMODE_WARNINGSTYLE);
+      FlushInputBuffer();
+      Dlg.Process();
+      RetCode=Dlg.GetExitCode();
+    }
+    free(MsgDlg);
+    free(Str);
+    return(RetCode<0?RetCode:RetCode-StrCount-1);
   }
+
+
+  // *** Без Диалога! ***
 
   if (!(Flags & MSG_KEEPBACKGROUND))
   {
@@ -271,51 +333,58 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
     MakeShadow(X2+1,Y1+1,X2+2,Y2+1);
     Box(X1+3,Y1+1,X2-3,Y2-1,COL_DIALOGBOX,DOUBLE_BOX);
   }
+
   SetColor(COL_DIALOGTEXT);
-  GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1+1);
-  if (*Title)
+  if(Title && *Title)
+  {
+    GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1+1);
     mprintf(" %s ",Title);
+  }
+
   for (I=0;I<StrCount;I++)
   {
     int PosX;
-    if (*Str[I]==1)
+    CPtrStr=Str[I];
+    char Chr=*CPtrStr;
+    if (Chr == 1 || Chr == 2)
     {
-      GotoXY(X1+3,Y1+I+2);
       int Length=X2-X1-5;
       if (Length>1)
       {
-        char Separator[500];
-        MakeSeparator(Length,Separator,1);
-        int TextLength=strlen(Str[I]+1);
+        char Separator[1024];
+        MakeSeparator(Length,Separator,(Chr == 2?3:1));
+        CPtrStr++;
+        int TextLength=strlen(CPtrStr);
         if (TextLength<Length)
-          strncpy(&Separator[(Length-TextLength)/2],Str[I]+1,TextLength);
+          strncpy(&Separator[(Length-TextLength)/2],CPtrStr,TextLength);
         SetColor(COL_DIALOGBOX);
+        GotoXY(X1+3,Y1+I+2);
         BoxText(Separator);
         SetColor(COL_DIALOGTEXT);
       }
       continue;
     }
-    if ((Length=strlen(Str[I]))>ScrX-15)
+    if ((Length=strlen(CPtrStr))>ScrX-15)
       Length=ScrX-15;
     int Width=X2-X1+1;
     if (Flags & MSG_LEFTALIGN)
     {
-      sprintf(TmpStr,"%.*s",Width-10,Str[I]);
+      sprintf(TmpStr,"%.*s",Width-10,CPtrStr);
       GotoXY(X1+5,Y1+I+2);
     }
     else
     {
       PosX=X1+(Width-Length)/2;
-      sprintf(TmpStr,"%*s%.*s%*s",PosX-X1-4,"",Length,Str[I],X2-PosX-Length-3,"");
+      sprintf(TmpStr,"%*s%.*s%*s",PosX-X1-4,"",Length,CPtrStr,X2-PosX-Length-3,"");
       GotoXY(X1+4,Y1+I+2);
     }
     Text(TmpStr);
   }
   if (Buttons==0)
     ScrBuf.Flush();
+  free(Str);
   return(0);
 }
-
 
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 {
@@ -330,7 +399,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
 {
   int I;
   static struct TypeErrMsgs{
-    int WinMsg;
+    DWORD WinMsg;
     int FarMsg;
   } ErrMsgs[]={
     {ERROR_INVALID_FUNCTION,MErrorInvalidFunction},
@@ -377,7 +446,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
     {ERROR_INVALID_PASSWORD,MErrorInvalidPassword},
   };
 
-  int LastError = GetLastError();
+  DWORD LastError = GetLastError();
 
   for(I=0; I < sizeof(ErrMsgs)/sizeof(ErrMsgs[0]); ++I)
     if(ErrMsgs[I].WinMsg == LastError)

@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.49 15.10.2001 $ */
+/* Revision: 1.50 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
+      диалогов)
   15.10.2001 SVS
     + _KEYMACRO()
   11.10.2001 SVS
@@ -640,12 +643,18 @@ int GetInputRecord(INPUT_RECORD *rec)
   /*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
   if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
   {
-    int PrevScrX=ScrX;
-    int PrevScrY=ScrY;
+    int PScrX=ScrX;
+    int PScrY=ScrY;
     GetVideoMode(CurScreenBufferInfo);
-    if (PrevScrX+1==CurScreenBufferInfo.dwSize.X&&PrevScrY+1==CurScreenBufferInfo.dwSize.Y){
+    if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
+        PScrY+1 == CurScreenBufferInfo.dwSize.Y)
+    {
       return KEY_NONE;
-    } else {
+    }
+    else
+    {
+      PrevScrX=PScrX;
+      PrevScrY=PScrY;
       return(KEY_CONSOLE_BUFFER_RESIZE);
     }
   }

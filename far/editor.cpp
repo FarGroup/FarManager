@@ -6,12 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.124 19.10.2001 $ */
+/* Revision: 1.125 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функция для избавления от BugZ#85
   19.10.2001 OT
-    Исправление ошибки HyperViewer
+    - Исправление ошибки HyperViewer
   16.10.2001 SKV
     - баг при выделении вертикальных блоков
       после переключения EdOpt.CursorBeyondEOL туда сюда.
@@ -675,7 +677,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
     NumLastLine=0;
 
     GetFileString GetStr(EditFile);
@@ -695,6 +697,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       if (GetCode==-1)
       {
         fclose(EditFile);
+        SetPreRedrawFunc(NULL);
         return(FALSE);
       }
       LastLineCR=0;
@@ -704,12 +707,14 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         {
           UserBreak=1;
           fclose(EditFile);
+          SetPreRedrawFunc(NULL);
           return(FALSE);
         }
         if (!MessageShown)
         {
           SetCursorType(FALSE,0);
-          Message(0,0,MSG(MEditTitle),MSG(MEditReading),Name);
+          SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+          EditorShowMsg(MSG(MEditTitle),MSG(MEditReading),Name);
           MessageShown=TRUE;
         }
       }
@@ -729,6 +734,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         if (EndList->Next==NULL)
         {
           fclose(EditFile);
+          SetPreRedrawFunc(NULL);
           return(FALSE);
         }
         PrevPtr=EndList;
@@ -750,6 +756,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
 
       NumLastLine++;
     }
+    SetPreRedrawFunc(NULL);
     if (LastLineCR)
       if ((EndList->Next=new struct EditList)!=NULL)
       {
@@ -964,7 +971,7 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   }
 
   {
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
     if (Ask)
     {
       if (!Modified)
@@ -1052,7 +1059,8 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
       goto end;
     }
     SetCursorType(FALSE,0);
-    Message(0,0,MSG(MEditTitle),MSG(MEditSaving),Name);
+    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+    EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name);
     CurPtr=TopList;
 
     while (CurPtr!=NULL)
@@ -1093,6 +1101,7 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   }
 
 end:
+  SetPreRedrawFunc(NULL);
   if (FileAttributes!=-1)
     SetFileAttributes(Name,FileAttributes|FA_ARCH);
   if (Modified || NewFile)
@@ -3497,13 +3506,14 @@ BOOL Editor::Search(int Next)
     UnmarkBlock();
 
   {
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
 
     int SearchLength=strlen((char *)SearchStr);
 
     sprintf(MsgStr,"\"%s\"",SearchStr);
     SetCursorType(FALSE,0);
-    Message(0,0,MSG(MEditSearchTitle),MSG(MEditSearchingFor),MsgStr);
+    SetPreRedrawFunc(Editor::PR_EditorShowMsg);
+    EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),MsgStr);
 
     Count=0;
     Match=0;
@@ -3719,6 +3729,7 @@ BOOL Editor::Search(int Next)
           NewNumLine++;
         }
     }
+    SetPreRedrawFunc(NULL);
   }
   Show();
   if (!Match && !UserBreak)
@@ -5751,5 +5762,18 @@ void Editor::SetCursorBeyondEOL(int NewMode)
   /* SKV$*/
 }
 /* IS $ */
+
+void Editor::EditorShowMsg(const char *Title,const char *Msg, const char* Name)
+{
+  Message(0,0,Title,Msg,Name);
+  PreRedrawParam.Param1=(void *)Title;
+  PreRedrawParam.Param2=(void *)Msg;
+  PreRedrawParam.Param3=(void *)Name;
+}
+
+void Editor::PR_EditorShowMsg(void)
+{
+  Editor::EditorShowMsg((char*)PreRedrawParam.Param1,(char*)PreRedrawParam.Param2,(char*)PreRedrawParam.Param3);
+}
 
 #endif //!defined(EDITOR2)

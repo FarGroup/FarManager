@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + PR_MsgReadTree
   06.05.2001 DJ
     ! перетрях #include
   25.04.2001 SVS
@@ -97,6 +99,7 @@ class TreeList: public Panel
     /* tran $ */
     virtual void SetFocus();
     virtual void KillFocus();
+    static void PR_MsgReadTree(void);
 };
 
 #endif  // __TREELIST_HPP__

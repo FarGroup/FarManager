@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.26 19.10.2001 $ */
+/* Revision: 1.27 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + PrevScrX,PrevScrY - предыдущие размеры консоли (для позиционирования
+      диалогов)
   19.10.2001 SVS
     + PreRedraw* - для исправления BugZ#85
   03.10.2001 SVS
@@ -121,6 +124,7 @@ int PrevMouseX,PrevMouseY,MouseX,MouseY;
 CONSOLE_SCREEN_BUFFER_INFO InitScreenBufferInfo;
 CONSOLE_SCREEN_BUFFER_INFO CurScreenBufferInfo;
 int ScrX,ScrY;
+int PrevScrX,PrevScrY;
 HANDLE hConOut,hConInp;
 
 clock_t StartIdleTime;

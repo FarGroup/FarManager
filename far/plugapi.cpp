@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.97 11.10.2001 $ */
+/* Revision: 1.98 21.10.2001 $ */
 
 /*
 Modify:
+  21.10.2001 SVS
+    + CALLBACK-функци€ дл€ избавлени€ от BugZ#85
+    ! ѕереработанный Message дл€ плагинов (сн€то ограничение на 13 строк)
   11.10.2001 IS
     + обработка EF_DELETEONCLOSE
   08.10.2001 OT
@@ -866,10 +869,6 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
    !  онкретно обновим функцию FarMessageFn()
 */
 
-#define MAXMSG  15
-#ifdef __BORLANDC__
-#pragma warn -aus
-#endif
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
                         const char * const *Items,int ItemsNumber,
                         int ButtonsNumber)
@@ -880,60 +879,58 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
     return(-1);
 
-  const char *MsgItems[MAXMSG];
   char *SingleItems=NULL;
+  char *Msg;
   int I;
 
-  memset(MsgItems,0,sizeof(MsgItems));
-  switch(Flags&0x000F0000)
-  {
-    case FMSG_MB_OK:
-      ButtonsNumber=1;
-      break;
-    case FMSG_MB_YESNO:
-    case FMSG_MB_RETRYCANCEL:
-    case FMSG_MB_OKCANCEL:
-      ButtonsNumber=2;
-      break;
-    case FMSG_MB_YESNOCANCEL:
-    case FMSG_MB_ABORTRETRYIGNORE:
-      ButtonsNumber=3;
-      break;
-  }
-
+  // анализ количества строк дл€ FMSG_ALLINONE
   if(Flags&FMSG_ALLINONE)
   {
-    char *Msg;
-    SingleItems=(char *)malloc(sizeof(char)*(strlen((char *)Items)+2));
-    if(!SingleItems)
+    ItemsNumber=0;
+    ButtonsNumber=0;
+    I=strlen((char *)Items)+2;
+    if((SingleItems=(char *)malloc(I)) == NULL)
       return -1;
-    MsgItems[ItemsNumber=0]=Msg=strcpy(SingleItems,(char *)Items);
-    // анализ количества строк и разбивка на пункты
+
+    Msg=strcpy(SingleItems,(char *)Items);
     while ((Msg = strchr(Msg, '\n')) != NULL)
     {
       *Msg='\0';
-      if(ItemsNumber+1 == (sizeof(MsgItems)/sizeof(MsgItems[0])))
-        break;
 
       if(*++Msg == '\0')
         break;
-
-      MsgItems[++ItemsNumber]=Msg;
+      ++ItemsNumber;
     }
-    ItemsNumber++;
+    ItemsNumber++; //??
+  }
 
-    if((Flags&0x000F0000) && ItemsNumber+ButtonsNumber >= MAXMSG)
-      ItemsNumber=MAXMSG-ButtonsNumber;
-    for(I=ItemsNumber; I < MAXMSG; ++I)
-      MsgItems[I]=NULL;
+  const char **MsgItems=(const char **)malloc(sizeof(char*)*(ItemsNumber+16));
+  if(!MsgItems)
+  {
+    free(SingleItems);
+    return(-1);
+  }
+
+  memset(MsgItems,0,sizeof(MsgItems));
+
+  if(Flags&FMSG_ALLINONE)
+  {
+    I=0;
+    Msg=SingleItems;
+
+    // анализ количества строк и разбивка на пункты
+    while (*Msg)
+    {
+      MsgItems[++I]=Msg;
+      Msg+=strlen(Msg)+1;
+    }
   }
   else
   {
-    if((Flags&0x000F0000) && ItemsNumber+ButtonsNumber >= sizeof(MsgItems)/sizeof(MsgItems[0]))
-      ItemsNumber=sizeof(MsgItems)/sizeof(MsgItems[0])-ButtonsNumber-1;
-    for (I=0;I<ItemsNumber;I++)
+    for (I=0; I < ItemsNumber; I++)
       MsgItems[I]=Items[I];
   }
+
 
   /* $ 22.03.2001 tran
      ItemsNumber++ -> ++ItemsNumber
@@ -941,62 +938,60 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   switch(Flags&0x000F0000)
   {
     case FMSG_MB_OK:
+      ButtonsNumber=1;
       MsgItems[ItemsNumber++]=MSG(MOk);
       break;
     case FMSG_MB_OKCANCEL:
+      ButtonsNumber=2;
       MsgItems[ItemsNumber++]=MSG(MOk);
       MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
     case FMSG_MB_ABORTRETRYIGNORE:
+      ButtonsNumber=3;
       MsgItems[ItemsNumber++]=MSG(MAbort);
       MsgItems[ItemsNumber++]=MSG(MRetry);
       MsgItems[ItemsNumber++]=MSG(MIgnore);
       break;
     case FMSG_MB_YESNO:
+      ButtonsNumber=2;
       MsgItems[ItemsNumber++]=MSG(MYes);
       MsgItems[ItemsNumber++]=MSG(MNo);
       break;
     case FMSG_MB_YESNOCANCEL:
+      ButtonsNumber=3;
       MsgItems[ItemsNumber++]=MSG(MYes);
       MsgItems[ItemsNumber++]=MSG(MNo);
       MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
     case FMSG_MB_RETRYCANCEL:
+      ButtonsNumber=2;
       MsgItems[ItemsNumber++]=MSG(MRetry);
       MsgItems[ItemsNumber++]=MSG(MCancel);
       break;
   }
   /* tran $ */
 
+  // запоминаем топик
   {
     char Topic[512];
     if(Help::MkTopic(PluginNumber,HelpTopic,Topic))
       SetMessageHelp(Topic);
   }
-  /* $ 29.08.2000 SVS
-     «апомним номер плагина - сейчас в основном дл€ формировани€ HelpTopic
-  */
+
+  // непосредственно... вывод
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->LockRefresh(); // отменим прорисовку фрейма
-  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems[1],
-              MsgItems[2],MsgItems[3],MsgItems[4],MsgItems[5],MsgItems[6],
-              MsgItems[7],MsgItems[8],MsgItems[9],MsgItems[10],MsgItems[11],
-              MsgItems[12],MsgItems[13],MsgItems[14],PluginNumber);
+  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems,ItemsNumber,PluginNumber);
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->UnlockRefresh(); // теперь можно :-)
-  /* SVS $ */
-//  CheckScreenLock();
+  //CheckScreenLock();
+
   if(SingleItems)
     free(SingleItems);
-
+  free(MsgItems);
   return(MsgCode);
 }
-/* SVS $ */
-#ifdef __BORLANDC__
-#pragma warn .aus
-#endif
-
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
@@ -1125,6 +1120,11 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 }
 
 
+static void PR_FarGetDirListMsg(void)
+{
+  Message(MSG_DOWN,0,"",MSG(MPreparingList));
+}
+
 int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
 {
@@ -1153,23 +1153,23 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
     {
       if (CheckForEsc())
       {
-        /* $ 13.07.2000 SVS
-           «апросы были через realloc, потому и free
-        */
-        if(ItemsList) free(ItemsList);
-        /* SVS $ */
+        if(ItemsList)
+          free(ItemsList);
+        SetPreRedrawFunc(NULL);
         return(FALSE);
       }
       if (!MsgOut && clock()-StartTime > 500)
       {
         SetCursorType(FALSE,0);
-        Message(MSG_DOWN,0,"",MSG(MPreparingList));
+        SetPreRedrawFunc(PR_FarGetDirListMsg);
+        PR_FarGetDirListMsg();
         MsgOut=1;
       }
       ItemsList=(PluginPanelItem *)realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
       if (ItemsList==NULL)
       {
         *pItemsNumber=0;
+        SetPreRedrawFunc(NULL);
         return(FALSE);
       }
     }
@@ -1178,6 +1178,7 @@ int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
     strcpy(ItemsList[ItemsNumber].FindData.cFileName,FullName+DirLength);
     ItemsNumber++;
   }
+  SetPreRedrawFunc(NULL);
   *pPanelItem=ItemsList;
   *pItemsNumber=ItemsNumber;
   return(TRUE);
@@ -1196,6 +1197,18 @@ static struct
   int ItemsNumber;
 } DirListNumbers[16];
 
+static void FarGetPluginDirListMsg(char *Name,DWORD Flags)
+{
+  Message(Flags,0,"",MSG(MPreparingList),Name);
+  PreRedrawParam.Flags=Flags;
+  PreRedrawParam.Param1=Name;
+}
+
+static void PR_FarGetPluginDirListMsg(void)
+{
+  FarGetPluginDirListMsg((char *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
+}
+
 int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
                   const char *Dir,struct PluginPanelItem **pPanelItem,
                   int *pItemsNumber)
@@ -1203,15 +1216,18 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
   {
     if (strcmp(Dir,".")==0 || strcmp(Dir,"..")==0)
       return(FALSE);
-    SaveScreen SaveScr;
+    //SaveScreen SaveScr;
 
+    SetPreRedrawFunc(NULL);
     {
       char DirName[512];
       strncpy(DirName,Dir,sizeof(DirName)-1);
       TruncStr(DirName,30);
       CenterStr(DirName,DirName,30);
       SetCursorType(FALSE,0);
-      Message(0,0,"",MSG(MPreparingList),DirName);
+
+      SetPreRedrawFunc(PR_FarGetPluginDirListMsg);
+      FarGetPluginDirListMsg(DirName,0);
       PluginSearchMsgOut=FALSE;
 
       static struct PluginHandle DirListPlugin;
@@ -1253,6 +1269,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
           CtrlObject->Plugins.SetDirectory(hDirListPlugin,PrevDir,OPM_FIND);
       }
     }
+    SetPreRedrawFunc(NULL);
   }
 
   if (!StopSearch)
@@ -1284,7 +1301,7 @@ void ScanPluginDir()
   TruncStr(DirName,30);
   CenterStr(DirName,DirName,30);
 
-  Message(MSG_KEEPBACKGROUND,0,"",MSG(MPreparingList),DirName);
+  FarGetPluginDirListMsg(DirName,MSG_KEEPBACKGROUND);
 
   if (StopSearch || !CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
     return;
