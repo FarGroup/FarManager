@@ -4,6 +4,53 @@ Modify:
    - вместо QuoteSpace используется QuoteSpaceOnly из FSF
 */
 
+bool FileExists(const char* Name)
+{
+  return GetFileAttributes(Name)!=0xFFFFFFFF;
+}
+
+bool GoToFile(const char *Target)
+{
+  if(!Target || !*Target)
+    return false;
+  bool rc=false;
+  PanelRedrawInfo PRI;
+  PanelInfo PInfo;
+  char Name[NM], Dir[NM*5];
+  int pathlen;
+
+  lstrcpy(Name,FSF.PointToName(const_cast<char*>(Target)));
+  pathlen=FSF.PointToName(const_cast<char*>(Target))-Target;
+  if(pathlen)
+    memcpy(Dir,Target,pathlen);
+  Dir[pathlen]=0;
+
+  FSF.Trim(Name);
+  FSF.Trim(Dir);
+  FSF.Unquote(Name);
+  FSF.Unquote(Dir);
+
+  if(*Dir)
+    Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&Dir);
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&PInfo);
+
+  PRI.CurrentItem=PInfo.CurrentItem;
+  PRI.TopPanelItem=PInfo.TopPanelItem;
+
+  for(int J=0; J < PInfo.ItemsNumber; J++)
+  {
+    if(!FSF.LStricmp(Name,
+       FSF.PointToName(PInfo.PanelItems[J].FindData.cFileName)))
+    {
+      PRI.CurrentItem=J;
+      PRI.TopPanelItem=J;
+      rc=true;
+      break;
+    }
+  }
+  return rc?Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&PRI):false;
+}
+
 int __isspace(int Chr)
 {
    return Chr == 0x09 || Chr == 0x0A || Chr == 0x0B || Chr == 0x0C || Chr == 0x0D || Chr == 0x20;

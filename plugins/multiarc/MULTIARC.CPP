@@ -12,7 +12,7 @@
 
 int WINAPI _export GetMinFarVersion(void)
 {
-  return MAKEFARVERSION(1,70,1249);
+  return MAKEFARVERSION(1,70,1356);
 }
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)

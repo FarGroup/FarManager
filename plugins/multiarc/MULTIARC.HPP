@@ -257,6 +257,8 @@ int LocalStrnicmp(const char *Str1,const char *Str2,int Length);
 int __isspace(int Chr);
 int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
 char *GetCommaWord(char *Src,char *Word,char Separator);
+bool GoToFile(const char *Target);
+bool FileExists(const char* Name);
 
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);

@@ -394,7 +394,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   char Command[512],AllFilesMask[32];
   int ArcExitCode=1;
   BOOL OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
-  BOOL RestoreExactState=FALSE;
+  BOOL RestoreExactState=FALSE, NewArchive=TRUE;
   struct PutDlgData pdd={0};
   char FullName[NM],/*ExtName[NM],*/*NamePtr/*,*ExtPtr*/;
   BOOL Ret=TRUE;
@@ -624,6 +624,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     int IgnoreErrors=(CurArcInfo.Flags & AF_IGNOREERRORS);
     FSF.Unquote(DialogItems[PDI_ARCNAMEEDT].Data);
+    NewArchive=!FileExists(DialogItems[PDI_ARCNAMEEDT].Data);
     ArcCommand ArcCmd(PanelItem,ItemsNumber,Command,
                       DialogItems[PDI_ARCNAMEEDT].Data,"",pdd.Password1,
                       AllFilesMask,IgnoreErrors,0,0,CurDir);
@@ -648,6 +649,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   if (Opt.UpdateDescriptions && ArcExitCode)
     for (int I=0;I<ItemsNumber;I++)
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
+  if(ArcExitCode && NewArchive && GoToFile(ArcName))
+    ArcExitCode=2;
   return ArcExitCode;
 }
 
