@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.46 29.11.2000 $ */
+/* Revision: 1.47 03.12.2000 $ */
 
 /*
 Modify:
+  03.12.2000 SVS
+    + "Если файл имеет атрибут ReadOnly..." здесь System и Hidden - задаются
+      отдельно.
   29.11.2000 SVS
     + Если файл имеет атрибут ReadOnly или System или Hidden,
       то сразу лочим файл - естественно отключаемо.
@@ -353,9 +356,22 @@ int Editor::ReadFile(char *Name,int &UserBreak)
      Если файл имеет атрибут ReadOnly или System или Hidden,
      то сразу лочим файл - естественно отключаемо.
   */
+  /* $ 03.12.2000 SVS
+     System или Hidden - задаются отдельно
+  */
   if((Opt.EditorReadOnlyLock&1) &&
-    (GetFileAttributes(Name) & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM|FILE_ATTRIBUTE_HIDDEN)))
+     (GetFileAttributes(Name) &
+        (FILE_ATTRIBUTE_READONLY|
+           /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
+              поэтому применяем маску 0110.0000 и
+              сдвигаем на свое место => 0000.0110 и получаем
+              те самые нужные атрибуты  */
+           ((Opt.EditorReadOnlyLock&0x60)>>4)
+        )
+     )
+   )
     LockMode=!LockMode;
+  /* SVS 03.12.2000 $ */
   /* SVS $ */
 
   {
