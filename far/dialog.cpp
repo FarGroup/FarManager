@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.231 15.04.2002 $ */
+/* Revision: 1.232 20.04.2002 $ */
 
 /*
 Modify:
+  20.04.2002 KM
+    - Необходимо залочить прорисовку при DM_SHOWDIALOG=FALSE,
+      в противном случае ОТКУДА менеджер узнает, что отрисовывать
+      объект нельзя!
   15.04.2002 SVS
     - BugZ#418 - мерцание окна "Предупреждение" при удалении
       Заодно уберем холостой ход: (DN_DRAGGED,0) посылается только если было движение
@@ -5448,13 +5452,25 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         if(Param1)
         {
+          /* $ 20.04.2002 KM
+            Залочим прорисовку при прятании диалога, в противном
+            случае ОТКУДА менеджер узнает, что отрисовывать
+            объект нельзя!
+          */
           if(!Dlg->IsVisible())
+          {
+            Dlg->UnlockRefresh();
             Dlg->Show();
+          }
         }
         else
         {
           if(Dlg->IsVisible())
+          {
             Dlg->Hide();
+            Dlg->LockRefresh();
+          }
+          /* KM $ */
         }
       }
       return 0;
