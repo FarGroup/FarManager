@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.08 26.03.2001 $ */
+/* Revision: 1.09 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 VVM
+    + Переключение макросов в режим MACRO_TREEPANEL
   26.03.2001 SVS
     ! Если файл существует, то позаботимся о сохранении оригинальных атрибутов
   28.02.2001 IS
@@ -72,6 +74,7 @@ TreeList::TreeList()
   *Root=0;
   UpdateRequired=TRUE;
   CaseSensitiveSort=FALSE;
+  PrevMacroMode = -1;
 }
 
 
@@ -83,6 +86,7 @@ TreeList::~TreeList()
   free(ListData);
   /* SVS $ */
   FlushCache();
+  SetMacroMode(TRUE);
 }
 
 
@@ -1241,29 +1245,12 @@ int TreeList::GoToFile(char *Name)
   return(FALSE);
 }
 
-
-void TreeList::KillFocus()
-{
-  if (CurFile<TreeCount)
-  {
-    struct TreeItem *CurPtr=ListData+CurFile;
-    if (GetFileAttributes(CurPtr->Name)==(DWORD)-1)
-    {
-      DelTreeName(CurPtr->Name);
-      Update(UPDATE_KEEP_SELECTION);
-    }
-  }
-  Panel::KillFocus();
-}
-
-
 int _cdecl SortList(const void *el1,const void *el2)
 {
   char *NamePtr1=((struct TreeItem *)el1)->Name;
   char *NamePtr2=((struct TreeItem *)el2)->Name;
   return(StaticSortCaseSensitive ? TreeCmp(NamePtr1,NamePtr2):LCStricmp(NamePtr1,NamePtr2));
 }
-
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
 {
@@ -1324,4 +1311,34 @@ int TreeList::MustBeCached(char *Root)
         DRIVE_FIXED
     */
     return FALSE;
+}
+
+void TreeList::SetFocus()
+{
+  Panel::SetFocus();
+  SetMacroMode(FALSE);
+}
+
+void TreeList::KillFocus()
+{
+  if (CurFile<TreeCount)
+  {
+    struct TreeItem *CurPtr=ListData+CurFile;
+    if (GetFileAttributes(CurPtr->Name)==(DWORD)-1)
+    {
+      DelTreeName(CurPtr->Name);
+      Update(UPDATE_KEEP_SELECTION);
+    }
+  }
+  Panel::KillFocus();
+  SetMacroMode(TRUE);
+}
+
+void TreeList::SetMacroMode(int Restore)
+{
+  if (CtrlObject == NULL)
+    return;
+  if (PrevMacroMode == -1)
+    PrevMacroMode = CtrlObject->Macro.GetMode();
+  CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
 }

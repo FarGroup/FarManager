@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.28 21.03.2001 $ */
+/* Revision: 1.29 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 VVM
+    + 3 дополнительных области макросов - "Info", "QView", "Tree"
   21.03.2001 SVS
     + Обработка особых клавиш: F1 & Enter
   11.03.2001 SVS
@@ -133,7 +135,8 @@ Modify:
 
 static const char *MacroModeName[]={
   "Shell", "Viewer", "Editor", "Dialog", "Search",
-  "Disks", "MainMenu", "Help"
+  "Disks", "MainMenu", "Help",
+  "Info", "QView", "Tree"
 };
 static const char *MacroModeNameOther="Other";
 
@@ -293,11 +296,14 @@ int KeyMacro::LoadMacros()
     Ret+=ReadMacros(MACRO_DISKS,Buffer,TEMP_BUFFER_SIZE);
     Ret+=ReadMacros(MACRO_MAINMENU,Buffer,TEMP_BUFFER_SIZE);
     Ret+=ReadMacros(MACRO_HELP,Buffer,TEMP_BUFFER_SIZE);
+    Ret+=ReadMacros(MACRO_INFOPANEL,Buffer,TEMP_BUFFER_SIZE);
+    Ret+=ReadMacros(MACRO_QVIEWPANEL,Buffer,TEMP_BUFFER_SIZE);
+    Ret+=ReadMacros(MACRO_TREEPANEL,Buffer,TEMP_BUFFER_SIZE);
     Ret+=ReadMacros(MACRO_OTHER,Buffer,TEMP_BUFFER_SIZE);
 
     // выставим код возврата - если не все ВСЕ загрузились, то
     // будет FALSE
-    Ret=(Ret < 9)?FALSE:TRUE;
+    Ret=(Ret < 12)?FALSE:TRUE;
     delete Buffer;
   }
   Mode=MACRO_SHELL;
@@ -1089,7 +1095,7 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 // получить название моды по коду
 char* KeyMacro::GetSubKey(int Mode)
 {
-  return (char *)((Mode >= MACRO_SHELL && Mode <= MACRO_HELP)?
+  return (char *)((Mode >= MACRO_SHELL && Mode < MACRO_LAST)?
             MacroModeName[Mode]:
             (Mode == MACRO_OTHER?MacroModeNameOther:""));
 }
@@ -1101,7 +1107,7 @@ int KeyMacro::GetSubKey(char *Mode)
     return MACRO_OTHER;
 
   int I;
-  for(I=MACRO_SHELL; I <= MACRO_HELP; ++I)
+  for(I=MACRO_SHELL; I < MACRO_LAST; ++I)
     if(!stricmp(MacroModeName[I],Mode))
       return I;
   return -1;

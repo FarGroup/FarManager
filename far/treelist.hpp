@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.01 16.10.2000 $ */
+/* Revision: 1.02 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 VVM
+    + Переключение макросов в режим MACRO_TREEPANEL
   16.10.2000 tran
     + MustBeCached(Root) - функция, определяющая необходимость кеширования 
       дерева
@@ -22,6 +24,8 @@ Modify:
 class TreeList:public Panel
 {
   private:
+    int PrevMacroMode;
+    void SetMacroMode(int Restore = FALSE);
     void DisplayObject();
     void DisplayTree(int Fast);
     void DisplayTreeName(char *Name,int Pos);
@@ -53,7 +57,7 @@ class TreeList:public Panel
     ~TreeList();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    void KillFocus();
+//    void KillFocus();
     void Update(int Mode);
     void ReadTree();
     void SetCurDir(char *NewDir,int ClosePlugin);
@@ -77,6 +81,8 @@ class TreeList:public Panel
        файла */
     static int MustBeCached(char *Root);
     /* tran $ */
+    virtual void SetFocus();
+    virtual void KillFocus();
 };
 
 #endif  // __TREELIST_HPP__

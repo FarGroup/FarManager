@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.13 12.03.2001 $ */
+/* Revision: 1.14 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 VVM
+    + Переключение макросов в режим MACRO_QVIEWPANEL
   12.03.2001 SVS
     ! Коррекция в связи с изменениями в классе int64
   28.02.2001 IS
@@ -71,6 +73,7 @@ QuickView::QuickView()
   *CurFileType=0;
   *TempName=0;
   Directory=0;
+  PrevMacroMode = -1;
   /* $ 20.02.2001 VVM
     + Проинициализируем режим врап-а */
   if (LastWrapMode < 0) {
@@ -84,6 +87,7 @@ QuickView::QuickView()
 QuickView::~QuickView()
 {
   CloseFile();
+  SetMacroMode(TRUE);
 }
 
 
@@ -456,5 +460,21 @@ void QuickView::SetFocus()
 {
   Panel::SetFocus();
   SetTitle();
+  SetMacroMode(FALSE);
 }
 /* tran 20.07.2000 $ */
+
+void QuickView::KillFocus()
+{
+  Panel::KillFocus();
+  SetMacroMode(TRUE);
+}
+
+void QuickView::SetMacroMode(int Restore)
+{
+  if (CtrlObject == NULL)
+    return;
+  if (PrevMacroMode == -1)
+    PrevMacroMode = CtrlObject->Macro.GetMode();
+  CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_QVIEWPANEL);
+}

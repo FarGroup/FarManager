@@ -7,10 +7,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.02 20.02.2001 $ */
+/* Revision: 1.03 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 VVM
+    + Переключение макросов в режим MACRO_QVIEWPANEL
   20.02.2001 VVM
     ! Исправление поведения врапа. (Оторвал зависимость от вьюере)
   20.07.2000 tran 1.01
@@ -30,10 +32,12 @@ class QuickView:public Panel
     char CurFileType[80];
     char TempName[NM];
     int Directory;
+    int PrevMacroMode;
     unsigned long DirCount,FileCount,ClusterSize;
     int64 FileSize,CompressedFileSize,RealFileSize;
     int OldWrapMode;
     int OldWrapType;
+    void SetMacroMode(int Restore = FALSE);
   public:
     QuickView();
     ~QuickView();
@@ -49,6 +53,7 @@ class QuickView:public Panel
     virtual void SetTitle();
     virtual void SetFocus();
     /* tran 20.07.2000 $ */
+    virtual void KillFocus();
 
 };
 

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.09 03.04.2001 $ */
+/* Revision: 1.10 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 VVM
+    + Переключение макросов в режим MACRO_INFOPANEL
   03.04.2001 VVM
     + Используется Viewer для просмотра описаний.
   02.04.2001 SVS
@@ -51,6 +53,7 @@ InfoList::InfoList()
 {
   Type=INFO_PANEL;
   DizView=NULL;
+  PrevMacroMode=-1;
   *DizFileName=0;
   if (LastDizWrapMode < 0)
   {
@@ -62,6 +65,7 @@ InfoList::InfoList()
 InfoList::~InfoList()
 {
   CloseDizFile();
+  SetMacroMode(TRUE);
 }
 
 void InfoList::DisplayObject()
@@ -415,6 +419,7 @@ void InfoList::ShowDirDescription()
     if (OpenDizFile(FullDizName))
       return;
   }
+  CloseDizFile();
   SetColor(COL_PANELTEXT);
   GotoXY(X1+2,Y1+15);
   PrintText(MInfoDizAbsent);
@@ -504,4 +509,25 @@ int InfoList::OpenDizFile(char *DizFile)
   SetColor(COL_PANELTEXT);
   PrintText(Title);
   return(TRUE);
+}
+
+void InfoList::SetFocus()
+{
+  Panel::SetFocus();
+  SetMacroMode(FALSE);
+}
+
+void InfoList::KillFocus()
+{
+  Panel::KillFocus();
+  SetMacroMode(TRUE);
+}
+
+void InfoList::SetMacroMode(int Restore)
+{
+  if (CtrlObject == NULL)
+    return;
+  if (PrevMacroMode == -1)
+    PrevMacroMode = CtrlObject->Macro.GetMode();
+  CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
 }

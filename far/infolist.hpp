@@ -7,10 +7,12 @@ infolist.hpp
 
 */
 
-/* Revision: 1.01 03.04.2001 $ */
+/* Revision: 1.02 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 VVM
+    + Переключение макросов в режим MACRO_INFOPANEL
   03.04.2001 VVM
     + Используется Viewer для просмотра описаний.
   25.06.2000 SVS
@@ -22,6 +24,7 @@ class InfoList:public Panel
 {
   private:
     Viewer *DizView;
+    int  PrevMacroMode;
     int  OldWrapMode;
     int  OldWrapType;
     char DizFileName[NM];
@@ -36,6 +39,7 @@ class InfoList:public Panel
     void PrintInfo(int MsgID);
     void CloseDizFile();
     int  OpenDizFile(char *DizFile);
+    void SetMacroMode(int Restore = FALSE);
 
   public:
     InfoList();
@@ -45,6 +49,8 @@ class InfoList:public Panel
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void Update(int Mode) {Redraw();};
+    virtual void SetFocus();
+    virtual void KillFocus();
 };
 
 #endif	// __INFOLIST_HPP__

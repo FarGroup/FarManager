@@ -7,10 +7,13 @@ farconst.hpp
 
 */
 
-/* Revision: 1.24 02.04.2001 $ */
+/* Revision: 1.25 05.04.2001 $ */
 
 /*
 Modify:
+  04.04.2001 SVS
+    + MACRO_INFOPANEL,MACRO_QVIEWPANEL,MACRO_TREEPANEL,MACRO_LAST
+      MACRO_LAST должен всегда стоять последним. Испрользуется в циклах.
   02.04.2001 SVS
     ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   02.04.2001 VVM
@@ -125,6 +128,11 @@ enum {UNDO_NONE=0,UNDO_EDIT,UNDO_INSSTR,UNDO_DELSTR};
 enum {
   MACRO_SHELL,MACRO_VIEWER,MACRO_EDITOR,MACRO_DIALOG,MACRO_SEARCH,
   MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,
+  MACRO_INFOPANEL,MACRO_QVIEWPANEL,MACRO_TREEPANEL,
+  /* $ 05.04.2001 VVM
+    ! Должен быть всегда последним. Используется в циклах */
+  MACRO_LAST,
+  /* VVM $ */
   MACRO_OTHER=0x1000
 };
 
