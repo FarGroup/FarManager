@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.131 09.11.2001 $ */
+/* Revision: 1.132 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 VVM
+    ! 1. »меем 2 строки, втона€ длиннее первой.
+      2. ¬стаем на 2 строку впозиции после конца первой, но до второй.
+      3. Shift-Up; Shift-End
+      4. ћожем выдел€ть второй блок, не св€занный с первым...
   09.11.2001 IS
     -  прокл€тое место - EditorF7Rules,
        оп€ть фиксим, т.к. не соответствует за€вленному в techinfo.
@@ -1625,7 +1630,7 @@ int Editor::ProcessKey(int Key)
           CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
           if(CurPos>CurLength) // мы за пределами строки
           {
-            if (First) // выдел€ем заново
+            if (First || (SelStart > CurLength)) // выдел€ем заново или есть блок за пределами строки
               CurLine->EditLine.Select(CurLength, -1);
             else       // убираем выделение от позиции курсора до конца строки
               CurLine->EditLine.Select(SelStart, CurLength);
