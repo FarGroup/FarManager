@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.74 20.03.2002 $ */
+/* Revision: 1.75 02.04.2002 $ */
 
 /*
 Modify:
+  02.04.2002 SVS
+    - BugZ#425 - DI_EDIT and DIF_SELECTONENTRY
   22.03.2002 DJ
     + обработка KEY_MEDIT_ISSELECTED
   18.03.2002 SVS
@@ -663,7 +665,8 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
         mprintf("%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
         if (TabSelEnd<EditLength)
         {
-          SetColor(ClearFlag ? SelColor:Color);
+          //SetColor(ClearFlag ? SelColor:Color);
+          SetColor(Color);
           Text(OutStr+TabSelEnd);
         }
       }

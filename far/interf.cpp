@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.52 01.04.2002 $ */
+/* Revision: 1.53 02.04.2002 $ */
 
 /*
 Modify:
+  02.04.2002 SVS
+    + SetInitialCursorType()
   01.04.2002 SVS
     ! Про заголовок
   28.03.2002 SVS
@@ -617,6 +619,11 @@ void SetCursorType(int Visible,int Size)
        (Opt.CursorSize[1]?Opt.CursorSize[1]:InitCurSize);
 
   ScrBuf.SetCursorType(Visible,Size);
+}
+
+void SetInitialCursorType()
+{
+  ScrBuf.SetCursorType(InitCurVisible,InitCurSize);
 }
 
 

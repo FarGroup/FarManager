@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.144 28.03.2002 $ */
+/* Revision: 1.145 02.04.2002 $ */
 
 /*
 Modify:
+  02.04.2002 SVS
+    + SetInitialCursorType()
   28.03.2002 SVS
     + ClearScreen()
   26.03.2002 IS
@@ -394,6 +396,7 @@ int WhereY();
 void MoveCursor(int X,int Y);
 void GetCursorPos(int& X,int& Y);
 void SetCursorType(int Visible,int Size);
+void SetInitialCursorType();
 void GetCursorType(int &Visible,int &Size);
 void MoveRealCursor(int X,int Y);
 void GetRealCursorPos(int& X,int& Y);

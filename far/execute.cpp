@@ -9,6 +9,8 @@ execute.cpp
 
 /*
 Modify:
+  02.04.2002 SVS
+    - BugZ#421 - Курсор в запускаемых программах
   30.03.2002 VVM
     ! Кавычим строку выполнения только если пускаем в отдельном окне.
   28.03.2002 SVS
@@ -690,7 +692,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   /* VVM $ */
 
   GetCursorType(Visible,Size);
-  SetCursorType(0,-1);
+  //SetCursorType(0,-1);
+  SetInitialCursorType();
 
   PrevLockCount=ScrBuf.GetLockCount();
   ScrBuf.SetLockCount(0);

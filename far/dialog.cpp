@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.224 01.04.2002 $ */
+/* Revision: 1.225 02.04.2002 $ */
 
 /*
 Modify:
+  02.04.2002 SVS
+    - BugZ#416 - Listbox with DIF_LISTNOBOX does not work correctly
   01.04.2002 SVS
     - DN_CLOSE два раза приваливало, когда жмакали на пимпу.
     + При потере/получении фокуса консольным окном произведем уведомление
@@ -2391,7 +2393,7 @@ void Dialog::ShowDialog(int ID)
         if(CurItem->VBuf)
         {
           PutText(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,CurItem->VBuf);
-          // не забудим переместить курсор, если он спозиционирован.
+          // не забудем переместить курсор, если он позиционирован.
           if(FocusPos == I)
           {
             if(CurItem->UCData->CursorPos.X != -1 &&
@@ -3160,8 +3162,8 @@ int Dialog::ProcessKey(int Key)
       */
       if(Type == DI_LISTBOX)
       {
-        Item[FocusPos].ListPtr->ProcessKey(Key);
-        return(TRUE);
+        if(Item[FocusPos].ListPtr->ProcessKey(Key))
+          return(TRUE);
       }
       /* SVS $ */
 
@@ -3925,6 +3927,7 @@ void Dialog::SelectOnEntry(int Pos,BOOL Selected)
         edt->Select(0,edt->GetLength());
       else
         edt->Select(-1,0);
+      //_SVS(SysLog("Selected=%d edt->GetLength()=%d",Selected,edt->GetLength()));
     }
   }
 }
