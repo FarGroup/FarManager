@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.124 29.06.2001 $ */
+/* Revision: 1.125 01.07.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  30.06.2001 KM
+   ! Языковое уточнение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
+   + Новая структура FarListPos.
   29.06.2001 SVS
    ! Уточнение FarListFind.
    + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
@@ -777,9 +780,14 @@ struct FarListInsert
   struct FarListItem *Item;
 };
 
+struct FarListPos
+{
+  int SelectPos;
+  int TopPos;
+};
 
 enum{
-  LIFIND_NOPATTER = 0x00000001,
+  LIFIND_NOPATTERN = 0x00000001,
 };
 
 struct FarListFind

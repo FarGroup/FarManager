@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.40 28.06.2001 $ */
+/* Revision: 1.41 01.07.2001 $ */
 
 /*
 Modify:
+  01.07.2001 KM
+    - При отпускании Shift-Enter в диалоге назначения
+      вылазил Shift после отпускания клавиш.
   28.06.2001 SVS
     - Для Win9x при нажатом NumLock и юзании курсорных клавиш
       получаем в диалоге назначения ерундистику.
@@ -473,21 +476,42 @@ int GetInputRecord(INPUT_RECORD *rec)
        Для Win9x при нажатом NumLock и юзании курсорных клавиш
        получаем в диалоге назначения ерундистику.
     */
-    if(CtrlObject && CtrlObject->Macro.IsRecording() &&
-       WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
-       (CtrlState&NUMLOCK_ON))
+    if(CtrlObject && CtrlObject->Macro.IsRecording())
     {
       static WORD PrevVKKeyCode=0; // NumLock+Cursor
       WORD PrevVKKeyCode2=PrevVKKeyCode;
       PrevVKKeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
-      if((PrevVKKeyCode2 >= 0x21 && PrevVKKeyCode2 <= 0x28 ||
-          PrevVKKeyCode2 >= 0x2D && PrevVKKeyCode2 <= 0x2E) &&
-         PrevVKKeyCode == VK_SHIFT && rec->Event.KeyEvent.bKeyDown
-         ||
-         (PrevVKKeyCode >= 0x21 && PrevVKKeyCode <= 0x28 ||
-          PrevVKKeyCode >= 0x2D && PrevVKKeyCode <= 0x2E) &&
-         PrevVKKeyCode2 == VK_SHIFT && !rec->Event.KeyEvent.bKeyDown
-        )
+
+      if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
+        (CtrlState&NUMLOCK_ON))
+      {
+        if((PrevVKKeyCode2 >= 0x21 && PrevVKKeyCode2 <= 0x28 ||
+            PrevVKKeyCode2 >= 0x2D && PrevVKKeyCode2 <= 0x2E) &&
+           PrevVKKeyCode == VK_SHIFT && rec->Event.KeyEvent.bKeyDown
+           ||
+           (PrevVKKeyCode >= 0x21 && PrevVKKeyCode <= 0x28 ||
+            PrevVKKeyCode >= 0x2D && PrevVKKeyCode <= 0x2E) &&
+           PrevVKKeyCode2 == VK_SHIFT && !rec->Event.KeyEvent.bKeyDown
+          )
+        {
+          if(PrevVKKeyCode2 != VK_SHIFT)
+          {
+            INPUT_RECORD pinp;
+            DWORD nread;
+            // Удалим из очереди...
+            ReadConsoleInput(hConInp, &pinp, 1, &nread);
+            return KEY_NONE;
+          }
+        }
+      }
+      /* 1.07.2001 KM
+        При отпускании Shift-Enter в диалоге назначения
+        вылазил Shift после отпускания клавиш.
+      */
+      if((PrevVKKeyCode2==VK_SHIFT && PrevVKKeyCode==VK_RETURN &&
+          rec->Event.KeyEvent.bKeyDown) ||
+          (PrevVKKeyCode2==VK_RETURN && PrevVKKeyCode==VK_SHIFT &&
+          !rec->Event.KeyEvent.bKeyDown))
       {
         if(PrevVKKeyCode2 != VK_SHIFT)
         {
@@ -498,6 +522,7 @@ int GetInputRecord(INPUT_RECORD *rec)
           return KEY_NONE;
         }
       }
+      /* KM $ */
     }
     /* SVS $ */
 

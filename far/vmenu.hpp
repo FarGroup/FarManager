@@ -10,10 +10,13 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.21 29.06.2001 $ */
+/* Revision: 1.22 30.06.2001 $ */
 
 /*
 Modify:
+  30.06.2001 KM
+    + SetSelectPos(struct FarListPos *)
+	+ GetSelectPos(struct FarListPos *)
   29.06.2001 SVS
     + Новый параметр у FindItem - флаги
   25.06.2001 IS
@@ -275,7 +278,9 @@ class VMenu: public Modal
     int  SetUserData(void *Data,int Size=0,int Position=-1);
 
     int  GetSelectPos() {return SelectPos;}
+    int  GetSelectPos(struct FarListPos *ListPos);
     int  SetSelectPos(int Pos,int Direct);
+    int  SetSelectPos(struct FarListPos *ListPos);
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);
 

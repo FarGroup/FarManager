@@ -7,10 +7,16 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.39 29.06.2001 $ */
+/* Revision: 1.40 30.06.2001 $ */
 
 /*
 Modify:
+  30.06.2001 KM
+    ! Языковое уточненение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
+	+ GetSelectPos(struct FarListPos *)
+	+ SetSelectPos(struct FarListPos *)
+    ! Небольшое изменение в функции UpdateRequired: теперь она возвращает
+      TRUE и при условии, что выставлен флаг VMENU_UPDATEREQUIRED
   29.06.2001 SVS
     + Новый параметр у FindItem - флаги
     + LIFIND_NOPATTER - точное (без учета регистра букв) соответствие при
@@ -662,7 +668,7 @@ void VMenu::ShowMenu(int IsParent)
 
 BOOL VMenu::UpdateRequired(void)
 {
-  return (ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1);
+  return ((ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1) || (VMFlags&VMENU_UPDATEREQUIRED));
 }
 
 
@@ -929,6 +935,23 @@ int VMenu::ProcessKey(int Key)
   return(TRUE);
 }
 
+// получить позицию курсора и верхнюю позицию итема
+int VMenu::GetSelectPos(struct FarListPos *ListPos)
+{
+  ListPos->SelectPos=GetSelectPos();
+  ListPos->TopPos=TopPos;
+  return ListPos->SelectPos;
+}
+
+// установить курсор и верхний итем
+int VMenu::SetSelectPos(struct FarListPos *ListPos)
+{
+  int Ret=SetSelectPos(ListPos->SelectPos,1);
+  if (ListPos->TopPos)
+    TopPos=ListPos->TopPos;
+  return Ret;
+}
+
 // переместить курсор с учетом Disabled & Separator
 int VMenu::SetSelectPos(int Pos,int Direct)
 {
@@ -966,6 +989,12 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   Item[SelectPos].Flags&=~LIF_SELECTED;
   Item[Pos].Flags|=LIF_SELECTED;
   SelectPos=Pos;
+  /* $ 01.07.2001 KM
+    Дадим знать, что позиция изменилась для перерисовки (диалог
+    иногда не "замечал", что позиция изменилась).
+  */
+  VMFlags|=VMENU_UPDATEREQUIRED;
+  /* KM $ */
   return Pos;
 }
 
@@ -1426,7 +1455,7 @@ int VMenu::FindItem(int StartIndex,char *Pattern,DWORD Flags)
     for(int I=StartIndex;I < ItemCount;I++)
     {
       memcpy(TmpBuf,Item[I].Name,sizeof(TmpBuf));
-      if(Flags&LIFIND_NOPATTER)
+      if(Flags&LIFIND_NOPATTERN)
       {
         if (!LocalStrnicmp(RemoveChar(TmpBuf,'&'),Pattern,
                Min((int)strlen(Pattern),(int)sizeof(Item[I].Name))))

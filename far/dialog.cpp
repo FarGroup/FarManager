@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.129 29.06.2001 $ */
+/* Revision: 1.130 30.06.2001 $ */
 
 /*
 Modify:
+  30.06.2001 KM
+   ! LIFIND_NOPATTER -> LIFIND_NOPATTERN
+   ! DM_LISTGETCURPOS: Param2 содержит указатель на FarListPos.
+   ! DM_LISTSETCURPOS: Param2 содержит указатель на FarListPos.
+   ! Подадим сообщение DN_LISTCHANGE в ProcessMouse на DI_LISTBOX.
   29.06.2001 SVS
    - Бага - двое добавление первоначальных данных в комбобокс
    + ЗАКОММЕНЧЕНО: Во время навигации в открытом боксе (дропдовн)
@@ -2901,6 +2906,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if (Type == DI_LISTBOX && MsY >= Y1+Item[I].Y1 &&
         MsY <= Y1+Item[I].Y2 && MsX <= X1+Item[I].X2)
     {
+      /* $ 30.06.2001 KM */
+      VMenu *List=Item[I].ListPtr;
+      int Pos=List->GetSelectPos();
       if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
       {
         if(FocusPos != I)
@@ -2909,15 +2917,22 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
         if (!SendDlgMessage((HANDLE)this,DN_MOUSECLICK,I,(long)MouseEvent))
         {
-          if (MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2)
-            Item[I].ListPtr->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
-          else
-            ProcessKey(KEY_ENTER);
+          if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
+		  {
+		    if (MsX==X1+Item[I].X2 && MsY >= Y1+Item[I].Y1 && MsY <= Y1+Item[I].Y2)
+              Item[I].ListPtr->ProcessMouse(MouseEvent); // забыл проверить на клик на скролбар (KM)
+            else
+              ProcessKey(KEY_ENTER);
+		  }
         }
         return TRUE;
       }
       else
-        Item[I].ListPtr->ProcessMouse(MouseEvent);
+      {
+        if (SendDlgMessage((HANDLE)this,DN_LISTCHANGE,I,(long)Pos))
+          Item[I].ListPtr->ProcessMouse(MouseEvent);
+      }
+      /* KM $ */
       return(TRUE);
     }
   }
@@ -3570,7 +3585,7 @@ int Dialog::SelectFromComboBox(
     // Выставим то, что есть в строке ввода!
     // if(EditLine->DropDownBox == 1) //???
     EditLine->GetString(Str,MaxLen);
-    ComboBox->SetSelectPos(ComboBox->FindItem(0,Str,LIFIND_NOPATTER),1);
+    ComboBox->SetSelectPos(ComboBox->FindItem(0,Str,LIFIND_NOPATTERN),1);
 
     ComboBox->Show();
 
@@ -4308,7 +4323,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
     case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
     case DM_LISTGETCURPOS: // Param1=ID Param2=0
-    case DM_LISTSETCURPOS: // Param1=ID Param2=NewPos Ret: RealPos
+    case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
     case DM_LISTUPDATE: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Src
     case DM_LISTINFO:// Param1=ID Param2=FarListInfo
     case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
@@ -4408,15 +4423,15 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               }
               return FALSE;
             }
-            case DM_LISTGETCURPOS: // Param1=ID Param2=0
+            case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
             {
-              return ListBox->GetSelectPos();
+              return ListBox->GetSelectPos((struct FarListPos *)Param2);
             }
-            case DM_LISTSETCURPOS: // Param1=ID Param2=NewPos Ret: RealPos
+            case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
             {
               /* 26.06.2001 KM Подадим перед изменением позиции об этом сообщение */
               int CurListPos=ListBox->GetSelectPos();
-              Ret=ListBox->SetSelectPos(Param2,1);
+              Ret=ListBox->SetSelectPos((struct FarListPos *)Param2);
               if(Ret!=CurListPos)
                 if(!Dlg->DlgProc(hDlg,DN_LISTCHANGE,Param1,Ret))
                   Ret=ListBox->SetSelectPos(CurListPos,1);
@@ -5025,7 +5040,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return Dlg->SetItemRect((int)Param1,(SMALL_RECT*)Param2);
 
     case DM_RESIZEDIALOG:
-      return Dialog::SendDlgMessage(hDlg,DM_MOVEDIALOG,-1,Param2);
+      // изменим вызов RESIZE.
+      Param1=-1;
 
     /* $ 30.08.2000 SVS
         + программное перемещение диалога
