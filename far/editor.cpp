@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.54 22.12.2000 $ */
+/* Revision: 1.55 23.12.2000 $ */
 
 /*
 Modify:
+  23.12.2000 OT
+    - Медленно делался CtrlShiftLeft и CtrlAltLeft на ооооочеееень
+      длинных словах
   22.12.2000 SVS
     - Вызов из EE_READ команды ECTL_SETKEYBAR приводил к падению ФАРа, т.к.
       объект EditKeyBar еще не существует.
@@ -1279,8 +1282,10 @@ int Editor::ProcessKey(int Key)
       {
         int SkipSpace=TRUE;
         Pasting++;
-//        DisableOut++;
-//        Edit::DisableEditOut(TRUE);
+        /* $ 23.12.2000 OT */
+        DisableOut++;
+        Edit::DisableEditOut(TRUE);
+        /* OT $ */
         while (1)
         {
           char *Str;
@@ -1310,9 +1315,11 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_SHIFTLEFT);
         }
         Pasting--;
-//        DisableOut--;
-//        Edit::DisableEditOut(FALSE);
-//        Show();
+        /* $ 23.12.2000 OT */
+        DisableOut--;
+        Edit::DisableEditOut(FALSE);
+        Show();
+        /* OT $ */
       }
       return(TRUE);
     case KEY_CTRLSHIFTRIGHT:
@@ -1964,8 +1971,10 @@ int Editor::ProcessKey(int Key)
       {
         int SkipSpace=TRUE;
         Pasting++;
-//        DisableOut++;
-//        Edit::DisableEditOut(TRUE);
+        /* $ 23.12.2000 OT */
+        DisableOut++;
+        Edit::DisableEditOut(TRUE);
+        /* OT $ */
         while (1)
         {
           char *Str;
@@ -1995,9 +2004,11 @@ int Editor::ProcessKey(int Key)
           ProcessKey(KEY_ALTSHIFTLEFT);
         }
         Pasting--;
-//        DisableOut--;
-//        Edit::DisableEditOut(FALSE);
-//        Show();
+        /* $ 23.12.2000 OT */
+        DisableOut--;
+        Edit::DisableEditOut(FALSE);
+        Show();
+        /* OT $ */
       }
       return(TRUE);
     case KEY_CTRLALTRIGHT:
