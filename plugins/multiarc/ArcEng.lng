@@ -111,8 +111,8 @@
 "Always &hide archivers output"
 "Process &Shift-F1 command"
 "Use last h&istory"
-"Re&move file extension from archive name"
-"&Add archive extension to the filename"
+"&Автосброс настройки "Точное соответствие имени архива""
+"Старый стиль диалога "Добавить к архиву""
 "Description &list names delimited with commas:"
 "&Read archive descriptions"
 "&Update archive descriptions"
@@ -135,4 +135,7 @@
 "Archive extensio&n"
 
 "&Background"
-"&Exact archive filename"
+"E&xact archive filename"
+
+"&Комментарий"
+"Введите комментарий"

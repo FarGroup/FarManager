@@ -31,6 +31,11 @@ to move rather than copy files to the archive.
 
     Option #Background# starts the archiving process in a separate window.
 
+    Опция #Точное соответствие имени архива# позволяет создавать архивы
+с нестандартными расширениями (если это поддерживается архиватором). Если
+опция выключена, архив создается с расширением, определенным в диалоге
+~Параметры архиваторов~@ArcSettings2@.
+
     Pressing the #Save settings# button saves the current archiver and
 switches for future usage.
 
@@ -86,9 +91,12 @@ $ #Archive support configuration#
                         switches will be placed in the "Switches"
                         edit line.
 
- #Append default#         Determines how to deduce initial
- #archive extension#      ~Add to archive~@AddToArc@ field value from the
-                        name of file/folder to be archived.
+ #Автосброс настройки#
+ #"Точное соответствие#
+ #имени архива"#
+
+ #Старый стиль диалога#
+ #"Добавить к архиву"#
 
  #Description list#       Names of files with ~descriptions~@:FileDiz@ of archived
  #names delimited#        files.

@@ -4,11 +4,22 @@ Modify:
    - перенос сброса Opt.Background в PutFiles в более подходящее место
 */
 
+BOOL PluginClass::GetFormatName(char *FormatName, char *DefExt)
+{
+  *FormatName=0;
+  if(DefExt)
+    *DefExt=0;
+  char TempDefExt[NM];
+  return ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,FormatName,DefExt?DefExt:TempDefExt);
+}
+
 void PluginClass::GetCommandFormat(int Command,char *Format,int FormatSize)
 {
-  *Format=0;
-  char ArcFormat[100],DefExt[NM];
-  if (!ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
+  //*Format=0;
+  char ArcFormat[100]/*,DefExt[NM]*/;
+  /*if (!ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,ArcFormat,DefExt))
+    return;*/
+  if(!GetFormatName(ArcFormat))
     return;
   GetRegKey(HKEY_LOCAL_MACHINE,ArcFormat,CmdNames[Command],Format,"",FormatSize);
   if (*Format==0)
@@ -69,30 +80,56 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     {MArcCmdLock,         CMD_LOCK        },
   };
 
-  struct FarMenuItemEx MenuItems[COUNT(MenuData)];
-  memset(MenuItems,0,sizeof(MenuItems));
-  MenuItems[0].Flags=MIF_SELECTED;
-
-  int Count=0;
   char Command[512],AllFilesMask[32];
-  for(int i=0; i<COUNT(MenuData); i++)
+  int CommandType;
+  int ExitCode;
+
+  while(1)
   {
-    GetCommandFormat(MenuData[i].Cmd, Command, sizeof(Command));
-    if(*Command /*&& !(MenuData[i].Cmd==CMD_COMMENTFILES && ItemsNumber!=1)*/)
+    struct FarMenuItemEx MenuItems[COUNT(MenuData)];
+
+    memset(MenuItems,0,sizeof(MenuItems));
+    MenuItems[0].Flags=MIF_SELECTED;
+
+    int Count=0;
+    for(int i=0; i<COUNT(MenuData); i++)
     {
-      strcpy(MenuItems[Count].Text, GetMsg(MenuData[i].Msg));
-      MenuItems[Count++].UserData=MenuData[i].Cmd;
+      GetCommandFormat(MenuData[i].Cmd, Command, sizeof(Command));
+      if(*Command)
+      {
+        strcpy(MenuItems[Count].Text, GetMsg(MenuData[i].Msg));
+        MenuItems[Count++].UserData=MenuData[i].Cmd;
+      }
     }
+    if(!Count)
+    {
+      Count=1;
+      MenuItems[0].UserData=0xFFFFFFFF;
+    }
+
+    int BreakCode;
+    int BreakKeys[2]={VK_F4,0};
+    ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_USEEXT|FMENU_WRAPMODE,
+         GetMsg(MArcCmdTitle),GetMsg(MSelectF4),"ArcCmd",BreakKeys,&BreakCode,
+         (FarMenuItem *)MenuItems,Count);
+    if(ExitCode>=0)
+    {
+      if(BreakCode == 0)  // F4 pressed
+      {
+        GetFormatName(MenuItems[0].Text);
+        ConfigCommands(MenuItems[0].Text);
+        continue;
+      }
+    }
+    else
+      return FALSE;
+    CommandType=MenuItems[ExitCode].UserData;
+    if(CommandType==0xFFFFFFFF)
+      return FALSE;
+    break;
   }
-  if(!Count)
-    return FALSE;
-  int ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_USEEXT,
-       GetMsg(MArcCmdTitle),NULL,"ArcCmd",NULL,NULL,(FarMenuItem *)MenuItems,
-       Count);
-  if(ExitCode<0)
-    return FALSE;
+
   FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-  int CommandType=MenuItems[ExitCode].UserData;
 
   GetCommandFormat(CommandType,Command,sizeof(Command));
   GetCommandFormat(CMD_ALLFILESMASK,AllFilesMask,sizeof(AllFilesMask));
@@ -126,7 +163,6 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
     }
   }
 
-
   if (strstr(Command,"%%P")!=NULL)
     for (int I=0;I<ItemsNumber;I++)
       if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
@@ -144,11 +180,8 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
 }
 
 
-int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
-                          int ItemsNumber,
-                          int Move,
-                          char *DestPath,
-                          int OpMode)
+int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
+                          int Move, char *DestPath, int OpMode)
 {
   char SaveDir[NM];
   GetCurrentDirectory(sizeof(SaveDir),SaveDir);
@@ -190,11 +223,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem,
       }
   }
 
-  /* $ 14.02.2001 raVen
-     сброс галки "фоновая архивация" */
-  Opt.UserBackground=0;
-  /* raVen $ */
-
+  Opt.UserBackground=0; // $ 14.02.2001 raVen //сброс галки "фоновая архивация"
   DialogItems[8].Selected=Opt.UserBackground;
 
   if ((OpMode & OPM_SILENT)==0)
@@ -329,9 +358,6 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
   {
     for (I=0;I < ArcPlugin->FmtCount();I++)
     {
-//      if (!ArcPlugin->GetFormatName(I,0,Format,DefExt))
-//        continue;
-
       for (J=0;;J++)
       {
         if (!ArcPlugin->GetFormatName(I,J,Format,DefExt))
@@ -347,9 +373,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
           {
             ArcPlugin->GetDefaultCommands(I,J,CMD_ADD,Buffer);
             if(*Buffer == 0)
-            {
               Add=FALSE;
-            }
           }
         }
 
@@ -415,10 +439,6 @@ int PluginClass::FormatToPlugin(char *Format,int &PluginNumber,int &PluginType)
   char PluginFormat[100],DefExt[NM];
   for (int I=0; I < ArcPlugin->FmtCount(); I++)
   {
-    /* $ AA 12.11.2001//заремлено, чтобы нормально работали нестандартные модули
-    if (!ArcPlugin->GetFormatName(I,0,PluginFormat,DefExt))
-      break;
-    AA 12.11.2001 $ */
     for (int J=0;;J++)
     {
       if (!ArcPlugin->GetFormatName(I,J,PluginFormat,DefExt))
@@ -455,7 +475,7 @@ int PluginClass::ProcessKey(int Key,unsigned int ControlState)
   if ((ControlState & PKF_ALT) && Key==VK_F6)
   {
 //    HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
-    if (strstr(ArcName,"FarTmp")==NULL)
+    if(strstr(ArcName,/*"FarTmp"*/"FARTMP")==NULL)//$AA какая-то бяка баловалась
     {
       char CurDir[NM];
       strcpy(CurDir,ArcName);

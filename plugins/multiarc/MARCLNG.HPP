@@ -111,8 +111,11 @@ enum LanguageID
   MGConfigHideAlways,
   MGConfigProcessShiftF1,
   MGConfigUseLastHistory,
-  MGConfigDeleteExtFile,
-  MGConfigAddExtArchive,
+//  MGConfigDeleteExtFile,
+//  MGConfigAddExtArchive,
+  MGConfigAutoOffExactArcName,
+  MGConfigOldDialogStyle,
+
   MGConfigDizNames,
   MGConfigReadDiz,
   MGConfigUpdateDiz,
@@ -136,4 +139,7 @@ enum LanguageID
 
   MBackground,
   MExactArcName,
+
+  MComment,
+  MInputComment,
 };

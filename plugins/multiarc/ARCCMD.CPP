@@ -18,6 +18,9 @@ ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                        char *Password,char *AllFilesMask,int IgnoreErrors,
                        int CommandType,int Silent,char *RealArcDir,char *Prefix)
 {
+
+//  CommentFile=INVALID_HANDLE_VALUE; //$ AA 25.11.2001
+  *CommentFileName=0; //$ AA 25.11.2001
 //  ExecCode=-1;
 /* $ 28.11.2000 AS
 */
@@ -291,6 +294,40 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
     case 'P':
       strcpy(Command,Password);
       break;
+    case 'C':
+      if(*CommentFileName) //второй раз сюда не лезем
+        break;
+      {
+        *Command=0;
+
+        HANDLE CommentFile;
+        //char CommentFileName[MAX_PATH];
+        char Buf[512];
+        SECURITY_ATTRIBUTES sa;
+
+        sa.nLength=sizeof(sa);
+        sa.lpSecurityDescriptor=NULL;
+        sa.bInheritHandle=TRUE;
+
+        if(FSF.MkTemp(CommentFileName, "Far") &&
+          (CommentFile=CreateFile(CommentFileName, GENERIC_WRITE,
+                       FILE_SHARE_READ|FILE_SHARE_WRITE, &sa, CREATE_ALWAYS,
+                       /*FILE_ATTRIBUTE_TEMPORARY|*//*FILE_FLAG_DELETE_ON_CLOSE*/0, NULL))
+                       != INVALID_HANDLE_VALUE)
+        {
+          DWORD Count;
+          if(Info.InputBox(GetMsg(MComment), GetMsg(MInputComment), NULL, "", Buf, sizeof(Buf), NULL, 0))
+          //??тут можно и заполнить строку комментарием, но надо знать, файловый
+          //?? он или архивный. да и имя файла в архиве тоже надо знать...
+          {
+            WriteFile(CommentFile, Buf, strlen(Buf), &Count, NULL);
+            strcpy(Command, CommentFileName);
+            CloseHandle(CommentFile);
+          }
+          FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+        }
+      }
+      break;
     case 'R':
       strcpy(Command,RealArcDir);
       if (UseSlash)
@@ -557,4 +594,11 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   }
 */
   return TRUE;
+}
+
+ArcCommand::~ArcCommand() //$ AA 25.11.2001
+{
+/*  if(CommentFile!=INVALID_HANDLE_VALUE)
+    CloseHandle(CommentFile);*/
+    DeleteFile(CommentFileName);
 }

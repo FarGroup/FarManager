@@ -133,6 +133,7 @@ class PluginClass
     int DizPresent;
 
   private:
+    BOOL GetFormatName(char *FormatName, char *DefExt=NULL); //$ AA 25.11.2001
     void GetCommandFormat(int Command,char *Format,int FormatSize);
     int GetPassword(char *Password,const char *FileName);
 
@@ -178,6 +179,9 @@ class ArcCommand
     unsigned int ExecCode;
     unsigned int MaxAllowedExitCode;
 
+    char CommentFileName[MAX_PATH]; //$ AA 25.11.2001
+    //HANDLE CommentFile; //$ AA 25.11.2001
+
   private:
     int ProcessCommand(char *Command,int CommandType,int IgnoreErrors,int Silent,char *ListFileName=0);
     void DeleteBraces(char *Command);
@@ -191,6 +195,7 @@ class ArcCommand
                char *FormatString,char *ArcName,char *ArcDir,char *Password,
                char *AllFilesMask,int IgnoreErrors,int CommandType=0,
                int Silent=0,char *RealArcDir=NULL,char *Prefix=NULL);
+    ~ArcCommand(); //$ AA 25.11.2001
 
   public:
     int GetExecCode() {return(ExecCode);};
@@ -213,6 +218,8 @@ int ConfigCommands();
 
 const char *GetMsg(int MsgId);
 int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
+char *SeekDefExtPoint(char *Name, char *DefExt, char **Ext=NULL); //$AA 28.11.2001
+BOOL AddExt(char *Name, char *Ext);                               //$AA 28.11.2001
 
 /* $ 13.09.2000 tran
    разное для ожидания процесса, чтобы убить лист-файл */
@@ -280,8 +287,9 @@ struct Options
   int Background;
   /* tran 13.09.2000 $ */
   int UseLastHistory; // $ 18.05.2001 SVS
-  int DeleteExtFile; // $ 12.07.2001 SVS
-  int AddExtArchive; // $ 16.07.2001 SVS
+  //int DeleteExtFile; // $ 12.07.2001 SVS
+  //int AddExtArchive; // $ 16.07.2001 SVS
+  BOOL AutoOffExactArcName;
 } Opt;
 
 char PluginRootKey[80];
@@ -298,3 +306,5 @@ char IniFile[MAX_PATH];
 char *SortModes[]={"None", "Name", "RunRate", "ChoiceRate", "User"};
 void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini);
 #endif
+
+#define OLD_DIALOG_STYLE 1

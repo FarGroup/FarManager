@@ -30,8 +30,10 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   Opt.HideOutput=GetRegKey(HKEY_CURRENT_USER,"","HideOutput",0);
   Opt.ProcessShiftF1=GetRegKey(HKEY_CURRENT_USER,"","ProcessShiftF1",1);
   Opt.UseLastHistory=GetRegKey(HKEY_CURRENT_USER,"","UseLastHistory",0);
-  Opt.DeleteExtFile=GetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",1);
-  Opt.AddExtArchive=GetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",0);
+
+  //Opt.DeleteExtFile=GetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",1);
+  //Opt.AddExtArchive=GetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",0);
+  Opt.AutoOffExactArcName=GetRegKey(HKEY_CURRENT_USER,"","AutoOffExactArcName",1);
 
   GetRegKey(HKEY_CURRENT_USER,"","DescriptionNames",Opt.DescriptionNames,
             "descript.ion,files.bbs",sizeof(Opt.DescriptionNames));
@@ -190,9 +192,7 @@ int WINAPI _export Configure(int ItemNumber)
         char ArcFormat[100];
         *ArcFormat=0;
         while(PluginClass::SelectFormat(ArcFormat))
-        {
           ConfigCommands(ArcFormat);
-        }
         break;
       }
     }

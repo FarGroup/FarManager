@@ -2,27 +2,37 @@ struct PutDlgData
 {
   PluginClass *Self;
   char ArcFormat[NM];
-  char OriginalName[512];
+  //char OriginalName[512];   //$ AA 26.11.2001
   char Password1[256];
   char Password2[256];
   char DefExt[NM];
   BOOL DefaultPluginNotFound; //$ AA 2?.11.2001
-  BOOL NoChangeName;          //$ AA 23.11.2001
+  BOOL NoChangeArcName;       //$ AA 23.11.2001
+  BOOL OldExactState;         //$ AA 26.11.2001
+  BOOL ArcNameChanged;        //$ AA 27.11.2001
 };
 
 #define MAM_SETDISABLE   DM_USER+1
 #define MAM_ARCSWITCHES  DM_USER+2
-#define MAM_SETNAME      DM_USER+3
+//#define MAM_SETNAME      DM_USER+3
 #define MAM_SELARC       DM_USER+4
+#define MAM_ADDDEFEXT    DM_USER+5
+#define MAM_DELDEFEXT    DM_USER+6
 
 //номера элементов диалога PutFiles
 #define PDI_DOUBLEBOX       0
 #define PDI_ARCNAMECAPT     1
 #define PDI_ARCNAMEEDT      2
-#define PDI_SELARCCAPT      3
-#define PDI_SELARCCOMB      4
-#define PDI_SWITCHESCAPT    5
-#define PDI_SWITCHESEDT     6
+
+//#define PDI_SELARCCAPT      3
+//#define PDI_SELARCCOMB      4
+//#define PDI_SWITCHESCAPT    5
+//#define PDI_SWITCHESEDT     6
+#define PDI_SWITCHESCAPT    3
+#define PDI_SWITCHESEDT     4
+#define PDI_SELARCCAPT      5
+#define PDI_SELARCCOMB      6
+
 #define PDI_SEPARATOR0      7
 #define PDI_PASS0WCAPT      8
 #define PDI_PASS0WEDT       9
@@ -30,15 +40,13 @@ struct PutDlgData
 #define PDI_PASS1WEDT       11
 #define PDI_SEPARATOR1      12
 #define PDI_ADDDELCHECK     13
-//#define PDI_EXACTNAMECHECK   14
-#define PDI_BGROUNDCHECK    14
-#define PDI_SEPARATOR2      15
-#define PDI_ADDBTN          16
-#define PDI_SELARCBTN       17
-#define PDI_SAVEBTN         18
-#define PDI_CANCELBTN       19
-
-#define OLDSTYLE 1
+#define PDI_EXACTNAMECHECK  14
+#define PDI_BGROUNDCHECK    15
+#define PDI_SEPARATOR2      16
+#define PDI_ADDBTN          17
+#define PDI_SELARCBTN       18
+#define PDI_SAVEBTN         19
+#define PDI_CANCELBTN       20
 
 class SelectFormatComboBox
 {
@@ -113,7 +121,7 @@ SelectFormatComboBox::SelectFormatComboBox(FarDialogItem *DialogItem, char *ArcF
 long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
   char Buffer[512];
-  struct PutDlgData *pdd=(struct PutDlgData*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+  PutDlgData *pdd=(struct PutDlgData*)Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
   if(Msg == DN_INITDIALOG)
   {
@@ -131,9 +139,9 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
 
-    Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
+    //Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
 
-    if(OLDSTYLE)
+    if(OLD_DIALOG_STYLE)
     {
       Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCCOMB, 0);
       Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCCAPT, 0);
@@ -144,12 +152,19 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESCAPT, (DWORD)&Item);
       Info.SendDlgMessage(hDlg, DM_GETDLGITEM, PDI_SWITCHESEDT, (DWORD)&Item);
       Item.X1=5;
+      Item.X2=70;
       Info.SendDlgMessage(hDlg, DM_SETDLGITEM, PDI_SWITCHESEDT, (DWORD)&Item);
 
       Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCBTN, 1);
     }
     else
       Info.SendDlgMessage(hDlg, DM_SHOWITEM, PDI_SELARCBTN, 0);
+
+    Info.SendDlgMessage(hDlg, DM_SETCHECK, PDI_EXACTNAMECHECK, pdd->OldExactState?BSTATE_CHECKED:BSTATE_UNCHECKED);
+    pdd->ArcNameChanged=0;
+    if(pdd->NoChangeArcName)
+      Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_EXACTNAMECHECK, 0);
+
     return TRUE;
   }
   else if(Msg == DN_EDITCHANGE)
@@ -158,7 +173,9 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       FarDialogItem *Item=(FarDialogItem *)Param2;
       Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, Item->Data[0] != 0);
-      //strcpy(pdd->OriginalName, Item->Data);
+      pdd->ArcNameChanged=TRUE;
+      //??
+      Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_EXACTNAMECHECK, 1);
     }
     else if(Param1 == PDI_SELARCCOMB)
     {
@@ -216,6 +233,17 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         Info.SendDlgMessage(hDlg, DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
         return TRUE;
+      case PDI_EXACTNAMECHECK:
+        if(Param2)
+        {
+          if(!pdd->OldExactState && !pdd->ArcNameChanged) // 0->1
+            Info.SendDlgMessage(hDlg, MAM_ADDDEFEXT, 0, 0);
+        }
+        else
+          if(pdd->OldExactState)  // 1->0
+            Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
+        pdd->OldExactState=Param2;
+        return TRUE;
     }
   }
   else if(Msg == DN_CLOSE)
@@ -238,29 +266,15 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     Info.SendDlgMessage(hDlg, DM_SETHISTORY, PDI_SWITCHESEDT, (long)SwHistoryName);
     Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, PDI_SWITCHESEDT, (long)"");
   }
-  else if(Msg == MAM_SETNAME)
-  {
-    char ExtName[NM],*ExtPtr;
-    strcpy(Buffer,pdd->OriginalName);
-    if(!pdd->NoChangeName)
-    {
-      if ((ExtPtr=strrchr(Buffer,'.'))==NULL ||
-          (ExtPtr && stricmp(++ExtPtr,pdd->DefExt) != 0))
-      {
-        if(Opt.AddExtArchive)
-        {
-          FSF.sprintf(ExtName,"%s.%s",Buffer,pdd->DefExt);
-          strcpy(Buffer,ExtName);
-        }
-      }
-    }
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_ARCNAMEEDT, (long)Buffer);
-  }
   else if(Msg == MAM_SELARC)
   {
     Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_SAVEBTN, 1);
+    Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_EXACTNAMECHECK, 1);
 
     pdd->Self->FormatToPlugin(pdd->ArcFormat,pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType);
+
+    BOOL IsDelOldDefExt=Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
+    IsDelOldDefExt=IsDelOldDefExt && Info.SendDlgMessage(hDlg, DM_GETCHECK, PDI_EXACTNAMECHECK, 0);
 
     GetRegKey(HKEY_LOCAL_MACHINE,pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
     BOOL Ret=TRUE;
@@ -271,14 +285,38 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     else
       strncpy(pdd->DefExt,Buffer,sizeof(pdd->DefExt));
 
+    if(IsDelOldDefExt)
+      Info.SendDlgMessage(hDlg, MAM_ADDDEFEXT, 0, 0);
+
     FSF.sprintf(Buffer,GetMsg(MAddTitle),pdd->ArcFormat);
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,0,(long)Buffer);
 
     Info.SendDlgMessage(hDlg,MAM_SETDISABLE,0,0);
     Info.SendDlgMessage(hDlg,MAM_ARCSWITCHES,0,0);
-    Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
+    //Info.SendDlgMessage(hDlg,MAM_SETNAME,0,0);
     Info.SendDlgMessage(hDlg,DM_SETFOCUS, PDI_ARCNAMEEDT, 0);
     return TRUE;
+  }
+  else if(Msg == MAM_ADDDEFEXT)
+  {
+    char Name[NM], *Ext;
+    Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+    AddExt(Name, pdd->DefExt);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+    return TRUE;
+  }
+  else if(Msg == MAM_DELDEFEXT)
+  {
+    char Name[NM], *DefExt, *Ext;
+    Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+    if( SeekDefExtPoint(Name, pdd->DefExt, &Ext)!=NULL
+        || (Ext!=NULL && !*(Ext+1)) )
+    {
+      *Ext=0;
+      Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
+      return TRUE;
+    }
+    return FALSE;
   }
 
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -314,11 +352,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   char Command[512],AllFilesMask[32];
   int ArcExitCode=1;
   struct PutDlgData pdd={0};
-  char FullName[NM],ExtName[NM],*NamePtr,*ExtPtr;
+  char FullName[NM],/*ExtName[NM],*/*NamePtr,*ExtPtr;
   BOOL Ret=TRUE;
 
   pdd.Self=this;
-
   *pdd.Password1=*pdd.Password2=0;
 
   if (ArcPluginNumber==-1)
@@ -355,13 +392,19 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     const char *ArcHistoryName="ArcName";
 
     struct InitDialogItem InitItems[]={
-      /* 0*/{DI_DOUBLEBOX,3,1,72,14,0,0,0,0,""},
+      /* 0*/{DI_DOUBLEBOX,3,1,72,15,0,0,0,0,""},
       /* 1*/{DI_TEXT,5,2,0,0,0,0,0,0,(char *)MAddToArc},
       /* 2*/{DI_EDIT,5,3,70,3,1,(DWORD)ArcHistoryName,DIF_HISTORY,0,""},
-      /* 3*/{DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSelect},
-      /* 4*/{DI_COMBOBOX,5,5,25,3,0,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTNOAMPERSAND,0,""},
-      /* 5*/{DI_TEXT,28,4,0,0,0,0,0,0,(char *)MAddSwitches},
-      /* 6*/{DI_EDIT,28,5,70,3,0,0,DIF_HISTORY,0,""},
+
+      //* 3*/{DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSelect},
+      //* 4*/{DI_COMBOBOX,5,5,25,3,0,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTNOAMPERSAND,0,""},
+      //* 5*/{DI_TEXT,28,4,0,0,0,0,0,0,(char *)MAddSwitches},
+      //* 6*/{DI_EDIT,28,5,70,3,0,0,DIF_HISTORY,0,""},
+      /* 3*/{DI_TEXT,5,4,0,0,0,0,0,0,(char *)MAddSwitches},
+      /* 4*/{DI_EDIT,5,5,47,3,0,0,DIF_HISTORY,0,""},
+      /* 5*/{DI_TEXT,50,4,0,0,0,0,0,0,(char *)MAddSelect},
+      /* 6*/{DI_COMBOBOX,50,5,70,3,0,0,DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTNOAMPERSAND,0,""},
+
       /* 7*/{DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
       /* 8*/{DI_TEXT,5,7,0,0,0,0,0,0,(char *)MAddPassword},
       /* 9*/{DI_PSWEDIT,5,8,36,8,0,0,0,0,""},
@@ -369,18 +412,18 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       /*11*/{DI_PSWEDIT,39,8,70,8,0,0,0,0,""},
       /*12*/{DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
       /*13*/{DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MAddDelete},
-      //    {DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MExactArcName},
-      /*14*/{DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MBackground},
-      /*15*/{DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
-      /*16*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd},
-      /*17*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect},
-      /*18*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
-      /*19*/{DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
+      /*14*/{DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MExactArcName},
+      /*15*/{DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MBackground},
+      /*16*/{DI_TEXT,3,13,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
+      /*17*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,1,(char *)MAddAdd},
+      /*18*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddSelect},
+      /*19*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP|DIF_DISABLE,0,(char *)MAddSave},
+      /*20*/{DI_BUTTON,0,14,0,0,0,0,DIF_CENTERGROUP,0,(char *)MAddCancel},
     };
     struct FarDialogItem DialogItems[COUNT(InitItems)];
     InitDialogItems(InitItems,DialogItems,COUNT(InitItems));
 
-/*    if(OLDSTYLE)
+/*    if(OLD_DIALOG_STYLE)
     {
       DialogItems[PDI_SWITCHESCAPT].X1=5;
       DialogItems[PDI_SWITCHESEDT].X1=5;
@@ -393,73 +436,80 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
     if(*ArcName)
     {
-      pdd.NoChangeName=TRUE;
-      strcpy(DialogItems[PDI_ARCNAMEEDT].Data,ArcName);
-      DialogItems[PDI_ARCNAMEEDT].Flags=DIF_READONLY; //одновременно сбрасывается DIF_HISTORY
-      DialogItems[PDI_SELARCBTN].Flags|=DIF_DISABLE;
+      pdd.NoChangeArcName=TRUE;
+      pdd.OldExactState=TRUE;
+      strcpy(DialogItems[PDI_ARCNAMEEDT].Data, ArcName);
     }
+    /*else if() //?? (если выделено несколько файлов &&
+                //курсор стоит вне выделения && под курсором архив)
+    {
+      //pdd.NoChangeArcName=TRUE;
+      pdd.OldExactState=TRUE;
+      strcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CursorName));
+    }*/
     else
     {
-      pdd.NoChangeName=FALSE;
-      if (ItemsNumber==1)
+      if(GetRegKey(HKEY_CURRENT_USER,"","AutoOffExactArcName",1))
+        pdd.OldExactState=FALSE;
+      else
+        pdd.OldExactState=Opt.AutoOffExactArcName=GetRegKey(HKEY_CURRENT_USER,"","ExactArcName",0);
+      if(ItemsNumber==1)
       {
-        strcpy(DialogItems[PDI_ARCNAMEEDT].Data,PanelItem->FindData.cFileName);
-        if(Opt.DeleteExtFile)
-        {
-          char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data,'.');
-          if (Dot!=NULL)
-            *Dot=0;
-        }
+        strcpy(DialogItems[PDI_ARCNAMEEDT].Data, PanelItem->FindData.cFileName);
+        char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data,'.');
+        if(Dot!=NULL)
+          *Dot=0;
       }
       else
       {
         char CurDir[NM];
         GetCurrentDirectory(sizeof(CurDir),CurDir);
-        strcpy(DialogItems[PDI_ARCNAMEEDT].Data,FSF.PointToName(CurDir));
+        strcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDir));
       }
       char AnsiName[NM];
       OemToAnsi(DialogItems[PDI_ARCNAMEEDT].Data,AnsiName);
-      if (!IsCaseMixed(AnsiName))
+      if(!IsCaseMixed(AnsiName))
       {
         CharLower(AnsiName);
-        AnsiToOem(AnsiName,DialogItems[PDI_ARCNAMEEDT].Data);
+        AnsiToOem(AnsiName, DialogItems[PDI_ARCNAMEEDT].Data);
       }
     }
+    if(pdd.OldExactState && !*ArcName)
+      AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
+
     DialogItems[PDI_ADDDELCHECK].Selected=Move;
     /* $ 13.04.2001 DJ
        UserBackground instead of Background
     */
     DialogItems[PDI_BGROUNDCHECK].Selected=Opt.UserBackground;
     /* DJ $ */
-    strcpy(pdd.OriginalName,DialogItems[PDI_ARCNAMEEDT].Data);
+    //strcpy(pdd.OriginalName,DialogItems[PDI_ARCNAMEEDT].Data);
 
-//    if(!Opt.DeleteExtFile)
-
-    {
-      if ((ExtPtr=strrchr(DialogItems[PDI_ARCNAMEEDT].Data,'.'))==NULL ||
-          (ExtPtr && stricmp(++ExtPtr,pdd.DefExt) != 0))
-      {
-        if(Opt.AddExtArchive)
-        {
-          FSF.sprintf(ExtName,"%s.%s",DialogItems[PDI_ARCNAMEEDT].Data,pdd.DefExt);
-          strcpy(DialogItems[PDI_ARCNAMEEDT].Data,ExtName);
-        }
-      }
-    }
 
     if ((OpMode & OPM_SILENT)==0)
     {
-      int AskCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,16,"AddToArc",
+      int AskCode=Info.DialogEx(Info.ModuleNumber,-1,-1,76,17,"AddToArc",
                   DialogItems,COUNT(DialogItems),
                   0,0,PluginClass::PutDlgProc,(long)&pdd);
 
       strcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
       strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data);
-      Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
+      Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected; //??
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
         return -1;
       SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground);
+      SetRegKey(HKEY_CURRENT_USER,"","ExactArcName",DialogItems[PDI_EXACTNAMECHECK].Selected);
     }
+
+    char *Ext;
+    SeekDefExtPoint(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt, &Ext);
+    if(DialogItems[PDI_EXACTNAMECHECK].Selected)
+    {
+      if(Ext==NULL)
+        strcat(DialogItems[PDI_ARCNAMEEDT].Data, ".");
+    }
+    else
+      AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
 
     int Recurse=FALSE;
     for (int I=0;I<ItemsNumber;I++)

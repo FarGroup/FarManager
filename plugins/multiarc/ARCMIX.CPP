@@ -404,6 +404,31 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
   return FALSE;
 }
 
+
+char *SeekDefExtPoint(char *Name, char *DefExt, char **Ext/*=NULL*/)
+{
+  Name=FSF.PointToName(Name);
+  char *TempExt=strrchr(Name, '.');
+  if(Ext)
+    *Ext=TempExt;
+  return (TempExt!=NULL)?(stricmp(TempExt+1, DefExt)?NULL:TempExt):NULL;
+}
+
+BOOL AddExt(char *Name, char *Ext)
+{
+  char *ExtPnt;
+  if(Name && *Name && !SeekDefExtPoint(Name, Ext, &ExtPnt))
+  {
+    if(ExtPnt && !*(ExtPnt+1))
+      strcpy(ExtPnt+1, Ext);
+    else
+      FSF.sprintf(Name+strlen(Name), ".%s", Ext);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
 #ifdef _NEW_ARC_SORT_
 void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini)
 {

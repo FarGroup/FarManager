@@ -8,8 +8,12 @@ int ConfigGeneral()
   /*  4 */{DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
   /*  5 */{DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MGConfigProcessShiftF1},
   /*  6 */{DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MGConfigUseLastHistory},
-  /*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigDeleteExtFile},
-  /*  8 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MGConfigAddExtArchive},
+
+  //*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigDeleteExtFile},
+  //*  8 */{DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MGConfigAddExtArchive},
+  /*  7 */{DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MGConfigAutoOffExactArcName},
+  /*  8 */{DI_CHECKBOX,5,9,0,0,0,0,DIF_DISABLE,0,(char *)MGConfigOldDialogStyle},
+
   /*  9 */{DI_TEXT,5,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,""},
   /* 10 */{DI_TEXT,5,11,0,0,0,0,0,0,(char *)MGConfigDizNames},
   /* 11 */{DI_EDIT,5,12,70,10,0,0,0,0,""},
@@ -27,8 +31,9 @@ int ConfigGeneral()
   DialogItems[3].Selected=(Opt.HideOutput==2);
   DialogItems[5].Selected=Opt.ProcessShiftF1;
   DialogItems[6].Selected=Opt.UseLastHistory;
-  DialogItems[7].Selected=Opt.DeleteExtFile;
-  DialogItems[8].Selected=Opt.AddExtArchive;
+//  DialogItems[7].Selected=Opt.DeleteExtFile;
+//  DialogItems[8].Selected=Opt.AddExtArchive;
+  DialogItems[7].Selected=Opt.AutoOffExactArcName;
   strcpy(DialogItems[11].Data,Opt.DescriptionNames);
   DialogItems[12].Selected=Opt.ReadDescriptions;
   DialogItems[13].Selected=Opt.UpdateDescriptions;
@@ -42,8 +47,11 @@ int ConfigGeneral()
     Opt.HideOutput=(DialogItems[2].Selected) ? 1 : 2;
   Opt.ProcessShiftF1=DialogItems[5].Selected;
   Opt.UseLastHistory=DialogItems[6].Selected;
-  Opt.DeleteExtFile=DialogItems[7].Selected;
-  Opt.AddExtArchive=DialogItems[8].Selected;
+
+  //Opt.DeleteExtFile=DialogItems[7].Selected;
+  //Opt.AddExtArchive=DialogItems[8].Selected;
+  Opt.AutoOffExactArcName=DialogItems[7].Selected;
+
   strcpy(Opt.DescriptionNames,DialogItems[11].Data);
   Opt.ReadDescriptions=DialogItems[12].Selected;
   Opt.UpdateDescriptions=DialogItems[13].Selected;
@@ -53,8 +61,11 @@ int ConfigGeneral()
   SetRegKey(HKEY_CURRENT_USER,"","DescriptionNames",Opt.DescriptionNames);
   SetRegKey(HKEY_CURRENT_USER,"","ReadDescriptions",Opt.ReadDescriptions);
   SetRegKey(HKEY_CURRENT_USER,"","UpdateDescriptions",Opt.UpdateDescriptions);
-  SetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",Opt.DeleteExtFile);
-  SetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",Opt.AddExtArchive);
+
+  //SetRegKey(HKEY_CURRENT_USER,"","DeleteExtFile",Opt.DeleteExtFile);
+  //SetRegKey(HKEY_CURRENT_USER,"","AddExtArchive",Opt.AddExtArchive);
+  SetRegKey(HKEY_CURRENT_USER,"","AutoOffExactArcName",Opt.AutoOffExactArcName);
+
   return TRUE;
 }
 
