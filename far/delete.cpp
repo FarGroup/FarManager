@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.05 11.11.2000 $ */
+/* Revision: 1.06 28.11.2000 $ */
 
 /*
 Modify:
+  28.11.2000 SVS
+    + Обеспечим корректную работу с SymLink (т.н. "Directory Junctions")
   11.11.2000 SVS
     ! Косметика: "FarTmpXXXXXX" заменена на переменную FarTmpXXXXXX
     - исправлен небольшой баг в функциях Wipe*
@@ -186,6 +188,23 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               strcpy(PointToName(ShortName),FindData.cAlternateFileName);
             if (FindData.dwFileAttributes & FA_DIREC)
             {
+              /* $ 28.11.2000 SVS
+                 Обеспечим корректную работу с SymLink
+                 (т.н. "Directory Junctions")
+              */
+              if(FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+              {
+                if (FindData.dwFileAttributes & FA_RDONLY)
+                  SetFileAttributes(FullName,0);
+                if (ERemoveDirectory(FullName,ShortName,Wipe))
+                {
+                  TreeList::DelTreeName(FullName);
+                  if (UpdateDiz)
+                    SrcPanel->DeleteDiz(FullName,SelShortName);
+                }
+                continue;
+              }
+              /* SVS $ */
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && IsFolderNotEmpty(FullName))
               {
                 int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),

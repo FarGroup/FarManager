@@ -6,10 +6,13 @@ scantree.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 28.11.2000 $ */
 
 /*
 Modify:
+  28.11.2000 SVS
+    + Если каталог является SymLink (т.н. "Directory Junctions"),
+      то в него не ломимся.
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -125,7 +128,14 @@ int ScanTree::GetNextName(WIN32_FIND_DATA *fdata,char *FullName)
     }
   }
   else
-    if (fdata->dwFileAttributes & FA_DIREC && Recurse)
+    /* $ 28.11.2000 SVS
+       Если каталог является SymLink (т.н. "Directory Junctions"),
+       то в него не ломимся.
+    */
+    if ((fdata->dwFileAttributes & FA_DIREC) &&
+       !(fdata->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) &&
+       Recurse)
+    /* SVS $ */
     {
       if ((ChPtr=strrchr(FindPath,'\\'))!=NULL)
         *(ChPtr+1)=0;
