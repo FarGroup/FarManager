@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.89 23.08.2001 $ */
+/* Revision: 1.90 07.09.2001 $ */
 
 /*
 Modify:
+  07.09.2001 VVM
+    ! Обновить соседнюю панель с установкой на новый каталог при F7
   23.08.2001 VVM
     ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского
   21.08.2001 KM
@@ -1449,8 +1451,17 @@ int FileList::ProcessKey(int Key)
             GoToFile(PointToName(DirName));
           Redraw();
           Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-          AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-          AnotherPanel->Redraw();
+          /* $ 07.09.2001 VVM
+            ! Обновить соседнюю панель с установкой на новый каталог */
+//          AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+//          AnotherPanel->Redraw();
+
+          if (AnotherPanel->GetType()!=FILE_PANEL)
+          {
+            AnotherPanel->SetCurDir(CurDir,FALSE);
+            AnotherPanel->Redraw();
+          }
+          /* VVM */
         }
         else
           ShellMakeDir(this);
