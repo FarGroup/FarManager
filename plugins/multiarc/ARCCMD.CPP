@@ -1,9 +1,26 @@
+/*
+  ARCCMD.CPP
+
+*/
+
+/* $Revision: 1.00 28.11.2000 $ */
+
+/*
+Modify:
+  28.11.2000 AS
+   ! правка '//' комбинаций
+*/
+
 ArcCommand::ArcCommand(struct PluginPanelItem *PanelItem,int ItemsNumber,
                        char *FormatString,char *ArcName,char *ArcDir,
                        char *Password,char *AllFilesMask,int IgnoreErrors,
                        int CommandType,int Silent,char *RealArcDir)
 {
-  ExecCode=-1;
+//  ExecCode=-1;
+/* $ 28.11.2000 AS
+*/
+  ExecCode=(DWORD)-1;
+/* AS $*/
   if (*FormatString==0)
     return;
   char QPassword[NM+5],QTempPath[NM+5];
@@ -271,7 +288,11 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       {
         for (int I=0;Command[I];I++)
           if (Command[I]=='\\')
-            Command[I]='//';
+//            Command[I]='//';
+/* $ 28.11.2000 AS
+*/
+            Command[I]='/';
+/* AS $*/
       }
       QuoteSpace(Command);
       break;
@@ -369,7 +390,12 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
             if (UseSlash)
               for (int I=0;Name[I];I++)
                 if (Name[I]=='\\')
-                  Name[I]='//';
+//                  Name[I]='//';
+/* $ 28.11.2000 AS
+*/
+                  Name[I]='/';
+/* AS $*/
+
 
             if (*Names)
               strcat(Names," ");
@@ -429,7 +455,12 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   if (UseSlash)
     for (int I=0;CurArcDir[I];I++)
       if (CurArcDir[I]=='\\')
-        CurArcDir[I]='//';
+//        CurArcDir[I]='//';
+/* $ 28.11.2000 AS
+*/
+        CurArcDir[I]='/';
+/* AS $*/
+
   for (int I=0;I<ItemsNumber;I++)
   {
     char FileName[NM];

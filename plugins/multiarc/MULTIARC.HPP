@@ -1,3 +1,16 @@
+/*
+  MULTIARC.HPP
+
+*/
+
+/* $Revision: 1.00 28.11.2000 $ */
+
+/*
+Modify:
+  28.11.2000 AS
+    ! включаем stdlib.h - нужен для realloc
+*/
+
 #ifdef _MSC_VER
 #  define _WINCON_
 #  include <windows.h>
@@ -12,7 +25,14 @@
 
 //#include <stdio.h>
 //#include <conio.h>
-//#include <stdlib.h>
+
+/* $ 28.11.2000 AS
+  stdlib - нужен для realloc
+*/
+#include <stdlib.h>
+/* AS $*/
+/*AS 28.11.2000 $ */
+
 //#include <string.h>
 //#include <dos.h>
 //#include <direct.h>
