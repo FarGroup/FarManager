@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.134 05.01.2005 $ */
+/* Revision: 1.135 11.01.2005 $ */
 
 /*
 Modify:
+  11.01.2005 SVS
+    - BugZ#1218 - Позиция курсора на панели
   05.01.2005 SVS
     - BugZ#1146 - Информационное сообщение о снятии макроса надо улучшить
   08.12.2004 SVS
@@ -1327,7 +1329,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
         {
           Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURPOS ? ActivePanel : PassivePanel;
           if ( SelPanel != NULL )
-            Cond=SelPanel->GetCurrentPos();
+            Cond=SelPanel->GetCurrentPos()+(SelPanel->GetFileCount()>0?1:0);
           break;
         }
 

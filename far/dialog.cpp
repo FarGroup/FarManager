@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.318 05.01.2005 $ */
+/* Revision: 1.319 11.01.2005 $ */
 
 /*
 Modify:
+  11.01.2005 SVS
+    ! корректировка костыля для DI_TEXT
+    - BugZ#1226 - CurPos и ItemCount в диалогах в полях ввода
   05.01.2005 SVS
     ! костыль для DI_TEXT
   05.01.2005 WARP
@@ -2773,9 +2776,12 @@ void Dialog::ShowDialog(int ID)
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
         // вместо этого:
-        SetColor(Attr&0xFF);
-        GotoXY(X1+X,Y1+Y);
-        mprintf("%*s",CX2-CX1+1,"");
+        if(CX1 > -1 && CX2 > 0)
+        {
+          SetColor(Attr&0xFF);
+          GotoXY(X1+X,Y1+Y);
+          mprintf("%*s",CX2-CX1+1,"");
+        }
 
         if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
@@ -3274,10 +3280,32 @@ int Dialog::ProcessKey(int Key)
         return CheckHighlights(*str);
       return FALSE;
     }
+
     case MCODE_V_ITEMCOUNT:
-      return ItemCount;
     case MCODE_V_CURPOS:
-      return FocusPos+1;
+    {
+      switch(Item[FocusPos].Type)
+      {
+        case DI_COMBOBOX:
+           if(DropDownOpened || (Item[FocusPos].Flags & DIF_DROPDOWNLIST))
+             return Item[FocusPos].ListPtr->ProcessKey(Key);
+        case DI_EDIT:
+        case DI_PSWEDIT:
+        case DI_FIXEDIT:
+           return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+        case DI_LISTBOX:
+          return Item[FocusPos].ListPtr->ProcessKey(Key);
+
+        case DI_USERCONTROL:
+          if(Key == MCODE_V_CURPOS)
+            return Item[FocusPos].UCData->CursorPos.X;
+        case DI_BUTTON:
+        case DI_CHECKBOX:
+        case DI_RADIOBUTTON:
+          return 0;
+      }
+      return 0;
+    }
   }
 
   // BugZ#488 - Shift=enter
@@ -6169,9 +6197,9 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 int Dialog::CallDlgProc (int nMsg, int nParam1, int nParam2)
 {
-	CriticalSectionLock Lock (CS);
+    CriticalSectionLock Lock (CS);
 
-	return Dialog::DlgProc ((HANDLE)this, nMsg, nParam1, nParam2);
+    return Dialog::DlgProc ((HANDLE)this, nMsg, nParam1, nParam2);
 }
 
 
