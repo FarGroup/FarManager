@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.196 18.09.2002 $ */
+/* Revision: 1.197 19.09.2002 $ */
 
 /*
 Modify:
+  19.09.2002 SKV
+    - BugZ#643. Выделение, набор текста с шифтом.
   18.09.2002 SKV
     - Опять выделение. На сей раз в !EdOpt.CursorBeyondEOL режиме.
   17.09.2002 SKV
@@ -3197,6 +3199,14 @@ int Editor::ProcessKey(int Key)
               Key==KEY_MULTIPLY || Key==KEY_DIVIDE || Key==KEY_TAB)
           {
             DeleteBlock();
+            /* $ 19.09.2002 SKV
+              Однако надо.
+              Иначе есди при надичии выделения набирать
+              текст с шифтом флаги не сбросятся и следующий
+              выделенный блок будет глючный.
+            */
+            Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+            /* SKV $ */
             Show();
           }
 
