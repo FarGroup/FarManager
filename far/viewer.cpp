@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.164 06.08.2004 $ */
+/* Revision: 1.165 03.11.2004 $ */
 
 /*
 Modify:
+  03.11.2004 WARP
+    - Невполне адекватный фикс для BugZ#971
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   03.08.2004 SVS
@@ -3082,6 +3084,7 @@ void Viewer::Search(int Next,int FirstChar)
           if (ConfirmAbortOp())
           {
             SetPreRedrawFunc(NULL);
+            Redraw ();
             return;
           }
           ViewerSearchMsg(MsgStr);
