@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.123 03.08.2004 $ */
+/* Revision: 1.124 06.08.2004 $ */
 
 /*
 Modify:
+  06.08.2004 SVS
+    ! Новое содержимое fsplitFunc
   05.08.2004 SVS
     - BugZ#359 - Не назначается макрос макрос на Ctrl(Shift/Alt)+MsWheelUp(MsWheelDown)
     + MCODE_V_VIEWERSTATE, MCODE_F_FSPLIT, MCODE_F_MSGBOX, MCODE_C_CMDLINE_EMPTY, MCODE_C_CMDLINE_SELECTED, MCODE_V_DLGITEMTYPE, MCODE_F_RINDEX
@@ -1224,32 +1226,112 @@ static TVar substrFunc(TVar *param)
   return TVar("");
 }
 
-// TODO: функцию нужно переделать!
+#define FLAG_DISK   1
+#define FLAG_PATH   2
+#define FLAG_NAME   4
+#define FLAG_EXT    8
+
+static BOOL SplitFileName(const char *FileName,char *Dest,int nFlags)
+{
+  char *s = (char*)FileName; //start of sub-string
+  char *p = s; //current string pointer
+
+  char *es = s+strlen(s); //end of string
+  char *e; //end of sub-string
+
+  if ( !*p )
+    return FALSE;
+
+  if ( (*p == '\\') && (*(p+1) == '\\') ) //share
+  {
+    p += 2;
+
+    p = strchr(p, '\\');
+
+    if ( !p )
+      return FALSE; //invalid share (\\server\)
+
+    p = strchr (p+1, '\\');
+
+    if ( !p )
+      p = es;
+
+    if ( (nFlags & FLAG_DISK) == FLAG_DISK )
+      strncpy (Dest, s, p-s);
+  }
+  else
+  {
+    if ( *(p+1) == ':' )
+    {
+      if ( !isalpha (*p) )
+        return false; // 1:\ is not a valid disk
+
+      p += 2;
+
+      if ( (nFlags & FLAG_DISK) == FLAG_DISK )
+        strncat (Dest, s, p-s);
+    }
+  }
+
+  e = NULL;
+  s = p;
+
+  while ( p )
+  {
+    p = strchr (p, '\\');
+
+    if ( p )
+    {
+      e = p;
+      p++;
+    }
+  }
+
+  if ( e )
+  {
+    if ( (nFlags & FLAG_PATH) )
+      strncat (Dest, s, e-s);
+
+    s = e+1;
+    p = s;
+
+  }
+
+  e = NULL;
+
+  while ( p )
+  {
+    p = strchr (p+1, '.');
+
+    if ( p )
+      e = p;
+  }
+
+  if ( !e )
+    e = es;
+
+  //FSF.AddEndSlash replacement
+
+  if ( *Dest && (Dest[strlen(Dest)] != '\\') ) //hack, just in case of "disk+name" etc.
+    strcat (Dest, "\\");
+
+  if ( nFlags & FLAG_NAME )
+    strncat (Dest, s, e-s);
+
+  if ( nFlags & FLAG_EXT )
+    strcat (Dest, e);
+
+  return TRUE;
+}
+
 static TVar fsplitFunc(TVar *param)
 {
-  char path[_MAX_PATH];
-  char drive[_MAX_DRIVE];
-  char dir[_MAX_DIR];
-  char fname[_MAX_FNAME];
-  char ext[_MAX_EXT];
-
-  *path=0;
+  char path[NM*2];
   const char *s = param[0].toString();
   long        m = param[1].toInteger();
-
-  if(s && *s)
-  {
-    _splitpath(s, drive, dir, fname, ext);
-
-    if(m&0x0001)
-      strncat(path,drive,sizeof(path)-1);
-    if(m&0x0002)
-      strncat(path,dir,sizeof(path)-1);
-    if(m&0x0004)
-      strncat(path,fname,sizeof(path)-1);
-    if(m&0x0008)
-      strncat(path,ext,sizeof(path)-1);
-  }
+  *path=0;
+  if(!SplitFileName(s,path,m))
+    *path=0;
   return TVar(path);
 }
 
