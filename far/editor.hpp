@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.29 14.12.2001 $ */
+/* Revision: 1.30 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    + ResizedConsole - при изменении консоли = 1
   14.12.2001 IS
     ! внедрение const в соответствии с изменениями класса Edit
   03.12.2001 IS
@@ -219,6 +221,7 @@ class Editor:public ScreenObject
 
     int EditorID;
     bool OpenFailed;
+    int IsResizedConsole;
 
     FileEditor *HostFileEditor;
 
@@ -303,6 +306,7 @@ class Editor:public ScreenObject
     void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
     static int IsShiftKey(int Key);
     static void SetReplaceMode(int Mode);
+    void PrepareResizedConsole(){IsResizedConsole=TRUE;}
 
     /* $ 26.02.2001 IS
          Функции чтения/установления текущих настроек редактирования

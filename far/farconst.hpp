@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.56 24.12.2001 $ */
+/* Revision: 1.57 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    + HelpFormatLinkModule
   24.12.2001 SVS
     - Bug - про хелп. Забыл исправить HelpFormatLink
   01.11.2001 SVS
@@ -138,6 +140,7 @@ Modify:
 #define HelpBeginLink '<'
 #define HelpEndLink '>'
 #define HelpFormatLink "<%s\\>%s"
+#define HelpFormatLinkModule "<%s>%s"
 
 typedef unsigned char    UBYTE;
 typedef unsigned short   UWORD;

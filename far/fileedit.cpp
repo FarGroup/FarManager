@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.75 17.12.2001 $ */
+/* Revision: 1.76 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    + ResizeConsole()
   17.12.2001 KM
     ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
   08.12.2001 OT
@@ -874,4 +876,9 @@ int FileEditor::FastHide()
 BOOL FileEditor::isTemporary()
 {
   return (!GetDynamicallyBorn());
+}
+
+void FileEditor::ResizeConsole()
+{
+  FEdit.PrepareResizedConsole();
 }

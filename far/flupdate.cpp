@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.23 25.12.2001 $ */
+/* Revision: 1.24 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    ! Ќебольшое уточнение
   25.12.2001 SVS
     ! немного оптимизации (если VC сам умеет это делать, то
       борманду нужно помочь)
@@ -784,9 +786,10 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
     {
       for (int I=0;I<Info.DescrFilesNumber;I++)
       {
-        for (int J=0; J < PluginFileCount; J++, PanelData++)
+        PluginPanelItem *CurPanelData=PanelData;
+        for (int J=0; J < PluginFileCount; J++, CurPanelData++)
         {
-          if (LocalStricmp(PanelData[J].FindData.cFileName,Info.DescrFiles[I])==0)
+          if (LocalStricmp(CurPanelData->FindData.cFileName,Info.DescrFiles[I])==0)
           {
             char TempDir[NM],DizName[NM];
             strcpy(TempDir,Opt.TempPath);
@@ -794,7 +797,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
             if (mktemp(TempDir)!=NULL && CreateDirectory(TempDir,NULL))
             //if (FarMkTemp(TempDir,"Far")!=NULL && CreateDirectory(TempDir,NULL))
             {
-              if (CtrlObject->Plugins.GetFile(hPlugin,&PanelData[J],TempDir,DizName,OPM_SILENT|OPM_VIEW|OPM_DESCR))
+              if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,TempDir,DizName,OPM_SILENT|OPM_VIEW|OPM_DESCR))
               {
                 strcpy(PluginDizName,Info.DescrFiles[I]);
                 Diz.Read("",DizName);

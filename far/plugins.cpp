@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.99 14.12.2001 $ */
+/* Revision: 1.100 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    ! "Поправим" недоделку 1.6х по поводу попадания плагинов в кэш
   14.12.2001 IS
     ! stricmp -> LocalStricmp
   07.12.2001 IS
@@ -1006,24 +1008,37 @@ int PluginsSet::GetCacheNumber(char *FullName,WIN32_FIND_DATA *FindData,int Cach
 int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
                                     WIN32_FIND_DATA &FindData)
 {
-  if (CurPlugin.pGetPluginInfo==NULL)
-    return(FALSE);
+  if(!(CurPlugin.pGetPluginInfo     ||
+      CurPlugin.pOpenPlugin         ||
+      CurPlugin.pOpenFilePlugin     ||
+      CurPlugin.pSetFindList        ||
+      CurPlugin.pProcessEditorInput ||
+      CurPlugin.pProcessEditorEvent ||
+      CurPlugin.pProcessViewerEvent
+  // Сюда добавлять те функции, из-за которых плагин имеет место быть в кэше
+  ))
+   return FALSE;
+
   struct PluginInfo Info;
   memset(&Info,0,sizeof(Info));
-  if(Opt.ExceptRules)
+
+  if(CurPlugin.pGetPluginInfo)
   {
-    TRY {
+    if(Opt.ExceptRules)
+    {
+      TRY {
+        CurPlugin.pGetPluginInfo(&Info);
+      }
+      EXCEPT(xfilter(EXCEPT_GETPLUGININFO,GetExceptionInformation(),&CurPlugin,0)){
+        UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+        return FALSE;
+      }
+      if(!TestPluginInfo(CurPlugin,&Info))
+        return FALSE;
+    }
+    else
       CurPlugin.pGetPluginInfo(&Info);
-    }
-    EXCEPT(xfilter(EXCEPT_GETPLUGININFO,GetExceptionInformation(),&CurPlugin,0)){
-      UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
-      return FALSE;
-    }
-    if(!TestPluginInfo(CurPlugin,&Info))
-      return FALSE;
   }
-  else
-    CurPlugin.pGetPluginInfo(&Info);
 
   CurPlugin.SysID=Info.SysID;
   /* $ 12.10.2000 tran

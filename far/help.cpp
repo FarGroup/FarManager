@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.61 24.12.2001 $ */
+/* Revision: 1.62 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    - Работа над ошибками (Help::MkTopic для ModuleName)
   24.12.2001 SVS
     ! HelpMask переехала в StackHelpData.
     ! Уточнения для "документов" (в принципе уже можно открывать!)
@@ -1705,7 +1707,7 @@ char *Help::MkTopic(int PluginNumber,const char *HelpTopic,char *Topic)
     {
       if(PluginNumber != -1 && *HelpTopic!=HelpBeginLink)
       {
-         sprintf(Topic,HelpFormatLink,
+         sprintf(Topic,HelpFormatLinkModule,
                 CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName,
                 HelpTopic);
       }

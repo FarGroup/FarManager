@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.137 24.12.2001 $ */
+/* Revision: 1.138 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    + При изменении размеров консоли перед прорисовкой редактора вызовем
+      ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL).
+      Но здесь эээ... колорер реагирует только на EEREDRAW_CHANGE
+      (сам себе злобный буратино ;-()
   24.12.2001 SVS
     - Бага компиляции в Editor::ProcessEditorInput - лищняя скобка
   14.12.2001 IS
@@ -515,6 +520,7 @@ Editor::Editor()
   OpenFailed=true; // Ну, блин. Файл то еще не открыт,
                    // так нефига ставить признак удачного открытия
   HostFileEditor=NULL;
+  IsResizedConsole=0;
 }
 
 
@@ -1184,7 +1190,15 @@ end:
 void Editor::DisplayObject()
 {
   if (!DisableOut)
+  {
+    if(IsResizedConsole)
+    {
+      IsResizedConsole=0;
+      CtrlObject->Plugins.CurEditor=this;
+      CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+    }
     ShowEditor(FALSE);
+  }
 }
 
 

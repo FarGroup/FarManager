@@ -7,12 +7,14 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.22 08.12.2001 $ */
+/* Revision: 1.23 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    + ResizeConsole()
   08.12.2001 OT
-    Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
+    - Bugzilla #144 Заходим в архив, F4 на файле, Ctrl-F10.
   02.11.2001 SVS
     ! возвращаемое значение у GetTypeName() - модификатор const
   10.10.2001 IS
@@ -163,6 +165,7 @@ class FileEditor:public Frame
       возвращает признак того, является ли файл временным
       используется для принятия решения переходить в каталог по CtrlF10*/
     BOOL isTemporary();
+    void ResizeConsole();
 };
 
 #endif  // __FILEEDITOR_HPP__
