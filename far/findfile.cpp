@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.69 19.10.2001 $ */
+/* Revision: 1.70 20.10.2001 $ */
 
 /*
 Modify:
+  20.10.2001 KM
+    ! Подчистки по тексту.
+    ! Зачем-то при выбросе файлов во временную панель был сделан переход на файл,
+      на котором стоял курсор в списке. Убрано.
   19.10.2001 KM
     - Маленький глючок в моём прошлом патче, перепутал параметры местами у memset.
     ! Использование DIF_SEPARATOR2 вмечто MakeSeparator.
@@ -298,9 +302,7 @@ static volatile int StopSearch,SearchDone,LastFoundNumber,FileCount,WriteDataUse
 static char FindMessage[200],LastDirName[NM];
 static int FindMessageReady,FindCountReady;
 static char PluginSearchPath[2*NM];
-//static HANDLE hPlugin;
 static HANDLE hDlg;
-//static struct OpenPluginInfo Info;
 static int RecurseLevel;
 static int BreakMainThread;
 static int PluginMode;
@@ -328,9 +330,7 @@ int _cdecl SortItems(const void *p1,const void *p2)
   PluginPanelItem *Item1=(PluginPanelItem *)p1;
   PluginPanelItem *Item2=(PluginPanelItem *)p2;
   char n1[NM*2],n2[NM*2];
-  // здесь я чтой-то глюканул, перепутал параметры местами :))
-  memset(&n1,0,sizeof(n1));
-  memset(&n2,0,sizeof(n2));
+  n1[0]=0;n2[0]=0;
   if (*Item1->FindData.cFileName)
     strcpy(n1,Item1->FindData.cFileName);
   if (*Item2->FindData.cFileName)
@@ -579,9 +579,6 @@ FindFiles::FindFiles()
         MSG(MOk));
     }
     strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
-    /* $ 01.07.2001 IS Кавычки уберутся в другом месте - в CFileMask */
-    //Unquote(FindMask);
-    /* IS $ */
     if (strlen (FindAskDlg[5].Data) > sizeof(FindStr) ){
       memset (Buf1, 0, sizeof(Buf1));
       memset (Buf2, 0, sizeof(Buf2));
@@ -806,7 +803,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             {
               NamesList ViewList;
               // Возьмем все файлы, которые имеют реальные имена...
-//              if (!PluginMode || (Info.Flags & OPIF_REALNAMES))
               {
                 int ListSize=ListBox->GetItemCount();
                 DWORD Index;
@@ -820,7 +816,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                     int Length=strlen(FindList[Index].FindData.cFileName);
                     // Не учитывали файлы в архивах с OPIF_REALNAMES
                     if (Length>0 && !(FindList[Index].FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-//                        FindList[Index].ArcIndex == LIST_INDEX_NONE)
                       ViewList.AddName(FindList[Index].FindData.cFileName);
                   } /* if */
                 } /* for */
@@ -1070,18 +1065,12 @@ int FindFiles::FindFilesProcess()
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
 
-    /* Надо бы проверить, что хостфайл вообще есть */
-    /* $ 15.10.2001 VVM
-      ! Не надо так проверять!!!*/
-//    if (Info.HostFile)
-//    {
-      FindFileArcIndex = AddArcListItem(Info.HostFile);
-      if (FindFileArcIndex == LIST_INDEX_NONE)
-        return(FALSE);
-      ArcList[FindFileArcIndex].hPlugin = hPlugin;
-      ArcList[FindFileArcIndex].Flags = Info.Flags;
-//    }
-    /* VVM ! */
+    FindFileArcIndex = AddArcListItem(Info.HostFile);
+    if (FindFileArcIndex == LIST_INDEX_NONE)
+      return(FALSE);
+    ArcList[FindFileArcIndex].hPlugin = hPlugin;
+    ArcList[FindFileArcIndex].Flags = Info.Flags;
+
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
       FindDlg[8].Type=DI_TEXT;
@@ -1126,6 +1115,8 @@ int FindFiles::FindFilesProcess()
   IsProcessAssignMacroKey++; // отключим все спец. клавиши
   pDlg->Process();
   IsProcessAssignMacroKey--;
+
+  CloseHandle(hMutex);
 
   switch (FindExitCode)
   {
@@ -1174,8 +1165,8 @@ int FindFiles::FindFilesProcess()
         NewPanel->SetPluginMode(hNewPlugin,"");
         NewPanel->SetVisible(TRUE);
         NewPanel->Update(0);
-        if (FindExitIndex != LIST_INDEX_NONE)
-          NewPanel->GoToFile(FindList[FindExitIndex].FindData.cFileName);
+//        if (FindExitIndex != LIST_INDEX_NONE)
+//          NewPanel->GoToFile(FindList[FindExitIndex].FindData.cFileName);
         NewPanel->Show();
         NewPanel->SetFocus();
       }
@@ -1263,8 +1254,6 @@ int FindFiles::FindFilesProcess()
       break;
     } /* case FIND_EXIT_GOTO */
   } /* switch */
-
-  CloseHandle(hMutex);
 
   return FALSE;
 }
@@ -1403,9 +1392,7 @@ void FindFiles::ArchiveSearch(char *ArcName)
   int SavePluginsOutput=DisablePluginsOutput;
   DisablePluginsOutput=TRUE;
   HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(ArcName,(unsigned char *)Buffer,ReadSize);
-  /* $ 01.10.2001 VVM
-    ! Ну так же низзя!
-  DisablePluginsOutput=DisablePluginsOutput; */
+  /* $ 01.10.2001 VVM */
   DisablePluginsOutput=SavePluginsOutput;
   /* VVM $ */
 
@@ -1822,10 +1809,7 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
   Sleep(200);
   *PluginSearchPath=0;
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-  // Теперь убедимся, что FindFileArcIndex имеет реальное значение.
-  /* $ 15.10.2001 VVM
-    ! Не надо убеждаться. Он имеет реальное значение. */
-//  HANDLE hPlugin=(FindFileArcIndex==LIST_INDEX_NONE)?ActivePanel->GetPluginHandle():ArcList[FindFileArcIndex].hPlugin;
+  /* $ 15.10.2001 VVM */
   HANDLE hPlugin=ArcList[FindFileArcIndex].hPlugin;
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -1833,8 +1817,6 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
   RecurseLevel=0;
-  // Теперь убедимся, что FindFileArcIndex имеет реальное значение.
-//  ScanPluginTree(hPlugin,(FindFileArcIndex==LIST_INDEX_NONE)?Info.Flags:ArcList[FindFileArcIndex].Flags);
   ScanPluginTree(hPlugin,ArcList[FindFileArcIndex].Flags);
   /* VVM $ */
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
