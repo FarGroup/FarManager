@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.04 30.10.2000 $ */
+/* Revision: 1.05 24.11.2000 $ */
 
 /*
 Modify:
+  24.11.2000 SVS
+    - Для Encrypted вместо EditData.ExcludeAttr стоял IncludeAttr :-(
   30.10.2000 SVS
     - Не редактируются маски файлов в Files Highlighting!
   20.10.2000 SVS
@@ -342,7 +344,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   HiEditDlg[15].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
   HiEditDlg[16].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ARCHIVE)!=0;
   HiEditDlg[17].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-  HiEditDlg[18].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+  HiEditDlg[18].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
   HiEditDlg[19].Selected=(EditData.ExcludeAttr & FILE_ATTRIBUTE_DIRECTORY)!=0;
 
   *HiEditDlg[27].Data=EditData.MarkChar;
