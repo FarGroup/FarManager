@@ -5,11 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.69 19.06.2001 $ */
+/* Revision: 1.70 20.06.2001 $ */
 
 /*
 Modify:
-  19.06.2001
+  20.06.2001 SVS
+    ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY, в т.ч. механизм
+      этой команды теперь основывается на Macro API
+  19.06.2001 IS
     - Баг: не работало автоопределение кодировки после 268.
   06.06.2001 SVS
     - Во время исполнения макроса в меню игнорировались BreakKeys.
@@ -406,8 +409,18 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return FALSE;
     }
 
-    case ACTL_PROCESSSEQUENCEKEY:
-      return Param?WriteSequenceInput((struct SequenceKey*)Param):FALSE;
+    case ACTL_POSTSEQUENCEKEY:
+      //return Param?WriteSequenceInput((struct SequenceKey*)Param):FALSE;
+      if(CtrlObject && Param && ((struct SequenceKey*)Param)->Count > 0)
+      {
+        struct MacroRecord MRec;
+        MRec.Flags=(((struct SequenceKey*)Param)->Flags)<<16;
+        MRec.Key=0;
+        MRec.BufferSize=((struct SequenceKey*)Param)->Count;
+        MRec.Buffer=((struct SequenceKey*)Param)->Sequence;
+        return CtrlObject->Macro.PostTempKeyMacro(&MRec);
+      }
+      return FALSE;
 
     /* $ 05.06.2001 tran
        новые ACTL_ для работы с фреймами */

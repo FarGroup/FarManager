@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.39 06.06.2001 $ */
+/* Revision: 1.40 20.06.2001 $ */
 
 /*
 Modify:
+  20.06.2001 SVS
+    ! SKEY_NOTMACROS переехал из plugin.hpp
   06.06.2001 SVS
     + BOOKMARK_COUNT
     ! Min/Max заменены на inline-функции
@@ -205,8 +207,10 @@ enum ReadDizFlags {
 #define DRIVE_NOT_INIT      0xFF
 
 
-#define SKEY_VK_KEYS        0x40000000
-
+enum {
+  SKEY_VK_KEYS    = 0x40000000,
+  SKEY_NOTMACROS  = 0x00000001,
+};
 
 // размеры для полей ввода
 #define PANELFILTER_MASK_SIZE    2048

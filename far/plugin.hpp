@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.118 19.06.2001 $ */
+/* Revision: 1.119 20.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  20.06.2001 SVS
+   ! ACTL_PROCESSSEQUENCEKEY -> ACTL_POSTSEQUENCEKEY
+   ! SKEY_NOTMACROS -> SKFLAGS_DISABLEOUTPUT
   19.06.2001 SVS
    + DN_DRAGGED
   14.06.2001 SVS
@@ -1027,16 +1030,6 @@ enum FarHelpFlags{
 typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
 
 enum {
-  SKEY_NOTMACROS  = 0x00000001,
-};
-
-struct SequenceKey{
-  DWORD Flags;
-  int Count;
-  DWORD *Sequence;
-};
-
-enum {
   ACTL_GETFARVERSION,
   ACTL_CONSOLEMODE,
   ACTL_GETSYSWORDDIV,
@@ -1045,7 +1038,7 @@ enum {
   ACTL_GETARRAYCOLOR,
   ACTL_EJECTMEDIA,
   ACTL_KEYMACRO,
-  ACTL_PROCESSSEQUENCEKEY,
+  ACTL_POSTSEQUENCEKEY,
   ACTL_GETWINDOWINFO,
   ACTL_GETWINDOWCOUNT,
   ACTL_SETCURRENTWINDOW
@@ -1074,6 +1067,16 @@ enum MacroCommand{
 struct ActlKeyMacro{
   int Command;
   DWORD Reserved[3];
+};
+
+enum SequenceKeyFlags {
+  SKFLAGS_DISABLEOUTPUT       = 0x00000001,
+};
+
+struct SequenceKey{
+  DWORD Flags;
+  int Count;
+  DWORD *Sequence;
 };
 
 enum {

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.123 19.06.2001 $ */
+/* Revision: 1.124 20.06.2001 $ */
 
 /*
 Modify:
+  20.06.2001 SVS
+   - "функция DM_GETTEXTLENGTH возвращает 0 длину для всех DI_EDIT"
   19.06.2001 SVS
    + DN_DRAGGED
   19.06.2001 SVS
@@ -4636,7 +4638,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         case DI_PSWEDIT:
         case DI_FIXEDIT:
           if(CurItem->ObjPtr)
+          {
             Len=((Edit *)(CurItem->ObjPtr))->GetLength();
+            break;
+          }
 
         case DI_LISTBOX:
           Len=0;

@@ -5,10 +5,17 @@ macro.cpp
 
 */
 
-/* Revision: 1.40 23.05.2001 $ */
+/* Revision: 1.41 20.06.2001 $ */
 
 /*
 Modify:
+  20.06.2001 SVS
+    - Некорретная работа функции PlayKeyMacro(MacroRecord*).
+      Теперь бум все делать динамически и "у себя" :-)
+    ! Названия функций приведены к более конкретному их назначению:
+      PlayKeyMacro -> PostTempKeyMacro
+    ! TempMacroType удален за ненадобностью, т.к. для Temp-макросов все равно
+      память динамически перераспределяется.
   23.05.2001 SVS
     - неверно заполнялись индексы начал макросов.
   23.05.2001 SVS
@@ -267,7 +274,6 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 KeyMacro::KeyMacro()
 {
   _OT(SysLog("[%p] KeyMacro::KeyMacro()", this));
-  TempMacroType=MTEMP_POINTER;
   TempMacro=NULL;
   LockScr=NULL;
   Macros=NULL;
@@ -315,14 +321,13 @@ void KeyMacro::InitVars()
 // (динамически - значит в PlayMacros передали строку.
 void KeyMacro::ReleaseTempBuffer()
 {
-  if(TempMacroType == MTEMP_DYNAMIC && TempMacro)
+  if(TempMacro)
   {
     if(TempMacro->Buffer)
       free(TempMacro->Buffer);
     free(TempMacro);
   }
   TempMacro=NULL;
-  TempMacroType=MTEMP_POINTER;
 }
 
 // загрузка ВСЕХ макросов из реестра
@@ -490,10 +495,10 @@ int KeyMacro::GetKey()
 //_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Executing,FrameManager->GetCurrentFrame()));
   if (InternalInput || !Executing || !FrameManager->GetCurrentFrame())
     return(FALSE);
-//_SVS(SysLog("<KeyMacro::GetKey()=%d",ExecMacroPos));
 
 initial:
   MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+//_SVS(SysLog("KeyMacro::GetKey() initial: ExecKeyPos=%d (%d) %p",ExecKeyPos,MR->BufferSize,TempMacro));
 
 begin:
   if (ExecKeyPos>=MR->BufferSize || MR->Buffer==NULL)
@@ -965,7 +970,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   return(TRUE);
 }
 
-int KeyMacro::PlayKeyMacro(char *KeyBuffer)
+int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
 {
   ReleaseTempBuffer();
 
@@ -982,7 +987,6 @@ int KeyMacro::PlayKeyMacro(char *KeyBuffer)
     return FALSE;
   }
 
-  TempMacroType=MTEMP_DYNAMIC;
   if (TempMacro->Flags&MFLAGS_DISABLEOUTPUT)
   {
     if(LockScr) delete LockScr;
@@ -993,14 +997,23 @@ int KeyMacro::PlayKeyMacro(char *KeyBuffer)
   return TRUE;
 }
 
-int KeyMacro::PlayKeyMacro(struct MacroRecord *MRec)
+int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
 {
   ReleaseTempBuffer();
 
-  TempMacro=MRec;
-
-  if(!TempMacro)
+  if(!MRec)
     return FALSE;
+
+  if((TempMacro=(struct MacroRecord *)malloc(sizeof(MacroRecord))) == NULL)
+    return FALSE;
+
+  memcpy(TempMacro,MRec,sizeof(struct MacroRecord));
+  if((TempMacro->Buffer=(DWORD*)malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
+  {
+    ReleaseTempBuffer();
+    return FALSE;
+  }
+  memcpy(TempMacro->Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
 
   if (TempMacro->Flags&MFLAGS_DISABLEOUTPUT)
   {

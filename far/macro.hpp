@@ -11,6 +11,11 @@ macro.hpp
 
 /*
 Modify:
+  20.06.2001 SVS
+    ! Названия функций приведены к более конкретному их назначению:
+      PlayKeyMacro -> PostTempKeyMacro
+    ! TempMacroType удален за ненадобностью, т.к. для Temp-макросов все равно
+      память динамически перераспределяется.
   23.05.2001 SVS
     ! IndexMode - двумерный массив: первый индекс - начало, второй - количество.
   23.05.2001 SVS
@@ -88,7 +93,6 @@ class KeyMacro
     int StartMacroPos;
 
     struct MacroRecord *TempMacro; // временный буфер для 1 макро
-    int TempMacroType;             // тип этого буфера
 
   private:
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
@@ -126,10 +130,10 @@ class KeyMacro
 
     void RunStartMacro();
 
-    // "играть" строковое представление макроса
-    int PlayKeyMacro(char *KeyBuffer);
-    // "играть" рекорд (бинарное представление)
-    int PlayKeyMacro(struct MacroRecord *MRec);
+    // Поместить временное строковое представление макроса
+    int PostTempKeyMacro(char *KeyBuffer);
+    // Поместить временный рекорд (бинарное представление)
+    int PostTempKeyMacro(struct MacroRecord *MRec);
 
     int  LoadMacros();
     void SaveMacros();
