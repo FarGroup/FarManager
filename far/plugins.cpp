@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.51 28.01.2001 $ */
+/* Revision: 1.52 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 SVS
+    ! Shift-F9 викинут из списка плагинов
   28.01.2001 SVS
     ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   25.01.2001 SVS
@@ -1917,17 +1919,6 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
         break;
       }
       /* SVS $ */
-      /* $ 19.12.2000 IS
-         Shift-F9 в списке плагинов вызывает настройки редактора/программы
-         просмотра, если этот список был вызван соответственно из
-         редактора/программы просмотра. Эта возможность нужна для макросов, да
-         и просто удобно.
-      */
-      case KEY_SHIFTF9:
-        if(Editor) EditorConfig();
-        else if(Viewer) ViewerConfig();
-        break;
-      /* IS $ */
       case KEY_ALTF11:
         DumpPluginsInfo();
         break;

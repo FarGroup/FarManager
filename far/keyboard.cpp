@@ -5,10 +5,15 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.09 28.01.2001 $ */
+/* Revision: 1.10 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 SVS
+    - Неверное преобразование клавиш в VK_* в функции TranslateKeyToVK()
+      из-за чего не отрабатывал ENTER, etc в плагинах.
+    - Не отрабатывались комбинации Alt-Shift-* и Alt-Shift-? при быстром
+      поиске в панелях.
   28.01.2001 SVS
     ! Снова про... WriteInput (с учетом данных на VK_F16)
   24.01.2001 SVS
@@ -54,12 +59,6 @@ static struct TTable_KeyToVK{
   int Key;
   int VK;
 } Table_KeyToVK[]={
-//   {KEY_BREAK,         VK_CANCEL},
-//   {KEY_BS,            VK_BACK},
-//   {KEY_TAB,           VK_TAB},
-//   {KEY_ENTER,         VK_RETURN},
-//   {KEY_ESC,           VK_ESCAPE},
-//   {KEY_SPACE,         VK_SPACE},
 //   {KEY_PGUP,          VK_PRIOR},
 //   {KEY_PGDN,          VK_NEXT},
 //   {KEY_END,           VK_END},
@@ -89,6 +88,12 @@ static struct TTable_KeyToVK{
 //   {KEY_F10,           VK_F10},
 //   {KEY_F11,           VK_F11},
 //   {KEY_F12,           VK_F12},
+   {KEY_BREAK,         VK_CANCEL},
+   {KEY_BS,            VK_BACK},
+   {KEY_TAB,           VK_TAB},
+   {KEY_ENTER,         VK_RETURN},
+   {KEY_ESC,           VK_ESCAPE},
+   {KEY_SPACE,         VK_SPACE},
    {KEY_NUMPAD5,       VK_CLEAR},
 };
 
@@ -689,7 +694,7 @@ int WINAPI KeyNameToKey(char *Name)
        Key|=ModifKeyName[I].Key;
      }
    }
-
+//SysLog("Name=%s",Name);
    // если что-то осталось - преобразуем.
    if(Pos < Len)
    {
@@ -700,18 +705,15 @@ int WINAPI KeyNameToKey(char *Name)
          Key|=FKeys1[I].Key;
          break;
        }
+//SysLog("KeyNameToKey=%x (%c)",Key,Key&0xFF);
      if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
      {
        WORD Chr=(WORD)Name[Pos];
        if (Chr > 0 && Chr < 256)
        {
-         Key|=Chr;
          if (Key&(0xFF000000-KEY_SHIFT))
          {
-           if(Chr >= 'a' && Chr <= 'z' || Chr >= 'а' && Chr <= 'п')
-             Key&=~0x20;
-           else if(Chr >= 'р' && Chr <= 'я')
-             Key=(Key|0x10)&(~0x60);
+           Key|=LocalUpper(Chr);
 //SysLog("KeyNameToKey=%x (%c) %x (%c)",Key,Key&0xFF,Chr,Chr);
          }
        }
@@ -794,6 +796,10 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
       VirtKey=FKey;
     else if(FKey > 0x100 && FKey < KEY_END_FKEY)
       VirtKey=FKey-0x100;
+    else if(FKey < 0x100)
+      VirtKey=VkKeyScan(FKey)&0xFF;
+    else
+      VirtKey=FKey;
   }
   if(Rec && VirtKey!=0)
   {
@@ -805,7 +811,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
     if (Key>255)
       Key=0;
     Rec->Event.KeyEvent.uChar.UnicodeChar=
-         Rec->Event.KeyEvent.uChar.AsciiChar=Key;
+        Rec->Event.KeyEvent.uChar.AsciiChar=Key;
     Rec->Event.KeyEvent.dwControlKeyState=ControlState;
   }
   return(VirtKey!=0);
@@ -1029,10 +1035,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       return(Modif|KEY_ADD);
     case VK_SUBTRACT:
       return(Modif|KEY_SUBTRACT);
-    case VK_MULTIPLY:
-      if (ShiftPressed && !CtrlPressed && !AltPressed)
-        return('*');
-      return(Modif|KEY_MULTIPLY);
+//    case VK_MULTIPLY:
+//      if (ShiftPressed && !CtrlPressed && !AltPressed)
+//        return('*');
+//      return(Modif|KEY_MULTIPLY);
     case VK_ESCAPE:
       return(Modif|KEY_ESC);
   }
@@ -1083,7 +1089,12 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   {
 //if(KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog("%9s│0x%08X (%c)│0x%08X (%c)│","AltShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' '));
     if (KeyCode>='0' && KeyCode<='9')
-      return(KEY_ALTSHIFT0+KeyCode-'0');
+    {
+      if(WaitInFastFind)
+        return(KEY_ALT+KEY_SHIFT+AsciiChar);
+      else
+        return(KEY_ALTSHIFT0+KeyCode-'0');
+    }
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_ALTSHIFT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -1106,7 +1117,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case 0xba:
           return(KEY_ALT+KEY_SHIFT+KEY_COLON);
         case 0xbf:
-          return(KEY_ALT+KEY_SHIFT+KEY_SLASH);
+          if(WaitInFastFind)
+            return(KEY_ALT+KEY_SHIFT+'?');
+          else
+            return(KEY_ALT+KEY_SHIFT+KEY_SLASH);
         case 0xbe:
           return(KEY_ALT+KEY_SHIFT+KEY_DOT);
         case 0xbc:
@@ -1189,6 +1203,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_DIVIDE);
       case VK_CANCEL:
         return(KEY_BREAK);
+      case VK_MULTIPLY:
+        return(KEY_MULTIPLY);
     }
   }
 
