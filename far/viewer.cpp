@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.172 04.01.2005 $ */
+/* Revision: 1.173 04.01.2005 $ */
 
 /*
 Modify:
+  04.01.2005 WARP
+    - При смене режима просмотра Unicode <-> ANSI сбрасываем выделение, а то оно едет.
   04.01.2005 WARP
     - Bugz#982 Сделаем выделение в хекс-вьювере более "правильным"
   28.12.2004 WARP
@@ -2148,6 +2150,9 @@ int Viewer::ProcessKey(int Key)
         FilePos*=2;
         VM.Unicode=FALSE;
         SetFileSize();
+
+        SelectPos = 0;
+        SelectSize = 0;
       }
       VM.TableNum=0;
       VM.UseDecodeTable=VM.AnsiMode;
@@ -2177,6 +2182,13 @@ int Viewer::ProcessKey(int Key)
             FilePos=(FilePos+(FilePos&1))/2;
           VM.UseDecodeTable=GetTableCode;
           VM.Unicode=UseUnicode;
+
+          if ( !oldIsUnicode && VM.Unicode )
+          {
+            SelectPos = 0;
+            SelectSize = 0;
+          }
+
           SetFileSize();
           VM.AnsiMode=FALSE;
           ChangeViewKeyBar();
