@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.241 04.11.2003 $ */
+/* Revision: 1.242 14.12.2003 $ */
 
 /*
 Modify:
+  14.12.2003 SVS
+    - BugZ#1002 - ESPT_SETWORDDIV не влияет на переход по словам
   04.11.2003 SKV
     ! shift-left shift-right теперь не оставляют пустого выделения.
   26.10.2003 KM
@@ -782,6 +784,7 @@ Editor::Editor()
   /* IS $ */
   TopList->EditLine.SetConvertTabs(EdOpt.ExpandTabs);
   TopList->EditLine.SetEditorMode(TRUE);
+  TopList->EditLine.SetWordDiv(EdOpt.WordDiv);
   TopList->Prev=NULL;
   TopList->Next=NULL;
   /* $ 12.01.2002 IS
@@ -1113,6 +1116,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
       EndList->EditLine.SetCurPos(0);
       EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->EditLine.SetEditorMode(TRUE);
+      EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
       NumLastLine++;
     }
     SetPreRedrawFunc(NULL);
@@ -1138,6 +1142,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
         EndList->EditLine.SetCurPos(0);
         EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
         EndList->EditLine.SetEditorMode(TRUE);
+        EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
         NumLastLine++;
       }
   }
@@ -1404,6 +1409,8 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       EndList->EditLine.SetCurPos(0);
       EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->EditLine.SetEditorMode(TRUE);
+      EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
+
       NumLastLine++;
     }
 
@@ -1420,6 +1427,7 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       EndList->EditLine.SetCurPos(0);
       EndList->EditLine.SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
       EndList->EditLine.SetEditorMode(TRUE);
+      EndList->EditLine.SetWordDiv(EdOpt.WordDiv);
       NumLastLine++;
     }
   }
@@ -3787,6 +3795,7 @@ void Editor::InsertString()
   NewString->EditLine.SetTables(UseDecodeTable ? &TableSet:NULL);
   NewString->EditLine.SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
   NewString->EditLine.SetEditorMode(TRUE);
+  NewString->EditLine.SetWordDiv(EdOpt.WordDiv);
   NewString->Prev=CurLine;
   NewString->Next=CurLine->Next;
   if (CurLine->Next)
@@ -6201,6 +6210,13 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  Type        =%s",_ESPT_ToName(espar->Type)));
         switch(espar->Type)
         {
+          case ESPT_GETWORDDIV:
+            _ECTLLOG(SysLog("  cParam      =(%p)",espar->Param.cParam));
+            if(!IsBadWritePtr(espar->Param.cParam,sizeof(EdOpt.WordDiv)))
+              strncpy(espar->Param.cParam,EdOpt.WordDiv,sizeof(EdOpt.WordDiv)-1);
+            else
+              rc=FALSE;
+            break;
           case ESPT_SETWORDDIV:
             _ECTLLOG(SysLog("  cParam      =[%s]",espar->Param.cParam));
             SetWordDiv((!espar->Param.cParam || !*espar->Param.cParam)?Opt.WordDiv:espar->Param.cParam);

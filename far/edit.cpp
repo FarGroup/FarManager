@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.110 11.11.2003 $ */
+/* Revision: 1.111 15.12.2003 $ */
 
 /*
 Modify:
+  15.12.2003 SVS
+    - BugZ#1002 - ESPT_SETWORDDIV не вли€ет на переход по словам
   11.11.2003 SKV
     - shift-end в edit-е с выставленной максимальной
       длинной при максимальной заполненности
@@ -359,6 +361,7 @@ Edit::Edit()
   Str=(char*) xf_malloc(1);
   /* SVS $ */
   StrSize=0;
+  WordDiv=Opt.WordDiv;
   *Str=0;
   /* $ 12.08.2000 KM
      ”становим маску ввода и предыдущее положение курсора
@@ -1134,20 +1137,17 @@ int Edit::ProcessKey(int Key)
       /* KM $ */
       if (CurPos>0)
         RecurseProcessKey(KEY_SHIFTLEFT);
-      /* $ 03.08.2000 SVS
-        ! WordDiv -> Opt.WordDiv
-      */
-      while (CurPos>0 && !(strchr(Opt.WordDiv,Str[CurPos])==NULL &&
-             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
-      /* SVS $ */
+
+      while (CurPos>0 && !(strchr(WordDiv,Str[CurPos])==NULL &&
+             strchr(WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
       {
         /* $ 18.08.2000 KM
            ƒобавим выход из цикла проверив CurPos-1 на присутствие
-           в Opt.WordDiv.
+           в WordDiv.
         */
 //        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
         if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
-             strchr(Opt.WordDiv,Str[CurPos-1])))
+             strchr(WordDiv,Str[CurPos-1])))
           break;
         /* KM $ */
         RecurseProcessKey(KEY_SHIFTLEFT);
@@ -1161,20 +1161,14 @@ int Edit::ProcessKey(int Key)
       if (CurPos>=StrSize)
         return(FALSE);
       RecurseProcessKey(KEY_SHIFTRIGHT);
-      /* $ 03.08.2000 SVS
-        ! WordDiv -> Opt.WordDiv
-      */
-      while (CurPos<StrSize && !(strchr(Opt.WordDiv,Str[CurPos])!=NULL &&
-             strchr(Opt.WordDiv,Str[CurPos-1])==NULL))
-      /* SVS $ */
+      while (CurPos<StrSize && !(strchr(WordDiv,Str[CurPos])!=NULL && strchr(WordDiv,Str[CurPos-1])==NULL))
       {
         /* $ 18.08.2000 KM
            ƒобавим выход из цикла проверив CurPos-1 на присутствие
-           в Opt.WordDiv.
+           в WordDiv.
         */
 //        if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
-        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) ||
-             strchr(Opt.WordDiv,Str[CurPos-1])))
+        if (!IsSpace(Str[CurPos]) && (IsSpace(Str[CurPos-1]) || strchr(WordDiv,Str[CurPos-1])))
           break;
         /* KM $ */
         RecurseProcessKey(KEY_SHIFTRIGHT);
@@ -1289,12 +1283,8 @@ int Edit::ProcessKey(int Key)
         RecurseProcessKey(KEY_BS);
         if (CurPos==0 || StopDelete)
           break;
-        /* $ 03.08.2000 SVS
-          ! WordDiv -> Opt.WordDiv
-        */
-        if (strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
+        if (strchr(WordDiv,Str[CurPos-1])!=NULL)
           break;
-        /* SVS $ */
       }
       DisableEditOut(FALSE);
       Show();
@@ -1374,7 +1364,7 @@ int Edit::ProcessKey(int Key)
           ptr++;
           if (!CheckCharMask(Mask[ptr]) ||
              (IsSpace(Str[ptr]) && !IsSpace(Str[ptr+1])) ||
-             (strchr(Opt.WordDiv,Str[ptr])!=NULL))
+             (strchr(WordDiv,Str[ptr])!=NULL))
             break;
         }
         for (int i=0;i<ptr-CurPos;i++)
@@ -1391,12 +1381,8 @@ int Edit::ProcessKey(int Key)
           RecurseProcessKey(KEY_DEL);
           if (CurPos>=StrSize || StopDelete)
             break;
-          /* $ 03.08.2000 SVS
-            ! WordDiv -> Opt.WordDiv
-          */
-          if (strchr(Opt.WordDiv,Str[CurPos])!=NULL)
+          if (strchr(WordDiv,Str[CurPos])!=NULL)
             break;
-          /* SVS $*/
         }
       }
       DisableEditOut(FALSE);
@@ -1606,12 +1592,8 @@ int Edit::ProcessKey(int Key)
         CurPos=StrSize;
       if (CurPos>0)
         CurPos--;
-      /* $ 03.08.2000 SVS
-        ! WordDiv -> Opt.WordDiv
-      */
-      while (CurPos>0 && !(strchr(Opt.WordDiv,Str[CurPos])==NULL &&
-             strchr(Opt.WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
-      /* SVS $*/
+      while (CurPos>0 && !(strchr(WordDiv,Str[CurPos])==NULL &&
+             strchr(WordDiv,Str[CurPos-1])!=NULL && !IsSpace(Str[CurPos])))
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
           break;
@@ -1650,12 +1632,8 @@ int Edit::ProcessKey(int Key)
         CurPos++;
       }
 
-      /* $ 03.08.2000 SVS
-        ! WordDiv -> Opt.WordDiv
-      */
-      while (CurPos<Len/*StrSize*/ && !(strchr(Opt.WordDiv,Str[CurPos])!=NULL &&
-             strchr(Opt.WordDiv,Str[CurPos-1])==NULL))
-      /* SVS $ */
+      while (CurPos<Len/*StrSize*/ && !(strchr(WordDiv,Str[CurPos])!=NULL &&
+             strchr(WordDiv,Str[CurPos-1])==NULL))
       /* KM $ */
       {
         if (!IsSpace(Str[CurPos]) && IsSpace(Str[CurPos-1]))
@@ -2434,14 +2412,14 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
              »справление глюка при поиске по целым словам.
           */
           if (I>0)
-            locResultLeft=(IsSpace(ChLeft) || strchr(Opt.WordDiv,ChLeft)!=NULL);
+            locResultLeft=(IsSpace(ChLeft) || strchr(WordDiv,ChLeft)!=NULL);
           else
             locResultLeft=TRUE;
           /* KM $ */
           if (I+Length<StrSize)
           {
             ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
-            locResultRight=(IsSpace(ChRight) || strchr(Opt.WordDiv,ChRight)!=NULL);
+            locResultRight=(IsSpace(ChRight) || strchr(WordDiv,ChRight)!=NULL);
           }
           else
             locResultRight=TRUE;

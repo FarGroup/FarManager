@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.46 10.10.2003 $ */
+/* Revision: 1.47 09.12.2003 $ */
 
 /*
 Modify:
+  09.12.2003 SVS
+    + Editor::GetWordDiv()
   10.10.2003 SVS
     + SetWordDiv()
   26.09.2003 SVS
@@ -404,6 +406,7 @@ class Editor:public ScreenObject
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
     void SetWordDiv(const char *WordDiv) { strncpy(EdOpt.WordDiv,WordDiv,sizeof(EdOpt.WordDiv)-1); }
+    const char *GetWordDiv() { return EdOpt.WordDiv; }
     /* $ 29.10.2001 IS
          Работа с настройками "сохранять позицию файла" и
          "сохранять закладки" после смены настроек по alt-shift-f9.

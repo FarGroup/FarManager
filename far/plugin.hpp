@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.240 05.11.2003 $ */
+/* Revision: 1.241 09.12.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  09.12.2003 SVS
+    + ESPT_GETWORDDIV
   05.11.2003 SVS
     + FMENU_CHANGECONSOLETITLE - изменять заголовок консоли для менюх
   24.10.2003 SVS
@@ -2002,6 +2004,7 @@ enum EDITOR_SETPARAMETER_TYPES {
   ESPT_SAVEFILEPOSITION,
   ESPT_LOCKMODE,
   ESPT_SETWORDDIV,
+  ESPT_GETWORDDIV,
 };
 
 struct EditorSetParameter

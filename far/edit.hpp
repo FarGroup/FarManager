@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.26 08.09.2003 $ */
+/* Revision: 1.27 14.12.2003 $ */
 
 /*
 Modify:
+  14.12.2003 SVS
+    + SetWordDiv(), WordDiv - как указатель, по умолчанию - Opt.WordDiv
   08.09.2003 SVS
     + ProcessInsPlainText() - вставка plain-text`а
   17.09.2002 SKV
@@ -114,6 +116,7 @@ enum FLAGS_CLASS_EDITLINE{
   // явно не в диалоге юзается.
   FEDITLINE_PARENT_SINGLELINE    = 0x00100000,  // обычная строка ввода в диалоге
   FEDITLINE_PARENT_MULTILINE     = 0x00200000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
+  FEDITLINE_PARENT_EDITOR        = 0x00400000,  // "вверху" обычный редактор
 };
 
 class Dialog;
@@ -152,6 +155,7 @@ class Edit:public ScreenObject
 
     int    CursorSize;
     int    CursorPos;
+    const char *WordDiv;
 
   private:
     void   DisplayObject();
@@ -291,6 +295,7 @@ class Edit:public ScreenObject
     void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
     int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
     void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
+    void SetWordDiv(const char *WordDiv){Edit::WordDiv=WordDiv;}
 };
 
 
