@@ -274,7 +274,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "rar x {-p%%P} -y -c- {%%S} %%A @%%LNM",
+      "rar x {-p%%P} {-ap%%R} -y -c- {%%S} %%A @%%LNM",
       "rar e -av- {-p%%P} -y -c- {%%S} %%A @%%LNM",
       "rar t -y {-p%%P} -c- {%%S} %%A @%%LNM",
       "rar d -y {-w%%W} {%%S} %%A @%%LNM",
@@ -284,10 +284,10 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
       "rar k -y {%%S} %%A",
       "rar rr -y {%%S} %%A",
       "rar r -y {%%S} %%A",
-      "rar a -y {-p%%P} {-w%%W} {%%S} %%A @%%LN",
-      "rar m -y {-p%%P} {-w%%W} {%%S} %%A @%%LN",
-      "rar a -r0 -y {-p%%P} {-w%%W} {%%S} %%A @%%LN",
-      "rar m -r0 -y {-p%%P} {-w%%W} {%%S} %%A @%%LN",
+      "rar a -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+      "rar m -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+      "rar a -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
+      "rar m -r0 -y {-p%%P} {-ap%%R} {-w%%W} {%%S} %%A @%%LN",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
