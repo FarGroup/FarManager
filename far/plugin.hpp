@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.56 24.09.2000 $ */
+/* Revision: 1.57 26.09.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  26.09.2000 SVS
+    ! FARSTDKEYTOTEXT -> FARSTDKEYTOKEYNAME
   24.09.2000 SVS
     ! Чистка файла от комментариев - писать только в этом блоке (Modify)!!!
     ! FarKeyToText -> FarKeyToName
@@ -832,7 +834,6 @@ typedef void    (WINAPI *FARSTDGETPATHROOT)(char *Path,char *Root);
 typedef void    (WINAPI *FARSTDADDENDSLASH)(char *Path);
 typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(char *Data);
 typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
-typedef BOOL    (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDINPUTRECORDTOKEY)(INPUT_RECORD *r);
 typedef int     (WINAPI *FARSTDLOCALISLOWER)(int Ch);
 typedef int     (WINAPI *FARSTDLOCALISUPPER)(int Ch);
@@ -852,6 +853,7 @@ enum XLATMODE{
 };
 
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
+typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(char *Name);
 typedef int     (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
@@ -905,7 +907,7 @@ typedef struct FarStandardFunctions
   FARSTDADDENDSLASH          AddEndSlash;
   FARSTDCOPYTOCLIPBOARD      CopyToClipboard;
   FARSTDPASTEFROMCLIPBOARD   PasteFromClipboard;
-  FARSTDKEYTOTEXT            FarKeyToName;
+  FARSTDKEYTOKEYNAME         FarKeyToName;
   FARSTDKEYNAMETOKEY         FarNameToKey;
   FARSTDINPUTRECORDTOKEY     FarInputRecordToKey;
   FARSTDXLAT                 XLat;
