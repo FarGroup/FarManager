@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.56 23.12.2004 $ */
+/* Revision: 1.57 02.04.2005 $ */
 
 /*
 Modify:
+  02.04.2005 AY
+    + ќбработка COLUMN_FLOATSIZE в FileSizeToStr()
   23.12.2004 WARP
     ! ¬се-таки нехорошо делать strcpy дл€ пересекающихс€ строк.
   28.10.2004 SVS
@@ -920,6 +922,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   }
 
   int Commas=(ViewFlags & COLUMN_COMMAS);
+  int FloatSize=(ViewFlags & COLUMN_FLOATSIZE);
 
   if (ViewFlags & COLUMN_THOUSAND)
   {
@@ -933,6 +936,37 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   }
 
   int64 Sz(SizeHigh,Size), Divider2(0,Divider/2),Divider64(0,Divider), OldSize;
+
+  if (FloatSize)
+  {
+    int64 Divider64F(0,1), Divider64F_mul(0,1000), Divider64F2(0,1), Divider64F2_mul(0,Divider);
+    //выравнивание идЄт по 1000 но само деление происходит на Divider
+    //например 999 bytes покажутс€ как 999 а вот 1000 bytes уже покажутс€ как 0.97 K
+    for (IndexB=-1; IndexB<3; IndexB++)
+    {
+      if (Sz < Divider64F*Divider64F_mul)
+        break;
+      Divider64F = Divider64F*Divider64F_mul;
+      Divider64F2  = Divider64F2*Divider64F2_mul;
+    }
+    if (IndexB==-1)
+    {
+      sprintf(Str,"%d",Sz.Number.Part.LowPart);
+      sprintf(DestStr,"%*.*s",Width,Width,Str);
+    }
+    else
+    {
+      Sz = (OldSize=Sz) / Divider64F2;
+      OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
+      DWORD Decimal = (double)OldSize.Number.Part.LowPart/(double)Divider*100.0;
+      sprintf(Str,"%d.%d",Sz.Number.Part.LowPart,Decimal);
+      Width-=2;
+      if (Width<0)
+        Width=0;
+      sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
+    }
+    return DestStr;
+  }
 
   if (Commas)
     InsertCommas(Sz,Str);

@@ -5,10 +5,13 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.17 06.08.2004 $ */
+/* Revision: 1.18 02.04.2005 $ */
 
 /*
 Modify:
+  02.04.2005 AY
+    + Поддержка типа колонки SF в TextToViewSettings() и ViewSettingsToText()
+      Это новый метод показывания размера файла, как в Explorer'е.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   20.05.2004 SVS
@@ -313,6 +316,9 @@ void FileList::TextToViewSettings(char *ColumnTitles,char *ColumnWidths,
             case 'C':
               ColumnType|=COLUMN_COMMAS;
               break;
+            case 'F':
+              ColumnType|=COLUMN_FLOATSIZE;
+              break;
             case 'T':
               ColumnType|=COLUMN_THOUSAND;
               break;
@@ -388,6 +394,8 @@ void FileList::ViewSettingsToText(unsigned int *ViewColumnTypes,
     {
       if (ViewColumnTypes[I] & COLUMN_COMMAS)
         strcat(Type,"C");
+      if (ViewColumnTypes[I] & COLUMN_FLOATSIZE)
+        strcat(Type,"F");
       if (ViewColumnTypes[I] & COLUMN_THOUSAND)
         strcat(Type,"T");
     }
