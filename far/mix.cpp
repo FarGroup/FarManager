@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.69 13.04.2001 $ */
+/* Revision: 1.70 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 SVS
+    - Бага с кавычками (с подачи DJ)
   13.04.2001 VVM
     + Флаг CREATE_DEFAULT_ERROR_MODE при CreateProcess.
   08.06.2001 SVS
@@ -439,7 +441,15 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
         strcat(ExecLine," \"\"");
     }
     strcat(ExecLine," ");
-    strcat(ExecLine,CmdPtr);
+    char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
+    if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
+    {
+      strcat (ExecLine, "\"");
+      strcat (ExecLine, CmdPtr);
+      strcat (ExecLine, "\"");
+    }
+    else
+      strcat(ExecLine,CmdPtr);
   }
 
   SetFarTitle(CmdPtr);

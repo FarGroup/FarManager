@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.14 14.03.2001 $ */
+/* Revision: 1.15 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 SVS
+    ! для symlink`а не нужно дополниетльное подтверждение на удаление
   14.03.2001 SVS
     - Неверный анализ кода возврата функции SHFileOperation(),
       коей файл удаляется в корзину.
@@ -232,9 +234,13 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           }
           if (IsFolderNotEmpty(FullName))
           {
-            int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
-                  MSG(MDeleteFolderConfirm),FullName,MSG(MDeleteFileDelete),
-                  MSG(MDeleteFileAll),MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
+            int MsgCode=0;
+            // для symlink`а не нужно подтверждение
+            if(!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+               MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
+                  MSG(MDeleteFolderConfirm),FullName,
+                    MSG(MDeleteFileDelete),MSG(MDeleteFileAll),
+                    MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
             if (MsgCode<0 || MsgCode==3)
               break;
             if (MsgCode==1)

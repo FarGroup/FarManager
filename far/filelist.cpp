@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.40 24.04.2001 $ */
+/* Revision: 1.41 24.04.2001 $ */
 
 /*
 Modify:
+  24.01.2001 SVS
+    - Выделения файлов (с подачи DJ)
   24.04.2001 IS
     - По ctrlpgup проинициализируем заново режим панели (иначе некоторые
       параметры теряются, почему - ХЗ).
@@ -1338,7 +1340,13 @@ int FileList::ProcessKey(int Key)
         return(TRUE);
       CurPtr=ListData+CurFile;
       if (ShiftSelection==-1)
-        ShiftSelection=!CurPtr->Selected;
+      {
+        // .. is never selected
+        if (CurFile < FileCount-1 && !strcmp (CurPtr->Name, ".."))
+          ShiftSelection = !ListData [CurFile+1].Selected;
+        else
+          ShiftSelection=!CurPtr->Selected;
+      }
       Select(CurPtr,ShiftSelection);
       if (Key==KEY_SHIFTUP)
         Up(1);

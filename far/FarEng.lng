@@ -337,14 +337,14 @@
 "Do &not save"
 "&Continue editing"
 
-"is read only file"
+"is a read-only file"
 "already exists"
 "Do you wish to overwrite it?"
 "Saving the file"
 "Line"
 "Col"
 
-"is read only file"
+"is a read-only file"
 "has the size of %s,"
 "which exceeds the configured maximum size of %s."
 "Do you wish to edit it?"

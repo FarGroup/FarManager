@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.84 23.04.2001 $ */
+/* Revision: 1.85 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 SVS
+   ! Подмена клавиш при прокрутке колеса.
+   ! Если в ответ на событие DN_MOUSECLICK (Param=-1) обработчик диалога
+     вернет TRUE, то диалог не будет закрыт. Если игнорировать
+     {DN_MOUSECLICK,-1} или вернуть FALSE, то диалог не закроется.
+   ! Клик мышой вне диталога - обрабатываются только левая и правая клавиши
+     остальные клавиши не имеют значения
   23.04.2001 SVS
    - Забыл послать месаг DN_EDITCHANGE при выборе из хистори.
   22.04.2001 SVS
@@ -1670,6 +1677,13 @@ int Dialog::ProcessKey(int Key)
   else if(Key == KEY_MULTIPLY)
     Key='*';
 
+  // Подмена клавиш при прокрутке колеса.
+  if(Key == KEY_UP || Key == KEY_DOWN)
+  {
+    if(IsEdit(Type) && (Item[FocusPos].Flags&DIF_HISTORY) && MouseWheeled)
+      Key|=KEY_CTRL;
+  }
+
   switch(Key)
   {
     case KEY_F1:
@@ -2473,7 +2487,13 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   MsY=MouseEvent->dwMousePosition.Y;
   if (MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2)
   {
-    DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent);
+    if(!DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent))
+    {
+      if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+        ProcessKey(KEY_ESC);
+      else if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
+        ProcessKey(KEY_ENTER);
+    }
     return(TRUE);
   }
 
@@ -3771,27 +3791,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   switch(Msg)
   {
     case DN_MOUSECLICK:
-    {
-      MOUSE_EVENT_RECORD *MouseEvent=(MOUSE_EVENT_RECORD *)Param2;
-      if(Param1 == -1)
-      {
-         /* $ 09.09.2000 SVS
-            Учтем DMODE_OLDSTYLE - вывалить из диалога, ткнув вне диалога
-            сможем только в старом стиле.
-         */
-         if(Dlg->CheckDialogMode(DMODE_OLDSTYLE))
-         {
-           if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
-             Dlg->ProcessKey(KEY_ESC);
-           else
-             Dlg->ProcessKey(KEY_ENTER);
-         }
-         else
-           MessageBeep(MB_ICONHAND);
-         /* SVS $ */
-      }
-      return 0;
-    }
+      return FALSE;
 
     case DN_DRAWDLGITEM:
       return TRUE;

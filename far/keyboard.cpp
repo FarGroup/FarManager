@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.20 16.04.2001 $ */
+/* Revision: 1.21 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 SVS
+    + MouseWheeled - признак того, что крутанули колесо.
   16.04.2001 VVM
     + Прокрутка с шифтом подменяется на PgUp/PgDn
     + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN
@@ -274,6 +276,7 @@ int GetInputRecord(INPUT_RECORD *rec)
     StartIdleTime=clock();
   LastEventIdle=FALSE;
   SetFarConsoleMode();
+  MouseWheeled=FALSE;
   while (1)
   {
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
@@ -284,6 +287,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       if ((rec->EventType == MOUSE_EVENT) &&
          (rec->Event.MouseEvent.dwEventFlags & MOUSE_WHEELED))
       { // Заменим "прокрутку" на нажатие стрелки вверх/вниз
+        MouseWheeled=TRUE;
         ReadConsoleInput(hConInp,rec,1,&ReadCount);
         short zDelta = (short)HIWORD(rec->Event.MouseEvent.dwButtonState);
         INPUT_RECORD ir;
