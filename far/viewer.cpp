@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.98 24.05.2002 $ */
+/* Revision: 1.99 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    ! Небольшие добавки к Numpad - для удобства навигации.
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   22.05.2002 SVS
@@ -1668,7 +1670,7 @@ int Viewer::ProcessKey(int Key)
     /* VVM $ */
     /* VVM $ */
 
-    case KEY_UP: case KEY_NUMPAD8:
+    case KEY_UP: case KEY_NUMPAD8: case KEY_SHIFTNUMPAD8:
     {
       if (FilePos>0 && ViewFile)
       {
@@ -1685,7 +1687,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_DOWN: case KEY_NUMPAD2:
+    case KEY_DOWN: case KEY_NUMPAD2:  case KEY_SHIFTNUMPAD2:
     {
       if (!LastPage && ViewFile)
       {
@@ -1696,7 +1698,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_PGUP: case KEY_NUMPAD9:
+    case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9:
     {
       if(ViewFile)
       {
@@ -1708,7 +1710,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_PGDN: case KEY_NUMPAD3:
+    case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3:
     {
       if (LastPage || ViewFile==NULL)
         return(TRUE);
@@ -1734,7 +1736,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_LEFT: case KEY_NUMPAD4:
+    case KEY_LEFT: case KEY_NUMPAD4: case KEY_SHIFTNUMPAD4:
     {
       if (LeftPos>0 && ViewFile)
       {
@@ -1747,7 +1749,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_RIGHT: case KEY_NUMPAD6:
+    case KEY_RIGHT: case KEY_NUMPAD6: case KEY_SHIFTNUMPAD6:
     {
       if (LeftPos<MAX_VIEWLINE && ViewFile)
       {
@@ -1784,7 +1786,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_HOME:        case KEY_NUMPAD7:
+    case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
     case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
       if(ViewFile)
         LeftPos=0;
@@ -1797,7 +1799,7 @@ int Viewer::ProcessKey(int Key)
       }
       return(TRUE);
 
-    case KEY_END:         case KEY_NUMPAD1:
+    case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
     case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
       if(ViewFile)
         LeftPos=0;

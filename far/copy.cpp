@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.85 24.05.2002 $ */
+/* Revision: 1.86 24.05.2002 $ */
 
 /*
 Modify:
+  24.05.2002 SVS
+    ! отм...
   24.05.2002 SVS
     + BugZ#521 - Попытка переименовать abcdefghi.txt в abcdef~1.txt
   18.05.2002 SVS
@@ -1763,6 +1765,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     {
       // Случай, когда файл переименовываем из длинного в собственное короткое
       ShellCopy::Flags&=~FCOPY_RENAMESAME;
+#if 0
       if (!LocalStricmp(DestData.cFileName,SrcData->cFileName) &&
            LocalStricmp(DestData.cAlternateFileName,SrcData->cFileName)
          )
@@ -1784,6 +1787,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
           }
         }
       }
+#endif
 
       if(!(ShellCopy::Flags&FCOPY_RENAMESAME))
       {
@@ -1853,6 +1857,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
 
         if (NWFS_Attr)
           SetFileAttributes(SrcFullName,SrcData->dwFileAttributes&(~FA_RDONLY));
+#if 0
         if(ShellCopy::Flags&FCOPY_RENAMESAME) // переименование типа abcdefghi.txt -> abcdef~1.txt, когда это про один и тотже файл
         {
           char TempBuf[NM];
@@ -1864,6 +1869,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
           }
         }
         else
+#endif
         {
           if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT || !strcmp(DestFSName,"NWFS"))
             MoveCode=MoveFile(SrcFullName,DestPath);
