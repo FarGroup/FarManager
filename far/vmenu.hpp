@@ -11,10 +11,14 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.46 22.10.2002 $ */
+/* Revision: 1.47 10.05.2003 $ */
 
 /*
 Modify:
+  10.05.2003 SVS
+    ! В VMenu::SortItems() добавлен третий параметр SortForDataDWORD,
+      который заставляет делать сортировку только по UserData. По умолчанию
+      = FALSE
   22.10.2002 SVS
     + PrevCursorSize, PrevMacroMode - для пред.курсора
   04.10.2002 SVS
@@ -450,19 +454,8 @@ class VMenu: virtual public Modal, virtual public Frame
     struct MenuItem *GetItemPtr(int Position=-1);
     /* SVS $*/
 
-    void SortItems(int Direction=0,int Offset=0);
+    void SortItems(int Direction=0,int Offset=0,BOOL SortForDataDWORD=FALSE);
     BOOL GetVMenuInfo(struct FarListInfo* Info);
-
-    static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);
-    static struct FarListItem *MenuItem2FarList(const struct MenuItem *ListItem,struct FarListItem *Item);
-
-    /* $ 01.08.2000 SVS
-       функция обработки меню (по умолчанию)
-    */
-    static long WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2);
-    // функция посылки сообщений меню
-    static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
-    /* SVS $ */
 
     void SetExitCode(int Code) {Modal::SetExitCode(Code);}
 
@@ -474,6 +467,19 @@ class VMenu: virtual public Modal, virtual public Frame
     virtual int GetType() { return CheckFlags(VMENU_COMBOBOX)?MODALTYPE_COMBOBOX:MODALTYPE_VMENU; }
     /* KM $ */
     void SetMaxHeight(int NewMaxHeight);
+
+
+  public:
+    static struct MenuItem *FarList2MenuItem(const struct FarListItem *Item,struct MenuItem *ListItem);
+    static struct FarListItem *MenuItem2FarList(const struct MenuItem *ListItem,struct FarListItem *Item);
+    /* $ 01.08.2000 SVS
+       функция обработки меню (по умолчанию)
+    */
+    static long WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    // функция посылки сообщений меню
+    static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
+    /* SVS $ */
+
 };
 
 

@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.137 21.04.2003 $ */
+/* Revision: 1.138 09.05.2003 $ */
 
 /*
 Modify:
+  09.05.2003 SVS
+    - BugZ#884 - Ошибочное распознование длл-ки за плагин.
+      Пропустим "мимо ушей" ошибку ERROR_BAD_EXE_FORMAT
   21.04.2003 SVS
     + IsPluginsLoaded(), PSIF_PLUGINSLOADDED
   31.03.2003 SVS
@@ -741,6 +744,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     return (FALSE);
   }
 
+  DWORD LstErr;
   HMODULE hModule=CurPlugin.hModule;
   if(!hModule)
   {
@@ -758,13 +762,16 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     }
     PrepareModulePath(CurPlugin.ModuleName);
     hModule=LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
+    if(!hModule)
+      LstErr=GetLastError();
     FarChDir(CurPath, TRUE);
     if(Drive[0]) // вернем ее (переменную окружения) обратно
       SetEnvironmentVariable(Drive,CurPlugDiskPath);
     /* VVM $ */
   }
 
-  if (hModule==NULL)
+  /* "...И добавь первичную загрузку с DONT_RESOLVE_DLL_REFERENCES..."  */
+  if (!hModule && LstErr != ERROR_BAD_EXE_FORMAT)
   {
     char PlgName[NM];
     strncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);

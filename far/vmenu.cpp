@@ -8,10 +8,15 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.114 06.04.2003 $ */
+/* Revision: 1.115 10.05.2003 $ */
 
 /*
 Modify:
+  10.05.2003 SVS
+    ! ¬ VMenu::SortItems() добавлен третий параметр SortForDataDWORD,
+      который заставл€ет делать сортировку только по UserData. ѕо умолчанию
+      = FALSE
+    - ƒл€ ListBox не рисовалось поле (Box), если ItemCount=0
   06.04.2003 SVS
     - "...хоткей '-' не срабатывает в меню " оманды внешних модулей" (F11),
       если набирать на цифровой клавиатуре..."
@@ -792,9 +797,10 @@ void VMenu::ShowMenu(int IsParent)
   }
   /* DJ $ */
   /* KM $ */
-  if(!IsParent && VMFlags.Check(VMENU_LISTBOX))
+  if((!IsParent || !ItemCount) && VMFlags.Check(VMENU_LISTBOX))
   {
-    BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
+    if(ItemCount)
+      BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
     SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
     if (BoxType!=NO_BOX)
       Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
@@ -2236,9 +2242,25 @@ static int __cdecl  SortItem(const struct MenuItem *el1,
   return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
 }
 
+static int __cdecl  SortItemDataDWORD(const struct MenuItem *el1,
+                           const struct MenuItem *el2,
+                           const struct SortItemParam *Param)
+{
+  int Res;
+  DWORD Dw1=(DWORD)(((struct MenuItem *)el1)->UserData);
+  DWORD Dw2=(DWORD)(((struct MenuItem *)el2)->UserData);
+  if(Dw1 == Dw2)
+    Res=0;
+  else if(Dw1 > Dw2)
+    Res=1;
+  else
+    Res=-1;
+  return(Param->Direction==0?Res:(Res<0?1:(Res>0?-1:0)));
+}
+
 // —ортировка элементов списка
 // Offset - начало сравнени€! по умолчанию =0
-void VMenu::SortItems(int Direction,int Offset)
+void VMenu::SortItems(int Direction,int Offset,BOOL SortForDataDWORD)
 {
   typedef int (__cdecl *qsortex_fn)(const void*,const void*,void*);
   struct SortItemParam Param;
@@ -2247,10 +2269,17 @@ void VMenu::SortItems(int Direction,int Offset)
 
   int I;
   //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
-  qsortex((char *)Item,
+  if(!SortForDataDWORD) // обычна€ сортировка
+    qsortex((char *)Item,
           ItemCount,
           sizeof(struct MenuItem),
           (qsortex_fn)SortItem,
+          &Param);
+  else
+    qsortex((char *)Item,
+          ItemCount,
+          sizeof(struct MenuItem),
+          (qsortex_fn)SortItemDataDWORD,
           &Param);
   //_SVS(for(I=0; I < ItemCount; ++I)SysLog("%2d) 0x%08X - '%s'",I,Item[I].Flags,Item[I].Name));
 
