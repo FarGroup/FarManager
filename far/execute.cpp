@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.01 31.10.2001 $ */
+/* Revision: 1.02 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    - неудачная попытка (возможно и ЭТОТ патч неудачный) запуска (про каталоги)
   31.10.2001 VVM
     + Попытка переделать запуск программ. Стараемся пускать не через "start.exe",
       а через CREATE_NEW_CONSOLE
@@ -448,7 +450,13 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     if (ProcessOSCommands(CmdLine))
       Code=-1;
     else
+    {
+      DWORD FAttr;
+      if((FAttr=GetFileAttributes(CmdLine)) != -1 && (FAttr&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+        SeparateWindow=2;
       Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
+    }
+
     int CurX,CurY;
     GetCursorPos(CurX,CurY);
     if (CurY>=Y1-1)

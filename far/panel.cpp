@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.68 01.11.2001 $ */
+/* Revision: 1.69 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    - Shift-Enter на дисках запускал черти что, но только не проводник
   01.11.2001 SVS
     ! уберем Opt.CPAJHefuayor ;-(
   30.10.2001 SVS
@@ -575,7 +577,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {
               char DosDeviceName[16];
               sprintf(DosDeviceName,"%c:\\",LOBYTE(LOWORD(UserData)));
-              Execute(DosDeviceName,FALSE,TRUE,TRUE);
+              Execute(DosDeviceName,FALSE,2,TRUE);
             }
           }
           break;

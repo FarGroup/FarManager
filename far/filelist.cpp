@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.99 03.11.2001 $ */
+/* Revision: 1.100 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    - Shift-Enter на каталогах запускал черти что, но только не проводник
   03.11.2001 IS
     + При неудачной смене каталога покажем имя каталога.
   28.10.2001 SVS
@@ -1729,7 +1731,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         strcat(FullPath,CurPtr->Name);
       /* VVM $ */
       QuoteSpace(FullPath);
-      Execute(FullPath,FALSE,SeparateWindow,TRUE);
+      Execute(FullPath,FALSE,2/*SeparateWindow*/,TRUE);
     }
     else
     {
