@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.111 06.05.2002 $ */
+/* Revision: 1.112 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SKV
+    + зафиксируем вход в модальный редактор
   06.05.2002 SVS
     ! Перед показом диалога проинициализируем диалог путем вызова InitDialog()
   25.04.2002 IS
@@ -1118,7 +1120,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                     (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
                   ShellViewer.SetSaveToSaveAs(TRUE);
                 IsProcessVE_FindFile++;
-                FrameManager->ExecuteModal ();
+                FrameManager->EnterModalEV();
+                FrameManager->ExecuteModal();
+                FrameManager->ExitModalEV();
                 IsProcessVE_FindFile--;
                 // заставляем рефрешится экран
                 FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
@@ -1189,7 +1193,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                       (!(ArcList[FindList[ItemIndex].ArcIndex].Flags & OPIF_REALNAMES)))
                     ShellEditor.SetSaveToSaveAs(TRUE);
                   IsProcessVE_FindFile++;
+                  FrameManager->EnterModalEV();
                   FrameManager->ExecuteModal ();
+                  FrameManager->ExitModalEV();
                   IsProcessVE_FindFile--;
                   // заставляем рефрешится экран
                   FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
