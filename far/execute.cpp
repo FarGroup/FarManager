@@ -5,10 +5,17 @@ execute.cpp
 
 */
 
-/* Revision: 1.21 06.12.2001 $ */
+/* Revision: 1.22 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 SVS
+    ! Уточнения в новом исполняторе (их еще будет море ;-))
+    ! Из CommandLine::CmdExecute() гашение панелей перенесено в RedrawDesktop
+    ! В новом исполняторе введено понятие исклительных команд, которые,
+      если попадаются, то не исполняются!
+    ! DWORD* переделан в DWORD&
+    ! У Execute команда (первый параметр) - const
   06.12.2001 SVS
     ! Откат к старому обработчику с возможностью работы с новым.
       Детельное описание читайте в 01104.Mix.txt
@@ -83,6 +90,7 @@ Modify:
 #include "plugin.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "savescr.hpp"
 #include "chgprior.hpp"
 #include "global.hpp"
 #include "cmdline.hpp"
@@ -92,12 +100,12 @@ Modify:
 
 // Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о
 // ГУЯХ PE-модуля
-static int IsCommandPEExeGUI(const char *FileName,DWORD *IsPEGUI)
+static int IsCommandPEExeGUI(const char *FileName,DWORD& IsPEGUI)
 {
   char NameFile[NM];
   HANDLE hFile;
   int Ret=FALSE;
-  *IsPEGUI=0;
+  IsPEGUI=0;
 
   if((hFile=CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
   {
@@ -135,7 +143,8 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD *IsPEGUI)
 
             if(signature == IMAGE_NT_SIGNATURE) // PE
             {
-              *IsPEGUI=header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI;
+              IsPEGUI=1;
+              IsPEGUI|=(header.opt_head.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)?2:0;
             }
             else if((WORD)signature == IMAGE_OS2_SIGNATURE) // NE
             {
@@ -172,12 +181,14 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD *IsPEGUI)
 // по имени файла (по его расширению) получить команду активации
 // Дополнительно смотрится гуевость команды-активатора
 // (чтобы не ждать завершения)
-char* GetShellAction(char *FileName,DWORD *GUIType)
+char* GetShellAction(const char *FileName,DWORD& GUIType)
 {
-  char Value[512],*ExtPtr, *RetPtr;
+  char Value[512];
+  const char *ExtPtr;
+  char *RetPtr;
   LONG ValueSize;
 
-  *GUIType=0;
+  GUIType=0;
 
   if ((ExtPtr=strrchr(FileName,'.'))==NULL)
     return(NULL);
@@ -251,9 +262,9 @@ char* GetShellAction(char *FileName,DWORD *GUIType)
  пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
  в отдельном окне и не ждать завершения).
  В случае неудачи Dest не заполняется!
- Return: TRUE/FALSE/-1 - нашли/не нашли/грубые ошибки.
+ Return: TRUE/FALSE - нашли/не нашли
 */
-int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUIType)
+int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWORD& GUIType)
 {
   int Ret, I;
   char FileName[4096],FullName[4096], *Ptr;
@@ -266,7 +277,6 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
 
   if(!PreparePrepareExt) // самоинициилизирующийся кусок
   {
-#if 1
     // если переменная %PATHEXT% доступна...
     if((I=GetEnvironmentVariable("PATHEXT",FullName,sizeof(FullName)-1)) != 0)
     {
@@ -278,9 +288,6 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
     }
 
     Ptr=strcat(StdExecuteExt,strcat(FullName,";")); //!!!
-#else
-    Ptr=StdExecuteExt;
-#endif
     StdExecuteExt[strlen(StdExecuteExt)]=0;
     while(*Ptr)
     {
@@ -293,16 +300,24 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
 
   /* Берем "исключения" из реестра, которые должны исполянться директом,
      например, некоторые внутренние команды ком.процессора.
+  */
   static char ExcludeCmds[4096];
   static int PrepareExcludeCmds=FALSE;
   if(!PrepareExcludeCmds)
   {
-    GetRegKey("System","ExcludeCmds",(char*)ExcludeCmds,"",0);
+    GetRegKey("System\\Executor","ExcludeCmds",(char*)ExcludeCmds,"",0);
+    Ptr=strcat(ExcludeCmds,";"); //!!!
+    ExcludeCmds[strlen(ExcludeCmds)]=0;
+    while(*Ptr)
+    {
+      if(*Ptr == ';')
+        *Ptr=0;
+      ++Ptr;
+    }
     PrepareExcludeCmds=TRUE;
   }
-  */
 
-  *GUIType=FALSE; // GUIType всегда вначале инициализируется в FALSE
+  GUIType=0; // GUIType всегда вначале инициализируется в FALSE
   Ret=FALSE;
 
   // Выделяем имя модуля
@@ -316,15 +331,29 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
   else
   {
     OemToChar(Command,FileName);
-    if ((Ptr=strpbrk(FileName," \t/"))!=NULL)
+    if ((Ptr=strpbrk(FileName," \t/|><"))!=NULL)
       *Ptr=0;
   }
 
   if(!*FileName) // вот же, надо же... пустышку передали :-(
-    return -1;
+    return 0;
 
   /* $ 07.09.2001 VVM Обработать переменные окружения */
   ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
+
+  // нулевой проход - смотрим исключения
+  {
+    char *Ptr=ExcludeCmds;
+    while(*Ptr)
+    {
+      if(!stricmp(FileName,Ptr))
+      {
+        return TRUE;
+      }
+      Ptr+=strlen(Ptr)+1;
+    }
+  }
+
   // IsExistExt - если точки нету (расширения), то потом модифицировать не
   // будем.
   IsExistExt=strrchr(FileName,'.')!=NULL;
@@ -429,7 +458,7 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
   return(Ret);
 }
 
-DWORD IsCommandExeGUI(char *Command)
+DWORD IsCommandExeGUI(const char *Command)
 {
   char FileName[4096],FullName[4096],*EndName,*FilePart;
   if (*Command=='\"')
@@ -444,7 +473,7 @@ DWORD IsCommandExeGUI(char *Command)
     if ((EndName=strpbrk(FileName," \t/"))!=NULL)
       *EndName=0;
   }
-  int GUIType=FALSE;
+  int GUIType=0;
 
   /* $ 07.09.2001 VVM
     + Обработать переменные окружения */
@@ -492,7 +521,7 @@ DWORD IsCommandExeGUI(char *Command)
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
-int Execute(char *CmdStr,          // Ком.строка для исполнения
+int Execute(const char *CmdStr,          // Ком.строка для исполнения
             int AlwaysWaitFinish,  // Ждать завершение процесса?
             int SeparateWindow,    // Выполнить в отдельном окне? =2 для вызова ShellExecuteEx()
             int DirectRun,         // Выполнять директом? (без CMD)
@@ -519,7 +548,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   char ExecLine[1024],CommandName[NM];
   char OldTitle[512];
   DWORD GUIType;
-  int ExitCode=0;
+  int ExitCode=1;
   int NT;
   int OldNT;
   DWORD CreateFlags;
@@ -578,11 +607,16 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   {
     // Поиск исполнятора....
     if (SeparateWindow!=2)
-      PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,&GUIType);
+      ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,GUIType);
+    /*
+      Если ExitCode=0, значит ненашли и, следовательно нефига
+      запусками заниматься
+    */
   }
   else
     GUIType=IsCommandExeGUI(CmdPtr);
 
+  if(ExitCode)
   {
     if (DirectRun && !SeparateWindow)
       strcpy(ExecLine,CmdPtr);
@@ -590,16 +624,18 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
     {
       if(ExecutorType)
       {
-        char TemplExecute[512];
-        char TemplExecuteStart[512];
-        char TemplExecuteWait[512];
-        GetRegKey("System\\Executor","Normal",TemplExecute,"%s /c %s %s",sizeof(TemplExecute));
-        GetRegKey("System\\Executor","Start",TemplExecuteStart,"%s /c start %s %s",sizeof(TemplExecuteStart));
-        GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%s /c start /wait %s %s",sizeof(TemplExecuteWait));
         if(GUIType && !AlwaysWaitFinish)
           strcpy(ExecLine,NewCmdStr);
         else
         {
+          char TemplExecute[512];
+          char TemplExecuteStart[512];
+          char TemplExecuteWait[512];
+          // <TODO: здесь надо по другому переделать>
+          GetRegKey("System\\Executor","Normal",TemplExecute,"%s /c %s %s",sizeof(TemplExecute));
+          GetRegKey("System\\Executor","Start",TemplExecuteStart,"%s /c start %s %s",sizeof(TemplExecuteStart));
+          GetRegKey("System\\Executor","Wait",TemplExecuteWait,"%s /c start /wait %s %s",sizeof(TemplExecuteWait));
+
           char *Fmt=TemplExecute;
           if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
           {
@@ -615,6 +651,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
                            CommandName,
                            (Fmt!=TemplExecute && NT && *CmdPtr=='\"'?"\"\"":""),
                            NewCmdStr);
+          // </TODO>
         }
       }
       else
@@ -674,7 +711,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
       si.cbSize=sizeof(si);
       si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
       si.lpFile=AnsiLine;
-      si.lpVerb=GetShellAction((char *)si.lpFile,&GUIType);
+      si.lpVerb=GetShellAction((char *)si.lpFile,GUIType);
       si.nShow=SW_SHOWNORMAL;
       SetFileApisToANSI();
       ExitCode=ShellExecuteEx(&si);
@@ -796,12 +833,14 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
       }
       /* SKV$*/
     }
-    else if(ExecutorType && !GUIType) //(!AlwaysWaitFinish)
+    else if(ExecutorType && !(GUIType&2))// && AlwaysWaitFinish)
     {
-      WaitForSingleObject(pi.hProcess,INFINITE); //800
+      // поставим 800 мс, думаю хватит... хотя...
+      // при нынешнем положении дел - это нафиг ненать (надо проверить!)
+      WaitForSingleObject(pi.hProcess,800);//INFINITE);
     }
 
-    int CurScrX=ScrX,CurScrY=ScrY;
+//    int CurScrX=ScrX,CurScrY=ScrY;
 //    ReopenConsole();
 
 //OT    GetVideoMode();
@@ -817,9 +856,16 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   else
   {
     if (SeparateWindow!=2)
+    {
+      //Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
+      //        SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
+      //        ^^^^^^^^^^^^^^^^^ зачем? Это никогда не работает - см. выше
       Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),
-              SeparateWindow==2 ? CmdPtr:ExecLine,MSG(MOk));
+                CmdPtr,MSG(MOk));
+    }
     ExitCode=-1;
+    //ScrBuf.FillBuf();
+    //ScrBuf.SetLockCount(PrevLockCount);
   }
   SetFarConsoleMode();
   /* $ 05.10.2001 IS
@@ -867,16 +913,9 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     ! В очередной раз проблемы с прорисовкой фона.
       Вроде бы теперь полегче стало :) */
   {
-
-    // Запомним состояния панелей и спрячем их, что-бы не перерисовывались из плагина
-    // А иначе глюки с восстановлением фона
-    int LeftVisible = CtrlObject->Cp()->LeftPanel->IsVisible();
-    int RightVisible = CtrlObject->Cp()->RightPanel->IsVisible();
-    CtrlObject->Cp()->LeftPanel->SetVisible(FALSE);
-    CtrlObject->Cp()->RightPanel->SetVisible(FALSE);
-
     {
       RedrawDesktop Redraw(TRUE);
+
       ScrollScreen(1);
       MoveCursor(X1,Y1);
       if (CurDir[0] && CurDir[1]==':')
@@ -887,16 +926,14 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
       else
         Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
 
-      int CurX,CurY;
-      GetCursorPos(CurX,CurY);
-      if (CurY>=Y1-1)
-        ScrollScreen(Min(CurY-Y1+2,Opt.ShowKeyBar ? 2:1));
+      //if(Code != -1)
+      {
+        int CurX,CurY;
+        GetCursorPos(CurX,CurY);
+        if (CurY>=Y1-1)
+          ScrollScreen(Min(CurY-Y1+2,2/*Opt.ShowKeyBar ? 2:1*/));
+      }
     }
-
-    // Воссатновим состояния панелей, обновим, если менялись и
-    // перерисуем весь экран (панели, кейбар, меню...)
-    CtrlObject->Cp()->LeftPanel->SetVisible(LeftVisible);
-    CtrlObject->Cp()->RightPanel->SetVisible(RightVisible);
     CtrlObject->Cp()->LeftPanel->UpdateIfChanged(1);
     CtrlObject->Cp()->RightPanel->UpdateIfChanged(1);
     CtrlObject->Cp()->Redraw();

@@ -949,6 +949,8 @@ $ #Commands menu#
                         See ~File panel filter~@Filter@ for the detailed
                         description.
 
+   #Plugin commands#      Show ~plugin commands~@Plugins@ list
+
    #Screens list#         Show open ~screens list~@ScrSwitch@
 
    #Task list#            Shows ~active tasks list~@TaskList@.

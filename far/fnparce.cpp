@@ -5,10 +5,13 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.05 05.10.2001 $ */
+/* Revision: 1.06 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 SVS
+    - BugZ#149 - Метасимвол !& должен строить список с кавычками
+      в список всеже должно попасть имя в кавычках.
   05.10.2001 SVS
     ! Перенос функции Panel::MakeListFile() из panel.cpp - здесь ей место
   25.07.2001 IS
@@ -223,6 +226,8 @@ _SVS(SysLog("!\\!.! TmpStr=[%s]",TmpStr));
         {
           if (ShortN0)
             strcpy(FileNameL,ShortNameL);
+          else // в список все же должно попасть имя в кавычках.
+            QuoteSpaceOnly(FileNameL);
 // Вот здесь фиг его знает - нужно/ненужно...
 //   если будет нужно - раскомментируем :-)
 //          if(FileAttrL & FA_DIREC)

@@ -5,10 +5,15 @@ class RedrawDesktop
 
 */
 
-/* Revision: 1.08 12.11.2001 $ */
+/* Revision: 1.09 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 SVS
+    + ¬ RedrawDesktop перенесена логика гашени€ и восстановлени€ доски.
+    - бага - кейбар и полоса меню гасились, а переменные Opt.ShowKeyBar и
+      Opt.ShowMenuBar не вставл€лись в ноль, от чего иногда был "момент
+      истины" - глюки с прорисовкой после Alt-F9.
   12.11.2001 SVS
     ! немного уточнени€ с расширением сервиса
   30.05.2001 OT
@@ -31,6 +36,8 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "manager.hpp"
+#include "keys.hpp"
 #include "rdrwdsk.hpp"
 #include "global.hpp"
 #include "filepanels.hpp"
@@ -50,25 +57,41 @@ RedrawDesktop::RedrawDesktop(BOOL IsHidden)
   {
     CtrlObject->Cp()->LeftPanel->CloseFile();
     CtrlObject->Cp()->RightPanel->CloseFile();
+    CtrlObject->Cp()->LeftPanel->Hide();
+    CtrlObject->Cp()->RightPanel->Hide();
     CtrlObject->MainKeyBar->Hide();
     CtrlObject->TopMenuBar->Hide();
+    Opt.ShowKeyBar=0;
+    Opt.ShowMenuBar=0;
   }
 }
 
 
 RedrawDesktop::~RedrawDesktop()
 {
+  Opt.ShowKeyBar=KeyBarVisible;
+  Opt.ShowMenuBar=TopMenuBarVisible;
+
   CtrlObject->CmdLine->SaveBackground();
   CtrlObject->CmdLine->Show();
+
   if (KeyBarVisible)
     CtrlObject->MainKeyBar->Show();
   if (TopMenuBarVisible)
     CtrlObject->TopMenuBar->Show();
+
   int RightType=CtrlObject->Cp()->RightPanel->GetType();
   if (RightVisible && RightType!=QVIEW_PANEL)
-    CtrlObject->Cp()->RightPanel->Show();
+    //CtrlObject->Cp()->RightPanel->Show();
+    CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
   if (LeftVisible)
-    CtrlObject->Cp()->LeftPanel->Show();
+    // CtrlObject->Cp()->LeftPanel->Show();
+    CtrlObject->Cp()->LeftPanel->SetVisible(TRUE);
   if (RightVisible && RightType==QVIEW_PANEL)
-    CtrlObject->Cp()->RightPanel->Show();
+    // CtrlObject->Cp()->RightPanel->Show();
+    CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
+
+  // ¬ременное решение!
+  // »наче траблы при пересчете...
+  FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
 }

@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.192 07.12.2001 $ */
+/* Revision: 1.193 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 SVS
+    ! Небольшая оптимизация кода
+    - Бага в GetDialogObjectsData() - для DI_LISTBOX кусок не работал, т.к.
+      у него нету ObjPtr
   07.12.2001 IS
     ! флаг DIF_EDITOR не сбрасывается также для DI_FIXEDIT и DI_PSWEDIT
       (теряли совместимость со старым api)
@@ -867,7 +871,8 @@ Dialog::~Dialog()
 
 void Dialog::CheckDialogCoord(void)
 {
-  DialogTooLong=0;
+  DialogTooLong=0; // Т.к. консоль у нас может постоянно изменяться, то эта
+                   // инициализация необходима как воздух
 
   if(X2 > ScrX)
   {
@@ -984,12 +989,11 @@ void Dialog::ProcessCenterGroup(void)
   int I, J;
   int Length,StartX;
   int Type;
-  struct DialogItem *CurItem;
+  struct DialogItem *CurItem, *JCurItem;
   DWORD ItemFlags;
 
-  for (I=0; I < ItemCount; I++)
+  for (I=0, CurItem=Item; I < ItemCount; I++, ++CurItem)
   {
-    CurItem=&Item[I];
     Type=CurItem->Type;
     ItemFlags=CurItem->Flags;
 
@@ -1008,17 +1012,17 @@ void Dialog::ProcessCenterGroup(void)
     {
       Length=0;
 
-      for (J=I; J < ItemCount &&
-                (Item[J].Flags & DIF_CENTERGROUP) &&
-                Item[J].Y1==Item[I].Y1; J++)
+      for (J=I, JCurItem=&Item[J]; J < ItemCount &&
+                (JCurItem->Flags & DIF_CENTERGROUP) &&
+                JCurItem->Y1==CurItem->Y1; J++, ++JCurItem)
       {
-        Length+=HiStrlen(Item[J].Data);
+        Length+=(JCurItem->Flags&DIF_SHOWAMPERSAND)?strlen(JCurItem->Data):HiStrlen(JCurItem->Data);
 
-        if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
+        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
           Length+=2;
       }
 
-      if (Item[I].Type==DI_BUTTON && *Item[I].Data!=' ')
+      if (Type==DI_BUTTON && *CurItem->Data!=' ')
         Length-=2;
 
       StartX=(X2-X1+1-Length)/2;
@@ -1026,14 +1030,14 @@ void Dialog::ProcessCenterGroup(void)
       if (StartX<0)
         StartX=0;
 
-      for (J=I; J < ItemCount &&
-                (Item[J].Flags & DIF_CENTERGROUP) &&
-                Item[J].Y1==Item[I].Y1; J++)
+      for (J=I, JCurItem=&Item[J]; J < ItemCount &&
+                (JCurItem->Flags & DIF_CENTERGROUP) &&
+                JCurItem->Y1==CurItem->Y1; J++, ++JCurItem)
       {
-        Item[J].X1=StartX;
-        StartX+=HiStrlen(Item[J].Data);
+        JCurItem->X1=StartX;
+        StartX+=(JCurItem->Flags&DIF_SHOWAMPERSAND)?strlen(JCurItem->Data):HiStrlen(JCurItem->Data);
 
-        if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
+        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
           StartX+=2;
       }
     }
@@ -1082,9 +1086,8 @@ int Dialog::InitDialogObjects(int ID)
   /* SVS $ */
 
   // предварительный цикл по поводу кнопок
-  for(I=ID; I < InitItemCount; I++)
+  for(I=ID, CurItem=&Item[I]; I < InitItemCount; I++, ++CurItem)
   {
-    CurItem=&Item[I];
     ItemFlags=CurItem->Flags;
     Type=CurItem->Type;
 
@@ -1126,9 +1129,8 @@ int Dialog::InitDialogObjects(int ID)
   // хотя бы один, то ставим на первый подходящий
   if(FocusPos == -1)
   {
-    for (I=0; I < ItemCount; I++) // по всем!!!!
+    for (I=0, CurItem=Item; I < ItemCount; I++, ++CurItem) // по всем!!!!
     {
-      CurItem=&Item[I];
       if(IsFocused(CurItem->Type) &&
          !(CurItem->Flags&(DIF_DISABLE|DIF_NOFOCUS|DIF_HIDDEN)))
       {
@@ -1147,9 +1149,8 @@ int Dialog::InitDialogObjects(int ID)
 
   // а теперь все сначала и по полной программе...
   ProcessCenterGroup(); // сначала отцентрируем
-  for (I=ID; I < InitItemCount; I++)
+  for (I=ID, CurItem=&Item[I]; I < InitItemCount; I++, ++CurItem)
   {
-    CurItem=&Item[I];
     Type=CurItem->Type;
     ItemFlags=CurItem->Flags;
 
@@ -1163,6 +1164,7 @@ int Dialog::InitDialogObjects(int ID)
                         VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
        if(CurItem->ListPtr)
        {
+         VMenu *ListPtr=CurItem->ListPtr;
          /* $ 13.09.2000 SVS
             + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
               DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
@@ -1176,27 +1178,27 @@ int Dialog::InitDialogObjects(int ID)
               для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
          */
          if(!(ItemFlags&DIF_LISTNOAMPERSAND))
-           CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
+           ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
          if(ItemFlags&DIF_LISTNOBOX)
-           CurItem->ListPtr->SetFlags(VMENU_SHOWNOBOX);
+           ListPtr->SetFlags(VMENU_SHOWNOBOX);
          if(ItemFlags&DIF_LISTWRAPMODE)
-           CurItem->ListPtr->SetFlags(VMENU_WRAPMODE);
+           ListPtr->SetFlags(VMENU_WRAPMODE);
          if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
-           CurItem->ListPtr->AssignHighlights(FALSE);
-         CurItem->ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
+           ListPtr->AssignHighlights(FALSE);
+         ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
-         CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
+         ListPtr->SetBoxType(SHORT_SINGLE_BOX);
          // удалим все итемы
          //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
          if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
-           CurItem->ListPtr->AddItem(CurItem->ListItems);
+           ListPtr->AddItem(CurItem->ListItems);
          /* KM $ */
          /* KM $ */
        }
     }
     /* SVS $*/
     // "редакторы" - разговор особый...
-    if (IsEdit(Type))
+    else if (IsEdit(Type))
     {
       // сбросим флаг DIF_EDITOR для строки ввода, отличной от DI_EDIT,
       // DI_FIXEDIT и DI_PSWEDIT
@@ -1403,7 +1405,7 @@ int Dialog::InitDialogObjects(int ID)
         DialogEdit->SetPersistentBlocks(Opt.DialogsEditBlock);
       /*  VVM $ */
     }
-    if (Type == DI_USERCONTROL)
+    else if (Type == DI_USERCONTROL)
     {
       if (!DialogMode.Check(DMODE_CREATEOBJECTS))
         CurItem->ObjPtr=new COORD; // пока ограничимся хранением координат курсора
@@ -1612,9 +1614,8 @@ void Dialog::DeleteDialogObjects()
   int I;
   struct DialogItem *CurItem;
 
-  for (I=0; I < ItemCount; I++)
+  for (I=0, CurItem=Item; I < ItemCount; I++, ++CurItem)
   {
-    CurItem=Item+I;
     switch(CurItem->Type)
     {
       case DI_EDIT:
@@ -1647,21 +1648,20 @@ void Dialog::DeleteDialogObjects()
 */
 void Dialog::GetDialogObjectsData()
 {
-  int I;
+  int I, Type;
   struct DialogItem *CurItem;
 
-  for (I=0; I < ItemCount; I++)
+  for (I=0,CurItem=Item; I < ItemCount; I++, ++CurItem)
   {
-    if((CurItem=Item+I)->ObjPtr)
+    DWORD IFlags=CurItem->Flags;
+    switch(Type=CurItem->Type)
     {
-      int Type=CurItem->Type;
-      DWORD IFlags=CurItem->Flags;
-      switch(Type)
+      case DI_EDIT:
+      case DI_FIXEDIT:
+      case DI_PSWEDIT:
+      case DI_COMBOBOX:
       {
-        case DI_EDIT:
-        case DI_FIXEDIT:
-        case DI_PSWEDIT:
-        case DI_COMBOBOX:
+        if(CurItem->ObjPtr)
         {
           char *PtrData;
           int PtrLength;
@@ -1708,17 +1708,17 @@ void Dialog::GetDialogObjectsData()
           /* SVS $ */
           /* SVS $ */
           /* 01.08.2000 SVS $ */
-          break;
         }
+        break;
+      }
 
-        case DI_LISTBOX:
+      case DI_LISTBOX:
+        if(CurItem->ListPtr)
         {
           CurItem->ListPos=CurItem->ListPtr->GetSelectPos();
           break;
         }
-
-        /**/
-      }
+      /**/
     }
   }
 }
@@ -1787,10 +1787,8 @@ void Dialog::ShowDialog(int ID)
     DrawItemCount=ID+1;
   }
 
-  for (I=ID; I < DrawItemCount; I++)
+  for (I=ID,CurItem=&Item[I]; I < DrawItemCount; I++, ++CurItem)
   {
-    CurItem=&Item[I];
-
     if(CurItem->Flags&DIF_HIDDEN)
       continue;
 
@@ -5527,7 +5525,38 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         int NeedInit=TRUE;
         struct FarDialogItemData *did=(struct FarDialogItemData*)Param2;
-        Len=0;
+        switch(Type)
+        {
+          case DI_TEXT:
+          case DI_VTEXT:
+          case DI_SINGLEBOX:
+          case DI_DOUBLEBOX:
+          case DI_BUTTON:
+          case DI_CHECKBOX:
+          case DI_RADIOBUTTON:
+          case DI_COMBOBOX:
+          case DI_EDIT:
+          case DI_PSWEDIT:
+          case DI_FIXEDIT:
+            if((Len=did->PtrLength) == 0)
+            {
+              strncpy(Ptr,(char *)did->PtrData,511);
+              Len=strlen(Ptr)+1;
+            }
+            else
+            {
+              if((unsigned)did->PtrLength > 511)
+                Len=511;
+              if(Len > 0)
+                memmove(Ptr,(char *)did->PtrData,Len);
+              Ptr[Len]=0;
+            }
+            break;
+          default:
+            Len=0;
+            break;
+        }
+
         switch(Type)
         {
           case DI_USERCONTROL:
@@ -5539,18 +5568,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_VTEXT:
           case DI_SINGLEBOX:
           case DI_DOUBLEBOX:
-            if((Len=did->PtrLength) == NULL)
-            {
-              strncpy(Ptr,(char *)did->PtrData,511);
-              Len=strlen(Ptr)+1;
-            }
-            else
-            {
-              if((unsigned)did->PtrLength > 511)
-                Len=511;
-              memmove(Ptr,(char *)did->PtrData,Len);
-              Ptr[Len]=0;
-            }
             if(Dlg->DialogMode.Check(DMODE_SHOW))
             {
               SetFarTitle(Dlg->GetDialogTitle());
@@ -5562,18 +5579,6 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_BUTTON:
           case DI_CHECKBOX:
           case DI_RADIOBUTTON:
-            if((Len=did->PtrLength) == NULL)
-            {
-              strncpy(Ptr,(char *)did->PtrData,511);
-              Len=strlen(Ptr)+1;
-            }
-            else
-            {
-              if((unsigned)did->PtrLength > 511)
-                Len=511;
-              memmove(Ptr,(char *)did->PtrData,Len);
-              Ptr[Len]=0;
-            }
             break;
 
           case DI_COMBOBOX:
@@ -5581,22 +5586,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           case DI_PSWEDIT:
           case DI_FIXEDIT:
             NeedInit=FALSE;
-            if((Len=did->PtrLength) == NULL)
-            {
-              strncpy(Ptr,(char *)did->PtrData,511);
-              Len=strlen(Ptr)+1;
-            }
-            else
-            {
-              if((unsigned)did->PtrLength > 511)
-                Len=511;
-              memmove(Ptr,(char *)did->PtrData,Len);
-              Ptr[Len]=0;
-            }
             if(CurItem->ObjPtr)
             {
               ((Edit *)(CurItem->ObjPtr))->SetString((char *)Ptr);
-              ((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+              //((Edit *)(CurItem->ObjPtr))->Select(-1,-1); // снимаем выделение
+              // ...оно уже снимается в Edit::SetString()
             }
             break;
 

@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.58 27.11.2001 $ */
+/* Revision: 1.59 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 SVS
+    - Ќеверно работал механизм масок при передаче (очистке) пустой строки.
+      (а отсюда и бага BugZ#161)
   27.11.2001 DJ
     - устран€ем memory allocation conflict дл€ ColorList
   23.11.2001 SVS
@@ -1692,7 +1695,11 @@ void Edit::SetBinaryString(char *Str,int Length)
         CurPos++;
       }
     }
-    RefreshStrByMask();
+    /* «десь необходимо условие (*Str==0), т.к. дл€ очистки строки
+       обычно вводитс€ нечто вроде SetBinaryString("",0)
+       “.е. таким образом мы добиваемс€ "инициализации" строки с маской
+    */
+    RefreshStrByMask(*Str==0);
   }
   /* KM $ */
   else

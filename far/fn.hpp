@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.121 07.12.2001 $ */
+/* Revision: 1.122 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 SVS
+    ! У Execute команда (первый параметр) - const
   07.12.2001 IS
     ! Два дополнительных параметра у GetString, которые используются
       при добавлении чек-бокса.
@@ -559,7 +561,7 @@ void CloseSameRegKey();
 
 #if defined(__FARCONST_HPP__) && (defined(_INC_WINDOWS) || defined(_WINDOWS_))
 UDWORD NTTimeToDos(FILETIME *ft);
-int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
+int Execute(const char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
             int DirectRun=FALSE,int SetUpDirs=FALSE);
 #endif
 

@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.112 07.12.2001 $ */
+/* Revision: 1.113 07.12.2001 $ */
 
 /*
 Modify:
+  07.12.2001 IS
+    - BugZ#154 - неверно отображается диалог Option->Panel setting в
+      нерегистреном фаре.
+    - Забыли дисаблить редактор DLG_PANEL_AUTOUPDATELIMITVAL, если
+      Opt.AutoUpdateLimit = 0
   07.12.2001 IS
     + Работа с Opt.MultiMakeDir
     ! Opt.MultiCopy хранится не в NKeyInterface, а в NKeySystem
@@ -531,10 +536,16 @@ void PanelSettings()
   if (!RegVer)
   {
     CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Type=DI_TEXT;
-    sprintf(CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Data," *  %s",MSG(MRegOnlyShort));
+    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Type=DI_TEXT;
+    sprintf(CfgDlg[DLG_PANEL_AUTOUPDATELIMIT].Data," *  %s",MSG(MRegOnlyShort));
+    CfgDlg[DLG_PANEL_AUTOUPDATELIMIT2].Data[0]=0;
+    CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Data[0]=0;
   }
   else
     ultoa(Opt.AutoUpdateLimit,CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Data,10);
+
+  if(Opt.AutoUpdateLimit==0)
+    CfgDlg[DLG_PANEL_AUTOUPDATELIMITVAL].Flags|=DIF_DISABLE;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
