@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.50 05.06.2001 $ */
+/* Revision: 1.51 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 IS
+    - мелкий фикс моего последнего патча
   05.06.2001 IS
     + посылаем подальше всех, кто пытается отредактировать каталог
   27.05.2001 DJ
@@ -252,7 +254,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   /* $ 05.06.2001 IS
      + посылаем подальше всех, кто пытается отредактировать каталог
   */
-  if(FAttr!=1 && FAttr&FILE_ATTRIBUTE_DIRECTORY)
+  if(FAttr!=-1 && FAttr&FILE_ATTRIBUTE_DIRECTORY)
   {
     Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditCanNotEditDirectory),
             MSG(MOk));
