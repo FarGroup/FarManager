@@ -432,7 +432,7 @@
 "Jump to the nearest existing folder?"
 "Save this shortcuts?"
 
-//functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
+//Editor: functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
 "Help"
 "Save"
 ""
@@ -448,7 +448,7 @@
 "Plugin"
 "Screen"
 
-// editor functional keys, Shift state, 12 keys
+//Editor: Shift
 ""
 "SaveAs"
 ""
@@ -462,7 +462,7 @@
 ""
 ""
 
-// editor functional keys, Alt state, 12 keys
+//Editor: Alt
 ""
 ""
 ""
@@ -476,7 +476,7 @@
 "ViewHs"
 ""
 
-// editor functional keys, Ctrl state, 12 keys
+//Editor: Ctrl
 ""
 ""
 ""
@@ -490,7 +490,7 @@
 ""
 ""
 
-// Editor AltShift
+//Editor: AltShift
 ""
 ""
 ""
@@ -504,7 +504,7 @@
 ""
 ""
 
-// Editor CtrlShift
+//Editor: CtrlShift
 ""
 ""
 ""
@@ -518,7 +518,7 @@
 ""
 ""
 
-// Editor CtrlAlt
+// Editor: CtrlAlt
 ""
 ""
 ""
@@ -531,7 +531,108 @@
 ""
 ""
 ""
-//End of functional keys
+//End of functional keys (Editor)
+
+//Single Editor: functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
+"Help"
+"Save"
+""
+""
+""
+"View"
+"Search"
+"Win"
+"DOS"
+// don't count this - it's a F8 another text
+""
+"Quit"
+"Plugin"
+"Screen"
+
+//Single Editor: Shift
+""
+"SaveAs"
+""
+""
+""
+""
+"Next"
+"Table"
+""
+"SaveQ"
+""
+""
+
+//Single Editor: Alt
+""
+""
+""
+""
+"Print"
+""
+""
+"Goto"
+"Video"
+""
+"ViewHs"
+""
+
+//Single Editor: Ctrl
+""
+""
+""
+""
+""
+""
+"Replac"
+""
+""
+"GoFile"
+""
+""
+
+//Single Editor: AltShift
+""
+""
+""
+""
+""
+""
+""
+""
+"Config"
+""
+""
+""
+
+//Single Editor: CtrlShift
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+
+//Single Editor: CtrlAlt
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+//End of functional keys (Single Editor)
 
 "Save file &as"
 "Change line breaks to:"
@@ -599,7 +700,7 @@
 "&Edit command (used for F4):"
 "Edit comm&and (used for Alt-F4):"
 
-// viewer functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
+//Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Help"
 "Wrap"
 // this is another text for F2
@@ -618,7 +719,7 @@
 "Plugins"
 "Screen"
 
-// Viewer functional keys, Shift state, 12 keys
+//Viewer: Shift
 ""
 "WWrap"
 ""
@@ -632,7 +733,7 @@
 ""
 ""
 
-// Viewer functional keys, Alt state, 12 keys
+//Viewer: Alt
 ""
 ""
 ""
@@ -646,7 +747,7 @@
 "ViewHs"
 ""
 
-// Viewer functional keys, Ctrl state, 12 keys
+//Viewer: Ctrl
 ""
 ""
 ""
@@ -660,7 +761,7 @@
 ""
 ""
 
-// Viewer AltShift
+//Viewer: AltShift
 ""
 ""
 ""
@@ -674,7 +775,7 @@
 ""
 ""
 
-// Viewer CtrlShift
+//Viewer: CtrlShift
 ""
 ""
 ""
@@ -688,7 +789,7 @@
 ""
 ""
 
-// Viewer CtrlAlt
+//Viewer: CtrlAlt
 ""
 ""
 ""
@@ -701,7 +802,111 @@
 ""
 ""
 ""
-//end of functional keys
+//end of functional keys (Viewer)
+
+//Single Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
+"Help"
+"Wrap"
+// this is another text for F2
+"Unwrap"
+"Quit"
+"Hex"
+// this is another text for F4
+"Text"
+""
+"Edit"
+"Search"
+"Win"
+"DOS"
+""
+"Quit"
+"Plugins"
+"Screen"
+
+//Single Viewer: Shift
+""
+"WWrap"
+""
+""
+""
+""
+"Next"
+"Table"
+""
+""
+""
+""
+
+//Single Viewer: Alt
+""
+""
+""
+""
+"Print"
+""
+""
+"Goto"
+"Video"
+""
+"ViewHs"
+""
+
+//Single Viewer: Ctrl
+""
+""
+""
+""
+""
+""
+""
+""
+""
+"GoFile"
+""
+""
+
+//Single Viewer: AltShift
+""
+""
+""
+""
+""
+""
+""
+""
+"Config"
+""
+""
+""
+
+//Single Viewer: CtrlShift
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+
+//Single Viewer: CtrlAlt
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+//end of functional keys (Single Viewer)
 
 "view %s"
 "edit %s"

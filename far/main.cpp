@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.60 07.10.2002 $ */
+/* Revision: 1.61 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    ! OnlyEditorViewerUsed стал частью структуры Options
   07.10.2002 SVS
     - BugZ#674 - far.exe c:\dir [c:\dir2] - не работает
   21.08.2002 SVS
@@ -567,7 +569,7 @@ int _cdecl main(int Argc, char *Argv[])
     if (*EditName || *ViewName)
     {
       NotUseCAS=TRUE;
-      OnliEditorViewerUsed=TRUE;
+      Opt.OnlyEditorViewerUsed=1;
       Panel *DummyPanel=new Panel;
       CmdMode=TRUE;
       _tran(SysLog("create dummy panels"));
@@ -598,7 +600,7 @@ int _cdecl main(int Argc, char *Argv[])
     else
     {
       char Path[NM];
-      OnliEditorViewerUsed=FALSE;
+      Opt.OnlyEditorViewerUsed=0;
       NotUseCAS=FALSE;
       if (RegOpt)
         Register();

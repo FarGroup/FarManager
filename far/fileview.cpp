@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.60 10.12.2002 $ */
+/* Revision: 1.61 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    + Wish - В LNG-файлах отдельные позиции лейбаков для /e и /v
   10.12.2002 SVS
     - BugZ#720 - far /v file + Ctrl-O
   14.06.2002 IS
@@ -276,45 +278,60 @@ void FileViewer::Init(const char *name,int EnableSwitch,int disableHistory, ///
 */
 void FileViewer::InitKeyBar(void)
 {
-  /* $ 29.06.2000 tran
-     добавил названия всех функциональных клавиш */
-  char *FViewKeys[]={MSG(MViewF1),MSG(MViewF2),MSG(MViewF3),MSG(MViewF4),MSG(MViewF5),DisableEdit ? "":MSG(MViewF6),MSG(MViewF7),MSG(MViewF8),MSG(MViewF9),MSG(MViewF10),MSG(MViewF11),(GetCanLoseFocus())?MSG(MViewF12):""};
-  char *FViewShiftKeys[]={MSG(MViewShiftF1),MSG(MViewShiftF2),MSG(MViewShiftF3),MSG(MViewShiftF4),MSG(MViewShiftF5),MSG(MViewShiftF6),MSG(MViewShiftF7),MSG(MViewShiftF8),MSG(MViewShiftF9),MSG(MViewShiftF10),MSG(MViewShiftF11),MSG(MViewShiftF12)};
-  /* $ 17.12.2001 KM
-     ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-  */
-  char *FViewAltKeys[]={MSG(MViewAltF1),MSG(MViewAltF2),MSG(MViewAltF3),MSG(MViewAltF4),MSG(MViewAltF5),MSG(MViewAltF6),MSG(MViewAltF7),MSG(MViewAltF8),MSG(MViewAltF9),MSG(MViewAltF10),(GetCanLoseFocus())?MSG(MViewAltF11):"",MSG(MViewAltF12)};
-  /* KM $ */
-  char *FViewCtrlKeys[]={MSG(MViewCtrlF1),MSG(MViewCtrlF2),MSG(MViewCtrlF3),MSG(MViewCtrlF4),MSG(MViewCtrlF5),MSG(MViewCtrlF6),MSG(MViewCtrlF7),MSG(MViewCtrlF8),MSG(MViewCtrlF9),MSG(MViewCtrlF10),MSG(MViewCtrlF11),MSG(MViewCtrlF12)};
+  int IKeyLabel[2][7][13]=
+  {
+    // Обычный редактор
+    {
+      /* (empty)   */ {KBL_MAIN,MViewF1,MViewF2,MViewF3,MViewF4,MViewF5,MViewF6,MViewF7,MViewF8,MViewF9,MViewF10,MViewF11,MViewF12},
+      /* Shift     */ {KBL_SHIFT,MViewShiftF1,MViewShiftF2,MViewShiftF3,MViewShiftF4,MViewShiftF5,MViewShiftF6,MViewShiftF7,MViewShiftF8,MViewShiftF9,MViewShiftF10,MViewShiftF11,MViewShiftF12},
+      /* Alt       */ {KBL_ALT,MViewAltF1,MViewAltF2,MViewAltF3,MViewAltF4,MViewAltF5,MViewAltF6,MViewAltF7,MViewAltF8,MViewAltF9,MViewAltF10,MViewAltF11,MViewAltF12},
+      /* Ctrl      */ {KBL_CTRL,MViewCtrlF1,MViewCtrlF2,MViewCtrlF3,MViewCtrlF4,MViewCtrlF5,MViewCtrlF6,MViewCtrlF7,MViewCtrlF8,MViewCtrlF9,MViewCtrlF10,MViewCtrlF11,MViewCtrlF12},
+      /* AltShift  */ {KBL_ALTSHIFT,MViewAltShiftF1,MViewAltShiftF2,MViewAltShiftF3,MViewAltShiftF4,MViewAltShiftF5,MViewAltShiftF6,MViewAltShiftF7,MViewAltShiftF8,MViewAltShiftF9,MViewAltShiftF10,MViewAltShiftF11,MViewAltShiftF12},
+      /* CtrlShift */ {KBL_CTRLSHIFT,MViewCtrlShiftF1,MViewCtrlShiftF2,MViewCtrlShiftF3,MViewCtrlShiftF4,MViewCtrlShiftF5,MViewCtrlShiftF6,MViewCtrlShiftF7,MViewCtrlShiftF8,MViewCtrlShiftF9,MViewCtrlShiftF10,MViewCtrlShiftF11,MViewCtrlShiftF12},
+      /* CtrlAlt   */ {KBL_CTRLALT,MViewCtrlAltF1,MViewCtrlAltF2,MViewCtrlAltF3,MViewCtrlAltF4,MViewCtrlAltF5,MViewCtrlAltF6,MViewCtrlAltF7,MViewCtrlAltF8,MViewCtrlAltF9,MViewCtrlAltF10,MViewCtrlAltF11,MViewCtrlAltF12},
+    },
+    // одиночный редактор
+    {
+      /* (empty)   */ {KBL_MAIN,MSingleViewF1,MSingleViewF2,MSingleViewF3,MSingleViewF4,MSingleViewF5,MSingleViewF6,MSingleViewF7,MSingleViewF8,MSingleViewF9,MSingleViewF10,MSingleViewF11,MSingleViewF12},
+      /* Shift     */ {KBL_SHIFT,MSingleViewShiftF1,MSingleViewShiftF2,MSingleViewShiftF3,MSingleViewShiftF4,MSingleViewShiftF5,MSingleViewShiftF6,MSingleViewShiftF7,MSingleViewShiftF8,MSingleViewShiftF9,MSingleViewShiftF10,MSingleViewShiftF11,MSingleViewShiftF12},
+      /* Alt       */ {KBL_ALT,MSingleViewAltF1,MSingleViewAltF2,MSingleViewAltF3,MSingleViewAltF4,MSingleViewAltF5,MSingleViewAltF6,MSingleViewAltF7,MSingleViewAltF8,MSingleViewAltF9,MSingleViewAltF10,MSingleViewAltF11,MSingleViewAltF12},
+      /* Ctrl      */ {KBL_CTRL,MSingleViewCtrlF1,MSingleViewCtrlF2,MSingleViewCtrlF3,MSingleViewCtrlF4,MSingleViewCtrlF5,MSingleViewCtrlF6,MSingleViewCtrlF7,MSingleViewCtrlF8,MSingleViewCtrlF9,MSingleViewCtrlF10,MSingleViewCtrlF11,MSingleViewCtrlF12},
+      /* AltShift  */ {KBL_ALTSHIFT,MSingleViewAltShiftF1,MSingleViewAltShiftF2,MSingleViewAltShiftF3,MSingleViewAltShiftF4,MSingleViewAltShiftF5,MSingleViewAltShiftF6,MSingleViewAltShiftF7,MSingleViewAltShiftF8,MSingleViewAltShiftF9,MSingleViewAltShiftF10,MSingleViewAltShiftF11,MSingleViewAltShiftF12},
+      /* CtrlShift */ {KBL_CTRLSHIFT,MSingleViewCtrlShiftF1,MSingleViewCtrlShiftF2,MSingleViewCtrlShiftF3,MSingleViewCtrlShiftF4,MSingleViewCtrlShiftF5,MSingleViewCtrlShiftF6,MSingleViewCtrlShiftF7,MSingleViewCtrlShiftF8,MSingleViewCtrlShiftF9,MSingleViewCtrlShiftF10,MSingleViewCtrlShiftF11,MSingleViewCtrlShiftF12},
+      /* CtrlAlt   */ {KBL_CTRLALT,MSingleViewCtrlAltF1,MSingleViewCtrlAltF2,MSingleViewCtrlAltF3,MSingleViewCtrlAltF4,MSingleViewCtrlAltF5,MSingleViewCtrlAltF6,MSingleViewCtrlAltF7,MSingleViewCtrlAltF8,MSingleViewCtrlAltF9,MSingleViewCtrlAltF10,MSingleViewCtrlAltF11,MSingleViewCtrlAltF12},
+    }
+  };
+  char *FViewKeys[12];
+  int I,J;
 
-  if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
-    FViewAltKeys[5-1]="";
-
-  /* $ 07.08.2000 SVS
-     добавил названия расширенных функциональных клавиш */
-  char *FViewAltShiftKeys[]={MSG(MViewAltShiftF1),MSG(MViewAltShiftF2),MSG(MViewAltShiftF3),MSG(MViewAltShiftF4),MSG(MViewAltShiftF5),MSG(MViewAltShiftF6),MSG(MViewAltShiftF7),MSG(MViewAltShiftF8),MSG(MViewAltShiftF9),MSG(MViewAltShiftF10),MSG(MViewAltShiftF11),MSG(MViewAltShiftF12)};
-  char *FViewCtrlShiftKeys[]={MSG(MViewCtrlShiftF1),MSG(MViewCtrlShiftF2),MSG(MViewCtrlShiftF3),MSG(MViewCtrlShiftF4),MSG(MViewCtrlShiftF5),MSG(MViewCtrlShiftF6),MSG(MViewCtrlShiftF7),MSG(MViewCtrlShiftF8),MSG(MViewCtrlShiftF9),MSG(MViewCtrlShiftF10),MSG(MViewCtrlShiftF11),MSG(MViewCtrlShiftF12)};
-  char *FViewCtrlAltKeys[]={MSG(MViewCtrlAltF1),MSG(MViewCtrlAltF2),MSG(MViewCtrlAltF3),MSG(MViewCtrlAltF4),MSG(MViewCtrlAltF5),MSG(MViewCtrlAltF6),MSG(MViewCtrlAltF7),MSG(MViewCtrlAltF8),MSG(MViewCtrlAltF9),MSG(MViewCtrlAltF10),MSG(MViewCtrlAltF11),MSG(MViewCtrlAltF12)};
-  /* SVS $*/
-
-  ViewKeyBar.Set(FViewKeys,sizeof(FViewKeys)/sizeof(FViewKeys[0]));
-  ViewKeyBar.SetShift(FViewShiftKeys,sizeof(FViewShiftKeys)/sizeof(FViewShiftKeys[0]));
-  ViewKeyBar.SetAlt(FViewAltKeys,sizeof(FViewAltKeys)/sizeof(FViewAltKeys[0]));
-  ViewKeyBar.SetCtrl(FViewCtrlKeys,sizeof(FViewCtrlKeys)/sizeof(FViewCtrlKeys[0]));
-  /* $ 07.08.2000 SVS
-     добавил названия расширенных функциональных клавиш */
-  ViewKeyBar.SetCtrlAlt(FViewCtrlAltKeys,sizeof(FViewCtrlAltKeys)/sizeof(FViewCtrlAltKeys[0]));
-  ViewKeyBar.SetCtrlShift(FViewCtrlShiftKeys,sizeof(FViewCtrlShiftKeys)/sizeof(FViewCtrlShiftKeys[0]));
-  ViewKeyBar.SetAltShift(FViewAltShiftKeys,sizeof(FViewAltShiftKeys)/sizeof(FViewAltShiftKeys[0]));
-  /* SVS $ */
-  /* tran $ */
+  for(I=0; I < 7; ++I)
+  {
+    for(J=1; J <= 12; ++J)
+    {
+      FViewKeys[J-1]=MSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
+    }
+    switch(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0])
+    {
+      case KBL_MAIN:
+        if(DisableEdit)
+          FViewKeys[6-1]="";
+        if(!GetCanLoseFocus())
+          FViewKeys[12-1]="";
+        break;
+      case KBL_ALT:
+        // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
+        if(!GetCanLoseFocus())
+          FViewKeys[11-1]="";
+        if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+          FViewKeys[5-1]="";
+        break;
+    }
+    ViewKeyBar.SetGroup(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0],FViewKeys,sizeof(FViewKeys)/sizeof(FViewKeys[0]));
+  }
 
   SetKeyBar(&ViewKeyBar);
-  /* $ 15.07.2000 tran
-     ShowKeyBarViewer support*/
+  // $ 15.07.2000 tran - ShowKeyBarViewer support
   View.SetPosition(X1,Y1,X2,Y2-(Opt.ShowKeyBarViewer?1:0));
-  /* tran 15.07.2000 $ */
-
   View.SetViewKeyBar(&ViewKeyBar);
 }
 /* SVS $ */
@@ -391,7 +408,7 @@ int FileViewer::ProcessKey(int Key)
     */
 /* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
     case KEY_CTRLO:
-      if(!OnliEditorViewerUsed)
+      if(!Opt.OnlyEditorViewerUsed)
       {
         FrameManager->ShowBackground();
         SetCursorType(FALSE,0);

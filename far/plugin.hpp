@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.223 17.12.2002 $ */
+/* Revision: 1.224 23.12.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  23.12.2002 SVS
+    + FARINT64 (пока для внутреннего юзания)
+    ! Учтем, что у нас __int64 теперь как часть FARINT64 во вьюверных структурах
   17.12.2002 SVS
     ! Изменены структуры ViewerSelect, ViewerSetPosition и ViewerInfo
       в связи с вводом в строй Viewer64
@@ -796,7 +799,6 @@ Modify:
 typedef struct _INPUT_RECORD INPUT_RECORD;
 typedef struct _CHAR_INFO    CHAR_INFO;
 #endif
-
 
 enum {
   FMSG_WARNING             = 0x00000001,
@@ -1773,15 +1775,18 @@ enum VIEWER_OPTIONS {
   VOPT_AUTODETECTTABLE=2,
 };
 
+typedef union {
+  __int64 i64;
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } Part;
+} FARINT64;
+
 struct ViewerSelect
 {
-#ifdef FAR_USE_INTERNALS
-   __int64  BlockStartPos;
-#else // ELSE FAR_USE_INTERNALS
-   long  BlockStartPos;
-   long  Reserved1;
-#endif // END FAR_USE_INTERNALS
-   int   BlockLen;
+  FARINT64 BlockStartPos;
+  int      BlockLen;
 };
 
 enum VIEWER_SETPOS_FLAGS {
@@ -1794,12 +1799,7 @@ enum VIEWER_SETPOS_FLAGS {
 struct ViewerSetPosition
 {
   DWORD Flags;
-#ifdef FAR_USE_INTERNALS
-  __int64 StartPos;
-#else // ELSE FAR_USE_INTERNALS
-  long  StartPos;
-  long  Reserved1;
-#endif // END FAR_USE_INTERNALS
+  FARINT64 StartPos;
   int   LeftPos;
 };
 
@@ -1819,15 +1819,8 @@ struct ViewerInfo
   int    StructSize;
   int    ViewerID;
   const char *FileName;
-#ifdef FAR_USE_INTERNALS
-  __int64 FileSize;
-  __int64 FilePos;
-#else // ELSE FAR_USE_INTERNALS
-  DWORD  FileSize;
-  DWORD  Reserved1;
-  DWORD  FilePos;
-  DWORD  Reserved2;
-#endif // END FAR_USE_INTERNALS
+  FARINT64 FileSize;
+  FARINT64 FilePos;
   int    WindowSizeX;
   int    WindowSizeY;
   DWORD  Options;

@@ -448,7 +448,7 @@
 "Модули"
 "Экраны"
 
-// editor functional keys, Shift state, 12 keys
+//Editor: Shift
 ""
 "Сохр.в"
 ""
@@ -462,7 +462,7 @@
 ""
 ""
 
-// editor functional keys, Alt state, 12 keys
+//Editor: Alt
 ""
 ""
 ""
@@ -476,7 +476,7 @@
 "ИстПр"
 ""
 
-// editor functional keys, Ctrl state, 12 keys
+//Editor: Ctrl
 ""
 ""
 ""
@@ -490,7 +490,7 @@
 ""
 ""
 
-// Editor AltShift
+//Editor: AltShift
 ""
 ""
 ""
@@ -504,7 +504,7 @@
 ""
 ""
 
-// Editor CtrlShift
+//Editor: CtrlShift
 ""
 ""
 ""
@@ -518,7 +518,7 @@
 ""
 ""
 
-// Editor CtrlAlt
+//Editor: CtrlAlt
 ""
 ""
 ""
@@ -531,7 +531,108 @@
 ""
 ""
 ""
-//End of functional keys
+//End of functional keys (Editor)
+
+//Single Editor: functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
+"Помощь"
+"Сохран"
+""
+""
+""
+"Просм"
+"Поиск"
+"Win"
+// don't count this - it's a F8 another text
+"DOS"
+""
+"Выход"
+"Модули"
+"Экраны"
+
+//Single Editor: Shift
+""
+"Сохр.в"
+""
+""
+""
+""
+"Дальше"
+"Таблиц"
+""
+"СхрВых"
+""
+""
+
+//Single Editor: Alt
+""
+""
+""
+""
+"Печать"
+""
+""
+"Строка"
+"Видео"
+""
+"ИстПр"
+""
+
+//Single Editor: Ctrl
+""
+""
+""
+""
+""
+""
+"Замена"
+""
+""
+"Позиц"
+""
+""
+
+//Single Editor: AltShift
+""
+""
+""
+""
+""
+""
+""
+""
+"Конфиг"
+""
+""
+""
+
+//Single Editor: CtrlShift
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+
+//Single Editor: CtrlAlt
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+//End of functional keys (Single Editor)
 
 "Сохранить &файл как"
 "Изменить перевод строки:"
@@ -599,7 +700,7 @@
 "Команда &редактирования, выполняемая по F4:"
 "Команда редактировани&я, выполняемая по Alt-F4:"
 
-// viewer functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
+//Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Помощь"
 "Сверн"
 // this is another text for F2
@@ -618,7 +719,7 @@
 "Модули"
 "Экраны"
 
-// Viewer functional keys, Shift state, 12 keys
+//Viewer: Shift
 ""
 "Слова"
 ""
@@ -632,7 +733,7 @@
 ""
 ""
 
-// Viewer functional keys, Alt state, 12 keys
+//Viewer: Alt
 ""
 ""
 ""
@@ -646,7 +747,7 @@
 "ИстПр"
 ""
 
-// Viewer functional keys, Ctrl state, 12 keys
+//Viewer: Ctrl
 ""
 ""
 ""
@@ -660,7 +761,7 @@
 ""
 ""
 
-// Viewer AltShift
+//Viewer: AltShift
 ""
 ""
 ""
@@ -674,7 +775,7 @@
 ""
 ""
 
-// Viewer CtrlShift
+//Viewer: CtrlShift
 ""
 ""
 ""
@@ -688,7 +789,7 @@
 ""
 ""
 
-// Viewer CtrlAlt
+//Viewer: CtrlAlt
 ""
 ""
 ""
@@ -701,7 +802,111 @@
 ""
 ""
 ""
-//end of functional keys
+//end of functional keys (Viewer)
+
+//Single Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
+"Помощь"
+"Сверн"
+// this is another text for F2
+"Развер"
+"Выход"
+"Код"
+// this is another text for F4
+"Текст"
+""
+"Редакт"
+"Поиск"
+"Win"
+"DOS"
+""
+"Выход"
+"Модули"
+"Экраны"
+
+//Single Viewer: Shift
+""
+"Слова"
+""
+""
+""
+""
+"Дальше"
+"Таблиц"
+""
+""
+""
+""
+
+//Single Viewer: Alt
+""
+""
+""
+""
+"Печать"
+""
+""
+"Перейт"
+"Видео"
+""
+"ИстПр"
+""
+
+//Single Viewer: Ctrl
+""
+""
+""
+""
+""
+""
+""
+""
+""
+"Позиц"
+""
+""
+
+//Single Viewer: AltShift
+""
+""
+""
+""
+""
+""
+""
+""
+"Конфиг"
+""
+""
+""
+
+//Single Viewer: CtrlShift
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+
+//Single Viewer: CtrlAlt
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+""
+//end of functional keys (Single Viewer)
 
 "просмотр %s"
 "редактирование %s"

@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.113 21.12.2002 $ */
+/* Revision: 1.114 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    - бага с невыводом "немогу отобразить файло" в QView
+    ! Учтем, что у нас __int64 теперь как часть FARINT64 во вьюверных структурах
   21.12.2002 SVS
     - BugZ#742/2 - проблемы с Qview:
        Когда бегаю по папкам с включенным Qview 100% на некоторое время
@@ -555,6 +558,8 @@ int Viewer::OpenFile(const char *Name,int warning)
 {
   FILE *NewViewFile=NULL;
   OpenFailed=false;
+  strcpy(FileName,Name);
+
   if (CmdMode && strcmp(Name,"-")==0)
   {
     HANDLE OutHandle;
@@ -631,7 +636,7 @@ int Viewer::OpenFile(const char *Name,int warning)
     fclose(ViewFile);
   TableChangedByUser=FALSE;
   ViewFile=NewViewFile;
-  strcpy(FileName,Name);
+
 //  ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
   if (ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName)){
     OpenFailed=false;
@@ -3070,8 +3075,8 @@ int Viewer::ViewerControl(int Command,void *Param)
         Info->FileName=FullFileName;
         Info->WindowSizeX=ObjWidth;
         Info->WindowSizeY=Y2-Y1;
-        Info->FilePos=FilePos;
-        Info->FileSize=FileSize;
+        Info->FilePos.i64=FilePos;
+        Info->FileSize.i64=FileSize;
         memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));
         Info->CurMode.TableNum=VM.UseDecodeTable ? VM.TableNum-2:-1;
         Info->Options=0;
@@ -3098,15 +3103,15 @@ int Viewer::ViewerControl(int Command,void *Param)
       if(Param)
       {
         struct ViewerSetPosition vsp=*(struct ViewerSetPosition*)Param;
-        bool isReShow=vsp.StartPos != FilePos;
+        bool isReShow=vsp.StartPos.i64 != FilePos;
         if((LeftPos=vsp.LeftPos) < 0)
           LeftPos=0;
-        GoTo(FALSE, vsp.StartPos, vsp.Flags);
+        GoTo(FALSE, vsp.StartPos.i64, vsp.Flags);
         if (isReShow && !(vsp.Flags&VSP_NOREDRAW))
           ScrBuf.Flush();
         if(!(vsp.Flags&VSP_NORETNEWPOS))
         {
-          ((struct ViewerSetPosition*)Param)->StartPos=FilePos;
+          ((struct ViewerSetPosition*)Param)->StartPos.i64=FilePos;
           ((struct ViewerSetPosition*)Param)->LeftPos=(int)LeftPos; //???
         }
         return(TRUE);
@@ -3119,7 +3124,7 @@ int Viewer::ViewerControl(int Command,void *Param)
     {
       if(Param)
       {
-        __int64 SPos=((ViewerSelect*)Param)->BlockStartPos;
+        __int64 SPos=((ViewerSelect*)Param)->BlockStartPos.i64;
         int SSize=((ViewerSelect*)Param)->BlockLen;
         if(SPos < FileSize)
         {

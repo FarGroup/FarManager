@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.09 17.12.2002 $ */
+/* Revision: 1.10 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    - BugZ#744 - [wish] работа Ctrl-R в окне списка задач
   17.12.2002 SVS
     + Ctrl-R позволяет обновить список задач.
   24.02.2002 SVS
@@ -72,6 +74,7 @@ void ShowProcessList()
       {
         ProcList.Hide();
         ProcList.DeleteItems();
+        ProcList.SetPosition(-1,-1,0,0);
         if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
         {
           ProcList.Modal::SetExitCode(-1);

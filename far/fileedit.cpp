@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.125 21.12.2002 $ */
+/* Revision: 1.126 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    + Wish - В LNG-файлах отдельные позиции лейбаков для /e и /v
   21.12.2002 SVS
     - Ну...  некоторым образом облагороженная вариация BugZ#660 :-)
       Применим новый флаг UPDATE_DRAW_MESSAGE - "показывать счетчик
@@ -710,52 +712,62 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
 /* $ 07.08.2000 SVS
   Функция инициализации KeyBar Labels
 */
+// $ 29.06.2000 tran - добавил названия всех функциональных клавиш
 void FileEditor::InitKeyBar(void)
 {
-  /* $ 29.06.2000 tran
-     добавил названия всех функциональных клавиш */
-  /* $ 10.05.2001 DJ
-     смотрим на EnableF6 вместо CanLoseFocus
-  */
-  char *FEditKeys[]={MSG(MEditF1),MSG(MEditF2),MSG(MEditF3),MSG(MEditF4),MSG(MEditF5),MSG(MEditF6),MSG(MEditF7),MSG(MEditF8),MSG(MEditF9),MSG(MEditF10),MSG(MEditF11),MSG(MEditF12)};
-  if(Flags.Check(FFILEEDIT_SAVETOSAVEAS))
-    FEditKeys[2-1]=MSG(MEditShiftF2);
-  if(!Flags.Check(FFILEEDIT_ENABLEF6))
-    FEditKeys[6-1]="";
-  if(!GetCanLoseFocus())
-    FEditKeys[12-1]="";
-  /* DJ $ */
-  char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
-  /* $ 17.12.2001 KM
-     ! Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
-  */
-  char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
-  if(!GetCanLoseFocus())
-    FEditAltKeys[11-1]="";
-  /* KM $ */
-  char *FEditCtrlKeys[]={MSG(MEditCtrlF1),MSG(MEditCtrlF2),MSG(MEditCtrlF3),MSG(MEditCtrlF4),MSG(MEditCtrlF5),MSG(MEditCtrlF6),MSG(MEditCtrlF7),MSG(MEditCtrlF8),MSG(MEditCtrlF9),MSG(MEditCtrlF10),MSG(MEditCtrlF11),MSG(MEditCtrlF12)};
+  int IKeyLabel[2][7][13]=
+  {
+    // Обычный редактор
+    {
+      /* (empty)   */ {KBL_MAIN,MEditF1,MEditF2,MEditF3,MEditF4,MEditF5,MEditF6,MEditF7,MEditF8,MEditF9,MEditF10,MEditF11,MEditF12},
+      /* Shift     */ {KBL_SHIFT,MEditShiftF1,MEditShiftF2,MEditShiftF3,MEditShiftF4,MEditShiftF5,MEditShiftF6,MEditShiftF7,MEditShiftF8,MEditShiftF9,MEditShiftF10,MEditShiftF11,MEditShiftF12},
+      /* Alt       */ {KBL_ALT,MEditAltF1,MEditAltF2,MEditAltF3,MEditAltF4,MEditAltF5,MEditAltF6,MEditAltF7,MEditAltF8,MEditAltF9,MEditAltF10,MEditAltF11,MEditAltF12},
+      /* Ctrl      */ {KBL_CTRL,MEditCtrlF1,MEditCtrlF2,MEditCtrlF3,MEditCtrlF4,MEditCtrlF5,MEditCtrlF6,MEditCtrlF7,MEditCtrlF8,MEditCtrlF9,MEditCtrlF10,MEditCtrlF11,MEditCtrlF12},
+      /* AltShift  */ {KBL_ALTSHIFT,MEditAltShiftF1,MEditAltShiftF2,MEditAltShiftF3,MEditAltShiftF4,MEditAltShiftF5,MEditAltShiftF6,MEditAltShiftF7,MEditAltShiftF8,MEditAltShiftF9,MEditAltShiftF10,MEditAltShiftF11,MEditAltShiftF12},
+      /* CtrlShift */ {KBL_CTRLSHIFT,MEditCtrlShiftF1,MEditCtrlShiftF2,MEditCtrlShiftF3,MEditCtrlShiftF4,MEditCtrlShiftF5,MEditCtrlShiftF6,MEditCtrlShiftF7,MEditCtrlShiftF8,MEditCtrlShiftF9,MEditCtrlShiftF10,MEditCtrlShiftF11,MEditCtrlShiftF12},
+      /* CtrlAlt   */ {KBL_CTRLALT,MEditCtrlAltF1,MEditCtrlAltF2,MEditCtrlAltF3,MEditCtrlAltF4,MEditCtrlAltF5,MEditCtrlAltF6,MEditCtrlAltF7,MEditCtrlAltF8,MEditCtrlAltF9,MEditCtrlAltF10,MEditCtrlAltF11,MEditCtrlAltF12},
+    },
+    // одиночный редактор
+    {
+      /* (empty)   */ {KBL_MAIN,MSingleEditF1,MSingleEditF2,MSingleEditF3,MSingleEditF4,MSingleEditF5,MSingleEditF6,MSingleEditF7,MSingleEditF8,MSingleEditF9,MSingleEditF10,MSingleEditF11,MSingleEditF12},
+      /* Shift     */ {KBL_SHIFT,MSingleEditShiftF1,MSingleEditShiftF2,MSingleEditShiftF3,MSingleEditShiftF4,MSingleEditShiftF5,MSingleEditShiftF6,MSingleEditShiftF7,MSingleEditShiftF8,MSingleEditShiftF9,MSingleEditShiftF10,MSingleEditShiftF11,MSingleEditShiftF12},
+      /* Alt       */ {KBL_ALT,MSingleEditAltF1,MSingleEditAltF2,MSingleEditAltF3,MSingleEditAltF4,MSingleEditAltF5,MSingleEditAltF6,MSingleEditAltF7,MSingleEditAltF8,MSingleEditAltF9,MSingleEditAltF10,MSingleEditAltF11,MSingleEditAltF12},
+      /* Ctrl      */ {KBL_CTRL,MSingleEditCtrlF1,MSingleEditCtrlF2,MSingleEditCtrlF3,MSingleEditCtrlF4,MSingleEditCtrlF5,MSingleEditCtrlF6,MSingleEditCtrlF7,MSingleEditCtrlF8,MSingleEditCtrlF9,MSingleEditCtrlF10,MSingleEditCtrlF11,MSingleEditCtrlF12},
+      /* AltShift  */ {KBL_ALTSHIFT,MSingleEditAltShiftF1,MSingleEditAltShiftF2,MSingleEditAltShiftF3,MSingleEditAltShiftF4,MSingleEditAltShiftF5,MSingleEditAltShiftF6,MSingleEditAltShiftF7,MSingleEditAltShiftF8,MSingleEditAltShiftF9,MSingleEditAltShiftF10,MSingleEditAltShiftF11,MSingleEditAltShiftF12},
+      /* CtrlShift */ {KBL_CTRLSHIFT,MSingleEditCtrlShiftF1,MSingleEditCtrlShiftF2,MSingleEditCtrlShiftF3,MSingleEditCtrlShiftF4,MSingleEditCtrlShiftF5,MSingleEditCtrlShiftF6,MSingleEditCtrlShiftF7,MSingleEditCtrlShiftF8,MSingleEditCtrlShiftF9,MSingleEditCtrlShiftF10,MSingleEditCtrlShiftF11,MSingleEditCtrlShiftF12},
+      /* CtrlAlt   */ {KBL_CTRLALT,MSingleEditCtrlAltF1,MSingleEditCtrlAltF2,MSingleEditCtrlAltF3,MSingleEditCtrlAltF4,MSingleEditCtrlAltF5,MSingleEditCtrlAltF6,MSingleEditCtrlAltF7,MSingleEditCtrlAltF8,MSingleEditCtrlAltF9,MSingleEditCtrlAltF10,MSingleEditCtrlAltF11,MSingleEditCtrlAltF12},
+    }
+  };
+  char *FEditKeys[12];
+  int I,J;
 
-  if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
-    FEditAltKeys[5-1]="";
-  /* tran $ */
-  /* $ 07.08.2000 SVS
-     добавил названия расширенных функциональных клавиш */
-  char *FEditAltShiftKeys[]={MSG(MEditAltShiftF1),MSG(MEditAltShiftF2),MSG(MEditAltShiftF3),MSG(MEditAltShiftF4),MSG(MEditAltShiftF5),MSG(MEditAltShiftF6),MSG(MEditAltShiftF7),MSG(MEditAltShiftF8),MSG(MEditAltShiftF9),MSG(MEditAltShiftF10),MSG(MEditAltShiftF11),MSG(MEditAltShiftF12)};
-  char *FEditCtrlShiftKeys[]={MSG(MEditCtrlShiftF1),MSG(MEditCtrlShiftF2),MSG(MEditCtrlShiftF3),MSG(MEditCtrlShiftF4),MSG(MEditCtrlShiftF5),MSG(MEditCtrlShiftF6),MSG(MEditCtrlShiftF7),MSG(MEditCtrlShiftF8),MSG(MEditCtrlShiftF9),MSG(MEditCtrlShiftF10),MSG(MEditCtrlShiftF11),MSG(MEditCtrlShiftF12)};
-  char *FEditCtrlAltKeys[]={MSG(MEditCtrlAltF1),MSG(MEditCtrlAltF2),MSG(MEditCtrlAltF3),MSG(MEditCtrlAltF4),MSG(MEditCtrlAltF5),MSG(MEditCtrlAltF6),MSG(MEditCtrlAltF7),MSG(MEditCtrlAltF8),MSG(MEditCtrlAltF9),MSG(MEditCtrlAltF10),MSG(MEditCtrlAltF11),MSG(MEditCtrlAltF12)};
-  /* SVS $*/
-
-  EditKeyBar.Set(FEditKeys,sizeof(FEditKeys)/sizeof(FEditKeys[0]));
-  EditKeyBar.SetShift(FEditShiftKeys,sizeof(FEditShiftKeys)/sizeof(FEditShiftKeys[0]));
-  EditKeyBar.SetAlt(FEditAltKeys,sizeof(FEditAltKeys)/sizeof(FEditAltKeys[0]));
-  EditKeyBar.SetCtrl(FEditCtrlKeys,sizeof(FEditCtrlKeys)/sizeof(FEditCtrlKeys[0]));
-
-  /* $ 07.08.2000 SVS
-     добавил названия расширенных функциональных клавиш */
-  EditKeyBar.SetCtrlAlt(FEditCtrlAltKeys,sizeof(FEditCtrlAltKeys)/sizeof(FEditCtrlAltKeys[0]));
-  EditKeyBar.SetCtrlShift(FEditCtrlShiftKeys,sizeof(FEditCtrlShiftKeys)/sizeof(FEditCtrlShiftKeys[0]));
-  EditKeyBar.SetAltShift(FEditAltShiftKeys,sizeof(FEditAltShiftKeys)/sizeof(FEditAltShiftKeys[0]));
-  /* SVS $ */
+  for(I=0; I < 7; ++I)
+  {
+    for(J=1; J <= 12; ++J)
+    {
+      FEditKeys[J-1]=MSG(IKeyLabel[Opt.OnlyEditorViewerUsed][I][J]);
+    }
+    switch(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0])
+    {
+      case KBL_MAIN:
+        if(Flags.Check(FFILEEDIT_SAVETOSAVEAS))
+          FEditKeys[2-1]=MSG(MEditShiftF2);
+        // $ 10.05.2001 DJ - смотрим на EnableF6 вместо CanLoseFocus
+        if(!Flags.Check(FFILEEDIT_ENABLEF6))
+          FEditKeys[6-1]="";
+        if(!GetCanLoseFocus())
+          FEditKeys[12-1]="";
+        break;
+      case KBL_ALT:
+        // $ 17.12.2001 KM  - Если !GetCanLoseFocus() тогда на Alt-F11 рисуем пустую строку.
+        if(!GetCanLoseFocus())
+          FEditKeys[11-1]="";
+        if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+          FEditKeys[5-1]="";
+        break;
+    }
+    EditKeyBar.SetGroup(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0],FEditKeys,sizeof(FEditKeys)/sizeof(FEditKeys[0]));
+  }
 
   EditKeyBar.Show();
   SetKeyBar(&EditKeyBar);
@@ -820,7 +832,7 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_CTRLO:
     {
-      if(!OnliEditorViewerUsed)
+      if(!Opt.OnlyEditorViewerUsed)
       {
         /*$ 27.09.2000 skv
           To prevent redraw in macro with Ctrl-O
@@ -1729,9 +1741,9 @@ void FileEditor::SetTitle(const char *Title)
 void FileEditor::ChangeEditKeyBar()
 {
   if (FEdit->AnsiText)
-    EditKeyBar.Change(MSG(MEditF8DOS),7);
+    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
   else
-    EditKeyBar.Change(MSG(MEditF8),7);
+    EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 
   EditKeyBar.Redraw();
 }

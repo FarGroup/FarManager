@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.45 10.12.2002 $ */
+/* Revision: 1.46 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    ! OnlyEditorViewerUsed стал частью структуры Options
   10.12.2002 SVS
     + StartSysLog - для (потом будет) управляемого писания логов!
   04.11.2002 SVS
@@ -227,9 +229,6 @@ extern PISDEBUGGERPRESENT pIsDebuggerPresent;
 extern int WidthNameForMessage;
 
 extern const char DOS_EOL_fmt[], UNIX_EOL_fmt[], MAC_EOL_fmt[];
-
-// TRUE, если старт был /e или /v
-extern int OnliEditorViewerUsed;
 
 extern BOOL ProcessException;
 

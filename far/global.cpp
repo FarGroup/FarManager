@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.46 10.12.2002 $ */
+/* Revision: 1.47 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    ! OnlyEditorViewerUsed стал частью структуры Options
   10.12.2002 SVS
     + StartSysLog - для (потом будет) управляемого писания логов!
   05.12.2002 SVS
@@ -226,8 +228,6 @@ int WidthNameForMessage=0;
 const char DOS_EOL_fmt[]  ="\r\n",
            UNIX_EOL_fmt[] ="\n",
            MAC_EOL_fmt[]  ="\r";
-
-int OnliEditorViewerUsed=FALSE;
 
 BOOL ProcessException=FALSE;
 BOOL ProcessShowClock=FALSE;

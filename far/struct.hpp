@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.92 07.10.2002 $ */
+/* Revision: 1.93 23.12.2002 $ */
 
 /*
 Modify:
+  23.12.2002 SVS
+    ! OnlyEditorViewerUsed стал частью структуры Options
   07.10.2002 SVS
     + Opt.SetupArgv - количество каталогов в комюстроке ФАРа
   12.08.2002 SVS
@@ -741,6 +743,8 @@ struct Options
   DWORD PluginMaxReadData;
   int UseNumPad;
   int UseTTFFont;
+
+  int OnlyEditorViewerUsed; // =1, если старт был /e или /v
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"
