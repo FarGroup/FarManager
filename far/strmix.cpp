@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.52 31.05.2004 $ */
+/* Revision: 1.53 30.07.2004 $ */
 
 /*
 Modify:
+  30.07.2004 SVS
+    - Если в функции PointToName() параметр Path == NULL происходит Access Violation.
   31.05.2004 SVS
     ! ReplaceStrings - последний параметр - не различать "высоту" букв
   12.01.2004 SVS
@@ -192,6 +194,9 @@ char* InsertCommas(int64 li,char *Dest)
 
 char* WINAPI PointToName(char *Path)
 {
+  if(!Path)
+    return NULL;
+
   char *NamePtr=Path;
   while (*Path)
   {
@@ -204,6 +209,9 @@ char* WINAPI PointToName(char *Path)
 
 const char *WINAPI PointToName(const char *Path)
 {
+  if(!Path)
+    return NULL;
+
   const char *NamePtr=Path;
   while (*Path)
   {
@@ -221,6 +229,9 @@ const char *WINAPI PointToName(const char *Path)
 */
 char* WINAPI PointToFolderNameIfFolder(const char *Path)
 {
+  if(!Path)
+    return NULL;
+
   const char *NamePtr=Path, *prevNamePtr=Path;
   while (*Path)
   {

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.173 07.07.2004 $ */
+/* Revision: 1.174 30.07.2004 $ */
 
 /*
 Modify:
+  30.07.2004 SVS
+    - BugZ#1141 Сохранение (F2) убивает пользовательский Title у редактора
   07.07.2004 SVS
     ! Macro II
   06.07.2004 SVS
@@ -2296,6 +2298,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
       /* $ 12.05.2001 DJ */
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
+      Editor->SetPluginTitle(Title);
       /* $ 21.05.2002 SKV
         Запускаем свой цикл, только если
         не был указан флаг.
@@ -2326,6 +2329,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
       /* $ 12.05.2001 DJ */
       Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
+      Editor.SetPluginTitle(Title);
       SetConsoleTitle(OldTitle);
       /* $ 15.05.2002 SKV
         Зафиксируем вход и выход в/из модального редактора.
