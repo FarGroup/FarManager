@@ -4,7 +4,7 @@ int __isspace(int Chr)
 }
 
 
-const char *GetMsg(int MsgId)
+char *GetMsg(int MsgId)
 {
   return(Info.GetMsg(Info.ModuleNumber,MsgId));
 }
