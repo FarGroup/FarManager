@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* $ Revision: 1.12 05.03.2002 $ */
+/* Revision: 1.13 31.05.2002 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -294,8 +294,8 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   {
     // Console RAR 2.50 commands
     static char *Commands[]={
-    /*Extract               */"rar x -av- {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
-    /*Extract without paths */"rar e -av- {-p%%P} -y -c- -kb -- %%A @%%LNM",
+    /*Extract               */"rar x {-p%%P} {-ap%%R} -y -c- -kb -- %%A @%%LNM",
+    /*Extract without paths */"rar e {-p%%P} -y -c- -kb -- %%A @%%LNM",
     /*Test                  */"rar t -y {-p%%P} -- %%A",
     /*Delete                */"rar d -y {-w%%W} -- %%A @%%LNM",
     /*Comment archive       */"rar c -y {-w%%W} -- %%A",
