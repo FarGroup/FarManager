@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.06 22.10.2001 $ */
+/* Revision: 1.07 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 VVM
+    + TreeIsPrepared - устанавливается после чтения дерева с диска/файла.
   22.10.2001 SVS
     ! ReadTree() возвращает TRUE/FALSE
   21.10.2001 SVS
@@ -41,6 +43,7 @@ struct TreeItem
 class TreeList: public Panel
 {
   private:
+    int TreeIsPrepared;
     int PrevMacroMode;
     void SetMacroMode(int Restore = FALSE);
     void DisplayObject();

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.24 23.10.2001 $ */
+/* Revision: 1.25 24.10.2001 $ */
 
 /*
 Modify:
+  24.10.2001 VVM
+    ! Рисуем ветки дерева только при установленном TreeIsPrepared.
   23.10.2001 SVS
     ! немного оптимизации - sprintf для "%d" - это жирно.
   22.10.2001 SVS
@@ -131,6 +133,7 @@ TreeList::TreeList()
   UpdateRequired=TRUE;
   CaseSensitiveSort=FALSE;
   PrevMacroMode = -1;
+  TreeIsPrepared = FALSE;
 }
 
 
@@ -200,7 +203,7 @@ void TreeList::DisplayTree(int Fast)
     GotoXY(X1+1,I);
     SetColor(COL_PANELTEXT);
     Text(" ");
-    if (J<TreeCount)
+    if (J<TreeCount && TreeIsPrepared)
     {
       if (J==0)
         DisplayTreeName("\\",J);
@@ -287,8 +290,10 @@ void TreeList::Update(int Mode)
   int LastTreeCount=TreeCount;
   int RetFromReadTree=TRUE;
 
+  TreeIsPrepared = FALSE;
   if (!ReadTreeFile())
     RetFromReadTree=ReadTree();
+  TreeIsPrepared = TRUE;
 
   if (RetFromReadTree && TreeCount>0 && ((Mode & UPDATE_KEEP_SELECTION)==0 || LastTreeCount!=TreeCount))
   {
@@ -335,6 +340,7 @@ int TreeList::ReadTree()
   if ((ListData=(struct TreeItem*)malloc(sizeof(struct TreeItem)))==NULL)
     return FALSE;
   /* SVS $ */
+  memset(&ListData[0], 0, sizeof(ListData[0]));
   strcpy(ListData->Name,Root);
   if (RootLength>0 && Root[RootLength-1]!=':' && Root[RootLength]=='\\')
     ListData->Name[RootLength]=0;
@@ -357,6 +363,7 @@ int TreeList::ReadTree()
       SetPreRedrawFunc(NULL);
       return FALSE;
     }
+    memset(&ListData[TreeCount], 0, sizeof(ListData[0]));
     strcpy(ListData[TreeCount++].Name,FullName);
   }
   SetPreRedrawFunc(NULL);
