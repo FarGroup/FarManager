@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.36 21.01.2003 $ */
+/* Revision: 1.37 11.02.2003 $ */
 
 /*
 Modify:
+  11.02.2003 SVS
+    ! Немного красоты в SysLog.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -361,13 +363,14 @@ void SysLog(int l,char *fmt,...)
   vsprintf( msg, fmt, argptr );
   va_end(argptr);
 
-  SysLog(l);
   OpenSysLog();
   if ( LogStream )
   {
+    if(l < 0) SysLog(l);
     char timebuf[64];
     fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
     fflush(LogStream);
+    if(l > 0) SysLog(l);
   }
   CloseSysLog();
   if(pIsDebuggerPresent && pIsDebuggerPresent())
@@ -733,15 +736,13 @@ void WINAPI _export FarSysLog_INPUT_RECORD_Dump(char *ModuleName,INPUT_RECORD *r
 CleverSysLog::CleverSysLog(char *Title)
 {
 #if defined(SYSLOG)
-  if(Title)
-    SysLog(Title);
-  SysLog(1);
+  SysLog(1,"%s{",Title?Title:"");
 #endif
 }
 CleverSysLog::~CleverSysLog()
 {
 #if defined(SYSLOG)
-  SysLog(-1);
+  SysLog(-1,"}");
 #endif
 }
 
@@ -1045,10 +1046,10 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
       break;
     case KEY_EVENT:
       sprintf(Records,
-            "KEY_EVENT_RECORD: %s, %d, Vk=0x%04X, Scan=0x%04X uChar=[U='%C' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c - %c%c%c%c)",
+            "KEY_EVENT_RECORD: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%C' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c - %c%c%c%c)",
           (rec->Event.KeyEvent.bKeyDown?"Dn":"Up"),
           rec->Event.KeyEvent.wRepeatCount,
-          rec->Event.KeyEvent.wVirtualKeyCode,
+          _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode),
           rec->Event.KeyEvent.wVirtualScanCode,
           (rec->Event.KeyEvent.uChar.UnicodeChar && rec->Event.KeyEvent.uChar.UnicodeChar != 9 && rec->Event.KeyEvent.uChar.UnicodeChar != 0xd && rec->Event.KeyEvent.uChar.UnicodeChar != 0xa?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
               rec->Event.KeyEvent.uChar.UnicodeChar,
@@ -1104,6 +1105,7 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
         );
       break;
   }
+  sprintf(Records+strlen(Records)," (%s)",FarAltEnter(FAR_CONSOLE_GET_MODE)==FAR_CONSOLE_WINDOWED?"Widowed":"Full Screen");
   return Records;
 #else
   return "";

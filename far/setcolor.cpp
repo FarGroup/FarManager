@@ -5,10 +5,13 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.23 07.10.2002 $ */
+/* Revision: 1.24 10.02.2003 $ */
 
 /*
 Modify:
+  10.02.2003 SVS
+    - ШК> При настройке цветов интерфейса после изменения цвета для любого элемента
+      ШК> часы исчезают и не появляются до выхода из настройки.
   07.10.2002 SVS
     ! Обработка настройки новых цветов
     ! SetItemColors() обрабатывает вложенность! (про листбоксы и комбобоксы)
@@ -504,6 +507,8 @@ void GetColor(int PaletteIndex)
     MenuToRedraw2->Show();
     if(MenuToRedraw3)
       MenuToRedraw3->Show();
+    if(Opt.Clock)
+      ShowTime(1);
     ScrBuf.Unlock(); // разрешаем прорисовку
     FrameManager->PluginCommit(); // коммитим.
   }

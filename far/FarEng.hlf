@@ -588,8 +588,16 @@ $ #Command line switches#
 
   #/v <filename>#
         View the specified file. If <filename> is `#-#', data
-        is read from the stdin. For example, "dir|far /v -"
-        will view dir command output.
+        is read from the stdin.
+
+        For example, "dir|far /v -" will view dir command output.
+
+        If the input stream is empty when using '-' (for example,
+        you have not specified the "dir" command in the provided
+        example), FAR will wait forever for the end of data in the
+        input stream. This will probably be fixed in a later
+        version of FAR.
+
 
   #/co#   Forces FAR to load plugins from the cache only.
         In this mode FAR loads faster, but new or updated plugins
@@ -1788,7 +1796,7 @@ $ #Internal viewer#
        lines, even if the word wrap mode is turned off.
 
 @ViewerGotoPos
-$ #Go to specified position
+$ #Go to specified position#
   This dialog allows to change the position in the internal viewer.
 
   You can enter decimal offset, percent, or hexadecimal offset. The meaning

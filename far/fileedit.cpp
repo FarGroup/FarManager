@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.128 26.01.2003 $ */
+/* Revision: 1.129 07.02.2003 $ */
 
 /*
 Modify:
+  07.02.2003 SVS
+    ! В FileEditor::ShowStatus() при выводе статусной строки будем юзать
+      не координаты объекта Editor, "свои" имени FileEditor.
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -1776,7 +1779,7 @@ void FileEditor::ShowStatus()
   if (FEdit->DisableOut)
     return;
   SetColor(COL_EDITORSTATUS);
-  GotoXY(FEdit->X1,FEdit->Y1); //??
+  GotoXY(X1,Y1); //??
   char TruncFileName[NM],StatusStr[NM],LineStr[50];
   /* $ 08.06.2001 IS
      - Баг: затирался стек, потому что, например, размер Title больше,
@@ -1787,8 +1790,8 @@ void FileEditor::ShowStatus()
   int NameLength=Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 19:25;
   /* $ 11.07.2000 tran
      + expand filename if console more when 80 column */
-  if (FEdit->X2>80)
-     NameLength+=(FEdit->X2-80);
+  if (X2>80)
+     NameLength+=(X2-80);
   /* tran 11.07.2000 $ */
 
   if (*PluginTitle || *Title)
@@ -1798,7 +1801,7 @@ void FileEditor::ShowStatus()
     /* $ 01.10.2000 IS
       ! Показывать букву диска в статусной строке
     */
-    TruncPathStr(TruncFileName,(FEdit->ObjWidth<NameLength?FEdit->ObjWidth:NameLength));
+    TruncPathStr(TruncFileName,(ObjWidth<NameLength?ObjWidth:NameLength));
     /* IS $ */
     /* SVS $ */
   else
@@ -1841,7 +1844,7 @@ void FileEditor::ShowStatus()
           MSG(MEditStatusCol),FEdit->CurLine->EditLine.GetTabCurPos()+1,AttrStr);
   /* IS $ */
   /* SVS $ */
-  int StatusWidth=FEdit->ObjWidth - (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)?5:0);
+  int StatusWidth=ObjWidth - (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)?5:0);
   if (StatusWidth<0)
     StatusWidth=0;
   mprintf("%-*.*s",StatusWidth,StatusWidth,StatusStr);
@@ -1853,7 +1856,7 @@ void FileEditor::ShowStatus()
     int CurPos=FEdit->CurLine->EditLine.GetCurPos();
     if (CurPos<Length)
     {
-      GotoXY(FEdit->X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 9:2),FEdit->Y1);
+      GotoXY(X2-(Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN) ? 9:2),Y1);
       SetColor(COL_EDITORSTATUS);
       /* $ 27.02.2001 SVS
       Показываем в зависимости от базы */

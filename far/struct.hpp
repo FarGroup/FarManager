@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.94 13.01.2003 $ */
+/* Revision: 1.95 10.02.2003 $ */
 
 /*
 Modify:
+  10.02.2003 SVS
+    + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
   13.01.2003 SVS
     + Opt.SortFolderExt
   23.12.2002 SVS
@@ -749,6 +751,8 @@ struct Options
   int UseTTFFont;
 
   int OnlyEditorViewerUsed; // =1, если старт был /e или /v
+
+  DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
 
   //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"

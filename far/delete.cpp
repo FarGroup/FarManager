@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.56 26.01.2003 $ */
+/* Revision: 1.57 10.02.2003 $ */
 
 /*
 Modify:
+  10.02.2003 SVS
+    + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -685,7 +687,7 @@ void ShellDeleteMsg(const char *Name)
   int WidthTemp;
   char OutFileName[NM];
 
-  if (Name == NULL || *Name == 0 || ((clock() - DeleteStartTime) > 1000))
+  if (Name == NULL || *Name == 0 || ((clock() - DeleteStartTime) > Opt.ShowTimeoutDelFiles))
   {
     if(Name && *Name)
     {

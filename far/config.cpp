@@ -5,11 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.143 13.01.2003 $ */
+/* Revision: 1.144 10.02.2003 $ */
 
 /*
 Modify:
-  13.01.2002 SVS
+  10.02.2003 SVS
+    + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
+    ! Opt.Confirm.Esc - "все подтверждения по умолчанию должны быть включены"
+  13.01.2003 SVS
     + Новая опция: "Сортировать имена папок по расширению" - применять
       режим сортировки по расширению не только к файлам, но и к папкам.
       При включенной опции сортировка по расширению работает так же,
@@ -1260,6 +1263,7 @@ static struct FARConfig{
   */
   {1, REG_DWORD,  NKeyInterface, "FindFolders",&Opt.FindFolders, 1, 0},
   /* KM $ */
+  {0, REG_DWORD,  NKeyInterface, "ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
 
   {1, REG_SZ,     NKeyViewer,"ExternalViewerName",Opt.ExternalViewer,sizeof(Opt.ExternalViewer),""},
   {1, REG_DWORD,  NKeyViewer,"UseExternalViewer",&Opt.UseExternalViewer,0, 0},
@@ -1390,7 +1394,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyConfirmations,"Drag",&Opt.Confirm.Drag,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"Delete",&Opt.Confirm.Delete,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},
-  {1, REG_DWORD,  NKeyConfirmations,"Esc",&Opt.Confirm.Esc,0, 0},
+  {1, REG_DWORD,  NKeyConfirmations,"Esc",&Opt.Confirm.Esc,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
   {1, REG_DWORD,  NKeyConfirmations,"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
