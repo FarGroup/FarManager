@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.05 05.08.2000 $ */
+/* Revision: 1.06 07.08.2000 $ */
 
 /*
 Modify:
+  07.08.2000 KM
+    - Глюк в поиске при запароленном архиве, если после получения
+      запроса на ввод пароля понажимать долго стрелки вверх или вниз
+      или пошевелить мышкой, диалог запроса пароля исчезал.
   05.08.2000 KM
     - Перерисовка каталога поиска в Alt-F7, если пользователь во время
       поиска нажимает стрелки вправо или влево.
@@ -60,6 +64,11 @@ static HANDLE hPlugin;
 static struct OpenPluginInfo Info;
 static int RecurseLevel;
 static int BreakMainThread;
+/* $ 07.08.2000 KM
+   Добавление переменной для борьбы с глюком при поиске в запароленном архиве
+*/
+static int IsPluginGetsFile;
+/* KM $ */
 
 static int UseDecodeTable,TableNum,UseUnicode;
 static struct CharTableSet TableSet;
@@ -81,6 +90,11 @@ FindFiles::FindFiles()
   strcpy(FindMask,LastFindMask);
   strcpy(FindStr,LastFindStr);
   BreakMainThread=0;
+  /* $ 07.08.2000 KM
+     Инициализация переменной для борьбы с глюком при поиске в запароленном архиве
+  */
+  IsPluginGetsFile=0;
+  /* KM $ */
 
   do
   {
@@ -311,6 +325,15 @@ int FindFiles::FindFilesProcess()
         DlgExitCode=-1;
         break;
       }
+      /* $ 07.08.2000 KM
+         Добавление кода для борьбы с глюком при поиске в запароленном архиве
+      */
+      if (IsPluginGetsFile)
+      {
+        Sleep(100);
+        continue;
+      }
+      /* KM $ */
 
       INPUT_RECORD rec;
       int Key;
@@ -810,12 +833,19 @@ int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
         sprintf(TempDir,"%sFarTmpXXXXXX",Opt.TempPath);
         mktemp(TempDir);
         CreateDirectory(TempDir,NULL);
+        /* $ 07.08.2000 KM
+           Добавление переменных для борьбы с глюком при поиске в запароленном архиве
+        */
+        IsPluginGetsFile=TRUE;
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
         {
           RemoveDirectory(TempDir);
+          IsPluginGetsFile=FALSE;
           break;
         }
         RemoveTemp=TRUE;
+        IsPluginGetsFile=FALSE;
+        /* KM $ */
       }
       else
         strcpy(SearchFileName,FullName);
