@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.37 17.10.2000 $ */
+/* Revision: 1.38 19.10.2000 $ */
 
 /*
 Modify:
+  19.10.2000 tran
+    + /co & PF_PRELOAD = friendship forever
+      теперь верно :)
   17.10.2000 SVS
     + Везде, в экспортируемых функция введена спарка try-__except
   16.10.2000 SVS
@@ -136,6 +139,10 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
+#ifdef _MSC_VER
+#pragma warning(disable:4509)
+#endif
 
 static void CheckScreenLock();
 static char FmtPluginsCache_PluginD[]="PluginsCache\\Plugin%d";
@@ -346,32 +353,32 @@ void PluginsSet::LoadPlugins()
       if (CmpName("*.dll",FindData.cFileName,FALSE) && (FindData.dwFileAttributes & FA_DIREC)==0)
       {
         struct PluginItem CurPlugin;
+        char RegKey[100];
         memset(&CurPlugin,0,sizeof(CurPlugin));
         strcpy(CurPlugin.ModuleName,FullName);
         int CachePos=GetCacheNumber(FullName,&FindData,0);
         int LoadCached=(CachePos!=-1);
+        /* $ 12.10.2000 tran
+           Preload=1 нужно для корректной обработки -co */
+        sprintf(RegKey,"PluginsCache\\Plugin%d",CachePos);
+        if ( GetRegKey(RegKey,"Preload",0)==1 )
+        {
+          LoadCached=0;
+          CachePos=-1;
+        }
+        /* tran $ */
         if (LoadCached)
         {
           char RegKey[100];
           sprintf(RegKey,"PluginsCache\\Plugin%d\\Exports",CachePos);
           CurPlugin.SysID=GetRegKey(RegKey,"SysID",0);
-          /* $ 12.10.2000 tran
-             Preload=1 нужно для корректной обработки -co */
-          if ( GetRegKey(RegKey,"Preload",0)==1 )
-          {
-            LoadCached=0;
-          }
-          else
-          {
-          /* tran $ */
-            CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
-            CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
-            CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
-            CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
-            CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
-            CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
-            CurPlugin.CachePos=CachePos;
-          }
+          CurPlugin.pOpenPlugin=(PLUGINOPENPLUGIN)GetRegKey(RegKey,"OpenPlugin",0);
+          CurPlugin.pOpenFilePlugin=(PLUGINOPENFILEPLUGIN)GetRegKey(RegKey,"OpenFilePlugin",0);
+          CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
+          CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
+          CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+          CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
+          CurPlugin.CachePos=CachePos;
         }
         if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
         {
@@ -443,6 +450,7 @@ void PluginsSet::LoadPluginsFromCache()
     char PlgKey[512];
     char RegKey[100];
     struct PluginItem CurPlugin;
+
     for (I=0;;I++)
     {
         if (!EnumRegKey("PluginsCache",I,PlgKey,sizeof(PlgKey)))
@@ -456,8 +464,10 @@ void PluginsSet::LoadPluginsFromCache()
           -co должен понимать PRELOAD плагины */
         if ( GetRegKey(RegKey,"Preload",0)==1 )
         {
+
           if (!LoadPlugin(CurPlugin,-1,TRUE))
             continue; // загрузка не удалась
+          CurPlugin.Cached=FALSE;  
         }
         else
         {
@@ -484,6 +494,16 @@ void PluginsSet::LoadPluginsFromCache()
         PluginsCount++;
     }
     qsort(PluginsData,PluginsCount,sizeof(*PluginsData),PluginsSort);
+    /* $ 19.10.2000 tran
+       забыл вызвать SetStartupInfo :) */
+    for (I=0;I<PluginsCount;I++)
+    {
+        if (!PluginsData[I].Cached)
+        {
+            SetPluginStartupInfo(PluginsData[I],I);
+        }
+    }
+    /* tran $ */
 }
 /* tran $ */
 
@@ -555,7 +575,6 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
 {
     if ( CurPlugin.pMinFarVersion==0 ) // плагин не эскпортирует, ему или неважно, или он для <1.65
     {
-        //SysLog("PluginsSet::CheckMinVersion(), ==0, return TRUE");
         return (TRUE);
     }
     long v,cv;
@@ -573,7 +592,6 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
 
     v&=0xffff; // уберем верхние биты
     cv=FAR_VERSION&0xffff;
-    //SysLog("PluginsSet::CheckMinVersion(), v=0x%04x, cv=0x%04x",v,cv);
 
     if (v > cv) // кранты - плагин требует старший фар
     {
