@@ -5,10 +5,15 @@ findfile.cpp
 
 */
 
-/* Revision: 1.65 18.10.2001 $ */
+/* Revision: 1.66 19.10.2001 $ */
 
 /*
 Modify:
+  19.10.2001 KM
+    ! — подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках.
+    - ѕоправлен поиск во временной панели, он там не работал и выдавал "странные результаты",
+      не позвол€л просматривать и редактировать файлы, хот€ они и OPIF_REALNAMES.
+    + ƒобавлена SortItems дл€ сортировки PluginPanelItem дл€ поиска во временной панели.
   18.10.2001 KM
     - ‘ар падал при попытке нажати€ на кнопку "View", когда ничего не было найдено.
     ! Ќекоторые уточнени€ поведени€ кнопок и мыши при пустом списке.
@@ -302,6 +307,22 @@ static struct CharTableSet TableSet;
 */
 static CFileMask FileMaskForFindFile;
 /* IS $ */
+
+int _cdecl SortItems(const void *p1,const void *p2)
+{
+  PluginPanelItem *Item1=(PluginPanelItem *)p1;
+  PluginPanelItem *Item2=(PluginPanelItem *)p2;
+  char n1[NM*2],n2[NM*2];
+  memset(n1,sizeof(n1),0);
+  memset(n2,sizeof(n2),0);
+  if (*Item1->FindData.cFileName)
+    strcpy(n1,Item1->FindData.cFileName);
+  if (*Item2->FindData.cFileName)
+    strcpy(n2,Item2->FindData.cFileName);
+  *(PointToName(n1))=0;
+  *(PointToName(n2))=0;
+  return LocalStricmp(n1,n2);
+}
 
 long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
@@ -713,7 +734,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           char SearchFileName[NM];
           char TempDir[NM];
           char *FileName=FindList[ItemIndex].FindData.cFileName;
-          if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)
+          if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+              (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
           {
             char *FindArcName = ArcList[FindList[ItemIndex].ArcIndex].ArcName;
             if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
@@ -801,7 +823,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 FileViewer ShellViewer (SearchFileName,FALSE,FALSE,FALSE,-1,NULL,(FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)?NULL:&ViewList);
                 ShellViewer.SetDynamicallyBorn(FALSE);
                 ShellViewer.SetEnableF6(TRUE);
-                if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)
+                if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+                    (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
                   ShellViewer.SetSaveToSaveAs(TRUE);
                 IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
@@ -823,7 +846,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                 FileEditor ShellEditor (SearchFileName,FALSE,FALSE);
                 ShellEditor.SetDynamicallyBorn(FALSE);
                 ShellEditor.SetEnableF6 (TRUE);
-                if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)
+                if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+                    (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
                   ShellEditor.SetSaveToSaveAs(TRUE);
                 IsProcessVE_FindFile++;
                 FrameManager->ExecuteModal ();
@@ -880,7 +904,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         char *FileName=FindList[ItemIndex].FindData.cFileName;
         Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
 
-        if (FindList[ItemIndex].ArcIndex != LIST_INDEX_NONE)
+        if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+            (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
         {
           if (ArcList[FindList[ItemIndex].ArcIndex].hPlugin == INVALID_HANDLE_VALUE)
           {
@@ -1513,12 +1538,14 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
       ListItem.Flags|=LIF_DISABLE;
       while (ListBox->GetCallCount())
         Sleep(10);
-      ListBox->AddItem(&ListItem);
+      // — подачи VVM сделано добавление в список индекса LIST_INDEX_NONE на пустых строках
+      ListBox->SetUserData((void*)LIST_INDEX_NONE,sizeof(LIST_INDEX_NONE),ListBox->AddItem(&ListItem));
       ListItem.Flags&=~LIF_DISABLE;
       /* DJ $ */
     }
     strcpy(LastDirName,PathName);
-    if (FindFileArcIndex != LIST_INDEX_NONE)
+    if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+        (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)))
     {
       char ArcPathName[NM*2],DirName[NM];
       sprintf(ArcPathName,"%s:%s",ArcList[FindFileArcIndex].ArcName,*PathName=='.' ? "\\":PathName);
@@ -1803,6 +1830,13 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
   if (StopSearch || !CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&ItemCount,OPM_FIND))
     return;
   RecurseLevel++;
+
+  if ((FindFileArcIndex != LIST_INDEX_NONE) &&
+      (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES))
+  {
+    qsort((void *)PanelData,ItemCount,sizeof(*PanelData),SortItems);
+  }
+
   if (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1)
   {
     for (int I=0;I<ItemCount && !StopSearch;I++)
