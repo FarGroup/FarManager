@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.10 01.08.2000 $ */
+/* Revision: 1.11 14.08.2000 $ */
 
 /*
 Modify:
+  14.08.2000 SVS
+    + Функции семейства seek под __int64
   01.08.2000 SVS
     ! Функция ввода строки GetString имеет один параметр для всех флагов
     ! дополнительный параметра у KeyToText - размер данных
@@ -406,5 +408,20 @@ void WINAPI KeyToText(int Key,char *KeyText,int Size=0);
            1 - FulScreen
 */
 int FarAltEnter(int mode);
+
+/* $ 14.08.2000 SVS
+    + Функции семейства seek под __int64
+*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+__int64 WINAPI ftell64(FILE *fp);
+int WINAPI fseek64 (FILE *fp, __int64 offset, int whence);
+
+#ifdef __cplusplus
+};
+#endif
+/* SVS $ */
 
 #endif  // __FARFUNC_HPP__
