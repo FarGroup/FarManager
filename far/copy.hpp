@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.16 02.03.2002 $ */
+/* Revision: 1.17 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 SVS
+    ! Немного const
   02.03.2002 KM
     + SkipMode - пропуск при копировании залоченных файлов
   12.02.2002 SVS
@@ -134,18 +136,18 @@ class ShellCopy
     int ShellSystemCopy(char *SrcName,char *DestName,WIN32_FIND_DATA *SrcData);
     void ShellCopyMsg(char *Src,char *Dest,int Flags);
     int ShellCopyConvertWildcards(char *Src,char *Dest);
-    int DeleteAfterMove(char *Name,int Attr);
-    void SetDestDizPath(char *DestPath);
+    int DeleteAfterMove(const char *Name,int Attr);
+    void SetDestDizPath(const char *DestPath);
     int AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
         DWORD DestAttr,int SameName,int Rename,int AskAppend,
         int &Append,int &RetCode);
     int GetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
     int SetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa);
-    int IsSameDisk(char *SrcPath,char *DestPath);
+    int IsSameDisk(const char *SrcPath,const char *DestPath);
     bool CalcTotalSize();
-    int CmpFullNames(char *Src,char *Dest);
+    int CmpFullNames(const char *Src,const char *Dest);
     BOOL LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,char *SrcDir,char *DstDir,struct CopyDlgParam *CDP);
-    int ShellSetAttr(char *Dest,DWORD Attr);
+    int ShellSetAttr(const char *Dest,DWORD Attr);
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,

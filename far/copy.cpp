@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.74 28.03.2002 $ */
+/* Revision: 1.75 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 SVS
+    ! ≈сли на обоих панел€х одинаковый каталог, то F6 аналогично Shift-F6,
+      т.е. в строке ввода отображаетс€ им€ файла.
+    ! Ќемного const
   28.01.2002 VVM
     ! —лэш не будем добавл€ть, если Dest €вл€етс€ маской...
   26.03.2002 DJ
@@ -308,7 +312,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
        CopyDlgValue - в этой переменной храним заветную строчку из диалога,
        именно эту переменную вс€чески изменен€ем, а CopyDlg[2].Data не трогаем.
   */
-  char CopyStr[100],SelName[NM],DestDir[NM],InitDestDir[NM],CopyDlgValue[NM];
+  char CopyStr[100],SelName[NM],CopyDlgValue[NM];
+  char DestDir[NM],InitDestDir[NM],SrcDir[NM];
   /* IS $ */
   char SelNameShort[NM];
   int DestPlugin;
@@ -493,6 +498,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
   }
 
   AnotherPanel->GetCurDir(DestDir);
+  SrcPanel->GetCurDir(SrcDir);
 
   if (CurrentOnly)
   /* $ 23.03.2002 IS
@@ -512,7 +518,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
     switch(PanelMode)
     {
       case NORMAL_PANEL:
-        if ((*DestDir==0 || !AnotherPanel->IsVisible()) && CDP.SelCount==1)
+        if ((*DestDir==0 || !AnotherPanel->IsVisible() || !stricmp(SrcDir,DestDir)) && CDP.SelCount==1)
           strcpy(CopyDlg[2].Data,SelName);
         else
         {
@@ -554,11 +560,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 
   if(Link) // рулесы по поводу линков (предварительные!)
   {
-    char SrcDir[NM];
     int Selected5=CopyDlg[5].Selected;
     if(CDP.SelCount > 1 && !CDP.FilesPresent && CDP.FolderPresent)
       Selected5=1;
-    SrcPanel->GetCurDir(SrcDir);
     if(!LinkRules(&CopyDlg[8].Flags,
                   &CopyDlg[5].Flags,
                   &Selected5,
@@ -722,7 +726,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
           // ≈сли выделенных элементов больше 1 и среди них есть каталог, то всегда
           // делаем так, чтобы на конце был '\\'
           // деламем так не всегда, а только когда NameTmp не €вл€етс€ маской.
-          if (AddSlash && strchr(NameTmp,'*')==NULL && strchr(NameTmp,'?')==NULL)
+          if (AddSlash && strpbrk(NameTmp,"*?")==NULL)
             AddEndSlash(NameTmp);
 
           // ƒл€ перемещение одного объекта скинем просчет "тотала"
@@ -731,8 +735,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 
           if(Move) // при перемещении "тотал" так же скидываетс€ дл€ "того же диска"
           {
-            char SrcDir[NM];
-            SrcPanel->GetCurDir(SrcDir);
             if(IsSameDisk(SrcDir,NameTmp))
               ShowTotalCopySize=FALSE;
           }
@@ -2007,7 +2009,7 @@ int ShellCopy::ShellCopyConvertWildcards(char *Src,char *Dest)
   return(TRUE);
 }
 
-int ShellCopy::DeleteAfterMove(char *Name,int Attr)
+int ShellCopy::DeleteAfterMove(const char *Name,int Attr)
 {
   if (Attr & FA_RDONLY)
   {
@@ -2457,7 +2459,7 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
 }
 
 
-void ShellCopy::SetDestDizPath(char *DestPath)
+void ShellCopy::SetDestDizPath(const char *DestPath)
 {
   if (!(ShellCopy::Flags&FCOPY_DIZREAD))
   {
@@ -2773,7 +2775,7 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 #endif
 
 
-int ShellCopy::IsSameDisk(char *SrcPath,char *DestPath)
+int ShellCopy::IsSameDisk(const char *SrcPath,const char *DestPath)
 {
   char SrcRoot[NM],DestRoot[NM];
   GetPathRoot(SrcPath,SrcRoot);
@@ -2875,7 +2877,7 @@ void ShellCopy::ShowTitle(int FirstTime)
 }
 
 
-int ShellCopy::CmpFullNames(char *Src,char *Dest)
+int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
 {
   char SrcFullName[1024],DestFullName[1024];
   int I;
@@ -3099,7 +3101,7 @@ int ShellCopy::MkSymLink(const char *SelName,const char *Dest,DWORD Flags)
   ќболочка вокруг SetFileAttributes() дл€
   корректного выставлени€ атрибутов
 */
-int ShellCopy::ShellSetAttr(char *Dest,DWORD Attr)
+int ShellCopy::ShellSetAttr(const char *Dest,DWORD Attr)
 {
   char Root[1024];
   char FSysNameDst[NM];

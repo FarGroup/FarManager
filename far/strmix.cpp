@@ -5,10 +5,14 @@ strmix.cpp
 
 */
 
-/* Revision: 1.35 20.03.2002 $ */
+/* Revision: 1.36 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 SVS
+    ! Внимание! Совершенно новая функция FileSizeToStr()
+      Корректно работает (надо проверить, конечно, но мне показалось,
+      что все ОБИ)
   20.03.2002 IS
     + PointToFolderNameIfFolder - аналог PointToName, только для строк типа
       "name\" (оканчивается на слеш) возвращает указатель на name, а не
@@ -113,6 +117,7 @@ Modify:
 #include "fn.hpp"
 #include "global.hpp"
 #include "lang.hpp"
+#include "int64.hpp"
 
 char *InsertCommas(unsigned long Number,char *Dest)
 {
@@ -761,63 +766,75 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
 {
   char OutStr[64];
   char Str[100];
+  DWORD Divider;
+  int IndexDiv, IndexB;
+
+  #define MAX_KMGTBSTR_SIZE 16
+  static char KMGTbStr[4][2][MAX_KMGTBSTR_SIZE]={0};
+
+  // подготовительные мероприятия
+  if(KMGTbStr[0][0][0] == 0)
+  {
+    for(int I=0; I < 4; ++I)
+    {
+      strncpy(KMGTbStr[I][0],MSG(MListKb+I),MAX_KMGTBSTR_SIZE-1);
+      strcpy(KMGTbStr[I][1],KMGTbStr[I][0]);
+      LocalStrlwr(KMGTbStr[I][0]);
+      LocalStrupr(KMGTbStr[I][1]);
+    }
+  }
 
   int Commas=(ViewFlags & COLUMN_COMMAS);
 
-  if (SizeHigh)
+  if (ViewFlags & COLUMN_THOUSAND)
   {
-    DWORD SizeMb=SizeHigh*4096+Size/(1024*1024);
-    if (Commas)
-      InsertCommas(SizeMb,Str);
-    else
-      sprintf(Str,"%u",SizeMb);
-    sprintf(OutStr,"%s %1.1s",Str,MSG(MListMb));
-    sprintf(DestStr,"%*.*s",Width,Width,OutStr);
-    return DestStr;
+    Divider=1000;
+    IndexDiv=0;
   }
-  if (Commas)
-    InsertCommas(Size,Str);
   else
-    sprintf(Str,"%u",Size);
-  int SizeLength=strlen(Str);
-  if (SizeLength<=Width || Width<5)
+  {
+    Divider=1024;
+    IndexDiv=1;
+  }
+
+  int64 Sz(SizeHigh,Size);
+
+  if (Commas)
+    InsertCommas(Sz,Str);
+  else
+  {
+    #if defined(__BORLANDC__)
+    sprintf(Str,"%Ld",Sz.Number.i64);
+    #else
+    sprintf(Str,"%I64d",Sz.Number.i64);
+    #endif
+  }
+
+  if (strlen(Str)<=Width || Width<5)
     sprintf(DestStr,"%*.*s",Width,Width,Str);
   else
   {
-    char KbStr[100],MbStr[100];
-    int Divider;
     Width-=2;
-    strcpy(KbStr,MSG(MListKb));
-    strcpy(MbStr,MSG(MListMb));
-    if (ViewFlags & COLUMN_THOUSAND)
-    {
-      Divider=1000;
-      LocalStrlwr(KbStr);
-      LocalStrlwr(MbStr);
-    }
-    else
-    {
-      Divider=1024;
-      LocalStrupr(KbStr);
-      LocalStrupr(MbStr);
-    }
-    Size/=Divider;
-    if (Commas)
-      InsertCommas(Size,Str);
-    else
-      sprintf(Str,"%u",Size);
-    if (strlen(Str)<=Width)
-      sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KbStr);
-    else
-    {
-      Size/=Divider;
+    IndexB=-1;
+    do{
+      Sz=Sz/int64(Divider);
+      IndexB++;
+
       if (Commas)
-        InsertCommas(Size,Str);
+        InsertCommas(Sz,Str);
       else
-        sprintf(Str,"%u",Size);
-      sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,MbStr);
-    }
+      {
+        #if defined(__BORLANDC__)
+        sprintf(Str,"%Ld",Sz.Number.i64);
+        #else
+        sprintf(Str,"%I64d",Sz.Number.i64);
+        #endif
+      }
+    } while(strlen(Str) > Width);
+
+    sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
   }
+
   return DestStr;
 }
 

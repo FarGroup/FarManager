@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.103 27.03.2002 $ */
+/* Revision: 1.104 28.03.2002 $ */
 
 /*
 Modify:
+  28.03.2002 SVS
+    + MListGb, MListTb
+    ! MListMb стоит после MListKb
   27.03.2002 SVS
     + MErrorFullPathNameLong
   22.03.2002 SVS
@@ -852,8 +855,10 @@ enum
   MListUp,
   MListFolder,
   MListSymLink,
-  MListMb,
   MListKb,
+  MListMb,
+  MListGb,
+  MListTb,
   MListFileSize,
   MListFilesSize,
   MListFreeSize,
