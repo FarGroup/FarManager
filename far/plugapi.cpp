@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.127 03.04.2002 $ */
+/* Revision: 1.128 11.04.2002 $ */
 
 /*
 Modify:
+  11.04.2002 SVS
+    + FCTL_GET[ANOTHER]PANELSHORTINFO
+    - Message(FMSG_ALLINONE,"\nFoobar") приводил к падению (первым '\n'
+      пытались подавить вывод заголовка месагбокса)
   04.04.2002 SVS
     - Если в меню указали первым итемом сепаратор, но не указали
       selected, то получаем на экране лажу.
@@ -1235,12 +1239,11 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
     Msg=SingleItems;
 
     // анализ количества строк и разбивка на пункты
-    while (*Msg)
-    {
+    do {
       MsgItems[I]=Msg;
       Msg+=strlen(Msg)+1;
       ++I;
-    }
+    } while (*Msg);
   }
   else
   {
@@ -1329,6 +1332,8 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       strcpy(DirToSet,NullToEmpty((char *)Param));
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
+    case FCTL_GETPANELSHORTINFO:
+    case FCTL_GETANOTHERPANELSHORTINFO:
     case FCTL_UPDATEPANEL:
     case FCTL_UPDATEANOTHERPANEL:
     case FCTL_REDRAWPANEL:

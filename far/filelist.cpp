@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.146 10.04.2002 $ */
+/* Revision: 1.147 11.04.2002 $ */
 
 /*
 Modify:
+  11.04.2002 SVS
+    ! OPM_QUICKVIEW -> OPM_VIEW|OPM_QUICKVIEW
+    - —раный новел - примен€ем WNetGetUniversalName дл€ чего угодно, только не дл€ Novell`а
   10.04.2002 SVS
     - Ќа панел€х разные диски. Ctrl-Alt-: Esc Ctrl-Alt-Ins Shift-Ins
       имеем неверную подстановку пути. ¬се дело в "текущем каталоге"
@@ -1184,17 +1187,7 @@ int FileList::ProcessKey(int Key)
         {
           SrcPanel->GetCurDir(PanelDir);
           if(NeedRealName)
-          {
-            char uni[1024];
-            DWORD uniSize = sizeof(uni);
-            if (WNetGetUniversalName(PanelDir, UNIVERSAL_NAME_INFO_LEVEL,
-                                         &uni, &uniSize) == NOERROR)
-            {
-              UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
-              strncpy(PanelDir, lpuni->lpUniversalName, sizeof(PanelDir)-1);
-            }
-            ConvertNameToReal(PanelDir,PanelDir, sizeof(PanelDir));
-          }
+            CreateFullPathName(PanelDir,PanelDir,FA_DIREC,PanelDir,sizeof(PanelDir)-1,TRUE);
           if (SrcPanel->GetShowShortNamesMode())
             ConvertNameToShort(PanelDir,PanelDir);
           AddEndSlash(PanelDir);
@@ -3115,7 +3108,7 @@ void FileList::UpdateViewPanel()
         CreateDirectory(TempDir,NULL);
         struct PluginPanelItem PanelItem;
         FileListToPluginItem(CurPtr,&PanelItem);
-        if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,FileName,OPM_SILENT|OPM_QUICKVIEW))
+        if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,FileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW))
         {
           ViewPanel->ShowFile(NULL,FALSE,NULL);
           RemoveDirectory(TempDir);
@@ -3383,9 +3376,16 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
     + ѕо CTRL+ALT+F в командную строку сбрасываетс€ UNC-им€ текущего файла. */
   if (UNC)
   {
+    // ѕосмотрим на тип файловой системы
+    char FileSystemName[NM];
+    GetPathRoot(FileName,Temp);
+    if(!GetVolumeInformation(Temp,NULL,0,NULL,NULL,NULL,FileSystemName,sizeof(FileSystemName)))
+      *FileSystemName=0;
+
     DWORD uniSize = sizeof(Temp);
-    if (WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,
-                                 &Temp, &uniSize) == NOERROR)
+    // примен€ем WNetGetUniversalName дл€ чего угодно, только не дл€ Novell`а
+    if (stricmp(FileSystemName,"NWFS") != 0 &&
+        WNetGetUniversalName(FileName, UNIVERSAL_NAME_INFO_LEVEL,&Temp, &uniSize) == NOERROR)
     {
       UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&Temp;
       strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
@@ -3397,12 +3397,12 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
       // мапленный диск - получаем как дл€ меню выбора дисков
       if(*DriveLocalToRemoteName(DRIVE_UNKNOWN,*FileName,Temp) != 0)
       {
-        if((NamePtr=strrchr(FileName, '/')) != NULL)
-          NamePtr=strrchr(FileName, '\\');
+        if((NamePtr=strchr(FileName, '/')) == NULL)
+          NamePtr=strchr(FileName, '\\');
         if(NamePtr != NULL)
         {
           AddEndSlash(Temp);
-          strcat(Temp,NamePtr);
+          strcat(Temp,++NamePtr);
         }
         strncpy(FileName, Temp, sizeof(FileName)-1);
       }

@@ -8,12 +8,16 @@ macro.cpp
 
 */
 
-/* Revision: 1.75 03.04.2002 $ */
+/* Revision: 1.76 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 SVS
+    ! Уберем #if/#endif - выбор на уровне MAK-файла (технологический патч)
+    ! SaveMacros - один параметр
+    ! Новая концепция: Macros - это своего рода PROM. Все исполняем через MacroRAM
   03.04.2002 SVS
-    - BugZ#426 - Не выдается предупреждение на переопределение макроса 
+    - BugZ#426 - Не выдается предупреждение на переопределение макроса
   20.03.2002 DJ
     ! корректная обработка [x] Selection exists для диалогов
   03.03.2002 SVS
@@ -378,10 +382,10 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 KeyMacro::KeyMacro()
 {
   _OT(SysLog("[%p] KeyMacro::KeyMacro()", this));
-  TempMacroNumber=0;
-  TempMacro=NULL;
+  MacroRAMCount=0;
+  MacroRAM=NULL;
   LockScr=NULL;
-  Macros=NULL;
+  MacroPROM=NULL;
   RecBuffer=NULL;
   StartMacroPos=-2; // Только 1 раз(!) будет автостарт
   LoadMacros();
@@ -396,12 +400,12 @@ KeyMacro::~KeyMacro()
 // инициализация всех переменных
 void KeyMacro::InitVars()
 {
-  if(Macros)
+  if(MacroPROM)
   {
-    for (int I=0;I<MacrosNumber;I++)
-      if(Macros[I].Buffer)
-        free(Macros[I].Buffer);
-    free(Macros);
+    for (int I=0;I<MacroPROMCount;I++)
+      if(MacroPROM[I].Buffer)
+        free(MacroPROM[I].Buffer);
+    free(MacroPROM);
   }
   if(RecBuffer) delete[] RecBuffer;
 
@@ -413,10 +417,10 @@ void KeyMacro::InitVars()
 
   ReleaseTempBuffer(TRUE);
 
-  MacrosNumber=0;
+  MacroPROMCount=0;
   Recording=FALSE;
   Executing=FALSE;
-  Macros=NULL;
+  MacroPROM=NULL;
   RecBuffer=NULL;
   RecBufferSize=0;
   InternalInput=FALSE;
@@ -426,24 +430,24 @@ void KeyMacro::InitVars()
 // (динамически - значит в PlayMacros передали строку.
 void KeyMacro::ReleaseTempBuffer(BOOL All)
 {
-  if(TempMacro)
+  if(MacroRAM)
   {
-    if(All || TempMacroNumber <= 1)
+    if(All || MacroRAMCount <= 1)
     {
-      for (int I=0;I<TempMacroNumber;I++)
-        if(TempMacro[I].Buffer)
-          free(TempMacro[I].Buffer);
-      free(TempMacro);
-      TempMacro=NULL;
-      TempMacroNumber=0;
+      for (int I=0;I<MacroRAMCount;I++)
+        if(MacroRAM[I].Buffer)
+          free(MacroRAM[I].Buffer);
+      free(MacroRAM);
+      MacroRAM=NULL;
+      MacroRAMCount=0;
     }
     else
     {
-      if(TempMacro->Buffer)
-        free(TempMacro->Buffer);
-      TempMacroNumber--;
-      memmove(TempMacro,((BYTE*)TempMacro)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*TempMacroNumber);
-      realloc(TempMacro,sizeof(struct MacroRecord)*TempMacroNumber);
+      if(MacroRAM->Buffer)
+        free(MacroRAM->Buffer);
+      MacroRAMCount--;
+      memmove(MacroRAM,((BYTE*)MacroRAM)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*MacroRAMCount);
+      realloc(MacroRAM,sizeof(struct MacroRecord)*MacroRAMCount);
     }
   }
 }
@@ -527,26 +531,26 @@ int KeyMacro::ProcessKey(int Key)
       else
       {
         int Pos;
-        for (Pos=0;Pos<MacrosNumber;Pos++)
-          if (Macros[Pos].Key==MacroKey && (Macros[Pos].Flags&MFLAGS_MODEMASK)==StartMode)
+        for (Pos=0;Pos<MacroPROMCount;Pos++)
+          if (MacroPROM[Pos].Key==MacroKey && (MacroPROM[Pos].Flags&MFLAGS_MODEMASK)==StartMode)
             break;
-        if (Pos==MacrosNumber)
+        if (Pos==MacroPROMCount)
         {
-          Macros=(struct MacroRecord *)realloc(Macros,sizeof(*Macros)*(MacrosNumber+1));
-          if (Macros==NULL)
+          MacroPROM=(struct MacroRecord *)realloc(MacroPROM,sizeof(*MacroPROM)*(MacroPROMCount+1));
+          if (MacroPROM==NULL)
           {
-            MacrosNumber=0;
+            MacroPROMCount=0;
             WaitInFastFind++;
             return(FALSE);
           }
-          MacrosNumber++;
+          MacroPROMCount++;
         }
         else
-          delete Macros[Pos].Buffer;
-        Macros[Pos].Key=MacroKey;
-        Macros[Pos].Buffer=RecBuffer;
-        Macros[Pos].BufferSize=RecBufferSize;
-        Macros[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
+          delete MacroPROM[Pos].Buffer;
+        MacroPROM[Pos].Key=MacroKey;
+        MacroPROM[Pos].Buffer=RecBuffer;
+        MacroPROM[Pos].BufferSize=RecBufferSize;
+        MacroPROM[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK);
       }
 
       Recording=FALSE;
@@ -556,7 +560,7 @@ int KeyMacro::ProcessKey(int Key)
       WaitInFastFind++;
       KeyMacro::Sort();
       if (Opt.AutoSaveSetup)
-        SaveMacros();
+        SaveMacros(FALSE); // записать только изменения!
       return(TRUE);
     }
     else // процесс записи продолжается.
@@ -610,9 +614,9 @@ int KeyMacro::ProcessKey(int Key)
 //_SVS(SysLog("<Key=%s",_FARKEY_ToName(Key)));
       int I=GetIndex(Key,
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
-      if(I != -1 && !((CurFlags=Macros[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
+      if(I != -1 && !((CurFlags=MacroPROM[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
-//_SVS(SysLog("KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(Macros[I].Key)));
+//_SVS(SysLog("KeyMacro: %d (I=%d Key=%s,%s)",__LINE__,I,_FARKEY_ToName(Key),_FARKEY_ToName(MacroPROM[I].Key)));
         if(!CheckAll(CurFlags))
           return FALSE;
 
@@ -622,15 +626,19 @@ int KeyMacro::ProcessKey(int Key)
           if(LockScr) delete LockScr;
           LockScr=new LockScreen;
         }
+        /*
         Executing=TRUE;
         ExecMacroPos=I;
         ExecKeyPos=0;
+        */
+        // Скопируем текущее исполнение в MacroRAM
+        PostTempKeyMacro(MacroPROM+I);
+        IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 
         if (StartMacroPos==-1) // сбросим признак автостарта
-          Macros[I].Flags&=~MFLAGS_RUNAFTERFARSTART2;
-        IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
-       _KEYMACRO(SysLog("**** Start Of Execute Macro ****"));
-       _KEYMACRO(SysLog(1));
+          MacroPROM[I].Flags&=~MFLAGS_RUNAFTERFARSTART2;
+        _KEYMACRO(SysLog("**** Start Of Execute Macro ****"));
+        _KEYMACRO(SysLog(1));
         return(TRUE);
       }
     }
@@ -642,7 +650,7 @@ char *KeyMacro::GetMacroPlainText(char *Dest)
 {
   struct MacroRecord *MR;
 
-  MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+  MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
 
   int LenTextBuf=strlen((char*)&MR->Buffer[ExecKeyPos]);
   Dest[0]=0;
@@ -820,8 +828,8 @@ int KeyMacro::GetKey()
     return(FALSE);
 
 initial:
-  MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
-//_SVS(SysLog("KeyMacro::GetKey() initial: ExecKeyPos=%d (%d) %p",ExecKeyPos,MR->BufferSize,TempMacro));
+  MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
+//_SVS(SysLog("KeyMacro::GetKey() initial: ExecKeyPos=%d (%d) %p",ExecKeyPos,MR->BufferSize,MacroRAM));
 
 begin:
   if (ExecKeyPos>=MR->BufferSize || MR->Buffer==NULL)
@@ -853,7 +861,7 @@ done:
     Executing=FALSE;
     ReleaseTempBuffer();
     // проверим - "а есть ли в временном стеке еще макрЫсы"?
-    if(TempMacroNumber > 0)
+    if(MacroRAMCount > 0)
     {
       // нашлось, запустим механизму по новой
       Executing=TRUE;
@@ -905,14 +913,14 @@ done:
         goto begin;
       }
   }
-//_SVS(SysLog("%s.%s.Key=%s ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(Macros[ExecMacroPos].Flags&MFLAGS_MODEMASK),_FARKEY_ToName(Key),ExecMacroPos,ExecKeyPos));
+//_SVS(SysLog("%s.%s.Key=%s ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(MacroPROM[ExecMacroPos].Flags&MFLAGS_MODEMASK),_FARKEY_ToName(Key),ExecMacroPos,ExecKeyPos));
   return(Key);
 }
 
 // Проверить - еслть ли еще клавиша?
 int KeyMacro::PeekKey()
 {
-  struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+  struct MacroRecord *MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
   if (InternalInput || !Executing || ExecKeyPos >= MR->BufferSize)
     return(0);
   int Key=MR->Buffer[ExecKeyPos];
@@ -930,10 +938,10 @@ DWORD KeyMacro::SwitchFlags(DWORD& Flags,DWORD Value)
 char *KeyMacro::MkRegKeyName(int IdxMacro,char *RegKeyName)
 {
   char KeyText[50];
-  ::KeyToText(Macros[IdxMacro].Key,KeyText);
+  ::KeyToText(MacroPROM[IdxMacro].Key,KeyText);
   sprintf(RegKeyName,"KeyMacros\\%s\\%s%s",
-     GetSubKey(Macros[IdxMacro].Flags&MFLAGS_MODEMASK),
-     (Macros[IdxMacro].Flags&MFLAGS_DISABLEMACRO?"~":""),
+     GetSubKey(MacroPROM[IdxMacro].Flags&MFLAGS_MODEMASK),
+     (MacroPROM[IdxMacro].Flags&MFLAGS_DISABLEMACRO?"~":""),
      KeyText);
   return RegKeyName;
 }
@@ -1002,21 +1010,21 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
 }
 
 // Сохранение ВСЕХ макросов
-void KeyMacro::SaveMacros()
+void KeyMacro::SaveMacros(BOOL AllSaved)
 {
   char *TextBuffer;
   char RegKeyName[150];
-  for (int I=0;I<MacrosNumber;I++)
+  for (int I=0;I<MacroPROMCount;I++)
   {
     MkRegKeyName(I,RegKeyName);
 
-    if (Macros[I].BufferSize==0)
+    if (MacroPROM[I].BufferSize==0)
     {
       DeleteRegKey(RegKeyName);
       continue;
     }
 
-    if((TextBuffer=MkTextSequence(Macros[I].Buffer,Macros[I].BufferSize)) == NULL)
+    if((TextBuffer=MkTextSequence(MacroPROM[I].Buffer,MacroPROM[I].BufferSize)) == NULL)
       continue;
 
     SetRegKey(RegKeyName,"Sequence",TextBuffer);
@@ -1029,7 +1037,7 @@ void KeyMacro::SaveMacros()
     {
       if(MKeywords[J].Type == 1)
       {
-        if (Macros[I].Flags & MKeywords[J].Value)
+        if (MacroPROM[I].Flags & MKeywords[J].Value)
           SetRegKey(RegKeyName,MKeywords[J].Name,1);
         else
           DeleteRegValue(RegKeyName,MKeywords[J].Name);
@@ -1088,14 +1096,14 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     if(!ParseMacroString(&CurMacro,Buffer))
       continue;
 
-    struct MacroRecord *NewMacros=(struct MacroRecord *)realloc(Macros,sizeof(*Macros)*(MacrosNumber+1));
+    struct MacroRecord *NewMacros=(struct MacroRecord *)realloc(MacroPROM,sizeof(*MacroPROM)*(MacroPROMCount+1));
     if (NewMacros==NULL)
     {
       return FALSE;
     }
-    Macros=NewMacros;
-    memcpy(Macros+MacrosNumber,&CurMacro,sizeof(CurMacro));
-    MacrosNumber++;
+    MacroPROM=NewMacros;
+    memcpy(MacroPROM+MacroPROMCount,&CurMacro,sizeof(CurMacro));
+    MacroPROMCount++;
   }
   return TRUE;
 }
@@ -1113,12 +1121,12 @@ void KeyMacro::RunStartMacro()
     StartMacroPos=IndexMode[MACRO_SHELL][0];
 
   DWORD CurFlags;
-  while (StartMacroPos<MacrosNumber)
+  while (StartMacroPos<MacroPROMCount)
   {
     int CurPos=StartMacroPos++;
 
-    if (((CurFlags=Macros[CurPos].Flags)&MFLAGS_MODEMASK)==MACRO_SHELL &&
-        Macros[CurPos].BufferSize>0 &&
+    if (((CurFlags=MacroPROM[CurPos].Flags)&MFLAGS_MODEMASK)==MACRO_SHELL &&
+        MacroPROM[CurPos].BufferSize>0 &&
         // исполняем не задисабленные макросы
         !(CurFlags&MFLAGS_DISABLEMACRO) &&
         (CurFlags&MFLAGS_RUNAFTERFARSTART) && CtrlObject)
@@ -1135,7 +1143,7 @@ void KeyMacro::RunStartMacro()
       ExecMacroPos=CurPos;
       ExecKeyPos=0;
       // выставим признак того, что макрос стартанул при автостарте.
-      Macros[CurPos].Flags|=MFLAGS_RUNAFTERFARSTART2;
+      MacroPROM[CurPos].Flags|=MFLAGS_RUNAFTERFARSTART2;
       return;
     }
   }
@@ -1189,7 +1197,7 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
     // если УЖЕ есть такой макрос...
     if((Index=MacroDlg->GetIndex(Param2,KMParam->Mode)) != -1)
     {
-      struct MacroRecord *Mac=MacroDlg->Macros+Index;
+      struct MacroRecord *Mac=MacroDlg->MacroPROM+Index;
       DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
       char Buf[256];
       char BufKey[64];
@@ -1371,28 +1379,28 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
 {
-  struct MacroRecord NewTempMacro2={0};
+  struct MacroRecord NewMacroRAM2={0};
 
   // сначала смотрим на парсер
-  if(!ParseMacroString(&NewTempMacro2,KeyBuffer))
+  if(!ParseMacroString(&NewMacroRAM2,KeyBuffer))
   {
-    free(NewTempMacro2.Buffer);
+    free(NewMacroRAM2.Buffer);
     return FALSE;
   }
 
   // теперь попробуем выделить немного нужной памяти
-  struct MacroRecord *NewTempMacro;
-  if((NewTempMacro=(struct MacroRecord *)realloc(TempMacro,sizeof(MacroRecord)*(TempMacroNumber+1))) == NULL)
+  struct MacroRecord *NewMacroRAM;
+  if((NewMacroRAM=(struct MacroRecord *)realloc(MacroRAM,sizeof(MacroRecord)*(MacroRAMCount+1))) == NULL)
     return FALSE;
 
   // теперь добавим в нашу "очередь" новые данные
-  TempMacro=NewTempMacro;
-  NewTempMacro=TempMacro+TempMacroNumber;
-  memcpy(NewTempMacro,&NewTempMacro2,sizeof(struct MacroRecord));
-  TempMacroNumber++;
+  MacroRAM=NewMacroRAM;
+  NewMacroRAM=MacroRAM+MacroRAMCount;
+  memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
+  MacroRAMCount++;
 
   /*
-  if (NewTempMacro->Flags&MFLAGS_DISABLEOUTPUT)
+  if (NewMacroRAM->Flags&MFLAGS_DISABLEOUTPUT)
   {
     if(LockScr) delete LockScr;
     LockScr=new LockScreen;
@@ -1408,30 +1416,30 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   if(!MRec)
     return FALSE;
 
-  struct MacroRecord NewTempMacro2={0};
-  memcpy(&NewTempMacro2,MRec,sizeof(struct MacroRecord));
-  if((NewTempMacro2.Buffer=(DWORD*)malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
+  struct MacroRecord NewMacroRAM2={0};
+  memcpy(&NewMacroRAM2,MRec,sizeof(struct MacroRecord));
+  if((NewMacroRAM2.Buffer=(DWORD*)malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
   {
     return FALSE;
   }
 
   // теперь попробуем выделить немного нужной памяти
-  struct MacroRecord *NewTempMacro;
-  if((NewTempMacro=(struct MacroRecord *)realloc(TempMacro,sizeof(MacroRecord)*(TempMacroNumber+1))) == NULL)
+  struct MacroRecord *NewMacroRAM;
+  if((NewMacroRAM=(struct MacroRecord *)realloc(MacroRAM,sizeof(MacroRecord)*(MacroRAMCount+1))) == NULL)
   {
-    free(NewTempMacro2.Buffer);
+    free(NewMacroRAM2.Buffer);
     return FALSE;
   }
 
   // теперь добавим в нашу "очередь" новые данные
-  TempMacro=NewTempMacro;
-  NewTempMacro=TempMacro+TempMacroNumber;
-  memcpy(NewTempMacro2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
-  memcpy(NewTempMacro,&NewTempMacro2,sizeof(struct MacroRecord));
-  TempMacroNumber++;
+  MacroRAM=NewMacroRAM;
+  NewMacroRAM=MacroRAM+MacroRAMCount;
+  memcpy(NewMacroRAM2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
+  memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
+  MacroRAMCount++;
 
   /*
-  if (NewTempMacro->Flags&MFLAGS_DISABLEOUTPUT)
+  if (NewMacroRAM->Flags&MFLAGS_DISABLEOUTPUT)
   {
     if(LockScr) delete LockScr;
     LockScr=new LockScreen;
@@ -1595,21 +1603,21 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
 // если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
 int KeyMacro::GetIndex(int Key, int ChechMode)
 {
-  if(Macros)
+  if(MacroPROM)
   {
     int Pos,Len;
     struct MacroRecord *MPtr;
     if(ChechMode == -1)
     {
-      Len=MacrosNumber;
-      MPtr=Macros;
+      Len=MacroPROMCount;
+      MPtr=MacroPROM;
     }
     else
     {
       Len=IndexMode[ChechMode][1];
       if(!Len)
        return -1;
-      MPtr=Macros+IndexMode[ChechMode][0];
+      MPtr=MacroPROM+IndexMode[ChechMode][0];
 //_SVS(SysLog("ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
     }
     for(Pos=0; Pos < Len; ++Pos, ++MPtr)
@@ -1632,7 +1640,7 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
   int Pos=GetIndex(Key,CheckMode);
   if(Pos == -1)
     return 0;
-  return sizeof(struct MacroRecord)+Macros[Pos].BufferSize;
+  return sizeof(struct MacroRecord)+MacroPROM[Pos].BufferSize;
 }
 
 /* $ 21.12.2000 SVS
@@ -1755,7 +1763,7 @@ BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 {
   if(Executing)
   {
-    struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+    struct MacroRecord *MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
     return (MR->Flags&Flags)?TRUE:FALSE;
   }
   return(FALSE);
@@ -1775,7 +1783,7 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
     {
       if(Executing)
       {
-        memcpy(RBuf,Macros+ExecMacroPos,sizeof(struct MacroRecord));
+        memcpy(RBuf,MacroPROM+ExecMacroPos,sizeof(struct MacroRecord));
         return 2;
       }
       memset(RBuf,0,sizeof(struct MacroRecord));
@@ -1804,8 +1812,8 @@ void KeyMacro::Sort(void)
 {
   typedef int (__cdecl *qsort_fn)(const void*,const void*);
   // сортируем
-  qsort(Macros,
-        MacrosNumber,
+  qsort(MacroPROM,
+        MacroPROMCount,
         sizeof(struct MacroRecord),
         (qsort_fn)SortMacros);
   // перестраиваем индекс начал
@@ -1813,7 +1821,7 @@ void KeyMacro::Sort(void)
   int I,J;
   int CurMode=MACRO_OTHER;
   memset(IndexMode,0,sizeof(IndexMode));
-  for(MPtr=Macros,I=0; I < MacrosNumber; ++I,++MPtr)
+  for(MPtr=MacroPROM,I=0; I < MacroPROMCount; ++I,++MPtr)
   {
     J=MPtr->Flags&MFLAGS_MODEMASK;
     if(CurMode != J)

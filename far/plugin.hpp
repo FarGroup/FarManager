@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.198 08.04.2002 $ */
+/* Revision: 1.199 12.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  12.04.2002 SVS
+    + FCTL_GET[ANOTHER]PANELSHORTINFO
   08.04.2002 SVS
     + OPM_QUICKVIEW
     ! Немного красоты ;-)
@@ -1350,6 +1352,8 @@ enum FILE_CONTROL_COMMANDS{
   FCTL_GETCMDLINESELECTEDTEXT,
   FCTL_SETCMDLINESELECTION,
   FCTL_GETCMDLINESELECTION,
+  FCTL_GETPANELSHORTINFO,
+  FCTL_GETANOTHERPANELSHORTINFO,
 };
 
 typedef int (WINAPI *FARAPICONTROL)(

@@ -1,6 +1,3 @@
-#if defined(DMACRO2)
-#include "macro2.hpp"
-#else
 #ifndef __KEYMACRO_HPP__
 #define __KEYMACRO_HPP__
 /*
@@ -10,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.20 03.03.2002 $ */
+/* Revision: 1.21 12.04.2002 $ */
 
 /*
 Modify:
+  12.04.2002 SVS
+    ! Уберем #if/#endif - выбор на уровне MAK-файла (технологический патч)
+    ! SaveMacros - один параметр
   03.03.2002 SVS
     + TempMacroNumber - количество структур во временной очереди
   10.12.2001 SVS
@@ -86,8 +86,8 @@ struct MacroRecord
 
 /* $TODO:
     1. Удалить IndexMode[], Sort()
-    2. Из Macros сделать
-       struct MacroRecord *Macros[MACRO_LAST];
+    2. Из MacroPROM сделать
+       struct MacroRecord *MacroPROM[MACRO_LAST];
 */
 class KeyMacro
 {
@@ -105,16 +105,21 @@ class KeyMacro
     int StartMode;
     int StartMacroPos;
 
-    int MacrosNumber;
-    struct MacroRecord *Macros;
+    // т.н. MacroPROM (Programmable Read-Only Memory) -
+    // сюда "могут" писать только при чтении макросов (занесение нового),
+    // а исполнять через MacroRAM
+    int MacroPROMCount;
+    struct MacroRecord *MacroPROM;
+
+    // т.н. MacroRAM - текущее исполнение
+    int MacroRAMCount;
+    struct MacroRecord *MacroRAM;
 
     int IndexMode[MACRO_LAST][2];
 
     int RecBufferSize;
     DWORD *RecBuffer;
 
-    struct MacroRecord *TempMacro; // временный буфер для 1 макро
-    int TempMacroNumber;
 
     class LockScreen *LockScr;
 
@@ -162,7 +167,7 @@ class KeyMacro
     int PostTempKeyMacro(struct MacroRecord *MRec);
 
     int  LoadMacros();
-    void SaveMacros();
+    void SaveMacros(BOOL AllSaved=TRUE);
 
     int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST?Mode:MACRO_LAST][0];}
     // Функция получения индекса нужного макроса в массиве
@@ -185,4 +190,3 @@ class KeyMacro
 };
 
 #endif	// __KEYMACRO_HPP__
-#endif // defined(DMACRO2)

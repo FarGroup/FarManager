@@ -5,10 +5,13 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.92 22.03.2002 $ */
+/* Revision: 1.93 11.04.2002 $ */
 
 /*
 Modify:
+  11.04.2002 SVS
+    + FCTL_GET[ANOTHER]PANELSHORTINFO
+    + ѕроверка вида IsBadWritePtr(Param,sizeof(struct PanelInfo))
   22.03.2002 DJ
     ! косметика от BoundsChecker
   20.03.2002 SVS
@@ -1525,12 +1528,14 @@ void Panel::SetPluginCommand(int Command,void *Param)
       break;
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
-      if(Param == NULL)
-        break;
+    case FCTL_GETPANELSHORTINFO:
+    case FCTL_GETANOTHERPANELSHORTINFO:
     {
+      if(Param == NULL || IsBadWritePtr(Param,sizeof(struct PanelInfo)))
+        break;
       struct PanelInfo *Info=(struct PanelInfo *)Param;
       memset(Info,0,sizeof(*Info));
-      Panel *DestPanel=(Command==FCTL_GETPANELINFO) ? this:AnotherPanel;
+      Panel *DestPanel=(Command == FCTL_GETPANELINFO || Command == FCTL_GETPANELSHORTINFO) ? this:AnotherPanel;
       if (DestPanel==NULL)
         break;
       /* $ 19.03.2002 DJ
@@ -1610,7 +1615,7 @@ void Panel::SetPluginCommand(int Command,void *Param)
           /* DJ $ */
           Reenter--;
         }
-        DestFilePanel->PluginGetPanelInfo(Info);
+        DestFilePanel->PluginGetPanelInfo(Info,(Command == FCTL_GETPANELINFO || Command == FCTL_GETANOTHERPANELINFO)?TRUE:FALSE);
       }
       /* $ 12.12.2001 DJ
          на неплагиновой панели - всегда реальные имена
@@ -1620,6 +1625,7 @@ void Panel::SetPluginCommand(int Command,void *Param)
       /* DJ $ */
       break;
     }
+
     case FCTL_SETSELECTION:
     case FCTL_SETANOTHERSELECTION:
       {

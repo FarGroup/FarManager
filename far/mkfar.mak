@@ -46,7 +46,6 @@ OBJPATH=OBJ
 .path.c   = .
 .path.exe = $(FINALPATH)
 
-
 !ifdef DEBUG
 OPTDEBUG=-v -R -y
 OPTDEBUG2=
@@ -60,6 +59,13 @@ OPTDEBUG2=-DNDEBUG
 CSMFILE=Far.csm
 OPTLINKDEBUG=-v-
 FAR_STDHDR_OBJ=
+!endif
+
+
+!ifdef MACRODRIVE2
+MACROS=macro2.obj
+!else
+MACROS=macro.obj
 !endif
 
 
@@ -152,7 +158,7 @@ FAROBJ=\
    $(OBJPATH)\language.obj\
    $(OBJPATH)\local.obj\
    $(OBJPATH)\lockscrn.obj\
-   $(OBJPATH)\macro.obj\
+   $(OBJPATH)\$(MACROS)\
    $(OBJPATH)\manager.obj\
    $(OBJPATH)\menubar.obj\
    $(OBJPATH)\message.obj\
@@ -198,8 +204,6 @@ FAROBJ=\
    $(OBJPATH)\strncpy.obj\
    $(OBJPATH)\cmem.obj\
    $(OBJPATH)\main.obj
-
-
 
 
 # ************************************************************************
@@ -327,6 +331,7 @@ $(OPTDEBUG2)
 $(FARSYSLOG)
 $(FARADDMACRO)
 $(FUTUREMACRO)
+$(MACRODRIVE2)
 | $@
 
 # ************************************************************************

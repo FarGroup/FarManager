@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.28 10.04.2002 $ */
+/* Revision: 1.29 11.04.2002 $ */
 
 /*
 Modify:
+  11.04.2002 SVS
+    ! Доп.Параметр у PluginGetPanelInfo - получать полную инфу или не полную
   10.04.2002 SVS
     + ProcessOneHostFile - обработка одного хост-файла
   08.04.2002 IS
@@ -332,7 +334,7 @@ class FileList:public Panel
     void GetPluginInfo(struct PluginInfo *Info);
     void GetOpenPluginInfo(struct OpenPluginInfo *Info);
     void SetPluginMode(HANDLE hPlugin,char *PluginFile);
-    void PluginGetPanelInfo(struct PanelInfo *Info);
+    void PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo=TRUE);
     void PluginSetSelection(struct PanelInfo *Info);
     void SetPluginModified();
     int ProcessPluginEvent(int Event,void *Param);

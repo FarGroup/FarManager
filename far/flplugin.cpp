@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.25 10.04.2002 $ */
+/* Revision: 1.26 11.04.2002 $ */
 
 /*
 Modify:
+  11.04.2002 SVS
+    ! Доп.Параметр у PluginGetPanelInfo - получать полную инфу или не полную
   10.04.2002 SVS
     - BugZ#353 - Команды из меню Shift-F3 не работают на нескольких выделенных архивах
   05.04.2002 SVS
@@ -320,10 +322,13 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
 void FileList::DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber)
 {
   struct PluginPanelItem *PItemList=ItemList;
-  for (int I=0;I<ItemNumber;I++,PItemList++)
-    if ((PItemList->Flags & PPIF_USERDATA) && PItemList->UserData)
-      free((void *)PItemList->UserData);
-  delete[] ItemList;
+  if(PItemList)
+  {
+    for (int I=0;I<ItemNumber;I++,PItemList++)
+      if ((PItemList->Flags & PPIF_USERDATA) && PItemList->UserData)
+        free((void *)PItemList->UserData);
+    delete[] ItemList;
+  }
 }
 
 
@@ -787,28 +792,45 @@ void FileList::SetPluginMode(HANDLE hPlugin,char *PluginFile)
 }
 
 
-void FileList::PluginGetPanelInfo(struct PanelInfo *Info)
+void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
 {
   DeleteAllDataToDelete();
   Info->PanelItems=NULL;
-  Info->ItemsNumber=0;
-  Info->PanelItems=new PluginPanelItem[FileCount+1];
-  if (Info->PanelItems!=NULL)
+  Info->SelectedItems=NULL;
+
+  if(FullInfo)
   {
-    struct FileListItem *CurPtr=ListData;
-    for (int I=0; I < FileCount; I++, CurPtr++)
+    Info->ItemsNumber=0;
+    Info->PanelItems=new PluginPanelItem[FileCount+1];
+    if (Info->PanelItems!=NULL)
     {
-      FileListToPluginItem(CurPtr,Info->PanelItems+Info->ItemsNumber);
-      Info->ItemsNumber++;
+      struct FileListItem *CurPtr=ListData;
+      for (int I=0; I < FileCount; I++, CurPtr++)
+      {
+        FileListToPluginItem(CurPtr,Info->PanelItems+Info->ItemsNumber);
+        Info->ItemsNumber++;
+      }
     }
+    DataToDelete[DataToDeleteCount]=Info->PanelItems;
+    DataSizeToDelete[DataToDeleteCount++]=Info->ItemsNumber;
+
+    CreatePluginItemList(Info->SelectedItems,Info->SelectedItemsNumber);
+
+    DataToDelete[DataToDeleteCount]=Info->SelectedItems;
+    DataSizeToDelete[DataToDeleteCount++]=Info->SelectedItemsNumber;
   }
-  DataToDelete[DataToDeleteCount]=Info->PanelItems;
-  DataSizeToDelete[DataToDeleteCount++]=Info->ItemsNumber;
-
-  CreatePluginItemList(Info->SelectedItems,Info->SelectedItemsNumber);
-
-  DataToDelete[DataToDeleteCount]=Info->SelectedItems;
-  DataSizeToDelete[DataToDeleteCount++]=Info->SelectedItemsNumber;
+  else
+  {
+    Info->ItemsNumber=FileCount;
+    Info->SelectedItemsNumber=GetSelCount();
+    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+    /* Вот на счет ЭТОГО не уверен! */
+    DataToDelete[DataToDeleteCount]=NULL;
+    DataSizeToDelete[DataToDeleteCount++]=0;
+    DataToDelete[DataToDeleteCount]=NULL;
+    DataSizeToDelete[DataToDeleteCount++]=0;
+    /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+  }
 
   Info->CurrentItem=CurFile;
   Info->TopPanelItem=CurTopFile;
