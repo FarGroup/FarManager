@@ -353,7 +353,7 @@ char *GetCommaWord(char *Src,char *Word,char Separator)
     {
       Word[WordPos]=0;
       Src++;
-      while (isspace(*Src))
+      while (__isspace(*Src))
         Src++;
       return(Src);
     }
@@ -381,9 +381,9 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
       if((PtrExt=GetCommaWord(PtrExt,Ext,';')) == NULL)
         break;
       if(SearchPath(NULL,OriginalName,Ext,
-               sizeof(TempDestName),	// size, in characters, of buffer
-               TempDestName,	// address of buffer for found filename
-               &FilePart)) 	// address of pointer to file component
+               sizeof(TempDestName),  // size, in characters, of buffer
+               TempDestName,  // address of buffer for found filename
+               &FilePart))  // address of pointer to file component
       {
         if(DestName)
           strncpy(DestName,TempDestName,SizeDest);
@@ -392,9 +392,9 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
     }
   }
   else if(SearchPath(NULL,OriginalName,PtrExt,
-               sizeof(TempDestName),	// size, in characters, of buffer
-               TempDestName,	// address of buffer for found filename
-               &FilePart)) 	// address of pointer to file component
+               sizeof(TempDestName),  // size, in characters, of buffer
+               TempDestName,  // address of buffer for found filename
+               &FilePart))  // address of pointer to file component
   {
     if(DestName)
       strncpy(DestName,TempDestName,SizeDest);

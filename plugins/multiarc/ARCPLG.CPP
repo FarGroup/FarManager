@@ -72,7 +72,10 @@ ArcPlugins::~ArcPlugins()
 int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
 {
   char *ExtPtr=strrchr(Name,'.');
-  DWORD MinSFXSize=-1;
+  /* $ 27.07.2001 AA */
+  //DWORD MinSFXSize=-1;
+  DWORD MinSFXSize=0xFFFFFFFF;
+  /* 27.07.2001 AA $ */
   DWORD CurSFXSize;
   int TrueArc=-1;
   if (ExtPtr!=NULL)

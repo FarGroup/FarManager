@@ -259,3 +259,7 @@ struct Options
 char PluginRootKey[80];
 
 #define RETEXEC_ARCNOTFOUND 0x40000
+
+/* $ 26.07.2001 AA */
+#define COUNT(Msg) (sizeof(Msg)/sizeof(*Msg))
+/* 26.07.2001 AA $ */
