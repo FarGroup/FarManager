@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.80 28.03.2001 $ */
+/* Revision: 1.81 03.04.2001 $ */
 
 /*
 Modify:
+  03.04.2001 IS
+    + Обработка ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL, ESPT_CHARCODEBASE
+      (это в ECTL_SETPARAM)
   28.03.2001 SVS
     + дополнительный параметр для SaveFile() - SaveAs
   28.03.2001 VVM
@@ -4794,6 +4797,15 @@ int Editor::EditorControl(int Command,void *Param)
             return TRUE;
           case ESPT_EXPANDTABS:
             SetConvertTabs(espar->iParam);
+            return TRUE;
+          case ESPT_AUTOINDENT:
+            SetAutoIndent(espar->iParam);
+            return TRUE;
+          case ESPT_CURSORBEYONDEOL:
+            SetCursorBeyondEOL(espar->iParam);
+            return TRUE;
+          case ESPT_CHARCODEBASE:
+            SetCharCodeBase(espar->iParam);
             return TRUE;
           default:
             return FALSE;

@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.93 26.03.2001 $ */
+/* Revision: 1.94 03.04.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  03.04.2001 IS
+    + ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL, ESPT_CHARCODEBASE
   26.03.2001 SVS
     + FHELP_USECONTENTS - если не найден требует топик, то отобразить "Contents"
   24.03.2001 tran
@@ -963,7 +965,8 @@ enum EDITOR_CONTROL_COMMANDS {
 };
 
 enum EDITOR_SETPARAMETER_TYPES {
-  ESPT_TABSIZE, ESPT_EXPANDTABS
+  ESPT_TABSIZE, ESPT_EXPANDTABS, ESPT_AUTOINDENT, ESPT_CURSORBEYONDEOL,
+  ESPT_CHARCODEBASE,
 };
 
 struct EditorSetParameter
