@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.32 25.04.2002 $ */
+/* Revision: 1.34 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    ! 8192 -> MAXSIZE_SHORTCUTDATA
   25.04.2002 IS
     ! внедрение const
     - Ѕаг в PrintInfo: мен€ли то, что иногда мен€ть нельз€
@@ -343,7 +345,7 @@ void InfoList::DisplayObject()
 int InfoList::ProcessKey(int Key)
 {
   {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[8192];
+    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
     {
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.75 02.04.2002 $ */
+/* Revision: 1.76 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    ! 8192 -> MAXSIZE_SHORTCUTDATA
   02.04.2002 SVS
     - BugZ#425 - DI_EDIT and DIF_SELECTONENTRY
   22.03.2002 DJ
@@ -711,7 +713,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
   {
-    char PluginModule[NM],PluginFile[NM],PluginData[8192];
+    char PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (GetShortcutFolder(Key,PathName,PluginModule,PluginFile,PluginData))
     {
       RetCode=TRUE;

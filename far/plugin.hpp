@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.201 25.04.2002 $ */
+/* Revision: 1.202 27.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  27.04.2002 SVS
+    + MAXSIZE_SHORTCUTDATA дл€ "облагораживани€" OpenPluginInfo.ShortcutData
   25.04.2002 SVS
     - BugZ#479 - struct FAR_FIND_DATA and C
   25.04.2002 IS
@@ -2263,6 +2265,8 @@ enum OPERATION_MODES {
   OPM_DESCR      =0x0020,
   OPM_QUICKVIEW  =0x0040,
 };
+
+#define MAXSIZE_SHORTCUTDATA  8192
 
 struct OpenPluginInfo
 {

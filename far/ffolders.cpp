@@ -5,10 +5,15 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.09 28.10.2001 $ */
+/* Revision: 1.10 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    ! 8192 -> MAXSIZE_SHORTCUTDATA
+    - BugZ#482 - Folder shortcuts
+    ! немного оптимизации
+    ! Корректная работа Ins в плагиновых панелях.
   28.10.2001 SVS
     + Folder shortcuts - горячие клавиши на цифры
   26.07.2001 SVS
@@ -45,43 +50,89 @@ Modify:
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "filelist.hpp"
 
 static int ShowFolderShortcutMenu(int Pos);
+static const char HelpFolderShortcuts[]="FolderShortcuts";
 
-int GetShortcutFolder(int Key,char *DestFolder,char *PluginModule,
-                      char *PluginFile,char *PluginData)
+enum PSCR_CMD{
+  PSCR_CMDGET,
+  PSCR_CMDSET,
+  PSCR_CMDDELALL,
+};
+
+enum PSCR_RECTYPE{
+  PSCR_RT_SHORTCUT,
+  PSCR_RT_PLUGINMODULE,
+  PSCR_RT_PLUGINFILE,
+  PSCR_RT_PLUGINDATA,
+};
+
+static void ProcessShortcutRecord(int Command,int ValType,int RecNumber,char *Value,int SizeValue)
 {
-  if (Key<KEY_RCTRL0 || Key>KEY_RCTRL9)
-    return(FALSE);
-  char ValueName[100],Folder[NM];
-  sprintf(ValueName,"Shortcut%d",Key-KEY_RCTRL0);
-  GetRegKey("FolderShortcuts",ValueName,Folder,"",sizeof(Folder));
-  ExpandEnvironmentStr(Folder,DestFolder,NM);
-  sprintf(ValueName,"PluginModule%d",Key-KEY_RCTRL0);
-  GetRegKey("FolderShortcuts",ValueName,PluginModule,"",NM);
-  sprintf(ValueName,"PluginFile%d",Key-KEY_RCTRL0);
-  GetRegKey("FolderShortcuts",ValueName,PluginFile,"",NM);
-  sprintf(ValueName,"PluginData%d",Key-KEY_RCTRL0);
-  GetRegKey("FolderShortcuts",ValueName,PluginData,"",NM);
+  static const char FolderShortcuts[]="FolderShortcuts";
+  static const char *RecTypeName[]={
+    "Shortcut%d",
+    "PluginModule%d",
+    "PluginFile%d",
+    "PluginData%d",
+  };
+  char ValueName[32];
 
-  return(*DestFolder || *PluginModule);
+  sprintf(ValueName,RecTypeName[ValType],RecNumber);
+  if(Command == PSCR_CMDGET)
+    GetRegKey(FolderShortcuts,ValueName,Value,"",SizeValue);
+  else if(Command == PSCR_CMDSET)
+    SetRegKey(FolderShortcuts,ValueName,NullToEmpty(Value));
+  else if(Command == PSCR_CMDDELALL)
+  {
+    for(int I=0; I < sizeof(RecTypeName)/sizeof(RecTypeName[0]); ++I)
+    {
+      sprintf(ValueName,RecTypeName[I],RecNumber);
+      SetRegKey(FolderShortcuts,ValueName,"");
+    }
+  }
 }
 
 
-int SaveFolderShortcut(int Key,char *SrcFolder,char *PluginModule,
-                       char *PluginFile,char *PluginData)
+int GetShortcutFolder(int Key,char *DestFolder,
+                              char *PluginModule,
+                              char *PluginFile,
+                              char *PluginData)
 {
-  char ValueName[100];
+  if (Key<KEY_RCTRL0 || Key>KEY_RCTRL9)
+    return(FALSE);
+
+  char Folder[NM];
+  Key-=KEY_RCTRL0;
+
+  ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,Key,Folder,sizeof(Folder));
+  ExpandEnvironmentStr(Folder,DestFolder,NM);
+  if(PluginModule)
+    ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINMODULE,Key,PluginModule,NM);
+  if(PluginFile)
+    ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINFILE,Key,PluginFile,NM);
+  if(PluginData)
+    ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_PLUGINDATA,Key,PluginData,MAXSIZE_SHORTCUTDATA);
+
+  return(*DestFolder || (PluginModule && *PluginModule));
+}
+
+
+int SaveFolderShortcut(int Key,char *SrcFolder,
+                               char *PluginModule,
+                               char *PluginFile,
+                               char *PluginData)
+{
   if (Key<KEY_CTRLSHIFT0 || Key>KEY_CTRLSHIFT9)
     return(FALSE);
-  sprintf(ValueName,"Shortcut%d",Key-KEY_CTRLSHIFT0);
-  SetRegKey("FolderShortcuts",ValueName,SrcFolder);
-  sprintf(ValueName,"PluginModule%d",Key-KEY_CTRLSHIFT0);
-  SetRegKey("FolderShortcuts",ValueName,PluginModule);
-  sprintf(ValueName,"PluginFile%d",Key-KEY_CTRLSHIFT0);
-  SetRegKey("FolderShortcuts",ValueName,PluginFile);
-  sprintf(ValueName,"PluginData%d",Key-KEY_CTRLSHIFT0);
-  SetRegKey("FolderShortcuts",ValueName,PluginData);
+
+  Key-=KEY_CTRLSHIFT0;
+  ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,Key,SrcFolder,0);
+  ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINMODULE,Key,PluginModule,0);
+  ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINFILE,Key,PluginFile,0);
+  ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINDATA,Key,PluginData,0);
+
   return(TRUE);
 }
 
@@ -94,100 +145,111 @@ void ShowFolderShortcut()
 }
 
 
-int ShowFolderShortcutMenu(int Pos)
+static int ShowFolderShortcutMenu(int Pos)
 {
-  struct MenuItem ListItem;
-  VMenu FolderList(MSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
-  /* $ 16.06.2001 KM
-     ! Добавление WRAPMODE в меню.
-  */
-  FolderList.SetFlags(VMENU_WRAPMODE); // VMENU_SHOWAMPERSAND|
-  /* KM $ */
-  FolderList.SetHelp("FolderShortcuts");
-  FolderList.SetPosition(-1,-1,0,0);
-  FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
-
-  for (int I=0;I<10;I++)
+  int ExitCode=-1;
   {
-    char ValueName[100],FolderName[NM];
-    memset(&ListItem,0,sizeof(ListItem));
-    sprintf(ValueName,"Shortcut%d",I);
-    GetRegKey("FolderShortcuts",ValueName,FolderName,"",sizeof(FolderName));
-    TruncStr(FolderName,60);
-    if (*FolderName==0)
-      strcpy(FolderName,MSG(MShortcutNone));
-    sprintf(ListItem.Name,"%s+&%d   %s",MSG(MRightCtrl),I,FolderName);
-    ListItem.SetSelect(I == Pos);
-    FolderList.AddItem(&ListItem);
-  }
+    struct MenuItem ListItem;
+    VMenu FolderList(MSG(MFolderShortcutsTitle),NULL,0,ScrY-4);
+    /* $ 16.06.2001 KM
+       ! Добавление WRAPMODE в меню.
+    */
+    FolderList.SetFlags(VMENU_WRAPMODE); // VMENU_SHOWAMPERSAND|
+    /* KM $ */
+    FolderList.SetHelp(HelpFolderShortcuts);
+    FolderList.SetPosition(-1,-1,0,0);
+    FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
 
-  FolderList.Show();
-
-  while (!FolderList.Done())
-  {
-    int SelPos=FolderList.GetSelectPos();
-    switch(FolderList.ReadInput())
+    for (int I=0;I<10;I++)
     {
-      case KEY_DEL:
+      char ValueName[100],FolderName[NM];
+      memset(&ListItem,0,sizeof(ListItem));
+      ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,I,FolderName,sizeof(FolderName));
+      TruncStr(FolderName,60);
+      if (*FolderName==0)
+        strcpy(FolderName,MSG(MShortcutNone));
+      sprintf(ListItem.Name,"%s+&%d   %s",MSG(MRightCtrl),I,FolderName);
+      ListItem.SetSelect(I == Pos);
+      FolderList.AddItem(&ListItem);
+    }
+
+    FolderList.Show();
+
+    while (!FolderList.Done())
+    {
+      int SelPos=FolderList.GetSelectPos();
+      DWORD Key=FolderList.ReadInput();
+      switch(Key)
+      {
+        case KEY_DEL:
+        case KEY_INS:
         {
-          char ValueName[100];
-          sprintf(ValueName,"Shortcut%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,"");
-          sprintf(ValueName,"PluginModule%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,"");
-          sprintf(ValueName,"PluginFile%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,"");
-          sprintf(ValueName,"PluginData%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,"");
-          return(SelPos);
-        }
-      case KEY_INS:
-        {
-          char ValueName[100],NewDir[NM];
-          CtrlObject->CmdLine->GetCurDir(NewDir);
-          sprintf(ValueName,"Shortcut%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,NewDir);
-          sprintf(ValueName,"PluginModule%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,"");
-          sprintf(ValueName,"PluginFile%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,"");
-          sprintf(ValueName,"PluginData%d",SelPos);
-          SetRegKey("FolderShortcuts",ValueName,"");
-          return(SelPos);
-        }
-      case KEY_F4:
-        {
-          char ValueName[100],PluginValueName[100],NewDir[NM],PluginModule[NM];
-          char PluginFileValueName[100],PluginFile[NM];
-          char PluginDataValueName[100],PluginData[8192];
-          sprintf(ValueName,"Shortcut%d",SelPos);
-          GetRegKey("FolderShortcuts",ValueName,NewDir,"",sizeof(NewDir));
-          sprintf(PluginValueName,"PluginModule%d",SelPos);
-          GetRegKey("FolderShortcuts",PluginValueName,PluginModule,"",sizeof(PluginModule));
-          sprintf(PluginFileValueName,"PluginFile%d",SelPos);
-          GetRegKey("FolderShortcuts",PluginFileValueName,PluginFile,"",sizeof(PluginFile));
-          sprintf(PluginDataValueName,"PluginData%d",SelPos);
-          GetRegKey("FolderShortcuts",PluginDataValueName,PluginData,"",sizeof(PluginData));
-          if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,NewDir,NewDir,sizeof(NewDir),"FolderShortcuts"))
+          ProcessShortcutRecord(PSCR_CMDDELALL,0,SelPos,NULL,0);
+          if(Key == KEY_INS)
           {
-            SetRegKey("FolderShortcuts",ValueName,NewDir);
-            SetRegKey("FolderShortcuts",PluginValueName,PluginModule);
-            SetRegKey("FolderShortcuts",PluginFileValueName,PluginFile);
-            SetRegKey("FolderShortcuts",PluginDataValueName,PluginData);
-            return(SelPos);
+            char NewDir[NM];
+            Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+            CtrlObject->CmdLine->GetCurDir(NewDir);
+            ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,SelPos,NewDir,0);
+
+            if(ActivePanel->GetMode() == PLUGIN_PANEL)
+            {
+              struct OpenPluginInfo Info;
+              ActivePanel->GetOpenPluginInfo(&Info);
+              ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINMODULE,SelPos,(char *)CtrlObject->Plugins.PluginsData[((struct PluginHandle *)ActivePanel->GetPluginHandle())->PluginNumber].ModuleName,0);
+              ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINFILE,SelPos,(char *)Info.HostFile,0);
+              ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_PLUGINDATA,SelPos,(char *)Info.ShortcutData,0);
+            }
+          }
+          return(SelPos);
+        }
+
+        case KEY_F4:
+        {
+          /* Пока оставим именно так:
+             Редактирование по F4 - считаем что ЭТО абс.файловый путь!
+             TODO: потом добавим и работу с плагинами (возможно :-)
+          */
+          char NewDir[NM], OldNewDir[NM];
+          ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,SelPos,NewDir,sizeof(NewDir));
+          strcpy(OldNewDir,NewDir);
+
+          if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,
+                        NewDir,NewDir,sizeof(NewDir),HelpFolderShortcuts) &&
+              strcmp(NewDir,OldNewDir) != 0)
+          {
+            Unquote(NewDir);
+            DeleteEndSlash(NewDir);
+            BOOL Saved=TRUE;
+            if(GetFileAttributes(NewDir) == -1)
+            {
+              TruncPathStr(NewDir, ScrX-16);
+              SetLastError(ERROR_PATH_NOT_FOUND);
+              Saved=(Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG (MError), NewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo)) == 0);
+            }
+
+            if(Saved)
+            {
+              ProcessShortcutRecord(PSCR_CMDDELALL,0,SelPos,NULL,0);
+              ProcessShortcutRecord(PSCR_CMDSET,PSCR_RT_SHORTCUT,SelPos,NewDir,0);
+              return(SelPos);
+            }
           }
           break;
         }
-      default:
-        FolderList.ProcessInput();
-        break;
+        default:
+          FolderList.ProcessInput();
+          break;
+      }
     }
+    ExitCode=FolderList.Modal::GetExitCode();
+    FolderList.Hide();
   }
-  int ExitCode=FolderList.Modal::GetExitCode();
+
   if (ExitCode>=0)
   {
-    FolderList.Hide();
     CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_RCTRL0+ExitCode);
   }
+
   return(-1);
 }

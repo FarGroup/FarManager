@@ -2277,6 +2277,9 @@ the shortcut path into the line.
     The #Show folder shortcuts# item in the ~Commands menu~@CmdMenu@ may be
 used to view, set, edit and delete folder shortcuts.
 
+    В режиме редактирования (F4) вы не можете сделать ссылку на
+плагиновую панель.
+
 @Filter
 $ #File panel filter#
     Using the filter you may control which files will be displayed

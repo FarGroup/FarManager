@@ -15,12 +15,14 @@ lang.hpp
 
 */
 
-/* Revision: 1.105 02.04.2002 $ */
+/* Revision: 1.106 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    + MSaveThisShortcut
   02.04.2002 KM
-    +MFindFileDrive,MSearchFromRootOfDrive
+    + MFindFileDrive,MSearchFromRootOfDrive
   28.03.2002 SVS
     + MListGb, MListTb
     ! MListMb стоит после MListKb
@@ -735,6 +737,7 @@ enum
   MShortcutNone,
   MEnterShortcut,
   MNeedNearPath,
+  MSaveThisShortcut,
 
   MEditF1,
   MEditF2,

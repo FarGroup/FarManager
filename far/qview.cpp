@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.26 22.03.2002 $ */
+/* Revision: 1.27 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    ! 8192 -> MAXSIZE_SHORTCUTDATA
   22.03.2002 SVS
     - strcpy - Fuck!
   22.03.2002 DJ
@@ -268,7 +270,7 @@ int QuickView::ProcessKey(int Key)
   if (!IsVisible())
     return(FALSE);
   {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[8192];
+    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
     {
       Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);

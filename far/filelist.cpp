@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.149 17.04.2002 $ */
+/* Revision: 1.150 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    ! 8192 -> MAXSIZE_SHORTCUTDATA
   17.04.2002 SVS
     - BugZ#461 - При задании дескрипшнов для нескольких файлов нужно предлагать последнее введенное
     - BugZ#427 - Выход мышью (продолжение эпопеи)
@@ -860,7 +862,7 @@ int FileList::ProcessKey(int Key)
   if (!InternalProcessKey && (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9 ||
       Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9))
   {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[8192];
+    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (PanelMode==PLUGIN_PANEL)
     {
       int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;

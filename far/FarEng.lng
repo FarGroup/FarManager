@@ -426,6 +426,7 @@
 "<none>"
 "Enter new shortcut:"
 "Jump to the nearest existing folder?"
+"Save this shortcuts?"
 
 //functional keys - 6 characters max, 12 keys, "DOS" is F8 dupe!
 "Help"

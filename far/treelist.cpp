@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.40 12.04.2002 $ */
+/* Revision: 1.41 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    ! 8192 -> MAXSIZE_SHORTCUTDATA
   12.04.2002 IS
     + Учтем то, что Plugin.PutFiles может вернуть 2
   08.04.2002 IS
@@ -651,7 +653,7 @@ int TreeList::ProcessKey(int Key)
   if (TreeCount==0 && Key!=KEY_CTRLR)
     return(FALSE);
   {
-    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[8192];
+    char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (SaveFolderShortcut(Key,CurDir,"","",""))
       return(TRUE);
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))

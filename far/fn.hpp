@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.148 25.04.2002 $ */
+/* Revision: 1.149 27.04.2002 $ */
 
 /*
 Modify:
+  27.04.2002 SVS
+    ! [G|S]etShortcutFolder могут теперь иметь в качестве некоторых параметров
+      значение равное NULL
   25.04.2002 IS
     + const вариант PointToName
   05.04.2002 SVS
@@ -590,10 +593,10 @@ int __cdecl LocalStricmp(const char *s1,const char *s2);
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n);
 int __cdecl LCStricmp(const char *s1,const char *s2);
 int LocalKeyToKey(int Key);
-int GetShortcutFolder(int Key,char *DestFolder,char *PluginModule,
-                      char *PluginFile,char *PluginData);
-int SaveFolderShortcut(int Key,char *SrcFolder,char *PluginModule,
-                       char *PluginFile,char *PluginData);
+int GetShortcutFolder(int Key,char *DestFolder,char *PluginModule=NULL,
+                      char *PluginFile=NULL,char *PluginData=NULL);
+int SaveFolderShortcut(int Key,char *SrcFolder,char *PluginModule=NULL,
+                       char *PluginFile=NULL,char *PluginData=NULL);
 void ShowFolderShortcut();
 void ShowFilter();
 /* 15.09.2000 IS
