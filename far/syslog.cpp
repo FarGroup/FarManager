@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.14 25.07.2001 $ */
+/* Revision: 1.15 15.08.2001 $ */
 
 /*
 Modify:
+  15.08.2001 OT
+    - "ѕеревод строки" в дебагере среды VC
   25.07.2001 SVS
     - ќбломы с компил€цией под VC
   24.07.2001 SVS
@@ -217,6 +219,9 @@ void SysLog(char *fmt,...)
   if(IsDebuggerPresent())
   {
     OutputDebugString(msg);
+#ifdef _MSC_VER
+    OutputDebugString("\n");
+#endif _MSC_VER
   }
 #endif
 }
