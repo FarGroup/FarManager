@@ -5,10 +5,14 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.58 30.05.2002 $ */
+/* Revision: 1.59 06.08.2002 $ */
 
 /*
 Modify:
+  06.08.2002 SVS
+    - после открытия дерева по Alt-F10 и после отмены диалога не по esc,
+      а нажатием мыши вне его, не восстанавливается текст линейки клавиш
+      модифицированных нажатием Alt, Shift, ...
   30.05.2002 IS
     ! взял управление на себя :-) - тут IsLocalPath применять можно
       безболезненно
@@ -306,6 +310,7 @@ int CommandLine::ProcessKey(int Key)
       {
         {
           FolderTree Tree(Str,MODALTREE_ACTIVE,4,2,ScrX-4,ScrY-4);
+          FrameManager->GetCurrentFrame()->RedrawKeyBar(); // Затычка ;-(
         }
         if (*Str)
         {
