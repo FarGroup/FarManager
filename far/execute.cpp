@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.102 27.04.2004 $ */
+/* Revision: 1.103 06.05.2004 $ */
 
 /*
 Modify:
+  06.05.2004 SVS
+    ! Кусок кода, разбивающий ком.строку на исполнятор и параметры вынесен в PartCmdLine()
   27.04.2004 SVS
     - BugZ#568 - Confusing message on wrong path in CHDIR in case of forward-slash delimiter
       Исправление не претендует на оригинальность - если первый раз для CD
@@ -953,57 +955,12 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
   // ПРЕДпроверка на вшивость
   ////_tran(SysLog("Execute: CmdStr [%s]",CmdStr);)
-
-  strcpy(NewCmdStr,CmdStr);
-  RemoveExternalSpaces(NewCmdStr);
-
-  // Разделим собственно команду для исполнения и параметры.
-  // При этом заодно определим наличие символов переопределения потоков
-  // Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
   char *CmdPtr = NewCmdStr;
   char *ParPtr = NULL;
   int QuoteFound = FALSE;
   int PipeFound = FALSE;
 
-  while (*CmdPtr)
-  {
-    if (*CmdPtr == '"')
-      QuoteFound = !QuoteFound;
-    if (!QuoteFound)
-    {
-      if (*CmdPtr == '>' || *CmdPtr == '<' ||
-          *CmdPtr == '|' || *CmdPtr == ' ' ||
-          *CmdPtr == '/' ||      // вариант "far.exe/?"
-          (NT && *CmdPtr == '&') // Для НТ/2к обработаем разделитель команд
-         )
-      {
-        if (!ParPtr)
-          ParPtr = CmdPtr;
-        if (*CmdPtr != ' ' && *CmdPtr != '/')
-          PipeFound = TRUE;
-      }
-    }
-
-    if (ParPtr && PipeFound)
-    // Нам больше ничего не надо узнавать
-      break;
-    CmdPtr++;
-  }
-
-  if (ParPtr)
-  // Мы нашли параметры и отделяем мух от котлет
-  {
-    if (*ParPtr=='/')
-    {
-      *NewCmdPar=0x20;
-      strcpy(NewCmdPar+1, ParPtr);
-    }
-    else
-      strcpy(NewCmdPar, ParPtr);
-    *ParPtr = 0;
-  }
-  Unquote(NewCmdStr);
-  RemoveExternalSpaces(NewCmdStr);
+  PipeFound=PartCmdLine(CmdStr,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
 
   //_tran(SysLog("Execute: newCmdStr [%s]",NewCmdStr);)
 

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.68 09.03.2004 $ */
+/* Revision: 1.69 06.05.2004 $ */
 
 /*
 Modify:
+  06.05.2004 SVS
+    + ProcessOSAliases()
   09.03.2004 SVS
     + CorrectRealScreenCoord() - корректировка размеров буфера
   09.01.2004 SVS
@@ -423,6 +425,7 @@ int CommandLine::ProcessKey(int Key)
         ActivePanel->SetCurPath();
         if(!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
           CtrlObject->CmdHistory->AddToHistory(Str);
+        ProcessOSAliases(Str,sizeof(Str));
         if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)Str))
           CmdExecute(Str,FALSE,Key==KEY_SHIFTENTER,FALSE);
       }

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.156 01.03.2004 $ */
+/* Revision: 1.157 06.05.2004 $ */
 
 /*
 Modify:
+  06.05.2004 SVS
+    + PartCmdLine()
+    + ProcessOSAliases() - пока пустышка. Введена для того, чтобы потом рыть только в одном месте - здесь.
   01.03.2004 SVS
     ! Обертки FAR_OemTo* и FAR_CharTo* вокруг одноименных WinAPI-функций
       (задел на будущее + править впоследствии только 1 файл)
@@ -1817,3 +1820,105 @@ void Transform(unsigned char *Buffer,int &BufLen,const char *ConvStr,char Transf
 }
 /* KM $ */
 /* KM $ */
+
+/*
+ возвращает PipeFound
+*/
+int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCmdPar,int SizeNewCmdPar)
+{
+  int PipeFound = FALSE;
+  int QuoteFound = FALSE;
+
+  strncpy(NewCmdStr,CmdStr,SizeNewCmdStr-1);
+  RemoveExternalSpaces(NewCmdStr);
+
+  char *CmdPtr = NewCmdStr;
+  char *ParPtr = NULL;
+
+  // Разделим собственно команду для исполнения и параметры.
+  // При этом заодно определим наличие символов переопределения потоков
+  // Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
+
+  while (*CmdPtr)
+  {
+    if (*CmdPtr == '"')
+      QuoteFound = !QuoteFound;
+    if (!QuoteFound)
+    {
+      if (*CmdPtr == '>' || *CmdPtr == '<' ||
+          *CmdPtr == '|' || *CmdPtr == ' ' ||
+          *CmdPtr == '/' ||      // вариант "far.exe/?"
+          (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && *CmdPtr == '&') // Для НТ/2к обработаем разделитель команд
+         )
+      {
+        if (!ParPtr)
+          ParPtr = CmdPtr;
+        if (*CmdPtr != ' ' && *CmdPtr != '/')
+          PipeFound = TRUE;
+      }
+    }
+
+    if (ParPtr && PipeFound)
+    // Нам больше ничего не надо узнавать
+      break;
+    CmdPtr++;
+  }
+
+  if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
+  {
+    if (*ParPtr=='/')
+    {
+      *NewCmdPar=0x20;
+      strncpy(NewCmdPar+1, ParPtr, SizeNewCmdPar-2);
+    }
+    else
+      strncpy(NewCmdPar, ParPtr, SizeNewCmdPar-1);
+    *ParPtr = 0;
+  }
+
+  Unquote(NewCmdStr);
+  RemoveExternalSpaces(NewCmdStr);
+
+  return PipeFound;
+}
+
+
+BOOL ProcessOSAliases(char *Str,int SizeStr)
+{
+#if 0
+  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT)
+    return FALSE;
+
+  typedef DWORD (WINAPI *PGETCONSOLEALIAS)(
+    LPTSTR lpSource,
+    LPTSTR lpTargetBuffer,
+    DWORD TargetBufferLength,
+    LPTSTR lpExeName
+  );
+
+  static PGETCONSOLEALIAS GetConsoleAlias=NULL;
+  if(!GetConsoleAlias)
+  {
+    GetConsoleAlias = (PGETCONSOLEALIAS)GetProcAddress(GetModuleHandle("kernel32"),"GetConsoleAliasA");
+    if(!GetConsoleAlias)
+      return FALSE;
+  }
+
+  char NewCmdStr[4096];
+  char NewCmdPar[2048];
+
+  PartCmdLine(Str,NewCmdStr,sizeof(NewCmdStr),NewCmdPar,sizeof(NewCmdPar));
+
+  char ModuleName[NM];
+  GetModuleFileName(NULL,ModuleName,sizeof(ModuleName));
+//  if(GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),ModuleName) > 0)
+  int b=GetConsoleAlias(NewCmdStr,NewCmdStr,sizeof(NewCmdStr),"cmd.exe");
+  if(b > 0)
+  {
+    strncat(NewCmdStr,NewCmdPar,sizeof(NewCmdStr)-1);
+    strncpy(Str,NewCmdStr,SizeStr-1);
+    return TRUE;
+  }
+#endif
+  return FALSE;
+}

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.203 05.05.2004 $ */
+/* Revision: 1.204 07.05.2004 $ */
 
 /*
 Modify:
+  07.05.2004 SVS
+    + PartCmdLine(), ProcessOSAliases()
   05.05.2004 SVS
     + IsEjectableMedia() - возвращает TRUE, если медию можно "выкинуть"
     ! оконстантим параметр у конструктора CleverSysLog()
@@ -1546,5 +1548,7 @@ BOOL IsLocalRootPath(const char *Path);
 
 BOOL RunGraber(void);
 
+BOOL ProcessOSAliases(char *Str,int SizeStr);
+int PartCmdLine(const char *CmdStr,char *NewCmdStr,int SizeNewCmdStr,char *NewCmdPar,int SizeNewCmdPar);
 
 #endif  // __FARFUNC_HPP__
