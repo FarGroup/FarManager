@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.36 23.01.2001 $ */
+/* Revision: 1.37 28.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001 SVS
+    ! Конкретно обновим функцию FarMessageFn()
   23.01.2001 SVS
     ! Проверки параметров в FarDialogEx()
   21.01.2001 SVS
@@ -538,18 +540,100 @@ char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
   return("");
 }
 
-
+/* $ 28.01.2001 SVS
+   ! Конкретно обновим функцию FarMessageFn()
+*/
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
                         char **Items,int ItemsNumber,int ButtonsNumber)
 {
   if (DisablePluginsOutput)
     return(-1);
-  if (ItemsNumber<2)
+
+  if ((!(Flags&FMSG_ALLINONE) && ItemsNumber<2) || !Items)
     return(-1);
-  char *MsgItems[14];
+
+  char *MsgItems[15], *SingleItems=NULL;
+  int I;
+
   memset(MsgItems,0,sizeof(MsgItems));
-  for (int I=1;I<ItemsNumber;I++)
-    MsgItems[I-1]=Items[I];
+  switch(Flags&0x000F0000)
+  {
+    case FMSG_MB_OK:
+      ButtonsNumber=1;
+      break;
+    case FMSG_MB_YESNO:
+    case FMSG_MB_RETRYCANCEL:
+    case FMSG_MB_OKCANCEL:
+      ButtonsNumber=2;
+      break;
+    case FMSG_MB_YESNOCANCEL:
+    case FMSG_MB_ABORTRETRYIGNORE:
+      ButtonsNumber=3;
+      break;
+  }
+
+  if(Flags&FMSG_ALLINONE)
+  {
+    char *Msg0, *Msg;
+    SingleItems=(char *)malloc(sizeof(char)*(strlen((char *)Items)+2));
+    if(!SingleItems)
+      return -1;
+    MsgItems[ItemsNumber=0]=Msg=strcpy(SingleItems,(char *)Items);
+    // анализ количества строк и разбивка на пункты
+    while ((Msg = strchr(Msg, '\n')) != NULL)
+    {
+      *Msg='\0';
+      if(ItemsNumber+1 == (sizeof(MsgItems)/sizeof(MsgItems[0])))
+        break;
+
+      if(*++Msg == '\0')
+        break;
+
+      MsgItems[++ItemsNumber]=Msg;
+    }
+
+    if((Flags&0x000F0000) && ItemsNumber+ButtonsNumber >= sizeof(MsgItems)/sizeof(MsgItems[0]))
+      ItemsNumber=sizeof(MsgItems)/sizeof(MsgItems[0])-ButtonsNumber-1;
+    for(I=ItemsNumber+1; I < sizeof(MsgItems)/sizeof(MsgItems[0]); ++I)
+      MsgItems[I]=NULL;
+  }
+  else
+  {
+    if((Flags&0x000F0000) && ItemsNumber+ButtonsNumber >= sizeof(MsgItems)/sizeof(MsgItems[0]))
+      ItemsNumber=sizeof(MsgItems)/sizeof(MsgItems[0])-ButtonsNumber-1;
+    for (I=0;I<ItemsNumber;I++)
+      MsgItems[I]=Items[I];
+  }
+
+  switch(Flags&0x000F0000)
+  {
+    case FMSG_MB_OK:
+      MsgItems[ItemsNumber++]=MSG(MOk);
+      break;
+    case FMSG_MB_OKCANCEL:
+      MsgItems[ItemsNumber++]=MSG(MOk);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
+      break;
+    case FMSG_MB_ABORTRETRYIGNORE:
+      MsgItems[ItemsNumber++]=MSG(MAbort);
+      MsgItems[ItemsNumber++]=MSG(MRetry);
+      MsgItems[ItemsNumber++]=MSG(MIgnore);
+      break;
+    case FMSG_MB_YESNO:
+      MsgItems[ItemsNumber++]=MSG(MYes);
+      MsgItems[ItemsNumber++]=MSG(MNo);
+      break;
+    case FMSG_MB_YESNOCANCEL:
+      MsgItems[ItemsNumber++]=MSG(MYes);
+      MsgItems[ItemsNumber++]=MSG(MNo);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
+      break;
+    case FMSG_MB_RETRYCANCEL:
+      MsgItems[ItemsNumber++]=MSG(MRetry);
+      MsgItems[ItemsNumber++]=MSG(MCancel);
+      break;
+  }
+
   if (HelpTopic!=NULL)
   {
     char Path[NM],Topic[512];
@@ -566,14 +650,18 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
   /* $ 29.08.2000 SVS
      Запомним номер плагина - сейчас в основном для формирования HelpTopic
   */
-  int MsgCode=Message(Flags,ButtonsNumber,Items[0],MsgItems[0],MsgItems[1],
+  int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems[1],
               MsgItems[2],MsgItems[3],MsgItems[4],MsgItems[5],MsgItems[6],
               MsgItems[7],MsgItems[8],MsgItems[9],MsgItems[10],MsgItems[11],
-              MsgItems[12],MsgItems[13],PluginNumber);
+              MsgItems[12],MsgItems[13],MsgItems[14],PluginNumber);
   /* SVS $ */
 //  CheckScreenLock();
+  if(SingleItems)
+    free(SingleItems);
+
   return(MsgCode);
 }
+/* SVS $ */
 
 
 int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)

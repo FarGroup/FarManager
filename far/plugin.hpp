@@ -8,13 +8,18 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.82 25.01.2001 $ */
+/* Revision: 1.83 28.01.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  28.01.2001 SVS
+    ! SequenceKey.Sequence НЕ! "валяются" VK_* - только KEY_*
+    + FMSG_ALLINONE - в качестве Items передается указатель на
+      строку, в которой разделители строк - символ '\n'
+    + FMSG_MB_* - дополнительно показать кнопки (в Items можно не указывать)
   25.01.2001 SVS
     ! Тип SequenceKey.Sequence изменен на DWORD
     + SKEY_VK_KEYS - в SequenceKey.Sequence "валяются" VK_* вместо KEY_*
@@ -431,11 +436,20 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
 );
 
 enum {
-  FMSG_WARNING=1,
-  FMSG_ERRORTYPE=2,
-  FMSG_KEEPBACKGROUND=4,
-  FMSG_DOWN=8,
-  FMSG_LEFTALIGN=16
+  FMSG_WARNING             =0x00000001,
+  FMSG_ERRORTYPE           =0x00000002,
+  FMSG_KEEPBACKGROUND      =0x00000004,
+  FMSG_DOWN                =0x00000008,
+  FMSG_LEFTALIGN           =0x00000010,
+
+  FMSG_ALLINONE            =0x00000020,
+
+  FMSG_MB_OK               =0x00010000,
+  FMSG_MB_OKCANCEL         =0x00020000,
+  FMSG_MB_ABORTRETRYIGNORE =0x00030000,
+  FMSG_MB_YESNO            =0x00040000,
+  FMSG_MB_YESNOCANCEL      =0x00050000,
+  FMSG_MB_RETRYCANCEL      =0x00060000,
 };
 
 typedef int (WINAPI *FARAPIMESSAGE)(
@@ -742,7 +756,6 @@ typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
 
 enum {
   SKEY_NOTMACROS  = 0x00000001,
-  SKEY_VK_KEYS    = 0x00000002,
 };
 
 struct SequenceKey{

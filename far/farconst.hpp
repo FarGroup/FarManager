@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.17 25.01.2001 $ */
+/* Revision: 1.18 28.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001 SVS
+    + SKEY_VK_KEYS - переехал из plugin.hpp
   25.01.2001 SVS
     + STATUS_STRUCTWRONGFILLED - когда Count>0 и **Ptr=NULL
   22.01.2001 SVS
@@ -258,5 +260,7 @@ enum EceptFunctionsType{
 
 #define DRIVE_SUSTITUTE     0x0F
 
+
+#define SKEY_VK_KEYS        0x40000000
 
 #endif // __FARCONST_HPP__

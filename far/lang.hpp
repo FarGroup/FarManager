@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.45 25.01.2001 $ */
+/* Revision: 1.46 28.01.2001 $ */
 
 /*
 Modify:
+  28.01.2001 SVS
+    + MAbort,  MIgnore
   25.01.2001 SVS
     + MExcStructWrongFilled, MExcStructField
   23.01.2001 skv
@@ -155,6 +157,8 @@ enum
   MCancel,
   MRetry,
   MSkip,
+  MAbort,
+  MIgnore,
   MDelete,
   MSplit,
 
