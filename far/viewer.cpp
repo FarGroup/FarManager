@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.176 04.02.2005 $ */
+/* Revision: 1.177 07.02.2005 $ */
 
 /*
 Modify:
+  07.02.2005 WARP
+    - Неверно работало выделение в бинарных файлах при свертке по словам.
   04.02.2005 WARP
     ! И еще раз вьювер (см. 01924.viewer.show2.txt)
   03.02.2005 WARP
@@ -1641,10 +1643,20 @@ void Viewer::ReadString (ViewerString *pString, int MaxSize, int StrSize)
 
   pString->lpData[(int)OutPtr]=0;
 
-  if ( SelectSize && vtell (ViewFile) < SelectPos+SelectSize )
+  if ( !bSelEndFound && SelectSize && vtell (ViewFile) < SelectPos+SelectSize )
   {
      bSelEndFound = true;
-       pString->nSelEnd = strlen (pString->lpData);
+     pString->nSelEnd = strlen (pString->lpData);
+  }
+
+  if ( bSelStartFound )
+  {
+    if ( pString->nSelStart > strlen (pString->lpData) )
+      bSelStartFound = false;
+
+    if ( bSelEndFound )
+       if ( pString->nSelStart > pString->nSelEnd )
+          bSelStartFound = false;
   }
 
   if (VM.UseDecodeTable && !VM.Unicode)
