@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.214 27.12.2004 $ */
+/* Revision: 1.215 10.02.2005 $ */
 
 /*
 Modify:
+  10.02.2005 WARP
+    ! –азрешим Shift-F2 на панел€х с OPIF_REALNAMES, если они открыты не дл€ hostfile.
   27.12.2004 SVS
     - BugZ#1206 - „ислова€ сортировка в меню расположена не так как нужно
   11.11.2004 SVS
@@ -1615,6 +1617,10 @@ int FileList::ProcessKey(int Key)
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           if (Info.HostFile!=NULL && *Info.HostFile!=0)
             ProcessKey(KEY_F5);
+          else
+            if ( (Info.Flags & OPIF_REALNAMES) == OPIF_REALNAMES )
+              PluginHostGetFiles();
+
           return(TRUE);
         }
         PluginHostGetFiles();
