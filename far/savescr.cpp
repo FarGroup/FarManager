@@ -5,10 +5,12 @@ savescr.cpp
 
 */
 
-/* Revision: 1.05 11.05.2001 $ */
+/* Revision: 1.06 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   21.05.2001 OT
     ! ћетоды дл€ работы с измен€ющимс€ буфером экрана.
   11.05.2001 OT
@@ -172,8 +174,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
   NX1=NX2=NY1=NY2=0;
   char *NewBuf = new char[ScreenBufSize(NewX,NewY)];
   CleanupBuffer(NewBuf,NewX,NewY);
-  int NewWidth=min(OWi,NewX);
-  int NewHeight=min(OHe,NewY);
+  int NewWidth=Min(OWi,NewX);
+  int NewHeight=Min(OHe,NewY);
   int iYReal;
   int ToIndex;
   int FromIndex;
@@ -198,7 +200,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner)
         ToIndex=iYReal*NewX;
         FromIndex=iY*OWi;
       }
-    } 
+    }
     if (Corner & 1){
       if (OWi>NewX){
         FromIndex+=OWi-NewX;

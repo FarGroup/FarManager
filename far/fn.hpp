@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.85 03.06.2001 $ */
+/* Revision: 1.86 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! функции получения символа юзаем пока только в режиме USE_WFUNC
   03.06.2001 SVS
     + GetRegKeySize() - получить размер данных
   30.05.2001 SVS
@@ -885,5 +887,10 @@ inline char LocalLowerFast (char c)
 void CopyMaskStr (char *PDest, const char *PSrc);
 
 /* DJ $ */
+
+#if defined(USE_WFUNC)
+char GetVidChar(CHAR_INFO CI);
+void SetVidChar(CHAR_INFO& CI,char Chr);
+#endif
 
 #endif  // __FARFUNC_HPP__

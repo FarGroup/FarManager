@@ -5,10 +5,14 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.33 06.06.2001 $ */
+/* Revision: 1.34 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Уточнение в функции WriteInput - теперь wVirtualScanCode
+      корректно транслируется.
+    ! W-функции юзаем пока только в режиме USE_WFUNC
   06.06.2001 SVS
     ! Уточнение в функции TranslateKeyToVK - теперь wVirtualScanCode
       корректно транслируется.
@@ -326,7 +330,14 @@ int GetInputRecord(INPUT_RECORD *rec)
   SetFarConsoleMode();
   while (1)
   {
+#if defined(USE_WFUNC)
+    if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      PeekConsoleInputW(hConInp,rec,1,&ReadCount);
+    else
+      PeekConsoleInputA(hConInp,rec,1,&ReadCount);
+#else
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
+#endif
     /* $ 26.04.2001 VVM
        ! Убрал подмену колесика */
     if (ReadCount!=0)
@@ -424,7 +435,14 @@ int GetInputRecord(INPUT_RECORD *rec)
     CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
     AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
     PressedLastTime=0;
+#if defined(USE_WFUNC)
+    if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      ReadConsoleInputW(hConInp,rec,1,&ReadCount);
+    else
+      ReadConsoleInputA(hConInp,rec,1,&ReadCount);
+#else
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
+#endif
     rec->EventType=KEY_EVENT;
     return(KEY_FOCUS_CHANGED);
     /* VVM $ */
@@ -463,13 +481,38 @@ int GetInputRecord(INPUT_RECORD *rec)
   if ((CalcKey>=' ' && CalcKey<256 || CalcKey==KEY_BS || GrayKey) &&
       CalcKey!=KEY_DEL && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
   {
+#if defined(USE_WFUNC)
+    if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
+    else
+      ReadConsoleA(hConInp,&ReadKey,1,&ReadCount,NULL);
+#else
     ReadConsole(hConInp,&ReadKey,1,&ReadCount,NULL);
+#endif
     if (ReadKey==13 && CalcKey!=KEY_ENTER)
+    {
+#if defined(USE_WFUNC)
+      if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+        ReadConsoleW(hConInp,&ReadKey,1,&ReadCount,NULL);
+      else
+        ReadConsoleA(hConInp,&ReadKey,1,&ReadCount,NULL);
+#else
       ReadConsole(hConInp,&ReadKey,1,&ReadCount,NULL);
+#endif
+    }
     rec->Event.KeyEvent.uChar.AsciiChar=(char) ReadKey;
   }
   else
+  {
+#if defined(USE_WFUNC)
+    if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      ReadConsoleInputW(hConInp,rec,1,&ReadCount);
+    else
+      ReadConsoleInputA(hConInp,rec,1,&ReadCount);
+#else
     ReadConsoleInput(hConInp,rec,1,&ReadCount);
+#endif
+  }
 
   /*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
   if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
@@ -638,7 +681,16 @@ int PeekInputRecord(INPUT_RECORD *rec)
     ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
   }
   else
+  {
+#if defined(USE_WFUNC)
+    if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      PeekConsoleInputW(hConInp,rec,1,&ReadCount);
+    else
+      PeekConsoleInputA(hConInp,rec,1,&ReadCount);
+#else
     PeekConsoleInput(hConInp,rec,1,&ReadCount);
+#endif
+  }
   if (ReadCount==0)
     return(0);
   return(CalcKeyCode(rec,TRUE));
@@ -677,12 +729,21 @@ int WriteInput(int Key,DWORD Flags)
     Rec.EventType=KEY_EVENT;
     Rec.Event.KeyEvent.bKeyDown=1;
     Rec.Event.KeyEvent.wRepeatCount=1;
-    Rec.Event.KeyEvent.wVirtualKeyCode=Rec.Event.KeyEvent.wVirtualScanCode=Key;
+    Rec.Event.KeyEvent.wVirtualKeyCode=Key;
+    Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKey(
+                    Rec.Event.KeyEvent.wVirtualKeyCode, 0);
     if (Key>255)
       Key=0;
     Rec.Event.KeyEvent.uChar.UnicodeChar=Rec.Event.KeyEvent.uChar.AsciiChar=Key;
     Rec.Event.KeyEvent.dwControlKeyState=0;
+#if defined(USE_WFUNC)
+    if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      return WriteConsoleInputW(hConInp,&Rec,1,&WriteCount);
+    else
+      return WriteConsoleInputA(hConInp,&Rec,1,&WriteCount);
+#else
     return WriteConsoleInput(hConInp,&Rec,1,&WriteCount);
+#endif
   }
   else if(KeyQueue)
   {

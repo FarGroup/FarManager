@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.28 06.06.2001 $ */
+/* Revision: 1.29 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! W-функции юзаем пока только в режиме USE_WFUNC
   06.06.2001 SVS
     ! Добавлена перекодировочная таблица OEM->UNICODE
   23.05.2001 OT
@@ -128,6 +130,7 @@ static int OutputCP;
 static BYTE RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
 
+#if defined(USE_WFUNC)
 WCHAR Oem2Unicode[256] = {
 /*00*/ 0x0000, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2219,
        0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
@@ -162,6 +165,7 @@ WCHAR Oem2Unicode[256] = {
 /*F0*/ 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
        0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 };
+#endif
 
 void InitConsole(int setpal)
 {
@@ -252,6 +256,7 @@ void InitRecodeOutTable()
     RecodeOutTable[196]='-';
     RecodeOutTable[205]='=';
   }
+#if defined(USE_WFUNC)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
     for (I=0;I<sizeof(RecodeOutTable)/sizeof(RecodeOutTable[0]);I++)
@@ -263,6 +268,7 @@ void InitRecodeOutTable()
       }
     }
   }
+#endif
 }
 
 
@@ -541,10 +547,14 @@ void Text(char *Str)
   CHAR_INFO CharBuf[1024];
   for (int I=0;I<Length;I++)
   {
+#if defined(USE_WFUNC)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       CharBuf[I].Char.UnicodeChar = Oem2Unicode[RecodeOutTable[Str[I]]];
     else
       CharBuf[I].Char.AsciiChar=RecodeOutTable[Str[I]];
+#else
+    CharBuf[I].Char.AsciiChar=RecodeOutTable[Str[I]];
+#endif
     CharBuf[I].Attributes=CurColor;
   }
   ScrBuf.Write(CurX,CurY,CharBuf,Length);
@@ -738,9 +748,15 @@ void ShowTime(int ShowAlways)
     memset(&lasttm,0,sizeof(lasttm));
     return;
   }
+#if defined(USE_WFUNC)
+  if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
+      GetVidChar(ScreenClockText[2])==':' || ScreenSaverActive)
+    return;
+#else
   if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
       ScreenClockText[2].Char.AsciiChar==':' || ScreenSaverActive)
     return;
+#endif
   lasttm=tm;
   sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
   GotoXY(ScrX-4,0);
@@ -947,3 +963,34 @@ char* MakeSeparator(int Length,char *DestStr,int Type)
   }
   return DestStr;
 }
+
+#if defined(USE_WFUNC)
+char GetVidChar(CHAR_INFO CI)
+{
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  {
+    for(int I=0; I < 256; ++I)
+      if(CI.Char.UnicodeChar == Oem2Unicode[I])
+        return I;
+    return 0;
+    /*
+    char AsciiChar;
+    BOOL UsedDefChar=FALSE;
+    WideCharToMultiByte(CP_OEMCP,0,
+          &CI.Char.UnicodeChar,1,
+          &AsciiChar,1,
+          NULL,&UsedDefChar);
+    return AsciiChar;
+    */
+  }
+  return CI.Char.AsciiChar;
+}
+
+void SetVidChar(CHAR_INFO& CI,char Chr)
+{
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+    CI.Char.UnicodeChar = Oem2Unicode[Chr];
+  else
+    CI.Char.AsciiChar=Chr;
+}
+#endif

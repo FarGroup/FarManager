@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.19 21.05.2001 $ */
+/* Revision: 1.20 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   21.05.2001 SVS
     ! Константы MENU_ - в морг
     ! struct MenuData|MenuItem
@@ -200,7 +202,7 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         int Ampersand=strchr(Title,'&')!=NULL;
         sprintf(MenuText,"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,Title,VerticalLine);
       }
-      TruncStr(CommandText,Min(ScrX,sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
+      TruncStr(CommandText,Min(ScrX,(int)sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
       strcat(MenuText,CommandText);
       TruncStr(MenuText,sizeof(TypesMenuItem.Name)-1);
       strcpy(TypesMenuItem.Name,MenuText);
@@ -831,7 +833,7 @@ void EditFileTypes(int MenuPos)
       int Ampersand=strchr(Title,'&')!=NULL;
       sprintf(MenuText,"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,Title,VerticalLine);
     }
-    TruncStr(Mask,Min(ScrX,sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
+    TruncStr(Mask,Min(ScrX,(int)sizeof(TypesMenuItem.Name)-1)-DizWidth-14);
     strcat(MenuText,Mask);
     TruncStr(MenuText,sizeof(TypesMenuItem.Name)-1);
     strcpy(TypesMenuItem.Name,MenuText);

@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.06 06.06.2001 $ */
+/* Revision: 1.07 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! W-функции юзаем пока только в режиме USE_WFUNC
   06.06.2001 SVS
     ! Под NT применяются W-функции для вывода в консоль
   29.05.2001 tran
@@ -44,7 +46,9 @@ Modify:
 extern int DirectRT;
 #endif
 
+#if defined(USE_WFUNC)
 extern WCHAR Oem2Unicode[];
+#endif
 
 ScreenBuf ScrBuf;
 
@@ -107,10 +111,14 @@ void ScreenBuf::FillBuf()
   Coord.Top=0;
   Coord.Right=BufX-1;
   Coord.Bottom=BufY-1;
+#if defined(USE_WFUNC)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     ReadConsoleOutputW(hScreen,Buf,Size,Corner,&Coord);
   else
     ReadConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
+#else
+    ReadConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
+#endif
   memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
   UseShadow=TRUE;
 
@@ -152,8 +160,13 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
   for (int I=0;I<Y2-Y1+1;I++)
     for (int J=0;J<Width;J++)
       Text[I*Width+J]=Buf[(Y1+I)*BufX+(X1+J)];
+#if defined(USE_WFUNC)
+  if (X1==0 && Y1==0 && CtrlObject!=NULL && CtrlObject->Macro.IsRecording() &&
+      GetVidChar(MacroChar)!='R')
+#else
   if (X1==0 && Y1==0 && CtrlObject!=NULL && CtrlObject->Macro.IsRecording() &&
       MacroChar.Char.AsciiChar!='R')
+#endif
     Text[0]=MacroChar;
 }
 
@@ -164,9 +177,15 @@ void ScreenBuf::Flush()
     return;
   if (CtrlObject!=NULL && CtrlObject->Macro.IsRecording())
   {
+#if defined(USE_WFUNC)
+    if (GetVidChar(Buf[0])!='R')
+      MacroChar=Buf[0];
+    SetVidChar(Buf[0],'R');
+#else
     if (Buf[0].Char.AsciiChar!='R')
       MacroChar=Buf[0];
     Buf[0].Char.AsciiChar='R';
+#endif
     Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
   }
   if (!FlushedCurType && !CurVisible)
@@ -190,8 +209,13 @@ void ScreenBuf::Flush()
         for (int J=0;J<BufX;J++)
         {
           int Pos=I*BufX+J;
+#if defined(USE_WFUNC)
+          if (GetVidChar(Buf[Pos]) == GetVidChar(Shadow[Pos]) ||
+              Buf[Pos].Attributes!=Shadow[Pos].Attributes)
+#else
           if (Buf[Pos].Char.AsciiChar!=Shadow[Pos].Char.AsciiChar ||
               Buf[Pos].Attributes!=Shadow[Pos].Attributes)
+#endif
           {
             if (WriteX1>J)
               WriteX1=J;
@@ -225,6 +249,7 @@ void ScreenBuf::Flush()
       Coord.Top=WriteY1;
       Coord.Right=WriteX2;
       Coord.Bottom=WriteY2;
+#if defined(USE_WFUNC)
       if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
       {
         // Нужно ли здесь делать перекодировку oem->unicode???
@@ -232,6 +257,9 @@ void ScreenBuf::Flush()
       }
       else
         WriteConsoleOutputA(hScreen,Buf,Size,Corner,&Coord);
+#else
+      WriteConsoleOutput(hScreen,Buf,Size,Corner,&Coord);
+#endif
       memcpy(Shadow,Buf,BufX*BufY*sizeof(CHAR_INFO));
     }
   }

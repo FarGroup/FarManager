@@ -143,7 +143,7 @@ CLEAN :
 "$(INTDIR)" :
     if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /Zp4 /MT /Gi /O1 /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "NDEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"
@@ -380,7 +380,7 @@ CLEAN :
 "$(INTDIR)" :
     if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 RSC_PROJ=/l 0x419 /fo"$(INTDIR)\far.res" /d "_DEBUG"
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\far.bsc"

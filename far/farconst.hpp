@@ -7,10 +7,13 @@ farconst.hpp
 
 */
 
-/* Revision: 1.38 04.06.2001 $ */
+/* Revision: 1.39 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    + BOOKMARK_COUNT
+    ! Min/Max заменены на inline-функции
   04.06.2001 SVS
     + HISTORY_COUNT - размер истории
   31.05.2001 OT
@@ -102,8 +105,14 @@ typedef unsigned char    UBYTE;
 typedef unsigned short   UWORD;
 typedef unsigned long    UDWORD;
 
-#define  Min(x,y) (((x)<(y)) ? (x):(y))
-#define  Max(x,y) (((x)>(y)) ? (x):(y))
+//#define  Min(x,y) (((x)<(y)) ? (x):(y))
+template <class T>
+inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
+
+//#define  Max(x,y) (((x)>(y)) ? (x):(y))
+template <class T>
+inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
+
 #undef isspace
 #define  isspace(x) ((x)==' ' || (x)=='\t')
 #define  iseol(x) ((x)=='\r' || (x)=='\n')
@@ -240,5 +249,7 @@ enum {
 
 // Размер истории - как для класса History, так и для диалогов!
 #define HISTORY_COUNT    64
+// Количество закладок в редакторе/вьювере на одну позицию
+#define BOOKMARK_COUNT   10
 
 #endif // __FARCONST_HPP__

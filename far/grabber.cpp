@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! W-функции юзаем пока только в режиме USE_WFUNC
   06.05.2001 DJ
     ! перетрях #include
   14.03.2001 SVS
@@ -42,6 +44,10 @@ Modify:
 #include "keys.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
+
+#if defined(USE_WFUNC)
+extern WCHAR Oem2Unicode[];
+#endif
 
 Grabber::Grabber()
 {
@@ -102,7 +108,15 @@ void Grabber::CopyGrabbedArea(int Append)
     if (I>0)
       strcat(CopyBuf,"\r\n");
     for (int J=0;J<X2-X1+1;J++)
+    {
+#if defined(USE_WFUNC)
+      int Idx=I*(X2-X1+1)+J;
+      char Chr=GetVidChar(CharBuf[Idx]);
+      strncat(CopyBuf,&Chr,1);
+#else
       strncat(CopyBuf,&CharBuf[I*(X2-X1+1)+J].Char.AsciiChar,1);
+#endif
+    }
     for (int K=strlen(CopyBuf)-1;K>=0 && CopyBuf[K]==' ';K--)
       CopyBuf[K]=0;
   }

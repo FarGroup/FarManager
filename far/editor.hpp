@@ -9,10 +9,13 @@ editor.hpp
 
 */
 
-/* Revision: 1.20 03.06.2001 $ */
+/* Revision: 1.21 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    + EDITOR_UNDO_COUNT - "от чисел к символам" (дл€ нагл€дности :-)
+    ! SavePos* заменено на SavePos (одной структурой - InternalEditorBookMark)
   03.06.2001 OT
     - Ќе обновл€лс€ StatusLine после DrawLine в редакторе
   27.05.2001 DJ
@@ -78,9 +81,19 @@ Modify:
 #include "scrobj.hpp"
 #include "struct.hpp"
 #include "plugin.hpp"
+#include "farconst.hpp"
 
 class FileEditor;
 class KeyBar;
+
+#define EDITOR_UNDO_COUNT   64
+
+struct InternalEditorBookMark{
+  long Line[BOOKMARK_COUNT];
+  long Cursor[BOOKMARK_COUNT];
+  long ScreenLine[BOOKMARK_COUNT];
+  long LeftPos[BOOKMARK_COUNT];
+};
 
 struct EditorUndoData
 {
@@ -108,7 +121,7 @@ class Editor:public ScreenObject
   private:
     KeyBar *EditKeyBar;
     struct EditList *TopList,*EndList,*TopScreen,*CurLine;
-    struct EditorUndoData UndoData[64];
+    struct EditorUndoData UndoData[EDITOR_UNDO_COUNT];
     int UndoDataPos;
     int UndoOverflow;
     int UndoSavePos;
@@ -179,10 +192,7 @@ class Editor:public ScreenObject
 
     char PluginTitle[512];
 
-    long SavePosLine[10];
-    long SavePosCursor[10];
-    long SavePosScreenLine[10];
-    long SavePosLeftPos[10];
+    struct InternalEditorBookMark SavePos;
 
     int EditorID;
     bool OpenFailed;

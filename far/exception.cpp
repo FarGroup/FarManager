@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.02 17.05.2001 $ */
+/* Revision: 1.03 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   17.05.2001 SVS
     -  local variable 'xpn' used without having been initialized
   16.05.2001 SVS
@@ -381,7 +383,7 @@ static BOOL GetLogicalAddress(void* addr, char *szModule, DWORD len, DWORD& sect
   {
       DWORD sectionStart = pSection->VirtualAddress;
       DWORD sectionEnd = sectionStart
-                  + max(pSection->SizeOfRawData, pSection->Misc.VirtualSize);
+                  + Max((DWORD)pSection->SizeOfRawData, (DWORD)pSection->Misc.VirtualSize);
 
       // Is the address in this section???
       if ( (rva >= sectionStart) && (rva <= sectionEnd) )

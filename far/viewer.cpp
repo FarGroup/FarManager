@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.64 30.05.2001 $ */
+/* Revision: 1.65 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   30.05.2001 tran
     * TempFileName unlink/rmdir -> DeleteFileWithFolder
   22.05.2001 DJ
@@ -1724,7 +1726,7 @@ void Viewer::Up()
 {
   char Buf[MAX_VIEWLINE];
   int BufSize,StrPos,Skipped,I,J;
-  BufSize=Min(sizeof(Buf),FilePos);
+  BufSize=Min((DWORD)sizeof(Buf),FilePos);
   if (BufSize==0)
     return;
   LastPage=0;
@@ -2513,7 +2515,7 @@ void Viewer::AdjustFilePos()
     if (GotoLinePos<0)
       GotoLinePos=0;
     vseek(ViewFile,GotoLinePos,SEEK_SET);
-    int ReadSize=Min(sizeof(Buf),FilePos-GotoLinePos);
+    int ReadSize=Min((long)sizeof(Buf),(long)(FilePos-GotoLinePos));
     ReadSize=vread(Buf,ReadSize,ViewFile);
     for (int I=ReadSize-1;I>=0;I--)
       if (Buf[I]==CRSym)
@@ -2553,7 +2555,7 @@ void Viewer::SelectText(long MatchPos,int SearchLength, DWORD Flags)
   if (SearchLinePos<0)
     SearchLinePos=0;
   vseek(ViewFile,SearchLinePos,SEEK_SET);
-  int ReadSize=Min(sizeof(Buf),MatchPos-SearchLinePos);
+  int ReadSize=Min((long)sizeof(Buf),(long)(MatchPos-SearchLinePos));
   ReadSize=vread(Buf,ReadSize,ViewFile);
   for (int I=ReadSize-1;I>=0;I--)
     if (Buf[I]==CRSym)

@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.101 04.06.2001 $ */
+/* Revision: 1.102 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    + EDITOR_UNDO_COUNT - "от чисел к символам"
+    + ECTL_GETBOOKMARK - получить инфу о закладках.
+    ! Небольшая переделка с учетом InternalEditorBookMark.
   04.06.2001 IS
     - Editor::SaveFile - убраны (с подачи SVS) потенциальные баги - выход из
       функции был до того, как восстановятся атрибуты файла
@@ -396,10 +400,7 @@ Editor::Editor()
   *PluginData=0;
   NewUndo=FALSE;
   VBlockStart=NULL;
-  memset(SavePosLine,0xff,sizeof(SavePosLine));
-  memset(SavePosCursor,0xff,sizeof(SavePosCursor));
-  memset(SavePosLeftPos,0xff,sizeof(SavePosLeftPos));
-  memset(SavePosScreenLine,0xff,sizeof(SavePosScreenLine));
+  memset(&SavePos,0xff,sizeof(SavePos));
   MaxRightPos=0;
   TableChangedByUser=FALSE;
   *PluginTitle=0;
@@ -437,10 +438,10 @@ Editor::~Editor()
 
     if (!OpenFailed) // здесь БЯКА в кеш попадала :-(
       CtrlObject->EditorPosCache->AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
-               (Opt.SaveEditorShortPos?SavePosLine:NULL),
-               (Opt.SaveEditorShortPos?SavePosCursor:NULL),
-               (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
-               (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
+               (Opt.SaveEditorShortPos?SavePos.Line:NULL),
+               (Opt.SaveEditorShortPos?SavePos.Cursor:NULL),
+               (Opt.SaveEditorShortPos?SavePos.ScreenLine:NULL),
+               (Opt.SaveEditorShortPos?SavePos.LeftPos:NULL));
   }
 
   while (EndList!=NULL)
@@ -736,10 +737,10 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         strcpy(CacheName,FileName);
       unsigned int Table;
       CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
-               (Opt.SaveEditorShortPos?SavePosLine:NULL),
-               (Opt.SaveEditorShortPos?SavePosCursor:NULL),
-               (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
-               (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
+               (Opt.SaveEditorShortPos?SavePos.Line:NULL),
+               (Opt.SaveEditorShortPos?SavePos.Cursor:NULL),
+               (Opt.SaveEditorShortPos?SavePos.ScreenLine:NULL),
+               (Opt.SaveEditorShortPos?SavePos.LeftPos:NULL));
       //_D(SysLog("after Get cache, LeftPos=%i",LeftPos));
       TableChangedByUser=(Table!=0);
       switch(Table)
@@ -800,10 +801,10 @@ int Editor::ReadFile(char *Name,int &UserBreak)
           strcpy(CacheName,FileName);
         unsigned int Table;
         CtrlObject->EditorPosCache->GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
-               (Opt.SaveEditorShortPos?SavePosLine:NULL),
-               (Opt.SaveEditorShortPos?SavePosCursor:NULL),
-               (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
-               (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
+               (Opt.SaveEditorShortPos?SavePos.Line:NULL),
+               (Opt.SaveEditorShortPos?SavePos.Cursor:NULL),
+               (Opt.SaveEditorShortPos?SavePos.ScreenLine:NULL),
+               (Opt.SaveEditorShortPos?SavePos.LeftPos:NULL));
         //_D(SysLog("after Get cache 2, LeftPos=%i",LeftPos));
         TableChangedByUser=(Table!=0);
         switch(Table)
@@ -1322,13 +1323,13 @@ int Editor::ProcessKey(int Key)
   if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
   {
     int Pos=Key-KEY_CTRL0;
-    if (SavePosLine[Pos]!=0xffffffff)
+    if (SavePos.Line[Pos]!=0xffffffff)
     {
-      GoToLine(SavePosLine[Pos]);
-      CurLine->EditLine.SetCurPos(SavePosCursor[Pos]);
-      CurLine->EditLine.SetLeftPos(SavePosLeftPos[Pos]);
+      GoToLine(SavePos.Line[Pos]);
+      CurLine->EditLine.SetCurPos(SavePos.Cursor[Pos]);
+      CurLine->EditLine.SetLeftPos(SavePos.LeftPos[Pos]);
       TopScreen=CurLine;
-      for (int I=0;I<SavePosScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
+      for (int I=0;I<SavePos.ScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
         TopScreen=TopScreen->Prev;
       if (!EdOpt.PersistentBlocks)
         UnmarkBlock();
@@ -1341,10 +1342,10 @@ int Editor::ProcessKey(int Key)
   if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
   {
     int Pos=Key-KEY_RCTRL0;
-    SavePosLine[Pos]=NumLine;
-    SavePosCursor[Pos]=CurPos;
-    SavePosLeftPos[Pos]=CurLine->EditLine.GetLeftPos();
-    SavePosScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
+    SavePos.Line[Pos]=NumLine;
+    SavePos.Cursor[Pos]=CurPos;
+    SavePos.LeftPos[Pos]=CurLine->EditLine.GetLeftPos();
+    SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
     return(TRUE);
   }
 
@@ -2910,9 +2911,9 @@ void Editor::DeleteString(struct EditList *DelPtr,int DeleteLast,int UndoLine)
     return;
   }
 
-  for (int I=0;I<sizeof(SavePosLine)/sizeof(SavePosLine[0]);I++)
-    if (SavePosLine[I]!=0xffffffff && UndoLine<SavePosLine[I])
-      SavePosLine[I]--;
+  for (int I=0;I<sizeof(SavePos.Line)/sizeof(SavePos.Line[0]);I++)
+    if (SavePos.Line[I]!=0xffffffff && UndoLine<SavePos.Line[I])
+      SavePos.Line[I]--;
 
   NumLastLine--;
 
@@ -3001,10 +3002,10 @@ void Editor::InsertString()
   CurPos=CurLine->EditLine.GetCurPos();
   CurLine->EditLine.GetSelection(SelStart,SelEnd);
 
-  for (int I=0;I<sizeof(SavePosLine)/sizeof(SavePosLine[0]);I++)
-    if (SavePosLine[I]!=0xffffffff &&
-        (NumLine<SavePosLine[I] || NumLine==SavePosLine[I] && CurPos==0))
-      SavePosLine[I]++;
+  for (int I=0;I<sizeof(SavePos.Line)/sizeof(SavePos.Line[0]);I++)
+    if (SavePos.Line[I]!=0xffffffff &&
+        (NumLine<SavePos.Line[I] || NumLine==SavePos.Line[I] && CurPos==0))
+      SavePos.Line[I]++;
 
   int IndentPos=0;
 
@@ -4859,6 +4860,7 @@ int Editor::EditorControl(int Command,void *Param)
         if (EdOpt.CursorBeyondEOL)
           Info->Options|=EOPT_CURSORBEYONDEOL;
         Info->TabSize=EdOpt.TabSize;
+        Info->BookMarkCount=BOOKMARK_COUNT;
       }
       return(TRUE);
     case ECTL_SETPOSITION:
@@ -5147,6 +5149,23 @@ int Editor::EditorControl(int Command,void *Param)
       return  FALSE;
     }
     /* IS $ */
+    case ECTL_GETBOOKMARK:
+    {
+      if(!OpenFailed && Param)
+      {
+        struct EditorBookMark *ebm=(struct EditorBookMark *)Param;
+        if(ebm->Line)
+          memcpy(ebm->Line,SavePos.Line,BOOKMARK_COUNT*sizeof(long));
+        if(ebm->Cursor)
+          memcpy(ebm->Cursor,SavePos.Cursor,BOOKMARK_COUNT*sizeof(long));
+        if(ebm->ScreenLine)
+          memcpy(ebm->ScreenLine,SavePos.ScreenLine,BOOKMARK_COUNT*sizeof(long));
+        if(ebm->LeftPos)
+          memcpy(ebm->LeftPos,SavePos.LeftPos,BOOKMARK_COUNT*sizeof(long));
+        return TRUE;
+      }
+      return FALSE;
+    }
   }
   return(FALSE);
 }

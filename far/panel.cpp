@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.48 03.06.2001 $ */
+/* Revision: 1.49 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 DJ
@@ -250,7 +252,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
     char MenuText[NM];
     int DriveType,MenuLine;
-    int LabelWidth=Max(11,strlen(MSG(MChangeDriveLabelAbsent)));
+    int LabelWidth=Max(11,(int)strlen(MSG(MChangeDriveLabelAbsent)));
 
     /* $ 02.04.2001 VVM
       ! Попытка не будить спящие диски... */
@@ -757,8 +759,8 @@ void Panel::FastFind(int FirstKey)
   int Key,KeyToProcess=0;
   *LastName=0;
   {
-    int FindX=min(X1+9,ScrX-22);
-    int FindY=min(Y2,ScrY-2);
+    int FindX=Min(X1+9,ScrX-22);
+    int FindY=Min(Y2,ScrY-2);
     ChangeMacroMode MacroMode(MACRO_SEARCH);
     SaveScreen SaveScr(FindX,FindY,FindX+21,FindY+2);
     FastFindShow(FindX,FindY);
@@ -1505,7 +1507,7 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
   Len3=strlen(strcpy(DCDlg[5].Data,MSG(MChangeDriveDisconnectReconnect)));
 
 
-  Len1=max(Len1,max(Len2,max(Len3,Len4)));
+  Len1=Max(Len1,Max(Len2,Max(Len3,Len4)));
 
   strcpy(DCDlg[3].Data,TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,MsgText),Len1));
 

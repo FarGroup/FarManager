@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.114 05.06.2001 $ */
+/* Revision: 1.115 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   05.06.2001 KM
    ! Изменился тип возвращаемого значения у DM_LISTSETTITLE - стал TRUE и
      DM_LISTGETTITLE - стал TRUE, если получен Title или Bottom и FALSE если
@@ -3425,7 +3427,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
 
     for (I=0; I < Count ;I++)
     {
-      if (!LocalStrnicmp(ListItems[I].Text,FindStr,Min(LenFindStr,sizeof(ListItems[I].Text))))
+      if (!LocalStrnicmp(ListItems[I].Text,FindStr,Min(LenFindStr,(int)sizeof(ListItems[I].Text))))
         break;
     }
     if (I  == Count)

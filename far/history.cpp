@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.07 04.06.2001 $ */
+/* Revision: 1.08 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   04.06.2001 SVS
     ! 64 -> HISTORY_COUNT
   21.05.2001 SVS
@@ -250,7 +252,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
           sprintf(Record,"%s: %s",LastStr[CurCmd].Title,LastStr[CurCmd].Name);
         else
           strcpy(Record,LastStr[CurCmd].Name);
-        TruncStr(Record,Min(ScrX-12,sizeof(HistoryItem.Name)-1));
+        TruncStr(Record,Min(ScrX-12,(int)sizeof(HistoryItem.Name)-1));
         strcpy(HistoryItem.Name,Record);
         HistoryItem.SetSelect(CurCmd==CurLastPtr);
         LineToStr[Line++]=CurCmd;

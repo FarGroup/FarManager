@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.115 05.06.2001 $ */
+/* Revision: 1.116 06.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  06.06.2001 SVS
+   + EditorBookMark, ECTL_GETBOOKMARK
+   + EditorInfo.BookMarkCount - дабы не вызывать несколько раз ECTL_GETBOOKMARK.
   05.06.2001 tran
    + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
    + struct WindowInfo
@@ -1170,6 +1173,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_TABTOREAL,ECTL_REALTOTAB,ECTL_EXPANDTABS,ECTL_SETTITLE,
   ECTL_READINPUT,ECTL_PROCESSINPUT,ECTL_ADDCOLOR,ECTL_GETCOLOR,
   ECTL_SAVEFILE,ECTL_QUIT,ECTL_SETKEYBAR,ECTL_PROCESSKEY,ECTL_SETPARAM,
+  ECTL_GETBOOKMARK,
 };
 
 enum EDITOR_SETPARAMETER_TYPES {
@@ -1240,9 +1244,18 @@ struct EditorInfo
   int TableNum;
   DWORD Options;
   int TabSize;
-  DWORD Reserved[8];
+  int BookMarkCount;
+  DWORD Reserved[7];
 };
 
+struct EditorBookMark
+{
+  long *Line;
+  long *Cursor;
+  long *ScreenLine;
+  long *LeftPos;
+  DWORD Reserved[4];
+};
 
 struct EditorSetPosition
 {

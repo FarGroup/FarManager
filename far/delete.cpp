@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.19 31.05.2001 $ */
+/* Revision: 1.20 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   31.05.2001 OT
     - Отрисовка MessageBox во время удаления.
   31.05.2001 SVS
@@ -99,7 +101,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   FrameFromLaunched->LockRefresh();
 /* OT &*/
 
-  
+
   DeleteAllFolders=!Opt.Confirm.DeleteFolder;
 
   UpdateDiz=(Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
@@ -623,7 +625,7 @@ int WipeFile(char *Name)
   DWORD Written;
   while (FileSize>0)
   {
-    DWORD WriteSize=Min(BufSize,FileSize);
+    DWORD WriteSize=Min((DWORD)BufSize,FileSize);
     WriteFile(WipeHandle,Buf,WriteSize,&Written,NULL);
     FileSize-=WriteSize;
   }

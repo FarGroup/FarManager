@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.07 22.05.2001 $ */
+/* Revision: 1.08 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! ќт конкретных чисел переходим к макросам + небольша€ оптимизаци€.
   22.05.2001 tran
     ! по результам прогона на CodeGuard
   06.05.2001 DJ
@@ -35,23 +37,25 @@ Modify:
 #include "global.hpp"
 #include "fn.hpp"
 
+static char EmptyPos[]="0,0,0,0,0,$";
+
 FilePositionCache::FilePositionCache()
 {
   if(!Opt.MaxPositionCache)
   {
-    GetRegKey("System","MaxPositionCache",Opt.MaxPositionCache,64);
+    GetRegKey("System","MaxPositionCache",Opt.MaxPositionCache,MAX_POSITIONS);
     if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
-      Opt.MaxPositionCache=64;
+      Opt.MaxPositionCache=MAX_POSITIONS;
   }
   Names=(char*)malloc(Opt.MaxPositionCache*3*NM);
   Positions=(unsigned int*)malloc(Opt.MaxPositionCache*5*sizeof(unsigned int));
-  ShortPos=(long*)malloc(Opt.MaxPositionCache*40*sizeof(long));
+  ShortPos=(long*)malloc(Opt.MaxPositionCache*(BOOKMARK_COUNT*4)*sizeof(long));
 
   if(Names  && Positions && ShortPos)
   {
     memset(Names,0,Opt.MaxPositionCache*3*NM);
     memset(Positions,0,sizeof(unsigned int)*Opt.MaxPositionCache*5);
-    memset(ShortPos,0xFF,sizeof(long)*Opt.MaxPositionCache*40);
+    memset(ShortPos,0xFF,sizeof(long)*Opt.MaxPositionCache*(BOOKMARK_COUNT*4));
     CurPos=0;
     IsMemory=1;
   }
@@ -104,11 +108,15 @@ void FilePositionCache::AddPosition(char *Name,unsigned int Position1,
   Positions[CurPos*5+3]=Position4;
   Positions[CurPos*5+4]=Position5;
 
-  memset(&ShortPos[CurPos*40],0xFF,40*sizeof(long));
-  if(SPosLine) memmove(&ShortPos[CurPos*40+0],SPosLine,10*sizeof(long));
-  if(SPosLeftPos) memmove(&ShortPos[CurPos*40+10],SPosLeftPos,10*sizeof(long));
-  if(SPosCursor) memmove(&ShortPos[CurPos*40+20],SPosCursor,10*sizeof(long));
-  if(SPosScreenLine) memmove(&ShortPos[CurPos*40+30],SPosScreenLine,10*sizeof(long));
+  memset(&ShortPos[CurPos*(BOOKMARK_COUNT*4)],0xFF,(BOOKMARK_COUNT*4)*sizeof(long));
+  if(SPosLine)
+    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*0)],SPosLine,BOOKMARK_COUNT*sizeof(long));
+  if(SPosLeftPos)
+    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*1)],SPosLeftPos,BOOKMARK_COUNT*sizeof(long));
+  if(SPosCursor)
+    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*2)],SPosCursor,BOOKMARK_COUNT*sizeof(long));
+  if(SPosScreenLine)
+    memcpy(&ShortPos[CurPos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*3)],SPosScreenLine,BOOKMARK_COUNT*sizeof(long));
 
   if (++CurPos>=Opt.MaxPositionCache)
     CurPos=0;
@@ -142,10 +150,14 @@ void FilePositionCache::GetPosition(char *Name,unsigned int &Position1,
     Position3=Positions[Pos*5+2];
     Position4=Positions[Pos*5+3];
     Position5=Positions[Pos*5+4];
-    if(SPosLine) memmove(SPosLine,&ShortPos[Pos*40+0],10*sizeof(long));
-    if(SPosLeftPos) memmove(SPosLeftPos,&ShortPos[Pos*40+10],10*sizeof(long));
-    if(SPosCursor) memmove(SPosCursor,&ShortPos[Pos*40+20],10*sizeof(long));
-    if(SPosScreenLine) memmove(SPosScreenLine,&ShortPos[Pos*40+30],10*sizeof(long));
+    if(SPosLine)
+      memcpy(SPosLine,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*0)],BOOKMARK_COUNT*sizeof(long));
+    if(SPosLeftPos)
+      memcpy(SPosLeftPos,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*1)],BOOKMARK_COUNT*sizeof(long));
+    if(SPosCursor)
+      memcpy(SPosCursor,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*2)],BOOKMARK_COUNT*sizeof(long));
+    if(SPosScreenLine)
+      memcpy(SPosScreenLine,&ShortPos[Pos*(BOOKMARK_COUNT*4)+(BOOKMARK_COUNT*3)],BOOKMARK_COUNT*sizeof(long));
   }
 }
 
@@ -178,34 +190,42 @@ void FilePositionCache::Read(char *Key)
     sprintf(SubKey,"Item%d",I);
     GetRegKey(Key,SubKey,DataStr,"",sizeof(DataStr));
 
-    char ArgData[2*NM],*DataPtr=DataStr;
-    for (int J=0;(DataPtr=GetCommaWord(DataPtr,ArgData))!=NULL;J++)
+    if(!strcmp(DataStr,EmptyPos))
     {
-      if (*ArgData=='$')
-        strcpy(Names+I*3*NM,ArgData+1);
-      else
-        switch(J)
-        {
-          case 0:
-            Positions[I*5+0]=atoi(ArgData);
-            break;
-          case 1:
-            Positions[I*5+1]=atoi(ArgData);
-            break;
-          case 2:
-            Positions[I*5+2]=atoi(ArgData);
-            break;
-          case 3:
-            Positions[I*5+3]=atoi(ArgData);
-            break;
-          case 4:
-            Positions[I*5+4]=atoi(ArgData);
-            break;
-        }
+      Names[I*3*NM]=0;
+      memset(Positions+I*5,0,sizeof(unsigned int)*5);
+    }
+    else
+    {
+      char ArgData[2*NM],*DataPtr=DataStr;
+      for (int J=0;(DataPtr=GetCommaWord(DataPtr,ArgData))!=NULL;J++)
+      {
+        if (*ArgData=='$')
+          strcpy(Names+I*3*NM,ArgData+1);
+        else
+          switch(J)
+          {
+            case 0:
+              Positions[I*5+0]=atoi(ArgData);
+              break;
+            case 1:
+              Positions[I*5+1]=atoi(ArgData);
+              break;
+            case 2:
+              Positions[I*5+2]=atoi(ArgData);
+              break;
+            case 3:
+              Positions[I*5+3]=atoi(ArgData);
+              break;
+            case 4:
+              Positions[I*5+4]=atoi(ArgData);
+              break;
+          }
+      }
     }
     sprintf(SubKey,"Short%d",I);
-    memset(DataStr,0xff,40*sizeof(long));
-    GetRegKey(Key,SubKey,(LPBYTE)&ShortPos[I*40+0],(LPBYTE)DataStr,40*sizeof(long));
+    memset(DataStr,0xff,(BOOKMARK_COUNT*4)*sizeof(long));
+    GetRegKey(Key,SubKey,(LPBYTE)&ShortPos[I*(BOOKMARK_COUNT*4)],(LPBYTE)DataStr,(BOOKMARK_COUNT*4)*sizeof(long));
   }
 }
 
@@ -229,15 +249,15 @@ void FilePositionCache::Save(char *Key)
        (Opt.SaveEditorShortPos && Opt.SaveEditorPos))
     {
       // ≈сли не запоминались позиции по RCtrl+<N>, то и не записываем их
-      for(J=0; J < 40*sizeof(long); J++)
-        if(ShortPos[Pos*40+J] != 0xFFFFFFFFU)
+      for(J=0; J < (BOOKMARK_COUNT*4); J++)
+        if(ShortPos[Pos*(BOOKMARK_COUNT*4)+J] != -1)
           break;
 
-      if(J < 40*sizeof(long))
-      {
-        sprintf(SubKey,"Short%d",I);
-        SetRegKey(Key,SubKey,(LPBYTE)&ShortPos[Pos*40+0],40*sizeof(long));
-      }
+      sprintf(SubKey,"Short%d",I);
+      if(J < (BOOKMARK_COUNT*4))
+        SetRegKey(Key,SubKey,(LPBYTE)&ShortPos[Pos*(BOOKMARK_COUNT*4)],(BOOKMARK_COUNT*4)*sizeof(long));
+      else
+        DeleteRegValue(Key,SubKey);
     }
   }
 }

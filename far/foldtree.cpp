@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.05 16.05.2001 $ */
+/* Revision: 1.06 06.06.2001 $ */
 
 /*
 Modify:
+  06.06.2001 SVS
+    ! Mix/Max
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -173,7 +175,7 @@ void FolderTree::DrawEdit()
   GotoXY(X1+1,FindY);
   SetColor(COL_PANELTEXT);
   mprintf("%s  ",SearchTxt);
-  FindEdit->SetPosition(X1+strlen(SearchTxt)+2,FindY,min(X2-1,X1+25),FindY);
+  FindEdit->SetPosition(X1+strlen(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
   FindEdit->SetObjectColor(COL_DIALOGEDIT);
   FindEdit->Show();
   if (WhereX()<X2)
