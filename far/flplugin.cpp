@@ -347,11 +347,11 @@ HANDLE FileList::OpenPluginForFile(char *FileName,DWORD FileAttr)
 
   HANDLE hFile=INVALID_HANDLE_VALUE;
   if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE	,NULL,
+    hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
                          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN|FILE_FLAG_POSIX_SEMANTICS,
                          NULL);
   if(hFile==INVALID_HANDLE_VALUE)
-    hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE	,NULL,
+    hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE ,NULL,
                          OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 
   if (hFile==INVALID_HANDLE_VALUE)
@@ -400,6 +400,8 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
     return;
 
   long SaveSelPosition=GetSelPosition;
+  long OldLastSelPosition=LastSelPosition;
+
   char SelName[NM];
   int FileAttr;
   ItemNumber=0;
@@ -424,6 +426,7 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
     }
   }
 
+  LastSelPosition=OldLastSelPosition;
   GetSelPosition=SaveSelPosition;
 }
 
