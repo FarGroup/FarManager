@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.73 20.08.2001 $ */
+/* Revision: 1.74 05.09.2001 $ */
 
 /*
 Modify:
+  05.09.2001 VVM
+    + Копирование выделения в клипбоард
   20.08.2001 VVM
     ! Обработка прокрутки с альтом.
   26.07.2001 VVM
@@ -1204,7 +1206,8 @@ int Viewer::ProcessKey(int Key)
   /* $ 22.01.2001 IS
        Происходят какие-то манипуляции -> снимем выделение
   */
-  if(Key!=KEY_IDLE && Key!=KEY_NONE) SelectSize=0;
+  if (Key!=KEY_IDLE && Key!=KEY_NONE && Key!=KEY_CTRLINS)
+    SelectSize=0;
   /* IS $ */
 
   if (!InternalKey && !LastKeyUndo && (FilePos!=UndoAddr[0] || LeftPos!=UndoLeft[0]))
@@ -1246,6 +1249,32 @@ int Viewer::ProcessKey(int Key)
 
   switch(Key)
   {
+    /* $ 05.09.2001 VVM
+      + Копирование выделения в клипбоард */
+    case KEY_CTRLINS:
+      if (SelectSize)
+      {
+        char *SelData;
+        int SelPos = SelectPos*(VM.Unicode?2:1);
+        unsigned long SelSize= SelectSize*(VM.Unicode?2:1);
+        unsigned long DataSize = SelSize+(VM.Unicode?2:1);
+        unsigned long CurFilePos=vtell(ViewFile);
+
+        if ((SelData=(char*)malloc(DataSize)) == NULL)
+          return(TRUE);
+        memset(SelData, 0, DataSize);
+        vseek(ViewFile,SelPos,SEEK_SET);
+        vread(SelData, SelSize, ViewFile);
+        if (VM.UseDecodeTable && !VM.Unicode)
+          DecodeString(SelData, (unsigned char *)TableSet.DecodeTable);
+        if (VM.Unicode)
+          WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)(*SelData),SelectSize,SelData,SelectSize," ",NULL);
+        CopyToClipboard(SelData);
+        free(SelData);
+        vseek(ViewFile,CurFilePos,SEEK_SET);
+      }
+      return(TRUE);
+    /* VVM $ */
     /* $ 18.07.2000 tran
        включить/выключить скролбар */
     case KEY_CTRLS:
