@@ -378,4 +378,10 @@ void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
 int WINAPI GetPassword(char *Password,const char *FileName);
 void WINAPI UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime);
 
+#ifdef __GNUC__
+#define I64(x) x##ll
+#else
+#define I64(x) x##i64
+#endif
+
 #endif // __MULTIARC_HPP__

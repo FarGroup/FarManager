@@ -574,9 +574,9 @@ int WINAPI GetPassword(char *Password,const char *FileName)
 
 
 // Number of 100 nanosecond units from 01.01.1601 to 01.01.1970
-#define EPOCH_BIAS    116444736000000000i64
+#define EPOCH_BIAS    I64(116444736000000000)
 
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
+  *(__int64*)ft = EPOCH_BIAS + time * I64(10000000);
 }
