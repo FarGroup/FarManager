@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.114 04.06.2001 $ */
+/* Revision: 1.115 05.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  05.06.2001 tran
+   + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
+   + struct WindowInfo
   04.06.2001 SVS
    ! выкинут LIF_PTRDATA - изжил себя как класс :-)
    ! Соответственно изменилась структура FarListItem
@@ -1035,6 +1038,9 @@ enum {
   ACTL_EJECTMEDIA,
   ACTL_KEYMACRO,
   ACTL_PROCESSSEQUENCEKEY,
+  ACTL_GETWINDOWINFO,
+  ACTL_GETWINDOWCOUNT,
+  ACTL_SETCURRENTWINDOW
 };
 
 #define CONSOLE_GET_MODE       (-2)
@@ -1062,6 +1068,15 @@ struct ActlKeyMacro{
   DWORD Reserved[3];
 };
 
+struct WindowInfo
+{
+  int  Pos;
+  int  Type;
+  int  Modified;
+  int  Current;
+  char TypeName[64];
+  char Name[NM];
+};
 
 typedef int (WINAPI *FARAPIADVCONTROL)(
   int ModuleNumber,

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.66 04.06.2001 $ */
+/* Revision: 1.67 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 tran
+    + ACTL_GETWINDOWCOUNT,ACTL_GETWINDOWINFO,ACTL_SETCURRENTWINDOW
   04.06.2001 SVS
     ! Фигня по поводу Checked символа в меню. Исправлено.
   03.06.2001 SVS
@@ -195,6 +197,7 @@ Modify:
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
+#include "frame.hpp"
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 
@@ -401,6 +404,39 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
     case ACTL_PROCESSSEQUENCEKEY:
       return Param?WriteSequenceInput((struct SequenceKey*)Param):FALSE;
+
+    /* $ 05.06.2001 tran
+       новые ACTL_ для работы с фреймами */
+    case ACTL_GETWINDOWINFO:
+        {
+            WindowInfo *wi=(WindowInfo*)Param;
+            Frame *f=FrameManager->operator[](wi->Pos);
+            if ( f==NULL )
+                return FALSE;
+            f->GetTypeAndName(wi->TypeName,wi->Name);
+            wi->Type=f->GetType();
+            wi->Modified=f->IsFileModified();
+            wi->Current=f==FrameManager->GetCurrentFrame();
+            return TRUE;
+        }
+        break;
+    case ACTL_GETWINDOWCOUNT:
+        {
+            return FrameManager->GetFrameCount();
+        }
+    case ACTL_SETCURRENTWINDOW:
+        {
+            int pos=(int)Param;
+
+            if ( FrameManager->operator[](pos)!=NULL )
+            {
+                FrameManager->ActivateFrame(pos);
+                return TRUE;
+            }
+            return FALSE;
+        }
+    /* tran 05.06.2001 $ */
+
  }
  return FALSE;
 }
