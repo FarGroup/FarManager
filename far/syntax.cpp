@@ -5,10 +5,12 @@ syntax.cpp
 
 */
 
-/* Revision: 1.04 15.02.2005 $ */
+/* Revision: 1.05 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    + varEnum()
   15.02.2005 SVS
     + функция "S=itoa(N,Radix)"
   11.11.2004 SVS
@@ -471,6 +473,18 @@ TVarSet *varLook(TVarTable table, const char *p, int& error, int ins)
   nn->next = table[i];
   table[i] = nn;
   return nn;
+}
+
+TVarSet *varEnum(TVarTable table,int NumTable, int Index)
+{
+  if((DWORD)NumTable >= V_TABLE_SIZE)
+    return NULL;
+
+  TVarSet *n = table[NumTable];
+  for(int I=0; I < Index && n; ++I)
+    n = ((TVarSet*)n->next);
+
+  return n;
 }
 
 void varKill(TVarTable table, const char *p)

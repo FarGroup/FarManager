@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.219 31.01.2005 $ */
+/* Revision: 1.220 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    ! Изменена функция EnumRegValue()
+       - добавлен параметр LPDWORD (для полечения REG_DWORD)
+       - возвращает тип значения.
   31.01.2005 SVS
     ! В GetMenuHotKey() новый параметр - "имя плагина"
   21.01.2005 SVS
@@ -918,7 +922,7 @@ HKEY CreateRegKey(const char *Key);
 HKEY OpenRegKey(const char *Key);
 int GetRegKeySize(const char *Key,const char *ValueName);
 int GetRegKeySize(HKEY hKey,const char *ValueName);
-int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE Data,DWORD DataSize);
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData=NULL);
 void DeleteRegKey(const char *Key);
 void DeleteRegValue(const char *Key,const char *Value);
 void DeleteKeyRecord(const char *KeyMask,int Position);

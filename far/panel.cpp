@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.137 03.03.2005 $ */
+/* Revision: 1.138 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    ! В меню выбора дисков сетевое имя усекаем.
   03.03.2005 SVS
     ! FastFind теперь "умеет обратную ходку" по Ctrl-Shift-Enter
   16.01.2005 WARP
@@ -648,6 +650,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         {
           char RemoteName[NM];
           DriveLocalToRemoteName(DriveType,*RootDir,RemoteName);
+          TruncPathStr(RemoteName,ScrX-strlen(MenuText)-12);
           if(*RemoteName)
           {
             strcat(MenuText,"  ");

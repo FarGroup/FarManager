@@ -7,10 +7,13 @@ macro.hpp
 
 */
 
-/* Revision: 1.36 05.08.2004 $ */
+/* Revision: 1.37 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    + KeyMacro::ReadVarsConst()
+    + KeyMacro::WriteVarsConst()
   05.08.2004 SVS
     + RestartAutoMacro()
   07.07.2004 SVS
@@ -171,6 +174,8 @@ class KeyMacro
     class LockScreen *LockScr;
 
   private:
+    int ReadVarsConst(int ReadMode, char *Buffer, int BufferSize);
+    int WriteVarsConst(int ReadMode);
     int ReadMacros(int ReadMode, char *Buffer, int BufferSize);
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);

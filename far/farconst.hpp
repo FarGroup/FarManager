@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.85 17.10.2004 $ */
+/* Revision: 1.86 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    + MACRO_VARS
   17.10.2004 SVS
     + MACRO_FINDFOLDER
   05.08.2004 SVS
@@ -267,6 +269,8 @@ enum DIZUPDATETYPE {
 // *** Macros ***
 // области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
 enum MACROMODEAREA {
+  MACRO_VARS         =  -1,
+
   MACRO_OTHER        =   0, // Режим копирования текста с экрана, вертикальные меню
   MACRO_SHELL        =   1, // Файловые панели
   MACRO_VIEWER       =   2, // Внутренняя программа просмотра

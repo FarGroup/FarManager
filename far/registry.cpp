@@ -5,10 +5,14 @@ registry.cpp
 
 */
 
-/* Revision: 1.21 23.12.2004 $ */
+/* Revision: 1.22 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    ! Изменена функция EnumRegValue()
+       - добавлен параметр LPDWORD (для полечения REG_DWORD)
+       - возвращает тип значения.
   23.12.2004 WARP
     ! Заменим в GetRegKey strcpy на xstrncpy. На случай атомной войны.
   06.08.2004 SKV
@@ -629,10 +633,10 @@ int EnumRegKey(const char *Key,DWORD Index,char *DestName,DWORD DestSize)
   return(FALSE);
 }
 
-int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE Data,DWORD DataSize)
+int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYTE SData,DWORD SDataSize,LPDWORD IData)
 {
   HKEY hKey=OpenRegKey(Key);
-  int RetCode=FALSE;
+  int RetCode=REG_NONE;
 
   if(hKey)
   {
@@ -641,15 +645,21 @@ int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYT
     while( TRUE )
     {
       DWORD ValSize=sizeof(ValueName);
-      DWORD Type=REG_SZ;
+      DWORD Type=-1;
 
-      if (RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,Data,&DataSize) != ERROR_SUCCESS)
+      if (RegEnumValue(hKey,Index,ValueName,&ValSize,NULL,&Type,SData,&SDataSize) != ERROR_SUCCESS)
         break;
 
-      if(Type == REG_SZ)
-      {
+      RetCode=Type;
+      if(DestName)
         xstrncpy(DestName,ValueName,DestSize-1);
-        RetCode=TRUE;
+
+      if(Type == REG_SZ)
+        break;
+      else if(Type == REG_DWORD)
+      {
+        if(IData)
+          *IData=*(DWORD*)SData;
         break;
       }
     }

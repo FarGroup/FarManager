@@ -5,10 +5,12 @@ syntax.hpp
 
 */
 
-/* Revision: 1.01 05.08.2004 $ */
+/* Revision: 1.02 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    + varEnum()
   05.08.2004 SVS
     + funcLook()
   14.06.2004 SVS & AN
@@ -121,6 +123,7 @@ const V_TABLE_SIZE = 23;
 
 typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
 extern int isVar(TVarTable, const char*);
+extern TVarSet *varEnum(TVarTable, int, int);
 extern TVarSet *varLook(TVarTable, const char*, int&, int = 0);
 extern void varKill(TVarTable, const char*);
 extern void initVTable(TVarTable);

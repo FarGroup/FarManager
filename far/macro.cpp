@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.138 02.03.2005 $ */
+/* Revision: 1.139 05.03.2005 $ */
 
 /*
 Modify:
+  05.03.2005 SVS
+    + KeyMacro::ReadVarsConst() - считывание области глобальных переменных Vars
+    + KeyMacro::WriteVarsConst() - запись глобальной такблицы переменных в реестр
   02.03.2005 SVS
     + MCODE_V_FAR_WIDTH (Far.Width)
   15.02.2005 SVS
@@ -780,9 +783,7 @@ int KeyMacro::LoadMacros(BOOL InitedRAM)
   if(Buffer)
   {
     int I;
-#ifdef FAR_MACROVARS
-    ReadMacros(-1,Buffer,TEMP_BUFFER_SIZE);
-#endif
+    ReadVarsConst(MACRO_VARS,Buffer,TEMP_BUFFER_SIZE);
     for(I=MACRO_OTHER; I < MACRO_LAST; ++I)
       if(!ReadMacros(I,Buffer,TEMP_BUFFER_SIZE))
         break;
@@ -2220,6 +2221,9 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 {
   char *TextBuffer;
   char RegKeyName[150];
+
+  WriteVarsConst(MACRO_VARS);
+
   for (int I=0;I<MacroLIBCount;I++)
   {
     if(!AllSaved  && !(MacroLIB[I].Flags&MFLAGS_NEEDSAVEMACRO))
@@ -2254,6 +2258,81 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
   }
 }
 
+
+int KeyMacro::WriteVarsConst(int ReadMode)
+{
+  if(ReadMode!=MACRO_VARS) // пока так :-)
+    return FALSE;
+
+  char UpKeyName[100];
+  char ValueName[129];
+  *ValueName='%';
+
+  sprintf(UpKeyName,"KeyMacros\\%s",(ReadMode==MACRO_VARS?"Vars":""));
+
+  TVarTable *t = &glbVarTable;
+  for (int I=0;I < V_TABLE_SIZE;I++)
+    for(int J=0;;++J)
+    {
+      TVarSet *var=varEnum(*t,I,J);
+      if(!var)
+        break;
+      xstrncpy(ValueName+1,var->str,sizeof(ValueName)-2);
+      switch(var->value.type())
+      {
+        case vtInteger:
+          SetRegKey(UpKeyName,ValueName,(DWORD)var->value.i());
+          break;
+        case vtString:
+          SetRegKey(UpKeyName,ValueName,var->value.s());
+          break;
+      }
+
+    }
+  return TRUE;
+}
+
+/*
+   KeyMacros\\Vars
+     "StringName":REG_SZ
+     "IntName":REG_DWORD
+*/
+
+int KeyMacro::ReadVarsConst(int ReadMode, char *SData, int SDataSize)
+{
+  if(ReadMode!=MACRO_VARS) // пока так :-)
+    return FALSE;
+
+  int I;
+  char UpKeyName[100];
+  char ValueName[129];
+  long IData;
+
+  sprintf(UpKeyName,"KeyMacros\\%s",(ReadMode==MACRO_VARS?"Vars":""));
+
+  for (I=0;;I++)
+  {
+    IData=0;
+    *ValueName=0;
+    *SData=0;
+
+    int Type=EnumRegValue(UpKeyName,I,ValueName,sizeof(ValueName),(LPBYTE)SData,SDataSize,(LPDWORD)&IData);
+
+    if (Type == REG_NONE)
+      break;
+
+    if(*ValueName != '%')
+      continue;
+
+    TVarTable *t = ( ValueName[1] == '%' ) ? &glbVarTable : &locVarTable;
+
+    if (Type == REG_SZ)
+      varInsert(*t, ValueName+1)->value = SData;
+    else if (Type == REG_DWORD)
+      varInsert(*t, ValueName+1)->value = IData;
+  }
+  return TRUE;
+}
 
 /* $ 10.09.2000 SVS
   ! Исправим ситуацию с макросами в связи с переработаными кодами клавиш
@@ -3582,10 +3661,6 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 // получить название моды по коду
 char* KeyMacro::GetSubKey(int Mode)
 {
-#ifdef FAR_MACROVARS
-  if(Mode == -1)
-    return "Vars";
-#endif
   return (char *)((Mode >= MACRO_OTHER && Mode < MACRO_LAST)?MKeywords[Mode].Name:"");
 }
 
