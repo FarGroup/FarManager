@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.63 07.06.2001 $ */
+/* Revision: 1.64 10.06.2001 $ */
 
 /*
 Modify:
+  10.06.2001 KM
+    - Бага с выходом из подкаталогов сетевого ресурса. Из любого уровня вложенности
+      принажатии Enter на ".." появлялось меню выбора дисков.
   07.06.2001 IS
     - Баг (shift-f4): нужно сначала убирать пробелы, а только потом кавычки
   03.06.2001 OT
@@ -1820,11 +1823,19 @@ BOOL FileList::ChangeDir(char *NewDir)
            CtrlObject->Plugins.CallPlugin(PLG_MYCOMP_SYSID,OPEN_FILEPANEL,CurDir);
            который будет показывать панель типа "Майн комп" :-)
         */
-        if(GetDriveType(CurDir) != DRIVE_REMOTE)
+        /* $ 10.06.2001 KM
+           - Функция GetDriveType требует путь с "\" на конце
+             для правильного определения типа драйва.
+        */
+        char DirName[NM];
+        strncpy(DirName,CurDir,NM);
+        AddEndSlash(DirName);
+        if(GetDriveType(DirName) != DRIVE_REMOTE)
         {
           CtrlObject->Cp()->ActivePanel->ChangeDisk();
           return TRUE;
         }
+        /* KM $ */
         /* SVS $ */
         /* $ 26.03.2001 SVS
            Добавим возможность вызова Network-плагина из корня зашаренных
