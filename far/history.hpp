@@ -7,10 +7,13 @@ history.hpp
 
 */
 
-/* Revision: 1.08 25.01.2002 $ */
+/* Revision: 1.09 06.03.2002 $ */
 
 /*
 Modify:
+  06.03.2002 SVS
+    ! Косметика имени параметра у FreeHistory() - рука дрогнула :-)
+    ! У функций Истории появились доп.параметры
   25.01.2002 SVS
     ! Компонента Name теперь динамическая. Размер в масдае - max 511 байт.
       В NT - сколько есть. Т.е. обрезаение строк будет только в масдае.
@@ -67,7 +70,7 @@ class History
 
   private:
     void AddToHistoryLocal(char *Str,char *Title,int Type);
-    void FreeHistory(BOOL FreeMemody=FALSE);
+    void FreeHistory(BOOL FreeMemory=FALSE);
 
   public:
     History(int TypeHistory,char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
@@ -77,9 +80,9 @@ class History
     void AddToHistory(char *Str,char *Title=NULL,int Type=0,int SaveForbid=0);
     BOOL ReadHistory();
     BOOL SaveHistory();
-    int  Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle=NULL);
-    void GetPrev(char *Str);
-    void GetNext(char *Str);
+    int  Select(char *Title,char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle=NULL);
+    void GetPrev(char *Str,int StrLength);
+    void GetNext(char *Str,int StrLength);
     void SetFirst() {LastPtr=LastPtr0;CurLastPtr=CurLastPtr0;}
     void GetSimilar(char *Str,int LastCmdPartLength);
     void SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos);

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.50 28.02.2002 $ */
+/* Revision: 1.51 06.03.2002 $ */
 
 /*
 Modify:
+  06.03.2002 SVS
+    ! У функций Истории появились доп.параметры
   28.02.2002 SVS
     ! SetString() имеет доп. параметр - надобность в прорисовке новой строки
   14.12.2001 IS
@@ -230,9 +232,9 @@ int CommandLine::ProcessKey(int Key)
     case KEY_CTRLE:
     case KEY_CTRLX:
       if(Key == KEY_CTRLE)
-        CtrlObject->CmdHistory->GetPrev(Str);
+        CtrlObject->CmdHistory->GetPrev(Str,sizeof(Str));
       else
-        CtrlObject->CmdHistory->GetNext(Str);
+        CtrlObject->CmdHistory->GetNext(Str,sizeof(Str));
     case KEY_ESC:
       if(Key == KEY_ESC)
       {
@@ -257,7 +259,7 @@ int CommandLine::ProcessKey(int Key)
         /* $ 19.09.2000 SVS
            - При выборе из History (по Alt-F8) плагин не получал управление!
         */
-        switch(CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),"History",Str,Type))
+        switch(CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),"History",Str,sizeof(Str),Type))
         {
           case 1:
             SetString(Str);
@@ -313,7 +315,7 @@ int CommandLine::ProcessKey(int Key)
     case KEY_ALTF12:
       {
         int Type,SelectType;
-        if ((SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"HistoryFolders",Str,Type))==1 || SelectType==2)
+        if ((SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),"HistoryFolders",Str,sizeof(Str),Type))==1 || SelectType==2)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
@@ -522,7 +524,7 @@ void CommandLine::ShowViewEditHistory()
 {
   char Str[1024],ItemTitle[256];
   int Type,SelectType;
-  if ((SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,Type,ItemTitle))==1 || SelectType==2)
+  if ((SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),"HistoryViews",Str,sizeof(Str),Type,ItemTitle))==1 || SelectType==2)
   {
     if (SelectType!=2)
       CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);

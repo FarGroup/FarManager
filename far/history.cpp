@@ -5,10 +5,16 @@ history.cpp
 
 */
 
-/* Revision: 1.21 26.02.2002 $ */
+/* Revision: 1.22 06.03.2002 $ */
 
 /*
 Modify:
+  06.03.2002 SVS
+    ! Косметика имени параметра у FreeHistory() - рука дрогнула :-)
+    - Жучара с strcpy()
+    ! Устранение утечки памяти при добавлении и удалении
+    ! У функций Истории появились доп.параметры
+    - ну и, наконец, устранен полный бардак с самим механизмом.
   26.02.2002 SVS
     ! Для пустого списка (Items > 1) ничего не делаем
   25.01.2002 SVS
@@ -89,10 +95,10 @@ History::~History()
   FreeHistory(TRUE);
 }
 
-void History::FreeHistory(BOOL FreeMemody)
+void History::FreeHistory(BOOL FreeMemory)
 {
-  if(FreeMemody)
-    for (int I=0;I<sizeof(LastStr)/sizeof(LastStr[0]);I++)
+  if(FreeMemory)
+    for (int I=0; I < HISTORY_COUNT;I++)
       if(LastStr[I].Name)
         free(LastStr[I].Name);
   memset(LastStr,0,sizeof(LastStr));
@@ -107,19 +113,20 @@ void History::AddToHistory(char *Str,char *Title,int Type,int SaveForbid)
 
   if (*EnableSave && !SaveForbid)
   {
-    struct HistoryRecord SaveLastStr[HISTORY_COUNT];
-    memset(SaveLastStr,0,sizeof(SaveLastStr));
-    for (int I=0;I < sizeof(LastStr)/sizeof(LastStr[0]); I++)
-    {
-      if(LastStr[I].Name)
-        SaveLastStr[I].Name=strdup(LastStr[I].Name);
-      strcpy(SaveLastStr[I].Title,LastStr[I].Title);
-      SaveLastStr[I].Type=LastStr[I].Type;
-    }
-
+    // запоминаем!
     unsigned int SaveLastPtr=LastPtr,
                  SaveCurLastPtr=CurLastPtr,
                  SaveLastSimilar=LastSimilar;
+
+    struct HistoryRecord SaveLastStr[HISTORY_COUNT];
+    memcpy(SaveLastStr,LastStr,sizeof(SaveLastStr));
+    for (int I=0;I < HISTORY_COUNT; I++)
+      if(LastStr[I].Name && LastStr[I].Name[0])
+        SaveLastStr[I].Name=strdup(LastStr[I].Name);
+      else
+        SaveLastStr[I].Name=NULL;
+
+    // т.к. мы все запомнили, то, перед прочтением освободим память
     FreeHistory(TRUE);
 
     ReadHistory();
@@ -128,7 +135,9 @@ void History::AddToHistory(char *Str,char *Title,int Type,int SaveForbid)
     LastSimilar=SaveLastSimilar;
     AddToHistoryLocal(Str,Title,Type);
     SaveHistory();
+    FreeHistory(TRUE); // Необходимо, т.к. ReadHistory берет память!
 
+    // восстановим
     LastPtr0=LastPtr=SaveLastPtr;
     CurLastPtr0=CurLastPtr=SaveCurLastPtr;
     LastSimilar=SaveLastSimilar;
@@ -140,50 +149,61 @@ void History::AddToHistory(char *Str,char *Title,int Type,int SaveForbid)
 
 void History::AddToHistoryLocal(char *Str,char *Title,int Type)
 {
+  if(!Str || *Str == 0)
+    return;
+
   struct HistoryRecord AddRecord;
 
-  if((AddRecord.Name=(char*)malloc((WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS?511:strlen(Str))+1)) == NULL)
+  AddRecord.Name=strdup(Str);
+  if(!AddRecord.Name)
     return;
-  strncpy(AddRecord.Name,Str,WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS?511:strlen(Str));
 
   RemoveTrailingSpaces(AddRecord.Name);
-  strncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1);
-  RemoveTrailingSpaces(AddRecord.Title);
+  RemoveTrailingSpaces(strncpy(AddRecord.Title,NullToEmpty(Title),sizeof(AddRecord.Title)-1));
   AddRecord.Type=Type;
 
-  int OldLastPtr;
-  if ((OldLastPtr=LastPtr-1) < 0)
-    OldLastPtr=sizeof(LastStr)/sizeof(LastStr[0])-1;
+  int OldLastPtr=LastPtr-1;
+  if (OldLastPtr < 0)
+    OldLastPtr=HISTORY_COUNT-1;
 
   if (RemoveDups)
   {
-    for (int I=0;I<sizeof(LastStr)/sizeof(LastStr[0]);I++)
+    struct HistoryRecord *PtrLastStr;
+    int I, J;
+    for (PtrLastStr=LastStr,I=0; I < HISTORY_COUNT; I++, PtrLastStr++)
     {
-      if(LastStr[I].Name)
+      if(PtrLastStr->Name && AddRecord.Type==PtrLastStr->Type)
       {
-        int Equal=RemoveDups==1 && strcmp(AddRecord.Name,LastStr[I].Name)==0 &&
-                  strcmp(AddRecord.Title,LastStr[I].Title)==0 ||
-                  RemoveDups==2 && LocalStricmp(AddRecord.Name,LastStr[I].Name)==0 &&
-                  LocalStricmp(AddRecord.Title,LastStr[I].Title)==0;
+        int Equal=RemoveDups==1 &&
+                  strcmp(AddRecord.Name,PtrLastStr->Name)==0 &&
+                  strcmp(AddRecord.Title,PtrLastStr->Title)==0 ||
+                  RemoveDups==2 &&
+                  LocalStricmp(AddRecord.Name,PtrLastStr->Name)==0 &&
+                  LocalStricmp(AddRecord.Title,PtrLastStr->Title)==0;
 
-        if (Equal && AddRecord.Type==LastStr[I].Type)
+        if (Equal)
         {
           int Length=OldLastPtr-I;
 
           if (Length<0)
-            Length+=sizeof(LastStr)/sizeof(LastStr[0]);
+            Length+=HISTORY_COUNT;
 
-          for (int J=0;J<=Length;J++)
+          for (J=0; J <= Length; J++)
           {
-            int Dest=(I+J) % (sizeof(LastStr)/sizeof(LastStr[0]));
-            int Src=(I+J+1) % (sizeof(LastStr)/sizeof(LastStr[0]));
+            int Dest=(I+J) % (HISTORY_COUNT);
+            int Src=(I+J+1) % (HISTORY_COUNT);
 
-            free(LastStr[Dest].Name);
-            memcpy(LastStr+Dest,LastStr+Src,sizeof(HistoryRecord));
+            if(LastStr[Dest].Name)
+            {
+              free(LastStr[Dest].Name);
+              LastStr[Dest].Name=NULL;
+            }
+            memmove(LastStr+Dest,LastStr+Src,sizeof(HistoryRecord));
             memset(LastStr+Src,0,sizeof(HistoryRecord));
           }
 
-          LastStr[OldLastPtr]=AddRecord;
+          memcpy(LastStr+OldLastPtr, &AddRecord, sizeof(HistoryRecord));
+
           CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
           return;
         }
@@ -191,101 +211,117 @@ void History::AddToHistoryLocal(char *Str,char *Title,int Type)
     }
   }
 
-  int Pos=(LastPtr-1) % (sizeof(LastStr)/sizeof(LastStr[0]));
+  int Pos=(LastPtr-1) % (HISTORY_COUNT);
 
-  if(LastStr[Pos].Name && (strcmp(AddRecord.Name,LastStr[Pos].Name)!=0 ||
-        strcmp(AddRecord.Title,LastStr[Pos].Title)!=0 ||
-        AddRecord.Type!=LastStr[Pos].Type))
+  if(LastStr[Pos].Name && (strcmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
+         strcmp(AddRecord.Title,LastStr[Pos].Title) != 0 ||
+         AddRecord.Type != LastStr[Pos].Type) && LastStr[LastPtr].Name)
     free(LastStr[LastPtr].Name);
-   memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
-   if (++LastPtr==sizeof(LastStr)/sizeof(LastStr[0]))
-       LastPtr=0;
+
+  memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
+
+  if (++LastPtr==HISTORY_COUNT)
+     LastPtr=0;
+
   CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
 }
 
 
+/*
+  Вначале разберемся с память, а потом... "все или ничего"
+*/
 BOOL History::SaveHistory()
 {
   if (!*EnableSave)
     return TRUE;
 
-  HKEY hKey;
+  char *BufferLines=NULL,*BufferTitles=NULL,*PtrBuffer;
+  unsigned char TypesBuffer[HISTORY_COUNT+1];
+  DWORD SizeLines=0, SizeTitles=0, SizeTypes=0;
+  int I, Len;
 
-  if ((hKey=CreateRegKey(RegKey))==NULL)
-    return FALSE;
-
-  char *Buffer=NULL,*PtrBuffer;
-  DWORD Size=0;
-  int I;
-
-  for (I=0; I < sizeof(LastStr)/sizeof(LastStr[0]); I++)
+  for (I=0; I < HISTORY_COUNT; I++)
   {
     if(LastStr[I].Name)
     {
-      PtrBuffer=(char*)realloc(Buffer,Size+strlen(LastStr[I].Name)+16);
-      if(!PtrBuffer)
+      Len=strlen(LastStr[I].Name);
+      if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && Len > 511)
+        Len=511;
+
+      if((PtrBuffer=(char*)realloc(BufferLines,SizeLines+Len+2)) == NULL)
       {
-        free(Buffer);
-        RegCloseKey(hKey);
+        free(BufferLines);
         return FALSE;
       }
-      Buffer=PtrBuffer;
-      strcpy(Buffer+Size,LastStr[I].Name);
-      Size+=strlen(LastStr[I].Name)+1;
+      BufferLines=PtrBuffer;
+      strncpy(BufferLines+SizeLines,LastStr[I].Name,Len);
+      SizeLines+=Len+1;
     }
   }
 
-  if(!Buffer)
-  {
-    RegCloseKey(hKey);
+  if(!BufferLines)
     return FALSE;
-  }
 
-  Buffer[Size++]=0;
-  RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)Buffer,Size);
+  BufferLines[SizeLines++]=0;
 
   if (SaveTitle)
   {
-    PtrBuffer=(char*)realloc(Buffer,HISTORY_COUNT*(HISTORY_TITLESIZE+1)+16);
-    if(!PtrBuffer)
+    BufferTitles=(char*)malloc(HISTORY_COUNT*(HISTORY_TITLESIZE+2));
+    if(!BufferTitles)
     {
-      free(Buffer);
-      RegCloseKey(hKey);
+      free(BufferLines);
       return FALSE;
     }
-    Buffer=PtrBuffer;
 
-    Size=0;
-    for (I=0; I < sizeof(LastStr)/sizeof(LastStr[0]); I++)
+    for (I=0; I < HISTORY_COUNT; I++)
     {
-      strcpy(Buffer+Size,LastStr[I].Title);
-      Size+=strlen(LastStr[I].Title)+1;
+      strcpy(BufferTitles+SizeTitles,LastStr[I].Title);
+      SizeTitles+=strlen(LastStr[I].Title)+1;
     }
-    Buffer[Size++]=0;
-    RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)Buffer,Size);
+    BufferTitles[SizeTitles++]=0;
   }
 
   if (SaveType)
   {
-    unsigned char TypesBuffer[sizeof(LastStr)/sizeof(LastStr[0])+1];
     memset(TypesBuffer,0,sizeof(TypesBuffer));
-    for (Size=0; Size < sizeof(LastStr)/sizeof(LastStr[0]); Size++)
-      TypesBuffer[Size]=LastStr[Size].Type+'0';
-    TypesBuffer[Size++]=0;
-    RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,Size);
+    for (SizeTypes=0; SizeTypes < HISTORY_COUNT; SizeTypes++)
+      TypesBuffer[SizeTypes]=LastStr[SizeTypes].Type+'0';
+    TypesBuffer[SizeTypes++]=0;
   }
+
+  HKEY hKey;
+  if ((hKey=CreateRegKey(RegKey))==NULL)
+  {
+    free(BufferTitles);
+    free(BufferLines);
+    return FALSE;
+  }
+
+  RegSetValueEx(hKey,"Lines",0,REG_BINARY,(unsigned char *)BufferLines,SizeLines);
+
+  if (SaveTitle)
+    RegSetValueEx(hKey,"Titles",0,REG_BINARY,(unsigned char *)BufferTitles,SizeTitles);
+
+  if (SaveType)
+    RegSetValueEx(hKey,"Types",0,REG_SZ,TypesBuffer,SizeTypes);
 
   RegSetValueEx(hKey,"Position",0,REG_DWORD,(BYTE *)&CurLastPtr,sizeof(CurLastPtr));
   RegCloseKey(hKey);
-  free(Buffer);
+
+  if (SaveTitle)
+    free(BufferTitles);
+  free(BufferLines);
+
   return TRUE;
 }
 
 
 BOOL History::ReadHistory()
 {
-  HKEY hKey;
+  int NeedSaveTitle=SaveTitle && CheckRegValue(RegKey,"Titles");
+  int NeedSaveType =SaveTitle && CheckRegValue(RegKey,"Types");
 
+  HKEY hKey;
   if ((hKey=OpenRegKey(RegKey))==NULL)
     return FALSE;
 
@@ -303,16 +339,15 @@ BOOL History::ReadHistory()
     return FALSE;
   }
 
+  int StrPos, Length;
   if (RegQueryValueEx(hKey,"Lines",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
   {
-    int StrPos=0;
+    StrPos=0;
     Buf=Buffer;
-    while ((int)Size >= 0 && StrPos < sizeof(LastStr)/sizeof(LastStr[0]))
+    while ((int)Size > 1 && StrPos < HISTORY_COUNT)
     {
-      int Len=strlen(Buf);
-      if(WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && Len > 511)
-        Len=511;
-      if((LastStr[StrPos].Name=(char*)malloc(Len+1)) == NULL)
+      Length=strlen(Buf)+1;
+      if((LastStr[StrPos].Name=(char*)malloc(Length)) == NULL)
       {
         free(Buffer);
         FreeHistory(TRUE);
@@ -321,13 +356,18 @@ BOOL History::ReadHistory()
       }
       strcpy(LastStr[StrPos].Name,Buf);
       StrPos++;
-      int Length=strlen(Buf)+1;
       Buf+=Length;
       Size-=Length;
     }
   }
+  else
+  {
+    free(Buffer);
+    RegCloseKey(hKey);
+    return FALSE;
+  }
 
-  if (SaveTitle)
+  if (NeedSaveTitle)
   {
     Size=GetRegKeySize(hKey,"Titles");
     if((Buf=(char*)realloc(Buffer,Size)) == NULL)
@@ -340,33 +380,46 @@ BOOL History::ReadHistory()
     Buffer=Buf;
     if(RegQueryValueEx(hKey,"Titles",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
     {
-      int StrPos=0;
-      while ((int)Size >= 0 && StrPos < sizeof(LastStr)/sizeof(LastStr[0]))
+      StrPos=0;
+      while ((int)Size > 1 && StrPos < HISTORY_COUNT)
       {
         strncpy(LastStr[StrPos].Title,Buf,sizeof(LastStr[StrPos].Title)-1);
         ++StrPos;
-        int Length=strlen(Buf)+1;
+        Length=strlen(Buf)+1;
         Buf+=Length;
         Size-=Length;
       }
     }
+    else // раз требовали Title, но ничего не получили, значит _ВСЕ_ в морг.
+    {
+      free(Buffer);
+      FreeHistory(TRUE);
+      RegCloseKey(hKey);
+      return FALSE;
+    }
   }
   free(Buffer);
 
-  if (SaveType)
+  if (NeedSaveType)
   {
-    unsigned char TypesBuffer[sizeof(LastStr)/sizeof(LastStr[0])+1];
+    unsigned char TypesBuffer[HISTORY_COUNT+1];
     Size=sizeof(TypesBuffer);
     memset(TypesBuffer,0,Size);
     if(RegQueryValueEx(hKey,"Types",0,&Type,(unsigned char *)TypesBuffer,&Size)==ERROR_SUCCESS)
     {
-      int StrPos=0;
+      StrPos=0;
       Buf=(char *)TypesBuffer;
-      while (isdigit(*Buf) && StrPos < sizeof(LastStr)/sizeof(LastStr[0]))
+      while (isdigit(*Buf) && StrPos < HISTORY_COUNT)
       {
         LastStr[StrPos++].Type=*Buf-'0';
         Buf++;
       }
+    }
+    else // раз требовали Type, но ничего не получили, значит _ВСЕ_ в морг.
+    {
+      FreeHistory(TRUE);
+      RegCloseKey(hKey);
+      return FALSE;
     }
   }
 
@@ -375,18 +428,18 @@ BOOL History::ReadHistory()
   RegCloseKey(hKey);
 
   LastPtr0=CurLastPtr0=LastPtr=CurLastPtr;
+
   return TRUE;
 }
 
 
-int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle)
+int History::Select(char *Title,char *HelpTopic,char *Str,int StrLength,int &Type,char *ItemTitle)
 {
   struct MenuItem HistoryItem;
-  memset(&HistoryItem,0,sizeof(HistoryItem));
 
   int Line,Code,I,Height=ScrY-8,StrPos;
   unsigned int CurCmd;
-  int LineToStr[sizeof(LastStr)/sizeof(LastStr[0])+1];
+  int LineToStr[HISTORY_COUNT+1];
   int RetCode=1;
 
   {
@@ -400,25 +453,28 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);
 
-    for (CurCmd=LastPtr+1, Line=0, I=0; I < sizeof(LastStr)/sizeof(LastStr[0])-1; I++, CurCmd++)
+    for (CurCmd=LastPtr+1, Line=0, I=0; I < HISTORY_COUNT-1; I++, CurCmd++)
     {
-      CurCmd%=sizeof(LastStr)/sizeof(LastStr[0]);
+      CurCmd%=HISTORY_COUNT;
       if (LastStr[CurCmd].Name && *LastStr[CurCmd].Name)
       {
-        char Record[1024];
+        char Record[2048];
         if (*LastStr[CurCmd].Title)
           sprintf(Record,"%s: %s",LastStr[CurCmd].Title,LastStr[CurCmd].Name);
         else
           strcpy(Record,LastStr[CurCmd].Name);
         TruncStr(Record,Min(ScrX-12,(int)sizeof(HistoryItem.Name)-1));
-        strcpy(HistoryItem.Name,Record);
+        memset(&HistoryItem,0,sizeof(HistoryItem));
+        strncpy(HistoryItem.Name,Record,sizeof(HistoryItem.Name)-1);
         HistoryItem.SetSelect(CurCmd==CurLastPtr);
         LineToStr[Line++]=CurCmd;
         HistoryMenu.AddItem(&HistoryItem);
       }
     }
 
-    sprintf(HistoryItem.Name,"%20s","");
+    //sprintf(HistoryItem.Name,"%20s","");
+    memset(&HistoryItem,0,sizeof(HistoryItem));
+    memset(HistoryItem.Name,' ',20);HistoryItem.Name[20]=0;
     HistoryItem.SetSelect(CurLastPtr==LastPtr);
     LineToStr[Line]=-1;
     HistoryMenu.AddItem(&HistoryItem);
@@ -462,12 +518,13 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
                    MSG(MHistoryClear),
                    MSG(MClear),MSG(MCancel))==0)))
           {
-            FreeHistory();
+            FreeHistory(TRUE); // память тоже нужно очистить!
             DeleteRegValue(RegKey,"Lines");
             DeleteRegValue(RegKey,"Titles");
             DeleteRegValue(RegKey,"Types");
+            DeleteRegValue(RegKey,"Position");
             HistoryMenu.Hide();
-            return(Select(Title,HelpTopic,Str,Type));
+            return(Select(Title,HelpTopic,Str,StrLength,Type));
           } /* if */
           break;
         }
@@ -493,7 +550,7 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
 
   *Str=0;
   if(LastStr[StrPos].Name)
-    strcpy(Str,LastStr[StrPos].Name);
+    strncpy(Str,LastStr[StrPos].Name,StrLength-1);
 
   Type=LastStr[StrPos].Type;
 
@@ -504,11 +561,11 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
 }
 
 
-void History::GetPrev(char *Str)
+void History::GetPrev(char *Str,int StrLength)
 {
   do
   {
-    unsigned int NewPtr=(CurLastPtr-1)%(sizeof(LastStr)/sizeof(LastStr[0]));
+    unsigned int NewPtr=(CurLastPtr-1)%(HISTORY_COUNT);
     if (NewPtr!=LastPtr)
       CurLastPtr=NewPtr;
     else
@@ -516,23 +573,23 @@ void History::GetPrev(char *Str)
   } while (LastStr[CurLastPtr].Name && *LastStr[CurLastPtr].Name==0);
 
   if(LastStr[CurLastPtr].Name)
-    strcpy(Str,LastStr[CurLastPtr].Name);
+    strncpy(Str,LastStr[CurLastPtr].Name,StrLength-1);
   else
     *Str=0;
 }
 
 
-void History::GetNext(char *Str)
+void History::GetNext(char *Str,int StrLength)
 {
   do
   {
     if (CurLastPtr!=LastPtr)
-      CurLastPtr=(CurLastPtr+1)%(sizeof(LastStr)/sizeof(LastStr[0]));
+      CurLastPtr=(CurLastPtr+1)%(HISTORY_COUNT);
     else
       break;
   } while (LastStr[CurLastPtr].Name && *LastStr[CurLastPtr].Name==0);
   if(LastStr[CurLastPtr].Name)
-    strcpy(Str,CurLastPtr==LastPtr ? "":LastStr[CurLastPtr].Name);
+    strncpy(Str,CurLastPtr==LastPtr ? "":LastStr[CurLastPtr].Name,StrLength-1);
   else
     *Str=0;
 }
@@ -545,13 +602,13 @@ void History::GetSimilar(char *Str,int LastCmdPartLength)
     Length=LastCmdPartLength;
   if (LastCmdPartLength==-1)
     LastSimilar=0;
-  for (int I=1;I<sizeof(LastStr)/sizeof(LastStr[0]);I++)
+  for (int I=1;I<HISTORY_COUNT;I++)
   {
-    int Pos=(LastPtr-LastSimilar-I)%(sizeof(LastStr)/sizeof(LastStr[0]));
+    int Pos=(LastPtr-LastSimilar-I)%(HISTORY_COUNT);
     char *Name=LastStr[Pos].Name;
     if (Name && *Name && LocalStrnicmp(Str,Name,Length)==0 && strcmp(Str,Name)!=0)
     {
-      int NewSimilar=(LastPtr-Pos)%(sizeof(LastStr)/sizeof(LastStr[0]));
+      int NewSimilar=(LastPtr-Pos)%(HISTORY_COUNT);
       if (NewSimilar<=LastSimilar && ReturnSimilarTemplate)
       {
         ReturnSimilarTemplate=FALSE;

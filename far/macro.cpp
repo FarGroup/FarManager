@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.72 03.03.2002 $ */
+/* Revision: 1.73 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    - BugZ#262 - Ќесколько macro:post в usermenu не работают
   03.03.2002 SVS
     ! ≈сли дл€ VC вставить ключ /Gr, то видим кучу багов :-/
   21.02.2002 SVS
@@ -372,6 +374,7 @@ BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size)
 KeyMacro::KeyMacro()
 {
   _OT(SysLog("[%p] KeyMacro::KeyMacro()", this));
+  TempMacroNumber=0;
   TempMacro=NULL;
   LockScr=NULL;
   Macros=NULL;
@@ -404,7 +407,7 @@ void KeyMacro::InitVars()
     LockScr=NULL;
   }
 
-  ReleaseTempBuffer();
+  ReleaseTempBuffer(TRUE);
 
   MacrosNumber=0;
   Recording=FALSE;
@@ -417,15 +420,28 @@ void KeyMacro::InitVars()
 
 // удаление временного буфера, если он создавалс€ динамически
 // (динамически - значит в PlayMacros передали строку.
-void KeyMacro::ReleaseTempBuffer()
+void KeyMacro::ReleaseTempBuffer(BOOL All)
 {
   if(TempMacro)
   {
-    if(TempMacro->Buffer)
-      free(TempMacro->Buffer);
-    free(TempMacro);
+    if(All || TempMacroNumber <= 1)
+    {
+      for (int I=0;I<TempMacroNumber;I++)
+        if(TempMacro[I].Buffer)
+          free(TempMacro[I].Buffer);
+      free(TempMacro);
+      TempMacro=NULL;
+      TempMacroNumber=0;
+    }
+    else
+    {
+      if(TempMacro->Buffer)
+        free(TempMacro->Buffer);
+      TempMacroNumber--;
+      memmove(TempMacro,((BYTE*)TempMacro)+sizeof(struct MacroRecord),sizeof(struct MacroRecord)*TempMacroNumber);
+      realloc(TempMacro,sizeof(struct MacroRecord)*TempMacroNumber);
+    }
   }
-  TempMacro=NULL;
 }
 
 // загрузка ¬—≈’ макросов из реестра
@@ -623,6 +639,7 @@ char *KeyMacro::GetMacroPlainText(char *Dest)
   struct MacroRecord *MR;
 
   MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+
   int LenTextBuf=strlen((char*)&MR->Buffer[ExecKeyPos]);
   Dest[0]=0;
   if(LenTextBuf && MR->Buffer[ExecKeyPos])
@@ -831,6 +848,13 @@ done:
     LockScr=NULL;
     Executing=FALSE;
     ReleaseTempBuffer();
+    // проверим - "а есть ли в временном стеке еще макрџсы"?
+    if(TempMacroNumber > 0)
+    {
+      // нашлось, запустим механизму по новой
+      Executing=TRUE;
+      ExecKeyPos=0;
+    }
     SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
@@ -1345,26 +1369,33 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
 {
-  ReleaseTempBuffer();
+  struct MacroRecord NewTempMacro2={0};
 
-  if((TempMacro=(struct MacroRecord *)malloc(sizeof(MacroRecord))) == NULL)
-    return FALSE;
-  TempMacro->Buffer=NULL;
-  TempMacro->Flags=0;
-  TempMacro->Key=0;
-  TempMacro->BufferSize=0;
-
-  if(!ParseMacroString(TempMacro,KeyBuffer))
+  // сначала смотрим на парсер
+  if(!ParseMacroString(&NewTempMacro2,KeyBuffer))
   {
-    ReleaseTempBuffer();
+    free(NewTempMacro2.Buffer);
     return FALSE;
   }
 
-  if (TempMacro->Flags&MFLAGS_DISABLEOUTPUT)
+  // теперь попробуем выделить немного нужной пам€ти
+  struct MacroRecord *NewTempMacro;
+  if((NewTempMacro=(struct MacroRecord *)realloc(TempMacro,sizeof(MacroRecord)*(TempMacroNumber+1))) == NULL)
+    return FALSE;
+
+  // теперь добавим в нашу "очередь" новые данные
+  TempMacro=NewTempMacro;
+  NewTempMacro=TempMacro+TempMacroNumber;
+  memcpy(NewTempMacro,&NewTempMacro2,sizeof(struct MacroRecord));
+  TempMacroNumber++;
+
+  /*
+  if (NewTempMacro->Flags&MFLAGS_DISABLEOUTPUT)
   {
     if(LockScr) delete LockScr;
     LockScr=new LockScreen;
   }
+  */
   Executing=TRUE;
   ExecKeyPos=0;
   return TRUE;
@@ -1372,27 +1403,38 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
 
 int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
 {
-  ReleaseTempBuffer();
-
   if(!MRec)
     return FALSE;
 
-  if((TempMacro=(struct MacroRecord *)malloc(sizeof(MacroRecord))) == NULL)
-    return FALSE;
-
-  memcpy(TempMacro,MRec,sizeof(struct MacroRecord));
-  if((TempMacro->Buffer=(DWORD*)malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
+  struct MacroRecord NewTempMacro2={0};
+  memcpy(&NewTempMacro2,MRec,sizeof(struct MacroRecord));
+  if((NewTempMacro2.Buffer=(DWORD*)malloc(MRec->BufferSize*sizeof(DWORD))) == NULL)
   {
-    ReleaseTempBuffer();
     return FALSE;
   }
-  memcpy(TempMacro->Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
 
-  if (TempMacro->Flags&MFLAGS_DISABLEOUTPUT)
+  // теперь попробуем выделить немного нужной пам€ти
+  struct MacroRecord *NewTempMacro;
+  if((NewTempMacro=(struct MacroRecord *)realloc(TempMacro,sizeof(MacroRecord)*(TempMacroNumber+1))) == NULL)
+  {
+    free(NewTempMacro2.Buffer);
+    return FALSE;
+  }
+
+  // теперь добавим в нашу "очередь" новые данные
+  TempMacro=NewTempMacro;
+  NewTempMacro=TempMacro+TempMacroNumber;
+  memcpy(NewTempMacro2.Buffer,MRec->Buffer,sizeof(DWORD)*MRec->BufferSize);
+  memcpy(NewTempMacro,&NewTempMacro2,sizeof(struct MacroRecord));
+  TempMacroNumber++;
+
+  /*
+  if (NewTempMacro->Flags&MFLAGS_DISABLEOUTPUT)
   {
     if(LockScr) delete LockScr;
     LockScr=new LockScreen;
   }
+  */
   Executing=TRUE;
   ExecKeyPos=0;
   return TRUE;

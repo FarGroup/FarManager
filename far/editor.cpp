@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.159 03.03.2002 $ */
+/* Revision: 1.160 06.03.2002 $ */
 
 /*
 Modify:
+  06.03.2002 SVS
+    - Бага с выделением при постоянных блоках.
   03.03.2002 SVS
     ! По поводу трапа (патч от 28.06.2000) "более 1000 колонок"
       Нефига заниматься ерундой в стиле "взять, изменить, наложить",
@@ -1736,8 +1738,13 @@ int Editor::ProcessKey(int Key)
         /* $ 13.9.2001 SKV
           Однако LeftPos апдейтится только в FastShow :-\
         */
-        CurLine->EditLine.FastShow();
-        ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
+        if(EdOpt.PersistentBlocks)
+          Show();
+        else
+        {
+          CurLine->EditLine.FastShow();
+          ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
+        }
         /* SKV$*/
       }
       return(TRUE);

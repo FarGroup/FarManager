@@ -10,10 +10,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.19 10.12.2001 $ */
+/* Revision: 1.20 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    + TempMacroNumber - количество структур во временной очереди
   10.12.2001 SVS
     + IsDsableOutput() - проверка на "отображаемость"
   14.09.2001 SVS
@@ -112,6 +114,7 @@ class KeyMacro
     DWORD *RecBuffer;
 
     struct MacroRecord *TempMacro; // временный буфер для 1 макро
+    int TempMacroNumber;
 
     class LockScreen *LockScr;
 
@@ -120,7 +123,7 @@ class KeyMacro
     DWORD AssignMacroKey();
     int GetMacroSettings(int Key,DWORD &Flags);
     void InitVars();
-    void ReleaseTempBuffer(); // удалить временный буфер
+    void ReleaseTempBuffer(BOOL All=FALSE); // удалить временный буфер
 
     // из строкового представления макроса сделать MacroRecord
     int ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr);
