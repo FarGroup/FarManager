@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.161 19.11.2004 $ */
+/* Revision: 1.162 01.12.2004 $ */
 
 /*
 Modify:
+  01.12.2004 WARP
+    - ”стран€ем глюки с показом окна поиска пр€мо поверх редактора (сам сотворил).
+    ! ”бираем лишнее перемергивание листа по окончании поиска (убираем DM_ENABLEREDRAW)
   19.11.2004 WARP
     ! "Ќормальна€" реализаци€ UpdateRequired дл€ VMenu,
       более интеллектальное обновление листа в поске.
@@ -3064,7 +3067,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         {
           while (ListBox->GetCallCount())
             Sleep(10);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+  //        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
           xstrncpy(DataStr,MSG(MFindCancel),sizeof(DataStr)-1);
           ItemData.PtrData=DataStr;
@@ -3080,7 +3083,7 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
           ItemData.PtrLength=strlen(DataStr);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
 
-          Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+   //       Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
           SetFarTitle(FindMessage);
           StopSearch=TRUE;
         }
@@ -3103,8 +3106,8 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
           Sleep(10);
 
         if ( ListBox->UpdateRequired () )
-            ListBox->Show ();
-//        Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
+//            ListBox->Show ();
+           Dialog::SendDlgMessage(hDlg,DM_SHOWITEM,1,1);
       }
     }
     Mutex.Unlock();
