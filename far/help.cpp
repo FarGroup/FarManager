@@ -14,19 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#define STRICT
-
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#include <windows.h>
-#endif
-#ifndef __STRING_H
-#include <string.h>
-#endif
-#if !defined(__NEW_H)
-#pragma option -p-
-#include <new.h>
-#pragma option -p.
-#endif
+#include "headers.hpp"
+#pragma hdrstop
 
 #ifndef __FARCONST_HPP__
 #include "farconst.hpp"
@@ -445,7 +434,7 @@ void Help::OutString(char *Str)
         RealCurX=X1+CurX+1;
         RealCurY=Y1+CurY+FixSize+1;
         if (WhereY()==RealCurY && RealCurX>=WhereX() &&
-				RealCurX<WhereX()+(Str-StartTopic)-1)
+                RealCurX<WhereX()+(Str-StartTopic)-1)
         {
           SetColor(COL_HELPSELECTEDTOPIC);
           if (Str[1]=='@')

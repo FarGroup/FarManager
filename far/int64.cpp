@@ -14,9 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#include <windows.h>
-#endif
+#include "headers.hpp"
+#pragma hdrstop
 
 #ifndef __INT64_HPP__
 #include "int64.hpp"

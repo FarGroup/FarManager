@@ -14,11 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#define STRICT
-
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#include <windows.h>
-#endif
+#include "headers.hpp"
+#pragma hdrstop
 
 #ifndef __FARCONST_HPP__
 #include "farconst.hpp"

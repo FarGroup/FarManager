@@ -14,37 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#define STRICT
-
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#include <windows.h>
-#endif
-#ifndef __STRING_H
-#include <string.h>
-#endif
-#ifndef __STAT_H
-#include <sys\stat.h>	// S_IREAD...
-#endif
-#ifndef __DOS_H
-#include <dos.h>	// FA_*
-#endif
-#ifndef __DIR_H
-#include <dir.h>	// chdir
-#endif
-#ifndef __IO_H
-#include <io.h>		// _open_osfhandle
-#endif
-#ifndef __FCNTL_H
-#include <fcntl.h>	// O_*
-#endif
-#ifndef __PROCESS_H
-#include <process.h>
-#endif
-#if !defined(__NEW_H)
-#pragma option -p-
-#include <new.h>
-#pragma option -p.
-#endif
+#include "headers.hpp"
+#pragma hdrstop
 
 
 #ifndef __FARCONST_HPP__

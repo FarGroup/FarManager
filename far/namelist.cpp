@@ -14,19 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#define STRICT
-
-#ifndef __ALLOC_H
-#include <alloc.h>
-#endif
-#ifndef __STRING_H
-#include <string.h>
-#endif
-#if !defined(__NEW_H)
-#pragma option -p-
-#include <new.h>
-#pragma option -p.
-#endif
+#include "headers.hpp"
+#pragma hdrstop
 
 #ifndef __FARCONST_HPP__
 #include "farconst.hpp"

@@ -15,22 +15,8 @@ Modify:
 */
 
 
-#define STRICT
-
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#include <windows.h>
-#endif
-#ifndef __DOS_H
-#include <dos.h>	// FA_*
-#endif
-#ifndef __DIR_H
-#include <dir.h>	// chdir
-#endif
-#if !defined(__NEW_H)
-#pragma option -p-
-#include <new.h>
-#pragma option -p.
-#endif
+#include "headers.hpp"
+#pragma hdrstop
 
 
 #ifndef __FARCONST_HPP__

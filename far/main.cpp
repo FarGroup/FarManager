@@ -14,25 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#define STRICT
-
-#if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
-#include <windows.h>
-#endif
-#ifndef __STDIO_H
-#include <stdio.h>
-#endif
-#ifndef __TIME_H
-#include <time.h>
-#endif
-#ifndef __PROCESS_H
-#include <process.h>
-#endif
-#ifndef __NEW_H
-#pragma option -p-
-#include <new.h>
-#pragma option -p.
-#endif
+#include "headers.hpp"
+#pragma hdrstop
 
 #ifndef __FARCONST_HPP__
 #include "farconst.hpp"
