@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.85 16.08.2001 $ */
+/* Revision: 1.86 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 OT
+	- не учел в прошлом исправлении такой клавиши как Enter :(
   16.08.2001 OT
     - исправление наведенного предыдущим патчем бага, связанного с
       пропаданием панели в Network browser.
@@ -1759,7 +1761,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       }
       else
         res=ChangeDir(CurPtr->ShortName);
-      if(res)
+//      if(res)
         Show();
       /* SVS $ */
     }
