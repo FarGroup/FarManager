@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.04 01.08.2000 $ */
+/* Revision: 1.05 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+   + Функция GetItemPtr - получить указатель на нужный Item.
   01.08.2000 SVS
    + В ShowMenu добавлен параметр, сообщающий - вызвали ли функцию
      самостоятельно или из другой функции ;-)
@@ -156,6 +158,12 @@ class VMenu:public Modal
     int  GetSelectPos();
     int  GetSelection(int Position=-1);
     void SetSelection(int Selection,int Position=-1);
+
+    /* $ 20.09.2000 SVS
+      + Функция GetItemPtr - получить указатель на нужный Item.
+    */
+    BOOL GetItemPtr(struct MenuItem *Item,int Position=-1);
+    /* SVS $*/
 
     /* $ 01.08.2000 SVS
        функция обработки меню (по умолчанию)

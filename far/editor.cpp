@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.34 20.09.2000 $ */
+/* Revision: 1.35 20.09.2000 $ */
 
 /*
 Modify:
+   20.09.2000 SVS
+    - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
    20.09.2000 SVS
     ! В Replace диалоге для строки replace удален флаг DIF_USELASTHISTORY
     ! Если при замене жмакнули All, то при повторном Shift-F7 снова
@@ -799,7 +801,11 @@ void Editor::ShowStatus()
   /* tran 11.07.2000 $ */
 
   if (*PluginTitle || *Title)
-    TruncStr(TruncFileName,ObjWidth);
+    /* $ 20.09.2000 SVS
+      - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
+    */
+    TruncStr(TruncFileName,(ObjWidth<NameLength?ObjWidth:NameLength));
+    /* SVS $ */
   else
     TruncStr(TruncFileName,NameLength);
   sprintf(LineStr,"%d/%d",NumLine+1,NumLastLine);

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.29 19.09.2000 $ */
+/* Revision: 1.30 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+   ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   19.09.2000 SVS
    + функция FolderPresent - "сужествует ли каталог"
   18.09.2000 SVS
@@ -532,7 +534,6 @@ void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD f
 char* WINAPI FarMkTemp(char *Dest, char *Template);
 /* SVS $*/
 
-BOOL WINAPI FolderPresent(char *Name);
 
 #ifdef __cplusplus
 };

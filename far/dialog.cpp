@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.42 18.09.2000 $ */
+/* Revision: 1.43 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+   ! Enter в строках ввода (кроме DIF_EDITOR) завершает диалог.
   18.09.2000 SVS
    + DIF_READONLY - флаг для строк редактирования
       (пока! для строк редактирования).
@@ -1428,7 +1430,7 @@ int Dialog::ProcessKey(int Key)
           ShowDialog();
         return(TRUE);
       }
-      if (Type==DI_BUTTON)
+      else if (Type==DI_BUTTON)
       {
         /* $ 21.08.2000 SVS
            Нет срабатывания, если давим на кнопку
@@ -1456,7 +1458,7 @@ int Dialog::ProcessKey(int Key)
         }
         /* SVS $ */
       }
-      else if(CheckDialogMode(DMODE_OLDSTYLE))
+      else if(IsEdit(Type) || CheckDialogMode(DMODE_OLDSTYLE))
       {
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton)

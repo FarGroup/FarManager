@@ -8,10 +8,12 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.09 29.08.2000 $ */
+/* Revision: 1.10 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+   + Функция GetItemPtr - получить указатель на нужный Item.
   29.08.2000 tran 1.09
    - BUG с не записью \0 в конец строки в GetUserData
   01.08.2000 SVS
@@ -889,6 +891,22 @@ void VMenu::SetSelection(int Selection,int Position)
   Item[Pos].Checked=Selection;
 }
 
+/* $ 20.09.2000 SVS
+  + Функция GetItemPtr - получить указатель на нужный Item.
+*/
+BOOL VMenu::GetItemPtr(struct MenuItem *Item1,int Position)
+{
+  if (ItemCount==0)
+    return FALSE;
+  while (CallCount>0)
+    Sleep(10);
+  int Pos=(Position==-1) ? SelectPos : Position;
+  if (Pos>=ItemCount)
+    Pos=ItemCount-1;
+  Item1=&Item[Pos];
+  return TRUE;
+}
+/* SVS $*/
 
 int VMenu::GetSelectPos()
 {

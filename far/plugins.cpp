@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.27 19.09.2000 $ */
+/* Revision: 1.28 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   19.09.2000 SVS
     + функция FolderPresent - "сужествует ли каталог"
   18.09.2000 SVS
@@ -536,11 +538,6 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
       Функция получения временного файла с полным путем.
     */
     StandardFunctions.MkTemp=FarMkTemp;
-    /* SVS $ */
-    /* $ 19.09.2000 SVS
-      + функция FolderPresent - "сужествует ли каталог"
-    */
-    StandardFunctions.FolderPresent=FolderPresent;
     /* SVS $ */
 
 

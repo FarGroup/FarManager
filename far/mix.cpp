@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.29 20.09.2000 $ */
+/* Revision: 1.30 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+   ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   20.09.2000 SVS
     ! Уточнения в функции Xlat()
   19.09.2000 SVS
@@ -1414,19 +1416,6 @@ int IsFolderNotEmpty(char *Name)
       return(TRUE);
   }
   return(FALSE);
-}
-/* SVS $ */
-
-/* $ 19.09.2000 SVS
-   + функция FolderPresent - "сужествует ли каталог"
-*/
-BOOL WINAPI FolderPresent(char *Name)
-{
-  DWORD ret;
-  ret=GetFileAttributes(Name);
-  if(ret!=0xFFFFFFFF && ret==FILE_ATTRIBUTE_DIRECTORY)
-    return TRUE;
-  return FALSE;
 }
 /* SVS $ */
 

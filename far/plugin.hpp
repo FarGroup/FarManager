@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.53 19.09.2000 $ */
+/* Revision: 1.54 20.09.2000 $ */
 
 /*
 Modify:
+  20.09.2000 SVS
+    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   19.09.2000 SVS
     + выравнивание на 2 байта
     + функция FSF.FolderPresent - "сужествует ли каталог"
@@ -1043,7 +1045,6 @@ typedef char* (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct Cha
 typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
 typedef void (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
 typedef char* (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
-typedef BOOL (WINAPI *FARSTDFOLDERPRESENT)(char *Name);
 
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
@@ -1136,7 +1137,6 @@ typedef struct FarStandardFunctions
   */
   FARSTDMKTEMP               MkTemp;
   /* SVS $ */
-  FARSTDFOLDERPRESENT        FolderPresent;
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
 
