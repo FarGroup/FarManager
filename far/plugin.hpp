@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.61 20.10.2000 $ */
+/* Revision: 1.62 20.10.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  20.10.2000 SVS
+    ! ProcessName: Flags должен быть DWORD, а не int
   20.10.2000 SVS
     + DM_GETFOCUS - получить ID элемента имеющего фокус ввода
   09.10.2000 IS
@@ -911,7 +913,7 @@ typedef void    (WINAPI *FARSTDLOCALSTRUPR)(char *s1);
 typedef void    (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
 typedef int     (WINAPI *FARSTDLOCALSTRICMP)(char *s1,char *s2);
 typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
-typedef int     (WINAPI *FARSTDPROCESSNAME)(char *param1, char *param2, int flags);
+typedef int     (WINAPI *FARSTDPROCESSNAME)(char *param1, char *param2, DWORD flags);
 
 enum XLATMODE{
   XLAT_SWITCHKEYBLAYOUT = 0x0000001UL,

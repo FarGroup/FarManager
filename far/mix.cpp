@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.35 20.10.2000 $ */
+/* Revision: 1.36 20.10.2000 $ */
 
 /*
 Modify:
+  20.10.2000 SVS
+    ! ProcessName: Flags должен быть DWORD, а не int
   20.10.2000 SVS
     + SysLog
   16.10.2000 tran
@@ -745,7 +747,7 @@ int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength)
     + Новая функция для обработки имени файла
 */
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-int WINAPI ProcessName(char *param1, char *param2, int flags)
+int WINAPI ProcessName(char *param1, char *param2, DWORD flags)
 {
  int skippath=flags&PN_SKIPPATH;
 
