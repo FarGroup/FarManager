@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.27 25.06.2004 $ */
+/* Revision: 1.28 16.09.2004 $ */
 
 //#define USE_TAR_H
 
@@ -328,7 +328,20 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       if (LongName != NULL)
         EndPos = AdjustTARFileName (LongName);
       else
-        EndPos = AdjustTARFileName (TAR_hdr.header.name);
+      {
+        char namebuf[sizeof(TAR_hdr.header.prefix) + 1 + sizeof(TAR_hdr.header.name) + 1];
+        char *np = namebuf;
+        if(TAR_hdr.header.prefix[0])
+        {
+          memcpy (np, TAR_hdr.header.prefix, sizeof(TAR_hdr.header.prefix));
+          np[sizeof (TAR_hdr.header.prefix)] = '\0';
+          np += lstrlen(np);
+          *np++ = '/';
+        }
+        memcpy (np, TAR_hdr.header.name, sizeof(TAR_hdr.header.name));
+        np[sizeof(TAR_hdr.header.name)] = '\0';
+        EndPos = AdjustTARFileName (namebuf);
+      }
       strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
       Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
       Item->FindData.dwFileAttributes=((DWORD)GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
