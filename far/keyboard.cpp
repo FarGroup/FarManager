@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.11 01.02.2001 $ */
+/* Revision: 1.12 05.02.2001 $ */
 
 /*
 Modify:
+  05.02.2001 SVS
+    - Снова про клавиши... :-( Все переводилось в Upper.
   01.02.2001 SVS
     - бага - неверно конвертилось имя клавиши :-(
   01.02.2001 SVS
@@ -713,10 +715,12 @@ int WINAPI KeyNameToKey(char *Name)
        if (Chr > 0 && Chr < 256)
        {
 //         if (Key&(0xFF000000-KEY_SHIFT))
-           Key|=LocalUpper(Chr);
+//           Chr=LocalUpper(Chr);
+         Key|=Chr;
        }
      }
    }
+//SysLog("Key=0x%08X (%c)",Key,(Key?Key:' '));
 
    return (!Key)? -1: Key;
 }
