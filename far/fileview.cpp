@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.16 03.01.2001 $ */
+/* Revision: 1.17 22.03.2001 $ */
 
 /*
 Modify:
+  22.03.2001 SVS
+    - "Залипание" кейбара после исполнения макроса
   03.01.2001 SVS
     ! для KEY_ALTSHIFTF9 забыли сделать Show()
   19.12.2000 SVS
@@ -353,7 +355,19 @@ int FileViewer::ProcessKey(int Key)
     /* SVS $ */
 
     default:
-      return(View.ProcessKey(Key));
+//      Этот кусок - на будущее (по аналогии с редактором :-)
+//      if (CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
+      {
+        /* $ 22.03.2001 SVS
+           Это помогло от залипания :-)
+        */
+        if (!CtrlObject->Macro.IsExecuting())
+          if ( Opt.ShowKeyBarViewer )
+              ViewKeyBar.Show();
+        /* SVS $ */
+        return(View.ProcessKey(Key));
+      }
+      return(TRUE);
   }
 }
 

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.77 05.03.2001 $ */
+/* Revision: 1.78 22.03.2001 $ */
 
 /*
 Modify:
+  22.03.2001 SVS
+   - немного подправлен механизЪм DN_EDITCHANGE
   05.03.2001 SVS
    - Бага в хоткеях :-(
   21.02.2001 IS
@@ -2116,6 +2118,7 @@ int Dialog::ProcessKey(int Key)
         CurEditLine->GetString(PStr,sizeof(MaxLen));
         SelectFromComboBox(CurEditLine,
                       Item[FocusPos].ListItems,PStr,MaxLen);
+        Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
         if(Item[FocusPos].Flags&DIF_VAREDIT)
           free(PStr);
       }
@@ -2305,6 +2308,7 @@ int Dialog::ProcessKey(int Key)
            Opt.XLat.XLatAltDialogKey && Key == Opt.XLat.XLatAltDialogKey)
         {
           edt->Xlat();
+          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
           return TRUE;
         }
         /* SVS $ */
@@ -2378,19 +2382,13 @@ int Dialog::ProcessKey(int Key)
                  Небольшой глючек с AutoComplete
               */
               edt->SetCurPos(CurPos); // SelEnd
-              /* SVS $*/
-              /* $ 28.07.2000 SVS
-                При изменении состояния каждого элемента посылаем сообщение
-                посредством функции SendDlgMessage - в ней делается все!
-              */
-              Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
-              /* SVS $ */
               Redraw();
             }
             if(Item[FocusPos].Flags & DIF_VAREDIT)
               free(PStr);
           }
           /* SVS 03.12.2000 $ */
+          Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
           /* SVS $ */
           return(TRUE);
         }
@@ -2800,6 +2798,10 @@ void Dialog::ConvertItem(int FromPlugin,
   if(!Item || !Data)
     return;
 
+  char *PtrData;
+  int PtrLength;
+  Edit *EditPtr;
+
   if(FromPlugin == CVTITEM_TOPLUGIN)
     for (I=0; I < Count; I++, ++Item, ++Data)
     {
@@ -2812,6 +2814,23 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->Selected=Data->Selected;
       Item->Flags=Data->Flags;
       Item->DefaultButton=Data->DefaultButton;
+      if(Dialog::IsEdit(Data->Type))
+      {
+        // Заполним значения
+        if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
+           (Data->Flags&DIF_VAREDIT))
+        {
+          PtrData  =(char *)Data->Ptr.PtrData;
+          PtrLength=Data->Ptr.PtrLength;
+        }
+        else
+        {
+          PtrData  =Data->Data;
+          PtrLength=sizeof(Data->Data);
+        }
+        if((EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
+          EditPtr->GetString(PtrData,PtrLength);
+      }
       {
           TRY{
             memmove(Item->Data,Data->Data,sizeof(Item->Data));
@@ -2843,6 +2862,25 @@ void Dialog::ConvertItem(int FromPlugin,
            ;
          }
       }
+      /*
+      if(Dialog::IsEdit(Data->Type))
+      {
+        // обновим
+        if((Data->Type==DI_EDIT || Data->Type==DI_COMBOBOX) &&
+           (Data->Flags&DIF_VAREDIT))
+        {
+          PtrData  =(char *)Data->Ptr.PtrData;
+          PtrLength=Data->Ptr.PtrLength;
+        }
+        else
+        {
+          PtrData  =Data->Data;
+          PtrLength=sizeof(Data->Data);
+        }
+        if((EditPtr=(Edit *)(Data->ObjPtr)) != NULL)
+          EditPtr->SetString(PtrData);
+      }
+      */
     }
 }
 /* SVS $ */
@@ -3810,11 +3848,12 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return Dlg->DlgProc(hDlg,Msg,Param1,(long)&CurItem->ListItems);
 
     case DN_EDITCHANGE:
-      // преобразуем данные для!
+    {
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1);
-      I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem);
-      Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
+      if((I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem)) == TRUE)
+        Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1);
       return I;
+    }
 
     case DN_BTNCLICK:
       return Dlg->DlgProc(hDlg,Msg,Param1,Param2);

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.25 18.03.2001 $ */
+/* Revision: 1.26 22.03.2001 $ */
 
 /*
 Modify:
+  22.03.2001 SVS
+    - "Залипание" кейбара после исполнения макроса
   18.03.2001 IS
     ! Поменял местами проверку при открытии на "только для чтения" и
       "уже открыт", тем самым избавились от ситуации, когда задавался вопрос
@@ -499,7 +501,15 @@ int FileEditor::ProcessKey(int Key)
 
     default:
       if (CtrlObject->Macro.IsExecuting() || !FEdit.ProcessEditorInput(&ReadRec))
+      {
+        /* $ 22.03.2001 SVS
+           Это помогло от залипания :-)
+        */
+        if (FullScreen && !CtrlObject->Macro.IsExecuting())
+          EditKeyBar.Show();
+        /* SVS $ */
         return(FEdit.ProcessKey(Key));
+      }
       return(TRUE);
   }
 }

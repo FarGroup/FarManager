@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.14 16.03.2001 $ */
+/* Revision: 1.15 21.03.2001 $ */
 
 /*
 Modify:
+  21.03.2001 VVM
+    ! уточнение поведения символа '$'
   16.03.2001 VVM
     ! Если топик не найден - остаемся, где были
     - В функции ReadPluginsHelp инициализировать CtrlColorChar
@@ -234,6 +236,8 @@ void Help::ReadHelp(char *Mask)
   TopStr=0;
   TopicFound=0;
   RepeatLastLine=FALSE;
+  int NearTopicFound=0;
+  char PrevSymbol=0;
   while (TRUE)
   {
     if (!RepeatLastLine && fgets(ReadStr,sizeof(ReadStr),HelpFile)==NULL)
@@ -265,11 +269,13 @@ void Help::ReadHelp(char *Mask)
         if (strcmp(ReadStr,"@+")==0)
         {
           Formatting=TRUE;
+          PrevSymbol=0;
           continue;
         }
         if (strcmp(ReadStr,"@-")==0)
         {
           Formatting=FALSE;
+          PrevSymbol=0;
           continue;
         }
         if (*SplitLine)
@@ -278,18 +284,26 @@ void Help::ReadHelp(char *Mask)
       }
       else
         if (LocalStricmp(ReadStr+1,HelpTopic)==0)
+        {
           TopicFound=1;
+          NearTopicFound=1;
+        }
     }
     else
       if (TopicFound)
       {
-        if (*ReadStr=='$')
+        /* $<text> в начале строки, определение темы
+           Определяет не прокручиваемую область помощи
+           Если идут несколько подряд сразу после строки обозначения темы...
+        */
+        if (*ReadStr=='$' && NearTopicFound && (PrevSymbol == '$' || PrevSymbol == '@'))
         {
           AddLine(ReadStr+1);
           FixCount++;
         }
         else
         {
+          NearTopicFound=0;
           if (*ReadStr==0 || !Formatting)
             if (*SplitLine)
               if (StringLen(SplitLine)<MaxLength)
@@ -369,6 +383,7 @@ void Help::ReadHelp(char *Mask)
           }
         }
       }
+    PrevSymbol=*ReadStr;
   }
 
   fclose(HelpFile);

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.27 11.03.2001 $ */
+/* Revision: 1.28 21.03.2001 $ */
 
 /*
 Modify:
+  21.03.2001 SVS
+    + Обработка особых клавиш: F1 & Enter
   11.03.2001 SVS
     ! Название MFLAGS_RUNAFTERSTART заменено на MFLAGS_RUNAFTERFARSTART
     + Функция MkTextSequence - формирование строкового представления Sequence
@@ -755,12 +757,18 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
   int Index, I;
 
   if(Msg == DN_INITDIALOG)
+  {
     KMParam=(struct DlgParam *)Param2;
+    LastKey=0;
+  }
   else if(Msg == DM_KEY)
   {
-    // Esc & Enter - не обрабатываем
-    if(Param2 == KEY_ESC || Param2 == KEY_ENTER)
+    // <Обработка особых клавиш: F1 & Enter>
+    // Esc & (Enter и предыдущий Enter) - не обрабатываем
+    if(Param2 == KEY_ESC ||
+       Param2 == KEY_ENTER && LastKey == KEY_ENTER)
       return FALSE;
+
     // F1 - особый случай - нужно жать 2 раза
     // первый раз будет выведен хелп,
     // а второй раз - второй раз уже назначение
@@ -769,6 +777,12 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       LastKey=KEY_F1;
       return FALSE;
     }
+
+    // Было что-то уже нажато и Enter`ом подтверждаем
+    if(Param2 == KEY_ENTER && LastKey && LastKey != KEY_ENTER)
+      return FALSE;
+    // </Обработка особых клавиш: F1 & Enter>
+
     KeyMacro *MacroDlg=KMParam->Handle;
 
     KMParam->Key=(DWORD)Param2;
@@ -843,9 +857,10 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
       KeyText[0]=0;
     }
     Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)KeyText);
-    LastKey=Param2;
-    if(Param2 == KEY_F1 && LastKey==KEY_F1)
-      LastKey=0;
+//    if(Param2 == KEY_F1 && LastKey == KEY_F1)
+//      LastKey=-1;
+//    else
+      LastKey=Param2;
     return TRUE;
   }
   else if(Msg == DN_CTLCOLORDLGITEM) // сбросим Unchanged
