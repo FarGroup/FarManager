@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.142 07.04.2002 $ */
+/* Revision: 1.143 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 IS
+    - После моего "исправления" от 04.04.2002 в темпе оставался мусор, если
+      файл с панели плагина открывали во внешнем вьюере.
+    ! внедрение const
   07.04.2002 KM
     ! Рисуем заголовок консоли фара только тогда, когда
       не идёт процесс перерисовки всех фреймов. В данном
@@ -1454,6 +1458,13 @@ int FileList::ProcessKey(int Key)
           ConvertNameToShort(FileName,ShortFileName);
         }
 
+        /* $ 08.04.2002 IS
+           Флаг, говорящий о том, что нужно удалить файл, который открывали во
+           вьюере. Если файл открыли во внутреннем вьюере, то DeleteViewedFile
+           должно быт равно false, т.к. внутренний вьюер сам все удалит.
+        */
+        bool DeleteViewedFile=PluginMode && !Edit;
+        /* IS $ */
         if (*FileName)
           if (Edit)
           {
@@ -1573,22 +1584,31 @@ int FileList::ProcessKey(int Key)
                   ViewList.SetCurName(FileName);
                 }
                 FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
+                /* $ 08.04.2002 IS
+                   Сбросим DeleteViewedFile, т.к. внутренний вьюер сам все
+                   удалит
+                */
                 if (PluginMode)
+                {
                   ShellViewer->SetTempViewName(FileName);
+                  DeleteViewedFile=false;
+                }
+                /* IS $ */
                 Modaling=FALSE;
               }
           }
-        /* $ 04.04.2002 IS
-             для файла, который открывался во вьюере, ничего не предпринимаем,
-             т.к. вьюер об этом позаботится сам
+        /* $ 08.04.2002 IS
+             для файла, который открывался во внутреннем вьюере, ничего не
+             предпринимаем, т.к. вьюер об этом позаботится сам
         */
         if (PluginMode)
         {
           if (UploadFailed)
             Message(MSG_WARNING,1,MSG(MError),MSG(MCannotSaveFile),
                     MSG(MTextSavedToTemp),FileName,MSG(MOk));
-          else if(Edit) // удаляем файл только для случая окрытия его в
-                        // редакторе, т.к. вьюер удаляет файл сам
+          else if(Edit || DeleteViewedFile)
+            // удаляем файл только для случая окрытия его в редакторе или во
+            // внешнем вьюере, т.к. внутренний вьюер удаляет файл сам
             DeleteFileWithFolder(FileName);
         }
         /* IS $ */
@@ -2702,7 +2722,7 @@ void FileList::SetSortMode(int SortMode)
 }
 
 
-int FileList::GoToFile(char *Name)
+int FileList::GoToFile(const char *Name)
 {
   long Pos=FindFile(Name);
   if (Pos!=-1)
@@ -2715,7 +2735,7 @@ int FileList::GoToFile(char *Name)
 }
 
 
-int FileList::FindFile(char *Name)
+int FileList::FindFile(const char *Name)
 {
   long I;
   struct FileListItem *CurPtr;

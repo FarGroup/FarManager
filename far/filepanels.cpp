@@ -5,12 +5,18 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.40 26.03.2002 $ */
+/* Revision: 1.41 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 IS
+    + ѕри смене диска по Alt-(F1|F2) установим принудительно текущий каталог
+      на активной панели, т.к. система не знает ничего о том, что у ‘ара две
+      панели, и текущим дл€ системы после смены диска может быть каталог и на
+      пассивной панели.
+    ! ѕараметр у GoToFile - const
   26.03.2002 VVM
-   GoToFile() - ≈сли пассивна€ панель - плагинова€, то не прыгаем на нее
+      GoToFile() - ≈сли пассивна€ панель - плагинова€, то не прыгаем на нее
   22.03.2002 SVS
     - strcpy - Fuck!
   19.03.2002 OT
@@ -576,12 +582,23 @@ int  FilePanels::ProcessKey(int Key)
       }
       FrameManager->RefreshFrame();
       break;
+    /* $ 08.04.2002 IS
+       ѕри смене диска установим принудительно текущий каталог на активной
+       панели, т.к. система не знает ничего о том, что у ‘ара две панели, и
+       текущим дл€ системы после смены диска может быть каталог и на пассивной
+       панели
+    */
     case KEY_ALTF1:
       LeftPanel->ChangeDisk();
+      if(ActivePanel!=LeftPanel)
+        ActivePanel->SetCurPath();
       break;
     case KEY_ALTF2:
       RightPanel->ChangeDisk();
+      if(ActivePanel!=RightPanel)
+        ActivePanel->SetCurPath();
       break;
+    /* IS $ */
     case KEY_ALTF7:
       {
         FindFiles FindFiles;
@@ -981,7 +998,7 @@ void FilePanels::Refresh()
    Ќе портим переданное им€ файла... */
 /* $ 26.03.2002 VVM
    ≈сли пассивна€ панель - плагинова€, то не прыгаем на нее */
-void FilePanels::GoToFile (char *FileName)
+void FilePanels::GoToFile (const char *FileName)
 {
   if(strchr(FileName,'\\') || strchr(FileName,'/'))
   {
@@ -1026,7 +1043,7 @@ void FilePanels::GoToFile (char *FileName)
 
 /* VVM $ */
 
-/* $ 16.01.2002	OT
+/* $ 16.01.2002 OT
    переопределенный виртуальный метод от Frame
 */
 int  FilePanels::GetMacroMode()

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.26 05.04.2002 $ */
+/* Revision: 1.27 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 IS
+    ! внедрение const
   05.04.2002 SVS
     ! CheckShortcutFolder стала самостоятельной и уехала в mix.cpp
   21.03.2002 SVS
@@ -232,7 +234,7 @@ class FileList:public Panel
     int GetCurBaseName(char *Name,char *ShortName);
     void PushPlugin(HANDLE hPlugin,char *HostFile);
     int PopPlugin(int EnableRestoreViewMode);
-    int FindFile(char *Name);
+    int FindFile(const char *Name);
     void CopyNames(int FillPathName=FALSE,int UNC=FALSE);
     void SelectSortMode();
     void ApplyCommand();
@@ -303,7 +305,7 @@ class FileList:public Panel
     int GetFileName(char *Name,int Pos,int &FileAttr);
     int GetCurrentPos();
     int FindPartName(char *Name,int Next);
-    int GoToFile(char *Name);
+    int GoToFile(const char *Name);
     int IsSelected(char *Name);
     void ProcessHostFile();
     void UpdateViewPanel();

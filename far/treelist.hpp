@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.11 12.02.2002 $ */
+/* Revision: 1.12 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 IS
+    ! внедрение const
   12.02.2002 SVS
     + Scroll()
   24.12.2001 VVM
@@ -103,7 +105,7 @@ class TreeList: public Panel
     void UpdateViewPanel();
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     int FindPartName(char *Name,int Next);
-    int GoToFile(char *Name);
+    int GoToFile(const char *Name);
     void ProcessEnter();
     int GetExitCode() {return ExitCode;}
     static void AddTreeName(char *Name);

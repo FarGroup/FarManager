@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.15 19.03.2002 $ */
+/* Revision: 1.16 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 IS
+    ! Немного const
   19.03.2002 DJ
     + UpdateIfRequired(), UPDATE_IGNORE_VISIBLE
   14.02.2002 VVM
@@ -170,7 +172,7 @@ class Panel:public ScreenObject
     /* DJ $ */
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(char *Name,int Next) {return(FALSE);}
-    virtual int GoToFile(char *Name) {return(TRUE);};
+    virtual int GoToFile(const char *Name) {return(TRUE);};
     virtual int IsSelected(char *Name) {return(FALSE);};
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима

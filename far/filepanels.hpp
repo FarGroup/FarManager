@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.12 16.01.2002 $ */
+/* Revision: 1.13 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 IS
+    ! Немного const
   16.01.2002 OT
     Испраление поведения макросов в инфо-, квик- и три-панелей
   28.12.2001 DJ
@@ -111,13 +113,13 @@ class FilePanels:public Frame
     /* $ 28.12.2001 DJ
        единый метод для обработки Ctrl-F10 из вьюера и редактора
     */
-    void GoToFile (char *FileName);
+    void GoToFile (const char *FileName);
     /* DJ $ */
 
-    /* $ 16.01.2002	OT
+    /* $ 16.01.2002 OT
        переопределенный виртуальный метод от Frame
     */
-	int GetMacroMode();
+  int GetMacroMode();
     /* OT $ */
 };
 

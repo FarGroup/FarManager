@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.38 26.03.2002 $ */
+/* Revision: 1.39 08.04.2002 $ */
 
 /*
 Modify:
+  08.04.2002 IS
+    ! внедрение const
   26.03.2002 KM
     - Падало в SetTitle на конструкции:
       ===
@@ -1464,7 +1466,7 @@ void TreeList::UpdateViewPanel()
 }
 
 
-int TreeList::GoToFile(char *Name)
+int TreeList::GoToFile(const char *Name)
 {
   for (long I=0;I<TreeCount;I++)
     if (LocalStricmp(Name,ListData[I].Name)==0)
