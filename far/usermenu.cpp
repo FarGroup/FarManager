@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.54 05.03.2002 $ */
+/* Revision: 1.55 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   05.03.2002 DJ
     ! передадим размер буфера в SubstFileName()
   01.03.2002 SVS
@@ -172,6 +174,7 @@ Modify:
 #include "savefpos.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
+#include "constitle.hpp"
 
 static int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title=NULL);
 static int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Name,char *ShortName);
@@ -746,11 +749,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
                 MenuNeedRefresh=TRUE;
                 fclose(MenuFile);
                 {
-                  char OldTitle[512];
-                  GetConsoleTitle(OldTitle,sizeof(OldTitle));
+                  ConsoleTitle *OldTitle=new ConsoleTitle;
                   FileEditor ShellEditor(MenuFileName,FALSE,FALSE,-1,-1,TRUE,NULL);
+                  delete OldTitle;
                   ShellEditor.SetDynamicallyBorn(false);
-                  SetConsoleTitle(OldTitle);
                   FrameManager->ExecuteModal();
                   if (!ShellEditor.IsFileChanged() || (MenuFile=fopen(MenuFileName,"rb"))==NULL)
                   {

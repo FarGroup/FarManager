@@ -7,10 +7,12 @@ class ShellCopy -  опирование файлов
 
 */
 
-/* Revision: 1.18 01.04.2002 $ */
+/* Revision: 1.19 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   01.04.2002 SVS
     !  осметика ;-)
   28.03.2002 SVS
@@ -93,6 +95,8 @@ enum COPY_FLAGS {
                                       // устанавливаетс€ дл€ последнего.
 };
 
+class ConsoleTitle;
+
 class ShellCopy
 {
   private:
@@ -142,7 +146,8 @@ class ShellCopy
     long TotalFiles;
     int SelectedFolderNameLength;
 
-    UserDefinedList DestList; // хранение списка целей
+    UserDefinedList DestList;  // хранение списка целей
+    ConsoleTitle *CopyTitle;   // заголовок
 
   private:
     COPY_CODES CopyFileTree(char *Dest);

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.47 27.03.2002 $ */
+/* Revision: 1.48 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   27.03.2002 SVS
     + Уточнение типа ошибки (MErrorFullPathNameLong) для больших размеров
       имен.
@@ -138,6 +140,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "filelist.hpp"
 #include "manager.hpp"
+#include "constitle.hpp"
 
 static void ShellDeleteMsg(char *Name);
 static int AskDeleteReadOnly(char *Name,DWORD Attr);
@@ -164,6 +167,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   int DizPresent;
   int Ret;
   BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
+  ConsoleTitle *DeleteTitle;
 
   int Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
 
@@ -327,9 +331,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   SrcPanel->GetDizName(DizName);
   DizPresent=(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF);
 
-  char OldTitle[512];
-  GetConsoleTitle(OldTitle,sizeof(OldTitle));
-  SetFarTitle(MSG(MDeletingTitle));
+  DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
 
   if((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,SelName)) == -1)
     goto done;
@@ -526,7 +528,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     if (DizPresent==(*DizName && GetFileAttributes(DizName)!=0xFFFFFFFF))
       SrcPanel->FlushDiz();
 
-  SetConsoleTitle(OldTitle);
+  delete DeleteTitle;
 
 done:
   SetPreRedrawFunc(NULL);

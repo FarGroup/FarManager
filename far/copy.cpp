@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.80 24.04.2002 $ */
+/* Revision: 1.81 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   24.04.2002 VVM
     - Ќа новеловском томе не работало перемещение папки.
       Ћогика: ≈сли не смогли переместить папку - попытаемс€ просто создать
@@ -267,6 +269,7 @@ Modify:
 #include "scantree.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
+#include "constitle.hpp"
 
 enum {COPY_BUFFER_SIZE  = 0x10000};
 
@@ -296,7 +299,7 @@ static int64 TotalCopySize,CurCopySize;
 static bool ShowTotalCopySize;
 static int StaticMove;
 static char TotalCopySizeText[32];
-
+static ConsoleTitle *StaticCopyTitle=NULL;
 static int64 StartCopySizeEx;
 static BOOL NT5, NT;
 
@@ -691,11 +694,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
   *DestDizPath=0;
   SrcPanel->SaveSelection();
 
-  char OldTitle[512];
-  GetConsoleTitle(OldTitle,sizeof(OldTitle));
-
-  ShowTitle(TRUE);
-  SetFarTitle(Move ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
+  CopyTitle = new ConsoleTitle(Move ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
+  StaticCopyTitle=CopyTitle;
 
   for (int I=0;CopyDlgValue[I]!=0;I++)
     if (CopyDlgValue[I]=='/')
@@ -804,7 +804,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
   // *** восстанавливаем/дизим/редравим
   // ***********************************************************************
 
-  SetConsoleTitle(OldTitle);
+  StaticCopyTitle=NULL;
+  delete CopyTitle;
+
 
   if(NeedDizUpdate) // при мультикопировании может быть обрыв, но нам все
   {                 // равно нужно апдейтить дизы!
@@ -3019,31 +3021,10 @@ bool ShellCopy::CalcTotalSize()
 
 void ShellCopy::ShowTitle(int FirstTime)
 {
-  static char PrevTitle[200];
-  char Title[200];
-  if (FirstTime)
-    *PrevTitle=0;
-  strcpy(Title,StaticMove ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
-
   if (ShowTotalCopySize && !FirstTime)
   {
     int64 CopySize=CurCopySize>>8,TotalSize=TotalCopySize>>8;
-    /* $ 03.07.2000 IS
-      ѕоказывать проценты спереди при копировании/переносе
-    было:
-    char Percent[50];
-    sprintf(Percent," {%d%%}",ToPercent(CopySize.LowPart,TotalSize.LowPart));
-    strcat(Title,Percent);
-    */
-    char Percent[200];
-    sprintf(Percent,"{%d%%} %s",ToPercent(CopySize.PLow(),TotalSize.PLow()),Title);
-    strcpy(Title,Percent);
-    /* IS $ */
-  }
-  if (strcmp(PrevTitle,Title)!=0)
-  {
-    SetFarTitle(Title);
-    strcpy(PrevTitle,Title);
+    StaticCopyTitle->Set("{%d%%} %s",ToPercent(CopySize.PLow(),TotalSize.PLow()),StaticMove ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
   }
 }
 

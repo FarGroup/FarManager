@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.122 09.04.2002 $ */
+/* Revision: 1.123 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   09.04.2002 SVS
     ! Уточнение для DriveLocalToRemoteName в целях юзания не только
       в меню выбора дисков.
@@ -380,6 +382,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "CFileMask.hpp"
+#include "constitle.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -694,8 +697,8 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   char FullDirName[NM],DriveRoot[NM];
 
   SetCursorType(FALSE,0);
-//  ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName));
-  if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName)){
+  if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
+  {
     return -1;
   }
   GetPathRoot(FullDirName,DriveRoot);
@@ -704,7 +707,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
      для . - покажем имя родительского каталога
   */
   char *ShowDirName = DirName;
-  if (!strcmp (DirName, "."))
+  if (DirName[0] == '.' && DirName[1] == 0)
   {
     char *p = strrchr (FullDirName, '\\');
     if (p)
@@ -712,15 +715,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   }
   /* DJ */
 
-  /* $ 21.03.2002 DJ
-     сформируем заголовок, запомним старый
-  */
-  char TitleStr [512], OldTitle [512];
-  strcpy (TitleStr, MSG(MScanningFolder));
-  strcat (TitleStr, " ");
-  strncat (TitleStr, ShowDirName, sizeof (TitleStr));
-  GetConsoleTitle (OldTitle, sizeof (OldTitle));
-  /* DJ $ */
+  ConsoleTitle OldTitle;
 
   if ((ClusterSize=GetClusterSize(DriveRoot))==0)
   {
@@ -755,40 +750,27 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
         case KEY_BREAK:
           GetInputRecord(&rec);
           SetPreRedrawFunc(NULL);
-          /* $ 21.03.2002 DJ
-             восстановим заголовок
-          */
-          SetConsoleTitle (OldTitle);
-          /* DJ $ */
           return(0);
         default:
           if (EnhBreak)
           {
             SetPreRedrawFunc(NULL);
-            /* $ 21.03.2002 DJ
-               восстановим заголовок
-            */
-            SetConsoleTitle (OldTitle);
-            /* DJ $ */
             return(-1);
           }
           GetInputRecord(&rec);
           break;
       }
     }
+
     if (!MsgOut && MsgWaitTime!=0xffffffff && clock()-StartTime > MsgWaitTime)
     {
-      /* $ 21.03.2002 DJ
-         покажем заголовок консоли
-      */
-      SetFarTitle (TitleStr);
-      /* DJ $ */
+      OldTitle.Set("%s %s",MSG(MScanningFolder), ShowDirName); // покажем заголовок консоли
       SetCursorType(FALSE,0);
       SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
       DrawGetDirInfoMsg(Title,ShowDirName);
-
       MsgOut=1;
     }
+
     if (FindData.dwFileAttributes & FA_DIREC)
       DirCount++;
     else
@@ -814,11 +796,6 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
     }
   }
   SetPreRedrawFunc(NULL);
-  /* $ 21.03.2002 DJ
-     восстановим заголовок
-  */
-  SetConsoleTitle (OldTitle);
-  /* DJ $ */
   return(1);
 }
 

@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.50 05.04.2002 $ */
+/* Revision: 1.51 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   05.04.2002 SVS
     - BugZ#424 - Error change file attributes
   26.03.2002 DJ
@@ -164,6 +166,7 @@ Modify:
 #include "panel.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
+#include "constitle.hpp"
 
 
 #define DM_SETATTR      (DM_USER+1)
@@ -853,8 +856,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     /* Multi *********************************************************** */
     else
     {
+      ConsoleTitle *SetAttrTitle= new ConsoleTitle(MSG(MSetAttrTitle));
       int SetAttr,ClearAttr,Cancel=0;
-      char OldConsoleTitle[NM];//,TmpFileName[72];
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
       SetAttr=0;  ClearAttr=0;
@@ -883,10 +886,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       }
       else if (!AttrDlg[9].Selected)
         ClearAttr|=FILE_ATTRIBUTE_ENCRYPTED;
-
-      // добавим заголовок окна
-      GetConsoleTitle(OldConsoleTitle,sizeof(OldConsoleTitle));
-      SetFarTitle(MSG(MSetAttrTitle));
 
       SrcPanel->GetSelName(NULL,FileAttr);
 
@@ -991,7 +990,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           }
         }
       } // END: while (SrcPanel->GetSelName(...))
-      SetConsoleTitle(OldConsoleTitle);
+      delete SetAttrTitle;
     }
     SetPreRedrawFunc(NULL);
   }

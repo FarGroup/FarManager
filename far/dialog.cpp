@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.234 23.04.2002 $ */
+/* Revision: 1.235 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#483 - DN_EDITCHANGE для DI_COMBOBOX с DIF_DROPDOWNLIST
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   23.04.2002 SVS
     - BugZ#471 -  Focus
   22.04.2002 KM
@@ -884,6 +887,7 @@ Modify:
 #include "scrbuf.hpp"
 #include "manager.hpp"
 #include "savescr.hpp"
+#include "constitle.hpp"
 
 static char HisLocked[16]="Locked", *PHisLocked=NULL;
 static char HisLine[16]  ="Line", *PHisLine=NULL;
@@ -968,7 +972,7 @@ Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
 //_SVS(SysLog("Dialog =%d",CtrlObject->Macro.GetMode()));
 
   // запоминаем предыдущий заголовок консоли
-  GetConsoleTitle(OldConsoleTitle,sizeof(OldConsoleTitle));
+  OldTitle=new ConsoleTitle;
 }
 
 
@@ -1003,7 +1007,7 @@ Dialog::~Dialog()
   /* DJ $ */
 
   PeekInputRecord(&rec);
-  SetConsoleTitle(OldConsoleTitle);
+  delete OldTitle;
   _DIALOG(CleverSysLog CL("Destroy Dialog"));
 }
 
@@ -6234,7 +6238,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             if(Len > 0 && did->PtrData)
             {
               memmove(did->PtrData,Ptr,Len);
-              did->PtrData[Len]=0;
+              did->PtrData[Len-1]=0;
             }
             break;
 
@@ -6574,6 +6578,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
            CurItem->Flags&=~DIF_DISABLE;
          else
            CurItem->Flags|=DIF_DISABLE;
+      }
+      if(Dlg->DialogMode.Check(DMODE_SHOW)) //???
+      {
+        Dlg->ShowDialog(Param1);
+        ScrBuf.Flush();
       }
       return (PrevFlags&DIF_DISABLE)?FALSE:TRUE;
     }

@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.56 22.04.2002 $ */
+/* Revision: 1.57 26.04.2002 $ */
 
 /*
 Modify:
+  26.04.2002 SVS
+    - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   22.04.2002 KM
     ! Удалена функция OnDestroy - потеряла актуальность.
   08.04.2002 SVS
@@ -314,6 +316,7 @@ struct DialogData
 };
 
 class Edit;
+class ConsoleTitle;
 
 class Dialog: public Frame
 {
@@ -350,7 +353,7 @@ class Dialog: public Frame
     struct DialogItem *Item;    // массив элементов диалога
     int ItemCount;              // количество элементов диалога
 
-    char OldConsoleTitle[512];  // предыдущий заголовок консоли
+    ConsoleTitle *OldTitle;     // предыдущий заголовок
     int DialogTooLong;          //
     int PrevMacroMode;          // предыдущий режим макро
 
