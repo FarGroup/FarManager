@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.16 28.02.2001 $ */
+/* Revision: 1.17 25.04.2001 $ */
 
 /*
 Modify:
+  25.04.2001 DJ
+    * новая константа EC_COMMAND_EXECUTED; не обновляем панели, если
+      меню было закрыто без выбора команды
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
@@ -136,7 +139,12 @@ void ProcessUserMenu(int EditMenu)
 /* $ 14.07.2000 VVM
    + Почти полностью переписан алгоритм функции ProcessUserMenu. Добавлен цикл.
 */
-  while((ExitCode!=EC_CLOSE_LEVEL)&&(ExitCode!=EC_CLOSE_MENU))
+/* $ 25.04.2001 DJ
+   добавлена EC_COMMAND_EXECUTED
+*/
+  while((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) &&
+      (ExitCode != EC_COMMAND_SELECTED))
+/* DJ $ */
   {
 
     if (MenuMode!=MM_MAIN)
@@ -272,8 +280,16 @@ void ProcessUserMenu(int EditMenu)
 
   CtrlObject->CmdLine->GetCurDir(MenuFilePath);
   chdir(MenuFilePath);
-  CtrlObject->ActivePanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->ActivePanel->Redraw();
+  /* $ 25.04.2001 DJ
+     не перерисовываем панель, если пользователь ничего не сделал
+     в меню
+  */
+  if (ExitCode == EC_COMMAND_SELECTED || MenuModified)
+  {
+    CtrlObject->ActivePanel->Update(UPDATE_KEEP_SELECTION);
+    CtrlObject->ActivePanel->Redraw();
+  }
+  /* DJ $ */
 
 /*
   if ((!EditMenu || !MainMenu) && (MenuFile=fopen(MenuFileName,"rb"))!=NULL)
@@ -675,7 +691,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 /* $ 14.07.2000 VVM
    ! Закрыть меню
 */
-    return(EC_CLOSE_MENU);
+/* $ 25.04.2001 DJ
+   сообщаем, что была выполнена команда (нужно перерисовать панели)
+*/
+    return(EC_COMMAND_SELECTED);
+/* DJ $ */
 /* VVM $ */
   }
 }

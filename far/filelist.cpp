@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.43 25.04.2001 $ */
+/* Revision: 1.44 25.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 DJ
+    * проверка на то, удалось ли войти в каталог, и вывод сообщения, если
+      не удалось
   25.04.2001 SVS
     + GetRealSelCount() - сейчас используется для макросов.
   25.04.2001 DJ
@@ -1663,8 +1666,12 @@ BOOL FileList::ChangeDir(char *NewDir)
       UpperFolderTopFile=0;
       CorrectPosition();
     }
-    else
+    /* $ 26.04.2001 DJ
+       доделка про несброс выделения при неудаче SetDirectory
+    */
+    else if (SetDirectorySuccess)
       CurFile=CurTopFile=0;
+    /* DJ $ */
     return(TRUE);
   }
   else
@@ -1721,15 +1728,26 @@ BOOL FileList::ChangeDir(char *NewDir)
   if (SetDir[0]==0 || SetDir[1]!=':' || SetDir[2]!='\\')
     chdir(CurDir);
 
-  chdir(SetDir);
-  if (isalpha(SetDir[0]) && SetDir[1]==':')
+  /* $ 26.04.2001 DJ
+     проверяем, удалось ли сменить каталог, и обновляем с KEEP_SELECTION,
+     если не удалось
+  */
+  int UpdateFlags = 0;
+  if (!SetCurrentDirectory(SetDir))
   {
-    int CurDisk=toupper(SetDir[0])-'A';
-    setdisk(CurDisk);
+    Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), MSG (MOk));
+    UpdateFlags = UPDATE_KEEP_SELECTION;
+  }
+  else {
+    if (isalpha(SetDir[0]) && SetDir[1]==':')
+    {
+      int CurDisk=toupper(SetDir[0])-'A';
+      setdisk(CurDisk);
+    }
   }
   GetCurrentDirectory(sizeof(CurDir),CurDir);
 
-  Update(0);
+  Update(UpdateFlags);
 
   if (strcmp(SetDir,"..")==0)
   {
@@ -1738,8 +1756,9 @@ BOOL FileList::ChangeDir(char *NewDir)
     UpperFolderTopFile=0;
     CorrectPosition();
   }
-  else
+  else if (UpdateFlags != UPDATE_KEEP_SELECTION)
     CurFile=CurTopFile=0;
+  /* DJ $ */
 
   if (GetFocus())
   {

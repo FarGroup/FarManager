@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.18 16.04.2001 $ */
+/* Revision: 1.19 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 DJ
+    - используем сохраненный Mask при обработке F5
   16.04.2001 SVS
     - не поганим SelTopic, если и так в "Help on Help"
   12.04.2001 SVS
@@ -831,7 +833,11 @@ int Help::ProcessKey(int Key)
       }
       else
         SetPosition(4,2,ScrX-4,ScrY-2);
-      ReadHelp();
+      /* $ 26.04.2001 DJ
+         используем сохраненный Mask
+      */
+      ReadHelp(HelpMask);
+      /* DJ $ */
       Show();
       if(Opt.ShowKeyBar && !FullScreenHelp)
          HelpKeyBar.Show();

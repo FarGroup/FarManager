@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.28 25.04.2001 $ */
+/* Revision: 1.29 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 DJ
+    + новая константа для UserMenu EC_COMMAND_SELECTED
   25.04.2001 SVS
     + MODALTREE_FREE
   13.04.2001 VVM
@@ -217,10 +219,16 @@ enum {MM_LOCAL=0,           // Локальное меню
       MM_FAR=1,             // Меню из каталога ФАРа
       MM_MAIN=2};           // Главное меню
 
-enum {EC_CLOSE_LEVEL = -1,  // Выйти из меню на один уровень вверх
-      EC_CLOSE_MENU  =-2,   // Выйти из меню по SHIFT+F10
-      EC_PARENT_MENU =-3,   // Показать меню родительского каталога
-      EC_MAIN_MENU   =-4};  // Показать главное меню
+/* $ 25.04.2001 DJ
+   новая константа EC_COMMAND_SELECTED
+*/
+enum {EC_CLOSE_LEVEL      = -1,   // Выйти из меню на один уровень вверх
+      EC_CLOSE_MENU       = -2,   // Выйти из меню по SHIFT+F10
+      EC_PARENT_MENU      = -3,   // Показать меню родительского каталога
+      EC_MAIN_MENU        = -4,   // Показать главное меню
+      EC_COMMAND_SELECTED = -5};  // Выбрана команда - закрыть меню и
+                                  // обновить папку
+/* DJ $ */
 
 /* SVS $ */
 
