@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.53 16.04.2001 $ */
+/* Revision: 1.54 22.04.2001 $ */
 
 /*
 Modify:
+  22.04.2001 SVS
+    + Opt.QuotedSymbols - разделители для QuoteSpace()
   16.04.2001 VVM
     + Opt.MouseWheelDelta - задает смещение для прокрутки.
   02.04.2001 VVM
@@ -410,6 +412,7 @@ struct Options
   */
   char WordDiv[256];
   /* SVS $ */
+  char QuotedSymbols[32];
   int SaveEditorPos;
   int SaveEditorShortPos;
   int SaveHistory;

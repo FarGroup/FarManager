@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.82 16.04.2001 $ */
+/* Revision: 1.83 22.04.2001 $ */
 
 /*
 Modify:
+  22.04.2001 SVS
+   + DIF_SHOWAMPERSAND для DI_BUTTON, DI_CHECKBOX, DI_RADIOBUTTON
   16.04.2001 SVS
    + Tab в списке хистори - аналог Enter
    ! Перерисовка в автодополнении должна идти после DN_EDITCHANGE (imho)
@@ -1416,7 +1418,10 @@ void Dialog::ShowDialog(int ID)
           else
             mprintf("(%c) ",CurItem->Selected ? '\07':' ');
 
-        HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
+        if (CurItem->Flags & DIF_SHOWAMPERSAND)
+          Text(CurItem->Data);
+        else
+          HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
 
         if (CurItem->Focus)
         {
@@ -1466,7 +1471,10 @@ void Dialog::ShowDialog(int ID)
         /* SVS $ */
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
         SetColor(Attr&0xFF);
-        HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
+        if (CurItem->Flags & DIF_SHOWAMPERSAND)
+          Text(CurItem->Data);
+        else
+          HiText(CurItem->Data,HIBYTE(LOWORD(Attr)));
         break;
       }
 
@@ -1960,7 +1968,10 @@ int Dialog::ProcessKey(int Key)
       */
       if(Type == DI_LISTBOX)
       {
+
         ((VMenu *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
+//        if(!DlgProc((HANDLE)this,DN_LISTCHANGE,((FocusPos<<16)|I),(long)List))
+//          ComboBoxMenu.SetSelectPos(Dest,Dest<I?-1:1);
         return(TRUE);
       }
       /* SVS $ */

@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.30 19.04.2001 $ */
+/* Revision: 1.31 22.04.2001 $ */
 
 /*
 Modify:
+  22.04.2001 SVS
+    ! Временная отмена куска патча 547
+    + Добавка для NT/2000 - вторичный Del на CDROOM задвигает диск.
+      Афишировать пока не бум :-)
   19.04.2001 SVS
     - не удалялся SUBST-диск - портилось оригинальное значение DriveType
       в момент проверки "Мы хотим спрятать cd-rom или сменный диск"
@@ -239,8 +243,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         }
 
         int ShowDisk = TRUE;
-        if (!((Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE) &&
-              (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM)))
+        /* $ 22.04.2001 SVS
+           Временная отмена куска патча 547
+        */
+//        if (!((Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE) &&
+//              (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM)))
+        /* SVS $ */
         // Мы хотим спрятать cd-rom или сменный диск
         {
           ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
@@ -452,24 +460,30 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_DEL:
           if (SelPos<DiskCount)
           {
-            char MsgText[200];
-            char Letter[50],LocalName[50];
+            char MsgText[200], LocalName[50];
             int UpdateProfile=CONNECT_UPDATE_PROFILE;
-            if (ChDisk.GetUserData(Letter,sizeof(Letter)))
+            if (ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter)))
             {
               /* $ 14.12.2000 SVS
                  Попробуем сделать Eject :-)
               */
-              DriveType=(DWORD)(BYTE)Letter[2];
+              DriveType=(DWORD)(BYTE)DiskLetter[2];
               if (DriveType == DRIVE_NOT_INIT)
               {
                 char RootDir[4];
-                sprintf(RootDir, "%c:\\", *Letter);
+                sprintf(RootDir, "%c:\\", *DiskLetter);
                 DriveType = GetDriveType(RootDir);
               }
               if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
               {
-                EjectVolume(*Letter,0);
+                DWORD Flags=0;
+                // пробуем выяснить про "а есть ли диск, открыт ли привод?"
+                if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && DriveType == DRIVE_CDROM)
+                {
+                  if(!EjectVolume(*DiskLetter,EJECT_NO_MESSAGE|4))
+                    Flags=EJECT_LOAD_MEDIA;
+                }
+                EjectVolume(*DiskLetter,Flags);
                 return(SelPos);
               }
               /* SVS $ */
@@ -479,7 +493,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               if(DriveType == DRIVE_SUBSTITUTE)
               {
                 char DosDeviceName[16];
-                sprintf(DosDeviceName,"%c:",*Letter);
+                sprintf(DosDeviceName,"%c:",*DiskLetter);
                 if(!DelSubstDrive(DosDeviceName))
                   return(SelPos);
                 else
@@ -502,9 +516,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               }
               /* SVS $ */
 
-              if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(*Letter,UpdateProfile))
+              if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(*DiskLetter,UpdateProfile))
               {
-                sprintf(LocalName,"%c:",*Letter);
+                sprintf(LocalName,"%c:",*DiskLetter);
 
                 if (WNetCancelConnection2(LocalName,UpdateProfile,FALSE)==NO_ERROR)
                   return(SelPos);
@@ -523,13 +537,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                     else
                       break;
                   char RootDir[50];
-                  sprintf(RootDir,"%c:\\",*Letter);
+                  sprintf(RootDir,"%c:\\",*DiskLetter);
                   if (GetDriveType(RootDir)==DRIVE_REMOTE)
                     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MsgText,MSG(MOk));
                 }
                 break;
               }
-            } // END: if (ChDisk.GetUserData(Letter,...
+            } // END: if (ChDisk.GetUserData(DiskLetter,...
           } // END: if (SelPos<DiskCount)
           break;
         case KEY_CTRL1:

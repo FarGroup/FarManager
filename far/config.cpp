@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.66 16.04.2001 $ */
+/* Revision: 1.67 22.04.2001 $ */
 
 /*
 Modify:
+  22.04.2001 SVS
+    + Opt.QuotedSymbols - разделители для QuoteSpace()
+    ! ConsoleDetachKey - по умолчанию назначается "CtrlAltTab"
   16.04.2001 VVM
     + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN
   02.04.2001 VVM
@@ -903,7 +906,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
   {0, REG_DWORD,  NKeySystem,"ExceptRules",&Opt.ExceptRules,0, 0},
   {0, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 0, 0},
-  {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),""},
+  {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.PersonalPluginsPath,sizeof(Opt.PersonalPluginsPath),PersonalPluginsPath},
   /* $ 02.04.2001 VVM
     + Будет влиять на:
@@ -915,6 +918,7 @@ static struct FARConfig{
     + Opt.MouseWheelDelta - задает смещение для прокрутки. Сколько раз посылать UP/DOWN */
   {0, REG_DWORD,  NKeySystem,"MouseWheelDelta", &Opt.MouseWheelDelta, 1, 0},
   /* VVM $ */
+  {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 

@@ -5,10 +5,14 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.01 28.03.2001 $ */
+/* Revision: 1.02 22.04.2001 $ */
 
 /*
 Modify:
+  22.04.2001 SVS
+    ! Изменена функция EjectVolume (по мотивам функции by
+      Vadim Yegorov <zg@matrica.apollo.lv>)
+      Умеет под NT/2000 "вставлять" диск :-)
   28.03.2001 SVS
     - Кхе. Забыли вернуть значение из EjectVolume95 :-(
   22.12.2000 SVS
@@ -394,11 +398,11 @@ CLEANUP_AND_EXIT_APP:
 }
 
 
+#if 0
 /*
   HOWTO: Ejecting Removable Media in Windows NT/Windows 2000
   http://support.microsoft.com/support/kb/articles/Q165/7/21.ASP
 */
-
 #define LOCK_TIMEOUT        10000       // 10 Seconds
 #define LOCK_RETRIES        20
 static BOOL LockVolume(HANDLE hVolume)
@@ -528,3 +532,98 @@ BOOL EjectVolume(char Letter,DWORD Flags)
   return TRUE;
 }
 /* SVS $ */
+
+#else
+/* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
+   Доработанная! Умеет под NT/2000 "вставлять" диск :-)
+*/
+BOOL EjectVolume(char Letter,DWORD Flags)
+{
+  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+  {
+    return EjectVolume95(Letter,Flags);
+  }
+
+  HANDLE DiskHandle;
+  BOOL Retry=TRUE;
+  BOOL fAutoEject=FALSE;
+  DWORD temp;
+  BOOL ReadOnly=FALSE;
+  UINT uDriveType;
+  DWORD dwAccessFlags;
+  char szRootName[8]="\\\\.\\ :\\";
+
+  szRootName[4]=Letter;
+
+  uDriveType = GetDriveType(szRootName+4);
+  szRootName[6]=0;
+  switch(uDriveType)
+  {
+    case DRIVE_REMOVABLE:
+      dwAccessFlags = GENERIC_READ | GENERIC_WRITE;
+      break;
+    case DRIVE_CDROM:
+      dwAccessFlags = GENERIC_READ;
+      break;
+    default:
+      return FALSE;
+  }
+
+  DiskHandle=CreateFile(szRootName,dwAccessFlags,
+                        FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
+                        0,0);
+  if((DiskHandle==INVALID_HANDLE_VALUE) && (GetLastError()==ERROR_ACCESS_DENIED))
+  {
+    DiskHandle=CreateFile(szRootName,GENERIC_READ,
+                          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
+                          0,0);
+    ReadOnly=FALSE;
+  }
+  if(DiskHandle!=INVALID_HANDLE_VALUE)
+  {
+    while(Retry)
+      if(DeviceIoControl(DiskHandle,FSCTL_LOCK_VOLUME,NULL,0,NULL,0,&temp,NULL))
+      {
+        if(!ReadOnly)
+          FlushFileBuffers(DiskHandle);
+        PREVENT_MEDIA_REMOVAL PreventMediaRemoval;
+        PreventMediaRemoval.PreventMediaRemoval=FALSE;
+
+        if(DeviceIoControl(DiskHandle,IOCTL_STORAGE_MEDIA_REMOVAL,&PreventMediaRemoval,sizeof(PreventMediaRemoval),NULL,0,&temp,NULL))
+        {
+          // чистой воды шаманство...
+          if(Flags&0x04)
+          {
+            fAutoEject=DeviceIoControl(DiskHandle,
+                         IOCTL_STORAGE_CHECK_VERIFY,
+                         NULL,0,0,0,&temp,NULL);
+            // ...если ошибка = "нет доступа", то это похоже на то,
+            // что диск вставлен
+            // Способ экспериментальный, потому афишировать не имеет смысла.
+            if(!fAutoEject && GetLastError() == 5)
+              fAutoEject=TRUE;
+            Retry=FALSE;
+          }
+          else
+            fAutoEject=DeviceIoControl(DiskHandle,
+                (Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA,
+                NULL,0,NULL,0,&temp,NULL);
+        }
+        Retry=FALSE;
+      }
+      else
+      {
+        if(!(Flags&EJECT_NO_MESSAGE))
+        {
+          char MsgText[200];
+          sprintf(MsgText,MSG(MChangeCouldNotEjectMedia),Letter);
+          if(Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MsgText,MSG(MRetry),MSG(MCancel)))
+            Retry=FALSE;
+        }
+      }
+    DeviceIoControl(DiskHandle,FSCTL_UNLOCK_VOLUME,NULL,0,NULL,0,&temp,NULL);
+    CloseHandle(DiskHandle);
+  }
+  return fAutoEject;
+}
+#endif

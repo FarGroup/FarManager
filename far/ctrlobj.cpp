@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.16 02.04.2001 $ */
+/* Revision: 1.17 22.04.2001 $ */
 
 /*
 Modify:
+  22.04.2001 SVS
+    ! Загрузка плагнов - после создания ВСЕХ основных объектов
   02.04.2001 VVM
     + Обработка Opt.FlagPosixSemantics
   28.02.2001 IS
@@ -90,7 +92,6 @@ ControlObject::ControlObject()
 
 void ControlObject::Init()
 {
-  Plugins.LoadPlugins();
   TreeList::ClearCache(0);
   PanelFilter::InitFilter();
 
@@ -179,6 +180,7 @@ void ControlObject::Init()
     RightPanel->Hide();
   HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
   CmdLine->Redraw();
+  Plugins.LoadPlugins();
 }
 
 

@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.95 12.04.2001 $ */
+/* Revision: 1.96 22.04.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  22.04.2001 SVS
+    + EJECT_LOAD_MEDIA - работает только в NT/2000
   12.04.2001 SVS
     + DM_ADDHISTORY - добавить строку в историю
     + DIF_MANUALADDHISTORY - добавлять в историю только "ручками"
@@ -857,7 +859,8 @@ enum {
 #define CONSOLE_WINDOWED       (0)
 #define CONSOLE_FULLSCREEN     (1)
 
-#define EJECT_NO_MESSAGE        (1)
+#define EJECT_NO_MESSAGE       0x00000001
+#define EJECT_LOAD_MEDIA       0x00000002
 
 struct ActlEjectMedia {
   DWORD Letter;

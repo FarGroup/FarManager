@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.09 13.04.2001 $ */
+/* Revision: 1.10 22.04.2001 $ */
 
 /*
 Modify:
+  22.04.2001 SVS
+    + Opt.QuotedSymbols - разделители для QuoteSpace()
+    ! немного оптимизации в Unquote
   13.04.2001 SVS
     ! переделаны QuoteSpaceOnly & QuoteSpace - общий код вынесен во
       вспомогательную функцию InsertQuote и добавлена проверка на присутствие
@@ -290,7 +293,7 @@ static char *InsertQuote(char *Str)
 
 char* QuoteSpace(char *Str)
 {
-  if (*Str=='-' || *Str=='^' || strpbrk(Str," &+,")!=NULL)
+  if (*Str=='-' || *Str=='^' || strpbrk(Str,Opt.QuotedSymbols)!=NULL)
     InsertQuote(Str);
   return(Str);
 }
@@ -570,12 +573,10 @@ int IsCaseLower(char *Str)
 */
 void WINAPI Unquote(char *Str)
 {
- if(Str)
+  if(Str && *Str)
   {
-   if(int Length=lstrlen(Str))
-   {
+    int Length=lstrlen(Str)-1;
     /*убираем заключительные кавычки*/
-    Length--;
     while(Str[Length]=='\"')
     {
      Str[Length]='\0';
@@ -585,8 +586,8 @@ void WINAPI Unquote(char *Str)
     /*убираем начальные кавычки*/
     char *start=Str;
     while(*start=='\"') start++;
-    if(start!=Str) memcpy(Str,start,Length+Str-start+2);
-   }
+    if(start!=Str)
+      memcpy(Str,start,Length+Str-start+2);
   }
 }
 /* IS $ */
