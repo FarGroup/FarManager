@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.27 10.07.2001 $ */
+/* Revision: 1.28 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 SVS
+    + переменные среды: FARLANG и FARUSER
   10.07.2001 SVS
     ! Изменены (обобщены) расширения для архиваторов.
   07.07.2001 IS
@@ -213,6 +215,7 @@ int _cdecl main(int Argc, char *Argv[])
           {
             strcat(Opt.RegRoot,"\\Users\\");
             strcat(Opt.RegRoot,Argv[I+1]);
+            SetEnvironmentVariable("FARUSER",Argv[I+1]);
             CopyGlobalSettings();
             I++;
           }
@@ -320,6 +323,7 @@ int _cdecl main(int Argc, char *Argv[])
     exit(0);
     /* SVS $ */
   }
+  SetEnvironmentVariable("FARLANG",Opt.Language);
   ConvertOldSettings();
   SetHighlighting();
   /* $ 07.03.2001 IS

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.96 06.07.2001 $ */
+/* Revision: 1.97 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 SVS
+    ! HiStrlen и RemoveChar - дополнительный параметр - при дублях, типа '&&'
+      "удалять ли все или оставлять только один символ"
   06.07.2001 IS
     ! Убрал CopyMaskStr, нефиг плодить сущности
   04.07.2001 SVS
@@ -334,7 +337,7 @@ int CheckRegValue(char *Key,char *ValueName);
 int DeleteEmptyKey(HKEY hRoot, char *FullKeyName);
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
 int IsFolderNotEmpty(char *Name);
-char *RemoveChar(char *Str,char Target);
+char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
 #define RemoveHighlights(Str) RemoveChar(Str,'&')
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
@@ -405,7 +408,7 @@ void ReadConfig();
 void SaveConfig(int Ask);
 void SetColors();
 int GetColorDialog(unsigned int &Color);
-int HiStrlen(const char *Str);
+int HiStrlen(const char *Str,BOOL Dup=TRUE);
 /* $ 27.01.2001 VVM
    + Дополнительный параметр у GetErrorString - резмер буфера */
 int GetErrorString(char *ErrStr, DWORD StrSize);

@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.17 06.07.2001 $ */
+/* Revision: 1.18 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 SVS
+    ! HiStrlen и RemoveChar - дополнительный параметр - при дублях, типа '&&'
+      "удалять ли все или оставлять только один символ"
   06.07.2001 IS
     ! Убрал CopyMaskStr, нефиг плодить сущности
   02.07.2001 IS
@@ -461,26 +464,39 @@ char* WINAPI RemoveUnprintableCharacters(char *Str)
 /* IS $ */
 
 // Удалить символ Target из строки Str (везде!)
-char *RemoveChar(char *Str,char Target)
+char *RemoveChar(char *Str,char Target,BOOL Dup)
 {
   char *Ptr = Str, *StrBegin = Str, Chr;
   while((Chr=*Str++) != 0)
   {
     if(Chr == Target)
+    {
+      if(Dup && *Str == Target)
+      {
+        *Ptr++ = Chr;
+        ++Str;
+      }
       continue;
+    }
     *Ptr++ = Chr;
   }
   *Ptr = '\0';
   return StrBegin;
 }
 
-int HiStrlen(const char *Str)
+int HiStrlen(const char *Str,BOOL Dup)
 {
   int Length=0;
   while (*Str)
   {
     if (*Str!='&')
       Length++;
+    else
+      if(Dup && Str[1] == '&')
+      {
+        Length++;
+        ++Str;
+      }
     Str++;
   }
   return(Length);

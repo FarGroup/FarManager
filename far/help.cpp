@@ -9,8 +9,11 @@ help.cpp
 
 /*
 Modify:
+  11.07.2001 SVS
+    - Исправляем ситуацию с приганием курсора на следующую позицию при
+      редраве окна хелпа
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   10.07.2001 OT
     - Возвращены переменные static SaveScreen *TopScreen и TopLevel :)
   20.06.2001 SVS
@@ -179,6 +182,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
+    MoveToReference(1,1);
     FrameManager->ExecuteModal (this);//OT
   }
   else
@@ -241,6 +245,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
+    MoveToReference(1,1);
     FrameManager->ExecuteModal (this);//OT
     ShowPrev=Help::ShowPrev;
   }
@@ -543,7 +548,8 @@ void Help::DisplayObject()
     return;
   }
   SetCursorType(0,10);
-  MoveToReference(1,1);
+  if (*SelTopic==0)
+    MoveToReference(1,1);
   FastShow();
   if (!FullScreenHelp)
   {
@@ -1501,6 +1507,7 @@ void Help::ResizeConsole()
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp(HelpMask);
+  MoveToReference(1,1);
   FrameManager->RefreshFrame();
 }
 

@@ -7,10 +7,12 @@ exception.cpp
 
 */
 
-/* Revision: 1.01 16.05.2001 $ */
+/* Revision: 1.02 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 SVS
+    + FARAREARECORD.ScrWH - размеры экрана - ширина, высота
   16.05.2001 SVS
     ! Добавлена пользовательская функция EVENTPROC в параметры WriteEvent
     + PLUGINSINFORECORD
@@ -205,6 +207,7 @@ struct FARAREARECORD{     // "где мы сейчас находимся?"
   WORD  TypeRec;          // Тип записи = RTYPE_FARAREA
   WORD  SizeRec;          // Размер данных
   DWORD ObjectType;       // то, что возвращает CtrlObject->Cp()->GetType()
+  COORD ScrWH;            // размеры экрана - ширина, высота
   // Пока формат не устаканился дописывать остальное
   //????????????
 };

@@ -5,10 +5,12 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.04 26.06.2001 $ */
+/* Revision: 1.05 11.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SVS
+    + FARAREARECORD.ScrWH - размеры экрана - ширина, высота
   26.06.2001 SVS
     + IsDebuggerPresent() - первая попытка (закомментированная)
   06.06.2001 SVS
@@ -272,6 +274,8 @@ int WriteEvent(DWORD DumpType, // FLOG_*
     // Тип объекта (где мы сейчас?)
     FarArea.ObjectType=FrameManager->GetCurrentFrame()->GetType();
 
+    FarArea.ScrWH.X=(SHORT)ScrX;
+    FarArea.ScrWH.Y=(SHORT)ScrY;
     // Пока формат не устаканился дописывать остальное, не забывая
     // ....
 

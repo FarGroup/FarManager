@@ -481,6 +481,9 @@ $ #Command line switches#
 
         For example: far /u guest
 
+        FAR Manager установит ~переменную среды~@FAREnv@ "FARUSER"
+        в значение, равное <username>.
+
   #/v <filename>#
         View the specified file. If <filename> is `#-#', data
         is read from the stdin. For example, "dir|far /v -"
@@ -2311,9 +2314,12 @@ to apply a command to each selected file. The same special symbols as in
 ~File associations~@FileAssoc@ should be used to denote the file name.
 
     For example, 'type !.!' will output to the screen all selected files,
-one at a time.
+one at a time, а команда 'rar32 m !.!.rar !.!' перенесет все отмеченные файлы
+в одноименные RAR-архивы. Команда 'explorer /select,!.!' запустит проводник
+и установит курсор на текущем файле или каталоге.
 
     See also ~"Operating system commands"~@OSCommands@
+
 @OSCommands
 $ #Operating system commands#
     FAR Manager by itself processes the following operating system commands:
@@ -2335,6 +2341,8 @@ specified parameter as a real folder name, regardless of the file panel type.
 
     Set environment variable "variable" to the value "string". If "string"
 is not specified, the environment variable "variable" will be removed.
+Некоторые ~переменные среды~@FAREnv@ FAR Manager устанавливает при старте
+самостоятельно.
 
     #IF [NOT] EXIST filename command#
 
@@ -2363,6 +2371,16 @@ processor.
     - ~Apply command~@ApplyCmd@
     - ~User menu~@UserMenu@
     - ~File associations~@FileAssoc@
+
+@FAREnv
+$ #Переменные среды#
+    После запуска FAR Manager выставляет следующие переменные среды,
+доступные дочерним процессам:
+
+    #FARUSER#            имя пользователя, указанное в параметре /u
+                       ~командной строки~@CmdLine@.
+
+    #FARLANG#            название текущего языка интерфейса.
 
 @KeyMacro
 $ #Keyboard macros#

@@ -7,10 +7,14 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.40 30.06.2001 $ */
+/* Revision: 1.41 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 SVS
+    + Shift-F1 на равне с F1 может вызывать хелп. Ёто на тот случай, если мы
+      в качестве хотке€ назначили F1 (естественно хелп в такой ситуации не
+      будет вызыватьс€)
   30.06.2001 KM
     ! языковое уточненение: LIFIND_NOPATTER -> LIFIND_NOPATTERN
 	+ GetSelectPos(struct FarListPos *)
@@ -812,7 +816,7 @@ int VMenu::ProcessKey(int Key)
 
   VMFlags|=VMENU_UPDATEREQUIRED;
   if (ItemCount==0)
-    if (Key!=KEY_F1 && Key!=KEY_F10 && Key!=KEY_ESC)
+    if (Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC)
     {
       ExitCode=-1;
       return(FALSE);
@@ -824,6 +828,7 @@ int VMenu::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_SHIFTF1:
     case KEY_F1:
       if(VMenu::ParentDialog)
         VMenu::ParentDialog->ProcessKey(Key);

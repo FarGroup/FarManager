@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.32 10.07.2001 $ */
+/* Revision: 1.33 11.07.2001 $ */
 
 /*
 Modify:
+  11.07.2001 SVS
+    ! Если слова "Register" в LNG-файле нету (нустая строка), то не выводит
+      в заголовке меню круглые скобки
+    ! Если задан хоткей, то удалим лишние '&' из лейбака.
   10.07.2001 SVS
     - Ликвидация багов с выравниванием
   02.07.2001 SVS
@@ -443,7 +447,13 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),MSG(MMainMenuFAR));
         break;
       default:
-        sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),MSG(MMainMenuREG));
+        {
+          char *Ptr=MSG(MMainMenuREG);
+          if(*Ptr)
+            sprintf(MenuTitle,"%s (%s)",MSG(MMainMenuTitle),Ptr);
+          else
+            sprintf(MenuTitle,"%s",MSG(MMainMenuTitle));
+        }
       } /* switch */
       VMenu UserMenu(MenuTitle,NULL,0,ScrY-4);
       /* VVM $ */
@@ -841,26 +851,27 @@ int DeleteMenuRecord(char *MenuKey,int DeletePos)
 int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
 {
   static struct DialogData EditDlgData[]={
-    DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(char *)MEditMenuTitle,
-    DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditMenuHotKey,
-    DI_FIXEDIT,5,3,7,3,1,0,0,0,"",
-    DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditMenuLabel,
-    DI_EDIT,5,5,70,3,0,0,0,0,"",
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_TEXT,5,7,0,0,0,0,0,0,(char *)MEditMenuCommands,
-    DI_EDIT,5,8,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,9,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,10,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,11,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,12,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,13,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,14,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,15,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,16,70,3,0,0,DIF_EDITOR,0,"",
-    DI_EDIT,5,17,70,3,0,0,DIF_EDITOR,0,"",
-    DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 00 */DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(char *)MEditMenuTitle,
+  /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditMenuHotKey,
+  /* 02 */DI_FIXEDIT,5,3,7,3,1,0,0,0,"",
+  /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditMenuLabel,
+  /* 04 */DI_EDIT,5,5,70,3,0,0,0,0,"",
+  /* 05 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 06 */DI_TEXT,5,7,0,0,0,0,0,0,(char *)MEditMenuCommands,
+  /* 07 */DI_EDIT,5,8,70,3,0,0,DIF_EDITOR,0,"",
+  /* 08 */DI_EDIT,5,9,70,3,0,0,DIF_EDITOR,0,"",
+  /* 09 */DI_EDIT,5,10,70,3,0,0,DIF_EDITOR,0,"",
+  /* 10 */DI_EDIT,5,11,70,3,0,0,DIF_EDITOR,0,"",
+  /* 11 */DI_EDIT,5,12,70,3,0,0,DIF_EDITOR,0,"",
+  /* 12 */DI_EDIT,5,13,70,3,0,0,DIF_EDITOR,0,"",
+  /* 13 */DI_EDIT,5,14,70,3,0,0,DIF_EDITOR,0,"",
+  /* 14 */DI_EDIT,5,15,70,3,0,0,DIF_EDITOR,0,"",
+  /* 15 */DI_EDIT,5,16,70,3,0,0,DIF_EDITOR,0,"",
+  /* 16 */DI_EDIT,5,17,70,3,0,0,DIF_EDITOR,0,"",
+  /* 17 */DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 18 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 19 */DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+
   };
   MakeDialogItems(EditDlgData,EditDlg);
 
@@ -931,7 +942,8 @@ int EditMenuRecord(char *MenuKey,int EditPos,int TotalRecords,int NewRec)
   }
 
   SetRegKey(ItemKey,"HotKey",EditDlg[2].Data);
-  SetRegKey(ItemKey,"Label",EditDlg[4].Data);
+  SetRegKey(ItemKey,"Label",
+    (*EditDlg[2].Data?RemoveChar(EditDlg[4].Data,'&',TRUE):EditDlg[4].Data));
   SetRegKey(ItemKey,"Submenu",(DWORD)0);
 
   int CommandNumber=0,I;
