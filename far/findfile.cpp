@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.165 09.12.2004 $ */
+/* Revision: 1.166 11.12.2004 $ */
 
 /*
 Modify:
+  11.12.2004 WARP
+    - Накосячил с обработкой ESC/F10 в поиске.
   09.12.2004 WARP
     ! Обертка из TRY/EXCEPT с посылом в fexcept в потоке поиска файлов (в потоке отрисовки уже есть обработчик).
   09.12.2004 WARP
@@ -1361,11 +1363,12 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         PauseSearch=TRUE;
         IsProcessAssignMacroKey++; // запретим спец клавиши
                                    // т.е. в этом диалоге нельзя нажать Alt-F9!
+        int LocalRes=TRUE;
         if (Opt.Confirm.Esc)
-          StopSearch=AbortMessage();
-
+          LocalRes=AbortMessage();
         IsProcessAssignMacroKey--;
         PauseSearch=FALSE;
+        StopSearch=LocalRes;
 
         return TRUE;
       }
