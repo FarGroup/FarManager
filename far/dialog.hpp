@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.46 04.12.2001 $ */
+/* Revision: 1.47 09.12.2001 $ */
 
 /*
 Modify:
+  09.12.2001 DJ
+   + ProcessLastHistory() - обработка DIF_USELASTHISTORY
   04.12.2001 SVS
    + ProcessCenterGroup() - пересчет координат элементов с флагом DIF_CENTERGROUP
   21.11.2001 SVS
@@ -381,6 +383,13 @@ class Dialog: public Frame
     int FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int MaxLen);
     /* SVS $ */
     int AddToEditHistory(char *AddStr,char *HistoryName);
+
+    /* $ 09.12.2001 DJ
+       обработка DIF_USELASTHISTORY
+    */
+    void ProcessLastHistory (struct DialogItem *CurItem, int MsgIndex);
+    /* DJ $ */
+
     int ProcessHighlighting(int Key,int FocusPos,int Translate);
 
     /* $ 08.09.2000 SVS

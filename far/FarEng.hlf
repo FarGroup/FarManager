@@ -1030,13 +1030,13 @@ simply separate the folder names with the backslash character. For example:
 
     #%USERDOMAIN%\%USERNAME%\Folder3#
 
-    Если включена опция "#Обрабатывать несколько имен каталогов#", то
-можно создавать несколько папок за один раз. В этом случае имена папок
-должны быть разделены символом-разделителем "#;#" или "#,#". Если эта опция
-включена и имя каталога содержит в себе символ "#;#" (или "#,#"), то оно
-должно быть взято в кавычки. Например, если будет введено
-#C:\Foo1;"E:\foo,2;";D:\foo3#, то будут созданы каталоги с именами:
-"#C:\Foo1#", "#E:\foo,2#" и "#D:\foo3#".
+    If the option "#Process multiple names#" is enabled, it is possible to
+create multiple folders in a single operation. In this case, folder names
+should be separated with the character "#;#" or "#,#". If the option is
+enabled and the name of the folder contains a character "#;#" (or "#,#"),
+it must be enclosed in quotes. For example, if the user enters
+#C:\Foo1;"E:\foo,2;";D:\foo3#, folders called "#C:\Foo1#", "#E:\foo,2#"
+and "#D:\foo3#" will be created.
 
 @FindFile
 $ #Find file#
@@ -1542,8 +1542,8 @@ $ #Interface settings dialog#
                           security reasons, switch this option off.
 
   #Persistent blocks#       Do not remove block selection after moving
-  #in edit controls#        the cursor in dialog edit, command line
-                          and folders history.
+  #in edit controls#        the cursor in dialog edit controls, command
+                          line and folders history.
 
   #Set command line#        This option allows to set the default
   #prompt format#           FAR command line prompt. You may use
@@ -1578,7 +1578,7 @@ $ #Interface settings dialog#
     progress indicator" is disabled.
 
   #AutoComplete#            Allows to use the AutoComplete function
-  #in input lines#          in input lines that have a history list
+  #in edit controls#        in edit controls that have a history list
                           or in combo boxes. When the option is
                           disabled, you may use the Ctrl-End key
                           to autocomplete a line. The autocomplete

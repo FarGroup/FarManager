@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.193 07.12.2001 $ */
+/* Revision: 1.194 09.12.2001 $ */
 
 /*
 Modify:
+  09.12.2001 DJ
+    косметика в Dialog API:
+    - проверять валидность ID элемента для DM_KEY и юзерских мессаг не надо!
+    - DM_SETDROPDOWNOPENED неприменим к DI_PSWEDIT
+    - обработка DIF_USELASTHISTORY вынесена в отдельную функцию
   07.12.2001 SVS
     ! Небольшая оптимизация кода
     - Бага в GetDialogObjectsData() - для DI_LISTBOX кусок не работал, т.к.
@@ -1336,27 +1341,11 @@ int Dialog::InitDialogObjects(int ID)
       if(CurItem->Type==DI_EDIT &&
         (ItemFlags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
       {
-        char RegKey[NM];
-        char *PtrData;
-        int PtrLength;
-        if(ItemFlags&DIF_VAREDIT)
-        {
-          PtrData  =(char *)CurItem->Ptr.PtrData;
-          PtrLength=CurItem->Ptr.PtrLength;
-        }
-        else
-        {
-          PtrData  =CurItem->Data;
-          PtrLength=sizeof(CurItem->Data);
-        }
-        if(!PtrData[0])
-        {
-          DWORD UseFlags;
-          sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
-          UseFlags=GetRegKey(RegKey,"Flags",1);
-          if(UseFlags)
-            GetRegKey(RegKey,"Line0",PtrData,"",PtrLength);
-        }
+        /* $ 09.12.2001 DJ
+           вынесем в отдельную функцию
+        */
+        ProcessLastHistory (CurItem, -1);
+        /* DJ $ */
       }
       /* SVS $ */
       if((ItemFlags&DIF_MANUALADDHISTORY) && !(ItemFlags&DIF_HISTORY))
@@ -1450,6 +1439,44 @@ char *Dialog::GetDialogTitle()
 
 /* DJ $ */
 
+/* $ 09.12.2001 DJ
+   обработка DIF_USELASTHISTORY вынесена в отдельную функцию
+*/
+
+void Dialog::ProcessLastHistory (struct DialogItem *CurItem, int MsgIndex)
+{
+  char RegKey[NM];
+  char *PtrData;
+  int PtrLength;
+  if(CurItem->Flags&DIF_VAREDIT)
+  {
+    PtrData  =(char *)CurItem->Ptr.PtrData;
+    PtrLength=CurItem->Ptr.PtrLength;
+  }
+  else
+  {
+    PtrData  =CurItem->Data;
+    PtrLength=sizeof(CurItem->Data);
+  }
+  if(!PtrData[0])
+  {
+    DWORD UseFlags;
+    sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
+    UseFlags=GetRegKey(RegKey,"Flags",1);
+    if(UseFlags)
+    {
+      GetRegKey(RegKey,"Line0",PtrData,"",PtrLength);
+      if (MsgIndex != -1)
+      {
+        // обработка DM_SETHISTORY => надо пропустить изменение текста через
+        // диалоговую функцию
+        Dialog::SendDlgMessage(this,DM_SETTEXTPTR,MsgIndex,(long)PtrData);
+      }
+    }
+  }
+}
+
+/* DJ $ */
 
 /* $ 30.05.2001 KM
    Изменение координат и/или размеров итема диалога.
@@ -4936,8 +4963,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
   if(!Dlg)
     return 0;
   // предварительно проверим...
-  if(Param1 >= Dlg->ItemCount || !Dlg->Item)
+
+  /* $ 09.12.2001 DJ
+     для DM_KEY и DM_USER проверять _не_надо_!
+  */
+  if((Msg != DM_KEY && Msg < DM_USER && Param1 >= Dlg->ItemCount) || !Dlg->Item)
     return 0;
+  /* DJ $ */
 
 //  CurItem=&Dlg->Item[Param1];
   if (Param1>=0)
@@ -5151,25 +5183,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           CurItem->History=(char *)Param2;
           if(Type==DI_EDIT && (CurItem->Flags&DIF_USELASTHISTORY))
           {
-            char RegKey[NM];
-            char *PtrData;
-            int PtrLength;
-            if(CurItem->Flags&DIF_VAREDIT)
-            {
-              PtrData  =(char *)CurItem->Ptr.PtrData;
-              PtrLength=CurItem->Ptr.PtrLength;
-            }
-            else
-            {
-              PtrData  =CurItem->Data;
-              PtrLength=sizeof(CurItem->Data);
-            }
-            if(!PtrData[0])
-            {
-              sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
-              GetRegKey(RegKey,"Line0",PtrData,"",PtrLength);
-              Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Param1,(long)PtrData);
-            }
+            /* $ 09.12.2001 DJ
+               вынесем в отдельную функцию
+            */
+            Dlg->ProcessLastHistory (CurItem, Param1);
+			/* DJ $ */
           }
         }
         else
@@ -5837,9 +5855,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         return TRUE;
       }
-      else if (Param2 && (Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT ||
-               Type==DI_PSWEDIT) && (CurItem->Flags&DIF_HISTORY)))) // Открываем заданный в Param1 комбобокс или историю
+      /* $ 09.12.2001 DJ
+         у DI_PSWEDIT не бывает хистори!
+      */
+      else if (Param2 && (Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT)
+               && (CurItem->Flags&DIF_HISTORY)))) /* DJ $ */
       {
+        // Открываем заданный в Param1 комбобокс или историю
         if (Dlg->GetDropDownOpened())
         {
           Dlg->SetDropDownOpened(FALSE);
