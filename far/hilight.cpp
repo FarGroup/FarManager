@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.12 01.03.2001 $ */
+/* Revision: 1.13 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 VVM
+  + В масках можно задавать переменные окружения
   01.03.2001 SVS
     ! Переезд ветки "Highlight" в "Colors\Highlight"
   27.02.2001 VVM
@@ -128,7 +130,14 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
         (Attr & CurHiData->ExcludeAttr)==0)
     {
-      char ArgName[NM],*NamePtr=CurHiData->Masks;
+      /* $ 02.04.2001 VVM
+        + В масках можно задавать переменные окружения */
+      char ArgName[NM], ExpandedStr[8192];
+      int Copied = ExpandEnvironmentStrings(CurHiData->Masks,ExpandedStr,sizeof(ExpandedStr));
+      if ((Copied==0) || (Copied > sizeof(ExpandedStr)))
+        strcpy(ExpandedStr, CurHiData->Masks);
+      char *NamePtr = ExpandedStr;
+      /* VVM $ */
       while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
         if (Path==NULL && (strcmp(ArgName,"*")==0 || strcmp(ArgName,"*.*")==0) ||
             Path!=NULL && CmpName(ArgName,Path))
