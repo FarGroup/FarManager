@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.13 20.10.2000 $ */
+/* Revision: 1.14 23.10.2000 $ */
 
 /*
 Modify:
+  23.10.2000 SVS
+    ! Уточнение для Ctlr-F (с подачи tran!)
   20.10.2000 SVS
     ! Сделаем фичу Ctrl-F опциональной!
   13.10.2000 tran 1.12
@@ -586,7 +588,7 @@ int FileList::ProcessKey(int Key)
               }
               if (ViewSettings.FileUpperToLowerCase)
                 if (!(CurPtr->FileAttr & FA_DIREC) && strrchr(FileName,'\\') && !IsCaseMixed(strrchr(FileName,'\\')))
-                   LocalStrlwr(FileName);
+                   LocalStrlwr(strrchr(FileName,'\\'));
               if ( ViewSettings.FileLowerCase && strrchr(FileName,'\\') && !(CurPtr->FileAttr & FA_DIREC))
                 LocalStrlwr(strrchr(FileName,'\\'));
               /* tran $ */

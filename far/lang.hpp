@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.23 20.10.2000 $ */
+/* Revision: 1.24 23.10.2000 $ */
 
 /*
 Modify:
+  23.10.2000 SVS
+    + MExcCheckOnLousys :-)
   20.10.2000 SVS
     + MHighlightEncrypted, MSetAttrEncrypted, MSetAttrEncryptedCannotFor,
     ! удален MSetAttrNTFSOnly за ненадобностью
@@ -1273,6 +1275,7 @@ enum
   MExceptTitleLoad,
   MExceptTitle,
   MExcTrappedException,
+  MExcCheckOnLousys,
   MExcAddress,
   MExcUnload,
   MExcUnloadYes,

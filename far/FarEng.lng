@@ -1207,6 +1207,7 @@
 "Plugin load error"
 "Plugin call error"
 "Exception occurred:"
+"Plugin has transferred the incorrect information! The module:"
 "Exception address: 0x%X in module:"
 "Do you wish to unload this plugin?"
 "The plugin will be Unloaded!"
