@@ -5,10 +5,13 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.13 16.01.2002 $ */
+/* Revision: 1.14 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    + AppliColor()
+    ! Немного оптимизации.
   16.01.2002 SVS
     - После FillRect() не выполнялся "сброс" буфера.
   15.08.2001 SVS
@@ -95,15 +98,17 @@ void ScreenBuf::AllocBuf(int X,int Y)
     return;
   if(Buf) delete[] Buf;
   if(Shadow) delete[] Shadow;
-  Buf=new CHAR_INFO[X*Y];
-  Shadow=new CHAR_INFO[X*Y];
+
+  int Cnt=X*Y;
+  Buf=new CHAR_INFO[Cnt];
+  Shadow=new CHAR_INFO[Cnt];
 #if !defined(ALLOC)
   /* а вот здесь самая интересность: при переопределенных функция запроса
      памяти - память уже проинициализированна нулями ;-)
      поэтому этот кусок пропустится...
   */
-  memset(Buf,0,X*Y*sizeof(CHAR_INFO));
-  memset(Shadow,0,X*Y*sizeof(CHAR_INFO));
+  memset(Buf,0,Cnt*sizeof(CHAR_INFO));
+  memset(Shadow,0,Cnt*sizeof(CHAR_INFO));
 #endif
   BufX=X;
   BufY=Y;
@@ -165,16 +170,16 @@ void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
 void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
 {
   int Width=X2-X1+1;
-  for (int I=0;I<Y2-Y1+1;I++)
-    for (int J=0;J<Width;J++)
-      Text[I*Width+J]=Buf[(Y1+I)*BufX+(X1+J)];
-#if defined(USE_WFUNC)
-  if (X1==0 && Y1==0 && CtrlObject!=NULL && CtrlObject->Macro.IsRecording() &&
-      GetVidChar(MacroChar)!='R')
-#else
-  if (X1==0 && Y1==0 && CtrlObject!=NULL && CtrlObject->Macro.IsRecording() &&
-      MacroChar.Char.AsciiChar!='R')
-#endif
+  int Height=Y2-Y1+1;
+  int I, Idx;
+
+  for (Idx=I=0; I < Height; I++, Idx+=Width)
+    memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,sizeof(CHAR_INFO)*Width);
+
+  if (X1==0 && Y1==0 &&
+      CtrlObject!=NULL &&
+      CtrlObject->Macro.IsRecording() &&
+      GetVidChar(MacroChar) != 'R')
     Text[0]=MacroChar;
 }
 
@@ -183,10 +188,40 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
 */
 void ScreenBuf::AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 {
+int Width=X2-X1+1;
+  int Height=Y2-Y1+1;
+  int I, J, K;
+
+  for (I=0;I < Height; I++)
+  {
+    K=(Y1+I)*BufX+X1;
+    for (J=0; J < Width; J++)
+      Buf[K+J].Attributes&=~ColorMask;
+  }
+
+#ifdef DIRECT_SCREEN_OUT
+  Flush();
+#elif defined(DIRECT_RT)
+  if ( DirectRT  )
+    Flush();
+#endif
+}
+
+/* Непосредственное изменение цветовых атрибутов
+*/
+void ScreenBuf::AppliColor(int X1,int Y1,int X2,int Y2,int Color)
+{
   int Width=X2-X1+1;
-  for (int I=0;I<Y2-Y1+1;I++)
-    for (int J=0;J<Width;J++)
-      Buf[(Y1+I)*BufX+(X1+J)].Attributes&=~ColorMask;
+  int Height=Y2-Y1+1;
+  int I, J, K;
+
+  for (I=0;I < Height; I++)
+  {
+    K=(Y1+I)*BufX+X1;
+    for (J=0; J < Width; J++)
+      Buf[K+J].Attributes=Color;
+  }
+
 #ifdef DIRECT_SCREEN_OUT
   Flush();
 #elif defined(DIRECT_RT)
@@ -199,18 +234,20 @@ void ScreenBuf::AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 */
 void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 {
-  int Width=X2-X1+1, Pos;
-  for (int I=0;I<Y2-Y1+1;I++)
-    for (int J=0;J<Width;J++)
-    {
-      Pos=(Y1+I)*BufX+(X1+J);
-      Buf[Pos].Attributes=Color;
-#if defined(USE_WFUNC)
-      SetVidChar(Buf[Pos],Ch);
-#else
-      Buf[Pos].Char.AsciiChar=Ch;
-#endif
-    }
+  int Width=X2-X1+1;
+  int Height=Y2-Y1+1;
+  int Pos, I, J;
+
+  CHAR_INFO CI,*PtrBuf;
+  CI.Attributes=Color;
+  SetVidChar(CI,Ch);
+
+  for (I=0; I < Height; I++)
+  {
+    for (PtrBuf=Buf+(Y1+I)*BufX+X1, J=0; J < Width; J++, ++PtrBuf)
+      *PtrBuf=CI;
+  }
+
   Flushed=FALSE;
 
 #ifdef DIRECT_SCREEN_OUT
@@ -229,15 +266,9 @@ void ScreenBuf::Flush()
     return;
   if (CtrlObject!=NULL && CtrlObject->Macro.IsRecording())
   {
-#if defined(USE_WFUNC)
     if (GetVidChar(Buf[0])!='R')
       MacroChar=Buf[0];
     SetVidChar(Buf[0],'R');
-#else
-    if (Buf[0].Char.AsciiChar!='R')
-      MacroChar=Buf[0];
-    Buf[0].Char.AsciiChar='R';
-#endif
     Buf[0].Attributes=FarColorToReal(COL_WARNDIALOGTEXT);
   }
   if (!FlushedCurType && !CurVisible)
@@ -257,17 +288,14 @@ void ScreenBuf::Flush()
     int NoChanges=TRUE;
     if (UseShadow)
     {
-      for (int I=0;I<BufY;I++)
-        for (int J=0;J<BufX;J++)
+      CHAR_INFO *PtrBuf=Buf, *PtrShadow=Shadow;
+
+      for (int I=0; I < BufY; I++)
+      {
+        for (int J=0; J < BufX; J++, ++PtrBuf, ++PtrShadow)
         {
-          int Pos=I*BufX+J;
-#if defined(USE_WFUNC)
-          if (GetVidChar(Buf[Pos]) != GetVidChar(Shadow[Pos]) ||
-              Buf[Pos].Attributes!=Shadow[Pos].Attributes)
-#else
-          if (Buf[Pos].Char.AsciiChar!=Shadow[Pos].Char.AsciiChar ||
-              Buf[Pos].Attributes!=Shadow[Pos].Attributes)
-#endif
+          if (GetVidChar(*PtrBuf) != GetVidChar(*PtrShadow) ||
+              PtrBuf->Attributes  != PtrShadow->Attributes)
           {
             if (WriteX1>J)
               WriteX1=J;
@@ -280,6 +308,7 @@ void ScreenBuf::Flush()
             NoChanges=FALSE;
           }
         }
+      }
     }
     else
     {

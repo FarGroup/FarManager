@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.134 22.02.2002 $ */
+/* Revision: 1.135 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
+      FarMkTemp - это для плагинов
+    + ChangeBlockColor() - изменение цвета в блоке
   22.02.2002 SVS
     + Добавка функций ToPercent64() и filelen64()
     ! Коррекция fseek64 и ftell64 (в т.ч. снесен модификатор WINAPI)
@@ -381,6 +385,7 @@ void ShowSeparator(int Length,int Type=1);
 char* MakeSeparator(int Length,char *DestStr,int Type=1);
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color);
 void MakeShadow(int X1,int Y1,int X2,int Y2);
+void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color);
 void SetColor(int Color);
 int GetColor();
 void GetText(int X1,int Y1,int X2,int Y2,void *Dest);
@@ -819,6 +824,7 @@ void WINAPI FarRecursiveSearch(const char *initdir,const char *mask,FRSUSERFUNC 
  ! Изменил имя параметра с Template на Prefix
 */
 char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
+char* FarMkTempEx(char *Dest, const char *Prefix=NULL, BOOL WithPath=TRUE);
 /* IS $*/
 /* SVS $*/
 
@@ -1093,6 +1099,9 @@ inline char LocalLowerFast (char c)
 #if defined(USE_WFUNC)
 char GetVidChar(CHAR_INFO CI);
 void SetVidChar(CHAR_INFO& CI,char Chr);
+#else
+#define GetVidChar(CI)     (CI).Char.AsciiChar
+#define SetVidChar(CI,Chr) (CI).Char.AsciiChar=Chr
 #endif
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);

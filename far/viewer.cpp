@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.90 15.02.2002 $ */
+/* Revision: 1.91 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   15.02.2002 SVS
     ! Вызов ShowProcessList() вынесен в манагер
   22.01.2002 IS
@@ -465,9 +467,12 @@ int Viewer::OpenFile(const char *Name,int warning)
     HANDLE OutHandle;
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     {
-      char TempPath[NM],TempName[NM];
-      GetTempPath(sizeof(TempPath),TempPath);
-      GetTempFileName(TempPath,"FAR",0,TempName);
+      char TempName[NM];
+      if (!FarMkTempEx(TempName))
+      {
+        OpenFailed=TRUE;
+        return(FALSE);
+      }
       OutHandle=CreateFile(TempName,GENERIC_READ|GENERIC_WRITE,
                 FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
                 FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);

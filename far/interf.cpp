@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.46 13.02.2002 $ */
+/* Revision: 1.47 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    + ChangeBlockColor() - изменение цвета в блоке
+    ! уточнение юникодовой таблицы
   13.02.2002 SVS
     ! Уборка варнингов
   08.01.2002 SVS
@@ -176,7 +179,7 @@ static int InitCurVisible,InitCurSize;
 
 #if defined(USE_WFUNC)
 WCHAR Oem2Unicode[256] = {
-/*00*/ 0x0000, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2219,
+/*00*/ 0x0000, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
        0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
 /*10*/ 0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25A0, 0x21A8,
        0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC,
@@ -720,6 +723,16 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
   ScrBuf.AppliColorMask(X1,Y1,X2,Y2,0xF8);
 }
 
+void ChangeBlockColor(int X1,int Y1,int X2,int Y2,int Color)
+{
+  if (X1<0) X1=0;
+  if (Y1<0) Y1=0;
+  if (X2>ScrX) X2=ScrX;
+  if (Y2>ScrY) Y2=ScrY;
+
+  ScrBuf.AppliColor(X1,Y1,X2,Y2,FarColorToReal(Color));
+}
+
 
 void mprintf(char *fmt,...)
 {
@@ -805,15 +818,11 @@ void ShowTime(int ShowAlways)
     memset(&lasttm,0,sizeof(lasttm));
     return;
   }
-#if defined(USE_WFUNC)
+
   if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
       GetVidChar(ScreenClockText[2])==':' || ScreenSaverActive)
     return;
-#else
-  if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
-      ScreenClockText[2].Char.AsciiChar==':' || ScreenSaverActive)
-    return;
-#endif
+
   lasttm=tm;
   sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
   GotoXY(ScrX-4,0);

@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.41 22.02.2002 $ */
+/* Revision: 1.42 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   22.02.2002 SVS
     - Bug in panels refreshing after cancelling directory delete
   13.02.2002 SVS
@@ -810,9 +812,7 @@ int WipeFile(char *Name)
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);
   char TempName[NM];
-  strcpy(TempName,FarTmpXXXXXX);
-  mktemp(TempName);
-  MoveFile(Name,TempName);
+  MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
   return(DeleteFile(TempName));
 }
 
@@ -820,8 +820,6 @@ int WipeFile(char *Name)
 int WipeDirectory(char *Name)
 {
   char TempName[NM];
-  strcpy(TempName,FarTmpXXXXXX);
-  mktemp(TempName);
-  MoveFile(Name,TempName);
+  MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
   return(RemoveDirectory(TempName));
 }

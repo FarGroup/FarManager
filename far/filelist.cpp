@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.130 19.02.2002 $ */
+/* Revision: 1.131 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    - BugZ#196 - Ctrl-\ bug
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   19.02.2002 SVS
     - BugZ#50 - Ctrl-PgUp работает с ошибкой
   11.02.2002 SVS
@@ -1194,11 +1197,23 @@ int FileList::ProcessKey(int Key)
       ProcessEnter(1,Key==KEY_SHIFTENTER);
       return(TRUE);
     case KEY_CTRLBACKSLASH:
-      ChangeDir("\\");
-      if (PanelMode==PLUGIN_PANEL && *PluginsStack[PluginsStackSize-1].HostFile)
-        ChangeDir("..");
+    {
+      BOOL NeedChangeDir=TRUE;
+      if (PanelMode==PLUGIN_PANEL)// && *PluginsStack[PluginsStackSize-1].HostFile)
+      {
+        struct OpenPluginInfo Info;
+        CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+        if (!Info.CurDir || *Info.CurDir == 0)
+        {
+          ChangeDir("..");
+          NeedChangeDir=FALSE;
+        }
+      }
+      if(NeedChangeDir)
+        ChangeDir("\\");
       Show();
       return(TRUE);
+    }
     case KEY_SHIFTF1:
       if (FileCount>0 && PanelMode!=PLUGIN_PANEL && SetCurPath())
         PluginPutFilesToNew();
@@ -1345,10 +1360,7 @@ int FileList::ProcessKey(int Key)
 
         if (PluginMode)
         {
-          strcpy(TempDir,Opt.TempPath);
-          strcat(TempDir,FarTmpXXXXXX);
-          if (mktemp(TempDir)==NULL)
-          //if(!FarMkTemp(TempDir,"Far"))
+          if(!FarMkTempEx(TempDir))
             return(TRUE);
           CreateDirectory(TempDir,NULL);
           sprintf(TempName,"%s\\%s",TempDir,PointToName(FileName));
@@ -1949,10 +1961,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     if (PluginMode)
     {
       char TempDir[NM];
-      strcpy(TempDir,Opt.TempPath);
-      strcat(TempDir,FarTmpXXXXXX);
-      if (mktemp(TempDir)==NULL)
-      //if(!FarMkTemp(TempDir,"Far"))
+      if(!FarMkTempEx(TempDir))
         return;
       CreateDirectory(TempDir,NULL);
       struct PluginPanelItem PanelItem;
@@ -2982,10 +2991,7 @@ void FileList::UpdateViewPanel()
       {
         char TempDir[NM],FileName[NM];
         strcpy(FileName,CurPtr->Name);
-        strcpy(TempDir,Opt.TempPath);
-        strcat(TempDir,FarTmpXXXXXX);
-        if (mktemp(TempDir)==NULL)
-        //if(!FarMkTemp(TempDir,"Far"))
+        if(!FarMkTempEx(TempDir))
           return;
         CreateDirectory(TempDir,NULL);
         struct PluginPanelItem PanelItem;

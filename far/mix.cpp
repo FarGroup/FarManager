@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.113 22.02.2002 $ */
+/* Revision: 1.114 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   22.02.2002 SVS
     + Добавка функций ToPercent64() и filelen64()
   15.02.2002 IS
@@ -1529,24 +1531,35 @@ void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC 
 */
 char* WINAPI FarMkTemp(char *Dest, const char *Prefix)
 {
-  if(Dest && Prefix && *Prefix)
+  return FarMkTempEx(Dest,Prefix,TRUE);
+}
+
+/*
+             v - точка
+   prefXXX X X XXX
+       \ / ^   ^^^\ PID + TID
+        |  \------/
+        |
+        +---------- [0A-Z]
+*/
+char* FarMkTempEx(char *Dest, const char *Prefix, BOOL WithPath)
+{
+  if(Dest)
   {
-    char TempPath[NM],TempName[NM];
-    int Len;
-    TempPath[Len=GetTempPath(sizeof(TempPath),TempPath)]=0;
-    /* $ 25.10.2000 SVS
-       Соблюдем условие, что префикс должен быть в ANSI
-       А нужно ли???!!!
-    */
-//    char Pref[32];
-//    OemToChar(Prefix,Pref);
-//    if(GetTempFileName(TempPath,Pref,0,TempName))
-    if(GetTempFileName(TempPath,Prefix,0,TempName))
+    if(!(Prefix && *Prefix))
+      Prefix="FTMP";
+
+    char TempName[NM];
+    TempName[0]=0;
+    if(WithPath)
+      strcpy(TempName,Opt.TempPath);
+    strcat(TempName,"0000XXXXXXXX");
+    memcpy(TempName+strlen(TempName)-12,Prefix,Min((int)strlen(Prefix),4));
+    if (mktemp(TempName)!=NULL)
     {
       strcpy(Dest,strupr(TempName));
       return Dest;
     }
-    /* SVS $ */
   }
   return NULL;
 }

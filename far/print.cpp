@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.12 21.10.2001 $ */
+/* Revision: 1.13 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   27.09.2001 IS
@@ -172,10 +174,7 @@ void PrintFiles(Panel *SrcPanel)
       FILE *SrcFile=NULL;
       if (PluginMode)
       {
-        strcpy(TempDir,Opt.TempPath);
-        strcat(TempDir,FarTmpXXXXXX);
-        if (mktemp(TempDir)!=NULL)
-        //if(FarMkTemp(TempDir,"Far"))
+        if (FarMkTempEx(TempDir))
         {
           CreateDirectory(TempDir,NULL);
           struct FileListItem ListItem;

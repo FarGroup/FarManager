@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.65 11.02.2002 $ */
+/* Revision: 1.66 02.03.2002 $ */
 
 /*
 Modify:
+  02.03.2002 SVS
+    ! Копирование в "con" аналогично копированию в "nul".
   11.02.2002 SVS
     ! Нефига юзать "Copy access rights" при копировании на плагиновую панель.
       Хотя... тут можно уточнить про REALFILES
@@ -605,7 +607,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   _tran(SysLog("[%p] ShellCopy::ShellCopy() 4",this));
 
   // Выставляем признак копирования в NUL
-  ShellCopy::Flags|=(!stricmp(CopyDlg[2].Data,"nul"))?FCOPY_COPYTONUL:0;
+  ShellCopy::Flags|=(!stricmp(CopyDlg[2].Data,"nul") || !stricmp(CopyDlg[2].Data,"con"))?FCOPY_COPYTONUL:0;
 
   if(CDP.SelCount==1 || (ShellCopy::Flags&FCOPY_COPYTONUL))
     AddSlash=FALSE; //???

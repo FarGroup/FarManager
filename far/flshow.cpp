@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.21 09.10.2001 $ */
+/* Revision: 1.22 02.03.2002 $ */
 
 /*
 Modify:
+  02.03.2002 SVS
+    ! Подготовим "полный прямоугольник" - SetScreen
   09.11.2001 IS
     ! Вместо явно прописанных фигурных скобок для обозначения границ длинных
       имен файлов используем данные из lng.
@@ -115,10 +117,11 @@ void FileList::ShowFileList(int Fast)
   }
   PrepareViewSettings(ViewMode,&Info);
 
+  SetScreen(X1+1,Y1+1,X2-1,Y2-1,' ',COL_PANELTEXT);
   Box(X1,Y1,X2,Y2,COL_PANELBOX,DOUBLE_BOX);
   if (Opt.ShowColumnTitles)
   {
-    SetScreen(X1+1,Y1+1,X2-1,Y1+1,' ',COL_PANELTEXT);
+//    SetScreen(X1+1,Y1+1,X2-1,Y1+1,' ',COL_PANELTEXT);
     SetColor(COL_PANELTEXT); //???
     //GotoXY(X1+1,Y1+1);
     //mprintf("%*s",X2-X1-1,"");

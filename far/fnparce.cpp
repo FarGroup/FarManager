@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.08 26.01.2002 $ */
+/* Revision: 1.09 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   26.01.2002 VVM
     ! При обработке "!&" пробел в начале списка не ставится.
   25.01.2002 SVS
@@ -592,9 +594,7 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
 {
   FILE *ListFile;
 
-  strcpy(ListFileName,Opt.TempPath);
-  strcat(ListFileName,FarTmpXXXXXX);
-  if (mktemp(ListFileName)==NULL || (ListFile=fopen(ListFileName,"wb"))==NULL)
+  if (!FarMkTempEx(ListFileName) || (ListFile=fopen(ListFileName,"wb"))==NULL)
   {
     Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
     return(FALSE);

@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.12 27.09.2001 $ */
+/* Revision: 1.13 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! «ачем делать лишние телодвижени€, когда все за один раз можно сделать.
   27.09.2001 IS
     - Ћевый размер при использовании strncpy
   22.06.2001
@@ -59,12 +61,8 @@ KeyBar::KeyBar()
   DisableMask=0;
   Owner=NULL;
   AltState=CtrlState=ShiftState=0;
-
-  for (int i=0; i<KBL_GROUP_COUNT; i++)
-  {
-    memset (KeyTitles [i], 0, sizeof (KeyTitles [i]));
-    KeyCounts [i] = 0;
-  }
+  memset (KeyTitles, 0, sizeof (KeyTitles));
+  memset (KeyCounts, 0, sizeof (KeyCounts));
 }
 
 
@@ -171,8 +169,7 @@ void KeyBar::SetGroup(int Group,char **Key,int KeyCount)
 
 void KeyBar::ClearGroup(int Group)
 {
-  for (int i=0; i<KEY_COUNT; i++)
-    KeyTitles [Group][i][0] = '\0';
+  memset (KeyTitles[Group], 0, sizeof (KeyTitles[Group]));
   KeyCounts [Group] = 0;
 }
 

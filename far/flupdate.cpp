@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.29 14.02.2002 $ */
+/* Revision: 1.30 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   13.02.2002 DJ
@@ -820,10 +822,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
           if (LocalStricmp(CurPanelData->FindData.cFileName,Info.DescrFiles[I])==0)
           {
             char TempDir[NM],DizName[NM];
-            strcpy(TempDir,Opt.TempPath);
-            strcat(TempDir,FarTmpXXXXXX);
-            if (mktemp(TempDir)!=NULL && CreateDirectory(TempDir,NULL))
-            //if (FarMkTemp(TempDir,"Far")!=NULL && CreateDirectory(TempDir,NULL))
+            if (FarMkTempEx(TempDir) && CreateDirectory(TempDir,NULL))
             {
               if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,TempDir,DizName,OPM_SILENT|OPM_VIEW|OPM_DESCR))
               {

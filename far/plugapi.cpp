@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.119 28.02.2002 $ */
+/* Revision: 1.120 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   28.02.2002 SVS
    - Для ACTL_CONSOLEMODE+CONSOLE_GET_MODE
      Param=NULL - это... обычный (void*)0, так шта...
@@ -1861,13 +1863,11 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
   {
     char DataFileName[NM];
     FILE *DataFile;
-    strcpy(DataFileName,Opt.TempPath);
-    strcat(DataFileName,FarTmpXXXXXX);
     /* $ 19.06.2001
        - Баг: не работало автоопределение.
          Эх, Валя, зачем же ты return -1 закомментарил в 268??
     */
-    if (mktemp(DataFileName)==NULL || (DataFile=fopen(DataFileName,"w+b"))==NULL)
+    if (!FarMkTempEx(DataFileName) || (DataFile=fopen(DataFileName,"w+b"))==NULL)
       return(-1);
     /* IS $ */
     fwrite(Buffer,1,BufferSize,DataFile);

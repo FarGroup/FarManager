@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.20 19.02.2002 $ */
+/* Revision: 1.21 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   19.02.2002 SVS
     ! Восстановим режимы панелей после выталкивания плагина из стека.
   14.01.2002 IS
@@ -381,9 +383,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
     if (DizPresent)
     {
       char TempDir[NM],DizName[NM];
-      sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
-      if (mktemp(TempDir)!=NULL && CreateDirectory(TempDir,NULL))
-      //if (FarMkTemp(TempDir,"Far")!=NULL && CreateDirectory(TempDir,NULL))
+      if (FarMkTempEx(TempDir) && CreateDirectory(TempDir,NULL))
       {
         char SaveDir[NM];
         GetCurrentDirectory(sizeof(SaveDir),SaveDir);
@@ -474,10 +474,7 @@ void FileList::PluginToPluginFiles(int Move)
     return;
   FileList *AnotherFilePanel=(FileList *)AnotherPanel;
 
-  strcpy(TempDir,Opt.TempPath);
-  strcat(TempDir,FarTmpXXXXXX);
-  if (mktemp(TempDir)==NULL)
-  //if(!FarMkTemp(TempDir,"Far"))
+  if (!FarMkTempEx(TempDir))
     return;
   SaveSelection();
   CreateDirectory(TempDir,NULL);

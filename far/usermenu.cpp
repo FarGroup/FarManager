@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.52 28.02.2002 $ */
+/* Revision: 1.53 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   28.02.2002 SVS
     - BugZ#282 - отрисовка после вызова вьювера из меню с последующим
       переключением в редактор.
@@ -737,10 +739,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
                 (*FrameManager)[0]->UnlockRefresh();
                 FILE *MenuFile;
                 char MenuFileName[NM];
-                strcpy(MenuFileName,Opt.TempPath);
-                strcat(MenuFileName,FarTmpXXXXXX);
-                if (mktemp(MenuFileName)==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
-                //if (FarMkTemp(MenuFileName,"Far")==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
+                if (!FarMkTempEx(MenuFileName) || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
                   break;
                 MenuRegToFile(MenuRootKey,MenuFile);
                 MenuNeedRefresh=TRUE;

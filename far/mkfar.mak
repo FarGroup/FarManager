@@ -93,6 +93,8 @@ LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
 
 CCFLAGS =
 
+RESFLAGS = -i$(INCLUDEPATH)
+
 
 FAROBJ=\
    $(OBJPATH)\checkver.obj\
@@ -270,25 +272,25 @@ Far.def
 !endif
 
 # обязательно! Что бы в ручную не делать...
-   @del $(FINALPATH)\FarEng.hlf  >nul
-   @del $(FINALPATH)\FarRus.hlf  >nul
-   @del $(FINALPATH)\FarEng.lng  >nul
-   @del $(FINALPATH)\FarRus.lng  >nul
+   -@del $(FINALPATH)\FarEng.hlf  >nul
+   -@del $(FINALPATH)\FarRus.hlf  >nul
+   -@del $(FINALPATH)\FarEng.lng  >nul
+   -@del $(FINALPATH)\FarRus.lng  >nul
 !ifdef ILINK
-   @del $(FINALPATH)\Far.ilc  >nul
-   @del $(FINALPATH)\Far.ild  >nul
-   @del $(FINALPATH)\Far.ilf  >nul
-   @del $(FINALPATH)\Far.ils  >nul
-   @del $(FINALPATH)\Far.tds  >nul
+   -@del $(FINALPATH)\Far.ilc  >nul
+   -@del $(FINALPATH)\Far.ild  >nul
+   -@del $(FINALPATH)\Far.ilf  >nul
+   -@del $(FINALPATH)\Far.ils  >nul
+   -@del $(FINALPATH)\Far.tds  >nul
 !endif
    @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) FarEng.hlf > $(FINALPATH)\FarEng.hlf
    @awk -f mkhlf.awk -v FV1=$(FV1) -v FV2=$(FV2) -v FV3=$(FV3) FarRus.hlf > $(FINALPATH)\FarRus.hlf
    @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
    @copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
 
-   @if exist plugin.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
-   @if exist fmt.hpp awk -f plugins.awk -v p1=1 -v p2=70 fmt.hpp > $(FARINCLUDE)\fmt.hpp
-   @if exist fmt.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
+   -@if exist plugin.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
+   -@if exist fmt.hpp awk -f plugins.awk -v p1=1 -v p2=70 fmt.hpp > $(FARINCLUDE)\fmt.hpp
+   -@if exist fmt.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
 
 
 # Compiler configuration file

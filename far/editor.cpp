@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.158 22.02.2002 $ */
+/* Revision: 1.159 03.03.2002 $ */
 
 /*
 Modify:
+  03.03.2002 SVS
+    ! ѕо поводу трапа (патч от 28.06.2000) "более 1000 колонок"
+      Ќефига заниматьс€ ерундой в стиле "вз€ть, изменить, наложить",
+      достаточно одной операции - "изменить" :-)
   22.02.2002 SVS
     !  оррекци€ в св€зи с введение FAR_INT64
   21.02.2002 SKV
@@ -1294,9 +1298,10 @@ void Editor::ShowEditor(int CurLineOnly)
       }
       else
       {
-        GotoXY(X1,Y);
-        SetColor(COL_EDITORTEXT);
-        mprintf("%*s",ObjWidth,"");
+        //GotoXY(X1,Y);
+        //SetColor(COL_EDITORTEXT);
+        //mprintf("%*s",ObjWidth,"");
+        SetScreen(X1,Y,X2,Y,' ',COL_EDITORTEXT); //??
       }
   }
 
@@ -1312,11 +1317,6 @@ void Editor::ShowEditor(int CurLineOnly)
       {
         if (CurScreenLine>=VBlockY && CurScreenLine<VBlockY+VBlockSizeY)
         {
-          /* $ 28.06.2000 tran
-             убираем трап при ширине вертикального блока
-             более 1000 колонок */
-
-          CHAR_INFO SelBuf[300];
           int BlockX1=VBlockX-LeftPos;
           int BlockX2=VBlockX+VBlockSizeX-1-LeftPos;
           if (BlockX1<X1)
@@ -1324,19 +1324,7 @@ void Editor::ShowEditor(int CurLineOnly)
           if (BlockX2>X2)
             BlockX2=X2;
           if (BlockX1<=X2 && BlockX2>=X1)
-          {
-            GetText(BlockX1,Y,BlockX2,Y,SelBuf);
-            SetColor(COL_EDITORSELECTEDTEXT);
-            int SelColor=GetColor();
-            /* tran: было I<VBlockSizeX
-               теперь мы заполн€ем массив ровно столько
-               сколько показываем
-            */
-            for (int I=0;I<=BlockX2;I++)
-              SelBuf[I].Attributes=SelColor;
-            PutText(BlockX1,Y,BlockX2,Y,SelBuf);
-          }
-          /* tran $ */
+            ChangeBlockColor(BlockX1,Y,BlockX2,Y,COL_EDITORSELECTEDTEXT);
         }
         CurPtr=CurPtr->Next;
         CurScreenLine++;

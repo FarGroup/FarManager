@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.95 21.02.2002 $ */
+/* Revision: 1.96 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! Есть только одна функция создания временного файла - FarMkTempEx
   21.02.2002 VVM
     ! заменим strcpy на strncpy. А то падает при поиске в слишком
       длинных путях.
@@ -953,8 +955,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             PluginPanelItem FileItem;
             memset(&FileItem,0,sizeof(FileItem));
             FileItem.FindData=FindList[ItemIndex].FindData;
-            sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
-            mktemp(TempDir);
+            FarMkTempEx(TempDir); // А проверка на NULL???
             CreateDirectory(TempDir, NULL);
 //            if (!CtrlObject->Plugins.GetFile(ArcList[FindList[ItemIndex].ArcIndex].hPlugin,&FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
             WaitForSingleObject(hPluginMutex,INFINITE);
@@ -1732,8 +1733,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
       if ((hPlugin != INVALID_HANDLE_VALUE) && (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)==0)
       {
         char TempDir[NM];
-        sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
-        mktemp(TempDir);
+        FarMkTempEx(TempDir); // А проверка на NULL???
         CreateDirectory(TempDir,NULL);
         WaitForSingleObject(hPluginMutex,INFINITE);
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))

@@ -2584,6 +2584,9 @@ performed as a copy with subsequent deletion or as a direct move
 (within one physical drive), FAR takes into account Windows 2000/XP
 ~symbolic links~@HardSymLink@.
 
+    FAR handles copying to #con# in the same way as copying to #nul# -
+that is, the file is read from the disk but not written anywhere.
+
 @HardSymLink
 $ #Hard and Symbolic link#
     On NTFS partitions you can create #hard links# and #symbolic links#

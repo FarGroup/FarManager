@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.33 21.02.2002 $ */
+/* Revision: 1.34 01.03.2002 $ */
 
 /*
 Modify:
+  01.03.2002 SVS
+    ! FarTmpXXXXXX - удалено за ненадобностью.
   21.02.2002 SVS
     + ProcessException - признак процесса обработки исключения
   22.01.2002 SVS
@@ -154,7 +156,6 @@ char MainPluginsPath[NM];
 /* SVS $ */
 
 char LastFarTitle[512];
-const char FarTmpXXXXXX[]="FTMPXXXXXXXX";
 char RegColorsHighlight[]="Colors\\Highlight";
 
 
