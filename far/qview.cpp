@@ -5,7 +5,7 @@ Quick view panel
 
 */
 
-/* Revision: 1.04 12.07.2000 $ */
+/* Revision: 1.05 20.07.2000 $ */
 
 /*
 Modify:
@@ -21,6 +21,9 @@ Modify:
   12.07.2000 SVS
     ! Для возможности 3-х позиционного Wrap`а статическая переменная
       LastWrapMode имеет не булевое значение, а обычный int
+  20.07.2000 tran
+    - bug#21, пустой заголовок консоли
+      теперь он верный всегда
 */
 
 #include "headers.hpp"
@@ -350,3 +353,29 @@ int QuickView::UpdateIfChanged()
   return(FALSE);
 }
 
+/* $ 20.07.2000 tran
+   два метода - установка заголовка*/
+void QuickView::SetTitle()
+{
+  if (GetFocus())
+  {
+    char TitleDir[NM];
+    if (*CurFileName)
+      sprintf(TitleDir,"{%s - QuickView}",CurFileName);
+    else
+    {
+      char CmdText[512];
+      CtrlObject->CmdLine.GetString(CmdText,sizeof(CmdText));
+      sprintf(TitleDir,"{%s}",CmdText);
+    }
+    strcpy(LastFarTitle,TitleDir);
+    SetFarTitle(TitleDir);
+  }
+}
+// и его показ в случае получения фокуса
+void QuickView::SetFocus()
+{
+  Panel::SetFocus();
+  SetTitle();
+}
+/* tran 20.07.2000 $ */

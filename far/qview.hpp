@@ -7,13 +7,15 @@ Quick view panel
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 20.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  20.07.2000 tran 1.01
+    - bug 21, реализовал два виртуальных метода
 */
 
 class QuickView:public Panel
@@ -38,7 +40,13 @@ class QuickView:public Panel
     void CloseFile();
     void QViewDelTempName();
     int UpdateIfChanged();
+    /* $ 20.07.2000 tran
+       add two new virtual methos - for correct title showing*/
+    virtual void SetTitle();
+    virtual void SetFocus();
+    /* tran 20.07.2000 $ */
+
 };
 
 
-#endif	// __QVIEW_HPP__
+#endif  // __QVIEW_HPP__

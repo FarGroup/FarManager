@@ -5,7 +5,7 @@ infolist.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 20.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  20.07.2000 tran
+    - артефакт при f3 (при наличии dirinfo)
 */
 
 #include "headers.hpp"
@@ -209,6 +211,10 @@ int InfoList::ProcessKey(int Key)
         FileViewer *ShellViewer=new FileViewer(DizFileName,TRUE);
         CtrlObject->ModalManager.AddModal(ShellViewer);
       }
+      /* $ 20.07.2000 tran
+         после показа перерисовываем панели */
+      CtrlObject->Redraw();
+      /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_F4:
       CtrlObject->GetAnotherPanel(this)->GetCurDir(CurDir);
@@ -231,6 +237,10 @@ int InfoList::ProcessKey(int Key)
         AnotherPanel->Redraw();
         Update(0);
       }
+      /* $ 20.07.2000 tran
+         после показа перерисовываем панели */
+      CtrlObject->Redraw();
+      /* tran 20.07.2000 $ */
       return(TRUE);
     case KEY_CTRLR:
       Redraw();
