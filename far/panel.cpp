@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.23 16.03.2001 $ */
+/* Revision: 1.24 27.03.2001 $ */
 
 /*
 Modify:
+  27.03.2001 SVS
+    + Shift-F1 на пункте плагина в меню выбора дисков тоже покажет хелп...
   16.03.2001 SVS
     + добавлена информация о пути соединения в диалог подтверждения удаления
       мапленного диска.
@@ -532,6 +534,19 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         case KEY_RCTRL8:
           Opt.ChangeDriveMode^=DRIVE_SHOW_CDROM;
           return(SelPos);
+        /* $ 27.03.2001 SVS
+          Shift-F1 на пункте плагина в меню выбора дисков тоже покажет хелп...
+        */
+        case KEY_SHIFTF1:
+          if (SelPos>DiskCount)
+          {
+            // Вызываем нужный топик, который передали в CommandsMenu()
+            UserDataSize=ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter));
+            FarShowHelp(CtrlObject->Plugins.PluginsData[DiskLetter[0]].ModuleName,
+                    NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+          }
+          break;
+        /* SVS $ */
         default:
           ChDisk.ProcessInput();
           break;
