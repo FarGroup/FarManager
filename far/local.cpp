@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.02 28.08.2000 $ */
+/* Revision: 1.03 06.11.2000 $ */
 
 /*
 Modify:
+  08.11.2000 SVS
+    ! Изменен массив клавиш Keys - теперь содержит сканкоды.
   28.08.2000 SVS
     + Добавлена функция LocalLowerBuf
     ! Функции модифицированы под WINAPI с целью применения в FSF
@@ -77,6 +79,10 @@ void LocalUpperInit()
   HKL Layout[10];
   int LayoutNumber=GetKeyboardLayoutList(sizeof(Layout)/sizeof(Layout[0]),Layout);
   if (LayoutNumber<5)
+  /* $ 08.11.2000 SVS
+     Изменен массив клавиш Keys - теперь содержит сканкоды.
+  */
+#if 0
     for (I=0;I<=255;I++)
     {
       int Keys[10];
@@ -99,6 +105,22 @@ void LocalUpperInit()
         KeyToKey[LocalUpper(Keys[1])]=Keys[0];
       }
     }
+#else
+    CvtStr[1]=0;
+    for (I=0;I<=255;I++)
+    {
+      for (int J=0;J<LayoutNumber;J++)
+      {
+        SHORT AnsiKey=VkKeyScanEx(I,Layout[J])&0xFF;
+        if (AnsiKey==0xFF)
+          continue;
+        CvtStr[0]=I;
+        CharToOem((char *)CvtStr,(char *)CvtStr);
+        KeyToKey[CvtStr[0]]=AnsiKey;
+      }
+    }
+#endif
+  /* SVS $ */
 }
 
 

@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.31 04.11.2000 $ */
+/* Revision: 1.32 05.11.2000 $ */
 
 /*
 Modify:
+  05.11.2000 SVS
+    - В настройках вьювера вместо Opt.SaveViewerShortPos стоялО
+      Opt.SaveEditorShortPos :-(((
   04.11.2000 SVS
     + XLat - добавление альтернативных клавиш:
         XLatAltEditorKey, XLatAltCmdLineKey, XLatAltDialogKey;
@@ -469,22 +472,22 @@ void SetDizConfig()
 void ViewerConfig()
 {
   static struct DialogData CfgDlgData[]={
-    DI_DOUBLEBOX , 3, 1,47,17,0,0,0,0,(char *)MViewConfigTitle,                  //   0
-    DI_SINGLEBOX , 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,    //   1
-    DI_RADIOBUTTON,7, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,     //   2
-    DI_RADIOBUTTON,7, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,          //   3
-    DI_TEXT      , 7, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,        //   4
-    DI_EDIT      , 7, 6,43, 6,0,0,0,0,"",                                        //   5
-    DI_SINGLEBOX , 5, 8,45,15,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
-    DI_CHECKBOX  , 7, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,                //   7
-    DI_CHECKBOX  , 7,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,           //   8
-    DI_CHECKBOX  , 7,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,              //   9
-    DI_FIXEDIT   , 7,12, 9,15,0,0,0,0,"",                                        //  10
-    DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  11
-    DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  12 *new
-    DI_CHECKBOX  , 7,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  13 *new
-    DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  14 , was 11
-    DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  15 , was 12
+  /*  0 */  DI_DOUBLEBOX , 3, 1,47,17,0,0,0,0,(char *)MViewConfigTitle,                  //   0
+  /*  1 */  DI_SINGLEBOX , 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,    //   1
+  /*  2 */  DI_RADIOBUTTON,7, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,     //   2
+  /*  3 */  DI_RADIOBUTTON,7, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,          //   3
+  /*  4 */  DI_TEXT      , 7, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,        //   4
+  /*  5 */  DI_EDIT      , 7, 6,43, 6,0,0,0,0,"",                                        //   5
+  /*  6 */  DI_SINGLEBOX , 5, 8,45,15,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
+  /*  7 */  DI_CHECKBOX  , 7, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,                //   7
+  /*  8 */  DI_CHECKBOX  , 7,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,           //   8
+  /*  9 */  DI_CHECKBOX  , 7,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,              //   9
+  /* 10 */  DI_FIXEDIT   , 7,12, 9,15,0,0,0,0,"",                                        //  10
+  /* 11 */  DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  11
+  /* 12 */  DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  12 *new
+  /* 13 */  DI_CHECKBOX  , 7,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  13 *new
+  /* 14 */  DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  14 , was 11
+  /* 15 */  DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  15 , was 12
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -492,7 +495,7 @@ void ViewerConfig()
   CfgDlg[DLG_VIEW_USE_ALTF3].Selected=!Opt.UseExternalViewer;
   strcpy(CfgDlg[DLG_VIEW_EXTERNAL].Data,Opt.ExternalViewer);
   CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected=Opt.SaveViewerPos;
-  CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected=Opt.SaveEditorShortPos;
+  CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected=Opt.SaveViewerShortPos;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
@@ -522,7 +525,7 @@ void ViewerConfig()
   Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
   strcpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data);
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
-  Opt.SaveEditorShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
+  Opt.SaveViewerShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов

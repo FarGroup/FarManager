@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.51 04.11.2000 $ */
+/* Revision: 1.52 08.11.2000 $ */
 
 /*
 Modify:
+  08.11.2000 SVS
+   ! Изменен пересчет кодов клавишь для hotkey (используются сканкоды)
   04.11.2000 SVS
    + Проверка на альтернативную клавишу при XLat-перекодировке
   26.10.2000 SVS
@@ -2838,6 +2840,10 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
   if ((Str=strchr(Str,'&'))==NULL)
     return(FALSE);
   int UpperStrKey=LocalUpper(Str[1]);
+  /* $ 08.11.2000 SVS
+     Изменен пересчет кодов клавишь для hotkey (используются сканкоды)
+  */
+#if 0
   if (Key<256)
     return(UpperStrKey==LocalUpper(Key) ||
            Translate && UpperStrKey==LocalUpper(LocalKeyToKey(Key)));
@@ -2849,6 +2855,20 @@ int Dialog::IsKeyHighlighted(char *Str,int Key,int Translate)
     return(UpperStrKey==LocalUpper(AltKey) ||
            Translate && UpperStrKey==LocalUpper(LocalKeyToKey(AltKey)));
   }
+#else
+  if (Key<256)
+    return(UpperStrKey==LocalUpper(Key) ||
+           Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(Key));
+  if (Key>=KEY_ALT0 && Key<=KEY_ALT9)
+    return(Key-KEY_ALT0+'0'==UpperStrKey);
+  if (Key>=KEY_ALTA && Key<=KEY_ALT_BASE+255)
+  {
+    int AltKey=Key-KEY_ALTA+'A';
+    return(UpperStrKey==LocalUpper(AltKey) ||
+           Translate && LocalKeyToKey(UpperStrKey)==LocalKeyToKey(AltKey));
+  }
+#endif
+  /* SVS $*/
   return(FALSE);
 }
 
