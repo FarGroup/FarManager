@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.117 05.04.2005 $ */
+/* Revision: 1.118 05.04.2005 $ */
 
 /*
 Modify:
+  05.04.2005 SVS
+    - Ctrl-G "echo L:\Foo\Bar" приводит к "echo  L:\Foo\Bar", т.е. добавл€етс€ доп.пробел между "echo" и "L"
   05.04.2005 AY
     ! ƒобавил в Execute все описаные в cmd.exe /? символы которые
       надо дабл-квотить "&<>()@^|".
@@ -1017,6 +1019,8 @@ int Execute(const char *CmdStr,    //  ом.строка дл€ исполнени€
             sizeof(NewCmdPar)
             );
 
+    if(*NewCmdPar)
+      RemoveExternalSpaces(NewCmdPar);
 
     DWORD dwAttr = GetFileAttributes(NewCmdStr);
 
