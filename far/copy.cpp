@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.20 06.02.2001 $ */
+/* Revision: 1.21 12.02.2001 $ */
 
 /*
 Modify:
+  12.02.2001 VVM
+    - При включенном TotalCopyIndicator и показе CPS размер показывается 1 раз :)
   06.02.2001 SKV
     - char SelNameShort[NM];, а не char SelNameShort[40];
   30.01.2001 VVM
@@ -1055,14 +1057,14 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
     if (Move)
     {
       if (ShowCopyTime)
-        Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,BarStr,"");
+        Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,Bar,"");
       else
         Message(Flags,0,MSG(MMoveDlgTitle),MSG(MCopyMoving),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
     }
     else
     {
       if (ShowCopyTime)
-        Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,BarStr,"");
+        Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr,Bar,"");
       else
         Message(Flags,0,MSG(MCopyDlgTitle),MSG(MCopyCopying),SrcName,MSG(MCopyTo),DestName,"",BarStr,FilesStr);
     }
