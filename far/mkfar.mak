@@ -202,6 +202,7 @@ FAROBJ=\
    $(OBJPATH)\farrtl.obj\
    $(OBJPATH)\syslog.obj\
    $(OBJPATH)\fileattr.obj\
+   $(OBJPATH)\filepanels.obj\
    $(OBJPATH)\main.obj
 
 Dep_fardexe = BccW32.cfg\

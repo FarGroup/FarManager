@@ -59,6 +59,7 @@ CLEAN :
 	-@erase "$(INTDIR)\dizlist.obj"
 	-@erase "$(INTDIR)\edit.obj"
 	-@erase "$(INTDIR)\editor.obj"
+	-@erase "$(INTDIR)\filepanels.obj"
 	-@erase "$(INTDIR)\far.res"
 	-@erase "$(INTDIR)\ffolders.obj"
 	-@erase "$(INTDIR)\fileedit.obj"
@@ -154,6 +155,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\flink.obj" \
+	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\checkver.obj" \
 	"$(INTDIR)\chgmmode.obj" \
 	"$(INTDIR)\chgprior.obj" \
@@ -273,6 +275,7 @@ CLEAN :
 	-@erase "$(INTDIR)\chgmmode.obj"
 	-@erase "$(INTDIR)\chgprior.obj"
 	-@erase "$(INTDIR)\constitle.obj"
+	-@erase "$(INTDIR)\filepanels.obj"
 	-@erase "$(INTDIR)\cmdline.obj"
 	-@erase "$(INTDIR)\config.obj"
 	-@erase "$(INTDIR)\copy.obj"
@@ -393,6 +396,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\edit.obj" \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\ffolders.obj" \
+	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filelist.obj" \
 	"$(INTDIR)\constitle.obj" \
@@ -928,6 +932,10 @@ SOURCE=.\farrtl.cpp
 SOURCE=.\farqueue.cpp
 
 "$(INTDIR)\farqueue.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\filepanels.cpp
+
+"$(INTDIR)\filepanels.obj" : $(SOURCE) "$(INTDIR)"
 
 
 !ENDIF

@@ -179,6 +179,10 @@ SOURCE=.\filelist.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\filepanels.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\filestr.cpp
 # End Source File
 # Begin Source File
