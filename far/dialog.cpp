@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.88 27.04.2001 $ */
+/* Revision: 1.89 27.04.2001 $ */
 
 /*
 Modify:
+  27.04.2001 SVS
+   - Не работали позиционирование в хистори и в комбобоксах - вместо
+     MaxLen, стояло sizeof(MaxLen) :-((
   27.04.2001 VVM
    + Обработка KEY_MSWHEEL_XXXX
    - Убрал подмену клавиш при прокрутке.
@@ -2162,7 +2165,12 @@ int Dialog::ProcessKey(int Key)
           if((PStr=(char*)malloc(MaxLen+1)) == NULL)
             return TRUE;//???
         }
-        CurEditLine->GetString(PStr,sizeof(MaxLen));
+        /* $ 27.04.2001 SVS
+           Оху%$@#&^%$&$%*%^$*^%$*^%$*^%$&*
+           Было: sizeof(MaxLen) ;-( - это типа размер данных.
+        */
+        CurEditLine->GetString(PStr,MaxLen);
+        /* SVS $ */
         SelectFromEditHistory(CurEditLine,Item[FocusPos].History,PStr,MaxLen);
         Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
         if(Item[FocusPos].Flags&DIF_VAREDIT)
@@ -2182,7 +2190,7 @@ int Dialog::ProcessKey(int Key)
           if((PStr=(char*)malloc(MaxLen+1)) == NULL)
             return TRUE;//???
         }
-        CurEditLine->GetString(PStr,sizeof(MaxLen));
+        CurEditLine->GetString(PStr,MaxLen);
         SelectFromComboBox(CurEditLine,
                       Item[FocusPos].ListItems,PStr,MaxLen);
         Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
