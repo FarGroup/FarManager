@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.04 12.05.2001 $ */
+/* Revision: 1.05 29.05.2001 $ */
 
 /*
 Modify:
+  29.05.2001 tran
+    + DIRECT_RT
   12.05.2001 DJ
     ! глобальный ScrBuf переехал сюда
   06.05.2001 DJ
@@ -32,8 +34,12 @@ Modify:
 #include "colors.hpp"
 #include "ctrlobj.hpp"
 
-#if defined(SYSLOG_OT)
- #define DIRECT_SCREEN_OUT
+//#if defined(SYSLOG_OT)
+// #define DIRECT_SCREEN_OUT
+//#endif
+
+#ifdef DIRECT_RT
+extern int DirectRT;
 #endif
 
 ScreenBuf ScrBuf;
@@ -125,7 +131,11 @@ void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
 
 #ifdef DIRECT_SCREEN_OUT
   Flush();
+#elif DIRECT_RT
+  if ( DirectRT  )
+    Flush();
 #endif
+
 }
 
 

@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.20 06.05.2001 $ */
+/* Revision: 1.21 29.05.2001 $ */
 
 /*
 Modify:
+  29.05.2001 tran
+    + DIRECT_RT
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -87,6 +89,10 @@ Modify:
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "language.hpp"
+
+#ifdef DIRECT_RT
+int DirectRT=0;
+#endif
 
 static void ConvertOldSettings();
 /* $ 07.07.2000 IS
@@ -237,6 +243,12 @@ int _cdecl main(int Argc, char *Argv[])
           show_help();
           exit(0);
         /* SVS $ */
+#ifdef DIRECT_RT
+        case 'D':
+          if ( toupper(Argv[I][2])=='O' )
+            DirectRT=1;
+          break;
+#endif
       }
     }
     else
