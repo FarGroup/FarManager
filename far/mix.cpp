@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.68 08.04.2001 $ */
+/* Revision: 1.69 13.04.2001 $ */
 
 /*
 Modify:
+  13.04.2001 VVM
+    + Флаг CREATE_DEFAULT_ERROR_MODE при CreateProcess.
   08.06.2001 SVS
     ! В Add_PATHEXT() используем модифицированную GetCommaWord().
     ! ExpandPATHEXT() выкинем за ненадобностью.
@@ -376,6 +378,10 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
   char ExecLine[1024],CommandName[NM];
   char OldTitle[512];
   int ExitCode;
+  /* $ 13.04.2001 VVM
+    + Флаг CREATE_DEFAULT_ERROR_MODE. Что-бы показывал все ошибки */
+  DWORD CreateFlags=CREATE_DEFAULT_ERROR_MODE;
+  /* VVM $ */
 
   int Visible,Size;
   GetCursorType(Visible,Size);
@@ -407,7 +413,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
         GetCurrentDirectory(sizeof(SavePath),SavePath);
         PassivePanel->GetCurDir(PanelPath);
         sprintf(SetPathCmd,"%s /C chdir %s",CommandName,QuoteSpace(PanelPath));
-        CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
+        CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CreateFlags,NULL,NULL,&si,&pi);
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
         chdir(SavePath);
@@ -448,9 +454,8 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 
   ChangeConsoleMode(InitialConsoleMode);
 
-  DWORD CreateFlags=0;
   if (SeparateWindow && OldNT)
-    CreateFlags=CREATE_NEW_CONSOLE;
+    CreateFlags|=CREATE_NEW_CONSOLE;
 
 
   if (SeparateWindow==2)
