@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.29 13.10.2001 $ */
+/* Revision: 1.30 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    + немного про "типы" - GetType*()
   13.10.2001 VVM
     ! Теперь меню не реагирует на отпускание клавиши мышки, если клавиша была нажата не в меню.
   10.10.2001 IS
@@ -340,6 +342,10 @@ class VMenu: virtual public Modal, virtual public Frame
     /* SVS $ */
 
     void SetExitCode(int Code) {Modal::SetExitCode(Code);}
+
+    virtual const char *GetTypeName() {return "[VMenu]";};
+    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual int GetType() { return MODALTYPE_VMENU; }
 };
 
 

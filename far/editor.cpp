@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.128 29.10.2001 $ */
+/* Revision: 1.129 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    ! ECTL_GETBOOKMARK, EditorBookMark -> ECTL_GETBOOKMARKS, EditorBookMarks
+    ! С помощью IsBadWritePtr проверим на вшивость адресное пространство
   29.10.2001 IS
     ! SaveEditorPos и SaveEditorShortPos переехали в EditorOptions
       Теперь они локальны для каждой копии редактора, а первая опция может
@@ -5237,7 +5240,7 @@ int Editor::EditorControl(int Command,void *Param)
         /* $ 08.06.2001 IS
            - Баг: не учитывался размер PluginTitle
         */
-        strncpy(PluginTitle,Title,sizeof(PluginTitle)-1);
+        strncpy(PluginTitle,NullToEmpty(Title),sizeof(PluginTitle)-1);
         /* IS $ */
         ShowStatus();
         ScrBuf.Flush();
@@ -5269,6 +5272,8 @@ int Editor::EditorControl(int Command,void *Param)
     case ECTL_ADDCOLOR:
       {
         struct EditorColor *col=(struct EditorColor *)Param;
+        if (!col)
+          return(FALSE);
         struct ColorItem newcol;
         newcol.StartPos=col->StartPos;
         newcol.EndPos=col->EndPos;
@@ -5285,7 +5290,7 @@ int Editor::EditorControl(int Command,void *Param)
       {
         struct EditorColor *col=(struct EditorColor *)Param;
         struct EditList *CurPtr=GetStringByNumber(col->StringNumber);
-        if (CurPtr==NULL)
+        if (!CurPtr || !col || IsBadWritePtr(col,sizeof(struct EditorColor)))
           return(FALSE);
         struct ColorItem curcol;
         if (!CurPtr->EditLine.GetColor(&curcol,col->ColorItem))
@@ -5437,18 +5442,18 @@ int Editor::EditorControl(int Command,void *Param)
       return  FALSE;
     }
     /* IS $ */
-    case ECTL_GETBOOKMARK:
+    case ECTL_GETBOOKMARKS:
     {
       if(!OpenFailed && Param)
       {
-        struct EditorBookMark *ebm=(struct EditorBookMark *)Param;
-        if(ebm->Line)
+        struct EditorBookMarks *ebm=(struct EditorBookMarks *)Param;
+        if(ebm->Line && !IsBadWritePtr(ebm->Line,BOOKMARK_COUNT*sizeof(long)))
           memcpy(ebm->Line,SavePos.Line,BOOKMARK_COUNT*sizeof(long));
-        if(ebm->Cursor)
+        if(ebm->Cursor && !IsBadWritePtr(ebm->Cursor,BOOKMARK_COUNT*sizeof(long)))
           memcpy(ebm->Cursor,SavePos.Cursor,BOOKMARK_COUNT*sizeof(long));
-        if(ebm->ScreenLine)
+        if(ebm->ScreenLine && !IsBadWritePtr(ebm->ScreenLine,BOOKMARK_COUNT*sizeof(long)))
           memcpy(ebm->ScreenLine,SavePos.ScreenLine,BOOKMARK_COUNT*sizeof(long));
-        if(ebm->LeftPos)
+        if(ebm->LeftPos && !IsBadWritePtr(ebm->LeftPos,BOOKMARK_COUNT*sizeof(long)))
           memcpy(ebm->LeftPos,SavePos.LeftPos,BOOKMARK_COUNT*sizeof(long));
         return TRUE;
       }

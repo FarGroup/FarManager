@@ -5,14 +5,16 @@ infolist.cpp
 
 */
 
-/* Revision: 1.23 12.10.2001 $ */
+/* Revision: 1.24 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    ! небольшая оптимизация.
   12.10.2001 SKV
-   - фикс падения при goto в dizview.
+    - фикс падения при goto в dizview.
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   29.05.2001 tran
     + в processMouseInput при отсутсвующем описании DizView был равен 0
   23.05.2001 OT
@@ -194,27 +196,31 @@ void InfoList::DisplayObject()
     else
       strcpy(DiskName,DriveRoot);
 
+    int IdxMsgID=-1;
+    *DiskType=0;
     switch(DriveType)
     {
       case DRIVE_REMOVABLE:
-        strcpy(DiskType,MSG(MInfoRemovable));
+        IdxMsgID=MInfoRemovable;
         break;
       case DRIVE_FIXED:
-        strcpy(DiskType,MSG(MInfoFixed));
+        IdxMsgID=MInfoFixed;
         break;
       case DRIVE_REMOTE:
-        strcpy(DiskType,MSG(MInfoNetwork));
+        IdxMsgID=MInfoNetwork;
         break;
       case DRIVE_CDROM:
-        strcpy(DiskType,MSG(MInfoCDROM));
+        IdxMsgID=MInfoCDROM;
         break;
       case DRIVE_RAMDISK:
-        strcpy(DiskType,MSG(MInfoRAM));
+        IdxMsgID=MInfoRAM;
         break;
       default:
         *DiskType=0;
         break;
     }
+    if(IdxMsgID != -1)
+      strcpy(DiskType,MSG(IdxMsgID));
     /* 05.01.2001 SVS
        + Информация про Subst-тип диска
     */

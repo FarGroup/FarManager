@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.49 29.10.2001 $ */
+/* Revision: 1.50 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    + немного про "типы" - GetType*()
   26.10.2001 VVM
     + Считать нажатие средней кнопки за ЕНТЕР
   15.10.2001 SVS
@@ -1684,6 +1686,15 @@ int Help::FastHide()
   return Opt.AllCtrlAltShiftRule & CASR_HELP;
 }
 
+
+int Help::GetTypeAndName(char *Type,char *Name)
+{
+  if(Type)
+    strcpy(Type,MSG(MHelpType));
+  if(Name)
+    strcpy(Name,"");
+  return(MODALTYPE_HELP);
+}
 
 /* ------------------------------------------------------------------ */
 void CallBackStack::ClearStack()

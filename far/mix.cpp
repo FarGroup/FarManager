@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.97 28.10.2001 $ */
+/* Revision: 1.98 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! ConvertNameToReal() аналогично GetReparsePointInfo() - параметр Dest
+      можно не указывать.
   28.10.2001 SVS
     ! ConvertNameToShort() - раз уж сказали короткие имена и т.к. мы сидим
       в DOS-наследии, то преобразуем имя в верхний регистр.
@@ -481,30 +484,31 @@ int ToPercent(unsigned long N1,unsigned long N2)
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
 int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
 {
- int skippath=flags&PN_SKIPPATH;
+  int skippath=flags&PN_SKIPPATH;
 
- if(flags&PN_CMPNAME)
+  if(flags&PN_CMPNAME)
     return CmpName(param1, param2, skippath);
 
- if(flags&PN_CMPNAMELIST)
- {
-  int Found=FALSE;
-  char FileMask[NM];
-  const char *MaskPtr;
-  MaskPtr=param1;
-  while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
-  if (CmpName(FileMask,param2,skippath))
+  if(flags&PN_CMPNAMELIST)
   {
-    Found=TRUE;
-    break;
+    int Found=FALSE;
+    char FileMask[NM];
+    const char *MaskPtr;
+    MaskPtr=param1;
+
+    while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
+      if (CmpName(FileMask,param2,skippath))
+      {
+        Found=TRUE;
+        break;
+      }
+    return Found;
   }
-  return Found;
- }
 
- if(flags&PN_GENERATENAME)
-    return ConvertWildcards(param1, param2, flags & 0xFF);
+  if(flags&PN_GENERATENAME)
+   return ConvertWildcards(param1, param2, flags & 0xFF);
 
- return FALSE;
+  return FALSE;
 }
 /* IS $ */
 
@@ -781,7 +785,9 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
   }
   if(IsAddEndSlash) // если не просили - удалим.
     TempDest[strlen(TempDest)-1]=0;
-  strncpy(Dest,TempDest,DestSize-1);
+
+  if(Dest && DestSize)
+    strncpy(Dest,TempDest,DestSize-1);
   return Ret;
 }
 

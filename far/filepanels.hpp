@@ -7,14 +7,16 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.09 18.07.2001 $ */ 
+/* Revision: 1.10 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! возвращаемое значение у GetTypeName() - модификатор const
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   14.06.2001 OT
     ! "Бунт" ;-)
   21.05.2001 OT
@@ -46,16 +48,27 @@ class FilePanels:public Frame
     void DisplayObject();
     typedef class Frame inherited;
 
+  public:
+    Panel *LastLeftFilePanel,
+          *LastRightFilePanel;
+    Panel *LeftPanel,
+          *RightPanel,
+          *ActivePanel;
+
+    KeyBar      MainKeyBar;
+    MenuBar     TopMenuBar;
+
+    int LastLeftType,
+        LastRightType;
+    int LeftStateBeforeHide,
+        RightStateBeforeHide;
 
   public:
-
     FilePanels();
     ~FilePanels();
 
+  public:
     void Init();
-
-    Panel *LastLeftFilePanel,
-          *LastRightFilePanel;
 
     Panel* CreatePanel(int Type);
     void   DeletePanel(Panel *Deleted);
@@ -71,19 +84,6 @@ class FilePanels:public Frame
 
     void Redraw();
 
-    Panel *LeftPanel,
-          *RightPanel,
-          *ActivePanel;
-
-    KeyBar      MainKeyBar;
-    MenuBar     TopMenuBar;
-
-    int LastLeftType,
-        LastRightType;
-    int LeftStateBeforeHide,
-        RightStateBeforeHide;
-
-
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
@@ -94,8 +94,8 @@ class FilePanels:public Frame
 
     virtual int GetTypeAndName(char *Type,char *Name);
     virtual int GetType() { return MODALTYPE_PANELS; }
+    virtual const char *GetTypeName(){return "[FilePanels]";};
 
-    virtual char *GetTypeName(){return "[FilePanels]";};
     virtual void OnChangeFocus(int focus);
 
     void RedrawKeyBar(); // virtual

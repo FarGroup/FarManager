@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.172 29.10.2001 $ */
+/* Revision: 1.173 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! DM_SETNOTIFYMOUSEEVENT -> DM_SETMOUSEEVENTNOTIFY
+    ! ¬ыкинем ненужный код (а кое-где добавим :-))
   29.10.2001 SVS
     ! DM_RESIZEDIALOG возвращает новый размер!
   23.10.2001 SVS
@@ -3572,20 +3575,7 @@ void Dialog::ConvertItem(int FromPlugin,
           EditPtr->GetString(PtrData,PtrLength);
         }
       }
-      {
-        if(Opt.ExceptRules)
-        {
-          TRY{
-            memmove(Item->Data,Data->Data,sizeof(Item->Data));
-          }
-          EXCEPT (EXCEPTION_EXECUTE_HANDLER)
-          {
-            ;
-          }
-        }
-        else
-          memmove(Item->Data,Data->Data,sizeof(Item->Data));
-      }
+      memmove(Item->Data,Data->Data,sizeof(Item->Data));
     }
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
@@ -3601,18 +3591,7 @@ void Dialog::ConvertItem(int FromPlugin,
       Data->Selected=Item->Selected;
       Data->Flags=Item->Flags;
       Data->DefaultButton=Item->DefaultButton;
-      if(Opt.ExceptRules)
-      {
-         TRY{
-           memmove(Data->Data,Item->Data,sizeof(Data->Data));
-         }
-         EXCEPT (EXCEPTION_EXECUTE_HANDLER)
-         {
-           ;
-         }
-      }
-      else
-        memmove(Data->Data,Item->Data,sizeof(Data->Data));
+      memmove(Data->Data,Item->Data,sizeof(Data->Data));
       /* Ётот кусок будет работать после тчательной проверки.
       ќн позволит мен€ть данные в ответ на DN_EDITCHANGE
       if(InternalCall)
@@ -3645,15 +3624,14 @@ void Dialog::ConvertItem(int FromPlugin,
    представление. јналогичен функции InitDialogItems (см. "Far PlugRinG
    Russian Help Encyclopedia of Developer")
 */
-void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
-                        int Count)
+void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,int Count)
 {
   int I;
 
   if(!Item || !Data)
     return;
 
-  for (I=0;I<Count;I++, ++Item, ++Data)
+  for (I=0; I < Count; I++, ++Item, ++Data)
   {
     Item->Type=Data->Type;
     Item->X1=Data->X1;
@@ -3669,20 +3647,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
     if ((unsigned int)Data->Data<MAX_MSG)
       strcpy(Item->Data,MSG((unsigned int)Data->Data));
     else
-    {
-      if(Opt.ExceptRules)
-      {
-        TRY{
-          memmove(Item->Data,Data->Data,sizeof(Item->Data));
-        }
-        EXCEPT (EXCEPTION_EXECUTE_HANDLER)
-        {
-          ;
-        }
-      }
-      else
-        memmove(Item->Data,Data->Data,sizeof(Item->Data));
-    }
+      memcpy(Item->Data,Data->Data,sizeof(Item->Data));
     Item->ObjPtr=NULL;
     Item->ListPtr=NULL;
   }
@@ -4514,7 +4479,9 @@ void Dialog::SetHelp (const char *Topic)
 void Dialog::ShowHelp()
 {
   if (HelpTopic && *HelpTopic)
+  {
     Help Hlp (HelpTopic);
+  }
 }
 
 void Dialog::ClearDone()
@@ -4622,7 +4589,7 @@ const char *MsgToName(int Msg)
     DEF_MESSAGE(DM_LISTGETTITLE),      DEF_MESSAGE(DM_RESIZEDIALOG),
     DEF_MESSAGE(DM_SETITEMPOSITION),   DEF_MESSAGE(DM_GETDROPDOWNOPENED),
     DEF_MESSAGE(DM_SETDROPDOWNOPENED), DEF_MESSAGE(DM_SETHISTORY),
-    DEF_MESSAGE(DM_GETITEMPOSITION),   DEF_MESSAGE(DM_SETNOTIFYMOUSEEVENT),
+    DEF_MESSAGE(DM_GETITEMPOSITION),   DEF_MESSAGE(DM_SETMOUSEEVENTNOTIFY),
     DEF_MESSAGE(DN_FIRST),             DEF_MESSAGE(DN_BTNCLICK),
     DEF_MESSAGE(DN_CTLCOLORDIALOG),    DEF_MESSAGE(DN_CTLCOLORDLGITEM),
     DEF_MESSAGE(DN_CTLCOLORDLGLIST),   DEF_MESSAGE(DN_DRAWDIALOG),
@@ -5375,7 +5342,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return 0;
 
     case DM_GETDLGITEM:
-      if(Param2)
+      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(struct FarDialogItem)))
       {
         Dialog::ConvertItem(CVTITEM_TOPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
 /*
@@ -5392,7 +5359,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return FALSE;
 
     case DM_SETDLGITEM:
-      if(Param2 &&
+      if(Param2 && !IsBadReadPtr((void*)Param2,sizeof(struct FarDialogItem)) &&
          Type == ((struct FarDialogItem *)Param2)->Type) // пока нефига мен€ть тип
       {
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,(struct FarDialogItem *)Param2,CurItem,1);
@@ -5523,7 +5490,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     */
     case DM_GETDLGRECT:
     {
-      if(Param2)
+      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
       {
         int x1,y1,x2,y2;
         Dlg->GetPosition(x1,y1,x2,y2);
@@ -5743,7 +5710,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     // получить позицию и размеры контрола
     case DM_GETITEMPOSITION: // Param1=ID, Param2=*SMALL_RECT
-      if(Param2)
+      if(Param2 && !IsBadWritePtr((void*)Param2,sizeof(SMALL_RECT)))
       {
         RECT Rect;
         if(Dlg->GetItemRect(Param1,Rect))
@@ -5757,7 +5724,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       return FALSE;
 
-    case DM_SETNOTIFYMOUSEEVENT: // Param1 = 0 on, 1 off, -1 - get
+    case DM_SETMOUSEEVENTNOTIFY: // Param1 = 0 on, 1 off, -1 - get
     {
       int State=Dlg->CheckDialogMode(DMODE_MOUSEEVENT)?TRUE:FALSE;
       if(Param1 != -1)

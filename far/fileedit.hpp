@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.20 10.10.2001 $ */
+/* Revision: 1.21 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! возвращаемое значение у GetTypeName() - модификатор const
   10.10.2001 IS
     + DeleteOnClose
   08.09.2001 IS
@@ -71,9 +73,6 @@ class FileEditor:public Frame
 {
   private:
     typedef class Frame inherited;
-    void Show();
-    void DisplayObject();
-    int ProcessQuitKey();
 
     Editor FEdit;
     KeyBar EditKeyBar;
@@ -96,6 +95,7 @@ class FileEditor:public Frame
     */
     int SaveToSaveAs;
     /* KM $ */
+
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
@@ -104,6 +104,13 @@ class FileEditor:public Frame
                int StartLine,int StartChar,const char *Title,
                int X1,int Y1,int X2,int Y2, int DisableHistory,
                BOOL DeleteOnClose=FALSE);
+
+  private:
+    void Show();
+    void DisplayObject();
+    int ProcessQuitKey();
+
+  public:
     /* $ 07.05.2001 DJ */
     virtual ~FileEditor();
     /* DJ $ */
@@ -117,7 +124,6 @@ class FileEditor:public Frame
     /* SVS $ */
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    int GetTypeAndName(char *Type,char *Name);
     void ShowConsoleTitle();
     int IsFileChanged() {return(FEdit.IsFileChanged());};
     virtual int IsFileModified() {return(FEdit.IsFileModified());};
@@ -125,7 +131,9 @@ class FileEditor:public Frame
        NT Console resize - resize editor */
     void SetScreenPosition();
     /* tran $ */
-    virtual char *GetTypeName(){return "[FileEdit]";}; ///
+
+    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual const char *GetTypeName(){return "[FileEdit]";}; ///
     virtual int GetType() { return MODALTYPE_EDITOR; }
 
     /* $ 10.05.2001 DJ */
@@ -139,7 +147,7 @@ class FileEditor:public Frame
     void SetEnableF6 (int AEnableF6) { EnableF6 = AEnableF6; InitKeyBar(); }
     /* DJ $ */
     int GetCanLoseFocus(int DynamicMode=FALSE);
-/* $ Введена для нужд CtrlAltShift OT */
+    /* $ Введена для нужд CtrlAltShift OT */
     int FastHide();
 
     /* $ 17.08.2001 KM
@@ -148,7 +156,6 @@ class FileEditor:public Frame
     */
     void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
     /* KM $ */
-
 };
 
 #endif  // __FILEEDITOR_HPP__

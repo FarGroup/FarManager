@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.15 08.09.2001 $ */
+/* Revision: 1.16 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! возвращаемое значение у GetTypeName() - модификатор const
   08.09.2001 IS
     + Дополнительный параметр у второго конструктора: DisableHistory
   17.08.2001 KM
@@ -84,9 +86,11 @@ class FileViewer:public Frame
                NamesList *ViewNamesList=NULL,int ToSaveAs=FALSE);
     FileViewer(const char *Name,int EnableSwitch,int DisableHistory,
                const char *Title,int X1,int Y1,int X2,int Y2);
+    ~FileViewer();
+
+  public:
     void Init(const char *Name,int EnableSwitch,int DisableHistory,
               long ViewStartPos,char *PluginData,NamesList *ViewNamesList,int ToSaveAs);
-    ~FileViewer();
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */
@@ -94,11 +98,12 @@ class FileViewer:public Frame
     /* SVS $ */
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    int GetTypeAndName(char *Type,char *Name);
     void ShowConsoleTitle();
     void SetTempViewName(const char *Name);
     virtual void OnDestroy();
-    virtual char *GetTypeName(){return "[FileView]";}; ///
+
+    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual const char *GetTypeName(){return "[FileView]";}; ///
     virtual int GetType() { return MODALTYPE_VIEWER; }
 
     /* $ 12.05.2001 DJ */

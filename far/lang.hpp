@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.82 26.10.2001 $ */
+/* Revision: 1.83 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    + MHelpType, MVMenuType
   26.10.2001 KM
     + MFindFolders
   22.10.2001 SVS
@@ -1780,11 +1782,12 @@ enum
   MCheckingFileInPlugin,
 
   MDialogType,
+  MHelpType,
+  MVMenuType,
 
   MIncorrectMask,
 
   MListEval
-
 };
 
 #endif  // __FARLANG_HPP__

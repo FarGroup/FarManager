@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.55 29.10.2001 $ */
+/* Revision: 1.56 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    - F5, F10, Esc - все оби, а вот: F5, давить мышой на пимпу "F10 - Tree",
+      Esc - вот здесь бяка :-(
+      Причина - кнопка вызова дерева закрывала диалог.
   29.10.2001 SVS
     ! временно отменим проверку на потоки, т.к. не совсем доделано
   24.10.2001 SVS
@@ -351,7 +355,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   /* 06 */  DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MCopyMultiActions,
   /* 07 */  DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 08 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
-  /* 09 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgTree,
+  /* 09 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,0,(char *)MCopyDlgTree,
   /* 10 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel,
   /* 11 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
   };

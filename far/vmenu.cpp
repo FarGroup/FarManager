@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.62 30.10.2001 $ */
+/* Revision: 1.63 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    + немного про "типы" - GetType*()
   30.10.2001 SVS
     - Ошибка инженерной мысли :-) в VMenu::FindItem() - забыли передать
       флаги.
@@ -233,6 +235,7 @@ Modify:
 
 #include "vmenu.hpp"
 #include "global.hpp"
+#include "lang.hpp"
 #include "fn.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
@@ -1110,6 +1113,9 @@ int VMenu::SetSelectPos(struct FarListPos *ListPos)
 // переместить курсор с учетом Disabled & Separator
 int VMenu::SetSelectPos(int Pos,int Direct)
 {
+  if(!Item || !ItemCount)
+    return -1;
+
   int OrigPos=Pos, Pass=0;
 
   do{
@@ -1715,6 +1721,15 @@ void VMenu::ResizeConsole()
     X2=Y2=0;
 
   }
+}
+
+int VMenu::GetTypeAndName(char *Type,char *Name)
+{
+  if(Type)
+    strcpy(Type,MSG(MVMenuType));
+  if(Name)
+    strcpy(Name,Title);
+  return(MODALTYPE_VMENU);
 }
 
 

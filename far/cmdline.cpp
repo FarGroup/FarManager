@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.43 10.10.2001 $ */
+/* Revision: 1.44 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    + GetSelection()
   10.10.2001 SVS
     ! Часть кода, ответственная за "пусковик" внешних прилад вынесена
       в отдельный модуль execute.cpp
@@ -579,3 +581,8 @@ void CommandLine::Select(int Start,int End)
   CmdStr.Select(Start,End);
 }
 /* SKV$*/
+
+void CommandLine::GetSelection(int &Start,int &End)
+{
+  CmdStr.GetSelection(Start,End);
+}

@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.20 01.10.2001 $ */
+/* Revision: 1.21 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    + немного про "типы" - GetType*()
   01.10.2001 SVS
     + CtrlTabSize - опци€! размер табул€ции - резерв на будущее!
   07.08.2001 SVS
@@ -148,8 +150,12 @@ class Help:public Frame
     /* $ ¬ведена дл€ нужд CtrlAltShift OT */
     int  FastHide();
 
+    virtual const char *GetTypeName() {return "[Help]";}
+    virtual int GetTypeAndName(char *Type,char *Name);
+    virtual int GetType() { return MODALTYPE_HELP; }
+
     static char *MkTopic(int PluginNumber,const char *HelpTopic,char *Topic);
 };
 
-#endif	// __HELP_HPP__
+#endif  // __HELP_HPP__
 #endif // defined(DHELP2)

@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.75 30.10.2001 $ */
+/* Revision: 1.76 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    ! уберем Opt.CPAJHefuayor ;-(
   30.10.2001 SVS
     + Opt.CPAJHefuayor
   29.10.2001 IS
@@ -676,7 +678,7 @@ struct Options
   int DlgSelectFromHistory;
   int FindFolders;
 
-  int CPAJHefuayor; // производное от "Close Plugin And Jump:
+  //int CPAJHefuayor; // производное от "Close Plugin And Jump:
                   // Highly experimental feature, use at your own risk"
 
   char DateFormat[80]; // Для $Date

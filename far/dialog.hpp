@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.39 15.08.2001 $ */
+/* Revision: 1.40 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+   ! MakeDialogItems перехала в dialog.hpp из farconst.hpp
   15.08.2001 SVS
    + DMODE_MOUSEEVENT
   23.07.2001 OT
@@ -178,6 +180,12 @@ Modify:
 #define CVTITEM_TOPLUGIN    0
 #define CVTITEM_FROMPLUGIN  1
 
+
+#define MakeDialogItems(Data,Item) \
+  struct DialogItem Item[sizeof(Data)/sizeof(Data[0])]; \
+  Dialog::DataToItem(Data,Item,sizeof(Data)/sizeof(Data[0]));
+
+
 /* $ 01.08.2000 SVS
   У структур DialogI* изменены:
   union {
@@ -316,6 +324,9 @@ class Dialog: public Frame
     */
     volatile int DropDownOpened;
     /* KM $ */
+
+  public:
+    bool Resized;
 
   private:
     /* $ 18.08.2000 SVS
@@ -492,8 +503,7 @@ class Dialog: public Frame
     /* $ 17.05.2001 DJ */
     void SetHelp(const char *Topic);
     void ShowHelp();
-    int Done() const
-      { return EndLoop; }
+    int Done() const { return EndLoop; }
     void ClearDone();
     virtual void SetExitCode (int Code);
 
@@ -502,20 +512,18 @@ class Dialog: public Frame
 
     /* $ 19.05.2001 DJ */
     void SetOwnsItems (int AOwnsItems) { AOwnsItems = OwnsItems; }
+
     virtual int GetTypeAndName(char *Type,char *Name);
     virtual int GetType() { return MODALTYPE_DIALOG; }
+    virtual const char *GetTypeName() {return "[Dialog]";};
     /* DJ $ */
 
     int GetMacroMode();
 
-/* $ Введена для нужд CtrlAltShift OT */
+    /* $ Введена для нужд CtrlAltShift OT */
     int FastHide();
     void ResizeConsole();
     void OnDestroy();
-
-    bool Resized;
-
-
 };
 
 #endif // __DIALOG_HPP__

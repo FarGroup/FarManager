@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.54 29.10.2001 $ */
+/* Revision: 1.55 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    ! MakeDialogItems перехала в dialog.hpp из farconst.hpp
   26.10.2001 VVM
     + MOUSE_ANY_BUTTON_PRESSED
   16.10.2001 SVS
@@ -191,10 +193,6 @@ enum {
   MACRO_LAST
   /* VVM $ */
 };
-
-#define MakeDialogItems(Data,Item) \
-  struct DialogItem Item[sizeof(Data)/sizeof(Data[0])]; \
-  Dialog::DataToItem(Data,Item,sizeof(Data)/sizeof(Data[0]));
 
 // for filelist
 enum {ARCHIVE_NONE,ARCHIVE_RAR,ARCHIVE_ZIP,ARCHIVE_ARJ,ARCHIVE_LZH};

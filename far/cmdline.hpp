@@ -7,10 +7,12 @@ cmdline.hpp
 
 */
 
-/* Revision: 1.07 05.10.2001 $ */
+/* Revision: 1.08 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    + GetSelection()
   05.10.2001 SVS
     ! Снова гавеное увеличение размера СТРОКИ - LastCmdStr ;-(
   09.09.2001 IS
@@ -75,6 +77,7 @@ class CommandLine:public ScreenObject
     void GetSelString(char*,int);
     void Select(int,int);
     /* SKV$*/
+    void GetSelection(int &Start,int &End);
     void SaveBackground(int X1,int Y1,int X2,int Y2);
     void SaveBackground();
     void ShowBackground();

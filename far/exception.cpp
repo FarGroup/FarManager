@@ -5,10 +5,14 @@ farexcpt.cpp
 
 */
 
-/* Revision: 1.08 03.10.2001 $ */
+/* Revision: 1.09 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! НЕЛЬЗЯ ИЗ ОБРАБОТЧИКА ВЫГРУЖАТЬ ПЛАГИН!
+    ! Временно, до точной отработки формата файла дампа, отключим вызов
+      WriteEvent()
   03.10.2001 SVS
     ! добавим некоторое бестыдное количество проверок в "писателя" событий!
   18.09.2001 SVS
@@ -530,9 +534,10 @@ int xfilter(
    EXCEPTION_RECORD *xr = xp->ExceptionRecord;
 
    // выведим дамп перед выдачей сообщений
+#if defined(_DEBUG)
    if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
      WriteEvent(FLOG_ALL&(~FLOG_PLUGINSINFO),xp,Module,NULL,0);
-
+#endif
 
    // CONTEXT можно использовать для отображения или записи в лог
    //         содержимого регистров...
@@ -649,9 +654,6 @@ int xfilter(
                MSG(MExcUnloadYes),
                MSG(MOk));
    } /* else */
-
-   // выгружаем паршивца ВСЕГДА!!!
-   CtrlObject->Plugins.UnloadPlugin(*Module);
 
    rc = EXCEPTION_EXECUTE_HANDLER;
    /* VVM $ */

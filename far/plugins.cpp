@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.95 15.10.2001 $ */
+/* Revision: 1.96 01.11.2001 $ */
 
 /*
 Modify:
+  01.11.2001 SVS
+    ! НЕЛЬЗЯ ИЗ ОБРАБОТЧИКА ВЫГРУЖАТЬ ПЛАГИН! Только после того, как
+      обработали исключения.
   15.10.2001 SVS
     + _KEYMACRO()
   03.10.2001 SVS
@@ -344,7 +347,6 @@ PluginsSet::~PluginsSet()
   }
   free(PluginsData);
 }
-
 
 void PluginsSet::SendExit()
 {
@@ -725,7 +727,7 @@ void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin)
     BOOL Ret=FreeLibrary(CurPlugin.hModule);
 //_SVS(SysLog("UnloadPlugin(%s)",CurPlugin.ModuleName));
     // Ну хоть имя то можно оставить :-(
-    memset(&CurPlugin.hModule,0,sizeof(CurPlugin)-NM);
+    memset(&CurPlugin.hModule,0,sizeof(CurPlugin)-sizeof(CurPlugin.ModuleName));
     CurPlugin.DontLoadAgain=1;
 }
 
@@ -1129,7 +1131,8 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
            /* VVM $ */
         }
         EXCEPT(xfilter(EXCEPT_OPENPLUGIN,GetExceptionInformation(),PData,1)){
-          hInternal=INVALID_HANDLE_VALUE;
+          UnloadPlugin(*PData);
+          return(INVALID_HANDLE_VALUE);
         }
       }
       else
@@ -1213,8 +1216,10 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
            hInternal=PData->pOpenFilePlugin(NamePtr,Data,DataSize);
            if (!hInternal)
              RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
+           //????????????????????????????????????????????????????
         }
         EXCEPT(xfilter(EXCEPT_OPENFILEPLUGIN,GetExceptionInformation(),PData,1)){
+          UnloadPlugin(*PData);
           hInternal=INVALID_HANDLE_VALUE;
         }
       }
@@ -1256,9 +1261,11 @@ HANDLE PluginsSet::OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber
                ! Выгрузить плагин, если вернули NULL */
            if (!hInternal)
              RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);
+           //????????????????????????????????????????????????????
            /* VVM $ */
         }
         EXCEPT(xfilter(EXCEPT_OPENPLUGIN,GetExceptionInformation(),PData,1)){
+          UnloadPlugin(*PData);
           hInternal=INVALID_HANDLE_VALUE;
         }
         /* VVM $ */
@@ -1279,6 +1286,7 @@ HANDLE PluginsSet::OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber
             Ret=PData->pSetFindList(hInternal,PanelItem,ItemsNumber);
           }
           EXCEPT(xfilter(EXCEPT_SETFINDLIST,GetExceptionInformation(),PData,1)){
+             UnloadPlugin(*PData);
              Ret=FALSE;
           }
         }
@@ -1310,7 +1318,7 @@ void PluginsSet::ClosePlugin(HANDLE hPlugin)
       }
       EXCEPT(xfilter(EXCEPT_CLOSEPLUGIN,GetExceptionInformation(),PData,1))
       {
-        ;
+        UnloadPlugin(*PData);
       }
     }
     else
@@ -1342,6 +1350,7 @@ int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
           }
           EXCEPT(xfilter(EXCEPT_PROCESSEDITORINPUT,GetExceptionInformation(),PData,1))
           {
+            UnloadPlugin(*PData); //????!!!!
             Ret=FALSE;
           }
         }
@@ -1370,7 +1379,7 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
         }
         EXCEPT(xfilter(EXCEPT_PROCESSEDITOREVENT,GetExceptionInformation(),PData,1))
         {
-          ;
+          UnloadPlugin(*PData);
         }
       }
       else
@@ -1396,7 +1405,7 @@ void PluginsSet::ProcessViewerEvent(int Event,void *Param)
         }
         EXCEPT(xfilter(EXCEPT_PROCESSVIEWEREVENT,GetExceptionInformation(),PData,1))
         {
-          ;
+          UnloadPlugin(*PData);
         }
       }
       else
@@ -1422,6 +1431,7 @@ int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,int *pIt
       }
       EXCEPT(xfilter(EXCEPT_GETFINDDATA,GetExceptionInformation(),PData,1))
       {
+        UnloadPlugin(*PData); //????!!!!
         Ret=FALSE;
       }
     }
@@ -1448,7 +1458,7 @@ void PluginsSet::FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,
       }
       EXCEPT(xfilter(EXCEPT_FREEFINDDATA,GetExceptionInformation(),PData,1))
       {
-        ;
+        UnloadPlugin(*PData); //????!!!!
       }
     }
     else
@@ -1474,6 +1484,7 @@ int PluginsSet::GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,
       }
       EXCEPT(xfilter(EXCEPT_GETVIRTUALFINDDATA,GetExceptionInformation(),PData,1))
       {
+        UnloadPlugin(*PData); //????!!!!
         Ret=FALSE;
       }
     }
@@ -1498,7 +1509,7 @@ void PluginsSet::FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,i
       }
       EXCEPT(xfilter(EXCEPT_FREEVIRTUALFINDDATA,GetExceptionInformation(),PData,1))
       {
-        ;
+        UnloadPlugin(*PData); //????!!!!
       }
     }
     else
@@ -1523,6 +1534,7 @@ int PluginsSet::SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode)
       }
       EXCEPT(xfilter(EXCEPT_SETDIRECTORY,GetExceptionInformation(),PData,1))
       {
+        UnloadPlugin(*PData); //????!!!!
         Ret=FALSE;
       }
     }
@@ -1556,6 +1568,7 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
       }
       EXCEPT(xfilter(EXCEPT_GETFILES,GetExceptionInformation(),PData,1))
       {
+        UnloadPlugin(*PData); //????!!!!
         // ??????????
         ReadUserBackgound(SaveScr);
         delete SaveScr;
@@ -1623,6 +1636,7 @@ int PluginsSet::DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
       }
       EXCEPT(xfilter(EXCEPT_DELETEFILES,GetExceptionInformation(),PData,1) )
       {
+        UnloadPlugin(*PData); //????!!!!
         Code=FALSE;
       }
     }
@@ -1653,6 +1667,7 @@ int PluginsSet::MakeDirectory(HANDLE hPlugin,char *Name,int OpMode)
       }
       EXCEPT(xfilter(EXCEPT_MAKEDIRECTORY,GetExceptionInformation(),PData,1) )
       {
+        UnloadPlugin(*PData); //????!!!!
         Code=-1;
       }
     }
@@ -1682,6 +1697,7 @@ int PluginsSet::ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem
         Code=PData->pProcessHostFile(ph->InternalHandle,PanelItem,ItemsNumber,OpMode);
       }
       EXCEPT(xfilter(EXCEPT_PROCESSHOSTFILE,GetExceptionInformation(),PData,1)){
+        UnloadPlugin(*PData); //????!!!!
         Code=FALSE;
       }
     }
@@ -1711,6 +1727,7 @@ int PluginsSet::GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
         ExitCode=PData->pGetFiles(ph->InternalHandle,PanelItem,ItemsNumber,Move,DestPath,OpMode);
       }
       EXCEPT(xfilter(EXCEPT_GETFILES,GetExceptionInformation(),PData,1)){
+        UnloadPlugin(*PData); //????!!!!
         ExitCode=0;
       }
     }
@@ -1738,6 +1755,7 @@ int PluginsSet::PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int It
       }
       EXCEPT(xfilter(EXCEPT_PUTFILES,GetExceptionInformation(),PData,1) )
       {
+        UnloadPlugin(*PData); //????!!!!
         Code=0;
       }
     }
@@ -1764,6 +1782,7 @@ int PluginsSet::GetPluginInfo(int PluginNumber,struct PluginInfo *Info)
         PData->pGetPluginInfo(Info);
       }
       EXCEPT(xfilter(EXCEPT_GETPLUGININFO,GetExceptionInformation(),PData,1)){
+        UnloadPlugin(*PData); //????!!!!
         return FALSE;
       }
       if(!TestPluginInfo(*PData,Info)) //???
@@ -1789,6 +1808,7 @@ void PluginsSet::GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info)
         PData->pGetOpenPluginInfo(ph->InternalHandle,Info);
       }
       EXCEPT(xfilter(EXCEPT_GETOPENPLUGININFO,GetExceptionInformation(),PData,1)){
+        UnloadPlugin(*PData); //????!!!!
         return;
       }
       if(!TestOpenPluginInfo(*PData,Info)) // ??
@@ -1815,6 +1835,7 @@ int PluginsSet::ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
         Ret=PData->pProcessKey(ph->InternalHandle,Key,ControlState);
       }
       EXCEPT(xfilter(EXCEPT_PROCESSKEY,GetExceptionInformation(),PData,1)){
+        UnloadPlugin(*PData); //????!!!!
         Ret=FALSE;
       }
     }
@@ -1839,6 +1860,7 @@ int PluginsSet::ProcessEvent(HANDLE hPlugin,int Event,void *Param)
         Ret=PData->pProcessEvent(ph->InternalHandle,Event,Param);
       }
       EXCEPT(xfilter(EXCEPT_PROCESSEVENT,GetExceptionInformation(),PData,1)){
+        UnloadPlugin(*PData); //????!!!!
         Ret=FALSE;
       }
     }
@@ -1864,6 +1886,7 @@ int PluginsSet::Compare(HANDLE hPlugin,const struct PluginPanelItem *Item1,
         Ret=PData->pCompare(ph->InternalHandle,Item1,Item2,Mode);
       }
       EXCEPT(xfilter(EXCEPT_COMPARE,GetExceptionInformation(),PData,1)) {
+        UnloadPlugin(*PData); //????!!!!
         Ret=-3;
       }
     }
@@ -1887,6 +1910,7 @@ void PluginsSet::ConfigureCurrent(int PNum,int INum)
       EXCEPT ( xfilter(EXCEPT_CONFIGURE,
                         GetExceptionInformation(),&PluginsData[PNum],1) )
       {
+        UnloadPlugin(PluginsData[PNum]); //????!!!!
         return;
       }
     }
@@ -2588,6 +2612,7 @@ BOOL PluginsSet::TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info)
   EXCEPT ( xfilter(EXCEPT_GETPLUGININFO_DATA,
                      GetExceptionInformation(),&Item,1) )
   {
+     UnloadPlugin(Item); // тест не пройден, выгружаем его
      I=FALSE;
   }
   return I;
@@ -2639,6 +2664,7 @@ BOOL PluginsSet::TestOpenPluginInfo(struct PluginItem& Item,struct OpenPluginInf
   EXCEPT ( xfilter(EXCEPT_GETOPENPLUGININFO_DATA,
                      GetExceptionInformation(),&Item,1) )
   {
+     UnloadPlugin(Item); // тест не пройден, выгружаем его
      I=FALSE;
   }
   return I;

@@ -8,18 +8,20 @@ frame.hpp
 
 */
 
-/* Revision: 1.16 08.10.2001 $ */
+/* Revision: 1.17 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! возвращаемое значение у GetTypeName() - модификатор const
   04.10.2001 OT
-    Отмена 956 патча
+    ! Отмена 956 патча
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   09.07.2001 OT
-    Исправление MacroMode для диалогов
+    - Исправление MacroMode для диалогов
   23.06.2001 OT
     - Решение проблемы "старика Мюллера"
   20.06.2001 tran
@@ -93,7 +95,8 @@ class Frame: virtual public ScreenObject
     virtual void SetExitCode(int Code) { ExitCode=Code; };
 
     virtual BOOL IsFileModified() {return(FALSE);};
-    virtual char *GetTypeName() {return "Modal";};
+
+    virtual const char *GetTypeName() {return "[FarModal]";};
     virtual int GetTypeAndName(char *Type,char *Name) {return(MODALTYPE_VIRTUAL);};
     virtual int GetType() { return MODALTYPE_VIRTUAL; }
 

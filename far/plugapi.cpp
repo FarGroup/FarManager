@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.102 28.10.2001 $ */
+/* Revision: 1.103 02.11.2001 $ */
 
 /*
 Modify:
+  02.11.2001 SVS
+    ! Выкинем ненужный код (а кое-где добавим :-))
+    ! FCTL_GETCMDLINESELECTION -> FCTL_GETCMDLINESELECTEDTEXT
+    + FCTL_GETCMDLINESELECTION - получить позиции выделения!
   28.10.2001 SVS
     ! Вернем обратно опрометчево убранный SaveScreen.
   26.10.2001 SVS
@@ -449,7 +453,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       Return - размер массива.
     */
     case ACTL_GETARRAYCOLOR:
-      if(Param)
+      if(Param && !IsBadWritePtr(Param,SizeArrayPalette))
         memmove(Param,Palette,SizeArrayPalette);
       return SizeArrayPalette;
     /* SVS $ */
@@ -536,7 +540,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     /* $ 05.06.2001 tran
        новые ACTL_ для работы с фреймами */
     case ACTL_GETWINDOWINFO:
-        if(Param)
+        if(Param && !IsBadWritePtr(Param,sizeof(WindowInfo)))
         {
             WindowInfo *wi=(WindowInfo*)Param;
             Frame *f=FrameManager->operator[](wi->Pos);
@@ -620,10 +624,10 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
     if(Flags&FMENU_USEEXT)
     {
       struct FarMenuItemEx *ItemEx=(struct FarMenuItemEx*)Item;
-      for (I=0;I<ItemsNumber;I++)
+      for (I=0; I < ItemsNumber; I++, ++ItemEx)
       {
-        CurItem.Flags=ItemEx[I].Flags;
-        strncpy(CurItem.Name,ItemEx[I].Text,sizeof(CurItem.Name)-1);
+        CurItem.Flags=ItemEx->Flags;
+        strncpy(CurItem.Name,ItemEx->Text,sizeof(CurItem.Name)-1);
         FarMenu.AddItem(&CurItem);
       }
     }
@@ -761,11 +765,20 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            FARWINDOWPROC DlgProc,long Param)
 
 {
-  if (DisablePluginsOutput || ItemsNumber <= 0 || !Item)
+  if (DisablePluginsOutput ||
+      ItemsNumber <= 0 ||
+      !Item ||
+      IsBadReadPtr(Item,sizeof(struct FarDialogItem)*ItemsNumber))
     return(-1);
 
   if(PluginNumber >= CtrlObject->Plugins.PluginsCount)
     return(-1); // к терапевту.
+
+  // ФИЧА! нельзя указывать отрицательные X2 и Y2
+  if(X2 < 0 || Y2 < 0)
+  {
+    return -1;
+  }
 
   struct DialogItem *InternalItem=new DialogItem[ItemsNumber];
 
@@ -778,21 +791,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   memset(InternalItem,0,sizeof(DialogItem)*ItemsNumber);
 
-  if(Opt.ExceptRules)
-  {
-    TRY {
-      Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
-    }
-    EXCEPT (xfilter(EXCEPT_FARDIALOG,
-                     GetExceptionInformation(),CurPlugin,0))
-    {
-      delete[] InternalItem;
-      CtrlObject->Plugins.UnloadPlugin(*CurPlugin); // тест не пройден, выгружаем
-      return -1;
-    }
-  }
-  else
-    Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
+  Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
 
   Frame *frame;
   if((frame=FrameManager->GetBottomFrame()) != NULL)
@@ -1071,9 +1070,9 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETCMDLINE:
     case FCTL_INSERTCMDLINE:
       if (Command==FCTL_SETCMDLINE)
-        CtrlObject->CmdLine->SetString((char *)Param);
+        CtrlObject->CmdLine->SetString(NullToEmpty((char *)Param));
       else
-        CtrlObject->CmdLine->InsertString((char *)Param);
+        CtrlObject->CmdLine->InsertString(NullToEmpty((char *)Param));
       CtrlObject->CmdLine->Redraw();
       return(TRUE);
     case FCTL_SETCMDLINEPOS:
@@ -1083,15 +1082,29 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_GETCMDLINEPOS:
       *(int *)Param=CtrlObject->CmdLine->GetCurPos();
       return(TRUE);
-    case FCTL_GETCMDLINESELECTION:
+    case FCTL_GETCMDLINESELECTEDTEXT:
       CtrlObject->CmdLine->GetSelString((char *)Param,1024);
       return TRUE;
+    case FCTL_GETCMDLINESELECTION:
+    {
+      CmdLineSelect *sel=(CmdLineSelect*)Param;
+      if(sel)
+      {
+        CtrlObject->CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
+        return TRUE;
+      }
+      break;
+    }
     case FCTL_SETCMDLINESELECTION:
     {
       CmdLineSelect *sel=(CmdLineSelect*)Param;
-      CtrlObject->CmdLine->Select(sel->SelStart,sel->SelEnd);
-      CtrlObject->CmdLine->Redraw();
-      return TRUE;
+      if(sel)
+      {
+        CtrlObject->CmdLine->Select(sel->SelStart,sel->SelEnd);
+        CtrlObject->CmdLine->Redraw();
+        return TRUE;
+      }
+      break;
     }
     case FCTL_SETUSERSCREEN:
       if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
