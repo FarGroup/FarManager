@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.92 11.11.2003 $ */
+/* Revision: 1.93 05.01.2004 $ */
 
 /*
 Modify:
+  05.01.2004 SVS
+    - BugZ#1007 - Не передаются параметры прогам когда Executor\Type=1
   11.11.2003 SVS
     - Правки в Execute() по поводу Shift-Enter
   16.10.2003 SVS
@@ -581,6 +583,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
 
   // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
   static char StdExecuteExt[NM]=".BAT;.CMD;.EXE;.COM;";
+  static const char RegPath[]="SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
   static int PreparePrepareExt=FALSE;
 
   if(!PreparePrepareExt) // самоинициилизирующийся кусок
@@ -609,9 +612,9 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   /* Берем "исключения" из реестра, которые должны исполянться директом,
      например, некоторые внутренние команды ком.процессора.
   */
-  static char ExcludeCmds[4096];
+  static char ExcludeCmds[4096]={0};
   static int PrepareExcludeCmds=FALSE;
-  if(!PrepareExcludeCmds)
+  if(!PrepareExcludeCmds && GetRegKey("System\\Executor","Type",0))
   {
     GetRegKey("System\\Executor","ExcludeCmds",(char*)ExcludeCmds,"",0);
     Ptr=strcat(ExcludeCmds,";"); //!!!
@@ -746,7 +749,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
 
         for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
         {
-          sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
+          sprintf(FullName,"%s%s",RegPath,FileName);
           if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
           {
             DWORD Type, DataSize=sizeof(FullName);
@@ -770,7 +773,7 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
           {
             for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
             {
-              sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s%s",FileName,PtrExt);
+              sprintf(FullName,"%s%s%s",RegPath,FileName,PtrExt);
               if (RegOpenKeyEx(RootFindKey[I], FullName, 0,KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
               {
                 DWORD Type, DataSize=sizeof(FullName);
@@ -926,8 +929,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     {
       if (*CmdPtr == '>' || *CmdPtr == '<' ||
           *CmdPtr == '|' || *CmdPtr == ' ' ||
-      // Для НТ/2к обработаем разделитель команд
-          (NT && *CmdPtr == '&'))
+          (NT && *CmdPtr == '&') // Для НТ/2к обработаем разделитель команд
+         )
       {
         if (!ParPtr)
           ParPtr = CmdPtr;
@@ -1097,9 +1100,14 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
             if(NumSq > 2)
               InsertQuote(NewCmdStr);
           }
+
+          if(SeparateWindow)
+            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
+
           strncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
           strcat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "));
-          strcat(ExecLine,NewCmdStr);
+          strcat(ExecLine, NewCmdStr);
+          strcat(ExecLine, NewCmdPar);
           ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
           // </TODO>
           //_tran(SysLog("Execute: ExecLine [%s]",ExecLine);)
