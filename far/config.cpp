@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.39 12.12.2000 $ */
+/* Revision: 1.40 13.12.2000 $ */
 
 /*
 Modify:
+  13.12.2000 SVS
+    ! Уточняем алгоритм "взятия" палитры.
   10.12.2000 IS
     ! Убрал из WordDivForXlat кавычки и квадратные скобки
   29.11.2000 SVS
@@ -682,8 +684,11 @@ void ReadConfig()
      местах стоят нули)
   */
   int I;
-  for(I=COL_DIALOGMENUSCROLLBAR-COL_FIRSTPALETTECOLOR;
-      I < (COL_DIALOGMENUSCROLLBAR-COL_FIRSTPALETTECOLOR)+4;
+  /* $ 13.12.2000 SVS
+     Уточняем алгоритм "взятия" палитры.
+  */
+  for(I=COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR+1;
+      I < (COL_LASTPALETTECOLOR-COL_FIRSTPALETTECOLOR);
       ++I)
   {
     if(!Palette[I])
@@ -697,6 +702,7 @@ void ReadConfig()
         есть другие палитры...
       */
   }
+  /* SVS 13.12.2000 $ */
   /* SVS $ */
 
   GetRegKey("Screen","Clock",Opt.Clock,1);

@@ -7,10 +7,12 @@ colors.hpp
 
 */
 
-/* Revision: 1.04 04.12.2000 $ */
+/* Revision: 1.05 13.12.2000 $ */
 
 /*
 Modify:
+  13.12.2000 SVS
+    + COL_LASTPALETTECOLOR
   04.12.2000 SVS
     + COL_*DIALOG*DISABLED - Недоступный элемент диалога с
       атрибутом DIF_DISABLE
@@ -182,6 +184,15 @@ enum PaletteColors
   COL_WARNDIALOGEDITDISABLED,
   COL_WARNDIALOGLISTDISABLED,
   /* SVS 04.12.2000 $ */
+
+
+
+
+  /* $ 13.12.2000 SVS
+     Этот пункт должен быть самым последним!!!!!!
+  */
+  COL_LASTPALETTECOLOR
+  /* SVS $ */
 };
 
 #endif  // __COLORS_HPP__
