@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.32 18.06.2002 $ */
+/* Revision: 1.33 26.09.2002 $ */
 
 /*
 Modify:
+  26.09.2002 SVS
+    + ResizeAllFrame()
   18.06.2002 SVS
     + В манагер добавлена переменная StartManager, отвечающая на вопрос
       "Манагер уже стартовал?"
@@ -284,6 +286,7 @@ class Manager
     void ExitModalEV(){ModalEVCount--;}
     BOOL InModalEV(){return ModalEVCount!=0;}
     /* SKV $ */
+    void ResizeAllFrame();
 };
 
 extern Manager *FrameManager;

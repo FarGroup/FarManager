@@ -5,10 +5,13 @@ palette.cpp
 
 */
 
-/* Revision: 1.10 19.09.2002 $ */
+/* Revision: 1.11 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! Исправление цвета для COL_DIALOGLISTDISABLED
+    ! COL_DIALOGMENU* заменен на COL_DIALOGLIST*
   19.09.2002 SVS
     ! Немного антуража ;-)
   07.06.2001 SVS
@@ -76,10 +79,10 @@ unsigned char DefaultPalette[]=
   F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGHIGHLIGHTBUTTON,
   F_YELLOW|B_CYAN,                        // COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
 
-  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGMENUTEXT,
-  F_WHITE|B_BLACK,                        // COL_DIALOGMENUSELECTEDTEXT,
-  F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGMENUHIGHLIGHT,
-  F_YELLOW|B_BLACK,                       // COL_DIALOGMENUSELECTEDHIGHLIGHT,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTEXT,
+  F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDTEXT,
+  F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGLISTHIGHLIGHT,
+  F_YELLOW|B_BLACK,                       // COL_DIALOGLISTSELECTEDHIGHLIGHT,
 
   F_WHITE|B_RED,                          // COL_WARNDIALOGTEXT,
   F_YELLOW|B_RED,                         // COL_WARNDIALOGHIGHLIGHTTEXT,
@@ -127,7 +130,7 @@ unsigned char DefaultPalette[]=
 
   0,                                      // COL_RESERVED0                   // Служебная позиция: 1 - это есть default color
 
-  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGMENUSCROLLBAR,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTSCROLLBAR,
   F_WHITE|B_CYAN,                         // COL_MENUSCROLLBAR,
   F_LIGHTCYAN|B_BLUE,                     // COL_VIEWERSCROLLBAR,
 
@@ -135,7 +138,7 @@ unsigned char DefaultPalette[]=
 
   F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGDISABLED,
   F_DARKGRAY|B_CYAN,                      // COL_DIALOGEDITDISABLED,
-  F_DARKGRAY|B_CYAN,                      // COL_DIALOGLISTDISABLED,
+  F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTDISABLED,
 
   F_DARKGRAY|B_RED,                       // COL_WARNDIALOGDISABLED,
   F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGEDITDISABLED,
@@ -146,7 +149,7 @@ unsigned char DefaultPalette[]=
   F_BLACK|B_CYAN,                         // COL_EDITORCLOCK,
   F_BLACK|B_CYAN,                         // COL_VIEWERCLOCK,
 
-  0,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTITLE
   0,
   0,
   0,
@@ -191,10 +194,10 @@ unsigned char BlackPalette[]=
   F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGHIGHLIGHTBUTTON,
   F_WHITE|B_BLACK,                        // COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
 
-  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGMENUTEXT,
-  F_WHITE|B_BLACK,                        // COL_DIALOGMENUSELECTEDTEXT,
-  F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGMENUHIGHLIGHT,
-  F_WHITE|B_BLACK,                        // COL_DIALOGMENUSELECTEDHIGHLIGHT,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTEXT,
+  F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDTEXT,
+  F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGLISTHIGHLIGHT,
+  F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDHIGHLIGHT,
 
   F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGTEXT,
   F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGHIGHLIGHTTEXT,
@@ -242,7 +245,7 @@ unsigned char BlackPalette[]=
 
   1,                                      // COL_RESERVED0                   // Служебная позиция: 1 - это есть default color
 
-  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGMENUSCROLLBAR,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTSCROLLBAR,
   F_BLACK|B_LIGHTGRAY,                    // COL_MENUSCROLLBAR,
   F_LIGHTGRAY|B_BLACK,                    // COL_VIEWERSCROLLBAR,
 
@@ -261,7 +264,7 @@ unsigned char BlackPalette[]=
   F_BLACK|B_LIGHTGRAY,                    // COL_EDITORCLOCK,
   F_BLACK|B_LIGHTGRAY,                    // COL_VIEWERCLOCK,
 
-  0,
+  F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTITLE
   0,
   0,
   0,

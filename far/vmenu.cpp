@@ -8,10 +8,15 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.97 20.09.2002 $ */
+/* Revision: 1.98 27.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! Цветовые истории (Colors не short, а BYTE и применим новую структуру
+      FarListColors для SetColors/GetColors)
+    ! небольшая оптимизация VMenu::SetColors
+    - BugZ#400 - скролбар и проблемы из-за него
   20.09.2002 SVS
     - BugZ#635 - Плавающая ширина Plugin Configuration
     - BugZ#646 - Color groups\Dialog\*List* где они бывают?
@@ -625,7 +630,7 @@ void VMenu::DisplayObject()
     */
     if (BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX)
     {
-      Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
+      Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
       if(!VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
       {
         MakeShadow(X1+2,Y2+1,X2+1,Y2+1);
@@ -638,9 +643,9 @@ void VMenu::DisplayObject()
        ! Переработка отрисовки меню с флагом VMENU_SHOWNOBOX.
       */
       if (BoxType!=NO_BOX)
-        SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[0]);
+        SetScreen(X1-2,Y1-1,X2+2,Y2+1,' ',VMenu::Colors[VMenuColorBody]);
       else
-        SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[0]);
+        SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
       /* KM $ */
       if(!VMFlags.Check(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
       {
@@ -648,7 +653,7 @@ void VMenu::DisplayObject()
         MakeShadow(X2+3,Y1,X2+4,Y2+2);
       }
       if (BoxType!=NO_BOX)
-        Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
+        Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
     }
     /* SVS $*/
   }
@@ -665,7 +670,7 @@ void VMenu::DisplayObject()
     if((WidthTitle=strlen(Title)) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
-    SetColor(VMenu::Colors[2]);
+    SetColor(VMenu::Colors[VMenuColorTitle]);
     mprintf(" %*.*s ",WidthTitle,WidthTitle,Title);
   }
   if (*BottomTitle)
@@ -673,7 +678,7 @@ void VMenu::DisplayObject()
     if((WidthTitle=strlen(BottomTitle)) > MaxTitleLength)
       WidthTitle=MaxTitleLength-1;
     GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
-    SetColor(VMenu::Colors[2]);
+    SetColor(VMenu::Colors[VMenuColorTitle]);
     mprintf(" %*.*s ",WidthTitle,WidthTitle,BottomTitle);
   }
   /* DJ $ */
@@ -728,9 +733,9 @@ void VMenu::ShowMenu(int IsParent)
   if(!IsParent && VMFlags.Check(VMENU_LISTBOX))
   {
     BoxType=VMFlags.Check(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;
-    SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[0]);
+    SetScreen(X1,Y1,X2,Y2,' ',VMenu::Colors[VMenuColorBody]);
     if (BoxType!=NO_BOX)
-      Box(X1,Y1,X2,Y2,VMenu::Colors[1],BoxType);
+      Box(X1,Y1,X2,Y2,VMenu::Colors[VMenuColorBox],BoxType);
   }
 
   switch(BoxType)
@@ -794,7 +799,7 @@ void VMenu::ShowMenu(int IsParent)
                 Ptr[J-Correction+2]=0x0C1;
             }
           }
-        Text(X1,Y,VMenu::Colors[1],TmpStr);
+        Text(X1,Y,VMenu::Colors[VMenuColorSeparator],TmpStr); // VMenuColorBox
         if (*Item[I].PtrName())
         {
           int ItemWidth=strlen(Item[I].PtrName());
@@ -809,13 +814,13 @@ void VMenu::ShowMenu(int IsParent)
         */
         if (BoxType!=NO_BOX)
         {
-          SetColor(VMenu::Colors[1]);
+          SetColor(VMenu::Colors[VMenuColorBox]);
           Text((char*)BoxChar);
           GotoXY(X2,Y);
           Text((char*)BoxChar);
         }
         if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
-          SetColor(VMenu::Colors[6]);
+          SetColor(VMenu::Colors[VMenuColorSelected]);
         else
           SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);
         if (BoxType!=NO_BOX)
@@ -842,12 +847,12 @@ void VMenu::ShowMenu(int IsParent)
         if(!(Item[I].Flags&LIF_DISABLE))
         {
           if (Item[I].Flags&LIF_SELECTED)
-              Col=VMenu::Colors[7];
+              Col=VMenu::Colors[VMenuColorHSelect];
           else
-              Col=VMenu::Colors[4];
+              Col=VMenu::Colors[VMenuColorHilite];
         }
         else
-          Col=VMenu::Colors[9];
+          Col=VMenu::Colors[VMenuColorDisabled];
         if(VMFlags.Check(VMENU_SHOWAMPERSAND))
           Text(TmpStr);
         else
@@ -873,7 +878,7 @@ void VMenu::ShowMenu(int IsParent)
       */
       if (BoxType!=NO_BOX)
       {
-        SetColor(VMenu::Colors[1]);
+        SetColor(VMenu::Colors[VMenuColorBox]);
         Text((char*)BoxChar);
         GotoXY(X2,Y);
         Text((char*)BoxChar);
@@ -881,7 +886,7 @@ void VMenu::ShowMenu(int IsParent)
       }
       else
         GotoXY(X1,Y);
-      SetColor(VMenu::Colors[3]);
+      SetColor(VMenu::Colors[VMenuColorText]);
       mprintf("%*s",((BoxType!=NO_BOX)?X2-X1-1:X2-X1),"");
       /* KM $ */
     }
@@ -902,7 +907,7 @@ void VMenu::ShowMenu(int IsParent)
   {
     if (((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount)
     {
-      SetColor(VMenu::Colors[8]);
+      SetColor(VMenu::Colors[VMenuColorScrollBar]);
       if (BoxType!=NO_BOX)
         ScrollBar(X2,Y1+1,Y2-Y1-1,SelectPos,ItemCount);
       else
@@ -1176,22 +1181,26 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     if (MsY>SbY1 && MsY<SbY2)
     {
-      int SbHeight=Y2-Y1-2;
+      int SbHeight;
       int Delta;
-      MsPos=(ItemCount-1)*(MsY-Y1)/(SbHeight);
-      if(MsPos >= ItemCount)
+      while (IsMouseButtonPressed())
       {
-        MsPos=ItemCount-1;
-        Delta=-1;
+        SbHeight=Y2-Y1-2;
+        MsPos=(ItemCount-1)*(MouseY-Y1)/(SbHeight);
+        if(MsPos >= ItemCount)
+        {
+          MsPos=ItemCount-1;
+          Delta=-1;
+        }
+        if(MsPos < 0)
+        {
+          MsPos=0;
+          Delta=1;
+        }
+        if(!(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
+          SelectPos=SetSelectPos(MsPos,Delta); //??
+        ShowMenu(TRUE);
       }
-      if(MsPos < 0)
-      {
-        MsPos=0;
-        Delta=1;
-      }
-      if(!(Item[MsPos].Flags&LIF_SEPARATOR) && !(Item[MsPos].Flags&LIF_DISABLE))
-        SelectPos=SetSelectPos(MsPos,Delta); //??
-      ShowMenu(TRUE);
       return(TRUE);
     }
   }
@@ -1968,41 +1977,58 @@ void VMenu::AssignHighlights(int Reverse)
 /* $ 28.07.2000 SVS
 
 */
-void VMenu::SetColors(short *Colors)
+void VMenu::SetColors(struct FarListColors *Colors)
 {
   if(Colors)
-    memmove(VMenu::Colors,Colors,sizeof(VMenu::Colors));
+    memmove(VMenu::Colors,Colors->Colors,sizeof(VMenu::Colors));
   else
   {
-    int DialogStyle=CheckFlags(VMENU_LISTBOX);
-    VMenu::Colors[0]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT;
-    VMenu::Colors[1]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX;
-    VMenu::Colors[2]=COL_MENUTITLE;
-    VMenu::Colors[3]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUTEXT;
-    VMenu::Colors[4]=DialogStyle ? COL_DIALOGMENUHIGHLIGHT:COL_MENUHIGHLIGHT;
-    VMenu::Colors[5]=DialogStyle ? COL_DIALOGMENUTEXT:COL_MENUBOX;
-    VMenu::Colors[6]=DialogStyle ? COL_DIALOGMENUSELECTEDTEXT:COL_MENUSELECTEDTEXT;
-    VMenu::Colors[7]=DialogStyle ? COL_DIALOGMENUSELECTEDHIGHLIGHT:COL_MENUSELECTEDHIGHLIGHT;
-    VMenu::Colors[8]=DialogStyle ? COL_DIALOGMENUSCROLLBAR: COL_MENUSCROLLBAR;
-    VMenu::Colors[9]=DialogStyle ? COL_DIALOGLISTDISABLED: COL_MENUDISABLEDTEXT;
+    static short StdColor[2][VMENU_COLOR_COUNT]=
+    {
+      {
+        COL_DIALOGLISTTEXT,
+        COL_DIALOGLISTTEXT,
+        COL_DIALOGLISTTITLE,
+        COL_DIALOGLISTTEXT,
+        COL_DIALOGLISTHIGHLIGHT,
+        COL_DIALOGLISTTEXT,
+        COL_DIALOGLISTSELECTEDTEXT,
+        COL_DIALOGLISTSELECTEDHIGHLIGHT,
+        COL_DIALOGLISTSCROLLBAR,
+        COL_DIALOGLISTDISABLED,
+      },
+      {
+        COL_MENUTEXT,
+        COL_MENUBOX,
+        COL_MENUTITLE,
+        COL_MENUTEXT,
+        COL_MENUHIGHLIGHT,
+        COL_MENUBOX,
+        COL_MENUSELECTEDTEXT,
+        COL_MENUSELECTEDHIGHLIGHT,
+        COL_MENUSCROLLBAR,
+        COL_MENUDISABLEDTEXT,
+      }
+    };
+    int DialogStyle=CheckFlags(VMENU_LISTBOX)?0:1;
+    for(int I=0; I < VMENU_COLOR_COUNT; ++I)
+      VMenu::Colors[I]=FarColorToReal(StdColor[DialogStyle][I]);
   }
 }
 
-void VMenu::GetColors(short *Colors)
+void VMenu::GetColors(struct FarListColors *Colors)
 {
-  memmove(Colors,VMenu::Colors,sizeof(VMenu::Colors));
+  memmove(Colors->Colors,VMenu::Colors,sizeof(VMenu::Colors));
 }
-
 /* SVS $*/
 
 /* $ 25.05.2001 DJ
    установка одного цвета
 */
-
 void VMenu::SetOneColor (int Index, short Color)
 {
   if ((DWORD)Index < sizeof(Colors) / sizeof (Colors [0]))
-    Colors [Index]=Color;
+    Colors [Index]=FarColorToReal(Color);
 }
 
 /* DJ $ */

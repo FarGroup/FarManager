@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.99 22.08.2002 $ */
+/* Revision: 1.100 27.09.2002 $ */
 
 /*
 Modify:
+  27.09.2002 SVS
+    - BugZ#640 - отрисовка
   22.01.2002 IS
     ! јвтохоткеи назначаем после основных (меню выбора дисков)
   21.01.2002 IS
@@ -860,10 +862,16 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
               {
                 int Code = ProcessDelDisk (LOBYTE(LOWORD(UserData)), HIWORD(UserData));
                 if (Code != DRIVE_DEL_FAIL)
-                /* $ 19.01.2002 VVM
-                  + ≈сли диск был последним - в конце и останемс€ */
+                {
+                  // "BugZ#640 - отрисовка" - обновим экран.
+                  ScrBuf.Lock(); // отмен€ем вс€кую прорисовку
+                  FrameManager->ResizeAllFrame();
+                  FrameManager->PluginCommit(); // коммитим.
+                  ScrBuf.Unlock(); // разрешаем прорисовку
+
+                  // 19.01.2002 VVM  + ≈сли диск был последним - в конце и останемс€
                   return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
-                /* VVM $ */
+                }
               }
             }
             /* DJ $ */

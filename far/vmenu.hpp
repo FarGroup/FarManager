@@ -11,10 +11,13 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.43 03.09.2002 $ */
+/* Revision: 1.44 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! ÷ветовые истории (Colors не short, а BYTE и применим новую структуру
+      FarListColors дл€ SetColors/GetColors)
   03.09.2002 SVS
     ! функци€ SortItems имеет доп параметр Offset
   25.06.2002 SVS
@@ -325,7 +328,7 @@ class VMenu: virtual public Modal, virtual public Frame
     /* $ 28.07.2000 SVS
        ÷ветовые атрибуты
     */
-    short Colors[VMENU_COLOR_COUNT];
+    BYTE Colors[VMENU_COLOR_COUNT];
     /* SVS */
 
   public:
@@ -379,8 +382,9 @@ class VMenu: virtual public Modal, virtual public Frame
     DWORD ChangeFlags(DWORD Flags,BOOL Status) {return VMFlags.Change(Flags,Status);}
 
     void AssignHighlights(int Reverse);
-    void SetColors(short *Colors=NULL);
-    void GetColors(short *Colors);
+
+    void SetColors(struct FarListColors *Colors=NULL);
+    void GetColors(struct FarListColors *Colors);
 
     /* $ 25.05.2001 DJ */
     void SetOneColor (int Index, short Color);

@@ -1084,9 +1084,10 @@
 "Selected highlighted buttons"
 "List text"
 "Selected list text"
-"Menu highlight"
-"Menu selected highlight"
+"Highlighted list text"
+"Selected highlighted list text"
 "Disabled list"
+"List title"
 "Scrollbar for lists"
 
 "Normal text"

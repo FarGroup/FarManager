@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.264 23.09.2002 $ */
+/* Revision: 1.265 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! SelectFromComboBox имеет первый параметр типа struct DialogItem
+    - BugZ#659 - двигаем FDLG_NODRAWSHADOW
+    ! полностью переписываем поведение DN_CTLCOLORDLGLIST
+    - траблы с DM_ENABLEREDRAW
   23.09.2002 SVS
     - BugZ#652 - Узкая консоль и DialogEx
     + DialogItem имеет IFlags - для внутренних нужд.
@@ -2649,11 +2654,14 @@ void Dialog::ShowDialog(int ID)
           /* $ 21.08.2000 SVS
              Перед отрисовкой спросим об изменении цветовых атрибутов
           */
-          short Colors[VMENU_COLOR_COUNT];
-          CurItem->ListPtr->GetColors(Colors);
-          if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
-                          sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-            CurItem->ListPtr->SetColors(Colors);
+          BYTE RealColors[VMENU_COLOR_COUNT];
+          struct FarListColors ListColors={0};
+          ListColors.ColorItem=VMENU_COLOR_COUNT;
+          ListColors.Colors=RealColors;
+
+          CurItem->ListPtr->GetColors(&ListColors);
+          if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,I,(long)&ListColors))
+            CurItem->ListPtr->SetColors(&ListColors);
           /* SVS $ */
           /* $ 23.02.2002 DJ
              теперь у нас есть флаг => Show() всегда должно нарисовать правильно
@@ -3994,7 +4002,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocu
     int MaxLen=(CurItem->Flags&DIF_VAREDIT)?
                  CurItem->Ptr.PtrLength:
                  sizeof(CurItem->Data);
-    if(SelectFromComboBox(CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
+    if(SelectFromComboBox(CurItem,CurEditLine,CurItem->ListPtr,MaxLen) != KEY_ESC)
       Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,CurFocusPos,0);
   }
   /* SVS $ */
@@ -4569,6 +4577,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
    Функция-обработчик выбора из списка и установки...
 */
 int Dialog::SelectFromComboBox(
+         struct DialogItem *CurItem,
          DlgEdit *EditLine,                   // строка редактирования
          VMenu *ComboBox,    // список строк
          int MaxLen)
@@ -4587,11 +4596,13 @@ int Dialog::SelectFromComboBox(
       EditX2=ScrX;
     ComboBox->SetPosition(EditX1,EditY1+1,EditX2,0);
     // Перед отрисовкой спросим об изменении цветовых атрибутов
-    short Colors[VMENU_COLOR_COUNT];
-    ComboBox->GetColors(Colors);
-    if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
-                    sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-      ComboBox->SetColors(Colors);
+    BYTE RealColors[VMENU_COLOR_COUNT];
+    struct FarListColors ListColors={0};
+    ListColors.ColorItem=VMENU_COLOR_COUNT;
+    ListColors.Colors=RealColors;
+    ComboBox->GetColors(&ListColors);
+    if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(long)&ListColors))
+      ComboBox->SetColors(&ListColors);
 
     SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 
@@ -4736,8 +4747,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
         GetRegKey(RegKey,HisLocked,(int)Locked,0);
         HistoryItem.SetCheck(Locked);
         strncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
-        HistoryMenu.SetUserData(Str,0,
-              HistoryMenu.AddItem(&HistoryItem));
+        HistoryMenu.SetUserData(Str,0,HistoryMenu.AddItem(&HistoryItem));
         ItemsCount++;
       }
       if (ItemsCount==0)
@@ -4746,14 +4756,15 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
       // выставим селекшин
       Dest=Opt.Dialogs.SelectFromHistory?HistoryMenu.FindItem(0,IStr,LIFIND_EXACTMATCH):-1;
       HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
+
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
-      /*$ 14.06.2001 OT */
-      short Colors[VMENU_COLOR_COUNT];
-      /* OT $*/
-      HistoryMenu.GetColors(Colors);
-      if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,
-                      sizeof(Colors)/sizeof(Colors[0]),(long)Colors))
-        HistoryMenu.SetColors(Colors);
+      BYTE RealColors[VMENU_COLOR_COUNT];
+      struct FarListColors ListColors={0};
+      ListColors.ColorItem=VMENU_COLOR_COUNT;
+      ListColors.Colors=RealColors;
+      HistoryMenu.GetColors(&ListColors);
+      if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,CurItem->ID,(long)&ListColors))
+        HistoryMenu.SetColors(&ListColors);
       HistoryMenu.Show();
 
       // основной цикл обработки
@@ -5285,7 +5296,7 @@ void Dialog::Process()
   /* $ 17.05.2001 DJ
      NDZ
   */
-  if(DialogMode.Check(DMODE_SMALLDIALOG))
+//  if(DialogMode.Check(DMODE_SMALLDIALOG))
     SetRestoreScreenMode(TRUE);
 
   InitDialog();
@@ -5709,6 +5720,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     /* $ 18.08.2000 SVS
        + Разрешение/запрещение отрисовки диалога
     */
+
     case DM_ENABLEREDRAW:
     {
       int Prev=Dlg->IsEnableRedraw;
@@ -5723,12 +5735,31 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(!Dlg->IsEnableRedraw && Prev != Dlg->IsEnableRedraw)
         if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
         {
-//          Dlg->ShowDialog();
-          Dlg->Show();
+          Dlg->ShowDialog();
+//          Dlg->Show();
           ScrBuf.Flush();
         }
       return Prev;
     }
+
+/*
+    case DM_ENABLEREDRAW:
+    {
+      if(Param1)
+        Dlg->IsEnableRedraw++;
+      else
+        Dlg->IsEnableRedraw--;
+
+      if(!Dlg->IsEnableRedraw)
+        if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
+        {
+          Dlg->ShowDialog();
+          ScrBuf.Flush();
+//          Dlg->Show();
+        }
+      return 0;
+    }
+*/
     /* SVS $ */
 
     /*****************************************************************/

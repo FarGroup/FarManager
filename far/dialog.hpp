@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.65 23.09.2002 $ */
+/* Revision: 1.66 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! SelectFromComboBox имеет первый параметр типа struct DialogItem
   23.09.2002 SVS
     + DialogItem имеет IFlags - для внутренних нужд.
   20.09.2002 SVS
@@ -436,7 +438,7 @@ class Dialog: public Frame
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
     */
-    int SelectFromComboBox(DlgEdit*EditLine,VMenu *List,int MaxLen);
+    int SelectFromComboBox(struct DialogItem *CurItem,DlgEdit*EditLine,VMenu *List,int MaxLen);
     /* SVS $ */
     /* $ 26.07.2000 SVS
        AutoComplite: Поиск входжение подстроки в истории

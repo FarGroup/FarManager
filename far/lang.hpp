@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.111 20.09.2002 $ */
+/* Revision: 1.112 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! MSetColorDialogMenu* -> MSetColorDialogList*
   20.09.2002 SVS
     - BugZ#645 - Не подряд ооднотипные настройки цветов
   04.09.2002 SVS
@@ -1384,11 +1386,12 @@ enum
   MSetColorDialogHighlightedButtons,
   MSetColorDialogSelectedHighlightedButtons,
   MSetColorDialogListText,
-  MSetColorDialogSelectedListText,
-  MSetColorDialogMenuHighLight,
-  MSetColorDialogMenuSelectedHighLight,
+  MSetColorDialogListSelectedText,
+  MSetColorDialogListHighLight,
+  MSetColorDialogListSelectedHighLight,
   MSetColorDialogListDisabled,
-  MSetColorDialogMenuScrollBar,
+  MSetColorDialogListTitle,
+  MSetColorDialogListScrollBar,
 
   MSetColorWarningNormal,
   MSetColorWarningHighlighted,

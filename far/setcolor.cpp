@@ -5,10 +5,15 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.21 20.09.2002 $ */
+/* Revision: 1.22 26.09.2002 $ */
 
 /*
 Modify:
+  26.09.2002 SVS
+    - ФАР в режиме 80x25. на правой панели штук 15 файлов, кое-какие
+      выделены. идем в настройку цветов и меняем цвет выделения и цвет
+      обычного текста. после закрытия диалога и меню цвета под ними
+      восстанавливаются старые
   20.09.2002 SVS
     - BugZ#645 - Не подряд ооднотипные настройки цветов
   13.04.2002 KM
@@ -127,7 +132,7 @@ void SetColors()
   };
 
   /* $ 22.11.2000 SVS
-    + пункт в меню - COL_DIALOGMENUSCROLLBAR
+    + пункт в меню - COL_DIALOGLISTSCROLLBAR
   */
   /* $ 04.12.2000 SVS
     + пункт в меню - COL_DIALOGDISABLED
@@ -149,20 +154,22 @@ void SetColors()
     (char *)MSetColorDialogHighlightedButtons,0,0,
     (char *)MSetColorDialogSelectedHighlightedButtons,0,0,
     (char *)MSetColorDialogListText,0,0,
-    (char *)MSetColorDialogSelectedListText,0,0,
-    (char *)MSetColorDialogMenuHighLight,0,0,
-    (char *)MSetColorDialogMenuSelectedHighLight,0,0,
+    (char *)MSetColorDialogListSelectedText,0,0,
+    (char *)MSetColorDialogListHighLight,0,0,
+    (char *)MSetColorDialogListSelectedHighLight,0,0,
     (char *)MSetColorDialogListDisabled,0,0,
-    (char *)MSetColorDialogMenuScrollBar,0,0, // полоса прокрутки для списка
+    (char *)MSetColorDialogListTitle,0,0,
+    (char *)MSetColorDialogListScrollBar,0,0, // полоса прокрутки для списка
   };
   int DialogPaletteItems[]={
     COL_DIALOGTEXT,COL_DIALOGHIGHLIGHTTEXT,COL_DIALOGDISABLED,
     COL_DIALOGBOX,COL_DIALOGBOXTITLE, COL_DIALOGHIGHLIGHTBOXTITLE,
     COL_DIALOGEDIT,COL_DIALOGEDITUNCHANGED, COL_DIALOGEDITSELECTED,COL_DIALOGEDITDISABLED,
     COL_DIALOGBUTTON,COL_DIALOGSELECTEDBUTTON, COL_DIALOGHIGHLIGHTBUTTON,COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
-    COL_DIALOGMENUTEXT, COL_DIALOGMENUSELECTEDTEXT,COL_DIALOGMENUHIGHLIGHT,
-    COL_DIALOGMENUSELECTEDHIGHLIGHT, COL_DIALOGLISTDISABLED,COL_DIALOGMENUSCROLLBAR,
-
+    COL_DIALOGLISTTEXT, COL_DIALOGLISTSELECTEDTEXT,COL_DIALOGLISTHIGHLIGHT,
+    COL_DIALOGLISTSELECTEDHIGHLIGHT, COL_DIALOGLISTDISABLED,
+    COL_DIALOGLISTTITLE,
+    COL_DIALOGLISTSCROLLBAR,
   };
   /* SVS 04.12.2000 $ */
   /* SVS 22.11.2000 $ */
@@ -407,6 +414,7 @@ void GetColor(int PaletteIndex)
     MenuToRedraw2->Hide(); // гасим
     MenuToRedraw1->Hide();
     FrameManager->RefreshFrame(); // рефрешим
+    FrameManager->PluginCommit(); // коммитим.
     MenuToRedraw1->Show(); // кажем
     MenuToRedraw2->Show();
     ScrBuf.Unlock(); // разрешаем прорисовку

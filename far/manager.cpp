@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.77 20.06.2002 $ */
+/* Revision: 1.78 26.09.2002 $ */
 
 /*
 Modify:
+  26.09.2002 SVS
+    + Вынесем код по ресайзу в функцию ResizeAllFrame()
   20.06.2002 SVS
     ! Для хелпа и диалога по F12 не кажим список скринов.
   18.06.2002 SVS
@@ -825,21 +827,7 @@ int  Manager::ProcessKey(int Key)
 
       case KEY_CONSOLE_BUFFER_RESIZE:
         Sleep(1);
-        for (i=0;i<FrameCount;i++)
-        {
-          FrameList[i]->ResizeConsole();
-        }
-        for (i=0;i<ModalStackCount;i++)
-        {
-          ModalStack[i]->ResizeConsole();
-          /* $ 13.04.2002 KM
-            - А теперь проресайзим все NextModal...
-          */
-          ResizeAllModal(ModalStack[i]);
-          /* KM $ */
-        }
-        ImmediateHide();
-        FrameManager->RefreshFrame();
+        ResizeAllFrame();
         return TRUE;
     }
 
@@ -892,6 +880,7 @@ int  Manager::ProcessKey(int Key)
               PrevScrY=PScrY;
               //_SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
               Sleep(1);
+
               return ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
             }
           }
@@ -1513,6 +1502,28 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
   }
 }
 /* KM $ */
+
+void Manager::ResizeAllFrame()
+{
+  int I;
+  for (I=0; I < FrameCount; I++)
+  {
+    FrameList[I]->ResizeConsole();
+  }
+
+  for (I=0; I < ModalStackCount; I++)
+  {
+    ModalStack[I]->ResizeConsole();
+    /* $ 13.04.2002 KM
+      - А теперь проресайзим все NextModal...
+    */
+    ResizeAllModal(ModalStack[I]);
+    /* KM $ */
+  }
+  ImmediateHide();
+  FrameManager->RefreshFrame();
+  //RefreshFrame();
+}
 
 void Manager::InitKeyBar(void)
 {

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.219 25.09.2002 $ */
+/* Revision: 1.220 30.09.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  30.09.2002 SVS
+    + struct FarListColors - описание цветовой схемы листов
   25.09.2002 SVS
     ! легилизация ACTL_SETARRAYCOLOR и еже с ним.
   23.09.2002 SVS
@@ -1089,6 +1091,13 @@ struct FarListTitles
   char *Title;
   int   BottomLen;
   char *Bottom;
+};
+
+struct FarListColors{
+  DWORD  Flags;
+  DWORD  Reserved;
+  int    ColorItem;
+  LPBYTE Colors;
 };
 
 struct FarDialogItem

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.144 23.09.2002 $ */
+/* Revision: 1.145 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! немного по другому прорешрешим консоль при изменении цветов
+    ! проинициализируем ID у элементов диалога!
   23.09.2002 SVS
     + ACTL_SETARRAYCOLOR, FARCOLORFLAGS, FARColor пока для внутренного юзания
       (хотя, блин, работает на ура!)
@@ -658,9 +661,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
           if(Pal->Flags&FCLR_REDRAW)
           {
             ScrBuf.Lock(); // отменяем всякую прорисовку
-            FrameManager->RefreshFrame(); // рефрешим
-            ScrBuf.Unlock(); // разрешаем прорисовку
+            FrameManager->ResizeAllFrame();
             FrameManager->PluginCommit(); // коммитим.
+            ScrBuf.Unlock(); // разрешаем прорисовку
           }
           return TRUE;
         }
@@ -1234,6 +1237,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     FarDialog.SetPluginNumber(PluginNumber);
     /* SVS $ */
 
+    int I;
     if(Opt.ExceptRules)
     {
       CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
@@ -1241,6 +1245,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       {
         FarDialog.Process();
         Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+        for(I=0; I < ItemsNumber; ++I)
+          InternalItem[I].ID=I;
         ExitCode=FarDialog.GetExitCode();
       }
       EXCEPT (Except_FarDialogEx(InternalItem))
@@ -1252,6 +1258,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     {
       FarDialog.Process();
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+      for(I=0; I < ItemsNumber; ++I)
+        InternalItem[I].ID=I;
       ExitCode=FarDialog.GetExitCode();
     }
   }

@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.122 12.09.2002 $ */
+/* Revision: 1.123 30.09.2002 $ */
 
 /*
 Modify:
+  30.09.2002 SVS
+    ! упростим процедуру обработки DN_CTLCOLORDLGLIST - нужно заменить только
+      9-й индекс!
   12.09.2002 SVS
     - BugZ#593 - ѕадает при попытке поиска из меню
   31.08.2002 KM
@@ -1340,22 +1343,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     case DN_CTLCOLORDLGLIST:
     {
-      short ColorArray[10]=
-      {
-        COL_DIALOGMENUTEXT,
-        COL_DIALOGMENUTEXT,
-        COL_MENUTITLE,
-        COL_DIALOGMENUTEXT,
-        COL_DIALOGMENUHIGHLIGHT,
-        COL_DIALOGMENUTEXT,
-        COL_DIALOGMENUSELECTEDTEXT,
-        COL_DIALOGMENUSELECTEDHIGHLIGHT,
-        COL_DIALOGMENUSCROLLBAR,
-        COL_DIALOGMENUTEXT
-      };
       if (Param2)
-        for (int I=0;I<Param1;I++)
-          ((short *)Param2)[I]=ColorArray[I];
+        ((struct FarListColors *)Param2)->Colors[VMenuColorDisabled]=FarColorToReal(COL_DIALOGLISTTEXT);
       return TRUE;
     }
     case DN_CLOSE:
