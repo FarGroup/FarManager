@@ -5,11 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.55 01.10.2001 $ */
+/* Revision: 1.56 01.10.2001 $ */
 
 /*
 Modify:
-  $ 01.10.2001 VVM
+  01.10.2001 VVM
+    ! ѕровер€ть нада переменные на NULL
+  01.10.2001 VVM
     ! ѕосле Alt-F7 с поиском в архивах не работали меню и диалоги плагинов
   27.09.2001 IS
     - Ћевый размер при использовании strncpy
@@ -1081,7 +1083,7 @@ int FindFiles::FindFilesProcess()
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
-      strcpy(FindFileArcName,Info.HostFile);
+      strcpy(FindFileArcName,NullToEmpty(Info.HostFile));
       FindDlg[8].Type=DI_TEXT;
       *FindDlg[8].Data=0;
     }
