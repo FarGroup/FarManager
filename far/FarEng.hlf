@@ -1097,17 +1097,16 @@ the desired association from the menu.  "IF EXIST" and "IF DEFINED"
 of assotiations will be enclosed only  assotiations, for which will be
 executed specified condition.
 
-  3. In associated commands !@@! and !$! the following special modifiers may
-be used:
+  3. The following modifiers may be used with the associations !@@! and !$! :
 
-    'Q' - quote names with spaces;
-    'S' - use '/' instead of '\' in pathnames;
-    'F' - use full pathnames;
-    'A' - use ANSI encoding.
+     'Q' - double-quote names with spaces;
+     'S' - use '/' instead of '\' in pathnames;
+     'F' - use full pathnames;
+     'A' - use ANSI encoding.
 
-  For instance, assotiation #!@@AFQ!# - name of file with selected file
-names list; in ANSI coding; with the full path; names with spaces will be
-quote.
+  For example, the association #!@@AFQ!# means "name of file with the
+list of selected file names, in ANSI encoding, include full pathnames,
+names with spaces will be in quotes".
 
 @SystemSettings
 $ #System settings dialog#
