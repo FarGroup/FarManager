@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.196 04.04.2002 $ */
+/* Revision: 1.197 04.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  04.04.2002 SVS
+    ! ECTL_TURNOFFMARKINGBLOK -> ECTL_TURNOFFMARKINGBLOCK
   04.04.2002 IS
     + ECTL_TURNOFFMARKINGBLOK
   04.04.2002 SVS
@@ -1756,7 +1758,7 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_PROCESSKEY,
   ECTL_SETPARAM,
   ECTL_GETBOOKMARKS,
-  ECTL_TURNOFFMARKINGBLOK,
+  ECTL_TURNOFFMARKINGBLOCK,
 };
 
 enum EDITOR_SETPARAMETER_TYPES {

@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.12 27.02.2002 $ */
+/* Revision: 1.13 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 SVS
+    - Хе... lfind видите ли им не понравился ;-((
   27.02.2002 SVS
     + mmsystem.h при условии, что выставлен флаг __USE_MCI, который
       компилит ФАР с юзанием константами для mciSendCommand
@@ -136,6 +138,9 @@ Modify:
 #ifndef __SHARE_H
 #include <share.h>
 #endif
+#ifndef __SEARCH_H
+#include <search.h>
+#endif
 #if _MSC_VER
   #define _export
   #define FA_DIREC _A_SUBDIR
@@ -145,6 +150,7 @@ Modify:
   #define FA_RDONLY _A_RDONLY
   #define FA_ARCH   _A_ARCH
   #define setdisk(n) _chdrive((n)+1)
+  #define lfind  _lfind
 
   /* $ 12.07.2000 OT
     - Исправление бага, из-за которго не работал ScreenSaver после

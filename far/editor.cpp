@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.168 04.04.2002 $ */
+/* Revision: 1.169 04.04.2002 $ */
 
 /*
 Modify:
+  04.04.2002 SVS
+    ! ECTL_TURNOFFMARKINGBLOK -> ECTL_TURNOFFMARKINGBLOCK
   04.04.2002 IS
     + ECTL_TURNOFFMARKINGBLOK: убрать флаг редактора "осуществляется
       выделение блока"
@@ -5802,7 +5804,7 @@ int Editor::EditorControl(int Command,void *Param)
     /* $ 04.04.2002 IS
        Убрать флаг редактора "осуществляется выделение блока"
     */
-    case ECTL_TURNOFFMARKINGBLOK:
+    case ECTL_TURNOFFMARKINGBLOCK:
     {
       EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
       return TRUE;
