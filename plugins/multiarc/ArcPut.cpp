@@ -207,11 +207,10 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     switch(Param1)
     {
       case PDI_CANCELBTN:
-        break;
-
+        //break;
       case PDI_ADDBTN:
       {
-        // проверка совпадения введенного пароля и подтверждения
+        /*// проверка совпадения введенного пароля и подтверждения
         char Password1[256],Password2[256];
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
@@ -221,7 +220,9 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,COUNT(MsgItems),1);
           return TRUE;
         }
-        break;
+        break;*/
+        Info.SendDlgMessage(hDlg, DM_CLOSE, -1, 0);
+        return TRUE;
       }
 
       case PDI_SAVEBTN:
@@ -265,7 +266,22 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == DN_CLOSE)
   {
-    return Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, -1) == TRUE ||
+    if(Param1==PDI_ADDBTN && Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, -1))
+    {
+      // проверка совпадения введенного пароля и подтверждения
+      char Password1[256],Password2[256];
+      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
+      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
+      if(strcmp(Password1,Password2))
+      {
+        const char *MsgItems[]={GetMsg(MError),GetMsg(MAddPswNotMatch),GetMsg(MOk)};
+        Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,COUNT(MsgItems),1);
+        return FALSE;
+      }
+      return TRUE;   
+    }
+
+    return /*Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, -1) == TRUE ||*/
            Param1 < 0 ||
            Param1 == PDI_CANCELBTN;
   }
@@ -377,6 +393,8 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 
   char Command[512],AllFilesMask[32];
   int ArcExitCode=1;
+  BOOL OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
+  BOOL RestoreExactState=FALSE;
   struct PutDlgData pdd={0};
   char FullName[NM],/*ExtName[NM],*/*NamePtr/*,*ExtPtr*/;
   BOOL Ret=TRUE;
@@ -464,6 +482,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     {
       pdd.NoChangeArcName=TRUE;
       pdd.OldExactState=TRUE;
+      RestoreExactState=TRUE;
       strcpy(DialogItems[PDI_ARCNAMEEDT].Data, ArcName);
     }
     else
@@ -472,12 +491,14 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       if(GetCursorName(DialogItems[PDI_ARCNAMEEDT].Data, pdd.ArcFormat, pdd.DefExt))
       {
         //pdd.NoChangeArcName=TRUE;
+        RestoreExactState=TRUE;
         pdd.OldExactState=TRUE;
       }
       else
       {
 #endif //_ARC_UNDER_CURSOR_
-        pdd.OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
+        //pdd.OldExactState=Opt.AdvFlags.AutoResetExactArcName?FALSE:Opt.AdvFlags.ExactArcName;
+        pdd.OldExactState=OldExactState;
 #ifdef _GROOP_NAME_
         GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data);
 #else //_GROOP_NAME_
@@ -530,7 +551,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       //strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001
       Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected;
 
-      Opt.AdvFlags.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
+      if(RestoreExactState)
+        Opt.AdvFlags.ExactArcName=OldExactState;
+      else
+        Opt.AdvFlags.ExactArcName=DialogItems[PDI_EXACTNAMECHECK].Selected;
       //SetRegKey(HKEY_CURRENT_USER, "", "ExactArcName", Opt.ExactArcName);
       SetRegKey(HKEY_CURRENT_USER, "", "AdvFlags", Opt.AdvFlags);
 

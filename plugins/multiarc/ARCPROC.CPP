@@ -227,7 +227,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
           if(*Buffer==0)
             continue;
         }
-
+ 
         NewMenuItems=(struct FarMenuItemEx *)realloc(MenuItems,
                              (MenuItemsNumber+1)*sizeof(struct FarMenuItemEx));
         if (NewMenuItems==NULL)
