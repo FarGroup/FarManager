@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.03 17.07.2000 $ */
+/* Revision: 1.04 21.07.2000 $ */
 
 /*
 Modify:
+  21.07.2000 tran
+    ! GotoLine стала как раньше void и добавилась GoToPosition
   17.07.2000 OT
     + Застолбить место под разработку "моего" редактора
   14.07.2000 tran
@@ -44,7 +46,15 @@ class Editor:public ScreenObject
        возвращаемое значение - это колонка, введенная пользователем
        используется только в одном месте - в обработке Alt-F8
     */
-    int  GoToLine(int Line);
+    /* $ 21.07.2000 tran
+       GotoLine стала как раньше void
+       и добавилась GoToPosition
+       */
+
+    void GoToLine(int Line);
+    void GoToPosition();
+    /* tran 21.07.2000 $ */
+
     /* tran 05.07.2000 $ */
     int  CalcDistance(struct EditList *From,struct EditList *To,int MaxDist);
     void Paste();
@@ -143,7 +153,7 @@ class Editor:public ScreenObject
 
     /* $ tran 14.07.2000
       + goto to percent support */
-    BOOL GetRowCol(char *argv,int *row,int *col);
+    void GetRowCol(char *argv,int *row,int *col);
     /* tran 14.07.2000 $ */
 };
 

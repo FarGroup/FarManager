@@ -6,11 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.11 19.07.2000 $ */
+/* Revision: 1.12 21.07.2000 $ */
 
 /*
 Modify:
-   18.07.2000 tran
+  21.07.2000 tran
+    ! Все внутри функции GoToPosition();
+  18.07.2000 tran
     - Bug #22
       встань в начало текста, нажми alt-right, alt-pagedown,
       выделится блок шириной в 1 колонку, нажми еще alt-right
@@ -1531,16 +1533,10 @@ int Editor::ProcessKey(int Key)
       {
         /* $ 05.07.2000 tran
            + возможность переходить не только на строку, но и на колонку */
-        int LeftPos=CurLine->EditLine.GetLeftPos();
-        int NewPos;
-        NewPos=GoToLine(-1);
-        if ( NewPos == -1)
-        {
-            CurLine->EditLine.SetTabCurPos(CurPos);
-            CurLine->EditLine.SetLeftPos(LeftPos);
-        }
-        else
-            CurLine->EditLine.SetTabCurPos(NewPos);
+        /* $ 21.07.2000 tran
+           Все внутри функции */
+        GoToPosition();
+        /* tran 21.07.2000 $ */
         /* tran 05.07.2000 $ */
         Show();
       }
@@ -2919,47 +2915,13 @@ void Editor::UnmarkBlock()
      не хотелось вводить переменную в класс
      '!' - задает относительное смещение (пока не реализовано ;-)
 */
-int Editor::GoToLine(int Line)
+/* $ 21.07.2000 tran
+   GotoLine стала воид и не выводит диалогов */
+void Editor::GoToLine(int Line)
 {
-  int NewLine=-1;
-  int NewCol=-1;
-  BOOL IsAbsMode=TRUE; // Абсолютное смещение?
+  int NewLine;
 
-  if (Line==-1)
-  {
-    const char *LineHistoryName="LineNumber";
-    static struct DialogData GoToDlgData[]=
-    {
-      DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(char *)MEditGoToLine,
-      DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",
-    };
-    MakeDialogItems(GoToDlgData,GoToDlg);
-    static char PrevLine[40]={0};
-    {
-      strcpy(GoToDlg[1].Data,PrevLine);
-      Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
-      Dlg.SetPosition(-1,-1,25,5);
-      Dlg.SetHelp("EditorGotoPos");
-      Dlg.Process();
-      // tran: was if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
-      if (Dlg.GetExitCode()!=1 )
-        return -1;
-      // Запомним ранее введенное значение в текущем сеансе работы FAR`а
-      strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
-
-      //  IsAbsMode - на будущее - это про относительное или абс. смещение
-      IsAbsMode=GetRowCol(GoToDlg[1].Data,&NewLine,&NewCol);
-
-      NewLine--;
-      if (NewLine < 0)   // если ввели ",Col"
-        NewLine=NumLine;  //   то переходим на текущую строку и колонку
-      NewCol--;
-      if (NewCol < -1)
-        NewCol=-1;
-    }
-  }
-  else
-    NewLine=Line;
+  NewLine=Line;
 
   int LastNumLine=NumLine;
   int CurScrLine=CalcDistance(TopScreen,CurLine,-1);
@@ -2971,10 +2933,66 @@ int Editor::GoToLine(int Line)
 
   if (CurScrLine<0 || CurScrLine>=Y2-Y1)
     TopScreen=CurLine;
+
   Show();
-  return NewCol;
+  return ;
+}
+/* tran 21.07.2000 $ */
+
+/* $ 07.07.2000 tran & SVS
+   + добавлена возможность переходить на колонку
+     по формату [!][ROW][,COL]
+     вынужден был изменить тип возвращаемого значения с void на int
+     не хотелось вводить переменную в класс
+     '!' - задает относительное смещение (пока не реализовано ;-)
+*/
+/* $ 21.07.2000 tran
+   диалог из GotoLine перекочевал сюда */
+void Editor::GoToPosition()
+{
+  int NewLine, NewCol;
+  int LeftPos=CurLine->EditLine.GetTabCurPos()+1;
+  int CurPos;
+  CurPos=CurLine->EditLine.GetCurPos();
+
+  const char *LineHistoryName="LineNumber";
+  static struct DialogData GoToDlgData[]=
+  {
+    DI_DOUBLEBOX,3,1,21,3,0,0,0,0,(char *)MEditGoToLine,
+    DI_EDIT,5,2,19,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",
+  };
+  MakeDialogItems(GoToDlgData,GoToDlg);
+  static char PrevLine[40]={0};
+
+  strcpy(GoToDlg[1].Data,PrevLine);
+  Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
+  Dlg.SetPosition(-1,-1,25,5);
+  Dlg.SetHelp("EditorGotoPos");
+  Dlg.Process();
+    // tran: was if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
+  if (Dlg.GetExitCode()!=1 )
+      return ;
+  // Запомним ранее введенное значение в текущем сеансе работы FAR`а
+  strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
+
+  GetRowCol(GoToDlg[1].Data,&NewLine,&NewCol);
+
+  //SysLog("GoToPosition: NewLine=%i, NewCol=%i",NewLine,NewCol);
+  GoToLine(NewLine);
+
+  if ( NewCol == -1)
+  {
+    CurLine->EditLine.SetTabCurPos(CurPos);
+    CurLine->EditLine.SetLeftPos(LeftPos);
+  }
+  else
+    CurLine->EditLine.SetTabCurPos(NewCol);
+
+  Show();
+  return ;
 }
 /* tran 07.07.2000 $ */
+/* tran 21.07.2000 $ */
 
 
 /* $ 07.07.2000 tran & SVS
@@ -2983,20 +3001,20 @@ int Editor::GoToLine(int Line)
       TRUE  - абсолютное смещение
       FALSE - относительное
 */
-BOOL Editor::GetRowCol(char *argv,int *row,int *col)
+/* $ 21.07.2000 tran
+   теперь ничего не возвращает
+   просто сама определяет относительность
+   и вычисляет новые координаты */
+void Editor::GetRowCol(char *argv,int *row,int *col)
 {
-  int x=0,y=0,l;
-  BOOL IsAbsMode=TRUE;
+  int x=0xffff,y=0,l;
+  char *argvx=0;
+  int LeftPos=CurLine->EditLine.GetTabCurPos()+1;
 
   // что бы не оставить "врагу" выбора - только то, что мы хотим ;-)
   // "прибьем" все внешние пробелы.
   RemoveExternalSpaces(argv);
 
-  if(*argv == '!') // если стоит '!', то считаем, что смещение относительное
-  {
-    IsAbsMode=FALSE;
-    ++argv;
-  }
   // получаем индекс вхождения любого разделителя
   // в искомой строке
   l=strcspn(argv,",:;. ");
@@ -3005,22 +3023,45 @@ BOOL Editor::GetRowCol(char *argv,int *row,int *col)
   if(l < strlen(argv)) // Варианты: "row,col" или ",col"?
   {
     argv[l]='\0'; // Вместо разделителя впиндюлим "конец строки" :-)
-    if(l) // Only: "row,col"?
-      y=atoi(argv);
-    x=atoi(argv+l+1);
+    argvx=argv+l+1;
+    x=atoi(argvx);
   }
-  else // Варианты: "row" или "row," - однозначно
-  {
-    y=atoi(argv);
-  }
+  y=atoi(argv);
   /* $ 14.07.2000 tran
     + переход на проценты */
   if ( strchr(argv,'%')!=0 )
     y=NumLastLine * y / 100;
   /* tran $ */
+
+  /* $ 21.07.2000 tran
+     вычисляем относительность */
+  if ( argv[0]=='-' || argv[0]=='+' )
+    y=NumLine+y+1;
+  if ( argvx )
+  {
+    if ( argvx[0]=='-' || argvx[0]=='+' )
+    {
+        x=LeftPos+x;
+    }
+  }
+
+  /* tran 21.07.2000 $ */
+
+  // теперь загоним результат назад
   *row=y;
-  *col=x;
-  return IsAbsMode;
+  if ( x!=0xffff )
+    *col=x;
+  else
+    *col=LeftPos+1;
+
+
+  (*row)--;
+  if (*row< 0)   // если ввели ",Col"
+     *row=NumLine;  //   то переходим на текущую строку и колонку
+  (*col)--;
+  if (*col< -1)
+     *col=-1;
+  return ;
 }
 /* tran 07.07.2000 $ */
 
