@@ -1181,6 +1181,8 @@
 "&Ignore command line state"
 "&Execute only if command line is empty"
 "Execute only if command line is &not empty"
+"Execute for the &file panels"
+"Execute for the &plugin panel"
 
 "Plugins help"
 

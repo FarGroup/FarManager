@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.11 07.12.2000 $ */
+/* Revision: 1.12 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    ! Изменения в константах MACRO_*
   07.12.2000 SVS
     ! farversion.hpp исключен за ненадобностью
   31.10.2000 SVS
@@ -107,8 +109,11 @@ enum {ARCHIVE_NONE,ARCHIVE_RAR,ARCHIVE_ZIP,ARCHIVE_ARJ,ARCHIVE_LZH};
 #define MAX_MSG 5000
 
 // for class KeyMacro
-enum {MACRO_SHELL,MACRO_VIEWER,MACRO_EDITOR,MACRO_DIALOG,MACRO_SEARCH,
-      MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,MACRO_OTHER};
+enum {
+  MACRO_SHELL,MACRO_VIEWER,MACRO_EDITOR,MACRO_DIALOG,MACRO_SEARCH,
+  MACRO_DISKS,MACRO_MAINMENU,MACRO_HELP,
+  MACRO_OTHER=0x1000
+};
 
 // for class Panel
 enum {

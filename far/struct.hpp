@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.29 08.12.2000 $ */
+/* Revision: 1.30 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    ! структура MacroRecord перенесена в macro.hpp
   08.12.2000 SVS
    ! изменения в структуре DialogItem.
   29.11.2000 SVS
@@ -600,21 +602,6 @@ struct PrevDataItem
   long PrevFileCount;
   char PrevName[NM];
 };
-
-
-// for class KeyMacro
-struct MacroRecord
-{
-  int Key;
-  int *Buffer;
-  int BufferSize;
-  int Mode;
-  int DisableOutput;
-  int EmptyCommandLine;
-  int NotEmptyCommandLine;
-  int RunAfterStart;
-};
-
 
 struct PluginHandle
 {

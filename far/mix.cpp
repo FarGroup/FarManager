@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.47 14.12.2000 $ */
+/* Revision: 1.48 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    + KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR - небольшое дополнение к макросам :-)
   14.12.2000 SVS
     + Добавлен код для выполнения Eject съемных носителей для
       Win9x & WinNT/2K
@@ -2316,7 +2318,8 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       KEY_CTRLSHIFTAPPS,KEY_ALTSHIFTAPPS,KEY_CTRLALTAPPS,
       KEY_LWIN,KEY_RWIN,
       KEY_CTRLALTSHIFTPRESS,KEY_CTRLALTSHIFTRELEASE,
-      KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL
+      KEY_CTRLSHIFTDEL, KEY_ALTSHIFTDEL,
+      KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR,
     };
     static char *KeyNames[]={
       "BS","Tab","Enter","Esc","Space","Home","End","Up",
@@ -2350,7 +2353,8 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
       "CtrlShiftApps","AltShiftApps","CtrlAltApps",
       "LWin","RWin",
       "CtrlAltShiftPress","CtrlAltShiftRelease",
-      "CtrlShiftDel", "AltShiftDel"
+      "CtrlShiftDel", "AltShiftDel",
+      "$Day", "$Month", "$Year",
     };
     /* SVS 08.09.2000 $ */
     /* SVS $ */

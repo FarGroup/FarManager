@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.07 14.12.2000 $ */
+/* Revision: 1.08 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    ! Если папка одна, то включение "Process subfolders" не очищает
+      область с атрибутами.
   14.12.2000 SVS
     ! Показываем недостающие атрибуты, но делаем их недоступными.
   24.11.2000 SVS
@@ -94,20 +97,23 @@ static int CEAttrib(char *SelName,int FileAttr,struct DialogItem *Item,int C, in
   return FALSE;
 }
 
-static void EmptyDialog(struct DialogItem *MultAttrDlg)
+static void EmptyDialog(struct DialogItem *MultAttrDlg,int ClrAttr)
 {
-  MultAttrDlg[4].Selected=
-  MultAttrDlg[5].Selected=
-  MultAttrDlg[6].Selected=
-  MultAttrDlg[7].Selected=
-  MultAttrDlg[8].Selected=
-  MultAttrDlg[9].Selected=
-  MultAttrDlg[10].Selected=
-  MultAttrDlg[11].Selected=
-  MultAttrDlg[12].Selected=
-  MultAttrDlg[13].Selected=
-  MultAttrDlg[14].Selected=
-  MultAttrDlg[15].Selected=0;
+  if(ClrAttr)
+  {
+    MultAttrDlg[4].Selected=
+    MultAttrDlg[5].Selected=
+    MultAttrDlg[6].Selected=
+    MultAttrDlg[7].Selected=
+    MultAttrDlg[8].Selected=
+    MultAttrDlg[9].Selected=
+    MultAttrDlg[10].Selected=
+    MultAttrDlg[11].Selected=
+    MultAttrDlg[12].Selected=
+    MultAttrDlg[13].Selected=
+    MultAttrDlg[14].Selected=
+    MultAttrDlg[15].Selected=0;
+  }
 
   MultAttrDlg[22].Data[0]=
   MultAttrDlg[23].Data[0]=
@@ -120,7 +126,7 @@ static void EmptyDialog(struct DialogItem *MultAttrDlg)
 /* $ 22.11.2000 SVS
    Заполнение полей
 */
-static void FillFileldDir(char *SelName,int FileAttr,struct DialogItem *MultAttrDlg)
+static void FillFileldDir(char *SelName,int FileAttr,struct DialogItem *MultAttrDlg,int SetAttr)
 {
   HANDLE FindHandle;
   WIN32_FIND_DATA FindData;
@@ -131,12 +137,15 @@ static void FillFileldDir(char *SelName,int FileAttr,struct DialogItem *MultAttr
     ConvertDate(&FindData.ftCreationTime,  MultAttrDlg[25].Data,MultAttrDlg[26].Data,8,FALSE,FALSE,TRUE);
     ConvertDate(&FindData.ftLastAccessTime,MultAttrDlg[28].Data,MultAttrDlg[29].Data,8,FALSE,FALSE,TRUE);
   }
-  MultAttrDlg[4].Selected=(FileAttr & FA_RDONLY)!=0;
-  MultAttrDlg[5].Selected=(FileAttr & FA_ARCH)!=0;
-  MultAttrDlg[6].Selected=(FileAttr & FA_HIDDEN)!=0;
-  MultAttrDlg[7].Selected=(FileAttr & FA_SYSTEM)!=0;
-  MultAttrDlg[8].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-  MultAttrDlg[9].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+  if(SetAttr)
+  {
+    MultAttrDlg[4].Selected=(FileAttr & FA_RDONLY)!=0;
+    MultAttrDlg[5].Selected=(FileAttr & FA_ARCH)!=0;
+    MultAttrDlg[6].Selected=(FileAttr & FA_HIDDEN)!=0;
+    MultAttrDlg[7].Selected=(FileAttr & FA_SYSTEM)!=0;
+    MultAttrDlg[8].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
+    MultAttrDlg[9].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+  }
 }
 /* SVS $ */
 
@@ -430,7 +439,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
     {
       int SetAttr=0,ClearAttr=0,Cancel=0;
 
-      EmptyDialog(MultAttrDlg);
+      EmptyDialog(MultAttrDlg,1);
 
       /* $ 22.11.2000 SVS
          если стоит "по новому показывать" и текущий элемент - каталог и
@@ -439,7 +448,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
       if(Opt.SetAttrFolderRules && SelCount==1 && (FileAttr & FA_DIREC))
       {
         MultAttrDlg[17].Selected=0;
-        FillFileldDir(SelName,FileAttr,MultAttrDlg);
+        FillFileldDir(SelName,FileAttr,MultAttrDlg,1);
       }
       /* SVS $ */
 
@@ -494,10 +503,10 @@ void ShellSetFileAttributes(Panel *SrcPanel)
             // если снимаем атрибуты для SubFolders
             if(FocusPos == 17 && (FileAttr & FA_DIREC) && Sel17 != MultAttrDlg[17].Selected && SelCount==1)
             {
-              EmptyDialog(MultAttrDlg);
+              EmptyDialog(MultAttrDlg,0);
 
               if(!MultAttrDlg[17].Selected)
-                FillFileldDir(SelName,FileAttr,MultAttrDlg);
+                FillFileldDir(SelName,FileAttr,MultAttrDlg,0);
               Dlg.InitDialogObjects();
               Dlg.Show();
               Sel17=MultAttrDlg[17].Selected;

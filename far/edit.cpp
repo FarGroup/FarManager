@@ -5,10 +5,15 @@ edit.cpp
 
 */
 
-/* Revision: 1.28 15.12.2000 $ */
+/* Revision: 1.29 21.12.2000 $ */
 
 /*
 Modify:
+   21.12.2000 SVS
+    + Обработка пвсевдоклавиш:
+      KEY_DTDAY - текущий день месяца - "$Day"
+      KEY_DTMONTH - текущий месяц - "$Month"
+      KEY_DTYEAR - текущий год - "$Year"
    15.12.2000 OT
     - Исправление бага с (KEY_TAB && OverType)
    10.12.2000 tran & OT
@@ -1204,6 +1209,23 @@ int Edit::ProcessKey(int Key)
         Show();
       }
       return(TRUE);
+    /* $ 21.12.2000 SVS
+       Недольшое безобразие с проникновением в "чужой огород" :-)
+    */
+    case KEY_DTMONTH:
+    case KEY_DTDAY:
+    case KEY_DTYEAR:
+    {
+      SYSTEMTIME st;
+      char Buf[16];
+      GetLocalTime(&st);
+      sprintf(Buf,"%0*d",(Key==KEY_DTYEAR?4:2),
+            (Key==KEY_DTYEAR?st.wYear:(Key==KEY_DTDAY?st.wDay:st.wMonth)));
+      InsertString(Buf);
+      Show();
+      return(TRUE);
+    }
+    /* SVS $ */
     default:
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)
         break;

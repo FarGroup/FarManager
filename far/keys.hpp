@@ -7,10 +7,14 @@ keys.hpp
 
 */
 
-/* Revision: 1.04 30.10.2000 $ */
+/* Revision: 1.05 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    + 3 пвсевдоклавиши для макросов: KEY_DTDAY, KEY_DTMONTH, KEY_DTYEAR
+      т.е. текущий день, месяц, год. Это так, в качестве полезного
+      дополнения.
   30.10.2000 SVS
     - Уточнение... :-)
   08.09.2000 SVS
@@ -460,6 +464,10 @@ enum
   KEY_CTRLALTAPPS,
   KEY_LWIN,
   KEY_RWIN,
+
+  KEY_DTDAY,
+  KEY_DTMONTH,
+  KEY_DTYEAR,
 
   KEY_CTRL_BASE=0x1000,
   KEY_END_CTRL_BASE=KEY_CTRL_BASE+256,

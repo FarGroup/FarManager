@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.32 14.12.2000 $ */
+/* Revision: 1.33 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    + MMacroSettingsFilePanels, MMacroSettingsPluginPanels
   14.12.2000 SVS
     + MChangeVolumeInUse, MChangeVolumeInUse2,
       MChangeCouldNotUnlockMedia, MChangeCouldNotEjectMedia
@@ -1267,6 +1269,8 @@ enum
   MMacroSettingsIgnoreCommandLine,
   MMacroSettingsEmptyCommandLine,
   MMacroSettingsNotEmptyCommandLine,
+  MMacroSettingsFilePanels,
+  MMacroSettingsPluginPanels,
 
   MPluginsHelpTitle,
 
