@@ -5,10 +5,13 @@ delete.cpp
 
 */
 
-/* Revision: 1.54 17.01.2003 $ */
+/* Revision: 1.55 19.01.2003 $ */
 
 /*
 Modify:
+  19.01.2003 KM
+    ! ƒостало. ѕри удалении большой кучи файлов посто€нно
+      жать Skip на залоченных файлах.
   17.01.2003 VVM
     ! ѕри удалении первый файл рисовать всегда, а уже потом раз в секунду.
   05.01.2003 VVM
@@ -165,7 +168,7 @@ static int WipeFile(char *Name);
 static int WipeDirectory(char *Name);
 static void PR_ShellDeleteMsg(void);
 
-static int ReadOnlyDeleteMode,DeleteAllFolders;
+static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
 
 static clock_t DeleteStartTime;
 
@@ -361,6 +364,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
     ShellDeleteMsg("");
 
     ReadOnlyDeleteMode=-1;
+    SkipMode=-1;
+    SkipFoldersMode=-1;
 
     SrcPanel->GetSelName(NULL,FileAttr);
     while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName) && !Cancel)
@@ -441,13 +446,25 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
                   SetFileAttributes(FullName,0);
-                if (ERemoveDirectory(FullName,ShortName,Wipe))
+                /* $ 19.01.2003 KM
+                   ќбработка кода возврата из ERemoveDirectory.
+                */
+                int MsgCode=ERemoveDirectory(FullName,ShortName,Wipe);
+                if (MsgCode==DELETE_CANCEL)
                 {
-                  TreeList::DelTreeName(FullName);
-                  if (UpdateDiz)
-                    SrcPanel->DeleteDiz(FullName,SelShortName);
+                  Cancel=1;
+                  break;
                 }
+                else if (MsgCode==DELETE_SKIP)
+                {
+                  ScTree.SkipDir();
+                  continue;
+                }
+                TreeList::DelTreeName(FullName);
+                if (UpdateDiz)
+                  SrcPanel->DeleteDiz(FullName,SelShortName);
                 continue;
+                /* KM $ */
               }
               /* SVS $ */
               if (!DeleteAllFolders && !ScTree.IsDirSearchDone() && CheckFolder(FullName) == CHKFLD_NOTEMPTY)
@@ -481,8 +498,22 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
               {
                 if (FindData.dwFileAttributes & FA_RDONLY)
                   SetFileAttributes(FullName,0);
-                if (ERemoveDirectory(FullName,ShortName,Wipe))
-                  TreeList::DelTreeName(FullName);
+                /* $ 19.01.2003 KM
+                   ќбработка кода возврата из ERemoveDirectory.
+                */
+                int MsgCode=ERemoveDirectory(FullName,ShortName,Wipe);
+                if (MsgCode==DELETE_CANCEL)
+                {
+                  Cancel=1;
+                  break;
+                }
+                else if (MsgCode==DELETE_SKIP)
+                {
+                  ScTree.SkipDir();
+                  continue;
+                }
+                TreeList::DelTreeName(FullName);
+                /* KM $ */
               }
             }
             else
@@ -512,19 +543,33 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
           // нефига здесь выделыватьс€, а надо учесть, что удаление
           // симлинка в корзину чревато потерей оригинала.
           if (SymLink || !Opt.DeleteToRecycleBin || Wipe)
+          {
+            /* $ 19.01.2003 KM
+               ќбработка кода возврата из ERemoveDirectory.
+            */
             DeleteCode=ERemoveDirectory(SelName,SelShortName,Wipe);
+            if (DeleteCode==DELETE_CANCEL)
+              break;
+            else if (DeleteCode==DELETE_SUCCESS)
+            {
+              TreeList::DelTreeName(SelName);
+              if (UpdateDiz)
+                SrcPanel->DeleteDiz(SelName,SelShortName);
+            }
+          }
           else
           {
             DeleteCode=RemoveToRecycleBin(SelName);
             if (!DeleteCode)// && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
               Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
                       MSG(MCannotDeleteFolder),SelName,MSG(MOk));
-          }
-          if (DeleteCode)
-          {
-            TreeList::DelTreeName(SelName);
-            if (UpdateDiz)
-              SrcPanel->DeleteDiz(SelName,SelShortName);
+            else
+            {
+              TreeList::DelTreeName(SelName);
+              if (UpdateDiz)
+                SrcPanel->DeleteDiz(SelName,SelShortName);
+            }
+            /* KM $ */
           }
         }
       }
@@ -676,30 +721,42 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
       else
         if (RemoveToRecycleBin(Name))
           break;
+    /* $ 19.01.2003 KM
+       ƒобавлен Skip all
+    */
     int MsgCode;
-    /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
-    char MsgName[NM];
-    strncpy(MsgName, Name,sizeof(MsgName)-1);
-    TruncPathStr(MsgName, ScrX-16);
-    if(strlen(FullName) > NM-1)
-    {
-      MsgCode=Message(MSG_DOWN|MSG_WARNING,3,MSG(MError),MSG(MErrorFullPathNameLong),
-                    MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
-                    MSG(MDeleteSkip),MSG(MDeleteCancel));
-    }
+    if (SkipMode!=-1)
+        MsgCode=SkipMode;
     else
-      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                    MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
-                    MSG(MDeleteSkip),MSG(MDeleteCancel));
-    /* IS */
+    {
+      /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
+      char MsgName[NM];
+      strncpy(MsgName, Name,sizeof(MsgName)-1);
+      TruncPathStr(MsgName, ScrX-16);
+      if(strlen(FullName) > NM-1)
+      {
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),
+                      MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
+                      MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+      }
+      else
+        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                      MSG(MCannotDeleteFile),MsgName,MSG(MDeleteRetry),
+                      MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+      /* IS */
+    }
+    /* KM $ */
     switch(MsgCode)
     {
       case -1:
       case -2:
-      case 2:
+      case 3:
         return(DELETE_CANCEL);
       case 1:
         return(DELETE_SKIP);
+      case 2:
+        SkipMode=2;
+        return DELETE_SKIP;
     }
   }
   return(DELETE_SUCCESS);
@@ -708,7 +765,6 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
 
 int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
 {
-  int RetCode;
   char FullName[NM*2];
   if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
     return DELETE_CANCEL;
@@ -717,32 +773,52 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
   {
     if (Wipe)
     {
-      if ((RetCode=WipeDirectory(Name))!=0 || (RetCode=WipeDirectory(ShortName))!=0)
+      if (WipeDirectory(Name) || WipeDirectory(ShortName))
         break;
     }
     else
-      if ((RetCode=RemoveDirectory(Name))!=0 || (RetCode=RemoveDirectory(ShortName))!=0)
+      if (RemoveDirectory(Name) || RemoveDirectory(ShortName))
         break;
-    /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
-    char MsgName[NM];
-    strncpy(MsgName, Name,sizeof(MsgName)-1);
-    TruncPathStr(MsgName, ScrX-16);
-    if(strlen(FullName) > NM-1)
-    {
-      if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MErrorFullPathNameLong),
-                MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
-                MSG(MDeleteCancel))!=0)
-        break;
-    }
+    /* $ 19.01.2003 KM
+       ƒобавлен Skip и Skip all
+    */
+    int MsgCode;
+    if (SkipFoldersMode!=-1)
+        MsgCode=SkipFoldersMode;
     else
     {
-      if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+      /* $ 13.07.2001 IS усекаем им€, чтоб оно поместилось в сообщение */
+      char MsgName[NM];
+      strncpy(MsgName, Name,sizeof(MsgName)-1);
+      TruncPathStr(MsgName, ScrX-16);
+      if(strlen(FullName) > NM-1)
+      {
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),MSG(MErrorFullPathNameLong),
                   MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
-                  MSG(MDeleteCancel))!=0)
-        break;
+                  MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+      }
+      else
+      {
+        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+                    MSG(MCannotDeleteFolder),MsgName,MSG(MDeleteRetry),
+                    MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+      }
+    }
+    /* KM $ */
+    switch(MsgCode)
+    {
+      case -1:
+      case -2:
+      case 3:
+        return DELETE_CANCEL;
+      case 1:
+        return DELETE_SKIP;
+      case 2:
+        SkipFoldersMode=2;
+        return DELETE_SKIP;
     }
   }
-  return(RetCode);
+  return DELETE_SUCCESS;
 }
 
 /* 14.03.2001 SVS

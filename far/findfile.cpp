@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.130 03.12.2002 $ */
+/* Revision: 1.131 19.01.2003 $ */
 
 /*
 Modify:
+  19.01.2003 KM
+    - Падение в поиске на панели плагина YaCat с включенной
+      опцией "Искать в архивах".
+    - Неправильный переход на файл в панели плагина YaCat.
   03.12.2002 SVS
     - BugZ#680 - Несанкционированное запоминание настроек поиска
   28.10.2002 SVS
@@ -979,18 +983,18 @@ int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
   AddEndSlash(SaveDir);
 
   CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_SILENT|OPM_FIND);
-  SetPluginDirectory(ArcList[ArcIndex].RootPath, hPlugin);
-  SetPluginDirectory(PanelItem->FindData.cFileName, hPlugin);
+  SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
+  SetPluginDirectory(PanelItem->FindData.cFileName,hPlugin);
 
   PluginPanelItem NewItem = *PanelItem;
-  char *FileName = PointToName(NewItem.FindData.cFileName);
+  char *FileName = PointToName(RemovePseudoBackSlash(NewItem.FindData.cFileName));
   if (FileName != NewItem.FindData.cFileName)
     strncpy(NewItem.FindData.cFileName, FileName, sizeof(NewItem.FindData.cFileName));
   int Result = CtrlObject->Plugins.GetFile(hPlugin,&NewItem,DestPath,ResultName,OPM_SILENT|OPM_FIND);
 
   CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_SILENT|OPM_FIND);
-  SetPluginDirectory(ArcList[ArcIndex].RootPath, hPlugin);
-  SetPluginDirectory(SaveDir, hPlugin);
+  SetPluginDirectory(ArcList[ArcIndex].RootPath,hPlugin);
+  SetPluginDirectory(SaveDir,hPlugin);
   return(Result);
 }
 
@@ -1672,17 +1676,18 @@ int FindFiles::FindFilesProcess()
         } /* if */
         if (hPlugin != INVALID_HANDLE_VALUE)
         {
-          char *StartName = PointToName(FileName);
-          Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+          struct OpenPluginInfo Info;
+          CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+
+          /* $ 19.01.2003 KM
+             Уточнение перехода в нужный каталог плагина.
+          */
           if (SearchMode==SEARCH_ROOT ||
               SearchMode==SEARCH_ALL ||
               SearchMode==SEARCH_ALL_BUTNETWORK)
             CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
-          SetPluginDirectory(FileName, hPlugin);
-          ActivePanel->Update(UPDATE_KEEP_SELECTION);
-          if (!ActivePanel->GoToFile(StartName))
-            ActivePanel->GoToFile(FileName);
-          ActivePanel->Show();
+          SetPluginDirectory(FileName,hPlugin,TRUE);
+          /* KM $ */
         }
       } /* if */
       else
@@ -1743,12 +1748,26 @@ int FindFiles::FindFilesProcess()
 }
 
 
-void FindFiles::SetPluginDirectory(char *DirName, HANDLE hPlugin)
+void FindFiles::SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel)
 {
   char Name[NM],*StartName,*EndName;
+  int IsPluginDir;
+
+  /* $ 19.01.2003 KM
+     Восстановлю поведение до 4 беты. Если в DirName есть
+     символ '\x1' значит это путь из плагина. Таким образом
+     легче определить плагиновые пути и, соответственно,
+     сделать правильный переход.
+  */
+  if (strlen(DirName)>0)
+    IsPluginDir=strchr(DirName,'\x1')!=NULL;
+  else
+    IsPluginDir=FALSE;
+
   strncpy(Name,DirName,sizeof(Name)-1);
   StartName=Name;
-  while ((EndName=strchr(StartName,'\\'))!=NULL)
+  while(IsPluginDir?(EndName=strchr(StartName,'\x1'))!=NULL:(EndName=strchr(StartName,'\\'))!=NULL)
+  /* KM $ */
   {
     *EndName=0;
     // RereadPlugin
@@ -1761,6 +1780,17 @@ void FindFiles::SetPluginDirectory(char *DirName, HANDLE hPlugin)
     CtrlObject->Plugins.SetDirectory(hPlugin,StartName,OPM_FIND);
     StartName=EndName+1;
   }
+  /* $ 19.01.2003 KM
+     Отрисуем панель при необходимости.
+  */
+  if (UpdatePanel)
+  {
+    CtrlObject->Cp()->ActivePanel->Update(UPDATE_KEEP_SELECTION);
+    if (!CtrlObject->Cp()->ActivePanel->GoToFile(StartName))
+      CtrlObject->Cp()->ActivePanel->GoToFile(DirName);
+    CtrlObject->Cp()->ActivePanel->Show();
+  }
+  /* KM $ */
 }
 
 
@@ -1910,11 +1940,17 @@ void FindFiles::ArchiveSearch(char *ArcName)
       - Запомним каталог перед поиском в архиве.
         И если ничего не нашли - не рисуем его снова */
     {
-      char SaveDirName[NM];
+      char SaveDirName[NM],SaveSearchPath[2*NM];
       int SaveListCount = FindListCount;
+      /* $ 19.01.2003 KM
+         Запомним пути поиска в плагине, они могут измениться.
+      */
+      strncpy(SaveSearchPath,PluginSearchPath,2*NM);
+      /* KM $ */
       strncpy(SaveDirName, LastDirName, NM);
       *LastDirName = 0;
       PreparePluginList((void *)1);
+      strncpy(PluginSearchPath,SaveSearchPath,2*NM);
       WaitForSingleObject(hPluginMutex,INFINITE);
       CtrlObject->Plugins.ClosePlugin(ArcList[FindFileArcIndex].hPlugin);
       ArcList[FindFileArcIndex].hPlugin = INVALID_HANDLE_VALUE;
@@ -2022,21 +2058,18 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
   strcat(FileText,Date);
   sprintf(MenuText," %-*.*s",DlgWidth-3,DlgWidth-3,FileText);
 
-  for (i=0;FullName[i]!=0;i++)
-  {
-    if (FullName[i]=='\x1')
-      FullName[i]='\\';
-  }
-
   char PathName[2*NM];
   strncpy(PathName,FullName,sizeof(PathName)-1);
   PathName[sizeof(PathName)-1]=0;
-  *PointToName(PathName)=0;
 
+  RemovePseudoBackSlash(PathName);
+
+  *PointToName(PathName)=0;
   if (*PathName==0)
     strcpy(PathName,".\\");
 
   AddEndSlash(PathName);
+
   if (LocalStricmp(PathName,LastDirName)!=0)
   {
     if (*LastDirName)
@@ -2382,6 +2415,10 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
     ReleaseMutex(hPluginMutex);
   RecurseLevel++;
 
+  /* $ 19.01.2003 KM
+     Отключу пока сортировку, что-то результаты получаются
+     не совсем те, которые я ожидал.
+  */
   /* $ 24.03.2002 KM
      Сортировку в плагинах по именам папок делаем в случае,
      если имя файла содержит в себе путь, а не только при
@@ -2389,8 +2426,9 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
      получается некрасивый визуальный эффект разбросанности
      одинаковых папок по списку.
   */
-  if (PanelData && strlen(PointToName(PanelData->FindData.cFileName))>0)
-    qsort((void *)PanelData,ItemCount,sizeof(*PanelData),SortItems);
+//  if (PanelData && strlen(PointToName(PanelData->FindData.cFileName))>0)
+//    qsort((void *)PanelData,ItemCount,sizeof(*PanelData),SortItems);
+  /* KM $ */
   /* KM $ */
 
   if (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1)
@@ -2422,9 +2460,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       {
         strncpy(FindMessage,FullName,sizeof(FindMessage)-1);
         FindMessage[sizeof(FindMessage)-1]=0;
-        for (int I=0;FindMessage[I]!=0;I++)
-          if (FindMessage[I]=='\x1')
-            FindMessage[I]='\\';
+        RemovePseudoBackSlash(FindMessage);
         FindMessageReady=TRUE;
       }
 
@@ -2450,13 +2486,23 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
         if (strchr(CurName,'\x1')==NULL && CtrlObject->Plugins.SetDirectory(hPlugin,CurName,OPM_FIND))
         {
           ReleaseMutex(hPluginMutex);
-          strcat(PluginSearchPath,CurName);
-          if (strlen(PluginSearchPath)<NM-2)
+          /* $ 19.01.2003 KM
+             Хотя здесь и шла проверка не переполнение
+             PluginSearchPath, но бывает дописывалась только
+             часть в пути в конец переменной, что не есть гуд.
+          */
+          int SearchPathLen=strlen(PluginSearchPath);
+          int CurNameLen=strlen(CurName);
+          if (SearchPathLen+CurNameLen<NM-2)
           {
+            strcat(PluginSearchPath,CurName);
             strcat(PluginSearchPath,"\x1");
             ScanPluginTree(hPlugin, Flags);
-            *strrchr(PluginSearchPath,'\x1')=0;
+            char *Ptr=strrchr(PluginSearchPath,'\x1');
+            if (Ptr!=NULL)
+              *Ptr=0;
           }
+          /* KM $ */
           char *NamePtr=strrchr(PluginSearchPath,'\x1');
           if (NamePtr!=NULL)
             *(NamePtr+1)=0;
@@ -2669,4 +2715,14 @@ char *FindFiles::PrepareDriveNameStr(char *SearchFromRoot,size_t sz)
     TruncStrFromEnd(SearchFromRoot,DLG_WIDTH-10);
 
   return SearchFromRoot;
+}
+
+char *FindFiles::RemovePseudoBackSlash(char *FileName)
+{
+  for (int i=0;FileName[i]!=0;i++)
+  {
+    if (FileName[i]=='\x1')
+      FileName[i]='\\';
+  }
+  return FileName;
 }

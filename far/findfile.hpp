@@ -7,10 +7,13 @@ findfile.hpp
 
 */
 
-/* Revision: 1.13 25.04.2002 $ */
+/* Revision: 1.14 19.01.2003 $ */
 
 /*
 Modify:
+  19.01.2003 KM
+    + RemovePseudoBackSlash
+    ! Новый параметр UpdatePanels в функции SetPluginDirectory
   25.04.2002 IS
     ! внедрение const
   07.04.2002 KM
@@ -92,7 +95,7 @@ class FindFiles
     static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static long WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
 
-    static void SetPluginDirectory(char *DirName, HANDLE hPlugin);
+    static void SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel=FALSE);
     static void _cdecl PrepareFilesList(void *Param);
     static void _cdecl PreparePluginList(void *Param);
     static void _cdecl WriteDialogData(void *Param);
@@ -106,6 +109,7 @@ class FindFiles
     static int GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                              char *DestPath, char *ResultName);
     static char *PrepareDriveNameStr(char *SearchFromRoot,size_t sz);
+    static char *RemovePseudoBackSlash(char *FileName);
   public:
     FindFiles();
     ~FindFiles();
