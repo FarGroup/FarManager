@@ -343,7 +343,7 @@
 "is read only file"
 "has the size of %s,"
 "which exceeds the configured maximum size of %s."
-"Do you wish edit it?"
+"Do you wish to edit it?"
 
 "Search"
 "&Search for"
