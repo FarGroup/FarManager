@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.18 04.12.2001 $ */
+/* Revision: 1.19 04.12.2001 $ */
 
 /*
 Modify:
+  04.12.2001 SVS
+    - забыл выделить имя модуля (не учитывались кавычки в активаторе)
   04.12.2001 SVS
     ! Очередное уточнение пусковика. На этот раз... при старте DOC-файлов
       ФАР ждет завершения. Выход из положения - "посмотрить" на гуевость
@@ -216,8 +218,19 @@ char* GetShellAction(char *FileName,DWORD *GUIType)
     if(RetQuery == ERROR_SUCCESS)
     {
       char *Ptr;
-      if ((Ptr=strpbrk(Command," \t/"))!=NULL)
-        *Ptr=0;
+      // Выделяем имя модуля
+      if (*Command=='\"')
+      {
+        OemToChar(Command+1,Command);
+        if ((Ptr=strchr(Command,'\"'))!=NULL)
+          *Ptr=0;
+      }
+      else
+      {
+        OemToChar(Command,Command);
+        if ((Ptr=strpbrk(Command," \t/"))!=NULL)
+          *Ptr=0;
+      }
       IsCommandPEExeGUI(Command,GUIType);
     }
   }

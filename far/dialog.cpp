@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.190 04.12.2001 $ */
+/* Revision: 1.191 04.12.2001 $ */
 
 /*
 Modify:
+  04.12.2001 SVS
+    ! забыли отцентрировать кпопки (DIF_CENTERGROUP) после расширябильности
   04.12.2001 SVS
     ! сбросим флаг DIF_EDITOR для строки ввода, отличной от DI_EDIT
   03.12.2001 SVS
@@ -862,7 +864,15 @@ Dialog::~Dialog()
 
 void Dialog::CheckDialogCoord(void)
 {
-  if (X1 == -1) // задано центрирование диалога по горизонтали?
+  DialogTooLong=0;
+
+  if(X2 > ScrX)
+  {
+    X1=-1;
+    X2=ScrX-1;
+  }
+
+  if (X1 < 0) // задано центрирование диалога по горизонтали?
   {             //   X2 при этом = ширине диалога.
     X1=(ScrX - X2 + 1)/2;
 
@@ -876,7 +886,13 @@ void Dialog::CheckDialogCoord(void)
       X2+=X1-1;
   }
 
-  if (Y1 == -1) // задано центрирование диалога по вертикали?
+  if(Y2 > ScrY)
+  {
+    Y1=-1;
+    Y2=ScrY-1;
+  }
+
+  if (Y1 < 0) // задано центрирование диалога по вертикали?
   {             //   Y2 при этом = высоте диалога.
     Y1=(ScrY - Y2 + 1)/2;
 
@@ -959,6 +975,67 @@ void Dialog::DisplayObject()
   }
 }
 
+// пересчитать координаты для элементов с DIF_CENTERGROUP
+void Dialog::ProcessCenterGroup(void)
+{
+  int I, J;
+  int Length,StartX;
+  int Type;
+  struct DialogItem *CurItem;
+  DWORD ItemFlags;
+
+  for (I=0; I < ItemCount; I++)
+  {
+    CurItem=&Item[I];
+    Type=CurItem->Type;
+    ItemFlags=CurItem->Flags;
+
+    // Последовательно объявленные элементы с флагом DIF_CENTERGROUP
+    // и одинаковой вертикальной позицией будут отцентрированы в диалоге.
+    // Их координаты X не важны. Удобно использовать для центрирования
+    // групп кнопок.
+    if ((ItemFlags & DIF_CENTERGROUP) &&
+        (I==0 ||
+          (I > 0 &&
+            ((Item[I-1].Flags & DIF_CENTERGROUP)==0 ||
+             Item[I-1].Y1!=CurItem->Y1)
+          )
+        )
+       )
+    {
+      Length=0;
+
+      for (J=I; J < ItemCount &&
+                (Item[J].Flags & DIF_CENTERGROUP) &&
+                Item[J].Y1==Item[I].Y1; J++)
+      {
+        Length+=HiStrlen(Item[J].Data);
+
+        if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
+          Length+=2;
+      }
+
+      if (Item[I].Type==DI_BUTTON && *Item[I].Data!=' ')
+        Length-=2;
+
+      StartX=(X2-X1+1-Length)/2;
+
+      if (StartX<0)
+        StartX=0;
+
+      for (J=I; J < ItemCount &&
+                (Item[J].Flags & DIF_CENTERGROUP) &&
+                Item[J].Y1==Item[I].Y1; J++)
+      {
+        Item[J].X1=StartX;
+        StartX+=HiStrlen(Item[J].Data);
+
+        if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
+          StartX+=2;
+      }
+    }
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 /* Public:
@@ -1066,56 +1143,13 @@ int Dialog::InitDialogObjects(int ID)
   Item[FocusPos].Focus=1;
 
   // а теперь все сначала и по полной программе...
+  ProcessCenterGroup(); // сначала отцентрируем
   for (I=ID; I < InitItemCount; I++)
   {
     CurItem=&Item[I];
     Type=CurItem->Type;
     ItemFlags=CurItem->Flags;
 
-    // Последовательно объявленные элементы с флагом DIF_CENTERGROUP
-    // и одинаковой вертикальной позицией будут отцентрированы в диалоге.
-    // Их координаты X не важны. Удобно использовать для центрирования
-    // групп кнопок.
-    if ((ItemFlags & DIF_CENTERGROUP) &&
-        (I==0 ||
-          (I > 0 &&
-            ((Item[I-1].Flags & DIF_CENTERGROUP)==0 ||
-             Item[I-1].Y1!=CurItem->Y1)
-          )
-        )
-       )
-    {
-      Length=0;
-
-      for (J=I; J < ItemCount &&
-                (Item[J].Flags & DIF_CENTERGROUP) &&
-                Item[J].Y1==Item[I].Y1; J++)
-      {
-        Length+=HiStrlen(Item[J].Data);
-
-        if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
-          Length+=2;
-      }
-
-      if (Item[I].Type==DI_BUTTON && *Item[I].Data!=' ')
-        Length-=2;
-
-      StartX=(X2-X1+1-Length)/2;
-
-      if (StartX<0)
-        StartX=0;
-
-      for (J=I; J < ItemCount &&
-                (Item[J].Flags & DIF_CENTERGROUP) &&
-                Item[J].Y1==Item[I].Y1; J++)
-      {
-        Item[J].X1=StartX;
-        StartX+=HiStrlen(Item[J].Data);
-
-        if (Item[J].Type==DI_BUTTON && *Item[J].Data!=' ')
-          StartX+=2;
-      }
-    }
     /* $ 01.08.2000 SVS
        Обычный ListBox
     */
@@ -4565,6 +4599,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
        DialogScrObject->SetPosition(x1,y1,x2,y2);
     }
   }
+  ProcessCenterGroup();
 }
 /* SVS $ */
 /* tran 31.07.2000 $ */

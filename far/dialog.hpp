@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.45 21.11.2001 $ */
+/* Revision: 1.46 04.12.2001 $ */
 
 /*
 Modify:
+  04.12.2001 SVS
+   + ProcessCenterGroup() - пересчет координат элементов с флагом DIF_CENTERGROUP
   21.11.2001 SVS
    + Автоматизация (часть I)
    ! Изменения в структуре DialogItem: +DialogItem.ID, +DialogItem.AutoCount
@@ -410,6 +412,8 @@ class Dialog: public Frame
     volatile void SetDropDownOpened(int Status){ DropDownOpened=Status; }
     volatile int GetDropDownOpened(){ return DropDownOpened; }
     /* KM $ */
+
+    void ProcessCenterGroup(void);
 
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
