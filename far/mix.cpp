@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 05.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   28.06.2000 IS
     ! Функция Unquote стала универсальной
+  05.07.2000 SVS
+    + Добавлена функция ExpandEnvironmentStr
 */
 
 #include "headers.hpp"
@@ -1506,3 +1508,21 @@ bool GetSubstName(char *LocalName,char *SubstName,int SubstSize)
   return(false);
 }
 
+/* $ 05.07.2000 SVS
+   Расширение переменной среды
+   Вынесена в качестве самостоятельной вместо прямого вызова
+     ExpandEnvironmentStrings.
+*/
+DWORD ExpandEnvironmentStr(char *src, char *dest, size_t size)
+{
+ DWORD ret=0;
+ char *tmp=(char *)malloc(size);
+ if(tmp)
+  {
+   ret=ExpandEnvironmentStrings(src,tmp,size);
+   strcpy(dest,tmp);
+   free(tmp);
+  }
+ return ret;
+}
+/* SVS $ */

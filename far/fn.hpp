@@ -7,7 +7,7 @@ fn.hpp
 
 */
 
-/* Revision: 1.01 03.07.2000 $ */
+/* Revision: 1.02 05.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   03.07.2000 IS
     + Функция вывода помощи
+  05.07.2000 SVS
+    + Функция ExpandEnvironmentStr
 */
 
 
@@ -301,6 +303,11 @@ int WINAPI FarEditorControl(int Command,void *Param);
 */
 void WINAPI FarShowHelp(char *ModuleName, char *HelpTopic);
 /* IS $ */
+/* $ 05.07.2000 SVS
+   Расширение переменной среды
+*/
+DWORD ExpandEnvironmentStr(char *src, char *dst, size_t size=8192);
+/* SVS $ */
 
 #endif
 #endif	// __FARFUNC_HPP__

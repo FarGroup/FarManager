@@ -5,13 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 05.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  05.07.2000 SVS
+    + добавлена проверка на флаг DIF_EDITEXPAND - расширение переменных
+      среды в элементе диалога DI_EDIT
 */
 
 #include "headers.hpp"
@@ -190,6 +193,11 @@ void Dialog::DeleteDialogObjects()
     if (IsEdit(Item[I].Type))
     {
       ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
+      /*$ 05.07.2000 SVS $
+      Проверка - этот элемент предполагает расширение переменных среды?*/
+      if(Item[I].Flags&DIF_EDITEXPAND)
+         ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
+      /* end */
       delete (Edit *)(Item[I].ObjPtr);
     }
 }
@@ -205,6 +213,13 @@ void Dialog::GetDialogObjectsData()
     if (IsEdit(Item[I].Type))
     {
       ((Edit *)(Item[I].ObjPtr))->GetString(Item[I].Data,sizeof(Item[I].Data));
+      /*$ 05.07.2000 SVS $
+      Проверка - этот элемент предполагает расширение переменных среды?
+      т.к. функция GetDialogObjectsData() может вызываться самостоятельно
+      Но надо проверить!*/
+      if(Item[I].Flags&DIF_EDITEXPAND)
+         ExpandEnvironmentStr(Item[I].Data, Item[I].Data,sizeof(Item[I].Data));
+      /* end */
       if (ExitCode>=0 && (Item[I].Flags & DIF_HISTORY) && Item[I].Selected && Opt.DialogsEditHistory)
         AddToEditHistory(Item[I].Data,(char *)Item[I].Selected);
     }

@@ -6,7 +6,7 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.02 01.07.2000 $ */
+/* Revision: 1.03 05.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,9 @@ Modify:
       экспортируемых функций + коррекция на Borland C++ 5.5
   03.07.2000 IS
     + Функция вывода помощи в api
+  05.06.2000 SVS
+    + DI_EDIT имеет флаг DIF_EDITEXPAND - расширение переменных среды
+      в enum FarDialogItemFlags
 */
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
@@ -137,6 +140,7 @@ enum FarDialogItemFlags {
   DIF_SEPARATOR       = 0x10000,
   DIF_EDITOR          = 0x20000,
   DIF_HISTORY         = 0x40000,
+  DIF_EDITEXPAND      = 0x80000,
 };
 
 struct FarDialogItem
