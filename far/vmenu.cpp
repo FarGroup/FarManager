@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.35 12.06.2001 $ */
+/* Revision: 1.36 13.06.2001 $ */
 
 /*
 Modify:
+  13.06.2001 SVS
+    - приведение типов.
   12.06.2001 KM
     - Некорректно работала функция GetUserData. Забыли, что данные
       в меню могут храниться не в UserData, а просто в Name, из-за
@@ -1249,7 +1251,7 @@ void* VMenu::GetUserData(void *Data,int Size,int Position)
       }
       else
       {
-        memmove(Data,PItem->Name,Min(Size,sizeof(PItem->Name)));
+        memmove(Data,PItem->Name,Min(Size,(int)sizeof(PItem->Name)));
         PtrData=PItem->Name;
       }
     }
