@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.00 05.05.2001 $ */
+/* Revision: 1.01 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 OT
+    - В конструкторе инициализировались не все члены. Из-за этого фар трапался :(
   05.05.2001 DJ
     + created
 */
@@ -26,6 +28,8 @@ Frame::Frame()
 {
   EnableSwitch=FALSE;
   ExitCode=-1;
+  KeyBarVisible=MacroMode=0;
+  ModalKeyBar=NULL;
 }
 
 void Frame::SetKeyBar(KeyBar *ModalKeyBar)

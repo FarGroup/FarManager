@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 ОТ
+    - Избавимся от "дублирования" ExitCode здесь и во Frame :)
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -41,7 +43,6 @@ class FileEditor:public Frame
     char StartDir[NM];
     char NewTitle[NM];
     int FullScreen;
-    int ExitCode;
   public:
     FileEditor(char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
@@ -62,7 +63,6 @@ class FileEditor:public Frame
     void ShowConsoleTitle();
     int IsFileChanged() {return(FEdit.IsFileChanged());};
     int IsFileModified() {return(FEdit.IsFileModified());};
-    int GetExitCode();
     /* $ 28.06.2000 tran
        NT Console resize - resize editor */
     virtual void SetScreenPosition();

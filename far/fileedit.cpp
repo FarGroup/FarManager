@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.35 06.05.2001 $ */
+/* Revision: 1.36 06.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 ОТ
+    - Избавимся от "дублирования" ExitCode здесь и во Frame :)
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -587,11 +589,6 @@ void FileEditor::ShowConsoleTitle()
   SetFarTitle(Title);
 }
 
-
-int FileEditor::GetExitCode()
-{
-  return(ExitCode);
-}
 
 /* $ 28.06.2000 tran
  (NT Console resize)

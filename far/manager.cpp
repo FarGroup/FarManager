@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.09 06.05.2001 $ */
+/* Revision: 1.10 06.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 ОТ
+    - Баг с порядком индекса текущего фрейма FramePos при удалении 
+      какого-нибудь из списка :)
   06.05.2001 ОТ
     ! Переименование Window в Frame :)
   05.05.2001 DJ
@@ -56,6 +59,7 @@ Manager::Manager()
   CurrentFrame=NULL;
   DestroyedFrame = NULL;
   EndLoop = FALSE;
+
 }
 
 Manager::~Manager()
@@ -181,9 +185,9 @@ void Manager::DestroyFrame(Frame *Killed)
             Killed->OnDestroy();
             for ( j=i+1; j<FrameCount; j++ )
                 FrameList[j-1]=FrameList[j];
-            if ( FramePos>=i )
-                FramePos--;
             FrameCount--;
+            if ( FramePos>=FrameCount )
+                FramePos=0;
             SysLog("Manager::DestroyFrame(), new FrameCount=%i, FramePos=%i",FrameCount,FramePos);
             break;
         }
