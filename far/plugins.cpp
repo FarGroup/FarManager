@@ -5,10 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.19 07.09.2000 $ */
+/* Revision: 1.20 07.09.2000 $ */
 
 /*
 Modify:
+  07.09.2000 SVS 1.20
+    - MultiPrefix
+      По каким-то непонятным причинам из кэше для Flags возвращалось
+      значение равное 0 (хотя вижу что в реестре стоит 0x10) :-(
+
   07.09.2000 VVM 1.19
     + Несколько префиксов у плагина, разделенных через ":"
     + Если флаг PF_FULLCMDLINE - отдавать с префиксом
@@ -1403,7 +1408,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
      + Несколько префиксов у плагина, разделенных через ":"
   */
   DWORD PluginFlags = 0;
-  char PluginPrefix[512];
+  char PluginPrefix[512]="";
 
   for (int I=0;I<PluginsCount;I++)
   {
@@ -1415,7 +1420,12 @@ int PluginsSet::ProcessCommandLine(char *Command)
         char RegKey[100];
         sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
         GetRegKey(RegKey,"CommandPrefix",PluginPrefix,"",sizeof(PluginPrefix));
-        GetRegKey(RegKey,"Flags",PluginFlags,0);
+        /* $ 07.09.2000 SVS
+             По каким-то непонятным причинам из кэше для Flags возвращалось
+             значение равное 0 (хотя вижу что в реестре стоит 0x10) :-(
+        */
+        PluginFlags=GetRegKey(RegKey,"Flags",0);
+        /* SVS $ */
       } /* if */
       else
         continue;
