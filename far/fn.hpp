@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.75 08.04.2001 $ */
+/* Revision: 1.76 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 SVS
+   + xfilter
+   + Новый параметр у DumpExceptionInfo - указатель на PluginItem.
+   + Фунция печати дампа памяти SysLogDump()
   08.04.2001 SVS
    ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
    ! ExpandPATHEXT() выкинуты за ненадобностью.
@@ -667,6 +671,7 @@ struct TUserLog
     int   Level;
 };
 
+void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=NULL);
 
 FILE *OpenLogStream(char *file);
 
@@ -710,7 +715,7 @@ int WINAPI GetSearchReplaceString(
          int *WholeWords,
          int *Reverse);
 
-int DumpExceptionInfo(EXCEPTION_POINTERS *xp);
+int DumpExceptionInfo(EXCEPTION_POINTERS *xp,struct PluginItem *Module=NULL);
 
 
 BOOL WINAPI KeyMacroToText(int Key,char *KeyText0,int Size);
@@ -764,5 +769,13 @@ void qsortex(char *base, unsigned int nel, unsigned int width,
 #ifdef __cplusplus
 }
 #endif
+
+
+int xfilter(
+    int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
+    EXCEPTION_POINTERS *xp,   // данные ситуации
+    struct PluginItem *Module,// модуль, приведший к исключению.
+    DWORD Flags);             // дополнительные флаги - пока только один
+                              //        0x1 - спрашивать про выгрузку?
 
 #endif  // __FARFUNC_HPP__

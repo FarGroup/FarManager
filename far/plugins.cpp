@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.60 04.04.2001 $ */
+/* Revision: 1.61 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 SVS
+    ! xfilter - видна в других модулях
+    ! небольшие уточнения исключений
   08.06.2001 SVS
     ! Небольшая оптимизация:
       StartupInfo и StandardFunctions сделаны статическими - заполняются
@@ -228,7 +231,7 @@ static char* xFromMSGTitle(int From)
     return MSG(MExceptTitle);
 }
 
-static int xfilter(
+int xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
     struct PluginItem *Module,// модуль, приведший к исключению.
@@ -271,6 +274,7 @@ static int xfilter(
 
    /* $ 26.02.2001 VVM
        ! Обработка STATUS_INVALIDFUNCTIONRESULT */
+   // Этот кусок обрабатываем в первую очередь, т.к. это проверки "на вшивость"
    if (From == EXCEPT_GETPLUGININFO_DATA || From == EXCEPT_GETOPENPLUGININFO_DATA)
    {
      I = 0;
@@ -317,17 +321,24 @@ static int xfilter(
 //       CtrlObject->Plugins.UnloadPlugin(*Module);
    } /* EXCEPT_GETPLUGININFO_DATA && EXCEPT_GETOPENPLUGININFO_DATA */
 
+   // теперь обработаем исключение по возврату 0 вместо INVALID_HANDLE_VALUE
+   // из Open*Plugin()
    else if (xr->ExceptionCode == STATUS_INVALIDFUNCTIONRESULT)
    {
      switch (From)
      {
        case EXCEPT_OPENPLUGIN:
-         sprintf(Buf[0],MSG(MExcInvalidFuncResult),"OpenPlugin");
+         pName="OpenPlugin";
          break;
        case EXCEPT_OPENFILEPLUGIN:
-         sprintf(Buf[0],MSG(MExcInvalidFuncResult),"OpenFilePlugin");
+         pName="OpenFilePlugin";
          break;
-     } /* switch */
+       case EXCEPT_OPENPLUGIN_FINDLIST:
+         pName="OpenPlugin(OPEN_FINDLIST)";
+         break;
+     }
+
+     sprintf(Buf[0],MSG(MExcInvalidFuncResult),pName);
      Ret=Message(MSG_WARNING, 2,
                  xFromMSGTitle(From),
                  MSG(MExcTrappedException),
@@ -337,11 +348,12 @@ static int xfilter(
                  "\1",
                  MSG(MExcUnload),
                  MSG(MYes), MSG(MNo));
-     if (Ret == 0) {
+     if (Ret == 0)
+     {
        Unload = TRUE;
        Ret++; // Исключить вызов дебаггера при Ret == 0
      }
-   } /* STATUS_INVALIDFUNCTIONRESULT */
+   }
 
    else
    {
@@ -391,6 +403,10 @@ static int xfilter(
      /* skv$*/
    } /* else */
 
+   // выведим дамп перед выгрузкой плагина.
+   if (xr->ExceptionCode != STATUS_INVALIDFUNCTIONRESULT)
+     DumpExceptionInfo(xp,Module);
+
    if (Unload)
      CtrlObject->Plugins.UnloadPlugin(*Module);
 
@@ -400,7 +416,6 @@ static int xfilter(
      rc = EXCEPTION_EXECUTE_HANDLER;
    /* VVM $ */
 
-   DumpExceptionInfo(xp);
    if(xr->ExceptionFlags&EXCEPTION_NONCONTINUABLE)
      rc=EXCEPTION_CONTINUE_SEARCH; //?
    return rc;
@@ -1132,15 +1147,13 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
   CtrlObject->CmdLine->GetCurDir(CurDir);
   chdir(CurDir);
   *DirToSet=0;
+  HANDLE hInternal=0;
   if (PluginNumber<PluginsCount && PluginsData[PluginNumber].pOpenPlugin)
     if (PreparePlugin(PluginNumber))
     {
       /* $ 16.10.2000 SVS
          + Обработка исключений при вызове галимого плагина.
       */
-      HANDLE hInternal;
-      //EXCEPTION_POINTERS *xp;
-
       TRY {
          hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
          /* $ 26.02.2201 VVM
@@ -2422,7 +2435,7 @@ BOOL PluginsSet::TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info)
     if(Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
       RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
     else for (I=0; I<Info->DiskMenuStringsNumber; I++)
-        memcpy(Buf,Info->DiskMenuStrings[I],1);
+      memcpy(Buf,Info->DiskMenuStrings[I],1);
 
     if(Info->PluginMenuStringsNumber > 0 && !Info->PluginMenuStrings)
       RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);

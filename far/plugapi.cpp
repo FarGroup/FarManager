@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.47 11.04.2001 $ */
+/* Revision: 1.48 28.04.2001 $ */
 
 /*
 Modify:
+  28.04.2001 SVS
+    + Обработка исключений в FarDialogEx() - равеновский чекер валил ФАР
+      именно в диалогах, гад такой.
   11.09.2001 SVS
     - FarMessageFn(): если установлен флаг FMSG_ERRORTYPE, ItemsNumber равное 1,
       тоже должно позволять показывать сообщение.
@@ -486,6 +489,9 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   if (DisablePluginsOutput || ItemsNumber <= 0 || !Item)
     return(-1);
 
+  if(ItemsNumber >= CtrlObject->Plugins.PluginsCount)
+    return(-1); // к терапевту.
+
   struct DialogItem *InternalItem=new DialogItem[ItemsNumber];
 
   if(!InternalItem)
@@ -493,8 +499,22 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   int ExitCode,I;
 
+  struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
+
   memset(InternalItem,0,sizeof(DialogItem)*ItemsNumber);
-  Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
+
+  TRY {
+    Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
+  }
+  __except (xfilter(EXCEPT_FARDIALOG,
+                   GetExceptionInformation(),CurPlugin,0))
+  {
+    delete[] InternalItem;
+    CtrlObject->Plugins.UnloadPlugin(*CurPlugin); // тест не пройден, выгружаем
+    return -1;
+  }
+
+  TRY
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
@@ -518,9 +538,14 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     /* SVS $ */
     FarDialog.Process();
     ExitCode=FarDialog.GetExitCode();
-  }
 
-  Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+    Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+  }
+  __except (xfilter(EXCEPT_FARDIALOG,
+                   GetExceptionInformation(),CurPlugin,1))
+  {
+    ;
+  }
   /* $ 13.07.2000 SVS
      для new[] нужен delete[]
   */
@@ -797,7 +822,8 @@ void WINAPI FarRestoreScreen(HANDLE hScreen)
 {
   if (hScreen==NULL)
     ScrBuf.FillBuf();
-  delete (SaveScreen *)hScreen;
+  if (hScreen)
+    delete (SaveScreen *)hScreen;
 }
 
 
