@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.119 24.01.2003 $ */
+/* Revision: 1.120 24.01.2003 $ */
 
 /*
 Modify:
+  24.01.2003 KM
+    ! По окончании поиска отступим от верха экрана на
+      треть отображаемой высоты. А то уж действительно
+      неудобно получается оценивать найденное.
   24.01.2003 VVM
     - Поправлена бага с новым поиском после неудачного продолжения предыдущего
   23.01.2003 VVM
@@ -2643,7 +2647,26 @@ void Viewer::Search(int Next,int FirstChar)
   SetPreRedrawFunc(NULL);
 
   if (Match)
-    SelectText(MatchPos,SearchLength,0x1|(ReverseSearch?0x2:0));
+  {
+    /* $ 24.01.2003 KM
+       ! По окончании поиска отступим от верха экрана на
+         треть отображаемой высоты.
+    */
+    SelectText(MatchPos,SearchLength,ReverseSearch?0x2:0);
+
+    // Покажем найденное на расстоянии трети экрана от верха.
+    int FromTop=(ScrY-(Opt.ShowKeyBarViewer?2:1))/3;
+    if (FromTop<0 || FromTop>ScrY)
+      FromTop=0;
+
+    for (int i=0;i<FromTop;i++)
+      Up();
+
+    AdjustSelPosition = TRUE;
+    Show();
+    AdjustSelPosition = FALSE;
+    /* KM $ */
+  }
   else
     Message(MSG_DOWN|MSG_WARNING,1,MSG(MViewSearchTitle),
             MSG(MViewSearchCannotFind),MsgStr,MSG(MOk));

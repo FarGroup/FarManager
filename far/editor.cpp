@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.213 10.01.2003 $ */
+/* Revision: 1.214 25.01.2003 $ */
 
 /*
 Modify:
+  24.01.2003 KM
+    ! По окончании поиска отступим от верха экрана на
+      треть отображаемой высоты. А то уж действительно
+      неудобно получается оценивать найденное.
   10.01.2003 SVS
     ! Ctrl-P/Crtl-M в редакторе при постоянных блоках.
       Изменим немного поведение этих действий, исключив виндовый клипборд
@@ -3790,7 +3794,7 @@ void Editor::ScrollUp()
 */
 BOOL Editor::Search(int Next)
 {
-  struct EditList *CurPtr;
+  struct EditList *CurPtr,*TmpPtr;
   unsigned char SearchStr[SEARCHSTRINGBUFSIZE],ReplaceStr[SEARCHSTRINGBUFSIZE];
   static char LastReplaceStr[SEARCHSTRINGBUFSIZE];
   static int LastSuccessfulReplaceMode=0;
@@ -3888,7 +3892,25 @@ BOOL Editor::Search(int Next)
       /* KM $ */
       {
         int Skip=FALSE;
-        TopScreen=CurLine=CurPtr;
+        /* $ 24.01.2003 KM
+           ! По окончании поиска отступим от верха экрана на
+             треть отображаемой высоты.
+        */
+        int FromTop=(ScrY-2)/3;
+        if (FromTop<0 || FromTop>ScrY)
+          FromTop=0;
+
+        TmpPtr=CurLine=CurPtr;
+        for (int i=0;i<FromTop;i++)
+        {
+          if (TmpPtr->Prev)
+            TmpPtr=TmpPtr->Prev;
+          else
+            break;
+        }
+        TopScreen=TmpPtr;
+        /* KM $ */
+
         NumLine=NewNumLine;
 
         int LeftPos=CurPtr->EditLine.GetLeftPos();
