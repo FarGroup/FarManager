@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.12 05.02.2001 $ */
+/* Revision: 1.13 06.02.2001 $ */
 
 /*
 Modify:
+  06.02.2001 SVS
+    - ОНИ... :-)
+      Приведение в порядок "непослушных" Divide & Multiple на цифровой клаве.
   05.02.2001 SVS
     - Снова про клавиши... :-( Все переводилось в Upper.
   01.02.2001 SVS
@@ -1037,10 +1040,6 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       return(Modif|KEY_ADD);
     case VK_SUBTRACT:
       return(Modif|KEY_SUBTRACT);
-//    case VK_MULTIPLY:
-//      if (ShiftPressed && !CtrlPressed && !AltPressed)
-//        return('*');
-//      return(Modif|KEY_MULTIPLY);
     case VK_ESCAPE:
       return(Modif|KEY_ESC);
   }
@@ -1077,6 +1076,13 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case 0xbc:
           return(KEY_CTRL+KEY_ALT+KEY_COMMA);
       }
+    switch(KeyCode)
+    {
+      case VK_DIVIDE:
+        return(KEY_CTRLALT|KEY_DIVIDE);
+      case VK_MULTIPLY:
+        return(KEY_CTRLALT|KEY_MULTIPLY);
+    }
     if (AsciiChar)
       return(KEY_CTRL|KEY_ALT+AsciiChar);
     if (!RealKey && (KeyCode==VK_CONTROL || KeyCode==VK_MENU))
@@ -1128,6 +1134,19 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case 0xbc:
           return(KEY_ALT+KEY_SHIFT+KEY_COMMA);
       }
+    switch(KeyCode)
+    {
+      case VK_DIVIDE:
+        if(WaitInFastFind)
+          return(KEY_ALT+KEY_SHIFT+'/');
+        else
+          return(KEY_ALTSHIFT|KEY_DIVIDE);
+      case VK_MULTIPLY:
+        if(WaitInFastFind)
+          return(KEY_ALT+KEY_SHIFT+'*');
+        else
+          return(KEY_ALTSHIFT|KEY_MULTIPLY);
+    }
     if (AsciiChar)
     {
       if (Opt.AltGr && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS)
@@ -1162,6 +1181,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_CTRLSHIFTSLASH);
       case 0xdc:
         return(KEY_CTRLSHIFTBACKSLASH);
+      case VK_DIVIDE:
+        return(KEY_CTRLSHIFT|KEY_DIVIDE);
+      case VK_MULTIPLY:
+        return(KEY_CTRLSHIFT|KEY_MULTIPLY);
     }
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
@@ -1234,6 +1257,10 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_CTRLBACKBRACKET);
       case 0xde:
         return(KEY_CTRLQUOTE);
+      case VK_MULTIPLY:
+        return(KEY_CTRL|KEY_MULTIPLY);
+      case VK_DIVIDE:
+        return(KEY_CTRL|KEY_DIVIDE);
     }
 
     if(Opt.ShiftsKeyRules) //???
@@ -1289,6 +1316,16 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_ALTCOMMA);
       case 0xbe:
         return(KEY_ALTDOT);
+      case VK_DIVIDE:
+        if(WaitInFastFind)
+          return(KEY_ALT+'/');
+        else
+          return(KEY_ALT|KEY_DIVIDE);
+      case VK_MULTIPLY:
+        if(WaitInFastFind)
+          return(KEY_ALT+'*');
+        else
+          return(KEY_ALT|KEY_MULTIPLY);
     }
     if (AsciiChar)
     {
