@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.07 21.05.2001 $ */
+/* Revision: 1.08 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! »зменени€ в св€зи с переделкой UserData в VMenu
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       ѕол€ Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -225,6 +227,7 @@ void PrintFiles(Panel *SrcPanel)
 static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
                               int PrinterNumber)
 {
+  int IDItem;
   for (int I=0;I<PrinterNumber;I++)
   {
     char MenuText[200],PrinterName[200];
@@ -237,8 +240,6 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
             NullToEmpty(pi[I].pPortName),pi[I].cJobs,MSG(MJobs),
             NullToEmpty(pi[I].pComment));
     strncpy(ListItem.Name,MenuText,sizeof(ListItem.Name));
-    strncpy(ListItem.UserData,NullToEmpty(pi[I].pPrinterName),sizeof(ListItem.UserData));
-    ListItem.UserDataSize=strlen(ListItem.UserData)+1;
     if ((pi[I].Attributes & PRINTER_ATTRIBUTE_DEFAULT) && !DefaultPrinterFound)
     {
       DefaultPrinterFound=TRUE;
@@ -246,6 +247,8 @@ static void AddToPrintersMenu(VMenu *PrinterList,PRINTER_INFO_2 *pi,
     }
     else
       ListItem.SetSelect(FALSE);
-    PrinterList->AddItem(&ListItem);
+    IDItem=PrinterList->AddItem(&ListItem);
+    // ј вот теперь добавим данные дл€ этого пункта (0 - передаем строку)
+    PrinterList->SetUserData(NullToEmpty(pi[I].pPrinterName),0,IDItem);
   }
 }

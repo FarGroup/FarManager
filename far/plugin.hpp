@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.110 30.05.2001 $ */
+/* Revision: 1.111 03.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  03.06.2001 SVS
+   + DM_LISTGETDATA, DM_LISTSETDATA, FarListItemData
   30.05.2001 SVS
     + MKLINKOP, FARSTDMKLINK
   29.05.2001 tran
@@ -657,6 +659,8 @@ enum FarMessagesProc{
   DM_LISTINSERT,
   DM_LISTFINDSTRING,
   DM_LISTINFO,
+  DM_LISTGETDATA,
+  DM_LISTSETDATA,
 
   DM_RESIZEDIALOG,
   DM_SETITEMPOSITION,
@@ -754,6 +758,14 @@ struct FarListInfo
   int MaxLength;
   DWORD Reserved[6];
 };
+
+struct FarListItemData
+{
+  int   Index;
+  int   DataSize;
+  void *Data;
+};
+
 
 struct FarDialogItem
 {

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.47 21.05.2001 $ */
+/* Revision: 1.48 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 DJ
     ! в связи с появлением нового типа немодальных окон переписана отрисовка
       счетчика фоновых экранов
@@ -241,6 +243,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     DiskCount+=DiskMask & 1;
 
   int UserDataSize;
+  DWORD UserData;
   {
     VMenu ChDisk(MSG(MChangeDriveTitle),NULL,0,ScrY-Y1-3);
     ChDisk.SetHelp("DriveDlg");
@@ -354,16 +357,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
         if (strlen(MenuText)>4)
           ShowSpecial=TRUE;
 
-        /* $ 14.12.2000 SVS
-           Дополнительно запомним тип драйва.
-        */
-        ChDiskItem.UserData[0]='A'+I;
-        ChDiskItem.UserData[1]=0;
-        ChDiskItem.UserData[2]=(BYTE)DriveType;
-        ChDiskItem.UserDataSize=3;
-        /* SVS $ */
-
-        ChDisk.AddItem(&ChDiskItem);
+        UserData=MAKELONG(MAKEWORD('A'+I,0),DriveType);
+        ChDisk.SetUserData((char*)UserData,sizeof(UserData),
+                 ChDisk.AddItem(&ChDiskItem));
         MenuLine++;
       }
     /* VVM $ */
@@ -418,9 +414,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   PluginTextNumber+'0', ShowSpecial ? PluginText:"");
           /* IS $ */
           strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
-          ChDiskItem.UserData[0]=PluginNumber;
-          ChDiskItem.UserData[1]=PluginItem;
-          ChDiskItem.UserDataSize=2;
+          ChDiskItem.UserDataSize=sizeof(DWORD);
+          ChDiskItem.UserData=(BYTE*)MAKELONG(PluginNumber,PluginItem);
           PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;
         }
         if (Done)
@@ -455,9 +450,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                   PluginTextNumber+'0', ShowSpecial ? PluginText:"");
           /* IS $ */
           strncpy(ChDiskItem.Name,MenuText,sizeof(ChDiskItem.Name));
-          ChDiskItem.UserData[0]=PluginNumber;
-          ChDiskItem.UserData[1]=PluginItem;
-          ChDiskItem.UserDataSize=2;
+          ChDiskItem.UserDataSize=sizeof(DWORD);
+          ChDiskItem.UserData=(BYTE*)MAKELONG(PluginNumber,PluginItem);
           PluginMenuItems[PluginMenuItemsCount++]=ChDiskItem;
         }
         if (Done)
@@ -515,12 +509,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (SelPos<DiskCount && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
           {
 //            char MsgText[200], LocalName[50];
-            if (ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter)))
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
-              DriveType=(DWORD)(BYTE)DiskLetter[2];
+              DriveType=HIWORD(UserData);
               if(DriveType == DRIVE_CDROM /* || DriveType == DRIVE_REMOVABLE*/)
               {
-                EjectVolume(*DiskLetter,EJECT_LOAD_MEDIA);
+                EjectVolume(LOBYTE(LOWORD(UserData)),EJECT_LOAD_MEDIA);
                 return(SelPos);
               }
             }
@@ -532,12 +526,14 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           {
             char MsgText[200], LocalName[50];
             int UpdateProfile=CONNECT_UPDATE_PROFILE;
-            if (ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter)))
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
             {
+              DiskLetter[0]=LOBYTE(LOWORD(UserData));
+              DiskLetter[1]=0;
               /* $ 14.12.2000 SVS
                  Попробуем сделать Eject :-)
               */
-              DriveType=(DWORD)(BYTE)DiskLetter[2];
+              DriveType=HIWORD(UserData);
               if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
               {
                 EjectVolume(*DiskLetter,0);
@@ -642,8 +638,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           if (SelPos>DiskCount)
           {
             // Вызываем нужный топик, который передали в CommandsMenu()
-            UserDataSize=ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter));
-            FarShowHelp(CtrlObject->Plugins.PluginsData[DiskLetter[0]].ModuleName,
+            if ((UserData=(DWORD)ChDisk.GetUserData(NULL,0)) != NULL)
+              FarShowHelp(CtrlObject->Plugins.PluginsData[LOWORD(UserData)].ModuleName,
                     NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
           }
           break;
@@ -688,7 +684,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
     }
     if (ChDisk.GetExitCode()<0)
       return(-1);
-    UserDataSize=ChDisk.GetUserData(DiskLetter,sizeof(DiskLetter));
+    {
+      UserDataSize=ChDisk.GetExitCode()>DiskCount?2:3;
+      UserData=(DWORD)ChDisk.GetUserData(NULL,0);
+    }
   }
 
   if (ProcessPluginEvent(FE_CLOSE,NULL))
@@ -702,16 +701,16 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
   {
     while (1)
     {
-      int NumDisk=*DiskLetter-'A';
+      int NumDisk=LOBYTE(LOWORD(UserData))-'A';
       char MsgStr[200],NewDir[NM];
       setdisk(NumDisk);
       CtrlObject->CmdLine->GetCurDir(NewDir);
-      if (toupper(*NewDir)==*DiskLetter)
+      if (toupper(*NewDir)==LOBYTE(LOWORD(UserData)))
         chdir(NewDir);
       if (getdisk()!=NumDisk)
       {
         char RootDir[NM];
-        sprintf(RootDir,"%c:\\",*DiskLetter);
+        sprintf(RootDir,"%c:\\",LOBYTE(LOWORD(UserData)));
         chdir(RootDir);
         setdisk(NumDisk);
         if (getdisk()==NumDisk)
@@ -719,7 +718,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       }
       else
         break;
-      sprintf(MsgStr,MSG(MChangeDriveCannotReadDisk),*DiskLetter);
+      sprintf(MsgStr,MSG(MChangeDriveCannotReadDisk),LOBYTE(LOWORD(UserData)));
       if (Message(MSG_WARNING,2,MSG(MError),MsgStr,MSG(MRetry),MSG(MCancel))!=0)
         return(-1);
     }
@@ -735,7 +734,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
   else
     if (UserDataSize==2)
     {
-      HANDLE hPlugin=CtrlObject->Plugins.OpenPlugin(DiskLetter[0],OPEN_DISKMENU,DiskLetter[1]);
+      HANDLE hPlugin=CtrlObject->Plugins.OpenPlugin(LOWORD(UserData),OPEN_DISKMENU,HIWORD(UserData));
       if (hPlugin!=INVALID_HANDLE_VALUE)
       {
         Focus=GetFocus();

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.72 03.06.2001 $ */
+/* Revision: 1.73 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
   03.06.2001 OT
     - Не обновлялся StatusLine после DrawLine в редакторе
   30.05.2001 SVS
@@ -1638,7 +1640,7 @@ void PluginsSet::Configure()
 {
   for(;;)
   {
-    unsigned char Data[2];
+    DWORD Data;
     int MenuItemNumber=0;
     int I, J;
     VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
@@ -1660,16 +1662,14 @@ void PluginsSet::Configure()
           {
             struct MenuItem ListItem;
             memset(&ListItem,0,sizeof(ListItem));
-            ListItem.UserData[0]=I;
-            ListItem.UserData[1]=J;
-            ListItem.UserDataSize=2;
             sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
             sprintf(Value,"PluginConfigString%d",J);
             GetRegKey(RegKey,Value,ListItem.Name,"",sizeof(ListItem.Name));
             if (*ListItem.Name==0)
               break;
             ListItem.SetSelect(MenuItemNumber++ == 0);
-            PluginList.AddItem(&ListItem);
+            Data=MAKELONG(I,J);
+            PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
           }
       }
       else
@@ -1681,12 +1681,10 @@ void PluginsSet::Configure()
         {
           struct MenuItem ListItem;
           memset(&ListItem,0,sizeof(ListItem));
-          ListItem.UserData[0]=I;
-          ListItem.UserData[1]=J;
-          ListItem.UserDataSize=2;
           strcpy(ListItem.Name,NullToEmpty(Info.PluginConfigStrings[J]));
           ListItem.SetSelect(MenuItemNumber++ == 0);
-          PluginList.AddItem(&ListItem);
+          Data=MAKELONG(I,J);
+          PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
         }
       }
     }
@@ -1701,13 +1699,13 @@ void PluginsSet::Configure()
     while (!PluginList.Done())
     {
       int SelPos=PluginList.GetSelectPos();
-      PluginList.GetUserData(Data,2,SelPos);
+      Data=(DWORD)PluginList.GetUserData(NULL,0,SelPos);
       switch(PluginList.ReadInput())
       {
         case KEY_F1:
         case KEY_SHIFTF1:
           char PluginModuleName[NM*2];
-          strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+          strcpy(PluginModuleName,PluginsData[LOWORD(Data)].ModuleName);
           if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
              !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
           {
@@ -1727,14 +1725,14 @@ void PluginsSet::Configure()
     if (ExitCode<0)
       break;
 
-    PluginList.GetUserData(Data,2,ExitCode);
-    int PNum=Data[0];
+    Data=(DWORD)PluginList.GetUserData(NULL,NULL,ExitCode);
+    int PNum=LOWORD(Data);
     if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
     {
       //EXCEPTION_POINTERS *xp;
       int Ret;
       TRY{
-        Ret=PluginsData[PNum].pConfigure(Data[1]);
+        Ret=PluginsData[PNum].pConfigure(HIWORD(Data));
       }
       __except ( xfilter(EXCEPT_CONFIGURE,
                         GetExceptionInformation(),&PluginsData[PNum],1) )
@@ -1778,6 +1776,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
 
   LoadIfCacheAbsent();
 
+  DWORD Data;
   char FirstHotKey[512];
   int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
 
@@ -1808,9 +1807,6 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
             GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
           struct MenuItem ListItem;
           memset(&ListItem,0,sizeof(ListItem));
-          ListItem.UserData[0]=I;
-          ListItem.UserData[1]=J;
-          ListItem.UserDataSize=2;
           sprintf(Value,"PluginMenuString%d",J);
           char Name[sizeof(ListItem.Name)];
           GetRegKey(RegKey,Value,Name,"",sizeof(Name));
@@ -1824,7 +1820,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
             else
               sprintf(ListItem.Name,"   %s",Name);
           ListItem.SetSelect(MenuItemNumber++ == StartPos);
-          PluginList.AddItem(&ListItem);
+          Data=MAKELONG(I,J);
+          PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
         }
       }
     }
@@ -1844,9 +1841,6 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           GetRegKey(HotRegKey,"Hotkey",HotKey,"",sizeof(HotKey));
         struct MenuItem ListItem;
         memset(&ListItem,0,sizeof(ListItem));
-        ListItem.UserData[0]=I;
-        ListItem.UserData[1]=J;
-        ListItem.UserDataSize=2;
         char Name[sizeof(ListItem.Name)];
         strncpy(Name,NullToEmpty(Info.PluginMenuStrings[J]),sizeof(Name));
         if (!HotKeysPresent)
@@ -1857,7 +1851,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           else
             sprintf(ListItem.Name,"   %s",Name);
         ListItem.SetSelect(MenuItemNumber++ == StartPos);
-        PluginList.AddItem(&ListItem);
+        Data=MAKELONG(I,J);
+        PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
       }
     }
   }
@@ -1869,10 +1864,9 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
   while (!PluginList.Done())
   {
     int SelPos=PluginList.GetSelectPos();
-    unsigned char Data[2];
     char RegKey[512];
 
-    PluginList.GetUserData(Data,2,SelPos);
+    Data=(DWORD)PluginList.GetUserData(NULL,NULL,SelPos);
     switch(PluginList.ReadInput())
     {
       /* $ 18.12.2000 SVS
@@ -1881,7 +1875,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       case KEY_SHIFTF1:
       {
         // Вызываем нужный топик, который передали в CommandsMenu()
-        FarShowHelp(PluginsData[Data[0]].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+        FarShowHelp(PluginsData[LOWORD(Data)].ModuleName,HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
         break;
       }
       /* SVS $ */
@@ -1889,7 +1883,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
         WriteEvent(FLOG_PLUGINSINFO,NULL,NULL,NULL,0,0,NULL);
         break;
       case KEY_F4:
-        if (SelPos<MenuItemNumber && GetHotKeyRegKey(Data[0],Data[1],RegKey))
+        if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
         {
           int ExitCode;
           static struct DialogData PluginDlgData[]=
@@ -1931,9 +1925,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
   if (ExitCode<0)
     return(FALSE);
   ScrBuf.Flush();
-  unsigned char Data[2];
-  PluginList.GetUserData(Data,2,ExitCode);
-  if (PreparePlugin(Data[0]) && PluginsData[Data[0]].pOpenPlugin!=NULL)
+  Data=(DWORD)PluginList.GetUserData(NULL,0,ExitCode);
+  if (PreparePlugin(LOWORD(Data)) && PluginsData[LOWORD(Data)].pOpenPlugin!=NULL)
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
     if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
@@ -1943,7 +1936,7 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       OpenCode=OPEN_EDITOR;
     if (Viewer)
       OpenCode=OPEN_VIEWER;
-    HANDLE hPlugin=OpenPlugin(Data[0],OpenCode,Data[1]);
+    HANDLE hPlugin=OpenPlugin(LOWORD(Data),OpenCode,HIWORD(Data));
     if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
     {
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);

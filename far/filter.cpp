@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.10 21.05.2001 $ */
+/* Revision: 1.11 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -141,15 +143,6 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
       sprintf(ListItem.Name,"%-30.30s %c %-30.30s",FilterData[I].Title,VerticalLine,FilterData[I].Masks);
       if(I == Pos)
         ListItem.Flags|=LIF_SELECTED;
-      ListItem.UserDataSize=strlen(FilterData[I].Masks);
-      if(ListItem.UserDataSize >= sizeof(ListItem.UserData))
-      {
-        ListItem.PtrData=FilterData[I].Masks;
-        ListItem.Flags|=LIF_PTRDATA;
-      }
-      else
-        strcpy(ListItem.UserData,FilterData[I].Masks);
-
       if (HostPanel==CtrlObject->Cp()->LeftPanel)
       {
         if (FilterData[I].LeftPanelInclude)
@@ -164,7 +157,8 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         else
           if (FilterData[I].RightPanelExclude)
             ListItem.SetCheck('-');
-      FilterList.AddItem(&ListItem);
+      FilterList.SetUserData(FilterData[I].Masks,0,
+            FilterList.AddItem(&ListItem));
     }
 
     memset(&ListItem,0,sizeof(ListItem));
@@ -244,15 +238,8 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         continue;
       sprintf(ListItem.Name,"%-30.30s %c %-30.30s",MSG(MPanelFileType),VerticalLine,CurExtPtr);
       ListItem.Flags&=~LIF_SELECTED;
-      ListItem.UserDataSize=strlen(CurExtPtr)+1;
-      if(ListItem.UserDataSize >= sizeof(ListItem.UserData))
-      {
-        ListItem.PtrData=FilterData[I].Masks;
-        ListItem.Flags|=LIF_PTRDATA;
-      }
-      else
-        strncpy(ListItem.UserData,CurExtPtr,min((int)sizeof(ListItem.UserData)-1,ListItem.UserDataSize));
-      FilterList.AddItem(&ListItem);
+      FilterList.SetUserData(CurExtPtr, // FilterData[I].Masks???
+            0,FilterList.AddItem(&ListItem));
     }
     /* $ 13.07.2000 SVS
        ни кто не вызывал запрос памяти через new :-)

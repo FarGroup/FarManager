@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.05 06.05.2001 $ */
+/* Revision: 1.06 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    + GetRegKeySize() - получить размер данных
   06.05.2001 DJ
     ! перетрях #include
   07.03.2001 IS
@@ -91,6 +93,20 @@ void SetRegKey(char *Key,char *ValueName,BYTE *ValueData,DWORD ValueSize)
   CloseRegKey(hKey);
 }
 
+
+int GetRegKeySize(char *Key,char *ValueName)
+{
+  HKEY hKey=OpenRegKey(Key);
+  if(hKey)
+  {
+    DWORD Buffer;
+    DWORD Type,QueryDataSize=sizeof(Buffer);
+    RegQueryValueEx(hKey,ValueName,0,&Type,(unsigned char *)&Buffer,&QueryDataSize);
+    CloseRegKey(hKey);
+    return QueryDataSize;
+  }
+  return 0;
+}
 
 /* $ 22.02.2001 SVS
   Для получения строки (GetRegKey) отработаем ситуацию с ERROR_MORE_DATA

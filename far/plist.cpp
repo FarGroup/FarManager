@@ -5,10 +5,12 @@ plist.cpp
 
 */
 
-/* Revision: 1.04 21.05.2001 $ */
+/* Revision: 1.05 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -60,29 +62,25 @@ void ShowProcessList()
     {
       case KEY_DEL:
         {
-          char HwndText[30];
-          if (ProcList.GetUserData(HwndText,sizeof(HwndText)))
+          HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
+          if (ProcWnd!=NULL)
           {
-            HWND ProcWnd=(HWND)atoi(HwndText);
-            if (ProcWnd!=NULL)
-            {
-              char WinTitle[512];
-              GetWindowText(ProcWnd,WinTitle,sizeof(WinTitle));
-              CharToOem(WinTitle,WinTitle);
-              DWORD ProcID;
-              GetWindowThreadProcessId(ProcWnd,&ProcID);
-              if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-                          WinTitle,MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel))==0)
-                if (KillProcess(ProcID))
-                {
-                  Sleep(500);
-                  ProcList.Hide();
-                  ShowProcessList();
-                  return;
-                }
-                else
-                  Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
-            }
+            char WinTitle[512];
+            GetWindowText(ProcWnd,WinTitle,sizeof(WinTitle));
+            CharToOem(WinTitle,WinTitle);
+            DWORD ProcID;
+            GetWindowThreadProcessId(ProcWnd,&ProcID);
+            if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
+                        WinTitle,MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel))==0)
+              if (KillProcess(ProcID))
+              {
+                Sleep(500);
+                ProcList.Hide();
+                ShowProcessList();
+                return;
+              }
+              else
+                Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
           }
         }
         break;
@@ -93,19 +91,15 @@ void ShowProcessList()
   }
   if (ProcList.GetExitCode()>=0)
   {
-    char HwndText[30];
-    if (ProcList.GetUserData(HwndText,sizeof(HwndText)))
+    HWND ProcWnd=(HWND)ProcList.GetUserData(NULL,0);
+    if (ProcWnd!=NULL)
     {
-      HWND ProcWnd=(HWND)atoi(HwndText);
-      if (ProcWnd!=NULL)
-      {
-        SetForegroundWindow(ProcWnd);
+      SetForegroundWindow(ProcWnd);
 
-        WINDOWPLACEMENT wp;
-        wp.length=sizeof(wp);
-        if (!GetWindowPlacement(ProcWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
-          ShowWindowAsync(ProcWnd,SW_RESTORE);
-      }
+      WINDOWPLACEMENT wp;
+      wp.length=sizeof(wp);
+      if (!GetWindowPlacement(ProcWnd,&wp) || wp.showCmd!=SW_SHOWMAXIMIZED)
+        ShowWindowAsync(ProcWnd,SW_RESTORE);
     }
   }
 }
@@ -144,9 +138,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
       TruncStr(Title,sizeof(ListItem.Name)-1);
       sprintf(ListItem.Name,"%-25s",Title);
       CharToOem(ListItem.Name,ListItem.Name);
-      sprintf(ListItem.UserData,"%d",(DWORD)hwnd);
-      ListItem.UserDataSize=strlen(ListItem.UserData)+1;
-      ProcList->AddItem(&ListItem);
+      ProcList->SetUserData((void*)hwnd,sizeof(hwnd),ProcList->AddItem(&ListItem));
     }
   }
   return(TRUE);

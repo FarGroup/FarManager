@@ -7,13 +7,19 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.28 30.05.2001 $ */
+/* Revision: 1.29 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
+    + GetPosition() - возвращает реальную позицию итема.
+    + GetUserDataSize() - получить размер данных
+    + SetUserData() - присовокупить данные к пункту меню
+    ! GetUserData() - возвращает указатель на сами данные
   30.05.2001 OT
-    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched 
-      запоминается тот фрейм, откуда это меню запускалось. 
+    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched
+      запоминается тот фрейм, откуда это меню запускалось.
       Чтобы потом он не перерисовавался, когда его не просят :)
   25.05.2001 DJ
     + SetColor()
@@ -238,7 +244,14 @@ void VMenu::DeleteItems()
      ни кто не вызывал запрос памяти через new :-)
   */
   if(Item)
+  {
+    for(int I=0; I < ItemCount; ++I)
+      if(Item[I].UserDataSize > sizeof(Item[I].UserData) &&
+         Item[I].UserData &&
+         !(Item[I].Flags&LIF_PTRDATA))
+        free(Item[I].UserData);
     free(Item);
+  }
   /* SVS $ */
   Item=NULL;
   ItemCount=0;
@@ -691,7 +704,7 @@ struct FarListItem *VMenu::MenuItem2FarList(struct MenuItem *MItem,
     {
       // здесь нужно добавить проверку на LIF_PTRDATA!!!
       FItem->Ptr.PtrLength=MItem->UserDataSize;
-      FItem->Ptr.PtrData=MItem->PtrData;
+      FItem->Ptr.PtrData=MItem->UserData;
       FItem->Flags|=LIF_PTRDATA;
     }
     return FItem;
@@ -706,22 +719,15 @@ struct MenuItem *VMenu::FarList2MenuItem(struct FarListItem *FItem,
   {
     memset(MItem,0,sizeof(struct MenuItem));
     MItem->Flags=FItem->Flags;
-    MItem->PtrData=NULL;
     if(FItem->Flags&LIF_PTRDATA)
     {
       memcpy(MItem->Name,FItem->Ptr.PtrData,sizeof(MItem->Name));
       MItem->UserDataSize=FItem->Ptr.PtrLength;
-      MItem->PtrData=FItem->Ptr.PtrData;
-      MItem->Flags=LIF_PTRDATA;
-      if(FItem->Ptr.PtrLength < sizeof(MItem->UserData))
-        memcpy(MItem->UserData,FItem->Ptr.PtrData,FItem->Ptr.PtrLength);
+      MItem->UserData=FItem->Ptr.PtrData;
     }
     else
-    {
       strncpy(MItem->Name,FItem->Text,sizeof(MItem->Name));
-      strncpy(MItem->UserData,FItem->Text,sizeof(MItem->UserData));
-      MItem->UserDataSize=strlen(FItem->Text);
-    }
+    // А здесь надо вычислять AmpPos????
     return MItem;
   }
   return NULL;
@@ -763,6 +769,14 @@ int VMenu::DeleteItem(int ID,int Count)
      )
     VMFlags|=VMENU_UPDATEREQUIRED;
 
+  // Надобно удалить данные, чтоб потери по памяти не были
+  for(int I=0; I < Count; ++I)
+  {
+    struct MenuItem *PtrItem=Item+ID+I;
+    if(PtrItem->UserData && !(PtrItem->Flags&LIF_PTRDATA))
+        free(PtrItem->UserData);
+  }
+  // а вот теперь перемещения
   memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*Count); //???
 
   if (Item[ID].Flags&LIF_SELECTED)
@@ -1106,31 +1120,104 @@ void VMenu::SetBoxType(int BoxType)
   VMenu::BoxType=BoxType;
 }
 
-int VMenu::GetUserData(void *Data,int Size,int Position)
+int VMenu::GetPosition(int Position)
+{
+  int DataPos=(Position==-1) ? SelectPos : Position;
+  if (DataPos>=ItemCount)
+    DataPos=ItemCount-1;
+  return DataPos;
+}
+
+// Присовокупить к итему данные.
+int VMenu::SetUserData(void *Data,   // Данные
+                       int Size,     // Размер, если =0 то предполагается, что в Data-строка
+                       int Position) // номер итема
 {
   if (ItemCount==0)
     return(0);
   while (CallCount>0)
     Sleep(10);
   CallCount++;
-  int DataPos=(Position==-1) ? SelectPos : Position;
-  if (DataPos>=ItemCount)
-    DataPos=ItemCount-1;
-  int DataSize=Item[DataPos].UserDataSize;
-//  _D(SysLog("VMenu::GetUserData: Size=%i, DataSize=%i",Size,DataSize));
-  /* $ 29.08.2000 tran
-     - BUG with no \0 setting */
-  if (DataSize>0 && Size>0 && Data!=NULL)
+
+  int DataPos=GetPosition(Position);
+  struct MenuItem *PItem=Item+DataPos;
+  BYTE *PtrData=NULL;
+
+  if(!(PItem->Flags&LIF_PTRDATA))
   {
-    char *Ptr=(Item[DataPos].Flags&LIF_PTRDATA)?Item[DataPos].PtrData:Item[DataPos].UserData;
-    memmove(Data,Ptr,Min(Size,DataSize));
-    // вот тут кое-кто забыл в конец строки 0 записать....
-    ((char*)Data)[Min(Size,DataSize)]=0;
+    if(PItem->UserDataSize > sizeof(PItem->UserData) && PItem->UserData)
+      free(PItem->UserData);
+    PItem->UserDataSize=0;
+    PItem->UserData=NULL;
+
+    if(Data)
+    {
+      if(Size && Size <= sizeof(PItem->UserData)) // если в 4 байта влезаем, то...
+      {
+        PtrData=(BYTE*)Data;
+        PItem->UserDataSize=Size;
+      }
+      else
+      {
+        if(!Size)
+          Size=strlen((char*)Data)+1;
+        if((PtrData=(BYTE*)malloc(Size)) != NULL)
+        {
+          PItem->UserDataSize=Size;
+          memcpy(PtrData,Data,PItem->UserDataSize);
+        }
+      }
+    }
   }
-  /* tran 29.08.2000 $ */
+  else
+  {
+    if((PItem->UserDataSize=Size) == 0)
+      PtrData=NULL;
+    else
+      PtrData=(BYTE*)Data;
+  }
+
+  PItem->UserData=PtrData;
+
+  CallCount--;
+  return(PItem->UserDataSize);
+}
+
+int VMenu::GetUserDataSize(int Position)
+{
+  if (ItemCount==0)
+    return(0);
+  while (CallCount>0)
+    Sleep(10);
+  CallCount++;
+
+  int DataPos=GetPosition(Position);
+  int DataSize=Item[DataPos].UserDataSize;
 
   CallCount--;
   return(DataSize);
+}
+
+// Получить данные
+void* VMenu::GetUserData(void *Data,int Size,int Position)
+{
+  BYTE *PtrData=NULL;
+  if (ItemCount)
+  {
+    while (CallCount>0)
+      Sleep(10);
+    CallCount++;
+
+    struct MenuItem *PItem=Item+GetPosition(Position);
+    int DataSize=PItem->UserDataSize;
+    PtrData=PItem->UserData;
+
+    if(!(PItem->Flags&LIF_PTRDATA) && Size>0 && Data!=NULL && DataSize>0)
+      memmove(Data,PtrData,Min(Size,DataSize));
+
+    CallCount--;
+  }
+  return(PtrData);
 }
 
 
@@ -1140,12 +1227,11 @@ int VMenu::GetSelection(int Position)
     return(0);
   while (CallCount>0)
     Sleep(10);
-  int Pos=(Position==-1) ? SelectPos : Position;
-  if (Pos>=ItemCount)
-    Pos=ItemCount-1;
-  if (Item[Pos].Flags&LIF_SEPARATOR)
+
+  int DataPos=GetPosition(Position);
+  if (Item[DataPos].Flags&LIF_SEPARATOR)
     return(0);
-  return(Item[Pos].Flags&LIF_CHECKED);
+  return(Item[DataPos].Flags&LIF_CHECKED);
 }
 
 
@@ -1155,33 +1241,18 @@ void VMenu::SetSelection(int Selection,int Position)
     Sleep(10);
   if (ItemCount==0)
     return;
-  int Pos=(Position==-1) ? SelectPos : Position;
-  if (Pos>=ItemCount)
-    Pos=ItemCount-1;
-  Item[Pos].SetCheck(Selection);
+  Item[GetPosition(Position)].SetCheck(Selection);
 }
 
-/* $ 20.09.2000 SVS
-  + Функция GetItemPtr - получить указатель на нужный Item.
-*/
-#ifndef _MSC_VER
-#pragma warn -par
-#endif
+// Функция GetItemPtr - получить указатель на нужный Item.
 struct MenuItem *VMenu::GetItemPtr(int Position)
 {
   if (ItemCount==0)
     return NULL;
   while (CallCount>0)
     Sleep(10);
-  int Pos=(Position==-1) ? SelectPos : Position;
-  if (Pos>=ItemCount)
-    Pos=ItemCount-1;
-  return Item+Pos;
+  return Item+GetPosition(Position);
 }
-#ifndef _MSC_VER
-#pragma warn +par
-#endif
-/* SVS $*/
 
 void VMenu::AssignHighlights(int Reverse)
 {

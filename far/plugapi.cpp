@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.64 31.05.2001 $ */
+/* Revision: 1.65 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
   31.05.2001 OT
     - ExitCode в соответствии с официальной документацией plugin.hlp
   27.05.2001 OT
@@ -435,11 +437,11 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       FarMenu.SetBottomTitle(Bottom);
     for (int I=0;I<ItemsNumber;I++)
     {
-      struct MenuItem CurItem={0};
+      struct MenuItem CurItem;
+      memset(&CurItem,0,sizeof(CurItem));
       CurItem.Flags|=Item[I].Selected?LIF_SELECTED:0;
       CurItem.Flags|=Item[I].Checked?LIF_CHECKED:0;
       CurItem.Flags|=Item[I].Separator?LIF_SEPARATOR:0;
-      *CurItem.UserData=CurItem.UserDataSize=0;
       strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name));
       FarMenu.AddItem(&CurItem);
     }

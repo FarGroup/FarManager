@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.84 30.05.2001 $ */
+/* Revision: 1.85 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    + GetRegKeySize() - получить размер данных
   30.05.2001 SVS
     ! ShellCopy::CreatePath выведена из класса в отдельню функцию CreatePath()
   21.05.2001 OT
@@ -449,6 +451,7 @@ int GetRegKey(char *Key,char *ValueName,DWORD Default);
 int GetRegKey(char *Key,char *ValueName,BYTE *ValueData,BYTE *Default,DWORD DataSize);
 HKEY CreateRegKey(char *Key);
 HKEY OpenRegKey(char *Key);
+int GetRegKeySize(char *Key,char *ValueName);
 #endif
 
 

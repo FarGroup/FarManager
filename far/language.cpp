@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.08 21.05.2001 $ */
+/* Revision: 1.09 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -322,9 +324,7 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
     {
       sprintf(LangMenuItem.Name,"%.40s",*LangDescr ? LangDescr:LangName);
       LangMenuItem.SetSelect(stricmp(Dest,LangName)==0);
-      strcpy(LangMenuItem.UserData,LangName);
-      LangMenuItem.UserDataSize=strlen(LangName)+1;
-      LangMenu->AddItem(&LangMenuItem);
+      LangMenu->SetUserData(LangName,0,LangMenu->AddItem(&LangMenuItem));
     }
     fclose(LangFile);
   }
@@ -332,7 +332,8 @@ int Language::Select(int HelpLanguage,VMenu **MenuPtr)
   LangMenu->Process();
   if (LangMenu->GetExitCode()<0)
     return(FALSE);
-  return(LangMenu->GetUserData(Dest,100));
+  LangMenu->GetUserData(Dest,sizeof(Opt.Language));
+  return(LangMenu->GetUserDataSize());
 }
 
 /* $ 01.09.2000 SVS

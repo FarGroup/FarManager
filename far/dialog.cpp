@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.109 30.05.2001 $ */
+/* Revision: 1.110 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+   !  оррекци€ SelectFromEditHistory с учетом нового ListUserData
+     (запонимаем полностью весь текст, который есть в реестре и пихаем
+      к итему списка)
+   + DM_LISTGETDATA, DM_LISTSETDATA
   30.05.2001 KM
    -  ос€чило центрирование диалога и изменение размера диалога
      при использовании DM_MOVEDIALOG и DM_RESIZEDIALOG
@@ -3531,13 +3536,14 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
     ItemsCount=0;
     for (Dest=I=0; I < HISTORY_COUNT; I++)
     {
-      if((Str[I]=(char*)malloc(MaxLen+1)) == NULL)
+      memset(&HistoryItem,0,sizeof(HistoryItem));
+      sprintf(KeyValue,fmtLine,I);
+      int LenValueSize=GetRegKeySize(RegKey,KeyValue);
+
+      if((Str[I]=(char*)malloc(LenValueSize+1)) == NULL)
         break;
 
-      memset(&HistoryItem,0,sizeof(HistoryItem));
-
-      sprintf(KeyValue,fmtLine,I);
-      GetRegKey(RegKey,KeyValue,Str[I],"",MaxLen);
+      GetRegKey(RegKey,KeyValue,Str[I],"",LenValueSize+1);
       if (*Str[I]==0)
         continue;
 
@@ -3552,15 +3558,8 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
          Dest++;
       /* SVS $ */
       strncpy(HistoryItem.Name,Str[I],sizeof(HistoryItem.Name)-1);
-      if(MaxLen < sizeof(HistoryItem.UserData))
-        strncpy(HistoryItem.UserData,Str[I],sizeof(HistoryItem.UserData));
-      else
-      {
-        HistoryItem.PtrData=Str[I];
-        HistoryItem.Flags|=LIF_PTRDATA;
-      }
-      HistoryItem.UserDataSize=strlen(Str[I])+1;
-      HistoryMenu.AddItem(&HistoryItem);
+      HistoryMenu.SetUserData(Str[I],0,
+            HistoryMenu.AddItem(&HistoryItem));
       ItemsCount++;
     }
     if (ItemsCount==0)
@@ -4117,7 +4116,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTINFO:// Param1=ID Param2=FarListInfo
     case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
     case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
-    //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+    case DM_LISTGETDATA: // Param1=ID Param2=Index
+    case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
         VMenu *ListBox;
@@ -4170,6 +4170,26 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 ListBox->DeleteItem(ListItems->StartIndex,Count);
               break;
             }
+            case DM_LISTGETDATA: // Param1=ID Param2=Index
+            {
+              if(Param2 < ListBox->GetItemCount())
+                return (long)ListBox->GetUserData(NULL,0,Param2);
+              return NULL;
+            }
+
+            case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
+            {
+              struct FarListItemData *ListItems=(struct FarListItemData *)Param2;
+              if(ListItems &&
+                 ListItems->Index < ListBox->GetItemCount())
+              {
+                  return ListBox->SetUserData(ListItems->Data,
+                                              ListItems->DataSize,
+                                              ListItems->Index);
+              }
+              return 0;
+            }
+
             case DM_LISTGETCURPOS: // Param1=ID Param2=0
             {
               return ListBox->GetSelectPos();
@@ -4202,7 +4222,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                   Items->Flags=ListMenuItem->Flags;
                   if(ListMenuItem->Flags&LIF_PTRDATA)
                   {
-                    Items->Ptr.PtrData=ListMenuItem->PtrData;
+                    Items->Ptr.PtrData=ListMenuItem->UserData;
                     Items->Ptr.PtrLength=ListMenuItem->UserDataSize;
                   }
                   else
@@ -4432,11 +4452,11 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             did->PtrData=(char*)CurItem->Ptr.PtrData;
             break;
 
-          case DI_LISTBOX: // пока не трогаем - не реализован
+          case DI_LISTBOX:
           {
-            if(!CurItem->ListPtr)
-              break;
-            did->PtrLength=CurItem->ListPtr->GetUserData(did->PtrData,did->PtrLength,-1);
+//            if(!CurItem->ListPtr)
+//              break;
+//            did->PtrLength=CurItem->ListPtr->GetUserData(did->PtrData,did->PtrLength,-1);
             break;
           }
 
@@ -4480,10 +4500,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         case DI_LISTBOX:
           Len=0;
-          if(CurItem->ListPtr)
-          {
-            Len=CurItem->ListPtr->GetUserData(NULL,0,-1);
-          }
+//          if(CurItem->ListPtr)
+//          {
+//            Len=CurItem->ListPtr->GetUserData(NULL,0,-1);
+//          }
           break;
 
         default:

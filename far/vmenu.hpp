@@ -10,13 +10,19 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.14 30.05.2001 $ */
+/* Revision: 1.15 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! переделка MenuItem
+    + GetPosition() - возвращает реальную позицию итема.
+    + GetUserDataSize() - получить размер данных
+    + SetUserData() - присовокупить данные к пункту меню
+    ! GetUserData() - возвращает указатель на сами данные
   30.05.2001 OT
-    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched 
-      запоминается тот фрейм, откуда это меню запускалось. 
+    - Проблемы с отрисовкой VMenu. В новом члене Frame *FrameFromLaunched
+      запоминается тот фрейм, откуда это меню запускалось.
       Чтобы потом он не перерисовавался, когда его не просят :)
   25.05.2001 DJ
    + SetOneColor()
@@ -114,21 +120,19 @@ enum{
 class Dialog;
 class SaveScreen;
 
+
 struct MenuItem
 {
-  DWORD Flags;
-  char Name[128];
-
-  char  UserData[sizeof(WIN32_FIND_DATA)+NM+10];
-  int   UserDataSize;
-  char *PtrData;
-  short AmpPos;              // Позиция автоназначенной подсветки
+  DWORD  Flags;                  // Флаги пункта
+  char   Name[130];              // Текст пункта
+  short  AmpPos;                 // Позиция автоназначенной подсветки
+  int    UserDataSize;           // Размер пользовательских данных
+  BYTE   *UserData;             // Пользовательские данные
 
   DWORD SetCheck(int Value){ if(Value) {Flags|=LIF_CHECKED; if(Value!=1) Flags|=Value&0xFFFF;} else Flags&=~(0xFFFF|LIF_CHECKED); return Flags;}
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
-
 
 struct MenuData
 {
@@ -179,6 +183,7 @@ class VMenu: public Modal
   private:
     void DisplayObject();
     void ShowMenu(int IsParent=0);
+    int  GetPosition(int Position);
 
   public:
     /* $ 18.07.2000 SVS
@@ -243,7 +248,11 @@ class VMenu: public Modal
     int  FindItem(struct FarListFind *FindItem);
 
     int  GetItemCount() {return(ItemCount);};
-    int  GetUserData(void *Data,int Size,int Position=-1);
+
+    void *GetUserData(void *Data,int Size,int Position=-1);
+    int  GetUserDataSize(int Position=-1);
+    int  SetUserData(void *Data,int Size=0,int Position=-1);
+
     int  GetSelectPos() {return SelectPos;}
     int  SetSelectPos(int Pos,int Direct);
     int  GetSelection(int Position=-1);

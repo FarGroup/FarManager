@@ -5,12 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.27 30.05.2001 $ */
+/* Revision: 1.28 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 SVS
+    ! Изменения в связи с переделкой UserData в VMenu
   30.05.2001 OT
-    ! Процессор грузится на 100% после всех найденных файлов, возврат к старому :(... до лучших времен 
+    ! Процессор грузится на 100% после всех найденных файлов, возврат к старому :(... до лучших времен
   26.05.2001 OT
     ! Починка AltF7 в NFZ
   25.05.2001 DJ
@@ -138,6 +140,13 @@ static int IsPluginGetsFile;
 
 static int UseDecodeTable,TableNum,UseUnicode;
 static struct CharTableSet TableSet;
+
+struct ListItemUserData{
+  WIN32_FIND_DATA FileFindData;
+  char FindFileArcName[NM];
+  BYTE Addons[10];
+};
+
 
 FindFiles::FindFiles()
 {
@@ -360,9 +369,8 @@ int FindFiles::FindFilesProcess()
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-  WIN32_FIND_DATA FileFindData;
+  struct ListItemUserData UserDataItem;
   int FindListDataSize,DlgExitCode,ListPosChanged=FALSE;
-  char UserData[1024];
 
   Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
   int PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
@@ -466,12 +474,11 @@ int FindFiles::FindFilesProcess()
           case 6:
           case 100:
             {
-              int DataSize;
-              if ((DataSize=FindList.GetUserData(&FileFindData,sizeof(FileFindData)))!=0 &&
-                  DataSize==sizeof(FileFindData))
+              if ((FindList.GetUserData(&UserDataItem,sizeof(UserDataItem)))!=0 &&
+                  FindList.GetUserDataSize()==sizeof(UserDataItem))
               {
                 DWORD FileAttr;
-                if ((FileAttr=GetFileAttributes(FileFindData.cFileName))!=(DWORD)-1 &&
+                if ((FileAttr=GetFileAttributes(UserDataItem.FileFindData.cFileName))!=(DWORD)-1 &&
                     (FileAttr & FA_DIREC)==0)
                 {
                   char OldTitle[512];
@@ -482,20 +489,21 @@ int FindFiles::FindFilesProcess()
                     if (!PluginMode || (Info.Flags & OPIF_REALNAMES))
                     {
                       int ListSize=FindList.GetItemCount();
-                      WIN32_FIND_DATA ListFindData;
+                      struct ListItemUserData ListFindData;
                       for (int I=0;I<ListSize;I++)
-                        if ((DataSize=FindList.GetUserData(&ListFindData,sizeof(ListFindData),I))!=0 && DataSize==sizeof(FileFindData))
+                        if ((FindList.GetUserData(&ListFindData,sizeof(ListFindData),I))!=0 &&
+                             FindList.GetUserDataSize(I)==sizeof(ListFindData))
                         {
-                          int Length=strlen(ListFindData.cFileName);
-                          if (Length>0 && ListFindData.cFileName[Length-1]!='\\')
-                            ViewList.AddName(ListFindData.cFileName);
+                          int Length=strlen(ListFindData.FileFindData.cFileName);
+                          if (Length>0 && ListFindData.FileFindData.cFileName[Length-1]!='\\')
+                            ViewList.AddName(ListFindData.FileFindData.cFileName);
                         }
-                      ViewList.SetCurName(FileFindData.cFileName);
+                      ViewList.SetCurName(UserDataItem.FileFindData.cFileName);
                     }
                     FindList.Hide();
                     pDlg->Hide();
                     {
-                      FileViewer ShellViewer (FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
+                      FileViewer ShellViewer (UserDataItem.FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
                       ShellViewer.SetDynamicallyBorn(FALSE);
                       FrameManager->ExecuteModal ();//OT
                     }
@@ -507,7 +515,7 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     pDlg->Hide();
                     {
-                      FileEditor ShellEditor (FileFindData.cFileName,FALSE,FALSE);
+                      FileEditor ShellEditor (UserDataItem.FileFindData.cFileName,FALSE,FALSE);
                       ShellEditor.SetDynamicallyBorn(FALSE);
                       ShellEditor.SetEnableF6 (TRUE);
                       FrameManager->ExecuteModal ();//OT
@@ -586,7 +594,7 @@ int FindFiles::FindFilesProcess()
           /* DJ $ */
           else
           {
-            if (Key!=KEY_ENTER || !FindDlg[5].Focus || FindList.GetUserData(NULL,0))
+            if (Key!=KEY_ENTER || !FindDlg[5].Focus || FindList.GetUserDataSize())
               if (pDlg->ProcessKey(Key))
               {
                 FindList.SetUpdateRequired(TRUE);
@@ -654,8 +662,8 @@ int FindFiles::FindFilesProcess()
       }
     }
 
-    FindListDataSize=FindList.GetUserData(UserData,sizeof(UserData));
-    memcpy(&FileFindData,UserData,sizeof(FileFindData));
+    FindListDataSize=FindList.GetUserDataSize();
+    FindList.GetUserData(&UserDataItem,sizeof(UserDataItem));
     StopSearch=TRUE;
     while (!SearchDone)
       Sleep(10);
@@ -674,15 +682,15 @@ int FindFiles::FindFilesProcess()
         ListSize=0;
       int ItemsNumber=0,DataSize;
       for (int I=0;I<ListSize;I++)
-        if ((DataSize=FindList.GetUserData(&FileFindData,sizeof(FileFindData),I))!=0 &&
-            DataSize==sizeof(FileFindData))
+        if ((FindList.GetUserData(&UserDataItem,sizeof(UserDataItem),I))!=0 &&
+            FindList.GetUserDataSize(I)==sizeof(UserDataItem))
         {
-          int Length=strlen(FileFindData.cFileName);
-          if (Length>0 && FileFindData.cFileName[Length-1]!='\\')
+          int Length=strlen(UserDataItem.FileFindData.cFileName);
+          if (Length>0 && UserDataItem.FileFindData.cFileName[Length-1]!='\\')
           {
             PluginPanelItem *pi=&PanelItems[ItemsNumber++];
             memset(pi,0,sizeof(*pi));
-            pi->FindData=FileFindData;
+            pi->FindData=UserDataItem.FileFindData;
           }
         }
 
@@ -693,8 +701,8 @@ int FindFiles::FindFilesProcess()
         Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
         NewPanel->SetPluginMode(hNewPlugin,"");
         NewPanel->Update(0);
-        if (ListPosChanged && FindList.GetUserData(&FileFindData,sizeof(FileFindData)))
-          NewPanel->GoToFile(FileFindData.cFileName);
+        if (ListPosChanged && FindList.GetUserData(&UserDataItem,sizeof(UserDataItem)))
+          NewPanel->GoToFile(UserDataItem.FileFindData.cFileName);
         NewPanel->Show();
         NewPanel->SetFocus();
         hPlugin=NULL;
@@ -714,12 +722,12 @@ int FindFiles::FindFilesProcess()
     case 5:
       if (FindListDataSize!=0)
       {
-        char *FileName=FileFindData.cFileName;
+        char *FileName=UserDataItem.FileFindData.cFileName;
         Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
         if (FindListDataSize==sizeof(WIN32_FIND_DATA)+NM)
         {
           char ArcName[NM],ArcPath[NM];
-          strncpy(ArcName,UserData+sizeof(WIN32_FIND_DATA),NM);
+          strncpy(ArcName,UserDataItem.FindFileArcName,NM);
           if (FindPanel->GetType()!=FILE_PANEL)
             FindPanel=CtrlObject->Cp()->ChangePanel(FindPanel,FILE_PANEL,TRUE,TRUE);
           strcpy(ArcPath,ArcName);
@@ -990,11 +998,13 @@ int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
 
 void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
 {
-  WIN32_FIND_DATA FileFindData;
+  struct ListItemUserData UserDataItem;
   char MenuText[NM],FileText[NM],SizeText[30];
   char Date[30],DateStr[30],TimeStr[30];
   struct MenuItem ListItem;
+
   memset(&ListItem,0,sizeof(ListItem));
+
   if (FindData->dwFileAttributes & FA_DIREC)
     strcpy(SizeText,MSG(MFindFileFolder));
   else
@@ -1021,13 +1031,11 @@ void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
   }
   if (*PathName==0)
     strcpy(PathName,".\\");
+
   if (LocalStricmp(PathName,LastDirName)!=0)
   {
-    ListItem.Flags&=~LIF_SELECTED;
     if (*LastDirName!=0)
     {
-      ListItem.UserDataSize=0;
-      *ListItem.Name=0;
       /* $ 12.05.2001 DJ
          курсор не останавливается на пустых строках между каталогами
       */
@@ -1047,29 +1055,28 @@ void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
     for (int I=0;ListItem.Name[I]!=0;I++)
       if (ListItem.Name[I]=='\x1')
         ListItem.Name[I]='\\';
-    FileFindData=*FindData;
-    strcpy(FileFindData.cFileName,PathName);
-    memcpy(ListItem.UserData,&FileFindData,sizeof(FileFindData));
-    ListItem.UserDataSize=sizeof(FileFindData);
+
+    memset(&UserDataItem,0,sizeof(UserDataItem));
+    UserDataItem.FileFindData=*FindData;
+    strcpy(UserDataItem.FileFindData.cFileName,PathName);
     if (*FindFileArcName)
-    {
-      memcpy(ListItem.UserData+sizeof(FileFindData),FindFileArcName,NM);
-      ListItem.UserDataSize+=NM;
-    }
-    FilesListMenu->AddItem(&ListItem);
+      strcpy(UserDataItem.FindFileArcName,FindFileArcName);
+    FilesListMenu->SetUserData(&UserDataItem,sizeof(UserDataItem),
+            FilesListMenu->AddItem(&ListItem));
   }
-  FileFindData=*FindData;
-  strncpy(FileFindData.cFileName,FullName,sizeof(FileFindData.cFileName));
-  memcpy(ListItem.UserData,&FileFindData,sizeof(FileFindData));
-  ListItem.UserDataSize=sizeof(FileFindData);
+
+  memset(&UserDataItem,0,sizeof(UserDataItem));
+  UserDataItem.FileFindData=*FindData;
+  strncpy(UserDataItem.FileFindData.cFileName,
+          FullName,
+          sizeof(UserDataItem.FileFindData.cFileName));
   if (*FindFileArcName)
-  {
-    memcpy(ListItem.UserData+sizeof(FileFindData),FindFileArcName,NM);
-    ListItem.UserDataSize+=NM;
-  }
+    strcpy(UserDataItem.FindFileArcName,FindFileArcName);
   strcpy(ListItem.Name,MenuText);
   ListItem.SetSelect(!FileCount);
-  FilesListMenu->AddItem(&ListItem);
+  FilesListMenu->SetUserData(&UserDataItem,sizeof(UserDataItem),
+            FilesListMenu->AddItem(&ListItem));
+
   LastFoundNumber++;
   FileCount++;
   FindCountReady=TRUE;
