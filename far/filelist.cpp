@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.104 19.11.2001 $ */
+/* Revision: 1.105 19.11.2001 $ */
 
 /*
 Modify:
+  19.11.2001 IS
+    - Баг: подставлялись префиксы плагинов при добавлении пути в командную
+      строку даже, если панель содержала реальные файлы.
   19.11.2001 OT
     ! Не нужный запрос на сохранение отредактированного в архиве файла
       (118 Бацилла)
@@ -948,8 +951,13 @@ int FileList::ProcessKey(int Key)
         if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix)
         {
           char Prefix[NM*2];
-          strcat(AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix),FileName);
-          strncpy(FileName,Prefix,sizeof(FileName)-1);
+          /* $ 19.11.2001 IS оптимизация по скорости :) */
+          if(*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix))
+          {
+            strcat(Prefix,FileName);
+            strncpy(FileName,Prefix,sizeof(FileName)-1);
+          }
+          /* IS $ */
         }
 
         QuoteSpace(FileName);
@@ -2933,8 +2941,13 @@ void FileList::CopyNames(int FillPathName,int UNC)
         if(PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix)
         {
           char Prefix[NM*2];
-          strcat(AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix),QuotedName);
-          strncpy(QuotedName,Prefix,sizeof(QuotedName)-1);
+          /* $ 19.11.2001 IS оптимизация по скорости :) */
+          if(*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,Prefix))
+          {
+            strcat(Prefix,QuotedName);
+            strncpy(QuotedName,Prefix,sizeof(QuotedName)-1);
+          }
+          /* IS $ */
         }
       }
     }
@@ -3662,19 +3675,29 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
   return(TRUE);
 }
 
+/* $ 19.11.2001 IS
+     для файловых панелей с реальными файлами никакого префикса не добавляем
+*/
 char* FileList::AddPluginPrefix(FileList *SrcPanel,char *Prefix)
 {
   Prefix[0]=0;
-  if(Opt.SubstPluginPrefix)
+  if(Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
   {
-    struct PluginInfo PInfo;
-    CtrlObject->Plugins.GetPluginInfo(((struct PluginHandle *)SrcPanel->hPlugin)->PluginNumber,&PInfo);
-    if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
+    OpenPluginInfo Info;
+    PluginHandle *plugin=static_cast<PluginHandle*>(SrcPanel->hPlugin);
+    CtrlObject->Plugins.GetOpenPluginInfo(plugin,&Info);
+    if(!(Info.Flags & OPIF_REALNAMES))
     {
-      strcpy(Prefix,PInfo.CommandPrefix);
-      char *Ptr=strchr(Prefix,':');
-      if(Ptr) *++Ptr=0; else strcat(Prefix,":");
+      PluginInfo PInfo;
+      CtrlObject->Plugins.GetPluginInfo(plugin->PluginNumber,&PInfo);
+      if(PInfo.CommandPrefix && *PInfo.CommandPrefix)
+      {
+        strcpy(Prefix,PInfo.CommandPrefix);
+        char *Ptr=strchr(Prefix,':');
+        if(Ptr) *++Ptr=0; else strcat(Prefix,":");
+      }
     }
   }
   return Prefix;
 }
+/* IS $ */
