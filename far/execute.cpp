@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.77 17.03.2002 $ */
+/* Revision: 1.78 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   17.01.2003 VVM
     ! Косметика
   17.12.2002 VVM
@@ -266,7 +269,7 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
   int Ret=FALSE;
   ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-  if((hFile=CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
+  if((hFile=FAR_CreateFile(FileName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL)) != INVALID_HANDLE_VALUE)
   {
     DWORD FileSizeLow, FileSizeHigh, ReadSize;
     IMAGE_DOS_HEADER dos_head;

@@ -7,10 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.175 20.01.2003 $ */
+/* Revision: 1.176 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    + FAR_DeleteFile, FAR_RemoveDirectory просьба только их использовать
+      для удаления соответственно файлов и каталогов.
+    + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
     + INPUT_RECORD_DumpBuffer() - дамп оставшихся эвентов в консольной очереди
@@ -538,7 +543,7 @@ void ScrollScreen(int Count);
 int ScreenSaver(int EnableExit);
 char* InsertCommas(unsigned long Number,char *Dest);
 char* InsertCommas(int64 li,char *Dest);
-void DeleteDirTree(char *Dir);
+void DeleteDirTree(const char *Dir);
 int GetClusterSize(char *Root);
 
 void __cdecl CheckVersion(void *Param);
@@ -565,6 +570,31 @@ int ReplaceStrings(char *Str,const char *FindStr,const char *ReplStr,int Count=-
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);
 int DeleteFileWithFolder(const char *FileName);
+
+
+/* $ 26.01.2003 IS
+    + FAR_DeleteFile, FAR_RemoveDirectory просьба только их использовать
+      для удаления соответственно файлов и каталогов.
+    + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
+*/
+// удалить файл, код возврата аналогичен DeleteFile
+BOOL WINAPI FAR_DeleteFile(const char *FileName);
+// удалить каталог, код возврата аналогичен RemoveDirectory
+BOOL WINAPI FAR_RemoveDirectory(const char *DirName);
+
+// открыть файл, вод возврата аналогичен CreateFile
+HANDLE WINAPI FAR_CreateFile(
+    LPCTSTR lpFileName,     // pointer to name of the file
+    DWORD dwDesiredAccess,  // access (read-write) mode
+    DWORD dwShareMode,      // share mode
+    LPSECURITY_ATTRIBUTES lpSecurityAttributes, // pointer to security attributes
+    DWORD dwCreationDistribution, // how to create
+    DWORD dwFlagsAndAttributes,   // file attributes
+    HANDLE hTemplateFile          // handle to file with attributes to copy
+   );
+/* IS $ */
+
 char* FarMSG(int MsgID);
 #define MSG(ID) FarMSG(ID)
 /* $ 29.08.2000 SVS

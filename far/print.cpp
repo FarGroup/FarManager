@@ -5,10 +5,14 @@ print.cpp
 
 */
 
-/* Revision: 1.13 01.03.2002 $ */
+/* Revision: 1.14 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
   01.03.2002 SVS
     ! Есть только одна функция создания временного файла - FarMkTempEx
   21.10.2001 SVS
@@ -185,7 +189,7 @@ void PrintFiles(Panel *SrcPanel)
             if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,TempName,OPM_SILENT))
               SrcFile=fopen(TempName,"rb");
             else
-              RemoveDirectory(TempDir);
+              FAR_RemoveDirectory(TempDir);
           }
         }
       }

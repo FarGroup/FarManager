@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.173 21.01.2003 $ */
+/* Revision: 1.174 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -1632,7 +1636,7 @@ int FileList::ProcessKey(int Key)
             FileListToPluginItem(CurPtr,&PanelItem);
             if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,FileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW)))
             {
-              RemoveDirectory(TempDir);
+              FAR_RemoveDirectory(TempDir);
               return(TRUE);
             }
           }
@@ -2301,7 +2305,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       FileListToPluginItem(CurPtr,&PanelItem);
       if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,FileName,OPM_SILENT|OPM_VIEW))
       {
-        RemoveDirectory(TempDir);
+        FAR_RemoveDirectory(TempDir);
         return;
       }
       ConvertNameToShort(FileName,ShortFileName);
@@ -3374,7 +3378,7 @@ void FileList::UpdateViewPanel()
         if (!CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,TempDir,FileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW))
         {
           ViewPanel->ShowFile(NULL,FALSE,NULL);
-          RemoveDirectory(TempDir);
+          FAR_RemoveDirectory(TempDir);
           return;
         }
         ViewPanel->ShowFile(FileName,TRUE,NULL);

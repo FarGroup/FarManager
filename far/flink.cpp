@@ -5,10 +5,16 @@ flink.cpp
 
 */
 
-/* Revision: 1.37 12.07.2002 $ */
+/* Revision: 1.38 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   12.07.2002 SVS
     ! Применяем CreateHardLink только для случая DRIVE_FIXED
       В остальных случаях - по старинке. ;-)
@@ -321,7 +327,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   //_SVS(SysLogDump("rdb",0,szBuff,MAXIMUM_REPARSE_DATA_BUFFER_SIZE/3,0));
 
 
-  HANDLE hDir=CreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
+  HANDLE hDir=FAR_CreateFile(LinkFolder,GENERIC_WRITE|GENERIC_READ,0,0,OPEN_EXISTING,
           FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
 
   if (hDir == INVALID_HANDLE_VALUE)
@@ -343,7 +349,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
   {
     DWORD LastErr=GetLastError();
     CloseHandle(hDir);
-    DeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
+    FAR_DeleteFile(LinkFolder); // А нужно ли убивать, когда создали каталог, но симлинк не удалось ???
     SetLastError(LastErr);
     return 0;
   }
@@ -353,7 +359,7 @@ BOOL WINAPI CreateJunctionPoint(LPCTSTR SrcFolder,LPCTSTR LinkFolder)
 
 BOOL WINAPI DeleteJunctionPoint(LPCTSTR szDir)
 {
-  HANDLE hDir=CreateFile(szDir,
+  HANDLE hDir=FAR_CreateFile(szDir,
           GENERIC_READ | GENERIC_WRITE,
           0,
           0,
@@ -393,7 +399,7 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
     return 0;
   }
 
-  HANDLE hDir=CreateFile(szMountDir,GENERIC_READ|0,0,0,OPEN_EXISTING,
+  HANDLE hDir=FAR_CreateFile(szMountDir,GENERIC_READ|0,0,0,OPEN_EXISTING,
           FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,0);
 
   if (hDir == INVALID_HANDLE_VALUE)
@@ -476,7 +482,7 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
 */
 int WINAPI GetNumberOfLinks(const char *Name)
 {
-  HANDLE hFile=CreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
+  HANDLE hFile=FAR_CreateFile(Name,0,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
     return(1);
@@ -547,7 +553,7 @@ int WINAPI MkLink(const char *Src,const char *Dest)
 
   MultiByteToWideChar(CP_OEMCP,0,FileDest,-1,FileLink,sizeof(FileLink)/sizeof(FileLink[0]));
 
-  hFileSource = CreateFile(FileSource,FILE_WRITE_ATTRIBUTES,
+  hFileSource = FAR_CreateFile(FileSource,FILE_WRITE_ATTRIBUTES,
                 FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
 
   if(hFileSource == INVALID_HANDLE_VALUE)
@@ -629,7 +635,7 @@ int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *
 {
   int StreamsCount=-1;
 
-  HANDLE hFile = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL,
+  HANDLE hFile = FAR_CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL,
                      OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
   if (hFile != INVALID_HANDLE_VALUE)
   {
@@ -956,7 +962,7 @@ int WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags)
     {
       case FLINK_HARDLINK:
 //        if(Delete)
-//          RetCode=DeleteFile(Src);
+//          RetCode=FAR_DeleteFile(Src);
 //        else
           if(CanCreateHardLinks(Src,Dest))
             RetCode=MkLink(Src,Dest);
@@ -965,7 +971,7 @@ int WINAPI FarMkLink(const char *Src,const char *Dest,DWORD Flags)
       case FLINK_SYMLINK:
       case FLINK_VOLMOUNT:
 //        if(Delete)
-//          RetCode=RemoveDirectory(Src);
+//          RetCode=FAR_RemoveDirectory(Src);
 //        else
           RetCode=ShellCopy::MkSymLink(Src,Dest,
              (Op==FLINK_VOLMOUNT?FCOPY_VOLMOUNT:FCOPY_LINK)|

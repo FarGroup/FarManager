@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.136 06.01.2003 $ */
+/* Revision: 1.137 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   06.01.03 SVS
     ! Восстановим в правах SaveScreen в GetDirInfo (в нужный час GlobalSaveScrPtr
       сделает Discard буферу сохранения - в GetInputRecord при обработке эвента
@@ -741,7 +744,7 @@ int WINAPI ProcessName(const char *param1, char *param2, DWORD flags)
 
 int GetFileTypeByName(const char *Name)
 {
-  HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+  HANDLE hFile=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
     return(FILE_TYPE_UNKNOWN);
@@ -1116,7 +1119,7 @@ int GetClusterSize(char *Root)
       WinVer.dwBuildNumber<0x04000457)
     return(0);
 
-  HANDLE hDevice = CreateFile("\\\\.\\vwin32", 0, 0, NULL, 0,
+  HANDLE hDevice = FAR_CreateFile("\\\\.\\vwin32", 0, 0, NULL, 0,
                               FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
   if (hDevice==INVALID_HANDLE_VALUE)

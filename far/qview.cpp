@@ -5,10 +5,14 @@ Quick view panel
 
 */
 
-/* Revision: 1.28 24.05.2002 $ */
+/* Revision: 1.29 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   27.04.2002 SVS
@@ -494,7 +498,7 @@ void QuickView::QViewDelTempName()
     chmod(TempName,S_IREAD|S_IWRITE);
     remove(TempName);
     *PointToName(TempName)=0;
-    RemoveDirectory(TempName);
+    FAR_RemoveDirectory(TempName);
     *TempName=0;
   }
 }

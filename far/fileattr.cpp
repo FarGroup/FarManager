@@ -5,10 +5,13 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.06 12.06.2002 $ */
+/* Revision: 1.07 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка дл€ CreateFile, просьба использовать именно
+      ее вместо CreateFile
   12.06.2002 SVS
     ! ‘ункции, выставл€ющие атрибуты, так же как и ESetFileTime
       возвращают: 0 - ошибка, 1 - ќк, 2 - Skip
@@ -91,7 +94,7 @@ int ESetFileAttributes(const char *Name,int Attr)
 
 static int SetFileCompression(const char *Name,int State)
 {
-  HANDLE hFile=CreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
+  HANDLE hFile=FAR_CreateFile(Name,FILE_READ_DATA|FILE_WRITE_DATA,
                  FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                  FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (hFile==INVALID_HANDLE_VALUE)
@@ -235,7 +238,7 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
   {
     if (FileAttr & FA_RDONLY)
       SetFileAttributes(Name,FileAttr & ~FA_RDONLY);
-    HANDLE hFile=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    HANDLE hFile=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     int SetTime;

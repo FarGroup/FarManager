@@ -5,10 +5,19 @@ delete.cpp
 
 */
 
-/* Revision: 1.55 19.01.2003 $ */
+/* Revision: 1.56 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
+    ! В RemoveToRecycleBin используем механизм FAR_DeleteFile, который
+      задействуем только после неудачи удаления файла штатным образом
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
+    ! немного const
   19.01.2003 KM
     ! Достало. При удалении большой кучи файлов постоянно
       жать Skip на залоченных файлах.
@@ -159,13 +168,13 @@ Modify:
 #include "constitle.hpp"
 #include "fn.hpp"
 
-static void ShellDeleteMsg(char *Name);
-static int AskDeleteReadOnly(char *Name,DWORD Attr);
-static int ShellRemoveFile(char *Name,char *ShortName,int Wipe);
-static int ERemoveDirectory(char *Name,char *ShortName,int Wipe);
-static int RemoveToRecycleBin(char *Name);
-static int WipeFile(char *Name);
-static int WipeDirectory(char *Name);
+static void ShellDeleteMsg(const char *Name);
+static int AskDeleteReadOnly(const char *Name,DWORD Attr);
+static int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe);
+static int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe);
+static int RemoveToRecycleBin(const char *Name);
+static int WipeFile(const char *Name);
+static int WipeDirectory(const char *Name);
 static void PR_ShellDeleteMsg(void);
 
 static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
@@ -173,6 +182,60 @@ static int ReadOnlyDeleteMode,SkipMode,SkipFoldersMode,DeleteAllFolders;
 static clock_t DeleteStartTime;
 
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
+
+/* $ 26.01.2003 IS
+    + FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
+*/
+// удалить файл, код возврата аналогичен DeleteFile
+BOOL WINAPI FAR_DeleteFile(const char *FileName)
+{
+  // IS: сначала попробуем удалить стандартной функцией, чтобы
+  // IS: не осуществлять лишние телодвижения
+  BOOL rc=DeleteFile(FileName);
+  if(!rc) // IS: вот тут лишние телодвижения и начнем...
+  {
+    char FullName[NM*2]="\\\\?\\";
+    // IS: +4 - чтобы не затереть наши "\\?\"
+    if(ConvertNameToFull(FileName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
+    {
+      // IS: проверим, а вдруг уже есть есть нужные символы в пути
+      if( (FullName[4]=='/' && FullName[5]=='/') ||
+          (FullName[4]=='\\' && FullName[5]=='\\') )
+        rc=DeleteFile(FullName+4);
+      // IS: нужных символов в пути нет, поэтому используем наши
+      else
+        rc=DeleteFile(FullName);
+    }
+  }
+  return rc;
+}
+
+// удалить каталог, код возврата аналогичен RemoveDirectory
+BOOL WINAPI FAR_RemoveDirectory(const char *DirName)
+{
+  // IS: сначала попробуем удалить стандартной функцией, чтобы
+  // IS: не осуществлять лишние телодвижения
+  BOOL rc=RemoveDirectory(DirName);
+  if(!rc) // IS: вот тут лишние телодвижения и начнем...
+  {
+    char FullName[NM+16]="\\\\?\\";
+    // IS: +4 - чтобы не затереть наши "\\?\"
+    if(ConvertNameToFull(DirName, FullName+4, sizeof(FullName)-4) < sizeof(FullName)-4)
+    {
+      // IS: проверим, а вдруг уже есть есть нужные символы в пути
+      if( (FullName[4]=='/' && FullName[5]=='/') ||
+          (FullName[4]=='\\' && FullName[5]=='\\') )
+        rc=RemoveDirectory(FullName+4);
+      // IS: нужных символов в пути нет, поэтому используем наши
+      else
+        rc=RemoveDirectory(FullName);
+    }
+  }
+  return rc;
+}
+/* IS $ */
 
 void ShellDelete(Panel *SrcPanel,int Wipe)
 {
@@ -613,10 +676,10 @@ done:
 
 static void PR_ShellDeleteMsg(void)
 {
-  ShellDeleteMsg((char*)PreRedrawParam.Param1);
+  ShellDeleteMsg(static_cast<const char*>(PreRedrawParam.Param1));
 }
 
-void ShellDeleteMsg(char *Name)
+void ShellDeleteMsg(const char *Name)
 {
   static int Width=30;
   int WidthTemp;
@@ -645,11 +708,11 @@ void ShellDeleteMsg(char *Name)
 
     Message(0,0,MSG(MDeleteTitle),MSG(MDeleting),OutFileName);
   }
-  PreRedrawParam.Param1=Name;
+  PreRedrawParam.Param1=static_cast<void*>(const_cast<char*>(Name));
 }
 
 
-int AskDeleteReadOnly(char *Name,DWORD Attr)
+int AskDeleteReadOnly(const char *Name,DWORD Attr)
 {
   int MsgCode;
   if ((Attr & FA_RDONLY)==0)
@@ -689,7 +752,7 @@ int AskDeleteReadOnly(char *Name,DWORD Attr)
 
 
 
-int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
+int ShellRemoveFile(const char *Name,const char *ShortName,int Wipe)
 {
   char FullName[NM*2];
   if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
@@ -709,13 +772,13 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
 /*
         if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
         {
-          HANDLE hDelete=CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+          HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
                  FILE_FLAG_DELETE_ON_CLOSE|FILE_FLAG_POSIX_SEMANTICS,NULL);
           if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
             break;
         }
 */
-        if (DeleteFile(Name) || DeleteFile(ShortName))
+        if (FAR_DeleteFile(Name) || FAR_DeleteFile(ShortName))
           break;
       }
       else
@@ -763,7 +826,7 @@ int ShellRemoveFile(char *Name,char *ShortName,int Wipe)
 }
 
 
-int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
+int ERemoveDirectory(const char *Name,const char *ShortName,int Wipe)
 {
   char FullName[NM*2];
   if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName))
@@ -777,7 +840,7 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
         break;
     }
     else
-      if (RemoveDirectory(Name) || RemoveDirectory(ShortName))
+      if (FAR_RemoveDirectory(Name) || FAR_RemoveDirectory(ShortName))
         break;
     /* $ 19.01.2003 KM
        Добавлен Skip и Skip all
@@ -825,7 +888,7 @@ int ERemoveDirectory(char *Name,char *ShortName,int Wipe)
    Неверный анализ кода возврата функции SHFileOperation(),
    коей файл удаляется в корзину.
 */
-int RemoveToRecycleBin(char *Name)
+int RemoveToRecycleBin(const char *Name)
 {
   static struct {
     DWORD SHError;
@@ -860,6 +923,29 @@ int RemoveToRecycleBin(char *Name)
     fop.fFlags|=FOF_ALLOWUNDO;
   SetFileApisToANSI();
   DWORD RetCode=SHFileOperation(&fop);
+  /* $ 26.01.2003 IS
+       + Если не удалось удалить объект (например, имя имеет пробел на конце)
+         и это не связано с прерыванием удаления пользователем, то попробуем
+         еще разок, но с указанием полного имени вместе с "\\?\"
+  */
+  // IS: Следует заметить, что при подобном удалении объект, имя которого
+  // IS: с пробелом на конце, в корзину не попадает даже, если включено
+  // IS: удаление в нее! Почему - ХЗ, проблема скорее всего где-то в Windows
+  // IS: Если этот момент вы посчитаете это поведение плохим и пусть уж лучше
+  // IS: в подобной ситуации пользователь обломится, то просто поменяете 1 на 0
+  #if 1
+  if(RetCode && !fop.fAnyOperationsAborted &&
+     !((FullName[0]=='/' && FullName[1]=='/') || // проверим, если слеши уже
+     (FullName[0]=='\\' && FullName[1]=='\\'))   // есть, то и рыпаться не стоит
+    )
+  {
+    char FullNameAlt[sizeof(FullName)+16];
+    sprintf(FullNameAlt,"\\\\?\\%s",FullName);
+    fop.pFrom=FullNameAlt;
+    RetCode=SHFileOperation(&fop);
+  }
+  #endif
+  /* IS $ */
   SetFileApisToOEM();
   if(RetCode)
   {
@@ -875,12 +961,12 @@ int RemoveToRecycleBin(char *Name)
 }
 /* SVS $ */
 
-int WipeFile(char *Name)
+int WipeFile(const char *Name)
 {
   DWORD FileSize;
   HANDLE WipeHandle;
   SetFileAttributes(Name,0);
-  WipeHandle=CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+  WipeHandle=FAR_CreateFile(Name,GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
   if (WipeHandle==INVALID_HANDLE_VALUE)
     return(FALSE);
   if ((FileSize=GetFileSize(WipeHandle,NULL))==0xFFFFFFFF)
@@ -908,15 +994,15 @@ int WipeFile(char *Name)
   CloseHandle(WipeHandle);
   char TempName[NM];
   MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
-  return(DeleteFile(TempName));
+  return(FAR_DeleteFile(TempName));
 }
 
 
-int WipeDirectory(char *Name)
+int WipeDirectory(const char *Name)
 {
   char TempName[NM];
   MoveFile(Name,FarMkTempEx(TempName,NULL,FALSE));
-  return(RemoveDirectory(TempName));
+  return(FAR_RemoveDirectory(TempName));
 }
 
 int DeleteFileWithFolder(const char *FileName)
@@ -927,11 +1013,11 @@ int DeleteFileWithFolder(const char *FileName)
   strncpy(FolderName,FileName,sizeof(FolderName)-1);
   if ((Slash=strrchr(FolderName,'\\'))!=NULL)
     *Slash=0;
-  return(RemoveDirectory(FolderName));
+  return(FAR_RemoveDirectory(FolderName));
 }
 
 
-void DeleteDirTree(char *Dir)
+void DeleteDirTree(const char *Dir)
 {
   if (*Dir==0 || (Dir[0]=='\\' || Dir[0]=='/') && Dir[1]==0 ||
       Dir[1]==':' && (Dir[2]=='\\' || Dir[2]=='/') && Dir[3]==0)
@@ -947,11 +1033,11 @@ void DeleteDirTree(char *Dir)
     if (FindData.dwFileAttributes & FA_DIREC)
     {
       if (ScTree.IsDirSearchDone())
-        RemoveDirectory(FullName);
+        FAR_RemoveDirectory(FullName);
     }
     else
-      DeleteFile(FullName);
+      FAR_DeleteFile(FullName);
   }
   SetFileAttributes(Dir,0);
-  RemoveDirectory(Dir);
+  FAR_RemoveDirectory(Dir);
 }

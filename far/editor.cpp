@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.214 25.01.2003 $ */
+/* Revision: 1.215 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка дл€ CreateFile, просьба использовать именно
+      ее вместо CreateFile
   24.01.2003 KM
     ! ѕо окончании поиска отступим от верха экрана на
       треть отображаемой высоты. ј то уж действительно
@@ -804,10 +807,10 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
   if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
     FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
 
-  HANDLE hEdit=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FileFlags,NULL);
+  HANDLE hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FileFlags,NULL);
 
   if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
-    hEdit=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+    hEdit=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
 
   if (hEdit==INVALID_HANDLE_VALUE)
   {
@@ -1794,9 +1797,9 @@ int Editor::ProcessKey(int Key)
           const char *Str;
           int Length;
           CurLine->EditLine.GetBinaryString(Str,NULL,Length);
-		      /* $ 12.11.2002 DJ
-		         обеспечим корректную работу Ctrl-Shift-Left за концом строки
-		      */
+          /* $ 12.11.2002 DJ
+             обеспечим корректную работу Ctrl-Shift-Left за концом строки
+          */
           CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>Length)
           {

@@ -5,10 +5,13 @@ Eject съемных носителей
 
 */
 
-/* Revision: 1.12 27.11.2002 $ */
+/* Revision: 1.13 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   27.11.2002 SVS
     ! BugZ#700 - CD tray insertion: <Ins> began to work as <Del>
       Изменения для масдая по Sergei Antonov <project@quake.ru>
@@ -27,7 +30,7 @@ Modify:
     ! Юзание mci-команд для масдая (хотя, WC, падла, не юзает msiSend...)
   13.02.2002 SVS
     ! Уборка варнингов
-    - Упс. Потаенная бага... - проверка результата CreateFile
+    - Упс. Потаенная бага... - проверка результата FAR_CreateFile
   06.05.2001 DJ
     ! перетрях #include
   27.04.2001 SVS
@@ -378,7 +381,7 @@ BOOL EjectVolume95 (char Letter,DWORD Flags)
    // OpenVWin32
    /* Opens a handle to VWIN32 that can be used to issue low-level disk I/O
      commands. */
-   hVWin32 = CreateFile ("\\\\.\\vwin32", 0, 0, NULL, 0,
+   hVWin32 = FAR_CreateFile ("\\\\.\\vwin32", 0, 0, NULL, 0,
                       FILE_FLAG_DELETE_ON_CLOSE, NULL);
 
    if(hVWin32 == INVALID_HANDLE_VALUE)
@@ -486,12 +489,12 @@ BOOL EjectVolume(char Letter,DWORD Flags)
       return FALSE;
   }
 
-  DiskHandle=CreateFile(szRootName,dwAccessFlags,
+  DiskHandle=FAR_CreateFile(szRootName,dwAccessFlags,
                         FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                         0,0);
   if((DiskHandle==INVALID_HANDLE_VALUE) && (GetLastError()==ERROR_ACCESS_DENIED))
   {
-    DiskHandle=CreateFile(szRootName,GENERIC_READ,
+    DiskHandle=FAR_CreateFile(szRootName,GENERIC_READ,
                           FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,
                           0,0);
     ReadOnly=FALSE;

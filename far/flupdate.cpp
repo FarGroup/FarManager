@@ -5,10 +5,14 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.39 21.12.2002 $ */
+/* Revision: 1.40 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
   21.12.2002 SVS
     ! Избавимся от "не той" прорисовки пересчетчика файлов в момент выхода
       из редактора в каталоге со значительным количеством файлов.
@@ -928,7 +932,7 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
                 I=Info.DescrFilesNumber;
                 break;
               }
-              RemoveDirectory(TempDir);
+              FAR_RemoveDirectory(TempDir);
               //ViewPanel->ShowFile(NULL,FALSE,NULL);
             }
           }

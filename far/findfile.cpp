@@ -5,10 +5,16 @@ findfile.cpp
 
 */
 
-/* Revision: 1.132 21.01.2003 $ */
+/* Revision: 1.133 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
+      RemoveDirectory, просьба и впредь их использовать для удаления
+      соответственно файлов и каталогов.
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -664,12 +670,12 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       else if (Param1==18)
       {
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,TRUE);
-		SearchFromChanged=TRUE;
+    SearchFromChanged=TRUE;
       }
       else if (Param1==16 || Param1==17 || Param1==19 || Param1==20 || Param1==21)
       {
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,FALSE);
-		SearchFromChanged=TRUE;
+    SearchFromChanged=TRUE;
       }
       else if (Param1==13)
         FindFoldersChanged = TRUE;
@@ -1054,7 +1060,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       while (ListBox->GetCallCount())
         Sleep(10);
 
-	  if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
+    if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
         FindPositionChanged = TRUE;
 
       // некторые спец.клавиши всеже отбработаем.
@@ -1164,7 +1170,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             WaitForSingleObject(hPluginMutex,INFINITE);
             if (!GetPluginFile(FindList[ItemIndex].ArcIndex,&FileItem,TempDir,SearchFileName))
             {
-              RemoveDirectory(TempDir);
+              FAR_RemoveDirectory(TempDir);
               if (ClosePlugin)
               {
                 CtrlObject->Plugins.ClosePlugin(ArcList[FindList[ItemIndex].ArcIndex].hPlugin);
@@ -2003,7 +2009,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
         if (!CtrlObject->Plugins.GetFile(hPlugin,FileItem,TempDir,SearchFileName,OPM_SILENT|OPM_FIND))
         {
           ReleaseMutex(hPluginMutex);
-          RemoveDirectory(TempDir);
+          FAR_RemoveDirectory(TempDir);
           break;
         }
         else
@@ -2192,10 +2198,10 @@ int FindFiles::LookForString(char *Name)
   int Length,ReadSize;
   if ((Length=strlen(FindStr))==0)
     return(TRUE);
-  HANDLE FileHandle=CreateFile(Name,GENERIC_READ|GENERIC_WRITE,
+  HANDLE FileHandle=FAR_CreateFile(Name,GENERIC_READ|GENERIC_WRITE,
          FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
   if (FileHandle==INVALID_HANDLE_VALUE)
-    FileHandle=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    FileHandle=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                           NULL,OPEN_EXISTING,0,NULL);
   if (FileHandle==INVALID_HANDLE_VALUE)
     return(FALSE);

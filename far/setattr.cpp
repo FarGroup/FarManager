@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.54 12.07.2002 $ */
+/* Revision: 1.55 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   12.07.2002 SVS
     ! SetAttr - для одиночного фолдера не меняем те поля, которые изменили!
       Но! Если клинкнули на оригинал, то делаем вид, будто ничего не менялось.
@@ -1112,7 +1115,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
      TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
   {
     // получаем инфу про оригинальную дату и время файла.
-    HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    HANDLE hFile=FAR_CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
                  NULL,OPEN_EXISTING,
                  (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
     if (hFile==INVALID_HANDLE_VALUE)

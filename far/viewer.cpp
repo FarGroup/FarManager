@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.121 25.01.2003 $ */
+/* Revision: 1.122 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
+      ее вместо CreateFile
   25.01.2003 VVM
     - При включении врапа LeftPos всегда становится = 0
     + Клавиши Home/End позиционируют на начало/конец строк на экране
@@ -599,7 +602,7 @@ int Viewer::OpenFile(const char *Name,int warning)
         OpenFailed=TRUE;
         return(FALSE);
       }
-      OutHandle=CreateFile(TempName,GENERIC_READ|GENERIC_WRITE,
+      OutHandle=FAR_CreateFile(TempName,GENERIC_READ|GENERIC_WRITE,
                 FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
                 FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);
       if (OutHandle==INVALID_HANDLE_VALUE)
@@ -632,11 +635,11 @@ int Viewer::OpenFile(const char *Name,int warning)
       ShareMode|=FILE_SHARE_DELETE;
     }
 
-    HANDLE hView=CreateFile(Name,GENERIC_READ,
+    HANDLE hView=FAR_CreateFile(Name,GENERIC_READ,
                             ShareMode,
                             NULL,OPEN_EXISTING,Flags,NULL);
     if (hView==INVALID_HANDLE_VALUE && Flags!=0)
-      hView=CreateFile(Name,GENERIC_READ,
+      hView=FAR_CreateFile(Name,GENERIC_READ,
                        ShareMode,
                        NULL,OPEN_EXISTING,0,NULL);
     if (hView!=INVALID_HANDLE_VALUE)

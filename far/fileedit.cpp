@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.127 26.12.2002 $ */
+/* Revision: 1.128 26.01.2003 $ */
 
 /*
 Modify:
+  26.01.2003 IS
+    ! FAR_CreateFile - обертка дл€ CreateFile, просьба использовать именно
+      ее вместо CreateFile
   26.12.2002 SVS
     - BugZ#754 - открытие редатора с больш»ми у2, х2
       ѕроверим координаты в Init
@@ -1493,12 +1496,12 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
     if (FileAttributes!=-1 && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
       FileFlags|=FILE_FLAG_POSIX_SEMANTICS;
 
-    HANDLE hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
+    HANDLE hEdit=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,
                  FileAttributes!=-1 ? TRUNCATE_EXISTING:CREATE_ALWAYS,FileFlags,NULL);
     if (hEdit==INVALID_HANDLE_VALUE && WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && FileAttributes!=-1)
     {
       _SVS(SysLogLastError();SysLog("Name='%s',FileAttributes=%d",Name,FileAttributes));
-      hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
+      hEdit=FAR_CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
                        FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
     }
     if (hEdit==INVALID_HANDLE_VALUE)
