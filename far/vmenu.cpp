@@ -7,10 +7,16 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.29 03.06.2001 $ */
+/* Revision: 1.30 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 KM
+    + Функции SetTitle, GetTitle, GetBottomTitle.
+    ! Вернём DI_LISTBOX'у возможность задавать заголовок.
+    ! Убрана дефолтная установка флага VMENU_WRAPMODE, в противном
+      случае при создании меню прокрутка работала _ВСЕГДА_, что
+      не всегда удобно.
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
     + GetPosition() - возвращает реальную позицию итема.
@@ -165,7 +171,13 @@ VMenu::VMenu(char *Title,       // заголовок меню
 /* OT &*/
 
   VMenu::ParentDialog=ParentDialog;
-  VMFlags|=VMENU_UPDATEREQUIRED|VMENU_WRAPMODE;
+  /* $ 03.06.2001 KM
+     ! Убрана дефолтная установка флага VMENU_WRAPMODE, в противном
+       случае при создании меню прокрутка работала _ВСЕГДА_, что
+       не всегда удобно.
+  */
+  VMFlags|=VMENU_UPDATEREQUIRED;
+  /* KM $ */
   VMFlags&=~VMENU_SHOWAMPERSAND;
   CallCount=0;
   TopPos=0;
@@ -386,21 +398,22 @@ void VMenu::DisplayObject()
     }
     /* SVS $*/
   }
-  if(!(VMenu::VMFlags&VMENU_LISTBOX))
+  /* $ 03.06.2001 KM
+     ! Вернём DI_LISTBOX'у возможность задавать заголовок.
+  */
+  if (*Title)
   {
-    if (*Title)
-    {
-      GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1);
-      SetColor(VMenu::Colors[2]);
-      mprintf(" %s ",Title);
-    }
-    if (*BottomTitle)
-    {
-      GotoXY(X1+(X2-X1-1-strlen(BottomTitle))/2,Y2);
-      SetColor(VMenu::Colors[2]);
-      mprintf(" %s ",BottomTitle);
-    }
+    GotoXY(X1+(X2-X1-1-strlen(Title))/2,Y1);
+    SetColor(VMenu::Colors[2]);
+    mprintf(" %s ",Title);
   }
+  if (*BottomTitle)
+  {
+    GotoXY(X1+(X2-X1-1-strlen(BottomTitle))/2,Y2);
+    SetColor(VMenu::Colors[2]);
+    mprintf(" %s ",BottomTitle);
+  }
+  /* KM $ */
   SetCursorType(0,10);
   ShowMenu(TRUE);
 }
@@ -1104,6 +1117,25 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
+void VMenu::SetTitle(char *Title)
+{
+  int Length;
+  VMFlags|=VMENU_UPDATEREQUIRED;
+  strncpy(VMenu::Title,Title,sizeof(VMenu::Title));
+  Length=strlen(Title)+2;
+  if (Length > MaxLength)
+    MaxLength=Length;
+}
+
+
+char *VMenu::GetTitle(char *Dest,int Size)
+{
+  if (Dest && *VMenu::Title)
+    return strncpy(Dest,VMenu::Title,Size);
+  return NULL;
+}
+
+
 void VMenu::SetBottomTitle(char *BottomTitle)
 {
   int Length;
@@ -1112,6 +1144,14 @@ void VMenu::SetBottomTitle(char *BottomTitle)
   Length=strlen(BottomTitle)+2;
   if (Length > MaxLength)
     MaxLength=Length;
+}
+
+
+char *VMenu::GetBottomTitle(char *Dest,int Size)
+{
+  if (Dest && *VMenu::BottomTitle)
+    return strncpy(Dest,VMenu::BottomTitle,Size);
+  return NULL;
 }
 
 

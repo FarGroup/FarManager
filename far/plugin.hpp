@@ -8,13 +8,19 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.112 03.06.2001 $ */
+/* Revision: 1.113 03.06.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  03.06.2001 KM
+   + Два новых сообщения:
+     DM_LISTSETTITLE
+     DM_LISTGETTITLE
+     для установки/получения заголовков в DI_LISTBOX.
+   + Вернулся флаг DIF_LISTAUTOHIGHLIGHT.
   03.06.2001 SVS
    ! Небольшое уточнение структуры FarListItemData (до 16 байт :-)
    + Пара макросов для листа
@@ -590,34 +596,35 @@ enum DialogItemTypes {
 };
 
 enum FarDialogItemFlags {
-  DIF_COLORMASK       =0x000000ffUL,
-  DIF_SETCOLOR        =0x00000100UL,
-  DIF_BOXCOLOR        =0x00000200UL,
-  DIF_GROUP           =0x00000400UL,
-  DIF_LEFTTEXT        =0x00000800UL,
-  DIF_MOVESELECT      =0x00001000UL,
-  DIF_SHOWAMPERSAND   =0x00002000UL,
-  DIF_CENTERGROUP     =0x00004000UL,
-  DIF_NOBRACKETS      =0x00008000UL,
-  DIF_MANUALADDHISTORY=0x00008000UL,
-  DIF_SEPARATOR       =0x00010000UL,
-  DIF_VAREDIT         =0x00010000UL,
-  DIF_EDITOR          =0x00020000UL,
-  DIF_LISTNOAMPERSAND =0x00020000UL,
-  DIF_LISTNOBOX       =0x00040000UL,
-  DIF_HISTORY         =0x00040000UL,
-  DIF_BTNNOCLOSE      =0x00040000UL,
-  DIF_EDITEXPAND      =0x00080000UL,
-  DIF_DROPDOWNLIST    =0x00100000UL,
-  DIF_USELASTHISTORY  =0x00200000UL,
-  DIF_MASKEDIT        =0x00400000UL,
-  DIF_SELECTONENTRY   =0x00800000UL,
-  DIF_3STATE          =0x00800000UL,
-  DIF_LISTWRAPMODE    =0x01000000UL,
-  DIF_HIDDEN          =0x10000000UL,
-  DIF_READONLY        =0x20000000UL,
-  DIF_NOFOCUS         =0x40000000UL,
-  DIF_DISABLE         =0x80000000UL,
+  DIF_COLORMASK         =0x000000ffUL,
+  DIF_SETCOLOR          =0x00000100UL,
+  DIF_BOXCOLOR          =0x00000200UL,
+  DIF_GROUP             =0x00000400UL,
+  DIF_LEFTTEXT          =0x00000800UL,
+  DIF_MOVESELECT        =0x00001000UL,
+  DIF_SHOWAMPERSAND     =0x00002000UL,
+  DIF_CENTERGROUP       =0x00004000UL,
+  DIF_NOBRACKETS        =0x00008000UL,
+  DIF_MANUALADDHISTORY  =0x00008000UL,
+  DIF_SEPARATOR         =0x00010000UL,
+  DIF_VAREDIT           =0x00010000UL,
+  DIF_EDITOR            =0x00020000UL,
+  DIF_LISTNOAMPERSAND   =0x00020000UL,
+  DIF_LISTNOBOX         =0x00040000UL,
+  DIF_HISTORY           =0x00040000UL,
+  DIF_BTNNOCLOSE        =0x00040000UL,
+  DIF_EDITEXPAND        =0x00080000UL,
+  DIF_DROPDOWNLIST      =0x00100000UL,
+  DIF_USELASTHISTORY    =0x00200000UL,
+  DIF_MASKEDIT          =0x00400000UL,
+  DIF_SELECTONENTRY     =0x00800000UL,
+  DIF_3STATE            =0x00800000UL,
+  DIF_LISTWRAPMODE      =0x01000000UL,
+  DIF_LISTAUTOHIGHLIGHT =0x02000000UL,
+  DIF_HIDDEN            =0x10000000UL,
+  DIF_READONLY          =0x20000000UL,
+  DIF_NOFOCUS           =0x40000000UL,
+  DIF_DISABLE           =0x80000000UL,
 };
 
 enum FarMessagesProc{
@@ -664,6 +671,8 @@ enum FarMessagesProc{
   DM_LISTINFO,
   DM_LISTGETDATA,
   DM_LISTSETDATA,
+  DM_LISTSETTITLE,
+  DM_LISTGETTITLE,
 
   DM_RESIZEDIALOG,
   DM_SETITEMPOSITION,
@@ -770,6 +779,13 @@ struct FarListItemData
   DWORD Reserved;
 };
 
+struct FarListTitle
+{
+  int   TitleLen;
+  char *Title;
+  int   BottomLen;
+  char *Bottom;
+};
 
 struct FarDialogItem
 {

@@ -10,10 +10,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.15 03.06.2001 $ */
+/* Revision: 1.16 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 KM
+    + Функции SetTitle, GetTitle, GetBottomTitle.
   03.06.2001 SVS
     ! переделка MenuItem
     + GetPosition() - возвращает реальную позицию итема.
@@ -209,7 +211,10 @@ class VMenu: public Modal
     void Show();
     void Hide();
 
+    void SetTitle(char *Title);
+    char *GetTitle(char *Dest,int Size);
     void SetBottomTitle(char *BottomTitle);
+    char *GetBottomTitle(char *Dest,int Size);
     void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style);SetColors(NULL);}
     void SetUpdateRequired(int SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
     void SetBoxType(int BoxType);

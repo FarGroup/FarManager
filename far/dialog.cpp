@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.110 03.06.2001 $ */
+/* Revision: 1.111 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 KM
+   + Добавлены сообщения DM_LISTSETTITLE и DM_LETSGETTITLE для установки/получения
+     заголовков DI_LISTBOX. Используется структура FarListTitle.
+   ! При каждой перерисовке диалога, кроме режима перемещения, устанавливаем
+     заголовок консоли, в противном случае он не всегда восстанавливался.
+   ! Исправлена подсветка в DI_LISTBOX и DI_COMBOBOX, теперь на самом деле :)
+     для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
   03.06.2001 SVS
    ! Коррекция SelectFromEditHistory с учетом нового ListUserData
      (запонимаем полностью весь текст, который есть в реестре и пихаем
@@ -856,12 +863,18 @@ int Dialog::InitDialogObjects(int ID)
         /* $ 15.05.2001 KM
            ! Исправлена подсветка в DI_LISTBOX
         */
+        /* $ 03.06.2001 KM
+           ! Исправлена подсветка в DI_LISTBOX, теперь на самом деле :)
+             для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
+        */
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
           CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
         if(ItemFlags&DIF_LISTNOBOX)
           CurItem->ListPtr->SetFlags(VMENU_SHOWNOBOX);
         if(ItemFlags&DIF_LISTWRAPMODE)
           CurItem->ListPtr->SetFlags(VMENU_WRAPMODE);
+        if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
+          CurItem->ListPtr->AssignHighlights(FALSE);
         CurItem->ListPtr->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                              X1+CurItem->X2,Y1+CurItem->Y2);
         CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
@@ -869,8 +882,7 @@ int Dialog::InitDialogObjects(int ID)
         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
         if(CurItem->ListItems)
           CurItem->ListPtr->AddItem(CurItem->ListItems);
-
-        CurItem->ListPtr->AssignHighlights(FALSE);
+        /* KM $ */
         /* KM $ */
       }
     }
@@ -902,10 +914,15 @@ int Dialog::InitDialogObjects(int ID)
         /* $ 15.05.2001 KM
            Добавим подсветку в DI_COMBOBOX
         */
+        /* $ 03.06.2001 KM
+           ! Исправлена подсветка в DI_COMBOBOX, теперь на самом деле :)
+             для чего используется флаг DIF_LISTAUTOHIGHLIGHT.
+        */
         if(!(ItemFlags&DIF_LISTNOAMPERSAND))
           CurItem->ListPtr->SetFlags(VMENU_SHOWAMPERSAND);
-
-        CurItem->ListPtr->AssignHighlights(FALSE);
+        if(ItemFlags&DIF_LISTAUTOHIGHLIGHT)
+          CurItem->ListPtr->AssignHighlights(FALSE);
+        /* KM $ */
         /* KM $ */
       }
 
@@ -1788,6 +1805,15 @@ void Dialog::ShowDialog(int ID)
   if ( CheckDialogMode(DMODE_DRAGGED) ) // если диалог таскается
   {
     DlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
+  }
+  else
+  {
+    /* $ 03.06.2001 KM
+       + При каждой перерисовке диалога, кроме режима перемещения, устанавливаем
+         заголовок консоли, в противном случае он не всегда восстанавливался.
+    */
+    SetFarTitle(GetDialogTitle());
+    /* KM $ */
   }
   /* SVS $ */
 
@@ -4118,6 +4144,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
     case DM_LISTGETDATA: // Param1=ID Param2=Index
     case DM_LISTSETDATA: // Param1=ID Param2=struct FarListItemData
+    case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitle: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+    case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitle: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
         VMenu *ListBox;
@@ -4189,7 +4217,20 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               }
               return 0;
             }
-
+            case DM_LISTSETTITLE: // Param1=ID Param2=struct FarListTitle
+            {
+              struct FarListTitle *ListTitle=(struct FarListTitle *)Param2;
+              ListBox->SetTitle(ListTitle->Title);
+              ListBox->SetBottomTitle(ListTitle->Bottom);
+              return 0;
+            }
+            case DM_LISTGETTITLE: // Param1=ID Param2=struct FarListTitle
+            {
+              struct FarListTitle *ListTitle=(struct FarListTitle *)Param2;
+              ListBox->GetTitle(ListTitle->Title,ListTitle->TitleLen);
+              ListBox->GetTitle(ListTitle->Bottom,ListTitle->BottomLen);
+              return 0;
+            }
             case DM_LISTGETCURPOS: // Param1=ID Param2=0
             {
               return ListBox->GetSelectPos();
@@ -4201,8 +4242,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             case DM_LISTUPDATE: // Param1=ID Param2=FarList: Index=Index, Items=Src
             {
-              struct FarList *ListItems=(struct FarList *)Param2;
-              if(ListItems && ListBox->UpdateItem(ListItems))
+              if(Param2 && ListBox->UpdateItem((struct FarList *)Param2))
                 break;
               return FALSE;
             }
