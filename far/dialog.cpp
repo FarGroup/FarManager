@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.19 11.08.2000 $ */
+/* Revision: 1.20 15.08.2000 $ */
 
 /*
 Modify:
+  15.08.2000 SVS
+   ! Для DropDownList цвета обрабатываем по иному.
+   + Сделаем так, чтобы ткнув мышкой в DropDownList список раскрывался сам.
   11.08.2000 SVS
    + Данные, специфические для конкретного экземпляра диалога
    + Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
@@ -705,8 +708,19 @@ void Dialog::ShowDialog()
       {
         Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
 
+        /* $ 15.08.2000 SVS
+           ! Для DropDownList цвета обрабатываем по иному
+        */
         Attr=EditPtr->GetObjectColor();
-        Attr=MAKEWORD(FarColorToReal(Attr&0xFF),FarColorToReal(HIWORD(Attr)));
+        if(CurItem->Type == DI_COMBOBOX && (CurItem->Flags & DIF_DROPDOWNLIST) && !CurItem->Focus)
+        {
+          Attr=MAKEWORD(FarColorToReal(Attr&0xFF),FarColorToReal(EditPtr->GetObjectColorUnChanged()));
+        }
+        else
+        {
+          Attr=MAKEWORD(FarColorToReal(Attr&0xFF),FarColorToReal(COL_DIALOGEDITSELECTED));
+        }
+        /* SVS $ */
         Attr=MAKELONG(Attr, // EditLine (Lo=Color, Hi=Selected)
            MAKEWORD(FarColorToReal(EditPtr->GetObjectColorUnChanged()), // EditLine - UnChanched Color
            FarColorToReal(COL_DIALOGTEXT) // HistoryLetter
@@ -1527,7 +1541,29 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
         if (IsEdit(Type))
         {
+          /* $ 15.08.2000 SVS
+             + Сделаем так, чтобы ткнув мышкой в DropDownList
+               список раскрывался сам.
+             Есть некоторая глюкавость - когда список раскрыт и мы
+             мышой переваливаем на другой элемент, то список закрывается
+             но перехода реального на указанный элемент диалога не происходит
+          */
+          int EditX1,EditY1,EditX2,EditY2;
           Edit *EditLine=(Edit *)(Item[I].ObjPtr);
+          EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
+
+          if(MsY==EditY1 && Type == DI_COMBOBOX &&
+             (Item[I].Flags & DIF_DROPDOWNLIST) &&
+             MsX >= EditX1 && MsX <= EditX2+1)
+          {
+            EditLine->SetClearFlag(0);
+            ChangeFocus2(FocusPos,I);
+            ShowDialog();
+            ProcessKey(KEY_CTRLDOWN);
+            return(TRUE);
+          }
+          /* SVS $ */
+
           if (EditLine->ProcessMouse(MouseEvent))
           {
             EditLine->SetClearFlag(0);
@@ -1537,8 +1573,6 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           }
           else
           {
-            int EditX1,EditY1,EditX2,EditY2;
-            EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
             /* $ 18.07.2000 SVS
                + Проверка на тип элемента DI_COMBOBOX
             */

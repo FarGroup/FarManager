@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.12 03.08.2000 $ */
+/* Revision: 1.13 15.08.2000 $ */
 
 /*
 Modify:
+   15.08.2000 SVS
+    + У DropDowList`а выделение по полной программе - на всю видимую длину
    03.08.2000 KM
     ! В функцию Search добавлен входной параметр int WholeWords.
     ! Теперь в этой функции реализована возможность поиска целых слов.
@@ -297,12 +299,23 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
     {
       mprintf("%.*s",TabSelStart,OutStr);
       SetColor(SelColor);
-      mprintf("%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
-      if (TabSelEnd<EditLength)
+      /* $ 15.08.2000 SVS
+         + У DropDowList`а выделение по полной программе - на всю видимую длину
+      */
+      if(!DropDownBox)
       {
-        SetColor(ClearFlag ? SelColor:Color);
-        Text(OutStr+TabSelEnd);
+        mprintf("%.*s",TabSelEnd-TabSelStart,OutStr+TabSelStart);
+        if (TabSelEnd<EditLength)
+        {
+          SetColor(ClearFlag ? SelColor:Color);
+          Text(OutStr+TabSelEnd);
+        }
       }
+      else
+      {
+        mprintf("%*s",X2-X1+1,OutStr);
+      }
+      /* SVS $*/
     }
     /* $ 13.07.2000 SVS
        раз уж вызывали через new[]...
