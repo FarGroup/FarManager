@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.44 12.03.2001 $ */
+/* Revision: 1.45 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+   + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
    + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
   27.02.2001 SVS
@@ -324,7 +326,7 @@ struct Options
   int ReverseSort;
   int ClearReadOnly;
   int DeleteToRecycleBin;
-  int DeleteSymbolWipe; // символ заполнитель для "ZAP-операции"
+  int WipeSymbol; // символ заполнитель для "ZAP-операции"
   int UseSystemCopy;
   int CopyOpened;
   int CopyShowTotal;

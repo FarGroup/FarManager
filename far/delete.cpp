@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.10 12.03.2001 $ */
+/* Revision: 1.11 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
     + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
   07.03.2001 SVS
@@ -504,7 +506,7 @@ int WipeFile(char *Name)
   }
   const int BufSize=65536;
   char *Buf=new char[BufSize];
-  memset(Buf,(BYTE)Opt.DeleteSymbolWipe,BufSize); // используем символ заполнитель
+  memset(Buf,(BYTE)Opt.WipeSymbol,BufSize); // используем символ заполнитель
   DWORD Written;
   while (FileSize>0)
   {

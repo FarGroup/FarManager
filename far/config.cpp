@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.55 12.03.2001 $ */
+/* Revision: 1.56 12.03.2001 $ */
 
 /*
 Modify:
+  12.03.2001 SVS
+    + Opt.DeleteSymbolWipe -> Opt.WipeSymbol
   12.03.2001 SVS
     + Opt.DeleteSymbolWipe символ заполнитель для "ZAP-операции"
   27.02.2001 SVS
@@ -969,7 +971,7 @@ void ReadConfig()
   /* SVS $ */
   GetRegKey("System","ClearReadOnly",Opt.ClearReadOnly,0);
   GetRegKey("System","DeleteToRecycleBin",Opt.DeleteToRecycleBin,1);
-  GetRegKey("System","DeleteSymbolWipe",Opt.DeleteSymbolWipe,0);
+  GetRegKey("System","WipeSymbol",Opt.WipeSymbol,0);
   GetRegKey("System","UseSystemCopy",Opt.UseSystemCopy,0);
   /* $ 16.10.2000 SVS
      ! System\CopyOpened по умолчанию установлен в 1 (разрешен)
