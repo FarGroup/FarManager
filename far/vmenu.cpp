@@ -7,10 +7,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.31 04.06.2001 $ */
+/* Revision: 1.32 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+    - Злостная бага в DeleteItem :-(
   04.06.2001 SVS
     ! "Фигня с пацанами вышла" - это про патч 706. В общем уточнения функций.
   03.06.2001 KM
@@ -297,7 +299,7 @@ int VMenu::DeleteItem(int ID,int Count)
 
   // а вот теперь перемещения
   if(ItemCount > 1)
-    memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*Count); //???
+    memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*(ItemCount-(ID+Count))); //???
 
   // коррекция текущей позиции
   if(SelectPos >= ID && SelectPos < ID+Count)

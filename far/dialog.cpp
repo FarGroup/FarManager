@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.112 04.06.2001 $ */
+/* Revision: 1.113 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 SVS
+   + Shift-Del очищает текущий пункт истории команд.
   04.06.2001 SVS
    ! выкинут LIF_PTRDATA - изжил себя как класс :-)
    ! SelectFromEditHistory полностью переписана, в т.ч. исключена ненужная
@@ -3593,16 +3595,13 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       {
         int Key=HistoryMenu.ReadInput();
 
-        // Tab в списке хистори - аналог Enter
-        if (Key==KEY_TAB)
+        if (Key==KEY_TAB) // Tab в списке хистори - аналог Enter
         {
           HistoryMenu.ProcessKey(KEY_ENTER);
           Done=TRUE;
           continue; //??
         }
-
-        // Ins защищает пункт истории от удаления.
-        if (Key==KEY_INS)
+        else if (Key==KEY_INS) // Ins защищает пункт истории от удаления.
         {
           itoa(HistoryMenu.GetSelectPos(),PHisLocked,10);
           if (!HistoryMenu.GetSelection())
@@ -3619,9 +3618,43 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
           HistoryMenu.Redraw();
           continue;
         }
+        else if (Key==KEY_SHIFTDEL) // Shift-Del очищает текущий пункт истории команд.
+        {
+          Dest=HistoryMenu.GetSelectPos();
+          if (!HistoryMenu.GetSelection(Dest))
+          {
+            HistoryMenu.Hide();
+            // удаляем из реестра все.
+            for (I=0; I < HISTORY_COUNT;I++)
+            {
+              itoa(I,PHisLocked,10);
+              DeleteRegValue(RegKey,HisLocked);
+              itoa(I,PHisLine,10);
+              DeleteRegValue(RegKey,HisLine);
+            }
+            // удаляем из списка только то, что требовали
+            HistoryMenu.DeleteItem(Dest);
+            // перестроим список в реестре
+            for (Dest=I=0; I < HistoryMenu.GetItemCount(); I++)
+            {
+               HistoryMenu.GetUserData(Str,sizeof(Str),I);
+               itoa(Dest,PHisLine,10);
+               SetRegKey(RegKey,HisLine,Str);
+               if(HistoryMenu.GetSelection(I))
+               {
+                 itoa(Dest,PHisLocked,10);
+                 SetRegKey(RegKey,HisLocked,TRUE);
+               }
+               Dest++;
+            }
 
-        // Del очищает историю команд.
-        if (Key==KEY_DEL)
+            HistoryMenu.SetUpdateRequired(TRUE);
+            IsUpdate=TRUE;
+            break;
+          }
+          continue;
+        }
+        else if (Key==KEY_DEL) // Del очищает историю команд.
         {
           HistoryMenu.Hide();
 

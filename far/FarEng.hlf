@@ -395,6 +395,9 @@ you will always have them in the history.
 
   Clear history in dialog edit controls                          #Del#
 
+  Очистка текущего незалоченного пункта истории
+  в строках редактирования диалогов                        #Shift-Del#
+
   Insert a file name under cursor to dialog              #Shift-Enter#
 
   This key combination is valid for all edit controls except the command
