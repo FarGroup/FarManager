@@ -5,10 +5,13 @@ far.cpp
 
 */
 
-/* Revision: 1.13 07.03.2001 $ */
+/* Revision: 1.14 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 SVS
+    ! Добавлено "некоторое" количество расширений в раскраску для архивов.
+    + *.vbs,*.js - подсветка как у исполняемых файлов.
   07.03.2001 IS
     - Избавление от падения при удалении папок в корзину (на основе информации
       от Веши).Удаляем неугодную ветку, если она пуста, потому что в этом
@@ -344,8 +347,8 @@ void SetHighlighting()
   char RegKey[80];
   static char *Masks[]={
     "*.*",
-    "*.exe,*.com,*.bat,*.cmd",
-    "*.rar,*.arj,*.zip,*.lzh",
+    "*.exe,*.com,*.bat,*.cmd,*.vbs,*.js",
+    "*.rar,*.r[0-9][0-9],*.arj,*.a[0-9][0-9],*.zip,*.lzh,*.ain,*.ha,*.lsz,*.cab,*.uc2,*.j,*.uue,*.lha,*.tgz,*.ice,*.arc,*.xxe,*.tar,*.gz,*.ace,*.pak,*.q,*.bz2",
     "*.bak,*.tmp",
   };
   struct HighlightData  StdHighlightData[]=

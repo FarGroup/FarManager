@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.23 02.04.2001 $ */
+/* Revision: 1.24 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 SVS
+    ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   02.04.2001 VVM
     + DRIVE_NOT_INIT. Используется при показе меню дисков.
   16.03.2001 SVS
@@ -276,7 +278,7 @@ enum ReadDizFlags {
 #endif
 /* SVS $ */
 
-#define DRIVE_SUSTITUTE     0x0F
+#define DRIVE_SUBSTITUTE    0x0F
 #define DRIVE_NOT_INIT      0xFF
 
 

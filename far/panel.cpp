@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.27 02.04.2001 $ */
+/* Revision: 1.28 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 SVS
+    ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   02.04.2001 VVM
     ! Попытка не будить спящие диски...
   30.03.2001 SVS
@@ -224,7 +226,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
             if(GetSubstName(LocalName,SubstName,sizeof(SubstName)))
             {
               strcpy(DiskType,MSG(MChangeDriveSUBST));
-              DriveType=DRIVE_SUSTITUTE;
+              DriveType=DRIVE_SUBSTITUTE;
             }
           }
           /* SVS $ */
@@ -470,7 +472,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
               /* $ 05.01.2001 SVS
                  Пробуем удалить SUBST-драйв.
               */
-              if(DriveType == DRIVE_SUSTITUTE)
+              if(DriveType == DRIVE_SUBSTITUTE)
               {
                 char DosDeviceName[16];
                 sprintf(DosDeviceName,"%c:",*Letter);

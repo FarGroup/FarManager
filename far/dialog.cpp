@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.79 23.03.2001 $ */
+/* Revision: 1.80 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 SVS
+   + исключим смену режима RO для поля ввода с клавиатуры
   23.03.2001 SVS
    ! У функции ConvertItem() новый параметр InternalCall - сейчас
      используется только для DN_EDITCHANGE
@@ -2150,6 +2152,9 @@ int Dialog::ProcessKey(int Key)
       {
         Edit *edt=(Edit *)Item[FocusPos].ObjPtr;
         int SelStart, SelEnd;
+
+        if(Key == KEY_CTRLL) // исключим смену режима RO для поля ввода с клавиатуры
+          return TRUE;
 
         /* $ 11.09.2000 SVS
            Ctrl-U в строках ввода снимает пометку блока

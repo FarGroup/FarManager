@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.07 29.03.2001 $ */
+/* Revision: 1.08 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 SVS
+    ! DRIVE_SUSTITUTE -> DRIVE_SUBSTITUTE
   29.03.2001 IS
     ! Opt.ViewerAutoDetectTable -> Opt.ViOpt.AutoDetectTable
   27.02.2001 VVM
@@ -146,7 +148,7 @@ void InfoList::DisplayObject()
       if(GetSubstName(LocalName,RemoteName,sizeof(RemoteName)))
       {
         strcpy(DiskType,MSG(MInfoSUBST));
-        DriveType=DRIVE_SUSTITUTE;
+        DriveType=DRIVE_SUBSTITUTE;
       }
     }
     /* SVS $ */
@@ -159,7 +161,7 @@ void InfoList::DisplayObject()
       if (WNetGetConnection(LocalName,RemoteName,&RemoteNameSize)==NO_ERROR)
         ShowRealPath=TRUE;
     }
-    else if(DriveType == DRIVE_SUSTITUTE)
+    else if(DriveType == DRIVE_SUBSTITUTE)
         ShowRealPath=TRUE;
 
     if(ShowRealPath)

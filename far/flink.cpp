@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.09 13.03.2001 $ */
+/* Revision: 1.10 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 SVS
+    ! Уточнения для GetPathRoot[One]()
   14.03.2001 OT
     - В vc++ уже есть определение _REPARSE_GUID_DATA_BUFFER
   14.03.2001 SVS
@@ -466,30 +468,38 @@ BOOL GetSubstName(char *LocalName,char *SubstName,int SubstSize)
 // просмотр одной позиции :-)
 void GetPathRootOne(char *Path,char *Root)
 {
-  if(!pGetVolumeNameForVolumeMountPoint)
-    // работает только под Win2000!
-    pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"GetVolumeNameForVolumeMountPointA");
-
   char TempRoot[1024],*ChPtr;
   strncpy(TempRoot,Path,NM);
 
-  // обработка mounted volume
-  if(pGetVolumeNameForVolumeMountPoint && !strncmp(Path,"Volume{",7))
+  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
-    char Drive[] = "C:\\"; // \\?\Volume{...
-    BOOL Res;
-    for (int I = 'C'; I <= 'Z';  I++ )
+    if(!pGetVolumeNameForVolumeMountPoint)
+      // работает только под Win2000!
+      pGetVolumeNameForVolumeMountPoint=(PGETVOLUMENAMEFORVOLUMEMOUNTPOINT)GetProcAddress(GetModuleHandle("KERNEL32"),"GetVolumeNameForVolumeMountPointA");
+
+    // обработка mounted volume
+    if(pGetVolumeNameForVolumeMountPoint && !strncmp(Path,"Volume{",7))
     {
-      Drive[0] = (char)I;
-      if(pGetVolumeNameForVolumeMountPoint(
-                Drive, // input volume mount point or directory
-                TempRoot, // output volume name buffer
-                sizeof(TempRoot)) &&       // size of volume name buffer
-         !stricmp(TempRoot+4,Path))
+      char Drive[] = "C:\\"; // \\?\Volume{...
+      BOOL Res;
+      int I;
+      for (I = 'C'; I <= 'Z';  I++ )
       {
-         strcpy(Root,Drive);
-         return;
+        Drive[0] = (char)I;
+        if(pGetVolumeNameForVolumeMountPoint(
+                  Drive, // input volume mount point or directory
+                  TempRoot, // output volume name buffer
+                  sizeof(TempRoot)) &&       // size of volume name buffer
+           !stricmp(TempRoot+4,Path))
+        {
+           strcpy(Root,Drive);
+           return;
+        }
       }
+      // Ops. Диск то не имеет буковки
+      strcpy(Root,"\\\\?\\");
+      strcat(Root,Path);
+      return;
     }
   }
 
@@ -516,7 +526,7 @@ void GetPathRootOne(char *Path,char *Root)
 // полный проход ПО!!!
 void WINAPI GetPathRoot(char *Path,char *Root)
 {
-  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
     char TempRoot[1024], *TmpPtr;
     DWORD FileAttr;
