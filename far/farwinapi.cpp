@@ -5,10 +5,12 @@ farwinapi.cpp
 
 */
 
-/* Revision: 1.03 08.06.2004 $ */
+/* Revision: 1.04 09.06.2004 $ */
 
 /*
 Modify:
+  09.06.2004 SVS
+    - Вот ить.... забыл, что у GetDriveType параметр может быть равен NULL.
   08.06.2004 SVS
     ! Вместо GetDriveType теперь вызываем FAR_GetDriveType().
     ! Вместо "DriveType==DRIVE_CDROM" вызываем IsDriveTypeCDROM()
@@ -186,7 +188,7 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
   UINT DrvType = GetDriveType(RootDir);
 
   // анализ CD-привода
-  if (DrvType == DRIVE_CDROM && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  if (RootDir && IsLocalPath(RootDir) && DrvType == DRIVE_CDROM && WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
 #if defined(__BORLANDC__)
 //#pragma option push -b -a4 -pc -A- /*P_O_Push*/
@@ -271,19 +273,18 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
 
     if (hDevice != INVALID_HANDLE_VALUE)
     {
-      BOOL CDReader, CDwriter, DVDReader, DVDwriter;
       ULONG dwBytesReturned=0;
 
       SCSI_PASS_THROUGH_WITH_BUFFERS      sptwb;
       BOOL                                status;
-      ULONG                               length = 0;
+      ULONG                               length;
 
       ZeroMemory(&sptwb,sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS));
 
       sptwb.Spt.Length = sizeof(SCSI_PASS_THROUGH);
-      sptwb.Spt.PathId = 0;
+      //sptwb.Spt.PathId = 0;
       sptwb.Spt.TargetId = 1;
-      sptwb.Spt.Lun = 0;
+      //sptwb.Spt.Lun = 0;
       sptwb.Spt.CdbLength = CDB6GENERIC_LENGTH;
       sptwb.Spt.SenseInfoLength = 24;
       sptwb.Spt.DataIn = SCSI_IOCTL_DATA_IN;
@@ -325,6 +326,8 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
                                length,
                                &dwBytesReturned,
                                FALSE);
+      CloseHandle(hDevice);
+
       if (status)
       {
         if (((sptwb.DataBuf[7] & 0x10)||(sptwb.DataBuf[7] & 0x20)))  //DVRRW
@@ -361,7 +364,7 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
         {
           DrvType = DRIVE_DVD_ROM;
         }
-        else if((CDwriter=((sptwb.DataBuf[7] & 0x01)||(sptwb.DataBuf[7] & 0x02)))!=0)   //  CDRW
+        else if(((sptwb.DataBuf[7] & 0x01)||(sptwb.DataBuf[7] & 0x02)))   //  CDRW
         {
           if ((sptwb.DataBuf[7] & 0x02))
             DrvType = DRIVE_CD_RW;
@@ -373,7 +376,6 @@ UINT FAR_GetDriveType(LPCTSTR RootDir)
       }
       _SVS(else Message(MSG_ERRORTYPE,1,"FAR_GetDriveType()","","Ok"));
 
-      CloseHandle(hDevice);
     }
   }
 
