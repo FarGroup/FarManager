@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.46 27.07.2001 $ */
+/* Revision: 1.47 28.07.2001 $ */
 
 /*
 Modify:
+  28.07.2001 OT
+    - Исправление зацикливания Reversi
   27.07.2001 SVS
     - При обновлении часиков учитывать тот факт, что они могут быть
       отключены (к тому же не в той функции вызов стоял)
@@ -302,13 +304,13 @@ void Manager::ModalizeFrame (Frame *Modalized, int Mode)
 {
   _OT(SysLog("ModalizeFrame(), Modalized=%p",Modalized));
   ModalizedFrame=Modalized;
-  Commit();
+  ModalizeCommit();
 }
 
 void Manager::UnmodalizeFrame (Frame *Unmodalized)
 {
   UnmodalizedFrame=Unmodalized;
-  Commit();
+  UnmodalizeCommit();
 }
 
 void Manager::ExecuteModal (Frame *Executed)
@@ -734,11 +736,11 @@ BOOL Manager::Commit()
     Result=true;
   } else if (ModalizedFrame){
     ModalizeCommit();
-    ModalizedFrame=NULL;
+//    ModalizedFrame=NULL;
     Result=true;
   } else if (UnmodalizedFrame){
     UnmodalizeCommit();
-    UnmodalizedFrame=NULL;
+//    UnmodalizedFrame=NULL;
     Result=true;
   }
   if (Result){
@@ -1033,6 +1035,7 @@ void Manager::ImmediateHide()
 void Manager::ModalizeCommit()
 {
   CurrentFrame->Push(ModalizedFrame);
+  ModalizedFrame=NULL;
 }
 
 void Manager::UnmodalizeCommit()
@@ -1042,15 +1045,15 @@ void Manager::UnmodalizeCommit()
   for (i=0;i<FrameCount;i++){
     iFrame=FrameList[i];
     if(iFrame->RemoveModal(UnmodalizedFrame)){
-      return;
+      break;
     }
   }
   for (i=0;i<ModalStackCount;i++){
     iFrame=ModalStack[i];
     if(iFrame->RemoveModal(UnmodalizedFrame)){
-      return;
+      break;
     }
   }
-
+  UnmodalizedFrame=NULL;
 }
 /* OT $*/
