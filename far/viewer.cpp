@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.130 25.02.2003 $ */
+/* Revision: 1.131 08.03.2003 $ */
 
 /*
 Modify:
+  08.03.2003 IS
+    + Заново определим символы конца строки при включении или выключении
+      unicode, т.к. они другие при изменении unicode<->однобайтовая кодировка
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
     -  "...нет хоткеев для кнопок yes и no в сообщении
@@ -1870,6 +1873,12 @@ int Viewer::ProcessKey(int Key)
         int GetTableCode=GetTable(&TableSet,FALSE,VM.TableNum,UseUnicode);
         if (GetTableCode!=-1)
         {
+          /* $ 08.03.2003 IS
+               Заново определим символы конца строки,
+               т.к. они другие при изменении
+               unicode<->однобайтовая кодировка
+          */
+          bool oldIsUnicode=VM.Unicode;
           if (VM.Unicode && !UseUnicode)
             FilePos*=2;
           if (!VM.Unicode && UseUnicode)
@@ -1882,6 +1891,11 @@ int Viewer::ProcessKey(int Key)
           Show();
 //          LastSelPos=FilePos;
           TableChangedByUser=TRUE;
+          // IS: определяем символы конца строки только,
+          // IS: если включили или выключили юникод
+          if((oldIsUnicode && !VM.Unicode) || (!oldIsUnicode && VM.Unicode))
+            SetCRSym();
+          /* IS $ */
         }
       }
       return(TRUE);
