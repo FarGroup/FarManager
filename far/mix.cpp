@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.12 01.08.2000 $ */
+/* Revision: 1.13 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 SVS
+    + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
+      истории задается отдельно!!! (int function GetString())
   01.08.2000 SVS
     ! Функция ввода строки GetString имеет один параметр для всех флагов
     ! дополнительный параметра у KeyToText - размер данных
@@ -1161,7 +1164,11 @@ int WINAPI GetString(char *Title,char *SubTitle,char *HistoryName,char *SrcText,
   if (HistoryName!=NULL)
   {
     StrDlg[2].Selected=(int)HistoryName;
-    StrDlg[2].Flags|=DIF_HISTORY|DIF_USELASTHISTORY;
+    /* $ 09.08.2000 SVS
+       флаг для использовании пред значения из истории задается отдельно!!!
+    */
+    StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
+    /* SVS $ */
   }
   if (Flags&FIB_PASSWORD)
     StrDlg[2].Type=DI_PSWEDIT;

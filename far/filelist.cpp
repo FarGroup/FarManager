@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.05 02.08.2000 $ */
+/* Revision: 1.06 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 SVS
+    ! Для Ctrl-Z ненужно брать предыдущее значение!
+      ставим соответствующий флаг!
   02.08.2000 IG
     ! Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим
       на директорию
@@ -2289,8 +2292,14 @@ void FileList::DescribeFiles()
     QuoteSpaceOnly(QuotedName);
     sprintf(Msg,MSG(MEnterDescription),QuotedName);
     sprintf(TruncMsg,"%.65s",Msg);
-    if (!GetString(MSG(MDescribeFiles),TruncMsg,"DizText",PrevText!=NULL ? PrevText:"",DizText,sizeof(DizText),"FileDiz",FIB_ENABLEEMPTY))
+    /* $ 09.08.2000 SVS
+       Для Ctrl-Z ненужно брать предыдущее значение!
+    */
+    if (!GetString(MSG(MDescribeFiles),TruncMsg,"DizText",
+                   PrevText!=NULL ? PrevText:"",DizText,sizeof(DizText),
+                   "FileDiz",FIB_ENABLEEMPTY|FIB_NOUSELASTHISTORY))
       break;
+    /* SVS $*/
     DizCount++;
     if (*DizText==0)
       Diz.DeleteDiz(SelName,SelShortName);

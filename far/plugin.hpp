@@ -6,12 +6,15 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.18 09.08.2000 $ */
+/* Revision: 1.19 09.08.2000 $ */
 
 /*
 Modify:
+  09.08.2000 SVS
+    + FIB_NOUSELASTHISTORY - флаг для использовании пред значения из
+      истории задается отдельно!!!
   09.08.2000 tran
-    + #define CONSOLE_* 
+    + #define CONSOLE_*
   04.08.2000 SVS
     + ECTL_SETKEYBAR - функция установки KeyBar Labels в редакторе
   04.08.2000 SVS
@@ -692,9 +695,14 @@ typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
    Функция ввода строки имеет один параметр для всех флагов
 */
 enum INPUTBOXFLAGS{
-  FIB_ENABLEEMPTY = 0x0001,
-  FIB_PASSWORD    = 0x0002,
-  FIB_EXPANDENV   = 0x0004,
+  FIB_ENABLEEMPTY      = 0x0001,
+  FIB_PASSWORD         = 0x0002,
+  FIB_EXPANDENV        = 0x0004,
+/* $ 09.08.2000 SVS
+   если не нужно пред значение - ставим этот флаг
+*/
+  FIB_NOUSELASTHISTORY = 0x0008,
+/* SVS $ */
 };
 
 /* $ 25.07.2000 SVS
