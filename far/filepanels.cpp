@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.33 28.12.2001 $ */
+/* Revision: 1.34 31.12.2001 $ */
 
 /*
 Modify:
+  31.12.2002 VVM
+    ! GoToFile() портила передаваемое ей им€.
   28.12.2001 DJ
     + единый метод GoToFile()
   24.12.2001 SVS
@@ -961,45 +963,42 @@ void FilePanels::Refresh()
 /* $ 28.12.2001 DJ
    обработка Ctrl-F10 из вьюера и редактора
 */
-
+/* $ 31.12.2001 VVM
+   Ќе портим переданное им€ файла...
+*/
 void FilePanels::GoToFile (char *FileName)
 {
   if(strchr(FileName,'\\') || strchr(FileName,'/'))
   {
-    char ADir[NM],PDir[NM],NameFile[NM];
-
-    char *NameTmp=PointToName(FileName);
-    if(NameTmp>FileName)
-    {
-      strcpy(NameFile,NameTmp);
-      *NameTmp=0;
-    }
-    else
-      strcpy(NameFile, FileName);
-
+    char ADir[NM],PDir[NM];
     GetAnotherPanel(ActivePanel)->GetCurDir(PDir);
-	AddEndSlash (PDir);
+    AddEndSlash (PDir);
     ActivePanel->GetCurDir(ADir);
-	AddEndSlash (ADir);
+    AddEndSlash (ADir);
+
+    char NameFile[NM], NameDir[NM];
+    strcpy(NameDir, FileName);
+    char *NameTmp=PointToName(NameDir);
+    strcpy(NameFile,NameTmp);
+    *NameTmp=0;
+
     /* $ 10.04.2001 IS
          Ќе делаем SetCurDir, если нужный путь уже есть на открытых
          панел€х, тем самым добиваемс€ того, что выделение с элементов
          панелей не сбрасываетс€.
     */
-    BOOL AExist=LocalStricmp(ADir,FileName)==0,
-         PExist=LocalStricmp(PDir,FileName)==0;
+    BOOL AExist=LocalStricmp(ADir,NameDir)==0,
+         PExist=LocalStricmp(PDir,NameDir)==0;
     // если нужный путь есть на пассивной панели
-    if ( !AExist && PExist)
-    {
+    if (!AExist && PExist)
       ProcessKey(KEY_TAB);
-    }
-    if(!AExist && !PExist)
-      ActivePanel->SetCurDir(FileName,TRUE);
+    if (!AExist && !PExist)
+      ActivePanel->SetCurDir(NameDir,TRUE);
     /* IS */
     ActivePanel->GoToFile(NameFile);
-	// всегда обновим заголовок панели, чтобы дать обратную св€зь, что
-	// Ctrl-F10 обработан
-	ActivePanel->SetTitle();
+    // всегда обновим заголовок панели, чтобы дать обратную св€зь, что
+    // Ctrl-F10 обработан
+    ActivePanel->SetTitle();
   }
 }
 
