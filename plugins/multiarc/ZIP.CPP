@@ -245,20 +245,20 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "pkunzip -d -o {-s%%P} %%a @%%lNM",
-      "pkunzip -o {-s%%P} %%a @%%lNM",
-      "pkunzip -t {-s%%P} %%a @%%lNM",
-      "pkzip -d {-b%%W} %%a @%%lNM",
-      "pkzip -z {-b%%W} %%a",
-      "pkzip -c {-b%%W} %%a @%%lNM",
-      "zip2exe %%a",
+      "pkunzip -d -o {-s%%P} %%S %%a @%%lNM",
+      "pkunzip -o {-s%%P} %%S %%a @%%lNM",
+      "pkunzip -t {-s%%P} %%S %%a @%%lNM",
+      "pkzip -d {-b%%W} %%S %%a @%%lNM",
+      "pkzip -z {-b%%W} %%S %%a",
+      "pkzip -c {-b%%W} %%S %%a @%%lNM",
+      "zip2exe %%S %%a",
       "",
       "",
-      "pkzipfix %%a",
-      "pkzip -a -whs {-s%%P} {-b%%W} %%a @%%lNM",
-      "pkzip -m -whs {-s%%P} {-b%%W} %%a @%%lNM",
-      "pkzip -a -whs -r -P {-s%%P} {-b%%W} %%a @%%lNM",
-      "pkzip -m -whs -r -P {-s%%P} {-b%%W} %%a @%%lNM",
+      "pkzipfix %%S %%a",
+      "pkzip -a -whs {-s%%P} {-b%%W} %%S %%a @%%lNM",
+      "pkzip -m -whs {-s%%P} {-b%%W} %%S %%a @%%lNM",
+      "pkzip -a -whs -r -P {-s%%P} {-b%%W} %%S %%a @%%lNM",
+      "pkzip -m -whs -r -P {-s%%P} {-b%%W} %%S %%a @%%lNM",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
@@ -269,4 +269,3 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   }
   return(FALSE);
 }
-
