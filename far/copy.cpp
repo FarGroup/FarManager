@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.117 30.04.2003 $ */
+/* Revision: 1.118 30.04.2003 $ */
 
 /*
 Modify:
+  30.04.2003 VVM
+    + Уберем флаг FILE_FLAG_SEQUENTIAL_SCAN.
+      У меня копирование ускорилось процентов на 20%
   30.04.2003 VVM
     + При копировании заголовок окна так-же рисуем 4 раза в секунду
   25.04.2003 VVM
@@ -2769,7 +2772,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   {
     if (!Opt.CopyOpened)
     {
-      HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+      HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,0,NULL);
       if (SrcHandle==INVALID_HANDLE_VALUE)
       {
         _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
@@ -2790,7 +2793,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
   int OpenMode=FILE_SHARE_READ;
   if (Opt.CopyOpened)
     OpenMode|=FILE_SHARE_WRITE;
-  HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,OpenMode,NULL,OPEN_EXISTING,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+  HANDLE SrcHandle=FAR_CreateFile(SrcName,GENERIC_READ,OpenMode,NULL,OPEN_EXISTING,0,NULL);
   if (SrcHandle==INVALID_HANDLE_VALUE)
   {
     _LOGCOPYR(SysLog("return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
@@ -2807,7 +2810,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     DestHandle=FAR_CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,
                           (ShellCopy::Flags&FCOPY_COPYSECURITY) ? &sa:NULL,
                           Append ? OPEN_EXISTING:CREATE_ALWAYS,
-                          SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+                          SrcData.dwFileAttributes,NULL);
     if (DestHandle==INVALID_HANDLE_VALUE)
     {
       DWORD LastError=GetLastError();
@@ -3010,7 +3013,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
           }
           DestHandle=FAR_CreateFile(DestName,GENERIC_WRITE,FILE_SHARE_READ,NULL,
                                 Append ? OPEN_EXISTING:CREATE_ALWAYS,
-                                SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+                                SrcData.dwFileAttributes,NULL);
 
           if (DestHandle==INVALID_HANDLE_VALUE ||
               Append && SetFilePointer(DestHandle,0,NULL,FILE_END)==0xFFFFFFFF)
