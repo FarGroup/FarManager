@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.116 16.10.2003 $ */
+/* Revision: 1.117 24.10.2003 $ */
 
 /*
 Modify:
+  24.10.2003 SVS
+    - Макрос "Alt> ShiftIns" не работал.
+      забыл, что кроме KEY_EVENT нужно так же FARMACRO_KEY_EVENT анализироват
   15.10.2003 SVS
     - После предыдущего патча перестал работать Shift-Ins в макросах для квиксерча
       Воспользуемся новой возможность макродвижка - сохранение/восстановление своего
@@ -1270,7 +1273,7 @@ void Panel::FastFind(int FirstKey)
           else
             Key=KEY_ESC;
         }
-        else if (rec.EventType==KEY_EVENT)
+        else if (rec.EventType==KEY_EVENT || rec.EventType==FARMACRO_KEY_EVENT)
         {
           // для вставки воспользуемся макродвижком...
           if(Key==KEY_CTRLV || Key==KEY_SHIFTINS || Key==KEY_SHIFTNUMPAD0)

@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.152 23.10.2003 $ */
+/* Revision: 1.153 24.10.2003 $ */
 
 /*
 Modify:
+  24.10.2003 SVS
+    - в продолжении вчерашнего - подправим заголовок консоли.
   23.10.2003 SVS
     - Ходим GrayPlus, натыкаемся на залоченный файл, получаем бадью.
   20.10.2003 SVS
@@ -974,8 +976,7 @@ void Viewer::DisplayObject()
       GotoXY(X1,Y1+ShowStatusLine);
       SetColor(COL_WARNDIALOGTEXT);
       mprintf(MSG(MViewerCannotOpenFile));
-      if(ShowStatusLine)
-        ShowStatus();
+      ShowStatus();
     }
     return;
   }
@@ -1934,8 +1935,8 @@ int Viewer::ProcessKey(int Key)
             SecondPos=0;
 //            LastSelPos=FilePos;
             Show();
-            ShowConsoleTitle();
           }
+          ShowConsoleTitle();
         }
       }
       return(TRUE);
