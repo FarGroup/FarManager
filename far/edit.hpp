@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.24 04.09.2002 $ */
+/* Revision: 1.25 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SKV
+    + GetConvertTabs()
   04.09.2002 SVS
     ! Структура EditList пеехала из editor.cpp в edit.hpp
     ! У функции SetInputMask параметр имеет сущность const
@@ -248,6 +250,7 @@ class Edit:public ScreenObject
     void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};
     int   GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
     void  SetConvertTabs(int Mode) {Flags.Change(FEDITLINE_CONVERTTABS,Mode);};
+    int   GetConvertTabs() {return Flags.Check(FEDITLINE_CONVERTTABS);};
     int   RealPosToTab(int Pos);
     int   TabPosToReal(int Pos);
     void  SetTables(struct CharTableSet *TableSet);

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.88 04.09.2002 $ */
+/* Revision: 1.89 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SKV
+    - правка выделения
   04.09.2002 SVS
     ! У функции SetInputMask параметр имеет сущность const +
       небольшая оптимизация самой функции SetInputMask
@@ -2363,8 +2365,9 @@ void Edit::Select(int Start,int End)
   SelEnd=End;
 /* $ 24.06.2002 SKV
    Если начало выделения за концом строки, надо выделение снять.
+   17.09.2002 возвращаю обратно. Глюкодром.
 */
-  if ((SelEnd<SelStart && SelEnd!=-1) || SelStart>StrSize)
+  if (SelEnd<SelStart && SelEnd!=-1)
 /* SKV $ */
   {
     SelStart=-1;
@@ -2393,10 +2396,15 @@ void Edit::AddSelect(int Start,int End)
 
 void Edit::GetSelection(int &Start,int &End)
 {
-  if (SelEnd>StrSize+1)
+  /* $ 17.09.2002 SKV
+    Мало того, что это нарушение правил OO design'а,
+    так это еще и источние багов.
+  */
+/*  if (SelEnd>StrSize+1)
     SelEnd=StrSize+1;
   if (SelStart>StrSize+1)
-    SelStart=StrSize+1;
+    SelStart=StrSize+1;*/
+  /* SKV $ */
 
   Start=SelStart;
   End=SelEnd;

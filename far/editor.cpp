@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.192 04.09.2002 $ */
+/* Revision: 1.193 17.09.2002 $ */
 
 /*
 Modify:
+  17.09.2002 SKV
+    - выделение
   04.09.2002 SVS
     ! Структура EditList пеехала из editor.cpp в edit.hpp
     ! Класс Editor "потерял" свойство запоминать файлы самостоятельно,
@@ -1815,13 +1817,17 @@ int Editor::ProcessKey(int Key)
         CurPos=CurLine->EditLine.GetCurPos();
         if (SelStart!=-1 && SelEnd==-1 || SelEnd>CurPos)
         {
-          if (CurPos+1==SelEnd || CurPos>=CurLine->EditLine.GetLength())
+          /* $ 17.09.2002 SKV
+            Убрано, ибо генерировало глюки.
+          */
+/*          if (CurPos+1==SelEnd || CurPos>=CurLine->EditLine.GetLength())
           {
             CurLine->EditLine.Select(-1,0);
             BlockStart=CurLine->Next;
             BlockStartLine=NumLine+1;
           }
-          else
+          else*/
+          /* SKV $ */
             CurLine->EditLine.Select(CurPos+1,SelEnd);
         }
         else
@@ -3286,6 +3292,19 @@ int Editor::ProcessKey(int Key)
 
         if (CurLine->EditLine.ProcessKey(Key))
         {
+          /* $ 17.09.2002 SKV
+            Если находимся в середине блока,
+            в начале строки, и нажимаем tab, который заменяется
+            на пробелы, выделение съедет. Это фикс.
+          */
+          if(Key==KEY_TAB && CurLine->EditLine.GetConvertTabs() &&
+             BlockStart!=NULL && BlockStart!=CurLine)
+          {
+            int SelStart,SelEnd;
+            CurLine->EditLine.GetSelection(SelStart,SelEnd);
+            CurLine->EditLine.Select(0,SelEnd);
+          }
+          /* SKV $ */
           if (!SkipCheckUndo)
           {
             const char *NewCmpStr;
@@ -4324,7 +4343,11 @@ void Editor::DeleteBlock()
     TextChanged(1);
     /* skv $*/
     int StartSel,EndSel;
-    CurPtr->EditLine.GetSelection(StartSel,EndSel);
+    /* $ 17.09.2002 SKV
+      меняем на Real что б ловить выделение за концом строки.
+    */
+    CurPtr->EditLine.GetRealSelection(StartSel,EndSel);
+    /* SKV $ */
     if (StartSel==-1)
       break;
     if (StartSel==0 && EndSel==-1)
@@ -4344,7 +4367,18 @@ void Editor::DeleteBlock()
         break;
     }
     int Length=CurPtr->EditLine.GetLength();
-    char *TmpStr=new char[Length+3];
+    /* $ 17.09.2002 SKV
+      опять про выделение за концом строки.
+      InsertBinaryString добавит trailing space'ов
+    */
+    if(StartSel>Length)
+    {
+      Length=StartSel;
+      CurPtr->EditLine.InsertBinaryString("",0);
+    }
+    // дальше будет realloc, поэтому тут malloc.
+    char *TmpStr=(char*)malloc(Length+3);
+    /* SKV $ */
     if (StartSel!=0 || EndSel!=0)
     {
       BlockUndo=UndoNext;
@@ -4412,7 +4446,11 @@ void Editor::DeleteBlock()
     Length+=EndLength;
     TmpStr[Length]=0;
     CurPtr->EditLine.SetBinaryString(TmpStr,Length);
-    delete[] TmpStr;
+    /* $ 17.09.2002 SKV
+      выделяли через malloc
+    */
+    free(TmpStr);
+    /* SKV $ */
     CurPtr->EditLine.SetCurPos(CurPos);
     if (DeleteNext && EndSel==-1)
     {
