@@ -5,11 +5,20 @@
 
   Plugin API for FAR Manager 1.70
 
+  Copyright (c) 1996-2000 Eugene Roshal
+  Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.55 21.09.2000 $ */
+/* Revision: 1.56 24.09.2000 $ */
 
 /*
+ВНИМАНИЕ!
+В этом файле писать все изменения только в в этом блоке!!!!
+
 Modify:
+  24.09.2000 SVS
+    ! Чистка файла от комментариев - писать только в этом блоке (Modify)!!!
+    ! FarKeyToText -> FarKeyToName
+    + FarNameToKey
   21.09.2000 SVS
     + OPEN_FILEPANEL открыт из файловой панели.
     + Поле PluginInfo.SysID - системный идентификатор плагина
@@ -229,7 +238,7 @@ Modify:
 
 #define FARMANAGERVERSION 0x0146
 
-#if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
+#if defined(__BORLANDC__)
   #pragma option -a2
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack(2)
@@ -292,13 +301,6 @@ typedef int (WINAPI *FARAPIMENU)(
   int                 ItemsNumber
 );
 
-/* $ 23.07.2000 SVS
-   Для обработчика диалога
-*/
-// тип функции обработчика окна
-/* $ 01.08.2000 SVS
-   Изменено наименование типа функции обработчика на универсальное
-*/
 typedef long (WINAPI *FARWINDOWPROC)(
   HANDLE hDlg,
   int    Msg,
@@ -306,7 +308,6 @@ typedef long (WINAPI *FARWINDOWPROC)(
   long   Param2
 );
 
-// обмен сообщениями с обработчиком диалога
 typedef long (WINAPI *FARAPISENDDLGMESSAGE)(
   HANDLE hDlg,
   int    Msg,
@@ -320,7 +321,6 @@ typedef long (WINAPI *FARAPIDEFDLGPROC)(
   int    Param1,
   long   Param2
 );
-/* SVS $ */
 
 typedef int (WINAPI *FARAPIDIALOG)(
   int                   PluginNumber,
@@ -332,10 +332,7 @@ typedef int (WINAPI *FARAPIDIALOG)(
   struct FarDialogItem *Item,
   int                   ItemsNumber
 );
-/* $ 25.07.2000 SVS
-   Дополнительный параметр Param, который будет передан
-   в обработчик диалога в WM_INITDIALOG
-*/
+
 typedef int (WINAPI *FARAPIDIALOGEX)(
   int                   PluginNumber,
   int                   X1,
@@ -350,7 +347,6 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   FARWINDOWPROC         DlgProc,
   long                  Param
 );
-/* SVS $ */
 
 enum {
   FMSG_WARNING=1,
@@ -375,17 +371,6 @@ typedef char* (WINAPI *FARAPIGETMSG)(
   int MsgId
 );
 
-/* $ 18.07.2000 SVS
-  + Введены новые элементы (зарезервированы!)
-    DI_COMBOBOX и флаг DIF_DROPDOWNLIST
-*/
-/* $ 28.07.2000 SVS
-  + Введен новый элемент DI_LISTBOX (пока зарезервирован!!!)
-*/
-/* $ 24.08.2000 SVS
-  + Элемент DI_USERCONTROL - отрисовкой занимается плагин.
-    На будущее - "нормальные" элементы вставлять перед этим контролом.
-*/
 enum DialogItemTypes {
   DI_TEXT,
   DI_VTEXT,
@@ -402,14 +387,7 @@ enum DialogItemTypes {
 
   DI_USERCONTROL=255,
 };
-/* 24.08.2000 SVS $*/
-/* 28.07.2000 SVS $*/
 
-/* $ 12.08.2000 KM
-   Новый флаг DIF_MASKEDIT, который добавляет
-   в строку ввода возможность ввода данных по
-   заданной маске.
-*/
 enum FarDialogItemFlags {
   DIF_COLORMASK       =      0xffUL,
   DIF_SETCOLOR        =     0x100UL,
@@ -425,49 +403,16 @@ enum FarDialogItemFlags {
   DIF_HISTORY         =   0x40000UL,
   DIF_EDITEXPAND      =   0x80000UL,
   DIF_DROPDOWNLIST    =  0x100000UL,
-/* $ 01.08.2000 SVS
-  если у строки ввода есть история
-  то начальное значение брать первым из истории
-*/
   DIF_USELASTHISTORY  =  0x200000UL,
-/* SVS $ */
-/* $ 17.08.2000 SVS
-  + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
-*/
   DIF_BTNNOCLOSE      =   0x40000UL,
-/* SVS $ */
-/* $ 08.09.2000 SVS
-  + DIF_SELECTONENTRY - выделение Edit при получении фокуса
-  + DIF_NOFOCUS - не получает фокуса ввода
-*/
   DIF_SELECTONENTRY   =  0x800000UL,
   DIF_NOFOCUS         =0x40000000UL,
-/* SVS $ */
   DIF_MASKEDIT        =  0x400000UL,
-/* $ 31.08.2000 SVS
-  + Флаг DIF_DISABLE переводящий элемент в состояние Disable
-*/
   DIF_DISABLE         =0x80000000UL,
-/* SVS $ */
-/* $ 13.09.2000 SVS
-    + Флаг DIF_LISTNOAMPERSAND
-*/
   DIF_LISTNOAMPERSAND =   0x20000UL,
-/* SVS $ */
-/* $ 18.09.2000 SVS
-  + DIF_READONLY - флаг для строк редактирования
-     (пока! для строк редактирования).
-*/
   DIF_READONLY        =0x20000000UL,
-/* SVS $ */
 };
-/* KM $ */
-/* SVS $ */
 
-
-/* $ 28.07.2000 SVS
-   Сообщения и события для обработчиков для Dialog API
-*/
 enum FarMessagesProc{
   DM_FIRST=0,
   DM_CLOSE,
@@ -508,16 +453,6 @@ enum FarMessagesProc{
   DM_USER=0x4000,
 };
 
-/* SVS $*/
-
-/* $ 18.07.2000 SVS
-   Список Items для DI_COMBOBOX & DI_LISTBOX
-*/
-/* $ 01.08.2000 SVS
-   Полная переделка структуры списка и "оболочка" вокруг списка
-*/
-
-// флаги для FarListItem.Flags
 enum LISTITEMFLAGS{
   LIF_SELECTED = 0x00000001UL,
   LIF_CHECKED  = 0x00000002UL,
@@ -525,33 +460,18 @@ enum LISTITEMFLAGS{
   LIF_DISABLE  = 0x80000000UL,
 };
 
-// описывает один пункт списка
 struct FarListItem
 {
-  DWORD Flags;       // набор флагов, описывающих состояние пункта
-  char Text[124];   // данные пункта
+  DWORD Flags;
+  char Text[124];
 };
 
-// весь список
 struct FarList
 {
-  /* $ 04.08.2000 SVS
-    + FarListItems.CountItems -> FarListItems.ItemsNumber
-  */
   int ItemsNumber;
-  /* SVS $*/
   struct FarListItem *Items;
 };
 
-/* 01.08.2000 SVS $ */
-/* SVS $ */
-
-
-/* $ 12.08.2000 KM
-   Добавлено поле char *Mask в union, в котором
-   будет содержаться маска ввода, если тип будет
-   DI_FIXEDIT и флаг будет DIF_MASKEDIT
-*/
 struct FarDialogItem
 {
   int Type;
@@ -568,7 +488,6 @@ struct FarDialogItem
   int DefaultButton;
   char Data[512];
 };
-/* KM $ */
 
 struct FarMenuItem
 {
@@ -653,14 +572,9 @@ enum VIEWER_FLAGS {
   VF_NONMODAL=1,VF_DELETEONCLOSE=2
 };
 
-/* $ 12.07.2000 IS
-  Флаги редактора:
-  EF_NONMODAL - открытие немодального редактора
-*/
 enum EDITOR_FLAGS {
   EF_NONMODAL=1
 };
-/* IS $ */
 
 typedef int (WINAPI *FARAPIVIEWER)(
   char *FileName,
@@ -721,79 +635,43 @@ typedef int (WINAPI *FARAPIEDITORCONTROL)(
   void *Param
 );
 
-/* $ 12.09.2000 SVS
-  + Флаги FHELP_* для функции ShowHelp
-*/
 enum FarHelpFlags{
   FHELP_SELFHELP   =0x0000,
   FHELP_FARHELP    =0x0001,
   FHELP_CUSTOMFILE =0x0002,
   FHELP_CUSTOMPATH =0x0004,
 };
-/* SVS $ */
 
-/* $ 18.08.2000 tran
-  add Flags parameter for future */
-/* $ 03.07.2000 IS
-   Функция вывода помощи
-  */
-typedef BOOL (WINAPI *FARAPISHOWHELP)(
-  char   *ModuleName,
-  char   *HelpTopic,
-  DWORD   Flags
-);
-/* IS $ */
-/* tran 18.08.2000 $ */
+typedef BOOL (WINAPI *FARAPISHOWHELP)(char *ModuleName,char *Topic,DWORD Flags);
 
-/* $ 06.07.2000 IS
-  Для AdvControl
-*/
 enum {
   ACTL_GETFARVERSION,
   ACTL_CONSOLEMODE,
-  ACTL_GETSYSWORDDIV, // получить строку с символами разделителями слов
-  ACTL_WAITKEY,       // ожидать клавишу.
+  ACTL_GETSYSWORDDIV,
+  ACTL_WAITKEY,
 };
-/* IS $ */
 
-/* $ 09.08.2000 tran
-   константы для ACTL_CONSOLE_MODE */
 #define CONSOLE_GET_MODE       (-2)
 #define CONSOLE_TRIGGER        (-1)
 #define CONSOLE_SET_WINDOWED   (0)
 #define CONSOLE_SET_FULLSCREEN (1)
 #define CONSOLE_WINDOWED       (0)
 #define CONSOLE_FULLSCREEN     (1)
-/* tran 09.08.2000 $ */
 
-/* $ 06.07.2000 IS
-   Функция AdvControl
-  */
 typedef int (WINAPI *FARAPIADVCONTROL)(
   int ModuleNumber,
   int Command,
   void *Param
 );
-/* IS $ */
 
 enum EDITOR_EVENTS {
   EE_READ,EE_SAVE,EE_REDRAW,EE_CLOSE
 };
 
-/*$ 13.09.2000 skv
-   + for EE_REDRAW event
-*/
 #define EEREDRAW_ALL    (void*)0
 #define EEREDRAW_CHANGE (void*)1
 #define EEREDRAW_LINE   (void*)2
-/* skv$*/
 
-/* $ 07.08.2000 SVS
-   + ECTL_SETKEYBAR - управление метками в редакторе
-*/
-/*$ 07.09.2000 skv
-   + ECTL_PROCESSKEY - для посылки редактору internall key.
-*/
 enum EDITOR_CONTROL_COMMANDS {
   ECTL_GETSTRING,ECTL_SETSTRING,ECTL_INSERTSTRING,ECTL_DELETESTRING,
   ECTL_DELETECHAR,ECTL_INSERTTEXT,ECTL_GETINFO,ECTL_SETPOSITION,
@@ -802,8 +680,6 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_READINPUT,ECTL_PROCESSINPUT,ECTL_ADDCOLOR,ECTL_GETCOLOR,
   ECTL_SAVEFILE,ECTL_QUIT,ECTL_SETKEYBAR,ECTL_PROCESSKEY
 };
-/* skv$*/
-/* SVS $*/
 
 struct EditorGetString
 {
@@ -911,45 +787,17 @@ struct EditorSaveFile
   char *FileEOL;
 };
 
-/* $ 06.07.2000 IS
-  Убирает ВСЕ начальные и заключительные кавычки
-*/
 typedef void (WINAPI *FARSTDUNQUOTE)(char *Str);
-/* IS $ */
+typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(char *src,char *dst,size_t size);
 
-/* $ 06.07.2000 IS
-  Расширение строки с учетом переменных окружения
-*/
-typedef DWORD (WINAPI *FARSTDEXPANDENVIRONMENTSTR)(
-  char *src,
-  char *dst,
-  size_t size
-);
-/* IS $ */
-
-
-/* $ 01.08.2000 SVS
-   Функция ввода строки имеет один параметр для всех флагов
-*/
 enum INPUTBOXFLAGS{
   FIB_ENABLEEMPTY      = 0x0001,
   FIB_PASSWORD         = 0x0002,
   FIB_EXPANDENV        = 0x0004,
-/* $ 09.08.2000 SVS
-   если не нужно пред значение - ставим этот флаг
-*/
   FIB_NOUSELASTHISTORY = 0x0008,
-/* SVS $ */
-/* $ 25.08.2000 SVS
-  Если нужно - показываем кнопки <Ok> & <Cancel>
-*/
   FIB_BUTTONS          = 0x0010,
-/* SVS $ */
 };
 
-/* $ 25.07.2000 SVS
-   Функция ввода строки
-*/
 typedef int (WINAPI *FARAPIINPUTBOX)(
   char *Title,
   char *SubTitle,
@@ -960,110 +808,60 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
   char *HelpTopic,
   DWORD Flags
 );
-/* SVS $*/
-/* 01.08.2000 SVS $*/
 
-/* $ 06.07.2000 IS
-  А это что? Отгадайте сами :-)
-  sprintf, sscanf, qsort, memcpy, memmove, memcmp, strchr, strrchr, strstr,
-  strtok, memset, strpbrk
-*/
 // <C&C++>
-typedef int   (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
-typedef int   (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
+typedef int     (WINAPIV *FARSTDSPRINTF)(char *buffer,const char *format,...);
+typedef int     (WINAPIV *FARSTDSSCANF)(const char *s, const char *format,...);
 // </C&C++>
-typedef void  (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-typedef void *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-typedef int   (WINAPI *FARSTDGETFILEOWNER)(char *Computer,char *Name,char *Owner);
-typedef int   (WINAPI *FARSTDGETNUMBEROFLINKS)(char *Name);
-/* IS $ */
-
-/* $ 07.07.2000 IS
-  Эпопея продолжается :-)
-  atoi, _atoi64, itoa, RemoveLeadingSpaces, RemoveTrailingSpaces,
-  RemoveExternalSpaces, TruncStr, TruncPathStr, QuoteSpaceOnly,
-  PointToName, GetPathRoot, AddEndSlash
-*/
-typedef int (WINAPI *FARSTDATOI)(const char *s);
+typedef void    (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+typedef int     (WINAPI *FARSTDGETFILEOWNER)(char *Computer,char *Name,char *Owner);
+typedef int     (WINAPI *FARSTDGETNUMBEROFLINKS)(char *Name);
+typedef int     (WINAPI *FARSTDATOI)(const char *s);
 typedef __int64 (WINAPI *FARSTDATOI64)(const char *s);
-typedef char *(WINAPI *FARSTDITOA64)(__int64 value, char *string, int radix);
-typedef char *(WINAPI *FARSTDITOA)(int value, char *string, int radix);
-typedef char *(WINAPI *FARSTDLTRIM)(char *Str);
-typedef char *(WINAPI *FARSTDRTRIM)(char *Str);
-typedef char *(WINAPI *FARSTDTRIM)(char *Str);
-typedef char *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
-typedef char *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
-typedef char *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
-typedef char *(WINAPI *FARSTDPOINTTONAME)(char *Path);
-typedef void  (WINAPI *FARSTDGETPATHROOT)(char *Path,char *Root);
-typedef void  (WINAPI *FARSTDADDENDSLASH)(char *Path);
-/* IS $ */
-/* $ 25.07.2000 SVS
-   Дополнительные функции
-*/
-typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(char *Data);
-typedef char* (WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
-/* $ 01.08.2000 SVS
-   ! дополнительный параметра у KeyToText - размер данных
-*/
-typedef BOOL (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
-/* 01.08.2000 SVS $*/
-/* $ 31.08.2000 tran
-   функция для преобразования INPUT_RECORD в int Key*/
-typedef int (WINAPI *FARSTDINPUTRECORDTOKEY)(INPUT_RECORD *r);
-/* tran 31.08.2000 $ */
+typedef char   *(WINAPI *FARSTDITOA64)(__int64 value, char *string, int radix);
+typedef char   *(WINAPI *FARSTDITOA)(int value, char *string, int radix);
+typedef char   *(WINAPI *FARSTDLTRIM)(char *Str);
+typedef char   *(WINAPI *FARSTDRTRIM)(char *Str);
+typedef char   *(WINAPI *FARSTDTRIM)(char *Str);
+typedef char   *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
+typedef char   *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
+typedef char   *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
+typedef char   *(WINAPI *FARSTDPOINTTONAME)(char *Path);
+typedef void    (WINAPI *FARSTDGETPATHROOT)(char *Path,char *Root);
+typedef void    (WINAPI *FARSTDADDENDSLASH)(char *Path);
+typedef int     (WINAPI *FARSTDCOPYTOCLIPBOARD)(char *Data);
+typedef char   *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
+typedef BOOL    (WINAPI *FARSTDKEYTOTEXT)(int Key,char *KeyText,int Size);
+typedef int     (WINAPI *FARSTDINPUTRECORDTOKEY)(INPUT_RECORD *r);
+typedef int     (WINAPI *FARSTDLOCALISLOWER)(int Ch);
+typedef int     (WINAPI *FARSTDLOCALISUPPER)(int Ch);
+typedef int     (WINAPI *FARSTDLOCALISALPHA)(int Ch);
+typedef int     (WINAPI *FARSTDLOCALISALPHANUM)(int Ch);
+typedef int     (WINAPI *FARSTDLOCALUPPER)(int LowerChar);
+typedef void    (WINAPI *FARSTDLOCALUPPERBUF)(char *Buf,int Length);
+typedef void    (WINAPI *FARSTDLOCALLOWERBUF)(char *Buf,int Length);
+typedef int     (WINAPI *FARSTDLOCALLOWER)(int UpperChar);
+typedef void    (WINAPI *FARSTDLOCALSTRUPR)(char *s1);
+typedef void    (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
+typedef int     (WINAPI *FARSTDLOCALSTRICMP)(char *s1,char *s2);
+typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
 
-/* $ 28.08.2000 SVS
-   Работа с локализованными строками
-*/
-typedef int  (WINAPI *FARSTDLOCALISLOWER)(int Ch);
-typedef int  (WINAPI *FARSTDLOCALISUPPER)(int Ch);
-typedef int  (WINAPI *FARSTDLOCALISALPHA)(int Ch);
-typedef int  (WINAPI *FARSTDLOCALISALPHANUM)(int Ch);
-typedef int  (WINAPI *FARSTDLOCALUPPER)(int LowerChar);
-typedef void (WINAPI *FARSTDLOCALUPPERBUF)(char *Buf,int Length);
-typedef void (WINAPI *FARSTDLOCALLOWERBUF)(char *Buf,int Length);
-typedef int  (WINAPI *FARSTDLOCALLOWER)(int UpperChar);
-typedef void (WINAPI *FARSTDLOCALSTRUPR)(char *s1);
-typedef void (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
-typedef int  (WINAPI *FARSTDLOCALSTRICMP)(char *s1,char *s2);
-typedef int  (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
-/* SVS $ */
-
-/* SVS $*/
-
-/* $ 05.09.2000 SVS
-  + XLat
-*/
 enum XLATMODE{
-  XLAT_SWITCHKEYBLAYOUT = 0x0000001UL, // переключить раскладку клавиатуры
-                                      // после преобразования XALT
+  XLAT_SWITCHKEYBLAYOUT = 0x0000001UL,
 };
 
-typedef char* (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
-/* SVS $*/
-
-/* $ 10.09.2000 tran
-   FSF/FarRecursiveSearch */
-typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
-typedef void (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
-typedef char* (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
+typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
+typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(char *Name);
+typedef int     (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
+typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
+typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
 
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
   FRS_RECUR    = 0x0002
 };
-/* tran $ */
 
-/* $ 06.07.2000 IS
-   Полезные функции из far.exe
-*/
-/* $ 07.07.2000 IS
-   По просьбам трудящихся...
-  atoi, _atoi64;  itoa;  RemoveLeadingSpaces;  RemoveTrailingSpaces;
- RemoveExternalSpaces;  TruncStr;  TruncPathStr;  QuoteSpaceOnly;
- PointToName;  GetPathRoot;  AddEndSlash;
-*/
 typedef struct FarStandardFunctions
 {
   int StructSize;
@@ -1077,16 +875,9 @@ typedef struct FarStandardFunctions
   FARSTDSSCANF               sscanf;
   // </C&C++>
   FARSTDQSORT                qsort;
-  /* $ 07.09.2000 SVS
-    Дополнения!
-  */
   FARSTDBSEARCH              bsearch;
 
-  // вот сюда можно будет потом вместо
-  //  DWORD ReservedX вставлять нужные
-  //  функции из RTL-библиотеки.
   DWORD                      Reserved[10];
-  /* SVS $ */
 
   FARSTDLOCALISLOWER         LIsLower;
   FARSTDLOCALISUPPER         LIsUpper;
@@ -1114,34 +905,15 @@ typedef struct FarStandardFunctions
   FARSTDADDENDSLASH          AddEndSlash;
   FARSTDCOPYTOCLIPBOARD      CopyToClipboard;
   FARSTDPASTEFROMCLIPBOARD   PasteFromClipboard;
-  FARSTDKEYTOTEXT            FarKeyToText;
-  /* IS $ */
-  /* $ 31.08.2000 tran
-    + FarInputRecordToKey*/
+  FARSTDKEYTOTEXT            FarKeyToName;
+  FARSTDKEYNAMETOKEY         FarNameToKey;
   FARSTDINPUTRECORDTOKEY     FarInputRecordToKey;
-  /* tran 31.08.2000 $ */
-  /* $ 05.09.2000 SVS
-    + XLat
-  */
   FARSTDXLAT                 XLat;
-  /* SVS 05.09.2000 $ */
-  /* $ 07.09.2000 SVS
-    + Добавки
-  */
   FARSTDGETFILEOWNER         GetFileOwner;
   FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
-  /* SVS 07.09.2000 $ */
-  /* $ 10.09.2000 tran
-    + нижеуказанное */
   FARSTDRECURSIVESEARCH      FarRecursiveSearch;
-  /* tran 10.09.2000 $ */
-  /* $ 14.09.2000 SVS
-    Функция получения временного файла с полным путем.
-  */
   FARSTDMKTEMP               MkTemp;
-  /* SVS $ */
-}FARSTANDARDFUNCTIONS;
-/* IS $ */
+} FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
 {
@@ -1166,39 +938,15 @@ struct PluginStartupInfo
   FARAPITEXT             Text;
   FARAPIEDITORCONTROL    EditorControl;
 
-  /* $ 06.07.2000 IS
-     Указатель на структуру с адресами полезных функций из far.exe
-  */
   FARSTANDARDFUNCTIONS  *FSF;
-  /* IS $ */
-  /* $ 03.07.2000 IS
-     Функция вывода помощи
-  */
+
   FARAPISHOWHELP         ShowHelp;
-  /* IS $ */
-  /* $ 06.07.2000 IS
-     Функция, которая будет действовать и в редакторе, и в панелях, и...
-  */
   FARAPIADVCONTROL       AdvControl;
-  /* IS $ */
-  /* $ 23.07.2000 SVS
-     Функции для обработчика диалога
-       - обмен сообщениями
-       - функция по умолчанию
-       - функция получения строки
-       - функция переключения FulScreen <-> Windowed
-  */
   FARAPIINPUTBOX         InputBox;
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  /* SVS $ */
-  /* $ 18.09.2000 SVS
-    Этот резерв не трогать!
-    Можно дописывать _ЗА_ ним!
-  */
   DWORD                  Reserved;
-  /* SVS $ */
 };
 
 
@@ -1207,12 +955,7 @@ enum PLUGIN_FLAGS {
   PF_DISABLEPANELS  = 0x0002,
   PF_EDITOR         = 0x0004,
   PF_VIEWER         = 0x0008,
-  /* $ 07.09.2000 VVM 1.38
-    + PF_FULLCMDLINE флаг для передачи плагину всей строки вместе с
-      префиксом
-  */
   PF_FULLCMDLINE    = 0x0010,
-  /* VVM $ */
 };
 
 
@@ -1287,13 +1030,10 @@ struct KeyBarTitles
   char *CtrlTitles[12];
   char *AltTitles[12];
   char *ShiftTitles[12];
-  /* $ 02.08.2000 SVS
-     Дополнения!
-  */
+
   char *CtrlShiftTitles[12];
   char *AltShiftTitles[12];
   char *CtrlAltTitles[12];
-  /* SVS $ */
 };
 
 
@@ -1316,11 +1056,7 @@ struct OpenPluginInfo
   int                   StartSortOrder;
   struct KeyBarTitles  *KeyBar;
   char                 *ShortcutData;
-  /* $ 02.08.2000 SVS
-     + добавка, для того, чтобы различить FAR <= 1.65 и > 1.65
-  */
   long                  Reserverd;
-  /* SVS $*/
 };
 
 enum {
@@ -1391,7 +1127,7 @@ int    WINAPI _export ProcessEditorEvent(int Event,void *Param);
 #endif
 #endif
 
-#if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
+#if defined(__BORLANDC__)
   #pragma option -a.
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
   #pragma pack()

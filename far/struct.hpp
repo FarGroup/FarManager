@@ -7,10 +7,17 @@ struct.hpp
 
 */
 
-/* Revision: 1.18 20.09.2000 $ */
+/* Revision: 1.19 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+   + Opt.MaxPositionCache - количество позиций в кэше сохранения
+   + Opt.SaveViewerShortPos - запоминание позиций во вьювере по Ctrl-0..9
+   + Opt.SaveEditorShortPos - запоминание позиций в редакторе по Ctrl-0..9
+   + Opt.CmdHistoryRule задает поведение Esc для командной строки.
+   + Клавиши для вызова функции Xlat:
+     Opt.XLatEditorKey, Opt.XLatCmdLineKey, Opt.XLatDialogKey
   20.09.2000 SVS
    + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
      для Ctrl-[ и ему подобные
@@ -202,6 +209,7 @@ struct Options
   int UseExternalEditor;
   char ExternalEditor[NM];
   int SaveViewerPos;
+  int SaveViewerShortPos;
   int EditorExpandTabs;
   int TabSize;
   int EditorPersistentBlocks;
@@ -217,6 +225,7 @@ struct Options
   int ViewerAutoDetectTable;
   int ViewTabSize;
   int SaveEditorPos;
+  int SaveEditorShortPos;
   int SaveHistory;
   int SaveFoldersHistory;
   int SaveViewHistory;
@@ -292,6 +301,13 @@ struct Options
   */
   struct CodeXLAT XLat;
   /* SVS $*/
+  /* $ 05.09.2000 SVS
+     В Opt добавлены клавиши, вызывающие функцию Xlat
+  */
+  int XLatEditorKey;
+  int XLatCmdLineKey;
+  int XLatDialogKey;
+  /* SVS $*/
 
   /* $ 11.09.2000 SVS
      В Opt добавлена переменная DlgEULBsClear
@@ -311,11 +327,24 @@ struct Options
   */
   int PanelCtrlAltShiftRule;
   /* SVS $*/
+  /* $ 24.09.2000 SVS
+   + Opt.CmdHistoryRule задает поведение Esc для командной строки:
+      =1 - Не изменять положение в History, если после Ctrl-E/Ctrl/-X
+           нажали ESC (поведение - аля VC).
+      =0 - поведение как и было - изменять положение в History
+  */
+  int CmdHistoryRule;
+  /* SVS $*/
   /* $ 20.09.2000 SVS
    + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
      для Ctrl-[ и ему подобные
   */
   int SubstPluginPrefix;
+  /* SVS $*/
+  /* $ 24.09.2000 SVS
+   + Opt.MaxPositionCache - количество позиций в кэше сохранения
+  */
+  int MaxPositionCache;
   /* SVS $*/
 };
 

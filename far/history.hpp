@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    + SetFirst() - для CmdHistoryRule
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -35,6 +37,7 @@ class History
     int Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle=NULL);
     void GetPrev(char *Str);
     void GetNext(char *Str);
+    void SetFirst() {  LastPtr=-1; CurLastPtr=-1;}
     void GetSimilar(char *Str,int LastCmdPartLength);
     void SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos);
 };

@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.07 10.08.2000 $ */
+/* Revision: 1.08 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    + Функция Xlat
   10.08.2000 skv
     + добавлены int JustModied и void TextChanged(state);
   30.07.2000 KM 1.06
@@ -191,7 +193,7 @@ class Editor:public ScreenObject
     void BeginVBlockMarking();
     void AdjustVBlock(int PrevX);
     /* tran 21.07.2000 $ */
-
+    void Xlat();
 };
 
 struct EditList

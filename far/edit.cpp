@@ -9,6 +9,8 @@ edit.cpp
 
 /*
 Modify:
+   24.09.2000 SVS $
+    + Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
    18.09.2000 SVS
     - Для Mask - забыли скорректировать позицию :-)
    15.09.2000 SVS
@@ -1976,3 +1978,17 @@ void Edit::ApplyColor()
   }
 }
 
+/* $ 24.09.2000 SVS $
+  Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
+*/
+void Edit::Xlat(void)
+{
+  if(SelStart != -1)
+  {
+    if(SelEnd == -1)
+      SelEnd=strlen(Str);
+    ::Xlat(Str,SelStart,SelEnd,TableSet,Opt.XLat.Flags);
+    Show();
+  }
+}
+/* SVS $ */

@@ -5,10 +5,20 @@ config.cpp
 
 */
 
-/* Revision: 1.23 20.09.2000 $ */
+/* Revision: 1.24 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    + Opt.MaxPositionCache
+    + Opt.SaveViewerShortPos & Opt.SaveEditorShortPos
+    + Opt.CmdHistoryRule задает поведение Esc для командной строки:
+       =1 - Не изменять положение в History, если после Ctrl-E/Ctrl-X
+            нажали ESC (поведение - аля VC).
+       =0 - поведение как и было - изменять положение в History
+    ! "Editor\XLat" -> "XLat" - как самостоятельный раздел.
+    + Клавиши вызывающие функцию Xlat
+      Opt.XLatEditorKey, Opt.XLatCmdLineKey, Opt.XLatDialogKey
   20.09.2000 SVS
     + Opt.SubstPluginPrefix - 1 = подстанавливать префикс плагина
       для Ctrl-[ и ему подобные
@@ -416,6 +426,7 @@ void SetDizConfig()
  ║ └───────────────────────────────────────┘ ║
  ║ ┌ Internal viewer ──────────────────────┐ ║
  ║ │ [x] Save file position                │ ║
+ ║ │ [x] Save shortcut position            │ ║
  ║ │ [x] Autodetect character table        │ ║
  ║ │ 8   Tab size                          │ ║
  ║ │ [x] Show scrollbar                    │ ║
@@ -428,30 +439,32 @@ void SetDizConfig()
 #define DLG_VIEW_USE_ALTF3   3
 #define DLG_VIEW_EXTERNAL    5
 #define DLG_VIEW_SAVEFILEPOS 7
-#define DLG_VIEW_AUTODETECT  8
-#define DLG_VIEW_TABSIZE     9
-#define DLG_VIEW_SCROLLBAR  11
-#define DLG_VIEW_ARROWS     12
-#define DLG_VIEW_OK         13
+#define DLG_VIEW_SAVESHORTPOS 8
+#define DLG_VIEW_AUTODETECT  9
+#define DLG_VIEW_TABSIZE    10
+#define DLG_VIEW_SCROLLBAR  12
+#define DLG_VIEW_ARROWS     13
+#define DLG_VIEW_OK         14
 
 void ViewerConfig()
 {
   static struct DialogData CfgDlgData[]={
-    DI_DOUBLEBOX , 3, 1,47,16,0,0,0,0,(char *)MViewConfigTitle,                  //   0
+    DI_DOUBLEBOX , 3, 1,47,17,0,0,0,0,(char *)MViewConfigTitle,                  //   0
     DI_SINGLEBOX , 5, 2,45, 7,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigExternal,    //   1
     DI_RADIOBUTTON,7, 3, 0, 0,1,0,DIF_GROUP,0,(char *)MViewConfigExternalF3,     //   2
     DI_RADIOBUTTON,7, 4, 0, 0,0,0,0,0,(char *)MViewConfigExternalAltF3,          //   3
     DI_TEXT      , 7, 5, 0, 0,0,0,0,0,(char *)MViewConfigExternalCommand,        //   4
     DI_EDIT      , 7, 6,43, 6,0,0,0,0,"",                                        //   5
-    DI_SINGLEBOX , 5, 8,45,14,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
+    DI_SINGLEBOX , 5, 8,45,15,0,0,DIF_LEFTTEXT,0,(char *)MViewConfigInternal,    //   6
     DI_CHECKBOX  , 7, 9, 0, 0,0,0,0,0,(char *)MViewConfigSavePos,                //   7
-    DI_CHECKBOX  , 7,10, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,              //   8
-    DI_FIXEDIT   , 7,11, 9,15,0,0,0,0,"",                                        //   9
-    DI_TEXT      ,11,11, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  10
-    DI_CHECKBOX  , 7,12, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  11 *new
-    DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  12 *new
-    DI_BUTTON    , 0,15, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  13 , was 11
-    DI_BUTTON    , 0,15, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  14 , was 12
+    DI_CHECKBOX  , 7,10, 0, 0,0,0,0,0,(char *)MViewConfigSaveShortPos,           //   8
+    DI_CHECKBOX  , 7,11, 0, 0,0,0,0,0,(char *)MViewAutoDetectTable,              //   9
+    DI_FIXEDIT   , 7,12, 9,15,0,0,0,0,"",                                        //  10
+    DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  11
+    DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  12 *new
+    DI_CHECKBOX  , 7,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  13 *new
+    DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  14 , was 11
+    DI_BUTTON    , 0,16, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  15 , was 12
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -459,6 +472,7 @@ void ViewerConfig()
   CfgDlg[DLG_VIEW_USE_ALTF3].Selected=!Opt.UseExternalViewer;
   strcpy(CfgDlg[DLG_VIEW_EXTERNAL].Data,Opt.ExternalViewer);
   CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected=Opt.SaveViewerPos;
+  CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected=Opt.SaveEditorShortPos;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
@@ -479,7 +493,7 @@ void ViewerConfig()
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("ViewerSettings");
-    Dlg.SetPosition(-1,-1,51,18);
+    Dlg.SetPosition(-1,-1,51,19);
     Dlg.Process();
     if (Dlg.GetExitCode()!=DLG_VIEW_OK)
       return;
@@ -488,6 +502,7 @@ void ViewerConfig()
   Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
   strcpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data);
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
+  Opt.SaveEditorShortPos=CfgDlg[DLG_VIEW_SAVESHORTPOS].Selected;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
@@ -517,24 +532,25 @@ void ViewerConfig()
 void EditorConfig()
 {
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,47,19,0,0,0,0,(char *)MEditConfigTitle,
+  /*  0 */  DI_DOUBLEBOX,3,1,47,20,0,0,0,0,(char *)MEditConfigTitle,
   /*  1 */  DI_SINGLEBOX,5,2,45,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
   /*  2 */  DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
   /*  3 */  DI_RADIOBUTTON,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
   /*  4 */  DI_TEXT,7,5,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
   /*  5 */  DI_EDIT,7,6,43,6,0,0,0,0,"",
-  /*  6 */  DI_SINGLEBOX,5,8,45,17,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
+  /*  6 */  DI_SINGLEBOX,5,8,45,18,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
   /*  7 */  DI_CHECKBOX,7,9,0,0,0,0,0,0,(char *)MEditConfigTabsToSpaces,
   /*  8 */  DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
   /*  9 */  DI_CHECKBOX,7,11,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
   /* 10 */  DI_CHECKBOX,7,12,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
   /* 11 */  DI_CHECKBOX,7,13,0,0,0,0,0,0,(char *)MEditConfigSavePos,
-  /* 12 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
-  /* 13 */  DI_FIXEDIT,7,15,9,15,0,0,0,0,"",
-  /* 14 */  DI_TEXT,11,15,0,0,0,0,0,0,(char *)MEditConfigTabSize,
-  /* 15 */  DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 16 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 17 */  DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 12 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
+  /* 13 */  DI_CHECKBOX,7,15,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
+  /* 14 */  DI_FIXEDIT,7,16,9,15,0,0,0,0,"",
+  /* 15 */  DI_TEXT,11,16,0,0,0,0,0,0,(char *)MEditConfigTabSize,
+  /* 16 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
+  /* 17 */  DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 18 */  DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -546,28 +562,29 @@ void EditorConfig()
   CfgDlg[9].Selected=Opt.EditorDelRemovesBlocks;
   CfgDlg[10].Selected=Opt.EditorAutoIndent;
   CfgDlg[11].Selected=Opt.SaveEditorPos;
+  CfgDlg[12].Selected=Opt.SaveEditorShortPos;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
   */
-  CfgDlg[12].Selected=Opt.EditorAutoDetectTable&&DistrTableExist();
+  CfgDlg[13].Selected=Opt.EditorAutoDetectTable&&DistrTableExist();
   /* IS $ */
-  sprintf(CfgDlg[13].Data,"%d",Opt.TabSize);
-  CfgDlg[15].Selected=Opt.EditorCursorBeyondEOL;
+  sprintf(CfgDlg[14].Data,"%d",Opt.TabSize);
+  CfgDlg[16].Selected=Opt.EditorCursorBeyondEOL;
 
   if (!RegVer)
   {
-    CfgDlg[13].Type=CfgDlg[14].Type=DI_TEXT;
-    sprintf(CfgDlg[13].Data," *  %s",MSG(MRegOnlyShort));
-    *CfgDlg[14].Data=0;
+    CfgDlg[14].Type=CfgDlg[15].Type=DI_TEXT;
+    sprintf(CfgDlg[14].Data," *  %s",MSG(MRegOnlyShort));
+    *CfgDlg[15].Data=0;
   }
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("EditorSettings");
-    Dlg.SetPosition(-1,-1,51,21);
+    Dlg.SetPosition(-1,-1,51,22);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=16)
+    if (Dlg.GetExitCode()!=17)
       return;
   }
 
@@ -578,7 +595,8 @@ void EditorConfig()
   Opt.EditorDelRemovesBlocks=CfgDlg[9].Selected;
   Opt.EditorAutoIndent=CfgDlg[10].Selected;
   Opt.SaveEditorPos=CfgDlg[11].Selected;
-  Opt.EditorAutoDetectTable=CfgDlg[12].Selected;
+  Opt.SaveEditorShortPos=CfgDlg[12].Selected;
+  Opt.EditorAutoDetectTable=CfgDlg[13].Selected;
   /* 15.09.2000 IS
      Отключение автоопределения таблицы символов, если отсутствует таблица с
      распределением частот символов
@@ -591,10 +609,10 @@ void EditorConfig()
               MSG(MOk));
   }
   /* IS $ */
-  Opt.TabSize=atoi(CfgDlg[13].Data);
+  Opt.TabSize=atoi(CfgDlg[14].Data);
   if (Opt.TabSize<1 || Opt.TabSize>512)
     Opt.TabSize=8;
-  Opt.EditorCursorBeyondEOL=CfgDlg[15].Selected;
+  Opt.EditorCursorBeyondEOL=CfgDlg[16].Selected;
 }
 /* SVS $ */
 
@@ -654,6 +672,7 @@ void ReadConfig()
   GetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer,"",sizeof(Opt.ExternalViewer));
   GetRegKey("Viewer","UseExternalViewer",Opt.UseExternalViewer,0);
   GetRegKey("Viewer","SaveViewerPos",Opt.SaveViewerPos,0);
+  GetRegKey("Viewer","SaveViewerShortPos",Opt.SaveViewerShortPos,0);
   GetRegKey("Viewer","AutoDetectTable",Opt.ViewerAutoDetectTable,0);
   GetRegKey("Viewer","TabSize",Opt.ViewTabSize,8);
   /* $ 15.07.2000 tran
@@ -689,6 +708,7 @@ void ReadConfig()
   GetRegKey("Editor","DelRemovesBlocks",Opt.EditorDelRemovesBlocks,0);
   GetRegKey("Editor","AutoIndent",Opt.EditorAutoIndent,0);
   GetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos,0);
+  GetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos,0);
   GetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable,0);
   GetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL,1);
   /* $ 03.08.2000 SVS
@@ -705,12 +725,19 @@ void ReadConfig()
   /* $ 05.09.2000 SVS
      CodeXLat - описывающая XLat-перекодировщик
   */
-  GetRegKey("Editor\\XLat","Flags",(int&)Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT);
-  GetRegKey("Editor\\XLat","Table1",(BYTE*)Opt.XLat.Table[0],(BYTE*)NULL,sizeof(Opt.XLat.Table[0]));
-  GetRegKey("Editor\\XLat","Table2",(BYTE*)Opt.XLat.Table[1],(BYTE*)NULL,sizeof(Opt.XLat.Table[1]));
-  GetRegKey("Editor\\XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],(BYTE*)NULL,sizeof(Opt.XLat.Rules[0]));
-  GetRegKey("Editor\\XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],(BYTE*)NULL,sizeof(Opt.XLat.Rules[1]));
-  GetRegKey("Editor\\XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],(BYTE*)NULL,sizeof(Opt.XLat.Rules[2]));
+  GetRegKey("XLat","Flags",(int&)Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT);
+  GetRegKey("XLat","Table1",(BYTE*)Opt.XLat.Table[0],(BYTE*)NULL,sizeof(Opt.XLat.Table[0]));
+  GetRegKey("XLat","Table2",(BYTE*)Opt.XLat.Table[1],(BYTE*)NULL,sizeof(Opt.XLat.Table[1]));
+  GetRegKey("XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],(BYTE*)NULL,sizeof(Opt.XLat.Rules[0]));
+  GetRegKey("XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],(BYTE*)NULL,sizeof(Opt.XLat.Rules[1]));
+  GetRegKey("XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],(BYTE*)NULL,sizeof(Opt.XLat.Rules[2]));
+  /* SVS $ */
+  /* $ 24.09.2000 SVS
+     Клавиши, вызывающие Xlat
+  */
+  GetRegKey("XLat","EditorKey",Opt.XLatEditorKey,KEY_CTRLSHIFTX);
+  GetRegKey("XLat","CmdLineKey",Opt.XLatCmdLineKey,KEY_CTRLSHIFTX);
+  GetRegKey("XLat","DialogKey",Opt.XLatDialogKey,KEY_CTRLSHIFTX);
   /* SVS $ */
 
   GetRegKey("System","SaveHistory",Opt.SaveHistory,0);
@@ -744,6 +771,14 @@ void ReadConfig()
   GetRegKey("System","FileSearchMode",Opt.FileSearchMode,SEARCH_ROOT);
   GetRegKey("System","FolderInfo",Opt.FolderInfoFiles,"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*",sizeof(Opt.FolderInfoFiles));
   GetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix,0);
+  /* $ 24.09.2000 SVS
+     + CmdHistoryRule задает поведение Esc для командной строки
+  */
+  GetRegKey("System","CmdHistoryRule",Opt.CmdHistoryRule,0);
+  /* SVS $ */
+  GetRegKey("System","MaxPositionCache",Opt.MaxPositionCache,64);
+  if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
+    Opt.MaxPositionCache=64;
 
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
   GetRegKey("Language","Help",Opt.HelpLanguage,"English",sizeof(Opt.HelpLanguage));
@@ -866,6 +901,7 @@ void SaveConfig(int Ask)
   SetRegKey("Viewer","ExternalViewerName",Opt.ExternalViewer);
   SetRegKey("Viewer","UseExternalViewer",Opt.UseExternalViewer);
   SetRegKey("Viewer","SaveViewerPos",Opt.SaveViewerPos);
+  SetRegKey("Viewer","SaveViewerShortPos",Opt.SaveViewerShortPos);
   SetRegKey("Viewer","AutoDetectTable",Opt.ViewerAutoDetectTable);
   SetRegKey("Viewer","TabSize",Opt.ViewTabSize);
   /* $ 15.07.2000 tran
@@ -899,6 +935,7 @@ void SaveConfig(int Ask)
   SetRegKey("Editor","DelRemovesBlocks",Opt.EditorDelRemovesBlocks);
   SetRegKey("Editor","AutoIndent",Opt.EditorAutoIndent);
   SetRegKey("Editor","SaveEditorPos",Opt.SaveEditorPos);
+  SetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos);
   SetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable);
   SetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL);
   /* $ 03.08.2000 SVS
@@ -909,12 +946,19 @@ void SaveConfig(int Ask)
   /* $ 05.09.2000 SVS
      CodeXLat - описывающая XLat-перекодировщик
   */
-  SetRegKey("Editor\\XLat","Flags",Opt.XLat.Flags);
-  SetRegKey("Editor\\XLat","Table1",(BYTE*)Opt.XLat.Table[0],sizeof(Opt.XLat.Table[0]));
-  SetRegKey("Editor\\XLat","Table2",(BYTE*)Opt.XLat.Table[1],sizeof(Opt.XLat.Table[1]));
-  SetRegKey("Editor\\XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],sizeof(Opt.XLat.Rules[0]));
-  SetRegKey("Editor\\XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],sizeof(Opt.XLat.Rules[1]));
-  SetRegKey("Editor\\XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],sizeof(Opt.XLat.Rules[2]));
+  SetRegKey("XLat","Flags",Opt.XLat.Flags);
+  SetRegKey("XLat","Table1",(BYTE*)Opt.XLat.Table[0],sizeof(Opt.XLat.Table[0]));
+  SetRegKey("XLat","Table2",(BYTE*)Opt.XLat.Table[1],sizeof(Opt.XLat.Table[1]));
+  SetRegKey("XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],sizeof(Opt.XLat.Rules[0]));
+  SetRegKey("XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],sizeof(Opt.XLat.Rules[1]));
+  SetRegKey("XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],sizeof(Opt.XLat.Rules[2]));
+  /* SVS $ */
+  /* $ 24.09.2000 SVS
+     Клавиши, вызывающие Xlat
+  */
+  SetRegKey("XLat","EditorKey",Opt.XLatEditorKey);
+  SetRegKey("XLat","CmdLineKey",Opt.XLatCmdLineKey);
+  SetRegKey("XLat","DialogKey",Opt.XLatDialogKey);
   /* SVS $ */
 
   SetRegKey("System","SaveHistory",Opt.SaveHistory);
@@ -938,6 +982,16 @@ void SaveConfig(int Ask)
   SetRegKey("System","FileSearchMode",Opt.FileSearchMode);
   SetRegKey("System","FolderInfo",Opt.FolderInfoFiles);
   SetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix);
+  /* $ 24.09.2000 SVS
+     + CmdHistoryRule задает поведение Esc для командной строки
+  */
+  SetRegKey("System","CmdHistoryRule",Opt.CmdHistoryRule);
+  /* SVS $ */
+  /* $ 24.09.2000 SVS
+     + MaxPositionCache задает максимальное количество позиций под кэш
+  */
+  SetRegKey("System","MaxPositionCache",Opt.MaxPositionCache);
+  /* SVS $ */
 
   SetRegKey("Language","Main",Opt.Language);
   SetRegKey("Language","Help",Opt.HelpLanguage);

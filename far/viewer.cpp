@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.26 19.09.2000 $ */
+/* Revision: 1.27 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
   19.09.2000 SVS
     ! FEFF-файлы - уточнение алгоритма отображения и распознавания.
   18.09.2000 SVS
@@ -190,7 +192,9 @@ Viewer::~Viewer()
             if (UseDecodeTable)
               Table=TableNum+3;
       }
-      CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table);
+      CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table,
+          (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
+          (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
     }
   }
   if (*TempViewName)
@@ -338,7 +342,9 @@ int Viewer::OpenFile(char *Name,int warning)
       sprintf(CacheName,"%s%s",PluginData,PointToName(FileName));
     else
       strcpy(CacheName,FileName);
-    CtrlObject->ViewerPosCache.GetPosition(CacheName,NewFilePos,NewLeftPos,TempPos1,TempPos2,Table);
+    CtrlObject->ViewerPosCache.GetPosition(CacheName,NewFilePos,NewLeftPos,TempPos1,TempPos2,Table,
+          (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
+          (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
 
     if(!IsDecode)
     {
@@ -1091,7 +1097,9 @@ int Viewer::ProcessKey(int Key)
                   if (UseDecodeTable)
                     Table=TableNum+3;
             }
-            CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table);
+            CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table,
+                    (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
+                    (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
           }
           if (PointToName(Name)==Name)
           {

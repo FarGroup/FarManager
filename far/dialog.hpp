@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.18 08.09.2000 $ */
+/* Revision: 1.19 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+   + DMODE_ALTDRAGGED - при движении диалога по Alt-стрелка
   08.09.2000 SVS
    + Стиль диалога DMODE_OLDSTYLE - диалог в старом стиле.
    + Функция SelectOnEntry - выделение строки редактирования
@@ -96,12 +98,13 @@ Modify:
 */
 
 // Флаги текущего режима диалога
-#define DMODE_DRAWING		0x00001000 // диалог рисуется?
 #define DMODE_INITOBJECTS	0x00000001 // элементы инициализарованы?
 #define DMODE_CREATEOBJECTS	0x00000002 // объекты (Edit,...) созданы?
 #define DMODE_WARNINGSTYLE	0x00000004 // Warning Dialog Style?
 #define DMODE_DRAGGED		0x00000008 // диалог двигается?
 #define DMODE_ISCANMOVE		0x00000010 // можно ли двигать диалог?
+#define DMODE_ALTDRAGGED	0x00000020 // диалог двигается по Alt-Стрелка?
+#define DMODE_DRAWING		0x00001000 // диалог рисуется?
 #define DMODE_KEY		0x00002000 // Идет посылка клавиш?
 #define DMODE_SHOW              0x00004000 // Диалог виден?
 #define DMODE_OLDSTYLE		0x80000000 // Диалог в старом (до 1.70) стиле

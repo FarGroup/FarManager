@@ -5,10 +5,15 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.06 08.09.2000 $ */
+/* Revision: 1.07 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    ! Перерисовка CtrlObject->MainKeyBar (случай, если:
+       Ctr-Alt-Shift, потом, Alt-отжать, появится быстрый поиск,
+       дальше отпускаем Ctrl и Shift - окно быстрого поиска на месте.
+       Теперь, если нажать Esc - KeyBar не перерисуется)
   08.09.2000 VVM
     + Обработка команд
       FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
@@ -602,6 +607,7 @@ void Panel::FastFind(int FirstKey)
     }
   }
   Show();
+  CtrlObject->MainKeyBar.Redraw();
   ScrBuf.Flush();
   Panel *ActivePanel=CtrlObject->ActivePanel;
   if (KeyToProcess==KEY_ENTER && ActivePanel->GetType()==TREE_PANEL)

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.30 20.09.2000 $ */
+/* Revision: 1.31 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+   + Функция KeyNameToKey - получение кода клавиши по имени
+     Если имя не верно или нет такого - возвращается -1
   20.09.2000 SVS
    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   20.09.2000 SVS
@@ -1287,8 +1290,8 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
 
   if (HelpTopic!=NULL)
     Dlg.SetHelp(HelpTopic);
-  Dlg.Process();
 
+  Dlg.Process();
   ExitCode=Dlg.GetExitCode();
 
   if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
@@ -2273,3 +2276,22 @@ char* WINAPI FarMkTemp(char *Dest, char *Template)
 }
 /* SVS 18.09.2000 $ */
 /* SVS $ */
+
+/* $ 24.09.2000 SVS
+ + Функция KeyNameToKey - получение кода клавиши по имени
+   Если имя не верно или нет такого - возвращается -1
+   Может и криво, но правильно и коротко!
+*/
+int WINAPI KeyNameToKey(char *Name)
+{
+   char KeyName[33];
+
+   for (int I=0; I < KEY_LAST_BASE;++I)
+   {
+     if(KeyToText(I,KeyName))
+       if(!strcmp(Name,KeyName))
+         return I;
+   }
+   return -1;
+}
+/* SVS $*/

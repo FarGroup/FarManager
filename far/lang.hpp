@@ -12,10 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.18 20.09.2000 $ */
+/* Revision: 1.19 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    + MViewConfigSaveShortPos
+    + MEditConfigSaveShortPos
   20.09.2000 SVS
     + MConfigSubstPluginPrefix
   15.09.2000 IS
@@ -246,6 +249,7 @@ enum
   MViewConfigExternalCommand,
   MViewConfigInternal,
   MViewConfigSavePos,
+  MViewConfigSaveShortPos,
   MViewAutoDetectTable,
   MViewConfigTabSize,
   MViewConfigScrollbar,
@@ -262,6 +266,7 @@ enum
   MEditConfigDelRemovesBlocks,
   MEditConfigAutoIndent,
   MEditConfigSavePos,
+  MEditConfigSaveShortPos,
   MEditAutoDetectTable,
   MEditConfigTabSize,
   MEditCursorBeyondEnd,

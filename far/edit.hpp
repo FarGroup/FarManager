@@ -7,10 +7,13 @@ edit.hpp
 
 */
 
-/* Revision: 1.07 18.09.2000 $ */
+/* Revision: 1.08 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS $
+    + Класс Editor - друг
+    + Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
   18.09.2000 SVS
     + класс Dialog является "другом" (т.е. полноправным совладельцем)
   12.08.2000 KM 1.06
@@ -41,10 +44,12 @@ Modify:
 */
 
 class Dialog;
+class Editor;
 
 class Edit:public ScreenObject
 {
   friend class Dialog;
+  friend class Editor;
   private:
     void   DisplayObject();
     void   ShowString(char *ShowStr,int TabSelStart,int TabSelEnd);
@@ -175,7 +180,11 @@ class Edit:public ScreenObject
        + DropDownBox style */
     int DropDownBox;
     /* tran 25.07.2000 $ */
-
+    /* $ 24.09.2000 SVS $
+      Функция Xlat - перекодировка по принципу QWERTY <-> ЙЦУКЕН
+    */
+    void Xlat(void);
+    /* SVS $ */
 };
 
 #endif  // __EDIT_HPP__

@@ -5,10 +5,13 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.03 19.09.2000 $ */
+/* Revision: 1.04 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    + поведение ESC.
+    + вызов функции Xlat
   19.09.2000 SVS
     - При выборе из History (по Alt-F8) плагин не получал управление!
   13.09.2000 tran 1.02
@@ -252,12 +255,30 @@ int CommandLine::ProcessKey(int Key)
       }
       return(TRUE);
     case KEY_ESC:
+      /* $ 24.09.2000 SVS
+         Если задано поведение по "Несохранению при Esc", то позицию в
+         хистори не меняем и ставим в первое положение.
+      */
+      if(Opt.CmdHistoryRule)
+        CtrlObject->CmdHistory->SetFirst();
+      /* SVS $ */
       CmdStr.SetString("");
       CmdStr.SetLeftPos(0);
       CmdStr.Show();
       LastCmdPartLength=-1;
       return(TRUE);
     default:
+      /* $ 24.09.2000 SVS
+         Если попалась клавиша вызова функции Xlat, то
+         подставим клавишу для редактора, если она != 0
+      */
+      if(Opt.XLatCmdLineKey && Key == Opt.XLatCmdLineKey)
+      {
+        CmdStr.Xlat();
+        return(TRUE);
+      }
+      /* SVS $ */
+
       if (!CmdStr.ProcessKey(Key))
         break;
       LastCmdPartLength=-1;

@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.44 22.09.2000 $ */
+/* Revision: 1.45 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+   + Движение диалога - Alt-стрелки
+   + вызов функции Xlat
   22.09.2000 SVS
    ! Уточнение AutoComplete при постоянных блоках.
   20.09.2000 SVS
@@ -1180,9 +1183,32 @@ int Dialog::ProcessKey(int Key)
   char *PtrStr;
   Edit *CurEditLine;
 
+  if(CheckDialogMode(DMODE_ISCANMOVE) && !CheckDialogMode(DMODE_DRAGGED))
+  {
+    switch(Key)
+    {
+      case KEY_ALTLEFT:
+        Key=KEY_LEFT;
+        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+        break;
+      case KEY_ALTRIGHT:
+        Key=KEY_RIGHT;
+        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+        break;
+      case KEY_ALTUP:
+        Key=KEY_UP;
+        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+        break;
+      case KEY_ALTDOWN:
+        Key=KEY_DOWN;
+        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+        break;
+    }
+  }
+
   /* $ 31.07.2000 tran
      + перемещение диалога по экрану */
-  if ( CheckDialogMode(DMODE_DRAGGED)) // если диалог таскается
+  if (CheckDialogMode(DMODE_DRAGGED)) // если диалог таскается
   {
     int rr=1;
     switch (Key)
@@ -1198,7 +1224,7 @@ int Dialog::ProcessKey(int Key)
                     X2--;
                     AdjustEditPos(-1,0);
                 }
-            Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_CTRLRIGHT:
             rr=10;
@@ -1211,7 +1237,7 @@ int Dialog::ProcessKey(int Key)
                     X2++;
                     AdjustEditPos(1,0);
                 }
-            Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_PGUP:
         case KEY_CTRLUP:
@@ -1225,7 +1251,7 @@ int Dialog::ProcessKey(int Key)
                     Y2--;
                     AdjustEditPos(0,-1);
                 }
-            Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_PGDN:
         case KEY_CTRLDOWN:
@@ -1239,12 +1265,12 @@ int Dialog::ProcessKey(int Key)
                     Y2++;
                     AdjustEditPos(0,1);
                 }
-            Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_ENTER:
         case KEY_CTRLF5:
             SkipDialogMode(DMODE_DRAGGED); // закончим движение!
-            Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_ESC:
             Hide();
@@ -1254,12 +1280,16 @@ int Dialog::ProcessKey(int Key)
             Y1=OldY1;
             Y2=OldY2;
             SkipDialogMode(DMODE_DRAGGED);
-            Show();
+            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
             break;
+    }
+    if(CheckDialogMode(DMODE_ALTDRAGGED))
+    {
+      SkipDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+      Show();
     }
     return (TRUE);
   }
-
   /* $ 10.08.2000 SVS
      Двигаем, если разрешено! (IsCanMove)
   */
@@ -1913,6 +1943,16 @@ int Dialog::ProcessKey(int Key)
               return(TRUE);
           }
 
+        /* $ 24.09.2000 SVS
+           Вызов функции Xlat
+        */
+        if(Opt.XLatDialogKey && Key == Opt.XLatDialogKey)
+        {
+          edt->Xlat();
+          return TRUE;
+        }
+        /* SVS $ */
+
         if (edt->ProcessKey(Key))
         {
           /* $ 26.07.2000 SVS
@@ -2181,7 +2221,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       {
         /* $ 03.08.2000 tran
            ну раз попадаем - то будем перемещать */
-        SetDialogMode(DMODE_DRAGGED);
+        //SetDialogMode(DMODE_DRAGGED);
         OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
         MsX=MouseX;
         MsY=MouseY;

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.30 20.09.2000 $ */
+/* Revision: 1.31 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+   + Функция KeyNameToKey - получение кода клавиши по имени
+     Если имя не верно или нет такого - возвращается -1
   20.09.2000 SVS
    ! удалил FolderPresent (блин, совсем крышу сорвало :-(
   19.09.2000 SVS
@@ -534,6 +537,13 @@ void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD f
 char* WINAPI FarMkTemp(char *Dest, char *Template);
 /* SVS $*/
 
+
+/* $ 24.09.2000 SVS
+ + Функция KeyNameToKey - получение кода клавиши по имени
+   Если имя не верно или нет такого - возвращается -1
+*/
+int WINAPI KeyNameToKey(char *Name);
+/* SVS $*/
 
 #ifdef __cplusplus
 };

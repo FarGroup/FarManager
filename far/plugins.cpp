@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.29 21.09.2000 $ */
+/* Revision: 1.30 24.09.2000 $ */
 
 /*
 Modify:
+  24.09.2000 SVS
+    + Функция FarNameToKey - получение кода клавиши по имени
+      Если имя не верно или нет такого - возвращается -1
   21.09.2000 SVS
     + Работа с  PluginItem.SysID - системный идентификатор плагина
   20.09.2000 SVS
@@ -516,7 +519,13 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     StandardFunctions.CopyToClipboard=CopyToClipboard;
     StandardFunctions.PasteFromClipboard=PasteFromClipboard;
-    StandardFunctions.FarKeyToText=KeyToText;
+    StandardFunctions.FarKeyToName=KeyToText;
+    /* SVS $ */
+    /* $ 24.09.2000 SVS
+     + Функция FarNameToKey - получение кода клавиши по имени
+       Если имя не верно или нет такого - возвращается -1
+    */
+    StandardFunctions.FarNameToKey=KeyNameToKey;
     /* SVS $ */
     /* $ 31.08.2000 tran
        + InputRecordToKey*/

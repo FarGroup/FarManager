@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.35 20.09.2000 $ */
+/* Revision: 1.36 24.09.2000 $ */
 
 /*
 Modify:
+   24.09.2000 SVS
+    + Работа по сохранению/восстановлению позиций в файле по RCtrl+<N>
+    + Перекодировка Xlat
    20.09.2000 SVS
     - Bugs с "наездом" заголовка (от плагина) на всё прочеЯ!
    20.09.2000 SVS
@@ -201,7 +204,11 @@ Editor::~Editor()
           Table=TableNum+2;
     }
 
-    CtrlObject->EditorPosCache.AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table);
+    CtrlObject->EditorPosCache.AddPosition(CacheName,NumLine,ScreenLinePos,CurPos,LeftPos,Table,
+               (Opt.SaveEditorShortPos?SavePosLine:NULL),
+               (Opt.SaveEditorShortPos?SavePosCursor:NULL),
+               (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
+               (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
   }
 
   while (EndList!=NULL)
@@ -401,7 +408,11 @@ int Editor::ReadFile(char *Name,int &UserBreak)
       else
         strcpy(CacheName,FileName);
       unsigned int Table;
-      CtrlObject->EditorPosCache.GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table);
+      CtrlObject->EditorPosCache.GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
+               (Opt.SaveEditorShortPos?SavePosLine:NULL),
+               (Opt.SaveEditorShortPos?SavePosCursor:NULL),
+               (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
+               (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
       TableChangedByUser=(Table!=0);
       switch(Table)
       {
@@ -457,7 +468,11 @@ int Editor::ReadFile(char *Name,int &UserBreak)
         else
           strcpy(CacheName,FileName);
         unsigned int Table;
-        CtrlObject->EditorPosCache.GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table);
+        CtrlObject->EditorPosCache.GetPosition(CacheName,Line,ScreenLine,LinePos,LeftPos,Table,
+               (Opt.SaveEditorShortPos?SavePosLine:NULL),
+               (Opt.SaveEditorShortPos?SavePosCursor:NULL),
+               (Opt.SaveEditorShortPos?SavePosScreenLine:NULL),
+               (Opt.SaveEditorShortPos?SavePosLeftPos:NULL));
 
         TableChangedByUser=(Table!=0);
         switch(Table)
@@ -2081,6 +2096,18 @@ int Editor::ProcessKey(int Key)
         }
 
         int LeftPos=CurLine->EditLine.GetLeftPos();
+
+        /* $ 24.09.2000 SVS
+           Вызов функции Xlat
+        */
+        if(Opt.XLatEditorKey && Key == Opt.XLatEditorKey &&
+           (VBlockStart || BlockStart))
+        {
+          Xlat();
+          Show();
+          return TRUE;
+        }
+        /* SVS $ */
 
         if (CurLine->EditLine.ProcessKey(Key))
         {
@@ -4545,5 +4572,50 @@ void Editor::AdjustVBlock(int PrevX)
 
     //SysLog("AdjustVBlock, changed vblock  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX);
 }
+
+
+/* $ 24.09.2000 SVS
+  Перекодировка Xlat
+*/
+void Editor::Xlat()
+{
+  struct EditList *CurPtr;
+
+  if (VBlockStart!=NULL)
+  {
+    CurPtr=VBlockStart;
+
+    for (int Line=0;CurPtr!=NULL && Line<VBlockSizeY;Line++,CurPtr=CurPtr->Next)
+    {
+      int TBlockX=CurPtr->EditLine.TabPosToReal(VBlockX);
+      int TBlockSizeX=CurPtr->EditLine.TabPosToReal(VBlockX+VBlockSizeX)-
+                      CurPtr->EditLine.TabPosToReal(VBlockX);
+      char *CurStr,*EndSeq;
+      int Length;
+      CurPtr->EditLine.GetBinaryString(&CurStr,&EndSeq,Length);
+      int CopySize=Length-TBlockX;
+      if (CopySize>TBlockSizeX)
+         CopySize=TBlockSizeX;
+      ::Xlat(CurPtr->EditLine.Str,TBlockX,TBlockX+CopySize,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
+    }
+  }
+  else
+  {
+    CurPtr=BlockStart;
+    while (CurPtr!=NULL)
+    {
+      int StartSel,EndSel;
+      CurPtr->EditLine.GetSelection(StartSel,EndSel);
+      if (StartSel==-1)
+        break;
+      if(EndSel == -1)
+        EndSel=strlen(CurPtr->EditLine.Str);
+      ::Xlat(CurPtr->EditLine.Str,StartSel,EndSel,CurPtr->EditLine.TableSet,Opt.XLat.Flags);
+      CurPtr=CurPtr->Next;
+    }
+  }
+  TextChanged(1);
+}
+/* SVS $ */
 
 #endif //!defined(EDITOR2)

@@ -1026,7 +1026,7 @@ $ #System settings dialog#
                           registered to process this file type
                           will be executed.
 
-  #Add plugins prefixes#    If checked, FAR will automatically add
+  #Add plugins' prefixes#   If checked, FAR will automatically add
   #into path#               a prefix of a plugin at the beginning of
                          the path in the ~command line~@CmdLineCmd@.
 
@@ -1395,6 +1395,10 @@ $ #Viewer settings#
                           restoring of character table, if the table
                           was manually selected by user.
 
+  #Save current#            Save and restore current positions in the
+  #positions#             recently viewed files (saved with
+                          RightCtrl-<N>)
+
   #Autodetect character#    If you use several character tables and
   #table#                   have installed a table with the character
                           frequency distribution for your language,
@@ -1454,6 +1458,10 @@ settings to be changed.
                           edited files. This option also forces
                           restoring of character table, if the table
                           was manually selected by user.
+
+  #Save current#            Save and restore current positions in the
+  #positions#             recently edited files (saved with
+                          RightCtrl-<N>)
 
   #Autodetect character#    If you use several character tables and
   #table#                   have installed a table with the character
