@@ -5,10 +5,14 @@ plist.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 31.01.2001 $ */
 
 /*
 Modify:
+  31.01.2001 IS
+    ! Теперь это меню более дружелюбно - попытка перемещения курсора выше
+      первого пункта или ниже последнего будет приводить к перемещению
+      соответственно к последнему или к первому пункту.
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -29,7 +33,11 @@ static BOOL KillProcess(DWORD dwPID);
 void ShowProcessList()
 {
   VMenu ProcList(MSG(MProcessListTitle),NULL,0,ScrY-4);
-  ProcList.SetFlags(0);
+  /* $ 31.01.2001 IS
+     ! Теперь это меню более дружелюбно ;)
+  */
+  ProcList.SetFlags(MENU_WRAPMODE);
+  /* IS $ */
   ProcList.SetHelp("TaskList");
   ProcList.SetPosition(-1,-1,0,0);
   if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
