@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.26 14.02.2001 $ */
+/* Revision: 1.27 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 VVM
+    + Ctrl: вставляет имя файла с пассивной панели.
+    + CtrlAlt: вставляет UNC-имя файла с пассивной панели
   14.02.2001 SVS
     ! В ApplyCommand() не была возможность работы с модификаторами !@! и !$!
       ВНИМАНИЕ!
@@ -571,6 +574,23 @@ int FileList::ProcessKey(int Key)
       LeftPos++;
       Redraw();
       return(TRUE);
+    /* $ 14.02.2001 VVM
+      + Ctrl: вставляет имя файла с пассивной панели.
+      + CtrlAlt: вставляет UNC-имя файла с пассивной панели */
+    case KEY_CTRL|KEY_COLON:
+    case KEY_CTRL|KEY_ALT|KEY_COLON:
+    {
+      int NewKey = KEY_CTRLF;
+      if (Key & KEY_ALT)
+        NewKey|=KEY_ALT;
+      Panel *SrcPanel = CtrlObject->GetAnotherPanel(CtrlObject->ActivePanel);
+      int OldState = SrcPanel->IsVisible();
+      SrcPanel->SetVisible(1);
+      SrcPanel->ProcessKey(NewKey);
+      SrcPanel->SetVisible(OldState);
+      return(TRUE);
+    }
+    /* VVM $ */
     case KEY_CTRLENTER:
     case KEY_CTRLJ:
     case KEY_CTRLF:

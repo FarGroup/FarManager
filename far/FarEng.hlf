@@ -214,6 +214,8 @@ $ #Command line commands#
   Insert file name from the active panel                  #Ctrl-Enter#
   Insert full file name from the active panel                 #Ctrl-F#
   Insert UNC file name from the active panel              #Ctrl-Alt-F#
+  Insert full file name from the passive panel                #Ctrl-:#
+  Insert UNC file name from the passive panel             #Ctrl-Alt-:#
   Insert left panel path                                      #Ctrl-[#
   Insert right panel path                                     #Ctrl-]#
   Insert active panel path                              #Ctrl-Shift-[#
@@ -232,8 +234,8 @@ $ #Command line commands#
   3. Most of the described above commands are valid for all edit
      strings including edit controls in dialogs and internal editor.
 
-  4. #Ctrl-Alt-F# works only for network drivers. For local drivers no
-     differences with #Ctrl-F#
+  4. #Ctrl-Alt-F# (#Ctrl-Alt-:#) works only for network drivers. For
+     local drivers no differences with #Ctrl-F# (#Ctrl-:#)
 
 @FuncCmd
 $ #File management and service commands#
@@ -1435,6 +1437,8 @@ $ #Internal editor#
        subfolder of the FAR folder in the form of .reg files.
        Before any table may be used it must be installed: just press
        Shift-Enter on the corresponding file.
+
+    2. #Alt-U#/#Alt-I# shift current line if no block selected.
 
 @EditorGotoPos
 $ #Go to specified line and column#
