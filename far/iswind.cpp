@@ -5,10 +5,13 @@ iswind.cpp
 
 */
 
-/* Revision: 1.08 10.06.2002 $ */
+/* Revision: 1.09 17.01.2003 $ */
 
 /*
 Modify:
+  17.01.2003 IS
+    + InitDetectWindowedMode: там, где можно, используем для поиска окна
+      соответствующую функцию ОС (GetConsoleWindow)
   10.06.2002 SVS
     - Заголовок окна пустой - hFarWnd равен NULL
   25.03.2002 SVS
@@ -96,14 +99,27 @@ void FindFarWndByTitle()
 
 void InitDetectWindowedMode()
 {
-  EnumWindows(IsWindowedEnumProc,(LPARAM)GetCurrentProcessId());
+  /* $ 17.01.2003 IS
+       Там, где можно, используем для поиска окна соответствующую функцию ОС
+  */
+  typedef HWND WINAPI GetConsoleWindow_t(VOID);
+  static GetConsoleWindow_t *GetConsoleWindow_f=
+    (GetConsoleWindow_t*)GetProcAddress(GetModuleHandle("kernel32.dll"),
+    "GetConsoleWindow");
+  if(GetConsoleWindow_f)
+    hFarWnd=GetConsoleWindow_f();
+  else
+  {
+    // попытка найти окно по pid
+    EnumWindows(IsWindowedEnumProc,(LPARAM)GetCurrentProcessId());
+    if(!hFarWnd)
+      /* $ 19.01.2001 VVM
+         + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
 
-  /* $ 19.01.2001 VVM
-      + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
-  if (!hFarWnd)
-    FindFarWndByTitle();
-  /* VVM $ */
-
+      FindFarWndByTitle();
+      /* VVM $ */
+  }
+  /* IS $ */
   if (hFarWnd && Opt.SmallIcon)
   {
     char FarName[NM];
