@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.84 07.08.2001 $ */
+/* Revision: 1.85 13.08.2001 $ */
 
 /*
 Modify:
+  13.08.2001 SVS
+    - Забыл в прошлый раз проставить интернал PluginNumber в функции
+      GetPluginDirList() для случая, если hPlugin=INVALID_HANDLE_VALUE
   07.08.2001 IS
     + Фича в FarCharTable: при неудаче считывания настроек по определенной
       символьной таблице структура CharTableSet заполняется данными для OEM.
@@ -233,6 +236,7 @@ Modify:
 #include "plugin.hpp"
 #include "global.hpp"
 #include "fn.hpp"
+#include "struct.hpp"
 #include "keys.hpp"
 #include "lang.hpp"
 #include "help.hpp"
@@ -1150,17 +1154,19 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
       Message(0,0,"",MSG(MPreparingList),DirName);
       PluginSearchMsgOut=FALSE;
 
-      static struct PluginHandle
-      {
-        HANDLE InternalHandle;
-        int PluginNumber;
-      } DirListPlugin;
+      static struct PluginHandle DirListPlugin;
+
       // А не хочет ли плагин посмотреть на текущую панель?
       if (hPlugin==INVALID_HANDLE_VALUE)
-        hPlugin=((struct PluginHandle *)CtrlObject->Cp()->ActivePanel->GetPluginHandle())->InternalHandle;
-
-      DirListPlugin.PluginNumber=PluginNumber;
-      DirListPlugin.InternalHandle=hPlugin;
+      {
+        DirListPlugin=*(struct PluginHandle *)
+                       CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+      }
+      else
+      {
+        DirListPlugin.PluginNumber=PluginNumber;
+        DirListPlugin.InternalHandle=hPlugin;
+      }
       hDirListPlugin=(HANDLE)&DirListPlugin;
       StopSearch=FALSE;
       *pItemsNumber=DirListItemsNumber=0;
