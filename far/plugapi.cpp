@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.28 04.12.2000 $ */
+/* Revision: 1.29 13.12.2000 $ */
 
 /*
 Modify:
+  13.12.2000 SVS
+    ! FarDialogItem.Data - копирование strcpy заменено на memmove
+      (терялись данные пользователя)
   04.12.2000 SVS
     + ACTL_GETCOLOR - получить определенный цвет
     + ACTL_GETARRAYCOLOR - получить весь массив цветов
@@ -364,6 +367,10 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
   return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL,NULL,NULL,NULL);
 }
 
+/* $   13.12.2000 SVS
+   ! FarDialogItem.Data - копирование strcpy заменено на memmove
+   (терялись данные пользователя)
+*/
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
            DWORD Reserved, DWORD Flags,
@@ -387,7 +394,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     InternalItem[I].Selected=Item[I].Selected;
     InternalItem[I].Flags=Item[I].Flags;
     InternalItem[I].DefaultButton=Item[I].DefaultButton;
-    strcpy(InternalItem[I].Data,Item[I].Data);
+    memmove(InternalItem[I].Data,Item[I].Data,sizeof(Item[I].Data));
     InternalItem[I].ObjPtr=NULL;
   }
 
@@ -427,7 +434,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     Item[I].Selected=InternalItem[I].Selected;
     Item[I].Flags=InternalItem[I].Flags;
     Item[I].DefaultButton=InternalItem[I].DefaultButton;
-    strcpy(Item[I].Data,InternalItem[I].Data);
+    memmove(Item[I].Data,InternalItem[I].Data,sizeof(Item[I].Data));
   }
   /* $ 13.07.2000 SVS
      для new[] нужен delete[]
@@ -437,6 +444,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 //  CheckScreenLock();
   return(ExitCode);
 }
+/* SVS 13.12.2000 $ */
 /* SVS $ */
 
 char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
