@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.51 23.10.2003 $ */
+/* Revision: 1.52 06.05.2004 $ */
 
 /*
 Modify:
+  06.05.2004 SVS
+    - BugZ#1069 - cosmetic bug: прорисовка меню невто врем€.
   20.10.2003 SVS
     + ќбработка KEY_MACRO_SELECTED, KEY_MACRO_EOF и KEY_MACRO_BOF
   12.09.2003 SVS
@@ -280,7 +282,7 @@ void FilePanels::Init()
       PassivePanel->InitCurDir(Opt.PassiveFolder);
     }
   }
-
+#if 1
   //! ¬начале "показываем" пассивную панель
   if(PassiveIsLeftFlag)
   {
@@ -304,7 +306,7 @@ void FilePanels::Init()
       LeftPanel->Show();
     }
   }
-
+#endif
   // при понашенных панел€х не забыть бы выставить корректно каталог в CmdLine
   if (!Opt.RightPanel.Visible && !Opt.LeftPanel.Visible)
   {
@@ -1127,23 +1129,68 @@ void FilePanels::Show()
 
 void FilePanels::Redraw()
 {
-//    if ( Focus==0 )
-//        return;
-    _OT(SysLog("[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-    CtrlObject->CmdLine->ShowBackground();
-    if (LeftPanel->IsVisible())
-        LeftPanel->Show();
-    if (RightPanel->IsVisible())
-        RightPanel->Show();
-    CtrlObject->CmdLine->Show();
-    if (Opt.ShowKeyBar)
-      MainKeyBar.Show();
-    else
-      if(MainKeyBar.IsVisible())
-        MainKeyBar.Hide();
-    KeyBarVisible=Opt.ShowKeyBar;
-    if (Opt.ShowMenuBar)
-      CtrlObject->TopMenuBar->Show();
+//  if ( Focus==0 )
+//      return;
+  _OT(SysLog("[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
+  CtrlObject->CmdLine->ShowBackground();
+
+  if (Opt.ShowMenuBar)
+    CtrlObject->TopMenuBar->Show();
+  CtrlObject->CmdLine->Show();
+
+  if (Opt.ShowKeyBar)
+    MainKeyBar.Show();
+  else
+    if(MainKeyBar.IsVisible())
+      MainKeyBar.Hide();
+  KeyBarVisible=Opt.ShowKeyBar;
+#if 1
+  if (LeftPanel->IsVisible())
+      LeftPanel->Show();
+  if (RightPanel->IsVisible())
+      RightPanel->Show();
+#else
+  Panel *PassivePanel=NULL;
+  int PassiveIsLeftFlag=TRUE;
+
+  if (Opt.LeftPanel.Focus)
+  {
+    ActivePanel=LeftPanel;
+    PassivePanel=RightPanel;
+    PassiveIsLeftFlag=FALSE;
+  }
+  else
+  {
+    ActivePanel=RightPanel;
+    PassivePanel=LeftPanel;
+    PassiveIsLeftFlag=TRUE;
+  }
+
+  //! ¬начале "показываем" пассивную панель
+  if(PassiveIsLeftFlag)
+  {
+    if (Opt.LeftPanel.Visible)
+    {
+      LeftPanel->Show();
+    }
+    if (Opt.RightPanel.Visible)
+    {
+      RightPanel->Show();
+    }
+  }
+  else
+  {
+    if (Opt.RightPanel.Visible)
+    {
+      RightPanel->Show();
+    }
+    if (Opt.LeftPanel.Visible)
+    {
+      LeftPanel->Show();
+    }
+  }
+
+#endif
 }
 
 int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)

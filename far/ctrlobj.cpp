@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.52 18.12.2003 $ */
+/* Revision: 1.53 06.05.2004 $ */
 
 /*
 Modify:
+  06.05.2004 SVS
+    - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
   18.12.2003 SVS
     + новый параметр у конструктора History
   06.06.2003 SVS
@@ -229,8 +231,16 @@ void ControlObject::Init()
   FPanels=new FilePanels();
   this->MainKeyBar=&(FPanels->MainKeyBar);
   this->TopMenuBar=&(FPanels->TopMenuBar);
+
   FPanels->Init();
   FPanels->SetScreenPosition();
+
+  if (Opt.ShowMenuBar)
+    this->TopMenuBar->Show();
+//  FPanels->Redraw();
+  CmdLine->Show();
+  if(Opt.ShowKeyBar)
+    this->MainKeyBar->Show();
 
   RegistrationBugs=FALSE;
 #ifdef _DEBUGEXC
@@ -241,10 +251,6 @@ void ControlObject::Init()
       RegistrationBugs=TRUE;
       CheckVersion(NULL);
     }
-
-  CmdLine->Show();
-  if(Opt.ShowKeyBar)
-    this->MainKeyBar->Show();
 
   Cp()->LeftPanel->Update(0);
   Cp()->RightPanel->Update(0);

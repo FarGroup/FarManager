@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.121 05.05.2004 $ */
+/* Revision: 1.122 06.05.2004 $ */
 
 /*
 Modify:
+  06.05.2004 SVS
+    - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
+      MainMenu перерисуем пораньше....
   05.05.2004 SVS
     ! проверим медию на выбрасываемость - вызов новой функции IsEjectableMedia()
   07.01.2004 SVS
@@ -1785,6 +1788,10 @@ void Panel::Hide()
 
 void Panel::Show()
 {
+  /* $ 03.10.2001 IS перерисуем строчку меню */
+  if (Opt.ShowMenuBar)
+      CtrlObject->TopMenuBar->Show();
+  /* IS $ */
   /* $ 09.05.2001 OT */
 //  SavePrevScreen();
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -1810,10 +1817,6 @@ void Panel::Show()
     }
   }
   ScreenObject::Show();
-  /* $ 03.10.2001 IS перерисуем строчку меню */
-    if (Opt.ShowMenuBar)
-      CtrlObject->TopMenuBar->Show();
-  /* IS $ */
   ShowScreensCount();
 }
 
