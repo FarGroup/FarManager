@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.10 01.02.2001 $ */
+/* Revision: 1.11 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 SVS
+    - бага - неверно конвертилось имя клавиши :-(
   01.02.2001 SVS
     - Неверное преобразование клавиш в VK_* в функции TranslateKeyToVK()
       из-за чего не отрабатывал ENTER, etc в плагинах.
@@ -705,17 +707,13 @@ int WINAPI KeyNameToKey(char *Name)
          Key|=FKeys1[I].Key;
          break;
        }
-//SysLog("KeyNameToKey=%x (%c)",Key,Key&0xFF);
      if(I  == sizeof(FKeys1)/sizeof(FKeys1[0]))
      {
-       WORD Chr=(WORD)Name[Pos];
+       WORD Chr=(WORD)(BYTE)Name[Pos];
        if (Chr > 0 && Chr < 256)
        {
-         if (Key&(0xFF000000-KEY_SHIFT))
-         {
+//         if (Key&(0xFF000000-KEY_SHIFT))
            Key|=LocalUpper(Chr);
-//SysLog("KeyNameToKey=%x (%c) %x (%c)",Key,Key&0xFF,Chr,Chr);
-         }
        }
      }
    }
