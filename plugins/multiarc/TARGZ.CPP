@@ -388,9 +388,9 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
        "",
        "",
        "",
-       "%COMSPEC% /c gzip -c %%fQ>%%A",
+       "%COMSPEC% /c gzip -c %%fQ >%%A",
        "gzip %%fQ",
-       "%COMSPEC% /c gzip -c %%fQ>%%A",
+       "%COMSPEC% /c gzip -c %%fQ >%%A",
        "gzip %%fQ",
        "*"
      },
