@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.252 06.06.2002 $ */
+/* Revision: 1.253 09.06.2002 $ */
 
 /*
 Modify:
+  09.06.2002 KM
+    - Баг при конвертации DialogData в FarDialogItem, что
+      явно проявилось в S&R в виде невозможности запустить поиск.
   06.06.2002 KM
     - Изничтожена несовместимость DM_GETTEXT с билдом 1282.
     - Убрано ограничение в 1024 байта на длину получаемой
@@ -4213,7 +4216,6 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->Param.Selected=Data->Selected;
       Item->Flags=Data->Flags;
       Item->DefaultButton=Data->DefaultButton;
-      memmove(Item->Data.Data,Data->Data,sizeof(Item->Data.Data));
       if(InternalCall)
       {
         if(Dialog::IsEdit(Data->Type) && (EditPtr=(DlgEdit *)(Data->ObjPtr)) != NULL)
@@ -4233,6 +4235,7 @@ void Dialog::ConvertItem(int FromPlugin,
           EditPtr->GetString(PtrData,PtrLength);
         }
       }
+      memmove(Item->Data.Data,Data->Data,sizeof(Item->Data.Data));
     }
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
