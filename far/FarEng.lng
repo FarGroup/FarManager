@@ -194,6 +194,9 @@
 "Tab si&ze"
 "&Cursor beyond end of line"
 
+"Table with the character frequency distribution was not found!"
+"Option "Autodetect character table" is off."
+
 "Save setup"
 "Do you wish to save"
 "current setup?"

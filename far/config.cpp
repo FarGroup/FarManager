@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.20 15.09.2000 $ */
+/* Revision: 1.21 15.09.2000 $ */
 
 /*
 Modify:
+  15.09.2000 IS
+    + Отключение автоопределения таблицы символов, если отсутствует таблица с
+      распределением частот символов
   15.09.2000 SVS
     ! RightClickRule по умолчанию ставится в положение 2
   14.09.2000 SVS
@@ -448,7 +451,12 @@ void ViewerConfig()
   CfgDlg[DLG_VIEW_USE_ALTF3].Selected=!Opt.UseExternalViewer;
   strcpy(CfgDlg[DLG_VIEW_EXTERNAL].Data,Opt.ExternalViewer);
   CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected=Opt.SaveViewerPos;
-  CfgDlg[DLG_VIEW_AUTODETECT].Selected=Opt.ViewerAutoDetectTable;
+  /* 15.09.2000 IS
+     Отключение автоопределения таблицы символов, если отсутствует таблица с
+     распределением частот символов
+  */
+  CfgDlg[DLG_VIEW_AUTODETECT].Selected=Opt.ViewerAutoDetectTable&&DistrTableExist();
+  /* IS $ */
   CfgDlg[DLG_VIEW_SCROLLBAR].Selected=Opt.ViewerShowScrollbar;
   CfgDlg[DLG_VIEW_ARROWS].Selected=Opt.ViewerShowArrows;
   sprintf(CfgDlg[DLG_VIEW_TABSIZE].Data,"%d",Opt.ViewTabSize);
@@ -472,7 +480,18 @@ void ViewerConfig()
   Opt.UseExternalViewer=CfgDlg[DLG_VIEW_USE_F3].Selected;
   strcpy(Opt.ExternalViewer,CfgDlg[DLG_VIEW_EXTERNAL].Data);
   Opt.SaveViewerPos=CfgDlg[DLG_VIEW_SAVEFILEPOS].Selected;
-  Opt.ViewerAutoDetectTable=CfgDlg[DLG_VIEW_AUTODETECT].Selected;
+  /* 15.09.2000 IS
+     Отключение автоопределения таблицы символов, если отсутствует таблица с
+     распределением частот символов
+  */
+  if(!DistrTableExist() && Opt.ViewerAutoDetectTable)
+  {
+    Opt.ViewerAutoDetectTable=0;
+    Message(MSG_WARNING,1,MSG(MWarning),
+              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
+              MSG(MOk));
+  }
+  /* IS $ */
   Opt.ViewTabSize=atoi(CfgDlg[DLG_VIEW_TABSIZE].Data);
   Opt.ViewerShowScrollbar=CfgDlg[DLG_VIEW_SCROLLBAR].Selected;
   Opt.ViewerShowArrows=CfgDlg[DLG_VIEW_ARROWS].Selected;
@@ -519,7 +538,12 @@ void EditorConfig()
   CfgDlg[9].Selected=Opt.EditorDelRemovesBlocks;
   CfgDlg[10].Selected=Opt.EditorAutoIndent;
   CfgDlg[11].Selected=Opt.SaveEditorPos;
-  CfgDlg[12].Selected=Opt.EditorAutoDetectTable;
+  /* 15.09.2000 IS
+     Отключение автоопределения таблицы символов, если отсутствует таблица с
+     распределением частот символов
+  */
+  CfgDlg[12].Selected=Opt.EditorAutoDetectTable&&DistrTableExist();
+  /* IS $ */
   sprintf(CfgDlg[13].Data,"%d",Opt.TabSize);
   CfgDlg[15].Selected=Opt.EditorCursorBeyondEOL;
 
@@ -547,6 +571,18 @@ void EditorConfig()
   Opt.EditorAutoIndent=CfgDlg[10].Selected;
   Opt.SaveEditorPos=CfgDlg[11].Selected;
   Opt.EditorAutoDetectTable=CfgDlg[12].Selected;
+  /* 15.09.2000 IS
+     Отключение автоопределения таблицы символов, если отсутствует таблица с
+     распределением частот символов
+  */
+  if(!DistrTableExist() && Opt.EditorAutoDetectTable)
+  {
+    Opt.EditorAutoDetectTable=0;
+    Message(MSG_WARNING,1,MSG(MWarning),
+              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
+              MSG(MOk));
+  }
+  /* IS $ */
   Opt.TabSize=atoi(CfgDlg[13].Data);
   if (Opt.TabSize<1 || Opt.TabSize>512)
     Opt.TabSize=8;

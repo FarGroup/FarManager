@@ -5,10 +5,13 @@ registry.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 15.09.2000 $ */
 
 /*
 Modify:
+  15.09.2000 IS
+    + Функция CheckRegValue(char *Key, char *ValueName) - возвращает FALSE,
+      если указанная переменная не содержит данные или размер данных равен нулю
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
   25.06.2000 SVS
@@ -337,7 +340,20 @@ int CheckRegKey(char *Key)
   return(Exist);
 }
 
-
+/* 15.09.2000 IS
+   Возвращает FALSE, если указанная переменная не содержит данные
+   или размер данных равен нулю.
+*/
+int CheckRegValue(char *Key,char *ValueName)
+{
+  HKEY hKey=OpenRegKey(Key);
+  DWORD Type, DataSize=0;
+  int ExitCode=RegQueryValueEx(hKey,ValueName,0,&Type,NULL,&DataSize);
+  CloseRegKey(hKey);
+  if (hKey==NULL || ExitCode!=ERROR_SUCCESS || !DataSize) return(FALSE);
+  return(TRUE);
+}
+/* IS $ */
 
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize)
 {

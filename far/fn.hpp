@@ -7,10 +7,15 @@ fn.hpp
 
 */
 
-/* Revision: 1.26 14.09.2000 $ */
+/* Revision: 1.27 15.09.2000 $ */
 
 /*
 Modify:
+  15.09.2000 IS
+   + Функция CheckRegValue - возвращает FALSE, если указанная переменная не
+     содержит данные или размер данных равен нулю.
+   + Функция DistrTableExist - проверяет, установлена ли таблица с
+     распределением частот символов, возвращает TRUE в случае успеха
   14.09.2000 SVS
     + Функция FarMkTemp - получение имени временного файла с полным путем.
   12.09.2000 SVS
@@ -163,6 +168,12 @@ void InsertKeyRecord(char *KeyMask,int Position,int TotalKeys);
 void DeleteKeyTree(char *KeyName);
 void _cdecl CheckReg(void *Param);
 int CheckRegKey(char *Key);
+/* 15.09.2000 IS
+   Возвращает FALSE, если указанная переменная не содержит данные
+   или размер данных равен нулю.
+*/
+int CheckRegValue(char *Key,char *ValueName);
+/* IS $ */
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
 int IsFolderNotEmpty(char *Name);
 void RemoveHighlights(char *Str);
@@ -257,6 +268,11 @@ int SaveFolderShortcut(int Key,char *SrcFolder,char *PluginModule,
                        char *PluginFile,char *PluginData);
 void ShowFolderShortcut();
 void ShowFilter();
+/* 15.09.2000 IS
+   Проверяет, установлена ли таблица с распределением частот символов
+*/
+int DistrTableExist(void);
+/* IS $ */
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode);
 void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);

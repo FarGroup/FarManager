@@ -5,10 +5,13 @@ gettable.cpp
 
 */
 
-/* Revision: 1.03 08.09.2000 $ */
+/* Revision: 1.04 15.09.2000 $ */
 
 /*
 Modify:
+  15.09.2000 IS
+    + Функция DistrTableExist - проверяет, установлена ли таблица с
+      распределением частот символов, возвращает TRUE в случае успеха
   08.09.2000 tran 1.03
     + menu from registry
   27.08.2000 tran
@@ -34,6 +37,15 @@ static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,unsigned cha
 #else
 static unsigned long CalcDifference(int *SrcTable,int *CheckedTable,char *DecodeTable);
 #endif
+
+/* 15.09.2000 IS
+   Проверяет, установлена ли таблица с распределением частот символов
+*/
+int DistrTableExist(void)
+{
+ return (CheckRegValue("CodeTables","Distribution"));
+}
+/* IS $ */
 
 int GetTable(struct CharTableSet *TableSet,int AnsiText,int &TableNum,
              int &UseUnicode)
@@ -300,4 +312,3 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum)
   }
   return(TRUE);
 }
-

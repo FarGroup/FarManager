@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.16 13.09.2000 $ */
+/* Revision: 1.17 15.09.2000 $ */
 
 /*
 Modify:
+  15.09.2000 IS
+    + MDistributionTableWasNotFound, MAutoDetectWillNotWork
   13.09.2000 tran 1.16
     + MSetColorCommandLinePrefix
   12.09.2000 SVS
@@ -260,6 +262,9 @@ enum
   MEditAutoDetectTable,
   MEditConfigTabSize,
   MEditCursorBeyondEnd,
+
+  MDistributionTableWasNotFound,
+  MAutoDetectWillNotWork,
 
   MSaveSetupTitle,
   MSaveSetupAsk1,
