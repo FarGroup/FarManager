@@ -5,7 +5,7 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 21.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  21.07.2000 IG
+    - Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
 */
 
 #include "headers.hpp"
@@ -918,7 +920,11 @@ void Panel::SetTitle()
     else
     {
       char CmdText[512];
-      CtrlObject->CmdLine.GetString(CmdText,sizeof(CmdText));
+      /* $ 21.07.2000 IG
+         Bug 21 (заголовок после Ctrl-Q, Tab, F3, Esc был кривой)
+      */
+      CtrlObject->CmdLine.GetCurDir(CmdText);
+      /* IG $*/
       sprintf(TitleDir,"{%s}",CmdText);
     }
     strcpy(LastFarTitle,TitleDir);

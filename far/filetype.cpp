@@ -5,7 +5,7 @@ filetype.cpp
 
 */
 
-/* Revision: 1.02 13.07.2000 $ */
+/* Revision: 1.03 21.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     ! Изменения для возможности компиляции под BC & VC
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
+  21.07.2000 IG
+    - Bug 15 (не работала комманда executable.exe !.!?ext:?!)
 */
 
 #include "headers.hpp"
@@ -340,13 +342,21 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
       SkipQuotes=(CurStr==Str);
     if (!SkipQuotes)
     {
-      if (strncmp(CurStr,"!!",2)==0)
+      /* $ 21.07.2000 IG
+         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+      */
+      if (strncmp(CurStr,"!!",2)==0 && CurStr[2] != '?')
+      /* IG $ */
       {
         strcat(TmpStr,"!");
         CurStr+=2;
         continue;
       }
-      if (strncmp(CurStr,"!.!",3)==0)
+      /* $ 21.07.2000 IG
+         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+      */
+      if (strncmp(CurStr,"!.!",3)==0 && CurStr[3] != '?')
+      /* IG $ */
       {
         strcat(TmpStr,PassivePanel ? AnotherQuotedName:QuotedName);
         CurStr+=3;
@@ -365,7 +375,11 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         CurStr=NewCurStr;
         continue;
       }
-      if (strncmp(CurStr,"!@!",3)==0 && ListName!=NULL)
+      /* $ 21.07.2000 IG
+         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+      */
+      if (strncmp(CurStr,"!@!",3)==0 && ListName!=NULL && CurStr[3] != '?')
+      /* IG $ */
       {
         if (*ListName ||
             PassivePanel && AnotherPanel->MakeListFile(ListName,FALSE) ||
@@ -374,7 +388,11 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         CurStr+=3;
         continue;
       }
-      if (strncmp(CurStr,"!$!",3)==0 && ShortListName!=NULL)
+      /* $ 21.07.2000 IG
+         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+      */
+      if (strncmp(CurStr,"!$!",3)==0 && ShortListName!=NULL && CurStr[3] != '?')
+      /* IG $ */
       {
         if (*ShortListName ||
             PassivePanel && AnotherPanel->MakeListFile(ShortListName,TRUE) ||
@@ -383,13 +401,21 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         CurStr+=3;
         continue;
       }
-      if (strncmp(CurStr,"!-!",3)==0)
+      /* $ 21.07.2000 IG
+         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+      */
+      if (strncmp(CurStr,"!-!",3)==0 && CurStr[3] != '?')
+      /* IG $ */
       {
         strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
         CurStr+=3;
         continue;
       }
-      if (strncmp(CurStr,"!+!",3)==0)
+      /* $ 21.07.2000 IG
+         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+      */
+      if (strncmp(CurStr,"!+!",3)==0 && CurStr[3] != '?')
+      /* IG $ */
       {
         strcat(TmpStr,PassivePanel ? AnotherQuotedShortName:QuotedShortName);
         CurStr+=3;
@@ -413,7 +439,11 @@ int SubstFileName(char *Str,char *Name,char *ShortName,
         CurStr+=2;
         continue;
       }
-      if (strncmp(CurStr,"!\\!.!",5)==0)
+      /* $ 21.07.2000 IG
+         Bug 15 (не работала комманда executable.exe !.!?ext:?!)
+      */
+      if (strncmp(CurStr,"!\\!.!",5)==0 && CurStr[5] != '?')
+      /* IG $ */
       {
         char CurDir[NM];
         char *FileName=PassivePanel ? AnotherName:Name;
