@@ -1033,6 +1033,7 @@
 	".\macro.hpp"\
 	".\manager.hpp"\
 	".\menubar.hpp"\
+	".\flink.hpp"\
 	".\modal.hpp"\
 	".\panel.hpp"\
 	".\plugin.hpp"\

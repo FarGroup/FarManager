@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.153 26.10.2003 $ */
+/* Revision: 1.154 27.10.2003 $ */
 
 /*
 Modify:
+  27.10.2003 SVS
+    - Падение ФАРа при запуске в случае недоступности примонтированного диска.
   26.10.2003 KM
     - Исправление ошибки переполнения буфера в Transform.
     ! Изменение входных параметров и логики трансформирования в Transform.
@@ -1597,14 +1599,18 @@ int CheckShortcutFolder(char *TestPath,int LengthPath,int IsHostFile, BOOL Silen
           *Ptr=0;
           if(GetFileAttributes(TestPathTemp) != -1)
           {
-            if(!(TestPath[0] == '\\' && TestPath[1] == '\\' && TestPathTemp[1] == 0))
+            int ChkFld=CheckFolder(TestPathTemp);
+            if(ChkFld > CHKFLD_NOTACCESS && ChkFld < CHKFLD_NOTFOUND)
             {
-              strncpy(TestPath,TestPathTemp,LengthPath);
-              if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
-                AddEndSlash(TestPath);
-              FoundPath=1;
+              if(!(TestPath[0] == '\\' && TestPath[1] == '\\' && TestPathTemp[1] == 0))
+              {
+                strncpy(TestPath,TestPathTemp,LengthPath);
+                if(strlen(TestPath) == 2) // для случая "C:", иначе попадем в текущий каталог диска C:
+                  AddEndSlash(TestPath);
+                FoundPath=1;
+              }
+              break;
             }
-            break;
           }
         }
       }

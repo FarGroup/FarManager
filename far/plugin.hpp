@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.238 17.10.2003 $ */
+/* Revision: 1.239 24.10.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  24.10.2003 SVS
+    + DI_MEMOEDIT - продолжаем работу на мультистроковым диалоговым элементом редактирования
+      (пока для внутреннего использования)
   17.10.2003 SVS
     + Забыл про опцию в диалоге настройки диалогов - FDIS_BSDELETEUNCHANGEDTEXT
   13.10.2003 SVS
@@ -891,6 +894,9 @@ enum DialogItemTypes {
   DI_RADIOBUTTON,
   DI_COMBOBOX,
   DI_LISTBOX,
+#ifdef FAR_USE_INTERNALS
+  DI_MEMOEDIT,
+#endif // END FAR_USE_INTERNALS
 
   DI_USERCONTROL=255,
 };

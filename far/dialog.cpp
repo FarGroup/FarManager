@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.293 20.10.2003 $ */
+/* Revision: 1.294 24.10.2003 $ */
 
 /*
 Modify:
+  24.10.2003 SVS
+    ! про диапазон макроклавиш
   23.10.2003 SVS
     ! Dialog::GetDialogTitle возвращает const
     + CRITICAL_SECTION CSection
@@ -1644,7 +1646,7 @@ int Dialog::InitDialogObjects(int ID)
                              X1+CurItem->X2,Y1+CurItem->Y2);
         ListPtr->SetBoxType(SHORT_SINGLE_BOX);
         // поле FarDialogItem.Data для DI_LISTBOX используется как верхний заголовок листа
-        if(!(ItemFlags&DIF_LISTNOBOX))
+        if(!(ItemFlags&DIF_LISTNOBOX) && !DialogMode.Check(DMODE_CREATEOBJECTS))
           ListPtr->SetTitle(CurItem->Data);
         // удалим все итемы
         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
@@ -3112,7 +3114,7 @@ int Dialog::ProcessKey(int Key)
     Key=KEY_SHIFTENTER;
   }
 
-  if(!(Key&0x00C00000) && !DialogMode.Check(DMODE_KEY))
+  if(!(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) && !DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DN_KEY,FocusPos,Key))
       return TRUE;
 

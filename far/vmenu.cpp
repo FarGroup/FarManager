@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.121 23.10.2003 $ */
+/* Revision: 1.122 27.10.2003 $ */
 
 /*
 Modify:
+  27.10.2003 SVS
+    + В VMenu::AddItem() засунем критические секции
   23.10.2003 SVS
     + Обработка KEY_MACRO_EMPTY, KEY_MACRO_SELECTED, KEY_MACRO_EOF и KEY_MACRO_BOF
     ! VMenuCSection -> CSection
@@ -1571,6 +1573,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   while (CallCount>0)
     Sleep(10);
   InterlockedIncrement(&CallCount);
+  EnterCriticalSection(&CSection);
 
   struct MenuItem *NewPtr;
   int Length;
@@ -1584,7 +1587,11 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
   if ((ItemCount & 255)==0)
   {
     if ((NewPtr=(struct MenuItem *)xf_realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
+    {
+      InterlockedDecrement(&CallCount);
+      LeaveCriticalSection(&CSection);
       return(0);
+    }
     Item=NewPtr;
   }
 
@@ -1649,6 +1656,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 //  if(VMFlags.Check(VMENU_LISTBOXSORT))
 //    SortItems(0);
   InterlockedDecrement(&CallCount);
+  LeaveCriticalSection(&CSection);
   return(ItemCount++);
 }
 

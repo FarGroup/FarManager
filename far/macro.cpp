@@ -5,10 +5,19 @@ macro.cpp
 
 */
 
-/* Revision: 1.109 20.10.2003 $ */
+/* Revision: 1.110 28.10.2003 $ */
 
 /*
 Modify:
+  28.10.2003 SVS
+    ! Ћибо есть Work.MacroWORK либо его нет.
+    ! –аз уж решили работать только в WORK-области, значит так тому и быть.
+      “ак же, если в стеке состо€ний есть что-то - не убираем лок экрана
+      “ак же, если макрос закончилс€, то принудительно вернем (если есть)
+      предыдущее состо€ние (из стека состо€ний)
+    + MCODE_C_?PANEL_ROOT
+    ! Executing -> MacroState.Executing
+    ! ƒобавлена небольша€ проверка на корректность $If
   20.10.2003 SVS
     ! переименование
         KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
@@ -410,6 +419,8 @@ enum MACRO_OP_CODE {
   MCODE_C_PPANEL_BOF,            // начало пассивного каталога?
   MCODE_C_APANEL_EOF,            // конец активного  каталога?
   MCODE_C_PPANEL_EOF,            // конец пассивного каталога?
+  MCODE_C_APANEL_ROOT,           // это корневой каталог активной панели?
+  MCODE_C_PPANEL_ROOT,           // это корневой каталог пассивной панели?
   MCODE_C_APANEL_VISIBLE,        // активна€ панель:  видима?
   MCODE_C_PPANEL_VISIBLE,        // пассивна€ панель: видима?
   MCODE_C_APANEL_PLUGIN,         // активна€ панель:  плагинова€?
@@ -467,6 +478,8 @@ static struct TMacroKeywords {
   {2,  "PPanel.Bof",         MCODE_C_PPANEL_BOF,0},
   {2,  "APanel.Eof",         MCODE_C_APANEL_EOF,0},
   {2,  "PPanel.Eof",         MCODE_C_PPANEL_EOF,0},
+  {2,  "APanel.Root",        MCODE_C_APANEL_ROOT,0},
+  {2,  "PPanel.Root",        MCODE_C_PPANEL_ROOT,0},
   {2,  "APanel.Visible",     MCODE_C_APANEL_VISIBLE,0},
   {2,  "PPanel.Visible",     MCODE_C_PPANEL_VISIBLE,0},
   {2,  "APanel.Plugin",      MCODE_C_APANEL_PLUGIN,0},
@@ -613,7 +626,7 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
   if(InitedRAM)
   {
     ReleaseWORKBuffer(TRUE);
-    Executing=MACROMODE_NOMACRO;
+    Work.Executing=MACROMODE_NOMACRO;
   }
 
   RecBuffer=NULL;
@@ -813,7 +826,7 @@ int KeyMacro::ProcessKey(int Key)
   }
   else
   {
-    if (Executing == MACROMODE_NOMACRO) // Ёто еще не режим исполнени€?
+    if (Work.Executing == MACROMODE_NOMACRO) // Ёто еще не режим исполнени€?
     {
       DWORD CurFlags;
 //_SVS(SysLog(">Key=%s",_FARKEY_ToName(Key)));
@@ -860,9 +873,10 @@ int KeyMacro::ProcessKey(int Key)
 
 char *KeyMacro::GetPlainText(char *Dest)
 {
-  struct MacroRecord *MR;
+  if(!Work.MacroWORK)
+    return NULL;
 
-  MR=!Work.MacroWORK?MacroLIB+Work.MacroPC:Work.MacroWORK;
+  struct MacroRecord *MR=Work.MacroWORK;
 
   int LenTextBuf=strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
   Dest[0]=0;
@@ -881,7 +895,9 @@ char *KeyMacro::GetPlainText(char *Dest)
 
 int KeyMacro::GetPlainTextSize()
 {
-  struct MacroRecord *MR=!Work.MacroWORK?MacroLIB+Work.MacroPC:Work.MacroWORK;
+  if(!Work.MacroWORK)
+    return 0;
+  struct MacroRecord *MR=Work.MacroWORK;
   return strlen((char*)&MR->Buffer[Work.ExecLIBPos]);
 }
 
@@ -935,6 +951,15 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
           {
             Cond=CurFrame->ProcessKey(CheckCode==MCODE_C_BOF?KEY_MACRO_BOF:KEY_MACRO_EOF)?1:0;
           }
+          break;
+        }
+
+        case MCODE_C_APANEL_ROOT:  // APanel.Root
+        case MCODE_C_PPANEL_ROOT:  // PPanel.Root
+        {
+          Panel *SelPanel=(CheckCode==MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
+          if(SelPanel!=NULL)
+            Cond=SelPanel->ProcessKey(KEY_MACRO_ROOTFOLDER)?1:0;
           break;
         }
 
@@ -1057,14 +1082,19 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
 int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
-//_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Executing,FrameManager->GetCurrentFrame()));
+//_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Work.Executing,FrameManager->GetCurrentFrame()));
   if (InternalInput || !FrameManager->GetCurrentFrame())
     return(FALSE);
 
-  if(Executing == MACROMODE_NOMACRO)
+  if(Work.Executing == MACROMODE_NOMACRO)
   {
     if(!Work.MacroWORK)
     {
+      if(CurPCStack >= 0)
+      {
+        PopState();
+        return(FALSE);
+      }
       if(Mode==MACRO_EDITOR &&
          IsRedrawEditor &&
          CtrlObject->Plugins.CurEditor &&
@@ -1075,8 +1105,11 @@ int KeyMacro::GetKey()
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
         CtrlObject->Plugins.CurEditor->Show();
       }
-      if(LockScr) delete LockScr;
-      LockScr=NULL;
+      if(CurPCStack < 0)
+      {
+        if(LockScr) delete LockScr;
+        LockScr=NULL;
+      }
       if(TitleModified) SetFarTitle(NULL);
       return(FALSE);
     }
@@ -1084,20 +1117,23 @@ int KeyMacro::GetKey()
     else if(Work.ExecLIBPos>=MR->BufferSize)
     {
       ReleaseWORKBuffer();
-      Executing=MACROMODE_NOMACRO;
+      Work.Executing=MACROMODE_NOMACRO;
       return(FALSE);
     }
     else
 */
+    //if(Work.MacroWORK)
     {
-      MR=!Work.MacroWORK?MacroLIB+Work.MacroPC:Work.MacroWORK;
-      Executing=MR->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+      Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
       Work.ExecLIBPos=0; //?????????????????????????????????
     }
+    //else
+    //  return FALSE;
   }
 
 initial:
-  MR=!Work.MacroWORK?MacroLIB+Work.MacroPC:Work.MacroWORK;
+  if((MR=Work.MacroWORK) == NULL)
+    return FALSE;
 //_SVS(SysLog("KeyMacro::GetKey() initial: Work.ExecLIBPos=%d (%d) %p",Work.ExecLIBPos,MR->BufferSize,Work.MacroWORK));
 
   // ¬Ќ»ћјЌ»≈! ¬озможны глюки!
@@ -1129,9 +1165,12 @@ done:
       CtrlObject->Plugins.CurEditor->Show();
     }
     /* skv$*/
-    if(LockScr) delete LockScr;
-    LockScr=NULL;
-    Executing=MACROMODE_NOMACRO;
+    if(CurPCStack < 0)
+    {
+      if(LockScr) delete LockScr;
+      LockScr=NULL;
+    }
+    Work.Executing=MACROMODE_NOMACRO;
     ReleaseWORKBuffer();
     // проверим - "а есть ли в временном стеке еще макрџсы"?
     if(Work.MacroWORKCount > 0)
@@ -1144,11 +1183,16 @@ done:
     //FrameManager->PluginCommit();
     _KEYMACRO(SysLog(-1));
     _KEYMACRO(SysLog("**** End Of Execute Macro ****"));
+    if(CurPCStack >= 0)
+    {
+      PopState();
+      goto initial;
+    }
     return(FALSE);
   }
 
   if(Work.ExecLIBPos==0)
-    Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+    Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 
   DWORD Key=GetOpCode(MR,Work.ExecLIBPos++);
   _SVS(char KeyText[50]);
@@ -1291,7 +1335,7 @@ done:
   if(MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
   {
     ReleaseWORKBuffer();
-    Executing=MACROMODE_NOMACRO;
+    Work.Executing=MACROMODE_NOMACRO;
     if(TitleModified)
       SetFarTitle(NULL);
   }
@@ -1302,11 +1346,11 @@ done:
 // ѕроверить - еслть ли еще клавиша?
 int KeyMacro::PeekKey()
 {
-  struct MacroRecord *MR=!Work.MacroWORK?MacroLIB+Work.MacroPC:Work.MacroWORK;
-  if (InternalInput)
+  if (InternalInput || !Work.MacroWORK)
     return(0);
 
-  if(Executing == MACROMODE_NOMACRO && !Work.MacroWORK || Work.ExecLIBPos >= MR->BufferSize)
+  struct MacroRecord *MR=Work.MacroWORK;
+  if(Work.Executing == MACROMODE_NOMACRO && !Work.MacroWORK || Work.ExecLIBPos >= MR->BufferSize)
     return(FALSE);
 
   DWORD OpCode=GetOpCode(MR,Work.ExecLIBPos);
@@ -1404,7 +1448,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
         case MCODE_OP_ELSE:
         case MCODE_OP_IFTHEN:
         case MCODE_OP_ENDIF:
-        {
+        {                              // 28.10.2003 L&K  эт что за конструкци€ така€? :-)
           break;
         }
 
@@ -1698,6 +1742,9 @@ long WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Par
   }
   else if(Msg == DN_KEY && (Param2&KEY_END_SKEY) < KEY_END_FKEY)
   {
+//    if((Param2&0x00FFFFFF) >= 'A' && (Param2&0x00FFFFFF) <= 'Z' && ShiftPressed)
+//      Param2|=KEY_SHIFT;
+
 //_SVS(SysLog("Macro: Key=%s",_FARKEY_ToName(Param2)));
     // <ќбработка особых клавиш: F1 & Enter>
     // Esc & (Enter и предыдущий Enter) - не обрабатываем
@@ -1776,8 +1823,7 @@ M1:
         I=Message(MSG_WARNING,2,MSG(MWarning),
             Buf,
             BufKey,
-            MSG(!MacroDlg->RecBufferSize?
-                  MMacroDeleteKey2:
+            MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
                   (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
             MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
             MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
@@ -2002,7 +2048,7 @@ int KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)
   memcpy(NewMacroWORK,&NewMacroWORK2,sizeof(struct MacroRecord));
   Work.MacroWORKCount++;
 
-//  Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+//  Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
   if(Work.ExecLIBPos == Work.MacroWORK->BufferSize)
     Work.ExecLIBPos=0;
   return TRUE;
@@ -2053,7 +2099,7 @@ int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag)
   memcpy(NewMacroWORK,&NewMacroWORK2,sizeof(struct MacroRecord));
   Work.MacroWORKCount++;
 
-//  Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+//  Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
   if(Work.ExecLIBPos == Work.MacroWORK->BufferSize)
     Work.ExecLIBPos=0;
   return TRUE;
@@ -2077,6 +2123,8 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
   int J,I;
   int RepLevel=-1;
   int IfLevel=-1;
+  /* 28.10.2003 L&K ƒл€ проверки на забытый или лишний $Then */
+  int ThenLevel=-1;
   DWORD *CurMacro_Buffer=NULL;
   DWORD KeyCode;
   int Size, Length;
@@ -2147,6 +2195,8 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
       // $Rep Count Seq $EndRep
       case MCODE_OP_REP:
       {
+//        if(!strstr(BufPtr,"$EndRep"))
+//          goto clean_done;
         if((BufPtr=__GetNextWord(BufPtr,CurKeyText)) == NULL) // возьмем очередное "слово", предполагаетс€, что это CounterOrig
           break;
         Size+=2;  // естественно, размер будет на 2 больше
@@ -2177,6 +2227,10 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
       */
       case MCODE_OP_IF:
       {
+//        if(!strstr(BufPtr,"$Then"))
+//          goto clean_done;
+//        if(!strstr(BufPtr,"$EndIf"))
+//          goto clean_done;
         if((BufPtr=__GetNextWord(BufPtr,CurKeyText)) == NULL) // возьмем очередное "слово" - Condition
           break;
         Size+=3;  // естественно, размер будет на 3 больше
@@ -2189,6 +2243,8 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 
       case MCODE_OP_ELSE:
       {
+//        if(!strstr(BufPtr,"$EndIf"))
+//          goto clean_done;
         // здесь нужно вставить (MCODE_OP_JMP|idxEndIf) перед MCODE_OP_ELSE
         Size++;
         break;
@@ -2216,9 +2272,16 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
         case MCODE_OP_ENDREP:
         case MCODE_OP_IF:
         case MCODE_OP_ENDIF:
-        case MCODE_OP_IFTHEN:
         case MCODE_OP_MACROMODE:
         case MCODE_OP_EXIT:
+          CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
+          break;
+        case MCODE_OP_IFTHEN:
+          /* 28.10.2003 L&K ѕроверка на забытый $Then */
+          if(ThenLevel+1 != IfLevel)
+            goto clean_done;		// нестыковка в количестве $If и $Then
+          // все класс, $Then'ов на один меньше, чем $If'ов
+          ThenLevel++;                  // подравниваем...
           CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
           break;
         case MCODE_OP_ELSE:
@@ -2239,6 +2302,9 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
            ]
               idxEndIf: MCODE_OP_ENDIF
           */
+          /* 28.10.2003 L&K ѕроверка на забытый $Then */
+          if(ThenLevel != IfLevel)
+            goto clean_done;		// забыли
 
           CurMacro_Buffer[If[IfLevel]]=MCODE_OP_JMP | (CurMacro->BufferSize+1);  // 3: MCODE_OP_JMP | idxElse
           If[IfLevel]=CurMacro->BufferSize;                                    // зпоминаем позицию дл€ заполнени€ "N: MCODE_OP_JMP | idxEndIf"
@@ -2331,11 +2397,17 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 
         case MCODE_OP_ENDIF:
         {
+          /* 28.10.2003 L&K ѕроверка на забытый $Then */
+          if(ThenLevel != IfLevel)
+            goto clean_done;		// забыли (или лишний :)
+
           // заполнение индекса дл€ N: (MCODE_OP_JMP|idxEndIf) или (MCODE_OP_JMP|idxElse), если '$else' не было
           if(If[IfLevel] != -1)
             CurMacro_Buffer[If[IfLevel]]=MCODE_OP_JMP | CurMacro->BufferSize;
           If[IfLevel]=-1;
           --IfLevel;
+          /* 28.10.2003 L&K проверка на забытай $Then */
+          --ThenLevel;          // $If кончилс€, подравн€ть счетчик $Then'ов
           break;
         }
       } // end switch(KeyCode)
@@ -2609,10 +2681,9 @@ BOOL KeyMacro::CheckAll(int CheckMode,DWORD CurFlags)
 */
 BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 {
-  if(Executing)
+  if(Work.Executing && Work.MacroWORK)
   {
-    struct MacroRecord *MR=!Work.MacroWORK?MacroLIB+Work.MacroPC:Work.MacroWORK;
-    return (MR->Flags&Flags)?TRUE:FALSE;
+    return (Work.MacroWORK->Flags&Flags)?TRUE:FALSE;
   }
   return(FALSE);
 
@@ -2626,14 +2697,14 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 {
   if(KeyPos && RBuf)
   {
-    *KeyPos=Executing?Work.ExecLIBPos:0;
+    *KeyPos=Work.Executing?Work.ExecLIBPos:0;
     memset(RBuf,0,sizeof(struct MacroRecord));
     if(Recording == MACROMODE_NOMACRO)
     {
-      if(Executing)
+      if(Work.Executing)
       {
-        memcpy(RBuf,MacroLIB+Work.MacroPC,sizeof(struct MacroRecord));
-        return Executing;
+        memcpy(RBuf,MacroLIB+Work.MacroPC,sizeof(struct MacroRecord)); //????
+        return Work.Executing;
       }
       memset(RBuf,0,sizeof(struct MacroRecord));
       return MACROMODE_NOMACRO;
@@ -2642,7 +2713,7 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
     RBuf->Buffer=RecBuffer;
     return Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON;
   }
-  return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Executing?Executing:MACROMODE_NOMACRO);
+  return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
 }
 
 static int __cdecl SortMacros(const struct MacroRecord *el1,
@@ -2711,22 +2782,20 @@ DWORD KeyMacro::SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode)
 // BugZ#873 - ACTL_POSTKEYSEQUENCE и заголовок окна
 int KeyMacro::IsExecutingLastKey()
 {
-  if(Executing)
+  if(Work.Executing && Work.MacroWORK)
   {
-    struct MacroRecord *MR;
-    MR=!Work.MacroWORK?MacroLIB+Work.MacroPC:Work.MacroWORK;
-    return (Work.ExecLIBPos == MR->BufferSize-1);
+    return (Work.ExecLIBPos == Work.MacroWORK->BufferSize-1);
   }
   return FALSE;
 }
 
 void KeyMacro::DropProcess()
 {
-  if(Executing)
+  if(Work.Executing)
   {
     if(LockScr) delete LockScr;
     LockScr=NULL;
-    Executing=MACROMODE_NOMACRO;
+    Work.Executing=MACROMODE_NOMACRO;
     ReleaseWORKBuffer();
   }
 }

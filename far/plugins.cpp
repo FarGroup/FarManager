@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.146 06.10.2003 $ */
+/* Revision: 1.147 29.10.2003 $ */
 
 /*
 Modify:
+  29.10.2003 SVS
+    + Opt.LoadPlug.SilentLoadPlugin - тихий режим загрузки плагинов
   06.10.2003 SVS
     ! PluginsSet::ProcessEditorEvent() и PluginsSet::ProcessViewerEvent() возвращают значение типа int
   31.07.2003 SVS
@@ -794,11 +796,14 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   /* "...И добавь первичную загрузку с DONT_RESOLVE_DLL_REFERENCES..."  */
   if (!hModule && !(LstErr == ERROR_BAD_EXE_FORMAT || LstErr == ERROR_PROC_NOT_FOUND))
   {
-    char PlgName[NM];
-    strncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);
-    TruncPathStr(PlgName,ScrX-20);
-    SetMessageHelp("ErrLoadPlugin");
-    Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),PlgName,MSG(MOk));
+    if(!Opt.LoadPlug.SilentLoadPlugin)
+    {
+      char PlgName[NM];
+      strncpy(PlgName,CurPlugin.ModuleName,sizeof(PlgName)-1);
+      TruncPathStr(PlgName,ScrX-20);
+      SetMessageHelp("ErrLoadPlugin");
+      Message(MSG_WARNING,1,MSG(MError),MSG(MPlgLoadPluginError),PlgName,MSG(MOk));
+    }
     CurPlugin.WorkFlags.Set(PIWF_DONTLOADAGAIN);
     return(FALSE);
   }

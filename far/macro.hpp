@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.30 15.10.2003 $ */
+/* Revision: 1.31 28.10.2003 $ */
 
 /*
 Modify:
+  28.10.2003 SVS
+    ! Executing -> MacroState.Executing
   15.10.2003 SVS
     + GetMacroKeyInfo - информация об очередной макроклавише.
     + Сохранение/восстановление макроокружения.
@@ -114,6 +116,7 @@ struct MacroRecord
 
 struct MacroState
 {
+  int Executing;
   int MacroPC;
   int ExecLIBPos;
   int MacroWORKCount;
@@ -132,7 +135,6 @@ class KeyMacro
     // тип записи - с вызовом диалога настроек или...
     // 0 - нет записи, 1 - простая запись, 2 - вызов диалога настроек
     int Recording;
-    int Executing;
     int InternalInput;
     int IsRedrawEditor;
 
@@ -195,7 +197,7 @@ class KeyMacro
     int GetLevelState(){return CurPCStack;};
 
     int  IsRecording() {return(Recording);};
-    int  IsExecuting() {return(Executing);};
+    int  IsExecuting() {return(Work.Executing);};
     int  IsExecutingLastKey();
     int  IsDsableOutput() {return CheckCurMacroFlags(MFLAGS_DISABLEOUTPUT);};
     void SetMode(int Mode) {KeyMacro::Mode=Mode;};

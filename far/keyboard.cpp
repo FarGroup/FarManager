@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.102 20.10.2003 $ */
+/* Revision: 1.103 24.10.2003 $ */
 
 /*
 Modify:
+  24.10.2003 SVS
+    ! уточнение FarNameToKey
   20.10.2003 SVS
     - преобразование Key = FarNameToKey ("AltCtrlБуква") -> FarKeyToName (Key) работает
       некорректно (возвращается Alt00000, вместо AltCtrlБуква
@@ -1748,8 +1750,12 @@ int WINAPI KeyNameToKey(const char *Name)
          WORD Chr=(WORD)(BYTE)Name[Pos];
          if (Chr > 0 && Chr < 256)
          {
-  //         if (Key&(0xFF000000-KEY_SHIFT))
-  //           Chr=LocalUpper(Chr);
+           if (Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT))
+           {
+             if(Chr > 0x7F)
+                Chr=LocalKeyToKey(Chr);
+             Chr=LocalUpper(Chr);
+           }
            Key|=Chr;
            Pos++;
          }
@@ -1766,6 +1772,13 @@ int WINAPI KeyNameToKey(const char *Name)
        }
      }
    }
+/*
+   if(!(Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALTDIGIT)) && (Key&KEY_SHIFT) && LocalIsalpha(Key&(~KEY_CTRLMASK)))
+   {
+     Key&=~KEY_SHIFT;
+     Key=LocalUpper(Key);
+   }
+*/
 //// // _SVS(SysLog("Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 
    return (!Key || Pos < Len)? -1: Key;

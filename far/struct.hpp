@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.110 14.10.2003 $ */
+/* Revision: 1.111 29.10.2003 $ */
 
 /*
 Modify:
+  29.10.2003 SVS
+    + LoadPluginsOptions.SilentLoadPlugin - тихий режим загрузки плагинов
   14.10.2003 SVS
     ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
     + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
@@ -565,6 +567,7 @@ struct LoadPluginsOptions{
   */
   char PersonalPluginsPath[1024];
   /* SVS $*/
+  int SilentLoadPlugin; // при загрузке плагина с кривым...
 };
 
 struct FindFileOptions{

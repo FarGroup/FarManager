@@ -24,11 +24,13 @@ keys.hpp
 */
 #endif // END FAR_USE_INTERNALS
 
-/* Revision: 1.27 20.10.2003 $ */
+/* Revision: 1.28 28.10.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
 Modify:
+  28.10.2003 SVS
+    + KEY_MACRO_ROOTFOLDER
   20.10.2003 SVS
     ! переименование
         KEY_MACRO_EDITSELECTED -> KEY_MACRO_SELECTED
@@ -239,6 +241,7 @@ enum BaseDefKeyboard
   KEY_MACRO_EOF,
   KEY_MACRO_BOF,
   KEY_MACRO_EMPTY,
+  KEY_MACRO_ROOTFOLDER,
 
 #if defined(MOUSEKEY)
   KEY_MACROSELWORD,

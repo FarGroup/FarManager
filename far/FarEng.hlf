@@ -1529,7 +1529,8 @@ $ #Special symbols#
     #!$!#      Name of file with selected short file names list
     #!&#       List of selected files
     #!&~~#      List of selected short file names
-    #!:#       Current drive
+    #!:#       Current disk, in the format like "C:"
+             For network directories - "\\\\server\\share"
     #!\\#       Current path
     #!/#       Short name of the current path
 
@@ -1543,7 +1544,13 @@ $ #Special symbols#
 
              grep !?Search for:?! !?In:?*.*!|c:\\far\\far.exe -v -
 
-    #!###       "!##" modifier specified before a file association
+             It is possible to specify the history name for the
+             <init> string. In this case, the command has the
+             following format:
+
+             #!?$<history>$<title>?<init>!#
+
+#!###       "!##" modifier specified before a file association
              symbol forces it (and all the following characters)
              to refer to the passive panel (see note 4).
              For example, !##!.! denotes the name of the current
@@ -1762,7 +1769,10 @@ $ #Interface settings dialog#
                           it is inactive.
 
   #Screen saver#            Run screen saver after the inactivity
-                          interval in minutes.
+                          interval in minutes. When this option
+                          is enabled, screen saver will also
+                          activate when mouse pointer is brought
+                          to the upper right corner of FAR window.
 
   #Set command line#        This option allows to set the default
   #prompt format#           FAR command line prompt. You may use
@@ -3198,7 +3208,8 @@ $ #Hotkeys#
        Ctrl-Shift-<key>, Ctrl-Alt-<key> and Alt-Shift-<key>
 
     A macro command #can't# be assigned to the following key combinations:
-Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>, Ctrl-Alt, Ctrl-Shift, Shift-Alt
+Alt-Ins, Ctrl-<.>, Ctrl-Shift-<.>, Ctrl-Alt, Ctrl-Shift, Shift-Alt,
+Shift-<symbol>
 
     It is impossible to enter some key combinations (in particular Enter, Esc,
 F1, Ctrl-F5) in the hotkey assignment dialog because of their special
@@ -3572,7 +3583,7 @@ execution inside a macro sequence.
        #Tree#                 tree panel
        #Other#                screen grabber, vertical menus
 
-     - check state of the panel
+     - check panel state
 
        #?Panel.Visible#       panel is visible
        #?Panel.Empty#         panel is empty
@@ -3580,36 +3591,35 @@ execution inside a macro sequence.
        #?Panel.Folder#        current item (under cursor) is a folder
        #?Panel.Selected#      panel contains selected files/folders
        #?Panel.Left#          panel is on the left side
-       #?Panel.Bof#           текущий файл/каталог первый
-       #?Panel.Eof#           текущий файл/каталог последний
+       #?Panel.Bof#           cursor is positioned on the first item
+       #?Panel.Eof#           cursor is positioned on the last item
+       #?Panel.Root#          panel is a root folder
 
 
-       вместо '?Panel' необходимо прописать:
-         'APanel' - для активной панели
-       или
-         'PPanel' - для пассивной панели
+       instead of '?Panel' you should write:
+         'APanel' - for the active panel
+       or
+         'PPanel' - for the passive panel
 
-     - проверка различных состояний, в зависимости от контекста
-       исполнения макроса
+     - check various states, depending on location of macro execution
 
-       #Bof#                  достигнуто начало файла в редакторе,
-                            программе просмотра; в панелях -
-                            текущий файл первый; в строках
-                            ввода в диалогах - в начале строки;
-                            в списках/меню - указатель установлен
-                            на первом пункте.
-       #Empty#                командная строка пуста; строка ввода
-                            пуста; в редакторе/программе просмотра
-                            пустой файл; список пуст.
-       #Eof#                  достигнут конец файла в редакторе,
-                            программе просмотра; в панелях -
-                            текущий файл последний; в строках
-                            ввода в диалогах - в конце строки;
-                            в списках/меню - указатель установлен
-                            на последнем пункте
-       #Selected#             выделен блок в строках ввода,
-                            в редакторе или программе просмотра,
-                            выделен блок в командной строке.
+       #Bof#                  begining of file is reached in the
+                            editor, viewer; in the panels - cursor
+                            is positioned on the first item; in
+                            dialog input lines - cursor is the
+                            start of the line; in lists/menus -
+                            cursor is positioned on the first item.
+       #Empty#                command line is empty; input line is
+                            empty; in the editor/viewer - empty file;
+                            list/menu is empty;
+       #Eof#                  end of file is reached in the editor,
+                            viewer; in the panels - cursor is
+                            positioned on the last item; in
+                            dialog input lines - cursor is the
+                            end of the line; in lists/menus -
+                            cursor is positioned on the last item.
+       #Selected#             selection block exists in input lines,
+                            editor, viewer or the command line.
 
    'Condition' can be preceded by an '!' symbol which represents a logical
 "NOT" operator (negation). In this case the subsequent 'then-sequence' will be
@@ -3618,14 +3628,13 @@ executed if the condition 'Condition' is false.
    The '$Else Seq_else' portion of the '$If' operator can be omitted.
    Up to 16 levels of recursion are allowed for the '$If' operator.
 
-    Примеры.
+    Examples.
 
-    Макрос для перелистывание файлов в программе просмотра
-по очереди как в Outlook или в The BAT! (Addons\Macros\View.Space.reg)
-выглядит следующим образом:
+    A macro to list files one after another in the internal viewer, as
+in Outlook or The BAT! (Addons\Macros\View.Space.reg), is as following:
 
     $If Eof $Then
-      CtrlF10 End
+      CtrlF10 Shift
       $If APanel.Eof $Then
         $Exit
       $Else

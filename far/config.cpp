@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.162 14.10.2003 $ */
+/* Revision: 1.163 29.10.2003 $ */
 
 /*
 Modify:
+  29.10.2003 SVS
+    - BugZ#980 - F9->Options->Folder description files - Esc == Enter
+    + Opt.LoadPlug.SilentLoadPlugin - тихий режим загрузки плагинов
   14.10.2003 SVS
     ! Opt.FileSearchMode и Opt.FindFolders вынесены в отдельную структуру struct FindFileOptions
     + FindFileOptions.CollectFiles - собирать NamesList для поисковика (когда жмем F3 в диалоге результатов поиска)
@@ -1307,9 +1310,11 @@ void SetFolderInfoFiles()
   /* 30.04.2001 DJ
      добавлена history; обновляем инфо-панель после изменения
   */
+  char FolderInfoFiles[1024];
   if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),"FolderInfoFiles",
-      Opt.FolderInfoFiles,Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY))
+      Opt.FolderInfoFiles,FolderInfoFiles,sizeof(FolderInfoFiles),"OptMenu",FIB_ENABLEEMPTY))
   {
+    strncpy(Opt.FolderInfoFiles,FolderInfoFiles,sizeof(Opt.FolderInfoFiles)-1);
     if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
       CtrlObject->Cp()->LeftPanel->Update(0);
     if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
@@ -1438,6 +1443,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"CopyTimeRule",  &Opt.CopyTimeRule, 3, 0},
   {0, REG_SZ,     NKeySystem,"ConsoleDetachKey", KeyNameConsoleDetachKey, sizeof(KeyNameConsoleDetachKey),"CtrlAltTab"},
   {1, REG_SZ,     NKeySystem,"PersonalPluginsPath",Opt.LoadPlug.PersonalPluginsPath,sizeof(Opt.LoadPlug.PersonalPluginsPath),PersonalPluginsPath},
+  {0, REG_DWORD,  NKeySystem,"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
   /* $ 07.12.2001 IS
      ! опция "разрешить мультикопирование/перемещение/создание связей"
      + опция "создание нескольких каталогов за один раз"

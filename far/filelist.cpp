@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.192 20.10.2003 $ */
+/* Revision: 1.193 28.10.2003 $ */
 
 /*
 Modify:
+  28.10.2003 SVS
+    + KEY_MACRO_ROOTFOLDER
   20.10.2003 SVS
     + Обработка KEY_MACRO_SELECTED, KEY_MACRO_EOF и KEY_MACRO_BOF
   10.10.2003 SVS
@@ -978,6 +980,25 @@ int FileList::ProcessKey(int Key)
 
   switch(Key)
   {
+    case KEY_MACRO_ROOTFOLDER:
+    {
+      if (PanelMode==PLUGIN_PANEL)
+      {
+        struct OpenPluginInfo Info;
+        CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+        return *NullToEmpty(Info.CurDir)==0;
+      }
+      else
+      {
+        if(!IsLocalRootPath(CurDir))
+        {
+          char DriveRoot[NM];
+          GetPathRoot(CurDir,DriveRoot);
+          return !stricmp(CurDir,DriveRoot);
+        }
+        return TRUE;
+      }
+    }
     case KEY_MACRO_EOF:
       return CurFile == FileCount-1;
     case KEY_MACRO_BOF:

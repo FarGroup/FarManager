@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.17 15.09.2003 $ */
+/* Revision: 1.18 27.10.2003 $ */
 
 /*
 Modify:
+  27.10.2003 SVS
+    - Непозиционирование на каталог, если в имени последний символ - '.'
   15.09.2003 SVS
     ! Проверим target на недопустимые символы, перечисленные в ReservedFilenameSymbols
   15.08.2002 IS
@@ -184,7 +186,11 @@ void ShellMakeDir(Panel *SrcPanel)
     char *Slash=strchr(DirName,'\\');
     if (Slash!=NULL)
       *Slash=0;
-    SrcPanel->GoToFile(DirName);
+    if(!SrcPanel->GoToFile(DirName) && DirName[strlen(DirName)-1]=='.')
+    {
+      DirName[strlen(DirName)-1]=0;
+      SrcPanel->GoToFile(DirName);
+    }
   }
   SrcPanel->Redraw();
 
