@@ -5,10 +5,18 @@ execute.cpp
 
 */
 
-/* Revision: 1.101 29.03.2004 $ */
+/* Revision: 1.102 27.04.2004 $ */
 
 /*
 Modify:
+  27.04.2004 SVS
+    - BugZ#568 - Confusing message on wrong path in CHDIR in case of forward-slash delimiter
+      Исправление не претендует на оригинальность - если первый раз для CD
+      не получилось найти каталог, то влоб меняем все '/' на '\' и отдаем
+      команду на откуп операционке.
+      CommandLine::ProcessOSCommands() для CD возвращает -1, если нет каталога.
+      Этим и будем пользоваться.
+      Если что откатим.
   29.03.2004 SVS
     ! CHCP: сначала вызываем LocalUpperInit(), потом InitLCIDSort(), а не наоборот
   15.03.2004 SVS
@@ -1513,10 +1521,16 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
       if (CurDir[0] && CurDir[1]==':')
         FarChDir(CurDir);
       CmdStr.SetString("");
-      if (ProcessOSCommands(CmdLine,SeparateWindow))
+      if ((Code=ProcessOSCommands(CmdLine,SeparateWindow)) == TRUE)
         Code=-1;
       else
-        Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
+      {
+        char TempStr[2048];
+        strncpy(TempStr,CmdLine,sizeof(TempStr)-1);
+        if(Code == -1)
+          ReplaceStrings(TempStr,"/","\\",-1);
+        Code=Execute(TempStr,AlwaysWaitFinish,SeparateWindow,DirectRun);
+      }
 
       GetConsoleScreenBufferInfo(hConOut,&sbi1);
       if(!(sbi0.dwSize.X == sbi1.dwSize.X && sbi0.dwSize.Y == sbi1.dwSize.Y))
@@ -1920,7 +1934,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if (ExpandEnvironmentStr(ExpandedDir,ExpandedDir,sizeof(ExpandedDir))!=0)
     {
       if(CheckFolder(ExpandedDir) <= CHKFLD_NOTACCESS)
-        return FALSE;
+        return -1;
 
       if (!FarChDir(ExpandedDir))
         return(FALSE);
