@@ -5,10 +5,17 @@ filelist.cpp
 
 */
 
-/* Revision: 1.106 21.11.2001 $ */
+/* Revision: 1.107 24.11.2001 $ */
 
 /*
 Modify:
+  24.11.2001 IS
+    - Баг при обработке F4 и Alt-F4: когда вызывался внешний редактор
+      на панели плагина, не дожидались его закрытия.
+    ! Обработка F3, F4 и подобные: если панель плагина содержит реальные
+      имена, то считаем, что это обычная файловая панель.
+    - Баг: Shift-f4 на панели плагина, вводим имя нового файла, редактируем,
+      сохраняем -> файл не добавился на панель плагина и вообще пропал!
   21.11.2001 VVM
     ! В методе SetViewMode делаем Show() для панели только если она не была спрятана.
   19.11.2001 IS
@@ -1146,14 +1153,23 @@ int FileList::ProcessKey(int Key)
         int PluginMode=PanelMode==PLUGIN_PANEL &&
             !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
+        /* $ 24.11.2001 IS
+           Если панель плагина содержит реальные имена, то считаем, что это
+           обычная файловая панель
+        */
         if (PluginMode)
         {
           struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-          sprintf(PluginData,"<%s:%s>",NullToEmpty(Info.HostFile),NullToEmpty(Info.CurDir));
+          if(Info.Flags & OPIF_REALNAMES)
+            PluginMode=FALSE;
+          else
+            sprintf(PluginData,"<%s:%s>",NullToEmpty(Info.HostFile),NullToEmpty(Info.CurDir));
         }
-        else
+
+        if(!PluginMode)
           *PluginData=0;
+        /* IS $ */
 
         if (Key==KEY_SHIFTF4)
         {
@@ -1184,8 +1200,9 @@ int FileList::ProcessKey(int Key)
           Unquote(FileName);
           /* IS $ */
           ConvertNameToShort(FileName,ShortFileName);
-          if (*FileName && (FileName[1]==':' ||
-              FileName[0]=='\\' && FileName[1]=='\\'))
+          /* $ 24.11.2001 IS применим функцию от ОТ ;-) */
+          if (PathMayBeAbsolute(FileName))
+          /* IS $ */
             PluginMode=FALSE;
         }
         else
@@ -1213,7 +1230,7 @@ int FileList::ProcessKey(int Key)
         }
         char TempDir[NM],TempName[NM];
 
-        int UploadFailed=FALSE;
+        int UploadFailed=FALSE, NewFile=FALSE;
 
         if (PluginMode)
         {
@@ -1224,7 +1241,6 @@ int FileList::ProcessKey(int Key)
             return(TRUE);
           CreateDirectory(TempDir,NULL);
           sprintf(TempName,"%s\\%s",TempDir,PointToName(FileName));
-          int NewFile=FALSE;
           if (Key==KEY_SHIFTF4)
           {
             int Pos=FindFile(FileName);
@@ -1268,14 +1284,23 @@ int FileList::ProcessKey(int Key)
             if (!Processed || Key==KEY_CTRLSHIFTF4)
             /* IS $ */
               if (EnableExternal)
-                ProcessExternal(Opt.ExternalEditor,FileName,ShortFileName,0);
+                /* $ 24.11.200 IS
+                   дождемся выполнения команды, если мы на панели плагина
+                */
+                ProcessExternal(Opt.ExternalEditor,FileName,ShortFileName,PluginMode);
+                /* IS $ */
               else
                 if (PluginMode)
                 {
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                   ShellEditor.SetDynamicallyBorn(false);
                   FrameManager->ExecuteModal();//OT
-                  UploadFile=ShellEditor.IsFileModified();
+                  /* $ 24.11.2001 IS
+                       Если мы создали новый файл, то не важно, изменялся он
+                       или нет, все равно добавим его на панель плагина.
+                  */
+                  UploadFile=ShellEditor.IsFileModified() || NewFile;
+                  /* IS $ */
                   Modaling=TRUE;///
                 }
                 else
