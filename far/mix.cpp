@@ -5,7 +5,7 @@ mix.cpp
 
 */
 
-/* Revision: 1.05 11.07.2000 $ */
+/* Revision: 1.06 13.07.2000 $ */
 
 /*
 Modify:
@@ -27,6 +27,8 @@ Modify:
       bug was in ScrollBar ! :)))
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -608,7 +610,10 @@ char* QuoteSpace(char *Str)
     char *TmpStr=new char[strlen(Str)+3];
     sprintf(TmpStr,"\"%s\"",Str);
     strcpy(Str,TmpStr);
-    delete TmpStr;
+    /* $ 13.07.2000 SVS
+       ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+    delete[] TmpStr;
+    /* SVS $ */
   }
   return(Str);
 }
@@ -621,7 +626,10 @@ char* QuoteSpaceOnly(char *Str)
     char *TmpStr=new char[strlen(Str)+3];
     sprintf(TmpStr,"\"%s\"",Str);
     strcpy(Str,TmpStr);
-    delete TmpStr;
+    /* $ 13.07.2000 SVS
+       ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+    delete[] TmpStr;
+    /* SVS $ */
   }
   return(Str);
 }
@@ -638,7 +646,10 @@ char* TruncStr(char *Str,int MaxLength)
       char *TmpStr=new char[MaxLength+5];
       sprintf(TmpStr,"...%s",Str+Length-MaxLength+3);
       strcpy(Str,TmpStr);
-      delete TmpStr;
+    /* $ 13.07.2000 SVS
+       ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+    delete[] TmpStr;
+    /* SVS $ */
     }
     else
       Str[MaxLength]=0;
@@ -694,7 +705,7 @@ unsigned char* RemoveTrailingSpaces(unsigned char *Str)
 char* RemoveTrailingSpaces(char *Str)
 #endif
 {
-  for (int I=strlen(Str)-1;I>=0;I--)
+  for (int I=strlen((char *)Str)-1;I>=0;I--)
     if (isspace(Str[I]) || iseol(Str[I]))
       Str[I]=0;
     else

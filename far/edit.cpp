@@ -5,7 +5,7 @@ edit.cpp
 
 */
 
-/* Revision: 1.06 11.07.2000 $ */
+/* Revision: 1.07 13.07.2000 $ */
 
 /*
 Modify:
@@ -24,6 +24,8 @@ Modify:
       берется из реестра (общий для редактирования)
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -43,7 +45,14 @@ static int Recurse=0;
 Edit::Edit()
 {
   ConvertTabs=0;
-  Str=new char[1];
+  /* $ 13.07.2000 SVS
+     Нет, так нельзя - все последующие расширения памяти делаются через
+     realloc, а здесь:
+        Str=new char[1];
+     Будет malloc :-)
+  */
+  Str=(char*) malloc(1);
+  /* SVS $ */
   StrSize=0;
   *Str=0;
   CurPos=0;
@@ -75,8 +84,11 @@ Edit::~Edit()
 {
   if (ColorList!=NULL)
     delete ColorList;
-
-  delete Str;
+  /* $ 13.07.2000 SVS
+     запросы делали через malloc!
+  */
+  free(Str);
+  /* SVS $ */
 }
 
 
@@ -132,7 +144,11 @@ void Edit::FastShow()
     ShowString(Str,TabSelStart,TabSelEnd);
     memcpy(Str,SaveStr,SaveStrSize);
     Str[SaveStrSize]=0;
-    delete SaveStr;
+    /* $ 13.07.2000 SVS
+       раз уж вызывали через new[]...
+    */
+    delete[] SaveStr;
+    /* SVS $*/
     StrSize=SaveStrSize;
     CurPos=SaveCurPos;
     Str=(char *)realloc(Str,StrSize+1);
@@ -159,7 +175,11 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
     PasswordMode=0;
     ShowString(PswStr,TabSelStart,TabSelEnd);
     PasswordMode=1;
-    delete PswStr;
+    /* $ 13.07.2000 SVS
+       раз уж вызывали через new[]...
+    */
+    delete[] PswStr;
+    /* SVS $*/
     return;
   }
   char *SaveStr=NULL;
@@ -229,12 +249,20 @@ void Edit::ShowString(char *ShowStr,int TabSelStart,int TabSelEnd)
         Text(OutStr+TabSelEnd);
       }
     }
-    delete OutStr;
+    /* $ 13.07.2000 SVS
+       раз уж вызывали через new[]...
+    */
+    delete[] OutStr;
+    /* SVS $*/
   }
   if (SaveStr)
   {
     memcpy(Str,SaveStr,StrSize);
-    delete SaveStr;
+    /* $ 13.07.2000 SVS
+       раз уж вызывали через new[]...
+    */
+    delete[] SaveStr;
+    /* SVS $*/
   }
 }
 
@@ -749,7 +777,11 @@ int Edit::ProcessKey(int Key)
         }
         else
           InsertString(ClipText);
-        delete ClipText;
+        /* $ 13.07.2000 SVS
+           в PasteFromClipboard запрос памятиче через new[]
+        */
+        delete[] ClipText;
+        /* SVS $ */
         Show();
       }
       return(TRUE);
@@ -1005,7 +1037,12 @@ void Edit::InsertBinaryString(char *Str,int Length)
   CurPos+=Length;
   memcpy(Edit::Str+CurPos,TmpStr,TmpSize);
   Edit::Str[StrSize]=0;
-  delete TmpStr;
+  /* $ 13.07.2000 SVS
+     раз уж вызывали через new[]...
+  */
+  delete[] TmpStr;
+  /* SVS $*/
+
   if (ConvertTabs)
     ReplaceTabs();
 }

@@ -5,13 +5,15 @@ print.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -46,7 +48,11 @@ void PrintFiles(Panel *SrcPanel)
 
   if (pi==NULL || !EnumPrinters(PRINTER_ENUM_LOCAL,NULL,2,(LPBYTE)pi,pi_count*sizeof(PRINTER_INFO_2),&Needed,&Returned))
   {
-    delete pi;
+    /* $ 13.07.2000 SVS
+       использовалась new[]
+    */
+    delete[] pi;
+    /* SVS $ */
     return;
   }
   {
@@ -85,7 +91,11 @@ void PrintFiles(Panel *SrcPanel)
     PrinterNumber=PrinterList.GetExitCode();
     if (PrinterNumber<0)
     {
-      delete pi;
+      /* $ 13.07.2000 SVS
+         использовалась new[]
+      */
+      delete[] pi;
+      /* SVS $ */
       return;
     }
     PrinterList.GetUserData(PrinterName,sizeof(PrinterName));
@@ -96,7 +106,11 @@ void PrintFiles(Panel *SrcPanel)
   {
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
             PrinterName,MSG(MOk));
-    delete pi;
+    /* $ 13.07.2000 SVS
+       использовалась new[]
+    */
+    delete[] pi;
+    /* SVS $ */
     return;
   }
   {
@@ -181,7 +195,11 @@ void PrintFiles(Panel *SrcPanel)
     ClosePrinter(hPrinter);
   }
   SrcPanel->Redraw();
-  delete pi;
+  /* $ 13.07.2000 SVS
+     использовалась new[]
+  */
+  delete[] pi;
+  /* SVS $ */
 }
 
 

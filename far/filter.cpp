@@ -5,13 +5,15 @@ filter.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -56,8 +58,12 @@ PanelFilter::PanelFilter(Panel *HostPanel)
 
 PanelFilter::~PanelFilter()
 {
-  delete FilterMask;
-  delete ExcludeFilterMask;
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
+  free(FilterMask);
+  free(ExcludeFilterMask);
+  /* SVS $ */
 }
 
 
@@ -193,7 +199,11 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall)
       ListItem.UserDataSize=strlen(CurExtPtr)+1;
       FilterList.AddItem(&ListItem);
     }
-    delete ExtPtr;
+    /* $ 13.07.2000 SVS
+       ни кто не вызывал запрос памяти через new :-)
+    */
+    free(ExtPtr);
+    /* SVS $ */
 
     FilterList.Show();
 
@@ -357,10 +367,18 @@ void PanelFilter::AddMasks(char *Masks,int Exclude)
 {
   if (Masks==NULL)
   {
-    delete FilterMask;
+    /* $ 13.07.2000 SVS
+       ни кто не вызывал запрос памяти через new :-)
+    */
+    free(FilterMask);
+    /* SVS $ */
     FilterMask=NULL;
     FilterMaskCount=0;
-    delete ExcludeFilterMask;
+    /* $ 13.07.2000 SVS
+       ни кто не вызывал запрос памяти через new :-)
+    */
+    free(ExcludeFilterMask);
+    /* SVS $ */
     ExcludeFilterMask=NULL;
     ExcludeFilterMaskCount=0;
     return;
@@ -448,7 +466,11 @@ void PanelFilter::InitFilter()
 
 void PanelFilter::CloseFilter()
 {
-  delete FilterData;
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
+  free(FilterData);
+  /* SVS $ */
 }
 
 

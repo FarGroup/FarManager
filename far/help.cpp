@@ -5,7 +5,7 @@ help.cpp
 
 */
 
-/* Revision: 1.01 29.06.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -18,6 +18,8 @@ Modify:
   28.06.2000
     - NT Console resize
       adding SetScreenPosition method
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -90,7 +92,11 @@ Help::~Help()
 {
   CtrlObject->Macro.SetMode(PrevMacroMode);
   SetRestoreScreenMode(FALSE);
-  delete HelpData;
+  /* $ 13.07.2000
+    для выделения памяти использовалась функция realloc
+  */
+  free(HelpData);
+  /* SVS $ */
   if (TopLevel)
   {
     delete TopScreen;
@@ -148,7 +154,11 @@ void Help::ReadHelp()
   *SplitLine=0;
   CurX=CurY=0;
   if (HelpData!=NULL)
-    delete HelpData;
+    /* $ 13.07.2000
+      для выделения памяти использовалась функция realloc
+    */
+    free(HelpData);
+    /* SVS $ */
   HelpData=NULL;
   StrCount=0;
   FixCount=0;
@@ -817,7 +827,11 @@ void Help::SetFullScreenMode(int Mode)
 
 void Help::ReadPluginsHelp()
 {
-  delete HelpData;
+  /* $ 13.07.2000
+    для выделения памяти использовалась функция realloc
+  */
+  free(HelpData);
+  /* SVS $ */
   HelpData=NULL;
   StrCount=0;
   FixCount=1;

@@ -5,7 +5,7 @@ Files highlighting
 
 */
 
-/* Revision: 1.01 07.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   07.07.2000 IS
     + Если нажали ctrl+r в меню, то восстановить значения по умолчанию.
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -68,7 +70,11 @@ void HighlightFiles::InitHighlightFiles()
 
 HighlightFiles::~HighlightFiles()
 {
-  delete(HiData);
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
+  free(HiData);
+  /* SVS $ */
 }
 
 

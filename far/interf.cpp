@@ -5,7 +5,7 @@ interf.cpp
 
 */
 
-/* Revision: 1.03 11.07.2000 $ */
+/* Revision: 1.04 13.07.2000 $ */
 
 /*
 Modify:
@@ -20,6 +20,8 @@ Modify:
     - Временная отмена патча 11 (NT Console resize bug) до лучших времен :-)
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -385,7 +387,11 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
   for (I=0;I<(X2-X1+1)*(Y2-Y1+1);I++)
     CharBuf[I].Attributes&=~0xf8;
   PutText(X1,Y1,X2,Y2,CharBuf);
-  delete CharBuf;
+  /* $ 13.07.2000 SVS
+     раз уж вызвали new[], то и нужно delete[]
+  */
+  delete[] CharBuf;
+  /* SVS $ */
 }
 
 
@@ -399,7 +405,6 @@ void mprintf(char *fmt,...)
   va_end(argptr);
 }
 
-
 void mprintf(int MsgId,...)
 {
   va_list argptr;
@@ -410,7 +415,6 @@ void mprintf(int MsgId,...)
   va_end(argptr);
 }
 
-
 void vmprintf(char *fmt,...)
 {
   va_list argptr;
@@ -420,7 +424,6 @@ void vmprintf(char *fmt,...)
   VText(OutStr);
   va_end(argptr);
 }
-
 
 void SetColor(int Color)
 {
@@ -442,7 +445,11 @@ void ScrollScreen(int Count)
   GetText(0,Count,ScrX,ScrY,ScreenBuf);
   PutText(0,0,ScrX,ScrY-Count,ScreenBuf);
   SetScreen(0,ScrY+1-Count,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
-  delete ScreenBuf;
+  /* $ 13.07.2000 SVS
+     раз уж вызвали new[], то и нужно delete[]
+  */
+  delete[] ScreenBuf;
+  /* SVS $ */
 }
 
 

@@ -5,7 +5,7 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.04 13.07.2000 $ */
+/* Revision: 1.05 13.07.2000 $ */
 
 /*
 Modify:
@@ -22,6 +22,8 @@ Modify:
   12.07.2000 IS
     + Проверка флагов редактора в FarEditor (раньше они игнорировались) и
       открытие _немодального_ редактора, если есть соответствующий флаг.
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -223,7 +225,11 @@ int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
     Item[I].DefaultButton=InternalItem[I].DefaultButton;
     strcpy(Item[I].Data,InternalItem[I].Data);
   }
-  delete InternalItem;
+  /* $ 13.07.2000 SVS
+     для new[] нужен delete[]
+  */
+  delete[] InternalItem;
+  /* SVS $*/
 //  CheckScreenLock();
   return(ExitCode);
 }
@@ -415,7 +421,11 @@ int WINAPI FarGetDirList(char *Dir,struct PluginPanelItem **pPanelItem,
     {
       if (CheckForEsc())
       {
-        delete ItemsList;
+        /* $ 13.07.2000 SVS
+           Запросы были через realloc, потому и free
+        */
+        if(ItemsList) free(ItemsList);
+        /* SVS $ */
         return(FALSE);
       }
       if (!MsgOut && clock()-StartTime > 500)
@@ -563,7 +573,11 @@ void ScanPluginDir()
       if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
       {
         DWORD Size=*(DWORD *)CurPanelItem->UserData;
-        DestItem->UserData=(DWORD)new char[Size];
+        /* $ 13.07.2000 SVS
+           вместо new будем использовать malloc
+        */
+        DestItem->UserData=(DWORD)malloc(Size);
+        /* SVS $*/
         memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
       }
 
@@ -636,10 +650,17 @@ void WINAPI FarFreeDirList(struct PluginPanelItem *PanelItem)
   {
     PluginPanelItem *CurPanelItem=PanelItem+I;
     if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
-      delete (void *)CurPanelItem->UserData;
+      /* $ 13.07.2000 SVS
+        для запроса использовали malloc
+      */
+      free((void *)CurPanelItem->UserData);
+      /* SVS $*/
   }
-
-  delete PanelItem;
+  /* $ 13.07.2000 SVS
+    для запроса использовали realloc
+  */
+  free(PanelItem);
+  /* SVS $*/
 }
 
 

@@ -5,7 +5,7 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.03 11.07.2000 $ */
+/* Revision: 1.04 13.07.2000 $ */
 
 /*
 Modify:
@@ -20,6 +20,8 @@ Modify:
     + mouse support for menu scrollbar
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -95,7 +97,11 @@ VMenu::~VMenu()
 
 void VMenu::DeleteItems()
 {
-  delete Item;
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
+  free(Item);
+  /* SVS $ */
   Item=NULL;
   ItemCount=0;
 }

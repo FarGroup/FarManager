@@ -5,13 +5,15 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -38,24 +40,38 @@ ScreenBuf::ScreenBuf()
 
 ScreenBuf::~ScreenBuf()
 {
-  delete Buf;
-  delete Shadow;
+  /* $ 13.07.2000 SVS
+     раз уж вызвали new[], то и нужно delete[]
+  */
+  if(Buf)    delete[] Buf;
+  if(Shadow) delete[] Shadow;
+  /* SVS $ */
 }
 
 
+/* $ 13.07.2000 SVS
+   раз уж вызвали new[], то и нужно delete[]
+*/
 void ScreenBuf::AllocBuf(int X,int Y)
 {
   if (X==BufX && Y==BufY)
     return;
-  delete Buf;
+  if(Buf) delete[] Buf;
+  if(Shadow) delete[] Shadow;
   Buf=new CHAR_INFO[X*Y];
-  memset(Buf,0,X*Y*sizeof(CHAR_INFO));
-  delete Shadow;
   Shadow=new CHAR_INFO[X*Y];
+#if !defined(ALLOC)
+  /* а вот здесь самая интересность: при переопределенных функция запроса
+     памяти - память уже проинициализированна нулями ;-)
+     поэтому этот кусок пропустится...
+  */
+  memset(Buf,0,X*Y*sizeof(CHAR_INFO));
   memset(Shadow,0,X*Y*sizeof(CHAR_INFO));
+#endif
   BufX=X;
   BufY=Y;
 }
+/* SVS $ */
 
 
 void ScreenBuf::FillBuf()

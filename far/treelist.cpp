@@ -5,7 +5,7 @@ Tree panel
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -53,7 +55,11 @@ TreeList::TreeList()
 
 TreeList::~TreeList()
 {
-  delete ListData;
+  /* $ 13.07.2000 SVS
+     не надо смешивать new/delete с realloc
+  */
+  free(ListData);
+  /* SVS $ */
   FlushCache();
 }
 
@@ -224,10 +230,14 @@ void TreeList::ReadTree()
   if (RootLength<0)
     RootLength=0;
 
-  delete ListData;
+  /* $ 13.07.2000 SVS
+     не надо смешивать new/delete с realloc
+  */
+  free(ListData);
   TreeCount=0;
-  if ((ListData=new struct TreeItem)==NULL)
+  if ((ListData=(struct TreeItem*)malloc(sizeof(struct TreeItem)))==NULL)
     return;
+  /* SVS $ */
   strcpy(ListData->Name,Root);
   if (RootLength>0 && Root[RootLength-1]!=':' && Root[RootLength]=='\\')
     ListData->Name[RootLength]=0;
@@ -242,7 +252,11 @@ void TreeList::ReadTree()
     if (TreeCount>3 && !MsgReadTree(TreeCount,FirstCall) ||
         (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+1)*sizeof(struct TreeItem)))==0)
     {
-      delete ListData;
+      /* $ 13.07.2000 SVS
+         не надо смешивать new/delete с realloc
+      */
+      free(ListData);
+      /* SVS $ */
       ListData=NULL;
       TreeCount=0;
       return;
@@ -520,7 +534,11 @@ int TreeList::ProcessKey(int Key)
           FileList::FileNameToPluginItem(ListData[CurFile].Name,ItemList);
           if (CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0)==1)
             AnotherPanel->SetPluginModified();
-          delete ItemList;
+          /* $ 13.07.2000 SVS
+             не надо смешивать new/delete с realloc
+          */
+          free(ItemList);
+          /* SVS $ */
           if (Move)
             ReadSubTree(ListData[CurFile].Name);
           Update(0);
@@ -812,7 +830,11 @@ int TreeList::ReadTreeFile()
   if ((TreeFile=fopen(Name,"rb"))==NULL)
     if (!GetCacheTreeName(Root,Name,FALSE) || (TreeFile=fopen(Name,"rb"))==NULL)
       return(FALSE);
-  delete ListData;
+  /* $ 13.07.2000 SVS
+     не надо смешивать new/delete с realloc
+  */
+  free(ListData);
+  /* SVS $ */
   ListData=NULL;
   TreeCount=0;
   *LastDirName=0;
@@ -829,7 +851,11 @@ int TreeList::ReadTreeFile()
       DirName[RootLength]=0;
     if ((TreeCount & 255)==0 && (ListData=(struct TreeItem *)realloc(ListData,(TreeCount+256+1)*sizeof(struct TreeItem)))==0)
     {
-      delete ListData;
+      /* $ 13.07.2000 SVS
+         не надо смешивать new/delete с realloc
+      */
+      free(ListData);
+      /* SVS $ */
       ListData=NULL;
       TreeCount=0;
       fclose(TreeFile);
@@ -956,13 +982,21 @@ void TreeList::AddTreeName(char *Name)
 
     if ((TreeCount & 31)==0 && (NewPtr=(char *)realloc(ListName,(TreeCount+32+1)*NM))==NULL)
     {
-      delete NewPtr;
+      /* $ 13.07.2000 SVS
+         не надо смешивать new/delete с realloc
+      */
+      free(NewPtr);
+      /* SVS $ */
       return;
     }
     ListName=NewPtr;
     strncpy(&ListName[NM*TreeCount++],DirName,NM);
   }
-  delete TreeCache.ListName;
+  /* $ 13.07.2000 SVS
+     не надо смешивать new/delete с realloc
+  */
+  free(TreeCache.ListName);
+  /* SVS $ */
   TreeCache.ListName=ListName;
   TreeCache.TreeCount=TreeCount;
 }
@@ -992,13 +1026,21 @@ void TreeList::DelTreeName(char *Name)
       continue;
     if ((TreeCount & 31)==0 && (NewPtr=(char *)realloc(ListName,(TreeCount+32+1)*NM))==NULL)
     {
-      delete NewPtr;
+      /* $ 13.07.2000 SVS
+        не надо смешивать new/delete с realloc
+      */
+      free(NewPtr);
+      /* SVS $ */
       return;
     }
     ListName=NewPtr;
     strncpy(&ListName[NM*TreeCount++],DirName,NM);
   }
-  delete TreeCache.ListName;
+  /* $ 13.07.2000 SVS
+     не надо смешивать new/delete с realloc
+  */
+  free(TreeCache.ListName);
+  /* SVS $ */
   TreeCache.ListName=ListName;
   TreeCache.TreeCount=TreeCount;
 }
@@ -1066,7 +1108,11 @@ void TreeList::ReadSubTree(char *Path)
 void TreeList::ClearCache(int EnableFreeMem)
 {
   if (EnableFreeMem && TreeCache.ListName!=NULL)
-    delete TreeCache.ListName;
+    /* $ 13.07.2000 SVS
+       не надо смешивать new/delete с realloc
+    */
+    free(TreeCache.ListName);
+    /* SVS $ */
   *TreeCache.TreeName=0;
   TreeCache.ListName=NULL;
   TreeCache.TreeCount=0;

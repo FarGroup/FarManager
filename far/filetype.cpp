@@ -5,7 +5,7 @@ filetype.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -753,7 +755,11 @@ void ReplaceVariables(char *Str)
   Dlg.Process();
   if (Dlg.GetExitCode()==-1)
   {
-    delete DlgData;
+    /* $ 13.07.2000 SVS
+       запрос был по realloc
+    */
+    free(DlgData);
+    /* SVS $ */
     *StartStr=0;
     return;
   }
@@ -777,5 +783,9 @@ void ReplaceVariables(char *Str)
       strncat(TmpStr,Str,1);
   }
   strcpy(StartStr,TmpStr);
-  delete DlgData;
+  /* $ 13.07.2000 SVS
+     запрос был по realloc
+  */
+  free(DlgData);
+  /* SVS $ */
 }

@@ -5,7 +5,7 @@ findfile.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -498,7 +500,11 @@ int FindFiles::FindFilesProcess()
         NewPanel->SetFocus();
         hPlugin=NULL;
       }
-      delete PanelItems;
+      /* $ 13.07.2000 SVS
+         использовали new[]
+      */
+      delete[] PanelItems;
+      /* SVS $ */
     }
   }
 
@@ -686,7 +692,11 @@ void ArchiveSearch(char *ArcName)
   FILE *ProcessFile=fopen(ArcName,"rb");
   if (ProcessFile==NULL)
   {
-    delete Buffer;
+    /* $ 13.07.2000 SVS
+       использовали new[]
+    */
+    delete[] Buffer;
+    /* SVS $ */
     return;
   }
   int ReadSize=fread(Buffer,1,MaxRead,ProcessFile);
@@ -696,7 +706,11 @@ void ArchiveSearch(char *ArcName)
   HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(ArcName,(unsigned char *)Buffer,ReadSize);
   DisablePluginsOutput=FALSE;
 
-  delete Buffer;
+  /* $ 13.07.2000 SVS
+     использовали new[]
+  */
+  delete[] Buffer;
+  /* SVS $ */
 
   if (hArc==(HANDLE)-2)
   {

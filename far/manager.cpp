@@ -5,7 +5,7 @@ manager.cpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 13.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,8 @@ Modify:
       add class member ActiveModal
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -58,7 +60,12 @@ void Manager::CloseAll()
     }
     delete CurModal;
   }
-  delete ModalList;
+  /* $ 13.07.2000 SVS
+     Здесь было "delete ModalList;", но перераспределение массива ссылок
+     идет через realloc...
+  */
+  free(ModalList);
+  /* SVS $ */
   ModalList=NULL;
   ModalCount=ModalPos=0;
 }

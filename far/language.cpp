@@ -5,13 +5,15 @@ language.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -85,9 +87,14 @@ int Language::Init(char *Path)
 
 void Language::Close()
 {
-  delete MsgList;
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
+  free(MsgList);
   MsgList=NULL;
-  delete MsgAddr;
+  /* ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+  delete[] MsgAddr;
+  /* SVS $ */
   MsgAddr=NULL;
   MsgCount=0;
   MsgSize=0;

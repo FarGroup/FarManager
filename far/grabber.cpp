@@ -5,13 +5,15 @@ Screen grabber
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -88,13 +90,21 @@ void Grabber::CopyGrabbedArea(int Append)
       int DataSize=strlen(AppendBuf);
       AppendBuf=(char *)realloc(AppendBuf,DataSize+BufSize);
       memcpy(AppendBuf+DataSize,CopyBuf,BufSize);
-      delete CopyBuf;
+      /* $ 13.07.2000 SVS
+         раз вызывали new[], то нужно вызывать delete[]
+      */
+      delete[] CopyBuf;
+      /* SVS $ */
       CopyBuf=AppendBuf;
     }
   }
   CopyToClipboard(CopyBuf);
-  delete CopyBuf;
-  delete CharBuf;
+  /* $ 13.07.2000 SVS
+     раз вызывали new[], то нужно вызывать delete[]
+  */
+  delete[] CopyBuf;
+  delete[] CharBuf;
+  /* SVS $ */
 }
 
 
@@ -129,7 +139,11 @@ void Grabber::DisplayObject()
           CharBuf[Pos].Attributes=(CharBuf[Pos].Attributes & ~0xff) | NewColor;
         }
       PutText(X1,Y1,X2,Y2,CharBuf);
-      delete CharBuf;
+      /* $ 13.07.2000 SVS
+         раз вызывали new[], то нужно вызывать delete[]
+      */
+      delete[] CharBuf;
+      /* SVS $ */
     }
     PrevArea=GArea;
   }

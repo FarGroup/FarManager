@@ -5,13 +5,15 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -535,8 +537,11 @@ void FileList::UpdatePlugin(int KeepSelection)
     DeleteListData(ListData,FileCount);
 
   FileCount=PluginFileCount;
-
-  ListData=new FileListItem[FileCount+1];
+  /* $ 13.07.2000 SVS
+     странно, а потом перераспределение через realloc идет :-(
+  */
+  ListData=(struct FileListItem*)malloc(sizeof(struct FileListItem)*(FileCount+1));
+  /* SVS $ */
 
   if (ListData==NULL)
   {

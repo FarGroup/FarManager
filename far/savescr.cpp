@@ -5,13 +5,15 @@ savescr.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -49,13 +51,23 @@ SaveScreen::~SaveScreen()
   if (!ScreenBuf)
     return;
   RestoreArea();
-  delete ScreenBuf;
+  /* $ 13.07.2000 SVS
+     раз уж вызвали new[], то и нужно delete[]
+  */
+  delete[] ScreenBuf;
+  /* SVS $ */
 }
 
 
 void SaveScreen::Discard()
 {
-  delete ScreenBuf;
+  if (!ScreenBuf)
+    return;
+  /* $ 13.07.2000 SVS
+     раз уж вызвали new[], то и нужно delete[]
+  */
+  delete[] ScreenBuf;
+  /* SVS $ */
   ScreenBuf=NULL;
 }
 

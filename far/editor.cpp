@@ -5,7 +5,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.06 11.07.2000 $ */
+/* Revision: 1.07 13.07.2000 $ */
 
 /*
 Modify:
@@ -25,6 +25,8 @@ Modify:
     ! Изменения для возможности компиляции под BC & VC
   11.07.2000 tran
     + строка статуса рисуется с учетом ширины консоли.
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -1900,14 +1902,14 @@ int Editor::ProcessKey(int Key)
               AddUndoData(CmpStr,NumLine,CurPos,UNDO_EDIT);
               Modified=1;
             }
-            delete CmpStr;
+            delete[] CmpStr;
           }
           ShowEditor(LeftPos==CurLine->EditLine.GetLeftPos());
           return(TRUE);
         }
         else
           if (!SkipCheckUndo)
-            delete CmpStr;
+            delete[] CmpStr;
         if (VBlockStart!=NULL)
           Show();
       }
@@ -2501,7 +2503,7 @@ void Editor::Search(int Next)
             if (UseDecodeTable)
               DecodeString(TmpStr,(unsigned char *)TableSet.DecodeTable);
             Text(TmpStr);
-            delete TmpStr;
+            delete[] TmpStr;
 
             char QSearchStr[256],QReplaceStr[256];
             sprintf(QSearchStr,"\"%s\"",LastSearchStr);
@@ -2812,7 +2814,7 @@ void Editor::DeleteBlock()
     Length+=EndLength;
     TmpStr[Length]=0;
     CurPtr->EditLine.SetBinaryString(TmpStr,Length);
-    delete TmpStr;
+    delete[] TmpStr;
     CurPtr->EditLine.SetCurPos(CurPos);
     if (DeleteNext && EndSel==-1)
     {
@@ -2998,7 +3000,7 @@ void Editor::AddUndoData(char *Str,int StrNum,int StrPos,int Type)
   }
   NewUndo=FALSE;
   if (UndoData[UndoDataPos].Type!=UNDO_NONE && UndoData[UndoDataPos].Str!=NULL)
-    delete UndoData[UndoDataPos].Str;
+    delete[] UndoData[UndoDataPos].Str;
   UndoData[UndoDataPos].Type=Type;
   UndoData[UndoDataPos].UndoNext=BlockUndo;
   UndoData[UndoDataPos].StrPos=StrPos;
@@ -3060,7 +3062,7 @@ void Editor::Undo()
       break;
   }
   if (UndoData[UndoDataPos].Str!=NULL)
-    delete UndoData[UndoDataPos].Str;
+    delete[] UndoData[UndoDataPos].Str;
   UndoData[UndoDataPos].Type=UNDO_NONE;
   if (UndoData[UndoDataPos].UndoNext)
     Undo();
@@ -3194,7 +3196,7 @@ void Editor::BlockLeft()
       Modified=1;
     }
 
-    delete TmpStr;
+    delete[] TmpStr;
     CurPtr=CurPtr->Next;
     LineNum++;
   }
@@ -3244,7 +3246,7 @@ void Editor::BlockRight()
       Modified=1;
     }
 
-    delete TmpStr;
+    delete[] TmpStr;
     CurPtr=CurPtr->Next;
     LineNum++;
   }
@@ -3323,7 +3325,7 @@ void Editor::DeleteVBlock()
         CurPos=TBlockX;
     }
     CurPtr->EditLine.SetCurPos(CurPos);
-    delete TmpStr;
+    delete[] TmpStr;
   }
 
   VBlockStart=NULL;
@@ -3555,7 +3557,7 @@ void Editor::VBlockShift(int Left)
     TmpStr[StrLength]=0;
 
     CurPtr->EditLine.SetBinaryString(TmpStr,StrLength);
-    delete TmpStr;
+    delete[] TmpStr;
   }
   VBlockX+=Left ? -1:1;
   CurLine->EditLine.SetTabCurPos(Left ? VBlockX:VBlockX+VBlockSizeX);
@@ -3645,7 +3647,7 @@ int Editor::EditorControl(int Command,void *Param)
         CurPtr->EditLine.SetBinaryString(NewStr,Length+LengthEOL);
         CurPtr->EditLine.SetCurPos(CurPos);
         Modified=1;
-        delete NewStr;
+        delete[] NewStr;
       }
       return(TRUE);
     case ECTL_DELETESTRING:

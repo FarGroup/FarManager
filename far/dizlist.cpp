@@ -5,13 +5,15 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -49,11 +51,16 @@ DizList::~DizList()
 void DizList::Reset()
 {
   for (int I=0;I<DizCount;I++)
-    delete DizData[I].DizText;
-  delete DizData;
+  /* $ 13.07.2000 SVS
+       раз уж вызвали new[], то в придачу и delete[] надо... */
+    delete[] DizData[I].DizText;
+    /* а этот объект распределяется через realloc*/
+  free(DizData);
   DizData=NULL;
   DizCount=0;
-  delete IndexData;
+  /* раз уж вызвали new[], то в придачу и delete[] надо... */
+  delete[] IndexData;
+  /* SVS $ */
   IndexData=NULL;
   IndexCount=0;
 }
@@ -226,7 +233,10 @@ int DizList::GetDizPos(char *Name,char *ShortName,int *TextPos)
 
 void DizList::BuildIndex()
 {
-  delete IndexData;
+  /* $ 13.07.2000 SVS
+       раз уж вызвали new[], то в придачу и delete[] надо... */
+  if(IndexData) delete[] IndexData;
+  /* SVS $ */
   if ((IndexData=new int[DizCount])==NULL)
   {
     Reset();

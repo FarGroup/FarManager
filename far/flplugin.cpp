@@ -5,7 +5,7 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -135,7 +137,11 @@ void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
   if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
   {
     DWORD Size=*(DWORD *)fi->UserData;
-    pi->UserData=(DWORD)new char[Size];
+    /* $ 13.07.2000 SVS
+       заменим new на malloc
+    */
+    pi->UserData=(DWORD)malloc(Size);
+    /* SVS $ */
     memcpy((void *)pi->UserData,(void *)fi->UserData,Size);
   }
   else
@@ -172,7 +178,11 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
   if (pi->UserData && (pi->Flags & PPIF_USERDATA))
   {
     DWORD Size=*(DWORD *)pi->UserData;
-    fi->UserData=(DWORD)new char[Size];
+    /* $ 13.07.2000 SVS
+       заменим new на malloc
+    */
+    fi->UserData=(DWORD)malloc(Size);
+    /* SVS $ */
     memcpy((void *)fi->UserData,(void *)pi->UserData,Size);
   }
   else
@@ -199,16 +209,20 @@ HANDLE FileList::OpenPluginForFile(char *FileName)
   char *Buffer=new char[MaxRead];
   SetCurPath();
   FILE *ProcessFile=fopen(FileName,"rb");
+  /* $ 13.07.2000 SVS
+     вместо delete -> delete[]
+  */
   if (ProcessFile==NULL)
   {
-    delete Buffer;
+    delete[] Buffer;
     return(INVALID_HANDLE_VALUE);
   }
   int ReadSize=fread(Buffer,1,MaxRead,ProcessFile);
   fclose(ProcessFile);
   CtrlObject->GetAnotherPanel(this)->CloseFile();
   HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,ReadSize);
-  delete Buffer;
+  delete[] Buffer;
+  /* SVS $ */
   return(hNewPlugin);
 }
 
@@ -237,8 +251,8 @@ void FileList::DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
 {
   for (int I=0;I<ItemNumber;I++)
     if (ItemList[I].Flags & PPIF_USERDATA)
-      delete (void *)ItemList[I].UserData;
-  delete ItemList;
+      free((void *)ItemList[I].UserData);
+  delete[] ItemList;
 }
 
 

@@ -5,7 +5,7 @@ delete.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -443,7 +445,10 @@ int WipeFile(char *Name)
     FileSize-=WriteSize;
   }
   WriteFile(WipeHandle,Buf,BufSize,&Written,NULL);
-  delete Buf;
+  /* $ 13.07.2000 SVS
+       раз уж вызвали new[], то в придачу и delete[] надо... */
+  delete[] Buf;
+  /* SVS $ */
   SetFilePointer(WipeHandle,0,NULL,FILE_BEGIN);
   SetEndOfFile(WipeHandle);
   CloseHandle(WipeHandle);

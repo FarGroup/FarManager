@@ -5,7 +5,7 @@ copy.cpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 13.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     ! Показывать проценты спереди при копировании/переносе
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 
@@ -295,7 +297,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 
 ShellCopy::~ShellCopy()
 {
-  delete CopyBuffer;
+  /* $ 13.07.2000 SVS
+       раз уж вызвали new[], то в придачу и delete[] надо... */
+  delete[] CopyBuffer;
+  /* SVS $ */
 }
 
 

@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.10 12.07.2000 $ */
+/* Revision: 1.11 13.07.2000 $ */
 
 /*
 Modify:
@@ -39,6 +39,8 @@ Modify:
   12.07.2000 tran
     ! OutStr are dynamic, new, delete,
       and sizeof(OutStr[i]) changed to MAX_VIEWLINEB
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -152,7 +154,11 @@ Viewer::~Viewer()
      free memory  */
   for ( int i=0; i<=MAXSCRY; i++ )
   {
-    delete OutStr[i];
+    /* $ 13.07.2000 SVS
+      раз уж вызвали new[], то и нужно delete[]
+    */
+    delete[] OutStr[i];
+    /* SVS $ */
   }
   /* tran 12.07.2000 $ */
 }

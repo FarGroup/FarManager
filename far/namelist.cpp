@@ -5,13 +5,15 @@ namelist.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -34,7 +36,11 @@ NamesList::NamesList()
 
 NamesList::~NamesList()
 {
-  delete Names;
+  /* $ 13.07.2000 SVS
+     распределение памяти было чрезе realloc
+  */
+  free(Names);
+  /* SVS $ */
 }
 
 

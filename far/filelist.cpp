@@ -5,7 +5,7 @@ filelist.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -113,7 +115,11 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
     if (ListData[I].DizText && ListData[I].DeleteDiz)
       delete ListData[I].DizText;
   }
-  delete ListData;
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
+  free(ListData);
+  /* SVS $ */
   ListData=NULL;
   FileCount=0;
 }

@@ -5,7 +5,7 @@ plugins.cpp
 
 */
 
-/* Revision: 1.06 13.07.2000 $ */
+/* Revision: 1.07 13.07.2000 $ */
 
 /*
 Modify:
@@ -35,6 +35,8 @@ Modify:
       неправильном переводе под VC: переменная I изменялась во всех циклах
       (внимательнее над быть, вашу мать $%#...)
       Решения подсказал tran.
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -71,7 +73,11 @@ PluginsSet::~PluginsSet()
     FreeLibrary(PluginsData[I].hModule);
     PluginsData[I].Lang.Close();
   }
-  delete PluginsData;
+  /* $ 13.07.2000 SVS
+    Ни кто не запрашивал память через new
+  */
+  free(PluginsData);
+  /* SVS $ */
 }
 
 

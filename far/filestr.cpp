@@ -5,13 +5,15 @@ filestr.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -23,7 +25,12 @@ Modify:
 
 GetFileString::GetFileString(FILE *SrcFile)
 {
-  Str=new char[1024];
+  /* $ 13.07.2000 SVS
+     Т.к. в последствии память перераспределяется через realloc, то
+     конструкция Str=new char[1024]; не применима...
+  */
+  Str=(char*)malloc(1024);
+  /* SVS $ */
   StrLength=1024;
   GetFileString::SrcFile=SrcFile;
   ReadPos=ReadSize=0;
@@ -32,7 +39,11 @@ GetFileString::GetFileString(FILE *SrcFile)
 
 GetFileString::~GetFileString()
 {
-  delete Str;
+  /* $ 13.07.2000 SVS
+     используем free
+  */
+  free(Str);
+  /* SVS $ */
 }
 
 

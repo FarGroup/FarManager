@@ -5,7 +5,7 @@ macro.cpp
 
 */
 
-/* Revision: 1.01 11.07.2000 $ */
+/* Revision: 1.02 13.07.2000 $ */
 
 /*
 Modify:
@@ -14,6 +14,8 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -51,10 +53,15 @@ KeyMacro::KeyMacro()
 
 KeyMacro::~KeyMacro()
 {
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
   for (int I=0;I<MacrosNumber;I++)
-    delete Macros[I].Buffer;
-  delete Macros;
-  delete RecBuffer;
+    free(Macros[I].Buffer);
+  free(Macros);
+  /* ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
+  delete[] RecBuffer;
+  /* SVS $ */
   delete LockScr;
 }
 

@@ -5,7 +5,7 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.02 11.07.2000 $ */
+/* Revision: 1.03 13.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     ! соощение о копирайте включается из copyright.inc
   11.07.2000 SVS
     ! Изменения для возможности компиляции под BC & VC
+  13.07.2000 SVS
+    ! Некоторые коррекция по сокращению кода ;-)
 */
 
 #include "headers.hpp"
@@ -714,21 +716,11 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
     UseLastPanel=TRUE;
   }
   else
-    switch(NewType)
-    {
-      case FILE_PANEL:
-        NewPanel=new FileList;
-        break;
-      case TREE_PANEL:
-        NewPanel=new TreeList;
-        break;
-      case QVIEW_PANEL:
-        NewPanel=new QuickView;
-        break;
-      case INFO_PANEL:
-        NewPanel=new InfoList;
-        break;
-    }
+    /* $ 13.07.2000 SVS
+       немного сократим код путем вызова функции класса CreatePanel(int Type)
+    */
+    NewPanel=CreatePanel(NewType);
+    /* SVS $*/
 
   if (Current==ActivePanel)
     ActivePanel=NewPanel;

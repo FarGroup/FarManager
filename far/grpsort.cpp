@@ -5,13 +5,15 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 13.07.2000 $ */
 
 /*
 Modify:
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
+  13.07.2000 SVS
+    ! Некоторые коррекции при использовании new/delete/realloc
 */
 
 #include "headers.hpp"
@@ -63,7 +65,11 @@ GroupSort::GroupSort()
 
 GroupSort::~GroupSort()
 {
-  delete GroupData;
+  /* $ 13.07.2000 SVS
+     ни кто не вызывал запрос памяти через new :-)
+  */
+  free(GroupData);
+  /* SVS $ */
 }
 
 
