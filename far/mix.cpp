@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.59 12.03.2001 $ */
+/* Revision: 1.60 15.03.2001 $ */
 
 /*
 Modify:
+  15.03.2001 SKV
+    - фикс с размером консоли при detach far console.
   12.03.2001 SVS
     ! Коррекция в связи с изменениями в классе int64
   02.03.2001 IS
@@ -415,6 +417,14 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 
   SetFarTitle(CmdPtr);
   FlushInputBuffer();
+
+  /*$ 15.03.2001 SKV
+    Надо запомнить параметры консоли ДО запуск и т.д.
+  */
+  CONSOLE_SCREEN_BUFFER_INFO sbi;
+  GetConsoleScreenBufferInfo(hConOut,&sbi);
+  /* SKV$*/
+
   ChangeConsoleMode(InitialConsoleMode);
 
   DWORD CreateFlags=0;
@@ -469,8 +479,6 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
         h[1]=hConInp;
         INPUT_RECORD ir[256];
         DWORD rd;
-        CONSOLE_SCREEN_BUFFER_INFO sbi;
-        GetConsoleScreenBufferInfo(hConOut,&sbi);
 
         int vkey=0,ctrl=0;
         TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,NULL);
