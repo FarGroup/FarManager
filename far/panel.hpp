@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.18 10.12.2002 $ */
+/* Revision: 1.19 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    + UPDATE_DRAW_MESSAGE - "показывать процесс сканирования в окне"
   10.12.2002 SVS
     + ProcessDelDisk() - поимел третий параметр, указатель на VMenu для того, чтобы патом
       прорефрешить меню!
@@ -93,7 +95,7 @@ enum {DRIVE_SHOW_TYPE=1,DRIVE_SHOW_NETNAME=2,DRIVE_SHOW_LABEL=4,
       DRIVE_SHOW_FILESYSTEM=8,DRIVE_SHOW_SIZE=16,DRIVE_SHOW_REMOVABLE=32,
       DRIVE_SHOW_PLUGINS=64,DRIVE_SHOW_CDROM=128};
 
-enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4};
+enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_DRAW_MESSAGE=8};
 
 enum {NORMAL_PANEL,PLUGIN_PANEL};
 

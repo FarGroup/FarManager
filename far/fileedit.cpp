@@ -5,10 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.124 17.12.2002 $ */
+/* Revision: 1.125 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    - Ну...  некоторым образом облагороженная вариация BugZ#660 :-)
+      Применим новый флаг UPDATE_DRAW_MESSAGE - "показывать счетчик
+      считываемых файлов при обновлении панели в месаге"
   17.12.2002 SVS
     ! Изменен принцип работы с EditorPosCache (see класс FilePositionCache)
   11.12.2002 SVS
@@ -1859,7 +1863,7 @@ BOOL FileEditor::UpdateFileList()
   AddEndSlash(FilePath);
   if (!strcmp(PanelPath, FilePath))
   {
-    ActivePanel->Update(UPDATE_KEEP_SELECTION);
+    ActivePanel->Update(UPDATE_KEEP_SELECTION|UPDATE_DRAW_MESSAGE);
     return TRUE;
   }
   return FALSE;

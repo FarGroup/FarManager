@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.134 17.12.2002 $ */
+/* Revision: 1.135 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    - баги с прорисовкой, при вызове GetDirInfo
+    ! Добавим параметр DontRedrawFrame в функцию GetDirInfo -
+      "не рефрешить панели!"
   17.12.2002 SVS
     - BugZ#736 - падение фара на старте при включенном QView
       Учтем тот факт, что манагер еще не работает!
@@ -759,22 +763,24 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak)
+               int EnhBreak,BOOL DontRedrawFrame)
 {
   class RefreshFrameManeger{
     private:
       int OScrX,OScrY;
       clock_t MsgWaitTime;
+      BOOL DontRedrawFrame;
     public:
-      RefreshFrameManeger(int OScrX,int OScrY, int MsgWaitTime)
+      RefreshFrameManeger(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame)
       {
         RefreshFrameManeger::OScrX=OScrX;
         RefreshFrameManeger::OScrY=OScrY;
         RefreshFrameManeger::MsgWaitTime=MsgWaitTime;
+        RefreshFrameManeger::DontRedrawFrame=DontRedrawFrame;
       }
       ~RefreshFrameManeger()
       {
-        if (!FrameManager || !FrameManager->ManagerStarted())
+        if (DontRedrawFrame || !FrameManager || !FrameManager->ManagerStarted())
           return;
         else if(OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=0xffffffff)
         {
@@ -812,7 +818,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   /* DJ */
 
   ConsoleTitle OldTitle;
-  RefreshFrameManeger frref(ScrX,ScrY,MsgWaitTime);
+  RefreshFrameManeger frref(ScrX,ScrY,MsgWaitTime,DontRedrawFrame);
 
   PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 

@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.171 10.12.2002 $ */
+/* Revision: 1.172 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    ! Добавим параметр DontRedrawFrame в функцию GetDirInfo -
+      "не рефрешить панели!"
   10.12.2002 SVS
     + ManagerClass_Dump()
   05.12.2002 SVS
@@ -754,7 +757,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak);
+               int EnhBreak,BOOL DontRedrawFrame=FALSE);
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize);

@@ -5,10 +5,15 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.43 17.12.2002 $ */
+/* Revision: 1.44 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    ! Перенесем показ промптера сом.строки и кейбара выше апдейта панелей
+      Т.о. исключаем очередной BugZ# про непрорисовку онных в момент старта
+      ФАРа (эт когда столяли на охрененном каталоге и... начался процесс
+      сканирования или была панель QView)
   17.12.2002 SVS
     ! Загрузка плагинов перенесена чуток пониже...
   17.12.2002 SVS
@@ -204,6 +209,10 @@ void ControlObject::Init()
 
   _beginthread(CheckVersion,0x10000,NULL);
 
+  CmdLine->Show();
+  if(Opt.ShowKeyBar)
+    this->MainKeyBar->Show();
+
   Cp()->LeftPanel->Update(0);
   Cp()->RightPanel->Update(0);
   /* $ 07.09.2000 tran
@@ -214,10 +223,6 @@ void ControlObject::Init()
       Cp()->RightPanel->GoToFile(Opt.RightCurFile);
   }
   /* tran 07.09.2000 $ */
-
-  CmdLine->Show();
-  if(Opt.ShowKeyBar)
-    this->MainKeyBar->Show();
 
   FrameManager->InsertFrame(FPanels);
 

@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.168 17.10.2002 $ */
+/* Revision: 1.169 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    - баги с прорисовкой, учтем новый параметр GetDirInfo и после всего
+      прочего обновим панели (бага про моргание месага)
   17.10.2002 SVS
     ! небольшое ускорение сравнятора (FileList::CopyNames) + немного
       комментариев на будущее
@@ -4031,7 +4034,7 @@ void FileList::CountDirSize()
           PanelMode!=PLUGIN_PANEL &&
           GetDirInfo(MSG(MDirInfoViewTitle),CurPtr->Name,DirCount,
                      DirFileCount,FileSize,CompressedFileSize,RealFileSize,
-                     ClusterSize,0,FALSE)==1)
+                     ClusterSize,0,FALSE,TRUE)==1)
       {
         SelFileSize-=int64(CurPtr->UnpSizeHigh,CurPtr->UnpSize);
         SelFileSize+=FileSize;
@@ -4055,7 +4058,7 @@ void FileList::CountDirSize()
                          CompressedFileSize) ||
         PanelMode!=PLUGIN_PANEL &&
         GetDirInfo(MSG(MDirInfoViewTitle),strcmp(CurPtr->Name,"..")==0 ? ".":CurPtr->Name,DirCount,DirFileCount,
-                   FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,FALSE)==1)
+                   FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,FALSE,TRUE)==1)
     {
       CurPtr->UnpSize=FileSize.PLow();
       CurPtr->UnpSizeHigh=FileSize.PHigh();
@@ -4067,6 +4070,7 @@ void FileList::CountDirSize()
 
   SortFileList(TRUE);
   ShowFileList(TRUE);
+  CtrlObject->Cp()->Redraw();
   CreateChangeNotification(TRUE);
 }
 

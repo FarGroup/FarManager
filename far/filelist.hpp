@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.33 18.06.2002 $ */
+/* Revision: 1.34 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    ! Добавляем третий параметр в FileList::ReadFileNames()
   18.06.2002 SVS
     + IfGoHome()
   14.05.2002 VVM
@@ -232,7 +234,7 @@ class FileList:public Panel
     /* $ 19.03.2002 DJ
        IgnoreVisible - обновить, даже если панель невидима
     */
-    void ReadFileNames(int KeepSelection, int IgnoreVisible);
+    void ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage);
     void UpdatePlugin(int KeepSelection, int IgnoreVisible);
     /* DJ $ */
     void MoveSelection(struct FileListItem *FileList,long FileCount,

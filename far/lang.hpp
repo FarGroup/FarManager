@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.114 03.12.2002 $ */
+/* Revision: 1.115 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    + MReadingTitleFiles
   03.12.2002 SVS
     + MPlgLoadPluginError
   07.10.2002 SVS
@@ -1545,6 +1547,7 @@ enum
   MCfgDizUpdateIfDisplayed,
   MCfgDizAlwaysUpdate,
 
+  MReadingTitleFiles,
   MReadingFiles,
 
   MUserBreakTitle,

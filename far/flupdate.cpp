@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.38 18.06.2002 $ */
+/* Revision: 1.39 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    ! Избавимся от "не той" прорисовки пересчетчика файлов в момент выхода
+      из редактора в каталоге со значительным количеством файлов.
   18.06.2002 SVS
     ! Перед чтением контента (функция FileList::ReadFileNames - вот здесь
       возможно что код лишний!) проверим на "читаемость" диска и если надо
@@ -140,7 +143,7 @@ void FileList::Update(int Mode)
     switch(PanelMode)
     {
       case NORMAL_PANEL:
-        ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
+        ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
         break;
       case PLUGIN_PANEL:
         {
@@ -148,7 +151,7 @@ void FileList::Update(int Mode)
           CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           ProcessPluginCommand();
           if (PanelMode!=PLUGIN_PANEL)
-            ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
+            ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
           else
             if ((Info.Flags & OPIF_REALNAMES) ||
                 CtrlObject->Cp()->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
@@ -177,6 +180,19 @@ void FileList::UpdateIfRequired()
 
 /* DJ $ */
 
+
+void ReadFileNamesMsg(char *Msg)
+{
+  Message(0,0,MSG(MReadingTitleFiles),Msg);
+  PreRedrawParam.Param1=Msg;
+}
+
+static void PR_ReadFileNamesMsg(void)
+{
+  ReadFileNamesMsg((char *)PreRedrawParam.Param1);
+}
+
+
 // ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manafer
 // при считывании дирректории
 
@@ -184,7 +200,7 @@ void FileList::UpdateIfRequired()
    IgnoreVisible
 */
 
-void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible)
+void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessage)
 {
   if (!IsVisible() && !IgnoreVisible)   /* DJ $ */
   {
@@ -409,21 +425,32 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible)
 
       if ((FileCount & 0x3f)==0 && clock()-StartTime>1000)
       {
+
         if (IsVisible())
         {
           char ReadMsg[100];
           if(!IsShowTitle)
           {
-            Text(X1+1,Y1,COL_PANELBOX,Title);
-            IsShowTitle=TRUE;
-            SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+            if(DrawMessage)
+              SetPreRedrawFunc(PR_ReadFileNamesMsg);
+            else
+            {
+              Text(X1+1,Y1,COL_PANELBOX,Title);
+              IsShowTitle=TRUE;
+              SetColor(Focus ? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
+            }
           }
 
           sprintf(ReadMsg,MSG(MReadingFiles),FileCount);
-          TruncStr(ReadMsg,TitleLength-2);
-          int MsgLength=strlen(ReadMsg);
-          GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
-          mprintf(" %s ",ReadMsg);
+          if(DrawMessage)
+            ReadFileNamesMsg(ReadMsg);
+          else
+          {
+            TruncStr(ReadMsg,TitleLength-2);
+            int MsgLength=strlen(ReadMsg);
+            GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
+            mprintf(" %s ",ReadMsg);
+          }
         }
         if (CheckForEsc())
         {
@@ -434,6 +461,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible)
     }
     Done=!FindNextFile(FindHandle,&fdata);
   }
+
+  SetPreRedrawFunc(NULL);
 
   int ErrCode=GetLastError();
   if (ErrCode!=ERROR_SUCCESS && ErrCode!=ERROR_NO_MORE_FILES && ErrCode!=ERROR_FILE_NOT_FOUND)

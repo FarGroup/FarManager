@@ -5,10 +5,16 @@ Internal viewer
 
 */
 
-/* Revision: 1.112 17.12.2002 $ */
+/* Revision: 1.113 21.12.2002 $ */
 
 /*
 Modify:
+  21.12.2002 SVS
+    - BugZ#742/2 - проблемы с Qview:
+       Когда бегаю по папкам с включенным Qview 100% на некоторое время
+       в окне Qview видна надпись "Ошибка открытия файла"
+      Проверим еще и имя файла - для каталога здесь будет 0
+    - Неинициализированные переменные
   17.12.2002 SVS
     ! Viewer64. Все файловые смещения и размеры приведены к __int64, что
       позволяет существенно повысить верхний предел размерности
@@ -825,9 +831,19 @@ void Viewer::DisplayObject()
       в случае невозножности его открытия */
   if (ViewFile==NULL)
   {
-    GotoXY(X1,Y1);
-    SetColor(COL_WARNDIALOGTEXT);
-    mprintf(MSG(MViewerCannotOpenFile));
+    /* BugZ#742/2 - проблемы с Qview
+       Когда бегаю по папкам с включенным Qview 100% на
+       некоторое время в окне Qview видна надпись
+       "Ошибка открытия файла"
+
+       Проверим еще и имя файла - для каталога здесь будет 0
+    */
+    if(*FileName)
+    {
+      GotoXY(X1,Y1);
+      SetColor(COL_WARNDIALOGTEXT);
+      mprintf(MSG(MViewerCannotOpenFile));
+    }
     return;
   }
   /* tran $ */
@@ -1257,7 +1273,7 @@ void Viewer::SetStatusMode(int Mode)
 void Viewer::ReadString(char *Str,int MaxSize,int StrSize,__int64 *SelPos1,__int64 *SelSize1)
 {
   int Ch, Ch2;
-  __int64 SelPos, SelSize, OutPtr;
+  __int64 SelPos=0, SelSize=0, OutPtr;
 
   /* $ 27.04.2001 DJ
      вычисление ширины - в отдельную функцию
