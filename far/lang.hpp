@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.78 03.10.2001 $ */
+/* Revision: 1.79 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 SVS
+    + MSetAttrOriginal
   05.10.2001 SVS
     + MCannotCreateListWrite, MCannotCreateListTemp - уточним - из-за чего
       не смогли создать файл список - только что нарвался на неприятку :-(
@@ -1209,9 +1211,10 @@ enum
   MSetAttrModification,
   MSetAttrCreation,
   MSetAttrLastAccess,
+  MSetAttrOriginal,
   MSetAttrCurrent,
-  MSetAttrSet,
   MSetAttrBlank,
+  MSetAttrSet,
 
   MSetAttrTimeTitle1,
   MSetAttrTimeTitle2,

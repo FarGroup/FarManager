@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.70 11.10.2001 $ */
+/* Revision: 1.71 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 SVS
+    ! Ќу охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
+      Opt.SetAttrFolderRules!
   11.10.2001 SVS
     + Opt.FolderSetAttr165; // поведение дл€ каталогов как у 1.65
   07.10.2001 SVS
@@ -660,7 +663,6 @@ struct Options
 
   DWORD LCIDSort;
   int HelpTabSize;
-  int FolderSetAttr165; // поведение дл€ каталогов как у 1.65
 
   char DateFormat[80]; // ƒл€ $Date
   struct PoliciesOptions Policies;

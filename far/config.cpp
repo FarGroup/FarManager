@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.99 11.10.2001 $ */
+/* Revision: 1.100 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 SVS
+    ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
+      Opt.SetAttrFolderRules!
   11.10.2001 SVS
     + Opt.FolderSetAttr165; // поведение для каталогов как у 1.65
   07.10.2001 SVS
@@ -1076,7 +1079,6 @@ static struct FARConfig{
 
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
   {0, REG_DWORD,  NKeySystem,"LCID",&Opt.LCIDSort,LOCALE_USER_DEFAULT, 0},
-  {0, REG_DWORD,  NKeySystem,"FolderSetAttr",&Opt.FolderSetAttr165,0, 0},
 
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},

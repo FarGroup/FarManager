@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.38 11.10.2001 $ */
+/* Revision: 1.39 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 SVS
+    ! Ну охренеть (Opt.FolderSetAttr165!!!) - уже и так есть то, что надо:
+      Opt.SetAttrFolderRules!
+    + кнопка "Original" - исходное значение файловых времен.
   11.10.2001 SVS
     + Opt.FolderSetAttr165; // поведение для каталогов как у 1.65
   27.09.2001 IS
@@ -236,7 +240,7 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
                       Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
                   }
                 }
-                if(!State11 && !Opt.FolderSetAttr165)
+                if(!State11 && Opt.SetAttrFolderRules)
                 {
                   HANDLE FindHandle;
                   WIN32_FIND_DATA FindData;
@@ -278,11 +282,27 @@ long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         return TRUE;
       }
-      else if(Param1 == 24 || Param1 == 25) // Set All? / Clear All?
+      // Set Original? / Set All? / Clear All?
+      else if(Param1 == 24)
       {
-        Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 24?-1:0);
-        Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 24?-1:0);
-        Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 24?-1:0);
+        HANDLE FindHandle;
+        WIN32_FIND_DATA FindData;
+        DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+        if ((FindHandle=FindFirstFile(DlgParam->SelName,&FindData))!=INVALID_HANDLE_VALUE)
+        {
+          FindClose(FindHandle);
+          Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,(DWORD)&FindData.ftLastWriteTime);
+          Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,(DWORD)&FindData.ftCreationTime);
+          Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,(DWORD)&FindData.ftLastAccessTime);
+        }
+        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
+        return TRUE;
+      }
+      else if(Param1 == 25 || Param1 == 26)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 25?-1:0);
+        Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 25?-1:0);
+        Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 25?-1:0);
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
         return TRUE;
       }
@@ -365,7 +385,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 16   | Modification      .  .       :  :   |   16
 17   | Creation          .  .       :  :   |   17
 18   | Last access       .  .       :  :   |   18
-19   |               [ Current ] [ Blank ] |   19
+19   | [ Original ]  [ Current ] [ Blank ] |   19
 20   +-------------------------------------+   20
 21   |         [ Set ]  [ Cancel ]         |   21
 22   +-------------------------------------+   22
@@ -396,12 +416,13 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   /* 21 */DI_TEXT,    5,17,0,0,0,0,0,0,(char *)MSetAttrLastAccess,
   /* 22 */DI_FIXEDIT,21,17,30,17,0,0,DIF_MASKEDIT,0,"",
   /* 23 */DI_FIXEDIT,32,17,39,17,0,0,DIF_MASKEDIT,0,"",
-  /* 24 */DI_BUTTON,19,18,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MSetAttrCurrent,
-  /* 25 */DI_BUTTON,31,18,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MSetAttrBlank,
-  /* 26 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 27 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
-  /* 28 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
-  /* 29 */DI_TEXT,-1,4,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
+  /* 24 */DI_BUTTON, 5,18,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MSetAttrOriginal,
+  /* 25 */DI_BUTTON,19,18,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MSetAttrCurrent,
+  /* 26 */DI_BUTTON,31,18,0,0,0,0,DIF_BTNNOCLOSE,0,(char *)MSetAttrBlank,
+  /* 27 */DI_TEXT,3,19,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 28 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,1,(char *)MSetAttrSet,
+  /* 29 */DI_BUTTON,0,20,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel,
+  /* 30 */DI_TEXT,-1,4,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
   };
   MakeDialogItems(AttrDlgData,AttrDlg);
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
@@ -550,7 +571,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             Width=28;
           }
 
-          sprintf(AttrDlg[29].Data,MSG(ID_Msg),
+          sprintf(AttrDlg[30].Data,MSG(ID_Msg),
                 (LenJunction?
                    TruncPathStr(JuncName+4,Width):
                    MSG(MSetAttrUnknownJunction)));
@@ -608,6 +629,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=AttrDlg[19].Data[0]=
       AttrDlg[20].Data[0]=AttrDlg[22].Data[0]=AttrDlg[23].Data[0]='\0';
 
+      AttrDlg[24].Flags|=DIF_HIDDEN;
+
       strcpy(AttrDlg[2].Data,MSG(MSetAttrSelectedObjects));
       // выставим -1 - потом учтем этот факт :-)
       for(I=4; I <= 9; ++I)
@@ -648,7 +671,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     }
 
     // поведение для каталогов как у 1.65?
-    if(FolderPresent && Opt.FolderSetAttr165)
+    if(FolderPresent && !Opt.SetAttrFolderRules)
     {
       AttrDlg[11].Selected=1;
       AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=AttrDlg[19].Data[0]=
@@ -680,7 +703,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       Dlg.SetHelp("FileAttrDlg");                 //  ^ - это одиночный диалог!
       Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
       Dlg.Process();
-      if (Dlg.GetExitCode()!=27)
+      if (Dlg.GetExitCode()!=28)
         return 0;
     }
     // </Dialog>

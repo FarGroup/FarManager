@@ -2150,6 +2150,9 @@ time components will remain unchanged.
 
     The #Current# button fills the file time fields with the current time.
 
+    Кнопка #Original# (Исходное) заполняет поля времени файла оригинальными
+значениями. Доступна для одиночного файлового объекта.
+
 @FolderShortcuts
 $ #Folder shortcuts#
     Folder shortcuts are designed to provide fast access to frequently
