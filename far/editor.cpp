@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.59 21.01.2001 $ */
+/* Revision: 1.60 03.02.2001 $ */
 
 /*
 Modify:
+  03.02.2001 skv
+    - EEREDRAW_ALL теперь соответствует действительности,
+      при переходе с одной строки на другую при выключенном
+      cursor beyond end of line нажатием вправо.
   21.01.2001 SVS
     ! Диалоги поиска/замены выведен из Editor::Search в отдельную
       функцию GetSearchReplaceString (файл stddlg.cpp)
@@ -2259,6 +2263,12 @@ int Editor::ProcessKey(int Key)
           Pasting--;
           CtrlObject->Plugins.CurEditor=this;
           CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+          /*$ 03.02.2001 SKV
+            А то EEREDRAW_ALL то уходит, а на самом деле
+            только текущая линия перерисовывается.
+          */
+          ShowEditor(0);
+          /* SKV$*/
           return(TRUE);
         }
 
