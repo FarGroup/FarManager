@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.207 08.11.2002 $ */
+/* Revision: 1.208 10.11.2002 $ */
 
 /*
 Modify:
+  10.11.2002 SKV
+    - BugZ#690, выделение...
   08.11.2002 SVS
     ! Очередная порция отучения Editor от понятия "файл":
       * Editor::PluginData уехал в FileEditor::PluginData
@@ -1840,8 +1842,8 @@ int Editor::ProcessKey(int Key)
           CurLine->EditLine.Select(SelEnd,-1);
         }
         CurLine->Next->EditLine.GetRealSelection(SelStart,SelEnd);
-        SelStart=CurLine->Next->EditLine.RealPosToTab(SelStart);
-        SelEnd=CurLine->Next->EditLine.RealPosToTab(SelEnd);
+        if(SelStart!=-1)SelStart=CurLine->Next->EditLine.RealPosToTab(SelStart);
+        if(SelStart!=-1)SelEnd=CurLine->Next->EditLine.RealPosToTab(SelEnd);
         if(SelStart==-1)
         {
           SelStart=0;
@@ -1915,13 +1917,13 @@ int Editor::ProcessKey(int Key)
           CurLine->EditLine.Select(0,SelStart);
         }
         CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
-        SelStart=CurLine->Prev->EditLine.RealPosToTab(SelStart);
-        SelEnd=CurLine->Prev->EditLine.RealPosToTab(SelEnd);
+        if(SelStart!=-1)SelStart=CurLine->Prev->EditLine.RealPosToTab(SelStart);
+        if(SelStart!=-1)SelEnd=CurLine->Prev->EditLine.RealPosToTab(SelEnd);
         if(SelStart==-1)
         {
           BlockStart=CurLine->Prev;
           BlockStartLine=NumLine-1;
-          SelStart=CurPos;
+          SelStart=CurLine->Prev->EditLine.TabPosToReal(CurPos);
           SelEnd=-1;
         }else
         {

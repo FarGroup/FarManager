@@ -95,7 +95,7 @@ BRC32   = $(BCCPATH)\bin\Brc32
 # Options
 #
 !ifdef ILINK
-LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
+LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH) -I.\$(OBJPATH)
 !else
 LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
 !endif
@@ -297,13 +297,6 @@ Far.def
    -@if exist fmt.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
    -@if exist farcolor.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas farcolor.pas > $(FARINCLUDE)\farcolor.pas
    -@if exist farkeys.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas farkeys.pas > $(FARINCLUDE)\farkeys.pas
-!ifdef ILINK
-	-@if not exist $(FINALPATH)\Far.ilc del $(FINALPATH)\Far.ilc  >nul
-	-@if not exist $(FINALPATH)\Far.ild del $(FINALPATH)\Far.ild  >nul
-	-@if not exist $(FINALPATH)\Far.ilf del $(FINALPATH)\Far.ilf  >nul
-	-@if not exist $(FINALPATH)\Far.ils del $(FINALPATH)\Far.ils  >nul
-	-@if not exist $(FINALPATH)\Far.tds del $(FINALPATH)\Far.tds  >nul
-!endif
 
 
 # Compiler configuration file
@@ -353,10 +346,3 @@ CLEAN :
 	-@del /q /f $(FINALPATH)\FarEng.lng  > nul
 	-@del /q /f $(FINALPATH)\FarRus.hlf  > nul
 	-@del /q /f $(FINALPATH)\FarRus.lng  > nul
-!ifdef ILINK
-	-@if not exist $(FINALPATH)\Far.ilc del $(FINALPATH)\Far.ilc  >nul
-	-@if not exist $(FINALPATH)\Far.ild del $(FINALPATH)\Far.ild  >nul
-	-@if not exist $(FINALPATH)\Far.ilf del $(FINALPATH)\Far.ilf  >nul
-	-@if not exist $(FINALPATH)\Far.ils del $(FINALPATH)\Far.ils  >nul
-	-@if not exist $(FINALPATH)\Far.tds del $(FINALPATH)\Far.tds  >nul
-!endif

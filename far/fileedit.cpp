@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.120 08.11.2002 $ */
+/* Revision: 1.121 10.11.2002 $ */
 
 /*
 Modify:
+  10.11.2002 SKV
+    ! Слэши в имени файла должны быть только обратные, дабы избежать проблем с историей и т.д.
   08.11.2002 SVS
     ! Editor::PluginData уехал в FileEditor::PluginData
     ! Editor::SetPluginData() уехал в FileEditor::SetPluginData()
@@ -1661,6 +1663,14 @@ BOOL FileEditor::SetFileName(const char *NewFileName)
   {
     return FALSE;
   }
+  /* $ 10.11.2002 SKV
+    Дабы избежать бардака, развернём слэшики...
+  */
+  for(char* fn=FullFileName;*fn;fn++)
+  {
+    if(*fn=='/')*fn='\\';
+  }
+  /* SKV $ */
   strncpy(FileName,NewFileName,sizeof(FileName)-1);
   return TRUE;
 }
