@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.36 16.05.2001 $ */
+/* Revision: 1.37 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 tran
+    ! по результам прогона на CodeGuard
   16.05.2001 SVS
     + GetCurRecord() - для дампа
   07.05.2001 SVS
@@ -340,7 +342,7 @@ int KeyMacro::LoadMacros()
     // выставим код возврата - если не все ВСЕ загрузились, то
     // будет FALSE
     Ret=(Ret < 12)?FALSE:TRUE;
-    delete Buffer;
+    delete[] Buffer;
   }
   Mode=MACRO_SHELL;
   return Ret;

@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.12 22.05.2001 $ */
+/* Revision: 1.13 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 tran
+    ! по результам прогона на CodeGuard
   22.05.201 OT
     - Баг с определением, режиме панели -  на весь экран, или только на половину :)
   16.05.2001 SVS
@@ -60,7 +62,8 @@ Modify:
 extern struct PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
 
-static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
+//static char VerticalLine[2][2]={{0x0B3,0x00},{0x0BA,0x00}};
+static char *VerticalLine[]={"\x0B3","\x0BA"};
 
 void FileList::DisplayObject()
 {
@@ -298,7 +301,17 @@ void FileList::ShowFileList(int Fast)
 
 void FileList::SetShowColor(int Position)
 {
-  struct FileListItem *CurPtr=ListData+Position;
+  struct FileListItem *CurPtr;
+
+  /* $ 22.05.2001 tran
+!      codeguard обругался... */
+  if (ListData==NULL)
+  {
+    SetColor(COL_PANELTEXT);
+    return;
+  }
+  /* tran $ */
+  CurPtr=ListData+Position;
   if (CurFile==Position && Focus && FileCount>0)
     if (Position<FileCount && CurPtr->Selected)
       if (CurPtr->CursorSelColor && Opt.Highlight)

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.14 06.05.2001 $ */
+/* Revision: 1.15 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 tran
+    ! по результам прогона на CodeGuard
   06.05.2001 DJ
     ! перетрях #include
   28.04.2001 VVM
@@ -91,7 +93,8 @@ Modify:
 #define FSCTL_GET_REPARSE_POINT         CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 42, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define FSCTL_DELETE_REPARSE_POINT      CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 43, METHOD_BUFFERED, FILE_SPECIAL_ACCESS) // REPARSE_DATA_BUFFER,
 
-#ifndef _MSC_VER
+//#ifndef _MSC_VER
+#ifndef REPARSE_GUID_DATA_BUFFER_HEADER_SIZE
 typedef struct _REPARSE_GUID_DATA_BUFFER {
   DWORD  ReparseTag;
   WORD   ReparseDataLength;
@@ -101,12 +104,13 @@ typedef struct _REPARSE_GUID_DATA_BUFFER {
       BYTE   DataBuffer[1];
   } GenericReparseBuffer;
 } REPARSE_GUID_DATA_BUFFER, *PREPARSE_GUID_DATA_BUFFER;
-#endif // _MSC_VER
 
 #define REPARSE_GUID_DATA_BUFFER_HEADER_SIZE   FIELD_OFFSET(REPARSE_GUID_DATA_BUFFER, GenericReparseBuffer)
 #define MAXIMUM_REPARSE_DATA_BUFFER_SIZE      ( 16 * 1024 )
 // REPARSE_DATA_BUFFER
 //#endif
+#endif // REPARSE_GUID_DATA_BUFFER_HEADER_SIZE
+
 struct TMN_REPARSE_DATA_BUFFER
 {
   DWORD  ReparseTag;

@@ -5,10 +5,12 @@ poscache.cpp
 
 */
 
-/* Revision: 1.06 06.05.2001 $ */
+/* Revision: 1.07 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 tran
+    ! по результам прогона на CodeGuard
   06.05.2001 DJ
     ! перетр€х #include
   06.04.2001 VVM
@@ -227,7 +229,7 @@ void FilePositionCache::Save(char *Key)
        (Opt.SaveEditorShortPos && Opt.SaveEditorPos))
     {
       // ≈сли не запоминались позиции по RCtrl+<N>, то и не записываем их
-      for(J=0; J < 40*sizeof(long); ++J)
+      for(J=0; J < 40*sizeof(long); J++)
         if(ShortPos[Pos*40+J] != 0xFFFFFFFFU)
           break;
 

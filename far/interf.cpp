@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.24 21.05.2001 $ */
+/* Revision: 1.25 22.05.2001 $ */
 
 /*
 Modify:
+  22.05.2001 tran
+    ! по результам прогона на CodeGuard
   21.05.2001 OT
     - Исправление поведения AltF9
   06.05.2001 DJ
@@ -169,6 +171,10 @@ void CloseConsole()
   ChangeConsoleMode(InitialConsoleMode);
   CloseHandle(hConInp);
   CloseHandle(hConOut);
+  /* $ 22.05.2001 tran
+     codeguard says... */
+  delete KeyQueue;
+  /* tran $ */
 }
 
 
@@ -750,7 +756,7 @@ void BoxText(char *Str)
 */
 void Box(int x1,int y1,int x2,int y2,int Color,int Type)
 {
-  char OutStr[512];
+  char OutStr[2048];
   static char ChrBox[2][6]={
     {0xC4,0xB3,0xDA,0xC0,0xD9,0xBF},
     {0xCD,0xBA,0xC9,0xC8,0xBC,0xBB},
