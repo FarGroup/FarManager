@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.140 28.12.2001 $ */
+/* Revision: 1.141 07.01.2002 $ */
 
 /*
 Modify:
+  07.01.2002 IS
+    - Выделялось не то, что нужно, при использовании ctrl-shift-(left|right),
+      если перед этим позиция была изменена плагином, а не самим Фаром, а при
+      этом имелась в наличии ранее выделенная область
   28.12.2001 SVS
     ! Правка с учетом изменений структур (про анонимный union)
   28.12.2001 VVM
@@ -1830,12 +1834,21 @@ int Editor::ProcessKey(int Key)
         DisableOut++;
         Edit::DisableEditOut(TRUE);
         /* OT $ */
+        /* $ 07.01.2002 IS
+           Сверим позицию курсора и существующего выделения, если есть
+           противоречие, то начнем новое выделение
+        */
+        int SelStart, SelEnd, CurPos=CurLine->EditLine.GetCurPos();
+        CurLine->EditLine.GetSelection(SelStart,SelEnd);
+        if(CurPos<=SelStart)
+          MarkingBlock=MarkingVBlock=FALSE;
+        /* IS 07.02.2002 $ */
         while (1)
         {
           char *Str;
           int Length;
           CurLine->EditLine.GetBinaryString(&Str,NULL,Length);
-          int CurPos=CurLine->EditLine.GetCurPos();
+          CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>Length)
           {
             CurLine->EditLine.ProcessKey(KEY_END);
@@ -1872,12 +1885,21 @@ int Editor::ProcessKey(int Key)
         Pasting++;
         DisableOut++;
         Edit::DisableEditOut(TRUE);
+        /* $ 07.01.2002 IS
+           Сверим позицию курсора и существующего выделения, если есть
+           противоречие, то начнем новое выделение
+        */
+        int SelStart, SelEnd, CurPos=CurLine->EditLine.GetCurPos();
+        CurLine->EditLine.GetSelection(SelStart,SelEnd);
+        if(CurPos<=SelStart)
+          MarkingBlock=MarkingVBlock=FALSE;
+        /* IS 07.02.2002 $ */
         while (1)
         {
           char *Str;
           int Length;
           CurLine->EditLine.GetBinaryString(&Str,NULL,Length);
-          int CurPos=CurLine->EditLine.GetCurPos();
+          CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>=Length)
             break;
           /* $ 03.08.2000 SVS
