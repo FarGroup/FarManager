@@ -2,6 +2,7 @@ LIBRARY
 EXPORTS
 	SetStartupInfo
 	OpenFilePlugin
+	OpenPlugin
 	ClosePlugin
 	GetPluginInfo
 	GetOpenPluginInfo

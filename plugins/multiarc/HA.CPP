@@ -4,9 +4,9 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2002 FAR group
+  Copyrigth (c) 2000-2005 FAR group
 */
-/* Revision: 1.13 03.11.2004 $ */
+/* Revision: 1.14 01.04.2005 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -29,12 +29,16 @@
 #endif
 
 #ifdef _MSC_VER
+#if _MSC_VER < 1310
 #pragma comment(linker, "/ignore:4078")
 #pragma comment(linker, "/merge:.data=.")
 #pragma comment(linker, "/merge:.rdata=.")
 #pragma comment(linker, "/merge:.text=.")
 #pragma comment(linker, "/section:.,RWE")
 #endif
+#endif
+char *strrchr(char *s, int c);
+char *strncpy(char *dest, const char *source, size_t n);
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize;
@@ -178,4 +182,27 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     }
   }
   return(FALSE);
+}
+
+
+char *strncpy(char *dest, const char *source, size_t n)
+{
+  char *src = dest;
+
+  while (n && 0 != (*dest++ = *source++))
+    --n;
+  *dest = 0;
+  return (src);
+}
+char *strrchr(char *s, int c)
+{
+  register const char *ss;
+  register size_t i;
+
+  for (i = strlen(s) + 1, ss = s + i; i; --i)
+    {
+      if (*(--ss) == (char) c)
+        return ((char *) ss);
+    }
+  return NULL;
 }

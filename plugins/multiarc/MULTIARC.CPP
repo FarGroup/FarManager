@@ -5,7 +5,7 @@
 
 int WINAPI _export GetMinFarVersion(void)
 {
-  return MAKEFARVERSION(1,70,1666);
+  return MAKEFARVERSION(1,70,1812);
 }
 
 void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
@@ -85,7 +85,7 @@ HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,
   return hPlugin;
 }
 
-HANDLE WINAPI OpenPlugin(int OpenFrom, int Item)
+HANDLE WINAPI _export OpenPlugin(int OpenFrom, int Item)
 {
   if (ArcPlugin==NULL)
     return INVALID_HANDLE_VALUE;

@@ -3,9 +3,9 @@
 
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
-  Copyrigth (c) 2004 FAR group
+  Copyrigth (c) 2004-2005 FAR group
 */
-/* Revision: 1.01 03.11.2004 $ */
+/* Revision: 1.02 01.04.2005 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -28,12 +28,16 @@
 #endif
 
 #ifdef _MSC_VER
+#if _MSC_VER < 1310
 #pragma comment(linker, "/ignore:4078")
 #pragma comment(linker, "/merge:.data=.")
 #pragma comment(linker, "/merge:.rdata=.")
 #pragma comment(linker, "/merge:.text=.")
 #pragma comment(linker, "/section:.,RWE")
 #endif
+#endif
+
+char *strncpy(char *dest, const char *source, size_t n);
 
 #define ARCMARK        0x1A    // special archive marker
 #define FNLEN          13      // file name length
@@ -365,4 +369,14 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     }
   }
   return(FALSE);
+}
+
+char *strncpy(char *dest, const char *source, size_t n)
+{
+  char *src = dest;
+
+  while (n && 0 != (*dest++ = *source++))
+    --n;
+  *dest = 0;
+  return (src);
 }

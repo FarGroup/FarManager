@@ -1,7 +1,7 @@
 #include <windows.h>
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 1 VERSIONINFO
-FILEVERSION 1, 28, 0, 0
+FILEVERSION 1, 29, 0, 0
 PRODUCTVERSION 1, 70, 6, 0
 FILEOS 4
 FILEFLAGS 0
@@ -14,9 +14,9 @@ FILESUBTYPE 0
   {
    VALUE "CompanyName", "Eugene Roshal & FAR Group\000\000"
    VALUE "FileDescription", "Second-level plugin module for FAR Manager and MultiArc plugin\000\000"
-   VALUE "FileVersion", "1.28\000\000"
+   VALUE "FileVersion", "1.29\000\000"
    VALUE "InternalName", "targz\000\000"
-   VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © FAR Group, 2000-2004\000\000"
+   VALUE "LegalCopyright", "© Eugene Roshal, 1996-2000. © FAR Group, 2000-2005\000\000"
    VALUE "OriginalFilename", "TARGZ.FMT\000\000"
    VALUE "ProductName", "MultiArc\000\000"
    VALUE "ProductVersion", "1.70 beta 6\000\000"

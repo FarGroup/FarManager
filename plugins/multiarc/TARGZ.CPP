@@ -4,11 +4,12 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2002 FAR group
+  Copyrigth (c) 2000-2005 FAR group
 */
-/* Revision: 1.28 16.09.2004 $ */
+/* Revision: 1.29 01.04.2005 $ */
 
 //#define USE_TAR_H
+
 
 #include <windows.h>
 #include <string.h>
@@ -31,11 +32,18 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma comment(linker, "-subsystem:console")
+#if _MSC_VER < 1310
 #pragma comment(linker, "/ignore:4078")
+#pragma comment(linker, "-subsystem:console")
 #pragma comment(linker, "-merge:.rdata=.text")
+
 #endif
-static __int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
+#endif
+unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase);
+static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags);
+__int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase);
+
+
 
 #if defined(USE_TAR_H)
 #include "tar.h"
@@ -150,7 +158,7 @@ void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
 
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
-  *(__int64*)ft = EPOCH_BIAS + time * 10000000i64;
+  *(__int64*)ft = EPOCH_BIAS + (__int64)time * 10000000i64;
 }
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
@@ -616,6 +624,8 @@ out_of_range:
   return -1;
 }
 
+//#if _MSC_VER < 1310
+
 // strtoq.c
 
 /***
@@ -661,14 +671,15 @@ out_of_range:
 *    None.
 *******************************************************************************/
 
-static unsigned __int64 __cdecl strtoxq (const char *nptr,const char **endptr,int ibase,int flags)
+static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,int ibase,int flags)
 {
 /* flag values */
 #define FL_UNSIGNED   1       /* strtouq called */
 #define FL_NEG        2       /* negative sign found */
 #define FL_OVERFLOW   4       /* overflow occured */
 #define FL_READDIGIT  8       /* we've read at least one correct digit */
-#define _UI64_MAX     0xffffffffffffffffui64
+#define _UI64_MAX     0xFFFFFFFFFFFFFFFFui64
+#define _UI64_MAXDIV8 0x1FFFFFFFFFFFFFFFui64
 #define _I64_MIN    (-9223372036854775807i64 - 1)
 #define _I64_MAX      9223372036854775807i64
 
@@ -719,8 +730,15 @@ static unsigned __int64 __cdecl strtoxq (const char *nptr,const char **endptr,in
     }
 
     /* if our number exceeds this, we will overflow on multiply */
-    maxval = _UI64_MAX / ibase;
-
+#ifdef _MSC_VER
+#if _MSC_VER >= 1310
+    maxval = (unsigned __int64)0x1FFFFFFFFFFFFFFFi64; // hack for VC.2003 = _UI64_MAX/8 :-)
+#else
+    maxval = _UI64_MAX / (unsigned __int64)ibase;
+#endif
+#else
+    maxval = _UI64_MAX / (unsigned __int64)ibase;
+#endif
 
     for (;;) {    /* exit in middle of loop */
         /* convert c to value */
@@ -741,9 +759,9 @@ static unsigned __int64 __cdecl strtoxq (const char *nptr,const char **endptr,in
            a tricky pre-check. */
 
         if (number < maxval || (number == maxval &&
-        (unsigned __int64)digval <= _UI64_MAX % ibase)) {
+        (unsigned __int64)digval <= _UI64_MAX % (unsigned __int64)ibase)) {
             /* we won't overflow, go ahead and multiply */
-            number = number * ibase + digval;
+            number = number * (unsigned __int64)ibase + (unsigned __int64)digval;
         }
         else {
             /* we would have overflowed -- set the overflow flag */
@@ -761,7 +779,7 @@ static unsigned __int64 __cdecl strtoxq (const char *nptr,const char **endptr,in
         if (endptr)
             /* store beginning of string in endptr later on */
             p = nptr;
-        number = 0L;        /* return 0 */
+        number = 0i64;        /* return 0 */
     }
     else if ( (flags & FL_OVERFLOW) ||
               ( !(flags & FL_UNSIGNED) &&
@@ -790,9 +808,10 @@ static unsigned __int64 __cdecl strtoxq (const char *nptr,const char **endptr,in
 
 __int64 __cdecl _strtoi64(const char *nptr,char **endptr,int ibase)
 {
-    return (__int64) strtoxq(nptr, (const char **)endptr, ibase, 0);
+    return (__int64) _strtoxq(nptr, (const char **)endptr, ibase, 0);
 }
 unsigned __int64 __cdecl _strtoui64 (const char *nptr,char **endptr,int ibase)
 {
-    return strtoxq(nptr, (const char **)endptr, ibase, FL_UNSIGNED);
+    return _strtoxq(nptr, (const char **)endptr, ibase, FL_UNSIGNED);
 }
+//#endif
