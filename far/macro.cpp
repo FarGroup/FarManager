@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.112 15.12.2003 $ */
+/* Revision: 1.113 20.12.2003 $ */
 
 /*
 Modify:
+  20.12.2003 IS
+    - Падение при выполнении только что записанного макроса после предыдущего изменения
+      (Ctrl-., a Ctrl-., Ctrl-~, Ctrl-~ -> падение)
   15.12.2003 SVS
     ! Структура MacroRecord увеличена в размере (задел на будущее)
   14.11.2003 SVS
@@ -1595,7 +1598,12 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 {
   int I, J;
-  struct MacroRecord CurMacro={0};
+  struct MacroRecord CurMacro;
+  /* $ 20.12.2003 IS
+       Принудительно обнулим, иначе падаем при xf_free(Src)
+  */
+  memset(&CurMacro,0,sizeof(CurMacro));
+  /* IS $ */
 
   char UpKeyName[100];
   char RegKeyName[150],KeyText[50];
@@ -2366,7 +2374,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
         case MCODE_OP_IFTHEN:
           /* 28.10.2003 L&K Проверка на забытый $Then */
           if(ThenLevel+1 != IfLevel)
-            goto clean_done;		// нестыковка в количестве $If и $Then
+            goto clean_done;    // нестыковка в количестве $If и $Then
           // все класс, $Then'ов на один меньше, чем $If'ов
           ThenLevel++;                  // подравниваем...
           CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
@@ -2391,7 +2399,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
           */
           /* 28.10.2003 L&K Проверка на забытый $Then */
           if(ThenLevel != IfLevel)
-            goto clean_done;		// забыли
+            goto clean_done;    // забыли
 
           CurMacro_Buffer[If[IfLevel]]=MCODE_OP_JMP | (CurMacro->BufferSize+1);  // 3: MCODE_OP_JMP | idxElse
           If[IfLevel]=CurMacro->BufferSize;                                    // зпоминаем позицию для заполнения "N: MCODE_OP_JMP | idxEndIf"
@@ -2486,7 +2494,7 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
         {
           /* 28.10.2003 L&K Проверка на забытый $Then */
           if(ThenLevel != IfLevel)
-            goto clean_done;		// забыли (или лишний :)
+            goto clean_done;    // забыли (или лишний :)
 
           // заполнение индекса для N: (MCODE_OP_JMP|idxEndIf) или (MCODE_OP_JMP|idxElse), если '$else' не было
           if(If[IfLevel] != -1)
