@@ -1074,9 +1074,9 @@
 "Selected text input"
 "Prefix text"
 
-"Normal text"
-""
-""
+"Normal text (Panel)"
+"Normal text (Editor)"
+"Normal text (Viewer)"
 
 "Normal text"
 "Selected text"

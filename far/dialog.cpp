@@ -676,7 +676,7 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
     // макросить будет в диалогах :-)
     CtrlObject->Macro.SetMode(MACRO_DIALOG);
   }
-_SVS(SysLog("Dialog =%d",CtrlObject->Macro.GetMode()));
+//_SVS(SysLog("Dialog =%d",CtrlObject->Macro.GetMode()));
 
   // запоминаем предыдущий заголовок консоли
   GetConsoleTitle(OldConsoleTitle,sizeof(OldConsoleTitle));

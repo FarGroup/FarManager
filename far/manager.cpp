@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.42 25.07.2001 $ */
+/* Revision: 1.43 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! Принудительно вызовем ShowTime(1); в ActivateCommit() для того, чтобы
+      редравить часы (ибо теперь они могут быть трех цветов :-)
   25.07.2001 SVS
     ! Во время назначения макроса не юзаем некотрое количество клавиш :-)
       Об этом нам говорит флаг IsProcessAssignMacroKey
@@ -788,6 +791,7 @@ void Manager::ActivateCommit()
 */
   }
   /* DJ $ */
+  ShowTime(1);
 }
 
 void Manager::UpdateCommit()

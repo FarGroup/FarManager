@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.10 24.07.2001 $ */
+/* Revision: 1.11 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! Документирование
   24.07.2001 SVS
     ! Немного оптимизации в функциях отрисовки
   23.07.2001 SKV
@@ -104,7 +106,8 @@ void ScreenBuf::AllocBuf(int X,int Y)
 }
 /* SVS $ */
 
-
+/* Заполнение виртуального буфера значением из консоли.
+*/
 void ScreenBuf::FillBuf()
 {
   COORD Size,Corner;
@@ -134,6 +137,8 @@ void ScreenBuf::FillBuf()
   CurY=csbi.dwCursorPosition.Y;
 }
 
+/* Записать Text в виртуальный буфер
+*/
 void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
 {
   if (Y>=BufY || TextLength==0)
@@ -151,7 +156,8 @@ void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
 #endif
 }
 
-
+/* Читать блок из виртуального буфера.
+*/
 void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
 {
   int Width=X2-X1+1;
@@ -168,6 +174,9 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
     Text[0]=MacroChar;
 }
 
+/* Изменить значение цветовых атрибутов в соответствии с маской
+   (в основном применяется для "создания" тени)
+*/
 void ScreenBuf::AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
 {
   int Width=X2-X1+1;
@@ -176,6 +185,8 @@ void ScreenBuf::AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
       Buf[(Y1+I)*BufX+(X1+J)].Attributes&=~ColorMask;
 }
 
+/* Закрасить прямоугольник символом Ch и цветом Color
+*/
 void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 {
   int Width=X2-X1+1, Pos;
@@ -192,6 +203,8 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
     }
 }
 
+/* "Сбросить" виртуальный буфер на консоль
+*/
 void ScreenBuf::Flush()
 {
   if (LockCount>0)
@@ -231,7 +244,7 @@ void ScreenBuf::Flush()
         {
           int Pos=I*BufX+J;
 #if defined(USE_WFUNC)
-          if (GetVidChar(Buf[Pos]) == GetVidChar(Shadow[Pos]) ||
+          if (GetVidChar(Buf[Pos]) != GetVidChar(Shadow[Pos]) ||
               Buf[Pos].Attributes!=Shadow[Pos].Attributes)
 #else
           if (Buf[Pos].Char.AsciiChar!=Shadow[Pos].Char.AsciiChar ||

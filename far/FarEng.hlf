@@ -1224,8 +1224,8 @@ in the ~Commands menu~@CmdMenu@.
     #!!#       '!' character
     #!#        Long file name without extension
     #!~~#       Short file name without extension
-    #!`#       Long extension without file name (.ext)
-    #!`~~#      Short extension without file name (.ext)
+    #!`#       Long extension without file name (ext)
+    #!`~~#      Short extension without file name (ext)
     #!.!#      Long file name with extension
     #!-!#      Short file name with extension
     #!+!#      Similar to !-! but if a long file name was lost

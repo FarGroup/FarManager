@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.03 29.06.2001 $ */
+/* Revision: 1.04 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 IS
+    ! для !` не ставим ведущую точку.
   29.06.2001 IS
     ! Продолжаем убирать обработку кавычек - выкосил все, что имело отношение к
       "quote"
@@ -170,7 +172,7 @@ _SVS(SysLog("!~ TmpStr=[%s]",TmpStr));
           CurStr+=2;
         }
         if(Ext && *Ext)
-          strcat(TmpStr,Ext);
+          strcat(TmpStr,++Ext);
 _SVS(SysLog("!` TmpStr=[%s]",TmpStr));
         continue;
       }

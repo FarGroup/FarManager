@@ -5,12 +5,15 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.15 18.07.2001 $ */ 
+/* Revision: 1.16 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 OT
+    + Разрезервируем "резерв" для "цветных часов" :-)
+    - принудительно рефрешим активный фрейм после выбора цвета.
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   16.06.2001 KM
     ! Добавление WRAPMODE в меню.
   14.06.2001 OT
@@ -238,12 +241,12 @@ void SetColors()
   struct MenuData ClockItems[]=
   {
     (char *)MSetColorClockNormal,LIF_SELECTED,
-//    (char *)MSetColorClockNormalEditor,0,
-//    (char *)MSetColorClockNormalViewer,0,
+    (char *)MSetColorClockNormalEditor,0,
+    (char *)MSetColorClockNormalViewer,0,
   };
   int ClockPaletteItems[]={
     COL_CLOCK,
-//    COL_EDITORCLOCK,COL_VIEWERCLOCK,
+    COL_EDITORCLOCK,COL_VIEWERCLOCK,
   };
 
   /* $ 18.07.2000 tran
@@ -383,7 +386,10 @@ void GetColor(int PaletteIndex)
     Palette[PaletteIndex-COL_FIRSTPALETTECOLOR]=NewColor;
     MenuToRedraw2->Hide();
     MenuToRedraw1->Hide();
-    CtrlObject->Cp()->SetScreenPosition();
+    // принудительно рефрешим (КОСТЫЛЬ!)
+    FrameManager->RefreshFrame();
+    FrameManager->PluginCommit();
+    //CtrlObject->Cp()->SetScreenPosition();
     MenuToRedraw1->Show();
     MenuToRedraw2->Show();
   }

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.97 11.07.2001 $ */
+/* Revision: 1.98 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    ! ќсмысленный параметр у InitConsole.
   11.07.2001 SVS
     ! HiStrlen и RemoveChar - дополнительный параметр - при дубл€х, типа '&&'
       "удал€ть ли все или оставл€ть только один символ"
@@ -261,7 +263,7 @@ void Box(int x1,int y1,int x2,int y2,int Color,int Type);
   ѕо умолчанию - да.
   — 0 используетс€ дл€ ConsoleDetach.
 */
-void InitConsole(int setpal=1);
+void InitConsole(int FirstInit=TRUE);
 /* SKV$*/
 void CloseConsole();
 void SetFarConsoleMode();

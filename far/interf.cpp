@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.35 24.07.2001 $ */
+/* Revision: 1.36 25.07.2001 $ */
 
 /*
 Modify:
+  25.07.2001 SVS
+    - Бага с детачем - лишний раз инициализировали исходные значения
+    ! Немного оптимизации в функциях отрисовки
   24.07.2001 SVS
     ! Немного оптимизации в функциях отрисовки
   06.07.2001 SKV
@@ -179,7 +182,7 @@ WCHAR Oem2Unicode[256] = {
 };
 #endif
 
-void InitConsole(int setpal)
+void InitConsole(int FirstInit)
 {
   OutputCP=GetConsoleOutputCP();
   InitRecodeOutTable();
@@ -199,14 +202,16 @@ void InitConsole(int setpal)
 
   SetFarConsoleMode();
   SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
-  GetVideoMode(InitScreenBufferInfo);
+  if(FirstInit)
+    GetVideoMode(InitScreenBufferInfo);
   GetVideoMode(CurScreenBufferInfo);
   ScrBuf.FillBuf();
   // было sizeof(Palette)
   /*$ 14.02.2001 SKV
     для consoledetach не нужно, что бы инитилась палитра.
   */
-  if(setpal)memcpy(Palette,DefaultPalette,SizeArrayPalette);
+  if(FirstInit)
+    memcpy(Palette,DefaultPalette,SizeArrayPalette);
   /* SKV$*/
 }
 
@@ -602,10 +607,12 @@ void VText(const char *Str)
   if (Length<=0)
     return;
   int StartCurX=CurX;
+  char ChrStr[2]={0,0};
   for (int I=0;I<Length;I++)
   {
     GotoXY(CurX,CurY);
-    mprintf("%c",Str[I]);
+    ChrStr[0]=Str[I];
+    Text(ChrStr);
     CurY++;
     CurX=StartCurX;
   }
