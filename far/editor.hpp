@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.05 21.07.2000 $ */
+/* Revision: 1.06 30.07.2000 $ */
 
 /*
 Modify:
+  30.07.2000 KM 1.06
+    + LastSearchWholeWords
   21.07.2000 tran
     - три новых метода  - Bug22
   21.07.2000 tran
@@ -32,6 +34,68 @@ Modify:
 
 class Editor:public ScreenObject
 {
+  private:
+    KeyBar *EditKeyBar;
+    struct EditList *TopList,*EndList,*TopScreen,*CurLine;
+    struct EditorUndoData UndoData[64];
+    int UndoDataPos;
+    int UndoOverflow;
+    int UndoSavePos;
+    int LastChangeStrPos;
+    char FileName[NM];
+    int NumLastLine,NumLine;
+    int Modified;
+    int WasChanged;
+    int Overtype;
+    int DisableOut;
+    int Pasting;
+    int MarkingBlock;
+    char GlobalEOL[10];
+    struct EditList *BlockStart;
+    int BlockStartLine;
+
+    struct EditList *VBlockStart;
+    int VBlockX;
+    int VBlockSizeX;
+    int VBlockY;
+    int VBlockSizeY;
+    int MarkingVBlock;
+
+    int DisableUndo;
+    int NewUndo;
+    int LockMode;
+    int BlockUndo;
+
+    int MaxRightPos;
+
+    unsigned char LastSearchStr[256];
+    /* $ 30.07.2000 KM
+       Новая переменная для поиска "Whole words"
+    */
+    int LastSearchCase,LastSearchWholeWords,LastSearchReverse;
+    /* $ KM */
+
+    struct CharTableSet TableSet;
+    int UseDecodeTable,TableNum,AnsiText;
+    int StartLine,StartChar;
+
+    int TableChangedByUser;
+
+    char Title[512];
+    char PluginData[NM*2];
+
+    char PluginTitle[512];
+
+    long SavePosLine[10];
+    long SavePosCursor[10];
+    long SavePosScreenLine[10];
+    long SavePosLeftPos[10];
+
+    int EditorID;
+    bool OpenFailed;
+
+    FileEditor *HostFileEditor;
+
   private:
     void DisplayObject();
     void ShowEditor(int CurLineOnly);
@@ -76,65 +140,11 @@ class Editor:public ScreenObject
     void VBlockShift(int Left);
     struct EditList * GetStringByNumber(int DestLine);
 
-    KeyBar *EditKeyBar;
-    struct EditList *TopList,*EndList,*TopScreen,*CurLine;
-    struct EditorUndoData UndoData[64];
-    int UndoDataPos;
-    int UndoOverflow;
-    int UndoSavePos;
-    int LastChangeStrPos;
-    char FileName[NM];
-    int NumLastLine,NumLine;
-    int Modified;
-    int WasChanged;
-    int Overtype;
-    int DisableOut;
-    int Pasting;
-    int MarkingBlock;
-    char GlobalEOL[10];
-    struct EditList *BlockStart;
-    int BlockStartLine;
-
-    struct EditList *VBlockStart;
-    int VBlockX;
-    int VBlockSizeX;
-    int VBlockY;
-    int VBlockSizeY;
-    int MarkingVBlock;
-
-    int DisableUndo;
-    int NewUndo;
-    int LockMode;
-    int BlockUndo;
-
-    int MaxRightPos;
-
-    unsigned char LastSearchStr[256];
-    int LastSearchCase,LastSearchReverse;
-
-    struct CharTableSet TableSet;
-    int UseDecodeTable,TableNum,AnsiText;
-    int StartLine,StartChar;
-
-    int TableChangedByUser;
-
-    char Title[512];
-    char PluginData[NM*2];
-
-    char PluginTitle[512];
-
-    long SavePosLine[10];
-    long SavePosCursor[10];
-    long SavePosScreenLine[10];
-    long SavePosLeftPos[10];
-
-    int EditorID;
-    bool OpenFailed;
-
-    FileEditor *HostFileEditor;
   public:
     Editor();
     ~Editor();
+
+  public:
     int ReadFile(char *Name,int &UserBreak);
     int SaveFile(char *Name,int Ask,int TextFormat);
     int ProcessKey(int Key);

@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.11 03.08.2000 $ */
+/* Revision: 1.12 03.08.2000 $ */
 
 /*
 Modify:
+   03.08.2000 KM
+    ! В функцию Search добавлен входной параметр int WholeWords.
+    ! Теперь в этой функции реализована возможность поиска целых слов.
    03.08.2000 SVS
     ! WordDiv -> Opt.WordDiv
    28.07.2000 SVS
@@ -1185,9 +1188,13 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-int Edit::Search(char *Str,int Position,int Case,int Reverse)
+/* $ 03.08.2000 KM
+   Немного изменён алгоритм из-за необходимости
+   добавления поиска целых слов.
+*/
+int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
 {
-  int I,J;
+  int I,J,Length=strlen(Str);
   if (Reverse)
   {
     Position--;
@@ -1198,6 +1205,7 @@ int Edit::Search(char *Str,int Position,int Case,int Reverse)
   }
   if (Position<StrSize && *Str)
     for (I=Position;Reverse && I>=0 || !Reverse && I<StrSize;Reverse ? I--:I++)
+    {
       for (J=0;;J++)
       {
         if (Str[J]==0)
@@ -1205,6 +1213,28 @@ int Edit::Search(char *Str,int Position,int Case,int Reverse)
           CurPos=I;
           return(TRUE);
         }
+        /* $ 03.08.2000 KM
+           Добавлен кусок кода для работы при поиске целых слов
+        */
+        if (WholeWords && I>0)
+        {
+          int ChLeft,ChRight;
+          int locResultLeft=FALSE;
+          int locResultRight=FALSE;
+
+          ChLeft=(TableSet==NULL) ? Edit::Str[I-1]:TableSet->DecodeTable[Edit::Str[I-1]];
+          locResultLeft=(ChLeft==' ' || ChLeft=='\t' || strchr(Opt.WordDiv,ChLeft)!=NULL);
+          if (I+Length<StrSize)
+          {
+            ChRight=(TableSet==NULL) ? Edit::Str[I+Length]:TableSet->DecodeTable[Edit::Str[I+Length]];
+            locResultRight=(ChRight==' ' || ChRight=='\t' || strchr(Opt.WordDiv,ChRight)!=NULL);
+          }
+          else
+            locResultRight=TRUE;
+          if (!locResultLeft || !locResultRight)
+            break;
+        }
+        /* $ KM */
         int Ch=(TableSet==NULL) ? Edit::Str[I+J]:TableSet->DecodeTable[Edit::Str[I+J]];
         if (Case)
         {
@@ -1212,11 +1242,15 @@ int Edit::Search(char *Str,int Position,int Case,int Reverse)
             break;
         }
         else
+        {
           if (LocalUpper(Ch)!=LocalUpper(Str[J]))
             break;
+        }
       }
+    }
   return(FALSE);
 }
+/* KM $ */
 
 
 void Edit::ReplaceTabs()

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.03 01.08.2000 $ */
+/* Revision: 1.04 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 KM
+    + „®¡ ¢«¥­  ¢®§¬®¦­®áâì ¯®¨áª  ¯® "–¥«ë¬ á«®¢ ¬"
   01.08.2000 tran 1.03
     + |DIF_USELASTHISTORY
   13.07.2000 SVS
@@ -40,7 +42,11 @@ void RereadPlugin(HANDLE hPlugin);
 
 static char FindMask[NM],FindStr[260];
 static VMenu *FilesListMenu;
-static int SearchMode,CmpCase,UseAllTables,SearchInArchives;
+/* $ 30.07.2000 KM
+   „®¡ ¢«¥­  ¯¥à¥¬¥­­ ï WholeWords ¤«ï ¯®¨áª  ¯® â®ç­®¬ã á®¢¯ ¤¥­¨î
+*/
+static int SearchMode,CmpCase,WholeWords,UseAllTables,SearchInArchives;
+/* KM $ */
 static int DlgWidth;
 static volatile int StopSearch,SearchDone,LastFoundNumber,FileCount;
 static char FindMessage[200],LastDirName[NM];
@@ -58,9 +64,14 @@ static struct CharTableSet TableSet;
 FindFiles::FindFiles()
 {
   static char LastFindMask[NM]="*.*",LastFindStr[512];
-  static int LastCmpCase=0,LastUseAllTables=0,LastSearchInArchives=0;
+  /* $ 30.07.2000 KM
+     „®¡ ¢«¥­  ¯¥à¥¬¥­­ ï LastWholeWords ¤«ï ¯®¨áª  ¯® â®ç­®¬ã á®¢¯ ¤¥­¨î
+  */
+  static int LastCmpCase=0,LastWholeWords=0,LastUseAllTables=0,LastSearchInArchives=0;
+  /* KM $ */
   FindSaveScr=NULL;
   CmpCase=LastCmpCase;
+  WholeWords=LastWholeWords;
   UseAllTables=LastUseAllTables;
   SearchInArchives=LastSearchInArchives;
   SearchMode=Opt.FileSearchMode;
@@ -71,9 +82,12 @@ FindFiles::FindFiles()
   do
   {
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
+    /* $ 30.07.2000 KM
+       „®¡ ¢«¥­ ­®¢ë© checkbox "Whole words" ¢ ¤¨ «®£ ¯®¨áª 
+    */
     static struct DialogData FindAskDlgData[]=
     {
-      DI_DOUBLEBOX,3,1,72,19,0,0,0,0,(char *)MFindFileTitle,
+      DI_DOUBLEBOX,3,1,72,20,0,0,0,0,(char *)MFindFileTitle,
       DI_TEXT,5,2,0,0,0,0,0,0,(char *)MFindFileMasks,
       DI_EDIT,5,3,70,16,1,(DWORD)MasksHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
       DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR,0,"ÌÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹",
@@ -81,19 +95,21 @@ FindFiles::FindFiles()
       DI_EDIT,5,6,70,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
       DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
       DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
-      DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileAllTables,
-      DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindArchives,
-      DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR,0,"ÌÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹",
-      DI_RADIOBUTTON,5,12,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
-      DI_RADIOBUTTON,5,13,0,0,0,1,0,0,(char *)MSearchFromRoot,
-      DI_RADIOBUTTON,5,14,0,0,0,0,0,0,(char *)MSearchFromCurrent,
-      DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchInCurrent,
-      DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInSelected,
-      DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
-      DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileTable,
-      DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+      DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
+      DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindFileAllTables,
+      DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MFindArchives,
+      DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR,0,"ÌÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹",
+      DI_RADIOBUTTON,5,13,0,0,0,0,DIF_GROUP,0,(char *)MSearchAllDisks,
+      DI_RADIOBUTTON,5,14,0,0,0,1,0,0,(char *)MSearchFromRoot,
+      DI_RADIOBUTTON,5,15,0,0,0,0,0,0,(char *)MSearchFromCurrent,
+      DI_RADIOBUTTON,5,16,0,0,0,0,0,0,(char *)MSearchInCurrent,
+      DI_RADIOBUTTON,5,17,0,0,0,0,0,0,(char *)MSearchInSelected,
+      DI_TEXT,3,18,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+      DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MFindFileFind,
+      DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindFileTable,
+      DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
+    /* KM $ */
     MakeDialogItems(FindAskDlgData,FindAskDlg);
 
     {
@@ -107,8 +123,8 @@ FindFiles::FindFiles()
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
         if ((Info.Flags & OPIF_REALNAMES)==0)
         {
-          FindAskDlg[9].Type=DI_TEXT;
-          *FindAskDlg[9].Data=0;
+          FindAskDlg[10].Type=DI_TEXT;
+          *FindAskDlg[10].Data=0;
         }
       }
     }
@@ -116,35 +132,36 @@ FindFiles::FindFiles()
     strcpy(FindAskDlg[2].Data,FindMask);
     strcpy(FindAskDlg[5].Data,FindStr);
     FindAskDlg[7].Selected=CmpCase;
-    FindAskDlg[8].Selected=UseAllTables;
-    FindAskDlg[9].Selected=SearchInArchives;
-    FindAskDlg[11].Selected=FindAskDlg[12].Selected=0;
-    FindAskDlg[13].Selected=FindAskDlg[14].Selected=0;
-    FindAskDlg[15].Selected=0;
-    FindAskDlg[11+SearchMode].Selected=1;
+    FindAskDlg[8].Selected=WholeWords;
+    FindAskDlg[9].Selected=UseAllTables;
+    FindAskDlg[10].Selected=SearchInArchives;
+    FindAskDlg[12].Selected=FindAskDlg[13].Selected=0;
+    FindAskDlg[14].Selected=FindAskDlg[15].Selected=0;
+    FindAskDlg[16].Selected=0;
+    FindAskDlg[12+SearchMode].Selected=1;
 
     while (1)
     {
       Dialog Dlg(FindAskDlg,sizeof(FindAskDlg)/sizeof(FindAskDlg[0]));
       Dlg.SetHelp("FindFile");
-      Dlg.SetPosition(-1,-1,76,21);
+      Dlg.SetPosition(-1,-1,76,22);
       Dlg.Process();
       int ExitCode=Dlg.GetExitCode();
-      if (ExitCode==18)
+      if (ExitCode==19)
       {
         UseUnicode=TRUE;
         int GetTableCode=GetTable(&TableSet,FALSE,TableNum,UseUnicode);
         if (GetTableCode!=-1)
         {
           UseDecodeTable=GetTableCode;
-          FindAskDlg[8].Selected=FALSE;
+          FindAskDlg[9].Selected=FALSE;
         }
         FindAskDlg[2].Focus=1;
-        FindAskDlg[18].Focus=0;
+        FindAskDlg[19].Focus=0;
         continue;
       }
 
-      if (ExitCode!=17)
+      if (ExitCode!=18)
         return;
       break;
     }
@@ -152,25 +169,40 @@ FindFiles::FindFiles()
     Unquote(FindMask);
     strcpy(FindStr,FindAskDlg[5].Data);
     CmpCase=FindAskDlg[7].Selected;
-    UseAllTables=FindAskDlg[8].Selected;
-    SearchInArchives=FindAskDlg[9].Selected;
+    /* $ 30.07.2000 KM
+       „®¡ ¢«¥­  ¯¥à¥¬¥­­ ï
+    */
+    WholeWords=FindAskDlg[8].Selected;
+    /* KM $ */
+    UseAllTables=FindAskDlg[9].Selected;
+    SearchInArchives=FindAskDlg[10].Selected;
     if (*FindStr)
     {
       strcpy(GlobalSearchString,FindStr);
       GlobalSearchCase=CmpCase;
+      /* $ 30.07.2000 KM
+         „®¡ ¢«¥­  ¯¥à¥¬¥­­ ï
+      */
+      GlobalSearchWholeWords=WholeWords;
+      /* KM $ */
     }
-    if (FindAskDlg[11].Selected)
-      SearchMode=SEARCH_ALL;
     if (FindAskDlg[12].Selected)
-      SearchMode=SEARCH_ROOT;
+      SearchMode=SEARCH_ALL;
     if (FindAskDlg[13].Selected)
-      SearchMode=SEARCH_FROM_CURRENT;
+      SearchMode=SEARCH_ROOT;
     if (FindAskDlg[14].Selected)
-      SearchMode=SEARCH_CURRENT_ONLY;
+      SearchMode=SEARCH_FROM_CURRENT;
     if (FindAskDlg[15].Selected)
-      SearchMode=SEARCH_SELECTED;
+      SearchMode=SEARCH_CURRENT_ONLY;
+    if (FindAskDlg[16].Selected)
+        SearchMode=SEARCH_SELECTED;
     Opt.FileSearchMode=SearchMode;
     LastCmpCase=CmpCase;
+    /* $ 30.07.2000 KM
+       „®¡ ¢«¥­  ¯¥à¥¬¥­­ ï
+    */
+    LastWholeWords=WholeWords;
+    /* KM $ */
     LastUseAllTables=UseAllTables;
     LastSearchInArchives=SearchInArchives;
     strcpy(LastFindMask,FindMask);
@@ -891,6 +923,11 @@ int LookForString(char *Name)
   strcpy(CmpStr,FindStr);
   if (!CmpCase)
     LocalStrupr(CmpStr);
+  /* $ 30.07.2000 KM
+     „®¡ ¢®ç­ë¥ ¯¥à¥¬¥­­ë¥
+  */
+  int FirstIteration=TRUE;
+  /* KM $ */
   while (!StopSearch && (ReadSize=fread(Buf,1,sizeof(Buf),SrcFile))>0)
   {
     int DecodeTableNum=0;
@@ -916,15 +953,72 @@ int LookForString(char *Name)
       if (!CmpCase)
         LocalUpperBuf(Buf,ReadSize);
       int CheckSize=ReadSize-Length+1;
+      /* $ 30.07.2000 KM
+         Ž¡à ¡®âª  "Whole words" ¢ ¯®¨áª¥
+      */
       for (int I=0;I<CheckSize;I++)
-        if (CmpStr[0]==Buf[I] && (Length==1 || CmpStr[1]==Buf[I+1]
-            && (Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0)))
+      {
+        int cmpResult;
+        if (WholeWords)
+        {
+          int locResultLeft=FALSE;
+          int locResultRight=FALSE;
+          if (!FirstIteration)
+          {
+            if (Buf[I]==' ' || Buf[I]=='\t' || Buf[I]=='\n' || Buf[I]=='\r')
+              locResultLeft=TRUE;
+            if (RealReadSize!=sizeof(Buf) && I+1+Length>=RealReadSize)
+              locResultRight=TRUE;
+            else
+              if (Buf[I+1+Length]==' ' || Buf[I+1+Length]=='\t' ||
+                  Buf[I+1+Length]=='\n' || Buf[I+1+Length]=='\r')
+                locResultRight=TRUE;
+
+            if (!locResultLeft)
+              if (strchr(Opt.WordDiv,Buf[I])!=NULL)
+                locResultLeft=TRUE;
+            if (!locResultRight)
+              if (strchr(Opt.WordDiv,Buf[I+1+Length])!=NULL)
+                locResultRight=TRUE;
+
+            cmpResult=locResultLeft && locResultRight && CmpStr[0]==Buf[I+1]
+              && (Length==1 || CmpStr[1]==Buf[I+2]
+              && (Length==2 || memcmp(CmpStr+2,&Buf[I+3],Length-2)==0));
+          }
+          else
+          {
+            FirstIteration=FALSE;
+
+            if (RealReadSize!=sizeof(Buf) && I+Length>=RealReadSize)
+              locResultRight=TRUE;
+            else
+              if (Buf[I+Length]==' ' || Buf[I+Length]=='\t' ||
+                  Buf[I+Length]=='\n' || Buf[I+Length]=='\r')
+                locResultRight=TRUE;
+
+            if (!locResultRight)
+              if (strchr(Opt.WordDiv,Buf[I+1+Length])!=NULL)
+                locResultRight=TRUE;
+
+            cmpResult=locResultRight && CmpStr[0]==Buf[I]
+              && (Length==1 || CmpStr[1]==Buf[I+1]
+              && (Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
+          }
+        }
+        else
+        {
+          cmpResult=CmpStr[0]==Buf[I] && (Length==1 || CmpStr[1]==Buf[I+1]
+            && (Length==2 || memcmp(CmpStr+2,&Buf[I+2],Length-2)==0));
+        }
+        if (cmpResult)
         {
           if (TimeRead)
             SetFileTime(FileHandle,NULL,&LastAccess,NULL);
           fclose(SrcFile);
           return(TRUE);
         }
+      }
+      /* KM $ */
       if (UseAllTables)
       {
         if (PrepareTable(&TableSet,DecodeTableNum++))
@@ -945,12 +1039,16 @@ int LookForString(char *Name)
 
     if (RealReadSize==sizeof(Buf))
     {
+      /* $ 30.07.2000 KM
+         ˆ§¬¥­¥­¨¥ offset ¯à¨ çâ¥­¨¨ ­®¢®£® ¡«®ª  á ãçñâ®¬ WordDiv
+      */
       int NewPos;
       if (UnicodeSearch)
-        NewPos=ftell(SrcFile)-2*(Length-1);
+        NewPos=ftell(SrcFile)-2*(Length+1);
       else
-        NewPos=ftell(SrcFile)-(Length-1);
+        NewPos=ftell(SrcFile)-(Length+1);
       fseek(SrcFile,Max(NewPos,0),SEEK_SET);
+      /* KM $ */
     }
   }
   if (TimeRead)

@@ -7,10 +7,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.06 19.07.2000 $ */
+/* Revision: 1.07 30.07.2000 $ */
 
 /*
 Modify:
+  30.07.2000 KM 1.07
+    + LastSearchWholeWords
   19.07.2000 tran 1/06
     + Viewer::Width, ::XX2
   18.07.2000 tran 1.05
@@ -75,7 +77,11 @@ class Viewer:public ScreenObject
     WIN32_FIND_DATA ViewFindData;
 
     unsigned char LastSearchStr[256];
-    int LastSearchCase,LastSearchReverse,LastSearchHex;
+    /* $ 30.07.2000 KM
+       Новая переменная для поиска
+    */
+    int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex;
+    /* KM $ */
 
     struct CharTableSet TableSet;
     int UseDecodeTable,TableNum,AnsiText;

@@ -6,11 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.16 03.08.2000 $ */
+/* Revision: 1.17 04.08.2000 $ */
 
 /*
 Modify:
-   03.08.2000 SVS
+   03.08.2000 KM 1.17
+    ! В функцию Search добавлена возможность поиска целых слов.
+   03.08.2000 SVS 1.16
     ! WordDiv -> Opt.WordDiv
    01.08.2000 tran 1.15
     + DIF_USELASTHISTORY в диалогах поиска,замены и перехода
@@ -94,6 +96,11 @@ Editor::Editor()
 {
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
+  /* $ 03.08.2000 KM
+     Переменная для поиска "Whole words"
+  */
+  LastSearchWholeWords=GlobalSearchWholeWords;
+  /* KM $ */
   LastSearchReverse=GlobalSearchReverse;
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
   UseDecodeTable=InitUseDecodeTable;
@@ -197,6 +204,11 @@ void Editor::KeepInitParameters()
 {
   strcpy(GlobalSearchString,(char *)LastSearchStr);
   GlobalSearchCase=LastSearchCase;
+  /* $ 03.08.2000 KM
+    Новая переменная для поиска "Whole words"
+  */
+  GlobalSearchWholeWords=LastSearchWholeWords;
+  /* KM $ */
   GlobalSearchReverse=LastSearchReverse;
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
   InitUseDecodeTable=UseDecodeTable;
@@ -2459,32 +2471,38 @@ void Editor::ScrollUp()
 void Editor::Search(int Next)
 {
   const char *TextHistoryName="SearchText",*ReplaceHistoryName="ReplaceText";
+  /* $ 03.08.2000 KM
+     Добавление checkbox'ов в диалоги для поиска целых слов
+  */
   static struct DialogData SearchDlgData[]={
-    DI_DOUBLEBOX,3,1,72,9,0,0,0,0,(char *)MEditSearchTitle,
+    DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditSearchTitle,
     DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
     DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
-    DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
-    DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
+    DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchReverse,
+    DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditSearchSearch,
+    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
   };
   MakeDialogItems(SearchDlgData,SearchDlg);
 
   static struct DialogData ReplaceDlgData[]={
-    DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MEditReplaceTitle,
+    DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditReplaceTitle,
     DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
     DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
     DI_EDIT,5,5,70,3,0,(DWORD)ReplaceHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
-    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchReverse,
-    DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
-    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
+    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
+    DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MEditSearchReverse,
+    DI_TEXT,3,10,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,1,(char *)MEditReplaceReplace,
+    DI_BUTTON,0,11,0,0,0,0,DIF_CENTERGROUP,0,(char *)MEditSearchCancel
   };
+  /* KM $ */
   MakeDialogItems(ReplaceDlgData,ReplaceDlg);
 
   struct EditList *CurPtr;
@@ -2492,7 +2510,11 @@ void Editor::Search(int Next)
   static char LastReplaceStr[256];
   static int LastSuccessfulReplaceMode=0;
   char MsgStr[256];
-  int CurPos,Count,Case,ReverseSearch,Match,NewNumLine,UserBreak;
+  /* $ 03.08.2000 KM
+     Новая переменная
+  */
+  int CurPos,Count,Case,WholeWords,ReverseSearch,Match,NewNumLine,UserBreak;
+  /* KM $ */
 
   if (Next && *LastSearchStr==0)
     return;
@@ -2506,19 +2528,23 @@ void Editor::Search(int Next)
     strcpy(ReplaceDlg[7].Data,RegMsg);
   }
 
+  /* $ 03.08.2000 KM
+     Внесение изменений после добавления checkbox'ов в диалоги
+  */
   if (ReplaceMode)
   {
     strncpy(ReplaceDlg[2].Data,(char *)LastSearchStr,sizeof(ReplaceDlg[2].Data));
     strncpy(ReplaceDlg[4].Data,LastReplaceStr,sizeof(ReplaceDlg[4].Data));
     ReplaceDlg[6].Selected=LastSearchCase;
-    ReplaceDlg[7].Selected=LastSearchReverse;
+    ReplaceDlg[7].Selected=LastSearchWholeWords;
+    ReplaceDlg[8].Selected=LastSearchReverse;
 
     if (!Next)
     {
       Dialog Dlg(ReplaceDlg,sizeof(ReplaceDlg)/sizeof(ReplaceDlg[0]));
-      Dlg.SetPosition(-1,-1,76,13);
+      Dlg.SetPosition(-1,-1,76,14);
       Dlg.Process();
-      if (Dlg.GetExitCode()!=9)
+      if (Dlg.GetExitCode()!=10)
       {
         ReplaceMode=LastSuccessfulReplaceMode;
         return;
@@ -2528,20 +2554,22 @@ void Editor::Search(int Next)
     strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,sizeof(ReplaceStr));
     strcpy(LastReplaceStr,(char *)ReplaceStr);
     Case=ReplaceDlg[6].Selected;
-    ReverseSearch=ReplaceDlg[7].Selected;
+    WholeWords=ReplaceDlg[7].Selected;
+    ReverseSearch=ReplaceDlg[8].Selected;
   }
   else
   {
     strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data));
     SearchDlg[4].Selected=LastSearchCase;
-    SearchDlg[5].Selected=LastSearchReverse;
+    SearchDlg[5].Selected=LastSearchWholeWords;
+    SearchDlg[6].Selected=LastSearchReverse;
 
     if (!Next)
     {
       Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
-      Dlg.SetPosition(-1,-1,76,11);
+      Dlg.SetPosition(-1,-1,76,12);
       Dlg.Process();
-      if (Dlg.GetExitCode()!=7)
+      if (Dlg.GetExitCode()!=8)
       {
         ReplaceMode=LastSuccessfulReplaceMode;
         return;
@@ -2550,12 +2578,15 @@ void Editor::Search(int Next)
     strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
     *ReplaceStr=0;
     Case=SearchDlg[4].Selected;
-    ReverseSearch=SearchDlg[5].Selected;
+    WholeWords=SearchDlg[5].Selected;
+    ReverseSearch=SearchDlg[6].Selected;
   }
 
   strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
   LastSearchCase=Case;
+  LastSearchWholeWords=WholeWords;
   LastSearchReverse=ReverseSearch;
+  /* KM $ */
 
   if (*SearchStr==0)
     return;
@@ -2591,7 +2622,11 @@ void Editor::Search(int Next)
         UserBreak=TRUE;
         break;
       }
-      if (CurPtr->EditLine.Search((char *)SearchStr,CurPos,Case,ReverseSearch))
+      /* $ 03.08.2000 KM
+         Добавление нового параметра в функцию поиска
+      */
+      if (CurPtr->EditLine.Search((char *)SearchStr,CurPos,Case,WholeWords,ReverseSearch))
+      /* KM $ */
       {
         int Skip=FALSE;
         TopScreen=CurLine=CurPtr;

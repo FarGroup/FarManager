@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.04 03.08.2000 $ */
+/* Revision: 1.05 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 KM 1.03
+    + Добавлена переменная int GlobalSearchWholeWords.
   03.08.2000 SVS
     ! WordDiv -> Opt.WordDiv
   03.08.2000 SVS
@@ -76,6 +78,11 @@ extern char MainPluginsPath[NM];
 
 extern char GlobalSearchString[512];
 extern int GlobalSearchCase;
+/* $ 29.07.2000 KM
+   Глобальная переменная, хранящая значение "Whole words" для поиска
+*/
+extern int GlobalSearchWholeWords;
+/* KM $*/
 extern int GlobalSearchReverse;
 
 extern int ScreenSaverActive;

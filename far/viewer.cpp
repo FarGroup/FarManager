@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.16 01.08.2000 $ */
+/* Revision: 1.17 01.08.2000 $ */
 
 /*
 Modify:
+  01.08.2000 KM 1.16
+    + Добавлен поиск по "Целым словам". Работает в связке
+      с поиском по Alt-F7.
   01.08.2000 tran 1.16
     + |DIF_USELASTHISTORY
   19.07.2000 tran 1.15
@@ -86,6 +89,11 @@ Viewer::Viewer()
   /* tran 12.07.2000 $ */
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
+  /* $ 01.08.2000 KM
+     Переменная для поиска "Whole words"
+  */
+  LastSearchWholeWords=GlobalSearchWholeWords;
+  /* KM $ */
   LastSearchReverse=GlobalSearchReverse;
   LastSearchHex=InitLastSearchHex;
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
@@ -184,6 +192,11 @@ void Viewer::KeepInitParameters()
 {
   strcpy(GlobalSearchString,(char *)LastSearchStr);
   GlobalSearchCase=LastSearchCase;
+  /* $ 01.08.2000 KM
+     Сохранение параметра "Whole words" в глобальной GlobalSearchWholeWords
+  */
+  GlobalSearchWholeWords=LastSearchWholeWords;
+  /* KM $ */
   GlobalSearchReverse=LastSearchReverse;
   InitLastSearchHex=LastSearchHex;
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
@@ -1428,25 +1441,34 @@ void Viewer::ChangeViewKeyBar()
 void Viewer::Search(int Next,int FirstChar)
 {
   const char *TextHistoryName="SearchText";
+  /* $ 01.08.2000 KM
+     Добавлен новый checkbox для поиска "Whole words"
+  */
   static struct DialogData SearchDlgData[]={
-    DI_DOUBLEBOX,3,1,72,9,0,0,0,0,(char *)MViewSearchTitle,
+    DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MViewSearchTitle,
     DI_TEXT,5,2,0,0,0,0,0,0,(char *)MViewSearchFor,
     DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     DI_RADIOBUTTON,5,5,0,0,0,1,DIF_GROUP,0,(char *)MViewSearchForText,
     DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MViewSearchForHex,
     DI_CHECKBOX,40,5,0,0,0,0,0,0,(char *)MViewSearchCase,
-    DI_CHECKBOX,40,6,0,0,0,0,0,0,(char *)MViewSearchReverse,
-    DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MViewSearchSearch,
-    DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MViewSearchCancel
+    DI_CHECKBOX,40,6,0,0,0,0,0,0,(char *)MViewSearchWholeWords,
+    DI_CHECKBOX,40,7,0,0,0,0,0,0,(char *)MViewSearchReverse,
+    DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MViewSearchSearch,
+    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MViewSearchCancel
   };
+  /* KM $ */
   MakeDialogItems(SearchDlgData,SearchDlg);
 
   unsigned char SearchStr[256];
   char MsgStr[256];
   unsigned long MatchPos;
-  int SearchLength,Case,ReverseSearch,SearchHex,Match;
+  /* $ 01.08.2000 KM
+     Добавлена новая переменная WholeWords
+  */
+  int SearchLength,Case,WholeWords,ReverseSearch,SearchHex,Match;
+  /* KM $ */
 
   if (ViewFile==NULL || Next && *LastSearchStr==0)
     return;
@@ -1455,7 +1477,12 @@ void Viewer::Search(int Next,int FirstChar)
   SearchDlg[4].Selected=!LastSearchHex;
   SearchDlg[5].Selected=LastSearchHex;
   SearchDlg[6].Selected=LastSearchCase;
-  SearchDlg[7].Selected=LastSearchReverse;
+  /* $ 01.08.2000 KM
+     Инициализация checkbox'а "Whole words"
+  */
+  SearchDlg[7].Selected=LastSearchWholeWords;
+  /* KM $ */
+  SearchDlg[8].Selected=LastSearchReverse;
 
   if (Unicode)
   {
@@ -1468,24 +1495,34 @@ void Viewer::Search(int Next,int FirstChar)
   if (!Next)
   {
     Dialog Dlg(SearchDlg,sizeof(SearchDlg)/sizeof(SearchDlg[0]));
-    Dlg.SetPosition(-1,-1,76,11);
+    Dlg.SetPosition(-1,-1,76,12);
     if (FirstChar)
     {
       Dlg.Show();
       Dlg.ProcessKey(FirstChar);
     }
     Dlg.Process();
-    if (Dlg.GetExitCode()!=9)
+    if (Dlg.GetExitCode()!=10)
       return;
   }
   strncpy((char *)SearchStr,SearchDlg[2].Data,sizeof(SearchStr));
   SearchHex=SearchDlg[5].Selected;
   Case=SearchDlg[6].Selected;
-  ReverseSearch=SearchDlg[7].Selected;
+  /* $ 01.08.2000 KM
+     Сохранение состояния checkbox'а "Whole words"
+  */
+  WholeWords=SearchDlg[7].Selected;
+  /* KM $ */
+  ReverseSearch=SearchDlg[8].Selected;
 
   strncpy((char *)LastSearchStr,(char *)SearchStr,sizeof(LastSearchStr));
   LastSearchHex=SearchHex;
   LastSearchCase=Case;
+  /* $ 01.08.2000 KM
+     Сохранение последнего состояния WholeWords
+  */
+  LastSearchWholeWords=WholeWords;
+  /* KM $ */
   LastSearchReverse=ReverseSearch;
 
   if ((SearchLength=strlen((char *)SearchStr))==0)
@@ -1509,19 +1546,39 @@ void Viewer::Search(int Next,int FirstChar)
     if (SearchLength>0 && (!ReverseSearch || LastSelPos>0))
     {
       char Buf[8192];
-      unsigned long CurPos=LastSelPos;
+      /* $ 01.08.2000 KM
+         Изменён тип CurPos с unsigned long на long
+         из-за того, что дальше шла проверка при вычитании
+         на -1, а CurPos не мог стать отрицательным и иногда
+         выдавался неверный результат
+      */
+      long CurPos=LastSelPos;
+      /* KM $ */
       int BufSize=sizeof(Buf);
       if (ReverseSearch)
       {
-        CurPos-=sizeof(Buf)-SearchLength;
+        /* $ 01.08.2000 KM
+           Изменёно вычисление CurPos с учётом Whole words
+        */
+        if (WholeWords)
+          CurPos-=sizeof(Buf)-SearchLength+1;
+        else
+          CurPos-=sizeof(Buf)-SearchLength;
+        /* KM $ */
         if (CurPos<0)
           BufSize+=CurPos;
       }
       int ReadSize;
       while (!Match)
       {
-        if (ReverseSearch && CurPos<0)
+        /* $ 01.08.2000 KM
+           Изменена строка if (ReverseSearch && CurPos<0) на if (CurPos<0),
+           так как при обычном прямом и LastSelPos=0xFFFFFFFF, поиск
+           заканчивался так и не начавшись.
+        */
+        if (CurPos<0)
           CurPos=0;
+        /* KM $ */
 
         vseek(ViewFile,CurPos,SEEK_SET);
         if ((ReadSize=vread(Buf,BufSize,ViewFile))<=0)
@@ -1532,44 +1589,86 @@ void Viewer::Search(int Next,int FirstChar)
           for (int I=0;I<ReadSize;I++)
             Buf[I]=TableSet.DecodeTable[Buf[I]];
 
-        if (Case || SearchHex)
+        /* $ 01.08.2000 KM
+           Сделана сразу проверка на Case sensitive и Hex
+           и если нет, тогда Buf приводится к верхнему регистру
+        */
+        if (!Case && !SearchHex)
+          LocalUpperBuf(Buf,ReadSize);
+        /* KM $ */
+
+        /* $ 01.08.2000 KM
+           Убран кусок текста после приведения поисковой строки
+           и Buf к единому регистру, если поиск не регистрозависимый
+           или не ищется Hex-строка и в связи с этим переработан код поиска
+        */
+        int MaxSize=ReadSize-SearchLength+1;
+        int Increment=ReverseSearch ? -1:+1;
+        for (int I=ReverseSearch ? MaxSize-1:0;I<MaxSize && I>=0;I+=Increment)
         {
-          int FirstCh=SearchStr[0];
-          int MaxSize=ReadSize-SearchLength+1;
-          int Increment=ReverseSearch ? -1:+1;
-          for (int I=ReverseSearch ? MaxSize-1:0;I<MaxSize && I>=0;I+=Increment)
-            if (Buf[I]==FirstCh)
+          /* $ 01.08.2000 KM
+             Обработка поиска "Whole words"
+          */
+          int cmpResult;
+          int locResultLeft=FALSE;
+          int locResultRight=FALSE;
+          if (WholeWords)
+          {
+
+            int locResultLeft=FALSE;
+            int locResultRight=FALSE;
+            if (I!=0)
             {
-              Match=TRUE;
-              for (int J=1;J<SearchLength;J++)
-                if (Buf[I+J]!=SearchStr[J])
-                  Match=FALSE;
-              if (Match)
-              {
-                MatchPos=CurPos+I;
-                break;
-              }
+              if (Buf[I]==' ' || Buf[I]=='\t' || Buf[I]=='\n' || Buf[I]=='\r')
+                locResultLeft=TRUE;
+              if (ReadSize!=BufSize && I+1+SearchLength>=ReadSize)
+                locResultRight=TRUE;
+              else
+                if (Buf[I+1+SearchLength]==' ' || Buf[I+1+SearchLength]=='\t' ||
+                    Buf[I+1+SearchLength]=='\n' || Buf[I+1+SearchLength]=='\r')
+                  locResultRight=TRUE;
+
+              if (!locResultLeft)
+                if (strchr(Opt.WordDiv,Buf[I])!=NULL)
+                  locResultLeft=TRUE;
+              if (!locResultRight)
+                if (strchr(Opt.WordDiv,Buf[I+1+SearchLength])!=NULL)
+                  locResultRight=TRUE;
+
+              cmpResult=locResultLeft && locResultRight && SearchStr[0]==Buf[I+1]
+                && (SearchLength==1 || SearchStr[1]==Buf[I+2]
+                && (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+3],SearchLength-2)==0));
             }
-        }
-        else
-        {
-          int FirstCh=LocalUpper(SearchStr[0]);
-          int MaxSize=ReadSize-SearchLength+1;
-          int Increment=ReverseSearch ? -1:+1;
-          for (int I=ReverseSearch ? MaxSize-1:0;I<MaxSize && I>=0;I+=Increment)
-            if (LocalUpper(Buf[I])==FirstCh)
+            else
             {
-              Match=TRUE;
-              for (int J=1;J<SearchLength;J++)
-                if (LocalUpper(Buf[I+J])!=SearchStr[J])
-                  Match=FALSE;
-              if (Match)
-              {
-                MatchPos=CurPos+I;
-                break;
-              }
+              if (ReadSize!=BufSize && I+SearchLength>=ReadSize)
+                locResultRight=TRUE;
+              else
+                if (Buf[I+SearchLength]==' ' || Buf[I+SearchLength]=='\t' ||
+                    Buf[I+SearchLength]=='\n' || Buf[I+SearchLength]=='\r')
+                  locResultRight=TRUE;
+
+              if (!locResultRight)
+                if (strchr(Opt.WordDiv,Buf[I+1+SearchLength])!=NULL)
+                  locResultRight=TRUE;
+
+              cmpResult=locResultRight && SearchStr[0]==Buf[I]
+                && (SearchLength==1 || SearchStr[1]==Buf[I+1]
+                && (SearchLength==2 || memcmp(SearchStr+2,&Buf[I+2],SearchLength-2)==0));
             }
+          }
+          if (cmpResult)
+            Match=TRUE;
+          else
+            Match=FALSE;
+          if (Match)
+          {
+            MatchPos=(WholeWords && I!=0)?CurPos+I+1:CurPos+I;
+            break;
+          }
+            /* KM $ */
         }
+        /* KM $ */
 
         if (ReadSize<sizeof(Buf))
           break;
@@ -1577,10 +1676,22 @@ void Viewer::Search(int Next,int FirstChar)
         {
           if (CurPos<=0)
             break;
-          CurPos-=sizeof(Buf)-SearchLength;
+          /* $ 01.08.2000 KM
+             Изменёно вычисление CurPos с учётом Whole words
+          */
+          if (WholeWords)
+            CurPos-=sizeof(Buf)-SearchLength+1;
+          else
+            CurPos-=sizeof(Buf)-SearchLength;
         }
         else
-          CurPos+=sizeof(Buf)-SearchLength;
+        {
+          if (WholeWords)
+            CurPos+=sizeof(Buf)-SearchLength+1;
+          else
+            CurPos+=sizeof(Buf)-SearchLength;
+        }
+        /* KM $ */
       }
     }
   }

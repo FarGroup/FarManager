@@ -12,10 +12,14 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.12 03.08.2000 $ */
+/* Revision: 1.13 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 KM 1.12
+    + Новые константы MFindFileWholeWords,MViewSearchWholeWords,
+      MEditSearchWholeWords для поиска по целым словам в Find file (Alt-F7),
+      поиске во вьювере и редакторе.
   03.08.2000 SVS
     + MEditConfigWordDiv - разделитель слов в настройках редактора
   02.08.2000 SVS
@@ -379,6 +383,7 @@ enum
   MEditSearchTitle,
   MEditSearchFor,
   MEditSearchCase,
+  MEditSearchWholeWords,
   MEditSearchReverse,
   MEditSearchSearch,
   MEditSearchCancel,
@@ -660,6 +665,7 @@ enum
   MFindFileMasks,
   MFindFileText,
   MFindFileCase,
+  MFindFileWholeWords,
   MFindFileAllTables,
   MFindArchives,
   MSearchAllDisks,
@@ -1093,6 +1099,7 @@ enum
   MViewSearchForText,
   MViewSearchForHex,
   MViewSearchCase,
+  MViewSearchWholeWords,
   MViewSearchReverse,
   MViewSearchSearch,
   MViewSearchCancel,
