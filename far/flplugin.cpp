@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.07 04.01.2001 $ */
+/* Revision: 1.08 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 DJ
+    - в ProcessHostFile() не передавался OPM_TOPLEVEL
   04.01.2001 SVS
     ! TranslateKeyToVK() -> keyboard.cpp
   11.11.2000 SVS
@@ -627,7 +629,11 @@ void FileList::ProcessHostFile()
         int ItemNumber;
         if (CtrlObject->Plugins.GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))
         {
-          Done=CtrlObject->Plugins.ProcessHostFile(hNewPlugin,ItemList,ItemNumber,0);
+          /* $ 26.04.2001 DJ
+             в ProcessHostFile не передавался OPM_TOPLEVEL
+          */
+          Done=CtrlObject->Plugins.ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
+          /* DJ $ */
           CtrlObject->Plugins.FreeFindData(hNewPlugin,ItemList,ItemNumber);
         }
         CtrlObject->Plugins.ClosePlugin(hNewPlugin);
@@ -768,5 +774,3 @@ void FileList::PluginClearSelection(struct PluginPanelItem *ItemList,int ItemNum
     PluginNumber++;
   }
 }
-
-
