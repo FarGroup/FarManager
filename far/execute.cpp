@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.16 02.12.2001 $ */
+/* Revision: 1.17 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 SVS
+    ! Уточнение для... пути со скобками :-)
+    ! Новое поведение - убрали DETACHED_PROCESS и ждем завершение процесса.
   02.12.2001 SVS
     ! Неверный откат. :-(( Вернем все обратно, но с небольшой правкой,
       не будем изменять строку запуска, если явно не указано расширение, т.е.
@@ -345,6 +348,11 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
     IsCommandPEExeGUI(FullName,GUIType);
     QuoteSpaceOnly(FullName);
     QuoteSpaceOnly(FileName);
+
+    // Для случая, когда встретились скобки:
+    if(strpbrk(FullName,"()"))
+      IsExistExt=FALSE;
+
     strncpy(TempStr,Command,sizeof(TempStr)-1);
     CharToOem(FullName,FullName);
     CharToOem(FileName,FileName);
@@ -483,7 +491,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
     ChangeConsoleMode(InitialConsoleMode);
 
     if (SeparateWindow)
-      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:DETACHED_PROCESS;
+      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:0;//DETACHED_PROCESS;
 
     if (SeparateWindow==2)
     {
@@ -624,6 +632,11 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
       }
       /* SKV$*/
     }
+    else if (!AlwaysWaitFinish)
+    {
+      WaitForSingleObject(pi.hProcess,INFINITE);
+    }
+
     int CurScrX=ScrX,CurScrY=ScrY;
 //    ReopenConsole();
 

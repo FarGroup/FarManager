@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.188 01.12.2001 $ */
+/* Revision: 1.189 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 SVS
+    ! Уточнение работы DM_SETHISTORY: для DI_EDIT с флагом DIF_USELASTHISTORY
+      ФАР сам подставит Line0 из истории, при условии, что строка ввода пуста.
   01.12.2001 KM
     + DM_LISTSET - новое сообщение, отличается от DM_LISTADD тем, что
       если в списке есть строки, то сначала удалим их, т.с. "чистая"
@@ -5102,14 +5105,39 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         {
           CurItem->Flags|=DIF_HISTORY;
           CurItem->History=(char *)Param2;
+          if(Type==DI_EDIT && (CurItem->Flags&DIF_USELASTHISTORY))
+          {
+            char RegKey[NM];
+            char *PtrData;
+            int PtrLength;
+            if(CurItem->Flags&DIF_VAREDIT)
+            {
+              PtrData  =(char *)CurItem->Ptr.PtrData;
+              PtrLength=CurItem->Ptr.PtrLength;
+            }
+            else
+            {
+              PtrData  =CurItem->Data;
+              PtrLength=sizeof(CurItem->Data);
+            }
+            if(!PtrData[0])
+            {
+              sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
+              GetRegKey(RegKey,"Line0",PtrData,"",PtrLength);
+              Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Param1,(long)PtrData);
+            }
+          }
         }
         else
         {
           CurItem->Flags&=~DIF_HISTORY;
           CurItem->History=NULL;
         }
-        Dlg->ShowDialog(Param1);
-        ScrBuf.Flush();
+        if(Dlg->DialogMode.Check(DMODE_SHOW))
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
         return TRUE;
       }
       return FALSE;

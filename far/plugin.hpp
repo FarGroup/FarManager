@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.169 02.12.2001 $ */
+/* Revision: 1.170 03.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  03.12.2001 SVS
+    ! Нефига портить стройные ряды DM_* (по поводу вставки DM_LISTSET в
+      середину списка)
   01.12.2001 KM
     + DM_LISTSET - новое сообщение, отличается от DM_LISTADD тем, что
       если в списке есть строки, то сначала удалим их, т.с. "чистая"
@@ -872,7 +875,6 @@ enum FarMessagesProc{
 
   DM_LISTSORT,
   DM_LISTGET,
-  DM_LISTSET,
   DM_LISTGETCURPOS,
   DM_LISTSETCURPOS,
   DM_LISTDELETE,
@@ -902,6 +904,8 @@ enum FarMessagesProc{
 
   DM_GETITEMDATA,
   DM_SETITEMDATA,
+
+  DM_LISTSET,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.102 03.12.2001 $ */
+/* Revision: 1.103 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 SVS
+    - небольшая бага в RawConvertShortNameToLongName() - для каталогов,
+      имеющих один символ! Например, имеем "D:\1", функция возвращает "D:\"
   03.12.2001 DJ
     - RawConvertShortNameToLongName() возвращала ошибку, если ей был
       передан путь, заканчивающийся на \
@@ -549,20 +552,29 @@ void CharBufferToSmallWarn(int BufSize, int FileNameSize)
 */
 DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
 {
-  if(!src || !dest || !*src)
+  if(!src || !dest)
      return 0;
 
-  DWORD SrcSize, DestSize=0, FinalSize=0, AddSize;
-  BOOL Error=FALSE;
+  if(!*src)
+  {
+     *dest=0;
+     return 1;
+  }
 
-  SrcSize=strlen(src);
+  DWORD SrcSize=strlen(src);
 
   if(SrcSize == 3 && src[1] == ':' && (src[2] == '\\' || src[2] == '/'))
   {
-    strncpy(dest,src,maxsize);
+    SrcSize=Min((DWORD)SrcSize,(DWORD)maxsize);
+    memmove(dest,src,SrcSize);
+    dest[SrcSize]=0;
     *dest=toupper(*dest);
     return SrcSize;
   }
+
+
+  DWORD DestSize=0, FinalSize=0, AddSize;
+  BOOL Error=FALSE;
 
   char *Src, *Dest, *DestBuf=NULL,
        *SrcBuf=(char *)malloc(SrcSize+1);
@@ -601,7 +613,7 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        Dest+=AddSize;
 
        *Dots=tmp;
-       Src=Dots+1;
+       Src=Dots; // +1 ??? зачем ???
      }
 
      /* $ 03.12.2001 DJ
