@@ -7,10 +7,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.11 16.05.2001 $ */
+/* Revision: 1.13 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    ! IndexMode - двумерный массив: первый индекс - начало, второй - количество.
   23.05.2001 SVS
     + Sort()
     + IndexMode - массив начала макросов в Macros
@@ -75,7 +77,7 @@ class KeyMacro
     int Recording;
 
     DWORD *RecBuffer;
-    int IndexMode[MACRO_LAST];
+    int IndexMode[MACRO_LAST][2];
     int RecBufferSize;
     int Executing;
     int ExecMacroPos;
@@ -132,7 +134,7 @@ class KeyMacro
     int  LoadMacros();
     void SaveMacros();
 
-    int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST?Mode:MACRO_LAST];}
+    int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST?Mode:MACRO_LAST][0];}
     // Функция получения индекса нужного макроса в массиве
     int GetIndex(int Key, int Mode);
     // получение размера, занимаемого указанным макросом

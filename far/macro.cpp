@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.39 23.05.2001 $ */
+/* Revision: 1.40 23.05.2001 $ */
 
 /*
 Modify:
+  23.05.2001 SVS
+    - неверно заполн€лись индексы начал макросов.
   23.05.2001 SVS
     ! "‘окусные" клавиши попадали в диалог назначени€ макро
     ! Ќемного ускорени€ в функции GetIndex() за счет сортированного списка
@@ -461,7 +463,7 @@ int KeyMacro::ProcessKey(int Key)
                     (Mode==MACRO_SHELL && !WaitInMainLoop) ? MACRO_OTHER:Mode);
       if(I != -1 && !((CurFlags=Macros[I].Flags)&MFLAGS_DISABLEMACRO) && CtrlObject)
       {
-//_D(SysLog("KeyMacro: %d (I=%d Key=0x%08X)",__LINE__,I,Key));
+//_SVS(SysLog("KeyMacro: %d (I=%d Key=0x%08X,0x%08X)",__LINE__,I,Key,Macros[I].Key));
         if(!CheckAll(CurFlags))
           return FALSE;
 
@@ -485,9 +487,10 @@ int KeyMacro::ProcessKey(int Key)
 int KeyMacro::GetKey()
 {
   struct MacroRecord *MR;
-
+//_SVS(SysLog(">KeyMacro::GetKey() InternalInput=%d Executing=%d (%p)",InternalInput,Executing,FrameManager->GetCurrentFrame()));
   if (InternalInput || !Executing || !FrameManager->GetCurrentFrame())
     return(FALSE);
+//_SVS(SysLog("<KeyMacro::GetKey()=%d",ExecMacroPos));
 
 initial:
   MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
@@ -561,7 +564,7 @@ done:
         goto begin;
       }
   }
-//_SVS(SysLog("Key=0x%08X ExecMacroPos=%d ExecKeyPos=%d", Key,ExecMacroPos,ExecKeyPos));
+//_SVS(SysLog("%s.%s.Key=0x%08X ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(Macros[ExecMacroPos].Flags&MFLAGS_MODEMASK),Key,ExecMacroPos,ExecKeyPos));
   return(Key);
 }
 
@@ -635,7 +638,7 @@ void KeyMacro::SaveMacros()
       continue;
 
     SetRegKey(RegKeyName,"Sequence",TextBuffer);
-
+    //_SVS(SysLog("%3d) %s|Sequence='%s'",I,RegKeyName,TextBuffer));
     if(TextBuffer)
       free(TextBuffer);
 
@@ -1061,25 +1064,29 @@ int KeyMacro::GetIndex(int Key, int ChechMode)
 {
   if(Macros)
   {
-    int Pos=0,EndPos=MacrosNumber;
+    int Pos,Len;
     struct MacroRecord *MPtr;
-    if(ChechMode == MACRO_LAST)
-      ChechMode=-1;
-    if(ChechMode >= 0)
+    if(ChechMode == -1)
     {
-      Pos=IndexMode[ChechMode];
-      if(Pos == -1)
-        Pos=0;
-      if(ChechMode+1 < MACRO_LAST)
-        EndPos=IndexMode[ChechMode+1];
-      if(EndPos == -1)
-        EndPos=MacrosNumber;
+      Len=MacrosNumber;
+      MPtr=Macros;
     }
-    for(MPtr=Macros+Pos; Pos < EndPos; ++Pos, ++MPtr)
+    else
+    {
+      Len=IndexMode[ChechMode][1];
+      if(!Len)
+       return -1;
+      MPtr=Macros+IndexMode[ChechMode][0];
+//_SVS(SysLog("ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
+    }
+    for(Pos=0; Pos < Len; ++Pos, ++MPtr)
       if (LocalUpper(MPtr->Key)==LocalUpper(Key) &&
         MPtr->BufferSize > 0)
+      {
 //        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
-        return Pos;
+//_SVS(SysLog("GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
+        return Pos+((ChechMode >= 0)?IndexMode[ChechMode][0]:0);
+      }
   }
   return -1;
 }
@@ -1240,13 +1247,18 @@ void KeyMacro::Sort(void)
   // перестраиваем индекс начал
   struct MacroRecord *MPtr;
   int I,J;
-  int CurMode=-1;
-  memset(IndexMode,0xFF,sizeof(IndexMode));
-  for(MPtr=Macros,J=I=0; I < MacrosNumber; ++I,++MPtr)
-    if((MPtr->Flags&MFLAGS_MODEMASK) != CurMode)
+  int CurMode=MACRO_OTHER;
+  memset(IndexMode,0,sizeof(IndexMode));
+  for(MPtr=Macros,I=0; I < MacrosNumber; ++I,++MPtr)
+  {
+    J=MPtr->Flags&MFLAGS_MODEMASK;
+    if(CurMode != J)
     {
-      CurMode=MPtr->Flags&MFLAGS_MODEMASK;
-      IndexMode[J++]=I;
+      IndexMode[J][0]=I;
+      CurMode=J;
     }
-//_SVS(for(I=0; I < sizeof(IndexMode)/sizeof(IndexMode[0]); ++I)SysLog("IndexMode[%d]=%d",I,IndexMode[I]));
+    IndexMode[J][1]++;
+  }
+
+//_SVS(for(I=0; I < sizeof(IndexMode)/sizeof(IndexMode[0]); ++I)SysLog("IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
 }
