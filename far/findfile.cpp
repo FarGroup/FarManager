@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.57 07.10.2001 $ */
+/* Revision: 1.58 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    ! Нафига юзать пвсевдографигу напрямую? ведь договаривались же -
+      только коды!
   07.10.2001 SVS
     ! Небольшое ограничение области действия Dialog
   01.10.2001 VVM
@@ -413,7 +416,7 @@ FindFiles::FindFiles()
       /* 06 */DI_TEXT,40,5,0,0,0,0,0,0,"",
       /* 07 */DI_COMBOBOX,40,6,70,10,0,(DWORD)&TableList,DIF_DROPDOWNLIST,0,"",
       /* 08 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-      /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"СііБ",
+      /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
       /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
       /* 11 */DI_CHECKBOX,5,9,0,0,0,0,0,0,(char *)MFindFileWholeWords,
       /* 12 */DI_CHECKBOX,5,10,0,0,0,0,0,0,(char *)MFindArchives,

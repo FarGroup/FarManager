@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.109 01.10.2001 $ */
+/* Revision: 1.110 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    + InsertString()
   01.10.2001 IS
     + TruncStrFromEnd
   26.09.2001 SVS
@@ -364,6 +366,7 @@ int DeleteEmptyKey(HKEY hRoot, char *FullKeyName);
 int EnumRegKey(char *Key,DWORD Index,char *DestName,DWORD DestSize);
 int IsFolderNotEmpty(char *Name);
 char *RemoveChar(char *Str,char Target,BOOL Dup=TRUE);
+char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize=0);
 #define RemoveHighlights(Str) RemoveChar(Str,'&')
 int IsCaseMixed(char *Str);
 int IsCaseLower(char *Str);

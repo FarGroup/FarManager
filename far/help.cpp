@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.45 01.10.2001 $ */
+/* Revision: 1.46 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    + Opt.HelpTabSize - размер табул€ции по умолчанию.
   01.10.2001 SVS
     ! ¬ременно отключим "KEY_SHIFTF3"
     + CtrlTabSize - опци€! размер табул€ции - резерв на будущее!
@@ -301,10 +303,11 @@ void Help::Hide()
 
 int Help::ReadHelp(char *Mask)
 {
-  char FileName[NM],ReadStr[MAX_HELP_STRING_LENGTH];
-  char SplitLine[2*MAX_HELP_STRING_LENGTH];
-  int Formatting=TRUE,RepeatLastLine;
+  char FileName[NM],ReadStr[2*MAX_HELP_STRING_LENGTH];
+  char SplitLine[2*MAX_HELP_STRING_LENGTH+8],*Ptr;
+  int Formatting=TRUE,RepeatLastLine,PosTab;
   const int MaxLength=X2-X1-1;
+  char TabSpace[32];
 
   DisableOut=0;
 
@@ -349,7 +352,7 @@ int Help::ReadHelp(char *Mask)
     CtrlTabSize=atoi(ReadStr);
   }
   if(CtrlTabSize < 0 || CtrlTabSize > 16)
-    CtrlTabSize=1;
+    CtrlTabSize=Opt.HelpTabSize;
 
   *ReadStr=0;
   if (Language::GetOptionsParam(HelpFile,"CtrlColorChar",ReadStr))
@@ -368,9 +371,13 @@ int Help::ReadHelp(char *Mask)
   RepeatLastLine=FALSE;
   int NearTopicFound=0;
   char PrevSymbol=0;
+
+  memset(TabSpace,' ',sizeof(TabSpace)-1);
+  TabSpace[sizeof(TabSpace)-1]=0;
+
   while (TRUE)
   {
-    if (!RepeatLastLine && fgets(ReadStr,sizeof(ReadStr),HelpFile)==NULL)
+    if (!RepeatLastLine && fgets(ReadStr,sizeof(ReadStr)/2,HelpFile)==NULL)
     {
       if (StringLen(SplitLine)<MaxLength)
       {
@@ -386,6 +393,17 @@ int Help::ReadHelp(char *Mask)
       break;
     }
     RepeatLastLine=FALSE;
+
+    while((Ptr=strchr(ReadStr,'\t')) != NULL)
+    {
+      *Ptr=' ';
+      PosTab=Ptr-ReadStr+1;
+      if(CtrlTabSize > 1) // заменим табул€тор по всем праивилам
+        InsertString(ReadStr,PosTab,TabSpace,
+           ((PosTab%CtrlTabSize)==0?CtrlTabSize:(PosTab%CtrlTabSize))-1);
+      if(strlen(ReadStr) > sizeof(ReadStr)/2)
+        break;
+    }
 
     RemoveTrailingSpaces(ReadStr);
 
@@ -783,17 +801,7 @@ void Help::OutString(char *Str)
       }
     }
 
-    /* $ 19.09.2001 VVM
-      + «аменить “јЅ”Ћя÷»ё на пробел. */
-    if (*Str == 9)
-    {
-      OutStr[OutPos++]=32;
-      Str++;
-    }
-    else
-      OutStr[OutPos++]=*(Str++);
-    /* VVM $ */
-
+    OutStr[OutPos++]=*(Str++);
   }
   if (!DisableOut && WhereX()<X2)
   {

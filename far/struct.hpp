@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.68 26.09.2001 $ */
+/* Revision: 1.69 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    + Opt.HelpTabSize - размер табуляции по умолчанию.
   26.09.2001 SVS
     + Opt.AutoUpdateLimit -  выше этого количество автоматически
       не обновлять панели.
@@ -655,6 +657,7 @@ struct Options
   int ShowCheckingFile;
 
   DWORD LCIDSort;
+  int HelpTabSize;
 
   char DateFormat[80]; // Для $Date
   struct PoliciesOptions Policies;

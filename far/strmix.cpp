@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.23 01.10.2001 $ */
+/* Revision: 1.24 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    + InsertString()
   01.10.2001 IS
     + TruncStrFromEnd - обрезать строку с правой стороны
   27.09.2001 IS
@@ -755,4 +757,17 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
     }
   }
   return DestStr;
+}
+
+// вставить с позиции Pos в Str строку InsStr (размером InsSize байт)
+// если InsSize = 0, то... вставлять все строку InsStr
+// возвращает указатель на Str
+char *InsertString(char *Str,int Pos,const char *InsStr,int InsSize)
+{
+  int InsLen=strlen(InsStr);
+  if(InsSize && InsSize > InsLen)
+    InsLen=InsSize;
+  memmove(Str+Pos+InsLen, Str+Pos, strlen(Str+Pos)+1);
+  memcpy(Str+Pos, InsStr, InsLen);
+  return Str;
 }

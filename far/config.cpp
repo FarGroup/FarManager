@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.97 02.10.2001 $ */
+/* Revision: 1.98 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    + Opt.HelpTabSize - размер табуляции по умолчанию.
   02.10.2001 SVS
     - В таблице однажды забыл для Opt.AltF9 выставить дефолт =-1
   27.09.2001 IS
@@ -1192,6 +1194,8 @@ void ReadConfig()
   // Умолчание разное для разных платформ.
   if(Opt.AltF9 == -1)
     Opt.AltF9=WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?1:0;
+
+  Opt.HelpTabSize=8; // пока жестко пропишем...
 
   //   Уточняем алгоритм "взятия" палитры.
   for(I=COL_PRIVATEPOSITION_FOR_XRENZNAETCHEGO-COL_FIRSTPALETTECOLOR+1;

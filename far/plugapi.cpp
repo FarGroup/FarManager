@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.94 27.09.2001 $ */
+/* Revision: 1.95 07.10.2001 $ */
 
 /*
 Modify:
+  07.10.2001 SVS
+    - Ќету у нас немодальных диалогов!
   27.09.2001 IS
     - Ћевый размер при использовании strncpy
   22.09.2001 OT
@@ -755,7 +757,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   if(!InternalItem)
     return -1;
 
-  int ExitCode;
+  int ExitCode=-1;
 
   struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
 
@@ -777,45 +779,37 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   else
     Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
 
-  /* $ 19.05.2001 DJ
-     немодальные диалоги!
-     и пусть диалог сам освободит свои айтема (после закрыти€)
-  */
-  Dialog *FarDialog = new Dialog(InternalItem,ItemsNumber,DlgProc,Param);
-  FarDialog->SetPosition(X1,Y1,X2,Y2);
+  Frame *frame;
+  if((frame=FrameManager->GetBottomFrame()) != NULL)
+    frame->LockRefresh(); // отменим прорисовку фрейма
 
-  if(Flags & FDLG_WARNING)
-    FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
-  if(Flags & FDLG_SMALLDIALOG)
-    FarDialog->SetDialogMode(DMODE_SMALLDIALOG);
-  if(Flags & FDLG_NONMODAL)
-    FarDialog->SetCanLoseFocus(TRUE);
-  FarDialog->SetOwnsItems(TRUE);
-  FarDialog->SetHelp(HelpTopic);
-
-  /* IS $ */
-  /* $ 29.08.2000 SVS
-     «апомним номер плагина - сейчас в основном дл€ формировани€ HelpTopic
-  */
-  FarDialog->SetPluginNumber(PluginNumber);
-  /* SVS $ */
-
-  if (Flags & FDLG_NONMODAL)
   {
-    FrameManager->InsertFrame (FarDialog);
-    ExitCode=0;
-  }
-  else
-  {
-    Frame *frame;
-    if((frame=FrameManager->GetBottomFrame()) != NULL)
-      frame->LockRefresh(); // отменим прорисовку фрейма
+    Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
+    FarDialog.SetPosition(X1,Y1,X2,Y2);
+
+    if(Flags & FDLG_WARNING)
+      FarDialog.SetDialogMode(DMODE_WARNINGSTYLE);
+    if(Flags & FDLG_SMALLDIALOG)
+      FarDialog.SetDialogMode(DMODE_SMALLDIALOG);
+    if(Flags & FDLG_NONMODAL)
+      FarDialog.SetCanLoseFocus(TRUE);
+    FarDialog.SetOwnsItems(TRUE);
+    FarDialog.SetHelp(HelpTopic);
+
+    /* IS $ */
+    /* $ 29.08.2000 SVS
+       «апомним номер плагина - сейчас в основном дл€ формировани€ HelpTopic
+    */
+    FarDialog.SetPluginNumber(PluginNumber);
+    /* SVS $ */
+
     if(Opt.ExceptRules)
     {
       TRY
       {
-        FarDialog->Process();
+        FarDialog.Process();
         Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+        ExitCode=FarDialog.GetExitCode();
       }
       EXCEPT (xfilter(EXCEPT_FARDIALOG,
                        GetExceptionInformation(),CurPlugin,1))
@@ -825,15 +819,16 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     }
     else
     {
-      FarDialog->Process();
+      FarDialog.Process();
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+      ExitCode=FarDialog.GetExitCode();
     }
-    if((frame=FrameManager->GetBottomFrame()) != NULL)
-      frame->UnlockRefresh(); // теперь можно :-)
-    ExitCode=FarDialog->GetExitCode();
-    delete FarDialog;
   }
-  /* DJ $ */
+
+  delete[] InternalItem;
+
+  if((frame=FrameManager->GetBottomFrame()) != NULL)
+    frame->UnlockRefresh(); // теперь можно :-)
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //??
   return(ExitCode);
