@@ -28,12 +28,18 @@ BCCPATH=$(FARBCC)
 # bccpath нужен для того, чтобы прямо использовать его в exe файлах
 # set bccpath=e:\bc5, просто в path может сидеть совсем другой борланд
 
-
-# путь к каталогу с временными файлами - obj, etc
-OBJPATH=OBJ
+# путь для публичных HPP-файлов
+FARINCLUDE=Include
 
 # сюда будет помещен результат
 FINALPATH=final
+
+# путь к каталогу с временными файлами - obj, etc
+!ifdef DEBUG
+OBJPATH=OBJD
+!else
+OBJPATH=OBJ
+!endif
 
 .path.obj = $(OBJPATH)
 .path.cpp = .
@@ -83,32 +89,6 @@ LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTDEBUG) -s
 #      пока оставим пустой
 CCFLAGS =
 
-# !!! -d - merge duplicate string - вредная опция, иногда сильно мешает
-
-#
-# Dependency List
-#
-Dep_Far = \
-   $(FINALPATH)\Far.exe
-
-Far : BccW32.cfg $(Dep_Far)
-  echo MakeNode
-
-# все эти зависимости не нужны
-# просто описываем одно правило и все %)
-
-.cpp.obj:
-  @settitle "{$.} - Compiling..."
-  @$(BCC32) -c -o$@ {$. }
-
-.c.obj:
-  @settitle "{$.} - Compiling..."
-  @$(BCC32) -c -o$@ {$. }
-
-$(OBJPATH)\syslog.obj: syslog.cpp cc.bat
-$(OBJPATH)\flink.obj: flink.cpp cc.bat
-$(OBJPATH)\copy.obj: copy.cpp cc.bat
-$(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
 
 FAROBJ=\
    $(OBJPATH)\checkver.obj\
@@ -211,15 +191,55 @@ FAROBJ=\
    $(OBJPATH)\strncpy.obj\
    $(OBJPATH)\main.obj
 
-Dep_fardexe = BccW32.cfg\
-   Far.def\
-   $(OBJPATH)\Far.res \
-   $(FAROBJ)
+# ************************************************************************
+ALL : BccW32.cfg $(FINALPATH)\Far.exe $(FARINCLUDE)\farcolor.hpp $(FARINCLUDE)\farkeys.hpp $(FARINCLUDE)\plugin.hpp
+  @echo MakeNode
 
+# все эти зависимости не нужны
+# просто описываем одно правило и все %)
+.cpp.obj:
+  @settitle "{$.} - Compiling..."
+  @if not exist $(OBJPATH) mkdir $(OBJPATH)
+  @$(BCC32) -c -o$@ {$. }
+
+.c.obj:
+  @settitle "{$.} - Compiling..."
+  @if not exist $(OBJPATH) mkdir $(OBJPATH)
+  @$(BCC32) -c -o$@ {$. }
+
+# уточнения
+$(OBJPATH)\syslog.obj: syslog.cpp cc.bat
+$(OBJPATH)\flink.obj: flink.cpp cc.bat
+$(OBJPATH)\copy.obj: copy.cpp cc.bat
+$(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc copyright.inc
+
+# ************************************************************************
+# Зависимости для публичных файлов
+# ************************************************************************
+$(FARINCLUDE)\farcolor.hpp : colors.hpp
+   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
+   @awk -f plugins.awk -v p1=1 -v p2=70 colors.hpp > $(FARINCLUDE)\farcolor.hpp
+
+$(FARINCLUDE)\farkeys.hpp : keys.hpp
+   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
+   @awk -f plugins.awk -v p1=1 -v p2=70 keys.hpp   > $(FARINCLUDE)\farkeys.hpp
+
+$(FARINCLUDE)\plugin.hpp : plugin.hpp
+   @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
+   @awk -f plugins.awk -v p1=1 -v p2=70 plugin.hpp > $(FARINCLUDE)\plugin.hpp
+
+# ************************************************************************
+$(OBJPATH)\Far.res :  Far.rc
+  @settitle "Compiling resource..."
+  @if not exist $(OBJPATH) mkdir $(OBJPATH)
+  $(BRC32) -R @&&|
+ $(RESFLAGS)  -FO$@ Far.rc
+|
 
 !ifdef ILINK
-$(FINALPATH)\Far.exe : $(Dep_fardexe)
+$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
   @settitle "Linking..."
+  @if not exist $(FARINCLUDE) mkdir $(FARINCLUDE)
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ)
 $<,$*
@@ -228,8 +248,9 @@ Far.def
 $(OBJPATH)\Far.res
 |
 !else
-$(FINALPATH)\Far.exe : $(Dep_fardexe)
+$(FINALPATH)\Far.exe : BccW32.cfg Far.def $(OBJPATH)\Far.res $(FAROBJ)
   @settitle "Linking..."
+  @if not exist $(FINALPATH) mkdir $(FINALPATH)
   @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ)
 $<,$*
@@ -257,11 +278,9 @@ Far.def
    @copy FarEng.lng $(FINALPATH)\FarEng.lng >nul
    @copy FarRus.lng $(FINALPATH)\FarRus.lng >nul
 
-$(OBJPATH)\Far.res :  Far.rc
-  @settitle "Compiling resource..."
-  $(BRC32) -R @&&|
- $(RESFLAGS)  -FO$@ Far.rc
-|
+   @if exist plugin.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas plugin.pas > $(FARINCLUDE)\plugin.pas
+   @if exist fmt.hpp awk -f plugins.awk -v p1=1 -v p2=70 fmt.hpp > $(FARINCLUDE)\fmt.hpp
+   @if exist fmt.pas awk -f plugins.awk -v p1=1 -v p2=70 -v Lang=pas fmt.pas > $(FARINCLUDE)\fmt.pas
 
 # Compiler configuration file
 # Для тех, у кого длина ком. строки ограничена
@@ -298,3 +317,15 @@ $(FARSYSLOG)
 $(FARADDMACRO)
 $(FUTUREMACRO)
 | $@
+
+# ************************************************************************
+# Очистка
+# ************************************************************************
+CLEAN :
+    -@del /q /f $(OBJPATH)\*.*           > nul
+	-@del /q /f $(FINALPATH)\Far.exe     > nul
+	-@del /q /f $(FINALPATH)\Far.map     > nul
+	-@del /q /f $(FINALPATH)\FarEng.hlf  > nul
+	-@del /q /f $(FINALPATH)\FarEng.lng  > nul
+	-@del /q /f $(FINALPATH)\FarRus.hlf  > nul
+	-@del /q /f $(FINALPATH)\FarRus.lng  > nul

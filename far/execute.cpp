@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.32 28.01.2002 $ */
+/* Revision: 1.33 30.01.2002 $ */
 
 /*
 Modify:
+  30.01.2002 SVS
+    ! Проверим, а не папку ли мы хотим открыть по Shift-Enter?
+      Если так, то вместо CreateProcess запустим ShellExe...
   28.01.2002 tran
     ! тройные кавычки нужны не всегда.
   18.01.2002 VVM
@@ -561,6 +564,15 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   Unquote(strcpy(NewCmdStr,CmdStr));
   RemoveExternalSpaces(NewCmdStr);
   //_tran(SysLog("Execute: newCmdStr [%s]",NewCmdStr);)
+
+  // Проверим, а не папку ли мы хотим открыть по Shift-Enter?
+  _SVS(SysLog("SeparateWindow=%d",SeparateWindow));
+  if(SeparateWindow) //???
+  {
+    DWORD Attr=GetFileAttributes(NewCmdStr);
+    if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY))
+      SeparateWindow=2;
+  }
 
   // глянем на результат
   if(!*NewCmdStr || (strlen(NewCmdStr)==1 && strpbrk(NewCmdStr,"<>|:")!=NULL))

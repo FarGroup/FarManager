@@ -521,6 +521,29 @@ SOURCE=.\cmdline.hpp
 # Begin Source File
 
 SOURCE=.\colors.hpp
+
+!IF  "$(CFG)" == "far - Win32 Release"
+
+# Begin Custom Build - Преобразование $(InputPath) в дистрибутивный вид
+InputPath=.\colors.hpp
+
+"INCLUDE/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f plugins.awk -v p1=1 -v p2=70  $(InputPath) > INCLUDE/$(InputPath)
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "far - Win32 Debug"
+
+# Begin Custom Build - Преобразование $(InputPath) в дистрибутивный вид
+InputPath=.\colors.hpp
+
+"INCLUDE/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f plugins.awk -v p1=1 -v p2=70  $(InputPath) > INCLUDE/$(InputPath)
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -677,6 +700,29 @@ SOURCE=.\keybar.hpp
 # Begin Source File
 
 SOURCE=.\keys.hpp
+
+!IF  "$(CFG)" == "far - Win32 Release"
+
+# Begin Custom Build - Преобразование $(InputPath) в дистрибутивный вид
+InputPath=.\keys.hpp
+
+"INCLUDE/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f plugins.awk -v p1=1 -v p2=70  $(InputPath) > INCLUDE/$(InputPath)
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "far - Win32 Debug"
+
+# Begin Custom Build - Преобразование $(InputPath) в дистрибутивный вид
+InputPath=.\keys.hpp
+
+"INCLUDE/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f plugins.awk -v p1=1 -v p2=70  $(InputPath) > INCLUDE/$(InputPath)
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -721,6 +767,29 @@ SOURCE=.\plognmn.hpp
 # Begin Source File
 
 SOURCE=.\plugin.hpp
+
+!IF  "$(CFG)" == "far - Win32 Release"
+
+# Begin Custom Build - Преобразование $(InputPath) в дистрибутивный вид
+InputPath=.\plugin.hpp
+
+"INCLUDE/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f plugins.awk -v p1=1 -v p2=70  $(InputPath) > INCLUDE/$(InputPath)
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "far - Win32 Debug"
+
+# Begin Custom Build - Преобразование $(InputPath) в дистрибутивный вид
+InputPath=.\plugin.hpp
+
+"INCLUDE/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	awk -f plugins.awk -v p1=1 -v p2=70  $(InputPath) > INCLUDE/$(InputPath)
+
+# End Custom Build
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 

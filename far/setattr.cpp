@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.46 28.12.2001 $ */
+/* Revision: 1.47 30.01.2002 $ */
 
 /*
 Modify:
+  30.01.2002 SVS
+    ! Для симлинков не ставим дату-время, т.к. в этом случае меняется
+      дата-время оригинала, а не линка.
   28.12.2001 SVS
     ! Если время не удалось выставить, то не пытаемся выставлять и атрибуты
   17.12.2001 SVS
@@ -895,7 +898,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetWriteTime=ReadFileTime(0,SelName,FileAttr,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
         SetCreationTime=ReadFileTime(1,SelName,FileAttr,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
         SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
-        if(SetWriteTime || SetCreationTime || SetLastAccessTime)
+        if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
           SetWriteTimeRetCode=ESetFileTime(SelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
@@ -943,7 +946,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetWriteTime=ReadFileTime(0,FullName,FindData.dwFileAttributes,&LastWriteTime,AttrDlg[16].Data,AttrDlg[17].Data);
             SetCreationTime=ReadFileTime(1,FullName,FindData.dwFileAttributes,&CreationTime,AttrDlg[19].Data,AttrDlg[20].Data);
             SetLastAccessTime=ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
-            if (SetWriteTime || SetCreationTime || SetLastAccessTime)
+            if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
               SetWriteTimeRetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,

@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.32 29.01.2002 $ */
+/* Revision: 1.33 30.01.2002 $ */
 
 /*
 Modify:
+  30.01.2002 SVS
+    - кривое обрезаение от предыдущего патча.
   29.01.2002 SVS
     - BugZ#272 - метасимволы в ассоциациях файлов
   25.01.2002 SVS
@@ -272,7 +274,6 @@ int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFini
         {
           strcpy(Title,Descriptions[I]);
           SubstFileName(Title,Name,ShortName,NULL,NULL,TRUE);
-          TruncStrFromEnd(Title,Min(ScrX/2,(int)strlen(Title))-18);
         }
         else
           *Title=0;

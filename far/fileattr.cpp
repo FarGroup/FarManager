@@ -5,10 +5,12 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.04 28.12.2001 $ */
+/* Revision: 1.05 30.01.2002 $ */
 
 /*
 Modify:
+  30.01.2002 SVS
+    - В ESetFileTime скидывали RO, но потом не ставили обратно.
   28.12.2001 SVS
     ! Применяем кнопки с хоткеями
   19.10.2001 SVS
@@ -212,6 +214,7 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
   if (LastWriteTime==NULL && CreationTime==NULL && LastAccessTime==NULL ||
       (FileAttr & FA_DIREC) && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     return 1;
+
   while (1)
   {
     if (FileAttr & FA_RDONLY)
@@ -237,9 +240,17 @@ int ESetFileTime(const char *Name,FILETIME *LastWriteTime,FILETIME *CreationTime
       break;
     }
     if(Code == 1)
+    {
+      if (FileAttr & FA_RDONLY)
+        SetFileAttributes(Name,FileAttr);
       return 2;
+    }
     if(Code == 2)
+    {
+      if (FileAttr & FA_RDONLY)
+        SetFileAttributes(Name,FileAttr);
       return 0;
+    }
   }
   /* $ 14.05.2001 SVS
      Кхе, RO сбросили (см. выше), а выставлять дядя будет?

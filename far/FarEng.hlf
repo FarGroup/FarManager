@@ -2249,6 +2249,9 @@ time components will remain unchanged.
     The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
 
+    For ~symbolic links~@HardSymLink@ (supported only under NTFS/Windows
+2000/XP) the date and time cannot be set.
+
 @FolderShortcuts
 $ #Folder shortcuts#
     Folder shortcuts are designed to provide fast access to frequently
