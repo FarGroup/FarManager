@@ -485,7 +485,7 @@ int GetString(char *Str,int MaxSize)
   }
   int Length=OutDataPos-StartPos;
   int DestLength=Length>=MaxSize ? MaxSize-1:Length;
-  lstrcpyn(Str,OutData+StartPos,DestLength);
+  lstrcpyn(Str,OutData+StartPos,DestLength+1);
   Str[DestLength]=0;
   while (OutDataPos<OutDataSize)
   {
