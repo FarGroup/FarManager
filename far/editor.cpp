@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.22 07.09.2000 $ */
+/* Revision: 1.32 07.09.2000 $ */
 
 /*
 Modify:
+   07.09.2000 skv
+    + ECTL_PROCESSKEY
    07.09.2000 skv
     - пофиксан быстрый replace при установленной перекодировке
    30.08.2000 tran 1.21
@@ -4366,6 +4368,16 @@ int Editor::EditorControl(int Command,void *Param)
       return(TRUE);
     }
     /* SVS $ */
+    /*$ 07.09.2000 skv
+      New ECTL parameter
+    */
+    case ECTL_PROCESSKEY:
+    {
+      ProcessKey((int)Param);
+      return TRUE;
+    }
+    /* skv$*/
+
   }
   return(FALSE);
 }
