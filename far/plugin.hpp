@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.207 11.05.2002 $ */
+/* Revision: 1.208 13.05.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  13.05.2002 VVM
+    + EditorInfo.WindowPos - номер окна редактора. ћожет использоватьс€ с ACTL_*WINDOW*
   11.05.2002 SVS
     ! ћен€ем LIF_UPDATEKEEPUSERDATA на противоположный LIF_DELETEUSERDATA,
       делаем этот флаг доступным (соответственно мен€етс€ логика -
@@ -1886,7 +1888,8 @@ struct EditorInfo
   int TabSize;
   int BookMarkCount;
   DWORD CurState;
-  DWORD Reserved[6];
+  int WindowPos;
+  DWORD Reserved[5];
 };
 
 struct EditorBookMarks

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.173 06.05.2002 $ */
+/* Revision: 1.174 13.05.2002 $ */
 
 /*
 Modify:
+  13.05.2002 VVM
+    + EditorInfo.WindowPos - номер окна редактора. ћожет использоватьс€ с ACTL_*WINDOW*
   06.05.2002 KM
     - AltF8 AltF9... Oops!
   29.04.2002 SVS
@@ -670,7 +672,7 @@ Editor::~Editor()
 
 void Editor::FreeAllocatedData()
 {
-//_SVS(DWORD I=0);
+//_SVS(DWOk.rRD I=0);
 //_SVS(SysLog("TopList=%p, EndList=%p",TopList, EndList));
   while (EndList!=NULL)
   {
@@ -5425,6 +5427,7 @@ int Editor::EditorControl(int Command,void *Param)
         Info->CurState=EFlags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
         Info->CurState|=!EFlags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
         Info->CurState|=EFlags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
+        Info->WindowPos = FrameManager->IndexOf((Frame *)this);
       }
       return(TRUE);
     case ECTL_SETPOSITION:
