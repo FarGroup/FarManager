@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.101 26.10.2001 $ */
+/* Revision: 1.102 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 SVS
+    ! Вернем обратно опрометчево убранный SaveScreen.
   26.10.2001 SVS
     - неверно инициализировался массив MsgItems в FarMessageFn()
   22.10.2001 SVS
@@ -1227,7 +1229,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
   {
     if (strcmp(Dir,".")==0 || strcmp(Dir,"..")==0)
       return(FALSE);
-    //SaveScreen SaveScr;
+    SaveScreen SaveScr;
 
     SetPreRedrawFunc(NULL);
     {

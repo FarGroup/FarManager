@@ -5,12 +5,14 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.67 19.10.2001 $ */
+/* Revision: 1.68 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 SVS
+    - Не чистится экран после отмены открытия редактора
   19.10.2001 OT
-    Исправление ошибки HyperViewer
+    - Исправление ошибки HyperViewer
   15.10.2001 SVS
     + _KEYMACRO()
   10.10.2001 IS
@@ -364,6 +366,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
       }
       else
         ExitCode=XC_LOADING_INTERRUPTED;
+      CtrlObject->Cp()->Redraw();
       return;
     }
     CtrlObject->Plugins.CurEditor=&FEdit;

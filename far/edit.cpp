@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.52 24.10.2001 $ */
+/* Revision: 1.53 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 SVS
+    ! Приведем к одному знаманателю реакцию на вставку путей (то же как и
+      в панелях)
   24.10.2001 SVS
     - Ну разве так можно? Иван и ты, апологет персистентных блоков (?) не
       заметил такой фигни? Для [Ctrl]ShiftEnter и Ctrl*Bracket блоки должны
@@ -188,6 +191,7 @@ Modify:
 #include "editor.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
+#include "filelist.hpp"
 #include "panel.hpp"
 #include "scrbuf.hpp"
 
@@ -766,6 +770,8 @@ int Edit::ProcessKey(int Key)
     Show();
   }
 
+  int NeedRealName=FALSE;
+
   switch(Key)
   {
     case KEY_CTRLSHIFTENTER:
@@ -802,34 +808,68 @@ int Edit::ProcessKey(int Key)
         }
       }
       return(TRUE);
-    case KEY_CTRLBRACKET:
-    case KEY_CTRLBACKBRACKET:
-    case KEY_CTRLSHIFTBRACKET:
-    case KEY_CTRLSHIFTBACKBRACKET:
+    case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+    case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+    case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+    case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+      NeedRealName=TRUE;
+    case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+    case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+    case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+    case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
       {
         Panel *SrcPanel;
         switch(Key)
         {
+          case KEY_CTRLALTBRACKET:
           case KEY_CTRLBRACKET:
             SrcPanel=CtrlObject->Cp()->LeftPanel;
             break;
+          case KEY_CTRLALTBACKBRACKET:
           case KEY_CTRLBACKBRACKET:
             SrcPanel=CtrlObject->Cp()->RightPanel;
             break;
+          case KEY_ALTSHIFTBRACKET:
           case KEY_CTRLSHIFTBRACKET:
             SrcPanel=CtrlObject->Cp()->ActivePanel;
             break;
+          case KEY_ALTSHIFTBACKBRACKET:
           case KEY_CTRLSHIFTBACKBRACKET:
             SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
             break;
         }
         if (SrcPanel!=NULL)
         {
-          char PanelDir[NM];
+          char PanelDir[2048];
+
           SrcPanel->GetCurDir(PanelDir);
-          if (SrcPanel->GetShowShortNamesMode())
-            ConvertNameToShort(PanelDir,PanelDir);
+          if (SrcPanel->GetMode()!=PLUGIN_PANEL)
+          {
+            if(NeedRealName)
+            {
+              char uni[1024];
+              DWORD uniSize = sizeof(uni);
+              if (WNetGetUniversalName(PanelDir, UNIVERSAL_NAME_INFO_LEVEL,
+                                           &uni, &uniSize) == NOERROR)
+              {
+                UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
+                strncpy(PanelDir, lpuni->lpUniversalName, sizeof(PanelDir)-1);
+              }
+              ConvertNameToReal(PanelDir,PanelDir, sizeof(PanelDir));
+            }
+            if (SrcPanel->GetShowShortNamesMode())
+              ConvertNameToShort(PanelDir,PanelDir);
+          }
+          else
+          {
+            FileList *SrcFilePanel=(FileList *)SrcPanel;
+            struct OpenPluginInfo Info;
+            CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->GetPluginHandle(),&Info);
+            strcat(FileList::AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
+          }
           AddEndSlash(PanelDir);
+
+
           /* $ 03.07.2000 tran
              - bug#10, если был выделен текст, то удаляем его */
           if (PrevSelStart!=-1)

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.97 25.10.2001 $ */
+/* Revision: 1.98 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 SVS
+    ! Косметика
   25.10.2001 SVS
     - Ctrl-F - неверно работал.
     ! У функции CopyNames() 2 параметра:
@@ -957,7 +959,6 @@ int FileList::ProcessKey(int Key)
         if (SrcPanel->GetType()!=FILE_PANEL)
           return(FALSE);
 
-        FileList *SrcFilePanel=(FileList *)SrcPanel;
         char PanelDir[2048];
         if (SrcPanel->GetMode()!=PLUGIN_PANEL)
         {
@@ -984,11 +985,13 @@ int FileList::ProcessKey(int Key)
              + Если у плагина есть префикс, то Ctrl-[ и еже с ним
              подставят первый префикс.
           */
+          FileList *SrcFilePanel=(FileList *)SrcPanel;
           struct OpenPluginInfo Info;
           CtrlObject->Plugins.GetOpenPluginInfo(SrcFilePanel->hPlugin,&Info);
           strcat(AddPluginPrefix(SrcFilePanel,PanelDir),NullToEmpty(Info.CurDir));
           /* SVS $ */
         }
+
         QuoteSpace(PanelDir);
         CtrlObject->CmdLine->InsertString(PanelDir);
       }
@@ -3250,36 +3253,49 @@ void FileList::CountDirSize()
   /* $ 09.11.2000 OT
     F3 на ".." в плагинах
   */
-  if ( PanelMode==PLUGIN_PANEL && !CurFile && !strcmp(ListData->Name,"..")){
+  if ( PanelMode==PLUGIN_PANEL && !CurFile && !strcmp(ListData->Name,".."))
+  {
     struct FileListItem *DoubleDotDir = NULL;
-    if (SelFileCount){
+    if (SelFileCount)
+    {
       DoubleDotDir = ListData;
-      for (int I=0;I<FileCount;I++){
+      for (int I=0;I<FileCount;I++)
+      {
         struct FileListItem *CurPtr=ListData+I;
-        if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC)){
+        if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC))
+        {
           DoubleDotDir = NULL;
           break;
         }
       }
-    } else {
+    }
+    else
+    {
       DoubleDotDir = ListData;
     }
-    if (DoubleDotDir){
+
+    if (DoubleDotDir)
+    {
       DoubleDotDir->ShowFolderSize=1;
       DoubleDotDir->UnpSize     = 0;
       DoubleDotDir->UnpSizeHigh = 0;
       DoubleDotDir->PackSize    = 0;
       DoubleDotDir->PackSizeHigh= 0;
-      for (int I=1;I<FileCount;I++){
+      for (int I=1;I<FileCount;I++)
+      {
         struct FileListItem *CurPtr=ListData+I;
-        if (CurPtr->FileAttr & FA_DIREC){
-          if (GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize)) {
+        if (CurPtr->FileAttr & FA_DIREC)
+        {
+          if (GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize))
+          {
             DoubleDotDir->UnpSize+=FileSize.PLow();
             DoubleDotDir->UnpSizeHigh+=FileSize.PHigh();
             DoubleDotDir->PackSize+=CompressedFileSize.PLow();
             DoubleDotDir->PackSizeHigh+=CompressedFileSize.PHigh();
           }
-        } else {
+        }
+        else
+        {
           DoubleDotDir->UnpSize     += CurPtr->UnpSize;
           DoubleDotDir->UnpSizeHigh += CurPtr->UnpSizeHigh;
           DoubleDotDir->PackSize    += CurPtr->PackSize;

@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.126 24.10.2001 $ */
+/* Revision: 1.127 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 SVS
+    ! ѕриведем к одному знаманателю реакцию на вставку путей (то же как и
+      в панел€х)
   24.10.2001 SVS
     ! обработка вставки имени файла и пути вынесена на уровень редактора, т.к.
       при выделеном блоке в несколько строк получаем лабуду.
@@ -2717,10 +2720,14 @@ int Editor::ProcessKey(int Key)
       Show();
       return(TRUE);
 
-    case KEY_CTRLBRACKET:
-    case KEY_CTRLBACKBRACKET:
-    case KEY_CTRLSHIFTBRACKET:
-    case KEY_CTRLSHIFTBACKBRACKET:
+    case KEY_CTRLALTBRACKET:       // ¬ставить сетевое (UNC) путь из левой панели
+    case KEY_CTRLALTBACKBRACKET:   // ¬ставить сетевое (UNC) путь из правой панели
+    case KEY_ALTSHIFTBRACKET:      // ¬ставить сетевое (UNC) путь из активной панели
+    case KEY_ALTSHIFTBACKBRACKET:  // ¬ставить сетевое (UNC) путь из пассивной панели
+    case KEY_CTRLBRACKET:          // ¬ставить путь из левой панели
+    case KEY_CTRLBACKBRACKET:      // ¬ставить путь из правой панели
+    case KEY_CTRLSHIFTBRACKET:     // ¬ставить путь из активной панели
+    case KEY_CTRLSHIFTBACKBRACKET: // ¬ставить путь из пассивной панели
 
     case KEY_CTRLSHIFTENTER:
     case KEY_SHIFTENTER:

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.96 21.10.2001 $ */
+/* Revision: 1.97 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 SVS
+    ! ConvertNameToShort() - раз уж сказали короткие имена и т.к. мы сидим
+      в DOS-наследии, то преобразуем имя в верхний регистр.
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   10.10.2001 SVS
@@ -793,6 +796,7 @@ void ConvertNameToShort(const char *Src,char *Dest)
   else
     strcpy(Dest,Src);
   SetFileApisToOEM();
+  LocalUpperBuf(Dest,strlen(Dest));
 }
 
 

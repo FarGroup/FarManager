@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.08 26.07.2001 $ */
+/* Revision: 1.09 28.10.2001 $ */
 
 /*
 Modify:
+  28.10.2001 SVS
+    + Folder shortcuts - горячие клавиши на цифры
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   17.06.2001 IS
@@ -99,7 +101,7 @@ int ShowFolderShortcutMenu(int Pos)
   /* $ 16.06.2001 KM
      ! Добавление WRAPMODE в меню.
   */
-  FolderList.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+  FolderList.SetFlags(VMENU_WRAPMODE); // VMENU_SHOWAMPERSAND|
   /* KM $ */
   FolderList.SetHelp("FolderShortcuts");
   FolderList.SetPosition(-1,-1,0,0);
@@ -114,7 +116,7 @@ int ShowFolderShortcutMenu(int Pos)
     TruncStr(FolderName,60);
     if (*FolderName==0)
       strcpy(FolderName,MSG(MShortcutNone));
-    sprintf(ListItem.Name,"%s+%d   %s",MSG(MRightCtrl),I,FolderName);
+    sprintf(ListItem.Name,"%s+&%d   %s",MSG(MRightCtrl),I,FolderName);
     ListItem.SetSelect(I == Pos);
     FolderList.AddItem(&ListItem);
   }
