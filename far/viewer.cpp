@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.178 12.02.2005 $ */
+/* Revision: 1.179 02.03.2005 $ */
 
 /*
 Modify:
+  02.03.2005 WARP
+    - Надпись о невозможности открыть файл во вьювере вылезала за рамки.
   12.02.2005 WARP
     - Новое выделение неверно работало в QView
   07.02.2005 WARP
@@ -1023,7 +1025,7 @@ void Viewer::ShowPage (int nMode)
       SetScreen(X1,Y1,X2,Y2,' ',COL_VIEWERTEXT);
       GotoXY(X1,Y1+ShowStatusLine);
       SetColor(COL_WARNDIALOGTEXT);
-      mprintf(MSG(MViewerCannotOpenFile));
+      mprintf("%.*s", XX2-X1+1, MSG(MViewerCannotOpenFile));
       ShowStatus();
     }
 
