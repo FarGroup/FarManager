@@ -186,6 +186,9 @@ int PluginClass::ReadArchive(char *Name)
     ArcDataCount++;
   }
 
+  Info.RestoreScreen(NULL);
+  Info.RestoreScreen(hScreen);
+
   if (ArcDataCount>0)
     ArcData=(PluginPanelItem *)realloc(ArcData,ArcDataCount*sizeof(*ArcData));
 
@@ -214,8 +217,8 @@ int PluginClass::ReadArchive(char *Name)
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
   }
 
-  Info.RestoreScreen(NULL);
-  Info.RestoreScreen(hScreen);
+  //Info.RestoreScreen(NULL);
+  //Info.RestoreScreen(hScreen);
   return TRUE;
 }
 
