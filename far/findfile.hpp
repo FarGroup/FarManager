@@ -7,10 +7,12 @@ findfile.hpp
 
 */
 
-/* Revision: 1.06 13.10.2001 $ */
+/* Revision: 1.07 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 VVM
+    ! В функцию AddMenuRecord не передается параметр Path, он там лишний...
   13.10.2001 VVM
     ! Баг при поиске в темп-панели.
     + Новая функция - очистить списки. Что-бы небыло перерасхода памяти
@@ -77,7 +79,8 @@ class FindFiles
     static int LookForString(char *Name);
     static int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr);
     static void ArchiveSearch(char *ArcName);
-    static void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData);
+//    static void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData);
+    static void AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData);
     static void RereadPlugin(HANDLE hPlugin);
 
   public:

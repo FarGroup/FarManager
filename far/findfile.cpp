@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.86 15.01.2002 $ */
+/* Revision: 1.87 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 VVM
+    ! В функцию AddMenuRecord не передается параметр Path, он там лишний...
+      исправление бага № 236
   15.01.2002 VVM
     ! Исправление поиска в подкаталогах архивов
     + Информация о количестве найденных файлов и каталогов разделена.
@@ -1539,7 +1542,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
         }
 
         if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
-          AddMenuRecord(FullName,NULL,&FindData);
+          AddMenuRecord(FullName,&FindData);
 
         if (SearchInArchives)
           ArchiveSearch(FullName);
@@ -1680,7 +1683,8 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
 /* IS $ */
 
 
-void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)
+//void FindFiles::AddMenuRecord(char *FullName, char *Path, WIN32_FIND_DATA *FindData)
+void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
 {
   char MenuText[NM],FileText[NM],SizeText[30];
   char Date[30],DateStr[30],TimeStr[30];
@@ -1715,22 +1719,25 @@ void FindFiles::AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindDat
   }
 
   char PathName[2*NM];
-  if (Path)
-  {
-    for (i=0;Path[i]!=0;i++)
-    {
-      if (Path[i]=='\x1')
-        Path[i]='\\';
-    }
-    strcpy(PathName,Path);
-  }
-  else
-  {
+  /* $ 16.01.2002 VVM
+    ! Все равно полный путь передается в FullName, так что эта обработка лишняя */
+//  if (Path)
+//  {
+//    for (i=0;Path[i]!=0;i++)
+//    {
+//      if (Path[i]=='\x1')
+//        Path[i]='\\';
+//    }
+//    strcpy(PathName,Path);
+//  }
+//  else
+//  {
     strncpy(PathName,FullName,sizeof(PathName)-1);
     PathName[sizeof(PathName)-1]=0;
     if ((FindData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
       *PointToName(PathName)=0;
-  }
+//  }
+  /* VVM $ */
   if (*PathName==0)
     strcpy(PathName,".\\");
 
@@ -2059,17 +2066,17 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       char FullName[2*NM];
       if (strcmp(CurName,".")==0 || strcmp(CurName,"..")==0)
         continue;
-      char AddPath[2*NM];
+//      char AddPath[2*NM];
       if (Flags & OPIF_REALNAMES)
       {
         strcpy(FullName,CurName);
-        strcpy(AddPath,CurName);
-        *PointToName(AddPath)=0;
+//        strcpy(AddPath,CurName);
+//        *PointToName(AddPath)=0;
       }
       else
       {
         sprintf(FullName,"%s%s",PluginSearchPath,CurName);
-        strcpy(AddPath,PluginSearchPath);
+//        strcpy(AddPath,PluginSearchPath);
       }
 
       if (CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -2083,7 +2090,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       }
 
       if (IsFileIncluded(CurPanelItem,CurName,CurPanelItem->FindData.dwFileAttributes))
-        AddMenuRecord(FullName,AddPath,&CurPanelItem->FindData);
+        AddMenuRecord(FullName,&CurPanelItem->FindData);
 
       if (SearchInArchives && (hPlugin != INVALID_HANDLE_VALUE) && (Flags & OPIF_REALNAMES))
         ArchiveSearch(FullName);
