@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.128 14.10.2002 $ */
+/* Revision: 1.129 28.10.2002 $ */
 
 /*
 Modify:
+  28.10.2002 SVS
+    ! При юзании PrepareTable*() параметр UseTableName=TRUE.
+      Этим избавляемся от BugZ#689
   14.10.2002 VVM
     ! После использования плагин будем закрывать. (bug # 590)
   03.10.2002 SVS
@@ -576,7 +579,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       else if (!UseDecodeTable)
         strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
       else
-        PrepareTable(&TableSet,TableNum);
+        PrepareTable(&TableSet,TableNum,TRUE);
       RemoveChar(TableSet.TableName,'&',TRUE);
       Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,7,(long)TableSet.TableName);
 
@@ -602,7 +605,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
           strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName)-1);
           if (Param2>=5)
           {
-            PrepareTable(&TableSet,Param2-5);
+            PrepareTable(&TableSet,Param2-5,TRUE);
             TableNum=Param2-5;
           }
         }
@@ -2273,7 +2276,7 @@ int FindFiles::LookForString(char *Name)
       /* KM $ */
       if (UseAllTables)
       {
-        if (PrepareTable(&TableSet,DecodeTableNum++))
+        if (PrepareTable(&TableSet,DecodeTableNum++,TRUE))
         {
           strncpy(CmpStr,FindStr,sizeof(CmpStr)-1);
           if (!CmpCase)

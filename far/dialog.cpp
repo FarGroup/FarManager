@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.270 27.10.2002 $ */
+/* Revision: 1.271 28.10.2002 $ */
 
 /*
 Modify:
+  28.10.2002 SVS
+    - BugZ#691 - USERCONTROL вместе с LISTBOX
   27.10.2002 DJ
     ! переименуем FarListColors.ColorItem в ColorCount (чтобы было понятно,
       что к чему)
@@ -2689,11 +2691,17 @@ void Dialog::ShowDialog(int ID)
           if(DlgProc((HANDLE)this,DN_CTLCOLORDLGLIST,I,(long)&ListColors))
             CurItem->ListPtr->SetColors(&ListColors);
           /* SVS $ */
+          // Курсор запоминаем...
+          int CurSorVisible,CurSorSize;
+          GetCursorType(CurSorVisible,CurSorSize);
           /* $ 23.02.2002 DJ
              теперь у нас есть флаг => Show() всегда должно нарисовать правильно
           */
           CurItem->ListPtr->Show();
           /* DJ $ */
+          // .. а теперь восстановим!
+          if(FocusPos != I)
+            SetCursorType(CurSorVisible,CurSorSize);
         }
         break;
       }
