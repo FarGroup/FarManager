@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.46 09.10.2003 $ */
+/* Revision: 1.47 13.11.2003 $ */
 
 /*
 Modify:
+  13.11.2003 SVS
+    + _ALGO()
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -162,6 +164,9 @@ int _cdecl SortSearchList(const void *el1,const void *el2);
 
 void FileList::Update(int Mode)
 {
+  _ALGO(CleverSysLog clv("FileList::Update"));
+  _ALGO(SysLog("(Mode=[%d/0x%08X] %s)",Mode,Mode,(Mode==UPDATE_KEEP_SELECTION?"UPDATE_KEEP_SELECTION":"")));
+
   if (EnableUpdate)
     switch(PanelMode)
     {
@@ -718,6 +723,8 @@ void FileList::MoveSelection(struct FileListItem *ListData,long FileCount,
 
 void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 {
+  _ALGO(CleverSysLog clv("FileList::UpdatePlugin"));
+  _ALGO(SysLog("(KeepSelection=%d, IgnoreVisible=%d)",KeepSelection,IgnoreVisible));
   if (!IsVisible() && !IgnoreVisible)    /* DJ $ */
   {
     UpdateRequired=TRUE;

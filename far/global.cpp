@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.58 22.09.2003 $ */
+/* Revision: 1.59 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    ! KeepUserScreen и DirToSet перенесены из plugins.cpp в global.cpp
   22.09.2003 KM
     + GlobalSearchHex - Глобальная переменная, хранящая значение
       "Search for hex" для поиска
@@ -300,3 +302,6 @@ WCHAR BoxSymbols[64];
 int _localLastError=0;
 
 const char *ReservedFilenameSymbols="<>|";
+
+int KeepUserScreen;
+char DirToSet[NM];

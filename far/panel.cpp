@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.117 24.10.2003 $ */
+/* Revision: 1.118 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    ! несколько иной взгляд на Shift-Ins в быстром поиске
+    ! Доп проверки на вшивость в Panel::SetPluginCommand()
   24.10.2003 SVS
     - Макрос "Alt> ShiftIns" не работал.
       забыл, что кроме KEY_EVENT нужно так же FARMACRO_KEY_EVENT анализироват
@@ -1283,20 +1286,31 @@ void Panel::FastFind(int FirstKey)
             {
               if(strlen(ClipText) <= NM*2) // сделаем разумное ограничение на размер...
               {
-                char *Ptr=(char *)xf_malloc(strlen(ClipText)*2+8);
+                char *Ptr=(char *)xf_malloc(strlen(ClipText)*2+32);
                 if(Ptr)
                 {
-                  // ... предварительно разобрав последовательность на "буква<space>"
-                  char *PtrClipText=ClipText, *PtrPtr=Ptr;
-                  while(*PtrClipText)
+                  Unquote(ClipText);
+                  strcpy(Ptr,ClipText);
+                  char *EndPtr=Ptr+strlen(Ptr);
+                  while(1)
                   {
-                    *PtrPtr++=*PtrClipText;
-                    *PtrPtr++=' ';
-                    ++PtrClipText;
+                    if (FindPartName(Ptr,FALSE))
+                    {
+                      Key=*(EndPtr-1);
+                      *EndPtr=0;
+                      FindEdit.SetString(Ptr);
+                      strcpy(LastName,Ptr);
+                      FindEdit.Show();
+                      FastFindShow(FindX,FindY);
+                      break;
+                    }
+                    if(EndPtr == Ptr)
+                    {
+                      Key=KEY_NONE;
+                      break;
+                    }
+                    *--EndPtr=0;
                   }
-                  *PtrPtr=0;
-                  CtrlObject->Macro.PushState();
-                  CtrlObject->Macro.PostNewMacro(Ptr,0);
                   xf_free(Ptr);
                 }
               }
@@ -1304,7 +1318,8 @@ void Panel::FastFind(int FirstKey)
             }
             continue;
           }
-          Key=_CorrectFastFindKbdLayout(&rec,Key);
+          else
+            Key=_CorrectFastFindKbdLayout(&rec,Key);
         }
       }
       if (Key==KEY_ESC || Key==KEY_F10)
@@ -1381,7 +1396,8 @@ void Panel::FastFind(int FirstKey)
               if(CtrlObject->Macro.IsExecuting())// && CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
               {
                 //CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
-                CtrlObject->Macro.PopState();
+//                CtrlObject->Macro.PopState();
+;
               }
               FindEdit.SetString(LastName);
               strcpy(Name,LastName);
@@ -1833,6 +1849,8 @@ void Panel::SetTitle()
 
 void Panel::SetPluginCommand(int Command,void *Param)
 {
+  _ALGO(CleverSysLog clv("Panel::SetPluginCommand"));
+  _ALGO(SysLog("(Command=%s, Param=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param,Param));
   ProcessingPluginCommand++;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   PluginCommand=Command;
@@ -1990,22 +2008,24 @@ void Panel::SetPluginCommand(int Command,void *Param)
     case FCTL_SETANOTHERSELECTION:
       {
         Panel *DestPanel=(Command==FCTL_SETSELECTION) ? this:AnotherPanel;
-        if (DestPanel!=NULL && DestPanel->GetType()==FILE_PANEL)
+        if (DestPanel && DestPanel->GetType()==FILE_PANEL && !IsBadReadPtr(Param,sizeof(struct PanelInfo)))
           ((FileList *)DestPanel)->PluginSetSelection((struct PanelInfo *)Param);
         break;
       }
     case FCTL_UPDATEPANEL:
       Update(Param==NULL ? 0:UPDATE_KEEP_SELECTION);
       break;
+
     case FCTL_UPDATEANOTHERPANEL:
       AnotherPanel->Update(Param==NULL ? 0:UPDATE_KEEP_SELECTION);
       if (AnotherPanel!=NULL && AnotherPanel->GetType()==QVIEW_PANEL)
         UpdateViewPanel();
       break;
+
     case FCTL_REDRAWPANEL:
       {
         struct PanelRedrawInfo *Info=(struct PanelRedrawInfo *)Param;
-        if (Info!=NULL)
+        if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
         {
           CurFile=Info->CurrentItem;
           CurTopFile=Info->TopPanelItem;
@@ -2022,7 +2042,7 @@ void Panel::SetPluginCommand(int Command,void *Param)
       if (AnotherPanel!=NULL)
       {
         struct PanelRedrawInfo *Info=(struct PanelRedrawInfo *)Param;
-        if (Info!=NULL)
+        if (Info && !IsBadReadPtr(Info,sizeof(struct PanelRedrawInfo)))
         {
           AnotherPanel->CurFile=Info->CurrentItem;
           AnotherPanel->CurTopFile=Info->TopPanelItem;

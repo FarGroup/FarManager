@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.51 20.10.2003 $ */
+/* Revision: 1.52 05.11.2003 $ */
 
 /*
 Modify:
+  05.11.2003 SVS
+    + VMENU_CHANGECONSOLETITLE, OldTitle
   20.10.2003 SVS
     + GetPtrTitle() - для диалогов
     ! VMenuCSection -> CSection
@@ -230,6 +232,7 @@ enum{
 #define VMENU_COMBOBOX              0x00400000
 /* KM $ */
 #define VMENU_MOUSEDOWN             0x00800000
+#define VMENU_CHANGECONSOLETITLE    0x01000000
 #define VMENU_DISABLED              0x80000000
 
 class Dialog;
@@ -303,6 +306,8 @@ struct MenuData
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
+class ConsoleTitle;
+
 class VMenu: virtual public Modal, virtual public Frame
 {
 #ifdef _MSC_VER
@@ -338,6 +343,7 @@ class VMenu: virtual public Modal, virtual public Frame
 
     short RLen[2];	              // реальные размеры 2-х половин
     CRITICAL_SECTION CSection;
+    ConsoleTitle *OldTitle;     // предыдущий заголовок
 
   protected:
     /* $ 13.04.2002 KM

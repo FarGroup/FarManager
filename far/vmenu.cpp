@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.122 27.10.2003 $ */
+/* Revision: 1.123 05.11.2003 $ */
 
 /*
 Modify:
+  05.11.2003 SVS
+    + VMENU_CHANGECONSOLETITLE, OldTitle
   27.10.2003 SVS
     + В VMenu::AddItem() засунем критические секции
   23.10.2003 SVS
@@ -445,6 +447,7 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
+#include "constitle.hpp"
 
 /* $ 18.07.2000 SVS
    ! изменен вызов конструктора (isListBoxControl) с учетом необходимости
@@ -550,6 +553,14 @@ VMenu::VMenu(const char *Title,       // заголовок меню
         PrevMacroMode!=MACRO_DIALOG)
       CtrlObject->Macro.SetMode(MACRO_MENU);
   }
+  if(VMFlags.Check(VMENU_CHANGECONSOLETITLE) && *VMenu::Title)
+  {
+    OldTitle=new ConsoleTitle;
+    SetFarTitle(VMenu::Title);
+  }
+  else
+    OldTitle=NULL;
+
   if (!VMFlags.Check(VMENU_LISTBOX))
     FrameManager->ModalizeFrame(this);
 }
@@ -593,6 +604,8 @@ void VMenu::Hide()
 //  X2=-1;
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
+  if(OldTitle)
+    delete OldTitle;
   InterlockedDecrement(&CallCount);
 }
 
@@ -1107,7 +1120,7 @@ int VMenu::ProcessKey(int Key)
     case KEY_MACRO_BOF:
       return SelectPos==0;
     case KEY_MACRO_SELECTED:
-      return ItemCount>0;
+      return ItemCount > 0 && SelectPos >= 0;
   }
 
   VMFlags.Set(VMENU_UPDATEREQUIRED);
@@ -2036,6 +2049,24 @@ void VMenu::SetTitle(const char *Title)
     MaxLength=Length;
   if(MaxLength > ScrX-8)
     MaxLength=ScrX-8;
+
+  if(VMFlags.Check(VMENU_CHANGECONSOLETITLE))
+  {
+    if(*VMenu::Title)
+    {
+      if(!OldTitle)
+        OldTitle=new ConsoleTitle;
+      SetFarTitle(VMenu::Title);
+    }
+    else
+    {
+      if(OldTitle)
+      {
+        delete OldTitle;
+        OldTitle=NULL;
+      }
+    }
+  }
 }
 
 

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.294 24.10.2003 $ */
+/* Revision: 1.295 13.11.2003 $ */
 
 /*
 Modify:
+  13.11.2003 SVS
+    ! Временно исключим KEY_MACRO_SELECTED для DI_LISTBOX
   24.10.2003 SVS
     ! про диапазон макроклавиш
   23.10.2003 SVS
@@ -3102,7 +3104,7 @@ int Dialog::ProcessKey(int Key)
     {
       if (IsEdit(Item[FocusPos].Type))
         return ((DlgEdit *)(Item[FocusPos].ObjPtr))->ProcessKey(Key);
-      else if(Item[FocusPos].Type == DI_LISTBOX)
+      else if(Item[FocusPos].Type == DI_LISTBOX && Key != KEY_MACRO_SELECTED)
         return Item[FocusPos].ListPtr->ProcessKey(Key);
       return 0;
     }

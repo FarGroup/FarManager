@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.135 22.10.2003 $ */
+/* Revision: 1.136 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    + MNewFileName
   22.10.2003 SVS
     + MCannotCopyToTwoDot, MCannotMoveToTwoDot, MCannotCopyMoveToTwoDot,
   16.10.2003 SVS
@@ -2222,6 +2224,8 @@ enum
   MFileFilterAttrE,
   MFileFilterOk,
   MFileFilterCancel,
+
+  MNewFileName,
 
   MListEval
 };

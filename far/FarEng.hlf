@@ -213,7 +213,7 @@ $ #Panel control commands#
   Swap panels                                                 #Ctrl-U#
   Re-read panel                                               #Ctrl-R#
   Toggle info panel                                           #Ctrl-L#
-  Toggle quick view panel                                     #Ctrl-Q#
+  Toggle ~quick view panel~@QViewPanel@                                     #Ctrl-Q#
   Toggle tree panel                                           #Ctrl-T#
   Hide/show both panels                                       #Ctrl-O#
   Temporarily hide both panels                        #Ctrl-Alt-Shift#
@@ -875,6 +875,15 @@ Compressed size has meaning for NTFS drives only.
     In Windows 2000/XP, when viewing reparse points, the path to the source folder
 is also displayed.
 
+    For folders, the total size value may not match the actual value:
+
+    1. If the folder or its subfolders contain symbolic links and the
+option "Scan symbolic links" in the ~System parameters dialog~@SystemSettings@
+is enabled.
+
+    2. If the folder or its subfolders contain multiple hard links
+to the same file.
+
 @DragAndDrop
 $ #Drag and drop files#
     It is possible to perform #Copy# and #Move# file operations using
@@ -1529,8 +1538,8 @@ $ #Special symbols#
     #!$!#      Name of file with selected short file names list
     #!&#       List of selected files
     #!&~~#      List of selected short file names
-    #!:#       Current disk, in the format like "C:"
-             For network directories - "\\\\server\\share"
+    #!:#       Current drive in the format "C:"
+             For remote folders - "\\\\server\\share"
     #!\\#       Current path
     #!/#       Short name of the current path
 
@@ -1544,13 +1553,13 @@ $ #Special symbols#
 
              grep !?Search for:?! !?In:?*.*!|c:\\far\\far.exe -v -
 
-             It is possible to specify the history name for the
-             <init> string. In this case, the command has the
+             A history name for the <init> string can be supplied
+             in the <title>. In such case the command has the
              following format:
 
              #!?$<history>$<title>?<init>!#
 
-#!###       "!##" modifier specified before a file association
+    #!###       "!##" modifier specified before a file association
              symbol forces it (and all the following characters)
              to refer to the passive panel (see note 4).
              For example, !##!.! denotes the name of the current

@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.193 28.10.2003 $ */
+/* Revision: 1.194 13.11.2003 $ */
 
 /*
 Modify:
+  13.11.2003 SVS
+    + _ALGO()
+    - BugZ#989 - Сообщение о несуществующем каталоге при Shift-F4
+    + BugZ#2 - Shift-F4: открывать редактор без имени файла
   28.10.2003 SVS
     + KEY_MACRO_ROOTFOLDER
   20.10.2003 SVS
@@ -1681,45 +1685,50 @@ int FileList::ProcessKey(int Key)
                          LastFileName,
                          sizeof(LastFileName),
                          NULL,
-                         FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH))
+                         FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH|FIB_ENABLEEMPTY))
             return(FALSE);
           /* SVS $ */
           /* KM $ */
-          strcpy(FileName,LastFileName);
-          /* $ 07.06.2001 IS
-             - Баг: нужно сначала убирать пробелы, а только потом кавычки
-          */
-          RemoveTrailingSpaces(FileName);
-          Unquote(FileName);
-          /* IS $ */
-          ConvertNameToShort(FileName,ShortFileName);
-          /* $ 24.11.2001 IS применим функцию от ОТ ;-) */
-          if (PathMayBeAbsolute(FileName))
+          if(*LastFileName)
           {
-            PluginMode=FALSE;
-          }
-          /* IS $ */
-          {
-            // проверим путь к файлу
-            char *Ptr=strrchr(FileName,'\\');
-            if(Ptr)
+            strcpy(FileName,LastFileName);
+            /* $ 07.06.2001 IS
+               - Баг: нужно сначала убирать пробелы, а только потом кавычки
+            */
+            RemoveTrailingSpaces(FileName);
+            Unquote(FileName);
+            /* IS $ */
+            ConvertNameToShort(FileName,ShortFileName);
+            /* $ 24.11.2001 IS применим функцию от ОТ ;-) */
+            if (PathMayBeAbsolute(FileName))
             {
-              *Ptr=0;
-              DWORD CheckFAttr=GetFileAttributes(FileName);
-              if(CheckFAttr == (DWORD)-1)
+              PluginMode=FALSE;
+            }
+            /* IS $ */
+            {
+              // проверим путь к файлу
+              char *Ptr=strrchr(FileName,'\\');
+              if(Ptr && Ptr != FileName)
               {
-                SetMessageHelp("WarnEditorPath");
-                if (Message(MSG_WARNING,2,MSG(MWarning),
-                            MSG(MEditNewPath1),
-                            MSG(MEditNewPath2),
-                            MSG(MEditNewPath3),
-                            MSG(MHYes),MSG(MHNo))!=0)
+                *Ptr=0;
+                DWORD CheckFAttr=GetFileAttributes(FileName);
+                if(CheckFAttr == (DWORD)-1)
+                {
+                  SetMessageHelp("WarnEditorPath");
+                  if (Message(MSG_WARNING,2,MSG(MWarning),
+                              MSG(MEditNewPath1),
+                              MSG(MEditNewPath2),
+                              MSG(MEditNewPath3),
+                              MSG(MHYes),MSG(MHNo))!=0)
 
-                  return(FALSE);
+                    return(FALSE);
+                }
+                *Ptr='\\';
               }
-              *Ptr='\\';
             }
           }
+          else
+            strcpy(FileName,MSG(MNewFileName));
         }
         else
         {
@@ -2555,6 +2564,8 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
 
 void FileList::SetCurDir(char *NewDir,int ClosePlugin)
 {
+  _ALGO(CleverSysLog clv("FileList::SetCurDir"));
+  _ALGO(SysLog("(NewDir=\"%s\", ClosePlugin=%d)",NewDir,ClosePlugin));
   if (ClosePlugin && PanelMode==PLUGIN_PANEL)
   {
     while (1)

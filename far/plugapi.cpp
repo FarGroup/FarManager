@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.163 17.10.2003 $ */
+/* Revision: 1.164 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    + FMENU_CHANGECONSOLETITLE - изменять заголовок консоли для менюх
+    + Доп проверки на вшивость в FarControl()
   17.10.2003 SVS
     + Забыл про опцию в диалоге настройки диалогов - FDIS_BSDELETEUNCHANGEDTEXT
   04.10.2003 SVS
@@ -478,10 +481,6 @@ Modify:
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
 #include "lockscrn.hpp"
-
-// declare in plugins.cpp
-extern int KeepUserScreen;
-extern char DirToSet[NM];
 
 
 void ScanPluginDir();
@@ -1073,6 +1072,8 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       MenuFlags|=VMENU_SHOWAMPERSAND;
     if (Flags & FMENU_WRAPMODE)
       MenuFlags|=VMENU_WRAPMODE;
+    if (Flags & FMENU_CHANGECONSOLETITLE)
+      MenuFlags|=VMENU_CHANGECONSOLETITLE;
     FarMenu.SetFlags(MenuFlags);
 
     struct MenuItem CurItem;
@@ -1565,20 +1566,20 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
 {
   _FCTLLOG(CleverSysLog("Control"));
   _FCTLLOG(SysLog("(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
+  _ALGO(CleverSysLog clv("FarControl"));
+  _ALGO(SysLog("(hPlugin=0x%08X, Command=%s, Param=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param,Param));
 
   if(Command == FCTL_CHECKPANELSEXIST)
     return CmdMode == FALSE?TRUE:FALSE;
 
-  if (CmdMode || FrameManager->ManagerIsDown())
+  if (CmdMode || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
     return 0;
-
-  if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
-    return(0);
 
   switch(Command)
   {
     case FCTL_CLOSEPLUGIN:
-      strcpy(DirToSet,NullToEmpty((char *)Param));
+      strncpy(DirToSet,NullToEmpty((char *)Param),sizeof(DirToSet)-1);
+
     case FCTL_GETPANELINFO:
     case FCTL_GETANOTHERPANELINFO:
     case FCTL_GETPANELSHORTINFO:
@@ -1593,89 +1594,66 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETANOTHERSELECTION:
     case FCTL_SETVIEWMODE:
     case FCTL_SETANOTHERVIEWMODE:
-/* $ VVM 08.09.2000
-   + Смена сортировки из плагина
-*/
-    case FCTL_SETSORTMODE:
+    case FCTL_SETSORTMODE:                 //  VVM 08.09.2000  + Смена сортировки из плагина
     case FCTL_SETANOTHERSORTMODE:
     case FCTL_SETSORTORDER:
     case FCTL_SETANOTHERSORTORDER:
-/* VVM $ */
+    {
+      if(!CtrlObject->Cp())
+        return FALSE;
+
+      if (hPlugin==INVALID_HANDLE_VALUE)
       {
-        if (hPlugin==INVALID_HANDLE_VALUE)
+        if(CtrlObject->Cp()->ActivePanel)
         {
           CtrlObject->Cp()->ActivePanel->SetPluginCommand(Command,Param);
-          return(TRUE);
+          return TRUE;
         }
-        HANDLE hInternal;
-        Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
-        Panel *RightPanel=CtrlObject->Cp()->RightPanel;
-        int Processed=FALSE;
-        if (LeftPanel!=NULL && LeftPanel->GetMode()==PLUGIN_PANEL)
+        return FALSE; //??
+      }
+
+      HANDLE hInternal;
+      Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
+      Panel *RightPanel=CtrlObject->Cp()->RightPanel;
+      int Processed=FALSE;
+      struct PluginHandle *PlHandle;
+
+      if (LeftPanel && LeftPanel->GetMode()==PLUGIN_PANEL)
+      {
+        PlHandle=(struct PluginHandle *)LeftPanel->GetPluginHandle();
+        if(PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
         {
-          hInternal=((struct PluginHandle *)LeftPanel->GetPluginHandle())->InternalHandle;
+          hInternal=PlHandle->InternalHandle;
           if (hPlugin==hInternal)
           {
             LeftPanel->SetPluginCommand(Command,Param);
             Processed=TRUE;
           }
         }
-        if (RightPanel!=NULL && RightPanel->GetMode()==PLUGIN_PANEL)
+      }
+
+      if (RightPanel && RightPanel->GetMode()==PLUGIN_PANEL)
+      {
+        PlHandle=(struct PluginHandle *)RightPanel->GetPluginHandle();
+        if(PlHandle && !IsBadReadPtr(PlHandle,sizeof(struct PluginHandle)))
         {
-          hInternal=((struct PluginHandle *)RightPanel->GetPluginHandle())->InternalHandle;
+          hInternal=PlHandle->InternalHandle;
           if (hPlugin==hInternal)
           {
             RightPanel->SetPluginCommand(Command,Param);
             Processed=TRUE;
           }
         }
-        return(Processed);
       }
-    case FCTL_GETCMDLINE:
-      CtrlObject->CmdLine->GetString((char *)Param,1024);
-      return(TRUE);
-    case FCTL_SETCMDLINE:
-    case FCTL_INSERTCMDLINE:
-      if (Command==FCTL_SETCMDLINE)
-        CtrlObject->CmdLine->SetString(NullToEmpty((char *)Param));
-      else
-        CtrlObject->CmdLine->InsertString(NullToEmpty((char *)Param));
-      CtrlObject->CmdLine->Redraw();
-      return(TRUE);
-    case FCTL_SETCMDLINEPOS:
-      CtrlObject->CmdLine->SetCurPos(*(int *)Param);
-      CtrlObject->CmdLine->Redraw();
-      return(TRUE);
-    case FCTL_GETCMDLINEPOS:
-      *(int *)Param=CtrlObject->CmdLine->GetCurPos();
-      return(TRUE);
-    case FCTL_GETCMDLINESELECTEDTEXT:
-      CtrlObject->CmdLine->GetSelString((char *)Param,1024);
-      return TRUE;
-    case FCTL_GETCMDLINESELECTION:
-    {
-      CmdLineSelect *sel=(CmdLineSelect*)Param;
-      if(sel)
-      {
-        CtrlObject->CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
-        return TRUE;
-      }
-      break;
+
+      return(Processed);
     }
-    case FCTL_SETCMDLINESELECTION:
-    {
-      CmdLineSelect *sel=(CmdLineSelect*)Param;
-      if(sel)
-      {
-        CtrlObject->CmdLine->Select(sel->SelStart,sel->SelEnd);
-        CtrlObject->CmdLine->Redraw();
-        return TRUE;
-      }
-      break;
-    }
+
     case FCTL_SETUSERSCREEN:
-      if (CtrlObject->Cp()->LeftPanel==NULL || CtrlObject->Cp()->RightPanel==NULL)
+    {
+      if (!CtrlObject->Cp() || !CtrlObject->Cp()->LeftPanel || !CtrlObject->Cp()->RightPanel)
         return(FALSE);
+
       KeepUserScreen++;
       CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand++;
       CtrlObject->Cp()->RightPanel->ProcessingPluginCommand++;
@@ -1690,6 +1668,77 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
       CtrlObject->Cp()->LeftPanel->ProcessingPluginCommand--;
       CtrlObject->Cp()->RightPanel->ProcessingPluginCommand--;
       return(TRUE);
+    }
+
+    case FCTL_GETCMDLINE:
+    case FCTL_GETCMDLINESELECTEDTEXT:
+    {
+      if(!IsBadWritePtr(Param,sizeof(char) * 1024))
+      {
+        if (Command==FCTL_GETCMDLINE)
+          CtrlObject->CmdLine->GetString((char *)Param,1024);
+        else
+          CtrlObject->CmdLine->GetSelString((char *)Param,1024);
+        return TRUE;
+      }
+      return FALSE;
+    }
+
+    case FCTL_SETCMDLINE:
+    case FCTL_INSERTCMDLINE:
+    {
+      if (Command==FCTL_SETCMDLINE)
+        CtrlObject->CmdLine->SetString(NullToEmpty((char *)Param));
+      else
+        CtrlObject->CmdLine->InsertString(NullToEmpty((char *)Param));
+      CtrlObject->CmdLine->Redraw();
+      return(TRUE);
+    }
+
+    case FCTL_SETCMDLINEPOS:
+    {
+      if(!IsBadReadPtr(Param,sizeof(int)))
+      {
+        CtrlObject->CmdLine->SetCurPos(*(int *)Param);
+        CtrlObject->CmdLine->Redraw();
+        return TRUE;
+      }
+      return FALSE;
+    }
+
+    case FCTL_GETCMDLINEPOS:
+    {
+      if(!IsBadWritePtr(Param,sizeof(int)))
+      {
+        *(int *)Param=CtrlObject->CmdLine->GetCurPos();
+        return TRUE;
+      }
+      return FALSE;
+    }
+
+    case FCTL_GETCMDLINESELECTION:
+    {
+      CmdLineSelect *sel=(CmdLineSelect*)Param;
+      if(sel && !IsBadWritePtr(sel,sizeof(struct CmdLineSelect)))
+      {
+        CtrlObject->CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
+        return TRUE;
+      }
+      return FALSE;
+    }
+
+    case FCTL_SETCMDLINESELECTION:
+    {
+      CmdLineSelect *sel=(CmdLineSelect*)Param;
+      if(sel && !IsBadReadPtr(sel,sizeof(struct CmdLineSelect)))
+      {
+        CtrlObject->CmdLine->Select(sel->SelStart,sel->SelEnd);
+        CtrlObject->CmdLine->Redraw();
+        return TRUE;
+      }
+      return FALSE;
+    }
+
   }
   return(FALSE);
 }

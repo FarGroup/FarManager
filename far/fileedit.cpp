@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.147 04.11.2003 $ */
+/* Revision: 1.148 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    + BugZ#2 - Shift-F4: открывать редактор без имени файла
   04.11.2003 SKV
     ! не надо делать SetFileAttributes если мы их не меняли.
   16.10.2003 SVS
@@ -575,6 +577,7 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   _ECTLLOG(CleverSysLog SL("FileEditor::Init()"));
   _ECTLLOG(SysLog("(Name=%s, Title=%s)",Name,Title));
   SysErrorCode=0;
+  int BlankFileName=!strcmp(Name,MSG(MNewFileName));
 
   FEdit=new Editor;
 
@@ -606,7 +609,9 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
     Добавлено для поиска по AltF7. При редактировании найденного файла из
     архива для клавиши F2 сделать вызов ShiftF2.
   */
-  Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs);
+  if(BlankFileName)
+    CreateNewFile=1;
+  Flags.Change(FFILEEDIT_SAVETOSAVEAS,(ToSaveAs||BlankFileName?TRUE:FALSE));
   /* KM $ */
 
   if (*Name==0)
@@ -756,6 +761,8 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
 
   if (!ReadFile(FullFileName,UserBreak))
   {
+    if(BlankFileName)
+      UserBreak=0;
     if(!CreateNewFile || UserBreak)
     {
       if (UserBreak!=1)
@@ -1163,6 +1170,9 @@ int FileEditor::ProcessKey(int Key)
             };
             MakeDialogItems(EditDlgData,EditDlg);
             strncpy(EditDlg[2].Data,(Flags.Check(FFILEEDIT_SAVETOSAVEAS)?FullFileName:FileName),sizeof(EditDlg[2].Data)-1);
+            char *PtrEditDlgData=strstr(EditDlg[2].Data,MSG(MNewFileName));
+            if(PtrEditDlgData)
+              *PtrEditDlgData=0;
             EditDlg[5].Selected=EditDlg[6].Selected=EditDlg[7].Selected=EditDlg[8].Selected=0;
             EditDlg[5+TextFormat].Selected=TRUE;
 
@@ -1344,7 +1354,8 @@ int FileEditor::ProcessKey(int Key)
             }
           }
         }
-        ProcessQuitKey(FirstSave,NeedQuestion);
+        if(!ProcessQuitKey(FirstSave,NeedQuestion))
+          return FALSE;
         return(TRUE);
       }
 
@@ -1438,10 +1449,18 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
       SetExitCode (XC_QUIT);
       break;
     }
+    if(!strcmp(FileName,MSG(MNewFileName)))
+      if(!ProcessKey(KEY_SHIFTF2))
+      {
+        FarChDir(OldCurDir);
+        return FALSE;
+      }
+      else
+        break;
     SetLastError(SysErrorCode);
     if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-                FileName,MSG(MRetry),MSG(MCancel))!=0)
-      break;
+              FileName,MSG(MRetry),MSG(MCancel))!=0)
+        break;
     FirstSave=0;
   }
 
@@ -1871,19 +1890,28 @@ void FileEditor::SetPluginTitle(const char *PluginTitle)
 
 BOOL FileEditor::SetFileName(const char *NewFileName)
 {
-  if (strpbrk(NewFileName,ReservedFilenameSymbols) ||
-      ConvertNameToFull(NewFileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
+  if(strcmp(NewFileName,MSG(MNewFileName)))
   {
-    return FALSE;
+    if (strpbrk(NewFileName,ReservedFilenameSymbols) ||
+        ConvertNameToFull(NewFileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
+    {
+      return FALSE;
+    }
+    /* $ 10.11.2002 SKV
+      Дабы избежать бардака, развернём слэшики...
+    */
+    for(char* fn=FullFileName;*fn;fn++)
+    {
+      if(*fn=='/')*fn='\\';
+    }
+    /* SKV $ */
   }
-  /* $ 10.11.2002 SKV
-    Дабы избежать бардака, развернём слэшики...
-  */
-  for(char* fn=FullFileName;*fn;fn++)
+  else
   {
-    if(*fn=='/')*fn='\\';
+    strcpy(FullFileName,StartDir);
+    AddEndSlash(FullFileName);
+    strcat(FullFileName,NewFileName);
   }
-  /* SKV $ */
   strncpy(FileName,NewFileName,sizeof(FileName)-1);
   return TRUE;
 }

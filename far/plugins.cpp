@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.147 29.10.2003 $ */
+/* Revision: 1.148 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    ! KeepUserScreen и DirToSet перенесены из plugins.cpp в global.cpp
   29.10.2003 SVS
     + Opt.LoadPlug.SilentLoadPlugin - тихий режим загрузки плагинов
   06.10.2003 SVS
@@ -447,10 +449,6 @@ static void CheckScreenLock();
 static char FmtPluginsCache_PluginD[]="PluginsCache\\Plugin%d";
 static char FmtDiskMenuStringD[]="DiskMenuString%d";
 static char FmtDiskMenuNumberD[]="DiskMenuNumber%d";
-
-// требуется в plugapi.cpp (было раньше static)
-int KeepUserScreen;
-char DirToSet[NM];
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 static BOOL PrepareModulePath(const char *ModuleName);

@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.48 11.07.2003 $ */
+/* Revision: 1.49 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    ! Несколько иная реализация TruncPathStr()
   11.07.2003 SVS
     ! Вынесем инициализацию массива KMGTbStr в __PrepareKMGTbStr()
       была бага: 'к' и 'k' не изменялись при переключении языка
@@ -502,22 +504,25 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
   return(Str);
 }
 
-
+#if 0
 char* WINAPI TruncPathStr(char *Str,int MaxLength)
 {
   if(Str)
   {
     char *Root=NULL;
-    if (Str[0]!=0 && Str[1]==':' && Str[2]=='\\')
+    if (Str[0] && Str[1]==':' && Str[2]=='\\')
       Root=Str+3;
-    else
-      if (Str[0]=='\\' && Str[1]=='\\' && (Root=strchr(Str+2,'\\'))!=NULL &&
-          (Root=strchr(Root+1,'\\'))!=NULL)
-        Root++;
+    else if (Str[0]=='\\' && Str[1]=='\\')
+    {
+      if((Root=strchr(Str+2,'\\'))!=NULL)
+        if((Root=strchr(Root+1,'\\'))!=NULL)
+           Root++;
+    }
     if (Root==NULL || Root-Str+5>MaxLength)
       return(TruncStr(Str,MaxLength));
+
     int Length=strlen(Str);
-    if (Length>MaxLength)
+    if (Length > MaxLength)
     {
       char *MovePos=Root+Length-MaxLength+3;
       memmove(Root+3,MovePos,strlen(MovePos)+1);
@@ -526,6 +531,41 @@ char* WINAPI TruncPathStr(char *Str,int MaxLength)
   }
   return(Str);
 }
+#else
+char* WINAPI TruncPathStr(char *Str, int MaxLength)
+{
+  if (Str)
+  {
+    int nLength = strlen (Str);
+
+    if (nLength > MaxLength)
+    {
+      char *lpStart = NULL;
+
+      if ( *Str && (Str[1] == ':') && (Str[2] == '\\') )
+         lpStart = Str+3;
+      else
+      {
+        if ( (Str[0] == '\\') && (Str[1] == '\\') )
+        {
+          if ( lpStart = strchr (Str+2, '\\') )
+            if ( lpStart = strchr (lpStart+1, '\\') )
+              lpStart++;
+        }
+      }
+
+      if ( !lpStart || (lpStart-Str > MaxLength-5) )
+        return TruncStr (Str, MaxLength);
+
+      char *lpInPos = lpStart+3+(nLength-MaxLength);
+      strcpy (lpStart+3, lpInPos);
+      memcpy (lpStart, "...", 3);
+    }
+  }
+
+  return Str;
+}
+#endif
 
 /* $ 07.07.2000 SVS
     + Дополнительная функция обработки строк: RemoveExternalSpaces

@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.41 06.10.2003 $ */
+/* Revision: 1.42 13.11.2003 $ */
 
 /*
 Modify:
+  13.11.2003 SVS
+    + _ALGO()
   06.10.2003 SVS
     - BugZ#964 - Ложное сообщение об Access Denied
       Не передавались атрибуты "файла"
@@ -1028,12 +1030,15 @@ void FileList::PluginSetSelection(struct PanelInfo *Info)
 
 void FileList::ProcessPluginCommand()
 {
+  _ALGO(CleverSysLog clv("FileList::ProcessPluginCommand"));
+  _ALGO(SysLog("PanelMode=%s",(PanelMode==PLUGIN_PANEL?"PLUGIN_PANEL":"NORMAL_PANEL")));
   int Command=PluginCommand;
   PluginCommand=-1;
   if (PanelMode==PLUGIN_PANEL)
     switch(Command)
     {
       case FCTL_CLOSEPLUGIN:
+        _ALGO(SysLog("Command=FCTL_CLOSEPLUGIN"));
         SetCurDir((char *)PluginParam,TRUE);
         if(!PluginParam || !*(char *)PluginParam)
           Update(UPDATE_KEEP_SELECTION);

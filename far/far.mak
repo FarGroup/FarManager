@@ -177,7 +177,7 @@ RSC_PROJ=/l 0x409 /fo"$(INTDIR)\far.res" /d $(USEDEBUG)
 
 USEDEBUG=NDEBUG
 
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) /Zp4 /MT /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=$(USE_WFUNC) /nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) $(FAR_GR) /Zp4 /MT /Gi /O1 /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
 LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\far.pdb" /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
 
@@ -186,7 +186,7 @@ LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /incremental:no /pdb:"$(O
 
 USEDEBUG=_DEBUG
 
-CPP_PROJ=/nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
+CPP_PROJ=$(USE_WFUNC) /nologo $(FARSYSLOG) $(FARADDMACRO) $(FARTRY) $(CREATE_JUNCTION) /MTd /W3 /Gm /Gi /ZI /Od /D $(USEDEBUG) /D "WIN32" /D "_CONSOLE" /D "_MBCS" /Fp"$(INTDIR)\far.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /FD /GZ /c $(FARCMEM) $(FARALLOC) /FAcs /Fa"$(CODDIR)\\"
 
 LINK32_FLAGS=$(LINK32_LIBS) /nologo /subsystem:console /pdb:none /debug /debugtype:both /machine:I386 /def:"$(DEF_FILE)" /out:"$(OUTDIR)\Far.exe" /map:"$(OUTDIR)\far.map"
 

@@ -2364,6 +2364,7 @@
 "$(INTDIR)\vmenu.obj" : \
 	".\vmenu.cpp"\
 	".\bitflags.hpp"\
+	".\constitle.hpp"\
 	".\chgprior.hpp"\
 	".\colors.hpp"\
 	".\ctrlobj.hpp"\

@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.110 28.10.2003 $ */
+/* Revision: 1.111 14.11.2003 $ */
 
 /*
 Modify:
+  14.11.2003 SVS
+    + заготовка для Alt-F4 в диалоге настройки макросов - т.с. закомменченная перспектива
   28.10.2003 SVS
     ! Либо есть Work.MacroWORK либо его нет.
     ! Раз уж решили работать только в WORK-области, значит так тому и быть.
@@ -1908,11 +1910,81 @@ static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
 
 long WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
-  if(Msg == DN_BTNCLICK && (Param1 == 4 || Param1 == 8))
+  static struct DlgParam *KMParam=NULL;
+
+  if(Msg == DN_INITDIALOG)
+  {
+    KMParam=(struct DlgParam *)Param2;
+  }
+  else if(Msg == DN_BTNCLICK && (Param1 == 4 || Param1 == 8))
   {
     for(int I=1; I <= 3; ++I)
       Dialog::SendDlgMessage(hDlg,DM_ENABLE,Param1+I,Param2);
   }
+#if 0
+  else if(Msg==DN_KEY && Param2==KEY_ALTF4)
+  {
+    if (RegVer)
+    {
+      KeyMacro *MacroDlg=KMParam->Handle;
+      (*FrameManager)[0]->UnlockRefresh();
+      FILE *MacroFile;
+      char MacroFileName[NM];
+      if (!FarMkTempEx(MacroFileName) || (MacroFile=fopen(MacroFileName,"wb"))==NULL)
+        return TRUE;
+
+      char *TextBuffer;
+      DWORD Buf[1];
+      Buf[0]=MacroDlg->RecBuffer[0];
+      if((TextBuffer=MacroDlg->MkTextSequence((MacroDlg->RecBufferSize==1?Buf:MacroDlg->RecBuffer),MacroDlg->RecBufferSize)) != NULL)
+      {
+        fwrite(TextBuffer,strlen(TextBuffer),1,MacroFile);
+        fclose(MacroFile);
+        xf_free(TextBuffer);
+        {
+          //ConsoleTitle *OldTitle=new ConsoleTitle;
+          FileEditor ShellEditor(MacroFileName,FALSE,FALSE,-1,-1,TRUE,NULL);
+          //delete OldTitle;
+          ShellEditor.SetDynamicallyBorn(false);
+          FrameManager->EnterModalEV();
+          FrameManager->ExecuteModal();
+          FrameManager->ExitModalEV();
+          if (!ShellEditor.IsFileChanged() || (MacroFile=fopen(MacroFileName,"rb"))==NULL)
+            ;
+          else
+          {
+            struct MacroRecord NewMacroWORK2={0};
+            long FileSize=filelen(MacroFile);
+            TextBuffer=(char*)malloc(FileSize);
+            if(TextBuffer)
+            {
+              fread(TextBuffer,FileSize,1,MacroFile);
+              if(!MacroDlg->ParseMacroString(&NewMacroWORK2,TextBuffer))
+              {
+                if(NewMacroWORK2.BufferSize > 1)
+                  xf_free(NewMacroWORK2.Buffer);
+              }
+              else
+              {
+                MacroDlg->RecBuffer=NewMacroWORK2.Buffer;
+                MacroDlg->RecBufferSize=NewMacroWORK2.BufferSize;
+              }
+            }
+            fclose(MacroFile);
+          }
+        }
+        FrameManager->ResizeAllFrame();
+        FrameManager->PluginCommit();
+      }
+      else
+        fclose(MacroFile);
+      remove(MacroFileName);
+    }
+    else
+      Message(MSG_WARNING,1,MSG(MWarning),MSG(MRegOnly),MSG(MOk));
+    return TRUE;
+  }
+#endif
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
@@ -1982,7 +2054,8 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
   MacroSettingsDlg[13].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
   MacroSettingsDlg[14].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
 
-  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,NULL);
+  struct DlgParam Param={this,0,0};
+  Dialog Dlg(MacroSettingsDlg,sizeof(MacroSettingsDlg)/sizeof(MacroSettingsDlg[0]),ParamMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,73,16);
   Dlg.SetHelp("KeyMacroSetting");
   FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
@@ -2859,7 +2932,7 @@ static const char* ParsePlainText(char *CurKeyText, const char *BufPtr)
 static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
 {
    // пропускаем ведущие пробельные символы
-   while (IsSpace(*BufPtr))
+   while (IsSpace(*BufPtr) || IsEol(*BufPtr))
      BufPtr++;
    if (*BufPtr==0)
      return NULL;
@@ -2867,7 +2940,7 @@ static const char *__GetNextWord(const char *BufPtr,char *CurKeyText)
    const char *CurBufPtr=BufPtr;
 
    // ищем конец очередного названия клавиши
-   while (*BufPtr && !IsSpace(*BufPtr))
+   while (*BufPtr && !(IsSpace(*BufPtr) || IsEol(*BufPtr)))
      BufPtr++;
    int Length=BufPtr-CurBufPtr;
 

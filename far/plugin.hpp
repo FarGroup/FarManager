@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.239 24.10.2003 $ */
+/* Revision: 1.240 05.11.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 ¬ этом файле писать все изменени€ только в в этом блоке!!!!
 
 Modify:
+  05.11.2003 SVS
+    + FMENU_CHANGECONSOLETITLE - измен€ть заголовок консоли дл€ менюх
   24.10.2003 SVS
     + DI_MEMOEDIT - продолжаем работу на мультистроковым диалоговым элементом редактировани€
       (пока дл€ внутреннего использовани€)
@@ -1342,6 +1344,7 @@ enum FARMENUFLAGS{
   FMENU_SHOWNOBOX            = 0x0010,
 #endif // END FAR_USE_INTERNALS
   FMENU_USEEXT               = 0x0020,
+  FMENU_CHANGECONSOLETITLE   = 0x0040,
 };
 
 typedef int (WINAPI *FARAPIMENU)(

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.91 16.10.2003 $ */
+/* Revision: 1.92 11.11.2003 $ */
 
 /*
 Modify:
+  11.11.2003 SVS
+    - Правки в Execute() по поводу Shift-Enter
   16.10.2003 SVS
     ! Если в ассоциациях нету "command" или этот параметр реестра
       пуст - не вызываем ShellExecuteEx().
@@ -955,8 +957,11 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   DWORD Attr=GetFileAttributes(NewCmdStr);
   if(SeparateWindow) //???
   {
-    if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) || (NewCmdStr[1]==':' && (NewCmdStr[2] == '\\' && !NewCmdStr[3] || !NewCmdStr[2])))
+    if(!*NewCmdPar && Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) || (NewCmdStr[1]==':' && (NewCmdStr[2] == '\\' && !NewCmdStr[3] || !NewCmdStr[2])))
+    {
+      ConvertNameToFull(NewCmdStr,NewCmdStr,sizeof(NewCmdStr));
       SeparateWindow=2;
+    }
   }
 
   // глянем на результат
@@ -984,7 +989,10 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   int ExecutorType = GetRegKey("System\\Executor","Type",0);
   // частный случай - т.с. затычка, но нужно конкретное решение!
   if(*NewCmdStr && !((*NewCmdStr == '\\'|| *NewCmdStr == '/') && !NewCmdStr[1]))
+  {
     ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
+    Attr=GetFileAttributes(NewCmdStr);
+  }
   // Для Виндовс-ГУИ всегда сделаем запуск через ShellExecuteEx()
 //  if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
   if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
@@ -1119,6 +1127,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
           else if (NT && *CmdPtr=='\"')
             strcat(ExecLine," \"\"");
+          ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
         }
 
         strcat(ExecLine," ");
