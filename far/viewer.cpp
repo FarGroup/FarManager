@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.99 24.05.2002 $ */
+/* Revision: 1.100 27.05.2002 $ */
 
 /*
 Modify:
+  27.05.2002 SVS
+    ! ќткат FileViewer -> Viewer до лучших времен (т.к. в Info и QView нужны
+      значительные переделки)
   24.05.2002 SVS
     ! Ќебольшие добавки к Numpad - дл€ удобства навигации.
   24.05.2002 SVS
@@ -379,6 +382,7 @@ Viewer::Viewer()
   LastKeyUndo=FALSE;
   InternalKey=FALSE;
   Viewer::ViewerID=::ViewerID++;
+  CtrlObject->Plugins.CurViewer=this;
   OpenFailed=false;
   HostFileViewer=NULL;
   /* $ 06.02.2001 IS
@@ -447,7 +451,7 @@ Viewer::~Viewer()
   /* tran 12.07.2000 $ */
   if (!OpenFailed)
   {
-    CtrlObject->Plugins.CurViewer=HostFileViewer;
+    CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
     /* $ 15.09.2001 tran
        пора легализироватьс€ */
     CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
@@ -666,7 +670,7 @@ int Viewer::OpenFile(const char *Name,int warning)
   ChangeViewKeyBar();
   AdjustWidth();
   /* DJ $ */
-  CtrlObject->Plugins.CurViewer=HostFileViewer;
+  CtrlObject->Plugins.CurViewer=this; // HostFileViewer;
   /* $ 15.09.2001 tran
      пора легализироватьс€ */
   CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
@@ -744,7 +748,7 @@ void Viewer::DisplayObject()
   }
   /* tran $ */
 
-  CtrlObject->Plugins.CurViewer=HostFileViewer;
+  CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
 
   ViewY1=Y1+ShowStatusLine;
 
@@ -2108,7 +2112,7 @@ void Viewer::ChangeViewKeyBar()
   }
   struct ViewerMode vm;
   memmove(&vm,&VM,sizeof(struct ViewerMode));
-  CtrlObject->Plugins.CurViewer=HostFileViewer;
+  CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
 //  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
 

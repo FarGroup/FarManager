@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.105 24.05.2002 $ */
+/* Revision: 1.106 27.05.2002 $ */
 
 /*
 Modify:
+  27.05.2002 SVS
+    ! ¬ некоторых местах в Init() €вно не сто€ло выставление кода возврата.
   24.05.2002 SVS
     ! ”точнени€ в FileEditor::EditorControl дл€ логов
   22.05.2002 SVS
@@ -373,7 +375,11 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   /* KM $ */
 
   if (*Name==0)
+  {
+    ExitCode=XC_OPEN_ERROR;
     return;
+  }
+
   FEdit->SetPluginData(PluginData);
   FEdit->SetHostFileEditor(this);
   _OT(SysLog("Editor;:Editor(), EnableSwitch=%i",EnableSwitch));
@@ -381,7 +387,10 @@ void FileEditor::Init(const char *Name,const char *Title,int CreateNewFile,int E
   FarGetCurDir(sizeof(StartDir),StartDir);
 
   if(!SetFileName(Name))
+  {
+    ExitCode=XC_OPEN_ERROR;
     return;
+  }
 
   /*$ 11.05.2001 OT */
   //int FramePos=FrameManager->FindFrameByFile(MODALTYPE_EDITOR,FullFileName);

@@ -5,10 +5,16 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.135 24.05.2002 $ */
+/* Revision: 1.136 27.05.2002 $ */
 
 /*
 Modify:
+  27.05.2002 SVS
+    - BugZ#514 - Multiple selected items in menu...
+    + Автокомит для ?F_IMMEDIATERETURN (по мотивам BugZ#530 - флаг
+      EF_IMMEDIATERETURN не работает из SetStartupInfo)
+    + Проверка кода возврата создания редактора, если Editor !=0 и кон возврата != XC_OPEN_ERROR?
+      то продолжаем исполнение, иначе вернем EEC_OPEN_ERROR
   24.05.2002 SVS
     + Добавка в FarControl() логов для _FCTLLOG
     ! Из FarEditorControl выкошен код для логов - перенесен в fileedit.cpp
@@ -913,6 +919,15 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
         CurItem.Flags=ItemEx->Flags;
         CurItem.NamePtr=NULL; // за раз 4 байта в 0 :-)
 
+        // исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
+        DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
+        CurItem.Flags&=~LIF_SELECTED;
+        if(!Selected && !(CurItem.Flags&LIF_SEPARATOR))
+        {
+          CurItem.Flags|=SelCurItem;
+          Selected++;
+        }
+
         if(CurItem.Flags&MIF_USETEXTPTR)
           CurItem.NamePtr=(char*)ItemEx->Text.TextPtr;
         else
@@ -923,8 +938,6 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
             sizeof(CurItem.Name)-1);
         */
         CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:ItemEx->AccelKey;
-        if(!Selected && (CurItem.Flags&LIF_SELECTED) && !(CurItem.Flags&LIF_SEPARATOR))
-          Selected++;
         FarMenu.AddItem(&CurItem);
       }
     }
@@ -939,8 +952,14 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
           CurItem.Name[0]=0;
         else
           strncpy(CurItem.Name,Item[I].Text,sizeof(CurItem.Name)-1);
-        if(!Selected && (CurItem.Flags&LIF_SELECTED) && !(CurItem.Flags&LIF_SEPARATOR))
+
+        DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
+        CurItem.Flags&=~LIF_SELECTED;
+        if(!Selected && !(CurItem.Flags&LIF_SEPARATOR))
+        {
+          CurItem.Flags|=SelCurItem;
           Selected++;
+        }
         FarMenu.AddItem(&CurItem);
       }
     }
@@ -1892,6 +1911,8 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
     {
       FrameManager->ExecuteNonModal();
     }
+    else
+      FrameManager->PluginCommit();
     /* SKV $ */
   }
   else
@@ -1934,7 +1955,6 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
    Проверка флагов редактора (раньше они игнорировались) и открытие
    немодального редактора, если есть соответствующий флаг
   */
-  int ExitCode;
   /* $ 21.03.2001 VVM
     + Обработка флага EF_CREATENEW */
   int CreateNew = (Flags & EF_CREATENEW)?TRUE:FALSE;
@@ -1959,15 +1979,22 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   }
   /* SKV $ */
 
+  int ExitCode=EEC_OPEN_ERROR;
   if (Flags & EF_NONMODAL)
   {
-    ExitCode=FALSE;
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
     FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,
                                       StartLine,StartChar,Title,
                                       X1,Y1,X2,Y2,DisableHistory,
                                       DeleteOnClose,OpMode);
     /* IS $ */
+    // добавочка - проверка кода возврата (почему возникает XC_OPEN_ERROR - см. код FileEditor::Init())
+    if (Editor && Editor->GetExitCode() == XC_OPEN_ERROR)
+    {
+      delete Editor;
+      Editor=NULL;
+    }
+
     if (Editor)
     {
       /* $ 12.05.2001 DJ */
@@ -1981,8 +2008,10 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
       {
         FrameManager->ExecuteNonModal();
       }
+      else
+        FrameManager->PluginCommit();
       /* SKV $ */
-      ExitCode=TRUE;
+      ExitCode=XC_MODIFIED;
     }
   }
   else
@@ -1993,27 +2022,32 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
                       X1,Y1,X2,Y2,DisableHistory,
                       DeleteOnClose,OpMode);
     /* IS $ */
-    Editor.SetDynamicallyBorn(false);
-    /* $ 12.05.2001 DJ */
-    Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-    /* DJ $ */
-    SetConsoleTitle(OldTitle);
-    /* $ 15.05.2002 SKV
-      Зафиксируем вход и выход в/из модального редактора.
-    */
-    FrameManager->EnterModalEV();
-    FrameManager->ExecuteModal();
-    FrameManager->ExitModalEV();
-    /* SKV $ */
-    ExitCode = Editor.GetExitCode();
-    if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
+
+    // выполним предпроверку (ошибки разные могут быть)
+    if(Editor.GetExitCode() != XC_OPEN_ERROR)
     {
+      Editor.SetDynamicallyBorn(false);
+      /* $ 12.05.2001 DJ */
+      Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+      /* DJ $ */
+      SetConsoleTitle(OldTitle);
+      /* $ 15.05.2002 SKV
+        Зафиксируем вход и выход в/из модального редактора.
+      */
+      FrameManager->EnterModalEV();
+      FrameManager->ExecuteModal();
+      FrameManager->ExitModalEV();
+      /* SKV $ */
+      ExitCode = Editor.GetExitCode();
+      if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
+      {
 #if 0
-       if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
-         ExitCode = XC_OPEN_ERROR;
-       else
+         if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
+           ExitCode = XC_OPEN_ERROR;
+         else
 #endif
-         ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
+           ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
+      }
     }
   }
   return ExitCode;
