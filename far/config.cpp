@@ -5,14 +5,16 @@ config.cpp
 
 */
 
-/* Revision: 1.28 16.10.2000 $ */
+/* Revision: 1.29 17.10.2000 $ */
 
 /*
 Modify:
+  17.10.2000 SVS
+    ! WordDiv имеет размер 256;
   16.10.2000 SVS
     ! System\CopyOpened по умолчанию установлен в 1 (разрешен)
   11.10.2000 SVS
-   + Opt.EditorBSLikeDel - если = 0, то BS действует как в FAR 1.65
+    + Opt.EditorBSLikeDel - если = 0, то BS действует как в FAR 1.65
   05.10.2000 SVS
     ! Все новые фишки (из TechInfo) только читаем...
   27.09.2000 SVS
@@ -111,7 +113,7 @@ Modify:
 /* $ 03.08.2000 SVS
    Стандартный набор разделителей
 */
-static char WordDiv0[]="!%^&*()+|{}:\"<>?`-=\\[];',./";
+static char WordDiv0[257]="!%^&*()+|{}:\"<>?`-=\\[];',./";
 /* SVS $ */
 
 void SystemSettings()
@@ -724,7 +726,7 @@ void ReadConfig()
   /* $ 03.08.2000 SVS
      Записать разграничитель слов из реестра
   */
-  GetRegKey("Editor","WordDiv",Opt.WordDiv,WordDiv0,79);
+  GetRegKey("Editor","WordDiv",Opt.WordDiv,WordDiv0,sizeof(Opt.WordDiv));
   /* SVS $ */
   GetRegKey("Editor","BSLikeDel",Opt.EditorBSLikeDel,1);
 

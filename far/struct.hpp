@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.21 10.10.2000 $ */
+/* Revision: 1.22 17.10.2000 $ */
 
 /*
 Modify:
+  17.10.2000 SVS
+   ! WordDiv имеет размер 256;
   10.10.2000 SVS
    + Opt.EditorBSLikeDel
   27.09.2000 SVS
@@ -232,7 +234,7 @@ struct Options
   /* $ 03.08.2000 SVS
      Разграничитель слов из реестра
   */
-  char WordDiv[80];
+  char WordDiv[256];
   /* SVS $ */
   int ViewerAutoDetectTable;
   int ViewTabSize;

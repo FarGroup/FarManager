@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.35 16.10.2000 $ */
+/* Revision: 1.37 17.10.2000 $ */
 
 /*
 Modify:
+  17.10.2000 SVS
+    + Везде, в экспортируемых функция введена спарка try-__except
   16.10.2000 SVS
     + Обработка исключений при вызове галимого плагина (пока только при вызове
       двух функций - OpenPlugin и OpenFilePlugin).
@@ -146,13 +148,24 @@ char DirToSet[NM];
 
 static int _cdecl PluginsSort(const void *el1,const void *el2);
 
+
 /* $ 16.10.2000 SVS
    Простенький обработчик исключений.
 */
+static char* xFromMSGTitle(int From)
+{
+  if(From == EXCEPT_SETSTARTUPINFO || From == EXCEPT_MINFARVERSION)
+    return MSG(MExceptTitleLoad);
+  else
+    return MSG(MExceptTitle);
+}
+
 static int xfilter(
     int From,                 // откуда: 0 = OpenPlugin, 1 = OpenFilePlugin
     EXCEPTION_POINTERS *xp,   // данные ситуации
-    char *ModuleName)         // имя модуля, приведшего к исключению.
+    struct PluginItem *Module,// модуль, приведший к исключению.
+    DWORD Flags)              // дополнительные флаги - пока только один
+                              //        0x1 - спрашивать про выгрузку?
 {
    struct __ECODE {
      DWORD Code;     // код исключения
@@ -199,13 +212,28 @@ static int xfilter(
    {
      char TruncFileName[2*NM];
      sprintf(Buf[0],MSG(MExcAddress),xr->ExceptionAddress);
-     strcpy(TruncFileName,ModuleName);
-     Message(MSG_WARNING,1,
-               MSG(MExceptTitle),
+     strcpy(TruncFileName,Module->ModuleName);
+     if(Flags&1)
+     {
+       if(!Message(MSG_WARNING,2,
+               xFromMSGTitle(From),
                MSG(MExcTrappedException),
                Ptr,
                Buf[0],
-               TruncPathStr(TruncFileName,40),"\1",MSG(MOk));
+               TruncPathStr(TruncFileName,40),"\1",
+               MSG(MExcUnload),
+               MSG(MYes),MSG(MNo)))
+        CtrlObject->Plugins.UnloadPlugin(*Module);
+     }
+     else
+       Message(MSG_WARNING,1,
+               xFromMSGTitle(From),
+               MSG(MExcTrappedException),
+               Ptr,
+               Buf[0],
+               TruncPathStr(TruncFileName,40),"\1",
+               MSG(MExcUnloadYes),
+               MSG(MOk));
    }
    return rc;
 }
@@ -242,7 +270,18 @@ void PluginsSet::SendExit()
 {
   for (int I=0;I<PluginsCount;I++)
     if (!PluginsData[I].Cached && PluginsData[I].pExitFAR)
-      PluginsData[I].pExitFAR();
+    {
+      EXCEPTION_POINTERS *xp;
+
+      TRY{
+        PluginsData[I].pExitFAR();
+      }
+      __except ( xfilter(EXCEPT_EXITFAR,
+                     xp = GetExceptionInformation(),&PluginsData[I],1) )
+      {
+        ;
+      }
+    }
 }
 
 
@@ -498,7 +537,9 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
     /* $ 03.08.2000 tran
        проверка на минимальную версию фара */
     if ( CheckMinVersion(CurPlugin) )
-        SetPluginStartupInfo(CurPlugin,ModuleNumber);
+    {
+      SetPluginStartupInfo(CurPlugin,ModuleNumber);
+    }
     else
     {
         UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
@@ -510,23 +551,33 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
 
 /* $ 03.08.2000 tran
    функция проверки минимальной версии */
-int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlg)
+int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlugin)
 {
-    if ( CurPlg.pMinFarVersion==0 ) // плагин не эскпортирует, ему или неважно, или он для <1.65
+    if ( CurPlugin.pMinFarVersion==0 ) // плагин не эскпортирует, ему или неважно, или он для <1.65
     {
         //SysLog("PluginsSet::CheckMinVersion(), ==0, return TRUE");
         return (TRUE);
     }
     long v,cv;
 
-    v=CurPlg.pMinFarVersion();
+    EXCEPTION_POINTERS *xp;
+    TRY {
+      v=CurPlugin.pMinFarVersion();
+    }
+    __except ( xfilter(EXCEPT_MINFARVERSION,
+                     xp = GetExceptionInformation(),&CurPlugin,0) )
+    {
+       UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+       return (FALSE);
+    }
+
     v&=0xffff; // уберем верхние биты
     cv=FAR_VERSION&0xffff;
     //SysLog("PluginsSet::CheckMinVersion(), v=0x%04x, cv=0x%04x",v,cv);
 
     if (v > cv) // кранты - плагин требует старший фар
     {
-        ShowMessageAboutIllegialPluginVersion(CurPlg.ModuleName,v);
+        ShowMessageAboutIllegialPluginVersion(CurPlugin.ModuleName,v);
         return (FALSE);
     }
     return (TRUE); // нормально, свой парень
@@ -534,11 +585,11 @@ int  PluginsSet::CheckMinVersion(struct PluginItem &CurPlg)
 
 // выгрузка плагина
 // причем без всяких ему объяснений
-void PluginsSet::UnloadPlugin(struct PluginItem &CurPlg)
+void PluginsSet::UnloadPlugin(struct PluginItem &CurPlugin)
 {
-    FreeLibrary(CurPlg.hModule);
-    memset(&CurPlg,0,sizeof(CurPlg));
-    CurPlg.DontLoadAgain=1;
+    FreeLibrary(CurPlugin.hModule);
+    memset(&CurPlugin,0,sizeof(CurPlugin));
+    CurPlugin.DontLoadAgain=1;
 }
 
 void PluginsSet::ShowMessageAboutIllegialPluginVersion(char* plg,int required)
@@ -721,7 +772,15 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     StartupInfo.FSF=&StandardFunctions;
     /* IS $ */
-    CurPlugin.pSetStartupInfo(&StartupInfo);
+    EXCEPTION_POINTERS *xp;
+      TRY {
+        CurPlugin.pSetStartupInfo(&StartupInfo);
+      }
+      __except ( xfilter(EXCEPT_SETSTARTUPINFO,
+                         xp = GetExceptionInformation(),&CurPlugin,0) )
+      {
+         UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+      }
   }
 }
 
@@ -771,7 +830,17 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
     return(FALSE);
   struct PluginInfo Info;
   memset(&Info,0,sizeof(Info));
-  CurPlugin.pGetPluginInfo(&Info);
+  EXCEPTION_POINTERS *xp;
+  TRY {
+    CurPlugin.pGetPluginInfo(&Info);
+  }
+  __except ( xfilter(EXCEPT_GETPLUGININFO,
+                     xp = GetExceptionInformation(),&CurPlugin,0) )
+  {
+     UnloadPlugin(CurPlugin); // тест не пройден, выгружаем его
+     return FALSE;
+  }
+
   CurPlugin.SysID=Info.SysID;
   /* $ 12.10.2000 tran
      при PF_PRELOAD в кеш будет записано, что плагин не кешируется
@@ -870,14 +939,11 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       HANDLE hInternal;
       EXCEPTION_POINTERS *xp;
 
-      #if defined(__BORLANDC__)
-      try {
-      #else
-      __try {
-      #endif
+      TRY {
          hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
       }
-      __except ( xfilter(0, xp = GetExceptionInformation(),PluginsData[PluginNumber].ModuleName) )  {
+      __except ( xfilter(EXCEPT_OPENPLUGIN,
+                    xp = GetExceptionInformation(),&PluginsData[PluginNumber],1) )  {
         hInternal=INVALID_HANDLE_VALUE;
       }
       /* SVS $ */
@@ -917,14 +983,12 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
       HANDLE hInternal;
       EXCEPTION_POINTERS *xp;
 
-      #if defined(__BORLANDC__)
-      try {
-      #else
-      __try {
-      #endif
+      TRY
+      {
          hInternal=PluginsData[I].pOpenFilePlugin(NamePtr,Data,DataSize);
       }
-      __except ( xfilter(1, xp = GetExceptionInformation(),PluginsData[I].ModuleName) )  {
+      __except ( xfilter(EXCEPT_OPENFILEPLUGIN,
+                   xp = GetExceptionInformation(),&PluginsData[I],1) )  {
         hInternal=INVALID_HANDLE_VALUE;
       }
       /* SVS $ */
@@ -953,7 +1017,18 @@ HANDLE PluginsSet::OpenFindListPlugin(PluginPanelItem *PanelItem,int ItemsNumber
       HANDLE hInternal=PluginsData[I].pOpenPlugin(OPEN_FINDLIST,0);
       if (hInternal!=INVALID_HANDLE_VALUE)
       {
-        if (!PluginsData[I].pSetFindList(hInternal,PanelItem,ItemsNumber))
+        EXCEPTION_POINTERS *xp;
+        BOOL Ret;
+
+        TRY {
+          Ret=PluginsData[I].pSetFindList(hInternal,PanelItem,ItemsNumber);
+        }
+        __except ( xfilter(EXCEPT_SETFINDLIST,
+                         xp = GetExceptionInformation(),&PluginsData[I],1) )
+        {
+           Ret=FALSE;
+        }
+        if (!Ret)
           continue;
         PluginHandle *hPlugin=new PluginHandle;
         hPlugin->InternalHandle=hInternal;
@@ -970,31 +1045,64 @@ void PluginsSet::ClosePlugin(HANDLE hPlugin)
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pClosePlugin)
-    PluginsData[ph->PluginNumber].pClosePlugin(ph->InternalHandle);
+  {
+    EXCEPTION_POINTERS *xp;
+    TRY {
+      PluginsData[ph->PluginNumber].pClosePlugin(ph->InternalHandle);
+    }
+    __except ( xfilter(EXCEPT_CLOSEPLUGIN,
+          xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      ;
+    }
+  }
   delete ph;
 }
 
 
 int PluginsSet::ProcessEditorInput(INPUT_RECORD *Rec)
 {
+  EXCEPTION_POINTERS *xp;
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pProcessEditorInput && PreparePlugin(I))
-    /* $ 13.07.2000 IS
-       Фиксит трап при входе в редактор (подсказал tran)
-    */
-      if (PluginsData[I].pProcessEditorInput &&
-         PluginsData[I].pProcessEditorInput(Rec))
-    /* IS $ */
-        return(TRUE);
+      /* $ 13.07.2000 IS
+         Фиксит трап при входе в редактор (подсказал tran)
+      */
+      if (PluginsData[I].pProcessEditorInput)
+      {
+        int Ret;
+
+        TRY {
+          Ret=PluginsData[I].pProcessEditorInput(Rec);
+        }
+        __except ( xfilter(EXCEPT_PROCESSEDITORINPUT,
+                     xp = GetExceptionInformation(),&PluginsData[I],1) )
+        {
+          Ret=FALSE;
+        }
+        if(Ret)
+          return(TRUE);
+        /* IS $ */
+      }
   return(FALSE);
 }
 
 
 void PluginsSet::ProcessEditorEvent(int Event,void *Param)
 {
+  EXCEPTION_POINTERS *xp;
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pProcessEditorEvent && PreparePlugin(I))
-      PluginsData[I].pProcessEditorEvent(Event,Param);
+    {
+      TRY {
+        PluginsData[I].pProcessEditorEvent(Event,Param);
+      }
+      __except ( xfilter(EXCEPT_PROCESSEDITOREVENT,
+                       xp = GetExceptionInformation(),&PluginsData[I],1) )
+      {
+        ;
+      }
+    }
 }
 
 
@@ -1003,19 +1111,42 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
 */
 void PluginsSet::ProcessViewerEvent(int Event,void *Param)
 {
+  EXCEPTION_POINTERS *xp;
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pProcessViewerEvent && PreparePlugin(I))
-      PluginsData[I].pProcessViewerEvent(Event,Param);
+    {
+      TRY {
+        PluginsData[I].pProcessViewerEvent(Event,Param);
+      }
+      __except ( xfilter(EXCEPT_PROCESSVIEWEREVENT,
+                       xp = GetExceptionInformation(),&PluginsData[I],1) )
+      {
+        ;
+      }
+    }
+
 }
 /* SVS $ */
 
 int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,int *pItemsNumber,int OpMode)
 {
+  EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   *pItemsNumber=0;
   if (PluginsData[ph->PluginNumber].pGetFindData)
-    return(PluginsData[ph->PluginNumber].pGetFindData(ph->InternalHandle,pPanelData,pItemsNumber,OpMode));
+  {
+    int Ret;
+    TRY {
+      Ret=PluginsData[ph->PluginNumber].pGetFindData(ph->InternalHandle,pPanelData,pItemsNumber,OpMode);
+    }
+    __except ( xfilter(EXCEPT_GETFINDDATA,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Ret=FALSE;
+    }
+    return(Ret);
+  }
   return(FALSE);
 }
 
@@ -1023,38 +1154,82 @@ int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,int *pIt
 void PluginsSet::FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,
                               int ItemsNumber)
 {
+  EXCEPTION_POINTERS *xp;
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pFreeFindData)
-    PluginsData[ph->PluginNumber].pFreeFindData(ph->InternalHandle,PanelItem,ItemsNumber);
+  {
+    TRY {
+      PluginsData[ph->PluginNumber].pFreeFindData(ph->InternalHandle,PanelItem,ItemsNumber);
+    }
+    __except ( xfilter(EXCEPT_FREEFINDDATA,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      ;
+    }
+  }
 }
 
 
 int PluginsSet::GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,
                                    int *pItemsNumber,char *Path)
 {
+  EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   *pItemsNumber=0;
   if (PluginsData[ph->PluginNumber].pGetVirtualFindData)
-    return(PluginsData[ph->PluginNumber].pGetVirtualFindData(ph->InternalHandle,pPanelData,pItemsNumber,Path));
+  {
+    int Ret;
+    TRY{
+      PluginsData[ph->PluginNumber].pGetVirtualFindData(ph->InternalHandle,pPanelData,pItemsNumber,Path);
+    }
+    __except ( xfilter(EXCEPT_GETVIRTUALFINDDATA,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Ret=FALSE;
+    }
+    return(Ret);
+  }
   return(FALSE);
 }
 
 
 void PluginsSet::FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,int ItemsNumber)
 {
+  EXCEPTION_POINTERS *xp;
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pFreeVirtualFindData)
-    PluginsData[ph->PluginNumber].pFreeVirtualFindData(ph->InternalHandle,PanelItem,ItemsNumber);
+  {
+    TRY {
+      PluginsData[ph->PluginNumber].pFreeVirtualFindData(ph->InternalHandle,PanelItem,ItemsNumber);
+    }
+    __except ( xfilter(EXCEPT_FREEVIRTUALFINDDATA,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      ;
+    }
+  }
 }
 
 
 int PluginsSet::SetDirectory(HANDLE hPlugin,char *Dir,int OpMode)
 {
+  EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pSetDirectory)
-    return(PluginsData[ph->PluginNumber].pSetDirectory(ph->InternalHandle,Dir,OpMode));
+  {
+    int Ret;
+    TRY{
+      PluginsData[ph->PluginNumber].pSetDirectory(ph->InternalHandle,Dir,OpMode);
+    }
+    __except ( xfilter(EXCEPT_SETDIRECTORY,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Ret=FALSE;
+    }
+    return(Ret);
+  }
   return(FALSE);
 }
 
@@ -1062,6 +1237,7 @@ int PluginsSet::SetDirectory(HANDLE hPlugin,char *Dir,int OpMode)
 int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
                         char *DestPath,char *ResultName,int OpMode)
 {
+  EXCEPTION_POINTERS *xp;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
   SaveScreen *SaveScr=NULL;
   if ((OpMode & OPM_FIND)==0)
@@ -1071,7 +1247,19 @@ int PluginsSet::GetFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
   KeepUserScreen=FALSE;
   if (PluginsData[ph->PluginNumber].pGetFiles)
   {
-    int GetCode=PluginsData[ph->PluginNumber].pGetFiles(ph->InternalHandle,PanelItem,1,0,DestPath,OpMode);
+    int GetCode;
+    TRY{
+      GetCode=PluginsData[ph->PluginNumber].pGetFiles(ph->InternalHandle,PanelItem,1,0,DestPath,OpMode);
+    }
+    __except ( xfilter(EXCEPT_GETFILES,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1))
+    {
+      // ??????????
+      ReadUserBackgound(SaveScr);
+      delete SaveScr;
+      // ??????????
+      return(Found);
+    }
     char FindPath[NM];
     strcpy(FindPath,DestPath);
     AddEndSlash(FindPath);
@@ -1120,7 +1308,16 @@ int PluginsSet::DeleteFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     SaveScreen SaveScr;
     KeepUserScreen=FALSE;
-    int Code=PluginsData[ph->PluginNumber].pDeleteFiles(ph->InternalHandle,PanelItem,ItemsNumber,OpMode);
+    int Code;
+    EXCEPTION_POINTERS *xp;
+    TRY{
+      Code=PluginsData[ph->PluginNumber].pDeleteFiles(ph->InternalHandle,PanelItem,ItemsNumber,OpMode);
+    }
+    __except ( xfilter(EXCEPT_DELETEFILES,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Code=FALSE;
+    }
     ReadUserBackgound(&SaveScr);
     return(Code);
   }
@@ -1136,7 +1333,16 @@ int PluginsSet::MakeDirectory(HANDLE hPlugin,char *Name,int OpMode)
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     SaveScreen SaveScr;
     KeepUserScreen=FALSE;
-    int Code=PluginsData[ph->PluginNumber].pMakeDirectory(ph->InternalHandle,Name,OpMode);
+    int Code;
+    EXCEPTION_POINTERS *xp;
+    TRY{
+      Code=PluginsData[ph->PluginNumber].pMakeDirectory(ph->InternalHandle,Name,OpMode);
+    }
+    __except ( xfilter(EXCEPT_MAKEDIRECTORY,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Code=-1;
+    }
     ReadUserBackgound(&SaveScr);
     return(Code);
   }
@@ -1152,7 +1358,16 @@ int PluginsSet::ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     SaveScreen SaveScr;
     KeepUserScreen=FALSE;
-    int Code=PluginsData[ph->PluginNumber].pProcessHostFile(ph->InternalHandle,PanelItem,ItemsNumber,OpMode);
+    int Code;
+    EXCEPTION_POINTERS *xp;
+    TRY{
+      Code=PluginsData[ph->PluginNumber].pProcessHostFile(ph->InternalHandle,PanelItem,ItemsNumber,OpMode);
+    }
+    __except ( xfilter(EXCEPT_PROCESSHOSTFILE,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Code=FALSE;
+    }
     ReadUserBackgound(&SaveScr);
     return(Code);
   }
@@ -1171,8 +1386,15 @@ int PluginsSet::GetFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,
     {
       SaveScreen SaveScr;
       KeepUserScreen=FALSE;
-      ExitCode=PluginsData[ph->PluginNumber].pGetFiles(ph->InternalHandle,PanelItem,ItemsNumber,Move,DestPath,OpMode);
-      ReadUserBackgound(&SaveScr);
+      EXCEPTION_POINTERS *xp;
+      TRY{
+        ExitCode=PluginsData[ph->PluginNumber].pGetFiles(ph->InternalHandle,PanelItem,ItemsNumber,Move,DestPath,OpMode);
+      }
+      __except ( xfilter(EXCEPT_GETFILES,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1))
+      {
+        ExitCode=FALSE;
+      }
     }
   }
   return(ExitCode);
@@ -1187,7 +1409,16 @@ int PluginsSet::PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int It
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
     SaveScreen SaveScr;
     KeepUserScreen=FALSE;
-    int Code=PluginsData[ph->PluginNumber].pPutFiles(ph->InternalHandle,PanelItem,ItemsNumber,Move,OpMode);
+    int Code;
+    EXCEPTION_POINTERS *xp;
+    TRY{
+      Code=PluginsData[ph->PluginNumber].pPutFiles(ph->InternalHandle,PanelItem,ItemsNumber,Move,OpMode);
+    }
+    __except ( xfilter(EXCEPT_PUTFILES,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Code=FALSE;
+    }
     ReadUserBackgound(&SaveScr);
     return(Code);
   }
@@ -1201,7 +1432,17 @@ int PluginsSet::GetPluginInfo(int PluginNumber,struct PluginInfo *Info)
     return(FALSE);
   memset(Info,0,sizeof(*Info));
   if (PluginsData[PluginNumber].pGetPluginInfo)
-    PluginsData[PluginNumber].pGetPluginInfo(Info);
+  {
+    EXCEPTION_POINTERS *xp;
+    TRY{
+      PluginsData[PluginNumber].pGetPluginInfo(Info);
+    }
+    __except ( xfilter(EXCEPT_GETPLUGININFO,
+                     xp = GetExceptionInformation(),&PluginsData[PluginNumber],1) )
+    {
+      return FALSE;
+    }
+  }
   return(TRUE);
 }
 
@@ -1211,7 +1452,17 @@ void PluginsSet::GetOpenPluginInfo(HANDLE hPlugin,struct OpenPluginInfo *Info)
   memset(Info,0,sizeof(*Info));
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pGetOpenPluginInfo)
-    PluginsData[ph->PluginNumber].pGetOpenPluginInfo(ph->InternalHandle,Info);
+  {
+    EXCEPTION_POINTERS *xp;
+    TRY{
+      PluginsData[ph->PluginNumber].pGetOpenPluginInfo(ph->InternalHandle,Info);
+    }
+    __except ( xfilter(EXCEPT_GETOPENPLUGININFO,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      return;
+    }
+  }
   if (Info->CurDir==NULL)
     Info->CurDir="";
 }
@@ -1221,7 +1472,19 @@ int PluginsSet::ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState)
 {
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pProcessKey)
-    return(PluginsData[ph->PluginNumber].pProcessKey(ph->InternalHandle,Key,ControlState));
+  {
+    EXCEPTION_POINTERS *xp;
+    int Ret;
+    TRY{
+      Ret=PluginsData[ph->PluginNumber].pProcessKey(ph->InternalHandle,Key,ControlState);
+    }
+    __except ( xfilter(EXCEPT_PROCESSKEY,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Ret=FALSE;
+    }
+    return(Ret);
+  }
   return(FALSE);
 }
 
@@ -1230,7 +1493,19 @@ int PluginsSet::ProcessEvent(HANDLE hPlugin,int Event,void *Param)
 {
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pProcessEvent)
-    return(PluginsData[ph->PluginNumber].pProcessEvent(ph->InternalHandle,Event,Param));
+  {
+    EXCEPTION_POINTERS *xp;
+    int Ret;
+    TRY{
+      Ret=PluginsData[ph->PluginNumber].pProcessEvent(ph->InternalHandle,Event,Param);
+    }
+    __except ( xfilter(EXCEPT_PROCESSEVENT,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Ret=FALSE;
+    }
+    return(Ret);
+  }
   return(FALSE);
 }
 
@@ -1239,7 +1514,19 @@ int PluginsSet::Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct Plug
 {
   struct PluginHandle *ph=(struct PluginHandle *)hPlugin;
   if (PluginsData[ph->PluginNumber].pCompare)
-    return(PluginsData[ph->PluginNumber].pCompare(ph->InternalHandle,Item1,Item2,Mode));
+  {
+    EXCEPTION_POINTERS *xp;
+    int Ret;
+    TRY{
+      Ret=PluginsData[ph->PluginNumber].pCompare(ph->InternalHandle,Item1,Item2,Mode);
+    }
+    __except ( xfilter(EXCEPT_COMPARE,
+                     xp = GetExceptionInformation(),&PluginsData[ph->PluginNumber],1) )
+    {
+      Ret=-3;
+    }
+    return(Ret);
+  }
   return(-3);
 }
 
@@ -1308,7 +1595,17 @@ void PluginsSet::Configure()
   int PNum=Data[0];
   if (PreparePlugin(PNum) && PluginsData[PNum].pConfigure!=NULL)
   {
-    if (PluginsData[PNum].pConfigure(Data[1]))
+    EXCEPTION_POINTERS *xp;
+    int Ret;
+    TRY{
+      Ret=PluginsData[PNum].pConfigure(Data[1]);
+    }
+    __except ( xfilter(EXCEPT_CONFIGURE,
+                     xp = GetExceptionInformation(),&PluginsData[PNum],1) )
+    {
+      return;
+    }
+    if (Ret)
     {
       if (CtrlObject->LeftPanel->GetMode()==PLUGIN_PANEL)
       {

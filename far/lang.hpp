@@ -12,10 +12,12 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.21 16.10.2000 $ */
+/* Revision: 1.22 17.10.2000 $ */
 
 /*
 Modify:
+  17.10.2000 SVS
+    + Еще несколько MExc*
   16.10.2000 SVS
     + MExc* - для Исключений
   27.09.2000 SVS
@@ -1263,9 +1265,12 @@ enum
   MGoToHex,
   MGoToDecimal,
 
+  MExceptTitleLoad,
   MExceptTitle,
   MExcTrappedException,
   MExcAddress,
+  MExcUnload,
+  MExcUnloadYes,
   MExcRAccess,
   MExcWAccess,
   MExcOutOfBounds,
