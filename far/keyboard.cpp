@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.28 06.05.2001 $ */
+/* Revision: 1.29 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 SVS
+    - При быстром поиске Alt-Shift-'-' не начинает поиск файлов, начинающихся
+      с '_', а начинает с '-'. Раньше работало нормально.
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -1201,7 +1204,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         case 0xc0:
           return(KEY_ALT+KEY_SHIFT+'~');
         case 0xbd:
-          return(KEY_ALT+KEY_SHIFT+'-');
+          return(KEY_ALT+KEY_SHIFT+'_');
         case 0xbb:
           return(KEY_ALT+KEY_SHIFT+'=');
         case 0xdc:
