@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.56 28.02.2001 $ */
+/* Revision: 1.57 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 tran
+    + при прогонке файла через OpenFilePlugin
+      в заголовке окна показывается имя плагина
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   26.02.2001 VVM
@@ -1148,6 +1151,9 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
 HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
+  /* $ 20.03.2001 tran */
+  ConsoleTitle ct(MSG(MCheckingFileInPlugin));
+  /* tran $ */
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pOpenFilePlugin && PreparePlugin(I))
     {
@@ -1165,6 +1171,9 @@ HANDLE PluginsSet::OpenFilePlugin(char *Name,const unsigned char *Data,int DataS
 
       TRY
       {
+         /* $ 20.03.2001 tran */
+         ct.Set("%s - [%s]...",MSG(MCheckingFileInPlugin),strrchr(PluginsData[I].ModuleName,'\\')+1);
+         /* tran $ */
          hInternal=PluginsData[I].pOpenFilePlugin(NamePtr,Data,DataSize);
          if (!hInternal)
            RaiseException(STATUS_INVALIDFUNCTIONRESULT, 0, 0, 0);

@@ -1,7 +1,71 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
+.\constitle.cpp : \
+	".\baseinp.hpp"\
+	".\constitle.hpp" \
+	".\chgmmode.hpp"\
+	".\chgprior.hpp"\
+	".\classes.hpp"\
+	".\cmdline.hpp"\
+	".\colors.hpp"\
+	".\copy.hpp"\
+	".\ctrlobj.hpp"\
+	".\dialog.hpp"\
+	".\dizlist.hpp"\
+	".\edit.hpp"\
+	".\editor.hpp"\
+	".\farconst.hpp"\
+	".\farftp.hpp"\
+	".\farversion.inc"\
+	".\fileedit.hpp"\
+	".\filelist.hpp"\
+	".\filestr.hpp"\
+	".\fileview.hpp"\
+	".\filter.hpp"\
+	".\findfile.hpp"\
+	".\fn.hpp"\
+	".\foldtree.hpp"\
+	".\global.hpp"\
+	".\grabber.hpp"\
+	".\grpsort.hpp"\
+	".\headers.hpp"\
+	".\help.hpp"\
+	".\hilight.hpp"\
+	".\history.hpp"\
+	".\hmenu.hpp"\
+	".\infolist.hpp"\
+	".\int64.hpp"\
+	".\internalheaders.hpp"\
+	".\keybar.hpp"\
+	".\keys.hpp"\
+	".\lang.hpp"\
+	".\language.hpp"\
+	".\lockscrn.hpp"\
+	".\macro.hpp"\
+	".\manager.hpp"\
+	".\menubar.hpp"\
+	".\modal.hpp"\
+	".\namelist.hpp"\
+	".\panel.hpp"\
+	".\plognmn.hpp"\
+	".\plugin.hpp"\
+	".\plugins.hpp"\
+	".\poscache.hpp"\
+	".\qview.hpp"\
+	".\rdrwdsk.hpp"\
+	".\savefpos.hpp"\
+	".\savescr.hpp"\
+	".\scantree.hpp"\
+	".\scrbuf.hpp"\
+	".\scrobj.hpp"\
+	".\struct.hpp"\
+	".\treelist.hpp"\
+	".\viewer.hpp"\
+	".\vmenu.hpp"\
+
 .\strmix.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -64,6 +128,7 @@
 
 .\farqueue.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -126,6 +191,7 @@
 
 .\stddlg.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -188,6 +254,7 @@
 
 .\flink.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -250,6 +317,7 @@
 
 .\checkver.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -312,6 +380,7 @@
 
 .\clipboard.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -374,6 +443,7 @@
 
 .\eject.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -435,6 +505,7 @@
 	".\vmenu.hpp"\
 
 .\xlat.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -497,6 +568,7 @@
 	".\vmenu.hpp"\
 
 .\chgmmode.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -560,6 +632,7 @@
 
 
 .\chgprior.cpp : \
+	".\constitle.hpp" \
 	".\chgprior.hpp"\
 	".\headers.hpp"\
 
@@ -590,6 +663,7 @@
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
+	".\constitle.hpp" \
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
@@ -650,6 +724,7 @@
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\fn.hpp"\
+	".\constitle.hpp" \
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
@@ -710,6 +785,7 @@
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
+	".\constitle.hpp" \
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\fn.hpp"\
@@ -770,6 +846,7 @@
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
+	".\constitle.hpp" \
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -830,6 +907,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\constitle.hpp" \
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
@@ -890,6 +968,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
+	".\constitle.hpp" \
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -950,6 +1029,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp" \
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -1010,6 +1090,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp" \
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -1070,6 +1151,7 @@
 
 
 .\editor.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -1144,6 +1226,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp" \
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -1204,6 +1287,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp" \
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -1264,6 +1348,7 @@
 
 
 .\filelist.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -1332,6 +1417,7 @@
 
 
 .\filetype.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -1422,6 +1508,7 @@
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
+	".\constitle.hpp" \
 	".\help.hpp"\
 	".\hilight.hpp"\
 	".\history.hpp"\
@@ -1482,6 +1569,7 @@
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
+	".\constitle.hpp" \
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
@@ -1542,6 +1630,7 @@
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
+	".\constitle.hpp" \
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
@@ -1602,6 +1691,7 @@
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
+	".\constitle.hpp" \
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
@@ -1662,6 +1752,7 @@
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
+	".\constitle.hpp" \
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -1722,6 +1813,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\constitle.hpp" \
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
@@ -1782,6 +1874,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
+	".\constitle.hpp" \
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -1842,6 +1935,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp" \
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -1902,6 +1996,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp" \
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -1962,6 +2057,7 @@
 
 
 .\global.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -2052,6 +2148,7 @@
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
+	".\constitle.hpp" \
 	".\help.hpp"\
 	".\hilight.hpp"\
 	".\history.hpp"\
@@ -2112,6 +2209,7 @@
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
+	".\constitle.hpp" \
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
@@ -2172,6 +2270,7 @@
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
+	".\constitle.hpp" \
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
@@ -2232,6 +2331,7 @@
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
+	".\constitle.hpp" \
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
@@ -2292,6 +2392,7 @@
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
+	".\constitle.hpp" \
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2352,6 +2453,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\constitle.hpp" \
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
@@ -2412,6 +2514,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
+	".\constitle.hpp" \
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -2471,6 +2574,7 @@
 
 
 .\interf.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -2561,6 +2665,7 @@
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
+	".\constitle.hpp" \
 	".\help.hpp"\
 	".\hilight.hpp"\
 	".\history.hpp"\
@@ -2621,6 +2726,7 @@
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
+	".\constitle.hpp" \
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
@@ -2681,6 +2787,7 @@
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
+	".\constitle.hpp" \
 	".\fn.hpp"\
 	".\foldtree.hpp"\
 	".\global.hpp"\
@@ -2741,6 +2848,7 @@
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
+	".\constitle.hpp" \
 	".\fileview.hpp"\
 	".\filter.hpp"\
 	".\findfile.hpp"\
@@ -2801,6 +2909,7 @@
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
+	".\constitle.hpp" \
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -2861,6 +2970,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\constitle.hpp" \
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
@@ -2921,6 +3031,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
+	".\constitle.hpp" \
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -2981,6 +3092,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp" \
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -3041,6 +3153,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp" \
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -3101,6 +3214,7 @@
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
+	".\constitle.hpp" \
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\copy.hpp"\
@@ -3161,6 +3275,7 @@
 .\syslog  : \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
+	".\constitle.hpp" \
 	".\chgprior.hpp"\
 	".\classes.hpp"\
 	".\cmdline.hpp"\
@@ -3221,6 +3336,7 @@
 	".\vmenu.hpp"\
 
 .\fileattr  : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -3311,6 +3427,7 @@
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
+	".\constitle.hpp" \
 	".\hilight.hpp"\
 	".\history.hpp"\
 	".\hmenu.hpp"\
@@ -3371,6 +3488,7 @@
 	".\global.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
+	".\constitle.hpp" \
 	".\headers.hpp"\
 	".\help.hpp"\
 	".\hilight.hpp"\
@@ -3431,6 +3549,7 @@
 	".\findfile.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
+	".\constitle.hpp" \
 	".\global.hpp"\
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
@@ -3491,6 +3610,7 @@
 	".\filestr.hpp"\
 	".\fileview.hpp"\
 	".\filter.hpp"\
+	".\constitle.hpp" \
 	".\findfile.hpp"\
 	".\fn.hpp"\
 	".\foldtree.hpp"\
@@ -3536,6 +3656,7 @@
 .\namelist.cpp : \
 	".\farconst.hpp"\
 	".\farversion.inc"\
+	".\constitle.hpp" \
 	".\headers.hpp"\
 	".\namelist.hpp"\
 
@@ -3545,6 +3666,7 @@
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
+	".\constitle.hpp" \
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\copy.hpp"\
@@ -3605,6 +3727,7 @@
 
 .\palette.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -3667,6 +3790,7 @@
 
 
 .\panel.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -3757,6 +3881,7 @@
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
+	".\constitle.hpp" \
 	".\help.hpp"\
 	".\hilight.hpp"\
 	".\history.hpp"\
@@ -3816,6 +3941,7 @@
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
+	".\constitle.hpp" \
 	".\fileedit.hpp"\
 	".\filelist.hpp"\
 	".\filestr.hpp"\
@@ -3876,6 +4002,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
+	".\constitle.hpp" \
 	".\farconst.hpp"\
 	".\farftp.hpp"\
 	".\farversion.inc"\
@@ -3936,6 +4063,7 @@
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
+	".\constitle.hpp" \
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\editor.hpp"\
@@ -3996,6 +4124,7 @@
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
+	".\constitle.hpp" \
 	".\copy.hpp"\
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
@@ -4056,6 +4185,7 @@
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
+	".\constitle.hpp" \
 	".\classes.hpp"\
 	".\cmdline.hpp"\
 	".\colors.hpp"\
@@ -4116,6 +4246,7 @@
 
 
 .\rdrwdsk.cpp : \
+	".\constitle.hpp" \
 	".\baseinp.hpp"\
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
@@ -4206,6 +4337,7 @@
 	".\grabber.hpp"\
 	".\grpsort.hpp"\
 	".\headers.hpp"\
+	".\constitle.hpp" \
 	".\help.hpp"\
 	".\hilight.hpp"\
 	".\history.hpp"\
@@ -4266,6 +4398,7 @@
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
+	".\constitle.hpp" \
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\fn.hpp"\
@@ -4326,6 +4459,7 @@
 	".\farftp.hpp"\
 	".\farversion.inc"\
 	".\fileedit.hpp"\
+	".\constitle.hpp" \
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
@@ -4386,6 +4520,7 @@
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
+	".\constitle.hpp" \
 	".\farftp.hpp"\
 	".\farversion.inc"\
 	".\fileedit.hpp"\
@@ -4446,6 +4581,7 @@
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
+	".\constitle.hpp" \
 	".\edit.hpp"\
 	".\editor.hpp"\
 	".\farconst.hpp"\
@@ -4506,6 +4642,7 @@
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\copy.hpp"\
+	".\constitle.hpp" \
 	".\ctrlobj.hpp"\
 	".\dialog.hpp"\
 	".\dizlist.hpp"\
@@ -4566,6 +4703,7 @@
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
+	".\constitle.hpp" \
 	".\cmdline.hpp"\
 	".\colors.hpp"\
 	".\copy.hpp"\
@@ -4626,6 +4764,7 @@
 
 .\setcolor.cpp : \
 	".\baseinp.hpp"\
+	".\constitle.hpp" \
 	".\chgmmode.hpp"\
 	".\chgprior.hpp"\
 	".\classes.hpp"\
@@ -4716,6 +4855,7 @@
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
+	".\constitle.hpp" \
 	".\hilight.hpp"\
 	".\history.hpp"\
 	".\hmenu.hpp"\
@@ -4776,6 +4916,7 @@
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
+	".\constitle.hpp" \
 	".\grpsort.hpp"\
 	".\headers.hpp"\
 	".\help.hpp"\
@@ -4836,6 +4977,7 @@
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\fn.hpp"\
+	".\constitle.hpp" \
 	".\foldtree.hpp"\
 	".\global.hpp"\
 	".\grabber.hpp"\
@@ -4896,6 +5038,7 @@
 	".\filelist.hpp"\
 	".\filestr.hpp"\
 	".\fileview.hpp"\
+	".\constitle.hpp" \
 	".\filter.hpp"\
 	".\findfile.hpp"\
 	".\fn.hpp"\
@@ -4937,4 +5080,3 @@
 	".\treelist.hpp"\
 	".\viewer.hpp"\
 	".\vmenu.hpp"\
-

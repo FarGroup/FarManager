@@ -119,6 +119,7 @@ FAROBJ=\
    $(OBJPATH)\palette.obj\
    $(OBJPATH)\mkdir.obj\
    $(OBJPATH)\plugins.obj\
+   $(OBJPATH)\constitle.obj\
    $(OBJPATH)\manager.obj\
    $(OBJPATH)\poscache.obj\
    $(OBJPATH)\grabber.obj\

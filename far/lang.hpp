@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.57 20.03.2001 $ */
+/* Revision: 1.58 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 tran
+    + MCheckingFileInPlugin
   20.03.2001 SVS
     + MEditFileLong2
   16.03.2001 SVS
@@ -1497,6 +1499,8 @@ enum
 
   MKeyESCWasPressed,
   MDoYouWantToStopWork,
+
+  MCheckingFileInPlugin,
 
   MListEval
 

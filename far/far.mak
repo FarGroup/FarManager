@@ -42,6 +42,7 @@ ALL : "$(OUTDIR)\far.exe"
 
 CLEAN :
 	-@erase "$(INTDIR)\farqueue.obj"
+	-@erase "$(INTDIR)\constitle.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
 	-@erase "$(INTDIR)\flink.obj"
@@ -149,6 +150,7 @@ DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
 	"$(INTDIR)\stddlg.obj" \
+	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\flink.obj" \
 	"$(INTDIR)\checkver.obj" \
@@ -268,6 +270,7 @@ CLEAN :
 	-@erase "$(INTDIR)\checkver.obj"
 	-@erase "$(INTDIR)\chgmmode.obj"
 	-@erase "$(INTDIR)\chgprior.obj"
+	-@erase "$(INTDIR)\constitle.obj"
 	-@erase "$(INTDIR)\cmdline.obj"
 	-@erase "$(INTDIR)\config.obj"
 	-@erase "$(INTDIR)\copy.obj"
@@ -388,6 +391,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\ffolders.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filelist.obj" \
+	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\filestr.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \

@@ -7,10 +7,12 @@ classes.hpp
 
 */
 
-/* Revision: 1.02 24.01.2001 $ */
+/* Revision: 1.03 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 tran
+    + constitle.hpp
   24.01.2001 SVS
     + farqueue.hpp - шаблон очереди.
   17.07.2000 OT
@@ -82,5 +84,6 @@ class History;
 #include "scrbuf.hpp"
 #include "history.hpp"
 #include "chgmmode.hpp"
+#include "constitle.hpp"
 
 #endif	// __CLASSES_HPP__
