@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.37 22.07.2001 $ */
+/* Revision: 1.38 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 OT
+    »справление отрисовки меню в новом MA в макросах
   22.07.2001 SVS
    ! ѕересмотрены параметры функции SelectFromComboBox() - ведь и так
      передаем указатель аж на цельный класс строки, так что...
@@ -501,9 +503,6 @@ class Dialog: public Frame
     virtual int GetType() { return MODALTYPE_DIALOG; }
     /* DJ $ */
 
-    /* $ 20.05.2001 DJ */
-    virtual void OnChangeFocus (int Focus);
-    /* DJ $ */
     int GetMacroMode();
 
 /* $ ¬ведена дл€ нужд CtrlAltShift OT */

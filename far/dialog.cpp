@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.143 23.07.2001 $ */
+/* Revision: 1.144 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 OT
+    Исправление отрисовки меню в новом MA в макросах
   23.07.2001 VVM
    + При удалении строки из истории курсор оставлять на месте.
    + При очистке истории спросить об этом пользователя.
@@ -5337,21 +5339,6 @@ int Dialog::GetTypeAndName (char *Type, char *Name)
   strcpy (Type, MSG(MDialogType));
   strcpy (Name, GetDialogTitle());
   return MODALTYPE_DIALOG;
-}
-
-/* DJ $ */
-
-/* $ 21.05.2001 DJ
-   обработка смены фокуса
-*/
-
-void Dialog::OnChangeFocus (int Focus)
-{
-  _tran(SysLog("[%p] Dialog::OnChangeFocus() focus=%i",this,Focus));
-  if (Focus)
-    Show();
-  else
-    Hide();
 }
 
 /* DJ $ */

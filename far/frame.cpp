@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.13 18.07.2001 $ */ 
+/* Revision: 1.14 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 OT
+    Исправление отрисовки меню в новом MA в макросах
   18.07.2001 OT
     VFMenu
   11.07.2001 OT
@@ -93,6 +95,8 @@ void Frame::OnChangeFocus (int focus)
     if (NextModal) {
       NextModal->Show();
     }
+  } else {
+    Hide();
   }
 }
 /* DJ $ */
@@ -149,7 +153,7 @@ void Frame::DestroyAllModal()
     Prev=Next;
     Next=Next->NextModal;
 //    if (GetDynamicallyBorn())
-    
+
   }
 
 }
