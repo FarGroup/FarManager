@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.123 30.09.2002 $ */
+/* Revision: 1.124 01.10.2002 $ */
 
 /*
 Modify:
+  01.10.2002 VVM
+    ! Переместим фокус на кнопку [Go To] при первом добавлении в список,
+      а не при прорисовке.
   30.09.2002 SVS
     ! упростим процедуру обработки DN_CTLCOLORDLGLIST - нужно заменить только
       9-й индекс!
@@ -992,8 +995,6 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       WaitForSingleObject(hDialogMutex,INFINITE);
 
-      FindPositionChanged = TRUE;
-
       if (!StopSearch && Param2==KEY_ESC)
       {
         PauseSearch=TRUE;
@@ -1018,6 +1019,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       while (ListBox->GetCallCount())
         Sleep(10);
 
+	  if(Param2 == KEY_LEFT || Param2 == KEY_RIGHT)
+        FindPositionChanged = TRUE;
+
       // некторые спец.клавиши всеже отбработаем.
       if(Param2 == KEY_CTRLALTSHIFTPRESS || Param2 == KEY_ALTF9)
       {
@@ -1032,6 +1036,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
 //        while (ListBox->GetCallCount())
 //          Sleep(10);
+        FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,5/* [ New search ] */,0);
         ReleaseMutex(hDialogMutex);
         return TRUE;
@@ -1040,6 +1045,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
 //        while (ListBox->GetCallCount())
 //          Sleep(10);
+        FindPositionChanged = TRUE;
         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,9/* [ Stop ] */,0);
         ReleaseMutex(hDialogMutex);
         return TRUE;
@@ -2085,9 +2091,19 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     FindFileCount++;
   /* KM $ */
 
+  /* $ 01.10.2002 VVM
+    ! Переместим фокус на кнопку [Go To] */
+  if (!FindPositionChanged)
+  {
+    FindPositionChanged = TRUE;
+    Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6/* [Go To] */,0);
+  }
+  /* VVM $ */
+
   LastFoundNumber++;
   FindCountReady=TRUE;
   ReleaseMutex(hDialogMutex);
+
 }
 
 
@@ -2449,11 +2465,6 @@ void FindFiles::WriteDialogData(void *Param)
           Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
 
-        if (!FindPositionChanged)
-        {
-          FindPositionChanged = TRUE;
-          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6/* [Go To] */,0);
-        }
         FindCountReady=FALSE;
       }
       if (FindMessageReady)
