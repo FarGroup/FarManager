@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.320 23.01.2005 $ */
+/* Revision: 1.321 23.01.2005 $ */
 
 /*
 Modify:
+  23.01.2005 SVS
+    - DM_SETCURSORPOS на Edit'ах в DN_INITDIALOG приводил к тому, что Edit отрисовывался до диалога.
   23.01.2005 WARP
     ! Пара гвоздей в Dialog'и (см. 01915.dialog.DN_CLOSE.txt)
   11.01.2005 SVS
@@ -6964,7 +6966,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       {
         DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
         EditPtr->SetCurPos(((COORD*)Param2)->X);
-        EditPtr->Show();
+        //EditPtr->Show();
+        Dlg->ShowDialog (Param1);
         return TRUE;
       }
       else if(Type == DI_USERCONTROL && CurItem->UCData)
