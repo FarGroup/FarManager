@@ -5,10 +5,17 @@ main.cpp
 
 */
 
-/* Revision: 1.55 17.06.2002 $ */
+/* Revision: 1.56 21.06.2002 $ */
 
 /*
 Modify:
+  21.06.2002 SVS
+    + автодетект TTF-шрифта
+    ! /w  - отключена (может потом пригодится)
+    + /aw - Отключить автоопределение TrueType шрифта для консоли.
+    + В командной строке можно указать не более двух путей к каталогам,
+      файлам или архивам. Первый путь для активной панели, второй -
+      для пассивной.
   17.06.2002 SVS
     ! Опция /ttf заменена на /w
     ! Для "far /?" в масдае не выводится
@@ -203,7 +210,16 @@ printf(
 "The following switches may be used in the command line:\n\n"
 " /?   This help.\n"
 " /a   Disable display of characters with codes 0 - 31 and 255.\n"
-" /ag  Disable display of pseudographics characters.\n"
+" /ag  Disable display of pseudographics characters.\n");
+#if defined(USE_WFUNC)
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
+  {
+    printf(
+" /aw  Disable TrueType font autodetection.\n"
+    );
+  }
+#endif
+printf(
 " /e[<line>[:<pos>]] <filename>\n"
 "      Edit the specified file.\n"
 " /i   Set small (16x16) icon for FAR console window.\n"
@@ -222,6 +238,7 @@ printf(
 " /do  Direct output.\n"
 #endif
 );
+#if 0
 #if defined(USE_WFUNC)
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
   {
@@ -230,14 +247,38 @@ printf(
     );
   }
 #endif
+#endif
 }
+
+#if defined(USE_WFUNC)
+void DetectTTFFont(char *Path)
+{
+  char AppName[NM*2];
+  strncpy(AppName,Path,sizeof(AppName)-1);
+  SetRegRootKey(HKEY_CURRENT_USER);
+  strcpy(Opt.RegRoot,"Console");
+  ReplaceStrings(AppName,"\\","_",-1);
+  if(!CheckRegKey(AppName))
+  {
+    strcpy(Opt.RegRoot,"");
+    strcpy(AppName,"Console");
+  }
+  int FontFamily=GetRegKey(AppName,"FontFamily",0);
+  if(FontFamily && Opt.UseTTFFont == -1)
+    Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && FontFamily==0x36)?TRUE:FALSE;
+  strcpy(Opt.RegRoot,"Software\\Far");
+}
+#endif
 
 int _cdecl main(int Argc, char *Argv[])
 {
   _OT(SysLog("[[[[[[[[New Session of FAR]]]]]]]]]"));
-  char EditName[NM],ViewName[NM],DestName[NM];
+  char EditName[NM],ViewName[NM];
+  char DestName[2][NM];
   int StartLine=-1,StartChar=-1,RegOpt=FALSE;
-  *EditName=*ViewName=*DestName=0;
+  int CntDestName=0; // количество параметров-имен каталогов
+
+  *EditName=*ViewName=DestName[0][0]=DestName[1][0]=0;
   CmdMode=FALSE;
 
   WinVer.dwOSVersionInfoSize=sizeof(WinVer);
@@ -261,6 +302,11 @@ int _cdecl main(int Argc, char *Argv[])
     pIsDebuggerPresent=(PISDEBUGGERPRESENT)GetProcAddress(GetModuleHandle("KERNEL32"),"IsDebuggerPresent");
   Opt.ExceptRules=(pIsDebuggerPresent && pIsDebuggerPresent()?0:-1);
 #endif
+
+#if defined(USE_WFUNC)
+  Opt.UseTTFFont=-1;
+#endif
+
 //  Opt.ExceptRules=-1;
 //_SVS(SysLog("Opt.ExceptRules=%d",Opt.ExceptRules));
 
@@ -299,6 +345,11 @@ int _cdecl main(int Argc, char *Argv[])
             case 'G':
               Opt.NoGraphics=TRUE;
               break;
+#if defined(USE_WFUNC)
+            case 'W':
+              Opt.UseTTFFont=FALSE;
+              break;
+#endif
           }
           break;
         case 'E':
@@ -328,10 +379,13 @@ int _cdecl main(int Argc, char *Argv[])
         case 'I':
           Opt.SmallIcon=TRUE;
           break;
+#if 0
 #if defined(USE_WFUNC)
         case 'W':
-          Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)?TRUE:FALSE;
+          if(Opt.UseTTFFont == -1)
+            Opt.UseTTFFont=(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)?TRUE:FALSE;
           break;
+#endif
 #endif
         case 'X':
           Opt.ExceptRules=0;
@@ -410,8 +464,13 @@ int _cdecl main(int Argc, char *Argv[])
 #endif
       }
     }
-    else
-      CharToOem(Argv[I],DestName);
+    else // простые параметры. Их может быть max две штукА.
+    {
+      if(CntDestName < 2)
+      {
+        CharToOem(Argv[I],DestName[CntDestName++]);
+      }
+    }
 
   /* $ 26.03.2002 IS
      Настройка сортировки.
@@ -437,6 +496,9 @@ int _cdecl main(int Argc, char *Argv[])
 
   SetFileApisToOEM();
   GetModuleFileName(NULL,FarPath,sizeof(FarPath));
+#if defined(USE_WFUNC)
+  DetectTTFFont(FarPath);
+#endif
   /* $ 02.07.2001 IS
      Учтем то, что GetModuleFileName иногда возвращает короткое имя, которое
      нам нафиг не нужно.
@@ -522,6 +584,7 @@ int _cdecl main(int Argc, char *Argv[])
     }
     else
     {
+      char Path[NM];
       OnliEditorViewerUsed=FALSE;
       NotUseCAS=FALSE;
       if (RegOpt)
@@ -530,27 +593,87 @@ int _cdecl main(int Argc, char *Argv[])
       _beginthread(CheckReg,0x10000,&Reg);
       while (!Reg.Done)
         Sleep(10);
+
+      // воспользуемся тем, что ControlObject::Init() создает панели
+      // юзая Opt.*
+      if(*DestName[0]) // актиная панель
+      {
+        strcpy(Path,DestName[0]);
+        *PointToName(Path)=0;
+        DeleteEndSlash(Path);  // если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
+
+        // Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
+        if(Opt.LeftPanel.Focus)
+        {
+          Opt.LeftPanel.Type=FILE_PANEL;  // сменим моду панели
+          Opt.LeftPanel.Visible=TRUE;     // и включим ее
+          strcpy(Opt.LeftFolder,Path);
+        }
+        else
+        {
+          Opt.RightPanel.Type=FILE_PANEL;
+          Opt.RightPanel.Visible=TRUE;
+          strcpy(Opt.RightFolder,Path);
+        }
+
+        if(*DestName[1]) // пассивная панель
+        {
+          strcpy(Path,DestName[1]);
+          *PointToName(Path)=0;
+          DeleteEndSlash(Path);
+
+          // а здесь с точнотью наоборот - обрабатываем пассивную панель
+          if(Opt.LeftPanel.Focus)
+          {
+            Opt.RightPanel.Type=FILE_PANEL; // сменим моду панели
+            Opt.RightPanel.Visible=TRUE;    // и включим ее
+            strcpy(Opt.RightFolder,Path);
+          }
+          else
+          {
+            Opt.LeftPanel.Type=FILE_PANEL;
+            Opt.LeftPanel.Visible=TRUE;
+            strcpy(Opt.LeftFolder,Path);
+          }
+        }
+      }
+
+      // теперь все готово - создаем панели!
       CtrlObj.Init();
-      if (*DestName)
+
+      // а теперь "провалимся" в каталог или хост-файл (если получится ;-)
+      if(*DestName[0]) // актиная панель
       {
         LockScreen LockScr;
-        char Path[NM];
-        strcpy(Path,DestName);
-        *PointToName(Path)=0;
         Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-        if (*Path)
-          ActivePanel->SetCurDir(Path,TRUE);
-        strcpy(Path,PointToName(DestName));
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+
+        strcpy(Path,PointToName(DestName[0]));
         if (*Path)
         {
           if (ActivePanel->GoToFile(Path))
             ActivePanel->ProcessKey(KEY_CTRLPGDN);
         }
-        CtrlObject->Cp()->LeftPanel->Redraw();
-        CtrlObject->Cp()->RightPanel->Redraw();
+
+        if(*DestName[1]) // пассивная панель
+        {
+          strcpy(Path,PointToName(DestName[1]));
+          if (*Path)
+          {
+            if (AnotherPanel->GoToFile(Path))
+              AnotherPanel->ProcessKey(KEY_CTRLPGDN);
+          }
+        }
+
+        // !!! ВНИМАНИЕ !!!
+        // Сначала редравим пассивную панель, а потом активную!
+        AnotherPanel->Redraw();
+        ActivePanel->Redraw();
       }
+
       FrameManager->EnterMainLoop();
     }
+
     // очистим за собой!
     SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
     ScrBuf.ResetShadow();

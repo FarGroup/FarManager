@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.138 14.06.2002 $ */
+/* Revision: 1.139 21.06.2002 $ */
 
 /*
 Modify:
+  21.06.2002 SVS
+    + ACTL_GETWCHARMODE для FAR_USE_INTERNALS
+      "Сегодня ФАР рисует в окне с помощью W-функции или где?"
   14.06.2002 IS
     + Обработка xF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
       приоритет по сравнению с xF_DELETEONCLOSE
@@ -557,6 +560,11 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
       return FarAltEnter((int)Param);
     }
     /* SVS $ */
+
+    case ACTL_GETWCHARMODE:
+    {
+      return Opt.UseTTFFont;
+    }
 
     /* $ 03.08.2000 SVS
        получение строки с разделителями слов

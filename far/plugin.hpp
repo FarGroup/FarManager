@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.213 14.06.2002 $ */
+/* Revision: 1.214 21.06.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.06.2002 SVS
+    + ACTL_GETWCHARMODE для FAR_USE_INTERNALS
+      "Сегодня ФАР рисует в окне с помощью W-функции или где?"
   14.06.2002 IS
     + VF_DELETEONLYFILEONCLOSE,  EF_DELETEONLYFILEONCLOSE
   10.06.2002 SVS
@@ -1556,6 +1559,9 @@ enum ADVANCED_CONTROL_COMMANDS{
   ACTL_GETINTERFACESETTINGS,
   ACTL_GETCONFIRMATIONS,
   ACTL_GETDESCSETTINGS,
+#ifdef FAR_USE_INTERNALS
+  ACTL_GETWCHARMODE,
+#endif // END FAR_USE_INTERNALS
 };
 
 enum FarSystemSettings{
