@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.110 29.11.2001 $ */
+/* Revision: 1.111 29.11.2001 $ */
 
 /*
 Modify:
+  29.11.2001 SVS
+    - BugZ#112: Extract... when passive panel is off
   29.11.2001 DJ
     - еще один memory allocation conflict (PrevDataStack)
   27.11.2001 SVS
@@ -3609,7 +3611,22 @@ void FileList::ProcessCopyKeys(int Key)
             if (*PluginDestPath)
               strcpy(DestPath,PluginDestPath);
             else
+            {
               AnotherPanel->GetCurDir(DestPath);
+              if(!AnotherPanel->IsVisible())
+              {
+                struct OpenPluginInfo Info;
+                CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+                if (Info.HostFile!=NULL && *Info.HostFile!=0)
+                {
+                  char *ExtPtr;
+                  strncpy(DestPath,PointToName(Info.HostFile),sizeof(DestPath));
+                  if ((ExtPtr=strrchr(DestPath,'.'))!=NULL)
+                    *ExtPtr=0;
+                }
+              }
+            }
+
             PluginGetFiles(DestPath,Move);
           }
       }

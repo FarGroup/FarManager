@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.13 28.11.2001 $ */
+/* Revision: 1.14 29.11.2001 $ */
 
 /*
 Modify:
+  29.11.2001 SVS
+    - Ѕага с русскими буковками - забыли конвертнуть путь обратно в OEM.
   28.11.2001 SVS
     - BugZ#129 не запускаютс€ программым с пробелом в названии
     ! небольшие уточнени€ в PrepareExecuteModule()
@@ -222,7 +224,7 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
      например, некоторые внутренние команды ком.процессора.
   static char ExcludeCmds[4096];
   static int PrepareExcludeCmds=FALSE;
-  if(!PrepareShellCommands)
+  if(!PrepareExcludeCmds)
   {
     GetRegKey("System","ExcludeCmds",(char*)ExcludeCmds,"",0);
     PrepareExcludeCmds=TRUE;
@@ -336,6 +338,7 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
     IsCommandPEExeGUI(FullName,GUIType);
     strncpy(TempStr,Command,sizeof(TempStr)-1);
     ReplaceStrings(TempStr,FileName,FullName);
+    CharToOem(TempStr,TempStr);
     strncpy(Dest,TempStr,DestSize);
   }
 
