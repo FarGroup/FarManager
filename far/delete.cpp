@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.57 10.02.2003 $ */
+/* Revision: 1.58 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   10.02.2003 SVS
     + Opt.ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
   26.01.2003 IS
@@ -284,7 +286,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   {
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(SelName,FileAttr);
-    if (strcmp(SelName,"..")==0 || *SelName==0)
+    if (TestParentFolderName(SelName) || *SelName==0)
     {
       NeedUpdate=FALSE;
       goto done;

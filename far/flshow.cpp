@@ -5,10 +5,16 @@ flshow.cpp
 
 */
 
-/* Revision: 1.29 13.01.2003 $ */
+/* Revision: 1.30 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
+    ! При отображении колонки ATTR_COLUMN откажимся от sprintf()
+      в пользу манипуляции байтовым массивом.
+    ! При отображении колонки NUMLINK_COLUMN вместо sprintf()
+      применим itoa().
   13.01.2003 SVS
     + Новая опция в настройках режимов панелей: "Выравнивать расширения
       папок" - позволяет показывать расширения папок выравненными независимо
@@ -326,7 +332,7 @@ void FileList::ShowFileList(int Fast)
   if (PanelMode==PLUGIN_PANEL && FileCount>0 && (Info.Flags & OPIF_REALNAMES))
   {
     struct FileListItem *CurPtr=ListData+CurFile;
-    if (strcmp(CurPtr->Name,"..")!=0)
+    if (!TestParentFolderName(CurPtr->Name))
     {
       strcpy(CurDir,CurPtr->Name);
       char *NamePtr=strrchr(CurDir,'\\');
@@ -707,18 +713,17 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
       ColumnWidths[0]=PanelTextWidth;
       break;
     }
+    else if (PanelTextWidth>=TotalWidth-ColumnWidths[LastColumn])
+    {
+      ColumnWidths[LastColumn]=PanelTextWidth-(TotalWidth-ColumnWidths[LastColumn]);
+      break;
+    }
     else
-      if (PanelTextWidth>=TotalWidth-ColumnWidths[LastColumn])
-      {
-        ColumnWidths[LastColumn]=PanelTextWidth-(TotalWidth-ColumnWidths[LastColumn]);
-        break;
-      }
-      else
-      {
-        if ((ColumnTypes[LastColumn] & 0xff)==NAME_COLUMN)
-          NameTypeCount--;
-        ColumnCount--;
-      }
+    {
+      if ((ColumnTypes[LastColumn] & 0xff)==NAME_COLUMN)
+        NameTypeCount--;
+      ColumnCount--;
+    }
   }
   if (NameTypeCount==0)
     NameTypeCount++;
@@ -937,7 +942,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (!Packed && (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !CurPtr->ShowFolderSize)
                 {
                   char *PtrName;
-                  if (strcmp(CurPtr->Name,"..")==0)
+                  if (TestParentFolderName(CurPtr->Name))
                     PtrName=MSG(MListUp);
                   else
                     PtrName=MSG(CurPtr->FileAttr&FILE_ATTRIBUTE_REPARSE_POINT?MListSymLink:MListFolder);
@@ -1010,20 +1015,16 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
               break;
             case ATTR_COLUMN:
               {
-                char OutStr[30];
-                /* $ 20.10.2000 SVS
-                   Encrypted NTFS/Win2K
-                   Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
-                */
-                sprintf(OutStr,"%c%c%c%c%c%c",
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ' ',
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':
-                           ((CurPtr->FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' '),
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ',
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ',
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ',
-                        (CurPtr->FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ');
-                /* SVS $ */
+                char OutStr[8];
+                DWORD FileAttr=CurPtr->FileAttr;
+                OutStr[0]=(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) ? 'L' : ' ';
+                // $ 20.10.2000 SVS - Encrypted NTFS/Win2K - Поток может быть либо COMPRESSED (С) либо ENCRYPTED (E)
+                OutStr[1]=(FileAttr & FILE_ATTRIBUTE_COMPRESSED) ? 'C':((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)?'E':' ');
+                OutStr[2]=(FileAttr & FILE_ATTRIBUTE_ARCHIVE) ? 'A':' ';
+                OutStr[3]=(FileAttr & FILE_ATTRIBUTE_SYSTEM) ? 'S':' ';
+                OutStr[4]=(FileAttr & FILE_ATTRIBUTE_HIDDEN) ? 'H':' ';
+                OutStr[5]=(FileAttr & FILE_ATTRIBUTE_READONLY) ? 'R':' ';
+                OutStr[6]=0;
                 char *OutPtr=OutStr;
                 if (ColumnWidth<6)
                   OutPtr=OutStr+6-ColumnWidth;
@@ -1075,8 +1076,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
             case NUMLINK_COLUMN:
               {
                 char OutStr[20];
-                sprintf(OutStr,"%d",CurPtr->NumberOfLinks);
-                mprintf("%*.*s",ColumnWidth,ColumnWidth,OutStr);
+                mprintf("%*.*s",ColumnWidth,ColumnWidth,itoa(CurPtr->NumberOfLinks,OutStr,10));
               }
               break;
           }

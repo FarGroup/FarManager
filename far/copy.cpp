@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.110 26.01.2003 $ */
+/* Revision: 1.111 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -491,7 +493,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   {
     SrcPanel->GetSelName(NULL,CDP.FileAttr);
     SrcPanel->GetSelName(SelName,CDP.FileAttr);
-    if (strcmp(SelName,"..")==NULL)
+    if (TestParentFolderName(SelName))
       return;
   }
   _tran(SysLog("[%p] ShellCopy::ShellCopy() 3",this));
@@ -1777,7 +1779,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       DestAttr=FILE_ATTRIBUTE_DIRECTORY;
   }
 
-  if (*NamePtr==0 || strcmp(NamePtr,"..")==0)
+  if (*NamePtr==0 || TestParentFolderName(NamePtr))
     DestAttr=FILE_ATTRIBUTE_DIRECTORY;
 
   *DestData.cFileName=0;

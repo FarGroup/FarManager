@@ -5,10 +5,12 @@ filter.cpp
 
 */
 
-/* Revision: 1.26 21.01.2003 $ */
+/* Revision: 1.27 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -749,7 +751,7 @@ void PanelFilter::SwapFilter()
 
 int PanelFilter::ParseAndAddMasks(char **ExtPtr,const char *FileName,DWORD FileAttr,int& ExtCount)
 {
-  if (!strcmp(FileName,".") || !strcmp(FileName,"..") || (FileAttr & FA_DIREC))
+  if (!strcmp(FileName,".") || TestParentFolderName(FileName) || (FileAttr & FA_DIREC))
     return -1;
 
   const char *DotPtr=strrchr(FileName,'.');

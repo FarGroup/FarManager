@@ -2181,6 +2181,21 @@
 	".\headers.hpp"\
 	
 
+"$(INTDIR)\strdup.obj" : \
+	".\strdup.c"\
+	".\headers.hpp"\
+	
+
+"$(INTDIR)\del.obj" : \
+	".\del.cpp"\
+	".\headers.hpp"\
+	
+
+"$(INTDIR)\new.obj" : \
+	".\new.cpp"\
+	".\headers.hpp"\
+	
+
 "$(INTDIR)\syslog.obj" : \
 	".\syslog.cpp"\
 	".\bitflags.hpp"\

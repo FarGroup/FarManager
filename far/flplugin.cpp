@@ -5,10 +5,14 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.32 21.01.2003 $ */
+/* Revision: 1.33 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
+    ! В FileList::PluginPutFilesToNew() вместо индексного массива
+      применим указатели.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -336,7 +340,7 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
   GetSelName(NULL,FileAttr);
   if (ItemList!=NULL)
     while (GetSelName(SelName,FileAttr))
-      if (((FileAttr & FA_DIREC)==0 || strcmp(SelName,"..")!=0)
+      if (((FileAttr & FA_DIREC)==0 || !TestParentFolderName(SelName))
           && LastSelPosition>=0 && LastSelPosition<FileCount)
       {
         FileListToPluginItem(ListData+LastSelPosition,ItemList+ItemNumber);
@@ -632,9 +636,14 @@ void FileList::PluginPutFilesToNew()
          в текущем каталоге файло с датой создания поболее текущей,
          то корреткного позиционирования не произойдет!
       */
-      for (int I=1; I < FileCount; I++)
-        if (CompareFileTime(&ListData[I].CreationTime,&ListData[LastPos].CreationTime)==1)
-          LastPos=I;
+      struct FileListItem *PtrListData=ListData+1, *PtrLastPos=ListData;
+      for (int I=1; I < FileCount; I++,PtrListData++)
+      {
+        if (CompareFileTime(&PtrListData->CreationTime,&PtrLastPos->CreationTime)==1)
+        {
+          PtrLastPos=ListData+(LastPos=I);
+        }
+      }
       CurFile=LastPos;
       Redraw();
     }

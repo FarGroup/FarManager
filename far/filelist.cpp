@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.174 26.01.2003 $ */
+/* Revision: 1.175 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -1205,7 +1207,7 @@ int FileList::ProcessKey(int Key)
         int CurrentPath=FALSE;
         CurPtr=ListData+CurFile;
         strcpy(FileName,ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
-        if (strcmp(FileName,"..")==0)
+        if (TestParentFolderName(FileName))
         {
           if (PanelMode==PLUGIN_PANEL)
             *FileName=0;
@@ -2083,7 +2085,7 @@ int FileList::ProcessKey(int Key)
       if (ShiftSelection==-1)
       {
         // .. is never selected
-        if (CurFile < FileCount-1 && !strcmp (CurPtr->Name, ".."))
+        if (CurFile < FileCount-1 && TestParentFolderName(CurPtr->Name))
           ShiftSelection = !ListData [CurFile+1].Selected;
         else
           ShiftSelection=!CurPtr->Selected;
@@ -2229,7 +2231,7 @@ int FileList::ProcessKey(int Key)
 
 void FileList::Select(struct FileListItem *SelPtr,int Selection)
 {
-  if (strcmp(SelPtr->Name,"..")!=0 && SelPtr->Selected!=Selection)
+  if (!TestParentFolderName(SelPtr->Name) && SelPtr->Selected!=Selection)
     if ((SelPtr->Selected=Selection)!=0)
     {
       SelFileCount++;
@@ -2262,7 +2264,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
       AddEndSlash(strcpy(FullPath,CurDir));
       /* 23.08.2001 VVM
         ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
-      if (strcmp(CurPtr->Name,".."))
+      if (!TestParentFolderName(CurPtr->Name))
         strcat(FullPath,CurPtr->Name);
       /* VVM $ */
       QuoteSpace(FullPath);
@@ -2398,7 +2400,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
   strcpy(SetDir,NewDir);
   PrepareDiskPath(SetDir,sizeof(SetDir)-1);
 
-  if (strcmp(SetDir,"..")!=0 && strcmp(SetDir,"\\")!=0)
+  if (!TestParentFolderName(SetDir) && strcmp(SetDir,"\\")!=0)
     UpperFolderTopFile=CurTopFile;
 
   if (SelFileCount>0)
@@ -2421,7 +2423,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
     */
     BOOL SetDirectorySuccess = TRUE;
     /* DJ $ */
-    int UpperFolder=(strcmp(SetDir,"..")==0);
+    int UpperFolder=TestParentFolderName(SetDir);
     if (UpperFolder && *NullToEmpty(Info.CurDir)==0)
     {
       if (ProcessPluginEvent(FE_CLOSE,NULL))
@@ -2505,7 +2507,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
     /* $ 21.09.2000 SVS
        Отловим момент ".." и "\\host\share"
     */
-    if(!strcmp(SetDir,".."))
+    if(TestParentFolderName(SetDir))
     {
       /* $ 21.08.2001 KM
         - Исправление глюка с вызовом меню выбора дисков на UNC путях
@@ -2633,7 +2635,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
 
   Update(UpdateFlags);
 
-  if (strcmp(SetDir,"..")==0)
+  if (TestParentFolderName(SetDir))
   {
     GoToFile(FindDir);
     CurTopFile=UpperFolderTopFile;
@@ -3034,7 +3036,7 @@ int FileList::FindPartName(char *Name,int Next)
   {
     CmpNameSearchMode=(I==CurFile);
     if (CmpName(Mask,CurPtr->Name,TRUE))
-      if (strcmp(CurPtr->Name,"..")!=0)
+      if (!TestParentFolderName(CurPtr->Name))
         if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
           CmpNameSearchMode=FALSE;
@@ -3047,7 +3049,7 @@ int FileList::FindPartName(char *Name,int Next)
   CmpNameSearchMode=FALSE;
   for (CurPtr=ListData, I=0; I < CurFile; I++, CurPtr++)
     if (CmpName(Mask,CurPtr->Name,TRUE))
-      if (strcmp(CurPtr->Name,"..")!=0)
+      if (!TestParentFolderName(CurPtr->Name))
         if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
           CurFile=I;
@@ -3360,7 +3362,7 @@ void FileList::UpdateViewPanel()
     if (PanelMode!=PLUGIN_PANEL ||
         CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE))
     {
-      if (strcmp(CurPtr->Name,"..")==0)
+      if (TestParentFolderName(CurPtr->Name))
         ViewPanel->ShowFile(CurDir,FALSE,NULL);
       else
         ViewPanel->ShowFile(CurPtr->Name,FALSE,NULL);
@@ -3384,7 +3386,7 @@ void FileList::UpdateViewPanel()
         ViewPanel->ShowFile(FileName,TRUE,NULL);
       }
       else
-        if (strcmp(CurPtr->Name,"..")!=0)
+        if (!TestParentFolderName(CurPtr->Name))
           ViewPanel->ShowFile(CurPtr->Name,FALSE,hPlugin);
         else
           ViewPanel->ShowFile(NULL,FALSE,NULL);
@@ -3532,7 +3534,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
         /* $ 14.02.2002 IS
            ".." в текущем каталоге обработаем как имя текущего каталога
         */
-        if(!strcmp(QuotedName,"..") && !strcmp(SelShortName,".."))
+        if(TestParentFolderName(QuotedName) && TestParentFolderName(SelShortName))
         {
           QuotedName[1]=SelShortName[1]=0;
         }
@@ -4003,7 +4005,7 @@ void FileList::CountDirSize()
   /* $ 09.11.2000 OT
     F3 на ".." в плагинах
   */
-  if ( PanelMode==PLUGIN_PANEL && !CurFile && !strcmp(ListData->Name,".."))
+  if ( PanelMode==PLUGIN_PANEL && !CurFile && TestParentFolderName(ListData->Name))
   {
     struct FileListItem *DoubleDotDir = NULL;
     if (SelFileCount)
@@ -4089,7 +4091,7 @@ void FileList::CountDirSize()
         GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,
                          CompressedFileSize) ||
         PanelMode!=PLUGIN_PANEL &&
-        GetDirInfo(MSG(MDirInfoViewTitle),strcmp(CurPtr->Name,"..")==0 ? ".":CurPtr->Name,DirCount,DirFileCount,
+        GetDirInfo(MSG(MDirInfoViewTitle),TestParentFolderName(CurPtr->Name) ? ".":CurPtr->Name,DirCount,DirFileCount,
                    FileSize,CompressedFileSize,RealFileSize,ClusterSize,0,FALSE,TRUE)==1)
     {
       CurPtr->UnpSize=FileSize.PLow();
@@ -4186,7 +4188,7 @@ void FileList::ProcessCopyKeys(int Key)
       FileList *AnotherFilePanel=(FileList *)AnotherPanel;
       if (AnotherFilePanel->FileCount>0 &&
           (AnotherFilePanel->ListData[AnotherFilePanel->CurFile].FileAttr & FA_DIREC) &&
-          strcmp(AnotherFilePanel->ListData[AnotherFilePanel->CurFile].Name,"..")!=0)
+          !TestParentFolderName(AnotherFilePanel->ListData[AnotherFilePanel->CurFile].Name))
       {
         AnotherDir=TRUE;
         if (Drag)

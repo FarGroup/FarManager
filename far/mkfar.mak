@@ -206,6 +206,9 @@ FAROBJ=\
    $(OBJPATH)\frame.obj\
    $(OBJPATH)\xlat.obj\
    $(OBJPATH)\farexcpt.obj\
+   $(OBJPATH)\strdup.obj\
+   $(OBJPATH)\new.obj\
+   $(OBJPATH)\del.obj\
    $(OBJPATH)\strncpy.obj\
    $(OBJPATH)\cmem.obj\
    $(OBJPATH)\main.obj

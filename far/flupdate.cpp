@@ -5,10 +5,17 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.40 26.01.2003 $ */
+/* Revision: 1.41 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
+    ! В FileList::PluginPutFilesToNew() вместо индексного массива
+      применим указатели.
+    ! В FileList::AddParentPoint() делаем статическую переменную
+      типа FileListItem, при первом обращении к этой функции
+      заполняем структуру, а потом просто юзаем.
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -348,7 +355,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   Done=((FindHandle=FindFirstFile("*.*",&fdata))==INVALID_HANDLE_VALUE);
 
   int AllocatedCount=0;
-  struct FileListItem NewPtr;
+  struct FileListItem *NewPtr;
 
   // вне цикла получим указатель.
   char *PointToName_CurDir=PointToName(CurDir);
@@ -386,10 +393,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         ListData=CurPtr;
       }
 
-      memset(&NewPtr,0,sizeof(NewPtr));
-      memcpy(&NewPtr.FileAttr,&fdata,sizeof(fdata));
-      NewPtr.Position=FileCount;
-      NewPtr.NumberOfLinks=1;
+      NewPtr=ListData+FileCount;
+      memset(NewPtr,0,sizeof(struct FileListItem));
+      memcpy(&NewPtr->FileAttr,&fdata,sizeof(fdata));
+      NewPtr->Position=FileCount++;
+      NewPtr->NumberOfLinks=1;
 
       if ((fdata.dwFileAttributes & FA_DIREC) == 0)
       {
@@ -397,35 +405,35 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         int Compressed=FALSE;
         if (ReadPacked && (fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED))
         {
-          NewPtr.PackSize=GetCompressedFileSize(fdata.cFileName,&NewPtr.PackSizeHigh);
+          NewPtr->PackSize=GetCompressedFileSize(fdata.cFileName,&NewPtr->PackSizeHigh);
           if (CurPtr->PackSize!=0xFFFFFFFF || GetLastError()==NO_ERROR)
             Compressed=TRUE;
         }
         if (!Compressed)
         {
-          NewPtr.PackSizeHigh=fdata.nFileSizeHigh;
-          NewPtr.PackSize=fdata.nFileSizeLow;
+          NewPtr->PackSizeHigh=fdata.nFileSizeHigh;
+          NewPtr->PackSize=fdata.nFileSizeLow;
         }
         if (ReadNumLinks)
-          NewPtr.NumberOfLinks=GetNumberOfLinks(fdata.cFileName);
+          NewPtr->NumberOfLinks=GetNumberOfLinks(fdata.cFileName);
       }
       else
       {
-        NewPtr.PackSizeHigh=NewPtr.PackSize=0;
+        NewPtr->PackSizeHigh=NewPtr->PackSize=0;
       }
 
-      NewPtr.SortGroup=DEFAULT_SORT_GROUP;
+      NewPtr->SortGroup=DEFAULT_SORT_GROUP;
       if (ReadOwners)
       {
         char Owner[NM];
-        GetFileOwner(*ComputerName ? ComputerName:NULL,NewPtr.Name,Owner);
-        strncpy(NewPtr.Owner,Owner,sizeof(NewPtr.Owner)-1);
+        GetFileOwner(*ComputerName ? ComputerName:NULL,NewPtr->Name,Owner);
+        strncpy(NewPtr->Owner,Owner,sizeof(NewPtr->Owner)-1);
       }
-      if (!UpperDir && (NewPtr.FileAttr & FA_DIREC)==0)
+      if (!UpperDir && (fdata.dwFileAttributes & FA_DIREC)==0)
         TotalFileCount++;
 
-      memcpy(ListData+FileCount,&NewPtr,sizeof(NewPtr));
-      FileCount++;
+      //memcpy(ListData+FileCount,&NewPtr,sizeof(NewPtr));
+//      FileCount++;
 
       if ((FileCount & 0x3f)==0 && clock()-StartTime>1000)
       {
@@ -528,7 +536,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
             CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
           else
             CurPtr->SortGroup=DEFAULT_SORT_GROUP;
-          if (strcmp(fdata.cFileName,"..")!=0 && (CurPtr->FileAttr & FA_DIREC)==0)
+          if (!TestParentFolderName(fdata.cFileName) && (CurPtr->FileAttr & FA_DIREC)==0)
             TotalFileCount++;
         }
         // цветовую боевую раскраску в самом конце, за один раз
@@ -806,9 +814,9 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     if (CurListData->DizText==NULL)
     {
       CurListData->DeleteDiz=FALSE;
-      CurListData->DizText=NULL;
+      //CurListData->DizText=NULL;
     }
-    if (strcmp(CurListData->Name,"..")==0)
+    if (TestParentFolderName(CurListData->Name))
     {
       DotsPresent=TRUE;
       CurListData->FileAttr|=FA_DIREC;
@@ -975,9 +983,13 @@ void FileList::ReadSortGroups()
 // Обнулить текущий CurPtr и занести предопределенные данные для каталога ".."
 void FileList::AddParentPoint(struct FileListItem *CurPtr,long CurFilePos)
 {
-  memset(CurPtr,0,sizeof(struct FileListItem));
-  strcpy(CurPtr->ShortName,"..");
-  strcpy(CurPtr->Name,"..");
-  CurPtr->Position=CurFilePos;
-  CurPtr->FileAttr=FA_DIREC;
+  static struct FileListItem ParentItem={0};
+  if(ParentItem.FileAttr == 0)
+  {
+    strcpy(ParentItem.ShortName,"..");
+    strcpy(ParentItem.Name,"..");
+    ParentItem.FileAttr=FA_DIREC;
+  }
+  ParentItem.Position=CurFilePos;
+  memcpy(CurPtr,&ParentItem,sizeof(struct FileListItem));
 }

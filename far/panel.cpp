@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.106 03.02.2003 $ */
+/* Revision: 1.107 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   03.02.2003 SVS
     - BugZ#787 - Криво активируется QuickSearch при выполнении макроса.
   20.01.2003 SVS
@@ -1422,7 +1424,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
     int FileAttr;
     MoveToMouse(MouseEvent);
     GetSelName(NULL,FileAttr);
-    if (GetSelName(DragName,FileAttr) && strcmp(DragName,"..")!=0)
+    if (GetSelName(DragName,FileAttr) && !TestParentFolderName(DragName))
     {
       SrcDragPanel=this;
       DragX=MouseEvent->dwMousePosition.X;

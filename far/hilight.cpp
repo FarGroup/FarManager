@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.43 22.01.2003 $ */
+/* Revision: 1.44 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   22.01.2003 IS
     ! В меню символ для пометки файлов показываем в кавычках, чтобы можно
       было отличить пробел от пустоты
@@ -396,10 +398,10 @@ void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount)
           (Attr & CurHiData->ExcludeAttr)==0)
       {
         if(CurHiData->IgnoreMask || (Path && CurHiData->FMasks->Compare(Path)))
-          {
-            memcpy(&FileItem->Colors,&CurHiData->Colors,sizeof(struct HighlightDataColor));
-            break;
-          }
+        {
+          memcpy(&FileItem->Colors,&CurHiData->Colors,sizeof(struct HighlightDataColor));
+          break;
+        }
       }
     }
   }

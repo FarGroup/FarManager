@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.91 21.01.2003 $ */
+/* Revision: 1.92 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -843,7 +845,7 @@ BOOL KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)
             SelPanel->GetFileName(FileName,SelPanel->GetCurrentPos(),FileAttr);
             GetFileCount=SelPanel->GetFileCount();
             Cond=GetFileCount == 0 ||
-                 GetFileCount == 1 && !strcmp(FileName,"..")
+                 GetFileCount == 1 && TestParentFolderName(FileName)
                  ?TRUE:FALSE;
           }
 //          _SVS(SysLog("SelPanel->GetFileCount()=%d",SelPanel->GetFileCount()));

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.153 04.02.2003 $ */
+/* Revision: 1.154 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! «аменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   04.02.2003 SVS
     - BugZ#788 -  риво считаетс€ ширина меню.
       –азнесем применение флагов общих (до добавлени€ контента) и зависимых
@@ -1751,7 +1753,7 @@ int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
     return FALSE;
 
   {
-    if (strcmp(Dir,".")==0 || strcmp(Dir,"..")==0)
+    if (strcmp(Dir,".")==0 || TestParentFolderName(Dir))
       return(FALSE);
 
     static struct PluginHandle DirListPlugin;
@@ -1903,7 +1905,7 @@ void ScanPluginDir()
     PluginPanelItem *CurPanelItem=PanelData+I;
     if ((CurPanelItem->FindData.dwFileAttributes & FA_DIREC) &&
         strcmp(CurPanelItem->FindData.cFileName,".")!=0 &&
-        strcmp(CurPanelItem->FindData.cFileName,"..")!=0)
+        !TestParentFolderName(CurPanelItem->FindData.cFileName))
 
     {
       struct PluginPanelItem *NewList=(struct PluginPanelItem *)xf_realloc(PluginDirList,sizeof(*PluginDirList)*(DirListItemsNumber+1));

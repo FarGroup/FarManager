@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.78 26.01.2003 $ */
+/* Revision: 1.79 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -1100,7 +1102,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       OemToChar(CmdPtr, AnsiCmdStr);
       OemToChar(NewCmdPar, AnsiCmdPar);
 
-      if (PointToName(AnsiCmdStr)==AnsiCmdStr && strcmp(AnsiCmdStr,".") && strcmp(AnsiCmdStr,".."))
+      if (PointToName(AnsiCmdStr)==AnsiCmdStr && strcmp(AnsiCmdStr,".") && !TestParentFolderName(AnsiCmdStr))
       {
         char FullName[4096];
         sprintf(FullName,".\\%s",AnsiCmdStr);
@@ -1108,7 +1110,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       }
       Unquote(AnsiCmdStr); // т.к. нафиг это ненужно?
       // ???
-      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiCmdStr,".") || !strcmp(AnsiCmdStr,"..")))
+      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiCmdStr,".") || TestParentFolderName(AnsiCmdStr)))
         strcat(AnsiCmdStr,".");
       // ???
 
@@ -1653,7 +1655,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   */
   if (!SeparateWindow &&  /* DJ $ */
       (strnicmp(CmdLine,"CD",Length=2)==0 || strnicmp(CmdLine,"CHDIR",Length=5)==0) &&
-      (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || strcmp(CmdLine+Length,"..")==0))
+      (IsSpace(CmdLine[Length]) || CmdLine[Length]=='\\' || TestParentFolderName(CmdLine+Length)))
   {
     int ChDir=(Length==5);
     while (IsSpace(CmdLine[Length]))

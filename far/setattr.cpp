@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.55 26.01.2003 $ */
+/* Revision: 1.56 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -628,7 +630,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     SrcPanel->GetSelName(NULL,FileAttr);
     SrcPanel->GetSelName(SelName,FileAttr);
-    if (SelCount==0 || SelCount==1 && strcmp(SelName,"..")==0)
+    if (SelCount==0 || SelCount==1 && TestParentFolderName(SelName))
       return 0;
 
 //    int NewAttr;

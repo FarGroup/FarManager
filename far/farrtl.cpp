@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.15 26.01.2003 $ */
+/* Revision: 1.16 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! xf_* будут __cdecl, т.к. юзаются в strdup.c, del.cpp и new.cpp
   26.01.2003 IS
     + FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -366,18 +368,18 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 }
 /* SVS $ */
 
-void  xf_free(void *__block)
+void __cdecl  xf_free(void *__block)
 {
   free(__block);
 }
 
-void *xf_malloc(size_t __size)
+void *__cdecl xf_malloc(size_t __size)
 {
   void *Ptr=malloc(__size);
   return Ptr;
 }
 
-void *xf_realloc(void *__block, size_t __size)
+void *__cdecl xf_realloc(void *__block, size_t __size)
 {
   void *Ptr=realloc(__block,__size);
   return Ptr;

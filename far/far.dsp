@@ -464,6 +464,18 @@ SOURCE=.\stddlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\strdup.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\del.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\new.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\strftime.cpp
 # End Source File
 # Begin Source File

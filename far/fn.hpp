@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.177 18.02.2003 $ */
+/* Revision: 1.178 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    + TestParentFolderName() - вместо strcmp(Name,"..")
+    ! xf_* будут __cdecl, т.к. юзаются в strdup.c, del.cpp и new.cpp
   18.02.2003 SVS
     + _ESPT_ToName + _SysLog_LinearDump
   26.01.2003 IS
@@ -946,6 +949,7 @@ const char* WINAPI PointToName(const char *Path);
 */
 char* WINAPI PointToFolderNameIfFolder(const char *Path);
 /* IS $ */
+BOOL  TestParentFolderName(const char *Name);
 BOOL  AddEndSlash(char *Path,char TypeSlash);
 BOOL  WINAPI AddEndSlash(char *Path);
 BOOL  WINAPI DeleteEndSlash(char *Path);
@@ -1314,6 +1318,10 @@ void __cdecl qsortex(char *base, unsigned int nel, unsigned int width,
 char * __cdecl mktemp(char *temp);
 #endif
 
+void  __cdecl xf_free(void *__block);
+void *__cdecl xf_malloc(size_t __size);
+void *__cdecl xf_realloc(void *__block, size_t __size);
+
 #ifdef __cplusplus
 }
 #endif
@@ -1374,8 +1382,5 @@ BOOL IsLocalPath(const char *Path);
 
 BOOL RunGraber(void);
 
-void  xf_free(void *__block);
-void *xf_malloc(size_t __size);
-void *xf_realloc(void *__block, size_t __size);
 
 #endif  // __FARFUNC_HPP__

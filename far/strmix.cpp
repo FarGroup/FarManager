@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.42 21.01.2003 $ */
+/* Revision: 1.43 19.02.2003 $ */
 
 /*
 Modify:
+  19.02.2003 SVS
+    + TestParentFolderName() - вместо strcmp(Name,"..")
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -831,13 +833,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   if (Commas)
     InsertCommas(Sz,Str);
   else
-  {
-    #if defined(__BORLANDC__)
-    sprintf(Str,"%Ld",Sz.Number.i64);
-    #else
     sprintf(Str,"%I64d",Sz.Number.i64);
-    #endif
-  }
 
   if (strlen(Str)<=Width || Width<5)
     sprintf(DestStr,"%*.*s",Width,Width,Str);
@@ -852,13 +848,7 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
       if (Commas)
         InsertCommas(Sz,Str);
       else
-      {
-        #if defined(__BORLANDC__)
-        sprintf(Str,"%Ld",Sz.Number.i64);
-        #else
         sprintf(Str,"%I64d",Sz.Number.i64);
-        #endif
-      }
     } while(strlen(Str) > Width);
 
     sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KMGTbStr[IndexB][IndexDiv]);
@@ -1201,3 +1191,8 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
   return Str+StartWPos;
 }
 #endif
+
+BOOL TestParentFolderName(const char *Name)
+{
+  return Name[0] == '.' && Name[1] == '.' && !Name[2];
+}

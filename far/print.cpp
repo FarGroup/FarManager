@@ -5,10 +5,12 @@ print.cpp
 
 */
 
-/* Revision: 1.14 26.01.2003 $ */
+/* Revision: 1.15 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   26.01.2003 IS
     ! FAR_DeleteFile вместо DeleteFile, FAR_RemoveDirectory вместо
       RemoveDirectory, просьба и впредь их использовать для удаления
@@ -168,7 +170,7 @@ void PrintFiles(Panel *SrcPanel)
     SrcPanel->GetSelName(NULL,FileAttr);
     while (SrcPanel->GetSelName(SelName,FileAttr))
     {
-      if (strcmp(SelName,"..")==0 || (FileAttr & FA_DIREC))
+      if (TestParentFolderName(SelName) || (FileAttr & FA_DIREC))
         continue;
       int Success=FALSE;
 

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.134 04.02.2003 $ */
+/* Revision: 1.135 20.02.2003 $ */
 
 /*
 Modify:
+  20.02.2003 SVS
+    ! Заменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
   04.02.2003 VVM
     ! Подкорректировал работу с мютексом для диалога.
   26.01.2003 IS
@@ -1862,7 +1864,7 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
       {
         if (!CtrlObject->Cp()->ActivePanel->GetSelName(SelName,FileAttr))
           break;
-        if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || strcmp(SelName,"..")==0 ||
+        if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || TestParentFolderName(SelName) ||
             strcmp(SelName,".")==0)
           continue;
         strncpy(CurRoot,Root,sizeof(CurRoot)-1);
@@ -2468,7 +2470,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       PluginPanelItem *CurPanelItem=PanelData+I;
       char *CurName=CurPanelItem->FindData.cFileName;
       char FullName[2*NM];
-      if (strcmp(CurName,".")==0 || strcmp(CurName,"..")==0)
+      if (strcmp(CurName,".")==0 || TestParentFolderName(CurName))
         continue;
 //      char AddPath[2*NM];
       if (Flags & OPIF_REALNAMES)
@@ -2505,7 +2507,7 @@ void FindFiles::ScanPluginTree(HANDLE hPlugin, DWORD Flags)
       PluginPanelItem *CurPanelItem=PanelData+I;
       char *CurName=CurPanelItem->FindData.cFileName;
       if ((CurPanelItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-          strcmp(CurName,".")!=0 && strcmp(CurName,"..")!=0 &&
+          strcmp(CurName,".")!=0 && !TestParentFolderName(CurName) &&
           (SearchMode!=SEARCH_SELECTED || RecurseLevel!=1 ||
           CtrlObject->Cp()->ActivePanel->IsSelected(CurName)))
       {

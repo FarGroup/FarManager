@@ -78,6 +78,9 @@ LINK32_OBJS= \
 	"$(INTDIR)\mktemp.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\strncpy.obj" \
+	"$(INTDIR)\strdup.obj" \
+	"$(INTDIR)\new.obj" \
+	"$(INTDIR)\del.obj" \
 	"$(INTDIR)\dialog.obj" \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\edit.obj" \
