@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.146 22.10.2002 $ */
+/* Revision: 1.147 23.10.2002 $ */
 
 /*
 Modify:
+  23.10.2002 SVS
+    - ошибки проектировани€  в FarCharTable() - забыл вернуть данные плагину ;-/
   22.10.2002 SVS
     ! переделана FarCharTable() - немного "обезопасим" себ€, т.е. сначала все
       сформируем в локальной переменной, а потом "вернем" результат плагину
@@ -2167,7 +2169,6 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     return -1;
 
   struct CharTableSet TableSet;
-  memset(&TableSet,0,sizeof(TableSet));
 
   if (Command==FCT_DETECT)
   {
@@ -2189,14 +2190,16 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
     return(DetectCode ? TableNum-1:-1);
   }
 
-  if (BufferSize > sizeof(CharTableSet))
+  if (BufferSize > sizeof(struct CharTableSet))
     return(-1);
 
   /* $ 07.08.2001 IS
        ѕри неудаче заполним структуру данными дл€ OEM
   */
-  // $ 17.03.2002 IS ѕо возможности используем значение TableName
+  memcpy(&TableSet,Buffer,Min((int)sizeof(CharTableSet),BufferSize));
+  /* $ 17.03.2002 IS ѕо возможности используем значение TableName */
   if (!PrepareTable(&TableSet,Command,TRUE))
+  /* IS $ */
   {
     for(unsigned int i=0;i<256;++i)
     {
@@ -2205,13 +2208,10 @@ int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize)
       TableSet.LowerTable[i]=LocalLower(i);
     }
     strncpy(TableSet.TableName,MSG(MGetTableNormalText),sizeof(TableSet.TableName));
-
     // *TableSet.RFCCharset=0; // пока так!
-
-    memcpy(Buffer,&TableSet,BufferSize);
-
-    return(-1);
+    Command=-1;
   }
+  memcpy(Buffer,&TableSet,BufferSize);
   /* IS $ */
   return(Command);
 }
