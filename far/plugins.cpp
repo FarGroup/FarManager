@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.49 23.01.2001 $ */
+/* Revision: 1.50 25.01.2001 $ */
 
 /*
 Modify:
+  25.01.2001 SVS
+    ! попытка локализовать причину исключения при неверно заполненных полях
+      структур OpenPluginInfo и PluginInfo
   23.01.2001 SVS
     + DumpExeptionInfo(xp); - запись информации об исключении в дамп.
   23.01.2001 skv
@@ -237,7 +240,7 @@ static int xfilter(
    */
    Ptr=NULL;
    strcpy(TruncFileName,NullToEmpty(Module->ModuleName));
-   if(From != EXCEPT_GETPLUGININFO_DATA)
+   if(From != EXCEPT_GETPLUGININFO_DATA && From != EXCEPT_GETOPENPLUGININFO_DATA)
    {
      // просмотрим "знакомые" FAR`у исключения и обработаем...
      for(I=0; I < sizeof(ECode)/sizeof(ECode[0]); ++I)
@@ -285,12 +288,44 @@ static int xfilter(
    }
    else // однозначно выгружаем эту бяку :-(
    {
+     char OutBuf[128];
+     char *PtrNameStruct=NULL;
+     int NStructFrom=0;
+     static const char *NameField[2][3]={
+       {"DiskMenuStrings","PluginMenuStrings","PluginConfigStrings"},
+       {"InfoLines","DescrFiles","PanelModesArray"},
+     };
+     switch(From)
+     {
+       case EXCEPT_GETPLUGININFO_DATA:
+         PtrNameStruct="PluginInfo";
+         NStructFrom=0;
+         break;
+       case EXCEPT_GETOPENPLUGININFO_DATA:
+         PtrNameStruct="OpenPluginInfo";
+         NStructFrom=1;
+         break;
+     }
+
+     if(xr->ExceptionCode >= STATUS_STRUCTWRONGFILLED &&
+        xr->ExceptionCode <= STATUS_STRUCTWRONGFILLED+2)
+     {
+       sprintf(OutBuf,
+           MSG(MExcStructField),
+           PtrNameStruct,
+           NameField[NStructFrom][xr->ExceptionCode-STATUS_STRUCTWRONGFILLED]);
+     }
+     else
+       sprintf(OutBuf,MSG(MExcStructWrongFilled),PtrNameStruct);
+
      Ret=Message(MSG_WARNING,
             (Opt.ExceptRules?2:1),
             xFromMSGTitle(From),
             MSG(MExcTrappedException),
             MSG(MExcCheckOnLousys),
-            TruncPathStr(TruncFileName,40),"\1",
+            TruncPathStr(TruncFileName,40),
+            OutBuf,
+            "\1",
             MSG(MExcUnloadYes),
             (Opt.ExceptRules?MSG(MExcDebugger):MSG(MOk)),
             (Opt.ExceptRules?MSG(MOk):NULL));
@@ -2290,21 +2325,31 @@ void PluginsSet::DumpPluginsInfo()
 BOOL PluginsSet::TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info)
 {
   char Buf[1];
-  int I;
+  int I=FALSE;
   //EXCEPTION_POINTERS *xp;
   TRY {
-    for (I=0; I<Info->DiskMenuStringsNumber; I++)
-      memcpy(Buf,Info->DiskMenuStrings[I],1);
-    for (I=0; I<Info->PluginMenuStringsNumber; I++)
-      memcpy(Buf,Info->PluginMenuStrings[I],1);
-    for (I=0; I<Info->PluginConfigStringsNumber; I++)
+    if(Info->DiskMenuStringsNumber > 0 && !Info->DiskMenuStrings)
+      RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
+    else for (I=0; I<Info->DiskMenuStringsNumber; I++)
+        memcpy(Buf,Info->DiskMenuStrings[I],1);
+
+    if(Info->PluginMenuStringsNumber > 0 && !Info->PluginMenuStrings)
+      RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
+    else for (I=0; I<Info->PluginMenuStringsNumber; I++)
+     memcpy(Buf,Info->PluginMenuStrings[I],1);
+
+    if(Info->PluginConfigStringsNumber > 0 && !Info->PluginConfigStrings)
+      RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
+    else for (I=0; I<Info->PluginConfigStringsNumber; I++)
       memcpy(Buf,Info->PluginConfigStrings[I],1);
+
     if (Info->CommandPrefix)
       memcpy(Buf,Info->CommandPrefix,1);
+
     I=TRUE;
   }
   __except ( xfilter(EXCEPT_GETPLUGININFO_DATA,
-                     GetExceptionInformation(),&Item,0) )
+                     GetExceptionInformation(),&Item,1) )
   {
      I=FALSE;
   }
@@ -2318,19 +2363,29 @@ BOOL PluginsSet::TestPluginInfo(struct PluginItem& Item,struct PluginInfo *Info)
 BOOL PluginsSet::TestOpenPluginInfo(struct PluginItem& Item,struct OpenPluginInfo *Info)
 {
   char Buf[1];
-  int I;
+  int I=FALSE;
   //EXCEPTION_POINTERS *xp;
   TRY {
     if(Info->HostFile) memcpy(Buf,Info->HostFile,1);
     if(Info->CurDir) memcpy(Buf,Info->CurDir,1);
     if(Info->Format) memcpy(Buf,Info->Format,1);
     if(Info->PanelTitle) memcpy(Buf,Info->PanelTitle,1);
-    for (I=0; I<Info->InfoLinesNumber; I++)
+
+    if(Info->InfoLinesNumber > 0 && !Info->InfoLines)
+      RaiseException( STATUS_STRUCTWRONGFILLED, 0, 0, 0);
+    else for (I=0; I<Info->InfoLinesNumber; I++)
       memcpy(Buf,&Info->InfoLines[I],1);
-    for (I=0; I<Info->DescrFilesNumber; I++)
+
+    if(Info->DescrFilesNumber > 0 && !Info->DescrFiles)
+      RaiseException( STATUS_STRUCTWRONGFILLED+1, 0, 0, 0);
+    else for (I=0; I<Info->DescrFilesNumber; I++)
       memcpy(Buf,Info->DescrFiles[I],1);
+
+    if(Info->PanelModesNumber > 0 && !Info->PanelModesArray)
+      RaiseException( STATUS_STRUCTWRONGFILLED+2, 0, 0, 0);
     for (I=0; I<Info->PanelModesNumber; I++)
       memcpy(Buf,&Info->PanelModesArray[I],1);
+
     if(Info->KeyBar) memcpy(Buf,Info->KeyBar,1);
     if(Info->ShortcutData) memcpy(Buf,Info->ShortcutData,1);
     I=TRUE;

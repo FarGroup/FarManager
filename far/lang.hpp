@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.44 23.01.2001 $ */
+/* Revision: 1.45 25.01.2001 $ */
 
 /*
 Modify:
+  25.01.2001 SVS
+    + MExcStructWrongFilled, MExcStructField
   23.01.2001 skv
     + MExcBreakPoint, MExcUnknown
   19.01.2001 SVS
@@ -1353,6 +1355,8 @@ enum
   MExceptTitle,
   MExcTrappedException,
   MExcCheckOnLousys,
+  MExcStructWrongFilled,
+  MExcStructField,
   MExcAddress,
   MExcUnload,
   MExcUnloadYes,

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.16 22.01.2001 $ */
+/* Revision: 1.17 25.01.2001 $ */
 
 /*
 Modify:
+  25.01.2001 SVS
+    + STATUS_STRUCTWRONGFILLED - когда Count>0 и **Ptr=NULL
   22.01.2001 SVS
     + EXCEPT_PROCESSVIEWERINPUT - на будущее.
   05.01.2001 SVS
@@ -244,6 +246,8 @@ enum EceptFunctionsType{
   EXCEPT_PROCESSVIEWEREVENT,
   EXCEPT_PROCESSVIEWERINPUT,
 };
+
+#define STATUS_STRUCTWRONGFILLED       0xE0001000
 
 #if defined(__BORLANDC__)
 #define TRY	try

@@ -1234,6 +1234,8 @@
 "Plugin call error"
 "Exception occurred:"
 "Incorrect information is passed from module:"
+"(the fields of structure <%s> are wrong filled)"
+"(structure <%s>, field <%s>)"
 "Exception address: 0x%X in module:"
 "Do you wish to unload this plugin?"
 "The plugin will be Unloaded!"
