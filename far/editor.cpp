@@ -6,7 +6,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.10 18.07.2000 $ */
+/* Revision: 1.11 19.07.2000 $ */
 
 /*
 Modify:
@@ -43,6 +43,11 @@ Modify:
       все копируется из старой
       новые {} кое-где, побочный эффект вставки печати отладки,
       пусть их лежат... :)
+   18.07.2000 tran
+    - Bug #22
+      встань в начало текста, нажми alt-right, alt-pagedown,
+      выделится блок шириной в 1 колонку, нажми еще alt-right
+      выделение сбросится
 */
 
 #include "headers.hpp"
@@ -1596,7 +1601,13 @@ int Editor::ProcessKey(int Key)
       Pasting++;
       {
         int Delta=CurLine->EditLine.RealPosToTab(CurPos+1)-CurLine->EditLine.GetTabCurPos();
-        if (CurLine->EditLine.GetTabCurPos()>=VBlockX+VBlockSizeX)
+        /* $ 18.07.2000 tran
+             встань в начало текста, нажми alt-right, alt-pagedown,
+             выделится блок шириной в 1 колонку, нажми еще alt-right
+             выделение сбросится
+        */
+        if (CurLine->EditLine.GetTabCurPos()+1>=VBlockX+VBlockSizeX)
+        /* tran $ */
           VBlockSizeX+=Delta;
         else
         {
