@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.111 06.08.2004 $ */
+/* Revision: 1.112 21.08.2004 $ */
 
 /*
 Modify:
+  21.08.2004 SVS
+    ! Коррекция CheckForEscSilent() на предмет "завершенности" макроса - это когда последним в макросе стоит KEY_NONE.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   31.05.2004 SVS
@@ -1663,8 +1665,24 @@ int CheckForEscSilent()
 {
   INPUT_RECORD rec;
   int Key;
+  BOOL Processed=TRUE;
 
-  if (CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO && PeekInputRecord(&rec))
+  /* TODO: Здесь, в общем то - ХЗ, т.к.
+           по хорошему нужно проверять CtrlObject->Macro.PeekKey() на ESC или BREAK
+           Но к чему это приведет - пока не могу дать ответ !!!
+  */
+  // если в "макросе"...
+  if(CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
+  {
+    // ...но ЭТО конец последовательности...
+    if(CtrlObject->Macro.IsExecutingLastKey() && CtrlObject->Macro.PeekKey() == KEY_NONE)
+      CtrlObject->Macro.GetKey(); // ...то "завершим" макрос
+    else
+      Processed=FALSE;
+  }
+
+
+  if (Processed && PeekInputRecord(&rec))
   {
     int MMode=CtrlObject->Macro.GetMode();
     CtrlObject->Macro.SetMode(MACRO_LAST);

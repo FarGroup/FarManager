@@ -5,10 +5,18 @@ macro.cpp
 
 */
 
-/* Revision: 1.125 06.08.2004 $ */
+/* Revision: 1.126 26.08.2004 $ */
 
 /*
 Modify:
+  26.08.2004 SVS & AN
+    ! Пока FrameManager->GetCurrentFrame() == NULL функция KeyMacro::ProcessKey() возвращает FALSE
+    - BugZ#1157 - Viewer.State не работает в области Qview
+    ! Подготовка для ввдения "Eval" - команда, которая позволит на ходу
+      компилировать текстовое представление макроса, вызванного из макроса ;-)
+      Например, если в переменной %var содержится "CtrlK Esc", то "$Eval %var"
+      подсунет в очередь 2 клавиши - Ctrl-K и Esc.
+    - неправильно работает SplitFileName
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   06.08.2004 SVS
@@ -726,7 +734,7 @@ int WINAPI KeyNameMacroToKey(const char *Name)
 
 int KeyMacro::ProcessKey(int Key)
 {
-  if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE)
+  if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE || !FrameManager->GetCurrentFrame())
     return(FALSE);
 
   if (Recording) // Идет запись?
@@ -1196,7 +1204,7 @@ TVar KeyMacro::FARPseudoVariable(DWORD Flags,DWORD CheckCode)
 
         case MCODE_V_VIEWERSTATE: // Viewer.State
         {
-          if(CtrlObject->Macro.GetMode()==MACRO_VIEWER &&
+          if((CtrlObject->Macro.GetMode()==MACRO_VIEWER || CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
              CtrlObject->Plugins.CurViewer &&
              CtrlObject->Plugins.CurViewer->IsVisible())
             Cond=(long)CtrlObject->Plugins.CurViewer->ProcessKey(MCODE_V_VIEWERSTATE);
@@ -1233,16 +1241,16 @@ static TVar substrFunc(TVar *param)
 #define FLAG_NAME   4
 #define FLAG_EXT    8
 
-static BOOL SplitFileName(const char *FileName,char *Dest,int nFlags)
+static BOOL SplitFileName (const char *lpFullName,char *lpDest,int nFlags)
 {
-  char *s = (char*)FileName; //start of sub-string
+  char *s = (char*)lpFullName; //start of sub-string
   char *p = s; //current string pointer
 
   char *es = s+strlen(s); //end of string
   char *e; //end of sub-string
 
   if ( !*p )
-    return FALSE;
+      return FALSE;
 
   if ( (*p == '\\') && (*(p+1) == '\\') ) //share
   {
@@ -1259,19 +1267,19 @@ static BOOL SplitFileName(const char *FileName,char *Dest,int nFlags)
       p = es;
 
     if ( (nFlags & FLAG_DISK) == FLAG_DISK )
-      xstrncpy (Dest, s, p-s);
+      strncpy (lpDest, s, p-s);
   }
   else
   {
     if ( *(p+1) == ':' )
     {
       if ( !isalpha (*p) )
-        return false; // 1:\ is not a valid disk
+        return FALSE; // 1:\ is not a valid disk
 
       p += 2;
 
       if ( (nFlags & FLAG_DISK) == FLAG_DISK )
-        strncat (Dest, s, p-s);
+        strncat (lpDest, s, p-s);
     }
   }
 
@@ -1287,17 +1295,19 @@ static BOOL SplitFileName(const char *FileName,char *Dest,int nFlags)
       e = p;
       p++;
     }
-  }
+  };
 
   if ( e )
   {
     if ( (nFlags & FLAG_PATH) )
-      strncat (Dest, s, e-s);
+      strncat (lpDest, s, e-s);
 
     s = e+1;
     p = s;
-
   }
+
+  if ( !p )
+    p = s;
 
   e = NULL;
 
@@ -1306,25 +1316,26 @@ static BOOL SplitFileName(const char *FileName,char *Dest,int nFlags)
     p = strchr (p+1, '.');
 
     if ( p )
-      e = p;
+       e = p;
   }
 
   if ( !e )
-    e = es;
+      e = es;
 
   //FSF.AddEndSlash replacement
 
-  if ( *Dest && (Dest[strlen(Dest)] != '\\') ) //hack, just in case of "disk+name" etc.
-    strcat (Dest, "\\");
+  if ( *lpDest && (lpDest[strlen(lpDest)] != '\\') ) //hack, just in case of "disk+name" etc.
+      strcat (lpDest, "\\");
 
   if ( nFlags & FLAG_NAME )
-    strncat (Dest, s, e-s);
+      strncat (lpDest, s, e-s);
 
   if ( nFlags & FLAG_EXT )
-    strcat (Dest, e);
+      strcat (lpDest, e);
 
   return TRUE;
 }
+
 
 static TVar fsplitFunc(TVar *param)
 {
@@ -1396,7 +1407,7 @@ static TVar msgBoxFunc(TVar *param)
   DWORD Flags = (DWORD)param[2].toInteger();
   Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
   Flags|=FMSG_ALLINONE;
-  if(HIWORD(Flags) == 0 || HIWORD(Flags) > FMSG_MB_RETRYCANCEL)
+  if(HIWORD(Flags) == 0 || HIWORD(Flags) > (WORD)FMSG_MB_RETRYCANCEL)
     Flags|=FMSG_MB_OK;
 
   const char *title=NullToEmpty(param[0].toString());
@@ -2087,7 +2098,7 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
 /* SVS $ */
 
 // эта функция будет вызываться из тех классов, которым нужен перезапуск макросов
-void KeyMacro::RestartAutoMacro(int Mode)
+void KeyMacro::RestartAutoMacro(int /*Mode*/)
 {
 #if 0
 /*
@@ -2638,7 +2649,7 @@ int KeyMacro::PostNewMacro(char *PlainText,DWORD Flags)
   return TRUE;
 }
 
-int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag)
+int KeyMacro::PostNewMacro(struct MacroRecord *MRec,BOOL /*NeedAddSendFlag*/)
 {
   if(!MRec)
     return FALSE;
@@ -2836,10 +2847,13 @@ static void printKeyValue(DWORD* k, int& i)
 #endif
 #endif
 
-int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
+//- AN ----------------------------------------------
+//  Компиляция строки BufPtr в байткод CurMacroBuffer
+//- AN ----------------------------------------------
+static int parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const char *BufPtr)
 {
   _macro_nErr = 0;
-  if ( CurMacro == NULL || BufPtr == NULL || !*BufPtr)
+  if ( BufPtr == NULL || !*BufPtr)
     return FALSE;
   _KEYMACRO(SysLog("--- macro parse '%s'", BufPtr));
   int SizeCurKeyText = strlen(BufPtr)*2;
@@ -2940,9 +2954,9 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
         if ( CurMacro_Buffer != NULL )
         {
           xf_free(CurMacro_Buffer);
-          CurMacro->Buffer = NULL;
+          CurMacroBuffer = NULL;
         }
-        CurMacro->BufferSize = 0;
+        CurMacroBufferSize = 0;
         xf_free(CurrKeyText);
         xf_free(exprBuff);
         return FALSE;
@@ -2986,14 +3000,14 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 
       case MCODE_OP_REP:
         Size += parseExpr(BufPtr, exprBuff, '(', ')');
-        if ( !exec.add(emmRep, CurMacro->BufferSize+Size, CurMacro->BufferSize+Size+3) )
+        if ( !exec.add(emmRep, CurMacroBufferSize+Size, CurMacroBufferSize+Size+3) )
         {
           if ( CurMacro_Buffer != NULL )
           {
             xf_free(CurMacro_Buffer);
-            CurMacro->Buffer = NULL;
+            CurMacroBuffer = NULL;
           }
-          CurMacro->BufferSize = 0;
+          CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
           xf_free(exprBuff);
           return FALSE;
@@ -3019,14 +3033,14 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 
       case MCODE_OP_IF:
         Size += parseExpr(BufPtr, exprBuff, '(', ')');
-        if ( !exec.add(emmThen, CurMacro->BufferSize+Size) )
+        if ( !exec.add(emmThen, CurMacroBufferSize+Size) )
         {
           if ( CurMacro_Buffer != NULL )
           {
             xf_free(CurMacro_Buffer);
-            CurMacro->Buffer = NULL;
+            CurMacroBuffer = NULL;
           }
-          CurMacro->BufferSize = 0;
+          CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
           xf_free(exprBuff);
           return FALSE;
@@ -3048,14 +3062,14 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
 
       case MCODE_OP_WHILE:
         Size += parseExpr(BufPtr, exprBuff, '(', ')');
-        if ( !exec.add(emmWhile, CurMacro->BufferSize, CurMacro->BufferSize+Size) )
+        if ( !exec.add(emmWhile, CurMacroBufferSize, CurMacroBufferSize+Size) )
         {
           if ( CurMacro_Buffer != NULL )
           {
             xf_free(CurMacro_Buffer);
-            CurMacro->Buffer = NULL;
+            CurMacroBuffer = NULL;
           }
-          CurMacro->BufferSize = 0;
+          CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
           xf_free(exprBuff);
           return FALSE;
@@ -3077,9 +3091,9 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
       if ( CurMacro_Buffer != NULL )
       {
         xf_free(CurMacro_Buffer);
-        CurMacro->Buffer = NULL;
+        CurMacroBuffer = NULL;
       }
-      CurMacro->BufferSize = 0;
+      CurMacroBufferSize = 0;
       xf_free(CurrKeyText);
       xf_free(exprBuff);
       return FALSE;
@@ -3088,11 +3102,11 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
     if ( BufPtr == NULL ) // ???
       break;
     // код найден, добавим этот код в буфер последовательности.
-    CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacro->BufferSize+Size+SizeVarName));
+    CurMacro_Buffer = (DWORD *)xf_realloc(CurMacro_Buffer,sizeof(*CurMacro_Buffer)*(CurMacroBufferSize+Size+SizeVarName));
     if ( CurMacro_Buffer == NULL )
     {
-      CurMacro->Buffer = NULL;
-      CurMacro->BufferSize = 0;
+      CurMacroBuffer = NULL;
+      CurMacroBufferSize = 0;
       xf_free(CurrKeyText);
       xf_free(exprBuff);
       return FALSE;
@@ -3101,35 +3115,35 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
     {
       case MCODE_OP_DATE:
       case MCODE_OP_PLAINTEXT:
-        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
         break;
       case MCODE_OP_SAVE:
-        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
-        memcpy(CurMacro_Buffer+CurMacro->BufferSize+Size, varName, SizeVarName*sizeof(DWORD));
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+        memcpy(CurMacro_Buffer+CurMacroBufferSize+Size, varName, SizeVarName*sizeof(DWORD));
         break;
       case MCODE_OP_IF:
-        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacro->BufferSize+Size-2] = MCODE_OP_JZ;
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_REP:
-        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacro->BufferSize+Size-5] = MCODE_OP_SAVEREPCOUNT;
-        CurMacro_Buffer[CurMacro->BufferSize+Size-4] = KeyCode;
-        CurMacro_Buffer[CurMacro->BufferSize+Size-2] = MCODE_OP_JZ;
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-5] = MCODE_OP_SAVEREPCOUNT;
+        CurMacro_Buffer[CurMacroBufferSize+Size-4] = KeyCode;
+        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_WHILE:
-        memcpy(CurMacro_Buffer+CurMacro->BufferSize, exprBuff, Size*sizeof(DWORD));
-        CurMacro_Buffer[CurMacro->BufferSize+Size-2] = MCODE_OP_JZ;
+        memcpy(CurMacro_Buffer+CurMacroBufferSize, exprBuff, Size*sizeof(DWORD));
+        CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JZ;
         break;
       case MCODE_OP_ELSE:
         if ( exec().state == emmThen )
         {
           exec().state = emmElse;
-          CurMacro_Buffer[exec().pos1] = CurMacro->BufferSize+2;
-          exec().pos1 = CurMacro->BufferSize;
-          CurMacro_Buffer[CurMacro->BufferSize] = 0;
+          CurMacro_Buffer[exec().pos1] = CurMacroBufferSize+2;
+          exec().pos1 = CurMacroBufferSize;
+          CurMacro_Buffer[CurMacroBufferSize] = 0;
         }
         else // тут $else и не предвиделось :-/
         {
@@ -3137,9 +3151,9 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
           if ( CurMacro_Buffer != NULL )
           {
             xf_free(CurMacro_Buffer);
-            CurMacro->Buffer = NULL;
+            CurMacroBuffer = NULL;
           }
-          CurMacro->BufferSize = 0;
+          CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
           xf_free(exprBuff);
           return FALSE;
@@ -3154,33 +3168,33 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
             if ( CurMacro_Buffer != NULL )
             {
               xf_free(CurMacro_Buffer);
-              CurMacro->Buffer = NULL;
+              CurMacroBuffer = NULL;
             }
-            CurMacro->BufferSize = 0;
+            CurMacroBufferSize = 0;
             xf_free(CurrKeyText);
             xf_free(exprBuff);
             return FALSE;
           case emmThen:
             CurMacro_Buffer[exec().pos1-1] = MCODE_OP_JZ;
-            CurMacro_Buffer[exec().pos1+0] = CurMacro->BufferSize+Size-1;
-            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            CurMacro_Buffer[exec().pos1+0] = CurMacroBufferSize+Size-1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
             break;
           case emmElse:
             CurMacro_Buffer[exec().pos1-0] = MCODE_OP_JMP; //??
-            CurMacro_Buffer[exec().pos1+1] = CurMacro->BufferSize+Size-1; //??
-            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            CurMacro_Buffer[exec().pos1+1] = CurMacroBufferSize+Size-1; //??
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
             break;
           case emmRep:
-            CurMacro_Buffer[exec().pos2] = CurMacro->BufferSize+Size-1;
-            CurMacro_Buffer[CurMacro->BufferSize+Size-3] = MCODE_OP_JMP;
-            CurMacro_Buffer[CurMacro->BufferSize+Size-2] = exec().pos1;
-            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
+            CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
             break;
           case emmWhile:
-            CurMacro_Buffer[exec().pos2] = CurMacro->BufferSize+Size-1;
-            CurMacro_Buffer[CurMacro->BufferSize+Size-3] = MCODE_OP_JMP;
-            CurMacro_Buffer[CurMacro->BufferSize+Size-2] = exec().pos1;
-            CurMacro_Buffer[CurMacro->BufferSize+Size-1] = KeyCode;
+            CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
+            CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
+            CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
             break;
         }
         if ( !exec.del() )  // Вообще-то этого быть не должно,  но подстрахуемся
@@ -3188,30 +3202,30 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
           if ( CurMacro_Buffer != NULL )
           {
             xf_free(CurMacro_Buffer);
-            CurMacro->Buffer = NULL;
+            CurMacroBuffer = NULL;
           }
-          CurMacro->BufferSize = 0;
+          CurMacroBufferSize = 0;
           xf_free(CurrKeyText);
           xf_free(exprBuff);
           return FALSE;
         }
         break;
       default:
-        CurMacro_Buffer[CurMacro->BufferSize]=KeyCode;
+        CurMacro_Buffer[CurMacroBufferSize]=KeyCode;
     } // end switch(KeyCode)
-    CurMacro->BufferSize += Size+SizeVarName;
+    CurMacroBufferSize += Size+SizeVarName;
   } // END for (;;)
 #ifdef _DEBUG
 #ifdef SYSLOG_KEYMACRO
-  SysLog("--- macro buffer out (%d)", CurMacro->BufferSize);
-  SysLogDump("",0,(LPBYTE)CurMacro_Buffer,CurMacro->BufferSize*sizeof(DWORD),NULL);
+  SysLog("--- macro buffer out (%d)", CurMacroBufferSize);
+  SysLogDump("",0,(LPBYTE)CurMacro_Buffer,CurMacroBufferSize*sizeof(DWORD),NULL);
   if ( CurMacro_Buffer )
   {
     int ii;
-    for ( ii = 0 ; ii < CurMacro->BufferSize ; ii++ )
+    for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
       SysLog("%08X: %08X",ii,CurMacro_Buffer[ii]);
 
-    for ( ii = 0 ; ii < CurMacro->BufferSize ; ii++ )
+    for ( ii = 0 ; ii < CurMacroBufferSize ; ii++ )
       printKeyValue(CurMacro_Buffer, ii);
   }
   else
@@ -3219,11 +3233,11 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
   SysLog("--- macro buffer end");
 #endif
 #endif
-  if ( CurMacro->BufferSize > 1 )
-    CurMacro->Buffer = CurMacro_Buffer;
+  if ( CurMacroBufferSize > 1 )
+    CurMacroBuffer = CurMacro_Buffer;
   else if ( CurMacro_Buffer )
   {
-    CurMacro->Buffer = reinterpret_cast<DWORD*>(*CurMacro_Buffer);
+    CurMacroBuffer = reinterpret_cast<DWORD*>(*CurMacro_Buffer);
     xf_free(CurMacro_Buffer);
   }
   xf_free(exprBuff);
@@ -3236,6 +3250,13 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
   if ( _macro_nErr )
     return FALSE;
   return TRUE;
+}
+
+int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,const char *BufPtr)
+{
+  if ( CurMacro )
+    return parseMacroString(CurMacro->Buffer, CurMacro->BufferSize, BufPtr);
+  return FALSE;
 }
 
 
@@ -3418,7 +3439,7 @@ BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,DWORD CurFlags, BOOL IsPassiveP
   return TRUE;
 }
 
-BOOL KeyMacro::CheckAll(int CheckMode,DWORD CurFlags)
+BOOL KeyMacro::CheckAll(int /*CheckMode*/,DWORD CurFlags)
 {
 /* $TODO:
      Здесь вместо Check*() попробовать заюзать IfCondition()

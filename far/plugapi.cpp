@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.176 06.08.2004 $ */
+/* Revision: 1.177 26.08.2004 $ */
 
 /*
 Modify:
+  26.08.2004 SVS
+    - В функциях FarGetPluginDirList и FarGetDirList проверим параметры и..., если есть "траблы" - вернем FALSE
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   02.08.2004 SVS
@@ -1827,66 +1829,72 @@ static void PR_FarGetDirListMsg(void)
   Message(MSG_DOWN,0,"",MSG(MPreparingList));
 }
 
-int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,
-                  int *pItemsNumber)
+int WINAPI FarGetDirList(const char *Dir,struct PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
-  if (FrameManager->ManagerIsDown())
-    return 0;
-
-  PluginPanelItem *ItemsList=NULL;
-  int ItemsNumber=0;
-  SaveScreen SaveScr;
-  clock_t StartTime=clock();
-  int MsgOut=0;
-
-  *pItemsNumber=0;
-  *pPanelItem=NULL;
-
-  ScanTree ScTree(FALSE);
-  WIN32_FIND_DATA FindData;
-  char FullName[NM],DirName[NM];
-//  ConvertNameToFull(Dir,DirName, sizeof(DirName));
-  if (ConvertNameToFull(Dir,DirName, sizeof(DirName)) >= sizeof(DirName)){
+  if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !*pPanelItem)
     return FALSE;
-  }
-  ScTree.SetFindPath(DirName,"*.*");
-  *PointToName(DirName)=0;
-  int DirLength=strlen(DirName);
-  while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
+
+  char DirName[NM];
+  if (ConvertNameToFull(Dir,DirName, sizeof(DirName)) >= sizeof(DirName))
+    return FALSE;
+
   {
-    if ((ItemsNumber & 31)==0)
+    SaveScreen SaveScr;
+    clock_t StartTime=clock();
+    int MsgOut=0;
+
+    *pItemsNumber=0;
+    *pPanelItem=NULL;
+
+    WIN32_FIND_DATA FindData;
+    char FullName[NM];
+    ScanTree ScTree(FALSE);
+
+    ScTree.SetFindPath(DirName,"*.*");
+    *PointToName(DirName)=0;
+    int DirLength=strlen(DirName);
+    PluginPanelItem *ItemsList=NULL;
+    int ItemsNumber=0;
+    while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
     {
-      if (CheckForEsc())
+      if ((ItemsNumber & 31)==0)
       {
-        if(ItemsList)
-          xf_free(ItemsList);
-        SetPreRedrawFunc(NULL);
-        return(FALSE);
+        if (CheckForEsc())
+        {
+          if(ItemsList)
+            xf_free(ItemsList);
+          SetPreRedrawFunc(NULL);
+          return FALSE;
+        }
+
+        if (!MsgOut && clock()-StartTime > 500)
+        {
+          SetCursorType(FALSE,0);
+          SetPreRedrawFunc(PR_FarGetDirListMsg);
+          PR_FarGetDirListMsg();
+          MsgOut=1;
+        }
+
+        ItemsList=(PluginPanelItem *)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
+        if (ItemsList==NULL)
+        {
+          *pItemsNumber=0;
+          SetPreRedrawFunc(NULL);
+          return FALSE;
+        }
       }
-      if (!MsgOut && clock()-StartTime > 500)
-      {
-        SetCursorType(FALSE,0);
-        SetPreRedrawFunc(PR_FarGetDirListMsg);
-        PR_FarGetDirListMsg();
-        MsgOut=1;
-      }
-      ItemsList=(PluginPanelItem *)xf_realloc(ItemsList,sizeof(*ItemsList)*(ItemsNumber+32+1));
-      if (ItemsList==NULL)
-      {
-        *pItemsNumber=0;
-        SetPreRedrawFunc(NULL);
-        return(FALSE);
-      }
+
+      memset(&ItemsList[ItemsNumber],0,sizeof(*ItemsList));
+      ItemsList[ItemsNumber].FindData=FindData;
+      strcpy(ItemsList[ItemsNumber].FindData.cFileName,FullName+DirLength);
+      ItemsNumber++;
     }
-    memset(&ItemsList[ItemsNumber],0,sizeof(*ItemsList));
-    ItemsList[ItemsNumber].FindData=FindData;
-    strcpy(ItemsList[ItemsNumber].FindData.cFileName,FullName+DirLength);
-    ItemsNumber++;
+
+    SetPreRedrawFunc(NULL);
+    *pPanelItem=ItemsList;
+    *pItemsNumber=ItemsNumber;
   }
-  SetPreRedrawFunc(NULL);
-  *pPanelItem=ItemsList;
-  *pItemsNumber=ItemsNumber;
-  return(TRUE);
+  return TRUE;
 }
 
 
@@ -1914,16 +1922,18 @@ static void PR_FarGetPluginDirListMsg(void)
   FarGetPluginDirListMsg((char *)PreRedrawParam.Param1,PreRedrawParam.Flags&(~MSG_KEEPBACKGROUND));
 }
 
-int WINAPI FarGetPluginDirList(int PluginNumber,HANDLE hPlugin,
-                  const char *Dir,struct PluginPanelItem **pPanelItem,
-                  int *pItemsNumber)
+int WINAPI FarGetPluginDirList(int PluginNumber,
+                               HANDLE hPlugin,
+                               const char *Dir,
+                               struct PluginPanelItem **pPanelItem,
+                               int *pItemsNumber)
 {
-  if (FrameManager->ManagerIsDown())
+  if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !*pPanelItem)
     return FALSE;
 
   {
     if (strcmp(Dir,".")==0 || TestParentFolderName(Dir))
-      return(FALSE);
+      return FALSE;
 
     static struct PluginHandle DirListPlugin;
 
