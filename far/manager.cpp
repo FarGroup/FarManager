@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.59 08.01.2002 $ */
+/* Revision: 1.60 29.01.2002 $ */
 
 /*
 Modify:
+  29.01.2002 OT
+    - падение фара в рефрешКоммит()
   08.01.2002 SVS
     - Бага с макросом, в котором есть Alt-F9 (смена режима)
   02.01.2002 IS
@@ -1054,6 +1056,8 @@ void Manager::RefreshCommit()
   if (RefreshedFrame->Refreshable()){
     RefreshedFrame->ShowConsoleTitle();
     RefreshedFrame->Refresh();
+    if (!RefreshedFrame)
+      return;
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
   }
   if (Opt.ViewerEditorClock &&
