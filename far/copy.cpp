@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.27 08.04.2001 $ */
+/* Revision: 1.28 24.04.2001 $ */
 
 /*
 Modify:
+  24.04.2001 VVM
+    ! При подсчете времени копирования игнорировать время простоя (в диалогах)
   08.04.2001 SVS
     ! Создание линков только под NT - о чем честно и предупредим.
     + Отладочный код для создания repase point. Просьба в нем пока не
@@ -104,6 +106,7 @@ Modify:
 
 static int ShowCopyTime;
 static clock_t CopyStartTime;
+static clock_t CopyTime;
 static clock_t LastShowTime;
 /* VVM $ */
 
@@ -641,6 +644,7 @@ void ShellCopy::CopyFileTree(char *Dest)
     + Запомним время начала. */
   if (ShowCopyTime)
     CopyStartTime = clock();
+  CopyTime = 0;
   LastShowTime = 0;
 /* VVM $ */
 
@@ -714,9 +718,11 @@ void ShellCopy::CopyFileTree(char *Dest)
 
     if ((FindHandle=FindFirstFile(SelName,&SrcData))==INVALID_HANDLE_VALUE)
     {
+      CopyTime+= (clock() - CopyStartTime);
       if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MError),MSG(MCopyCannotFind),
               SelName,MSG(MSkip),MSG(MCancel))==1)
         return;
+      CopyStartTime = clock();             
       int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
       TotalCopySize-=SubSize;
       continue;
@@ -947,8 +953,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       SameName=1;
       if (CmpCode==2 || !Rename)
       {
+        CopyTime+= (clock() - CopyStartTime);
         Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
                 Src,MSG(MCannotCopyFolderToItself2),MSG(MOk));
+        CopyStartTime = clock();
         return(COPY_CANCEL);
       }
     }
@@ -1035,9 +1043,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
       while (!CreateDirectory(DestPath,CopySecurity ? &sa:NULL))
       {
         int MsgCode;
-        if ((MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-            MSG(MCopyCannotCreateFolder),DestPath,MSG(MCopyRetry),
-            MSG(MCopySkip),MSG(MCopyCancel)))!=0)
+        CopyTime+= (clock() - CopyStartTime);
+        MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                        MSG(MCopyCannotCreateFolder),DestPath,MSG(MCopyRetry),
+                        MSG(MCopySkip),MSG(MCopyCancel));
+        CopyStartTime = clock();
+        if (MsgCode!=0)
           return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
       }
       DWORD SetAttr=SrcData->dwFileAttributes;
@@ -1069,15 +1080,20 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
           SameName=1;
           if (CmpCode==2 || !Rename)
           {
+            CopyTime+= (clock() - CopyStartTime);
             Message(MSG_DOWN|MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
                     Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
+            CopyStartTime = clock();
             return(COPY_CANCEL);
           }
         }
       }
 
-      int RetCode;
-      if (!AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,1,Append,RetCode))
+      int RetCode, AskCode;
+      CopyTime+= (clock() - CopyStartTime);
+      AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,1,Append,RetCode);
+      CopyStartTime = clock();
+      if (!AskCode)
         return((COPY_CODES)RetCode);
     }
   }
@@ -1184,15 +1200,21 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     sprintf(Msg2,MSG(MCannotCopyTo),DestPath);
     {
       int MsgCode;
-      if ((MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                           Msg1,Msg2,MSG(MCopyRetry),MSG(MCopySkip),
-                           MSG(MCopyCancel)))!=0)
+      CopyTime+= (clock() - CopyStartTime);
+      MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                      Msg1,Msg2,MSG(MCopyRetry),MSG(MCopySkip),
+                      MSG(MCopyCancel));
+      CopyStartTime = clock();
+      if (MsgCode!=0)
         return((MsgCode==-2 || MsgCode==2) ? COPY_CANCEL:COPY_NEXT);
     }
     CurCopySize=SaveCopySize;
     TotalCopySize=SaveTotalSize;
-    int RetCode;
-    if (!AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,1,Append,RetCode))
+    int RetCode, AskCode;
+    CopyTime+= (clock() - CopyStartTime);
+    AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,1,Append,RetCode);
+    CopyStartTime = clock();
+    if (!AskCode)
       return((COPY_CODES)RetCode);
   }
 }
@@ -1229,6 +1251,7 @@ void ShellCopy::ShellCopyMsg(char *Src,char *Dest,int Flags)
     if ((Src!=NULL) && (ShowCopyTime))
     {
       CopyStartTime = clock();
+      CopyTime = 0;
       LastShowTime = 0;
     }
     /* VVM $ */
@@ -1387,6 +1410,7 @@ int ShellCopy::DeleteAfterMove(char *Name,int Attr)
   if (Attr & FA_RDONLY)
   {
     int MsgCode;
+    CopyTime+= (clock() - CopyStartTime);
     if (ReadOnlyDelMode!=-1)
       MsgCode=ReadOnlyDelMode;
     else
@@ -1394,6 +1418,7 @@ int ShellCopy::DeleteAfterMove(char *Name,int Attr)
               MSG(MCopyFileRO),Name,MSG(MCopyAskDelete),
               MSG(MCopyDeleteRO),MSG(MCopyDeleteAllRO),
               MSG(MCopySkipRO),MSG(MCopySkipAllRO),MSG(MCopyCancelRO));
+    CopyStartTime = clock();
     switch(MsgCode)
     {
       case 1:
@@ -1414,9 +1439,11 @@ int ShellCopy::DeleteAfterMove(char *Name,int Attr)
   while (remove(Name)!=0)
   {
     int MsgCode;
+    CopyTime+= (clock() - CopyStartTime);
     MsgCode=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
                     MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
                     MSG(MDeleteSkip),MSG(MDeleteCancel));
+    CopyStartTime = clock();
     if (MsgCode==1 || MsgCode==-1)
       break;
     if (MsgCode==2 || MsgCode==-2)
@@ -1514,8 +1541,11 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
 
     while (!ReadFile(SrcHandle,CopyBuffer,CopyBufSize,&BytesRead,NULL))
     {
-      if (Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-                  MSG(MCopyReadError),SrcName,MSG(MRetry),MSG(MCancel))==0)
+      CopyTime+= (clock() - CopyStartTime);
+      int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+                            MSG(MCopyReadError),SrcName,MSG(MRetry),MSG(MCancel));
+      CopyStartTime = clock();
+      if (MsgCode==0)
         continue;
       DWORD LastError=GetLastError();
       CloseHandle(SrcHandle);
@@ -1564,9 +1594,11 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
             {
               CloseHandle(DestHandle);
               SetMessageHelp("CopyFiles");
+              CopyTime+= (clock() - CopyStartTime);
               int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MError),
-                            MSG(MErrorInsufficientDiskSpace),DestName,
-                            MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
+                                  MSG(MErrorInsufficientDiskSpace),DestName,
+                                  MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
+              CopyStartTime = clock();
               if (MsgCode==2)
               {
                 CloseHandle(SrcHandle);
@@ -1584,13 +1616,20 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
                 {
                   if (GetDiskFreeSpace(DriveRoot,&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
                     if (SectorsPerCluster*BytesPerSector*FreeClusters==0)
-                      if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),MSG(MCopyErrorDiskFull),DestName,MSG(MRetry),MSG(MCancel))!=0)
+                    {
+                      CopyTime+= (clock() - CopyStartTime);
+                      int MsgCode = Message(MSG_DOWN|MSG_WARNING,2,MSG(MWarning),
+                                            MSG(MCopyErrorDiskFull),DestName,
+                                            MSG(MRetry),MSG(MCancel));
+                      CopyStartTime = clock();
+                      if (MsgCode!=0)
                       {
                         Split=FALSE;
                         SplitCancelled=TRUE;
                       }
                       else
                         continue;
+                    }
                   break;
                 }
               }
@@ -1603,8 +1642,11 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
         }
         if (Split)
         {
-          int RetCode;
-          if (!AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,Move,1,Append,RetCode))
+          int RetCode, AskCode;
+          CopyTime+= (clock() - CopyStartTime);
+          AskCode = AskOverwrite(SrcData,DestName,0xFFFFFFFF,FALSE,Move,1,Append,RetCode);
+          CopyStartTime = clock();
+          if (!AskCode)
           {
             CloseHandle(SrcHandle);
             return(COPY_CANCEL);
@@ -1632,10 +1674,16 @@ int ShellCopy::ShellCopyFile(char *SrcName,WIN32_FIND_DATA *SrcData,
         }
         else
         {
+          CopyTime+= (clock() - CopyStartTime);
           if (!SplitCancelled && !SplitSkipped &&
               Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
               MSG(MCopyWriteError),DestName,MSG(MRetry),MSG(MCancel))==0)
+          {
+            CopyStartTime = clock();
             continue;
+          }
+          else
+            CopyStartTime = clock();
           CloseHandle(SrcHandle);
           if (Append)
           {
@@ -1749,7 +1797,9 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
       (clock() - LastShowTime > 1000))
   {
     LastShowTime = clock();
-    int WorkTime = (clock() - CopyStartTime)/1000;
+    CopyTime+= (clock() - CopyStartTime);
+    CopyStartTime = clock();
+    int WorkTime = CopyTime/1000;
     int64 SizeLeft = OldTotalSize - OldWrittenSize;
 
     int TimeLeft;
