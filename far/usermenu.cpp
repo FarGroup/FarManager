@@ -5,10 +5,14 @@ User menu и есть
 
 */
 
-/* Revision: 1.05 24.07.2000 $ */
+/* Revision: 1.06 24.07.2000 $ */
 
 /*
 Modify:
+  28.07.2000 VVM
+    + Обработка переменных окружения в названии меню
+    - Исправлен баг с клавишей BkSpace
+
   24.07.2000 VVM
     + При показе главного меню в заголовок добавляет тип - FAR/Registry
   20.07.2000 tran 1.04
@@ -65,6 +69,7 @@ void ProcessUserMenu(int EditMenu)
   char MenuFilePath[NM];    // Путь к текущему каталогу с файлом LocalMenuFileName
   char *ChPtr;
   int  ExitCode = 0;
+  int RunFirst  = 1;
 /* VVM $ */
 
   CtrlObject->CmdLine.GetCurDir(MenuFilePath);
@@ -127,13 +132,20 @@ void ProcessUserMenu(int EditMenu)
 /* $ 14.07.2000 VVM
     + При первом вызове не ищет меню из родительского каталога
 */
-//            ChPtr=strrchr(MenuFilePath, '\\');
-//            if (ChPtr!=NULL)
-//            {
-//              *(ChPtr--)=0;
-//              if (*ChPtr!=':')
-//                continue;
-//            } /* if */
+/* $ 28.07.2000 VVM
+    + Введен флаг для первого вызова
+*/
+            if (!RunFirst)
+            {
+              ChPtr=strrchr(MenuFilePath, '\\');
+              if (ChPtr!=NULL)
+              {
+                *(ChPtr--)=0;
+                if (*ChPtr!=':')
+                  continue;
+              } /* if */
+            } /* if */
+            RunFirst=0;
 /* VVM $ */
             strcpy(MenuFilePath, FarPath);
             MenuMode=MM_FAR;
@@ -332,6 +344,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       } /* switch */
       VMenu UserMenu(MenuTitle,NULL,0,ScrY-4);
       /* VVM $ */
+
       UserMenu.SetHelp("UserMenu");
       UserMenu.SetPosition(-1,-1,0,0);
 
@@ -351,6 +364,11 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
           break;
         SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
+        /* $ 28.07.2000 VVM
+           + Обработка переменных окружения
+        */
+        ExpandEnvironmentStr(Label, Label, sizeof(Label));
+        /* $ VVM */
 
         int FuncNum=0;
         if (strlen(HotKey)>1)
@@ -381,6 +399,12 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
         if (!GetRegKey(ItemKey,"Label",Label,"",sizeof(Label)))
           break;
         SubstFileName(Label,Name,ShortName,NULL,NULL,TRUE);
+        /* $ 28.07.2000 VVM
+           + Обработка переменных окружения
+        */
+        ExpandEnvironmentStr(Label, Label, sizeof(Label));
+        /* $ VVM */
+
         int SubMenu;
         GetRegKey(ItemKey,"Submenu",SubMenu,0);
 
