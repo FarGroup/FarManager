@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.55 26.04.2002 $ */
+/* Revision: 1.56 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SKV
+    + зафиксируем вход в модальный редактор
   26.04.2002 SVS
     - BugZ#484 - Addons\Macros\Space.reg (про заголовки консоли)
   05.03.2002 DJ
@@ -753,7 +755,9 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos,char *Title)
                   FileEditor ShellEditor(MenuFileName,FALSE,FALSE,-1,-1,TRUE,NULL);
                   delete OldTitle;
                   ShellEditor.SetDynamicallyBorn(false);
+                  FrameManager->EnterModalEV();
                   FrameManager->ExecuteModal();
+                  FrameManager->ExitModalEV();
                   if (!ShellEditor.IsFileChanged() || (MenuFile=fopen(MenuFileName,"rb"))==NULL)
                   {
                     remove(MenuFileName);

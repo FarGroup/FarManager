@@ -7,10 +7,13 @@ manager.hpp
 
 */
 
-/* Revision: 1.29 15.05.2002 $ */
+/* Revision: 1.30 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SKV
+    + Счётчик мадалов.
+    + Список SemiModalBackFrame'ов
   15.05.2002 SVS
     ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
       для всех Frame в методе Manager::InitKeyBar.
@@ -112,9 +115,24 @@ class Manager
 
     Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке
                              // его можно получить с помощью FrameManager->GetCurrentFrame();
-    Frame *SemiModalBackFrame;
+    /* $ 15.05.2002 SKV
+      Теперь это список.
+    */
+    Frame **SemiModalBackFrames;
+    int SemiModalBackFramesCount;
+    int SemiModalBackFramesSize;
+    /* SKV $ */
 
-
+    /* $ 15.05.2002 SKV
+      Так как есть полумодалы, что б не было путаницы,
+      заведём счётчик модальных editor/viewer'ов.
+      Дёргать его  надо ручками перед вызовом ExecuteModal.
+      А автоматом нельзя, так как ExecuteModal вызывается
+      1) не только для настоящих модалов (как это не пародоксально),
+      2) не только для editor/viewer'ов.
+    */
+    int ModalEVCount;
+    /* SKV $ */
 
     int  EndLoop;            // Признак выхода из цикла
     INPUT_RECORD LastInputRecord;
@@ -141,6 +159,10 @@ class Manager
 
     int GetModalExitCode();
 
+    void AddSemiModalBackFrame(Frame* frame);
+    BOOL IsSemiModalBackFrame(Frame *frame);
+    void RemoveSemiModalBackFrame(Frame* frame);
+
   public:
     Manager();
     ~Manager();
@@ -166,7 +188,7 @@ class Manager
     //! Запускает немодальный фрейм в модальном режиме
     void ExecuteNonModal();
     //! Проверка того, что немодальный фрейм находится еще и на вершине стека.
-    BOOL ifDoubleInstance();
+    BOOL ifDoubleInstance(Frame* frame);
 
     //!  Функции, которые работают с очередью немодально фрейма.
     //  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
@@ -245,6 +267,16 @@ class Manager
     BOOL ManagerIsDown() {return EndLoop;}
 
     void InitKeyBar(void);
+
+    /* $ 15.05.2002 SKV
+      Так как нужно это в разных местах,
+      а глобальные счётчики не концептуально,
+      то лучше это делать тут.
+    */
+    void EnterModalEV(){ModalEVCount++;}
+    void ExitModalEV(){ModalEVCount--;}
+    BOOL InModalEV(){return ModalEVCount!=0;}
+    /* SKV $ */
 };
 
 extern Manager *FrameManager;

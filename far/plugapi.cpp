@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.131 10.05.2002 $ */
+/* Revision: 1.132 14.05.2002 $ */
 
 /*
 Modify:
+  14.05.2002 SKV
+    + запретим создание немодального viewer/editor из модального,
+      а так же переключение на другие фреймы.
   10.05.2002 SVS
     - BugZ#502 - вызов Info.Control для из редактора far /e
       Запрещаем использование Control для CmdMode=1 (для /e и /v)
@@ -477,7 +480,6 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
 /* tran 18.08.2000 $ */
 /* SVS 12.09.2000 $ */
 
-
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
@@ -709,7 +711,12 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 
     case ACTL_SETCURRENTWINDOW:
     {
-      if (FrameManager && FrameManager->operator[]((int)Param)!=NULL )
+      /* $ 15.05.2002 SKV
+        Запретим переключение фрэймов,
+        если находимся в модальном редакторе/вьюере.
+      */
+      if (FrameManager && !FrameManager->InModalEV() &&
+          FrameManager->operator[]((int)Param)!=NULL )
       {
         FrameManager->ActivateFrame((int)Param);
         return TRUE;
@@ -1158,8 +1165,12 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
 
   delete[] InternalItem;
 
-  if((frame=FrameManager->GetBottomFrame()) != NULL)
+  /* $ 15.05.2002 SKV
+    Однако разлочивать нужно ровно то, что залочили.
+  */
+  if(frame != NULL)
     frame->UnlockRefresh(); // теперь можно :-)
+ /* SKV $ */
 //  CheckScreenLock();
   FrameManager->RefreshFrame(); //??
   return(ExitCode);
@@ -1327,8 +1338,12 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,const char *HelpTopic,
   if((frame=FrameManager->GetBottomFrame()) != NULL)
     frame->LockRefresh(); // отменим прорисовку фрейма
   int MsgCode=Message(Flags,ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
-  if((frame=FrameManager->GetBottomFrame()) != NULL)
+  /* $ 15.05.2002 SKV
+    Однако разлочивать надо ровно то, что залочили.
+  */
+  if(frame != NULL)
     frame->UnlockRefresh(); // теперь можно :-)
+  /* SKV $ */
   //CheckScreenLock();
 
   if(SingleItems)
@@ -1835,6 +1850,15 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
   /* $ 09.09.2001 IS */
   int DisableHistory=(Flags & VF_DISABLEHISTORY)?TRUE:FALSE;
   /* IS $ */
+  /* $ 15.05.2002 SKV
+    Запретим вызов немодального редактора вьюера из модального.
+  */
+  if( FrameManager->InModalEV())
+  {
+    Flags&=~VF_NONMODAL;
+  }
+  /* SKV $ */
+
   if (Flags & VF_NONMODAL)
   {
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
@@ -1856,7 +1880,9 @@ int WINAPI FarViewer(const char *FileName,const char *Title,
     /* IS $ */
     /* $ 28.05.2001 По умолчанию Вьюер, поэтому нужно здесь признак выставиль явно */
     Viewer.SetDynamicallyBorn(false);
+    FrameManager->EnterModalEV();
     FrameManager->ExecuteModal();
+    FrameManager->ExitModalEV();
     if (Flags & VF_DELETEONCLOSE)
       Viewer.SetTempViewName(FileName);
     /* $ 12.05.2001 DJ */
@@ -1902,6 +1928,16 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
     OpMode=(Flags&EF_USEEXISTING)?FEOPMODE_USEEXISTING:FEOPMODE_BREAKIFOPEN;
 #endif
 
+  /*$ 15.05.2002 SKV
+    Запретим вызов немодального редактора, если находимся в модальном
+    редакторе или вьюере.
+  */
+  if (FrameManager->InModalEV())
+  {
+    Flags&=~EF_NONMODAL;
+  }
+  /* SKV $ */
+
   if (Flags & EF_NONMODAL)
   {
     ExitCode=FALSE;
@@ -1922,28 +1958,34 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   }
   else
   {
-   /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-   FileEditor Editor(FileName,CreateNew,FALSE,
-                     StartLine,StartChar,Title,
-                     X1,Y1,X2,Y2,DisableHistory,
-                     DeleteOnClose,OpMode);
-   /* IS $ */
-   Editor.SetDynamicallyBorn(false);
-   /* $ 12.05.2001 DJ */
-   Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
-   /* DJ $ */
-   SetConsoleTitle(OldTitle);
-   FrameManager->ExecuteModal();
-   ExitCode = Editor.GetExitCode();
-   if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
-   {
+    /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
+    FileEditor Editor(FileName,CreateNew,FALSE,
+                      StartLine,StartChar,Title,
+                      X1,Y1,X2,Y2,DisableHistory,
+                      DeleteOnClose,OpMode);
+    /* IS $ */
+    Editor.SetDynamicallyBorn(false);
+    /* $ 12.05.2001 DJ */
+    Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+    /* DJ $ */
+    SetConsoleTitle(OldTitle);
+    /* $ 15.05.2002 SKV
+      Зафиксируем вход и выход в/из модального редактора.
+    */
+    FrameManager->EnterModalEV();
+    FrameManager->ExecuteModal();
+    FrameManager->ExitModalEV();
+    /* SKV $ */
+    ExitCode = Editor.GetExitCode();
+    if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
+    {
 #if 0
-     if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
-       ExitCode = XC_OPEN_ERROR;
-     else
+       if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
+         ExitCode = XC_OPEN_ERROR;
+       else
 #endif
-       ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
-   }
+         ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
+    }
   }
   return ExitCode;
   /* IS $ */

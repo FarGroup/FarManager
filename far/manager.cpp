@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.72 15.05.2002 $ */
+/* Revision: 1.73 15.05.2002 $ */
 
 /*
 Modify:
+  14.05.2002 SKV
+    - Куча багов связанных с переключениями между полумодальными
+      редакторами и вьюерами.
   15.05.2002 SVS
     ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
       для всех Frame в методе Manager::InitKeyBar.
@@ -267,7 +270,10 @@ Manager::Manager()
   ModalizedFrame=NULL;
   UnmodalizedFrame=NULL;
   ExecutedFrame=NULL;
-  SemiModalBackFrame=NULL;
+  SemiModalBackFrames=NULL; //Теперь это массив
+  SemiModalBackFramesCount=0;
+  SemiModalBackFramesSize=0;
+  ModalEVCount=0;
 }
 
 Manager::~Manager()
@@ -276,6 +282,8 @@ Manager::~Manager()
     free(FrameList);
   if (ModalStack)
     free (ModalStack);
+  if (SemiModalBackFrames)
+    free(SemiModalBackFrames);
 }
 
 
@@ -408,9 +416,12 @@ void Manager::ExecuteNonModal ()
   if (!NonModal) {
     return;
   }
-  Frame *SaveFrame=SemiModalBackFrame;
-  SemiModalBackFrame=CurrentFrame;
-//  int SavePos = FramePos;
+  /* $ 14.05.2002 SKV
+    Положим текущий фрэйм в список "родителей" полумодальных фрэймов
+  */
+  Frame *SaveFrame=CurrentFrame;
+  AddSemiModalBackFrame(SaveFrame);
+  /* SKV $ */
   int NonModalIndex=IndexOf(NonModal);
   if (-1==NonModalIndex){
     InsertedFrame=NonModal;
@@ -422,7 +433,11 @@ void Manager::ExecuteNonModal ()
   }
 
   ExecuteModal(NonModal);
-  SemiModalBackFrame=SaveFrame;
+  /* $ 14.05.2002 SKV
+    ... и уберём его же.
+  */
+  RemoveSemiModalBackFrame(SaveFrame);
+  /* SKV $ */
 }
 
 void Manager::ExecuteModal (Frame *Executed)
@@ -609,7 +624,11 @@ void Manager::ShowBackground()
 void Manager::ActivateFrame(Frame *Activated)
 {
   _OT(SysLog("ActivateFrame(), Activated=%i",Activated));
-  if (!ActivatedFrame){
+  if(IndexOf(Activated)==-1 && IndexOfStack(Activated)==-1)
+    return;
+
+  if (!ActivatedFrame)
+  {
     ActivatedFrame=Activated;
   }
 }
@@ -645,13 +664,22 @@ void Manager::DeactivateFrame (Frame *Deactivated,int Direction)
 void Manager::RefreshFrame(Frame *Refreshed)
 {
   _OT(SysLog("RefreshFrame(), Refreshed=%p",Refreshed));
+
   if (ActivatedFrame)
     return;
-  if (Refreshed){
+
+  if (Refreshed)
+  {
     RefreshedFrame=Refreshed;
-  } else {
+  }
+  else
+  {
     RefreshedFrame=CurrentFrame;
   }
+
+  if(IndexOf(Refreshed)==-1 && IndexOfStack(Refreshed)==-1)
+    return;
+
   /* $ 13.04.2002 KM
     - Вызываем принудительный Commit() для фрейма имеющего члена
       NextModal, это означает что активным сейчас является
@@ -1033,23 +1061,39 @@ void Manager::DeactivateCommit()
   /*$ 18.04.2002 skv
     Если нечего активировать, то в общем-то не надо и деактивировать.
   */
-  if (!DeactivatedFrame || !ActivatedFrame){
+  if (!DeactivatedFrame || !ActivatedFrame)
+  {
     return;
   }
   /* skv $*/
-  if (!ActivatedFrame){
+
+  if (!ActivatedFrame)
+  {
     _OT("WARNING!!!!!!!!");
   }
-  if (DeactivatedFrame){
+
+  if (DeactivatedFrame)
+  {
     DeactivatedFrame->OnChangeFocus(0);
   }
 
   int modalIndex=IndexOfStack(DeactivatedFrame);
-  if (-1 != modalIndex && modalIndex== this-> ModalStackCount-1){
-    if (SemiModalBackFrame==ActivatedFrame){
+  if (-1 != modalIndex && modalIndex== ModalStackCount-1)
+  {
+    if (IsSemiModalBackFrame(ActivatedFrame))
+    { // Является ли "родителем" полумодального фрэйма?
       ModalStackCount--;
-    } else {
-      ModalStack[ModalStackCount-1]=ActivatedFrame;
+    }
+    else
+    {
+      if(IndexOfStack(ActivatedFrame)==-1)
+      {
+        ModalStack[ModalStackCount-1]=ActivatedFrame;
+      }
+      else
+      {
+        ModalStackCount--;
+      }
     }
   }
 }
@@ -1058,14 +1102,35 @@ void Manager::DeactivateCommit()
 void Manager::ActivateCommit()
 {
   _OT(SysLog("ActivateCommit(), ActivatedFrame=%p",ActivatedFrame));
-  if (CurrentFrame==ActivatedFrame){
+  if (CurrentFrame==ActivatedFrame)
+  {
     RefreshedFrame=ActivatedFrame;
     return;
   }
+
   int FrameIndex=IndexOf(ActivatedFrame);
-  if (-1!=FrameIndex){
+
+  if (-1!=FrameIndex)
+  {
     FramePos=FrameIndex;
   }
+  /* 14.05.2002 SKV
+    Если мы пытаемся активировать полумодальный фрэйм,
+    то надо его вытащит на верх стэка модалов.
+  */
+
+  for(int I=0;I<ModalStackCount;I++)
+  {
+    if(ModalStack[I]==ActivatedFrame)
+    {
+      Frame *tmp=ModalStack[I];
+      ModalStack[I]=ModalStack[ModalStackCount-1];
+      ModalStack[ModalStackCount-1]=tmp;
+      break;
+    }
+  }
+  /* SKV $ */
+
   RefreshedFrame=CurrentFrame=ActivatedFrame;
 }
 
@@ -1093,27 +1158,51 @@ void Manager::UpdateCommit()
 void Manager::DeleteCommit()
 {
   _OT(SysLog("DeleteCommit(), DeletedFrame=%p",DeletedFrame));
-  if (!DeletedFrame){
+  if (!DeletedFrame)
+  {
     return;
   }
 
-  BOOL ifDoubI=ifDoubleInstance();
+  // <ifDoubleInstance>
+  //BOOL ifDoubI=ifDoubleInstance(DeletedFrame);
+  // </ifDoubleInstance>
   int ModalIndex=IndexOfStack(DeletedFrame);
-  if (ModalIndex!=-1 && ModalStack[ModalStackCount-1]==DeletedFrame){
-    ModalStackCount--;
-    if (ModalStackCount){
+  if (ModalIndex!=-1)
+  {
+    /* $ 14.05.2002 SKV
+      Надёжнее найти и удалить именно то, что
+      нужно, а не просто верхний.
+    */
+    for(int i=0;i<ModalStackCount;i++)
+    {
+      if(ModalStack[i]==DeletedFrame)
+      {
+        for(int j=i+1;j<ModalStackCount;j++)
+        {
+          ModalStack[j-1]=ModalStack[j];
+        }
+        ModalStackCount--;
+        break;
+      }
+    }
+    /* SKV $ */
+    if (ModalStackCount)
+    {
       ActivateFrame(ModalStack[ModalStackCount-1]);
     }
   }
 
-  for (int i=0;i<FrameCount;i++){
-    if (FrameList[i]->FrameToBack==DeletedFrame) {
+  for (int i=0;i<FrameCount;i++)
+  {
+    if (FrameList[i]->FrameToBack==DeletedFrame)
+    {
       FrameList[i]->FrameToBack=CtrlObject->Cp();
     }
   }
 
   int FrameIndex=IndexOf(DeletedFrame);
-  if (-1!=FrameIndex) {
+  if (-1!=FrameIndex)
+  {
     DeletedFrame->DestroyAllModal();
     for (int j=FrameIndex; j<FrameCount-1; j++ ){
       FrameList[j]=FrameList[j+1];
@@ -1129,12 +1218,13 @@ void Manager::DeleteCommit()
     }
   }
 
-  //
-  if (ifDoubI && ActivatedFrame!=SemiModalBackFrame){
-//    ModalStackCount++;
-    /*
-    //блин. это окозалось не решением.
-    //но что-то делать надо. только вот где???
+  /* $ 14.05.2002 SKV
+    Долго не мог понять, нужен всё же этот код или нет.
+    Но вроде как нужен.
+    SVS> Когда понадобится - в некоторых местах расскомментить куски кода
+         помеченные скобками <ifDoubleInstance>
+
+  if (ifDoubI && IsSemiModalBackFrame(ActivatedFrame)){
     for(int i=0;i<ModalStackCount;i++)
     {
       if(ModalStack[i]==ActivatedFrame)
@@ -1145,10 +1235,15 @@ void Manager::DeleteCommit()
 
     if(i==ModalStackCount)
     {
-    */
+      if (ModalStackCount == ModalStackSize){
+        ModalStack = (Frame **) realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
+      }
       ModalStack[ModalStackCount++]=ActivatedFrame;
-    //}
+    }
   }
+  */
+  /* SKV $ */
+
 
   DeletedFrame->OnDestroy();
   if (DeletedFrame->GetDynamicallyBorn())
@@ -1156,7 +1251,14 @@ void Manager::DeleteCommit()
     _tran(SysLog("delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
     if ( CurrentFrame==DeletedFrame )
       CurrentFrame=0;
-    delete DeletedFrame;
+    /* $ 14.05.2002 SKV
+      Так как в деструкторе фрэйма неявно может быть
+      вызван commit, то надо подстраховаться.
+    */
+    Frame *tmp=DeletedFrame;
+    DeletedFrame=NULL;
+    delete tmp;
+    /* SKV $ */
   }
   // Полагаемся на то, что в ActevateFrame не будет переписан уже
   // присвоенный  ActivatedFrame
@@ -1190,7 +1292,12 @@ void Manager::RefreshCommit()
   _OT(SysLog("RefreshCommit(), RefreshedFrame=%p,Refreshable()=%i",RefreshedFrame,RefreshedFrame->Refreshable()));
   if (!RefreshedFrame)
     return;
-  if (RefreshedFrame->Refreshable()){
+
+  if(IndexOf(RefreshedFrame)==-1 && IndexOfStack(RefreshedFrame)==-1)
+    return;
+
+  if (RefreshedFrame->Refreshable())
+  {
     if (!IsRedrawFramesInProcess)
       RefreshedFrame->ShowConsoleTitle();
     RefreshedFrame->Refresh();
@@ -1230,48 +1337,60 @@ BOOL Manager::PluginCommit()
 /* $ Введена для нужд CtrlAltShift OT */
 void Manager::ImmediateHide()
 {
-  if (FramePos<0){
+  if (FramePos<0)
     return;
-  }
+
   // Сначала проверяем, есть ли у прятываемого фрейма SaveScreen
-  if (CurrentFrame->HasSaveScreen()) {
+  if (CurrentFrame->HasSaveScreen())
+  {
     CurrentFrame->Hide();
     return;
   }
 
   // Фреймы перерисовываются, значит для нижних
   // не выставляем заголовок консоли, чтобы не мелькал.
-  if (ModalStackCount>0){
+  if (ModalStackCount>0)
+  {
     /* $ 28.04.2002 KM
         Проверим, а не модальный ли редактор или вьювер на вершине
         модального стека? И если да, покажем User screen.
     */
     if (ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_EDITOR ||
-        ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_VIEWER){
+        ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_VIEWER)
+    {
       CtrlObject->CmdLine->ShowBackground();
-    } else {
+    }
+    else
+    {
       int UnlockCount=0;
       /* $ 07.04.2002 KM */
       IsRedrawFramesInProcess++;
       /* KM $ */
 
-      while (!(*this)[FramePos]->Refreshable()){
+      while (!(*this)[FramePos]->Refreshable())
+      {
         (*this)[FramePos]->UnlockRefresh();
         UnlockCount++;
       }
       RefreshFrame((*this)[FramePos]);
 
       Commit();
-      for (int i=0;i<UnlockCount;i++){
+      for (int i=0;i<UnlockCount;i++)
+      {
         (*this)[FramePos]->LockRefresh();
       }
 
-      if (ModalStackCount>1){
-        for (int i=0;i<ModalStackCount-1;i++){
-          if (!(ModalStack[i]->FastHide() & CASR_HELP)){
+      if (ModalStackCount>1)
+      {
+        for (int i=0;i<ModalStackCount-1;i++)
+        {
+          if (!(ModalStack[i]->FastHide() & CASR_HELP))
+          {
             RefreshFrame(ModalStack[i]);
             Commit();
-          } else {
+          }
+          else
+          {
             break;
           }
         }
@@ -1286,7 +1405,9 @@ void Manager::ImmediateHide()
       /* KM $ */
     }
     /* KM $ */
-  } else {
+  }
+  else
+  {
     CtrlObject->CmdLine->ShowBackground();
   }
 }
@@ -1301,15 +1422,20 @@ void Manager::UnmodalizeCommit()
 {
   int i;
   Frame *iFrame;
-  for (i=0;i<FrameCount;i++){
+  for (i=0;i<FrameCount;i++)
+  {
     iFrame=FrameList[i];
-    if(iFrame->RemoveModal(UnmodalizedFrame)){
+    if(iFrame->RemoveModal(UnmodalizedFrame))
+    {
       break;
     }
   }
-  for (i=0;i<ModalStackCount;i++){
+
+  for (i=0;i<ModalStackCount;i++)
+  {
     iFrame=ModalStack[i];
-    if(iFrame->RemoveModal(UnmodalizedFrame)){
+    if(iFrame->RemoveModal(UnmodalizedFrame))
+    {
       break;
     }
   }
@@ -1317,17 +1443,26 @@ void Manager::UnmodalizeCommit()
 }
 /* OT $*/
 
-BOOL Manager::ifDoubleInstance()
+/* $ 15.05.2002 SKV
+  Чуток подправим логику.
+*/
+
+BOOL Manager::ifDoubleInstance(Frame *frame)
 {
-  if (0>=ModalStackCount){
+  // <ifDoubleInstance>
+/*
+  if (ModalStackCount<=0)
     return FALSE;
-  }
-  Frame *TopOnStack=ModalStack[ModalStackCount-1];
-  if (-1==IndexOf(TopOnStack)){
+  if(IndexOfStack(frame)==-1)
     return FALSE;
-  }
-  return TRUE;
+  if(IndexOf(frame)!=-1)
+    return TRUE;
+*/
+  // </ifDoubleInstance>
+  return FALSE;
 }
+
+/* SKV $ */
 
 /*  Вызов ResizeConsole для всех NextModal у
     модального фрейма. KM
@@ -1336,8 +1471,10 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
 {
   if (!ModalFrame->NextModal)
     return;
+
   Frame *iModal=ModalFrame->NextModal;
-  while (iModal) {
+  while (iModal)
+  {
     iModal->ResizeConsole();
     iModal=iModal->NextModal;
   }
@@ -1348,4 +1485,44 @@ void Manager::InitKeyBar(void)
 {
   for (int I=0;I < FrameCount;I++)
     FrameList[I]->InitKeyBar();
+}
+
+void Manager::AddSemiModalBackFrame(Frame* frame)
+{
+  if(SemiModalBackFramesCount>=SemiModalBackFramesSize)
+  {
+    SemiModalBackFramesSize+=4;
+    SemiModalBackFrames=
+      (Frame**)realloc(SemiModalBackFrames,sizeof(Frame*)*SemiModalBackFramesSize);
+
+  }
+  SemiModalBackFrames[SemiModalBackFramesCount]=frame;
+  SemiModalBackFramesCount++;
+}
+
+BOOL Manager::IsSemiModalBackFrame(Frame *frame)
+{
+  if(!SemiModalBackFrames)return FALSE;
+  for(int i=0;i<SemiModalBackFramesCount;i++)
+  {
+    if(SemiModalBackFrames[i]==frame)return TRUE;
+  }
+  return FALSE;
+}
+
+void Manager::RemoveSemiModalBackFrame(Frame* frame)
+{
+  if(!SemiModalBackFrames)return;
+  for(int i=0;i<SemiModalBackFramesCount;i++)
+  {
+    if(SemiModalBackFrames[i]==frame)
+    {
+      for(int j=i+1;j<SemiModalBackFramesCount;j++)
+      {
+        SemiModalBackFrames[j-1]=SemiModalBackFrames[j];
+      }
+      SemiModalBackFramesCount--;
+      return;
+    }
+  }
 }

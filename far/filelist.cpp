@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.153 14.05.2002 $ */
+/* Revision: 1.154 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SKV
+    + зафиксируем вход в модальный редактор
   14.05.2002 VVM
     - ѕри нажатии среднего колеса проверим на "движени€" мышкой.
       „то-бы не циклить и не скакать бешенно по панел€м.
@@ -1523,7 +1525,9 @@ int FileList::ProcessKey(int Key)
                 {
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                   ShellEditor.SetDynamicallyBorn(false);
+                  FrameManager->EnterModalEV();
                   FrameManager->ExecuteModal();//OT
+                  FrameManager->ExitModalEV();
                   /* $ 24.11.2001 IS
                        ≈сли мы создали новый файл, то не важно, измен€лс€ он
                        или нет, все равно добавим его на панель плагина.

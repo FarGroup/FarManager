@@ -9,6 +9,8 @@ plugins.cpp
 
 /*
 Modify:
+  14.05.2002 SKV
+    + проверочка на существование CurEditor
   08.05.2002 SVS
     ! Проверка на NULL перед free()
   28.04.2002 IS
@@ -2518,9 +2520,13 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
       NewPanel->Show();
       NewPanel->SetFocus();
     }
-    if (Editor){
+    /* $ 14.05.2002 SKV
+       Возможна ситуация, когда в этом месте CurEditor==NULL
+    */
+    if (Editor && CurEditor){
       CurEditor->SetPluginTitle(NULL);
     }
+    /* SKV $ */
   }
   return(TRUE);
 }
