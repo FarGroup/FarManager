@@ -5,10 +5,12 @@ far.cpp
 
 */
 
-/* Revision: 1.16 04.04.2001 $ */
+/* Revision: 1.17 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! Изменена обработка PATHEXT - при старте FAR`а преобразуем к нужному виду.
   04.04.2001 SVS
     ! Немного опитимизации кода в SetHighlighting()
   03.04.2001 SVS
@@ -375,6 +377,8 @@ void SetHighlighting()
   // для NT добавляем CMD
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
     strcat(CmdExt,",*.cmd");
+
+  Add_PATHEXT(CmdExt);
 
   Ptr=MkRegKeyHighlightName(RegKey);
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)

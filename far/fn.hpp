@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.74 06.04.2001 $ */
+/* Revision: 1.75 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+   ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
+   ! ExpandPATHEXT() выкинуты за ненадобностью.
   06.04.2001 SVS
    + ExpandPATHEXT()
   04.04.2001 SVS
@@ -397,7 +400,7 @@ void DecodeString(char *Str,unsigned char *DecodeTable,int Length=-1);
 void EncodeString(char *Str,unsigned char *EncodeTable,int Length=-1);
 char *NullToEmpty(char *Str);
 char* CenterStr(char *Src,char *Dest,int Length);
-char *GetCommaWord(char *Src,char *Word);
+char *GetCommaWord(char *Src,char *Word,char Separator=',');
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total);
 int WINAPI GetFileOwner(char *Computer,char *Name,char *Owner);
 void UseSameRegKey();
@@ -747,7 +750,6 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
 DWORD WINAPI FarGetLogicalDrives(void);
 
 char *Add_PATHEXT(char *Dest);
-DWORD WINAPI ExpandPATHEXT(char *src, char *dest, size_t size);
 
 // сама функция в hilight.cpp
 char *MkRegKeyHighlightName(char *RegKey);

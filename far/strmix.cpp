@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.07 20.03.2001 $ */
+/* Revision: 1.08 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! GetCommaWord() - дополнительный параметр - разделитель, по умолчанию = ','
   20.03.2001 SVS
     + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
       вид - выдрана из FileList::ShowList()
@@ -502,7 +504,10 @@ char* CenterStr(char *Src,char *Dest,int Length)
 }
 
 
-char *GetCommaWord(char *Src,char *Word)
+/* $ 08.04.2001 SVS
+  + дополнительный параметр - разделитель, по умолчанию = ','
+*/
+char *GetCommaWord(char *Src,char *Word,char Separator)
 {
   int WordPos,SkipBrackets;
   if (*Src==0)
@@ -514,7 +519,7 @@ char *GetCommaWord(char *Src,char *Word)
       SkipBrackets=TRUE;
     if (*Src==']')
       SkipBrackets=FALSE;
-    if (*Src==',' && !SkipBrackets)
+    if (*Src==Separator && !SkipBrackets)
     {
       Word[WordPos]=0;
       Src++;
@@ -528,6 +533,7 @@ char *GetCommaWord(char *Src,char *Word)
   Word[WordPos]=0;
   return(Src);
 }
+/* SVS $ */
 
 int IsCaseMixed(char *Str)
 {

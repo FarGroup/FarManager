@@ -5,10 +5,15 @@ mix.cpp
 
 */
 
-/* Revision: 1.67 06.04.2001 $ */
+/* Revision: 1.68 08.04.2001 $ */
 
 /*
 Modify:
+  08.06.2001 SVS
+    ! В Add_PATHEXT() используем модифицированную GetCommaWord().
+    ! ExpandPATHEXT() выкинем за ненадобностью.
+    ! В ExpandEnvironmentStr(), ConvertNameToFull()
+      применяем alloca() вместо malloc().
   06.06.2001 SVS
     + ExpandPATHEXT() - Расширение переменных среды с учетом %PATHEXT%
       При этом значение %PATHEXT% приводим к ФАРовскому формату.
@@ -793,8 +798,10 @@ void CharBufferToSmallWarn(int BufSize, int FileNameSize)
 int ConvertNameToFull(char *Src,char *Dest, int DestSize)
 {
   int Result = 0;
-  char *FullName = (char *) malloc (DestSize);
-  char *AnsiName = (char *) malloc (DestSize);
+//  char *FullName = (char *) malloc (DestSize);
+//  char *AnsiName = (char *) malloc (DestSize);
+  char *FullName = (char *) alloca (DestSize);
+  char *AnsiName = (char *) alloca (DestSize);
   *((int *)FullName) = 0;
   *((int *)AnsiName) = 0;
 
@@ -836,8 +843,8 @@ int ConvertNameToFull(char *Src,char *Dest, int DestSize)
   /* SVS $*/
   SetFileApisToOEM();
 end:
-  free (FullName);
-  free (AnsiName);
+//  free (FullName);
+//  free (AnsiName);
   return Result;
 }
 
@@ -1224,7 +1231,7 @@ DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
   DWORD ret=0;
   if(size)
   {
-   char *tmp=(char *)malloc(size+1);
+   char *tmp=(char *)alloca(size+1);
    if(tmp)
    {
      if(ExpandEnvironmentStrings(src,tmp,size))
@@ -1234,60 +1241,13 @@ DWORD WINAPI ExpandEnvironmentStr(char *src, char *dest, size_t size)
        strncpy(tmp, src, size);
        strcpy(dest, tmp);
      }
-     free(tmp);
+//     free(tmp);
      ret=strlen(dest);
    }
   }
   return ret;
 }
 /* IS $ */
-
-/* $ 06.04.2001 SVS
-   ExpandPATHEXT() - Расширение переменных среды с учетом %PATHEXT%
-   При этом значение %PATHEXT% приводим к ФАРовскому формату.
-   ;-)
-*/
-DWORD WINAPI ExpandPATHEXT(char *src, char *dest, size_t size)
-{
-  DWORD ret=0;
-  if(size && src && *src && dest && *dest)
-  {
-    char *tmp=(char *)malloc(size+1);
-    if(tmp)
-    {
-      int AllocTempStr=FALSE;
-      char *TempStr=(char *)malloc(size+1024);
-      if(TempStr)
-      {
-        AllocTempStr=TRUE;
-        char *Ptr=strstr(strlwr(strcpy(TempStr,NullToEmpty(src))),"%pathext%");
-        if(Ptr)
-        {
-          int IQ1=(*(Ptr+9) == ',')?10:9;
-          // Если встречается %pathext%, то допишем в конец...
-          memmove(Ptr,Ptr+IQ1,strlen(Ptr+IQ1)+1);
-          Add_PATHEXT(TempStr); // добавляем то, чего нету.
-        }
-      }
-      else
-        TempStr=src;
-
-      if(ExpandEnvironmentStrings(TempStr,tmp,size))
-        strncpy(dest, tmp, size);
-      else
-      {
-        strncpy(tmp, TempStr, size);
-        strcpy(dest, tmp);
-      }
-      if(AllocTempStr)
-        free(TempStr);
-      free(tmp);
-      ret=strlen(dest);
-    }
-  }
-  return ret;
-}
-/* SVS $ */
 
 /* $ 25.07.2000 SVS
    Оболочки вокруг вызовов стандартных функцйи, приведенных к WINAPI
@@ -1554,23 +1514,27 @@ char *Add_PATHEXT(char *Dest)
   if(GetEnvironmentVariable("PATHEXT",Buf,sizeof(Buf)))
   {
     char Tmp[32]="*";
-    char *Ptr;
+    char *Ptr,ArgName[NM];
 
-    strlwr(Buf);
-    Ptr = strtok(Buf, ";");
-    if(*Dest && Dest[strlen(Dest)-1] != ',')
-      strcat(Dest,",");
-    while(Ptr)
+    if((Ptr=GetCommaWord((Ptr=strlwr(Buf)),ArgName,';')) != NULL)
     {
-      strcpy(Tmp+1,Ptr);
-      Ptr = strtok(NULL, ";");
-      if(!strstr(Dest,Tmp))
+      if(*Dest && Dest[strlen(Dest)-1] != ',')
+        strcat(Dest,",");
+      while(Ptr)
       {
-        strcat(Dest,Tmp);
-        if(Ptr)
-          strcat(Dest,",");
+        strcpy(Tmp+1,ArgName);
+        Ptr=GetCommaWord(Ptr,ArgName,';');
+        if(!strstr(Dest,Tmp))
+        {
+          strcat(Dest,Tmp);
+          if(Ptr)
+            strcat(Dest,",");
+        }
       }
     }
   }
+  // лишняя запятая - в морг!
+  if(*Dest && Dest[strlen(Dest)-1] == ',')
+    Dest[strlen(Dest)-1]=0;
   return Dest;
 }

@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.08 24.10.2000 $ */
+/* Revision: 1.09 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! вместо alloc.h просто вызываем malloc.h
   24.10.2000 SVS
     + share.h
   20.10.2000 SVS
@@ -91,12 +93,8 @@ Modify:
   #pragma option -p.
  #endif
 #endif  //!defined(__NEW_H)
-#ifndef __ALLOC_H
- #ifdef _MSC_VER
-  #include <malloc.h>
- #else
-  #include <alloc.h>
- #endif
+#ifndef __MALLOC_H
+#include <malloc.h>
 #endif
 #ifndef __FCNTL_H
 #include <fcntl.h>

@@ -5,10 +5,13 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.06 06.04.2001 $ */
+/* Revision: 1.07 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! Группы сортировки не поддерживают переменные среды. В морг!
+      Ставим скорость во главу угла.
   06.04.2001 SVS
     + В группах сортировки можно задавать переменные окружения, с учетом
       переменной PATHEXT
@@ -86,30 +89,18 @@ GroupSort::~GroupSort()
   }
 }
 
-
-/* $ 06.04.2001 SVS
-   В группах сортировки можно задавать переменные окружения, с учетом
-   переменной PATHEXT
-*/
 int GroupSort::GetGroup(char *Path)
 {
-  char ExpandedStr[8192];
   for (int I=0;I<GroupCount;I++)
   {
     struct GroupSortData *CurGroupData=&GroupData[I];
-    char ArgName[NM],*NamePtr;
-    int Copied=ExpandPATHEXT(CurGroupData->Masks,ExpandedStr,sizeof(ExpandedStr));
-    if ((Copied==0) || (Copied > sizeof(ExpandedStr)))
-      strcpy(ExpandedStr, CurGroupData->Masks);
-    NamePtr = ExpandedStr;
+    char ArgName[NM],*NamePtr=CurGroupData->Masks;
     while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
       if (CmpName(ArgName,Path))
         return(CurGroupData->Group);
   }
   return(DEFAULT_SORT_GROUP);
 }
-/* SVS $ */
-
 
 void GroupSort::EditGroups()
 {

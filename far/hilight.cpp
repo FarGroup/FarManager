@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.16 06.04.2001 $ */
+/* Revision: 1.17 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! Раскраска не поддерживает переменные среды. В морг! Ставим скорость
+      во главу угла.
   06.04.2001 SVS
     ! Код по анализу PATHEXT вынесен в отдельную функцию ExpandPATHEXT()
   04.04.2001 SVS
@@ -140,14 +143,7 @@ void HighlightFiles::GetHiColor(char *Path,int Attr,unsigned char &Color,
     if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
         (Attr & CurHiData->ExcludeAttr)==0)
     {
-      /* $ 02.04.2001 VVM
-        + В масках можно задавать переменные окружения */
-      char ArgName[NM], ExpandedStr[8192];
-      int Copied = ExpandPATHEXT(CurHiData->Masks,ExpandedStr,sizeof(ExpandedStr));
-      if ((Copied==0) || (Copied > sizeof(ExpandedStr)))
-        strcpy(ExpandedStr, CurHiData->Masks);
-      char *NamePtr = ExpandedStr;
-      /* VVM $ */
+      char ArgName[NM], *NamePtr=CurHiData->Masks;
       while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
         if (Path==NULL && (strcmp(ArgName,"*")==0 || strcmp(ArgName,"*.*")==0) ||
             Path!=NULL && CmpName(ArgName,Path))
