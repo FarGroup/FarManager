@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.158 28.05.2002 $ */
+/* Revision: 1.159 29.05.2002 $ */
 
 /*
 Modify:
+  29.05.2002 SVS
+    ! "Не справился с управлением" - откат IsLocalPath() до лучших времен.
   28.05.2002 SVS
     ! применим функцию  IsLocalPath()
   24.05.2002 SVS
@@ -1296,14 +1298,12 @@ int FileList::ProcessKey(int Key)
 
     case KEY_CTRLH:
     {
-      {
-        Opt.ShowHidden=!Opt.ShowHidden;
-        Update(UPDATE_KEEP_SELECTION);
-        Redraw();
-        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-        AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-        AnotherPanel->Redraw();
-      }
+      Opt.ShowHidden=!Opt.ShowHidden;
+      Update(UPDATE_KEEP_SELECTION);
+      Redraw();
+      Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+      AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+      AnotherPanel->Redraw();
       return(TRUE);
     }
 
@@ -1791,6 +1791,7 @@ int FileList::ProcessKey(int Key)
     case KEY_F7:
     {
       if (SetCurPath())
+      {
         if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
         {
           char DirName[NM];
@@ -1817,6 +1818,7 @@ int FileList::ProcessKey(int Key)
         }
         else
           ShellMakeDir(this);
+      }
       return(TRUE);
     }
 
@@ -2148,7 +2150,7 @@ void FileList::Select(struct FileListItem *SelPtr,int Selection)
     else
     {
        SelFileCount--;
-       SelFileSize-=int64(SelPtr->UnpSizeHigh,SelPtr->UnpSize);;
+       SelFileSize-=int64(SelPtr->UnpSizeHigh,SelPtr->UnpSize);
     }
 }
 
@@ -2529,7 +2531,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
 
   */
   /*else {
-    if (IsLocalPath(SetDir))
+    if (isalpha(SetDir[0]) && SetDir[1]==':')
     {
       int CurDisk=toupper(SetDir[0])-'A';
       setdisk(CurDisk);
