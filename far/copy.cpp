@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.25 14.03.2001 $ */
+/* Revision: 1.26 05.04.2001 $ */
 
 /*
 Modify:
+  05.04.2001 IS
+    + Если при копировании/перемещении выделенных элементов больше 1 и среди
+      них есть каталог, то всегда делаем так, чтобы на конце был '\\', чтобы
+      не было все свалено в кучу :(
   14.03.2001 SVS
     + Зарезервирован кусок кода для создания SymLink для каталогов.
   12.03.2001 SVS
@@ -386,6 +390,26 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   CopyToNUL=stricmp(CopyDlg[2].Data,"nul") == 0;
   /* SVS $ */
 
+  /* $ 05.04.2001 IS
+     Если выделенных элементов больше 1 и среди них есть каталог, то всегда
+     делаем так, чтобы на конце был '\\'
+  */
+  if(SelCount>1 && !CopyToNUL)
+  {
+    int FileAttr, AddSlash=FALSE;
+    SrcPanel->GetSelName(NULL,FileAttr);
+    while(SrcPanel->GetSelName(SelName,FileAttr))
+    {
+      if(FileAttr & FA_DIREC)
+      {
+        AddSlash=TRUE;
+        break;
+      }
+    }
+
+    if(AddSlash) AddEndSlash(CopyDlg[2].Data);
+  }
+  /* IS $ */
   if (DestPlugin==2)
   {
     if (*PluginDestPath!=NULL)
