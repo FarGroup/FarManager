@@ -1396,7 +1396,7 @@ $ #Viewer settings#
                           was manually selected by user.
 
   #Save current#            Save and restore current positions in the
-  #positions#             recently viewed files (saved with
+  #positions#               recently viewed files (created with
                           RightCtrl-<N>)
 
   #Autodetect character#    If you use several character tables and
@@ -1460,7 +1460,7 @@ settings to be changed.
                           was manually selected by user.
 
   #Save current#            Save and restore current positions in the
-  #positions#             recently edited files (saved with
+  #positions#               recently edited files (created with
                           RightCtrl-<N>)
 
   #Autodetect character#    If you use several character tables and
