@@ -86,8 +86,8 @@ Far : BccW32.cfg $(Dep_Far)
 # просто описываем одно правило и все %)
 
 .cpp.obj:
-  settitle "{$.} - Compiling..."
-  $(BCC32) -c -o$@ {$. }
+  @settitle "{$.} - Compiling..."
+  @$(BCC32) -c -o$@ {$. }
 
 $(OBJPATH)\ctrlobj.obj: ctrlobj.cpp ctrlobj.hpp copyright.inc
 
@@ -175,14 +175,15 @@ Dep_fardexe = BccW32.cfg\
 
 
 $(FINALPATH)\far.exe : $(Dep_fardexe)
-  settitle "Linking..."
-  $(TLINK32)  $(LINKFLAGS) @&&|
+  @settitle "Linking..."
+  @$(TLINK32)  $(LINKFLAGS) @&&|
 $(LIBPATH)\c0x32.obj $(FAROBJ)
 $<,$*
 $(LIBPATH)\import32.lib $(LIBPATH)\cw32mt.lib
 far.def
 |
-   $(BRC32) $(OBJPATH)\far.res $(OBJPATH)\far.res $<
+   @settitle "Compiling resource..."
+   @$(BRC32) $(OBJPATH)\far.res $(OBJPATH)\far.res $<
 # обязательно! Что бы в ручную не делать...
    @del $(FINALPATH)\FarEng.hlf  >nul
    @del $(FINALPATH)\FarRus.hlf  >nul
