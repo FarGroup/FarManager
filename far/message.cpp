@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.10 25.06.2001 $ */
+/* Revision: 1.11 19.09.2001 $ */
 
 /*
 Modify:
+  19.09.2001 VVM
+    + Если сообщение об ошибке слишком длинное - перенесем его...
   25.06.2001 IS
     ! Внедрение const
     - Устранение бага (порча стека) в SetMessageHelp
@@ -92,6 +94,8 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
   const char *Str[14],*Btn[14];
   int X1,Y1,X2,Y2;
   int Length,MaxLength,BtnLength,StrCount,I;
+  int ErrStrPresent = FALSE;
+  char ErrStr2[256];
 
   strcpy(HelpTopic,MsgHelpTopic);
   *MsgHelpTopic=0;
@@ -121,6 +125,7 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
       Str[I]=Str[I-1];
     Str[0]=ErrStr;
     StrCount++;
+    ErrStrPresent = TRUE;
   }
 
   for (BtnLength=0,I=0;I<Buttons;I++)
@@ -137,7 +142,26 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
 
   if (MaxLength>ScrX-15)
     MaxLength=ScrX-15;
-
+  /* $ 19.09.2001 VVM
+    + Если сообщение об ошибке слишком длинное - перенесем его... */
+  if ((ErrStrPresent) && (strlen(Str[0]) > MaxLength))
+  {
+    int DotPos = MaxLength - 1;
+    for (int I=MaxLength;I>=0;I--)
+    {
+      if (Str[0][I] == '.')
+      {
+        DotPos = I;
+        break;
+      } /* if */
+    } /* for */
+    strcpy(ErrStr2,&ErrStr[DotPos+1]);
+    ErrStr[DotPos+1] = 0;
+    for (int I=sizeof(Str)/sizeof(Str[0])-2;I>1;I--)
+      Str[I]=Str[I-1];
+    Str[1]=ErrStr2;
+  } /* if */
+  /* VVM $ */
   MessageX1=X1=(ScrX-MaxLength)/2-4;
   MessageX2=X2=X1+MaxLength+9;
   MessageY1=Y1=(ScrY-StrCount)/2-4;
