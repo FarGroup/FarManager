@@ -107,6 +107,10 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
   return(FALSE);
 }
 
+DWORD WINAPI _export GetSFXPos(void)
+{
+  return 0;
+}
 
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {

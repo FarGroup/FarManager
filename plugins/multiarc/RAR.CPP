@@ -14,7 +14,7 @@
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,SFXSize,FileSize,FileSizeHigh,Flags;
-static LONG NextPositionHigh;
+static long NextPositionHigh;
 static int OldFormat;
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
@@ -248,6 +248,11 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
   if (Flags & 32)
     Info->Flags|=AF_AVPRESENT;
   return(CloseHandle(ArcHandle));
+}
+
+DWORD WINAPI _export GetSFXPos(void)
+{
+  return SFXSize;
 }
 
 

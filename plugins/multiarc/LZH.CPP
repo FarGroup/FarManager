@@ -244,6 +244,10 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
   return(CloseHandle(ArcHandle));
 }
 
+DWORD WINAPI _export GetSFXPos(void)
+{
+  return SFXSize;
+}
 
 BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {

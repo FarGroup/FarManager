@@ -62,6 +62,7 @@ typedef BOOL (WINAPI *PLUGINGETDEFAULTCOMMANDS)(int Type,int Command,char *Dest)
   + Fmt.SetFarInfo */
 typedef void (WINAPI *PLUGINSETFARINFO)(const struct PluginStartupInfo *plg);
 /* tran 13.09.2000 $ */
+typedef DWORD (WINAPI *PLUGINGetSFXPos)(void);
 
 struct PluginItem
 {
@@ -76,6 +77,7 @@ struct PluginItem
   PLUGINGETFORMATNAME pGetFormatName;
   PLUGINGETDEFAULTCOMMANDS pGetDefaultCommands;
   PLUGINSETFARINFO pSetFarInfo;
+  PLUGINGetSFXPos pGetSFXPos;
 };
 
 

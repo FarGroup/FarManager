@@ -4,15 +4,14 @@
   Second-level plugin module for FAR Manager 1.70 and MultiArc plugin
 
   Copyright (c) 1996-2000 Eugene Roshal
-  Copyrigth (c) 2000-2002 FAR group
+  Copyrigth (c) 2000-2001 FAR group
 */
-/* $ Revision: 1.09 05.03.2002 $ */
+/* $Revision: 1.01 20.05.2001 $ */
 
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
 #include <malloc.h>
-#include <stddef.h>
 #include <memory.h>
 #include "plugin.hpp"
 #include "fmt.hpp"
@@ -29,13 +28,6 @@
   #if _MSC_VER
     #define _export
   #endif
-#endif
-
-#ifdef _MSC_VER
-#pragma comment(linker, "/ignore:4078")
-#pragma comment(linker, "/merge:.data=.")
-#pragma comment(linker, "/merge:.rdata=.")
-#pragma comment(linker, "/merge:.text=.")
 #endif
 
 //#define CALC_CRC
@@ -112,19 +104,13 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
       DWORD crc=CRC_MASK;
       crc=getcrc(crc,&Header->HeaderType,Header->HeaderSize);
 #endif
-
-#ifndef offsetof
-#define offsetof( s_name, m_name )  (_SIZE_T)&(((s_name _FAR *)0)->m_name)
-#endif
-
       if (Header->HeaderType == 0
-          && Header->HeaderSize >= (sizeof(ACEHEADER)-offsetof(ACEHEADER,HeaderFlags))
 #if defined(CALC_CRC)
           && LOWORD(crc) == LOWORD(Header->CRC16)
 #endif
          )
       {
-        SFXSize=I-7;
+        SFXSize=NextPosition=I-7;
         return(TRUE);
       }
     }
@@ -146,7 +132,6 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   *Type=0;
 
   FileSize=GetFileSize(ArcHandle,NULL);
-  NextPosition=SFXSize;
 
   SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
   if (!ReadFile(ArcHandle,&MainHeader,sizeof(MainHeader),&ReadSize,NULL) ||
@@ -180,7 +165,6 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     WORD  CRC16;
     WORD  HeaderSize;
   } Block;
-  HANDLE hHeap=GetProcessHeap();
 
   DWORD ReadSize;
   BYTE *TempBuf;
@@ -200,30 +184,21 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     if (!ReadSize || !Block.HeaderSize) //???
       return(GETARC_EOF);
 
-    TempBuf=(BYTE*)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, Block.HeaderSize);
+    TempBuf=(BYTE*)alloca(Block.HeaderSize);
     if(!TempBuf)
       return(GETARC_READERROR);
 
     if (!ReadFile(ArcHandle,TempBuf,Block.HeaderSize,&ReadSize,NULL))
-    {
-      HeapFree(hHeap,0,TempBuf);
       return(GETARC_READERROR);
-    }
 
     if (ReadSize==0 || Block.HeaderSize != ReadSize)
-    {
-      HeapFree(hHeap,0,TempBuf);
       return(GETARC_EOF);
-    }
 
 #if defined(CALC_CRC)
     DWORD crc=CRC_MASK;
     crc=getcrc(crc,TempBuf,Block.HeaderSize);
     if (LOWORD(crc) != LOWORD(Block.CRC16))
-    {
-      HeapFree(hHeap,0,TempBuf);
       return(GETARC_BROKEN);
-    }
 #endif
 
     NextPosition+=sizeof(Block)+Block.HeaderSize;
@@ -268,7 +243,6 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         Info->DictSize=1<<FileHeader->DictSize;
         //?????
         strcpy(Info->HostOS,OSID[HostOS].Name);
-        Item->CRC32=FileHeader->CRC32;
 
         NextPosition+=FileHeader->PackSize;
         break;
@@ -284,9 +258,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     RecHeader=(struct ACERECORDS*)TempBuf;
     if(RecHeader->HeaderFlags&1)
       NextPosition+=RecHeader->RecSize;
-    HeapFree(hHeap,0,TempBuf);
   }
-  HeapFree(hHeap,0,TempBuf);
   return(GETARC_SUCCESS);
 }
 
@@ -315,7 +287,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"ACE");
-    strcpy(DefaultExt,"ace");
+    strcpy(DefaultExt,"ACE");
     return(TRUE);
   }
   return(FALSE);
@@ -327,21 +299,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-    /*Extract               */"ace32 x {-p%%P} -y -c- -std {%%S} %%A @%%LN",
-    /*Extract without paths */"ace32 e -av- {-p%%P} -y -c- -std {%%S} %%A @%%LN",
-    /*Test                  */"ace32 t -y {-p%%P} -c- -std {%%S} %%A",
-    /*Delete                */"ace32 d -y -std {-t%%W} {%%S} %%A @%%LN",
-    /*Comment archive       */"ace32 cm -y -std {-t%%W} {%%S} %%A",
-    /*Comment files         */"ace32 cf -y -std {-t%%W} {%%S} %%A {@%%LN}",
-    /*Convert to SFX        */"ace32 s -y -std {%%S} %%A",
-    /*Lock archive          */"ace32 k -y -std {%%S} %%A",
-    /*Protect archive       */"ace32 rr -y -std {%%S} %%A",
-    /*Recover archive       */"ace32 r -y -std {%%S} %%A",
-    /*Add files             */"ace32 a -c2 -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",
-    /*Move files            */"ace32 m -c2 -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",
-    /*Add files and folders */"ace32 a -y -c2 -r -f -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",
-    /*Move files and folders*/"ace32 m -y -c2 -r -f -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",
-    /*"All files" mask      */"*.*"
+      "ace32 x {-p%%P} -y -c- -std {%%S} %%A @%%LN",            // Extract
+      "ace32 e -av- {-p%%P} -y -c- -std {%%S} %%A @%%LN",       // ExtractWithoutPath
+      "ace32 t -y {-p%%P} -c- -std {%%S} %%A",                  // Test
+      "ace32 d -y -std {-t%%W} {%%S} %%A @%%LN",                // Delete
+      "ace32 cm -y -std {-t%%W} {%%S} %%A",                     // Comment
+      "ace32 cf -y -std {-t%%W} {%%S} %%A {@%%LN}",             // CommentFiles
+      "ace32 s -y -std {%%S} %%A",                              // SFX
+      "ace32 k -y -std {%%S} %%A",                              // Lock
+      "ace32 rr -y -std {%%S} %%A",                             // Protect
+      "ace32 r -y -std {%%S} %%A",                              // Recover
+      "ace32 a -c2 -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",    // Add
+      "ace32 m -c2 -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN",    // Move
+      "ace32 a -c2 -r -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN", // AddRecurse
+      "ace32 m -c2 -r -y -std {-p%%P} {-t%%W} {%%S} %%A @%%LN", // MoveRecurse
+      "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {

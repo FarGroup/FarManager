@@ -21,8 +21,8 @@
 #ifdef _MSC_VER
 // Startup code exclusion
 // Set Project|Settings|Link|Category:Output|Entry-point symbol
-// to "DllEntryPoint" 
-BOOL WINAPI DllEntryPoint(HINSTANCE, DWORD, LPVOID)  
+// to "DllEntryPoint"
+BOOL WINAPI DllEntryPoint(HINSTANCE, DWORD, LPVOID)
 {
     return TRUE;
 }
@@ -239,21 +239,21 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   // Search for NTFS extra block
   for(  DWORD dwExtraFieldEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
           +ZipHeader.AddLen;
-        dwExtraFieldEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT); 
+        dwExtraFieldEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT);
   )
   {
     struct ExtraBlockHeader
     {
       WORD Type;
       WORD Length;
-    } 
+    }
     BlockHead;
 
-    if (!ReadFile(ArcHandle, &BlockHead, sizeof(BlockHead), &ReadSize,NULL) 
+    if (!ReadFile(ArcHandle, &BlockHead, sizeof(BlockHead), &ReadSize,NULL)
             || ReadSize!=sizeof(BlockHead) )
       return(GETARC_READERROR);
 
-    if (0xA!=BlockHead.Type) //NTFS Header ID 
+    if (0xA!=BlockHead.Type) //NTFS Header ID
       // Move to extra block end
       SetFilePointer(ArcHandle, BlockHead.Length, NULL, FILE_CURRENT);
     else
@@ -263,17 +263,17 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       // Search for file times attribute
       for(  DWORD dwNTFSExtraBlockEnd = SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT)
               -4+BlockHead.Length;
-            dwNTFSExtraBlockEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT); 
+            dwNTFSExtraBlockEnd > SetFilePointer(ArcHandle, 0, NULL, FILE_CURRENT);
       )
       {
         struct NTFSAttributeHeader
         {
           WORD Tag;
           WORD Length;
-        } 
+        }
         AttrHead;
 
-        if (!ReadFile(ArcHandle, &AttrHead, sizeof(AttrHead), &ReadSize,NULL) 
+        if (!ReadFile(ArcHandle, &AttrHead, sizeof(AttrHead), &ReadSize,NULL)
                 || ReadSize!=sizeof(AttrHead) )
           return(GETARC_READERROR);
 
@@ -287,10 +287,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
             FILETIME Modification;
             FILETIME Access;
             FILETIME Creation;
-          } 
+          }
           Times;
 
-          if (!ReadFile(ArcHandle, &Times, sizeof(Times), &ReadSize,NULL) 
+          if (!ReadFile(ArcHandle, &Times, sizeof(Times), &ReadSize,NULL)
                   || ReadSize!=sizeof(Times) )
             return(GETARC_READERROR);
 
@@ -302,16 +302,16 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           SetFilePointer(ArcHandle, dwExtraFieldEnd, NULL, FILE_BEGIN);
         }
       }
-    }  
-  } 
-// End of NTFS file times support  
+    }
+  }
+// End of NTFS file times support
 
 // Read the in-archive file comment if any
   if (ZipHeader.CommLen>0)
   {
     DWORD SizeToRead= (ZipHeader.CommLen>255) ? 255 : ZipHeader.CommLen;
 
-    if (!ReadFile(ArcHandle, Info->Description, SizeToRead, &ReadSize, NULL) 
+    if (!ReadFile(ArcHandle, Info->Description, SizeToRead, &ReadSize, NULL)
             || ReadSize!=SizeToRead )
       return(GETARC_READERROR);
 
@@ -337,6 +337,10 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
   return(CloseHandle(ArcHandle));
 }
 
+DWORD WINAPI _export GetSFXPos(void)
+{
+  return SFXSize;
+}
 
 BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {

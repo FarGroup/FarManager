@@ -40,6 +40,7 @@ ArcPlugins::ArcPlugins(char *ModuleName)
       CurPlugin.pGetFormatName=(PLUGINGETFORMATNAME)GetProcAddress(hModule,"GetFormatName");
       CurPlugin.pGetDefaultCommands=(PLUGINGETDEFAULTCOMMANDS)GetProcAddress(hModule,"GetDefaultCommands");
       CurPlugin.pSetFarInfo=(PLUGINSETFARINFO)GetProcAddress(hModule,"SetFarInfo");
+      CurPlugin.pGetSFXPos=(PLUGINGetSFXPos)GetProcAddress(hModule,"GetSFXPos");
 
       if (CurPlugin.pLoadFormatModule)
         CurPlugin.pLoadFormatModule(PluginName);
@@ -71,6 +72,9 @@ ArcPlugins::~ArcPlugins()
 int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
 {
   char *ExtPtr=strrchr(Name,'.');
+  DWORD MinSFXSize=0;
+  DWORD CurSFXSize;
+  int TrueArc=-1;
   if (ExtPtr!=NULL)
   {
     ExtPtr++;
@@ -82,14 +86,50 @@ int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)
           break;
         if (stricmp(ExtPtr,DefExt)==0)
           if (PluginsData[I].pIsArchive(Name,Data,DataSize))
-            return(I);
+          {
+            if(PluginsData[I].pGetSFXPos)
+              CurSFXSize=PluginsData[I].pGetSFXPos();
+            else
+              CurSFXSize=0;
+/*{
+  char BBBB[100];
+  FSF.sprintf(BBBB,"1) %s)\nCurSFXSize=%d\nMinSFXSize=%d\nOk",FormatName,CurSFXSize,MinSFXSize);
+  Info.Message(Info.ModuleNumber,FMSG_ALLINONE,NULL,(const char **)BBBB,0,1);
+}*/
+            if(CurSFXSize <= MinSFXSize)
+            {
+              MinSFXSize=CurSFXSize;
+              TrueArc=I;
+            }
+            break;
+          }
       }
   }
   for (int I=0;I<PluginsCount;I++)
     if (PluginsData[I].pIsArchive)
       if (PluginsData[I].pIsArchive(Name,Data,DataSize))
-        return(I);
-  return(-1);
+      {
+        if(PluginsData[I].pGetSFXPos)
+          CurSFXSize=PluginsData[I].pGetSFXPos();
+        else
+          CurSFXSize=0;
+/*{
+  char BBBB[100];
+  FSF.sprintf(BBBB,"%s\nCurSFXSize=%d\nMinSFXSize=%d\nOk",PluginsData[I].ModuleName,CurSFXSize,MinSFXSize);
+  Info.Message(Info.ModuleNumber,FMSG_ALLINONE,NULL,(const char **)BBBB,0,1);
+}   */
+        if(CurSFXSize <= MinSFXSize)
+        {
+          MinSFXSize=CurSFXSize;
+          TrueArc=I;
+        }
+      }
+/*{
+  char BBBB[100];
+  FSF.sprintf(BBBB,"End: %s\nCurSFXSize=%d\nMinSFXSize=%d\nOk",PluginsData[I].ModuleName,CurSFXSize,MinSFXSize);
+  Info.Message(Info.ModuleNumber,FMSG_ALLINONE,NULL,(const char **)BBBB,0,1);
+} */
+  return(TrueArc);
 }
 
 
@@ -99,7 +139,6 @@ BOOL ArcPlugins::OpenArchive(int PluginNumber,char *Name,int *Type)
     return(PluginsData[PluginNumber].pOpenArchive(Name,Type));
   return(FALSE);
 }
-
 
 int ArcPlugins::GetArcItem(int PluginNumber,struct PluginPanelItem *Item,
                            struct ArcItemInfo *Info)

@@ -71,6 +71,7 @@ DWORD WINAPI _export LoadFormatModule(const char *ModuleName);
 void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info);
 
 BOOL  WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize);
+DWORD WINAPI _export GetSFXPos(void);
 BOOL  WINAPI _export OpenArchive(const char *Name,int *TypeArc);
 int   WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
 BOOL  WINAPI _export CloseArchive(struct ArcInfo *Info);
