@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.138 12.05.2003 $ */
+/* Revision: 1.139 13.05.2003 $ */
 
 /*
 Modify:
+  13.05.2003 VVM
+    - Неправильно происходило выделение после поиска при включенном переносе
+      слов и полосе прокрутки.
   12.05.2003 VVM
     + При отсутствии выделения маркер "поиска" двигается при перемещении по файлу.
   07.05.2003 VVM
@@ -3414,7 +3417,7 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
       Up();
     __int64 Length=SelectPos-StartLinePos-1;
     if (VM.Wrap)
-      Length%=ObjWidth+1; //??
+      Length%=Width+1; //??
     if (Length<=Width)
         LeftPos=0;
     if (Length-LeftPos>Width || Length<LeftPos)
