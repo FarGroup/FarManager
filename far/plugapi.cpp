@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.104 24.11.2001 $ */
+/* Revision: 1.105 28.11.2001 $ */
 
 /*
 Modify:
+  28.11.2001 SVS
+    + FIS_SHOWCOPYINGTIMEINFO
+    ! Немного оптимизации для ACTL_GET*SETTINGS
   24.11.2001 IS
     + Обработка ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS,
       ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
@@ -392,8 +395,14 @@ BOOL WINAPI FarShowHelp(const char *ModuleName,
 #endif
 int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
 {
- switch(Command)
- {
+  struct Opt2Flags{
+    int *Opt;
+    DWORD Flags;
+  };
+  int I;
+
+  switch(Command)
+  {
     case ACTL_GETFARVERSION:
       if(Param)
         *(DWORD*)Param=FAR_VERSION;
@@ -594,112 +603,90 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     case ACTL_GETSYSTEMSETTINGS:
         {
           DWORD Options=0;
-          if(Opt.ClearReadOnly)
-            Options|=FSS_CLEARROATTRIBUTE;
-          if(Opt.DeleteToRecycleBin)
-            Options|=FSS_DELETETORECYCLEBIN;
-          if(Opt.UseSystemCopy)
-            Options|=FSS_USESYSTEMCOPYROUTINE;
-          if(Opt.CopyOpened)
-            Options|=FSS_COPYFILESOPENEDFORWRITING;
-          if(Opt.CreateUppercaseFolders)
-            Options|=FSS_CREATEFOLDERSINUPPERCASE;
-          if(Opt.SaveHistory)
-            Options|=FSS_SAVECOMMANDSHISTORY;
-          if(Opt.SaveFoldersHistory)
-            Options|=FSS_SAVEFOLDERSHISTORY;
-          if(Opt.SaveViewHistory)
-            Options|=FSS_SAVEVIEWANDEDITHISTORY;
-          if(Opt.UseRegisteredTypes)
-            Options|=FSS_USEWINDOWSREGISTEREDTYPES;
-          if(Opt.AutoSaveSetup)
-            Options|=FSS_AUTOSAVESETUP;
+          static struct Opt2Flags OSys[]={
+            {&Opt.ClearReadOnly,FSS_CLEARROATTRIBUTE},
+            {&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
+            {&Opt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
+            {&Opt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
+            {&Opt.CreateUppercaseFolders,FSS_CREATEFOLDERSINUPPERCASE},
+            {&Opt.SaveHistory,FSS_SAVECOMMANDSHISTORY},
+            {&Opt.SaveFoldersHistory,FSS_SAVEFOLDERSHISTORY},
+            {&Opt.SaveViewHistory,FSS_SAVEVIEWANDEDITHISTORY},
+            {&Opt.UseRegisteredTypes,FSS_USEWINDOWSREGISTEREDTYPES},
+            {&Opt.AutoSaveSetup,FSS_AUTOSAVESETUP},
+          };
+          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+            if(*OSys[I].Opt)
+              Options|=OSys[I].Flags;
           return Options;
         }
     case ACTL_GETPANELSETTINGS:
         {
           DWORD Options=0;
-          if(Opt.ShowHidden)
-            Options|=FPS_SHOWHIDDENANDSYSTEMFILES;
-          if(Opt.Highlight)
-            Options|=FPS_HIGHLIGHTFILES;
-          if(Opt.AutoChangeFolder)
-            Options|=FPS_AUTOCHANGEFOLDER;
-          if(Opt.SelectFolders)
-            Options|=FPS_SELECTFOLDERS;
-          if(Opt.ReverseSort)
-            Options|=FPS_ALLOWREVERSESORTMODES;
-          if(Opt.ShowColumnTitles)
-            Options|=FPS_SHOWCOLUMNTITLES;
-          if(Opt.ShowPanelStatus)
-            Options|=FPS_SHOWSTATUSLINE;
-          if(Opt.ShowPanelTotals)
-            Options|=FPS_SHOWFILESTOTALINFORMATION;
-          if(Opt.ShowPanelFree)
-            Options|=FPS_SHOWFREESIZE;
-          if(Opt.ShowPanelScrollbar)
-            Options|=FPS_SHOWSCROLLBAR;
-          if(Opt.ShowScreensNumber)
-            Options|=FPS_SHOWBACKGROUNDSCREENSNUMBER;
-          if(Opt.ShowSortMode)
-            Options|=FPS_SHOWSORTMODELETTER;
+          static struct Opt2Flags OSys[]={
+            {&Opt.ShowHidden,FPS_SHOWHIDDENANDSYSTEMFILES},
+            {&Opt.Highlight,FPS_HIGHLIGHTFILES},
+            {&Opt.AutoChangeFolder,FPS_AUTOCHANGEFOLDER},
+            {&Opt.SelectFolders,FPS_SELECTFOLDERS},
+            {&Opt.ReverseSort,FPS_ALLOWREVERSESORTMODES},
+            {&Opt.ShowColumnTitles,FPS_SHOWCOLUMNTITLES},
+            {&Opt.ShowPanelStatus,FPS_SHOWSTATUSLINE},
+            {&Opt.ShowPanelTotals,FPS_SHOWFILESTOTALINFORMATION},
+            {&Opt.ShowPanelFree,FPS_SHOWFREESIZE},
+            {&Opt.ShowPanelScrollbar,FPS_SHOWSCROLLBAR},
+            {&Opt.ShowScreensNumber,FPS_SHOWBACKGROUNDSCREENSNUMBER},
+            {&Opt.ShowSortMode,FPS_SHOWSORTMODELETTER},
+          };
+          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+            if(*OSys[I].Opt)
+              Options|=OSys[I].Flags;
           return Options;
         }
     case ACTL_GETINTERFACESETTINGS:
         {
           DWORD Options=0;
-          if(Opt.Clock)
-            Options|=FIS_CLOCKINPANELS;
-          if(Opt.ViewerEditorClock)
-            Options|=FIS_CLOCKINVIEWERANDEDITOR;
-          if(Opt.Mouse)
-            Options|=FIS_MOUSE;
-          if(Opt.ShowKeyBar)
-            Options|=FIS_SHOWKEYBAR;
-          if(Opt.ShowMenuBar)
-            Options|=FIS_ALWAYSSHOWMENUBAR;
-          if(Opt.DialogsEditHistory)
-            Options|=FIS_HISTORYINDIALOGEDITCONTROLS;
-          if(Opt.DialogsEditBlock)
-            Options|=FIS_PERSISTENTBLOCKSINEDITCONTROLS;
-          if(Opt.AltGr)
-            Options|=FIS_USERIGHTALTASALTGR;
-          if(Opt.CopyShowTotal)
-            Options|=FIS_SHOWTOTALCOPYPROGRESSINDICATOR;
-          if(Opt.AutoComplete)
-            Options|=FIS_AUTOCOMPLETEININPUTLINES;
-          if(Opt.PgUpChangeDisk)
-            Options|=FIS_USECTRLPGUPTOCHANGEDRIVE;
+          static struct Opt2Flags OSys[]={
+            {&Opt.Clock,FIS_CLOCKINPANELS},
+            {&Opt.ViewerEditorClock,FIS_CLOCKINVIEWERANDEDITOR},
+            {&Opt.Mouse,FIS_MOUSE},
+            {&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
+            {&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
+            {&Opt.DialogsEditHistory,FIS_HISTORYINDIALOGEDITCONTROLS},
+            {&Opt.DialogsEditBlock,FIS_PERSISTENTBLOCKSINEDITCONTROLS},
+            {&Opt.AltGr,FIS_USERIGHTALTASALTGR},
+            {&Opt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
+            {&Opt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
+            {&Opt.AutoComplete,FIS_AUTOCOMPLETEININPUTLINES},
+            {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
+          };
+          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+            if(*OSys[I].Opt)
+              Options|=OSys[I].Flags;
           return Options;
         }
     case ACTL_GETCONFIRMATIONS:
         {
           DWORD Options=0;
-          if(Opt.Confirm.Copy)
-            Options|=FCS_COPYOVERWRITE;
-          if(Opt.Confirm.Move)
-            Options|=FCS_MOVEOVERWRITE;
-          if(Opt.Confirm.Drag)
-            Options|=FCS_DRAGANDDROP;
-          if(Opt.Confirm.Delete)
-            Options|=FCS_DELETE;
-          if(Opt.Confirm.DeleteFolder)
-            Options|=FCS_DELETENONEMPTYFOLDERS;
-          if(Opt.Confirm.Esc)
-            Options|=FCS_INTERRUPTOPERATION;
-          if(Opt.Confirm.RemoveConnection)
-            Options|=FCS_DISCONNECTNETWORKDRIVE;
-          if(Opt.Confirm.AllowReedit)
-            Options|=FCS_RELOADEDITEDFILE;
-          if(Opt.Confirm.HistoryClear)
-            Options|=FCS_CLEARHISTORYLIST;
-          if(Opt.Confirm.Exit)
-            Options|=FCS_EXIT;
+          static struct Opt2Flags OSys[]={
+            {&Opt.Confirm.Copy,FCS_COPYOVERWRITE},
+            {&Opt.Confirm.Move,FCS_MOVEOVERWRITE},
+            {&Opt.Confirm.Drag,FCS_DRAGANDDROP},
+            {&Opt.Confirm.Delete,FCS_DELETE},
+            {&Opt.Confirm.DeleteFolder,FCS_DELETENONEMPTYFOLDERS},
+            {&Opt.Confirm.Esc,FCS_INTERRUPTOPERATION},
+            {&Opt.Confirm.RemoveConnection,FCS_DISCONNECTNETWORKDRIVE},
+            {&Opt.Confirm.AllowReedit,FCS_RELOADEDITEDFILE},
+            {&Opt.Confirm.HistoryClear,FCS_CLEARHISTORYLIST},
+            {&Opt.Confirm.Exit,FCS_EXIT},
+          };
+          for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)
+            if(*OSys[I].Opt)
+              Options|=OSys[I].Flags;
           return Options;
         }
     /* IS $ */
- }
- return FALSE;
+  }
+  return FALSE;
 }
 #ifndef _MSC_VER
 #pragma warn +par

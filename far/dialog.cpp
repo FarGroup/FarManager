@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.186 28.11.2001 $ */
+/* Revision: 1.187 28.11.2001 $ */
 
 /*
 Modify:
+  28.11.2001 SVS
+    ! DM_EDITCLEARFLAG заменен на более корректное DM_EDITUNCHANGEDFLAG
+    ! Закрыта небольшая лазейка для все того же clearflags.
   28.11.2001 SVS
     + DM_EDITCLEARFLAG - управление состоянием флага ClearFlag редактора
   27.11.2001 DJ
@@ -1268,7 +1271,8 @@ int Dialog::InitDialogObjects(int ID)
         if (!(ItemFlags & DIF_EDITOR))
         {
           DialogEdit->SetEditBeyondEnd(FALSE);
-          DialogEdit->SetClearFlag(1);
+          if (!DialogMode.Check(DMODE_INITOBJECTS))
+            DialogEdit->SetClearFlag(1);
         }
 
       /* $ 01.08.2000 SVS
@@ -5998,7 +6002,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
 
     /*****************************************************************/
-    case DM_EDITCLEARFLAG: // -1 Get, 0 - Skip, 1 - Set; Выделение блока снимается.
+    case DM_EDITUNCHANGEDFLAG: // -1 Get, 0 - Skip, 1 - Set; Выделение блока снимается.
     {
       if(IsEdit(Type))
       {

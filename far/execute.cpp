@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.12 22.11.2001 $ */
+/* Revision: 1.13 28.11.2001 $ */
 
 /*
 Modify:
+  28.11.2001 SVS
+    - BugZ#129 не запускаются программым с пробелом в названии
+    ! небольшие уточнения в PrepareExecuteModule()
   22.11.2001 SVS
     - Как последний гад этот самый Екзекутеор валит ФАР на простой формуле:
       >"" Enter
@@ -182,11 +185,13 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
 {
   int Ret, I;
   char FileName[4096],FullName[4096], *Ptr;
+  int IsQuoted=FALSE;
 
   // Здесь порядок важен! Сначала батники,  а потом остальная фигня.
   static char StdExecuteExt[NM]=".BAT;.CMD;.EXE;.COM;";
-  static int IsPrepareExt=FALSE;
-  if(!IsPrepareExt) // самоинициилизирующийся кусок
+  static int PreparePrepareExt=FALSE;
+
+  if(!PreparePrepareExt) // самоинициилизирующийся кусок
   {
 #if 1
     // если переменная %PATHEXT% доступна...
@@ -210,8 +215,19 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
         *Ptr=0;
       ++Ptr;
     }
-    IsPrepareExt=TRUE;
+    PreparePrepareExt=TRUE;
   }
+
+  /* Берем "исключения" из реестра, которые должны исполянться директом,
+     например, некоторые внутренние команды ком.процессора.
+  static char ExcludeCmds[4096];
+  static int PrepareExcludeCmds=FALSE;
+  if(!PrepareShellCommands)
+  {
+    GetRegKey("System","ExcludeCmds",(char*)ExcludeCmds,"",0);
+    PrepareExcludeCmds=TRUE;
+  }
+  */
 
   *GUIType=FALSE; // GUIType всегда вначале инициализируется в FALSE
   Ret=FALSE;
@@ -222,6 +238,7 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
     OemToChar(Command+1,FileName);
     if ((Ptr=strchr(FileName,'\"'))!=NULL)
       *Ptr=0;
+    IsQuoted=TRUE;
   }
   else
   {
@@ -239,6 +256,7 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
   SetFileApisToANSI();
 
   {
+    char *FilePart;
     char *PtrFName=strrchr(strcpy(FullName,FileName),'.');
     char *WorkPtrFName;
     if(!PtrFName)
@@ -248,9 +266,14 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
     while(*PtrExt) // первый проход - в текущем каталоге
     {
       if(!PtrFName)
-        strcat(WorkPtrFName,PtrExt);
+        strcpy(WorkPtrFName,PtrExt);
       if(GetFileAttributes(FullName)!=-1)
       {
+        // GetFullPathName - это нужно, т.к. если тыкаем в date.exe
+        // в текущем каталоге, то нифига ничего доброго не получаем
+        // cmd.exe по каким то причинам вызыват внутренний date
+        GetFullPathName(FullName,sizeof(FullName),FullName,&FilePart);
+
         Ret=TRUE;
         break;
       }
@@ -259,12 +282,11 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
 
     if(!Ret) // второй проход - по правилам SearchPath
     {
-      char *FilePart;
       PtrExt=StdExecuteExt;
       while(*PtrExt)
       {
         if(!PtrFName)
-          strcat(WorkPtrFName,PtrExt);
+          strcpy(WorkPtrFName,PtrExt);
         if(SearchPath(NULL,FullName,PtrExt,sizeof(FullName),FullName,&FilePart))
         {
           Ret=TRUE;
@@ -284,7 +306,7 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
         while(*PtrExt)
         {
           if(!PtrFName)
-            strcat(WorkPtrFName,PtrExt);
+            strcpy(WorkPtrFName,PtrExt);
           for(I=0; I < sizeof(RootFindKey)/sizeof(RootFindKey[0]); ++I)
           {
             sprintf(FullName,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s",FileName);
@@ -309,7 +331,8 @@ int WINAPI PrepareExecuteModule(char *Command,char *Dest,int DestSize,DWORD *GUI
   if(Ret) // некоторые "подмены" данных
   {
     char TempStr[4096];
-    QuoteSpaceOnly(FullName);
+    if(!IsQuoted)
+      QuoteSpaceOnly(FullName);
     IsCommandPEExeGUI(FullName,GUIType);
     strncpy(TempStr,Command,sizeof(TempStr)-1);
     ReplaceStrings(TempStr,FileName,FullName);
@@ -341,6 +364,7 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
     return -1;
   }
 
+  CONSOLE_SCREEN_BUFFER_INFO sbi;
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   int Visible,Size;
@@ -403,76 +427,78 @@ int Execute(char *CmdStr,          // Ком.строка для исполнения
   // Поиск исполнятора....
   PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,&GUIType);
 
-  if (DirectRun && !SeparateWindow)
-    strcpy(ExecLine,CmdPtr);
-  else
   {
-    sprintf(ExecLine,"%s /C",CommandName);
-    if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+    if (DirectRun && !SeparateWindow)
+      strcpy(ExecLine,CmdPtr);
+    else
     {
-      strcat(ExecLine," start");
-      if (AlwaysWaitFinish)
-        strcat(ExecLine," /wait");
-      if (NT && *CmdPtr=='\"')
-        strcat(ExecLine," \"\"");
-    }
-    strcat(ExecLine," ");
+      sprintf(ExecLine,"%s /C",CommandName);
+      if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
+      {
+        strcat(ExecLine," start");
+        if (AlwaysWaitFinish)
+          strcat(ExecLine," /wait");
+        if (NT && *CmdPtr=='\"')
+          strcat(ExecLine," \"\"");
+      }
+      strcat(ExecLine," ");
 
-    char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
-    if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
+      char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
+      if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
+      {
+        strcat (ExecLine, "\"");
+        strcat (ExecLine, CmdPtr);
+        strcat (ExecLine, "\"");
+      }
+      else
+        strcat(ExecLine,CmdPtr);
+    }
+
+    SetFarTitle(CmdPtr);
+    FlushInputBuffer();
+
+    /*$ 15.03.2001 SKV
+      Надо запомнить параметры консоли ДО запуск и т.д.
+    */
+    GetConsoleScreenBufferInfo(hConOut,&sbi);
+    /* SKV$*/
+
+    ChangeConsoleMode(InitialConsoleMode);
+
+    if (SeparateWindow)
+      CreateFlags|=(OldNT)?CREATE_NEW_CONSOLE:DETACHED_PROCESS;
+
+    if (SeparateWindow==2)
     {
-      strcat (ExecLine, "\"");
-      strcat (ExecLine, CmdPtr);
-      strcat (ExecLine, "\"");
+      char AnsiLine[NM];
+      SHELLEXECUTEINFO si;
+      OemToChar(CmdPtr,AnsiLine);
+
+      if (PointToName(AnsiLine)==AnsiLine)
+      {
+        char FullName[2*NM];
+        sprintf(FullName,".\\%s",AnsiLine);
+        strcpy(AnsiLine,FullName);
+      }
+
+      memset(&si,0,sizeof(si));
+      si.cbSize=sizeof(si);
+      si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
+      si.lpFile=AnsiLine;
+      si.lpVerb=GetShellAction((char *)si.lpFile);
+      si.nShow=SW_SHOWNORMAL;
+      SetFileApisToANSI();
+      ExitCode=ShellExecuteEx(&si);
+      SetFileApisToOEM();
+      pi.hProcess=si.hProcess;
     }
     else
-      strcat(ExecLine,CmdPtr);
+      ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,
+                             NULL,NULL,&si,&pi);
+
+    StartExecTime=clock();
   }
 
-  SetFarTitle(CmdPtr);
-  FlushInputBuffer();
-
-  /*$ 15.03.2001 SKV
-    Надо запомнить параметры консоли ДО запуск и т.д.
-  */
-  CONSOLE_SCREEN_BUFFER_INFO sbi;
-  GetConsoleScreenBufferInfo(hConOut,&sbi);
-  /* SKV$*/
-
-  ChangeConsoleMode(InitialConsoleMode);
-
-  if (SeparateWindow && OldNT)
-    CreateFlags|=CREATE_NEW_CONSOLE;
-
-  if (SeparateWindow==2)
-  {
-    char AnsiLine[NM];
-    SHELLEXECUTEINFO si;
-    OemToChar(CmdPtr,AnsiLine);
-
-    if (PointToName(AnsiLine)==AnsiLine)
-    {
-      char FullName[2*NM];
-      sprintf(FullName,".\\%s",AnsiLine);
-      strcpy(AnsiLine,FullName);
-    }
-
-    memset(&si,0,sizeof(si));
-    si.cbSize=sizeof(si);
-    si.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-    si.lpFile=AnsiLine;
-    si.lpVerb=GetShellAction((char *)si.lpFile);
-    si.nShow=SW_SHOWNORMAL;
-    SetFileApisToANSI();
-    ExitCode=ShellExecuteEx(&si);
-    SetFileApisToOEM();
-    pi.hProcess=si.hProcess;
-  }
-  else
-    ExitCode=CreateProcess(NULL,ExecLine,NULL,NULL,0,CreateFlags,
-                           NULL,NULL,&si,&pi);
-
-  StartExecTime=clock();
   if (ExitCode)
   {
     if (!SeparateWindow && !GUIType || AlwaysWaitFinish)
