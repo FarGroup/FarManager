@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.72 05.06.2001 $ */
+/* Revision: 1.73 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    + MSetColorClockNormalEditor, MSetColorClockNormalViewer
   05.06.2001 IS
     + MEditCanNotEditDirectory
   04.06.2001 IS
@@ -1252,6 +1254,8 @@ enum
   MSetColorCommandLinePrefix,
 
   MSetColorClockNormal,
+  MSetColorClockNormalEditor,
+  MSetColorClockNormalViewer,
 
   MSetColorViewerNormal,
   MSetColorViewerSelected,

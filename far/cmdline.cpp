@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.26 04.06.2001 $ */
+/* Revision: 1.27 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    + ƒобавлена обработка операторов "REM" и "::"
   04.06.2001 OT
     - »справление отрисовки консоли при наличии Qinfo и или других "настандартных" панелей
   26.05.2001 OT
@@ -581,6 +583,12 @@ int CommandLine::ProcessOSCommands(char *CmdLine)
     }
     return(TRUE);
   }
+
+  if (!memicmp(CmdLine,"REM ",4) || !memicmp(CmdLine,"::",2))
+  {
+    return TRUE;
+  }
+
   /* $ 14.01.2001 SVS
      + ¬ ProcessOSCommands добавлена обработка
        "IF [NOT] EXIST filename command"
@@ -737,7 +745,7 @@ void CommandLine::ShowViewEditHistory()
     if (SelectType!=2)
       CtrlObject->ViewHistory->AddToHistory(Str,ItemTitle,Type);
     CtrlObject->ViewHistory->SetAddMode(FALSE,Opt.FlagPosixSemantics?1:2,TRUE);
-    
+
     switch(Type)
     {
     case 0:
@@ -775,7 +783,7 @@ int CommandLine::GetCurPos()
 }
 
 
-void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2) 
+void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2)
 {
   if (BackgroundScreen) {
     delete BackgroundScreen;
@@ -783,14 +791,14 @@ void CommandLine::SaveBackground(int X1,int Y1,int X2,int Y2)
   BackgroundScreen=new SaveScreen(X1,Y1,X2,Y2);
 }
 
-void CommandLine::SaveBackground() 
+void CommandLine::SaveBackground()
 {
   if (BackgroundScreen) {
 //    BackgroundScreen->Discard();
     BackgroundScreen->SaveArea();
   }
 }
-void CommandLine::ShowBackground() 
+void CommandLine::ShowBackground()
 {
   BackgroundScreen->RestoreArea();
 }

@@ -5,10 +5,12 @@ setcolor.cpp
 
 */
 
-/* Revision: 1.11 04.06.2001 $ */
+/* Revision: 1.12 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    + Резерв для "цветных часов"
   04.06.2001 SVS
     ! Упростим функцию обработчик и корректно обработаем DN_BTNCLICK
   21.05.2001 SVS
@@ -229,10 +231,13 @@ void SetColors()
 
   struct MenuData ClockItems[]=
   {
-    (char *)MSetColorClockNormal,LIF_SELECTED
+    (char *)MSetColorClockNormal,LIF_SELECTED,
+//    (char *)MSetColorClockNormalEditor,0,
+//    (char *)MSetColorClockNormalViewer,0,
   };
   int ClockPaletteItems[]={
-    COL_CLOCK
+    COL_CLOCK,
+//    COL_EDITORCLOCK,COL_VIEWERCLOCK,
   };
 
   /* $ 18.07.2000 tran

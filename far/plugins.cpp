@@ -5,10 +5,15 @@ plugins.cpp
 
 */
 
-/* Revision: 1.74 03.06.2001 $ */
+/* Revision: 1.75 06.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    + F4 - назначение хоткеев в списке конф.плагинов.
+      Дальше нужна оптимизация кода, т.е. из CommandsMenu и Configure
+      выделять подобные куски кода и сувать их в отдельные, самостоятельные
+      функции.
   03.06.2001 SVS
     + ConfigureCurrent() - вызов конфига конкретного плагина
   03.06.2001 SVS
@@ -1669,97 +1674,160 @@ void PluginsSet::ConfigureCurrent(int PNum,int INum)
    ! При настройке "параметров внешних модулей" закрывать окно с их
      списком только при нажатии на ESC
 */
-void PluginsSet::Configure()
+void PluginsSet::Configure(int StartPos)
 {
   for(;;)
   {
     DWORD Data;
-    int MenuItemNumber=0;
     int I, J;
-    VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
-    PluginList.SetFlags(VMENU_WRAPMODE);
-    PluginList.SetPosition(-1,-1,0,0);
-
-    LoadIfCacheAbsent();
-
-    for (I=0;I<PluginsCount;I++)
     {
-      if (PluginsData[I].Cached)
+      int MenuItemNumber=0;
+      VMenu PluginList(MSG(MPluginConfigTitle),NULL,0,ScrY-4);
+      PluginList.SetFlags(VMENU_WRAPMODE);
+      PluginList.SetPosition(-1,-1,0,0);
+      PluginList.SetHelp("PluginsConfig");
+
+      LoadIfCacheAbsent();
+      char FirstHotKey[512];
+      char HotRegKey[512],HotKey[100];
+      int HotKeysPresent=EnumRegKey("PluginHotkeys",0,FirstHotKey,sizeof(FirstHotKey));
+
+      *HotKey=0;
+
+      for (I=0;I<PluginsCount;I++)
       {
-        char RegKey[100],Value[100];
-        int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
-        if (RegNumber==-1)
-          continue;
+        if (PluginsData[I].Cached)
+        {
+          char RegKey[100],Value[100];
+          int RegNumber=GetCacheNumber(PluginsData[I].ModuleName,NULL,PluginsData[I].CachePos);
+          if (RegNumber==-1)
+            continue;
+          else
+            for (J=0;;J++)
+            {
+              *HotKey=0;
+              if (GetHotKeyRegKey(I,J,HotRegKey))
+                GetRegKey(HotRegKey,"ConfHotkey",HotKey,"",sizeof(HotKey));
+              struct MenuItem ListItem;
+              memset(&ListItem,0,sizeof(ListItem));
+              sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
+              sprintf(Value,"PluginConfigString%d",J);
+              char Name[sizeof(ListItem.Name)];
+              GetRegKey(RegKey,Value,Name,"",sizeof(Name));
+              if (*Name==0)
+                break;
+              if (!HotKeysPresent)
+                strcpy(ListItem.Name,Name);
+              else
+                if (*HotKey)
+                  sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+                else
+                  sprintf(ListItem.Name,"   %s",Name);
+              ListItem.SetSelect(MenuItemNumber++ == StartPos);
+              Data=MAKELONG(I,J);
+              PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
+            }
+        }
         else
-          for (J=0;;J++)
+        {
+          struct PluginInfo Info;
+          if (!GetPluginInfo(I,&Info))
+            continue;
+          for (J=0;J<Info.PluginConfigStringsNumber;J++)
           {
+            *HotKey=0;
+            if (GetHotKeyRegKey(I,J,HotRegKey))
+              GetRegKey(HotRegKey,"ConfHotkey",HotKey,"",sizeof(HotKey));
             struct MenuItem ListItem;
             memset(&ListItem,0,sizeof(ListItem));
-            sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
-            sprintf(Value,"PluginConfigString%d",J);
-            GetRegKey(RegKey,Value,ListItem.Name,"",sizeof(ListItem.Name));
-            if (*ListItem.Name==0)
-              break;
-            ListItem.SetSelect(MenuItemNumber++ == 0);
+            char Name[sizeof(ListItem.Name)];
+            strncpy(Name,NullToEmpty(Info.PluginConfigStrings[J]),sizeof(Name));
+            if (!HotKeysPresent)
+              strcpy(ListItem.Name,Name);
+            else
+              if (*HotKey)
+                sprintf(ListItem.Name,"&%c  %s",*HotKey,Name);
+              else
+                sprintf(ListItem.Name,"   %s",Name);
+            ListItem.SetSelect(MenuItemNumber++ == StartPos);
             Data=MAKELONG(I,J);
             PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
           }
-      }
-      else
-      {
-        struct PluginInfo Info;
-        if (!GetPluginInfo(I,&Info))
-          continue;
-        for (J=0;J<Info.PluginConfigStringsNumber;J++)
-        {
-          struct MenuItem ListItem;
-          memset(&ListItem,0,sizeof(ListItem));
-          strcpy(ListItem.Name,NullToEmpty(Info.PluginConfigStrings[J]));
-          ListItem.SetSelect(MenuItemNumber++ == 0);
-          Data=MAKELONG(I,J);
-          PluginList.SetUserData((void*)Data,sizeof(Data),PluginList.AddItem(&ListItem));
         }
       }
-    }
-    PluginList.AssignHighlights(FALSE);
+      PluginList.AssignHighlights(FALSE);
+      PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
 
-    PluginList.ClearDone();
+      PluginList.ClearDone();
 
-    /* $ 18.12.2000 SVS
-       Shift-F1 в списке плагинов вызывает хелп по данному плагину
-    */
-    PluginList.Show();
-    while (!PluginList.Done())
-    {
-      int SelPos=PluginList.GetSelectPos();
-      Data=(DWORD)PluginList.GetUserData(NULL,0,SelPos);
-      switch(PluginList.ReadInput())
+      /* $ 18.12.2000 SVS
+         Shift-F1 в списке плагинов вызывает хелп по данному плагину
+      */
+      PluginList.Show();
+      while (!PluginList.Done())
       {
-        case KEY_F1:
-        case KEY_SHIFTF1:
-          char PluginModuleName[NM*2];
-          strcpy(PluginModuleName,PluginsData[LOWORD(Data)].ModuleName);
-          if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-             !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
-          {
-            //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
-            FarShowHelp(PluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
-          }
-          break;
-        default:
-          PluginList.ProcessInput();
-          break;
+        int SelPos=PluginList.GetSelectPos();
+        Data=(DWORD)PluginList.GetUserData(NULL,0,SelPos);
+        char RegKey[512];
+        switch(PluginList.ReadInput())
+        {
+          case KEY_SHIFTF1:
+            char PluginModuleName[NM*2];
+            strcpy(PluginModuleName,PluginsData[LOWORD(Data)].ModuleName);
+            if(!FarShowHelp(PluginModuleName,"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+               !FarShowHelp(PluginModuleName,"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+            {
+              //strcpy(PluginModuleName,PluginsData[Data[0]].ModuleName);
+              FarShowHelp(PluginModuleName,NULL,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+            }
+            break;
+          case KEY_F4:
+            if (SelPos<MenuItemNumber && GetHotKeyRegKey(LOWORD(Data),HIWORD(Data),RegKey))
+            {
+              int ExitCode;
+              static struct DialogData PluginDlgData[]=
+              {
+                DI_DOUBLEBOX,3,1,60,4,0,0,0,0,(char *)MPluginHotKeyTitle,
+                DI_TEXT,5,2,0,0,0,0,0,0,(char *)MPluginHotKey,
+                DI_FIXEDIT,5,3,5,3,1,0,0,1,""
+              };
+              MakeDialogItems(PluginDlgData,PluginDlg);
+
+              {
+                GetRegKey(RegKey,"ConfHotkey",PluginDlg[2].Data,"",sizeof(PluginDlg[2].Data));
+                Dialog Dlg(PluginDlg,sizeof(PluginDlg)/sizeof(PluginDlg[0]));
+                Dlg.SetPosition(-1,-1,64,6);
+                Dlg.Process();
+                ExitCode=Dlg.GetExitCode();
+              }
+              if (ExitCode==2)
+              {
+                PluginDlg[2].Data[1]=0;
+                if (*PluginDlg[2].Data==0 || *PluginDlg[2].Data==' ')
+                  SetRegKey(RegKey,"ConfHotkey","");
+                  //DeleteRegKey(RegKey);
+                else
+                  SetRegKey(RegKey,"ConfHotkey",PluginDlg[2].Data);
+                PluginList.Hide();
+                Configure(SelPos);
+                return;
+              }
+            }
+            break;
+          default:
+            PluginList.ProcessInput();
+            break;
+        }
       }
+      /* SVS $ */
+
+      StartPos=PluginList.GetExitCode();
+      PluginList.Hide();
+      if (StartPos<0)
+        break;
+      Data=(DWORD)PluginList.GetUserData(NULL,NULL,StartPos);
+      ConfigureCurrent(LOWORD(Data),HIWORD(Data));
     }
-    /* SVS $ */
-
-    int ExitCode=PluginList.GetExitCode();
-    PluginList.Hide();
-    if (ExitCode<0)
-      break;
-
-    Data=(DWORD)PluginList.GetUserData(NULL,NULL,ExitCode);
-    ConfigureCurrent(LOWORD(Data),HIWORD(Data));
   }
 }
 /* IS $ */
@@ -1911,7 +1979,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
           {
             PluginDlg[2].Data[1]=0;
             if (*PluginDlg[2].Data==0 || *PluginDlg[2].Data==' ')
-              DeleteRegKey(RegKey);
+              SetRegKey(RegKey,"Hotkey","");
+              //DeleteRegKey(RegKey);
             else
               SetRegKey(RegKey,"Hotkey",PluginDlg[2].Data);
             PluginList.Hide();

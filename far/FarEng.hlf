@@ -500,15 +500,15 @@ some plugins are useless for you, you may remove them to save disk space.
 
     Plugins may be called either from ~Change drive menu~@DriveDlg@ or from
 #Plugin commands# menu, activated by #F11# or by corresponding item of
-~Commands menu~@CmdMenu@. F4 in "Plugin commands" menu allows to assign
+~Commands menu~@CmdMenu@. #F4# in "Plugin commands" menu allows to assign
 hot keys to menu items (this makes easier to call them from
 ~keyboard macros~@KeyMacro@). This menu is accessible from file panels
 and (only by F11) from the internal viewer and editor. Only specially
 designed plugins will be shown when calling the menu from the viewer and
 editor.
 
-    You may set plugin parameters using #Plugin configuration# command
-from ~Options menu~@OptMenu@.
+    You may set plugin parameters using ~Plugin configuration~@PluginsConfig@
+command from ~Options menu~@OptMenu@.
 
     File processing operations like copy, move, delete, edit or ~Find
 file~@FindFile@ work with plugins, which emulate file systems, if these
@@ -525,15 +525,31 @@ list of available help on the modules by pressing
     #Shift-F1# - in the list of plugins (context-dependent help).
 
     If the plugin has no help file, then context-dependent help will
-not pop out. If the context help is invoked from the
-#Plugin configuration# menu, FAR will try to show the topic with the name
-#Config#. If this topic does not exist in the plugin help, then the basic
-help topic on this plugin will be shown.
+not pop out.
 
     If the active panel shows a plugin emulated file system, the command
 "CD" in the command line may be used to change the plugin file system
 folder. Unlike "CD", "CHDIR" command always treats the specified parameter as
 a real folder name regardless a file panel type.
+
+@PluginsConfig
+$ #Plugins configuration#
+    You can configure the installed ~plugin modules~@Plugins@ using
+the command #"Plugins configuration"# from the ~Options menu~@OptMenu@.
+
+    To get the help on the currently selected plugin, press #Shift-F1#
+- context-sensitive help on plugin configuration. If the plugin
+doesn't have a help file, the context-sensitive help will not be
+shown.
+
+    When the context-sensitive help is invoked, FAR will try to show
+the topic #Config#. If such a topic does not exist in the plugin help
+file, the main help topic for the selected plugin will be shown.
+
+    Pressing #F4# in the #"Plugins configuration"# menu allows to
+assign hotkeys for the items of that menu, allowing to invoke them
+later through ~keyboard macro commands~@KeyMacro@.
+
 
 @PluginsReviews
 $ #Overview of plugin capabilites#

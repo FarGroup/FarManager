@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.29 06.06.2001 $ */
+/* Revision: 1.30 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    + "цветные часы" :-)
   06.06.2001 SVS
     ! W-функции юзаем пока только в режиме USE_WFUNC
   06.06.2001 SVS
@@ -760,7 +762,10 @@ void ShowTime(int ShowAlways)
   lasttm=tm;
   sprintf(ClockText,"%02d:%02d",tm.wHour,tm.wMinute);
   GotoXY(ScrX-4,0);
-  SetColor(COL_CLOCK);
+  // Здесь хрень какая-то получается с ModType - все время не верное значение!
+  int ModType=FrameManager->GetCurrentFrame()->GetType();
+  SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
+           (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
   Text(ClockText);
   ScrBuf.Flush();
   static int RegChecked=FALSE;

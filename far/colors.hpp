@@ -7,10 +7,12 @@ colors.hpp
 
 */
 
-/* Revision: 1.06 21.05.2001 $ */
+/* Revision: 1.07 06.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    + COL_EDITORCLOCK, COL_VIEWERCLOCK
   21.05.2001 SVS
     + COL_MENUDISABLEDTEXT
   13.12.2000 SVS
@@ -189,6 +191,9 @@ enum PaletteColors
 
 
   COL_MENUDISABLEDTEXT,
+
+  COL_EDITORCLOCK,
+  COL_VIEWERCLOCK,
 
   /* $ 13.12.2000 SVS
      Этот пункт должен быть самым последним!!!!!!

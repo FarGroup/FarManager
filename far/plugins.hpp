@@ -7,10 +7,12 @@ plugins.hpp
 
 */
 
-/* Revision: 1.14 03.06.2001 $ */
+/* Revision: 1.15 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    ! Configure() имеет параметр, дабы не скакал курсор все время в начало.
   03.06.2001 SVS
     + ConfigureCurrent() - вызов конфига конкретного плагина
   22.05.2001 DJ
@@ -206,7 +208,7 @@ class PluginsSet
     void ProcessViewerEvent(int Event,void *Param);
     void SendExit();
     char* FarGetMsg(int PluginNumber,int MsgId);
-    void Configure();
+    void Configure(int StartPos=0);
     void ConfigureCurrent(int PluginNumber,int INum);
     int CommandsMenu(int ModalType,int StartPos,char *HistoryName=NULL);
     int GetDiskMenuItem(int PluginNumber,int PluginItem,int &ItemPresent,int &PluginTextNumber,char *PluginText);

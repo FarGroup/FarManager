@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.26 05.06.2001 $ */
+/* Revision: 1.27 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    ! Добавлена предварительная обработка операторов "rem" и "::"
   05.06.2001 KM
     ! Поправочка. UserMenu не выставлял флаг VMENU_WRAPMODE.
   30.05.2001 OT
@@ -724,8 +726,19 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
       if (!GetRegKey(CurrentKey,LineName,Command,"",sizeof(Command)))
         break;
 
-      char ListName[NM*2],ShortListName[NM*2];
+      char ListName[NM*2]="",ShortListName[NM*2]="";
+      if (memicmp(Command,"REM ",4) && memicmp(Command,"::",2))
       {
+        /*
+          Осталось корректно обработать ситуацию, например:
+          if exist !#!\!^!.! far:edit < diff -c -p !#!\!^!.! !\!.!
+          Т.е. сначала "вычислить" кусок "if exist !#!\!^!.!", ну а если
+          выполнится, то делать дальше.
+          Или еще пример,
+          if exist ..\a.bat D:\FAR\170\DIFF.MY\mkdiff.bat !?&Номер патча?!
+          ЭТО выполняется всегда, т.к. парсинг всей строки идет, а надо
+          проверить фазу "if exist ..\a.bat", а уж потом делать выводы...
+        */
         int PreserveLFN=SubstFileName(Command,Name,ShortName,ListName,ShortListName,FALSE,CmdLineDir);
         PreserveLongName PreserveName(ShortName,PreserveLFN);
         /* $ 01.05.2001 IS

@@ -5,10 +5,12 @@ palette.cpp
 
 */
 
-/* Revision: 1.08 21.05.2001 $ */
+/* Revision: 1.09 07.06.2001 $ */
 
 /*
 Modify:
+  07.06.2001 SVS
+    + COL_EDITORCLOCK, COL_VIEWERCLOCK
   21.05.2001 SVS
     + COL_MENUDISABLEDTEXT
   06.05.2001 DJ
@@ -107,8 +109,8 @@ unsigned char DefaultPalette[]=
   F_DARKGRAY|B_CYAN,        // COL_WARNDIALOGLISTDISABLED
   /* SVS $ */
   F_DARKGRAY|B_CYAN,//COL_MENUDISABLEDTEXT
-  0,
-  0,
+  F_BLACK|B_CYAN,   // COL_EDITORCLOCK
+  F_BLACK|B_CYAN,   // COL_VIEWERCLOCK
   0,
   0,
   0,
@@ -191,8 +193,8 @@ unsigned char BlackPalette[]=
   /* SVS $ */
   F_DARKGRAY|B_LIGHTGRAY,//COL_MENUDISABLEDTEXT
 
-  0,
-  0,
+  F_BLACK|B_LIGHTGRAY,   // COL_EDITORCLOCK
+  F_BLACK|B_LIGHTGRAY,   // COL_VIEWERCLOCK
   0,
   0,
   0,
