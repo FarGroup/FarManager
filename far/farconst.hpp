@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.44 24.07.2001 $ */
+/* Revision: 1.45 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    - проблемы компил€ции под VC
   24.07.2001 IS
     ! isspace и iseol теперь не макросы, а inline функции
   22.07.2001 SVS
@@ -123,8 +125,10 @@ inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
 template <class T>
 inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
+#ifndef _MSC_VER
 #undef isspace
 inline int isspace(int x) { return x==' ' || x=='\t'; }
+#endif
 inline int iseol(int x)  { return x=='\r' || x=='\n'; }
 
 #define  FALSE        0

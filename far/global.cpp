@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.19 27.06.2001 $ */
+/* Revision: 1.20 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + NotUseCAS: флаг на запрет юзание Ctrl-Alt-Shift
   27.06.2001 SVS
     + LanguageLoaded
   25.06.2001 SVS
@@ -131,3 +133,6 @@ BOOL IsCryptFileASupport=FALSE;
 char RegColorsHighlight[]="Colors\\Highlight";
 
 BOOL LanguageLoaded=FALSE;
+
+// флаг на запрет юзание Ctrl-Alt-Shift
+BOOL NotUseCAS=FALSE;

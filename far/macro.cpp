@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.48 22.07.2001 $ */
+/* Revision: 1.49 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    - не работали автостартующие макросы
   23.07.2001 SVS
     -  остыль и в макросы поставим. ѕо другому не назовешь, блин.
       ѕосле окончани€ работы макроса принудительно рефрешим и комитим
@@ -321,7 +323,7 @@ void KeyMacro::InitVars()
   ReleaseTempBuffer();
 
   MacrosNumber=0;
-  StartMacroPos=0;
+  StartMacroPos=-2;
   Recording=FALSE;
   Executing=FALSE;
   Macros=NULL;
@@ -793,11 +795,14 @@ void KeyMacro::RunStartMacro()
   if (StartMacroPos==-1)
     return;
 
+  if(StartMacroPos==-2)
+    StartMacroPos=IndexMode[MACRO_SHELL][0];
+
   DWORD CurFlags;
   while (StartMacroPos<MacrosNumber)
   {
-
     int CurPos=StartMacroPos++;
+
     if (((CurFlags=Macros[CurPos].Flags)&MFLAGS_MODEMASK)==MACRO_SHELL &&
         Macros[CurPos].BufferSize>0 &&
         // исполн€ем не задисабленные макросы

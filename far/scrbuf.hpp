@@ -36,14 +36,12 @@ class ScreenBuf
   public:
     ScreenBuf();
     ~ScreenBuf();
+
+  public:
     void AllocBuf(int X,int Y);
-    void FillBuf();
-    void Write(int X,int Y,CHAR_INFO *Text,int TextLength);
-    void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text);
-    void Flush();
     void Lock();
     void Unlock();
-    int GetLockCount() {return(LockCount);};
+    int  GetLockCount() {return(LockCount);};
     void SetLockCount(int Count) {LockCount=Count;};
     void SetHandle(HANDLE hScreen);
     void ResetShadow();
@@ -51,10 +49,18 @@ class ScreenBuf
     void GetCursorPos(int& X,int& Y);
     void SetCursorType(int Visible,int Size);
     void GetCursorType(int &Visible,int &Size);
+
+  public:
+    void FillBuf();
+    void Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text);
+    void Write(int X,int Y,CHAR_INFO *Text,int TextLength);
     void RestoreMacroChar();
-/*$ 23.07.2001 SKV */
+
+    void AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask);
+    void FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color);
+
     void Scroll(int);
-/* SKV$*/
+    void Flush();
 };
 
 extern ScreenBuf ScrBuf;

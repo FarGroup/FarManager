@@ -5,10 +5,14 @@ syslog.cpp
 
 */
 
-/* Revision: 1.12 04.07.2001 $ */
+/* Revision: 1.13 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + Если запущены под дебагером (IsDebuggerPresent), то выводим строку
+      в LOG-окно дебагера (OutputDebugString)
+      Внимание! Винды ниже 98-х не подойдут.
   04.07.2001 SVS
     ! очередное уточнение LOG-файла :-)
     + Функции про хип
@@ -60,11 +64,19 @@ Modify:
  #endif
 #endif
 
+
 #if defined(SYSLOG)
 char         LogFileName[MAX_FILE];
 static FILE *LogStream=0;
 static int   Indent=0;
 static char *PrintTime(char *timebuf);
+
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x550)
+extern "C" {
+WINBASEAPI BOOL WINAPI IsDebuggerPresent(VOID);
+};
+#endif
+
 #endif
 
 #if defined(SYSLOG)
@@ -202,6 +214,10 @@ void SysLog(char *fmt,...)
     fflush(LogStream);
   }
   CloseSysLog();
+  if(IsDebuggerPresent())
+  {
+    OutputDebugString(msg);
+  }
 #endif
 }
 
@@ -209,23 +225,27 @@ void SysLog(char *fmt,...)
 void SysLog(int l,char *fmt,...)
 {
 #if defined(SYSLOG)
-    char msg[MAX_LOG_LINE];
+  char msg[MAX_LOG_LINE];
 
-    va_list argptr;
-    va_start( argptr, fmt );
+  va_list argptr;
+  va_start( argptr, fmt );
 
-    vsprintf( msg, fmt, argptr );
-    va_end(argptr);
+  vsprintf( msg, fmt, argptr );
+  va_end(argptr);
 
-    SysLog(l);
-    OpenSysLog();
-    if ( LogStream )
-    {
-      char timebuf[64];
-      fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
-      fflush(LogStream);
-    }
-    CloseSysLog();
+  SysLog(l);
+  OpenSysLog();
+  if ( LogStream )
+  {
+    char timebuf[64];
+    fprintf(LogStream,"%s %s%s\n",PrintTime(timebuf),MakeSpace(),msg);
+    fflush(LogStream);
+  }
+  CloseSysLog();
+  if(IsDebuggerPresent())
+  {
+    OutputDebugString(msg);
+  }
 #endif
 }
 ///

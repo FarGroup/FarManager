@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.39 23.07.2001 $ */
+/* Revision: 1.40 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    ! Заюзаем флаг NotUseCAS - чтобы не гасилось ничего для одиночного
+      редатора/вьювера (far /e)
   23.07.2001 SVS
     ! Закомментим пока WaitInFastFind - они здесь как бы не нужны.
   19.07.2001 OT
@@ -554,10 +557,13 @@ int  Manager::ProcessKey(int Key)
     switch(Key)
     {
     case KEY_CTRLALTSHIFTPRESS:
-      if (CurrentFrame->FastHide()){
-        ImmediateHide();
-        WaitKey(KEY_CTRLALTSHIFTRELEASE);
-        FrameManager->RefreshFrame();
+      if(!NotUseCAS)
+      {
+        if (CurrentFrame->FastHide()){
+          ImmediateHide();
+          WaitKey(KEY_CTRLALTSHIFTRELEASE);
+          FrameManager->RefreshFrame();
+        }
       }
       return TRUE;
     case KEY_CONSOLE_BUFFER_RESIZE:

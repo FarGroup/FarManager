@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.21 27.06.2001 $ */
+/* Revision: 1.22 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    + NotUseCAS: флаг на запрет юзание Ctrl-Alt-Shift
   27.06.2001 SVS
     + LanguageLoaded
   25.06.2001 SVS
@@ -162,5 +164,7 @@ extern BOOL IsCryptFileASupport;
 extern char RegColorsHighlight[];
 
 extern BOOL LanguageLoaded;
+
+extern BOOL NotUseCAS;
 
 #endif	// __FARGLOBAL_HPP__

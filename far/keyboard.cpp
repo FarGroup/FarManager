@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.42 23.07.2001 $ */
+/* Revision: 1.43 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    ! Если ждем KEY_CTRLALTSHIFTRELEASE, то гасим курсор (!)
   23.07.2001 SVS
     - Не работала комбинация Alt (не отпуская, в панеля) sp_
       (не набирался симол подчеркивания при нажатой Alt)
@@ -313,7 +315,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
-    if (CtrlObject->Cp()&&!CtrlObject->Cp()->ActivePanel&&!CmdMode)
+    if (CtrlObject->Cp()&&CtrlObject->Cp()->ActivePanel&&!CmdMode)
       CtrlObject->Macro.RunStartMacro();
     MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)
@@ -787,6 +789,12 @@ int PeekInputRecord(INPUT_RECORD *rec)
 */
 void WaitKey(int KeyWait)
 {
+  int Visible,Size;
+  if(KeyWait == KEY_CTRLALTSHIFTRELEASE)
+  {
+    GetCursorType(Visible,Size);
+    SetCursorType(0,10);
+  }
   while (1)
   {
     INPUT_RECORD rec;
@@ -799,6 +807,8 @@ void WaitKey(int KeyWait)
     else if(Key == KeyWait)
       break;
   }
+  if(KeyWait == KEY_CTRLALTSHIFTRELEASE)
+    SetCursorType(Visible,Size);
 }
 /* SVS $ */
 

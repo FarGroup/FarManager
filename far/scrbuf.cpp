@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.09 23.07.2001 $ */
+/* Revision: 1.10 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    ! Немного оптимизации в функциях отрисовки
   23.07.2001 SKV
     + Scroll - скроллирование буффера
   08.06.2001 SVS
@@ -132,18 +134,13 @@ void ScreenBuf::FillBuf()
   CurY=csbi.dwCursorPosition.Y;
 }
 
-
 void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
 {
   if (Y>=BufY || TextLength==0)
     return;
-  int Pos=Y*BufX, PosX;
-  for (int I=0;I<TextLength;I++)
-  {
-    if ((PosX=I+X)>=BufX)
-      break;
-    Buf[Pos+PosX]=Text[I];
-  }
+  if(X+TextLength >= BufX)
+    TextLength=BufX-X; //??
+  memcpy(Buf+Y*BufX+X,Text,sizeof(CHAR_INFO)*TextLength);
   Flushed=FALSE;
 
 #ifdef DIRECT_SCREEN_OUT
@@ -152,7 +149,6 @@ void ScreenBuf::Write(int X,int Y,CHAR_INFO *Text,int TextLength)
   if ( DirectRT  )
     Flush();
 #endif
-
 }
 
 
@@ -172,6 +168,29 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,CHAR_INFO *Text)
     Text[0]=MacroChar;
 }
 
+void ScreenBuf::AppliColorMask(int X1,int Y1,int X2,int Y2,WORD ColorMask)
+{
+  int Width=X2-X1+1;
+  for (int I=0;I<Y2-Y1+1;I++)
+    for (int J=0;J<Width;J++)
+      Buf[(Y1+I)*BufX+(X1+J)].Attributes&=~ColorMask;
+}
+
+void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
+{
+  int Width=X2-X1+1, Pos;
+  for (int I=0;I<Y2-Y1+1;I++)
+    for (int J=0;J<Width;J++)
+    {
+      Pos=(Y1+I)*BufX+(X1+J);
+      Buf[Pos].Attributes=Color;
+#if defined(USE_WFUNC)
+      SetVidChar(Buf[Pos],Ch);
+#else
+      Buf[Pos].Char.AsciiChar=Ch;
+#endif
+    }
+}
 
 void ScreenBuf::Flush()
 {
@@ -357,14 +376,9 @@ void ScreenBuf::RestoreMacroChar()
 /*$ 23.07.2001 SKV
   проскроллировать буффер на одну строку вверх.
 */
-void ScreenBuf::Scroll(int num)
+void ScreenBuf::Scroll(int Num)
 {
-  if(num>0)
-  {
-    for(int i=0;i<BufY-num;i++)
-    {
-      MoveMemory(Buf+i*BufX,Buf+(i+num)*BufX,BufX*sizeof(CHAR_INFO));
-    }
-  }
+  if(Num > 0 && Num < BufY)
+    memcpy(Buf,Buf+Num*BufX,(BufY-Num)*BufX*sizeof(CHAR_INFO));
 }
 /* SKV$*/

@@ -5,10 +5,14 @@ main.cpp
 
 */
 
-/* Revision: 1.28 11.07.2001 $ */
+/* Revision: 1.29 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    ! Заюзаем флаг NotUseCAS - чтобы не гасилось ничего для одиночного
+      редатора/вьювера (far /e) - иначе БАГА!
+    + Чистим экран после выхода из ФАРа
   11.07.2001 SVS
     + переменные среды: FARLANG и FARUSER
   10.07.2001 SVS
@@ -97,6 +101,7 @@ Modify:
 #include "lang.hpp"
 #include "keys.hpp"
 #include "chgprior.hpp"
+#include "colors.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "fileedit.hpp"
@@ -340,6 +345,7 @@ int _cdecl main(int Argc, char *Argv[])
     ControlObject CtrlObj;
     if (*EditName || *ViewName)
     {
+      NotUseCAS=TRUE;
       Panel *DummyPanel=new Panel;
       CmdMode=TRUE;
       _tran(SysLog("create dummy panels"));
@@ -363,6 +369,7 @@ int _cdecl main(int Argc, char *Argv[])
     }
     else
     {
+      NotUseCAS=FALSE;
       if (RegOpt)
         Register();
       static struct RegInfo Reg;
@@ -390,6 +397,8 @@ int _cdecl main(int Argc, char *Argv[])
       }
       FrameManager->EnterMainLoop();
     }
+    // очистим за собой!
+    SetScreen(0,0,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
   }
 
   SetConsoleTitle(OldTitle);

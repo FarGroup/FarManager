@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.34 06.07.2001 $ */
+/* Revision: 1.35 24.07.2001 $ */
 
 /*
 Modify:
+  24.07.2001 SVS
+    ! Немного оптимизации в функциях отрисовки
   06.07.2001 SKV
     - KeyQueue=NULL; в CloseConsole();
   04.07.2001 SVS
@@ -642,43 +644,25 @@ void HiText(const char *Str,int HiColor)
 
 void SetScreen(int X1,int Y1,int X2,int Y2,int Ch,int Color)
 {
-  char FillStr[4096];
-  int I;
-  SetColor(Color);
   if (X1<0) X1=0;
   if (Y1<0) Y1=0;
   if (X2>ScrX) X2=ScrX;
   if (Y2>ScrY) Y2=ScrY;
-  memset(FillStr,Ch,X2-X1+1);
-  FillStr[X2-X1+1]=0;
-  for (I=Y1;I<=Y2;I++)
-  {
-    GotoXY(X1,I);
-    Text(FillStr);
-  }
+
+  ScrBuf.FillRect(X1,Y1,X2,Y2,RecodeOutTable[Ch],FarColorToReal(Color));
+//  SetColor(Color);
+//  GotoXY(X2,Y2);
 }
 
 
 void MakeShadow(int X1,int Y1,int X2,int Y2)
 {
-  int I;
-  CHAR_INFO *CharBuf=new CHAR_INFO[(X2-X1+1)*(Y2-Y1+1)];
-  /* $ 09.08.2000 KM
-     Данное изменение позволяет отрисовывать тень, даже
-     если край окна вышел за границы экрана
-  */
-  if (X1<0 || Y1<0)  // || X2>ScrX || Y2>ScrY)
-    return;
-  /* KM $ */
-  GetText(X1,Y1,X2,Y2,CharBuf);
-  for (I=0;I<(X2-X1+1)*(Y2-Y1+1);I++)
-    CharBuf[I].Attributes&=~0xf8;
-  PutText(X1,Y1,X2,Y2,CharBuf);
-  /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
-  */
-  delete[] CharBuf;
-  /* SVS $ */
+  if (X1<0) X1=0;
+  if (Y1<0) Y1=0;
+  if (X2>ScrX) X2=ScrX;
+  if (Y2>ScrY) Y2=ScrY;
+
+  ScrBuf.AppliColorMask(X1,Y1,X2,Y2,0xF8);
 }
 
 
@@ -726,17 +710,8 @@ int GetColor()
 
 void ScrollScreen(int Count)
 {
-  char *ScreenBuf=new char[(ScrX+1)*(ScrY+1)*4+10];
-  if (!ScreenBuf || Count<=0)
-    return;
-  GetText(0,Count,ScrX,ScrY,ScreenBuf);
-  PutText(0,0,ScrX,ScrY-Count,ScreenBuf);
-  SetScreen(0,ScrY+1-Count,ScrX,ScrY,' ',F_LIGHTGRAY|B_BLACK);
-  /* $ 13.07.2000 SVS
-     раз уж вызвали new[], то и нужно delete[]
-  */
-  delete[] ScreenBuf;
-  /* SVS $ */
+  ScrBuf.Scroll(Count);
+  ScrBuf.FillRect(0,ScrY+1-Count,ScrX,ScrY,' ',FarColorToReal(F_LIGHTGRAY|B_BLACK));
 }
 
 
@@ -749,8 +724,16 @@ void GetText(int X1,int Y1,int X2,int Y2,void *Dest)
 void PutText(int X1,int Y1,int X2,int Y2,void *Src)
 {
   int Width=X2-X1+1;
-  for (int I=0;I<Y2-Y1+1;I++)
-    ScrBuf.Write(X1,Y1+I,((PCHAR_INFO)Src)+Width*I,Width);
+  int I,Y;
+#if 1
+  CHAR_INFO *SrcPtr=(CHAR_INFO*)Src;
+
+  for (Y=Y1;Y<=Y2;++Y,SrcPtr+=Width)
+    ScrBuf.Write(X1,Y,SrcPtr,Width);
+#else
+  for (I=0,Y=Y1;I<Y2-Y1+1;I++,++Y)
+    ScrBuf.Write(X1,Y,((PCHAR_INFO)Src)+Width*I,Width);
+#endif
 }
 
 
