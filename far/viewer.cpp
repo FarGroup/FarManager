@@ -5,12 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.36 03.11.2000 $ */
+/* Revision: 1.37 16.12.2000 $ */
 
 /*
 Modify:
+  16.12.2000 tran
+    + шелчок мышью на статус баре (ProcessMouseEvent())
   03.11.2000 OT
-    ! Введение проверки возвращаемого значения 
+    ! Введение проверки возвращаемого значения
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   20.10.2000 tran
@@ -1450,7 +1452,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         FilePos=(FileSize-1)*(MsY-Y1)/(Y2-Y1-1);
         if ( FilePos>FileSize )
             FilePos=FileSize;
-        SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent(FilePos,FileSize),FilePos,FileSize);
+        //SysLog("Viewer/ ToPercent()=%i, %i, %i",ToPercent(FilePos,FileSize),FilePos,FileSize);
         if(ToPercent(FilePos,FileSize) == 100)
           ProcessKey(KEY_CTRLEND);
         else
@@ -1466,6 +1468,31 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* SVS $*/
   /* tran 18.07.2000 $ */
 
+  /* $ 16.12.2000 tran
+     шелчок мышью на статус баре */
+  if ( MsY==Y1 ) // Status line
+  {
+    int XTable, XPos, NameLength;
+    NameLength=ScrX-40;
+    if (Opt.ViewerEditorClock)
+      NameLength-=6;
+    if (NameLength<20)
+      NameLength=20;
+    XTable=NameLength+1;
+    XPos=NameLength+1+10+1+10+1;
+    //SysLog("MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos);
+    if ( MsX>=XTable && MsX<=XTable+10 )
+    {
+        ProcessKey(KEY_SHIFTF8);
+        return (TRUE);
+    }
+    if ( MsX>=XPos && MsX<=XPos+7+1+4+1+3 )
+    {
+        ProcessKey(KEY_ALTF8);
+        return (TRUE);
+    }
+  }
+  /* tran $ */
   if (MsX<X1 || MsX>X2 || MsY<ViewY1 || MsY>Y2)
     return(FALSE);
   if (MsX<X1+7)
