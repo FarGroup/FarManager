@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.167 20.12.2004 $ */
+/* Revision: 1.168 20.12.2004 $ */
 
 /*
 Modify:
+  20.12.2004 SVS
+    - BugZ#1060 Пусть по +/- во viewer'е левая позиция тоже восстанавливается.
   20.12.2004 WARP
     - BugZ#1005 (одиночный найденный символ во вьювере скрывался значком '>')
   11.11.2004 SVS
@@ -2000,7 +2002,7 @@ int Viewer::ProcessKey(int Key)
           if (OpenFile(Name,TRUE))
           /* tran $ */
           {
-            LeftPos=0;
+//            LeftPos=0;
             SecondPos=0;
 //            LastSelPos=FilePos;
             Show();
