@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.113 26.02.2005 $ */
+/* Revision: 1.114 02.03.2005 $ */
 
 /*
 Modify:
+  02.03.2005 WARP
+    ! Открытие папок во Shift-Enter.
+    ! Подстановка значения из реестра для lpVerb.
   26.02.2005 SVS
     ! если у CommandLine не выставлен флаг FCMDOBJ_LOCKUPDATEPANEL,
       то перерисовать панели.
@@ -989,6 +992,34 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 {
   int nResult = -1;
 
+    char NewCmdStr[4096];
+    char NewCmdPar[4096];
+    char ExecLine[4096];
+
+    memset (&NewCmdStr, 0, sizeof (NewCmdStr));
+    memset (&NewCmdPar, 0, sizeof (NewCmdPar));
+
+    PartCmdLine (
+            CmdStr,
+            NewCmdStr,
+            sizeof(NewCmdStr),
+            NewCmdPar,
+            sizeof(NewCmdPar)
+            );
+
+
+    DWORD dwAttr = GetFileAttributes(NewCmdStr);
+
+    if ( SeparateWindow == 1 )
+    {
+        if ( !*NewCmdPar && dwAttr != -1 && (dwAttr & FILE_ATTRIBUTE_DIRECTORY) )
+        {
+            ConvertNameToFull(NewCmdStr,NewCmdStr,sizeof(NewCmdStr));
+            SeparateWindow=2;
+        }
+    }
+
+
   SHELLEXECUTEINFO seInfo;
   memset (&seInfo, 0, sizeof seInfo);
 
@@ -1055,23 +1086,8 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
     }
   }
 
-  char NewCmdStr[4096];
-  char NewCmdPar[4096];
-  char ExecLine[4096];
-
-  memset (&NewCmdStr, 0, sizeof (NewCmdStr));
-  memset (&NewCmdPar, 0, sizeof (NewCmdPar));
-
-  PartCmdLine (
-      CmdStr,
-      NewCmdStr,
-      sizeof(NewCmdStr),
-      NewCmdPar,
-      sizeof(NewCmdPar)
-      );
-
   DWORD dwSubSystem;
-  int nError = 0;
+  DWORD dwError = 0;
 
   HANDLE hProcess = NULL, hThread = NULL;
 
@@ -1082,26 +1098,31 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
 
   if ( SeparateWindow == 2 )
   {
-    FAR_OemToChar (NewCmdStr, NewCmdStr);
-    FAR_OemToChar (NewCmdPar, NewCmdPar);
+        FAR_OemToChar (NewCmdStr, NewCmdStr);
+        FAR_OemToChar (NewCmdPar, NewCmdPar);
 
-    seInfo.lpFile = NewCmdStr;
-    seInfo.lpParameters = NewCmdPar;
-    seInfo.nShow = SW_SHOWNORMAL;
-    seInfo.lpVerb = "open";
-    seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS;
+        seInfo.lpFile = NewCmdStr;
+        seInfo.lpParameters = NewCmdPar;
+        seInfo.nShow = SW_SHOWNORMAL;
 
-    SetFileApisTo(APIS2ANSI);
+        seInfo.lpVerb = (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)NewCmdStr, dwSubSystem, dwError);
+//      seInfo.lpVerb = "open";
+        seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_NOCLOSEPROCESS;
 
-    if ( ShellExecuteEx (&seInfo) )
-    {
-      hProcess = seInfo.hProcess;
-      StartExecTime=clock();
-    }
-    else
-      nError = GetLastError ();
+        if ( !dwError )
+        {
+            SetFileApisTo(APIS2ANSI);
 
-    SetFileApisTo(APIS2OEM);
+            if ( ShellExecuteEx (&seInfo) )
+            {
+                hProcess = seInfo.hProcess;
+                StartExecTime=clock();
+            }
+            else
+                dwError = GetLastError ();
+
+            SetFileApisTo(APIS2OEM);
+        }
   }
   else
   {
@@ -1171,10 +1192,10 @@ int Execute(const char *CmdStr,    // Ком.строка для исполнения
        StartExecTime=clock();
      }
     else
-       nError = GetLastError ();
+       dwError = GetLastError ();
   }
 
-  if ( !nError )
+  if ( !dwError )
   {
     if ( hProcess )
     {
