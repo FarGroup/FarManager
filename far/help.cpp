@@ -8,10 +8,14 @@ help.cpp
 
 */
 
-/* Revision: 1.64 28.12.2001 $ */
+/* Revision: 1.65 15.01.2002 $ */
 
 /*
 Modify:
+  15.01.2001 SVS
+    - Ѕыла бага - например, F1 выбрать " лавиатурные команды" - курсор
+      позиционировалс€ на второй линк. ѕричем, если в Far*.hlf (далее в
+      описалове)
   28.12.2001 SVS
     - ‘ар плющило при переходе в несуществующий топик - переполнение стека.
   28.12.2001 SVS
@@ -1558,15 +1562,17 @@ void Help::MoveToReference(int Forward,int CurScreen)
   int SaveCurX=StackData.CurX;
   int SaveCurY=StackData.CurY;
   int SaveTopStr=StackData.TopStr;
+  BOOL ReferencePresent;
 
   *StackData.SelTopic=0;
   DisableOut=TRUE;
 
   while (*StackData.SelTopic==0)
   {
+    ReferencePresent=IsReferencePresent();
     if (Forward)
     {
-      if (StackData.CurX==0 && !IsReferencePresent())
+      if (StackData.CurX==0 && !ReferencePresent)
         StackData.CurX=X2-X1-2;
       if (++StackData.CurX >= X2-X1-2)
       {
@@ -1580,7 +1586,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
     }
     else
     {
-      if (StackData.CurX==X2-X1-2 && !IsReferencePresent())
+      if (StackData.CurX==X2-X1-2 && !ReferencePresent)
         StackData.CurX=0;
       if (--StackData.CurX < 0)
       {
@@ -1594,11 +1600,18 @@ void Help::MoveToReference(int Forward,int CurScreen)
     }
 
     FastShow();
+
     if (*StackData.SelTopic==0)
       StartSelection=0;
     else
+    {
+      // небольша€ заплата, артефакты есть но уже меньше :-)
+      if(ReferencePresent && CurScreen)
+        StartSelection=0;
+
       if (StartSelection)
         *StackData.SelTopic=0;
+    }
   }
   DisableOut=FALSE;
   if (*StackData.SelTopic==0)
@@ -2002,7 +2015,8 @@ void Help::ResizeConsole()
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp(StackData.HelpMask);
-  StackData.CurY--; // Ё“ќ ≈—ћ№  ќ—“џЋ№ (пусть пока будет так!)
+//  StackData.CurY--; // Ё“ќ ≈—ћ№  ќ—“џЋ№ (пусть пока будет так!)
+  StackData.CurX--;
   MoveToReference(1,1);
   IsNewTopic=OldIsNewTopic;
   FrameManager->ImmediateHide();
