@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.44 06.08.2004 $ */
+/* Revision: 1.45 15.11.2004 $ */
 
 /*
 Modify:
+  16.11.2004 WARP
+    - FCTL_GET[ANOTHER]PANELSHORTINFO нарушали принцип "непрекосновенности" и
+      нагло херили данные, полученные предыдущим вызовом FCTL_GET[ANOTHER]PANELINFO.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   24.05.2004 SVS
@@ -972,12 +975,14 @@ void FileList::SetPluginMode(HANDLE hPlugin,char *PluginFile)
 
 void FileList::PluginGetPanelInfo(struct PanelInfo *Info,int FullInfo)
 {
-  DeleteAllDataToDelete();
+//  DeleteAllDataToDelete();
   Info->PanelItems=NULL;
   Info->SelectedItems=NULL;
 
   if(FullInfo)
   {
+    DeleteAllDataToDelete();
+
     Info->ItemsNumber=0;
     Info->PanelItems=new PluginPanelItem[FileCount+1];
     if (Info->PanelItems!=NULL)
