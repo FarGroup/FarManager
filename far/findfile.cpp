@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.138 21.04.2003 $ */
+/* Revision: 1.139 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 SVS
+    + _ALGO()
   21.04.2003 SVS
     ! Не "return FALSE;", но "DefDlgProc"
   07.04.2003 VVM
@@ -716,6 +718,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 FindFiles::FindFiles()
 {
+  _ALGO(CleverSysLog clv("FindFiles::FindFiles()"));
   static char LastFindMask[NM]="*.*",LastFindStr[SEARCHSTRINGBUFSIZE];
   // Статической структуре и статические переменные
   static char SearchFromRoot[128]="";
@@ -996,6 +999,7 @@ FindFiles::~FindFiles()
 int FindFiles::GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                              char *DestPath, char *ResultName)
 {
+  _ALGO(CleverSysLog clv("FindFiles::GetPluginFile()"));
   HANDLE hPlugin = ArcList[ArcIndex].hPlugin;
   char SaveDir[NM];
   struct OpenPluginInfo Info;
@@ -1501,6 +1505,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 
 int FindFiles::FindFilesProcess()
 {
+  _ALGO(CleverSysLog clv("FindFiles::FindFilesProcess()"));
   // В статической структуре нужны и статические переменные
   static char Title[2*NM]="";
   static char SearchStr[NM]="";
@@ -1788,6 +1793,8 @@ int FindFiles::FindFilesProcess()
 
 void FindFiles::SetPluginDirectory(char *DirName,HANDLE hPlugin,int UpdatePanel)
 {
+  _ALGO(CleverSysLog clv("FindFiles::SetPluginDirectory()"));
+  _ALGO(SysLog("DirName='%s', hPlugin=0x%08X, UpdatePanel=%d",(DirName?DirName:"NULL"),hPlugin,UpdatePanel));
   char Name[NM],*StartName,*EndName;
   int IsPluginDir;
 
@@ -1931,6 +1938,8 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
 
 void FindFiles::ArchiveSearch(char *ArcName)
 {
+  _ALGO(CleverSysLog clv("FindFiles::ArchiveSearch()"));
+  _ALGO(SysLog("ArcName='%s'",(ArcName?ArcName:"NULL")));
   char *Buffer=new char[Opt.PluginMaxReadData];
   FILE *ProcessFile=fopen(ArcName,"rb");
   if (ProcessFile==NULL)

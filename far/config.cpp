@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.147 14.05.2003 $ */
+/* Revision: 1.148 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 SVS
+    ! MEditConfigPersistentBlocks -> MViewConfigPersistentSelection
   14.05.2003 VVM
     + ViewerOptions.Persistentblocks;
   17.04.2003 SVS
@@ -996,7 +998,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
   /* 11 */  DI_TEXT      ,11,12, 0, 0,0,0,0,0,(char *)MViewConfigTabSize,                //  11
   /* 12 */  DI_CHECKBOX  , 7,13, 0, 0,0,0,0,0,(char *)MViewConfigScrollbar,              //  12 *new
   /* 13 */  DI_CHECKBOX  , 7,14, 0, 0,0,0,0,0,(char *)MViewConfigArrows,                 //  13 *new
-  /* 14 */  DI_CHECKBOX  , 7,15, 0, 0,0,0,0,0,(char *)MEditConfigPersistentBlocks,       //  14
+  /* 14 */  DI_CHECKBOX  , 7,15, 0, 0,0,0,0,0,(char *)MViewConfigPersistentSelection,    //  14
   /* 15 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,1,(char *)MOk,                 //  15 , was 11
   /* 16 */  DI_BUTTON    , 0,17, 0, 0,0,0,DIF_CENTERGROUP,0,(char *)MCancel              //  16 , was 12
   };

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.120 06.05.2003 $ */
+/* Revision: 1.121 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 SVS
+    + MViewConfigPersistentSelection
   06.05.2003 SVS
     + MCannotKillProcessPerm, MQuickViewRatio
   12.03.2003 SVS
@@ -542,6 +544,7 @@ enum
   MViewConfigTabSize,
   MViewConfigScrollbar,
   MViewConfigArrows,
+  MViewConfigPersistentSelection,
 
   MEditConfigTitle,
   MEditConfigExternal,

@@ -2228,7 +2228,7 @@ $ #Viewer settings#
   #Show arrows#             Show scrolling arrows in viewer if the text
                           doesn't fit in the window horizontally.
 
-  #Persistent blocks#       Do not remove block selection after
+  #Persistent selection#    Do not remove block selection after
                           moving the cursor.
 
     If the external viewer is assigned to F3 key, it will be executed

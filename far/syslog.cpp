@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.41 16.04.2003 $ */
+/* Revision: 1.42 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 SVS
+    + GetOpenPluginInfo_Dump()
   16.04.2003 SVS
     + Логирование DM_GETSELECTION и DM_SETSELECTION.
   31.03.2003 SVS
@@ -565,6 +567,78 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
     CloseSysLog();
 #endif
 }
+
+void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *fp)
+{
+#if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
+  int InternalLog=fp==NULL?TRUE:FALSE;
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=LogStream;
+    if(fp)
+    {
+      char timebuf[64];
+      fprintf(fp,"%s %s(%s) OpenPluginInfo\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+    }
+  }
+
+  if (fp)
+  {
+    fprintf(fp,"\tStructSize      =%d\n",Info->StructSize);
+    fprintf(fp,"\tFlags           =0x%08X\n",Info->Flags);
+    fprintf(fp,"\tHostFile        ='%s'\n",NullToEmpty(Info->HostFile));
+    fprintf(fp,"\tCurDir          ='%s'\n",NullToEmpty(Info->CurDir));
+    fprintf(fp,"\tFormat          ='%s'\n",NullToEmpty(Info->Format));
+    fprintf(fp,"\tPanelTitle      ='%s'\n",NullToEmpty(Info->PanelTitle));
+    fprintf(fp,"\tInfoLines       =%p\n",Info->InfoLines);
+    fprintf(fp,"\tInfoLinesNumber =%d\n",Info->InfoLinesNumber);
+    if(Info->InfoLines)
+    {
+      for(int I=0;I<Info->InfoLinesNumber;++I)
+      {
+        fprintf(fp,"\t\tText=[%s], Data=[%s], Separator=[%d]\n",
+           NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
+      }
+    }
+    fprintf(fp,"\tDescrFiles      =%p\n",Info->DescrFiles);
+    fprintf(fp,"\tDescrFilesNumber=%d\n",Info->DescrFilesNumber);
+    fprintf(fp,"\tPanelModesArray =%p\n",Info->PanelModesArray);
+    fprintf(fp,"\tPanelModesNumber=%d\n",Info->PanelModesNumber);
+    if(Info->PanelModesArray)
+    {
+      for(int I=0;I<Info->PanelModesNumber;++I)
+      {
+        fprintf(fp,"\t\tColumnTypes       ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
+        fprintf(fp,"\t\tColumnWidths      ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
+        fprintf(fp,"\t\tColumnTitles      =%p\n",Info->PanelModesArray[I].ColumnTitles);
+        fprintf(fp,"\t\tFullScreen        =%d\n",Info->PanelModesArray[I].FullScreen);
+        fprintf(fp,"\t\tDetailedStatus    =%d\n",Info->PanelModesArray[I].DetailedStatus);
+        fprintf(fp,"\t\tAlignExtensions   =%d\n",Info->PanelModesArray[I].AlignExtensions);
+        fprintf(fp,"\t\tCaseConversion    =%d\n",Info->PanelModesArray[I].CaseConversion);
+        fprintf(fp,"\t\tStatusColumnTypes ='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnTypes));
+        fprintf(fp,"\t\tStatusColumnWidths='%s'\n",NullToEmpty(Info->PanelModesArray[I].StatusColumnWidths));
+      }
+    }
+    fprintf(fp,"\tStartPanelMode  =%d\n",Info->StartPanelMode);
+    fprintf(fp,"\tStartSortMode   =%d\n",Info->StartSortMode);
+    fprintf(fp,"\tStartSortOrder  =%d\n",Info->StartSortOrder);
+    fprintf(fp,"\tKeyBar          =%p\n",Info->KeyBar);
+    fprintf(fp,"\tShortcutData    =%p\n",Info->ShortcutData);
+
+    fprintf(fp,"\n");
+    fflush(fp);
+  }
+
+  if(InternalLog)
+    CloseSysLog();
+#endif
+}
+
 
 void ManagerClass_Dump(char *Title,const Manager *m,FILE *fp)
 {

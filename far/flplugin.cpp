@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.34 05.03.2003 $ */
+/* Revision: 1.35 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 SVS
+    + _ALGO()
   05.03.2003 SVS
     ! Закоментим _SVS
   20.02.2003 SVS
@@ -111,7 +113,7 @@ Modify:
 
 void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {
-  //_SVS(CleverSysLog("FileList::PushPlugin()"));
+  _ALGO(CleverSysLog("FileList::PushPlugin()"));
   DeleteAllDataToDelete();
   PluginsStack=(struct PluginsStackItem *)xf_realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
   struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
@@ -122,14 +124,14 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
   PStack->PrevSortMode=SortMode;
   PStack->PrevSortOrder=SortOrder;
   PluginsStackSize++;
-  //_SVS(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
+  _ALGO(PluginsStackItem_Dump("FileList::PushPlugin",PluginsStack,PluginsStackSize));
 }
 
 
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
-  //_SVS(CleverSysLog("FileList::PopPlugin()"));
-  //_SVS(PluginsStackItem_Dump("FileList::PopPlugin",PluginsStack,PluginsStackSize));
+  _ALGO(CleverSysLog("FileList::PopPlugin()"));
+  _ALGO(PluginsStackItem_Dump("FileList::PopPlugin",PluginsStack,PluginsStackSize));
   DeleteAllDataToDelete();
   if (PluginsStackSize==0)
   {
@@ -312,6 +314,8 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
 
 HANDLE FileList::OpenPluginForFile(char *FileName)
 {
+  _ALGO(CleverSysLog clv("FileList::OpenPluginForFile()"));
+  _ALGO(SysLog("FileName='%s'",(FileName?FileName:"(NULL)")));
   SetCurPath();
   FILE *ProcessFile=fopen(FileName,"rb");
   if (ProcessFile)
@@ -319,10 +323,13 @@ HANDLE FileList::OpenPluginForFile(char *FileName)
     char *Buffer=new char[Opt.PluginMaxReadData];
     if(Buffer)
     {
+      _ALGO(SysLog("Read %d byte(s)",Opt.PluginMaxReadData));
       int ReadSize=fread(Buffer,1,Opt.PluginMaxReadData,ProcessFile);
       fclose(ProcessFile);
+      _ALGO(SysLogDump("First 128 bytes",0,(LPBYTE)Buffer,128,NULL));
 
       CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
+      _ALGO(SysLog("call Plugins.OpenFilePlugin"));
       HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,ReadSize);
       delete[] Buffer;
       return(hNewPlugin);
@@ -367,6 +374,7 @@ void FileList::DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
 
 void FileList::PluginDelete()
 {
+  _ALGO(CleverSysLog clv("FileList::PluginDelete()"));
   struct PluginPanelItem *ItemList;
   int ItemNumber;
   SaveSelection();
@@ -392,6 +400,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
                               int ItemNumber,int Delete,int Move,DizList *SrcDiz,
                               DizList *DestDiz)
 {
+  _ALGO(CleverSysLog clv("FileList::PutDizToPlugin()"));
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(DestPanel->hPlugin,&Info);
   if (*DestPanel->PluginDizName==0 && Info.DescrFilesNumber>0)
@@ -457,6 +466,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
 
 void FileList::PluginGetFiles(char *DestPath,int Move)
 {
+  _ALGO(CleverSysLog clv("FileList::PluginGetFiles()"));
   struct PluginPanelItem *ItemList, *PList;
   int ItemNumber;
   SaveSelection();
@@ -511,6 +521,7 @@ void FileList::PluginGetFiles(char *DestPath,int Move)
 
 void FileList::PluginToPluginFiles(int Move)
 {
+  _ALGO(CleverSysLog clv("FileList::PluginToPluginFiles()"));
   struct PluginPanelItem *ItemList;
   int ItemNumber;
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -566,6 +577,7 @@ void FileList::PluginToPluginFiles(int Move)
 
 void FileList::PluginHostGetFiles()
 {
+  _ALGO(CleverSysLog clv("FileList::PluginHostGetFiles()"));
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   char DestPath[NM],SelName[NM],*ExtPtr;
   int FileAttr;
@@ -591,19 +603,27 @@ void FileList::PluginHostGetFiles()
   while (!ExitLoop && GetSelName(SelName,FileAttr))
   {
     HANDLE hCurPlugin;
+    _ALGO(SysLog("call OpenPluginForFile('%s')",NullToEmpty(SelName)));
     if ((hCurPlugin=OpenPluginForFile(SelName))!=INVALID_HANDLE_VALUE &&
         hCurPlugin!=(HANDLE)-2)
     {
       struct PluginPanelItem *ItemList;
       int ItemNumber;
+      _ALGO(SysLog("call Plugins.GetFindData()"));
       if (CtrlObject->Plugins.GetFindData(hCurPlugin,&ItemList,&ItemNumber,0))
       {
+        _ALGO(SysLog("call Plugins.GetFiles()"));
         ExitLoop=CtrlObject->Plugins.GetFiles(hCurPlugin,ItemList,ItemNumber,FALSE,DestPath,OpMode)!=1;
         if (!ExitLoop)
+        {
+          _ALGO(SysLog("call ClearLastGetSelection()"));
           ClearLastGetSelection();
+        }
+        _ALGO(SysLog("call Plugins.FreeFindData()"));
         CtrlObject->Plugins.FreeFindData(hCurPlugin,ItemList,ItemNumber);
         OpMode|=OPM_SILENT;
       }
+      _ALGO(SysLog("call Plugins.ClosePlugin"));
       CtrlObject->Plugins.ClosePlugin(hCurPlugin);
     }
   }
@@ -616,9 +636,13 @@ void FileList::PluginHostGetFiles()
 
 void FileList::PluginPutFilesToNew()
 {
+  _ALGO(CleverSysLog clv("FileList::PluginPutFilesToNew()"));
+  //_ALGO(SysLog("FileName='%s'",(FileName?FileName:"(NULL)")));
+  _ALGO(SysLog("call Plugins.OpenFilePlugin(NULL,NULL,0)"));
   HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(NULL,NULL,0);
   if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
   {
+    _ALGO(SysLog("Create: FileList TmpPanel, FileCount=%d",FileCount));
     FileList TmpPanel;
     TmpPanel.SetPluginMode(hNewPlugin,"");
     TmpPanel.SetModalMode(TRUE);
@@ -674,17 +698,23 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
   if (ItemList!=NULL && ItemNumber>0)
   {
     SetCurPath();
+    _ALGO(SysLog("call Plugins.PutFiles"));
     PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,Move,0);
     if (PutCode==1 || PutCode==2)
     {
       if (!ReturnCurrentFile)
+      {
+        _ALGO(SysLog("call ClearSelection()"));
         ClearSelection();
+      }
+      _ALGO(SysLog("call PutDizToPlugin"));
       PutDizToPlugin(AnotherFilePanel,ItemList,ItemNumber,FALSE,Move,&Diz,&AnotherFilePanel->Diz);
       AnotherPanel->SetPluginModified();
     }
     else
       if (!ReturnCurrentFile)
         PluginClearSelection(ItemList,ItemNumber);
+    _ALGO(SysLog("call DeletePluginItemList"));
     DeletePluginItemList(ItemList,ItemNumber);
     Update(UPDATE_KEEP_SELECTION);
     Redraw();
@@ -700,6 +730,7 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 
 void FileList::GetPluginInfo(struct PluginInfo *Info)
 {
+  _ALGO(CleverSysLog clv("FileList::GetPluginInfo()"));
   memset(Info,0,sizeof(*Info));
   if (PanelMode==PLUGIN_PANEL)
   {
@@ -711,6 +742,8 @@ void FileList::GetPluginInfo(struct PluginInfo *Info)
 
 void FileList::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 {
+  _ALGO(CleverSysLog clv("FileList::GetOpenPluginInfo()"));
+  //_ALGO(SysLog("FileName='%s'",(FileName?FileName:"(NULL)")));
   memset(Info,0,sizeof(*Info));
   if (PanelMode==PLUGIN_PANEL)
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,Info);
@@ -722,6 +755,8 @@ void FileList::GetOpenPluginInfo(struct OpenPluginInfo *Info)
 */
 void FileList::ProcessHostFile()
 {
+  _ALGO(CleverSysLog clv("FileList::ProcessHostFile()"));
+  //_ALGO(SysLog("FileName='%s'",(FileName?FileName:"(NULL)")));
   if (FileCount>0 && SetCurPath())
   {
     int Done=FALSE;
@@ -732,7 +767,9 @@ void FileList::ProcessHostFile()
     {
       struct PluginPanelItem *ItemList;
       int ItemNumber;
+      _ALGO(SysLog("call CreatePluginItemList"));
       CreatePluginItemList(ItemList,ItemNumber);
+      _ALGO(SysLog("call Plugins.ProcessHostFile"));
       Done=CtrlObject->Plugins.ProcessHostFile(hPlugin,ItemList,ItemNumber,0);
       if (Done)
         SetPluginModified();
@@ -742,6 +779,7 @@ void FileList::ProcessHostFile()
           PluginClearSelection(ItemList,ItemNumber);
         Redraw();
       }
+      _ALGO(SysLog("call DeletePluginItemList"));
       DeletePluginItemList(ItemList,ItemNumber);
       if (Done)
         ClearSelection();
@@ -796,23 +834,29 @@ void FileList::ProcessHostFile()
 */
 int FileList::ProcessOneHostFile(int Idx)
 {
+  _ALGO(CleverSysLog clv("FileList::ProcessOneHostFile()"));
   int Done=-1;
 
+  _ALGO(SysLog("call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx].Name));
   HANDLE hNewPlugin=OpenPluginForFile(ListData[Idx].Name);
 
   if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
   {
     struct PluginPanelItem *ItemList;
     int ItemNumber;
+    _ALGO(SysLog("call Plugins.GetFindData"));
     if (CtrlObject->Plugins.GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))
     {
       /* $ 26.04.2001 DJ
          в ProcessHostFile не передавался OPM_TOPLEVEL
       */
+      _ALGO(SysLog("call Plugins.ProcessHostFile"));
       Done=CtrlObject->Plugins.ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
       /* DJ $ */
+      _ALGO(SysLog("call Plugins.FreeFindData"));
       CtrlObject->Plugins.FreeFindData(hNewPlugin,ItemList,ItemNumber);
     }
+    _ALGO(SysLog("call Plugins.ClosePlugin"));
     CtrlObject->Plugins.ClosePlugin(hNewPlugin);
   }
   return Done;

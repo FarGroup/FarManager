@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.183 12.05.2003 $ */
+/* Revision: 1.184 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 SVS
+    + GetOpenPluginInfo_Dump()
   12.05.2003 SVS
     ! EditFileTypes() теперь без параметра.
     + RenumKeyRecord() делает перенумерацию итемов
@@ -1129,6 +1131,7 @@ const char *_VCTL_ToName(int Command);
 const char *_INPUT_RECORD_Dump(INPUT_RECORD *Rec);
 // после вызова этой функции нужно освободить память!!!
 const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf);
+void GetOpenPluginInfo_Dump(char *Title,const struct OpenPluginInfo *Info,FILE *fp);
 void INPUT_RECORD_DumpBuffer(FILE *fp=NULL);
 void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems,int ItemNumber,FILE *fp=NULL);
 void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);

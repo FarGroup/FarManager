@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.177 02.05.2003 $ */
+/* Revision: 1.178 14.05.2003 $ */
 
 /*
 Modify:
+  14.05.2003 SVS
+    + _ALGO()
   02.05.2003 SVS
     + BugZ#830 - [wish] Прикрутить Alt-Home и Alt-End для прокрутки
   04.03.2003 SVS
@@ -1088,6 +1090,8 @@ int FileList::ProcessKey(int Key)
   {
     case KEY_F1:
     {
+      _ALGO(CleverSysLog clv("F1"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (PanelMode==PLUGIN_PANEL && PluginPanelHelp(hPlugin))
         return(TRUE);
       return(FALSE);
@@ -1095,6 +1099,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_ALTSHIFTF9:
     {
+      _ALGO(CleverSysLog clv("Alt-Shift-F9"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (PanelMode==PLUGIN_PANEL)
         CtrlObject->Plugins.ConfigureCurrent(((struct PluginHandle *)hPlugin)->PluginNumber,0);
       else
@@ -1365,6 +1371,8 @@ int FileList::ProcessKey(int Key)
     }
 
     case KEY_CTRLA:
+    {
+      _ALGO(CleverSysLog clv("Ctrl-A"));
       if (PanelMode!=PLUGIN_PANEL ||
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
         if (FileCount>0 && SetCurPath())
@@ -1373,8 +1381,11 @@ int FileList::ProcessKey(int Key)
           Show();
         }
       return(TRUE);
+    }
 
     case KEY_CTRLG:
+    {
+      _ALGO(CleverSysLog clv("Ctrl-G"));
       if (PanelMode!=PLUGIN_PANEL ||
           CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FAROTHER))
         if (FileCount>0 && SetCurPath())
@@ -1387,6 +1398,7 @@ int FileList::ProcessKey(int Key)
           AnotherPanel->Redraw();
         }
       return(TRUE);
+    }
 
     case KEY_CTRLZ:
       if (FileCount>0 && PanelMode==NORMAL_PANEL && SetCurPath())
@@ -1435,6 +1447,8 @@ int FileList::ProcessKey(int Key)
     case KEY_ENTER:
     case KEY_SHIFTENTER:
     {
+      _ALGO(CleverSysLog clv("Enter/Shift-Enter"));
+      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (CmdLength>0 || FileCount==0)
       {
         // Для средней клавиши мыши и не пустой строке... исполним эту строку
@@ -1451,6 +1465,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_CTRLBACKSLASH:
     {
+      _ALGO(CleverSysLog clv("Ctrl-\\"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       BOOL NeedChangeDir=TRUE;
       if (PanelMode==PLUGIN_PANEL)// && *PluginsStack[PluginsStackSize-1].HostFile)
       {
@@ -1470,6 +1486,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_SHIFTF1:
     {
+      _ALGO(CleverSysLog clv("Shift-F1"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (FileCount>0 && PanelMode!=PLUGIN_PANEL && SetCurPath())
         PluginPutFilesToNew();
       return(TRUE);
@@ -1477,6 +1495,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_SHIFTF2:
     {
+      _ALGO(CleverSysLog clv("Shift-F2"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (FileCount>0 && SetCurPath())
       {
         if (PanelMode==PLUGIN_PANEL)
@@ -1494,6 +1514,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_SHIFTF3:
     {
+      _ALGO(CleverSysLog clv("Shift-F3"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       ProcessHostFile();
       return(TRUE);
     }
@@ -1507,6 +1529,9 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTF4:
     case KEY_CTRLSHIFTF4:
     {
+      _ALGO(CleverSysLog clv("Edit/View"));
+      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
+
       if (Key == KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
         Key=KEY_F3;
       if ((Key==KEY_SHIFTF4 || FileCount>0) && SetCurPath())
@@ -1842,6 +1867,8 @@ int FileList::ProcessKey(int Key)
     case KEY_DRAGCOPY:
     case KEY_DRAGMOVE:
     {
+      _ALGO(CleverSysLog clv("F5/F6/Alt-F6/DragCopy/DragMove"));
+      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (FileCount>0 && SetCurPath())
         ProcessCopyKeys(Key);
       return(TRUE);
@@ -1849,6 +1876,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_ALTF5:  // Печать текущего/выбранных файла/ов
     {
+      _ALGO(CleverSysLog clv("Alt-F5"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       /* $ 11.03.2001 VVM
         ! Печать через pman только из файловых панелей. */
       if ((PanelMode!=PLUGIN_PANEL) &&
@@ -1863,6 +1892,8 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTF5:
     case KEY_SHIFTF6:
     {
+      _ALGO(CleverSysLog clv("Shift-F5/Shift-F6"));
+      _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (FileCount>0 && SetCurPath())
       {
         int OldFileCount=FileCount,OldCurFile=CurFile;
@@ -1886,6 +1917,8 @@ int FileList::ProcessKey(int Key)
 
     case KEY_F7:
     {
+      _ALGO(CleverSysLog clv("F7"));
+      _ALGO(SysLog("%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
       if (SetCurPath())
       {
         if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
@@ -1923,6 +1956,8 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTF8:
     case KEY_ALTDEL:
     {
+      _ALGO(CleverSysLog clv("F8/Shift-F8/Shift-Del/Alt-Del"));
+      _ALGO(SysLog("%s, FileCount=%d, Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
       if (FileCount>0 && SetCurPath())
       {
         if (Key==KEY_SHIFTF8)
