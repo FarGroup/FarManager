@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.10 18.12.2000 $ */
+/* Revision: 1.11 20.01.2001 $ */
 
 /*
 Modify:
+  20.01.2001 SVS
+    - Пропадал курсор при вызове справки.
+      Бяка появилась на 354-м патче, когда была введена поддержка кеёбар
   18.12.2000 SVS
     + Дополнительный параметр у конструктора - DWORD Flags.
     + учитываем флаг FHELP_NOSHOWERROR
@@ -60,104 +63,7 @@ static SaveScreen *TopScreen=NULL;
 static char *PluginContents="__PluginContents__";
 static char *HelpOnHelpTopic="Help";
 
-/* $ 25.08.2000 SVS
-   Запуск URL-ссылок... ;-)
-   Это ведь так просто... ась?
-   Вернет:
-     0 - это не URL ссылка (не похожа)
-     1 - CreateProcess вернул FALSE
-     2 - Все Ок
-*/
-static int RunURL(char *Protocol, char *URLPath)
-{
-  BOOL EditCode=0;
-  if(Protocol && *Protocol && URLPath && *URLPath)
-  {
-    char *Buf=(char*)malloc(2048);
-    if(Buf)
-    {
-      HKEY hKey;
-      DWORD Disposition, DataSize=250;
-      strcpy(Buf,Protocol);
-      strcat(Buf,"\\shell\\open\\command");
-      if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
-      {
-        Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
-        /* $ 18.12.2000 SVS
-           Хммм... а здесь может быть и так: "%ProgramFiles%\Outlook Express\msimn.exe"
-        */
-        ExpandEnvironmentStr(Buf, Buf, 2048);
-        /* SVS $ */
-        RegCloseKey(hKey);
-        if(Disposition == ERROR_SUCCESS)
-        {
-          /* $ 07.12.2000 SVS
-            ! Изменен механизм запуска URL приложения - были нарекания
-              со стороны владельцев оутглюка.
-          */
-          char *pp=strrchr(Buf,'%');
-          if(pp) *pp='\0'; else strcat(Buf," ");
-
-          Disposition=0;
-          if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
-            Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
-                        MSG(MHelpActivatorURL),
-                        Buf,
-                        MSG(MHelpActivatorFormat),
-                        URLPath,
-                        "\x01",
-                        MSG(MHelpActivatorQ),
-                        MSG(MYes),MSG(MNo));
-
-          strcat(Buf,URLPath);
-
-          EditCode=2; // Все Ok!
-          if(Disposition == 0 && (Opt.HelpURLRules&0xFF))
-          {
-            /*
-              СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-              ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
-            */
-            OemToChar(Buf,Buf);
-            if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
-            {
-              SHELLEXECUTEINFO sei;
-
-              pp=strchr(Buf+1,'"');
-              if(pp) *++pp='\0'; ++pp;
-
-              memset(&sei,0,sizeof(sei));
-              sei.cbSize=sizeof(sei);
-              sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-              sei.lpFile=RemoveExternalSpaces(Buf);
-              sei.lpParameters=RemoveExternalSpaces(pp);
-              sei.lpVerb=GetShellAction((char *)sei.lpFile);
-              sei.nShow=SW_SHOWNORMAL;
-              SetFileApisToANSI();
-              if(ShellExecuteEx(&sei))
-                EditCode=1;
-              SetFileApisToOEM();
-            }
-            else
-            {
-              STARTUPINFO si={0};
-              PROCESS_INFORMATION pi={0};
-              si.cb=sizeof(si);
-              SetFileApisToANSI(); //????
-              if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
-                 EditCode=1;
-              SetFileApisToOEM(); //????
-            }
-          }
-          /* SVS $ */
-        }
-      }
-      free(Buf);
-    }
-  }
-  return EditCode;
-}
-/* SVS $ */
+static int RunURL(char *Protocol, char *URLPath);
 
 Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
@@ -1229,5 +1135,109 @@ void Help::Process()
 {
   ChangeMacroMode MacroMode(MACRO_HELP);
   Modal::Process();
+  /* $ 20.01.2001 SVS
+     Из-за отсутствия этой строки пропадал курсор при вызове хелпа :-((
+     Бяка появилась на 354-м патче, когда была введена поддержка кеёбар */
+  HelpKeyBar.Hide();
+  /* SVS $ */
 }
 
+
+/* $ 25.08.2000 SVS
+   Запуск URL-ссылок... ;-)
+   Это ведь так просто... ась?
+   Вернет:
+     0 - это не URL ссылка (не похожа)
+     1 - CreateProcess вернул FALSE
+     2 - Все Ок
+*/
+static int RunURL(char *Protocol, char *URLPath)
+{
+  BOOL EditCode=0;
+  if(Protocol && *Protocol && URLPath && *URLPath)
+  {
+    char *Buf=(char*)malloc(2048);
+    if(Buf)
+    {
+      HKEY hKey;
+      DWORD Disposition, DataSize=250;
+      strcpy(Buf,Protocol);
+      strcat(Buf,"\\shell\\open\\command");
+      if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
+      {
+        Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
+        /* $ 18.12.2000 SVS
+           Хммм... а здесь может быть и так: "%ProgramFiles%\Outlook Express\msimn.exe"
+        */
+        ExpandEnvironmentStr(Buf, Buf, 2048);
+        /* SVS $ */
+        RegCloseKey(hKey);
+        if(Disposition == ERROR_SUCCESS)
+        {
+          /* $ 07.12.2000 SVS
+            ! Изменен механизм запуска URL приложения - были нарекания
+              со стороны владельцев оутглюка.
+          */
+          char *pp=strrchr(Buf,'%');
+          if(pp) *pp='\0'; else strcat(Buf," ");
+
+          Disposition=0;
+          if(Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
+            Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
+                        MSG(MHelpActivatorURL),
+                        Buf,
+                        MSG(MHelpActivatorFormat),
+                        URLPath,
+                        "\x01",
+                        MSG(MHelpActivatorQ),
+                        MSG(MYes),MSG(MNo));
+
+          strcat(Buf,URLPath);
+
+          EditCode=2; // Все Ok!
+          if(Disposition == 0 && (Opt.HelpURLRules&0xFF))
+          {
+            /*
+              СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
+              ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
+            */
+            OemToChar(Buf,Buf);
+            if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
+            {
+              SHELLEXECUTEINFO sei;
+
+              pp=strchr(Buf+1,'"');
+              if(pp) *++pp='\0'; ++pp;
+
+              memset(&sei,0,sizeof(sei));
+              sei.cbSize=sizeof(sei);
+              sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
+              sei.lpFile=RemoveExternalSpaces(Buf);
+              sei.lpParameters=RemoveExternalSpaces(pp);
+              sei.lpVerb=GetShellAction((char *)sei.lpFile);
+              sei.nShow=SW_SHOWNORMAL;
+              SetFileApisToANSI();
+              if(ShellExecuteEx(&sei))
+                EditCode=1;
+              SetFileApisToOEM();
+            }
+            else
+            {
+              STARTUPINFO si={0};
+              PROCESS_INFORMATION pi={0};
+              si.cb=sizeof(si);
+              SetFileApisToANSI(); //????
+              if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+                 EditCode=1;
+              SetFileApisToOEM(); //????
+            }
+          }
+          /* SVS $ */
+        }
+      }
+      free(Buf);
+    }
+  }
+  return EditCode;
+}
+/* SVS $ */
