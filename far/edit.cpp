@@ -5,7 +5,7 @@ edit.cpp
 
 */
 
-/* Revision: 1.02 03.06.2000 $ */
+/* Revision: 1.03 04.07.2000 $ */
 
 /*
 Modify:
@@ -17,6 +17,8 @@ Modify:
     - Bug #10 ( ^[,^], ShiftEnter не удаляли выделнный текст)
     + ReadOnly флаг
     + Ctrl-L переключает ReadOnly флаг
+  04.07.2000 IG
+    - в макросе сбрасывалось выделение до ShiftIns (bug8)
 */
 
 #include "headers.hpp"
@@ -288,7 +290,11 @@ int Edit::ProcessKey(int Key)
     return(TRUE);
   }
 
-  if (!ShiftPressed && !Editor::IsShiftKey(Key) && !Recurse &&
+  /* $ 04.07.2000 IG
+     добавлена проврерка на запуск макроса (bug8) */
+  if (!ShiftPressed && !CtrlObject->Macro.IsExecuting() &&
+  /* IG $ */
+      !Editor::IsShiftKey(Key) && !Recurse &&
       Key!=KEY_SHIFT && Key!=KEY_CTRL && Key!=KEY_ALT && Key!=KEY_RCTRL &&
       Key!=KEY_RALT && Key!=KEY_NONE)
   {
