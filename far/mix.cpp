@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.121 05.04.2002 $ */
+/* Revision: 1.122 09.04.2002 $ */
 
 /*
 Modify:
+  09.04.2002 SVS
+    ! Уточнение для DriveLocalToRemoteName в целях юзания не только
+      в меню выбора дисков.
   05.04.2002 SVS
     + CheckShortcutFolder() - стала самостоятельной
   26.03.2002 DJ
@@ -1174,11 +1177,18 @@ void WINAPI DeleteBuffer(char *Buffer)
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest)
 {
   int NetPathShown=FALSE, IsOK=FALSE;
-  char LocalName[8]=" :",RemoteName[NM];
+  char LocalName[8]=" :\0\0\0",RemoteName[NM];
   DWORD RemoteNameSize=sizeof(RemoteName);
 
   *LocalName=Letter;
   *Dest=0;
+
+  if(DriveType == DRIVE_UNKNOWN)
+  {
+    LocalName[2]='\\';
+    DriveType = GetDriveType(LocalName);
+    LocalName[2]=0;
+  }
 
   if (DriveType==DRIVE_REMOTE)
   {

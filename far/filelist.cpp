@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.144 08.04.2002 $ */
+/* Revision: 1.145 09.04.2002 $ */
 
 /*
 Modify:
+  09.04.2002 SVS
+    - BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
   08.04.2002 SVS
     - BugZ#442 - Deselection is late when making file descriptions
       Выбери несколько файлов и жмякни Ctrl-Z, теперь жмякай
@@ -1066,7 +1068,8 @@ int FileList::ProcessKey(int Key)
           else
             FileName[1]=0; // "."
 
-          Key=(Key==KEY_CTRLALTF)?KEY_CTRLALTF:KEY_CTRLF;
+          if(Key!=KEY_CTRLALTF)
+            Key=KEY_CTRLF;
           CurrentPath=TRUE;
         }
         if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
@@ -3379,6 +3382,23 @@ char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
     {
       UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&Temp;
       strncpy(FileName, lpuni->lpUniversalName, sizeof(FileName)-1);
+    }
+    else if(FileName[1] == ':')
+    {
+      // BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
+      // Здесь, если не получилось получить UniversalName и если это
+      // мапленный диск - получаем как для меню выбора дисков
+      if(*DriveLocalToRemoteName(DRIVE_UNKNOWN,*FileName,Temp) != 0)
+      {
+        if((NamePtr=strrchr(FileName, '/')) != NULL)
+          NamePtr=strrchr(FileName, '\\');
+        if(NamePtr != NULL)
+        {
+          AddEndSlash(Temp);
+          strcat(Temp,NamePtr);
+        }
+        strncpy(FileName, Temp, sizeof(FileName)-1);
+      }
     }
 
     ConvertNameToReal(FileName,FileName, sizeof(FileName));
