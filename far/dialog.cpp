@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.239 05.05.2002 $ */
+/* Revision: 1.240 06.05.2002 $ */
 
 /*
 Modify:
+  06.05.2002 SVS
+    - BugZ#497 - CAS & Redraw
+    + InitDialog() - инициализация диалога. Инициализируется в Process()
+      или самостоятельно, но до вызова Show()
+    ! Для DM_CLOSE в Dialog::CloseDialog() вызовем Hide(), так будет
+      правильнее.
+    ! В Show() и Hide() сначала проверим на "Инициализирован ли диалог?"
   05.05.2002 SVS
     - попытка установить фокус на нефокусный элемент - удачна :-(
     - прячем фокусный элемент - а на экране фиг знает что :-(
@@ -1076,6 +1083,28 @@ void Dialog::CheckDialogCoord(void)
   }
 }
 
+
+void Dialog::InitDialog(void)
+{
+  if (!DialogMode.Check(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
+  {                      //  элементы инициализируются при первом вызове.
+    /* $ 28.07.2000 SVS
+       Укажем процедуре, что у нас все Ок!
+    */
+    CheckDialogCoord();
+    int InitFocus=InitDialogObjects();
+    if(DlgProc((HANDLE)this,DN_INITDIALOG,InitFocus,DataDialog))
+    {
+      // еще разок, т.к. данные могли быть изменены
+      InitDialogObjects();
+    }
+    SetFarTitle(GetDialogTitle());
+    // все объекты проинициализированы!
+    DialogMode.Set(DMODE_INITOBJECTS);
+  }
+  CheckDialogCoord();
+}
+
 //////////////////////////////////////////////////////////////////////////
 /* Public, Virtual:
    Расчет значений координат окна диалога и вызов функции
@@ -1084,6 +1113,9 @@ void Dialog::CheckDialogCoord(void)
 void Dialog::Show()
 {
   _tran(SysLog("[%p] Dialog::Show()",this));
+
+  if(!DialogMode.Check(DMODE_INITOBJECTS))
+    return;
 
   if(PreRedrawFunc)
      PreRedrawFunc();
@@ -1094,22 +1126,6 @@ void Dialog::Show()
   */
   DialogMode.Skip(DMODE_RESIZED);
   /* KM $ */
-  if (!DialogMode.Check(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
-  {                      //  элементы инициализируются при первом вызове.
-    /* $ 28.07.2000 SVS
-       Укажем процедуре, что у нас все Ок!
-    */
-    CheckDialogCoord();
-    if(DlgProc((HANDLE)this,DN_INITDIALOG,InitDialogObjects(),DataDialog))
-    {
-      // еще разок, т.к. данные могли быть изменены
-      InitDialogObjects();
-    }
-    SetFarTitle(GetDialogTitle());
-    // все объекты проинициализированы!
-    DialogMode.Set(DMODE_INITOBJECTS);
-  }
-  CheckDialogCoord();
   /* $ 23.11.2001 VVM
     ! Раз уж мы наследники фрейма, неплохо бы посмотреть на лок прорисовки */
   if (!LockRefreshCount)
@@ -1126,6 +1142,9 @@ void Dialog::Show()
 void Dialog::Hide()
 {
   _tran(SysLog("[%p] Dialog::Hide()",this));
+  if(!DialogMode.Check(DMODE_INITOBJECTS))
+    return;
+
   DialogMode.Skip(DMODE_SHOW);
   ScreenObject::Hide();
 }
@@ -5094,6 +5113,7 @@ void Dialog::Process()
   if(DialogMode.Check(DMODE_SMALLDIALOG))
     SetRestoreScreenMode(TRUE);
 
+  InitDialog();
   FrameManager->ExecuteModal (this);
   /* DJ $ */
 }
@@ -5107,6 +5127,7 @@ void Dialog::CloseDialog()
   if (DlgProc ((HANDLE)this,DM_CLOSE,ExitCode,0))
   {
     DialogMode.Set(DMODE_ENDLOOP);
+    Hide();
     FrameManager->DeleteFrame (this);
     _DIALOG(CleverSysLog CL("Close Dialog"));
   }
@@ -5182,7 +5203,9 @@ void Dialog::ResizeConsole()
 {
   COORD c;
   DialogMode.Set(DMODE_RESIZED);
-  Hide();
+
+  if(IsVisible())
+    Hide();
   // коррекция относительного положения диалога (чтобы не центрировать :-)
   c.X=ScrX+1; c.Y=ScrY+1;
   Dialog::SendDlgMessage((HANDLE)this,DN_RESIZECONSOLE,0,(long)&c);

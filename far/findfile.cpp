@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.110 25.04.2002 $ */
+/* Revision: 1.111 06.05.2002 $ */
 
 /*
 Modify:
+  06.05.2002 SVS
+    ! Перед показом диалога проинициализируем диалог путем вызова InitDialog()
   25.04.2002 IS
     ! внедрение const
   13.04.2002 KM
@@ -1438,6 +1440,7 @@ int FindFiles::FindFilesProcess()
   pDlg->SetPosition(-1,-1,DLG_WIDTH+4,DLG_HEIGHT+IncY);
   // Надо бы показать диалог, а то инициализация элементов запаздывает
   // иногда при поиске и первые элементы не добавляются
+  pDlg->InitDialog();
   pDlg->Show();
 
   LastFoundNumber=0;

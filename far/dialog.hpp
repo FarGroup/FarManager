@@ -10,10 +10,14 @@ dialog.hpp
 
 */
 
-/* Revision: 1.58 29.04.2002 $ */
+/* Revision: 1.59 06.05.2002 $ */
 
 /*
 Modify:
+  06.05.2002 SVS
+    + InitDialog() - инициализация диалога. Инициализируется в Process()
+      или самостоятельно, но до вызова Show()
+    ! InitDialogObjects() переехала в privat
   29.04.2002 SVS
     + ProcessRadioButton
   26.04.2002 SVS
@@ -466,6 +470,13 @@ class Dialog: public Frame
     void ProcessCenterGroup(void);
     int ProcessRadioButton(int);
 
+    /* $ 24.08.2000 SVS
+       InitDialogObjects имеет параметр - для выборочной реинициализации
+       элементов
+    */
+    int  InitDialogObjects(int ID=-1);
+    /* 24.08.2000 SVS $ */
+
   public:
     Dialog(struct DialogItem *Item,int ItemCount,FARWINDOWPROC DlgProc=NULL,long Param=NULL);
     ~Dialog();
@@ -484,12 +495,6 @@ class Dialog: public Frame
        Теперь InitDialogObjects возвращает ID элемента
        с фокусом ввода
     */
-    /* $ 24.08.2000 SVS
-       InitDialogObjects имеет параметр - для выборочной реинициализации
-       элементов
-    */
-    int  InitDialogObjects(int ID=-1);
-    /* 24.08.2000 SVS $ */
     /* SVS $ */
     void GetDialogObjectsData();
 
@@ -530,6 +535,7 @@ class Dialog: public Frame
     long GetDialogData(void) {return DataDialog;};
     /* SVS $ */
 
+    void InitDialog(void);
     /* $ 11.08.2000 SVS
        Для того, чтобы послать DMSG_CLOSE нужно переопределить Process
     */
