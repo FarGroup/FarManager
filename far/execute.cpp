@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.108 15.12.2004 $ */
+/* Revision: 1.109 15.12.2004 $ */
 
 /*
 Modify:
+  15.12.2004 WARP
+    ! Поменял метод окавычивания ком. строки
   15.12.2004 SVS
     - BugZ#1119 -  Неправильный разбор cmd строки для запуска
   14.12.2004 WARP
@@ -1147,7 +1149,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
 //          if(SeparateWindow)
 //            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
-
+          /*
           if ( *NewCmdStr && strchr (NewCmdStr, ' ') )
           {
             int l = strlen (NewCmdStr);
@@ -1157,11 +1159,16 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
             NewCmdStr[l++] = '\"';
             NewCmdStr[l] = 0;
           }
+          */
 
           xstrncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
           strncat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "),sizeof(ExecLine)-1);
+
+          strcat (ExecLine, "\"");
           strncat(ExecLine, NewCmdStr,sizeof(ExecLine)-1);
           strncat(ExecLine, NewCmdPar,sizeof(ExecLine)-1);
+          strcat (ExecLine, "\"");
+
           ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
 
           // </TODO>
