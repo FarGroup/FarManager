@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.08 21.12.2000 $ */
+/* Revision: 1.09 21.12.2000 $ */
 
 /*
 Modify:
+  21.12.2000 SVS
+    - неверно работало считывание параметров по новым ключам
+      FilePanels и PluginPanels
   21.12.2000 SVS
     + "убираем утечку памяти  (LockScr)
     ! Функция KeyToText удалена за ненадобностью
@@ -449,8 +452,8 @@ void KeyMacro::ReadMacros(int ReadMode,
     CurMacro->Flags|=GetRegKey(RegKeyName,"RunAfterFARStart",0)?MFLAGS_RUNAFTERSTART:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"EmptyCommandLine",0)?MFLAGS_EMPTYCOMMANDLINE:0;
     CurMacro->Flags|=GetRegKey(RegKeyName,"NotEmptyCommandLine",0)?MFLAGS_NOTEMPTYCOMMANDLINE:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"FilePanels",1)?MFLAGS_FILEPANELS:0;
-    CurMacro->Flags|=GetRegKey(RegKeyName,"PluginPanels",1)?MFLAGS_PLUGINPANELS:0;
+    CurMacro->Flags|=GetRegKey(RegKeyName,"FilePanels",0)?MFLAGS_FILEPANELS:0;
+    CurMacro->Flags|=GetRegKey(RegKeyName,"PluginPanels",0)?MFLAGS_PLUGINPANELS:0;
     char *BufPtr=Buffer;
     while (1)
     {
