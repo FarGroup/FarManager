@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.31 01.10.2000 $ */
+/* Revision: 1.32 02.10.2000 $ */
 
 /*
 Modify:
+  02.10.2000 SVS
+    - бага со скроллером.
+      > Если нажать в самом низу скролбара, вьюер отмотается на страницу
+      > ниже нижней границы текста. Перед глазами будет пустой экран.
   01.10.2000 IS
     ! Показывать букву диска в статусной строке
   29.09.2000 SVS
@@ -1390,6 +1394,10 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
      ! Постоянный скроллинг при нажатой клавише
        Обыкновенный захват мыши
   */
+  /* $ 02.10.2000 SVS
+    > Если нажать в самом низу скролбара, вьюер отмотается на страницу
+    > ниже нижней границы текста. Перед глазами будет пустой экран.
+  */
   if ( Opt.ViewerShowScrollbar && MsX==X2)
   {
     /* $ 01.09.2000 SVS
@@ -1402,13 +1410,20 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     else if (MsY==Y2)
       while (IsMouseButtonPressed())
         ProcessKey(KEY_DOWN);
+    else if(MsY == Y1+2)
+        ProcessKey(KEY_CTRLHOME);
+    else if(MsY == Y2-2)
+        ProcessKey(KEY_CTRLEND);
     else
     {
       while (IsMouseButtonPressed())
       {
         INPUT_RECORD rec;
         FilePos=(FileSize-1)*(MsY-Y1)/(Y2-Y1-1);
-        Show();
+        if(ToPercent(FilePos,FileSize) == 100)
+          ProcessKey(KEY_CTRLEND);
+        else
+          Show();
         GetInputRecord(&rec);
         MsX=rec.Event.MouseEvent.dwMousePosition.X;
         MsY=rec.Event.MouseEvent.dwMousePosition.Y;
@@ -1416,6 +1431,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     }
     return (TRUE);
   }
+  /* SVS 02.10.2000 $ */
   /* SVS $*/
   /* tran 18.07.2000 $ */
 
