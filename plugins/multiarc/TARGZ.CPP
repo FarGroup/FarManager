@@ -18,6 +18,12 @@
   #endif
 #endif
 
+#ifdef _MSC_VER
+#pragma comment(linker, "-subsystem:console")
+#pragma comment(linker, "/ignore:4078")
+#pragma comment(linker, "-merge:.rdata=.text")
+#endif
+
 #if _MSC_VER
 struct dosdate_t {
    unsigned char day;       /* 1-31 */
@@ -92,13 +98,13 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
         return(FALSE);
   const char *NamePtr=(const char *)strrchr((char*)Name,'\\');
   NamePtr=(NamePtr==NULL) ? Name:NamePtr+1;
-  strcpy(ZipName,NamePtr);
+  lstrcpy(ZipName,NamePtr);
   const char *Dot=(const char *)strrchr((char*)NamePtr,'.');
   if (Dot!=NULL)
   {
     Dot++;
-    if (stricmp(Dot,"tgz")==0 || stricmp(Dot,"taz")==0)
-      strcpy(&ZipName[Dot-NamePtr],"tar");
+    if (lstrcmpi(Dot,"tgz")==0 || lstrcmpi(Dot,"taz")==0)
+      lstrcpy(&ZipName[Dot-NamePtr],"tar");
     else
       ZipName[Dot-NamePtr-1]=0;
   }
@@ -139,7 +145,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       if (ArcType==BZ_FORMAT)
       {
         Item->PackSize=Item->FindData.nFileSizeLow=FileSize;
-        strcpy(Item->FindData.cFileName,ZipName);
+        lstrcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
       }
@@ -169,7 +175,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   Item->PackSize=FileSize;
   if (ArcType==Z_FORMAT)
   {
-    strcpy(Item->FindData.cFileName,ZipName);
+    lstrcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
     Item->FindData.nFileSizeLow=FileSize;
     return(GETARC_SUCCESS);
@@ -187,7 +193,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     if (!ReadFile(ArcHandle,Item->FindData.cFileName,sizeof(Item->FindData.cFileName),&ReadSize,NULL))
       return(GETARC_READERROR);
   if (*Item->FindData.cFileName==0)
-    strcpy(Item->FindData.cFileName,ZipName);
+    lstrcpy(Item->FindData.cFileName,ZipName);
   *ZipName=0;
   UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
   Info->Comment=(Header.Flags & 16)!=0;
@@ -228,7 +234,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       else
         EndPos = AdjustTARFileName (Header.name);
 
-      strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
+      lstrcpyn(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
       Item->FindData.dwFileAttributes=(GetOctal(Header.mode) & 0x4000) || ((Header.linkflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
       UnixTimeToFileTime(GetOctal(Header.timestamp),&Item->FindData.ftLastWriteTime);
       Item->FindData.nFileSizeHigh=0;
@@ -268,7 +274,7 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if(Info)
   {
-    strcpy(Info->Prefix,Prefix);
+    lstrcpy(Info->Prefix,Prefix);
   }
   return(CloseHandle(ArcHandle));
 }
@@ -279,20 +285,20 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   switch(Type)
   {
     case TAR_FORMAT:
-      strcpy(FormatName,"TAR");
-      strcpy(DefaultExt,"tar");
+      lstrcpy(FormatName,"TAR");
+      lstrcpy(DefaultExt,"tar");
       return(TRUE);
     case GZ_FORMAT:
-      strcpy(FormatName,"GZip");
-      strcpy(DefaultExt,"gz");
+      lstrcpy(FormatName,"GZip");
+      lstrcpy(DefaultExt,"gz");
       return(TRUE);
     case Z_FORMAT:
-      strcpy(FormatName,"Z(Unix)");
-      strcpy(DefaultExt,"z");
+      lstrcpy(FormatName,"Z(Unix)");
+      lstrcpy(DefaultExt,"z");
       return(TRUE);
     case BZ_FORMAT:
-      strcpy(FormatName,"BZip");
-      strcpy(DefaultExt,"bz2");
+      lstrcpy(FormatName,"BZip");
+      lstrcpy(DefaultExt,"bz2");
       return(TRUE);
   }
   return(FALSE);
@@ -324,7 +330,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
-        strcpy(Dest,Commands[Command]);
+        lstrcpy(Dest,Commands[Command]);
         return(TRUE);
       }
       break;
@@ -350,7 +356,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
-        strcpy(Dest,Commands[Command]);
+        lstrcpy(Dest,Commands[Command]);
         return(TRUE);
       }
       break;
@@ -376,7 +382,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
-        strcpy(Dest,Commands[Command]);
+        lstrcpy(Dest,Commands[Command]);
         return(TRUE);
       }
       break;
@@ -402,7 +408,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
-        strcpy(Dest,Commands[Command]);
+        lstrcpy(Dest,Commands[Command]);
         return(TRUE);
       }
       break;
@@ -506,7 +512,7 @@ char *AdjustTARFileName(char *FileName)
   if( *EndPos == '.') ++EndPos;
   if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
 
-  if(EndPos != FileName && !Prefix[0] && strcmp(FileName,".\\"))
+  if(EndPos != FileName && !Prefix[0] && lstrcmp(FileName,".\\"))
     memcpy(Prefix,FileName,min((int)sizeof(Prefix)-1,(int)(EndPos-FileName)));
   return EndPos;
 }

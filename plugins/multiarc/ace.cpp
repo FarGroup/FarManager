@@ -30,6 +30,13 @@
   #endif
 #endif
 
+#ifdef _MSC_VER
+#pragma comment(linker, "/ignore:4078")
+#pragma comment(linker, "/merge:.data=.")
+#pragma comment(linker, "/merge:.rdata=.")
+#pragma comment(linker, "/merge:.text=.")
+#endif
+
 //#define CALC_CRC
 
 static struct OSIDType{

@@ -18,6 +18,13 @@
   #endif
 #endif
 
+#ifdef _MSC_VER
+#pragma comment(linker, "/ignore:4078")
+#pragma comment(linker, "/merge:.data=.")
+#pragma comment(linker, "/merge:.rdata=.")
+#pragma comment(linker, "/merge:.text=.")
+#endif
+
 #if _MSC_VER
 struct dosdate_t {
    unsigned char day;       /* 1-31 */

@@ -18,10 +18,45 @@
   #endif
 #endif
 
+#ifdef _MSC_VER
+#pragma comment(linker, "/ignore:4078")
+#pragma comment(linker, "/merge:.data=.")
+#pragma comment(linker, "/merge:.rdata=.")
+#pragma comment(linker, "/merge:.text=.")
+#endif
+
 static HANDLE ArcHandle;
 static DWORD SFXSize,NextPosition,FileSize;
 static int ArcComment,Truncated,FirstRecord;
 char Prefix[32];
+
+struct ZipHeader
+{
+	DWORD Signature;
+	WORD VerToExtract;
+	WORD BitFlag;
+	WORD Method;
+	WORD LastModTime;
+	WORD LastModDate;
+	DWORD Crc32;
+	DWORD SizeCompr;
+	DWORD SizeUncompr;
+	WORD FileNameLen;
+	WORD ExtraFieldLen;
+	// FileName[];
+	// ExtraField[];
+};
+
+const size_t MIN_HEADER_LEN=sizeof(ZipHeader);
+
+inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEnd)
+{
+	ZipHeader* pHdr=(ZipHeader*)Data;
+	const WORD Zip64=45;
+	return (0x04034b50==pHdr->Signature
+		&& pHdr->Method<15
+		&& Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
+}
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -30,19 +65,20 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     SFXSize=0;
     return(TRUE);
   }
-  for (int I=0;I<DataSize-10;I++)
+  if (DataSize<MIN_HEADER_LEN) return FALSE;
+  const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
+  const unsigned char *DataEnd=Data+DataSize;
+  for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
   {
-    const unsigned char *D=Data+I;
-    if (D[0]=='P' && D[1]=='K' && D[2]==3 && D[3]==4 && D[8]<15 && D[9]==0)
+    if (IsValidHeader(CurData, DataEnd))
     {
-      SFXSize=I;
+      SFXSize=CurData-Data;
       memset(Prefix,0,sizeof(Prefix));
       return(TRUE);
     }
   }
   return(FALSE);
 }
-
 
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
@@ -207,9 +243,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
   if(EndPos != Item->FindData.cFileName)
   {
-    if(!Prefix[0] && strcmp(Item->FindData.cFileName,".\\"))
+    if(!Prefix[0] && lstrcmp(Item->FindData.cFileName,".\\"))
       memcpy(Prefix,Item->FindData.cFileName,min((int)sizeof(Prefix)-1,(int)(EndPos-Item->FindData.cFileName)));
-    memmove(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix),strlen(EndPos)+1);
+      Item->FindData.cFileName[0]='\0';
+      lstrcat(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix));
   }
 
 
@@ -239,7 +276,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
                         "Win32","SMS/QDOS","Acorn RISC OS","Win32 VFAT","MVS",
                         "BeOS","Tandem"};
   if (ZipHeader.PackOS<sizeof(ZipOS)/sizeof(ZipOS[0]))
-    strcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
+    lstrcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
 
   if (ZipHeader.PackOS==11 && ZipHeader.PackVer>20 && ZipHeader.PackVer<25)
     CharToOem(Item->FindData.cFileName,Item->FindData.cFileName);
@@ -347,7 +384,7 @@ BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
   if(Info)
   {
-    strcpy(Info->Prefix,Prefix);
+    lstrcpy(Info->Prefix,Prefix);
     Info->SFXSize=SFXSize;
     Info->Comment=ArcComment;
   }
@@ -363,8 +400,8 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
   {
-    strcpy(FormatName,"ZIP");
-    strcpy(DefaultExt,"zip");
+    lstrcpy(FormatName,"ZIP");
+    lstrcpy(DefaultExt,"zip");
     return(TRUE);
   }
   return(FALSE);
@@ -395,7 +432,7 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
     {
-      strcpy(Dest,Commands[Command]);
+      lstrcpy(Dest,Commands[Command]);
       return(TRUE);
     }
   }

@@ -22,7 +22,6 @@
 #define isspace(c) ((c)==' ' || (c)=='\t')
 
 #ifdef _MSC_VER
-//#pragma comment(lib,"user32.lib")
 //#pragma comment(linker, "-subsystem:console")
 //#pragma comment(linker, "-merge:.rdata=.text")
 #endif
@@ -45,8 +44,8 @@ int FormatNumber,IgnoreErrors;
 
 DWORD WINAPI _export LoadFormatModule(const char *ModuleName)
 {
-  strcpy(FormatFileName,ModuleName);
-  strcpy(strrchr(FormatFileName,'\\')+1,"custom.ini");
+  lstrcpy(FormatFileName,ModuleName);
+  lstrcpy(strrchr(FormatFileName,'\\')+1,"custom.ini");
   return(0);
 }
 
@@ -101,7 +100,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
         continue;
     }
     GetPrivateProfileString(TypeName,"Extension","",Ext,sizeof(Ext),FormatFileName);
-    if (Dot!=NULL && *Ext!=0 && stricmp(Dot+1,Ext)==0)
+    if (Dot!=NULL && *Ext!=0 && lstrcmpi(Dot+1,Ext)==0)
     {
       CurType=I;
       return(TRUE);
@@ -128,8 +127,8 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
   char ShortName[NM];
   ConvertNameToShort(Name,ShortName);
-  strcat(Command," ");
-  strcat(Command,ShortName);
+  lstrcat(Command," ");
+  lstrcat(Command,ShortName);
 
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -216,9 +215,9 @@ BOOL WINAPI OpenArchivePipe(const char *Name,int *Type)
     return(FALSE);
   *Type=CurType;
 
-  strcat(Command," ");
+  lstrcat(Command," ");
   char ShortName[NM];
-  strcat(Command,GetShortPathName(Name,ShortName,sizeof(ShortName))?
+  lstrcat(Command,GetShortPathName(Name,ShortName,sizeof(ShortName))?
                  ShortName:Name);
 
   STARTUPINFO si;
@@ -311,7 +310,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   {
     if (*StartText)
     {
-      if (*StartText=='^' && strncmp(Str,StartText+1,strlen(StartText+1))==0 ||
+      if (*StartText=='^' && strncmp(Str,StartText+1,lstrlen(StartText+1))==0 ||
           *StartText!='^' && strstr(Str,StartText)!=NULL)
         *StartText=0;
       continue;
@@ -320,7 +319,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {
       if (*EndText=='^')
       {
-        if (strncmp(Str,EndText+1,strlen(EndText+1))==0)
+        if (strncmp(Str,EndText+1,lstrlen(EndText+1))==0)
           break;
       }
       else
@@ -346,11 +345,11 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           break;
         case '.':
           {
-            for (int I=strlen(Item->FindData.cFileName);I>=0;I--)
+            for (int I=lstrlen(Item->FindData.cFileName);I>=0;I--)
               if (isspace(Item->FindData.cFileName[I]))
                 Item->FindData.cFileName[I]=0;
             if (*Item->FindData.cFileName)
-              strcat(Item->FindData.cFileName,".");
+              lstrcat(Item->FindData.cFileName,".");
           }
           break;
         case 'z':
@@ -457,7 +456,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       FILETIME ft;
       SystemTimeToFileTime(&st,&ft);
       LocalFileTimeToFileTime(&ft,&Item->FindData.ftLastWriteTime);
-      for (int I=strlen(Item->FindData.cFileName)-1;I>=0;I--)
+      for (int I=lstrlen(Item->FindData.cFileName)-1;I>=0;I--)
       {
         int Ch=Item->FindData.cFileName[I];
         if (Ch==' ' || Ch=='\t')
@@ -486,7 +485,7 @@ int GetString(char *Str,int MaxSize)
   }
   int Length=OutDataPos-StartPos;
   int DestLength=Length>=MaxSize ? MaxSize-1:Length;
-  strncpy(Str,OutData+StartPos,DestLength);
+  lstrcpyn(Str,OutData+StartPos,DestLength);
   Str[DestLength]=0;
   while (OutDataPos<OutDataSize)
   {
@@ -561,7 +560,7 @@ void ConvertNameToShort(const char *Src,char *Dest)
   if (GetShortPathName(AnsiName,ShortName,sizeof(ShortName)) && *ShortName)
     CharToOem(ShortName,Dest);
   else
-    strcpy(Dest,Src);
+    lstrcpy(Dest,Src);
   if (!AnsiApis)
     SetFileApisToOEM();
 }
@@ -575,8 +574,8 @@ int GetSectionName(int Num,char *Name)
   {
     if (*Section==0)
       return(FALSE);
-    Section+=strlen(Section)+1;
+    Section+=lstrlen(Section)+1;
   }
-  strcpy(Name,Section);
+  lstrcpy(Name,Section);
   return(TRUE);
 }
