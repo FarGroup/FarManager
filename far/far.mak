@@ -263,7 +263,11 @@ LINK32_OBJS= \
 !ELSEIF  "$(CFG)" == "far - Win32 Debug"
 
 OUTDIR=.\Debug
+!ifdef FARSYSLOG
+INTDIR=.\Debug\objlog
+!else
 INTDIR=.\Debug\obj
+!endif
 CODDIR=.\Debug\cod
 # Begin Custom Macros
 OutDir=.\Debug

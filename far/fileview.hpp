@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.08 15.05.2001 $ */
+/* Revision: 1.09 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 tran
+    + класс FileView - добавлен OnChangeFocus
   15.05.2001 OT
     ! NWZ -> NFZ
   12.05.2001 DJ
@@ -83,6 +85,8 @@ class FileViewer:public Frame
     /* $ 12.05.2001 DJ */
     void SetEnableF6 (int AEnable) { DisableEdit = !AEnable; }
     /* DJ $ */
+
+    virtual void OnChangeFocus(int f);
 };
 
-#endif	// __FILEVIEWER_HPP__
+#endif  // __FILEVIEWER_HPP__

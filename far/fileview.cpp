@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.34 27.05.2001 $ */
+/* Revision: 1.35 05.06.2001 $ */
 
 /*
 Modify:
+  05.06.2001 tran
+    + класс FileView - добавлен OnChangeFocus
   27.05.2001 DJ
     - Не делаем DeleteFrame() в случае ошибки открытия
   26.05.2001 OT
@@ -504,4 +506,11 @@ void FileViewer::OnDestroy()
       return ;
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
+}
+
+void FileViewer::OnChangeFocus(int f)
+{
+    _tran(SysLog("[%p] FileViewer::OnChangeFocus(int f), f=%i",f));
+    if ( f )
+        Show();
 }
