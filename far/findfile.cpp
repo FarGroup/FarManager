@@ -5,10 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.118 02.06.2002 $ */
+/* Revision: 1.119 28.06.2002 $ */
 
 /*
 Modify:
+  28.06.2002 VVM
+    + При начале поиска фокус находится на кнопке [New search]
+      Как только что-нибудь найдем - сменим его на [Go To], если небыло
+      движения по диалогу.
   02.06.2002 KM
     - Уточнение поиска по целым словам. Переработка алгоритма.
   27.05.2002 VVM
@@ -475,7 +479,7 @@ static int FindFoldersChanged;
 static int DlgWidth,DlgHeight;
 static volatile int StopSearch,PauseSearch,SearchDone,LastFoundNumber,FindFileCount,FindDirCount,WriteDataUsed;
 static char FindMessage[200],LastDirName[2*NM];
-static int FindMessageReady,FindCountReady;
+static int FindMessageReady,FindCountReady,FindPositionChanged;
 static char PluginSearchPath[2*NM];
 static HANDLE hDlg;
 static int RecurseLevel;
@@ -952,6 +956,8 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     {
       WaitForSingleObject(hDialogMutex,INFINITE);
 
+      FindPositionChanged = TRUE;
+
       if (!StopSearch && Param2==KEY_ESC)
       {
         PauseSearch=TRUE;
@@ -1230,6 +1236,9 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
     case DN_BTNCLICK:
     {
+
+      FindPositionChanged = TRUE;
+
       if (Param1==5) // [ New search ] button pressed
       {
         FindExitCode=FIND_EXIT_SEARCHAGAIN;
@@ -1404,8 +1413,8 @@ int FindFiles::FindFilesProcess()
   /* 02 */DI_TEXT,-1,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 03 */DI_TEXT,5,16,0,0,0,0,DIF_SHOWAMPERSAND,0,SearchStr,
   /* 04 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 05 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindNewSearch,
-  /* 06 */DI_BUTTON,0,18,0,0,1,0,DIF_CENTERGROUP,1,(char *)MFindGoTo,
+  /* 05 */DI_BUTTON,0,18,0,0,1,0,DIF_CENTERGROUP,1,(char *)MFindNewSearch,
+  /* 06 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindGoTo,
   /* 07 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindView,
   /* 08 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindPanel,
   /* 09 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindStop
@@ -1469,7 +1478,7 @@ int FindFiles::FindFilesProcess()
   FindFileCount=FindDirCount=0;
   FindExitIndex = LIST_INDEX_NONE;
   FindExitCode = FIND_EXIT_NONE;
-  *FindMessage=*LastDirName=FindMessageReady=FindCountReady=0;
+  *FindMessage=*LastDirName=FindMessageReady=FindCountReady=FindPositionChanged=0;
 
   // Нитка для вывода в диалоге информации о ходе поиска
   if (_beginthread(WriteDialogData,0,NULL)==(unsigned long)-1)
@@ -2151,7 +2160,7 @@ int FindFiles::LookForString(char *Name)
         {
           if (!FirstIteration)
           {
-            if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) || 
+            if (IsSpace(Buf[I-1]) || IsEol(Buf[I-1]) ||
                (strchr(Opt.WordDiv,Buf[I-1])!=NULL))
               locResultLeft=TRUE;
           }
@@ -2165,7 +2174,7 @@ int FindFiles::LookForString(char *Name)
             locResultRight=TRUE;
           else
             if (I+Length<RealReadSize &&
-               (IsSpace(Buf[I+Length]) || IsEol(Buf[I+Length]) || 
+               (IsSpace(Buf[I+Length]) || IsEol(Buf[I+Length]) ||
                (strchr(Opt.WordDiv,Buf[I+Length])!=NULL)))
               locResultRight=TRUE;
         }
@@ -2410,6 +2419,12 @@ void FindFiles::WriteDialogData(void *Param)
         while (ListBox->GetCallCount())
           Sleep(10);
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
+
+        if (!FindPositionChanged)
+        {
+          FindPositionChanged = TRUE;
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,6/* [Go To] */,0);
+        }
         FindCountReady=FALSE;
       }
       if (FindMessageReady)
