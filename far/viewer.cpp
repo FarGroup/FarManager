@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.140 14.05.2003 $ */
+/* Revision: 1.141 16.05.2003 $ */
 
 /*
 Modify:
+  16.05.2003 VVM
+    - CTRL+U не работала при выключенных постоянных блоках.
   14.05.2003 VVM
     + ViOpt.PersistentBlocks - постоянные блоки во вьюере.
   13.05.2003 VVM
@@ -1697,7 +1699,7 @@ int Viewer::ProcessKey(int Key)
 
     case KEY_CTRLU:
     {
-      if (SelectSize)
+//      if (SelectSize)
       {
         SelectSize = 0;
         Show();
