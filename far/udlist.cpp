@@ -8,10 +8,17 @@ udlist.cpp
 
 */
 
-/* Revision: 1.02 12.06.2001 $ */
+/* Revision: 1.03 12.06.2001 $ */
 
 /*
 Modify:
+  12.06.2001 IS
+    + ѕри добавлении элементов списка игнорируютс€ заключительные и начальные
+      пробелы. ≈сли нужно учитывать пробелы, то элемент списка должен быть
+      заключен в кавычки
+    + ќбрабатываютс€ квадратные скобки. “еперь можно выкинуть GetCommaWord и
+      заменить его использованием UserDefinedList
+    + CheckSeparators()
   12.06.2001 IS
     + ≈сли кроме разделител€ ничего больше в строке нет,
       то считаетс€, что это не разделитель, а простой символ
@@ -31,15 +38,14 @@ Modify:
 UserDefinedList::UserDefinedList()
 {
   DataCurrent=Data=DataEnd=NULL;
-  SetDefaultSeparators();
+  SetSeparators(0,0,FALSE);
 }
 
-UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2)
+UserDefinedList::UserDefinedList(BYTE separator1, BYTE separator2,
+                                 BOOL processbrackets)
 {
   DataCurrent=Data=DataEnd=NULL;
-  Separator1=separator1;
-  Separator2=separator2;
-  if(!Separator2 && !Separator2) SetDefaultSeparators();
+  SetSeparators(separator1, separator2, processbrackets);
 }
 
 void UserDefinedList::SetDefaultSeparators()
@@ -48,12 +54,25 @@ void UserDefinedList::SetDefaultSeparators()
   Separator2=',';
 }
 
-void UserDefinedList::SetSeparator(BYTE separator1, BYTE separator2)
+BOOL UserDefinedList::CheckSeparators() const
+{
+  return !((Separator1=='\"' || Separator2=='\"') ||
+           (ProcessBrackets &&  (Separator1=='[' || Separator2=='[' ||
+            Separator1==']' || Separator2==']'))
+          );
+}
+
+BOOL UserDefinedList::SetSeparators(BYTE separator1, BYTE separator2,
+                                    BOOL processbrackets)
 {
   Free();
   Separator1=separator1;
   Separator2=separator2;
+  ProcessBrackets=processbrackets;
+
   if(!Separator2 && !Separator2) SetDefaultSeparators();
+
+  return CheckSeparators();
 }
 
 void UserDefinedList::Free()
@@ -68,7 +87,7 @@ BOOL UserDefinedList::Set(const char *List)
   Free();
   BOOL rc=FALSE;
 
-  if(List && *List)
+  if(CheckSeparators() && List && *List)
   {
     if(*List!=Separator1 && *List!=Separator2)
       {
@@ -134,17 +153,44 @@ const char *UserDefinedList::Skip(const char *Str, int &Length, int &RealLength,
 
    while(isspace(*Str)) ++Str;
    if(*Str==Separator1 || *Str==Separator2) ++Str;
+   while(isspace(*Str)) ++Str;
    if(!*Str) return NULL;
 
    const char *cur=Str;
-   // важно! проверка *cur!=0 должна сто€ть первой
-   while(*cur && *cur!=Separator1 && *cur!=Separator2 && *cur!='\"') ++cur;
-   if(*cur!='\"' || !*cur)
+   BOOL InBrackets=FALSE, InQoutes = (*cur=='\"');
+
+
+   if(!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
+     while(*cur) // важно! проверка *cur!=0 должна сто€ть первой
+     {
+        if(ProcessBrackets)
+        {
+           if(*cur==']')
+             InBrackets=FALSE;
+
+           if(*cur=='[' && NULL!=strchr(cur+1, ']'))
+             InBrackets=TRUE;
+        }
+
+        if(!InBrackets && (*cur==Separator1 || *cur==Separator2))
+          break;
+
+        ++cur;
+     }
+
+   if(!InQoutes || !*cur)
     {
       RealLength=Length=cur-Str;
+      --cur;
+      while(isspace(*cur))
+       {
+         --Length;
+         --cur;
+       }
       return Str;
     }
 
+   // мы в кавычках - захватим все отсюда и до следующих кавычек
    ++cur;
    const char *QuoteEnd=strchr(cur, '\"');
    if(QuoteEnd==NULL)

@@ -6,14 +6,18 @@ udlist.hpp
 
 —писок чего-либо, перечисленного через символ-разделитель. ≈сли нужно, чтобы
 элемент списка содержал разделитель, то этот элемент следует заключить в
-кавычки.
+кавычки. ≈сли кроме разделител€ ничего больше в строке нет, то считаетс€, что
+это не разделитель, а простой символ.
 
 */
 
-/* Revision: 1.01 09.06.2001 $ */
+/* Revision: 1.02 12.06.2001 $ */
 
 /*
 Modify:
+  12.06.2001 IS
+    + ƒобавлено св€занное с обработкой квадратных скобок
+    + ‘ункци€ дл€ проверки корректности разделителей.
   09.06.2001 IS
     + ѕереписано с учетом второго разделител€. “еперь разделителей два. ѕо
       умолчанию они равны ';' и ','
@@ -28,8 +32,10 @@ class UserDefinedList
   private:
     char *Data, *DataEnd, *DataCurrent;
     BYTE Separator1, Separator2;
+    BOOL ProcessBrackets;
 
   private:
+    BOOL CheckSeparators() const; // проверка разделителей на корректность
     void SetDefaultSeparators();
     void Free();
     const char *Skip(const char *Str, int &Length, int &RealLength, BOOL &Error);
@@ -39,16 +45,25 @@ class UserDefinedList
     UserDefinedList(const UserDefinedList& rhs); // генерировалось по умолчанию
 
   public:
-    UserDefinedList(); // по умолчанию разделителем считаетс€ ';' и ','
-    UserDefinedList(BYTE separator1, BYTE separator2); // €вно указываетс€ разделитель
+    // по умолчанию разделителем считаетс€ ';' и ',', а
+    // ProcessBrackets=FALSE
+    UserDefinedList();
+
+    // явно указываютс€ разделители. —м. описание SetSeparators
+    UserDefinedList(BYTE separator1, BYTE separator2, BOOL ProcessBrackets);
     ~UserDefinedList() { Free(); }
 
   public:
-    // —менить символы-разделитель
-    // если один из Separator* равен 0x00, то он игнорируетс€
-    // если оба разделител€ равны 0x00, то восстанавливаютс€ разделители по
-    // умолчанию (';' & ',')
-    void SetSeparator(BYTE Separator1, BYTE Separator2);
+    // —менить символы-разделитель и разрешить или запретить обработку
+    // квадратных скобок.
+    // ≈сли один из Separator* равен 0x00, то он игнорируетс€ при компил€ции
+    // (т.е. в Set)
+    // ≈сли оба разделител€ равны 0x00, то восстанавливаютс€ разделители по
+    // умолчанию (';' & ',').
+    // ¬озвращает FALSE, если один из разделителей €вл€етс€ кавычкой или
+    // включена обработка скобок и один из разделителей €вл€етс€ квадратной
+    // скобкой.
+    BOOL SetSeparators(BYTE Separator1, BYTE Separator2, BOOL ProcessBrackets);
 
     // »нициализирует список. ѕринимает список, разделенный разделител€ми.
     // ¬озвращает FALSE при неудаче.
