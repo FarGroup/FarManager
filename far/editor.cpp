@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.203 18.10.2002 $ */
+/* Revision: 1.204 28.10.2002 $ */
 
 /*
 Modify:
+  28.10.2002
+    - выделение с табами.
   18.10.2002 SKV
     - UnmarkEmptyBlock, не надо бурить его целиком.
   14.10.2002 SVS
@@ -1874,6 +1876,7 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
     {
       if (CurLine->Next==NULL)return TRUE;
+      CurPos=CurLine->EditLine.RealPosToTab(CurPos);
       if(SelAtBeginning)//Снимаем выделение
       {
         if(SelEnd==-1)
@@ -1886,6 +1889,8 @@ int Editor::ProcessKey(int Key)
           CurLine->EditLine.Select(SelEnd,-1);
         }
         CurLine->Next->EditLine.GetRealSelection(SelStart,SelEnd);
+        SelStart=CurLine->Next->EditLine.RealPosToTab(SelStart);
+        SelEnd=CurLine->Next->EditLine.RealPosToTab(SelEnd);
         if(SelStart==-1)
         {
           SelStart=0;
@@ -1901,6 +1906,8 @@ int Editor::ProcessKey(int Key)
             SelStart=CurPos;
           }
         }
+        /*SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
+        SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
         if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
         {
           SelEnd=CurLine->Next->EditLine.GetLength();
@@ -1908,18 +1915,22 @@ int Editor::ProcessKey(int Key)
         if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Next->EditLine.GetLength())
         {
           SelStart=CurLine->Next->EditLine.GetLength();
-        }
-        CurLine->Next->EditLine.Select(SelStart,SelEnd);
+        }*/
       }else //расширяем выделение
       {
         CurLine->EditLine.Select(SelStart,-1);
         SelStart=0;
         SelEnd=CurPos;
       }
-      if(!EdOpt.CursorBeyondEOL)
+      SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
+      SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
+      if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
       {
-        SelEnd=SelEnd>CurLine->Next->EditLine.GetLength()?
-               CurLine->Next->EditLine.GetLength():SelEnd;
+        SelEnd=CurLine->Next->EditLine.GetLength();
+      }
+      if(!EdOpt.CursorBeyondEOL && SelStart>CurLine->Next->EditLine.GetLength())
+      {
+        SelStart=CurLine->Next->EditLine.GetLength();
       }
       CurLine->Next->EditLine.Select(SelStart,SelEnd);
       Down();
@@ -1930,10 +1941,12 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTUP: case KEY_SHIFTNUMPAD8:
     {
       if (CurLine->Prev==NULL)return NULL;
+      CurPos=CurLine->EditLine.RealPosToTab(CurPos);
       if(SelAtBeginning || SelFirst) // расширяем выделение
       {
         CurLine->EditLine.Select(0,SelEnd);
         SelStart=CurPos;
+        SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
         if(!EdOpt.CursorBeyondEOL && CurPos>CurLine->Prev->EditLine.GetLength())
         {
           SelStart=CurLine->Prev->EditLine.GetLength();
@@ -1951,6 +1964,8 @@ int Editor::ProcessKey(int Key)
           CurLine->EditLine.Select(0,SelStart);
         }
         CurLine->Prev->EditLine.GetRealSelection(SelStart,SelEnd);
+        SelStart=CurLine->Prev->EditLine.RealPosToTab(SelStart);
+        SelEnd=CurLine->Prev->EditLine.RealPosToTab(SelEnd);
         if(SelStart==-1)
         {
           BlockStart=CurLine->Prev;
@@ -1967,6 +1982,8 @@ int Editor::ProcessKey(int Key)
           {
             SelEnd=CurPos;
           }
+          SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
+          SelEnd=CurLine->Prev->EditLine.TabPosToReal(SelEnd);
           if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Prev->EditLine.GetLength())
           {
             SelEnd=CurLine->Prev->EditLine.GetLength();
