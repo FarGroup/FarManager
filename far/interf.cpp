@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.85 06.08.2004 $ */
+/* Revision: 1.86 05.01.2005 $ */
 
 /*
 Modify:
+  05.01.2005 WARP
+    - ѕри использовании DIF_LISTNOBOX обрезались сепараторы в листе.
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   29.03.2004 SVS
@@ -1750,8 +1752,12 @@ WCHAR* MakeSeparatorW(int Length,WCHAR *DestStr,int Type)
   {
     Type%=(sizeof(__BoxType)/sizeof(__BoxType[0]));
     _wmemset(DestStr,BoxSymbols[__BoxType[Type][2]-0x0B0],Length);
-    DestStr[0]=BoxSymbols[__BoxType[Type][0]-0x0B0];
-    DestStr[Length-1]=BoxSymbols[__BoxType[Type][1]-0x0B0];
+
+    if ( Type )
+    {
+      DestStr[0]=BoxSymbols[__BoxType[Type][0]-0x0B0];
+      DestStr[Length-1]=BoxSymbols[__BoxType[Type][1]-0x0B0];
+    }
     DestStr[Length]=0x0000;
   }
   return DestStr;
@@ -1768,8 +1774,12 @@ char* MakeSeparator(int Length,char *DestStr,int Type)
 
     Type%=(sizeof(__BoxType)/sizeof(__BoxType[0]));
     memset(DestStr,__BoxType[Type][2+I],Length);
-    DestStr[0]=__BoxType[Type][0+I];
-    DestStr[Length-1]=__BoxType[Type][1+I];
+
+    if ( Type )
+    {
+      DestStr[0]=__BoxType[Type][0+I];
+      DestStr[Length-1]=__BoxType[Type][1+I];
+    }
     DestStr[Length]=0;
   }
   return DestStr;
