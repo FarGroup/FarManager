@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.41 01.07.2001 $ */
+/* Revision: 1.42 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    - Не работала комбинация Alt (не отпуская, в панеля) sp_
+      (не набирался симол подчеркивания при нажатой Alt)
   01.07.2001 KM
     - При отпускании Shift-Enter в диалоге назначения
       вылазил Shift после отпускания клавиш.
@@ -1261,7 +1264,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && AltPressed)
   {
-//_D(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlAlt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='A' && KeyCode<='Z')
       return(KEY_CTRL|KEY_ALT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
@@ -1315,7 +1318,9 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       if(WaitInFastFind>0 &&
         CtrlObject->Macro.GetCurRecord(NULL,NULL) != 1 &&
         CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',-1) == -1)
+      {
         return(KEY_ALT+KEY_SHIFT+AsciiChar);
+      }
       else
         return(KEY_ALTSHIFT0+KeyCode-'0');
     }
@@ -1359,7 +1364,9 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
           return(KEY_ALTSHIFT|KEY_DIVIDE);
       case VK_MULTIPLY:
         if(WaitInFastFind)
+        {
           return(KEY_ALT+KEY_SHIFT+'*');
+        }
         else
           return(KEY_ALTSHIFT|KEY_MULTIPLY);
     }
@@ -1380,7 +1387,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed && ShiftPressed)
   {
-//_D(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","CtrlShift",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRLSHIFT0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1452,7 +1459,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (CtrlPressed)
   {
-//_D(if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_CONTROL) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Ctrl",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if (KeyCode>='0' && KeyCode<='9')
       return(KEY_CTRL0+KeyCode-'0');
     if (KeyCode>='A' && KeyCode<='Z')
@@ -1503,14 +1510,17 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
   /* ------------------------------------------------------------- */
   if (AltPressed)
   {
-//_D(if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
+//_SVS(if(KeyCode!=VK_MENU) SysLog("%9s|0x%08X (%c)|0x%08X (%c)|","Alt",KeyCode,(KeyCode?KeyCode:' '),AsciiChar,(AsciiChar?AsciiChar:' ')));
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
       {
         case 0xc0:
           return(KEY_ALT+'~');
         case 0xbd:
-          return(KEY_ALT+'-');
+          if(WaitInFastFind)
+            return(KEY_ALT+KEY_SHIFT+'_');
+          else
+            return(KEY_ALT+'-');
         case 0xbb:
           return(KEY_ALT+'=');
         case 0xdc:
@@ -1534,13 +1544,13 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
         return(KEY_ALTDOT);
       case VK_DIVIDE:
         if(WaitInFastFind)
-          return(KEY_ALT+'/');
+          return(KEY_ALT+KEY_SHIFT+'/');
         else
           return(KEY_ALT|KEY_DIVIDE);
       case VK_MULTIPLY:
-        if(WaitInFastFind)
-          return(KEY_ALT+'*');
-        else
+//        if(WaitInFastFind)
+//          return(KEY_ALT+KEY_SHIFT+'*');
+//        else
           return(KEY_ALT|KEY_MULTIPLY);
     }
     if (AsciiChar)

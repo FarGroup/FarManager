@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.55 23.07.2001 $ */
+/* Revision: 1.56 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    ! В функции FastFind() код ограничим WaitInFastFind++ и WaitInFastFind--
+      ибо здесь ему место (сама переменная как раз за ЭТО и отвечает)
   23.07.2001 SVS
     ! Вернем обратно режим отображения размера в меню выбора диска
       но несколько расширим размеры (+1) числа и сократим "MB" до "M"
@@ -812,6 +815,7 @@ void Panel::FastFind(int FirstKey)
   char LastName[NM],Name[NM];
   int Key,KeyToProcess=0;
   *LastName=0;
+  WaitInFastFind++;
   {
     int FindX=Min(X1+9,ScrX-22);
     int FindY=Min(Y2,ScrY-2);
@@ -898,6 +902,7 @@ void Panel::FastFind(int FirstKey)
       FirstKey=0;
     }
   }
+  WaitInFastFind--;
   Show();
   CtrlObject->MainKeyBar->Redraw();
   ScrBuf.Flush();

@@ -5,16 +5,18 @@ manager.cpp
 
 */
 
-/* Revision: 1.38 19.07.2001 $ */ 
+/* Revision: 1.39 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    ! Закомментим пока WaitInFastFind - они здесь как бы не нужны.
   19.07.2001 OT
-    Добавились новые члены и методв типа UnmodalizeХХХ
+    + Добавились новые члены и методв типа UnmodalizeХХХ
   18.07.2001 OT
-    VFMenu
+    ! VFMenu
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   07.07.2001 IS
     + При выборе фреймов (F12), если фреймов больше 10, то используем для
       горячих клавиш буквы латинского алфавита, т.о. получаем всего не 10,
@@ -513,9 +515,9 @@ void Manager::ProcessMainLoop()
 
   WaitInMainLoop=IsPanelsActive();
 
-  WaitInFastFind++;
+  //WaitInFastFind++;
   int Key=GetInputRecord(&LastInputRecord);
-  WaitInFastFind--;
+  //WaitInFastFind--;
   WaitInMainLoop=FALSE;
   if (EndLoop)
     return;
@@ -893,7 +895,7 @@ void Manager::InsertCommit()
       CurrentFrame->Push(ModalizedFrame);
     }
     ActivatedFrame=ModalizedFrame;
-  } else 
+  } else
 */
   if (InsertedFrame){
     if (FrameListSize <= FrameCount)
@@ -1001,13 +1003,13 @@ void Manager::UnmodalizeCommit()
     if(iFrame->RemoveModal(UnmodalizedFrame)){
       return;
     }
-  } 
+  }
   for (i=0;i<ModalStackCount;i++){
     iFrame=ModalStack[i];
     if(iFrame->RemoveModal(UnmodalizedFrame)){
       return;
     }
-  } 
+  }
 
 }
 

@@ -5,10 +5,15 @@ filelist.cpp
 
 */
 
-/* Revision: 1.76 23.07.2001 $ */
+/* Revision: 1.77 23.07.2001 $ */
 
 /*
 Modify:
+  23.07.2001 SVS
+    - При первом старте ФАРа серая звездочка не работала до тех пор пока не
+      жмакним курсорную клавишу. Проблема в том, что Mask в SelectFiles() не
+      инициализировалась (для SELECT_INVERT*) и, естетственно, компиляция
+      маски (FileMask.Set()) завершалась по ошибке.
   23.07.2001 SKV
     ! При погашенных панелях теперь работают
       CtrlG,CtrlF,CtrlAltF,Ctrl[,Ctrl],CtrlShift[,CtrlShift]
@@ -2493,7 +2498,7 @@ void FileList::SelectFiles(int Mode)
 
   struct FileListItem *CurPtr;
   static char PrevMask[NM]="*.*";
-  char Mask[NM];
+  char Mask[NM]="*.*";
   int Selection,I;
 
   if (CurFile>=FileCount)
