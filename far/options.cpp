@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 05.09.2000 $ */
 
 /*
 Modify:
+  05.09.2000 tran
+    + OptionsEnabled - reg:Policies/DisabledOptions
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -22,6 +24,8 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
+int OptionsDisabled(int i);
 
 void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -389,6 +393,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
       }
       break;
     case 3:
+      /* $ 05.09.2000 tran
+        + обработка разрешения настройки
+      */
+      if ( !OptionsDisabled(VItem) )
+        break;
+      /* tran 05.09.2000 $ */
       switch(VItem)
       {
         case 0:
@@ -498,3 +508,18 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
   }
 }
 
+/* $ 05.09.2000 tran
+   функция проверки разрешенности конфигурации */
+int OptionsDisabled(int i)
+{
+    int r;
+
+    if (GetRegKey("Policies","DisabledOptions",r,0))
+    {
+//        SysLog("i=%i, r=0x0%08x, (r>>i)=0x%08x, (r>>i)&1=%i",i,r,(r>>i),(r>>i)&1);
+        if ( (r>>i)&1 )
+            return FALSE;
+    }
+    return TRUE;
+}
+/* tran 05.09.2000 $ */
