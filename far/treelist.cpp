@@ -5,10 +5,15 @@ Tree panel
 
 */
 
-/* Revision: 1.29 11.12.2001 $ */
+/* Revision: 1.30 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    ! немного оптимизации.
+    - Ѕага - после выделени€ пам€ти начинаем рисовать без предварительной
+      инициализации нулевого итема в нужное значение. ¬ итоге налицо -
+      бага с прорисовкой в заголовке консольного окна.
   11.12.2001 SVS
     + —вой кейбар в дерев€хе
     - не обновлась пассивна€ панель при удалении каталога из дерев€хи
@@ -255,15 +260,19 @@ void TreeList::DisplayTree(int Fast)
     ScrollBar(X2,Y1+1,Y2-Y1-3,CurFile,TreeCount>1 ? TreeCount-1:TreeCount);
   }
   SetColor(COL_PANELTEXT);
-  GotoXY(X1+1,Y2-1);
   if (TreeCount>0)
+  {
+    GotoXY(X1+1,Y2-1);
     mprintf("%-*.*s",X2-X1-1,X2-X1-1,ListData[CurFile].Name);
+  }
   else
-    mprintf("%*s",X2-X1-1,"");
+    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT); //mprintf("%*s",X2-X1-1,"");
+
   if (ModalMode)
   {
-    GotoXY(X1+1,Y2-2);
-    mprintf("%*s",X2-X1-1,"");
+    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT);
+    //GotoXY(X1+1,Y2-2);
+    //mprintf("%*s",X2-X1-1,"");
   }
 
   UpdateViewPanel();
@@ -368,12 +377,13 @@ int TreeList::ReadTree()
     return FALSE;
   /* SVS $ */
 
+  memset(&ListData[0], 0, sizeof(ListData[0]));
+  strcpy(ListData->Name,Root);
+
   /* “.к. мы можем вызвать диалог подтверждени€ (который не перерисовывает панельки,
      а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
   Redraw();
 
-  memset(&ListData[0], 0, sizeof(ListData[0]));
-  strcpy(ListData->Name,Root);
   if (RootLength>0 && Root[RootLength-1]!=':' && Root[RootLength]=='\\')
     ListData->Name[RootLength]=0;
   TreeCount=1;
@@ -425,7 +435,8 @@ void TreeList::SaveTreeFile()
   int RootLength=strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
-  sprintf(Name,"%s%s",Root,TreeFileName);
+  strcpy(Name,Root);
+  strcat(Name,TreeFileName);
   // получим и сразу сбросим атрибуты (если получитс€)
   DWORD FileAttributes=GetFileAttributes(Name);
   if(FileAttributes != -1)
@@ -465,7 +476,8 @@ int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
                             FileSystemName,sizeof(FileSystemName)))
     return(FALSE);
   char FolderName[NM];
-  sprintf(FolderName,"%s%s",FarPath,TreeCacheFolderName);
+  strcpy(FolderName,FarPath);
+  strcat(FolderName,TreeCacheFolderName);
   if (CreateDir)
   {
     mkdir(FolderName);
@@ -477,8 +489,8 @@ int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
     strcpy(RemoteName,Root);
   else
   {
-    char LocalName[NM];
-    sprintf(LocalName,"%c:",*Root);
+    char *LocalName="A:";
+    *LocalName=*Root;
     DWORD RemoteNameSize=sizeof(RemoteName);
     WNetGetConnection(LocalName,RemoteName,&RemoteNameSize);
     if (*RemoteName)
@@ -1558,8 +1570,8 @@ void TreeList::SetTitle()
 {
   if (GetFocus())
   {
-    char *Ptr="";
     char TitleDir[NM];
+    char *Ptr="";
     if(ListData)
     {
       struct TreeItem *CurPtr=ListData+CurFile;

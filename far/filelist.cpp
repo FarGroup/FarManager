@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.119 25.12.2001 $ */
+/* Revision: 1.120 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    - ...когда ввели в масдае cd //host/share... получаем
+      C:\\host\share
   25.12.2001 DJ
     - еще раз фиксим вылет network-плагина
   25.12.2001 SVS
@@ -1969,7 +1972,8 @@ BOOL FileList::ChangeDir(char *NewDir)
   Panel *AnotherPanel;
   char FindDir[1024],SetDir[1024];
 
-  PrepareDiskPath(strcpy(SetDir,NewDir),sizeof(SetDir)-1);
+  strcpy(SetDir,NewDir);
+  PrepareDiskPath(SetDir,sizeof(SetDir)-1);
 
   if (strcmp(SetDir,"..")!=0 && strcmp(SetDir,"\\")!=0)
     UpperFolderTopFile=CurTopFile;
@@ -2152,6 +2156,20 @@ BOOL FileList::ChangeDir(char *NewDir)
      если не удалось
   */
   int UpdateFlags = 0;
+
+  // ...когда ввели в масдае cd //host/share
+  if(WinVer.dwPlatformId != VER_PLATFORM_WIN32_NT &&
+    SetDir[0] == '/' && SetDir[1] == '/')
+  {
+    char *Ptr=SetDir;
+    while(*Ptr)
+    {
+      if(*Ptr == '/')
+        *Ptr='\\';
+      ++Ptr;
+    }
+  }
+
   if (!SetCurrentDirectory(SetDir))
   {
     /* $ 03.11.2001 IS

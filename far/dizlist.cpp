@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.04 21.10.2001 $ */
+/* Revision: 1.05 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + Обработка RO-файлов описаний
   21.10.2001 SVS
     + CALLBACK-функция для избавления от BugZ#85
   25.06.2001 IS
@@ -336,13 +338,25 @@ int DizList::Flush(char *Path,char *DizName)
     }
   FILE *DizFile;
   int FileAttr=GetFileAttributes(DizFileName);
-  if ((FileAttr & FA_RDONLY)==0)
-    SetFileAttributes(DizFileName,FA_ARCH);
+
+  if(FileAttr != -1)
+  {
+    if(Opt.Diz.ROUpdate && (FileAttr&FA_RDONLY))
+      SetFileAttributes(DizFileName,FileAttr&(~FA_RDONLY));
+
+    if ((FileAttr & FA_RDONLY)==0)
+      SetFileAttributes(DizFileName,FA_ARCH);
+  }
+
   if ((DizFile=fopen(DizFileName,"wb"))==NULL)
   {
-    Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
+    if(!Opt.Diz.ROUpdate && (FileAttr&FA_RDONLY))
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
+    else
+      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
     return(FALSE);
   }
+
   int AddedDizCount=0;
   for (int I=0;I<DizCount;I++)
     if (!DizData[I].Deleted)
@@ -350,16 +364,20 @@ int DizList::Flush(char *Path,char *DizName)
       fprintf(DizFile,"%s\r\n",DizData[I].DizText);
       AddedDizCount++;
     }
+
   int CloseCode=fclose(DizFile);
   if (AddedDizCount==0)
     remove(DizFileName);
+
   if (FileAttr==-1)
   {
     FileAttr=FA_ARCH;
     if (Opt.Diz.SetHidden)
       FileAttr|=FA_HIDDEN;
   }
+
   SetFileAttributes(DizFileName,FileAttr);
+
   if (CloseCode==EOF)
   {
     clearerr(DizFile);
@@ -368,6 +386,7 @@ int DizList::Flush(char *Path,char *DizName)
     Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
     return(FALSE);
   }
+
   return(TRUE);
 }
 

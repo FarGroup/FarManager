@@ -12,6 +12,14 @@ macro.cpp
 
 /*
 Modify:
+  26.12.2001 SVS
+    ! ¬от теперь точное отображение пункта в ньюсе:
+      "[!] ѕри считывании макросов из реестра игнорируютс€
+       макропоследовательности, содержащие ошибки в названии
+       клавиш."
+      “.е. учитываютс€ ошибки не только в имена макроклавиши,
+      но и в "Sequence". » такой глюкавый макрос не считываетс€
+      в пам€ть.
   21.12.2001 SVS
     + MOUSEKEY
   10.12.2001 SVS
@@ -1013,25 +1021,28 @@ int KeyMacro::ReadMacros(int ReadMode,char *Buffer,int BufferSize)
     int KeyCode=KeyNameToKey(KeyText);
     if (KeyCode==-1)
       continue;
-    Macros=(struct MacroRecord *)realloc(Macros,sizeof(*Macros)*(MacrosNumber+1));
-    if (Macros==NULL)
-    {
-      MacrosNumber=0;
-      return FALSE;
-    }
-    struct MacroRecord *CurMacro=&Macros[MacrosNumber];
-    CurMacro->Key=KeyCode;
-    CurMacro->Buffer=NULL;
-    CurMacro->BufferSize=0;
-    CurMacro->Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
+
+    struct MacroRecord CurMacro;
+    CurMacro.Key=KeyCode;
+    CurMacro.Buffer=NULL;
+    CurMacro.BufferSize=0;
+    CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK);
     GetRegKey(RegKeyName,"Sequence",Buffer,"",BufferSize);
 
     for(J=0; J < sizeof(MKeywords)/sizeof(MKeywords[0]); ++J)
       if(MKeywords[J].Type == 1)
-        CurMacro->Flags|=GetRegKey(RegKeyName,MKeywords[J].Name,0)?MKeywords[J].Value:0;
+        CurMacro.Flags|=GetRegKey(RegKeyName,MKeywords[J].Name,0)?MKeywords[J].Value:0;
 
-    if(!ParseMacroString(CurMacro,Buffer))
+    if(!ParseMacroString(&CurMacro,Buffer))
+      continue;
+
+    struct MacroRecord *NewMacros=(struct MacroRecord *)realloc(Macros,sizeof(*Macros)*(MacrosNumber+1));
+    if (NewMacros==NULL)
+    {
       return FALSE;
+    }
+    Macros=NewMacros;
+    memcpy(Macros+MacrosNumber,&CurMacro,sizeof(CurMacro));
     MacrosNumber++;
   }
   return TRUE;
@@ -1397,7 +1408,18 @@ int KeyMacro::ParseMacroString(struct MacroRecord *CurMacro,char *BufPtr)
     PrevKeyKode=KeyCode;
     KeyCode=KEY_NONE;
     if(!IsKeyWord2)
-      KeyCode=KeyNameToKey(CurKeyText);
+    {
+      if((KeyCode=KeyNameToKey(CurKeyText)) == -1)
+      {
+        if (CurMacro->Buffer!=NULL)
+        {
+          free(CurMacro->Buffer);
+          CurMacro->Buffer=NULL;
+        }
+        CurMacro->BufferSize=0;
+        return FALSE;
+      }
+    }
     else
       for(I=0;I < sizeof(MKeywords)/sizeof(MKeywords[0]); ++I)
         if(!stricmp(MKeywords[I].Name,CurKeyText))

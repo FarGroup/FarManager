@@ -5,10 +5,16 @@ config.cpp
 
 */
 
-/* Revision: 1.117 21.12.2001 $ */
+/* Revision: 1.118 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + Opt.CloseConsoleRule
+    ! При закрытии окна "по кресту"... теперь настраиваемо! По умолчанию - как
+      и раньше - без сохранения!
+    + Обработка RO-файлов описаний
+    + Свой курсор для Overtype режима
   21.12.2001 SVS
     + Opt.RestoreCPAfterExecute
     ! AutoSave в диалоге настройки системы перенесем ниже - так логичнее будет.
@@ -793,52 +799,55 @@ void SetDizConfig()
 {
   static struct DialogData DizDlgData[]=
   {
-  /* 00 */DI_DOUBLEBOX,3,1,72,13,0,0,0,0,(char *)MCfgDizTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,72,14,0,0,0,0,(char *)MCfgDizTitle,
   /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MCfgDizListNames,
   /* 02 */DI_EDIT,5,3,70,3,1,0,0,0,"",
   /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MCfgDizSetHidden,
-  /* 05 */DI_FIXEDIT,5,6,7,6,0,0,0,0,"",
-  /* 06 */DI_TEXT,9,6,0,0,0,0,0,0,(char *)MCfgDizStartPos,
-  /* 07 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 08 */DI_RADIOBUTTON,5,8,0,0,0,0,DIF_GROUP,0,(char *)MCfgDizNotUpdate,
-  /* 09 */DI_RADIOBUTTON,5,9,0,0,0,0,0,0,(char *)MCfgDizUpdateIfDisplayed,
-  /* 10 */DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(char *)MCfgDizAlwaysUpdate,
-  /* 11 */DI_TEXT,3,11,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 12 */DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 13 */DI_BUTTON,0,12,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
-
+  /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MCfgDizROUpdate,
+  /* 06 */DI_FIXEDIT,5,7,7,7,0,0,0,0,"",
+  /* 07 */DI_TEXT,9,7,0,0,0,0,0,0,(char *)MCfgDizStartPos,
+  /* 08 */DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 09 */DI_RADIOBUTTON,5,9,0,0,0,0,DIF_GROUP,0,(char *)MCfgDizNotUpdate,
+  /* 10 */DI_RADIOBUTTON,5,10,0,0,0,0,0,0,(char *)MCfgDizUpdateIfDisplayed,
+  /* 11 */DI_RADIOBUTTON,5,11,0,0,0,0,0,0,(char *)MCfgDizAlwaysUpdate,
+  /* 12 */DI_TEXT,3,12,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 13 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 14 */DI_BUTTON,0,13,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(DizDlgData,DizDlg);
   Dialog Dlg(DizDlg,sizeof(DizDlg)/sizeof(DizDlg[0]));
-  Dlg.SetPosition(-1,-1,76,15);
+  Dlg.SetPosition(-1,-1,76,16);
   Dlg.SetHelp("FileDiz");
+
   // ограничим размер поля ввода.
   Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETMAXTEXTLENGTH,2,sizeof(Opt.Diz.ListNames)-1);
   strcpy(DizDlg[2].Data,Opt.Diz.ListNames);
   if (Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
-    DizDlg[8].Selected=TRUE;
+    DizDlg[9].Selected=TRUE;
   else
     if (Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED)
-      DizDlg[9].Selected=TRUE;
-    else
       DizDlg[10].Selected=TRUE;
+    else
+      DizDlg[11].Selected=TRUE;
   DizDlg[4].Selected=Opt.Diz.SetHidden;
-  sprintf(DizDlg[5].Data,"%d",Opt.Diz.StartPos);
+  DizDlg[5].Selected=Opt.Diz.ROUpdate;
+  sprintf(DizDlg[6].Data,"%d",Opt.Diz.StartPos);
 
   Dlg.Process();
-  if (Dlg.GetExitCode()!=12)
+  if (Dlg.GetExitCode()!=13)
     return;
   strncpy(Opt.Diz.ListNames,DizDlg[2].Data,sizeof(Opt.Diz.ListNames)-1);
-  if (DizDlg[8].Selected)
+  if (DizDlg[9].Selected)
     Opt.Diz.UpdateMode=DIZ_NOT_UPDATE;
   else
-    if (DizDlg[9].Selected)
+    if (DizDlg[10].Selected)
       Opt.Diz.UpdateMode=DIZ_UPDATE_IF_DISPLAYED;
     else
       Opt.Diz.UpdateMode=DIZ_UPDATE_ALWAYS;
   Opt.Diz.SetHidden=DizDlg[4].Selected;
-  Opt.Diz.StartPos=atoi(DizDlg[5].Data);
+  Opt.Diz.ROUpdate=DizDlg[5].Selected;
+  Opt.Diz.StartPos=atoi(DizDlg[6].Data);
 }
 
 /* $ 18.07.2000 tran
@@ -1156,6 +1165,8 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.AutoComplete,0, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize2",&Opt.CursorSize[1],10, 0},
+  {0, REG_DWORD,  NKeyInterface, "CursorSize3",&Opt.CursorSize[2],99, 0},
+  {0, REG_DWORD,  NKeyInterface, "CursorSize4",&Opt.CursorSize[3],99, 0},
   {0, REG_DWORD,  NKeyInterface, "ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
   {0, REG_DWORD,  NKeyInterface, "AltF9",&Opt.AltF9, -1, 0},
   {1, REG_DWORD,  NKeyInterface, "CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
@@ -1270,6 +1281,7 @@ static struct FARConfig{
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
   {0, REG_DWORD,  NKeySystem,"LCID",&Opt.LCIDSort,LOCALE_USER_DEFAULT, 0},
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
+  {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,0, 0},
 
   {0, REG_DWORD,  NKeySystemExecutor,"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
 
@@ -1343,6 +1355,7 @@ static struct FARConfig{
 
   {1, REG_SZ,     NKeyDescriptions,"ListNames",Opt.Diz.ListNames,sizeof(Opt.Diz.ListNames),"Descript.ion,Files.bbs"},
   {1, REG_DWORD,  NKeyDescriptions,"UpdateMode",&Opt.Diz.UpdateMode,DIZ_UPDATE_IF_DISPLAYED, 0},
+  {1, REG_DWORD,  NKeyDescriptions,"ROUpdate",&Opt.Diz.ROUpdate,0, 0},
   {1, REG_DWORD,  NKeyDescriptions,"SetHidden",&Opt.Diz.SetHidden,TRUE, 0},
   {1, REG_DWORD,  NKeyDescriptions,"StartPos",&Opt.Diz.StartPos,0, 0},
 

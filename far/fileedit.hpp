@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.23 25.12.2001 $ */
+/* Revision: 1.24 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + внедрение FEOPMODE_*
   25.12.2001 SVS
     + ResizeConsole()
   08.12.2001 OT
@@ -73,6 +75,12 @@ Modify:
 
 class NamesList;
 
+enum FEOPMODEEXISTFILE{
+  FEOPMODE_QUERY        =0,
+  FEOPMODE_USEEXISTING  =2,
+  FEOPMODE_BREAKIFOPEN  =3,
+};
+
 class FileEditor:public Frame
 {
   private:
@@ -103,11 +111,11 @@ class FileEditor:public Frame
   public:
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine=-1,int StartChar=-1,int DisableHistory=FALSE,
-               char *PluginData=NULL,int ToSaveAs=FALSE);
+               char *PluginData=NULL,int ToSaveAs=FALSE,int OpenModeExstFile=FEOPMODE_QUERY);
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine,int StartChar,const char *Title,
                int X1,int Y1,int X2,int Y2, int DisableHistory,
-               BOOL DeleteOnClose=FALSE);
+               BOOL DeleteOnClose=FALSE,int OpenModeExstFile=FEOPMODE_QUERY);
 
   private:
     void Show();
@@ -120,7 +128,7 @@ class FileEditor:public Frame
     /* DJ $ */
     void Init(const char *Name,int CreateNewFile,int EnableSwitch,
               int StartLine,int StartChar,int DisableHistory,char *PluginData,
-              int ToSaveAs, BOOL DeleteOnClose);
+              int ToSaveAs, BOOL DeleteOnClose, int OpenModeExstFile);
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.104 06.12.2001 $ */
+/* Revision: 1.105 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    - ...когда ввели в масдае cd //host/share... получаем
+      C:\\host\share
   06.12.2001 SVS
     ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   03.12.2001 SVS
@@ -708,38 +711,50 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
   {
     Result+=GetCurrentDirectory(DestSize,FullName);
     Result+=AddEndSlash(FullName);
-    if (Result < DestSize) {
+    if (Result < DestSize)
+    {
       strncat(FullName,Src,Result);
       strncpy(Dest,FullName,Result);
       Dest [Result] = '\0';
-    } else {
+    }
+    else
+    {
       CharBufferToSmallWarn(DestSize,Result+1);
     }
-    goto end;
+    return Result;
   }
+
   if (isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\')
-    if (*NamePtr && (*NamePtr!='.' || NamePtr[1]!=0 && (NamePtr[1]!='.' || NamePtr[2]!=0)))
-      if (strstr(Src,"\\..\\")==NULL && strstr(Src,"\\.\\")==NULL)
-      {
-        if (Dest!=Src)
-          strcpy(Dest,Src);
-        goto end;
-      }
+  {
+    if (*NamePtr &&
+        (*NamePtr!='.' || NamePtr[1]!=0 && (NamePtr[1]!='.' || NamePtr[2]!=0)) &&
+        (strstr(Src,"\\..\\")==NULL && strstr(Src,"\\.\\")==NULL)
+       )
+    {
+      if (Dest!=Src)
+        strcpy(Dest,Src);
+      return Result;
+    }
+  }
 
   SetFileApisToANSI();
   OemToChar(Src,AnsiName);
   /* $ 08.11.2000 SVS
      Вместо DestSize использовался sizeof(FullName)...
   */
-  if (GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
+  if(GetFullPathName(AnsiName,DestSize,FullName,&NamePtr))
     CharToOem(FullName,Dest);
   else
     strcpy(Dest,Src);
+
+  // это когда ввели в масдае cd //host/share
+  // а масдай выдал на гора c:\\host\share
+  if(Src[0] == '/' && Src[1] == '/' && Dest[1] == ':' && Dest[3] == '\\')
+    memmove(Dest,Dest+2,strlen(Dest+2)+1);
+
   /* SVS $*/
   SetFileApisToOEM();
-end:
-//  free (FullName);
-//  free (AnsiName);
+
   return Result;
 }
 

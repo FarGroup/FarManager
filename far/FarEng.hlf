@@ -2270,6 +2270,12 @@ lists, but you may disable it by switching off the option
 Also here you may specify the position to align new file descriptions
 in a description list.
 
+    If a description file has the "read-only" attribute set, FAR does
+not attempt to update descriptions, and after moving or deleting file
+objects, an error message is shown. If the option
+"#Update read only description file#" is enabled, FAR will attempt to
+update the descriptions correctly.
+
     If it is enabled in the configuration, FAR updates file
 descriptions when copying, moving and deleting files. But if a command
 processes files from subfolders, descriptions in the subfolders are not

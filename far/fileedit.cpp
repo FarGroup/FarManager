@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.76 25.12.2001 $ */
+/* Revision: 1.77 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + внедрение FEOPMODE_*
   25.12.2001 SVS
     + ResizeConsole()
   17.12.2001 KM
@@ -219,18 +221,19 @@ Modify:
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                        int StartLine,int StartChar,int DisableHistory,
-                       char *PluginData,int ToSaveAs)
+                       char *PluginData,int ToSaveAs, int OpenModeExstFile)
 {
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
   Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,
-       DisableHistory,PluginData,ToSaveAs,FALSE);
+       DisableHistory,PluginData,ToSaveAs,FALSE,OpenModeExstFile);
 }
 
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
             int StartLine,int StartChar,const char *Title,
-            int X1,int Y1,int X2,int Y2,int DisableHistory, BOOL DeleteOnClose)
+            int X1,int Y1,int X2,int Y2,int DisableHistory, BOOL DeleteOnClose,
+            int OpenModeExstFile)
 {
   /* $ 02.11.2001 IS
        отрицательные координаты левого верхнего угла заменяются на нулевые
@@ -242,13 +245,14 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   FEdit.SetTitle(Title);
   Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",
-       FALSE,DeleteOnClose);
+       FALSE,DeleteOnClose,OpenModeExstFile);
 }
 
 
 void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
-                      char *PluginData,int ToSaveAs,BOOL DeleteOnClose)
+                      char *PluginData,int ToSaveAs,BOOL DeleteOnClose,
+                      int OpenModeExstFile)
 {
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
@@ -264,6 +268,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   */
   SaveToSaveAs=ToSaveAs;
   /* KM $ */
+
   if (*Name==0)
     return;
   FEdit.SetPluginData(PluginData);
@@ -272,7 +277,9 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
   SetCanLoseFocus(EnableSwitch);
   GetCurrentDirectory(sizeof(StartDir),StartDir);
   strcpy(FileName,Name);
-  if (sizeof(FullFileName)<=ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName))) {
+
+  if (sizeof(FullFileName)<=ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)))
+  {
     return;
   }
 
@@ -286,25 +293,33 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
       if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
           Opt.Confirm.AllowReedit)
       {
-        char MsgFullFileName[NM];
-        strcpy(MsgFullFileName,FullFileName);
-        SetMessageHelp("EditorReload");
-        int MsgCode=Message(0,3,MSG(MEditTitle),
-              TruncPathStr(MsgFullFileName,ScrX-16),
-              MSG(MAskReload),
-              MSG(MCurrent),MSG(MNewOpen),MSG(MReload));
+        int MsgCode;
+        if(OpenModeExstFile == FEOPMODE_QUERY)
+        {
+          char MsgFullFileName[NM];
+          strcpy(MsgFullFileName,FullFileName);
+          SetMessageHelp("EditorReload");
+          MsgCode=Message(0,3,MSG(MEditTitle),
+                TruncPathStr(MsgFullFileName,ScrX-16),
+                MSG(MAskReload),
+                MSG(MCurrent),MSG(MNewOpen),MSG(MReload));
+        }
+        else
+        {
+          MsgCode=(OpenModeExstFile==FEOPMODE_USEEXISTING)?0:-1;
+        }
         switch(MsgCode)
         {
-          case 0:
+          case 0:         // Current
             SwitchTo=TRUE;
             FrameManager->DeleteFrame(this);
             break;
-          case 2:
+          case 1:         // NewOpen
+            SwitchTo=FALSE;
+            break;
+          case 2:         // Reload
             FrameManager->DeleteFrame(FramePos);
             SetExitCode(-2);
-            break;
-          case 1:
-            SwitchTo=FALSE;
             break;
           default:
             FrameManager->DeleteFrame(this);

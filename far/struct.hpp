@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.80 21.12.2001 $ */
+/* Revision: 1.81 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + Opt.CloseConsoleRule, Opt.Diz.ROUpdate
+    ! Opt.CursorSize - плюс еще 2 позиции под Overide-режим
   21.12.2001 SVS
     + Opt.RestoreCPAfterExecute
   17.12.2001 IS
@@ -297,6 +300,7 @@ struct RegInfo
 struct DizOptions
 {
   char ListNames[NM];
+  int ROUpdate;
   int UpdateMode;
   int SetHidden;
   int StartPos;
@@ -636,7 +640,7 @@ struct Options
   /* $ 22.01.2001 SVS
    + Opt.CursorSize - Размер курсора ФАРа :-)
      клавиш */
-  int CursorSize[2];
+  int CursorSize[4];
   /* SVS $ */
   /* $ 05.09.2000 SVS
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки
@@ -691,6 +695,7 @@ struct Options
   /* OT $ */
   int PgUpChangeDisk;
   int ShowCheckingFile;
+  int CloseConsoleRule;
 
   DWORD LCIDSort;
   int HelpTabSize;

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.57 25.12.2001 $ */
+/* Revision: 1.58 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    ! ѕри закрытии окна "по кресту"... теперь настраиваемо!
   25.12.2001 SVS
     ! ¬ режиме WaitInMainLoop=1 Alt-символ и Alt-Shift-символ транслируем как
       есть (чтобы корректно работал FastFind). ¬ остальных случа€х - берем
@@ -475,8 +477,10 @@ int GetInputRecord(INPUT_RECORD *rec)
          нажатии на F10 в панел€х, только не запрашиваем подтверждение закрыти€,
          если это возможно.
       */
-      // FrameManager->IsAnyFrameModified(TRUE);
-      FrameManager->ExitMainLoop(FALSE);
+      if(!Opt.CloseConsoleRule)
+        FrameManager->IsAnyFrameModified(TRUE);
+      else
+        FrameManager->ExitMainLoop(FALSE);
       return KEY_NONE;
       /* IS $ */
     }

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.62 21.12.2001 $ */
+/* Revision: 1.63 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + Свой курсор для Overtype режима
   21.12.2001 SVS
     + KEY_MACROSELWORD
   21.12.2001 SVS
@@ -358,16 +360,23 @@ void Edit::DisplayObject()
   /* KM $ */
   /* KM $ */
 
-  if (Overtype)
-    SetCursorType(1,99);
-  else
-    SetCursorType(1,-1);
   /* $ 26.07.2000 tran
      при DropDownBox курсор выключаем
      не знаю даже - попробовал но не очень красиво вышло */
-  if ( DropDownBox )
+  if (DropDownBox)
     SetCursorType(0,10);
-  /* tran 26.07.2000 $ */
+  else
+  {
+    if (Overtype)
+    {
+      int NewCursorSize=IsWindowed()?
+       (Opt.CursorSize[2]?Opt.CursorSize[2]:99):
+       (Opt.CursorSize[3]?Opt.CursorSize[3]:99);
+      SetCursorType(1,NewCursorSize);
+    }
+    else
+      SetCursorType(1,-1);
+  }
   MoveCursor(X1+CursorPos-LeftPos,Y1);
 }
 

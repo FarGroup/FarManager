@@ -1202,10 +1202,12 @@
 
 "Reading file descriptions"
 "Cannot update file descriptions"
+"The description file is read only"
 
 "File descriptions"
 "Description &list names delimited with commas:"
 "Set ""&Hidden"" attribute to new description lists"
+"Update read only description file"
 "&Position of new descriptions in the string"
 "Do &not update descriptions"
 "Update if &displayed"

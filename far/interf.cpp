@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.43 24.12.2001 $ */
+/* Revision: 1.44 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    ! При закрытии окна "по кресту"... теперь настраиваемо!
   24.12.2001 VVM
     ! При ожидании окончания регистрации отдаем время виндам...
   10.12.2001 SVS
@@ -486,6 +488,13 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
      процедуры: оповещены плагины, вызваны деструкторы, сохранены настройки и
      т.п.
   */
+  if(!Opt.CloseConsoleRule)
+  {
+    if (CurrentEditor!=NULL && CurrentEditor->IsFileModified() ||
+        FrameManager->IsAnyFrameModified (FALSE))
+      return(TRUE);
+    return(FALSE);
+  }
   return TRUE;
   /* IS $ */
 }

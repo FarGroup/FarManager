@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.89 24.12.2001 $ */
+/* Revision: 1.90 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + MCannotUpdateRODiz, MCfgDizROUpdate
   24.12.2001 SVS
     + MHelpSearch* - для будущего поиска в хелпе.
   17.12.2001 IS
@@ -1456,10 +1458,12 @@ enum
 
   MReadingDiz,
   MCannotUpdateDiz,
+  MCannotUpdateRODiz,
 
   MCfgDizTitle,
   MCfgDizListNames,
   MCfgDizSetHidden,
+  MCfgDizROUpdate,
   MCfgDizStartPos,
   MCfgDizNotUpdate,
   MCfgDizUpdateIfDisplayed,

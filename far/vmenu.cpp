@@ -8,10 +8,13 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.70 21.12.2001 $ */
+/* Revision: 1.71 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    - если все пункты задисаблены, то нефига показывать селектед-пункт
+      цветом курсора.
   21.12.2001 SVS
     - не учитывался флаг VMENU_LISTBOX при пересчете координат, из-за чего
       нельзя было спозиционировать список в X1=0
@@ -765,7 +768,7 @@ void VMenu::ShowMenu(int IsParent)
           GotoXY(X2,Y);
           Text((char*)BoxChar);
         }
-        if (Item[I].Flags&LIF_SELECTED)
+        if ((Item[I].Flags&LIF_SELECTED) && !(Item[I].Flags&LIF_DISABLE))
           SetColor(VMenu::Colors[6]);
         else
           SetColor(VMenu::Colors[(Item[I].Flags&LIF_DISABLE?9:3)]);

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.110 24.12.2001 $ */
+/* Revision: 1.111 26.12.2001 $ */
 
 /*
 Modify:
+  26.12.2001 SVS
+    + EF_USEEXISTING, EF_BREAKIFOPEN - поведение при открытии редактора
+      поменяли, а плагинам обломится что ли?
   24.12.2001 SVS
     - Бага с прорисовкой (при заходе в битый архив выводится месаг, но потом
       панели не обновляются, или просмотр HLF-файла - аналогично)
@@ -1681,11 +1684,18 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
   int DeleteOnClose=(Flags & EF_DELETEONCLOSE)?TRUE:FALSE;
   /* IS $ */
+  int OpMode=FEOPMODE_QUERY;
+  if((Flags&(EF_USEEXISTING|EF_BREAKIFOPEN)) != (EF_USEEXISTING|EF_BREAKIFOPEN))
+    OpMode=(Flags&EF_USEEXISTING)?FEOPMODE_USEEXISTING:FEOPMODE_BREAKIFOPEN;
+
   if (Flags & EF_NONMODAL)
   {
     ExitCode=FALSE;
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory,DeleteOnClose);
+    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,
+                                      StartLine,StartChar,Title,
+                                      X1,Y1,X2,Y2,DisableHistory,
+                                      DeleteOnClose,OpMode);
     /* IS $ */
     if (Editor)
     {
@@ -1699,7 +1709,10 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   else
   {
    /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory,DeleteOnClose);
+   FileEditor Editor(FileName,CreateNew,FALSE,
+                     StartLine,StartChar,Title,
+                     X1,Y1,X2,Y2,DisableHistory,
+                     DeleteOnClose,OpMode);
    /* IS $ */
    Editor.SetDynamicallyBorn(false);
    /* $ 12.05.2001 DJ */
@@ -1708,12 +1721,12 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
    SetConsoleTitle(OldTitle);
    FrameManager->ExecuteModal();
    ExitCode = Editor.GetExitCode();
-   if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED){
-     if (Editor.IsFileChanged()){
-       ExitCode = XC_MODIFIED;
-     } else {
-       ExitCode = XC_NOT_MODIFIED;
-     }
+   if (ExitCode && ExitCode != XC_LOADING_INTERRUPTED)
+   {
+     if(OpMode==FEOPMODE_BREAKIFOPEN && ExitCode==XC_QUIT)
+       ExitCode = XC_OPEN_ERROR;
+     else
+       ExitCode = Editor.IsFileChanged()?XC_MODIFIED:XC_NOT_MODIFIED;
    }
   }
   return ExitCode;

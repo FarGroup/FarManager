@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.176 20.12.2001 $ */
+/* Revision: 1.177 26.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  26.12.2001 SVS
+    + EF_USEEXISTING, EF_BREAKIFOPEN - поведение при открытии редактора
+      поменяли, а плагинам обломится что ли?
   20.12.2001 IS
     ! небольшое предупреждение по поводу изменения WTYPE_*
   12.12.2001 SVS
@@ -1237,18 +1240,20 @@ typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
 typedef void (WINAPI *FARAPIFREEDIRLIST)(const struct PluginPanelItem *PanelItem);
 
 enum VIEWER_FLAGS {
-  VF_NONMODAL       =1,
-  VF_DELETEONCLOSE  =2,
-  VF_ENABLE_F6      =4,
-  VF_DISABLEHISTORY =8,
+  VF_NONMODAL       =0x00000001,
+  VF_DELETEONCLOSE  =0x00000002,
+  VF_ENABLE_F6      =0x00000004,
+  VF_DISABLEHISTORY =0x00000008,
 };
 
 enum EDITOR_FLAGS {
-  EF_NONMODAL       =1,
-  EF_CREATENEW      =2,
-  EF_ENABLE_F6      =4,
-  EF_DISABLEHISTORY =8,
-  EF_DELETEONCLOSE  =16,
+  EF_NONMODAL       =0x00000001,
+  EF_CREATENEW      =0x00000002,
+  EF_ENABLE_F6      =0x00000004,
+  EF_DISABLEHISTORY =0x00000008,
+  EF_DELETEONCLOSE  =0x00000010,
+  EF_USEEXISTING    =0x00000020,
+  EF_BREAKIFOPEN    =0x00000040,
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(
