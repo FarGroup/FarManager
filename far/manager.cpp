@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.65 27.03.2002 $ */
+/* Revision: 1.66 30.03.2002 $ */
 
 /*
 Modify:
+  30.03.2002 OT
+    - После исправления бага №314 (патч 1250) отвалилось закрытие
+      фара по кресту.
   27.03.2002 OT
     - Дыра в ДелитКоммит(). Не корректно удалялся фрейм, которого
       не было ни в модальном стеке, ни в списке немодальных фреймов.
@@ -665,15 +668,24 @@ void Manager::ProcessMainLoop()
 
 void Manager::ExitMainLoop(int Ask)
 {
+  if (CloseFAR)
+  {
+    CloseFAR=FALSE;
+    CloseFARMenu=TRUE;
+  };
   if (!Ask || !Opt.Confirm.Exit || Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo))==0)
    /* $ 29.12.2000 IS
       + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим
         из фара.
    */
    if(ExitAll())
+   {
    /* IS $ */
-    if (!CtrlObject->Cp()->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !CtrlObject->Cp()->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
-      EndLoop=TRUE;
+     if (!CtrlObject->Cp()->LeftPanel->ProcessPluginEvent(FE_CLOSE,NULL) && !CtrlObject->Cp()->RightPanel->ProcessPluginEvent(FE_CLOSE,NULL))
+       EndLoop=TRUE;
+   } else {
+     CloseFARMenu=FALSE;
+   }
 }
 
 int  Manager::ProcessKey(int Key)

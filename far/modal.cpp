@@ -5,10 +5,13 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.10 22.03.2002 $ */
+/* Revision: 1.11 30.03.2002 $ */
 
 /*
 Modify:
+  30.03.2002 OT
+    - После исправления бага №314 (патч 1250) отвалилось закрытие
+      фара по кресту.
   22.03.2002 SVS
     - strcpy - Fuck!
   20.02.2002 OT
@@ -74,7 +77,7 @@ int Modal::ReadInput()
   }
   else
     ReadKey=GetInputRecord(&ReadRec);
-  if (CloseFAR){
+  if (CloseFARMenu){
     SetExitCode(TRUE);
   }
   return(ReadKey);

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.125 26.03.2002 $ */
+/* Revision: 1.126 30.03.2002 $ */
 
 /*
 Modify:
+  30.03.2002 OT
+    - После исправления бага №314 (патч 1250) отвалилось закрытие
+      фара по кресту.
   26.03.2002 DJ
     ! разрешим GetMsg() при ManagerIsDown()
     ! ScanTree::GetNextName() принимает размер буфера для имени файла
@@ -915,7 +918,7 @@ int WINAPI FarMenuFn(int PluginNumber,int X,int Y,int MaxHeight,
       FarMenu.AssignHighlights(TRUE);
     FarMenu.SetFlags(MenuFlags);
     FarMenu.Show();
-    while (!FarMenu.Done())
+    while (!FarMenu.Done() && !CloseFARMenu)
     {
       INPUT_RECORD ReadRec;
       int ReadKey=GetInputRecord(&ReadRec);

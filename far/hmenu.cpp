@@ -5,10 +5,13 @@ hmenu.cpp
 
 */
 
-/* Revision: 1.09 23.02.2002 $ */
+/* Revision: 1.10 30.02.2002 $ */
 
 /*
 Modify:
+  30.03.2002 OT
+    - После исправления бага №314 (патч 1250) отвалилось закрытие
+      фара по кресту.
   23.02.2002 DJ
     - косметика от BoundsChecker
   13.08.2001 OT
@@ -262,7 +265,7 @@ void HMenu::ProcessSubMenu(struct MenuData *Data,int DataCount,
   SubMenu->SetHelp(SubMenuHelp);
   SubMenu->SetPosition(X,Y,0,0);
   SubMenu->Show();
-  while (!SubMenu->Done())
+  while (!SubMenu->Done() && !CloseFARMenu)
   {
     INPUT_RECORD rec;
     int Key;

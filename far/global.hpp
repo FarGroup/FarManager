@@ -8,10 +8,13 @@ global.hpp
 
 */
 
-/* Revision: 1.35 19.03.2002 $ */
+/* Revision: 1.36 30.03.2002 $ */
 
 /*
 Modify:
+  30.03.2002 OT
+    - После исправления бага №314 (патч 1250) отвалилось закрытие
+      фара по кресту.
   19.03.2002 SVS
     + MAC_EOL_fmt
   01.03.2002 SVS
@@ -158,7 +161,7 @@ extern int ScreenSaverActive;
 
 extern char LastFarTitle[512];
 
-extern int CloseFAR;
+extern int CloseFAR, CloseFARMenu;
 
 extern int RegVer;
 extern char RegName[256];

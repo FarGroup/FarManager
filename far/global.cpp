@@ -5,10 +5,13 @@ global.cpp
 
 */
 
-/* Revision: 1.35 19.03.2002 $ */
+/* Revision: 1.36 30.03.2002 $ */
 
 /*
 Modify:
+  30.03.2002 OT
+    - После исправления бага №314 (патч 1250) отвалилось закрытие
+      фара по кресту.
   19.03.2002 SVS
     + MAC_EOL_fmt
   01.03.2002 SVS
@@ -173,7 +176,7 @@ int GlobalSearchReverse;
 int ScreenSaverActive;
 
 Editor *CurrentEditor;
-int CloseFAR;
+int CloseFAR=FALSE,CloseFARMenu=FALSE;
 
 // Про регистрацию
 int  RegVer;
