@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.278 21.02.2003 $ */
+/* Revision: 1.279 22.02.2003 $ */
 
 /*
 Modify:
+  22.02.2003 SVS
+    - BugZ#806 - Strange crash
+      Пытаюсь при загрузке плагина (setstartupinfo) пополнить историю диалога с
+      помощью приаттаченого кода, ФАР падает при наличии DM_CLOSE.
   21.02.2003 SVS
     - неверные цвета для DI_SINGLEBOX и DI_DOUBLEBOX.
   12.02.2003 SVS
@@ -5396,7 +5400,10 @@ void Dialog::CloseDialog()
   {
     DialogMode.Set(DMODE_ENDLOOP);
     Hide();
-    FrameManager->DeleteFrame (this);
+
+    if(FrameManager->ManagerStarted())
+      FrameManager->DeleteFrame (this);
+
     _DIALOG(CleverSysLog CL("Close Dialog"));
   }
 }
