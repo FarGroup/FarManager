@@ -954,8 +954,8 @@ simply separate the folder names with the backslash character. For example:
 
     It is also possible to create multiple folders at the same time.
 In order to do this, you should separate the folder names with semicolons
-("#;#"). If the name of a folder contains a semicolon, it should be enclosed
-in quotation marks. For example:
+("#;#") or comma ("#,#"). If the name of a folder contains a semicolon (or
+comma), it should be enclosed in quotation marks. For example:
 
     #C:\Foo1;"E:\foo2;";D:\foo3#
 

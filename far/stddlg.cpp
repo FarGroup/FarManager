@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.11 16.05.2001 $ */
+/* Revision: 1.12 11.06.2001 $ */
 
 /*
 Modify:
+  11.06.2001 SVS
+    ! Новые параметры у GetSearchReplaceString() - указывающие размеры буферов
   16.05.2001 SVS
     ! DumpExceptionInfo заменен на xfilter
   07.05.2001 SVS
@@ -99,7 +101,9 @@ Modify:
 int WINAPI GetSearchReplaceString(
          int IsReplaceMode,
          unsigned char *SearchStr,
+         int LenSearchStr,
          unsigned char *ReplaceStr,
+         int LenReplaceStr,
          const char *TextHistoryName,
          const char *ReplaceHistoryName,
          int *Case,
@@ -178,8 +182,8 @@ int WINAPI GetSearchReplaceString(
     if (Dlg.GetExitCode()!=10)
       return FALSE;
 
-    strcpy((char *)SearchStr,ReplaceDlg[2].Data);
-    strcpy((char *)ReplaceStr,ReplaceDlg[4].Data);
+    strncpy((char *)SearchStr,ReplaceDlg[2].Data,LenSearchStr);
+    strncpy((char *)ReplaceStr,ReplaceDlg[4].Data,LenReplaceStr);
     if(Case)       *Case=ReplaceDlg[6].Selected;
     if(WholeWords) *WholeWords=ReplaceDlg[7].Selected;
     if(Reverse)    *Reverse=ReplaceDlg[8].Selected;
@@ -232,7 +236,7 @@ int WINAPI GetSearchReplaceString(
     if (Dlg.GetExitCode()!=8)
       return FALSE;
 
-    strcpy((char *)SearchStr,SearchDlg[2].Data);
+    strncpy((char *)SearchStr,SearchDlg[2].Data,LenSearchStr);
     if(ReplaceStr) *ReplaceStr=0;
     if(Case)       *Case=SearchDlg[4].Selected;
     if(WholeWords) *WholeWords=SearchDlg[5].Selected;

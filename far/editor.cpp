@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.104 10.06.2001 $ */
+/* Revision: 1.105 11.06.2001 $ */
 
 /*
 Modify:
+  11.06.2001 SVS
+    ! Новые параметры у GetSearchReplaceString() - указывающие размеры буферов
   10.06.2001 IS
     - Баг: зачем-то при продолжении _обратного_ поиска прокручивались на шаг
       _вперед_.
@@ -3312,10 +3314,10 @@ void Editor::ScrollUp()
 BOOL Editor::Search(int Next)
 {
   struct EditList *CurPtr;
-  unsigned char SearchStr[256],ReplaceStr[256];
-  static char LastReplaceStr[256];
+  unsigned char SearchStr[512],ReplaceStr[512];
+  static char LastReplaceStr[512];
   static int LastSuccessfulReplaceMode=0;
-  char MsgStr[256];
+  char MsgStr[512];
   const char *TextHistoryName="SearchText",*ReplaceHistoryName="ReplaceText";
   /* $ 03.08.2000 KM
      Новая переменная
@@ -3332,7 +3334,8 @@ BOOL Editor::Search(int Next)
   ReverseSearch=LastSearchReverse;
 
   if (!Next)
-    if(!GetSearchReplaceString(ReplaceMode,SearchStr,ReplaceStr,
+    if(!GetSearchReplaceString(ReplaceMode,SearchStr,sizeof(SearchStr),
+                   ReplaceStr,sizeof(ReplaceStr),
                    TextHistoryName,ReplaceHistoryName,
                    &Case,&WholeWords,&ReverseSearch))
       return FALSE;
@@ -3431,7 +3434,7 @@ BOOL Editor::Search(int Next)
             Text(TmpStr);
             delete[] TmpStr;
 
-            char QSearchStr[256],QReplaceStr[256];
+            char QSearchStr[512],QReplaceStr[512];
             sprintf(QSearchStr,"\"%s\"",LastSearchStr);
             sprintf(QReplaceStr,"\"%s\"",LastReplaceStr);
             MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),

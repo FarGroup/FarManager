@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.87 08.06.2001 $ */
+/* Revision: 1.88 11.06.2001 $ */
 
 /*
 Modify:
+  11.06.2001 SVS
+    ! Новые параметры у GetSearchReplaceString()
   08.06.2001 SVS
     + GenerateWINDOW_BUFFER_SIZE_EVENT()
   06.06.2001 SVS
@@ -811,7 +813,9 @@ char* WINAPI PrepareOSIfExist(char *CmdLine);
 int WINAPI GetSearchReplaceString(
          int IsReplaceMode,
          unsigned char *SearchStr,
+         int LenSearchStr,
          unsigned char *ReplaceStr,
+         int LenReplaceStr,
          const char *TextHistoryName,
          const char *ReplaceHistoryName,
          int *Case,
