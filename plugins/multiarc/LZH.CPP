@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 FAR group
 */
-/* $Revision: 1.02 26.04.2001 $ */
+/* $Revision: 1.03 27.04.2001 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -268,14 +268,14 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
       "lha d -a -m {-w%%W} {%%S} %%a @%%lM",
       "",
       "",
-      "lha s -m -x {%%S} %%a"
+      "lha s -m -x {%%S} %%a",
       "",
       "",
       "",
-      "lha a -a -m {%%S} %%A @%%lM",
-      "lha m -a -m {%%S} %%A @%%lM",
-      "lha a -a -r -x -p -m {%%S} %%A @%%lM",
-      "lha m -a -r -x -p -m {%%S} %%A @%%lM",
+      "lha a -a -m {%%S} %%a @%%lM",
+      "lha m -a -m {%%S} %%a @%%lM",
+      "lha a -a -r -x -p -m {%%S} %%a @%%lM",
+      "lha m -a -r -x -p -m {%%S} %%a @%%lM",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
