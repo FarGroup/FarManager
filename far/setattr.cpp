@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.61 16.09.2004 $ */
+/* Revision: 1.62 17.09.2004 $ */
 
 /*
 Modify:
+  17.09.2004 SVS
+    ! Хе, ну и назвал :-)) CheckWratableFile! Будет IsFileWritable
   16.09.2004 SVS
     - Если файл залочен, то попытка выставить атрибуты неправильная (см. описание патча)
     + функция CheckWratableFile, которая еще "на подступах" к выставлению атрибутов матерится
@@ -211,7 +213,7 @@ struct SetAttrDlgParam{
   int OLastWriteTime,OCreationTime,OLastAccessTime;
 };
 
-static int CheckWratableFile(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
+static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg);
 static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
                        char *OSrcDate,char *OSrcTime);
 static void PR_ShellSetFileAttributesMsg(void);
@@ -889,7 +891,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
-      if(CheckWratableFile(SelName,FileAttr,TRUE,MSetAttrCannotFor) == 1)
+      if(IsFileWritable(SelName,FileAttr,TRUE,MSetAttrCannotFor) == 1)
       {
         int NewAttr;
         NewAttr=FileAttr & FA_DIREC;
@@ -977,7 +979,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         if (CheckForEsc())
           break;
 
-        RetCode=CheckWratableFile(SelName,FileAttr,TRUE,MSetAttrCannotFor);
+        RetCode=IsFileWritable(SelName,FileAttr,TRUE,MSetAttrCannotFor);
         if(!RetCode)
           break;
         if(RetCode == 2)
@@ -1043,7 +1045,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
               break;
             }
 
-            RetCode=CheckWratableFile(SelName,FileAttr,TRUE,MSetAttrCannotFor);
+            RetCode=IsFileWritable(SelName,FileAttr,TRUE,MSetAttrCannotFor);
             if(!RetCode)
             {
               Cancel=1;
@@ -1221,7 +1223,7 @@ static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
 }
 
 // Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
-static int CheckWratableFile(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg)
+static int IsFileWritable(const char *Name, DWORD FileAttr, BOOL IsShowErrMsg, int Msg)
 {
   while (1)
   {

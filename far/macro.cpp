@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.127 10.09.2004 $ */
+/* Revision: 1.128 17.09.2004 $ */
 
 /*
 Modify:
+  17.09.2004 SVS
+    - BugZ#1159 - Ќельз€ удалить макрос из области Common
   10.09.2004 SVS
     + UCase (MCODE_F_UCASE), LCase (MCODE_F_UCASE)
     - ¬ APanel.SelCount и PPanel.SelCount в подстроке "SelCount" буква 'C' была русской :-(
@@ -784,6 +786,16 @@ int KeyMacro::ProcessKey(int Key)
         for (Pos=0;Pos<MacroLIBCount;Pos++)
           if (MacroLIB[Pos].Key==MacroKey && (MacroLIB[Pos].Flags&MFLAGS_MODEMASK)==StartMode)
             break;
+
+        // теперь смотрим Common
+        if (Pos==MacroLIBCount)
+          for (Pos=0;Pos<MacroLIBCount;Pos++)
+            if (MacroLIB[Pos].Key==MacroKey && (MacroLIB[Pos].Flags&MFLAGS_MODEMASK)==MACRO_COMMON)
+            {
+              StartMode=MACRO_COMMON;
+              break;
+            }
+
         if (Pos==MacroLIBCount)
         {
           MacroLIB=(struct MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
