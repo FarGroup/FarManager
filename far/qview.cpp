@@ -5,10 +5,13 @@ Quick view panel
 
 */
 
-/* Revision: 1.20 11.09.2001 $ */
+/* Revision: 1.21 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 IS
+    - баг: после показа хелпа по панели показывалась непонятно зачем
+      еще и справка по встроенной программе просмотра
   11.09.2001 SVS
     + для "volume mount point" укажем что это именно монтированный том и по
       возможности (если имя диска есть) покажем букву диска. Для прочих
@@ -273,6 +276,7 @@ int QuickView::ProcessKey(int Key)
   if (Key == KEY_F1)
   {
     Help Hlp ("QViewPanel");
+    return TRUE;
   }
   /* DJ $ */
   if (Key==KEY_F3 || Key==KEY_NUMPAD5)

@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.27 24.10.2001 $ */
+/* Revision: 1.28 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 IS
+    - баг: показывали левую справку по F1
+    ! небольшая оптимизация по размеру - вместо "define строка"
+      используем "const char[]"
   24.10.2001 SVS
     - бага с прорисовкой при вызове дерева из диалога копирования
   24.10.2001 VVM
@@ -99,11 +103,15 @@ Modify:
 #include "qview.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
-
+#include "help.hpp"
 
 #define DELTA_TREECOUNT 31
-#define TreeFileName "Tree.Far"
-#define TreeCacheFolderName "Tree.Cache"
+/* $ 08.12.2001 IS
+   чтобы не плодить строковые литералы, воспользуемся указателями на константу
+*/
+const char TreeFileName[]="Tree.Far";
+const char TreeCacheFolderName[]="Tree.Cache";
+/* IS $ */
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
@@ -629,6 +637,14 @@ int TreeList::ProcessKey(int Key)
 
   switch(Key)
   {
+    /* $ 08.12.2001 IS просят справку для "дерева", ее и покажем
+    */
+    case KEY_F1:
+      {
+         Help Hlp ("TreePanel");
+      }
+      return TRUE;
+    /* IS $ */
     case KEY_SHIFTENTER:
     case KEY_CTRLENTER:
     case KEY_CTRLF:

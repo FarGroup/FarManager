@@ -5,10 +5,13 @@ infolist.cpp
 
 */
 
-/* Revision: 1.24 01.11.2001 $ */
+/* Revision: 1.25 08.12.2001 $ */
 
 /*
 Modify:
+  08.12.2001 IS
+    - баг: после показа хелпа по панели показывалось непонятно зачем
+      еще и Contents
   01.11.2001 SVS
     ! небольшая оптимизация.
   12.10.2001 SKV
@@ -334,7 +337,7 @@ int InfoList::ProcessKey(int Key)
       {
         Help Hlp ("InfoPanel");
       }
-      break;
+      return TRUE;
     /* DJ $ */
     case KEY_F3:
     case KEY_NUMPAD5:
