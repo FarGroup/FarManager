@@ -5,12 +5,18 @@ Internal viewer
 
 */
 
-/* Revision: 1.82 08.12.2001 $ */
+/* Revision: 1.83 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 SVS
+    ! »збавл€емс€ от потенциального бага при поиске - размер строки под месаг
+      MsgStr был равен строке поиска, т.о., если ввести строку поиска равную
+      SEARCHSTRINGBUFSIZE-1, то получаем выход за границу массива, т.к. в
+      MsgStr формируетс€ строка \"%s\" (т.е. 2 доп. символа)!
+      ¬озможно по этой причине и по€вилс€ баг BugZ#147
   08.12.2001 OT
-    Bugzilla #144 «аходим в архив, F4 на файле, Ctrl-F10.
+    - Bugzilla #144 «аходим в архив, F4 на файле, Ctrl-F10.
   27.11.2001 DJ
     - косметика от BoundsChecker
   12.10.2001 SKV
@@ -2007,7 +2013,7 @@ void Viewer::Search(int Next,int FirstChar)
   MakeDialogItems(SearchDlgData,SearchDlg);
 
   unsigned char SearchStr[SEARCHSTRINGBUFSIZE];
-  char MsgStr[512];
+  char MsgStr[SEARCHSTRINGBUFSIZE+16];
   unsigned long MatchPos;
   /* $ 01.08.2000 KM
      ƒобавлена нова€ переменна€ WholeWords
@@ -2090,7 +2096,10 @@ void Viewer::Search(int Next,int FirstChar)
   {
     SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    sprintf(MsgStr,"\"%s\"",SearchStr);
+    strncpy(MsgStr,SearchStr,sizeof(MsgStr)-1);
+    if(strlen(MsgStr)+10 >= ScrX)
+      TruncStrFromEnd(MsgStr, ScrX-11);
+    InsertQuote(MsgStr);
     Message(0,0,MSG(MViewSearchTitle),MSG(MViewSearchingFor),MsgStr);
 
     if (SearchHex)
