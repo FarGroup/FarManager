@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.44 28.03.2001 $ */
+/* Revision: 1.45 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! Уточнение в FarShowHelp
   28.03.2001 SVS
     ! ACTL_GETFARVERSION возвращает номер версии, а не TRUE - так практичнее
     ! ACTL_KEYMACRO, ACTL_EJECTMEDIA, ACTL_WAITKEY, ACTL_CONSOLEMODE -
@@ -156,8 +158,10 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
   char Path[2*NM],Topic[512];
   char *Mask=NULL;
 
+  // двоеточие в начале топика надо бы игнорировать и в том случае,
+  // если стоит FHELP_FARHELP...
   if((Flags&FHELP_FARHELP) || *HelpTopic==':')
-    strcpy(Topic,HelpTopic+((Flags&FHELP_FARHELP)?0:1));
+    strcpy(Topic,HelpTopic+((*HelpTopic == ':')?1:0));
   else
   {
     if(ModuleName)

@@ -228,6 +228,9 @@
 "Rename or move %d files to"
 "Link %d files to"
 
+"The link creation feature"
+"is available only under Windows NT/2000"
+
 "Copying"
 "Moving"
 

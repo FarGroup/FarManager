@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.60 06.04.2001 $ */
+/* Revision: 1.61 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    + MCopyNotSupportLinkX
   06.04.2001 SVS
     + MCopySymLink - резерв на будущее (не люблю смены в H-файлах делать :-)
     + MEditSaveAsFormatTitle
@@ -403,6 +405,9 @@ enum
   MCopyFiles,
   MMoveFiles,
   MLinkFiles,
+
+  MCopyNotSupportLink1,
+  MCopyNotSupportLink2,
 
   MCopyCopyingTitle,
   MCopyMovingTitle,

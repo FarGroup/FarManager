@@ -9,6 +9,12 @@ plugins.cpp
 
 /*
 Modify:
+  08.06.2001 SVS
+    ! Небольшая оптимизация:
+      StartupInfo и StandardFunctions сделаны статическими - заполняются
+      один раз, потом копируются в локальные структуры и...
+      т.о. (локальные) передаются плагину.
+      Модифицируются только плагино-зависимые данные.
   04.04.2001 SVS
     ! Попытка исключить ненужные вызовы в CallPlugin()
   26.03.2001 SVS
@@ -788,13 +794,8 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
 {
   if (CurPlugin.pSetStartupInfo!=NULL)
   {
-    struct PluginStartupInfo StartupInfo;
-    /* $ 18.09.2000 SVS
-      Заполним _сразу_ всю структуру нулями.
-    */
-    memset(&StartupInfo,0,sizeof(struct PluginStartupInfo));
-    /* SVS $ */
-    StartupInfo.StructSize=sizeof(StartupInfo);
+    static struct PluginStartupInfo StartupInfo={0};
+    static struct FarStandardFunctions StandardFunctions={0};
     /* $ 06.07.2000 IS
       Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
       Инициализация ее членов:
@@ -807,161 +808,172 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
        TruncStr, TruncPathStr, QuoteSpaceOnly, PointToName, GetPathRoot,
        AddEndSlash
     */
-    struct FarStandardFunctions StandardFunctions;
-    memset(&StandardFunctions,0,sizeof(struct FarStandardFunctions));
+    // заполняем структуру StandardFunctions один раз!!!
+    if(!StandardFunctions.StructSize)
+    {
+      StandardFunctions.StructSize=sizeof(StandardFunctions);
+      StandardFunctions.sprintf=FarSprintf;
+      StandardFunctions.sscanf=FarSscanf;
+      StandardFunctions.qsort=FarQsort;
+      /* $ 24.03.2001 tran
+        + qsortex */
+      StandardFunctions.qsortex=FarQsortEx;
+      StandardFunctions.atoi=FarAtoi;
+      StandardFunctions.atoi64=FarAtoi64;
+      StandardFunctions.itoa=FarItoa;
+      StandardFunctions.itoa64=FarItoa64;
 
-    StandardFunctions.StructSize=sizeof(StandardFunctions);
-    StandardFunctions.sprintf=FarSprintf;
-    StandardFunctions.sscanf=FarSscanf;
-    StandardFunctions.qsort=FarQsort;
-    /* $ 24.03.2001 tran
-      + qsortex */
-    StandardFunctions.qsortex=FarQsortEx;
-    StandardFunctions.atoi=FarAtoi;
-    StandardFunctions.atoi64=FarAtoi64;
-    StandardFunctions.itoa=FarItoa;
-    StandardFunctions.itoa64=FarItoa64;
+      //StandardFunctions.qsort=FarQsort;
+      // ??? почему дважды?
+      /* tran $ */
 
-    //StandardFunctions.qsort=FarQsort;
-    // ??? почему дважды?
-    /* tran $ */
+      StandardFunctions.bsearch=FarBsearch;
 
-    StandardFunctions.bsearch=FarBsearch;
+      /* $ 28.08.2000 SVS
+         + Функции работы с...
+      */
+      StandardFunctions.LIsLower   =LocalIslower;
+      StandardFunctions.LIsUpper   =LocalIsupper;
+      StandardFunctions.LIsAlpha   =LocalIsalpha;
+      StandardFunctions.LIsAlphanum=LocalIsalphanum;
+      StandardFunctions.LUpper     =LocalUpper;
+      StandardFunctions.LUpperBuf  =LocalUpperBuf;
+      StandardFunctions.LLowerBuf  =LocalLowerBuf;
+      StandardFunctions.LLower     =LocalLower;
+      StandardFunctions.LStrupr    =LocalStrupr;
+      StandardFunctions.LStrlwr    =LocalStrlwr;
+      StandardFunctions.LStricmp   =LStricmp;
+      StandardFunctions.LStrnicmp  =LStrnicmp;
+      /* SVS $ */
 
-    /* $ 28.08.2000 SVS
-       + Функции работы с...
-    */
-    StandardFunctions.LIsLower   =LocalIslower;
-    StandardFunctions.LIsUpper   =LocalIsupper;
-    StandardFunctions.LIsAlpha   =LocalIsalpha;
-    StandardFunctions.LIsAlphanum=LocalIsalphanum;
-    StandardFunctions.LUpper     =LocalUpper;
-    StandardFunctions.LUpperBuf  =LocalUpperBuf;
-    StandardFunctions.LLowerBuf  =LocalLowerBuf;
-    StandardFunctions.LLower     =LocalLower;
-    StandardFunctions.LStrupr    =LocalStrupr;
-    StandardFunctions.LStrlwr    =LocalStrlwr;
-    StandardFunctions.LStricmp   =LStricmp;
-    StandardFunctions.LStrnicmp  =LStrnicmp;
-    /* SVS $ */
+      StandardFunctions.Unquote=Unquote;
+      StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
+      StandardFunctions.LTrim=RemoveLeadingSpaces;
+      StandardFunctions.RTrim=RemoveTrailingSpaces;
+      StandardFunctions.Trim=RemoveExternalSpaces;
+      StandardFunctions.TruncStr=TruncStr;
+      StandardFunctions.TruncPathStr=TruncPathStr;
+      StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
+      StandardFunctions.PointToName=PointToName;
+      StandardFunctions.GetPathRoot=GetPathRoot;
+      StandardFunctions.AddEndSlash=AddEndSlash;
+      /* IS $ */
+      /* $ 25.07.2000 SVS
+         Моя очередь продолжать эпопею :-)
+      */
+      StandardFunctions.CopyToClipboard=CopyToClipboard;
+      StandardFunctions.PasteFromClipboard=PasteFromClipboard;
+      StandardFunctions.FarKeyToName=KeyToText;
+      /* SVS $ */
+      /* $ 24.09.2000 SVS
+       + Функция FarNameToKey - получение кода клавиши по имени
+         Если имя не верно или нет такого - возвращается -1
+      */
+      StandardFunctions.FarNameToKey=KeyNameToKey;
+      /* SVS $ */
+      /* $ 31.08.2000 tran
+         + InputRecordToKey*/
+      StandardFunctions.FarInputRecordToKey=InputRecordToKey;
+      /* tran 31.08.2000 $ */
+      /* $ 05.09.2000 SVS 1.17
+         + QWERTY - перекодировщик
+      */
+      StandardFunctions.XLat=Xlat;
+      /* SVS $ */
+      /* $ 07.09.2000 SVS 1.17
+         + Функция GetFileOwner тоже доступна плагинам :-)
+         + Функция GetNumberOfLinks тоже доступна плагинам :-)
+      */
+      StandardFunctions.GetFileOwner=GetFileOwner;
+      StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
+      /* SVS $ */
+      /* $ 10.09.2000 tran
+        + нижеуказанное */
+      StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
+      /* tran 08.09.2000 $ */
+      /* $ 14.09.2000 SVS
+        Функция получения временного файла с полным путем.
+      */
+      StandardFunctions.MkTemp=FarMkTemp;
+      /* SVS $ */
+      /*$ 27.09.2000 skv
+        + Delete buffer allocated in PasteFromClipboard
+      */
+      StandardFunctions.DeleteBuffer=DeleteBuffer;
+      /* skv$*/
+      /* $ 12.10.2000 IS
+        + ProcessName - обработать имя файла: сравнить с маской, масками,
+          сгенерировать по маске
+      */
+      StandardFunctions.ProcessName=ProcessName;
+      /* IS $ */
+    }
 
-    StandardFunctions.Unquote=Unquote;
-    StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
-    StandardFunctions.LTrim=RemoveLeadingSpaces;
-    StandardFunctions.RTrim=RemoveTrailingSpaces;
-    StandardFunctions.Trim=RemoveExternalSpaces;
-    StandardFunctions.TruncStr=TruncStr;
-    StandardFunctions.TruncPathStr=TruncPathStr;
-    StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
-    StandardFunctions.PointToName=PointToName;
-    StandardFunctions.GetPathRoot=GetPathRoot;
-    StandardFunctions.AddEndSlash=AddEndSlash;
-    /* IS $ */
-    /* $ 25.07.2000 SVS
-       Моя очередь продолжать эпопею :-)
-    */
-    StandardFunctions.CopyToClipboard=CopyToClipboard;
-    StandardFunctions.PasteFromClipboard=PasteFromClipboard;
-    StandardFunctions.FarKeyToName=KeyToText;
-    /* SVS $ */
-    /* $ 24.09.2000 SVS
-     + Функция FarNameToKey - получение кода клавиши по имени
-       Если имя не верно или нет такого - возвращается -1
-    */
-    StandardFunctions.FarNameToKey=KeyNameToKey;
-    /* SVS $ */
-    /* $ 31.08.2000 tran
-       + InputRecordToKey*/
-    StandardFunctions.FarInputRecordToKey=InputRecordToKey;
-    /* tran 31.08.2000 $ */
-    /* $ 05.09.2000 SVS 1.17
-       + QWERTY - перекодировщик
-    */
-    StandardFunctions.XLat=Xlat;
-    /* SVS $ */
-    /* $ 07.09.2000 SVS 1.17
-       + Функция GetFileOwner тоже доступна плагинам :-)
-       + Функция GetNumberOfLinks тоже доступна плагинам :-)
-    */
-    StandardFunctions.GetFileOwner=GetFileOwner;
-    StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
-    /* SVS $ */
-    /* $ 10.09.2000 tran
-      + нижеуказанное */
-    StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
-    /* tran 08.09.2000 $ */
-    /* $ 14.09.2000 SVS
-      Функция получения временного файла с полным путем.
-    */
-    StandardFunctions.MkTemp=FarMkTemp;
-    /* SVS $ */
-    /*$ 27.09.2000 skv
-      + Delete buffer allocated in PasteFromClipboard
-    */
-    StandardFunctions.DeleteBuffer=DeleteBuffer;
-    /* skv$*/
-    /* $ 12.10.2000 IS
-      + ProcessName - обработать имя файла: сравнить с маской, масками,
-        сгенерировать по маске
-    */
-    StandardFunctions.ProcessName=ProcessName;
-    /* IS $ */
+    if(!StartupInfo.StructSize)
+    {
+      StartupInfo.StructSize=sizeof(StartupInfo);
+      StartupInfo.Menu=FarMenuFn;
+      StartupInfo.Dialog=FarDialogFn;
+      StartupInfo.GetMsg=FarGetMsgFn;
+      StartupInfo.Message=FarMessageFn;
+      StartupInfo.Control=FarControl;
+      StartupInfo.SaveScreen=FarSaveScreen;
+      StartupInfo.RestoreScreen=FarRestoreScreen;
+      StartupInfo.GetDirList=FarGetDirList;
+      StartupInfo.GetPluginDirList=FarGetPluginDirList;
+      StartupInfo.FreeDirList=FarFreeDirList;
+      StartupInfo.Viewer=FarViewer;
+      StartupInfo.Editor=FarEditor;
+      StartupInfo.CmpName=FarCmpName;
+      StartupInfo.CharTable=FarCharTable;
+      StartupInfo.Text=FarText;
+      StartupInfo.EditorControl=FarEditorControl;
+      StartupInfo.ViewerControl=FarViewerControl;
+      /* 01.07.2000 IS
+         Функция вывода помощи
+      */
+      StartupInfo.ShowHelp=FarShowHelp;
+      /* IS $ */
+      /* 05.07.2000 IS
+         Функция, которая будет действовать и в редакторе, и в панелях, и...
+      */
+      StartupInfo.AdvControl=FarAdvControl;
+      /* IS $ */
+      /* $ 23.07.2000 SVS
+         Функции для обработчика диалога
+           - расширенная функция диалога
+           - обмен сообщениями
+           - функция по умолчанию
+      */
+      StartupInfo.DialogEx=FarDialogEx;
+      StartupInfo.SendDlgMessage=FarSendDlgMessage;
+      StartupInfo.DefDlgProc=FarDefDlgProc;
+      /* $ 25.07.2000 SVS
+         Функция-стандартный диалог ввода текста
+      */
+      StartupInfo.InputBox=GetString;
+      /* SVS $ */
+    }
 
-    strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
-    StartupInfo.ModuleNumber=ModuleNumber;
+    // Это есть локальные копии статических структур, что бы случайно
+    // како-нить урод не засрал адреса.
+    struct PluginStartupInfo LocalStartupInfo;
+    struct FarStandardFunctions LocalStandardFunctions;
+
+    memcpy(&LocalStartupInfo,&StartupInfo,sizeof(StartupInfo));
+    memcpy(&LocalStandardFunctions,&StandardFunctions,sizeof(StandardFunctions));
+
+    // скорректирем адреса и плагино-зависимые поля
+    strcpy(LocalStartupInfo.ModuleName,CurPlugin.ModuleName);
+    LocalStartupInfo.ModuleNumber=ModuleNumber;
     strcpy(CurPlugin.RootKey,Opt.RegRoot);
     strcat(CurPlugin.RootKey,"\\Plugins");
-    StartupInfo.RootKey=CurPlugin.RootKey;
-    StartupInfo.Menu=FarMenuFn;
-    StartupInfo.Dialog=FarDialogFn;
-    StartupInfo.GetMsg=FarGetMsgFn;
-    StartupInfo.Message=FarMessageFn;
-    StartupInfo.Control=FarControl;
-    StartupInfo.SaveScreen=FarSaveScreen;
-    StartupInfo.RestoreScreen=FarRestoreScreen;
-    StartupInfo.GetDirList=FarGetDirList;
-    StartupInfo.GetPluginDirList=FarGetPluginDirList;
-    StartupInfo.FreeDirList=FarFreeDirList;
-    StartupInfo.Viewer=FarViewer;
-    StartupInfo.Editor=FarEditor;
-    StartupInfo.CmpName=FarCmpName;
-    StartupInfo.CharTable=FarCharTable;
-    StartupInfo.Text=FarText;
-    StartupInfo.EditorControl=FarEditorControl;
-    StartupInfo.ViewerControl=FarViewerControl;
-    /* 01.07.2000 IS
-       Функция вывода помощи
-    */
-    StartupInfo.ShowHelp=FarShowHelp;
-    /* IS $ */
-    /* 05.07.2000 IS
-       Функция, которая будет действовать и в редакторе, и в панелях, и...
-    */
-    StartupInfo.AdvControl=FarAdvControl;
-    /* IS $ */
-    /* $ 23.07.2000 SVS
-       Функции для обработчика диалога
-         - расширенная функция диалога
-         - обмен сообщениями
-         - функция по умолчанию
-    */
-    StartupInfo.DialogEx=FarDialogEx;
-    StartupInfo.SendDlgMessage=FarSendDlgMessage;
-    StartupInfo.DefDlgProc=FarDefDlgProc;
-    /* $ 25.07.2000 SVS
-       Функция-стандартный диалог ввода текста
-    */
-    StartupInfo.InputBox=GetString;
-    /* SVS $ */
-    /* 06.07.2000 IS
-      Указатель на структуру с адресами полезных функций из far.exe
-      Плагин должен обязательно скопировать ее себе, если хочет использовать.
-    */
-    StartupInfo.FSF=&StandardFunctions;
-    /* IS $ */
+    LocalStartupInfo.RootKey=CurPlugin.RootKey;
+    LocalStartupInfo.FSF=&LocalStandardFunctions;
+
     //EXCEPTION_POINTERS *xp;
       TRY {
-        CurPlugin.pSetStartupInfo(&StartupInfo);
+        CurPlugin.pSetStartupInfo(&LocalStartupInfo);
       }
       __except ( xfilter(EXCEPT_SETSTARTUPINFO,
                          GetExceptionInformation(),&CurPlugin,0) )

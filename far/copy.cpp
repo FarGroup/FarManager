@@ -5,10 +5,15 @@ copy.cpp
 
 */
 
-/* Revision: 1.26 05.04.2001 $ */
+/* Revision: 1.27 08.04.2001 $ */
 
 /*
 Modify:
+  08.04.2001 SVS
+    ! Создание линков только под NT - о чем честно и предупредим.
+    + Отладочный код для создания repase point. Просьба в нем пока не
+      ковыряться - внес сейчас, т.к. тяжко каждый раз copy.cpp перелапачивать.
+      Этот код сейчас отключен!
   05.04.2001 IS
     + Если при копировании/перемещении выделенных элементов больше 1 и среди
       них есть каталог, то всегда делаем так, чтобы на конце был '\\', чтобы
@@ -117,12 +122,33 @@ static char TotalCopySizeText[32];
 
 static int64 StartCopySizeEx;
 
+#if defined(CREATE_JUNCTION)
+
+long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
+
+struct CopyDlgParam {
+  int    Link;
+  Panel *SrcPanel;
+};
+
+#endif
+
 /* $ 04.07.2000 SVS
   "Только новые/обновленные файлы"
 */
 ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
                      int &ToPlugin,char *PluginDestPath)
 {
+  // Создание линков только под NT
+  if(Link && WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+  {
+    Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
+              MSG(MCopyNotSupportLink1),
+              MSG(MCopyNotSupportLink2),
+              MSG(MOk));
+    return;
+  }
+
   const char *HistoryName="Copy";
   static struct DialogData CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,3,1,72,9,0,0,0,0,(char *)MCopyDlgTitle,
@@ -179,6 +205,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   PanelMode=DestPlugin ? AnotherPanel->GetMode():NORMAL_PANEL;
   SrcPanelMode=SrcPanel->GetMode();
 
+  strcpy(CopyDlg[5].Data,MSG(MCopyOnlyNewerFiles));
   /* $ 11.10.2000 SVS
      Если противоположная панель - плагин, то не показываем
      "[ ] Только новые/обновленные файлы"
@@ -219,6 +246,16 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
     {
       strcpy(CopyDlg[0].Data,MSG(MLinkDlgTitle));
       strcpy(CopyDlg[7].Data,MSG(MCopyDlgLink));
+      // покажем...
+      strcpy(CopyDlg[5].Data,MSG(MCopySymLink));
+#if defined(CREATE_JUNCTION)
+      if(WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT ||
+         WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion < 5)
+#endif
+      {
+        CopyDlg[5].Flags|=DIF_DISABLE;
+        CopyDlg[5].Selected=0;
+      }
     }
 
   if (SelCount==1)
@@ -302,12 +339,37 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   /* $ 17.01.2001 SVS
      Не для NT - задисаблим опцию про копирование права.
   */
+  if(Link)
+  {
+    CopyDlg[4].Selected=1;
+    CopyDlg[4].Flags|=DIF_DISABLE;
+  }
+
+#if !defined(CREATE_JUNCTION)
   if(WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
     CopyDlg[4].Flags|=DIF_DISABLE;
   /* SVS $ */
+#endif
 
   if (Ask)
   {
+#if defined(CREATE_JUNCTION)
+    struct CopyDlgParam CDP;
+    CDP.Link=Link;
+    CDP.SrcPanel=SrcPanel;
+    Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]),CopyDlgProc,(long)&CDP);
+    Dlg.SetHelp(Link?"HardSymLink":"CopyFiles");
+    Dlg.SetPosition(-1,-1,76,11);
+
+    Dlg.Show();
+    Dlg.Process();
+    if(Dlg.GetExitCode() != 7)
+    {
+      if (DestPlugin)
+        ToPlugin=-1;
+      return;
+    }
+#else
     Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]));
     Dlg.SetHelp("CopyFiles");
     Dlg.SetPosition(-1,-1,76,11);
@@ -370,6 +432,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
         return;
       }
     }
+#endif
   }
 
   CopySecurity=CopyDlg[4].Selected;
@@ -472,6 +535,82 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 }
 /* SVS $ */
 
+#if defined(CREATE_JUNCTION)
+static long WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
+{
+  static struct CopyDlgParam *DlgParam;
+  static int AltF10=FALSE;
+
+  switch(Msg)
+  {
+    case DN_INITDIALOG:
+    {
+      DlgParam=(struct CopyDlgParam *)Param2;
+      break;
+    }
+
+    case DN_BTNCLICK:
+    {
+      if(Param1 == 8)
+      {
+        char NewFolder[NM];
+        {
+          FolderTree Tree(NewFolder,AltF10 ? MODALTREE_PASSIVE:MODALTREE_ACTIVE,25,2,ScrX-7,ScrY-5);
+        }
+        if (*NewFolder)
+        {
+          AddEndSlash(NewFolder);
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,2,(long)NewFolder);
+          Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,2,0);
+        }
+        AltF10=FALSE;
+        return FALSE;
+      }
+      else if(Param1 == 7)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_CLOSE,7,0);
+      }
+      break;
+    }
+
+    case DM_KEY:
+    {
+      if(Param2 == KEY_ALTF10 || Param2 == KEY_F10)
+      {
+        AltF10=Param2 == KEY_ALTF10;
+        Dialog::SendDlgMessage(hDlg,DN_BTNCLICK,8,0);
+        return TRUE;
+      }
+      return FALSE;
+    }
+
+    case DN_EDITCHANGE:
+    {
+      break;
+    }
+  }
+  return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+/*
+{
+  char Root[1024],FSysName[NM];
+
+  DWORD FileSystemFlags;=0;
+
+  GetPathRoot(Path,Root);
+  GetVolumeInformation(Root,NULL,0,NULL,NULL,&FileSystemFlags,FSysName,sizeof(FSysName));
+
+  //   Не для NT - задисаблим опцию про копирование права.
+  if(!(FileSystemFlags&FS_PERSISTENT_ACLS))
+  {
+    CopyDlg[4].Flags|=DIF_DISABLE;
+    CopyDlg[4].Selected=0;
+  }
+  // Дисаблим
+  CopyDlg[7].Flags|=DIF_DISABLE;
+}
+*/
+#endif
 
 ShellCopy::~ShellCopy()
 {
@@ -652,13 +791,14 @@ void ShellCopy::CopyFileTree(char *Dest)
     }
 #if defined(CREATE_JUNCTION)
     // Кусок для создания SymLink для каталогов.
-    if (Link && (SrcData.dwFileAttributes & FA_DIREC))
+    if (Link && OnlyNewerFiles && (SrcData.dwFileAttributes & FA_DIREC))
     {
       char SrcFullName[NM], DestFullName[NM];
       if (ConvertNameToFull(SelName,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName))
         return;
       if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
         return;
+      AddEndSlash(DestFullName);
       strcat(DestFullName,SelName);
       if(CreateJunctionPoint(SrcFullName,DestFullName))
         continue;
