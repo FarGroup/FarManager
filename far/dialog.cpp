@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.299 28.02.2004 $ */
+/* Revision: 1.300 07.05.2004 $ */
 
 /*
 Modify:
+  07.05.2004 SVS
+    - BugZ#1053 - Неточности в $Text
   28.02.2004 SVS
     ! DLGEDITLILE_ -> DLGEDITLINE_
     + DIF_LISTNOCLOSE
@@ -1899,8 +1901,10 @@ int Dialog::InitDialogObjects(int ID)
       if (!(ItemFlags&DIF_EDITOR))
         DialogEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
       /*  VVM $ */
+      DialogEdit->SetDelRemovesBlocks(Opt.Dialogs.DelRemovesBlocks);
       if(ItemFlags&DIF_READONLY)
         DialogEdit->SetReadOnly(1);
+
     }
     else if (Type == DI_USERCONTROL)
     {

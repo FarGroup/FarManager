@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.116 01.03.2004 $ */
+/* Revision: 1.117 07.05.2004 $ */
 
 /*
 Modify:
+  07.05.2004 SVS
+    + DialogsOptions.DelRemovesBlocks
   01.03.2004 SVS
     + FAR_ANSI
   28.02.2004 SVS
@@ -517,6 +519,7 @@ struct DialogsOptions{
   int   SelectFromHistory;  // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
   DWORD EditLine;           // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
   int   MouseButton;        // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+  int   DelRemovesBlocks;
 };
 
 struct NowellOptions{

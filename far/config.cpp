@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.167 27.02.2004 $ */
+/* Revision: 1.168 07.05.2004 $ */
 
 /*
 Modify:
+  07.05.2004 SVS
+    + Opt.Dialogs.DelRemovesBlocks
   27.02.2004 SVS
     + Opt.AutoUpdateRemoteDrive
     ! Вместо фразы "Evaluation copy, please register." просто задисаблим контролы,
@@ -1421,6 +1423,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
   {0, REG_DWORD,  NKeyDialog,"EditLine",&Opt.Dialogs.EditLine,0, 0},
   {1, REG_DWORD,  NKeyDialog,"MouseButton",&Opt.Dialogs.MouseButton,0xFFFF, 0},
+  {0, REG_DWORD,  NKeyDialog,"DelRemovesBlocks",&Opt.Dialogs.DelRemovesBlocks,1, 0},
 
   {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
   {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},
