@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.52 25.05.2002 $ */
+/* Revision: 1.53 12.06.2002 $ */
 
 /*
 Modify:
+  12.06.2002 SVS
+    - Бага: Skip был аналогичен кнопке Cancel
   25.05.2002 IS
     ! первый параметр у ConvertDate теперь ссылка на константу
   26.04.2002 SVS
@@ -858,6 +860,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     /* Multi *********************************************************** */
     else
     {
+      int RetCode=1;
       ConsoleTitle *SetAttrTitle= new ConsoleTitle(MSG(MSetAttrTitle));
       int SetAttr,ClearAttr,Cancel=0;
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
@@ -905,32 +908,43 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         SetLastAccessTime=ReadFileTime(2,SelName,FileAttr,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
         if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
         {
-          SetWriteTimeRetCode=ESetFileTime(SelName,
+          RetCode=ESetFileTime(SelName,
                  (SetWriteTime ? &LastWriteTime:NULL),
                  (SetCreationTime ? &CreationTime:NULL),
                  (SetLastAccessTime ? &LastAccessTime:NULL),
                  FileAttr);
-          if(!SetWriteTimeRetCode)
+          if(!RetCode)
             break;
-          if(SetWriteTimeRetCode == 2)
+          if(RetCode == 2)
             continue;
         }
         if(((FileAttr|SetAttr)&(~ClearAttr)) != FileAttr)
         {
           if (AttrDlg[8].Selected != 2)
           {
-            if (!ESetFileCompression(SelName,AttrDlg[8].Selected,FileAttr))
-              break; // неудача сжать :-(
+            RetCode=ESetFileCompression(SelName,AttrDlg[8].Selected,FileAttr);
+            if(!RetCode) // неудача сжать :-(
+              break;
+            if(RetCode == 2)
+              continue;
           }
           if (AttrDlg[9].Selected != 2) // +E -C
           {
             if(AttrDlg[8].Selected != 1)
-              if (!ESetFileEncryption(SelName,AttrDlg[9].Selected,FileAttr))
-                break; // неудача зашифровать :-(
+            {
+              RetCode=ESetFileEncryption(SelName,AttrDlg[9].Selected,FileAttr);
+              if(!RetCode) // неудача зашифровать :-(
+                break;
+              if(RetCode == 2)
+                continue;
+            }
           }
 
-          if (!ESetFileAttributes(SelName,((FileAttr|SetAttr)&(~ClearAttr))))
+          RetCode=ESetFileAttributes(SelName,((FileAttr|SetAttr)&(~ClearAttr)));
+          if(!RetCode)
             break;
+          if(RetCode == 2)
+            continue;
         }
 
         if ((FileAttr & FA_DIREC) && AttrDlg[11].Selected)
@@ -953,41 +967,54 @@ int ShellSetFileAttributes(Panel *SrcPanel)
             SetLastAccessTime=ReadFileTime(2,FullName,FindData.dwFileAttributes,&LastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data);
             if(!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && (SetWriteTime || SetCreationTime || SetLastAccessTime))
             {
-              SetWriteTimeRetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
+              RetCode=ESetFileTime(FullName,SetWriteTime ? &LastWriteTime:NULL,
                            SetCreationTime ? &CreationTime:NULL,
                            SetLastAccessTime ? &LastAccessTime:NULL,
                            FindData.dwFileAttributes);
-              if(SetWriteTimeRetCode != 1)
+              if(RetCode == 0)
               {
                 Cancel=1;
                 break;
               }
+              if(RetCode == 2)
+                continue;
             }
             if(((FindData.dwFileAttributes|SetAttr)&(~ClearAttr)) !=
                  FindData.dwFileAttributes)
             {
               if (AttrDlg[8].Selected != 2)
               {
-                if (!ESetFileCompression(FullName,AttrDlg[8].Selected,FindData.dwFileAttributes))
+                RetCode=ESetFileCompression(FullName,AttrDlg[8].Selected,FindData.dwFileAttributes);
+                if(RetCode == 0)
                 {
                   Cancel=1;
                   break; // неудача сжать :-(
                 }
+                if(RetCode == 2)
+                  continue;
               }
               else if (AttrDlg[9].Selected != 2) // +E -C
               {
                 if(AttrDlg[8].Selected != 1)
-                  if (!ESetFileEncryption(FullName,AttrDlg[9].Selected,FindData.dwFileAttributes))
+                {
+                  RetCode=ESetFileEncryption(FullName,AttrDlg[9].Selected,FindData.dwFileAttributes);
+                  if (RetCode == 0)
                   {
                     Cancel=1;
                     break; // неудача зашифровать :-(
                   }
+                  if(RetCode == 2)
+                    continue;
+                }
               }
-              if (!ESetFileAttributes(FullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr)))
+              RetCode=ESetFileAttributes(FullName,(FindData.dwFileAttributes|SetAttr)&(~ClearAttr));
+              if (RetCode == 0)
               {
                 Cancel=1;
                 break;
               }
+              if(RetCode == 2)
+                continue;
             }
           }
         }

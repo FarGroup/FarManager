@@ -5,10 +5,14 @@ fileattr.cpp
 
 */
 
-/* Revision: 1.05 30.01.2002 $ */
+/* Revision: 1.06 12.06.2002 $ */
 
 /*
 Modify:
+  12.06.2002 SVS
+    ! Функции, выставляющие атрибуты, так же как и ESetFileTime
+      возвращают: 0 - ошибка, 1 - Ок, 2 - Skip
+      Сделано для подавления баги "Skip == Cancel"
   30.01.2002 SVS
     - В ESetFileTime скидывали RO, но потом не ставили обратно.
   28.12.2001 SVS
@@ -68,6 +72,7 @@ int GetEncryptFunctions(void)
   return IsCryptFileASupport;
 }
 
+// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 int ESetFileAttributes(const char *Name,int Attr)
 {
 //_SVS(SysLog("Attr=0x%08X",Attr));
@@ -76,11 +81,11 @@ int ESetFileAttributes(const char *Name,int Attr)
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
              MSG(MSetAttrCannotFor),(char *)Name,MSG(MHRetry),MSG(MHSkip),MSG(MHCancel));
     if (Code==1 || Code<0)
-      break;
+      return 2;
     if (Code==2)
-      return(FALSE);
+      return 0;
   }
-  return(TRUE);
+  return 1;
 }
 
 
@@ -103,30 +108,37 @@ static int SetFileCompression(const char *Name,int State)
   Для безусловного выставления атрибута FILE_ATTRIBUTE_COMPRESSED
   необходимо в качестве параметра FileAttr передать значение 0
 */
+// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 int ESetFileCompression(const char *Name,int State,int FileAttr)
 {
   if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
-    return(TRUE);
+    return 1;
 
   // Drop Encryption
   if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
     SetFileEncryption(Name,0);
 
-  int Ret=TRUE;
+  int Ret=1;
   if (FileAttr & (FA_RDONLY|FILE_ATTRIBUTE_SYSTEM))
     SetFileAttributes(Name,FileAttr & ~(FA_RDONLY|FILE_ATTRIBUTE_SYSTEM));
   while (!SetFileCompression(Name,State))
   {
     if (GetLastError()==ERROR_INVALID_FUNCTION)
+    {
+      Ret=1;
       break;
+    }
     int Code=Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
                 MSG(MSetAttrCompressedCannotFor),(char *)Name,MSG(MHRetry),
                 MSG(MHSkip),MSG(MHCancel));
     if (Code==1 || Code<0)
+    {
+      Ret=2;
       break;
+    }
     if (Code==2)
     {
-      Ret=FALSE;
+      Ret=0;
       break;
     }
   }
@@ -163,15 +175,16 @@ static int SetFileEncryption(const char *Name,int State)
   Для безусловного выставления атрибута FILE_ATTRIBUTE_ENCRYPTED
   необходимо в качестве параметра FileAttr передать значение 0
 */
+// Возвращает 0 - ошибка, 1 - Ок, 2 - Skip
 int ESetFileEncryption(const char *Name,int State,int FileAttr)
 {
   if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
-    return(TRUE);
+    return 1;
 
   if(!IsCryptFileASupport)
-    return(TRUE);
+    return 1;
 
-  int Ret=TRUE;
+  int Ret=1;
 
   // Drop Compress
   // Этот кусок не нужен, т.к. функция криптования сама умеет
@@ -191,10 +204,13 @@ int ESetFileEncryption(const char *Name,int State,int FileAttr)
                 MSG(MSetAttrEncryptedCannotFor),(char *)Name,MSG(MHRetry),
                 MSG(MHSkip),MSG(MHCancel));
     if (Code==1 || Code<0)
+    {
+      Ret=2;
       break;
+    }
     if (Code==2)
     {
-      Ret=FALSE;
+      Ret=0;
       break;
     }
   }
