@@ -371,7 +371,7 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest);
 char *GetCommaWord(char *Src,char *Word,char Separator);
 BOOL GoToFile(const char *Target, BOOL AllowChangeDir);
 BOOL FileExists(const char* Name);
-
+int GetScrX(void);
 
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,char *ValueData);
 void SetRegKey(HKEY hRoot,const char *Key,const char *ValueName,DWORD ValueData);
@@ -385,6 +385,8 @@ void DeleteRegValue(HKEY hRoot,const char *Key,const char *ValueName);
 
 int WINAPI GetPassword(char *Password,const char *FileName);
 void WINAPI UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime);
+
+#define MAX_WIDTH_MESSAGE (GetScrX()-14)
 
 #ifdef __GNUC__
 #define I64(x) x##ll

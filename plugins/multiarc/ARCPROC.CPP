@@ -44,7 +44,9 @@ int PluginClass::DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,i
     char Msg[512];
     if (ItemsNumber==1)
     {
-      FSF.sprintf(Msg,GetMsg(MDeleteFile),PanelItem[0].FindData.cFileName);
+      char NameMsg[NM];
+      FSF.TruncPathStr(strncpy(NameMsg,PanelItem[0].FindData.cFileName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+      FSF.sprintf(Msg,GetMsg(MDeleteFile),NameMsg);
       MsgItems[1]=Msg;
     }
     if (Info.Message(Info.ModuleNumber,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),2)!=0)
@@ -152,7 +154,9 @@ int PluginClass::ProcessHostFile(struct PluginPanelItem *PanelItem,int ItemsNumb
   if (AskVolume)
   {
     char VolMsg[300];
-    FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
+    char NameMsg[NM];
+    FSF.TruncPathStr(strncpy(NameMsg,FSF.PointToName(ArcName),sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+    FSF.sprintf(VolMsg,GetMsg(MExtrVolume),NameMsg);
     const char *MsgItems[]={"",VolMsg,GetMsg(MExtrVolumeAsk1),
                       GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                       GetMsg(MExtrAllVolumes)};

@@ -235,7 +235,10 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
     if(Ptr)
       *Ptr=0;
     FindExecuteFile(ExecuteName,NULL,0);
-    FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),ExecuteName);
+
+    char NameMsg[NM];
+    FSF.TruncPathStr(strncpy(NameMsg,ExecuteName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+    FSF.sprintf(Msg,GetMsg(MCannotFindArchivator),NameMsg);
     const char *MsgItems[]={GetMsg(MError),Msg, GetMsg(MOk)};
     Info.Message(Info.ModuleNumber,FMSG_WARNING|FMSG_ERRORTYPE,
                  NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
@@ -582,4 +585,12 @@ int WINAPI GetPassword(char *Password,const char *FileName)
 void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
 {
   *(__int64*)ft = EPOCH_BIAS + time * I64(10000000);
+}
+
+int GetScrX(void)
+{
+  CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
+  if(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),&ConsoleScreenBufferInfo))
+    return ConsoleScreenBufferInfo.dwSize.X;
+  return 0;
 }

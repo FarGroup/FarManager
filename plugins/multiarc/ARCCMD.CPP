@@ -70,6 +70,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
 {
   MaxAllowedExitCode=0;
   DeleteBraces(Command);
+
   for (char *CurPtr=Command;*CurPtr;)
   {
     int Length=strlen(Command);
@@ -85,6 +86,7 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
         break;
     }
   }
+
   if (*Command)
   {
     int Hide=Opt.HideOutput;
@@ -102,8 +104,10 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
       if(!Silent)
       {
         char ErrMsg[200];
+        char NameMsg[NM];
         FSF.sprintf(ErrMsg,(char *)GetMsg(MArcNonZero),ExecCode);
-        const char *MsgItems[]={GetMsg(MError),ArcName,ErrMsg,GetMsg(MOk)};
+        const char *MsgItems[]={GetMsg(MError),NameMsg,ErrMsg,GetMsg(MOk)};
+        FSF.TruncPathStr(strncpy(NameMsg,ArcName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
         Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
       }
       return FALSE;
@@ -503,7 +507,9 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
   {
     if(!Silent)
     {
-      const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),ListFileName,GetMsg(MOk)};
+      char NameMsg[NM];
+      const char *MsgItems[]={GetMsg(MError),GetMsg(MCannotCreateListFile),NameMsg,GetMsg(MOk)};
+      FSF.TruncPathStr(strncpy(NameMsg,ListFileName,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
       Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
     }
 /* $ 25.07.2001 AA

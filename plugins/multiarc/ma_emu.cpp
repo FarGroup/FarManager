@@ -3,10 +3,10 @@
 
   MultiArc plugin emulator for debugging second-level plugin modules
 
-  Copyrigth (c) 2001 FAR group
+  Copyrigth (c) 2001-2003 FAR group
 */
 
-/* $Revision: 1.1.1.1 $ */
+/* Revision: 1.02 12.09.2003 $ */
 
 /*
  Example:
@@ -16,12 +16,62 @@
 
 #include "plugin.hpp"
 
-#include <string.h>
+#ifndef __STDIO_H
 #include <stdio.h>
+#endif
+#ifndef __STDLIB_H
+#include <stdlib.h>
+#endif
+#ifndef __STRING_H
+#include <string.h>
+#endif
+#ifndef __STDARG_H
+#include <stdarg.h>
+#endif
+
 
 #include "fmt.hpp"
 
 char Buff[128*1024];
+
+int WINAPI LStricmp(const char *Str1,const char *Str2)
+{
+  return stricmp(Str1,Str2);
+}
+
+int WINAPI LStrnicmp(const char *Str1,const char *Str2,int Num)
+{
+  return strnicmp(Str1,Str2,Num);
+}
+
+int WINAPI SPrintf(char *Buffer,const char *Format,...)
+{
+  int ret=0;
+  if(Buffer && Format)
+  {
+    va_list argptr;
+    va_start(argptr,Format);
+    ret=vsprintf(Buffer,Format,argptr);
+    va_end(argptr);
+  }
+  return ret;
+}
+
+char* WINAPI FarMkTemp(char *Dest, const char *Prefix)
+{
+  if(Dest)
+  {
+    char TempName[NM];
+    strcpy(TempName,"FTMPXXXXXX");
+    if (mktemp(TempName)!=NULL)
+    {
+      strcpy(Dest,strupr(TempName));
+      return Dest;
+    }
+  }
+  return NULL;
+}
+
 
 int main(int argc,char *argv[])
 {
@@ -36,16 +86,20 @@ int main(int argc,char *argv[])
   fread(Buff,sizeof(Buff),1,fp);
   fclose(fp);
 
-/*
-  LoadFormatModule("");
-*/
 
-/*
-  {
-    struct PluginStartupInfo startupInfo;
-    SetFarInfo(&startupInfo);
-  }
-*/
+  LoadFormatModule(argv[0]);
+
+  struct PluginStartupInfo Info={0};
+  Info.StructSize=sizeof(Info);
+  FARSTANDARDFUNCTIONS  FSF={0};
+  FSF.StructSize=sizeof(FARSTANDARDFUNCTIONS);
+  Info.FSF=&FSF;
+  FSF.LStricmp=LStricmp;
+  FSF.LStrnicmp=LStrnicmp;
+  FSF.sprintf=SPrintf;
+  FSF.MkTemp=MkTemp;
+
+  SetFarInfo(&Info);
 
   if(IsArchive(argv[1],(const unsigned char *)Buff,sizeof(Buff)))
   {

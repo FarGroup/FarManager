@@ -151,7 +151,9 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
     }
     else        */
     {
-      FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(ArcName));
+      char NameMsg[NM];
+      FSF.TruncPathStr(strncpy(NameMsg,FSF.PointToName(ArcName),sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
+      FSF.sprintf(VolMsg,GetMsg(MExtrVolume),FSF.PointToName(NameMsg));
       const char *MsgItems[]={GetMsg(MExtractTitle),VolMsg,GetMsg(MExtrVolumeAsk1),
                         GetMsg(MExtrVolumeAsk2),GetMsg(MExtrVolumeSelFiles),
                         GetMsg(MExtrAllVolumes)};

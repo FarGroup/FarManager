@@ -93,9 +93,10 @@ int PluginClass::ReadArchive(char *Name)
       if (GetTickCount()-StartTime>1000)
       {
         char FilesMsg[100];
+        char NameMsg[NM];
         FSF.sprintf(FilesMsg,GetMsg(MArcReadFiles),ArcDataCount);
-        const char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),
-                          Name,FilesMsg};
+        const char *MsgItems[]={GetMsg(MArcReadTitle),GetMsg(MArcReading),NameMsg,FilesMsg};
+        FSF.TruncPathStr(strncpy(NameMsg,Name,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
         Info.Message(Info.ModuleNumber,WaitMessage ? FMSG_KEEPBACKGROUND:0,NULL,MsgItems,
                    sizeof(MsgItems)/sizeof(MsgItems[0]),0);
         WaitMessage=TRUE;
@@ -207,7 +208,9 @@ int PluginClass::ReadArchive(char *Name)
         break;
     }
 
-    const char *MsgItems[]={GetMsg(MError),Name,GetMsg(GetItemCode),GetMsg(MOk)};
+    char NameMsg[NM];
+    const char *MsgItems[]={GetMsg(MError),NameMsg,GetMsg(GetItemCode),GetMsg(MOk)};
+    FSF.TruncPathStr(strncpy(NameMsg,Name,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
   }
 
@@ -380,9 +383,20 @@ void PluginClass::GetOpenPluginInfo(struct OpenPluginInfo *Info)
   ArcPlugin->GetFormatName(ArcPluginNumber,ArcPluginType,FormatName,DefExt);
   FSF.sprintf(Format,GetMsg(MArcFormat),FormatName);
   Info->Format=Format;
-  FSF.sprintf(Title," %s:%s",FormatName,FSF.PointToName(ArcName));
 
-  if (*CurDir)
+  char NameTitle[NM*2];
+  strncpy(NameTitle,FSF.PointToName(ArcName),sizeof(NameTitle)-1);
+
+  {
+    struct PanelInfo PInfo;
+    if(::Info.Control((HANDLE)this,FCTL_GETPANELSHORTINFO,&PInfo))
+    {     //TruncStr
+      FSF.TruncPathStr(NameTitle,(PInfo.PanelRect.right-PInfo.PanelRect.left+1-(strlen(FormatName)+3+4)));
+    }
+  }
+
+  FSF.sprintf(Title," %s:%s",FormatName,NameTitle);
+    if (*CurDir)
   {
     strcat(Title,"\\");
     strcat(Title,CurDir);
