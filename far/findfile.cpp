@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.34 18.06.2001 $ */
+/* Revision: 1.35 23.06.2001 $ */
 
 /*
 Modify:
+  23.06.2001 OT
+    - косметические исправления, чтобы VC не "предупреждал" :)
   18.06.2001 SVS
     - исправляем последствия предыдущего патча :-)
   18.06.2001 SVS
@@ -738,7 +740,7 @@ int FindFiles::FindFilesProcess()
       PluginPanelItem *PanelItems=new PluginPanelItem[ListSize];
       if (PanelItems==NULL)
         ListSize=0;
-      int ItemsNumber=0,DataSize;
+      int ItemsNumber=0;
       for (int I=0;I<ListSize;I++)
         if ((FindList.GetUserData(&UserDataItem,sizeof(UserDataItem),I))!=0 &&
             FindList.GetUserDataSize(I)==sizeof(UserDataItem))

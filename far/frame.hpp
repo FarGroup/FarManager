@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.10 20.06.2001 */
+/* Revision: 1.11 23.06.2001 */
 
 /*
 Modify:
+  23.06.2001 OT
+    - –ешение проблемы "старика ћюллера"
   20.06.2001 tran
     * Refresh* внес в cpp из hpp - удобней отлаживать.
   30.05.2001 OT
@@ -54,10 +56,11 @@ enum { MODALTYPE_VIRTUAL,
 
 class Frame: public ScreenObject
 {
+  friend class Manager;
   private:
     Frame **ModalStack;
     int  ModalStackCount, ModalStackSize;
-
+	  Frame *FrameToBack;
 
   protected:
     int  DynamicallyBorn;

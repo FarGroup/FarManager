@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.66 16.06.2001 $ */
+/* Revision: 1.67 23.06.2001 $ */
 
 /*
 Modify:
+  23.06.2001 OT
+    - far -r
   16.06.2001 KM
     ! Добавление WRAPMODE в меню.
   14.06.2001 SVS
@@ -2186,7 +2188,8 @@ void FileList::SetViewMode(int ViewMode)
     else
     {
       FileList::ViewMode=ViewMode;
-      Show();
+//      Show();
+      FrameManager->RefreshFrame();
     }
   if (PanelMode==PLUGIN_PANEL)
   {

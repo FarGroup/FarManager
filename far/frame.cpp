@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.10 20.06.2001 $ */
+/* Revision: 1.11 23.06.2001 $ */
 
 /*
 Modify:
+  23.06.2001 OT
+    - Решение проблемы "старика Мюллера"
   20.06.2001 tran
     * Refresh* внес в cpp из hpp - удобней отлаживать.
   26.05.2001 OT
@@ -50,8 +52,9 @@ Frame::Frame()
   FrameKeyBar=NULL;
   ModalStack=NULL;
   ModalStackCount = ModalStackSize=0;
-  DynamicallyBorn=TRUE; //OT
+  DynamicallyBorn=TRUE;
   LockRefreshCount=0;
+  FrameToBack=NULL;
 }
 
 Frame::~Frame()

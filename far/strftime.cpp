@@ -5,10 +5,12 @@ strftime.cpp
 
 */
 
-/* Revision: 1.00 22.06.2001 $ */
+/* Revision: 1.01 23.06.2001 $ */
 
 /*
 Modify:
+  23.06.2001 OT
+    - косметические исправления, чтобы VC не "предупреждал" :)
   22.06.2001 SVS
     Created
 */
@@ -33,7 +35,7 @@ static char  Word[80];
 void PrepareStrFTime(void)
 {
   int I,J;
-  char *TempBuf, *PtrWord;
+  char *TempBuf;
   for(I=MStrFTimeMonth1; I < MStrFTimeMonth12; ++I)
   {
     TempBuf=MSG(I);
@@ -153,7 +155,7 @@ static int iso8601wknum(const struct tm *timeptr)
 	 * main body of the standard. Thus it requires week 53.
 	 */
 
-	int weeknum, jan1day, diff;
+	int weeknum, jan1day;
 
 	/* get week number, Monday as first day of the week */
 	weeknum = weeknumber(timeptr, 1);
@@ -264,7 +266,8 @@ int WINAPI StrFTime(char *Dest, size_t MaxSize, const char *Format,const struct 
   char Buf[32];
   char chr;
   char *Ptr = Buf;
-  int I, Len;
+  int I;
+  size_t Len;
 
   if(!Dest || !MaxSize)
     return 0;

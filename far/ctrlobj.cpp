@@ -5,12 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.29 14.06.2001 $ */
+/* Revision: 1.29 23.06.2001 $ */
 
 /*
 Modify:
-  14.06.2001 OT
-    ! "Бунт" ;-)
+  23.06.2001 OT
+    - far -r
   30.05.2001 OT
     ! Очистка исходников от закомментареных ранее кусков
   16.05.2001 DJ
@@ -186,7 +186,7 @@ void ControlObject::CreateFilePanels()
 ControlObject::~ControlObject()
 {
   _OT(SysLog("[%p] ControlObject::~ControlObject()", this));
-  if (Cp()->ActivePanel!=NULL)
+  if (Cp()&&Cp()->ActivePanel!=NULL)
   {
     if (Opt.AutoSaveSetup)
       SaveConfig(0);
@@ -278,9 +278,5 @@ void ControlObject::ShowCopyright(DWORD Flags)
 
 FilePanels* ControlObject::Cp()
 {
-    if ( FPanels==0 )
-    {
-        Message(MSG_WARNING,1,MSG(MError),"CtrlObject::Cp(), FPanels==0",MSG(MOk));
-    }
-    return FPanels;
+  return FPanels;
 }

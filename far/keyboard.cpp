@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.37 21.06.2001 $ */
+/* Revision: 1.38 23.06.2001 $ */
 
 /*
 Modify:
+  23.06.2001 OT
+    - far -r
   21.06.2001 SVS
     ! Удалена функция WriteSequenceInput() за ненадобностью
   14.06.2001 OT
@@ -300,7 +302,7 @@ int GetInputRecord(INPUT_RECORD *rec)
       memset(rec,0,sizeof(*rec));
       return(MacroKey);
     }
-    if (CtrlObject->Cp()->ActivePanel!=NULL && !CmdMode)
+    if (CtrlObject->Cp()&&!CtrlObject->Cp()->ActivePanel&&!CmdMode)
       CtrlObject->Macro.RunStartMacro();
     MacroKey=CtrlObject->Macro.GetKey();
     if (MacroKey)

@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.31 14.06.2001 $ */
+/* Revision: 1.32 23.06.2001 $ */
 
 /*
 Modify:
+  23.06.2001 OT
+    - Решение проблемы "старика Мюллера"
+    - некие проблемы при far -r. FramePos теперь инициализируется значение -1.
   14.06.2001 OT
     ! "Бунт" ;-)
   06.06.2001 OT
@@ -126,7 +129,9 @@ Manager *FrameManager;
 Manager::Manager()
 {
   FrameList=NULL;
-  FrameCount=FramePos=FrameListSize=0;
+  FrameCount=FrameListSize=0;
+  FramePos=-1;
+  ModalStack=NULL;
   FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
 
   ModalStack=NULL;
@@ -460,14 +465,15 @@ int Manager::HaveAnyFrame()
 void Manager::EnterMainLoop()
 {
   WaitInFastFind=0;
-  while (!EndLoop && HaveAnyFrame())
+  while (1)
   {
-    _tran(SysLog("Manager::MainLoop(), HaveAnyFrame=%i",HaveAnyFrame()));
-    ProcessMainLoop();
     Commit();
+    if (EndLoop || !HaveAnyFrame()) {
+      break;
+    }
+    ProcessMainLoop();
   }
 }
-
 
 void Manager::ProcessMainLoop()
 {
@@ -576,7 +582,11 @@ void Manager::PluginsMenu()
 
 BOOL Manager::IsPanelsActive()
 {
-  return CurrentFrame?CurrentFrame->GetType() == MODALTYPE_PANELS:FALSE;
+  if (FramePos>=0) {
+    return CurrentFrame?CurrentFrame->GetType() == MODALTYPE_PANELS:FALSE;
+  } else {
+    return FALSE;
+  }
 }
 
 Frame *Manager::operator[](int Index)
@@ -759,7 +769,9 @@ void Manager::DeleteCommit()
     }
     else 
     {
-      ActivatedFrame=FrameList[FramePos];
+      if (FramePos>=0) {
+        ActivatedFrame=FrameList[FramePos];
+      }
     }
   }
   else 
@@ -773,11 +785,15 @@ void Manager::DeleteCommit()
         FrameList[j]=FrameList[j+1];
       }
       FrameCount--;
-      if ( FramePos>=FrameCount )
-      {
-        FramePos=0;
+      if (DeletedFrame->FrameToBack==CtrlObject->Cp()){
+        if ( FramePos >= FrameCount )
+        {
+          FramePos=0;
+        }
+        ActivatedFrame=FrameList[FramePos];
+      } else {
+        ActivatedFrame=DeletedFrame->FrameToBack;
       }
-      ActivatedFrame=FrameList[FramePos];
     } 
     else 
     {
@@ -804,6 +820,11 @@ void Manager::DeleteCommit()
           break;
         }
       }
+    }
+  }
+  for (int i=0;i<FrameCount;i++){
+    if (FrameList[i]->FrameToBack==DeletedFrame) {
+      FrameList[i]->FrameToBack=CtrlObject->Cp();
     }
   }
   DeletedFrame->OnDestroy();
@@ -839,6 +860,7 @@ void Manager::InsertCommit()
       FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
       FrameListSize++;
     }
+    InsertedFrame->FrameToBack=CurrentFrame;
     FrameList[FrameCount]=InsertedFrame;
     if (!ActivatedFrame){
       ActivatedFrame=InsertedFrame;
@@ -855,10 +877,8 @@ void Manager::RefreshCommit()
   if (RefreshedFrame->Refreshable()){
     RefreshedFrame->ShowConsoleTitle();
     // В режиме стека "освежаем" немодальный фрейм, с которого все началось...
-    if (ModalStackCount>0 )
-    {
-      if ((*this)[FramePos])
-        (*this)[FramePos]->OnChangeFocus(1);
+    if (ModalStackCount>0&&FramePos>=0){
+      (*this)[FramePos]->OnChangeFocus(1);
     }
     RefreshedFrame->OnChangeFocus(1);
     CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
