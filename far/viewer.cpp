@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.63 22.05.2001 $ */
+/* Revision: 1.64 30.05.2001 $ */
 
 /*
 Modify:
+  30.05.2001 tran
+    * TempFileName unlink/rmdir -> DeleteFileWithFolder
   22.05.2001 DJ
     ! убрана обработка постфикса D в Alt-F8
   16.05.2001 DJ
@@ -332,12 +334,15 @@ Viewer::~Viewer()
           (long*)(Opt.SaveViewerShortPos?SavePosLeft:NULL),NULL,NULL);
     }
   }
+  _tran(SysLog("[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
   if (*TempViewName)
   {
-    chmod(TempViewName,S_IREAD|S_IWRITE);
+    /*chmod(TempViewName,S_IREAD|S_IWRITE);
     remove(TempViewName);
     *PointToName(TempViewName)=0;
-    RemoveDirectory(TempViewName);
+    RemoveDirectory(TempViewName);*/
+    _tran(SysLog("call DeleteFileWithFolder for '%s'",TempViewName));
+    DeleteFileWithFolder(TempViewName);
   }
   /* $ 12.07.2000 tran
      free memory  */
@@ -2222,6 +2227,7 @@ void Viewer::ShowConsoleTitle()
 void Viewer::SetTempViewName(char *Name)
 {
 //  ConvertNameToFull(Name,TempViewName, sizeof(TempViewName));
+  _tran(SysLog("[%p] Viewer::SetTempViewName() [%s]",this,Name));
   if (ConvertNameToFull(Name,TempViewName, sizeof(TempViewName)) >= sizeof(TempViewName)){
     return;
   }
