@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.100 03.06.2001 $ */
+/* Revision: 1.101 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 IS
+    - Editor::SaveFile - убраны (с подачи SVS) потенциальные баги - выход из
+      функции был до того, как восстановятся атрибуты файла
   03.06.2001 OT
     - Не обновлялся StatusLine после DrawLine в редакторе
   31.05.2001 OT
@@ -855,6 +858,10 @@ int Editor::ReadFile(char *Name,int &UserBreak)
 /* $ 12.02.2001 IS
      Заменил локальную FileAttr на FileAttributes
 */
+/* $ 04.06.2001 IS
+     Убраны (с подачи SVS) потенциальные баги - выход из функции был до того,
+     как восстановятся атрибуты файла
+*/
 int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
 {
   /* $ 11.10.2000 SVS
@@ -868,6 +875,7 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
   struct EditList *CurPtr;
   int AskSave;
   int NewFile=TRUE;
+  int RetCode=SAVEFILE_SUCCESS;
 
   if (TextFormat!=0)
     WasChanged=TRUE;
@@ -918,10 +926,11 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
                              MSG(MEditOvr),MSG(MYes),MSG(MNo));
         if (AskOverwrite!=0)
           return(SAVEFILE_CANCEL);
-        SetFileAttributes(Name,FileAttributes & ~FA_RDONLY);
-      }
-      if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))
-        SetFileAttributes(Name,0);
+        SetFileAttributes(Name,FileAttributes & ~FA_RDONLY); // сняты атрибуты
+      }                                                      // после этих строк
+      if (FileAttributes & (FA_HIDDEN|FA_SYSTEM))            // return из
+        SetFileAttributes(Name,0);                           // середины функции
+                                                             // недопустим
     }
 
     CtrlObject->Plugins.CurEditor=this;
@@ -938,12 +947,21 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
       hEdit=CreateFile(Name,GENERIC_WRITE,FILE_SHARE_READ,NULL,TRUNCATE_EXISTING,
                        FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN,NULL);
     if (hEdit==INVALID_HANDLE_VALUE)
-      return(SAVEFILE_ERROR);
+    {
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
     int EditHandle=_open_osfhandle((long)hEdit,O_BINARY);
     if (EditHandle==-1)
-      return(SAVEFILE_ERROR);
+    {
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
     if ((EditFile=fdopen(EditHandle,"wb"))==NULL)
-      return(SAVEFILE_ERROR);
+    {
+      RetCode=SAVEFILE_ERROR;
+      goto end;
+    }
 
     UndoSavePos=UndoDataPos;
     UndoOverflow=FALSE;
@@ -951,7 +969,8 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
 //    ConvertNameToFull(Name,FileName, sizeof(FileName));
     if (ConvertNameToFull(Name,FileName, sizeof(FileName)) >= sizeof(FileName)){
       OpenFailed=true;
-      return(SAVEFILE_ERROR);
+      RetCode=SAVEFILE_ERROR;
+      goto end;
     }
     SetCursorType(FALSE,0);
     Message(0,0,MSG(MEditTitle),MSG(MEditSaving),Name);
@@ -978,7 +997,8 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
       {
         fclose(EditFile);
         remove(Name);
-        return(SAVEFILE_ERROR);
+        RetCode=SAVEFILE_ERROR;
+        goto end;
       }
       CurPtr=CurPtr->Next;
     }
@@ -986,12 +1006,14 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
     {
       fclose(EditFile);
       remove(Name);
-      return(SAVEFILE_ERROR);
+      RetCode=SAVEFILE_ERROR;
+      goto end;
     }
     SetEndOfFile(hEdit);
     fclose(EditFile);
   }
 
+end:
   if (FileAttributes!=-1)
     SetFileAttributes(Name,FileAttributes|FA_ARCH);
   if (Modified || NewFile)
@@ -1011,8 +1033,9 @@ int Editor::SaveFile(char *Name,int Ask,int TextFormat,int SaveAs)
   TextChanged(0);
   /* skv$*/
   Show();
-  return(SAVEFILE_SUCCESS);
+  return RetCode;
 }
+/* IS $ */
 /* IS $ */
 
 void Editor::DisplayObject()
