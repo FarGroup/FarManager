@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.32 10.06.2001 $ */
+/* Revision: 1.33 18.06.2001 $ */
 
 /*
 Modify:
+  18.06.2001 SVS
+    - "Ќевхождение" в архивы - неверное условие на равенство (в 706-м забыл
+      этот момент исправить)
   10.06.2001 IS
     + ѕокажем текущее им€ кодовой таблицы в диалоге параметров поиска в файлах.
   09.06.2001 IS
@@ -777,7 +780,7 @@ int FindFiles::FindFilesProcess()
       {
         char *FileName=UserDataItem.FileFindData.cFileName;
         Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
-        if (FindListDataSize==sizeof(WIN32_FIND_DATA)+NM)
+        if (FindListDataSize==sizeof(UserDataItem))
         {
           char ArcName[NM],ArcPath[NM];
           strncpy(ArcName,UserDataItem.FindFileArcName,NM);
