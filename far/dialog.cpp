@@ -5,10 +5,17 @@ dialog.cpp
 
 */
 
-/* Revision: 1.12 01.08.2000 $ */
+/* Revision: 1.13 03.08.2000 $ */
 
 /*
 Modify:
+  03.08.2000 tran
+   + мышиный перетаск диалога - хватание за пустое место
+     внимание - ограничение невыхода за границы экрана посталено не зря
+     иначе ползут глюки...
+     изменена индикация - по углам красные палки
+     с MOVE в угла могут быть глюки в изображении.
+     строки про MOVE закоментарены "//# "
   01.08.2000 SVS
    ! History теперь ВСЕГДА имеет ScrollBar, т.к. этот элемент ближе
      к ComboBox`у, нежели к меню.
@@ -766,7 +773,16 @@ void Dialog::ShowDialog()
   */
   if ( Dragged ) // если диалог таскается
   {
-    Text(0,0,0xCE,"Move");
+    /* $ 03.08.2000 tran
+       вывод текста в углу может приводить к ошибкам изображения
+       1) когда диалог перемещается в угол
+       2) когда диалог перемещается из угла 
+       сделал вывод красных палочек по углам */
+    //Text(0,0,0xCE,"Move");
+    Text(X1,Y1,0xCE,"\\");
+    Text(X1,Y2,0xCE,"/");
+    Text(X2,Y1,0xCE,"/");
+    Text(X2,Y2,0xCE,"\\");
   }
   /* SVS $ */
 }
@@ -847,7 +863,7 @@ int Dialog::ProcessKey(int Key)
         case KEY_CTRLF5:
             Dragged=0;
             Show();
-            PutText(0,0,3,0,LV);
+            //# PutText(0,0,3,0,LV);
             break;
         case KEY_ESC:
             Hide();
@@ -856,9 +872,9 @@ int Dialog::ProcessKey(int Key)
             X2=OldX2;
             Y1=OldY1;
             Y2=OldY2;
-            Show();
-            PutText(0,0,3,0,LV);
             Dragged=0;
+            Show();
+            //# PutText(0,0,3,0,LV);
             break;
     }
     return (TRUE);
@@ -869,7 +885,7 @@ int Dialog::ProcessKey(int Key)
     // включаем флаг и запоминаем координаты
     Dragged=1;
     OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
-    GetText(0,0,3,0,LV);
+    //# GetText(0,0,3,0,LV);
     Show();
     return (TRUE);
   }
@@ -1501,10 +1517,58 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
           return(TRUE);
         }
       }
+    } // for (I=0;I<ItemCount;I++)
     // ДЛЯ MOUSE-Перемещалки:
     //   Сюда попадаем в том случае, если мышь не попала на активные элементы
     //
-    }
+    /* $ 03.08.2000 tran
+       ну раз попадаем - то будем перемещать */
+
+    Dragged=1;
+    OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
+    while (1)
+    {
+        int mb=IsMouseButtonPressed();
+        int mx,my;
+        if ( mb==1 ) // left key, still dragging
+        {
+            Hide();
+            mx=MouseX-PrevMouseX;
+            my=MouseY-PrevMouseY;
+            if ( X1+mx>=0 && X2+mx<=ScrX )
+            {
+                X1+=mx;
+                X2+=mx;
+                AdjustEditPos(mx,0);
+            }
+            if ( Y1+my>=0 && Y2+my<=ScrY )
+            {
+                Y1+=my;
+                Y2+=my;
+                AdjustEditPos(0,my);
+            }
+            Show();
+        }
+        else if (mb==2) // right key, abort
+        {
+            Hide();
+            AdjustEditPos(OldX1-X1,OldY1-Y1);
+            X1=OldX1;
+            X2=OldX2;
+            Y1=OldY1;
+            Y2=OldY2;
+            Dragged=0;
+            Show();
+            break;
+        }
+        else  // release key, drop dialog
+        {
+            Dragged=0;
+            Show();
+            break;
+        }
+    }// while (1)
+    /* tran 03.08.2000 $ */
   }
   return(FALSE);
 }
