@@ -247,6 +247,7 @@
 
 
 .\dialog.cpp : \
+	".\bitflags.hpp"\
 	".\chgprior.hpp"\
 	".\colors.hpp"\
 	".\ctrlobj.hpp"\

@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.15 22.06.2001 $ */
+/* Revision: 1.16 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    + IsDialogParent - а родитель у нас кто?
   22.06.2001 SVS
     + ProcessInsDate()
   06.05.2001 DJ
@@ -92,19 +94,23 @@ class Edit:public ScreenObject
     /* $ 12.08.2000 KM
        ƒобавлена переменна€ дл€ хранени€ предыдущего положени€ курсора
     */
-    int    CurPos,PrevCurPos;
+    int    CurPos;
+    int    PrevCurPos;
     /* KM $ */
     /* $ 28.07.2000 SVS
       + ColorUnChanged (дл€ диалога)
     */
-    int    Color,SelColor,ColorUnChanged;
+    int    Color;
+    int    SelColor;
+    int    ColorUnChanged;
     /* SVS $ */
     int    LeftPos;
     int    ConvertTabs;
     int    CursorPos;
     int    EndType;
     int    MaxLength;
-    int    SelStart,SelEnd;
+    int    SelStart;
+    int    SelEnd;
     char   MarkingBlock;
     char   ClearFlag;
     char   PasswordMode;
@@ -118,14 +124,16 @@ class Edit:public ScreenObject
     /* $ 14.02.2001 IS
          –азмер табул€ции - по умолчанию равен Opt.TabSize;
     */
-    int	   TabSize;
+    int    TabSize;
     /* IS $ */
     /* $ 15.02.2001 IS
          –азличные опции из настроек редактора теперь запоминаютс€ локально
     */
-    int	   DelRemovesBlocks; // Del удал€ет блоки (Opt.EditorDelRemovesBlocks)
+    int    DelRemovesBlocks; // Del удал€ет блоки (Opt.EditorDelRemovesBlocks)
     int    PersistentBlocks; // ѕосто€нные блоки (Opt.EditorPersistentBlocks)
     /* IS $ */
+
+    int    IsDialogParent;
 
   private:
     void   DisplayObject();
@@ -256,6 +264,9 @@ class Edit:public ScreenObject
 
     static void DisableEditOut(int Disable);
     static void DisableEncode(int Disable);
+
+    void SetDialogParent(BOOL Sets) {IsDialogParent=Sets;}
+    int  GetDialogParent(BOOL Sets) {return IsDialogParent;}
 };
 
 #endif  // __EDIT_HPP__

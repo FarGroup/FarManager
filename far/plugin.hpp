@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.159 06.11.2001 $ */
+/* Revision: 1.160 08.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  08.11.2001 SVS
+    ! FarMenuItemEx и FarListItem размер текста 128 + DWORD Reserved
   06.11.2001 SVS
     ! DM_LIST[G|S]ETTITLE -> DM_LIST[G|S]ETTITLES
     ! LINFO_REVERSIHLIGHT -> LINFO_REVERSEHIGHLIGHT
@@ -732,6 +734,7 @@ enum {
   FMSG_LEFTALIGN           =0x00000010,
 
   FMSG_ALLINONE            =0x00000020,
+  FMSG_COLOURS             =0x00000040,
 
   FMSG_MB_OK               =0x00010000,
   FMSG_MB_OKCANCEL         =0x00020000,
@@ -911,7 +914,8 @@ enum CHECKEDSTATE {
 struct FarListItem
 {
   DWORD Flags;
-  char Text[124];
+  char Text[128];
+  DWORD Reserved;
 };
 
 struct FarList
@@ -1071,7 +1075,8 @@ enum MENUITEMFLAGS {
 struct FarMenuItemEx
 {
   DWORD Flags;
-  char Text[124];
+  char Text[128];
+  DWORD Reserved;
 };
 
 struct CmdLineSelect

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.53 28.10.2001 $ */
+/* Revision: 1.54 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    - BugZ#97: Недочет в диалогах копирования/переименования итд
   28.10.2001 SVS
     ! Приведем к одному знаманателю реакцию на вставку путей (то же как и
       в панелях)
@@ -204,6 +206,7 @@ enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF};
 Edit::Edit()
 {
   ConvertTabs=0;
+  IsDialogParent=0;
   /* $ 13.07.2000 SVS
      Нет, так нельзя - все последующие расширения памяти делаются через
      realloc, а здесь:
@@ -1400,6 +1403,9 @@ int Edit::ProcessKey(int Key)
           SelEnd=PrevSelEnd;
         }
         DeleteBlock();
+        // OT: Проверка на корректность поведени строки при удалении и вставки
+        if (IsDialogParent)
+          LeftPos=(StrSize < ObjWidth)?0:CurPos;
       }
       if (InsertKey(Key))
       {

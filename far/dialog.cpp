@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.175 06.11.2001 $ */
+/* Revision: 1.176 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    + IsDialogParent - а родитель у нас кто для строк редактирования?
+    ! Добавка в виде BitFlags - управление флагами текущего режима диалога
   06.11.2001 SVS
     ! DM_LIST[G|S]ETTITLE -> DM_LIST[G|S]ETTITLES
     - BugZ#36: проблемы с перерисовкой истории после записи макроса
@@ -706,7 +709,6 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 Dialog::Dialog(struct DialogItem *Item,int ItemCount,
                FARWINDOWPROC DlgProc,long InitParam)
 {
-  Resized=false;
   _tran(SysLog("[%p] Dialog::Dialog()",this));
 
   if(!PHisLocked)
@@ -719,7 +721,6 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   /* $ 17.05.2001 DJ */
   CanLoseFocus = FALSE;
   HelpTopic = NULL;
-  EndLoop = FALSE;
   /* DJ $ */
   /* $ 19.05.2001 DJ */
   OwnsItems = FALSE;
@@ -728,11 +729,6 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
     Номер плагина, вызвавшего диалог (-1 = Main)
   */
   PluginNumber=-1;
-  /* SVS $ */
-  /* $ 23.08.2000 SVS
-    Режимы диалога.
-  */
-  DialogMode=0;
   /* SVS $ */
   /* $ 11.08.2000 SVS
     + Данные, специфические для конкретного экземпляра диалога
@@ -743,7 +739,7 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   /* $ 10.08.2000 SVS
      Изначально диалоги можно таскать
   */
-  SetDialogMode(DMODE_ISCANMOVE);
+  DialogMode.Set(DMODE_ISCANMOVE);
   /* SVS $ */
   /* $ 23.06.2001 KM */
   SetDropDownOpened(FALSE);
@@ -765,7 +761,7 @@ Dialog::Dialog(struct DialogItem *Item,int ItemCount,
   {
     DlgProc=(FARWINDOWPROC)Dialog::DefDlgProc;
     // знать диалог в старом стиле - учтем этот факт!
-    SetDialogMode(DMODE_OLDSTYLE);
+    DialogMode.Set(DMODE_OLDSTYLE);
   }
   Dialog::DlgProc=DlgProc;
 
@@ -843,7 +839,7 @@ void Dialog::CheckDialogCoord(void)
     if (Y1>1)
       Y1--;
 
-    if(!CheckDialogMode(DMODE_SMALLDIALOG)) //????
+    if(!DialogMode.Check(DMODE_SMALLDIALOG)) //????
       if (Y1>5)
         Y1--;
 
@@ -869,7 +865,7 @@ void Dialog::Show()
   if(PreRedrawFunc)
      PreRedrawFunc();
 
-  if (!CheckDialogMode(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
+  if (!DialogMode.Check(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
   {                      //  элементы инициализируются при первом вызове.
     /* $ 28.07.2000 SVS
        Укажем процедуре, что у нас все Ок!
@@ -882,10 +878,10 @@ void Dialog::Show()
     }
     SetFarTitle(GetDialogTitle());
     // все объекты проинициализированы!
-    SetDialogMode(DMODE_INITOBJECTS);
+    DialogMode.Set(DMODE_INITOBJECTS);
   }
   CheckDialogCoord();
-  SetDialogMode(DMODE_SHOW);
+  DialogMode.Set(DMODE_SHOW);
   ScreenObject::Show();
 }
 
@@ -895,7 +891,7 @@ void Dialog::Show()
 void Dialog::Hide()
 {
   _tran(SysLog("[%p] Dialog::Hide()",this));
-  SkipDialogMode(DMODE_SHOW);
+  DialogMode.Skip(DMODE_SHOW);
   ScreenObject::Hide();
 }
 /* SVS $*/
@@ -906,10 +902,10 @@ void Dialog::Hide()
 */
 void Dialog::DisplayObject()
 {
-  if(CheckDialogMode(DMODE_SHOW))
+  if(DialogMode.Check(DMODE_SHOW))
   {
     ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-    if(!CheckDialogMode(DMODE_SMALLDIALOG))
+    if(!DialogMode.Check(DMODE_SMALLDIALOG))
       Shadow();              // "наводим" тень
     ShowDialog();          // "нарисуем" диалог.
   }
@@ -1077,7 +1073,7 @@ int Dialog::InitDialogObjects(int ID)
     */
     if (Type==DI_LISTBOX)
     {
-      if (!CheckDialogMode(DMODE_CREATEOBJECTS))
+      if (!DialogMode.Check(DMODE_CREATEOBJECTS))
         CurItem->ListPtr=new VMenu(NULL,NULL,0,CurItem->Y2-CurItem->Y1+1,
                         VMENU_ALWAYSSCROLLBAR|VMENU_LISTBOX,NULL/*,this*/);
        if(CurItem->ListPtr)
@@ -1107,7 +1103,7 @@ int Dialog::InitDialogObjects(int ID)
          CurItem->ListPtr->SetBoxType(SHORT_SINGLE_BOX);
          // удалим все итемы
          //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
-         if(CurItem->ListItems && !CheckDialogMode(DMODE_CREATEOBJECTS))
+         if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
            CurItem->ListPtr->AddItem(CurItem->ListItems);
          /* KM $ */
          /* KM $ */
@@ -1117,7 +1113,7 @@ int Dialog::InitDialogObjects(int ID)
     // "редакторы" - разговор особый...
     if (IsEdit(Type))
     {
-      if (!CheckDialogMode(DMODE_CREATEOBJECTS))
+      if (!DialogMode.Check(DMODE_CREATEOBJECTS))
       {
         CurItem->ObjPtr=new Edit;
         if(Type == DI_COMBOBOX)
@@ -1125,6 +1121,7 @@ int Dialog::InitDialogObjects(int ID)
       }
 
       Edit *DialogEdit=(Edit *)CurItem->ObjPtr;
+      DialogEdit->SetDialogParent(TRUE);
       /* $ 26.07.2000 SVS
          Ну наконец-то - долгожданный нередактируемый ComboBox
       */
@@ -1153,7 +1150,7 @@ int Dialog::InitDialogObjects(int ID)
            ! Зачем-то была убрана инициализация DI_COMBOBOX через FarDialogItem
               Восстановлено!!!
         */
-        if(CurItem->ListItems && !CheckDialogMode(DMODE_CREATEOBJECTS))
+        if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
           CurItem->ListPtr->AddItem(CurItem->ListItems);
         /* KM $ */
         /* KM $ */
@@ -1177,7 +1174,7 @@ int Dialog::InitDialogObjects(int ID)
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
 //      DialogEdit->SetObjectColor(
-//         FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+//         FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
 //             ((ItemFlags&DIF_DISABLE)?COL_WARNDIALOGEDITDISABLED:COL_WARNDIALOGEDIT):
 //             ((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDIT)),
 //         FarColorToReal((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED));
@@ -1315,7 +1312,7 @@ int Dialog::InitDialogObjects(int ID)
     }
     if (Type == DI_USERCONTROL)
     {
-      if (!CheckDialogMode(DMODE_CREATEOBJECTS))
+      if (!DialogMode.Check(DMODE_CREATEOBJECTS))
         CurItem->ObjPtr=new COORD; // пока ограничимся хранением координат курсора
       ((COORD *)(CurItem->ObjPtr))->X=-1;
       ((COORD *)(CurItem->ObjPtr))->Y=-1;
@@ -1327,7 +1324,7 @@ int Dialog::InitDialogObjects(int ID)
   SelectOnEntry(FocusPos);
 
   // все объекты созданы!
-  SetDialogMode(DMODE_CREATEOBJECTS);
+  DialogMode.Set(DMODE_CREATEOBJECTS);
   return FocusPos;
 }
 /* 24.08.2000 SVS $ */
@@ -1402,7 +1399,7 @@ BOOL Dialog::SetItemRect(int ID,SMALL_RECT *Rect)
       break;
   }
 
-  if(CheckDialogMode(DMODE_SHOW))
+  if(DialogMode.Check(DMODE_SHOW))
   {
     ShowDialog(-1);
     ScrBuf.Flush();
@@ -1459,8 +1456,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {
         Rect.bottom=Rect.top;
-        Rect.left=(!CheckDialogMode(DMODE_SMALLDIALOG)?3:0); //???
-        Rect.right=X2-X1-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0); //???
+        Rect.left=(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0); //???
+        Rect.right=X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0); //???
       }
       break;
 
@@ -1482,8 +1479,8 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
       if (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2))
       {
         Rect.right=Rect.left;
-        Rect.top=(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0); //???
-        Rect.bottom=Y2-Y1-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0); //???
+        Rect.top=(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0); //???
+        Rect.bottom=Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0); //???
         break;
       }
       */
@@ -1646,13 +1643,13 @@ void Dialog::ShowDialog(int ID)
   */
   if(IsEnableRedraw ||                 // разрешена прорисовка ?
      (ID+1 > ItemCount) ||             // а номер в рамках дозволенного?
-     CheckDialogMode(DMODE_DRAWING) || // диалог рисуется?
-     !CheckDialogMode(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
-     !CheckDialogMode(DMODE_INITOBJECTS))
+     DialogMode.Check(DMODE_DRAWING) || // диалог рисуется?
+     !DialogMode.Check(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
+     !DialogMode.Check(DMODE_INITOBJECTS))
     return;
   /* SVS $ */
 
-  SetDialogMode(DMODE_DRAWING);  // диалог рисуется!!!
+  DialogMode.Set(DMODE_DRAWING);  // диалог рисуется!!!
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
@@ -1663,7 +1660,7 @@ void Dialog::ShowDialog(int ID)
     */
     if(!DlgProc((HANDLE)this,DN_DRAWDIALOG,0,0))
     {
-      SkipDialogMode(DMODE_DRAWING);  // конец отрисовки диалога!!!
+      DialogMode.Skip(DMODE_DRAWING);  // конец отрисовки диалога!!!
       return;
     }
     /* SVS $ */
@@ -1671,10 +1668,10 @@ void Dialog::ShowDialog(int ID)
     /* $ 28.07.2000 SVS
        перед прорисовкой подложки окна диалога...
     */
-    if(!CheckDialogMode(DMODE_SMALLDIALOG))
+    if(!DialogMode.Check(DMODE_SMALLDIALOG))
     {
       Attr=DlgProc((HANDLE)this,DN_CTLCOLORDIALOG,0,
-          CheckDialogMode(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
+          DialogMode.Check(DMODE_WARNINGSTYLE) ? COL_WARNDIALOGTEXT:COL_DIALOGTEXT);
       SetScreen(X1,Y1,X2,Y2,' ',Attr);
     }
     /* SVS $ */
@@ -1734,13 +1731,13 @@ void Dialog::ShowDialog(int ID)
       case DI_DOUBLEBOX:
       {
         Attr=MAKELONG(
-          MAKEWORD(FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+          MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                       ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE):
                       ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE)), // Title LOBYTE
-                 FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                 FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                       ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
                       ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))),// HiText HIBYTE
-          MAKEWORD(FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+          MAKEWORD(FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX)), // Box LOBYTE
                  0)                                               // HIBYTE
@@ -1790,17 +1787,17 @@ void Dialog::ShowDialog(int ID)
           Attr=CurItem->Flags & DIF_COLORMASK;
         else
           if (CurItem->Flags & DIF_BOXCOLOR)
-            Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ?
+            Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX);
           else
-            Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ?
+            Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT);
 
         Attr=MAKELONG(
            MAKEWORD(FarColorToReal(Attr),
-                   FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+                   FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                       ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
                       ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))), // HIBYTE HiText
              0);
@@ -1809,11 +1806,11 @@ void Dialog::ShowDialog(int ID)
 
         if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
-          GotoXY(X1+(!CheckDialogMode(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
+          GotoXY(X1+(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0),Y1+Y); //????
           if (DialogTooLong)
-            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
+            ShowSeparator(DialogTooLong-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
           else
-            ShowSeparator(X2-X1-(!CheckDialogMode(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
+            ShowSeparator(X2-X1-(!DialogMode.Check(DMODE_SMALLDIALOG)?5:0),(CurItem->Flags&DIF_SEPARATOR2?3:1));
         }
 
         GotoXY(X1+X,Y1+Y);
@@ -1840,14 +1837,14 @@ void Dialog::ShowDialog(int ID)
           Y=CurItem->Y1;
 
         if (CurItem->Flags & DIF_BOXCOLOR)
-          Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ?
+          Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBOX);
         else
           if (CurItem->Flags & DIF_SETCOLOR)
             Attr=(CurItem->Flags & DIF_COLORMASK);
           else
-            Attr=(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+            Attr=(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT));
 
@@ -1857,11 +1854,11 @@ void Dialog::ShowDialog(int ID)
         /* Закроем до поры до времени.
         if (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2))
         {
-          GotoXY(X1+X,Y1+(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0)); //????
+          GotoXY(X1+X,Y1+(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)); //????
           if (DialogTooLong)
-            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0),5);
+            ShowSeparator(DialogTooLong-(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0),5);
           else
-            ShowSeparator(Y2-Y1-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0),5);
+            ShowSeparator(Y2-Y1-(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0),5);
         }
         */
 
@@ -1888,7 +1885,7 @@ void Dialog::ShowDialog(int ID)
         */
         if(CurItem->Type == DI_COMBOBOX && (CurItem->Flags & DIF_DROPDOWNLIST))
         {
-          if(CheckDialogMode(DMODE_WARNINGSTYLE))
+          if(DialogMode.Check(DMODE_WARNINGSTYLE))
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
@@ -1921,7 +1918,7 @@ void Dialog::ShowDialog(int ID)
         }
         else
         {
-          if(CheckDialogMode(DMODE_WARNINGSTYLE))
+          if(DialogMode.Check(DMODE_WARNINGSTYLE))
             Attr=MAKELONG(
               MAKEWORD( //LOWORD
                 // LOLO (Text)
@@ -1965,7 +1962,7 @@ void Dialog::ShowDialog(int ID)
           /* $ 09.08.2000 KM
              Отключение мигающего курсора при перемещении диалога
           */
-          if (!CheckDialogMode(DMODE_DRAGGED))
+          if (!DialogMode.Check(DMODE_DRAGGED))
             SetCursorType(1,-1);
           EditPtr->Show();
           /* KM $ */
@@ -1979,7 +1976,7 @@ void Dialog::ShowDialog(int ID)
         /* $ 09.08.2000 KM
            Отключение мигающего курсора при перемещении диалога
         */
-        if (CheckDialogMode(DMODE_DRAGGED))
+        if (DialogMode.Check(DMODE_DRAGGED))
           SetCursorType(FALSE,0);
         /* KM $ */
 
@@ -2031,12 +2028,12 @@ void Dialog::ShowDialog(int ID)
         if (CurItem->Flags & DIF_SETCOLOR)
           Attr=(CurItem->Flags & DIF_COLORMASK);
         else
-          Attr=(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+          Attr=(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                   ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT):
                   ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGTEXT));
 
         Attr=MAKEWORD(FarColorToReal(Attr),
-             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT):
                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT))); // HiText
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,Attr);
@@ -2068,7 +2065,7 @@ void Dialog::ShowDialog(int ID)
           /* $ 09.08.2000 KM
              Отключение мигающего курсора при перемещении диалога
           */
-          if (!CheckDialogMode(DMODE_DRAGGED))
+          if (!DialogMode.Check(DMODE_DRAGGED))
             SetCursorType(1,-1);
           MoveCursor(X1+CurItem->X1+1,Y1+CurItem->Y1);
           /* KM $ */
@@ -2090,10 +2087,10 @@ void Dialog::ShowDialog(int ID)
           SetCursorType(0,10);
           Attr=MAKEWORD(
              (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
-               FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+               FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGSELECTEDBUTTON):
                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGSELECTEDBUTTON)), // TEXT
-             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON):
                    ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTSELECTEDBUTTON))); // HiText
         }
@@ -2101,10 +2098,10 @@ void Dialog::ShowDialog(int ID)
         {
           Attr=MAKEWORD(
              (CurItem->Flags & DIF_SETCOLOR)?(CurItem->Flags & DIF_COLORMASK):
-               FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+               FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                       ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBUTTON):
                       ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGBUTTON)), // TEXT
-             FarColorToReal(CheckDialogMode(DMODE_WARNINGSTYLE) ?
+             FarColorToReal(DialogMode.Check(DMODE_WARNINGSTYLE) ?
                       ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBUTTON):
                       ((CurItem->Flags&DIF_DISABLE)?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBUTTON))); // HiText
         }
@@ -2139,7 +2136,7 @@ void Dialog::ShowDialog(int ID)
   /* $ 31.07.2000 SVS
      Включим индикатор перемещения...
   */
-  if ( CheckDialogMode(DMODE_DRAGGED) ) // если диалог таскается
+  if ( DialogMode.Check(DMODE_DRAGGED) ) // если диалог таскается
   {
     DlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
   }
@@ -2154,8 +2151,8 @@ void Dialog::ShowDialog(int ID)
   }
   /* SVS $ */
 
-  SkipDialogMode(DMODE_DRAWING);  // конец отрисовки диалога!!!
-  SetDialogMode(DMODE_SHOW); // диалог на экране!
+  DialogMode.Skip(DMODE_DRAWING);  // конец отрисовки диалога!!!
+  DialogMode.Set(DMODE_SHOW); // диалог на экране!
 }
 /* SVS 22.08.2000 $ */
 
@@ -2183,7 +2180,7 @@ int Dialog::ProcessKey(int Key)
 
   /* $ 31.07.2000 tran
      + перемещение диалога по экрану */
-  if (CheckDialogMode(DMODE_DRAGGED)) // если диалог таскается
+  if (DialogMode.Check(DMODE_DRAGGED)) // если диалог таскается
   {
     int rr=1;
     /* $ 15.12.2000 SVS
@@ -2204,7 +2201,7 @@ int Dialog::ProcessKey(int Key)
                     X2--;
                     AdjustEditPos(-1,0);
                 }
-            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
+            if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_CTRLRIGHT:
         case KEY_CTRLEND:
@@ -2219,7 +2216,7 @@ int Dialog::ProcessKey(int Key)
                     X2++;
                     AdjustEditPos(1,0);
                 }
-            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
+            if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_PGUP:
         case KEY_CTRLPGUP:
@@ -2234,7 +2231,7 @@ int Dialog::ProcessKey(int Key)
                     Y2--;
                     AdjustEditPos(0,-1);
                 }
-            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
+            if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_CTRLDOWN:
         case KEY_CTRLPGDN:
@@ -2249,12 +2246,12 @@ int Dialog::ProcessKey(int Key)
                     Y2++;
                     AdjustEditPos(0,1);
                 }
-            if(!CheckDialogMode(DMODE_ALTDRAGGED)) Show();
+            if(!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
             break;
         case KEY_ENTER:
         case KEY_CTRLF5:
-            SkipDialogMode(DMODE_DRAGGED); // закончим движение!
-            if(!CheckDialogMode(DMODE_ALTDRAGGED))
+            DialogMode.Skip(DMODE_DRAGGED); // закончим движение!
+            if(!DialogMode.Check(DMODE_ALTDRAGGED))
             {
               DlgProc((HANDLE)this,DN_DRAGGED,1,0);
               Show();
@@ -2267,8 +2264,8 @@ int Dialog::ProcessKey(int Key)
             X2=OldX2;
             Y1=OldY1;
             Y2=OldY2;
-            SkipDialogMode(DMODE_DRAGGED);
-            if(!CheckDialogMode(DMODE_ALTDRAGGED))
+            DialogMode.Skip(DMODE_DRAGGED);
+            if(!DialogMode.Check(DMODE_ALTDRAGGED))
             {
               DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
               Show();
@@ -2276,9 +2273,9 @@ int Dialog::ProcessKey(int Key)
             break;
     }
     /* SVS $ */
-    if(CheckDialogMode(DMODE_ALTDRAGGED))
+    if(DialogMode.Check(DMODE_ALTDRAGGED))
     {
-      SkipDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
+      DialogMode.Skip(DMODE_DRAGGED|DMODE_ALTDRAGGED);
       DlgProc((HANDLE)this,DN_DRAGGED,1,0);
       Show();
     }
@@ -2287,13 +2284,13 @@ int Dialog::ProcessKey(int Key)
   /* $ 10.08.2000 SVS
      Двигаем, если разрешено! (IsCanMove)
   */
-  if (Key == KEY_CTRLF5 && CheckDialogMode(DMODE_ISCANMOVE))
+  if (Key == KEY_CTRLF5 && DialogMode.Check(DMODE_ISCANMOVE))
   /* SVS 10.08.2000 $*/
   {
     if(DlgProc((HANDLE)this,DN_DRAGGED,0,0)) // если разрешили перемещать!
     {
       // включаем флаг и запоминаем координаты
-      SetDialogMode(DMODE_DRAGGED);
+      DialogMode.Set(DMODE_DRAGGED);
       OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
       //# GetText(0,0,3,0,LV);
       Show();
@@ -2307,7 +2304,7 @@ int Dialog::ProcessKey(int Key)
 
   int Type=Item[FocusPos].Type;
 
-  if(!CheckDialogMode(DMODE_KEY))
+  if(!DialogMode.Check(DMODE_KEY))
     if(DlgProc((HANDLE)this,DM_KEY,FocusPos,Key))
       return TRUE;
 
@@ -2352,7 +2349,7 @@ int Dialog::ProcessKey(int Key)
           if(!DlgProc((HANDLE)this,DN_LISTCHANGE,FocusPos,NewListPos))
           {
             List->SetSelection(CheckedListItem,CurListPos);
-            if(CheckDialogMode(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
+            if(DialogMode.Check(DMODE_SHOW) && !(Item[FocusPos].Flags&DIF_HIDDEN))
               ShowDialog(FocusPos);
           }
         return(TRUE);
@@ -2418,9 +2415,9 @@ int Dialog::ProcessKey(int Key)
           /* DJ $ */
           return(TRUE);
         }
-      if(!CheckDialogMode(DMODE_OLDSTYLE))
+      if(!DialogMode.Check(DMODE_OLDSTYLE))
       {
-        EndLoop=FALSE; // только если есть
+        DialogMode.Skip(DMODE_ENDLOOP); // только если есть
         return TRUE; // делать больше не чего
       }
 
@@ -2481,7 +2478,7 @@ int Dialog::ProcessKey(int Key)
            Если не старый стиль и кнопка "не для закрытия" (DIF_BTNNOCLOSE), то
            вываливаемся, иначе - предлагаем закрыть диалог.
         */
-        if(!CheckDialogMode(DMODE_OLDSTYLE) && (Item[FocusPos].Flags&DIF_BTNNOCLOSE))
+        if(!DialogMode.Check(DMODE_OLDSTYLE) && (Item[FocusPos].Flags&DIF_BTNNOCLOSE))
           return(TRUE);
 
         ExitCode=FocusPos;
@@ -2492,7 +2489,7 @@ int Dialog::ProcessKey(int Key)
         /* SVS $ */
       }
 #if 0
-      else if(IsEdit(Type) || CheckDialogMode(DMODE_OLDSTYLE))
+      else if(IsEdit(Type) || DialogMode.Check(DMODE_OLDSTYLE))
       {
         for (I=0;I<ItemCount;I++)
           if (Item[I].DefaultButton)
@@ -2502,7 +2499,7 @@ int Dialog::ProcessKey(int Key)
             ExitCode=I;
           }
 
-        EndLoop=TRUE;
+        DialogMode.Set(DMODE_ENDLOOP);
         if (ExitCode==-1)
           ExitCode=FocusPos;
       }
@@ -3132,10 +3129,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   /* $ 11.06.2001 KM
      ! Сделана нормальная работа мыши в DI_LISTBOX.
   */
-  if(!CheckDialogMode(DMODE_SHOW))
+  if(!DialogMode.Check(DMODE_SHOW))
     return FALSE;
 
-  if(!CheckDialogMode(DMODE_MOUSEEVENT))
+  if(!DialogMode.Check(DMODE_MOUSEEVENT))
    if(!DlgProc((HANDLE)this,DN_MOUSEEVENT,0,(long)MouseEvent))
      return TRUE;
 
@@ -3355,11 +3352,11 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
       /* $ 10.08.2000 SVS
          Двигаем, если разрешено! (IsCanMove)
       */
-      if (CheckDialogMode(DMODE_ISCANMOVE) && DlgProc((HANDLE)this,DN_DRAGGED,0,0))
+      if (DialogMode.Check(DMODE_ISCANMOVE) && DlgProc((HANDLE)this,DN_DRAGGED,0,0))
       {
         /* $ 03.08.2000 tran
            ну раз попадаем - то будем перемещать */
-        //SetDialogMode(DMODE_DRAGGED);
+        //DialogMode.Set(DMODE_DRAGGED);
         OldX1=X1; OldX2=X2; OldY1=Y1; OldY2=Y2;
         // запомним delta места хватания и Left-Top диалогового окна
         MsX=abs(X1-MouseX);
@@ -3408,14 +3405,14 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                 X2=OldX2;
                 Y1=OldY1;
                 Y2=OldY2;
-                SkipDialogMode(DMODE_DRAGGED);
+                DialogMode.Skip(DMODE_DRAGGED);
                 DlgProc((HANDLE)this,DN_DRAGGED,1,TRUE);
                 Show();
                 break;
             }
             else  // release key, drop dialog
             {
-                SkipDialogMode(DMODE_DRAGGED);
+                DialogMode.Skip(DMODE_DRAGGED);
                 DlgProc((HANDLE)this,DN_DRAGGED,1,0);
                 Show();
                 break;
@@ -3449,7 +3446,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
 //  int FucusPosNeed=-1;
   // В функцию обработки диалога здесь передаем сообщение,
   //   что элемент - LostFocus() - теряет фокус ввода.
-//  if(CheckDialogMode(DMODE_INITOBJECTS))
+//  if(DialogMode.Check(DMODE_INITOBJECTS))
 //    FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,FocusPos,0);
 //  if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
 //    FocusPos=FucusPosNeed;
@@ -3482,7 +3479,7 @@ int Dialog::ChangeFocus(int FocusPos,int Step,int SkipGroup)
   // В функцию обработки диалога здесь передаем сообщение,
   //   что элемент GotFocus() - получил фокус ввода.
   // Игнорируем возвращаемое функцией диалога значение
-//  if(CheckDialogMode(DMODE_INITOBJECTS))
+//  if(DialogMode.Check(DMODE_INITOBJECTS))
 //    DlgProc((HANDLE)this,DN_GOTFOCUS,FocusPos,0);
   return(FocusPos);
 }
@@ -3500,7 +3497,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
   int FucusPosNeed=-1;
   if(!(Item[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
   {
-    if(CheckDialogMode(DMODE_INITOBJECTS))
+    if(DialogMode.Check(DMODE_INITOBJECTS))
       FucusPosNeed=DlgProc((HANDLE)this,DN_KILLFOCUS,KillFocusPos,0);
 
     if(FucusPosNeed != -1 && IsFocused(Item[FucusPosNeed].Type))
@@ -3514,7 +3511,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 
     Dialog::PrevFocusPos=Dialog::FocusPos;
     Dialog::FocusPos=SetFocusPos;
-    if(CheckDialogMode(DMODE_INITOBJECTS))
+    if(DialogMode.Check(DMODE_INITOBJECTS))
       DlgProc((HANDLE)this,DN_GOTFOCUS,SetFocusPos,0);
   }
   else
@@ -4419,7 +4416,7 @@ void Dialog::AdjustEditPos(int dx, int dy)
   int I;
   int x1,x2,y1,y2;
 
-  if(!CheckDialogMode(DMODE_CREATEOBJECTS))
+  if(!DialogMode.Check(DMODE_CREATEOBJECTS))
     return;
 
   ScreenObject *DialogScrObject;
@@ -4479,7 +4476,7 @@ void Dialog::CloseDialog()
   GetDialogObjectsData();
   if (DlgProc ((HANDLE)this,DM_CLOSE,ExitCode,0))
   {
-    EndLoop = TRUE;
+    DialogMode.Set(DMODE_ENDLOOP);
     FrameManager->DeleteFrame (this);
   }
 }
@@ -4515,13 +4512,13 @@ void Dialog::ShowHelp()
 
 void Dialog::ClearDone()
 {
-  EndLoop=0;
+  DialogMode.Skip(DMODE_ENDLOOP);
 }
 
 void Dialog::SetExitCode(int Code)
 {
   ExitCode=Code;
-  EndLoop = TRUE;
+  DialogMode.Set(DMODE_ENDLOOP);
   //CloseDialog();
 }
 
@@ -4553,7 +4550,7 @@ int Dialog::FastHide()
 void Dialog::ResizeConsole()
 {
   COORD c;
-  Resized=TRUE;
+  DialogMode.Set(DMODE_RESIZED);
   Hide();
   // коррекция относительного положения диалога (чтобы не центрировать :-)
   c.X=ScrX+1; c.Y=ScrY+1;
@@ -4569,7 +4566,7 @@ void Dialog::ResizeConsole()
 
 void Dialog::OnDestroy()
 {
-  if (Resized)
+  if(DialogMode.Check(DMODE_RESIZED))
   {
     FrameManager->GetBottomFrame()->UnlockRefresh();
     Dialog::SendDlgMessage((HANDLE)this,DM_KILLSAVESCREEN,0,0);
@@ -4939,7 +4936,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
           }
-          if(Dlg->CheckDialogMode(DMODE_SHOW) && ListBox->UpdateRequired())
+          if(Dlg->DialogMode.Check(DMODE_SHOW) && ListBox->UpdateRequired())
           {
             Dlg->ShowDialog(Param1);
             ScrBuf.Flush();
@@ -5023,7 +5020,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         ((COORD*)(CurItem->ObjPtr))->X=Coord.X-CurItem->X1;
         ((COORD*)(CurItem->ObjPtr))->Y=Coord.Y-CurItem->Y1;
         // переместим если надо
-        if(Dlg->CheckDialogMode(DMODE_SHOW) && Dlg->FocusPos == Param1)
+        if(Dlg->DialogMode.Check(DMODE_SHOW) && Dlg->FocusPos == Param1)
         {
            // что-то одно надо убрать :-)
            MoveCursor(Coord.X+Dlg->X1,Coord.Y+Dlg->Y1); // ???
@@ -5077,7 +5074,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         else
           Param2&=1;
         CurItem->Selected=Param2;
-        if(CurItem->Selected != (unsigned int)Param2 && Dlg->CheckDialogMode(DMODE_SHOW))
+        if(CurItem->Selected != (unsigned int)Param2 && Dlg->DialogMode.Check(DMODE_SHOW))
         {
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();
@@ -5094,7 +5091,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return I;
 
     case DM_SETREDRAW:
-      if(Dlg->CheckDialogMode(DMODE_INITOBJECTS))
+      if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
         Dlg->Show();
       return 0;
 
@@ -5284,7 +5281,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               memmove(Ptr,(char *)did->PtrData,Len);
               Ptr[Len]=0;
             }
-            if(Dlg->CheckDialogMode(DMODE_SHOW))
+            if(Dlg->DialogMode.Check(DMODE_SHOW))
             {
               SetFarTitle(Dlg->GetDialogTitle());
               Dlg->ShowDialog(Param1);
@@ -5339,7 +5336,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             return 0;
         }
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
-        if(Dlg->CheckDialogMode(DMODE_SHOW)) // достаточно ли этого????!!!!
+        if(Dlg->DialogMode.Check(DMODE_SHOW)) // достаточно ли этого????!!!!
         {
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();
@@ -5363,7 +5360,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         ((Edit *)(CurItem->ObjPtr))->SetMaxLength(Param2);
 
-        //if (CheckDialogMode(DMODE_INITOBJECTS)) //???
+        //if (DialogMode.Check(DMODE_INITOBJECTS)) //???
         Dlg->InitDialogObjects(Param1); // переинициализируем элементы диалога
         SetFarTitle(Dlg->GetDialogTitle());
         return MaxLen;
@@ -5396,7 +5393,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         // еще разок, т.к. данные могли быть изменены
         Dlg->InitDialogObjects(Param1);
         SetFarTitle(Dlg->GetDialogTitle());
-        if(Dlg->CheckDialogMode(DMODE_SHOW))
+        if(Dlg->DialogMode.Check(DMODE_SHOW))
         {
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();
@@ -5416,7 +5413,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         Dlg->IsEnableRedraw--;
 
       if(!Dlg->IsEnableRedraw)
-        if(Dlg->CheckDialogMode(DMODE_INITOBJECTS))
+        if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
         {
           Dlg->ShowDialog();
           ScrBuf.Flush();
@@ -5441,7 +5438,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
            CurItem->Flags&=~DIF_HIDDEN;
          else
            CurItem->Flags|=DIF_HIDDEN;
-        if(Dlg->CheckDialogMode(DMODE_SHOW) && !(CurItem->Flags&DIF_HIDDEN))
+        if(Dlg->DialogMode.Check(DMODE_SHOW) && !(CurItem->Flags&DIF_HIDDEN))
         {
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();
@@ -5492,10 +5489,10 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_KEY:
     {
       int *KeyArray=(int*)Param2;
-      Dlg->SetDialogMode(DMODE_KEY);
+      Dlg->DialogMode.Set(DMODE_KEY);
       for(I=0; I < Param1; ++I)
         Dlg->ProcessKey(KeyArray[I]);
-      Dlg->SkipDialogMode(DMODE_KEY);
+      Dlg->DialogMode.Skip(DMODE_KEY);
       return 0;
     }
     /* SVS $ */
@@ -5629,7 +5626,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
         if (W1<OldW1 || H1<OldH1)
         {
-          Dlg->SetDialogMode(DMODE_DRAWING);
+          Dlg->DialogMode.Set(DMODE_DRAWING);
           DialogItem *Item;
           SMALL_RECT Rect;
           for (I=0;I<Dlg->ItemCount;I++)
@@ -5650,7 +5647,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               Dlg->SetItemRect(I,&Rect);
             }
           }
-          Dlg->SkipDialogMode(DMODE_DRAWING);
+          Dlg->DialogMode.Skip(DMODE_DRAWING);
         }
       }
       /* KM $ */
@@ -5686,7 +5683,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         ((COORD*)Param2)->Y=Dlg->Y1;
       }
 
-      I=Dlg->IsVisible();// && Dlg->CheckDialogMode(DMODE_INITOBJECTS);
+      I=Dlg->IsVisible();// && Dlg->DialogMode.Check(DMODE_INITOBJECTS);
       if(I) Dlg->Hide();
       // приняли.
       Dlg->AdjustEditPos(Dlg->X1-Dlg->OldX1,Dlg->Y1-Dlg->OldY1);
@@ -5755,13 +5752,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DM_SETMOUSEEVENTNOTIFY: // Param1 = 0 on, 1 off, -1 - get
     {
-      int State=Dlg->CheckDialogMode(DMODE_MOUSEEVENT)?TRUE:FALSE;
+      int State=Dlg->DialogMode.Check(DMODE_MOUSEEVENT)?TRUE:FALSE;
       if(Param1 != -1)
       {
         if(!Param1)
-          Dlg->SkipDialogMode(DMODE_MOUSEEVENT);
+          Dlg->DialogMode.Skip(DMODE_MOUSEEVENT);
         else
-          Dlg->SetDialogMode(DMODE_MOUSEEVENT);
+          Dlg->DialogMode.Set(DMODE_MOUSEEVENT);
       }
       return State;
     }

@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.04 04.06.2001 $ */
+/* Revision: 1.05 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    ! Ничего личного - только причесал сорцы :-)
   04.06.2001 SVS
     ! 64 -> HISTORY_COUNT
   06.05.2001 DJ
@@ -36,8 +38,6 @@ struct HistoryRecord
 class History
 {
   private:
-    void AddToHistoryLocal(char *Str,char *Title,int Type);
-    struct HistoryRecord LastStr[HISTORY_COUNT];
     char RegKey[256];
     unsigned int LastPtr,CurLastPtr;
     unsigned int LastPtr0,CurLastPtr0;
@@ -45,12 +45,19 @@ class History
     int *EnableSave,SaveTitle,SaveType;
     int LastSimilar;
     int ReturnSimilarTemplate;
+
+  private:
+    void AddToHistoryLocal(char *Str,char *Title,int Type);
+    struct HistoryRecord LastStr[HISTORY_COUNT];
+
   public:
     History(char *RegKey,int *EnableSave,int SaveTitle,int SaveType);
+
+  public:
     void AddToHistory(char *Str,char *Title=NULL,int Type=0);
     void ReadHistory();
     void SaveHistory();
-    int Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle=NULL);
+    int  Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTitle=NULL);
     void GetPrev(char *Str);
     void GetNext(char *Str);
     void SetFirst() {LastPtr=LastPtr0;CurLastPtr=CurLastPtr0;}
@@ -58,4 +65,4 @@ class History
     void SetAddMode(int EnableAdd,int RemoveDups,int KeepSelectedPos);
 };
 
-#endif	// __HISTORY_HPP__
+#endif  // __HISTORY_HPP__

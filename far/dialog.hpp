@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.41 06.11.2001 $ */
+/* Revision: 1.42 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    ! Добавка в виде BitFlags - управление флагами текущего режима диалога
   06.11.2001 SVS
    ! Заводим доп.параметр struct DialogItem *CurItem у функции
      SelectFromEditHistory()
@@ -164,6 +166,7 @@ Modify:
 #include "frame.hpp"
 #include "plugin.hpp"
 #include "vmenu.hpp"
+#include "bitflags.hpp"
 
 // Флаги текущего режима диалога
 #define DMODE_INITOBJECTS   0x00000001 // элементы инициализарованы?
@@ -177,6 +180,8 @@ Modify:
 #define DMODE_KEY           0x00002000 // Идет посылка клавиш?
 #define DMODE_SHOW          0x00004000 // Диалог виден?
 #define DMODE_MOUSEEVENT    0x00008000 // Нужно посылать MouseMove в обработчик?
+#define DMODE_RESIZED       0x00010000 //
+#define DMODE_ENDLOOP       0x00020000 //
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
 // Флаги для функции ConvertItem
@@ -289,7 +294,7 @@ class Dialog: public Frame
       + DialogMode - Флаги текущего режима диалога
     */
     int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
-    DWORD DialogMode;       // Флаги текущего режима диалога
+    BitFlags DialogMode;        // Флаги текущего режима диалога
     /* SVS $ */
     /* $ 11.08.2000 SVS
       + Данные, специфические для конкретного экземпляра диалога
@@ -313,7 +318,6 @@ class Dialog: public Frame
 
     /* $ 17.05.2001 DJ */
     char *HelpTopic;
-    int  EndLoop;
     /* DJ $ */
 
     /* $ 19.05.2001 DJ
@@ -328,21 +332,7 @@ class Dialog: public Frame
     volatile int DropDownOpened;
     /* KM $ */
 
-  public:
-    bool Resized;
-
   private:
-    /* $ 18.08.2000 SVS
-      + SetDialogMode - Управление флагами текущего режима диалога
-    */
-    void SkipDialogMode(DWORD Flags){ DialogMode&=~Flags; }
-    /* SVS $ */
-    /* $ 23.08.2000 SVS
-       + Проверка флага
-    */
-    int CheckDialogMode(DWORD Flags){ return(DialogMode&Flags); }
-    /* SVS $ */
-
     void DisplayObject();
     void DeleteDialogObjects();
     /* $ 22.08.2000 SVS
@@ -440,7 +430,7 @@ class Dialog: public Frame
     /* SVS $ */
     void GetDialogObjectsData();
 
-    void SetDialogMode(DWORD Flags){ DialogMode|=Flags; }
+    void SetDialogMode(DWORD Flags){ DialogMode.Set(Flags); }
 
     /* $ 28.07.2000 SVS
        + Функция ConvertItem - преобразования из внутреннего представления
@@ -472,18 +462,13 @@ class Dialog: public Frame
        Добавление функции, которая позволяет проверить
        находится ли диалог в режиме перемещения.
     */
-    int IsMoving() {return CheckDialogMode(DMODE_DRAGGED);}
+    int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
     /* KM $ */
     /* $ 10.08.2000 SVS
        можно ли двигать диалог :-)
     */
-    void SetModeMoving(int IsMoving) {
-      if(IsMoving)
-        SetDialogMode(DMODE_ISCANMOVE);
-      else
-        SkipDialogMode(DMODE_ISCANMOVE);
-    };
-    int  GetModeMoving(void) {return CheckDialogMode(DMODE_ISCANMOVE);};
+    void SetModeMoving(int IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
+    int  GetModeMoving(void) {return DialogMode.Check(DMODE_ISCANMOVE);}
     /* SVS $ */
     /* $ 11.08.2000 SVS
        Работа с доп. данными экземпляра диалога
@@ -506,7 +491,7 @@ class Dialog: public Frame
     /* $ 17.05.2001 DJ */
     void SetHelp(const char *Topic);
     void ShowHelp();
-    int Done() const { return EndLoop; }
+    int Done() const { return DialogMode.Check(DMODE_ENDLOOP); }
     void ClearDone();
     virtual void SetExitCode (int Code);
 

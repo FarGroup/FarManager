@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.14 06.11.2001 $ */
+/* Revision: 1.15 08.11.2001 $ */
 
 /*
 Modify:
+  08.11.2001 SVS
+    ! ќтмена пред.патча - есть неразрешимые вопросы с макросами.
   06.11.2001 IS
     ! Ќе добавл€ем в меню пустую строчку, т.к. непон€тно, зачем она нужна
       вообще.
@@ -255,15 +257,13 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
   {
     VMenu HistoryMenu(Title,NULL,0,Height);
     /* $ 06.11.2001 IS
-       ! Ќе добавл€ем в меню пустую строчку, т.к. непон€тно, зачем она нужна
-         вообще.
        ! ћеню теперь у нас с прокруткой (Wrap)
     */
     HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
+    /* IS $ */
     if (HelpTopic!=NULL)
       HistoryMenu.SetHelp(HelpTopic);
     HistoryMenu.SetPosition(-1,-1,0,0);
-    int LastSelected=-1;
     for (CurCmd=LastPtr+1,Line=0,I=0;I<sizeof(LastStr)/sizeof(LastStr[0])-1;I++,CurCmd++)
     {
       CurCmd%=sizeof(LastStr)/sizeof(LastStr[0]);
@@ -276,19 +276,15 @@ int History::Select(char *Title,char *HelpTopic,char *Str,int &Type,char *ItemTi
           strcpy(Record,LastStr[CurCmd].Name);
         TruncStr(Record,Min(ScrX-12,(int)sizeof(HistoryItem.Name)-1));
         strcpy(HistoryItem.Name,Record);
-        HistoryItem.SetSelect(FALSE);
-        if(CurCmd==CurLastPtr)
-        {
-          HistoryItem.SetSelect(TRUE);
-          LastSelected=Line;
-        }
+        HistoryItem.SetSelect(CurCmd==CurLastPtr);
         LineToStr[Line++]=CurCmd;
         HistoryMenu.AddItem(&HistoryItem);
       }
     }
-    HistoryMenu.SetSelectPos(LastSelected>-1?LastSelected:(Line-1),-1);
+    sprintf(HistoryItem.Name,"%20s","");
+    HistoryItem.SetSelect(CurLastPtr==LastPtr);
     LineToStr[Line]=-1;
-    /* IS $ */
+    HistoryMenu.AddItem(&HistoryItem);
     HistoryMenu.AssignHighlights(TRUE);
     HistoryMenu.Show();
     while (!HistoryMenu.Done())
