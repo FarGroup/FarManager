@@ -5,10 +5,14 @@ Keybar
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 02.08.2000 $ */
 
 /*
 Modify:
+  02.08.2000 SVS
+    + Дополнительные индикаторы
+      CtrlShiftName, AltShiftName, CtrlAltName
+    + К этим индикаторам - функции
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -33,6 +37,15 @@ KeyBar::KeyBar()
   memset(AltKeyName,0,sizeof(AltKeyName));
   memset(CtrlKeyName,0,sizeof(CtrlKeyName));
   memset(ShiftKeyName,0,sizeof(ShiftKeyName));
+  /* $ 02.08.2000 SVS
+     Дополнительные индикаторы
+  */
+  AltShiftState=CtrlAltState=CtrlShiftState=0;
+  CtrlShiftKeyCount=AltShiftKeyCount=CtrlAltKeyCount=0;
+  memset(CtrlShiftKeyName,0,sizeof(CtrlShiftKeyName));
+  memset(AltShiftKeyName,0,sizeof(AltShiftKeyName));
+  memset(CtrlAltKeyName,0,sizeof(CtrlAltKeyName));
+  /* SVS $*/
 }
 
 
@@ -42,14 +55,20 @@ void KeyBar::SetOwner(BaseInput *Owner)
 }
 
 
+/* $ 02.08.2000 SVS
+   Переработка с учетом новых индикаторов
+*/
 void KeyBar::DisplayObject()
 {
   int I;
   GotoXY(X1,Y1);
   AltState=CtrlState=ShiftState=0;
+  AltShiftState=CtrlAltState=CtrlShiftState=0;
+
   int KeyWidth=(X2-X1-1)/12;
   if (KeyWidth<8)
     KeyWidth=8;
+
   int LabelWidth=KeyWidth-2;
   for (I=0;I<sizeof(KeyName)/sizeof(KeyName[0]);I++)
   {
@@ -59,29 +78,53 @@ void KeyBar::DisplayObject()
     mprintf("%d",I+1);
     SetColor(COL_KEYBARTEXT);
     char *Label="";
+
     if (ShiftPressed)
     {
-      if (I<ShiftKeyCount)
-        Label=ShiftKeyName[I];
-      ShiftState=1;
-    }
-    else
       if (CtrlPressed)
+      {
+        if (I<CtrlShiftKeyCount)
+          Label=CtrlShiftKeyName[I];
+        CtrlShiftState=1;
+      }
+      else if (AltPressed)
+      {
+        if (I<AltShiftKeyCount)
+          Label=AltShiftKeyName[I];
+        AltShiftState=1;
+      }
+      else
+      {
+        if (I<ShiftKeyCount)
+          Label=ShiftKeyName[I];
+        ShiftState=1;
+      }
+    }
+    else if (CtrlPressed)
+    {
+      if (AltPressed)
+      {
+        if (I<CtrlAltKeyCount)
+          Label=CtrlAltKeyName[I];
+        CtrlAltState=1;
+      }
+      else
       {
         if (I<CtrlKeyCount)
           Label=CtrlKeyName[I];
         CtrlState=1;
       }
-      else
-        if (AltPressed)
-        {
-          if (I<AltKeyCount)
-            Label=AltKeyName[I];
-          AltState=1;
-        }
-        else
-          if (I<KeyCount && (DisableMask & (1<<I))==0)
-            Label=KeyName[I];
+    }
+    else if (AltPressed)
+    {
+      if (I<AltKeyCount)
+        Label=AltKeyName[I];
+      AltState=1;
+    }
+    else
+      if (I<KeyCount && (DisableMask & (1<<I))==0)
+        Label=KeyName[I];
+
     mprintf("%-*.*s",LabelWidth,LabelWidth,Label);
     if (I<sizeof(KeyName)/sizeof(KeyName[0])-1)
     {
@@ -96,7 +139,7 @@ void KeyBar::DisplayObject()
     mprintf("%*s",Width,"");
   }
 }
-
+/* SVS $ */
 
 void KeyBar::Set(char **Key,int KeyCount)
 {
@@ -139,6 +182,35 @@ void KeyBar::Change(char *NewStr,int Pos)
   strncpy(KeyName[Pos],NewStr,sizeof(KeyName[Pos]));
 }
 
+/* $ 02.08.2000 SVS
+   Новые индикаторы
+*/
+void KeyBar::SetCtrlShift(char **Key,int KeyCount)
+{
+  int I;
+  for (I=0;I<KeyCount && I<sizeof(CtrlShiftKeyName)/sizeof(CtrlShiftKeyName[0]);I++)
+    strncpy(CtrlShiftKeyName[I],Key[I],sizeof(CtrlShiftKeyName[I]));
+  KeyBar::CtrlShiftKeyCount=KeyCount;
+}
+
+
+void KeyBar::SetAltShift(char **Key,int KeyCount)
+{
+  int I;
+  for (I=0;I<KeyCount && I<sizeof(AltShiftKeyName)/sizeof(AltShiftKeyName[0]);I++)
+    strncpy(AltShiftKeyName[I],Key[I],sizeof(AltShiftKeyName[I]));
+  KeyBar::AltShiftKeyCount=KeyCount;
+}
+
+
+void KeyBar::SetCtrlAlt(char **Key,int KeyCount)
+{
+  int I;
+  for (I=0;I<KeyCount && I<sizeof(CtrlAltKeyName)/sizeof(CtrlAltKeyName[0]);I++)
+    strncpy(CtrlAltKeyName[I],Key[I],sizeof(CtrlAltKeyName[I]));
+  KeyBar::CtrlAltKeyCount=KeyCount;
+}
+/* SVS $*/
 
 int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -184,17 +256,32 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if (Key>11)
     Key=11;
 
+  /* $ 02.08.2000 SVS
+     Добавка к новым индикаторам
+  */
   if (MouseEvent->dwControlKeyState & (RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED) ||
       (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED))
-    Key+=KEY_ALTF1;
-  else
-    if (MouseEvent->dwControlKeyState & (RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED))
-      Key+=KEY_CTRLF1;
+  {
+    if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
+      Key+=KEY_ALTSHIFTF1;
+    else if (MouseEvent->dwControlKeyState & (RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED))
+      Key+=KEY_CTRLALTF1;
     else
-      if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
-        Key+=KEY_SHIFTF1;
-      else
-        Key+=KEY_F1;
+      Key+=KEY_ALTF1;
+  }
+  else if (MouseEvent->dwControlKeyState & (RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED))
+  {
+    if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
+      Key+=KEY_CTRLSHIFTF1;
+    else
+      Key+=KEY_CTRLF1;
+  }
+  else if (MouseEvent->dwControlKeyState & SHIFT_PRESSED)
+    Key+=KEY_SHIFTF1;
+  else
+    Key+=KEY_F1;
+  /* SVS $ */
+
   if (Owner)
     Owner->ProcessKey(Key);
   return(TRUE);
@@ -203,8 +290,16 @@ int KeyBar::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void KeyBar::RedrawIfChanged()
 {
-  if (ShiftPressed!=ShiftState || CtrlPressed!=CtrlState ||
-      AltPressed!=AltState)
+  /* $ 02.08.2000 SVS
+     Не забудем про новые индикаторы
+  */
+  if (ShiftPressed!=ShiftState         ||
+      CtrlPressed!=CtrlState           ||
+      AltPressed!=AltState      )//       ||
+/*      AltShiftPressed!=AltShiftState   ||
+      CtrlShiftPressed!=CtrlShiftState ||
+      CtrlAltPressed!=CtrlAltState)*/
+  /* SVS $ */
     Redraw();
 }
 

@@ -6,10 +6,16 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.12 01.08.2000 $ */
+/* Revision: 1.13 02.08.2000 $ */
 
 /*
 Modify:
+  02.08.2000 SVS
+    + Дополнения для KeyBarTitles:
+        CtrlShiftTitles
+        AltShiftTitles,
+        CtrlAltTitles
+    + Добавка в OpenPluginInfo для того, чтобы различить FAR <= 1.65 и > 1.65
   01.08.2000 SVS
     ! Функция ввода строки имеет один параметр для всех флагов
     ! дополнительный параметра у KeyToText - размер данных
@@ -919,6 +925,13 @@ struct KeyBarTitles
   char *CtrlTitles[12];
   char *AltTitles[12];
   char *ShiftTitles[12];
+  /* $ 02.08.2000 SVS
+     Дополнения!
+  */
+  char *CtrlShiftTitles[12];
+  char *AltShiftTitles[12];
+  char *CtrlAltTitles[12];
+  /* SVS $ */
 };
 
 
@@ -941,6 +954,11 @@ struct OpenPluginInfo
   int StartSortOrder;
   struct KeyBarTitles *KeyBar;
   char *ShortcutData;
+  /* $ 02.08.2000 SVS
+     + добавка, для того, чтобы различить FAR <= 1.65 и > 1.65
+  */
+  long Reserverd;
+  /* SVS $*/
 };
 
 enum {
