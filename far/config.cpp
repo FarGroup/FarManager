@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.81 24.06.2001 $ */
+/* Revision: 1.82 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+    + Opt.LCIDSort
   24.06.2001 KM
     ! Вернулся назад дефолт открытия read-only файлов: не предупреждать и не блокировать,
       уж слишком много копий было сломано из-за этого в последнее время.
@@ -1009,6 +1011,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
 
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &+,"},
+  {0, REG_DWORD,  NKeySystem,"LCID",&Opt.LCIDSort,LOCALE_USER_DEFAULT, 0},
 
   {0, REG_DWORD,  NKeyHelp,"ActivateURL",&Opt.HelpURLRules,1, 0},
 
@@ -1184,6 +1187,7 @@ void ReadConfig()
   AddEndSlash(Opt.TempPath);
   CtrlObject->EditorPosCache->Read("Editor\\LastPositions");
   CtrlObject->ViewerPosCache->Read("Viewer\\LastPositions");
+
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 

@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.07 25.06.2001 $ */
+/* Revision: 1.08 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+    + Opt.LCIDSort
   25.06.2001 IS
     ! Приведение Local* в соответствие с "официальным" plugin.hpp
     ! Внедрение const
@@ -273,7 +275,7 @@ int _cdecl LCSort(const void *el1,const void *el2)
   Str1[2]=Str2[2]=0;
   OemToCharBuff(Str1,Str1,1);
   OemToCharBuff(Str2,Str2,1);
-  return(CompareString(LOCALE_USER_DEFAULT,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
+  return(CompareString(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
 }
 
 

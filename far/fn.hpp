@@ -7,16 +7,18 @@ fn.hpp
 
 */
 
-/* Revision: 1.94 04.07.2001 $ */
+/* Revision: 1.95 04.07.2001 $ */
 
 /*
 Modify:
   04.07.2001 SVS
-   + Функции про хип
+    ! BoxText может рисовать вертикальный сепаратор
+  04.07.2001 SVS
+    + Функции про хип
   02.07.2001 IS
-   + RawConvertShortNameToLongName
+    + RawConvertShortNameToLongName
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   22.06.2001 SVS
     + StrFTime
   21.06.2001 SVS
@@ -316,7 +318,7 @@ int IsWindowed();
 void RestoreIcons();
 void Log(char *fmt,...);
 void BoxText(unsigned char Chr);
-void BoxText(char *Str);
+void BoxText(char *Str,int IsVert=0);
 int FarColorToReal(int FarColor);
 void ReopenConsole();
 void DeleteRegKey(char *Key);

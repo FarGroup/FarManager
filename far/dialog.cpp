@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.132 04.07.2001 $ */
+/* Revision: 1.133 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+   + DIF_SEPARATOR для DI_VTEXT
+   + {-1,-1} для DI_VTEXT
   04.07.2001 SVS
    - XLat в строках ввода - не снималось состояние Unchanged
    - Немного проверок...
@@ -1297,6 +1300,27 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
         break;
       }
 
+    case DI_VTEXT:
+      if (CurItem->X1==(unsigned char)-1)
+        Rect.left=(X2-X1+1)/2;
+      if(Rect.left < 0)
+        Rect.left=0;
+
+      if (CurItem->Y1==(unsigned char)-1)
+        Rect.top=(Y2-Y1+1-strlen(CurItem->Data))/2;
+
+      if(Rect.top < 0)
+        Rect.top=0;
+
+      if (ItemFlags & DIF_SEPARATOR)
+      {
+        Rect.right=Rect.left;
+        Rect.top=(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0); //???
+        Rect.bottom=Y2-Y1-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0); //???
+        break;
+      }
+      break;
+
     case DI_BUTTON:
       Rect.bottom=Rect.top;
       Rect.right=Rect.left+((ItemFlags & DIF_SHOWAMPERSAND)?
@@ -1313,11 +1337,6 @@ BOOL Dialog::GetItemRect(int I,RECT& Rect)
                                  (Type == DI_CHECKBOX?4:
                                    (ItemFlags & DIF_MOVESELECT?3:4)
                                  );
-      break;
-
-    case DI_VTEXT:
-      Rect.right=Rect.left;
-      Rect.bottom=Rect.top+strlen(CurItem->Data);
       break;
 
     case DI_COMBOBOX:
@@ -1636,6 +1655,16 @@ void Dialog::ShowDialog(int ID)
 /* ***************************************************************** */
       case DI_VTEXT:
       {
+        if (CurItem->X1==(unsigned char)-1)
+          X=(X2-X1+1)/2;
+        else
+          X=CurItem->X1;
+
+        if (CurItem->Y1==(unsigned char)-1)
+          Y=(Y2-Y1+1-strlen(CurItem->Data))/2;
+        else
+          Y=CurItem->Y1;
+
         if (CurItem->Flags & DIF_BOXCOLOR)
           Attr=CheckDialogMode(DMODE_WARNINGSTYLE) ?
                    ((CurItem->Flags&DIF_DISABLE)?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
@@ -1650,7 +1679,17 @@ void Dialog::ShowDialog(int ID)
 
         Attr=DlgProc((HANDLE)this,DN_CTLCOLORDLGITEM,I,FarColorToReal(Attr));
         SetColor(Attr&0xFF);
-        GotoXY(X1+CurItem->X1,Y1+CurItem->Y1);
+
+        if (CurItem->Flags & DIF_SEPARATOR)
+        {
+          GotoXY(X1+X,Y1+(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0)); //????
+          if (DialogTooLong)
+            ShowSeparator(DialogTooLong-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0),5);
+          else
+            ShowSeparator(Y2-Y1-(!CheckDialogMode(DMODE_SMALLDIALOG)?1:0),5);
+        }
+
+        GotoXY(X1+X,Y1+Y);
         VText(CurItem->Data);
         break;
       }

@@ -5,12 +5,14 @@ interf.cpp
 
 */
 
-/* Revision: 1.32 25.06.2001 $ */
+/* Revision: 1.33 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+    ! BoxText может рисовать вертикальный сепаратор
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   08.06.2001 SVS
     + GenerateWINDOW_BUFFER_SIZE_EVENT()
   07.06.2001 SVS
@@ -815,7 +817,7 @@ void BoxText(unsigned char Chr)
   BoxText(Str);
 }
 
-void BoxText(char *Str)
+void BoxText(char *Str,int IsVert)
 {
   if (OutputCP!=437 && OutputCP!=866)
     for (int I=0;Str[I]!=0;I++)
@@ -830,7 +832,10 @@ void BoxText(char *Str)
           Str[I]=205;
           break;
       }
-  Text(Str);
+  if(IsVert)
+    VText(Str);
+  else
+    Text(Str);
 }
 
 /*
@@ -953,7 +958,7 @@ void ShowSeparator(int Length,int Type)
   {
     char Separator[4096];
     MakeSeparator(Length,Separator,Type);
-    BoxText(Separator);
+    BoxText(Separator,Type>=4);
   }
 }
 
@@ -962,11 +967,16 @@ char* MakeSeparator(int Length,char *DestStr,int Type)
 {
   if (Length>1 && DestStr)
   {
-    static unsigned char BoxType[4][4]={
+    static unsigned char BoxType[8][4]={
       {0x20,0x20,0xC4,0x00},
       {0xC7,0xB6,0xC4,0x00},
       {0xC3,0xB4,0xC4,0x00},
       {0xCC,0xB9,0xCD,0x00},
+
+      {0x20,0x20,0xB3,0x00},
+      {0xD1,0xCF,0xB3,0x00},
+      {0xC2,0xC1,0xB3,0x00},
+      {0xCB,0xCA,0xBA,0x00},
     };
     Type%=(sizeof(BoxType)/sizeof(BoxType[0]));
     memset(DestStr,BoxType[Type][2],Length);

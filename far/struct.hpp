@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.62 22.06.2001 $ */
+/* Revision: 1.63 04.07.2001 $ */
 
 /*
 Modify:
+  04.07.2001 SVS
+    + Opt.LCIDSort
   22.06.2001 SVS
     + Opt.DateFormat
   21.05.2001 OT
@@ -624,6 +626,8 @@ struct Options
   int AltF9;
   /* OT $ */
   int ShowCheckingFile;
+
+  DWORD LCIDSort;
 
   char DateFormat[80]; // Äëÿ $Date
   struct PoliciesOptions Policies;
