@@ -5,7 +5,7 @@ vmenu.cpp
 
 */
 
-/* Revision: 1.01 28.06.2000 $ */
+/* Revision: 1.02 06.07.2000 $ */
 
 /*
 Modify:
@@ -16,6 +16,8 @@ Modify:
     + вертикальный скролбар в меню при необходимости
   29.06.2000 SVS
     ! Показывать ScrollBar в меню если включена опция ShowMenuScrollbar
+  06.07.2000 tran
+    + mouse support for menu scrollbar
 */
 
 #include "headers.hpp"
@@ -509,6 +511,7 @@ int VMenu::ProcessKey(int Key)
 int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   int MsPos,MsX,MsY;
+  int XX2;
 
   UpdateRequired=1;
   if (ItemCount==0)
@@ -519,7 +522,51 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   MsX=MouseEvent->dwMousePosition.X;
   MsY=MouseEvent->dwMousePosition.Y;
+  /* $ 06.07.2000 tran
+     + mouse support for menu scrollbar
+     */
 
+  int SbY1=Y1+1, SbY2=Y2-1;
+
+  XX2=X2;
+  if (Opt.ShowMenuScrollbar && (Y2-Y1-1)<ItemCount)
+    XX2--;  // уменьшает площадь, в которой меню следит за мышью само
+
+  if (Opt.ShowMenuScrollbar && MsX==X2 && (Y2-Y1-1)<ItemCount &&
+      (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) )
+  {
+    if (MsY==SbY1)
+    {
+      while (IsMouseButtonPressed())
+      {
+        ProcessKey(KEY_UP);
+        ShowMenu();
+      }
+      return(TRUE);
+    }
+    if (MsY==SbY2)
+    {
+      while (IsMouseButtonPressed())
+      {
+        ProcessKey(KEY_DOWN);
+        ShowMenu();
+      }
+      return(TRUE);
+    }
+    if (MsY>SbY1 && MsY<SbY2)
+    {
+      int SbHeight=Y2-Y1-2;
+
+      Item[SelectPos].Selected=0;
+      SelectPos=(ItemCount-1)*(MsY-Y1)/(SbHeight);
+      Item[SelectPos].Selected=1;
+      ShowMenu();
+      return(TRUE);
+    }
+  }
+  /* tran 06.07.2000 $ */
+
+  // dwButtonState & 3 - Left & Right button
   if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && MsX>X1 && MsX<X2)
   {
     if (MsY==Y1)
@@ -539,7 +586,11 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   while (CallCount>0)
     Sleep(10);
 
-  if (MsX>X1 && MsX<X2 && MsY>Y1 && MsY<Y2)
+  /* $ 06.07.2000 tran
+     + mouse support for menu scrollbar
+     */
+  if (MsX>X1 && MsX<XX2 && MsY>Y1 && MsY<Y2)
+  /* tran 06.07.2000 $ */
   {
     MsPos=TopPos+MsY-Y1-1;
     if (MsPos<ItemCount && !Item[MsPos].Separator)
