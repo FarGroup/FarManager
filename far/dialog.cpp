@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.321 23.01.2005 $ */
+/* Revision: 1.322 29.01.2005 $ */
 
 /*
 Modify:
+  29.01.2005 WARP
+    ! X2, Y2 и границы диалогов - ширина/высота контрола больше не может превышать ширину диалога.
   23.01.2005 SVS
     - DM_SETCURSORPOS на Edit'ах в DN_INITDIALOG приводил к тому, что Edit отрисовывался до диалога.
   23.01.2005 WARP
@@ -2702,13 +2704,24 @@ void Dialog::ShowDialog(int ID)
     short CY1=CurItem->Y1;
     short CX2=CurItem->X2;
     short CY2=CurItem->Y2;
+
+    if ( CX2 > X2-X1 )
+      CX2 = X2-X1;
+
+    if ( CY2 > Y2-Y1 )
+      CY2 = X2-X1;
+
     short CW=CX2-CX1+1;
     BOOL DisabledItem=CurItem->Flags&DIF_DISABLE?TRUE:FALSE;
 
     Attr=CtlColorDlgItem(I,CurItem->Type,CurItem->Focus,CurItem->Flags);
 
     // TODO: прежде чем эту строку применять... нужно проверить _ВСЕ_ диалоги на предмет X2, Y2. !!!
-    //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
+/*
+    if ( ((CX1 > -1) && (CX2 > 0) && (CX2 > CX1)) &&
+       ((CY1 > -1) && (CY2 > 0) && (CY2 > CY1)) )
+      SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
+*/
 
     switch(CurItem->Type)
     {
@@ -2780,7 +2793,7 @@ void Dialog::ShowDialog(int ID)
         // нужно ЭТО
         //SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
         // вместо этого:
-        if(CX1 > -1 && CX2 > 0)
+        if(CX1 > -1 && CX2 > 0 && CX2 > CX1) //половинчатое решение
         {
           SetColor(Attr&0xFF);
           GotoXY(X1+X,Y1+Y);
