@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.35 25.07.2003 $ */
+/* Revision: 1.36 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    + FFILEEDIT_SAVEWQUESTIONS - сохранить без вопросов
   25.07.2003 SVS
     ! новый член класса - DWORD SysErrorCode.
   11.12.2002 SVS
@@ -134,6 +136,7 @@ enum FFILEEDIT_FLAGS{
                                           //   ѕри редактировании найденного файла из архива дл€
                                           //   клавиши F2 сделать вызов ShiftF2.
   FFILEEDIT_ISNEWFILE      = 0x00400000,
+  FFILEEDIT_SAVEWQUESTIONS = 0x00800000,  // сохранить без вопросов
 };
 
 

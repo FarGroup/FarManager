@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.142 26.09.2003 $ */
+/* Revision: 1.143 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    - BugZ#913 - Save As на существующий файл
   26.09.2003 SVS
     ! Изменения в названиях макроклавиш
     + Добавлена индикация Ctrl-Q в статусной строке - символ '"'
@@ -1173,6 +1175,7 @@ int FileEditor::ProcessKey(int Key)
                 FarChDir(OldCurDir);
                 return(TRUE);
               }
+              Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
             }
             /* tran $ */
 
@@ -1473,30 +1476,34 @@ int FileEditor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
   if ((FileAttributes=::GetFileAttributes(Name))!=-1)
   {
     // Проверка времени модификации...
-    WIN32_FIND_DATA FInfo;
-    if(GetLastInfo(Name,&FInfo) && *FileInfo.cFileName)
+    if(!Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
     {
-      __int64 RetCompare=*(__int64*)&FileInfo.ftLastWriteTime - *(__int64*)&FInfo.ftLastWriteTime;
-      if(RetCompare || !(FInfo.nFileSizeHigh == FileInfo.nFileSizeHigh && FInfo.nFileSizeLow  == FInfo.nFileSizeLow))
+      WIN32_FIND_DATA FInfo;
+      if(GetLastInfo(Name,&FInfo) && *FileInfo.cFileName)
       {
-        SetMessageHelp("WarnEditorSavedEx");
-        switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),
-                MSG(MEditSave),MSG(MEditBtnSaveAs),MSG(MEditContinue)))
+        __int64 RetCompare=*(__int64*)&FileInfo.ftLastWriteTime - *(__int64*)&FInfo.ftLastWriteTime;
+        if(RetCompare || !(FInfo.nFileSizeHigh == FileInfo.nFileSizeHigh && FInfo.nFileSizeLow  == FInfo.nFileSizeLow))
         {
-          case -1:
-          case -2:
-          case 2:  // Continue Edit
-            return SAVEFILE_CANCEL;
-          case 1:  // Save as
-            if(ProcessKey(KEY_SHIFTF2))
-              return SAVEFILE_SUCCESS;
-            else
+          SetMessageHelp("WarnEditorSavedEx");
+          switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),
+                  MSG(MEditSave),MSG(MEditBtnSaveAs),MSG(MEditContinue)))
+          {
+            case -1:
+            case -2:
+            case 2:  // Continue Edit
               return SAVEFILE_CANCEL;
-          case 0:  // Save
-            break;
+            case 1:  // Save as
+              if(ProcessKey(KEY_SHIFTF2))
+                return SAVEFILE_SUCCESS;
+              else
+                return SAVEFILE_CANCEL;
+            case 0:  // Save
+              break;
+          }
         }
       }
     }
+    Flags.Clear(FFILEEDIT_SAVEWQUESTIONS);
 
     NewFile=FALSE;
     if (FileAttributes & FA_RDONLY)

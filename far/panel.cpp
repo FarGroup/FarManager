@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.113 12.09.2003 $ */
+/* Revision: 1.114 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    - BugZ#858 - проблемы с [Drive]
   12.09.2003 SVS
     ! ”точнение логики Panel::SetCurPath().
   04.06.2003 SVS
@@ -1128,13 +1130,18 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
 {
   char MsgText[200];
   int UpdateProfile=CONNECT_UPDATE_PROFILE;
+  BOOL Processed=FALSE;
 
   char DiskLetter [3];
   DiskLetter[0] = Drive;
   DiskLetter[1] = ':';
   DiskLetter[2] = 0;
 
+  if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(Drive,UpdateProfile))
+    Processed=TRUE;
+
   // < ќ—“џЋ№>
+  if(Processed)
   {
     LockScreen LckScr;
     // если мы находимс€ на удал€емом диске - уходим с него, чтобы не мешать
@@ -1173,7 +1180,7 @@ int Panel::ProcessDelDisk (char Drive, int DriveType,VMenu *ChDiskMenu)
   }
   /* SVS $ */
 
-  if(DriveType == DRIVE_REMOTE && MessageRemoveConnection(Drive,UpdateProfile))
+  if(Processed)
   {
     if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)
       return DRIVE_DEL_SUCCESS;

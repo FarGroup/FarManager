@@ -5,10 +5,12 @@ main.cpp
 
 */
 
-/* Revision: 1.71 09.10.2003 $ */
+/* Revision: 1.72 09.10.2003 $ */
 
 /*
 Modify:
+  09.10.2003 SVS
+    - ≈сли фигню подсунули в комстроке, типа %1 %2 %3, то нафиг все...
   09.10.2003 SVS
     ! SetFileApisToANSI() и SetFileApisToOEM() заменены на SetFileApisTo() с параметром
       APIS2ANSI или APIS2OEM - задел на будущее
@@ -671,7 +673,8 @@ int _cdecl main(int Argc, char *Argv[])
     {
       if(CntDestName < 2)
       {
-        CharToOem(Argv[I],DestName[CntDestName++]);
+        if(GetFileAttributes(Argv[I]) != -1)
+          CharToOem(Argv[I],DestName[CntDestName++]);
       }
     }
   }
