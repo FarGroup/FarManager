@@ -5,10 +5,13 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.07 06.03.2003 $ */
+/* Revision: 1.08 14.06.2003 $ */
 
 /*
 Modify:
+  14.06.2003 IS
+    ! ConvertNameToReal - для нелокальных дисков даже и не пытаемся анализировать
+      симлинки, т.к. это все равно бесполезно
   05.03.2003 SVS
     + немного логов
     ! наработки по вопросу о символических связях
@@ -286,9 +289,17 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
   //RawConvertShortNameToLongName(TempDest,TempDest,sizeof(TempDest));
   _SVS(SysLog("ConvertNameToFull('%s') -> '%s'",Src,TempDest));
 
+  /* $ 14.06.2003 IS
+     Для нелокальных дисков даже и не пытаемся анализировать симлинки
+  */
   // остальное касается Win2K, т.к. в виндах ниже рангом нету некоторых
   // функций, позволяющих узнать истинное имя линка.
-  if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  // также ничего не делаем для нелокальных дисков, т.к. для них невозможно узнать
+  // корректную информацию про объект, на который указывает симлинк (т.е. невозможно
+  // "разыменовать симлинк")
+  if (IsLocalDrive(TempDest) &&
+      WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
+  /* IS $ */
   {
     _SVS(CleverSysLog Clev("VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5"));
     DWORD FileAttr;

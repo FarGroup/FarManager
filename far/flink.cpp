@@ -5,10 +5,18 @@ flink.cpp
 
 */
 
-/* Revision: 1.39 06.03.2003 $ */
+/* Revision: 1.40 14.06.2003 $ */
 
 /*
 Modify:
+  14.06.2003 IS
+    ! CheckParseJunction -> IsLocalDrive (по смыслу содержимого функции)
+      Функция проверяет - является ли диск локальным,
+      возвращает 0 для нелокальных дисков.
+      Если нет буквы диска, то диск считаем нелокальным.
+      Функции неважно, полный ей путь передан или относительный.
+    ! GetJunctionPointInfo, FarGetReparsePointInfo - для нелокальных
+      дисков возвращает ошибку
   06.03.2003 SVS
     + _LOGCOPYR() - детальный лог процесса копирования
     ! наработки по вопросу о символических связях
@@ -396,7 +404,13 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
               DWORD   dwBuffSize)
 {
   const DWORD FileAttr = GetFileAttributes(szMountDir);
-  if (FileAttr == 0xffffffff || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+  /* $ 14.06.2003 IS
+     Для нелокальных дисков получить корректную информацию о связи
+     не представляется возможным
+  */
+  if (FileAttr == 0xffffffff || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)
+      || !IsLocalDrive(szMountDir))
+  /* IS $ */
   {
     SetLastError(ERROR_PATH_NOT_FOUND);
     return 0;
@@ -456,39 +470,38 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
   return rdb.SubstituteNameLength / sizeof(TCHAR);
 }
 
-// предполагаем, что парсим только локальные диски
-int CheckParseJunction(char *Path,int SizePath)
+/* $ 14.06.2003 IS
+   функция проверяет - является ли диск локальным,
+   возвращает 0 для нелокальных дисков.
+   Если нет буквы диска, то диск считаем нелокальным.
+   Функции неважно, полный ей путь передан или относительный.
+*/
+int IsLocalDrive(const char *Path)
 {
-  return TRUE;
-#if 0
+  // попытаемся получить полный путь
+  char RootDir[MAX_PATH]="A:\\";
+  DWORD DriveType = 0;
+
   if(IsLocalPath(Path))
   {
-    char RootDir[4]="A:\\";
-    RootDir[0]=Path[0];
-    DWORD DriveType = GetDriveType(RootDir);
-    if(DriveType == DRIVE_REMOVABLE ||
-       DriveType == DRIVE_FIXED ||
-       DriveType == DRIVE_CDROM ||
-       DriveType == DRIVE_RAMDISK)
-      return 1;
-
-    if(DriveType == DRIVE_REMOTE)
+    RootDir[0] = Path[0];
+    DriveType = GetDriveType(RootDir);
+  }
+  else
+  {
+    if(ConvertNameToFull(Path, RootDir, sizeof(RootDir)) >= sizeof(RootDir))
+      return 0; // получили слишком длинный путь, будем считать, что диск нелокальный!
+    if(IsLocalPath(RootDir))
     {
-      char uni[1024];
-      DWORD uniSize = sizeof(uni);
-      if (WNetGetUniversalName(Path, UNIVERSAL_NAME_INFO_LEVEL, &uni, &uniSize) == NOERROR)
-      {
-        UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
-        strncpy(Path, lpuni->lpUniversalName, SizePath-1);
-      }
-      ConvertNameToReal(Path,Path, SizePath);
-      return 2;
+      RootDir[3] = 0;
+      DriveType = GetDriveType(RootDir);
     }
   }
-  return 0;
-#endif
-}
 
+  return (DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_FIXED ||
+    DriveType == DRIVE_CDROM || DriveType == DRIVE_RAMDISK);
+}
+/* IS $ */
 
 /* $ 07.09.2000 SVS
    Функция GetNumberOfLinks тоже доступна плагинам :-)
@@ -924,9 +937,7 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
         _LOGCOPYR(SysLog("GetFileAttributes('%s')=0x%08X",TempRoot,FileAttr));
         if(FileAttr != (DWORD)-1 && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
         {
-          int ParseJunc=CheckParseJunction(TempRoot,sizeof(TempRoot));
-          _LOGCOPYR(SysLog("CheckParseJunction('%s')=%d",TempRoot,ParseJunc));
-          if(ParseJunc && GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
+          if(GetJunctionPointInfo(TempRoot,JuncName,sizeof(JuncName)))
           {
              GetPathRootOne(JuncName+4,Root);
 #if 0
@@ -967,10 +978,8 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
   _LOGCOPYR(SysLog("Params: Src='%s'",Src));
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 && Src && *Src)
   {
-    char Src2[2048];
-    strncpy(Src2,Src,sizeof(Src2)-1);
-    if(CheckParseJunction(Src2,sizeof(Src2)))
-    {
+      char Src2[2048];
+      strncpy(Src2,Src,sizeof(Src2)-1);
       /* $ 27.09.2001 IS
          ! Выделяем столько памяти, сколько нужно.
          - Использовали размер указателя, а не размер буфера.
@@ -1001,7 +1010,6 @@ int WINAPI FarGetReparsePointInfo(const char *Src,char *Dest,int DestSize)
       /* IS $ */
 //      _LOGCOPYR(SysLog("return -> %d Dest='%s'",__LINE__,Dest));
       return Size;
-    }
   }
   return 0;
 }

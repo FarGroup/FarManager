@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.187 06.06.2003 $ */
+/* Revision: 1.188 14.06.2003 $ */
 
 /*
 Modify:
+  14.06.2003 IS
+    ! CheckParseJunction -> IsLocalDrive
   06.06.2003 SVS
     + SIDCacheFlush()
   05.06.2003 SVS
@@ -725,7 +727,7 @@ void InterfaceSettings();
 void DialogSettings();
 void SetConfirmations();
 void SetDizConfig();
-int  CheckParseJunction(char *Path,int SizePath);
+int  IsLocalDrive(const char *Path);
 /* $ 27.11.2001 DJ
    параметр Local
 */

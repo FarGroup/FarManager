@@ -2409,7 +2409,9 @@ drives. The "Encrypted" attribute can be used in Windows 2000/XP only. These two
 attributes are mutually exclusive, that is, you can set only one of them.
 
     For ~folder links~@HardSymLink@ the dialog will display the original folder information
-(NTFS/Windows 2000/XP only).
+(NTFS/Windows 2000/XP only). Если информация об оригинальной папке
+недоступна (в частности, для символических связей в сетевых
+каталогах), то выводится сообщение "#(нет данных)#".
 
   #File date and time#
 
