@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.23 01.08.2002 $ */
+/* Revision: 1.24 30.10.2002 $ */
 
 //#define USE_TAR_H
 
@@ -101,7 +101,8 @@ char *AdjustTARFileName(char *FileName);
 enum {TAR_FORMAT,GZ_FORMAT,Z_FORMAT,BZ_FORMAT};
 
 HANDLE ArcHandle;
-DWORD NextPosition,SFXSize,FileSize;
+DWORD SFXSize;
+LARGE_INTEGER NextPosition,FileSize;
 int ArcType;
 char ZipName[NM];
 
@@ -169,9 +170,9 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     return(FALSE);
   *Type=ArcType;
 
-  FileSize=GetFileSize(ArcHandle,NULL);
+  FileSize.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.HighPart);
 
-  NextPosition=0;
+  NextPosition.QuadPart=0;
   return(TRUE);
 }
 
@@ -188,7 +189,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {
       if (ArcType==BZ_FORMAT)
       {
-        Item->PackSize=Item->FindData.nFileSizeLow=FileSize;
+        Item->PackSize=Item->FindData.nFileSizeLow=FileSize.LowPart;
         strcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
@@ -218,13 +219,13 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
     return(GETARC_READERROR);
 
-  Item->PackSize=FileSize;
+  Item->PackSize=FileSize.LowPart;
 
   if (ArcType==Z_FORMAT)
   {
     strcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
-    Item->FindData.nFileSizeLow=FileSize;
+    Item->FindData.nFileSizeLow=FileSize.LowPart;
     return(GETARC_SUCCESS);
   }
 
@@ -269,12 +270,13 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   char *LongName = NULL;
   do
   {
-    NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
+    NextPosition.LowPart=SetFilePointer(ArcHandle,NextPosition.LowPart,
+  		&NextPosition.HighPart,FILE_BEGIN);
 
-    if (NextPosition==0xFFFFFFFF)
+    if (NextPosition.LowPart==0xFFFFFFFF && GetLastError() != NO_ERROR)
       return(GETARC_READERROR);
 
-    if (NextPosition>FileSize)
+    if (NextPosition.QuadPart>FileSize.QuadPart)
       return(GETARC_UNEXPEOF);
 
     if (!ReadFile(ArcHandle,&TAR_hdr,sizeof(TAR_hdr),&ReadSize,NULL))
@@ -302,19 +304,20 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     }
     Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(TAR_hdr.header.size);
 
-    DWORD PrevPosition=NextPosition;
+    LARGE_INTEGER PrevPosition=NextPosition;
     // for LNKTYPE - only sizeof(TAR_hdr)
-    NextPosition+=sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0:Item->PackSize);
+    NextPosition.QuadPart+=sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0:Item->PackSize);
 
-    if (NextPosition & 511)
-      NextPosition+=512-(NextPosition & 511);
+    if (NextPosition.LowPart & 511)
+      NextPosition.LowPart+=512-(NextPosition.LowPart & 511);
 
-    if (PrevPosition>=NextPosition)
+    if (PrevPosition.QuadPart>=NextPosition.QuadPart)
       return(GETARC_BROKEN);
 
     if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
     {
-      SetFilePointer (ArcHandle,PrevPosition+sizeof(TAR_hdr),NULL,FILE_BEGIN);
+      SetFilePointer (ArcHandle,PrevPosition.LowPart+sizeof(TAR_hdr),
+        &PrevPosition.HighPart,FILE_BEGIN);
       // we can't have two LONGNAME records in a row without a file between them
       if (LongName != NULL)
         return GETARC_BROKEN;
@@ -323,14 +326,14 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       ReadFile(ArcHandle,LongName,Item->PackSize,&BytesRead,NULL);
       if (BytesRead != Item->PackSize)
       {
-        HeapFree (GetProcessHeap(),0,LongName);
+        HeapFree(GetProcessHeap(),0,LongName);
         return GETARC_BROKEN;
       }
     }
   } while (SkipItem);
 
   if (LongName)
-    HeapFree (GetProcessHeap(), 0, LongName);
+    HeapFree(GetProcessHeap(), 0, LongName);
   return(GETARC_SUCCESS);
 }
 
