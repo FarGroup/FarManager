@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.15 19.12.2000 $ */
+/* Revision: 1.16 03.01.2001 $ */
 
 /*
 Modify:
+  03.01.2001 SVS
+    ! для KEY_ALTSHIFTF9 забыли сделать Show()
   19.12.2000 SVS
     + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
     - [*] Забыли "застолбить" место в LNG-файлах под клавишу F9 :-)
@@ -346,6 +348,7 @@ int FileViewer::ProcessKey(int Key)
       ViewerConfig();
       if ( Opt.ShowKeyBarViewer )
         ViewKeyBar.Show();
+      View.Show();
       return TRUE;
     /* SVS $ */
 

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.16 19.12.2000 $ */
+/* Revision: 1.17 03.01.2001 $ */
 
 /*
 Modify:
+  03.01.2001 SVS
+    ! для KEY_ALTSHIFTF9 забыли сделать Show()
   19.12.2000 SVS
     + Alt-Shift-F9 - Вызов диалога настроек (с подачи IS)
   16.12.2000 tran 1.15
@@ -431,7 +433,8 @@ int FileEditor::ProcessKey(int Key)
     */
     case KEY_ALTSHIFTF9:
       EditorConfig();
-      EditKeyBar.Show();
+      EditKeyBar.Show(); //???? Нужно ли????
+      FEdit.Show();
       return TRUE;
     /* SVS $ */
 
