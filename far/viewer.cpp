@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.108 27.08.2002 $ */
+/* Revision: 1.109 29.09.2002 $ */
 
 /*
 Modify:
+  29.09.2002 IS
+    - Ќе обрабатывалась VCTL_QUIT
   27.08.2002 SVS
     - BugZ#603 - F3 - F6 убивает симлинки
   15.08.2002 IS
@@ -3079,6 +3081,11 @@ int Viewer::ViewerControl(int Command,void *Param)
     // Param=0
     case VCTL_QUIT:
     {
+      /* $ 29.09.2002 IS
+         без этого не закрывалс€ вьюер, а просили именно это
+      */
+      FrameManager->DeleteFrame(HostFileViewer);
+      /* IS $ */
       if (HostFileViewer!=NULL)
         HostFileViewer->SetExitCode(0);
       return(TRUE);
