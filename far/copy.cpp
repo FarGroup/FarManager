@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.56 01.11.2001 $ */
+/* Revision: 1.57 16.11.2001 $ */
 
 /*
 Modify:
+  16.11.2001 SVS
+    - ќ„еп€тка в ShellCopy::GetSecurity "sa->nLength=sizeof(sa);"
+                                                            ^^ это указатель!
   01.11.2001 SVS
     - F5, F10, Esc - все оби, а вот: F5, давить мышой на пимпу "F10 - Tree",
       Esc - вот здесь б€ка :-(
@@ -2512,7 +2515,7 @@ int ShellCopy::GetSecurity(char *FileName,SECURITY_ATTRIBUTES *sa)
                 MSG(MCannotGetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
       return(FALSE);
   }
-  sa->nLength=sizeof(sa);
+  sa->nLength=sizeof(SECURITY_ATTRIBUTES);
   sa->lpSecurityDescriptor=sd;
   sa->bInheritHandle=FALSE;
   return(TRUE);

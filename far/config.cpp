@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.105 01.11.2001 $ */
+/* Revision: 1.106 16.11.2001 $ */
 
 /*
 Modify:
+  16.11.2001 SVS
+    ! уточняем системную политику (добавлена ветка в HKLM)
+      - для дисков HKCU может только отменять показ
+      - для опций HKCU может только добавлять блокироку пунктов
   01.11.2001 SVS
     ! уберем Opt.CPAJHefuayor ;-(
   30.10.2001 SVS
@@ -1179,12 +1183,15 @@ static struct FARConfig{
 void ReadConfig()
 {
   int I;
+  DWORD OptPolicies_ShowHiddenDrives,  OptPolicies_DisabledOptions;
   char KeyNameFromReg[34];
 
   /* <ПРЕПРОЦЕССЫ> *************************************************** */
   // "Вспомним" путь для дополнительного поиска плагинов
   SetRegRootKey(HKEY_LOCAL_MACHINE);
-  GetRegKey("System","TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  GetRegKey(NKeySystem,"TemplatePluginsPath",PersonalPluginsPath,"",sizeof(Opt.PersonalPluginsPath));
+  OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,"ShowHiddenDrives",1)&1;
+  OptPolicies_DisabledOptions=GetRegKey(NKeyPolicies,"ShowHiddenDrives",0);
   SetRegRootKey(HKEY_CURRENT_USER);
   if(Opt.ExceptRules == -1)
     GetRegKey("System","ExceptRules",Opt.ExceptRules,1);
@@ -1280,6 +1287,12 @@ void ReadConfig()
   AddEndSlash(Opt.TempPath);
   CtrlObject->EditorPosCache->Read("Editor\\LastPositions");
   CtrlObject->ViewerPosCache->Read("Viewer\\LastPositions");
+
+  // уточняем системную политику
+  // для дисков HKCU может только отменять показ
+  Opt.Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;
+  // для опций HKCU может только добавлять блокироку пунктов
+  Opt.Policies.DisabledOptions|=OptPolicies_DisabledOptions;
 
   /* *************************************************** </ПОСТПРОЦЕССЫ> */
 }

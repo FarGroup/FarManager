@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.10 06.11.2001 $ */
+/* Revision: 1.11 16.11.2001 $ */
 
 /*
 Modify:
+  16.11.2001 SVS
+    ! добавим проверку в Set`ах
   06.11.2001 SVS
     + EnumRegValue() - перечисление Values у ключа
     ! Немного const не помешает
@@ -81,24 +83,27 @@ void CloseSameRegKey()
 
 void SetRegKey(const char *Key,const char *ValueName,const char * const ValueData)
 {
-  HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);
+  HKEY hKey;
+  if((hKey=CreateRegKey(Key)) != NULL)
+    RegSetValueEx(hKey,ValueName,0,REG_SZ,(unsigned char *)ValueData,strlen(ValueData)+1);
   CloseRegKey(hKey);
 }
 
 
 void SetRegKey(const char *Key,const char *ValueName,DWORD ValueData)
 {
-  HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
+  HKEY hKey;
+  if((hKey=CreateRegKey(Key)) != NULL)
+    RegSetValueEx(hKey,ValueName,0,REG_DWORD,(BYTE *)&ValueData,sizeof(ValueData));
   CloseRegKey(hKey);
 }
 
 
 void SetRegKey(const char *Key,const char *ValueName,const BYTE *ValueData,DWORD ValueSize)
 {
-  HKEY hKey=CreateRegKey(Key);
-  RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
+  HKEY hKey;
+  if((hKey=CreateRegKey(Key)) != NULL)
+    RegSetValueEx(hKey,ValueName,0,REG_BINARY,ValueData,ValueSize);
   CloseRegKey(hKey);
 }
 
@@ -219,8 +224,9 @@ HKEY CreateRegKey(const char *Key)
   DWORD Disposition;
   char FullKeyName[512];
   sprintf(FullKeyName,"%s%s%s",Opt.RegRoot,*Key ? "\\":"",Key);
-  RegCreateKeyEx(hRegRootKey,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
-                 &hKey,&Disposition);
+  if(RegCreateKeyEx(hRegRootKey,FullKeyName,0,NULL,0,KEY_WRITE,NULL,
+                 &hKey,&Disposition) != ERROR_SUCCESS)
+    hKey=NULL;
   if (RequestSameKey)
   {
     RequestSameKey=FALSE;
