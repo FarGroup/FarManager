@@ -131,7 +131,8 @@ $ #Panel control commands#
   Hide/show left panel                                       #Ctrl-F1#
   Hide/show right panel                                      #Ctrl-F2#
   Change panels height                             #Ctrl-Up,Ctrl-Down#
-  Change panels width (when command line empty) #Ctrl-Left,Ctrl-Right#
+  Change panels width                           #Ctrl-Left,Ctrl-Right#
+    (when the command line is empty)
   Restore default panels width                          #Ctrl-Numpad5#
 
  #File panel commands#
@@ -140,15 +141,18 @@ $ #Panel control commands#
   Select group                                                #Gray +#
   Deselect group                                              #Gray -#
   Invert selection                                            #Gray *#
-  Select files with the current file extension         #Ctrl-<Gray +>#
-  Deselect files with the current file extension       #Ctrl-<Gray ->#
+  Select files with the same extension as the          #Ctrl-<Gray +>#
+    current file
+  Deselect files with the same extension as the        #Ctrl-<Gray ->#
+    current file
   Invert selection including folders                   #Ctrl-<Gray *>#
     (ignore command line state)
-  Select files with the current file name               #Alt-<Gray +>#
-  Deselect files with the current file name             #Alt-<Gray ->#
+  Select files with the same name as the current file   #Alt-<Gray +>#
+  Deselect files with the same name as the current      #Alt-<Gray ->#
+    file
   Select all files                                    #Shift-<Gray +>#
   Deselect all files                                  #Shift-<Gray ->#
-  Copy selected names to clipboard                    #Ctrl-Shift-Ins#
+  Copy names of selected files to clipboard           #Ctrl-Shift-Ins#
   Restore previous selection                                  #Ctrl-M#
   Scroll long names and descriptions              #Alt-Left,Alt-Right#
   Set brief view mode                                     #LeftCtrl-1#
@@ -368,9 +372,9 @@ right mouse button or doubleclick copy selected text to clipboard, Ctrl-
   History in dialog edit controls                 #Ctrl-Up, Ctrl-Down#
 
   In dialog edit control history you may use Enter to copy the current item
-to the edit control and Ins to mark or unmark an item. Marked items are not
-pushed out of history by new items, so you may mark frequently used strings
-so that you will always have them in the history.
+to the edit control and Ins to mark or unmark an item. Marked items are not pushed
+out of history by new items, so you may mark frequently used strings so that
+you will always have them in the history.
 
   Clear history in dialog edit controls                          #Del#
 
@@ -381,9 +385,9 @@ line, including dialogs and the ~internal editor~@Editor@.
 
   In dialogs, when the current control is a check box:
 
-  - turn On (#[x]#)                                           #Gray +#
-  - turn Off (#[ ]#)                                          #Gray -#
-  - change to undefined (#[?]#)                               #Gray *#
+  - turn on (#[x]#)                                             #Gray +#
+  - turn off (#[ ]#)                                            #Gray -#
+  - change to undefined (#[?]#)                                 #Gray *#
     (for three-state checkboxes)
 
   Right clicking outside the dialog works the same as pressing Esc.
@@ -519,10 +523,9 @@ Plugins present an almost limitless expansion of the features of FAR.
   * Spell checker functions while editing text in FAR editor.
   * Removable drives catalog preparation and much more...
 
-    It is useless to list all the functions, which are provided
-by FAR and its plugins, because this list is constantly growing. As
-an information source, which can be used to search for specific
-plugins, one can recommend:
+    It is useless to list all the functions provided by FAR and
+its plugins, because this list is constantly growing. As an information
+source, which can be used to search for specific plugins, one can recommend:
   - PlugRinG site
     ~http://www.uic.nnov.ru/~~ruiv/plugring/downld/~@http://www.uic.nnov.ru/~ruiv/plugring/cgi-bin/downld.cgi?Lang=Eng@
     (alias: ~http://www.rarsoft.com/plugring~@http://www.rarsoft.com/plugring@)
@@ -540,7 +543,7 @@ plugins, one can recommend:
 $ #Panels#
     Normally FAR shows two panels (left and right windows), with different
 information. If you want to change the type of information displayed in the
-panel, use ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@KeyRef@.
+panel, use the ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@KeyRef@.
 
     See also the following topics to obtain more information:
 
@@ -597,12 +600,12 @@ set to the file panel.
     #Speed search# action may be used to point to the required file by the
 first letters of its name. Hold the Alt key and type the file name until
 the required file is selected. Pressing #Ctrl-Enter# keys simultaneously will
-point to the next match if one exists.  Wildcards '*' and '?', may be used
+point to the next match if one exists.  Wildcards '*' and '?' may be used
 freely.
 
 @TreePanel
 $ #Tree panel#
-    The tree panel displays folder structure of the current disk as a tree.
+    The tree panel displays the folder structure of the current disk as a tree.
 Within tree mode you may change to a folder quickly and perform folder
 operations.
 
@@ -628,18 +631,18 @@ total and free size of physical and virtual memory;
 
  - #folder description# file
 
-    You may view the contents of a file in full screen by pressing
-the F3 key or left mouse button. Edit or create action is available by
-pressing the F4 key or right mouse button.
-    A list of the possible folder description file names may be defined
+    You may view the contents of the folder description file in full screen
+by pressing the F3 key or left mouse button. Edit or create action is available
+by pressing the F4 key or right mouse button.
+    A list of possible folder description file names may be defined
 using "Folder description files" command in the ~Options menu~@OptMenu@.
 
 @QViewPanel
 $ #Quick view panel#
-    The quick view panel is used to show information about selected item
+    The quick view panel is used to show information about the selected item
 in  the ~file panel~@FilePanel@ or ~tree panel~@TreePanel@.
 
-    If selected item is a file then the contents of the file is displayed.
+    If the selected item is a file then the contents of the file is displayed.
 For files of registered Windows types the type is shown as well.
 
     For folders, the quick view panel displays total size, total compressed
@@ -647,8 +650,8 @@ size, number of files and subfolders in the folder, current disk cluster size,
 real files size, including files slack (sum of the unused cluster parts).
 Compressed size has meaning for NTFS drives only.
 
-    In Windows 2000 for Repase Point is displayed the path to
-source folder.
+    In Windows 2000, when viewing reparse points, the path to the source folder
+is also displayed.
 
 @DragAndDrop
 $ #Drag and drop files#
@@ -657,11 +660,11 @@ $ #Drag and drop files#
 drag it to the another panel and release the mouse button.
 
     If you wish to process a group of files or folders, select them before
-dragging, click left mouse button on the source panel and drag files group
-to the another panel.
+dragging, click the left mouse button on the source panel and drag the files
+group to the other panel.
 
-    You may switch between copy and move operations, pressing right mouse
-button while dragging. Also to move files you can hold #Shift# button while
+    You may switch between copy and move operations by pressing the right mouse
+button while dragging. Also to move files you can hold the #Shift# key while
 pressing the left mouse button.
 
 @Menus
@@ -679,7 +682,7 @@ command.
 @LeftRightMenu
 $ #Left and right menus#
     The #Left# and #Right# menus allow to change left and right panel
-settings accordingly. These menus includes the following items:
+settings respectively. These menus include the following items:
 
    #Brief#                Display files within three columns.
 
@@ -734,9 +737,9 @@ $ #Files menu#
 
    #Delete#             Delete files and folders.
 
-   #Add to archive#     Add selected files to the archive.
+   #Add to archive#     Add selected files to an archive.
 
-   #Extract files#      Extract selected files from the archive.
+   #Extract files#      Extract selected files from an archive.
 
    #Archive commands#   Perform archive managing commands.
 
@@ -746,9 +749,9 @@ $ #Files menu#
 
    #Describe files#     Add ~descriptions~@FileDiz@ to the selected files.
 
-   #Select group#       ~Select~@SelectFiles@ file group with a wildcard.
+   #Select group#       ~Select~@SelectFiles@ a group of files with a wildcard.
 
-   #Deselect group#     ~Deselect~@SelectFiles@ file group, with a wildcard.
+   #Deselect group#     ~Deselect~@SelectFiles@ a group of files with a wildcard.
 
    #Invert selection#   ~Invert~@SelectFiles@ current file selection.
 
@@ -760,7 +763,7 @@ $ #Files menu#
 
 @CmdMenu
 $ #Commands menu#
-   #Find file#            Look for files in the folders tree,
+   #Find file#            Search for files in the folders tree,
                         wildcards may be used.
                         See ~Find file~@FindFile@ for more info.
 
@@ -769,7 +772,7 @@ $ #Commands menu#
 
    #Video mode#           Switch between 25 and 50 lines on the screen.
 
-   #Find folder#          Look for folder in the folders
+   #Find folder#          Search for a folder in the folders
                         tree. See ~Find folder~@FindFolder@ for more info.
 
    #File view history#    Display files view and edit history.
@@ -790,11 +793,11 @@ $ #Commands menu#
                         detailed description.
 
    #Edit user menu#       Allows to edit main or local ~user menu~@UserMenu@.
-                        You may press Ins for insert, Del for delete
+                        You may press Ins to insert, Del to delete
                         and F4 to edit menu records.
 
-   #Edit associations#    Displays ~file associations~@FileAssoc@ list.
-                        You may use Ins for insert, Del for delete
+   #Edit associations#    Displays the list of ~file associations~@FileAssoc@.
+                        You may press Ins to insert, Del to delete
                         and F4 to edit file associations.
 
    #Folder shortcuts#     Displays current ~folder shortcuts~@FolderShortcuts@.
@@ -831,17 +834,17 @@ $ #Options menu#
    #File descriptions#    ~File descriptions~@FileDiz@ list names and update mode.
 
    #Folder description#   Specify names (~wildcards~@FileMasks@ are allowed) of
-   #files#                files, displayed in the ~Info panel~@InfoPanel@ as folder
-                        description.
+   #files#                files displayed in the ~Info panel~@InfoPanel@ as folder
+                        descriptions.
 
-   #Viewer settings#      External ~viewer settings~@ViewerSettings@.
+   #Viewer settings#      External and internal ~viewer settings~@ViewerSettings@.
 
    #Editor settings#      External and internal ~editor settings~@EditorSettings@.
 
-   #Colors#               Allows color selection for different
-                        interface items, change whole FAR colors
-                        palette to black and white or set colors
-                        to default.
+   #Colors#               Allows to select colors for different
+                        interface items, to change the entire FAR
+                        colors palette to black and white or to set
+                        the colors to default.
 
    #Files highlighting#   Change ~files highlighting~@Highlight@ settings.
 
@@ -866,33 +869,38 @@ for following operations:
 
  - exit from FAR;
 
- - pressing the Esc.
+ - press the Esc key.
 
 @FindFile
 $ #Find file#
-    This command is intended to find, in the folder tree, one or more
-files and folders, matching one or more wildcards, delimited
-with commas. Also it may be used with file systems, emulated
+    This command allows to locate in the folder tree one or more
+files and folders matching one or more wildcards (delimited
+with commas). It may also be used with file systems emulated
 by ~plugins~@Plugins@.
 
     Optional text string may be specified to find only files containing
-this text. If the string is entered, option "Case sensitive" selects case
-sensitive comparison. "Whole words" option will let to find only the text that
-separated from other text with space, tab sign, carriage return, line feed or
+this text. If the string is entered, the option #"Case sensitive"# selects case
+sensitive comparison.
+
+    The option #"Whole words"# will let to find only the text that
+is separated from other text with spaces, tab characters, line breaks or
 standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./#.
-With "Table" button it is possible to change the character table for the
-text search. Option "Use all installed character tables" forces usage of
-all available to FAR tables to search text in files with different coding.
-Set "Search in archives" to search also in known to FAR archive formats,
-but note that this option significantly decreases operation performance.
-FAR cannot search in nested archives.
+
+    The button #"Table"# allows to change the character table for the text search.
+The option #"Use all installed character tables"# forces usage of
+all character tables available to FAR to search text in files with
+different codepages.
+
+    If the option #"Search in archives"# is set, FAR also performs the search in
+archives with known formats. However, using this option significantly
+decreases the performance of the search. FAR cannot search in nested archives.
 
     Search may be performed in all non-removable disks, in all folders
 from the disk root, from the current folder, in the current folder only
-or in selected folders. Search area is saved in the configuration.
+or in selected folders. The search origin is saved in the configuration.
 
     While search is in progress or when it is finished, you may use
-the cursor keys for the files list scrolling and buttons to perform
+the cursor keys to scroll the files list and the buttons to perform
 required actions.
 
     During or after search the following buttons are available:
@@ -903,9 +911,10 @@ required actions.
                    and moves cursor to the selected file.
 
    #View#            View selected file. If search is not completed,
-                   it will be resumed after viewing.
+                   it will continue in the background while the file
+                   is viewed.
 
-   #Panel#           Create a temporary panel and fill it with
+   #Panel#           Create a temporary panel and fill it with the
                    results of the last file search.
 
    #Stop#            Break current search. Available while search
@@ -927,11 +936,11 @@ characters of the folder.
 
     Press #Enter# to switch to the selected folder.
 
-    #Ctrl-R# and #F2# force folders tree rescan.
+    #Ctrl-R# and #F2# force the rescan of the folders tree.
 
 @History
 $ #History#
-    The history menu shows list of commands, executed from FAR.
+    The history menu shows list of commands executed from FAR.
 
     You may choose a command and press #Enter# to execute it again,
 #Shift-Enter# to execute it in the separate window or #Ctrl-Enter#
@@ -957,8 +966,8 @@ so it should be used only when really necessary, for example
 to interrupt a program which does not respond.
 
     The task list may be called either from ~Commands menu~@CmdMenu@ or
-using #Ctrl-W#. In the last case it is possible to call task list
-also from viewer and editor.
+using #Ctrl-W#. The keyboard shortcut Ctrl-W can also be used in the
+viewer or the editor.
 
 @CompFolders
 $ #Compare folders#
@@ -966,10 +975,11 @@ $ #Compare folders#
 ~file panels~@FilePanel@ are displayed. It compares the contents
 of folders displayed in the two panels. Files existing in one panel only,
 or those which have a date more recent than files with the same name
-in the other panel became marked.
+in the other panel, become marked.
 
     Subfolders are not compared. Files are compared only by name,
-size and time, file contents have no affect on the operation.
+size and time, and file contents have no effect on the operation.
+
 
 @UserMenu
 $ #User menu#
@@ -985,27 +995,26 @@ used to enter additional parameters directly before executing commands.
 you may edit or create main or local user menu. There may only be one main
 user menu. The main user menu is called if no local menu for the current
 folder is available.  The local menu may be placed in any folder. You may
-switching between main menu and user menu by pressing SHIFT-F2 keys. Also
-you may call user menu from parent folder by pressing BkSpace key.
+switch between the main menu and the user menu by pressing Shift-F2. Also
+you may call the user menu of the parent folder by pressing BkSpace.
 
-    You may add command separator to user menu. To do this, you must add
-new menu command, define "-" as "hot key" and leave field "Label" empty.
-To delete menu separator, you must switch to file mode with Alt-F4 key.
+    You may add command separators to the user menu. To do this, you should
+add a new menu command, define "-" as "hot key" and leave field "Label" empty.
+To delete a menu separator, you must switch to file mode with Alt-F4 key.
 
-    For execution of a user menu command select it with cursor movement
-keys and press Enter. You may press the hot key, assigned to required
-menu item.
+    To execute a user menu command, select it with cursor keys and press Enter.
+You may also press the hot key assigned to the required menu item.
 
     You may delete a submenu or menu item with the Del key, insert new
-submenu or menu item with the Ins key or edit existent submenu or menu
-item with the F4 key. Press Alt-F4 to edit menu in text file form.
+submenu or menu item with the Ins key or edit an existing submenu or menu
+item with the F4 key. Press Alt-F4 to edit the menu in text file form.
 
     It is possible to use digits, letters and function keys (F1..F12)
 as hot keys in user menu. If F1 or F4 is used, its original function
-in user menu is overrided. Though you still may use Shift-F4 for edit
-function.
+in user menu is overridden. However, you still may use Shift-F4 to edit
+the menu.
 
-    When you edit or create menu item, you should enter the hot key
+    When you edit or create a menu item, you should enter the hot key
 for fast item access, the item title which will be displayed in the
 menu and the command sequence to execute when this item will be selected.
 
@@ -1037,7 +1046,7 @@ the associated program, start its command line with '@@' character.
     You may add new associations with the #Edit associations# command
 in the ~Commands menu~@CmdMenu@.
 
-    In associated command the following special symbols may be used:
+    The following special symbols may be used in the associated command:
 
         !!       '!' character
         !        Long file name without extension
@@ -1064,40 +1073,40 @@ in the ~Commands menu~@CmdMenu@.
 
                  grep !?Search for:?! !?In:?*.*!|c:\far\far.exe -v -
 
-    "!##" modifier specified before file association symbol forces it
-to refer to passive panel. For example, !##!.! denotes a current file
-name on passive panel.
+    "!##" modifier specified before a file association symbol forces it
+to refer to the passive panel. For example, !##!.! denotes the name of
+the current file on the passive panel.
 
-    "!^" modifier specified before file association symbol forces it
-to refer to active panel. For example, !^!.! denotes a current file
-name on active panel, !##!\!^!.! - a file on passive panel with such
-name, as a name of current file on active panel.
+    "!^" modifier specified before a file association symbol forces it
+to refer to the active panel. For example, !^!.! denotes a current file
+name on the active panel, !##!\!^!.! - a file on the passive panel with the
+same name as the name of the current file on the active panel.
 
-    The modifiers "!##" and "!^" work as triggers for assotiations,
+    The modifiers "!##" and "!^" work as triggers for associations,
 for instance:
 
     if exist !##!\!^!.! diff -c -p !##!\!^!.! !\!.!
 
-    "If on passive panel exists such file, either as on active panel
-    under cursor, show the divergences between file on passive panel
-    and file on active panel,  regardless of name of current file on
-    passive panel"
+    "If the same file exists on the passive panel as the file under
+     the cursor on the active panel, show the differences betweent
+     the file on the passive panel and the file on the active panel,
+     regardless of the name of the current file on the passive panel"
 
   Notes:
 
   1. If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
-is on, FAR tries to use Windows association for execution of this file type;
+is on, FAR tries to use Windows association to execute this file type;
 
   2. You may define several associations for one file type and select
 the desired association from the menu.  "IF EXIST" and "IF DEFINED"
-~commands~@OSCommands@ allow to do assotiations more "clever" - in the menu
-of assotiations will be enclosed only  assotiations, for which will be
-executed specified condition.
+~commands~@OSCommands@ allow to create "smarter" associations -
+the menu will show only the associations for which the specified condition
+is true.
 
   3. The following modifiers may be used with the associations !@@! and !$! :
 
-     'Q' - double-quote names with spaces;
+     'Q' - enclose names containing spaces in quotes;
      'S' - use '/' instead of '\' in pathnames;
      'F' - use full pathnames;
      'A' - use ANSI encoding.
@@ -1125,9 +1134,10 @@ $ #System settings dialog#
   #for writing#             by other programs for writing. This mode
                           is handy to copy a file opened for a long
                           time, but it could be dangerous, if a file
-                          is modifying at the same time as copying.
+                          is being modified at the same time as
+                          copying.
 
-  #Create folders#          If the name of new folder contains only
+  #Create folders#          If the name of a new folder contains only
   #in uppercase#            lowercase letters and this option is on,
                           the folder will be created in uppercase.
 
@@ -1161,12 +1171,12 @@ $ #System settings dialog#
                           the path in the ~command line~@CmdLineCmd@.
 
   #Auto save setup#         If checked, FAR will save setup
-                          automatically. Both panel current folders
-                          will be saved also.
+                          automatically. The current folders for
+                          both panels will be also saved.
 
   #Path for#                Specify a full path, where FAR will look
   #personal plugins#        for "personal" plugins (it is possible to
-                          use the Environment variables).
+                          use environment variables).
 
 @PanelSettings
 $ #Panel settings dialog#
@@ -1217,7 +1227,7 @@ $ #Interface settings dialog#
   #Clock in viewer#         Show clock in viewer and editor.
   #and editor#
 
-  #Mouse#                   Use mouse.
+  #Mouse#                   Use the mouse.
 
   #Show key bar#            Show the functional key bar at the bottom
                           line. This option also may be switched
@@ -1236,7 +1246,7 @@ $ #Interface settings dialog#
                           to track such history, for example due to
                           security reasons, switch this option off.
 
-  #Set command line#        This option allows setting of the default
+  #Set command line#        This option allows to set the default
   #prompt format#           FAR command line prompt. You may use
                           the following format variables:
 
@@ -1259,11 +1269,12 @@ $ #Interface settings dialog#
                           some additional time before starting
                           copying to calculate the total files size.
 
-  #Show scrollbar#          Enable display of scrollbars in Menus
-  #in menu#                 (if items a menu more, than height a menu)
+  #Show scrollbar#          Enable display of scrollbars in menus
+  #in menu#                 (if the number of items in the menu is
+                          greater than the menu height)
 
-  #AutoComplete#            Allows an using a function AutoComplete
-  #in input lines#          in input lines, whiches have a history
+  #AutoComplete#            Allows to use the AutoComplete function
+  #in input lines#          in input lines that have a history
                           of commands.
 
 @Viewer
@@ -1282,8 +1293,8 @@ $ #Internal viewer#
     #End#                End of file
 
     #F1#                 Help
-    #F2#                 Toggle strings wrap/unwrap
-    #Shift-F2#           Type of Toggle (letters/words)
+    #F2#                 Toggle line wrap/unwrap
+    #Shift-F2#           Toggle wrap type (letters/words)
     #F4#                 Toggle text/hex mode
     #F6#                 Switch to editor
     #Alt-F5#             Print the file
@@ -1296,7 +1307,7 @@ $ #Internal viewer#
     #Alt-F8#             ~Change current position~@ViewerGotoPos@
     #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
     #Numpad5,F3,F10,Esc# Quit
-    #Ctrl-F10#           Quit with positioning on the current file
+    #Ctrl-F10#           Quit and position to the current file
     #F11#                Call "Plugin commands" menu
 
     #+#                  Go to next file
@@ -1305,10 +1316,10 @@ $ #Internal viewer#
     #Ctrl-Alt-Shift#     Temporarily show user screen
                        (as long as these keys are held down)
     #Ctrl-B#             Show/Hide functional key bar at the bottom
-                          line.
-    #Ctrl-S#             Show/Hide ScrollBar.
+                       line.
+    #Ctrl-S#             Show/Hide the scrollbar.
     #Alt-BS, Ctrl-Z#     Undo position change
-    #RightCtrl-<N>#      Sets bookmark in the current position
+    #RightCtrl-<N>#      Set a bookmark at the current position
                        (N must be '0'..'9')
     #LeftCtrl-<N>#       Go to bookmark <N>
 
@@ -1324,30 +1335,33 @@ $ #Internal viewer#
 
 @ViewerGotoPos
 $ #Go to specified position
-  This dialog allows change position in internal viewer.
+  This dialog allows to change the position in the internal viewer.
 
-  You can enter decimal offset, percent, of hexadecimal offset.
+  You can enter decimal offset, percent, or hexadecimal offset. The meaning
+of the value you enter is defined either by the radio buttons in the dialog
+or by format specifiers added before or after the value.
 
-  Also you can enter relative values, just add + or - before number
+  You can also enter relative values, just add + or - before the number.
 
-  Hexadecimal values you must specified in one of next form:
+  Hexadecimal offsets must be specified in one of the following formats:
      0xNNNN, NNNNh, $NNNN
 
-  Decimal values values you must specified in form NNNNd.
+  Decimal offsets (not percentages) must be specified in the format NNNNd.
 
   Examples
    #50%#                     Go to middle of file (50%)
    #-10%#                    Go to 10% percent back from current offset
-                           If were was 50%, will be 40%
-   #0x100#                   Go to 0x100 (256) offset
-   #+0x300#                  Go to 0x300 (768) bytes forward
+                           If the old position was 50%, the new
+                           position will be 40%
+   #0x100#                   Go to offset 0x100 (256)
+   #+0x300#                  Go 0x300 (768) bytes forward
 
-  If you enter value with % or '0x', 'h', '$' hexadecimal specificators,
-or decimal 'd' radio buttons you select will be ignored.
+  If you enter the value with one of the format specifiers (%, '0x', 'h',
+'$', 'd'), the radio buttons selected in the dialog will be ignored.
 
 @Editor
 $ #Internal editor#
-  Cursor movements
+  Cursor movement
 
    #Left#                    Character left
    #Right#                   Character right
@@ -1369,7 +1383,7 @@ $ #Internal editor#
   Delete operations
 
    #Del#                     Delete char (also may delete block,
-                             depending upon ~Editor settings~@EditorSettings@).
+                           depending upon ~Editor settings~@EditorSettings@).
    #BS#                      Delete char left
    #Ctrl-Y#                  Delete line
    #Ctrl-K#                  Delete to end of line
@@ -1415,7 +1429,7 @@ $ #Internal editor#
    #Alt-Shift-F9#            Call ~Editor settings~@EditorSettings@ dialog
    #F10, Esc#                Quit
    #Shift-F10#               Save and quit
-   #Ctrl-F10#                Quit with positioning on the current file
+   #Ctrl-F10#                Quit and position to the current file
    #F11#                     Call "Plugin commands" menu
    #Alt-BS, Ctrl-Z#          Undo
    #Ctrl-L#                  Disable edited text modification
@@ -1424,7 +1438,7 @@ $ #Internal editor#
                            (as long as these keys are held down)
    #Ctrl-Q#                  Treat the next key combination
                            as a character code
-   #RightCtrl-<N>#           Sets bookmark in the current position
+   #RightCtrl-<N>#           Set a bookmark at the current position
                            (N must be '0'..'9')
    #LeftCtrl-<N>#            Go to bookmark <N>
 
@@ -1435,48 +1449,51 @@ $ #Internal editor#
        Before any table may be used it must be installed: just press
        Shift-Enter on the corresponding file.
 
-    2. #Alt-U#/#Alt-I# shift current line if no block selected.
+    2. #Alt-U#/#Alt-I# indent the current line if no block is selected.
 
 @EditorGotoPos
 $ #Go to specified line and column#
- This dialog allows change position in internal editor.
+ This dialog allows to change the position in the internal editor.
 
- You can enter #row# or #col#, or both.
+ You can enter a #row# or a #column#, or both.
 
- Fist number interpreted as a ROW number, second as a COL.
- Number must be delimited by one of the following characters - "," "." ";" ":"
-or space.
+ The first number will be interpreted as a row number, the second as
+a column number. Numbers must be delimited by one of the following
+characters: "," "." ";" ":" or space.
 
- If you enter value in form ",Col", editor jump to COL in current line.
+ If you enter the value in the form ",Col", the editor will jump to
+the specified column in the current line.
 
- If you enter row with "%" at end, editor jump to percent.
- Enter #50%# and editor jump to middle of text.
+ If you enter the row with "%" at the end, the editor will jump
+to the specified percent of the file. For example, if you enter #50%#,
+the editor will jump to the middle of the text.
 
 @DriveDlg
 $ #Change drive#
-    This menu allows to change panel current drive, disconnect
-from network drive or open a new ~plugin~@Plugins@ panel.
+    This menu allows to change the current drive of a panel,
+disconnect from anetwork drive or open a new ~plugin~@Plugins@ panel.
 
-    Select item with the corresponding drive letter to change drive or
-item with plugin name to create new plugin panel. If the panel type is not
-a ~file panel~@FilePanel@, it will be changed to the file panel.
+    Select the item with the corresponding drive letter to change the
+drive or the item with the plugin name to create a new plugin panel.
+If the panel type is not a ~file panel~@FilePanel@, it will be changed
+to the file panel.
 
     #Del# key can be used:
 
      - to disconnect from network drives.
 
-     - deletes a substituted (virtual) drive.
+     - to delete a substituted (virtual) drive.
 
      - to eject disks from CD-ROM and removable drives.
-       To perform this operation on Windows NT/2000 administration
+       To perform this operation on Windows NT/2000 administrator
        privileges are required.
 
 
-    #Ctrl-1# - #Ctrl-8# switches display of different information:
+    #Ctrl-1# - #Ctrl-8# switch the display of different information:
 
     Ctrl-1 - disk type;
     Ctrl-2 - network name
-             (and path, associated with SUBST drive under NT);
+             (and the path associated with a SUBST drive under NT);
     Ctrl-3 - disk label;
     Ctrl-4 - file system;
     Ctrl-5 - total and free disk size;
@@ -1492,20 +1509,21 @@ $ #Files highlighting#
 allows to define file highlighting groups. Each group
 definition includes:
 
- - one or more delimited with commas ~file masks~@FileMasks@;
+ - one or more ~file masks~@FileMasks@ delimited with commas;
 
- - include attributes;
+ - attributes to include;
 
- - exclude attributes;
+ - attributes to exclude;
 
  - normal name, selected name, name under cursor and
 selected name under cursor colors to display file names.
-If you wish to use default color, set color to "Black on black";
+If you wish to use the default color, set color to "Black on
+black";
 
- - any optional character to mark files from the group. It may be
+ - an optional character to mark files from the group. It may be
 used both with or instead of color highlighting.
 
- File belongs to the highlighting group if:
+ A file belongs to a highlighting group if:
 
  - its name matches at least one of file masks;
 
@@ -1522,7 +1540,8 @@ only in Windows 2000.
 
 @ViewerSettings
 $ #Viewer settings#
-    This dialog allows the default external viewer settings to be changed.
+    This dialog allows to change the default internal or external viewer
+settings.
 
     External viewer
 
@@ -1543,33 +1562,38 @@ $ #Viewer settings#
   #Save file position#      Save and restore positions in the recently
                           viewed files. This option also forces
                           restoring of character table, if the table
-                          was manually selected by user.
+                          was manually selected by user, and the file
+                          viewing mode (normal/hex).
 
-  #Save bookmarks#          Save and restore bookmarks (current positions)
-                          in the recently viewed files (created with
-                          RightCtrl-<N>)
+  #Save bookmarks#          Save and restore bookmarks (current
+                          positions) in recently viewed files
+                          (created with RightCtrl-<N>)
 
   #Auto detect#             If you use the several character tables,
-  #character table#         you can set this option on for ~auto detecting~@DistTable@
-                          character table of the file, that is being viewed.
+  #character table#         you can set this option on to ~auto detect~@DistTable@
+                          the character table of the file being
+                          viewed.
 
-  #Tab size#                Tab display spacing.
+  #Tab size#                Number of spaces in a tab character.
 
-  #Show scrollbar#          Show scrollbar in internal viewer. This option
-                          also can be switched by Ctrl-S in internal viewer.
+  #Show scrollbar#          Show scrollbar in internal viewer. This
+                          option can also be switched by pressing
+                          Ctrl-S in the internal viewer.
 
-  #Show arrows#             Show scrolling arrows in viewer.
+  #Show arrows#             Show scrolling arrows in viewer if the text
+                          doesn't fit in the window horizontally.
 
-    If external viewer is assigned to F3 key, it will be executed
-only if ~associated~@FileAssoc@ viewer for the current file type is absent.
+    If the external viewer is assigned to F3 key, it will be executed
+only if the ~associated~@FileAssoc@ viewer for the current file type is
+not defined.
 
     Pressing Alt-Shift-F9 allows to invoke viewer settings dialog in the
 ~viewer~@Viewer@. The changes will come into force immediately.
 
 @EditorSettings
 $ #Editor settings#
-    This dialog allows the default external and internal editor
-settings to be changed.
+    This dialog allows to change the default external and internal editor
+settings.
 
     External editor
 
@@ -1594,7 +1618,7 @@ settings to be changed.
   #Persistent blocks#       Do not remove block selection after
                           moving the cursor.
 
-  #Del removes blocks#      If the selected block is present, Del will
+  #Del removes blocks#      If a block is selected, pressing Del will
                           not remove the character under cursor, but
                           this block.
 
@@ -1606,32 +1630,33 @@ settings to be changed.
                           restoring of character table, if the table
                           was manually selected by user.
 
-  #Save bookmarks#          Save and restore bookmarks (current positions)
-                          in the recently edited files (created with
-                          RightCtrl-<N>)
+  #Save bookmarks#          Save and restore bookmarks (current
+                          positions) in recently edited files
+                          (created with RightCtrl-<N>)
 
   #Auto detect#             If you use the several character tables,
-  #character table#         you can set this option on for ~auto detecting~@DistTable@
-                          character table of the file, that is being edited.
+  #character table#         you can set this option on to ~auto detect~@DistTable@
+                          the character table of the file being
+                          edited.
 
-  #Tab size#                Tab display spacing.
+  #Tab size#                Number of spaces in a tab character.
 
-  #Cursor beyond#           Allow moving cursor beyond end of line.
+  #Cursor beyond#           Allow moving cursor beyond the end of line.
   #end of line#
 
-    If external editor is assigned to F4 key, it will be executed only
-if ~associated~@FileAssoc@ editor for the current file type is absent.
+    If the external editor is assigned to F4 key, it will be executed only
+if ~associated~@FileAssoc@ editor for the current file type is not defined.
 
     Pressing Alt-Shift-F9 allows to invoke editor settings dialog in the
 ~editor~@Editor@. The changes will come into force immediately.
 
 @DistTable
 $ #Auto detect character tables#
-    If you use the several character tables and have installed the
+    If you use several character tables and have installed the
 table with the character frequency distribution for your language (for
 example, for Russian the table "Addons\Tables\Russian\Dist.Rus.reg"
 should be installed), FAR will try to choose the most suitable
-character table for viewing/editing a file. Note, that the correct
+character table for viewing/editing a file. Note that correct
 detection is not guaranteed, especially for small or non-typical text
 files.
 
@@ -1662,8 +1687,8 @@ the "Process subfolders" option.
 checkbox will be in 2-state mode - set/clear only. When there are selected
 folders, all checkboxes will always be 3-state.
 
-    Only those attributes will be changed which corresponding checkboxes'
-state was changed comparing to initial value.
+    Only those attributes will be changed for which the state of the
+corresponding checkboxes was changed from the initial state.
 
     The "Compressed" and "Encrypted" attributes may be changed only on NTFS
 drives. The "Encrypted" attribute can be used in Windows 2000 only. These two
@@ -1682,28 +1707,28 @@ attributes are mutually exclusive, that is, you can set only one of them.
 
     - last access time.
 
-    On the FAT drives hours, minutes and seconds of last access time
+    On FAT drives, hours, minutes and seconds of the last access time
 are always equal to zero.
 
     If you want to keep the file time unchanged, leave the corresponding
 field empty.
 
-    #Current# button fills the file time fields with the current time.
+    The #Current# button fills the file time fields with the current time.
 
 @FolderShortcuts
 $ #Folder shortcuts#
     Folder shortcuts are designed to provide fast access to frequently
 used folders. Press Ctrl-Shift-<N>, where N is '0'..'9', to create a shortcut
 to the current folder. To change to the folder recorded in the shortcut,
-press RightCtrl-<N>. If RightCtrl-<N> pressed in edit line, it inserts shortcut
-path to the line.
+press RightCtrl-<N>. If RightCtrl-<N> pressed in edit line, it inserts
+the shortcut path into the line.
 
     The #Show folder shortcuts# item in the ~Commands menu~@CmdMenu@ may be
 used to view, set, edit and delete folder shortcuts.
 
 @Filter
 $ #File panel filter#
-    With filter you may control which files will be displayed
+    Using the filter you may control which files will be displayed
 in the file panel.
 
     The filter menu contains two parts. In the upper part custom filters are
@@ -1717,7 +1742,7 @@ active file panel.
     Use Space, '+' and '-' keys to select filter menu items. Selected items
 will be indicated by '+' marks. If filters are present, only files which are
 filtered will be shown.  Items selected with '-' will be indicated by '-'
-mark, and all files satisfied them will be excluded from the file panel.
+mark, and all files matching these items will be excluded from the file panel.
 
     Custom filters selection is stored in the FAR configuration.
 
@@ -1727,7 +1752,7 @@ the sort mode letter in the upper left corner of the panel.
 @FileDiz
 $ #File descriptions#
     File descriptions may be used to associate text information with a file.
-Descriptions of the current folder files are stored in this folder in
+Descriptions of the files in the current folder are stored in this folder in
 a description list file. The format of the description file is the file name
 followed by spaces and the description.
 
@@ -1735,7 +1760,7 @@ followed by spaces and the description.
 ~view modes~@PanelViewModes@. By default these modes are #Descriptions#
 and #Long descriptions#.
 
-    Command #Describe# (Ctrl-Z) from the ~Files menu~@FilesMenu@ is
+    The command #Describe# (Ctrl-Z) from the ~Files menu~@FilesMenu@ is
 used to describe selected files.
 
     Description list names may be changed using #File descriptions#
@@ -1743,7 +1768,7 @@ dialog from the ~Options menu~@OptMenu@. In this dialog you can also
 set local descriptions update mode. Updating may be disabled,
 enabled only if panel current view mode displays descriptions or always
 enabled. By default FAR sets "Hidden" attribute to created description
-lists, but you may disable it switching off the option
+lists, but you may disable it by switching off the option
 "Set "Hidden" attribute to new description lists" in this dialog.
 Also here you may specify the position to align new file descriptions
 in a description list.
@@ -1755,18 +1780,18 @@ updated.
 
 @PanelViewModes
 $ #Customizing file panel view modes#
-    ~File panel~@FilePanel@ can represent information using 10 predefined
+    The ~file panel~@FilePanel@ can represent information using 10 predefined
 modes: brief, medium, full, wide, detailed, descriptions, long descriptions,
 file owners, file links and alternative full. Usually it is enough,
 but if you wish, you may either customize its parameters or even replace
 them with completely new modes.
 
-    Command #File panel modes# from the ~Options menu~@OptMenu@ allows the
-changing of view mode settings. First, it offers to select the desired mode
+    The command #File panel modes# from the ~Options menu~@OptMenu@ allows to
+change the view mode settings. First, it offers to select the desired mode
 from the list. In this list "Brief mode" item corresponds to brief panel mode
 (LeftCtrl-1), "Medium" corresponds to medium panel mode (LeftCtrl-2) and
-so on. The last "Alternative full" item corresponds to view mode called with
-LeftCtrl-0. When selection is complete, you may change the following settings:
+so on. The last item, "Alternative full", corresponds to view mode called with
+LeftCtrl-0. After selecting the mode, you may change the following settings:
 
   - #Column types# - column types are encoded as one or several
 characters, delimited with commas. Allowed column types are:
@@ -1804,7 +1829,7 @@ characters, delimited with commas. Allowed column types are:
     LN        - hard links number
 
     If the column types description contains more than one file name
-column, the file panel will be displayed in the multicolumn form.
+column, the file panel will be displayed in multicolumn form.
 
     File attributes have the following indications:
 
@@ -1817,16 +1842,16 @@ column, the file panel will be displayed in the multicolumn form.
 
   - #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
-name, description or owner column is 0, it will be calculated automatically,
-dependant upon the panel width. For correct operation with different screen
-widths, it is highly recommended to have at least one column with
-automatically calculated width.
+the Name, Description or Owner column is 0, it will be calculated
+automatically, dependant upon the panel width. For correct operation with
+different screen widths, it is highly recommended to have at least one column
+with automatically calculated width.
 
     Incrementing the default width of the file time column or file date and
 time column by 1 will force a 12-hour time format. Further increase will
 lead to the display of seconds and milliseconds.
 
-    To display years in 4-digits format increase date column width by 2.
+    To display years in 4-digits format increase the date column width by 2.
 
   - #Status line column types# and #Status line column widths# -
 similar to "Column types" and "Column widths", but for panel status line.
@@ -1853,9 +1878,9 @@ real case.
 @SortGroups
 $ #Sort groups#
     File sort groups may be used in #by name# and #by extension#
-~file panel~@FilePanel@ sort modes. It is applied by #Shift-F11#
-and allows the definition of additional file sorting rules, complementary to
-those already used.
+~file panel~@FilePanel@ sort modes. Sort groups are applied by
+pressing #Shift-F11# and allow to define additional file sorting rules,
+complementary to those already used.
 
     Each sort group contains one or more comma delimited
 ~file masks~@FileMasks@. If one sort group position in the group list
@@ -1863,17 +1888,17 @@ is higher than another and an ascending sort is performed, all files
 belonging to this group files will be higher than those belonging to
 following groups.
 
-    Command #Edit sort groups# from the ~Commands menu~@CmdMenu@ is used
+    The command #Edit sort groups# from the ~Commands menu~@CmdMenu@ is used
 to delete, create and edit sort groups, using Del, Ins and F4. The groups
 above the menu separator are applicable to the file panel start, and
-included files will be placed higher, than those not included to any group.
+included files will be placed higher than those not included to any group.
 The groups below the menu separator are applicable to the file panel end,
-and included files will be placed lower, than those not included.
+and included files will be placed lower than those not included.
 
 @FileMasks
 $ #File masks#
     File masks are frequently used in FAR commands to select single files
-and folders or their groups. Masks may contain common valid file name
+and folders or groups of them. Masks may contain common valid file name
 symbols, wildcards ('*' and '?') and special expressions:
 
     *           any number of characters;
@@ -1888,19 +1913,19 @@ symbols, wildcards ('*' and '?') and special expressions:
 using mask f*.ex?, mask *co* will select both color.ini and edit.com,
 mask [c-f,t]*.txt can select config.txt, demo.txt, faq.txt and tips.txt.
 
-    Many FAR commands allow the specification of several, comma delimited,
-file masks. For example, to select all documents, you may enter
+    Many FAR commands allow to specify several file masks delimited
+by commas. For example, to select all documents, you may enter
 *.doc,*.txt,*.wri in the "Select group" command.
 
 @SelectFiles
 $ #Selecting files#
     To process several ~file panel~@FilePanel@ files and folders,
 they may be selected using different methods. #Ins# selects the file under
-the cursor and moves the cursor down, #Shift-Cursor keys# moves the cursor
+the cursor and moves the cursor down, #Shift-Cursor keys# move the cursor
 in different directions.
 
     #Gray +# and #Gray -# perform group select and deselect,
-using one or more, comma delimited, ~file masks~@FileMasks@.
+using one or more ~file masks~@FileMasks@ delimited by commas.
 #Gray *# inverts the current selection. #Restore selection#
 command (#Ctrl-M#) restores the previously selected group.
 
@@ -1912,12 +1937,13 @@ all files with the same name as the file under cursor.
 
     #Ctrl-<Gray *># inverts the current selection including folders.
 If #Select folders# option in ~Panel settings~@PanelSettings@ dialog
-is on, it works similar to #Gray *#.
+is on, it has the same function as #Gray *#.
 
     #Shift-<Gray +># and #Shift-<Gray -># selects and deselects
 all files.
 
-    If no files are selected, only the file under cursor will be processed.
+    If no files are selected, only the file under the cursor will be
+processed.
 
 @CopyFiles
 $ #Copying, moving, renaming and creating links#
@@ -1937,7 +1963,7 @@ files and folders:
 using #Alt-F6# command, so you may have several file names referring
 to the same data.
 
-    If you wish to create a destination folder before copying,
+    If you wish to create the destination folder before copying,
 terminate the name with backslash. Also in the Copy dialog you may press
 F10 to select a folder from the active file panel tree or Alt-F10
 to select from the passive file panel tree.
@@ -1945,26 +1971,27 @@ to select from the passive file panel tree.
     The possibility of copying, moving and renaming files for plugins
 depends upon the plugin module functionality.
 
-    If a destination file already exists it can be overwritten,
-skipped or appended with a copied file.
+    If a destination file already exists, it can be overwritten,
+skipped or appended with the file being copied.
 
     If during copying or moving the destination disk becomes full,
 it is possible to either cancel the operation or replace the disk and
-select "Split" item. In the last case the file being copied will be
+select the "Split" item. In the last case the file being copied will be
 split between disks. This feature is available only when "Use system
 copy routine" option in the ~System settings~@SystemSettings@ dialog
 is switched off.
 
-    Option "Copy access rights" is valid only for NTFS file
+    Option "Copy access rights" is valid only for the NTFS file
 system and allows the copying of file access information.
 
-    Parameter "Only newer file(s)" will allow without questions to copy
-(move) the new and updated files. The "Updated file" - the date and time
-of updating is more than date and time of updating of a target file.
+    Parameter "Only newer file(s)" will allow to copy (move) the new
+and updated files without additional prompts. Updated files are those
+files for which the modification date is later than the modification
+date of the target file.
 
     Option "Use system copy routine" from ~System settings~@SystemSettings@
 dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
-not available) instead of the internal copy implementation to copy files.
+is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
@@ -1978,7 +2005,7 @@ indistinguishable from the original entry. The only difference is that
 short file names are not created for hard links, and so they cannot be
 seen from DOS programs.
 
-    When the file's size or date changes, all of the corresponding directory
+    When the file size or date changes, all of the corresponding directory
 entries are updated automatically. When a file is deleted, it is not
 deleted physically until all the hard links pointing at it will be
 deleted. The deletion order doesn't matter.
@@ -1991,10 +2018,10 @@ panel mode) and sort the files by hard link number.
 
 @ScrSwitch
 $ #Screens switching#
-    FAR allows several copies of the internal viewer and editor to open at
-once.  Use #Ctrl-Tab#, #Ctrl-Shift-Tab# or #F12# to switch between panels
-and screens with these copies. Ctrl-Tab switches to the next screen, Ctrl-
-Shift-Tab to the previous, F12 shows a list of all available screens.
+    FAR allows to open several instances of the internal viewer and editor
+at the same time.  Use #Ctrl-Tab#, #Ctrl-Shift-Tab# or #F12# to switch between
+panels and screens with these instances. Ctrl-Tab switches to the next screen,
+Ctrl-Shift-Tab to the previous, F12 shows a list of all available screens.
 
     The number of background viewers and editors is displayed in the left
 panel upper left corner. This may be disabled by using ~Panel settings~@PanelSettings@
@@ -2003,8 +2030,8 @@ dialog.
 @ApplyCmd
 $ #Apply command#
     With #Apply command# item in ~Files menu~@FilesMenu@ it is possible
-to apply a command to each selected file. The same as in ~File associations~@FileAssoc@
-special symbols should be used to denote the file name.
+to apply a command to each selected file. The same special symbols as in
+~File associations~@FileAssoc@ should be used to denote the file name.
 
     For example, 'type !.!' will output to the screen all selected files,
 one at a time.
@@ -2016,25 +2043,25 @@ $ #Operating system commands#
 
     #disk:#
 
-    To change current disk on panels on specified "disk".
+    To change the current disk on the active panel to the specified disk.
 
     #CD [disk:]path# or #CHDIR [disk:]path#
 
-    To change current path on panels on specified "path". If specified name of
-disk, is in the same way changed and disk. If the active panel shows a ~plugin~@Plugins@
-emulated file system, the command "CD" in the command line may be used to
-change the plugin file system folder. Unlike "CD" "CHDIR" command always
-treats the specified parameter as a real folder name regardless a file panel
-type.
+    To change the current path on the active panel to the specified path.
+If the disk drive letter is specified, the current disk is also changed.
+If the active panel shows a ~plugin~@Plugins@ emulated file system,
+the command "CD" in the command line may be used to change the folder
+in the plugin file system. Unlike "CD", "CHDIR" command always treats the
+specified parameter as a real folder name, regardless of the file panel type.
 
     #SET variable=[string]#
 
-    Set environment variable "variable" in the value "string". If "string" not
-specified, the variable ambience "variable" will be removed.
+    Set environment variable "variable" to the value "string". If "string"
+is not specified, the environment variable "variable" will be removed.
 
     #IF [NOT] EXIST filename command#
 
-    Execute a command "command" if "filename" exists. Prefix "NOT" - carry out
+    Execute a command "command" if "filename" exists. Prefix "NOT" - execute
 the command only if the condition is false.
 
     #IF [NOT] DEFINED variable command#
@@ -2044,18 +2071,18 @@ environment variable name and returns true if the environment variable
 is defined.
 
 
-    Commands "IF" can be embedded, for instance command "command"
+    "IF" commands can be nested, for instance, command "command"
 
     #if exist file1 if not exist file2 if defined variable command#
 
-    will be executed  if exists a file "file1" and does not exist a file
-"file2" and environment variable "variable" defined.
+    will be executed if the file "file1" exists, the file "file2" does not
+exist and the environment variable "variable" is defined.
 
-    If syntax of commands differs from specified, FAR Manager will send
-a management operating system.
+    Any other commands will be sent to the operating system command
+processor.
 
-    Enumerated commands work in:
-    - "~Command line~@CmdLineCmd@"
+    The commands listed above work in:
+    - ~Command line~@CmdLineCmd@
     - "~Apply command~@ApplyCmd@"
     - "~User menu~@UserMenu@"
     - "~File associations~@FileAssoc@"
@@ -2077,8 +2104,8 @@ press Ctrl-<.> twice and then the key to which the macro was assigned.
 macros to Ctrl-Shift-<letter>, Ctrl-Alt-<letter> and Alt-Shift-<letter>.
 
     FAR supports several independent macro sets: shell, viewer, editor and
-few other macro types. Macro sets are saved on the "Save setup" command from
-~Options menu~@OptMenu@.
+few other macro types. Macro sets are saved when the command "Save setup"
+from the ~Options menu~@OptMenu@ is executed.
 
     To specify additional macro settings, start or finish macro
 recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select the desired
