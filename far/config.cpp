@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.163 29.10.2003 $ */
+/* Revision: 1.164 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    - BugZ#997 - TechInfo. Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+    + HistoryCount
   29.10.2003 SVS
     - BugZ#980 - F9->Options->Folder description files - Esc == Enter
     + Opt.LoadPlug.SilentLoadPlugin - тихий режим загрузки плагинов
@@ -530,6 +533,12 @@ const char NKeyDescriptions[]="Descriptions";
 const char NKeyKeyMacros[]="KeyMacros";
 const char NKeyPolicies[]="Policies";
 const char NKeyFileFilter[]="OperationsFilter";
+const char NKeySavedHistory[]="SavedHistory";
+const char NKeySavedViewHistory[]="SavedViewHistory";
+const char NKeySavedFolderHistory[]="SavedFolderHistory";
+const char NKeySavedDialogHistory[]="SavedDialogHistory";
+
+const char NParamHistoryCount[]="HistoryCount";
 
 void SystemSettings()
 {
@@ -878,19 +887,21 @@ void InterfaceSettings()
 #define DLG_DIALOGS_DIALOGSEDITBLOCK    2
 #define DLG_DIALOGS_AUTOCOMPLETE        3
 #define DLG_DIALOGS_EULBSCLEAR          4
-#define DLG_DIALOGS_OK                  6
+#define DLG_DIALOGS_MOUSEBUTTON         5
+#define DLG_DIALOGS_OK                  7
 
 void DialogSettings()
 {
   static struct DialogData CfgDlgData[]={
-  /* 00 */DI_DOUBLEBOX,3,1,54,8,0,0,0,0,(char *)MConfigDlgSetsTitle,
+  /* 00 */DI_DOUBLEBOX,3,1,54,9,0,0,0,0,(char *)MConfigDlgSetsTitle,
   /* 01 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MConfigDialogsEditHistory,
   /* 02 */DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MConfigDialogsEditBlock,
   /* 03 */DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MConfigDialogsAutoComplete,
   /* 04 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MConfigDialogsEULBsClear,
-  /* 05 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 06 */DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 07 */DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 04 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MConfigDialogsMouseButton,
+  /* 05 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 06 */DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 07 */DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -898,11 +909,12 @@ void DialogSettings()
   CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected=Opt.Dialogs.EditBlock;
   CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected=Opt.Dialogs.AutoComplete;
   CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected=Opt.Dialogs.EULBsClear;
+  CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected=Opt.Dialogs.MouseButton;
 
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("DialogSettings");
-    Dlg.SetPosition(-1,-1,58,10);
+    Dlg.SetPosition(-1,-1,58,11);
     Dlg.Process();
     if (Dlg.GetExitCode() != DLG_DIALOGS_OK)
       return;
@@ -912,6 +924,8 @@ void DialogSettings()
   Opt.Dialogs.EditBlock=CfgDlg[DLG_DIALOGS_DIALOGSEDITBLOCK].Selected;
   Opt.Dialogs.AutoComplete=CfgDlg[DLG_DIALOGS_AUTOCOMPLETE].Selected;
   Opt.Dialogs.EULBsClear=CfgDlg[DLG_DIALOGS_EULBSCLEAR].Selected;
+  if((Opt.Dialogs.MouseButton=CfgDlg[DLG_DIALOGS_MOUSEBUTTON].Selected) != 0)
+    Opt.Dialogs.MouseButton=0xFFFF;
 
   CtrlObject->CmdLine->SetPersistentBlocks(Opt.Dialogs.EditBlock);
 }
@@ -1383,6 +1397,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyDialog,"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
   {1, REG_DWORD,  NKeyDialog,"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
   {0, REG_DWORD,  NKeyDialog,"EditLine",&Opt.Dialogs.EditLine,0, 0},
+  {1, REG_DWORD,  NKeyDialog,"MouseButton",&Opt.Dialogs.MouseButton,0xFFFF, 0},
 
   {1, REG_SZ,     NKeyEditor,"ExternalEditorName",Opt.ExternalEditor,sizeof(Opt.ExternalEditor),""},
   {1, REG_DWORD,  NKeyEditor,"UseExternalEditor",&Opt.UseExternalEditor,0, 0},
@@ -1413,6 +1428,11 @@ static struct FARConfig{
   {0, REG_BINARY, NKeyXLat,"Rules2",(BYTE*)&Opt.XLat.Rules[1][1],sizeof(Opt.XLat.Rules[1])-1,NULL},
   {0, REG_BINARY, NKeyXLat,"Rules3",(BYTE*)&Opt.XLat.Rules[2][1],sizeof(Opt.XLat.Rules[2])-1,NULL},
   {0, REG_SZ,     NKeyXLat,"WordDivForXlat",Opt.XLat.WordDivForXlat,sizeof(Opt.XLat.WordDivForXlat),WordDivForXlat0},
+
+  {0, REG_DWORD,  NKeySavedHistory,NParamHistoryCount,&Opt.HistoryCount,64, 0},
+  {0, REG_DWORD,  NKeySavedFolderHistory,NParamHistoryCount,&Opt.FoldersHistoryCount,64, 0},
+  {0, REG_DWORD,  NKeySavedViewHistory,NParamHistoryCount,&Opt.ViewHistoryCount,64, 0},
+  {0, REG_DWORD,  NKeySavedDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,64, 0},
 
   {1, REG_DWORD,  NKeySystem,"SaveHistory",&Opt.SaveHistory,1, 0},
   {1, REG_DWORD,  NKeySystem,"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},
@@ -1488,6 +1508,7 @@ static struct FARConfig{
   {0, REG_DWORD,  NKeySystem,"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
   {1, REG_DWORD,  NKeySystem,"CloseCDGate",&Opt.CloseCDGate,-1, 0},
   {0, REG_DWORD,  NKeySystem,"UseNumPad",&Opt.UseNumPad,0, 0},
+  {0, REG_DWORD,  NKeySystem,"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
   {1, REG_DWORD,  NKeySystem,"ScanJunction",&Opt.ScanJunction,1, 0},
 
   {0, REG_DWORD,  NKeySystemNowell,"MoveRO",&Opt.Nowell.MoveRO,1, 0},

@@ -5,10 +5,14 @@ filefilter.cpp
 
 */
 
-/* Revision: 1.01 11.10.2003 $ */
+/* Revision: 1.02 08.12.2003 $ */
 
 /*
 Modify:
+  08.12.2003 SVS
+    + размеры в Mb, Gb
+    + кнопка Reset
+    ! введение автоматизации (часть кода снесена нафиг :-)
   11.10.2003 KM
     ! Ускорение операции фильтрации файлов.
   04.10.2003 KM
@@ -34,6 +38,7 @@ FileFilter::FileFilter():
   DigitMask("99999999999999999999"),
   FilterMasksHistoryName("FilterMasks")
 {
+  int I;
 
   // Определение параметров даты и времени в системе.
   DateSeparator=GetDateSeparator();
@@ -55,13 +60,13 @@ FileFilter::FileFilter():
   sprintf(TimeMask,FmtMask3,TimeSeparator,TimeSeparator);
 
   // Настройка списка множителей для типа размера
-  TableItemSize=(FarListItem *)xf_malloc(sizeof(FarListItem)*SIZE_COUNT);
+  TableItemSize=(FarListItem *)xf_malloc(sizeof(FarListItem)*FSIZE_IN_LAST);
   SizeList.Items=TableItemSize;
-  SizeList.ItemsNumber=SIZE_COUNT;
+  SizeList.ItemsNumber=FSIZE_IN_LAST;
 
-  memset(TableItemSize,0,sizeof(FarListItem)*SIZE_COUNT);
-  strncpy(TableItemSize[0].Text,MSG(MFileFilterSizeInBytes),sizeof(TableItemSize[0].Text)-1);
-  strncpy(TableItemSize[1].Text,MSG(MFileFilterSizeInKBytes),sizeof(TableItemSize[1].Text)-1);
+  memset(TableItemSize,0,sizeof(FarListItem)*FSIZE_IN_LAST);
+  for(I=0; I < FSIZE_IN_LAST; ++I)
+    strncpy(TableItemSize[I].Text,MSG(MFileFilterSizeInBytes+I),sizeof(TableItemSize[I].Text)-1);
 
   // Настройка списка типов дат файла
   TableItemDate=(FarListItem *)xf_malloc(sizeof(FarListItem)*DATE_COUNT);
@@ -100,7 +105,7 @@ FileFilter::FileFilter():
   FilterMask.Set(FF.FMask.Mask,FMF_SILENT);
 
   SizeType=FF.FSize.SizeType;
-  if (SizeType>FSIZE_INKBYTES || SizeType<FSIZE_INBYTES)
+  if (SizeType>FSIZE_INMBYTES || SizeType<FSIZE_INBYTES)
   {
     SizeType=0;
     FF.FSize.SizeType=(FSizeType) SizeType;
@@ -129,89 +134,22 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
   switch(Msg)
   {
     case DN_LISTCHANGE:
+    {
       if (Param1==6)  // In bytes or kilobytes?
         SizeType=Param2;
       if (Param1==13) // Modified,created or accessed?
         DateType=Param2;
       return TRUE;
+    }
+
     case DN_BTNCLICK:
     {
-      if (Param1==2) // Match file mask(s)
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-
-        if (Param2==0)
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,3,FALSE);
-        else
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,3,TRUE);
-
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-      }
-      if (Param1==5) // File size
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-
-        if (Param2==0)
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,6,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,10,FALSE);
-        }
-        else
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,6,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,8,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,10,TRUE);
-        }
-
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-      }
-      if (Param1==12) // File date
-      {
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-
-        if (Param2==0)
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,13,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,16,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,19,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,21,FALSE);
-        }
-        else
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,13,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,15,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,16,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,18,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,19,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,20,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,21,TRUE);
-        }
-
-        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
-      }
       if (Param1==23) // Attributes
       {
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-        if (Param2==0)
+        if (Param2)
         {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,26,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,28,FALSE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,FALSE);
-        }
-        else
-        {
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,24,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,25,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,26,TRUE);
-          Dialog::SendDlgMessage(hDlg,DM_ENABLE,27,TRUE);
           if (CompEnabled==FALSE)
             Dialog::SendDlgMessage(hDlg,DM_ENABLE,28,FALSE);
           else
@@ -251,8 +189,40 @@ long WINAPI FileFilter::FilterDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2
 
         Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
       }
-      if (Param1==30 || Param1==31) // Ok и Cancel
+      if (Param1==30 || Param1==32) // Ok и Cancel
         return FALSE;
+
+      if (Param1==31) // Reset
+      {
+        // очистка диалога
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,3,(long)"*.*");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,8,(long)"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,10,(long)"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,15,(long)"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,16,(long)"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,18,(long)"");
+        Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,19,(long)"");
+
+        for(int I=24; I <= 29; ++I)
+          Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_UNCHECKED);
+
+        // 6, 13 - позиции в списке
+        struct FarListPos LPos={0,0};
+        SizeType=0;
+        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,6,(long)&LPos);
+        DateType=0;
+        Dialog::SendDlgMessage(hDlg,DM_LISTSETCURPOS,13,(long)&LPos);
+
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,2,BSTATE_UNCHECKED);
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,5,BSTATE_UNCHECKED);
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,12,BSTATE_UNCHECKED);
+        Dialog::SendDlgMessage(hDlg,DM_SETCHECK,23,BSTATE_UNCHECKED);
+
+        Dialog::SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+        break;;
+      }
       return TRUE;
     }
   }
@@ -292,16 +262,17 @@ void FileFilter::Configure()
 
   // Временная маска.
   CFileMask FileMask;
+  int I;
 
   struct DialogData FilterDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,63,21,0,0,DIF_SHOWAMPERSAND,0,(char *)MFileFilterTitle,
 
   /* 01 */DI_SINGLEBOX,5,2,61,4,0,0,DIF_SHOWAMPERSAND,0,"",
-  /* 02 */DI_CHECKBOX,7,2,0,0,1,0,0,0,(char *)MFileFilterMatchMask,
+  /* 02 */DI_CHECKBOX,7,2,0,0,1,0,DIF_AUTOMATION,0,(char *)MFileFilterMatchMask,
   /* 03 */DI_EDIT,7,3,59,3,0,(DWORD)FilterMasksHistoryName,DIF_HISTORY,0,"",
 
   /* 04 */DI_SINGLEBOX,5,5,61,9,0,0,DIF_SHOWAMPERSAND,0,"",
-  /* 05 */DI_CHECKBOX,7,5,0,0,0,0,0,0,(char *)MFileFilterSize,
+  /* 05 */DI_CHECKBOX,7,5,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterSize,
   /* 06 */DI_COMBOBOX,7,6,31,6,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
   /* 07 */DI_TEXT,7,7,38,7,0,0,0,0,(char *)MFileFilterSizeFrom,
   /* 08 */DI_FIXEDIT,40,7,59,7,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
@@ -309,7 +280,7 @@ void FileFilter::Configure()
   /* 10 */DI_FIXEDIT,40,8,59,8,0,(DWORD)DigitMask,DIF_MASKEDIT,0,"",
 
   /* 11 */DI_SINGLEBOX,5,10,61,15,0,0,DIF_SHOWAMPERSAND,0,"",
-  /* 12 */DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MFileFilterDate,
+  /* 12 */DI_CHECKBOX,7,10,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterDate,
   /* 13 */DI_COMBOBOX,7,11,31,11,0,0,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,0,"",
   /* 14 */DI_TEXT,7,12,38,12,0,0,0,0,(char *)MFileFilterAfter,
   /* 15 */DI_FIXEDIT,41,12,50,12,0,(DWORD)DateMask,DIF_MASKEDIT,0,"",
@@ -321,7 +292,7 @@ void FileFilter::Configure()
   /* 21 */DI_BUTTON,19,14,0,14,0,0,DIF_BTNNOCLOSE,0,(char *)MFileFilterBlank,
 
   /* 22 */DI_SINGLEBOX,5,16,61,19,0,0,DIF_SHOWAMPERSAND,0,"",
-  /* 23 */DI_CHECKBOX, 7,16,0,0,0,0,0,0,(char *)MFileFilterAttr,
+  /* 23 */DI_CHECKBOX, 7,16,0,0,0,0,DIF_AUTOMATION,0,(char *)MFileFilterAttr,
   /* 24 */DI_CHECKBOX, 7,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrR,
   /* 25 */DI_CHECKBOX, 7,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrA,
   /* 26 */DI_CHECKBOX,25,17,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrH,
@@ -330,7 +301,8 @@ void FileFilter::Configure()
   /* 29 */DI_CHECKBOX,43,18,0,0,0,0,DIF_3STATE,0,(char *)MFileFilterAttrE,
 
   /* 30 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,1,(char *)MFileFilterOk,
-  /* 31 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
+  /* 31 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP|DIF_BTNNOCLOSE,1,(char *)MFileFilterReset,
+  /* 32 */DI_BUTTON,0,20,0,20,0,0,DIF_CENTERGROUP,0,(char *)MFileFilterCancel,
   };
 
   MakeDialogItems(FilterDlgData,FilterDlg);
@@ -349,11 +321,8 @@ void FileFilter::Configure()
   _ui64toa(FF.FSize.SizeAbove,FilterDlg[8].Data,10);
   _ui64toa(FF.FSize.SizeBelow,FilterDlg[10].Data,10);
   if (!FilterDlg[5].Selected)
-  {
-    FilterDlg[6].Flags|=DIF_DISABLE;
-    FilterDlg[8].Flags|=DIF_DISABLE;
-    FilterDlg[10].Flags|=DIF_DISABLE;
-  }
+    for(I=6; I <= 10; ++I)
+      FilterDlg[I].Flags|=DIF_DISABLE;
 
   FilterDlg[12].Selected=FF.FDate.Used;
   FilterDlg[13].ListItems=&DateList;
@@ -366,15 +335,8 @@ void FileFilter::Configure()
   ConvertDate(FF.FDate.DateBefore,FilterDlg[18].Data,FilterDlg[19].Data,8,FALSE,FALSE,TRUE);
 
   if (!FilterDlg[12].Selected)
-  {
-    FilterDlg[13].Flags|=DIF_DISABLE;
-    FilterDlg[15].Flags|=DIF_DISABLE;
-    FilterDlg[16].Flags|=DIF_DISABLE;
-    FilterDlg[18].Flags|=DIF_DISABLE;
-    FilterDlg[19].Flags|=DIF_DISABLE;
-    FilterDlg[20].Flags|=DIF_DISABLE;
-    FilterDlg[21].Flags|=DIF_DISABLE;
-  }
+    for(I=13; I <= 21; ++I)
+      FilterDlg[I].Flags|=DIF_DISABLE;
 
   DWORD AttrSet=FF.FAttr.AttrSet;
   DWORD AttrClear=FF.FAttr.AttrClear;
@@ -387,25 +349,52 @@ void FileFilter::Configure()
   FilterDlg[29].Selected=(AttrSet & FILE_ATTRIBUTE_ENCRYPTED?1:AttrClear & FILE_ATTRIBUTE_ENCRYPTED?0:2);
   if (!FilterDlg[23].Selected)
   {
-    FilterDlg[24].Flags|=DIF_DISABLE;
-    FilterDlg[25].Flags|=DIF_DISABLE;
-    FilterDlg[26].Flags|=DIF_DISABLE;
-    FilterDlg[27].Flags|=DIF_DISABLE;
-    FilterDlg[28].Flags|=DIF_DISABLE;
-    FilterDlg[29].Flags|=DIF_DISABLE;
+    for(I=24; I <= 29; ++I)
+      FilterDlg[I].Flags|=DIF_DISABLE;
   }
   else
   {
     if (CompEnabled==FALSE)
+    {
       FilterDlg[28].Flags|=DIF_DISABLE;
+      FilterDlg[28].Selected=0;
+    }
     if (EncrEnabled==FALSE)
+    {
       FilterDlg[29].Flags|=DIF_DISABLE;
+      FilterDlg[29].Selected=0;
+    }
   }
 
   Dialog Dlg(FilterDlg,sizeof(FilterDlg)/sizeof(FilterDlg[0]),FilterDlgProc);
 
   Dlg.SetHelp("OpFilter");
   Dlg.SetPosition(-1,-1,67,23);
+
+  Dlg.SetAutomation(2,3,DIF_DISABLE,0,0,DIF_DISABLE);
+
+  Dlg.SetAutomation(5,6,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(5,7,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(5,8,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(5,9,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(5,10,DIF_DISABLE,0,0,DIF_DISABLE);
+
+  Dlg.SetAutomation(12,13,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,14,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,15,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,16,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,17,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,18,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,19,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,20,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(12,21,DIF_DISABLE,0,0,DIF_DISABLE);
+
+  Dlg.SetAutomation(23,24,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(23,25,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(23,26,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(23,27,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(23,28,DIF_DISABLE,0,0,DIF_DISABLE);
+  Dlg.SetAutomation(23,29,DIF_DISABLE,0,0,DIF_DISABLE);
 
   for (;;)
   {
@@ -571,13 +560,13 @@ int FileFilter::FileInFilter(WIN32_FIND_DATA *fd)
           sizeabove=sizeabove*1024;
           sizebelow=sizebelow*1024;
           break;
-        case 2:
+        case FSIZE_INMBYTES:
           // Задел // Размер введён в мегабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
           sizeabove=sizeabove*1024*1024;
           sizebelow=sizebelow*1024*1024;
           break;
-        case 3:
+        case FSIZE_INGBYTES:
           // Задел // Размер введён в гигабайтах, переведём его в байты.
           // !!! Проверки на превышение максимального значения не делаются !!!
           sizeabove=sizeabove*1024*1024*1024;

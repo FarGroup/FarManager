@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.29 21.01.2003 $ */
+/* Revision: 1.30 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + HistoryCount - размер истории
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
@@ -98,7 +100,7 @@ Modify:
 #include "vmenu.hpp"
 #include "lang.hpp"
 
-History::History(int TypeHistory,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType)
+History::History(int TypeHistory,int HistoryCount,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType)
 {
   FreeHistory(FALSE);
   strncpy(History::RegKey,RegKey,sizeof(History::RegKey)-1);
@@ -106,6 +108,7 @@ History::History(int TypeHistory,const char *RegKey,const int *EnableSave,int Sa
   History::SaveType=SaveType;
   History::EnableSave=EnableSave;
   History::TypeHistory=TypeHistory;
+  History::HistoryCount=HistoryCount;
   EnableAdd=RemoveDups=TRUE;
   KeepSelectedPos=FALSE;
   ReturnSimilarTemplate=TRUE;
@@ -119,7 +122,7 @@ History::~History()
 void History::FreeHistory(BOOL FreeMemory)
 {
   if(FreeMemory)
-    for (int I=0; I < HISTORY_COUNT;I++)
+    for (int I=0; I < HistoryCount;I++)
       if(LastStr[I].Name)
         xf_free(LastStr[I].Name);
   memset(LastStr,0,sizeof(LastStr));
@@ -135,7 +138,7 @@ void History::ReloadTitle()
   int I;
   struct HistoryRecord *PtrLastStr;
 
-  for (PtrLastStr=LastStr,I=0; I < HISTORY_COUNT; I++, PtrLastStr++)
+  for (PtrLastStr=LastStr,I=0; I < HistoryCount; I++, PtrLastStr++)
   {
     if(PtrLastStr->Name && *PtrLastStr->Name)
       switch(PtrLastStr->Type)
@@ -172,9 +175,14 @@ void History::AddToHistory(const char *Str,const char *Title,int Type,int SaveFo
                  SaveCurLastPtr=CurLastPtr,
                  SaveLastSimilar=LastSimilar;
 
-    struct HistoryRecord SaveLastStr[HISTORY_COUNT];
-    memcpy(SaveLastStr,LastStr,sizeof(SaveLastStr));
-    for (int I=0;I < HISTORY_COUNT; I++)
+    struct HistoryRecord *SaveLastStr;
+
+    SaveLastStr=(struct HistoryRecord *)alloca(HistoryCount*sizeof(struct HistoryRecord));
+    if(!SaveLastStr)
+      return;
+
+    memcpy(SaveLastStr,LastStr,HistoryCount*sizeof(struct HistoryRecord));
+    for (int I=0;I < HistoryCount; I++)
       if(LastStr[I].Name && LastStr[I].Name[0])
         SaveLastStr[I].Name=strdup(LastStr[I].Name);
       else
@@ -219,13 +227,13 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 
   int OldLastPtr=LastPtr-1;
   if (OldLastPtr < 0)
-    OldLastPtr=HISTORY_COUNT-1;
+    OldLastPtr=HistoryCount-1;
 
   if (RemoveDups)
   {
     struct HistoryRecord *PtrLastStr;
     int I, J;
-    for (PtrLastStr=LastStr,I=0; I < HISTORY_COUNT; I++, PtrLastStr++)
+    for (PtrLastStr=LastStr,I=0; I < HistoryCount; I++, PtrLastStr++)
     {
       if(PtrLastStr->Name && EqualType(AddRecord.Type,PtrLastStr->Type))
       {
@@ -250,12 +258,12 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
           int Length=OldLastPtr-I;
 
           if (Length<0)
-            Length+=HISTORY_COUNT;
+            Length+=HistoryCount;
 
           for (J=0; J <= Length; J++)
           {
-            int Dest=(I+J) % (HISTORY_COUNT);
-            int Src=(I+J+1) % (HISTORY_COUNT);
+            int Dest=(I+J) % HistoryCount;
+            int Src=(I+J+1) % HistoryCount;
 
             if(LastStr[Dest].Name)
             {
@@ -275,7 +283,7 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
     }
   }
 
-  int Pos=(LastPtr-1) % (HISTORY_COUNT);
+  int Pos=(LastPtr-1) % HistoryCount;
 
   if(LastStr[Pos].Name && LastStr[LastPtr].Name &&
       (strcmp(AddRecord.Name,LastStr[Pos].Name) != 0 ||
@@ -285,7 +293,7 @@ void History::AddToHistoryLocal(const char *Str,const char *Title,int Type)
 
   memcpy(LastStr+LastPtr,&AddRecord,sizeof(HistoryRecord));
 
-  if (++LastPtr==HISTORY_COUNT)
+  if (++LastPtr==HistoryCount)
      LastPtr=0;
 
   CurLastPtr0=LastPtr0=CurLastPtr=LastPtr;
@@ -300,11 +308,15 @@ BOOL History::SaveHistory()
     return TRUE;
 
   char *BufferLines=NULL,*BufferTitles=NULL,*PtrBuffer;
-  unsigned char TypesBuffer[HISTORY_COUNT+1];
+  unsigned char *TypesBuffer;
+  TypesBuffer=(unsigned char *)alloca(HistoryCount+1);
+  if(!TypesBuffer)
+    return FALSE;
+
   DWORD SizeLines=0, SizeTitles=0, SizeTypes=0;
   int I, Len;
 
-  for (I=0; I < HISTORY_COUNT; I++)
+  for (I=0; I < HistoryCount; I++)
   {
     if(LastStr[I].Name)
     {
@@ -329,10 +341,10 @@ BOOL History::SaveHistory()
 
     if (SaveTitle && TypeHistory != HISTORYTYPE_VIEW)
     {
-      BufferTitles=(char*)xf_malloc(HISTORY_COUNT*(HISTORY_TITLESIZE+2));
+      BufferTitles=(char*)xf_malloc(HistoryCount*(HISTORY_TITLESIZE+2));
       if(BufferTitles)
       {
-        for (I=0; I < HISTORY_COUNT; I++)
+        for (I=0; I < HistoryCount; I++)
         {
           strcpy(BufferTitles+SizeTitles,LastStr[I].Title);
           SizeTitles+=strlen(LastStr[I].Title)+1;
@@ -343,8 +355,8 @@ BOOL History::SaveHistory()
 
     if (SaveType)
     {
-      memset(TypesBuffer,0,sizeof(TypesBuffer));
-      for (SizeTypes=0; SizeTypes < HISTORY_COUNT; SizeTypes++)
+      memset(TypesBuffer,0,HistoryCount+1);
+      for (SizeTypes=0; SizeTypes < HistoryCount; SizeTypes++)
         TypesBuffer[SizeTypes]=LastStr[SizeTypes].Type+'0';
       TypesBuffer[SizeTypes++]=0;
     }
@@ -412,7 +424,7 @@ BOOL History::ReadHistory()
   {
     StrPos=0;
     Buf=Buffer;
-    while ((int)Size > 1 && StrPos < HISTORY_COUNT)
+    while ((int)Size > 1 && StrPos < HistoryCount)
     {
       Length=strlen(Buf)+1;
       if((LastStr[StrPos].Name=(char*)xf_malloc(Length)) == NULL)
@@ -449,7 +461,7 @@ BOOL History::ReadHistory()
     if(RegQueryValueEx(hKey,"Titles",0,&Type,(unsigned char *)Buffer,&Size)==ERROR_SUCCESS)
     {
       StrPos=0;
-      while ((int)Size > 1 && StrPos < HISTORY_COUNT)
+      while ((int)Size > 1 && StrPos < HistoryCount)
       {
         strncpy(LastStr[StrPos].Title,Buf,sizeof(LastStr[StrPos].Title)-1);
         ++StrPos;
@@ -470,14 +482,16 @@ BOOL History::ReadHistory()
 
   if (NeedReadType)
   {
-    unsigned char TypesBuffer[HISTORY_COUNT+1];
-    Size=sizeof(TypesBuffer);
-    memset(TypesBuffer,0,Size);
-    if(RegQueryValueEx(hKey,"Types",0,&Type,(unsigned char *)TypesBuffer,&Size)==ERROR_SUCCESS)
+    unsigned char *TypesBuffer;
+    TypesBuffer=(unsigned char *)alloca(HistoryCount+1);
+    if(TypesBuffer)
+      memset(TypesBuffer,0,Size);
+    Size=HistoryCount+1;
+    if(TypesBuffer && RegQueryValueEx(hKey,"Types",0,&Type,(unsigned char *)TypesBuffer,&Size)==ERROR_SUCCESS)
     {
       StrPos=0;
       Buf=(char *)TypesBuffer;
-      while (isdigit(*Buf) && StrPos < HISTORY_COUNT)
+      while (isdigit(*Buf) && StrPos < HistoryCount)
       {
         LastStr[StrPos++].Type=*Buf-'0';
         Buf++;
@@ -533,9 +547,9 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
       HistoryMenu.SetPosition(-1,-1,0,0);
 
       // заполнение пунктов меню
-      for (CurCmd=LastPtr+1, I=0; I < HISTORY_COUNT-1; I++, CurCmd++)
+      for (CurCmd=LastPtr+1, I=0; I < HistoryCount-1; I++, CurCmd++)
       {
-        CurCmd%=HISTORY_COUNT;
+        CurCmd%=HistoryCount;
 
         if (LastStr[CurCmd].Name && *LastStr[CurCmd].Name)
         {
@@ -683,7 +697,7 @@ void History::GetPrev(char *Str,int StrLength)
 {
   do
   {
-    unsigned int NewPtr=(CurLastPtr-1)%(HISTORY_COUNT);
+    unsigned int NewPtr=(CurLastPtr-1)%HistoryCount;
     if (NewPtr!=LastPtr)
       CurLastPtr=NewPtr;
     else
@@ -702,7 +716,7 @@ void History::GetNext(char *Str,int StrLength)
   do
   {
     if (CurLastPtr!=LastPtr)
-      CurLastPtr=(CurLastPtr+1)%(HISTORY_COUNT);
+      CurLastPtr=(CurLastPtr+1)%HistoryCount;
     else
       break;
   } while (!LastStr[CurLastPtr].Name || *LastStr[CurLastPtr].Name==0);
@@ -720,13 +734,13 @@ void History::GetSimilar(char *Str,int LastCmdPartLength)
     Length=LastCmdPartLength;
   if (LastCmdPartLength==-1)
     LastSimilar=0;
-  for (int I=1;I<HISTORY_COUNT;I++)
+  for (int I=1;I<HistoryCount;I++)
   {
-    int Pos=(LastPtr-LastSimilar-I)%(HISTORY_COUNT);
+    int Pos=(LastPtr-LastSimilar-I)%HistoryCount;
     char *Name=LastStr[Pos].Name;
     if (Name && *Name && LocalStrnicmp(Str,Name,Length)==0 && strcmp(Str,Name)!=0)
     {
-      int NewSimilar=(LastPtr-Pos)%(HISTORY_COUNT);
+      int NewSimilar=(LastPtr-Pos)%HistoryCount;
       if (NewSimilar<=LastSimilar && ReturnSimilarTemplate)
       {
         ReturnSimilarTemplate=FALSE;

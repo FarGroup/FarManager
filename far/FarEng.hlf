@@ -1247,7 +1247,7 @@ any of the following condition sets:
 
      - one or several ~file masks~@FileMasks@;
 
-     - min and max file size, given in bytes or kilo bytes;
+     - min and max file size;
 
      - starting and ending file date/time, including creation,
        last modification and last access dates/times;
@@ -1559,6 +1559,15 @@ $ #Special symbols#
 
              #!?$<history>$<title>?<init>!#
 
+             for example:
+
+             grep !?#$GrepHist$#Search for:?! !?In:?*.*!|far.exe -v -
+
+             In <title> and <init> the usage of other meta-symbols is
+             allowed by enclosing them in brackets.
+
+             (e.g. grep !?Find in (!.!):?! |far.exe -v -)
+
     #!###       "!##" modifier specified before a file association
              symbol forces it (and all the following characters)
              to refer to the passive panel (see note 4).
@@ -1849,6 +1858,10 @@ $ #Dialog settings#
                           the entire text, as if Del had been
                           pressed.
 
+  #Mouse click outside#     Right/left mouse click outside a dialog
+  #a dialog closes it#      closes the dialog (see ~Miscellaneous~@MiscCmd@).
+                          This option allows to switch off this
+                          functionality.
 @Viewer
 $ #Internal viewer#
    Viewer commands
@@ -2237,8 +2250,8 @@ not for plugins).
 
 @DisconnectDrive
 $ #Disconnect network drive#
-  You can disconnect a network drive by pressing #Del# in the ~Change Drive
-menu~@DriveDlg@.
+  You can disconnect a network drive by pressing #Del# in the
+~Change Drive menu~@DriveDlg@.
 
   The option #[x] Reconnect at logon# is enabled only for permanently
 connected network drives.

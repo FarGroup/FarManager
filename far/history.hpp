@@ -7,10 +7,12 @@ history.hpp
 
 */
 
-/* Revision: 1.11 25.04.2002 $ */
+/* Revision: 1.12 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + HistoryCount - размер истории
   25.04.2002 IS
     ! внедрение const
   18.03.2002 SVS
@@ -67,6 +69,7 @@ class History
     unsigned int LastPtr0,CurLastPtr0;
     int EnableAdd,RemoveDups,KeepSelectedPos;
     int TypeHistory;
+    int HistoryCount;
     const int *EnableSave;
     int SaveTitle,SaveType;
     int LastSimilar;
@@ -79,7 +82,7 @@ class History
     BOOL EqualType(int Type1, int Type2);
 
   public:
-    History(int TypeHistory,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
+    History(int TypeHistory,int HistoryCount,const char *RegKey,const int *EnableSave,int SaveTitle,int SaveType);
    ~History();
 
   public:

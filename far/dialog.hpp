@@ -10,10 +10,12 @@ dialog.hpp
 
 */
 
-/* Revision: 1.71 23.10.2003 $ */
+/* Revision: 1.72 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + DMOUSEBUTTON_??? - на какие кнопки реагировать
   23.10.2003 SVS
     ! Dialog::GetDialogTitle возвращает const
     + CRITICAL_SECTION CSection
@@ -275,6 +277,9 @@ Modify:
 // Флаги для функции ConvertItem
 #define CVTITEM_TOPLUGIN    0
 #define CVTITEM_FROMPLUGIN  1
+
+#define DMOUSEBUTTON_LEFT   0x00000001
+#define DMOUSEBUTTON_RIGHT  0x00000002
 
 enum {
   DLGEDITLILE_CLEARSELONKILLFOCUS = 0x00000001, // управляет выделением блока при потере фокуса ввода

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.51 06.06.2003 $ */
+/* Revision: 1.52 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + новый параметр у конструктора History
   06.06.2003 SVS
     + сброс кэша SID`ов
   22.04.2003 SVS
@@ -178,9 +180,9 @@ ControlObject::ControlObject()
   CmdLine=new CommandLine;
   /* IS $ */
 
-  CmdHistory=new History(HISTORYTYPE_CMD,"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
-  FolderHistory=new History(HISTORYTYPE_FOLDER,"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
-  ViewHistory=new History(HISTORYTYPE_VIEW,"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
+  CmdHistory=new History(HISTORYTYPE_CMD,Opt.HistoryCount,"SavedHistory",&Opt.SaveHistory,FALSE,FALSE);
+  FolderHistory=new History(HISTORYTYPE_FOLDER,Opt.FoldersHistoryCount,"SavedFolderHistory",&Opt.SaveFoldersHistory,FALSE,TRUE);
+  ViewHistory=new History(HISTORYTYPE_VIEW,Opt.ViewHistoryCount,"SavedViewHistory",&Opt.SaveViewHistory,TRUE,TRUE);
 
   FolderHistory->SetAddMode(TRUE,2,TRUE);
   ViewHistory->SetAddMode(TRUE,Opt.FlagPosixSemantics?1:2,TRUE);

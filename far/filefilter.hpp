@@ -7,10 +7,12 @@ filefilter.hpp
 
 */
 
-/* Revision: 1.01 11.10.2003 $ */
+/* Revision: 1.02 07.12.2003 $ */
 
 /*
 Modify:
+  07.12.2003 SVS
+    ! SIZE_COUNT удален - будет юзаться FSIZE_IN_LAST из farconst.hpp
   11.10.2003 KM
     + CFileMask FilterMask - сохраним скомпилированную маску здесь
       для ускорения операции фильтрации файлов.
@@ -22,7 +24,6 @@ Modify:
 #include "struct.hpp"
 #include "CFileMask.hpp"
 
-#define SIZE_COUNT  2
 #define DATE_COUNT  3
 
 class FileFilter

@@ -5,10 +5,12 @@ fnparce.cpp
 
 */
 
-/* Revision: 1.18 28.10.2003 $ */
+/* Revision: 1.19 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    ! введение операторных скобок
   28.10.2003 SVS
     ! немного опитимизации + конструкци€ "!?$<history>$<title>?<init>!"
   05.09.2003 SVS
@@ -95,7 +97,13 @@ struct TSubstData
 };
 
 
-static int ReplaceVariables(char *Str);
+static int IsReplaceVariable(char *str,int *scr = NULL,
+                                int *end = NULL,
+                                int *beg_scr_break = NULL,
+                                int *end_scr_break = NULL,
+                                int *beg_txt_break = NULL,
+                                int *end_txt_break = NULL);
+static int ReplaceVariables(char *Str,struct TSubstData *PSubstData);
 static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *TempStr,int MaxTempStrSize);
 
 // Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
@@ -259,6 +267,12 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   }
 
   // !@  »м€ файла, содержащего имена помеченных файлов
+  //<Skeleton 2003 10 25>
+  // !$!      »м€ файла, содержащего короткие имена помеченных файлов
+  // Ќиже идет совмещение кода дл€ разбора как !@! так и !$!
+  //¬ообще-то (по исторической справедливости как бы) - в !$! нужно выбрасывать модификаторы Q и A
+  // Ќо нафиг нада:)
+  //<Skeleton>
   if (strncmp(CurStr,"!@",2)==0
         //<Skeleton 2003 10 25>
         || (strncmp(CurStr,"!$",2)==0))
@@ -423,6 +437,10 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
   }
 
   // !\       “екущий путь
+  //<Skeleton 2003 10 26>
+  // !/        ороткое им€ текущего пути
+  // Ќиже идет совмещение кода дл€ разбора как !\ так и !/
+  //<Skeleton>
   if (strncmp(CurStr,"!\\",2)==0
      //<Skeleton 2003 10 26>
      || (strncmp(CurStr,"!/",2)==0))
@@ -548,9 +566,24 @@ static char *_SubstFileName(char *CurStr,struct TSubstData *PSubstData,char *Tmp
     }
     CurStr=Ptr;
 #else
-    char *NewCurStr=strchr(CurStr+2,'!')+1;
-    strncat(TmpStr,CurStr,NewCurStr-CurStr);
-    CurStr=NewCurStr;
+    //<Skeleton 2003 11 22>
+    //char *NewCurStr=strchr(CurStr+2,'!')+1;
+    //strncat(TmpStr,CurStr,NewCurStr-CurStr);
+    //CurStr=NewCurStr;
+
+    int j;
+    int i = IsReplaceVariable(CurStr);
+    if (i == -1)  // if bad format string
+    {             // skip 1 char
+      j = 1;
+    }
+    else
+    {
+      j = i + 1;
+    }
+    strncat(TmpStr,CurStr,j);
+    CurStr += j;
+    //<Skeleton>
 #endif
     //_SVS(SysLog("!? TmpStr=[%s]",TmpStr));
     return CurStr;
@@ -593,6 +626,10 @@ int SubstFileName(char *Str,            // результирующа€ строка
   if(!strchr(Str,'!'))
     return FALSE;
   /* SVS $ */
+
+  //<Skeleton 2003 11 18>
+  char TmpStr2[10240];
+  //<Skeleton>
 
   struct TSubstData SubstData, *PSubstData=&SubstData;
   char *ChPtr;
@@ -654,7 +691,18 @@ int SubstFileName(char *Str,            // результирующа€ строка
 
   //_SVS(int Pass=1);
 
-  CurStr=Str;
+  //<Skeleton 2003 11 18>
+  if (strlen(Str) <= sizeof(TmpStr2)-1)       //we need TmpStr2  because need spase for replace !??!
+    strcpy(TmpStr2,Str);
+  else
+    strncpy(TmpStr2,Str,sizeof(TmpStr2)-1);
+
+  if (!IgnoreInput)
+    ReplaceVariables(TmpStr2,PSubstData);
+
+  //CurStr=Str;
+  CurStr=TmpStr2;
+
   while (*CurStr)
   {
     //_SVS(SysLog("***** Pass=%d",Pass));
@@ -668,15 +716,18 @@ int SubstFileName(char *Str,            // результирующа€ строка
     //_SVS(++Pass);
   }
 
-  if (!IgnoreInput)
-    ReplaceVariables(TmpStr);
+  //перенесем разбор полета несколько вперед предыдущего цикла while
+  //if (!IgnoreInput)
+  //  ReplaceVariables(TmpStr);
+  //<Skeleton>
+
   strncpy(Str,TmpStr,StrSize-1);
 
   //_SVS(SysLog("[%s]\n",Str));
   return(PSubstData->PreserveLFN);
 }
 
-int ReplaceVariables(char *Str)
+int ReplaceVariables(char *Str,struct TSubstData *PSubstData)
 {
   const int MaxSize=20;
   char *StartStr=Str;
@@ -687,7 +738,7 @@ int ReplaceVariables(char *Str)
 
   struct DialogItem *DlgData=NULL;
   int DlgSize=0;
-  int StrPos[128],StrPosSize=0;
+  int StrPos[128],StrEndPos[128],StrPosSize=0;
 
   while (*Str && DlgSize<MaxSize)
   {
@@ -695,9 +746,25 @@ int ReplaceVariables(char *Str)
       continue;
     if (*(Str++)!='?')
       continue;
-    if (strchr(Str,'!')==NULL)
+
+    //<Skeleton 2003 11 20>
+    //if (strchr(Str,'!')==NULL)  //<---------теперича все не просто
+    //  return 0;                 // придетс€ сразу определить наличие операторных скобок
+                                  // запомнить их позицию
+    int scr,end, beg_t,end_t,beg_s,end_s;
+    scr = end = beg_t = end_t = beg_s = end_s = 0;
+    int ii = IsReplaceVariable(Str-2,&scr,&end,&beg_t,&end_t,&beg_s,&end_s);
+    if (ii == -1)
+    {
+      ::free(DlgData);
+      *StartStr=0;
       return 0;
+    }
+
+    StrEndPos[StrPosSize] = (Str - StartStr - 2) + ii ; //+1
     StrPos[StrPosSize++]=Str-StartStr-2;
+    //<Skeleton>
+
     DlgData=(struct DialogItem *)xf_realloc(DlgData,(DlgSize+2)*sizeof(*DlgData));
     memset(&DlgData[DlgSize],0,2*sizeof(*DlgData));
     DlgData[DlgSize].Type=DI_TEXT;
@@ -723,21 +790,34 @@ int ReplaceVariables(char *Str)
       DlgData[DlgSize+1].Focus=1;
       DlgData[DlgSize+1].DefaultButton=1;
     }
+
     char Title[256];
-    strncpy(Title,Str,sizeof(Title)-1);
-    *strchr(Title,'!')=0;
-    Str+=strlen(Title)+1;
-    char *SrcText=strchr(Title,'?');
-    if (SrcText!=NULL)
-    {
-      *SrcText=0;
-      strncpy(DlgData[DlgSize+1].Data,SrcText+1,sizeof(DlgData[DlgSize+1].Data)-1);
-    }
-    //<Skeleton 2003 10 26>
+    //<Skeleton 2003 11 22>
+    //strncpy(Title,Str,sizeof(Title)-1);
+    //*strchr(Title,'!')=0;
+    //Str+=strlen(Title)+1;
+    //char *SrcText=strchr(Title,'?');
+    //if (SrcText!=NULL)
+    //{
+    //  *SrcText=0;
+    //  strncpy(DlgData[DlgSize+1].Data.Data,SrcText+1,sizeof(DlgData[DlgSize+1].Data.Data)-1);
+    //}
+
+    char Title2[512];
+    char Title3[512];
+    char Txt[512];
+
+    // «аполн€ем название пол€ ввода заданным шаблоном - если есть
+    *Title = *Title2 = *Title3 = 0;
+
+    if (scr > 2)          // if between !? and ? exist some
+      strncat(Title,Str,scr-2);
+
     //strcpy(DlgData[DlgSize].Data.Data,Title);
+
     char *t = Title;
 
-    if (lstrlen(Title)>0)
+    if (strlen(Title)>0)
     {
       if (Title[0] == '$')        // begin of history name
       {
@@ -752,8 +832,104 @@ int ReplaceVariables(char *Str)
       }
     }
 
-    strcpy(DlgData[DlgSize].Data,t);
+    char *Title1 = NULL;
+    Title1 = (char *)xf_realloc(Title1,10240);
+    char *Txt1 = NULL;
+    Txt1 = (char *)xf_realloc(Txt1,10240);
+    char * tmp_t = NULL;
+    tmp_t = (char *)xf_realloc(tmp_t,10240);
+
+    *Title1 = 0;
+    *Txt1 = 0;
+    *tmp_t = 0;
+
+
+    if ((beg_t == -1) || (end_t == -1))
+    {
+      //
+    }
+    else if ((end_t - beg_t) > 1) //if between ( and ) exist some
+    {
+      int hist_correct = 0;
+      if (t != Title) // Title contain name of history
+        hist_correct = t - Title; //offset for jump over history
+
+      strncat(Title1,Title+hist_correct,beg_t-2-hist_correct);   // !?$zz$xxxx(fffff)ddddd
+                                                                 //       ^  ^
+
+      strncat(Title2,Title+(end_t-2)+1,scr-end_t-1); // !?$zz$xxxx(fffff)ddddd
+                                                     //                  ^   ^
+
+      strncat(Title3,Title+(beg_t-2)+1,end_t-beg_t-1);  // !?$zz$xxxx(ffffff)ddddd
+                                                        //            ^    ^
+      char *CurStr= Title3;
+      while (*CurStr)
+      {
+        if (*CurStr == '!')
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-strlen(tmp_t)-1);
+        else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
+        {
+          strncat(tmp_t,CurStr,1);
+          CurStr++;
+        }
+      }
+
+      strcat(Title1,tmp_t);
+      strcat(Title1,Title2);
+      t = Title1;
+    }
+    //do it - типа здесь все уже раскрыто и преобразовано
+    strncpy(DlgData[DlgSize].Data,t,sizeof(DlgData[DlgSize].Data)-1);
+
+    // «аполн€ем поле ввода заданным шаблоном - если есть
+    char *s = Txt;
+    *Txt = 0;
+    *Title2 = 0;
+    *Title3 = 0;
+    *tmp_t = 0;
+
+    if ((end-scr) > 1)  //if between ? and ! exist some
+      strncat(Txt,(Str-2)+scr+1,(end-scr)-1);
+
+    if ((beg_s == -1) || (end_s == -1))
+    {
+      //
+    }
+    else if ((end_s - beg_s) > 1) //if between ( and ) exist some
+    {
+      strncat(Txt1,Txt,beg_s-scr-1);   // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
+                                       //                        ^  ^
+
+      strncat(Title2,Txt+(end_s-scr),end-end_s-1); // !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
+                                                   //                                  ^   ^
+
+      strncat(Title3,Txt+(beg_s-scr),end_s-beg_s-1);  // !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
+                                                      //                              ^  ^
+
+      char *CurStr= Title3;
+      while (*CurStr)
+      {
+        if (*CurStr == '!')
+          CurStr=_SubstFileName(CurStr,PSubstData,tmp_t,10240-strlen(tmp_t)-1);
+        else                                           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ как способ проверки!
+        {
+          strncat(tmp_t,CurStr,1);
+          CurStr++;
+        }
+      }
+
+      strcat(Txt1,tmp_t);
+      strcat(Txt1,Title2);
+      s = Txt1;
+    }
+    strncpy(DlgData[DlgSize+1].Data,s,sizeof(DlgData[DlgSize+1].Data)-1);
+
+
+    xf_free(Title1);
+    xf_free(Txt1);
+    xf_free(tmp_t);
     //<Skeleton>
+
     /* $ 01.08.2000 SVS
        "расшир€ем" заголовок
     */
@@ -792,16 +968,24 @@ int ReplaceVariables(char *Str)
   for (Str=StartStr;*Str!=0;Str++)
   {
     int Replace=-1;
+    //<Skeleton 2003 11 22>
+    int end_pos;
     for (int I=0;I<StrPosSize;I++)
       if (Str-StartStr==StrPos[I])
       {
         Replace=I;
+        end_pos = StrEndPos[I];
         break;
       }
+    //<Skeleton>
     if (Replace!=-1)
     {
       strcat(TmpStr,DlgData[Replace*2+1].Data);
-      Str=strchr(Str+1,'!');
+
+      //<Skeleton 2003 11 20>
+      //Str=strchr(Str+1,'!');
+      Str = StartStr+end_pos;
+      //<Skeleton>
     }
     else
       strncat(TmpStr,Str,1);
@@ -880,4 +1064,160 @@ int Panel::MakeListFile(char *ListFileName,int ShortNames,char *Modifers)
     return(FALSE);
   }
   return(TRUE);
+}
+
+static int IsReplaceVariable(char *str,int *scr,
+                                int *end,
+                                int *beg_scr_break,
+                                int *end_scr_break,
+                                int *beg_txt_break,
+                                int *end_txt_break)
+// все очень сложно - посл-иe 4 указател€ - это смещени€ от str
+// начало скобок в строке описани€, конец этих скобок, начало скобок в строке начального заполнени€, ну и соотв конец.
+// ¬ообще при простом вызове (который € собираюсь юзать) это выгл€дит просто:
+// i = IsReplaceVariable(str) - ведь нам надо только провер€ть семантику скобок и вс€ких ?!
+// где  i - тот прыжок, который надо совершить, чтоб прыгнуть на конец ! структуры !??!
+{
+  char *s      = str;
+  char *scrtxt = str;
+
+  int count_scob = 0;
+  int second_count_scob = 0;
+
+  bool was_quest_and_asterics = false; //  ?!
+  bool was_quest = false;         //  ?
+  bool was_asterics = false;      //  !
+
+  bool in_firstpart_was_scob = false;
+  char *beg_firstpart_scob = NULL;
+  char *end_firstpart_scob = NULL;
+
+  bool in_secondpart_was_scob = false;
+  char *beg_secondpart_scob = NULL;
+  char *end_secondpart_scob = NULL;
+
+  if (!s)
+    return -1;
+
+  if (strncmp(s,"!?",2) == 0)
+    s = s + 2;
+  else
+    return -1;
+  //
+  while (true)    // analize from !? to ?
+  {
+    if (!*s)
+      return -1;
+
+    if (*s == '(')
+    {
+      if (in_firstpart_was_scob)
+      {
+        //return -1;
+      }
+      else
+      {
+        in_firstpart_was_scob = true;
+        beg_firstpart_scob = s;     //remember wher is first break
+      }
+      count_scob += 1;
+    }
+    else if (*s == ')')
+    {
+      count_scob -= 1;
+      if (count_scob == 0)
+      {
+        if (!end_firstpart_scob)
+          end_firstpart_scob = s;   //remember wher is last break
+      }
+      else if (count_scob < 0)
+        return -1;
+    }
+    else if ((*s == '?') && ((!beg_firstpart_scob && !end_firstpart_scob) || (beg_firstpart_scob && end_firstpart_scob)))
+    {
+      was_quest = true;
+    }
+
+    s++;
+    if (was_quest) break;
+  }
+  if (count_scob != 0) return -1;
+  scrtxt = s - 1; //remember s for return
+
+  while (true)    //analize from ? or !
+  {
+    if (!*s)
+      return -1;
+
+    if (*s == '(')
+    {
+      if (in_secondpart_was_scob)
+      {
+        //return -1;
+      }
+      else
+      {
+        in_secondpart_was_scob = true;
+        beg_secondpart_scob = s;    //remember wher is first break
+      }
+      second_count_scob += 1;
+    }
+    else if (*s == ')')
+    {
+      second_count_scob -= 1;
+      if (second_count_scob == 0)
+      {
+        if (!end_secondpart_scob)
+          end_secondpart_scob = s;  //remember wher is last break
+      }
+      else if (second_count_scob < 0)
+        return -1;
+    }
+    else if ((*s == '!') && ((!beg_secondpart_scob && !end_secondpart_scob) || (beg_secondpart_scob && end_secondpart_scob)))
+    {
+      was_asterics = true;
+    }
+
+    s++;
+    if (was_asterics) break;
+  }
+  if (second_count_scob != 0) return -1;
+
+  //
+  if (scr != NULL)
+    *scr = scrtxt - str;
+  if (end != NULL)
+    *end = (s - str) - 1;
+
+  if (in_firstpart_was_scob)
+  {
+    if (beg_scr_break != NULL)
+      *beg_scr_break = beg_firstpart_scob - str;
+    if (end_scr_break != NULL)
+      *end_scr_break = end_firstpart_scob - str;
+  }
+  else
+  {
+    if (beg_scr_break != NULL)
+      *beg_scr_break = -1;
+    if (end_scr_break != NULL)
+      *end_scr_break = -1;
+  }
+
+  if (in_secondpart_was_scob)
+  {
+    if (beg_txt_break != NULL)
+      *beg_txt_break = beg_secondpart_scob - str;
+    if (end_txt_break != NULL)
+      *end_txt_break = end_secondpart_scob - str;
+  }
+  else
+  {
+    if (beg_txt_break != NULL)
+      *beg_txt_break = -1;
+    if (end_txt_break != NULL)
+      *end_txt_break = -1;
+  }
+
+  return ((s - str) - 1);
 }

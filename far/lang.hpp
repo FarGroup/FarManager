@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.136 11.11.2003 $ */
+/* Revision: 1.137 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + MFileFilterReset, MConfigDialogsMouseButton, MFileFilterSizeInMBytes, MFileFilterSizeInGBytes
   11.11.2003 SVS
     + MNewFileName
   22.10.2003 SVS
@@ -568,6 +570,7 @@ enum
   MConfigDialogsEditBlock,
   MConfigDialogsAutoComplete,
   MConfigDialogsEULBsClear,
+  MConfigDialogsMouseButton,
 
   MViewConfigTitle,
   MViewConfigExternal,
@@ -2205,6 +2208,8 @@ enum
   MFileFilterSize,
   MFileFilterSizeInBytes,
   MFileFilterSizeInKBytes,
+  MFileFilterSizeInMBytes,
+  MFileFilterSizeInGBytes,
   MFileFilterSizeFrom,
   MFileFilterSizeTo,
   MFileFilterDate,
@@ -2223,6 +2228,7 @@ enum
   MFileFilterAttrC,
   MFileFilterAttrE,
   MFileFilterOk,
+  MFileFilterReset,
   MFileFilterCancel,
 
   MNewFileName,

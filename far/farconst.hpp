@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.76 09.10.2003 $ */
+/* Revision: 1.77 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    ! перечисления FSizeType и FDateType переехали из struct.hpp в farconst.hpp
   09.10.2003 SVS
     + APIS2ANSI и APIS2OEM для SetFileApisTo()
   04.10.2003 SVS
@@ -466,5 +468,24 @@ enum{
   APIS2OEM,
   APIS2ANSI,
 };
+
+// for FileFilter
+enum FDateType
+{
+  FDATE_MODIFIED=0,
+  FDATE_CREATED,
+  FDATE_OPENED,
+};
+
+enum FSizeType
+{
+  FSIZE_INBYTES=0,
+  FSIZE_INKBYTES,
+  FSIZE_INMBYTES,
+  FSIZE_INGBYTES,
+
+  FSIZE_IN_LAST, // всегда последний !!!
+};
+
 
 #endif // __FARCONST_HPP__

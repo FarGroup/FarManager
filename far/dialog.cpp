@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.295 13.11.2003 $ */
+/* Revision: 1.296 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    - BugZ#997 - TechInfo. ќтключение воспри€тие правой/левой кнопки мышы как команд закрыти€ окна диалога
+    - некорректно работал DM_SETCHECK (дл€ прорисовки)
+    + автоматизаци€ дл€ DM_SETCHECK
   13.11.2003 SVS
     ! ¬ременно исключим KEY_MACRO_SELECTED дл€ DI_LISTBOX
   24.10.2003 SVS
@@ -3841,10 +3845,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if(DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc((HANDLE)this,DN_MOUSECLICK,-1,(long)MouseEvent))
     {
 //      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
-      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed)
+      if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
         ProcessKey(KEY_ESC);
 //      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && ScreenObject::CaptureMouseObject)
-      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed)
+      else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
         ProcessKey(KEY_ENTER);
     }
 
@@ -4798,14 +4802,14 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
       return FALSE;
     sprintf(RegKey,fmtSavedDialogHistory,(char*)HistoryName);
     // просмотр пунктов истории
-    for (I=0; I < HISTORY_COUNT; I++)
+    for (I=0; I < Opt.DialogsHistoryCount; I++)
     {
       itoa(I,PHisLine,10);
       GetRegKey(RegKey,HisLine,Str,"",MaxLen);
       if (!LocalStrnicmp(Str,FindStr,LenFindStr))
         break;
     }
-    if (I == HISTORY_COUNT)
+    if (I == Opt.DialogsHistoryCount)
     {
       xf_free(Str);
       return FALSE;
@@ -5005,7 +5009,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
       HistoryMenu.DeleteItems();
 
       // заполнение пунктов меню
-      for (ItemsCount=Dest=I=0; I < HISTORY_COUNT; I++)
+      for (ItemsCount=Dest=I=0; I < Opt.DialogsHistoryCount; I++)
       {
         memset(&HistoryItem,0,sizeof(HistoryItem));
 
@@ -5082,7 +5086,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
           {
             HistoryMenu.Hide();
             // удал€ем из реестра все.
-            for (I=0; I < HISTORY_COUNT;I++)
+            for (I=0; I < Opt.DialogsHistoryCount;I++)
             {
               itoa(I,PHisLocked,10);
               DeleteRegValue(RegKey,HisLocked);
@@ -5124,7 +5128,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
             HistoryMenu.Hide();
 
             // удал€ем из реестра
-            for (I=0; I < HISTORY_COUNT;I++)
+            for (I=0; I < Opt.DialogsHistoryCount;I++)
             {
               itoa(I,PHisLocked,10);
               DeleteRegValue(RegKey,HisLocked);
@@ -5202,10 +5206,6 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
   int AddLine=-1, I, J, Locked, HistCount, LockedCount=0;
   char Str[MAXSIZESTRING];
   char RegKey[NM];
-  struct HistArray{
-    char *Str;
-    int  Locked;
-  } His[HISTORY_COUNT],HisTemp[HISTORY_COUNT+1];
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
 
@@ -5215,11 +5215,22 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
     return FALSE;
   }
 
-  memset(His,0,sizeof(His));
-  memset(HisTemp,0,sizeof(HisTemp));
+  struct HistArray{
+    char *Str;
+    int  Locked;
+  } *His,*HisTemp;
+
+  His=(struct HistArray*)alloca(Opt.DialogsHistoryCount*sizeof(struct HistArray));
+  HisTemp=(struct HistArray*)alloca((Opt.DialogsHistoryCount+1)*sizeof(struct HistArray));
+
+  if(!His || !HisTemp)
+    return FALSE;
+
+  memset(His,0,Opt.DialogsHistoryCount*sizeof(struct HistArray));
+  memset(HisTemp,0,(Opt.DialogsHistoryCount+1)*sizeof(struct HistArray));
 
   // Read content & delete
-  for (HistCount=I=0; I < HISTORY_COUNT; I++)
+  for (HistCount=I=0; I < Opt.DialogsHistoryCount; I++)
   {
     itoa(I,PHisLocked,10);
     GetRegKey(RegKey,HisLocked,Locked,0);
@@ -5250,11 +5261,11 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
   /*
     «десь у нас:
       если AddLine == -1, то такой строки нету в истории
-      если LockedCount == HISTORY_COUNT, все залочено!
+      если LockedCount == Opt.DialogsHistoryCount, все залочено!
   */
 
   // ј можно ли добавл€ть то?...
-  if(LockedCount == HISTORY_COUNT && AddLine == -1)
+  if(LockedCount == Opt.DialogsHistoryCount && AddLine == -1)
     J=0;
   else // ...не только можно, но и нужно!
   {
@@ -5301,12 +5312,12 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
   }
 
   // исключаем дубликаты
-  for (I=0; I < HISTORY_COUNT; I++)
+  for (I=0; I < Opt.DialogsHistoryCount; I++)
   {
     if(HisTemp[I].Str)
     {
       // поиск среди незалоченных
-      for(J=I+1; J < HISTORY_COUNT; ++J)
+      for(J=I+1; J < Opt.DialogsHistoryCount; ++J)
       {
         if(HisTemp[J].Str)
         {
@@ -5322,7 +5333,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
   // здесь в HisTemp сидит отсортированный список
 
   // Save History
-  for (J=I=0; I < HISTORY_COUNT; I++)
+  for (J=I=0; I < Opt.DialogsHistoryCount; I++)
   {
     if(HisTemp[I].Str)
     {
@@ -5339,7 +5350,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
   /* $ 27.11.2001 DJ
      не забудем освободить оставшуюс€ пам€ть
   */
-  for (I=0; I<HISTORY_COUNT; I++)
+  for (I=0; I<Opt.DialogsHistoryCount; I++)
     if (His[I].Str)
       xf_free(His[I].Str);
   /* DJ $ */
@@ -6731,8 +6742,24 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         else
           Param2&=1;
         CurItem->Selected=Param2;
-        if(CurItem->Selected != (int)Param2 && Dlg->DialogMode.Check(DMODE_SHOW))
+
+        if(Selected != (int)Param2 && Dlg->DialogMode.Check(DMODE_SHOW))
         {
+          // автоматизаци€
+          if((CurItem->Flags&DIF_AUTOMATION) && CurItem->AutoCount && CurItem->AutoPtr)
+          {
+            DialogItemAutomation* Auto=CurItem->AutoPtr;
+            Param2%=3;
+            for(I=0; I < CurItem->AutoCount; ++I, ++Auto)
+            {
+              DWORD NewFlags=Dlg->Item[Auto->ID].Flags;
+              Dlg->Item[Auto->ID].Flags=(NewFlags&(~Auto->Flags[Param2][1]))|Auto->Flags[Param2][0];
+              // здесь намеренно в обработчик не посылаютс€ эвенты об изменении
+              // состо€ни€...
+            }
+            Param1=-1;
+          }
+
           Dlg->ShowDialog(Param1);
           ScrBuf.Flush();
         }

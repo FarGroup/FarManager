@@ -193,6 +193,7 @@
 "&Persistent blocks in edit controls"
 "&AutoComplete in edit controls"
 "&Backspace deletes unchanged text"
+"Mouse click &outside a dialog closes it"
 
 "Viewer"
 "External viewer"
@@ -1886,6 +1887,8 @@
 "File &size"
 "In bytes"
 "In kilobytes"
+"In megabytes"
+"In gigabytes"
 "&Greater than or equal to:"
 "&Less than or equal to:"
 "File &date"
@@ -1904,6 +1907,7 @@
 "&Compressed"
 "&Encrypted"
 "&Ok"
+"R&eset"
 "Cancel"
 
 "?New File?"

@@ -7,10 +7,16 @@ struct.hpp
 
 */
 
-/* Revision: 1.111 29.10.2003 $ */
+/* Revision: 1.112 18.12.2003 $ */
 
 /*
 Modify:
+  18.12.2003 SVS
+    + DialogsOptions.MouseButton - Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+      Бит есть - функция работает
+    ! перечисления FSizeType и FDateType переехали из struct.hpp в farconst.hpp
+    + Opt.HistoryCount, FoldersHistoryCount, ViewHistoryCount, DialogsHistoryCount.
+    + Opt.CASRule
   29.10.2003 SVS
     + LoadPluginsOptions.SilentLoadPlugin - тихий режим загрузки плагинов
   14.10.2003 SVS
@@ -319,19 +325,6 @@ Modify:
 
 #include "farconst.hpp"
 
-enum FDateType
-{
-  FDATE_MODIFIED=0,
-  FDATE_CREATED,
-  FDATE_OPENED,
-};
-
-enum FSizeType
-{
-  FSIZE_INBYTES=0,
-  FSIZE_INKBYTES,
-};
-
 struct FilterParams
 {
   struct
@@ -512,6 +505,7 @@ struct DialogsOptions{
   int   EULBsClear;         // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
   int   SelectFromHistory;  // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
   DWORD EditLine;           // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
+  int   MouseButton;        // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
 };
 
 struct NowellOptions{
@@ -674,6 +668,11 @@ struct Options
   int SetupArgv; // количество каталогов в комюстроке ФАРа
   int ChangeDriveMode;
   int ChangeDriveDisconnetMode;
+
+  int HistoryCount;
+  int FoldersHistoryCount;
+  int ViewHistoryCount;
+  int DialogsHistoryCount;
 
   struct FindFileOptions FindOpt;
 
@@ -879,6 +878,7 @@ struct Options
   int ExecuteUseAppPath;
   DWORD PluginMaxReadData;
   int UseNumPad;
+  int CASRule;
   int UseUnicodeConsole;
   int ScanJunction;
 
