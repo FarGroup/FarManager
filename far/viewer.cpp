@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.94 06.05.2002 $ */
+/* Revision: 1.95 11.05.2002 $ */
 
 /*
 Modify:
+  11.05.2002 SVS
+    - Bug: viewer find. во вьювере начинаем набирать текст, появляется окно
+      поиска, но первый символ в строку поиска не попадает.
+      Получилось из-за того, что перед вызовом Dlg.Show... не вызвали
+      InitDialog()
   06.05.2002 SVS
     - BugZ#493 - Не работает показ Goto в viewer при клике мышкой в заголовке
   28.04.2002 IS
@@ -2107,6 +2112,7 @@ void Viewer::Search(int Next,int FirstChar)
     Dlg.SetHelp("ViewerSearch");
     if (FirstChar)
     {
+      Dlg.InitDialog();
       Dlg.Show();
       Dlg.ProcessKey(FirstChar);
     }
