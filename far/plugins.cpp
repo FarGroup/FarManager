@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.89 16.09.2001 $ */
+/* Revision: 1.90 19.09.2001 $ */
 
 /*
 Modify:
+  20.09.2001 SVS
+    + Новое поле Flags у класса PluginsSet.
   16.09.2001 SVS
     ! Отключаемые исключения
   14.09.2001 SVS
@@ -309,6 +311,8 @@ PluginsSet::PluginsSet()
 {
   PluginsData=NULL;
   PluginsCount=0;
+  Reserved=0;
+  Flags=0;
   CurEditor=NULL;
   CurViewer=NULL;
 }
@@ -1098,6 +1102,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
       */
 //_SVS(SysLog("**** Enter to Plugin ****"));
       CtrlObject->Macro.SetRedrawEditor(FALSE);
+      SetFlags(PSIF_ENTERTOOPENPLUGIN);
       if(Opt.ExceptRules)
       {
         TRY {
@@ -1118,6 +1123,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
         hInternal=PluginsData[PluginNumber].pOpenPlugin(OpenFrom,Item);
         // при отключенной обработке не выгружаем плагин.
       }
+      SkipFlags(PSIF_ENTERTOOPENPLUGIN);
       CtrlObject->Macro.SetRedrawEditor(TRUE);
 //_SVS(SysLog("**** Leave from Plugin ****"));
       /* SVS $ */
@@ -1136,7 +1142,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
          CtrlObject->Plugins.CurEditor &&
          CtrlObject->Plugins.CurEditor->IsVisible())
       {
-_SVS(SysLog("**** Enter to EE_REDRAW (return from Plugin)"));
+//_SVS(SysLog("**** Enter to EE_REDRAW (return from Plugin)"));
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
         CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
         CtrlObject->Plugins.CurEditor->Show();

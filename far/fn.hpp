@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.105 18.09.2001 $ */
+/* Revision: 1.106 20.09.2001 $ */
 
 /*
 Modify:
+  20.09.2001 SVS
+    ! Параметр у InputRecordToKey "const"
   18.09.2001 SVS
     + _ALGO & SYSLOG_ALGO - для "алгоритмов работы"
       Внимание! Лог в последствии будет большим!
@@ -904,7 +906,7 @@ BOOL WINAPI KeyToText(int Key,char *KeyText,int Size=0);
 /* 01.08.2000 SVS $ */
 /* $ 31.08.2000 tran
    FSF/FarInputRecordToKey */
-int WINAPI InputRecordToKey(INPUT_RECORD *r);
+int WINAPI InputRecordToKey(const INPUT_RECORD *Rec);
 /* tran 31.08.2000 $ */
 int GetInputRecord(INPUT_RECORD *rec);
 int PeekInputRecord(INPUT_RECORD *rec);

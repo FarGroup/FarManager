@@ -8,10 +8,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.57 14.09.2001 $ */
+/* Revision: 1.58 20.09.2001 $ */
 
 /*
 Modify:
+  20.09.2001 SVS
+    - остаток экрана при прорисовке, если закончили макрос в плагине (OT)
   14.09.2001 SVS
     - BugZ#9 - окончание
   12.09.2001 SVS
@@ -499,6 +501,9 @@ int KeyMacro::ProcessKey(int Key)
   }
   else if (Key==KEY_CTRLSHIFTDOT || Key==KEY_CTRLDOT) // Начало записи?
   {
+//    if(CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN))
+//      return FALSE;
+
     if(LockScr) delete LockScr;
     LockScr=NULL;
 
@@ -543,9 +548,9 @@ int KeyMacro::ProcessKey(int Key)
 
         if (StartMacroPos==-1) // сбросим признак автостарта
           Macros[I].Flags&=~MFLAGS_RUNAFTERFARSTART2;
-        IsRedrawEditor=TRUE;
-_SVS(SysLog("**** Start Of Execute Macro ****"));
-_SVS(SysLog(1));
+        IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
+//_SVS(SysLog("**** Start Of Execute Macro ****"));
+//_SVS(SysLog(1));
         return(TRUE);
       }
     }
@@ -768,8 +773,8 @@ done:
     ReleaseTempBuffer();
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
-_SVS(SysLog(-1));
-_SVS(SysLog("**** End Of Execute Macro ****"));
+//_SVS(SysLog(-1));
+//_SVS(SysLog("**** End Of Execute Macro ****"));
     return(FALSE);
   }
 
@@ -1195,7 +1200,9 @@ DWORD KeyMacro::AssignMacroKey()
   Dialog Dlg(MacroAssignDlg,sizeof(MacroAssignDlg)/sizeof(MacroAssignDlg[0]),AssignMacroDlgProc,(long)&Param);
   Dlg.SetPosition(-1,-1,34,6);
   Dlg.SetHelp("KeyMacro");
+  FrameManager->GetBottomFrame()->LockRefresh(); // отменим прорисовку фрейма
   Dlg.Process();
+  FrameManager->GetBottomFrame()->UnlockRefresh(); // теперь можно :-)
   IsProcessAssignMacroKey=FALSE;
   /* $ 30.01.2001 SVS
      Забыл сделать проверку на код возврата из диалога назначения

@@ -2,8 +2,11 @@
 #include <io.h>
 #include <process.h>
 
+#ifdef _MSC_VER
+#pragma intrinsic (strcmp)       /* don't use the unsafe version */
+#else
 #pragma intrinsic -strcmp       /* don't use the unsafe version */
-
+#endif
 /*---------------------------------------------------------------------*
 
 Name            _tmktemp used as _mktemp and _wmktemp

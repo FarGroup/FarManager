@@ -7,12 +7,14 @@ plugins.hpp
 
 */
 
-/* Revision: 1.16 25.06.2001 $ */
+/* Revision: 1.17 19.09.2001 $ */
 
 /*
 Modify:
+  20.09.2001 SVS
+    + Новое поле Flags у класса PluginsSet.
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   07.06.2001 SVS
     ! Configure() имеет параметр, дабы не скакал курсор все время в начало.
   03.06.2001 SVS
@@ -85,12 +87,7 @@ typedef int (WINAPI *PLUGINPUTFILES)(HANDLE hPlugin,struct PluginPanelItem *Pane
 typedef int (WINAPI *PLUGINSETDIRECTORY)(HANDLE hPlugin,const char *Dir,int OpMode);
 typedef int (WINAPI *PLUGINSETFINDLIST)(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber);
 typedef void (WINAPI *PLUGINSETSTARTUPINFO)(const struct PluginStartupInfo *Info);
-
-/* $ 27.09.2000 SVS
-   События во вьювере
-*/
-typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param);
-/* SVS $ */
+typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param); //* $ 27.09.2000 SVS -  События во вьювере
 
 struct PluginItem
 {
@@ -143,9 +140,18 @@ struct PluginItem
   PLUGINPROCESSVIEWEREVENT pProcessViewerEvent;
 };
 
+// флаги для поля PluginsSet.Flags
+enum PLUGINSETFLAGS{
+  PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
+};
+
+
 class PluginsSet
 {
   public:
+    DWORD Flags;        // флаги манагера плагинов
+    DWORD Reserved;     // в будущем это может быть второй порцией флагов
+
     struct PluginItem *PluginsData;
     int PluginsCount;
 
@@ -229,6 +235,10 @@ class PluginsSet
     int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
     int FindPlugin(DWORD SysID);
     /* SVS $ */
+
+    void SetFlags(DWORD NewFlags) { Flags|=NewFlags; }
+    void SkipFlags(DWORD NewFlags) { Flags&=~NewFlags; }
+    BOOL CheckFlags(DWORD NewFlags) { return (Flags&NewFlags)?TRUE:FALSE; }
 };
 
 #endif  // __PLUGINS_HPP__

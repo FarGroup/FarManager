@@ -348,6 +348,10 @@ SOURCE=.\mkdir.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\mktemp.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\modal.cpp
 # End Source File
 # Begin Source File

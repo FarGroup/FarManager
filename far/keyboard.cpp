@@ -5,10 +5,13 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.46 18.09.2001 $ */
+/* Revision: 1.47 20.09.2001 $ */
 
 /*
 Modify:
+  20.09.2001 SVS
+    - бага с Alt-цифровая клавиша.
+    ! Параметр у InputRecordToKey "const"
   18.09.2001 SVS
     ! временно отменим "...теперь даже для макроса корректно заполняется..."
   14.09.2001 SVS
@@ -156,7 +159,7 @@ Modify:
 #include "manager.hpp"
 #include "scrbuf.hpp"
 
-static int AltValue=0,ReturnAltValue;
+static int AltValue=0,ReturnAltValue,KeyCodeForALT_LastPressed=0;
 static int ShiftPressedLast=FALSE,AltPressedLast=FALSE,CtrlPressedLast=FALSE;
 static int RightAltPressedLast=FALSE,RightCtrlPressedLast=FALSE;
 static BOOL IsKeyCASPressed=FALSE; // CtrlAltShift - нажато или нет?
@@ -278,12 +281,17 @@ static struct TFKey3 ModifKeyName[]={
 };
 
 /* ----------------------------------------------------------------- */
+
 /* tran 31.08.2000 $
   FarInputRecordToKey */
-int WINAPI InputRecordToKey(INPUT_RECORD *r)
+int WINAPI InputRecordToKey(const INPUT_RECORD *r)
 {
   if(r)
-    return CalcKeyCode(r,TRUE);
+  {
+    INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
+                         //   структура INPUT_RECORD модифицируется!
+    return CalcKeyCode(&Rec,TRUE);
+  }
   return KEY_NONE;
 }
 /* tran 31.08.2000 $ */
@@ -1101,16 +1109,20 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     return(KEY_NONE);
 
   if (!rec->Event.KeyEvent.bKeyDown)
+  {
+    KeyCodeForALT_LastPressed=0;
     if (KeyCode==VK_MENU && AltValue!=0)
     {
       FlushInputBuffer();
       ReturnAltValue=TRUE;
       AltValue&=255;
       rec->Event.KeyEvent.uChar.AsciiChar=AltValue;
+      //_SVS(SysLog("KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);
     }
     else
       return(KEY_NONE);
+  }
 
   if ((CtrlState & 9)==9)
     if (AsciiChar!=0)
@@ -1200,8 +1212,12 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
       if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
       {
-        if (RealKey)
+        if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
+        {
           AltValue=AltValue*10+I;
+          KeyCodeForALT_LastPressed=KeyCode;
+          //_SVS(SysLog("CalcKeyCode -> ScanCode=0x%0X AltValue=0x%0X (%c)",ScanCode,AltValue,AltValue));
+        }
         return(KEY_NONE);
       }
   }

@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.11 19.09.2001 $ */
+/* Revision: 1.12 20.09.2001 $ */
 
 /*
 Modify:
+  20.09.2001 SVS
+    - не компилится под VC, тем более, что I уже определена!
   19.09.2001 VVM
     + Если сообщение об ошибке слишком длинное - перенесем его...
   25.06.2001 IS
@@ -147,7 +149,7 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
   if ((ErrStrPresent) && (strlen(Str[0]) > MaxLength))
   {
     int DotPos = MaxLength - 1;
-    for (int I=MaxLength;I>=0;I--)
+    for (I=MaxLength;I>=0;I--)
     {
       if (Str[0][I] == '.')
       {
@@ -157,7 +159,7 @@ int Message(int Flags,int Buttons,const char *Title,const char *Str1,
     } /* for */
     strcpy(ErrStr2,&ErrStr[DotPos+1]);
     ErrStr[DotPos+1] = 0;
-    for (int I=sizeof(Str)/sizeof(Str[0])-2;I>1;I--)
+    for (I=sizeof(Str)/sizeof(Str[0])-2;I>1;I--)
       Str[I]=Str[I-1];
     Str[1]=ErrStr2;
   } /* if */
