@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 FAR group
 */
-/* $Revision: 1.01 08.05.2001 $ */
+/* $Revision: 1.02 12.06.2001 $ */
 
 #include <windows.h>
 #include <string.h>
@@ -97,6 +97,34 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   SetFilePointer(ArcHandle,SFXSize+MainHeader.coffFiles,NULL,FILE_BEGIN);
   FilesNumber=MainHeader.cFiles;
   UnpVer=MainHeader.versionMajor*256+MainHeader.versionMinor;
+  /* $ 12.06.2001
+     Mateusz Brsostek <mateuszb@inetia.pl>
+  */
+  if( FilesNumber && (MainHeader.flags & 1) )
+  {
+    char Name[ 276 ], *EndPos;
+
+    if( !ReadFile( ArcHandle, Name, sizeof(Name), &ReadSize, NULL ) || ReadSize <= 16 )
+    {
+    blad:
+      CloseHandle( ArcHandle );
+      return FALSE;
+    }
+    if( *(WORD*)(Name + 8) == 0xFFFD || *(WORD*)(Name + 8) == 0xFFFF )
+    {
+      EndPos = Name + 16;
+      while( *EndPos && EndPos - Name < sizeof(Name) )
+        EndPos++;
+      if( *EndPos )
+        goto blad;
+
+      SetFilePointer( ArcHandle, (EndPos-Name+1) - ReadSize, NULL, FILE_CURRENT );
+      FilesNumber--;
+    }
+    else
+      SetFilePointer( ArcHandle, 0 - ReadSize, NULL, FILE_CURRENT );
+  }
+///
   return(TRUE);
 }
 
@@ -124,10 +152,13 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   char Name[NM];
   if (!ReadFile(ArcHandle,Name,sizeof(Name),&ReadSize,NULL))
     return(GETARC_READERROR);
-  char *EndPos=(char *)memchr(Name,0,sizeof(Name));
-  if (Name==NULL)
+
+  char *EndPos = Name;
+  while( *EndPos && EndPos - Name < sizeof(Name) )
+    EndPos++;
+  if( *EndPos )
     return(GETARC_BROKEN);
-  SetFilePointer(ArcHandle,-(ReadSize-(EndPos-Name+1)),NULL,FILE_CURRENT);
+  SetFilePointer(ArcHandle, (EndPos-Name+1) - ReadSize, NULL,FILE_CURRENT);
 
   /* $ 06.05.2001
      Mateusz Brsostek <mateuszb@inetia.pl>
@@ -190,20 +221,20 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
   if (Type==0)
   {
     static char *Commands[]={
-      "MsCab x {%%S} %%A %%LMA",
+      "MsCab {-sp%%R} x {%%S} %%A %%LMA",
       "MsCab e {%%S} %%A %%LMA",
       "MsCab t {%%S} %%A %%LMA",
-      "MsCab -i0 {%%S} d %%A %%LMA",
+      "MsCab -i0 d {%%S} %%A %%LMA",
       "",
       "",
       "",
       "",
       "",
       "",
-      "MsCab -e -i0 {-p%%R} {%%S} a %%A %%LMA",
-      "MsCab -e -i0 {-p%%R} {%%S} m %%A %%LMA",
-      "MsCab -r -e -i0 {-p%%R} {%%S} a %%A %%LMA",
-      "MsCab -r -e -i0 {-p%%R} {%%S} m %%A %%LMA",
+      "MsCab -e -i0 {-ap%%R} {%%S} a %%A %%LMA",
+      "MsCab -e -i0 {-ap%%R} {%%S} m %%A %%LMA",
+      "MsCab -r -e -i0 {-ap%%R} {%%S} a %%A %%LMA",
+      "MsCab -r -e -i0 {-ap%%R} {%%S} m %%A %%LMA",
       "*.*"
     };
     if (Command<sizeof(Commands)/sizeof(Commands[0]))
