@@ -13,7 +13,7 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.03 06.07.2000 $ */
+/* Revision: 1.04 06.07.2000 $ */
 
 /*
 Modify:
@@ -33,6 +33,8 @@ Modify:
     + Добавка
       MSetColorDialogMenuHighLight,
       MSetColorDialogMenuSelectedHighLight,
+  29.06.2000 tran
+    ! выправка ланг файлов
 */
 
 enum
@@ -458,6 +460,7 @@ enum
   MViewF10,
   MViewF11,
   MViewF12,
+
   MViewShiftF1,
   MViewShiftF2,
   MViewShiftF3,
@@ -858,6 +861,7 @@ enum
   MSetColorMenuBox,
   MSetColorMenuTitle,
   MSetColorMenuScrollBar,
+
   MSetColorHMenuNormal,
   MSetColorHMenuSelected,
   MSetColorHMenuHighlighted,
@@ -888,7 +892,6 @@ enum
   MSetColorHelpBox,
   MSetColorHelpBoxTitle,
   MSetColorHelpScrollbar,
-  MSetColorHelpScrollbarMenu,
 
   MSetColorGroupsTitle,
   MSetColorItemsTitle,
