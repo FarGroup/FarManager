@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.03 23.01.2001 $ */
+/* Revision: 1.04 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Изменения в GetString с учетом флага DIF_VAREDIT
   28.01.2001 SVS
     ! DumpExeptionInfo -> DumpExceptionInfo ;-)
   23.01.2001 SVS
@@ -290,9 +292,22 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
     strcpy(StrDlg[0].Data,Title);
   if(Prompt)
     strcpy(StrDlg[1].Data,Prompt);
-  if(SrcText)
-    strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
-  StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
+  if(DestLength > 511 && !(Flags&FIB_PASSWORD))
+  {
+    StrDlg[2].Flags|=DIF_VAREDIT;
+    StrDlg[2].Ptr.PtrTail[0]=StrDlg[2].Ptr.PtrFlags=0;
+    if(SrcText)
+      memmove(DestText,SrcText,(strlen(SrcText)+1>DestLength?DestLength:strlen(SrcText)+1));
+    StrDlg[2].Ptr.PtrData=DestText;
+    StrDlg[2].Ptr.PtrLength=DestLength;
+  }
+  else
+  {
+    if(SrcText)
+      strncpy(StrDlg[2].Data,SrcText,sizeof(StrDlg[2].Data));
+    StrDlg[2].Data[sizeof(StrDlg[2].Data)-1]=0;
+  }
+
 
   TRY{
     Dialog Dlg(StrDlg,sizeof(StrDlg)/sizeof(StrDlg[0])-Substract);
@@ -312,11 +327,12 @@ int WINAPI GetString(char *Title,char *Prompt,char *HistoryName,char *SrcText,
   if (DestLength >= 1 && (ExitCode == 2 || ExitCode == 4))
   {
     if(!(Flags&FIB_ENABLEEMPTY) && *StrDlg[2].Data==0)
-    {
       return(FALSE);
+    if(!(StrDlg[2].Flags&DIF_VAREDIT))
+    {
+      strncpy(DestText,StrDlg[2].Data,DestLength);
+      DestText[DestLength-1]=0;
     }
-    strncpy(DestText,StrDlg[2].Data,DestLength);
-    DestText[DestLength-1]=0;
     return(TRUE);
   }
   return(FALSE);

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.68 11.02.2001 $ */
+/* Revision: 1.69 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+   ! DIF_VAREDIT - только для DI_EDIT!!!
   11.02.2001 SVS
    ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   23.01.2001 SVS
@@ -723,7 +725,11 @@ int Dialog::InitDialogObjects(int ID)
       /* SVS $ */
       /* $ 15.10.2000 tran
         строка редакторирование должна иметь максимум в 511 символов */
-      DialogEdit->SetMaxLength(511);
+      // DIF_VAREDIT - только для DI_EDIT!!!
+      if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+        DialogEdit->SetMaxLength(CurItem->Ptr.PtrLength);
+      else
+        DialogEdit->SetMaxLength(511);
       /* tran $ */
       DialogEdit->SetPosition(X1+CurItem->X1,Y1+CurItem->Y1,
                               X1+CurItem->X2,Y1+CurItem->Y2);
@@ -792,12 +798,26 @@ int Dialog::InitDialogObjects(int ID)
          Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
          то подстанавливаем первое значение из History
       */
-      if((CurItem->Flags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY) &&
-         !CurItem->Data[0])
+      if((CurItem->Flags&(DIF_HISTORY|DIF_USELASTHISTORY)) == (DIF_HISTORY|DIF_USELASTHISTORY))
       {
-        char RegKey[80],KeyValue[80];
-        sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
-        GetRegKey(RegKey,"Line0",CurItem->Data,"",sizeof(CurItem->Data));
+        char RegKey[80];
+        char *PtrData;
+        int PtrLength;
+        if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+        {
+          PtrData  =(char *)CurItem->Ptr.PtrData;
+          PtrLength=CurItem->Ptr.PtrLength;
+        }
+        else
+        {
+          PtrData  =CurItem->Data;
+          PtrLength=sizeof(CurItem->Data);
+        }
+        if(!PtrData[0])
+        {
+          sprintf(RegKey,fmtSavedDialogHistory,(char*)CurItem->History);
+          GetRegKey(RegKey,"Line0",PtrData,"",PtrLength);
+        }
       }
       /* SVS $ */
 
@@ -821,7 +841,10 @@ int Dialog::InitDialogObjects(int ID)
         }
       }
       /* SVS $ */
-      DialogEdit->SetString(CurItem->Data);
+      if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+        DialogEdit->SetString((char *)CurItem->Ptr.PtrData);
+      else
+        DialogEdit->SetString(CurItem->Data);
 
       if (Type==DI_FIXEDIT)
         DialogEdit->SetCurPos(0);
@@ -896,9 +919,30 @@ void Dialog::GetDialogObjectsData()
         case DI_FIXEDIT:
         case DI_PSWEDIT:
         case DI_COMBOBOX:
-          ((Edit *)(CurItem->ObjPtr))->GetString(CurItem->Data,sizeof(CurItem->Data));
-          if (ExitCode>=0 && (CurItem->Flags & DIF_HISTORY) && CurItem->History && Opt.DialogsEditHistory)
-            AddToEditHistory(CurItem->Data,CurItem->History);
+        {
+          char *PtrData;
+          int PtrLength;
+          Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
+          // подготовим данные
+          if(CurItem->Type==DI_EDIT && (CurItem->Flags&DIF_VAREDIT))
+          {
+            PtrData  =(char *)CurItem->Ptr.PtrData;
+            PtrLength=CurItem->Ptr.PtrLength;
+          }
+          else
+          {
+            PtrData  =CurItem->Data;
+            PtrLength=sizeof(CurItem->Data);
+          }
+
+          // получим данные
+          EditPtr->GetString(PtrData,PtrLength);
+
+          if (ExitCode>=0 &&
+              (CurItem->Flags & DIF_HISTORY) &&
+              CurItem->History &&
+              Opt.DialogsEditHistory)
+            AddToEditHistory(PtrData,CurItem->History);
           /* $ 01.08.2000 SVS
              ! В History должно заносится значение (для DIF_EXPAND...) перед
               расширением среды!
@@ -914,11 +958,12 @@ void Dialog::GetDialogObjectsData()
           if((CurItem->Flags&DIF_EDITEXPAND) &&
               CurItem->Type != DI_PSWEDIT &&
               CurItem->Type != DI_FIXEDIT)
-             ExpandEnvironmentStr(CurItem->Data, CurItem->Data,sizeof(CurItem->Data)-1);
+             ExpandEnvironmentStr(PtrData, PtrData,PtrLength-1);
           /* SVS $ */
           /* SVS $ */
           /* 01.08.2000 SVS $ */
           break;
+        }
       }
    }
 }
@@ -1144,6 +1189,8 @@ void Dialog::ShowDialog(int ID)
       case DI_COMBOBOX:
       {
         Edit *EditPtr=(Edit *)(CurItem->ObjPtr);
+        if(!EditPtr)
+          break;
 
         /* $ 15.08.2000 SVS
            ! Для DropDownList цвета обрабатываем по иному
@@ -2692,10 +2739,6 @@ void Dialog::ConvertItem(int FromPlugin,
       Item->Selected=Data->Selected;
       Item->Flags=Data->Flags;
       Item->DefaultButton=Data->DefaultButton;
-      /* $ 04.12.2000 SVS
-         У DI_USERCONTROL могут в Data быть бинарные данные
-      */
-      if(Data->Type == DI_USERCONTROL)
       {
           TRY{
             memmove(Item->Data,Data->Data,sizeof(Item->Data));
@@ -2705,9 +2748,6 @@ void Dialog::ConvertItem(int FromPlugin,
             ;
           }
       }
-      else
-        strcpy(Item->Data,Data->Data);
-      /* SVS $ */
     }
   else
     for (I=0; I < Count; I++, ++Item, ++Data)
@@ -2721,10 +2761,6 @@ void Dialog::ConvertItem(int FromPlugin,
       Data->Selected=Item->Selected;
       Data->Flags=Item->Flags;
       Data->DefaultButton=Item->DefaultButton;
-      /* $ 04.12.2000 SVS
-         У DI_USERCONTROL могут в Data быть бинарные данные
-      */
-      if(Item->Type == DI_USERCONTROL)
       {
          TRY{
            memmove(Data->Data,Item->Data,sizeof(Data->Data));
@@ -2734,9 +2770,6 @@ void Dialog::ConvertItem(int FromPlugin,
            ;
          }
       }
-      else
-        strcpy(Data->Data,Item->Data);
-      /* SVS $ */
     }
 }
 /* SVS $ */
@@ -2768,7 +2801,7 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
     Item->DefaultButton=Data->DefaultButton;
     if ((unsigned int)Data->Data<MAX_MSG)
       strcpy(Item->Data,MSG((unsigned int)Data->Data));
-    else if(Data->Type == DI_USERCONTROL)
+    else
     {
       TRY{
         memmove(Item->Data,Data->Data,sizeof(Item->Data));
@@ -2778,8 +2811,6 @@ void Dialog::DataToItem(struct DialogData *Data,struct DialogItem *Item,
         ;
       }
     }
-    else
-      strcpy(Item->Data,Data->Data);
     Item->ObjPtr=NULL;
   }
 }
@@ -3673,8 +3704,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             break;
 
           case DI_USERCONTROL:
-            did->DataLength=CurItem->Ptr.DataLength;
-            did->DataPtr=(char*)CurItem->Ptr.DataPtr;
+            did->DataLength=CurItem->Ptr.PtrLength;
+            did->DataPtr=(char*)CurItem->Ptr.PtrData;
             break;
 
           case DI_LISTBOX: // пока не трогаем - не реализован
@@ -3700,7 +3731,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           break;
 
         case DI_USERCONTROL:
-          Len=CurItem->Ptr.DataLength;
+          Len=CurItem->Ptr.PtrLength;
           break;
 
         case DI_TEXT:
@@ -3748,9 +3779,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         switch(Type)
         {
           case DI_USERCONTROL:
-            CurItem->Ptr.DataLength=did->DataLength;
-            CurItem->Ptr.DataPtr=did->DataPtr;
-            return CurItem->Ptr.DataLength;
+            CurItem->Ptr.PtrLength=did->DataLength;
+            CurItem->Ptr.PtrData=did->DataPtr;
+            return CurItem->Ptr.PtrLength;
 
           case DI_TEXT:
           case DI_VTEXT:

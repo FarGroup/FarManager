@@ -867,7 +867,8 @@ int VMenu::GetUserData(void *Data,int Size,int Position)
      - BUG with no \0 setting */
   if (DataSize>0 && Size>0 && Data!=NULL)
   {
-    memcpy(Data,Item[DataPos].UserData,Min(Size,DataSize));
+    char *Ptr=(Item[DataPos].Flags&1)?Item[DataPos].PtrData:Item[DataPos].UserData;
+    memmove(Data,Ptr,Min(Size,DataSize));
     // вот тут кое-кто забыл в конец строки 0 записать....
     ((char*)Data)[Min(Size,DataSize)]=0;
   }

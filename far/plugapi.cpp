@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.38 11.02.2001 $ */
+/* Revision: 1.39 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Сократим повторяющийся код в FarDialogEx
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   28.01.2001 SVS
@@ -458,7 +460,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   int ExitCode,I;
 
   memset(InternalItem,0,sizeof(DialogItem)*ItemsNumber);
-
+  Dialog::ConvertItem(CVTITEM_FROMPLUGIN,Item,InternalItem,ItemsNumber);
+/*
   for (I=0;I<ItemsNumber;I++)
   {
     InternalItem[I].Type=Item[I].Type;
@@ -473,7 +476,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     memmove(InternalItem[I].Data,Item[I].Data,sizeof(Item[I].Data));
     InternalItem[I].ObjPtr=NULL;
   }
-
+*/
   {
     Dialog FarDialog(InternalItem,ItemsNumber,DlgProc,Param);
     FarDialog.SetPosition(X1,Y1,X2,Y2);
@@ -499,6 +502,8 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     ExitCode=FarDialog.GetExitCode();
   }
 
+  Dialog::ConvertItem(CVTITEM_TOPLUGIN,Item,InternalItem,ItemsNumber);
+/*
   for (I=0;I<ItemsNumber;I++)
   {
     Item[I].Type=InternalItem[I].Type;
@@ -512,6 +517,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
     Item[I].DefaultButton=InternalItem[I].DefaultButton;
     memmove(Item[I].Data,InternalItem[I].Data,sizeof(Item[I].Data));
   }
+*/
   /* $ 13.07.2000 SVS
      для new[] нужен delete[]
   */

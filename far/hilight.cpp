@@ -5,10 +5,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.07 11.02.2001 $ */
+/* Revision: 1.08 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Введение DIF_VAREDIT позволило расширить размер под маски до
+      HIGHLIGHT_MASK_SIZE символов
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   14.01.2001 SVS
@@ -53,18 +56,21 @@ void HighlightFiles::InitHighlightFiles()
 {
   HiData=NULL;
   HiDataCount=0;
+  char RegKey[80],Mask[HIGHLIGHT_MASK_SIZE], *Masks=NULL;
   while (1)
   {
-    char RegKey[80],Mask[sizeof(HiData->Masks)];
     sprintf(RegKey,"Highlight\\Group%d",HiDataCount);
     if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
       break;
     struct HighlightData *NewHiData,*CurHiData;
+    if(!(Masks=(char*)malloc(strlen(Mask)+1)))
+      break;
     if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
       break;
     HiData=NewHiData;
     CurHiData=&HiData[HiDataCount];
     memset(CurHiData,0,sizeof(*CurHiData));
+    CurHiData->Masks=Masks;
     strcpy(CurHiData->Masks,Mask);
     CurHiData->IncludeAttr=GetRegKey(RegKey,"IncludeAttributes",0);
     CurHiData->ExcludeAttr=GetRegKey(RegKey,"ExcludeAttributes",0);
@@ -81,11 +87,13 @@ void HighlightFiles::InitHighlightFiles()
 
 HighlightFiles::~HighlightFiles()
 {
-  /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос памяти через new :-)
-  */
-  free(HiData);
-  /* SVS $ */
+  if(HiData)
+  {
+    for(int I=0; I < HiDataCount; ++I)
+      if(HiData[I].Masks)
+        free(HiData[I].Masks);
+    free(HiData);
+  }
 }
 
 
@@ -299,7 +307,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   static struct DialogData HiEditDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(char *)MHighlightEditTitle,
   /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MHighlightMasks,
-  /* 02 */DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
+  /* 02 */DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
   /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR,0,(char *)MHighlightIncludeAttr,
   /* 05 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MHighlightRO,
@@ -334,13 +342,16 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   MakeDialogItems(HiEditDlgData,HiEditDlg);
   struct HighlightData EditData;
   int ExitCode=0;
+  char Mask[HIGHLIGHT_MASK_SIZE];
 
   if (!New && RecPos<HiDataCount)
     EditData=HiData[RecPos];
   else
     memset(&EditData,0,sizeof(EditData));
 
-  strcpy(HiEditDlg[2].Data,EditData.Masks);
+  HiEditDlg[2].Ptr.PtrData=Mask;
+  HiEditDlg[2].Ptr.PtrLength=sizeof(Mask);
+
   HiEditDlg[5].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_READONLY)!=0;
   HiEditDlg[6].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_HIDDEN)!=0;
   HiEditDlg[7].Selected=(EditData.IncludeAttr & FILE_ATTRIBUTE_SYSTEM)!=0;
@@ -412,7 +423,7 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   }
   if (*HiEditDlg[2].Data==0)
     return(FALSE);
-  strcpy(EditData.Masks,HiEditDlg[2].Data);
+
   EditData.IncludeAttr=EditData.ExcludeAttr=0;
   if (HiEditDlg[5].Selected)
     EditData.IncludeAttr|=FILE_ATTRIBUTE_READONLY;
@@ -461,18 +472,34 @@ int HighlightFiles::EditRecord(int RecPos,int New)
     EditData.ExcludeAttr|=FILE_ATTRIBUTE_REPARSE_POINT;
 
   EditData.MarkChar=*HiEditDlg[29].Data;
+
   if (!New && RecPos<HiDataCount)
+  {
+    char *Ptr=(char*)realloc(HiData[RecPos].Masks,strlen(Mask)+1);
+    if(!Ptr)
+      return FALSE;
     HiData[RecPos]=EditData;
+    HiData[RecPos].Masks=Ptr;
+    strcpy(HiData[RecPos].Masks,Mask);
+  }
   if (New)
   {
     struct HighlightData *NewHiData;
-    HiDataCount++;
-    if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*HiDataCount))==NULL)
+    char *Ptr;
+
+    if(!(Ptr=(char*)malloc(strlen(Mask)+1)))
+      return FALSE;
+
+    if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
       return(FALSE);
+
+    HiDataCount++;
     HiData=NewHiData;
     for (int I=HiDataCount-1;I>RecPos;I--)
       HiData[I]=HiData[I-1];
     HiData[RecPos]=EditData;
+    HiData[RecPos].Masks=Ptr;
+    strcpy(HiData[RecPos].Masks,Mask);
   }
   return(TRUE);
 }

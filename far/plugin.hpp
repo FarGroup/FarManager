@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.84 11.02.2001 $ */
+/* Revision: 1.85 11.02.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  11.02.2001 SVS
+    ! FarDialogItem - изменения, касаемые Ptr
+    + DIF_VAREDIT - флаг, указывающий на то, что будет использоваться
+      FarDialogItem.Ptr вместо FarDialogItem.Data
   11.02.2001 SVS
     ! Изменения в LISTITEMFLAGS - флаги переехали в старшее слово
   28.01.2001 SVS
@@ -497,6 +501,7 @@ enum FarDialogItemFlags {
   DIF_CENTERGROUP     =    0x4000UL,
   DIF_NOBRACKETS      =    0x8000UL,
   DIF_SEPARATOR       =   0x10000UL,
+  DIF_VAREDIT         =   0x10000UL,
   DIF_EDITOR          =   0x20000UL,
   DIF_HISTORY         =   0x40000UL,
   DIF_EDITEXPAND      =   0x80000UL,
@@ -592,7 +597,15 @@ struct FarDialogItem
   };
   DWORD Flags;
   int DefaultButton;
-  char Data[512];
+  union {
+    char Data[512];
+    struct {
+      DWORD PtrFlags;
+      int   PtrLength;
+      void *PtrData;
+      char  PtrTail[1];
+    } Ptr;
+  };
 };
 
 struct FarMenuItem

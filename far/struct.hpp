@@ -7,17 +7,22 @@ struct.hpp
 
 */
 
-/* Revision: 1.38 11.02.2001 $ */
+/* Revision: 1.39 11.02.2001 $ */
 
 /*
 Modify:
   11.02.2001 SVS
-    ! Изменения в MenuItem.
+   ! Изменения структур DialogItem и DialogData (DIF_VAREDIT)
+   ! HighlightData.Masks - сделан ссылкой (DIF_VAREDIT)
+   ! GroupSortData.Masks - сделан ссылкой (DIF_VAREDIT)
+   ! FilterDataRecord.Masks - сделан ссылкой (DIF_VAREDIT)
+  11.02.2001 SVS
+   ! Изменения в MenuItem.
   09.02.2001 IS
-    + RightSelectedFirst, LeftSelectedFirst;
-    + Confirmation.Esc
+   + RightSelectedFirst, LeftSelectedFirst;
+   + Confirmation.Esc
   30.01.2001 VVM
-    + Показывает время копирования,оставшееся время и среднюю скорость.
+   + Показывает время копирования,оставшееся время и среднюю скорость.
       Зависит от настроек в реестре CopyTimeRule
   22.01.2001 SVS
    + Opt.CursorSize[2] - Размер курсора ФАРа :-)
@@ -573,8 +578,10 @@ struct DialogItem
   union {
     char Data[512];
     struct {
-      int   DataLength;
-      void *DataPtr;
+      DWORD PtrFlags;
+      int   PtrLength;
+      void *PtrData;
+      char  PtrTail[1];
     } Ptr;
   };
   void *ObjPtr;
@@ -669,7 +676,7 @@ struct PluginHandle
 // for class GroupSort
 struct GroupSortData
 {
-  char Masks[256];
+  char *Masks;
   int Group;
 };
 
@@ -678,7 +685,7 @@ struct GroupSortData
 struct FilterDataRecord
 {
   char Title[128];
-  char Masks[256];
+  char *Masks;
   int LeftPanelInclude;
   int LeftPanelExclude;
   int RightPanelInclude;
@@ -689,7 +696,7 @@ struct FilterDataRecord
 // for class HighlightFiles
 struct HighlightData
 {
-  char Masks[256];
+  char *Masks;
   unsigned int IncludeAttr;
   unsigned int ExcludeAttr;
   unsigned int Color,SelColor,CursorColor,CursorSelColor,MarkChar;

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.18 28.01.2001 $ */
+/* Revision: 1.19 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    + *_MASK_SIZE - размеры для масок
   28.01.2001 SVS
     + SKEY_VK_KEYS - переехал из plugin.hpp
   25.01.2001 SVS
@@ -262,5 +264,11 @@ enum EceptFunctionsType{
 
 
 #define SKEY_VK_KEYS        0x40000000
+
+
+// размеры для полей ввода
+#define HIGHLIGHT_MASK_SIZE      2048
+#define GROUPSORT_MASK_SIZE      2048
+#define PANELFILTER_MASK_SIZE    2048
 
 #endif // __FARCONST_HPP__

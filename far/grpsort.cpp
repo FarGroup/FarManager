@@ -5,10 +5,12 @@ grpsort.cpp
 
 */
 
-/* Revision: 1.02 11.02.2001 $ */
+/* Revision: 1.03 11.02.2001 $ */
 
 /*
 Modify:
+  11.02.2001 SVS
+    ! Введение DIF_VAREDIT позволило расширить размер под маски
   11.02.2001 SVS
     ! Несколько уточнений кода в связи с изменениями в структуре MenuItem
   13.07.2000 SVS
@@ -30,29 +32,34 @@ Modify:
 GroupSort::GroupSort()
 {
   int I;
+  char GroupName[80],GroupStr[GROUPSORT_MASK_SIZE], *Ptr;
+
   GroupData=NULL;
   GroupCount=0;
   for (I=0;;I++)
   {
-    char GroupName[80],GroupStr[sizeof(GroupData->Masks)];
     sprintf(GroupName,"UpperGroup%d",I);
     GetRegKey("SortGroups",GroupName,GroupStr,"",sizeof(GroupStr));
     if (*GroupStr==0)
+      break;
+    if(!(Ptr=(char *)malloc(strlen(GroupStr)+1)))
       break;
     struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
     if (NewGroupData==NULL)
       break;
     GroupData=NewGroupData;
+    GroupData[GroupCount].Masks=Ptr;
     strcpy(GroupData[GroupCount].Masks,GroupStr);
     GroupData[GroupCount].Group=I;
     GroupCount++;
   }
   for (I=0;;I++)
   {
-    char GroupName[80],GroupStr[sizeof(GroupData->Masks)];
     sprintf(GroupName,"LowerGroup%d",I);
     GetRegKey("SortGroups",GroupName,GroupStr,"",sizeof(GroupStr));
     if (*GroupStr==0)
+      break;
+    if(!(GroupData[GroupCount].Masks=(char *)malloc(strlen(GroupStr)+1)))
       break;
     struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
     if (NewGroupData==NULL)
@@ -67,11 +74,13 @@ GroupSort::GroupSort()
 
 GroupSort::~GroupSort()
 {
-  /* $ 13.07.2000 SVS
-     ни кто не вызывал запрос памяти через new :-)
-  */
-  free(GroupData);
-  /* SVS $ */
+  if(GroupData)
+  {
+    for(int I=0; I < GroupCount; ++I)
+      if(GroupData[I].Masks)
+        free(GroupData[I].Masks);
+    free(GroupData);
+  }
 }
 
 
@@ -130,7 +139,9 @@ void GroupSort::EditGroups()
 
 int GroupSort::EditGroupsMenu(int Pos)
 {
+  char NewMasks[GROUPSORT_MASK_SIZE], *Ptr;
   struct MenuItem ListItem;
+  struct MenuItem ListItem2;
   memset(&ListItem,0,sizeof(ListItem));
 
   VMenu GroupList(MSG(MSortGroupsTitle),NULL,0,ScrY-4);
@@ -160,7 +171,6 @@ int GroupSort::EditGroupsMenu(int Pos)
   ListItem.Separator=0;
   I+=2;
 
-  struct MenuItem ListItem2;
   memset(&ListItem2,0,sizeof(ListItem2));
   for (;GroupPos<GroupCount;I++)
   {
@@ -218,9 +228,10 @@ int GroupSort::EditGroupsMenu(int Pos)
           break;
         case KEY_INS:
           {
-            char NewMasks[1024];
             if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks","",NewMasks,sizeof(NewMasks)))
             {
+              if(!(Ptr=(char *)malloc(strlen(NewMasks)+1)))
+                break;
               struct GroupSortData *NewGroupData=(struct GroupSortData *)realloc(GroupData,sizeof(*GroupData)*(GroupCount+1));
               if (NewGroupData==NULL)
                 break;
@@ -228,7 +239,8 @@ int GroupSort::EditGroupsMenu(int Pos)
               GroupCount++;
               for (int I=GroupCount-1;I>ListPos;I--)
                 GroupData[I]=GroupData[I-1];
-              strncpy(GroupData[ListPos].Masks,NewMasks,sizeof(GroupData[ListPos].Masks));
+              GroupData[ListPos].Masks=Ptr;
+              strncpy(GroupData[ListPos].Masks,NewMasks,strlen(NewMasks));
               GroupData[ListPos].Group=UpperGroup ? 0:DEFAULT_SORT_GROUP+1;
               return(SelPos);
             }
@@ -237,11 +249,21 @@ int GroupSort::EditGroupsMenu(int Pos)
         case KEY_F4:
         case KEY_ENTER:
           if (ListPos<GroupCount)
-            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks",GroupData[ListPos].Masks,GroupData[ListPos].Masks,sizeof(GroupData[0].Masks)))
+          {
+            strcpy(NewMasks,GroupData[ListPos].Masks);
+            if (GetString(MSG(MSortGroupsTitle),MSG(MSortGroupsEnter),"Masks",NewMasks,NewMasks,sizeof(NewMasks)))
             {
+              Ptr=GroupData[ListPos].Masks;
+              if(strlen(Ptr) < strlen(NewMasks))
+                Ptr=(char *)realloc(Ptr,strlen(NewMasks)+1);
+              if(Ptr)
+                break;
+              GroupData[ListPos].Masks=Ptr;
+              strcpy(GroupData[ListPos].Masks,NewMasks);
               GroupData[ListPos].Group=UpperGroup ? 0:DEFAULT_SORT_GROUP+1;
               return(SelPos);
             }
+          }
           break;
         default:
           GroupList.ProcessInput();
