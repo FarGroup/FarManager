@@ -341,7 +341,8 @@
 "Col"
 
 "is read only file"
-"exceeds the minimally given size"
+"has the size of %s,"
+"which exceeds the configured maximum size of %s."
 "Do you wish edit it?"
 
 "Search"

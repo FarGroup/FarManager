@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.56 16.03.2001 $ */
+/* Revision: 1.57 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SVS
+    + MEditFileLong2
   16.03.2001 SVS
     + MNetUserName, MNetUserPassword,
     ! В конфирм-диалоге операция Exit должна по смыслу стоять последней
@@ -509,6 +511,7 @@ enum
 
   MEditRSH,
   MEditFileLong,
+  MEditFileLong2,
   MEditROOpen,
 
   MEditSearchTitle,

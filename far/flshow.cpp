@@ -5,10 +5,14 @@ flshow.cpp
 
 */
 
-/* Revision: 1.06 28.02.2001 $ */
+/* Revision: 1.07 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SVS
+    ! подсократим - весь код по форматированию размера файла из
+      FileList::ShowList() вынесен в отдельную функцию - FileSizeToStr()
+      (strmix.cpp).
   28.02.2001 IS
     ! "CtrlObject->CmdLine." -> "CtrlObject->CmdLine->"
   27.02.2001 VVM
@@ -830,74 +834,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 else
                 {
-                  DWORD Size,SizeHigh;
-                  if (Packed)
-                  {
-                    SizeHigh=CurPtr->PackSizeHigh;
-                    Size=CurPtr->PackSize;
-                  }
-                  else
-                  {
-                    SizeHigh=CurPtr->UnpSizeHigh;
-                    Size=CurPtr->UnpSize;
-                  }
-                  int ViewFlags=ColumnTypes[K];
-                  int Commas=(ViewFlags & COLUMN_COMMAS);
-                  if (SizeHigh)
-                  {
-                    DWORD SizeMb=SizeHigh*4096+Size/(1024*1024);
-                    char OutStr[30];
-                    if (Commas)
-                      InsertCommas(SizeMb,Str);
-                    else
-                      sprintf(Str,"%u",SizeMb);
-                    sprintf(OutStr,"%s %1.1s",Str,MSG(MListMb));
-                    mprintf("%*.*s",Width,Width,OutStr);
-                    break;
-                  }
-                  if (Commas)
-                    InsertCommas(Size,Str);
-                  else
-                    sprintf(Str,"%u",Size);
-                  int SizeLength=strlen(Str);
-                  if (SizeLength<=Width || Width<5)
-                    mprintf("%*.*s",Width,Width,Str);
-                  else
-                  {
-                    char KbStr[100],MbStr[100];
-                    int Divider;
-                    Width-=2;
-                    strcpy(KbStr,MSG(MListKb));
-                    strcpy(MbStr,MSG(MListMb));
-                    if (ViewFlags & COLUMN_THOUSAND)
-                    {
-                      Divider=1000;
-                      LocalStrlwr(KbStr);
-                      LocalStrlwr(MbStr);
-                    }
-                    else
-                    {
-                      Divider=1024;
-                      LocalStrupr(KbStr);
-                      LocalStrupr(MbStr);
-                    }
-                    Size/=Divider;
-                    if (Commas)
-                      InsertCommas(Size,Str);
-                    else
-                      sprintf(Str,"%u",Size);
-                    if (strlen(Str)<=Width)
-                      mprintf("%*.*s %1.1s",Width,Width,Str,KbStr);
-                    else
-                    {
-                      Size/=Divider;
-                      if (Commas)
-                        InsertCommas(Size,Str);
-                      else
-                        sprintf(Str,"%u",Size);
-                      mprintf("%*.*s %1.1s",Width,Width,Str,MbStr);
-                    }
-                  }
+                  char OutStr[64];
+                  // подсократим - весь код по форматированию размера
+                  //   в отдельную функцию - FileSizeToStr().
+                  mprintf("%s",FileSizeToStr(OutStr,
+                           Packed?CurPtr->PackSizeHigh:CurPtr->UnpSizeHigh,
+                           Packed?CurPtr->PackSize:CurPtr->UnpSize,
+                           Width,ColumnTypes[K]));
                 }
               }
               break;

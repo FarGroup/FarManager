@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.66 16.03.2001 $ */
+/* Revision: 1.67 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SVS
+   + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
+     вид - выдрана из FileList::ShowList()
   16.03.2001 SVS
    + Функция DriveLocalToRemoteName() - Получить из имени диска RemoteName
    + GetNameAndPassword();
@@ -722,5 +725,7 @@ int WriteInput(int Key,DWORD Flags=0);
 
 // Получить из имени диска RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
+char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
+                                int Width=-1, int ViewFlags=COLUMN_COMMAS);
 
 #endif  // __FARFUNC_HPP__

@@ -5,10 +5,13 @@ strmix.cpp
 
 */
 
-/* Revision: 1.06 13.03.2001 $ */
+/* Revision: 1.07 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SVS
+    + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
+      вид - выдрана из FileList::ShowList()
   13.03.2001 SVS
     ! GetPathRoot переехала в flink.cpp :-)
   12.03.2001 SVS
@@ -575,3 +578,70 @@ void WINAPI Unquote(char *Str)
   }
 }
 /* IS $ */
+
+/* FileSizeToStr()
+   Форматирование размера файла в удобочитаемый вид.
+*/
+char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, int ViewFlags)
+{
+  char OutStr[64];
+  char Str[100];
+
+  int Commas=(ViewFlags & COLUMN_COMMAS);
+
+  if (SizeHigh)
+  {
+    DWORD SizeMb=SizeHigh*4096+Size/(1024*1024);
+    if (Commas)
+      InsertCommas(SizeMb,Str);
+    else
+      sprintf(Str,"%u",SizeMb);
+    sprintf(OutStr,"%s %1.1s",Str,MSG(MListMb));
+    sprintf(DestStr,"%*.*s",Width,Width,OutStr);
+    return DestStr;
+  }
+  if (Commas)
+    InsertCommas(Size,Str);
+  else
+    sprintf(Str,"%u",Size);
+  int SizeLength=strlen(Str);
+  if (SizeLength<=Width || Width<5)
+    sprintf(DestStr,"%*.*s",Width,Width,Str);
+  else
+  {
+    char KbStr[100],MbStr[100];
+    int Divider;
+    Width-=2;
+    strcpy(KbStr,MSG(MListKb));
+    strcpy(MbStr,MSG(MListMb));
+    if (ViewFlags & COLUMN_THOUSAND)
+    {
+      Divider=1000;
+      LocalStrlwr(KbStr);
+      LocalStrlwr(MbStr);
+    }
+    else
+    {
+      Divider=1024;
+      LocalStrupr(KbStr);
+      LocalStrupr(MbStr);
+    }
+    Size/=Divider;
+    if (Commas)
+      InsertCommas(Size,Str);
+    else
+      sprintf(Str,"%u",Size);
+    if (strlen(Str)<=Width)
+      sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,KbStr);
+    else
+    {
+      Size/=Divider;
+      if (Commas)
+        InsertCommas(Size,Str);
+      else
+        sprintf(Str,"%u",Size);
+      sprintf(DestStr,"%*.*s %1.1s",Width,Width,Str,MbStr);
+    }
+  }
+  return DestStr;
+}

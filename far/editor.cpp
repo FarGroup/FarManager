@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.76 14.03.2001 $ */
+/* Revision: 1.77 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 SVS
+    + При выводе сообщения о размере файла сообщается его размер и
+      минимально допустимый размер редактирования.
   15.03.2001 OT
     - Если нажать в редакторе <Enter> в конце файла, а потом сделать UNDO...
   12.03.2001 SVS
@@ -449,15 +452,28 @@ int Editor::ReadFile(char *Name,int &UserBreak)
     if (GetLastError() == NO_ERROR)
     {
       int64 NeedSizeFile(Opt.EditorFileSizeLimitHi,Opt.EditorFileSizeLimitLo);
-      if(RealSizeFile > NeedSizeFile &&
-         Message(MSG_WARNING,2,MSG(MEditTitle),Name,MSG(MEditFileLong),
-                             MSG(MEditROOpen),MSG(MYes),MSG(MNo)))
+      if(RealSizeFile > NeedSizeFile)
       {
-        fclose(EditFile);
-        SetLastError(ERROR_OPEN_FAILED);
-        UserBreak=1;
-        OpenFailed=true;
-        return(FALSE);
+        char TempBuf[2][128];
+        char TempBuf2[2][64];
+        // Ширина = 8 - это будет... в Kb и выше...
+        FileSizeToStr(TempBuf2[0],RealSizeFile.PHigh(),RealSizeFile.PLow(),8);
+        FileSizeToStr(TempBuf2[1],NeedSizeFile.PHigh(),NeedSizeFile.PLow(),8);
+        sprintf(TempBuf[0],MSG(MEditFileLong),RemoveExternalSpaces(TempBuf2[0]));
+        sprintf(TempBuf[1],MSG(MEditFileLong2),RemoveExternalSpaces(TempBuf2[1]));
+        if(Message(MSG_WARNING,2,MSG(MEditTitle),
+                    Name,
+                    TempBuf[0],
+                    TempBuf[1],
+                    MSG(MEditROOpen),
+                    MSG(MYes),MSG(MNo)))
+        {
+          fclose(EditFile);
+          SetLastError(ERROR_OPEN_FAILED);
+          UserBreak=1;
+          OpenFailed=true;
+          return(FALSE);
+        }
       }
     }
   }
