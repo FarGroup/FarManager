@@ -140,7 +140,7 @@
 "Save &folders history"
 "Save &view and edit history"
 "Use Windows &registered types"
-"Add plugins' prefi&xes into path"
+"Add plugin prefi&x to command line path"
 "Auto &save setup"
 "&Path for personal plugins:"
 
@@ -171,9 +171,9 @@
 "Set command line &prompt format"
 "Use right Alt as &AltGr"
 "Show &total copy progress indicator"
-"Show scrollbar in M&enus"
+"Show scrollbar in m&enus"
 "AutoCompl&ete in input lines"
-"Use Ctrl-Pg&Up for change drive"
+"Use Ctrl-Pg&Up to change drive"
 
 "Viewer"
 "External viewer"
@@ -219,7 +219,7 @@
 "Link"
 "Copy &access rights"
 "Only ne&wer file(s)"
-"Do &several operations at once"
+"Process &multiple destinations"
 "Symb&olic link"
 "&Copy"
 "F10-&Tree"
@@ -1192,7 +1192,7 @@
 "Edit: Del,Ins,F4"
 
 "Do you wish to delete the sort group"
-"A file mask or several file masks:"
+"Match file mask(s)"
 
 "Describe file"
 "Enter %s description"

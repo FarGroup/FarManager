@@ -184,15 +184,14 @@ $ #Panel control commands#
   Use group sorting                                        #Shift-F11#
   Show selected files first                                #Shift-F12#
 
-  Поместить помеченные имена в Буфер Обмена                 #Ctrl-Ins#
-   (если командная строка пуста)
-  Поместить помеченные имена в Буфер Обмена           #Ctrl-Shift-Ins#
-   (без учета состояния командной строки)
-  Поместить помеченные полные имена в Буфер Обмена     #Alt-Shift-Ins#
-   (без учета состояния командной строки)
-  Поместить сетевые (UNC) имена помеченных файлов       #Ctrl-Alt-Ins#
-   в Буфер Обмена (без учета состояния командной
-   строки)
+  Copy the names of selected files to the clipboard         #Ctrl-Ins#
+   (if the command line is empty)
+  Copy the names of selected files to the clipboard   #Ctrl-Shift-Ins#
+   (ignore command line state)
+  Copy full names of selected files to the clipboard   #Alt-Shift-Ins#
+   (ignore command line state)
+  Copy network (UNC) names of selected files to the     #Ctrl-Alt-Ins#
+   clipboard (ignore command line state)
 
   Notes:
 
@@ -206,10 +205,11 @@ $ #Panel control commands#
      This is due to the fact that when Alt is pressed, numpad cursor
      keys are used to enter characters via their decimal codes.
 
-  3. Комбинация клавиш #Ctrl-Alt-Ins# работает по следующим правилам:
-     * для сетевых дисков - сетевое (UNC) имя файлового объекта;
-     * для локальных дисков - полное имя с учетом ~символических~@HardSymLink@
-       связей.
+  3. The key combination #Ctrl-Alt-Ins# puts the following text into the
+     clipboard:
+     * for network drives - the network (UNC) name of the file object;
+     * for local drives - the local name of the file taking into account
+       ~symbolic links~@HardSymLink@.
 
 @CmdLineCmd
 $ #Command line commands#
@@ -232,24 +232,24 @@ $ #Command line commands#
   Next command                                                #Ctrl-X#
   Clear command line                                          #Ctrl-Y#
 
- #Команды вставки#
+ #Insertion commands#
 
-  Вставить имя файла из активной панели                   #Ctrl-Enter#
-  Вставить имя файла из пассивной панели            #Ctrl-Shift-Enter#
-  Вставить полное имя файла из активной панели                #Ctrl-F#
-  Вставить полное имя файла из пассивной панели               #Ctrl-:#
-  Вставить сетевое (UNC) имя файла из активной панели     #Ctrl-Alt-F#
-  Вставить сетевое (UNC) имя файла из пассивной панели    #Ctrl-Alt-:#
+  Insert current file name from the active panel          #Ctrl-Enter#
+  Insert current file name from the passive panel   #Ctrl-Shift-Enter#
+  Insert full file name from the active panel                 #Ctrl-F#
+  Insert full file name from the passive panel                #Ctrl-:#
+  Insert network (UNC) file name from the active panel    #Ctrl-Alt-F#
+  Insert network (UNC) file name from the passive panel   #Ctrl-Alt-:#
 
-  Вставить путь из левой панели                               #Ctrl-[#
-  Вставить путь из правой панели                              #Ctrl-]#
-  Вставить сетевое (UNC) путь из левой панели             #Ctrl-Alt-[#
-  Вставить сетевое (UNC) путь из правой панели            #Ctrl-Alt-]#
+  Insert path from the left panel                             #Ctrl-[#
+  Insert path from the right panel                            #Ctrl-]#
+  Insert network (UNC) path from the left panel           #Ctrl-Alt-[#
+  Insert network (UNC) path from the right panel          #Ctrl-Alt-]#
 
-  Вставить путь из активной панели                      #Ctrl-Shift-[#
-  Вставить путь из пассивной панели                     #Ctrl-Shift-]#
-  Вставить сетевое (UNC) путь из активной панели         #Alt-Shift-[#
-  Вставить сетевое (UNC) путь из пассивной панели        #Alt-Shift-]#
+  Insert path from the active panel                     #Ctrl-Shift-[#
+  Insert path from the passive panel                    #Ctrl-Shift-]#
+  Insert network (UNC) path from the active panel        #Alt-Shift-[#
+  Insert network (UNC) path from the passive panel       #Alt-Shift-]#
 
   Notes:
 
@@ -270,11 +270,11 @@ $ #Command line commands#
      #Alt-Shift-End# select the block in the command line also when the
      panels are on.
 
-  5. Комбинации клавиш, позволяющие получить сетевое (UNC) имя
-     файлового объекта, работают по следующим правилам:
-     * для сетевых дисков - сетевое (UNC) имя файлового объекта;
-     * для локальных дисков - полное имя с учетом ~символических~@HardSymLink@
-       связей.
+  5. The key combinations allowing to insert the network (UNC) name
+     of a file object insert the following text into the command line:
+     * for network drives - the network (UNC) name of the file object;
+     * for local drives - the local name of the file taking into account
+       ~symbolic links~@HardSymLink@.
 
 @FuncCmd
 $ #File management and service commands#
@@ -1453,11 +1453,10 @@ $ #System settings dialog#
                           registered to process this file type
                           will be executed.
 
-  #Add plugins' prefixes#   Если эта опция включена, то FAR в операциях
-  #into path#               вставки пути к объекту на панели плагина
-                          (Ctrl-F, Ctrl-[ ...) автоматически добавит
-                          префикс плагина перед вставляемым путем в
-                          ~command line~@CmdLineCmd@.
+  #Add plugin prefix#       If this option is enabled, FAR will automatically
+  #to command line path#    prepend a plugin prefix to any path inserted
+                          by commands for inserting a file name into the
+                          command line (Ctrl-F, Ctrl-[ and so on).
 
   #Auto save setup#         If checked, FAR will save setup
                           automatically. The current folders for
@@ -1548,13 +1547,13 @@ $ #Interface settings dialog#
                           #$g# - the > character;
                           #$$# - the $ character.
 
-  #Use right Alt#           Set this option, if you experience
+  #Use right Alt#           Enable this option if you experience
   #as AltGr#                problems with using right Alt combinations
                           to enter symbols under Windows 9x.
                           Or clear it, if you prefer to use right Alt
                           for quick search.
 
-                          This option has meaning only under
+                          This option has effect only under
                           Windows 9x and is ignored under Windows NT.
 
   #Show total copy#         Show total progress bar, when performing
@@ -1575,7 +1574,7 @@ $ #Interface settings dialog#
                           being recorded or executed.
 
   #Use Ctrl-PgUp#           Pressing Ctrl-PgUp in the root directory:
-  #to change drives#        - for local drives - shows the drive
+  #to change drive#         - for local drives - shows the drive
                             selection menu;
                           - for network drives - activates the
                             Network plugin (if it is available)
@@ -1966,15 +1965,15 @@ to define file highlighting groups. Each group definition includes:
      - an optional character to mark files from the group.
        It may be used both with or instead of color highlighting.
 
-    Если вы выключите опцию "#Одна или несколько масок файлов#", то маски
-файлов будут исключены из анализа, а сравнение будет проводиться только по
-атрибутам.
+    If the option "A file mask or several file masks" is turned off, file
+masks will not be analyzed, and only file attributes will be taken into
+account.
 
     A file belongs to a highlighting group if:
 
-     - включен анализ масок и его имя соответствует хотя бы
-       одной маске (если анализ масок отключен, то имя файла не
-       имеет значения);
+     - file mask analysis is enabled and the name of the file matches
+       at least one file mask (if file mask analysis is disabled,
+       the file name doesn't matter);
 
      - it has all of the included attributes;
 
@@ -2014,7 +2013,7 @@ settings.
                           positions) in recently viewed files
                           (created with RightCtrl-<N>)
 
-  #Auto detect#             If you use the several character tables,
+  #Auto detect#             If you use several character tables,
   #character table#         you can set this option on to ~auto detect~@DistTable@
                           the character table of the file being
                           viewed.
@@ -2032,8 +2031,8 @@ settings.
 only if the ~associated~@FileAssoc@ viewer for the current file type is
 not defined.
 
-    Измененные настройки не влияют на ранее открытые окна встроенной
-программы просмотра.
+    Modifications of settings in this dialog do not affect previously
+opened internal viewer windows.
 
     The settings dialog can also be invoked from the ~internal
 viewer~@Viewer@ by pressing #Alt-Shift-F9#. The changes will come
@@ -2082,7 +2081,7 @@ settings.
                           positions) in recently edited files
                           (created with RightCtrl-<N>)
 
-  #Auto detect#             If you use the several character tables,
+  #Auto detect#             If you use several character tables,
   #character table#         you can set this option on to ~auto detect~@DistTable@
                           the character table of the file being
                           edited.
@@ -2105,7 +2104,8 @@ settings.
     If the external editor is assigned to F4 key, it will be executed only
 if ~associated~@FileAssoc@ editor for the current file type is not defined.
 
-    Измененные настройки не влияют на ранее открытые окна редактора.
+    Modifications of settings in this dialog do not affect previously
+opened internal editor windows.
 
     The settings dialog can also be invoked from the ~internal
 editor~@Editor@ by pressing #Alt-Shift-F9#. The changes will come
@@ -2179,8 +2179,8 @@ time components will remain unchanged.
 
     The #Current# button fills the file time fields with the current time.
 
-    Кнопка #Original# (Исходное) заполняет поля времени файла оригинальными
-значениями. Доступна для одиночного файлового объекта.
+    The #Original# button fills the file time fields with their original
+values. Available only when the dialog is invoked for a single file object.
 
 @FolderShortcuts
 $ #Folder shortcuts#
@@ -2410,8 +2410,8 @@ the character '#|#'.
  5. |*.bak
     The same as *|*.bak
 
-    Через запятую (или точку с запятой) перечисляются маски файлов, а при
-помощи '|' маски-включения отделяются от масок-исключения.
+    The comma (or semicolon) is used for separating file masks from each
+other, and the '|' character separates include masks from exclude masks.
 
 
 @SelectFiles
@@ -2458,7 +2458,7 @@ files and folders:
 
   Create ~file links~@HardSymLink@                                         #Alt-F6#
 
-    If the option "#Execute multiple operations#" is enabled, you
+    If the option "#Process multiple destinations#" is enabled, you
 may specify multiple copy or move targets in the input line. In this
 case, targets should be separated with a character "#;#" or "#,#". If
 the name of a target contains the character ";" or ",", it must be
@@ -2467,11 +2467,11 @@ enclosed in quotes.
     If you wish to create the destination folder before copying,
 terminate the name with backslash. Also in the Copy dialog you may press
 #F10# to select a folder from the active file panel tree or #Alt-F10#
-to select from the passive file panel tree. #Shift-F10# позволяет открыть
-дерево с учетом пути, содержащегося в строке ввода (если там перечислено
-несколько путей, то учитывается только первый из них). Если включена опция
-"#Выполнить сразу несколько операций#", то выбранный
-каталог добавляется к содержимому строки ввода через точку с запятой.
+to select from the passive file panel tree. #Shift-F10# allows to open
+the tree for the path entered in the input line (if several paths are
+entered, only the first one is taken into account). If the option "Process
+multiple filenames" is enabled, the dialog selected in the tree is appended
+to the edit line.
 
     The possibility of copying, moving and renaming files for plugins
 depends upon the plugin module functionality.
@@ -2500,8 +2500,10 @@ is not available) instead of the internal copy implementation to copy files.
 It may be useful on NTFS, because CopyFileEx performs a more rational
 disk space allocation and copies file extended attributes.
 
-    При копировании/переносе файлов и каталогов FAR также учитывает
-реальные пути с учетом ~символических связей~@HardSymLink@ в Windows 2000.
+    When moving files, to determine whether the operation should be
+performed as a copy with subsequent deletion or as a direct move
+(within one physical drive), FAR takes into account Windows 2000
+~symbolic links~@HardSymLink@.
 
 @HardSymLink
 $ #Hard and Symbolic link#

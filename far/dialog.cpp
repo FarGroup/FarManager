@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.176 08.11.2001 $ */
+/* Revision: 1.177 09.11.2001 $ */
 
 /*
 Modify:
+  09.11.2001 SVS
+    - ѕадение при раскрытии комбобокса с количеством итемов = 0
   08.11.2001 SVS
     + IsDialogParent - а родитель у нас кто дл€ строк редактировани€?
     ! ƒобавка в виде BitFlags - управление флагами текущего режима диалога
@@ -2811,7 +2813,8 @@ int Dialog::ProcessKey(int Key)
          + обработка DI_COMBOBOX - выбор из списка!
       */
       else if(Type == DI_COMBOBOX && Item[FocusPos].ListPtr &&
-              !(Item[FocusPos].Flags & DIF_READONLY))
+              !(Item[FocusPos].Flags & DIF_READONLY) &&
+              Item[FocusPos].ListPtr->GetItemCount() > 0) //??
       {
         int MaxLen=(Item[FocusPos].Flags&DIF_VAREDIT)?
                      Item[FocusPos].Ptr.PtrLength:
