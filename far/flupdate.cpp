@@ -5,10 +5,17 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.19 22.11.2001 $ */
+/* Revision: 1.20 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 SVS
+    ! небольшая оптимизация в "запроснике" цветов - цвета запрашиваем
+      только после сбора информации о файловых объектах и применяем
+      новую функцию HighlightFiles::GetHiColor(), работающая с кипой
+      структур FileListItem
+    - ФАР жрал кучу процессорного времени - во время простоя все
+      время перекраска каталога шла.
   22.11.2001 VVM
     + Раскрасить ".." при OPIF_ADDDOTS
   13.11.2001 OT
@@ -394,7 +401,6 @@ void FileList::ReadFileNames(int KeepSelection)
           TotalFileSize+=int64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
           CurPtr->PrevSelected=CurPtr->Selected=0;
           CurPtr->ShowFolderSize=0;
-          CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,&CurPtr->Colors);
           if ((CurPtr->FileAttr & FA_DIREC)==0)
             CurPtr->SortGroup=CtrlObject->GrpSort->GetGroup(CurPtr->Name);
           else
@@ -402,6 +408,8 @@ void FileList::ReadFileNames(int KeepSelection)
           if (strcmp(fdata.cFileName,"..")!=0 && (CurPtr->FileAttr & FA_DIREC)==0)
             TotalFileCount++;
         }
+        // цветовую боевую раскраску в самом конце, за один раз
+        CtrlObject->HiFiles->GetHiColor(ListData+FileCount,PanelCount);
         FileCount+=PanelCount;
       }
       CtrlObject->Plugins.FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
@@ -444,28 +452,30 @@ void FileList::ReadFileNames(int KeepSelection)
 int FileList::UpdateIfChanged(int Force)
 {
   //_SVS(SysLog("CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
-  if ((!Opt.AutoUpdateLimit || FileCount <= Opt.AutoUpdateLimit) &&
-      IsVisible() && (clock()-LastUpdateTime>2000 || Force))
+  if(!Opt.AutoUpdateLimit || FileCount <= Opt.AutoUpdateLimit)
   {
-    if(!Force)ProcessPluginEvent(FE_IDLE,NULL);
-    if (PanelMode==NORMAL_PANEL && hListChange!=NULL)
-      if (WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0)
-      {
-        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-        if (AnotherPanel->GetType()==INFO_PANEL)
+    if (IsVisible() && (clock()-LastUpdateTime>2000 || Force))
+    {
+      if(!Force)ProcessPluginEvent(FE_IDLE,NULL);
+      if (PanelMode==NORMAL_PANEL && hListChange!=NULL)
+        if (WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0)
         {
-          AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+          Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+          // В этом случае - просто перекрасим
+          UpdateColorItems();
+          if (AnotherPanel->GetType()==INFO_PANEL)
+          {
+            AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+            if(!Force)
+              AnotherPanel->Redraw();
+          }
+          Update(UPDATE_KEEP_SELECTION);
           if(!Force)
-            AnotherPanel->Redraw();
+            Show();
+          return(TRUE);
         }
-        Update(UPDATE_KEEP_SELECTION);
-        if(!Force)
-          Show();
-        return(TRUE);
-      }
+    }
   }
-  // В этом случае - просто перекрасим
-  UpdateColorItems();
   return(FALSE);
 }
 /* SKV$*/
@@ -473,12 +483,7 @@ int FileList::UpdateIfChanged(int Force)
 void FileList::UpdateColorItems(void)
 {
   if (Opt.Highlight && PanelMode != PLUGIN_PANEL)
-  {
-    int I;
-    struct FileListItem *CurPtr;
-    for(I=0,CurPtr=ListData; I < FileCount; ++I,++CurPtr)
-      CtrlObject->HiFiles->GetHiColor(CurPtr->Name,CurPtr->FileAttr,&CurPtr->Colors);
-  }
+    CtrlObject->HiFiles->GetHiColor(ListData,FileCount);
 }
 
 

@@ -5,10 +5,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.33 21.11.2001 $ */
+/* Revision: 1.34 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 SVS
+    + GetHiColor(), работающа€ с кипой структур FileListItem
   21.11.2001 SVS
     - Ѕага в обработчике - если сто€ть на чекбоксе, например про RO и жмакать
       пробел, то после второго такого нажати€ по€вл€етс€... диалог выбора
@@ -123,6 +125,7 @@ Modify:
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "filelist.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
@@ -328,27 +331,50 @@ void HighlightFiles::ClearData()
 void HighlightFiles::GetHiColor(char *Path,int Attr,
                                 struct HighlightDataColor *Colors)
 {
-  struct HighlightData *CurHiData=HiData;
-  int I;
-  ReWriteWorkColor(Colors);
-  //Path=Path?Path:""; // если Path==NULL, то считаем, что это пуста€ строка
-
-  for (I=0; I < HiDataCount;I++, ++CurHiData)
-  {
-    if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
-        (Attr & CurHiData->ExcludeAttr)==0)
-    {
-      if(CurHiData->IgnoreMask || (Path && CurHiData->FMasks->Compare(Path)))
-        {
-          memcpy(Colors,&CurHiData->Colors,sizeof(struct HighlightDataColor));
-          return;
-        }
-    }
-  }
+  struct FileListItem FileItem;
+  if(Path)
+    strncpy(FileItem.Name,Path,sizeof(FileItem.Name)-1);
+  else
+    *FileItem.Name=0;
+  FileItem.FileAttr=Attr;
+  GetHiColor(&FileItem,1);
+  memcpy(Colors,&FileItem.Colors,sizeof(struct HighlightDataColor));
 }
 /* IS $ */
 /* IS $ */
 /* DJ $ */
+
+void HighlightFiles::GetHiColor(struct FileListItem *FileItem,int FileCount)
+{
+  if(!FileItem || !FileCount)
+    return;
+
+  struct HighlightData *CurHiData;
+  struct HighlightDataColor Colors;
+  int I, FCnt;
+  ReWriteWorkColor(&Colors);
+  //Path=Path?Path:""; // если Path==NULL, то считаем, что это пуста€ строка
+
+  for(FCnt=0; FCnt < FileCount; ++FCnt,++FileItem)
+  {
+    DWORD Attr=FileItem->FileAttr;
+    char *Path=FileItem->Name;
+    if(!*Path) Path=NULL;
+    memcpy(&FileItem->Colors,&Colors,sizeof(struct HighlightDataColor));
+    for (CurHiData=HiData,I=0; I < HiDataCount;I++, ++CurHiData)
+    {
+      if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
+          (Attr & CurHiData->ExcludeAttr)==0)
+      {
+        if(CurHiData->IgnoreMask || (Path && CurHiData->FMasks->Compare(Path)))
+          {
+            memcpy(&FileItem->Colors,&CurHiData->Colors,sizeof(struct HighlightDataColor));
+            break;
+          }
+      }
+    }
+  }
+}
 
 void HighlightFiles::ReWriteWorkColor(struct HighlightDataColor *Colors)
 {

@@ -7,10 +7,12 @@ Files highlighting
 
 */
 
-/* Revision: 1.07 25.09.2001 $ */
+/* Revision: 1.08 23.11.2001 $ */
 
 /*
 Modify:
+  23.11.2001 SVS
+    + GetHiColor(), работающая с кипой структур FileListItem
   25.09.2001 IS
     + HighlightData.IgnoreMask
     + Параметр IgnoreMask у AddMask и у DupHighlightData
@@ -61,6 +63,7 @@ struct HighlightData
 /* IS $ */
 
 class VMenu;
+struct FileListItem;
 
 class HighlightFiles
 {
@@ -93,6 +96,7 @@ class HighlightFiles
   public:
     void GetHiColor(char *Path,int Attr,
                     struct HighlightDataColor *Colors);
+    void GetHiColor(struct FileListItem *FileItem,int FileCount);
     void HiEdit(int MenuPos);
 
     static void ReWriteWorkColor(struct HighlightDataColor *Colors=NULL);
