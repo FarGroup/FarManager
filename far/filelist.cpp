@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.51 08.05.2001 $ */
+/* Revision: 1.52 11.05.2001 $ */
 
 /*
 Modify:
+  11.05.2001 VVM
+    - Различные баги
   08.05.2001 SVS
     + CtrlPgUp: Для неремотных дисков ПОКА покажем меню выбора дисков
   07.05.2001 SVS
@@ -1178,10 +1180,18 @@ int FileList::ProcessKey(int Key)
                   ViewList.SetCurName(FileName);
                 }
                 FileViewer *ShellViewer=new FileViewer(FileName,TRUE,PluginMode,PluginMode,-1,PluginData,&ViewList);
-                if (PluginMode)
-                  ShellViewer->SetTempViewName(FileName);
-                CtrlObject->FrameManager->AddFrame(ShellViewer);
-                Modaling=TRUE; ///
+                /* $ 11.05.2001 VVM
+                  - Проверить, открылся ли файл... */
+                if (ShellViewer->GetExitCode() != FALSE)
+                {
+                  if (PluginMode)
+                    ShellViewer->SetTempViewName(FileName);
+                  CtrlObject->FrameManager->AddFrame(ShellViewer);
+                }
+                else
+                  delete ShellViewer;
+                Modaling=FALSE; ///
+                /* VVM $ */
               }
           }
         if (PluginMode)
