@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.244 24.02.2004 $ */
+/* Revision: 1.245 02.03.2004 $ */
 
 /*
 Modify:
+  02.03.2004 SVS
+    ! Уточнение Editor::SaveData()
   24.02.2004 SVS
     - Ctrl+End в редакторе
   12.01.2004 IS
@@ -1437,8 +1439,10 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       NumLastLine++;
     }
   }
+
   if (NumLine>0)
     NumLastLine--;
+
   if (NumLastLine==0)
     NumLastLine=1;
 
@@ -1447,6 +1451,7 @@ int Editor::ReadData(LPCSTR SrcBuf,int SizeSrcBuf)
       CurPtr->EditLine.SetTables(&TableSet);
   else
     TableNum=0;
+
 #endif
   return(TRUE);
 }
@@ -1479,15 +1484,16 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
   }
 
   int StrLength=0;
-  // прйдемся по списку строк
+  const char *SaveStr, *EndSeq;
+  int Length;
+
+  // посчитаем количество строк и общий размер памяти (чтобы не дергать realloc)
   struct EditList *CurPtr=TopList;
+
+  DWORD AllLength=0;
   while (CurPtr!=NULL)
   {
-    const char *SaveStr, *EndSeq;
-    int Length;
-
     CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
-
     // выставляем концовку строк
     if (*EndSeq==0 && CurPtr->Next!=NULL)
       EndSeq=*GlobalEOL ? GlobalEOL:DOS_EOL_fmt;
@@ -1500,31 +1506,39 @@ int Editor::SaveData(char **DestBuf,int& SizeDestBuf,int TextFormat)
         EndSeq=UNIX_EOL_fmt;
       else
         EndSeq=MAC_EOL_fmt;
+
       CurPtr->EditLine.SetEOL(EndSeq);
     }
-
-    if (Length >= StrLength)
-    {
-      char *NewStr=(char *)xf_realloc(PDest,StrLength+Length+16);
-      if (NewStr==NULL)
-      {
-        if(PDest)
-          xf_free(PDest);
-        return FALSE;
-      }
-      PDest=NewStr;
-      StrLength+=Length+16;
-    }
-
-    strcpy(PDest,SaveStr);
-    strcat(PDest,EndSeq);
-    SizeDestBuf+=strlen(PDest);
-    PDest+=strlen(PDest);
-
-    CurPtr=CurPtr->Next;
+    AllLength+=Length+strlen(EndSeq)+16;
   }
+
+  char *MemEditStr=(char *)malloc(sizeof(char) * AllLength);
+
+  if(MemEditStr)
+  {
+    *MemEditStr=0;
+    PDest=MemEditStr;
+    // прйдемся по списку строк
+    CurPtr=TopList;
+    while (CurPtr!=NULL)
+    {
+      CurPtr->EditLine.GetBinaryString(SaveStr,&EndSeq,Length);
+
+      strcpy(PDest,SaveStr);
+      strcat(PDest,EndSeq);
+      PDest+=strlen(PDest);
+
+      CurPtr=CurPtr->Next;
+    }
+    SizeDestBuf=strlen(MemEditStr);
+    DestBuf=&MemEditStr;
+    return TRUE;
+  }
+  else
+    return FALSE;
+#else
+  return TRUE;
 #endif
-  return(TRUE);
 }
 
 

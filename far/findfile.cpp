@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.154 19.11.2003 $ */
+/* Revision: 1.155 02.03.2004 $ */
 
 /*
 Modify:
+  02.03.2004 SVS
+    - BugZ#1040 - неправильное форматирование сообщения
+    + небольшая оптимизация коад - общий кусок вынесен в отдельный процедур.
   19.11.2003 IS
     ! теперь NamesList не требует указания размера списка
   26.10.2003 KM
@@ -903,6 +906,20 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 }
 
 
+static void ShowTruncateMessage(int IDMField,int MaxSize)
+{
+  char Buf1 [128];
+  char Buf2 [128];
+
+  *Buf1='\'';
+  strncpy (Buf1+1, MSG(IDMField), sizeof(Buf1)-3);
+  strcat(Buf1,"'");
+  RemoveHighlights(Buf1);
+  sprintf (Buf2, MSG(MEditInputSize2), MaxSize);
+  Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditInputSize1),Buf1,Buf2,MSG(MOk));
+}
+
+
 FindFiles::FindFiles()
 {
   _ALGO(CleverSysLog clv("FindFiles::FindFiles()"));
@@ -1157,28 +1174,14 @@ FindFiles::FindFiles()
     UseFilter=FindAskDlg[26].Selected;
 
     /* $ 14.12.2000 OT */
-    char Buf1 [24];
-    char Buf2 [128];
+
     if (strlen (FindAskDlg[2].Data) > sizeof(FindMask) )
-    {
-      memset (Buf1, 0, sizeof(Buf1));
-      memset (Buf2, 0, sizeof(Buf2));
-      strncpy (Buf1, MSG(MFindFileMasks), sizeof(Buf1)-1);
-      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindMask)-1);
-      Message(MSG_WARNING,1,MSG(MWarning),Buf2,MSG(MOk));
-    }
+      ShowTruncateMessage(MFindFileMasks,sizeof(FindMask)-1);
 
     strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
 
     if (strlen((SearchHex)?FindAskDlg[5].Data:FindAskDlg[6].Data) > sizeof(FindStr))
-    {
-      memset (Buf1, 0, sizeof(Buf1));
-      memset (Buf2, 0, sizeof(Buf2));
-      strncpy (Buf1, MSG(MFindFileText), sizeof(Buf1)-1);
-      RemoveHighlights(Buf1);
-      sprintf (Buf2,MSG(MEditInputSize), Buf1, sizeof(FindStr)-1);
-      Message(MSG_WARNING,1,MSG(MWarning),Buf2,MSG(MOk));
-    }
+      ShowTruncateMessage(MFindFileText,sizeof(FindStr)-1);
 
     /* $ 26.10.2003 KM */
     if (SearchHex)
