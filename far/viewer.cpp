@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.85 12.12.2001 $ */
+/* Revision: 1.86 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! Нафиг ненужна самодеятельность с выставлением пимпы Hex в этом режиме.
   12.12.2001 DJ
     ! последние правки SVS не компилились VC++
   12.12.2001 SVS
@@ -2034,16 +2036,8 @@ void Viewer::Search(int Next,int FirstChar)
     return;
 
   strncpy(SearchDlg[2].Data,(char *)LastSearchStr,sizeof(SearchDlg[2].Data)-1);
-  if(VM.Hex && !Next) // при первом поиске все зависит от режима
-  {
-    SearchDlg[4].Selected=FALSE;
-    SearchDlg[5].Selected=TRUE;
-  }
-  else
-  {
-    SearchDlg[4].Selected=!LastSearchHex;
-    SearchDlg[5].Selected=LastSearchHex;
-  }
+  SearchDlg[4].Selected=!LastSearchHex;
+  SearchDlg[5].Selected=LastSearchHex;
   SearchDlg[6].Selected=LastSearchCase;
   /* $ 01.08.2000 KM
      Инициализация checkbox'а "Whole words"

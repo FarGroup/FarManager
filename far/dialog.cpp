@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.199 21.12.2001 $ */
+/* Revision: 1.200 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! Уточнение для обрезания заголовков в DI_SINGLEBOX.
   21.12.2001 SVS
     - Если DI_LISTBOX был не в фокусе, то... все равно гад реагировал на мышу.
     ! (unsigned char) -> (short)
@@ -1889,9 +1891,9 @@ void Dialog::ShowDialog(int ID)
           */
           sprintf(Str," %s ",CurItem->Data);
           LenText=LenStrItem(I,Str);
-          if(LenText > CW-4)
+          if(LenText > CW-3)
           {
-            TruncStrFromEnd(Str,CW-5); // 5 ???
+            TruncStrFromEnd(Str,CW-3); // 5 ???
             strcat(Str," ");
             LenText=LenStrItem(I,Str);
           }

@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.60 19.12.2001 $ */
+/* Revision: 1.61 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    ! попытка устранить мертворожденность опции "[ ] Only never..."
   19.12.2001 VVM
     ! Не сканируем каталоги при создании линков
   11.12.2001 SVS
@@ -246,7 +248,9 @@ struct CopyDlgParam {
   int SelCount;
   int FolderPresent;
   int FilesPresent;
+  int OnlyNewerFiles;
   char FSysNTFS;
+  char PluginFormat[32]; // я думаю этого достаточно.
   DWORD FileSystemFlagsSrc;
   int IsDTSrcFixed;
 };
@@ -379,11 +383,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     // Если каталог и он один, то предполагаем, что хотим создать симлинк
     if(Link && NT5 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY && PanelMode == NORMAL_PANEL)
     {
-      CopyDlg[5].Selected=1;
+      CDP.OnlyNewerFiles=CopyDlg[5].Selected=1;
       CDP.FolderPresent=TRUE;
     }
     else
-      CopyDlg[5].Selected=0;
+      CDP.OnlyNewerFiles=CopyDlg[5].Selected=0;
 
     if (SrcPanel->GetType()==TREE_PANEL)
     {
@@ -434,7 +438,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     if(!NT5 || ((CurrentOnly || CDP.SelCount==1) && !(CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY)))
     {
       CopyDlg[5].Flags|=DIF_DISABLE;
-      CopyDlg[5].Selected=0;
+      CDP.OnlyNewerFiles=CopyDlg[5].Selected=0;
     }
     // задисаблим опцию про копирование права.
     CopyDlg[4].Selected=1;
@@ -443,6 +447,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   else if(PanelMode == PLUGIN_PANEL)
   {
     // Если противоположная панель - плагин, то дисаблим OnlyNewer
+    CDP.OnlyNewerFiles=CopyDlg[5].Selected=0;
     CopyDlg[5].Flags|=DIF_DISABLE;
   }
 
@@ -460,6 +465,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         {
           AddEndSlash(strcpy(CopyDlg[2].Data,DestDir));
         }
+        CDP.PluginFormat[0]=0;
         break;
       case PLUGIN_PANEL:
         {
@@ -474,6 +480,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           /* SVS $ */
           while (strlen(CopyDlg[2].Data)<2)
             strcat(CopyDlg[2].Data,":");
+          strupr(strncpy(CDP.PluginFormat,CopyDlg[2].Data,sizeof(CDP.PluginFormat)-1));
         }
         break;
     }
@@ -815,8 +822,20 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         else // обычные Copy/Move
         {
-//          SrcPanel
-//          AnotherPanel;
+          char Buf[1024];
+          struct FarDialogItem *DItem2=(struct FarDialogItem *)Param2;
+          strupr(strncpy(Buf,DItem2->Data,sizeof(Buf)-1));
+          if(*DlgParam->PluginFormat && strstr(Buf,DlgParam->PluginFormat))
+          {
+            DItem5.Flags|=DIF_DISABLE;
+            DlgParam->OnlyNewerFiles=DItem5.Selected;
+            DItem5.Selected=0;
+          }
+          else
+          {
+            DItem5.Flags&=~DIF_DISABLE;
+            DItem5.Selected=DlgParam->OnlyNewerFiles;
+          }
         }
 
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,8,(long)&DItem8);

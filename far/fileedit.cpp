@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.77 26.12.2001 $ */
+/* Revision: 1.78 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    - BugZ#213 Не туда сохраняется файл
   26.12.2001 SVS
     + внедрение FEOPMODE_*
   25.12.2001 SVS
@@ -541,6 +543,17 @@ int FileEditor::ProcessKey(int Key)
     case KEY_F2:
     case KEY_SHIFTF2:
       {
+        // проверим путь к файлу, может его уже снесли...
+        char *Ptr=strrchr(FullFileName,'\\'), Chr;
+        if(Ptr)
+        {
+          Chr=*Ptr;
+          *Ptr=0;
+          if(GetFileAttributes(FullFileName) == -1)
+            SaveToSaveAs=TRUE;
+          *Ptr=Chr;
+        }
+
         static int TextFormat=0;
         int NameChanged=FALSE;
         if (Key==KEY_SHIFTF2 || SaveToSaveAs)
