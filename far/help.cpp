@@ -5,17 +5,20 @@ help.cpp
 
 */
 
-/* Revision: 1.25 31.05.2001 $ */
+/* Revision: 1.26 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 OT
+    - Окончательное исправление F1->AltF9.
+      Истреблены переменные static SaveScreen *TopScreen и TopLevel за ненадобностью
   31.05.2001 OT
     + ResizeConsole()
     - Исправление F1->AltF9-> ?? Остались некоторые артефакты,
       связанные со ScreenSaveом, но... это чуть позже :)
   26.05.2001 OT
     - Выпрямление логики вызовов в NFZ
-    - По умолчанию хелпы создаются статически. 
+    - По умолчанию хелпы создаются статически.
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -100,7 +103,6 @@ Modify:
 #define MAX_HELP_STRING_LENGTH 300
 
 static int FullScreenHelp=0;
-static SaveScreen *TopScreen=NULL;
 
 static char *PluginContents="__PluginContents__";
 static char *HelpOnHelpTopic="Help";
@@ -143,8 +145,6 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   /* $ 07.05.2001 DJ */
   KeyBarVisible = TRUE;
   /* DJ $ */
-  TopLevel=TRUE;
-  TopScreen=new SaveScreen;
   HelpData=NULL;
   strcpy(HelpTopic,Topic);
   *HelpPath=0;
@@ -203,7 +203,6 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   /* $ 07.05.2001 DJ */
   KeyBarVisible = TRUE;
   /* DJ $ */
-  TopLevel=FALSE;
   HelpData=NULL;
   Help::PrevFullScreen=PrevFullScreen;
   strcpy(HelpTopic,Topic);
@@ -262,21 +261,12 @@ Help::~Help()
   if(HelpMask)
     delete HelpMask;
   /* SVS $ */
-  if (TopLevel)
-  {
-    delete TopScreen;
-    TopScreen=NULL;
-  }
-  if (TopScreen!=NULL && (TopLevel || PrevFullScreen!=FullScreenHelp))
-    TopScreen->RestoreArea();
 }
 
 
 void Help::Hide()
 {
   ScreenObject::Hide();
-  if (TopScreen!=NULL)
-    TopScreen->RestoreArea();
 }
 
 

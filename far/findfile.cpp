@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.28 03.06.2001 $ */
+/* Revision: 1.29 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 OT
+     Подпорка для "естественного" обновления экрана
   03.06.2001 SVS
     ! Изменения в связи с переделкой UserData в VMenu
   30.05.2001 OT
@@ -503,9 +505,11 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     pDlg->Hide();
                     {
+                      (*FrameManager)[0]->UnlockRefresh();
                       FileViewer ShellViewer (UserDataItem.FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
                       ShellViewer.SetDynamicallyBorn(FALSE);
-                      FrameManager->ExecuteModal ();//OT
+                      FrameManager->ExecuteModal ();
+                      (*FrameManager)[0]->LockRefresh();
                     }
                     pDlg->Show();
                     FindList.Show();
@@ -515,10 +519,12 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     pDlg->Hide();
                     {
+                      (*FrameManager)[0]->UnlockRefresh();
                       FileEditor ShellEditor (UserDataItem.FileFindData.cFileName,FALSE,FALSE);
                       ShellEditor.SetDynamicallyBorn(FALSE);
                       ShellEditor.SetEnableF6 (TRUE);
-                      FrameManager->ExecuteModal ();//OT
+                      FrameManager->ExecuteModal ();
+                      (*FrameManager)[0]->LockRefresh();
                     }
                     pDlg->Show();
                     FindList.Show();
@@ -528,7 +534,7 @@ int FindFiles::FindFilesProcess()
               }
             }
             pDlg->ClearDone();
-//            pDlg->Show();
+            pDlg->Show();
             FindList.SetUpdateRequired(TRUE);
             FindList.Show();
             continue;

@@ -5,17 +5,19 @@ manager.cpp
 
 */
 
-/* Revision: 1.28 30.05.2001 $ */
+/* Revision: 1.29 04.06.2001 $ */
 
 /*
 Modify:
+  04.06.2001 OT
+     Подпорка для "естественного" обновления экрана
   30.05.2001 OT
     - Баг типа memory leak после F6 в редакторе/вьюере. Исправлена функция UpdateCommit()
     - Приведение CloseAll() и ExitAll() к канонами NFZ.
-    - Исправление ActivateCommit(). При некоторых обстоятельствах 
+    - Исправление ActivateCommit(). При некоторых обстоятельствах
       бестолку "проглатывался" ActivatedFrame.
     + AltF9 работет теперь не только в панелях, но и ... везде :)
-  28.05.2001 OT 
+  28.05.2001 OT
     - Исправление "Файл после F3 остается залоченным" (переписан DeleteCommit())
   26.05.2001 OT
     - Исправление ExucuteModal()
@@ -263,7 +265,7 @@ void Manager::ExecuteModal (Frame *Executed)
     } else {
       ExecutedFrame=Executed;
     }
-  } 
+  }
 
   int ModalStartLevel=ModalStackCount;
   while (1){
@@ -498,7 +500,10 @@ int  Manager::ProcessKey(int Key)
       for (i=0;i<FrameCount;i++){
         FrameList[i]->ResizeConsole();
       }
-      FrameManager->RefreshFrame(CurrentFrame);
+      for (i=0;i<ModalStackCount;i++){
+        ModalStack[i]->ResizeConsole();
+      }
+      FrameManager->RefreshFrame();
       return TRUE;
     case KEY_F11:
       PluginsMenu();
