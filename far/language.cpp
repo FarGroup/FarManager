@@ -5,10 +5,12 @@ language.cpp
 
 */
 
-/* Revision: 1.18 27.02.2002 $ */
+/* Revision: 1.19 19.03.2002 $ */
 
 /*
 Modify:
+  19.03.2002 DJ
+    ! не вылетаем при отрицательном индексе в GetMsg()
   27.02.2002 SVS
     ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
   25.01.2002 SVS
@@ -217,7 +219,11 @@ void Language::ConvertString(char *Src,char *Dest)
 
 char* Language::GetMsg(int MsgId)
 {
-  if (MsgId>=MsgCount)
+  /* $ 19.03.2002 DJ
+     при отрицательном индексе - также покажем сообщение об ошибке
+     (все лучше, чем трапатьс€)
+  */
+  if (MsgId>=MsgCount || MsgId < 0)  /* DJ $ */
   {
     /* $ 03.09.2000 IS
        ! Ќормальное сообщение об отсутствии строки в €зыковом файле

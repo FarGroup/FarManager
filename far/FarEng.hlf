@@ -278,13 +278,9 @@ $ #Command line commands#
      #Alt-Shift-End# select the block in the command line also when the
      panels are on.
 
-  5. The key combinations allowing to insert the network (UNC) name
-     of a file object insert the following text into the command
-     line:
-     * for network drives - the network (UNC) name of the file
-       object;
-     * for local drives - the local name of the file taking into
-       account ~symbolic links~@HardSymLink@.
+  5. For local drives, the commands to insert the network (UNC)
+     name of a file object insert the local name of the file with
+     ~symbolic links~@HardSymLink@ expanded.
 
 @FuncCmd
 $ #File management and service commands#
@@ -351,14 +347,14 @@ name.
   Internal/external viewer                                    #Alt-F3#
 
   If the internal viewer is used by default, invokes the
-external viewer specified in the ~settings~@ViewerSetting@
+external viewer specified in the ~settings~@ViewerSettings@
 or the ~associated viewer program~@FileAssoc@ for the file type.
 If the external viewer is used by default, invokes the internal viewer.
 
   Internal/external editor                                    #Alt-F4#
 
   If the internal editor is used by default, invokes the
-external editor specified in the ~settings~@EditorSetting@
+external editor specified in the ~settings~@EditorSettings@
 or the ~associated editor program~@FileAssoc@ for the file type.
 If the external editor is used by default, invokes the internal editor.
 
