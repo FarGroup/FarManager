@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.12 02.11.2000 $ */
+/* Revision: 1.13 03.11.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения 
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   27.09.2000 SVS
@@ -120,7 +122,10 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
   if (!DisableHistory && (CtrlObject->ActivePanel!=NULL || strcmp(Name,"-")!=0))
   {
     char FullFileName[NM];
-    ConvertNameToFull(Name,FullFileName, sizeof(FullFileName));
+//    ConvertNameToFull(Name,FullFileName, sizeof(FullFileName));
+    if (ConvertNameToFull(Name,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName)){
+      return ;
+    }
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);
   }
 }

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.10 02.11.2000 $ */
+/* Revision: 1.11 16.10.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения 
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   16.10.2000 SVS
@@ -271,7 +273,10 @@ int FileEditor::ProcessKey(int Key)
           RemoveTrailingSpaces(EditDlg[2].Data);
           NameChanged=LocalStricmp(EditDlg[2].Data,FileName)!=0;
           strcpy(FileName,EditDlg[2].Data);
-          ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
+//          ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
+          if (ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName)){
+            return FALSE;
+          }
           if (EditDlg[4].Selected)
             TextFormat=0;
           if (EditDlg[5].Selected)

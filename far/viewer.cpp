@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.35 02.11.2000 $ */
+/* Revision: 1.36 03.11.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения 
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   20.10.2000 tran
@@ -346,7 +348,11 @@ int Viewer::OpenFile(char *Name,int warning)
   TableChangedByUser=FALSE;
   ViewFile=NewViewFile;
   strcpy(FileName,Name);
-  ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
+//  ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName));
+  if (ConvertNameToFull(FileName,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName)){
+    OpenFailed=false;
+    return FALSE;
+  }
 
   HANDLE ViewFindHandle;
   ViewFindHandle=FindFirstFile(FileName,&ViewFindData);
@@ -2010,7 +2016,10 @@ void Viewer::ShowConsoleTitle()
 
 void Viewer::SetTempViewName(char *Name)
 {
-  ConvertNameToFull(Name,TempViewName, sizeof(TempViewName));
+//  ConvertNameToFull(Name,TempViewName, sizeof(TempViewName));
+  if (ConvertNameToFull(Name,TempViewName, sizeof(TempViewName)) >= sizeof(TempViewName)){
+    return;
+  }
 }
 
 

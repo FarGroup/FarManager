@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.03 02.11.2000 $ */
+/* Revision: 1.04 13.07.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения 
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   13.07.2000 SVS
@@ -141,7 +143,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         if (!DeleteAllFolders)
         {
           char FullName[NM];
-          ConvertNameToFull(SelName,FullName, sizeof(FullName));
+//          ConvertNameToFull(SelName,FullName, sizeof(FullName));
+          if (ConvertNameToFull(SelName,FullName, sizeof(FullName)) >= sizeof(FullName)){
+            return;
+          }
           if (IsFolderNotEmpty(FullName))
           {
             int MsgCode=Message(MSG_DOWN|MSG_WARNING,4,MSG(MDeleteFolderTitle),
@@ -404,7 +409,11 @@ int RemoveToRecycleBin(char *Name)
 {
   SHFILEOPSTRUCT fop;
   char FullName[NM+1];
-  ConvertNameToFull(Name,FullName, sizeof(FullName));
+//  ConvertNameToFull(Name,FullName, sizeof(FullName));
+  if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName)){
+    return 1;
+  }
+
   OemToChar(FullName,FullName);
   FullName[strlen(FullName)+1]=0;
   fop.hwnd=NULL;

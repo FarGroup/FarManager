@@ -5,12 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.12 02.11.2000 $ */
+/* Revision: 1.13 03.11.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения 
   02.11.2000 OT
-   ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   23.10.2000 VVM
    + Динамический буфер копирования
   21.10.2000 SVS
@@ -715,7 +717,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
         if (SetAttr!=DestAttr)
           SetFileAttributes(DestPath,SetAttr);
         char SrcFullName[NM];
-        ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName));
+        if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName)){
+          return(COPY_NEXT);
+        }
         return(strcmp(DestPath,SrcFullName)==0 ? COPY_NEXT:COPY_SUCCESS);
       }
       int Type=GetFileTypeByName(DestPath);
@@ -726,14 +730,19 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
     if (Rename)
     {
       char SrcFullName[NM],DestFullName[NM];
-      ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName));
+      if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName)){
+        return(COPY_NEXT);
+      }
       if (MoveFile(Src,DestPath))
       {
         if (PointToName(DestPath)==DestPath)
           strcpy(RenamedName,DestPath);
         else
           strcpy(CopiedName,PointToName(DestPath));
-        ConvertNameToFull(DestPath,DestFullName, sizeof(DestFullName));
+//        ConvertNameToFull(DestPath,DestFullName, sizeof(DestFullName));
+        if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName)){
+          return(COPY_NEXT);
+        }
         TreeList::RenTreeName(SrcFullName,DestFullName);
         return(SameName ? COPY_NEXT:COPY_SUCCESS_MOVE);
       }
@@ -1776,8 +1785,13 @@ void ShellCopy::ShowTitle(int FirstTime)
 int ShellCopy::CmpFullNames(char *Src,char *Dest)
 {
   char SrcFullName[NM],DestFullName[NM];
-  ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName));
-  ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName));
+  if (ConvertNameToFull(Src,SrcFullName, sizeof(SrcFullName)) >= sizeof(SrcFullName)){
+    return(2);
+  }
+  if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName)){
+    return(2);
+  }
+//  ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName));
   int I;
   for (I=strlen(SrcFullName)-1;I>0 && SrcFullName[I]=='.';I--)
     SrcFullName[I]=0;

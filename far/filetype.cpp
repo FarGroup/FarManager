@@ -5,10 +5,12 @@ filetype.cpp
 
 */
 
-/* Revision: 1.07 02.11.2000 $ */
+/* Revision: 1.08 03.11.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения 
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   01.11.2000 IS
@@ -274,7 +276,10 @@ void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFini
     int PreserveLFN=SubstFileName(ExecStr,Name,ShortName,ListName,ShortListName);
     PreserveLongName PreserveName(ShortName,PreserveLFN);
 
-    ConvertNameToFull(Name,FullName, sizeof(FullName));
+//    ConvertNameToFull(Name,FullName, sizeof(FullName));
+    if (ConvertNameToFull(Name,FullName, sizeof(FullName)) >= sizeof(FullName)){
+      return;
+    }
     ConvertNameToShort(FullName,FullShortName);
     SubstFileName(FullExecStr,FullName,FullShortName,ListName,ShortListName);
     CtrlObject->ViewHistory->AddToHistory(FullExecStr,MSG(MHistoryExt),AlwaysWaitFinish+2);

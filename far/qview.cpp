@@ -5,14 +5,16 @@ Quick view panel
 
 */
 
-/* Revision: 1.07 02.11.2000 $ */
+/* Revision: 1.08 03.11.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Введение проверки возвращаемого значения 
   02.11.2000 OT
     ! Введение проверки на длину буфера, отведенного под имя файла.
   04.08.2000 tran 1.06
-    + Gray+, Gray- передвигают курсор на другой панели
+     Gray+, Gray- передвигают курсор на другой панели
   20.07.2000 tran
     - bug#21, пустой заголовок консоли
       теперь он верный всегда
@@ -309,8 +311,12 @@ void QuickView::ShowFile(char *FileName,int TempFile,HANDLE hDirPlugin)
       QView->OpenFile(CurFileName,FALSE);
       /* tran 04.07.2000 $ */
 
-  if (TempFile)
-    ConvertNameToFull(CurFileName,TempName, sizeof(TempName));
+  if (TempFile){
+//    ConvertNameToFull(CurFileName,TempName, sizeof(TempName));
+    if (ConvertNameToFull(CurFileName,TempName, sizeof(TempName)) >= sizeof(TempName)){
+      return;
+    }
+  }
   Redraw();
 }
 

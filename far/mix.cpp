@@ -5,12 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.41 02.11.2000 $ */
+/* Revision: 1.42 03.11.2000 $ */
 
 /*
 Modify:
+  03.11.2000 OT
+    ! Исправление предыдущего способа проверки 
   02.11.2000 OT
-   ! Введение проверки на длину буфера, отведенного под имя файла.
+    ! Введение проверки на длину буфера, отведенного под имя файла.
   26.10.2000 SVS
     ! У MkTemp префикс нафиг ненужно переводить в ANSI
   25.10.2000 SVS
@@ -947,7 +949,7 @@ char* WINAPI RemoveExternalSpaces(char *Str)
 
 
 /* $ 01.11.2000 OT
-  Исправление логики. Теперь функция должна в обязательном порядке
+  Исправление логики. Теперь функция должна в обязательном порядке 
   получить размер буфера и выдать длину полученного имени файла.
   Если размер буфера мал, то копирование не происходит
 */
@@ -961,25 +963,27 @@ void CharBufferToSmallWarn(int BufSize, int FileNameSize)
 int ConvertNameToFull(char *Src,char *Dest, int DestSize)
 {
   int Result = 0;
-  char FullName[NM],AnsiName[NM],*NamePtr=PointToName(Src);
+  char *FullName = (char *) malloc (DestSize);
+  char *AnsiName = (char *) malloc (DestSize);
+  *((int *)FullName) = 0;
+  *((int *)AnsiName) = 0;
+
+//  char FullName[NM],AnsiName[NM],
+  char *NamePtr=PointToName(Src);
+  Result+=strlen(Src);
+
   if (NamePtr==Src && (NamePtr[0]!='.' || NamePtr[1]!=0))
   {
-    Result+=GetCurrentDirectory(sizeof(FullName),FullName);
+    Result+=GetCurrentDirectory(DestSize,FullName);
     Result+=AddEndSlash(FullName);
-    Result+=strlen(Src);
-    if (Result < sizeof(FullName)) {
-      strcat(FullName,Src);
-      if (Result < DestSize) {
-        strcpy(Dest,FullName);
-      } else {
-        CharBufferToSmallWarn(DestSize,Result+1);
-      }
+    if (Result < DestSize) {
+      strncat(FullName,Src,Result);
+      strncpy(Dest,FullName,Result);
+      Dest [Result] = '\0';
     } else {
-      // Совсем нештатная ситуация ?? Здесь бы нужен farexcpt. а иначе проверка может не сработать :(
-      CharBufferToSmallWarn(NM,Result+1);
-      return Result;
+      CharBufferToSmallWarn(DestSize,Result+1);
     }
-    return Result;
+    goto end;
   }
   if (isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\')
     if (*NamePtr && (*NamePtr!='.' || NamePtr[1]!=0 && (NamePtr[1]!='.' || NamePtr[2]!=0)))
@@ -987,7 +991,7 @@ int ConvertNameToFull(char *Src,char *Dest, int DestSize)
       {
         if (Dest!=Src)
           strcpy(Dest,Src);
-        return Result;
+        goto end;
       }
 
   SetFileApisToANSI();
@@ -997,6 +1001,9 @@ int ConvertNameToFull(char *Src,char *Dest, int DestSize)
   else
     strcpy(Dest,Src);
   SetFileApisToOEM();
+end:
+  free (FullName);
+  free (AnsiName);
   return Result;
 }
 
@@ -1265,7 +1272,10 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   char FullDirName[NM],DriveRoot[NM];
 
   SetCursorType(FALSE,0);
-  ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName));
+//  ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName));
+  if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName)){
+    return -1;
+  }
   GetPathRoot(FullDirName,DriveRoot);
 
   if ((ClusterSize=GetClusterSize(DriveRoot))==0)
@@ -1811,8 +1821,14 @@ int MkLink(char *Src,char *Dest)
 
   BOOL bSuccess;
 
-  ConvertNameToFull(Src,FileSource, sizeof(FileSource));
-  ConvertNameToFull(Dest,FileDest, sizeof(FileDest));
+//  ConvertNameToFull(Src,FileSource, sizeof(FileSource));
+  if (ConvertNameToFull(Src,FileSource, sizeof(FileSource)) >= sizeof(FileSource)){
+    return FALSE;
+  }
+//  ConvertNameToFull(Dest,FileDest, sizeof(FileDest));
+  if (ConvertNameToFull(Dest,FileDest, sizeof(FileDest)) >= sizeof(FileDest)){
+    return FALSE;
+  }
   MultiByteToWideChar(CP_OEMCP,0,FileDest,-1,FileLink,sizeof(FileLink)/sizeof(FileLink[0]));
 
   hFileSource = CreateFile(FileSource,FILE_WRITE_ATTRIBUTES,
