@@ -5,10 +5,14 @@ strmix.cpp
 
 */
 
-/* Revision: 1.29 19.11.2001 $ */
+/* Revision: 1.30 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    + AddEndSlash(char *Path,char TypeSlash) - с явно заданным слешем
+    ! оптимизация в RemoveTrailingSpaces,  RemoveLeadingSpaces,
+      Unquote, DeleteEndSlash
   19.11.2001 SVS
     + ReplaceStrings - замена подстроки
   26.10.2001 SVS
@@ -391,20 +395,6 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
     if (MaxLength<0)
       MaxLength=0;
     if ((Length=strlen(Str))>MaxLength)
-#if 0
-      if (MaxLength>3)
-      {
-        char *TmpStr=new char[MaxLength+5];
-        sprintf(TmpStr,"...%s",Str+Length-MaxLength+3);
-        strcpy(Str,TmpStr);
-        /* $ 13.07.2000 SVS
-           ну а здесь раз уж вызвали new[], то в придачу и delete[] надо... */
-        delete[] TmpStr;
-        /* SVS $ */
-      }
-      else
-        Str[MaxLength]=0;
-#else
     {
       if (MaxLength>3)
       {
@@ -413,7 +403,6 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
       }
       Str[MaxLength]=0;
     }
-#endif
   }
   return(Str);
 }
@@ -451,13 +440,13 @@ char* WINAPI TruncPathStr(char *Str,int MaxLength)
 char* WINAPI RemoveLeadingSpaces(char *Str)
 {
   char *ChPtr;
-  if(Str)
-  {
-    for (ChPtr=Str;isspace(*ChPtr);ChPtr++)
-           ;
-    if (ChPtr!=Str)
-      memmove(Str,ChPtr,strlen(ChPtr)+1);
-  }
+  if(!(ChPtr=Str))
+    return NULL;
+
+  for (; isspace(*ChPtr); ChPtr++)
+         ;
+  if (ChPtr!=Str)
+    memmove(Str,ChPtr,strlen(ChPtr)+1);
   return Str;
 }
 
@@ -465,14 +454,18 @@ char* WINAPI RemoveLeadingSpaces(char *Str)
 // удалить конечные пробелы
 char* WINAPI RemoveTrailingSpaces(char *Str)
 {
-  if(Str)
-  {
-    for (int I=strlen((char *)Str)-1;I>=0;I--)
-      if (isspace(Str[I]) || iseol(Str[I]))
-        Str[I]=0;
-      else
-        break;
-  }
+  if(!Str)
+    return NULL;
+
+  char *ChPtr;
+  int I;
+
+  for (ChPtr=Str+(I=strlen((char *)Str)-1); I >= 0; I--, ChPtr--)
+    if (isspace(*ChPtr) || iseol(*ChPtr))
+      *ChPtr=0;
+    else
+      break;
+
   return Str;
 }
 
@@ -540,8 +533,12 @@ int HiStrlen(const char *Str,BOOL Dup)
   return(Length);
 }
 
-
 BOOL WINAPI AddEndSlash(char *Path)
+{
+  return AddEndSlash(Path,0);
+}
+
+BOOL AddEndSlash(char *Path,char TypeSlash)
 {
   BOOL Result=FALSE;
   if(Path)
@@ -553,11 +550,21 @@ BOOL WINAPI AddEndSlash(char *Path)
     */
     char *end=Path;
     int Slash=0, BackSlash=0;
-    while(*end)
+    if(!TypeSlash)
     {
-     Slash+=(*end=='\\');
-     BackSlash+=(*end=='/');
-     end++;
+      while(*end)
+      {
+       Slash+=(*end=='\\');
+       BackSlash+=(*end=='/');
+       end++;
+      }
+    }
+    else
+    {
+      if(TypeSlash == '\\')
+        BackSlash=1;
+      else
+        Slash=1;
     }
     int Length=end-Path;
     char c=(Slash<BackSlash)?'/':'\\';
@@ -585,17 +592,19 @@ BOOL WINAPI AddEndSlash(char *Path)
 
 BOOL WINAPI DeleteEndSlash(char *Path)
 {
-  BOOL Result=FALSE;
   if(Path)
   {
     int Length=strlen(Path)-1;
-    if (Length >= 0 && Path[Length]=='\\')
+    if (Length >= 0)
     {
-      Path[Length]=0;
-      Result = TRUE;
+      if(*(Path+=Length) == '\\')
+      {
+        *Path=0;
+        return TRUE;
+      }
     }
   }
-  return Result;
+  return FALSE;
 }
 
 char *NullToEmpty(char *Str)
@@ -692,13 +701,14 @@ void WINAPI Unquote(char *Str)
 {
   if (!Str)
     return;
+  char *Dst=Str;
   while (*Str)
   {
-    if (*Str=='\"')
-      strcpy(Str, Str+1);
-    else
-      Str++;
+    if (*Str!='\"')
+      *Dst++=*Str;
+    Str++;
   }
+  *Dst=0;
 }
 /* IS $ */
 /* VVM $ */

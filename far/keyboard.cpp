@@ -5,10 +5,15 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.56 21.12.2001 $ */
+/* Revision: 1.57 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    ! В режиме WaitInMainLoop=1 Alt-символ и Alt-Shift-символ транслируем как
+      есть (чтобы корректно работал FastFind). В остальных случаях - берем
+      абс.значения кода клавиши.
+    ! немного оптимизации
   21.12.2001 SVS
     + DOUBLE_CLICK as Macro
   08.12.2001 SVS
@@ -1103,9 +1108,8 @@ BOOL WINAPI KeyToText(int Key0,char *KeyText0,int Size)
   if(Key&KEY_MACRO_BASE)
     return KeyMacroToText(Key0,KeyText0,Size);
 
-  memset(KeyText,0,sizeof(KeyText));
-
-  strcpy(KeyText,GetShiftKeyName(KeyText,Key,Len));
+  *KeyText=0;
+  GetShiftKeyName(KeyText,Key,Len);
 
   for (I=0;I<sizeof(FKeys1)/sizeof(FKeys1[0]);I++)
     if (FKey==FKeys1[I].Key)
@@ -1312,9 +1316,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       InGrabber=FALSE;
       return(KEY_NONE);
     }
-  }
-  if (AltPressed && !CtrlPressed && !ShiftPressed)
-  {
+
     static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
     for (int I=0;I<sizeof(ScanCodes)/sizeof(ScanCodes[0]);I++)
       if (ScanCodes[I]==ScanCode && (CtrlState & ENHANCED_KEY)==0)
@@ -1486,7 +1488,7 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       else
         return(KEY_ALTSHIFT0+KeyCode-'0');
     }
-    if (KeyCode>='A' && KeyCode<='Z')
+    if (!WaitInMainLoop && KeyCode>='A' && KeyCode<='Z')
       return(KEY_ALTSHIFT+KeyCode);
     if(Opt.ShiftsKeyRules) //???
       switch(KeyCode)
@@ -1722,8 +1724,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
           return(AsciiChar);
       if(!Opt.ShiftsKeyRules || WaitInFastFind > 0)
         return(LocalUpper(AsciiChar)+KEY_ALT);
-//      else
-//        return(KEY_ALT+KeyCode);
+      else if(WaitInMainLoop)
+        return(KEY_ALT+AsciiChar);
     }
     if (KeyCode==VK_CAPITAL)
       return(KEY_NONE);

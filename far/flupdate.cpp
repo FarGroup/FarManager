@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.22 19.12.2001 $ */
+/* Revision: 1.23 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    ! немного оптимизации (если VC сам умеет это делать, то
+      борманду нужно помочь)
   19.12.2001 VVM
     ! Сменим приоритеты. При Force обновление всегда! в UpdateIfChanged()
   14.12.2001 VVM
@@ -135,6 +138,7 @@ void FileList::ReadFileNames(int KeepSelection)
   char CurName[NM],NextCurName[NM];
   long OldFileCount;
   int Done;
+  int I;
 
   clock_t StartTime=clock();
 
@@ -188,12 +192,14 @@ void FileList::ReadFileNames(int KeepSelection)
   {
     strcpy(CurName,ListData[CurFile].Name);
     if (ListData[CurFile].Selected)
-      for (int I=CurFile+1;I<FileCount;I++)
-        if (!ListData[I].Selected)
+    {
+      for (I=CurFile+1, CurPtr=ListData+I; I < FileCount; I++, CurPtr++)
+        if (!CurPtr->Selected)
         {
-          strcpy(NextCurName,ListData[I].Name);
+          strcpy(NextCurName,CurPtr->Name);
           break;
         }
+    }
   }
   if (KeepSelection || PrevSelFileCount>0)
   {
@@ -221,9 +227,9 @@ void FileList::ReadFileNames(int KeepSelection)
       strcpy(NetDir,CurDir);
     else
     {
-      char LocalName[NM];
+      char *LocalName="A:";
       DWORD RemoteNameSize=sizeof(NetDir);
-      sprintf(LocalName,"%c:",*CurDir);
+      *LocalName=*CurDir;
 
       SetFileApisToANSI();
       if (WNetGetConnection(LocalName,NetDir,&RemoteNameSize)==NO_ERROR)
@@ -391,7 +397,7 @@ void FileList::ReadFileNames(int KeepSelection)
   if (AnotherPanel->GetMode()==PLUGIN_PANEL)
   {
     HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
-    PluginPanelItem *PanelData=NULL;
+    PluginPanelItem *PanelData=NULL, *PtrPanelData;
     char Path[NM];
     int PanelCount=0;
     strcpy(Path,CurDir);
@@ -401,11 +407,10 @@ void FileList::ReadFileNames(int KeepSelection)
       if ((CurPtr=(struct FileListItem *)realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
       {
         ListData=CurPtr;
-        for (int I=0;I<PanelCount;I++)
+        for (CurPtr=ListData+FileCount, PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
         {
-          WIN32_FIND_DATA &fdata=PanelData[I].FindData;
-          CurPtr=ListData+FileCount+I;
-          PluginToFileListItem(&PanelData[I],CurPtr);
+          WIN32_FIND_DATA &fdata=PtrPanelData->FindData;
+          PluginToFileListItem(PtrPanelData,CurPtr);
           CurPtr->Position=FileCount;
           TotalFileSize+=int64(fdata.nFileSizeHigh,fdata.nFileSizeLow);
           CurPtr->PrevSelected=CurPtr->Selected=0;
@@ -564,7 +569,8 @@ void FileList::UpdatePlugin(int KeepSelection)
   }
   DizRead=FALSE;
 
-  struct FileListItem *OldData;
+  int I;
+  struct FileListItem *CurPtr, *OldData;
   char CurName[NM],NextCurName[NM];
   long OldFileCount;
 
@@ -605,14 +611,17 @@ void FileList::UpdatePlugin(int KeepSelection)
   *CurName=*NextCurName=0;
   if (FileCount>0)
   {
-    strcpy(CurName,ListData[CurFile].Name);
-    if (ListData[CurFile].Selected)
-      for (int I=CurFile+1;I<FileCount;I++)
-        if (!ListData[I].Selected)
+    CurPtr=ListData+CurFile;
+    strcpy(CurName,CurPtr->Name);
+    if (CurPtr->Selected)
+    {
+      for (++CurPtr, I=CurFile+1; I < FileCount; I++, CurPtr++)
+        if (!CurPtr->Selected)
         {
-          strcpy(NextCurName,ListData[I].Name);
+          strcpy(NextCurName,CurPtr->Name);
           break;
         }
+    }
   }
   else
     if (Info.Flags & OPIF_ADDDOTS)
@@ -641,10 +650,10 @@ void FileList::UpdatePlugin(int KeepSelection)
 
   int FileListCount=0;
 
-  for (int I=0;I<FileCount;I++)
+  struct PluginPanelItem *CurPanelData=PanelData;
+  struct FileListItem *CurListData=ListData+FileListCount;
+  for (I=0; I < FileCount; I++, CurPanelData++, CurListData++)
   {
-    struct FileListItem *CurListData=&ListData[FileListCount];
-    struct PluginPanelItem *CurPanelData=&PanelData[I];
     if (Info.Flags & OPIF_USEFILTER)
       if ((CurPanelData->FindData.dwFileAttributes & FA_DIREC)==0)
         if (!Filter->CheckName(CurPanelData->FindData.cFileName))
@@ -774,7 +783,9 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
     if (GetCode)
     {
       for (int I=0;I<Info.DescrFilesNumber;I++)
-        for (int J=0;J<PluginFileCount;J++)
+      {
+        for (int J=0; J < PluginFileCount; J++, PanelData++)
+        {
           if (LocalStricmp(PanelData[J].FindData.cFileName,Info.DescrFiles[I])==0)
           {
             char TempDir[NM],DizName[NM];
@@ -794,6 +805,8 @@ void FileList::ReadDiz(struct PluginPanelItem *ItemList,int ItemLength,DWORD dwF
               RemoveDirectory(TempDir);
             }
           }
+        }
+      }
       /* $ 25.02.2001 VVM
           + Обработка флага RDF_NO_UPDATE */
       if ((ItemList==NULL) && ((dwFlags & RDF_NO_UPDATE) == 0))

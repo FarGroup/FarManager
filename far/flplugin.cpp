@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.17 12.12.2001 $ */
+/* Revision: 1.18 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    ! немного оптимизации (если VC сам умеет это делать, то
+      борманду нужно помочь)
   12.12.2001 SVS
     - Bug: после ClosePlugin переменная SortOrder по каким-то волшебным
       причинам становится = -1 (хотя допустимы 0 или 1)...
@@ -566,7 +569,7 @@ void FileList::PluginPutFilesToNew()
     if (FileCount==PrevFileCount+1)
     {
       int LastPos=0;
-      for (int I=1;I<FileCount;I++)
+      for (int I=1; I < FileCount; I++)
         if (CompareFileTime(&ListData[I].CreationTime,&ListData[LastPos].CreationTime)==1)
           LastPos=I;
       CurFile=LastPos;
@@ -718,11 +721,14 @@ void FileList::PluginGetPanelInfo(struct PanelInfo *Info)
   Info->ItemsNumber=0;
   Info->PanelItems=new PluginPanelItem[FileCount+1];
   if (Info->PanelItems!=NULL)
-    for (int I=0;I<FileCount;I++)
+  {
+    struct FileListItem *CurPtr=ListData;
+    for (int I=0; I < FileCount; I++, CurPtr++)
     {
-      FileListToPluginItem(ListData+I,Info->PanelItems+Info->ItemsNumber);
+      FileListToPluginItem(CurPtr,Info->PanelItems+Info->ItemsNumber);
       Info->ItemsNumber++;
     }
+  }
   DataToDelete[DataToDeleteCount]=Info->PanelItems;
   DataSizeToDelete[DataToDeleteCount++]=Info->ItemsNumber;
 
@@ -748,10 +754,11 @@ void FileList::PluginSetSelection(struct PanelInfo *Info)
   /* $ 06.07.2001 IS Сохраним старое выделение */
   SaveSelection();
   /* IS $ */
-  for (int I=0;I<FileCount && I<Info->ItemsNumber;I++)
+  struct FileListItem *CurPtr=ListData;
+  for (int I=0; I < FileCount && I < Info->ItemsNumber; I++, CurPtr++)
   {
     int Selection=(Info->PanelItems[I].Flags & PPIF_SELECTED)!=0;
-    Select(&ListData[I],Selection);
+    Select(CurPtr,Selection);
   }
   if (SelectedFirst)
     SortFileList(TRUE);

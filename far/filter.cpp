@@ -5,10 +5,13 @@ filter.cpp
 
 */
 
-/* Revision: 1.19 11.10.2001 $ */
+/* Revision: 1.20 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    ! немного оптимизации (если VC сам умеет это делать, то
+      борманду нужно помочь)
   11.10.2001 VVM
     ! Если пользовательских фильтров нет, то надпись во всю ширину меню
   27.09.2001 IS
@@ -96,21 +99,26 @@ PanelFilter::PanelFilter(Panel *HostPanel)
   IncludeMaskStr=ExcludeMaskStr=NULL;
   PanelFilter::HostPanel=HostPanel;
   AddMasks(NULL,0);
-  for (int I=0;I<FilterDataCount;I++)
+  struct FilterDataRecord *CurFilterData=FilterData;
+  for (int I=0; I < FilterDataCount; I++, CurFilterData++)
+  {
     if (HostPanel==CtrlObject->Cp()->LeftPanel)
     {
-      if (FilterData[I].LeftPanelInclude)
-        AddMasks(FilterData[I].Masks,FALSE);
+      if (CurFilterData->LeftPanelInclude)
+        AddMasks(CurFilterData->Masks,FALSE);
       else
-        if (FilterData[I].LeftPanelExclude)
-          AddMasks(FilterData[I].Masks,TRUE);
+        if (CurFilterData->LeftPanelExclude)
+          AddMasks(CurFilterData->Masks,TRUE);
     }
     else
-      if (FilterData[I].RightPanelInclude)
-        AddMasks(FilterData[I].Masks,FALSE);
+    {
+      if (CurFilterData->RightPanelInclude)
+        AddMasks(CurFilterData->Masks,FALSE);
       else
-        if (FilterData[I].RightPanelExclude)
-          AddMasks(FilterData[I].Masks,TRUE);
+        if (CurFilterData->RightPanelExclude)
+          AddMasks(CurFilterData->Masks,TRUE);
+    }
+  }
 }
 
 
@@ -434,27 +442,36 @@ void PanelFilter::ProcessSelection(VMenu *FilterList)
   char Masks[PANELFILTER_MASK_SIZE];
 
   AddMasks(NULL,0);
-  for (int I=0;I<FilterList->GetItemCount();I++)
+  struct FilterDataRecord *CurFilterData=FilterData;
+  for (int I=0; I < FilterList->GetItemCount(); I++, CurFilterData++)
   {
     int Check=FilterList->GetSelection(I);
     if (Check && FilterList->GetUserData(Masks,sizeof(Masks),I))
       AddMasks(Masks,Check=='-');
+
     if (I<FilterDataCount)
     {
       if (HostPanel==CtrlObject->Cp()->LeftPanel)
-        FilterData[I].LeftPanelInclude=FilterData[I].LeftPanelExclude=0;
+        CurFilterData->LeftPanelInclude=CurFilterData->LeftPanelExclude=0;
+
       if (HostPanel==CtrlObject->Cp()->RightPanel)
-        FilterData[I].RightPanelInclude=FilterData[I].RightPanelExclude=0;
+        CurFilterData->RightPanelInclude=CurFilterData->RightPanelExclude=0;
+
       if (Check=='+')
+      {
         if (HostPanel==CtrlObject->Cp()->LeftPanel)
-          FilterData[I].LeftPanelInclude=TRUE;
+          CurFilterData->LeftPanelInclude=TRUE;
         else
-          FilterData[I].RightPanelInclude=TRUE;
+          CurFilterData->RightPanelInclude=TRUE;
+      }
+
       if (Check=='-')
+      {
         if (HostPanel==CtrlObject->Cp()->LeftPanel)
-          FilterData[I].LeftPanelExclude=TRUE;
+          CurFilterData->LeftPanelExclude=TRUE;
         else
-          FilterData[I].RightPanelExclude=TRUE;
+          CurFilterData->RightPanelExclude=TRUE;
+      }
     }
   }
 }
@@ -611,7 +628,8 @@ void PanelFilter::SaveSelection()
 
 void PanelFilter::SaveFilters()
 {
-  for (int I=0;I<FilterDataCount+5;I++)
+  struct FilterDataRecord *CurFilterData=FilterData;
+  for (int I=0; I < FilterDataCount+5; I++, CurFilterData++)
   {
     char RegKey[80];
     sprintf(RegKey,"Filters\\Filter%d",I);
@@ -620,8 +638,8 @@ void PanelFilter::SaveFilters()
       DeleteRegKey(RegKey);
     else
     {
-      SetRegKey(RegKey,"Title",FilterData[I].Title);
-      SetRegKey(RegKey,"Mask",FilterData[I].Masks);
+      SetRegKey(RegKey,"Title",CurFilterData->Title);
+      SetRegKey(RegKey,"Mask",CurFilterData->Masks);
     }
   }
 }
@@ -673,14 +691,15 @@ int PanelFilter::EditRecord(char *Title,char *Masks)
 
 void PanelFilter::SwapFilter()
 {
-  for (int I=0;I<FilterDataCount;I++)
+  struct FilterDataRecord *CurFilterData=FilterData;
+  for (int I=0; I < FilterDataCount; I++, CurFilterData++)
   {
-    int Swap=FilterData[I].LeftPanelInclude;
-    FilterData[I].LeftPanelInclude=FilterData[I].RightPanelInclude;
-    FilterData[I].RightPanelInclude=Swap;
+    int Swap=CurFilterData->LeftPanelInclude;
+    CurFilterData->LeftPanelInclude=CurFilterData->RightPanelInclude;
+    CurFilterData->RightPanelInclude=Swap;
 
-    Swap=FilterData[I].LeftPanelExclude;
-    FilterData[I].LeftPanelExclude=FilterData[I].RightPanelExclude;
-    FilterData[I].RightPanelExclude=Swap;
+    Swap=CurFilterData->LeftPanelExclude;
+    CurFilterData->LeftPanelExclude=CurFilterData->RightPanelExclude;
+    CurFilterData->RightPanelExclude=Swap;
   }
 }

@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.117 24.12.2001 $ */
+/* Revision: 1.118 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    ! немного оптимизации (если VC сам умеет это делать, то
+      борманду нужно помочь)
+    ! Заюзаем новый вариант AddEndSlash с явно заданным слешем
   24.12.2001 SVS
     - BugZ#163 - Не удаляется временный файл (вызов редактора)
   17.12.2001 IS
@@ -439,8 +443,9 @@ FileList::~FileList()
 {
   _OT(SysLog("[%p] FileList::~FileList()", this));
   CloseChangeNotification();
-  for (int I=0;I<PrevDataStackSize;I++)
-    DeleteListData(PrevDataStack[I].PrevListData,PrevDataStack[I].PrevFileCount);
+  struct PrevDataItem *CurPrevDataStack=PrevDataStack;
+  for (int I=0;I < PrevDataStackSize; I++, CurPrevDataStack++)
+    DeleteListData(CurPrevDataStack->PrevListData,CurPrevDataStack->PrevFileCount);
   /* $ 29.11.2001 DJ
      выделяли через realloc - освобождать надо через free
   */
@@ -465,7 +470,7 @@ void FileList::DeleteListData(struct FileListItem *(&ListData),long &FileCount)
   {
     if (CurPtr->CustomColumnNumber>0 && CurPtr->CustomColumnData!=NULL)
     {
-      for (int J=0;J<ListData[I].CustomColumnNumber;J++)
+      for (int J=0; J < CurPtr->CustomColumnNumber; J++)
         delete CurPtr->CustomColumnData[J];
       delete CurPtr->CustomColumnData;
     }
@@ -847,9 +852,10 @@ int FileList::ProcessKey(int Key)
     case KEY_SHIFTADD:
       SaveSelection();
       {
-        for (int I=0;I<FileCount;I++)
-          if ((ListData[I].FileAttr & FA_DIREC)==0 || Opt.SelectFolders)
-            Select(&ListData[I],1);
+        struct FileListItem *CurPtr=ListData;
+        for (int I=0; I < FileCount; I++, CurPtr++)
+          if ((CurPtr->FileAttr & FA_DIREC)==0 || Opt.SelectFolders)
+            Select(CurPtr,1);
       }
       if (SelectedFirst)
         SortFileList(TRUE);
@@ -959,11 +965,8 @@ int FileList::ProcessKey(int Key)
               LocalStrupr(FullName);
             /* SVS $ */
             /* tran $ */
-            for (int I=0;FullName[I]!=0;I++)
-              if (FullName[I]=='/')
-                FullName[I]='\\';
             if (*FullName)
-              AddEndSlash(FullName);
+              AddEndSlash(FullName,'\\');
             /* $ 20.10.2000 SVS
                Сделаем фичу Ctrl-F опциональной!*/
             if(Opt.PanelCtrlFRule)
@@ -2517,13 +2520,16 @@ int FileList::GoToFile(char *Name)
 int FileList::FindFile(char *Name)
 {
   long I;
-  for (I=0;I<FileCount;I++)
-    if (strcmp(Name,ListData[I].Name)==0)
-      return(I);
-  for (I=0;I<FileCount;I++)
-    if (LocalStricmp(Name,ListData[I].Name)==0)
-      return(I);
-  return(-1);
+  struct FileListItem *CurPtr;
+
+  for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
+  {
+    if (strcmp(Name,CurPtr->Name)==0)
+      return I;
+    if (LocalStricmp(Name,CurPtr->Name)==0)
+      return I;
+  }
+  return -1;
 }
 
 
@@ -2538,6 +2544,7 @@ int FileList::FindPartName(char *Name,int Next)
 {
   char Mask[NM];
   int I;
+  struct FileListItem *CurPtr;
 
   /* $ 02.08.2000 IG
      Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
@@ -2556,12 +2563,12 @@ int FileList::FindPartName(char *Name,int Next)
     Mask[Length] = '*';
     Mask[Length+1] = 0;
   }
-  for (I=(Next) ? CurFile+1:CurFile;I<FileCount;I++)
+  for (I=(Next) ? CurFile+1:CurFile, CurPtr=ListData+I; I < FileCount; I++, CurPtr++)
   {
     CmpNameSearchMode=(I==CurFile);
-    if (CmpName(Mask,ListData[I].Name,TRUE))
-      if (strcmp(ListData[I].Name,"..")!=0)
-        if (!DirFind || (ListData[I].FileAttr & FA_DIREC))
+    if (CmpName(Mask,CurPtr->Name,TRUE))
+      if (strcmp(CurPtr->Name,"..")!=0)
+        if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
           CmpNameSearchMode=FALSE;
           CurFile=I;
@@ -2571,10 +2578,10 @@ int FileList::FindPartName(char *Name,int Next)
         }
   }
   CmpNameSearchMode=FALSE;
-  for (I=0;I<CurFile;I++)
-    if (CmpName(Mask,ListData[I].Name,TRUE))
-      if (strcmp(ListData[I].Name,"..")!=0)
-        if (!DirFind || (ListData[I].FileAttr & FA_DIREC))
+  for (CurPtr=ListData, I=0; I < CurFile; I++, CurPtr++)
+    if (CmpName(Mask,CurPtr->Name,TRUE))
+      if (strcmp(CurPtr->Name,"..")!=0)
+        if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
         {
           CurFile=I;
           CurTopFile=CurFile-(Y2-Y1)/2;
@@ -2740,6 +2747,7 @@ void FileList::SelectFiles(int Mode)
 
   if (CurFile>=FileCount)
     return;
+
   int RawSelection=FALSE;
   if (PanelMode==PLUGIN_PANEL)
   {
@@ -2747,8 +2755,10 @@ void FileList::SelectFiles(int Mode)
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     RawSelection=(Info.Flags & OPIF_RAWSELECTION);
   }
+
   CurPtr=&ListData[CurFile];
   char *CurName=(ShowShortNames && *CurPtr->ShortName ? CurPtr->ShortName:CurPtr->Name);
+
   if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
   {
     char *DotPtr=strrchr(CurName,'.');
@@ -2804,38 +2814,38 @@ void FileList::SelectFiles(int Mode)
   SaveSelection();
 
   if(FileMask.Set(Mask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
-                                     // дальше в зависимости от успеха
+  {                                  // дальше в зависимости от успеха
                                      // компиляции
-   for (I=0;I<FileCount;I++)
+   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
    {
-    int Match=FALSE;
-    CurPtr=&ListData[I];
-    if (Mode==SELECT_INVERT || Mode==SELECT_INVERTALL)
-      Match=TRUE;
-    else
-      Match=FileMask.Compare((ShowShortNames && *CurPtr->ShortName ?
+     int Match=FALSE;
+     if (Mode==SELECT_INVERT || Mode==SELECT_INVERTALL)
+       Match=TRUE;
+     else
+       Match=FileMask.Compare((ShowShortNames && *CurPtr->ShortName ?
                               CurPtr->ShortName:CurPtr->Name));
 
-    if (Match)
-    {
-      switch(Mode)
-      {
-        case SELECT_ADD:
-          Selection=1;
-          break;
-        case SELECT_REMOVE:
-          Selection=0;
-          break;
-        case SELECT_INVERT:
-        case SELECT_INVERTALL:
-          Selection=!CurPtr->Selected;
-          break;
+     if (Match)
+     {
+       switch(Mode)
+       {
+         case SELECT_ADD:
+           Selection=1;
+           break;
+         case SELECT_REMOVE:
+           Selection=0;
+           break;
+         case SELECT_INVERT:
+         case SELECT_INVERTALL:
+           Selection=!CurPtr->Selected;
+           break;
+       }
+       if ((CurPtr->FileAttr & FA_DIREC)==0 || Selection==0 ||
+           Opt.SelectFolders || RawSelection || Mode==SELECT_INVERTALL)
+         Select(CurPtr,Selection);
       }
-      if ((CurPtr->FileAttr & FA_DIREC)==0 || Selection==0 ||
-          Opt.SelectFolders || RawSelection || Mode==SELECT_INVERTALL)
-        Select(CurPtr,Selection);
     }
-   }
+  }
   if (SelectedFirst)
     SortFileList(TRUE);
   ShowFileList(TRUE);
@@ -2903,10 +2913,14 @@ void FileList::CompareDir()
   ScrBuf.Flush();
   ClearSelection();
   Another->ClearSelection();
-  for (I=0;I<FileCount;I++)
-    Select(&ListData[I],(ListData[I].FileAttr & FA_DIREC)==0);
-  for (J=0;J<Another->FileCount;J++)
-    Another->Select(&Another->ListData[J],(Another->ListData[J].FileAttr & FA_DIREC)==0);
+
+  struct FileListItem *CurPtr, *AnotherCurPtr;
+
+  for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
+    Select(CurPtr,(CurPtr->FileAttr & FA_DIREC)==0);
+
+  for (AnotherCurPtr=Another->ListData,J=0; J < Another->FileCount; J++, AnotherCurPtr++)
+    Another->Select(AnotherCurPtr,(AnotherCurPtr->FileAttr & FA_DIREC)==0);
 
   int CompareFatTime=FALSE;
   if (PanelMode==PLUGIN_PANEL)
@@ -2936,16 +2950,18 @@ void FileList::CompareDir()
         CompareFatTime=TRUE;
   }
 
-  for (I=0;I<FileCount;I++)
-    for (J=0;J<Another->FileCount;J++)
-      if (LocalStricmp(PointToName(ListData[I].Name),PointToName(Another->ListData[J].Name))==0)
+  for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
+  {
+    for (AnotherCurPtr=Another->ListData,J=0; J < Another->FileCount; J++, AnotherCurPtr++)
+    {
+      if (LocalStricmp(PointToName(CurPtr->Name),PointToName(AnotherCurPtr->Name))==0)
       {
         int Cmp;
         if (CompareFatTime)
         {
           WORD DosDate,DosTime,AnotherDosDate,AnotherDosTime;
-          FileTimeToDosDateTime(&ListData[I].WriteTime,&DosDate,&DosTime);
-          FileTimeToDosDateTime(&Another->ListData[J].WriteTime,&AnotherDosDate,&AnotherDosTime);
+          FileTimeToDosDateTime(&CurPtr->WriteTime,&DosDate,&DosTime);
+          FileTimeToDosDateTime(&AnotherCurPtr->WriteTime,&AnotherDosDate,&AnotherDosTime);
           DWORD FullDosTime,AnotherFullDosTime;
           FullDosTime=((DWORD)DosDate<<16)+DosTime;
           AnotherFullDosTime=((DWORD)AnotherDosDate<<16)+AnotherDosTime;
@@ -2956,18 +2972,25 @@ void FileList::CompareDir()
             Cmp=(FullDosTime<AnotherFullDosTime) ? -1:1;
         }
         else
-          Cmp=CompareFileTime(&ListData[I].WriteTime,&Another->ListData[J].WriteTime);
-        if (Cmp==0 && (ListData[I].UnpSize!=Another->ListData[J].UnpSize ||
-            ListData[I].UnpSizeHigh!=Another->ListData[J].UnpSizeHigh))
+          Cmp=CompareFileTime(&CurPtr->WriteTime,&AnotherCurPtr->WriteTime);
+
+        if (Cmp==0 && (CurPtr->UnpSize!=AnotherCurPtr->UnpSize ||
+                       CurPtr->UnpSizeHigh!=AnotherCurPtr->UnpSizeHigh))
           continue;
-        if (Cmp<1)
-          Select(&ListData[I],0);
-        if (Cmp>-1)
-          Another->Select(&Another->ListData[J],0);
+
+        if (Cmp < 1)
+          Select(CurPtr,0);
+
+        if (Cmp > -1)
+          Another->Select(AnotherCurPtr,0);
         break;
       }
+    }
+  }
+
   if (SelectedFirst)
     SortFileList(TRUE);
+
   Redraw();
   Another->Redraw();
   if (SelFileCount==0 && Another->SelFileCount==0)
@@ -3014,11 +3037,10 @@ void FileList::CopyNames(int FillPathName,int UNC)
         strcpy(FullName,NullToEmpty(Info.CurDir));
         if (Opt.PanelCtrlFRule && ViewSettings.FolderUpperCase)
           LocalStrupr(FullName);
-        for (int I=0;FullName[I]!=0;I++)
-          if (FullName[I]=='/')
-            FullName[I]='\\';
+
         if (*FullName)
-          AddEndSlash(FullName);
+          AddEndSlash(FullName,'\\');
+
         if(Opt.PanelCtrlFRule)
         {
           // имя должно отвечать условиям на панели
@@ -3185,8 +3207,10 @@ void FileList::SetTitle()
 
 void FileList::ClearSelection()
 {
-  for (int I=0;I<FileCount;I++)
-    Select(&ListData[I],0);
+  struct FileListItem *CurPtr=ListData;
+  for (int I=0; I < FileCount; I++, CurPtr++)
+    Select(CurPtr,0);
+
   if (SelectedFirst)
     SortFileList(TRUE);
 }
@@ -3194,18 +3218,20 @@ void FileList::ClearSelection()
 
 void FileList::SaveSelection()
 {
-  for (int I=0;I<FileCount;I++)
-    ListData[I].PrevSelected=ListData[I].Selected;
+  struct FileListItem *CurPtr=ListData;
+  for (int I=0; I < FileCount; I++, CurPtr++)
+    CurPtr->PrevSelected=CurPtr->Selected;
 }
 
 
 void FileList::RestoreSelection()
 {
-  for (int I=0;I<FileCount;I++)
+  struct FileListItem *CurPtr=ListData;
+  for (int I=0; I < FileCount; I++, CurPtr++)
   {
-    int NewSelection=ListData[I].PrevSelected;
-    ListData[I].PrevSelected=ListData[I].Selected;
-    Select(&ListData[I],NewSelection);
+    int NewSelection=CurPtr->PrevSelected;
+    CurPtr->PrevSelected=CurPtr->Selected;
+    Select(CurPtr,NewSelection);
   }
   if (SelectedFirst)
     SortFileList(TRUE);
@@ -3386,20 +3412,24 @@ void FileList::ApplyCommand()
 {
   static char PrevCommand[512];
   char Command[512];
+
   if (!GetString(MSG(MAskApplyCommandTitle),MSG(MAskApplyCommand),"ApplyCmd",PrevCommand,Command,sizeof(Command),"ApplyCmd"))
     return;
+
   strcpy(PrevCommand,Command);
   char SelName[NM],SelShortName[NM];
   int FileAttr;
 
   RedrawDesktop Redraw;
   SaveSelection();
+
   GetSelName(NULL,FileAttr);
   while (GetSelName(SelName,FileAttr,SelShortName) && !CheckForEsc())
   {
     char ConvertedCommand[512];
     char ListName[NM*2],ShortListName[NM*2];
     strcpy(ConvertedCommand,Command);
+
     {
       int PreserveLFN=SubstFileName(ConvertedCommand,SelName,SelShortName,ListName,ShortListName);
       PreserveLongName PreserveName(SelShortName,PreserveLFN);
@@ -3424,6 +3454,9 @@ void FileList::CountDirSize()
   unsigned long DirCount,DirFileCount,ClusterSize;;
   int64 FileSize,CompressedFileSize,RealFileSize;
   unsigned long SelDirCount=0;
+  struct FileListItem *CurPtr;
+  int I;
+
   /* $ 09.11.2000 OT
     F3 на ".." в плагинах
   */
@@ -3433,9 +3466,8 @@ void FileList::CountDirSize()
     if (SelFileCount)
     {
       DoubleDotDir = ListData;
-      for (int I=0;I<FileCount;I++)
+      for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
       {
-        struct FileListItem *CurPtr=ListData+I;
         if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC))
         {
           DoubleDotDir = NULL;
@@ -3455,9 +3487,8 @@ void FileList::CountDirSize()
       DoubleDotDir->UnpSizeHigh = 0;
       DoubleDotDir->PackSize    = 0;
       DoubleDotDir->PackSizeHigh= 0;
-      for (int I=1;I<FileCount;I++)
+      for (I=1, CurPtr=ListData+I; I < FileCount; I++, CurPtr++)
       {
-        struct FileListItem *CurPtr=ListData+I;
         if (CurPtr->FileAttr & FA_DIREC)
         {
           if (GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,CompressedFileSize))
@@ -3481,9 +3512,8 @@ void FileList::CountDirSize()
   /* OT $*/
 
 
-  for (int I=0;I<FileCount;I++)
+  for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
   {
-    struct FileListItem *CurPtr=ListData+I;
     if (CurPtr->Selected && (CurPtr->FileAttr & FA_DIREC))
     {
       SelDirCount++;
@@ -3507,8 +3537,11 @@ void FileList::CountDirSize()
         break;
     }
   }
-  struct FileListItem *CurPtr=ListData+CurFile;
+
+  CurPtr=ListData+CurFile;
+
   if (SelDirCount==0)
+  {
     if (PanelMode==PLUGIN_PANEL &&
         GetPluginDirInfo(hPlugin,CurPtr->Name,DirCount,DirFileCount,FileSize,
                          CompressedFileSize) ||
@@ -3522,6 +3555,8 @@ void FileList::CountDirSize()
       CurPtr->PackSizeHigh=CompressedFileSize.PHigh();
       CurPtr->ShowFolderSize=1;
     }
+  }
+
   SortFileList(TRUE);
   ShowFileList(TRUE);
   CreateChangeNotification(TRUE);

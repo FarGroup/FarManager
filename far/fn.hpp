@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.123 21.12.2001 $ */
+/* Revision: 1.124 25.12.2001 $ */
 
 /*
 Modify:
+  25.12.2001 SVS
+    + AddEndSlash(char *Path,char TypeSlash) - с явно заданным слешем
   21.12.2001 SVS
     + CalcWordFromString - "вычисление" слова
   07.12.2001 SVS
@@ -720,6 +722,7 @@ char* WINAPI TruncStrFromEnd(char *Str, int MaxLength);
 char* WINAPI TruncPathStr(char *Str,int MaxLength);
 char* WINAPI QuoteSpaceOnly(char *Str);
 char* WINAPI PointToName(char *Path);
+BOOL  AddEndSlash(char *Path,char TypeSlash);
 BOOL  WINAPI AddEndSlash(char *Path);
 BOOL  WINAPI DeleteEndSlash(char *Path);
 char *WINAPI FarItoa(int value, char *string, int radix);
