@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.91 06.05.2001 $ */
+/* Revision: 1.92 07.05.2001 $ */
 
 /*
 Modify:
+  07.05.2001 IS
+    - Баги: по shift-f7 продолжалась замена, хотя должен был быть поиск
+      В Paste устранил потенциальный баг с delete []
   06.05.2001 DJ
     ! перетрях #include
   05.05.2001 IS
@@ -2141,8 +2144,13 @@ int Editor::ProcessKey(int Key)
       /* $ 20.09.2000 SVS
          При All после нажатия Shift-F7 надобно снова спросить...
       */
-      ReplaceAll=FALSE;
+      //ReplaceAll=FALSE;
       /* SVS $*/
+      /* $ 07.05.2001 IS
+         Сказано в хелпе "Shift-F7 Продолжить _поиск_"
+      */
+      ReplaceMode=FALSE;
+      /* IS */
       MarkingBlock=FALSE;
       MarkingVBlock=FALSE;
       Search(TRUE);
@@ -3569,7 +3577,9 @@ void Editor::Paste()
     Pasting--;
     DisableOut--;
   }
-  delete ClipText;
+  /* $ 07.05.2001 IS выделяли же в PasteFromClipboard как new [] */
+  delete [] ClipText;
+  /* IS $ */
   BlockUndo=FALSE;
 }
 
