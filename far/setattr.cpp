@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.62 17.09.2004 $ */
+/* Revision: 1.63 21.01.2005 $ */
 
 /*
 Modify:
+  21.01.2005 SVS
+    + GetVolumeInformation_Dump
   17.09.2004 SVS
     ! ’е, ну и назвал :-)) CheckWratableFile! Ѕудет IsFileWritable
   16.09.2004 SVS
@@ -625,6 +627,22 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   memset(&DlgParam,0,sizeof(DlgParam));
 
   DlgParam.FileSystemFlags=0;
+
+  _SVS(char lpRootPathName[NM]="");
+  _SVS(char lpVolumeNameBuffer[NM]="");
+  _SVS(char lpFileSystemNameBuffer[NM]="");
+  _SVS(DWORD lpVolumeSerialNumber=0);
+  _SVS(DWORD lpMaximumComponentLength=0);
+  _SVS(DWORD lpFileSystemFlags=0);
+  _SVS(GetCurrentDirectory(sizeof(lpRootPathName),lpRootPathName));
+  _SVS(GetPathRoot(lpRootPathName,lpRootPathName));
+  _SVS(GetVolumeInformation(lpRootPathName,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
+                                           &lpVolumeSerialNumber,&lpMaximumComponentLength,&lpFileSystemFlags,
+                                           lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer)));
+  _SVS(GetVolumeInformation_Dump("SetAttr",lpRootPathName,lpVolumeNameBuffer,sizeof(lpVolumeNameBuffer),
+                                           lpVolumeSerialNumber,lpMaximumComponentLength,lpFileSystemFlags,
+                                           lpFileSystemNameBuffer,sizeof(lpFileSystemNameBuffer),NULL));
+
   if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,NULL,0))
   {
     if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.217 11.11.2004 $ */
+/* Revision: 1.218 21.01.2005 $ */
 
 /*
 Modify:
+  21.01.2005 SVS
+    + GetVolumeInformation_Dump
   11.11.2004 SVS
     + _MakePath1()
   09.11.2004 SVS
@@ -1265,6 +1267,9 @@ void PluginsStackItem_Dump(char *Title,const struct PluginsStackItem *StackItems
 void SaveScreenDumpBuffer(const char *Title,const CHAR_INFO *Buffer,int X1,int Y1,int X2,int Y2,int RealScreen,FILE *fp=NULL);
 class Manager;
 void ManagerClass_Dump(char *Title,const Manager *m=NULL,FILE *fp=NULL);
+void GetVolumeInformation_Dump(char *Title,LPCTSTR lpRootPathName,LPTSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
+                                           DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
+                                           LPTSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp=NULL);
 
 #if defined(SYSLOG_FARSYSLOG)
 #ifdef __cplusplus

@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.50 09.11.2004 $ */
+/* Revision: 1.51 21.01.2005 $ */
 
 /*
 Modify:
+  21.01.2005 SVS
+    + GetVolumeInformation_Dump
   09.11.2004 SVS
     + SYSLOG_WARP
   03.06.2004 SVS
@@ -1539,6 +1541,67 @@ const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
   return TmpBuf;
 #else
   return NULL;
+#endif
+}
+
+void GetVolumeInformation_Dump(char *Title,LPCTSTR lpRootPathName,LPTSTR lpVolumeNameBuffer,DWORD nVolumeNameSize,
+                                           DWORD lpVolumeSerialNumber, DWORD lpMaximumComponentLength, DWORD lpFileSystemFlags,
+                                           LPTSTR lpFileSystemNameBuffer, DWORD nFileSystemNameSize,FILE *fp)
+{
+#if defined(SYSLOG)
+  if(!IsLogON())
+    return;
+
+  int InternalLog=fp==NULL?TRUE:FALSE;
+
+  if(InternalLog)
+  {
+    OpenSysLog();
+    fp=LogStream;
+    if(fp)
+    {
+      char timebuf[64];
+      fprintf(fp,"%s %s(%s)\n",PrintTime(timebuf),MakeSpace(),NullToEmpty(Title));
+    }
+  }
+
+  if (fp)
+  {
+    fprintf(fp,"GetVolumeInformation{\n");
+    fprintf(fp,"  lpRootPathName            ='%s'\n",lpRootPathName);
+    fprintf(fp,"  lpVolumeNameBuffer        ='%s'\n",lpVolumeNameBuffer);
+    fprintf(fp,"  nVolumeNameSize           =%u\n",nVolumeNameSize);
+    fprintf(fp,"  lpVolumeSerialNumber      =%u\n",lpVolumeSerialNumber);
+    fprintf(fp,"  lpMaximumComponentLength  =%u\n",lpMaximumComponentLength);
+    fprintf(fp,"  lpFileSystemFlags         =%u\n",lpFileSystemFlags);
+    fprintf(fp,"       FS_CASE_IS_PRESERVED         =%08X\n",lpFileSystemFlags&FS_CASE_IS_PRESERVED);
+    fprintf(fp,"       FS_CASE_SENSITIVE            =%08X\n",lpFileSystemFlags&FS_CASE_SENSITIVE);
+    fprintf(fp,"       FS_UNICODE_STORED_ON_DISK    =%08X\n",lpFileSystemFlags&FS_UNICODE_STORED_ON_DISK);
+    fprintf(fp,"       FS_PERSISTENT_ACLS           =%08X\n",lpFileSystemFlags&FS_PERSISTENT_ACLS);
+    fprintf(fp,"       FS_FILE_COMPRESSION          =%08X\n",lpFileSystemFlags&FS_FILE_COMPRESSION);
+    fprintf(fp,"       FS_VOL_IS_COMPRESSED         =%08X\n",lpFileSystemFlags&FS_VOL_IS_COMPRESSED);
+#define FILE_NAMED_STREAMS              0x00040000
+    fprintf(fp,"       FILE_NAMED_STREAMS           =%08X\n",lpFileSystemFlags&FILE_NAMED_STREAMS);
+#define FILE_READ_ONLY_VOLUME           0x00080000
+    fprintf(fp,"       FILE_READ_ONLY_VOLUME        =%08X\n",lpFileSystemFlags&FILE_READ_ONLY_VOLUME);
+#define FILE_SUPPORTS_ENCRYPTION        0x00020000
+    fprintf(fp,"       FILE_SUPPORTS_ENCRYPTION     =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_ENCRYPTION);
+#define FILE_SUPPORTS_OBJECT_IDS        0x00010000
+    fprintf(fp,"       FILE_SUPPORTS_OBJECT_IDS     =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_OBJECT_IDS);
+#define FILE_SUPPORTS_REPARSE_POINTS    0x00000080
+    fprintf(fp,"       FILE_SUPPORTS_REPARSE_POINTS =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS);
+#define FILE_SUPPORTS_SPARSE_FILES      0x00000040
+    fprintf(fp,"       FILE_SUPPORTS_SPARSE_FILES   =%08X\n",lpFileSystemFlags&FILE_SUPPORTS_SPARSE_FILES);
+#define FILE_VOLUME_QUOTAS              0x00000020
+    fprintf(fp,"       FILE_VOLUME_QUOTAS           =%08X\n",lpFileSystemFlags&FILE_VOLUME_QUOTAS);
+    fprintf(fp,"  lpFileSystemNameBuffer    ='%s'\n",lpFileSystemNameBuffer);
+    fprintf(fp,"  nFileSystemNameSize       =%u\n",nFileSystemNameSize);
+    fprintf(fp,"}\n");
+    fflush(fp);
+  }
+
+  if(InternalLog)
+    CloseSysLog();
 #endif
 }
 

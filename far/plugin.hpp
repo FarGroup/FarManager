@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.248 06.01.2005 $ */
+/* Revision: 1.249 21.01.2005 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  21.01.2005 SVS
+    ! Открытие Viewer API
+    ! VE_READ и VE_CLOSE "загнаны" в enum
   06.01.2005 WARP
     + EXPAND_TABS, EOPT_EXPANDONLYNEWTABS
     ! EOPT_EXPANDTABS -> EOPT_EXPANDALLTABS
@@ -1908,7 +1911,6 @@ typedef int (WINAPI *FARAPIADVCONTROL)(
 );
 
 
-#ifdef FAR_USE_INTERNALS
 enum VIEWER_CONTROL_COMMANDS {
   VCTL_GETINFO,
   VCTL_QUIT,
@@ -1983,10 +1985,11 @@ typedef int (WINAPI *FARAPIVIEWERCONTROL)(
   void *Param
 );
 
-#define VE_READ     0
-#define VE_CLOSE    1
+enum VIEWER_EVENTS {
+  VE_READ     =0,
+  VE_CLOSE    =1
+};
 
-#endif // END FAR_USE_INTERNALS
 
 enum EDITOR_EVENTS {
   EE_READ,
@@ -2431,12 +2434,8 @@ struct PluginStartupInfo
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-#ifdef FAR_USE_INTERNALS
   DWORD                  Reserved;
   FARAPIVIEWERCONTROL    ViewerControl;
-#else // ELSE FAR_USE_INTERNALS
-  DWORD                  Reserved[2];
-#endif // END FAR_USE_INTERNALS
 };
 
 
@@ -2630,14 +2629,11 @@ int    WINAPI _export ProcessEditorInput(const INPUT_RECORD *Rec);
 int    WINAPI _export ProcessEvent(HANDLE hPlugin,int Event,void *Param);
 int    WINAPI _export ProcessHostFile(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int OpMode);
 int    WINAPI _export ProcessKey(HANDLE hPlugin,int Key,unsigned int ControlState);
+int    WINAPI _export ProcessViewerEvent(int Event,void *Param);
 int    WINAPI _export PutFiles(HANDLE hPlugin,struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,int OpMode);
 int    WINAPI _export SetDirectory(HANDLE hPlugin,const char *Dir,int OpMode);
 int    WINAPI _export SetFindList(HANDLE hPlugin,const struct PluginPanelItem *PanelItem,int ItemsNumber);
 void   WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info);
-
-#ifdef FAR_USE_INTERNALS
-int    WINAPI _export ProcessViewerEvent(int Event,void *Param);
-#endif // END FAR_USE_INTERNALS
 
 #ifdef __cplusplus
 };
