@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.135 20.03.2002 $ */
+/* Revision: 1.136 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 DJ
+    ! не портится стек в SetTitle() при длинном заголовке
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   20.03.2002 SVS
@@ -3327,9 +3329,13 @@ void FileList::SetTitle()
     if (PanelMode==PLUGIN_PANEL)
     {
       struct OpenPluginInfo Info;
-      char Title[512];
+      /* $ 21.03.2002 DJ
+         не будем портить стек
+      */
+      char Title[240];
       CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-      strcpy(Title,NullToEmpty(Info.PanelTitle));
+      strncpy(Title,NullToEmpty(Info.PanelTitle), sizeof (Title)-1);
+      /* DJ $ */
       RemoveLeadingSpaces(Title);
       RemoveTrailingSpaces(Title);
       sprintf(TitleDir,"{%s}",Title);

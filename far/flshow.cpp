@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.23 20.03.2002 $ */
+/* Revision: 1.24 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 DJ
+    ! не портим стек при отрисовке длинного заголовка панели
   20.03.2002 IS
     ! Косметика для предыдущего патча от SVS - вызываем
       PointToFolderNameIfFolder
@@ -262,7 +264,11 @@ void FileList::ShowFileList(int Fast)
     TruncSize-=2;
   if (PanelMode==PLUGIN_PANEL)
   {
-    strcpy(Title,NullToEmpty(Info.PanelTitle));
+    /* $ 21.03.2002 DJ
+       не портим стек
+    */
+    strncpy(Title,NullToEmpty(Info.PanelTitle),sizeof (Title)-1);
+    /* DJ $ */
     TruncStr(Title,TruncSize);
   }
   else

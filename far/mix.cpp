@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.117 20.03.2002 $ */
+/* Revision: 1.118 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 DJ
+    + GetDirInfo() отображается в заголовке консоли
   20.03.2002 SVS
     + FarGetCurDir()
     ! GetCurrentDirectory -> FarGetCurDir
@@ -1024,6 +1026,16 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   }
   /* DJ */
 
+  /* $ 21.03.2002 DJ
+     сформируем заголовок, запомним старый
+  */
+  char TitleStr [512], OldTitle [512];
+  strcpy (TitleStr, MSG(MScanningFolder));
+  strcat (TitleStr, " ");
+  strncat (TitleStr, ShowDirName, sizeof (TitleStr));
+  GetConsoleTitle (OldTitle, sizeof (OldTitle));
+  /* DJ $ */
+
   if ((ClusterSize=GetClusterSize(DriveRoot))==0)
   {
     DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
@@ -1057,11 +1069,21 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
         case KEY_BREAK:
           GetInputRecord(&rec);
           SetPreRedrawFunc(NULL);
+          /* $ 21.03.2002 DJ
+             восстановим заголовок
+          */
+          SetConsoleTitle (OldTitle);
+          /* DJ $ */
           return(0);
         default:
           if (EnhBreak)
           {
             SetPreRedrawFunc(NULL);
+            /* $ 21.03.2002 DJ
+               восстановим заголовок
+            */
+            SetConsoleTitle (OldTitle);
+            /* DJ $ */
             return(-1);
           }
           GetInputRecord(&rec);
@@ -1070,6 +1092,11 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
     }
     if (!MsgOut && MsgWaitTime!=0xffffffff && clock()-StartTime > MsgWaitTime)
     {
+      /* $ 21.03.2002 DJ
+         покажем заголовок консоли
+      */
+      SetFarTitle (TitleStr);
+      /* DJ $ */
       SetCursorType(FALSE,0);
       SetPreRedrawFunc(PR_DrawGetDirInfoMsg);
       DrawGetDirInfoMsg(Title,ShowDirName);
@@ -1101,6 +1128,11 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
     }
   }
   SetPreRedrawFunc(NULL);
+  /* $ 21.03.2002 DJ
+     восстановим заголовок
+  */
+  SetConsoleTitle (OldTitle);
+  /* DJ $ */
   return(1);
 }
 

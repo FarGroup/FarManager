@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.95 20.03.2002 $ */
+/* Revision: 1.96 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 SVS
+    ! Запретим показ амп. в проптере диалога Save As
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   19.03.2002 SVS
@@ -662,7 +664,7 @@ int FileEditor::ProcessKey(int Key)
           static struct DialogData EditDlgData[]=
           {
             /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
-            /* 1 */ DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,(char *)MEditSaveAs,
+            /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
             /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
             /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
             /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
