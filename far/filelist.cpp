@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.35 26.03.2001 $ */
+/* Revision: 1.36 02.04.2001 $ */
 
 /*
 Modify:
+  02.04.2001 IS
+    - Исправляю баг, связанный с выдачей ерунды при ctrl-n и ctrl-f для длинных
+      имен на плагине типа временной панели (т.е. которые содержат имя файла
+      вместе с путем)
   26.03.2001 SVS
     + Добавим возможность вызова Network-плагина из корня зашаренных
       дисков.
@@ -634,10 +638,45 @@ int FileList::ProcessKey(int Key)
             CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
           if (PanelMode!=PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES))
           {
-//            ConvertNameToFull(FileName,FileName, sizeof(FileName));
-            if (ConvertNameToFull(FileName,FileName, sizeof(FileName)) >= sizeof(FileName)){
+            /* $ 02.04.2001 IS
+                 Исправляю баг:
+                 -----
+1) в Temporary panel Ctrl+F на .. выдает: C:\dr_dr_dr\ (где "C:\dr_dr_dr\" путь
+до переключения в Temporary panel)
+
+2) в Temporary panel -> Ctrl+N (включаем короткие имена) -> Ctrl+F на любом
+файле получаем: C:\dr_dr_dr\FILENAME.EXT (где "C:\dr_dr_dr\" не путь до файла,
+а см.1)
+                 -----
+                 Пункт 1 объявляется фичей, пункт 2 исправляется ниже.
+                 Базовые предпосылки:
+                 1. Если имя содержит '\\', то оно содержит путь
+                 2. Если короткое имя содержит путь, то длинное имя также
+                    содержит путь.
+                 3. Если имя содержит путь, то вызывать ConvertNameToFull не
+                    нужно.
+            */
+            char *ShortNameLastSlash=strrchr(CurPtr->ShortName, '\\'),
+                 *NameLastSlash=strrchr(CurPtr->Name, '\\');
+            if (NULL==ShortNameLastSlash && NULL==NameLastSlash)
+            {
+              if(ConvertNameToFull(FileName,FileName, sizeof(FileName)) >= sizeof(FileName)){
               return FALSE;
+             }
             }
+            else if(ShowShortNames)
+            {
+              strcpy(temp, CurPtr->Name);
+              if(NameLastSlash) temp[1+NameLastSlash-CurPtr->Name]=0;
+
+              char *Name=strrchr(FileName, '\\');
+              if(Name) Name++;
+              else Name=FileName;
+
+              strcat(temp, Name);
+              strcpy(FileName, temp);
+            }
+            /* IS $ */
             if (ShowShortNames)
               ConvertNameToShort(FileName,FileName);
 
