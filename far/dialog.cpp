@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.127 26.06.2001 $ */
+/* Revision: 1.128 26.06.2001 $ */
 
 /*
 Modify:
+  26.06.2001 KM
+   ! ѕодадим перед DM_LISTSETCURPOS сообщение DN_LISTCHANGE.
   26.06.2001 SVS
    ! __except -> EXCEPT
   26.06.2001 KM
@@ -4385,7 +4387,13 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             case DM_LISTSETCURPOS: // Param1=ID Param2=NewPos Ret: RealPos
             {
+              /* 26.06.2001 KM ѕодадим перед изменением позиции об этом сообщение */
+              int CurListPos=ListBox->GetSelectPos();
               Ret=ListBox->SetSelectPos(Param2,1);
+              if(Ret!=CurListPos)
+                if(!Dlg->DlgProc(hDlg,DN_LISTCHANGE,Param1,Ret))
+                  Ret=ListBox->SetSelectPos(CurListPos,1);
+              /* KM $ */
               break; // т.к. нужно перерисовать!
             }
             case DM_LISTUPDATE: // Param1=ID Param2=FarList: Index=Index, Items=Src
