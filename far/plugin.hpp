@@ -8,13 +8,15 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.89 20.03.2001 $ */
+/* Revision: 1.90 20.03.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  20.03.2001 tran 1.89
+    + FarRecursiveSearch - добавлен void *param
   19.03.2001 SVS
     ! DN_CLOSE=DM_CLOSE, DN_KEY=DM_KEY - для наглядности. :-)
   16.02.2001 IS
@@ -1141,8 +1143,8 @@ enum XLATMODE{
 typedef char*   (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
 typedef BOOL    (WINAPI *FARSTDKEYTOKEYNAME)(int Key,char *KeyText,int Size);
 typedef int     (WINAPI *FARSTDKEYNAMETOKEY)(char *Name);
-typedef int     (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
-typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
+typedef int     (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName,void *Param);
+typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);
 typedef char*   (WINAPI *FARSTDMKTEMP)(char *Dest, char *Prefix);
 typedef void    (WINAPI *FARSTDDELETEBUFFER)(char *Buffer);
 

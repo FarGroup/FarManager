@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.67 20.03.2001 $ */
+/* Revision: 1.68 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 tran 1.67
+   + FarRecursiveSearch - добавлен void *param
   20.03.2001 SVS
    + FileSizeToStr - функция преобразования размера файла в... удобочитаемый
      вид - выдрана из FileList::ShowList()
@@ -613,8 +615,8 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 
 /* $ 10.09.2000 tran
    FSF/FarRecurseSearch*/
-typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
-void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags);
+typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName,void *param);
+void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags,void *param);
 /* tran 10.09.2000 $ */
 /* $ 14.09.2000 SVS
  + Функция FarMkTemp - получение имени временного файла с полным путем.

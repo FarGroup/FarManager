@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.62 20.03.2001 $ */
+/* Revision: 1.63 20.03.2001 $ */
 
 /*
 Modify:
+  20.03.2001 tran
+    + FarRecursiveSearch - добавлен void *param
   20.03.2001 SKV
     - еще один фикс с размером консоли при детаче.
   16.03.2001 SVS
@@ -1339,19 +1341,22 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 
 /* $ 10.09.2000 tran
    FSF/FarRecurseSearch */
-void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags)
+void WINAPI FarRecursiveSearch(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param)
 {
-    ScanTree ScTree(flags& FRS_RETUPDIR,flags & FRS_RECUR);
+  if(Func) // SVS: а проверить? :-(
+  {
+    ScanTree ScTree(Flags& FRS_RETUPDIR,Flags & FRS_RECUR);
     WIN32_FIND_DATA FindData;
     char FullName[NM];
 
-    ScTree.SetFindPath(initdir,mask);
+    ScTree.SetFindPath(InitDir,Mask);
     while (ScTree.GetNextName(&FindData,FullName))
     {
-        //if (func(FindData,FullName)==0)
-        if (func(&FindData,FullName)==0)
-            break;
+      //if (func(FindData,FullName)==0)
+      if (Func(&FindData,FullName,Param) == 0)
+          break;
     }
+  }
 }
 /* tran 10.09.2000 $ */
 
