@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.66 03.01.2003 $ */
+/* Revision: 1.67 15.06.2003 $ */
 
 /*
 Modify:
+  15.06.2003 SVS
+    + До кучи добавлены макросы AsciiToUnicode и OEMToUnicode
   03.01.2003 SVS
     + CHAR_WCHAR
   10.12.2002 SVS
@@ -355,6 +357,8 @@ enum {
 
 #define UnicodeToAscii(src,dst,lendst) WideCharToMultiByte(CP_ACP,0,(src),-1,(dst),(lendst),NULL,FALSE)
 #define UnicodeToOEM(src,dst,lendst) WideCharToMultiByte(CP_OEMCP,0,(src),-1,(dst),(lendst),NULL,FALSE)
+#define AsciiToUnicode(src,dst,lendst) MultiByteToWideChar(CP_ACP,0,(src),-1,(dst),(lendst))
+#define OEMToUnicode(src,dst,lendst) MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(lendst))
 
 typedef void (*PREREDRAWFUNC)(void);
 typedef BOOL (WINAPI *PISDEBUGGERPRESENT)(VOID);

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.142 14.06.2003 $ */
+/* Revision: 1.143 15.06.2003 $ */
 
 /*
 Modify:
+  15.06.2003 SVS
+    ! Дадим понять GetDirInfo - нужно или нет сканировать симлинки!
+      (добавлен еще один параметр)
   14.06.2003 SVS
     ! FRS_SCANJUNCTION -> FRS_SCANSYMLINK
   14.06.2003 SVS
@@ -785,7 +788,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak,BOOL DontRedrawFrame)
+               int EnhBreak,BOOL DontRedrawFrame,int ScanSymLink)
 {
   class UndoGlobalSaveScrPtr{
     public:
@@ -827,7 +830,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   SaveScreen SaveScr;
   UndoGlobalSaveScrPtr UndSaveScr(&SaveScr);
 
-  ScanTree ScTree(FALSE);
+  ScanTree ScTree(FALSE,TRUE,ScanSymLink);
   WIN32_FIND_DATA FindData;
   int MsgOut=0;
   clock_t StartTime=clock();

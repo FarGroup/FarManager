@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.188 14.06.2003 $ */
+/* Revision: 1.189 15.06.2003 $ */
 
 /*
 Modify:
+  15.06.2003 SVS
+    ! Дадим понять GetDirInfo - нужно или нет сканировать симлинки!
+      (добавлен еще один параметр)
   14.06.2003 IS
     ! CheckParseJunction -> IsLocalDrive
   06.06.2003 SVS
@@ -860,7 +863,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize,int64 &RealSize,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
-               int EnhBreak,BOOL DontRedrawFrame=FALSE);
+               int EnhBreak,BOOL DontRedrawFrame=FALSE,int ScanSymLink=-1);
 int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
                int64 &CompressedFileSize);

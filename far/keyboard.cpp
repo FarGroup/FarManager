@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.95 27.05.2003 $ */
+/* Revision: 1.96 17.06.2003 $ */
 
 /*
 Modify:
+  17.06.2003 SVS
+    - Alt-256 не давал нам символ с кодом 0x00. Пока закомментим кусочек один
   27.05.2003 SVS
     - Если CtrlObject->Macro.ProcessKey() вернул "УГУ", то обнулим EventType
       иначе все это барахло (имеется ввиду комбинация инициализации макроса)
@@ -2045,13 +2047,14 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
       ReadConsoleInput(hConInp,&TempRec,1,&ReadCount);
 
       ReturnAltValue=TRUE;
-#if defined(USE_WFUNC_IN)
-      AltValue&=0xFFFF;
-      rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
-#else
+      _SVS(SysLog("0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
+//#if defined(USE_WFUNC_IN)
+//      AltValue&=0xFFFF;
+//      rec->Event.KeyEvent.uChar.UnicodeChar=AltValue;
+//#else
       AltValue&=0x00FF;
       rec->Event.KeyEvent.uChar.AsciiChar=AltValue;
-#endif
+//#endif
       //// // _SVS(SysLog("KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
       return(AltValue);
     }
@@ -2204,8 +2207,8 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
           {
             AltValue=AltValue*10+I;
             KeyCodeForALT_LastPressed=KeyCode;
-            //// // _SVS(SysLog("3 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
           }
+//          _SVS(SysLog("AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
           if(AltValue!=0)
             return(KEY_NONE);
         }

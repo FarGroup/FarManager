@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.287 30.05.2003 $ */
+/* Revision: 1.288 15.06.2003 $ */
 
 /*
 Modify:
+  15.06.2003 SVS
+    - при центрировании (флаг DIF_CENTERGROUP) Type=DI_RADIOBUTTON получаем
+      чудную кашу на экране
+    + DN_DRAWDIALOGDONE - приходит после отрисовки диалога
+    ! Отрисовка салазок вынесена из DN_DRAWDIALOG в DN_DRAWDIALOGDONE (в DefDlgProc)
   30.05.2003 SVS
     - "...даже не знаю, баг или фича. Если нажать кнопку мыши в пределах
        диалога и, не отпуская её, протянуть мышь за его пределы и отпустить,
@@ -1400,12 +1405,34 @@ void Dialog::ProcessCenterGroup(void)
       {
         Length+=LenStrItem(J);
 
-        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
-          Length+=2;
+//        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
+//          Length+=2;
+        if (*JCurItem->Data!=' ')
+          switch(JCurItem->Type)
+          {
+            case DI_BUTTON:
+              Length+=2;
+              break;
+            case DI_CHECKBOX:
+            case DI_RADIOBUTTON:
+              Length+=5;
+              break;
+          }
       }
 
-      if (Type==DI_BUTTON && *CurItem->Data!=' ')
-        Length-=2;
+//      if (Type==DI_BUTTON && *CurItem->Data!=' ')
+//        Length-=2;
+      if (*CurItem->Data!=' ')
+        switch(Type)
+        {
+          case DI_BUTTON:
+//            Length-=2;
+            break;
+          case DI_CHECKBOX:
+          case DI_RADIOBUTTON:
+//            Length-=5;
+            break;
+        }
 
       StartX=(X2-X1+1-Length)/2;
 
@@ -1419,8 +1446,19 @@ void Dialog::ProcessCenterGroup(void)
         JCurItem->X1=StartX;
         StartX+=LenStrItem(J);
 
-        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
-          StartX+=2;
+//        if (JCurItem->Type==DI_BUTTON && *JCurItem->Data!=' ')
+//          StartX+=2;
+        if (*JCurItem->Data!=' ')
+          switch(JCurItem->Type)
+          {
+            case DI_BUTTON:
+              StartX+=2;
+              break;
+            case DI_CHECKBOX:
+            case DI_RADIOBUTTON:
+              StartX+=5;
+              break;
+          }
       }
     }
   }
@@ -1584,7 +1622,9 @@ int Dialog::InitDialogObjects(int ID)
         // удалим все итемы
         //ListBox->DeleteItems(); //???? А НАДО ЛИ ????
         if(CurItem->ListItems && !DialogMode.Check(DMODE_CREATEOBJECTS))
+        {
           ListPtr->AddItem(CurItem->ListItems);
+        }
         /* KM $ */
         /* KM $ */
         /* $ 21.02.2002 DJ
@@ -2827,16 +2867,7 @@ void Dialog::ShowDialog(int ID)
   /* $ 31.07.2000 SVS
      Включим индикатор перемещения...
   */
-  if ( DialogMode.Check(DMODE_DRAGGED) ) // если диалог таскается
-  {
-    /*
-    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
-      Убираем вызов плагиновго обработчика.
-    */
-    //DlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
-    Dialog::DefDlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
-  }
-  else
+  if (!DialogMode.Check(DMODE_DRAGGED)) // если диалог таскается
   {
     /* $ 03.06.2001 KM
        + При каждой перерисовке диалога, кроме режима перемещения, устанавливаем
@@ -2845,10 +2876,21 @@ void Dialog::ShowDialog(int ID)
     SetFarTitle(GetDialogTitle());
     /* KM $ */
   }
-  /* SVS $ */
 
   DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
   DialogMode.Set(DMODE_SHOW); // диалог на экране!
+
+  if (DialogMode.Check(DMODE_DRAGGED))
+  {
+    /*
+    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
+      Убираем вызов плагиновго обработчика.
+    */
+    //DlgProc((HANDLE)this,DN_DRAWDIALOGDONE,1,0);
+    Dialog::DefDlgProc((HANDLE)this,DN_DRAWDIALOGDONE,1,0);
+  }
+  else
+    DlgProc((HANDLE)this,DN_DRAWDIALOGDONE,0,0);
 }
 /* SVS 22.08.2000 $ */
 
@@ -5647,7 +5689,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_DRAGGED:
       return TRUE; // согласен с перемещалкой.
 
-    case DN_DRAWDIALOG:
+    case DN_DRAWDIALOGDONE:
     {
       if(Param1 == 1)  // Нужно отрисовать "салазки"?
       {
@@ -5661,6 +5703,11 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         Text(Dlg->X2,Dlg->Y1,0xCE,"/");
         Text(Dlg->X2,Dlg->Y2,0xCE,"\\");
       }
+      return TRUE;
+    }
+
+    case DN_DRAWDIALOG:
+    {
       return TRUE;
     }
 

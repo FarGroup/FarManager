@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.48 27.05.2003 $ */
+/* Revision: 1.49 17.06.2003 $ */
 
 /*
 Modify:
+  17.06.2003 SVS
+    ! VMenu::CallCount сделаем как LONG
   27.05.2003 SVS
     + VMenu::DrawTitles() - кусок кода, прорисовывающий заголовки вынесен в
       эту функцию. Это бага про
@@ -309,7 +311,7 @@ class VMenu: virtual public Modal, virtual public Frame
     int MaxHeight;
     int MaxLength;
     int BoxType;
-    int CallCount;
+    LONG CallCount;
     int PrevCursorVisible;
     int PrevCursorSize;
     int PrevMacroMode;

@@ -5,10 +5,15 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.158 14.06.2003 $ */
+/* Revision: 1.159 15.06.2003 $ */
 
 /*
 Modify:
+  15.06.2003 SVS
+    + ACTL_GETDIALOGSETTINGS
+    ! FIS_PERSISTENTBLOCKSINEDITCONTROLS -> FDIS_PERSISTENTBLOCKSINEDITCONTROLS
+    ! FIS_HISTORYINDIALOGEDITCONTROLS    -> FDIS_HISTORYINDIALOGEDITCONTROLS
+    ! FIS_AUTOCOMPLETEININPUTLINES       -> FDIS_AUTOCOMPLETEININPUTLINES
   14.06.2003 SVS
     + FSS_SCANSYMLINK
   30.05.2003 SVS
@@ -871,6 +876,19 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
     }
     /* tran $ */
 
+    case ACTL_GETDIALOGSETTINGS:
+    {
+      DWORD Options=0;
+      static struct Opt2Flags ODlg[]={
+        {&Opt.Dialogs.EditHistory,FDIS_HISTORYINDIALOGEDITCONTROLS},
+        {&Opt.Dialogs.EditBlock,FDIS_PERSISTENTBLOCKSINEDITCONTROLS},
+        {&Opt.Dialogs.AutoComplete,FDIS_AUTOCOMPLETEININPUTLINES},
+      };
+      for(I=0; I < sizeof(ODlg)/sizeof(ODlg[0]); ++I)
+        if(*ODlg[I].Opt)
+          Options|=ODlg[I].Flags;
+      return Options;
+    }
     /* $ 24.11.2001 IS
        ќзнакомим с настройками системными, панели, интерфейса, подтверждений
     */
@@ -928,12 +946,9 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param)
         {&Opt.Mouse,FIS_MOUSE},
         {&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
         {&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
-        {&Opt.Dialogs.EditHistory,FIS_HISTORYINDIALOGEDITCONTROLS},
-        {&Opt.Dialogs.EditBlock,FIS_PERSISTENTBLOCKSINEDITCONTROLS},
         {&Opt.AltGr,FIS_USERIGHTALTASALTGR},
         {&Opt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
         {&Opt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
-        {&Opt.Dialogs.AutoComplete,FIS_AUTOCOMPLETEININPUTLINES},
         {&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
       };
       for(I=0; I < sizeof(OSys)/sizeof(OSys[0]); ++I)

@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.121 14.06.2003 $ */
+/* Revision: 1.122 15.06.2003 $ */
 
 /*
 Modify:
+  15.06.2003 SVS
+    - опция "[ ] Копировать содержимое символических связей" и...
+      индикатор общего + время не показывается. Ошибка в ShellCopy::CalcTotalSize()
   14.06.2003 SVS
     - Исправлено поведение при переименовании, это когда на пассивной
       панели глобокое вложение того, что удаляем на активной.
@@ -1774,7 +1777,12 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
             case COPY_SUCCESS:
               if(!NeedRename) // вариант при перемещении содержимого симлика с опцией "копировать содержимое сим..."
+              {
+                int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+                TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+                TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
                 continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
+              }
           }
         }
 
@@ -3747,13 +3755,13 @@ bool ShellCopy::CalcTotalSize()
   while (SrcPanel->GetSelName(SelName,FileAttr,SelShortName))
     if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
     {
-      if(ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS)
       {
         unsigned long DirCount,FileCount,ClusterSize;
         int64 FileSize,CompressedSize,RealFileSize;
         ShellCopyMsg(NULL,SelName,MSG_LEFTALIGN|MSG_KEEPBACKGROUND);
         if (!GetDirInfo("",SelName,DirCount,FileCount,FileSize,CompressedSize,
-                        RealFileSize,ClusterSize,0xffffffff,FALSE))
+                        RealFileSize,ClusterSize,0xffffffff,FALSE,FALSE,
+                        ShellCopy::Flags&FCOPY_COPYSYMLINKCONTENTS))
         {
           ShowTotalCopySize=false;
           return(false);
