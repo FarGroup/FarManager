@@ -463,6 +463,11 @@ line, including dialogs and the ~internal editor~@Editor@.
 
   Right clicking outside the dialog works the same as pressing Enter.
 
+   Щелчок средней клавишей мыши с соответствующими модификаторами (Ctrl,
+Alt, Shift) в ~панелях~@PanelCmd@ аналогичен нажатию клавиши Enter. Для
+непустой ~командной строки~@CmdLineCmd@ будет исполнено ее содержимое.
+
+
   Under Windows 2000/XP, FAR Manager supports the ~mouse wheel~@MsWheel@.
 
 @MsWheel

@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.113 06.12.2001 $ */
+/* Revision: 1.114 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 SVS
+    - BugZ#168 -  олЄсико мышки не входит в каталог при непустой ком.строке
+      (дл€ средней клавиши мыши и не пустой строке... исполним эту строку)
   06.12.2001 SVS
     ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
   29.11.2001 SVS
@@ -1123,7 +1126,15 @@ int FileList::ProcessKey(int Key)
     case KEY_ENTER:
     case KEY_SHIFTENTER:
       if (CmdLength>0 || FileCount==0)
+      {
+        // ƒл€ средней клавиши мыши и не пустой строке... исполним эту строку
+        if(MButtonPressed && CmdLength>0)
+        {
+          CtrlObject->CmdLine->ProcessKey(Key);
+          return(TRUE);
+        }
         break;
+      }
       ProcessEnter(1,Key==KEY_SHIFTENTER);
       return(TRUE);
     case KEY_CTRLBACKSLASH:

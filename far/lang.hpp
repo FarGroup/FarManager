@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.86 07.12.2001 $ */
+/* Revision: 1.87 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 SVS
+    + MKBTree*F*
   07.12.2001 IS
     + MMultiMakeDir - опция для диалога создания каталога
   20.11.2001 SVS
@@ -1774,6 +1776,58 @@ enum
   MQViewCtrlF10,
   MQViewCtrlF11,
   MQViewCtrlF12,
+
+  MKBTreeF1,
+  MKBTreeF2,
+  MKBTreeF3,
+  MKBTreeF4,
+  MKBTreeF5,
+  MKBTreeF6,
+  MKBTreeF7,
+  MKBTreeF8,
+  MKBTreeF9,
+  MKBTreeF10,
+  MKBTreeF11,
+  MKBTreeF12,
+
+  MKBTreeShiftF1,
+  MKBTreeShiftF2,
+  MKBTreeShiftF3,
+  MKBTreeShiftF4,
+  MKBTreeShiftF5,
+  MKBTreeShiftF6,
+  MKBTreeShiftF7,
+  MKBTreeShiftF8,
+  MKBTreeShiftF9,
+  MKBTreeShiftF10,
+  MKBTreeShiftF11,
+  MKBTreeShiftF12,
+
+  MKBTreeAltF1,
+  MKBTreeAltF2,
+  MKBTreeAltF3,
+  MKBTreeAltF4,
+  MKBTreeAltF5,
+  MKBTreeAltF6,
+  MKBTreeAltF7,
+  MKBTreeAltF8,
+  MKBTreeAltF9,
+  MKBTreeAltF10,
+  MKBTreeAltF11,
+  MKBTreeAltF12,
+
+  MKBTreeCtrlF1,
+  MKBTreeCtrlF2,
+  MKBTreeCtrlF3,
+  MKBTreeCtrlF4,
+  MKBTreeCtrlF5,
+  MKBTreeCtrlF6,
+  MKBTreeCtrlF7,
+  MKBTreeCtrlF8,
+  MKBTreeCtrlF9,
+  MKBTreeCtrlF10,
+  MKBTreeCtrlF11,
+  MKBTreeCtrlF12,
 
   MRegTitle,
   MRegUser,

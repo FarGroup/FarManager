@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.58 06.12.2001 $ */
+/* Revision: 1.59 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 SVS
+    - BugZ#171 - Ошибка в [x] Process multiple destinations
   06.12.2001 VVM
     + Сбрасывание выделения только при флаге FCOPY_COPYLASTTIME
   16.11.2001 SVS
@@ -639,6 +641,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       {
         const char *NamePtr;
         char NameTmp[NM];
+
+        // переинициализируем переменные в самом начале (BugZ#171)
+        CopyBufSize=1024; // Начинаем с 1к
+        ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=-1;
+
         DestList.Start();
         while(NULL!=(NamePtr=DestList.GetNext()))
         {
@@ -1025,8 +1032,6 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
   char SelName[NM],SelShortName[NM];
   int Length,FileAttr;
 
-  CopyBufSize=1024; // Начинаем с 1к
-  ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=-1;
   SetCursorType(FALSE,0);
 
   ShellCopy::Flags&=~(FCOPY_STREAMSKIP|FCOPY_STREAMALL);

@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.28 08.12.2001 $ */
+/* Revision: 1.29 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 SVS
+    + —вой кейбар в дерев€хе
+    - не обновлась пассивна€ панель при удалении каталога из дерев€хи
   08.12.2001 IS
     - баг: показывали левую справку по F1
     ! небольша€ оптимизаци€ по размеру - вместо "define строка"
@@ -264,6 +267,7 @@ void TreeList::DisplayTree(int Fast)
   }
 
   UpdateViewPanel();
+  SetTitle(); // не забудим прорисовать заголовок
 }
 
 
@@ -755,6 +759,11 @@ int TreeList::ProcessKey(int Key)
         if (Key==KEY_SHIFTDEL)
           Opt.DeleteToRecycleBin=0;
         ShellDelete(this,Key==KEY_ALTDEL);
+        // Ќадобно не забыть обновить противоположную панель...
+        Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+        AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+        AnotherPanel->Redraw();
+
         Opt.DeleteToRecycleBin=SaveOpt;
         if (Opt.AutoChangeFolder && !ModalMode)
           ProcessKey(KEY_ENTER);
@@ -1496,6 +1505,7 @@ int TreeList::MustBeCached(char *Root)
 void TreeList::SetFocus()
 {
   Panel::SetFocus();
+  SetTitle();
   SetMacroMode(FALSE);
 }
 
@@ -1521,4 +1531,47 @@ void TreeList::SetMacroMode(int Restore)
   if (PrevMacroMode == -1)
     PrevMacroMode = CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_TREEPANEL);
+}
+
+BOOL TreeList::UpdateKeyBar()
+{
+  KeyBar *KB = CtrlObject->MainKeyBar;
+  KB->SetAllGroup (KBL_MAIN, MKBTreeF1, 12);
+  KB->SetAllGroup (KBL_SHIFT, MKBTreeShiftF1, 12);
+  KB->SetAllGroup (KBL_ALT, MKBTreeAltF1, 12);
+  KB->SetAllGroup (KBL_CTRL, MKBTreeCtrlF1, 12);
+  KB->ClearGroup (KBL_CTRLSHIFT);
+  KB->ClearGroup (KBL_CTRLALT);
+  KB->ClearGroup (KBL_ALTSHIFT);
+
+  DynamicUpdateKeyBar();
+
+  return TRUE;
+}
+
+void TreeList::DynamicUpdateKeyBar()
+{
+  ;//KeyBar *KB = CtrlObject->MainKeyBar;
+}
+
+void TreeList::SetTitle()
+{
+  if (GetFocus())
+  {
+    char *Ptr="";
+    char TitleDir[NM];
+    if(ListData)
+    {
+      struct TreeItem *CurPtr=ListData+CurFile;
+      Ptr=CurPtr->Name;
+    }
+    if (*Ptr)
+      sprintf(TitleDir,"{%s - Tree}",Ptr);
+    else
+    {
+      sprintf(TitleDir,"{Tree}");
+    }
+    strcpy(LastFarTitle,TitleDir);
+    SetFarTitle(TitleDir);
+  }
 }

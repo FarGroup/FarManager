@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.08 24.10.2001 $ */
+/* Revision: 1.09 11.12.2001 $ */
 
 /*
 Modify:
+  11.12.2001 SVS
+    + Свой кейбар в деревяхе
   24.10.2001 SVS
     - бага с прорисовкой при вызове дерева из диалога копирования
   24.10.2001 VVM
@@ -77,6 +79,7 @@ class TreeList: public Panel
     static int GetCacheTreeName(char *Root,char *Name,int CreateDir);
     int GetSelCount();
     int GetSelName(char *Name,int &FileAttr,char *ShortName=NULL);
+    void DynamicUpdateKeyBar();
 
   public:
     TreeList(int IsPanel=TRUE);
@@ -114,6 +117,8 @@ class TreeList: public Panel
     virtual void SetFocus();
     virtual void KillFocus();
     static void PR_MsgReadTree(void);
+    virtual void SetTitle();
+    virtual BOOL UpdateKeyBar();
 };
 
 #endif  // __TREELIST_HPP__
