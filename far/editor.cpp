@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.215 26.01.2003 $ */
+/* Revision: 1.216 05.02.2003 $ */
 
 /*
 Modify:
+  05.02.2003 SKV
+    - little selection fix (deselection with shift-down on lines with tabs).
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -1901,7 +1903,7 @@ int Editor::ProcessKey(int Key)
         }
         CurLine->Next->EditLine.GetRealSelection(SelStart,SelEnd);
         if(SelStart!=-1)SelStart=CurLine->Next->EditLine.RealPosToTab(SelStart);
-        if(SelStart!=-1)SelEnd=CurLine->Next->EditLine.RealPosToTab(SelEnd);
+        if(SelEnd!=-1)SelEnd=CurLine->Next->EditLine.RealPosToTab(SelEnd);
         if(SelStart==-1)
         {
           SelStart=0;
@@ -1932,9 +1934,9 @@ int Editor::ProcessKey(int Key)
         CurLine->EditLine.Select(SelStart,-1);
         SelStart=0;
         SelEnd=CurPos;
+        if(SelStart!=-1)SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
+        if(SelEnd!=-1)SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
       }
-      SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
-      SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
       if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
       {
         SelEnd=CurLine->Next->EditLine.GetLength();
