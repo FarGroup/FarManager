@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.27 24.01.2002 $ */
+/* Revision: 1.28 13.02.2002 $ */
 
 /*
 Modify:
+  13.02.2002 DJ
+    ! не выставляем заголовок окна, если мы не текущий фрейм
   24.01.2002 VVM
     ! Поменяем логику обновления панелей
     ! hListChange работает с INVALID_HANDLE_VALUE, а не с NULL
@@ -98,6 +100,7 @@ Modify:
 #include "hilight.hpp"
 #include "grpsort.hpp"
 #include "ctrlobj.hpp"
+#include "manager.hpp"
 
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
@@ -463,7 +466,14 @@ void FileList::ReadFileNames(int KeepSelection)
   if (CurFile>=FileCount || LocalStricmp((ListData+CurFile)->Name,CurName)!=0)
     if (!GoToFile(CurName) && *NextCurName)
       GoToFile(NextCurName);
-  SetTitle();
+
+  /* $ 13.02.2002 DJ
+     SetTitle() - только если мы текущий фрейм!
+  */
+  if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
+    SetTitle();
+  /* DJ $ */
+
   if (*SaveDir) {
     SetCurrentDirectory(SaveDir);
   }
