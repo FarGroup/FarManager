@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.55 29.11.2001 $ */
+/* Revision: 1.56 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 DJ
+    - если PluginContents очень длинный, надо его обрезать
   29.11.2001 DJ
     + в заголовке окна хелпа показываем, чей это хелп
   27.11.2001 DJ
@@ -718,6 +720,12 @@ void Help::DrawWindowFrame()
     strcat (HelpTitleBuf, CurPluginContents);
   else
     strcat (HelpTitleBuf, "FAR");
+  /* $ 03.12.2001 DJ
+     обрежем длинный заголовок
+  */
+  if (strlen (HelpTitleBuf) > X2-X1-3)
+    strcpy (HelpTitleBuf+X2-X1-6, "...");
+  /* DJ $ */
   GotoXY(X1+(X2-X1+1-strlen(HelpTitleBuf)-2)/2,Y1);
   mprintf(" %s ",HelpTitleBuf);
 }

@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.33 02.12.2001 $ */
+/* Revision: 1.34 03.12.2001 $ */
 
 /*
 Modify:
+  01.12.2001 DJ
+    - корректный MenuItem::SetCheck()
   02.12.2001 KM
     + VMOldFlags
   30.11.2001 DJ
@@ -183,7 +185,23 @@ struct MenuItem
     char   Str4[4];              // - strlen(строка)+1 <= 4
   };
 
-  DWORD SetCheck(int Value){ if(Value) {Flags|=LIF_CHECKED; if(Value!=1) Flags|=Value&0xFFFF;} else Flags&=~(0xFFFF|LIF_CHECKED); return Flags;}
+  /* $ 01.12.2001 DJ
+     исправим баг, заодно нормально отформатируем код
+  */
+  DWORD SetCheck(int Value)
+  {
+    if(Value)
+    {
+      Flags|=LIF_CHECKED;
+      Flags &= ~0xFFFF;
+      if(Value!=1) Flags|=Value&0xFFFF;
+    }
+    else
+      Flags&=~(0xFFFF|LIF_CHECKED);
+    return Flags;
+  }
+  /* DJ $ */
+
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
@@ -193,7 +211,22 @@ struct MenuData
   char *Name;
   DWORD Flags;
 
-  DWORD SetCheck(int Value){ if(Value) Flags|=((Value&0xFFFF)|LIF_CHECKED); else Flags&=~(0xFFFF|LIF_CHECKED); return Flags;}
+  /* $ 01.12.2001 DJ
+     исправим баг, заодно нормально отформатируем код
+  */
+  DWORD SetCheck(int Value)
+  {
+    if(Value)
+    {
+      Flags &= ~0xFFFF;
+      Flags|=((Value&0xFFFF)|LIF_CHECKED);
+    }
+    else
+      Flags&=~(0xFFFF|LIF_CHECKED);
+    return Flags;
+  }
+  /* DJ $ */
+
   DWORD SetSelect(int Value){ if(Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
   DWORD SetDisable(int Value){ if(Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };

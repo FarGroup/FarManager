@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.73 27.11.2001 $ */
+/* Revision: 1.74 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 DJ
+    - вызываем PrepareDiskPath() для пути, переданного в FCTL_SETPANELDIR
+      и FCTL_SETANOTHERPANELDIR
   27.11.2001 SVS
     + GetCurBaseName() выдает на гора имя файлового объекта под курсором
       с учетом вложенности панельного плагина, т.е. имя самого верхнего
@@ -1523,14 +1526,18 @@ void Panel::SetPluginCommand(int Command,void *Param)
         /* DJ */
       }
       break;
+    /* $ 03.12.2001 DJ
+       скорректируем путь
+    */
     case FCTL_SETANOTHERPANELDIR:
       if (Param!=NULL && AnotherPanel!=NULL)
-        AnotherPanel->SetCurDir((char *)Param,TRUE);
+        AnotherPanel->SetCurDir (PrepareDiskPath ((char *)Param, TRUE), TRUE);
       break;
     case FCTL_SETPANELDIR:
       if (Param!=NULL)
-        SetCurDir((char *)Param,TRUE);
+        SetCurDir (PrepareDiskPath ((char *)Param, TRUE), TRUE);
       break;
+    /* DJ $ */
   }
   ProcessingPluginCommand--;
 }

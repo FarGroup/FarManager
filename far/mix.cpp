@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.101 02.12.2001 $ */
+/* Revision: 1.102 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 DJ
+    - RawConvertShortNameToLongName() возвращала ошибку, если ей был
+      передан путь, заканчивающийс€ на \
   02.12.2001 SVS
     ! ”точнение в RawConvertShortNameToLongName() дл€ входной строки
       "C:\\", иначе лабуда полна€ получатс€ в параметре dest
@@ -601,7 +604,10 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
        Src=Dots+1;
      }
 
-     while(!Error)
+     /* $ 03.12.2001 DJ
+        если ничего не осталось - не пытаемс€ найти пустую строку
+     */
+     while(!Error && *Src)   /* DJ $ */
      {
        Slash=strchr(Src, '\\');
        if(Slash) *Slash=0;
@@ -632,6 +638,11 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
          {
            *Dest=*Slash='\\';
            ++Dest;
+           /* $ 03.12.2001 DJ
+              если после слэша ничего нету - надо добавить '\0'
+           */
+           *Dest = '\0';
+           /* DJ $ */
            ++FinalSize;
            ++Slash;
            Slash=strchr(Src=Slash, '\\');
@@ -1584,7 +1595,7 @@ int PathMayBeAbsolute(const char *Src)
 }
 
 //  осметические преобразовани€ строки пути.
-// CheckFullPath пока не используетс€
+// CheckFullPath используетс€ в FCTL_SET[ANOTHER]PANELDIR
 char* PrepareDiskPath(char *Path,BOOL CheckFullPath)
 {
   if(Path)
@@ -1599,8 +1610,12 @@ char* PrepareDiskPath(char *Path,BOOL CheckFullPath)
         if(*NPath)
           strncpy(Path,NPath,strlen(Path));
       }
-      else
-        Path[0]=toupper(Path[0]);
+      /* $ 03.12.2001 DJ
+         RawConvertShortNameToLongName() не апперкейсит первую букву Path
+         => уберем else
+      */
+      Path[0]=toupper(Path[0]);
+      /* DJ $ */
     }
   }
   return Path;

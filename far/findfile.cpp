@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.78 01.12.2001 $ */
+/* Revision: 1.79 03.12.2001 $ */
 
 /*
 Modify:
+  03.12.2001 DJ
+    - корректный показ имен файлов с амперсандами
   01.12.2001 KM
     - [Bug#145] М-да... Такая невнимательность до добра не доведёт :(
       Перепутать Param1 с Param2 это надо суметь...
@@ -1129,11 +1131,14 @@ int FindFiles::FindFilesProcess()
   else
     sprintf(Title,"%s",MSG(MFindFileTitle));
 
+  /* $ 03.12.2001 DJ
+     корректный показ имен файлов с амперсандами
+  */
   static struct DialogData FindDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,72,DLG_HEIGHT-2,0,0,0,0,Title,
   /* 01 */DI_LISTBOX,4,2,71,14,0,0,DIF_LISTNOBOX,0,(char*)0,
   /* 02 */DI_TEXT,-1,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 03 */DI_TEXT,5,16,0,0,0,0,0,0,(char *)MFindSearchingIn,
+  /* 03 */DI_TEXT,5,16,0,0,0,0,DIF_SHOWAMPERSAND,0,(char *)MFindSearchingIn,
   /* 04 */DI_TEXT,3,17,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 05 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindNewSearch,
   /* 06 */DI_BUTTON,0,18,0,0,1,0,DIF_CENTERGROUP,1,(char *)MFindGoTo,
@@ -1141,6 +1146,7 @@ int FindFiles::FindFilesProcess()
   /* 08 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindPanel,
   /* 09 */DI_BUTTON,0,18,0,0,0,0,DIF_CENTERGROUP,0,(char *)MFindStop
   };
+  /* DJ $ */
   MakeDialogItems(FindDlgData,FindDlg);
 
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
