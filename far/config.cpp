@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.90 03.08.2001 $ */
+/* Revision: 1.91 09.08.2001 $ */
 
 /*
 Modify:
+  09.08.2001 OT
+		- F9|Options|Panel settings|Highlight files - не перерисовывается
   03.08.2001 IS
     + Учтем опцию "разрешить мультикопирование/перемещение/создание связей".
       По умолчанию она отключена.
@@ -467,10 +469,7 @@ void PanelSettings()
   Opt.ShowPanelScrollbar=CfgDlg[11].Selected;
   Opt.ShowScreensNumber=CfgDlg[12].Selected;
   Opt.ShowSortMode=CfgDlg[13].Selected;
-
-  CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-  CtrlObject->Cp()->SetScreenPosition();
+	FrameManager->RefreshFrame();
 }
 
 
