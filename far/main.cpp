@@ -5,10 +5,13 @@ far.cpp
 
 */
 
-/* Revision: 1.04 01.09.2000 $ */
+/* Revision: 1.05 15.12.2000 $ */
 
 /*
 Modify:
+  15.12.2000 SVS
+    + В случае, если не нашли нужных LNG-файлов - выдаем простое сообщение
+      и не выпендрючиваемся.
   01.09.2000 tran
     + /co switch
   03.08.2000 SVS
@@ -57,7 +60,7 @@ int _cdecl main(int Argc, char *Argv[])
   */
   Opt.MainPluginDir=TRUE;
   /* SVS $ */
-  /* $ 01.09.2000 tran 
+  /* $ 01.09.2000 tran
      /co - cache only, */
   Opt.PluginsCacheOnly=FALSE;
   /* tran $ */
@@ -173,8 +176,16 @@ int _cdecl main(int Argc, char *Argv[])
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
   if (!Lang.Init(FarPath))
   {
-    Message(MSG_WARNING,1,"Error","Cannot load language data","Ok");
+    /* $ 15.12.2000 SVS
+       В случае, если не нашли нужных LNG-файлов - выдаем простое сообщение
+       и не выпендрючиваемся.
+    */
+    //Message(MSG_WARNING,1,"Error","Cannot load language data","Ok");
+    ControlObject::ShowCopyright(1);
+    fprintf(stderr,"\nError: Cannot load language data\n\nPress any key...");
+    // WaitKey(-1); // А стоит ли ожидать клавишу???
     exit(0);
+    /* SVS $ */
   }
   ConvertOldSettings();
   SetHighlighting();

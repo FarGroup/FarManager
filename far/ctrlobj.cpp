@@ -5,10 +5,13 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.10 25.11.2000 $ */
+/* Revision: 1.11 15.12.2000 $ */
 
 /*
 Modify:
+  15.12.2000 SVS
+    ! Метод ShowCopyright - public static & параметр Flags.
+      Если Flags&1, то использовать printf вместо внутренних функций
   25.11.2000 SVS
     ! Copyright в 2 строки
   27.09.2000 SVS
@@ -856,7 +859,10 @@ Panel* ControlObject::ChangePanel(Panel *Current,int NewType,int CreateNew,int F
 /* $ 25.11.2000 SVS
    Copyright в 2 строки
 */
-void ControlObject::ShowCopyright()
+/* $ 15.12.2000 SVS
+ Метод ShowCopyright - public static & параметр Flags.
+*/
+void ControlObject::ShowCopyright(DWORD Flags)
 {
 /* $ 29.06.2000 tran
   берем char *CopyRight из inc файла */
@@ -876,21 +882,29 @@ void ControlObject::ShowCopyright()
       Str[I]='\0';
     }
   }
-#ifdef BETA
-  mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
-#else
-  if(Line2)
+  if(Flags&1)
   {
-    GotoXY(0,ScrY-4);
-    Text(Str);
-    GotoXY(0,ScrY-3);
-    Text(Line2);
+    fprintf(stderr,"%s\n%s\n",Str,Line2);
   }
   else
-    Text(Str);
+  {
+#ifdef BETA
+    mprintf("Beta version %d.%02d.%d",BETA/1000,(BETA%1000)/10,BETA%10);
+#else
+    if(Line2)
+    {
+      GotoXY(0,ScrY-4);
+      Text(Str);
+      GotoXY(0,ScrY-3);
+      Text(Line2);
+    }
+    else
+      Text(Str);
 #endif
+  }
 }
-/* SVS$ */
+/* SVS $ */
+/* SVS $ */
 
 
 /* $ 15.07.2000 tran

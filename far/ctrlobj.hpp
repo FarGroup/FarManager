@@ -7,10 +7,12 @@ ctrlobj.hpp
 
 */
 
-/* Revision: 1.01 15.07.2000 $ */
+/* Revision: 1.02 15.12.2000 $ */
 
 /*
 Modify:
+  15.12.2000 SVS
+    ! Метод ShowCopyright - public static & параметр Flags.
   15.07.2000 tran
     + new method Redraw()
   25.06.2000 SVS
@@ -21,16 +23,20 @@ Modify:
 class ControlObject:public BaseInput
 {
   private:
-    Panel* ControlObject::CreatePanel(int Type);
-    void DeletePanel(Panel *Deleted);
-    void ShowCopyright();
     int EndLoop;
     int LastLeftType,LastRightType;
     int LeftStateBeforeHide,RightStateBeforeHide,HideState;
     Panel *LastLeftFilePanel,*LastRightFilePanel;
+
+  private:
+    Panel* ControlObject::CreatePanel(int Type);
+    void DeletePanel(Panel *Deleted);
+
   public:
     ControlObject();
     ~ControlObject();
+
+  public:
     void Init();
     int ProcessKey(int Key);
     int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -47,6 +53,7 @@ class ControlObject:public BaseInput
     void Redraw();
     /* tran 15.07.2000 $ */
 
+  public:
     Panel *LeftPanel,*RightPanel,*ActivePanel;
 
     Manager ModalManager;
@@ -59,6 +66,8 @@ class ControlObject:public BaseInput
     FilePositionCache ViewerPosCache,EditorPosCache;
     KeyMacro Macro;
     PluginsSet Plugins;
+
+    static void ShowCopyright(DWORD Flags=0);
 };
 
 
