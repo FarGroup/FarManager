@@ -1721,10 +1721,10 @@ $ #Internal viewer#
     #Ctrl-Right#         20 characters right
     #PgUp#               Page up
     #PgDn#               Page down
-    #Home#               Start of lines on the screen
-    #End#                End of lines on the screen
-    #Ctrl-Home#          Start of file
-    #Ctrl-End#           End of file
+    #Ctrl-Shift-Left#    Start of lines on the screen
+    #Ctrl-Shift-Right#   End of lines on the screen
+    #Home, Ctrl-Home#    Start of file
+    #End, Ctrl-End#      End of file
 
     #F1#                 Help
     #F2#                 Toggle line wrap/unwrap
@@ -1754,13 +1754,15 @@ $ #Internal viewer#
                        line.
     #Ctrl-S#             Show/Hide the scrollbar.
     #Alt-BS, Ctrl-Z#     Undo position change
-    #RightCtrl-0..9#     Set a bookmark 0..9 at the current
-                       position
+    #RightCtrl-0..9#     Set a bookmark 0..9 at the current position
+    #Ctrl-Shift-0..9#    Set a bookmark 0..9 at the current position
     #LeftCtrl-0..9#      Go to bookmark 0..9
 
-    #Ctrl-Ins, Ctrl-C#   Copy selection to clipboard
+    #Ctrl-Ins, Ctrl-C#   Copy the text highlighed as a result of
+                       the search to the clipboard.
+    #Ctrl-U#             Remove the highlighting of the search results.
 
-    #Ctrl-U#             Clear selection
+
 
     Notes:
 
@@ -1924,6 +1926,8 @@ $ #Internal editor#
    #Ctrl-Q#                  Treat the next key combination
                            as a character code
    #RightCtrl-0..9#          Set a bookmark 0..9 at the current
+                           position
+   #Ctrl-Shift-0..9#         Set a bookmark 0..9 at the current
                            position
    #LeftCtrl-0..9#           Go to bookmark 0..9
    #Shift-Enter#             Insert the name of the current file on
@@ -2163,8 +2167,8 @@ only in Windows 2000/XP.
 
 @ViewerSettings
 $ #Viewer settings#
-    This dialog allows to change the default internal or external viewer
-settings.
+    This dialog allows to change the default external or
+~internal viewer~@Viewer@ settings.
 
     External viewer
 
@@ -2189,7 +2193,8 @@ settings.
 
   #Save bookmarks#          Save and restore bookmarks (current
                           positions) in recently viewed files
-                          (created with RightCtrl-0..9)
+                          (created with RightCtrl-0..9 or
+                          Ctrl-Shift-0..9)
 
   #Auto detect#             If you use several character tables,
   #character table#         you can set this option on to ~auto detect~@DistTable@
@@ -2218,8 +2223,8 @@ into force immediately but will affect only the current session.
 
 @EditorSettings
 $ #Editor settings#
-    This dialog allows to change the default external and internal editor
-settings.
+    This dialog allows to change the default external and
+~internal editor~@Editor@ settings.
 
     External editor
 
@@ -2257,7 +2262,8 @@ settings.
 
   #Save bookmarks#          Save and restore bookmarks (current
                           positions) in recently edited files
-                          (created with RightCtrl-0..9)
+                          (created with RightCtrl-0..9 or
+                          Ctrl-Shift-0..9)
 
   #Auto detect#             If you use several character tables,
   #character table#         you can set this option on to ~auto detect~@DistTable@

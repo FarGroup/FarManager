@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.123 27.01.2003 $ */
+/* Revision: 1.124 28.01.2003 $ */
 
 /*
 Modify:
+  28.01.2003 VVM
+    ! Поменял местами Home/End и CtrlHome/CtrlEnd
+    ! SVS> исходный патч мною корректированный!
   27.01.2003 VVM
     ! Последний штрих, отличающий шедевр от произведения искусства! :)
     + При достижении конца файла спрашиваем "А не поискать ли с начала файла?"
@@ -2003,7 +2006,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     }
 
-    case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
+    case KEY_CTRLSHIFTLEFT:    case KEY_CTRLSHIFTNUMPAD4:
       // Перейти на начало строк
       if (ViewFile)
       {
@@ -2011,20 +2014,8 @@ int Viewer::ProcessKey(int Key)
         Show();
       }
       return(TRUE);
-    case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
-      // Перейти на начало файла
-      if(ViewFile)
-        LeftPos=0;
-    case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
-      if(ViewFile)
-      {
-        FilePos=0;
-        Show();
-//        LastSelPos=FilePos;
-      }
-      return(TRUE);
-
-    case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
+    case KEY_CTRLSHIFTRIGHT:     case KEY_CTRLSHIFTNUMPAD6:
+    {
         // Перейти на конец строк
         if (ViewFile)
         {
@@ -2042,7 +2033,24 @@ int Viewer::ProcessKey(int Key)
           Show();
         } /* if */
         return(TRUE);
+    }
+
+    case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
+    case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
+      // Перейти на начало файла
+      if(ViewFile)
+        LeftPos=0;
+    case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
+      if(ViewFile)
+      {
+        FilePos=0;
+        Show();
+//        LastSelPos=FilePos;
+      }
+      return(TRUE);
+
     case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
+    case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
       // Перейти на конец файла
       if(ViewFile)
         LeftPos=0;
