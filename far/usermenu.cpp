@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.30 25.06.2001 $ */
+/* Revision: 1.31 02.07.2001 $ */
 
 /*
 Modify:
+  02.07.2001 SVS
+    - Bug (после 688): F9 c m l - не создавался файл "FarMenu.Ini"
   25.06.2001 SVS
     ! перенос проверки "if exist" чуток пониже :-))
   19.06.2001 SVS
@@ -414,6 +416,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 {
   while (1)
   {
+    int RetCode;
     struct MenuItem UserMenuItem;
     memset(&UserMenuItem,0,sizeof(UserMenuItem));
     int NumLine,ExitCode,FuncPos[12];
@@ -599,14 +602,18 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                 if (DeleteMenuRecord(MenuKey,SelectPos))
                 {
                   UserMenu.Hide();
-                  return(ProcessSingleMenu(MenuKey,SelectPos));
+                  RetCode=ProcessSingleMenu(MenuKey,SelectPos);
+                  MenuModified=TRUE;
+                  return(RetCode);
                 }
               break;
             case KEY_INS:
               if (EditMenuRecord(MenuKey,SelectPos,NumLine,1))
               {
                 UserMenu.Hide();
-                return(ProcessSingleMenu(MenuKey,SelectPos));
+                RetCode=ProcessSingleMenu(MenuKey,SelectPos);
+                MenuModified=TRUE;
+                return(RetCode);
               }
               break;
             case KEY_F4:
@@ -615,7 +622,9 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                 if (EditMenuRecord(MenuKey,SelectPos,NumLine,0))
                 {
                   UserMenu.Hide();
-                  return(ProcessSingleMenu(MenuKey,SelectPos));
+                  RetCode=ProcessSingleMenu(MenuKey,SelectPos);
+                  MenuModified=TRUE;
+                  return(RetCode);
                 }
               break;
             case KEY_ALTF4:
