@@ -452,7 +452,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
 /* $ 25.07.2001 AA
     совершенно ненужные и даже вредные строки
     либо ListFile неинициализирован, либо=INVALID_HANDLE_VALUE
-    и в том и другом случае CloseHandle(ListFile) делать не нужно 
+    и в том и другом случае CloseHandle(ListFile) делать не нужно
     if(ListFile != INVALID_HANDLE_VALUE)
       CloseHandle(ListFile);
 25.07.2001 AA $*/
@@ -500,7 +500,7 @@ int ArcCommand::MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
     if (((FileAttr & FILE_ATTRIBUTE_DIRECTORY)==0 || FolderName))
     {
       char OutName[NM];
-      FSF.sprintf(OutName,"%s%s",CurArcDir,FileName);
+      FSF.sprintf(OutName,"%s%s%s",PrefixFileName,CurArcDir,FileName);
       if (QuoteName==1)
         FSF.QuoteSpaceOnly(OutName);
       else

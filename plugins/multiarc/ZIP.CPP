@@ -21,6 +21,7 @@
 static HANDLE ArcHandle;
 static DWORD SFXSize,NextPosition,FileSize;
 static int ArcComment,Truncated,FirstRecord;
+char Prefix[32];
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -35,6 +36,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     if (D[0]=='P' && D[1]=='K' && D[2]==3 && D[3]==4 && D[8]<15 && D[9]==0)
     {
       SFXSize=I;
+      memset(Prefix,0,sizeof(Prefix));
       return(TRUE);
     }
   }
@@ -191,6 +193,26 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     return(GETARC_READERROR);
   Item->FindData.cFileName[NM-1]=0;
 
+  char *EndPos = Item->FindData.cFileName;
+  while( *EndPos )
+  {
+    if( *EndPos == '/' )
+      *EndPos = '\\';
+    EndPos++;
+  }
+
+  EndPos = Item->FindData.cFileName;
+  if( *EndPos == '.') ++EndPos;
+  if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
+
+  if(EndPos != Item->FindData.cFileName)
+  {
+    if(!Prefix[0])
+      memcpy(Prefix,Item->FindData.cFileName,min((int)sizeof(Prefix)-1,(int)(EndPos-Item->FindData.cFileName)));
+    memmove(Item->FindData.cFileName,Item->FindData.cFileName+strlen(Prefix),strlen(EndPos)+1);
+  }
+
+
 /*// Commented out as since NTFS file times support scans the extra field
   // and the file comment is also readed.
   // ZipHeader.PackSize is skipped later (see below)
@@ -322,8 +344,12 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
 BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
 {
-  Info->SFXSize=SFXSize;
-  Info->Comment=ArcComment;
+  if(Info)
+  {
+    strcpy(Info->Prefix,Prefix);
+    Info->SFXSize=SFXSize;
+    Info->Comment=ArcComment;
+  }
   return(CloseHandle(ArcHandle));
 }
 

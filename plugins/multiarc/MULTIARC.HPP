@@ -200,7 +200,7 @@ struct InitDialogItem
 int ConfigGeneral();
 int ConfigCommands();
 
-char *GetMsg(int MsgId);
+const char *GetMsg(int MsgId);
 int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
 
 /* $ 13.09.2000 tran
