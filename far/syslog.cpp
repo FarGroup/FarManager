@@ -5,10 +5,12 @@ syslog.cpp
 
 */
 
-/* Revision: 1.16 18.09.2001 $ */
+/* Revision: 1.17 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    ! CleverSysLog - параметр у конструктора - "заголовок"
   18.09.2001 SVS
     + класс CleverSysLog - что бы при выходе из функции делал SysLog(-1)
   15.08.2001 OT
@@ -310,9 +312,11 @@ void SysLogDump(char *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
 }
 
 // "Умный класс для SysLog
-CleverSysLog::CleverSysLog()
+CleverSysLog::CleverSysLog(char *Title)
 {
 #if defined(SYSLOG)
+  if(Title)
+    SysLog(Title);
   SysLog(1);
 #endif
 }

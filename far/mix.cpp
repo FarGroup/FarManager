@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.89 19.09.2001 $ */
+/* Revision: 1.90 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    - бага в ConvertNameToReal().
+      Алгоритм "вычисления" изменен - начинаем сканирование с
+      конца, а не с начала строки - так будет вернее.
   19.09.2001 SVS
     - Эксперимент с применением RawConvertShortNameToLongName() в
       ConvertNameToReal() оказался неудачным :-(
@@ -1043,6 +1047,8 @@ end:
 int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
 {
   char TempDest[1024];
+  BOOL IsAddEndSlash=FALSE; // =TRUE, если слеш добавляли самостоятельно
+                            // в конце мы его того... удавим.
 
   // Получим сначала полный путь до объекта обычным способом
   int Ret=ConvertNameToFull(Src,TempDest,sizeof(TempDest));
@@ -1055,15 +1061,30 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
     DWORD FileAttr;
     char *Ptr, Chr;
 
-    Ptr=TempDest;
+    Ptr=TempDest+strlen(TempDest);
+
+    // немного интелектуальности не помешает - корректную инфу мы
+    // можем получить только если каталог будет завершен слешем!
+    if((FileAttr=GetFileAttributes(TempDest)) != -1 && (FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+    {
+      if(Ptr[-1] != '\\')
+      {
+        AddEndSlash(TempDest);
+        IsAddEndSlash=TRUE;
+        ++Ptr;
+      }
+    }
+
     // обычный цикл прохода имени от корня
     while(1)
     {
-      if((Ptr=strchr(Ptr,'\\')) == NULL)
+      while(Ptr > TempDest && *Ptr != '\\')
+        --Ptr;
+      if(*Ptr != '\\')
         break;
 
-      Chr=*++Ptr;
-      *Ptr=0;
+      Chr=*Ptr;
+      Ptr=0;
       FileAttr=GetFileAttributes(TempDest);
 
       // О! Это наш клиент - одна из "компонент" пути - симлинк
@@ -1088,8 +1109,8 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
           // но для "Volume{" начало всегда будет корректным!
           memmove(TempDest2,TempDest2+4,strlen(TempDest2+4)+1);
           *Ptr=Chr; // восстановим символ
-          if(TempDest2[strlen(TempDest2)-1] != '\\')
-            strcat(TempDest2,"\\");
+          if(TempDest2[strlen(TempDest2)-1] == '\\')
+            TempDest2[strlen(TempDest2)-1]=0;
           strcat(TempDest2,Ptr);
           strcpy(TempDest,TempDest2);
           Ret=strlen(TempDest);
@@ -1098,8 +1119,11 @@ int WINAPI ConvertNameToReal(const char *Src,char *Dest, int DestSize)
         }
       }
       *Ptr=Chr;
+      --Ptr;
     }
   }
+  if(IsAddEndSlash) // если не просили - удалим.
+    TempDest[strlen(TempDest)-1]=0;
   strncpy(Dest,TempDest,DestSize);
   return Ret;
 }

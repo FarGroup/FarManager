@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.144 20.09.2001 $ */
+/* Revision: 1.145 24.09.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  24.09.2001 SVS 1.45
+    + FSF.GetRepasePointInfo
   20.09.2001 SVS 1.44
     ! У функции FSF.FarInputRecordToKey параметр имеет сущность "const"!
   15.09.2001 tran 1.143
@@ -1595,13 +1597,15 @@ enum MKLINKOP{
   FLINK_SHOWERRMSG= 0x10000,
 };
 typedef int     (WINAPI *FARSTDMKLINK)(char *Src,char *Dest,DWORD Flags);
-
 typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const char *Src,char *Dest, int DestSize);
 
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
   FRS_RECUR    = 0x0002
 };
+
+typedef int     (WINAPI *FARGETREPASEPOINTINFO)(const char *Src,char *Dest,int DestSize);
+
 
 typedef struct FarStandardFunctions
 {
@@ -1659,6 +1663,7 @@ typedef struct FarStandardFunctions
   FARSTDPROCESSNAME          ProcessName;
   FARSTDMKLINK               MkLink;
   FARCONVERTNAMETOREAL       ConvertNameToReal;
+  FARGETREPASEPOINTINFO      GetRepasePointInfo;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo

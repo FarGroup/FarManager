@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.106 20.09.2001 $ */
+/* Revision: 1.107 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    ! CleverSysLog - параметр у конструктора - "заголовок"
   20.09.2001 SVS
     ! ѕараметр у InputRecordToKey "const"
   18.09.2001 SVS
@@ -850,7 +852,7 @@ FILE *OpenLogStream(char *file);
 
 class CleverSysLog{ // ;-)
   public:
-    CleverSysLog();
+    CleverSysLog(char *Title=NULL);
     ~CleverSysLog();
 };
 

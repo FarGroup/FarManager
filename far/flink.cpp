@@ -5,10 +5,14 @@ flink.cpp
 
 */
 
-/* Revision: 1.20 11.09.2001 $ */
+/* Revision: 1.21 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    + FarGetRepasePointInfo - для FSF.
+    ! уточнение для GetPathRoot(), если в качестве параметра передали
+      полное наименование репасепоинта.
   11.09.2001 SVS
     ! для "Volume{" в функции GetPathRootOne() начнем просмотр с диска "A:"
   25.06.2001 IS
@@ -376,6 +380,21 @@ DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
   return rdb.SubstituteNameLength / sizeof(TCHAR);
 }
 
+int WINAPI FarGetRepasePointInfo(const char *Src,char *Dest,int DestSize)
+{
+  if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5 &&
+     Src && *Src)
+  {
+    char TempDest[2048];
+    strcpy(TempDest,Src);
+    AddEndSlash(TempDest);
+    DWORD Size=GetJunctionPointInfo(TempDest,TempDest,sizeof(TempDest));
+    if(Size && Dest)
+      strncpy(Dest,TempDest,DestSize);
+    return Size;
+  }
+  return 0;
+}
 
 /* $ 07.09.2000 SVS
    Функция GetNumberOfLinks тоже доступна плагинам :-)
@@ -635,9 +654,9 @@ void GetPathRootOne(const char *Path,char *Root)
 // полный проход ПО!!!
 void WINAPI GetPathRoot(const char *Path,char *Root)
 {
+  char TempRoot[1024], *TmpPtr;
   if (WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5)
   {
-    char TempRoot[1024], *TmpPtr;
     DWORD FileAttr;
     char JuncName[NM];
 
@@ -658,7 +677,9 @@ void WINAPI GetPathRoot(const char *Path,char *Root)
       if(Ptr) *Ptr=0; else break;
     }
   }
-  GetPathRootOne(Path,Root);
+  //GetPathRootOne(Path,Root);
+  // Хмм... а ведь здесь может быть \\?\ и еже с ним
+  GetPathRootOne(Path+((strlen(Path) > 4 && Path[0]=='\\' && Path[2]=='?' && Path[3]=='\\')?4:0),Root);
 }
 
 // Verify that both files are on the same NTFS disk

@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.12 20.09.2001 $ */
+/* Revision: 1.13 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    ! немного оптимизации (сокращение кода)
   20.09.2001 SVS
     - не компилится под VC, тем более, что I уже определена!
   19.09.2001 VVM
@@ -324,144 +326,83 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 
 int GetErrorString(char *ErrStr, DWORD StrSize)
 {
+  int I;
+  static struct TypeErrMsgs{
+    int WinMsg;
+    int FarMsg;
+  } ErrMsgs[]={
+    {ERROR_INVALID_FUNCTION,MErrorInvalidFunction},
+    {ERROR_BAD_COMMAND,MErrorBadCommand},
+    {ERROR_CALL_NOT_IMPLEMENTED,MErrorBadCommand},
+    {ERROR_FILE_NOT_FOUND,MErrorFileNotFound},
+    {ERROR_PATH_NOT_FOUND,MErrorPathNotFound},
+    {ERROR_TOO_MANY_OPEN_FILES,MErrorTooManyOpenFiles},
+    {ERROR_ACCESS_DENIED,MErrorAccessDenied},
+    {ERROR_NOT_ENOUGH_MEMORY,MErrorNotEnoughMemory},
+    {ERROR_OUTOFMEMORY,MErrorNotEnoughMemory},
+    {ERROR_WRITE_PROTECT,MErrorDiskRO},
+    {ERROR_NOT_READY,MErrorDeviceNotReady},
+    {ERROR_NOT_DOS_DISK,MErrorCannotAccessDisk},
+    {ERROR_SECTOR_NOT_FOUND,MErrorSectorNotFound},
+    {ERROR_OUT_OF_PAPER,MErrorOutOfPaper},
+    {ERROR_WRITE_FAULT,MErrorWrite},
+    {ERROR_READ_FAULT,MErrorRead},
+    {ERROR_GEN_FAILURE,MErrorDeviceGeneral},
+    {ERROR_SHARING_VIOLATION,MErrorFileSharing},
+    {ERROR_LOCK_VIOLATION,MErrorFileSharing},
+    {ERROR_BAD_NETPATH,MErrorNetworkPathNotFound},
+    {ERROR_NETWORK_BUSY,MErrorNetworkBusy},
+    {ERROR_NETWORK_ACCESS_DENIED,MErrorNetworkAccessDenied},
+    {ERROR_NET_WRITE_FAULT,MErrorNetworkWrite},
+    {ERROR_DRIVE_LOCKED,MErrorDiskLocked},
+    {ERROR_ALREADY_EXISTS,MErrorFileExists},
+    {ERROR_BAD_PATHNAME,MErrorInvalidName},
+    {ERROR_INVALID_NAME,MErrorInvalidName},
+    {ERROR_DISK_FULL,MErrorInsufficientDiskSpace},
+    {ERROR_HANDLE_DISK_FULL,MErrorInsufficientDiskSpace},
+    {ERROR_DIR_NOT_EMPTY,MErrorFolderNotEmpty},
+    {ERROR_INTERNET_INCORRECT_USER_NAME,MErrorIncorrectUserName},
+    {ERROR_INTERNET_INCORRECT_PASSWORD,MErrorIncorrectPassword},
+    {ERROR_INTERNET_LOGIN_FAILURE,MErrorLoginFailure},
+    {ERROR_INTERNET_CONNECTION_ABORTED,MErrorConnectionAborted},
+    {ERROR_CANCELLED,MErrorCancelled},
+    {ERROR_NO_NETWORK,MErrorNetAbsent},
+    {ERROR_DEVICE_IN_USE,MErrorNetDeviceInUse},
+    {ERROR_OPEN_FILES,MErrorNetOpenFiles},
+    {ERROR_ALREADY_ASSIGNED,MErrorAlreadyAssigned},
+    {ERROR_DEVICE_ALREADY_REMEMBERED,MErrorAlreadyRemebered},
+    {ERROR_NOT_LOGGED_ON,MErrorNotLoggedOn},
+    {ERROR_INVALID_PASSWORD,MErrorInvalidPassword},
+  };
+
   int LastError = GetLastError();
 
-  switch(LastError)
+  for(I=0; I < sizeof(ErrMsgs)/sizeof(ErrMsgs[0]); ++I)
+    if(ErrMsgs[I].WinMsg == LastError)
+    {
+      strcpy(ErrStr,MSG(ErrMsgs[I].FarMsg));
+      break;
+    }
+
+  if(I >= sizeof(ErrMsgs)/sizeof(ErrMsgs[0]))
   {
-    case ERROR_INVALID_FUNCTION:
-      strcpy(ErrStr,MSG(MErrorInvalidFunction));
-      break;
-    case ERROR_BAD_COMMAND:
-    case ERROR_CALL_NOT_IMPLEMENTED:
-      strcpy(ErrStr,MSG(MErrorBadCommand));
-      break;
-    case ERROR_FILE_NOT_FOUND:
-      strcpy(ErrStr,MSG(MErrorFileNotFound));
-      break;
-    case ERROR_PATH_NOT_FOUND:
-      strcpy(ErrStr,MSG(MErrorPathNotFound));
-      break;
-    case ERROR_TOO_MANY_OPEN_FILES:
-      strcpy(ErrStr,MSG(MErrorTooManyOpenFiles));
-      break;
-    case ERROR_ACCESS_DENIED:
-      strcpy(ErrStr,MSG(MErrorAccessDenied));
-      break;
-    case ERROR_NOT_ENOUGH_MEMORY:
-    case ERROR_OUTOFMEMORY:
-      strcpy(ErrStr,MSG(MErrorNotEnoughMemory));
-      break;
-    case ERROR_WRITE_PROTECT:
-      strcpy(ErrStr,MSG(MErrorDiskRO));
-      break;
-    case ERROR_NOT_READY:
-      strcpy(ErrStr,MSG(MErrorDeviceNotReady));
-      break;
-    case ERROR_NOT_DOS_DISK:
-      strcpy(ErrStr,MSG(MErrorCannotAccessDisk));
-      break;
-    case ERROR_SECTOR_NOT_FOUND:
-      strcpy(ErrStr,MSG(MErrorSectorNotFound));
-      break;
-    case ERROR_OUT_OF_PAPER:
-      strcpy(ErrStr,MSG(MErrorOutOfPaper));
-      break;
-    case ERROR_WRITE_FAULT:
-      strcpy(ErrStr,MSG(MErrorWrite));
-      break;
-    case ERROR_READ_FAULT:
-      strcpy(ErrStr,MSG(MErrorRead));
-      break;
-    case ERROR_GEN_FAILURE:
-      strcpy(ErrStr,MSG(MErrorDeviceGeneral));
-      break;
-    case ERROR_SHARING_VIOLATION:
-    case ERROR_LOCK_VIOLATION:
-      strcpy(ErrStr,MSG(MErrorFileSharing));
-      break;
-    case ERROR_BAD_NETPATH:
-      strcpy(ErrStr,MSG(MErrorNetworkPathNotFound));
-      break;
-    case ERROR_NETWORK_BUSY:
-      strcpy(ErrStr,MSG(MErrorNetworkBusy));
-      break;
-    case ERROR_NETWORK_ACCESS_DENIED:
-      strcpy(ErrStr,MSG(MErrorNetworkAccessDenied));
-      break;
-    case ERROR_NET_WRITE_FAULT:
-      strcpy(ErrStr,MSG(MErrorNetworkWrite));
-      break;
-    case ERROR_DRIVE_LOCKED:
-      strcpy(ErrStr,MSG(MErrorDiskLocked));
-      break;
-    case ERROR_ALREADY_EXISTS:
-      strcpy(ErrStr,MSG(MErrorFileExists));
-      break;
-    case ERROR_BAD_PATHNAME:
-    case ERROR_INVALID_NAME:
-      strcpy(ErrStr,MSG(MErrorInvalidName));
-      break;
-    case ERROR_DISK_FULL:
-    case ERROR_HANDLE_DISK_FULL:
-      strcpy(ErrStr,MSG(MErrorInsufficientDiskSpace));
-      break;
-    case ERROR_DIR_NOT_EMPTY:
-      strcpy(ErrStr,MSG(MErrorFolderNotEmpty));
-      break;
-    case ERROR_INTERNET_INCORRECT_USER_NAME:
-      strcpy(ErrStr,MSG(MErrorIncorrectUserName));
-      break;
-    case ERROR_INTERNET_INCORRECT_PASSWORD:
-      strcpy(ErrStr,MSG(MErrorIncorrectPassword));
-      break;
-    case ERROR_INTERNET_LOGIN_FAILURE:
-      strcpy(ErrStr,MSG(MErrorLoginFailure));
-      break;
-    case ERROR_INTERNET_CONNECTION_ABORTED:
-      strcpy(ErrStr,MSG(MErrorConnectionAborted));
-      break;
-    case ERROR_CANCELLED:
-      strcpy(ErrStr,MSG(MErrorCancelled));
-      break;
-    case ERROR_NO_NETWORK:
-      strcpy(ErrStr,MSG(MErrorNetAbsent));
-      break;
-    case ERROR_DEVICE_IN_USE:
-      strcpy(ErrStr,MSG(MErrorNetDeviceInUse));
-      break;
-    case ERROR_OPEN_FILES:
-      strcpy(ErrStr,MSG(MErrorNetOpenFiles));
-      break;
-    case ERROR_ALREADY_ASSIGNED:
-      strcpy(ErrStr,MSG(MErrorAlreadyAssigned));
-      break;
-    case ERROR_DEVICE_ALREADY_REMEMBERED:
-      strcpy(ErrStr,MSG(MErrorAlreadyRemebered));
-      break;
-    case ERROR_NOT_LOGGED_ON:
-      strcpy(ErrStr,MSG(MErrorNotLoggedOn));
-      break;
-    case ERROR_INVALID_PASSWORD:
-      strcpy(ErrStr,MSG(MErrorInvalidPassword));
-      break;
-    default:
     /* $ 27.01.2001 VVM
-         + Если GetErrorString не распознает ошибку - пытается узнать у системы */
-      if (LastError != ERROR_SUCCESS && // нефига показывать лажу...
-          FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
-                        NULL, LastError, 0, ErrStr, StrSize, NULL))
-      {
-        CharToOem(ErrStr,ErrStr);
-        /* $ 02.02.2001 IS
-           + Заменим cr и lf на пробелы
-        */
-        RemoveUnprintableCharacters(ErrStr);
-        /* IS $ */
-        return(TRUE);
-      }
+       + Если GetErrorString не распознает ошибку - пытается узнать у системы */
+    if (LastError != ERROR_SUCCESS && // нефига показывать лажу...
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
+                      NULL, LastError, 0, ErrStr, StrSize, NULL))
+    {
+      CharToOem(ErrStr,ErrStr);
+      /* $ 02.02.2001 IS
+         + Заменим cr и lf на пробелы
+      */
+      RemoveUnprintableCharacters(ErrStr);
+      /* IS $ */
+      return(TRUE);
+    }
     /* VVM $ */
-      *ErrStr=0;
-      return(FALSE);
+    *ErrStr=0;
+    return(FALSE);
   }
   return(TRUE);
 }

@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.58 26.07.2001 $ */
+/* Revision: 1.59 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    ! немного оптимизации (сокращение кода)
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   24.07.2001 SVS
@@ -255,12 +257,12 @@ void Panel::ChangeDisk()
 int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
   struct MenuItem ChDiskItem;
-  memset(&ChDiskItem,0,sizeof(ChDiskItem));
   char DiskType[100],RootDir[10],DiskLetter[50];
   DWORD Mask,DiskMask;
-  int DiskCount,Focus,I;
+  int DiskCount,Focus,I,J;
   int ShowSpecial=FALSE;
 
+  memset(&ChDiskItem,0,sizeof(ChDiskItem));
   *DiskLetter=0;
 
   _tran(SysLog("Panel::ChangeDiskMenu(), Pos=%i, FirstCall=%i",Pos,FirstCall));
@@ -300,26 +302,26 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
         DriveType = GetDriveType(RootDir);
         if (Opt.ChangeDriveMode & DRIVE_SHOW_TYPE)
         {
-          switch(DriveType)
+          static struct TypeMessage{
+            int DrvType;
+            int FarMsg;
+          } DrTMsg[]={
+            {DRIVE_REMOVABLE,MChangeDriveRemovable},
+            {DRIVE_FIXED,MChangeDriveFixed},
+            {DRIVE_REMOTE,MChangeDriveNetwork},
+            {DRIVE_CDROM,MChangeDriveCDROM},
+            {DRIVE_RAMDISK,MChangeDriveRAM},
+          };
+          for(J=0; J < sizeof(DrTMsg)/sizeof(DrTMsg[1]); ++J)
+            if(DrTMsg[J].DrvType == DriveType)
+            {
+              strcpy(DiskType,MSG(DrTMsg[J].FarMsg));
+              break;
+            }
+
+          if(J >= sizeof(DrTMsg)/sizeof(DrTMsg[1]))
           {
-            case DRIVE_REMOVABLE:
-              strcpy(DiskType,MSG(MChangeDriveRemovable));
-              break;
-            case DRIVE_FIXED:
-              strcpy(DiskType,MSG(MChangeDriveFixed));
-              break;
-            case DRIVE_REMOTE:
-              strcpy(DiskType,MSG(MChangeDriveNetwork));
-              break;
-            case DRIVE_CDROM:
-              strcpy(DiskType,MSG(MChangeDriveCDROM));
-              break;
-            case DRIVE_RAMDISK:
-              strcpy(DiskType,MSG(MChangeDriveRAM));
-              break;
-            default:
-              sprintf(DiskType,"%*s",strlen(MSG(MChangeDriveFixed)),"");
-              break;
+            sprintf(DiskType,"%*s",strlen(MSG(MChangeDriveFixed)),"");
           }
           /* 05.01.2001 SVS
              + Информация про Subst-тип диска

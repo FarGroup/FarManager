@@ -8,10 +8,13 @@ flink.hpp
 
 */
 
-/* Revision: 1.08 25.06.2001 $ */
+/* Revision: 1.09 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    + FarGetRepasePointInfo - оболочка вокруг GetJunctionPointInfo() для
+      плагинов.
   25.06.2001 IS
    ! Внедрение const
   30.05.2001 SVS
@@ -44,6 +47,7 @@ BOOL  WINAPI DeleteJunctionPoint(LPCTSTR szMountDir);
 DWORD WINAPI GetJunctionPointInfo(LPCTSTR szMountDir,
               LPTSTR  szDestBuff,
               DWORD   dwBuffSize);
+int   WINAPI FarGetRepasePointInfo(const char *Src,char *Dest,int DestSize);
 
 BOOL GetSubstName(int DriveType,char *LocalName,char *SubstName,int SubstSize);
 int DelSubstDrive(char *DosDeviceName);

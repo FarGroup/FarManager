@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.14 17.08.2001 $ */
+/* Revision: 1.15 24.09.2001 $ */
 
 /*
 Modify:
+  24.09.2001 SVS
+    ! немного оптимизации (сокращение кода)
   17.08.2001 VVM
     + Обработка PluginPanelItem.CRC32
   06.07.2001 IS
@@ -60,12 +62,13 @@ void FileList::PushPlugin(HANDLE hPlugin,char *HostFile)
 {
   DeleteAllDataToDelete();
   PluginsStack=(struct PluginsStackItem *)realloc(PluginsStack,(PluginsStackSize+1)*sizeof(*PluginsStack));
-  PluginsStack[PluginsStackSize].hPlugin=hPlugin;
-  strcpy(PluginsStack[PluginsStackSize].HostFile,HostFile);
-  PluginsStack[PluginsStackSize].Modified=FALSE;
-  PluginsStack[PluginsStackSize].PrevViewMode=ViewMode;
-  PluginsStack[PluginsStackSize].PrevSortMode=SortMode;
-  PluginsStack[PluginsStackSize].PrevSortOrder=SortOrder;
+  struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
+  PStack->hPlugin=hPlugin;
+  strcpy(PStack->HostFile,HostFile);
+  PStack->Modified=FALSE;
+  PStack->PrevViewMode=ViewMode;
+  PStack->PrevSortMode=SortMode;
+  PStack->PrevSortOrder=SortOrder;
   PluginsStackSize++;
 }
 
@@ -79,33 +82,34 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     return(FALSE);
   }
   PluginsStackSize--;
+  struct PluginsStackItem *PStack=PluginsStack+PluginsStackSize;
   if (EnableRestoreViewMode)
   {
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     if (Info.StartPanelMode)
-      SetViewMode(PluginsStack[PluginsStackSize].PrevViewMode);
+      SetViewMode(PStack->PrevViewMode);
     if (Info.StartSortMode)
     {
-      SortMode=PluginsStack[PluginsStackSize].PrevSortMode;
-      SortOrder=PluginsStack[PluginsStackSize].PrevSortOrder;
+      SortMode=PStack->PrevSortMode;
+      SortOrder=PStack->PrevSortOrder;
     }
   }
   CtrlObject->Plugins.ClosePlugin(hPlugin);
   if (PluginsStackSize>0)
   {
     hPlugin=PluginsStack[PluginsStackSize-1].hPlugin;
-    if (PluginsStack[PluginsStackSize].Modified)
+    if (PStack->Modified)
     {
       struct PluginPanelItem PanelItem;
       char SaveDir[NM];
       GetCurrentDirectory(sizeof(SaveDir),SaveDir);
-      if (FileNameToPluginItem(PluginsStack[PluginsStackSize].HostFile,&PanelItem))
+      if (FileNameToPluginItem(PStack->HostFile,&PanelItem))
         CtrlObject->Plugins.PutFiles(hPlugin,&PanelItem,1,FALSE,0);
       else
       {
         memset(&PanelItem,0,sizeof(PanelItem));
-        strncpy(PanelItem.FindData.cFileName,PointToName(PluginsStack[PluginsStackSize].HostFile),NM);
+        strncpy(PanelItem.FindData.cFileName,PointToName(PStack->HostFile),NM);
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
       }
       chdir(SaveDir);
@@ -113,7 +117,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
     if ((Info.Flags & OPIF_REALNAMES)==0)
-      DeleteFileWithFolder(PluginsStack[PluginsStackSize].HostFile);
+      DeleteFileWithFolder(PStack->HostFile);
   }
   else
     PanelMode=NORMAL_PANEL;
@@ -235,25 +239,24 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
 
 HANDLE FileList::OpenPluginForFile(char *FileName)
 {
-  const int MaxRead=0x20000;
-  char *Buffer=new char[MaxRead];
   SetCurPath();
   FILE *ProcessFile=fopen(FileName,"rb");
-  /* $ 13.07.2000 SVS
-     вместо delete -> delete[]
-  */
-  if (ProcessFile==NULL)
+  if (ProcessFile)
   {
-    delete[] Buffer;
-    return(INVALID_HANDLE_VALUE);
+    const int MaxRead=0x20000;
+    char *Buffer=new char[MaxRead];
+    if(Buffer)
+    {
+      int ReadSize=fread(Buffer,1,MaxRead,ProcessFile);
+      fclose(ProcessFile);
+
+      CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
+      HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,ReadSize);
+      delete[] Buffer;
+      return(hNewPlugin);
+    }
   }
-  int ReadSize=fread(Buffer,1,MaxRead,ProcessFile);
-  fclose(ProcessFile);
-  CtrlObject->Cp()->GetAnotherPanel(this)->CloseFile();
-  HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(FileName,(unsigned char *)Buffer,ReadSize);
-  delete[] Buffer;
-  /* SVS $ */
-  return(hNewPlugin);
+  return(INVALID_HANDLE_VALUE);
 }
 
 
@@ -279,9 +282,10 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
 
 void FileList::DeletePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber)
 {
-  for (int I=0;I<ItemNumber;I++)
-    if (ItemList[I].Flags & PPIF_USERDATA)
-      free((void *)ItemList[I].UserData);
+  struct PluginPanelItem *PItemList=ItemList;
+  for (int I=0;I<ItemNumber;I++,PItemList++)
+    if ((PItemList->Flags & PPIF_USERDATA) && PItemList->UserData)
+      free((void *)PItemList->UserData);
   delete[] ItemList;
 }
 
@@ -380,7 +384,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
 
 void FileList::PluginGetFiles(char *DestPath,int Move)
 {
-  struct PluginPanelItem *ItemList;
+  struct PluginPanelItem *ItemList, *PList;
   int ItemNumber;
   SaveSelection();
   CreatePluginItemList(ItemList,ItemNumber);
@@ -392,8 +396,9 @@ void FileList::PluginGetFiles(char *DestPath,int Move)
     {
       DizList DestDiz;
       int DizFound=FALSE;
-      for (int I=0;I<ItemNumber;I++)
-        if (ItemList[I].Flags & PPIF_PROCESSDESCR)
+      PList=ItemList;
+      for (int I=0;I<ItemNumber;I++,PList++)
+        if (PList->Flags & PPIF_PROCESSDESCR)
         {
           if (!DizFound)
           {
@@ -402,8 +407,8 @@ void FileList::PluginGetFiles(char *DestPath,int Move)
             DestDiz.Read(DestPath);
             DizFound=TRUE;
           }
-          char *Name=ItemList[I].FindData.cFileName;
-          char *ShortName=ItemList[I].FindData.cAlternateFileName;
+          char *Name=PList->FindData.cFileName;
+          char *ShortName=PList->FindData.cAlternateFileName;
           CopyDiz(Name,ShortName,Name,Name,&DestDiz);
         }
       DestDiz.Flush(DestPath);
