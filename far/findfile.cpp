@@ -5,10 +5,16 @@ findfile.cpp
 
 */
 
-/* Revision: 1.62 13.10.2001 $ */
+/* Revision: 1.63 15.10.2001 $ */
 
 /*
 Modify:
+  15.10.2001 KM
+    - Фар валился при попытке поиска в плагинах типа Temporary panel
+      и Network browser. Не учитывался факт отсутствия хостфайла в этих
+      плагинах.
+    - Не происходил переход на файл при клике на нём мышой в списке.
+    - Забыл обработать KEY_NUMPAD5 в списке найденных файлов.
   13.10.2001 VVM
     ! Баг при поиске в темп-панели.
     + Новая функция - очистить списки. Что-бы небыло перерасхода памяти
@@ -619,6 +625,20 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_HELP: // в режиме поиска отключим вывод помощи, ибо... артефакты с прорисовкой
       return !SearchDone?NULL:Param2;
 
+    case DN_MOUSECLICK:
+    {
+      SMALL_RECT drect,rect;
+      Dialog::SendDlgMessage(hDlg,DM_GETDLGRECT,0,(long)&drect);
+      Dialog::SendDlgMessage(hDlg,DM_GETITEMPOSITION,1,(long)&rect);
+      if (Param1==1 && ((MOUSE_EVENT_RECORD *)Param2)->dwMousePosition.X<drect.Left+rect.Right)
+      {
+        Dialog::SendDlgMessage(hDlg,DM_CLOSE,6/* [ Go to ] */,0);
+        FindDlgProc(hDlg,DN_BTNCLICK,6,0); // emulates a [ Go to ] button pressing
+        return TRUE;
+      }
+      return FALSE;
+    }
+
     case DN_KEY:
     {
       WaitForSingleObject(hMutex,INFINITE);
@@ -670,7 +690,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         }
         return TRUE;
       }
-      else if (Param2==KEY_F3 || Param2==KEY_F4)
+      else if (Param2==KEY_F3 || Param2==KEY_NUMPAD5 || Param2==KEY_F4)
       {
         if (!ListBox)
         {
@@ -742,7 +762,7 @@ long WINAPI FindFiles::FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
             char OldTitle[512];
             GetConsoleTitle(OldTitle,sizeof(OldTitle));
 
-            if (Param2==KEY_F3)
+            if (Param2==KEY_F3 || Param2==KEY_NUMPAD5)
             {
               NamesList ViewList;
               // Возьмем все файлы, которые имеют реальные имена...
@@ -1120,11 +1140,16 @@ int FindFiles::FindFilesProcess()
     HANDLE hPlugin=ActivePanel->GetPluginHandle();
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
-    FindFileArcIndex = AddArcListItem(Info.HostFile);
-    if (FindFileArcIndex == LIST_INDEX_NONE)
-      return(FALSE);
-    ArcList[FindFileArcIndex].hPlugin = hPlugin;
-    ArcList[FindFileArcIndex].Flags = Info.Flags;
+
+    /* Надо бы проверить, что хостфайл вообще есть */
+    if (Info.HostFile)
+    {
+      FindFileArcIndex = AddArcListItem(Info.HostFile);
+      if (FindFileArcIndex == LIST_INDEX_NONE)
+        return(FALSE);
+      ArcList[FindFileArcIndex].hPlugin = hPlugin;
+      ArcList[FindFileArcIndex].Flags = Info.Flags;
+    }
     if ((Info.Flags & OPIF_REALNAMES)==0)
     {
       FindDlg[8].Type=DI_TEXT;
@@ -1715,16 +1740,19 @@ void _cdecl FindFiles::PreparePluginList(void *Param)
 {
   char SaveDir[NM];
 
-  Sleep(100);
+  Sleep(200);
   *PluginSearchPath=0;
-  HANDLE hPlugin = ArcList[FindFileArcIndex].hPlugin;
+  Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+  // Теперь убедимся, что FindFileArcIndex имеет реальное значение.
+  HANDLE hPlugin=(FindFileArcIndex==LIST_INDEX_NONE)?ActivePanel->GetPluginHandle():ArcList[FindFileArcIndex].hPlugin;
   struct OpenPluginInfo Info;
   CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
   strcpy(SaveDir,Info.CurDir);
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,"\\",OPM_FIND);
   RecurseLevel=0;
-  ScanPluginTree(hPlugin, ArcList[FindFileArcIndex].Flags);
+  // Теперь убедимся, что FindFileArcIndex имеет реальное значение.
+  ScanPluginTree(hPlugin,(FindFileArcIndex==LIST_INDEX_NONE)?Info.Flags:ArcList[FindFileArcIndex].Flags);
   if (SearchMode==SEARCH_ROOT || SearchMode==SEARCH_ALL)
     CtrlObject->Plugins.SetDirectory(hPlugin,SaveDir,OPM_FIND);
   while (!StopSearch && FindMessageReady)
