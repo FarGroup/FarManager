@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.46 21.03.2002 $ */
+/* Revision: 1.47 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 IS
+    - Устанавливали заголовок консоли крякозябрами, потому что не учили, что
+      для 9x параметр у SetConsoleTitle должен быть в ANSI-кодировке
   21.03.2002 SVS
     - BugZ#365 - Глюк с открытием папок в проводнике по шифт+ентер
   20.03.2002 SVS
@@ -815,8 +818,23 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
     }
 //_SVS(SysLog("ExecLine='%s'",ExecLine));
     // если запуск через ShellExecuteEx(), то нефига ставить заголовок
+    /* $ 22.03.2002 IS
+         Для 9x параметр у SetConsoleTitle должен быть ANSI
+    */
     if(SeparateWindow != 2)
-      SetConsoleTitle(CmdPtr);//SetFarTitle(CmdPtr);
+    {
+      if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+      {
+        char FarTitle[2*NM];
+        int size=Min((DWORD)strlen(CmdPtr),(DWORD)sizeof(FarTitle)-1);
+        OemToCharBuff(CmdPtr,FarTitle,size);
+        FarTitle[size]=0;
+        SetConsoleTitle(FarTitle);
+      }
+      else
+        SetConsoleTitle(CmdPtr);//SetFarTitle(CmdPtr);
+    }
+    /* IS $ */
 //_SVS(SysLog("CmdPtr  ='%s'",CmdPtr));
     FlushInputBuffer();
 
