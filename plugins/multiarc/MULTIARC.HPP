@@ -87,7 +87,7 @@ class ArcPlugins
     struct PluginItem *PluginsData;
     int PluginsCount;
   public:
-    ArcPlugins(char *ModuleName);
+    ArcPlugins(const char *ModuleName);
     ~ArcPlugins();
     int IsArchive(char *Name,const unsigned char *Data,int DataSize);
     BOOL OpenArchive(int PluginNumber,char *Name,int *Type);

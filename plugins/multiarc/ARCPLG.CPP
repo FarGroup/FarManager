@@ -4,7 +4,7 @@ Modify:
    ! правка высвобождения списка PluginsData в деструкторе ArcPlugins
 */
 
-ArcPlugins::ArcPlugins(char *ModuleName)
+ArcPlugins::ArcPlugins(const char *ModuleName)
 {
   PluginsData=NULL;
   PluginsCount=0;

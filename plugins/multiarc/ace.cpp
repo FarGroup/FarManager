@@ -165,6 +165,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     WORD  CRC16;
     WORD  HeaderSize;
   } Block;
+  HANDLE hHeap=GetProcessHeap();
 
   DWORD ReadSize;
   BYTE *TempBuf;
@@ -184,21 +185,30 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     if (!ReadSize || !Block.HeaderSize) //???
       return(GETARC_EOF);
 
-    TempBuf=(BYTE*)alloca(Block.HeaderSize);
+    TempBuf=(BYTE*)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, Block.HeaderSize);
     if(!TempBuf)
       return(GETARC_READERROR);
 
     if (!ReadFile(ArcHandle,TempBuf,Block.HeaderSize,&ReadSize,NULL))
+    {
+      HeapFree(hHeap,0,TempBuf);
       return(GETARC_READERROR);
+    }
 
     if (ReadSize==0 || Block.HeaderSize != ReadSize)
+    {
+      HeapFree(hHeap,0,TempBuf);
       return(GETARC_EOF);
+    }
 
 #if defined(CALC_CRC)
     DWORD crc=CRC_MASK;
     crc=getcrc(crc,TempBuf,Block.HeaderSize);
     if (LOWORD(crc) != LOWORD(Block.CRC16))
+    {
+      HeapFree(hHeap,0,TempBuf);
       return(GETARC_BROKEN);
+    }
 #endif
 
     NextPosition+=sizeof(Block)+Block.HeaderSize;
@@ -258,7 +268,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     RecHeader=(struct ACERECORDS*)TempBuf;
     if(RecHeader->HeaderFlags&1)
       NextPosition+=RecHeader->RecSize;
+    HeapFree(hHeap,0,TempBuf);
   }
+  HeapFree(hHeap,0,TempBuf);
   return(GETARC_SUCCESS);
 }
 

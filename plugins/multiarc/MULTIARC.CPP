@@ -8,13 +8,12 @@
 #include "arcreg.cpp"
 
 
-
 int WINAPI _export GetMinFarVersion(void)
 {
   return FARMANAGERVERSION;
 }
 
-void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
+void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
 {
   ::Info=*Info;
   ::FSF=*Info->FSF;
