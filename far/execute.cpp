@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.45 20.03.2002 $ */
+/* Revision: 1.46 21.03.2002 $ */
 
 /*
 Modify:
+  21.03.2002 SVS
+    - BugZ#365 - Глюк с открытием папок в проводнике по шифт+ентер
   20.03.2002 SVS
     ! GetCurrentDirectory -> FarGetCurDir
   20.03.2002 IS
@@ -847,6 +849,10 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
         strcpy(AnsiLine,FullName);
       }
       Unquote(AnsiLine); // т.к. нафиг это ненужно?
+      // ???
+      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY))
+        strcat(AnsiLine,".");
+      // ???
 
       memset(&si,0,sizeof(si));
       si.cbSize=sizeof(si);
