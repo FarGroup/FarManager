@@ -10,6 +10,8 @@ editor.cpp
 
 /*
 Modify:
+  05.06.2003 SKV
+    - Правка выделения в тексте с табуляцией и режиме !CursorBeyonEOL.
   06.05.2003 SVS
     ! Работа с закладками вынесена в отдельные функции SetBookmark() и GotoBookmark()
   28.04.2003 SVS
@@ -1780,9 +1782,12 @@ int Editor::ProcessKey(int Key)
       for (I=Y1+1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTUP);
-        if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+        if(!EdOpt.CursorBeyondEOL)
         {
-          CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+          if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+          {
+            CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+          }
         }
       }
       Pasting--;
@@ -1800,9 +1805,12 @@ int Editor::ProcessKey(int Key)
       for (I=Y1+1;I<Y2;I++)
       {
         ProcessKey(KEY_SHIFTDOWN);
-        if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+        if(!EdOpt.CursorBeyondEOL)
         {
-          CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+          if(CurLine->EditLine.GetCurPos()>CurLine->EditLine.GetLength())
+          {
+            CurLine->EditLine.SetCurPos(CurLine->EditLine.GetLength());
+          }
         }
       }
       Pasting--;
@@ -2092,9 +2100,9 @@ int Editor::ProcessKey(int Key)
             SelStart=CurPos;
           }
         }
-        /*SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
-        SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
-        if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
+        if(SelStart!=-1)SelStart=CurLine->Next->EditLine.TabPosToReal(SelStart);
+        if(SelEnd!=-1)SelEnd=CurLine->Next->EditLine.TabPosToReal(SelEnd);
+        /*if(!EdOpt.CursorBeyondEOL && SelEnd>CurLine->Next->EditLine.GetLength())
         {
           SelEnd=CurLine->Next->EditLine.GetLength();
         }
@@ -2127,21 +2135,21 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTUP: case KEY_SHIFTNUMPAD8:
     {
       if (CurLine->Prev==NULL)return NULL;
-      CurPos=CurLine->EditLine.RealPosToTab(CurPos);
       if(SelAtBeginning || SelFirst) // расширяем выделение
       {
         CurLine->EditLine.Select(0,SelEnd);
-        SelStart=CurPos;
-        SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
+        SelStart=CurLine->EditLine.RealPosToTab(CurPos);
         if(!EdOpt.CursorBeyondEOL && CurPos>CurLine->Prev->EditLine.GetLength())
         {
           SelStart=CurLine->Prev->EditLine.GetLength();
         }
+        SelStart=CurLine->Prev->EditLine.TabPosToReal(SelStart);
         CurLine->Prev->EditLine.Select(SelStart,-1);
         BlockStart=CurLine->Prev;
         BlockStartLine=NumLine-1;
       }else // снимаем выделение
       {
+        CurPos=CurLine->EditLine.RealPosToTab(CurPos);
         if(SelStart==0)
         {
           CurLine->EditLine.Select(-1,0);
