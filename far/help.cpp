@@ -5,10 +5,14 @@ help.cpp
 
 */
 
-/* Revision: 1.32 20.07.2001 $ */
+/* Revision: 1.33 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 SVS
+    - "То-ро-пыш-ка" :-( (или увеличение номера билда)
+    ! PluginPanelHelp переехала к плагинам (не место ей здесь)
+    ! Удалены за ненадобностью Get/Set-FullScreenMode
   20.07.2001 SVS
     - F1 Esc - проблемы
   20.07.2001 SVS
@@ -288,12 +292,8 @@ int Help::ReadHelp(char *Mask)
     CtrlColorChar=0;
   *SplitLine=0;
   CurX=CurY=0;
-  if (HelpData!=NULL)
-    /* $ 13.07.2000
-      для выделения памяти использовалась функция realloc
-    */
+  if (HelpData)
     free(HelpData);
-    /* SVS $ */
   HelpData=NULL;
   StrCount=0;
   FixCount=0;
@@ -486,6 +486,8 @@ void Help::HighlightsCorrection(char *Str)
 
 void Help::DisplayObject()
 {
+  if(!TopScreen)
+    TopScreen=new SaveScreen;
   if (!TopicFound)
   {
     if(!(Flags&FHELP_NOSHOWERROR))
@@ -640,7 +642,6 @@ void Help::OutString(char *Str)
         GotoXY(WhereX()+strlen(OutStr),WhereY());
       else
         Text(OutStr);
-//if(WhereX()>=X2-10) MessageBeep(0);
       OutPos=0;
     }
 
@@ -1141,27 +1142,12 @@ void Help::MoveToReference(int Forward,int CurScreen)
   FastShow();
 }
 
-
-int Help::GetFullScreenMode()
-{
-  return(Opt.FullScreenHelp);
-}
-
-
-void Help::SetFullScreenMode(int Mode)
-{
-  Opt.FullScreenHelp=Mode;
-}
-
-
 void Help::ReadPluginsHelp()
 {
-  /* $ 13.07.2000
-    для выделения памяти использовалась функция realloc
-  */
-  free(HelpData);
-  /* SVS $ */
+  if(HelpData)
+    free(HelpData);
   HelpData=NULL;
+
   StrCount=0;
   FixCount=1;
   FixSize=2;
@@ -1200,23 +1186,6 @@ void Help::ReadPluginsHelp()
   */
   AddLine("");
   /* IS $ */
-}
-
-
-int Help::PluginPanelHelp(HANDLE hPlugin)
-{
-  int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;
-  char Path[NM],FileName[NM],StartTopic[256],*Slash;
-  strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
-  if ((Slash=strrchr(Path,'\\'))!=NULL)
-    *Slash=0;
-  FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FileName);
-  if (HelpFile==NULL)
-    return(FALSE);
-  fclose(HelpFile);
-  sprintf(StartTopic,"#%s#Contents",Path);
-  Help PanelHelp(StartTopic);
-  return(TRUE);
 }
 
 /* $ 28.06.2000 tran

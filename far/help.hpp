@@ -7,10 +7,13 @@ help.hpp
 
 */
 
-/* Revision: 1.14 20.07.2001 $ */
+/* Revision: 1.15 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 SVS
+    ! PluginPanelHelp переехала к плагинам (не место ей здесь)
+    ! Удалены за ненадобностью Get/Set-FullScreenMode
   20.07.2001 SVS
     ! "Перетрях мозглей" Help API. Part I.
   11.07.2001 OT
@@ -115,10 +118,6 @@ class Help:public Frame
     void ResizeConsole();
     /* $ Введена для нужд CtrlAltShift OT */
     int  FastHide();
-
-    static int GetFullScreenMode();
-    static void SetFullScreenMode(int Mode);
-    static int PluginPanelHelp(HANDLE hPlugin);
 };
 
 #endif	// __HELP_HPP__

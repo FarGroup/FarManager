@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.73 20.07.2001 $ */
+/* Revision: 1.74 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 SVS
+    ! PluginPanelHelp переехала из help.hpp
   20.07.2001 VVM
     ! Если в SetCurDir передали пустую строку - каталог не менять.
   18.07.2001 OT
@@ -669,7 +671,7 @@ int FileList::ProcessKey(int Key)
   switch(Key)
   {
     case KEY_F1:
-      if (PanelMode==PLUGIN_PANEL && Help::PluginPanelHelp(hPlugin))
+      if (PanelMode==PLUGIN_PANEL && PluginPanelHelp(hPlugin))
         return(TRUE);
       return(FALSE);
     case KEY_ALTSHIFTF9:
@@ -3311,4 +3313,20 @@ BOOL FileList::UpdateKeyBar()
   CtrlObject->MainKeyBar->SetAltShift(FAltShiftKeys,sizeof(FAltShiftKeys)/sizeof(FAltShiftKeys[0]));
 
   return TRUE;
+}
+
+int FileList::PluginPanelHelp(HANDLE hPlugin)
+{
+  int PluginNumber=((struct PluginHandle *)hPlugin)->PluginNumber;
+  char Path[NM],FileName[NM],StartTopic[256],*Slash;
+  strcpy(Path,CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+  if ((Slash=strrchr(Path,'\\'))!=NULL)
+    *Slash=0;
+  FILE *HelpFile=Language::OpenLangFile(Path,HelpFileMask,Opt.HelpLanguage,FileName);
+  if (HelpFile==NULL)
+    return(FALSE);
+  fclose(HelpFile);
+  sprintf(StartTopic,"#%s#Contents",Path);
+  Help PanelHelp(StartTopic);
+  return(TRUE);
 }
