@@ -251,11 +251,13 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
     BOOL ReadArcOK=FALSE;
     DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
     HANDLE h=CreateFile(ArcName, FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-    if (INVALID_HANDLE_VALUE!=h)
+    if (h!=INVALID_HANDLE_VALUE)
     {
       unsigned char *Data=new unsigned char[size];
       DWORD read;
-      if (Data && ReadFile(h, Data, size, &read, 0))
+      int ret = ReadFile(h, Data, size, &read, 0);
+      CloseHandle(h);
+      if (Data && ret)
       {
         DWORD SFXSize;
         if (ArcPlugin->IsArchive(ArcPluginNumber, ArcName, Data, read, &SFXSize))
@@ -264,7 +266,6 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
         }
       }
       delete[] Data;
-      CloseHandle(h);
     }
     if (!ReadArcOK) return FALSE;
   }
