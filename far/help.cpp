@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.30 11.07.2001 $ */
+/* Revision: 1.31 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 SVS
+    ! "Перетрях мозглей" Help API. Part I.
   11.07.2001 SVS
     - Исправляем ситуацию с приганием курсора на следующую позицию при
       редраве окна хелпа
@@ -111,13 +113,52 @@ Modify:
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 
+
+// Стек возврата
+class CallBackStack
+{
+  private:
+    struct ListNode
+    {
+      char *Str;
+      char *Path;
+      DWORD Flags;
+      ListNode *Next;
+      ListNode(const char *Src,const char *Path0, DWORD Flags0, ListNode* n=NULL):Next(n)
+      {
+        Str=strdup(Src);
+        Path=strdup(Path0);
+        Flags=Flags0;
+      }
+     ~ListNode()
+      {
+        if(Str) free(Str);
+        if(Path) free(Path);
+      }
+    };
+
+    ListNode *topOfStack;
+
+  public:
+    CallBackStack() {topOfStack=NULL;};
+   ~CallBackStack() {ClearStack();};
+
+  public:
+    void ClearStack();
+    BOOL isEmpty() const {return topOfStack==NULL;};
+
+    void Push(const char *Str,const char *Path,DWORD Flags);
+    char *Pop(char *Dest=NULL,char *Path=NULL,DWORD* Flags=NULL);
+
+    void PrintStack(const char *Title);
+};
+
+
 #define MAX_HELP_STRING_LENGTH 300
 
-static int FullScreenHelp=0;
-static SaveScreen *TopScreen=NULL;
-
-static char *PluginContents="__PluginContents__";
-static char *HelpOnHelpTopic="Help";
+static const char *PluginContents="__PluginContents__";
+static const char *HelpOnHelpTopic="Help";
+static const char *HelpContents="Contents";
 
 static int RunURL(char *Protocol, char *URLPath);
 
@@ -128,44 +169,33 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 
   CanLoseFocus=FALSE;
   Help::Flags=Flags;
-  /* $ 12.04.2001 SVS
-     в конструкторе PrevMacroMode не инициализирован!
-  */
-  //if (PrevMacroMode!=MACRO_HELP) {
+
   PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_HELP);
-  //}
-  /* $ SVS */
 
   ErrorHelp=TRUE;
+
+  Stack=new CallBackStack;
+
   /* $ 01.09.2000 SVS
      Установим по умолчанию текущий цвет отрисовки...
   */
   CurColor=COL_HELPTEXT;
   /* SVS $ */
-  /* $ 12.04.2001 SVS
-     сохраним Mask
-  */
-  if(Mask)
-  {
-    HelpMask=new char[strlen(Mask)+1];
-    strcpy(HelpMask,Mask);
-  }
-  else
-    HelpMask=NULL;
-  /* SVS $ */
-  /* $ 07.05.2001 DJ */
-  KeyBarVisible = TRUE;
-  /* DJ $ */
-  TopLevel=TRUE;
-  TopScreen=new SaveScreen;
+
+  HelpMask=Mask?strdup(Mask):NULL; // сохраним маску файла
+
+  KeyBarVisible = TRUE;  // Заставим обновлятся кейбар
+  //TopScreen=new SaveScreen;
+  TopScreen=NULL;
   HelpData=NULL;
   strcpy(HelpTopic,Topic);
   *HelpPath=0;
-  if (FullScreenHelp)
+  if (Opt.FullScreenHelp)
     SetPosition(0,0,ScrX,ScrY);
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
+
   if(!ReadHelp(Mask) && (Flags&FHELP_USECONTENTS))
   {
     strcpy(HelpTopic,Topic);
@@ -173,11 +203,12 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
     {
       char *Ptr=strrchr(HelpTopic,'#');
       if(Ptr)
-        strcpy(++Ptr,"Contents");
+        strcpy(++Ptr,HelpContents);
     }
     *HelpPath=0;
     ReadHelp(Mask);
   }
+
   if (HelpData!=NULL)
   {
     InitKeyBar();
@@ -192,100 +223,16 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
     ErrorHelp=TRUE;
   }
 }
-
-/* $ 12.04.2001 SVS
-   передаем в конструктор Mask, запоминаем
-*/
-Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
-{
-  /* $ OT По умолчанию все хелпы создаются статически*/
-  SetDynamicallyBorn(FALSE);
-
-  CanLoseFocus=FALSE;
-  Help::Flags=Flags;
-  //if (PrevMacroMode!=MACRO_HELP) {
-  PrevMacroMode=CtrlObject->Macro.GetMode();
-  CtrlObject->Macro.SetMode(MACRO_HELP);
-  //}
-  ErrorHelp=TRUE;
-  if(Mask)
-  {
-    HelpMask=new char[strlen(Mask)+1];
-    strcpy(HelpMask,Mask);
-  }
-  else
-    HelpMask=NULL;
-  /* $ 07.05.2001 DJ */
-  KeyBarVisible = TRUE;
-  /* DJ $ */
-  TopLevel=FALSE;
-  HelpData=NULL;
-  Help::PrevFullScreen=PrevFullScreen;
-  strcpy(HelpTopic,Topic);
-  *HelpPath=0;
-  if (FullScreenHelp)
-    SetPosition(0,0,ScrX,ScrY);
-  else
-    SetPosition(4,2,ScrX-4,ScrY-2);
-  if(!ReadHelp(Mask) && (Flags&FHELP_USECONTENTS))
-  {
-    strcpy(HelpTopic,Topic);
-    if(*HelpTopic == '#')
-    {
-      char *Ptr=strrchr(HelpTopic,'#');
-      if(Ptr)
-        strcpy(++Ptr,"Contents");
-    }
-    *HelpPath=0;
-    ReadHelp(Mask);
-  }
-  /* $ 16.03.2001 VVM
-    ! Если топик не найден - остаемся, где были */
-  if (HelpData!=NULL)
-  {
-    InitKeyBar();
-    MacroMode = MACRO_HELP;
-    MoveToReference(1,1);
-    FrameManager->ExecuteModal (this);//OT
-    ShowPrev=Help::ShowPrev;
-  }
-  else
-  {
-    if(!(Flags&FHELP_NOSHOWERROR))
-      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
-    ErrorHelp=TRUE;
-    ShowPrev=TRUE;
-    FrameManager->DeleteFrame();
-
-  }
-  /* VVM $ */
-}
-/* SVS $ */
-
 
 Help::~Help()
 {
   CtrlObject->Macro.SetMode(PrevMacroMode);
   SetRestoreScreenMode(FALSE);
-  /* $ 13.07.2000
-    для выделения памяти использовалась функция realloc
-  */
-  free(HelpData);
-  /* SVS $ */
-  /* $ 12.04.2001 SVS
-     удаляем HelpMask
-  */
-  if(HelpMask)
-    delete HelpMask;
-  /* SVS $ */
-  if (TopLevel)
-  {
-    delete TopScreen;
-    TopScreen=NULL;
-  }
-  if (TopScreen!=NULL && (TopLevel || PrevFullScreen!=FullScreenHelp))
-    TopScreen->RestoreArea();
 
+  if(HelpData)     free(HelpData);
+  if(Stack)        delete Stack;
+  if(HelpMask)     delete HelpMask;
+  if(TopScreen)    delete TopScreen;
 }
 
 
@@ -302,7 +249,6 @@ int Help::ReadHelp(char *Mask)
   int Formatting=TRUE,RepeatLastLine;
   const int MaxLength=X2-X1-1;
 
-  ShowPrev=0;
   DisableOut=0;
 
   char Path[NM],*TopicPtr;
@@ -539,6 +485,8 @@ void Help::HighlightsCorrection(char *Str)
 
 void Help::DisplayObject()
 {
+  if(!TopScreen)
+    TopScreen=new SaveScreen;
   if (!TopicFound)
   {
     if(!(Flags&FHELP_NOSHOWERROR))
@@ -551,7 +499,7 @@ void Help::DisplayObject()
   if (*SelTopic==0)
     MoveToReference(1,1);
   FastShow();
-  if (!FullScreenHelp)
+  if (!Opt.FullScreenHelp)
   {
     HelpKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
     if(Opt.ShowKeyBar)
@@ -565,6 +513,7 @@ void Help::DisplayObject()
 void Help::FastShow()
 {
   int I;
+
   if (!DisableOut)
   {
     SetScreen(X1,Y1,X2,Y2,' ',COL_HELPTEXT);
@@ -852,37 +801,12 @@ int Help::ProcessKey(int Key)
     case KEY_NONE:
     case KEY_IDLE:
       break;
-    /* $ 25.08.2000 SVS
-       + CtrlAltShift - спрятать/показать помощь...
-       // "ХАчу глянуть на то, что под диалогом..."
-    */
-/* $ KEY_CTRLALTSHIFTPRESS унесено в manager OT */
-    case KEY_F1:
-      /* $ 16.04.2001 SVS
-         - не поганим SelTopic, если и так в Help on Help
-      */
-      if(LocalStricmp(HelpTopic,HelpOnHelpTopic)!=0)
-      {
-        strcpy(SelTopic,HelpOnHelpTopic);
-        ProcessKey(KEY_ENTER);
-      }
-      /* SVS $ */
-      return(TRUE);
-
     case KEY_F5:
-      FullScreenHelp=!FullScreenHelp;
+      Opt.FullScreenHelp=!Opt.FullScreenHelp;
       ResizeConsole();
       return(TRUE);
-
     case KEY_ESC:
     case KEY_F10:
-      ShowPrev=FALSE;
-      FrameManager->DeleteFrame();
-      SetExitCode (XC_QUIT);
-      return(TRUE);
-    case KEY_ALTF1:
-    case KEY_BS:
-      ShowPrev=TRUE;
       FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
       return(TRUE);
@@ -978,84 +902,6 @@ int Help::ProcessKey(int Key)
         MoveToReference(1,1);
       }
       return(TRUE);
-    case KEY_ENTER:
-      if (*SelTopic && LocalStricmp(HelpTopic,SelTopic)!=0)
-      {
-        int KeepHelp;
-        int CurFullScreen=FullScreenHelp;
-        {
-          char NewTopic[512];
-          /* $ 25.08.2000 SVS
-             URL активатор - это ведь так просто :-)))
-          */
-          {
-            strcpy(NewTopic,SelTopic);
-            char *p=strchr(NewTopic,':');
-            if(p && NewTopic[0] != ':') // наверное подразумевается URL
-            {
-              *p=0;
-              if(RunURL(NewTopic,SelTopic))
-                return(TRUE);
-            }
-            // а вот теперь попробуем...
-          }
-          /* SVS $ */
-          if (*HelpPath && *SelTopic!='#' && strcmp(SelTopic,HelpOnHelpTopic)!=0)
-          {
-            if (*SelTopic==':')
-              strcpy(NewTopic,SelTopic+1);
-            else
-              sprintf(NewTopic,"#%s#%s",HelpPath,SelTopic);
-          }
-          else
-            strcpy(NewTopic,SelTopic);
-
-          /* $ 12.04.2001 SVS
-             передаем запомненный HelpMask
-          */
-          char *NewHelpMask=NULL;
-          if(*SelTopic != ':' && LocalStricmp(SelTopic,PluginContents) != 0)
-            NewHelpMask=HelpMask;
-          Help *NewHelp=new Help(NewTopic,KeepHelp,FullScreenHelp,0,NewHelpMask);
-          /* SVS $ */
-        }
-        if (!KeepHelp)
-        {
-          FrameManager->DeleteFrame();
-          SetExitCode (XC_QUIT);
-        }
-        else
-        {
-          if (CurFullScreen!=FullScreenHelp)
-          {
-            FullScreenHelp=!FullScreenHelp;
-            ProcessKey(KEY_F5);
-          }
-        }
-      }
-      return(TRUE);
-    case KEY_SHIFTF1:
-      /* $ 12.04.2001 SVS
-         не поганим SelTopic, если и так в теме Contents
-      */
-      if(LocalStricmp(HelpTopic,"Contents")!=0)
-      {
-        strcpy(SelTopic,"Contents");
-        ProcessKey(KEY_ENTER);
-      }
-      /* SVS $ */
-      return(TRUE);
-    case KEY_SHIFTF2:
-      /* $ 12.04.2001 SVS
-         не поганим SelTopic, если и так в PluginContents
-      */
-      if(LocalStricmp(HelpTopic,PluginContents)!=0)
-      {
-        strcpy(SelTopic,PluginContents);
-        ProcessKey(KEY_ENTER);
-      }
-      /* SVS $ */
-      return(TRUE);
     case KEY_RIGHT:
     case KEY_TAB:
       MoveToReference(1,0);
@@ -1064,9 +910,120 @@ int Help::ProcessKey(int Key)
     case KEY_SHIFTTAB:
       MoveToReference(0,0);
       return(TRUE);
+
+    case KEY_F1:
+      // не поганим SelTopic, если и так в Help on Help
+      if(LocalStricmp(HelpTopic,HelpOnHelpTopic)!=0)
+      {
+        Stack->Push(HelpTopic,HelpPath,Flags);
+        JumpTopic(HelpOnHelpTopic);
+      }
+      return(TRUE);
+    case KEY_SHIFTF1:
+      //   не поганим SelTopic, если и так в теме Contents
+      if(LocalStricmp(HelpTopic,HelpContents)!=0)
+      {
+        Stack->Push(HelpTopic,HelpPath,Flags);
+        JumpTopic(HelpContents);
+      }
+      return(TRUE);
+    case KEY_SHIFTF2:
+      //   не поганим SelTopic, если и так в PluginContents
+      if(LocalStricmp(HelpTopic,PluginContents)!=0)
+      {
+        Stack->Push(HelpTopic,HelpPath,Flags);
+        JumpTopic(PluginContents);
+      }
+      return(TRUE);
+    case KEY_ALTF1:
+    case KEY_BS:
+      // Если стек возврата пуст - выходим их хелпа
+      if(!Stack->isEmpty())
+      {
+        Stack->Pop(HelpTopic,HelpPath,&Flags);
+        JumpTopic(HelpTopic);
+        return(TRUE);
+      }
+      return ProcessKey(KEY_ESC);
+
+    case KEY_ENTER:
+      if (*SelTopic && LocalStricmp(HelpTopic,SelTopic)!=0)
+      {
+        Stack->Push(HelpTopic,HelpPath,Flags);
+        JumpTopic();
+      }
+      return(TRUE);
   }
   return(FALSE);
 }
+
+int Help::JumpTopic(const char *JumpTopic)
+{
+  Stack->PrintStack(JumpTopic);
+  char NewTopic[512];
+  if(JumpTopic)
+    strcpy(SelTopic,JumpTopic);
+_SVS(SysLog("JumpTopic() = SelTopic=%s",SelTopic));
+  // URL активатор - это ведь так просто :-)))
+  {
+    strcpy(NewTopic,SelTopic);
+    char *p=strchr(NewTopic,':');
+    if(p && NewTopic[0] != ':') // наверное подразумевается URL
+    {
+      *p=0;
+      if(RunURL(NewTopic,SelTopic))
+        return(TRUE);
+    }
+  }
+  // а вот теперь попробуем...
+
+_SVS(SysLog("JumpTopic() = SelTopic=%s, HelpPath=%s",SelTopic,HelpPath));
+  if (*HelpPath && *SelTopic!='#' && strcmp(SelTopic,HelpOnHelpTopic)!=0)
+  {
+    if (*SelTopic==':')
+      strcpy(NewTopic,SelTopic+1);
+    else
+      sprintf(NewTopic,"#%s#%s",HelpPath,SelTopic);
+  }
+  else
+    strcpy(NewTopic,SelTopic);
+
+_SVS(SysLog("HelpMask=%s NewTopic=%s",HelpMask,NewTopic));
+  if(*SelTopic != ':' && LocalStricmp(SelTopic,PluginContents) != 0)
+  {
+    ; // :-)
+  }
+  else
+  {
+    if(HelpMask)
+      free(HelpMask);
+    HelpMask=NULL;
+  }
+  strcpy(HelpTopic,NewTopic);
+  *HelpPath=0;
+  if(!ReadHelp(HelpMask))
+  {
+    strcpy(HelpTopic,NewTopic);
+    if(*HelpTopic == '#')
+    {
+      char *Ptr=strrchr(HelpTopic,'#');
+      if(Ptr)
+        strcpy(++Ptr,HelpContents);
+    }
+    *HelpPath=0;
+    ReadHelp(HelpMask);
+  }
+  if (!HelpData)
+  {
+    if(!(Flags&FHELP_NOSHOWERROR))
+      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+    ErrorHelp=TRUE;
+    return FALSE;
+  }
+  ResizeConsole();
+  return TRUE;
+}
+
 
 
 int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -1188,13 +1145,13 @@ void Help::MoveToReference(int Forward,int CurScreen)
 
 int Help::GetFullScreenMode()
 {
-  return(FullScreenHelp);
+  return(Opt.FullScreenHelp);
 }
 
 
 void Help::SetFullScreenMode(int Mode)
 {
-  FullScreenHelp=Mode;
+  Opt.FullScreenHelp=Mode;
 }
 
 
@@ -1268,8 +1225,11 @@ int Help::PluginPanelHelp(HANDLE hPlugin)
  resize help*/
 void Help::SetScreenPosition()
 {
-  if (FullScreenHelp)
+  if (Opt.FullScreenHelp)
+  {
+    HelpKeyBar.Hide();
     SetPosition(0,0,ScrX,ScrY);
+  }
   else
     SetPosition(4,2,ScrX-4,ScrY-2);
   Show();
@@ -1316,7 +1276,6 @@ void Help::InitKeyBar(void)
      Protocol="mailto"
      URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
 */
-#if 1
 static int RunURL(char *Protocol, char *URLPath)
 {
   int EditCode=0;
@@ -1414,82 +1373,11 @@ static int RunURL(char *Protocol, char *URLPath)
   }
   return EditCode;
 }
-#else
-// ЕЩЕ ОДИН ВАРИАНТ
-static int RunURL(char *Protocol, char *URLPath)
-{
-  if (!(Protocol && *Protocol && URLPath && *URLPath && (Opt.HelpURLRules&0xFF)))
-    return 0;
-  char *Buf;
-  if (!(Buf=(char*)malloc(2048)))
-    return 0;
-  int EditCode=0;
-  if(Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
-  {
-    if(((Opt.HelpURLRules&0xFF) != 2) || Message(MSG_WARNING,2,MSG(MHelpTitle),
-                                                 MSG(MHelpActivatorURL),
-                                                 URLPath,
-                                                 "\x01",
-                                                 MSG(MHelpActivatorQ),
-                                                 MSG(MYes),MSG(MNo)) == 0)
-    {
-      SHELLEXECUTEINFO sei;
-      strcpy(Buf,URLPath);
-      OemToChar(Buf,Buf);
-      memset(&sei,0,sizeof(sei));
-      sei.cbSize=sizeof(sei);
-      sei.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT;
-      sei.lpFile=RemoveExternalSpaces(Buf);
-      sei.nShow=SW_SHOWNORMAL;
-      SetFileApisToANSI();
-      EditCode=ShellExecuteEx(&sei)?1:2;
-      SetFileApisToOEM();
-    }
-  }
-  else // CREATEPROCESS_METHOD
-  {
-    HKEY hKey;
-    strcat(strcpy(Buf,Protocol),"\\shell\\open\\command");
-    if(RegOpenKeyEx(HKEY_CLASSES_ROOT,Buf,0,KEY_READ,&hKey) == ERROR_SUCCESS)
-    {
-      DWORD Disposition, DataSize=250;
-      Disposition=RegQueryValueEx(hKey,"",0,&Disposition,(LPBYTE)Buf,&DataSize);
-      RegCloseKey(hKey);
-      if(Disposition != ERROR_SUCCESS)
-        return 0;
-      ExpandEnvironmentStr(Buf, Buf, 2048);
-      char *pp=strrchr(Buf,'%');
-      if(pp) *pp='\0'; else pp=Buf+strlen(strcat(Buf," "));
-      if(((Opt.HelpURLRules&0xFF) != 2) ||
-           Message(MSG_WARNING,2,MSG(MHelpTitle),
-                   MSG(MHelpActivatorURL),
-                   Buf,
-                   MSG(MHelpActivatorFormat),
-                   URLPath,
-                   "\x01",
-                   MSG(MHelpActivatorQ),
-                   MSG(MYes),MSG(MNo)) == 0)
-      {
-        strcpy(pp, URLPath);
-        OemToChar(pp,pp);
-        STARTUPINFO si={0};
-        PROCESS_INFORMATION pi={0};
-        si.cb=sizeof(si);
-        SetFileApisToANSI(); //????
-        EditCode=CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi)?2:1;
-        SetFileApisToOEM(); //????
-      }
-    }
-  }
-  free(Buf);
-  return EditCode;
-}
-#endif
-/* SVS $ */
 
-void Help::OnChangeFocus(int focus)
+void Help::OnChangeFocus(int Focus)
 {
-  if (focus) {
+  if (Focus)
+  {
     DisplayObject();
   }
 }
@@ -1499,7 +1387,7 @@ void Help::ResizeConsole()
   delete TopScreen;
   TopScreen=NULL;
   Hide();
-  if (FullScreenHelp)
+  if (Opt.FullScreenHelp)
   {
     HelpKeyBar.Hide();
     SetPosition(0,0,ScrX,ScrY);
@@ -1508,10 +1396,55 @@ void Help::ResizeConsole()
     SetPosition(4,2,ScrX-4,ScrY-2);
   ReadHelp(HelpMask);
   MoveToReference(1,1);
+  FrameManager->ImmediateHide();
   FrameManager->RefreshFrame();
 }
 
 int Help::FastHide()
 {
   return Opt.AllCtrlAltShiftRule & CASR_HELP;
+}
+
+
+void CallBackStack::ClearStack()
+{
+  while(!isEmpty())
+    Pop();
+}
+
+char* CallBackStack::Pop(char *Dest, char *Path,DWORD* Flags)
+{
+  if(!isEmpty())
+  {
+    ListNode *oldTop = topOfStack;
+    topOfStack = topOfStack->Next;
+    if(Dest)
+      strcpy(Dest,oldTop->Str);
+    if(Path)
+      strcpy(Path,oldTop->Path);
+    if(Flags)
+      *Flags=oldTop->Flags;
+    delete oldTop;
+    return Dest;
+  }
+  return NULL;
+}
+
+void CallBackStack::Push(const char *Str,const char *Path,DWORD Flags)
+{
+  topOfStack=new ListNode(Str,Path,Flags,topOfStack);
+}
+
+void CallBackStack::PrintStack(const char *Title)
+{
+  int I=0;
+  ListNode *Ptr = topOfStack;
+  SysLog("Return Stack (%s)",Title);
+  SysLog(1);
+  while(Ptr)
+  {
+    SysLog("%03d '%s' '%s'",I++,Ptr->Str,Ptr->Path);
+    Ptr=Ptr->Next;
+  }
+  SysLog(-1);
 }

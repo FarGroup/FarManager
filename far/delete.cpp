@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.25 18.07.2001 $ */
+/* Revision: 1.26 19.07.2001 $ */
 
 /*
 Modify:
+  19.07.2001 SVS
+    ! отмена 826-го до лучших времен (по просьбе VVM)
   18.07.2001 VVM
     ! При удалении выравниваем не по ширине экрана, а по длине надписи MDeleting + 8
   13.07.2001 SVS
@@ -487,11 +489,7 @@ void ShellDeleteUpdatePanels(Panel *SrcPanel)
 void ShellDeleteMsg(char *Name,int Flags)
 {
   char DelName[NM];
-  /* $ 18.07.2001 VVM
-    ! При удалении выравниваем не по ширине экрана, а по длине надписи MDeleting + 8 */
-//  CenterStr(Name,DelName,ScrX-16);
-  CenterStr(Name,DelName,strlen(MSG(MDeleting))+8);
-  /* VVM $ */
+  CenterStr(Name,DelName,ScrX-16);
   TruncPathStr(DelName,ScrX-16);
   Message(Flags,0,MSG(MDeleteTitle),MSG(MDeleting),DelName);
 }

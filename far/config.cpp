@@ -5,12 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.86 19.07.2001 $ */ 
+/* Revision: 1.87 19.07.2001 $ */
 
 /*
 Modify:
+  19.07.2001 SVS
+    ! Про хелп. Юзаем то, что есть в Opt и не пладим сущностей.
   19.07.2001 OT
-    AltF9 - к первоначальному положению :)
+    ! AltF9 - к первоначальному положению :)
   17.07.2001 SVS
     ! Opt.AltF9 - уточнение поведения для разных платформ
   16.07.2001 SVS
@@ -1174,7 +1176,6 @@ void ReadConfig()
   Opt.ExceptCallDebugger = Opt.ExceptRules & 0x00000001;
   Opt.PanelRightClickRule%=3;
   Opt.PanelCtrlAltShiftRule%=3;
-  Help::SetFullScreenMode(Opt.FullScreenHelp);
   Opt.ConsoleDetachKey=KeyNameToKey(KeyNameConsoleDetachKey);
   if (Opt.EdOpt.TabSize<1 || Opt.EdOpt.TabSize>512)
     Opt.EdOpt.TabSize=8;
@@ -1228,7 +1229,6 @@ void SaveConfig(int Ask)
   Opt.RightPanel.Focus=RightPanel->GetFocus();
   Opt.RightPanel.Visible=RightPanel->IsVisible();
 
-  Opt.FullScreenHelp=Help::GetFullScreenMode();
   CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel)->GetCurDir(Opt.PassiveFolder);
 
   if (LeftPanel->GetMode()==NORMAL_PANEL)

@@ -7,12 +7,14 @@ help.hpp
 
 */
 
-/* Revision: 1.13 11.07.2001 $ */ 
+/* Revision: 1.14 20.07.2001 $ */
 
 /*
 Modify:
+  20.07.2001 SVS
+    ! "Перетрях мозглей" Help API. Part I.
   11.07.2001 OT
-    Перенос CtrlAltShift в Manager
+    ! Перенос CtrlAltShift в Manager
   31.05.2001 OT
     + ResizeConsole() - как реакция на изменившийся размер консоли.
   15.05.2001 OT
@@ -52,44 +54,36 @@ Modify:
 #include "keybar.hpp"
 #include "farconst.hpp"
 
+class CallBackStack;
+
 class Help:public Frame
 {
   private:
-    KeyBar HelpKeyBar;
+    DWORD Flags;                // флаги
+    BOOL  ErrorHelp;            // TRUE - ошибка! Например - нет такого топика
+    SaveScreen *TopScreen;      // область сохранения под хелпом
+    KeyBar      HelpKeyBar;     // кейбар
+    CallBackStack *Stack;       // стек возврата
 
-    char *HelpData;
-    char HelpTopic[512];
-    char SelTopic[512];
-    char HelpPath[NM];
-    /* $ 12.04.2001 SVS
-       Значение маски, переданной в конструктор
-    */
-    char *HelpMask;
-    /* SVS $ */
+    char *HelpData;             // "хелп" в памяти.
+    int   StrCount;             // количество строк в теме
+    int   FixCount;             // количество строк непрокручиваемой области
+    int   TopicFound;           // TRUE - топик найден
+    int   TopStr;               // номер верхней видимой строки темы
+    int   CurX,CurY;            // координаты (???)
+    int   FixSize;              // Размер непрокручиваемой области
 
-    DWORD Flags;
-    /* $ 01.09.2000 SVS
-      CurColor - текущий цвет отрисовки
-    */
-    int CurColor;
-    /* SVS $ */
+    char  HelpTopic[512];       // текущий топик
+    char  SelTopic[512];        // выделенный топик (???)
+    char  HelpPath[NM];         // путь к хелпам
+    char *HelpMask;             // значение маски, переданной в конструктор
 
-    int TopLevel;
-    int PrevFullScreen;
-    int StrCount,FixCount,FixSize;
-    int TopStr;
-    int CurX,CurY;
-    int ShowPrev;
-    int DisableOut;
-    int TopicFound;
-    int PrevMacroMode;
+    int   DisableOut;           // TRUE - не выводить на экран
+    BYTE  CtrlColorChar;        // CtrlColorChar - опция! для спецсимвола-
+                                //   символа - для атрибутов
+    int   CurColor;             // CurColor - текущий цвет отрисовки
 
-    /* $ 01.09.2000 SVS
-      CtrlColorChar - опция! для спецсимвола-символа - для атрибутов
-    */
-    BYTE CtrlColorChar;
-    /* SVS $ */
-    BOOL ErrorHelp;
+    int   PrevMacroMode;        // предыдущий режим макроса
 
   private:
     void DisplayObject();
@@ -98,39 +92,33 @@ class Help:public Frame
     void HighlightsCorrection(char *Str);
     void FastShow();
     void OutString(char *Str);
-    int StringLen(char *Str);
+    int  StringLen(char *Str);
     void CorrectPosition();
-    int IsReferencePresent();
+    int  IsReferencePresent();
     void MoveToReference(int Forward,int CurScreen);
     void ReadPluginsHelp();
+    int  JumpTopic(const char *JumpTopic=NULL);
 
   public:
     Help(char *Topic,char *Mask=NULL,DWORD Flags=0);
-    /* $ 12.04.2001 SVS
-       передача Mask
-    */
-    Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags=0,char *Mask=NULL);
-    /* SVS $ */
     ~Help();
 
   public:
     void Hide();
-    int ProcessKey(int Key);
-    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+    int  ProcessKey(int Key);
+    int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
     void InitKeyBar(void);
     BOOL GetError() {return ErrorHelp;}
+    /* $ 28.06.2000 tran NT Console resize - resize help */
+    virtual void SetScreenPosition();
+    void OnChangeFocus(int focus); // вызывается при смене фокуса
+    void ResizeConsole();
+    /* $ Введена для нужд CtrlAltShift OT */
+    int  FastHide();
+
     static int GetFullScreenMode();
     static void SetFullScreenMode(int Mode);
     static int PluginPanelHelp(HANDLE hPlugin);
-
-    /* $ 28.06.2000 tran
-       NT Console resize - resize help */
-    virtual void SetScreenPosition();
-    /* tran $ */
-    void OnChangeFocus(int focus); // вызывается при смене фокуса
-    void ResizeConsole();
-/* $ Введена для нужд CtrlAltShift OT */
-    int FastHide();
 };
 
 #endif	// __HELP_HPP__
