@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.17 03.01.2001 $ */
+/* Revision: 1.18 01.02.2001 $ */
 
 /*
 Modify:
+  01.02.2001 IS
+    ! Открываем по F6 вьюер с указанием длинного имени файла, а не короткого
   03.01.2001 SVS
     ! для KEY_ALTSHIFTF9 забыли сделать Show()
   19.12.2000 SVS
@@ -354,8 +356,12 @@ int FileEditor::ProcessKey(int Key)
       {
         long FilePos=FEdit.GetCurPos();
         ProcessKey(KEY_ESC);
+        /* $ 01.02.2001 IS
+           ! Открываем вьюер с указанием длинного имени файла, а не короткого
+        */
         if (Done())
-          CtrlObject->ModalManager.SetNextWindow(TRUE,FileName,FilePos);
+          CtrlObject->ModalManager.SetNextWindow(TRUE,FullFileName,FilePos);
+        /* IS $ */
         ShowTime(2);
       }
       return(TRUE);
