@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.301 11.05.2004 $ */
+/* Revision: 1.302 19.05.2004 $ */
 
 /*
 Modify:
+  19.05.2004 SVS
+    - В продолжении BugZ#962 (мигание курсора на окне диалога плагина без элементов с фокусом ввода)
+      При отрисовке только одного элемента (не фокусного) не был учтен тот факт,
+      что фокусным элементом может быть DI_USERCONTROL
   11.05.2004 SVS
     ! для листа передадим в конструкторе this диалога и установим ItemID.
     - кривая обработка DN_LISTCHANGE - начиная с того, что... водим мышкой
@@ -2588,7 +2592,18 @@ void Dialog::ShowDialog(int ID)
      другим контролом (по координатам), то для "позднего"
      контрола тоже нужна прорисовка.
   */
-  SetCursorType(0,0);
+  {
+    int CursorVisible=0,CursorSize=0;
+    if(ID != -1 && FocusPos != ID)
+    {
+      if(Item[FocusPos].Type == DI_USERCONTROL && Item[FocusPos].UCData->CursorPos.X != -1 && Item[FocusPos].UCData->CursorPos.Y != -1)
+      {
+        CursorVisible=Item[FocusPos].UCData->CursorVisible;
+        CursorSize=Item[FocusPos].UCData->CursorSize;
+      }
+    }
+    SetCursorType(CursorVisible,CursorSize);
+  }
 
   for (I=ID,CurItem=&Item[I]; I < DrawItemCount; I++, ++CurItem)
   {

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.104 17.05.2004 $ */
+/* Revision: 1.105 18.05.2004 $ */
 
 /*
 Modify:
+  18.05.2004 SVS
+    - BugZ#1077 - Падение при отсутствующей Win-ассоциации
   17.05.2004 SVS
     ! небольшие уточнение в запускаторе в порыве исправить падение на ассоциациях
   06.05.2004 SVS
@@ -344,6 +346,8 @@ static const char strSystemExecutor[]="System\\Executor";
 
 static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 {
+  //_SVS(CleverSysLog clvrSLog("IsCommandPEExeGUI()"));
+  //_SVS(SysLog("Param: FileName='%s'",FileName));
 //  char NameFile[NM];
   HANDLE hFile;
   int Ret=FALSE;
@@ -443,7 +447,11 @@ static int IsCommandPEExeGUI(const char *FileName,DWORD& ImageSubsystem)
 // (чтобы не ждать завершения)
 char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 {
+  //_SVS(CleverSysLog clvrSLog("GetShellAction()"));
+  //_SVS(SysLog("Param: FileName='%s'",FileName));
+
   char Value[1024];
+  char NewValue[2048];
   const char *ExtPtr;
   char *RetPtr;
   LONG ValueSize;
@@ -456,34 +464,40 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     return(NULL);
 
   ValueSize=sizeof(Value);
+  *Value=0;
 
   if (RegQueryValue(HKEY_CLASSES_ROOT,(LPCTSTR)ExtPtr,(LPTSTR)Value,&ValueSize)!=ERROR_SUCCESS)
     return(NULL);
 
   strcat(Value,"\\shell");
+//_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
 
   HKEY hKey;
   if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)!=ERROR_SUCCESS)
     return(NULL);
 
   static char Action[512];
+
+  *Action=0;
   ValueSize=sizeof(Action);
   LONG RetQuery = RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Action,(LPDWORD)&ValueSize);
-
   strcat(Value,"\\");
+//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
+
   if (RetQuery == ERROR_SUCCESS)
   {
+    UserDefinedList ActionList(0,0,ULF_UNIQUE);
+
     RetPtr=(*Action==0 ? NULL:Action);
     /* $ 03.10.2002 VVM
       + Команд в одной строке может быть несколько. */
     const char *ActionPtr;
-    UserDefinedList ActionList(0,0,ULF_UNIQUE);
 
     LONG RetEnum = ERROR_SUCCESS;
     if (RetPtr != NULL && ActionList.Set(Action))
     {
-      char NewValue[1024];
       HKEY hOpenKey;
+
       ActionList.Reset();
       while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) != NULL)
       {
@@ -502,6 +516,8 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     else
       strncat(Value,Action, sizeof(Value) - 1);
     /* VVM $ */
+
+//_SVS(SysLog("[%d] Value='%s'",__LINE__,Value));
     if(RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
       RetPtr=NULL;
   }
@@ -518,7 +534,6 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
   if (RetPtr==NULL)
   {
     LONG RetEnum = ERROR_SUCCESS;
-    char NewValue[1024];
     DWORD dwIndex = 0;
     DWORD dwKeySize = 0;
     FILETIME ftLastWriteTime;
@@ -535,6 +550,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
       strncat(Value, Action, sizeof(Value) - 1);
       RetPtr = Action;
       RetEnum = ERROR_NO_MORE_ITEMS;
+//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
     } /* if */
 
     // ... а теперь все остальное, если "open" нету
@@ -557,6 +573,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
         } /* if */
       } /* if */
     } /* while */
+//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
   } /* if */
   RegCloseKey(hKey);
 
@@ -567,28 +584,27 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     // а теперь проверим ГУЕвость запускаемой проги
     if (RegOpenKey(HKEY_CLASSES_ROOT,Value,&hKey)==ERROR_SUCCESS)
     {
-      char Command[2048];
-      ValueSize=sizeof(Command);
-      RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)Command,(LPDWORD)&ValueSize);
+      ValueSize=sizeof(NewValue);
+      RetQuery=RegQueryValueEx(hKey,"",NULL,NULL,(unsigned char *)NewValue,(LPDWORD)&ValueSize);
       RegCloseKey(hKey);
-      if(RetQuery == ERROR_SUCCESS)
+      if(RetQuery == ERROR_SUCCESS && *NewValue)
       {
         char *Ptr;
-        ExpandEnvironmentStr(Command,Command,sizeof(Command));
+        ExpandEnvironmentStr(NewValue,NewValue,sizeof(NewValue));
         // Выделяем имя модуля
-        if (*Command=='\"')
+        if (*NewValue=='\"')
         {
-          FAR_OemToChar(Command+1,Command);
-          if ((Ptr=strchr(Command,'\"'))!=NULL)
+          FAR_OemToChar(NewValue+1,NewValue);
+          if ((Ptr=strchr(NewValue,'\"'))!=NULL)
             *Ptr=0;
         }
         else
         {
-          FAR_OemToChar(Command,Command);
-          if ((Ptr=strpbrk(Command," \t/"))!=NULL)
+          FAR_OemToChar(NewValue,NewValue);
+          if ((Ptr=strpbrk(NewValue," \t/"))!=NULL)
             *Ptr=0;
         }
-        IsCommandPEExeGUI(Command,ImageSubsystem);
+        IsCommandPEExeGUI(NewValue,ImageSubsystem);
       }
       else
       {
@@ -598,6 +614,7 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
     }
   }
 
+//_SVS(SysLog("[%d] Action='%s' Value='%s'",__LINE__,Action,Value));
   return RetPtr;
 }
 
@@ -616,6 +633,8 @@ char* GetShellAction(const char *FileName,DWORD& ImageSubsystem,DWORD& Error)
 */
 int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWORD& ImageSubsystem)
 {
+  //_SVS(CleverSysLog clvrSLog("PrepareExecuteModule()"));
+  //_SVS(SysLog("Param: Command='%s'",Command));
   int Ret, I;
   char FileName[4096],FullName[4096], *Ptr;
   // int IsQuoted=FALSE;
@@ -1068,16 +1087,18 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   //while (IsSpace(*CmdPtr))
   //  CmdPtr++;
 
+  *ExecLine=0;
+
   if (ExitCode)
   {
     if (DirectRun && !SeparateWindow)
-      strcpy(ExecLine,CmdPtr);
+      strncpy(ExecLine,CmdPtr,sizeof(ExecLine)-1);
     else
     {
       if(ExecutorType)
       {
         if(ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
-          strcpy(ExecLine,NewCmdStr);
+          strncpy(ExecLine,NewCmdStr,sizeof(ExecLine)-1);
         else
         {
           char TemplExecute[512];
@@ -1116,9 +1137,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 //            ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
 
           strncpy(ExecLine,Fmt,sizeof(ExecLine)-1);
-          strcat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "));
-          strcat(ExecLine, NewCmdStr);
-          strcat(ExecLine, NewCmdPar);
+          strncat(ExecLine,(Fmt != TemplExecute && NT && *CmdPtr=='\"'?" \"\" ":" "),sizeof(ExecLine)-1);
+          strncat(ExecLine, NewCmdStr,sizeof(ExecLine)-1);
+          strncat(ExecLine, NewCmdPar,sizeof(ExecLine)-1);
           ExpandEnvironmentStr(ExecLine,ExecLine,sizeof(ExecLine));
           // </TODO>
           //_tran(SysLog("Execute: ExecLine [%s]",ExecLine);)
@@ -1127,7 +1148,8 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       else if (SeparateWindow != 2)
       {
 //        int Pipe=strpbrk(CmdPtr,"<>|")!=NULL;
-        sprintf(ExecLine,"%s /C",CommandName);
+        strncpy(ExecLine,CommandName,sizeof(ExecLine)-1);
+        strncat(ExecLine," /C",sizeof(ExecLine)-1);
         //_tran(SysLog("1. execline='%s'",ExecLine);)
 
         int QuoteAll = FALSE;
@@ -1139,28 +1161,28 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
         if (SeparateWindow)
         {
-          strcat(ExecLine," start");
+          strncat(ExecLine," start",sizeof(ExecLine)-1);
           if (AlwaysWaitFinish)
-            strcat(ExecLine," /wait");
+            strncat(ExecLine," /wait",sizeof(ExecLine)-1);
           if(PipeFound || QuoteAll)
-           sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
+            sprintf(ExecLine+strlen(ExecLine)," %s /C",CommandName);
           else if (NT && *CmdPtr=='\"')
-            strcat(ExecLine," \"\"");
+            strncat(ExecLine," \"\"",sizeof(ExecLine)-1);
 //          ReplaceStrings(NewCmdPar,"\"","\"\"",-1);
         }
 
-        strcat(ExecLine," ");
+        strncat(ExecLine," ",sizeof(ExecLine)-1);
         //_tran(SysLog("2. execline=[%s]",ExecLine);)
         //_tran(SysLog("3. cmdptr=[%s]",CmdPtr);)
 
-        if (QuoteAll) strcat(ExecLine, "\"");
-        strcat(ExecLine, CmdPtr);
-        strcat(ExecLine, NewCmdPar);
-        if (QuoteAll) strcat(ExecLine, "\"");
+        if (QuoteAll) strncat(ExecLine, "\"",sizeof(ExecLine)-1);
+        strncat(ExecLine, CmdPtr,sizeof(ExecLine)-1);
+        strncat(ExecLine, NewCmdPar,sizeof(ExecLine)-1);
+        if (QuoteAll) strncat(ExecLine, "\"",sizeof(ExecLine)-1);
         //_tran(SysLog("Execute: ExecLine2 [%s]",ExecLine);)
       }
     }
-_SVS(SysLog("ExecLine='%s'",ExecLine));
+//_SVS(SysLog("ExecLine='%s'",ExecLine));
     // если запуск через ShellExecuteEx(), то нефига ставить заголовок
     /* $ 22.03.2002 IS
          Для 9x параметр у SetConsoleTitle должен быть ANSI
@@ -1195,10 +1217,14 @@ _SVS(SysLog("ExecLine='%s'",ExecLine));
 
     if (SeparateWindow==2)
     {
+//_SVS(CleverSysLog clvrSLog("Execute() -> SeparateWindow==2"));
       char AnsiCmdStr[4096];
-      char AnsiCmdPar[4096];
-      FAR_OemToChar(CmdPtr, AnsiCmdStr);
-      FAR_OemToChar(NewCmdPar, AnsiCmdPar);
+      SHELLEXECUTEINFO SEInfo;
+      memset(&SEInfo,0,sizeof(SEInfo));
+
+      strncpy(AnsiCmdStr,CmdPtr,sizeof(AnsiCmdStr)-1);
+      FAR_OemToChar(AnsiCmdStr, AnsiCmdStr);
+      FAR_OemToChar(NewCmdPar, NewCmdPar);
 
       if (PointToName(AnsiCmdStr)==AnsiCmdStr && strcmp(AnsiCmdStr,".") && !TestParentFolderName(AnsiCmdStr))
       {
@@ -1215,9 +1241,8 @@ _SVS(SysLog("ExecLine='%s'",ExecLine));
       )
         strcat(AnsiCmdStr,".");
       // ???
+//_SVS(SysLog("[%d] AnsiCmdStr='%s'  Attr=0x%08X",__LINE__,AnsiCmdStr,Attr));
 
-      SHELLEXECUTEINFO SEInfo;
-      memset(&SEInfo,0,sizeof(SEInfo));
       SEInfo.lpVerb=(Attr&FILE_ATTRIBUTE_DIRECTORY)?NULL:GetShellAction((char *)AnsiCmdStr,ImageSubsystem,_LastErrCode);
       if(!_LastErrCode)
       {
@@ -1225,9 +1250,9 @@ _SVS(SysLog("ExecLine='%s'",ExecLine));
         SEInfo.fMask=SEE_MASK_NOCLOSEPROCESS|SEE_MASK_FLAG_DDEWAIT|SEE_MASK_FLAG_NO_UI;
         SEInfo.lpFile=AnsiCmdStr;
         SEInfo.nShow=SW_SHOWNORMAL;
-        if (AnsiCmdPar[0])
-          SEInfo.lpParameters = AnsiCmdPar;
-        SetFileApisTo(APIS2ANSI);
+        if (NewCmdPar[0])
+          SEInfo.lpParameters = NewCmdPar;
+#if 0
 _SVS(SysLog("SHELLEXECUTEINFO{"));
 _SVS(SysLog(" cbSize=       %d",SEInfo.cbSize));
 _SVS(SysLog(" fMask=        %08X",SEInfo.fMask));
@@ -1245,7 +1270,9 @@ _SVS(SysLog(" dwHotKey=     0x%08X",SEInfo.dwHotKey));
 _SVS(SysLog(" hIcon=        0x%08X",SEInfo.hIcon));
 _SVS(SysLog(" hProcess=     0x%08X (%d)",SEInfo.hProcess,SEInfo.hProcess));
 _SVS(SysLog("};"));
+#endif
 
+        SetFileApisTo(APIS2ANSI);
         ExitCode=ShellExecuteEx(&SEInfo);
         if(!ExitCode)
           _LastErrCode=GetLastError();

@@ -5,10 +5,12 @@ registry.cpp
 
 */
 
-/* Revision: 1.17 02.02.2004 $ */
+/* Revision: 1.18 18.05.2004 $ */
 
 /*
 Modify:
+  18.05.2004 SVS
+    ! чтобы баундчекер не матерился
   02.02.2004 SVS
     ! SetRegKey возвращают значения!
   12.05.2003 SVS
@@ -639,7 +641,7 @@ int EnumRegValue(const char *Key,DWORD Index,char *DestName,DWORD DestSize,LPBYT
 
 LONG CloseRegKey(HKEY hKey)
 {
-  if (hRegCurrentKey)
-    return(ERROR_SUCCESS);
+  if (hRegCurrentKey || !hKey)
+    return ERROR_SUCCESS;
   return(RegCloseKey(hKey));
 }
