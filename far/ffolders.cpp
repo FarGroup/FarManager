@@ -5,10 +5,12 @@ Folder shortcuts
 
 */
 
-/* Revision: 1.12 07.10.2003 $ */
+/* Revision: 1.13 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! убираем *_EDITPATH
   07.10.2003 SVS
     - Ошибочное сообщение об ошибке.
   29.04.2002 SVS
@@ -220,12 +222,12 @@ static int ShowFolderShortcutMenu(int Pos)
              Редактирование по F4 - считаем что ЭТО абс.файловый путь!
              TODO: потом добавим и работу с плагинами (возможно :-)
           */
-          char NewDir[NM], OldNewDir[NM];
+          char NewDir[NM*2], OldNewDir[NM*2];
           ProcessShortcutRecord(PSCR_CMDGET,PSCR_RT_SHORTCUT,SelPos,NewDir,sizeof(NewDir));
           strcpy(OldNewDir,NewDir);
 
           if (GetString(MSG(MFolderShortcutsTitle),MSG(MEnterShortcut),NULL,
-                        NewDir,NewDir,sizeof(NewDir),HelpFolderShortcuts,FIB_EDITPATH) &&
+                        NewDir,NewDir,sizeof(NewDir),HelpFolderShortcuts,0/*|FIB_EDITPATH*/) &&
               strcmp(NewDir,OldNewDir) != 0)
           {
             Unquote(NewDir);

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.207 02.11.2004 $ */
+/* Revision: 1.208 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! убираем *_EDITPATH
   02.11.2004 SVS
     - При быстром нажатии на колесо мыши на панелях второе нажатие терялось.
   06.08.2004 SKV
@@ -1348,11 +1350,9 @@ int FileList::ProcessKey(int Key)
     case KEY_CTRLENTER:
     case KEY_CTRLJ:
     case KEY_CTRLF:
-    /* $ 29.01.2001 VVM
-      + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
+    /* 29.01.2001 VVM + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
     case KEY_CTRLALTF:
     {
-    /* VVM $ */
       if (FileCount>0 && SetCurPath())
       {
         char FileName[2048];
@@ -1470,6 +1470,8 @@ int FileList::ProcessKey(int Key)
             SrcPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
             break;
         }
+
+        /* TODO: Здесь нужно учесть, что у TreeList тоже есть путь :-) */
         if (SrcPanel->GetType()!=FILE_PANEL)
           return(FALSE);
 
@@ -1690,7 +1692,7 @@ int FileList::ProcessKey(int Key)
         int Edit=(Key==KEY_F4 || Key==KEY_ALTF4 || Key==KEY_SHIFTF4 || Key==KEY_CTRLSHIFTF4);
         BOOL Modaling=FALSE; ///
         int UploadFile=TRUE;
-        char FileName[NM],ShortFileName[NM],PluginData[NM*2];
+        char FileName[NM*2],ShortFileName[NM],PluginData[NM*2];
 
         int PluginMode=PanelMode==PLUGIN_PANEL &&
             !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
@@ -1713,7 +1715,7 @@ int FileList::ProcessKey(int Key)
 
         if (Key==KEY_SHIFTF4)
         {
-          static char LastFileName[NM]="";
+          static char LastFileName[NM*2]="";
           /* $ 02.06.2001 KM
              + Ну уж так народ настаивает на кнопках в диалоге...
           */
@@ -1728,7 +1730,7 @@ int FileList::ProcessKey(int Key)
                          LastFileName,
                          sizeof(LastFileName),
                          NULL,
-                         FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH|FIB_ENABLEEMPTY))
+                         FIB_BUTTONS|FIB_EXPANDENV/*|FIB_EDITPATH*/|FIB_ENABLEEMPTY))
             return(FALSE);
           /* SVS $ */
           /* KM $ */

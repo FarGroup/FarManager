@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.123 10.10.2004 $ */
+/* Revision: 1.124 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! сделаем однообразную обработку "modify-]", "modify-[" и Ctrl-[Shift-]Enter
   10.10.2004 KM
     - Bug #1131 (1165) - после исправления Bug #1122 привнесён баг с невозможностью
       выйти за пределы строки в редакторе при установленном Cursor beyond end of line.
@@ -893,25 +895,21 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
             SrcPanel->GetCurName(PathName,ShortFileName);
             if(SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
               strcpy(PathName,ShortFileName);
+
+            if(Opt.QuotedName&QUOTEDNAME_INSERT)
+              QuoteSpace(PathName);
+            strncat(PathName," ",sizeof(PathName)-1);
           }
           else
           {
             SrcPanel->GetCurDir(PathName);
             if (SrcPanel->GetMode()!=PLUGIN_PANEL)
             {
+              FileList *SrcFilePanel=(FileList *)SrcPanel;
+              SrcFilePanel->GetCurDir(PathName);
               if(NeedRealName)
-              {
-                char uni[1024];
-                DWORD uniSize = sizeof(uni);
-                if (WNetGetUniversalName(PathName, UNIVERSAL_NAME_INFO_LEVEL,
-                                             &uni, &uniSize) == NOERROR)
-                {
-                  UNIVERSAL_NAME_INFO *lpuni = (UNIVERSAL_NAME_INFO *)&uni;
-                  xstrncpy(PathName, lpuni->lpUniversalName, sizeof(PathName)-1);
-                }
-                ConvertNameToReal(PathName,PathName, sizeof(PathName));
-              }
-              if (SrcPanel->GetShowShortNamesMode())
+                SrcFilePanel->CreateFullPathName(PathName,PathName,FA_DIREC,PathName,sizeof(PathName)-1,TRUE);
+              if (SrcFilePanel->GetShowShortNamesMode())
                 ConvertNameToShort(PathName,PathName);
             }
             else

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.158 17.09.2004 $ */
+/* Revision: 1.159 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! убираем *_EDITPATH
   17.09.2004 SVS
     ! Если файл не изменен (!FEDITOR_MODIFIED), то не производим апдейт панелей.
   06.08.2004 SKV
@@ -1204,7 +1206,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
             {
               /* 0 */ DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditTitle,
               /* 1 */ DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSaveAs,
-              /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITPATH,0,"",
+              /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY/*|DIF_EDITPATH*/,0,"",
               /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
               /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
               /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,

@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.45 06.08.2004 $ */
+/* Revision: 1.46 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! избавимся от варнинга под VC
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   08.06.2004 SVS
@@ -164,7 +166,9 @@ Modify:
 // These tags need to avoid conflicting with IO_REMOUNT defined in ntos\inc\io.h
 #define IO_REPARSE_TAG_RESERVED_ZERO             (0)
 #define IO_REPARSE_TAG_RESERVED_ONE              (1)
+#ifndef IO_REPARSE_TAG_MOUNT_POINT
 #define IO_REPARSE_TAG_MOUNT_POINT               (0xA0000003)
+#endif
 
 // The value of the following constant needs to satisfy the following conditions:
 //  (1) Be at least as large as the largest of the reserved tags.

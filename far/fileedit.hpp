@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.39 28.04.2004 $ */
+/* Revision: 1.40 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! נאסרטנוםטו נאחלונמג טלום פאיכמג
   28.04.2004 SVS
     + ReProcessKey()
   22.04.2004 SVS
@@ -167,8 +169,8 @@ class FileEditor:public Frame
     /* $ 07.05.2001 DJ */
     NamesList *EditNamesList;
     /* DJ $ */
-    char FileName[NM];
-    char FullFileName[NM];
+    char FileName[NM*2];
+    char FullFileName[NM*2];
     char StartDir[NM];
     char NewTitle[NM];
 

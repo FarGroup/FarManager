@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.137 06.08.2004 $ */
+/* Revision: 1.138 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! убираем *_EDITPATH
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   26.07.2004 SVS
@@ -538,10 +540,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
        CopyDlgValue - в этой переменной храним заветную строчку из диалога,
        именно эту переменную всячески измененяем, а CopyDlg[2].Data не трогаем.
   */
-  char CopyStr[100],SelName[NM],CopyDlgValue[NM];
-  char DestDir[NM],InitDestDir[NM],SrcDir[NM];
+  char CopyStr[100],SelName[NM*2],CopyDlgValue[NM*2];
+  char DestDir[NM*2],InitDestDir[NM*2],SrcDir[NM*2];
   /* IS $ */
-  char SelNameShort[NM];
+  char SelNameShort[NM*2];
   int DestPlugin;
   int AddSlash=FALSE;
 
@@ -636,7 +638,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   static struct DialogData CopyDlgData[]={
   /* 00 */  DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,5,2,0,2,0,0,0,0,(char *)MCMLTargetTO,
-  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY|DIF_EDITPATH,0,"",
+  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY/*|DIF_EDITPATH*/,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */  DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
   /* 05 */  DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCopyOnlyNewerFiles,

@@ -5,10 +5,12 @@ mkdir.cpp
 
 */
 
-/* Revision: 1.19 06.08.2004 $ */
+/* Revision: 1.20 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    ! убираем *_EDITPATH
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   27.10.2003 SVS
@@ -80,7 +82,7 @@ void ShellMakeDir(Panel *SrcPanel)
      + Маленькая модификация: добавлены кнопки [ OK ] и [ Cancel ]
        в диалог создания каталога
   */
-  char DirName[NM], OriginalDirName[NM];
+  char DirName[NM*2], OriginalDirName[NM*2];
   *DirName=0;
   /* $ 15.08.2002 IS запретить дубли */
   UserDefinedList DirList(0,0,ULF_UNIQUE);
@@ -94,7 +96,7 @@ void ShellMakeDir(Panel *SrcPanel)
   {
     if (!GetString(MSG(MMakeFolderTitle),MSG(MCreateFolder),"NewFolder",
          DirName,DirName,sizeof(DirName),"MakeFolder",
-         FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX|FIB_EDITPATH,&MultiMakeDir,
+         FIB_NOAMPERSAND|FIB_BUTTONS|FIB_EXPANDENV|FIB_CHECKBOX/*|FIB_EDITPATH*/,&MultiMakeDir,
          MSG(MMultiMakeDir)))
       return;
 

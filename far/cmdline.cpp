@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.74 25.10.2004 $ */
+/* Revision: 1.75 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    - Alt+F11 F3/F4: по ф3 ничего не происходит, по ф4 - просмотр
   25.10.2004 SVS
     + Реакция на Ctrl-Shift-Enter в истории папок - перейти в папку на пассивной панели
   06.08.2004 SKV
@@ -404,15 +406,15 @@ int CommandLine::ProcessKey(int Key)
                         1 - Enter
                         2 - Shift-Enter
                         3 - Ctrl-Enter
-                        4 - Ctrl-Shift-Enter - на пассивную панель со сменой позиции
+                        6 - Ctrl-Shift-Enter - на пассивную панель со сменой позиции
         */
-        if (SelectType == 1 || SelectType == 2 || SelectType == 4)
+        if (SelectType == 1 || SelectType == 2 || SelectType == 6)
         {
           if (SelectType==2)
             CtrlObject->FolderHistory->SetAddMode(FALSE,2,TRUE);
           // пусть плагин сам прыгает... ;-)
           Panel *Panel=CtrlObject->Cp()->ActivePanel;
-          if(SelectType == 4)
+          if(SelectType == 6)
             Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
 
           if(Panel->GetMode() == PLUGIN_PANEL ||

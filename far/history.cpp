@@ -5,10 +5,12 @@ history.cpp
 
 */
 
-/* Revision: 1.33 25.10.2004 $ */
+/* Revision: 1.34 04.11.2004 $ */
 
 /*
 Modify:
+  04.11.2004 SVS
+    - Alt+F11 F3/F4: по ф3 ничего не происходит, по ф4 - просмотр
   25.10.2004 SVS
     + Реакция на Ctrl-Shift-Enter
   06.08.2004 SKV
@@ -626,7 +628,7 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
           {
             HistoryMenu.Modal::SetExitCode(StrPos);
             Done=TRUE;
-            RetCode=Key==KEY_CTRLSHIFTENTER?4:(Key==KEY_SHIFTENTER?2:3);
+            RetCode=Key==KEY_CTRLSHIFTENTER?6:(Key==KEY_SHIFTENTER?2:3);
             break;
           }
 
@@ -709,11 +711,11 @@ int History::Select(const char *Title,const char *HelpTopic,char *Str,int StrLen
   if(LastStr[StrPos].Name)
     xstrncpy(Str,LastStr[StrPos].Name,StrLength-1);
 
-  if(RetCode < 5)
+  if(RetCode < 4 || RetCode == 6)
     Type=LastStr[StrPos].Type;
   else
   {
-    Type=RetCode-5; //????
+    Type=RetCode-4; //????
     if(Type == 1 && LastStr[StrPos].Type == 4) //????
       Type=4;                                  //????
     RetCode=1;
