@@ -5,10 +5,12 @@ Parent class для модальных объектов
 
 */
 
-/* Revision: 1.08 14.06.2001 $ */
+/* Revision: 1.09 20.02.2002 $ */
 
 /*
 Modify:
+  20.02.2002 OT
+    - BugZ#314 - Shift-Enter на папке меняет путь заголовок окна
   14.06.2001 OT
     ! "Бунт" ;-)
   16.05.2001 DJ
@@ -34,6 +36,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "global.hpp"
 #include "modal.hpp"
 #include "fn.hpp"
 #include "help.hpp"
@@ -69,6 +72,9 @@ int Modal::ReadInput()
   }
   else
     ReadKey=GetInputRecord(&ReadRec);
+  if (CloseFAR){
+    SetExitCode(TRUE);
+  }
   return(ReadKey);
 }
 

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.64 14.02.2002 $ */
+/* Revision: 1.65 20.02.2002 $ */
 
 /*
 Modify:
+  20.02.2002 OT
+    - BugZ#314 - Shift-Enter на папке меняет путь заголовок окна
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   05.02.2002 SVS
@@ -498,7 +500,7 @@ int GetInputRecord(INPUT_RECORD *rec)
 
     if (CloseFAR)
     {
-      CloseFAR=FALSE;
+//      CloseFAR=FALSE;
       /* $ 30.08.2001 IS
          При принудительном закрытии Фара пытаемся вести себя так же, как и при
          нажатии на F10 в панелях, только не запрашиваем подтверждение закрытия,
