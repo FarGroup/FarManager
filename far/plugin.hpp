@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.30 28.08.2000 $ */
+/* Revision: 1.31 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    + Плагин может запросить "месаг" из FAR*.LNG, для этого
+      небходимо к MsgId (в функции GetMsg)добавить флаг FMI_GETFARMSGID
   28.08.2000 SVS
     + SFS-функции аля Local*
     ! уточнение для FARSTDQSORT - явное указание __cdecl для функции сравнения
@@ -275,6 +278,13 @@ typedef int (WINAPI *FARAPIMESSAGE)(
   int ItemsNumber,
   int ButtonsNumber
 );
+
+/* $ 29.08.2000 SVS
+   + Плагин может запросить "месаг" из FAR*.LNG, для этого
+     небходимо к MsgId добавить флаг FMI_GETFARMSGID
+*/
+#define FMI_GETFARMSGID	0x100000
+/* SVS $*/
 
 typedef char* (WINAPI *FARAPIGETMSG)(
   int PluginNumber,

@@ -5,10 +5,13 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.15 24.08.2000 $ */
+/* Revision: 1.16 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+    ! Если PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), то подразумеваем, что
+      хотим использовать "месаги" из САМОГО far*.lng
   24.08.2000 SVS
     + ACTL_WAITKEY - ожидать определенную (или любую) клавишу
   23.08.2000 SVS
@@ -341,20 +344,31 @@ char* WINAPI FarGetMsgFn(int PluginNumber,int MsgId)
   return(CtrlObject->Plugins.FarGetMsg(PluginNumber,MsgId));
 }
 
-
+/* $ 29.08.2000 SVS
+  ! Если PluginStartupInfo.GetMsg(?,N|FMI_GETFARMSGID), то подразумеваем, что
+    хотим использовать "месаги" из САМОГО far*.lng
+*/
 char* PluginsSet::FarGetMsg(int PluginNumber,int MsgId)
 {
-  if (PluginNumber<PluginsCount)
+  if(MsgId&FMI_GETFARMSGID)
   {
-    struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
-    char Path[NM];
-    strcpy(Path,CurPlugin->ModuleName);
-    *PointToName(Path)=0;
-    if (CurPlugin->Lang.Init(Path))
-      return(CurPlugin->Lang.GetMsg(MsgId));
+     return FarMSG(MsgId&(~FMI_GETFARMSGID));
   }
-  return("");
+  else
+  {
+    if (PluginNumber<PluginsCount)
+    {
+      struct PluginItem *CurPlugin=&PluginsData[PluginNumber];
+      char Path[NM];
+      strcpy(Path,CurPlugin->ModuleName);
+      *PointToName(Path)=0;
+      if (CurPlugin->Lang.Init(Path))
+        return(CurPlugin->Lang.GetMsg(MsgId));
+    }
+    return("");
+  }
 }
+/* SVS $ */
 
 
 int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,

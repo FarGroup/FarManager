@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.31 28.08.2000 $ */
+/* Revision: 1.32 29.08.2000 $ */
 
 /*
 Modify:
+  29.08.2000 SVS
+   - Первый официальный альфа-баг - функция ProcessHighlighting
+     MY> Работа с диалогами стала ГЛЮЧНАЯ. Я имею в виду горячие клавиши.
+     MY> Входим в настройку чего угодно, жмем Alt-нужную букву и
+     MY> наблюдаем разнообразные глюки.
   28.08.2000 SVS
    - баг рук кривых (или не внимательности!) :-)
   25.08.2000 SVS
@@ -2540,8 +2545,16 @@ int Dialog::ProcessHighlighting(int Key,int FocusPos,int Translate)
             I=ChangeFocus(I,1,FALSE);
             DisableSelect=TRUE;
           }
-        Item[FocusPos].Focus=0;
-        Item[I].Focus=1;
+        /* $ 29.08.2000 SVS
+           - Первый официальный альфа-баг - функция ProcessHighlighting
+           MY> Работа с диалогами стала ГЛЮЧНАЯ. Я имею в виду горячие клавиши.
+           MY> Входим в настройку чего угодно, жмем Alt-нужную букву и
+           MY> наблюдаем разнообразные глюки.
+
+           А ларчик просто открывался :-)))
+        */
+        ChangeFocus2(FocusPos,I);
+        /* SVS $ */
         if ((Item[I].Type==DI_CHECKBOX || Item[I].Type==DI_RADIOBUTTON) &&
             (!DisableSelect || (Item[I].Flags & DIF_MOVESELECT)))
         {
