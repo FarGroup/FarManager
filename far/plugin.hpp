@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.192 13.03.2002 $ */
+/* Revision: 1.193 23.03.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  23.03.2002 IS
+    + ESPT_LOCKMODE
   13.02.2002 SVS
     + FIB_NOAMPERSAND
   27.02.2002 SVS
@@ -1756,7 +1758,8 @@ enum EDITOR_SETPARAMETER_TYPES {
   ESPT_CURSORBEYONDEOL,
   ESPT_CHARCODEBASE,
   ESPT_CHARTABLE,
-  ESPT_SAVEFILEPOSITION
+  ESPT_SAVEFILEPOSITION,
+  ESPT_LOCKMODE
 };
 
 struct EditorSetParameter

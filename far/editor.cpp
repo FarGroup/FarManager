@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.165 23.03.2002 $ */
+/* Revision: 1.166 23.03.2002 $ */
 
 /*
 Modify:
+  23.03.2002 IS
+    + ESPT_LOCKMODE - запретить/отменить изменение файла из плагина
   23.03.2002 VVM
     + Прокрутка на 1 позиция с нажатым Альт. (Мышиное колесо)
   19.03.2002 SVS
@@ -5749,6 +5751,11 @@ int Editor::EditorControl(int Command,void *Param)
           /* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
           case ESPT_SAVEFILEPOSITION:
             SetSavePosMode(espar->Param.iParam, -1);
+            break;
+          /* IS $ */
+          /* $ 23.03.2002 IS запретить/отменить изменение файла */
+          case ESPT_LOCKMODE:
+            EFlags.Change(FEDITOR_LOCKMODE, espar->Param.iParam);
             break;
           /* IS $ */
           default:
