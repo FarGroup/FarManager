@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.32 27.09.2000 $ */
+/* Revision: 1.33 09.10.2000 $ */
 
 /*
 Modify:
+  09.10.2000 IS
+    + Новые функции для обработки имени файла: ProcessName, ConvertWildcards
   27.09.2000 skv
    + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
   24.09.2000 SVS
@@ -650,6 +652,122 @@ int CmpName(char *pattern,char *string,int skippath)
     }
   }
 }
+
+/* $ 09.10.2000 IS
+    Генерация нового имени по маске
+    (взял из ShellCopy::ShellCopyConvertWildcards)
+*/
+// На основе имени файла (Src) и маски (Dest) генерируем новое имя
+// SelectedFolderNameLength - длина каталога. Например, есть
+// каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
+// Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
+// или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
+int ConvertWildcards(char *Src,char *Dest, int SelectedFolderNameLength)
+{
+  char WildName[2*NM],*CurWildPtr,*DestNamePtr,*SrcNamePtr;
+  char PartBeforeName[NM],PartAfterFolderName[NM];
+  DestNamePtr=PointToName(Dest);
+  strcpy(WildName,DestNamePtr);
+  if (strchr(WildName,'*')==NULL && strchr(WildName,'?')==NULL)
+    return(FALSE);
+
+  if (SelectedFolderNameLength!=0)
+  {
+    strcpy(PartAfterFolderName,Src+SelectedFolderNameLength);
+    Src[SelectedFolderNameLength]=0;
+  }
+
+  SrcNamePtr=PointToName(Src);
+
+  int BeforeNameLength=DestNamePtr==Dest ? SrcNamePtr-Src:0;
+  strncpy(PartBeforeName,Src,BeforeNameLength);
+  PartBeforeName[BeforeNameLength]=0;
+
+  char *SrcNameDot=strrchr(SrcNamePtr,'.');
+  CurWildPtr=WildName;
+  while (*CurWildPtr)
+    switch(*CurWildPtr)
+    {
+      case '?':
+        CurWildPtr++;
+        if (*SrcNamePtr)
+          *(DestNamePtr++)=*(SrcNamePtr++);
+        break;
+      case '*':
+        CurWildPtr++;
+        while (*SrcNamePtr)
+        {
+          if (*CurWildPtr=='.' && SrcNameDot!=NULL && strchr(CurWildPtr+1,'.')==NULL)
+          {
+            if (SrcNamePtr==SrcNameDot)
+              break;
+          }
+          else
+            if (*SrcNamePtr==*CurWildPtr)
+              break;
+          *(DestNamePtr++)=*(SrcNamePtr++);
+        }
+        break;
+      case '.':
+        CurWildPtr++;
+        *(DestNamePtr++)='.';
+        if (strpbrk(CurWildPtr,"*?")!=NULL)
+          while (*SrcNamePtr)
+            if (*(SrcNamePtr++)=='.')
+              break;
+        break;
+      default:
+        *(DestNamePtr++)=*(CurWildPtr++);
+        if (*SrcNamePtr && *SrcNamePtr!='.')
+          SrcNamePtr++;
+        break;
+    }
+
+  *DestNamePtr=0;
+  if (DestNamePtr!=Dest && *(DestNamePtr-1)=='.')
+    *(DestNamePtr-1)=0;
+  if (*PartBeforeName)
+  {
+    strcat(PartBeforeName,Dest);
+    strcpy(Dest,PartBeforeName);
+  }
+  if (SelectedFolderNameLength!=0)
+    strcat(Src,PartAfterFolderName);
+  return(TRUE);
+}
+/* IS $ */
+
+/* $ 09.10.2000 IS
+    + Новая функция для обработки имени файла
+*/
+// обработать имя файла: сравнить с маской, масками, сгенерировать по маске
+int WINAPI ProcessName(char *param1, char *param2, int flags)
+{
+ int skippath=flags&PN_SKIPPATH;
+
+ if(flags&PN_CMPNAME)
+    return CmpName(param1, param2, skippath);
+
+ if(flags&PN_CMPNAMELIST)
+ {
+  int Found=FALSE;
+  static char FileMask[NM],*MaskPtr;
+  MaskPtr=param1;
+  while ((MaskPtr=GetCommaWord(MaskPtr,FileMask))!=NULL)
+  if (CmpName(FileMask,param2,skippath))
+  {
+    Found=TRUE;
+    break;
+  }
+  return Found;
+ }
+
+ if(flags&PN_GENERATENAME)
+    return ConvertWildcards(param1, param2, flags & 0xFF);
+
+ return FALSE;
+}
+/* IS $ */
 
 /*
 void ShowHeap()

@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.32 27.09.2000 $ */
+/* Revision: 1.33 12.10.2000 $ */
 
 /*
 Modify:
+  12.10.2000 IS
+    + Указатель на ProcessName в StandardFunctions
   27.09.2000 SVS
     + Указатель на текущий Viewer
     + ProcessViewerEvent
@@ -567,6 +569,12 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     StandardFunctions.DeleteBuffer=DeleteBuffer;
     /* skv$*/
+    /* $ 12.10.2000 IS
+      + ProcessName - обработать имя файла: сравнить с маской, масками,
+        сгенерировать по маске
+    */
+    StandardFunctions.ProcessName=ProcessName;
+    /* IS $ */
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
     StartupInfo.ModuleNumber=ModuleNumber;

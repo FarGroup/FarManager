@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.33 27.09.2000 $ */
+/* Revision: 1.34 09.10.2000 $ */
 
 /*
 Modify:
+  09.10.2000 IS
+   + ProcessName
   27.09.2000 SVS
    + FarViewerControl
   27.09.2000 skv
@@ -221,6 +223,12 @@ int ToPercent(unsigned long N1,unsigned long N2);
 int IsMouseButtonPressed();
 int CmpName(char *pattern,char *string,int skippath=TRUE);
 int CheckForEsc();
+/* $ 09.10.2000 IS
+    + Новая функция для обработки имени файла
+*/
+// обработать имя файла: сравнить с маской, масками, сгенерировать по маске
+int WINAPI ProcessName(char *param1, char *param2, int flags);
+/* IS $ */
 void ShowHeap();
 void CheckHeap(int NumLine=0);
 char* QuoteSpace(char *Str);

@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.59 27.09.2000 $ */
+/* Revision: 1.60 09.10.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  09.10.2000 IS
+    + Флаги для ProcessName (PN_*)
+    + Указатель в FARSTANDARDFUNCTIONS на ProcessName;
   27.09.2000 SVS
     + VCTL_QUIT      - закрыть вьювер
     + VCTL_GETINFO   - получение информации о Viewer
@@ -293,6 +296,12 @@ enum {
   FMENU_REVERSEAUTOHIGHLIGHT=8
 };
 
+enum {
+ PN_CMPNAME=0,
+ PN_CMPNAMELIST=0x1000UL,
+ PN_GENERATENAME=0x2000UL,
+ PN_SKIPPATH=0x100000UL
+};
 
 typedef int (WINAPI *FARAPIMENU)(
   int                 PluginNumber,
@@ -899,6 +908,7 @@ typedef void    (WINAPI *FARSTDLOCALSTRUPR)(char *s1);
 typedef void    (WINAPI *FARSTDLOCALSTRLWR)(char *s1);
 typedef int     (WINAPI *FARSTDLOCALSTRICMP)(char *s1,char *s2);
 typedef int     (WINAPI *FARSTDLOCALSTRNICMP)(char *s1,char *s2,int n);
+typedef int     (WINAPI *FARSTDPROCESSNAME)(char *param1, char *param2, int flags);
 
 enum XLATMODE{
   XLAT_SWITCHKEYBLAYOUT = 0x0000001UL,
@@ -969,6 +979,7 @@ typedef struct FarStandardFunctions
   FARSTDRECURSIVESEARCH      FarRecursiveSearch;
   FARSTDMKTEMP               MkTemp;
   FARSTDDELETEBUFFER         DeleteBuffer;
+  FARSTDPROCESSNAME          ProcessName;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
