@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.121 03.01.2002 $ */
+/* Revision: 1.122 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    ! SEARCH_ROOT -> SEARCH_FROM_CURRENT
   03.01.2001 IS
     ! Устранение "двойного отрицания" в EditorConfig
   03.01.2002 SVS
@@ -1248,7 +1250,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeySystem,"InactivityExitTime",&Opt.InactivityExitTime,15, 0},
   {1, REG_DWORD,  NKeySystem,"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS, 0},
   {1, REG_DWORD,  NKeySystem,"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
-  {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FileSearchMode,SEARCH_ROOT, 0},
+  {1, REG_DWORD,  NKeySystem,"FileSearchMode",&Opt.FileSearchMode,SEARCH_FROM_CURRENT, 0},
   {1, REG_SZ,     NKeySystem,"FolderInfo",Opt.FolderInfoFiles,sizeof(Opt.FolderInfoFiles),"DirInfo,File_Id.diz,Descript.ion,ReadMe,Read.Me,ReadMe.txt,ReadMe.*"},
   {0, REG_DWORD,  NKeySystem,"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
   {0, REG_DWORD,  NKeySystem,"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},

@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.29 15.01.2002 $ */
+/* Revision: 1.30 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - Тот же самый BugZ#238. Немного увеличим буфера (до 4096 размер под FullPath)
   15.01.2002 SVS
     - Не исполняется "C:\Program Files\Far\Far.exe" "C:\Program Files\Far\Plugins"
   14.01.2002 IS
@@ -568,7 +570,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
   PROCESS_INFORMATION pi;
   int Visible,Size;
   int PrevLockCount;
-  char ExecLine[2048],CommandName[NM];
+  char ExecLine[4096],CommandName[NM];
   char OldTitle[512];
   DWORD GUIType;
   int ExitCode=1;
@@ -765,7 +767,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
       if (PointToName(AnsiLine)==AnsiLine)
       {
-        char FullName[2*NM];
+        char FullName[4096];
         sprintf(FullName,".\\%s",AnsiLine);
         strcpy(AnsiLine,FullName);
       }

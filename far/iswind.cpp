@@ -5,10 +5,14 @@ iswind.cpp
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    ! Немного другая математика поиска заголовка (ищем как часть заголовка)
+      Почему? К Сергею Обломову UIN: 12411939 (есть у него интересная фишка,
+      не плагин!)
   06.05.2001 DJ
     ! перетрях #include
   19.01.2001 VVM
@@ -46,6 +50,21 @@ void DetectWindowedMode()
     WindowedMode=!IsIconic(hFarWnd);
 }
 
+BOOL CALLBACK IsWindowedEnumProc2(HWND hwnd,LPARAM FARTitl)
+{
+  char Title[256];
+
+  if (GetConsoleTitle(Title, sizeof(Title)))
+  {
+    if(strstr(Title,(char *)FARTitl))
+    {
+      hFarWnd=hwnd;
+      return(FALSE);
+    }
+  }
+  return(TRUE);
+}
+
 /* $ 19.01.2001 VVM
     + Если не нашли ФАР по pid, то ищем по уникальному заголовку окна */
 void FindFarWndByTitle()
@@ -53,10 +72,12 @@ void FindFarWndByTitle()
   char OldTitle[256];
   char NewTitle[256];
 
-  if (GetConsoleTitle(OldTitle, sizeof(OldTitle))) {
+  if (GetConsoleTitle(OldTitle, sizeof(OldTitle)))
+  {
     sprintf(NewTitle,"%d - %s",clock(),OldTitle);
     SetConsoleTitle(NewTitle);
-    hFarWnd = FindWindow(NULL,NewTitle);
+    //hFarWnd = FindWindow(NULL,NewTitle);
+    EnumWindows(IsWindowedEnumProc2,(LPARAM)NewTitle);
     SetConsoleTitle(OldTitle);
   } /* if */
 } /* void FindFarWndByTitle */

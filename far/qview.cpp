@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.22 24.12.2001 $ */
+/* Revision: 1.23 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    ! уточнение кейбара для варианта с каталогом (косметика)
   24.12.2001
     + virtual int GetCurName(char *Name,char *ShortName) - текущий просматриваемый файл
   08.12.2001 IS
@@ -591,6 +593,8 @@ void QuickView::DynamicUpdateKeyBar()
     KB->Change ("", 4-1);
     KB->Change ("", 8-1);
     KB->Change (KBL_SHIFT, "", 2-1);
+    KB->Change (KBL_SHIFT, "", 8-1);
+    KB->Change (KBL_ALT, MSG(MAltF8), 8-1); // стандартный для панели - "хистори"
   }
   else {
     if (QView->GetHexMode())

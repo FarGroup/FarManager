@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.82 14.01.2002 $ */
+/* Revision: 1.83 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - Вах. Забыли поставить "return TRUE" в FileEditor::SetFileName()
   15.01.2002 SVS
     ! Первая серия по отучиванию класса Editor слову "Файл"
     + FileEditor::EditorControl() - первая стадия по отучению класса Editor
@@ -1115,6 +1117,7 @@ BOOL FileEditor::SetFileName(const char *NewFileName)
     return FALSE;
   }
   strncpy(FileName,NewFileName,sizeof(FileName)-1);
+  return TRUE;
 }
 
 int FileEditor::EditorControl(int Command,void *Param)

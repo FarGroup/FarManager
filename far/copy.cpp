@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.63 14.01.2002 $ */
+/* Revision: 1.64 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - подлянка с FILE_ATTRIBUTE_ENCRYPTED
   14.01.2002 IS
     ! chdir -> FarChDir
   28.12.2001 SVS
@@ -747,6 +749,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     }
   }
 
+#if 1
   SrcPanel->Update(UPDATE_KEEP_SELECTION);
   if (CDP.SelCount==1 && *RenamedName)
     SrcPanel->GoToFile(RenamedName);
@@ -754,14 +757,22 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   AnotherPanel->SortFileList(TRUE);
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 
+  if(SrcPanelMode == PLUGIN_PANEL)
+    SrcPanel->SetPluginModified();
+
   CtrlObject->Cp()->Redraw();
-  /*
+#else
+
+  SrcPanel->Update(UPDATE_KEEP_SELECTION);
+  if (CDP.SelCount==1 && *RenamedName)
+    SrcPanel->GoToFile(RenamedName);
+
   SrcPanel->Redraw();
 
   AnotherPanel->SortFileList(TRUE);
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   AnotherPanel->Redraw();
-  */
+#endif
 }
 
 
@@ -3003,7 +3014,8 @@ int ShellCopy::ShellSetAttr(char *Dest,DWORD Attr)
     SetFileAttributes(Dest,Attr);
     // При копировании/переносе выставляем FILE_ATTRIBUTE_ENCRYPTED
     // для каталога, если он есть
-    if((Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
+    if((FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION) &&
+        (Attr&(FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY)) == (FILE_ATTRIBUTE_ENCRYPTED|FILE_ATTRIBUTE_DIRECTORY))
       if(!ESetFileEncryption(Dest,1,0))
         return FALSE;
     return TRUE;

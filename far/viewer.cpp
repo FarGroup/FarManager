@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.87 14.01.2002 $ */
+/* Revision: 1.88 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    ! Для масдая убираем FILE_SHARE_DELETE - бага имеет место быть
   14.01.2002 IS
     ! chdir -> FarChDir
     ! Файл открывается с флагом FILE_SHARE_DELETE
@@ -487,15 +489,19 @@ int Viewer::OpenFile(const char *Name,int warning)
     NewViewFile=NULL;
 
     DWORD Flags=0;
+    DWORD ShareMode=FILE_SHARE_READ|FILE_SHARE_WRITE;
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
+    {
       Flags|=FILE_FLAG_POSIX_SEMANTICS;
+      ShareMode|=FILE_SHARE_DELETE;
+    }
 
     HANDLE hView=CreateFile(Name,GENERIC_READ,
-                            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+                            ShareMode,
                             NULL,OPEN_EXISTING,Flags,NULL);
     if (hView==INVALID_HANDLE_VALUE && Flags!=0)
       hView=CreateFile(Name,GENERIC_READ,
-                       FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
+                       ShareMode,
                        NULL,OPEN_EXISTING,0,NULL);
     if (hView!=INVALID_HANDLE_VALUE)
     {

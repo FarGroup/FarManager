@@ -7,10 +7,12 @@ infolist.hpp
 
 */
 
-/* Revision: 1.05 02.01.2002 $ */
+/* Revision: 1.06 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    + DizPresent
   02.01.2002 IS
     + GetCurName
   06.05.2001 DJ
@@ -62,6 +64,7 @@ class InfoList:public Panel
   private:
     DizViewer *DizView;
     int  PrevMacroMode;
+    int  DizPresent;
     int  OldWrapMode;
     int  OldWrapType;
     char DizFileName[NM];

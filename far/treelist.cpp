@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.32 14.01.2002 $ */
+/* Revision: 1.33 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - BugZ#249 - Ќепрорисовка при создании дерева
+    - Ѕага - не отрисовывалась текущий каталог в поз. (Y2-1)
   14.01.2002 IS
     ! chdir -> FarChDir
   28.12.2001 DJ
@@ -264,19 +267,12 @@ void TreeList::DisplayTree(int Fast)
     ScrollBar(X2,Y1+1,Y2-Y1-3,CurFile,TreeCount>1 ? TreeCount-1:TreeCount);
   }
   SetColor(COL_PANELTEXT);
+
+  SetScreen(X1+1,Y2-2,X2-1,Y2-1,' ',COL_PANELTEXT);
   if (TreeCount>0)
   {
     GotoXY(X1+1,Y2-1);
     mprintf("%-*.*s",X2-X1-1,X2-X1-1,ListData[CurFile].Name);
-  }
-  else
-    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT); //mprintf("%*s",X2-X1-1,"");
-
-  if (ModalMode)
-  {
-    SetScreen(X1+1,Y2-1,X2-1,Y2-1,' ',COL_PANELTEXT);
-    //GotoXY(X1+1,Y2-2);
-    //mprintf("%*s",X2-X1-1,"");
   }
 
   UpdateViewPanel();

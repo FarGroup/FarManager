@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.203 08.01.2002 $ */
+/* Revision: 1.204 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    ! DIF_NOFOCUS шалит
   08.01.2002 SVS
     + DM_SETLISTMOUSEREACTION
     ! Неверно учитывался размер диалога (для примера - S&R имеет высоту 25 строк)
@@ -3454,6 +3456,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     if((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
     {
       //for (I=0;I<ItemCount;I++)
+      int OldFocusPos=FocusPos;
       for (I=ItemCount-1;I>=0;I--)
       {
         /* $ 04.12.2000 SVS
@@ -3465,6 +3468,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         Type=Item[I].Type;
         if (MsX>=X1+Item[I].X1)
         {
+          /* ********************************************************** */
           if (IsEdit(Type))
           {
             /* $ 15.08.2000 SVS
@@ -3483,16 +3487,24 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                MsX >= EditX1 && MsX <= EditX2+1)
             {
               EditLine->SetClearFlag(0);
-              ChangeFocus2(FocusPos,I);
+              if(!(Item[I].Flags&DIF_NOFOCUS))
+                ChangeFocus2(FocusPos,I);
+              else
+                FocusPos=I;
               ShowDialog();
               ProcessKey(KEY_CTRLDOWN);
+              if(Item[I].Flags&DIF_NOFOCUS)
+                FocusPos=OldFocusPos;
               return(TRUE);
             }
 
             if (EditLine->ProcessMouse(MouseEvent))
             {
               EditLine->SetClearFlag(0); // а может это делать в самом edit?
-              ChangeFocus2(FocusPos,I);
+              if(!(Item[I].Flags&DIF_NOFOCUS)) //??? !!!
+                ChangeFocus2(FocusPos,I);      //??? !!!
+              else                             //??? !!!
+                FocusPos=I;                    //??? !!!
               /* $ 23.06.2001 KM
                  ! Оказалось нужно перерисовывать весь диалог иначе
                    не снимался признак активности с комбобокса с которго уходим.
@@ -3508,41 +3520,64 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
                   ((Item[I].Flags & DIF_HISTORY) && Opt.DialogsEditHistory))
               {
                 EditLine->SetClearFlag(0); // раз уж покусились на, то и...
-                ChangeFocus2(FocusPos,I);
+                if(!(Item[I].Flags&DIF_NOFOCUS))
+                  ChangeFocus2(FocusPos,I);
+                else
+                  FocusPos=I;
                 if(!(Item[I].Flags&DIF_HIDDEN))
                   ShowDialog(I);
                 ProcessKey(KEY_CTRLDOWN);
+                if(Item[I].Flags&DIF_NOFOCUS)
+                   FocusPos=OldFocusPos;
                 return(TRUE);
               }
             }
           }
+
+          /* ********************************************************** */
           if (Type==DI_BUTTON &&
               MsY==Y1+Item[I].Y1 &&
               MsX < X1+Item[I].X1+HiStrlen(Item[I].Data))
           {
-            ChangeFocus2(FocusPos,I);
-            ShowDialog();
+            if(!(Item[I].Flags&DIF_NOFOCUS))
+            {
+              ChangeFocus2(FocusPos,I);
+              ShowDialog();
+            }
+            else
+              FocusPos=I;
             while (IsMouseButtonPressed())
               ;
             if (MouseX <  X1 ||
                 MouseX >  X1+Item[I].X1+HiStrlen(Item[I].Data)+4 ||
                 MouseY != Y1+Item[I].Y1)
             {
-              ChangeFocus2(FocusPos,I);
-              ShowDialog();
+              if(!(Item[I].Flags&DIF_NOFOCUS))
+              {
+                ChangeFocus2(FocusPos,I);
+                ShowDialog();
+              }
               return(TRUE);
             }
             ProcessKey(KEY_ENTER);
+            if(Item[I].Flags&DIF_NOFOCUS)
+              FocusPos=OldFocusPos;
             return(TRUE);
           }
 
+          /* ********************************************************** */
           if ((Type == DI_CHECKBOX ||
                Type == DI_RADIOBUTTON) &&
               MsY==Y1+Item[I].Y1 &&
               MsX < (X1+Item[I].X1+HiStrlen(Item[I].Data)+4-((Item[I].Flags & DIF_MOVESELECT)!=0)))
           {
-            ChangeFocus2(FocusPos,I);
+            if(!(Item[I].Flags&DIF_NOFOCUS))
+              ChangeFocus2(FocusPos,I);
+            else
+              FocusPos=I;
             ProcessKey(KEY_SPACE);
+            if(Item[I].Flags&DIF_NOFOCUS)
+              FocusPos=OldFocusPos;
             return(TRUE);
           }
         }

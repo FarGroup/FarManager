@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.125 16.02.2002 $ */
+/* Revision: 1.126 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - Тот же самый BugZ#238. Немного увеличим буфера (до 4096 размер под FullPath)
   16.02.2002 VVM
     + На панели плагина историю папок не сохраняем в реестре. Один хрен потом перейти не можем.
   15.01.2002 SVS
@@ -1859,7 +1861,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
     // Shift-Enter на каталоге вызывает проводник
     if(PanelMode!=PLUGIN_PANEL && SeparateWindow)
     {
-      char FullPath[NM];
+      char FullPath[4096];
       AddEndSlash(strcpy(FullPath,CurDir));
       /* 23.08.2001 VVM
         ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
@@ -1990,7 +1992,7 @@ void FileList::SetCurDir(char *NewDir,int ClosePlugin)
 BOOL FileList::ChangeDir(char *NewDir)
 {
   Panel *AnotherPanel;
-  char FindDir[1024],SetDir[1024];
+  char FindDir[4096],SetDir[4096];
 
   strcpy(SetDir,NewDir);
   PrepareDiskPath(SetDir,sizeof(SetDir)-1);
@@ -3053,7 +3055,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
   struct OpenPluginInfo Info;
   char *CopyData=NULL;
   long DataSize=0;
-  char SelName[NM], SelShortName[NM], QuotedName[2048];
+  char SelName[NM], SelShortName[NM], QuotedName[4096];
   int FileAttr;
 
   if (PanelMode==PLUGIN_PANEL)
@@ -3147,7 +3149,7 @@ void FileList::CopyNames(int FillPathName,int UNC)
 char *FileList::CreateFullPathName(char *Name, char *ShortName,DWORD FileAttr,
                                    char *Dest,int SizeDest,int UNC)
 {
-  char Temp[2048], FileName[2048];
+  char Temp[4906], FileName[4906];
   char *NamePtr, Chr;
   /* $ 02.04.2001 IS
    Исправляю баг:

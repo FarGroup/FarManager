@@ -5,10 +5,12 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.12 15.08.2001 $ */
+/* Revision: 1.13 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - После FillRect() не выполнялся "сброс" буфера.
   15.08.2001 SVS
     ! Добавим Flush() в некоторые функции (трудно в бедагере гонять без этого)
   25.07.2001 SVS
@@ -209,6 +211,8 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,int Ch,int Color)
       Buf[Pos].Char.AsciiChar=Ch;
 #endif
     }
+  Flushed=FALSE;
+
 #ifdef DIRECT_SCREEN_OUT
   Flush();
 #elif defined(DIRECT_RT)

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.65 12.01.2002 $ */
+/* Revision: 1.66 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    - BugZ#246 - RCtrl-Digit при неизменненом тексте.
   12.01.2002 IS
     ! внедрение const
   11.01.2002 SVS
@@ -795,6 +797,7 @@ int Edit::ProcessKey(int Key)
       for (int I=0;ShortcutFolder[I]!=0;I++)
         InsertKey(ShortcutFolder[I]);
       /* KM $ */
+      ClearFlag=0;
       Show();
       return(TRUE);
     }

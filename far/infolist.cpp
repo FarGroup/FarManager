@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.27 14.01.2002 $ */
+/* Revision: 1.28 16.01.2002 $ */
 
 /*
 Modify:
+  16.01.2002 SVS
+    ! Косметика в кейбаре
   14.01.2002 IS
     ! chdir -> FarChDir
   02.01.2002 IS
@@ -105,6 +107,7 @@ InfoList::InfoList()
   Type=INFO_PANEL;
   DizView=NULL;
   PrevMacroMode=-1;
+  DizPresent=FALSE;
   *DizFileName=0;
   if (LastDizWrapMode < 0)
   {
@@ -649,7 +652,10 @@ int InfoList::OpenDizFile(char *DizFile)
     /* DJ $ */
   }
   if (!DizView->OpenFile(DizFile,FALSE))
+  {
+    DizPresent=FALSE;
     return(FALSE);
+  }
   DizView->Show();
   strcpy(DizFileName,DizFile);
   char Title[NM];
@@ -658,6 +664,7 @@ int InfoList::OpenDizFile(char *DizFile)
   GotoXY(X1+(X2-X1-strlen(Title))/2,Y1+14);
   SetColor(COL_PANELTEXT);
   PrintText(Title);
+  DizPresent=TRUE;
   return(TRUE);
 }
 
@@ -719,8 +726,10 @@ BOOL InfoList::UpdateKeyBar()
 void InfoList::DynamicUpdateKeyBar()
 {
   KeyBar *KB = CtrlObject->MainKeyBar;
-  if (DizView)
+  if (DizView && DizPresent)
   {
+    KB->Change (MSG(MInfoF3), 3-1);
+
     if (DizView->GetAnsiMode())
       KB->Change (MSG(MViewF8DOS), 7);
     else
@@ -741,10 +750,14 @@ void InfoList::DynamicUpdateKeyBar()
     else
       KB->Change (KBL_SHIFT, MSG(MViewShiftF2), 2-1);
   }
-  else {
+  else
+  {
     KB->Change (MSG(MF2), 2-1);
     KB->Change (KBL_SHIFT, "", 2-1);
+    KB->Change ("", 3-1);
     KB->Change ("", 8-1);
+    KB->Change (KBL_SHIFT, "", 8-1);
+    KB->Change (KBL_ALT, MSG(MAltF8), 8-1); // стандартный для панели - "хистори"
   }
 }
 /* DJ $ */
