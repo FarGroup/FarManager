@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.73 21.01.2003 $ */
+/* Revision: 1.74 26.02.2003 $ */
 
 /*
 Modify:
+  26.02.2003 SVS
+    + ”кажем что именно не найдено в ERROR-месаге
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
@@ -361,7 +363,7 @@ Help::Help(const char *Topic, const char *Mask,DWORD Flags)
   {
     ErrorHelp=TRUE;
     if(!(Flags&FHELP_NOSHOWERROR))
-      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
   }
 
 #if defined(WORK_HELP_FIND)
@@ -735,7 +737,7 @@ void Help::DisplayObject()
     {              // с нынешним манагером попадаем в бесконечный цикл.
       ErrorHelp=TRUE;
       if(!(StackData.Flags&FHELP_NOSHOWERROR))
-        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
       ProcessKey(KEY_ALTF1);
     }
     return;
@@ -1550,7 +1552,7 @@ int Help::JumpTopic(const char *JumpTopic)
   {
     ErrorHelp=TRUE;
     if(!(StackData.Flags&FHELP_NOSHOWERROR))
-      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),StackData.HelpTopic,MSG(MOk));
     return FALSE;
   }
 //  ResizeConsole();

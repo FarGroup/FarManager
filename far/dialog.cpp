@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.281 25.02.2003 $ */
+/* Revision: 1.282 27.02.2003 $ */
 
 /*
 Modify:
+  27.02.2003 SVS
+    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
+      Убираем вызов плагиновго обработчика.
   25.02.2003 SVS
     ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   25.02.2003 SVS
@@ -2807,7 +2810,12 @@ void Dialog::ShowDialog(int ID)
   */
   if ( DialogMode.Check(DMODE_DRAGGED) ) // если диалог таскается
   {
-    DlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
+    /*
+    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
+      Убираем вызов плагиновго обработчика.
+    */
+    //DlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
+    Dialog::DefDlgProc((HANDLE)this,DN_DRAWDIALOG,1,0);
   }
   else
   {

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.38 25.02.2003 $ */
+/* Revision: 1.39 26.02.2003 $ */
 
 /*
 Modify:
+  26.02.2003 SVS
+    ! вместо ShellUpdatePanels() исполним Redraw()
   25.02.2003 SVS
     - BugZ#805 - Остается прорисовка после поиска в Qview & InfoPanel
   14.01.2003 SVS
@@ -450,7 +452,9 @@ int InfoList::ProcessKey(int Key)
       int Length;
       DWORD Flags;
       DizView->GetSelectedParam(Pos,Length,Flags);
-      ShellUpdatePanels(NULL,FALSE);
+//      ShellUpdatePanels(NULL,FALSE);
+      Redraw();
+      CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
       DizView->SelectText(Pos,Length,Flags|1);
     }
     return(ret);

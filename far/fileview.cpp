@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.62 26.12.2002 $ */
+/* Revision: 1.63 26.02.2003 $ */
 
 /*
 Modify:
+  26.02.2003 SVS
+    ! Перед переключением в редактор проверим доступность файла на редактирование
+  26.12.2002
     - BugZ#754 - открытие редатора с большИми у2, х2
       Проверим координаты в Init
   23.12.2002 SVS
@@ -446,6 +449,19 @@ int FileViewer::ProcessKey(int Key)
     case KEY_F6:
       if (!DisableEdit)
       {
+        char ViewFileName[NM];
+        View.GetFileName(ViewFileName);
+
+        HANDLE hEdit=FAR_CreateFile(ViewFileName,GENERIC_READ,FILE_SHARE_READ,NULL,
+                                    OPEN_EXISTING,
+                                    FILE_FLAG_SEQUENTIAL_SCAN|(WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT?FILE_FLAG_POSIX_SEMANTICS:0),
+                                    NULL);
+        if (hEdit==INVALID_HANDLE_VALUE)
+        {
+          Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),ViewFileName,MSG(MOk));
+          return(TRUE);
+        }
+
         /* $ 11.10.2001 IS
             Если переключаемся в редактор, то удалять файл уже не
             нужно
@@ -453,8 +469,6 @@ int FileViewer::ProcessKey(int Key)
         SetTempViewName("");
         /* IS $ */
         SetExitCode(0);
-        char ViewFileName[NM];
-        View.GetFileName(ViewFileName);
         long FilePos=View.GetFilePos();
         /* $ 06.05.2001 DJ обработка F6 под NWZ */
         FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, GetCanLoseFocus(),

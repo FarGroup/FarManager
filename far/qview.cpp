@@ -5,10 +5,13 @@ Quick view panel
 
 */
 
-/* Revision: 1.30 25.02.2003 $ */
+/* Revision: 1.31 26.02.2003 $ */
 
 /*
 Modify:
+  26.02.2003 SVS
+    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
+    ! вместо ShellUpdatePanels() исполним Redraw()
   25.02.2003 SVS
     - BugZ#805 - Остается прорисовка после поиска в Qview & InfoPanel
   26.01.2003 IS
@@ -138,6 +141,10 @@ QuickView::~QuickView()
 
 void QuickView::DisplayObject()
 {
+  if (Flags.Check(FSCROBJ_ISREDRAWING))
+    return;
+  Flags.Set(FSCROBJ_ISREDRAWING);
+
   char Title[NM];
   if (QView==NULL && !ProcessingPluginCommand)
     CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
@@ -270,6 +277,7 @@ void QuickView::DisplayObject()
   else
     if (QView!=NULL)
       QView->Show();
+  Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 
@@ -334,7 +342,8 @@ int QuickView::ProcessKey(int Key)
       int Length;
       DWORD Flags;
       QView->GetSelectedParam(Pos,Length,Flags);
-      ShellUpdatePanels(NULL,FALSE);
+      Redraw();
+      CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
       QView->SelectText(Pos,Length,Flags|1);
     }
     return ret;

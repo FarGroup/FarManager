@@ -5,10 +5,13 @@ Parent class для всех screen objects
 
 */
 
-/* Revision: 1.10 25.02.2003 $ */
+/* Revision: 1.11 26.02.2003 $ */
 
 /*
 Modify:
+  26.02.2003 SVS
+    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
+      Временно отключим схему исключения рекурсии на столь низком уровне
   25.02.2003 SVS
     ! В ScreenObject::Show() воспользуемся флагом FSCROBJ_ISREDRAWING с тем,
       чтобы исключить рекурсию при прорисовке объектов!
@@ -142,12 +145,12 @@ void ScreenObject::Show()
 //  _tran(SysLog("[%p] ScreenObject::Show()",this));
   if (!Flags.Check(FSCROBJ_SETPOSITIONDONE))
     return;
-  if (Flags.Check(FSCROBJ_ISREDRAWING))
-    return;
-  Flags.Set(FSCROBJ_ISREDRAWING);
+//  if (Flags.Check(FSCROBJ_ISREDRAWING))
+//    return;
+//  Flags.Set(FSCROBJ_ISREDRAWING);
   SavePrevScreen();
   DisplayObject();
-  Flags.Clear(FSCROBJ_ISREDRAWING);
+//  Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 

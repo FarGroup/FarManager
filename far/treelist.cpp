@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.48 24.02.2003 $ */
+/* Revision: 1.49 26.02.2003 $ */
 
 /*
 Modify:
+  26.02.2003 SVS
+    - BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема
   24.02.2003 SVS
     + для пассивной панели типа QVIEW_PANEL добавим LockScreen, дабы исключить
       лишнюю прорисовку.
@@ -277,6 +279,10 @@ void TreeList::SetRootDir(char *NewRootDir)
 
 void TreeList::DisplayObject()
 {
+  if (Flags.Check(FSCROBJ_ISREDRAWING))
+    return;
+  Flags.Set(FSCROBJ_ISREDRAWING);
+
   if (UpdateRequired)
     Update(0);
   if(ExitCode)
@@ -296,6 +302,7 @@ void TreeList::DisplayObject()
     }
     DisplayTree(FALSE);
   }
+  Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 
