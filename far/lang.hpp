@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.104 28.03.2002 $ */
+/* Revision: 1.105 02.04.2002 $ */
 
 /*
 Modify:
+  02.04.2002 KM
+    +MFindFileDrive,MSearchFromRootOfDrive
   28.03.2002 SVS
     + MListGb, MListTb
     ! MListMb стоит после MListKb
@@ -1011,11 +1013,14 @@ enum
   MFindArchives,
   MFindFolders,
   MSearchAllDisks,
+  MSearchAllButNetwork,
   MSearchFromRoot,
+  MSearchFromRootOfDrive,
   MSearchFromCurrent,
   MSearchInCurrent,
   MSearchInSelected,
   MFindFileFind,
+  MFindFileDrive,
   MFindFileTable,
   MFindSearchingIn,
   MFindNewSearch,

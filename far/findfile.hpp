@@ -7,10 +7,14 @@ findfile.hpp
 
 */
 
-/* Revision: 1.09 30.01.2002 $ */
+/* Revision: 1.11 02.04.2002 $ */
 
 /*
 Modify:
+  02.04.2002 KM
+   + SEARCH_ALL_BUTNETWORK - ѕоиск по всем дискам, кроме сменных и сетевых.
+   + PrepareDriveNameStr - поскольку используетс€ из двух мест дл€ подготовки
+     строки с именем диска сделана членом класса.
   30.01.2002 VVM
    + ¬ структуру _ARCLIST добавлено поле RootPath - путь на панели плагина
      сразу после открыти€ дл€ поиска. Ќужен дл€ корректного просмотра файлов
@@ -47,6 +51,7 @@ Modify:
 #undef SEARCH_ALL
 enum {
   SEARCH_ALL=0,
+  SEARCH_ALL_BUTNETWORK,
   SEARCH_ROOT,
   SEARCH_FROM_CURRENT,
   SEARCH_CURRENT_ONLY,
@@ -94,6 +99,7 @@ class FindFiles
 //    static void RereadPlugin(HANDLE hPlugin);
     static int GetPluginFile(DWORD ArcIndex, struct PluginPanelItem *PanelItem,
                              char *DestPath, char *ResultName);
+    static char *PrepareDriveNameStr(char *SearchFromRoot,size_t sz);
   public:
     FindFiles();
     ~FindFiles();

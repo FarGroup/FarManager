@@ -1069,29 +1069,32 @@ with commas). It may also be used with file systems emulated
 by ~plugins~@Plugins@.
 
     Optional text string may be specified to find only files containing
-this text. If the string is entered, the option #"Case sensitive"# selects case
+this text. If the string is entered, the option #Case sensitive# selects case
 sensitive comparison.
 
-    The option #"Whole words"# will let to find only the text that
+    The option #Whole words# will let to find only the text that
 is separated from other text with spaces, tab characters, line breaks or
 standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./#.
 
-    The #"Using character table"# pull down list allows to select the concrete
+    The #Using character table# pull down list allows to select the concrete
 character table for the text search or forces usage of all character tables
 available to FAR by selecting #All character tables# item to search text in files
 with different codepages.
 
-    If the option #"Search in archives"# is set, FAR also performs the search in
+    If the option #Search in archives# is set, FAR also performs the search in
 archives with known formats. However, using this option significantly
 decreases the performance of the search. FAR cannot search in nested archives.
 
-    The #"Search for folders"# option includes in search list those folders,
+    The #Search for folders# option includes in search list those folders,
 that match the wildcards. Also the counter of found files takes account of
 found folders.
 
-    Search may be performed in all non-removable disks, in all folders
-from the disk root, from the current folder, in the current folder only
-or in selected folders. The search origin is saved in the configuration.
+    Search may be performed in all non-removable disks, in all disks, except
+removable and network, in all folders from the disk root, from the current
+folder, in the current folder only or in selected folders. The search origin
+is saved in the configuration. Also while in the find dialog one can change
+disk drive of the search. This option is enabled when #Search from the root folder#
+is selected.
 
     While search is in progress or when it is finished, you may use
 the cursor keys to scroll the files list and the buttons to perform
