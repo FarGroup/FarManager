@@ -186,7 +186,7 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
   GetCurrentDirectory(sizeof(SaveDir),SaveDir);
   char Command[512],AllFilesMask[32];
   if (ItemsNumber==0)
-    return 0;
+    return /*0*/1; //$ 07.02.2002 AA чтобы многотомные CABы нормально распаковывались
   if (*DestPath)
     FSF.AddEndSlash(DestPath);
   const char *PathHistoryName="ExtrDestPath";
@@ -299,6 +299,8 @@ int PluginClass::GetFiles(struct PluginPanelItem *PanelItem, int ItemsNumber,
       if ((PanelItem[I].Flags & F_ENCRYPTED) || ItemsInfo.Encrypted &&
           (PanelItem[I].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
       {
+        if(OpMode & OPM_FIND) //Silent
+          return 0;
         if (!GetPassword(DialogItems[5].Data,FSF.PointToName(ArcName)))
           return -1;
         break;

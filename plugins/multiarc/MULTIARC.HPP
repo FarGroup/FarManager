@@ -181,12 +181,13 @@ class ArcCommand
     char PrefixFileName[32];
     unsigned int ExecCode;
     unsigned int MaxAllowedExitCode;
+    int Silent; // $ 07.02.2002 AA
 
     char CommentFileName[MAX_PATH]; //$ AA 25.11.2001
     //HANDLE CommentFile; //$ AA 25.11.2001
 
   private:
-    int ProcessCommand(char *Command,int CommandType,int IgnoreErrors,int Silent,char *ListFileName=0);
+    int ProcessCommand(char *Command,int CommandType,int IgnoreErrors,char *ListFileName=0);
     void DeleteBraces(char *Command);
     int ReplaceVar(char *Command,int &Length);
     int MakeListFile(char *ListFileName,int ShortNames,int QuoteName,
