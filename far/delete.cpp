@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.52 05.12.2002 $ */
+/* Revision: 1.53 05.01.2003 $ */
 
 /*
 Modify:
+  05.01.2003 VVM
+    ! ѕоказывать сообщени€ об удалении не чаще чем раз в секунду.
   05.12.2002 SVS
     !  ак задел на будущее (про BugZ#702) - подсуетимс€ и прорисуем месагбокс
   18.06.2002 SVS
@@ -162,6 +164,8 @@ static int WipeDirectory(char *Name);
 static void PR_ShellDeleteMsg(void);
 
 static int ReadOnlyDeleteMode,DeleteAllFolders;
+
+static clock_t DeleteStartTime;
 
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
@@ -408,7 +412,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
         {
           char FullName[NM];
           ScanTree ScTree(TRUE);
-          ScTree.SetFindPath(SelName,"*.*");
+          ScTree.SetFindPath(SelName,"*.*", 0);
           while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
           {
             if(CheckForEscSilent())
@@ -571,23 +575,28 @@ void ShellDeleteMsg(char *Name)
   int WidthTemp;
   char OutFileName[NM];
 
-  if(Name && *Name)
-    WidthTemp=Max((int)strlen(Name),(int)30);
-  else
-    Width=WidthTemp=30;
+  if (Name == NULL || *Name == 0 || ((clock() - DeleteStartTime) > 1000))
+  {
+    DeleteStartTime = clock();
 
-  if(WidthTemp > WidthNameForMessage)
-    WidthTemp=WidthNameForMessage; // ширина месага - 38%
-  if(WidthTemp >= sizeof(OutFileName)-4)
-    WidthTemp=sizeof(OutFileName)-5;
-  if(Width < WidthTemp)
-    Width=WidthTemp;
+    if(Name && *Name)
+      WidthTemp=Max((int)strlen(Name),(int)30);
+    else
+      Width=WidthTemp=30;
 
-  strncpy(OutFileName,Name,sizeof(OutFileName)-1);
-  TruncPathStr(OutFileName,Width);
-  CenterStr(OutFileName,OutFileName,Width+4);
+    if(WidthTemp > WidthNameForMessage)
+      WidthTemp=WidthNameForMessage; // ширина месага - 38%
+    if(WidthTemp >= sizeof(OutFileName)-4)
+      WidthTemp=sizeof(OutFileName)-5;
+    if(Width < WidthTemp)
+      Width=WidthTemp;
 
-  Message(0,0,MSG(MDeleteTitle),MSG(MDeleting),OutFileName);
+    strncpy(OutFileName,Name,sizeof(OutFileName)-1);
+    TruncPathStr(OutFileName,Width);
+    CenterStr(OutFileName,OutFileName,Width+4);
+
+    Message(0,0,MSG(MDeleteTitle),MSG(MDeleting),OutFileName);
+  }
   PreRedrawParam.Param1=Name;
 }
 
@@ -852,7 +861,7 @@ void DeleteDirTree(char *Dir)
   WIN32_FIND_DATA FindData;
   ScanTree ScTree(TRUE);
 
-  ScTree.SetFindPath(Dir,"*.*");
+  ScTree.SetFindPath(Dir,"*.*",0);
   while (ScTree.GetNextName(&FindData,FullName, sizeof (FullName)-1))
   {
     SetFileAttributes(FullName,0);
