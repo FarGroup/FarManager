@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.105 04.10.2003 $ */
+/* Revision: 1.106 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    + добавлена проверка услови€ выделени€ в ком.строке дл€ "Selected"
+    - ќшибка при декомпил€ции макроса - пропадал $Else
   04.10.2003 SVS
     !  уча переделок - все описание см. 01715.Macro.txt
   26.09.2003 SVS
@@ -380,6 +383,7 @@ enum MACRO_OP_CODE {
   MCODE_C_DISABLEOUTPUT,         // вывод запрещен?
   MCODE_C_WINDOWEDMODE,          // оконный режим?
   MCODE_C_SELECTED,              // выделенный блок есть?
+
   MCODE_C_APANEL_ISEMPTY,        // активна€ панель:  пуста?
   MCODE_C_PPANEL_ISEMPTY,        // пассивна€ панель: пуста?
   MCODE_C_APANEL_VISIBLE,        // активна€ панель:  видима?
@@ -392,9 +396,11 @@ enum MACRO_OP_CODE {
   MCODE_C_PPANEL_SELECTED,       // пассивна€ панель: выделенные элементы есть?
   MCODE_C_APANEL_LEFT,           // активна€ панель лева€?
   MCODE_C_PPANEL_LEFT,           // пассивна€ панель лева€?
+
   MCODE_C_CMD_ISEMPTY,           // ком.строка пуста?
-  MCODE_C_VIEWER_EOF,
-  MCODE_C_EDITOR_EOF,
+
+  MCODE_C_VIEWER_EOF,            // достигнут конец просматриваемого файла?
+  MCODE_C_EDITOR_EOF,            // достигнут конец редактируемого файла?
 };
 
 
@@ -435,6 +441,7 @@ static struct TMacroKeywords {
   {2,  "Selected",           MCODE_C_SELECTED,0},
   {2,  "Windowed",           MCODE_C_WINDOWEDMODE,0},
   {2,  "Cmd.Empty",          MCODE_C_CMD_ISEMPTY,0},
+
   {2,  "APanel.Empty",       MCODE_C_APANEL_ISEMPTY,0},
   {2,  "PPanel.Empty",       MCODE_C_PPANEL_ISEMPTY,0},
   {2,  "APanel.Visible",     MCODE_C_APANEL_VISIBLE,0},
@@ -447,6 +454,7 @@ static struct TMacroKeywords {
   {2,  "PPanel.Selected",    MCODE_C_PPANEL_SELECTED,0},
   {2,  "APanel.Left",        MCODE_C_APANEL_LEFT,0},
   {2,  "PPanel.Left",        MCODE_C_PPANEL_LEFT,0},
+
   {2,  "Viewer.Eof",         MCODE_C_VIEWER_EOF,0},  // если достигнут конец файла во вьювере: Space=PgDn if View.Eof GrayPlus
   {2,  "Editor.Eof",         MCODE_C_EDITOR_EOF,0},  // если достигнут конец файла во вьювере: Space=PgDn if View.Eof GrayPlus
 
@@ -912,18 +920,17 @@ int KeyMacro::IfCondition(DWORD OpCode,DWORD Flags,DWORD CheckCode)
 
         case MCODE_C_SELECTED:    // Selected?
         {
-          int Mode=FrameManager->GetCurrentFrame()->GetMacroMode();
-          if(Mode == MACRO_EDITOR || Mode == MACRO_DIALOG || Mode == MACRO_VIEWER)
+          int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MACRO_SHELL));
+          Frame* CurFrame=FrameManager->GetCurrentFrame();
+          if (CurFrame && CurFrame->GetType()==NeedType)
           {
-            Frame* CurFrame=FrameManager->GetCurrentFrame();
-            if (CurFrame && CurFrame->GetType()==MODALTYPE_EDITOR)
-            {
-              int CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
-              if(CheckCode == MCODE_C_SELECTED)
-                Cond=CurSelected?1:0;
-              else
-                Cond=CurSelected?0:1;
-            }
+            int CurSelected;
+            if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
+              CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_EDITSELECTED);
+            else
+              CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
+
+            Cond=CurSelected?1:0;
           }
           break;
         }
@@ -1317,7 +1324,7 @@ char *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize)
 
     if(Key&MCODE_OP_JMP)
     {
-      J++;
+//      J++;
       continue;
     }
 
@@ -2404,13 +2411,18 @@ int KeyMacro::GetSubKey(char *Mode)
 
 BOOL KeyMacro::CheckEditSelected(DWORD CurFlags)
 {
-  if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER)
+  if(Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
   {
-    int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:MODALTYPE_DIALOG);
+    int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MACRO_SHELL));
     Frame* CurFrame=FrameManager->GetCurrentFrame();
     if (CurFrame && CurFrame->GetType()==NeedType)
     {
-      int CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
+      int CurSelected;
+      if(Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
+        CurSelected=CtrlObject->CmdLine->ProcessKey(KEY_MACRO_EDITSELECTED);
+      else
+        CurSelected=CurFrame->ProcessKey(KEY_MACRO_EDITSELECTED);
+
       if((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected ||
          (CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected)
           return FALSE;

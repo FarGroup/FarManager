@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.107 05.10.2003 $ */
+/* Revision: 1.108 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    + EditorOptions.WordDiv
   05.10.2003 KM
     + struct FilterParams, Opt.OpFilter
   04.10.2003 SVS
@@ -465,6 +467,7 @@ struct EditorOptions
   int CharCodeBase;
   int SavePos;
   int SaveShortPos;
+  char WordDiv[256];
 };
 /* IS $ */
 

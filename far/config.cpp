@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.159 05.10.2003 $ */
+/* Revision: 1.160 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    + проинициализируем Opt.EdOpt.WordDiv
   05.10.2003 KM
     + Сохранение параметров фильтра операций (Opt.OpFilter)
   04.10.2003 SVS
@@ -1737,6 +1739,7 @@ void ReadConfig()
     }
   }
 
+  strcpy(Opt.EdOpt.WordDiv,Opt.WordDiv);
   FileList::ReadPanelModes();
   GetTempPath(sizeof(Opt.TempPath),Opt.TempPath);
   RemoveTrailingSpaces(Opt.TempPath);

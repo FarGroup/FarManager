@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.143 09.10.2003 $ */
+/* Revision: 1.144 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    ! Shift-F4 только для немодалов!
   09.10.2003 SVS
     - BugZ#913 - Save As на существующий файл
   26.09.2003 SVS
@@ -824,6 +826,10 @@ void FileEditor::InitKeyBar(void)
     }
     switch(IKeyLabel[Opt.OnlyEditorViewerUsed][I][0])
     {
+      case KBL_SHIFT:
+        if(!GetCanLoseFocus())
+          FEditKeys[4-1]="";
+        break;
       case KBL_MAIN:
         if(Flags.Check(FFILEEDIT_SAVETOSAVEAS))
           FEditKeys[2-1]=MSG(MEditShiftF2);
@@ -1226,7 +1232,7 @@ int FileEditor::ProcessKey(int Key)
       */
       case KEY_SHIFTF4:
       {
-        if(!Opt.OnlyEditorViewerUsed)
+        if(!Opt.OnlyEditorViewerUsed && GetCanLoseFocus())
           CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
         return TRUE;
       }

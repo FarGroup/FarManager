@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.45 26.09.2003 $ */
+/* Revision: 1.46 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    + SetWordDiv()
   26.09.2003 SVS
     + FEDITOR_PROCESSCTRLQ - нажата Ctrl-Q и идет процесс вставки кода символа
   06.05.2003 SVS
@@ -382,6 +384,7 @@ class Editor:public ScreenObject
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
 
+    void SetWordDiv(const char *WordDiv) { strncpy(EdOpt.WordDiv,WordDiv,sizeof(EdOpt.WordDiv)-1); }
     /* $ 29.10.2001 IS
          Работа с настройками "сохранять позицию файла" и
          "сохранять закладки" после смены настроек по alt-shift-f9.

@@ -5,10 +5,12 @@ message.cpp
 
 */
 
-/* Revision: 1.34 25.08.2003 $ */
+/* Revision: 1.35 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    - BugZ#516 - Message() in editor after Dialog()
   25.08.2003 SVS
     ! Блин, задолбало это обрезание в месагах...
       (по поводу BugZ#926)
@@ -394,6 +396,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
 
 
   // *** Без Диалога! ***
+  SetCursorType(0,0);
 
   if (!(Flags & MSG_KEEPBACKGROUND))
   {

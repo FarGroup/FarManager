@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.235 04.10.2003 $ */
+/* Revision: 1.236 10.10.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  10.10.2003 SVS
+    + ESPT_WORDDIV (Internal)
   04.10.2003 SVS
     + Новый флаг KSFLAGS_NOSENDKEYSTOPLUGINS - не передавать клавиши редакторным
       плагинам (плагинам, экспортирующим функцию ProcessEditorInput)
@@ -1984,7 +1986,10 @@ enum EDITOR_SETPARAMETER_TYPES {
   ESPT_CHARCODEBASE,
   ESPT_CHARTABLE,
   ESPT_SAVEFILEPOSITION,
-  ESPT_LOCKMODE
+  ESPT_LOCKMODE,
+#ifdef FAR_USE_INTERNALS
+  ESPT_WORDDIV,
+#endif // END FAR_USE_INTERNALS
 };
 
 struct EditorSetParameter

@@ -5,10 +5,15 @@ findfile.cpp
 
 */
 
-/* Revision: 1.148 09.10.2003 $ */
+/* Revision: 1.149 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    - Из-за неверного условия в поисковике
+       было:  else if (Param1>=19 || Param1<=24)
+      не работал кусок кода, отвечающий за переключение строки ввода из одного состояния в другое
+      (DI_EDIT <-> DI_FIXEDIT)
   09.10.2003 SVS
     ! В диалоге результатов поиска вместо "FindFile" заюзаем новый раздел помощи "FindFileResult"
   05.10.2003 KM
@@ -784,7 +789,7 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       }
       else if (Param1==30) // Filter
         Filter->Configure();
-      else if (Param1>=19 || Param1<=24)
+      else if (Param1>=19 && Param1<=24)
       {
         Dialog::SendDlgMessage(hDlg,DM_ENABLE,29,Param1==21?TRUE:FALSE);
         SearchFromChanged=TRUE;

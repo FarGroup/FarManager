@@ -5,10 +5,12 @@ flink.cpp
 
 */
 
-/* Revision: 1.40 14.06.2003 $ */
+/* Revision: 1.41 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    - BugZ#970 - Сообщение об ошибке при создании хардлинка
   14.06.2003 IS
     ! CheckParseJunction -> IsLocalDrive (по смыслу содержимого функции)
       Функция проверяет - является ли диск локальным,
@@ -536,10 +538,12 @@ int WINAPI MkLink(const char *Src,const char *Dest)
     return FALSE;
   }
 
+  BOOL bSuccess=FALSE;
+
   // этот кусок для Win2K
   if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT &&
-     WinVer.dwMajorVersion >= 5 &&
-     GetDriveType(FileSource) == DRIVE_FIXED
+     WinVer.dwMajorVersion >= 5
+     //&& GetDriveType(FileSource) == DRIVE_FIXED
     )
   {
     typedef BOOL (WINAPI *PCREATEHARDLINK)(
@@ -552,9 +556,12 @@ int WINAPI MkLink(const char *Src,const char *Dest)
       PCreateHardLinkA=(PCREATEHARDLINK)GetProcAddress(GetModuleHandle("KERNEL32"),"CreateHardLinkA");
     if(PCreateHardLinkA)
     {
-      return PCreateHardLinkA(FileDest, FileSource, NULL) != 0;
+      bSuccess=PCreateHardLinkA(FileDest, FileSource, NULL) != 0;
     }
   }
+
+  if(bSuccess)
+    return bSuccess;
 
   // все что ниже работает в NT4/2000
   struct CORRECTED_WIN32_STREAM_ID
@@ -574,8 +581,6 @@ int WINAPI MkLink(const char *Src,const char *Dest)
   LPVOID lpContext;
   DWORD cbPathLen;
   DWORD StreamSize;
-
-  BOOL bSuccess;
 
   MultiByteToWideChar(CP_OEMCP,0,FileDest,-1,FileLink,sizeof(FileLink)/sizeof(FileLink[0]));
 

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.190 12.09.2003 $ */
+/* Revision: 1.191 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    - BugZ#969 - Shift-F4 в модальном редакторе.
   12.09.2003 SVS
     ! В FileList::ProcessKey() после редактирования файла с плагиновой
       панели фунция PutFiles() вызывалась без флага OPM_EDIT
@@ -1593,6 +1595,7 @@ int FileList::ProcessKey(int Key)
       _ALGO(SysLog("%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
 
       struct OpenPluginInfo Info;
+      BOOL RefreshedPanel=TRUE;
 
       if(PanelMode==PLUGIN_PANEL)
         CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -1777,6 +1780,7 @@ int FileList::ProcessKey(int Key)
                 /* IS $ */
               else if (PluginMode)
               {
+                RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
                 FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                 //FileEditor ShellEditor (GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                 ShellEditor.SetDynamicallyBorn(false);
@@ -1908,7 +1912,7 @@ int FileList::ProcessKey(int Key)
             DeleteFileWithFolder(FileName);
         }
         /* IS $ */
-        if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)))
+        if (Modaling && (Edit || IsColumnDisplayed(ADATE_COLUMN)) && RefreshedPanel)
         {
           //if (!PluginMode || UploadFile)
           {

@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.235 09.10.2003 $ */
+/* Revision: 1.236 10.10.2003 $ */
 
 /*
 Modify:
+  10.10.2003 SVS
+    + EditorOptions.WordDiv
+    + ESPT_WORDDIV
   09.10.2003 SVS
     ! Первое исправления "для колорера"
     - Траблы с вертикальными постоянными блоками
@@ -2044,7 +2047,7 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos-1]) || strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
+          if (IsSpace(Str[CurPos-1]) || strchr(EdOpt.WordDiv,Str[CurPos-1])!=NULL)
           /* SVS $ */
             if (SkipSpace)
             {
@@ -2086,7 +2089,7 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos]) || strchr(Opt.WordDiv,Str[CurPos])!=NULL)
+          if (IsSpace(Str[CurPos]) || strchr(EdOpt.WordDiv,Str[CurPos])!=NULL)
           /* SVS $ */
             if (SkipSpace)
             {
@@ -2988,7 +2991,7 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos-1]) || strchr(Opt.WordDiv,Str[CurPos-1])!=NULL)
+          if (IsSpace(Str[CurPos-1]) || strchr(EdOpt.WordDiv,Str[CurPos-1])!=NULL)
           /* SVS $ */
             if (SkipSpace)
             {
@@ -3028,7 +3031,7 @@ int Editor::ProcessKey(int Key)
           /* $ 03.08.2000 SVS
             ! WordDiv -> Opt.WordDiv
           */
-          if (IsSpace(Str[CurPos]) || strchr(Opt.WordDiv,Str[CurPos])!=NULL)
+          if (IsSpace(Str[CurPos]) || strchr(EdOpt.WordDiv,Str[CurPos])!=NULL)
           /* SVS $*/
             if (SkipSpace)
             {
@@ -6132,6 +6135,10 @@ int Editor::EditorControl(int Command,void *Param)
         _ECTLLOG(SysLog("  Type        =%s",_ESPT_ToName(espar->Type)));
         switch(espar->Type)
         {
+          case ESPT_WORDDIV:
+            _ECTLLOG(SysLog("  cParam      =[%s]",espar->Param.cParam));
+            SetWordDiv((!espar->Param.cParam || !*espar->Param.cParam)?Opt.WordDiv:espar->Param.cParam);
+            break;
           case ESPT_TABSIZE:
             _ECTLLOG(SysLog("  iParam      =%d",espar->Param.iParam));
             SetTabSize(espar->Param.iParam);
