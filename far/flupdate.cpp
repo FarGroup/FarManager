@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.21 14.12.2001 $ */
+/* Revision: 1.22 19.12.2001 $ */
 
 /*
 Modify:
+  19.12.2001 VVM
+    ! Сменим приоритеты. При Force обновление всегда! в UpdateIfChanged()
   14.12.2001 VVM
     ! При обновлении списка файлов не прерываемся при обломе в SetCurDir(),
       т.к. там мы все-равно куда-нибудь и встали. Может и не на тот-же диск...
@@ -461,15 +463,18 @@ int FileList::UpdateIfChanged(int Force)
   //_SVS(SysLog("CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
   if(!Opt.AutoUpdateLimit || FileCount <= Opt.AutoUpdateLimit)
   {
-    if (IsVisible() && (clock()-LastUpdateTime>2000 || Force))
+    /* $ 19.12.2001 VVM
+      ! Сменим приоритеты. При Force обновление всегда! */
+    if ((IsVisible() && (clock()-LastUpdateTime>2000)) || Force)
     {
-      if(!Force)ProcessPluginEvent(FE_IDLE,NULL);
+      if(!Force)
+        ProcessPluginEvent(FE_IDLE,NULL);
       if (PanelMode==NORMAL_PANEL && hListChange!=NULL)
         if (WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0)
         {
           Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
           // В этом случае - просто перекрасим
-          UpdateColorItems();
+//          UpdateColorItems();
           if (AnotherPanel->GetType()==INFO_PANEL)
           {
             AnotherPanel->Update(UPDATE_KEEP_SELECTION);
