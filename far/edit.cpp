@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.81 06.06.2002 $ */
+/* Revision: 1.82 24.06.2002 $ */
 
 /*
 Modify:
+  24.06.2002 SKV
+    - Нельзя выделять за концом строки.
   06.06.2002 SVS
     ! коррекция вставляемого размера в Edit::SetBinaryString, если определен MaxLength
   24.05.2002 SVS
@@ -2338,7 +2340,11 @@ void Edit::Select(int Start,int End)
 {
   SelStart=Start;
   SelEnd=End;
-  if (SelEnd<SelStart && SelEnd!=-1)
+/* $ 24.06.2002 SKV
+   Если начало выделения за концом строки, надо выделение снять.
+*/
+  if ((SelEnd<SelStart && SelEnd!=-1) || SelStart>StrSize)
+/* SKV $ */
   {
     SelStart=-1;
     SelEnd=0;

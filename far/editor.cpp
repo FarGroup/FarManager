@@ -11,6 +11,8 @@ editor.cpp
 /*
 Modify:
   24.06.2002 SKV
+    - Неисчезающее выделение.
+  24.06.2002 SKV
     - При Shift-Down надо сбрасывать FEDITOR_CURPOSCHANGEDBYPLUGIN.
   17.06.2002 SVS
     - BugZ#557 - FAR builtin editor crash on invalid attributes of LastPositions
@@ -2025,7 +2027,7 @@ int Editor::ProcessKey(int Key)
         CurPos=CurLine->EditLine.GetCurPos();
         if (SelStart!=-1 && SelEnd==-1 || SelEnd>CurPos)
         {
-          if (CurPos+1==SelEnd)
+          if (CurPos+1==SelEnd || CurPos>=CurLine->EditLine.GetLength())
           {
             CurLine->EditLine.Select(-1,0);
             BlockStart=CurLine->Next;
@@ -2059,7 +2061,7 @@ int Editor::ProcessKey(int Key)
         {
           int SelStart,SelEnd;
           PrevLine->EditLine.GetSelection(SelStart,SelEnd);
-          if (SelEnd>SelStart)
+          if (SelEnd>SelStart && SelStart!=-1)
           {
             PrevLine->EditLine.Select(SelStart,-1);
             CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
@@ -4639,7 +4641,22 @@ void Editor::UnmarkBlock()
     int StartSel,EndSel;
     BlockStart->EditLine.GetSelection(StartSel,EndSel);
     if (StartSel==-1)
-      break;
+    {
+      /* $ 24.06.2002 SKV
+        Если в текущей строки нет выделения,
+        это еще не значит что мы в конце.
+        Это может быть только начало :)
+      */
+      if(BlockStart->Next)
+      {
+        BlockStart->Next->EditLine.GetSelection(StartSel,EndSel);
+        if(StartSel==-1)
+        {
+          break;
+        }
+      }else break;
+      /* SKV $ */
+    }
     BlockStart->EditLine.Select(-1,0);
     BlockStart=BlockStart->Next;
   }
