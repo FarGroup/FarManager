@@ -7,10 +7,13 @@ class ShellCopy -  опирование файлов
 
 */
 
-/* Revision: 1.23 30.04.2003 $ */
+/* Revision: 1.24 30.05.2003 $ */
 
 /*
 Modify:
+  30.05.2003 SVS
+    + FCOPY_COPYSYMLINKCONTENTS -  опировать содержимое симолических св€зей?
+      ѕока только флаг. Ћогику еще не додумал!
   30.04.2003 VVM
     ! ShowBar() возвращает TRUE/FALSE
   17.03.2003 SVS
@@ -92,22 +95,22 @@ enum COPY_CODES {
 };
 
 enum COPY_FLAGS {
-  FCOPY_COPYTONUL       = 0x00000001, // ѕризнак копировани€ в NUL
-  FCOPY_CURRENTONLY     = 0x00000002, //
-  FCOPY_ONLYNEWERFILES  = 0x00000004, // Copy only newer files
-  FCOPY_CREATESYMLINK   = 0x00000004, // создание симлинка
-  FCOPY_OVERWRITENEXT   = 0x00000008,
-  FCOPY_LINK            = 0x00000010, // создание св€зи
-  FCOPY_MOVE            = 0x00000040, // перенос/переименование
-  FCOPY_DIZREAD         = 0x00000080,
-  FCOPY_COPYSECURITY    = 0x00000100,
-  FCOPY_NOSHOWMSGLINK   = 0x00000200,
-  FCOPY_VOLMOUNT        = 0x00000400, // операци€ монтированни€ тома
-  FCOPY_STREAMSKIP      = 0x00000800,
-  FCOPY_STREAMALL       = 0x00001000,
-  FCOPY_SKIPSETATTRFLD  = 0x00002000,
-  FCOPY_COPYLASTTIME    = 0x10000000, // ѕри копировании в несколько каталогов
-                                      // устанавливаетс€ дл€ последнего.
+  FCOPY_COPYTONUL               = 0x00000001, // ѕризнак копировани€ в NUL
+  FCOPY_CURRENTONLY             = 0x00000002, // “олько текщий?
+  FCOPY_ONLYNEWERFILES          = 0x00000004, // Copy only newer files
+  FCOPY_CREATESYMLINK           = 0x00000004, // создание симлинка
+  FCOPY_OVERWRITENEXT           = 0x00000008, // Overwrite all
+  FCOPY_LINK                    = 0x00000010, // создание св€зи
+  FCOPY_MOVE                    = 0x00000040, // перенос/переименование
+  FCOPY_DIZREAD                 = 0x00000080, //
+  FCOPY_COPYSECURITY            = 0x00000100, // [x] Copy access rights
+  FCOPY_NOSHOWMSGLINK           = 0x00000200, // не показывать месаги при ликовании
+  FCOPY_VOLMOUNT                = 0x00000400, // операци€ монтированни€ тома
+  FCOPY_STREAMSKIP              = 0x00000800, // потоки
+  FCOPY_STREAMALL               = 0x00001000, // потоки
+  FCOPY_SKIPSETATTRFLD          = 0x00002000, // больше не пытатьс€ ставить атрибуты дл€ каталогов - когда нажали Skip All
+  FCOPY_COPYSYMLINKCONTENTS     = 0x00004000, //  опировать содержимое симолических св€зей?
+  FCOPY_COPYLASTTIME            = 0x10000000, // ѕри копировании в несколько каталогов устанавливаетс€ дл€ последнего.
 };
 
 class ConsoleTitle;

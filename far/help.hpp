@@ -10,10 +10,12 @@ help.hpp
 
 */
 
-/* Revision: 1.26 22.04.2003 $ */
+/* Revision: 1.27 03.06.2003 $ */
 
 /*
 Modify:
+  03.06.2003 SVS
+    + HELPMODE_CLICKOUTSIDE  - было нажатие мыши вне хелпа?
   22.04.2003 SVS
     + FHELPOBJ_ERRCANNOTOPENHELP - индикатор ошибки
   14.07.2002 IS
@@ -88,6 +90,8 @@ Modify:
 #include "farconst.hpp"
 
 class CallBackStack;
+
+#define HELPMODE_CLICKOUTSIDE  0x20000000 // было нажатие мыши вне хелпа?
 
 struct StackHelpData
 {

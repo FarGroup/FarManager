@@ -8,10 +8,13 @@ help.cpp
 
 */
 
-/* Revision: 1.75 22.04.2003 $ */
+/* Revision: 1.76 03.06.2003 $ */
 
 /*
 Modify:
+  03.06.2003 SVS
+    + HELPMODE_CLICKOUTSIDE  - было нажатие мыши вне хелпа?
+    ! Теперь в кейбар можно тыкать мышой
   22.04.2003 SVS
     - BugZ#851 - Wrong error message by ShowHelp
   26.02.2003 SVS
@@ -1583,6 +1586,9 @@ int Help::JumpTopic(const char *JumpTopic)
 
 int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
+  if (HelpKeyBar.ProcessMouse(MouseEvent))
+    return TRUE;
+
   if (MouseEvent->dwEventFlags==MOUSE_MOVED &&
      (MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED)==0)
     return(FALSE);
@@ -1594,14 +1600,23 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
     return(TRUE);
   }
   /* VVM $ */
-  if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
-      MouseEvent->dwMousePosition.Y<Y1 || MouseEvent->dwMousePosition.Y>Y2)
+
+  int MsX,MsY;
+  MsX=MouseEvent->dwMousePosition.X;
+  MsY=MouseEvent->dwMousePosition.Y;
+  if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && MouseEventFlags != MOUSE_MOVED)
   {
-    // Вываливаем если предыдущий эвент не был двойным кликом
-    if(PreMouseEventFlags != DOUBLE_CLICK)
-      ProcessKey(KEY_ESC);
+    if (Flags.Check(HELPMODE_CLICKOUTSIDE))
+    {
+      // Вываливаем если предыдущий эвент не был двойным кликом
+      if(PreMouseEventFlags != DOUBLE_CLICK)
+        ProcessKey(KEY_ESC);
+    }
+    if (MouseEvent->dwButtonState)
+      Flags.Set(HELPMODE_CLICKOUTSIDE);
     return(TRUE);
   }
+
   if (MouseX==X2 && (MouseEvent->dwButtonState & 1))
   {
     int ScrollY=Y1+FixSize+1;
