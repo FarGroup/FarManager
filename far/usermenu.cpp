@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.64 09.02.2004 $ */
+/* Revision: 1.65 24.02.2004 $ */
 
 /*
 Modify:
+  24.02.2004 VVM
+    - После поиска нужного меню-файла вернем папку на место !
   09.02.2004 SVS
     - BugZ#1016 - Самопроизвольное изменение текущего каталога
   03.09.2003 SVS
@@ -313,10 +315,12 @@ void ProcessUserMenu(int EditMenu)
         fclose(MenuFile);
       } /* if */
       else
+      {
       // Файл не открылся. Смотрим дальше.
         if (MenuMode==MM_FAR)
           MenuMode=MM_MAIN;
         else
+        {
           if (!EditMenu)
           {
 /* $ 14.07.2000 VVM
@@ -341,7 +345,11 @@ void ProcessUserMenu(int EditMenu)
             MenuMode=MM_FAR;
             continue;
           } /* if */
+        } /* else */
+      } /* else */
+      FarChDir(PrevPath); // Вернем папку на место !
     } /* if */
+
 
     strcpy(MenuRootKey,(MenuMode==MM_MAIN) ? "UserMenu\\MainMenu":LocalMenuKey);
     ExitCode=ProcessSingleMenu(MenuRootKey, 0);
