@@ -5,10 +5,16 @@ dialog.cpp
 
 */
 
-/* Revision: 1.149 05.08.2001 $ */
+/* Revision: 1.150 05.08.2001 $ */
 
 /*
 Modify:
+  05.08.2001 SVS
+   ! Перетрях в математике добавления истории (Dialog::AddToEditHistory)
+   - Бага с селекшинами при выборе из хистори.
+   ! DM_GETTEXTLENGTH корректно возвращает размер текущего итема для DI_LISTBOX
+   ! Изменилось поведение DI_RADIOBUTTON
+       Param2 = 0|1 - включен или выключен
   05.08.2001 SVS
    - Проблемы с хелпом в диалогах из-под плагинов.
    ! Отрисовка(?) после DI_EDITCHANGE
@@ -2446,7 +2452,8 @@ int Dialog::ProcessKey(int Key)
           При изменении состояния каждого элемента посылаем сообщение
           посредством функции SendDlgMessage - в ней делается все!
         */
-        if(!Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,PrevRB))
+        if(!Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,PrevRB,0) ||
+           !Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,1))
         {
            // вернем назад, если пользователь не захотел...
            Item[PrevRB].Selected=1;
@@ -3777,9 +3784,6 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
         itoa(I,PHisLocked,10);
         GetRegKey(RegKey,HisLocked,(int)Locked,0);
         HistoryItem.SetCheck(Locked);
-        // Выставим Selected при полном совпадении строки ввода и истории
-        if(HistoryItem.SetSelect((!Dest && !strcmp(IStr,Str))?TRUE:FALSE) == TRUE)
-           Dest++;
         strncpy(HistoryItem.Name,Str,sizeof(HistoryItem.Name)-1);
         HistoryMenu.SetUserData(Str,0,
               HistoryMenu.AddItem(&HistoryItem));
@@ -3788,7 +3792,9 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
       if (ItemsCount==0)
         break;
 
-      HistoryMenu.SetSelectPos(LastSelected, 1);
+      // выставим селекшин
+      Dest=HistoryMenu.FindItem(0,IStr,LIFIND_NOPATTERN);
+      HistoryMenu.SetSelectPos(Dest!=-1?Dest:0, 1);
       //  Перед отрисовкой спросим об изменении цветовых атрибутов
       /*$ 14.06.2001 OT */
       short Colors[VMENU_COLOR_COUNT];
@@ -3949,9 +3955,14 @@ void Dialog::SelectFromEditHistory(Edit *EditLine,
 */
 int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
 {
-  int LastLine=HISTORY_COUNT-1,FirstLine=HISTORY_COUNT, I, Locked;
-  char Str[4096];
+#define MAXSIZESTRING 4096
+  int AddLine=-1, I, J, Locked, HistCount;
+  char Str[MAXSIZESTRING];
   char RegKey[NM];
+  struct HistArray{
+    char *Str;
+    int  Locked;
+  } His[HISTORY_COUNT],HisTemp[HISTORY_COUNT+1];
 
   sprintf(RegKey,fmtSavedDialogHistory,HistoryName);
 
@@ -3961,64 +3972,104 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
     return FALSE;
   }
 
-  for (I=0; I < HISTORY_COUNT; I++)
+  memset(His,0,sizeof(His));
+  memset(HisTemp,0,sizeof(HisTemp));
+
+  // Read content & delete
+  for (HistCount=I=0; I < HISTORY_COUNT; I++)
   {
     itoa(I,PHisLocked,10);
     GetRegKey(RegKey,HisLocked,Locked,0);
-    if (!Locked)
-    {
-      FirstLine=I;
-      break;
-    }
-  }
-
-  for (I=0; I < HISTORY_COUNT; I++)
-  {
     itoa(I,PHisLine,10);
     GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
-    if (strcmp(Str,AddStr)==0)
+
+    if(*Str)
     {
-      LastLine=I;
-      break;
+      if((His[HistCount].Str=strdup(Str)) != NULL)
+      {
+        His[HistCount].Locked=Locked;
+        DeleteRegValue(RegKey,HisLocked);
+        DeleteRegValue(RegKey,HisLine);
+        ++HistCount;
+      }
     }
   }
 
-  if (FirstLine<=LastLine)
-  {
-    for (int Src=LastLine-1;Src>=FirstLine;Src--)
+  // ищем строку добавления
+  for (I=0; I < HistCount; I++)
+    if (!LCStricmp(AddStr,His[I].Str))
     {
-      itoa(Src,PHisLocked,10);
-      GetRegKey(RegKey,HisLocked,Locked,0);
+      // берем только! либо которой нету либо залоченную
+      if(AddLine == -1 || AddLine != -1 && His[I].Locked)
+        AddLine=I;
+    }
 
-      if (Locked)
+  // добавляем в начало
+  HisTemp[0].Str=(AddLine == -1)?strdup(AddStr):His[AddLine].Str;
+  HisTemp[0].Locked=(AddLine == -1)?0:His[AddLine].Locked;
+  J=1;
+
+  // Locked вперед
+  for (I=0; I < HistCount; I++)
+  {
+    if(His[I].Locked && His[I].Str)
+    {
+      if(AddLine == I)
         continue;
+      HisTemp[J].Str=His[I].Str;
+      HisTemp[J].Locked=1;
+      ++J;
+    }
+  }
 
-      for (int Dest=Src+1;Dest<=LastLine;Dest++)
+  // UnLocked
+  for (I=0; I < HistCount; I++)
+  {
+    if(!His[I].Locked && His[I].Str)
+    {
+      if(AddLine == I)
+        continue;
+      HisTemp[J].Str=His[I].Str;
+      HisTemp[J].Locked=0;
+      ++J;
+    }
+  }
+
+  // исключаем дубликаты
+  for (I=0; I < HISTORY_COUNT; I++)
+  {
+    if(HisTemp[I].Str)
+    {
+      // поиск среди незалоченных
+      for(J=I+1; J < HISTORY_COUNT; ++J)
       {
-        itoa(Dest,PHisLocked,10);
-        GetRegKey(RegKey,HisLocked,Locked,0);
-        if (!Locked)
+        if(HisTemp[J].Str)
         {
-          itoa(Src,PHisLine,10);
-          GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
-          itoa(Dest,PHisLine,10);
-          SetRegKey(RegKey,HisLine,Str);
-          break;
+          if(!LCStricmp(HisTemp[I].Str,HisTemp[J].Str))
+          {
+            free(HisTemp[J].Str);
+            HisTemp[J].Str=NULL;
+          }
         }
       }
     }
-    itoa(FirstLine,PHisLine,10);
-    SetRegKey(RegKey,HisLine,AddStr);
   }
+  // здесь в HisTemp сидит отсортированный список
 
-  for (I=0; I < HISTORY_COUNT; I++)
+  // Save History
+  for (J=I=0; I < HISTORY_COUNT; I++)
   {
-    itoa(I,PHisLine,10);
-    GetRegKey(RegKey,HisLine,Str,"",sizeof(Str));
-    if(*Str == 0)
-      DeleteRegValue(RegKey,HisLine);
+    if(HisTemp[I].Str)
+    {
+      itoa(J,PHisLocked,10);
+      itoa(J,PHisLine,10);
+      SetRegKey(RegKey,HisLine,HisTemp[I].Str);
+      if(HisTemp[I].Locked)
+        SetRegKey(RegKey,HisLocked,HisTemp[I].Locked);
+      free(HisTemp[I].Str);
+      ++J;
+    }
   }
-
   SetRegKey(RegKey,"Flags",1);
   return TRUE;
 }
@@ -4325,7 +4376,7 @@ long WINAPI Dialog::DefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
 
   // предварительно проверим...
-  if(Param1 >= Dlg->ItemCount)
+  if(Param1 >= Dlg->ItemCount && Dlg->Item)
     return 0;
 
   if (Param1>=0)
@@ -4838,17 +4889,20 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
         case DI_FIXEDIT:
           if(CurItem->ObjPtr)
           {
-            Len=((Edit *)(CurItem->ObjPtr))->GetLength();
+            Len=((Edit *)(CurItem->ObjPtr))->GetLength()+1;
             break;
           }
 
         case DI_LISTBOX:
+        {
           Len=0;
-//          if(CurItem->ListPtr)
-//          {
-//            Len=CurItem->ListPtr->GetUserData(NULL,0,-1);
-//          }
+          struct MenuItem *ListMenuItem;
+          if((ListMenuItem=CurItem->ListPtr->GetItemPtr(-1)) != NULL)
+          {
+            Len=strlen(ListMenuItem->Name)+1;
+          }
           break;
+        }
 
         default:
           Len=0;
