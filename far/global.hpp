@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.48 04.02.2003 $ */
+/* Revision: 1.49 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! применим счетчик CallNewDelete/CallMallocFree для отладки
   04.02.2003 SVS
     + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
       проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
@@ -257,6 +259,8 @@ extern const char *HelpFormatLinkModule;
 
 #if defined(SYSLOG)
 extern BOOL StartSysLog;
+extern long CallNewDelete;
+extern long CallMallocFree;
 #endif
 
 class SaveScreen;

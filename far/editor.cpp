@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.217 14.02.2003 $ */
+/* Revision: 1.218 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   14.02.2003 SVS
     ! Детализация логов для ECTL_
   05.02.2003 SKV
@@ -711,8 +713,7 @@ Editor::Editor()
   strcpy(GlobalEOL,DOS_EOL_fmt);
   /* IS $ */
   /* $ 03.12.2001 IS размер буфера undo теперь может меняться */
-  UndoData=static_cast<EditorUndoData*>
-    (malloc(Opt.EditorUndoSize*sizeof(EditorUndoData)));
+  UndoData=static_cast<EditorUndoData*>(xf_malloc(Opt.EditorUndoSize*sizeof(EditorUndoData)));
   if(UndoData)
     memset(UndoData,0,Opt.EditorUndoSize*sizeof(EditorUndoData));
   /* IS $ */
@@ -767,7 +768,7 @@ void Editor::FreeAllocatedData()
     for (int I=0;I<Opt.EditorUndoSize;++I)
       if (UndoData[I].Type!=UNDO_NONE && UndoData[I].Str!=NULL)
         delete UndoData[I].Str;
-    free(UndoData);
+    xf_free(UndoData);
     UndoData=NULL;
   }
   /* IS $ */
@@ -4248,7 +4249,7 @@ void Editor::Copy(int Append)
     CurPtr->EditLine.GetSelection(StartSel,EndSel);
     if (StartSel==-1)
       break;
-    char *NewPtr=(char *)realloc(CopyData,DataSize+Length+2);
+    char *NewPtr=(char *)xf_realloc(CopyData,DataSize+Length+2);
     if (NewPtr==NULL)
     {
       delete CopyData;
@@ -4345,7 +4346,7 @@ void Editor::DeleteBlock()
     const char *CurStr,*EndSeq;
     CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
     // дальше будет realloc, поэтому тут malloc.
-    char *TmpStr=(char*)malloc(Length+3);
+    char *TmpStr=(char*)xf_malloc(Length+3);
     memcpy(TmpStr,CurStr,Length);
     TmpStr[Length]=0;
     int DeleteNext=FALSE;
@@ -4378,7 +4379,7 @@ void Editor::DeleteBlock()
       {
         CurPtr->Next->EditLine.GetBinaryString(NextStr,&EndSeq,NextLength);
         NextLength-=NextEndSel;
-        TmpStr=(char *)realloc(TmpStr,Length+NextLength+3);
+        TmpStr=(char *)xf_realloc(TmpStr,Length+NextLength+3);
         memcpy(TmpStr+Length,NextStr+NextEndSel,NextLength);
         Length+=NextLength;
       }
@@ -4407,7 +4408,7 @@ void Editor::DeleteBlock()
     /* $ 17.09.2002 SKV
       выделяли через malloc
     */
-    free(TmpStr);
+    xf_free(TmpStr);
     /* SKV $ */
     CurPtr->EditLine.SetCurPos(CurPos);
     if (DeleteNext && EndSel==-1)
@@ -5118,7 +5119,7 @@ void Editor::VCopy(int Append)
     CurPtr->EditLine.GetBinaryString(CurStr,&EndSeq,Length);
 
     int AllocSize=Max(DataSize+Length+3,DataSize+TBlockSizeX+3);
-    char *NewPtr=(char *)realloc(CopyData,AllocSize);
+    char *NewPtr=(char *)xf_realloc(CopyData,AllocSize);
     if (NewPtr==NULL)
     {
       delete CopyData;

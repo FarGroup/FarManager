@@ -5,10 +5,12 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.05 21.01.2003 $ */
+/* Revision: 1.06 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
@@ -192,8 +194,8 @@ DWORD RawConvertShortNameToLongName(const char *src, char *dest, DWORD maxsize)
     }
   }
 
-  if(SrcBuf)  free(SrcBuf);
-  if(DestBuf) free(DestBuf);
+  if(SrcBuf)  xf_free(SrcBuf);
+  if(DestBuf) xf_free(DestBuf);
 
   return FinalSize;
 }

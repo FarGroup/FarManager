@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.46 04.02.2003 $ */
+/* Revision: 1.47 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! Вместо chdir применим FarChDir
   03.02.2003 SVS
     + В общем, теперь в дебажной версии есть ключ "/cr", отключающий трид
       проверки регистрации. Под TD32 иногда жутчайшие тормоза наблюдаются.
@@ -242,14 +244,16 @@ void ControlObject::Init()
 
   FrameManager->InsertFrame(FPanels);
 
-  char StartCurDir[NM];
+  char StartCurDir[2048];
   Cp()->ActivePanel->GetCurDir(StartCurDir);
-  chdir(StartCurDir);
+  FarChDir(StartCurDir, TRUE);
   Cp()->ActivePanel->SetFocus();
 
   FrameManager->PluginCommit();
   Plugins.LoadPlugins();
-  chdir(StartCurDir);
+/*
+  FarChDir(StartCurDir, TRUE);
+*/
 
 //  _SVS(SysLog("ActivePanel->GetCurDir='%s'",StartCurDir));
 //  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog("AnotherPanel->GetCurDir='%s'",PPP));

@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.129 25.02.2003 $ */
+/* Revision: 1.130 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
+    -  "...нет хоткеев для кнопок yes и no в сообщении
+        "Continue the search from the beginning of the document?"..."
   25.02.2003 SVS
     + SelectFlags, GetSelectedParam - что бы была возможность восстановить выделение
   20.02.2003 IS
@@ -1596,7 +1600,7 @@ int Viewer::ProcessKey(int Key)
         int DataSize = (int)SelectSize+(VM.Unicode?2:1);
         __int64 CurFilePos=vtell(ViewFile);
 
-        if ((SelData=(char*)malloc(DataSize)) != NULL)
+        if ((SelData=(char*)xf_malloc(DataSize)) != NULL)
         {
           memset(SelData, 0, DataSize);
           vseek(ViewFile,SelectPos,SEEK_SET);
@@ -1604,10 +1608,9 @@ int Viewer::ProcessKey(int Key)
           if (VM.UseDecodeTable && !VM.Unicode)
             DecodeString(SelData, (unsigned char *)TableSet.DecodeTable);
           if (VM.Unicode)
-            WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)(SelData),(int)SelectSize,
-                                           SelData,(int)SelectSize," ",NULL);
+            WideCharToMultiByte(CP_OEMCP,0,(LPCWSTR)(SelData),(int)SelectSize,SelData,(int)SelectSize," ",NULL);
           CopyToClipboard(SelData);
-          free(SelData);
+          xf_free(SelData);
           vseek(ViewFile,CurFilePos,SEEK_SET);
         } /* if */
       } /* if */
@@ -2785,7 +2788,7 @@ void Viewer::Search(int Next,int FirstChar)
       if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
                   MSG(MViewSearchCannotFind), MsgStr,
                   (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
-                  MSG(MYes), MSG(MNo)) == 0)
+                  MSG(MHYes), MSG(MHNo)) == 0)
         Search(2,0);
     }
     /* VVM $ */

@@ -1,10 +1,30 @@
-//#undef __NEW_H
+/*
+new.cpp
+
+Замена RTL-модуля
+
+*/
+
+/* Revision: 1.01 25.02.2003 $ */
+
+/*
+Modify:
+  25.02.2003 SVS
+    ! применим счетчик CallNewDelete/CallMallocFree для отладки
+  24.02.2003 SVS
+    ! Выделение в качестве самостоятельного модуля
+*/
+
 #include "headers.hpp"
 #pragma hdrstop
 
 extern "C" {
 void *__cdecl xf_malloc(size_t __size);
 };
+
+#if defined(SYSLOG)
+extern long CallNewDelete;
+#endif
 
 
 #if defined(_MSC_VER)
@@ -53,6 +73,9 @@ void *operator new(size_t size)
             RTL without exception support we had better just return NULL.
          */
          break;
+#if defined(SYSLOG)
+  CallNewDelete++;
+#endif
   return p;
 }
 

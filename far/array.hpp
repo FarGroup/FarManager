@@ -13,10 +13,12 @@ array.hpp
  //  const Object& operator=(const Object &)
 */
 
-/* Revision: 1.01 21.08.2002 $ */
+/* Revision: 1.02 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.08.2002 IS
    ! Не дергаем Sort, если массив пуст
   15.08.2002 IS
@@ -80,7 +82,7 @@ void TArray<Object>::Free()
   {
     for(unsigned i=0;i<Count;++i)
       delete items[i];
-    free(items);
+    xf_free(items);
     items=NULL;
   }
   Count=internalCount=0;
@@ -118,8 +120,7 @@ void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func)
   {
     if(!user_cmp_func)
       user_cmp_func=reinterpret_cast<TARRAYCMPFUNC>(CmpItems);
-    qsort(reinterpret_cast<char*>(items),Count,
-      sizeof(Object*),user_cmp_func);
+    qsort(reinterpret_cast<char*>(items),Count,sizeof(Object*),user_cmp_func);
   }
 }
 
@@ -184,13 +185,13 @@ bool TArray<Object>::setSize(unsigned int newSize)
      unsigned int Remainder=newSize%Delta;
      unsigned int newCount=Remainder?(newSize+Delta)-Remainder:
        newSize?newSize:Delta;
-     Object **newItems=static_cast<Object**>(malloc(newCount*sizeof(Object*)));
+     Object **newItems=static_cast<Object**>(xf_malloc(newCount*sizeof(Object*)));
      if(newItems)
      {
        if(items)
        {
          memcpy(newItems,items,Count*sizeof(Object*));
-         free(items);
+         xf_free(items);
        }
        items=newItems;
        internalCount=newCount;

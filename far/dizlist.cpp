@@ -5,10 +5,12 @@ dizlist.cpp
 
 */
 
-/* Revision: 1.11 21.01.2003 $ */
+/* Revision: 1.12 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       ѕросьба блюсти пор€док и прописывать именно xf_* вместо простых.
@@ -83,7 +85,7 @@ void DizList::Reset()
     if(DizData[I].DizText)
       delete[] DizData[I].DizText;
   if(DizData)
-    free(DizData);
+    xf_free(DizData);
   DizData=NULL;
   DizCount=0;
   if(IndexData)

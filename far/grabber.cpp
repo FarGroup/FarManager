@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.12 21.01.2003 $ */
+/* Revision: 1.13 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   21.01.2003 SVS
     + xf_malloc,xf_realloc,xf_free - обертки вокруг malloc,realloc,free
       Просьба блюсти порядок и прописывать именно xf_* вместо простых.
@@ -161,7 +163,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
       /* $ 13.07.2000 SVS
          раз вызывали new[], то нужно вызывать delete[]
       */
-      free(CopyBuf);
+      xf_free(CopyBuf);
       /* SVS $ */
       CopyBuf=AppendBuf;
     }
@@ -174,7 +176,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
      раз вызывали new[], то нужно вызывать delete[]
   */
   if(CopyBuf)
-    free(CopyBuf);
+    xf_free(CopyBuf);
   delete[] CharBuf;
   /* SVS $ */
 }

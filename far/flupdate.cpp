@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.41 20.02.2003 $ */
+/* Revision: 1.42 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
+    ! ¬ернем схему наложени€ раскраски взад - все за один цикл
   20.02.2003 SVS
     ! «аменим strcmp(FooBar,"..") на TestParentFolderName(FooBar)
     ! ¬ FileList::PluginPutFilesToNew() вместо индексного массива
@@ -366,6 +369,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   memset(Title,0x0CD,TitleLength);
   Title[TitleLength]=0;
   BOOL IsShowTitle=FALSE;
+  BOOL NeedHighlight=Opt.Highlight && PanelMode != PLUGIN_PANEL;
 
   for (FileCount=0; !Done; )
   {
@@ -388,7 +392,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
       if (FileCount>=AllocatedCount)
       {
         AllocatedCount=AllocatedCount+256+AllocatedCount/4;
-        if ((CurPtr=(struct FileListItem *)realloc(ListData,AllocatedCount*sizeof(*ListData)))==NULL)
+        if ((CurPtr=(struct FileListItem *)xf_realloc(ListData,AllocatedCount*sizeof(*ListData)))==NULL)
           break;
         ListData=CurPtr;
       }
@@ -429,6 +433,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
         GetFileOwner(*ComputerName ? ComputerName:NULL,NewPtr->Name,Owner);
         strncpy(NewPtr->Owner,Owner,sizeof(NewPtr->Owner)-1);
       }
+
+      if (NeedHighlight)
+        CtrlObject->HiFiles->GetHiColor(NewPtr,1);
+
       if (!UpperDir && (fdata.dwFileAttributes & FA_DIREC)==0)
         TotalFileCount++;
 
@@ -484,7 +492,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
   // "перекраску" вынесем в отдельный цикл - на медленных сетевых соединени€х
   // вежнее считать конкент, а остальное потом.
-  UpdateColorItems();
+//  UpdateColorItems();
 
   if (IsColumnDisplayed(DIZ_COLUMN))
     ReadDiz();
@@ -501,7 +509,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
   {
     if (FileCount>=AllocatedCount)
     {
-      if ((CurPtr=(struct FileListItem *)realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
+      if ((CurPtr=(struct FileListItem *)xf_realloc(ListData,(FileCount+1)*sizeof(*ListData)))!=NULL)
         ListData=CurPtr;
     }
     if (CurPtr!=NULL)
@@ -521,7 +529,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
     AddEndSlash(Path);
     if (CtrlObject->Plugins.GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,Path))
     {
-      if ((CurPtr=(struct FileListItem *)realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
+      if ((CurPtr=(struct FileListItem *)xf_realloc(ListData,(FileCount+PanelCount)*sizeof(*ListData)))!=NULL)
       {
         ListData=CurPtr;
         for (CurPtr=ListData+FileCount, PtrPanelData=PanelData, I=0; I < PanelCount; I++, CurPtr++, PtrPanelData++)
@@ -770,7 +778,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
     DeleteListData(ListData,FileCount);
 
   FileCount=PluginFileCount;
-  ListData=(struct FileListItem*)malloc(sizeof(struct FileListItem)*(FileCount+1));
+  ListData=(struct FileListItem*)xf_malloc(sizeof(struct FileListItem)*(FileCount+1));
 
   if (ListData==NULL)
   {

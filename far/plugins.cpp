@@ -5,10 +5,13 @@ plugins.cpp
 
 */
 
-/* Revision: 1.133 05.02.2003 $ */
+/* Revision: 1.134 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    - помино пути нужно восстанавливать еще и переменные окружения вида "=A:"
+      (несколько криво, но...)
   05.02.2003 VVM
     - После загрузки плагина восстановим тот путь, что был.
   04.02.2003 SVS
@@ -734,11 +737,21 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   {
    /* $ 05.02.2003 VVM
      - После загрузки плагина восстановим тот путь, что был */
-    char CurPath[4096];
+    char CurPath[1024], CurPlugDiskPath[1024], Drive[4];
+    Drive[0]=0; // ставим 0, как признак того, что вертать обратно ненадо!
     FarGetCurDir(sizeof(CurPath)-1,CurPath);
+    if(IsLocalPath(CurPlugin.ModuleName)) // если указан локальный путь, то...
+    {
+      // ...получим соответствующую переменную окружения
+      strcpy(Drive,"= :");
+      Drive[1]=CurPlugin.ModuleName[0];
+      GetEnvironmentVariable(Drive,CurPlugDiskPath,sizeof(CurPlugDiskPath));
+    }
     PrepareModulePath(CurPlugin.ModuleName);
     hModule=LoadLibraryEx(CurPlugin.ModuleName,NULL,LOAD_WITH_ALTERED_SEARCH_PATH);
     FarChDir(CurPath, TRUE);
+    if(Drive[0]) // вернем ее (переменную окружения) обратно
+      SetEnvironmentVariable(Drive,CurPlugDiskPath);
     /* VVM $ */
   }
 

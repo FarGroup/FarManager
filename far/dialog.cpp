@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.280 25.02.2003 $ */
+/* Revision: 1.281 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! "free/malloc/realloc -> xf_*" - что-то в прошлый раз пропустил.
   25.02.2003 SVS
     - BugZ#811 - Зависание при невозможности загрузить плуг
   22.02.2003 SVS
@@ -2054,7 +2056,7 @@ void Dialog::DeleteDialogObjects()
     }
     if(CurItem->Flags&DIF_AUTOMATION)
       if(CurItem->AutoPtr)
-        free(CurItem->AutoPtr);
+        xf_free(CurItem->AutoPtr);
   }
 }
 
@@ -3559,7 +3561,7 @@ int Dialog::ProcessKey(int Key)
               if(Item[FocusPos].Flags & DIF_VAREDIT)
               {
                 MaxLen=Item[FocusPos].Ptr.PtrLength;
-                if((PStr=(char*)malloc(MaxLen+1)) == NULL)
+                if((PStr=(char*)xf_malloc(MaxLen+1)) == NULL)
                   return TRUE; //???
               }
               int DoAutoComplete=TRUE;
@@ -3608,7 +3610,7 @@ int Dialog::ProcessKey(int Key)
                 //RedrawNeed=TRUE;
               }
               if(Item[FocusPos].Flags & DIF_VAREDIT)
-                free(PStr);
+                xf_free(PStr);
             }
             /* SVS 03.12.2000 $ */
             if(!IsNavKey(Key)) //???????????????????????????????????????????
@@ -4064,7 +4066,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocu
     if(CurItem->Flags&DIF_VAREDIT)
     {
       MaxLen=CurItem->Ptr.PtrLength;
-      if((PStr=(char*)malloc(MaxLen+1)) == NULL)
+      if((PStr=(char*)xf_malloc(MaxLen+1)) == NULL)
         return TRUE;//???
     }
     /* $ 27.04.2001 SVS
@@ -4075,7 +4077,7 @@ int Dialog::ProcessOpenComboBox(int Type,struct DialogItem *CurItem, int CurFocu
     /* SVS $ */
     SelectFromEditHistory(CurItem,CurEditLine,CurItem->History,PStr,MaxLen);
     if(CurItem->Flags&DIF_VAREDIT)
-      free(PStr);
+      xf_free(PStr);
   }
   /* SVS $ */
   /* $ 18.07.2000 SVS
@@ -4536,7 +4538,7 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
   {
     DialogItemAutomation *Auto;
     int AutoCount=Item[IDParent].AutoCount;
-    if((Auto=(DialogItemAutomation*)realloc(Item[IDParent].AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) != NULL)
+    if((Auto=(DialogItemAutomation*)xf_realloc(Item[IDParent].AutoPtr,sizeof(DialogItemAutomation)*(AutoCount+1))) != NULL)
     {
       Item[IDParent].AutoPtr=Auto;
       Auto=Item[IDParent].AutoPtr+AutoCount;
@@ -4610,7 +4612,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
   if(!TypeFind)
   {
     char RegKey[NM];
-    if((Str=(char*)malloc(MaxLen+1)) == NULL)
+    if((Str=(char*)xf_malloc(MaxLen+1)) == NULL)
       return FALSE;
     sprintf(RegKey,fmtSavedDialogHistory,(char*)HistoryName);
     // просмотр пунктов истории
@@ -4623,7 +4625,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
     }
     if (I == HISTORY_COUNT)
     {
-      free(Str);
+      xf_free(Str);
       return FALSE;
     }
     /* $ 28.07.2000 SVS
@@ -4632,7 +4634,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr,int Max
 //_D(SysLog("FindInEditForAC()  FindStr=%s Str=%s",FindStr,&Str[strlen(FindStr)]));
     strncat(FindStr,&Str[LenFindStr],MaxLen-LenFindStr);
     /* SVS $ */
-    free(Str);
+    xf_free(Str);
   }
   else
   {
@@ -4673,7 +4675,7 @@ int Dialog::SelectFromComboBox(
   int I,Dest;
   int CurFocusPos=FocusPos;
 
-  if((Str=(char*)malloc(MaxLen)) != NULL)
+  if((Str=(char*)xf_malloc(MaxLen)) != NULL)
   {
     EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
     if (EditX2-EditX1<20)
@@ -4747,7 +4749,7 @@ int Dialog::SelectFromComboBox(
     if (Dest<0)
     {
       Redraw();
-      free(Str);
+      xf_free(Str);
       return KEY_ESC;
     }
 
@@ -4755,7 +4757,7 @@ int Dialog::SelectFromComboBox(
     EditLine->SetString(Str);
     EditLine->SetLeftPos(0);
     Redraw();
-    free(Str);
+    xf_free(Str);
     return KEY_ENTER;
   }
   return KEY_ESC;
@@ -5128,7 +5130,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
         {
           if(!LCStricmp(HisTemp[I].Str,HisTemp[J].Str))
           {
-            free(HisTemp[J].Str);
+            xf_free(HisTemp[J].Str);
             HisTemp[J].Str=NULL;
           }
         }
@@ -5147,7 +5149,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
       SetRegKey(RegKey,HisLine,HisTemp[I].Str);
       if(HisTemp[I].Locked)
         SetRegKey(RegKey,HisLocked,HisTemp[I].Locked);
-      free(HisTemp[I].Str);
+      xf_free(HisTemp[I].Str);
       ++J;
     }
   }
@@ -5157,7 +5159,7 @@ int Dialog::AddToEditHistory(char *AddStr,char *HistoryName)
   */
   for (I=0; I<HISTORY_COUNT; I++)
     if (His[I].Str)
-      free(His[I].Str);
+      xf_free(His[I].Str);
   /* DJ $ */
 
   SetRegKey(RegKey,"Flags",1);

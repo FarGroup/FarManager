@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.16 20.02.2003 $ */
+/* Revision: 1.17 25.02.2003 $ */
 
 /*
 Modify:
+  25.02.2003 SVS
+    ! применим счетчик CallNewDelete/CallMallocFree для отладки
   20.02.2003 SVS
     ! xf_* будут __cdecl, т.к. юзаются в strdup.c, del.cpp и new.cpp
   26.01.2003 IS
@@ -368,20 +370,34 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 }
 /* SVS $ */
 
+#if defined(SYSLOG)
+extern long CallMallocFree;
+#endif
+
 void __cdecl  xf_free(void *__block)
 {
+#if defined(SYSLOG)
+  CallMallocFree--;
+#endif
   free(__block);
 }
 
 void *__cdecl xf_malloc(size_t __size)
 {
   void *Ptr=malloc(__size);
+#if defined(SYSLOG)
+  CallMallocFree++;
+#endif
   return Ptr;
 }
 
 void *__cdecl xf_realloc(void *__block, size_t __size)
 {
   void *Ptr=realloc(__block,__size);
+#if defined(SYSLOG)
+  if(!__block)
+    CallMallocFree++;
+#endif
   return Ptr;
 }
 
