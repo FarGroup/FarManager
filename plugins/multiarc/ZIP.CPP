@@ -69,7 +69,7 @@ inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEn
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  if (DataSize>=3 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
+  if (DataSize>=4 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
   {
     SFXSize=0;
     return(TRUE);
