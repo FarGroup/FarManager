@@ -5,7 +5,7 @@ Internal viewer
 
 */
 
-/* Revision: 1.12 15.07.2000 $ */
+/* Revision: 1.13 17.07.2000 $ */
 
 /*
 Modify:
@@ -43,6 +43,12 @@ Modify:
     ! Некоторые коррекции при использовании new/delete/realloc
   15.07.2000 SVS
     ! Wrap должен показываться следующий, а не текущий
+  17.07.2000 tran
+    + я не суеверный, 1.13 пойдет :)
+      теперь диалог по alt-f8 реагирует на
+      nn% - проценты
+      0xnn, nnh, nn$ - hex offset
+      +/-nn - относительное смещение
 */
 
 #include "headers.hpp"
@@ -1669,17 +1675,25 @@ int Viewer::vgetc(FILE *SrcFile)
 }
 
 
+#define RB_PRC 3
+#define RB_HEX 4
+#define RB_DEC 5
+
 void Viewer::GoTo()
 {
+  /* $ 17.07.2000 tran
+     + new variable*/
+  int Relative=0;
+  /* tran 17.07.2000 $ */
   const char *LineHistoryName="ViewerOffset";
   static struct DialogData GoToDlgData[]=
   {
-    DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(char *)MViewerGoTo,
-    DI_EDIT,5,2,29,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",
-    DI_TEXT,3,3,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_RADIOBUTTON,5,4,0,0,0,0,DIF_GROUP,0,(char *)MGoToPercent,
-    DI_RADIOBUTTON,5,5,0,0,0,0,0,0,(char *)MGoToHex,
-    DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MGoToDecimal,
+    DI_DOUBLEBOX,3,1,31,7,0,0,0,0,(char *)MViewerGoTo,                 // 0
+    DI_EDIT,5,2,29,2,1,(DWORD)LineHistoryName,DIF_HISTORY,1,"",        // 1
+    DI_TEXT,3,3,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",               // 2
+    DI_RADIOBUTTON,5,4,0,0,0,0,DIF_GROUP,0,(char *)MGoToPercent,       // 3
+    DI_RADIOBUTTON,5,5,0,0,0,0,0,0,(char *)MGoToHex,                   // 4
+    DI_RADIOBUTTON,5,6,0,0,0,0,0,0,(char *)MGoToDecimal,               // 5
   };
   MakeDialogItems(GoToDlgData,GoToDlg);
   static char PrevLine[20];
@@ -1693,37 +1707,85 @@ void Viewer::GoTo()
 
   {
     Dialog Dlg(GoToDlg,sizeof(GoToDlg)/sizeof(GoToDlg[0]));
+    Dlg.SetHelp("ViewerGotoPos");
     Dlg.SetPosition(-1,-1,35,9);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=1 || !isdigit(*GoToDlg[1].Data))
+    /* $ 17.07.2000 tran
+       - remove isdigit check()
+         кстати, тут баг был
+         если ввести ffff при hex offset, то фар все равно никуда не шел */
+    if (Dlg.GetExitCode()!=1 ) //|| !isdigit(*GoToDlg[1].Data))
       return;
     strncpy(PrevLine,GoToDlg[1].Data,sizeof(PrevLine));
     DWORD Offset;
-    if (GoToDlg[3].Selected)
+    /* $ 17.07.2000 tran
+       тут для сокращения кода ввел ptr, который и анализирую */
+    char *ptr=&GoToDlg[1].Data[0];
+    if ( ptr[0]=='+' || ptr[0]=='-' )     // юзер хочет относительности
     {
+        if (ptr[0]=='+')
+            Relative=1;
+        else
+            Relative=-1;
+        memmove(ptr,ptr+1,strlen(ptr)); // если вы думаете про strlen(ptr)-1,
+                                        // то вы ошибаетесь :)
+    }
+    if ( strchr(ptr,'%') )   // он хочет процентов
+    {
+        GoToDlg[RB_HEX].Selected=GoToDlg[RB_DEC].Selected=0;
+        GoToDlg[RB_PRC].Selected=1;
+    }
+    else if ( strnicmp(ptr,"0x",2)==0 || ptr[0]=='$' || strchr(ptr,'h') ||strchr(ptr,'H') ) // он умный - hex код ввел!
+    {
+        GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
+        GoToDlg[RB_HEX].Selected=1;
+        if ( strnicmp(ptr,"0x",2)==0)
+            memmove(ptr,ptr+2,strlen(ptr)-1); // а тут надо -1, а не -2  // сдвинем строку
+        else if (ptr[0]=='$')
+            memmove(ptr,ptr+1,strlen(ptr));
+        //Relative=0; // при hex значении никаких относительных значений?
+    }
+    if (GoToDlg[RB_PRC].Selected)
+    {
+      //int cPercent=ToPercent(FilePos,FileSize);
       PrevMode=0;
-      unsigned int Percent=atoi(GoToDlg[1].Data);
+      int Percent=atoi(GoToDlg[1].Data);
+      //if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
+      //  return;
       if (Percent>100)
         return;
+      //if ( Percent<0 )
+      //  Percent=0;
       Offset=FileSize/100*Percent;
       if (Unicode)
         Offset*=2;
       while (ToPercent(Offset,FileSize)<Percent)
         Offset++;
     }
-    if (GoToDlg[4].Selected)
+    if (GoToDlg[RB_HEX].Selected)
     {
       PrevMode=1;
       char *endptr;
       Offset=strtoul(GoToDlg[1].Data,&endptr,16);
     }
-    if (GoToDlg[5].Selected)
+    if (GoToDlg[RB_DEC].Selected)
     {
       PrevMode=2;
       char *endptr;
       Offset=strtoul(GoToDlg[1].Data,&endptr,10);
     }
-    FilePos=Unicode ? Offset/2:Offset;
+    if ( Relative )
+    {
+        if ( Relative==-1 && Offset>FilePos ) // меньше нуля, if (FilePos<0) не пройдет - FilePos у нас unsigned long
+            FilePos=0;
+        else
+            FilePos=Unicode? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
+    }
+    else
+        FilePos=Unicode ? Offset/2:Offset;
+    if ( FilePos>FileSize )   // и куда его несет?
+        FilePos=FileSize;     // там все равно ничего нету
+    /* tran 17.07.2000 $ */
   }
   LastSelPos=FilePos;
   Show();

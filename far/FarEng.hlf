@@ -1138,7 +1138,7 @@ $ #Internal viewer#
     #F8#                 Toggle DOS/Windows text view mode
     #Shift-F8#           Select custom character table
                        (see notes below)
-    #Alt-F8#             Change current position
+    #Alt-F8#             ~Change current position~@ViewerGotoPos@
     #Numpad5,F3,F10,Esc# Quit
     #F11#                Call "Plugin commands" menu
 
@@ -1161,6 +1161,27 @@ $ #Internal viewer#
 
     2. Also to call search dialog you may just start typing the text
        to be located.
+
+@ViewerGotoPos
+$ #Go to specified position
+  This dialog allows change position in internal viewer.
+
+  You can enter decimal offset, percent, of hexadecimal offset.
+
+  Also you can enter relative values, just add + or - before number
+
+  Hexadecimal values you must specified in one of next form:
+     0xNNNN, NNNNh, $NNNN
+
+  Examples
+   #50%#                     Go to midle of file (50%)
+   #-10%#                    Go to 10% percent back from current offset
+                           If were was 50%, will be 40%
+   #0x100#                   Go to 0x100 (256) offset
+   #+0x300#                  Go to 0x300 (768) bytes forward
+
+  If you enter value with % or '0x', 'h', '$' hexadecimal specificators
+radio buttons you select will be ignored.
 
 @Editor
 $ #Internal editor#
@@ -1248,7 +1269,7 @@ $ #Internal editor#
 
 @EditorGotoPos
 $ #Go to specified line and column#
- This dialog allows chnage position in internal editor.
+ This dialog allows change position in internal editor.
 
  You can enter row or col, or both.
 
