@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.44 19.01.2001 $ */
+/* Revision: 1.45 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+    + Opt.CursorSize - Размер курсора ФАРа :-)
   19.01.2001 SVS
     + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
       клавиш
@@ -737,6 +739,14 @@ void ReadConfig()
        дабы не шокировать публику :-)
   */
   GetRegKey("Interface","AutoComplete",Opt.AutoComplete,0);
+  /* SVS $*/
+  /* $ 22.01.2001 SVS
+     + Opt.CursorSize - Размер курсора ФАРа - в процентах от 1 до 100 :-)
+     Interface/CursorSize1 - для оконного режима
+     Interface/CursorSize2 - для полноэкранного режима
+  */
+  GetRegKey("Interface","CursorSize1",Opt.CursorSize[0],15);
+  GetRegKey("Interface","CursorSize2",Opt.CursorSize[1],10);
   /* SVS $*/
   /* $ 17.01.2001 SVS
      ! Opt.ShiftsKeyRules

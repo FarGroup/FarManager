@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.49 20.01.2001 $ */
+/* Revision: 1.50 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+   ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
   20.01.2001 SVS
    + GetSearchReplaceString, WriteSequenceInput
    ! WriteInput теперь возвращает результат в виде FALASE/TRUE.
@@ -373,7 +375,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow=FALSE,
 #ifdef __PANEL_HPP__
 void ShellMakeDir(Panel *SrcPanel);
 void ShellDelete(Panel *SrcPanel,int Wipe);
-void ShellSetFileAttributes(Panel *SrcPanel);
+int  ShellSetFileAttributes(Panel *SrcPanel);
 void PrintFiles(Panel *SrcPanel);
 #endif
 

@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.12 22.01.2001 $ */
+/* Revision: 1.13 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+    ! Для FS & WM применяются 2 разных курсора - их параметры можно
+      задавать через реестр.
   22.01.2001 SVS
     ! Проблемы с курсором при больших разрешениях - ставим тот курсор в
       SetCursorType, который был до запуска ФАРа.
@@ -273,7 +276,9 @@ void GetCursorPos(int& X,int& Y)
 void SetCursorType(int Visible,int Size)
 {
   if (Size==-1 || !Visible)
-    Size=InitCurSize;//IsWindowed()?15:10;
+    Size=IsWindowed()?
+       (Opt.CursorSize[0]?Opt.CursorSize[0]:InitCurSize):
+       (Opt.CursorSize[1]?Opt.CursorSize[1]:InitCurSize);
 
   ScrBuf.SetCursorType(Visible,Size);
 }

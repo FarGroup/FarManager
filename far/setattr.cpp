@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.14 22.01.2001 $ */
+/* Revision: 1.15 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+    ! ShellSetFileAttributes теперь возвращает результат в виде TRUE или FALSE
+    + Если это плагиновая панель, то посмотрим на OPIF_REALNAMES
   22.01.2001 SVS
     + Больше интелектуальности диалогу установки атрибутов !!!! :-)))
       Теперь, для случая Multi, если есть подряд идущие атрибуты, то
@@ -183,7 +186,7 @@ static void FillFileldDir(char *SelName,int FileAttr,
 /* SVS $ */
 
 
-void ShellSetFileAttributes(Panel *SrcPanel)
+int ShellSetFileAttributes(Panel *SrcPanel)
 {
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 /*MSetAttrJunction
@@ -250,8 +253,20 @@ void ShellSetFileAttributes(Panel *SrcPanel)
   DWORD FileSystemFlags;
   int SelCount, I, J;
 
-  if (SrcPanel->GetMode()==PLUGIN_PANEL || (SelCount=SrcPanel->GetSelCount())==0)
-    return;
+  if((SelCount=SrcPanel->GetSelCount())==0)
+    return 0;
+
+  if (SrcPanel->GetMode()==PLUGIN_PANEL)
+  {
+    struct OpenPluginInfo Info;
+    HANDLE hPlugin=SrcPanel->GetPluginHandle();
+    if(hPlugin == INVALID_HANDLE_VALUE)
+      return 0;
+
+    CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
+    if(!(Info.Flags & OPIF_REALNAMES))
+      return 0;
+  }
 
   FileSystemFlags=0;
   if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&FileSystemFlags,NULL,0))
@@ -272,7 +287,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
     SrcPanel->GetSelName(SelName,FileAttr);
 
     if (SelCount==0 || SelCount==1 && strcmp(SelName,"..")==0)
-      return;
+      return 0;
 
     int FocusPos;
     int NewAttr;
@@ -459,7 +474,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
       }
 
       if (Dlg.GetExitCode()!=26)
-        return;
+        return 0;
 
       NewAttr=FileAttr & FA_DIREC;
       if (AttrDlg[4].Selected)        NewAttr|=FA_RDONLY;
@@ -575,7 +590,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
         }
 
         if (Dlg.GetExitCode()!=26)
-          return;
+          return 0;
       }
       CtrlObject->GetAnotherPanel(SrcPanel)->CloseFile();
 
@@ -732,5 +747,6 @@ void ShellSetFileAttributes(Panel *SrcPanel)
   Panel *AnotherPanel=CtrlObject->GetAnotherPanel(SrcPanel);
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   AnotherPanel->Redraw();
+  return 1;
 }
 

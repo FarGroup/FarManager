@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.33 19.01.2001 $ */
+/* Revision: 1.34 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+   + Opt.CursorSize[2] - Размер курсора ФАРа :-)
   19.01.2001 SVS
    + Opt.MacroReuseRules - повторное использование.
   09.01.2001 SVS
@@ -465,6 +467,11 @@ struct Options
    + Opt.MacroReuseRules - Правило на счет повторно использования забинденных
      клавиш */
   int MacroReuseRules;
+  /* SVS $ */
+  /* $ 22.01.2001 SVS
+   + Opt.CursorSize - Размер курсора ФАРа :-)
+     клавиш */
+  int CursorSize[2];
   /* SVS $ */
   /* $ 05.09.2000 SVS
      В Opt добавлен блок переменный, касаемых QWERTY-перекодировки

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.15 05.01.2001 $ */
+/* Revision: 1.16 22.01.2001 $ */
 
 /*
 Modify:
+  22.01.2001 SVS
+    + EXCEPT_PROCESSVIEWERINPUT - на будущее.
   05.01.2001 SVS
     + DRIVE_SUSTITUTE - это про SUBST-диски.
   25.12.2000 SVS
@@ -240,6 +242,7 @@ enum EceptFunctionsType{
   EXCEPT_PROCESSEDITORINPUT,
   EXCEPT_MINFARVERSION,
   EXCEPT_PROCESSVIEWEREVENT,
+  EXCEPT_PROCESSVIEWERINPUT,
 };
 
 #if defined(__BORLANDC__)
