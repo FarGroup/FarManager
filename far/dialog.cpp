@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.53 21.11.2000 $ */
+/* Revision: 1.54 03.12.2000 $ */
 
 /*
 Modify:
+  03.12.2000 IS
+   ! Не автодополнять, если после курсора есть невыделенные символы.
+     Работает это правило, естественно, только с постоянными блоками.
   21.11.2000 SVS
    - Не стиралась последняя строка в многострочном редакторе
   08.11.2000 SVS
@@ -2006,17 +2009,45 @@ int Dialog::ProcessKey(int Key)
             */
             int CurPos=edt->GetCurPos();
             /* SVS $*/
+            /* $ 03.12.2000 IS
+               Флаг для указания - автодополнять или нет.
+            */
+            int DoAutoComplete=TRUE;
+            /* IS $*/
             //text to search for
             edt->GetString(Str,sizeof(Str));
             edt->GetSelection(SelStart,SelEnd);
-            if(SelStart <= 0)
+            /* $ 03.12.2000 IS
+              Тут баг был, imho. Нужно именно "<", а не "<=".
+            */
+            if(SelStart < 0)
+            /* IS $ */
               SelStart=sizeof(Str);
             else
               SelStart++;
 
+            /* $ 03.12.2000 IS
+               Не автодополнять, если после курсора есть невыделенные символы.
+               Работает это правило, естественно, только с постоянными блоками.
+            */
+            if(Opt.EditorPersistentBlocks)
+            {
+              if(SelStart<SelEnd && (CurPos<SelStart || SelEnd<strlen(Str)))
+                 DoAutoComplete=FALSE;
+
+              // удалим остаток строки
+              if(DoAutoComplete && CurPos <= SelEnd)
+              {
+                Str[CurPos]=0;
+                edt->Select(CurPos,sizeof(Str)); //select the appropriate text
+                edt->DeleteBlock();
+                edt->FastShow();
+              }
+            }
+
             // а вот при постоянных блоках остатка строки нам ненать
             //  даже если блок помечен в серёдке... :-)
-            if(Opt.EditorPersistentBlocks)
+            /*if(Opt.EditorPersistentBlocks)
             {
               // ненать по возможности :-)
               if(CurPos <= SelEnd)
@@ -2026,11 +2057,17 @@ int Dialog::ProcessKey(int Key)
                 edt->DeleteBlock();
                 edt->FastShow();
               }
-            }
+            }*/
+            /* IS $ */
+
             SelEnd=strlen(Str);
             //find the string in the list
-            if (FindInEditForAC(Type == DI_COMBOBOX,
+            /* $ 03.12.2000 IS
+                 Учитываем флаг DoAutoComplete
+            */
+            if (DoAutoComplete && FindInEditForAC(Type == DI_COMBOBOX,
                          (void *)Item[FocusPos].Selected,Str))
+            /* IS $ */
             {
               edt->SetString(Str);
               edt->Select(SelEnd,sizeof(Str)); //select the appropriate text
@@ -3678,4 +3715,3 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 /* SVS $ */
 
 //////////////////////////////////////////////////////////////////////////
-
