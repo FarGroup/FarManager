@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.22 10.09.2000 $ */
+/* Revision: 1.23 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 tran 1.21
+    + FSF/FarRecurseSearch
   10.09.2000 SVS
     ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
@@ -510,6 +512,10 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StandardFunctions.GetFileOwner=GetFileOwner;
     StandardFunctions.GetNumberOfLinks=GetNumberOfLinks;
     /* SVS $ */
+    /* $ 10.09.2000 tran
+      + нижеуказанное */
+    StandardFunctions.FarRecurseSearch=FarRecurseSearch;
+    /* tran 08.09.2000 $ */
 
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);

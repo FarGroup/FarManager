@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.22 10.09.2000 $ */
+/* Revision: 1.23 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 tran
+    + FSF/FarRecurseSearch
   10.09.2000 SVS
     ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
@@ -2164,3 +2166,22 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
   return bsearch(key,base,nelem,width,fcmp);
 }
 /* SVS $ */
+
+
+/* $ 10.09.2000 tran
+   FSF/FarRecurseSearch */
+void WINAPI FarRecurseSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags)
+{
+    ScanTree ScTree(flags& FRS_RETUPDIR,flags & FRS_RECURSE);
+    WIN32_FIND_DATA FindData;
+    char FullName[NM];
+
+    ScTree.SetFindPath(initdir,mask);
+    while (ScTree.GetNextName(&FindData,FullName))
+    {
+        //if (func(FindData,FullName)==0)
+        if (func(&FindData,FullName)==0)
+            break;
+    }
+}
+/* tran 10.09.2000 $ */

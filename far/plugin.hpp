@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.44 10.09.2000 $ */
+/* Revision: 1.45 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 tran 1.45
+    + FSF/FarRecurseSearch
   10.09.2000 SVS 1.44
     ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
     + DIF_NOFOCUS - элемент не получает фокуса ввода (клавиатурой)
@@ -976,6 +978,17 @@ enum XLATMODE{
 typedef char* (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct CharTableSet *TableSet,DWORD Flags);
 /* SVS $*/
 
+/* $ 10.09.2000 tran
+   FSF/FarRecurseSearch */
+typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
+typedef void (WINAPI *FARRECURSESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
+
+enum FRSMODE{
+  FRS_RETUPDIR = 0x0001,
+  FRS_RECURSE  = 0x0002
+};
+/* tran $ */
+
 /* $ 06.07.2000 IS
    Полезные функции из far.exe
 */
@@ -1052,6 +1065,10 @@ typedef struct FarStandardFunctions
   FARSTDGETFILEOWNER         GetFileOwner;
   FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
   /* SVS 07.09.2000 $ */
+  /* $ 10.09.2000 tran
+    + нижеуказанное */
+  FARRECURSESEARCH           FarRecurseSearch;
+  /* tran 10.09.2000 $ */
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
 

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.22 10.09.2000 $ */
+/* Revision: 1.23 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 tran 1.23
+    + FSF/FarRecurseSearch
   10.09.2000 SVS
     ! Наконец-то нашлось приемлемое имя для QWERTY -> Xlat.
   08.09.2000 SVS
@@ -490,6 +492,12 @@ __int64 WINAPI ftell64(FILE *fp);
 int WINAPI fseek64 (FILE *fp, __int64 offset, int whence);
 
 void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+
+/* $ 10.09.2000 tran
+   FSF/FarRecurseSearch*/
+typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
+void WINAPI FarRecurseSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags);
+/* tran 10.09.2000 $ */
 
 #ifdef __cplusplus
 };
