@@ -6,10 +6,15 @@ editor.cpp
 
 */
 
-/* Revision: 1.166 23.03.2002 $ */
+/* Revision: 1.167 30.03.2002 $ */
 
 /*
 Modify:
+  30.03.2002 IS
+    - Уберем пока установление FEDITOR_WASCHANGED в Undo (см. комментарии в теле
+      функции) в надежде убрать баг, когда Фар пытается запихнуть файл в архив,
+      который был вытащен из него по F4 и был изменен, а потом изменение было
+      отменено при помощи Alt-BackSpace.
   23.03.2002 IS
     + ESPT_LOCKMODE - запретить/отменить изменение файла из плагина
   23.03.2002 VVM
@@ -4585,7 +4590,15 @@ void Editor::Undo()
   */
   TextChanged(1);
   /* skv $*/
-  EFlags.Set(FEDITOR_WASCHANGED|FEDITOR_DISABLEUNDO);
+  /* $ 30.03.2002 IS
+     Уберем пока установление FEDITOR_WASCHANGED, т.к. эта штука, как я понял,
+     должна включаться толко при изменении файла непосредственно _на диске_, а
+     за изменение в файле отвечает FEDITOR_MODIFIED. Последнее и нужно
+     устанавливать в данном месте, но не устанавливается буквально, потому что
+     оно устанавливается в "TextChanged(1)" - см. выше.
+  */
+  EFlags.Set(/*FEDITOR_WASCHANGED|*/FEDITOR_DISABLEUNDO);
+  /* IS $ */
   GoToLine(UndoData[UndoDataPos].StrNum);
   switch(UndoData[UndoDataPos].Type)
   {
