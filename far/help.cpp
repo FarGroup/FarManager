@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.63 28.12.2001 $ */
+/* Revision: 1.64 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    - Фар плющило при переходе в несуществующий топик - переполнение стека.
   28.12.2001 SVS
     - Бага с кустом-линками
     - BugZ#62: ошибка форматирования hlf.
@@ -333,9 +335,9 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   }
   else
   {
+    ErrorHelp=TRUE;
     if(!(Flags&FHELP_NOSHOWERROR))
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
-    ErrorHelp=TRUE;
   }
 
 #if defined(WORK_HELP_FIND)
@@ -422,9 +424,9 @@ int Help::ReadHelp(char *Mask)
 
   if (HelpFile==NULL)
   {
-    if(!(StackData.Flags&FHELP_NOSHOWERROR))
-      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
     ErrorHelp=TRUE;
+//    if(!(StackData.Flags&FHELP_NOSHOWERROR))
+//      Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MHelpTitle),MSG(MCannotOpenHelp),FileName,MSG(MOk));
     return FALSE;
   }
 
@@ -706,10 +708,13 @@ void Help::DisplayObject()
     TopScreen=new SaveScreen;
   if (!TopicFound)
   {
-    if(!(StackData.Flags&FHELP_NOSHOWERROR))
-      Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
-    ProcessKey(KEY_ALTF1);
-    ErrorHelp=TRUE;
+    if(!ErrorHelp) // если это убрать, то при несуществующей ссылки
+    {              // с нынешним манагером попадаем в бесконечный цикл.
+      ErrorHelp=TRUE;
+      if(!(StackData.Flags&FHELP_NOSHOWERROR))
+        Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
+      ProcessKey(KEY_ALTF1);
+    }
     return;
   }
   SetCursorType(0,10);
@@ -1295,7 +1300,10 @@ int Help::ProcessKey(int Key)
         Stack->Push(&StackData);
         IsNewTopic=TRUE;
         if (!JumpTopic())
+        {
           Stack->Pop(&StackData);
+          ReadHelp(StackData.HelpMask); // вернем то, что отображали.
+        }
         IsNewTopic=FALSE;
       }
       return(TRUE);
@@ -1426,9 +1434,9 @@ int Help::JumpTopic(const char *JumpTopic)
   }
   if (!HelpData)
   {
+    ErrorHelp=TRUE;
     if(!(StackData.Flags&FHELP_NOSHOWERROR))
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
-    ErrorHelp=TRUE;
     return FALSE;
   }
 //  ResizeConsole();

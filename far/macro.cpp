@@ -8,10 +8,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.64 21.12.2001 $ */
+/* Revision: 1.65 28.12.2001 $ */
 
 /*
 Modify:
+  28.12.2001 SVS
+    - FAR падал когда срабатывало macro:post ....
+      ѕричина в CheckCurMacroFlags()
   26.12.2001 SVS
     ! ¬от теперь точное отображение пункта в ньюсе:
       "[!] ѕри считывании макросов из реестра игнорируютс€
@@ -1671,8 +1674,12 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
 BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 {
   if(Executing)
-    return (Macros[ExecMacroPos].Flags&Flags)?TRUE:FALSE;
-  return FALSE;
+  {
+    struct MacroRecord *MR=!TempMacro?Macros+ExecMacroPos:TempMacro;
+    return (MR->Flags&Flags)?TRUE:FALSE;
+  }
+  return(FALSE);
+
 }
 
 /*
