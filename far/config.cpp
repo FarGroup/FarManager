@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.25 27.09.2000 $ */
+/* Revision: 1.26 05.10.2000 $ */
 
 /*
 Modify:
+  05.10.2000 SVS
+    ! Все новые фишки (из TechInfo) только читаем...
   27.09.2000 SVS
     + HelpURLRules
     - XLat-таблицы только читаем.
@@ -933,13 +935,6 @@ void SaveConfig(int Ask)
   GetRegKey("Viewer","Wrap",Opt.ViewerWrap);
   /* SVS $*/
 
-  /* $ 11.09.2000 SVS
-     если EULBsClear = 1, то BS в диалогах для UnChanged строки
-     удаляет такую строку также, как и Del
-  */
-  SetRegKey("Dialog","EULBsClear",Opt.DlgEULBsClear);
-  /* SVS $*/
-
   SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);
   SetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor);
   SetRegKey("Editor","ExpandTabs",Opt.EditorExpandTabs);
@@ -951,18 +946,6 @@ void SaveConfig(int Ask)
   SetRegKey("Editor","SaveEditorShortPos",Opt.SaveEditorShortPos);
   SetRegKey("Editor","AutoDetectTable",Opt.EditorAutoDetectTable);
   SetRegKey("Editor","EditorCursorBeyondEOL",Opt.EditorCursorBeyondEOL);
-  /* $ 03.08.2000 SVS
-     Записать разграничитель слов из реестра
-  */
-  SetRegKey("Editor","WordDiv",Opt.WordDiv);
-  /* SVS $ */
-  /* $ 24.09.2000 SVS
-     Клавиши, вызывающие Xlat
-  */
-  SetRegKey("XLat","EditorKey",Opt.XLatEditorKey);
-  SetRegKey("XLat","CmdLineKey",Opt.XLatCmdLineKey);
-  SetRegKey("XLat","DialogKey",Opt.XLatDialogKey);
-  /* SVS $ */
 
   SetRegKey("System","SaveHistory",Opt.SaveHistory);
   SetRegKey("System","SaveFoldersHistory",Opt.SaveFoldersHistory);
@@ -985,21 +968,6 @@ void SaveConfig(int Ask)
   SetRegKey("System","FileSearchMode",Opt.FileSearchMode);
   SetRegKey("System","FolderInfo",Opt.FolderInfoFiles);
   SetRegKey("System","SubstPluginPrefix",Opt.SubstPluginPrefix);
-  /* $ 24.09.2000 SVS
-     + CmdHistoryRule задает поведение Esc для командной строки
-  */
-  SetRegKey("System","CmdHistoryRule",Opt.CmdHistoryRule);
-  /* SVS $ */
-  /* $ 24.09.2000 SVS
-     + MaxPositionCache задает максимальное количество позиций под кэш
-  */
-  SetRegKey("System","MaxPositionCache",Opt.MaxPositionCache);
-  /* SVS $ */
-  /* $ 27.09.2000 SVS
-    + Opt.AllCtrlAltShiftRule битовые флаги, задают поведение Ctrl-Alt-Shift
-  */
-  SetRegKey("System","AllCtrlAltShiftRule",Opt.AllCtrlAltShiftRule);
-  /* SVS $ */
 
   SetRegKey("Language","Main",Opt.Language);
   SetRegKey("Language","Help",Opt.HelpLanguage);
@@ -1016,17 +984,6 @@ void SaveConfig(int Ask)
   SetRegKey("Panel","AutoChangeFolder",Opt.AutoChangeFolder);
   SetRegKey("Panel","SelectFolders",Opt.SelectFolders);
   SetRegKey("Panel","ReverseSort",Opt.ReverseSort);
-  /* $ 12.09.2000 SVS
-    + Panel/RightClickRule в реестре - задает поведение правой клавиши
-      мыши (это по поводу Bug#17)
-  */
-  SetRegKey("Panel","RightClickRule",Opt.PanelRightClickRule);
-  /* SVS $ */
-  /* $ 19.09.2000 SVS
-    + Opt.PanelCtrlAltShiftRule задает поведение Ctrl-Alt-Shift для панелей.
-  */
-  SetRegKey("Panel","CtrlAltShiftRule",Opt.PanelCtrlAltShiftRule);
-  /* SVS $ */
 
   Panel *LeftPanel=CtrlObject->LeftPanel;
   SetRegKey("Panel\\Left","Visible",LeftPanel->IsVisible());
