@@ -1,10 +1,12 @@
+//#define MAX_PASSW_LEN 256
+
 struct PutDlgData
 {
   PluginClass *Self;
   char ArcFormat[NM];
   //char OriginalName[512];   //$ AA 26.11.2001
   char Password1[256];
-  char Password2[256];
+  //char Password2[256];      //$ AA 28.11.2001
   char DefExt[NM];
   BOOL DefaultPluginNotFound; //$ AA 2?.11.2001
   BOOL NoChangeArcName;       //$ AA 23.11.2001
@@ -299,7 +301,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == MAM_ADDDEFEXT)
   {
-    char Name[NM], *Ext;
+    char Name[NM]/*, *Ext*/;
     Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
     AddExt(Name, pdd->DefExt);
     Info.SendDlgMessage(hDlg,DM_SETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
@@ -307,7 +309,7 @@ long WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   }
   else if(Msg == MAM_DELDEFEXT)
   {
-    char Name[NM], *DefExt, *Ext;
+    char Name[NM]/*, *DefExt*/, *Ext;
     Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_ARCNAMEEDT, (DWORD)Name);
     if( SeekDefExtPoint(Name, pdd->DefExt, &Ext)!=NULL
         || (Ext!=NULL && !*(Ext+1)) )
@@ -352,11 +354,11 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
   char Command[512],AllFilesMask[32];
   int ArcExitCode=1;
   struct PutDlgData pdd={0};
-  char FullName[NM],/*ExtName[NM],*/*NamePtr,*ExtPtr;
+  char FullName[NM],/*ExtName[NM],*/*NamePtr/*,*ExtPtr*/;
   BOOL Ret=TRUE;
 
   pdd.Self=this;
-  *pdd.Password1=*pdd.Password2=0;
+  *pdd.Password1/*=*pdd.Password2*/=0;
 
   if (ArcPluginNumber==-1)
   {
@@ -449,23 +451,40 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
     }*/
     else
     {
-      if(GetRegKey(HKEY_CURRENT_USER,"","AutoOffExactArcName",1))
-        pdd.OldExactState=FALSE;
-      else
-        pdd.OldExactState=Opt.AutoOffExactArcName=GetRegKey(HKEY_CURRENT_USER,"","ExactArcName",0);
-      if(ItemsNumber==1)
+#ifdef _PACK_IN_ARC_UNDER_CURSOR_
+      if(GetCursorName(DialogItems[PDI_ARCNAMEEDT].Data, pdd.ArcFormat, pdd.DefExt))
       {
-        strcpy(DialogItems[PDI_ARCNAMEEDT].Data, PanelItem->FindData.cFileName);
-        char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data,'.');
-        if(Dot!=NULL)
-          *Dot=0;
+        //pdd.NoChangeArcName=TRUE;
+        //pdd.OldExactState=TRUE;
       }
       else
       {
-        char CurDir[NM];
-        GetCurrentDirectory(sizeof(CurDir),CurDir);
-        strcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDir));
+#endif
+        if(GetRegKey(HKEY_CURRENT_USER,"","AutoOffExactArcName",1))
+          pdd.OldExactState=FALSE;
+        else
+          pdd.OldExactState=/*Opt.AutoOffExactArcName=*/GetRegKey(HKEY_CURRENT_USER,"","ExactArcName",0);
+#ifdef _EQV_NAME_GROOP_
+        GetGroopName(PanelItem, ItemsNumber, DialogItems[PDI_ARCNAMEEDT].Data);
+#else
+        if(ItemsNumber==1)
+        {
+          strcpy(DialogItems[PDI_ARCNAMEEDT].Data, PanelItem->FindData.cFileName);
+          char *Dot=strrchr(DialogItems[PDI_ARCNAMEEDT].Data,'.');
+          if(Dot!=NULL)
+            *Dot=0;
+        }
+        else
+        {
+          char CurDir[NM];
+          GetCurrentDirectory(sizeof(CurDir),CurDir);
+          strcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDir));
+        }
+#endif
+#ifdef _PACK_IN_ARC_UNDER_CURSOR_
       }
+#endif
+/*    $ AA 29.11.2001 //нафига нам имя усреднять?
       char AnsiName[NM];
       OemToAnsi(DialogItems[PDI_ARCNAMEEDT].Data,AnsiName);
       if(!IsCaseMixed(AnsiName))
@@ -473,9 +492,10 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
         CharLower(AnsiName);
         AnsiToOem(AnsiName, DialogItems[PDI_ARCNAMEEDT].Data);
       }
+      AA 29.11.2001 $ */
+      if(pdd.OldExactState && !*ArcName)
+        AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
     }
-    if(pdd.OldExactState && !*ArcName)
-      AddExt(DialogItems[PDI_ARCNAMEEDT].Data, pdd.DefExt);
 
     DialogItems[PDI_ADDDELCHECK].Selected=Move;
     /* $ 13.04.2001 DJ
@@ -493,7 +513,7 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
                   0,0,PluginClass::PutDlgProc,(long)&pdd);
 
       strcpy(pdd.Password1,DialogItems[PDI_PASS0WEDT].Data);
-      strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data);
+      //strcpy(pdd.Password2,DialogItems[PDI_PASS1WEDT].Data); //$ AA 28.11.2001
       Opt.UserBackground=DialogItems[PDI_BGROUNDCHECK].Selected; //??
       if (AskCode!=PDI_ADDBTN || *DialogItems[PDI_ARCNAMEEDT].Data==0)
         return -1;
@@ -582,3 +602,70 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       PanelItem[I].Flags|=PPIF_PROCESSDESCR;
   return ArcExitCode;
 }
+
+#ifdef _PACK_IN_ARC_UNDER_CURSOR_
+BOOL PluginClass::GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt)
+{
+  PanelInfo pi;
+  int i,j;
+  Info.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi);
+  PluginPanelItem *Items=pi.PanelItems;
+  PluginPanelItem *SelItems=pi.SelectedItems;
+  PluginPanelItem *CurItem=Items+pi.CurrentItem;
+
+  //под курсором должна быть не папка
+  if(CurItem->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+    return FALSE;
+
+  //должно быть непустое расширение
+  char *Dot=strrchr(CurItem->FindData.cFileName, '.');
+  if(!Dot || !*(++Dot))
+    return FALSE;
+
+  //курсор должен быть вне выделения
+  for(i=0; i<pi.SelectedItemsNumber; i++)
+    if(!strcmpi(CurItem->FindData.cFileName, SelItems[i].FindData.cFileName))
+      return FALSE;
+
+  //MessageBeep(0xffffffff);
+  //под курсором должен быть файл с расширением архива
+  char Format[100],DefExt[NM];
+  for(i=0; i<ArcPlugin->FmtCount(); i++)
+    for(j=0; ; j++)
+    {
+      if(!ArcPlugin->GetFormatName(i, j, Format, DefExt))
+        break;
+      if(!strcmpi(Dot, DefExt))
+      {
+        strncpy(ArcName, CurItem->FindData.cFileName, Dot-CurItem->FindData.cFileName-1);
+        //выбрать соответствующий архиватор
+        ArcPluginNumber=i;
+        ArcPluginType=j;
+        strcpy(ArcFormat, Format);
+        strcpy(ArcExt, DefExt);
+        return TRUE;
+      }
+    }
+  return FALSE;
+}
+#endif
+
+#ifdef _EQV_NAME_GROOP_
+void PluginClass::GetGroopName(PluginPanelItem *Items, int Count, char *ArcName)
+{
+  char *Name=Items->FindData.cFileName;
+  char *Dot=strrchr(Name, '.');
+  int Len=(Dot!=NULL)?(Dot-Name):strlen(Name);
+  for(int i=1; i<Count; i++)
+    if(strnicmp(Name, Items[i].FindData.cFileName, Len))
+//    if(strncmpi(Name, Items[i].FindData.cFileName, Len))
+    {
+      //тч Є№ шь  яряъш
+      char CurDir[NM];
+      GetCurrentDirectory(sizeof(CurDir), CurDir);
+      strcpy(ArcName, FSF.PointToName(CurDir));
+      return;
+    }
+  strncpy(ArcName, Name, Len);
+}
+#endif

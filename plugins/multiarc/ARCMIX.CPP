@@ -405,10 +405,12 @@ int FindExecuteFile(char *OriginalName,char *DestName,int SizeDest)
 }
 
 
-char *SeekDefExtPoint(char *Name, char *DefExt, char **Ext/*=NULL*/)
+char *SeekDefExtPoint(char *Name, char *DefExt/*=NULL*/, char **Ext/*=NULL*/)
 {
   Name=FSF.PointToName(Name);
   char *TempExt=strrchr(Name, '.');
+  if(!DefExt)
+    return TempExt;
   if(Ext)
     *Ext=TempExt;
   return (TempExt!=NULL)?(stricmp(TempExt+1, DefExt)?NULL:TempExt):NULL;

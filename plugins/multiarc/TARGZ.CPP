@@ -280,19 +280,19 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   {
     case TAR_FORMAT:
       strcpy(FormatName,"TAR");
-      strcpy(DefaultExt,"TAR");
+      strcpy(DefaultExt,"tar");
       return(TRUE);
     case GZ_FORMAT:
       strcpy(FormatName,"GZip");
-      strcpy(DefaultExt,"GZ");
+      strcpy(DefaultExt,"gz");
       return(TRUE);
     case Z_FORMAT:
       strcpy(FormatName,"Z(Unix)");
-      strcpy(DefaultExt,"Z");
+      strcpy(DefaultExt,"z");
       return(TRUE);
     case BZ_FORMAT:
       strcpy(FormatName,"BZip");
-      strcpy(DefaultExt,"BZ2");
+      strcpy(DefaultExt,"bz2");
       return(TRUE);
   }
   return(FALSE);

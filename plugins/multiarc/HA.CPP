@@ -186,7 +186,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"HA");
-    strcpy(DefaultExt,"HA");
+    strcpy(DefaultExt,"ha");
     return(TRUE);
   }
   return(FALSE);

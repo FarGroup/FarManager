@@ -209,7 +209,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"CAB");
-    strcpy(DefaultExt,"CAB");
+    strcpy(DefaultExt,"cab");
     return(TRUE);
   }
   return(FALSE);

@@ -254,7 +254,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"LZH");
-    strcpy(DefaultExt,"LZH");
+    strcpy(DefaultExt,"lzh");
     return(TRUE);
   }
   return(FALSE);

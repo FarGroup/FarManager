@@ -301,7 +301,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"ACE");
-    strcpy(DefaultExt,"ACE");
+    strcpy(DefaultExt,"ace");
     return(TRUE);
   }
   return(FALSE);

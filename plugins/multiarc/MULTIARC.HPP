@@ -133,6 +133,8 @@ class PluginClass
     int DizPresent;
 
   private:
+    void GetGroopName(PluginPanelItem *Items, int Count, char *ArcName);//$ AA 29.11.2001
+    BOOL GetCursorName(char *ArcName, char *ArcFormat, char *ArcExt);//$ AA 29.11.2001
     BOOL GetFormatName(char *FormatName, char *DefExt=NULL); //$ AA 25.11.2001
     void GetCommandFormat(int Command,char *Format,int FormatSize);
     int GetPassword(char *Password,const char *FileName);
@@ -218,7 +220,7 @@ int ConfigCommands();
 
 const char *GetMsg(int MsgId);
 int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,char *ListFileName=0);
-char *SeekDefExtPoint(char *Name, char *DefExt, char **Ext=NULL); //$AA 28.11.2001
+char *SeekDefExtPoint(char *Name, char *DefExt=NULL, char **Ext=NULL); //$AA 28.11.2001
 BOOL AddExt(char *Name, char *Ext);                               //$AA 28.11.2001
 
 /* $ 13.09.2000 tran
@@ -308,3 +310,5 @@ void WritePrivateProfileInt(char *Section, char *Key, int Value, char *Ini);
 #endif
 
 #define OLD_DIALOG_STYLE 1
+#define _PACK_IN_ARC_UNDER_CURSOR_
+#define _EQV_NAME_GROOP_

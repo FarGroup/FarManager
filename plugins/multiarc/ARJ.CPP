@@ -183,7 +183,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"ARJ");
-    strcpy(DefaultExt,"ARJ");
+    strcpy(DefaultExt,"arj");
     return(TRUE);
   }
   return(FALSE);

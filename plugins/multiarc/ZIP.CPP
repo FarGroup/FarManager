@@ -364,7 +364,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"ZIP");
-    strcpy(DefaultExt,"ZIP");
+    strcpy(DefaultExt,"zip");
     return(TRUE);
   }
   return(FALSE);

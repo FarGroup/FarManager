@@ -263,7 +263,7 @@ BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
   if (Type==0)
   {
     strcpy(FormatName,"RAR");
-    strcpy(DefaultExt,"RAR");
+    strcpy(DefaultExt,"rar");
     return(TRUE);
   }
   return(FALSE);
