@@ -5,10 +5,15 @@ gettable.cpp
 
 */
 
-/* Revision: 1.07 21.05.2001 $ */
+/* Revision: 1.08 03.06.2001 $ */
 
 /*
 Modify:
+  03.06.2001 IS
+    - Баг: некорректно генерировалась кодовая таблица в PrepareTable, в
+      частности, для cp1251 после этой функции символы 0x84 (открывающие
+      кавычки) и 0x93 (закрывающие кавычки) путались с "буквами", потому что
+      как и буквы имели различные значения в LowerTable и UpperTable.
   21.05.2001 SVS
     ! struct MenuData|MenuItem
       Поля Selected, Checked, Separator и Disabled преобразованы в DWORD Flags
@@ -312,11 +317,18 @@ int PrepareTable(struct CharTableSet *TableSet,int TableNum)
       EncodeSet[Ch]=TRUE;
     }
   }
+  /* $ 03.06.2001 IS
+     + Для "небукв" нет смысла извращаться с UpperTable и LowerTable
+  */
   for (I=0;I<256;I++)
   {
     int Ch=TableSet->DecodeTable[I];
-    TableSet->LowerTable[I]=TableSet->EncodeTable[LocalLower(Ch)];
-    TableSet->UpperTable[I]=TableSet->EncodeTable[LocalUpper(Ch)];
+    if(LocalIsalpha(Ch))
+    {
+      TableSet->LowerTable[I]=TableSet->EncodeTable[LocalLower(Ch)];
+      TableSet->UpperTable[I]=TableSet->EncodeTable[LocalUpper(Ch)];
+    }
   }
+  /* IS $ */
   return(TRUE);
 }
