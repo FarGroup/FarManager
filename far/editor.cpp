@@ -6,7 +6,7 @@ editor.cpp
 
 */
 
-/* Revision: 1.09 17.07.2000 $ */
+/* Revision: 1.10 18.07.2000 $ */
 
 /*
 Modify:
@@ -34,6 +34,15 @@ Modify:
       функция GetRowCol стала методом класса
   17.07.2000 OT
     + Застолбить место под разработку "моего" редактора
+  17.07.2000 tran
+    - баг с автоотступом при [ ] Expand tabs to spaces
+      и когда ентер жался сразу после символа '\t'
+      ранее в новую строку вставлялись пробелы (надо \t)
+      и символ табуляции на предыдущей строке стирался
+      теперь он не стирается и на новой вместо пробелов
+      все копируется из старой
+      новые {} кое-где, побочный эффект вставки печати отладки,
+      пусть их лежат... :)
 */
 
 #include "headers.hpp"
@@ -2076,6 +2085,11 @@ void Editor::InsertString()
   struct EditList *SrcIndent=NULL;
   int SelStart,SelEnd;
   int CurPos;
+  /* $ 17.07.2000 tran
+     + новая переменная */
+  int NewLineEmpty=TRUE;
+  /* tran 17.07.2000 $ */
+
   if ((NewString=new struct EditList)==NULL)
     return;
 
@@ -2130,14 +2144,30 @@ void Editor::InsertString()
 
   if (CurPos<Length)
   {
+
+    /* $ 17.07.2000 tran
+       - закоментировал код, как не нужный*/
     if (IndentPos>0)
-      for (int I=0;I<CurPos;I++)
-        if (CurLineStr[I]!=' ' && CurLineStr[I]!='\t')
-        {
+//      for (int I=0;I<CurPos;I++)
+//        if (CurLineStr[I]!=' ' && CurLineStr[I]!='\t')
+//        {
           SpaceOnly=FALSE;
-          break;
-        }
+//          break;
+//        }
     NewString->EditLine.SetBinaryString(&CurLineStr[CurPos],Length-CurPos);
+    /* $ 17.07.2000 tran
+       тут мы проверяем новую строку, есть ли на ней что нибудь кроме пробелов
+    */
+    for ( int i0=0; i0<Length-CurPos; i0++ )
+    {
+        if (!(CurLineStr[i0+CurPos]==' ' || CurLineStr[i0+CurPos]=='\t'))
+        {
+            NewLineEmpty=FALSE;
+            break;
+        }
+    }
+    /* tran 17.07.2000 $ */
+
     AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
                 CurLine->EditLine.GetCurPos(),UNDO_EDIT);
     BlockUndo++;
@@ -2145,11 +2175,15 @@ void Editor::InsertString()
     BlockUndo--;
     CurLineStr[CurPos]=0;
     int StrSize=CurPos;
-    if (Opt.EditorAutoIndent)
+    /* $ 17.07.2000 tran
+       а тут в условие добавили проверку на нашу новую переменную */
+    if (Opt.EditorAutoIndent && NewLineEmpty)
     {
       RemoveTrailingSpaces(CurLineStr);
       StrSize=strlen(CurLineStr);
     }
+    /* tran 17.07.2000 $ */
+
     CurLine->EditLine.SetBinaryString(CurLineStr,StrSize);
   }
   else
@@ -2232,13 +2266,21 @@ void Editor::InsertString()
         int PrevLength;
 
         if (SrcIndent)
+        {
           SrcIndent->EditLine.GetBinaryString(&PrevStr,NULL,PrevLength);
+        }
 
         for (int I=0;CurLine->EditLine.GetTabCurPos()<IndentPos;I++)
+        {
           if (SrcIndent!=NULL && I<PrevLength && isspace(PrevStr[I]))
+          {
             CurLine->EditLine.ProcessKey(PrevStr[I]);
+          }
           else
+          {
             CurLine->EditLine.ProcessKey(KEY_SPACE);
+          }
+        }
         while (CurLine->EditLine.GetTabCurPos()>IndentPos)
           CurLine->EditLine.ProcessKey(KEY_BS);
 
