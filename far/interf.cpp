@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.06 09.08.2000 $ */
+/* Revision: 1.07 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+    + Код для средней клавиши мыши :-) (ну есть у меня дома эта хрень...)
   09.08.2000 KM
     ! Изменена MakeShadow таким образом, что теперь при достижении
       окном (диалогом) правой или нижней границы экрана и при выходе за неё
@@ -517,6 +519,12 @@ int IsMouseButtonPressed()
     return(1);
   if (RButtonPressed)
     return(2);
+  /* $ 23.08.2000 SVS
+     + Дополнительно - для средней клавиши мыши
+  */
+  if(MButtonPressed)
+    return(3);
+  /* SVS $ */
   return(0);
 }
 
@@ -790,6 +798,7 @@ int GetInputRecord(INPUT_RECORD *rec)
   }
   if (rec->EventType==MOUSE_EVENT)
   {
+    // проверка на Swap клавиш мыши
     static int SwapButton=GetSystemMetrics(SM_SWAPBUTTON);
     if (SwapButton && WinVer.dwPlatformId==VER_PLATFORM_WIN32_WINDOWS && !IsWindowed())
     {
@@ -804,6 +813,11 @@ int GetInputRecord(INPUT_RECORD *rec)
         rec->Event.MouseEvent.dwButtonState&=~FROM_LEFT_1ST_BUTTON_PRESSED;
     }
     DWORD CtrlState=rec->Event.MouseEvent.dwButtonState;
+    /* $ 23.08.2000 SVS
+       + Дополнительно - для средней клавиши мыши
+    */
+    MButtonPressed=(CtrlState & FROM_LEFT_2ND_BUTTON_PRESSED);
+    /* SVS $ */
     LButtonPressed=(CtrlState & FROM_LEFT_1ST_BUTTON_PRESSED);
     RButtonPressed=(CtrlState & RIGHTMOST_BUTTON_PRESSED);
     PrevMouseX=MouseX;

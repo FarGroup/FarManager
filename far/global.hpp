@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.05 03.08.2000 $ */
+/* Revision: 1.06 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+    + MButtonPressed - для средней клавиши мыши.
   03.08.2000 KM 1.03
     + Добавлена переменная int GlobalSearchWholeWords.
   03.08.2000 SVS
@@ -66,6 +68,11 @@ extern int ScrX,ScrY;
 
 extern int AltPressed,CtrlPressed,ShiftPressed;
 extern int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
+/* $ 23.08.2000 SVS
+    + MButtonPressed - для средней клавиши мыши.
+*/
+extern int MButtonPressed;
+/* SVS $ */
 
 extern int WaitInMainLoop;
 

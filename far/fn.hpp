@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.12 18.08.2000 $ */
+/* Revision: 1.13 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+    + Уточнения (комментарий) для IsMouseButtonPressed()
   18.08.2000 tran
     + Flags parameter in FarShowHelp
   14.08.2000 SVS
@@ -142,6 +144,7 @@ int Message(int Flags,int Buttons,char *Title,char *Str1,char *Str2,
 void SetMessageHelp(char *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);
+// возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
 int CmpName(char *pattern,char *string,int skippath=TRUE);
 int CheckForEsc();

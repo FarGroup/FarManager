@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.04 03.08.2000 $ */
+/* Revision: 1.05 23.08.2000 $ */
 
 /*
 Modify:
+  23.08.2000 SVS
+    + MButtonPressed - для средней клавиши мыши.
   03.08.2000 KM 1.04
     + Добавлена глобальная переменная int GlobalSearchWholeWords.
   03.08.2000 SVS
@@ -39,6 +41,12 @@ int ScrX,ScrY;
 
 int AltPressed,CtrlPressed,ShiftPressed;
 int LButtonPressed,RButtonPressed,PrevMouseX,PrevMouseY,MouseX,MouseY;
+/* $ 23.08.2000 SVS
+    + MButtonPressed - для средней клавиши мыши.
+*/
+int MButtonPressed;
+/* SVS $ */
+
 clock_t StartIdleTime;
 
 DWORD InitialConsoleMode;
