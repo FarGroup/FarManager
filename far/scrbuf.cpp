@@ -5,10 +5,13 @@ scrbuf.cpp
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 09.01.2001 $ */
 
 /*
 Modify:
+  09.01.2001 SVS
+    ! По наводке ER - в SetCursorType не дергать раньше
+      времени установку курсора
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -264,11 +267,18 @@ void ScreenBuf::GetCursorPos(int& X,int& Y)
 
 void ScreenBuf::SetCursorType(int Visible,int Size)
 {
-  CurVisible=Visible;
-  CurSize=Size;
-  FlushedCurType=FALSE;
+  /* $ 09.01.2001 SVS
+     По наводке ER - в SetCursorType не дергать раньше
+     времени установку курсора
+  */
+  if (CurVisible!=Visible || CurSize!=Size)
+  {
+    CurVisible=Visible;
+    CurSize=Size;
+    FlushedCurType=FALSE;
+  }
+  /* SVS $ */
 }
-
 
 void ScreenBuf::GetCursorType(int &Visible,int &Size)
 {
