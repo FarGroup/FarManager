@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.189 15.06.2003 $ */
+/* Revision: 1.190 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + LCNumStricmp() - "цифровое" сравнение двух строк с учетом локали
+    + NumStrcmp() - "цифровое" сравнение двух строк
+    + __PrepareKMGTbStr() - переинициализация массива KMGTbStr
   15.06.2003 SVS
     ! Дадим понять GetDirInfo - нужно или нет сканировать симлинки!
       (добавлен еще один параметр)
@@ -784,6 +788,8 @@ int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 int __cdecl LocalStricmp(const char *s1,const char *s2);
 int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n);
 int __cdecl LCStricmp(const char *s1,const char *s2);
+int __cdecl LCNumStricmp(const char *s1,const char *s2);
+
 int LocalKeyToKey(int Key);
 int GetShortcutFolder(int Key,char *DestFolder,char *PluginModule=NULL,
                       char *PluginFile=NULL,char *PluginData=NULL);
@@ -1016,6 +1022,8 @@ BOOL  TestParentFolderName(const char *Name);
 BOOL  AddEndSlash(char *Path,char TypeSlash);
 BOOL  WINAPI AddEndSlash(char *Path);
 BOOL  WINAPI DeleteEndSlash(char *Path);
+int __cdecl NumStrcmp(const char *s1, const char *s2);
+int __digit_cnt_0(const char* s, const char** beg);
 char *WINAPI FarItoa(int value, char *string, int radix);
 __int64 WINAPI FarAtoi64(const char *s);
 char *WINAPI FarItoa64(__int64 value, char *string, int radix);
@@ -1382,6 +1390,7 @@ int ConfirmAbortOp();
 
 // Получить из имени диска RemoteName
 char* DriveLocalToRemoteName(int DriveType,char Letter,char *Dest);
+void __PrepareKMGTbStr(void);
 char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size,
                                 int Width=-1, int ViewFlags=COLUMN_COMMAS);
 

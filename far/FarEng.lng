@@ -1488,6 +1488,7 @@
 "Show files in &lowercase"
 "Show uppercase file names in lower&case"
 "Use case &sensitive sort"
+"Use &numeric sort"
 " Read online help for instructions "
 
 "Folder description files"

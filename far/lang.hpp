@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.123 12.06.2003 $ */
+/* Revision: 1.124 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + MEditPanelModeNumericSort
   12.06.2003 SVS
     + MConfigScanJunction, MFindSymLinks
   19.05.2003 SVS
@@ -1795,6 +1797,7 @@ enum
   MEditPanelModeFilesLowerCase,
   MEditPanelModeUpperToLowerCase,
   MEditPanelModeCaseSensitiveSort,
+  MEditPanelModeNumericSort,
   MEditPanelReadHelp,
 
   MSetFolderInfoTitle,

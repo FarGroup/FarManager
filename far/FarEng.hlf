@@ -1774,7 +1774,9 @@ $ #Internal viewer#
     #Up#                 Line up
     #Down#               Line down
     #Ctrl-Left#          20 characters left
+                       В 16-ричном режиме - на 1 позицию влево
     #Ctrl-Right#         20 characters right
+                       В 16-ричном режиме - на 1 позицию вправо
     #PgUp#               Page up
     #PgDn#               Page down
     #Ctrl-Shift-Left#    Start of lines on the screen
@@ -2610,6 +2612,31 @@ the method of displaying files, when processing files FAR always uses the
 real case.
 
   - #Use case sensitive sort# - use case sensitive sort for file names.
+
+  - #Использовать числовую сортировку# - использовать
+числовую сортировку имен файлов (в стиле Windows XP, ведущие нули не
+учитываются). Следующий пример показывает как сортируются файлы в
+зависимости от опции.
+
+    Опция выключена     Опиция включена
+
+    0                   0
+    00012               1
+    0015                8
+    015                 10
+    044                 11
+    1                   00012
+    10                  0015
+    11                  015
+    15                  15
+    20                  20
+    8                   044
+    Ie4_01              Ie4_01
+    Ie4_128             Ie4_128
+    Ie401sp2            Ie5
+    Ie5                 Ie6
+    Ie501sp2            Ie401sp2
+    Ie6                 Ie501sp2
 
 @SortGroups
 $ #Sort groups#

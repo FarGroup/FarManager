@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.33 05.07.2003 $ */
+/* Revision: 1.34 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + FileList::IsNumeric()
   05.07.2003 SVS
     - под масдаем неотрисовка верхних стыковочных линий (BoxText!)
   06.05.2003 SVS
@@ -1178,4 +1180,9 @@ int FileList::IsColumnDisplayed(int Type)
 int FileList::IsCaseSensitive()
 {
   return(ViewSettings.CaseSensitiveSort);
+}
+
+int FileList::IsNumeric()
+{
+  return(ViewSettings.NumericSort);
 }

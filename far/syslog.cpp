@@ -5,10 +5,13 @@ syslog.cpp
 
 */
 
-/* Revision: 1.43 17.06.2003 $ */
+/* Revision: 1.44 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    ! Уберем лишние варнинги
+    + В _INPUT_RECORD_Dump() добавим FARMACRO_KEY_EVENT и 0
   17.06.2003 SVS
     + DN_DRAWDIALOGDONE
   14.05.2003 SVS
@@ -135,6 +138,10 @@ Modify:
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "frame.hpp"
+
+#if defined(__BORLANDC__)
+#pragma warn -par
+#endif
 
 #if !defined(SYSLOG)
  #if defined(SYSLOG_OT) || defined(SYSLOG_SVS) || defined(SYSLOG_DJ) || defined(VVM) || defined(SYSLOG_AT) || defined(SYSLOG_IS) || defined(SYSLOG_tran) || defined(SYSLOG_SKV) || defined(SYSLOG_NWZ) || defined(SYSLOG_KM) || defined(SYSLOG_KEYMACRO) || defined(SYSLOG_ECTL) || defined(SYSLOG_COPYR) || defined(SYSLOG_EE_REDRAW)
@@ -1214,9 +1221,12 @@ const char *_INPUT_RECORD_Dump(INPUT_RECORD *rec)
           rec->Event.MenuEvent.dwCommandId
         );
       break;
+    case FARMACRO_KEY_EVENT:
     case KEY_EVENT:
+    case 0:
       sprintf(Records,
-            "KEY_EVENT_RECORD: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%C' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c - %c%c%c%c)",
+            "%s: %s, %d, Vk=%s, Scan=0x%04X uChar=[U='%C' (0x%04X): A='%c' (0x%02X)] Ctrl=0x%08X (%c%c%c%c - %c%c%c%c)",
+          (rec->EventType==KEY_EVENT?"KEY_EVENT_RECORD":(rec->EventType==FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"(internal, macro)_KEY_EVENT")),
           (rec->Event.KeyEvent.bKeyDown?"Dn":"Up"),
           rec->Event.KeyEvent.wRepeatCount,
           _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode),
@@ -1498,3 +1508,7 @@ const char *_SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
   return NULL;
 #endif
 }
+
+#if defined(__BORLANDC__)
+#pragma warn +par
+#endif

@@ -5,10 +5,12 @@ options.cpp
 
 */
 
-/* Revision: 1.20 19.05.2003 $ */
+/* Revision: 1.21 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    ! переинициализируем массив KMGTbStr (обозначение килобайт, мегабайт,...) вызовом __PrepareKMGTbStr()
   19.05.2003 SVS
     ! Диалоговые настройки вынесены в отдельный диалог
     ! Уточнение для полиции - диалоги имеют номер 5
@@ -519,6 +521,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               CtrlObject->ViewHistory->ReloadTitle();
               SetEnvironmentVariable("FARLANG",Opt.Language);
               PrepareStrFTime();
+              __PrepareKMGTbStr();
               FrameManager->InitKeyBar();
               CtrlObject->Cp()->RedrawKeyBar();
               CtrlObject->Cp()->SetScreenPosition();

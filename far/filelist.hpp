@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.35 13.01.2003 $ */
+/* Revision: 1.36 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + FileList::IsNumeric()
   13.01.2003 SVS
     ! Доп.параметр у ConvertName() - файловые атрибуты, для того, чтобы
       обечпечить работу опции "Выравнивать расширения файлов"
@@ -342,6 +344,7 @@ class FileList:public Panel
                  char *DestShortName,DizList *DestDiz);
     int IsFullScreen();
     int IsCaseSensitive();
+    int IsNumeric();
     int IsDizDisplayed();
     int IsColumnDisplayed(int Type);
     int GetPrevViewMode();

@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.122 15.06.2003 $ */
+/* Revision: 1.123 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    - Если в целях (multitarget) встречается con или nul, то имеем трабл.
+    + CheckNulOrCon() - вынесена часть кода сюды
+    - BugZ#641 - rename directory
   15.06.2003 SVS
     - опция "[ ] Копировать содержимое символических связей" и...
       индикатор общего + время не показывается. Ошибка в ShellCopy::CalcTotalSize()
@@ -405,6 +409,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "filelist.hpp"
 #include "foldtree.hpp"
 #include "treelist.hpp"
 #include "chgprior.hpp"
@@ -851,26 +856,15 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     return;
   }
 
+  int WorkMove=Move;
+
   _LOGCOPYR(SysLog("CopyDlg[2].Data='%s'",CopyDlg[2].Data));
-  // Выставляем признак копирования в NUL
-  /* $ 21.12.2002 IS
-     Признак копирования в nul выставим в случаях, когда цель назначения:
-     - начинается с "nul\", "\\.\nul\" или "con\"
-     - равна "nul", "\\.\nul" или "con"
-  */
-  if(!LocalStricmp (CopyDlg[2].Data,"nul")             ||
-     !LocalStrnicmp(CopyDlg[2].Data,"nul\\", 4)        ||
-     !LocalStrnicmp(CopyDlg[2].Data,"\\\\.\\nul", 7)   ||
-     !LocalStrnicmp(CopyDlg[2].Data,"\\\\.\\nul\\", 8) ||
-     !LocalStricmp (CopyDlg[2].Data,"con")             ||
-     !LocalStrnicmp(CopyDlg[2].Data,"con\\", 4)
-    )
+  if(CheckNulOrCon(CopyDlg[2].Data))
     ShellCopy::Flags|=FCOPY_COPYTONUL;
-  /* IS $ */
   if(ShellCopy::Flags&FCOPY_COPYTONUL)
   {
     ShellCopy::Flags&=~FCOPY_MOVE;
-    StaticMove=Move=0;
+    StaticMove=WorkMove=0;
   }
 
   if(CDP.SelCount==1 || (ShellCopy::Flags&FCOPY_COPYTONUL))
@@ -913,6 +907,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // ***********************************************************************
 
   int NeedDizUpdate=FALSE;
+  int NeedUpdateAPanel=FALSE;
 
   /*
      ЕСЛИ ПРИНЯТЬ В КАЧЕСТВЕ РАЗДЕЛИТЕЛЯ ПУТЕЙ, НАПРИМЕР ';',
@@ -941,14 +936,27 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
           TotalCopySize=TotalCopiedSize=0;
           TotalSkippedSize=CurCopiedSize=0;
 
+          strcpy(NameTmp, NamePtr);
+          _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,WorkMove));
+
+          if(CheckNulOrCon(NameTmp))
+            ShellCopy::Flags|=FCOPY_COPYTONUL;
+          else
+            ShellCopy::Flags&=~FCOPY_COPYTONUL;
+
+          if(ShellCopy::Flags&FCOPY_COPYTONUL)
+          {
+            ShellCopy::Flags&=~FCOPY_MOVE;
+            StaticMove=WorkMove=0;
+          }
+          else
+            StaticMove=WorkMove=Move;
+
           if(DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
           {
-            ShellCopy::Flags|=Move?FCOPY_MOVE:0; // только для последней операции
+            ShellCopy::Flags|=WorkMove?FCOPY_MOVE:0; // только для последней операции
             ShellCopy::Flags|=FCOPY_COPYLASTTIME;
           }
-
-          strcpy(NameTmp, NamePtr);
-          _LOGCOPYR(SysLog("NamePtr='%s', Move=%d",NamePtr,Move));
 
           // Если выделенных элементов больше 1 и среди них есть каталог, то всегда
           // делаем так, чтобы на конце был '\\'
@@ -957,13 +965,17 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
             AddEndSlash(NameTmp);
 
           // Для перемещение одного объекта скинем просчет "тотала"
-          if (CDP.SelCount==1 && Move && strpbrk(NameTmp,":\\")==NULL)
+          if (CDP.SelCount==1 && WorkMove && strpbrk(NameTmp,":\\")==NULL)
             ShowTotalCopySize=FALSE;
 
-          if(Move) // при перемещении "тотал" так же скидывается для "того же диска"
+          if(WorkMove) // при перемещении "тотал" так же скидывается для "того же диска"
           {
             if(IsSameDisk(SrcDir,NameTmp))
               ShowTotalCopySize=FALSE;
+            if(CDP.SelCount==1 && CDP.FolderPresent && CheckUpdateAnotherPanel(SrcPanel,SelName))
+            {
+              NeedUpdateAPanel=TRUE;
+            }
           }
 
           // Обнулим инфу про дизы
@@ -1005,7 +1017,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
             DWORD Attr=GetFileAttributes(DestDizName);
             int DestReadOnly=(Attr!=0xffffffff && (Attr & FA_RDONLY));
             if(DestList.IsEmpty()) // Скидываем только во время последней Op.
-              if (Move && !DestReadOnly)
+              if (WorkMove && !DestReadOnly)
                 SrcPanel->FlushDiz();
             DestDiz.Flush(DestDizPath);
           }
@@ -1046,7 +1058,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     LenRenamedName=strlen(RenamedName);
     SrcPanel->GoToFile(RenamedName);
   }
-
+#if 1
+  if(NeedUpdateAPanel && CDP.FileAttr != -1 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
+  {
+    SrcPanel->GetCurDir(SrcDir);
+    DestPanel->SetCurDir(SrcDir,FALSE);
+  }
+#else
   if(CDP.FileAttr != -1 && (CDP.FileAttr&FILE_ATTRIBUTE_DIRECTORY) && DestPanelMode != PLUGIN_PANEL)
   {
     // если SrcDir содержится в DestDir...
@@ -1065,6 +1083,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       DestPanel->SetCurDir(DestDir,FALSE);
     }
   }
+#endif
 
   DestPanel->SortFileList(TRUE);
   DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
@@ -4145,4 +4164,23 @@ BOOL ShellCopy::MoveFileThroughTemp(const char *Src, const char *Dest)
       rc = MoveFile(Temp, Dest);
   }
   return rc;
+}
+
+BOOL ShellCopy::CheckNulOrCon(const char *Src)
+{
+  // Выставляем признак копирования в NUL
+  /* $ 21.12.2002 IS
+     Признак копирования в nul выставим в случаях, когда цель назначения:
+     - начинается с "nul\", "\\.\nul\" или "con\"
+     - равна "nul", "\\.\nul" или "con"
+  */
+  if(!LocalStricmp (Src,"nul")             ||
+     !LocalStrnicmp(Src,"nul\\", 4)        ||
+     !LocalStrnicmp(Src,"\\\\.\\nul", 7)   ||
+     !LocalStrnicmp(Src,"\\\\.\\nul\\", 8) ||
+     !LocalStricmp (Src,"con")             ||
+     !LocalStrnicmp(Src,"con\\", 4)
+    )
+    return TRUE;
+  return FALSE;
 }

@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.24 30.05.2003 $ */
+/* Revision: 1.25 08.07.2003 $ */
 
 /*
 Modify:
+  08.07.2003 SVS
+    + CheckNulOrCon()
   30.05.2003 SVS
     + FCOPY_COPYSYMLINKCONTENTS - Копировать содержимое симолических связей?
       Пока только флаг. Логику еще не додумал!
@@ -198,6 +200,8 @@ class ShellCopy
     */
     BOOL MoveFileThroughTemp(const char *Src, const char *Dest);
     /* IS $ */
+
+    BOOL CheckNulOrCon(const char *Src);
 
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,

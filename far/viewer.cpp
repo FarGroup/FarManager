@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.145 02.06.2003 $ */
+/* Revision: 1.146 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    - BugZ#898 - ¬озможность перемещени€ с меньшей дискретностью в HEX-режиме вьювера...
   02.06.2003 VVM
     + —тарое поведение при скроллинге оставим на Ctrl-Down. Ctrl-Up до кучи
   29.05.2003 SVS
@@ -2184,9 +2186,18 @@ int Viewer::ProcessKey(int Key)
     {
       if(ViewFile)
       {
-        LeftPos-=20;
-        if (LeftPos<0)
-          LeftPos=0;
+        if(VM.Hex)
+        {
+          FilePos--;
+          if (FilePos<0)
+            FilePos=0;
+        }
+        else
+        {
+          LeftPos-=20;
+          if (LeftPos<0)
+            LeftPos=0;
+        }
         Show();
 //        LastSelPos=FilePos;
       }
@@ -2197,9 +2208,18 @@ int Viewer::ProcessKey(int Key)
     {
       if(ViewFile)
       {
-        LeftPos+=20;
-        if (LeftPos>MAX_VIEWLINE)
-          LeftPos=MAX_VIEWLINE;
+        if(VM.Hex)
+        {
+          FilePos++;
+          if (FilePos >= FileSize)
+            FilePos=FileSize-1; //??
+        }
+        else
+        {
+          LeftPos+=20;
+          if (LeftPos>MAX_VIEWLINE)
+            LeftPos=MAX_VIEWLINE;
+        }
         Show();
 //        LastSelPos=FilePos;
       }

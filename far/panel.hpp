@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.20 13.01.2003 $ */
+/* Revision: 1.21 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + NumericSort
   13.01.2003 SVS
     + PanelViewSettings.FolderAlignExtensions
   21.12.2002 SVS
@@ -85,6 +87,7 @@ struct PanelViewSettings
   int FileLowerCase;
   int FileUpperToLowerCase;
   int CaseSensitiveSort;
+  int NumericSort;
 };
 
 enum {FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL};

@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.51 06.05.2003 $ */
+/* Revision: 1.52 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + NumericSort
   06.05.2003 SVS
     ! Учтем Opt.UseUnicodeConsole при рисовании дерева
   22.04.2003 SVS
@@ -177,6 +179,7 @@ const char TreeCacheFolderName[]="Tree.Cache";
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
 static int StaticSortCaseSensitive;
+static int StaticSortNumeric;
 static int TreeCmp(char *Str1,char *Str2);
 static clock_t TreeStartTime;
 static int LastScrX = -1;
@@ -261,6 +264,7 @@ TreeList::TreeList(int IsPanel)
   *Root=0;
   UpdateRequired=TRUE;
   CaseSensitiveSort=FALSE;
+  NumericSort=FALSE;
   PrevMacroMode = -1;
   TreeIsPrepared = FALSE;
   ExitCode=1;
@@ -299,10 +303,13 @@ void TreeList::DisplayObject()
     if (RootPanel->GetType()==FILE_PANEL)
     {
       int RootCaseSensitive=((FileList *)RootPanel)->IsCaseSensitive();
-      if (RootCaseSensitive!=CaseSensitiveSort)
+      int RootNumeric=((FileList *)RootPanel)->IsNumeric();
+      if (RootCaseSensitive!=CaseSensitiveSort || RootNumeric != NumericSort)
       {
         CaseSensitiveSort=RootCaseSensitive;
+        NumericSort=RootNumeric;
         StaticSortCaseSensitive=CaseSensitiveSort;
+        StaticSortNumeric=NumericSort;
         qsort(ListData,TreeCount,sizeof(*ListData),SortList);
         FillLastData();
         SyncDir();
@@ -592,7 +599,7 @@ int TreeList::ReadTree()
   }
 
   SetPreRedrawFunc(NULL);
-  StaticSortCaseSensitive=CaseSensitiveSort=FALSE;
+  StaticSortCaseSensitive=CaseSensitiveSort=StaticSortNumeric=NumericSort=FALSE;
   qsort(ListData,TreeCount,sizeof(*ListData),SortList);
 
   FillLastData();
@@ -1353,6 +1360,7 @@ int TreeList::ReadTreeFile()
   if (TreeCount==0)
     return(FALSE);
   CaseSensitiveSort=FALSE;
+  NumericSort=FALSE;
 
   FillLastData();
   return(TRUE);
@@ -1661,12 +1669,18 @@ int _cdecl SortList(const void *el1,const void *el2)
 {
   char *NamePtr1=((struct TreeItem *)el1)->Name;
   char *NamePtr2=((struct TreeItem *)el2)->Name;
-  return(StaticSortCaseSensitive ? TreeCmp(NamePtr1,NamePtr2):LCStricmp(NamePtr1,NamePtr2));
+  if(!StaticSortNumeric)
+    return(StaticSortCaseSensitive ? TreeCmp(NamePtr1,NamePtr2):LCStricmp(NamePtr1,NamePtr2));
+  else
+    return(StaticSortCaseSensitive ? TreeCmp(NamePtr1,NamePtr2):LCNumStricmp(NamePtr1,NamePtr2));
 }
 
 int _cdecl SortCacheList(const void *el1,const void *el2)
 {
-  return(LCStricmp(*(char **)el1,*(char **)el2));
+//  if(!StaticSortNumeric)
+    return(LCStricmp(*(char **)el1,*(char **)el2));
+//  else
+//    return(LCNumStricmp(*(char **)el1,*(char **)el2));
 }
 
 

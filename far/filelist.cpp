@@ -5,10 +5,14 @@ filelist.cpp
 
 */
 
-/* Revision: 1.182 05.07.2003 $ */
+/* Revision: 1.183 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    ! Еще одна оптимизация - сделаем inline strcmp
+    + учтем опцию NumericSort
+    - BugZ#863 - При редактировании группы дескрипшенов они не обновляются на ходу
   05.07.2003 SVS
     ! Изменена функция сортировки SortList (подробнее see 01680.Mix.txt)
   04.06.2003 SVS
@@ -542,7 +546,7 @@ static int _cdecl SortList(const void *el1,const void *el2);
 int _cdecl SortSearchList(const void *el1,const void *el2);
 
 static int ListSortMode,ListSortOrder,ListSortGroups,ListSelectedFirst;
-static int ListPanelMode,ListCaseSensitive;
+static int ListPanelMode,ListCaseSensitive,ListNumericSort;
 static HANDLE hSortPlugin;
 
 /* $ 11.10.2001 VVM
@@ -747,6 +751,7 @@ void FileList::SortFileList(int KeepPosition)
     ListSelectedFirst=SelectedFirst;
     ListPanelMode=PanelMode;
     ListCaseSensitive=ViewSettingsArray[ViewMode].CaseSensitiveSort;
+    ListNumericSort=ViewSettingsArray[ViewMode].NumericSort;
 
     if (KeepPosition)
       strcpy(CurName,ListData[CurFile].Name);
@@ -759,6 +764,9 @@ void FileList::SortFileList(int KeepPosition)
   }
 }
 
+#if defined(__BORLANDC__)
+#pragma intrinsic strcmp
+#endif
 
 int _cdecl SortList(const void *el1,const void *el2)
 {
@@ -898,7 +906,13 @@ int _cdecl SortList(const void *el1,const void *el2)
     }
   }
 
-  int NameCmp=ListSortOrder*(ListCaseSensitive?strcmp(Name1,Name2):LCStricmp(Name1,Name2));
+  int NameCmp;
+  //int NameCmp=ListSortOrder*(ListCaseSensitive?strcmp(Name1,Name2):LCStricmp(Name1,Name2));
+  if(!ListNumericSort)
+    NameCmp=ListCaseSensitive?strcmp(Name1,Name2):LCStricmp(Name1,Name2);
+  else
+    NameCmp=ListCaseSensitive?NumStrcmp(Name1,Name2):LCNumStricmp(Name1,Name2);
+  NameCmp*=ListSortOrder;
   if (NameCmp==0)
     NameCmp=SPtr1->Position>SPtr2->Position ? ListSortOrder:-ListSortOrder;
 
@@ -911,9 +925,12 @@ int _cdecl SortSearchList(const void *el1,const void *el2)
   struct FileListItem *SPtr1,*SPtr2;
   SPtr1=(struct FileListItem *)el1;
   SPtr2=(struct FileListItem *)el2;
-  return(strcmp(SPtr1->Name,SPtr2->Name));
+  return strcmp(SPtr1->Name,SPtr2->Name);
+//  return NumStrcmp(SPtr1->Name,SPtr2->Name);
 }
-
+#if defined(__BORLANDC__)
+#pragma intrinsic -strcmp
+#endif
 
 void FileList::SetFocus()
 {
@@ -2955,6 +2972,7 @@ void FileList::SetViewMode(int ViewMode)
   int OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
   int OldDiz=IsColumnDisplayed(DIZ_COLUMN);
   int OldCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
+  int OldNumericSort=ViewSettings.NumericSort;
   PrepareViewSettings(ViewMode,NULL);
   int NewOwner=IsColumnDisplayed(OWNER_COLUMN);
   int NewPacked=IsColumnDisplayed(PACKED_COLUMN);
@@ -2962,6 +2980,7 @@ void FileList::SetViewMode(int ViewMode)
   int NewDiz=IsColumnDisplayed(DIZ_COLUMN);
   int NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
   int NewCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
+  int NewNumericSort=ViewSettings.NumericSort;
   int ResortRequired=FALSE;
 
   char DriveRoot[NM];
@@ -2977,7 +2996,7 @@ void FileList::SetViewMode(int ViewMode)
        AccessTimeUpdateRequired && NewAccessTime))
     Update(UPDATE_KEEP_SELECTION);
   else
-    if (OldCaseSensitiveSort!=NewCaseSensitiveSort)
+    if (OldCaseSensitiveSort!=NewCaseSensitiveSort || OldNumericSort!=NewNumericSort) //????
       ResortRequired=TRUE;
 
   if (!OldDiz && NewDiz)
@@ -4014,6 +4033,9 @@ void FileList::DescribeFiles()
     }
     ClearLastGetSelection();
     // BugZ#442 - Deselection is late when making file descriptions
+    FlushDiz();
+    // BugZ#863 - При редактировании группы дескрипшенов они не обновляются на ходу
+    Update(UPDATE_KEEP_SELECTION);
     Redraw();
   }
   if (DizCount>0)

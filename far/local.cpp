@@ -5,10 +5,12 @@ local.cpp
 
 */
 
-/* Revision: 1.16 08.04.2003 $ */
+/* Revision: 1.17 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + LCNumStricmp() - "цифровое" сравнение двух строк с учетом локали
   08.04.2003 SVS
     + IsUpperOrLower[] - в ответ на "почему LocalIsupper держит пробел за большую букву"
   17.10.2002 SVS
@@ -343,6 +345,38 @@ int __cdecl LCStricmp(const char *s1,const char *s2)
   return(0);
 }
 
+int __cdecl LCNumStricmp(const char *s1,const char *s2)
+{
+  const char *ts1 = s1, *ts2 = s2;
+  while(*s1 && *s2)
+  {
+    if(isdigit(*s1) && isdigit(*s2))
+    {
+       // берем длину числа без ведущих нулей
+       int dig_len1 = __digit_cnt_0(s1, &s1);
+       int dig_len2 = __digit_cnt_0(s2, &s2);
+       // если одно длиннее другого, значит они и больше! :)
+       if(dig_len1 != dig_len2)
+         return dig_len1 - dig_len2;
+       // длины одинаковы, сопоставляем...
+       while(isdigit(*s1) && isdigit(*s2))
+       {
+         if (LCOrder[*s1] != LCOrder[*s2])
+           return (LCOrder[*s1] < LCOrder[*s2]) ? -1 : 1;
+         s1++; s2++;
+       }
+       if(*s1 == 0)
+         break;
+   }
+    if (LCOrder[*s1] != LCOrder[*s2])
+      return (LCOrder[*s1] < LCOrder[*s2]) ? -1 : 1;
+    s1++; s2++;
+  }
+  int Ret=LCOrder[*s1] - LCOrder[*s2];
+  if(!Ret)
+    return strlen(ts2)-strlen(ts1);
+  return (Ret < 0) ? -1 : 1;
+}
 
 int _cdecl LCSort(const void *el1,const void *el2)
 {

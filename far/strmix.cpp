@@ -5,10 +5,14 @@ strmix.cpp
 
 */
 
-/* Revision: 1.47 28.05.2003 $ */
+/* Revision: 1.48 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    ! Вынесем инициализацию массива KMGTbStr в __PrepareKMGTbStr()
+      была бага: 'к' и 'k' не изменялись при переключении языка
+    + NumStrcmp() - "цифровое" сравнение двух строк
   28.05.2003 VVM
     - Баг в функции TruncStr - переписывали байты за пределами строки.
   27.05.2003 SVS
@@ -712,7 +716,6 @@ const char *NullToEmpty(const char *Str)
   return (Str==NULL) ? "":Str;
 }
 
-
 char* CenterStr(char *Src,char *Dest,int Length)
 {
   char TempSrc[1024];
@@ -814,6 +817,20 @@ void WINAPI Unquote(char *Str)
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.
 */
+#define MAX_KMGTBSTR_SIZE 16
+static char KMGTbStr[4][2][MAX_KMGTBSTR_SIZE]={0};
+
+void __PrepareKMGTbStr(void)
+{
+  for(int I=0; I < 4; ++I)
+  {
+    strncpy(KMGTbStr[I][0],MSG(MListKb+I),MAX_KMGTBSTR_SIZE-1);
+    strcpy(KMGTbStr[I][1],KMGTbStr[I][0]);
+    LocalStrlwr(KMGTbStr[I][0]);
+    LocalStrupr(KMGTbStr[I][1]);
+  }
+}
+
 char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, int ViewFlags)
 {
   char OutStr[64];
@@ -821,19 +838,10 @@ char* WINAPI FileSizeToStr(char *DestStr,DWORD SizeHigh, DWORD Size, int Width, 
   DWORD Divider;
   int IndexDiv, IndexB;
 
-  #define MAX_KMGTBSTR_SIZE 16
-  static char KMGTbStr[4][2][MAX_KMGTBSTR_SIZE]={0};
-
   // подготовительные мероприятия
   if(KMGTbStr[0][0][0] == 0)
   {
-    for(int I=0; I < 4; ++I)
-    {
-      strncpy(KMGTbStr[I][0],MSG(MListKb+I),MAX_KMGTBSTR_SIZE-1);
-      strcpy(KMGTbStr[I][1],KMGTbStr[I][0]);
-      LocalStrlwr(KMGTbStr[I][0]);
-      LocalStrupr(KMGTbStr[I][1]);
-    }
+    __PrepareKMGTbStr();
   }
 
   int Commas=(ViewFlags & COLUMN_COMMAS);
@@ -1220,4 +1228,46 @@ const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int 
 BOOL TestParentFolderName(const char *Name)
 {
   return Name[0] == '.' && Name[1] == '.' && !Name[2];
+}
+
+
+int __digit_cnt_0(const char* s, const char** beg)
+{
+  int n = 0;
+  while(*s == '0') s++;
+  *beg = s;
+  while(isdigit(*s)) { s++; n++; }
+  return n;
+}
+
+int __cdecl NumStrcmp(const char *s1, const char *s2)
+{
+  const char *ts1 = s1, *ts2 = s2;
+  while(*s1 && *s2)
+  {
+    if(isdigit(*s1) && isdigit(*s2))
+    {
+       // берем длину числа без ведущих нулей
+       int dig_len1 = __digit_cnt_0(s1, &s1);
+       int dig_len2 = __digit_cnt_0(s2, &s2);
+       // если одно длиннее другого, значит они и больше! :)
+       if(dig_len1 != dig_len2)
+         return dig_len1 - dig_len2;
+       // длины одинаковы, сопоставляем...
+       while(isdigit(*s1) && isdigit(*s2))
+       {
+          if(*s1 != *s2)
+            return *s1 - *s2;
+          s1++; s2++;
+       }
+       if(*s1 == 0)
+         break;
+    }
+    if(*s1 != *s2)
+      return *s1 - *s2; // здесь учесть локаль
+    s1++; s2++;
+  }
+  if(*s1 == *s2)
+    return strlen(ts2)-strlen(ts1);
+  return *s1 - *s2;
 }

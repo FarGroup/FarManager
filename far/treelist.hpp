@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.12 08.04.2002 $ */
+/* Revision: 1.13 11.07.2003 $ */
 
 /*
 Modify:
+  11.07.2003 SVS
+    + NumericSort
   08.04.2002 IS
     ! внедрение const
   12.02.2002 SVS
@@ -62,6 +64,7 @@ class TreeList: public Panel
     long GetSelPosition;
     int UpdateRequired;
     int CaseSensitiveSort;
+    int NumericSort;
     int ExitCode; // актуально только для дерева, вызванного из копира!
     int IsPanel;
 

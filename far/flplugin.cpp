@@ -5,10 +5,13 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.35 14.05.2003 $ */
+/* Revision: 1.36 08.07.2003 $ */
 
 /*
 Modify:
+  08.07.2003 SVS
+    - Если текущий элемент 1 и нет более выделения и этот элемент "..",
+      то имеем багу с PI.SelectedItems[0] - здесь мусор!
   14.05.2003 SVS
     + _ALGO()
   05.03.2003 SVS
@@ -341,13 +344,18 @@ HANDLE FileList::OpenPluginForFile(char *FileName)
 
 void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &ItemNumber)
 {
+  if (!ListData)
+    return;
+
   long SaveSelPosition=GetSelPosition;
   char SelName[NM];
   int FileAttr;
   ItemNumber=0;
   ItemList=new PluginPanelItem[SelFileCount+1];
-  GetSelName(NULL,FileAttr);
   if (ItemList!=NULL)
+  {
+    memset(ItemList,0,sizeof(struct PluginPanelItem) * (SelFileCount+1));
+    GetSelName(NULL,FileAttr);
     while (GetSelName(SelName,FileAttr))
       if (((FileAttr & FA_DIREC)==0 || !TestParentFolderName(SelName))
           && LastSelPosition>=0 && LastSelPosition<FileCount)
@@ -355,6 +363,15 @@ void FileList::CreatePluginItemList(struct PluginPanelItem *(&ItemList),int &Ite
         FileListToPluginItem(ListData+LastSelPosition,ItemList+ItemNumber);
         ItemNumber++;
       }
+
+    if(!ItemNumber && (FileAttr & FA_DIREC)) // это про ".."
+    {
+      strcpy(ItemList->FindData.cFileName,ListData->Name);
+      ItemList->FindData.dwFileAttributes=ListData->FileAttr;
+      ItemNumber++;
+    }
+  }
+
   GetSelPosition=SaveSelPosition;
 }
 
