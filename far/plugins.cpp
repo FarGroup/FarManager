@@ -9,6 +9,11 @@ plugins.cpp
 
 /*
 Modify:
+  31.08.2000 SVS
+    ! изменение FSF-функций
+      FSF.RemoveLeadingSpaces =FSF.LTrim
+      FSF.RemoveTrailingSpaces=FSF.RTrim
+      FSF.RemoveExternalSpaces=FSF.Trim
   28.08.2000 SVS
     + Добавка для Local*
     ! не FarStandardFunctions._atoi64, но FarStandardFunctions.atoi64
@@ -76,6 +81,9 @@ Modify:
 /* IS $ */
 
 static void CheckScreenLock();
+static char FmtPluginsCache_PluginD[]="PluginsCache\\Plugin%d";
+static char FmtDiskMenuStringD[]="DiskMenuString%d";
+static char FmtDiskMenuNumberD[]="DiskMenuNumber%d";
 
 // требуется в plugapi.cpp (было раньше static)
 int KeepUserScreen;
@@ -212,13 +220,13 @@ void PluginsSet::LoadPlugins()
     for (int I=0;;I++)
     {
       char RegKey[100],PluginName[NM];
-      sprintf(RegKey,"PluginsCache\\Plugin%d",I);
+      sprintf(RegKey,FmtPluginsCache_PluginD,I);
       GetRegKey(RegKey,"Name",PluginName,"",sizeof(PluginName));
       if (*PluginName==0)
         break;
       if (GetFileAttributes(PluginName)==0xFFFFFFFF)
       {
-        DeleteKeyRecord("PluginsCache\\Plugin%d",I);
+        DeleteKeyRecord(FmtPluginsCache_PluginD,I);
         I--;
       }
     }
@@ -375,9 +383,9 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
 
     StandardFunctions.Unquote=Unquote;
     StandardFunctions.ExpandEnvironmentStr=ExpandEnvironmentStr;
-    StandardFunctions.RemoveLeadingSpaces=RemoveLeadingSpaces;
-    StandardFunctions.RemoveTrailingSpaces=RemoveTrailingSpaces;
-    StandardFunctions.RemoveExternalSpaces=RemoveExternalSpaces;
+    StandardFunctions.LTrim=RemoveLeadingSpaces;
+    StandardFunctions.RTrim=RemoveTrailingSpaces;
+    StandardFunctions.Trim=RemoveExternalSpaces;
     StandardFunctions.TruncStr=TruncStr;
     StandardFunctions.TruncPathStr=TruncPathStr;
     StandardFunctions.QuoteSpaceOnly=QuoteSpaceOnly;
@@ -466,7 +474,7 @@ int PluginsSet::GetCacheNumber(char *FullName,WIN32_FIND_DATA *FindData,int Cach
     int Pos=(I==-1) ? CachePos:I;
 
     char RegKey[100],PluginName[NM],PluginID[100],CurPluginID[100];
-    sprintf(RegKey,"PluginsCache\\Plugin%d",Pos);
+    sprintf(RegKey,FmtPluginsCache_PluginD,Pos);
     GetRegKey(RegKey,"Name",PluginName,"",sizeof(PluginName));
     if (*PluginName==0)
       break;
@@ -507,7 +515,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
   for (I0=0;;I0++)
   {
     char RegKey[100],PluginName[NM],CurPluginID[100];
-    sprintf(RegKey,"PluginsCache\\Plugin%d",I0);
+    sprintf(RegKey,FmtPluginsCache_PluginD,I0);
     GetRegKey(RegKey,"Name",PluginName,"",sizeof(PluginName));
     if (*PluginName==0 || LocalStricmp(PluginName,CurPlugin.ModuleName)==0)
     {
@@ -521,11 +529,11 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       for (I=0;I<Info.DiskMenuStringsNumber;I++)
       {
         char Value[100];
-        sprintf(Value,"DiskMenuString%d",I);
+        sprintf(Value,FmtDiskMenuStringD,I);
         SetRegKey(RegKey,Value,Info.DiskMenuStrings[I]);
         if (Info.DiskMenuNumbers)
         {
-          sprintf(Value,"DiskMenuNumber%d",I);
+          sprintf(Value,FmtDiskMenuNumberD,I);
           SetRegKey(RegKey,Value,Info.DiskMenuNumbers[I]);
         }
       }
@@ -930,7 +938,7 @@ void PluginsSet::Configure()
           ListItem.UserData[0]=I;
           ListItem.UserData[1]=J;
           ListItem.UserDataSize=2;
-          sprintf(RegKey,"PluginsCache\\Plugin%d",RegNumber);
+          sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
           sprintf(Value,"PluginConfigString%d",J);
           GetRegKey(RegKey,Value,ListItem.Name,"",sizeof(ListItem.Name));
           if (*ListItem.Name==0)
@@ -1011,7 +1019,7 @@ int PluginsSet::CommandsMenu(int Editor,int Viewer,int StartPos)
         continue;
       else
       {
-        sprintf(RegKey,"PluginsCache\\Plugin%d",RegNumber);
+        sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
         int Flags=GetRegKey(RegKey,"Flags",0);
         if (Editor && (Flags & PF_EDITOR)==0 ||
             Viewer && (Flags & PF_VIEWER)==0 ||
@@ -1195,10 +1203,10 @@ int PluginsSet::GetDiskMenuItem(int PluginNumber,int PluginItem,
       ItemPresent=0;
     else
     {
-      sprintf(RegKey,"PluginsCache\\Plugin%d",RegNumber);
-      sprintf(Value,"DiskMenuString%d",PluginItem);
+      sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
+      sprintf(Value,FmtDiskMenuStringD,PluginItem);
       GetRegKey(RegKey,Value,PluginText,"",100);
-      sprintf(Value,"DiskMenuNumber%d",PluginItem);
+      sprintf(Value,FmtDiskMenuNumberD,PluginItem);
       GetRegKey(RegKey,Value,PluginTextNumber,0);
       ItemPresent=*PluginText!=0;
     }
@@ -1296,7 +1304,7 @@ int PluginsSet::ProcessCommandLine(char *Command)
       if (RegNumber!=-1)
       {
         char RegKey[100],PluginPrefix[512];
-        sprintf(RegKey,"PluginsCache\\Plugin%d",RegNumber);
+        sprintf(RegKey,FmtPluginsCache_PluginD,RegNumber);
         GetRegKey(RegKey,"CommandPrefix",PluginPrefix,"",sizeof(PluginPrefix));
         if (LocalStricmp(Prefix,PluginPrefix)==0)
         {

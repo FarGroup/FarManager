@@ -6,10 +6,18 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.33 30.08.2000 $ */
+/* Revision: 1.34 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 SVS
+    ! изменение FSF-функций
+      FSF.RemoveLeadingSpaces =FSF.LTrim
+      FSF.RemoveTrailingSpaces=FSF.RTrim
+      FSF.RemoveExternalSpaces=FSF.Trim
+    + DM_ENABLE
+    + Флаг DIF_DISABLE переводящий элемент диалога в состояние Disable
+    + Флаг LIF_DISABLE переводящий элемент списка в состояние Disable
   30.08.2000 SVS
     ! Пал смертью храбрых флаг FMI_GETFARMSGID
     + DM_MOVEDIALOG - переместить диалог.
@@ -327,32 +335,37 @@ enum DialogItemTypes {
    заданной маске.
 */
 enum FarDialogItemFlags {
-  DIF_COLORMASK       =    0xff,
-  DIF_SETCOLOR        =   0x100,
-  DIF_BOXCOLOR        =   0x200,
-  DIF_GROUP           =   0x400,
-  DIF_LEFTTEXT        =   0x800,
-  DIF_MOVESELECT      =  0x1000,
-  DIF_SHOWAMPERSAND   =  0x2000,
-  DIF_CENTERGROUP     =  0x4000,
-  DIF_NOBRACKETS      =  0x8000,
-  DIF_SEPARATOR       = 0x10000,
-  DIF_EDITOR          = 0x20000,
-  DIF_HISTORY         = 0x40000,
-  DIF_EDITEXPAND      = 0x80000,
-  DIF_DROPDOWNLIST    =0x100000,
+  DIF_COLORMASK       =      0xffUL,
+  DIF_SETCOLOR        =     0x100UL,
+  DIF_BOXCOLOR        =     0x200UL,
+  DIF_GROUP           =     0x400UL,
+  DIF_LEFTTEXT        =     0x800UL,
+  DIF_MOVESELECT      =    0x1000UL,
+  DIF_SHOWAMPERSAND   =    0x2000UL,
+  DIF_CENTERGROUP     =    0x4000UL,
+  DIF_NOBRACKETS      =    0x8000UL,
+  DIF_SEPARATOR       =   0x10000UL,
+  DIF_EDITOR          =   0x20000UL,
+  DIF_HISTORY         =   0x40000UL,
+  DIF_EDITEXPAND      =   0x80000UL,
+  DIF_DROPDOWNLIST    =  0x100000UL,
 /* $ 01.08.2000 SVS
   если у строки ввода есть история
   то начальное значение брать первым из истории
 */
-  DIF_USELASTHISTORY  =0x200000,
+  DIF_USELASTHISTORY  =  0x200000UL,
 /* SVS $ */
 /* $ 17.08.2000 SVS
   + Флаг для DI_BUTTON - DIF_BTNNOCLOSE - "кнопка не для закрытия диалога"
 */
-  DIF_BTNNOCLOSE      = 0x40000,
+  DIF_BTNNOCLOSE      =   0x40000UL,
 /* SVS $ */
-  DIF_MASKEDIT        =0x400000,
+  DIF_MASKEDIT        =  0x400000UL,
+/* $ 31.08.2000 SVS
+  + Флаг DIF_DISABLE переводящий элемент в состояние Disable
+*/
+  DIF_DISABLE         =0x80000000UL,
+/* SVS $ */
 };
 /* KM $ */
 /* SVS $ */
@@ -364,6 +377,7 @@ enum FarDialogItemFlags {
 enum FarMessagesProc{
   DM_FIRST=0,
   DM_CLOSE,
+  DM_ENABLE,
   DM_ENABLEREDRAW,
   DM_GETDLGDATA,
   DM_GETDLGITEM,
@@ -371,6 +385,7 @@ enum FarMessagesProc{
   DM_GETTEXT,
   DM_GETTEXTLENGTH,
   DM_KEY,
+  DM_MOVEDIALOG,
   DM_SETDLGDATA,
   DM_SETDLGITEM,
   DM_SETFOCUS,
@@ -378,7 +393,6 @@ enum FarMessagesProc{
   DM_SETTEXT,
   DM_SETTEXTLENGTH,
   DM_SHOWDIALOG,
-  DM_MOVEDIALOG,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -411,9 +425,10 @@ enum FarMessagesProc{
 
 // флаги для FarListItem.Flags
 enum LISTITEMFLAGS{
-  LIF_SELECTED = 0x0001,
-  LIF_CHECKED  = 0x0002,
-  LIF_SEPARATOR= 0x0004,
+  LIF_SELECTED = 0x00000001UL,
+  LIF_CHECKED  = 0x00000002UL,
+  LIF_SEPARATOR= 0x00000004UL,
+  LIF_DISABLE  = 0x80000000UL,
 };
 
 // описывает один пункт списка
@@ -850,9 +865,9 @@ typedef int (WINAPI *FARSTDATOI)(const char *s);
 typedef __int64 (WINAPI *FARSTDATOI64)(const char *s);
 typedef char *(WINAPI *FARSTDITOA64)(__int64 value, char *string, int radix);
 typedef char *(WINAPI *FARSTDITOA)(int value, char *string, int radix);
-typedef char *(WINAPI *FARSTDREMOVELEADINGSPACES)(char *Str);
-typedef char *(WINAPI *FARSTDREMOVETRAILINGSPACES)(char *Str);
-typedef char *(WINAPI *FARSTDREMOVEEXTERNALSPACES)(char *Str);
+typedef char *(WINAPI *FARSTDLTRIM)(char *Str);
+typedef char *(WINAPI *FARSTDRTRIM)(char *Str);
+typedef char *(WINAPI *FARSTDTRIM)(char *Str);
 typedef char *(WINAPI *FARSTDTRUNCSTR)(char *Str,int MaxLength);
 typedef char *(WINAPI *FARSTDTRUNCPATHSTR)(char *Str,int MaxLength);
 typedef char *(WINAPI *FARSTDQUOTESPACEONLY)(char *Str);
@@ -927,9 +942,9 @@ typedef struct FarStandardFunctions
 
   FARSTDUNQUOTE Unquote;
   FARSTDEXPANDENVIRONMENTSTR ExpandEnvironmentStr;
-  FARSTDREMOVELEADINGSPACES RemoveLeadingSpaces;
-  FARSTDREMOVETRAILINGSPACES RemoveTrailingSpaces;
-  FARSTDREMOVEEXTERNALSPACES RemoveExternalSpaces;
+  FARSTDLTRIM LTrim;
+  FARSTDRTRIM RTrim;
+  FARSTDTRIM  Trim;
   FARSTDTRUNCSTR TruncStr;
   FARSTDTRUNCPATHSTR TruncPathStr;
   FARSTDQUOTESPACEONLY QuoteSpaceOnly;

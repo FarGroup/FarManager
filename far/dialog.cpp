@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.34 30.08.2000 $ */
+/* Revision: 1.35 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 SVS
+   + DM_ENABLE (не полностью готов :-)
+   - Бага с вызовом файлов помощи.
   30.08.2000 SVS
    + Метод Hide()
    + Режим диалога DMODE_SHOW - Диалог виден?
@@ -200,6 +203,7 @@ Modify:
 */
 #include "internalheaders.hpp"
 /* IS $ */
+
 
 static char fmtLocked[]="Locked%d";
 static char fmtLine[]  ="Line%d";
@@ -430,7 +434,10 @@ int Dialog::InitDialogObjects(int ID)
         }
 
      // предварительный поик фокуса
-     if(FocusPos == -1 && IsFocused(CurItem->Type) && CurItem->Focus)
+     if(FocusPos == -1 &&
+        IsFocused(CurItem->Type) &&
+        CurItem->Focus &&
+        !(CurItem->Flags&DIF_DISABLE))
        FocusPos=I; // запомним первый фокусный элемент
      CurItem->Focus=0; // сбросим для всех, чтобы не оказалось,
                        //   что фокусов - как у дурочка фантиков
@@ -443,7 +450,7 @@ int Dialog::InitDialogObjects(int ID)
     for (I=0; I < ItemCount; I++) // по всем!!!!
     {
       CurItem=&Item[I];
-      if(IsFocused(CurItem->Type))
+      if(IsFocused(CurItem->Type) && !(CurItem->Flags&DIF_DISABLE))
       {
         FocusPos=I;
         break;
@@ -1229,20 +1236,30 @@ int Dialog::ProcessKey(int Key)
       PtrStr=(char*)DlgProc((HANDLE)this,DN_HELP,FocusPos,(long)&HelpTopic[0]);
       if(PtrStr && *PtrStr)
       {
-        /* $ 29.08.2000 SVS
-           ! При подмене темы помощи из диаловой процедуры...
-             короче, нужно вновь формировать контент!
+        /* $ 31.08.2000 SVS
+           - Бага с вызовом файлов помощи.
         */
-        if (*PtrStr==':')       // Main Topic?
-          strcpy(Str,PtrStr+1);
-        else if (*PtrStr=='#')  // уже сформировано?
-          strcpy(Str,PtrStr);
-        else                    // надо формировать...
+        if(PluginNumber != -1)
         {
-          strcpy(&Str[512],CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
-          *PointToName(&Str[512])=0;
-          sprintf(Str,"#%s#%s",&Str[512],PtrStr);
+          /* $ 29.08.2000 SVS
+             ! При подмене темы помощи из диаловой процедуры...
+               короче, нужно вновь формировать контент!
+          */
+          if (*PtrStr==':')       // Main Topic?
+            strcpy(Str,PtrStr+1);
+          else if (*PtrStr=='#')  // уже сформировано?
+            strcpy(Str,PtrStr);
+          else                    // надо формировать...
+          {
+            strcpy(&Str[512],CtrlObject->Plugins.PluginsData[PluginNumber].ModuleName);
+            *PointToName(&Str[512])=0;
+            sprintf(Str,"#%s#%s",&Str[512],PtrStr);
+          }
+          /* SVS $ */
         }
+        else
+          strcpy(Str,PtrStr);
+
         SetHelp(Str);
         /* SVS $ */
         ShowHelp();
@@ -3254,6 +3271,23 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(I) Dlg->Show(); // только если диалог был виден
 
       return Param2;
+    }
+    /* SVS $ */
+
+    /* $ 31.08.2000 SVS
+        + переключение/получение состояния Enable/Disable элемента
+    */
+    case DM_ENABLE:
+    {
+      DWORD PrevFlags=CurItem->Flags;
+      if(Param2 != -1)
+      {
+         if(Param2)
+           CurItem->Flags&=~DIF_DISABLE;
+         else
+           CurItem->Flags|=DIF_DISABLE;
+      }
+      return (PrevFlags&DIF_DISABLE)?FALSE:TRUE;
     }
     /* SVS $ */
   }

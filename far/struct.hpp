@@ -7,10 +7,14 @@ struct.hpp
 
 */
 
-/* Revision: 1.09 21.08.2000 $ */
+/* Revision: 1.10 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 SVS
+    ! DialogItem.Flags, DialogData.Flags - тип DWORD
+    - не сохраняется тип врапа.
+      Добавлена переменная Options.ViewerTypeWrap
   12.08.2000 KM 1.09
     ! В структурах DialogItem и DialogData новое поле, включенное
       в union, char *Mask.
@@ -223,6 +227,11 @@ struct Options
   */
   int AutoComplete;
   /* SVS $*/
+  /* $ 31.08.2000 SVS
+     Добавлена переменная Options.ViewerTypeWrap
+  */
+  int ViewerTypeWrap;
+  /* SVS $*/
 };
 
 
@@ -283,7 +292,7 @@ struct DialogItem
     char *Mask;
     struct FarList *ListItems;
   };
-  unsigned int Flags;
+  DWORD Flags;
   unsigned char DefaultButton;
   char Data[512];
   void *ObjPtr;
@@ -306,7 +315,7 @@ struct DialogData
     char *Mask;
     struct FarList *ListItems;
   };
-  int Flags;
+  DWORD Flags;
   unsigned char DefaultButton;
   char *Data;
 };

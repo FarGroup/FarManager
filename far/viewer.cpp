@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.18 04.08.2000 $ */
+/* Revision: 1.19 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 SVS
+    + Теперь FAR помнит тип Wrap
+    - Бага - без часиков и со ScrollBar неверно отображается верхний статус
   04.08.2000 KM
     ! !!!Неверный предыдущий патч!!!!
   01.08.2000 KM 1.16
@@ -78,7 +81,7 @@ static int InitLastSearchHex=0;
 static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
-static int InitWrap=VIEW_WRAP,InitHex=FALSE;
+static int InitHex=FALSE;
 
 Viewer::Viewer()
 {
@@ -111,7 +114,11 @@ Viewer::Viewer()
     UseDecodeTable=TRUE;
   }
   Unicode=(TableNum==1) && UseDecodeTable;
-  Wrap=InitWrap;
+  /* $ 31.08.2000 SVS
+    Вспомним тип врапа
+  */
+  Wrap=Opt.ViewerTypeWrap;
+  /* SVS $ */
   Hex=InitHex;
 
   ViewFile=NULL;
@@ -205,7 +212,7 @@ void Viewer::KeepInitParameters()
   InitUseDecodeTable=UseDecodeTable;
   InitTableNum=TableNum;
   InitAnsiText=AnsiText;
-  InitWrap=Wrap;
+  Opt.ViewerTypeWrap=Wrap;
   InitHex=Hex;
 }
 
@@ -748,7 +755,12 @@ void Viewer::ShowStatus()
           LastPage ? 100:ToPercent(FilePos,FileSize));
   SetColor(COL_VIEWERSTATUS);
   GotoXY(X1,Y1);
-  mprintf("%-*.*s",Width,Width,Status);
+  /* $ 31.08.2000 SVS
+     Бага - без часиков неверно отображается верхний статус
+  */
+  mprintf("%-*.*s",Width+(Opt.ViewerShowScrollbar?1:0),
+                   Width+(Opt.ViewerShowScrollbar?1:0),Status);
+  /* SVS $ */
   if (Opt.ViewerEditorClock)
     ShowTime(FALSE);
 }
@@ -1069,6 +1081,11 @@ int Viewer::ProcessKey(int Key)
       /* SVS $ */
       ChangeViewKeyBar();
       Show();
+      /* $ 31.08.2000 SVS
+        Сохраняем тип врапа
+      */
+      Opt.ViewerTypeWrap=Wrap;
+      /* SVS $ */
       LastSelPos=FilePos;
       return(TRUE);
     case KEY_F4:

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.11 04.08.2000 $ */
+/* Revision: 1.12 31.08.2000 $ */
 
 /*
 Modify:
+  31.08.2000 SVS
+    + Теперь FAR помнит тип Wrap
   04.08.2000 SVS
     ! WordDiv выкинул - будет описан в TechInfo.txt
       Но пустую строку все равно (даже в реестре) ввести нельзя!
@@ -599,6 +601,11 @@ void ReadConfig()
   GetRegKey("Viewer","ShowArrows",Opt.ViewerShowArrows,1);
   GetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar,0);
   /* tran 18.07.2000 $ */
+  /* $ 31.08.2000 SVS
+     ! Opt.ViewerTypeWrap
+  */
+  GetRegKey("Viewer","TypeWrap",Opt.ViewerTypeWrap,VIEW_WRAP);
+  /* SVS $*/
 
 
   GetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor,"",sizeof(Opt.ExternalEditor));
@@ -765,6 +772,11 @@ void SaveConfig(int Ask)
   SetRegKey("Viewer","ShowArrows",Opt.ViewerShowArrows);
   SetRegKey("Viewer","ShowScrollbar",Opt.ViewerShowScrollbar);
   /* tran 18.07.2000 $ */
+  /* $ 31.08.2000 SVS
+     ! Opt.ViewerTypeWrap
+  */
+  SetRegKey("Viewer","TypeWrap",Opt.ViewerTypeWrap);
+  /* SVS $*/
 
   SetRegKey("Editor","ExternalEditorName",Opt.ExternalEditor);
   SetRegKey("Editor","UseExternalEditor",Opt.UseExternalEditor);
