@@ -8,10 +8,12 @@ help.cpp
 
 */
 
-/* Revision: 1.48 15.10.2001 $ */
+/* Revision: 1.49 29.10.2001 $ */
 
 /*
 Modify:
+  26.10.2001 VVM
+    + Считать нажатие средней кнопки за ЕНТЕР
   15.10.2001 SVS
     ! вместо strcmp применяем LCStricmp
   15.10.2001 SVS
@@ -1171,8 +1173,17 @@ int Help::JumpTopic(const char *JumpTopic)
 
 int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-  if (MouseEvent->dwEventFlags==MOUSE_MOVED && (MouseEvent->dwButtonState & 3)==0)
+  if (MouseEvent->dwEventFlags==MOUSE_MOVED &&
+     (MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED)==0)
     return(FALSE);
+  /* $ 26.10.2001 VVM
+    + Считать нажатие средней кнопки за ЕНТЕР */
+  if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
+  {
+    ProcessKey(KEY_ENTER);
+    return(TRUE);
+  }
+  /* VVM $ */
   if (MouseEvent->dwMousePosition.X<X1 || MouseEvent->dwMousePosition.X>X2 ||
       MouseEvent->dwMousePosition.Y<Y1 || MouseEvent->dwMousePosition.Y>Y2)
   {
