@@ -5,15 +5,20 @@ dialog.cpp
 
 */
 
-/* Revision: 1.194 09.12.2001 $ */
+/* Revision: 1.195 10.12.2001 $ */
 
 /*
 Modify:
+  10.12.2001 SVS
+    - Бага для KEY_SPACE+DI_RADIOBUTTON - переменная не инициализировалась
+    ! DM_SETREDRAW=DM_REDRAW, DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH,
+      DM_LISTGET -> DM_LISTGETITEM
+    + struct FarListGetItem для DM_LISTGETITEM
   09.12.2001 DJ
-    косметика в Dialog API:
-    - проверять валидность ID элемента для DM_KEY и юзерских мессаг не надо!
-    - DM_SETDROPDOWNOPENED неприменим к DI_PSWEDIT
-    - обработка DIF_USELASTHISTORY вынесена в отдельную функцию
+    ! косметика в Dialog API:
+      - проверять валидность ID элемента для DM_KEY и юзерских мессаг не надо!
+      - DM_SETDROPDOWNOPENED неприменим к DI_PSWEDIT
+      - обработка DIF_USELASTHISTORY вынесена в отдельную функцию
   07.12.2001 SVS
     ! Небольшая оптимизация кода
     - Бага в GetDialogObjectsData() - для DI_LISTBOX кусок не работал, т.к.
@@ -2718,11 +2723,19 @@ int Dialog::ProcessKey(int Key)
       }
       if (Type==DI_RADIOBUTTON)
       {
-        int PrevRB;
+        int PrevRB=FocusPos;
         for (I=FocusPos;;I--)
-          if (Item[I].Type==DI_RADIOBUTTON && (Item[I].Flags & DIF_GROUP) ||
-              I==0 || Item[I-1].Type!=DI_RADIOBUTTON)
+        {
+          if(I==0)
             break;
+
+          if (Item[I].Type==DI_RADIOBUTTON && (Item[I].Flags & DIF_GROUP))
+            break;
+
+          if(Item[I-1].Type!=DI_RADIOBUTTON)
+            break;
+        }
+
         do
         {
           /* $ 28.07.2000 SVS
@@ -2749,8 +2762,8 @@ int Dialog::ProcessKey(int Key)
            !Dialog::SendDlgMessage((HANDLE)this,DN_BTNCLICK,FocusPos,1))
         {
            // вернем назад, если пользователь не захотел...
-           Item[PrevRB].Selected=1;
            Item[FocusPos].Selected=0;
+           Item[PrevRB].Selected=1;
         }
         /* SVS $ */
         ShowDialog();
@@ -4789,14 +4802,14 @@ const char *MsgToName(int Msg)
     DEF_MESSAGE(DM_GETTEXTLENGTH),      DEF_MESSAGE(DM_KEY),
     DEF_MESSAGE(DM_MOVEDIALOG),         DEF_MESSAGE(DM_SETDLGDATA),
     DEF_MESSAGE(DM_SETDLGITEM),         DEF_MESSAGE(DM_SETFOCUS),
-    DEF_MESSAGE(DM_SETREDRAW),          DEF_MESSAGE(DM_SETTEXT),
-    DEF_MESSAGE(DM_SETTEXTLENGTH),      DEF_MESSAGE(DM_SHOWDIALOG),
+    DEF_MESSAGE(DM_REDRAW),             DEF_MESSAGE(DM_SETTEXT),
+    DEF_MESSAGE(DM_SETMAXTEXTLENGTH),   DEF_MESSAGE(DM_SHOWDIALOG),
     DEF_MESSAGE(DM_GETFOCUS),           DEF_MESSAGE(DM_GETCURSORPOS),
     DEF_MESSAGE(DM_SETCURSORPOS),       DEF_MESSAGE(DM_GETTEXTPTR),
     DEF_MESSAGE(DM_SETTEXTPTR),         DEF_MESSAGE(DM_SHOWITEM),
     DEF_MESSAGE(DM_ADDHISTORY),         DEF_MESSAGE(DM_GETCHECK),
     DEF_MESSAGE(DM_SETCHECK),           DEF_MESSAGE(DM_SET3STATE),
-    DEF_MESSAGE(DM_LISTSORT),           DEF_MESSAGE(DM_LISTGET),
+    DEF_MESSAGE(DM_LISTSORT),           DEF_MESSAGE(DM_LISTGETITEM),
     DEF_MESSAGE(DM_LISTSET),            DEF_MESSAGE(DM_LISTGETCURPOS),
     DEF_MESSAGE(DM_LISTSETCURPOS),      DEF_MESSAGE(DM_LISTDELETE),
     DEF_MESSAGE(DM_LISTADD),            DEF_MESSAGE(DM_LISTADDSTR),
@@ -4986,7 +4999,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
     case DM_LISTADDSTR: // Param1=ID Param2=String
     case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
-    case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+    case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
     case DM_LISTSET: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
     case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
     case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
@@ -5114,23 +5127,20 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
                 break;
               return FALSE;
             }
-            case DM_LISTGET: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
+            case DM_LISTGETITEM: // Param1=ID Param2=FarListGetItem: ItemsNumber=Index, Items=Dest
             {
-              struct FarList *ListItems=(struct FarList *)Param2;
+              struct FarListGetItem *ListItems=(struct FarListGetItem *)Param2;
               if(!ListItems)
                 return FALSE;
               struct MenuItem *ListMenuItem;
-              if((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemsNumber)) != NULL)
+              if((ListMenuItem=ListBox->GetItemPtr(ListItems->ItemIndex)) != NULL)
               {
-                ListItems->ItemsNumber=1;
-                struct FarListItem *Items=ListItems->Items;
-                if(Items)
-                {
-                  memset(Items,0,sizeof(struct FarListItem));
-                  Items->Flags=ListMenuItem->Flags;
-                  strncpy(Items->Text,ListMenuItem->Name,sizeof(Items->Text)-1);
-                  return TRUE;
-                }
+                //ListItems->ItemIndex=1;
+                struct FarListItem *Item=&ListItems->Item;
+                memset(Item,0,sizeof(struct FarListItem));
+                Item->Flags=ListMenuItem->Flags;
+                strncpy(Item->Text,ListMenuItem->Name,sizeof(Item->Text)-1);
+                return TRUE;
               }
               return FALSE;
             }
@@ -5368,7 +5378,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     }
 
     /*****************************************************************/
-    case DM_SETREDRAW:
+    case DM_REDRAW:
     {
       if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
         Dlg->Show();
@@ -5630,7 +5640,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       return 0;
 
     /*****************************************************************/
-    case DM_SETTEXTLENGTH:
+    case DM_SETMAXTEXTLENGTH:
     {
       if((Type==DI_EDIT || Type==DI_PSWEDIT ||
           (Type==DI_COMBOBOX && !(CurItem->Flags & DIF_DROPDOWNLIST))) &&

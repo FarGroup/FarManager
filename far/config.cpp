@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.113 07.12.2001 $ */
+/* Revision: 1.114 10.12.2001 $ */
 
 /*
 Modify:
+  10.12.2001 SVS
+    ! DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH
   07.12.2001 IS
     - BugZ#154 - неверно отображается диалог Option->Panel setting в
       нерегистреном фаре.
@@ -794,7 +796,7 @@ void SetDizConfig()
   Dlg.SetPosition(-1,-1,76,15);
   Dlg.SetHelp("FileDiz");
   // ограничим размер поля ввода.
-  Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETTEXTLENGTH,2,sizeof(Opt.Diz.ListNames)-1);
+  Dialog::SendDlgMessage((HANDLE)&Dlg,DM_SETMAXTEXTLENGTH,2,sizeof(Opt.Diz.ListNames)-1);
   strcpy(DizDlg[2].Data,Opt.Diz.ListNames);
   if (Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
     DizDlg[8].Selected=TRUE;

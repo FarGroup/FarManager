@@ -10,10 +10,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.18 14.09.2001 $ */
+/* Revision: 1.19 10.12.2001 $ */
 
 /*
 Modify:
+  10.12.2001 SVS
+    + IsDsableOutput() - проверка на "отображаемость"
   14.09.2001 SVS
     - BugZ#9 - окончание
   07.09.2001 SVS
@@ -145,6 +147,7 @@ class KeyMacro
 
     int  IsRecording() {return(Recording);};
     int  IsExecuting() {return(Executing);};
+    int  IsDsableOutput() {return CheckCurMacroFlags(MFLAGS_DISABLEOUTPUT);};
     void SetMode(int Mode) {KeyMacro::Mode=Mode;};
     int  GetMode() {return(Mode);};
 

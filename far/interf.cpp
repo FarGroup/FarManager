@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.41 23.10.2001 $ */
+/* Revision: 1.42 10.12.2001 $ */
 
 /*
 Modify:
+  10.12.2001 SVS
+    ! SetFarTitle() - уточнение для макросов (в режиме исполнения если стоит
+      флаг MFLAGS_DISABLEOUTPUT не выставлять заголовок консоли)
   23.10.2001 SVS
     + WidthNameForMessage - 38% для размера усечения имени в месагах-процессах
   21.10.2001 SVS
@@ -942,14 +945,26 @@ void GetRealText(int X1,int Y1,int X2,int Y2,void *Dest)
 
 void SetFarTitle(const char *Title)
 {
-  char FarTitle[2*NM];
+  static char FarTitle[2*NM];
   char OldFarTitle[2*NM];
-  sprintf(FarTitle,"%.256s - Far",Title);
-  if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
-    OemToChar(FarTitle,FarTitle);
   GetConsoleTitle(OldFarTitle,sizeof(OldFarTitle));
-  if(strcmp(OldFarTitle,FarTitle))
+  if(Title)
+  {
+    sprintf(FarTitle,"%.256s - Far",Title);
+    if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
+      OemToChar(FarTitle,FarTitle);
+    if(strcmp(OldFarTitle,FarTitle) && !CtrlObject->Macro.IsDsableOutput())
+      SetConsoleTitle(FarTitle);
+  }
+  else
+  {
+    /*
+      Title=NULL для случая, когда нужно выставить пред.заголовок
+      SetFarTitle(NULL) - это не для всех!
+      Этот вызов имеет право делать только макро-движок!
+    */
     SetConsoleTitle(FarTitle);
+  }
 }
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)

@@ -113,9 +113,9 @@ $ #Keyboard reference#
 
  ~File management and service commands~@FuncCmd@
 
- ~Miscellaneous~@MiscCmd@
-
  ~Mouse wheel support~@MsWheel@
+
+ ~Miscellaneous~@MiscCmd@
 
 @PanelCmd
 $ #Panel control commands#
@@ -137,6 +137,7 @@ $ #Panel control commands#
   Change panels width                           #Ctrl-Left,Ctrl-Right#
     (when the command line is empty)
   Restore default panels width                          #Ctrl-Numpad5#
+  Show/Hide functional key bar at the bottom line.            #Ctrl-B#
 
  #File panel commands#
 
@@ -470,7 +471,8 @@ $ #Mouse wheel support#
 
    #Panels#
      Rotating the wheel scrolls the file list without changing the
-     cursor position on the screen.
+     cursor position on the screen. Pressing the middle button has
+     the same effect as pressing Enter.
 
    #Editor#
      Rotating the wheel scrolls the text without changing the cursor

@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.133 03.12.2001 $ */
+/* Revision: 1.134 10.12.2001 $ */
 
 /*
 Modify:
+  10.12.2001 SVS
+    - BugZ#164. При вставке имени файла (Ctrl-F) портилось оригинальное
+      имя файла.
   03.12.2001 IS
     ! UndoData - теперь указатель. Размер буфера undo можно изменить
       через реестр.
@@ -2858,7 +2861,9 @@ int Editor::ProcessKey(int Key)
         }
         //AddUndoData(CurLine->EditLine.GetStringAddr(),NumLine,
         //                CurLine->EditLine.GetCurPos(),UNDO_EDIT);
-        Paste(FileName);
+        char FileName0[NM];
+        strncpy(FileName0,FileName,sizeof(FileName0)-1);
+        Paste(FileName0);
         if (!EdOpt.PersistentBlocks)
           UnmarkBlock();
         Pasting--;

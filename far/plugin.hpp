@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.171 07.12.2001 $ */
+/* Revision: 1.172 10.12.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,10 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  10.12.2001 SVS
+    ! DM_SETREDRAW=DM_REDRAW, DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH,
+      DM_LISTGET -> DM_LISTGETITEM
+    + struct FarListGetItem для DM_LISTGETITEM
   07.12.2001 IS
     + FIB_CHECKBOX - добавить пользовательский чек-бокс к InputBox.
       Только для внутренних нужд Фара!
@@ -860,9 +864,10 @@ enum FarMessagesProc{
   DM_SETDLGDATA,
   DM_SETDLGITEM,
   DM_SETFOCUS,
-  DM_SETREDRAW,
+  DM_REDRAW,
+  DM_SETREDRAW=DM_REDRAW,
   DM_SETTEXT,
-  DM_SETTEXTLENGTH,
+  DM_SETMAXTEXTLENGTH,
   DM_SHOWDIALOG,
   DM_GETFOCUS,
   DM_GETCURSORPOS,
@@ -877,7 +882,7 @@ enum FarMessagesProc{
   DM_SET3STATE,
 
   DM_LISTSORT,
-  DM_LISTGET,
+  DM_LISTGETITEM,
   DM_LISTGETCURPOS,
   DM_LISTSETCURPOS,
   DM_LISTDELETE,
@@ -1003,6 +1008,12 @@ struct FarListDelete
   int Count;
 };
 
+struct FarListGetItem
+{
+  int ItemIndex;
+  FarListItem Item;
+};
+
 enum {
   LINFO_ALWAYSSCROLLBAR       =0x00000100,
   LINFO_SHOWNOBOX             =0x00000400,
@@ -1074,6 +1085,9 @@ struct FarDialogItemData
   char *PtrData;
 };
 
+
+#define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
+
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
 #define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(long)Data)
 
@@ -1099,8 +1113,8 @@ struct FarDialogItemData
 #define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(long)&FLDItem);}
 #define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
 #define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
-#define DlgList_GetItemData(Info,hDlg,ID,Index)       Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStr(Info,hDlg,ID,Index,Str)    {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(long)&FLID);}
+#define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
+#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(long)&FLID);}
 
 
 struct FarMenuItem
