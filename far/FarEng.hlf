@@ -655,12 +655,11 @@ Plugins present an almost limitless expansion of the features of FAR.
   * Spell checker functions while editing text in FAR editor.
   * Removable drives catalog preparation and much more...
 
-    It is useless to list all the functions provided by FAR and
-its plugins, because this list is constantly growing. As an information
-source, which can be used to search for specific plugins, one can recommend:
+    As an information source, which can be used to search for specific
+plugins, one can recommend:
+
   - PlugRinG site
-    ~http://www.uic.nnov.ru/~~ruiv/plugring/downld/~@http://www.uic.nnov.ru/~ruiv/plugring/cgi-bin/downld.cgi?Lang=Eng@
-    (alias: ~http://www.rarsoft.com/plugring~@http://www.rarsoft.com/plugring@)
+    ~http://www.rarsoft.com/plugring~@http://www.rarsoft.com/plugring@
   - USENET echo conference
     ~news:fido7.far.support~@news:fido7.far.support@
     ~news:fido7.far.development~@news:fido7.far.development@
@@ -1509,7 +1508,7 @@ $ #Panel settings dialog#
 
 @InterfSettings
 $ #Interface settings dialog#
-  #Clock#                   Show clock at the right top corner of
+  #Clock in panels#         Show clock at the right top corner of
                           the screen.
 
   #Clock in viewer#         Show clock in viewer and editor.

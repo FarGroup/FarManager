@@ -10,10 +10,13 @@ dialog.hpp
 
 */
 
-/* Revision: 1.43 12.11.2001 $ */
+/* Revision: 1.44 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+   ! SelectFromEditHistory() возвращает значение.
+   ! SelectOnEntry() имеет доп.параметр - выделять или не выделять.
   12.11.2001 OT
    - VC выдает ошибку...
   08.11.2001 SVS
@@ -183,7 +186,7 @@ Modify:
 #define DMODE_SHOW          0x00004000 // Диалог виден?
 #define DMODE_MOUSEEVENT    0x00008000 // Нужно посылать MouseMove в обработчик?
 #define DMODE_RESIZED       0x00010000 //
-#define DMODE_ENDLOOP       0x00020000 //
+#define DMODE_ENDLOOP       0x00020000 // Конец цикла обработки диалога?
 #define DMODE_OLDSTYLE      0x80000000 // Диалог в старом (до 1.70) стиле
 
 // Флаги для функции ConvertItem
@@ -339,6 +342,7 @@ class Dialog: public Frame
     void DeleteDialogObjects();
     /* $ 22.08.2000 SVS
       ! ShowDialog - дополнительный параметр - какой элемент отрисовывать
+        ID=-1 - отрисовать весь диалог
     */
     void ShowDialog(int ID=-1);
     /* SVS $ */
@@ -360,7 +364,7 @@ class Dialog: public Frame
       + Дополнительный параметр в SelectFromEditHistory для выделения
        нужной позиции в истории (если она соответствует строке ввода)
     */
-    void SelectFromEditHistory(struct DialogItem *CurItem,Edit *EditLine,char *HistoryName,char *Str,int MaxLen);
+    BOOL SelectFromEditHistory(struct DialogItem *CurItem,Edit *EditLine,char *HistoryName,char *Str,int MaxLen);
     /* SVS $ */
     /* $ 18.07.2000 SVS
        + функция SelectFromComboBox для выбора из DI_COMBOBOX
@@ -379,7 +383,7 @@ class Dialog: public Frame
       Функция SelectOnEntry - выделение строки редактирования
       Обработка флага DIF_SELECTONENTRY
     */
-    void SelectOnEntry(int Pos);
+    void SelectOnEntry(int Pos,BOOL Selected);
     /* SVS $ */
 
     void CheckDialogCoord(void);

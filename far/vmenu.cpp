@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.65 06.11.2001 $ */
+/* Revision: 1.66 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    ! Небольшие уточнения.
   06.11.2001 SVS
     ! VMENU_REVERSIHLIGHT -> VMENU_REVERSEHIGHLIGHT
     ! struct FarListInsert.
@@ -1119,8 +1121,19 @@ int VMenu::GetSelectPos(struct FarListPos *ListPos)
 int VMenu::SetSelectPos(struct FarListPos *ListPos)
 {
   int Ret=SetSelectPos(ListPos->SelectPos,1);
-  if (ListPos->TopPos)
+  int OldTopPos=TopPos;
+  if(Ret > -1)
+  {
     TopPos=ListPos->TopPos;
+    if(ListPos->TopPos == -1)
+    {
+      ; // TODO!
+      /*
+        Здесь нужно корректно выставить TopPos
+        КАК? Ума пока не дам.
+      */
+    }
+  }
   return Ret;
 }
 

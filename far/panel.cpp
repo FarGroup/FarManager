@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.69 08.11.2001 $ */
+/* Revision: 1.70 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    ! откат 1041 до лучших времен.
   08.11.2001 SVS
     - Shift-Enter на дисках запускал черти что, но только не проводник
   01.11.2001 SVS
@@ -577,7 +579,7 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
             {
               char DosDeviceName[16];
               sprintf(DosDeviceName,"%c:\\",LOBYTE(LOWORD(UserData)));
-              Execute(DosDeviceName,FALSE,2,TRUE);
+              Execute(DosDeviceName,FALSE,TRUE,TRUE);
             }
           }
           break;

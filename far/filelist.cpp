@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.101 09.11.2001 $ */
+/* Revision: 1.102 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    ! откат 1041 до лучших времен.
   09.11.2001 IS
     + В конструкторе проинициализируем символы, которые используются для
       отрисовки границ имен файлов, не помещающихся в панели
@@ -1752,7 +1754,7 @@ void FileList::ProcessEnter(int EnableExec,int SeparateWindow)
         strcat(FullPath,CurPtr->Name);
       /* VVM $ */
       QuoteSpace(FullPath);
-      Execute(FullPath,FALSE,2/*SeparateWindow*/,TRUE);
+      Execute(FullPath,FALSE,SeparateWindow,TRUE);
     }
     else
     {

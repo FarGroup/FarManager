@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.02 08.11.2001 $ */
+/* Revision: 1.03 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    ! откат 1033 и 1041 до лучших времен.
   08.11.2001 SVS
     - неудачная попытка (возможно и ЭТОТ патч неудачный) запуска (про каталоги)
   31.10.2001 VVM
@@ -178,23 +180,11 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 
   DWORD GUIType=IsCommandExeGUI(CmdPtr);
 
-  ExecLine[0] = 0;
   if (DirectRun && !SeparateWindow)
     strcpy(ExecLine,CmdPtr);
   else
   {
-    /* $ 31.10.2001 VVM
-      + Стараемся пускть не через "start.exe" */
-    if (!GUIType || (!OldNT && AlwaysWaitFinish))
-      sprintf(ExecLine,"%s /c ",CommandName);
-    if (!OldNT && AlwaysWaitFinish)
-    {
-      strcat(ExecLine,"start /wait ");
-      if (NT && *CmdPtr=='\"')
-        strcat(ExecLine,"\"\" ");
-    }
-    /* VVM $ */
-/*  sprintf(ExecLine,"%s /C",CommandName);
+    sprintf(ExecLine,"%s /C",CommandName);
     if (!OldNT && (SeparateWindow || GUIType && (NT || AlwaysWaitFinish)))
     {
       strcat(ExecLine," start");
@@ -204,7 +194,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
         strcat(ExecLine," \"\"");
     }
     strcat(ExecLine," ");
-*/
+
     char *CmdEnd=CmdPtr+strlen (CmdPtr)-1;
     if (NT && *CmdPtr == '\"' && *CmdEnd == '\"' && strchr (CmdPtr+1, '\"') != CmdEnd)
     {
@@ -228,7 +218,7 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
 
   ChangeConsoleMode(InitialConsoleMode);
 
-  if (OldNT || SeparateWindow)
+  if (SeparateWindow && OldNT)
     CreateFlags|=CREATE_NEW_CONSOLE;
 
   if (SeparateWindow==2)
@@ -450,12 +440,7 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
     if (ProcessOSCommands(CmdLine))
       Code=-1;
     else
-    {
-      DWORD FAttr;
-      if((FAttr=GetFileAttributes(CmdLine)) != -1 && (FAttr&FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
-        SeparateWindow=2;
       Code=Execute(CmdLine,AlwaysWaitFinish,SeparateWindow,DirectRun);
-    }
 
     int CurX,CurY;
     GetCursorPos(CurX,CurY);

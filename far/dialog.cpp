@@ -5,10 +5,15 @@ dialog.cpp
 
 */
 
-/* Revision: 1.177 09.11.2001 $ */
+/* Revision: 1.178 12.11.2001 $ */
 
 /*
 Modify:
+  12.11.2001 SVS
+    ! Уточнение по поводу поведения DN_LISTCHANGE (в т.ч. прорисовка во время
+      открытого комбобокса)
+    ! Уточнение повендения DN_EDITCHANGE при выборе из истории
+    ! Уточнение поведения DIF_SELECTONENTRY
   09.11.2001 SVS
     - Падение при раскрытии комбобокса с количеством итемов = 0
   08.11.2001 SVS
@@ -708,18 +713,19 @@ static char fmtSavedDialogHistory[]="SavedDialogHistory\\%s";
 /* Public:
    Конструктор класса Dialog
 */
-Dialog::Dialog(struct DialogItem *Item,int ItemCount,
-               FARWINDOWPROC DlgProc,long InitParam)
+Dialog::Dialog(struct DialogItem *Item,    // Набор элементов диалога
+               int ItemCount,              // Количество элементов
+               FARWINDOWPROC DlgProc,      // Диалоговая процедура
+               long InitParam)             // Ассоцированные с диалогом данные
 {
   _tran(SysLog("[%p] Dialog::Dialog()",this));
 
-  if(!PHisLocked)
+  if(!PHisLocked) // если некоторые элементы не инициализированы - сделаем это сейчас
   {
     PHisLocked=HisLocked+strlen(HisLocked);
     PHisLine=HisLine+strlen(HisLine);
   }
-  /* $ OT По умолчанию все диалоги создаются статически*/
-  SetDynamicallyBorn(FALSE);
+  SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
   /* $ 17.05.2001 DJ */
   CanLoseFocus = FALSE;
   HelpTopic = NULL;
@@ -1323,7 +1329,7 @@ int Dialog::InitDialogObjects(int ID)
     CurItem->Flags=ItemFlags;
   }
   // если будет редактор, то обязательно будет выделен.
-  SelectOnEntry(FocusPos);
+  SelectOnEntry(FocusPos,TRUE);
 
   // все объекты созданы!
   DialogMode.Set(DMODE_CREATEOBJECTS);
@@ -1593,6 +1599,10 @@ void Dialog::GetDialogObjectsData()
               CurItem->History &&
               Opt.DialogsEditHistory)
             AddToEditHistory(PtrData,CurItem->History);
+          //if(Type == DI_COMBOBOX)
+          //{
+          //  ListItems
+          //}
           /* $ 01.08.2000 SVS
              ! В History должно заносится значение (для DIF_EXPAND...) перед
               расширением среды!
@@ -2124,15 +2134,18 @@ void Dialog::ShowDialog(int ID)
 
   // КОСТЫЛЬ!
   // но работает ;-)
-  for (I=ID; I < DrawItemCount; I++)
+  for (I=0; I < ItemCount; I++)
   {
     CurItem=&Item[I];
-    if((CurItem->Type == DI_EDIT || CurItem->Type == DI_FIXEDIT) &&
-       !(CurItem->Flags&DIF_HIDDEN) &&
-       (CurItem->Flags&DIF_HISTORY) &&
-       CurItem->ListPtr)
+    if(CurItem->ListPtr && GetDropDownOpened() && CurItem->ListPtr->IsVisible())
     {
-      CurItem->ListPtr->Show();
+      if((CurItem->Type == DI_COMBOBOX) ||
+         ((CurItem->Type == DI_EDIT || CurItem->Type == DI_FIXEDIT) &&
+         !(CurItem->Flags&DIF_HIDDEN) &&
+         (CurItem->Flags&DIF_HISTORY)))
+      {
+        CurItem->ListPtr->Show();
+      }
     }
   }
   /* $ 31.07.2000 SVS
@@ -2804,7 +2817,6 @@ int Dialog::ProcessKey(int Key)
         CurEditLine->GetString(PStr,MaxLen);
         /* SVS $ */
         SelectFromEditHistory(Item+FocusPos,CurEditLine,Item[FocusPos].History,PStr,MaxLen);
-        Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
         if(Item[FocusPos].Flags&DIF_VAREDIT)
           free(PStr);
       }
@@ -3520,6 +3532,8 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
   else
     SetFocusPos=KillFocusPos;
 
+  SelectOnEntry(KillFocusPos,FALSE);
+  SelectOnEntry(SetFocusPos,TRUE);
   return(SetFocusPos);
 }
 /* SVS $ */
@@ -3528,7 +3542,7 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
   Функция SelectOnEntry - выделение строки редактирования
   Обработка флага DIF_SELECTONENTRY
 */
-void Dialog::SelectOnEntry(int Pos)
+void Dialog::SelectOnEntry(int Pos,BOOL Selected)
 {
   if(IsEdit(Item[Pos].Type) &&
      (Item[Pos].Flags&DIF_SELECTONENTRY)
@@ -3537,7 +3551,12 @@ void Dialog::SelectOnEntry(int Pos)
   {
     Edit *edt=(Edit *)Item[Pos].ObjPtr;
     if(edt)
-      edt->Select(0,edt->GetLength());
+    {
+      if(Selected)
+        edt->Select(0,edt->GetLength());
+      else
+        edt->Select(-1,0);
+    }
   }
 }
 /* SVS $ */
@@ -3888,7 +3907,7 @@ int Dialog::SelectFromComboBox(
   + Дополнительный параметр в SelectFromEditHistory для выделения
    нужной позиции в истории (если она соответствует строке ввода)
 */
-void Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
+BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
                                    Edit *EditLine,
                                    char *HistoryName,
                                    char *IStr,
@@ -3899,10 +3918,10 @@ void Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
 */
 {
   if(!EditLine)
-    return;
+    return FALSE;
 
   char RegKey[NM],Str[4096];
-  int I,Dest;
+  int I,Dest,Ret=FALSE;
   int Locked;
   int IsOk=FALSE, Done, IsUpdate;
   struct MenuItem HistoryItem;
@@ -3976,6 +3995,7 @@ void Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
       {
         if (!GetDropDownOpened())
         {
+          Ret=FALSE;
           HistoryMenu.ProcessKey(KEY_ESC);
           Done=TRUE;
           continue;
@@ -3986,6 +4006,7 @@ void Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
         if (Key==KEY_TAB) // Tab в списке хистори - аналог Enter
         {
           HistoryMenu.ProcessKey(KEY_ENTER);
+          Ret=TRUE;
           Done=TRUE;
           continue; //??
         }
@@ -4093,12 +4114,14 @@ void Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
       int ExitCode=HistoryMenu.Modal::GetExitCode();
       if (ExitCode<0)
       {
+        Ret=FALSE;
         Done=TRUE;
 //        break;
       }
       else
       {
         HistoryMenu.GetUserData(Str,Min((int)sizeof(Str),MaxLen),ExitCode);
+        Ret=TRUE;
         Done=TRUE;
         IsOk=TRUE;
       }
@@ -4114,8 +4137,10 @@ void Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
   {
     EditLine->SetString(Str);
     EditLine->SetLeftPos(0);
+    Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
     Redraw();
   }
+  return Ret;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -5443,7 +5468,8 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
            CurItem->Flags|=DIF_HIDDEN;
         if(Dlg->DialogMode.Check(DMODE_SHOW) && !(CurItem->Flags&DIF_HIDDEN))
         {
-          Dlg->ShowDialog(Param1);
+          // Либо все,  либо... только 1
+          Dlg->ShowDialog(Dlg->GetDropDownOpened()?-1:Param1);
           ScrBuf.Flush();
         }
       }
