@@ -921,7 +921,7 @@ refreshed by pressing #Ctrl-R#.
 the Alt key and type the folder name until you point to the right folder.
 Pressing #Ctrl-Enter# keys simultaneously will select the next match.
 
-    #Gray +# and #Gray -# should move up and down the tree to the next branch
+    #Gray +# and #Gray -# keys move up and down the tree to the next branch
 on the same level.
 
 @InfoPanel

@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.57 16.10.2004 $ */
+/* Revision: 1.59 28.10.2004 $ */
 
 /*
 Modify:
+  28.10.2004 SVS
+    + "Конструкторы" имен - TreeFileName() и TreeCacheFolderName()
+      В дальнейшем нужно осуществить TODO по этим функциям!
+    ! некоторые переменные вогнаны в константы
   16.10.2004 SVS
     + Gray+ и Gray- используются для быстрого перемещения вверх или вниз по папкам одного уровня.
     + GetNextNavPos() и GetPrevNavPos()
@@ -184,12 +188,6 @@ Modify:
 #include "RefreshFrameManager.hpp"
 
 #define DELTA_TREECOUNT 31
-/* $ 08.12.2001 IS
-   чтобы не плодить строковые литералы, воспользуемся указателями на константу
-*/
-const char TreeFileName[]="Tree.Far";
-const char TreeCacheFolderName[]="Tree.Cache";
-/* IS $ */
 
 static int _cdecl SortList(const void *el1,const void *el2);
 static int _cdecl SortCacheList(const void *el1,const void *el2);
@@ -277,23 +275,19 @@ TreeList::TreeList(int IsPanel)
   WorkDir=CurFile=CurTopFile=0;
   GetSelPosition=0;
   *Root=0;
-  UpdateRequired=TRUE;
+  Flags.Set(FTREELIST_UPDATEREQUIRED);
   CaseSensitiveSort=FALSE;
   NumericSort=FALSE;
   PrevMacroMode = -1;
-  TreeIsPrepared = FALSE;
+  Flags.Clear(FTREELIST_TREEISPREPARED);
   ExitCode=1;
-  TreeList::IsPanel=IsPanel;
+  Flags.Change(FTREELIST_ISPANEL,IsPanel);
 }
 
 
 TreeList::~TreeList()
 {
-  /* $ 13.07.2000 SVS
-     не надо смешивать new/delete с realloc
-  */
   xf_free(ListData);
-  /* SVS $ */
   FlushCache();
   SetMacroMode(TRUE);
 }
@@ -310,7 +304,7 @@ void TreeList::DisplayObject()
     return;
   Flags.Set(FSCROBJ_ISREDRAWING);
 
-  if (UpdateRequired)
+  if (Flags.Check(FTREELIST_UPDATEREQUIRED))
     Update(0);
   if(ExitCode)
   {
@@ -368,7 +362,7 @@ void TreeList::DisplayTree(int Fast)
     GotoXY(X1+1,I);
     SetColor(COL_PANELTEXT);
     Text(" ");
-    if (J<TreeCount && TreeIsPrepared)
+    if (J<TreeCount && Flags.Check(FTREELIST_TREEISPREPARED))
     {
       if (J==0)
         DisplayTreeName("\\",J);
@@ -496,21 +490,21 @@ void TreeList::Update(int Mode)
     return;
   if (!IsVisible())
   {
-    UpdateRequired=TRUE;
+    Flags.Set(FTREELIST_UPDATEREQUIRED);
     return;
   }
-  UpdateRequired=FALSE;
+  Flags.Clear(FTREELIST_UPDATEREQUIRED);
   GetRoot();
   int LastTreeCount=TreeCount;
   int RetFromReadTree=TRUE;
 
-  TreeIsPrepared = FALSE;
+  Flags.Clear(FTREELIST_TREEISPREPARED);
   int TreeFilePresent=ReadTreeFile();
   if (!TreeFilePresent)
     RetFromReadTree=ReadTree();
-  TreeIsPrepared = TRUE;
+  Flags.Set(FTREELIST_TREEISPREPARED);
 
-  if(!RetFromReadTree && !IsPanel)
+  if(!RetFromReadTree && !Flags.Check(FTREELIST_ISPANEL))
   {
     ExitCode=0;
     return;
@@ -647,8 +641,7 @@ void TreeList::SaveTreeFile()
   int RootLength=strlen(Root)-1;
   if (RootLength<0)
     RootLength=0;
-  xstrncpy(Name,Root,sizeof(CurDir)-1);
-  strcat(Name,TreeFileName);
+  MkTreeFileName(Root,Name,sizeof(Name)-1);
   // получим и сразу сбросим атрибуты (если получится)
   DWORD FileAttributes=GetFileAttributes(Name);
   if(FileAttributes != -1)
@@ -688,8 +681,7 @@ int TreeList::GetCacheTreeName(char *Root,char *Name,int CreateDir)
                             FileSystemName,sizeof(FileSystemName)))
     return(FALSE);
   char FolderName[NM];
-  xstrncpy(FolderName,FarPath,sizeof(FolderName)-1);
-  strcat(FolderName,TreeCacheFolderName);
+  MkTreeCacheFolderName(FarPath,FolderName,sizeof(FolderName)-1);
   if (CreateDir)
   {
     mkdir(FolderName);
@@ -1386,7 +1378,7 @@ int TreeList::ReadTreeFile()
     RootLength=0;
 
   FlushCache();
-  sprintf(Name,"%s%s",Root,TreeFileName);
+  MkTreeFileName(Root,Name,sizeof(Name)-1);
   if (MustBeCached(Root) || (TreeFile=fopen(Name,"rb"))==NULL)
     if (!GetCacheTreeName(Root,Name,FALSE) || (TreeFile=fopen(Name,"rb"))==NULL)
       return(FALSE);
@@ -1646,16 +1638,8 @@ void TreeList::ReadCache(char *TreeRoot)
   char TreeName[NM],DirName[NM],*ChPtr;
   char *ListName;
   FILE *TreeFile=NULL;
-  /* $ 07.08.2001 SVS
-     Ну просто ОХРЕНЕТЬ!!!!
-     т.е. сначала сравниваем, а потом формируем имя? ню-ню.
-     Камень в огород ER.
-  */
-  sprintf(TreeName,"%s%s",TreeRoot,TreeFileName);
-
-  if (strcmp(TreeName,TreeCache.TreeName)==0)
+  if (strcmp(MkTreeFileName(TreeRoot,TreeName,sizeof(TreeName)-1),TreeCache.TreeName)==0)
     return;
-  /* SVS $ */
   if (TreeCache.TreeCount!=0)
     FlushCache();
 
@@ -1879,4 +1863,32 @@ void TreeList::SetTitle()
     strcpy(LastFarTitle,TitleDir);
     SetFarTitle(TitleDir);
   }
+}
+
+/*
+   "Local AppData" = [HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders]/Local AppData
+   "AppData"       = [HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders]/AppData
+
+*/
+
+// TODO: Файлы "Tree.Far" для локальных дисков должны храниться в "Local AppData\Far"
+// TODO: Файлы "Tree.Far" для сетевых дисков должны храниться в "%HOMEDRIVE%\%HOMEPATH%",
+//                        если эти переменные среды не определены, то "%APPDATA%\Far"
+// хpаним "X.tree" (где 'X'  - буква диска, если не сетевой путь)
+// хpаним "server.share.tree" - для сетевого диска без буквы
+char *TreeList::MkTreeFileName(const char *RootDir,char *Dest,int DestSize)
+{
+  xstrncpy(Dest,RootDir,DestSize-1);
+  AddEndSlash(Dest);
+  strncat(Dest,"Tree.Far",DestSize);
+  return Dest;
+}
+
+// TODO: этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
+char *TreeList::MkTreeCacheFolderName(const char *RootDir,char *Dest,int DestSize)
+{
+  xstrncpy(Dest,RootDir,DestSize-1);
+  AddEndSlash(Dest);
+  strncat(Dest,"Tree.Cache",DestSize);
+  return Dest;
 }
