@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.126 25.05.2002 $ */
+/* Revision: 1.127 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    + IsLocalPath()
+    ! Поправлена PathMayBeAbsolute (исключен вызов функции strlen)
   25.05.2002 IS
     ! первый параметр у ConvertDate теперь ссылка на константу
   22.05.2002 SVS
@@ -1301,11 +1304,20 @@ void SetPreRedrawFunc(PREREDRAWFUNC Func)
     memset(&PreRedrawParam,0,sizeof(PreRedrawParam));
 }
 
-int PathMayBeAbsolute(const char *Src)
+int PathMayBeAbsolute(const char *Path)
 {
-  if (Src && strlen(Src)>=2 && isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\' || Src[0]=='/' && Src[1]=='/')
-    return TRUE;
-  return FALSE;
+  return (Path &&
+           (
+             (isalpha(*Path) && Path[1]==':' && Path[2]) ||
+             (Path[0]=='\\'  && Path[1]=='\\') ||
+             (Path[0]=='/'   && Path[1]=='/')
+           )
+         );
+}
+
+BOOL IsLocalPath(const char *Path)
+{
+  return (Path && isalpha(*Path) && Path[1]==':' && Path[2]);
 }
 
 // Косметические преобразования строки пути.

@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.156 25.05.2002 $ */
+/* Revision: 1.157 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    + IsLocalPath()
   25.05.2002 IS
     ! первый параметр у ConvertDate теперь ссылка на константу
   24.05.2002 SVS
@@ -1247,6 +1249,8 @@ __int64 ftell64(FILE *fp);
 int fseek64 (FILE *fp, __int64 offset, int whence);
 
 BOOL IsDiskInDrive(const char *Drive);
+
+BOOL IsLocalPath(const char *Path);
 
 BOOL RunGraber(void);
 

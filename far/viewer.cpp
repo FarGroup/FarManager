@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.100 27.05.2002 $ */
+/* Revision: 1.101 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    - ѕопытка избавитс€ от курсора под масдаем, путем позиционировани€ онного
+      из 24 строки в ScrY
   27.05.2002 SVS
     ! ќткат FileViewer -> Viewer до лучших времен (т.к. в Info и QView нужны
       значительные переделки)
@@ -754,7 +757,7 @@ void Viewer::DisplayObject()
 
   if (HideCursor)
   {
-    MoveCursor(79,24);
+    MoveCursor(79,ScrY);
     SetCursorType(0,10);
   }
   vseek(ViewFile,FilePos,SEEK_SET);

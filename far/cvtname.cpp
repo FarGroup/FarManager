@@ -5,10 +5,13 @@ cvtname.cpp
 
 */
 
-/* Revision: 1.0 22.03.2002 $ */
+/* Revision: 1.02 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    ! применим функцию  IsLocalPath()
+    ! Номер ревизии приведен в порядок (кто-то когда то забыл подправить)
   22.03.2002 SVS
     ! Выделение в качестве самостоятельного модуля
     ! Функции CharBufferToSmallWarn, RawConvertShortNameToLongName,
@@ -218,7 +221,7 @@ int ConvertNameToFull(const char *Src,char *Dest, int DestSize)
     return Result;
   }
 
-  if (isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\')
+  if (PathMayBeAbsolute(Src)) //  (isalpha(Src[0]) && Src[1]==':' || Src[0]=='\\' && Src[1]=='\\') //????
   {
     if (*NamePtr &&
         (*NamePtr!='.' || NamePtr[1]!=0 && (NamePtr[1]!='.' || NamePtr[2]!=0)) &&

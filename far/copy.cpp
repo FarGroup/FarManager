@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.87 25.05.2002 $ */
+/* Revision: 1.88 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    - BugZ#534 - копирование файлов с сетевых шар
   25.05.2002 IS
     + CmpFullNames: всегда работаем с реальными _длинными_ именами, в
       результате чего отлавливается ситуация, когда
@@ -3192,12 +3194,18 @@ int ShellCopy::CmpFullNames(const char *Src,const char *Dest)
   DeleteEndSlash(DestFullName);
 
   // избавимся от коротких имен
-  I=RawConvertShortNameToLongName(SrcFullName,SrcFullName,sizeof(SrcFullName));
-  if(!I || I>=sizeof(SrcFullName))
-    return 2;
-  I=RawConvertShortNameToLongName(DestFullName,DestFullName,sizeof(DestFullName));
-  if(!I || I>=sizeof(DestFullName))
-    return 2;
+  if(IsLocalPath(SrcFullName))
+  {
+    I=RawConvertShortNameToLongName(SrcFullName,SrcFullName,sizeof(SrcFullName));
+      if(!I || I>=sizeof(SrcFullName))
+        return 2;
+  }
+  if(IsLocalPath(DestFullName))
+  {
+    I=RawConvertShortNameToLongName(DestFullName,DestFullName,sizeof(DestFullName));
+    if(!I || I>=sizeof(DestFullName))
+      return 2;
+  }
 
   return LocalStricmp(SrcFullName,DestFullName)==0;
 }

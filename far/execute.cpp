@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.55 18.05.2002 $ */
+/* Revision: 1.56 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    ! применим функцию  IsLocalPath()
   18.05.2002 SVS
     ! Возможность компиляции под BC 5.5
   10.05.2002 SVS
@@ -1318,7 +1320,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
   if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
     SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
   RemoveTrailingSpaces(CmdLine);
-  if (!SeparateWindow && isalpha(CmdLine[0]) && CmdLine[1]==':' && CmdLine[2]==0)
+  if (!SeparateWindow && IsLocalPath(CmdLine) && CmdLine[2]==0)
   {
     char NewDir[10];
     sprintf(NewDir,"%c:",toupper(CmdLine[0]));
@@ -1447,7 +1449,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     strcpy(NewDir,&CmdLine[Length]);
 
     // скорректируем букву диска на "подступах"
-    if(NewDir[1] == ':' && isalpha(NewDir[0]))
+    if(IsLocalPath(NewDir))
       NewDir[0]=toupper(NewDir[0]);
 
     /* $ 15.11.2001 OT

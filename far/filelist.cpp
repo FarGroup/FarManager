@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.157 24.05.2002 $ */
+/* Revision: 1.158 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    ! применим функцию  IsLocalPath()
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   22.05.2002 VVM
@@ -2527,7 +2529,7 @@ BOOL FileList::ChangeDir(char *NewDir,BOOL IsUpdated)
 
   */
   /*else {
-    if (isalpha(SetDir[0]) && SetDir[1]==':')
+    if (IsLocalPath(SetDir))
     {
       int CurDisk=toupper(SetDir[0])-'A';
       setdisk(CurDisk);

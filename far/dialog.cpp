@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.247 24.05.2002 $ */
+/* Revision: 1.248 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    - BugZ#532 - Alt-256  = '\0' в строках ввода
+      Символ 0x00 не будет участвовать в автокомплите, ибо...
+      все завязано не на "память", а на "строка".
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   18.05.2002 SVS
@@ -3483,7 +3487,7 @@ int Dialog::ProcessKey(int Key)
             */
             if(!CtrlObject->Macro.GetCurRecord(NULL,NULL) &&
                ((CurItem->Flags & DIF_HISTORY) || Type == DI_COMBOBOX))
-            if((Opt.Dialogs.AutoComplete && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
+            if((Opt.Dialogs.AutoComplete && Key && Key < 256 && Key != KEY_BS && Key != KEY_DEL) ||
                (!Opt.Dialogs.AutoComplete && (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1))
               )
             {

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.106 27.05.2002 $ */
+/* Revision: 1.107 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    ! применим функцию  IsLocalPath()
   27.05.2002 SVS
     ! В некоторых местах в Init() явно не стояло выставление кода возврата.
   24.05.2002 SVS
@@ -693,7 +695,7 @@ int FileEditor::ProcessKey(int Key)
           Chr=*Ptr;
           *Ptr=0;
           // В корне?
-          if (!((strlen(FullFileName)==2) && isalpha(FullFileName[0]) && (FullFileName[1]==':')))
+          if (!(strlen(FullFileName)==2 && IsLocalPath(FullFileName)))
           {
             // а дальше? каталог существует?
             if((FNAttr=GetFileAttributes(FullFileName)) == -1 ||

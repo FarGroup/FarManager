@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.40 27.05.2002 $ */
+/* Revision: 1.41 28.05.2002 $ */
 
 /*
 Modify:
+  28.05.2002 SVS
+    + Вызов PluginCommit() - убивает двух зайцев - BugZ##536, 530
   27.05.2002 SVS
     + файловые панели суем в очередь перед загрузкой плагинов.
   14.03.2002 SVS
@@ -212,6 +214,8 @@ void ControlObject::Init()
     this->MainKeyBar->Show();
 
   FrameManager->InsertFrame(FPanels);
+  FrameManager->PluginCommit();
+
   Plugins.LoadPlugins();
 
   char StartCurDir[NM];
