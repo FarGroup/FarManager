@@ -5,10 +5,14 @@ execute.cpp
 
 */
 
-/* Revision: 1.38 15.02.2002 $ */
+/* Revision: 1.39 18.02.2002 $ */
 
 /*
 Modify:
+  18.02.2002 SVS
+    - set хрен=редька
+      Сабжевая команда под cmd.exe работает правильно, а под фаром - отнюдь.
+      Левая часть оказывается в неверной кодировке.
   15.02.2002 DJ
     - еще про заголовок: запускаем файл по ассоциации и видим, что через
       несколько секунд после запуска заголовок с нормального меняется
@@ -1257,6 +1261,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     if (Value==NULL)
       return(FALSE);
     *Value=0;
+    OemToChar(Cmd, Cmd);
     if (Value[1]==0)
       SetEnvironmentVariable(Cmd,NULL);
     else

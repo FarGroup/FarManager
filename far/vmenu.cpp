@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.73 13.02.2002 $ */
+/* Revision: 1.74 18.02.2002 $ */
 
 /*
 Modify:
+  18.02.2002 SVS
+    - Неверный расчет AmpPos
   13.02.2002 SVS
     ! Немного оптимизации...
     + Один интересный повторяющийся кусок вынесен в CheckKeyHighlighted()
@@ -1262,7 +1264,7 @@ int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
     {
       if(Chr != '&')
         Item[PosAdd].Idx2=++J;
-      else
+      else if(Item[PosAdd].AmpPos != -1)
         Item[PosAdd].AmpPos=J;
     }
     ++I;
