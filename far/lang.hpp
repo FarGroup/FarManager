@@ -13,7 +13,7 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.02 29.06.2000 $ */
+/* Revision: 1.03 06.07.2000 $ */
 
 /*
 Modify:
@@ -29,6 +29,10 @@ Modify:
   04.07.2000 SVS
     ! Scroll bar в меню переехал из Options|Panel settings
       в Options|Interface settings
+  06.07.2000 SVS
+    + Добавка
+      MSetColorDialogMenuHighLight,
+      MSetColorDialogMenuSelectedHighLight,
 */
 
 enum
@@ -833,6 +837,8 @@ enum
   MSetColorDialogSelectedHighlightedButtons,
   MSetColorDialogListText,
   MSetColorDialogSelectedListText,
+  MSetColorDialogMenuHighLight,
+  MSetColorDialogMenuSelectedHighLight,
 
   MSetColorWarningNormal,
   MSetColorWarningHighlighted,
