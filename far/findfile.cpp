@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.121 31.08.2002 $ */
+/* Revision: 1.122 12.09.2002 $ */
 
 /*
 Modify:
+  12.09.2002 SVS
+    - BugZ#593 - Падает при попытке поиска из меню
   31.08.2002 KM
     ! При поиске в плагине опции поиска "Search in all non-removable drives"
       и "Search in all, except removable and network drives" не
@@ -673,6 +675,8 @@ FindFiles::FindFiles()
   */
   static int LastCmpCase=0,LastWholeWords=0,LastUseAllTables=0,LastSearchInArchives=0;
   /* KM $ */
+  int I;
+
   CmpCase=LastCmpCase;
   WholeWords=LastWholeWords;
   UseAllTables=LastUseAllTables;
@@ -695,7 +699,7 @@ FindFiles::FindFiles()
   strncpy(SearchFromRoot,MSG(MSearchFromRoot),sizeof(SearchFromRoot)-1);
   SearchFromRoot[sizeof(SearchFromRoot)-1]=0;
 
-  for (int I=0;;I++)
+  for (I=0;;I++)
   {
     CharTableSet cts;
     int RetVal=FarCharTable(I,(char *)&cts,sizeof(cts));
@@ -748,7 +752,7 @@ FindFiles::FindFiles()
       /* 04 */DI_TEXT,5,5,0,0,0,0,0,0,"",
       /* 05 */DI_EDIT,5,6,36,16,0,(DWORD)TextHistoryName,DIF_HISTORY,0,"",
       /* 06 */DI_TEXT,40,5,0,0,0,0,0,0,"",
-      /* 07 */DI_COMBOBOX,40,6,70,10,0,(DWORD)&TableList,DIF_DROPDOWNLIST,0,"",
+      /* 07 */DI_COMBOBOX,40,6,70,10,0,0,DIF_DROPDOWNLIST,0,"",
       /* 08 */DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
       /* 09 */DI_VTEXT,38,4,0,0,0,0,DIF_BOXCOLOR,0,"\xD1\xB3\xB3\xC1",
       /* 10 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MFindFileCase,
@@ -773,10 +777,10 @@ FindFiles::FindFiles()
 
     if (!*FindStr)
       FindAskDlg[13].Selected=Opt.FindFolders;
-    FindAskDlg[16].Selected=FindAskDlg[17].Selected=0;
-    FindAskDlg[18].Selected=FindAskDlg[19].Selected=0;
-    FindAskDlg[20].Selected=FindAskDlg[21].Selected=0;
+    for(I=16; I <= 21; ++I)
+      FindAskDlg[I].Selected=0;
     FindAskDlg[16+SearchMode].Selected=1;
+    FindAskDlg[7].ListItems=&TableList;
 
     {
       if (PluginMode)
@@ -840,7 +844,8 @@ FindFiles::FindFiles()
     /* $ 14.12.2000 OT */
     char Buf1 [24];
     char Buf2 [128];
-    if (strlen (FindAskDlg[2].Data) > sizeof(FindMask) ){
+    if (strlen (FindAskDlg[2].Data) > sizeof(FindMask) )
+    {
       memset (Buf1, 0, sizeof(Buf1));
       memset (Buf2, 0, sizeof(Buf2));
       strncpy (Buf1, MSG(MFindFileMasks), sizeof(Buf1)-1);
@@ -849,8 +854,11 @@ FindFiles::FindFiles()
         Buf2,
         MSG(MOk));
     }
+
     strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
-    if (strlen (FindAskDlg[5].Data) > sizeof(FindStr) ){
+
+    if (strlen (FindAskDlg[5].Data) > sizeof(FindStr) )
+    {
       memset (Buf1, 0, sizeof(Buf1));
       memset (Buf2, 0, sizeof(Buf2));
       strncpy (Buf1, MSG(MFindFileText), sizeof(Buf1)-1);

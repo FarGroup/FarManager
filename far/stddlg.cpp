@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.24 10.06.2002 $ */
+/* Revision: 1.25 12.09.2002 $ */
 
 /*
 Modify:
+  12.09.2002 SVS
+    ! Исключаем возможные симптомы by BugZ#593
   10.06.2002 SVS
     + DIF_EDITPATH (FIB_EDITPATH)
   10.05.2002 SVS
@@ -174,9 +176,9 @@ int WINAPI GetSearchReplaceString(
     static struct DialogData ReplaceDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,12,0,0,0,0,(char *)MEditReplaceTitle,
     /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    /*  2 */DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+    /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     /*  3 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditReplaceWith,
-    /*  4 */DI_EDIT,5,5,70,3,0,(DWORD)ReplaceHistoryName,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,"",
+    /*  4 */DI_EDIT,5,5,70,3,0,0,DIF_HISTORY/*|DIF_USELASTHISTORY*/,0,"",
     /*  5 */DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     /*  6 */DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MEditSearchCase,
     /*  7 */DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
@@ -193,11 +195,15 @@ int WINAPI GetSearchReplaceString(
       ReplaceDlg[2].History=0;
       ReplaceDlg[2].Flags&=~DIF_HISTORY;
     }
+    else
+      ReplaceDlg[2].History=(char*)TextHistoryName;
     if(!*ReplaceHistoryName)
     {
       ReplaceDlg[4].History=0;
       ReplaceDlg[4].Flags&=~DIF_HISTORY;
     }
+    else
+      ReplaceDlg[4].History=(char*)ReplaceHistoryName;
 
     strncpy(ReplaceDlg[2].Data,(char *)SearchStr,sizeof(ReplaceDlg[2].Data)-1);
     strncpy(ReplaceDlg[4].Data,(char *)ReplaceStr,sizeof(ReplaceDlg[4].Data)-1);
@@ -289,7 +295,7 @@ int WINAPI GetSearchReplaceString(
     static struct DialogData SearchDlgData[]={
     /*  0 */DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MEditSearchTitle,
     /*  1 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditSearchFor,
-    /*  2 */DI_EDIT,5,3,70,3,1,(DWORD)TextHistoryName,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
+    /*  2 */DI_EDIT,5,3,70,3,1,0,DIF_HISTORY|DIF_USELASTHISTORY,0,"",
     /*  3 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
     /*  4 */DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MEditSearchCase,
     /*  5 */DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MEditSearchWholeWords,
@@ -306,6 +312,8 @@ int WINAPI GetSearchReplaceString(
       SearchDlg[2].History=0;
       SearchDlg[2].Flags&=~DIF_HISTORY;
     }
+    else
+      SearchDlg[2].History=(char*)TextHistoryName;
 
     strncpy(SearchDlg[2].Data,(char *)SearchStr,sizeof(SearchDlg[2].Data)-1);
 
