@@ -5,10 +5,12 @@ fileview.cpp
 
 */
 
-/* Revision: 1.30 14.05.2001 $ */
+/* Revision: 1.31 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 OT
     ! Изменение порядка вызова параметров ReplaceFrame (для единообразия и удобства)
   12.05.2001 DJ
@@ -152,6 +154,7 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
   if (!View.OpenFile(Name,TRUE))
   /* tran 04.07.2000 $ */
   {
+    FrameManager->DeleteFrame(this);
     ExitCode=FALSE;
     return;
   }
@@ -173,6 +176,7 @@ void FileViewer::Init(char *name,int EnableSwitch,int disableHistory,  ///
   SetFarTitle(NewTitle);
   ShowConsoleTitle();
   F3KeyOnly=TRUE;
+  FrameManager->InsertFrame(this);
 }
 
 
@@ -348,8 +352,7 @@ int FileViewer::ProcessKey(int Key)
         return(TRUE);
     case KEY_ESC:
     case KEY_F10:
-      SetExitCode(XC_QUIT);///
-///      SetExitCode(0);
+      FrameManager->DeleteFrame();
       return(TRUE);
     case KEY_F6:
       if (!DisableEdit)
@@ -358,19 +361,15 @@ int FileViewer::ProcessKey(int Key)
         char ViewFileName[NM];
         View.GetFileName(ViewFileName);
         long FilePos=View.GetFilePos();
-        /* $ 06.05.2001 DJ
-           обработка F6 под NWZ
-        */
+        /* $ 06.05.2001 DJ обработка F6 под NWZ */
         FileEditor *ShellEditor = new FileEditor (ViewFileName, FALSE, GetCanLoseFocus(),
           -2, FilePos, FALSE);
         ShellEditor->SetEnableF6 (TRUE);
-        /* $ 07.05.2001 DJ
-           сохраняем NamesList
-        */
+        /* $ 07.05.2001 DJ сохраняем NamesList */
         ShellEditor->SetNamesList (View.GetNamesList());
         /* DJ $ */
-        FrameManager->ReplaceFrame(ShellEditor, this);
         /* DJ $ */
+        FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
         ShowTime(2);
       }
       return(TRUE);
@@ -489,7 +488,6 @@ void FileViewer::OnDestroy()
   if (!DisableHistory && (CtrlObject->Cp()->ActivePanel!=NULL || strcmp(Name,"-")!=0))
   {
     char FullFileName[NM];
-    //ConvertNameToFull(Name,FullFileName, sizeof(FullFileName));
     if (ConvertNameToFull(Name,FullFileName, sizeof(FullFileName)) >= sizeof(FullFileName))
       return ;
     CtrlObject->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryView),0);

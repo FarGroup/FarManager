@@ -5,10 +5,12 @@ Parent class для немодальных объектов
 
 */
 
-/* Revision: 1.06 12.05.2001 $ */
+/* Revision: 1.07 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   12.05.2001 DJ
     + IsTopFrame()
     + отрисовка по OnChangeFocus сделана дефолтным поведением
@@ -38,24 +40,29 @@ Frame::Frame()
   CanLoseFocus=FALSE;
   ExitCode=-1;
   KeyBarVisible=MacroMode=0;
-  ModalKeyBar=NULL;
+  FrameKeyBar=NULL;
+  ModalStack=NULL;
+  ModalStackCount = ModalStackSize=0;
+ 
 }
 
 Frame::~Frame()
 {
   _OT(SysLog("[%p] Frame::~Frame()", this));
+  DestroyAllModal();
+  free(ModalStack);
 }
 
-void Frame::SetKeyBar(KeyBar *ModalKeyBar)
+void Frame::SetKeyBar(KeyBar *FrameKeyBar)
 {
-  Frame::ModalKeyBar=ModalKeyBar;
+  Frame::FrameKeyBar=FrameKeyBar;
 }
 
 void Frame::UpdateKeyBar()
 {
-    _D(SysLog("Frame::UpdateKeyBar(), ModalKeyBar=0x%p",ModalKeyBar));
-    if ( ModalKeyBar!=NULL && KeyBarVisible )
-        ModalKeyBar->RedrawIfChanged();
+    _D(SysLog("Frame::UpdateKeyBar(), FrameKeyBar=0x%p",FrameKeyBar));
+    if ( FrameKeyBar!=NULL && KeyBarVisible )
+        FrameKeyBar->RedrawIfChanged();
 }
 
 /* $ 12.05.2001 DJ */
@@ -66,8 +73,71 @@ int Frame::IsTopFrame()
 
 void Frame::OnChangeFocus (int focus)
 {
-  if (focus)
+
+  if (focus) {
     Show();
+    for (int i=0;i<ModalStackCount;i++){
+      ModalStack[i]->Show();
+    }
+  }
+}
+/* DJ $ */
+
+void Frame::Push(Frame* Modalized){
+  if (ModalStackCount == ModalStackSize)
+    ModalStack = (Frame **) realloc (ModalStack, ++ModalStackSize * sizeof (Frame *));
+  ModalStack [ModalStackCount++] = Modalized;
 }
 
-/* DJ $ */
+bool Frame::Pop(){
+  if (ModalStackCount>0){
+    ModalStack[--ModalStackCount]->OnDestroy();
+    delete ModalStack[ModalStackCount];
+    return true;
+  } else {
+    return false;
+  }
+}
+
+Frame *Frame::operator[](int Index)
+{
+  Frame *Result=NULL;
+  if (Index>=0 && Index<ModalStackSize){
+    Result=ModalStack[Index];
+  }
+  return Result;
+}
+
+int Frame::operator[](Frame *ModalFrame)
+{
+  int Result=-1;
+  for (int i=0;i<ModalStackSize;i++){
+    if (ModalStack[i]==ModalFrame){
+      Result=i;
+      break;
+    }
+  }
+  return Result;
+}
+
+void Frame::DestroyAllModal()
+{
+  while(Pop());
+//  ModalStackSize=0;
+//  ModalStackCount=0;
+}
+
+/*
+int Frame::ProcessKey(int Key)
+{
+  if (ModalSize()){
+    return (ModalStack[ModalStackSize-1])->ProcessKey(Key);
+  }
+  return FALSE;
+}
+
+int Frame::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+{
+  return FALSE;
+}
+*/

@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.21 14.05.2001 $ */
+/* Revision: 1.22 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 DJ
     * дизейблим, а не пр€чем Search in archives на плагиновой панели
     * колесо чтоб работало :-)
@@ -473,8 +475,8 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileViewer ShellViewer (FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);
-                      FrameManager->ExecuteModal (ShellViewer);
+                      FileViewer *ShellViewer = new FileViewer(FileFindData.cFileName,FALSE,FALSE,FALSE,-1,NULL,&ViewList);//?
+                      FrameManager->ModalizeFrame (ShellViewer);
                     }                                       
                     Dlg.Show();
                     FindList.Show();
@@ -484,9 +486,9 @@ int FindFiles::FindFilesProcess()
                     FindList.Hide();
                     Dlg.Hide();
                     {
-                      FileEditor ShellEditor (FileFindData.cFileName,FALSE,FALSE);
-                      ShellEditor.SetEnableF6 (TRUE);
-                      FrameManager->ExecuteModal (ShellEditor);
+                      FileEditor *ShellEditor = new FileEditor(FileFindData.cFileName,FALSE,FALSE);
+                      ShellEditor->SetEnableF6 (TRUE);
+                      FrameManager->ModalizeFrame (ShellEditor);
                     }
                     Dlg.Show();
                     FindList.Show();

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.93 07.05.2001 $ */
+/* Revision: 1.94 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   07.05.2001 SVS
     ! SysLog(); -> _D(SysLog());
     ! Search теперь возвращает TRUE/FALSE
@@ -1313,7 +1315,7 @@ int Editor::ProcessKey(int Key)
   {
     case KEY_F1:
       {
-        Help Hlp("Editor");
+        Help *Hlp= new Help("Editor");
       }
       return(TRUE);
     case KEY_CTRLSHIFTPGUP:

@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.56 14.05.2001 $ */
+/* Revision: 1.57 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 SVS
     ! FDLG_SMALLDILAOG -> FDLG_SMALLDIALOG
   12.05.2001 DJ
@@ -242,8 +244,8 @@ BOOL WINAPI FarShowHelp(char *ModuleName, char *HelpTopic,DWORD Flags)
       return FALSE;
   }
   {
-    Help Hlp(Topic,Mask,OFlags);
-    if(Hlp.GetError())
+    Help *Hlp= new Help(Topic,Mask,OFlags);
+    if(Hlp->GetError())
       return FALSE;
   }
   return TRUE;
@@ -530,7 +532,7 @@ int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
   if(!InternalItem)
     return -1;
 
-  int ExitCode,I;
+  int ExitCode;
 
   struct PluginItem *CurPlugin=&CtrlObject->Plugins.PluginsData[PluginNumber];
 
@@ -654,7 +656,7 @@ int WINAPI FarMessageFn(int PluginNumber,DWORD Flags,char *HelpTopic,
 
   if(Flags&FMSG_ALLINONE)
   {
-    char *Msg0, *Msg;
+    char *Msg;
     SingleItems=(char *)malloc(sizeof(char)*(strlen((char *)Items)+2));
     if(!SingleItems)
       return -1;
@@ -1157,18 +1159,19 @@ int WINAPI FarViewer(char *FileName,char *Title,int X1,int Y1,int X2,
     /* $ 12.05.2001 DJ */
     Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
-    FrameManager->AddFrame(Viewer);
+    FrameManager->InsertFrame(Viewer);
   }
   else
   {
-    FileViewer Viewer(FileName,FALSE,Title,X1,Y1,X2,Y2);
+    FileViewer *Viewer=new FileViewer(FileName,FALSE,Title,X1,Y1,X2,Y2);
     if (Flags & VF_DELETEONCLOSE)
-      Viewer.SetTempViewName(FileName);
+      Viewer->SetTempViewName(FileName);
     /* $ 12.05.2001 DJ */
-    Viewer.SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
+    Viewer->SetEnableF6 ((Flags & VF_ENABLE_F6) != 0);
     /* DJ $ */
     SetConsoleTitle(OldTitle);
-    return FrameManager->ExecuteModal(Viewer);
+//    FrameManager->ModalizeFrame(Viewer);//##
+    return TRUE; //##
   }
   return(TRUE);
 }
@@ -1201,18 +1204,19 @@ int WINAPI FarEditor(char *FileName,char *Title,int X1,int Y1,int X2,
       /* $ 12.05.2001 DJ */
       Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
       /* DJ $ */
-      FrameManager->AddFrame(Editor);
+      FrameManager->InsertFrame(Editor);
       ExitCode=TRUE;
     }
   }
   else
   {
-   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);
+   FileEditor *Editor=new FileEditor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2);//##
    /* $ 12.05.2001 DJ */
-   Editor.SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
+   Editor->SetEnableF6 ((Flags & EF_ENABLE_F6) != 0);
    /* DJ $ */
    SetConsoleTitle(OldTitle);
-   return FrameManager->ExecuteModal (Editor);
+   FrameManager->ModalizeFrame (Editor); //##
+   return TRUE;
   }
   return ExitCode;
   /* IS $ */

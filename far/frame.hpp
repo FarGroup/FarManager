@@ -8,10 +8,12 @@ frame.hpp
 
 */
 
-/* Revision: 1.05 14.05.2001 */
+/* Revision: 1.06 15.05.2001 */
 
 /*
   Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 OT
     ! метод GetCanLoseFocus() стал виртуальным и введен параметр по умолчанию
   12.05.2001 DJ
@@ -42,16 +44,23 @@ enum { MODALTYPE_VIRTUAL,
 
 class Frame: public ScreenObject
 {
+  private:
+    Frame **ModalStack;
+    int  ModalStackCount, ModalStackSize;
+
   protected:
     int  CanLoseFocus;
     int  ExitCode;
     int  KeyBarVisible;
-    KeyBar *ModalKeyBar;
+    KeyBar *FrameKeyBar;
     int MacroMode;
 
   public:
     Frame();
     virtual ~Frame();
+
+//    int ProcessKey(int Key);
+//    int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
     virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); };
     void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };
@@ -67,7 +76,7 @@ class Frame: public ScreenObject
     virtual void OnCreate() {};   // вызывается перед созданием окна
     virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
 
-    void SetKeyBar(KeyBar *ModalKeyBar);
+    void SetKeyBar(KeyBar *FrameKeyBar);
     void UpdateKeyBar();
     virtual void RedrawKeyBar() { Frame::UpdateKeyBar(); };
 
@@ -75,6 +84,12 @@ class Frame: public ScreenObject
     int IsTopFrame();
     int GetMacroMode() { return MacroMode; }
     /* DJ $ */
+    void Push(Frame* Modalized);
+    bool Pop();
+    Frame *operator[](int Index);
+    int operator[](Frame *ModalFarame);
+    int ModalCount() {return ModalStackCount;};
+    void DestroyAllModal();
 };
 
 #endif // __FRAME_HPP__

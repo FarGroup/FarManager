@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.11 14.05.2001 $ */
+/* Revision: 1.12 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 OT
     - Борьба с F4 -> ReloadAgain
   12.05.2001 DJ
@@ -49,6 +51,7 @@ class NamesList;
 class FileEditor:public Frame
 {
   private:
+    typedef class Frame inherited;
     void Show();
     void DisplayObject();
     int ProcessQuitKey();

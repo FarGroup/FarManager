@@ -5,10 +5,12 @@ Quick view panel
 
 */
 
-/* Revision: 1.17 06.05.2001 $ */
+/* Revision: 1.18 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   06.05.2001 DJ
     ! перетрях #include
   29.04.2001 ОТ
@@ -248,7 +250,7 @@ int QuickView::ProcessKey(int Key)
   */
   if (Key == KEY_F1)
   {
-    Help Hlp ("QViewPanel");
+    Help *Hlp= new Help("QViewPanel");
   }
   /* DJ $ */
   if (Key==KEY_F3 || Key==KEY_NUMPAD5)

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.17 06.05.2001 $ */
+/* Revision: 1.18 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -314,7 +316,7 @@ int InfoList::ProcessKey(int Key)
     */
     case KEY_F1:
       {
-        Help Hlp ("InfoPanel");
+        Help *Hlp= new Help("InfoPanel");
       }
       break;
     /* DJ $ */
@@ -324,7 +326,7 @@ int InfoList::ProcessKey(int Key)
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
         chdir(CurDir);
-        FrameManager->AddFrame(new FileViewer(DizFileName,TRUE));
+        FrameManager->InsertFrame(new FileViewer(DizFileName,TRUE));
       }
       /* $ 20.07.2000 tran
          после показа перерисовываем панели */
@@ -342,7 +344,7 @@ int InfoList::ProcessKey(int Key)
         AnotherPanel->GetCurDir(CurDir);
         chdir(CurDir);
         if (*DizFileName)
-          FrameManager->AddFrame(new FileEditor(DizFileName,FALSE,TRUE));
+          FrameManager->InsertFrame(new FileEditor(DizFileName,FALSE,TRUE));
         else if (*Opt.FolderInfoFiles)
         {
           char ArgName[NM];
@@ -351,7 +353,7 @@ int InfoList::ProcessKey(int Key)
           {
             if (!strpbrk (ArgName, "*?"))
             {
-              FrameManager->AddFrame(new FileEditor(ArgName,TRUE,TRUE));
+              FrameManager->InsertFrame(new FileEditor(ArgName,TRUE,TRUE));
               break;
             }
           }

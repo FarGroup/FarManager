@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.03 06.05.2001 $ */
+/* Revision: 1.04 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   06.05.2001 DJ
     ! перетрях #include
   25.04.2001 SVS
@@ -85,7 +87,7 @@ int FolderTree::ProcessKey(int Key)
   {
     case KEY_F1:
       {
-        Help Hlp("FindFolder");
+        Help *Hlp= new Help("FindFolder");
       }
       break;
     case KEY_ESC:

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.53 14.05.2001 $ */
+/* Revision: 1.54 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 OT
     - Борьба с F4 -> ReloadAgain
   11.05.2001 VVM
@@ -1119,25 +1121,26 @@ int FileList::ProcessKey(int Key)
               else
                 if (PluginMode)
                 {
-                  FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
-                  FrameManager->ExecuteModal (ShellEditor);
-                  UploadFile=ShellEditor.IsFileChanged();
+                  class FileEditor *ShellEditor = new FileEditor(FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                  FrameManager->ModalizeFrame(ShellEditor);
+                  UploadFile=ShellEditor->IsFileChanged();
                   Modaling=TRUE;///
                 }
                 else
                 {
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
-                  int ExitCode=ShellEditor->GetExitCode();
+/*                  int ExitCode=ShellEditor->GetExitCode();
                   if (XC_QUIT==ExitCode) {
                     delete ShellEditor;
                     return TRUE;
                   } else if (-1==ExitCode){
-                    FrameManager->AddFrame(ShellEditor);
+                    FrameManager->InsertFrame(ShellEditor);
                     Modaling=FALSE;
                     break;
                   } else if (-2==ExitCode){
                     return TRUE;
                   }
+*/
                 }
             if (PluginMode && UploadFile)
             {
@@ -1199,7 +1202,7 @@ int FileList::ProcessKey(int Key)
                 {
                   if (PluginMode)
                     ShellViewer->SetTempViewName(FileName);
-                  FrameManager->AddFrame(ShellViewer);
+                  FrameManager->InsertFrame(ShellViewer);
                 }
                 else
                   delete ShellViewer;

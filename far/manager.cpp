@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.18 14.05.2001 $ */
+/* Revision: 1.19 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 OT
     - Борьба с F4 -> ReloadAgain
   12.05.2001 DJ
@@ -86,13 +88,14 @@ Manager::Manager()
 {
   FrameList=NULL;
   FrameCount=FramePos=FrameListSize=0;
-  ModalStack=NULL;
-  ModalStackCount = ModalStackSize = 0;
-
-  CurrentFrame=NULL;
-  DestroyedFrame = NULL;
-  FrameToReplace = NULL;
   EndLoop = FALSE;
+
+  CurrentFrame  =
+  InsertedFrame =
+  DeletedFrame  =
+  ActivatedFrame=
+  DeactivatedFrame=
+  ModalizedFrame=NULL;
 
 }
 
@@ -100,8 +103,6 @@ Manager::~Manager()
 {
   if (FrameList)
     free(FrameList);
-  if (ModalStack)
-    free(ModalStack);
 }
 
 
@@ -112,6 +113,7 @@ Manager::~Manager()
 */
 BOOL Manager::ExitAll()
 {
+/*
   // FrameList [0] - это панели, и им KEY_ESC посылать не нужно и бесполезно
   for (int I=FrameCount-1; I>=1; I--)
   {
@@ -130,6 +132,7 @@ BOOL Manager::ExitAll()
      FrameCount--;
     }
   }
+*/
   return TRUE;
 }
 /* IS $ */
@@ -156,6 +159,7 @@ void Manager::CloseAll()
 
 BOOL Manager::IsAnyFrameModified(int Activate)
 {
+/*
   for (int I=0;I<FrameCount;I++)
     if (FrameList[I]->IsFileModified())
     {
@@ -166,9 +170,17 @@ BOOL Manager::IsAnyFrameModified(int Activate)
       }
       return(TRUE);
     }
+  */
   return(FALSE);
 }
 
+void Manager::InsertFrame(Frame *Inserted, int Index)
+{
+  if (Index==-1)
+    Index=FramePos;
+  InsertedFrame=Inserted;
+}
+/*
 void Manager::AddFrame(Frame *NewFrame)
 {
   _D(SysLog(1,"Manager::AddFrame(), NewFrame=0x%p, Type=%s",NewFrame,NewFrame->GetTypeName()));
@@ -191,7 +203,24 @@ void Manager::AddFrame(Frame *NewFrame)
   _D(SysLog(-1));
   WaitInMainLoop=IsPanelsActive();
 }
+*/
 
+
+void Manager::DeleteFrame(Frame *Deleted)
+{
+  if (!Deleted){
+    DeletedFrame=CurrentFrame;
+  } else {
+    DeletedFrame=Deleted;
+  }
+}
+
+void Manager::DeleteFrame(int Index)
+{
+  DeleteFrame(this->operator[](Index));
+}
+
+/*
 void Manager::DestroyFrame(Frame *Killed)
 {
   _D(SysLog(1,"Manager::DestroyFrame(), Killed=0x%p, '%s'",Killed,Killed->GetTypeName()));
@@ -235,15 +264,18 @@ void Manager::DestroyFrame(Frame *Killed)
   }
   _D(SysLog("Manager::DestroyFrame() end."));
   _D(SysLog(-1));
-  DestroyedFrame = Killed;
+  DeletedFrame = Killed;
 }
+*/
 
-void Manager::DeleteDestroyedFrame()
+/*
+void Manager::DeleteDeletedFrame()
 {
-  DestroyedFrame->OnDestroy();
-  delete DestroyedFrame;
-  DestroyedFrame = NULL;
+  DeletedFrame->OnDestroy();
+  delete DeletedFrame;
+  DeletedFrame = NULL;
 }
+*/
 
 /* $ 06.05.2001 DJ
    заменить текущий фрейм на указанный (используется для обработки F6)
@@ -253,13 +285,14 @@ void Manager::DeleteDestroyedFrame()
    заменена на более общую функцию (с подачи ОТ)
 */
 
-void Manager::ReplaceFrame (Frame *NewFrame, Frame *OldFrame)
+void Manager::ReplaceFrame (Frame *Inserted, Frame *Deleted)
 {
+/*
   if (!OldFrame){
     OldFrame=CurrentFrame;
   }
-  DestroyedFrame = OldFrame;
-  DestroyedFrame->OnChangeFocus (0);
+  DeletedFrame = OldFrame;
+  DeletedFrame->OnChangeFocus (0);
   if (OldFrame == CurrentFrame){
     FrameToReplace = NewFrame;
   } else {
@@ -270,6 +303,7 @@ void Manager::ReplaceFrame (Frame *NewFrame, Frame *OldFrame)
       }
     }
   }
+*/
 }
 
 /* DJ $ */
@@ -288,30 +322,36 @@ void Manager::ReplaceFrame (Frame *NewFrame, int FramePos)
    поддерживает ReplaceFrame (F6)
 */
 
+void Manager::ModalizeFrame (Frame *Modalized, int Mode)
+{
+  ModalizedFrame=Modalized;
+}
+
+/*
 int Manager::ExecuteModal (Frame &ModalFrame)
 {
   ModalSaveState();
   AddFrame (&ModalFrame);
-  DestroyedFrame = NULL;
+  DeletedFrame = NULL;
   Frame *CurModalFrame = &ModalFrame;
-  while (DestroyedFrame != CurModalFrame)
+  while (DeletedFrame != CurModalFrame)
   {
     ProcessMainLoop();
     if (FrameToReplace)
     {
       CurModalFrame = FrameToReplace;
-      if (DestroyedFrame == &ModalFrame)
-        DestroyedFrame = NULL;
+      if (DeletedFrame == &ModalFrame)
+        DeletedFrame = NULL;
       else
-        DeleteDestroyedFrame();
+        DeleteDeletedFrame();
       continue;
     }
   }
-  DestroyedFrame = NULL;
+  DeletedFrame = NULL;
   return CurModalFrame->GetExitCode();
 }
 
-/* DJ */
+/* DJ * /
 
 void Manager::ModalSaveState()
 {
@@ -320,6 +360,7 @@ void Manager::ModalSaveState()
   ModalStack [ModalStackCount++] = CurrentFrame;
 }
 
+/*
 void Manager::NextFrame(int Increment)
 {
   _D(SysLog(1,"Manager::NextFrame(), FramePos=%i, Increment=%i, FrameCount=%i",FramePos,Increment,FrameCount));
@@ -342,7 +383,10 @@ void Manager::NextFrame(int Increment)
   _D(SysLog("Manager::NextFrame(), set CurrentFrame=0x%p, %s",CurrentFrame,CurrentFrame->GetTypeName()));
   _D(SysLog(-1));
 }
+*/
 
+
+/*
 void Manager::SetCurrentFrame (int FrameIndex)
 {
   CurrentFrame=this->operator[](FrameIndex);
@@ -368,9 +412,10 @@ void Manager::SetCurrentFrame (Frame *NewCurFrame)
     SetCurrentFrame(0);
   }
 }
+*/
 
 
-void Manager::SelectFrame()
+void Manager::FrameMenu()
 {
   int ExitCode;
   {
@@ -403,7 +448,8 @@ void Manager::SelectFrame()
   }
   if (ExitCode>=0)
   {
-    NextFrame(ExitCode-FramePos);
+//    NextFrame(ExitCode-FramePos);
+    ActivateFrame (ExitCode);
   }
 }
 
@@ -416,7 +462,7 @@ void Manager::GetFrameTypesCount(int &Viewers,int &Editors)
     /* $ 10.05.2001 DJ
        не учитываем фрейм, который собираемся удалять
     */
-    if (FrameList[I] == DestroyedFrame || FrameList [I]->GetExitCode() == XC_QUIT)
+    if (FrameList[I] == DeletedFrame || FrameList [I]->GetExitCode() == XC_QUIT)
       continue;
     /* DJ $ */
     switch(FrameList[I]->GetType())
@@ -480,15 +526,12 @@ void Manager::ShowBackground()
   CtrlObject->CmdLine->ShowBackground();
 }
 
-/* $ 06.05.2001 DJ
-   активирует фрейм с указанным номером
-*/
-void Manager::ActivateFrameByPos (int NewPos)
+
+void Manager::ActivateFrame(int Index)
 {
-  SetFramePos(NewPos);
-  NextFrame(0);
+
+  ActivatedFrame=this->operator[](Index);
 }
-/* DJ $ */
 
 /* $ 10.05.2001 DJ
    переключается на панели (фрейм с номером 0)
@@ -496,7 +539,7 @@ void Manager::ActivateFrameByPos (int NewPos)
 
 void Manager::SwitchToPanels()
 {
-  ActivateFrameByPos (0);
+  ActivateFrame (0);
 }
 
 /* DJ $ */
@@ -507,17 +550,14 @@ void Manager::EnterMainLoop()
   while (!EndLoop)
   {
     ProcessMainLoop();
-    if (DestroyedFrame)
-      DeleteDestroyedFrame();
-    if (FrameToReplace)
-      SetCurrentFrame(FrameToReplace);
+    Commit();
   }
 }
 
 
 void Manager::ProcessMainLoop()
 {
-  FrameToReplace = NULL;
+  
   WaitInMainLoop=IsPanelsActive();
 
   WaitInFastFind++;
@@ -547,53 +587,43 @@ void Manager::ExitMainLoop(int Ask)
 
 int  Manager::ProcessKey(int Key)
 {
-    int ret=FALSE;
-    _D(char kn[32]);
-    _D(KeyToText(Key,kn));
-//    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
-
-    if ( CurrentFrame)
+  int ret=FALSE;
+  _D(char kn[32]);
+  _D(KeyToText(Key,kn));
+  //    _D(SysLog(1,"Manager::ProcessKey(), key=%i, '%s'",Key,kn));
+  
+  if ( CurrentFrame)
+  {
+    //      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
+    switch(Key)
     {
-//      _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
-      switch(Key)
-        {
-            case KEY_F11:
-                PluginsMenu();
-                _D(SysLog(-1));
-                return TRUE;
-            case KEY_F12:
-                if (CurrentFrame->GetCanLoseFocus())
-                    SelectFrame();
-                _D(SysLog(-1));
-                return TRUE;
-            case KEY_CTRLTAB:
-                if (CurrentFrame->GetCanLoseFocus())
-                    NextFrame(1);
-                _D(SysLog(-1));
-                return TRUE;
-            case KEY_CTRLSHIFTTAB:
-                if (CurrentFrame->GetCanLoseFocus())
-                    NextFrame(-1);
-                _D(SysLog(-1));
-                return TRUE;
-        }
-//        _D(SysLog("Manager::ProcessKey(), to CurrentFrame 0x%p, '%s'",CurrentFrame, CurrentFrame->GetTypeName()));
-        CurrentFrame->UpdateKeyBar();
-        // сохраняем, потому что внутри ProcessKey
-        // может быть вызван AddModal и
-        // CurrentModal будет изменен.
-        Frame *cw=CurrentFrame;
-        ret=CurrentFrame->ProcessKey(Key);
-        if ( ret )
-        {
-          // а так проверяем код выхода у того, кого надо
-          if (cw->GetExitCode()==XC_QUIT)
-            DestroyFrame(cw);
-        }
+    case KEY_F11:
+      PluginsMenu();
+      _D(SysLog(-1));
+      return TRUE;
+    case KEY_F12:
+      if (CurrentFrame->GetCanLoseFocus())
+        FrameMenu();
+      _D(SysLog(-1));
+      return TRUE;
+    case KEY_CTRLTAB:
+      if (CurrentFrame->GetCanLoseFocus())
+        DeactivateFrame(CurrentFrame,1);
+//        NextFrame(1);
+        _D(SysLog(-1));
+      return TRUE;
+    case KEY_CTRLSHIFTTAB:
+      if (CurrentFrame->GetCanLoseFocus())
+        DeactivateFrame(CurrentFrame,-1);
+      _D(SysLog(-1));
+      return TRUE;
     }
-//    _D(SysLog("Manager::ProcessKey() ret=%i",ret));
-    _D(SysLog(-1));
-    return ret;
+    CurrentFrame->UpdateKeyBar();
+    CurrentFrame->ProcessKey(Key);
+  }
+//  _D(SysLog("Manager::ProcessKey() ret=%i",ret));
+  _D(SysLog(-1));
+  return ret;
 }
 
 int  Manager::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
@@ -618,7 +648,7 @@ void Manager::PluginsMenu()
 
 BOOL Manager::IsPanelsActive()
 {
-  return CurrentFrame->GetType() == MODALTYPE_PANELS;
+  return CurrentFrame?CurrentFrame->GetType() == MODALTYPE_PANELS:FALSE;
 }
 
 Frame *Manager::operator[](int Index)
@@ -635,8 +665,207 @@ int Manager::operator[](Frame *Frame)
   for (int i=0;i<FrameCount;i++){
     if (Frame==FrameList[i]){
       Result=i;
+      break;
     }
   }
   return Result;
+}
+
+void Manager::DeactivateFrame (Frame *Deactivated,int Direction)
+{
+  FramePos+=Direction;
+  if (Direction>0){
+    if (FramePos>=FrameCount){
+      FramePos=0;
+    }
+  } else {
+    if (FramePos<0) {
+      FramePos=FrameCount-1;
+    }
+  }
+  ActivateFrame(FramePos);
+}
+
+
+BOOL Manager::Commit()
+{
+  int Result = false;
+  if (DeletedFrame && (InsertedFrame||ModalizedFrame)){
+    UpdateCommit();
+    DeletedFrame = NULL;
+    InsertedFrame = NULL;
+    ModalizedFrame = NULL;
+    Result=true;
+  } else if (DeletedFrame){
+    DeleteCommit();
+    DeletedFrame = NULL;
+    Result=true;
+  } else if (InsertedFrame||ModalizedFrame){
+    InsertCommit();
+    InsertedFrame = 
+    ModalizedFrame = NULL;
+    Result=true;
+  } else if(ActivatedFrame||DeactivatedFrame){
+    ActivateCommit();
+    DeactivatedFrame=NULL;
+    ActivatedFrame=NULL;
+    Result=true;
+  }
+  if (Result){
+    Result=Commit();
+  }
+  return Result;
+}
+
+void Manager::StartupMainloop()
+{
+
+}
+
+void Manager::ActivateCommit()
+{
+  if (CurrentFrame==ActivatedFrame){
+    return;
+  }
+  int FrameIndex=this->operator[](ActivatedFrame);
+  if (-1!=FrameIndex){
+    FramePos=FrameIndex;
+    int ModalTopIndex=ActivatedFrame->ModalCount();
+    if (ModalTopIndex>0){
+      ActivatedFrame->OnChangeFocus(TRUE);
+      for (int i=0;i<ModalTopIndex-1;i++){
+        Frame *iModal=(*ActivatedFrame)[i];
+        iModal->OnChangeFocus(TRUE);
+      }
+      CurrentFrame=(*ActivatedFrame)[ModalTopIndex-1];
+    } else {
+      CurrentFrame=ActivatedFrame;
+    }
+  } else {
+    Frame *FoundFrame=NULL;
+    for (int i=0;i<FrameCount;i++){
+      Frame *iFrame=FrameList[i];
+      int TopModalIndex=(*iFrame)[ActivatedFrame];
+      if((TopModalIndex>=0)&&(TopModalIndex==iFrame->ModalCount()-1)){
+        FoundFrame=ActivatedFrame;
+        break;
+      }
+    }
+    if (FoundFrame){
+      CurrentFrame=FoundFrame;
+    }
+  }
+  CurrentFrame->ShowConsoleTitle();
+  CurrentFrame->OnChangeFocus(1);
+  CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
+
+}
+
+void Manager::UpdateCommit()
+{
+  int FrameIndex=this->operator[](DeletedFrame);
+  if (-1!=FrameIndex){
+    for (int i=0; i<FrameCount; i++){
+      if (FrameList [i] == DeletedFrame){
+        FrameList [i] = InsertedFrame;
+        break;
+      }
+    }
+    ActivatedFrame=InsertedFrame;
+    DeletedFrame->OnDestroy();
+    delete DeletedFrame;
+  } else {
+    Frame *iFrame=NULL;
+    for (int i=0;i<FrameCount;i++){
+      iFrame=FrameList[i];
+      int ModalDeletedIndex=(*iFrame)[DeletedFrame];
+      if(ModalDeletedIndex>=0){
+        if (ModalDeletedIndex>0){
+          int iModalCount=iFrame->ModalCount();
+          for (int i=iModalCount-1;i>ModalDeletedIndex;i--){
+            iFrame->Pop();
+          }
+        } else {
+          iFrame->DestroyAllModal();
+        }
+        iFrame->Push(ModalizedFrame);
+        break;
+      }
+    }
+    ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
+  }
+}
+
+void Manager::DeleteCommit()
+{
+  if (!DeletedFrame){
+    return;
+  }
+  int FrameIndex=this->operator[](DeletedFrame);
+  if (-1!=FrameIndex){
+    DeletedFrame->DestroyAllModal();
+    for (int i=0; i<FrameCount; i++ ){
+      if ( FrameList[i]==DeletedFrame){
+        for (int j=i+1; j<FrameCount; j++ )
+          FrameList[j-1]=FrameList[j];
+        FrameCount--;
+        if ( FramePos>=FrameCount ){
+          FramePos=0;
+        }
+        DeletedFrame->OnDestroy();
+        break;
+      }
+    }
+    delete DeletedFrame;
+    ActivatedFrame=FrameList[FramePos];
+  } else {
+    for (int i=0;i<FrameCount;i++){
+      Frame *iFrame=FrameList[i];
+      int ModalDeletedIndex=(*iFrame)[DeletedFrame];
+      if(ModalDeletedIndex>=0){
+        if (ModalDeletedIndex>0){
+          int iModalCount=iFrame->ModalCount();
+          for (int j=iModalCount;j>ModalDeletedIndex;j--){
+            iFrame->Pop();
+          }
+          ActivatedFrame = (*iFrame)[iFrame->ModalCount()-1];
+        } else {
+          ActivatedFrame = iFrame;
+          iFrame->DestroyAllModal();
+        }
+        break;
+      }
+    }
+  }
+}
+
+void Manager::InsertCommit()
+{
+  if (ModalizedFrame){
+    int FrameIndex=this->operator[](CurrentFrame);
+    if (FrameIndex==-1) {
+      for (int i=0;i<FrameCount;i++){
+        Frame *iFrame=FrameList[i];
+        if ((*iFrame)[CurrentFrame]!=-1){
+          iFrame->Push(ModalizedFrame);
+          break;
+        }
+      }
+    } else {
+      CurrentFrame->Push(ModalizedFrame);
+    }
+    ActivatedFrame=ModalizedFrame;
+  } else if (InsertedFrame){
+    if (FrameListSize <= FrameCount)
+    {
+      FrameList=(Frame **)realloc(FrameList,sizeof(*FrameList)*(FrameCount+1));
+      FrameListSize++;
+    }
+    FrameList[FrameCount]=InsertedFrame;
+    if (!ActivatedFrame){
+      ActivatedFrame=InsertedFrame;
+    }
+    FrameCount++;
+  }
 }
 

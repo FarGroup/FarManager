@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.60 14.05.2001 $ */
+/* Revision: 1.61 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 DJ
     * более точное позиционирование скроллбара, особенно на _очень_ больших файлах
   07.05.2001 SVS
@@ -1344,7 +1346,7 @@ int Viewer::ProcessKey(int Key)
       return(TRUE);
     case KEY_F1:
       {
-        Help Hlp("Viewer");
+        Help *Hlp= new Help("Viewer");
       }
       return(TRUE);
 

@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.09 14.05.2001 $ */
+/* Revision: 1.10 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 OT
     ! Изменение порядка вызова параметров ReplaceFrame (для единообразия и удобства)
   12.05.2001 DJ
@@ -43,45 +45,65 @@ class Manager
 {
   private:
     Frame **FrameList;
-    Frame **ModalStack;      // сюда запоминается фрейм, который был активным
-                             // перед вызовом ExecuteModal()
-    Frame *DestroyedFrame;
-    Frame *FrameToReplace;   // фрейм, на который мы собираемся заменять
+    /*$ Претенденты на ... */
+    Frame *InsertedFrame;
+    Frame *DeletedFrame;   // DestroyedFrame
+    Frame *ActivatedFrame; // претендент на то, чтобы стать 
+//    Frame *UpdatedFrame;   // FrameToReplace
+//    Frame *UpdatingFrame;  // 
+    Frame *ModalizedFrame;
+    Frame *DeactivatedFrame;
+    /* OT $*/
+
+
+
+//    Frame *ModalFrame;
     Frame *CurrentFrame;     // текущий модал
 
     int  EndLoop;
-
     int  FrameCount,
          FrameListSize;
-    int  ModalStackCount, ModalStackSize;
     int  FramePos;
 
     INPUT_RECORD LastInputRecord;
 
     void ModalSaveState();
-    void DeleteDestroyedFrame();
+//    void DeleteDestroyedFrame();
 
   private:
-    void ActivateNextFrame();
 
-    void SetCurrentFrame (Frame *NewCurFrame);
-    /*$ 13.05.2001 OT */
-    void SetCurrentFrame (int FrameIndex);
-    void SelectFrame(); // show window menu (F12)
+    void StartupMainloop();
+    void FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
+
+    // Исполнение приговора 
+    BOOL Commit();
+    void ActivateCommit();
+    void UpdateCommit();
+    void InsertCommit();
+    void DeleteCommit();
+
 
   public:
     Manager();
     ~Manager();
 
   public:
-    void AddFrame(Frame *NewFrame);
-    void DestroyFrame(Frame *Killed);
-    void ReplaceFrame (Frame *NewFrame, Frame *OldFrame=NULL);
-    void ReplaceFrame (Frame *NewFrame, int FramePos);
-    int ExecuteModal (Frame &ModalFrame);
+    // Эти функции вызываются из объектов ядра
+    void InsertFrame(Frame *NewFrame, int Index=-1);
+    void DeleteFrame(Frame *Deleted=NULL);
+    void DeleteFrame(int Index);
+    void ReplaceFrame (Frame *Inserted, Frame *Deleted=NULL);
+    void ReplaceFrame (Frame *Inserted, int FramePos);
+    void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE); // вместо ExecuteModal
+    void DeactivateFrame (Frame *Deactivated,int Direction); 
+    void ActivateFrame (Frame *Activated);
+    void ActivateFrame (int Index);  //вместо NextFrame(int Increment);
 
-    void NextFrame(int Increment);
-    void ActivateFrameByPos (int NewPos);
+
+//    int ExecuteModal (Frame &ModalFrame);
+
+//    void NextFrame(int Increment);
+//    void ActivateFrameByPos (int NewPos);
 
     void CloseAll();
     /* $ 29.12.2000 IS
@@ -98,11 +120,8 @@ class Manager
     int  GetFrameCountByType(int Type);
 
     BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
-
     void SetFramePos(int NewPos);
-
     int  FindFrameByFile(int ModalType,char *FileName,char *Dir=NULL);
-
     void ShowBackground();
 
     // new methods

@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.22 12.05.2001 $ */
+/* Revision: 1.23 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   12.05.2001 DJ
     ! перерисовка командной строки после обработки команды делается только
       если панели остались верхним фреймом
@@ -742,10 +744,10 @@ void CommandLine::ShowViewEditHistory()
     switch(Type)
     {
     case 0:
-      FrameManager->AddFrame(new FileViewer(Str,TRUE));
+      FrameManager->InsertFrame(new FileViewer(Str,TRUE));
       break;
     case 1:
-      FrameManager->AddFrame(new FileEditor(Str,FALSE,TRUE));
+      FrameManager->InsertFrame(new FileEditor(Str,FALSE,TRUE));
       break;
     case 2:
     case 3:

@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.25 12.05.2001 $ */
+/* Revision: 1.26 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   12.05.2001 DJ
     ! FrameManager оторван от CtrlObject
     ! глобальный указатель на CtrlObject переехал сюда
@@ -182,7 +184,8 @@ _beginthread(CheckVersion,0x10000,NULL);
 //  Cp()->HideState=(!Opt.LeftPanel.Visible && !Opt.RightPanel.Visible);
   CmdLine->Redraw();
 
-  FrameManager->AddFrame(FPanels);
+  FrameManager->InsertFrame(FPanels);
+//  FrameManager->ActivateFrame(FPanels);
   Plugins.LoadPlugins();
 }
 
@@ -353,7 +356,7 @@ int ControlObject::ProcessKey(int Key)
     case KEY_F1:
       if (!Cp()->ActivePanel->ProcessKey(KEY_F1))
       {
-        Help Hlp("Contents");
+        Help *Hlp= new Help("Contents");
       }
       return(TRUE);
     case KEY_CTRLF2:

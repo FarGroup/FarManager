@@ -7,10 +7,12 @@ fileview.hpp
 
 */
 
-/* Revision: 1.07 12.05.2001 $ */
+/* Revision: 1.08 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   12.05.2001 DJ
     ! отрисовка по OnChangeFocus перенесена в Frame
     ! убран дублирующийся ExitCode
@@ -50,6 +52,8 @@ class FileViewer:public Frame
     int DisableEdit;
     int DisableHistory;
     char Name[NM];
+    typedef class Frame inherited;
+
   public:
     FileViewer(char *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
                int DisableEdit=FALSE,long ViewStartPos=-1,char *PluginData=NULL,

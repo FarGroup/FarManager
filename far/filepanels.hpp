@@ -7,10 +7,12 @@ filepanels.hpp
 
 */
 
-/* Revision: 1.04 11.05.2001 $ */
+/* Revision: 1.05 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   11.05.2001 OT
     ! Отрисовка Background
   06.05.2001 DJ
@@ -35,6 +37,7 @@ class FilePanels:public Frame
   private:
     void DisplayObject();
     int Focus;
+    typedef class Frame inherited;
 
 
   public:
@@ -64,7 +67,6 @@ class FilePanels:public Frame
           *RightPanel,
           *ActivePanel;
 
-//    CommandLine *CmdLine;
     KeyBar      MainKeyBar;
     MenuBar     TopMenuBar;
 
@@ -72,7 +74,6 @@ class FilePanels:public Frame
         LastRightType;
     int LeftStateBeforeHide,
         RightStateBeforeHide;
-//        HideState;
 
 
     int ProcessKey(int Key);

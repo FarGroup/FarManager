@@ -5,10 +5,12 @@ help.cpp
 
 */
 
-/* Revision: 1.21 07.05.2001 $ */
+/* Revision: 1.22 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   07.05.2001 DJ
     ! поддержка mouse wheel
     - кейбар не обновлялся
@@ -98,6 +100,7 @@ static int RunURL(char *Protocol, char *URLPath);
 
 Help::Help(char *Topic, char *Mask,DWORD Flags)
 {
+  CanLoseFocus=TRUE;
   Help::Flags=Flags;
   /* $ 12.04.2001 SVS
      в конструкторе PrevMacroMode не инициализирован!
@@ -153,7 +156,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    FrameManager->ExecuteModal (*this);
+    FrameManager->ModalizeFrame (this);//##
   }
   else
   {
@@ -168,6 +171,7 @@ Help::Help(char *Topic, char *Mask,DWORD Flags)
 */
 Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
 {
+  CanLoseFocus=TRUE;
   Help::Flags=Flags;
   //if (PrevMacroMode!=MACRO_HELP) {
   PrevMacroMode=CtrlObject->Macro.GetMode();
@@ -211,7 +215,7 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
   {
     InitKeyBar();
     MacroMode = MACRO_HELP;
-    FrameManager->ExecuteModal (*this);
+    FrameManager->ModalizeFrame (this);//##
     ShowPrev=Help::ShowPrev;
   }
   else
@@ -220,6 +224,8 @@ Help::Help(char *Topic,int &ShowPrev,int PrevFullScreen,DWORD Flags,char *Mask)
       Message(MSG_WARNING,1,MSG(MHelpTitle),MSG(MHelpTopicNotFound),MSG(MOk));
     ErrorHelp=TRUE;
     ShowPrev=TRUE;
+    FrameManager->DeleteFrame();
+
   }
   /* VVM $ */
 }
@@ -863,11 +869,13 @@ int Help::ProcessKey(int Key)
     case KEY_ESC:
     case KEY_F10:
       ShowPrev=FALSE;
+      FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
       return(TRUE);
     case KEY_ALTF1:
     case KEY_BS:
       ShowPrev=TRUE;
+      FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
       return(TRUE);
     case KEY_HOME:
@@ -1000,14 +1008,16 @@ int Help::ProcessKey(int Key)
           char *NewHelpMask=NULL;
           if(*SelTopic != ':' && LocalStricmp(SelTopic,PluginContents) != 0)
             NewHelpMask=HelpMask;
-          Help NewHelp(NewTopic,KeepHelp,FullScreenHelp,0,NewHelpMask);
+          Help *NewHelp=new Help(NewTopic,KeepHelp,FullScreenHelp,0,NewHelpMask);
           /* SVS $ */
         }
-        if (!KeepHelp)
+        if (KeepHelp){
+          FrameManager->DeleteFrame();
           SetExitCode (XC_QUIT);
+        }
         else
         {
-          FastShow();
+//          FrameManager->ModalizeFrame();
           if (CurFullScreen!=FullScreenHelp)
           {
             FullScreenHelp=!FullScreenHelp;
@@ -1468,3 +1478,10 @@ static int RunURL(char *Protocol, char *URLPath)
 }
 #endif
 /* SVS $ */
+
+void Help::OnChangeFocus(int focus)
+{
+  if (focus) {
+    DisplayObject();
+  }
+}

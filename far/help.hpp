@@ -7,10 +7,12 @@ help.hpp
 
 */
 
-/* Revision: 1.10 06.05.2001 $ */
+/* Revision: 1.11 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   06.05.2001 DJ
     ! перетрях #include
   06.05.2001 ОТ
@@ -121,6 +123,7 @@ class Help:public Frame
        NT Console resize - resize help */
     virtual void SetScreenPosition();
     /* tran $ */
+    void OnChangeFocus(int focus); // вызывается при смене фокуса
 };
 
 #endif	// __HELP_HPP__

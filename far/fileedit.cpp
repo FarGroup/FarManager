@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.44 14.05.2001 $ */
+/* Revision: 1.45 15.05.2001 $ */
 
 /*
 Modify:
+  15.05.2001 OT
+    ! NWZ -> NFZ
   14.05.2001 OT
     - Борьба с F4 -> ReloadAgain
   12.05.2001 DJ
@@ -204,6 +206,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
           SetExitCode(-2);
           break;
         default:
+          FrameManager->DeleteFrame();
           SetExitCode(XC_QUIT);
           return;
         }
@@ -211,7 +214,7 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
         SwitchTo=TRUE;
       }
       if (SwitchTo) {
-        FrameManager->ActivateFrameByPos(FramePos);
+        FrameManager->ActivateFrame(FramePos);
         SetExitCode(TRUE);
         return ;
       }
@@ -277,13 +280,8 @@ void FileEditor::Init(char *Name,int CreateNewFile,int EnableSwitch,
   InitKeyBar();
   /* SVS $*/
 
-/*///
-  Process();
-  ExitCode=IsFileChanged() ? 1 : 2;
-  if (!DisableHistory)
-    4->ViewHistory->AddToHistory(FullFileName,MSG(MHistoryEdit),1);
-*///
-   MacroMode=MACRO_EDITOR; ///
+   MacroMode=MACRO_EDITOR; 
+   FrameManager->InsertFrame(this);
 
 }
 
@@ -647,6 +645,7 @@ int FileEditor::ProcessQuitKey()
       break;
     if (SaveCode==1)
     {
+      FrameManager->DeleteFrame();
       SetExitCode (XC_QUIT);
       break;
     }
