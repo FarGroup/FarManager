@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.87 28.01.2002 $ */
+/* Revision: 1.88 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 SVS
+    - проблемы с текущим каталогом
   28.01.2002 OT
     При неудачном открытии файла не удалялся фрейм (частичная отмена 1210)
   28.01.2002 VVM
@@ -596,6 +598,9 @@ int FileEditor::ProcessKey(int Key)
     case KEY_SHIFTF2:
     {
       BOOL Done=FALSE;
+      char OldCurDir[4096];
+      GetCurrentDirectory(sizeof(OldCurDir),OldCurDir);
+
       while(!Done) // бьемся до упора
       {
         // проверим путь к файлу, может его уже снесли...
@@ -605,7 +610,9 @@ int FileEditor::ProcessKey(int Key)
           Chr=*Ptr;
           *Ptr=0;
           if((FNAttr=GetFileAttributes(FullFileName)) == -1 ||
-                            !(FNAttr&FILE_ATTRIBUTE_DIRECTORY))
+                            !(FNAttr&FILE_ATTRIBUTE_DIRECTORY) ||
+              LocalStricmp(OldCurDir,FullFileName)
+            )
             SaveToSaveAs=TRUE;
           *Ptr=Chr;
         }
@@ -651,23 +658,31 @@ int FileEditor::ProcessKey(int Key)
           Unquote(EditDlg[2].Data);
           /* IS $ */
 
-          NameChanged=LocalStricmp(EditDlg[2].Data,FileName)!=0;
+          NameChanged=LocalStricmp(EditDlg[2].Data,(SaveToSaveAs?FullFileName:FileName))!=0;
           /* $ 01.08.2001 tran
              этот кусок перенесен повыше и вместо FileName
              используеся EditDlg[2].Data */
+          if(!NameChanged)
+            FarChDir(StartDir); // ПОЧЕМУ? А нужно ли???
+
           FNAttr=GetFileAttributes(EditDlg[2].Data);
           if (NameChanged && FNAttr != -1)
           {
             if (Message(MSG_WARNING,2,MSG(MEditTitle),EditDlg[2].Data,MSG(MEditExists),
                          MSG(MEditOvr),MSG(MYes),MSG(MNo))!=0)
             {
+              FarChDir(OldCurDir);
               return(TRUE);
             }
           }
           /* tran $ */
 
           if(!SetFileName(EditDlg[2].Data))
-              return FALSE;
+          {
+            if(!NameChanged)
+              FarChDir(OldCurDir);
+            return FALSE;
+          }
 
           if (EditDlg[5].Selected)
             TextFormat=0;
@@ -675,6 +690,8 @@ int FileEditor::ProcessKey(int Key)
             TextFormat=1;
           if (EditDlg[7].Selected)
             TextFormat=2;
+          if(!NameChanged)
+            FarChDir(OldCurDir);
         }
         ShowConsoleTitle();
         FarChDir(StartDir); //???

@@ -5,10 +5,13 @@ execute.cpp
 
 */
 
-/* Revision: 1.33 30.01.2002 $ */
+/* Revision: 1.34 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 SVS
+    - BugZ#289 Неправильно определяется GUI/Console для *.exe с русскими
+      именами
   30.01.2002 SVS
     ! Проверим, а не папку ли мы хотим открыть по Shift-Enter?
       Если так, то вместо CreateProcess запустим ShellExe...
@@ -352,23 +355,23 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
   // Выделяем имя модуля
   if (*Command=='\"')
   {
-    OemToChar(Command+1,FileName);
-    if ((Ptr=strchr(FileName,'\"'))!=NULL)
+    OemToChar(Command+1,FullName);
+    if ((Ptr=strchr(FullName,'\"'))!=NULL)
       *Ptr=0;
     IsQuoted=TRUE;
   }
   else
   {
-    OemToChar(Command,FileName);
-    if ((Ptr=strpbrk(FileName," \t/|><"))!=NULL)
+    OemToChar(Command,FullName);
+    if ((Ptr=strpbrk(FullName," \t/|><"))!=NULL)
       *Ptr=0;
   }
 
-  if(!*FileName) // вот же, надо же... пустышку передали :-(
+  if(!*FullName) // вот же, надо же... пустышку передали :-(
     return 0;
 
   /* $ 07.09.2001 VVM Обработать переменные окружения */
-  ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
+  ExpandEnvironmentStrings(FullName,FileName,sizeof(FileName));
 
   // нулевой проход - смотрим исключения
   {
@@ -490,27 +493,27 @@ int WINAPI PrepareExecuteModule(const char *Command,char *Dest,int DestSize,DWOR
 DWORD IsCommandExeGUI(const char *Command)
 {
   char FileName[4096],FullName[4096],*EndName,*FilePart;
+
   if (*Command=='\"')
   {
-    OemToChar(Command+1,FileName);
-    if ((EndName=strchr(FileName,'\"'))!=NULL)
+    OemToChar(Command+1,FullName);
+    if ((EndName=strchr(FullName,'\"'))!=NULL)
       *EndName=0;
   }
   else
   {
-    OemToChar(Command,FileName);
-    if ((EndName=strpbrk(FileName," \t/"))!=NULL)
+    OemToChar(Command,FullName);
+    if ((EndName=strpbrk(FullName," \t/"))!=NULL)
       *EndName=0;
   }
   int GUIType=0;
 
   /* $ 07.09.2001 VVM
     + Обработать переменные окружения */
-  ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
+  ExpandEnvironmentStrings(FullName,FileName,sizeof(FileName));
   /* VVM $ */
 
   SetFileApisToANSI();
-
   /*$ 18.09.2000 skv
     + to allow execution of c.bat in current directory,
       if gui program c.exe exists somewhere in PATH,

@@ -5,10 +5,13 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.83 31.01.2002 $ */
+/* Revision: 1.84 04.02.2002 $ */
 
 /*
 Modify:
+  04.02.2002 SVS
+    ! ”точнение дл€ BugZ#208 - просто сделаем Update, если панель не
+      плагинова€ и пути совпадают.
   31.01.2002 SVS
     - BugZ#208 - Ќесохранение позиции в панели.
   19.01.2002 VVM
@@ -792,7 +795,12 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     char NewCurDir[NM];
     GetCurrentDirectory(sizeof(NewCurDir),NewCurDir);
     // BugZ#208. ≈сли пути совпадают, то ничего не делаем.
-    if(LocalStricmp(CurDir,NewCurDir))
+    if(PanelMode == NORMAL_PANEL && !LocalStricmp(CurDir,NewCurDir))
+    {
+      // ј нужно ли делать здесь Update????
+      Update(UPDATE_KEEP_SELECTION);
+    }
+    else
     {
       Focus=GetFocus();
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,FALSE);
@@ -800,11 +808,6 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
       NewPanel->Show();
       if (Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
         NewPanel->SetFocus();
-    }
-    else
-    {
-      // ј нужно ли делать здесь Update????
-      Update(UPDATE_KEEP_SELECTION);
     }
   }
   else
