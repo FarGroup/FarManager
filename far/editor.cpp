@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.20 15.08.2000 $ */
+/* Revision: 1.21 30.08.2000 $ */
 
 /*
 Modify:
+   30.08.2000 tran 1.21
+    - bug в автоотступе, внесенный патчем 66
    15.08.2000 skv
     ! Оптимизация Replace.
    10.08.2000 skv
@@ -2311,15 +2313,21 @@ void Editor::InsertString()
   if (CurPos<Length)
   {
 
+
+    /* $ 30.08.2000 tran
+       раскоментировал код, как нужный.
+    */
     /* $ 17.07.2000 tran
        - закоментировал код, как не нужный*/
     if (IndentPos>0)
-//      for (int I=0;I<CurPos;I++)
-//        if (CurLineStr[I]!=' ' && CurLineStr[I]!='\t')
-//        {
+      for (int I=0;I<CurPos;I++)
+        if (CurLineStr[I]!=' ' && CurLineStr[I]!='\t')
+        {
           SpaceOnly=FALSE;
-//          break;
-//        }
+          break;
+        }
+    /* tran 30.08.2000 $ */
+
     NewString->EditLine.SetBinaryString(&CurLineStr[CurPos],Length-CurPos);
     /* $ 17.07.2000 tran
        тут мы проверяем новую строку, есть ли на ней что нибудь кроме пробелов
