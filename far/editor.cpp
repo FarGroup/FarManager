@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.157 21.02.2002 $ */
+/* Revision: 1.158 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    ! Коррекция в связи с введение FAR_INT64
   21.02.2002 SKV
     - Порча EOL'а строки при вставке оной.
   19.02.2002 SVS
@@ -721,7 +723,7 @@ int Editor::ReadFile(const char *Name,int &UserBreak)
     */
     SetLastError(NO_ERROR);
     /* IS $ */
-    RealSizeFile.PLow()=GetFileSize(hEdit,&RealSizeFile.PHigh());
+    RealSizeFile.PLow()=GetFileSize(hEdit,(DWORD*)&RealSizeFile.PHigh());
     if (GetLastError() == NO_ERROR)
     {
       int64 NeedSizeFile(Opt.EditorFileSizeLimitHi,Opt.EditorFileSizeLimitLo);

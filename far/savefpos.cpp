@@ -5,10 +5,12 @@ class SaveFilePos
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    ! revert.  long -> int64 :-\
   06.05.2001 DJ
     ! перетрях #include
   20.02.2001 SVS
@@ -26,15 +28,16 @@ Modify:
 #pragma hdrstop
 
 #include "savefpos.hpp"
+#include "fn.hpp"
 
 SaveFilePos::SaveFilePos(FILE *SaveFile)
 {
   SaveFilePos::SaveFile=SaveFile;
-  SavePos=ftell(SaveFile);
+  SavePos=ftell64(SaveFile);
 }
 
 
 SaveFilePos::~SaveFilePos()
 {
-  fseek(SaveFile,SavePos,SEEK_SET);
+  fseek64(SaveFile,SavePos,SEEK_SET);
 }

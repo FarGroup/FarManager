@@ -4,10 +4,12 @@ farrtl.cpp
 Переопределение функций работы с памятью: new/delete/malloc/realloc/free
 */
 
-/* Revision: 1.09 10.07.2001 $ */
+/* Revision: 1.10 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    ! Коррекция fseek64 и ftell64 (в т.ч. снесен модификатор WINAPI)
   10.07.2001 SVS
     - Забыли в свое время включить "fn.hpp" :-(
   31.10.2000 SVS
@@ -46,6 +48,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 #include "fn.hpp"
+#include "farconst.hpp"
 
 #if defined(__BORLANDC__)
 #ifdef ALLOC
@@ -176,15 +179,15 @@ void operator delete[](void *ptr) {::operator delete(ptr);}
 */
 int _cdecl getdisk(void)
 {
-    unsigned drive;
-    char    buf[MAX_PATH];
+  unsigned drive;
+  char    buf[MAX_PATH];
 
-    /* Use GetCurrentDirectory to get the current directory path, then
-     * parse the drive name.
-     */
-    GetCurrentDirectory(sizeof(buf), buf);    /* ignore errors */
-    drive = buf[0] >= 'a' ? buf[0] - 'a' + 1 : buf[0] - 'A' + 1;
-    return (int)drive - 1;
+  /* Use GetCurrentDirectory to get the current directory path, then
+   * parse the drive name.
+   */
+  GetCurrentDirectory(sizeof(buf), buf);    /* ignore errors */
+  drive = buf[0] >= 'a' ? buf[0] - 'a' + 1 : buf[0] - 'A' + 1;
+  return (int)drive - 1;
 }
 /* SVS $*/
 
@@ -222,132 +225,129 @@ extern long _handles[];
 
 static int Displacement (FILE *fp)
 {
-    register    level;
-    int         disp;
-    register    unsigned char *P;
+  register    level;
+  int         disp;
+  register    unsigned char *P;
 
-    if (fp->level < 0)
-        disp = level = fp->bsize + fp->level + 1;
-    else
-        disp = level = fp->level;
+  if (fp->level < 0)
+    disp = level = fp->bsize + fp->level + 1;
+  else
+    disp = level = fp->level;
 
-    if (fp->flags & _F_BIN)
-        return disp;
+  if (fp->flags & _F_BIN)
+    return disp;
 
-    P = fp->curp;
+  P = fp->curp;
 
-    if (fp->level < 0)          /* If writing */
-    {
-        while (level--)
-            if ('\n' == *--P)
-                disp++;
-    }
-    else                        /* Else reading */
-    {
-        while (level--)
-            if ('\n' == *P++)
-                disp++;
-    }
+  if (fp->level < 0)          /* If writing */
+  {
+    while (level--)
+     if ('\n' == *--P)
+       disp++;
+  }
+  else                        /* Else reading */
+  {
+    while (level--)
+     if ('\n' == *P++)
+       disp++;
+  }
 
-    return  disp;
+  return  disp;
 }
 
 
 static __int64 __lseek64(int fd, __int64 offset, int kind)
 {
-    LONG   NewPtr,MoveHigh;
-    DWORD  method;
+  FAR_INT64 Number;
 
-    if ((unsigned)fd >= _nfile)
-        return (__int64)__IOerror(ERROR_INVALID_HANDLE);
+  DWORD  method;
 
-    /* Translate the POSIX seek type to the NT method.
-     */
-    switch (kind)
-    {
+  if ((unsigned)fd >= _nfile)
+    return (__int64)__IOerror(ERROR_INVALID_HANDLE);
+
+  /* Translate the POSIX seek type to the NT method.
+   */
+  switch (kind)
+  {
     case SEEK_SET:
-        method = FILE_BEGIN;
-        break;
+      method = FILE_BEGIN;
+      break;
     case SEEK_CUR:
-        method = FILE_CURRENT;
-        break;
+      method = FILE_CURRENT;
+      break;
     case SEEK_END:
-        method = FILE_END;
-        break;
+      method = FILE_END;
+      break;
     default:
-        return ((__int64)__IOerror(ERROR_INVALID_FUNCTION));
-    }
+      return ((__int64)__IOerror(ERROR_INVALID_FUNCTION));
+  }
 
-    _openfd[fd] &= ~_O_EOF;      /* forget about ^Z      */
+  _openfd[fd] &= ~_O_EOF;      /* forget about ^Z      */
 
-    MoveHigh=offset>>32;
-    if ((NewPtr = SetFilePointer((HANDLE)_handles[fd], (DWORD)offset, &MoveHigh, method))
-                == -1)
-        __NTerror();        /* set errno */
+  Number.Part.HighPart=offset>>32;
 
-    return (((__int64)MoveHigh)<<32)|NewPtr;
+  Number.Part.LowPart = SetFilePointer((HANDLE)_handles[fd], (DWORD)offset, &Number.Part.HighPart, method);
+  if (Number.Part.LowPart == -1 && GetLastError() != NO_ERROR)
+  {
+    __NTerror();        /* set errno */
+    Number.i64=-1;
+  }
+
+  return Number.i64;
 }
 
-int WINAPI fseek64 (FILE *fp, __int64 offset, int whence)
+int fseek64 (FILE *fp, __int64 offset, int whence)
 {
-    int rc;
+  if (fflush (fp))
+    return (EOF);
 
+  if (SEEK_CUR == whence && fp->level > 0)
+    offset -= Displacement (fp);
 
-    if (fflush (fp))
-        return (EOF);
+  fp->flags &= ~(_F_OUT | _F_IN | _F_EOF);
+  fp->level = 0;
+  fp->curp = fp->buffer;
 
-    if (SEEK_CUR == whence && fp->level > 0)
-        offset -= Displacement (fp);
-
-    fp->flags &= ~(_F_OUT | _F_IN | _F_EOF);
-    fp->level = 0;
-    fp->curp = fp->buffer;
-
-    rc = (__lseek64 (fp->fd, offset, whence) == -1L) ? EOF : 0;
-
-exit:
-    return rc;
-
+  return (__lseek64 (fp->fd, offset, whence) == -1L) ? EOF : 0;
 }
 
-__int64 WINAPI ftell64(FILE *fp)
+__int64 ftell64(FILE *fp)
 {
-    __int64  oldpos, rc;
+  __int64  oldpos, rc;
 
-    if ((rc = __lseek64( fp->fd, 0, SEEK_CUR )) != -1)
+  if ((rc = __lseek64( fp->fd, 0, SEEK_CUR )) != -1)
+  {
+    if (fp->level < 0)  /* if writing */
     {
-        if (fp->level < 0)  /* if writing */
-        {
-            if (_openfd[fp->fd] & O_APPEND)
-            {
-                /* In append mode, find out how big the file is,
-                 * and add the number of buffered bytes to that.
-                 */
-                oldpos = rc;
-                if ((rc = __lseek64( fp->fd, 0, SEEK_END )) == -1)
-                    RETURN(rc);
-                if (__lseek64( fp->fd, oldpos, SEEK_SET ) == -1)
-                    RETURN(-1);
-            }
-            rc += Displacement(fp);
-        }
-        else
-            rc -= Displacement(fp);
+      if (_openfd[fp->fd] & O_APPEND)
+      {
+        /* In append mode, find out how big the file is,
+         * and add the number of buffered bytes to that.
+         */
+        oldpos = rc;
+        if ((rc = __lseek64( fp->fd, 0, SEEK_END )) == -1)
+          return rc;
+        if (__lseek64( fp->fd, oldpos, SEEK_SET ) == -1)
+          return -1;
+      }
+      rc += Displacement(fp);
     }
-exit:
-    return rc;
+    else
+      rc -= Displacement(fp);
+  }
+  return rc;
 }
 
 #else
-_CRTIMP __int64 __cdecl _lseeki64(int, __int64, int);
-_CRTIMP __int64 __cdecl _telli64(int);
 
-__int64 WINAPI ftell64(FILE *fp)
+_CRTIMP __int64 __cdecl _lseeki64(int, __int64, int);
+
+__int64 ftell64(FILE *fp)
 {
-  return _telli64(fileno(fp));
+  return _lseeki64(fileno(fp), 0i64, SEEK_CUR );
 }
 
-int WINAPI fseek64 (FILE *fp, __int64 offset, int whence)
+int fseek64 (FILE *fp, __int64 offset, int whence)
 {
   return (int)_lseeki64(fileno(fp),offset,whence);
 }

@@ -5,10 +5,12 @@ gettable.cpp
 
 */
 
-/* Revision: 1.12 07.08.2001 $ */
+/* Revision: 1.13 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    ! Заюзаем fseek64
   07.08.2001 IS
     - Баги: некоторые символы считались буквами, даже если они таковыми не
       являлись.
@@ -183,7 +185,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
   if (!GetRegKey("CodeTables","Distribution",(BYTE *)DistrTable,(BYTE *)NULL,sizeof(DistrTable)))
     return(FALSE);
   SaveFilePos SavePos(SrcFile);
-  fseek(SrcFile,0,SEEK_SET);
+  fseek64(SrcFile,0,SEEK_SET);
 
   int ProcessedSize=0;
   memset(FileDistr,0,sizeof(FileDistr));
@@ -206,7 +208,7 @@ int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum)
       else
         if (Ch>127 && Ch==FileData[I-2] && Ch==FileData[I-3])
         {
-          fseek(SrcFile,I-ReadSize+256,SEEK_CUR);
+          fseek64(SrcFile,I-ReadSize+256,SEEK_CUR);
           TextData=FALSE;
           break;
         }

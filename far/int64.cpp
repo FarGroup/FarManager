@@ -5,10 +5,12 @@ int64.cpp
 
 */
 
-/* Revision: 1.04 06.05.2001 $ */
+/* Revision: 1.05 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    ! Введение FAR_INT64
   06.05.2001 DJ
     ! перетрях #include
   12.03.2001 SVS
@@ -27,7 +29,7 @@ Modify:
 
 #include "int64.hpp"
 
-#if defined(__NEW_CLASS_INT64__)
+#if defined(__NEW_CLASS_FAR_INT64__)
 int64 operator / (int64 n1,int64 n2)
 {
   int64 res;
@@ -56,7 +58,7 @@ int64::int64(DWORD n)
 }
 
 
-int64::int64(DWORD HighPart,DWORD LowPart)
+int64::int64(LONG HighPart,DWORD LowPart)
 {
   int64::HighPart=HighPart;
   int64::LowPart=LowPart;
@@ -241,7 +243,7 @@ bool operator <= (int64 n1,int64 n2)
 }
 
 
-void int64::Set(DWORD HighPart,DWORD LowPart)
+void int64::Set(LONG HighPart,DWORD LowPart)
 {
   int64::HighPart=HighPart;
   int64::LowPart=LowPart;

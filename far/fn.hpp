@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.133 15.02.2002 $ */
+/* Revision: 1.134 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    + Добавка функций ToPercent64() и filelen64()
+    ! Коррекция fseek64 и ftell64 (в т.ч. снесен модификатор WINAPI)
   15.02.2002 IS
     + Новый параметр ChangeDir у FarChDir, если FALSE, то не меняем текущий
       диск, а только устанавливаем переменные окружения. По умолчанию - TRUE.
@@ -449,6 +452,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,const char * const *Items,
 void SetMessageHelp(const char *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 int ToPercent(unsigned long N1,unsigned long N2);
+int ToPercent64(__int64 N1,__int64 N2);
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 int IsMouseButtonPressed();
 int CmpName(const char *pattern,const char *string,int skippath=TRUE);
@@ -602,7 +606,7 @@ int  ShellSetFileAttributes(Panel *SrcPanel);
 void PrintFiles(Panel *SrcPanel);
 #endif
 
-#ifdef __INT64_HPP__
+#ifdef __FAR_INT64_HPP__
 BOOL GetDiskSize(char *Root,int64 *TotalSize,int64 *TotalFree,int64 *UserFree);
 int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &FileCount,int64 &FileSize,
@@ -614,15 +618,7 @@ int GetPluginDirInfo(HANDLE hPlugin,char *DirName,unsigned long &DirCount,
                int64 &CompressedFileSize);
 #endif
 
-#if defined(__BORLANDC__)
- #ifdef __STDIO_H
- long filelen(FILE *FPtr);
- int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
- #endif
-#else
- long filelen(FILE *FPtr);
- int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
-#endif
+int DetectTable(FILE *SrcFile,struct CharTableSet *TableSet,int &TableNum);
 
 #ifdef __PLUGIN_HPP__
 int PrepareTable(struct CharTableSet *TableSet,int TableNum);
@@ -808,9 +804,6 @@ char* WINAPI Xlat(char *Line,
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-__int64 WINAPI ftell64(FILE *fp);
-int WINAPI fseek64 (FILE *fp, __int64 offset, int whence);
 
 void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 
@@ -1126,5 +1119,10 @@ char* PrepareDiskPath(char *Path,int MaxSize,BOOL CheckFullPath=TRUE);
 #if defined(MOUSEKEY)
 const char * const CalcWordFromString(const char *Str,int CurPos,int *Start,int *End);
 #endif
+
+long filelen(FILE *FPtr);
+__int64 filelen64(FILE *FPtr);
+__int64 ftell64(FILE *fp);
+int fseek64 (FILE *fp, __int64 offset, int whence);
 
 #endif  // __FARFUNC_HPP__

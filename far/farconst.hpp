@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.58 10.01.2002 $ */
+/* Revision: 1.59 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    ! Введение FAR_INT64
   10.01.2002 SVS
     + XC_EXISTS - код возврата для редактора
   25.12.2001 SVS
@@ -147,6 +149,15 @@ Modify:
 typedef unsigned char    UBYTE;
 typedef unsigned short   UWORD;
 typedef unsigned long    UDWORD;
+
+typedef union {
+  __int64 i64;
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } Part;
+} FAR_INT64;
+
 
 //#define  Min(x,y) (((x)<(y)) ? (x):(y))
 template <class T>

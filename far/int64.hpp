@@ -1,5 +1,5 @@
-#ifndef __INT64_HPP__
-#define __INT64_HPP__
+#ifndef __FAR_INT64_HPP__
+#define __FAR_INT64_HPP__
 /*
 int64.hpp
 
@@ -7,10 +7,12 @@ int64.hpp
 
 */
 
-/* Revision: 1.03 13.03.2001 $ */
+/* Revision: 1.04 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    ! Введение FAR_INT64
   13.03.2001 SVS
     ! Нда. Стареем. << и <<= получились как бы одинаковыми :-(
   12.03.2001 SVS
@@ -22,14 +24,17 @@ Modify:
     ! Выделение в качестве самостоятельного модуля
 */
 
-#define __NEW_CLASS_INT64__
+#define __NEW_CLASS_FAR_INT64__
+#if defined(__NEW_CLASS_FAR_INT64__)
+#include "farconst.hpp"
+#endif
 
 class int64
 {
   public:
     int64();
     int64(DWORD n);
-    int64(DWORD HighPart,DWORD LowPart);
+    int64(LONG HighPart,DWORD LowPart);
 
     int64 operator = (int64 n);
     int64 operator = (__int64 n);
@@ -52,30 +57,25 @@ class int64
     friend bool operator >= (int64 n1,int64 n2);
     friend bool operator <= (int64 n1,int64 n2);
 
-    void Set(DWORD HighPart,DWORD LowPart);
+    void Set(LONG HighPart,DWORD LowPart);
     void Set(__int64 n);
     char* itoa(char *Str);
 
-#if defined(__NEW_CLASS_INT64__)
+#if defined(__NEW_CLASS_FAR_INT64__)
     DWORD& PLow() {return Number.Part.LowPart;}
-    DWORD& PHigh() {return Number.Part.HighPart;}
+    LONG&  PHigh() {return Number.Part.HighPart;}
 
-    union {
-      __int64 i64;
-      struct {
-        DWORD LowPart;
-        DWORD HighPart;
-      } Part;
-    } Number;
+    FAR_INT64 Number;
 #else
     DWORD& PLow() {return LowPart;}
-    DWORD& PHigh() {return HighPart;}
+    LONG& PHigh() {return HighPart;}
 
-    DWORD LowPart,HighPart;
+    DWORD LowPart;
+    LONG  HighPart;
 #endif
 };
 
-#if defined(__NEW_CLASS_INT64__)
+#if defined(__NEW_CLASS_FAR_INT64__)
 inline int64::int64()
 {
   Number.i64=0i64;
@@ -86,7 +86,7 @@ inline int64::int64(DWORD n)
   Number.i64=(__int64)n;
 }
 
-inline int64::int64(DWORD HighPart,DWORD LowPart)
+inline int64::int64(LONG HighPart,DWORD LowPart)
 {
   Set(HighPart,LowPart);
 }
@@ -101,7 +101,7 @@ inline char* int64::itoa(char *Str)
   return _i64toa(Number.i64,Str,10);
 }
 
-inline void int64::Set(DWORD HighPart,DWORD LowPart)
+inline void int64::Set(LONG HighPart,DWORD LowPart)
 {
   Number.Part.HighPart=HighPart;
   Number.Part.LowPart=LowPart;
@@ -217,4 +217,4 @@ inline int64 operator - (int64 n1,int64 n2)
 
 #endif
 
-#endif // __INT64_HPP__
+#endif // __FAR_INT64_HPP__

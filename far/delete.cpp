@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.40 13.02.2002 $ */
+/* Revision: 1.41 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    - Bug in panels refreshing after cancelling directory delete
   13.02.2002 SVS
     ! Уборка варнингов
   24.01.2002 VVM
@@ -376,7 +378,10 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
                     MSG(MDeleteFileSkip),MSG(MDeleteFileCancel));
             /* IS $ */
             if (MsgCode<0 || MsgCode==3)
+            {
+              NeedSetUpADir=FALSE;
               break;
+            }
             if (MsgCode==1)
               DeleteAllFolders=1;
             if (MsgCode==2)

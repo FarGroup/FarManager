@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.112 15.02.2002 $ */
+/* Revision: 1.113 22.02.2002 $ */
 
 /*
 Modify:
+  22.02.2002 SVS
+    + ƒобавка функций ToPercent64() и filelen64()
   15.02.2002 IS
     + Ќовый параметр ChangeDir у FarChDir, если FALSE, то не мен€ем текущий
       диск, а только устанавливаем переменные окружени€. ѕо умолчанию - TRUE.
@@ -359,6 +361,13 @@ long filelen(FILE *FPtr)
   return(ftell(FPtr));
 }
 
+__int64 filelen64(FILE *FPtr)
+{
+  SaveFilePos SavePos(FPtr);
+  fseek64(FPtr,0,SEEK_END);
+  return(ftell64(FPtr));
+}
+
 /* $ 14.01.2002 IS
    ”становка нужного диска и каталога и установление соответствующей переменной
    окружени€. ¬ случае успеха возвращаетс€ не ноль.
@@ -553,6 +562,20 @@ int ToPercent(unsigned long N1,unsigned long N2)
   if (N2<N1)
     return(100);
   return((int)(N1*100/N2));
+}
+
+int ToPercent64(__int64 N1,__int64 N2)
+{
+  if (N1 > 10000i64)
+  {
+    N1/=100i64;
+    N2/=100i64;
+  }
+  if (N2==0i64)
+    return(0i64);
+  if (N2<N1)
+    return(100);
+  return((int)(N1*100i64/N2));
 }
 
 
