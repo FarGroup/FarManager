@@ -7,10 +7,12 @@ manager.hpp
 
 */
 
-/* Revision: 1.22 08.10.2001 $ */
+/* Revision: 1.23 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 IS
+    + CountFramesWithName
   04.10.2001 OT
     Запуск немодального фрейма в модальном режиме
   19.07.2001 OT
@@ -168,6 +170,12 @@ class Manager
     */
     BOOL PluginCommit();
     /* SKV$*/
+
+    /* $ 11.10.2001 IS
+       Подсчитать количество фреймов с указанным именем.
+    */
+    int CountFramesWithName(const char *Name, BOOL IgnoreCase=TRUE);
+    /* IS $ */
 
     BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
     void SetFramePos(int NewPos);

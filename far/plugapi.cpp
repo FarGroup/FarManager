@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.96 08.10.2001 $ */
+/* Revision: 1.97 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 IS
+    + обработка EF_DELETEONCLOSE
   08.10.2001 OT
     ! Запуск немодального фрейма в модальном режиме
   07.10.2001 SVS
@@ -1471,12 +1473,13 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   /* VVM $ */
   /* $ 09.09.2001 IS */
   int DisableHistory=(Flags & EF_DISABLEHISTORY)?TRUE:FALSE;
+  int DeleteOnClose=(Flags & EF_DELETEONCLOSE)?TRUE:FALSE;
   /* IS $ */
   if (Flags & EF_NONMODAL)
   {
     ExitCode=FALSE;
     /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory);
+    FileEditor *Editor=new FileEditor(FileName,CreateNew,TRUE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory,DeleteOnClose);
     /* IS $ */
     if (Editor)
     {
@@ -1490,7 +1493,7 @@ int WINAPI FarEditor(const char *FileName,const char *Title,
   else
   {
    /* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory);
+   FileEditor Editor(FileName,CreateNew,FALSE,StartLine,StartChar,Title,X1,Y1,X2,Y2,DisableHistory,DeleteOnClose);
    /* IS $ */
    Editor.SetDynamicallyBorn(false);
    /* $ 12.05.2001 DJ */

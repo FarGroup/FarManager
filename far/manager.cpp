@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.54 08.10.2001 $ */
+/* Revision: 1.55 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 IS
+    + CountFramesWithName
   04.10.2001 OT
     Запуск немодального фрейма в модальном режиме
   21.09.2001 SVS
@@ -375,6 +377,23 @@ int Manager::GetModalExitCode()
 {
   return ModalExitCode;
 }
+
+/* $ 11.10.2001 IS
+   Подсчитать количество фреймов с указанным именем.
+*/
+int Manager::CountFramesWithName(const char *Name, BOOL IgnoreCase)
+{
+   int Counter=0;
+   int (*cmpfunc)(const char *s1, const char *s2)=IgnoreCase?LocalStricmp:strcmp;
+   char Type[200],curName[NM];
+   for (int I=0;I<FrameCount;I++)
+   {
+     FrameList[I]->GetTypeAndName(Type,curName);
+     if(!cmpfunc(Name, curName)) ++Counter;
+   }
+   return Counter;
+}
+/* IS $ */
 
 /*!
   \return Возвращает NULL если нажат "отказ" или если нажат текущий фрейм.

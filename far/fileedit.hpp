@@ -7,10 +7,12 @@ fileedit.hpp
 
 */
 
-/* Revision: 1.19 08.09.2001 $ */
+/* Revision: 1.20 10.10.2001 $ */
 
 /*
 Modify:
+  10.10.2001 IS
+    + DeleteOnClose
   08.09.2001 IS
     + Дополнительный параметр у второго конструктора: DisableHistory
   17.08.2001 KM
@@ -100,12 +102,14 @@ class FileEditor:public Frame
                char *PluginData=NULL,int ToSaveAs=FALSE);
     FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
                int StartLine,int StartChar,const char *Title,
-               int X1,int Y1,int X2,int Y2, int DisableHistory);
+               int X1,int Y1,int X2,int Y2, int DisableHistory,
+               BOOL DeleteOnClose=FALSE);
     /* $ 07.05.2001 DJ */
     virtual ~FileEditor();
     /* DJ $ */
     void Init(const char *Name,int CreateNewFile,int EnableSwitch,
-              int StartLine,int StartChar,int DisableHistory,char *PluginData,int ToSaveAs);
+              int StartLine,int StartChar,int DisableHistory,char *PluginData,
+              int ToSaveAs, BOOL DeleteOnClose);
     /* $ 07.08.2000 SVS
        Функция инициализации KeyBar Labels
     */

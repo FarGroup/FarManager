@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.78 27.09.2001 $ */
+/* Revision: 1.79 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 IS
+    ! Удаляем файл только, если нет открытых фреймов с таким именем.
   27.09.2001 IS
     - Левый размер при использовании strncpy
   20.09.01 IS
@@ -368,7 +370,11 @@ Viewer::~Viewer()
     }
   }
   _tran(SysLog("[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
-  if (*TempViewName)
+  /* $ 11.10.2001 IS
+     Удаляем файл только, если нет открытых фреймов с таким именем.
+  */
+  if (*TempViewName && !FrameManager->CountFramesWithName(TempViewName))
+  /* IS $ */
   {
     /*chmod(TempViewName,S_IREAD|S_IWRITE);
     remove(TempViewName);

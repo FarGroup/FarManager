@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.58 27.09.2001 $ */
+/* Revision: 1.59 10.10.2001 $ */
 
 /*
 Modify:
+  10.10.2001 IS
+    ! внедрение const
   27.09.2001 IS
     - Левый размер при использовании strncpy
   16.09.2001 SVS
@@ -809,7 +811,7 @@ BOOL VMenu::UpdateRequired(void)
 }
 
 
-int VMenu::InsertItem(struct FarListInsert *NewItem)
+int VMenu::InsertItem(const struct FarListInsert *NewItem)
 {
   if(NewItem)
   {
@@ -819,7 +821,7 @@ int VMenu::InsertItem(struct FarListInsert *NewItem)
   return -1;
 }
 
-int VMenu::AddItem(struct MenuItem *NewItem,int PosAdd)
+int VMenu::AddItem(const struct MenuItem *NewItem,int PosAdd)
 {
   while (CallCount>0)
     Sleep(10);
@@ -872,7 +874,7 @@ int VMenu::AddItem(struct MenuItem *NewItem,int PosAdd)
   return(ItemCount++);
 }
 
-int  VMenu::AddItem(char *NewStrItem)
+int  VMenu::AddItem(const char *NewStrItem)
 {
   struct FarList FarList0;
   struct FarListItem FarListItem0;
@@ -892,7 +894,7 @@ int  VMenu::AddItem(char *NewStrItem)
   return VMenu::AddItem(&FarList0);
 }
 
-int VMenu::AddItem(struct FarList *List)
+int VMenu::AddItem(const struct FarList *List)
 {
   if(List && List->Items)
   {
@@ -904,7 +906,7 @@ int VMenu::AddItem(struct FarList *List)
   return ItemCount;
 }
 
-int VMenu::UpdateItem(struct FarList *NewItem)
+int VMenu::UpdateItem(const struct FarList *NewItem)
 {
   if(NewItem && NewItem->Items && (DWORD)NewItem->ItemsNumber < (DWORD)ItemCount)
   {
@@ -1605,12 +1607,12 @@ void VMenu::SortItems(int Direction)
 }
 
 // return Pos || -1
-int VMenu::FindItem(struct FarListFind *FItem)
+int VMenu::FindItem(const struct FarListFind *FItem)
 {
   return FindItem(FItem->StartIndex,FItem->Pattern);
 }
 
-int VMenu::FindItem(int StartIndex,char *Pattern,DWORD Flags)
+int VMenu::FindItem(int StartIndex,const char *Pattern,DWORD Flags)
 {
   char TmpBuf[130];
   if((DWORD)StartIndex < (DWORD)ItemCount)

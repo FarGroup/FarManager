@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.42 27.09.2001 $ */
+/* Revision: 1.43 11.10.2001 $ */
 
 /*
 Modify:
+  11.10.2001 IS
+    ! Если просили удалить файл при закрытии и переключаемся в редактор
+      по F6, то удалять файл уже не нужно.
   27.09.2001 IS
     - Левый размер при использовании strncpy
   08.09.2001 IS
@@ -377,6 +380,12 @@ int FileViewer::ProcessKey(int Key)
     case KEY_F6:
       if (!DisableEdit)
       {
+        /* $ 11.10.2001 IS
+            Если переключаемся в редактор, то удалять файл уже не
+            нужно
+        */
+        SetTempViewName("");
+        /* IS $ */
         SetExitCode(0);
         char ViewFileName[NM];
         View.GetFileName(ViewFileName);

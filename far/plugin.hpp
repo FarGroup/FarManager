@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.149 10.10.2001 $ */
+/* Revision: 1.150 10.10.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,9 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  10.10.2001 IS
+    + EF_DELETEONCLOSE
+    ! внедрение const
   10.10.2001 SVS
     + EditorInfo.CurState - состояние редактора (дополнительные флаги)
     ! EditorGetString.StringText и StringEOL для плагинов имеют суть const
@@ -916,7 +919,7 @@ enum{
 struct FarListFind
 {
   int StartIndex;
-  char *Pattern;
+  const char *Pattern;
   DWORD Flags;
   DWORD Reserved;
 };
@@ -962,9 +965,9 @@ struct FarDialogItem
   union
   {
     int Selected;
-    char *History;
-    char *Mask;
-    struct FarList *ListItems;
+    const char *History;
+    const char *Mask;
+    const struct FarList *ListItems;
     CHAR_INFO *VBuf;
   };
   DWORD Flags;
@@ -1137,6 +1140,7 @@ enum EDITOR_FLAGS {
   EF_CREATENEW      =2,
   EF_ENABLE_F6      =4,
   EF_DISABLEHISTORY =8,
+  EF_DELETEONCLOSE  =16,
 };
 
 typedef int (WINAPI *FARAPIVIEWER)(
@@ -1345,7 +1349,7 @@ struct ViewerInfo
 {
   int    StructSize;
   int    ViewerID;
-  char  *FileName;
+  const char *FileName;
   DWORD  FileSize;
   DWORD  Reserved1;
   DWORD  FilePos;
@@ -1423,8 +1427,13 @@ struct EditorGetString
 struct EditorSetString
 {
   int StringNumber;
+  #ifdef FAR_USE_INTERNALS
+  const char *StringText;
+  const char *StringEOL;
+  #else
   char *StringText;
   char *StringEOL;
+  #endif
   int StringLength;
 };
 
@@ -1450,7 +1459,7 @@ enum EDITOR_CURRENTSTATE {
 struct EditorInfo
 {
   int EditorID;
-  char *FileName;
+  const char *FileName;
   int WindowSizeX;
   int WindowSizeY;
   int TotalLines;
@@ -1692,7 +1701,7 @@ struct PluginStartupInfo
   int StructSize;
   char ModuleName[NM];
   int ModuleNumber;
-  char *RootKey;
+  const char *RootKey;
   FARAPIMENU             Menu;
   FARAPIDIALOG           Dialog;
   FARAPIMESSAGE          Message;

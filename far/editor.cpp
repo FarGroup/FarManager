@@ -10,6 +10,9 @@ editor.cpp
 
 /*
 Modify:
+  11.10.2001 IS
+    + обработка DeleteOnClose
+    ! внедрение const
   11.10.2001 VVM
     ! Полное имя файла вставляет CTRL+F (вместо CTRL+SHIFT+ENTER)
   10.10.2001 SVS
@@ -379,6 +382,7 @@ enum {UNDO_NONE=0,UNDO_EDIT,UNDO_INSSTR,UNDO_DELSTR};
 
 Editor::Editor()
 {
+  DeleteOnClose=FALSE; // ну мы же не самоубийцы, правда? ;-)
   /* $ 19.02.2001 IS
        Я не учел, что для нового файла GetFileAttributes не вызывается...
   */
@@ -506,6 +510,13 @@ Editor::~Editor()
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_CLOSE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&EditorID);
+    /* $ 11.10.2001 IS
+       Удалим файл вместе с каталогом, если это просится и файла с таким же
+       именем не открыто в других фреймах.
+    */
+    if (DeleteOnClose && !FrameManager->CountFramesWithName(FileName))
+       DeleteFileWithFolder(FileName);
+   /* IS $ */
   }
 
   CurrentEditor=NULL;
@@ -987,6 +998,11 @@ int Editor::SaveFile(const char *Name,int Ask,int TextFormat,int SaveAs)
                                                              // недопустим
     }
 
+    /* $ 11.10.2001 IS
+       Если было произведено сохранение с любым результатом, то не удалять файл
+    */
+    DeleteOnClose=FALSE;
+    /* IS $ */
     CtrlObject->Plugins.CurEditor=this;
 //_D(SysLog("%08d EE_SAVE",__LINE__));
     CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,NULL);
@@ -2735,7 +2751,7 @@ int Editor::ProcessKey(int Key)
       }
       return(TRUE);
     /* $ 25.04.2001 IS
-         ctrl-shift-enter - вставить в строку полное имя редактируемого файла
+         ctrl+f - вставить в строку полное имя редактируемого файла
     */
     case KEY_CTRLF:
       if(!LockMode)
@@ -4938,7 +4954,7 @@ int Editor::EditorControl(int Command,void *Param)
         struct EditList *CurPtr=GetStringByNumber(SetString->StringNumber);
         if (CurPtr==NULL)
           return(FALSE);
-        char *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
+        const char *EOL=SetString->StringEOL==NULL ? GlobalEOL:SetString->StringEOL;
         int Length=SetString->StringLength;
         int LengthEOL=strlen(EOL);
         char *NewStr=new char[Length+LengthEOL+1];

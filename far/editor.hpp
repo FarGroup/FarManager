@@ -9,10 +9,12 @@ editor.hpp
 
 */
 
-/* Revision: 1.24 18.09.2001 $ */
+/* Revision: 1.25 10.10.2001 $ */
 
 /*
 Modify:
+  10.10.2001 IS
+    + обработка DeleteOnClose
   18.08.2001 SVS
     + параметр у функции Paste - для отработки $Date, у которой есть '%n'
   25.06.2001 IS
@@ -125,6 +127,12 @@ enum {
 class Editor:public ScreenObject
 {
   private:
+    /* $ 10.10.2001 IS
+       Если TRUE, то удалить в деструкторе файл вместе с каталогом (если тот
+       пуст).
+    */
+    BOOL DeleteOnClose;
+    /* IS $ */
     KeyBar *EditKeyBar;
     struct EditList *TopList,*EndList,*TopScreen,*CurLine;
     struct EditorUndoData UndoData[EDITOR_UNDO_COUNT];
@@ -316,6 +324,10 @@ class Editor:public ScreenObject
 
     void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
     int  GetCharCodeBase(void) const {return EdOpt.CharCodeBase; }
+
+    /* $ 10.10.2001 IS установка DeleteOnClose */
+    void SetDeleteOnClose(BOOL NewMode) { DeleteOnClose=NewMode; }
+    /* IS */
 
     /* $ tran 14.07.2000
       + goto to percent support */

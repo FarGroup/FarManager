@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.27 24.08.2001 $ */
+/* Revision: 1.28 10.10.2001 $ */
 
 /*
 Modify:
+  10.10.2001 IS
+    ! внедрение const
   24.08.2001 VVM
     + void SetExitCode(int Code) - вызывает функцию от предка Modal::
   31.07.2001 KM
@@ -28,7 +30,7 @@ Modify:
     ! Новый класс VFMenu. Добавлены константы, позоляющие ресайзить меню
   30.06.2001 KM
     + SetSelectPos(struct FarListPos *)
-	+ GetSelectPos(struct FarListPos *)
+  + GetSelectPos(struct FarListPos *)
   29.06.2001 SVS
     + Новый параметр у FindItem - флаги
   25.06.2001 IS
@@ -137,10 +139,10 @@ enum{
 /* SVS */
 
 #define VMENU_ALWAYSSCROLLBAR       0x00000100
-#define VMENU_LISTBOX	            0x00000200
+#define VMENU_LISTBOX               0x00000200
 #define VMENU_SHOWNOBOX             0x00000400
-#define VMENU_AUTOHIGHLIGHT	        0x00000800
-#define VMENU_REVERSIHLIGHT	        0x00001000
+#define VMENU_AUTOHIGHLIGHT         0x00000800
+#define VMENU_REVERSIHLIGHT         0x00001000
 #define VMENU_UPDATEREQUIRED        0x00002000
 #define VMENU_DISABLEDRAWBACKGROUND 0x00004000
 #define VMENU_WRAPMODE              0x00008000
@@ -284,14 +286,14 @@ class VMenu: virtual public Modal, virtual public Frame
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
 
-    int  AddItem(struct MenuItem *NewItem,int PosAdd=-1);
-    int  AddItem(struct FarList *NewItem);
-    int  AddItem(char *NewStrItem);
+    int  AddItem(const struct MenuItem *NewItem,int PosAdd=-1);
+    int  AddItem(const struct FarList *NewItem);
+    int  AddItem(const char *NewStrItem);
 
-    int  InsertItem(struct FarListInsert *NewItem);
-    int  UpdateItem(struct FarList *NewItem);
-    int  FindItem(struct FarListFind *FindItem);
-    int  FindItem(int StartIndex,char *Pattern,DWORD Flags=0);
+    int  InsertItem(const struct FarListInsert *NewItem);
+    int  UpdateItem(const struct FarList *NewItem);
+    int  FindItem(const struct FarListFind *FindItem);
+    int  FindItem(int StartIndex,const char *Pattern,DWORD Flags=0);
 
     int  GetItemCount() {return(ItemCount);};
     /* $ 31.07.2001 KM
@@ -338,4 +340,4 @@ class VMenu: virtual public Modal, virtual public Frame
 };
 
 
-#endif	// __VMENU_HPP__
+#endif  // __VMENU_HPP__

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.64 08.10.2001 $ */
+/* Revision: 1.65 10.10.2001 $ */
 
 /*
 Modify:
+  10.10.2001 IS
+    + обработка DeleteOnClose
   04.10.2001 OT
     - исправлен баг в fileEditor, когда на вопрос How to open this file? ответить Current не удалался созданный, уже не нужный никому пустой фрейм.
   27.09.2001 IS
@@ -198,24 +200,25 @@ FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
   ScreenObject::SetPosition(0,0,ScrX,ScrY);
   FullScreen=TRUE;
   Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,
-       DisableHistory,PluginData,ToSaveAs);
+       DisableHistory,PluginData,ToSaveAs,FALSE);
 }
 
 
 FileEditor::FileEditor(const char *Name,int CreateNewFile,int EnableSwitch,
             int StartLine,int StartChar,const char *Title,
-            int X1,int Y1,int X2,int Y2,int DisableHistory)
+            int X1,int Y1,int X2,int Y2,int DisableHistory, BOOL DeleteOnClose)
 {
   ScreenObject::SetPosition(X1,Y1,X2,Y2);
   FullScreen=(X1==0 && Y1==0 && X2==ScrX && Y2==ScrY);
   FEdit.SetTitle(Title);
-  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",FALSE);
+  Init(Name,CreateNewFile,EnableSwitch,StartLine,StartChar,DisableHistory,"",
+       FALSE,DeleteOnClose);
 }
 
 
 void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
                       int StartLine,int StartChar,int DisableHistory,
-                      char *PluginData,int ToSaveAs)
+                      char *PluginData,int ToSaveAs,BOOL DeleteOnClose)
 {
   /* $ 07.05.2001 DJ */
   EditNamesList = NULL;
@@ -340,6 +343,7 @@ void FileEditor::Init(const char *Name,int CreateNewFile,int EnableSwitch,
 
   FEdit.SetPosition(X1,Y1,X2,Y2-1);
   FEdit.SetStartPos(StartLine,StartChar);
+  FEdit.SetDeleteOnClose(DeleteOnClose);
   int UserBreak;
   /* $ 06.07.2001 IS
      При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
@@ -568,6 +572,12 @@ int FileEditor::ProcessKey(int Key)
         */
         if (ProcessQuitKey())
         {
+          /* $ 11.10.200 IS
+             не будем удалять файл, если было включено удаление, но при этом
+             пользователь переключился во вьюер
+          */
+          FEdit.SetDeleteOnClose(FALSE);
+          /* IS $ */
           /* $ 06.05.2001 DJ
              обработка F6 под NWZ
           */
