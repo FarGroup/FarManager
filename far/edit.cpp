@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.34 14.02.2001 $ */
+/* Revision: 1.35 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    ! Opt.EditorDelRemovesBlocks -> DelRemovesBlocks
+      Opt.EditorPersistentBlocks -> PersistentBlocks
   14.02.2001 IS
     + За размер табуляции отвечает TabSize, а поэтому произведена замена
       "Opt.TabSize" на "TabSize"
@@ -192,6 +195,12 @@ Edit::Edit()
        Размер табуляции по умолчанию равен Opt.TabSize;
   */
   TabSize=Opt.TabSize;
+  /* IS $ */
+  /* $ 15.02.2001 IS
+       Инициализация внутренних переменных по умолчанию
+  */
+  DelRemovesBlocks=Opt.EditorDelRemovesBlocks;
+  PersistentBlocks=Opt.EditorPersistentBlocks;
   /* IS $ */
 }
 
@@ -571,7 +580,7 @@ int Edit::ProcessKey(int Key)
          - символ перед курсором удален
          - выделение блока снято
   */
-  if (((Key==KEY_BS || Key==KEY_DEL) && Opt.EditorDelRemovesBlocks || Key==KEY_CTRLD) &&
+  if (((Key==KEY_BS || Key==KEY_DEL) && DelRemovesBlocks || Key==KEY_CTRLD) &&
       !EditorMode && SelStart!=-1 && SelStart<SelEnd)
   {
     DeleteBlock();
@@ -589,7 +598,7 @@ int Edit::ProcessKey(int Key)
       Key!=KEY_RALT && Key!=KEY_NONE)
   {
     MarkingBlock=FALSE;
-    if (!Opt.EditorPersistentBlocks && Key!=KEY_CTRLINS && !EditorMode)
+    if (!PersistentBlocks && Key!=KEY_CTRLINS && !EditorMode)
     {
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
@@ -1191,7 +1200,7 @@ int Edit::ProcessKey(int Key)
         /* tran $ */
         if (ClipText==NULL)
           return(TRUE);
-        if (!Opt.EditorPersistentBlocks)
+        if (!PersistentBlocks)
           DeleteBlock();
         for (I=strlen(Str)-1;I>=0 && iseol(Str[I]);I--)
           Str[I]=0;
@@ -1278,7 +1287,7 @@ int Edit::ProcessKey(int Key)
 
       if (Key==KEY_NONE || Key==KEY_IDLE || Key==KEY_ENTER || Key>=256)
         break;
-      if (!Opt.EditorPersistentBlocks)
+      if (!PersistentBlocks)
       {
         if (PrevSelStart!=-1)
         {

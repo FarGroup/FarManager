@@ -9,10 +9,18 @@ editor.hpp
 
 */
 
-/* Revision: 1.12 15.02.2001 $ */
+/* Revision: 1.13 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    + Локальные переменные, в которых запоминается то, что храниться в
+      настройках редактора:
+      DelRemovesBlocks - "Del удаляет блоки"
+      PersistentBlocks - "Постоянные блоки"
+    + Функции для управления их состоянием:
+      SetDelRemovesBlocks/GetDelRemovesBlocks
+      SetPersistentBlocks/GetPersistentBlocks
   15.02.2001 IS
     - Тело функции SetTabSize переехало в editor.cpp
     + За режима "Пробелы вместо табуляции" отвечает переменная ConvertTabs
@@ -88,6 +96,12 @@ class Editor:public ScreenObject
          и в дальнейшем будем использовать его, а не Opt.EditorExpandTabs
     */
     int ConvertTabs;
+    /* IS $ */
+    /* $ 15.02.2001 IS
+         Различные опции из настроек редактора теперь запоминаются локально
+    */
+    int DelRemovesBlocks;
+    int PersistentBlocks;
     /* IS $ */
     int WasChanged;
     int Overtype;
@@ -231,6 +245,15 @@ class Editor:public ScreenObject
     */
     void SetConvertTabs(int NewMode);
     int  GetConvertTabs(void) {return ConvertTabs; }
+    /* IS $ */
+    /* $ 15.02.2001 IS
+         Функции чтения/установления текущих настроек редактирования
+    */
+    void SetDelRemovesBlocks(int NewMode);
+    int  GetDelRemovesBlocks(void) {return DelRemovesBlocks; }
+
+    void SetPersistentBlocks(int NewMode);
+    int  GetPersistentBlocks(void) {return PersistentBlocks; }
     /* IS $ */
 
     /* $ tran 14.07.2000

@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.67 15.02.2001 $ */
+/* Revision: 1.68 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    ! Opt.EditorDelRemovesBlocks -> DelRemovesBlocks
+      Opt.EditorPersistentBlocks -> PersistentBlocks
+    + SetDelRemovesBlocks, SetPersistentBlocks
   15.02.2001 IS
     + Обновим размер табуляции для всех Edit в функции SetTabSize
     ! Opt.EditorExpandTabs -> ConvertTabs
@@ -216,6 +220,13 @@ Editor::Editor()
   */
   ConvertTabs=Opt.EditorExpandTabs;
   /* IS $ */
+  /* $ 15.02.2001 IS
+       Инициализация внутренних переменных по умолчанию
+  */
+  DelRemovesBlocks=Opt.EditorDelRemovesBlocks;
+  PersistentBlocks=Opt.EditorPersistentBlocks;
+  /* IS $ */
+
   EditKeyBar=NULL;
   strcpy((char *)LastSearchStr,GlobalSearchString);
   LastSearchCase=GlobalSearchCase;
@@ -1116,8 +1127,8 @@ int Editor::ProcessKey(int Key)
     MarkingBlock=FALSE;
     MarkingVBlock=FALSE;
 
-    if (BlockStart!=NULL || VBlockStart!=NULL && !Opt.EditorPersistentBlocks)
-      if (!Opt.EditorPersistentBlocks)
+    if (BlockStart!=NULL || VBlockStart!=NULL && !PersistentBlocks)
+      if (!PersistentBlocks)
       {
         static int UnmarkKeys[]={KEY_LEFT,KEY_RIGHT,KEY_HOME,KEY_END,KEY_UP,
                    KEY_DOWN,KEY_PGUP,KEY_PGDN,KEY_CTRLHOME,KEY_CTRLPGUP,
@@ -1153,7 +1164,7 @@ int Editor::ProcessKey(int Key)
       TopScreen=CurLine;
       for (int I=0;I<SavePosScreenLine[Pos] && TopScreen->Prev!=NULL;I++)
         TopScreen=TopScreen->Prev;
-      if (!Opt.EditorPersistentBlocks)
+      if (!PersistentBlocks)
         UnmarkBlock();
       Show();
     }
@@ -1519,7 +1530,7 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLC:
     case KEY_CTRLINS:
-      if (!Opt.EditorPersistentBlocks && BlockStart==NULL && VBlockStart==NULL)
+      if (!PersistentBlocks && BlockStart==NULL && VBlockStart==NULL)
       {
         BlockStart=CurLine;
         BlockStartLine=NumLine;
@@ -1578,12 +1589,12 @@ int Editor::ProcessKey(int Key)
       return(TRUE);
     case KEY_CTRLV:
     case KEY_SHIFTINS:
-      if (!Opt.EditorPersistentBlocks && VBlockStart==NULL)
+      if (!PersistentBlocks && VBlockStart==NULL)
         DeleteBlock();
       Paste();
       MarkingBlock=(VBlockStart==NULL);
       MarkingVBlock=FALSE;
-      if (!Opt.EditorPersistentBlocks)
+      if (!PersistentBlocks)
         UnmarkBlock();
       Show();
       return(TRUE);
@@ -1610,7 +1621,7 @@ int Editor::ProcessKey(int Key)
     case KEY_DEL:
       if (!LockMode)
       {
-        if (!Pasting && Opt.EditorDelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
+        if (!Pasting && DelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
           DeleteBlock();
         else
         {
@@ -1676,12 +1687,12 @@ int Editor::ProcessKey(int Key)
         int IsDelBlock=FALSE;
         if(Opt.EditorBSLikeDel)
         {
-          if (!Pasting && Opt.EditorDelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
+          if (!Pasting && DelRemovesBlocks && (BlockStart!=NULL || VBlockStart!=NULL))
             IsDelBlock=TRUE;
         }
         else
         {
-          if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
+          if (!Pasting && !PersistentBlocks && BlockStart!=NULL)
             IsDelBlock=TRUE;
         }
         if (IsDelBlock)
@@ -1714,7 +1725,7 @@ int Editor::ProcessKey(int Key)
         */
         TextChanged(1);
         /* skv $*/
-        if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
+        if (!Pasting && !PersistentBlocks && BlockStart!=NULL)
           DeleteBlock();
         else
           if (CurPos==0 && CurLine->Prev!=NULL)
@@ -1822,7 +1833,7 @@ int Editor::ProcessKey(int Key)
     case KEY_ENTER:
       if (Pasting || !ShiftPressed || CtrlObject->Macro.IsExecuting())
       {
-        if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
+        if (!Pasting && !PersistentBlocks && BlockStart!=NULL)
           DeleteBlock();
         NewUndo=TRUE;
         InsertString();
@@ -2281,15 +2292,15 @@ int Editor::ProcessKey(int Key)
            - CTRL-DEL в начале строки при выделенном блоке и
              включенном EditorDelRemovesBlocks
          */
-          int save=Opt.EditorDelRemovesBlocks;
-          Opt.EditorDelRemovesBlocks=0;
+          int save=DelRemovesBlocks;
+          DelRemovesBlocks=0;
           int ret=ProcessKey(KEY_DEL);
-          Opt.EditorDelRemovesBlocks=save;
+          DelRemovesBlocks=save;
           return ret;
           /* skv$*/
         }
 
-        if (!Pasting && !Opt.EditorPersistentBlocks && BlockStart!=NULL)
+        if (!Pasting && !PersistentBlocks && BlockStart!=NULL)
           if (Key>=32 && Key<256 || Key==KEY_ADD || Key==KEY_SUBTRACT ||
               Key==KEY_MULTIPLY || Key==KEY_DIVIDE || Key==KEY_TAB)
           {
@@ -2442,7 +2453,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   if ((MouseEvent->dwButtonState & 3)!=0)
   {
     MarkingBlock=MarkingVBlock=FALSE;
-    if ((!Opt.EditorPersistentBlocks) && (BlockStart!=NULL || VBlockStart!=NULL))
+    if ((!PersistentBlocks) && (BlockStart!=NULL || VBlockStart!=NULL))
     {
       UnmarkBlock();
       Show();
@@ -2967,7 +2978,7 @@ void Editor::Search(int Next)
 
   LastSuccessfulReplaceMode=ReplaceMode;
 
-  if (!Opt.EditorPersistentBlocks)
+  if (!PersistentBlocks)
     UnmarkBlock();
 
   {
@@ -3997,7 +4008,7 @@ void Editor::DeleteVBlock()
 
   int UndoNext=FALSE;
 
-  if (!Opt.EditorPersistentBlocks)
+  if (!PersistentBlocks)
   {
     struct EditList *CurPtr=CurLine;
     struct EditList *NewTopScreen=TopScreen;
@@ -4441,9 +4452,9 @@ int Editor::EditorControl(int Command,void *Param)
         Info->Options=0;
         if (ConvertTabs)
           Info->Options|=EOPT_EXPANDTABS;
-        if (Opt.EditorPersistentBlocks)
+        if (PersistentBlocks)
           Info->Options|=EOPT_PERSISTENTBLOCKS;
-        if (Opt.EditorDelRemovesBlocks)
+        if (DelRemovesBlocks)
           Info->Options|=EOPT_DELREMOVESBLOCKS;
         if (Opt.EditorAutoIndent)
           Info->Options|=EOPT_AUTOINDENT;
@@ -4993,6 +5004,38 @@ void Editor::SetConvertTabs(int NewMode)
     }
   }
 }
+/* IS $ */
 
+/* $ 15.02.2001 IS
+     + Эпопея продолжается :) Обновим установки DelRemovesBlocks и
+       PersistentBlocks
+*/
+void Editor::SetDelRemovesBlocks(int NewMode)
+{
+  if(NewMode!=DelRemovesBlocks)
+  {
+    DelRemovesBlocks=NewMode;
+    struct EditList *CurPtr=TopList;
+    while (CurPtr!=NULL)
+    {
+      CurPtr->EditLine.SetDelRemovesBlocks(NewMode);
+      CurPtr=CurPtr->Next;
+    }
+  }
+}
+
+void Editor::SetPersistentBlocks(int NewMode)
+{
+  if(NewMode!=PersistentBlocks)
+  {
+    PersistentBlocks=NewMode;
+    struct EditList *CurPtr=TopList;
+    while (CurPtr!=NULL)
+    {
+      CurPtr->EditLine.SetPersistentBlocks(NewMode);
+      CurPtr=CurPtr->Next;
+    }
+  }
+}
 /* IS $ */
 #endif //!defined(EDITOR2)

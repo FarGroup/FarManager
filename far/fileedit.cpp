@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.19 15.02.2001 $ */
+/* Revision: 1.20 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    + Обновим "постоянные блоки" и "del удаляет блоки"
+      при смене настроек редактора по AltShiftF9
   15.02.2001 IS
     + Обновим размер табуляции и режим "Пробелы вместо табуляции" при смене
       настроек редактора по AltShiftF9
@@ -449,6 +452,12 @@ int FileEditor::ProcessKey(int Key)
       */
       FEdit.SetTabSize(Opt.TabSize);
       FEdit.SetConvertTabs(Opt.EditorExpandTabs);
+      /* IS $ */
+      /* $ 15.02.2001 IS
+         + Обновим еще пару опций
+      */
+      FEdit.SetDelRemovesBlocks(Opt.EditorDelRemovesBlocks);
+      FEdit.SetPersistentBlocks(Opt.EditorPersistentBlocks);
       /* IS $ */
       FEdit.Show();
       return TRUE;

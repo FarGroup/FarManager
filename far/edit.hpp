@@ -7,10 +7,18 @@ edit.hpp
 
 */
 
-/* Revision: 1.11 14.02.2001 $ */
+/* Revision: 1.12 15.02.2001 $ */
 
 /*
 Modify:
+  15.02.2001 IS
+    + Локальные переменные, в которых запоминается то, что храниться в
+      настройках редактора:
+      DelRemovesBlocks - "Del удаляет блоки"
+      PersistentBlocks - "Постоянные блоки"
+    + Функции для управления их состоянием:
+      SetDelRemovesBlocks/GetDelRemovesBlocks
+      SetPersistentBlocks/GetPersistentBlocks
   14.02.2001 IS
     + Размер табуляции хранится в TabSize, манипулировать им можно при помощи
       GetTabSize, SetTabSize
@@ -102,6 +110,12 @@ class Edit:public ScreenObject
     */
     int	   TabSize;
     /* IS $ */
+    /* $ 15.02.2001 IS
+         Различные опции из настроек редактора теперь запоминаются локально
+    */
+    int	   DelRemovesBlocks; // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
+    int    PersistentBlocks; // Постоянные блоки (Opt.EditorPersistentBlocks)
+    /* IS $ */
 
   private:
     void   DisplayObject();
@@ -147,6 +161,15 @@ class Edit:public ScreenObject
     */
     void SetTabSize(int NewSize) { TabSize=NewSize; }
     int  GetTabSize(void) {return TabSize; }
+    /* IS $ */
+    /* $ 15.02.2001 IS
+         Функции чтения/установления текущих настроек редактирования
+    */
+    void SetDelRemovesBlocks(int NewMode) { DelRemovesBlocks=NewMode; }
+    int  GetDelRemovesBlocks(void) {return DelRemovesBlocks; }
+
+    void SetPersistentBlocks(int NewMode) { PersistentBlocks=NewMode; }
+    int  GetPersistentBlocks(void) {return PersistentBlocks; }
     /* IS $ */
     void  GetString(char *Str,int MaxSize);
     char* GetStringAddr();
