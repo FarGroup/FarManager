@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.05 07.09.2000 $ */
+/* Revision: 1.06 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 VVM
+    + Обработка команд
+      FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
+      FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
   07.09.2000 SVS
     ! Еще одна поправочка (с подачи AT) для Bug#12:
       еще косяк, не дает выйти из меню, если у нас текущий путь - UNC
@@ -992,6 +996,31 @@ void Panel::SetPluginCommand(int Command,void *Param)
           if (DestPanel!=NULL)
             DestPanel->SetViewMode(Mode);
         }
+      }
+      break;
+    case FCTL_SETSORTMODE:
+    case FCTL_SETANOTHERSORTMODE:
+      if (Param!=NULL)
+      {
+        int Mode=*(int *)Param;
+        if ((Mode>SM_DEFAULT) && (Mode<=SM_NUMLINKS))
+        {
+          Panel *DestPanel=(Command==FCTL_SETSORTMODE) ? this:AnotherPanel;
+          if (DestPanel!=NULL)
+          // Уменьшим на 1 из-за SM_DEFAULT
+            DestPanel->SetSortMode(--Mode);
+        }
+      }
+      break;
+    case FCTL_SETSORTORDER:
+    case FCTL_SETANOTHERSORTORDER:
+      if (Param!=NULL)
+      {
+        int Order=*(int *)Param;
+        Order&=1; // 0 или 1 :-)
+        Panel *DestPanel=(Command==FCTL_SETSORTORDER) ? this:AnotherPanel;
+        if (DestPanel!=NULL)
+          DestPanel->SetSortOrder(Order);
       }
       break;
     case FCTL_CLOSEPLUGIN:

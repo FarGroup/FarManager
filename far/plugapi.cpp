@@ -5,10 +5,14 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.18 30.08.2000 $ */
+/* Revision: 1.19 08.09.2000 $ */
 
 /*
 Modify:
+  08.09.2000 VVM
+    + Обработка команд
+      FCTL_SETSORTMODE, FCTL_SETANOTHERSORTMODE
+      FCTL_SETSORTORDER, FCTL_SETANOTHERSORTORDER
   30.08.2000 SVS
     ! Пал смертью храбрых флаг FMI_GETFARMSGID
   29.08.2000 SVS
@@ -427,6 +431,14 @@ int WINAPI FarControl(HANDLE hPlugin,int Command,void *Param)
     case FCTL_SETANOTHERSELECTION:
     case FCTL_SETVIEWMODE:
     case FCTL_SETANOTHERVIEWMODE:
+/* $ VVM 08.09.2000
+   + Смена сортировки из плагина
+*/
+    case FCTL_SETSORTMODE:
+    case FCTL_SETANOTHERSORTMODE:
+    case FCTL_SETSORTORDER:
+    case FCTL_SETANOTHERSORTORDER:
+/* VVM $ */
       {
         if (hPlugin==INVALID_HANDLE_VALUE)
         {
