@@ -5,10 +5,12 @@ cmdline.cpp
 
 */
 
-/* Revision: 1.02 13.09.2000 $ */
+/* Revision: 1.03 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    - При выборе из History (по Alt-F8) плагин не получал управление!
   13.09.2000 tran 1.02
     + COL_COMMANDLINEPREFIX
   02.08.2000 tran 1.01
@@ -119,20 +121,28 @@ int CommandLine::ProcessKey(int Key)
       {
         char Str[1024];
         int Type;
+        /* $ 19.09.2000 SVS
+           - При выборе из History (по Alt-F8) плагин не получал управление!
+        */
         switch(CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),"History",Str,Type))
         {
           case 1:
-            ExecString(Str,FALSE,FALSE);
-            CtrlObject->CmdHistory->AddToHistory(Str);
+            SetString(Str);
+            ProcessKey(KEY_ENTER);
+            //ExecString(Str,FALSE,FALSE);
+            //CtrlObject->CmdHistory->AddToHistory(Str);
             break;
           case 2:
-            ExecString(Str,FALSE,TRUE);
-            CtrlObject->CmdHistory->AddToHistory(Str);
+            SetString(Str);
+            ProcessKey(KEY_SHIFTENTER);
+            //ExecString(Str,FALSE,TRUE);
+            //CtrlObject->CmdHistory->AddToHistory(Str);
             break;
           case 3:
             SetString(Str);
             break;
         }
+        /* SVS $ */
       }
       return(TRUE);
     case KEY_SHIFTF9:
