@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.45 10.09.2000 $ */
+/* Revision: 1.46 10.09.2000 $ */
 
 /*
 Modify:
+  10.09.2000 SVS 1.46
+    + typedef struct _CHAR_INFO    CHAR_INFO;
+      На тот случай, если wincon.h не был загружен.
   10.09.2000 tran 1.45
     + FSF/FarRecurseSearch
   10.09.2000 SVS 1.44
@@ -215,6 +218,7 @@ Modify:
 
 #ifndef _WINCON_
 typedef struct _INPUT_RECORD INPUT_RECORD;
+typedef struct _CHAR_INFO    CHAR_INFO;
 #endif
 
 struct PluginPanelItem
