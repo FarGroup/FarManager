@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.29 10.04.2001 $ */
+/* Revision: 1.30 19.04.2001 $ */
 
 /*
 Modify:
+  19.04.2001 SVS
+    ! Диалог SaveAs некорректно работал при нажатии Ctrl-Enter
   10.04.2001 IS
     ! Не делаем SetCurDir при ctrl-f10, если нужный путь уже есть на открытых
       панелях, тем самым добиваемся того, что выделение с элементов
@@ -335,7 +337,7 @@ int FileEditor::ProcessKey(int Key)
           {
             /* 0 */ DI_DOUBLEBOX,3,1,72,11,0,0,0,0,(char *)MEditTitle,
             /* 1 */ DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,(char *)MEditSaveAs,
-            /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,1,"",
+            /* 2 */ DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY,0,"",
             /* 3 */ DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
             /* 4 */ DI_TEXT,5,5,0,0,0,0,0,0,(char *)MEditSaveAsFormatTitle,
             /* 5 */ DI_RADIOBUTTON,5,6,0,0,0,0,DIF_GROUP,0,(char *)MEditSaveOriginal,
