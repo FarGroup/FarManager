@@ -5,10 +5,13 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.38 21.02.2002 $ */
+/* Revision: 1.39 14.03.2002 $ */
 
 /*
 Modify:
+  14.03.2002 SVS
+    - Ѕлин, уродска€ неразбериха с этими сраными пон€ти€ми :-((
+      “ипа "лева€-права€" и "активна€-пассивна€"
   21.02.2002 SVS
     ! ѕокажим кейбар (если надо) и командную строку перед загрузкой
       плагинов, а мало того, что пустые панели, так они еще и подвешены
@@ -208,12 +211,12 @@ void ControlObject::Init()
 
   Plugins.LoadPlugins();
   FrameManager->InsertFrame(FPanels);
-  /*
+
   char StartCurDir[NM];
   Cp()->ActivePanel->GetCurDir(StartCurDir);
   chdir(StartCurDir);
   Cp()->ActivePanel->SetFocus();
-  */
+
 //  _SVS(SysLog("ActivePanel->GetCurDir='%s'",StartCurDir));
 //  _SVS(char PPP[NM];Cp()->GetAnotherPanel(Cp()->ActivePanel)->GetCurDir(PPP);SysLog("AnotherPanel->GetCurDir='%s'",PPP));
 }

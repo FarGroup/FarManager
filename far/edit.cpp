@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.71 07.03.2002 $ */
+/* Revision: 1.72 14.03.2002 $ */
 
 /*
 Modify:
+  14.03.2002 SVS
+    - Ctrl-V != Shift-Ins
+    ! немного комментенного optimize (чтобы не забыть ;-))
   07.03.2002 SVS
     - BugZ#340 - edit association
       при вставке символа или куска из клипборда учтем максимальные
@@ -893,7 +896,7 @@ int Edit::ProcessKey(int Key)
       Key!=KEY_RALT && Key!=KEY_NONE)
   {
     MarkingBlock=FALSE;
-    if (!PersistentBlocks && Key!=KEY_CTRLINS && Key!=KEY_SHIFTDEL && !EditorMode && Key != KEY_CTRLQ)
+    if (!PersistentBlocks && Key!=KEY_CTRLINS && Key!=KEY_SHIFTDEL && !EditorMode && Key != KEY_CTRLQ && Key != KEY_SHIFTINS)
     {
       PrevSelStart=SelStart;
       PrevSelEnd=SelEnd;
@@ -1625,6 +1628,7 @@ int Edit::InsertKey(int Key)
           return(FALSE);
         Str=NewStr;
         sprintf(&Str[StrSize],"%*s",CurPos-StrSize,"");
+        //memset(Str+StrSize,' ',CurPos-StrSize);Str[CurPos+1]=0;
         StrSize=CurPos+1;
       }
       else
@@ -1929,6 +1933,7 @@ void Edit::InsertBinaryString(const char *Str,int Length)
           return;
         Edit::Str=NewStr;
         sprintf(&Edit::Str[StrSize],"%*s",CurPos-StrSize,"");
+        //memset(Edit::Str+StrSize,' ',CurPos-StrSize);Edit::Str[CurPos+1]=0;
         StrSize=CurPos;
       }
 
