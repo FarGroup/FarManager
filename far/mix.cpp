@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.85 30.07.2001 $ */
+/* Revision: 1.86 07.09.2001 $ */
 
 /*
 Modify:
+  07.09.2001 VVM
+    + ѕеред проверкой на "гуевость" обработать переменные окружени€.
   30.07.2001 IS
     !  ”совершенствование FarRecursiveSearch
        1. ѕровер€ем правильность параметров.
@@ -738,6 +740,11 @@ DWORD IsCommandExeGUI(char *Command)
       *EndName=0;
   }
   int GUIType=FALSE;
+
+  /* $ 07.09.2001 VVM
+    + ќбработать переменные окружени€ */
+  ExpandEnvironmentStr(FileName,FileName,sizeof(FileName));
+  /* VVM $ */
 
   SetFileApisToANSI();
 
