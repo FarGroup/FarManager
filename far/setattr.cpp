@@ -5,10 +5,12 @@ setattr.cpp
 
 */
 
-/* Revision: 1.11 03.01.2001 $ */
+/* Revision: 1.12 04.01.2001 $ */
 
 /*
 Modify:
+  04.01.2001 SVS
+    - Бага с одиночным файлом - переоптимизировал ;-(
   03.01.2001 SVS
     ! ускорим процесс за счет "необработки" подобных атрибут
     - бага с переходами между контролами
@@ -442,7 +444,7 @@ void ShellSetFileAttributes(Panel *SrcPanel)
                      SetLastAccessTime ? &LastAccessTime:NULL,FileAttr);
       }
 
-      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
+//      if(NewAttr != (FileAttr & (~FA_DIREC))) // нужно ли что-нить менять???
       {
         if((NewAttr&FILE_ATTRIBUTE_COMPRESSED) && !(FileAttr&FILE_ATTRIBUTE_COMPRESSED))
           ESetFileCompression(SelName,1,FileAttr);
