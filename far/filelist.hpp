@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.44 03.03.2005 $ */
+/* Revision: 1.45 10.03.2005 $ */
 
 /*
 Modify:
+  10.03.2005 SVS
+    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
   03.03.2005 SVS
     ! У функции FindPartName() добавлен третий параметр - направление поиска.
   14.02.2005 SVS
@@ -352,8 +354,8 @@ class FileList:public Panel
     int GetFileName(char *Name,int Pos,int &FileAttr);
     int GetCurrentPos();
     int FindPartName(char *Name,int Next,int Direct=1);
-    int GoToFile(const char *Name);
-    int FindFile(const char *Name);
+    int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
+    int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
     int IsSelected(char *Name);
     void ProcessHostFile();
     void UpdateViewPanel();

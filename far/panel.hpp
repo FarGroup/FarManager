@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.27 03.03.2005 $ */
+/* Revision: 1.28 10.03.2005 $ */
 
 /*
 Modify:
+  10.03.2005 SVS
+    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
   03.03.2005 SVS
     ! У функции FindPartName() добавлен третий параметр - направление поиска.
   14.02.2005 SVS
@@ -202,8 +204,8 @@ class Panel:public ScreenObject
     /* DJ $ */
     virtual void CloseChangeNotification() {};
     virtual int FindPartName(char *Name,int Next,int Direct=1) {return(FALSE);}
-    virtual int GoToFile(const char *Name) {return(TRUE);};
-    virtual int FindFile(const char *Name) {return -1;};
+    virtual int GoToFile(const char *Name,BOOL OnlyPartName=FALSE) {return(TRUE);};
+    virtual int FindFile(const char *Name,BOOL OnlyPartName=FALSE) {return -1;};
     virtual int IsSelected(char *Name) {return(FALSE);};
     /* $ 09.02.2001 IS
        Функции установления/считывания состояния режима

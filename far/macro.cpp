@@ -5,10 +5,12 @@ macro.cpp
 
 */
 
-/* Revision: 1.139 05.03.2005 $ */
+/* Revision: 1.140 10.03.2005 $ */
 
 /*
 Modify:
+  10.03.2005 SVS
+    - BugZ#1238 Неверная работа fexist по определённой смене папки
   05.03.2005 SVS
     + KeyMacro::ReadVarsConst() - считывание области глобальных переменных Vars
     + KeyMacro::WriteVarsConst() - запись глобальной такблицы переменных в реестр
@@ -1647,7 +1649,7 @@ static TVar fattrFunc(TVar *param)
   else
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-    long Pos=ActivePanel->FindFile(Str);
+    long Pos=ActivePanel->FindFile(Str,strpbrk(Str,"\\/:")?FALSE:TRUE);
     if(Pos >= 0)
     {
       int FileAttr;

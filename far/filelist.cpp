@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.219 03.03.2005 $ */
+/* Revision: 1.220 10.03.2005 $ */
 
 /*
 Modify:
+  10.03.2005 SVS
+    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
   03.03.2005 SVS
     ! У функции FindPartName() добавлен третий параметр - направление поиска.
   01.03.2005 SVS
@@ -3237,9 +3239,9 @@ void FileList::SetSortMode(int SortMode)
 }
 
 
-int FileList::GoToFile(const char *Name)
+int FileList::GoToFile(const char *Name,BOOL OnlyPartName)
 {
-  long Pos=FindFile(Name);
+  long Pos=FindFile(Name,OnlyPartName);
   if (Pos!=-1)
   {
     CurFile=Pos;
@@ -3250,16 +3252,20 @@ int FileList::GoToFile(const char *Name)
 }
 
 
-int FileList::FindFile(const char *Name)
+int FileList::FindFile(const char *Name,BOOL OnlyPartName)
 {
   long I;
   struct FileListItem *CurPtr;
 
   for (CurPtr=ListData, I=0; I < FileCount; I++, CurPtr++)
   {
-    if (strcmp(Name,CurPtr->Name)==0)
+    char *CurPtrName=CurPtr->Name;
+    if(OnlyPartName)
+      CurPtrName=PointToName(CurPtr->Name);
+
+    if (strcmp(Name,CurPtrName)==0)
       return I;
-    if (LocalStricmp(Name,CurPtr->Name)==0)
+    if (LocalStricmp(Name,CurPtrName)==0)
       return I;
   }
   return -1;

@@ -7,10 +7,13 @@ Tree panel
 
 */
 
-/* Revision: 1.18 03.03.2005 $ */
+/* Revision: 1.19 10.03.2005 $ */
 
 /*
 Modify:
+  10.03.2005 SVS
+    + У FindFile() и GoToFile() второй параметр - искать только по имени файла
+    + CreateTreeFileName() - заготовка для проекта Tree.far
   03.03.2005 SVS
     ! У функции FindPartName() добавлен третий параметр - направление поиска.
   14.02.2005 SVS
@@ -107,6 +110,7 @@ class TreeList: public Panel
     int GetPrevNavPos();
     static char *MkTreeFileName(const char *RootDir,char *Dest,int DestSize);
     static char *MkTreeCacheFolderName(const char *RootDir,char *Dest,int DestSize);
+    static char *CreateTreeFileName(const char *Path,char *Dest,int DestSize);
 
   private:
     static int MsgReadTree(int TreeCount,int &FirstCall);
@@ -129,8 +133,8 @@ class TreeList: public Panel
     void UpdateViewPanel();
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
     int FindPartName(char *Name,int Next,int Direct=1);
-    int GoToFile(const char *Name);
-    int FindFile(const char *Name);
+    int GoToFile(const char *Name,BOOL OnlyPartName=FALSE);
+    int FindFile(const char *Name,BOOL OnlyPartName=FALSE);
     void ProcessEnter();
     int GetExitCode() {return ExitCode;}
     virtual long GetFileCount() {return TreeCount;}

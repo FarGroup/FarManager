@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.65 03.03.2005 $ */
+/* Revision: 1.66 10.03.2005 $ */
 
 /*
 Modify:
+  10.03.2005 SVS
+    + ” FindFile() и GoToFile() второй параметр - искать только по имени файла
+    + CreateTreeFileName() - заготовка дл€ проекта Tree.far
   03.03.2005 SVS
     ! ” функции FindPartName() добавлен третий параметр - направление поиска.
     ! “ак же в TreeList::AddTreeName() добавлено условие точного совпадени€
@@ -1772,28 +1775,33 @@ void TreeList::UpdateViewPanel()
 }
 
 
-int TreeList::GoToFile(const char *Name)
+int TreeList::GoToFile(const char *Name,BOOL OnlyPartName)
 {
-  for (long I=0;I<TreeCount;I++)
-    if (LocalStricmp(Name,ListData[I].Name)==0)
-    {
-      CurFile=I;
-      CorrectPosition();
-      return(TRUE);
-    }
+  long Pos=FindFile(Name,OnlyPartName);
+  if (Pos!=-1)
+  {
+    CurFile=Pos;
+    CorrectPosition();
+    return(TRUE);
+  }
   return(FALSE);
+
 }
 
-int TreeList::FindFile(const char *Name)
+int TreeList::FindFile(const char *Name,BOOL OnlyPartName)
 {
   long I;
   struct TreeItem *CurPtr;
 
   for (CurPtr=ListData, I=0; I < TreeCount; I++, CurPtr++)
   {
-    if (strcmp(Name,CurPtr->Name)==0)
+    char *CurPtrName=CurPtr->Name;
+    if(OnlyPartName)
+      CurPtrName=PointToName(CurPtr->Name);
+
+    if (strcmp(Name,CurPtrName)==0)
       return I;
-    if (LocalStricmp(Name,CurPtr->Name)==0)
+    if (LocalStricmp(Name,CurPtrName)==0)
       return I;
   }
   return -1;
@@ -1982,5 +1990,39 @@ char *TreeList::MkTreeCacheFolderName(const char *RootDir,char *Dest,int DestSiz
   xstrncpy(Dest,RootDir,DestSize-1);
   AddEndSlash(Dest);
   strncat(Dest,"Tree.Cache",DestSize);
+  return Dest;
+}
+
+
+/*
+  Opt.Tree.LocalDisk
+  Opt.Tree.NetDisk
+  Opt.Tree.NetPath
+  Opt.Tree.RemovableDisk
+  Opt.Tree.CDROM
+  Opt.Tree.SavedTreePath
+
+   локальных дисков - "X.nnnnnnnn.tree"
+   сетевых дисков - "X.nnnnnnnn.tree"
+   сетевых путей - "Server.share.tree"
+   сменных дисков(DRIVE_REMOVABLE) - "Far.nnnnnnnn.tree"
+   сменных дисков(CD) - "Label.nnnnnnnn.tree"
+
+*/
+char * TreeList::CreateTreeFileName(const char *Path,char *Dest,int DestSize)
+{
+#if 0
+  char RootPath[NM];
+  GetPathRoot(Path,RootPath);
+  UINT DriveType = FAR_GetDriveType(RootPath,NULL,FALSE);
+
+  // получение инфы о томе
+  char VolumeName[NM],FileSystemName[NM];
+  DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
+  if (!GetVolumeInformation(RootDir,VolumeName,sizeof(VolumeName),&VolumeNumber,
+                            &MaxNameLength,&FileSystemFlags,
+                            FileSystemName,sizeof(FileSystemName)))
+  Opt.Tree.SavedTreePath
+#endif
   return Dest;
 }
