@@ -7,10 +7,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.26 14.02.2005 $ */
+/* Revision: 1.27 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! У функции FindPartName() добавлен третий параметр - направление поиска.
   14.02.2005 SVS
     + FindFile() включен в состав Panel (виртуальная функция)
   03.06.2004 SVS
@@ -199,7 +201,7 @@ class Panel:public ScreenObject
     virtual void UpdateIfRequired() {};
     /* DJ $ */
     virtual void CloseChangeNotification() {};
-    virtual int FindPartName(char *Name,int Next) {return(FALSE);}
+    virtual int FindPartName(char *Name,int Next,int Direct=1) {return(FALSE);}
     virtual int GoToFile(const char *Name) {return(TRUE);};
     virtual int FindFile(const char *Name) {return -1;};
     virtual int IsSelected(char *Name) {return(FALSE);};

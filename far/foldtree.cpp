@@ -5,10 +5,12 @@ foldtree.cpp
 
 */
 
-/* Revision: 1.14 17.10.2004 $ */
+/* Revision: 1.15 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! FastFind теперь "умеет обратную ходку" по Ctrl-Shift-Enter
   17.10.2004 SVS
     + MACRO_FINDFOLDER
     + Ќавигаци€ Gray+ Gray- по OFM
@@ -156,6 +158,14 @@ int FolderTree::ProcessKey(int Key)
         char Name[NM];
         FindEdit->GetString(Name,sizeof(Name));
         Tree->FindPartName(Name,TRUE);
+        DrawEdit();
+      }
+      break;
+    case KEY_CTRLSHIFTENTER:
+      {
+        char Name[NM];
+        FindEdit->GetString(Name,sizeof(Name));
+        Tree->FindPartName(Name,TRUE,-1);
         DrawEdit();
       }
       break;

@@ -7,10 +7,12 @@ Tree panel
 
 */
 
-/* Revision: 1.17 14.02.2005 $ */
+/* Revision: 1.18 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! У функции FindPartName() добавлен третий параметр - направление поиска.
   14.02.2005 SVS
     + В TreeList добавлены функции GetFileName(), FindFile()
   10.11.2004 SVS
@@ -126,7 +128,7 @@ class TreeList: public Panel
     virtual int GetCurName(char *Name,char *ShortName);
     void UpdateViewPanel();
     void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
-    int FindPartName(char *Name,int Next);
+    int FindPartName(char *Name,int Next,int Direct=1);
     int GoToFile(const char *Name);
     int FindFile(const char *Name);
     void ProcessEnter();

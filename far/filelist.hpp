@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.43 14.02.2005 $ */
+/* Revision: 1.44 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! У функции FindPartName() добавлен третий параметр - направление поиска.
   14.02.2005 SVS
     ! FileList::FindFile() перенесем в public секцию
   08.11.2004 WARP
@@ -349,7 +351,7 @@ class FileList:public Panel
     HANDLE OpenFilePlugin(char *FileName,int PushPrev);
     int GetFileName(char *Name,int Pos,int &FileAttr);
     int GetCurrentPos();
-    int FindPartName(char *Name,int Next);
+    int FindPartName(char *Name,int Next,int Direct=1);
     int GoToFile(const char *Name);
     int FindFile(const char *Name);
     int IsSelected(char *Name);

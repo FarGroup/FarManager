@@ -5,10 +5,12 @@ Parent class дл€ панелей
 
 */
 
-/* Revision: 1.136 16.01.2005 $ */
+/* Revision: 1.137 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! FastFind теперь "умеет обратную ходку" по Ctrl-Shift-Enter
   16.01.2005 WARP
     - ѕри вставлении в быствый поиск строки из буфера обмена
       происходил переход на первый файл даже если строка не
@@ -1442,6 +1444,11 @@ void Panel::FastFind(int FirstKey)
         }
         case KEY_CTRLENTER:
           FindPartName(Name,TRUE);
+          FindEdit.Show();
+          FastFindShow(FindX,FindY);
+          break;
+        case KEY_CTRLSHIFTENTER:
+          FindPartName(Name,TRUE,-1);
           FindEdit.Show();
           FastFindShow(FindX,FindY);
           break;

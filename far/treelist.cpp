@@ -5,10 +5,14 @@ Tree panel
 
 */
 
-/* Revision: 1.64 01.03.2005 $ */
+/* Revision: 1.65 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! ” функции FindPartName() добавлен третий параметр - направление поиска.
+    ! “ак же в TreeList::AddTreeName() добавлено условие точного совпадени€
+      добавл€емого имени с тем, что в кеше (иначе идет дубл€ж).
   01.03.2005 SVS
     ! Opt.AutoChangeFolder -> Opt.Tree.AutoChangeFolder
   14.02.2005 SVS
@@ -1479,12 +1483,13 @@ int TreeList::ReadTreeFile()
 }
 
 
-int TreeList::FindPartName(char *Name,int Next)
+int TreeList::FindPartName(char *Name,int Next,int Direct)
 {
-  char Mask[NM];
-  sprintf(Mask,"%s*",Name);
+  char Mask[NM*2];
+  xstrncpy(Mask,Name,sizeof(Mask)-1);
+  strncat(Mask,"*",sizeof(Mask)-1);
   int I;
-  for (I=(Next) ? CurFile+1:CurFile;I<TreeCount;I++)
+  for (I=CurFile+(Next?Direct:0); I >= 0 && I < TreeCount; I+=Direct)
   {
     CmpNameSearchMode=(I==CurFile);
     if (CmpName(Mask,ListData[I].Name,TRUE))
@@ -1497,7 +1502,13 @@ int TreeList::FindPartName(char *Name,int Next)
     }
   }
   CmpNameSearchMode=FALSE;
-  for (I=0;I<CurFile;I++)
+
+  for(
+      I=(Direct > 0)?0:TreeCount-1;
+      (Direct > 0) ? I < CurFile:I > CurFile;
+      I+=Direct
+     )
+  {
     if (CmpName(Mask,ListData[I].Name,TRUE))
     {
       CurFile=I;
@@ -1505,6 +1516,7 @@ int TreeList::FindPartName(char *Name,int Next)
       DisplayTree(TRUE);
       return(TRUE);
     }
+  }
   return(FALSE);
 }
 
@@ -1567,7 +1579,10 @@ void TreeList::AddTreeName(char *Name)
   ReadCache(Root);
   for(CachePos=0;CachePos<TreeCache.TreeCount;CachePos++)
   {
-    if(LCStricmp(TreeCache.ListName[CachePos],Name)>0)
+    int Result=LCStricmp(TreeCache.ListName[CachePos],Name);
+    if(!Result)
+      break;
+    if(Result > 0)
     {
       TreeCache.Insert(CachePos,Name);
       break;

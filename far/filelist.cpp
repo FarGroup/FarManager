@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.218 01.03.2005 $ */
+/* Revision: 1.219 03.03.2005 $ */
 
 /*
 Modify:
+  03.03.2005 SVS
+    ! У функции FindPartName() добавлен третий параметр - направление поиска.
   01.03.2005 SVS
     ! уточнен набор клавиш, которые могут работать при погашенных панелях.
       в основном это вставка пути, создание каталога, выполнить команду,
@@ -3271,15 +3273,13 @@ int FileList::IsSelected(char *Name)
 }
 
 
-int FileList::FindPartName(char *Name,int Next)
+// $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
+int FileList::FindPartName(char *Name,int Next,int Direct)
 {
   char Mask[NM*2];
   int I;
   struct FileListItem *CurPtr;
 
-  /* $ 02.08.2000 IG
-     Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
-  */
   int DirFind = 0;
   int Length = Min((int)strlen(Name),(int)(sizeof(Mask)-1));
 
@@ -3294,7 +3294,7 @@ int FileList::FindPartName(char *Name,int Next)
     Mask[Length] = '*';
     Mask[Length+1] = 0;
   }
-  for (I=(Next) ? CurFile+1:CurFile, CurPtr=ListData+I; I < FileCount; I++, CurPtr++)
+  for (I=CurFile+(Next?Direct:0), CurPtr=ListData+I; I >= 0 && I < FileCount; I+=Direct, (Direct==1?CurPtr++:CurPtr--))
   {
     CmpNameSearchMode=(I==CurFile);
     if (CmpName(Mask,CurPtr->Name,TRUE))
@@ -3309,7 +3309,13 @@ int FileList::FindPartName(char *Name,int Next)
         }
   }
   CmpNameSearchMode=FALSE;
-  for (CurPtr=ListData, I=0; I < CurFile; I++, CurPtr++)
+
+  for(
+      CurPtr=ListData+(Direct > 0?0:FileCount-1), I=(Direct > 0)?0:FileCount-1;
+      (Direct > 0) ? I < CurFile:I > CurFile;
+      I+=Direct, (Direct > 0 ? CurPtr++ : CurPtr--)
+     )
+  {
     if (CmpName(Mask,CurPtr->Name,TRUE))
       if (!TestParentFolderName(CurPtr->Name))
         if (!DirFind || (CurPtr->FileAttr & FA_DIREC))
@@ -3319,7 +3325,7 @@ int FileList::FindPartName(char *Name,int Next)
           ShowFileList(TRUE);
           return(TRUE);
         }
-  /* IG $ */
+  }
   return(FALSE);
 }
 
