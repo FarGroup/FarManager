@@ -237,7 +237,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
       Info->Comment=RarHeader.Flags & 8;
       Info->Encrypted=RarHeader.Flags & 4;
       Info->DictSize=64<<((RarHeader.Flags & 0x00e0)>>5);
-      if (Info->DictSize>1024)
+      if (Info->DictSize > 4096)
         Info->DictSize=64;
       Info->UnpVer=(RarHeader.UnpVer/10)*256+(RarHeader.UnpVer%10);
       break;
