@@ -5,10 +5,14 @@ Quick view panel
 
 */
 
-/* Revision: 1.19 16.05.2001 $ */
+/* Revision: 1.20 11.09.2001 $ */
 
 /*
 Modify:
+  11.09.2001 SVS
+    + для "volume mount point" укажем что это именно монтированный том и по
+      возможности (если имя диска есть) покажем букву диска. Для прочих
+      символических связей оставим "Link"
   16.05.2001 DJ
     ! proof-of-concept
   15.05.2001 OT
@@ -154,10 +158,26 @@ void QuickView::DisplayObject()
     if((GetFileAttributes(CurFileName)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
     {
       char JuncName[NM*2];
+      int ID_Msg, Width;
       if(GetJunctionPointInfo(CurFileName,JuncName,sizeof(JuncName))) //"\??\D:\Junc\Src\"
       {
-        sprintf(Msg,MSG(MQuickViewJunction),TruncPathStr(JuncName+4,X2-X1-4-9));
-        TruncStr(Msg,X2-X1-4);
+        if(!strncmp(JuncName+4,"Volume{",7))
+        {
+          char JuncRoot[NM];
+          JuncRoot[0]=JuncRoot[1]=0;
+          GetPathRootOne(JuncName+4,JuncRoot);
+          if(JuncRoot[1] == ':')
+            strcpy(JuncName+4,JuncRoot);
+          ID_Msg=MQuickViewVolMount;
+          Width=20;
+        }
+        else
+        {
+          ID_Msg=MQuickViewJunction;
+          Width=9;
+        }
+        sprintf(Msg,MSG(ID_Msg),TruncPathStr(JuncName+4,X2-X1-4-Width));
+        //TruncStr(Msg,X2-X1-4);
         SetColor(COL_PANELTEXT);
         GotoXY(X1+2,Y1+3);
         PrintText(Msg);

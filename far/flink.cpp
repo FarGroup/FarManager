@@ -5,12 +5,14 @@ flink.cpp
 
 */
 
-/* Revision: 1.19 25.06.2001 $ */
+/* Revision: 1.20 11.09.2001 $ */
 
 /*
 Modify:
+  11.09.2001 SVS
+    ! для "Volume{" в функции GetPathRootOne() начнем просмотр с диска "A:"
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   01.06.2001 SVS
     + Добавки для вывода лога.
   30.05.2001 SVS
@@ -587,10 +589,10 @@ void GetPathRootOne(const char *Path,char *Root)
     // обработка mounted volume
     if(pGetVolumeNameForVolumeMountPoint && !strncmp(Path,"Volume{",7))
     {
-      char Drive[] = "C:\\"; // \\?\Volume{...
+      char Drive[] = "A:\\"; // \\?\Volume{...
       BOOL Res;
       int I;
-      for (I = 'C'; I <= 'Z';  I++ )
+      for (I = 'A'; I <= 'Z';  I++ )
       {
         Drive[0] = (char)I;
         if(pGetVolumeNameForVolumeMountPoint(

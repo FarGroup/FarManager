@@ -5,10 +5,14 @@ setattr.cpp
 
 */
 
-/* Revision: 1.34 11.09.2001 $ */
+/* Revision: 1.35 11.09.2001 $ */
 
 /*
 Modify:
+  11.09.2001 SVS
+    + для "volume mount point" укажем что это именно монтированный том и по
+      возможности (если имя диска есть) покажем букву диска. Для прочих
+      символических связей оставим "Link"
   11.09.2001 SVS
     - BugZ#7: Уточнение по поводу слинкованной файловой системы отличной от NTFS.
   17.07.2001 SKV
@@ -518,9 +522,26 @@ int ShellSetFileAttributes(Panel *SrcPanel)
           DlgCountItems++;
           JunctionPresent=TRUE;
 
-          sprintf(AttrDlg[29].Data,MSG(MSetAttrJunction),
+          int ID_Msg, Width;
+          if(!strncmp(JuncName+4,"Volume{",7))
+          {
+            char JuncRoot[NM];
+            JuncRoot[0]=JuncRoot[1]=0;
+            GetPathRootOne(JuncName+4,JuncRoot);
+            if(JuncRoot[1] == ':')
+              strcpy(JuncName+4,JuncRoot);
+            ID_Msg=MSetAttrVolMount;
+            Width=14;
+          }
+          else
+          {
+            ID_Msg=MSetAttrJunction;
+            Width=28;
+          }
+
+          sprintf(AttrDlg[29].Data,MSG(ID_Msg),
                 (LenJunction?
-                   TruncPathStr(JuncName+4,29):
+                   TruncPathStr(JuncName+4,Width):
                    MSG(MSetAttrUnknownJunction)));
 
           /* $ 11.09.2001 SVS

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.75 08.09.2001 $ */
+/* Revision: 1.76 11.09.2001 $ */
 
 /*
 Modify:
+  11.09.2001 SVS
+    + MQuickViewVolMount, MSetAttrVolMount
   08.09.2001 VVM
     + MConfigDialogsEditBlock - Для постоянных блоков в строках ввода
   29.08.2001 VVM
@@ -1170,6 +1172,7 @@ enum
   MQuickViewTitle,
   MQuickViewFolder,
   MQuickViewJunction,
+  MQuickViewVolMount,
   MQuickViewContains,
   MQuickViewFolders,
   MQuickViewFiles,
@@ -1183,6 +1186,7 @@ enum
   MSetAttrFor,
   MSetAttrSelectedObjects,
   MSetAttrJunction,
+  MSetAttrVolMount,
   MSetAttrUnknownJunction,
   MSetAttrRO,
   MSetAttrArchive,
