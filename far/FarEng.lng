@@ -198,6 +198,8 @@
 "&Autodetect character table"
 "Tab si&ze"
 "&Cursor beyond end of line"
+"Disable modi&fication of a file with R/O attribute"
+"&Warning before opening a file with R/O attribute"
 
 "Table with the character frequency distribution was not found!"
 "Option "Autodetect character table" is off."
@@ -1398,7 +1400,6 @@
 ""
 ""
 
-
 // QView KeyBar F1-F12
 "Help"
 "Wrap"
@@ -1469,6 +1470,5 @@
 " Do you really want to cancel it? "
 
 "The file is being checked by the plugin"
-
 
 "Evaluation version"

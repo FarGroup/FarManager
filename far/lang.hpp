@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.64 30.04.2001 $ */
+/* Revision: 1.65 20.05.2001 $ */
 
 /*
 Modify:
+  20.05.2001 IS
+    + MEditDisableROFileModification, MEditWarningBeforeOpenROFile
   30.04.2001 DJ
     + MInfo*F1-F12, MQView*F1-F12
   25.04.2001 SVS
@@ -383,6 +385,8 @@ enum
   MEditAutoDetectTable,
   MEditConfigTabSize,
   MEditCursorBeyondEnd,
+  MEditDisableROFileModification,
+  MEditWarningBeforeOpenROFile,
 
   MDistributionTableWasNotFound,
   MAutoDetectWillNotWork,

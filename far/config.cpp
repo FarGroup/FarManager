@@ -5,10 +5,15 @@ config.cpp
 
 */
 
-/* Revision: 1.74 18.05.2001 $ */
+/* Revision: 1.75 20.05.2001 $ */
 
 /*
 Modify:
+  20.05.2001 IS
+    + «адаем поведение дл€ файлов с атрибутом r/o в настройках редактора
+       лочить или нет
+       орать или нет
+    + Opt.ReadOnlyLock теперь сохран€етс€ в реестре
   18.05.2001 DJ
     + #include "colors.hpp"
   14.05.2001 SVS
@@ -745,16 +750,21 @@ void ViewerConfig(struct ViewerOptions &ViOpt)
 /* $ 21.02.2001 IS
   + –абота идет со структурой EditorOptions
 */
+/* $ 20.05.2001 IS
+  + «адаем поведение дл€ файлов с атрибутом r/o:
+    лочить или нет
+    орать или нет
+*/
 void EditorConfig(struct EditorOptions &EdOpt)
 {
   static struct DialogData CfgDlgData[]={
-  /*  0 */  DI_DOUBLEBOX,3,1,47,20,0,0,0,0,(char *)MEditConfigTitle,
-  /*  1 */  DI_SINGLEBOX,5,2,45,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
+  /*  0 */  DI_DOUBLEBOX,3,1,63,22,0,0,0,0,(char *)MEditConfigTitle,
+  /*  1 */  DI_SINGLEBOX,5,2,61,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
   /*  2 */  DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
   /*  3 */  DI_RADIOBUTTON,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
   /*  4 */  DI_TEXT,7,5,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
-  /*  5 */  DI_EDIT,7,6,43,6,0,0,0,0,"",
-  /*  6 */  DI_SINGLEBOX,5,8,45,18,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
+  /*  5 */  DI_EDIT,7,6,59,6,0,0,0,0,"",
+  /*  6 */  DI_SINGLEBOX,5,8,61,20,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
   /*  7 */  DI_CHECKBOX,7,9,0,0,0,0,0,0,(char *)MEditConfigTabsToSpaces,
   /*  8 */  DI_CHECKBOX,7,10,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
   /*  9 */  DI_CHECKBOX,7,11,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
@@ -765,8 +775,10 @@ void EditorConfig(struct EditorOptions &EdOpt)
   /* 14 */  DI_FIXEDIT,7,16,9,15,0,0,0,0,"",
   /* 15 */  DI_TEXT,11,16,0,0,0,0,0,0,(char *)MEditConfigTabSize,
   /* 16 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
-  /* 17 */  DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-  /* 18 */  DI_BUTTON,0,19,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  /* 17 */  DI_CHECKBOX,7,18,0,0,0,0,0,0,(char *)MEditDisableROFileModification,
+  /* 18 */  DI_CHECKBOX,7,19,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
+  /* 19 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 20 */  DI_BUTTON,0,21,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(CfgDlgData,CfgDlg);
 
@@ -787,6 +799,8 @@ void EditorConfig(struct EditorOptions &EdOpt)
   /* IS $ */
   sprintf(CfgDlg[14].Data,"%d",EdOpt.TabSize);
   CfgDlg[16].Selected=EdOpt.CursorBeyondEOL;
+  CfgDlg[17].Selected=Opt.EditorReadOnlyLock & 1;
+  CfgDlg[18].Selected=Opt.EditorReadOnlyLock & 2;
 
   if (!RegVer)
   {
@@ -798,9 +812,9 @@ void EditorConfig(struct EditorOptions &EdOpt)
   {
     Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
     Dlg.SetHelp("EditorSettings");
-    Dlg.SetPosition(-1,-1,51,22);
+    Dlg.SetPosition(-1,-1,67,24);
     Dlg.Process();
-    if (Dlg.GetExitCode()!=17)
+    if (Dlg.GetExitCode()!=19)
       return;
   }
 
@@ -829,7 +843,11 @@ void EditorConfig(struct EditorOptions &EdOpt)
   if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
     EdOpt.TabSize=8;
   EdOpt.CursorBeyondEOL=CfgDlg[16].Selected;
+  Opt.EditorReadOnlyLock&=~3;
+  if(CfgDlg[17].Selected) Opt.EditorReadOnlyLock|=1;
+  if(CfgDlg[18].Selected) Opt.EditorReadOnlyLock|=2;
 }
+/* IS $ */
 /* IS $ */
 /* SVS $ */
 
@@ -906,7 +924,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyEditor,"SaveEditorShortPos",&Opt.SaveEditorShortPos,0, 0},
   {1, REG_DWORD,  NKeyEditor,"AutoDetectTable",&Opt.EdOpt.AutoDetectTable,0, 0},
   {1, REG_DWORD,  NKeyEditor,"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
-  {0, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,2, 0},
+  {1, REG_DWORD,  NKeyEditor,"ReadOnlyLock",&Opt.EditorReadOnlyLock,2, 0},
   {0, REG_SZ,     NKeyEditor,"WordDiv",Opt.WordDiv,sizeof(Opt.WordDiv),WordDiv0},
   {0, REG_DWORD,  NKeyEditor,"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
   {0, REG_DWORD,  NKeyEditor,"EditorF7Rules",&Opt.EditorF7Rules,1, 0},
