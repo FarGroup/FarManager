@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.68 15.02.2001 $ */
+/* Revision: 1.69 16.02.2001 $ */
 
 /*
 Modify:
+  16.02.2001 IS
+    + Обработка ECTL_SETPARAM, пока только ESPT_TABSIZE и ESPT_EXPANDTABS
   15.02.2001 IS
     ! Opt.EditorDelRemovesBlocks -> DelRemovesBlocks
       Opt.EditorPersistentBlocks -> PersistentBlocks
@@ -4718,7 +4720,32 @@ int Editor::EditorControl(int Command,void *Param)
       return TRUE;
     }
     /* skv$*/
-
+    /* $ 16.02.2001 IS
+         Изменение некоторых внутренних настроек редактора. Param указывает на
+         структуру EditorSetParameter
+    */
+    case ECTL_SETPARAM:
+    {
+      struct EditorSetParameter *espar=(struct EditorSetParameter *)Param;
+      if(espar)
+      {
+        int rc=TRUE;
+        switch(espar->Type)
+        {
+          case ESPT_TABSIZE:
+            SetTabSize(espar->iParam);
+            return TRUE;
+          case ESPT_EXPANDTABS:
+            SetConvertTabs(espar->iParam);
+            return TRUE;
+          default:
+            return FALSE;
+        }
+        return rc;
+      }
+      return  FALSE;
+    }
+    /* IS $ */
   }
   return(FALSE);
 }

@@ -8,13 +8,18 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.86 13.02.2001 $ */
+/* Revision: 1.87 16.02.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  16.02.2001 IS
+    + команда ECTL_SETPARAM - изменить некую настройку редактора
+    + EDITOR_SETPARAMETER_TYPES - тип настройки
+    + структура EditorSetParameter - информация о типе настройки и все
+      остальном
   13.02.2001 SVS
     ! В связи с введением DIF_VAREDIT для DI_COMBOBOX изменена структура
       FarListItem и добавлен флаг LIF_PTRDATA
@@ -922,7 +927,23 @@ enum EDITOR_CONTROL_COMMANDS {
   ECTL_SELECT,ECTL_REDRAW,ECTL_EDITORTOOEM,ECTL_OEMTOEDITOR,
   ECTL_TABTOREAL,ECTL_REALTOTAB,ECTL_EXPANDTABS,ECTL_SETTITLE,
   ECTL_READINPUT,ECTL_PROCESSINPUT,ECTL_ADDCOLOR,ECTL_GETCOLOR,
-  ECTL_SAVEFILE,ECTL_QUIT,ECTL_SETKEYBAR,ECTL_PROCESSKEY
+  ECTL_SAVEFILE,ECTL_QUIT,ECTL_SETKEYBAR,ECTL_PROCESSKEY,ECTL_SETPARAM,
+};
+
+enum EDITOR_SETPARAMETER_TYPES {
+  ESPT_TABSIZE, ESPT_EXPANDTABS
+};
+
+struct EditorSetParameter
+{
+  int Type;
+  union {
+    int iParam;
+    char *cParam;
+    DWORD Reserved1;
+  };
+  DWORD Flags;
+  DWORD Reserved2;
 };
 
 struct EditorGetString
