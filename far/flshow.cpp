@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.40 06.08.2004 $ */
+/* Revision: 1.41 01.11.2004 $ */
 
 /*
 Modify:
+  01.11.2004 SVS & WARP ItSelf
+    ! Ќовый способ разбиени€ на глобальные колонки
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   29.05.2004 SVS
@@ -690,8 +692,8 @@ int FileList::PreparePanelView(struct PanelViewSettings *PanelView)
 int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
               int &ColumnCount,int FullScreen)
 {
-  int TotalWidth,NameTypeCount,ZeroLengthCount,EmptyColumns,I;
-  ZeroLengthCount=NameTypeCount=EmptyColumns=0;
+  int TotalWidth,ZeroLengthCount,EmptyColumns,I;
+  ZeroLengthCount=EmptyColumns=0;
   TotalWidth=ColumnCount-1;
   for (I=0;I<ColumnCount;I++)
   {
@@ -714,8 +716,6 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
     }
     if (ColumnWidths[I]==0)
       ZeroLengthCount++;
-    if (ColumnType==NAME_COLUMN)
-      NameTypeCount++;
     TotalWidth+=ColumnWidths[I];
   }
 
@@ -756,15 +756,42 @@ int FileList::PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,
       break;
     }
     else
-    {
-      if ((ColumnTypes[LastColumn] & 0xff)==NAME_COLUMN)
-        NameTypeCount--;
       ColumnCount--;
-    }
   }
-  if (NameTypeCount==0)
-    NameTypeCount++;
-  return(NameTypeCount);
+
+  ColumnsInGlobal = 1;
+
+  int GlobalColumns;
+  bool UnEqual;
+  int Remainder;
+
+  for (int i = 0; i < ViewSettings.ColumnCount; i++)
+  {
+    UnEqual = false;
+
+    Remainder = ViewSettings.ColumnCount%ColumnsInGlobal;
+    GlobalColumns = ViewSettings.ColumnCount/ColumnsInGlobal;
+
+    if ( !Remainder )
+    {
+      for (int k = 0; k < GlobalColumns-1; k++)
+          {
+            for (int j = 0; j < ColumnsInGlobal; j++)
+                {
+                  if ( (ViewSettings.ColumnType[k*ColumnsInGlobal+j] & 0xFF) !=
+               (ViewSettings.ColumnType[(k+1)*ColumnsInGlobal+j] & 0xFF) )
+            UnEqual = true;
+        }
+      }
+
+      if ( !UnEqual )
+        break;
+        }
+
+    ColumnsInGlobal++;
+  }
+
+  return(GlobalColumns);
 }
 
 
@@ -787,7 +814,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
       GotoXY(X1+1,I);
     }
     int StatusLine=FALSE;
-    for (int WasNameColumn=0,K=0;K<ColumnCount;K++)
+
+    int Level = 1;
+
+    for (int K=0;K<ColumnCount;K++)
     {
       int ListPos=J+CurColumn*Height;
       if (ShowStatus)
@@ -949,7 +979,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 if (LeftBracket)
                 {
                   GotoXY(CurX-1,CurY);
-                  if (K-1<0 || (ColumnTypes[K-1] & 0xff)==NAME_COLUMN)
+                  if ( Level == 1 )
                     SetColor(COL_PANELTEXT);
                   Text(openBracket);
                   if (!ShowStatus)
@@ -957,7 +987,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 if (RightBracket)
                 {
-                  if (K+1>=ColumnCount || (ColumnTypes[K+1] & 0xff)==NAME_COLUMN)
+                  if ( Level == ColumnsInGlobal )
                     SetColor(COL_PANELTEXT);
                   GotoXY(NameX,CurY);
                   Text(closeBracket);
@@ -965,7 +995,6 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
                 }
                 /* IS $ */
               }
-              WasNameColumn=TRUE;
               break;
             case SIZE_COLUMN:
             case PACKED_COLUMN:
@@ -1123,20 +1152,29 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
       }
       else
         mprintf("%*s",ColumnWidth,"");
+
       if (ShowDivider==FALSE)
         GotoXY(CurX+ColumnWidth+1,CurY);
       else
       {
-        if (K>=ColumnCount-1 || ((ColumnTypes[K] & 0xff)==NAME_COLUMN && (ColumnTypes[K+1] & 0xff)==NAME_COLUMN))
-          SetColor(COL_PANELBOX);
+        if ( Level == ColumnsInGlobal )
+                SetColor(COL_PANELBOX);
+
         GotoXY(CurX+ColumnWidth,CurY);
         if (K==ColumnCount-1)
           BoxText((WORD)(CurX+ColumnWidth==X2 ? (Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[1]-0x0B0]:VerticalLine[1]):0x20));
         else
           BoxText((WORD)(ShowStatus ? 0x20:(Opt.UseUnicodeConsole?BoxSymbols[VerticalLine[0]-0x0B0]:VerticalLine[0])));
       }
-      if (WasNameColumn && K<ColumnCount-1 && (ColumnTypes[K+1] & 0xff)==NAME_COLUMN)
+
+      if ( Level == ColumnsInGlobal )
+      {
+        Level = 0;
         CurColumn++;
+      }
+
+      Level++;
+
     }
     if ((!ShowStatus || StatusLine) && WhereX()<X2)
     {

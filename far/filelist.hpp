@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.40 24.05.2004 $ */
+/* Revision: 1.41 01.11.2004 $ */
 
 /*
 Modify:
+  01.11.2004 SVS
+    + ColumnsInGlobal
   24.05.2004 SVS
     + PluginsStackItem.PrevNumericSort
     + GetPrevNumericSort()
@@ -200,6 +202,9 @@ class FileList:public Panel
     int64 FreeDiskSize;
     clock_t LastUpdateTime;
     int Height,Columns;
+
+    int ColumnsInGlobal;
+
     int LeftPos;
     int ShiftSelection;
     int MouseSelection;
