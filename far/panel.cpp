@@ -5,10 +5,13 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.85 05.02.2002 $ */
+/* Revision: 1.86 06.02.2002 $ */
 
 /*
 Modify:
+  06.02.2002 tran
+    ! Bugz#208 - уточняем еще раз - панель должна быть FILE_PANEL
+      а не TREE, INFO, QUICK и пр.
   05.02.2002 SVS
     ! BugZ#208 - Панель должна быть видимой для "простого Update", иначе
       перевыводим панель
@@ -798,7 +801,10 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     char NewCurDir[NM];
     GetCurrentDirectory(sizeof(NewCurDir),NewCurDir);
     // BugZ#208. Если пути совпадают, то ничего не делаем.
-    if(PanelMode == NORMAL_PANEL && !LocalStricmp(CurDir,NewCurDir) && IsVisible())
+    //_tran(SysLog("PanelMode=%i (%i), CurDir=[%s], NewCurDir=[%s]",PanelMode,GetType(),
+    //            CurDir,NewCurDir);)
+
+    if(PanelMode == NORMAL_PANEL && GetType()==FILE_PANEL && !LocalStricmp(CurDir,NewCurDir) && IsVisible())
     {
       // А нужно ли делать здесь Update????
       Update(UPDATE_KEEP_SELECTION);
