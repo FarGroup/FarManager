@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.48 25.03.2002 $ */
+/* Revision: 1.49 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 SVS
+    - BugZ#393 - . Shift-Enter
   25.03.2002 VVM
     ! Очередная правка запускатора :)
   22.03.2002 IS
@@ -873,7 +875,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
       }
       Unquote(AnsiLine); // т.к. нафиг это ненужно?
       // ???
-      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY))
+      if(Attr != -1 && (Attr&FILE_ATTRIBUTE_DIRECTORY) && !(!strcmp(AnsiLine,".") || !strcmp(AnsiLine,"..")))
         strcat(AnsiLine,".");
       // ???
 

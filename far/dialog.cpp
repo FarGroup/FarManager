@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.222 22.03.2002 $ */
+/* Revision: 1.223 26.03.2002 $ */
 
 /*
 Modify:
+  26.03.2002 SVS
+    * проблемы с цветами в строках ввода - конфликт между unchanged и disabled.
+   .! В строках ввода в диалоге для клавишь IsNavKey() не кидаем
+      эвент DN_EDITCHANGE.
   22.03.2002 SVS
     - strcpy - Fuck!
   20.03.2002 DJ
@@ -2249,7 +2253,7 @@ void Dialog::ShowDialog(int ID)
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
-                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                FarColorToReal(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED), //???
                 // HIHI (History)
                 FarColorToReal(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
               )
@@ -2264,7 +2268,7 @@ void Dialog::ShowDialog(int ID)
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
-                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED), //???
                 // HIHI (History)
                 FarColorToReal(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)
               )
@@ -2283,7 +2287,7 @@ void Dialog::ShowDialog(int ID)
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
-                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                FarColorToReal(DisabledItem?COL_WARNDIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED), //???
                 // HIHI (History)
                 FarColorToReal(DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT)
               )
@@ -2299,7 +2303,7 @@ void Dialog::ShowDialog(int ID)
               ),
               MAKEWORD( //HIWORD
                 // HILO (Unchanged)
-                FarColorToReal(COL_DIALOGEDITUNCHANGED),
+                FarColorToReal(DisabledItem?COL_DIALOGEDITDISABLED:COL_DIALOGEDITUNCHANGED), //???
                 // HIHI (History)
                 FarColorToReal(DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)
               )
@@ -3413,7 +3417,8 @@ int Dialog::ProcessKey(int Key)
                 free(PStr);
             }
             /* SVS 03.12.2000 $ */
-            Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
+            if(IsNavKey(Key)) //???????????????????????????????????????????
+              Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
             /* SVS $ */
   //          if(RedrawNeed)
               Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
