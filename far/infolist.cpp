@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.36 01.10.2002 $ */
+/* Revision: 1.37 14.01.2003 $ */
 
 /*
 Modify:
+  14.01.2003 SVS
+    - BugZ#758 - падение FAR'a при запуске ассоциации
   01.10.2002 SVS
     - BugZ#662 - descript.ion
   24.05.2002 SVS
@@ -739,7 +741,7 @@ int InfoList::GetCurName(char *Name,char *ShortName)
   if (Name && ShortName)
   {
     strcpy(Name, DizFileName);
-    ConvertNameToShort(ShortName, DizFileName);
+    ConvertNameToShort(DizFileName,ShortName);
     return (TRUE);
   }
   return (FALSE);
