@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.63 06.07.2002 $ */
+/* Revision: 1.64 15.07.2002 $ */
 
 /*
 Modify:
+  15.07.2002 VVM
+    + Для виндовс-ГУИ сделаем всегда запуск через ShellExecuteEx(). По идее SVS
   06.07.2002 VVM
     + Если не установлена переменная %COMSPEC% - предупредить и выйти.
   05.07.2002 SVS
@@ -779,6 +781,9 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
 
   int ExecutorType = GetRegKey("System\\Executor","Type",0);
   ExitCode=PrepareExecuteModule(NewCmdStr,NewCmdStr,sizeof(NewCmdStr)-1,ImageSubsystem);
+  // Для Виндовс-ГУИ всегда сделаем запуск через ShellExecuteEx()
+  if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI && !AlwaysWaitFinish)
+    SeparateWindow=2;
   if (!ExecutorType || SeparateWindow==2)
     ExitCode = 1;
   QuoteSpace(NewCmdStr);
