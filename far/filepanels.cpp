@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.52 06.05.2004 $ */
+/* Revision: 1.53 20.05.2004 $ */
 
 /*
 Modify:
+  20.05.2004 SVS
+    ! NumericSort - свойство конкретной панели, а не режима отображения
   06.05.2004 SVS
     - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
   20.10.2003 SVS
@@ -208,6 +210,8 @@ void FilePanels::Init()
   RightPanel->SetViewMode(Opt.RightPanel.ViewMode);
   LeftPanel->SetSortMode(Opt.LeftPanel.SortMode);
   RightPanel->SetSortMode(Opt.RightPanel.SortMode);
+  LeftPanel->SetNumericSort(Opt.LeftPanel.NumericSort);
+  RightPanel->SetNumericSort(Opt.RightPanel.NumericSort);
   LeftPanel->SetSortOrder(Opt.LeftPanel.SortOrder);
   RightPanel->SetSortOrder(Opt.RightPanel.SortOrder);
   LeftPanel->SetSortGroups(Opt.LeftPanel.SortGroups);

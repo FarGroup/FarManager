@@ -5,10 +5,12 @@ flshow.cpp
 
 */
 
-/* Revision: 1.37 19.02.2004 $ */
+/* Revision: 1.38 18.05.2004 $ */
 
 /*
 Modify:
+  18.05.2004 SVS
+    ! IsNumeric() переехала из flshow.cpp в panel.hpp
   19.02.2004 SVS
     - неправильные функции использовались при отрисовке панелей.
   15.01.2004 SVS
@@ -1188,9 +1190,4 @@ int FileList::IsColumnDisplayed(int Type)
 int FileList::IsCaseSensitive()
 {
   return(ViewSettings.CaseSensitiveSort);
-}
-
-int FileList::IsNumeric()
-{
-  return(ViewSettings.NumericSort);
 }

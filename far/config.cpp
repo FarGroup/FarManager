@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.168 07.05.2004 $ */
+/* Revision: 1.169 20.05.2004 $ */
 
 /*
 Modify:
+  20.05.2004 SVS
+    ! NumericSort - свойство конкретной панели, а не режима отображения
   07.05.2004 SVS
     + Opt.Dialogs.DelRemovesBlocks
   27.02.2004 SVS
@@ -1583,6 +1585,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyPanelLeft,"SortOrder",&Opt.LeftPanel.SortOrder,1, 0},
   {1, REG_DWORD,  NKeyPanelLeft,"SortGroups",&Opt.LeftPanel.SortGroups,0, 0},
   {1, REG_DWORD,  NKeyPanelLeft,"ShortNames",&Opt.LeftPanel.ShowShortNames,0, 0},
+  {1, REG_DWORD,  NKeyPanelLeft,"NumericSort",&Opt.LeftPanel.NumericSort,0, 0},
   {1, REG_SZ,     NKeyPanelLeft,"Folder",Opt.LeftFolder,sizeof(Opt.LeftFolder),""},
   {1, REG_SZ,     NKeyPanelLeft,"CurFile",Opt.LeftCurFile,sizeof(Opt.LeftCurFile),""},
   {1, REG_DWORD,  NKeyPanelLeft,"SelectedFirst",&Opt.LeftSelectedFirst,0,0},
@@ -1595,6 +1598,7 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyPanelRight,"SortOrder",&Opt.RightPanel.SortOrder,1, 0},
   {1, REG_DWORD,  NKeyPanelRight,"SortGroups",&Opt.RightPanel.SortGroups,0, 0},
   {1, REG_DWORD,  NKeyPanelRight,"ShortNames",&Opt.RightPanel.ShowShortNames,0, 0},
+  {1, REG_DWORD,  NKeyPanelRight,"NumericSort",&Opt.RightPanel.NumericSort,0, 0},
   {1, REG_SZ,     NKeyPanelRight,"Folder",Opt.RightFolder,sizeof(Opt.RightFolder),""},
   {1, REG_SZ,     NKeyPanelRight,"CurFile",Opt.RightCurFile,sizeof(Opt.RightCurFile),""},
   {1, REG_DWORD,  NKeyPanelRight,"SelectedFirst",&Opt.RightSelectedFirst,0, 0},
@@ -1858,6 +1862,7 @@ void SaveConfig(int Ask)
     Opt.LeftPanel.SortOrder=LeftPanel->GetSortOrder();
     Opt.LeftPanel.SortGroups=LeftPanel->GetSortGroups();
     Opt.LeftPanel.ShowShortNames=LeftPanel->GetShowShortNamesMode();
+    Opt.LeftPanel.NumericSort=LeftPanel->GetNumericSort();
     Opt.LeftSelectedFirst=LeftPanel->GetSelectedFirstMode();
   }
   LeftPanel->GetCurDir(Opt.LeftFolder);
@@ -1871,6 +1876,7 @@ void SaveConfig(int Ask)
     Opt.RightPanel.SortOrder=RightPanel->GetSortOrder();
     Opt.RightPanel.SortGroups=RightPanel->GetSortGroups();
     Opt.RightPanel.ShowShortNames=RightPanel->GetShowShortNamesMode();
+    Opt.RightPanel.NumericSort=RightPanel->GetNumericSort();
     Opt.RightSelectedFirst=RightPanel->GetSelectedFirstMode();
   }
   RightPanel->GetCurDir(Opt.RightFolder);

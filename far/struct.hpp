@@ -7,10 +7,12 @@ struct.hpp
 
 */
 
-/* Revision: 1.117 07.05.2004 $ */
+/* Revision: 1.118 18.05.2004 $ */
 
 /*
 Modify:
+  18.05.2004 SVS
+    + В структуру PanelOptions добавлен член NumericSort
   07.05.2004 SVS
     + DialogsOptions.DelRemovesBlocks
   01.03.2004 SVS
@@ -375,6 +377,7 @@ struct PanelOptions
   int SortOrder;
   int SortGroups;
   int ShowShortNames;
+  int NumericSort;
 };
 
 struct Confirmation

@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.38 06.10.2003 $ */
+/* Revision: 1.39 18.05.2004 $ */
 
 /*
 Modify:
+  18.05.2004 SVS
+    ! IsNumeric() переехала из filelist.hpp в panel.hpp
   06.10.2003 SVS
     ! FileList::CreatePluginItemList() имеет доп.параметр - "добавлять '..'?"
       по умолчанию - "добавлять"
@@ -350,7 +352,6 @@ class FileList:public Panel
                  char *DestShortName,DizList *DestDiz);
     int IsFullScreen();
     int IsCaseSensitive();
-    int IsNumeric();
     int IsDizDisplayed();
     int IsColumnDisplayed(int Type);
     int GetPrevViewMode();

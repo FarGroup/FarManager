@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.122 06.05.2004 $ */
+/* Revision: 1.123 18.05.2004 $ */
 
 /*
 Modify:
+  18.05.2004 SVS
+    ! инициализация NumericSort
   06.05.2004 SVS
     - BugZ#1069 - cosmetic bug: прорисовка меню невто время.
       MainMenu перерисуем пораньше....
@@ -425,6 +427,7 @@ Panel::Panel()
   _OT(SysLog("[%p] Panel::Panel()", this));
   Focus=0;
   *CurDir=0;
+  NumericSort=0;
   PanelMode=NORMAL_PANEL;
   PrevViewMode=VIEW_3;
   EnableUpdate=TRUE;

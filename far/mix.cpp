@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.158 17.05.2004 $ */
+/* Revision: 1.159 20.05.2004 $ */
 
 /*
 Modify:
+  20.05.2004 SVS
+    ! классы UndoGlobalSaveScrPtr и RefreshFrameManeger переехали в RefreshFrameManager.?pp
   17.05.2004 SVS
     - BugZ#1073 - "File not found" при смене директории.
   06.05.2004 SVS
@@ -506,6 +508,7 @@ Modify:
 #include "manager.hpp"
 #include "lockscrn.hpp"
 #include "lasterror.hpp"
+#include "RefreshFrameManager.hpp"
 
 long filelen(FILE *FPtr)
 {
@@ -892,38 +895,6 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
                int EnhBreak,BOOL DontRedrawFrame,int ScanSymLink)
 {
-  class UndoGlobalSaveScrPtr{
-    public:
-      UndoGlobalSaveScrPtr(SaveScreen *SaveScr){GlobalSaveScrPtr=SaveScr;};
-     ~UndoGlobalSaveScrPtr(){GlobalSaveScrPtr=NULL;};
-  };
-
-  class RefreshFrameManeger{
-    private:
-      int OScrX,OScrY;
-      clock_t MsgWaitTime;
-      BOOL DontRedrawFrame;
-    public:
-      RefreshFrameManeger(int OScrX,int OScrY, int MsgWaitTime, BOOL DontRedrawFrame)
-      {
-        RefreshFrameManeger::OScrX=OScrX;
-        RefreshFrameManeger::OScrY=OScrY;
-        RefreshFrameManeger::MsgWaitTime=MsgWaitTime;
-        RefreshFrameManeger::DontRedrawFrame=DontRedrawFrame;
-      }
-      ~RefreshFrameManeger()
-      {
-        if (DontRedrawFrame || !FrameManager || !FrameManager->ManagerStarted())
-          return;
-        else if(OScrX != ScrX || OScrY != ScrY || MsgWaitTime!=0xffffffff)
-        {
-          LockScreen LckScr;
-          FrameManager->ResizeAllFrame();
-          FrameManager->GetCurrentFrame()->Show();
-        }
-      }
-  };
-
   char FullDirName[NM],DriveRoot[NM];
   char FullName[NM];
   if (ConvertNameToFull(DirName,FullDirName, sizeof(FullDirName)) >= sizeof(FullDirName))
@@ -953,7 +924,7 @@ int GetDirInfo(char *Title,char *DirName,unsigned long &DirCount,
   /* DJ */
 
   ConsoleTitle OldTitle;
-  RefreshFrameManeger frref(ScrX,ScrY,MsgWaitTime,DontRedrawFrame);
+  RefreshFrameManager frref(ScrX,ScrY,MsgWaitTime,DontRedrawFrame);
 
   PREREDRAWFUNC OldPreRedrawFunc=PreRedrawFunc;
 

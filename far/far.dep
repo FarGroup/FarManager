@@ -1598,6 +1598,7 @@
 	".\BaseFileMask.hpp"\
 	".\bitflags.hpp"\
 	".\CFileMask.hpp"\
+	".\RefreshFrameManager.hpp"\
 	".\chgprior.hpp"\
 	".\constitle.hpp"\
 	".\ctrlobj.hpp"\
@@ -2251,6 +2252,7 @@
 	".\dizlist.hpp"\
 	".\edit.hpp"\
 	".\farconst.hpp"\
+	".\RefreshFrameManager.hpp"\
 	".\filelist.hpp"\
 	".\filepanels.hpp"\
 	".\flink.hpp"\
@@ -2425,5 +2427,13 @@
 "$(INTDIR)\fileowner.obj" : \
 	".\fileowner.cpp"\
 	".\fn.hpp"\
+
+
+"$(INTDIR)\RefreshFrameManager.obj" : \
+	".\RefreshFrameManager.cpp"\
+	".\lockscrn.hpp"\
+	".\manager.hpp"\
+	".\savescr.hpp"\
+	".\global.hpp"\
 
 

@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.199 28.04.2004 $ */
+/* Revision: 1.200 18.05.2004 $ */
 
 /*
 Modify:
+  20.05.2004 SVS
+    ! NumericSort - свойство конкретной панели, а не режима отображения
   28.04.2004 SVS
     ! KEY_CTRLH может исполняться при погашенных панелях.
   12.03.2004 SVS
@@ -649,6 +651,7 @@ FileList::FileList()
   SelectedFirst=0;
   ViewMode=VIEW_3;
   ViewSettings=ViewSettingsArray[ViewMode];
+  NumericSort=0;
   Columns=PreparePanelView(&ViewSettings);
   Height=0;
   PluginsStack=NULL;
@@ -799,7 +802,9 @@ void FileList::SortFileList(int KeepPosition)
     ListSelectedFirst=SelectedFirst;
     ListPanelMode=PanelMode;
     ListCaseSensitive=ViewSettingsArray[ViewMode].CaseSensitiveSort;
-    ListNumericSort=ViewSettingsArray[ViewMode].NumericSort;
+    //ListCaseSensitive=ViewSettings.CaseSensitiveSort;
+    ListNumericSort=NumericSort;
+
 
     if (KeepPosition)
       strcpy(CurName,ListData[CurFile].Name);
@@ -3101,7 +3106,7 @@ void FileList::SetViewMode(int ViewMode)
   int OldNumLink=IsColumnDisplayed(NUMLINK_COLUMN);
   int OldDiz=IsColumnDisplayed(DIZ_COLUMN);
   int OldCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
-  int OldNumericSort=ViewSettings.NumericSort;
+  int OldNumericSort=NumericSort;
   PrepareViewSettings(ViewMode,NULL);
   int NewOwner=IsColumnDisplayed(OWNER_COLUMN);
   int NewPacked=IsColumnDisplayed(PACKED_COLUMN);
@@ -3109,7 +3114,7 @@ void FileList::SetViewMode(int ViewMode)
   int NewDiz=IsColumnDisplayed(DIZ_COLUMN);
   int NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
   int NewCaseSensitiveSort=ViewSettings.CaseSensitiveSort;
-  int NewNumericSort=ViewSettings.NumericSort;
+  int NewNumericSort=NumericSort;
   int ResortRequired=FALSE;
 
   char DriveRoot[NM];
@@ -4043,30 +4048,27 @@ void FileList::SelectSortMode()
 {
   struct MenuData SortMenu[]=
   {
-    (char *)MMenuSortByName,LIF_SELECTED,KEY_CTRLF3,
-    (char *)MMenuSortByExt,0,KEY_CTRLF4,
-    (char *)MMenuSortByModification,0,KEY_CTRLF5,
-    (char *)MMenuSortBySize,0,KEY_CTRLF6,
-    (char *)MMenuUnsorted,0,KEY_CTRLF7,
-    (char *)MMenuSortByCreation,0,KEY_CTRLF8,
-    (char *)MMenuSortByAccess,0,KEY_CTRLF9,
-    (char *)MMenuSortByDiz,0,KEY_CTRLF10,
-    (char *)MMenuSortByOwner,0,KEY_CTRLF11,
-    (char *)MMenuSortByCompressedSize,0,0,
-    (char *)MMenuSortByNumLinks,0,0,
-    "",LIF_SEPARATOR,0,
-    (char *)MMenuSortUseGroups,0,KEY_SHIFTF11,
-    (char *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
-    (char *)MMenuSortUseNumeric,0,0,
+   /* 00 */(char *)MMenuSortByName,LIF_SELECTED,KEY_CTRLF3,
+   /* 01 */(char *)MMenuSortByExt,0,KEY_CTRLF4,
+   /* 02 */(char *)MMenuSortByModification,0,KEY_CTRLF5,
+   /* 03 */(char *)MMenuSortBySize,0,KEY_CTRLF6,
+   /* 04 */(char *)MMenuUnsorted,0,KEY_CTRLF7,
+   /* 05 */(char *)MMenuSortByCreation,0,KEY_CTRLF8,
+   /* 06 */(char *)MMenuSortByAccess,0,KEY_CTRLF9,
+   /* 07 */(char *)MMenuSortByDiz,0,KEY_CTRLF10,
+   /* 08 */(char *)MMenuSortByOwner,0,KEY_CTRLF11,
+   /* 09 */(char *)MMenuSortByCompressedSize,0,0,
+   /* 10 */(char *)MMenuSortByNumLinks,0,0,
+   /* 11 */"",LIF_SEPARATOR,0,
+   /* 12 */(char *)MMenuSortUseGroups,0,KEY_SHIFTF11,
+   /* 13 */(char *)MMenuSortSelectedFirst,0,KEY_SHIFTF12,
+   /* 14 */(char *)MMenuSortUseNumeric,0,0,
   };
 
-  int SG=GetSortGroups();
-  SortMenu[12].SetCheck(SG);
-  SortMenu[13].SetCheck(SelectedFirst);
-  SortMenu[14].SetCheck(ViewSettingsArray[ViewMode].NumericSort);
-
-  static int SortModes[]={BY_NAME,BY_EXT,BY_MTIME,BY_SIZE,UNSORTED,
-    BY_CTIME,BY_ATIME,BY_DIZ,BY_OWNER,BY_COMPRESSEDSIZE,BY_NUMLINKS};
+  static int SortModes[]={BY_NAME,   BY_EXT,    BY_MTIME,
+                          BY_SIZE,   UNSORTED,  BY_CTIME,
+                          BY_ATIME,  BY_DIZ,    BY_OWNER,
+                          BY_COMPRESSEDSIZE,BY_NUMLINKS};
 
   for (int I=0;I<sizeof(SortModes)/sizeof(SortModes[0]);I++)
     if (SortMode==SortModes[I])
@@ -4075,9 +4077,15 @@ void FileList::SelectSortMode()
       break;
     }
 
+  int SG=GetSortGroups();
+  SortMenu[12].SetCheck(SG);
+  SortMenu[13].SetCheck(SelectedFirst);
+  SortMenu[14].SetCheck(NumericSort);
+
   int SortCode;
   {
     VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,sizeof(SortMenu)/sizeof(SortMenu[0]),0);
+    SortModeMenu.SetHelp("PanelCmdSort");
     /* $ 16.06.2001 KM
        ! Добавление WRAPMODE в меню.
     */
@@ -4100,7 +4108,7 @@ void FileList::SelectSortMode()
         ProcessKey(KEY_SHIFTF12);
         break;
       case 14:
-        ViewSettingsArray[ViewMode].NumericSort=ViewSettingsArray[ViewMode].NumericSort?0:1;
+        NumericSort=NumericSort?0:1;
         Update(UPDATE_KEEP_SELECTION);
         Redraw();
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);

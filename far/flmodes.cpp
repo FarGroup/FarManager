@@ -5,10 +5,12 @@ flmodes.cpp
 
 */
 
-/* Revision: 1.15 11.07.2003 $ */
+/* Revision: 1.16 20.05.2004 $ */
 
 /*
 Modify:
+  20.05.2004 SVS
+    ! NumericSort - свойство конкретной панели, а не режима отображения
   11.07.2003 SVS
     + Новая опция NumericSort
   13.01.2003 SVS
@@ -63,16 +65,16 @@ static char *ColumnSymbol[]={"N","S","P","D","T","DM","DC","DA","A","Z","O","LN"
 
 struct PanelViewSettings ViewSettingsArray[]=
 {
-/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,1,0},
-/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1,0},
-/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,1,0},
-/* 03 */{{NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,1,0},
-/* 04 */{{NAME_COLUMN,SIZE_COLUMN},{0,6},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,1,0},
-/* 05 */{{NAME_COLUMN,SIZE_COLUMN,PACKED_COLUMN,MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN},{0,6,6,14,14,14,0},7,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,1,0},
-/* 06 */{{NAME_COLUMN,DIZ_COLUMN},{12,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1,0},
-/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,54},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,1,0},
-/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1,0},
-/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1,0}
+/* 00 */{{COLUMN_MARK|NAME_COLUMN,SIZE_COLUMN|COLUMN_COMMAS,DATE_COLUMN},{0,10,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,1},
+/* 01 */{{NAME_COLUMN,NAME_COLUMN,NAME_COLUMN},{0,0,0},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1},
+/* 02 */{{NAME_COLUMN,NAME_COLUMN},{0,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,1},
+/* 03 */{{NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,0,1,0,0,1},
+/* 04 */{{NAME_COLUMN,SIZE_COLUMN},{0,6},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,0,0,0,1},
+/* 05 */{{NAME_COLUMN,SIZE_COLUMN,PACKED_COLUMN,MDATE_COLUMN,CDATE_COLUMN,ADATE_COLUMN,ATTR_COLUMN},{0,6,6,14,14,14,0},7,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,1},
+/* 06 */{{NAME_COLUMN,DIZ_COLUMN},{12,0},2,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1},
+/* 07 */{{NAME_COLUMN,SIZE_COLUMN,DIZ_COLUMN},{0,6,54},3,{COLUMN_RIGHTALIGN|NAME_COLUMN},{0},1,1,1,0,0,1},
+/* 08 */{{NAME_COLUMN,SIZE_COLUMN,OWNER_COLUMN},{0,6,15},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1},
+/* 09 */{{NAME_COLUMN,SIZE_COLUMN,NUMLINK_COLUMN},{0,6,3},3,{COLUMN_RIGHTALIGN|NAME_COLUMN,SIZE_COLUMN,DATE_COLUMN,TIME_COLUMN},{0,6,0,5},4,0,1,0,0,1}
 };
 
 void FileList::SetFilePanelModes()
@@ -118,7 +120,7 @@ void FileList::SetFilePanelModes()
 
     static struct DialogData ModeDlgData[]=
     {
-    /* 00 */DI_DOUBLEBOX,3,1,72,17,0,0,0,0,"",
+    /* 00 */DI_DOUBLEBOX,3,1,72,16,0,0,0,0,"",
     /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MEditPanelModeTypes,
     /* 02 */DI_EDIT,5,3,35,3,1,0,0,0,"",
     /* 03 */DI_TEXT,5,4,0,0,0,0,0,0,(char *)MEditPanelModeWidths,
@@ -136,10 +138,9 @@ void FileList::SetFilePanelModes()
     /* 15 */DI_CHECKBOX,5,11,0,0,0,0,0,0,(char *)MEditPanelModeFilesLowerCase,
     /* 16 */DI_CHECKBOX,5,12,0,0,0,0,0,0,(char *)MEditPanelModeUpperToLowerCase,
     /* 17 */DI_CHECKBOX,5,13,0,0,0,0,0,0,(char *)MEditPanelModeCaseSensitiveSort,
-    /* 18 */DI_CHECKBOX,5,14,0,0,0,0,0,0,(char *)MEditPanelModeNumericSort,
-    /* 19 */DI_TEXT,3,15,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    /* 20 */DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    /* 21 */DI_BUTTON,0,16,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    /* 19 */DI_TEXT,3,14,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    /* 20 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    /* 21 */DI_BUTTON,0,15,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
     };
     MakeDialogItems(ModeDlgData,ModeDlg);
     int ExitCode;
@@ -161,7 +162,6 @@ void FileList::SetFilePanelModes()
     ModeDlg[15].Selected=NewSettings.FileLowerCase;
     ModeDlg[16].Selected=NewSettings.FileUpperToLowerCase;
     ModeDlg[17].Selected=NewSettings.CaseSensitiveSort;
-    ModeDlg[18].Selected=NewSettings.NumericSort;
 
     ViewSettingsToText(NewSettings.ColumnType,NewSettings.ColumnWidth,
         NewSettings.ColumnCount,ModeDlg[2].Data,ModeDlg[4].Data);
@@ -170,12 +170,12 @@ void FileList::SetFilePanelModes()
 
     {
       Dialog Dlg(ModeDlg,sizeof(ModeDlg)/sizeof(ModeDlg[0]));
-      Dlg.SetPosition(-1,-1,76,19);
+      Dlg.SetPosition(-1,-1,76,18);
       Dlg.SetHelp("PanelViewModes");
       Dlg.Process();
       ExitCode=Dlg.GetExitCode();
     }
-    if (ExitCode!=20)
+    if (ExitCode!=19)
       continue;
 
     memset(&NewSettings,0,sizeof(NewSettings));
@@ -186,7 +186,6 @@ void FileList::SetFilePanelModes()
     NewSettings.FileLowerCase=ModeDlg[15].Selected;
     NewSettings.FileUpperToLowerCase=ModeDlg[16].Selected;
     NewSettings.CaseSensitiveSort=ModeDlg[17].Selected;
-    NewSettings.NumericSort=ModeDlg[18].Selected;
 
     TextToViewSettings(ModeDlg[2].Data,ModeDlg[4].Data,NewSettings.ColumnType,
                        NewSettings.ColumnWidth,NewSettings.ColumnCount);
@@ -238,7 +237,6 @@ void FileList::ReadPanelModes()
     GetRegKey(RegKey,"FileLowerCase",NewSettings.FileLowerCase,0);
     GetRegKey(RegKey,"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase,1);
     GetRegKey(RegKey,"CaseSensitiveSort",NewSettings.CaseSensitiveSort,0);
-    GetRegKey(RegKey,"NumericSort",NewSettings.NumericSort,0);
 
     ViewSettingsArray[VIEW_0+I]=NewSettings;
   }
@@ -270,7 +268,6 @@ void FileList::SavePanelModes()
     SetRegKey(RegKey,"FileLowerCase",NewSettings.FileLowerCase);
     SetRegKey(RegKey,"FileUpperToLowerCase",NewSettings.FileUpperToLowerCase);
     SetRegKey(RegKey,"CaseSensitiveSort",NewSettings.CaseSensitiveSort);
-    SetRegKey(RegKey,"NumericSort",NewSettings.NumericSort);
   }
 }
 

@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.140 14.04.2004 $ */
+/* Revision: 1.141 20.05.2004 $ */
 
 /*
 Modify:
+  20.05.2004 SVS
+    ! выкинем MEditPanelModeNumericSort за ненадобностью.
   14.04.2004 SVS
     + MDeleteFileWipe, MDeleteHardLink1, MDeleteHardLink2, MDeleteHardLink3
   02.03.2004 SVS
@@ -1854,7 +1856,6 @@ enum
   MEditPanelModeFilesLowerCase,
   MEditPanelModeUpperToLowerCase,
   MEditPanelModeCaseSensitiveSort,
-  MEditPanelModeNumericSort,
   MEditPanelReadHelp,
 
   MSetFolderInfoTitle,

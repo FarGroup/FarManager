@@ -7,10 +7,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.22 07.01.2004 $ */
+/* Revision: 1.23 18.05.2004 $ */
 
 /*
 Modify:
+  18.05.2004 SVS
+    + Set/GetNumericSort()
+    + член класса NumericSort
+    ! Из структуры PanelViewSettings удален NumericSort
   07.01.2004 SVS
     + FastFindProcessName() - подбор имени файла :-)
   11.07.2003 SVS
@@ -89,7 +93,6 @@ struct PanelViewSettings
   int FileLowerCase;
   int FileUpperToLowerCase;
   int CaseSensitiveSort;
-  int NumericSort;
 };
 
 enum {FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL};
@@ -128,6 +131,7 @@ class Panel:public ScreenObject
     long CurTopFile;
     long CurFile;
     int ShowShortNames;
+    int NumericSort;
     int DisableOut;
     int ModalMode;
     int PluginCommand;
@@ -210,6 +214,8 @@ class Panel:public ScreenObject
     virtual int GetPrevSortMode() {return(SortMode);};
     virtual int GetPrevSortOrder() {return(SortOrder);};
     int GetSortMode() {return(SortMode);};
+    int GetNumericSort() { return NumericSort; }
+    void SetNumericSort(int Mode) { NumericSort=Mode; }
     virtual void SetSortMode(int SortMode) {Panel::SortMode=SortMode;};
     int GetSortOrder() {return(SortOrder);};
     void SetSortOrder(int SortOrder) {Panel::SortOrder=SortOrder;};

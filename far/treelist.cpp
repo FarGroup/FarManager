@@ -5,10 +5,13 @@ Tree panel
 
 */
 
-/* Revision: 1.53 19.05.2004 $ */
+/* Revision: 1.54 20.05.2004 $ */
 
 /*
 Modify:
+  20.05.2004 SVS
+    ! NumericSort - свойство конкретной панели, а не режима отображени€
+    - Bug#695 - Ќе работает прерывание по Esc
   19.05.2004 SVS
     ! вместо "SetFileAttributes(Name,0)" выставим "SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL)"
       пусть баундчекер не блюет.
@@ -170,6 +173,7 @@ Modify:
 #include "ctrlobj.hpp"
 #include "help.hpp"
 #include "lockscrn.hpp"
+#include "RefreshFrameManager.hpp"
 
 #define DELTA_TREECOUNT 31
 /* $ 08.12.2001 IS
@@ -306,7 +310,7 @@ void TreeList::DisplayObject()
     if (RootPanel->GetType()==FILE_PANEL)
     {
       int RootCaseSensitive=((FileList *)RootPanel)->IsCaseSensitive();
-      int RootNumeric=((FileList *)RootPanel)->IsNumeric();
+      int RootNumeric=RootPanel->GetNumericSort();
       if (RootCaseSensitive!=CaseSensitiveSort || RootNumeric != NumericSort)
       {
         CaseSensitiveSort=RootCaseSensitive;
@@ -493,7 +497,8 @@ void TreeList::Update(int Mode)
   int RetFromReadTree=TRUE;
 
   TreeIsPrepared = FALSE;
-  if (!ReadTreeFile())
+  int TreeFilePresent=ReadTreeFile();
+  if (!TreeFilePresent)
     RetFromReadTree=ReadTree();
   TreeIsPrepared = TRUE;
 
@@ -553,6 +558,9 @@ int TreeList::ReadTree()
   memset(&ListData[0], 0, sizeof(ListData[0]));
   strcpy(ListData->Name,Root);
 
+  SaveScreen SaveScrTree;
+  UndoGlobalSaveScrPtr UndSaveScr(&SaveScrTree);
+
   /* “.к. мы можем вызвать диалог подтверждени€ (который не перерисовывает панельки,
      а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
   Redraw();
@@ -563,8 +571,11 @@ int TreeList::ReadTree()
 
   int FirstCall=TRUE, AscAbort=FALSE;
   TreeStartTime = clock();
-  ScTree.SetFindPath(Root,"*.*",0);
   SetPreRedrawFunc(TreeList::PR_MsgReadTree);
+
+  RefreshFrameManager frref(ScrX,ScrY,TreeStartTime,FALSE);//DontRedrawFrame);
+
+  ScTree.SetFindPath(Root,"*.*",0);
   LastScrX = ScrX;
   LastScrY = ScrY;
   while (ScTree.GetNextName(&fdata,FullName, sizeof (FullName)-1))

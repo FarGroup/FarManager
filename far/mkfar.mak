@@ -95,9 +95,9 @@ BRC32   = $(BCCPATH)\bin\Brc32
 # Options
 #
 !ifdef ILINK
-LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH) -I.\$(OBJPATH) -M
+LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH) -I.\$(OBJPATH) -M -Gz
 !else
-LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH)
+LINKFLAGS =  -L$(LIBPATH) -Tpe -ap -c $(OPTLINKDEBUG) -s -V4.0 -j.\$(OBJPATH) -Gz
 !endif
 
 
@@ -113,6 +113,7 @@ FAROBJ=\
    $(OBJPATH)\FileMasksWithExclude.obj\
    $(OBJPATH)\CFileMask.obj\
    $(OBJPATH)\chgmmode.obj\
+   $(OBJPATH)\RefreshFrameManager.obj\
    $(OBJPATH)\chgprior.obj\
    $(OBJPATH)\clipboard.obj\
    $(OBJPATH)\cmdline.obj\
