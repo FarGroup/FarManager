@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.45 24.09.2000 $ */
+/* Revision: 1.46 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+   ! Alt-Up/Down/Left/Right - убрал (чтобы в будущем не пересекались
+     с MultiEdit)
+   ! Ctrl-Alt-Shift - реагируем, если надо.
   24.09.2000 SVS
    + Движение диалога - Alt-стрелки
    + вызов функции Xlat
@@ -1183,29 +1187,6 @@ int Dialog::ProcessKey(int Key)
   char *PtrStr;
   Edit *CurEditLine;
 
-  if(CheckDialogMode(DMODE_ISCANMOVE) && !CheckDialogMode(DMODE_DRAGGED))
-  {
-    switch(Key)
-    {
-      case KEY_ALTLEFT:
-        Key=KEY_LEFT;
-        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
-        break;
-      case KEY_ALTRIGHT:
-        Key=KEY_RIGHT;
-        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
-        break;
-      case KEY_ALTUP:
-        Key=KEY_UP;
-        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
-        break;
-      case KEY_ALTDOWN:
-        Key=KEY_DOWN;
-        SetDialogMode(DMODE_DRAGGED|DMODE_ALTDRAGGED);
-        break;
-    }
-  }
-
   /* $ 31.07.2000 tran
      + перемещение диалога по экрану */
   if (CheckDialogMode(DMODE_DRAGGED)) // если диалог таскается
@@ -1318,10 +1299,13 @@ int Dialog::ProcessKey(int Key)
   // "ХАчу глянуть на то, что под диалогом..."
   if(Key == KEY_CTRLALTSHIFTPRESS && CheckDialogMode(DMODE_SHOW))
   {
+    if(Opt.AllCtrlAltShiftRule & CASR_DIALOG)
+    {
       Hide();
       WaitKey(KEY_CTRLALTSHIFTRELEASE);
       Show();
-      return(TRUE);
+    }
+    return(TRUE);
   }
 
   int Type=Item[FocusPos].Type;

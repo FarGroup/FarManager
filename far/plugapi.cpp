@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.21 18.09.2000 $ */
+/* Revision: 1.22 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+   + FarViewerControl
   18.09.2000 SVS
     ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
   12.09.2000 SVS
@@ -967,3 +969,13 @@ int WINAPI FarEditorControl(int Command,void *Param)
   return(CtrlObject->Plugins.CurEditor->EditorControl(Command,Param));
 }
 
+/* $ 27.09.2000 SVS
+  Управление вьювером
+*/
+int WINAPI FarViewerControl(int Command,void *Param)
+{
+  if (CtrlObject->Plugins.CurViewer==NULL)
+    return(0);
+  return(CtrlObject->Plugins.CurViewer->ViewerControl(Command,Param));
+}
+/* SVS $ */

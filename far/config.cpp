@@ -5,10 +5,14 @@ config.cpp
 
 */
 
-/* Revision: 1.24 24.09.2000 $ */
+/* Revision: 1.25 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + HelpURLRules
+    - XLat-таблицы только читаем.
+    ! Ctrl-Alt-Shift - реагируем, если надо.
   24.09.2000 SVS
     + Opt.MaxPositionCache
     + Opt.SaveViewerShortPos & Opt.SaveEditorShortPos
@@ -745,6 +749,9 @@ void ReadConfig()
   GetRegKey("System","SaveViewHistory",Opt.SaveViewHistory,0);
   GetRegKey("System","UseRegisteredTypes",Opt.UseRegisteredTypes,1);
   GetRegKey("System","AutoSaveSetup",Opt.AutoSaveSetup,0);
+
+  GetRegKey("Help","ActivateURL",Opt.HelpURLRules,1);
+
   /* $ 15.07.2000 SVS
      "Вспомним" путь для дополнительного поиска плагинов
   */
@@ -779,6 +786,12 @@ void ReadConfig()
   GetRegKey("System","MaxPositionCache",Opt.MaxPositionCache,64);
   if(Opt.MaxPositionCache < 16 || Opt.MaxPositionCache > 128)
     Opt.MaxPositionCache=64;
+  /* $ 27.09.2000 SVS
+    + Opt.AllCtrlAltShiftRule битовые флаги, задают поведение Ctrl-Alt-Shift
+      По умолчанию все разрешено.
+  */
+  GetRegKey("System","AllCtrlAltShiftRule",Opt.AllCtrlAltShiftRule,0x0000FFFF);
+  /* SVS $ */
 
   GetRegKey("Language","Main",Opt.Language,"English",sizeof(Opt.Language));
   GetRegKey("Language","Help",Opt.HelpLanguage,"English",sizeof(Opt.HelpLanguage));
@@ -943,16 +956,6 @@ void SaveConfig(int Ask)
   */
   SetRegKey("Editor","WordDiv",Opt.WordDiv);
   /* SVS $ */
-  /* $ 05.09.2000 SVS
-     CodeXLat - описывающая XLat-перекодировщик
-  */
-  SetRegKey("XLat","Flags",Opt.XLat.Flags);
-  SetRegKey("XLat","Table1",(BYTE*)Opt.XLat.Table[0],sizeof(Opt.XLat.Table[0]));
-  SetRegKey("XLat","Table2",(BYTE*)Opt.XLat.Table[1],sizeof(Opt.XLat.Table[1]));
-  SetRegKey("XLat","Rules1",(BYTE*)Opt.XLat.Rules[0],sizeof(Opt.XLat.Rules[0]));
-  SetRegKey("XLat","Rules2",(BYTE*)Opt.XLat.Rules[1],sizeof(Opt.XLat.Rules[1]));
-  SetRegKey("XLat","Rules3",(BYTE*)Opt.XLat.Rules[2],sizeof(Opt.XLat.Rules[2]));
-  /* SVS $ */
   /* $ 24.09.2000 SVS
      Клавиши, вызывающие Xlat
   */
@@ -991,6 +994,11 @@ void SaveConfig(int Ask)
      + MaxPositionCache задает максимальное количество позиций под кэш
   */
   SetRegKey("System","MaxPositionCache",Opt.MaxPositionCache);
+  /* SVS $ */
+  /* $ 27.09.2000 SVS
+    + Opt.AllCtrlAltShiftRule битовые флаги, задают поведение Ctrl-Alt-Shift
+  */
+  SetRegKey("System","AllCtrlAltShiftRule",Opt.AllCtrlAltShiftRule);
   /* SVS $ */
 
   SetRegKey("Language","Main",Opt.Language);

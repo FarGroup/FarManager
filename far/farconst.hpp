@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.05 15.07.2000 $ */
+/* Revision: 1.06 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
   15.07.2000 SVS
     + Константы для Меню от VVM - вынесены из usermenu.cpp
   12.07.2000 SVS
@@ -181,5 +183,19 @@ enum {EC_CLOSE_LEVEL = -1,  // Выйти из меню на один уровень вверх
       EC_MAIN_MENU   =-4};  // Показать главное меню
 
 /* SVS $ */
+
+/* $ 27.09.2000 SVS
+  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
+*/
+enum {
+  CASR_PANEL  = 0x0001,
+  CASR_EDITOR = 0x0002,
+  CASR_VIEWER = 0x0004,
+  CASR_HELP   = 0x0008,
+  CASR_DIALOG = 0x0010,
+};
+/* SVS $ */
+
+#define SYSID_PRINTMANAGER	0x6E614D50
 
 #endif // __FARCONST_HPP__

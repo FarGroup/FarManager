@@ -5,10 +5,12 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.08 19.09.2000 $ */
+/* Revision: 1.09 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    ! Ctrl-Alt-Shift - реагируем, если надо.
   19.09.2000 IS
     ! Повторное нажатие на ctrl-l|q|t всегда включает файловую панель
   19.09.2000 SVS
@@ -417,6 +419,8 @@ int ControlObject::ProcessKey(int Key)
     */
     case KEY_CTRLALTSHIFTPRESS:
     {
+      if(Opt.AllCtrlAltShiftRule & CASR_PANEL)
+      {
         /* $ 19.09.2000 SVS
          + Opt.PanelCtrlAltShiftRule задает поведение
            Ctrl-Alt-Shift для панелей.
@@ -438,8 +442,9 @@ int ControlObject::ProcessKey(int Key)
         if (RightVisible)     RightPanel->Show();
         if (CmdLineVisible)   CmdLine.Show();
         if (KeyBarVisible)    MainKeyBar.Show();
-        break;
         /* SVS $ */
+      }
+      break;
     }
     /* SVS $ */
 

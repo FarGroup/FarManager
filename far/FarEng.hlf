@@ -141,6 +141,7 @@ $ #Panel control commands#
   Select files with the current file extension         #Ctrl-<Gray +>#
   Deselect files with the current file extension       #Ctrl-<Gray ->#
   Invert selection including folders                   #Ctrl-<Gray *>#
+    (ignore command line state)
   Select files with the current file name               #Alt-<Gray +>#
   Deselect files with the current file name             #Alt-<Gray ->#
   Select all files                                    #Shift-<Gray +>#
@@ -298,6 +299,8 @@ if internal is default.
 editor if internal is default.
 
   Print files                                                 #Alt-F5#
+
+  To print the selected files "Print manager" plugin is used.
 
   Create hard link (NTFS only)                                #Alt-F6#
 
@@ -1156,6 +1159,8 @@ $ #Internal viewer#
     #Shift-F2#           Type of Toggle (letters/words)
     #F4#                 Toggle text/hex mode
     #F6#                 Switch to editor
+    #Alt-F5#             Print the file
+                       ("Print manager" plugin is used).
     #F7#                 Search
     #Shift-F7, Space#    Continue search
     #F8#                 Toggle DOS/Windows text view mode
@@ -1269,6 +1274,8 @@ $ #Internal editor#
    #F1#                      Help
    #F2#                      Save file
    #Shift-F2#                Save file as...
+   #Alt-F5#                  Print file or selected block
+                           ("Print manager" plugin is used).
    #F6#                      Switch to viewer
    #F7#                      Search
    #Ctrl-F7#                 Replace

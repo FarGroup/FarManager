@@ -12,10 +12,14 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.19 24.09.2000 $ */
+/* Revision: 1.20 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + MHelpActivatorFormat
+    + MHelpActivatorURL
+    + MHelpActivatorQ
   24.09.2000 SVS
     + MViewConfigSaveShortPos
     + MEditConfigSaveShortPos
@@ -716,6 +720,9 @@ enum
   MGetTableNormalText,
 
   MHelpTitle,
+  MHelpActivatorURL,
+  MHelpActivatorFormat,
+  MHelpActivatorQ,
   MCannotOpenHelp,
   MHelpTopicNotFound,
 

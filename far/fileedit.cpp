@@ -5,10 +5,13 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.06 27.09.2000 $ */
+/* Revision: 1.07 27.08.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + Печать файла/блока с использованием плагина PrintMan
+    ! Ctrl-Alt-Shift - реагируем, если надо.
   27.09.2000 SKV
     + Для правильного функционирования макро с Ctrl-O делается FEdit.Hide()
   24.08.2000 SVS
@@ -130,6 +133,9 @@ void FileEditor::InitKeyBar(void)
   char *FEditShiftKeys[]={MSG(MEditShiftF1),MSG(MEditShiftF2),MSG(MEditShiftF3),MSG(MEditShiftF4),MSG(MEditShiftF5),MSG(MEditShiftF6),MSG(MEditShiftF7),MSG(MEditShiftF8),MSG(MEditShiftF9),MSG(MEditShiftF10),MSG(MEditShiftF11),MSG(MEditShiftF12)};
   char *FEditAltKeys[]={MSG(MEditAltF1),MSG(MEditAltF2),MSG(MEditAltF3),MSG(MEditAltF4),MSG(MEditAltF5),MSG(MEditAltF6),MSG(MEditAltF7),MSG(MEditAltF8),MSG(MEditAltF9),MSG(MEditAltF10),MSG(MEditAltF11),MSG(MEditAltF12)};
   char *FEditCtrlKeys[]={MSG(MEditCtrlF1),MSG(MEditCtrlF2),MSG(MEditCtrlF3),MSG(MEditCtrlF4),MSG(MEditCtrlF5),MSG(MEditCtrlF6),MSG(MEditCtrlF7),MSG(MEditCtrlF8),MSG(MEditCtrlF9),MSG(MEditCtrlF10),MSG(MEditCtrlF11),MSG(MEditCtrlF12)};
+
+  if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+    FEditAltKeys[5-1]="";
   /* tran $ */
   /* $ 07.08.2000 SVS
      добавил названия расширенных функциональных клавиш */
@@ -190,19 +196,22 @@ int FileEditor::ProcessKey(int Key)
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
     case KEY_CTRLALTSHIFTPRESS:
+      if(!(Opt.AllCtrlAltShiftRule & CASR_EDITOR))
+        return(TRUE);
     case KEY_CTRLO:
-    /*$ 27.09.2000 skv
-      To prevent redraw in macro with Ctrl-O
-    */
+      /*$ 27.09.2000 skv
+        To prevent redraw in macro with Ctrl-O
+      */
       FEdit.Hide();
-    /* skv$*/
+      /* skv$*/
       Hide();
       if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)
         CtrlObject->ModalManager.ShowBackground();
       else
       {
         EditKeyBar.Hide();
-        WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
+        if(Opt.AllCtrlAltShiftRule & CASR_EDITOR)
+          WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       }
       EditKeyBar.Show();
       Show();
@@ -337,6 +346,18 @@ int FileEditor::ProcessKey(int Key)
         }
       }
       return(TRUE);
+
+    /* $ 27.09.2000 SVS
+       Печать файла/блока с использованием плагина PrintMan
+    */
+    case KEY_ALTF5:
+    {
+      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+        CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_EDITOR,0); // printman
+      return TRUE;
+    }
+    /* SVS $*/
+
     default:
       if (CtrlObject->Macro.IsExecuting() || !FEdit.ProcessEditorInput(&ReadRec))
         return(FEdit.ProcessKey(Key));

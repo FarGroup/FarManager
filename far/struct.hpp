@@ -7,10 +7,19 @@ struct.hpp
 
 */
 
-/* Revision: 1.19 24.09.2000 $ */
+/* Revision: 1.20 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
+   + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift
+     бит установлен - функция включена:
+     0 - Panel
+     1 - Edit
+     2 - View
+     3 - Help
+     4 - Dialog
   24.09.2000 SVS
    + Opt.MaxPositionCache - количество позиций в кэше сохранения
    + Opt.SaveViewerShortPos - запоминание позиций во вьювере по Ctrl-0..9
@@ -327,6 +336,17 @@ struct Options
   */
   int PanelCtrlAltShiftRule;
   /* SVS $*/
+  /* $ 27.09.2000 SVS
+   + Opt.AllCtrlAltShiftRule - битовые флаги, задают поведение Ctrl-Alt-Shift
+     бит установлен - функция включена:
+     0 - Panel
+     1 - Edit
+     2 - View
+     3 - Help
+     4 - Dialog
+  */
+  int AllCtrlAltShiftRule;
+  /* SVS $*/
   /* $ 24.09.2000 SVS
    + Opt.CmdHistoryRule задает поведение Esc для командной строки:
       =1 - Не изменять положение в History, если после Ctrl-E/Ctrl/-X
@@ -345,6 +365,11 @@ struct Options
    + Opt.MaxPositionCache - количество позиций в кэше сохранения
   */
   int MaxPositionCache;
+  /* SVS $*/
+  /* $ 27.09.2000 SVS
+   + Opt.HelpURLRules - =0 отключить возможность запуска URL-приложений
+  */
+  int HelpURLRules;
   /* SVS $*/
 };
 

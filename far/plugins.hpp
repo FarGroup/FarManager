@@ -7,10 +7,14 @@ plugins.hpp
 
 */
 
-/* Revision: 1.03 21.09.2000 $ */
+/* Revision: 1.04 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + Функция CallPlugin - найти плагин по ID и запустить
+    + CurViewer
+    + pProcessViewerEvent
   21.09.2000 SVS
     + поле SysID - системный идентификатор плагина
   01.09.2000 tran 1.02
@@ -25,6 +29,7 @@ Modify:
 
 class SaveScreen;
 class Editor;
+class Viewer;
 
 typedef void (WINAPI *PLUGINSETSTARTUPINFO)(struct PluginStartupInfo *Info);
 typedef HANDLE (WINAPI *PLUGINOPENPLUGIN)(int OpenFrom,int Item);
@@ -51,6 +56,11 @@ typedef void (WINAPI *PLUGINEXITFAR)();
 typedef int (WINAPI *PLUGINCOMPARE)(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);
 typedef int (WINAPI *PLUGINPROCESSEDITORINPUT)(INPUT_RECORD *Rec);
 typedef int (WINAPI *PLUGINMINFARVERSION)();
+/* $ 27.09.2000 SVS
+   События во вьювере
+*/
+typedef int (WINAPI *PLUGINPROCESSVIEWEREVENT)(int Event,void *Param);
+/* SVS $ */
 
 struct PluginItem
 {
@@ -62,7 +72,7 @@ struct PluginItem
      поле - системный идентификатор плагина
      Плагин должен сам задавать, например для
      Network      = 0x5774654E (NetW)
-     PrintManager = 0x6E614D50 (PMan)
+     PrintManager = 0x6E614D50 (PMan)  SYSID_PRINTMANAGER
   */
   DWORD SysID;
   /* SVS $ */
@@ -100,10 +110,22 @@ struct PluginItem
   PLUGINCOMPARE pCompare;
   PLUGINPROCESSEDITORINPUT pProcessEditorInput;
   PLUGINMINFARVERSION pMinFarVersion;
+  PLUGINPROCESSVIEWEREVENT pProcessViewerEvent;
 };
 
 class PluginsSet
 {
+  public:
+    struct PluginItem *PluginsData;
+    int PluginsCount;
+
+    Editor *CurEditor;
+    /* $ 27.09.2000 SVS
+       Указательна текущий Viewer
+    */
+    Viewer *CurViewer;
+    /* SVS $*/
+
   private:
     int LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Init);
     void SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNumber);
@@ -113,9 +135,12 @@ class PluginsSet
     void LoadIfCacheAbsent();
     void ReadUserBackgound(SaveScreen *SaveScr);
     int GetHotKeyRegKey(int PluginNumber,int ItemNumber,char *RegKey);
+
   public:
     PluginsSet();
     ~PluginsSet();
+
+  public:
     void LoadPlugins();
     void LoadPluginsFromCache();
     HANDLE OpenPlugin(int PluginNumber,int OpenFrom,int Item);
@@ -140,6 +165,7 @@ class PluginsSet
     int Compare(HANDLE hPlugin,struct PluginPanelItem *Item1,struct PluginPanelItem *Item2,unsigned int Mode);
     int ProcessEditorInput(INPUT_RECORD *Rec);
     void ProcessEditorEvent(int Event,void *Param);
+    void ProcessViewerEvent(int Event,void *Param);
     void SendExit();
     char* FarGetMsg(int PluginNumber,int MsgId);
     void Configure();
@@ -157,10 +183,13 @@ class PluginsSet
     void ShowMessageAboutIllegialPluginVersion(char* plg,int required);
     /* tran 03.08.2000 $ */
 
-    struct PluginItem *PluginsData;
-    int PluginsCount;
-
-    Editor *CurEditor;
+    /* $ .09.2000 SVS
+      Функция CallPlugin - найти плагин по ID и запустить
+      OpenFrom = OPEN_*
+    */
+    int CallPlugin(DWORD SysID,int OpenFrom, void *Data);
+    int FindPlugin(DWORD SysID);
+    /* SVS $ */
 };
 
 #endif  // __PLUGINS_HPP__

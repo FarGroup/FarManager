@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.28 27.09.2000 $ */
+/* Revision: 1.29 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + ViewerControl - (пока только: получить минимум необходимой
+      информации - для PrintMan)
+    ! Переменные UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
+      введены в одну структуру ViewerMode.
   27.09.2000 SVS
     + Глюки с определением Unicode при просмотре по '+' & '-'
   24.09.2000 SVS
@@ -102,6 +107,11 @@ static struct CharTableSet InitTableSet;
 static int InitUseDecodeTable=FALSE,InitTableNum=0,InitAnsiText=FALSE;
 
 static int InitHex=FALSE;
+/* $ 27.09.2000 SVS
+   ID вьювера - по аналогии с Editor
+*/
+static int ViewerID=0;
+/* SVS $*/
 
 Viewer::Viewer()
 {
@@ -122,25 +132,25 @@ Viewer::Viewer()
   LastSearchReverse=GlobalSearchReverse;
   LastSearchHex=InitLastSearchHex;
   memcpy(&TableSet,&InitTableSet,sizeof(TableSet));
-  UseDecodeTable=InitUseDecodeTable;
-  TableNum=InitTableNum;
-  AnsiText=InitAnsiText;
+  VM.UseDecodeTable=InitUseDecodeTable;
+  VM.TableNum=InitTableNum;
+  VM.AnsiText=InitAnsiText;
 
-  if (AnsiText && TableNum==0)
+  if (VM.AnsiText && VM.TableNum==0)
   {
     int UseUnicode=TRUE;
-    GetTable(&TableSet,TRUE,TableNum,UseUnicode);
-    TableNum=0;
-    UseDecodeTable=TRUE;
+    GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
+    VM.TableNum=0;
+    VM.UseDecodeTable=TRUE;
   }
-  Unicode=(TableNum==1) && UseDecodeTable;
+  VM.Unicode=(VM.TableNum==1) && VM.UseDecodeTable;
   /* $ 31.08.2000 SVS
     Вспомним тип врапа
   */
-  Wrap=Opt.ViewerIsWrap;
-  TypeWrap=Opt.ViewerWrap;
+  VM.Wrap=Opt.ViewerIsWrap;
+  VM.TypeWrap=Opt.ViewerWrap;
   /* SVS $ */
-  Hex=InitHex;
+  VM.Hex=InitHex;
 
   ViewFile=NULL;
   ViewKeyBar=NULL;
@@ -165,6 +175,10 @@ Viewer::Viewer()
   memset(UndoLeft,0xff,sizeof(UndoLeft));
   LastKeyUndo=FALSE;
   InternalKey=FALSE;
+  Viewer::ViewerID=::ViewerID++;
+  CtrlObject->Plugins.CurViewer=this;
+  OpenFailed=false;
+  HostFileViewer=NULL;
 }
 
 
@@ -185,14 +199,14 @@ Viewer::~Viewer()
       if (TableChangedByUser)
       {
         Table=1;
-        if (AnsiText)
+        if (VM.AnsiText)
           Table=2;
         else
-          if (Unicode)
+          if (VM.Unicode)
             Table=3;
           else
-            if (UseDecodeTable)
-              Table=TableNum+3;
+            if (VM.UseDecodeTable)
+              Table=VM.TableNum+3;
       }
       CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table,
           (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
@@ -217,6 +231,11 @@ Viewer::~Viewer()
     /* SVS $ */
   }
   /* tran 12.07.2000 $ */
+  if (!OpenFailed)
+  {
+    CtrlObject->Plugins.CurViewer=this;
+//    CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
+  }
 }
 
 
@@ -232,18 +251,19 @@ void Viewer::KeepInitParameters()
   GlobalSearchReverse=LastSearchReverse;
   InitLastSearchHex=LastSearchHex;
   memcpy(&InitTableSet,&TableSet,sizeof(InitTableSet));
-  InitUseDecodeTable=UseDecodeTable;
-  InitTableNum=TableNum;
-  InitAnsiText=AnsiText;
-  Opt.ViewerIsWrap=Wrap;
-  Opt.ViewerWrap=TypeWrap;
-  InitHex=Hex;
+  InitUseDecodeTable=VM.UseDecodeTable;
+  InitTableNum=VM.TableNum;
+  InitAnsiText=VM.AnsiText;
+  Opt.ViewerIsWrap=VM.Wrap;
+  Opt.ViewerWrap=VM.TypeWrap;
+  InitHex=VM.Hex;
 }
 
 
 int Viewer::OpenFile(char *Name,int warning)
 {
   FILE *NewViewFile=NULL;
+  OpenFailed=false;
   if (CmdMode && strcmp(Name,"-")==0)
   {
     HANDLE OutHandle;
@@ -256,7 +276,10 @@ int Viewer::OpenFile(char *Name,int warning)
                 FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,
                 FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE,NULL);
       if (OutHandle==INVALID_HANDLE_VALUE)
+      {
+        OpenFailed=true;
         return(FALSE);
+      }
       char ReadBuf[8192];
       DWORD ReadSize,WrittenSize;
       while (ReadFile(GetStdHandle(STD_INPUT_HANDLE),ReadBuf,sizeof(ReadBuf),&ReadSize,NULL))
@@ -301,6 +324,7 @@ int Viewer::OpenFile(char *Name,int warning)
             MSG(MViewerCannotOpenFile),Name,MSG(MOk));
     /* tran 04.07.2000 $ */
 
+    OpenFailed=true;
     return(FALSE);
   }
   if (ViewFile)
@@ -322,15 +346,15 @@ int Viewer::OpenFile(char *Name,int warning)
   if(Opt.ViewerAutoDetectTable)
   {
     DWORD ReadSize;
-    Unicode=0;
+    VM.Unicode=0;
     FirstWord=0;
     vseek(ViewFile,0,SEEK_SET);
     ReadSize=vread((char *)&FirstWord,sizeof(FirstWord),ViewFile);
     //if(ReadSize == sizeof(FirstWord) &&
     if(FirstWord == 0x0FEFF)
     {
-      AnsiText=UseDecodeTable=0;
-      Unicode=1;
+      VM.AnsiText=VM.UseDecodeTable=0;
+      VM.Unicode=1;
       TableChangedByUser=TRUE;
       IsDecode=TRUE;
     }
@@ -357,26 +381,26 @@ int Viewer::OpenFile(char *Name,int warning)
         case 0:
           break;
         case 1:
-          AnsiText=UseDecodeTable=Unicode=0;
+          VM.AnsiText=VM.UseDecodeTable=VM.Unicode=0;
           break;
         case 2:
           {
-            AnsiText=TRUE;
-            UseDecodeTable=TRUE;
-            Unicode=0;
-            TableNum=0;
+            VM.AnsiText=TRUE;
+            VM.UseDecodeTable=TRUE;
+            VM.Unicode=0;
+            VM.TableNum=0;
             int UseUnicode=TRUE;
-            GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+            GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
           }
           break;
         case 3:
-          AnsiText=UseDecodeTable=0;
-          Unicode=1;
+          VM.AnsiText=VM.UseDecodeTable=0;
+          VM.Unicode=1;
           break;
         default:
-          AnsiText=Unicode=0;
-          UseDecodeTable=1;
-          TableNum=Table-3;
+          VM.AnsiText=VM.Unicode=0;
+          VM.UseDecodeTable=1;
+          VM.TableNum=Table-3;
           PrepareTable(&TableSet,Table-5);
           break;
       }
@@ -392,18 +416,18 @@ int Viewer::OpenFile(char *Name,int warning)
   SetCRSym();
   if (Opt.ViewerAutoDetectTable && !TableChangedByUser)
   {
-    UseDecodeTable=DetectTable(ViewFile,&TableSet,TableNum);
-    if (TableNum>0)
-      TableNum++;
-    if (Unicode)
+    VM.UseDecodeTable=DetectTable(ViewFile,&TableSet,VM.TableNum);
+    if (VM.TableNum>0)
+      VM.TableNum++;
+    if (VM.Unicode)
     {
-      Unicode=0;
+      VM.Unicode=0;
       FilePos*=2;
       SetFileSize();
     }
-    if (AnsiText)
+    if (VM.AnsiText)
     {
-      AnsiText=FALSE;
+      VM.AnsiText=FALSE;
       ChangeViewKeyBar();
     }
   }
@@ -418,6 +442,8 @@ int Viewer::OpenFile(char *Name,int warning)
      XX2--;
   }
   /* tran 19.07.2000 $ */
+  CtrlObject->Plugins.CurViewer=this;
+//  CtrlObject->Plugins.ProcessViewerEvent(VE_READ,NULL);
   return(TRUE);
 }
 
@@ -477,6 +503,8 @@ void Viewer::DisplayObject()
   }
   /* tran $ */
 
+  CtrlObject->Plugins.CurViewer=this;
+
   ViewY1=Y1+ShowStatusLine;
 
   if (HideCursor)
@@ -486,7 +514,7 @@ void Viewer::DisplayObject()
   }
   vseek(ViewFile,FilePos,SEEK_SET);
 
-  if (Hex)
+  if (VM.Hex)
     ShowHex();
   else
   {
@@ -535,7 +563,7 @@ void Viewer::DisplayObject()
         /* $ 12.07.2000 SVS
            ! Wrap - трех позиционный
         */
-        if (!Wrap &&
+        if (!VM.Wrap &&
         /* SVS $ */
            SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE)
         {
@@ -591,7 +619,7 @@ void Viewer::ShowHex()
 
     TextPos=0;
 
-    if (Unicode)
+    if (VM.Unicode)
       for (X=0;X<8;X++)
       {
         if (SelectSize>0 && SelectPos==vtell(ViewFile))
@@ -670,7 +698,7 @@ void Viewer::ShowHex()
           strcat(OutStr,"│ ");
       }
     TextStr[TextPos]=0;
-    if (UseDecodeTable && !Unicode)
+    if (VM.UseDecodeTable && !VM.Unicode)
       DecodeString(TextStr,(unsigned char *)TableSet.DecodeTable);
     strcat(TextStr," ");
     strcat(OutStr,"  ");
@@ -683,7 +711,7 @@ void Viewer::ShowHex()
     {
       SetColor(COL_VIEWERSELECTEDTEXT);
       GotoXY(X1+SelPos-HexLeftPos,Y);
-      mprintf("%.*s",Unicode ? 4:2,&OutStr[SelPos]);
+      mprintf("%.*s",VM.Unicode ? 4:2,&OutStr[SelPos]);
       SelSize=0;
     }
   }
@@ -790,13 +818,13 @@ void Viewer::ShowStatus()
     NameLength=20;
   TruncStr(Name,NameLength);
   char *TableName;
-  if (Unicode)
+  if (VM.Unicode)
     TableName="Unicode";
   else
-    if (UseDecodeTable)
+    if (VM.UseDecodeTable)
       TableName=TableSet.TableName;
     else
-      if (AnsiText)
+      if (VM.AnsiText)
         TableName="Win";
       else
         TableName="DOS";
@@ -841,10 +869,10 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
 
   OutPtr=0;
   SelSize=0;
-  if (Hex)
+  if (VM.Hex)
   {
-    OutPtr=vread(Str,Unicode ? 8:16,ViewFile);
-    Str[Unicode ? 8:16]=0;
+    OutPtr=vread(Str,VM.Unicode ? 8:16,ViewFile);
+    Str[VM.Unicode ? 8:16]=0;
   }
   else
   {
@@ -856,7 +884,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
       /* $ 12.07.2000 SVS
         ! Wrap - трехпозиционный
       */
-      if (Wrap && OutPtr>XX2-X1)
+      if (VM.Wrap && OutPtr>XX2-X1)
       {
         /* $ 11.07.2000 tran
            + warp are now WORD-WRAP */
@@ -864,7 +892,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         if ((Ch=vgetc(ViewFile))!=CRSym && (Ch!=13 || vgetc(ViewFile)!=CRSym))
         {
           vseek(ViewFile,SavePos,SEEK_SET);
-          if (TypeWrap && RegVer) // только для зарегестрированных
+          if (VM.TypeWrap && RegVer) // только для зарегестрированных
           {
             if ( ! (Ch==' ' || Ch=='\t'  ) && !(Str[OutPtr]==' ' || Str[OutPtr]=='\t'))
             {
@@ -931,7 +959,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
         /* $ 12.07.2000 SVS
           Wrap - 3-x позиционный и если есть регистрация :-)
         */
-        if ((Wrap && (TypeWrap && RegVer))
+        if ((VM.Wrap && (VM.TypeWrap && RegVer))
         /* SVS $ */
             && OutPtr>XX2-X1)
           Str[XX2-X1+1]=0;
@@ -949,7 +977,7 @@ void Viewer::ReadString(char *Str,int MaxSize,int StrSize,int &SelPos,int &SelSi
   }
   Str[OutPtr]=0;
 
-  if (UseDecodeTable && !Unicode)
+  if (VM.UseDecodeTable && !VM.Unicode)
     DecodeString(Str,(unsigned char *)TableSet.DecodeTable);
   LastPage=feof(ViewFile);
 }
@@ -1091,14 +1119,14 @@ int Viewer::ProcessKey(int Key)
             if (TableChangedByUser)
             {
               Table=1;
-              if (AnsiText)
+              if (VM.AnsiText)
                 Table=2;
               else
-                if (Unicode)
+                if (VM.Unicode)
                   Table=3;
                 else
-                  if (UseDecodeTable)
-                    Table=TableNum+3;
+                  if (VM.UseDecodeTable)
+                    Table=VM.TableNum+3;
             }
             CtrlObject->ViewerPosCache.AddPosition(CacheName,FilePos,LeftPos,0,0,Table,
                     (long*)(Opt.SaveViewerShortPos?SavePosAddr:NULL),
@@ -1134,12 +1162,12 @@ int Viewer::ProcessKey(int Key)
     case KEY_SHIFTF2:
       if(RegVer)
       {
-        TypeWrap=!TypeWrap;
-        if(!Wrap)
-          Wrap=!Wrap;
+        VM.TypeWrap=!VM.TypeWrap;
+        if(!VM.Wrap)
+          VM.Wrap=!VM.Wrap;
         ChangeViewKeyBar();
         Show();
-        Opt.ViewerWrap=TypeWrap;
+        Opt.ViewerWrap=VM.TypeWrap;
         LastSelPos=FilePos;
       }
       return TRUE;
@@ -1148,18 +1176,18 @@ int Viewer::ProcessKey(int Key)
       /* $ 12.07.200 SVS
         ! Wrap имеет 3 положения и...
       */
-      Wrap=!Wrap;
+      VM.Wrap=!VM.Wrap;
       ChangeViewKeyBar();
       Show();
       /* $ 31.08.2000 SVS
         Сохраняем тип врапа
       */
-      Opt.ViewerIsWrap=Wrap;
+      Opt.ViewerIsWrap=VM.Wrap;
       /* SVS $ */
       LastSelPos=FilePos;
       return(TRUE);
     case KEY_F4:
-      Hex=!Hex;
+      VM.Hex=!VM.Hex;
       ChangeViewKeyBar();
       Show();
       LastSelPos=FilePos;
@@ -1172,19 +1200,19 @@ int Viewer::ProcessKey(int Key)
       Search(1,0);
       return(TRUE);
     case KEY_F8:
-      if ((AnsiText=!AnsiText)!=0)
+      if ((VM.AnsiText=!VM.AnsiText)!=0)
       {
         int UseUnicode=TRUE;
-        GetTable(&TableSet,TRUE,TableNum,UseUnicode);
+        GetTable(&TableSet,TRUE,VM.TableNum,UseUnicode);
       }
-      if (Unicode)
+      if (VM.Unicode)
       {
         FilePos*=2;
-        Unicode=FALSE;
+        VM.Unicode=FALSE;
         SetFileSize();
       }
-      TableNum=0;
-      UseDecodeTable=AnsiText;
+      VM.TableNum=0;
+      VM.UseDecodeTable=VM.AnsiText;
       ChangeViewKeyBar();
       Show();
       LastSelPos=FilePos;
@@ -1193,17 +1221,17 @@ int Viewer::ProcessKey(int Key)
     case KEY_SHIFTF8:
       {
         int UseUnicode=TRUE;
-        int GetTableCode=GetTable(&TableSet,FALSE,TableNum,UseUnicode);
+        int GetTableCode=GetTable(&TableSet,FALSE,VM.TableNum,UseUnicode);
         if (GetTableCode!=-1)
         {
-          if (Unicode && !UseUnicode)
+          if (VM.Unicode && !UseUnicode)
             FilePos*=2;
-          if (!Unicode && UseUnicode)
+          if (!VM.Unicode && UseUnicode)
             FilePos=(FilePos+(FilePos&1))/2;
-          UseDecodeTable=GetTableCode;
-          Unicode=UseUnicode;
+          VM.UseDecodeTable=GetTableCode;
+          VM.Unicode=UseUnicode;
           SetFileSize();
-          AnsiText=FALSE;
+          VM.AnsiText=FALSE;
           ChangeViewKeyBar();
           Show();
           LastSelPos=FilePos;
@@ -1222,9 +1250,9 @@ int Viewer::ProcessKey(int Key)
       if (FilePos>0)
       {
         Up();
-        if (Hex)
+        if (VM.Hex)
         {
-          FilePos&=~(Unicode ? 0x7:0xf);
+          FilePos&=~(VM.Unicode ? 0x7:0xf);
           Show();
         }
         else
@@ -1272,7 +1300,7 @@ int Viewer::ProcessKey(int Key)
     case KEY_LEFT:
       if (LeftPos>0)
       {
-        if (Hex && LeftPos>80-Width)
+        if (VM.Hex && LeftPos>80-Width)
           LeftPos=Max(80-Width,1);
         LeftPos--;
         Show();
@@ -1320,8 +1348,8 @@ int Viewer::ProcessKey(int Key)
       FilePos=vtell(ViewFile);
       for (I=0;I<Y2-ViewY1;I++)
         Up();
-      if (Hex)
-        FilePos&=~(Unicode ? 0x7:0xf);
+      if (VM.Hex)
+        FilePos&=~(VM.Unicode ? 0x7:0xf);
       Show();
       LastSelPos=FilePos;
       return(TRUE);
@@ -1410,9 +1438,9 @@ void Viewer::Up()
   if (BufSize==0)
     return;
   LastPage=0;
-  if (Hex)
+  if (VM.Hex)
   {
-    int UpSize=Unicode ? 8:16;
+    int UpSize=VM.Unicode ? 8:16;
     if (FilePos<UpSize)
       FilePos=0;
     else
@@ -1435,7 +1463,7 @@ void Viewer::Up()
   for (I=BufSize-1;I>=-1;I--)
   {
     if (Buf[I]==CRSym || I==-1)
-      if (!Wrap)
+      if (!VM.Wrap)
       {
         FilePos-=BufSize-(I+1)+Skipped;
         return;
@@ -1522,24 +1550,28 @@ void Viewer::ChangeViewKeyBar()
     */
     ViewKeyBar->Change(
        MSG(
-       (!Wrap)?((!TypeWrap)?MViewF2:MViewShiftF2)
+       (!VM.Wrap)?((!VM.TypeWrap)?MViewF2:MViewShiftF2)
        :MViewF2Unwrap),1);
-    ViewKeyBar->Change(KBL_SHIFT,MSG((TypeWrap)?MViewF2:MViewShiftF2),1);
+    ViewKeyBar->Change(KBL_SHIFT,MSG((VM.TypeWrap)?MViewF2:MViewShiftF2),1);
     /* SVS $ */
     /* SVS $ */
 
-    if (Hex)
+    if (VM.Hex)
       ViewKeyBar->Change(MSG(MViewF4Text),3);
     else
       ViewKeyBar->Change(MSG(MViewF4),3);
 
-    if (AnsiText)
+    if (VM.AnsiText)
       ViewKeyBar->Change(MSG(MViewF8DOS),7);
     else
       ViewKeyBar->Change(MSG(MViewF8),7);
 
     ViewKeyBar->Redraw();
   }
+  struct ViewerMode vm;
+  memmove(&vm,&VM,sizeof(struct ViewerMode));
+  CtrlObject->Plugins.CurViewer=this;
+//  CtrlObject->Plugins.ProcessViewerEvent(VE_MODE,&vm);
 }
 
 
@@ -1589,7 +1621,7 @@ void Viewer::Search(int Next,int FirstChar)
   /* KM $ */
   SearchDlg[8].Selected=LastSearchReverse;
 
-  if (Unicode)
+  if (VM.Unicode)
   {
     SearchDlg[4].Selected=TRUE;
     SearchDlg[5].Type=DI_TEXT;
@@ -1690,7 +1722,7 @@ void Viewer::Search(int Next,int FirstChar)
           break;
         if (CheckForEsc())
           return;
-        if (UseDecodeTable && !SearchHex && !Unicode)
+        if (VM.UseDecodeTable && !SearchHex && !VM.Unicode)
           for (int I=0;I<ReadSize;I++)
             Buf[I]=TableSet.DecodeTable[Buf[I]];
 
@@ -1825,14 +1857,14 @@ void Viewer::Search(int Next,int FirstChar)
     SelectPos=FilePos=MatchPos;
     SelectSize=SearchLength;
     LastSelPos=SelectPos+(ReverseSearch ? -1:1);
-    if (Hex)
-      FilePos&=~(Unicode ? 0x7:0xf);
+    if (VM.Hex)
+      FilePos&=~(VM.Unicode ? 0x7:0xf);
     else
     {
       if (SelectPos!=StartLinePos)
         Up();
       int Length=SelectPos-StartLinePos-1;
-      if (Wrap)
+      if (VM.Wrap)
         Length%=ScrX+1;
       if (Length<=Width)
           LeftPos=0;
@@ -1897,13 +1929,13 @@ int Viewer::HexToNum(int Hex)
 
 int Viewer::GetWrapMode()
 {
-  return(Wrap);
+  return(VM.Wrap);
 }
 
 
 void Viewer::SetWrapMode(int Wrap)
 {
-  Viewer::Wrap=Wrap;
+  Viewer::VM.Wrap=Wrap;
 }
 
 
@@ -1971,7 +2003,7 @@ void Viewer::SetNamesList(NamesList *List)
 
 int Viewer::vread(char *Buf,int Size,FILE *SrcFile)
 {
-  if (Unicode)
+  if (VM.Unicode)
   {
     char TmpBuf[16384+10];
     int ReadSize=fread(TmpBuf,1,Size*2,SrcFile);
@@ -1990,10 +2022,10 @@ int Viewer::vseek(FILE *SrcFile,unsigned long Offset,int Whence)
   /* $ 19.09.2000 SVS
     Unicode
   */
-  if(!Hex && !Offset && Unicode && FirstWord == 0x0FEFF && Whence == SEEK_SET)
+  if(!VM.Hex && !Offset && VM.Unicode && FirstWord == 0x0FEFF && Whence == SEEK_SET)
     Offset++;
   /* SVS $ */
-  if (Unicode)
+  if (VM.Unicode)
     return(fseek(SrcFile,Offset*2,Whence));
   else
     return(fseek(SrcFile,Offset,Whence));
@@ -2003,7 +2035,7 @@ int Viewer::vseek(FILE *SrcFile,unsigned long Offset,int Whence)
 unsigned long Viewer::vtell(FILE *SrcFile)
 {
   unsigned long Pos=ftell(SrcFile);
-  if (Unicode)
+  if (VM.Unicode)
     Pos=(Pos+(Pos&1))/2;
   return(Pos);
 }
@@ -2011,7 +2043,7 @@ unsigned long Viewer::vtell(FILE *SrcFile)
 
 int Viewer::vgetc(FILE *SrcFile)
 {
-  if (Unicode)
+  if (VM.Unicode)
   {
     char TmpBuf[1];
     if (vread(TmpBuf,1,SrcFile)==0)
@@ -2051,7 +2083,7 @@ void Viewer::GoTo()
 
   // strcpy(GoToDlg[1].Data,PrevLine);
   GoToDlg[3].Selected=GoToDlg[4].Selected=GoToDlg[5].Selected=0;
-  if ( Hex )
+  if ( VM.Hex )
     PrevMode=1;
   GoToDlg[PrevMode+3].Selected=TRUE;
 
@@ -2115,7 +2147,7 @@ void Viewer::GoTo()
       //if ( Percent<0 )
       //  Percent=0;
       Offset=FileSize/100*Percent;
-      if (Unicode)
+      if (VM.Unicode)
         Offset*=2;
       while (ToPercent(Offset,FileSize)<Percent)
         Offset++;
@@ -2137,10 +2169,10 @@ void Viewer::GoTo()
         if ( Relative==-1 && Offset>FilePos ) // меньше нуля, if (FilePos<0) не пройдет - FilePos у нас unsigned long
             FilePos=0;
         else
-            FilePos=Unicode? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
+            FilePos=VM.Unicode? FilePos+Offset*Relative/2 : FilePos+Offset*Relative;
     }
     else
-        FilePos=Unicode ? Offset/2:Offset;
+        FilePos=VM.Unicode ? Offset/2:Offset;
     if ( FilePos>FileSize )   // и куда его несет?
         FilePos=FileSize;     // там все равно ничего нету
     /* tran 17.07.2000 $ */
@@ -2156,3 +2188,123 @@ void Viewer::SetFileSize()
   vseek(ViewFile,0,SEEK_END);
   FileSize=vtell(ViewFile);
 }
+
+/* $ 27.09.2000 SVS
+   "Ядро" будущего Viewer API :-)
+*/
+int Viewer::ViewerControl(int Command,void *Param)
+{
+  int I;
+  switch(Command)
+  {
+    case VCTL_GETINFO:
+    {
+      struct ViewerInfo *Info=(struct ViewerInfo *)Param;
+      if(Info)
+      {
+        memset(Info,0,Info->StructSize);
+        Info->ViewerID=Viewer::ViewerID;
+        Info->FileName=FullFileName;
+        Info->WindowSizeX=ObjWidth;
+        Info->WindowSizeY=Y2-Y1;
+        Info->FilePos=FilePos;
+        Info->FileSize=FileSize;
+        memmove(&Info->CurMode,&VM,sizeof(struct ViewerMode));
+        Info->CurMode.TableNum=VM.UseDecodeTable ? VM.TableNum-1:-1;
+        Info->Options=0;
+        if (Opt.SaveViewerPos)         Info->Options|=VOPT_SAVEFILEPOSITION;
+        if (Opt.ViewerAutoDetectTable) Info->Options|=VOPT_AUTODETECTTABLE;
+        Info->TabSize=Opt.ViewTabSize;
+        if(Info->StructSize >= sizeof(struct ViewerInfo))
+        {
+          // сюды писать добавки
+        }
+        return(TRUE);
+      }
+      break;
+    }
+    /* Param = LPDWORD на переменную, содержащую
+               новое смещение - сюда же будет записано новое смещение
+               В основном совпадает с передеанным
+
+        Здесь нужно выравнивать до перевода строки (т.к. неверное отображение)
+    */
+    case VCTL_SETPOS:
+    {
+      if(Param)
+      {
+        unsigned long NewPos=*(unsigned long*)Param;
+        bool isReShow=NewPos != FilePos ;
+        if ( NewPos > FileSize )   // и куда его несет?
+          *(unsigned long*)Param=FilePos=FileSize;     // там все равно ничего нету
+        else
+          FilePos=NewPos;
+        if (isReShow)
+        {
+          Show();
+          ScrBuf.Flush();
+        }
+        return(TRUE);
+      }
+      break;
+    }
+
+    /* Функция установки Keybar Labels
+         Param = NULL - восстановить, пред. значение
+         Param = -1   - обновить полосу (перерисовать)
+         Param = KeyBarTitles
+    */
+    case VCTL_SETKEYBAR:
+    {
+      struct KeyBarTitles *Kbt=(struct KeyBarTitles*)Param;
+      if(!Kbt)
+      {        // восстановить пред значение!
+        if (HostFileViewer!=NULL)
+          HostFileViewer->InitKeyBar();
+      }
+      else
+      {
+        if((long)Param != (long)-1) // не только перерисовать?
+        {
+          for(I=0; I < 12; ++I)
+          {
+            if(Kbt->Titles[I])
+              ViewKeyBar->Change(KBL_MAIN,Kbt->Titles[I],I);
+            if(Kbt->CtrlTitles[I])
+              ViewKeyBar->Change(KBL_CTRL,Kbt->CtrlTitles[I],I);
+            if(Kbt->AltTitles[I])
+              ViewKeyBar->Change(KBL_ALT,Kbt->AltTitles[I],I);
+            if(Kbt->ShiftTitles[I])
+              ViewKeyBar->Change(KBL_SHIFT,Kbt->ShiftTitles[I],I);
+            if(Kbt->CtrlShiftTitles[I])
+              ViewKeyBar->Change(KBL_CTRLSHIFT,Kbt->CtrlShiftTitles[I],I);
+            if(Kbt->AltShiftTitles[I])
+              ViewKeyBar->Change(KBL_ALTSHIFT,Kbt->AltShiftTitles[I],I);
+            if(Kbt->CtrlAltTitles[I])
+              ViewKeyBar->Change(KBL_CTRLALT,Kbt->CtrlAltTitles[I],I);
+          }
+        }
+        ViewKeyBar->Show();
+      }
+      return(TRUE);
+    }
+
+    // Param=0
+    case VCTL_REDRAW:
+    {
+      Show();
+      ScrBuf.Flush();
+      return(TRUE);
+    }
+
+    // Param=0
+    case VCTL_QUIT:
+    {
+      if (HostFileViewer!=NULL)
+        HostFileViewer->SetExitCode(0);
+      return(TRUE);
+    }
+  }
+  return(FALSE);
+}
+/* SVS $ */

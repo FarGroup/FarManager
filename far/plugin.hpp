@@ -8,13 +8,17 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000 [ FAR group ]
 */
-/* Revision: 1.58 27.09.2000 $ */
+/* Revision: 1.59 27.09.2000 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  27.09.2000 SVS
+    + VCTL_QUIT      - закрыть вьювер
+    + VCTL_GETINFO   - получение информации о Viewer
+    + VCTL_SETKEYBAR - функция установки KeyBar Labels во вьювере
   27.09.2000 skv
     + DeleteBuffer
   26.09.2000 SVS
@@ -668,6 +672,52 @@ typedef int (WINAPI *FARAPIADVCONTROL)(
   void *Param
 );
 
+
+enum VIEWER_CONTROL_COMMANDS {
+  VCTL_GETINFO,
+  VCTL_SETPOS,
+  VCTL_REDRAW,
+  VCTL_SETKEYBAR,
+  VCTL_QUIT,
+};
+
+enum VIEWER_OPTIONS {
+  VOPT_SAVEFILEPOSITION=1,
+  VOPT_AUTODETECTTABLE=2,
+};
+
+struct ViewerMode{
+  int UseDecodeTable;
+  int TableNum;
+  int AnsiText;
+  int Unicode;
+  int Wrap;
+  int TypeWrap;
+  int Hex;
+  DWORD Reserved[4];
+};
+
+struct ViewerInfo
+{
+  int    StructSize;
+  int    ViewerID;
+  char  *FileName;
+  DWORD  FileSize;
+  DWORD  Reserved1;
+  DWORD  FilePos;
+  DWORD  Reserved2;
+  int    WindowSizeX;
+  int    WindowSizeY;
+  DWORD  Options;
+  int    TabSize;
+  struct ViewerMode CurMode;
+};
+
+typedef int (WINAPI *FARAPIVIEWERCONTROL)(
+  int Command,
+  void *Param
+);
+
 enum EDITOR_EVENTS {
   EE_READ,EE_SAVE,EE_REDRAW,EE_CLOSE
 };
@@ -953,6 +1003,7 @@ struct PluginStartupInfo
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
   DWORD                  Reserved;
+  FARAPIVIEWERCONTROL    ViewerControl;
 };
 
 

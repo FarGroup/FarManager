@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.02 21.09.2000 $ */
+/* Revision: 1.03 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    ! FileList::CallPlugin() перенесен в PluginsSet
   21.09.2000 SVS
     + Функция CallPlugin - найти плагин по ID и запустить
   11.09.2000 SVS
@@ -192,12 +194,6 @@ class FileList:public Panel
     static void FileListToPluginItem(struct FileListItem *fi,struct PluginPanelItem *pi);
     static void PluginToFileListItem(struct PluginPanelItem *pi,struct FileListItem *fi);
     static int IsModeFullScreen(int Mode);
-
-    /* $ 21.09.2000 SVS
-      Функция CallPlugin - найти плагин по ID и запустить
-    */
-    int CallPlugin(DWORD SysID,char *Data);
-    /* SVS $ */
 };
 
 #endif	// __FILELIST_HPP__

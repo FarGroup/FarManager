@@ -5,10 +5,13 @@ help.cpp
 
 */
 
-/* Revision: 1.06 13.09.2000 $ */
+/* Revision: 1.07 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    ! Разрешения для активизации URL-ссылок.
+    ! Ctrl-Alt-Shift - реагируем, если надо.
   19.09.2000 OT
     - Ошибка при отрисовки хелпа
   12.09.2000 SVS
@@ -52,10 +55,14 @@ static char *HelpOnHelpTopic="Help";
 /* $ 25.08.2000 SVS
    Запуск URL-ссылок... ;-)
    Это ведь так просто... ась?
+   Вернет:
+     0 - это не URL ссылка (не похожа)
+     1 - CreateProcess вернул FALSE
+     2 - Все Ок
 */
-static BOOL RunURL(char *Protocol, char *URLPath)
+static int RunURL(char *Protocol, char *URLPath)
 {
-  BOOL EditCode=FALSE;
+  BOOL EditCode=0;
   if(Protocol && *Protocol && URLPath && *URLPath)
   {
     char *Buf=(char*)malloc(2048);
@@ -80,9 +87,24 @@ static BOOL RunURL(char *Protocol, char *URLPath)
           STARTUPINFO si={0};
           PROCESS_INFORMATION pi={0};
           si.cb=sizeof(si);
+
+          Disposition=0;
+          if(Opt.HelpURLRules == 2)
+            Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
+                        MSG(MHelpActivatorURL),
+                        Buf,
+                        MSG(MHelpActivatorFormat),
+                        URLPath,
+                        "\x01",
+                        MSG(MHelpActivatorQ),
+                        MSG(MYes),MSG(MNo));
+
           strcat(Buf,URLPath);
-          EditCode=CreateProcess(NULL,Buf,NULL,NULL,
-                                       TRUE,0,NULL,NULL,&si,&pi);
+
+          EditCode=2; // Все Ok!
+          if(Disposition == 0 && Opt.HelpURLRules)
+            if(!CreateProcess(NULL,Buf,NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))
+               EditCode=1;
         }
       }
       free(Buf);
@@ -714,9 +736,12 @@ int Help::ProcessKey(int Key)
     */
     case KEY_CTRLALTSHIFTPRESS:
     {
-       Hide();
-       WaitKey(KEY_CTRLALTSHIFTRELEASE);
-       Show();
+       if(Opt.AllCtrlAltShiftRule & CASR_HELP)
+       {
+         Hide();
+         WaitKey(KEY_CTRLALTSHIFTRELEASE);
+         Show();
+       }
        return(TRUE);
     }
     /* SVS $ */

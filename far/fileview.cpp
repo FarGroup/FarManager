@@ -5,10 +5,13 @@ fileview.cpp
 
 */
 
-/* Revision: 1.10 15.09.2000 $ */
+/* Revision: 1.11 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + Печать файла с использованием плагина PrintMan
+    ! Ctrl-Alt-Shift - реагируем, если надо.
   15.09.2000 tran 1.09
     - FKL bug
   14.09.2000 SVS
@@ -73,6 +76,10 @@ void FileViewer::Init(char *Name,int EnableSwitch,int DisableHistory,
   ViewKeyBar.SetOwner(this);
   ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
   View.SetPluginData(PluginData);
+  /* $ 07.08.2000 SVS
+  */
+  View.SetHostFileViewer(this);
+  /* SVS $ */
 
   SetEnableSwitch(EnableSwitch);
 
@@ -128,6 +135,10 @@ void FileViewer::InitKeyBar(void)
   char *FViewShiftKeys[]={MSG(MViewShiftF1),MSG(MViewShiftF2),MSG(MViewShiftF3),MSG(MViewShiftF4),MSG(MViewShiftF5),MSG(MViewShiftF6),MSG(MViewShiftF7),MSG(MViewShiftF8),MSG(MViewShiftF9),MSG(MViewShiftF10),MSG(MViewShiftF11),MSG(MViewShiftF12)};
   char *FViewAltKeys[]={MSG(MViewAltF1),MSG(MViewAltF2),MSG(MViewAltF3),MSG(MViewAltF4),MSG(MViewAltF5),MSG(MViewAltF6),MSG(MViewAltF7),MSG(MViewAltF8),MSG(MViewAltF9),MSG(MViewAltF10),MSG(MViewAltF11),MSG(MViewAltF12)};
   char *FViewCtrlKeys[]={MSG(MViewCtrlF1),MSG(MViewCtrlF2),MSG(MViewCtrlF3),MSG(MViewCtrlF4),MSG(MViewCtrlF5),MSG(MViewCtrlF6),MSG(MViewCtrlF7),MSG(MViewCtrlF8),MSG(MViewCtrlF9),MSG(MViewCtrlF10),MSG(MViewCtrlF11),MSG(MViewCtrlF12)};
+
+  if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) == -1)
+    FViewAltKeys[5-1]="";
+
   /* $ 07.08.2000 SVS
      добавил названия расширенных функциональных клавиш */
   char *FViewAltShiftKeys[]={MSG(MViewAltShiftF1),MSG(MViewAltShiftF2),MSG(MViewAltShiftF3),MSG(MViewAltShiftF4),MSG(MViewAltShiftF5),MSG(MViewAltShiftF6),MSG(MViewAltShiftF7),MSG(MViewAltShiftF8),MSG(MViewAltShiftF9),MSG(MViewAltShiftF10),MSG(MViewAltShiftF11),MSG(MViewAltShiftF12)};
@@ -243,6 +254,8 @@ int FileViewer::ProcessKey(int Key)
        + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
     */
     case KEY_CTRLALTSHIFTPRESS:
+      if(!(Opt.AllCtrlAltShiftRule & CASR_VIEWER))
+        return TRUE;
     case KEY_CTRLO:
       Hide();
       if (CtrlObject->LeftPanel!=CtrlObject->RightPanel)
@@ -250,7 +263,8 @@ int FileViewer::ProcessKey(int Key)
       else
       {
         ViewKeyBar.Hide();
-        WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
+        if(Opt.AllCtrlAltShiftRule & CASR_VIEWER)
+          WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
       }
       /* $ 21.07.2000 tran
          - артефакт при Ctrl-O*/
@@ -293,6 +307,18 @@ int FileViewer::ProcessKey(int Key)
         ShowTime(2);
       }
       return(TRUE);
+
+    /* $ 27.09.2000 SVS
+       + Печать файла с использованием плагина PrintMan
+    */
+    case KEY_ALTF5:
+    {
+      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+        CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_VIEWER,0); // printman
+      return TRUE;
+    }
+    /* SVS $*/
+
     default:
       return(View.ProcessKey(Key));
   }

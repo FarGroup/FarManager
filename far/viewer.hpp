@@ -7,10 +7,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.09 14.09.2000 $ */
+/* Revision: 1.10 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + ViewerControl - "Ядро" будущего Viewer API :-)
+    + FileViewer *HostFileViewer;
+    ! Переменные UseDecodeTable,TableNum,AnsiText,Unicode,Wrap, TypeWrap, Hex
+      введены в одну структуру ViewerMode.
   14.06.2000 SVS
     + Переменная FirstWord - первое слово из файла
       (для автоопределения Unicode)
@@ -49,6 +54,7 @@ Modify:
 #define MAX_VIEWLINEB 0x80f // 0x40f
 /* SVS $ */
 
+class FileViewer;
 class Viewer:public ScreenObject
 {
   private:
@@ -79,16 +85,11 @@ class Viewer:public ScreenObject
     /* KM $ */
 
     struct CharTableSet TableSet;
-    int UseDecodeTable,TableNum,AnsiText;
-    int Unicode;
-
-    /* $ 12.09.2000 SVS
-       Введена переменная TypeWrap. Теперь
-       Wrap - Состояние (Wrap/UnWrap) и
-       TypeWrap - тип (Wrap/WWrap)
+    /* $ 27.09.2000 SVS
+       Переменные "mode" вогнаны под одну крышу
     */
-    int Wrap, TypeWrap, Hex;
-    /* SVS $*/
+    struct ViewerMode VM;
+    /* SVS $ */
 
     unsigned long FilePos;
     unsigned long SecondPos;
@@ -118,6 +119,12 @@ class Viewer:public ScreenObject
        новая переменная, используется при расчете ширины при скролбаре */
     int Width,XX2;
     /* tran 19.07.2000 $ */
+    /* $ 27.09.2000 SVS
+    */
+    int ViewerID;
+    bool OpenFailed;
+    FileViewer *HostFileViewer;
+    /* SVS $ */
 
   private:
     void DisplayObject();
@@ -166,6 +173,12 @@ class Viewer:public ScreenObject
     void SetFilePos(unsigned long Pos);
     void SetPluginData(char *PluginData);
     void SetNamesList(NamesList *List);
+    /* $ 27.09.2000 SVS
+       "Ядро" будущего Viewer API :-)
+    */
+    int  ViewerControl(int Command,void *Param);
+    void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
+    /* SVS $ */
 };
 
 #endif // __VIEWER_HPP__

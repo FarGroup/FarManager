@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.30 24.09.2000 $ */
+/* Revision: 1.32 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + Указатель на текущий Viewer
+    + ProcessViewerEvent
+    + CallPlugin
   27.09.2000 skv
     + DeleteBuffer
   24.09.2000 SVS
@@ -139,6 +143,7 @@ PluginsSet::PluginsSet()
   PluginsData=NULL;
   PluginsCount=0;
   CurEditor=NULL;
+  CurViewer=NULL;
 }
 
 
@@ -242,6 +247,7 @@ void PluginsSet::LoadPlugins()
           CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
           CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
           CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+          CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
           CurPlugin.CachePos=CachePos;
         }
         if (LoadCached || LoadPlugin(CurPlugin,-1,TRUE))
@@ -331,6 +337,7 @@ void PluginsSet::LoadPluginsFromCache()
         CurPlugin.pSetFindList=(PLUGINSETFINDLIST)GetRegKey(RegKey,"SetFindList",0);
         CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetRegKey(RegKey,"ProcessEditorInput",0);
         CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetRegKey(RegKey,"ProcessEditorEvent",0);
+        CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetRegKey(RegKey,"ProcessViewerEvent",0);
         CurPlugin.CachePos=atoi(PlgKey+19);
         struct PluginItem *NewPluginsData=(struct PluginItem *)realloc(PluginsData,sizeof(*PluginsData)*(PluginsCount+1));
         if (NewPluginsData==NULL)
@@ -389,6 +396,7 @@ int PluginsSet::LoadPlugin(struct PluginItem &CurPlugin,int ModuleNumber,int Ini
   CurPlugin.pCompare=(PLUGINCOMPARE)GetProcAddress(hModule,"Compare");
   CurPlugin.pProcessEditorInput=(PLUGINPROCESSEDITORINPUT)GetProcAddress(hModule,"ProcessEditorInput");
   CurPlugin.pProcessEditorEvent=(PLUGINPROCESSEDITOREVENT)GetProcAddress(hModule,"ProcessEditorEvent");
+  CurPlugin.pProcessViewerEvent=(PLUGINPROCESSVIEWEREVENT)GetProcAddress(hModule,"ProcessViewerEvent");
   CurPlugin.pMinFarVersion=(PLUGINMINFARVERSION)GetProcAddress(hModule,"GetMinFarVersion");
   if (ModuleNumber!=-1 && Init)
   {
@@ -554,13 +562,11 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     */
     StandardFunctions.MkTemp=FarMkTemp;
     /* SVS $ */
-
     /*$ 27.09.2000 skv
       + Delete buffer allocated in PasteFromClipboard
     */
     StandardFunctions.DeleteBuffer=DeleteBuffer;
     /* skv$*/
-
 
     strcpy(StartupInfo.ModuleName,CurPlugin.ModuleName);
     StartupInfo.ModuleNumber=ModuleNumber;
@@ -583,6 +589,7 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     StartupInfo.CharTable=FarCharTable;
     StartupInfo.Text=FarText;
     StartupInfo.EditorControl=FarEditorControl;
+    StartupInfo.ViewerControl=FarViewerControl;
     /* 01.07.2000 IS
        Функция вывода помощи
     */
@@ -720,6 +727,7 @@ int PluginsSet::SavePluginSettings(struct PluginItem &CurPlugin,
       SetRegKey(RegKey,"SetFindList",CurPlugin.pSetFindList!=NULL);
       SetRegKey(RegKey,"ProcessEditorInput",CurPlugin.pProcessEditorInput!=NULL);
       SetRegKey(RegKey,"ProcessEditorEvent",CurPlugin.pProcessEditorEvent!=NULL);
+      SetRegKey(RegKey,"ProcessViewerEvent",CurPlugin.pProcessViewerEvent!=NULL);
       break;
     }
   }
@@ -839,6 +847,17 @@ void PluginsSet::ProcessEditorEvent(int Event,void *Param)
       PluginsData[I].pProcessEditorEvent(Event,Param);
 }
 
+
+/* $ 27.09.2000 SVS
+   События во вьювере
+*/
+void PluginsSet::ProcessViewerEvent(int Event,void *Param)
+{
+  for (int I=0;I<PluginsCount;I++)
+    if (PluginsData[I].pProcessViewerEvent && PreparePlugin(I))
+      PluginsData[I].pProcessViewerEvent(Event,Param);
+}
+/* SVS $ */
 
 int PluginsSet::GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelData,int *pItemsNumber,int OpMode)
 {
@@ -1572,3 +1591,45 @@ void CheckScreenLock()
     ScrBuf.Flush();
   }
 }
+
+/* $ 27.09.2000 SVS
+  Функция CallPlugin - найти плагин по ID и запустить
+  в зачаточном состоянии!
+*/
+int PluginsSet::CallPlugin(DWORD SysID,int OpenFrom, void *Data)
+{
+  int I;
+  if((I=FindPlugin(SysID)) != -1)
+  {
+    if (PluginsData[I].pOpenPlugin)
+    {
+      HANDLE hNewPlugin=OpenPlugin(I,OpenFrom,(int)Data);
+
+      if (hNewPlugin!=INVALID_HANDLE_VALUE &&
+        (OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL))
+      {
+        int CurFocus=CtrlObject->ActivePanel->GetFocus();
+        Panel *NewPanel=CtrlObject->ChangePanel(CtrlObject->ActivePanel,FILE_PANEL,TRUE,TRUE);
+        NewPanel->SetPluginMode(hNewPlugin,"");
+        if (Data && *(char *)Data)
+          SetDirectory(hNewPlugin,(char *)Data,0);
+        NewPanel->Update(0);
+        if (CurFocus || !CtrlObject->GetAnotherPanel(NewPanel)->IsVisible())
+          NewPanel->SetFocus();
+        NewPanel->Show();
+      }
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+int PluginsSet::FindPlugin(DWORD SysID)
+{
+  if(SysID != 0 && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
+    for (int I=0;I<PluginsCount;I++)
+      if (PluginsData[I].SysID == SysID)
+        return I;
+  return -1;
+}
+/* SVS $ */

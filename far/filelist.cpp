@@ -5,10 +5,13 @@ filelist.cpp
 
 */
 
-/* Revision: 1.10 20.09.2000 $ */
+/* Revision: 1.11 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+    + Печать текущего/выбранных файла/ов
+    ! FileList::CallPlugin() перенесен в PluginsSet
   20.09.2000 SVS
     + Если у плагина есть префикс, то Ctrl-[ и еже с ним
       подставят первый префикс.
@@ -949,10 +952,18 @@ int FileList::ProcessKey(int Key)
       if (FileCount>0 && SetCurPath())
         ProcessCopyKeys(Key);
       return(TRUE);
+
+    /* $ 27.09.2000 SVS
+       Печать текущего/выбранных файла/ов
+    */
     case KEY_ALTF5:
-      if (FileCount>0 && SetCurPath())
+      if(CtrlObject->Plugins.FindPlugin(SYSID_PRINTMANAGER) != -1)
+         CtrlObject->Plugins.CallPlugin(SYSID_PRINTMANAGER,OPEN_FILEPANEL,0); // printman
+      else if (FileCount>0 && SetCurPath())
         PrintFiles(this);
       return(TRUE);
+    /* SVS $ */
+
     case KEY_SHIFTF5:
     case KEY_SHIFTF6:
       if (FileCount>0 && SetCurPath())
@@ -1403,7 +1414,7 @@ void FileList::ChangeDir(char *NewDir)
         if(PtrS1 && !strchr(PtrS1+1,'\\'))
         {
           //*PtrS1=0;
-          if(CallPlugin(0x5774654E,CurDir)) // NetWork Plugin :-)
+          if(CtrlObject->Plugins.CallPlugin(0x5774654E,OPEN_FILEPANEL,CurDir)) // NetWork Plugin :-)
             return;
         }
       }
@@ -2620,37 +2631,3 @@ void FileList::ProcessCopyKeys(int Key)
       AnotherPanel->ProcessKey(KEY_ENTER);
   }
 }
-
-/* $ 21.09.2000 SVS
-   найти и загрузить!
-*/
-int FileList::CallPlugin(DWORD SysID,char *PluginData)
-{
-  if(SysID != 0 && SysID != 0xFFFFFFFFUl) // не допускается 0 и -1
-    for (int I=0;I<CtrlObject->Plugins.PluginsCount;I++)
-    {
-      if (CtrlObject->Plugins.PluginsData[I].SysID == SysID)
-      {
-        if (CtrlObject->Plugins.PluginsData[I].pOpenPlugin)
-        {
-          HANDLE hNewPlugin=CtrlObject->Plugins.OpenPlugin(I,OPEN_FILEPANEL,(int)PluginData);
-          if (hNewPlugin!=INVALID_HANDLE_VALUE)
-          {
-            int CurFocus=GetFocus();
-            Panel *NewPanel=CtrlObject->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-            NewPanel->SetPluginMode(hNewPlugin,"");
-            if (*PluginData)
-              CtrlObject->Plugins.SetDirectory(hNewPlugin,PluginData,0);
-            NewPanel->Update(0);
-            if (CurFocus || !CtrlObject->GetAnotherPanel(NewPanel)->IsVisible())
-              NewPanel->SetFocus();
-            NewPanel->Show();
-          }
-          return TRUE;
-        }
-        break;
-      }
-    }
-  return FALSE;
-}
-/* SVS $ */

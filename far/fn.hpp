@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.32 27.09.2000 $ */
+/* Revision: 1.33 27.09.2000 $ */
 
 /*
 Modify:
+  27.09.2000 SVS
+   + FarViewerControl
   27.09.2000 skv
    + DeleteBuffer. Удалять то, что вернул PasteFromClipboard.
   24.09.2000 SVS
@@ -407,6 +409,9 @@ int WINAPI FarCmpName(char *pattern,char *string,int skippath);
 int WINAPI FarCharTable(int Command,char *Buffer,int BufferSize);
 void WINAPI FarText(int X,int Y,int Color,char *Str);
 int WINAPI FarEditorControl(int Command,void *Param);
+
+int WINAPI FarViewerControl(int Command,void *Param);
+
 /* $ 18.08.2000 tran
    add Flags parameter */
 /* $ 03.07.2000 IS
