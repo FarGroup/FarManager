@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.191 27.02.2002 $ */
+/* Revision: 1.192 13.03.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  13.02.2002 SVS
+    + FIB_NOAMPERSAND
   27.02.2002 SVS
     ! LIFIND_NOPATTERN -> LIFIND_EXACTMATCH
     + LIF_UPDATEKEEPUSERDATA - "не убивать юзердату при обновлении"
@@ -1917,6 +1919,7 @@ enum INPUTBOXFLAGS{
   FIB_EXPANDENV        = 0x0004,
   FIB_NOUSELASTHISTORY = 0x0008,
   FIB_BUTTONS          = 0x0010,
+  FIB_NOAMPERSAND      = 0x0020,
 #ifdef FAR_USE_INTERNALS
   FIB_CHECKBOX         = 0x10000,
 #endif // END FAR_USE_INTERNALS

@@ -5,10 +5,12 @@ stddlg.cpp
 
 */
 
-/* Revision: 1.20 07.12.2001 $ */
+/* Revision: 1.21 13.03.2002 $ */
 
 /*
 Modify:
+  13.02.2002 SVS
+    + FIB_NOAMPERSAND
   07.12.2001 IS
     + В GetString можно добавлять CheckBox
   05.12.2001 SVS
@@ -482,7 +484,11 @@ int WINAPI GetString(const char *Title,const char *Prompt,
   if(Title)
     strcpy(StrDlg[0].Data,Title);
   if(Prompt)
+  {
     strcpy(StrDlg[1].Data,Prompt);
+    if(Flags&FIB_NOAMPERSAND)
+      StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
+  }
   if(DestLength > 511 && !(Flags&FIB_PASSWORD))
   {
     StrDlg[2].Flags|=DIF_VAREDIT;
