@@ -5,10 +5,13 @@ User menu и есть
 
 */
 
-/* Revision: 1.48 14.12.2001 $ */
+/* Revision: 1.49 08.01.2002 $ */
 
 /*
 Modify:
+  08.01.2002 SVS
+    ! Выкинем преобразование 0x10 в '>'. Оно сделано на глобальном уровне
+      в InitRecodeOutTable()
   14.12.2001 IS
     - Баг: не сохранялись изменения редактирования меню по Alt-F4, если оно
       хранилось не в реестре.
@@ -580,13 +583,6 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
     /* tran 20.07.2000 $ */
       if (SubMenu)
       {
-        /* $ 07.05.2001 SVS
-           FAR 1.70.3 b591. Пускается с ключем -a. В меню по F2 пункты с
-           подменю справа обозначаюися ".". Хотелось бы ">".
-        */
-        if(Opt.CleanAscii)
-          SubMenuSymbol[1]='>';
-        /* SVS $ */
         strcat(MenuText,SubMenuSymbol);
 //_SVS(SysLog("%2d - '%s'",HiStrlen(MenuText),MenuText));
       }

@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.44 26.12.2001 $ */
+/* Revision: 1.45 08.01.2002 $ */
 
 /*
 Modify:
+  08.01.2002 SVS
+    - Бага с макросом, в котором есть Alt-F9 (смена режима)
+    ! Обработаем коды символов 0x10 и 0x11
   26.12.2001 SVS
     ! При закрытии окна "по кресту"... теперь настраиваемо!
   24.12.2001 VVM
@@ -293,6 +296,8 @@ void InitRecodeOutTable()
     RecodeOutTable[30]='X';
     RecodeOutTable[31]='X';
     RecodeOutTable[255]=' ';
+    RecodeOutTable[0x10]='>';
+    RecodeOutTable[0x11]='<';
   }
   if (Opt.NoGraphics)
   {
@@ -437,7 +442,10 @@ void ChangeVideoMode(int NumLines,int NumColumns)
     _OT(le=GetLastError());
     _OT(SysLog("SetConsoleScreenBufferSize(hConOut, coordScreen),  retSetConsole=%i",retSetConsole));
   }
-  GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
+
+  // зашлем эвент только в случае, когда макросы не исполняются
+  if(CtrlObject && !CtrlObject->Macro.IsExecuting())
+    GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
 }
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
@@ -613,11 +621,11 @@ void Text(const char *Str)
   {
 #if defined(USE_WFUNC)
     if(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT)
-      CharBuf[I].Char.UnicodeChar = Oem2Unicode[RecodeOutTable[Str[I]]];
+      CharBuf[I].Char.UnicodeChar = Oem2Unicode[RecodeOutTable[static_cast<BYTE>(Str[I])];
     else
-      CharBuf[I].Char.AsciiChar=RecodeOutTable[Str[I]];
+      CharBuf[I].Char.AsciiChar=RecodeOutTable[static_cast<BYTE>(Str[I])];
 #else
-    CharBuf[I].Char.AsciiChar=RecodeOutTable[Str[I]];
+    CharBuf[I].Char.AsciiChar=RecodeOutTable[static_cast<BYTE>(Str[I])];
 #endif
     CharBuf[I].Attributes=CurColor;
   }

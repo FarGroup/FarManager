@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.58 02.01.2001 $ */
+/* Revision: 1.59 08.01.2002 $ */
 
 /*
 Modify:
+  08.01.2002 SVS
+    - Бага с макросом, в котором есть Alt-F9 (смена режима)
   02.01.2002 IS
     ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере
     ! Если на панели QVIEW или INFO открыт файл, то считаем, что это
@@ -690,11 +692,40 @@ int  Manager::ProcessKey(int Key)
           FrameManager->RefreshFrame();
           _OT(SysLog(-1));
           return TRUE;
+
         case KEY_ALTF9:
           //_SVS(SysLog(1,"Manager::ProcessKey, KEY_ALTF9 pressed..."));
           Sleep(1);
           SetVideoMode(FarAltEnter(-2));
           Sleep(1);
+
+          /* В процессе исполнения Alt-F9 (в нормальном режиме) в очередь
+             консоли попадает WINDOW_BUFFER_SIZE_EVENT, формируется в
+             ChangeVideoMode().
+             В режиме исполнения макросов ЭТО не происходит по вполне понятным
+             причинам.
+          */
+          if(CtrlObject->Macro.IsExecuting())
+          {
+            int PScrX=ScrX;
+            int PScrY=ScrY;
+            Sleep(1);
+            GetVideoMode(CurScreenBufferInfo);
+            if (PScrX+1 == CurScreenBufferInfo.dwSize.X &&
+                PScrY+1 == CurScreenBufferInfo.dwSize.Y)
+            {
+              //_SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_NONE"));
+              return TRUE;
+            }
+            else
+            {
+              PrevScrX=PScrX;
+              PrevScrY=PScrY;
+              //_SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
+              Sleep(1);
+              return ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+            }
+          }
           //_SVS(SysLog(-1));
           return TRUE;
       }
@@ -714,11 +745,13 @@ int  Manager::ProcessKey(int Key)
               }
             }
             return TRUE;
+
           case KEY_F12:
             if (CurrentFrame->GetCanLoseFocus())
               DeactivateFrame(FrameMenu(),0);
             _OT(SysLog(-1));
             return TRUE;
+
           case KEY_CTRLTAB:
           case KEY_CTRLSHIFTTAB:
             if (CurrentFrame->GetCanLoseFocus()){
