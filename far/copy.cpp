@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.05 01.08.2000 $ */
+/* Revision: 1.06 04.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 SVS
+   + Опция "Only newer file(s)"
   01.08.2000 tran 1.05
    + DIF_USELASTHISTORY в диалогах
   31.07.2000 SVS
@@ -53,27 +55,31 @@ static char TotalCopySizeText[32];
 
 static int64 StartCopySizeEx;
 
+/* $ 04.07.2000 SVS
+  "Только новые/обновленные файлы"
+*/
 ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
                      int &ToPlugin,char *PluginDestPath)
 {
   const char *HistoryName="Copy";
   static struct DialogData CopyDlgData[]={
-    DI_DOUBLEBOX,3,1,72,8,0,0,0,0,(char *)MCopyDlgTitle,
-    DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
-    /* $ 01.08.2000 tran
-       + |DIF_USELASTHISTORY :) */
-    /* $ 31.07.2000 SVS
-       + Расширение переменных среды!
-    */
-    DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY,0,"",
-    /* SVS $ */
-    /* tran 01.08.2000 $ */
-    DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MCopySecurity,
-    DI_TEXT,3,6,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgTree,
-    DI_BUTTON,0,7,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel
+  /* 00 */  DI_DOUBLEBOX,3,1,72,9,0,0,0,0,(char *)MCopyDlgTitle,
+  /* 01 */  DI_TEXT,5,2,0,0,0,0,DIF_SHOWAMPERSAND,0,"",
+            /* $ 01.08.2000 tran
+             + |DIF_USELASTHISTORY :) */
+            /* $ 31.07.2000 SVS
+               + Расширение переменных среды!
+            */
+  /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY,0,"",
+            /* SVS $ */
+            /* tran 01.08.2000 $ */
+  /* 03 */  DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 04 */  DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MCopySecurity,
+  /* 05 */  DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MCopyOnlyNewerFiles,
+  /* 06 */  DI_TEXT,3,7,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 07 */  DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
+  /* 08 */  DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgTree,
+  /* 09 */  DI_BUTTON,0,8,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel
   };
   MakeDialogItems(CopyDlgData,CopyDlg);
 
@@ -112,13 +118,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   if (Move)
   {
     strcpy(CopyDlg[0].Data,MSG(MMoveDlgTitle));
-    strcpy(CopyDlg[6].Data,MSG(MCopyDlgRename));
+    strcpy(CopyDlg[7].Data,MSG(MCopyDlgRename));
   }
   else
     if (Link)
     {
       strcpy(CopyDlg[0].Data,MSG(MLinkDlgTitle));
-      strcpy(CopyDlg[6].Data,MSG(MCopyDlgLink));
+      strcpy(CopyDlg[7].Data,MSG(MCopyDlgLink));
     }
 
   if (SelCount==1)
@@ -192,7 +198,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   {
     Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]));
     Dlg.SetHelp("CopyFiles");
-    Dlg.SetPosition(-1,-1,76,10);
+    Dlg.SetPosition(-1,-1,76,11);
     while (1)
     {
       int AltF10=FALSE;
@@ -203,11 +209,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
         switch(Key)
         {
           case KEY_F10:
-            Dlg.SetExitCode(7);
+            Dlg.SetExitCode(8);
             break;
           case KEY_ALTF10:
             AltF10=TRUE;
-            Dlg.SetExitCode(7);
+            Dlg.SetExitCode(8);
             break;
           default:
             Dlg.ProcessInput();
@@ -215,9 +221,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
         }
       }
       int ExitCode=Dlg.GetExitCode();
-      if (ExitCode==6)
-        break;
       if (ExitCode==7)
+        break;
+      if (ExitCode==8)
       {
         char NewFolder[NM];
         {
@@ -227,13 +233,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
         {
           strcpy(CopyDlg[2].Data,NewFolder);
           AddEndSlash(CopyDlg[2].Data);
-          CopyDlg[7].Focus=0;
+          CopyDlg[8].Focus=0;
           CopyDlg[2].Focus=1;
           Dlg.InitDialogObjects();
         }
         Dlg.ClearDone();
       }
-      if (ExitCode<0 || ExitCode==8)
+      if (ExitCode<0 || ExitCode==9)
       {
         if (DestPlugin)
           ToPlugin=-1;
@@ -243,6 +249,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   }
 
   CopySecurity=CopyDlg[4].Selected;
+  OnlyNewerFiles=CopyDlg[5].Selected;
 
   if (DestPlugin && strcmp(CopyDlg[2].Data,InitDestDir)==0)
   {
@@ -304,6 +311,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   AnotherPanel->Redraw();
 }
+/* SVS $ */
 
 
 ShellCopy::~ShellCopy()
@@ -1354,22 +1362,38 @@ int ShellCopy::AskOverwrite(WIN32_FIND_DATA *SrcData,char *DestName,
       int64 DestSize(DestData.nFileSizeHigh,DestData.nFileSizeLow);
       char DestSizeText[20];
       DestSize.itoa(DestSizeText);
+      /* $ 04.08.2000 SVS
+         Опция "Only newer file(s)"
+      */
+      if(OnlyNewerFiles)
+      {
+        // сравним время
+        int RetCompare=CompareFileTime(&DestData.ftLastWriteTime,&SrcData->ftLastWriteTime);
+        if(RetCompare < 0)
+          MsgCode=0;
+        else
+          MsgCode=2;
+      }
+      else
+      {
+        sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
+        ConvertDate(&DestData.ftLastWriteTime,DateText,TimeText,8);
+        sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
 
-      sprintf(SrcFileStr,"%-17s %11.11s %s %s",MSG(MCopySource),SrcSizeText,DateText,TimeText);
-      ConvertDate(&DestData.ftLastWriteTime,DateText,TimeText,8);
-      sprintf(DestFileStr,"%-17s %11.11s %s %s",MSG(MCopyDest),DestSizeText,DateText,TimeText);
-
-      SetMessageHelp("CopyFiles");
-      MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend ? 6:5,MSG(MWarning),
-              MSG(MCopyFileExist),TruncDestName,"\x1",SrcFileStr,DestFileStr,
-              "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
-              MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
-              AskAppend ? (AskAppend==1 ? MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
-              AskAppend ? MSG(MCopyCancelOvr):NULL);
-      if (!AskAppend && MsgCode==4)
-        MsgCode=5;
+        SetMessageHelp("CopyFiles");
+        MsgCode=Message(MSG_DOWN|MSG_WARNING,AskAppend ? 6:5,MSG(MWarning),
+                MSG(MCopyFileExist),TruncDestName,"\x1",SrcFileStr,DestFileStr,
+                "\x1",MSG(MCopyOverwrite),MSG(MCopyOverwriteAll),
+                MSG(MCopySkipOvr),MSG(MCopySkipAllOvr),
+                AskAppend ? (AskAppend==1 ? MSG(MCopyAppend):MSG(MCopyResume)):MSG(MCopyCancelOvr),
+                AskAppend ? MSG(MCopyCancelOvr):NULL);
+        if (!AskAppend && MsgCode==4)
+          MsgCode=5;
+      }
+      /* SVS $*/
     }
   }
+
   switch(MsgCode)
   {
     case 1:

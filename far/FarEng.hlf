@@ -781,13 +781,13 @@ by ~plugins~@Plugins@.
 this text. If the string is entered, option "Case sensitive" selects case
 sensitive comparison. "Whole words" option will let to find only the text that
 separated from other text with space, tab sign, carriage return, line feed or
-standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./# (see
-~Editor settings~@EditorSettings@). With "Table" button it is possible to
-change the character table for the text search. Option "Use all installed
-character tables" forces usage of all available to Far tables to search text
-in files with different coding. Set "Search in archives" to search also in
-known to FAR archive formats, but note that this option significantly
-decreases oepration performance. FAR cannot search in nested archives.
+standard separators, which by default are: #!%^&*()+|{}:"<>?`-=\[];',./#.
+With "Table" button it is possible to change the character table for the
+text search. Option "Use all installed character tables" forces usage of
+all available to Far tables to search text in files with different coding.
+Set "Search in archives" to search also in known to FAR archive formats,
+but note that this option significantly decreases oepration performance.
+FAR cannot search in nested archives.
 
     Search may be performed in all non-removable disks, in all folders
 from the disk root, from the current folder, in the current folder only
@@ -1454,9 +1454,6 @@ settings to be changed.
   #Cursor beyond#           Allow moving cursor beyond end of line.
   #end of line#
 
-  #Separators of words#     The symbols, to separate the text on words.
-                          Default: #!%^&*()+|{}:"<>?`-=\[];',./#
-
     If external editor is assigned to F4 key, it will be executed only
 if ~associated~@FileAssoc@ editor for the current file type is absent.
 
@@ -1743,6 +1740,10 @@ is switched off.
 
     Option "Copy access rights" is valid only for NTFS file
 system and allows the copying of file access information.
+
+    Parameter "Only newer file(s)" will allow without questions to copy
+(move) the new and updated files. The "Updated file" - the date and time
+of updating is more than date and time of updating of a target file.
 
     Option "Use system copy routine" from ~System settings~@SystemSettings@
 dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx

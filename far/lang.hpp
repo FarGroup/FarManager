@@ -12,10 +12,13 @@ lang.hpp
            подряд.
 */
 
-/* Revision: 1.14 03.08.2000 $ */
+/* Revision: 1.14 04.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 SVS
+    + MCopyOnlyNewerFiles
+    - MEditConfigWordDiv
   03.08.2000 tran
     + Новые константы для "версии" MPlgBadVers, MPlgRequired
   03.08.2000 KM 1.12
@@ -253,7 +256,6 @@ enum
   MEditAutoDetectTable,
   MEditConfigTabSize,
   MEditCursorBeyondEnd,
-  MEditConfigWordDiv,
 
   MSaveSetupTitle,
   MSaveSetupAsk1,
@@ -264,6 +266,7 @@ enum
   MMoveDlgTitle,
   MLinkDlgTitle,
   MCopySecurity,
+  MCopyOnlyNewerFiles,
   MCopyDlgCopy,
   MCopyDlgTree,
   MCopyDlgCancel,

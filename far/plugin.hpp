@@ -6,10 +6,12 @@
   Plugin API for FAR Manager 1.66
 
 */
-/* Revision: 1.15 03.08.2000 $ */
+/* Revision: 1.16 04.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 SVS
+    + FarListItems.CountItems -> FarListItems.ItemsNumber
   03.08.2000 SVS
     + Функция от AT: GetMinFarVersion
   03.08.2000 SVS
@@ -327,7 +329,11 @@ struct FarListItem
 // весь список
 struct FarListItems
 {
-  int CountItems;
+  /* $ 04.08.2000 SVS
+    + FarListItems.CountItems -> FarListItems.ItemsNumber
+  */
+  int ItemsNumber;
+  /* SVS $*/
   struct FarListItem *Items;
 };
 

@@ -7,10 +7,12 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.00 25.06.2000 $ */
+/* Revision: 1.01 04.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 SVS
+    + Опция "Only newer file(s)"
   25.06.2000 SVS
     ! Подготовка Master Copy
     ! Выделение в качестве самостоятельного модуля
@@ -18,6 +20,31 @@ Modify:
 
 class ShellCopy
 {
+  private:
+    char sddata[16000];
+    DizList DestDiz;
+    int DizRead;
+    char DestDizPath[2*NM];
+    Panel *SrcPanel,*AnotherPanel;
+    char *CopyBuffer;
+    char RenamedName[NM],CopiedName[NM];
+    int PanelMode,SrcPanelMode;
+    int OvrMode,ReadOnlyOvrMode,ReadOnlyDelMode;
+    int Move;
+    int Link;
+    int CurrentOnly;
+    /* $ 04.08.2000 SVS
+       Copy only newer files
+    */
+    int OnlyNewerFiles;
+    /* SVS $ */
+    int CopySecurity;
+    long TotalFiles;
+    int SrcDriveType;
+    char SrcDriveRoot[NM];
+    int SelectedFolderNameLength;
+    int OverwriteNext;
+
   private:
     void CopyFileTree(char *Dest);
     COPY_CODES ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,char *Dest,
@@ -39,28 +66,12 @@ class ShellCopy
     bool CalcTotalSize();
     int CmpFullNames(char *Src,char *Dest);
 
-    char sddata[16000];
-    DizList DestDiz;
-    int DizRead;
-    char DestDizPath[2*NM];
-    Panel *SrcPanel,*AnotherPanel;
-    char *CopyBuffer;
-    char RenamedName[NM],CopiedName[NM];
-    int PanelMode,SrcPanelMode;
-    int OvrMode,ReadOnlyOvrMode,ReadOnlyDelMode;
-    int Move;
-    int Link;
-    int CurrentOnly;
-    int CopySecurity;
-    long TotalFiles;
-    int SrcDriveType;
-    char SrcDriveRoot[NM];
-    int SelectedFolderNameLength;
-    int OverwriteNext;
   public:
     ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
               int &ToPlugin,char *PluginDestPath);
     ~ShellCopy();
+
+  public:
     static void ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar);
     static void ShowTitle(int FirstTime);
 };

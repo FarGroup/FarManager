@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.13 03.08.2000 $ */
+/* Revision: 1.14 04.08.2000 $ */
 
 /*
 Modify:
+  04.08.2000 SVS
+    + FarListItems.CountItems -> FarListItems.ItemsNumber
   03.08.2000 tran
    + мышиный перетаск диалога - хватание за пустое место
      внимание - ограничение невыхода за границы экрана посталено не зря
@@ -345,7 +347,7 @@ int Dialog::InitDialogObjects()
         if(List && List->Items)
         {
           struct FarListItem *Items=List->Items;
-          for (J=0; J < List->CountItems; J++)
+          for (J=0; J < List->ItemsNumber; J++)
           {
             ListItem.Separator=Items[J].Flags&LIF_SEPARATOR;
             ListItem.Selected=Items[J].Flags&LIF_SELECTED;
@@ -429,7 +431,7 @@ int Dialog::InitDialogObjects()
       {
         struct FarListItem *ListItems=
                    ((struct FarListItems *)CurItem->ListItems)->Items;
-        int Length=((struct FarListItems *)CurItem->ListItems)->CountItems;
+        int Length=((struct FarListItems *)CurItem->ListItems)->ItemsNumber;
 
         for (J=0; J < Length; J++)
         {
@@ -776,7 +778,7 @@ void Dialog::ShowDialog()
     /* $ 03.08.2000 tran
        вывод текста в углу может приводить к ошибкам изображения
        1) когда диалог перемещается в угол
-       2) когда диалог перемещается из угла 
+       2) когда диалог перемещается из угла
        сделал вывод красных палочек по углам */
     //Text(0,0,0xCE,"Move");
     Text(X1,Y1,0xCE,"\\");
@@ -1779,7 +1781,7 @@ int Dialog::FindInEditForAC(int TypeFind,void *HistoryName,char *FindStr)
   else
   {
     struct FarListItem *ListItems=((struct FarListItems *)HistoryName)->Items;
-    int Count=((struct FarListItems *)HistoryName)->CountItems;
+    int Count=((struct FarListItems *)HistoryName)->ItemsNumber;
 
     for (I=0; I < Count ;I++)
     {
@@ -2105,7 +2107,7 @@ void Dialog::SelectFromComboBox(
     /* Последний пункт списка - ограничититель - в нем Tetx[0]
        должен быть равен '\0'
     */
-    for (Dest=I=0;I < List->CountItems;I++)
+    for (Dest=I=0;I < List->ItemsNumber;I++)
     {
       /* $ 28.07.2000 SVS
          Выставим Selected при полном совпадении строки ввода и списка

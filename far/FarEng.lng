@@ -193,7 +193,6 @@
 "&Autodetect character table"
 "Tab si&ze"
 "&Cursor beyond end of line"
-"&Word separators:"
 
 "Save setup"
 "Do you wish to save"
@@ -204,6 +203,7 @@
 "Rename/Move"
 "Link"
 "Copy &access rights"
+"&Only newer file(s)"
 "&Copy"
 "F10-&Tree"
 "Ca&ncel"
