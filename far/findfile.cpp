@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.170 06.02.2005 $ */
+/* Revision: 1.171 26.02.2005 $ */
 
 /*
 Modify:
+  26.02.2005 WARP
+    - Исправления в поиске в архивах
   06.02.2005 WARP
     - Глюки со строкой результатов поиска
   29.01.2005 SVS
@@ -2266,7 +2268,6 @@ void _cdecl FindFiles::PrepareFilesList(void *Param)
               }
               /* KM $ */
 
-
               if (IsFileIncluded(NULL,FullName,FindData.dwFileAttributes))
                 AddMenuRecord(FullName,&FindData);
 
@@ -2389,6 +2390,8 @@ void FindFiles::ArchiveSearch(char *ArcName)
 */
 int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
 {
+  CriticalSectionLock Lock (ffCS);
+
   int FileFound=FileMaskForFindFile.Compare(FullName);
   HANDLE hPlugin=INVALID_HANDLE_VALUE;
   if (FindFileArcIndex != LIST_INDEX_NONE)
@@ -2558,6 +2561,8 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
       ListItem.Flags&=~LIF_DISABLE;
       /* DJ $ */
     }
+    ffCS.Enter ();
+
     xstrncpy(LastDirName,PathName,sizeof(LastDirName)-1);
     if ((FindFileArcIndex != LIST_INDEX_NONE) &&
         (!(ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)) &&
@@ -2571,8 +2576,6 @@ void FindFiles::AddMenuRecord(char *FullName, WIN32_FIND_DATA *FindData)
     xstrncpy(SizeText,MSG(MFindFileFolder),sizeof(SizeText)-1);
     sprintf(FileText,"%-50.50s  <%6.6s>",TruncPathStr(PathName,50),SizeText);
     sprintf(ListItem.Name,"%-*.*s",DlgWidth-2,DlgWidth-2,FileText);
-
-    ffCS.Enter ();
 
     DWORD ItemIndex = AddFindListItem(FindData);
     if (ItemIndex != LIST_INDEX_NONE)
@@ -3099,17 +3102,15 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         ItemData.PtrData=DataStr;
         ItemData.PtrLength=strlen(DataStr);
 
+        statusCS.Leave ();
+
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,2,(long)&ItemData);
 
         FindCountReady=FALSE;
-
-        statusCS.Leave ();
       }
 
       if (FindMessageReady)
       {
-        statusCS.Enter ();
-
         char SearchStr[NM];
 
         if (*FindStr)
@@ -3135,9 +3136,14 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
           ItemData.PtrLength=strlen(DataStr);
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,9,(long)&ItemData);
 
+          statusCS.Enter ();
+
           sprintf(DataStr,"%-*.*s",DlgWidth,DlgWidth,FindMessage);
           ItemData.PtrData=DataStr;
           ItemData.PtrLength=strlen(DataStr);
+
+          statusCS.Leave ();
+
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
 
           ItemData.PtrData="";
@@ -3150,15 +3156,18 @@ void _cdecl FindFiles::WriteDialogData(void *Param)
         }
         else
         {
+          statusCS.Enter ();
+
           sprintf(DataStr,"%-*.*s %-*.*s",Wid1,Wid1,SearchStr,Wid2,Wid2,TruncPathStr(FindMessage,Wid2));
           ItemData.PtrData=DataStr;
           ItemData.PtrLength=strlen(DataStr);
+
+          statusCS.Leave ();
+
           Dialog::SendDlgMessage(hDlg,DM_SETTEXT,3,(long)&ItemData);
         }
 
         FindMessageReady=FALSE;
-
-        statusCS.Leave ();
       }
 
       if (LastFoundNumber && ListBox)
