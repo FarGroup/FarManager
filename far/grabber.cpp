@@ -5,10 +5,12 @@ Screen grabber
 
 */
 
-/* Revision: 1.01 13.07.2000 $ */
+/* Revision: 1.02 14.08.2000 $ */
 
 /*
 Modify:
+  14.08.2000 tran
+    - trap при проигрывании макроса с клавишами типа Shift...
   13.07.2000 SVS
     ! Некоторые коррекции при использовании new/delete/realloc
   25.06.2000 SVS
@@ -31,6 +33,12 @@ Grabber::Grabber()
 
   PrevMacroMode=CtrlObject->Macro.GetMode();
   CtrlObject->Macro.SetMode(MACRO_OTHER);
+
+  /* $ 14.08.2000 tran
+     хоть и не решает баг, но уже на трапается */
+  memset(&GArea,0,sizeof(GArea));
+  memset(&PrevArea,0,sizeof(PrevArea));
+  /* tran 14.08.2000 $ */
 
   int Visible,Size;
   GetCursorType(Visible,Size);
