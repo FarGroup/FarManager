@@ -7,10 +7,12 @@ edit.hpp
 
 */
 
-/* Revision: 1.17 23.11.2001 $ */
+/* Revision: 1.18 28.11.2001 $ */
 
 /*
 Modify:
+  28.11.2001 SVS
+    + GetClearFlag() - получить состояние флага ClearFlag
   23.11.2001 SVS
     ! IsDialogParent может иметь 3 значения: EDPARENT_*
     + Вместо длинного "if(Mask[...)" введена функция CheckCharMask()
@@ -220,6 +222,7 @@ class Edit:public ScreenObject
     int   Search(char *Str,int Position,int Case,int WholeWords,int Reverse);
     /* KM $ */
     void  SetClearFlag(int Flag) {ClearFlag=Flag;}
+    int   GetClearFlag(void) {return ClearFlag;}
     void  SetCurPos(int NewPos) {CurPos=NewPos;PrevCurPos=NewPos;}
     int   GetCurPos() {return(CurPos);}
     int   GetTabCurPos();

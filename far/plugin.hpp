@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.166 24.11.2001 $ */
+/* Revision: 1.167 28.11.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  28.11.2001 SVS
+    + DM_EDITCLEARFLAG
   24.11.2001 IS
     + ACTL_GETSYSTEMSETTINGS,  ACTL_GETPANELSETTINGS,
       ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
@@ -887,6 +889,8 @@ enum FarMessagesProc{
 
   DM_GETITEMPOSITION,
   DM_SETMOUSEEVENTNOTIFY,
+
+  DM_EDITCLEARFLAG,
 
   DM_GETITEMDATA,
   DM_SETITEMDATA,

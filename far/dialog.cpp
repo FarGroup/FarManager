@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.185 27.11.2001 $ */
+/* Revision: 1.186 28.11.2001 $ */
 
 /*
 Modify:
+  28.11.2001 SVS
+    + DM_EDITCLEARFLAG - управление состоянием флага ClearFlag редактора
   27.11.2001 DJ
     - memory leak
   27.11.2001 SVS
@@ -5993,6 +5995,28 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_GETITEMDATA:
     {
       return CurItem->UserData;
+    }
+
+    /*****************************************************************/
+    case DM_EDITCLEARFLAG: // -1 Get, 0 - Skip, 1 - Set; Выделение блока снимается.
+    {
+      if(IsEdit(Type))
+      {
+        Edit *EditLine=(Edit *)(CurItem->ObjPtr);
+        int ClearFlag=EditLine->GetClearFlag();
+        if(Param2 >= 0)
+        {
+          EditLine->SetClearFlag(Param2);
+          EditLine->Select(-1,0); // снимаем выделение
+          if(Dlg->DialogMode.Check(DMODE_SHOW)) //???
+          {
+            Dlg->ShowDialog(Param1);
+            ScrBuf.Flush();
+          }
+        }
+        return ClearFlag;
+      }
+      break;
     }
   }
 
