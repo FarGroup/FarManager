@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.99 31.07.2001 $ */
+/* Revision: 1.100 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 IS
+    + InsertQuote
   31.07.2001 IS
     ! Внедрение const (FarGetMsgFn)
   25.07.2001 SVS
@@ -386,6 +388,9 @@ int WINAPI ProcessName(const char *param1, char *param2, DWORD flags);
 void ShowHeap();
 void CheckHeap(int NumLine=0);
 char* QuoteSpace(char *Str);
+/* $ 03.08.2001 IS функция заключения строки в кавычки */
+char *InsertQuote(char *Str);
+/* IS $ */
 int ProcessGlobalFileTypes(char *Name,int AlwaysWaitFinish);
 int ProcessLocalFileTypes(char *Name,char *ShortName,int Mode,int AlwaysWaitFinish);
 void ProcessExternal(char *Command,char *Name,char *ShortName,int AlwaysWaitFinish);

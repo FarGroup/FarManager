@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.19 24.07.2001 $ */
+/* Revision: 1.20 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 IS
+    ! InsertQuote теперь не static
   24.07.2001 IS
     ! Замена проверки на '\r' и '\n' на вызов iseol
   11.07.2001 SVS
@@ -313,7 +315,7 @@ int ConvertWildcards(const char *src,char *Dest, int SelectedFolderNameLength)
 }
 /* IS $ */
 
-static char *InsertQuote(char *Str)
+char *InsertQuote(char *Str)
 {
   unsigned l = strlen(Str);
   if(*Str != '"')

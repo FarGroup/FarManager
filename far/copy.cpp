@@ -5,10 +5,16 @@ copy.cpp
 
 */
 
-/* Revision: 1.43 22.07.2001 $ */
+/* Revision: 1.44 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 IS
+    + Новая опция для мультикопирования в диалоге и соответствующая ее
+      обработка.
+    ! Замена в нескольких местах CopyDlg[2].Data -> CopyDlgValue
+    ! Убрал "#ifndef COPY_NOMULTICOPY", т.к. теперь опциональность
+      обеспечивается на программном уровне.
   22.07.2001 SVS
     ! Избавляемся от варнингов
   18.07.2001 VVM
@@ -201,7 +207,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      char *PluginDestPath)   // =?
 {
   struct CopyDlgParam CDP;
-  char CopyStr[100],SelName[NM],DestDir[NM],InitDestDir[NM];
+  /* $ 03.08.2001 IS
+       CopyDlgValue - в этой переменной храним заветную строчку из диалога,
+       именно эту переменную всячески измененяем, а CopyDlg[2].Data не трогаем.
+  */
+  char CopyStr[100],SelName[NM],DestDir[NM],InitDestDir[NM],CopyDlgValue[NM];
+  /* IS $ */
   char SelNameShort[NM];
   int DestPlugin;
   int AddSlash=FALSE;
@@ -287,19 +298,24 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // *** Prepare Dialog Controls
   // ***********************************************************************
   const char *HistoryName="Copy";
+  /* $ 03.08.2001 IS добавим новую опцию: мультикопирование */
   static struct DialogData CopyDlgData[]={
-  /* 00 */  DI_DOUBLEBOX,3,1,72,9,0,0,0,0,(char *)MCopyDlgTitle,
+  /* 00 */  DI_DOUBLEBOX,3,1,72,10,0,0,0,0,(char *)MCopyDlgTitle,
   /* 01 */  DI_TEXT,5,2,0,2,0,0,DIF_SHOWAMPERSAND,0,"",
   /* 02 */  DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_EDITEXPAND|DIF_USELASTHISTORY,0,"",
   /* 03 */  DI_TEXT,3,4,0,4,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */  DI_CHECKBOX,5,5,0,5,0,0,0,0,(char *)MCopySecurity,
   /* 05 */  DI_CHECKBOX,5,6,0,6,0,0,0,0,(char *)MCopyOnlyNewerFiles,
-  /* 06 */  DI_TEXT,3,7,0,7,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-  /* 07 */  DI_BUTTON,0,8,0,8,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
-  /* 08 */  DI_BUTTON,0,8,0,8,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgTree,
-  /* 09 */  DI_BUTTON,0,8,0,8,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel
+  /* 06 */  DI_CHECKBOX,5,7,0,7,0,0,0,0,(char *)MCopyMultiActions,
+  /* 07 */  DI_TEXT,3,8,0,8,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+  /* 08 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,1,(char *)MCopyDlgCopy,
+  /* 09 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgTree,
+  /* 10 */  DI_BUTTON,0,9,0,9,0,0,DIF_CENTERGROUP,0,(char *)MCopyDlgCancel
   };
   MakeDialogItems(CopyDlgData,CopyDlg);
+
+  CopyDlg[6].Selected=Opt.MultiCopy;
+  /* IS $ */
 
   if (CDP.SelCount==1)
   { // SelName & FileAttr уже заполнены (см. в самом начале функции)
@@ -354,7 +370,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   // заголовки контролов
   strcpy(CopyDlg[5].Data,MSG(Link?MCopySymLink:MCopyOnlyNewerFiles));
   strcpy(CopyDlg[0].Data,MSG(Move?MMoveDlgTitle :(Link?MLinkDlgTitle:MCopyDlgTitle)));
-  strcpy(CopyDlg[7].Data,MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy)));
+  strcpy(CopyDlg[8].Data,MSG(Move?MCopyDlgRename:(Link?MCopyDlgLink:MCopyDlgCopy)));
 
   if (Link)
   {
@@ -423,7 +439,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
     char SrcDir[NM];
     int Selected5=CopyDlg[5].Selected;
     SrcPanel->GetCurDir(SrcDir);
-    if(!LinkRules(&CopyDlg[7].Flags,
+    if(!LinkRules(&CopyDlg[8].Flags,
                   &CopyDlg[5].Flags,
                   &Selected5,
                   SrcDir,
@@ -440,25 +456,40 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   {
     Dialog Dlg(CopyDlg,sizeof(CopyDlg)/sizeof(CopyDlg[0]),CopyDlgProc,(long)&CDP);
     Dlg.SetHelp(Link?"HardSymLink":"CopyFiles");
-    Dlg.SetPosition(-1,-1,76,11);
+    Dlg.SetPosition(-1,-1,76,12);
 
 //    Dlg.Show();
     /* $ 02.06.2001 IS
        + Проверим список целей и поднимем тревогу, если он содержит ошибки
     */
-    #ifdef COPY_NOMULTICOPY
-    Dlg.Process();
-    int DlgExitCode=Dlg.GetExitCode();
-    #else
     int DlgExitCode;
     for(;;)
     {
       Dlg.ClearDone();
       Dlg.Process();
       DlgExitCode=Dlg.GetExitCode();
-      if(DlgExitCode == 7)
+      if(DlgExitCode == 8)
       {
-        if(DestList.Set(CopyDlg[2].Data))
+        /* $ 03.08.2001 IS
+           Запомним строчку из диалога и начинаем ее мучить в зависимости от
+           состояния опции мультикопирования
+        */
+        strcpy(CopyDlgValue,CopyDlg[2].Data);
+        Opt.MultiCopy=CopyDlg[6].Selected;
+        if(!Opt.MultiCopy) // отключено multi*
+        {
+           // уберем пробелы, лишние кавычки
+           RemoveTrailingSpaces(CopyDlg[2].Data);
+           Unquote(CopyDlg[2].Data);
+           RemoveTrailingSpaces(CopyDlgValue);
+           Unquote(CopyDlgValue);
+
+           // добавим кавычки, чтобы "список" удачно скомпилировался вне
+           // зависимости от наличия разделителей в оном
+           InsertQuote(CopyDlgValue);
+        }
+        /* IS $ */
+        if(DestList.Set(CopyDlgValue))
           break;
         else
           Message(MSG_DOWN|MSG_WARNING,1,MSG(MWarning),
@@ -467,9 +498,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       else
         break;
     }
-    #endif
     /* IS $ */
-    if(DlgExitCode == 9 || DlgExitCode < 0 || (CopyDlg[7].Flags&DIF_DISABLE))
+    if(DlgExitCode == 10 || DlgExitCode < 0 || (CopyDlg[8].Flags&DIF_DISABLE))
     {
       if (DestPlugin)
         ToPlugin=-1;
@@ -489,20 +519,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   }
 
   _tran(SysLog("[%p] ShellCopy::ShellCopy() 4",this));
-
-  /* $ 02.06.2001 IS
-     ! Не нужно удалять пробелы и кавычки при мультикопировании, потому что
-       все, что нужно будет сделано в DirList.Set
-  */
-  #ifdef COPY_NOMULTICOPY
-  /* $ 07.06.2001 IS
-     - Баг: нужно сначала убирать пробелы, а только потом кавычки
-  */
-  RemoveTrailingSpaces(CopyDlg[2].Data);
-  Unquote(CopyDlg[2].Data);
-  /* IS $ */
-  #endif
-  /* IS $ */
 
   // Выставляем признак копирования в NUL
   ShellCopy::Flags|=(!stricmp(CopyDlg[2].Data,"nul"))?FCOPY_COPYTONUL:0;
@@ -536,9 +552,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   ShowTitle(TRUE);
   SetFarTitle(Move ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
 
-  for (int I=0;CopyDlg[2].Data[I]!=0;I++)
-    if (CopyDlg[2].Data[I]=='/')
-      CopyDlg[2].Data[I]='\\';
+  for (int I=0;CopyDlgValue[I]!=0;I++)
+    if (CopyDlgValue[I]=='/')
+      CopyDlgValue[I]='\\';
 
   // нужно ли показывать время копирования?
   ShowCopyTime = Opt.CopyTimeRule & ((ShellCopy::Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES);
@@ -550,10 +566,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   int NeedDizUpdate=FALSE;
 
-#ifndef COPY_NOMULTICOPY
   /*
      ЕСЛИ ПРИНЯТЬ В КАЧЕСТВЕ РАЗДЕЛИТЕЛЯ ПУТЕЙ, НАПРИМЕР ';',
-     то нужно парсить CopyDlg[2].Data на предмет MultiCopy и
+     то нужно парсить CopyDlgValue на предмет MultiCopy и
      вызывать CopyFileTree нужное количество раз.
   */
   /* $ 02.06.2001 IS
@@ -561,7 +576,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   */
   {
     ShellCopy::Flags&=~FCOPY_MOVE;
-    if(DestList.Set(CopyDlg[2].Data)) // если список успешно "скомпилировался"
+    if(DestList.Set(CopyDlgValue)) // если список успешно "скомпилировался"
       {
         const char *NamePtr;
         char NameTmp[NM];
@@ -624,27 +639,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
       }
   }
   /* IS $ */
-#else
-  // Если выделенных элементов больше 1 и среди них есть каталог, то всегда
-  // делаем так, чтобы на конце был '\\'
-  if(AddSlash)
-      AddEndSlash(CopyDlg[2].Data);
-
-  // Для перемещение одного объекта скинем просчет "тотала"
-  if (CDP.SelCount==1 && Move && strpbrk(CopyDlg[2].Data,":\\")==NULL)
-    ShowTotalCopySize=FALSE;
-
-  if(Move) // при перемещении "тотал" так же скидывается для "того же диска"
-  {
-    char SrcDir[NM];
-    SrcPanel->GetCurDir(SrcDir);
-    if(IsSameDisk(SrcDir,CopyDlg[2].Data))
-      ShowTotalCopySize=FALSE;
-  }
-
-  CopyFileTree(CopyDlg[2].Data);
-  NeedDizUpdate=TRUE;
-#endif
 
   // ***********************************************************************
   // *** заключительеая стадия процесса
@@ -689,14 +683,14 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   {
     case DN_BTNCLICK:
     {
-      if(Param1 == 8)
+      if(Param1 == 9)
       {
         Dialog::SendDlgMessage(hDlg,DM_CALLTREE,0,0);
         return FALSE;
       }
-      else if(Param1 == 7)
+      else if(Param1 == 8)
       {
-        Dialog::SendDlgMessage(hDlg,DM_CLOSE,7,0);
+        Dialog::SendDlgMessage(hDlg,DM_CLOSE,8,0);
       }
       else if(Param1 == 5 && ((DlgParam->thisClass->Flags)&FCOPY_LINK))
       {
@@ -723,15 +717,15 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
       if(Param1 == 2)
       {
         char SrcDir[NM];
-        struct FarDialogItem DItem5,DItem7;
+        struct FarDialogItem DItem5,DItem8;
         DlgParam->thisClass->SrcPanel->GetCurDir(SrcDir);
-        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,7,(long)&DItem7);
+        Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,8,(long)&DItem8);
         Dialog::SendDlgMessage(hDlg,DM_GETDLGITEM,5,(long)&DItem5);
 
         // Это создание линка?
         if((DlgParam->thisClass->Flags)&FCOPY_LINK)
         {
-          DlgParam->thisClass->LinkRules(&DItem7.Flags,
+          DlgParam->thisClass->LinkRules(&DItem8.Flags,
                     &DItem5.Flags,
                     &DItem5.Selected,
                     SrcDir,
@@ -743,7 +737,7 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 //          AnotherPanel;
         }
 
-        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,7,(long)&DItem7);
+        Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,8,(long)&DItem8);
         Dialog::SendDlgMessage(hDlg,DM_SETDLGITEM,5,(long)&DItem5);
       }
       break;
@@ -788,11 +782,11 @@ long WINAPI ShellCopy::CopyDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
+BOOL ShellCopy::LinkRules(DWORD *Flags8,DWORD* Flags5,int* Selected5,
                          char *SrcDir,char *DstDir,struct CopyDlgParam *CDP)
 {
   char Root[1024];
-  *Flags7|=DIF_DISABLE; // дисаблим сразу!
+  *Flags8|=DIF_DISABLE; // дисаблим сразу!
   *Flags5|=DIF_DISABLE;
 
   if(DstDir && DstDir[0] == '\\' && DstDir[1] == '\\')
@@ -851,7 +845,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
             // это проверка на вшивость, когда на делаем линк на каталог на другом
             // диске и... сняли галку с симлинка.
             if(*Selected5 || (!*Selected5 && SameDisk))
-               *Flags7 &=~ DIF_DISABLE;
+               *Flags8 &=~ DIF_DISABLE;
           }
           else
             *Selected5=0;
@@ -859,7 +853,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
         else if(SameDisk && CDP->FSysNTFS) // это файл!
         {
           *Selected5=0;
-          *Flags7 &=~ DIF_DISABLE;
+          *Flags8 &=~ DIF_DISABLE;
         }
       }
       else
@@ -869,7 +863,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
           if(CDP->FolderPresent)
           {
             *Flags5 &=~ DIF_DISABLE;
-            *Flags7 &=~ DIF_DISABLE;
+            *Flags8 &=~ DIF_DISABLE;
           }
           else if(CDP->FileSystemFlagsSrc&FILE_SUPPORTS_REPARSE_POINTS)
             *Selected5=0;
@@ -877,7 +871,7 @@ BOOL ShellCopy::LinkRules(DWORD *Flags7,DWORD* Flags5,int* Selected5,
         else if(SameDisk && CDP->FSysNTFS) // это файл!
         {
           *Selected5=0;
-          *Flags7 &=~ DIF_DISABLE;
+          *Flags8 &=~ DIF_DISABLE;
         }
       }
     }

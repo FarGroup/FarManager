@@ -5,10 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.89 24.07.2001 $ */
+/* Revision: 1.90 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 IS
+    + Учтем опцию "разрешить мультикопирование/перемещение/создание связей".
+      По умолчанию она отключена.
   24.07.2001 SVS
     + Учтем новую опцию Opt.Confirm.HistoryClear при очистки истории
     + Opt.PgUpChangeDisk
@@ -943,6 +946,10 @@ static struct FARConfig{
   {1, REG_DWORD,  NKeyInterface, "Mouse",&Opt.Mouse,1, 0},
   {1, REG_DWORD,  NKeyInterface, "AltGr",&Opt.AltGr,1, 0},
   {1, REG_DWORD,  NKeyInterface, "CopyShowTotal",&Opt.CopyShowTotal,0, 0},
+  /* $ 03.08.2001 IS
+       опция "разрешить мультикопирование/перемещение/создание связей" */
+  {1, REG_DWORD,  NKeyInterface, "MultiCopy",&Opt.MultiCopy,0, 0},
+  /* IS $ */
   {1, REG_DWORD,  NKeyInterface, "ShowMenuBar",&Opt.ShowMenuBar,0, 0},
   {1, REG_DWORD,  NKeyInterface, "AutoComplete",&Opt.AutoComplete,0, 0},
   {0, REG_DWORD,  NKeyInterface, "CursorSize1",&Opt.CursorSize[0],15, 0},

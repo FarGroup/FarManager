@@ -7,10 +7,13 @@ class ShellCopy - Копирование файлов
 
 */
 
-/* Revision: 1.09 19.06.2001 $ */
+/* Revision: 1.10 19.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 IS
+    ! Убрал "#ifndef COPY_NOMULTICOPY", т.к. теперь опциональность
+      обеспечивается на программном уровне.
   19.06.2001 SVS
     + ShellSetAttr - оболочка вокруг SetFileAttributes
   02.06.2001 IS
@@ -97,9 +100,7 @@ class ShellCopy
     int SrcDriveType;
     char SrcDriveRoot[NM];
     int SelectedFolderNameLength;
-    #ifndef COPY_NOMULTICOPY
     UserDefinedList DestList; // хранение списка целей
-    #endif
 
   private:
     COPY_CODES CopyFileTree(char *Dest);
@@ -136,4 +137,4 @@ class ShellCopy
 };
 
 
-#endif	// __SHELLCOPY_HPP__
+#endif  // __SHELLCOPY_HPP__

@@ -7,10 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.64 24.07.2001 $ */
+/* Revision: 1.65 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 IS
+    + опция "разрешить мультикопирование/перемещение/создание связей":
+      Opt.MultiCopy
   24.07.2001 SVS
     + Opt.PgUpChangeDisk
     + Opt.Confirmation.HistoryClear
@@ -376,6 +379,11 @@ struct Options
   int UseSystemCopy;
   int CopyOpened;
   int CopyShowTotal;
+  /* $ 03.08.2001 IS
+       опция "разрешить мультикопирование/перемещение/создание связей"
+  */
+  int MultiCopy;
+  /* IS $ */
   int CreateUppercaseFolders;
   int UseRegisteredTypes;
   int UseExternalViewer;

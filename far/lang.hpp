@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.70 02.08.2001 $ */
+/* Revision: 1.71 03.08.2001 $ */
 
 /*
 Modify:
+  03.08.2001 IS
+    + Для диалога копирования/перемещения: MCopyMultiActions
   02.08.2001 IS
     + Новые строчки для диалога редактирования ассоциаций файлов:
       MFileAssocAltExec, MFileAssocAltView, MFileAssocAltEdit
@@ -449,6 +451,7 @@ enum
   MLinkDlgTitle,
   MCopySecurity,
   MCopyOnlyNewerFiles,
+  MCopyMultiActions,
   MCopySymLink,
   MCopyDlgCopy,
   MCopyDlgTree,
