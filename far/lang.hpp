@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.117 10.01.2003 $ */
+/* Revision: 1.118 27.01.2003 $ */
 
 /*
 Modify:
+  27.01.2003 VVM
+    + MViewSearchFromBegin, MViewSearchFromEnd
   10.01.2003 SVS
     + MExceptTitleFAR, MExcFARTerminateYes, MEditPanelModeAlignFolderExtensions, MConfigSortFolderExt
   23.12.2002 SVS
@@ -62,7 +64,7 @@ Modify:
   12.03.2002 VVM
     + MDoYouWantToStopWork2
   02.03.2002 KM
-  	+ MCopySkipAll
+    + MCopySkipAll
   21.02.2002 SVS
     + MChangeWaitingLoadDisk, MPlgRequired2
   23.01.2002 SVS
@@ -1707,6 +1709,8 @@ enum
 
   MViewSearchingFor,
   MViewSearchCannotFind,
+  MViewSearchFromBegin,
+  MViewSearchFromEnd,
 
   MPrintTitle,
   MPrintTo,

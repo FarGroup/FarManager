@@ -1413,6 +1413,8 @@
 
 "Searching for"
 "Could not find the string"
+"Continue the search from the beginning of the document?"
+"Continue the search from the end of the document?"
 
 "Print"
 "Print %s to"

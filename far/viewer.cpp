@@ -5,10 +5,15 @@ Internal viewer
 
 */
 
-/* Revision: 1.122 26.01.2003 $ */
+/* Revision: 1.123 27.01.2003 $ */
 
 /*
 Modify:
+  27.01.2003 VVM
+    ! Последний штрих, отличающий шедевр от произведения искусства! :)
+    + При достижении конца файла спрашиваем "А не поискать ли с начала файла?"
+    - Поправил багу с выделением при движении вверх
+    - Поправил баг с отрисовкой правых стрелов ">" при движении вверх.
   26.01.2003 IS
     ! FAR_CreateFile - обертка для CreateFile, просьба использовать именно
       ее вместо CreateFile
@@ -1166,7 +1171,8 @@ void Viewer::ShowUp()
   {
     SetColor(COL_VIEWERTEXT);
     GotoXY(X1,Y);
-    if (strlen(OutStr[I])>LeftPos)
+    int StrLength = strlen(OutStr[I]);
+    if (StrLength > LeftPos)
     {
       /* $ 18.10.2000 SVS
          -Bug: Down Down Up & первый пробел
@@ -1180,10 +1186,14 @@ void Viewer::ShowUp()
     else
       mprintf("%*s",Width,"");
 
-    if (SelectPos >= StrFilePos[I] + LeftPos && SelectPos <= StrFilePos[I] + strlen(OutStr[I]))
+    if (SelectPos >= StrFilePos[I] + LeftPos && SelectPos <= StrFilePos[I] + StrLength)
     {
-      int SelPos = SelectPos - StrFilePos[I];
-      int SelSize = SelectSize;
+      __int64 SelPos, SelSize;
+      char OutStrTmp[MAX_VIEWLINEB];
+      __int64 SavePos = vtell(ViewFile);
+      vseek(ViewFile,StrFilePos[I],SEEK_SET);
+      ReadString(OutStrTmp,-1,MAX_VIEWLINEB,&SelPos,&SelSize);
+      vseek(ViewFile,SavePos,SEEK_SET);
       int SelX1=(int)((__int64)X1+SelPos - LeftPos);
       if (SelPos - LeftPos < Width)
       {
@@ -1196,7 +1206,7 @@ void Viewer::ShowUp()
       }
     }
 
-    if (strlen(&OutStr[I][(int)LeftPos])>Width && ViOpt.ShowArrows)
+    if (StrLength > LeftPos + Width && ViOpt.ShowArrows)
     {
       GotoXY(XX2,Y);
       SetColor(COL_VIEWERARROWS);
@@ -2412,6 +2422,12 @@ void ViewerSearchMsg(char *MsgStr)
   PreRedrawParam.Param1=MsgStr;
 }
 
+/* $ 27.01.2003 VVM
+   + Параметр Next может принимать значения:
+   0 - Новый поиск
+   1 - Продолжить поиск со следующей позиции
+   2 - Продолжить поиск с начала файла
+*/
 void Viewer::Search(int Next,int FirstChar)
 {
   const char *TextHistoryName="SearchText";
@@ -2528,7 +2544,12 @@ void Viewer::Search(int Next,int FirstChar)
 
     SelectSize = 0;
     if (Next)
-      LastSelPos = SelectPos + 1;
+    {
+      if (Next == 2)
+        LastSelPos = ReverseSearch?FileSize:0;
+      else
+        LastSelPos = SelectPos + (ReverseSearch?-1:1);
+    }
     else
       LastSelPos = FilePos;
 
@@ -2706,8 +2727,16 @@ void Viewer::Search(int Next,int FirstChar)
     /* KM $ */
   }
   else
-    Message(MSG_DOWN|MSG_WARNING,1,MSG(MViewSearchTitle),
-            MSG(MViewSearchCannotFind),MsgStr,MSG(MOk));
+  {
+    /* $ 27.01.2003 VVM
+       + После окончания поиска спросим о переходе поиска в начало/конец */
+    if (Message(MSG_DOWN|MSG_WARNING,2,MSG(MViewSearchTitle),
+                MSG(MViewSearchCannotFind), MsgStr,
+                (ReverseSearch?MSG(MViewSearchFromEnd):MSG(MViewSearchFromBegin)),
+                MSG(MYes), MSG(MNo)) == 0)
+      Search(2,0);
+    /* VVM $ */
+  }
 }
 
 
