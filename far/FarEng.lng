@@ -1061,6 +1061,7 @@
 "De&lete"
 "Delete non-empty &folders"
 "E&xit"
+"&Pressing the Esc"
 
 "Find folder"
 "Tree"
@@ -1326,5 +1327,8 @@
 "available in registered version"
 
 "Time: %8s Left: %8s  %5d%sb/s"
+
+"Key ESC was pressed"
+"Do you want to stop work?"
 
 "Evaluation version"

@@ -15,10 +15,13 @@ lang.hpp
 
 */
 
-/* Revision: 1.48 01.02.2001 $ */
+/* Revision: 1.50 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + MSetConfirmEsc
+    + MKeyESCWasPressed, MDoYouWantToStopWork
   01.02.2001 SVS
     + MQuickViewJunction
   30.01.2001 VVM
@@ -1188,6 +1191,7 @@ enum
   MSetConfirmDelete,
   MSetConfirmDeleteFolders,
   MSetConfirmExit,
+  MSetConfirmEsc,
 
   MFindFolderTitle,
   MTreeTitle,
@@ -1449,6 +1453,9 @@ enum
   MRegOnlyShort,
 
   MCopyTimeInfo,
+
+  MKeyESCWasPressed,
+  MDoYouWantToStopWork,
 
   MListEval
 

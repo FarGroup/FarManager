@@ -5,12 +5,13 @@ config.cpp
 
 */
 
-/* Revision: 1.47 09.02.2001 $ */
+/* Revision: 1.48 09.02.2001 $ */
 
 /*
 Modify:
   09.02.2001 IS
     + сохраним/считаем состояние опции "помеченное вперед"
+    + Опция подтверждения нажатия Esc. По умолчанию отключена.
   30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость.
       Зависит от настроек в реестре CopyTimeRule
@@ -397,19 +398,23 @@ void InterfaceSettings()
 }
 
 
+/* $ 09.02.2001 IS
+   Опция Esc
+*/
 void SetConfirmations()
 {
   static struct DialogData ConfDlgData[]={
-    DI_DOUBLEBOX,3,1,41,10,0,0,0,0,(char *)MSetConfirmTitle,
+    DI_DOUBLEBOX,3,1,41,11,0,0,0,0,(char *)MSetConfirmTitle,
     DI_CHECKBOX,5,2,0,0,1,0,0,0,(char *)MSetConfirmCopy,
     DI_CHECKBOX,5,3,0,0,0,0,0,0,(char *)MSetConfirmMove,
     DI_CHECKBOX,5,4,0,0,0,0,0,0,(char *)MSetConfirmDrag,
     DI_CHECKBOX,5,5,0,0,0,0,0,0,(char *)MSetConfirmDelete,
     DI_CHECKBOX,5,6,0,0,0,0,0,0,(char *)MSetConfirmDeleteFolders,
     DI_CHECKBOX,5,7,0,0,0,0,0,0,(char *)MSetConfirmExit,
-    DI_TEXT,3,8,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
-    DI_BUTTON,0,9,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+    DI_CHECKBOX,5,8,0,0,0,0,0,0,(char *)MSetConfirmEsc,
+    DI_TEXT,3,9,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+    DI_BUTTON,0,10,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
   };
   MakeDialogItems(ConfDlgData,ConfDlg);
   ConfDlg[1].Selected=Opt.Confirm.Copy;
@@ -418,11 +423,12 @@ void SetConfirmations()
   ConfDlg[4].Selected=Opt.Confirm.Delete;
   ConfDlg[5].Selected=Opt.Confirm.DeleteFolder;
   ConfDlg[6].Selected=Opt.Confirm.Exit;
+  ConfDlg[7].Selected=Opt.Confirm.Esc;
   Dialog Dlg(ConfDlg,sizeof(ConfDlg)/sizeof(ConfDlg[0]));
   Dlg.SetHelp("ConfirmDlg");
-  Dlg.SetPosition(-1,-1,45,12);
+  Dlg.SetPosition(-1,-1,45,13);
   Dlg.Process();
-  if (Dlg.GetExitCode()!=8)
+  if (Dlg.GetExitCode()!=9)
     return;
   Opt.Confirm.Copy=ConfDlg[1].Selected;
   Opt.Confirm.Move=ConfDlg[2].Selected;
@@ -430,8 +436,9 @@ void SetConfirmations()
   Opt.Confirm.Delete=ConfDlg[4].Selected;
   Opt.Confirm.DeleteFolder=ConfDlg[5].Selected;
   Opt.Confirm.Exit=ConfDlg[6].Selected;
+  Opt.Confirm.Esc=ConfDlg[7].Selected;
 }
-
+/* IS $ */
 
 void SetDizConfig()
 {
@@ -975,6 +982,11 @@ void ReadConfig()
   GetRegKey("Confirmations","Delete",Opt.Confirm.Delete,1);
   GetRegKey("Confirmations","DeleteFolder",Opt.Confirm.DeleteFolder,1);
   GetRegKey("Confirmations","Exit",Opt.Confirm.Exit,1);
+  /* $ 09.02.2001 IS
+       Подтверждение нажатия Esc. По умолчанию отключено.
+  */
+  GetRegKey("Confirmations","Esc",Opt.Confirm.Esc,0);
+  /* IS $ */
 
   GetRegKey("Panel","ShowHidden",Opt.ShowHidden,1);
   GetRegKey("Panel","Highlight",Opt.Highlight,1);
@@ -1177,6 +1189,11 @@ void SaveConfig(int Ask)
   SetRegKey("Confirmations","Delete",Opt.Confirm.Delete);
   SetRegKey("Confirmations","DeleteFolder",Opt.Confirm.DeleteFolder);
   SetRegKey("Confirmations","Exit",Opt.Confirm.Exit);
+  /* $ 09.02.2001 IS
+       Подтверждение нажатия Esc.
+  */
+  SetRegKey("Confirmations","Esc",Opt.Confirm.Esc);
+  /* IS $ */
 
   SetRegKey("Panel","ShowHidden",Opt.ShowHidden);
   SetRegKey("Panel","Highlight",Opt.Highlight);

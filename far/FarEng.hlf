@@ -864,7 +864,9 @@ for following operations:
 
  - delete folders;
 
- - exit from FAR.
+ - exit from FAR;
+
+ - pressing the Esc.
 
 @FindFile
 $ #Find file#
@@ -2048,4 +2050,3 @@ few other macro types. Macro sets are saved on the "Save setup" command from
     To specify additional macro settings, start or finish macro
 recording with #Ctrl-Shift-<.># instead of Ctrl-<.> and select the desired
 options in the dialog.
-

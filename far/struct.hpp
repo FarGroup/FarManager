@@ -7,12 +7,13 @@ struct.hpp
 
 */
 
-/* Revision: 1.36 09.02.2001 $ */
+/* Revision: 1.37 09.02.2001 $ */
 
 /*
 Modify:
   09.02.2001 IS
     + RightSelectedFirst, LeftSelectedFirst;
+    + Confirmation.Esc
   30.01.2001 VVM
     + Показывает время копирования,оставшееся время и среднюю скорость.
       Зависит от настроек в реестре CopyTimeRule
@@ -152,6 +153,11 @@ struct Confirmation
   int Delete;
   int DeleteFolder;
   int Exit;
+  /* $ 09.02.2001 IS
+     Для CheckForEsc
+  */
+  int Esc;
+  /* IS $ */
 };
 
 struct MenuItem

@@ -5,10 +5,12 @@ keyboard.cpp
 
 */
 
-/* Revision: 1.13 06.02.2001 $ */
+/* Revision: 1.14 09.02.2001 $ */
 
 /*
 Modify:
+  09.02.2001 IS
+    + Подтверждение нажатия Esc в CheckForEsc (опционально)
   06.02.2001 SVS
     - ОНИ... :-)
       Приведение в порядок "непослушных" Divide & Multiple на цифровой клаве.
@@ -632,16 +634,25 @@ int WriteSequenceInput(struct SequenceKey *Sequence)
 }
 
 
+/* $ 09.02.2001 IS
+     Подтверждение нажатия Esc
+*/
 int CheckForEsc()
 {
   INPUT_RECORD rec;
   int Key;
   if (!CtrlObject->Macro.IsExecuting() && PeekInputRecord(&rec) &&
       ((Key=GetInputRecord(&rec))==KEY_ESC || Key==KEY_BREAK))
-    return(TRUE);
+  {
+    BOOL rc=TRUE;
+    if(Opt.Confirm.Esc)
+       rc=0==Message(MSG_WARNING,2,MSG(MKeyESCWasPressed),
+                     MSG(MDoYouWantToStopWork),MSG(MYes),MSG(MNo));
+    return rc;
+  }
   return(FALSE);
 }
-
+/* IS $ */
 
 /* $ 25.07.2000 SVS
     ! Функция KeyToText сделана самосотоятельной - вошла в состав FSF
@@ -1348,4 +1359,3 @@ int CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros)
     return(AsciiChar);
   return(KEY_NONE);
 }
-
