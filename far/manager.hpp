@@ -7,10 +7,13 @@ manager.hpp
 
 */
 
-/* Revision: 1.28 13.04.2002 $ */
+/* Revision: 1.29 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
+      для всех Frame в методе Manager::InitKeyBar.
   13.04.2002 KM
     ! ResizeAllModal - для вызова ResizeConsole для всех
       NextModal у модального фрейма.
@@ -115,6 +118,10 @@ class Manager
 
     int  EndLoop;            // Признак выхода из цикла
     INPUT_RECORD LastInputRecord;
+
+    int ModalExitCode;
+
+  private:
     void StartupMainloop();
     Frame *FrameMenu(); //    вместо void SelectFrame(); // show window menu (F12)
 
@@ -131,6 +138,8 @@ class Manager
     void ExecuteCommit();
     void ModalizeCommit();
     void UnmodalizeCommit();
+
+    int GetModalExitCode();
 
   public:
     Manager();
@@ -163,10 +172,7 @@ class Manager
     //  Сейчас используются только для хранения информаци о наличии запущенных объектов типа VFMenu
     void ModalizeFrame (Frame *Modalized=NULL, int Mode=TRUE);
     void UnmodalizeFrame (Frame *Unmodalized);
-  private:
-    int GetModalExitCode();
-    int ModalExitCode;
-  public:
+
     void CloseAll();
     /* $ 29.12.2000 IS
          Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
@@ -237,6 +243,8 @@ class Manager
     Frame *GetBottomFrame() { return (*this)[FramePos]; }
 
     BOOL ManagerIsDown() {return EndLoop;}
+
+    void InitKeyBar(void);
 };
 
 extern Manager *FrameManager;

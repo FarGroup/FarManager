@@ -5,10 +5,13 @@ manager.cpp
 
 */
 
-/* Revision: 1.71 28.04.2002 $ */
+/* Revision: 1.72 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
+      для всех Frame в методе Manager::InitKeyBar.
   28.04.2002 KM
     - Баг с зацикливанием:
       F12 F1 F12 F1 F12 F1... и так далее из любого фрейма
@@ -1340,3 +1343,9 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
   }
 }
 /* KM $ */
+
+void Manager::InitKeyBar(void)
+{
+  for (int I=0;I < FrameCount;I++)
+    FrameList[I]->InitKeyBar();
+}

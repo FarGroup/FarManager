@@ -5,10 +5,13 @@ options.cpp
 
 */
 
-/* Revision: 1.17 18.03.2002 $ */
+/* Revision: 1.18 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! При изменении языка вызовем Manager::InitKeyBar, который "изменит" язык
+      ранее открытых фреймов.
   18.03.2002 SVS
     ! После смены языка интерфейса апдейтим так же титлы истории редактирования
   11.02.2002 SVS
@@ -505,6 +508,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
               CtrlObject->ViewHistory->ReloadTitle();
               SetEnvironmentVariable("FARLANG",Opt.Language);
               PrepareStrFTime();
+              FrameManager->InitKeyBar();
               CtrlObject->Cp()->RedrawKeyBar();
               CtrlObject->Cp()->SetScreenPosition();
             }

@@ -8,10 +8,13 @@ frame.hpp
 
 */
 
-/* Revision: 1.19 28.04.2002 $ */
+/* Revision: 1.20 15.05.2002 $ */
 
 /*
 Modify:
+  15.05.2002 SVS
+    ! Сделаем виртуальный метод Frame::InitKeyBar и будем его вызывать
+      для всех Frame в методе Manager::InitKeyBar.
   28.04.2002 KM
     + MODALTYPE_COMBOBOX
   20.12.2001 IS
@@ -113,6 +116,7 @@ class Frame: virtual public ScreenObject
     virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
     virtual void Refresh() {OnChangeFocus(1);};  // Просто перерисоваться :)
 
+    virtual void InitKeyBar(void) {}
     void SetKeyBar(KeyBar *FrameKeyBar);
     void UpdateKeyBar();
     virtual void RedrawKeyBar() { Frame::UpdateKeyBar(); };
