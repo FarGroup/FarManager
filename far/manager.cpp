@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.62 03.03.2002 $ */
+/* Revision: 1.63 22.03.2002 $ */
 
 /*
 Modify:
+  22.03.2002 SVS
+    - BugZ#386 - Поиск файлов и редактор
   03.03.2002 SVS
     ! Если для VC вставить ключ /Gr, то видим кучу багов :-/
   15.02.2002 SVS
@@ -440,6 +442,8 @@ Frame *Manager::FrameMenu()
     ModalMenu.SetFlags(VMENU_WRAPMODE);
     ModalMenu.SetPosition(-1,-1,0,0);
 
+    if(IsProcessVE_FindFile)
+      ModalMenuItem.SetDisable(TRUE);
     for (int I=0;I<FrameCount;I++)
     {
       char Type[200],Name[NM],NumText[100];
@@ -738,6 +742,12 @@ int  Manager::ProcessKey(int Key)
           }
           //_SVS(SysLog(-1));
           return TRUE;
+      }
+
+      if(IsProcessVE_FindFile && Key == KEY_F12)// && CtrlObject->Macro.IsExecuting())
+      {
+        FrameMenu();
+        return TRUE;
       }
 
       // а здесь то, что может быть запрещено везде :-)
