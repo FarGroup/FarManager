@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.153 05.02.2002 $ */
+/* Revision: 1.154 06.02.2002 $ */
 
 /*
 Modify:
+  06.02.2002 IS
+    -  остыль дл€ обработки CtrlShiftEnd, котора€ полетела после 1224
   05.02.2002 SVS
     ! “ехнологический патч - про сислоги
   05.02.2002 SVS
@@ -1547,6 +1549,18 @@ int Editor::ProcessKey(int Key)
         Edit::DisableEditOut(TRUE);
         ProcessKey(KEY_SHIFTPGDN);
       }
+      /* $ 06.02.2002 IS
+         ѕринудительно сбросим флаг того, что позици€ изменена плагином.
+         ƒл€ чего:
+           при выполнении "ProcessKey(KEY_SHIFTPGDN)" (см. чуть выше)
+           позици€ плагины (в моем случае - колорер) могут дергать
+           ECTL_SETPOSITION, в результате чего выставл€етс€ флаг
+           FEDITOR_CURPOSCHANGEDBYPLUGIN. ј при обработке KEY_SHIFTEND
+           выделение в подобном случае начинаетс€ с нул€, что сводит на нет
+           предыдущее выполнение KEY_SHIFTPGDN.
+      */
+      EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+      /* IS $ */
       ProcessKey(KEY_SHIFTEND);
       Pasting--;
       DisableOut--;
@@ -1655,14 +1669,20 @@ int Editor::ProcessKey(int Key)
         */
         {
           int First=FALSE; // будет TRUE, если выдел€ем заново, а не продолжаем
-          /* $ 04.02.2002 IS
+          /* $ 06.02.2002 IS
              ƒобавим дополнительную проверку на наличие выделени€ - если
              SelStart==SelEnd, то считаем, что выделени€ нет (такое могло быть
              после плагинов)
           */
           int SelStart, SelEnd;
-          CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
-          if (!EFlags.Check(FEDITOR_MARKINGBLOCK) || SelStart==SelEnd)
+          if(EFlags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
+          {
+            CurLine->EditLine.GetSelection(SelStart,SelEnd);
+            if(SelStart!=-1 && SelStart==SelEnd)
+              EFlags.Skip(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+            EFlags.Skip(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+          }
+          if (!EFlags.Check(FEDITOR_MARKINGBLOCK))
           /* IS $ */
           {
             UnmarkBlock();
@@ -1674,6 +1694,7 @@ int Editor::ProcessKey(int Key)
           /* $ 24.05.2001 IS
              ! ѕриблизим поведение к тому, какое было до 592
           */
+          CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
           if(CurPos>CurLength) // мы за пределами строки
           {
             if (First || (SelStart > CurLength)) // выдел€ем заново или есть блок за пределами строки
