@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.230 13.06.2003 $ */
+/* Revision: 1.231 14.06.2003 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  14.06.2003 SVS
+    ! FRS_SCANJUNCTION -> FRS_SCANSYMLINK
   13.06.2003 SVS
     ! Для FRS_SCANJUNCTION только младший байт!
     + FSS_SCANSYMLINK (забыл про доступность опции :-))
@@ -2206,7 +2208,7 @@ typedef int (WINAPI *FRSUSERFUNC)(
 enum FRSMODE{
   FRS_RETUPDIR             = 0x01,
   FRS_RECUR                = 0x02,
-  FRS_SCANJUNCTION         = 0x04,
+  FRS_SCANSYMLINK          = 0x04,
 };
 
 typedef void    (WINAPI *FARSTDRECURSIVESEARCH)(const char *InitDir,const char *Mask,FRSUSERFUNC Func,DWORD Flags,void *Param);

@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.141 14.06.2003 $ */
+/* Revision: 1.142 14.06.2003 $ */
 
 /*
 Modify:
+  14.06.2003 SVS
+    ! FRS_SCANJUNCTION -> FRS_SCANSYMLINK
   14.06.2003 SVS
     ! Для FRS_SCANJUNCTION только младший байт!
     ! Исправлена функция CheckUpdateAnotherPanel - были траблы с удалением:
@@ -1176,7 +1178,7 @@ void WINAPI FarRecursiveSearch(const char *InitDir,const char *Mask,FRSUSERFUNC 
     if(!FMask.Set(Mask, FMF_SILENT)) return;
 
     Flags=Flags&0x000000FF; // только младший байт!
-    ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANJUNCTION);
+    ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANSYMLINK);
     WIN32_FIND_DATA FindData;
     char FullName[NM];
 
