@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.150 14.12.2004 $ */
+/* Revision: 1.151 23.12.2004 $ */
 
 /*
 Modify:
+  23.12.2004 WARP
+    ! 3-х позиционный ExpandTab (стара€ функциональность возвращаетс€ компил€цией с USE_OLDEXPANDTABS)
   14.12.2004 SVS
     + MMenuWipe
   13.12.2004 WARP
@@ -619,7 +621,15 @@ enum
   MEditConfigEditorAltF4,
   MEditConfigEditorCommand,
   MEditConfigInternal,
+
+#ifdef USE_OLDEXPANDTABS
   MEditConfigTabsToSpaces,
+#else
+  MEditConfigDoNotExpandTabs,
+  MEditConfigExpandTabs,
+  MEditConfigConvertAllTabsToSpaces,
+#endif
+
   MEditConfigPersistentBlocks,
   MEditConfigDelRemovesBlocks,
   MEditConfigAutoIndent,

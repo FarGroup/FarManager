@@ -2560,8 +2560,18 @@ $ #Settings dialog: editor#
 
     Internal editor
 
-  #Expand Tabs to spaces#   Replace Tab character with the appropriate
-                          number of spaces.
+  #Do not expand tabs#      При редактировании документа символ #Tab#
+                          не преобразовывать в пробелы.
+
+  #Expand tabs to spaces#   При редактировании документа введенный
+                          символ #Tab# заменять на соответствующее
+                          количество пробелов. Остальные символы
+                          #Tab# не преобразовывать.
+
+  #Convert all tabs#        При открытии документа в редакторе все
+  #to spaces#               символы #Tab# заменить на соответствующее
+                          количество пробелов.
+
 
   #Persistent blocks#       Do not remove block selection after
                           moving the cursor.

@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.171 30.08.2004 $ */
+/* Revision: 1.172 23.12.2004 $ */
 
 /*
 Modify:
+  23.12.2004 WARP
+    ! 3-х позиционный ExpandTab (старая функциональность возвращается компиляцией с USE_OLDEXPANDTABS)
   30.08.2004 SVS
     + Opt.IgnoreErrorBadPathName - Игнорировать ошибку ERROR_BAD_PATHNAME под масдаем, по умолчанию = 0
   06.08.2004 SKV
@@ -1234,6 +1236,7 @@ void ViewerConfig(struct ViewerOptions &ViOpt,int Local)
 /* $ 03.01.2001 IS
   ! Устранение "двойного отрицания".
 */
+#ifdef USE_OLDEXPANDTABS
 void EditorConfig(struct EditorOptions &EdOpt,int Local)
 {
   static struct DialogData CfgDlgData[]={
@@ -1348,6 +1351,137 @@ void EditorConfig(struct EditorOptions &EdOpt,int Local)
 /* IS $ */
 /* IS $ */
 /* SVS $ */
+#else
+
+void EditorConfig(struct EditorOptions &EdOpt,int Local)
+{
+  static struct DialogData CfgDlgData[]={
+  /*  0 */  DI_DOUBLEBOX,3,1,63,24,0,0,0,0,(char *)MEditConfigTitle,
+  /*  1 */  DI_SINGLEBOX,5,2,61,7,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigExternal,
+  /*  2 */  DI_RADIOBUTTON,7,3,0,0,1,0,DIF_GROUP,0,(char *)MEditConfigEditorF4,
+  /*  3 */  DI_RADIOBUTTON,7,4,0,0,0,0,0,0,(char *)MEditConfigEditorAltF4,
+  /*  4 */  DI_TEXT,7,5,0,0,0,0,0,0,(char *)MEditConfigEditorCommand,
+  /*  5 */  DI_EDIT,7,6,59,6,0,0,0,0,"",
+  /*  6 */  DI_SINGLEBOX,5,8,61,22,0,0,DIF_LEFTTEXT,0,(char *)MEditConfigInternal,
+  /*  7 */  DI_RADIOBUTTON, 7, 9, 0, 0, 1, 0, DIF_GROUP, 0, (char*)MEditConfigDoNotExpandTabs,
+  /*  8 */  DI_RADIOBUTTON, 7, 10, 0, 0, 0, 0, 0, 0, (char*)MEditConfigExpandTabs,
+  /*  9 */  DI_RADIOBUTTON, 7, 11, 0, 0, 0, 0, 0, 0, (char*)MEditConfigConvertAllTabsToSpaces,
+  /* 10 */  DI_CHECKBOX,7,12,0,0,0,0,0,0,(char *)MEditConfigPersistentBlocks,
+  /* 11 */  DI_CHECKBOX,7,13,0,0,0,0,0,0,(char *)MEditConfigDelRemovesBlocks,
+  /* 12 */  DI_CHECKBOX,7,14,0,0,0,0,0,0,(char *)MEditConfigAutoIndent,
+  /* 13 */  DI_CHECKBOX,7,15,0,0,0,0,0,0,(char *)MEditConfigSavePos,
+  /* 14 */  DI_CHECKBOX,7,16,0,0,0,0,0,0,(char *)MEditConfigSaveShortPos,
+  /* 15 */  DI_CHECKBOX,7,17,0,0,0,0,0,0,(char *)MEditAutoDetectTable,
+  /* 16 */  DI_CHECKBOX,7,18,0,0,0,0,0,0,(char *)MEditCursorBeyondEnd,
+  /* 17 */  DI_CHECKBOX,7,19,0,0,0,0,0,0,(char *)MEditLockROFileModification,
+  /* 18 */  DI_CHECKBOX,7,20,0,0,0,0,0,0,(char *)MEditWarningBeforeOpenROFile,
+  /* 19 */  DI_FIXEDIT,7,21,9,19,0,0,0,0,"",
+  /* 20 */  DI_TEXT,11,21,0,0,0,0,0,0,(char *)MEditConfigTabSize,
+  /* 21 */  DI_BUTTON,0,23,0,0,0,0,DIF_CENTERGROUP,1,(char *)MOk,
+  /* 22 */  DI_BUTTON,0,23,0,0,0,0,DIF_CENTERGROUP,0,(char *)MCancel
+  };
+  MakeDialogItems(CfgDlgData,CfgDlg);
+
+  CfgDlg[2].Selected=Opt.UseExternalEditor;
+  CfgDlg[3].Selected=!Opt.UseExternalEditor;
+  strcpy(CfgDlg[5].Data,Opt.ExternalEditor);
+
+  CfgDlg[7+EdOpt.ExpandTabs].Selected = TRUE;
+
+//  CfgDlg[7].Selected=EdOpt.ExpandTabs;
+  CfgDlg[10].Selected=EdOpt.PersistentBlocks;
+  CfgDlg[11].Selected=EdOpt.DelRemovesBlocks;
+  CfgDlg[12].Selected=EdOpt.AutoIndent;
+  CfgDlg[13].Selected=EdOpt.SavePos;
+  CfgDlg[14].Selected=EdOpt.SaveShortPos;
+  /* 15.09.2000 IS
+     Отключение автоопределения таблицы символов, если отсутствует таблица с
+     распределением частот символов
+  */
+  CfgDlg[15].Selected=EdOpt.AutoDetectTable&&DistrTableExist();
+  /* IS $ */
+  CfgDlg[16].Selected=EdOpt.CursorBeyondEOL;
+  CfgDlg[17].Selected=Opt.EditorReadOnlyLock & 1;
+  CfgDlg[18].Selected=Opt.EditorReadOnlyLock & 2;
+
+  if (!RegVer)
+  {
+    CfgDlg[19].Flags|=DIF_DISABLE;
+    CfgDlg[20].Flags|=DIF_DISABLE;
+    *CfgDlg[20].Data=0;
+  }
+  else
+    sprintf(CfgDlg[19].Data,"%d",EdOpt.TabSize);
+
+  int DialogHeight=26;
+  if (Local)
+  {
+    int i;
+    for (i=1; i<=5; i++)
+      CfgDlg[i].Flags |= DIF_HIDDEN;
+    for (i=6; i<=22; i++)
+      CfgDlg[i].Y1 -= 6;
+    CfgDlg[0].Y2 -= 6;
+    CfgDlg[6].Y2 -= 6;
+    DialogHeight -= 6;
+  }
+
+  {
+    Dialog Dlg(CfgDlg,sizeof(CfgDlg)/sizeof(CfgDlg[0]));
+    Dlg.SetHelp("EditorSettings");
+    Dlg.SetPosition(-1,-1,67,DialogHeight);
+    Dlg.Process();
+    if (Dlg.GetExitCode()!=21)
+      return;
+  }
+
+  if (!Local)
+  {
+    Opt.UseExternalEditor=CfgDlg[2].Selected;
+    xstrncpy(Opt.ExternalEditor,CfgDlg[5].Data,sizeof(Opt.ExternalEditor)-1);
+  }
+
+  if ( CfgDlg[7].Selected )
+    EdOpt.ExpandTabs = 0;
+
+  if ( CfgDlg[8].Selected )
+    EdOpt.ExpandTabs = 1;
+
+  if ( CfgDlg[9].Selected )
+    EdOpt.ExpandTabs = 2;
+
+  EdOpt.PersistentBlocks=CfgDlg[10].Selected;
+  EdOpt.DelRemovesBlocks=CfgDlg[11].Selected;
+  EdOpt.AutoIndent=CfgDlg[12].Selected;
+  EdOpt.SavePos=CfgDlg[13].Selected;
+  EdOpt.SaveShortPos=CfgDlg[14].Selected;
+  EdOpt.AutoDetectTable=CfgDlg[15].Selected;
+  /* 15.09.2000 IS
+     Отключение автоопределения таблицы символов, если отсутствует таблица с
+     распределением частот символов
+  */
+  if(!DistrTableExist() && EdOpt.AutoDetectTable)
+  {
+    EdOpt.AutoDetectTable=0;
+    Message(MSG_WARNING,1,MSG(MWarning),
+              MSG(MDistributionTableWasNotFound),MSG(MAutoDetectWillNotWork),
+              MSG(MOk));
+  }
+  /* IS $ */
+  EdOpt.TabSize=atoi(CfgDlg[19].Data);
+  if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
+    EdOpt.TabSize=8;
+  EdOpt.CursorBeyondEOL=CfgDlg[16].Selected;
+  Opt.EditorReadOnlyLock&=~3;
+  if(CfgDlg[17].Selected) Opt.EditorReadOnlyLock|=1;
+  if(CfgDlg[18].Selected) Opt.EditorReadOnlyLock|=2;
+}
+/* IS 03.01.2002 $ */
+/* DJ $ */
+/* IS $ */
+/* IS $ */
+/* SVS $ */
+#endif
 
 
 void SetFolderInfoFiles()

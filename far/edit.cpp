@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.128 17.12.2004 $ */
+/* Revision: 1.129 23.12.2004 $ */
 
 /*
 Modify:
+  23.12.2004 WARP
+    ! 3-х позиционный ExpandTab (старая функциональность возвращается компиляцией с USE_OLDEXPANDTABS)
   17.12.2004 SVS
     - переделаем Edit::TabPosToReal, народ жалуется на падение ФАРа (что, в принципе, и так видно, что проверка на конец строки ведется после анализа '\t')
   11.11.2004 SVS
@@ -435,6 +437,11 @@ Edit::Edit()
   */
   TabSize=Opt.EdOpt.TabSize;
   /* IS $ */
+
+#ifndef USE_OLDEXPANDTABS
+  TabExpandMode = Opt.EdOpt.ExpandTabs;
+#endif
+
   /* $ 21.02.2001 IS
        Инициализация внутренних переменных по умолчанию
   */
@@ -621,7 +628,13 @@ void Edit::FastShow()
 #ifdef SHITHAPPENS
   ReplaceSpaces(0);
 #endif
+
+#ifdef USE_OLDEXPANDTABS
   if (!Flags.Check(FEDITLINE_CONVERTTABS) && memchr(Str,'\t',StrSize)!=NULL)
+#else
+  if ( (TabExpandMode != 2) && memchr(Str,'\t',StrSize)!=NULL)
+#endif
+
   {
     char *SaveStr;
     /* $ 04.07.2002 SKV
@@ -1764,10 +1777,25 @@ int Edit::ProcessKey(int Key)
         }
         DeleteBlock();
       }
+
+#ifndef USE_OLDEXPANDTABS
+      if ( Key==KEY_TAB && (TabExpandMode == 1) )
+      {
+         InsertTab ();
+         Show ();
+      }
+      else
+#endif
+
       if (InsertKey(Key))
       {
+#ifdef USE_OLDEXPANDTABS
         if (Key==KEY_TAB && Flags.Check(FEDITLINE_CONVERTTABS))
           ReplaceTabs();
+#else
+        if (Key==KEY_TAB && (TabExpandMode == 2) )
+           ReplaceTabs();
+#endif
         Show();
       }
       return(TRUE);
@@ -2119,8 +2147,14 @@ void Edit::SetBinaryString(const char *Str,int Length)
     StrSize=Length;
     memcpy(Edit::Str,Str,Length);
     Edit::Str[Length]=0;
+
+#ifdef USE_OLDEXPANDTABS
     if (Flags.Check(FEDITLINE_CONVERTTABS))
       ReplaceTabs();
+#else
+    if ( TabExpandMode == 2 )
+      ReplaceTabs ();
+#endif
     PrevCurPos=CurPos;
     CurPos=StrSize;
   }
@@ -2278,8 +2312,13 @@ void Edit::InsertBinaryString(const char *Str,int Length)
       delete[] TmpStr;
       /* SVS $*/
 
+#ifdef USE_OLDEXPANDTABS
       if (Flags.Check(FEDITLINE_CONVERTTABS))
         ReplaceTabs();
+#else
+      if ( TabExpandMode == 2 )
+        ReplaceTabs();
+#endif
     }
     else
       MessageBeep(MB_ICONHAND);
@@ -2440,6 +2479,51 @@ int Edit::Search(char *Str,int Position,int Case,int WholeWords,int Reverse)
 }
 /* KM $ */
 
+#ifndef USE_OLDEXPANDTABS
+
+void Edit::InsertTab()
+{
+  char *TabPtr;
+  int Pos,S;
+  /* $ 03.07.2000 tran
+     + юсЁрсюЄър ReadOnly */
+  if ( Flags.Check(FEDITLINE_READONLY) )
+    return;
+  /* tran 03.07.2000 $ */
+
+  Pos=CurPos;
+  S=TabSize-(Pos % TabSize);
+
+  if(SelStart!=-1)
+  {
+    if(Pos<=SelStart)
+    {
+       SelStart+=S-(Pos==SelStart?0:1);
+    }
+    if(SelEnd!=-1 && Pos<SelEnd)
+    {
+      SelEnd+=S;
+    }
+  }
+
+  int PrevStrSize=StrSize;
+  StrSize+=S;
+
+//  if (CurPos>Pos)
+    CurPos+=S;
+
+  Str=(char *)xf_realloc(Str,StrSize+1);
+
+  TabPtr=Str+Pos;
+
+  memmove(TabPtr+S,TabPtr,PrevStrSize-Pos);
+  memset(TabPtr,' ',S);
+
+  Str[StrSize]=0;
+}
+
+#endif
+
 
 void Edit::ReplaceTabs()
 {
@@ -2544,8 +2628,14 @@ int Edit::RealPosToTab(int Pos)
 {
   int TabPos,I;
 
+#ifdef USE_OLDEXPANDTABS
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
+#else
+  if ( (TabExpandMode == 2) || memchr(Str,'\t',StrSize)==NULL)
+    return(Pos);
+#endif
+
 
   /* $ 10.10.2004 KM
      После исправления Bug #1122 привнесён баг с невозможностью
@@ -2573,8 +2663,14 @@ int Edit::TabPosToReal(int Pos)
 {
   int TabPos,I;
 
+#ifdef USE_OLDEXPANDTABS
   if (Flags.Check(FEDITLINE_CONVERTTABS) || memchr(Str,'\t',StrSize)==NULL)
     return(Pos);
+#else
+  if ( (TabExpandMode == 2) || memchr(Str,'\t',StrSize)==NULL)
+    return(Pos);
+#endif
+
 
   /* $ 10.10.2004 KM
      После исправления Bug #1122 привнесён баг с невозможностью

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.256 13.10.2004 $ */
+/* Revision: 1.257 23.12.2004 $ */
 
 /*
 Modify:
+  23.12.2004 WARP
+    ! 3-х позиционный ExpandTab (стара€ функциональность возвращаетс€ компил€цией с USE_OLDEXPANDTABS)
   11.11.2004 SVS
     + ќбработка MCODE_V_ITEMCOUNT и MCODE_V_CURPOS, MCODE_V_EDITORCURLINE, MCODE_V_EDITORCURPOS, MCODE_V_EDITORLINES
   13.10.2004 SVS
@@ -6795,7 +6797,12 @@ void Editor::SetConvertTabs(int NewMode)
     while (CurPtr!=NULL)
     {
       CurPtr->EditLine.SetConvertTabs(NewMode);
-      CurPtr->EditLine.ReplaceTabs();
+
+#ifndef USE_OLDEXPANDTABS
+      if ( NewMode == 2 )
+#endif
+        CurPtr->EditLine.ReplaceTabs();
+
       CurPtr=CurPtr->Next;
     }
   }
