@@ -7,10 +7,12 @@ findfile.hpp
 
 */
 
-/* Revision: 1.03 31.07.2001 $ */
+/* Revision: 1.04 09.10.2001 $ */
 
 /*
 Modify:
+  09.10.2001 VVM
+    ! Переделка поиска - ускорение неимеверное :))))
   31.07.2001 KM
     Перенос статических функций из модуля в тело класса.
   05.06.2001 SVS
@@ -33,9 +35,25 @@ enum {
   SEARCH_SELECTED
 };
 
+typedef struct _ARCLIST {
+  char ArcName[NM];
+} ARCLIST, *LPARCLIST;
+
+typedef struct _FINDLIST {
+  WIN32_FIND_DATA   FindData;
+  DWORD             ArcIndex;
+//  BYTE Addons[6];
+} FINDLIST, *LPFINDLIST;
+
 class FindFiles
 {
   private:
+
+    static BOOL FindListGrow();
+    static BOOL ArcListGrow();
+    static DWORD AddFindListItem(WIN32_FIND_DATA *FindData);
+    static DWORD AddArcListItem(char *ArcName);
+
     int FindFilesProcess();
     static long WINAPI FindDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
     static long WINAPI MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
@@ -58,4 +76,4 @@ class FindFiles
 };
 
 
-#endif	// __FINDFILES_HPP__
+#endif  // __FINDFILES_HPP__
