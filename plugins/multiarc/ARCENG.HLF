@@ -23,16 +23,16 @@ archiver calls.
 $ #Adding files to archive#
     In this dialog you may choose the archiver, add or change
 command line switches (default switches may be defined using
-~Archiver settings~@ArcSettings2@ dialog), enter a password
+the ~Archiver settings~@ArcSettings2@ dialog), enter a password
 to encrypt files during archiving.
 
-    Option #Delete files after archiving# forces the archiver to move
-rather than copy files.
+    The option #Delete files after archiving# forces the archiver
+to move rather than copy files to the archive.
 
-    Option #Background# starts process of archiving in a separate window.
+    Option #Background# starts the archiving process in a separate window.
 
-    The #Save settings# choice saves the current archiver and switches
-for future usage.
+    Pressing the #Save settings# button saves the current archiver and
+switches for future usage.
 
 @ExtrFromArc
 $ #Extracting files from archive#
@@ -86,7 +86,7 @@ $ #Archive support configuration#
                         switches will be placed in the "Switches"
                         edit line.
 
- #Append default#         Determines, how to deduce initial
+ #Append default#         Determines how to deduce initial
  #archive extension#      ~Add to archive~@AddToArc@ field value from the
                         name of file/folder to be archived.
 
@@ -105,9 +105,9 @@ $ #Archive support configuration#
 
     Notes:
 
- 1. Option #Remove file extension from archive name# determines, how to deduce
+ 1. Option #Remove file extension from archive name# determines how to deduce
     initial #Add to archive# field value from the name of file/folder
-    to be archived. For example (for RAR archive):
+    to be archived. For example (for a RAR archive):
 
      #option#   #file.name.ext#       #FOLDER.NAME.EXT\*.*#
 
@@ -115,18 +115,19 @@ $ #Archive support configuration#
        [ ]    file.name.ext.RAR   FOLDER.NAME.EXT.RAR
 
     Consider how different archivers handle archive name with
-    extension passed to them: some are appending default archive
+    extension passed to them: some of them append a default archive
     extension to it (PKZip: #file.name# => #file.name.ZIP#), some
-    aren't (RAR: #file.name# => #file.name#).
+    don't (RAR: #file.name# => #file.name#).
 
 @ArcSettings2
 $ #Archiver command lines#
     In this dialog you may change external archiver command lines
-for different archive processing operations, ~mask~@:FileMasks@, which will
-be used to select all files and archive extension.
+for different archive processing operations, the ~mask~@:FileMasks@ that will
+be used to select all files and the archive extension (it must not begin
+with a dot).
 
-    Если вы хотите сбросить все настройки данного архиватора в
-первоначальные значения, то нажмите кнопку "Сбросить" ("Reset").
+    To reset all the settings of an archiver to the default values,
+press the Reset button.
 
     The following variables may be used:
 
@@ -194,7 +195,7 @@ and 'foldername\*.*' will be transferred to archiver.
 
     If a part of the external archiver command string is enclosed
 in {  } braces, it will be added to the resulting string only
-if this part contains at least one, non-empty variable,
+if this part contains at least one non-empty variable
 from those described above.
 
     If an external archiver does not support a particular command,

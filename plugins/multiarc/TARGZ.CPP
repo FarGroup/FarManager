@@ -47,9 +47,19 @@ struct TarHeader
   char unused_chars[255];
 };
 
+/* Identifies the *next* file on the tape as having a long linkname.  */
+#define GNUTYPE_LONGLINK 'K'
+
+/* Identifies the *next* file on the tape as having a long name.  */
+#define GNUTYPE_LONGNAME 'L'
+
 void UnixToDos(long time, struct dosdate_t *d, struct time *t);
 int IsTarHeader(const unsigned char *Data,int DataSize);
 DWORD GetOctal(const char *Str);
+int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+void UnixTimeToFileTime(DWORD UnixTime,FILETIME *LocalFileTime);
+char *AdjustTARFileName(char *FileName);
 
 enum {TAR_FORMAT,GZ_FORMAT,Z_FORMAT,BZ_FORMAT};
 
@@ -59,73 +69,6 @@ int timezone=0;
 int ArcType;
 char ZipName[NM];
 char Prefix[32];
-
-void UnixToDos(long time, struct dosdate_t *d, struct time *t)
-{
-  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-  time -= 24L * 60L * 60L * 3652L + timezone;
-  t->ti_hund = 0;
-  t->ti_sec = time % 60;
-  time /= 60;
-  t->ti_min = time % 60;
-  time /= 60;
-  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
-  time %= 1461L * 24L;
-  if (time >= 366 * 24)
-  {
-    time -= 366 * 24;
-    d->year++;
-    d->year += (int)(time / (365 * 24));
-    time %= 365 * 24;
-  }
-  t->ti_hour = time % 24;
-  time /= 24;
-  time++;
-  if ((d->year & 3) == 0)
-  {
-    if (time > 60)
-      time--;
-    else
-      if (time == 60)
-      {
-        d->month = 2;
-        d->day = 29;
-        return;
-      }
-  }
-  for (d->month = 0; Days[d->month] < time; d->month++)
-    time -= Days[d->month];
-  d->month++;
-  d->day = time;
-}
-
-
-int IsTarHeader(const unsigned char *Data,int DataSize)
-{
-  int I;
-  struct TarHeader *Header;
-  if (DataSize<sizeof(TarHeader))
-    return(FALSE);
-  Header=(struct TarHeader *)Data;
-  for (I=0;Header->name[I];I++)
-    if (I==sizeof(Header->name) || Header->name[I]<' ')
-      return(FALSE);
-  for (I=0;I<&Header->linkflag-Header->mode;I++)
-    if (Header->mode[I]>'7' || Header->mode[I]<'0' && Header->mode[I]!=0 &&
-        Header->mode[I]!=' ')
-      return(FALSE);
-  DWORD Seconds=GetOctal(Header->timestamp);
-  if (Seconds<300000000 || Seconds>1500000000)
-    return(FALSE);
-  return(TRUE);
-}
-
-
-DWORD GetOctal(const char *Str)
-{
-  char *endptr;
-  return(strtoul(Str,&endptr,8));
-}
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
@@ -189,7 +132,6 @@ DWORD WINAPI _export GetSFXPos(void)
 
 int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 {
-  DWORD ReadSize;
   if (ArcType!=TAR_FORMAT)
   {
     if (*ZipName)
@@ -201,114 +143,123 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         *ZipName=0;
         return(GETARC_SUCCESS);
       }
-      struct GZHeader
-      {
-        BYTE Mark[2];
-        BYTE Method;
-        BYTE Flags;
-        DWORD FileTime;
-        BYTE ExtraFlags;
-        BYTE HostOS;
-      } Header;
-      if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
-        return(GETARC_READERROR);
-      Item->PackSize=FileSize;
-      if (ArcType==Z_FORMAT)
-      {
-        strcpy(Item->FindData.cFileName,ZipName);
-        *ZipName=0;
-        Item->FindData.nFileSizeLow=FileSize;
-        return(GETARC_SUCCESS);
-      }
-      if (Header.Flags & 2)
-        SetFilePointer(ArcHandle,2,NULL,FILE_CURRENT);
-      if (Header.Flags & 4)
-      {
-        DWORD ExtraLength;
-        if (!ReadFile(ArcHandle,&ExtraLength,sizeof(ExtraLength),&ReadSize,NULL))
-          return(GETARC_READERROR);
-        SetFilePointer(ArcHandle,ExtraLength,NULL,FILE_CURRENT);
-      }
-      if (Header.Flags & 8)
-        if (!ReadFile(ArcHandle,Item->FindData.cFileName,sizeof(Item->FindData.cFileName),&ReadSize,NULL))
-          return(GETARC_READERROR);
-      if (*Item->FindData.cFileName==0)
-        strcpy(Item->FindData.cFileName,ZipName);
-      *ZipName=0;
-      struct dosdate_t dt;
-      struct time tm;
-      UnixToDos(Header.FileTime,&dt,&tm);
-      SYSTEMTIME st;
-      st.wYear=dt.year;
-      st.wMonth=dt.month;
-      st.wDay=dt.day;
-      st.wHour=tm.ti_hour;
-      st.wMinute=tm.ti_min;
-      st.wSecond=tm.ti_sec;
-      st.wMilliseconds=tm.ti_hund*10;
-      FILETIME lft;
-      SystemTimeToFileTime(&st,&lft);
-      LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
-      Info->Comment=(Header.Flags & 16)!=0;
-      Info->Encrypted=(Header.Flags & 32)!=0;
-      SetFilePointer(ArcHandle,-4,NULL,FILE_END);
-      if (!ReadFile(ArcHandle,&Item->FindData.nFileSizeLow,sizeof(Item->FindData.nFileSizeLow),&ReadSize,NULL))
-        return(GETARC_READERROR);
-      return(GETARC_SUCCESS);
+      return GetArcItemGZIP(Item,Info);
     }
     else
       return(GETARC_EOF);
   }
-  struct TarHeader Header;
-  NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
-  if (NextPosition==0xFFFFFFFF)
-    return(GETARC_READERROR);
-  if (NextPosition>FileSize)
-    return(GETARC_UNEXPEOF);
+  return GetArcItemTAR(Item,Info);
+}
+
+
+int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+{
+  struct GZHeader
+  {
+    BYTE Mark[2];
+    BYTE Method;
+    BYTE Flags;
+    DWORD FileTime;
+    BYTE ExtraFlags;
+    BYTE HostOS;
+  } Header;
+  DWORD ReadSize;
   if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
     return(GETARC_READERROR);
-  if (ReadSize==0 || *Header.name==0)
-    return(GETARC_EOF);
-
-  char *EndPos = Header.name;
-  while( *EndPos )
+  Item->PackSize=FileSize;
+  if (ArcType==Z_FORMAT)
   {
-    if( *EndPos == '/' )
-      *EndPos = '\\';
-    EndPos++;
+    strcpy(Item->FindData.cFileName,ZipName);
+    *ZipName=0;
+    Item->FindData.nFileSizeLow=FileSize;
+    return(GETARC_SUCCESS);
   }
+  if (Header.Flags & 2)
+    SetFilePointer(ArcHandle,2,NULL,FILE_CURRENT);
+  if (Header.Flags & 4)
+  {
+    DWORD ExtraLength;
+    if (!ReadFile(ArcHandle,&ExtraLength,sizeof(ExtraLength),&ReadSize,NULL))
+      return(GETARC_READERROR);
+    SetFilePointer(ArcHandle,ExtraLength,NULL,FILE_CURRENT);
+  }
+  if (Header.Flags & 8)
+    if (!ReadFile(ArcHandle,Item->FindData.cFileName,sizeof(Item->FindData.cFileName),&ReadSize,NULL))
+      return(GETARC_READERROR);
+  if (*Item->FindData.cFileName==0)
+    strcpy(Item->FindData.cFileName,ZipName);
+  *ZipName=0;
+  UnixTimeToFileTime(Header.FileTime,&Item->FindData.ftLastWriteTime);
+  Info->Comment=(Header.Flags & 16)!=0;
+  Info->Encrypted=(Header.Flags & 32)!=0;
+  SetFilePointer(ArcHandle,-4,NULL,FILE_END);
+  if (!ReadFile(ArcHandle,&Item->FindData.nFileSizeLow,sizeof(Item->FindData.nFileSizeLow),&ReadSize,NULL))
+    return(GETARC_READERROR);
+  return(GETARC_SUCCESS);
+}
 
-  EndPos = Header.name;
-  if( *EndPos == '.') ++EndPos;
-  if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
 
-  if(EndPos != Header.name && !Prefix[0] && strcmp(Header.name,".\\"))
-    memcpy(Prefix,Header.name,min((int)sizeof(Prefix)-1,(int)(EndPos-Header.name)));
+int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+{
+  struct TarHeader Header;
+  DWORD ReadSize;
+  BOOL SkipItem=FALSE;
+  char *LongName = NULL;
+  do
+  {
+    NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
+    if (NextPosition==0xFFFFFFFF)
+      return(GETARC_READERROR);
+    if (NextPosition>FileSize)
+      return(GETARC_UNEXPEOF);
+    if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
+      return(GETARC_READERROR);
+    if (ReadSize==0 || *Header.name==0)
+      return(GETARC_EOF);
 
-  strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
-  Item->FindData.dwFileAttributes=(GetOctal(Header.mode) & 0x4000) || ((Header.linkflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
-  struct dosdate_t dt;
-  struct time tm;
-  UnixToDos(GetOctal(Header.timestamp),&dt,&tm);
-  SYSTEMTIME st;
-  st.wYear=dt.year;
-  st.wMonth=dt.month;
-  st.wDay=dt.day;
-  st.wHour=tm.ti_hour;
-  st.wMinute=tm.ti_min;
-  st.wSecond=tm.ti_sec;
-  st.wMilliseconds=tm.ti_hund*10;
-  FILETIME lft;
-  SystemTimeToFileTime(&st,&lft);
-  LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
-  Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(Header.filesize);
-  Item->FindData.nFileSizeHigh=0;
-  DWORD PrevPosition=NextPosition;
-  NextPosition+=sizeof(Header)+Item->PackSize;
-  if (NextPosition & 511)
-    NextPosition+=512-(NextPosition & 511);
-  if (PrevPosition>=NextPosition)
-    return(GETARC_BROKEN);
+    if (Header.linkflag == GNUTYPE_LONGLINK || Header.linkflag == GNUTYPE_LONGNAME)
+      SkipItem=TRUE;
+    else
+    {
+      SkipItem=FALSE;
+      char *EndPos;
+      if (LongName != NULL)
+        EndPos = AdjustTARFileName (LongName);
+      else
+        EndPos = AdjustTARFileName (Header.name);
+
+      strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName));
+      Item->FindData.dwFileAttributes=(GetOctal(Header.mode) & 0x4000) || ((Header.linkflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
+      UnixTimeToFileTime(GetOctal(Header.timestamp),&Item->FindData.ftLastWriteTime);
+      Item->FindData.nFileSizeHigh=0;
+    }
+    Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(Header.filesize);
+    DWORD PrevPosition=NextPosition;
+    NextPosition+=sizeof(Header)+Item->PackSize;
+    if (NextPosition & 511)
+      NextPosition+=512-(NextPosition & 511);
+    if (PrevPosition>=NextPosition)
+      return(GETARC_BROKEN);
+
+    if (Header.linkflag == GNUTYPE_LONGNAME)
+    {
+      SetFilePointer (ArcHandle,PrevPosition+sizeof(Header),NULL,FILE_BEGIN);
+      // we can't have two LONGNAME records in a row without a file between them
+      if (LongName != NULL)
+        return GETARC_BROKEN;
+      LongName = (char *)HeapAlloc(GetProcessHeap(), 0, Item->PackSize);
+      DWORD BytesRead;
+      ReadFile (ArcHandle,LongName,Item->PackSize,&BytesRead,NULL);
+      if (BytesRead != Item->PackSize)
+      {
+        HeapFree (GetProcessHeap(),0,LongName);
+        return GETARC_BROKEN;
+      }
+    }
+  } while (SkipItem);
+
+  if (LongName)
+    HeapFree (GetProcessHeap(), 0, LongName);
   return(GETARC_SUCCESS);
 }
 
@@ -355,21 +306,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case TAR_FORMAT:
     {
       static char *Commands[]={
-      /*Extract               */"tar --force-local -xf %%A %%FSQ32768",
-      /*Extract without paths */"%comspec% /c tar --force-local -O -xf %%A %%fSQ > %%fWQ",
-      /*Test                  */"",
-      /*Delete                */"tar --delete --force-local -f %%A %%FSQ32768",
-      /*Comment archive       */"",
-      /*Comment files         */"",
-      /*Convert to SFX        */"",
-      /*Lock archive          */"",
-      /*Protect archive       */"",
-      /*Recover archive       */"",
-      /*Add files             */"tar --force-local -rf %%A %%FSQ32768",
-      /*Move files            */"tar --force-local --remove-files -rf %%A %%FSQ32768",
-      /*Add files and folders */"tar --force-local -rf %%A %%FSQ32768",
-      /*Move files and folders*/"tar --force-local --remove-files -rf %%A %%FSQ32768",
-      /*"All files" mask      */"*"
+        "tar --force-local -xf %%A %%FSQ32768",
+        "%comspec% /c tar --force-local -O -xf %%A %%fSQ > %%fWQ",
+        "",
+        "tar --delete --force-local -f %%A %%FSQ32768",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "tar --force-local -rf %%A %%FSQ32768",
+        "tar --force-local --remove-files -rf %%A %%FSQ32768",
+        "tar --force-local -rf %%A %%FSQ32768",
+        "tar --force-local --remove-files -rf %%A %%FSQ32768",
+        "*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -381,21 +332,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case GZ_FORMAT:
     {
       static char *Commands[]={
-      /*Extract               */"%COMSPEC% /c gzip -cd %%A >%%fQ",
-      /*Extract without paths */"%COMSPEC% /c gzip -cd %%A >%%fQ",
-      /*Test                  */"gzip -t %%A",
-      /*Delete                */"",
-      /*Comment archive       */"",
-      /*Comment files         */"",
-      /*Convert to SFX        */"",
-      /*Lock archive          */"",
-      /*Protect archive       */"",
-      /*Recover archive       */"",
-      /*Add files             */"%COMSPEC% /c gzip -c %%fQ>%%A",
-      /*Move files            */"gzip %%fQ",
-      /*Add files and folders */"%COMSPEC% /c gzip -c %%fQ>%%A",
-      /*Move files and folders*/"gzip %%fQ",
-      /*"All files" mask      */"*"
+        "%COMSPEC% /c gzip -cd %%A >%%fQ",
+        "%COMSPEC% /c gzip -cd %%A >%%fQ",
+        "gzip -t %%A",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "%COMSPEC% /c gzip -c %%fQ>%%A",
+        "gzip %%fQ",
+        "%COMSPEC% /c gzip -c %%fQ>%%A",
+        "gzip %%fQ",
+        "*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -407,21 +358,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case Z_FORMAT:
     {
       static char *Commands[]={
-      /*Extract               */"%COMSPEC% /c gzip -cd %%A >%%fQ",
-      /*Extract without paths */"%COMSPEC% /c gzip -cd %%A >%%fQ",
-      /*Test                  */"gzip -t %%A",
-      /*Delete                */"",
-      /*Comment archive       */"",
-      /*Comment files         */"",
-      /*Convert to SFX        */"",
-      /*Lock archive          */"",
-      /*Protect archive       */"",
-      /*Recover archive       */"",
-      /*Add files             */"",
-      /*Move files            */"",
-      /*Add files and folders */"",
-      /*Move files and folders*/"",
-      /*"All files" mask      */"*"
+        "%COMSPEC% /c gzip -cd %%A >%%fQ",
+        "%COMSPEC% /c gzip -cd %%A >%%fQ",
+        "gzip -t %%A",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -433,21 +384,21 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     case BZ_FORMAT:
     {
       static char *Commands[]={
-      /*Extract               */"%COMSPEC% /c bzip2 -cd %%A >%%fQ",
-      /*Extract without paths */"%COMSPEC% /c bzip2 -cd %%A >%%fQ",
-      /*Test                  */"%COMSPEC% /c bzip2 -cd %%A >nul",
-      /*Delete                */"",
-      /*Comment archive       */"",
-      /*Comment files         */"",
-      /*Convert to SFX        */"",
-      /*Lock archive          */"",
-      /*Protect archive       */"",
-      /*Recover archive       */"",
-      /*Add files             */"%COMSPEC% /c bzip2 -c %%fQ >%%A",
-      /*Move files            */"bzip2 %%fQ",
-      /*Add files and folders */"%COMSPEC% /c bzip2 -c %%fQ >%%A",
-      /*Move files and folders*/"bzip2 %%fQ",
-      /*"All files" mask      */"*"
+        "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
+        "%COMSPEC% /c bzip2 -cd %%A >%%fQ",
+        "%COMSPEC% /c bzip2 -cd %%A >nul",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "%COMSPEC% /c bzip2 -c %%fQ >%%A",
+        "bzip2 %%fQ",
+        "%COMSPEC% /c bzip2 -c %%fQ >%%A",
+        "bzip2 %%fQ",
+        "*"
       };
       if (Command<sizeof(Commands)/sizeof(Commands[0]))
       {
@@ -458,4 +409,111 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
     }
   }
   return(FALSE);
+}
+
+
+void UnixToDos(long time, struct dosdate_t *d, struct time *t)
+{
+  static char Days[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+  time -= 24L * 60L * 60L * 3652L + timezone;
+  t->ti_hund = 0;
+  t->ti_sec = time % 60;
+  time /= 60;
+  t->ti_min = time % 60;
+  time /= 60;
+  d->year = 1980 + (int)((time / (1461L * 24L)) << 2);
+  time %= 1461L * 24L;
+  if (time >= 366 * 24)
+  {
+    time -= 366 * 24;
+    d->year++;
+    d->year += (int)(time / (365 * 24));
+    time %= 365 * 24;
+  }
+  t->ti_hour = time % 24;
+  time /= 24;
+  time++;
+  if ((d->year & 3) == 0)
+  {
+    if (time > 60)
+      time--;
+    else
+      if (time == 60)
+      {
+        d->month = 2;
+        d->day = 29;
+        return;
+      }
+  }
+  for (d->month = 0; Days[d->month] < time; d->month++)
+    time -= Days[d->month];
+  d->month++;
+  d->day = (unsigned char) time;
+}
+
+
+void UnixTimeToFileTime(DWORD UnixTime,FILETIME *FileTime)
+{
+  struct dosdate_t dt;
+  struct time tm;
+  UnixToDos(UnixTime,&dt,&tm);
+  SYSTEMTIME st;
+  st.wYear=dt.year;
+  st.wMonth=dt.month;
+  st.wDay=dt.day;
+  st.wHour=tm.ti_hour;
+  st.wMinute=tm.ti_min;
+  st.wSecond=tm.ti_sec;
+  st.wMilliseconds=tm.ti_hund*10;
+  FILETIME lft;
+  SystemTimeToFileTime(&st,&lft);
+  LocalFileTimeToFileTime(&lft,FileTime);
+}
+
+
+int IsTarHeader(const unsigned char *Data,int DataSize)
+{
+  int I;
+  struct TarHeader *Header;
+  if (DataSize<sizeof(TarHeader))
+    return(FALSE);
+  Header=(struct TarHeader *)Data;
+  for (I=0;Header->name[I];I++)
+    if (I==sizeof(Header->name) || Header->name[I]<' ')
+      return(FALSE);
+  for (I=0;I<&Header->linkflag-Header->mode;I++)
+    if (Header->mode[I]>'7' || Header->mode[I]<'0' && Header->mode[I]!=0 &&
+        Header->mode[I]!=' ')
+      return(FALSE);
+  DWORD Seconds=GetOctal(Header->timestamp);
+  if (Seconds<300000000 || Seconds>1500000000)
+    return(FALSE);
+  return(TRUE);
+}
+
+
+char *AdjustTARFileName(char *FileName)
+{
+  char *EndPos = FileName;
+  while( *EndPos )
+  {
+    if( *EndPos == '/' )
+      *EndPos = '\\';
+    EndPos++;
+  }
+
+  EndPos = FileName;
+  if( *EndPos == '.') ++EndPos;
+  if( EndPos[0] == '\\' && EndPos[1] != '\\') ++EndPos;
+
+  if(EndPos != FileName && !Prefix[0] && strcmp(FileName,".\\"))
+    memcpy(Prefix,FileName,min((int)sizeof(Prefix)-1,(int)(EndPos-FileName)));
+  return EndPos;
+}
+
+
+DWORD GetOctal(const char *Str)
+{
+  char *endptr;
+  return(strtoul(Str,&endptr,8));
 }
