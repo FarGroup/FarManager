@@ -99,12 +99,13 @@ int PluginClass::GetFiles(PluginPanelItem *PanelItem, int ItemsNumber,
       return -1;
     strcpy(DestPath,DialogItems[2].Data);
     Opt.UserBackground=DialogItems[8].Selected;
+    Opt.OldUserBackground=Opt.UserBackground; // $ 02.07.2002 AY: запомним и не будем не где сбрасывать
     //SetRegKey(HKEY_CURRENT_USER,"","Background",Opt.UserBackground); // $ 06.02.2002 AA
   }
 
   LastWithoutPathsState=DialogItems[7].Selected;
 
-  Opt.Background=OpMode & OPM_SILENT ? 0 : Opt.UserBackground;
+  Opt.Background=OpMode & OPM_SILENT ? Opt.OldUserBackground : Opt.UserBackground; // $ 02.07.2002 AY: ≈сли OPM_SILENT значит выбрано несколько архивов
 
   /*int SpaceOnly=TRUE;
   for (int I=0;DestPath[I]!=0;I++)

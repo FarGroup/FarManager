@@ -44,6 +44,7 @@ void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
   Opt.ReadDescriptions=GetRegKey(HKEY_CURRENT_USER,"","ReadDescriptions",0);
   Opt.UpdateDescriptions=GetRegKey(HKEY_CURRENT_USER,"","UpdateDescriptions",0);
   //Opt.UserBackground=GetRegKey(HKEY_CURRENT_USER,"","Background",0); // $ 06.02.2002 AA
+  Opt.OldUserBackground=0; // $ 02.07.2002 AY
 
   #ifdef _NEW_ARC_SORT_
   strcpy(IniFile, Info->ModuleName);
@@ -205,5 +206,5 @@ int WINAPI _export Configure(int ItemNumber)
     MenuItems[ItemNumber].Selected=TRUE;
   }while(1);
 
-  return FALSE;
+  //return FALSE;
 }
