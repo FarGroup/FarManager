@@ -5,10 +5,13 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.47 18.11.2002 $ */
+/* Revision: 1.48 27.08.2003 $ */
 
 /*
 Modify:
+  27.08.2003 SVS
+    - BugZ#934 - ФАР не хочет запускаться, если в системе недоступен...
+      (ПОПЫТКА!)
   18.11.2002 SVS
     - BugZ#705 - Восстановление ширины панелей при Alt-F9
   07.10.2002 SVS
@@ -164,6 +167,21 @@ FilePanels::FilePanels()
 //  _D(SysLog("MainKeyBar=0x%p",&MainKeyBar));
 }
 
+static void PrepareOptFolder(char *Src,int SizeSrc,int IsLocalPath_FarPath)
+{
+  if(!*Src || GetFileAttributes(Src) == (DWORD)-1)
+    strncpy(Src,FarPath,SizeSrc);
+  if(!strcmp(Src,"/"))
+  {
+    strncpy(Src,FarPath,SizeSrc);
+    if(IsLocalPath_FarPath)
+    {
+      Src[2]='\\';
+      Src[3]=0;
+    }
+  }
+}
+
 void FilePanels::Init()
 {
   SetPanelPositions(FileList::IsModeFullScreen(Opt.LeftPanel.ViewMode),
@@ -199,6 +217,11 @@ void FilePanels::Init()
   }
   ActivePanel->SetFocus();
 
+  // пытаемся избавится от зависания при запуске
+  int IsLocalPath_FarPath=IsLocalPath(FarPath);
+  PrepareOptFolder(Opt.LeftFolder,sizeof(Opt.LeftFolder),IsLocalPath_FarPath);
+  PrepareOptFolder(Opt.RightFolder,sizeof(Opt.RightFolder),IsLocalPath_FarPath);
+  PrepareOptFolder(Opt.PassiveFolder,sizeof(Opt.PassiveFolder),IsLocalPath_FarPath);
 
   if (Opt.AutoSaveSetup)
   {

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.97 08.05.2003 $ */
+/* Revision: 1.98 25.08.2003 $ */
 
 /*
 Modify:
+  25.08.2003 SVS
+    + Opt.QuotedName - заключать имена файлов/папок в кавычки
   08.05.2003 SVS
     - При включенном UseNumpad KEY_SHIFTINS по поведению неравно KEY_SHIFTNUMPAD0
   21.01.2003 SVS
@@ -825,7 +827,8 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
               strcat(FileList::AddPluginPrefix(SrcFilePanel,PathName),NullToEmpty(Info.CurDir));
             }
             AddEndSlash(PathName);
-            QuoteSpace(PathName);
+            if(Opt.QuotedName)
+              QuoteSpace(PathName);
           }
 
           RetCode=TRUE;
@@ -1738,6 +1741,11 @@ int Edit::InsertKey(int Key)
         }
         PrevCurPos=CurPos;
         Str[CurPos++]=Key;
+      }
+      else
+      {
+        // Здесь вариант для "ввели символ из маски", например для SetAttr - ввесли '.'
+        ;// char *Ptr=strchr(Mask+CurPos,Key);
       }
     }
     else if (CurPos<StrSize)

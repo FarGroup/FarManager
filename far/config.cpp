@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.154 23.07.2003 $ */
+/* Revision: 1.155 25.08.2003 $ */
 
 /*
 Modify:
+  25.08.2003 SVS
+    + Opt.QuotedName - заключать имена файлов/папок в кавычки
   23.07.2003 SVS
     + Opt.ScrSize.DeltaXY - уточнение размера для "распаховки" консоли
   14.07.2003 SVS
@@ -1448,6 +1450,7 @@ static struct FARConfig{
     ! Новые символы, наличие которых в имени файла окавычит его.
   */
   {0, REG_SZ,     NKeySystem,"QuotedSymbols",Opt.QuotedSymbols,sizeof(Opt.QuotedSymbols)," &()[]{}^=;!'+,`"},
+  {0, REG_DWORD,  NKeySystem,"QuotedName",&Opt.QuotedName,1, 0},
   /* KM $ */
   //{0, REG_DWORD,  NKeySystem,"CPAJHefuayor",&Opt.CPAJHefuayor,0, 0},
   {0, REG_DWORD,  NKeySystem,"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},

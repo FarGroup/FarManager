@@ -5,10 +5,12 @@ global.cpp
 
 */
 
-/* Revision: 1.55 06.06.2003 $ */
+/* Revision: 1.56 26.08.2003 $ */
 
 /*
 Modify:
+  26.08.2003 SVS
+    + TitleModified
   06.06.2003 SVS
     ! MainPluginsPath переехал в Opt.LoadPlug.
   01.06.2003 SVS
@@ -210,6 +212,7 @@ clock_t StartExecTime=0;
 char FarPath[NM];
 
 char LastFarTitle[512];
+int  TitleModified=FALSE;
 char RegColorsHighlight[]="Colors\\Highlight";
 
 

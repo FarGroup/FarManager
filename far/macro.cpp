@@ -5,10 +5,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.98 29.07.2003 $ */
+/* Revision: 1.99 25.08.2003 $ */
 
 /*
 Modify:
+  25.08.2003 SVS
+    ! Не SendKeysToPlugins, но NoSendKeysToPlugins, иначе нифига не получается.
+    - BugZ#903 - неотображение правильного заголовка Title Far'a при макросах
   29.07.2003 SVS
     ! Уточнение логики работы макросов.
     ! Вместо InsidePlugin и NoInsidePlugin вводим SendKeysToPlugins - Передавать плагинам нажатия клавиш из проигрывающего макроса.
@@ -391,7 +394,7 @@ static struct TMacroKeywords {
   {1,  "ReuseMacro",         MFLAGS_REUSEMACRO,0},
   {1,  "Selection",          MFLAGS_SELECTION,0},
   {1,  "NoSelection",        MFLAGS_NOSELECTION,0},
-  {1,  "SendKeysToPlugins",  MFLAGS_SENDKEYSTOPLUGINS,0},
+  {1,  "NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 
   {2,  "Windowed",           MCODE_WINDOWEDMODE,0},
   {2,  "APanel.IsEmpty",     MCODE_APANEL_ISEMPTY,0},
@@ -600,7 +603,7 @@ int KeyMacro::ProcessKey(int Key)
 //_SVS(SysLog("StartMode=%d",StartMode));
 
       // выставляем флаги по умолчанию.
-      DWORD Flags=MFLAGS_DISABLEOUTPUT|(Recording==MACROMODE_RECORDING_COMMON?MFLAGS_SENDKEYSTOPLUGINS:0);
+      DWORD Flags=MFLAGS_DISABLEOUTPUT|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS); // ???
 
       // добавим проверку на удаление
       // если удаляем, то не нужно выдавать диалог настройки.
@@ -728,7 +731,7 @@ int KeyMacro::ProcessKey(int Key)
         }
 
         // различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
-        Executing=CurFlags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
+        Executing=CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
         PostTempKeyMacro(MacroPROM+I);
         ExecMacroPos=I;
         ExecKeyPos=0;
@@ -862,10 +865,10 @@ BOOL KeyMacro::IfCondition(DWORD Key,DWORD Flags,DWORD Code)
           }
           break;
         }
-        case MFLAGS_SENDKEYSTOPLUGINS: // $StopIf[Not] InsidePlugin
+        case MFLAGS_NOSENDKEYSTOPLUGINS: //
         {
           if(CtrlObject)
-            Cond=CtrlObject->Plugins.CurPluginItem && Code == MFLAGS_SENDKEYSTOPLUGINS?TRUE:FALSE;
+            Cond=CtrlObject->Plugins.CurPluginItem && Code == MFLAGS_NOSENDKEYSTOPLUGINS?TRUE:FALSE; //???
           break;
         }
       }
@@ -949,6 +952,7 @@ int KeyMacro::GetKey()
       }
       if(LockScr) delete LockScr;
       LockScr=NULL;
+      if(TitleModified) SetFarTitle(NULL);
       return(FALSE);
     }
 /*
@@ -962,7 +966,7 @@ int KeyMacro::GetKey()
 */
     {
       MR=!MacroRAM?MacroPROM+ExecMacroPos:MacroRAM;
-      Executing=MR->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
+      Executing=MR->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
       ExecKeyPos=0; //?????????????????????????????????
     }
   }
@@ -1008,10 +1012,10 @@ done:
     if(MacroRAMCount > 0)
     {
       // нашлось, запустим механизму по новой
-      Executing=MacroRAM->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
+      Executing=MacroRAM->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
       ExecKeyPos=0;
     }
-    SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
+    if(TitleModified) SetFarTitle(NULL); // выставим нужный заголовок по завершению макроса
     //FrameManager->RefreshFrame();
     //FrameManager->PluginCommit();
     _KEYMACRO(SysLog(-1));
@@ -1076,6 +1080,7 @@ done:
   {
     ReleaseTempBuffer();
     Executing=MACROMODE_NOMACRO;
+    if(TitleModified) SetFarTitle(NULL);
   }
 
 //_SVS(SysLog("%s.%s.Key=%s ExecMacroPos=%d ExecKeyPos=%d", GetSubKey(Mode),GetSubKey(MacroPROM[ExecMacroPos].Flags&MFLAGS_MODEMASK),_FARKEY_ToName(Key),ExecMacroPos,ExecKeyPos));
@@ -1317,7 +1322,7 @@ void KeyMacro::RunStartMacro()
         if(LockScr) delete LockScr;
         LockScr=new LockScreen;
       }
-      Executing=CurFlags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
+      Executing=CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
       ExecMacroPos=CurPos;
       ExecKeyPos=0;
       // выставим признак того, что макрос стартанул при автостарте.
@@ -1626,7 +1631,7 @@ int KeyMacro::PostTempKeyMacro(char *KeyBuffer)
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-//  Executing=MacroRAM->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
+//  Executing=MacroRAM->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
   if(ExecKeyPos == MacroRAM->BufferSize)
     ExecKeyPos=0;
   return TRUE;
@@ -1669,7 +1674,7 @@ int KeyMacro::PostTempKeyMacro(struct MacroRecord *MRec)
   memcpy(NewMacroRAM,&NewMacroRAM2,sizeof(struct MacroRecord));
   MacroRAMCount++;
 
-//  Executing=MacroRAM->Flags&MFLAGS_SENDKEYSTOPLUGINS?MACROMODE_EXECUTING_COMMON:MACROMODE_EXECUTING;
+//  Executing=MacroRAM->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
   if(ExecKeyPos == MacroRAM->BufferSize)
     ExecKeyPos=0;
   return TRUE;
@@ -1934,8 +1939,8 @@ BOOL KeyMacro::CheckPanel(int PanelMode,DWORD CurFlags)
 
 BOOL KeyMacro::CheckInsidePlugin(DWORD CurFlags)
 {
-  if(CtrlObject && CtrlObject->Plugins.CurPluginItem && !(CurFlags&MFLAGS_SENDKEYSTOPLUGINS)) // ?????
-  //if(CtrlObject && CtrlObject->Plugins.CurEditor && !(CurFlags&MFLAGS_SENDKEYSTOPLUGINS))
+  if(CtrlObject && CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
+  //if(CtrlObject && CtrlObject->Plugins.CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
     return FALSE;
   return TRUE;
 }

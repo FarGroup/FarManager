@@ -5,10 +5,13 @@ message.cpp
 
 */
 
-/* Revision: 1.33 22.08.2003 $ */
+/* Revision: 1.34 25.08.2003 $ */
 
 /*
 Modify:
+  25.08.2003 SVS
+    ! Блин, задолбало это обрезание в месагах...
+      (по поводу BugZ#926)
   22.08.2003 SVS
     ! Небольшое уточнение... иначе на коротких сообщениях получается вот так:
       г==== Error ====¬          г==== Error ====¬
@@ -182,6 +185,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
   char *PtrStr;
   const char *CPtrStr;
 
+  *ErrStr=0;
   // *** Подготовка данных ***
   if (Flags & MSG_ERRORTYPE)
     ErrorSets=GetErrorString(ErrStr, sizeof(ErrStr));
@@ -247,7 +251,8 @@ int Message(DWORD Flags,int Buttons,const char *Title,
     MaxLength=LenErrStr;
 
     // а теперь проврапим
-    PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
+    //PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
+    PtrStr=FarFormatText(ErrStr,MaxLength,ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
     while((PtrStr=strchr(PtrStr,'\n')) != NULL)
     {
       *PtrStr++=0;
@@ -363,7 +368,7 @@ int Message(DWORD Flags,int Buttons,const char *Title,
           CPtrStr++;
           PtrMsgDlg->Flags|=DIF_BOXCOLOR|(Chr==2?DIF_SEPARATOR2:DIF_SEPARATOR);
         }
-        strncpy(PtrMsgDlg->Data,CPtrStr,Min((int)ScrX-15,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
+        strncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
       }
     }
 
@@ -540,6 +545,7 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
       break;
     }
 
+  //  I = sizeof(ErrMsgs)/sizeof(ErrMsgs[0]);
   if(I >= sizeof(ErrMsgs)/sizeof(ErrMsgs[0]))
   {
     /* $ 27.01.2001 VVM
@@ -548,6 +554,8 @@ int GetErrorString(char *ErrStr, DWORD StrSize)
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ARGUMENT_ARRAY,
                       NULL, LastError, 0, ErrStr, StrSize, NULL))
     {
+      // для проверки криков:
+      // strcpy(ErrStr,"Не удалось подключиться к сети из-за существования совпадающих имен. Измените имя компьютера  на панели управления и повторите попытку.  ");
       CharToOem(ErrStr,ErrStr);
       /* $ 02.02.2001 IS
          + Заменим cr и lf на пробелы

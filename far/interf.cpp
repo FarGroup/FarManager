@@ -5,10 +5,13 @@ interf.cpp
 
 */
 
-/* Revision: 1.79 23.07.2003 $ */
+/* Revision: 1.80 26.08.2003 $ */
 
 /*
 Modify:
+  26.08.2003 SVS
+    + TitleModified - выставл€етс€ когда прошла модификаци€ заголовка
+      (это дл€ макросов).
   23.07.2003 SVS
     ! Ќовый механизм "разворота" консоли дл€ масдаев.
     + позволим сокрректировать размер (Opt.ScrSize.DeltaXY)
@@ -421,6 +424,7 @@ void SetFarTitle(const char *Title)
   if(Title)
   {
     sprintf(FarTitle,"%.256s%s",Title,FarTitleAddons);
+    TitleModified=TRUE;
     if (WinVer.dwPlatformId!=VER_PLATFORM_WIN32_NT)
       OemToChar(FarTitle,FarTitle);
     if(strcmp(OldFarTitle,FarTitle) &&
@@ -430,6 +434,7 @@ void SetFarTitle(const char *Title)
     {
      //_SVS(SysLog("  FarTitle='%s'",FarTitle));
       SetConsoleTitle(FarTitle);
+      TitleModified=FALSE;
     }
   }
   else
@@ -440,6 +445,7 @@ void SetFarTitle(const char *Title)
       Ётот вызов имеет право делать только макро-движок!
     */
     SetConsoleTitle(FarTitle);
+    TitleModified=FALSE;
      //_SVS(SysLog("  (NULL)FarTitle='%s'",FarTitle));
   }
 }

@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.70 30.07.2003 $ */
+/* Revision: 1.71 25.08.2003 $ */
 
 /*
 Modify:
+  25.08.2003 SVS
+    ! Не SendKeysToPlugins, но NoSendKeysToPlugins, иначе нифига не получается.
   30.07.2003 SVS
     ! Вместо MFLAGS_INSIDEPLUGIN и MFLAGS_NOINSIDEPLUGIN введен один флаг MFLAGS_SENDKEYSTOPLUGINS,
       в соотвествии с NT в макросах
@@ -266,7 +268,7 @@ enum MACROMODEAREA {
 #define MFLAGS_REUSEMACRO          0x02000000 // повторное использование макросов (вызов макроса из макроса)
 #define MFLAGS_SELECTION           0x04000000 // запускать, если есть выделение
 #define MFLAGS_NOSELECTION         0x08000000 // запускать, если есть нет выделения
-#define MFLAGS_SENDKEYSTOPLUGINS   0x10000000 // передавать клавиши во время записи/воспроизведения макроса
+#define MFLAGS_NOSENDKEYSTOPLUGINS 0x10000000 // НЕ передавать клавиши во время записи/воспроизведения макроса
 #define MFLAGS_RUNAFTERFARSTART2   0x40000000 // признак того, что макрос стартанул при автостарте.
 #define MFLAGS_DISABLEMACRO        0x80000000 // этот макрос отключен
 

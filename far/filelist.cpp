@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.185 25.07.2003 $ */
+/* Revision: 1.186 25.08.2003 $ */
 
 /*
 Modify:
+  25.08.2003 SVS
+    + Opt.QuotedName - заключать имена файлов/папок в кавычки
   25.07.2003 SVS
     ! Если плагиновая панель, но плагин выставил флаг OPIF_REALNAMES, то
       Shift-F5/Shift-F6 работает как на обычной панели (можно увидеть на
@@ -1336,8 +1338,8 @@ int FileList::ProcessKey(int Key)
           }
           /* IS $ */
         }
-
-        QuoteSpace(FileName);
+        if(Opt.QuotedName)
+          QuoteSpace(FileName);
         strcat(FileName," ");
         CtrlObject->CmdLine->InsertString(FileName);
       }
@@ -1409,7 +1411,9 @@ int FileList::ProcessKey(int Key)
           /* SVS $ */
         }
 
-        QuoteSpace(PanelDir);
+        if(Opt.QuotedName)
+          QuoteSpace(PanelDir);
+
         CtrlObject->CmdLine->InsertString(PanelDir);
       }
       return(TRUE);
@@ -1757,6 +1761,7 @@ int FileList::ProcessKey(int Key)
                 if (PluginMode)
                 {
                   FileEditor ShellEditor (FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
+                  //FileEditor ShellEditor (GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,FALSE,-1,-1,TRUE,PluginData);
                   ShellEditor.SetDynamicallyBorn(false);
                   FrameManager->EnterModalEV();
                   FrameManager->ExecuteModal();//OT
@@ -1781,6 +1786,7 @@ int FileList::ProcessKey(int Key)
                     EditList.SetCurName(FileName);
                   }
                   FileEditor *ShellEditor=new FileEditor(FileName,Key==KEY_SHIFTF4,TRUE);
+                  //FileEditor *ShellEditor=new FileEditor(GetShowShortNamesMode()?ShortFileName:FileName,Key==KEY_SHIFTF4,TRUE);
                   ShellEditor->SetNamesList (&EditList);
                   FrameManager->ExecuteModal();//OT
                 }
@@ -3700,7 +3706,8 @@ void FileList::CopyNames(int FillPathName,int UNC)
         }
       }
     }
-    QuoteSpace(QuotedName);
+    if(Opt.QuotedName)
+      QuoteSpace(QuotedName);
     int Length=strlen(QuotedName);
     char *NewPtr=(char *)xf_realloc(CopyData,DataSize+Length+3);
     if (NewPtr==NULL)

@@ -8,10 +8,12 @@ global.hpp
 
 */
 
-/* Revision: 1.53 06.06.2003 $ */
+/* Revision: 1.54 26.08.2003 $ */
 
 /*
 Modify:
+  26.08.2003 SVS
+    + TitleModified
   06.06.2003 SVS
     ! MainPluginsPath переехал в Opt.LoadPlug.
   01.06.2003 SVS
@@ -197,7 +199,7 @@ extern int GlobalSearchReverse;
 extern int ScreenSaverActive;
 
 extern char LastFarTitle[512];
-
+extern int  TitleModified;
 extern int CloseFAR, CloseFARMenu;
 
 extern int RegVer;
