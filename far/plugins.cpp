@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.77 26.06.2001 $ */
+/* Revision: 1.78 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SKV
+    - полное совпадение префикса плагина
   26.06.2001 SVS
     ! __except -> EXCEPT
   25.06.2001 IS
@@ -2207,10 +2209,18 @@ int PluginsSet::ProcessCommandLine(char *Command)
     if (PluginPrefix[0]==0)
       continue;
     char *PrStart = PluginPrefix;
+    /*$ 10.07.2001 SKV
+      префикс должен совпадать ПОЛНОСТЬЮ,
+      а не начало...
+    */
+    int PrefixLength=strlen(Prefix);
     while(1)
     {
       char *PrEnd = strchr(PrStart, ':');
-      if (LocalStrnicmp(Prefix, PrStart, PrEnd==NULL ? strlen(PrStart):(PrEnd-PrStart))==0)
+      int Len=PrEnd==NULL ? strlen(PrStart):(PrEnd-PrStart);
+      if(Len<PrefixLength)Len=PrefixLength;
+      if (LocalStrnicmp(Prefix, PrStart, Len)==0)
+      /* SKV$*/
       {
         PluginPos=I;
         break;

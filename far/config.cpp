@@ -5,10 +5,12 @@ config.cpp
 
 */
 
-/* Revision: 1.82 04.07.2001 $ */
+/* Revision: 1.83 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SKV
+    Redraw после изменения конфига.
   04.07.2001 SVS
     + Opt.LCIDSort
   24.06.2001 KM
@@ -537,6 +539,12 @@ void InterfaceSettings()
   CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
   CtrlObject->Cp()->SetScreenPosition();
+  /*$ 10.07.2001 SKV
+    ! надо это делать, иначе если кейбар спрятали,
+      будет полный рамс.
+  */
+  CtrlObject->Cp()->Redraw();
+  /* SKV$*/
 }
 
 

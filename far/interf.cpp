@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.33 04.07.2001 $ */
+/* Revision: 1.34 06.07.2001 $ */
 
 /*
 Modify:
+  06.07.2001 SKV
+    - KeyQueue=NULL; в CloseConsole();
   04.07.2001 SVS
     ! BoxText может рисовать вертикальный сепаратор
   25.06.2001 IS
@@ -229,6 +231,11 @@ void CloseConsole()
      codeguard says... */
   delete KeyQueue;
   /* tran $ */
+  /*$ 27.06.2001 SKV
+    ... а обNULLить?
+  */
+  KeyQueue=NULL;
+  /* SKV$*/
 }
 
 

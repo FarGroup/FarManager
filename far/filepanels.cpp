@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.16 22.06.2001 $ */
+/* Revision: 1.17 10.07.2001 $ */
 
 /*
 Modify:
+  10.07.2001 SKV
+    + keybar
   22.06.2001 SKV
     + update панелей при получении фокуса
   20.06.2001 tran
@@ -333,6 +335,8 @@ int  FilePanels::ProcessKey(int Key)
       /* $ 07.05.2001 DJ */
       KeyBarVisible = Opt.ShowKeyBar;
       /* DJ $ */
+      if(!KeyBarVisible)
+        MainKeyBar.Hide();
       SetScreenPosition();
       FrameManager->RefreshFrame();
       break;
@@ -383,7 +387,7 @@ int  FilePanels::ProcessKey(int Key)
         int LeftVisible=LeftPanel->IsVisible();
         int RightVisible=RightPanel->IsVisible();
         int CmdLineVisible=CtrlObject->CmdLine->IsVisible();
-        int KeyBarVisible=MainKeyBar.IsVisible();
+        int KeyBarVisible=FilePanels::KeyBarVisible;//MainKeyBar.IsVisible();
         CtrlObject->CmdLine->ShowBackground();
 
         LeftPanel->Hide();
@@ -812,7 +816,11 @@ void FilePanels::Redraw()
         RightPanel->Show();
     CtrlObject->CmdLine->Show();
     if (Opt.ShowKeyBar)
-      CtrlObject->MainKeyBar->Show();
+      MainKeyBar.Show();
+    else
+      if(MainKeyBar.IsVisible())
+        MainKeyBar.Hide();
+    KeyBarVisible=Opt.ShowKeyBar;
     if (Opt.ShowMenuBar)
       CtrlObject->TopMenuBar->Show();
 }
