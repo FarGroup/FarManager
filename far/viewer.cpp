@@ -5,10 +5,14 @@ Internal viewer
 
 */
 
-/* Revision: 1.83 11.12.2001 $ */
+/* Revision: 1.84 12.12.2001 $ */
 
 /*
 Modify:
+  12.12.2001 SVS
+    - BugZ#147 - падение ‘ј–а при поиске длинной строки.
+    ! ”точнение размера выводимого сообщени€ при поиске (что бы влазило в
+      формате - "блабла...")
   11.12.2001 SVS
     ! »збавл€емс€ от потенциального бага при поиске - размер строки под месаг
       MsgStr был равен строке поиска, т.о., если ввести строку поиска равную
@@ -752,43 +756,46 @@ void Viewer::DisplayObject()
         SetColor(COL_VIEWERARROWS);
         mprintf("<");
       }
-      if (SelSize && SelPos<LeftPos)
+      if (SelSize)
       {
-        LeftPos=SelPos;
-        SelectSize=SaveSelectSize;
-        Show();
-        return;
-      }
-      if (SelSize && SelPos>=LeftPos)
-      {
-        int SelX1=X1+SelPos-LeftPos;
-        /* $ 12.07.2000 SVS
-           ! Wrap - трех позиционный
-        */
-        if (!VM.Wrap &&
-        /* SVS $ */
-           SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE
-        /* $ 11.01.2000 VVM
-           Ћевый край считаетс€ за раз, а не итераци€ми по +4 */
-           && (X1+SelPos+SaveSelectSize-XX2<MAX_VIEWLINE))
+        if(SelPos < LeftPos)
         {
-//          LeftPos+=4;
-          LeftPos=X1+SelPos+SaveSelectSize-XX2;
-        /* VVM $ */
+          LeftPos=SelPos;
           SelectSize=SaveSelectSize;
           Show();
           return;
         }
-        SetColor(COL_VIEWERSELECTEDTEXT);
-        GotoXY(SelX1,Y);
-        if (SelSize>XX2-SelX1+1)
-          SelSize=XX2-SelX1+1;
-        if (SelSize>0)
-        /* $ 06.02.2001 IS
-             см. SelectText
-        */
-          mprintf("%.*s",SelSize,&OutStr[I][SelPos+SelectPosOffSet]);
-        /* IS $ */
+        else // SelPos >= LeftPos
+        {
+          int SelX1=X1+SelPos-LeftPos;
+          /* $ 12.07.2000 SVS
+             ! Wrap - трех позиционный
+          */
+          if (!VM.Wrap && SelPos > LeftPos &&
+          /* SVS $ */
+             SelX1+SaveSelectSize-1>XX2 && LeftPos<MAX_VIEWLINE
+          /* $ 11.01.2000 VVM
+             Ћевый край считаетс€ за раз, а не итераци€ми по +4 */
+             && (X1+SelPos+SaveSelectSize-XX2<MAX_VIEWLINE))
+          {
+  //          LeftPos+=4;
+            LeftPos=X1+SelPos+SaveSelectSize-XX2;
+          /* VVM $ */
+            SelectSize=SaveSelectSize;
+            Show();
+            return;
+          }
+          SetColor(COL_VIEWERSELECTEDTEXT);
+          GotoXY(SelX1,Y);
+          if (SelSize>XX2-SelX1+1)
+            SelSize=XX2-SelX1+1;
+          if (SelSize>0)
+          /* $ 06.02.2001 IS
+               см. SelectText
+          */
+            mprintf("%.*s",SelSize,&OutStr[I][SelPos+SelectPosOffSet]);
+          /* IS $ */
+        }
       }
     }
   } // if (Hex)  - else
@@ -2097,8 +2104,8 @@ void Viewer::Search(int Next,int FirstChar)
     SaveScreen SaveScr;
     SetCursorType(FALSE,0);
     strncpy(MsgStr,SearchStr,sizeof(MsgStr)-1);
-    if(strlen(MsgStr)+10 >= ScrX)
-      TruncStrFromEnd(MsgStr, ScrX-11);
+    if(strlen(MsgStr)+16 >= ScrX)
+      TruncStrFromEnd(MsgStr, ScrX-17);
     InsertQuote(MsgStr);
     Message(0,0,MSG(MViewSearchTitle),MSG(MViewSearchingFor),MsgStr);
 

@@ -5,10 +5,12 @@ dialog.cpp
 
 */
 
-/* Revision: 1.195 10.12.2001 $ */
+/* Revision: 1.196 12.12.2001 $ */
 
 /*
 Modify:
+  12.12.2001 SVS
+    - BugZ#172 - unchanged & history
   10.12.2001 SVS
     - Бага для KEY_SPACE+DI_RADIOBUTTON - переменная не инициализировалась
     ! DM_SETREDRAW=DM_REDRAW, DM_SETTEXTLENGTH -> DM_SETMAXTEXTLENGTH,
@@ -4293,6 +4295,7 @@ BOOL Dialog::SelectFromEditHistory(struct DialogItem *CurItem,
   {
     EditLine->SetString(Str);
     EditLine->SetLeftPos(0);
+    EditLine->SetClearFlag(0);
     Dialog::SendDlgMessage((HANDLE)this,DN_EDITCHANGE,FocusPos,0);
     Redraw();
   }
@@ -5299,7 +5302,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DN_EDITCHANGE:
     {
       Dialog::ConvertItem(CVTITEM_TOPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
-      if((I=Dlg->DlgProc(hDlg,Msg,Param1,(long)&PluginDialogItem)) == TRUE)
+      if((I=Dlg->DlgProc(hDlg,DN_EDITCHANGE,Param1,(long)&PluginDialogItem)) == TRUE)
         Dialog::ConvertItem(CVTITEM_FROMPLUGIN,&PluginDialogItem,CurItem,1,TRUE);
       return I;
     }
