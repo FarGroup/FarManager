@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.98 28.10.2001 $ */
+/* Revision: 1.99 03.11.2001 $ */
 
 /*
 Modify:
+  03.11.2001 IS
+    + При неудачной смене каталога покажем имя каталога.
   28.10.2001 SVS
     ! Косметика
   25.10.2001 SVS
@@ -2037,7 +2039,14 @@ BOOL FileList::ChangeDir(char *NewDir)
   int UpdateFlags = 0;
   if (!SetCurrentDirectory(SetDir))
   {
-    Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), MSG (MOk));
+    /* $ 03.11.2001 IS
+         Укажем имя неудачного каталога
+    */
+    char Target[NM];
+    strncpy(Target, SetDir, sizeof(Target)-1);
+    TruncPathStr(Target, ScrX-16);
+    Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG (MError), Target, MSG (MOk));
+    /* IS $ */
     UpdateFlags = UPDATE_KEEP_SELECTION;
   }
   /* $ 28.04.2001 IS
