@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.185 02.07.2002 $ */
+/* Revision: 1.186 10.07.2002 $ */
 
 /*
 Modify:
+  10.07.2002 SKV
+    - Shift-Up на пустых строках.
   02.07.2002 SKV
     - Bugz#538 - В ECTL_SETPOSITION Pos проверяется не только на -1,
       но и на полное совпадение с текущей позицией перед выставлением
@@ -2258,7 +2260,14 @@ int Editor::ProcessKey(int Key)
         {
           BlockStart=CurLine->Prev;
           BlockStartLine=NumLine-1;
-          CurLine->EditLine.AddSelect(0,CurPos);
+          /* $ 10.07.2002 SKV
+            Разрулить это в AddSelect не получается,
+            ибо поведение должно быть разным при Shift-Left/Right,
+            когда курсор за концом строки, и при Shift-Down,
+            когда он, опять таки, попадает за конец строки.
+          */
+          CurLine->EditLine.AddSelect(0,CurLine->EditLine.GetLength()>CurPos?CurPos:-1);
+          /* SKV $ */
           CurLine->Prev->EditLine.Select(PrevPos,-1);
         }
         Up();
