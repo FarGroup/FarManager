@@ -8,10 +8,12 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.60 12.10.2001 $ */
+/* Revision: 1.61 13.10.2001 $ */
 
 /*
 Modify:
+  13.10.2001 VVM
+    ! Теперь меню не реагирует на отпускание клавиши мышки, если клавиша была нажата не в меню.
   12.10.2001 VVM
     ! Исправление ситуации со скроллбаром в DROPDOWNLIST-е
   10.10.2001 IS
@@ -252,6 +254,7 @@ VMenu::VMenu(const char *Title,       // заголовок меню
   int I;
   SetDynamicallyBorn(false);
 
+  MouseDown = FALSE;
   VMenu::VMFlags=Flags;
 /* SVS $ */
 
@@ -1162,7 +1165,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
   /* $ 27.04.2001 VVM
     + Считать нажатие средней кнопки за ЕНТЕР */
-  if (MouseEvent->dwButtonState & 4)
+  if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
   {
     ProcessKey(KEY_ENTER);
     return(TRUE);
@@ -1293,8 +1296,19 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
         SelectPos=MsPos;
         ShowMenu(TRUE);
       }
-      if (MouseEvent->dwEventFlags==0 && (MouseEvent->dwButtonState & 3)==0)
+      /* $ 13.10.2001 VVM
+        + Запомнить нажатие клавиши мышки и только в этом случае реагировать при отпускании */
+      if (MouseEvent->dwEventFlags==0 &&
+         (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED)))
+        MouseDown = TRUE;
+      if (MouseEvent->dwEventFlags==0 &&
+         (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))==0 &&
+          MouseDown)
+      {
+        MouseDown = FALSE;
         ProcessKey(KEY_ENTER);
+      }
+      /* VVM $ */
     }
     return(TRUE);
   }

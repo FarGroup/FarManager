@@ -11,10 +11,12 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.28 10.10.2001 $ */
+/* Revision: 1.29 13.10.2001 $ */
 
 /*
 Modify:
+  13.10.2001 VVM
+    ! “еперь меню не реагирует на отпускание клавиши мышки, если клавиша была нажата не в меню.
   10.10.2001 IS
     ! внедрение const
   24.08.2001 VVM
@@ -196,6 +198,7 @@ class VMenu: virtual public Modal, virtual public Frame
     int BoxType;
     int CallCount;
     int PrevMacroMode;
+    int MouseDown;
     /* $ 18.07.2000 SVS
        + переменна€, отвечающа€ за отображение scrollbar в
          DI_LISTBOX & DI_COMBOBOX
