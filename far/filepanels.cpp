@@ -5,10 +5,12 @@ filepanels.cpp
 
 */
 
-/* Revision: 1.60 22.03.2005 $ */
+/* Revision: 1.61 22.03.2005 $ */
 
 /*
 Modify:
+  22.03.2005 SVS
+    - мля, поспешил с PrepareOptFolder()
   22.03.2005 SVS
     ! в PrepareOptFolder() проэкспандим значение из реестра.
   28.02.2005 SVS
@@ -213,11 +215,14 @@ FilePanels::FilePanels()
 static void PrepareOptFolder(char *Src,int SizeSrc,int IsLocalPath_FarPath)
 {
   if(!*Src)
+  {
     xstrncpy(Src,FarPath,SizeSrc);
+    DeleteEndSlash(Src);
+  }
   else
     ExpandEnvironmentStr(Src,Src,SizeSrc);
 
-  DeleteEndSlash(Src);
+
 
   if(!strcmp(Src,"/"))
   {
