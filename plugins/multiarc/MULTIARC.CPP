@@ -131,8 +131,8 @@ void WINAPI _export GetPluginInfo(struct PluginInfo *Info)
   Info->DiskMenuStringsNumber=0;
   Info->PluginMenuStrings=NULL;
   Info->PluginMenuStringsNumber=0;
-  static const char *PluginCfgStrings[1];
-  PluginCfgStrings[0]=GetMsg(MCfgLine0);
+  static char *PluginCfgStrings[1];
+  PluginCfgStrings[0]=(char*)GetMsg(MCfgLine0);
   Info->PluginConfigStrings=PluginCfgStrings;
   Info->PluginConfigStringsNumber=sizeof(PluginCfgStrings)/sizeof(PluginCfgStrings[0]);
 }
