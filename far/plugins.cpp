@@ -5,10 +5,12 @@ plugins.cpp
 
 */
 
-/* Revision: 1.101 10.01.2002 $ */
+/* Revision: 1.102 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   10.01.2002 SVS
     ! немного _KEYMACRO
   25.12.2001 SVS
@@ -1129,7 +1131,7 @@ HANDLE PluginsSet::OpenPlugin(int PluginNumber,int OpenFrom,int Item)
   CheckScreenLock();
   char CurDir[NM];
   CtrlObject->CmdLine->GetCurDir(CurDir);
-  chdir(CurDir);
+  FarChDir(CurDir);
   *DirToSet=0;
   HANDLE hInternal=0;
   if (PluginNumber<PluginsCount)

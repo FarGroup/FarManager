@@ -5,10 +5,12 @@ filelist.cpp
 
 */
 
-/* Revision: 1.122 14.01.2002 $ */
+/* Revision: 1.123 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   14.01.2002 IS
     ! Ctrl-Alt-Ins и Alt-Shift-Ins работают с ".." как с текущим каталогом.
   27.12.2001 SVS
@@ -1390,7 +1392,7 @@ int FileList::ProcessKey(int Key)
                 if (PutCode==0)
                   UploadFailed=TRUE;
               }
-              chdir(SaveDir);
+              FarChDir(SaveDir);
             }
           }
           else
@@ -2153,7 +2155,7 @@ BOOL FileList::ChangeDir(char *NewDir)
   strcpy(FindDir,PointToName(CurDir));
 
   if (SetDir[0]==0 || SetDir[1]!=':' || SetDir[2]!='\\')
-    chdir(CurDir);
+    FarChDir(CurDir);
 
   /* $ 26.04.2001 DJ
      проверяем, удалось ли сменить каталог, и обновляем с KEEP_SELECTION,
@@ -2174,7 +2176,7 @@ BOOL FileList::ChangeDir(char *NewDir)
     }
   }
 
-  if (!SetCurrentDirectory(SetDir))
+  if (!FarChDir(SetDir))
   {
     /* $ 03.11.2001 IS
          Укажем имя неудачного каталога

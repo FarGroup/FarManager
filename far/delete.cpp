@@ -5,10 +5,12 @@ delete.cpp
 
 */
 
-/* Revision: 1.35 08.11.2001 $ */
+/* Revision: 1.36 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   08.11.2001 SVS
     ! Уточнение ширины - прагала падлюка.
   06.11.2001 SVS
@@ -290,7 +292,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
   CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
   if (SrcPanel->GetType()==TREE_PANEL)
-    chdir("\\");
+    FarChDir("\\");
 
   {
     int Cancel=0;

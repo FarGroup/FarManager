@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.26 02.01.2002 $ */
+/* Revision: 1.27 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   02.01.2002 IS
     + GetCurName
   08.12.2001 IS
@@ -346,7 +348,7 @@ int InfoList::ProcessKey(int Key)
       if (*DizFileName)
       {
         CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(CurDir);
-        chdir(CurDir);
+        FarChDir(CurDir);
         new FileViewer(DizFileName,TRUE);//OT
       }
       /* $ 20.07.2000 tran
@@ -363,7 +365,7 @@ int InfoList::ProcessKey(int Key)
       {
         Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
         AnotherPanel->GetCurDir(CurDir);
-        chdir(CurDir);
+        FarChDir(CurDir);
         if (*DizFileName)
           new FileEditor(DizFileName,FALSE,TRUE);
         else if (*Opt.FolderInfoFiles)

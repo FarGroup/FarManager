@@ -7,10 +7,14 @@ fn.hpp
 
 */
 
-/* Revision: 1.126 11.01.2002 $ */
+/* Revision: 1.127 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    + FarChDir - установка нужного диска и каталога и установление
+      соответствующей переменной окружения. В случае успеха возвращается
+      не ноль.
   11.01.2002 IS
     + InitKeysArray
   10.01.2002 SVS
@@ -813,6 +817,12 @@ char* WINAPI FarMkTemp(char *Dest, const char *Prefix);
 
 void CreatePath(char *Path);
 
+/* $ 14.01.2002 IS
+   Установка нужного диска и каталога и установление соответствующей переменной
+   окружения. В случае успеха возвращается не ноль.
+*/
+BOOL FarChDir(const char *NewDir);
+/* IS $ */
 /*$ 27.09.2000 skv
 */
 void WINAPI DeleteBuffer(char* Buffer);

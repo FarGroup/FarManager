@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.18 25.12.2001 $ */
+/* Revision: 1.19 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   25.12.2001 SVS
     ! немного оптимизации (если VC сам умеет это делать, то
       борманду нужно помочь)
@@ -126,7 +128,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
         strncpy(PanelItem.FindData.cFileName,PointToName(PStack->HostFile),sizeof(PanelItem.FindData.cFileName)-1);
         CtrlObject->Plugins.DeleteFiles(hPlugin,&PanelItem,1,0);
       }
-      chdir(SaveDir);
+      FarChDir(SaveDir);
     }
     struct OpenPluginInfo Info;
     CtrlObject->Plugins.GetOpenPluginInfo(hPlugin,&Info);
@@ -149,7 +151,7 @@ int FileList::FileNameToPluginItem(char *Name,PluginPanelItem *pi)
   if ((ChPtr=strrchr(TempDir,'\\'))==NULL)
     return(FALSE);
   *ChPtr=0;
-  chdir(TempDir);
+  FarChDir(TempDir);
   memset(pi,0,sizeof(*pi));
   HANDLE FindHandle;
   FindHandle=FindFirstFile(Name,&pi->FindData);
@@ -388,7 +390,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,struct PluginPanelItem *ItemLi
             strcpy(pi.FindData.cFileName,DestPanel->PluginDizName);
             CtrlObject->Plugins.DeleteFiles(DestPanel->hPlugin,&pi,1,OPM_SILENT);
           }
-        chdir(SaveDir);
+        FarChDir(SaveDir);
         DeleteFileWithFolder(DizName);
       }
     }
@@ -474,7 +476,7 @@ void FileList::PluginToPluginFiles(int Move)
     {
       char SaveDir[NM];
       GetCurrentDirectory(sizeof(SaveDir),SaveDir);
-      chdir(TempDir);
+      FarChDir(TempDir);
       if (CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,FALSE,0)==1)
       {
         if (!ReturnCurrentFile)
@@ -491,7 +493,7 @@ void FileList::PluginToPluginFiles(int Move)
       else
         if (!ReturnCurrentFile)
           PluginClearSelection(ItemList,ItemNumber);
-      chdir(SaveDir);
+      FarChDir(SaveDir);
     }
     DeleteDirTree(TempDir);
     DeletePluginItemList(ItemList,ItemNumber);

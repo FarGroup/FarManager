@@ -5,10 +5,14 @@ mix.cpp
 
 */
 
-/* Revision: 1.105 26.12.2001 $ */
+/* Revision: 1.106 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    + FarChDir - установка нужного диска и каталога и установление
+      соответствующей переменной окружения. В случае успеха возвращается
+      не ноль.
   26.12.2001 SVS
     - ...когда ввели в масдае cd //host/share... получаем
       C:\\host\share
@@ -342,6 +346,25 @@ long filelen(FILE *FPtr)
   return(ftell(FPtr));
 }
 
+/* $ 14.01.2002 IS
+   Установка нужного диска и каталога и установление соответствующей переменной
+   окружения. В случае успеха возвращается не ноль.
+*/
+BOOL FarChDir(const char *NewDir)
+{
+  BOOL rc=SetCurrentDirectory(NewDir);
+  char CurDir[NM*2];
+  if (GetCurrentDirectory(sizeof(CurDir),CurDir) &&
+      isalpha(*CurDir) && CurDir[1]==':')
+  {
+    char Drive[4]="=A:";
+    Drive[1]=toupper(*CurDir);
+    OemToChar(CurDir,CurDir); // аргументы SetEnvironmentVariable должны быть ANSI
+    SetEnvironmentVariable(Drive,CurDir);
+  }
+  return rc;
+}
+/* IS 14.01.2002 $ */
 
 DWORD NTTimeToDos(FILETIME *ft)
 {

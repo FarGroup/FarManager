@@ -5,10 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.86 28.12.2001 $ */
+/* Revision: 1.87 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
+    ! Файл открывается с флагом FILE_SHARE_DELETE
   28.12.2001 SVS
     ! Нафиг ненужна самодеятельность с выставлением пимпы Hex в этом режиме.
   12.12.2001 DJ
@@ -487,10 +490,12 @@ int Viewer::OpenFile(const char *Name,int warning)
     if (WinVer.dwPlatformId==VER_PLATFORM_WIN32_NT)
       Flags|=FILE_FLAG_POSIX_SEMANTICS;
 
-    HANDLE hView=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    HANDLE hView=CreateFile(Name,GENERIC_READ,
+                            FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
                             NULL,OPEN_EXISTING,Flags,NULL);
     if (hView==INVALID_HANDLE_VALUE && Flags!=0)
-      hView=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+      hView=CreateFile(Name,GENERIC_READ,
+                       FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,
                        NULL,OPEN_EXISTING,0,NULL);
     if (hView!=INVALID_HANDLE_VALUE)
     {
@@ -1444,7 +1449,7 @@ int Viewer::ProcessKey(int Key)
           {
             char ViewDir[NM];
             ViewNamesList.GetCurDir(ViewDir);
-            chdir(ViewDir);
+            FarChDir(ViewDir);
           }
           /* $ 04.07.2000 tran
              + параметер 'warning' в OpenFile в данном месте он TRUE

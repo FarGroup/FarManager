@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.79 28.12.2001 $ */
+/* Revision: 1.80 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   28.12.2001 DJ
     ! обработка Del в меню дисков вынесена в отдельную функцию
   14.12.2001 IS
@@ -758,17 +760,17 @@ int  Panel::ChangeDiskMenu(int Pos,int FirstCall)
     while (1)
     {
       int NumDisk=LOBYTE(LOWORD(UserData))-'A';
-      char MsgStr[200],NewDir[NM];
+      char MsgStr[NM],NewDir[NM];
       setdisk(NumDisk);
       CtrlObject->CmdLine->GetCurDir(NewDir);
       if (toupper(*NewDir)==LOBYTE(LOWORD(UserData)))
-        chdir(NewDir);
+        FarChDir(NewDir);
       if (getdisk()!=NumDisk)
       {
         char RootDir[NM];
         sprintf(RootDir,"%c:\\",LOBYTE(LOWORD(UserData)));
-        chdir(RootDir);
-        setdisk(NumDisk);
+        FarChDir(RootDir);
+        // setdisk(NumDisk); FarChDir умеет менять диск
         if (getdisk()==NumDisk)
           break;
       }
@@ -1054,7 +1056,7 @@ void Panel::SetFocus()
     CtrlObject->Cp()->RedrawKeyBar();
     Focus=TRUE;
     Redraw();
-    chdir(CurDir);
+    FarChDir(CurDir);
   }
 }
 
@@ -1254,13 +1256,17 @@ void Panel::InitCurDir(char *CurDir)
      а уж потом...
      А то фигня какая-то получается...
 */
+/* $ 14.01.2002 IS
+   ! Убрал установку переменных окружения, потому что она производится
+     в FarChDir, которая теперь используется у нас для установления
+     текущего каталога.
+*/
 int  Panel::SetCurPath()
 {
   if (GetMode()==PLUGIN_PANEL)
     return TRUE;
 
   char UpDir[NM],*ChPtr;
-  static char Drive[4]="=A:"; // нефига каждый раз делать strcpy.
 
   Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
   if (AnotherPanel->GetType()!=PLUGIN_PANEL)
@@ -1268,8 +1274,9 @@ int  Panel::SetCurPath()
     if (isalpha(AnotherPanel->CurDir[0]) && AnotherPanel->CurDir[1]==':' &&
         toupper(AnotherPanel->CurDir[0])!=toupper(CurDir[0]))
     {
-      Drive[1]=toupper(AnotherPanel->CurDir[0]);
-      SetEnvironmentVariable(Drive,AnotherPanel->CurDir);
+      // сначала установим путь на пассивной панели
+      // переменные окружения здесь теперь не меняем, это делается в FarChDir
+      FarChDir(AnotherPanel->CurDir);
     }
   }
 
@@ -1277,22 +1284,18 @@ int  Panel::SetCurPath()
   if ((ChPtr=strrchr(UpDir,'\\'))!=NULL)
     *ChPtr=0;
 
-  if (chdir(CurDir)==-1 || GetFileAttributes(CurDir)==0xFFFFFFFF)
+  if (!FarChDir(CurDir) || GetFileAttributes(CurDir)==0xFFFFFFFF)
   {
-    if (chdir(UpDir)==-1 && chdir("\\")==-1)
+    if (!FarChDir(UpDir) && !FarChDir("\\"))
       ChangeDisk();
     else
       GetCurrentDirectory(sizeof(CurDir),CurDir);
     return FALSE;
   }
 
-  if (isalpha(CurDir[0]) && CurDir[1]==':')
-  {
-    Drive[1]=toupper(CurDir[0]);
-    SetEnvironmentVariable(Drive,CurDir);
-  }
   return TRUE;
 }
+/* IS $ */
 /* SVS $ */
 /* KM $ */
 

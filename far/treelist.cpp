@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.31 28.12.2001 $ */
+/* Revision: 1.32 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   28.12.2001 DJ
     - нафиг такую оптимизацию, после которой VC++ билд трапается!
   26.12.2001 SVS
@@ -1026,7 +1028,7 @@ void TreeList::ProcessEnter()
   CurPtr=ListData+CurFile;
   if ((Attr=GetFileAttributes(CurPtr->Name))!=(DWORD)-1 && (Attr & FA_DIREC))
   {
-    if (!ModalMode && chdir(CurPtr->Name)!=-1)
+    if (!ModalMode && FarChDir(CurPtr->Name))
     {
       Panel *AnotherPanel=GetRootPanel();
       SetCurDir(CurPtr->Name,TRUE);

@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.81 12.01.2002 $ */
+/* Revision: 1.82 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   12.01.2002 IS
     ! ExitCode=0 -> ExitCode=XC_OPEN_ERROR
   10.01.2002 SVS
@@ -679,7 +681,7 @@ int FileEditor::ProcessKey(int Key)
             TextFormat=2;
         }
         ShowConsoleTitle();
-        chdir(StartDir);
+        FarChDir(StartDir);
 
 
         if(FEdit.SaveFile(FileName,0,Key==KEY_SHIFTF2 ? TextFormat:0,Key==KEY_SHIFTF2)==0)
@@ -911,7 +913,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 {
   while (1)
   {
-    chdir(StartDir); // онвелс?
+    FarChDir(StartDir); // онвелс?
     int SaveCode=SAVEFILE_SUCCESS;
     if(NeedQuestion)
     {

@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.49 08.01.2002 $ */
+/* Revision: 1.50 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   08.01.2002 SVS
     ! Выкинем преобразование 0x10 в '>'. Оно сделано на глобальном уровне
       в InitRecodeOutTable()
@@ -261,7 +263,7 @@ void ProcessUserMenu(int EditMenu)
     if (MenuMode!=MM_MAIN)
     {
       // Пытаемся открыть файл на локальном диске
-      if ((chdir(MenuFilePath)==0) &&
+      if (FarChDir(MenuFilePath) &&
          ((MenuFile=fopen(LocalMenuFileName,"rb"))!=NULL))
       {
         MenuFileToReg(LocalMenuKey, MenuFile);
@@ -304,7 +306,7 @@ void ProcessUserMenu(int EditMenu)
     // Фаровский кусок по записи файла
     if ((MenuMode!=MM_MAIN) && (MenuModified))
     {
-      chdir(MenuFilePath);
+      FarChDir(MenuFilePath);
       int FileAttr=GetFileAttributes(LocalMenuFileName);
       if (FileAttr!=-1)
       {
@@ -390,7 +392,7 @@ void ProcessUserMenu(int EditMenu)
   } /* while */
 
   CtrlObject->CmdLine->GetCurDir(MenuFilePath);
-  chdir(MenuFilePath);
+  FarChDir(MenuFilePath);
   /* $ 25.04.2001 DJ
      не перерисовываем панель, если пользователь ничего не сделал
      в меню

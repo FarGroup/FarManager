@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.27 24.12.2001 $ */
+/* Revision: 1.28 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   24.12.2001 SVS
     - BugZ#193: не работает <, >, | (в 9х)
     + проверка на вшивость на подступах - если введено нечто вроде "|" или ">"
@@ -611,7 +613,7 @@ int Execute(const char *CmdStr,          // Ком.строка для исполнения
           CreateProcess(NULL,SetPathCmd,NULL,NULL,FALSE,CreateFlags,NULL,NULL,&si,&pi);
           CloseHandle(pi.hThread);
           CloseHandle(pi.hProcess);
-          chdir(SavePath);
+          FarChDir(SavePath);
         }
   }
 
@@ -956,7 +958,7 @@ int CommandLine::CmdExecute(char *CmdLine,int AlwaysWaitFinish,
       ScrollScreen(1);
       MoveCursor(X1,Y1);
       if (CurDir[0] && CurDir[1]==':')
-        chdir(CurDir);
+        FarChDir(CurDir);
       CmdStr.SetString("");
       if (ProcessOSCommands(CmdLine,SeparateWindow))
         Code=-1;
@@ -1133,8 +1135,8 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     {
       char NewDir[10];
       sprintf(NewDir,"%c:\\",NewDisk+'A');
-      chdir(NewDir);
-      setdisk(NewDisk);
+      FarChDir(NewDir);
+      // setdisk(NewDisk); FarChDir умеет менять диск
     }
     SetPanel->ChangeDirToCurrent();
     return(TRUE);
@@ -1248,7 +1250,7 @@ int CommandLine::ProcessOSCommands(char *CmdLine,int SeparateWindow)
     }
     char ExpandedDir[8192];
     if (ExpandEnvironmentStr(NewDir,ExpandedDir,sizeof(ExpandedDir))!=0)
-      if (chdir(ExpandedDir)==-1)
+      if (!FarChDir(ExpandedDir))
         return(FALSE);
     SetPanel->ChangeDirToCurrent();
     if (!SetPanel->IsVisible())

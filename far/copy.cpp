@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.62 28.12.2001 $ */
+/* Revision: 1.63 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    ! chdir -> FarChDir
   28.12.2001 SVS
     ! Правка с учетом изменений структур (про анонимный union)
   28.12.2001 SVS
@@ -400,7 +402,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
         *ChPtr=0;
         if (ChPtr==NewDir || *(ChPtr-1)==':')
           strcat(NewDir,"\\");
-        chdir(NewDir);
+        FarChDir(NewDir);
       }
     }
     // Урезаем имя до размеров диалога.

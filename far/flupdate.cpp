@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.25 27.12.2001 $ */
+/* Revision: 1.26 14.01.2002 $ */
 
 /*
 Modify:
+  14.01.2002 IS
+    - Опечатка
   27.12.2001 SVS
     ! "Ошибки производства".
   25.12.2001 SVS
@@ -459,7 +461,7 @@ void FileList::ReadFileNames(int KeepSelection)
     if (!GoToFile(CurName) && *NextCurName)
       GoToFile(NextCurName);
   SetTitle();
-  if (SaveDir) {
+  if (*SaveDir) {
     SetCurrentDirectory(SaveDir);
   }
 }
