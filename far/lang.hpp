@@ -15,10 +15,12 @@ lang.hpp
 
 */
 
-/* Revision: 1.74 22.06.2001 $ */
+/* Revision: 1.75 01.07.2001 $ */
 
 /*
 Modify:
+  01.07.2001 IS
+    + MIncorrectMask
   22.06.2001 SVS
     + MStrFTime*
   17.06.2001 SVS
@@ -1696,8 +1698,10 @@ enum
 
   MDialogType,
 
+  MIncorrectMask,
+
   MListEval
 
 };
 
-#endif	// __FARLANG_HPP__
+#endif  // __FARLANG_HPP__

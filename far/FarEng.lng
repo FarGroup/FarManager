@@ -669,10 +669,10 @@
 "Only custom filter can be deleted"
 
 "&Title:"
-"A file &mask or several file masks delimited with commas:"
+"A file &mask or several file masks:"
 
 "Find file"
-"A file &mask or several file masks delimited with commas:"
+"A file &mask or several file masks:"
 "Containing &text:"
 "&Case sensitive"
 "&Whole words"
@@ -1515,5 +1515,7 @@
 "The file is being checked by the plugin"
 
 "Dialog"
+
+"File-mask string contains errors!"
 
 "Evaluation version"

@@ -1,8 +1,39 @@
 # Microsoft Developer Studio Generated Dependency File, included by far.mak
 
+.\FileMasksProcessor.obj : \
+    ".\CFileMask.hpp"\
+    ".\BaseFileMask.hpp"\
+    ".\FileMasksProcessor.hpp"\
+    ".\FileMasksWithExclude.hpp"\
+	".\headers.hpp"\
+	".\fn.hpp"\
+	".\lang.hpp"\
+
+
+.\FileMasksWithExclude.obj : \
+    ".\CFileMask.hpp"\
+    ".\BaseFileMask.hpp"\
+    ".\FileMasksProcessor.hpp"\
+    ".\FileMasksWithExclude.hpp"\
+	".\headers.hpp"\
+	".\fn.hpp"\
+	".\lang.hpp"\
+
+
+.\CFileMask.obj : \
+    ".\CFileMask.hpp"\
+    ".\BaseFileMask.hpp"\
+    ".\FileMasksProcessor.hpp"\
+    ".\FileMasksWithExclude.hpp"\
+	".\headers.hpp"\
+	".\fn.hpp"\
+	".\lang.hpp"\
+
+
 .\strftime.cpp : \
 	".\fn.hpp"\
 	".\lang.hpp"\
+
 
 .\checkver.cpp : \
 	".\dialog.hpp"\

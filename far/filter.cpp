@@ -5,12 +5,15 @@ filter.cpp
 
 */
 
-/* Revision: 1.13 25.06.2001 $ */
+/* Revision: 1.14 01.07.2001 $ */
 
 /*
 Modify:
+  01.07.2001 IS
+    + Применяем специальный класс для работы с масками файлов (CFileMask)
+    ! Внедрение const
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   16.06.2001 KM
     ! Добавление WRAPMODE в меню.
   03.06.2001 SVS
@@ -47,6 +50,7 @@ Modify:
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "CFileMask.hpp"
 #include "filter.hpp"
 #include "global.hpp"
 #include "fn.hpp"
@@ -78,11 +82,9 @@ static unsigned char VerticalLine=0x0B3;
 
 PanelFilter::PanelFilter(Panel *HostPanel)
 {
+  IncludeMaskIsOK=ExcludeMaskIsOK=false;
+  IncludeMaskStr=ExcludeMaskStr=NULL;
   PanelFilter::HostPanel=HostPanel;
-  FilterMask=NULL;
-  FilterMaskCount=0;
-  ExcludeFilterMask=NULL;
-  ExcludeFilterMaskCount=0;
   AddMasks(NULL,0);
   for (int I=0;I<FilterDataCount;I++)
     if (HostPanel==CtrlObject->Cp()->LeftPanel)
@@ -104,8 +106,8 @@ PanelFilter::PanelFilter(Panel *HostPanel)
 
 PanelFilter::~PanelFilter()
 {
-  free(FilterMask);
-  free(ExcludeFilterMask);
+  if(IncludeMaskStr) free(IncludeMaskStr);
+  if(ExcludeMaskStr) free(ExcludeMaskStr);
 }
 
 
@@ -200,10 +202,17 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         ExtPtr=NewPtr;
         char *DotPtr=strrchr(fdata.cFileName,'.');
         char Mask[NM];
+        /* $ 01.07.2001 IS
+           Если маска содержит разделитель (',' или ';'), то возьмем ее в
+           кавычки
+        */
         if (DotPtr==NULL)
           strcpy(Mask,"*.");
+        else if(strpbrk(DotPtr,",;"))
+          sprintf(Mask,"\"*%s\"",DotPtr);
         else
           sprintf(Mask,"*%s",DotPtr);
+        /* IS $ */
         strcpy(ExtPtr+ExtCount*NM,Mask);
         ExtCount++;
       }
@@ -220,10 +229,17 @@ int PanelFilter::ShowFilterMenu(int Pos,int FirstCall,int *NeedUpdate)
         ExtPtr=NewPtr;
         char *DotPtr=strrchr(FileName,'.');
         char Mask[NM];
+        /* $ 01.07.2001 IS
+           Если маска содержит разделитель (',' или ';'), то возьмем ее в
+           кавычки
+        */
         if (DotPtr==NULL)
           strcpy(Mask,"*.");
+        else if(strpbrk(DotPtr,",;"))
+          sprintf(Mask,"\"*%s\"",DotPtr);
         else
           sprintf(Mask,"*%s",DotPtr);
+        /* IS $ */
         strcpy(ExtPtr+ExtCount*NM,Mask);
         ExtCount++;
       }
@@ -431,71 +447,85 @@ void PanelFilter::ProcessSelection(VMenu *FilterList)
 }
 
 
-void PanelFilter::AddMasks(char *Masks,int Exclude)
+/* $ 01.07.2001 IS
+   Используем нормальные классы для работы с масками файлов
+*/
+void PanelFilter::AddMasks(const char *Masks,int Exclude)
 {
   if (Masks==NULL)
   {
-    /* $ 13.07.2000 SVS
-       ни кто не вызывал запрос памяти через new :-)
-    */
-    free(FilterMask);
-    /* SVS $ */
-    FilterMask=NULL;
-    FilterMaskCount=0;
-    /* $ 13.07.2000 SVS
-       ни кто не вызывал запрос памяти через new :-)
-    */
-    free(ExcludeFilterMask);
-    /* SVS $ */
-    ExcludeFilterMask=NULL;
-    ExcludeFilterMaskCount=0;
+    // Освободим память
+    IncludeMask.Set(NULL, FMF_SILENT);
+    ExcludeMask.Set(NULL, FMF_SILENT);
+    if(IncludeMaskStr) free(IncludeMaskStr);
+    if(ExcludeMaskStr) free(ExcludeMaskStr);
+    IncludeMaskStr=ExcludeMaskStr=NULL;
+    IncludeMaskIsOK=ExcludeMaskIsOK=false;
     return;
   }
-  char ArgName[NM];
-  const char *NamePtr=Masks;
-  while ((NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
+
+  int addsize=strlen(Masks)+4, oldsize;
+
+  if(Exclude)
   {
-    RemoveTrailingSpaces(ArgName);
-    if (Exclude)
+    ExcludeMask.Set(NULL, FMF_SILENT);
+    oldsize=ExcludeMaskStr?strlen(ExcludeMaskStr):0;
+    char *NewExcludeMaskStr=(char *)realloc(ExcludeMaskStr,addsize+oldsize);
+    if (NewExcludeMaskStr==NULL)
+       return;
+    ExcludeMaskStr=NewExcludeMaskStr;
+    if(oldsize)
     {
-      char *NewFilterMask=(char *)realloc(ExcludeFilterMask,(ExcludeFilterMaskCount+1)*NM);
-      if (NewFilterMask==NULL)
-        break;
-      ExcludeFilterMask=NewFilterMask;
-      strcpy(ExcludeFilterMask+ExcludeFilterMaskCount*NM,ArgName);
-      ExcludeFilterMaskCount++;
+      if(ExcludeMaskStr[oldsize-1]!=',')
+      {
+        ExcludeMaskStr[oldsize]=',';
+        ExcludeMaskStr[oldsize+1]=0;
+      }
     }
     else
+      *ExcludeMaskStr=0;
+    strcat(ExcludeMaskStr, Masks);
+    ExcludeMaskIsOK=ExcludeMask.Set(ExcludeMaskStr, FMF_SILENT);
+  }
+  else
+  {
+    IncludeMask.Set(NULL, FMF_SILENT);
+    oldsize=IncludeMaskStr?strlen(IncludeMaskStr):0;
+    char *NewIncludeMaskStr=(char *)realloc(IncludeMaskStr,addsize+oldsize);
+    if (NewIncludeMaskStr==NULL)
+       return;
+    IncludeMaskStr=NewIncludeMaskStr;
+    if(oldsize)
     {
-      char *NewFilterMask=(char *)realloc(FilterMask,(FilterMaskCount+1)*NM);
-      if (NewFilterMask==NULL)
-        break;
-      FilterMask=NewFilterMask;
-      strcpy(FilterMask+FilterMaskCount*NM,ArgName);
-      FilterMaskCount++;
+      if (IncludeMaskStr[oldsize-1]!=',')
+      {
+        IncludeMaskStr[oldsize]=',';
+        IncludeMaskStr[oldsize+1]=0;
+      }
     }
+    else
+      *IncludeMaskStr=0;
+    strcat(IncludeMaskStr, Masks);
+    IncludeMaskIsOK=IncludeMask.Set(IncludeMaskStr, FMF_SILENT);
   }
 }
+/* IS $ */
 
-
-int PanelFilter::CheckName(char *Name)
+/* $ 01.07.2001 IS
+   Используем нормальные классы для работы с масками файлов
+*/
+int PanelFilter::CheckName(const char *Name)
 {
-  if (ExcludeFilterMaskCount>0)
-    for (int I=0;I<ExcludeFilterMaskCount;I++)
-      if (CmpName(ExcludeFilterMask+NM*I,Name))
-        return(FALSE);
-  if (FilterMaskCount==0)
-    return(TRUE);
-  for (int I=0;I<FilterMaskCount;I++)
-    if (CmpName(FilterMask+NM*I,Name))
-      return(TRUE);
-  return(FALSE);
+  if (ExcludeMaskIsOK && ExcludeMask.Compare(Name))
+    return FALSE;
+  else
+    return IncludeMaskIsOK?IncludeMask.Compare(Name):TRUE;
 }
-
+/* IS $ */
 
 bool PanelFilter::IsEnabled()
 {
-  return(ExcludeFilterMaskCount>0 || FilterMaskCount>0);
+  return IncludeMaskIsOK || ExcludeMaskIsOK;
 }
 
 
@@ -608,9 +638,20 @@ int PanelFilter::EditRecord(char *Title,char *Masks)
     Dialog Dlg(EditDlg,sizeof(EditDlg)/sizeof(EditDlg[0]));
     Dlg.SetHelp("Filter");
     Dlg.SetPosition(-1,-1,76,10);
-    Dlg.Process();
-    if (Dlg.GetExitCode()!=6 || *(char *)EditDlg[4].Ptr.PtrData==0)
-      return(FALSE);
+    /* $ 01.07.2001 IS
+       теперь введенные маски проверяются на корректность
+    */
+    CFileMask CheckMask;
+    for(;;)
+    {
+      Dlg.ClearDone();
+      Dlg.Process();
+      if (Dlg.GetExitCode()!=6 || *(char *)EditDlg[4].Ptr.PtrData==0)
+        return(FALSE);
+      if(CheckMask.Set((const char *)EditDlg[4].Ptr.PtrData, FMF_FORBIDEXCLUDE))
+        break;
+    }
+    /* IS $ */
   }
   strcpy(Title,EditDlg[2].Data);
   return(TRUE);

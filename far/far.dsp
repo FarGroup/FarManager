@@ -467,6 +467,21 @@ SOURCE=.\vmenu.cpp
 SOURCE=.\xlat.cpp
 # End Source File
 # End Group
+
+SOURCE=.\FileMasksProcessor.cpp
+# End Source File
+# End Group
+
+SOURCE=.\FileMasksWithExclude.cpp
+# End Source File
+# End Group
+
+SOURCE=.\CFileMask.cpp
+# End Source File
+# End Group
+
+
+
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
@@ -739,6 +754,23 @@ SOURCE=.\viewer.hpp
 SOURCE=.\vmenu.hpp
 # End Source File
 # End Group
+
+SOURCE=.\FileMasksProcessor.hpp
+# End Source File
+# End Group
+
+SOURCE=.\FileMasksWithExclude.hpp
+# End Source File
+# End Group
+
+SOURCE=.\CFileMask.hpp
+# End Source File
+# End Group
+
+SOURCE=.\BaseFileMask.hpp
+# End Source File
+# End Group
+
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"

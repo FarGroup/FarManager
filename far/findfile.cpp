@@ -5,12 +5,14 @@ findfile.cpp
 
 */
 
-/* Revision: 1.36 25.06.2001 $ */
+/* Revision: 1.37 01.07.2001 $ */
 
 /*
 Modify:
+  01.07.2001
+    + Можно использовать маски исключения при установлении параметров поиска.
   25.06.2001 IS
-   ! Внедрение const
+    ! Внедрение const
   25.06.2001 SVS
     ! Юзаем SEARCHSTRINGBUFSIZE
   23.06.2001 OT
@@ -126,6 +128,7 @@ Modify:
 #include "savescr.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
+#include "CFileMask.hpp"
 
 static void _cdecl PrepareFilesList(void *Param);
 static void _cdecl PreparePluginList(void *Param);
@@ -162,6 +165,13 @@ static int IsPluginGetsFile;
 static int UseDecodeTable,TableNum,UseUnicode;
 static struct CharTableSet TableSet;
 
+/* $ 01.07.2001 IS
+   Объект "маска файлов". Именно его будем использовать для проверки имени
+   файла на совпадение с искомым.
+*/
+static CFileMask FileMaskForFindFile;
+/* IS $ */
+
 struct ListItemUserData{
   WIN32_FIND_DATA FileFindData;
   char FindFileArcName[NM];
@@ -191,7 +201,6 @@ FindFiles::FindFiles()
   */
   IsPluginGetsFile=0;
   /* KM $ */
-
   do
   {
     const char *MasksHistoryName="Masks",*TextHistoryName="SearchText";
@@ -319,7 +328,15 @@ FindFiles::FindFiles()
 
       if (ExitCode!=18)
         return;
-      break;
+      /* $ 01.07.2001 IS
+         Проверим маску на корректность
+      */
+      if(!FindAskDlg[2].Data)             // если строка с масками пуста,
+         strcpy(FindAskDlg[2].Data, "*"); // то считаем, что маска есть "*"
+
+      if(FileMaskForFindFile.Set(FindAskDlg[2].Data, 0))
+           break;
+      /* IS $ */
     }
     /* $ 14.12.2000 OT */
     char Buf1 [24];
@@ -334,7 +351,9 @@ FindFiles::FindFiles()
         MSG(MOk));
     }
     strncpy(FindMask,*FindAskDlg[2].Data ? FindAskDlg[2].Data:"*",sizeof(FindMask)-1);
-    Unquote(FindMask);
+    /* $ 01.07.2001 IS Кавычки уберутся в другом месте - в CFileMask */
+    //Unquote(FindMask);
+    /* IS $ */
     if (strlen (FindAskDlg[5].Data) > sizeof(FindStr) ){
       memset (Buf1, 0, sizeof(Buf1));
       memset (Buf2, 0, sizeof(Buf2));
@@ -393,6 +412,11 @@ FindFiles::FindFiles()
 
 FindFiles::~FindFiles()
 {
+  /* $ 01.07.2001 IS
+     Освободим память.
+  */
+  FileMaskForFindFile.Set(NULL, FMF_SILENT);
+  /* IS $ */
   ScrBuf.ResetShadow();
   delete FindSaveScr;
 }
@@ -720,7 +744,7 @@ int FindFiles::FindFilesProcess()
           }
           FindMessageReady=FALSE;
         }
-		/* $ 30.05.2001 OT возврат к старому стилю */
+                /* $ 30.05.2001 OT возврат к старому стилю */
         Sleep(50);
         /* OT $ */
       }
@@ -1017,23 +1041,18 @@ void ArchiveSearch(char *ArcName)
   hPlugin=SaveHandle;
 }
 
-
+/* $ 01.07.2001 IS
+   Используем FileMaskForFindFile вместо GetCommaWord
+*/
 int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
 {
-  char ArgName[NM];
-  const char *NamePtr=FindMask;
-  int FileFound=FALSE;
-  while (!FileFound && (NamePtr=GetCommaWord(NamePtr,ArgName))!=NULL)
+  int FileFound=FileMaskForFindFile.Compare(FullName);
+  while(FileFound)
   {
-    RemoveTrailingSpaces(ArgName);
-    if (strpbrk(ArgName,"?*.")==NULL)
-      strcat(ArgName,"*");
     if ((FileAttr & FA_DIREC) &&
-        (strcmp(ArgName,"*")==0 || strcmp(ArgName,"*.*")==0) &&
         (hPlugin==NULL || (Info.Flags & OPIF_FINDFOLDERS)==0))
-      FileFound=FALSE;
-    else
-      FileFound=CmpName(ArgName,FullName);
+      return FALSE;
+
     if (*FindStr && FileFound)
     {
       FileFound=FALSE;
@@ -1067,11 +1086,12 @@ int IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD FileAttr)
         FileFound=TRUE;
       if (RemoveTemp)
         DeleteFileWithFolder(SearchFileName);
-      break;
     }
+    break;
   }
   return(FileFound);
 }
+/* IS $ */
 
 
 void AddMenuRecord(char *FullName,char *Path,WIN32_FIND_DATA *FindData)

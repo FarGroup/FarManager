@@ -41,6 +41,9 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\FileMasksProcessor.obj"
+	-@erase "$(INTDIR)\FileMasksWithExclude.obj"
+	-@erase "$(INTDIR)\CFileMask.obj"
 	-@erase "$(INTDIR)\farqueue.obj"
 	-@erase "$(INTDIR)\qsortex.obj"
 	-@erase "$(INTDIR)\constitle.obj"
@@ -156,6 +159,9 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
+	"$(INTDIR)\FileMasksProcessor.obj" \
+	"$(INTDIR)\FileMasksWithExclude.obj" \
+	"$(INTDIR)\CFileMask.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\frame.obj" \
@@ -281,6 +287,9 @@ ALL : "$(OUTDIR)\far.exe"
 
 
 CLEAN :
+	-@erase "$(INTDIR)\FileMasksProcessor.obj"
+	-@erase "$(INTDIR)\FileMasksWithExclude.obj"
+	-@erase "$(INTDIR)\CFileMask.obj"
 	-@erase "$(INTDIR)\farqueue.obj"
 	-@erase "$(INTDIR)\stddlg.obj"
 	-@erase "$(INTDIR)\strmix.obj"
@@ -397,6 +406,9 @@ LINK32_FLAGS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.l
 DEF_FILE= \
 	".\far.def"
 LINK32_OBJS= \
+	"$(INTDIR)\FileMasksProcessor.obj" \
+	"$(INTDIR)\FileMasksWithExclude.obj" \
+	"$(INTDIR)\CFileMask.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\qsortex.obj" \
@@ -605,6 +617,18 @@ SOURCE=.\dialog.cpp
 "$(INTDIR)\dialog.obj" : $(SOURCE) "$(INTDIR)"
 
 
+SOURCE=.\filemasksprocessor.cpp
+
+"$(INTDIR)\filemasksprocessor.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\filemaskswithexclude.cpp
+
+"$(INTDIR)\filemaskswithexclude.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\cfilemask.cpp
+
+"$(INTDIR)\cfilemask.obj" : $(SOURCE) "$(INTDIR)"
+
 SOURCE=.\dizlist.cpp
 
 "$(INTDIR)\dizlist.obj" : $(SOURCE) "$(INTDIR)"
@@ -760,7 +784,6 @@ SOURCE=.\keybar.cpp
 "$(INTDIR)\keybar.obj" : $(SOURCE) "$(INTDIR)"
 
 
-SOURCE=.\lang.cpp
 SOURCE=.\language.cpp
 
 "$(INTDIR)\language.obj" : $(SOURCE) "$(INTDIR)"

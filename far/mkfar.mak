@@ -120,6 +120,9 @@ $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc
 FAROBJ=\
    $(OBJPATH)\checkver.obj\
    $(OBJPATH)\udlist.obj\
+   $(OBJPATH)\FileMasksProcessor.obj\
+   $(OBJPATH)\FileMasksWithExclude.obj\
+   $(OBJPATH)\CFileMask.obj\
    $(OBJPATH)\chgmmode.obj\
    $(OBJPATH)\chgprior.obj\
    $(OBJPATH)\clipboard.obj\
