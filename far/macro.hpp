@@ -10,10 +10,12 @@ macro.hpp
 
 */
 
-/* Revision: 1.16 15.08.2001 $ */
+/* Revision: 1.17 07.09.2001 $ */
 
 /*
 Modify:
+  07.09.2001 SVS
+    + CheckCurMacroFlags() - проверка флагов текущего _»—ѕќЋЌя≈ћќ√ќ_ макроса.
   15.08.2001 SVS
     ! косметика - дл€ собственных нужд (по поводу macro2.?pp)
   09.08.2001 SVS
@@ -91,6 +93,7 @@ class KeyMacro
 
     struct MacroRecord *Macros;
     int MacrosNumber;
+
     // тип записи - с вызовом диалога настроек или...
     // 0 - нет записи, 1 - проста€ запись, 2 - вызов диалога настроек
     int Recording;
@@ -161,7 +164,10 @@ class KeyMacro
 
     char *GetMacroPlainText(char *Dest);
 
-    int GetCurRecord(struct MacroRecord* RBuf,int *KeyPos);
+    // получить данные о макросе (возвращает статус)
+    int GetCurRecord(struct MacroRecord* RBuf=NULL,int *KeyPos=NULL);
+    // проверить флаги текущего исполн€емого макроса.
+    BOOL CheckCurMacroFlags(DWORD Flags);
 
     static char* GetSubKey(int Mode);
     static int   GetSubKey(char *Mode);

@@ -8,10 +8,13 @@ macro.cpp
 
 */
 
-/* Revision: 1.54 15.08.2001 $ */
+/* Revision: 1.55 07.09.2001 $ */
 
 /*
 Modify:
+  07.09.2001 SVS
+    + CheckCurMacroFlags() - проверка флагов текущего _»—ѕќЋЌя≈ћќ√ќ_ макроса.
+    ! ‘лаги дл€ макросов MFLAGS_* переехали в farconst.hpp
   15.08.2001 SVS
     ! косметика - дл€ собственных нужд (по поводу macro2.?pp)
     ! исключены $StopIf
@@ -203,21 +206,6 @@ Modify:
 #include "cmdline.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
-
-#define MFLAGS_MODEMASK            0x0000FFFF
-#define MFLAGS_DISABLEOUTPUT       0x00010000
-#define MFLAGS_RUNAFTERFARSTART    0x00020000
-#define MFLAGS_EMPTYCOMMANDLINE    0x00040000
-#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
-#define MFLAGS_NOFILEPANELS        0x00100000
-#define MFLAGS_NOPLUGINPANELS      0x00200000
-#define MFLAGS_NOFOLDERS           0x00400000
-#define MFLAGS_NOFILES             0x00800000
-#define MFLAGS_REUSEMACRO          0x02000000
-#define MFLAGS_SELECTION           0x04000000
-#define MFLAGS_NOSELECTION         0x08000000
-#define MFLAGS_RUNAFTERFARSTART2   0x40000000
-#define MFLAGS_DISABLEMACRO        0x80000000
 
 enum MCONDITIONTYPE {
   MCODE_WINDOWEDMODE=MACRO_LAST+1, // оконный режим?
@@ -1615,6 +1603,18 @@ BOOL KeyMacro::CheckAll(DWORD CurFlags)
 }
 
 /*
+  Return: FALSE - если тестируемый MFLAGS_* не установлен или
+                  это не режим исполнени€ макроса!
+          TRUE  - такой флаг(и) установлен(ы)
+*/
+BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
+{
+  if(Executing)
+    return (Macros[ExecMacroPos].Flags&Flags)?TRUE:FALSE;
+  return FALSE;
+}
+
+/*
   Return: 0 - не в режиме макро, 1 - Recording, 2 - Executing
 */
 int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
@@ -1628,7 +1628,7 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
       if(Executing)
       {
         memcpy(RBuf,Macros+ExecMacroPos,sizeof(struct MacroRecord));
-       return 2;
+        return 2;
       }
       memset(RBuf,0,sizeof(struct MacroRecord));
       return 0;

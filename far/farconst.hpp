@@ -7,10 +7,12 @@ farconst.hpp
 
 */
 
-/* Revision: 1.48 02.08.2001 $ */
+/* Revision: 1.49 07.09.2001 $ */
 
 /*
 Modify:
+  07.09.2001 SVS
+    ! Флаги для макросов MFLAGS_* переехали из macro.cpp
   02.08.2001 IS
     + Для ассоциаций файлов:
       FILETYPE_ALTEXEC, FILETYPE_ALTVIEW, FILETYPE_ALTEDIT
@@ -284,8 +286,6 @@ enum {
 /* DJ $ */
 
 
-
-
 /* $ 11.08.2000 tran
    мелочь для лучшей читабельности */
 #define ENABLE_SWITCH TRUE
@@ -296,5 +296,21 @@ enum {
 #define HISTORY_COUNT    64
 // Количество закладок в редакторе/вьювере на одну позицию
 #define BOOKMARK_COUNT   10
+
+// Флаги для макросов
+#define MFLAGS_MODEMASK            0x0000FFFF
+#define MFLAGS_DISABLEOUTPUT       0x00010000
+#define MFLAGS_RUNAFTERFARSTART    0x00020000
+#define MFLAGS_EMPTYCOMMANDLINE    0x00040000
+#define MFLAGS_NOTEMPTYCOMMANDLINE 0x00080000
+#define MFLAGS_NOFILEPANELS        0x00100000
+#define MFLAGS_NOPLUGINPANELS      0x00200000
+#define MFLAGS_NOFOLDERS           0x00400000
+#define MFLAGS_NOFILES             0x00800000
+#define MFLAGS_REUSEMACRO          0x02000000
+#define MFLAGS_SELECTION           0x04000000
+#define MFLAGS_NOSELECTION         0x08000000
+#define MFLAGS_RUNAFTERFARSTART2   0x40000000
+#define MFLAGS_DISABLEMACRO        0x80000000
 
 #endif // __FARCONST_HPP__
