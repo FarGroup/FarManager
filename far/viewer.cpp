@@ -5,11 +5,13 @@ Internal viewer
 
 */
 
-/* Revision: 1.168 20.12.2004 $ */
+/* Revision: 1.169 20.12.2004 $ */
 
 /*
 Modify:
-  20.12.2004 SVS
+  20.12.2004 WARP
+    - BugZ#1100 неверно выставлялось выделение для юникодного файла.
+  20.12.2004 WARP
     - BugZ#1060 Пусть по +/- во viewer'е левая позиция тоже восстанавливается.
   20.12.2004 WARP
     - BugZ#1005 (одиночный найденный символ во вьювере скрывался значком '>')
@@ -3716,22 +3718,31 @@ void Viewer::SelectText(__int64 MatchPos,int SearchLength, DWORD Flags)
   SelectSize=SearchLength;
   SelectFlags=Flags;
 //  LastSelPos=SelectPos+((Flags&0x2) ? -1:1);
+  if (VM.Hex)
+    FilePos&=~(VM.Unicode ? 0x7:0xf);
+  else
+  {
+    if (SelectPos!=StartLinePos)
+    {
+      Up();
+      Show (); //update OutStr
+    }
+
   /* $ 13.03.2001 IS
      Если найденное расположено в самой первой строке юникодного файла и файл
      имеет в начале fffe или feff, то для более правильного выделения, его
      позицию нужно уменьшить на единицу (из-за того, что пустой символ не
      показывается)
   */
-  SelectPosOffSet=VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
-           && (MatchPos+SelectSize<=ObjWidth && MatchPos<strlen(OutStr[0]));
-  SelectPos-=SelectPosOffSet;
+
+    SelectPosOffSet=(VM.Unicode && (FirstWord==0x0FFFE || FirstWord==0x0FEFF)
+           && (MatchPos+SelectSize<=ObjWidth && MatchPos<strlen(OutStr[0])))?1:0;
+
+    SelectPos-=SelectPosOffSet;
+
   /* IS $ */
-  if (VM.Hex)
-    FilePos&=~(VM.Unicode ? 0x7:0xf);
-  else
-  {
-    if (SelectPos!=StartLinePos)
-      Up();
+
+
     __int64 Length=SelectPos-StartLinePos-1;
     if (VM.Wrap)
       Length%=Width+1; //??
