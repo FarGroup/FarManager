@@ -5,10 +5,12 @@ fileedit.cpp
 
 */
 
-/* Revision: 1.97 22.03.2002 $ */
+/* Revision: 1.98 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - BugZ#488 - Shift=enter
   22.03.2002 SVS
     - strcpy - Fuck!
   21.03.2002 SVS
@@ -607,6 +609,12 @@ int FileEditor::ProcessKey(int Key)
 {
   DWORD FNAttr;
   char *Ptr, Chr;
+
+  // BugZ#488 - Shift=enter
+  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
+  {
+    Key=KEY_SHIFTENTER;
+  }
 
   switch(Key)
   {

@@ -2277,8 +2277,8 @@ the shortcut path into the line.
     The #Show folder shortcuts# item in the ~Commands menu~@CmdMenu@ may be
 used to view, set, edit and delete folder shortcuts.
 
-    В режиме редактирования (F4) вы не можете сделать ссылку на
-плагиновую панель.
+    When you are editing a shortcut (F4), you cannot create a shortcut
+to a plugin panel.
 
 @Filter
 $ #File panel filter#

@@ -5,10 +5,12 @@ edit.cpp
 
 */
 
-/* Revision: 1.77 29.04.2002 $ */
+/* Revision: 1.78 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - не туда залудил этот BugZ#488 (лишнее)
   29.04.2002 SVS
     - BugZ#488 - Shift=enter
   27.04.2002 SVS
@@ -723,11 +725,6 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
   }
   else // Пути/имена?
   {
-    // BugZ#488 - Shift=enter
-    if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
-    {
-      Key=KEY_SHIFTENTER;
-    }
     int NeedRealName=FALSE;
     switch(Key)
     {

@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.171 29.04.2002 $ */
+/* Revision: 1.172 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    - не туда залудил этот BugZ#488
   29.04.2002 SVS
     - BugZ#488 - Shift=enter
   18.04.2002 SKV
@@ -666,15 +668,15 @@ Editor::~Editor()
 
 void Editor::FreeAllocatedData()
 {
-_SVS(DWORD I=0);
-_SVS(SysLog("TopList=%p, EndList=%p",TopList, EndList));
+//_SVS(DWORD I=0);
+//_SVS(SysLog("TopList=%p, EndList=%p",TopList, EndList));
   while (EndList!=NULL)
   {
     struct EditList *Prev=EndList->Prev;
-_SVS(if(I > 400000)SysLog("%ld %p",I,Prev));
+//_SVS(if(I > 400000)SysLog("%ld %p",I,Prev));
     delete EndList;
     EndList=Prev;
-_SVS(I++);
+//_SVS(I++);
   }
   /* $ 03.12.2001 IS
      UndoData - указатель
@@ -1538,12 +1540,6 @@ int Editor::ProcessKey(int Key)
   CurPos=CurLine->EditLine.GetCurPos();
   CurVisPos=GetLineCurPos();
 
-  // BugZ#488 - Shift=enter
-  if(ShiftPressed && Key == KEY_ENTER && !CtrlObject->Macro.IsExecuting())
-  {
-    Key=KEY_SHIFTENTER;
-  }
-
 
   if ((!ShiftPressed  || CtrlObject->Macro.IsExecuting()) &&
       !IsShiftKey(Key) && !Pasting)
@@ -1604,7 +1600,6 @@ int Editor::ProcessKey(int Key)
     SavePos.ScreenLine[Pos]=CalcDistance(TopScreen,CurLine,-1);
     return(TRUE);
   }
-
 
   switch(Key)
   {

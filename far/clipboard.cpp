@@ -5,10 +5,12 @@ clipboard.cpp
 
 */
 
-/* Revision: 1.05 16.10.2001 $ */
+/* Revision: 1.06 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    ! немного const
   16.10.2001 SVS
     ! Применим макрос UnicodeToOEM для прозрачности понимания действий
   27.09.2001 IS
@@ -70,7 +72,7 @@ int WINAPI CopyToClipboard(const char *Data)
 }
 
 
-int CopyFormatToClipboard(char *Format,char *Data)
+int CopyFormatToClipboard(const char *Format,char *Data)
 {
   int FormatType=RegisterClipboardFormat(Format);
   if (FormatType==0)
@@ -211,7 +213,7 @@ char* WINAPI PasteFromClipboardEx(int max)
   return(ClipText);
 }
 
-char* PasteFormatFromClipboard(char *Format)
+char* PasteFormatFromClipboard(const char *Format)
 {
   int FormatType=RegisterClipboardFormat(Format);
   if (FormatType==0)

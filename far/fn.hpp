@@ -7,10 +7,12 @@ fn.hpp
 
 */
 
-/* Revision: 1.149 27.04.2002 $ */
+/* Revision: 1.150 29.04.2002 $ */
 
 /*
 Modify:
+  29.04.2002 SVS
+    ! немного const
   27.04.2002 SVS
     ! [G|S]etShortcutFolder могут теперь иметь в качестве некоторых параметров
       значение равное NULL
@@ -559,8 +561,8 @@ int HiStrlen(const char *Str,BOOL Dup=TRUE);
 int GetErrorString(char *ErrStr, DWORD StrSize);
 /* VVM $ */
 void ShowProcessList();
-int CopyFormatToClipboard(char *Format,char *Data);
-char* PasteFormatFromClipboard(char *Format);
+int CopyFormatToClipboard(const char *Format,char *Data);
+char* PasteFormatFromClipboard(const char *Format);
 /* $ 16.10.2000 tran
   параметер - ограничение по длины */
 char* WINAPI PasteFromClipboardEx(int max);

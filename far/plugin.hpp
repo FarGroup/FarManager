@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyright (c) 2000-<%YEAR%> FAR group
 */
-/* Revision: 1.204 28.04.2002 $ */
+/* Revision: 1.205 29.04.2002 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  29.04.2002 SVS
+    ! WTYPE_COMBOBOX -> for internal
   28.04.2002 KM
     + WTYPE_COMBOBOX
   28.04.2002 IS
@@ -1639,8 +1641,8 @@ enum {
   WTYPE_DIALOG,
   WTYPE_VMENU,
   WTYPE_HELP,
-  WTYPE_COMBOBOX,
 #ifdef FAR_USE_INTERNALS
+  WTYPE_COMBOBOX,
   WTYPE_USER,
 #endif // END FAR_USE_INTERNALS
 };
