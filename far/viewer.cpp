@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.177 07.02.2005 $ */
+/* Revision: 1.178 12.02.2005 $ */
 
 /*
 Modify:
+  12.02.2005 WARP
+    - Новое выделение неверно работало в QView
   07.02.2005 WARP
     - Неверно работало выделение в бинарных файлах при свертке по словам.
   04.02.2005 WARP
@@ -1146,7 +1148,7 @@ void Viewer::ShowPage (int nMode)
         {
           SetColor(COL_VIEWERSELECTEDTEXT);
 
-          GotoXY(SelX1,Y);
+          GotoXY(X1+SelX1,Y);
 
           __int64 Length = Strings[I]->nSelEnd-Strings[I]->nSelStart;
 
