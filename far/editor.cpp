@@ -6,10 +6,13 @@ editor.cpp
 
 */
 
-/* Revision: 1.122 15.10.2001 $ */
+/* Revision: 1.123 16.10.2001 $ */
 
 /*
 Modify:
+  16.10.2001 SKV
+    - баг при выделении вертикальных блоков
+      после переключения EdOpt.CursorBeyondEOL туда сюда.
   15.10.2001 SVS
     + _KEYMACRO()
   11.10.2001 IS
@@ -5731,6 +5734,16 @@ void Editor::SetCursorBeyondEOL(int NewMode)
       CurPtr=CurPtr->Next;
     }
   }
+  /* $ 16.10.2001 SKV
+    Если переключились туда сюда этот режим,
+    то из-за этой штуки возникают нехилые глюки
+    при выделении вертикальных блоков.
+  */
+  if(EdOpt.CursorBeyondEOL)
+  {
+    MaxRightPos=0;
+  }
+  /* SKV$*/
 }
 /* IS $ */
 
