@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.23 28.05.2001 $ */
+/* Revision: 1.24 29.05.2001 $ */
 
 /*
 Modify:
+  29.01.2001 VVM
+    - Более точное исправление ALT+F4, хотя и не полное...
   28.05.2001 OT
     - Исправление ALTF4 в меню
     ! Добавление кода вызова модального редактора, в соответствии с NFZ
@@ -609,6 +611,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                 //if (FarMkTemp(MenuFileName,"Far")==NULL || (MenuFile=fopen(MenuFileName,"wb"))==NULL)
                   break;
                 MenuRegToFile(MenuRootKey,MenuFile);
+                MenuModified=TRUE;
                 fclose(MenuFile);
                 {
                   char OldTitle[512];
@@ -620,10 +623,10 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
                   if (!ShellEditor.IsFileChanged() || (MenuFile=fopen(MenuFileName,"rb"))==NULL)
                   {
                     remove(MenuFileName);
-                    break;
+//                    break;
+                    return(0);
                   }
                 }
-                MenuModified=TRUE;
                 DeleteKeyTree(MenuRootKey);
                 MenuFileToReg(MenuRootKey,MenuFile);
                 fclose(MenuFile);
@@ -632,7 +635,7 @@ int ProcessSingleMenu(char *MenuKey,int MenuPos)
 /* $ 14.07.2000 VVM
    ! Закрыть меню
 */
-//                return(EC_CLOSE_MENU);
+                return(0);
 /* VVM $ */
               }
               else
