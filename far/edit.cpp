@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.47 24.07.2001 $ */
+/* Revision: 1.48 31.07.2001 $ */
 
 /*
 Modify:
+  31.07.2001 KM
+    ! Для комбобокса сделаем отображение строки
+      с первой позиции.
   24.07.2001 IS
     ! Замена проверки на ' ' и '\t' на вызов isspace
   19.07.2001 KM
@@ -394,10 +397,18 @@ void Edit::FastShow()
       CurPos=MaxLength>0 ? (MaxLength-1):0;
   }
   int TabCurPos=GetTabCurPos();
-  if (TabCurPos-LeftPos>EditLength-1)
-    LeftPos=TabCurPos-EditLength+1;
-  if (TabCurPos<LeftPos)
-    LeftPos=TabCurPos;
+  /* $ 31.07.2001 KM
+    ! Для комбобокса сделаем отображение строки
+      с первой позиции.
+  */
+  if (!DropDownBox)
+  {
+    if (TabCurPos-LeftPos>EditLength-1)
+      LeftPos=TabCurPos-EditLength+1;
+    if (TabCurPos<LeftPos)
+      LeftPos=TabCurPos;
+  }
+  /* KM $ */
   GotoXY(X1,Y1);
   int TabSelStart=(SelStart==-1) ? -1:RealPosToTab(SelStart);
   int TabSelEnd=(SelEnd<0) ? -1:RealPosToTab(SelEnd);
