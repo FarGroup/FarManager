@@ -6,7 +6,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2002 FAR group
 */
-/* Revision: 1.24 30.10.2002 $ */
+/* Revision: 1.25 02.05.2003 $ */
 
 //#define USE_TAR_H
 
@@ -507,7 +507,10 @@ int IsTarHeader(const BYTE *Data,int DataSize)
   {
     DWORD Seconds=GetOctal(Header->mtime);
     if (Seconds<300000000 || Seconds>1500000000)
-      return(FALSE);
+    {
+      if(Header->typeflag != DIRTYPE)
+        return(FALSE);
+    }
   }
   return(TRUE);
 }
