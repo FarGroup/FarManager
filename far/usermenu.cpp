@@ -5,10 +5,12 @@ User menu и есть
 
 */
 
-/* Revision: 1.44 31.08.2001 $ */
+/* Revision: 1.45 03.09.2001 $ */
 
 /*
 Modify:
+  03.09.2001 VVM
+    ! Коррекция максимальной длины для меню.
   31.08.2001 VVM
     ! Ёпрст... Опять хоткеи...
   29.08.2001 VVM
@@ -511,8 +513,8 @@ int FillUserMenu(VMenu& UserMenu,char *MenuKey,int MenuPos,int *FuncPos,char *Na
   }
 
   // коррекция максимальной длины
-  if(MaxLen > ScrX-14)
-    MaxLen = ScrX-14;
+  if(MaxLen > ScrX-15)
+    MaxLen = ScrX-15;
 
   NumLine=0;
 
