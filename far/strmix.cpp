@@ -5,10 +5,12 @@ strmix.cpp
 
 */
 
-/* Revision: 1.46 27.05.2003 $ */
+/* Revision: 1.47 28.05.2003 $ */
 
 /*
 Modify:
+  28.05.2003 VVM
+    - Баг в функции TruncStr - переписывали байты за пределами строки.
   27.05.2003 SVS
     ! Задолбал в VC варнинг про int64++
   10.05.2003 IS
@@ -486,7 +488,8 @@ char* WINAPI TruncStr(char *Str,int MaxLength)
     {
       if (MaxLength>3)
       {
-        memmove(Str+3,Str+Length-MaxLength+3,MaxLength);
+        char *MovePos = Str+Length-MaxLength+3;
+        memmove(Str+3,MovePos,strlen(MovePos)+1);
         memcpy(Str,"...",3);
       }
       Str[MaxLength]=0;
