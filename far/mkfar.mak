@@ -111,6 +111,8 @@ Far : BccW32.cfg $(Dep_Far)
 
 $(OBJPATH)\ctrlobj.obj: ctrlobj.cpp ctrlobj.hpp copyright.inc
 $(OBJPATH)\syslog.obj: syslog.cpp cc.bat
+$(OBJPATH)\flink.obj: flink.cpp cc.bat
+$(OBJPATH)\copy.obj: copy.cpp cc.bat
 $(OBJPATH)\global.obj: global.cpp global.hpp farversion.inc
 
 FAROBJ=\
@@ -285,4 +287,5 @@ $(PRECOMPOPT)
 $(OPTDEBUG)
 $(OPTEXT)
 $(FARSYSLOG)
+$(CREATE_JUNCTION)
 | $@

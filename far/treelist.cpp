@@ -5,10 +5,12 @@ Tree panel
 
 */
 
-/* Revision: 1.09 05.04.2001 $ */
+/* Revision: 1.10 06.04.2001 $ */
 
 /*
 Modify:
+  06.04.2001 SVS
+    ! Корректный вызов удаления папки по F8 и Shift-F8
   05.04.2001 VVM
     + Переключение макросов в режим MACRO_TREEPANEL
   26.03.2001 SVS
@@ -588,12 +590,26 @@ int TreeList::ProcessKey(int Key)
       if (SetCurPath())
         ShellMakeDir(this);
       return(TRUE);
+    /*
+      Удаление                                   Shift-Del, Shift-F8, F8
+
+      Удаление файлов и папок. F8 и Shift-Del удаляют все выбранные
+     файлы, Shift-F8 - только файл под курсором. Shift-Del всегда удаляет
+     файлы, не используя Корзину (Recycle Bin). Использование Корзины
+     командами F8 и Shift-F8 зависит от конфигурации.
+
+      Уничтожение файлов и папок                                 Alt-Del
+    */
     case KEY_F8:
     case KEY_SHIFTDEL:
     case KEY_ALTDEL:
       if (SetCurPath())
       {
+        int SaveOpt=Opt.DeleteToRecycleBin;
+        if (Key==KEY_SHIFTDEL)
+          Opt.DeleteToRecycleBin=0;
         ShellDelete(this,Key==KEY_ALTDEL);
+        Opt.DeleteToRecycleBin=SaveOpt;
         if (Opt.AutoChangeFolder && !ModalMode)
           ProcessKey(KEY_ENTER);
       }
