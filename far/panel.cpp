@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.76 12.12.2001 $ */
+/* Revision: 1.77 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 VVM
+    ! Ошибочка в NeedUpdatePanel
   12.12.2001 DJ
     ! перетрях флагов в GETPANELINFO
   06.12.2001 SVS
@@ -1668,9 +1670,9 @@ static int MessageRemoveConnection(char Letter, int &UpdateProfile)
 
 BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 {
-  if(!Opt.AutoUpdateLimit ||
-     GetFileCount() <= Opt.AutoUpdateLimit ||
-     !stricmp(AnotherPanel->CurDir,CurDir))
+  /* Обновить, если обновление разрешено и пути совпадают */
+  if ((!Opt.AutoUpdateLimit || GetFileCount() <= Opt.AutoUpdateLimit) &&
+      stricmp(AnotherPanel->CurDir,CurDir)==0)
     return TRUE;
   return FALSE;
 }

@@ -5,10 +5,13 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.20 23.11.2001 $ */
+/* Revision: 1.21 14.12.2001 $ */
 
 /*
 Modify:
+  14.12.2001 VVM
+    ! При обновлении списка файлов не прерываемся при обломе в SetCurDir(),
+      т.к. там мы все-равно куда-нибудь и встали. Может и не на тот-же диск...
   23.11.2001 SVS
     ! небольшая оптимизация в "запроснике" цветов - цвета запрашиваем
       только после сбора информации о файловых объектах и применяем
@@ -141,8 +144,12 @@ void FileList::ReadFileNames(int KeepSelection)
   char SaveDir[NM];
   *(int*)SaveDir=0;
   GetCurrentDirectory(NM, SaveDir);
+  char OldCurDir[NM];
+  strncpy(OldCurDir, CurDir, NM-1);
   if (!SetCurPath()){
-    return;
+    if (strcmp(CurDir, OldCurDir) == 0)
+    /* При смене каталога путь не изменился */
+      return;
   }
 
   SortGroupsRead=FALSE;
