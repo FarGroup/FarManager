@@ -5,10 +5,12 @@ copy.cpp
 
 */
 
-/* Revision: 1.17 17.01.2001 $ */
+/* Revision: 1.18 25.01.2001 $ */
 
 /*
 Modify:
+  25.01.2001 IS
+    - Не очень правильно обрезалось имя в диалоге копирования/перемещения
   17.01.2001 SVS
     ! Не для NT - задисаблим опцию про копирование права.
   01.01.2001 VVM
@@ -112,6 +114,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
   MakeDialogItems(CopyDlgData,CopyDlg);
 
   char CopyStr[100],SelName[NM],DestDir[NM],InitDestDir[NM];
+  /* $ 25.01.2001 IS
+      Будет содержать усеченное имя файла, которое покажем в диалоге
+      копирования
+  */
+  char SelNameShort[40];
+  /* IS $ */
   int SelCount,DestPlugin;
 
   *SelName=0;
@@ -196,13 +204,19 @@ ShellCopy::ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 
     if (strcmp(SelName,"..")==NULL)
       return;
+    /* $ 25.01.2001 IS
+       Урезаем имя до размеров диалога.
+    */
+    strcpy(SelNameShort,SelName);
+    TruncPathStr(SelNameShort,33);
     if (Move)
-      sprintf(CopyStr,MSG(MMoveFile),SelName);
+      sprintf(CopyStr,MSG(MMoveFile),SelNameShort);
     else
       if (Link)
-        sprintf(CopyStr,MSG(MLinkFile),SelName);
+        sprintf(CopyStr,MSG(MLinkFile),SelNameShort);
       else
-        sprintf(CopyStr,MSG(MCopyFile),SelName);
+        sprintf(CopyStr,MSG(MCopyFile),SelNameShort);
+    /* IS $ */
   }
   else
     if (Move)
