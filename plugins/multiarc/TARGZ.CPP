@@ -62,10 +62,27 @@ struct posix_header
                                 /* 500 = 0x1F4 */
 };
 
-#define TMAGIC     "ustar"     // ustar and a null
-#define TMAGLEN    6
-#define GNUTMAGIC  "GNUtar"    // 7 chars and a null
-#define GNUTMAGLEN 7
+#define TMAGIC   "ustar"	// ustar and a null
+#define TMAGLEN  6
+#define TVERSION "00"		// 00 and no null
+#define TVERSLEN 2
+
+/* OLDGNU_MAGIC uses both magic and version fields, which are contiguous.
+   Found in an archive, it indicates an old GNU header format, which will be
+   hopefully become obsolescent.  With OLDGNU_MAGIC, uname and gname are
+   valid, though the header is not truly POSIX conforming.  */
+#define OLDGNU_MAGIC "ustar  "	/* 7 chars and a null */
+
+
+enum archive_format
+{
+  DEFAULT_FORMAT,		/* format to be decided later */
+  V7_FORMAT,			/* old V7 tar format */
+  OLDGNU_FORMAT,		/* GNU format as per before tar 1.12 */
+  POSIX_FORMAT,			/* restricted, pure POSIX format */
+  GNU_FORMAT			/* POSIX format with GNU extensions */
+};
+
 
 #define BLOCKSIZE 512
 typedef union block {
@@ -97,13 +114,24 @@ DWORD GetOctal(const char *Str);
 int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
 int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
 char *AdjustTARFileName(char *FileName);
+static __int64 Oct2Size (const char *where0, size_t digs0);
 
 enum {TAR_FORMAT,GZ_FORMAT,Z_FORMAT,BZ_FORMAT};
 
+typedef union {
+  __int64 i64;
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } Part;
+} FAR_INT64;
+
+
 HANDLE ArcHandle;
 DWORD SFXSize;
-LARGE_INTEGER NextPosition,FileSize;
+FAR_INT64 NextPosition,FileSize;
 int ArcType;
+enum archive_format TarArchiveFormat;
 char ZipName[NM];
 
 FARSTDLOCALSTRICMP LStricmp;
@@ -170,13 +198,9 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     return(FALSE);
   *Type=ArcType;
 
-  #ifdef __BORLANDC__
-    FileSize.u.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.u.HighPart);
-  #else
-    FileSize.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.HighPart);
-  #endif
+  FileSize.Part.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.Part.HighPart);
 
-  NextPosition.QuadPart=0;
+  NextPosition.i64=0;
   return(TRUE);
 }
 
@@ -193,13 +217,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {
       if (ArcType==BZ_FORMAT)
       {
-        Item->PackSize=Item->FindData.nFileSizeLow=
-          #ifdef __BORLANDC__
-            FileSize.u.LowPart
-          #else
-            FileSize.LowPart
-          #endif
-          ;
+        Item->PackSize=Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
         strcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
@@ -229,25 +247,13 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
     return(GETARC_READERROR);
 
-  Item->PackSize=
-    #ifdef __BORLANDC__
-      FileSize.u.LowPart
-    #else
-      FileSize.LowPart
-    #endif
-    ;
+  Item->PackSize=FileSize.Part.LowPart;
 
   if (ArcType==Z_FORMAT)
   {
     strcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
-    Item->FindData.nFileSizeLow=
-      #ifdef __BORLANDC__
-        FileSize.u.LowPart
-      #else
-        FileSize.LowPart
-      #endif
-      ;
+    Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
     return(GETARC_SUCCESS);
   }
 
@@ -292,19 +298,11 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   char *LongName = NULL;
   do
   {
-  #ifdef __BORLANDC__
-    NextPosition.u.LowPart=SetFilePointer(ArcHandle,NextPosition.u.LowPart,
-      &NextPosition.u.HighPart,FILE_BEGIN);
-    if (NextPosition.u.LowPart==0xFFFFFFFF && GetLastError() != NO_ERROR)
+    NextPosition.Part.LowPart=SetFilePointer(ArcHandle,NextPosition.Part.LowPart,&NextPosition.Part.HighPart,FILE_BEGIN);
+    if (NextPosition.Part.LowPart==0xFFFFFFFF && GetLastError() != NO_ERROR)
       return(GETARC_READERROR);
-  #else
-    NextPosition.LowPart=SetFilePointer(ArcHandle,NextPosition.LowPart,
-      &NextPosition.HighPart,FILE_BEGIN);
-    if (NextPosition.LowPart==0xFFFFFFFF && GetLastError() != NO_ERROR)
-      return(GETARC_READERROR);
-  #endif
 
-    if (NextPosition.QuadPart>FileSize.QuadPart)
+    if (NextPosition.i64>FileSize.i64)
       return(GETARC_UNEXPEOF);
 
     if (!ReadFile(ArcHandle,&TAR_hdr,sizeof(TAR_hdr),&ReadSize,NULL))
@@ -326,35 +324,29 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
       strncpy(Item->FindData.cFileName,EndPos,sizeof(Item->FindData.cFileName)-1);
       Item->FindData.cFileName[sizeof(Item->FindData.cFileName)-1]=0;
       Item->FindData.dwFileAttributes=(GetOctal(TAR_hdr.header.mode) & 0x4000) || ((TAR_hdr.header.typeflag-'0') & 4) ? FILE_ATTRIBUTE_DIRECTORY:0;
-      Item->FindData.nFileSizeHigh=0;
-
       UnixTimeToFileTime(GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
     }
-    Item->PackSize=Item->FindData.nFileSizeLow=GetOctal(TAR_hdr.header.size);
+    FAR_INT64 TarItemSize;
+    TarItemSize.i64=Oct2Size(TAR_hdr.header.size,sizeof(TAR_hdr.header.size));
+    Item->PackSizeHigh=Item->FindData.nFileSizeHigh=TarItemSize.Part.HighPart;
+    Item->PackSize=Item->FindData.nFileSizeLow=TarItemSize.Part.LowPart;
 
-    LARGE_INTEGER PrevPosition=NextPosition;
+    strcpy(Info->HostOS,TarArchiveFormat==POSIX_FORMAT?"POSIX":(TarArchiveFormat==V7_FORMAT?"V7":""));
+    Info->UnpVer=256+11+(TarArchiveFormat >= POSIX_FORMAT?1:0); //!!!
+
+    FAR_INT64 PrevPosition=NextPosition;
     // for LNKTYPE - only sizeof(TAR_hdr)
-    NextPosition.QuadPart+=sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0:Item->PackSize);
-#ifdef __BORLANDC__
-    if (NextPosition.u.LowPart & 511)
-      NextPosition.u.LowPart+=512-(NextPosition.u.LowPart & 511);
-#else
-    if (NextPosition.LowPart & 511)
-      NextPosition.LowPart+=512-(NextPosition.LowPart & 511);
-#endif
+    NextPosition.i64+=sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE?0:Item->PackSize);
 
-    if (PrevPosition.QuadPart>=NextPosition.QuadPart)
+    if (NextPosition.i64 & 511)
+      NextPosition.i64+=512-(NextPosition.i64 & 511);
+
+    if (PrevPosition.i64>=NextPosition.i64)
       return(GETARC_BROKEN);
 
     if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME)
     {
-#ifdef __BORLANDC__
-      SetFilePointer (ArcHandle,PrevPosition.u.LowPart+sizeof(TAR_hdr),
-        &PrevPosition.u.HighPart,FILE_BEGIN);
-#else
-      SetFilePointer (ArcHandle,PrevPosition.LowPart+sizeof(TAR_hdr),
-        &PrevPosition.HighPart,FILE_BEGIN);
-#endif
+      SetFilePointer (ArcHandle,PrevPosition.Part.LowPart+sizeof(TAR_hdr),&PrevPosition.Part.HighPart,FILE_BEGIN);
       // we can't have two LONGNAME records in a row without a file between them
       if (LongName != NULL)
         return GETARC_BROKEN;
@@ -496,21 +488,19 @@ int IsTarHeader(const BYTE *Data,int DataSize)
 
   Header=(struct posix_header *)Data;
 
-  if (!strncmp (Header->magic, TMAGIC, TMAGLEN - 1))
-  {
-    /* If we have what looks like a real ustar archive, we must
-    check the version number.  We only understand version 00.  */
-    if (Header->magic[TMAGLEN] == '\0' && (Header->version[0] != '0' || Header->version[1] != '0'))
-      return (FALSE);
-  }
+  if(!strcmp (Header->magic, TMAGIC))
+    TarArchiveFormat = POSIX_FORMAT;
+  else if(!strcmp (Header->magic, OLDGNU_MAGIC))
+    TarArchiveFormat = OLDGNU_FORMAT;
+  else
+    TarArchiveFormat = V7_FORMAT;
 
   for (I=0;Header->name[I];I++)
-    if (I==sizeof(Header->name) || Header->name[I]<' ')
+    if (I==sizeof(Header->name) || Header->name[I] < ' ')
       return(FALSE);
 
-  for (I=0;I<&Header->typeflag-Header->mode;I++)
-    if (Header->mode[I]>'7' || Header->mode[I]<'0' && Header->mode[I]!=0 &&
-        Header->mode[I]!=' ')
+  for (I=0;I < 8;I++)
+    if (Header->mode[I] > '7' || Header->mode[I]<'0' && Header->mode[I]!=0 && Header->mode[I]!=' ')
       return(FALSE);
 
   if(strcmp(Header->name,"././@LongLink"))
@@ -540,4 +530,41 @@ DWORD GetOctal(const char *Str)
 {
   char *endptr;
   return(strtoul(Str,&endptr,8));
+}
+
+static __int64 Oct2Size (const char *where0, size_t digs0)
+{
+  __int64 value;
+  const char *where = where0;
+  size_t digs = digs0;
+
+  for (;;)
+  {
+    if (!digs)
+    {
+       return -1;
+    }
+
+    if (*where != ' ')
+      break;
+    where++;
+    digs--;
+  }
+
+  value = 0;
+  while (digs != 0 && *where >= '0' && *where <= '7')
+  {
+    if (((value << 3) >> 3) != value)
+      goto out_of_range;
+    value = (value << 3) | (*where++ - '0');
+    --digs;
+  }
+
+  if (digs && *where && *where != ' ')
+    return -1;
+
+  return value;
+
+out_of_range:
+  return -1;
 }
