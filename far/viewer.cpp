@@ -5,10 +5,12 @@ Internal viewer
 
 */
 
-/* Revision: 1.84 12.12.2001 $ */
+/* Revision: 1.85 12.12.2001 $ */
 
 /*
 Modify:
+  12.12.2001 DJ
+    ! последние правки SVS не компилились VC++
   12.12.2001 SVS
     - BugZ#147 - падение ФАРа при поиске длинной строки.
     ! Уточнение размера выводимого сообщения при поиске (что бы влазило в
@@ -2103,7 +2105,7 @@ void Viewer::Search(int Next,int FirstChar)
   {
     SaveScreen SaveScr;
     SetCursorType(FALSE,0);
-    strncpy(MsgStr,SearchStr,sizeof(MsgStr)-1);
+    strncpy(MsgStr,(char *) SearchStr,sizeof(MsgStr)-1);
     if(strlen(MsgStr)+16 >= ScrX)
       TruncStrFromEnd(MsgStr, ScrX-17);
     InsertQuote(MsgStr);

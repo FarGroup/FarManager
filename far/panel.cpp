@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.75 06.12.2001 $ */
+/* Revision: 1.76 12.12.2001 $ */
 
 /*
 Modify:
+  12.12.2001 DJ
+    ! перетрях флагов в GETPANELINFO
   06.12.2001 SVS
     ! PrepareDiskPath() - имеет доп.параметр - максимальный размер буфера
     ! Во время вызова команд FCTL_SETANOTHERPANELDIR и FCTL_SETPANELDIR не
@@ -1438,20 +1440,6 @@ void Panel::SetPluginCommand(int Command,void *Param)
       Info->ViewMode=DestPanel->GetViewMode();
       Info->SortMode=SM_UNSORTED-UNSORTED+DestPanel->GetSortMode();
       DestPanel->GetCurDir(Info->CurDir);
-      if (DestPanel->GetType()==FILE_PANEL)
-      {
-        FileList *DestFilePanel=(FileList *)DestPanel;
-        static int Reenter=0;
-        if (!Reenter && Info->Plugin)
-        {
-          Reenter++;
-          struct OpenPluginInfo PInfo;
-          DestFilePanel->GetOpenPluginInfo(&PInfo);
-          strcpy(Info->CurDir,PInfo.CurDir);
-          Reenter--;
-        }
-        DestFilePanel->PluginGetPanelInfo(Info);
-      }
       /* $ 24.04.2001 SVS
          Заполнение флагов PanelInfo.Flags
       */
@@ -1462,9 +1450,6 @@ void Panel::SetPluginCommand(int Command,void *Param)
         } PFLAGS[]={
           {&Opt.ShowHidden,PFLAGS_SHOWHIDDEN},
           {&Opt.Highlight,PFLAGS_HIGHLIGHT},
-          {&Opt.AutoChangeFolder,PFLAGS_AUTOCHANGEFOLDER},
-          {&Opt.SelectFolders,PFLAGS_SELECTFOLDERS},
-          {&Opt.ReverseSort,PFLAGS_ALLOWREVERSESORT},
         };
 
         DWORD Flags=0;
@@ -1480,6 +1465,34 @@ void Panel::SetPluginCommand(int Command,void *Param)
         Info->Flags=Flags;
       }
       /* SVS $ */
+      if (DestPanel->GetType()==FILE_PANEL)
+      {
+        FileList *DestFilePanel=(FileList *)DestPanel;
+        static int Reenter=0;
+        if (!Reenter && Info->Plugin)
+        {
+          Reenter++;
+          struct OpenPluginInfo PInfo;
+          DestFilePanel->GetOpenPluginInfo(&PInfo);
+          strcpy(Info->CurDir,PInfo.CurDir);
+		  /* $ 12.12.2001 DJ
+		     обработаем флаги
+		  */
+		  if (PInfo.Flags & OPIF_REALNAMES)
+		    Info->Flags |= PFLAGS_REALNAMES;
+		  if (!(PInfo.Flags & OPIF_USEHIGHLIGHTING))
+		    Info->Flags &= ~PFLAGS_HIGHLIGHT;
+		  /* DJ $ */
+          Reenter--;
+        }
+        DestFilePanel->PluginGetPanelInfo(Info);
+      }
+	  /* $ 12.12.2001 DJ
+	     на неплагиновой панели - всегда реальные имена
+	  */
+	  if (!Info->Plugin)
+        Info->Flags |= PFLAGS_REALNAMES;
+	  /* DJ $ */
       break;
     }
     case FCTL_SETSELECTION:
