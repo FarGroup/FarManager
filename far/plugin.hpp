@@ -8,13 +8,16 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.108 21.05.2001 $ */
+/* Revision: 1.109 29.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  29.05.2001 tran
+    + макрос - MAKEFARVERSION
+
   21.05.2001 DJ
     + FDLG_NONMODAL
   21.05.2001 SVS
@@ -395,6 +398,8 @@ Modify:
 */
 
 #define FARMANAGERVERSION 0x012C0146UL
+
+#define MAKEFARVERSION(major,minor,build) ( ((major)<<8) | (minor) | ((build)<<16))
 
 #if defined(__BORLANDC__)
   #pragma option -a2
