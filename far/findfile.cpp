@@ -5,10 +5,12 @@ findfile.cpp
 
 */
 
-/* Revision: 1.125 01.10.2002 $ */
+/* Revision: 1.126 01.10.2002 $ */
 
 /*
 Modify:
+  01.10.2002 SVS
+    - BugZ#665 - Новая кнопка [Drive]
   01.10.2002 SVS
     - BugZ#664 - лишние "&" в именах кодировок в диалоге поиска
   01.10.2002 VVM
@@ -629,14 +631,18 @@ long WINAPI FindFiles::MainDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
         ActivePanel->ChangeDisk();
         // Ну что ж, раз пошла такая пьянка рефрешить фреймы
         // будем таким способом.
-        FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+        //FrameManager->ProcessKey(KEY_CONSOLE_BUFFER_RESIZE);
+        FrameManager->ResizeAllFrame();
         IsRedrawFramesInProcess--;
 
         PrepareDriveNameStr(SearchFromRoot,sizeof(SearchFromRoot));
         ItemData.PtrLength=strlen(SearchFromRoot);
         ItemData.PtrData=SearchFromRoot;
         Dialog::SendDlgMessage(hDlg,DM_SETTEXT,18,(long)&ItemData);
-        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,(ActivePanel->GetMode()==PLUGIN_PANEL)?FALSE:TRUE);
+        int PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,12,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,16,PluginMode?FALSE:TRUE);
+        Dialog::SendDlgMessage(hDlg,DM_ENABLE,17,PluginMode?FALSE:TRUE);
       }
       else if (Param1==18)
       {

@@ -5,10 +5,12 @@ infolist.cpp
 
 */
 
-/* Revision: 1.35 24.05.2002 $ */
+/* Revision: 1.36 01.10.2002 $ */
 
 /*
 Modify:
+  01.10.2002 SVS
+    - BugZ#662 - descript.ion
   24.05.2002 SVS
     + Дублирование Numpad-клавиш
   27.04.2002 SVS
@@ -150,6 +152,8 @@ InfoList::~InfoList()
 */
 void InfoList::Update (int Mode)
 {
+  if (!EnableUpdate)
+    return;
   if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
     Redraw();
 }
@@ -346,6 +350,9 @@ void InfoList::DisplayObject()
 
 int InfoList::ProcessKey(int Key)
 {
+  if (!IsVisible())
+    return(FALSE);
+
   {
     char ShortcutFolder[NM],PluginModule[NM],PluginFile[NM],PluginData[MAXSIZE_SHORTCUTDATA];
     if (GetShortcutFolder(Key,ShortcutFolder,PluginModule,PluginFile,PluginData))
