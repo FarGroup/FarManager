@@ -5,10 +5,13 @@ dialog.cpp
 
 */
 
-/* Revision: 1.40 14.09.2000 $ */
+/* Revision: 1.41 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+   ! Уточнения для SelectOnEntry
+   ! Маска не должна быть пустой (строка из пробелов не учитывается)!
   14.09.2000 SVS
    + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX
       выставляется флаг MENU_SHOWAMPERSAND. Этот флаг подавляет такое
@@ -635,8 +638,22 @@ int Dialog::InitDialogObjects(int ID)
            и непустой параметр CurItem->Mask, то вызываем новую функцию
            для установки маски в объект Edit.
         */
-        if ((CurItem->Flags & DIF_MASKEDIT) && CurItem->Mask && *CurItem->Mask)
-          DialogEdit->SetInputMask(CurItem->Mask);
+        /* $ 18.09.2000 SVS
+          Маска не должна быть пустой (строка из пробелов не учитывается)!
+        */
+        if ((CurItem->Flags & DIF_MASKEDIT) && CurItem->Mask)
+        {
+          char *Ptr=CurItem->Mask;
+          while(*Ptr == ' ') ++Ptr;
+          if(*Ptr)
+            DialogEdit->SetInputMask(CurItem->Mask);
+          else
+          {
+            CurItem->Mask=NULL;
+            CurItem->Flags&=~DIF_MASKEDIT;
+          }
+        }
+        /* SVS $ */
         /* KM $ */
       }
       else
@@ -2352,8 +2369,9 @@ int Dialog::ChangeFocus2(int KillFocusPos,int SetFocusPos)
 void Dialog::SelectOnEntry(int Pos)
 {
   if(IsEdit(Item[Pos].Type) &&
-     (Item[Pos].Flags&DIF_SELECTONENTRY) &&
-     PrevFocusPos != -1 && PrevFocusPos != Pos)
+     (Item[Pos].Flags&DIF_SELECTONENTRY)
+//     && PrevFocusPos != -1 && PrevFocusPos != Pos
+    )
   {
     Edit *edt=(Edit *)Item[Pos].ObjPtr;
     edt->Select(0,edt->GetLength());

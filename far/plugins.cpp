@@ -5,10 +5,14 @@ plugins.cpp
 
 */
 
-/* Revision: 1.25 14.09.2000 $ */
+/* Revision: 1.26 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    ! PluginsSet::SetPluginStartupInfo - заполним стркутуру PluginStartupInfo
+      нулями.
+    ! FarRecurseSearch -> FarRecursiveSearch
   14.09.2000 SVS
     + FSF.MkTemp
   10.09.2000 IS 1.21
@@ -437,6 +441,11 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
   if (CurPlugin.pSetStartupInfo!=NULL)
   {
     struct PluginStartupInfo StartupInfo;
+    /* $ 18.09.2000 SVS
+      Заполним _сразу_ всю структуру нулями.
+    */
+    memset(&StartupInfo,0,sizeof(struct PluginStartupInfo));
+    /* SVS $ */
     StartupInfo.StructSize=sizeof(StartupInfo);
     /* $ 06.07.2000 IS
       Объявление структуры типа FarStandardFunctions (см. plugin.hpp)
@@ -519,7 +528,7 @@ void PluginsSet::SetPluginStartupInfo(struct PluginItem &CurPlugin,int ModuleNum
     /* SVS $ */
     /* $ 10.09.2000 tran
       + нижеуказанное */
-    StandardFunctions.FarRecurseSearch=FarRecurseSearch;
+    StandardFunctions.FarRecursiveSearch=FarRecursiveSearch;
     /* tran 08.09.2000 $ */
     /* $ 14.09.2000 SVS
       Функция получения временного файла с полным путем.

@@ -6,10 +6,15 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.50 14.09.2000 $ */
+/* Revision: 1.51 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    ! Функция DialogEx имеет 2 дополнительных параметра (Future)
+    ! переделки в struct PluginStartupInfo!!!!
+    ! FarRecurseSearch -> FarRecursiveSearch
+    ! FRS_RECURSE -> FRS_RECUR
   14.09.2000 SVS
     ! Ошибка в названии XLAT_SWITCHKEYBLAYOUT.
     + FSF.MkTemp
@@ -329,6 +334,8 @@ typedef int (WINAPI *FARAPIDIALOGEX)(
   char                 *HelpTopic,
   struct FarDialogItem *Item,
   int                   ItemsNumber,
+  DWORD                 Reserved,
+  DWORD                 Flags,
   FARWINDOWPROC         DlgProc,
   long                  Param
 );
@@ -567,27 +574,6 @@ enum {FCTL_CLOSEPLUGIN,FCTL_GETPANELINFO,FCTL_GETANOTHERPANELINFO,
       FCTL_SETSORTORDER,FCTL_SETANOTHERSORTORDER
 };
 
-/* $ 06.07.2000 IS
-  Для AdvControl
-*/
-enum {
-  ACTL_GETFARVERSION,
-  ACTL_CONSOLEMODE,
-  ACTL_GETSYSWORDDIV, // получить строку с символами разделителями слов
-  ACTL_WAITKEY,       // ожидать клавишу.
-};
-/* IS $ */
-
-/* $ 09.08.2000 tran
-   константы для ACTL_CONSOLE_MODE */
-#define CONSOLE_GET_MODE       (-2)
-#define CONSOLE_TRIGGER        (-1)
-#define CONSOLE_SET_WINDOWED   (0)
-#define CONSOLE_SET_FULLSCREEN (1)
-#define CONSOLE_WINDOWED       (0)
-#define CONSOLE_FULLSCREEN     (1)
-/* tran 09.08.2000 $ */
-
 enum {PTYPE_FILEPANEL,PTYPE_TREEPANEL,PTYPE_QVIEWPANEL,PTYPE_INFOPANEL};
 
 struct PanelInfo
@@ -741,6 +727,27 @@ typedef BOOL (WINAPI *FARAPISHOWHELP)(
 );
 /* IS $ */
 /* tran 18.08.2000 $ */
+
+/* $ 06.07.2000 IS
+  Для AdvControl
+*/
+enum {
+  ACTL_GETFARVERSION,
+  ACTL_CONSOLEMODE,
+  ACTL_GETSYSWORDDIV, // получить строку с символами разделителями слов
+  ACTL_WAITKEY,       // ожидать клавишу.
+};
+/* IS $ */
+
+/* $ 09.08.2000 tran
+   константы для ACTL_CONSOLE_MODE */
+#define CONSOLE_GET_MODE       (-2)
+#define CONSOLE_TRIGGER        (-1)
+#define CONSOLE_SET_WINDOWED   (0)
+#define CONSOLE_SET_FULLSCREEN (1)
+#define CONSOLE_WINDOWED       (0)
+#define CONSOLE_FULLSCREEN     (1)
+/* tran 09.08.2000 $ */
 
 /* $ 06.07.2000 IS
    Функция AdvControl
@@ -1020,14 +1027,14 @@ typedef char* (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct Cha
 /* SVS $*/
 
 /* $ 10.09.2000 tran
-   FSF/FarRecurseSearch */
+   FSF/FarRecursiveSearch */
 typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
-typedef void (WINAPI *FARRECURSESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
+typedef void (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
 typedef char* (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
 
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
-  FRS_RECURSE  = 0x0002
+  FRS_RECUR    = 0x0002
 };
 /* tran $ */
 
@@ -1109,7 +1116,7 @@ typedef struct FarStandardFunctions
   /* SVS 07.09.2000 $ */
   /* $ 10.09.2000 tran
     + нижеуказанное */
-  FARRECURSESEARCH           FarRecurseSearch;
+  FARSTDRECURSIVESEARCH      FarRecursiveSearch;
   /* tran 10.09.2000 $ */
   /* $ 14.09.2000 SVS
     Функция получения временного файла с полным путем.
@@ -1141,6 +1148,17 @@ struct PluginStartupInfo
   FARAPICHARTABLE        CharTable;
   FARAPITEXT             Text;
   FARAPIEDITORCONTROL    EditorControl;
+
+  /* $ 06.07.2000 IS
+     Указатель на структуру с адресами полезных функций из far.exe
+  */
+  FARSTANDARDFUNCTIONS  *FSF;
+  /* IS $ */
+  /* $ 03.07.2000 IS
+     Функция вывода помощи
+  */
+  FARAPISHOWHELP         ShowHelp;
+  /* IS $ */
   /* $ 06.07.2000 IS
      Функция, которая будет действовать и в редакторе, и в панелях, и...
   */
@@ -1153,21 +1171,17 @@ struct PluginStartupInfo
        - функция получения строки
        - функция переключения FulScreen <-> Windowed
   */
+  FARAPIINPUTBOX         InputBox;
   FARAPIDIALOGEX         DialogEx;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  FARAPIINPUTBOX         InputBox;
   /* SVS $ */
-  /* $ 03.07.2000 IS
-     Функция вывода помощи
+  /* $ 18.09.2000 SVS
+    Этот резерв не трогать!
+    Можно дописывать _ЗА_ ним!
   */
-  FARAPISHOWHELP         ShowHelp;
-  /* IS $ */
-  /* $ 06.07.2000 IS
-     Указатель на структуру с адресами полезных функций из far.exe
-  */
-  FARSTANDARDFUNCTIONS  *FSF;
-  /* IS $ */
+  DWORD                  Reserved;
+  /* SVS $ */
 };
 
 

@@ -5,10 +5,13 @@ mix.cpp
 
 */
 
-/* Revision: 1.25 14.09.2000 $ */
+/* Revision: 1.26 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    ! FarRecurseSearch -> FarRecursiveSearch
+    ! Исправление ошибочки в функции FarMkTemp :-)))
   14.09.2000 SVS
     + Функция FarMkTemp - получение имени временного файла с полным путем.
   10.09.2000 SVS
@@ -2184,9 +2187,9 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 
 /* $ 10.09.2000 tran
    FSF/FarRecurseSearch */
-void WINAPI FarRecurseSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags)
+void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags)
 {
-    ScanTree ScTree(flags& FRS_RETUPDIR,flags & FRS_RECURSE);
+    ScanTree ScTree(flags& FRS_RETUPDIR,flags & FRS_RECUR);
     WIN32_FIND_DATA FindData;
     char FullName[NM];
 
@@ -2206,13 +2209,20 @@ void WINAPI FarRecurseSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD fla
     Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
    Вернет либо NULL, либо указатель на Dest.
 */
+/* $ 18.09.2000 SVS
+  Не ту функцию впихнул :-)))
+*/
 char* WINAPI FarMkTemp(char *Dest, char *Template)
 {
   char TempPath[NM];
   TempPath[GetTempPath(sizeof(TempPath),TempPath)]=0;
   strcat(TempPath,Template);
   if(mktemp(TempPath) != NULL)
-    return TempPath;
+  {
+    strcpy(Dest,TempPath);
+    return Dest;
+  }
   return NULL;
 }
-/* SVS */
+/* SVS 18.09.2000 $ */
+/* SVS $ */

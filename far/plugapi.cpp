@@ -5,10 +5,12 @@ API, доступное плагинам (диалоги, меню, ...)
 
 */
 
-/* Revision: 1.20 12.09.2000 $ */
+/* Revision: 1.21 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+    ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
   12.09.2000 SVS
     + Реализация флагов FHELP_* для вывода помощи.
   08.09.2000 VVM
@@ -315,11 +317,12 @@ long WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 int WINAPI FarDialogFn(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber)
 {
-  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL,NULL);
+  return FarDialogEx(PluginNumber,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,NULL,NULL,NULL,NULL);
 }
 
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
            char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+           DWORD Reserved, DWORD Flags,
            FARWINDOWPROC DlgProc,long Param)
 
 {

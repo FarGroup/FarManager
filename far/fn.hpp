@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.27 15.09.2000 $ */
+/* Revision: 1.28 18.09.2000 $ */
 
 /*
 Modify:
+  18.09.2000 SVS
+   ! Функция FarDialogEx имеет 2 дополнительных параметра (Future)
+   ! FarRecurseSearch -> FarRecursiveSearch
   15.09.2000 IS
    + Функция CheckRegValue - возвращает FALSE, если указанная переменная не
      содержит данные или размер данных равен нулю.
@@ -415,6 +418,7 @@ int WINAPI FarAdvControl(int ModuleNumber, int Command, void *Param);
 //  Функция расширенного диалога
 int WINAPI FarDialogEx(int PluginNumber,int X1,int Y1,int X2,int Y2,
       char *HelpTopic,struct FarDialogItem *Item,int ItemsNumber,
+      DWORD Reserved, DWORD Flags,
       FARWINDOWPROC Proc,long Param);
 //  Функция обработки диалога по умолчанию
 long WINAPI FarDefDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2);
@@ -518,7 +522,7 @@ void *WINAPI FarBsearch(const void *key, const void *base, size_t nelem, size_t 
 /* $ 10.09.2000 tran
    FSF/FarRecurseSearch*/
 typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
-void WINAPI FarRecurseSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags);
+void WINAPI FarRecursiveSearch(char *initdir,char *mask,FRSUSERFUNC func,DWORD flags);
 /* tran 10.09.2000 $ */
 /* $ 14.09.2000 SVS
  + Функция FarMkTemp - получение имени временного файла с полным путем.
