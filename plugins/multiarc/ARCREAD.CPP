@@ -191,8 +191,6 @@ int PluginClass::ReadArchive(char *Name)
 
   ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
 
-  int ret = TRUE;
-
   if(GetItemCode != GETARC_EOF && GetItemCode != GETARC_SUCCESS)
   {
     switch(GetItemCode)
@@ -214,13 +212,11 @@ int PluginClass::ReadArchive(char *Name)
     const char *MsgItems[]={GetMsg(MError),NameMsg,GetMsg(GetItemCode),GetMsg(MOk)};
     FSF.TruncPathStr(strncpy(NameMsg,Name,sizeof(NameMsg)-1),MAX_WIDTH_MESSAGE);
     Info.Message(Info.ModuleNumber,FMSG_WARNING,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
-    if (ArcData==NULL)
-      ret=FALSE;
   }
 
   Info.RestoreScreen(NULL);
   Info.RestoreScreen(hScreen);
-  return ret;
+  return TRUE;
 }
 
 
@@ -235,27 +231,28 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
     return FALSE;
 
   if (CompareFileTime(&NewArcFindData.ftLastWriteTime,&ArcFindData.ftLastWriteTime)!=0 ||
-      NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow || ArcData==NULL)
+      NewArcFindData.nFileSizeLow!=ArcFindData.nFileSizeLow
+      /* || ArcData==NULL AY: Вроде это не надо*/)
   {
-  BOOL ReadArcOK=FALSE;
-  DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
-  HANDLE h=CreateFile(ArcName, FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-  if (INVALID_HANDLE_VALUE!=h)
-  {
-    unsigned char *Data=new unsigned char[size];
-    DWORD read;
-    if (Data && ReadFile(h, Data, size, &read, 0))
+    BOOL ReadArcOK=FALSE;
+    DWORD size = Info.AdvControl(Info.ModuleNumber,ACTL_GETPLUGINMAXREADDATA,(void *)0);
+    HANDLE h=CreateFile(ArcName, FILE_READ_DATA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    if (INVALID_HANDLE_VALUE!=h)
     {
-      DWORD SFXSize;
-      if (ArcPlugin->IsArchive(ArcPluginNumber, ArcName, Data, read, &SFXSize))
+      unsigned char *Data=new unsigned char[size];
+      DWORD read;
+      if (Data && ReadFile(h, Data, size, &read, 0))
       {
-        ReadArcOK=ReadArchive(ArcName);
+        DWORD SFXSize;
+        if (ArcPlugin->IsArchive(ArcPluginNumber, ArcName, Data, read, &SFXSize))
+        {
+          ReadArcOK=ReadArchive(ArcName);
+        }
       }
+      delete[] Data;
+      CloseHandle(h);
     }
-    delete[] Data;
-    CloseHandle(h);
-  }
-  if (!ReadArcOK) return FALSE;
+    if (!ReadArcOK) return FALSE;
   }
 
   int CurDirLength=strlen(CurDir);
