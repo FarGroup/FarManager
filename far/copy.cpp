@@ -5,10 +5,14 @@ copy.cpp
 
 */
 
-/* Revision: 1.79 18.04.2002 $ */
+/* Revision: 1.80 24.04.2002 $ */
 
 /*
 Modify:
+  24.04.2002 VVM
+    - На новеловском томе не работало перемещение папки.
+      Логика: Если не смогли переместить папку - попытаемся просто создать
+              пустую на новом месте.
   18.04.2002 SVS
     - Ошибка при создании симлинка из дерева для корня (C:\, например)
       В этом случае применяется операция монтирования диска и, если таржед
@@ -1665,15 +1669,41 @@ COPY_CODES ShellCopy::ShellCopyOneFile(char *Src,WIN32_FIND_DATA *SrcData,
           }
           else // $ 18.07.2001 VVM
           {    //  Спросить, что делать, если не смогли переименовать каталог
-            int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
-                                  MSG(MCopyCannotRenameFolder),Src,MSG(MCopyRetry),
-                                  MSG(MCopyIgnore),MSG(MCopyCancel));
-            switch (MsgCode)
+            /* $ 24.04.2002 VVM
+              + Перед тем как спрашивать - попытаемся создать пустой */
+            int LastError = GetLastError();
+            int CopySecurity = ShellCopy::Flags&FCOPY_COPYSECURITY;
+            SECURITY_ATTRIBUTES sa;
+            if ((CopySecurity) && !GetSecurity(Src,&sa))
+              CopySecurity = FALSE;
+            if (CreateDirectory(DestPath,CopySecurity?&sa:NULL))
             {
-              case 0:  continue;
-              case 1:  return (COPY_FAILURE);
-              default: return (COPY_CANCEL);
-            } /* switch */
+              if (PointToName(DestPath)==DestPath)
+                strcpy(RenamedName,DestPath);
+              else
+                strcpy(CopiedName,PointToName(DestPath));
+//              if (ConvertNameToFull(Dest,DestFullName, sizeof(DestFullName)) >= sizeof(DestFullName))
+//                return(COPY_NEXT);
+//              TreeList::RenTreeName(SrcFullName,DestFullName);
+              TreeList::AddTreeName(DestPath);
+              return(COPY_SUCCESS);
+            }
+            else
+            {
+              CopyTime+= (clock() - CopyStartTime);
+              SetLastError(LastError);
+              int MsgCode = Message(MSG_DOWN|MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
+                                    MSG(MCopyCannotRenameFolder),Src,MSG(MCopyRetry),
+                                    MSG(MCopyIgnore),MSG(MCopyCancel));
+              CopyStartTime = clock();
+              switch (MsgCode)
+              {
+                case 0:  continue;
+                case 1:  return (COPY_FAILURE);
+                default: return (COPY_CANCEL);
+              } /* switch */
+            } /* else */
+            /* VVM $ */
           } /* else */
         } /* while */
         /* VVM $ */
