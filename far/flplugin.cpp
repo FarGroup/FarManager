@@ -5,10 +5,12 @@ flplugin.cpp
 
 */
 
-/* Revision: 1.13 06.07.2001 $ */
+/* Revision: 1.14 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 VVM
+    + Обработка PluginPanelItem.CRC32
   06.07.2001 IS
     + Сохраним старое выделение в PluginSetSelection и в PluginClearSelection
   14.06.2001 SVS
@@ -172,7 +174,8 @@ void FileList::FileListToPluginItem(struct FileListItem *fi,struct PluginPanelIt
   }
   else
     pi->UserData=fi->UserData;
-  pi->Reserved[0]=pi->Reserved[1]=pi->Reserved[2]=0;
+  pi->CRC32=fi->CRC32;
+  pi->Reserved[0]=pi->Reserved[1]=0;
   pi->Owner=NULL;
 }
 
@@ -226,6 +229,7 @@ void FileList::PluginToFileListItem(struct PluginPanelItem *pi,struct FileListIt
         fi->CustomColumnData[I]="";
   }
   fi->CustomColumnNumber=pi->CustomColumnNumber;
+  fi->CRC32=pi->CRC32;
 }
 
 

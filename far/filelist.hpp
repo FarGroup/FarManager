@@ -7,10 +7,12 @@ filelist.hpp
 
 */
 
-/* Revision: 1.15 09.08.2001 $ */
+/* Revision: 1.16 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 VVM
+    + FileListItem.CRC32
   09.08.2001 SVS
     + virtual long GetFileCount() для нужд макросов :-)
   20.07.2001 SVS
@@ -81,6 +83,7 @@ struct FileListItem
   char ShortName[80];
   char **CustomColumnData;
   int CustomColumnNumber;
+  DWORD CRC32;
 };
 
 struct PluginsStackItem

@@ -12,7 +12,7 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.137 15.08.2001 $ */
+/* Revision: 1.138 17.08.2001 $ */
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -20,6 +20,8 @@
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  17.08.2001 VVM
+    + PluginPanelItem.CRC32
   15.08.2001 SVS
     + DN_MOUSE, DM_SETNOTIFYMOUSEEVENT
   13.08.2001 SKV
@@ -565,7 +567,8 @@ struct PluginPanelItem
   char          **CustomColumnData;
   int             CustomColumnNumber;
   DWORD           UserData;
-  DWORD           Reserved[3];
+  DWORD           CRC32;
+  DWORD           Reserved[2];
 };
 
 #if defined(__BORLANDC__)

@@ -5,10 +5,12 @@ flupdate.cpp
 
 */
 
-/* Revision: 1.10 22.06.2001 $ */
+/* Revision: 1.11 17.08.2001 $ */
 
 /*
 Modify:
+  17.08.2001 VVM
+    + FileListItem.CRC32
   22.06.2001 SKV
     ! UpdateIfChanged - добавлен параметр Force.
   06.05.2001 DJ
@@ -233,6 +235,7 @@ void FileList::ReadFileNames(int KeepSelection)
       CurPtr->CustomColumnNumber=0;
       CurPtr->UserFlags=0;
       CurPtr->NumberOfLinks=1;
+      CurPtr->CRC32=0;
       if (fdata.dwFileAttributes & FA_DIREC)
       {
         CurPtr->UnpSize=CurPtr->UnpSizeHigh=0;
