@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.101 09.11.2002 $ */
+/* Revision: 1.102 11.12.2002 $ */
 
 /*
 Modify:
+  11.12.2002 VVM
+    - Исправлен баг с прорисовкой прогресса при копировании новых файлов
+    - Исправлен баг с подсчетом времени/скорости копирования при наличии "пропущенных" файлов
   09.11.2002 SVS
     - траблы с копированием прав под XP. Делаем *Apis*
   14.10.2002 SVS
@@ -370,12 +373,15 @@ static DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 
 static int BarX,BarY,BarLength;
 
-static int64 TotalCopySize,CurCopySize;
+static int64 TotalCopySize, TotalCopiedSize; // Общий индикатор копирования
+static int64 CurCopiedSize;                  // Текущий индикатор копирования
+static int64 TotalSkippedSize;               // Общий размер пропущенных файлов
+static int64 TotalCopiedSizeEx;
+
 static bool ShowTotalCopySize;
 static int StaticMove;
 static char TotalCopySizeText[32];
 static ConsoleTitle *StaticCopyTitle=NULL;
-static int64 StartCopySizeEx;
 static BOOL NT5, NT;
 
 struct CopyDlgParam {
@@ -487,7 +493,10 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
   TotalFiles=0;
   ShowTotalCopySize=Opt.CopyShowTotal != 0;
-  TotalCopySize=CurCopySize=0;
+
+  TotalCopySize=TotalCopiedSize=0;
+  TotalSkippedSize=CurCopiedSize=0;
+
   *TotalCopySizeText=0;
   SelectedFolderNameLength=0;
   DestPlugin=ToPlugin;
@@ -1304,7 +1313,7 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
       return COPY_FAILURE;
   }
   else
-    CurCopySize=0;
+    CurCopiedSize=0;
 
   ShellCopyMsg("","",MSG_LEFTALIGN);
 
@@ -1492,8 +1501,10 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
         if (CopyCode==COPY_NEXT)
         {
-          int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-          TotalCopySize-=SubSize;
+          int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+          TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+          TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
+//          TotalCopySize-=SubSize;
           continue;
         }
 
@@ -1514,8 +1525,10 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
       if (CopyCode!=COPY_SUCCESS)
       {
-        int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-        TotalCopySize-=SubSize;
+        int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+        TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+		if (CopyCode == COPY_NEXT)
+          TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
         continue;
       }
     }
@@ -1555,8 +1568,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
             case COPY_NEXT:
             {
-              int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-              TotalCopySize-=SubSize;
+              int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+              TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+              TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
               continue;
             }
 
@@ -1582,8 +1596,9 @@ COPY_CODES ShellCopy::CopyFileTree(char *Dest)
 
         if (SubCopyCode==COPY_NEXT)
         {
-          int64 SubSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-          TotalCopySize-=SubSize;
+          int64 CurSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
+          TotalCopiedSize = TotalCopiedSize - CurCopiedSize + CurSize;
+          TotalSkippedSize = TotalSkippedSize + CurSize - CurCopiedSize;
         }
 
         if ((ShellCopy::Flags&FCOPY_MOVE) && SubCopyCode==COPY_SUCCESS)
@@ -1658,6 +1673,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   /* IS $ */
 
   *RenamedName=*CopiedName=0;
+
+  CurCopiedSize = 0; // Сбросить текущий прогресс
 
   if (CheckForEscSilent())
   {
@@ -1993,8 +2010,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
   while (1)
   {
     int CopyCode;
-    int64 SaveCopySize=CurCopySize;
-    int64 SaveTotalSize=TotalCopySize;
+//    int64 SaveCopiedSize=CurCopiedSize;
+    int64 SaveTotalSize=TotalCopiedSize;
     if (!(ShellCopy::Flags&FCOPY_COPYTONUL) && Rename)
     {
       int MoveCode=FALSE,AskDelete;
@@ -2045,8 +2062,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
         if (ShowTotalCopySize && MoveCode)
         {
           int64 AddSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-          CurCopySize+=AddSize;
-          ShowBar(CurCopySize,TotalCopySize,true);
+          TotalCopiedSize+=AddSize;
+          ShowBar(TotalCopiedSize,TotalCopySize,true);
           ShowTitle(FALSE);
         }
         AskDelete=0;
@@ -2169,8 +2186,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(const char *Src,
       /* KM $ */
     }
 
-    CurCopySize=SaveCopySize;
-    TotalCopySize=SaveTotalSize;
+//    CurCopiedSize=SaveCopiedSize;
+    TotalCopiedSize=SaveTotalSize;
     int RetCode, AskCode;
     CopyTime+= (clock() - CopyStartTime);
     AskCode = AskOverwrite(SrcData,DestPath,DestAttr,SameName,Rename,((ShellCopy::Flags&FCOPY_LINK)?0:1),Append,RetCode);
@@ -2306,7 +2323,7 @@ void ShellCopy::ShellCopyMsg(const char *Src,const char *Dest,int Flags)
     ShowBar(0,0,false);
     if (ShowTotalCopySize)
     {
-      ShowBar(CurCopySize,TotalCopySize,true);
+      ShowBar(TotalCopiedSize,TotalCopySize,true);
       ShowTitle(FALSE);
     }
   }
@@ -2504,7 +2521,7 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     }
   }
 
-  int64 WrittenSize(0,0);
+//  int64 WrittenSize(0,0);
   int   AbortOp = FALSE;
   while (1)
   {
@@ -2729,13 +2746,13 @@ int ShellCopy::ShellCopyFile(const char *SrcName,const WIN32_FIND_DATA &SrcData,
     } /* if */
     /* VVM $ */
 
-    WrittenSize+=BytesWritten;
+    CurCopiedSize+=BytesWritten;
     int64 FileSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-    ShowBar(WrittenSize,FileSize,false);
+    ShowBar(CurCopiedSize,FileSize,false);
     if (ShowTotalCopySize)
     {
-      CurCopySize+=BytesWritten;
-      ShowBar(CurCopySize,TotalCopySize,true);
+      TotalCopiedSize+=BytesWritten;
+      ShowBar(TotalCopiedSize,TotalCopySize,true);
       ShowTitle(FALSE);
     }
   }
@@ -2829,6 +2846,8 @@ void ShellCopy::ShowBar(int64 WrittenSize,int64 TotalSize,bool TotalBar)
       sprintf(TimeStr,MSG(MCopyTimeInfo), " ", " ", 0, " ");
     else
     {
+      if (TotalBar)
+		  OldWrittenSize = OldWrittenSize - TotalSkippedSize;
       int CPS = (OldWrittenSize/WorkTime).PLow();
       TimeLeft = (CPS)?(SizeLeft/CPS).PLow():0;
       c[0]=' ';
@@ -3133,7 +3152,7 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
   if (pCopyFileEx)
   {
     BOOL Cancel=0;
-    StartCopySizeEx=CurCopySize;
+    TotalCopiedSizeEx=TotalCopiedSize;
     if (!pCopyFileEx(SrcName,DestName,CopyProgressRoutine,NULL,&Cancel,0))
       return(GetLastError()==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE);
   }
@@ -3142,8 +3161,9 @@ int ShellCopy::ShellSystemCopy(const char *SrcName,const char *DestName,const WI
     if (ShowTotalCopySize)
     {
       int64 AddSize(SrcData.nFileSizeHigh,SrcData.nFileSizeLow);
-      CurCopySize+=AddSize;
-      ShowBar(CurCopySize,TotalCopySize,true);
+      TotalCopiedSize += AddSize;
+      CurCopiedSize = AddSize;
+      ShowBar(TotalCopiedSize,TotalCopySize,true);
       ShowTitle(FALSE);
     }
     if (!CopyFile(SrcName,DestName,FALSE))
@@ -3170,12 +3190,12 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 {
   int64 TransferredSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
   int64 TotalSize(TotalFileSize.u.HighPart,TotalFileSize.u.LowPart);
+  CurCopiedSize = TransferredSize;
   ShellCopy::ShowBar(TransferredSize,TotalSize,false);
   if (ShowTotalCopySize && dwStreamNumber==1)
   {
-    int64 AddSize(TotalBytesTransferred.u.HighPart,TotalBytesTransferred.u.LowPart);
-    CurCopySize=StartCopySizeEx+AddSize;
-    ShellCopy::ShowBar(CurCopySize,TotalCopySize,true);
+    TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
+    ShellCopy::ShowBar(TotalCopiedSize,TotalCopySize,true);
     ShellCopy::ShowTitle(FALSE);
   }
   int AbortOp = FALSE;
@@ -3232,7 +3252,7 @@ bool ShellCopy::CalcTotalSize()
   char SelName[NM],SelShortName[NM];
   int FileAttr;
 
-  TotalCopySize=CurCopySize=0;
+  TotalCopySize=CurCopiedSize=0;
 
   ShellCopyMsg(NULL,"",MSG_LEFTALIGN);
 
@@ -3267,7 +3287,7 @@ void ShellCopy::ShowTitle(int FirstTime)
 {
   if (ShowTotalCopySize && !FirstTime)
   {
-    int64 CopySize=CurCopySize>>8,TotalSize=TotalCopySize>>8;
+    int64 CopySize=CurCopiedSize>>8,TotalSize=TotalCopySize>>8;
     StaticCopyTitle->Set("{%d%%} %s",ToPercent(CopySize.PLow(),TotalSize.PLow()),StaticMove ? MSG(MCopyMovingTitle):MSG(MCopyCopyingTitle));
   }
 }
