@@ -5,10 +5,13 @@ findfile.cpp
 
 */
 
-/* Revision: 1.60 12.10.2001 $ */
+/* Revision: 1.61 12.10.2001 $ */
 
 /*
 Modify:
+  12.10.2001 VVM
+    ! Устраняем падение при поиске строки. Забыл, что
+      INVALID_HANDLE_VALEU <> 0 ;)
   12.10.2001 VVM
     ! Очередной перетрях поиска. Избавляемся от глобальных переменных,
       которые могут конфликтовать. Список архивов теперь хранит хэндл
@@ -1363,7 +1366,7 @@ int FindFiles::IsFileIncluded(PluginPanelItem *FileItem,char *FullName,DWORD Fil
         break;
       char SearchFileName[NM];
       int RemoveTemp=FALSE;
-      if (hPlugin && (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)==0)
+      if ((hPlugin != INVALID_HANDLE_VALUE) && (ArcList[FindFileArcIndex].Flags & OPIF_REALNAMES)==0)
       {
         char TempDir[NM];
         sprintf(TempDir,"%s%s",Opt.TempPath,FarTmpXXXXXX);
