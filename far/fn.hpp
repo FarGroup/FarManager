@@ -7,10 +7,13 @@ fn.hpp
 
 */
 
-/* Revision: 1.56 29.01.2001 $ */
+/* Revision: 1.57 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 SKV
+   ! Параметр setpal для InitConsole, с default значением 1.
+     Переинитить ли палитру.
   02.02.2001 IS
    + RemoveUnprintableCharacters
   28.01.2001 SVS
@@ -160,7 +163,13 @@ void SetHighlighting();
 /* IS $ */
 void _export StartFAR();
 void Box(int x1,int y1,int x2,int y2,int Color,int Type);
-void InitConsole();
+/*$ 14.02.2001 SKV
+  Инитить ли палитру default значениями.
+  По умолчанию - да.
+  С 0 используется для ConsoleDetach.
+*/
+void InitConsole(int setpal=1);
+/* SKV$*/
 void CloseConsole();
 void SetFarConsoleMode();
 void ChangeVideoMode(int NumLines,int NumColumns=80);

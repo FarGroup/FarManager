@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.55 12.02.2001 $ */
+/* Revision: 1.56 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 SKV
+    ! доработка фитчи отделения консоли.
   12.02.2001 SKV
     + Отделение Фар-овской консоли от неинтерактивного
        процесса в ней запущенного.
@@ -484,13 +486,38 @@ int Execute(char *CmdStr,int AlwaysWaitFinish,int SeparateWindow,int DirectRun)
                   (shift?(pir->Event.KeyEvent.dwControlKeyState&SHIFT_PRESSED):1)
                   )
                 {
+
+                  HICON hSmallIcon=NULL,hLargeIcon=NULL;
+                  if(hFarWnd)
+                  {
+                    hSmallIcon=CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)0));
+                    hLargeIcon=CopyIcon((HICON)SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)0));
+                  }
                   ReadConsoleInput(hConInp,ir,256,&rd);
                   CloseConsole();
                   FreeConsole();
                   AllocConsole();
                   SetConsoleScreenBufferSize(hConOut,sbi.dwSize);
                   SetConsoleWindowInfo(hConOut,TRUE,&sbi.srWindow);
-                  InitConsole();
+                  Sleep(100);
+                  InitConsole(0);
+                  hFarWnd=0;
+                  InitDetectWindowedMode();
+
+                  if (hFarWnd)
+                  {
+                    if(Opt.SmallIcon)
+                    {
+                      char FarName[NM];
+                      GetModuleFileName(NULL,FarName,sizeof(FarName));
+                      ExtractIconEx(FarName,0,&hLargeIcon,&hSmallIcon,1);
+                    }
+                    if (hLargeIcon!=NULL)
+                      SendMessage(hFarWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
+                    if (hSmallIcon!=NULL)
+                      SendMessage(hFarWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
+                  }
+
                   stop=1;
                   break;
                 }

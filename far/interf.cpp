@@ -5,10 +5,12 @@ interf.cpp
 
 */
 
-/* Revision: 1.15 02.02.2001 $ */
+/* Revision: 1.16 14.02.2001 $ */
 
 /*
 Modify:
+  14.02.2001 SKV
+    ! параметр setpal в InitConsole.
   02.02.2001 VVM
     ! Переделал функции Text(...). Т.к. они вызываются очень часто,
       то основной вывод будет идти в Text(char *Str)
@@ -87,7 +89,7 @@ static int OutputCP;
 static unsigned char RecodeOutTable[256];
 static int InitCurVisible,InitCurSize;
 
-void InitConsole()
+void InitConsole(int setpal)
 {
   OutputCP=GetConsoleOutputCP();
   InitRecodeOutTable();
@@ -110,7 +112,11 @@ void InitConsole()
   GetVideoMode();
   ScrBuf.FillBuf();
   // было sizeof(Palette)
-  memcpy(Palette,DefaultPalette,SizeArrayPalette);
+  /*$ 14.02.2001 SKV
+    для consoledetach не нужно, что бы инитилась палитра.
+  */
+  if(setpal)memcpy(Palette,DefaultPalette,SizeArrayPalette);
+  /* SKV$*/
 }
 
 
