@@ -5,10 +5,13 @@ copy.cpp
 
 */
 
-/* Revision: 1.70 22.03.2002 $ */
+/* Revision: 1.71 23.03.2002 $ */
 
 /*
 Modify:
+  23.03.2002 IS
+    + При копировании только элемента под курсором берем его имя в кавычки,
+      если оно содержит разделители.
   22.03.2002 SVS
     - strcpy - Fuck!
   19.03.2002 VVM
@@ -486,7 +489,19 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
   AnotherPanel->GetCurDir(DestDir);
 
   if (CurrentOnly)
+  /* $ 23.03.2002 IS
+     При копировании только элемента под курсором берем его имя в кавычки,
+     если оно содержит разделители.
+  */
+  {
     strcpy(CopyDlg[2].Data,SelName);
+    if(strpbrk(CopyDlg[2].Data,",;"))
+    {
+      Unquote(CopyDlg[2].Data);     // уберем все лишние кавычки
+      InsertQuote(CopyDlg[2].Data); // возьмем в кавычки, т.к. могут быть разделители
+    }
+  }
+  /* IS $ */
   else
     switch(PanelMode)
     {
