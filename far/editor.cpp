@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.164 19.03.2002 $ */
+/* Revision: 1.165 23.03.2002 $ */
 
 /*
 Modify:
+  23.03.2002 VVM
+    + Прокрутка на 1 позиция с нажатым Альт. (Мышиное колесо)
   19.03.2002 SVS
     + Легализуем формат MAC_EOL_fmt
   18.03.2002 IS
@@ -2333,14 +2335,18 @@ int Editor::ProcessKey(int Key)
     /* $ 27.04.2001 VVM
       + Обработка колеса мышки */
     case KEY_MSWHEEL_UP:
+    case (KEY_MSWHEEL_UP | KEY_ALT):
       {
-        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+        int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaEdit;
+        for (int i=0; i<Roll; i++)
           ProcessKey(KEY_CTRLUP);
         return(TRUE);
       }
     case KEY_MSWHEEL_DOWN:
+    case (KEY_MSWHEEL_DOWN | KEY_ALT):
       {
-        for (int i=0; i<Opt.MsWheelDeltaEdit; i++)
+        int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaEdit;
+        for (int i=0; i<Roll; i++)
           ProcessKey(KEY_CTRLDOWN);
         return(TRUE);
       }
