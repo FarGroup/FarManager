@@ -124,7 +124,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
      делать окошку minimize, если в фоне */
   if (Opt.Background)
   {
-    si.dwFlags=si.dwFlags || STARTF_USESHOWWINDOW;
+    si.dwFlags=si.dwFlags | STARTF_USESHOWWINDOW;
     si.wShowWindow=SW_MINIMIZE;
   }
   /* raVen $ */
