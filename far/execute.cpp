@@ -5,10 +5,12 @@ execute.cpp
 
 */
 
-/* Revision: 1.36 14.02.2002 $ */
+/* Revision: 1.37 14.02.2002 $ */
 
 /*
 Modify:
+  14.02.2002 SVS
+    - BugZ#300 - Shift-Enter на папке мен€ет путь заголовок окна
   14.02.2002 VVM
     ! UpdateIfChanged принимает не булевый Force, а варианты из UIC_*
   07.02.2002 SKV
@@ -789,7 +791,9 @@ int Execute(const char *CmdStr,          //  ом.строка дл€ исполнени€
       }
     }
 //_SVS(SysLog("ExecLine='%s'",ExecLine));
-    SetFarTitle(CmdPtr);
+    // если запуск через ShellExecuteEx(), то нефига ставить заголовок
+    if(SeparateWindow != 2)
+      SetFarTitle(CmdPtr);
     FlushInputBuffer();
 
     /*$ 15.03.2001 SKV
