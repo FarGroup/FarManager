@@ -5,10 +5,12 @@ manager.cpp
 
 */
 
-/* Revision: 1.44 26.07.2001 $ */
+/* Revision: 1.45 26.07.2001 $ */ 
 
 /*
 Modify:
+  26.07.2001 OT
+    - »справление far /e - AltF9
   26.07.2001 SVS
     ! VFMenu уничтожен как класс
   25.07.2001 SVS
@@ -987,6 +989,9 @@ BOOL Manager::PluginCommit()
 /* $ ¬ведена дл€ нужд CtrlAltShift OT */
 void Manager::ImmediateHide()
 {
+  if (FramePos<0){
+    return;
+  }
   if (ModalStackCount>0){
     int UnlockCount=0;
 
