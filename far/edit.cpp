@@ -5,10 +5,13 @@ edit.cpp
 
 */
 
-/* Revision: 1.92 04.11.2002 $ */
+/* Revision: 1.93 12.11.2002 $ */
 
 /*
 Modify:
+  12.11.2002 DJ
+    ! убираем лишнюю перерисовку в случае, когда позиция выделенного блока
+      не изменилась
   04.11.2002 SVS
     ! Для ReturnAltValue не делаем енкоде для клавиши.
       Это позволяет Alt-212 всегда иметь в нужной кодировке
@@ -931,10 +934,17 @@ int Edit::ProcessKey(int Key)
         Key!=KEY_SHIFTDEL && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
         !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0)) //Key != KEY_SHIFTINS) //??
     {
-      PrevSelStart=SelStart;
-      PrevSelEnd=SelEnd;
-      Select(-1,0);
-      Show();
+      /* $ 12.11.2002 DJ
+         зачем рисоваться, если ничего не изменилось?
+      */
+      if (SelStart != -1 || SelEnd != 0)
+      {
+        PrevSelStart=SelStart;
+        PrevSelEnd=SelEnd;
+        Select(-1,0);
+        Show();
+      }
+      /* DJ $ */
     }
 
   }

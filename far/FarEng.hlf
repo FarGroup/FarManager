@@ -1907,16 +1907,15 @@ $ #Internal editor#
 
     2. #Alt-U#/#Alt-I# indent the current line if no block is selected.
 
-    3. Alt-Код символа на дополнительной клавиатуре вставляет в
-       редактируемую строку символ с указанным кодом, причем никаких
-       перекодировок в текущую кодировку редактора при этом не
-       производится.
+    3. Holding down Alt and typing a character code on the numeric
+       keypad inserts the character that has the specified code in
+       the OEM codepage. The character is not translated to the
+       current codepage of the editor.
 
-    4. Если вы перетаскиваете имя файла из Проводника в редактор
-       FAR, то оно вставляется в текущую строку только и только в
-       OEM-кодировке (DOS), текущая кодировка редактора при этом
-       не учитывается. Эта особенность будет изменена в следующих
-       версиях FAR.
+    4. Dragging a file name from the Explorer to the FAR editor window
+       inserts the name in the OEM (DOS) codepage, and the current
+       editor codepage is not taken into account. This issue will be
+       addressed in future versions of FAR.
 
 @FileSaveAs
 $ #Save file as...#

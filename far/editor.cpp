@@ -6,10 +6,14 @@ editor.cpp
 
 */
 
-/* Revision: 1.208 10.11.2002 $ */
+/* Revision: 1.209 12.11.2002 $ */
 
 /*
 Modify:
+  12.11.2002 DJ
+    - исправление поведения Ctrl-Shift-Left за концом строки
+    ! теперь ECTL_GETSTRING для выделения за концом строки возвращает настоящие
+      координаты, а не скорректированные
   10.11.2002 SKV
     - BugZ#690, выделение...
   08.11.2002 SVS
@@ -1471,6 +1475,7 @@ int Editor::ProcessKey(int Key)
     case KEY_SHIFTNUMPAD4: case KEY_SHIFTNUMPAD6:
     case KEY_SHIFTNUMPAD8: case KEY_SHIFTNUMPAD2:
     case KEY_SHIFTNUMPAD7: case KEY_SHIFTNUMPAD1:
+    case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:   /* 12.11.2002 DJ */
     {
       UnmarkEmptyBlock(); // уберем выделение, если его размер равен 0
       CurLine->EditLine.GetRealSelection(SelStart,SelEnd);
@@ -1753,12 +1758,26 @@ int Editor::ProcessKey(int Key)
           const char *Str;
           int Length;
           CurLine->EditLine.GetBinaryString(Str,NULL,Length);
+		      /* $ 12.11.2002 DJ
+		         обеспечим корректную работу Ctrl-Shift-Left за концом строки
+		      */
           CurPos=CurLine->EditLine.GetCurPos();
           if (CurPos>Length)
           {
+            int SelStartPos = CurPos;
             CurLine->EditLine.ProcessKey(KEY_END);
             CurPos=CurLine->EditLine.GetCurPos();
+            if (CurLine->EditLine.SelStart >= 0)
+            {
+              if (!SelAtBeginning)
+                CurLine->EditLine.Select(CurLine->EditLine.SelStart, CurPos);
+              else
+                CurLine->EditLine.Select(CurPos, CurLine->EditLine.SelEnd);
+            }
+            else
+              CurLine->EditLine.Select(CurPos, SelStartPos);
           }
+          /* DJ $ */
           if (CurPos==0)
             break;
           /* $ 03.08.2000 SVS
@@ -5296,7 +5315,13 @@ int Editor::EditorControl(int Command,void *Param)
         if (DestLine==-1)
           DestLine=NumLine;
         if (BlockStart!=NULL)
-          CurPtr->EditLine.GetSelection(GetString->SelStart,GetString->SelEnd);
+        {
+          /* $ 12.11.2002 DJ
+             вернем настоящие координаты
+          */
+          CurPtr->EditLine.GetRealSelection(GetString->SelStart,GetString->SelEnd);
+          /* DJ $ */
+        }
         else
           if (VBlockStart!=NULL && DestLine>=VBlockY && DestLine<VBlockY+VBlockSizeY)
           {
