@@ -5,10 +5,12 @@ mix.cpp
 
 */
 
-/* Revision: 1.27 19.09.2000 $ */
+/* Revision: 1.28 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    + функция FolderPresent - "сужествует ли каталог"
   19.09.2000 SVS
     + IsFolderNotEmpty немного "ускорим"
     ! Функция FarMkTemp - уточнение!
@@ -1414,6 +1416,18 @@ int IsFolderNotEmpty(char *Name)
 }
 /* SVS $ */
 
+/* $ 19.09.2000 SVS
+   + функция FolderPresent - "сужествует ли каталог"
+*/
+BOOL WINAPI FolderPresent(char *Name)
+{
+  DWORD ret;
+  ret=GetFileAttributes(Name);
+  if(ret!=0xFFFFFFFF && ret==FILE_ATTRIBUTE_DIRECTORY)
+    return TRUE;
+  return FALSE;
+}
+/* SVS $ */
 
 void RemoveHighlights(char *Str)
 {

@@ -5,11 +5,14 @@ ctrlobj.cpp
 
 */
 
-/* Revision: 1.05 07.09.2000 $ */
+/* Revision: 1.06 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
   07.09.2000 tran 1.05
+    + Current File
   15.07.2000 tran
     + а я код раздуваю :) вводя новый метод Redraw
   13.07.2000 SVS
@@ -404,6 +407,26 @@ int ControlObject::ProcessKey(int Key)
         ActivePanel->SetFocus();
       }
       break;
+    /* $ 19.09.2000 SVS
+       + Добавляем реакцию показа бакграунда в панелях на CtrlAltShift
+    */
+    case KEY_CTRLALTSHIFTPRESS:
+    {
+        int LeftVisible=LeftPanel->IsVisible();
+        int RightVisible=RightPanel->IsVisible();
+        LeftPanel->Hide();
+        RightPanel->Hide();
+        CmdLine.Show();
+        WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:-1);
+        if (LeftVisible)
+          LeftPanel->Show();
+        if (RightVisible)
+          RightPanel->Show();
+        // CmdLine.Show();
+        break;
+    }
+    /* SVS $ */
+
     case KEY_CTRLO:
       {
         int LeftVisible=LeftPanel->IsVisible();

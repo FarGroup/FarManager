@@ -6,10 +6,13 @@
   Plugin API for FAR Manager 1.70
 
 */
-/* Revision: 1.52 18.09.2000 $ */
+/* Revision: 1.53 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    + выравнивание на 2 байта
+    + функция FSF.FolderPresent - "сужествует ли каталог"
   18.09.2000 SVS
     + DIF_READONLY - флаг для строк редактирования
       (пока! для строк редактирования).
@@ -222,14 +225,14 @@ Modify:
 #define FARMANAGERVERSION 0x0146
 
 #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x550)
-  #pragma option -a1
+  #pragma option -a2
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack(1)
+  #pragma pack(2)
   #if defined(__LCC__)
     #define _export __declspec(dllexport)
   #endif
 #else
-  #pragma pack(push,1)
+  #pragma pack(push,2)
   #if _MSC_VER
     #define _export
   #endif
@@ -1040,6 +1043,7 @@ typedef char* (WINAPI *FARSTDXLAT)(char *Line,int StartPos,int EndPos,struct Cha
 typedef int  (WINAPI *FRSUSERFUNC)(WIN32_FIND_DATA *FData,char *FullName);
 typedef void (WINAPI *FARSTDRECURSIVESEARCH)(char *InitDir,char *Mask,FRSUSERFUNC Func,DWORD Flags);
 typedef char* (WINAPI *FARSTDMKTEMP)(char *Dest, char *Template);
+typedef BOOL (WINAPI *FARSTDFOLDERPRESENT)(char *Name);
 
 enum FRSMODE{
   FRS_RETUPDIR = 0x0001,
@@ -1132,6 +1136,7 @@ typedef struct FarStandardFunctions
   */
   FARSTDMKTEMP               MkTemp;
   /* SVS $ */
+  FARSTDFOLDERPRESENT        FolderPresent;
 }FARSTANDARDFUNCTIONS;
 /* IS $ */
 

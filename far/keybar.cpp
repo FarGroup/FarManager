@@ -5,10 +5,12 @@ Keybar
 
 */
 
-/* Revision: 1.02 07.08.2000 $ */
+/* Revision: 1.03 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    ! При нажатии Ctrl-Alt-Shift неверно отображается KeyBar
   07.08.2000 SVS
     + Изменение любого Label - функция Change(Group,...)
   02.08.2000 SVS
@@ -85,9 +87,12 @@ void KeyBar::DisplayObject()
     {
       if (CtrlPressed)
       {
-        if (I<CtrlShiftKeyCount)
-          Label=CtrlShiftKeyName[I];
-        CtrlShiftState=1;
+        if(!AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
+        {
+          if (I<CtrlShiftKeyCount)
+            Label=CtrlShiftKeyName[I];
+          CtrlShiftState=1;
+        }
       }
       else if (AltPressed)
       {

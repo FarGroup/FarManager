@@ -216,6 +216,7 @@ $(OPTDEBUG)
 -Og
 -Ot
 -Z
+-a8
 -O
 -Oe
 -Ol

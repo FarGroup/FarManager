@@ -123,6 +123,8 @@ $ #Panel control commands#
   Toggle quick view panel                                     #Ctrl-Q#
   Toggle tree panel                                           #Ctrl-T#
   Hide/show both panels                                       #Ctrl-O#
+  Temporarily hide both panels                        #Ctrl-Alt-Shift#
+    (works so long as we keep these keys)
   Hide/show inactive panel                                    #Ctrl-P#
   Hide/show left panel                                       #Ctrl-F1#
   Hide/show right panel                                      #Ctrl-F2#

@@ -5,10 +5,12 @@ headers.cpp
 
 */
 
-/* Revision: 1.04 19.07.2000 $ */
+/* Revision: 1.05 19.09.2000 $ */
 
 /*
 Modify:
+  19.09.2000 SVS
+    + выравнивание на 2 байта
   19.07.2000 SVS
     - Из-за различий в реализации функции getdisk в BC & VC
       не работал AltFx если панель имела UNC путь
@@ -24,6 +26,11 @@ Modify:
 */
 
 #define STRICT
+
+#if defined(__BORLANDC__)
+  #pragma option -a2
+#endif
+
 
 #if !defined(_INC_WINDOWS) && !defined(_WINDOWS_)
  #if defined(_MSC_VER)
@@ -129,4 +136,8 @@ Modify:
   /* SVS $ */
 
   #pragma warning (once:4018)
+#endif
+
+#if defined(__BORLANDC__)
+  #pragma option -a.
 #endif
