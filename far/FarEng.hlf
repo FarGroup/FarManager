@@ -1932,9 +1932,15 @@ to define file highlighting groups. Each group definition includes:
      - an optional character to mark files from the group.
        It may be used both with or instead of color highlighting.
 
+    Если вы выключите опцию "#Одна или несколько масок файлов#", то маски
+файлов будут исключены из анализа, а сравнение будет проводиться только по
+атрибутам.
+
     A file belongs to a highlighting group if:
 
-     - its name matches at least one of file masks;
+     - включен анализ масок и его имя соответствует хотя бы
+       одной маске (если анализ масок отключен, то имя файла не
+       имеет значения);
 
      - it has all of the included attributes;
 

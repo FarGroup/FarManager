@@ -5,10 +5,19 @@ Files highlighting
 
 */
 
-/* Revision: 1.31 05.09.2001 $ */
+/* Revision: 1.32 25.09.2001 $ */
 
 /*
 Modify:
+  25.09.2001 IS
+    ! Строковые константы собраны для удобства в одну кучу.
+    + Можно исключать анализ масок для конкретной группы раскраски
+      (обработка IgnoreMask)
+    ! Узаконим следующее положение при проверке на совпадение с группой
+      раскраски (GetHiColor): если параметр Path равен NULL, то маски в
+      анализе не используются, проверяются только атрибуты, причем в этом
+      случае выбор происходит среди тех групп, у которых маски исключены
+      из анализа.
   05.08.2001 SVS
     ! немного оптимизации с учетом стуктуры новой HighlightDataColor
     + функция ReWriteWorkColor - задел на будущее (когда цвет 0x00 потеряет
@@ -117,6 +126,23 @@ Modify:
 
 static struct HighlightDataColor WorkColor;
 
+/* $ 25.09.2001 IS
+     Тут храним строковые константы для "раскраски файлов"
+*/
+struct HighlightStrings
+{
+  char *IncludeAttributes,*ExcludeAttributes,*Mask,*IgnoreMask,
+       *NormalColor,*SelectedColor,*CursorColor,*SelectedCursorColor,
+       *MarkChar,*HighlightEdit,*HighlightList;
+};
+const HighlightStrings HLS=
+{
+  "IncludeAttributes","ExcludeAttributes","Mask","IgnoreMask",
+  "NormalColor","SelectedColor","CursorColor","SelectedCursorColor",
+  "MarkChar","HighlightEdit","HighlightList"
+};
+/* IS $ */
+
 HighlightFiles::HighlightFiles()
 {
   HiData=NULL;
@@ -138,11 +164,12 @@ void HighlightFiles::InitHighlightFiles()
   while (1)
   {
     itoa(HiDataCount,Ptr,10);
-    if (!GetRegKey(RegKey,"Mask",Mask,"",sizeof(Mask)))
+    if (!GetRegKey(RegKey,HLS.Mask,Mask,"",sizeof(Mask)))
       break;
     struct HighlightData *NewHiData;
     struct HighlightData HData={0};
-    if(AddMask(&HData,Mask))
+    HData.IgnoreMask=GetRegKey(RegKey,HLS.IgnoreMask,FALSE);
+    if(AddMask(&HData,Mask,HData.IgnoreMask))
     {
       if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
       {
@@ -150,13 +177,13 @@ void HighlightFiles::InitHighlightFiles()
         break;
       }
       HiData=NewHiData;
-      HData.IncludeAttr=GetRegKey(RegKey,"IncludeAttributes",0);
-      HData.ExcludeAttr=GetRegKey(RegKey,"ExcludeAttributes",0)&(~HData.IncludeAttr);
-      HData.Colors.Color=(BYTE)GetRegKey(RegKey,"NormalColor",(DWORD)WorkColor.Color);
-      HData.Colors.SelColor=(BYTE)GetRegKey(RegKey,"SelectedColor",(DWORD)WorkColor.SelColor);
-      HData.Colors.CursorColor=(BYTE)GetRegKey(RegKey,"CursorColor",(DWORD)WorkColor.CursorColor);
-      HData.Colors.CursorSelColor=(BYTE)GetRegKey(RegKey,"SelectedCursorColor",(DWORD)WorkColor.CursorSelColor);
-      HData.Colors.MarkChar=(BYTE)GetRegKey(RegKey,"MarkChar",0);
+      HData.IncludeAttr=GetRegKey(RegKey,HLS.IncludeAttributes,0);
+      HData.ExcludeAttr=GetRegKey(RegKey,HLS.ExcludeAttributes,0)&(~HData.IncludeAttr);
+      HData.Colors.Color=(BYTE)GetRegKey(RegKey,HLS.NormalColor,(DWORD)WorkColor.Color);
+      HData.Colors.SelColor=(BYTE)GetRegKey(RegKey,HLS.SelectedColor,(DWORD)WorkColor.SelColor);
+      HData.Colors.CursorColor=(BYTE)GetRegKey(RegKey,HLS.CursorColor,(DWORD)WorkColor.CursorColor);
+      HData.Colors.CursorSelColor=(BYTE)GetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)WorkColor.CursorSelColor);
+      HData.Colors.MarkChar=(BYTE)GetRegKey(RegKey,HLS.MarkChar,0);
       memcpy(HiData+HiDataCount,&HData,sizeof(struct HighlightData));
       HiDataCount++;
     }
@@ -186,7 +213,7 @@ char *HighlightFiles::GetMask(int Idx)
 /* $ 06.07.2001 IS
    вместо "рабочей" маски используем соответствующий класс
 */
-BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src)
+BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMask,struct HighlightData *Src)
 {
   char *Ptr, *OPtr;
   /* Обработка %PATHEXT% */
@@ -221,21 +248,29 @@ BOOL HighlightFiles::AddMask(struct HighlightData *Dest,char *Mask,struct Highli
     else
       Add_PATHEXT(Mask); // добавляем то, чего нету.
   }
+  /* $ 25.09.2001 IS
+     Если IgnoreMask, то не выделяем память под класс CFileMask, т.к. он нам
+     не нужен.
+  */
   // память под рабочую маску
-  CFileMask *FMasks;
-  if((FMasks=new CFileMask) == NULL)
+  CFileMask *FMasks=NULL;
+  if(!IgnoreMask)
   {
-    free(OPtr);
-    return FALSE;
-  }
+    if((FMasks=new CFileMask) == NULL)
+    {
+      free(OPtr);
+      return FALSE;
+    }
 
-  if(!FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
-  {
-    delete FMasks;
-    free(OPtr);
-    return FALSE;
+    if(!FMasks->Set(Mask, FMF_SILENT)) // проверим корректность маски
+    {
+      delete FMasks;
+      free(OPtr);
+      return FALSE;
+    }
   }
-
+  Dest->IgnoreMask=IgnoreMask;
+  /* IS $ */
   if(Src)
     memmove(Dest,Src,sizeof(struct HighlightData));
 
@@ -279,27 +314,34 @@ void HighlightFiles::ClearData()
    оптимизированный формат хранения Masks
 */
 /* $ 06.07.2001 IS вместо "рабочей" маски используем соответствующий класс */
+/* $ 25.09.2001 IS
+   Узаконим следующее положение при проверке на совпадение с группой
+   раскраски: если параметр Path равен NULL, то маски в анализе не
+   используются, проверяются только атрибуты, причем в этом случае выбор
+   происходит среди тех групп, у которых маски исключены из анализа.
+*/
 void HighlightFiles::GetHiColor(char *Path,int Attr,
                                 struct HighlightDataColor *Colors)
 {
   struct HighlightData *CurHiData=HiData;
   int I;
   ReWriteWorkColor(Colors);
-  Path=Path?Path:""; // если Path==NULL, то считаем, что это пустая строка
+  //Path=Path?Path:""; // если Path==NULL, то считаем, что это пустая строка
 
   for (I=0; I < HiDataCount;I++, ++CurHiData)
   {
     if ((Attr & CurHiData->IncludeAttr)==CurHiData->IncludeAttr &&
         (Attr & CurHiData->ExcludeAttr)==0)
     {
-      if(CurHiData->FMasks->Compare(Path))
-      {
-        memcpy(Colors,&CurHiData->Colors,sizeof(struct HighlightDataColor));
-        return;
-      }
+      if(CurHiData->IgnoreMask || (Path && CurHiData->FMasks->Compare(Path)))
+        {
+          memcpy(Colors,&CurHiData->Colors,sizeof(struct HighlightDataColor));
+          return;
+        }
     }
   }
 }
+/* IS $ */
 /* IS $ */
 /* DJ $ */
 
@@ -357,7 +399,9 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
 
       VerticalLine,
 
-      GetMask(I));
+      /* $ 25.09.2001 IS не рисуем маски, если они игнорируются */
+      CurHiData->IgnoreMask?" ":GetMask(I));
+      /* IS $ */
     HiMenuItem.SetSelect(I==MenuPos);
     HiMenu->AddItem(&HiMenuItem);
   }
@@ -369,7 +413,7 @@ void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
 void HighlightFiles::HiEdit(int MenuPos)
 {
   VMenu HiMenu(MSG(MHighlightTitle),NULL,0,ScrY-4);
-  HiMenu.SetHelp("HighlightList");
+  HiMenu.SetHelp(HLS.HighlightList);
   HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
   HiMenu.SetPosition(-1,-1,0,0);
   HiMenu.SetBottomTitle(MSG(MHighlightBottom));
@@ -435,7 +479,7 @@ void HighlightFiles::HiEdit(int MenuPos)
         case KEY_F5:
           if (SelectPos < HiMenu.GetItemCount()-1)
           {
-            if(DupHighlightData(HiData+SelectPos,GetMask(SelectPos),SelectPos))
+            if(DupHighlightData(HiData+SelectPos,GetMask(SelectPos),HiData[SelectPos].IgnoreMask,SelectPos))
               NeedUpdate=TRUE;
           }
           break;
@@ -503,14 +547,15 @@ void HighlightFiles::SaveHiData()
   {
     struct HighlightData *CurHiData=&HiData[I];
     itoa(I,Ptr,10);
-    SetRegKey(RegKey,"Mask",GetMask(I));
-    SetRegKey(RegKey,"IncludeAttributes",CurHiData->IncludeAttr);
-    SetRegKey(RegKey,"ExcludeAttributes",CurHiData->ExcludeAttr);
-    SetRegKey(RegKey,"NormalColor",(DWORD)CurHiData->Colors.Color);
-    SetRegKey(RegKey,"SelectedColor",(DWORD)CurHiData->Colors.SelColor);
-    SetRegKey(RegKey,"CursorColor",(DWORD)CurHiData->Colors.CursorColor);
-    SetRegKey(RegKey,"SelectedCursorColor",(DWORD)CurHiData->Colors.CursorSelColor);
-    SetRegKey(RegKey,"MarkChar",(DWORD)CurHiData->Colors.MarkChar);
+    SetRegKey(RegKey,HLS.Mask,GetMask(I));
+    SetRegKey(RegKey,HLS.IgnoreMask,CurHiData->IgnoreMask);
+    SetRegKey(RegKey,HLS.IncludeAttributes,CurHiData->IncludeAttr);
+    SetRegKey(RegKey,HLS.ExcludeAttributes,CurHiData->ExcludeAttr);
+    SetRegKey(RegKey,HLS.NormalColor,(DWORD)CurHiData->Colors.Color);
+    SetRegKey(RegKey,HLS.SelectedColor,(DWORD)CurHiData->Colors.SelColor);
+    SetRegKey(RegKey,HLS.CursorColor,(DWORD)CurHiData->Colors.CursorColor);
+    SetRegKey(RegKey,HLS.SelectedCursorColor,(DWORD)CurHiData->Colors.CursorSelColor);
+    SetRegKey(RegKey,HLS.MarkChar,(DWORD)CurHiData->Colors.MarkChar);
   }
   for (I=HiDataCount;I<StartHiDataCount;I++)
   {
@@ -547,6 +592,14 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
         else if (Param1 >= 14 && Param1 <= 21)
           UncheckCheckbox (hDlg, Param1 - 9);
       }
+      /* $ 25.09.2001 IS
+           Выключим/включим строку масок.
+      */
+      else if(Param1 == 1)
+      {
+         Dialog::SendDlgMessage(hDlg,DM_ENABLE,2,Param2);
+      }
+      /* IS $ */
       else {
         HighlightData *EditData = (HighlightData *) Dialog::SendDlgMessage (hDlg, DM_GETDLGDATA, 0, 0);
         unsigned int Color;
@@ -592,12 +645,15 @@ static long WINAPI HighlightDlgProc(HANDLE hDlg, int Msg, int Param1, long Param
 
 /* DJ $ */
 
+/* $ 25.09.2001 IS
+     Обработка IgnoreMask
+*/
 int HighlightFiles::EditRecord(int RecPos,int New)
 {
   const char *HistoryName="Masks";
   static struct DialogData HiEditDlgData[]={
   /* 00 */DI_DOUBLEBOX,3,1,72,21,0,0,0,0,(char *)MHighlightEditTitle,
-  /* 01 */DI_TEXT,5,2,0,0,0,0,0,0,(char *)MHighlightMasks,
+  /* 01 */DI_CHECKBOX,5,2,0,0,0,0,0,0,(char *)MHighlightMasks,
   /* 02 */DI_EDIT,5,3,70,3,1,(DWORD)HistoryName,DIF_HISTORY|DIF_VAREDIT,0,"",
   /* 03 */DI_TEXT,3,4,0,0,0,0,DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
   /* 04 */DI_TEXT,5,5,0,0,0,0,DIF_BOXCOLOR,0,(char *)MHighlightIncludeAttr,
@@ -645,6 +701,9 @@ int HighlightFiles::EditRecord(int RecPos,int New)
   else
     memset(&EditData,0,sizeof(EditData));
 
+  if(FALSE==(HiEditDlg[1].Selected=!EditData.IgnoreMask))
+     HiEditDlg[2].Flags|=DIF_DISABLE;
+
   HiEditDlg[2].Ptr.PtrData=Mask;
   HiEditDlg[2].Ptr.PtrLength=sizeof(Mask);
 
@@ -672,8 +731,9 @@ int HighlightFiles::EditRecord(int RecPos,int New)
      обработка взаимоисключений и кнопок перенесена в обработчик диалога
   */
   Dialog Dlg(HiEditDlg,sizeof(HiEditDlg)/sizeof(HiEditDlg[0]),HighlightDlgProc,(long) &EditData);
-  Dlg.SetHelp("HighlightEdit");
+  Dlg.SetHelp(HLS.HighlightEdit);
   Dlg.SetPosition(-1,-1,76,23);
+
   /* $ 06.07.2001 IS
      Проверим маску на корректность
   */
@@ -684,6 +744,11 @@ int HighlightFiles::EditRecord(int RecPos,int New)
     Dlg.Process();
     if (Dlg.GetExitCode() != 31)
       return(FALSE);
+    if((FALSE!=(EditData.IgnoreMask=!HiEditDlg[1].Selected)))
+    {
+      if (!*Mask) strcpy(Mask, "*"); // для красоты и во избежание неприятностей
+      break; // не проверяем маску лишний раз
+    }
     if (*(char *)HiEditDlg[2].Ptr.PtrData==0)
       return(FALSE);
     if(FMask.Set(static_cast<char *>(HiEditDlg[2].Ptr.PtrData), 0))
@@ -743,20 +808,21 @@ int HighlightFiles::EditRecord(int RecPos,int New)
 
   if (!New && RecPos<HiDataCount)
   {
-    if(!AddMask(HiData+RecPos,Mask,&EditData))
+    if(!AddMask(HiData+RecPos,Mask,EditData.IgnoreMask,&EditData))
       return FALSE;
   }
   if (New)
-    DupHighlightData(&EditData,Mask,RecPos);
+    DupHighlightData(&EditData,Mask,EditData.IgnoreMask,RecPos);
   return(TRUE);
 }
+/* IS $ */
 
-int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,int RecPos)
+int HighlightFiles::DupHighlightData(struct HighlightData *EditData,char *Mask,BOOL IgnoreMask,int RecPos)
 {
   struct HighlightData *NewHiData;
   struct HighlightData HData={0};
 
-  if(!AddMask(&HData,Mask,EditData))
+  if(!AddMask(&HData,Mask,IgnoreMask,EditData))
     return FALSE;
 
   if ((NewHiData=(struct HighlightData *)realloc(HiData,sizeof(*HiData)*(HiDataCount+1)))==NULL)
@@ -804,11 +870,12 @@ void SetHighlighting()
     CmdExt,
     "*.rar,*.r[0-9][0-9],*.ar[cj],*.a[0-9][0-9],*.j,*.ac[bei],*.zip,*.z,*.jar,*.ice,*.lha,*.lzh,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.cab,*.chz,*.ha,*.h[ay]p,*.hpk,*.lim,*.[lw]sz,*.pa[ck],*.rk,*.rkv,*.rpm,*.sqz,*.bz,*.bz2,*.bzip,*.gz,*.tar,*.t[ag]z,*.uc2,*.x2,*.zoo,*.hqx,*.sea,*.sit,*.uue,*.xxe,*.ddi,*.tdr,*.xdf",
     "*.bak,*.tmp",
-    /* $ 07.07.2001  IS
+    /* $ 25.09.2001  IS
        Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
        являются родительскими (их имена - две точки).
     */
     "*.*|..", // маска для каталогов
+    "..",     // такие каталоги окрашивать как простые файлы
     /* IS $ */
   };
   /* $ 06.07.2001 IS
@@ -816,15 +883,19 @@ void SetHighlighting()
   */
   struct HighlightData  StdHighlightData[]=
   { /*
-     OriginalMask              NormalColor       SelectedCursorColor
-               IncludeAttributes       SelectedColor     MarkChar
-                       ExcludeAttributes     CursorColor             */
-    {Masks[0], NULL, 0x0002, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[0], NULL, 0x0004, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[4], NULL, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[1], NULL, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[2], NULL, 0x0000, 0x0000, {0x1D, 0x00, 0x3D, 0x00, 0x00, 0x00, 0x00, 0x00}},
-    {Masks[3], NULL, 0x0000, 0x0000, {0x16, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00}},
+     OriginalMask                        NormalColor       SelectedCursorColor
+                        IncludeAttributes       SelectedColor     MarkChar
+               FMasks           ExcludeAttributes     CursorColor             */
+    {Masks[0], NULL, 0, 0x0002, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
+    {Masks[0], NULL, 0, 0x0004, 0x0000, {0x13, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00}},
+    {Masks[4], NULL, 0, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
+    {Masks[5], NULL, 0, 0x0010, 0x0000, {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
+    {Masks[1], NULL, 0, 0x0000, 0x0000, {0x1A, 0x00, 0x3A, 0x00, 0x00, 0x00, 0x00, 0x00}},
+    {Masks[2], NULL, 0, 0x0000, 0x0000, {0x1D, 0x00, 0x3D, 0x00, 0x00, 0x00, 0x00, 0x00}},
+    {Masks[3], NULL, 0, 0x0000, 0x0000, {0x16, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00}},
+    // это настройка для каталогов на тех панелях, которые должны раскрашиваться
+    // без учета масок (например, список хостов в "far navigator")
+    {Masks[0], NULL, 1, 0x0010, 0x0000, {0x1F, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}},
   };
 
   // для NT добавляем CMD
@@ -835,21 +906,22 @@ void SetHighlighting()
   for(I=0; I < sizeof(StdHighlightData)/sizeof(StdHighlightData[0]); ++I)
   {
     itoa(I,Ptr,10);
-    SetRegKey(RegKey,"Mask",StdHighlightData[I].OriginalMasks);
+    SetRegKey(RegKey,HLS.Mask,StdHighlightData[I].OriginalMasks);
   /* IS $ */
+    SetRegKey(RegKey,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
     if(StdHighlightData[I].IncludeAttr)
-      SetRegKey(RegKey,"IncludeAttributes",StdHighlightData[I].IncludeAttr);
+      SetRegKey(RegKey,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
     if(StdHighlightData[I].ExcludeAttr)
-      SetRegKey(RegKey,"ExcludeAttributes",StdHighlightData[I].ExcludeAttr);
+      SetRegKey(RegKey,HLS.ExcludeAttributes,StdHighlightData[I].ExcludeAttr);
     if(StdHighlightData[I].Colors.Color)
-      SetRegKey(RegKey,"NormalColor",StdHighlightData[I].Colors.Color);
+      SetRegKey(RegKey,HLS.NormalColor,StdHighlightData[I].Colors.Color);
     if(StdHighlightData[I].Colors.SelColor)
-      SetRegKey(RegKey,"SelectedColor",StdHighlightData[I].Colors.SelColor);
+      SetRegKey(RegKey,HLS.SelectedColor,StdHighlightData[I].Colors.SelColor);
     if(StdHighlightData[I].Colors.CursorColor)
-      SetRegKey(RegKey,"CursorColor",StdHighlightData[I].Colors.CursorColor);
+      SetRegKey(RegKey,HLS.CursorColor,StdHighlightData[I].Colors.CursorColor);
     if(StdHighlightData[I].Colors.CursorSelColor)
-      SetRegKey(RegKey,"SelectedCursorColor",StdHighlightData[I].Colors.CursorSelColor);
+      SetRegKey(RegKey,HLS.SelectedCursorColor,StdHighlightData[I].Colors.CursorSelColor);
     if(StdHighlightData[I].Colors.MarkChar)
-      SetRegKey(RegKey,"MarkChar",StdHighlightData[I].Colors.MarkChar);
+      SetRegKey(RegKey,HLS.MarkChar,StdHighlightData[I].Colors.MarkChar);
   }
 }

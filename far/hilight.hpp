@@ -7,10 +7,13 @@ Files highlighting
 
 */
 
-/* Revision: 1.06 05.09.2001 $ */
+/* Revision: 1.07 25.09.2001 $ */
 
 /*
 Modify:
+  25.09.2001 IS
+    + HighlightData.IgnoreMask
+    + Параметр IgnoreMask у AddMask и у DupHighlightData
   12.07.2001 SVS
     ! Вместо полей Color* в структе HighlightData используется
       структура HighlightDataColor
@@ -45,6 +48,12 @@ struct HighlightData
 {
   char *OriginalMasks;
   CFileMask *FMasks;
+  /* $ 25.09.2001 IS
+       Если TRUE, то маска файлов игнорируется и сравнение идет только по
+       атрибутам.
+  */
+  BOOL IgnoreMask;
+  /* IS $ */
   unsigned int IncludeAttr;
   unsigned int ExcludeAttr;
   struct HighlightDataColor Colors;
@@ -70,10 +79,10 @@ class HighlightFiles
     void InitHighlightFiles();
     /* IS $ */
     void ClearData();
-    int  DupHighlightData(struct HighlightData *Data,char *Mask,int RecPos);
+    int  DupHighlightData(struct HighlightData *Data,char *Mask,BOOL IgnoreMask,int RecPos);
 
     char *GetMask(int Idx);
-    BOOL AddMask(struct HighlightData *Dest,char *Mask,struct HighlightData *Src=NULL);
+    BOOL AddMask(struct HighlightData *Dest,char *Mask,BOOL IgnoreMask,struct HighlightData *Src=NULL);
     void DeleteMask(struct HighlightData *CurHighlightData);
     void FillMenu(VMenu *HiMenu,int MenuPos);
 
