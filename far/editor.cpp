@@ -6,10 +6,12 @@ editor.cpp
 
 */
 
-/* Revision: 1.55 23.12.2000 $ */
+/* Revision: 1.56 28.12.2000 $ */
 
 /*
 Modify:
+  28.12.2000 VVM
+    + Щелчок мышью снимает непостоянный блок всегда.
   23.12.2000 OT
     - Медленно делался CtrlShiftLeft и CtrlAltLeft на ооооочеееень
       длинных словах
@@ -2339,6 +2341,17 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
   struct EditList *NewPtr;
   int NewDist,Dist;
+/* $ 28.12.2000 VVM
+  + Щелчок мышкой снимает непостоянный блок всегда */
+  if ((MouseEvent->dwButtonState & 3)!=0)
+  {
+    MarkingBlock=MarkingVBlock=FALSE;
+    if ((!Opt.EditorPersistentBlocks) && (BlockStart!=NULL || VBlockStart!=NULL))
+    {
+      UnmarkBlock();
+      Show();
+    } /* if */
+  } /* if */
   if (CurLine->EditLine.ProcessMouse(MouseEvent))
   {
     ShowStatus();
@@ -2353,13 +2366,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   }
   if ((MouseEvent->dwButtonState & 3)==0)
     return(FALSE);
-  if (!Opt.EditorPersistentBlocks && BlockStart!=NULL)
-  {
-    UnmarkBlock();
-    Show();
-  }
-
-  MarkingBlock=MarkingVBlock=FALSE;
+/* VVM $ */
   if (MouseEvent->dwMousePosition.Y==Y1)
   {
     while (IsMouseButtonPressed() && MouseY==Y1)
