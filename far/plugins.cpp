@@ -5,12 +5,16 @@ plugins.cpp
 
 */
 
-/* Revision: 1.157 28.10.2004 $ */
+/* Revision: 1.158 11.12.2004 $ */
 
 /*
 Modify:
+  11.12.2004 WARP
+    ! Разборки с FE_CLOSE, приходящим на панель плагина при
+      попытке открыть поверх панели плагин, которому новая панель
+      не нужна.
   28.10.2004 SVS
-    BugZ#825 - Не вызываются плагины по префиксу
+    - BugZ#825 - Не вызываются плагины по префиксу
   06.08.2004 SKV
     ! see 01825.MSVCRT.txt
   02.08.2004 SVS
@@ -2849,8 +2853,8 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
   if (PreparePlugin(LOWORD(Data)) && PluginsData[LOWORD(Data)].pOpenPlugin!=NULL && !ProcessException)
   {
     Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-    if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
-      return(FALSE);
+//    if (ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL))
+//      return(FALSE);
     int OpenCode=OPEN_PLUGINSMENU;
     if (Editor)
       OpenCode=OPEN_EDITOR;
@@ -2859,6 +2863,13 @@ int PluginsSet::CommandsMenu(int ModalType,int StartPos,char *HistoryName)
     HANDLE hPlugin=OpenPlugin(LOWORD(Data),OpenCode,HIWORD(Data));
     if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer)
     {
+      if ( ActivePanel->ProcessPluginEvent(FE_CLOSE,NULL) )
+      {
+        ClosePlugin (hPlugin);
+        return(FALSE);
+      }
+
+
       Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
       NewPanel->SetPluginMode(hPlugin,"");
       NewPanel->Update(0);
