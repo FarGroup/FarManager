@@ -7,10 +7,16 @@ vmenu.cpp
     * ...
 */
 
-/* Revision: 1.20 17.05.2001 $ */
+/* Revision: 1.21 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 SVS
+    ! UpdateRequired -> VMENU_UPDATEREQUIRED
+    ! DrawBackground -> VMENU_DRAWBACKGROUND
+    ! WrapMode -> VMENU_WRAPMODE
+    ! ShowAmpersand -> VMENU_SHOWAMPERSAND
+    + Функции InsertItem(), FindItem(), UpdateRequired(), GetVMenuInfo()
   17.05.2001 SVS
     + UpdateItem() - обновить пункт
     + FarList2MenuItem() \ функции преобразования "туда-сюда"
@@ -122,11 +128,10 @@ VMenu::VMenu(char *Title,       // заголовок меню
 /* SVS $ */
 
   VMenu::ParentDialog=ParentDialog;
-  UpdateRequired=TRUE;
-  WrapMode=TRUE;
+  VMFlags|=VMENU_UPDATEREQUIRED|VMENU_DRAWBACKGROUND|VMENU_WRAPMODE;
+  VMFlags&=~VMENU_SHOWAMPERSAND;
   CallCount=0;
   TopPos=0;
-  ShowAmpersand=FALSE;
   SaveScr=NULL;
 
   if(!Proc) // функция должна быть всегда!!!
@@ -141,8 +146,6 @@ VMenu::VMenu(char *Title,       // заголовок меню
   *BottomTitle=0;
   VMenu::Item=NULL;
   VMenu::ItemCount=0;
-  DrawBackground=TRUE;
-
 
   for (I=0; I < ItemCount; I++)
   {
@@ -225,7 +228,7 @@ void VMenu::Hide()
     ScreenObject::Hide();
   }
 
-  UpdateRequired=TRUE;
+  VMFlags|=VMENU_UPDATEREQUIRED;
   CallCount--;
 }
 
@@ -284,7 +287,7 @@ void VMenu::Show()
       ScreenObject::Show();
     else
     {
-      UpdateRequired=TRUE;
+      VMFlags|=VMENU_UPDATEREQUIRED;
       DisplayObject();
     }
   }
@@ -297,20 +300,20 @@ void VMenu::Show()
 */
 void VMenu::DisplayObject()
 {
-  if (!UpdateRequired)
+  if (!(VMFlags&VMENU_UPDATEREQUIRED))
     return;
   ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-  UpdateRequired=0;
+  VMFlags&=~VMENU_UPDATEREQUIRED;
   ExitCode=-1;
 
   if (!(VMenu::VMFlags&VMENU_LISTBOX) && SaveScr==NULL)
   {
-    if (DrawBackground && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
+    if ((VMFlags&VMENU_DRAWBACKGROUND) && !(BoxType==SHORT_DOUBLE_BOX || BoxType==SHORT_SINGLE_BOX))
       SaveScr=new SaveScreen(X1-2,Y1-1,X2+4,Y2+2);
     else
       SaveScr=new SaveScreen(X1,Y1,X2+2,Y2+1);
   }
-  if (DrawBackground)
+  if (VMFlags&VMENU_DRAWBACKGROUND)
   {
     /* $ 23.07.2000 SVS
        Тень для ListBox ненужна
@@ -419,7 +422,7 @@ void VMenu::ShowMenu(int IsParent)
             if (Item[I-1].Name[J]==0x0B3)
             {
               int Correction=0;
-              if (!ShowAmpersand && memchr(Item[I-1].Name,'&',J)!=NULL)
+              if (!(VMFlags&VMENU_SHOWAMPERSAND) && memchr(Item[I-1].Name,'&',J)!=NULL)
                 Correction=1;
               if (strlen(Item[I+1].Name)>=J && Item[I+1].Name[J]==0x0B3)
                 Ptr[J-Correction+2]=0x0C5;
@@ -459,7 +462,7 @@ void VMenu::ShowMenu(int IsParent)
             Col=VMenu::Colors[7];
         else
             Col=VMenu::Colors[4];
-        if(ShowAmpersand)
+        if(VMFlags&VMENU_SHOWAMPERSAND)
           Text(TmpStr);
         else
           HiText(TmpStr,Col);
@@ -499,27 +502,52 @@ void VMenu::ShowMenu(int IsParent)
 }
 /* 28.07.2000 SVS $ */
 
-int VMenu::AddItem(struct MenuItem *NewItem)
+BOOL VMenu::UpdateRequired(void)
+{
+  return (ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1);
+}
+
+
+int VMenu::InsertItem(struct FarListInsert *NewItem)
+{
+  if(NewItem)
+  {
+    struct MenuItem MItem;
+    return AddItem(FarList2MenuItem(NewItem->Item,&MItem),NewItem->Index);
+  }
+  return -1;
+}
+
+int VMenu::AddItem(struct MenuItem *NewItem,int PosAdd)
 {
   while (CallCount>0)
     Sleep(10);
   CallCount++;
+
   struct MenuItem *NewPtr;
   int Length;
-  if (ItemCount>=TopPos && ItemCount<TopPos+Y2-Y1)
-    UpdateRequired=1;
+
+  if((DWORD)PosAdd >= (DWORD)ItemCount)
+    PosAdd=ItemCount;
+  if (UpdateRequired())
+    VMFlags|=VMENU_UPDATEREQUIRED;
+
   if ((ItemCount & 255)==0)
   {
     if ((NewPtr=(struct MenuItem *)realloc(Item,sizeof(struct MenuItem)*(ItemCount+256+1)))==NULL)
       return(0);
     Item=NewPtr;
   }
-  Item[ItemCount]=*NewItem;
-  Length=strlen(Item[ItemCount].Name);
+  if(PosAdd < ItemCount)
+  {
+    memmove(Item+PosAdd+1,Item+PosAdd,sizeof(struct MenuItem)*(ItemCount-PosAdd)); //??
+  }
+  Item[PosAdd]=*NewItem;
+  Length=strlen(Item[PosAdd].Name);
   if (Length>MaxLength)
     MaxLength=Length;
-  if (Item[ItemCount].Selected)
-    SelectPos=ItemCount;
+  if (Item[PosAdd].Selected)
+    SelectPos=PosAdd;
   if(VMFlags&(VMENU_AUTOHIGHLIGHT|VMENU_REVERSIHLIGHT))
     AssignHighlights(VMFlags&VMENU_REVERSIHLIGHT);
 //  if(VMenu::VMFlags&VMENU_LISTBOXSORT)
@@ -687,7 +715,7 @@ int VMenu::DeleteItem(int ID,int Count)
   if ((ID >= TopPos && ID < TopPos+Y2-Y1) ||
       (ID+Count >= TopPos && ID+Count < TopPos+Y2-Y1) //???
      )
-    UpdateRequired=1;
+    VMFlags|=VMENU_UPDATEREQUIRED;
 
   memmove(Item+ID,Item+ID+Count,sizeof(struct MenuItem)*Count); //???
 
@@ -712,7 +740,7 @@ int VMenu::ProcessKey(int Key)
   if (Key==KEY_NONE || Key==KEY_IDLE)
     return(FALSE);
 
-  UpdateRequired=1;
+  VMFlags|=VMENU_UPDATEREQUIRED;
   if (ItemCount==0)
     if (Key!=KEY_F1 && Key!=KEY_F10 && Key!=KEY_ESC)
     {
@@ -845,7 +873,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
   do{
     if (Pos<0)
     {
-      if (WrapMode)
+      if (VMFlags&VMENU_WRAPMODE)
         Pos=ItemCount-1;
       else
         Pos=0;
@@ -853,7 +881,7 @@ int VMenu::SetSelectPos(int Pos,int Direct)
 
     if (Pos>=ItemCount)
     {
-      if (WrapMode)
+      if (VMFlags&VMENU_WRAPMODE)
         Pos=0;
       else
         Pos=ItemCount-1;
@@ -882,7 +910,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
   int MsPos,MsX,MsY;
   int XX2;
 
-  UpdateRequired=1;
+  VMFlags|=VMENU_UPDATEREQUIRED;
   if (ItemCount==0)
   {
     ExitCode=-1;
@@ -1019,7 +1047,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 void VMenu::SetBottomTitle(char *BottomTitle)
 {
   int Length;
-  UpdateRequired=1;
+  VMFlags|=VMENU_UPDATEREQUIRED;
   strncpy(VMenu::BottomTitle,BottomTitle,sizeof(VMenu::BottomTitle));
   Length=strlen(BottomTitle)+2;
   if (Length > MaxLength)
@@ -1035,10 +1063,20 @@ void VMenu::SetBoxType(int BoxType)
 
 void VMenu::SetFlags(unsigned int Flags)
 {
-  UpdateRequired=1;
-  DrawBackground=!(Flags & MENU_DISABLEDRAWBACKGROUND);
-  WrapMode=(Flags & MENU_WRAPMODE);
-  ShowAmpersand=(Flags & MENU_SHOWAMPERSAND);
+  VMFlags|=VMENU_UPDATEREQUIRED;
+
+  if(Flags & MENU_DISABLEDRAWBACKGROUND)
+    VMFlags&=~VMENU_DRAWBACKGROUND;
+  else
+    VMFlags|=VMENU_DRAWBACKGROUND;
+  if(Flags & MENU_WRAPMODE)
+    VMFlags|=VMENU_WRAPMODE;
+  else
+    VMFlags&=~VMENU_WRAPMODE;
+  if(Flags & MENU_SHOWAMPERSAND)
+    VMFlags|=VMENU_SHOWAMPERSAND;
+  else
+    VMFlags&=~VMENU_SHOWAMPERSAND;
   if(VMenu::VMFlags&VMENU_LISTBOX)
   {
     if(Flags&FMENU_SHOWNOBOX)
@@ -1138,7 +1176,7 @@ void VMenu::AssignHighlights(int Reverse)
   {
     char *Name=Item[I].Name;
     char *ChPtr=strchr(Name,'&');
-    if (ChPtr!=NULL && !ShowAmpersand)
+    if (ChPtr!=NULL && !(VMFlags&VMENU_SHOWAMPERSAND))
     {
       Used[LocalUpper(ChPtr[1])]=TRUE;
       Used[LocalLower(ChPtr[1])]=TRUE;
@@ -1148,7 +1186,7 @@ void VMenu::AssignHighlights(int Reverse)
   {
     char *Name=Item[I].Name;
     char *ChPtr=strchr(Name,'&');
-    if (ChPtr==NULL || ShowAmpersand)
+    if (ChPtr==NULL || (VMFlags&VMENU_SHOWAMPERSAND))
       for (int J=0;Name[J]!=0;J++)
         if (Name[J]=='&' || !Used[Name[J]] && LocalIsalphanum(Name[J]))
         {
@@ -1162,7 +1200,7 @@ void VMenu::AssignHighlights(int Reverse)
         }
   }
   VMFlags|=VMENU_AUTOHIGHLIGHT|(Reverse?VMENU_REVERSIHLIGHT:0);
-  ShowAmpersand=FALSE;
+  VMFlags&=~VMENU_SHOWAMPERSAND;
 }
 
 /* $ 28.07.2000 SVS
@@ -1242,4 +1280,35 @@ void VMenu::SortItems(int Direction)
           sizeof(*Item),
           (qsortex_fn)SortItem,
           &Direction);
+  VMFlags|=VMENU_UPDATEREQUIRED;
+}
+
+// return Pos || -1
+int VMenu::FindItem(struct FarListFind *FindItem)
+{
+  if(FindItem && (DWORD)FindItem->StartIndex < (DWORD)ItemCount)
+  {
+    char *Pattern=FindItem->Pattern;
+    for(int I=FindItem->StartIndex;I < ItemCount;I++)
+      if(CmpName(Pattern,Item[I].Name,0))
+        return I;
+  }
+  return -1;
+}
+
+
+BOOL VMenu::GetVMenuInfo(struct FarListInfo* Info)
+{
+  if(Info)
+  {
+    Info->Flags=0;
+    Info->ItemsNumber=ItemCount;
+    Info->SelectPos=SelectPos;
+    Info->TopPos=TopPos;
+    Info->MaxHeight=MaxHeight;
+    Info->MaxLength=MaxLength;
+    memset(&Info->Reserved,0,sizeof(Info->Reserved));
+    return TRUE;
+  }
+  return FALSE;
 }

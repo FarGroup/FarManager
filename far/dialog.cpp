@@ -5,10 +5,14 @@ dialog.cpp
 
 */
 
-/* Revision: 1.98 17.05.2001 $ */
+/* Revision: 1.99 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 SVS
+   + DM_GETCHECK/DM_SETCHECK/DM_SET3STATE
+   + DM_LISTINFO/DM_LISTFINDSTRING/DM_LISTINSERT
+   ! DM_MOVEDIALOG - если Param1 == -1, то Param2=COORD=ResizeDialog
   17.05.2001 SVS
    + DM_LISTUPDATE - совсем забыл про эту хрень ;-(
   15.05.2001 KM
@@ -3958,6 +3962,9 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
     case DM_LISTGETCURPOS: // Param1=ID Param2=0
     case DM_LISTSETCURPOS: // Param1=ID Param2=NewPos Ret: RealPos
     case DM_LISTUPDATE: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Src
+    case DM_LISTINFO:// Param1=ID Param2=FarListInfo
+    case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
+    case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
     //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
       if(Type==DI_LISTBOX || Type==DI_COMBOBOX)
       {
@@ -3968,6 +3975,21 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
           int Ret=TRUE;
           switch(Msg)
           {
+            case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
+            {
+              return ListBox->FindItem((struct FarListFind *)Param2);
+            }
+
+            case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
+            {
+              if((Ret=ListBox->InsertItem((struct FarListInsert *)Param2)) == -1)
+                return -1;
+              break;
+            }
+            case DM_LISTINFO:// Param1=ID Param2=FarListInfo
+            {
+              return ListBox->GetVMenuInfo((struct FarListInfo*)Param2);
+            }
             case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
             {
               ListBox->SortItems(Param2);
@@ -3975,7 +3997,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             case DM_LISTADDSTR: // Param1=ID Param2=String
             {
-              ListBox->AddItem((char*)Param2);
+              Ret=ListBox->AddItem((char*)Param2);
               break;
             }
             case DM_LISTADD: // Param1=ID Param2=FarList: ItemsNumber=Count, Items=Src
@@ -3983,7 +4005,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
               struct FarList *ListItems=(struct FarList *)Param2;
               if(!ListItems)
                 return FALSE;
-              ListBox->AddItem(ListItems);
+              Ret=ListBox->AddItem(ListItems);
               break;
             }
             case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
@@ -4046,7 +4068,7 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
             }
             //case DM_LISTINS: // Param1=ID Param2=FarList: ItemsNumber=Index, Items=Dest
           }
-          if(Dlg->CheckDialogMode(DMODE_SHOW))
+          if(Dlg->CheckDialogMode(DMODE_SHOW) && ListBox->UpdateRequired())
           {
             Dlg->ShowDialog(Param1);
             ScrBuf.Flush();
@@ -4136,6 +4158,41 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
 
     case DN_BTNCLICK:
       return Dlg->DlgProc(hDlg,Msg,Param1,Param2);
+
+    case DM_GETCHECK:
+      if(Type == DI_CHECKBOX || Type == DI_RADIOBUTTON)
+        return CurItem->Selected;
+      return 0;
+
+    case DM_SET3STATE:
+      if(Type == DI_CHECKBOX)
+      {
+        int OldState=CurItem->Flags&DIF_3STATE?TRUE:FALSE;
+        if(Param2)
+          CurItem->Flags|=DIF_3STATE;
+        else
+          CurItem->Flags&=~DIF_3STATE;
+        return OldState;
+      }
+      return 0;
+
+    case DM_SETCHECK:
+      if(Type == DI_CHECKBOX || Type == DI_RADIOBUTTON)
+      {
+        int Selected=CurItem->Selected;
+        if(Type == DI_CHECKBOX && (CurItem->Flags&DIF_3STATE))
+          Param2%=3;
+        else
+          Param2&=1;
+        CurItem->Selected=Param2;
+        if(CurItem->Selected != Param2 && Dlg->CheckDialogMode(DMODE_SHOW))
+        {
+          Dlg->ShowDialog(Param1);
+          ScrBuf.Flush();
+        }
+        return Selected;
+      }
+      return 0;
 
     case DN_DRAWDLGITEM:
       // преобразуем данные для!
@@ -4557,17 +4614,24 @@ long WINAPI Dialog::SendDlgMessage(HANDLE hDlg,int Msg,int Param1,long Param2)
       Dlg->OldX2=Dlg->X2;
       Dlg->OldY2=Dlg->Y2;
       // переместили
-      if(Param1)   // абсолютно?
+      if(Param1>0)   // абсолютно?
       {
         Dlg->X1=((COORD*)Param2)->X;
         Dlg->Y1=((COORD*)Param2)->Y;
 //        if(Dlg->X1 == -1 || Dlg->Y1 == -1)
         Dlg->CheckDialogCoord();
       }
-      else         // значит относительно
+      else if(Param1 == 0)   // значит относительно
       {
         Dlg->X1+=((COORD*)Param2)->X;
         Dlg->Y1+=((COORD*)Param2)->Y;
+      }
+      else // Resize, Param2=width/height
+      {
+        Dlg->X2=((COORD*)Param2)->X;
+        Dlg->Y2=((COORD*)Param2)->Y;
+        W1=Dlg->X2-Dlg->X1;
+        H1=Dlg->Y2-Dlg->Y1;
       }
 
       // проверили и скорректировали

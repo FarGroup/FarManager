@@ -10,10 +10,16 @@ vmenu.hpp
 
 */
 
-/* Revision: 1.10 17.05.2001 $ */
+/* Revision: 1.11 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 SVS
+   ! UpdateRequired -> VMENU_UPDATEREQUIRED
+   ! DrawBackground -> VMENU_DRAWBACKGROUND
+   ! WrapMode -> VMENU_WRAPMODE
+   ! ShowAmpersand -> VMENU_SHOWAMPERSAND
+   + Функции InsertItem(), FindItem(), UpdateRequired(), GetVMenuInfo()
   17.05.2001 SVS
    + UpdateItem()
    + FarList2MenuItem()
@@ -81,11 +87,15 @@ enum{
 /* $ 01.08.2000 SVS
    Константы для флагов - для конструктора
 */
-#define VMENU_ALWAYSSCROLLBAR 0x0100
-#define VMENU_LISTBOX	      0x0200
-#define VMENU_SHOWNOBOX       0x0400
-#define VMENU_AUTOHIGHLIGHT	  0x0800
-#define VMENU_REVERSIHLIGHT	  0x1000
+#define VMENU_ALWAYSSCROLLBAR 0x00000100
+#define VMENU_LISTBOX	      0x00000200
+#define VMENU_SHOWNOBOX       0x00000400
+#define VMENU_AUTOHIGHLIGHT	  0x00000800
+#define VMENU_REVERSIHLIGHT	  0x00001000
+#define VMENU_UPDATEREQUIRED  0x00002000
+#define VMENU_DRAWBACKGROUND  0x00004000
+#define VMENU_WRAPMODE        0x00008000
+#define VMENU_SHOWAMPERSAND   0x00010000
 /* SVS $ */
 
 class Dialog;
@@ -123,8 +133,7 @@ class VMenu: public Modal
     int SelectPos,TopPos;
     int MaxHeight;
     int MaxLength;
-    int DrawBackground,BoxType,WrapMode,ShowAmpersand;
-    int UpdateRequired;
+    int BoxType;
     int DialogStyle;
     int CallCount;
     int PrevMacroMode;
@@ -182,7 +191,7 @@ class VMenu: public Modal
 
     void SetBottomTitle(char *BottomTitle);
     void SetDialogStyle(int Style) {DialogStyle=Style;SetColors(NULL);};
-    void SetUpdateRequired(int SetUpdate) {UpdateRequired=SetUpdate;};
+    void SetUpdateRequired(int SetUpdate) {if(SetUpdate)VMFlags|=VMENU_UPDATEREQUIRED;else VMFlags&=~VMENU_UPDATEREQUIRED;}
     void SetBoxType(int BoxType);
     void SetFlags(unsigned int Flags);
 
@@ -193,6 +202,8 @@ class VMenu: public Modal
     int  ProcessKey(int Key);
     int  ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
+    BOOL UpdateRequired(void);
+
     void DeleteItems();
     /* $ 01.08.2000 SVS
        функция удаления N пунктов меню
@@ -200,11 +211,13 @@ class VMenu: public Modal
     int  DeleteItem(int ID,int Count=1);
     /* SVS $ */
 
-    int  AddItem(struct MenuItem *NewItem);
+    int  AddItem(struct MenuItem *NewItem,int PosAdd=-1);
     int  AddItem(struct FarList *NewItem);
     int  AddItem(char *NewStrItem);
 
+    int  InsertItem(struct FarListInsert *NewItem);
     int  UpdateItem(struct FarList *NewItem);
+    int  FindItem(struct FarListFind *FindItem);
 
     int  GetItemCount() {return(ItemCount);};
     int  GetUserData(void *Data,int Size,int Position=-1);
@@ -220,6 +233,10 @@ class VMenu: public Modal
     /* SVS $*/
 
     void SortItems(int Direction=0);
+    BOOL GetVMenuInfo(struct FarListInfo* Info);
+
+    static struct MenuItem *FarList2MenuItem(struct FarListItem *Items,struct MenuItem *ListItem);
+    static struct FarListItem *MenuItem2FarList(struct MenuItem *ListItem,struct FarListItem *Items);
 
     /* $ 01.08.2000 SVS
        функция обработки меню (по умолчанию)
@@ -228,8 +245,6 @@ class VMenu: public Modal
     // функция посылки сообщений меню
     static long WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,long Param2);
     /* SVS $ */
-    static struct MenuItem *FarList2MenuItem(struct FarListItem *Items,struct MenuItem *ListItem);
-    static struct FarListItem *MenuItem2FarList(struct MenuItem *ListItem,struct FarListItem *Items);
 };
 
 #endif	// __VMENU_HPP__

@@ -5,10 +5,13 @@ setattr.cpp
 
 */
 
-/* Revision: 1.28 14.05.2001 $ */
+/* Revision: 1.29 18.05.2001 $ */
 
 /*
 Modify:
+  18.05.2001 SVS
+    ! Вся логика работы диалога перенесена на уровень диалогой процедуры.
+      Осталось и инициализирующую часть впихнуть по назначению ;-)
   14.05.2001 SVS
     - Проблемы с выставлением времени файла
     + DOUBLE_CLICK: ;-)
@@ -105,255 +108,203 @@ Modify:
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 
-int OriginalCBAttr0[16]; // значения CheckBox`ов на момент старта диалога
-int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
-int OriginalCBAttr2[16]; //
-DWORD OriginalCBFlag[16];
-
-static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
-                       char *OSrcDate,char *OSrcTime)
-{
-  FILETIME ft, oft;
-  SYSTEMTIME st, ost;
-  unsigned DateN[3],TimeN[3];
-  int DigitCount,I;
-  int SetTime,GetTime;
-  FILETIME *OriginalFileTime, OFTModify, OFTCreate, OFTLast;
-  char SrcDate[32], SrcTime[32];
-  char *Ptr,Digit[16],*PtrDigit;
-
-  // ****** ОБРАБОТКА ДАТЫ ******** //
-  strncpy(SrcDate,OSrcDate,sizeof(SrcDate));
-  DateN[0]=DateN[1]=DateN[2]=(unsigned)-1;
-  I=0;
-  Ptr=SrcDate;
-  int DateSeparator=GetDateSeparator();
-  while((Ptr=GetCommaWord(Ptr,Digit,DateSeparator)) != NULL)
-  {
-    PtrDigit=Digit;
-    while (*PtrDigit && !isdigit(*PtrDigit))
-      PtrDigit++;
-    if(*PtrDigit)
-      DateN[I]=atoi(PtrDigit);
-    ++I;
-  }
-
-  // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
-  strncpy(SrcTime,OSrcTime,sizeof(SrcTime));
-  TimeN[0]=TimeN[1]=TimeN[2]=(unsigned)-1;
-  I=0;
-  Ptr=SrcTime;
-  int TimeSeparator=GetTimeSeparator();
-  while((Ptr=GetCommaWord(Ptr,Digit,TimeSeparator)) != NULL)
-  {
-    PtrDigit=Digit;
-    while (*PtrDigit && !isdigit(*PtrDigit))
-      PtrDigit++;
-    if(*PtrDigit)
-      TimeN[I]=atoi(PtrDigit);
-    ++I;
-  }
-
-  // исключаем лишние телодвижения
-  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1 ||
-     TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
-  {
-    // получаем инфу про оригинальную дату и время файла.
-    HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
-                 NULL,OPEN_EXISTING,
-                 (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
-    if (hFile==INVALID_HANDLE_VALUE)
-      return(FALSE);
-    GetTime=GetFileTime(hFile,&OFTCreate,&OFTLast,&OFTModify);
-    CloseHandle(hFile);
-
-    if(!GetTime)
-      return(FALSE);
-
-    switch(Type)
-    {
-      case 0: // Modif
-        OriginalFileTime=&OFTModify;
-        break;
-      case 1: // Creat
-        OriginalFileTime=&OFTCreate;
-        break;
-      case 2: // Last
-        OriginalFileTime=&OFTLast;
-        break;
-    }
-
-    // конвертнем в локальное время.
-    FileTimeToLocalFileTime(OriginalFileTime,&oft);
-    FileTimeToSystemTime(&oft,&ost);
-    st.wDayOfWeek=ost.wDayOfWeek;
-    st.wMilliseconds=ost.wMilliseconds;
-    DigitCount=TRUE;
-  }
-  else
-    DigitCount=FALSE;
-
-  // "Оформим"
-  switch(GetDateFormat())
-  {
-    case 0:
-      st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:ost.wMonth;
-      st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:ost.wDay;
-      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
-      break;
-    case 1:
-      st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:ost.wDay;
-      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
-      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
-      break;
-    default:
-      st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:ost.wYear;
-      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
-      st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:ost.wDay;
-      break;
-  }
-  st.wHour   = TimeN[0]!=(unsigned)-1? (TimeN[0]):ost.wHour;
-  st.wMinute = TimeN[1]!=(unsigned)-1? (TimeN[1]):ost.wMinute;
-  st.wSecond = TimeN[2]!=(unsigned)-1? (TimeN[2]):ost.wSecond;
-
-  if (st.wYear<100)
-    if (st.wYear<80)
-      st.wYear+=2000;
-    else
-      st.wYear+=1900;
-
-  // преобразование в "удобоваримый" формат
-  SystemTimeToFileTime(&st,&ft);
-  LocalFileTimeToFileTime(&ft,FileTime);
-  if(DigitCount)
-    return (!CompareFileTime(FileTime,OriginalFileTime))?FALSE:TRUE;
-  return TRUE;
-}
-
-
-static void IncludeExcludeAttrib(int FocusPos,struct DialogItem *Item, int FocusPosSet, int FocusPosSkip)
-{
-  if(FocusPos == FocusPosSet && Item[FocusPosSet].Selected && Item[FocusPosSkip].Selected)
-    Item[FocusPosSkip].Selected=0;
-  if(FocusPos == FocusPosSkip && Item[FocusPosSkip].Selected && Item[FocusPosSet].Selected)
-    Item[FocusPosSet].Selected=0;
-}
-
-
-static void EmptyDialog(struct DialogItem *AttrDlg,int ClrAttr,int SelCount1)
-{
-  if(ClrAttr)
-  {
-    AttrDlg[4].Selected=
-    AttrDlg[5].Selected=
-    AttrDlg[6].Selected=
-    AttrDlg[7].Selected=
-    AttrDlg[8].Selected=
-    AttrDlg[9].Selected=SelCount1?0:2;
-  }
-
-  AttrDlg[16].Data[0]=
-  AttrDlg[17].Data[0]=
-  AttrDlg[19].Data[0]=
-  AttrDlg[20].Data[0]=
-  AttrDlg[22].Data[0]=
-  AttrDlg[23].Data[0]='\0';
-}
-
-/* $ 22.11.2000 SVS
-   Заполнение полей
-*/
-static void FillingOfFields(char *SelName,int FileAttr,
-                          struct DialogItem *AttrDlg,
-                          int SetAttr)
-{
-  HANDLE FindHandle;
-  WIN32_FIND_DATA FindData;
-  if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
-  {
-    FindClose(FindHandle);
-    ConvertDate(&FindData.ftLastWriteTime, AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
-    ConvertDate(&FindData.ftCreationTime,  AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
-    ConvertDate(&FindData.ftLastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
-  }
-  if(SetAttr)
-  {
-    AttrDlg[4].Selected=(FileAttr & FA_RDONLY)!=0;
-    AttrDlg[5].Selected=(FileAttr & FA_ARCH)!=0;
-    AttrDlg[6].Selected=(FileAttr & FA_HIDDEN)!=0;
-    AttrDlg[7].Selected=(FileAttr & FA_SYSTEM)!=0;
-    AttrDlg[8].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
-    AttrDlg[9].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
-  }
-}
-/* SVS $ */
 
 #define DM_SETATTR	(DM_USER+1)
+
+struct SetAttrDlgParam{
+  DWORD FileSystemFlags;
+  int ModeDialog;
+  char *SelName;
+  int OriginalCBAttr[16]; // значения CheckBox`ов на момент старта диалога
+  int OriginalCBAttr2[16]; //
+  DWORD OriginalCBFlag[16];
+  int OState11, OState8, OState9;
+};
+
+static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
+                       char *OSrcDate,char *OSrcTime);
 
 // обработчик диалога - пока это отлов нажатий нужных кнопок.
 long WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,long Param2)
 {
-  if(Msg == DN_BTNCLICK)
-  {
-    if(Param1 >= 4 && Param2 <= 9)
-    {
-      OriginalCBAttr[Param1-4] = Param2;
-      OriginalCBAttr2[Param1-4] = 0;
-    }
-  }
-  /* $ 14.05.2001 SVS
-     Обработка двойного клика */
-  else if(Msg == DN_MOUSECLICK)
-  {
-    //_SVS(SysLog("Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
-    if(Param1 >= 15 && Param1 <= 23 &&
-       ((MOUSE_EVENT_RECORD*)Param2)->dwEventFlags == DOUBLE_CLICK)
-    {
-      // Дадим Менеджеру диалогов "попотеть"
-      Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
-      Dialog::SendDlgMessage(hDlg,DM_SETATTR,Param1,1);
-      if(Param1 == 15 || Param1 == 18 || Param1 == 21)
-        Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1+1,0);
-      return TRUE;
-    }
-    else if(Param1 == 24 || Param1 == 25) // Set All? / Clear All?
-    {
-      Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 24);
-      Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 24);
-      Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 24);
-      Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
-      return TRUE;
-    }
-  }
-  else if(Msg == DM_SETATTR)
-  {
-    FILETIME ft;
-    char Date[16],Time[16];
-    int Set1, Set2;
-    if(Param2) // Set?
-    {
-      GetSystemTimeAsFileTime(&ft);
-      ConvertDate(&ft,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
-    }
-    else // Clear
-    {
-       Date[0]=Time[0]=0;
-    }
+  int FocusPos,I;
+  int State8, State9, State11;
+  struct SetAttrDlgParam *DlgParam;
 
-    // Глянем на место, где был клик
-         if(Param1 == 15) { Set1=16; Set2=17; }
-    else if(Param1 == 18) { Set1=19; Set2=20; }
-    else if(Param1 == 21) { Set1=22; Set2=23; }
-    else if(Param1 == 16 || Param1 == 19 || Param1 == 22) { Set1=Param1; Set2=-1; }
-    else { Set1=-1; Set2=Param1; }
+  switch(Msg)
+  {
+    case DN_BTNCLICK:
+      if(Param1 >= 4 && Param2 <= 9 || Param2 == 11)
+      {
+        DlgParam=(struct SetAttrDlgParam *)Dialog::SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+        DlgParam->OriginalCBAttr[Param1-4] = Param2;
+        DlgParam->OriginalCBAttr2[Param1-4] = 0;
 
-    if(Set1 != -1)
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(long)Date);
-    if(Set2 != -1)
-      Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(long)Time);
-    return TRUE;
+        FocusPos=Dialog::SendDlgMessage(hDlg,DM_GETFOCUS,0,0);
+        State8=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,8,0);
+        State9=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,9,0);
+        State11=Dialog::SendDlgMessage(hDlg,DM_GETCHECK,11,0);
+
+        if(!DlgParam->ModeDialog) // =0 - одиночный
+        {
+          if(((DlgParam->FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
+               (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
+             (FocusPos == 8 || FocusPos == 9))
+          {
+              if(FocusPos == 8 && State8 && State9)
+                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,9,BSTATE_UNCHECKED);
+              if(FocusPos == 9 && State9 && State8)
+                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,8,BSTATE_UNCHECKED);
+          }
+        }
+        else // =1|2 Multi
+        {
+          // отработаем взаимоисключения
+          if(((DlgParam->FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
+               (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
+             (FocusPos == 8 || FocusPos == 9))
+          {
+            if(FocusPos == 8 && DlgParam->OState8 != State8) // Состояние изменилось?
+            {
+              if(State8 == BSTATE_CHECKED && State9)
+                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,9,BSTATE_UNCHECKED);
+              else if(State8 == BSTATE_3STATE)
+                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,9,BSTATE_3STATE);
+            }
+            else if(FocusPos == 9 && DlgParam->OState9 != State9) // Состояние изменилось?
+            {
+              if(State9 == BSTATE_CHECKED && State8)
+                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,8,BSTATE_UNCHECKED);
+              else if(State9 == 2)
+                Dialog::SendDlgMessage(hDlg,DM_SETCHECK,8,BSTATE_3STATE);
+            }
+            DlgParam->OState9=State9;
+            DlgParam->OState8=State8;
+          }
+
+          // если снимаем атрибуты для SubFolders
+          // этот кусок всегда работает если есть хотя бы одна папка
+          // иначе 11-й недоступен и всегда снят.
+          if(FocusPos == 11)
+          {
+            if(DlgParam->ModeDialog==1) // каталог однозначно!
+            {
+              if(DlgParam->OState11 != State11) // Состояние изменилось?
+              {
+                // убираем 3-State
+                for(I=4; I <= 9; ++I)
+                {
+                  if(!State11) // сняли?
+                  {
+                    Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,FALSE);
+                    Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-4]);
+                  }
+                  else                      // установили?
+                  {
+                    Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,TRUE);
+                    if(DlgParam->OriginalCBAttr2[I-4] == -1)
+                      Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
+                  }
+                }
+                if(!State11)
+                {
+                  HANDLE FindHandle;
+                  WIN32_FIND_DATA FindData;
+                  if ((FindHandle=FindFirstFile(DlgParam->SelName,&FindData))!=INVALID_HANDLE_VALUE)
+                  {
+                    FindClose(FindHandle);
+                    Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,(DWORD)&FindData.ftLastWriteTime);
+                    Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,(DWORD)&FindData.ftCreationTime);
+                    Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,(DWORD)&FindData.ftLastAccessTime);
+                  }
+                }
+              }
+            }
+            else  // много объектов
+            {
+              if(DlgParam->OState11 != State11) // Состояние изменилось?
+              {
+                for(I=4; I <= 9; ++I)
+                {
+                  if(!State11) // сняли?
+                  {
+                    Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,
+                              ((DlgParam->OriginalCBFlag[I-4]&DIF_3STATE)?TRUE:FALSE));
+                    Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,DlgParam->OriginalCBAttr[I-4]);
+                  }
+                  else                      // установили?
+                  {
+                    if(DlgParam->OriginalCBAttr2[I-4] == -1)
+                    {
+                      Dialog::SendDlgMessage(hDlg,DM_SET3STATE,I,TRUE);
+                      Dialog::SendDlgMessage(hDlg,DM_SETCHECK,I,BSTATE_3STATE);
+                    }
+                  }
+                }
+              }
+            }
+            DlgParam->OState11=State11;
+          }
+        }
+      }
+      break;
+
+    case DN_MOUSECLICK:
+     {
+       //_SVS(SysLog("Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));
+       if(Param1 >= 15 && Param1 <= 23 &&
+          ((MOUSE_EVENT_RECORD*)Param2)->dwEventFlags == DOUBLE_CLICK)
+       {
+         // Дадим Менеджеру диалогов "попотеть"
+         Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
+         Dialog::SendDlgMessage(hDlg,DM_SETATTR,Param1,-1);
+         if(Param1 == 15 || Param1 == 18 || Param1 == 21)
+           Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,Param1+1,0);
+         return TRUE;
+       }
+       else if(Param1 == 24 || Param1 == 25) // Set All? / Clear All?
+       {
+         Dialog::SendDlgMessage(hDlg,DM_SETATTR,15,Param1 == 24?-1:0);
+         Dialog::SendDlgMessage(hDlg,DM_SETATTR,18,Param1 == 24?-1:0);
+         Dialog::SendDlgMessage(hDlg,DM_SETATTR,21,Param1 == 24?-1:0);
+         Dialog::SendDlgMessage(hDlg,DM_SETFOCUS,16,0);
+         return TRUE;
+       }
+     }
+     break;
+
+    case DM_SETATTR:
+      {
+        FILETIME ft;
+        char Date[16],Time[16];
+        int Set1, Set2;
+        if(Param2) // Set?
+        {
+          if(Param2==-1)
+            GetSystemTimeAsFileTime(&ft);
+          else
+            ft=*(FILETIME *)Param2;
+          ConvertDate(&ft,Date,Time,8,FALSE,FALSE,TRUE,TRUE);
+        }
+        else if(!Param2) // Clear
+        {
+           Date[0]=Time[0]=0;
+        }
+
+        // Глянем на место, где был клик
+             if(Param1 == 15) { Set1=16; Set2=17; }
+        else if(Param1 == 18) { Set1=19; Set2=20; }
+        else if(Param1 == 21) { Set1=22; Set2=23; }
+        else if(Param1 == 16 || Param1 == 19 || Param1 == 22) { Set1=Param1; Set2=-1; }
+        else { Set1=-1; Set2=Param1; }
+
+        if(Set1 != -1)
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set1,(long)Date);
+        if(Set2 != -1)
+          Dialog::SendDlgMessage(hDlg,DM_SETTEXTPTR,Set2,(long)Time);
+        return TRUE;
+      }
   }
-  /* SVS $ */
   return Dialog::DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
@@ -421,8 +372,8 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   MakeDialogItems(AttrDlgData,AttrDlg);
   int DlgCountItems=sizeof(AttrDlgData)/sizeof(AttrDlgData[0])-1;
 
-  DWORD FileSystemFlags;
   int SelCount, I, J;
+  struct SetAttrDlgParam DlgParam;
 
   if((SelCount=SrcPanel->GetSelCount())==0)
     return 0;
@@ -439,13 +390,15 @@ int ShellSetFileAttributes(Panel *SrcPanel)
       return 0;
   }
 
-  FileSystemFlags=0;
-  if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&FileSystemFlags,NULL,0))
+  memset(&DlgParam,0,sizeof(DlgParam));
+
+  DlgParam.FileSystemFlags=0;
+  if (GetVolumeInformation(NULL,NULL,0,NULL,NULL,&DlgParam.FileSystemFlags,NULL,0))
   {
-    if (!(FileSystemFlags & FS_FILE_COMPRESSION))
+    if (!(DlgParam.FileSystemFlags & FS_FILE_COMPRESSION))
       AttrDlg[8].Flags|=DIF_DISABLE;
 
-    if (!IsCryptFileASupport || !(FileSystemFlags & FS_FILE_ENCRYPTION))
+    if (!IsCryptFileASupport || !(DlgParam.FileSystemFlags & FS_FILE_ENCRYPTION))
       AttrDlg[9].Flags|=DIF_DISABLE;
   }
 
@@ -465,6 +418,7 @@ int ShellSetFileAttributes(Panel *SrcPanel)
 
     int FocusPos;
     int NewAttr;
+    int ModeDialog;
     int FolderPresent=FALSE, JunctionPresent=FALSE;
     char TimeText[6][100];
 
@@ -504,7 +458,22 @@ int ShellSetFileAttributes(Panel *SrcPanel)
         AttrDlg[11].Selected=Opt.SetAttrFolderRules == 1?0:1;
         if(Opt.SetAttrFolderRules)
         {
-          FillingOfFields(SelName,FileAttr,AttrDlg,1);
+          HANDLE FindHandle;
+          WIN32_FIND_DATA FindData;
+          if ((FindHandle=FindFirstFile(SelName,&FindData))!=INVALID_HANDLE_VALUE)
+          {
+            FindClose(FindHandle);
+            ConvertDate(&FindData.ftLastWriteTime, AttrDlg[16].Data,AttrDlg[17].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(&FindData.ftCreationTime,  AttrDlg[19].Data,AttrDlg[20].Data,8,FALSE,FALSE,TRUE,TRUE);
+            ConvertDate(&FindData.ftLastAccessTime,AttrDlg[22].Data,AttrDlg[23].Data,8,FALSE,FALSE,TRUE,TRUE);
+          }
+          AttrDlg[4].Selected=(FileAttr & FA_RDONLY)!=0;
+          AttrDlg[5].Selected=(FileAttr & FA_ARCH)!=0;
+          AttrDlg[6].Selected=(FileAttr & FA_HIDDEN)!=0;
+          AttrDlg[7].Selected=(FileAttr & FA_SYSTEM)!=0;
+          AttrDlg[8].Selected=(FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0;
+          AttrDlg[9].Selected=(FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0;
+
           // убираем 3-State
           for(I=4; I <= 9; ++I)
             AttrDlg[I].Flags&=~DIF_3STATE;
@@ -570,7 +539,10 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     }
     else
     {
-      EmptyDialog(AttrDlg,1,0);
+      AttrDlg[4].Selected=AttrDlg[5].Selected=AttrDlg[6].Selected=
+      AttrDlg[7].Selected=AttrDlg[8].Selected=AttrDlg[9].Selected=2;
+      AttrDlg[16].Data[0]=AttrDlg[17].Data[0]=AttrDlg[19].Data[0]=
+      AttrDlg[20].Data[0]=AttrDlg[22].Data[0]=AttrDlg[23].Data[0]='\0';
 
       strcpy(AttrDlg[2].Data,MSG(MSetAttrSelectedObjects));
       // выставим -1 - потом учтем этот факт :-)
@@ -614,38 +586,31 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     // запомним состояние переключателей.
     for(I=4; I <= 9; ++I)
     {
-      OriginalCBAttr0[I-4]=OriginalCBAttr[I-4]=AttrDlg[I].Selected;
-      OriginalCBAttr2[I-4]=-1;
-      OriginalCBFlag[I-4]=AttrDlg[I].Flags;
+      DlgParam.OriginalCBAttr[I-4]=AttrDlg[I].Selected;
+      DlgParam.OriginalCBAttr2[I-4]=-1;
+      DlgParam.OriginalCBFlag[I-4]=AttrDlg[I].Flags;
     }
+
+    DlgParam.ModeDialog=((SelCount==1 && (FileAttr & FA_DIREC)==0)?0:(SelCount==1?1:2));
+    DlgParam.SelName=SelName;
+    DlgParam.OState11=AttrDlg[11].Selected;
+    DlgParam.OState8=AttrDlg[8].Selected;
+    DlgParam.OState9=AttrDlg[9].Selected;
+
+    // <Dialog>
+    {
+      Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc,(DWORD)&DlgParam);
+      Dlg.SetHelp("FileAttrDlg");                 //  ^ - это одиночный диалог!
+      Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
+      Dlg.Process();
+      if (Dlg.GetExitCode()!=27)
+        return 0;
+    }
+    // </Dialog>
 
     if (SelCount==1 && (FileAttr & FA_DIREC)==0)
     {
       int NewAttr;
-
-      {
-        Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc);
-        Dlg.SetHelp("FileAttrDlg");
-        Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
-        Dlg.Show();
-        while (!Dlg.Done())
-        {
-          Dlg.ReadInput();
-          Dlg.ProcessInput();
-          FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
-          if(((FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
-               (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
-             (FocusPos == 8 || FocusPos == 9))
-          {
-            IncludeExcludeAttrib(FocusPos,AttrDlg,8,9);
-            Dlg.FastShow();
-          }
-        }
-        Dlg.Hide();
-        if (Dlg.GetExitCode()!=27)
-          return 0;
-      }
-
       NewAttr=FileAttr & FA_DIREC;
       if (AttrDlg[4].Selected)        NewAttr|=FA_RDONLY;
       if (AttrDlg[5].Selected)        NewAttr|=FA_ARCH;
@@ -689,120 +654,6 @@ int ShellSetFileAttributes(Panel *SrcPanel)
     {
       int SetAttr,ClearAttr,Cancel=0;
       char OldConsoleTitle[NM], OutFileName[72],TmpFileName[72];
-
-//      EmptyDialog(AttrDlg,1,SelCount==1);
-
-      {
-        int RefreshNeed=FALSE;
-        Dialog Dlg(AttrDlg,DlgCountItems,SetAttrDlgProc);
-        Dlg.SetHelp("FileAttrDlg");
-        Dlg.SetPosition(-1,-1,45,JunctionPresent?24:23);
-
-        Dlg.Show();
-
-        {
-          int Sel11=AttrDlg[11].Selected;
-          int Sel8=AttrDlg[8].Selected;
-          int Sel9=AttrDlg[9].Selected;
-          while (!Dlg.Done())
-          {
-            Dlg.ReadInput();
-            Dlg.ProcessInput();
-            FocusPos=Dialog::SendDlgMessage((HANDLE)&Dlg,DM_GETFOCUS,0,0);
-            // отработаем взаимоисключения
-            if(((FileSystemFlags & (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION))==
-                 (FS_FILE_COMPRESSION|FS_FILE_ENCRYPTION)) &&
-               (FocusPos == 8 || FocusPos == 9))
-            {
-              if(FocusPos == 8 && Sel8 != AttrDlg[8].Selected) // Состояние изменилось?
-              {
-                if(AttrDlg[8].Selected == 1 && AttrDlg[9].Selected)
-                   AttrDlg[9].Selected=0;
-                else if(AttrDlg[8].Selected == 2)
-                   AttrDlg[9].Selected=2;
-                RefreshNeed=TRUE;
-              }
-              else if(FocusPos == 9 && Sel9 != AttrDlg[9].Selected) // Состояние изменилось?
-              {
-                if(AttrDlg[9].Selected == 1 && AttrDlg[8].Selected)
-                   AttrDlg[8].Selected=0;
-                else if(AttrDlg[9].Selected == 2)
-                   AttrDlg[8].Selected=2;
-                RefreshNeed=TRUE;
-              }
-              Sel9=AttrDlg[9].Selected;
-              Sel8=AttrDlg[8].Selected;
-            }
-
-            // если снимаем атрибуты для SubFolders
-            // этот кусок всегда работает если есть хотя бы одна папка
-            // иначе 11-й недоступен и всегда снят.
-            if(FocusPos == 11)
-            {
-              if(SelCount==1) // каталог однозначно!
-              {
-                if(Sel11 != AttrDlg[11].Selected) // Состояние изменилось?
-                {
-//                  EmptyDialog(AttrDlg,1,1);
-                  // убираем 3-State
-                  for(I=4; I <= 9; ++I)
-                  {
-                    if(!AttrDlg[11].Selected) // сняли?
-                    {
-                      AttrDlg[I].Selected=OriginalCBAttr[I-4];
-                      AttrDlg[I].Flags&=~DIF_3STATE;
-                    }
-                    else                      // установили?
-                    {
-                      AttrDlg[I].Flags|=DIF_3STATE;
-                      if(OriginalCBAttr2[I-4] == -1)
-                        AttrDlg[I].Selected=2;
-                    }
-                  }
-                  if(!AttrDlg[11].Selected)
-                    FillingOfFields(SelName,FileAttr,AttrDlg,0);
-                  RefreshNeed=TRUE;
-                }
-              }
-              else  // много объектов
-              {
-                if(Sel11 != AttrDlg[11].Selected) // Состояние изменилось?
-                {
-//                  EmptyDialog(AttrDlg,1,0);
-                  for(I=4; I <= 9; ++I)
-                  {
-                    if(!AttrDlg[11].Selected) // сняли?
-                    {
-                      AttrDlg[I].Selected=OriginalCBAttr[I-4];
-                      AttrDlg[I].Flags=OriginalCBFlag[I-4];
-                    }
-                    else                      // установили?
-                    {
-                      if(OriginalCBAttr2[I-4] == -1)
-                      {
-                        AttrDlg[I].Flags|=DIF_3STATE;
-                        AttrDlg[I].Selected=2;
-                      }
-                    }
-                  }
-                  RefreshNeed=TRUE;
-                }
-              }
-              Sel11=AttrDlg[11].Selected;
-            }
-
-            if(RefreshNeed)
-            {
-              RefreshNeed=FALSE;
-              Dlg.InitDialogObjects();
-              Dlg.Show();
-            }
-          }
-        }
-        if (Dlg.GetExitCode()!=27)
-          return 0;
-      }
-
       CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 
       SetAttr=0;  ClearAttr=0;
@@ -972,4 +823,124 @@ int ShellSetFileAttributes(Panel *SrcPanel)
   AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
   AnotherPanel->Redraw();
   return 1;
+}
+
+static int ReadFileTime(int Type,char *Name,DWORD FileAttr,FILETIME *FileTime,
+                       char *OSrcDate,char *OSrcTime)
+{
+  FILETIME ft, oft;
+  SYSTEMTIME st, ost;
+  unsigned DateN[3],TimeN[3];
+  int DigitCount,I;
+  int SetTime,GetTime;
+  FILETIME *OriginalFileTime, OFTModify, OFTCreate, OFTLast;
+  char SrcDate[32], SrcTime[32];
+  char *Ptr,Digit[16],*PtrDigit;
+
+  // ****** ОБРАБОТКА ДАТЫ ******** //
+  strncpy(SrcDate,OSrcDate,sizeof(SrcDate));
+  DateN[0]=DateN[1]=DateN[2]=(unsigned)-1;
+  I=0;
+  Ptr=SrcDate;
+  int DateSeparator=GetDateSeparator();
+  while((Ptr=GetCommaWord(Ptr,Digit,DateSeparator)) != NULL)
+  {
+    PtrDigit=Digit;
+    while (*PtrDigit && !isdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      DateN[I]=atoi(PtrDigit);
+    ++I;
+  }
+
+  // ****** ОБРАБОТКА ВРЕМЕНИ ******** //
+  strncpy(SrcTime,OSrcTime,sizeof(SrcTime));
+  TimeN[0]=TimeN[1]=TimeN[2]=(unsigned)-1;
+  I=0;
+  Ptr=SrcTime;
+  int TimeSeparator=GetTimeSeparator();
+  while((Ptr=GetCommaWord(Ptr,Digit,TimeSeparator)) != NULL)
+  {
+    PtrDigit=Digit;
+    while (*PtrDigit && !isdigit(*PtrDigit))
+      PtrDigit++;
+    if(*PtrDigit)
+      TimeN[I]=atoi(PtrDigit);
+    ++I;
+  }
+
+  // исключаем лишние телодвижения
+  if(DateN[0] == -1 || DateN[1] == -1 || DateN[2] == -1 ||
+     TimeN[0] == -1 || TimeN[1] == -1 || TimeN[2] == -1)
+  {
+    // получаем инфу про оригинальную дату и время файла.
+    HANDLE hFile=CreateFile(Name,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,
+                 NULL,OPEN_EXISTING,
+                 (FileAttr & FA_DIREC) ? FILE_FLAG_BACKUP_SEMANTICS:0,NULL);
+    if (hFile==INVALID_HANDLE_VALUE)
+      return(FALSE);
+    GetTime=GetFileTime(hFile,&OFTCreate,&OFTLast,&OFTModify);
+    CloseHandle(hFile);
+
+    if(!GetTime)
+      return(FALSE);
+
+    switch(Type)
+    {
+      case 0: // Modif
+        OriginalFileTime=&OFTModify;
+        break;
+      case 1: // Creat
+        OriginalFileTime=&OFTCreate;
+        break;
+      case 2: // Last
+        OriginalFileTime=&OFTLast;
+        break;
+    }
+
+    // конвертнем в локальное время.
+    FileTimeToLocalFileTime(OriginalFileTime,&oft);
+    FileTimeToSystemTime(&oft,&ost);
+    st.wDayOfWeek=ost.wDayOfWeek;
+    st.wMilliseconds=ost.wMilliseconds;
+    DigitCount=TRUE;
+  }
+  else
+    DigitCount=FALSE;
+
+  // "Оформим"
+  switch(GetDateFormat())
+  {
+    case 0:
+      st.wMonth=DateN[0]!=(unsigned)-1?DateN[0]:ost.wMonth;
+      st.wDay  =DateN[1]!=(unsigned)-1?DateN[1]:ost.wDay;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
+      break;
+    case 1:
+      st.wDay  =DateN[0]!=(unsigned)-1?DateN[0]:ost.wDay;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
+      st.wYear =DateN[2]!=(unsigned)-1?DateN[2]:ost.wYear;
+      break;
+    default:
+      st.wYear =DateN[0]!=(unsigned)-1?DateN[0]:ost.wYear;
+      st.wMonth=DateN[1]!=(unsigned)-1?DateN[1]:ost.wMonth;
+      st.wDay  =DateN[2]!=(unsigned)-1?DateN[2]:ost.wDay;
+      break;
+  }
+  st.wHour   = TimeN[0]!=(unsigned)-1? (TimeN[0]):ost.wHour;
+  st.wMinute = TimeN[1]!=(unsigned)-1? (TimeN[1]):ost.wMinute;
+  st.wSecond = TimeN[2]!=(unsigned)-1? (TimeN[2]):ost.wSecond;
+
+  if (st.wYear<100)
+    if (st.wYear<80)
+      st.wYear+=2000;
+    else
+      st.wYear+=1900;
+
+  // преобразование в "удобоваримый" формат
+  SystemTimeToFileTime(&st,&ft);
+  LocalFileTimeToFileTime(&ft,FileTime);
+  if(DigitCount)
+    return (!CompareFileTime(FileTime,OriginalFileTime))?FALSE:TRUE;
+  return TRUE;
 }

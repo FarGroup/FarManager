@@ -8,13 +8,18 @@
   Copyright (c) 1996-2000 Eugene Roshal
   Copyrigth (c) 2000-2001 [ FAR group ]
 */
-/* Revision: 1.105 17.05.2001 $ */
+/* Revision: 1.106 18.05.2001 $ */
 
 /*
 ВНИМАНИЕ!
 В этом файле писать все изменения только в в этом блоке!!!!
 
 Modify:
+  18.05.2001 SVS
+    + DM_LISTINSERT, DM_LISTINFO, DM_LISTFINDSTRING
+    + DM_GETCHECK, DM_SETCHECK, DM_SET3STATE
+    + BSTATE_*
+    + Структуры FarListInsert, FarListInfo, FarListFind
   17.05.2001 SVS
     + DM_LISTUPDATE
     + FMENU_SHOWNOBOX (ЭТО НЕ ПУБЛИКУЕТСЯ, ЭТО ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ!)
@@ -625,6 +630,10 @@ enum FarMessagesProc{
   DM_SHOWITEM,
   DM_ADDHISTORY,
 
+  DM_GETCHECK,
+  DM_SETCHECK,
+  DM_SET3STATE,
+
   DM_LISTSORT,
   DM_LISTGET,
   DM_LISTGETCURPOS,
@@ -633,6 +642,9 @@ enum FarMessagesProc{
   DM_LISTADD,
   DM_LISTADDSTR,
   DM_LISTUPDATE,
+  DM_LISTINSERT,
+  DM_LISTFINDSTRING,
+  DM_LISTINFO,
 
   DN_FIRST=0x1000,
   DN_BTNCLICK,
@@ -658,12 +670,18 @@ enum FarMessagesProc{
   DM_USER=0x4000,
 };
 
-enum LISTITEMFLAGS{
+enum LISTITEMFLAGS {
   LIF_SELECTED = 0x00010000UL,
   LIF_CHECKED  = 0x00020000UL,
   LIF_SEPARATOR= 0x00040000UL,
   LIF_DISABLE  = 0x00080000UL,
   LIF_PTRDATA  = 0x00100000UL,
+};
+
+enum CHECKEDSTATE {
+  BSTATE_UNCHECKED = 0,
+  BSTATE_CHECKED   = 1,
+  BSTATE_3STATE    = 2
 };
 
 struct FarListItem
@@ -692,10 +710,34 @@ struct FarListUpdate
   struct FarListItem *Items;
 };
 
+struct FarListInsert
+{
+  int Index;
+  struct FarListItem *Item;
+};
+
+struct FarListFind
+{
+  int StartIndex;
+  char *Pattern;
+  DWORD Reserved[2];
+};
+
 struct FarListDelete
 {
   int StartIndex;
   int Count;
+};
+
+struct FarListInfo
+{
+  DWORD Flags;
+  int ItemsNumber;
+  int SelectPos;
+  int TopPos;
+  int MaxHeight;
+  int MaxLength;
+  DWORD Reserved[6];
 };
 
 struct FarDialogItem
@@ -703,7 +745,8 @@ struct FarDialogItem
   int Type;
   int X1,Y1,X2,Y2;
   int Focus;
-  union {
+  union
+  {
     int Selected;
     char *History;
     char *Mask;
@@ -712,10 +755,12 @@ struct FarDialogItem
   };
   DWORD Flags;
   int DefaultButton;
-  union {
+  union
+  {
     char Data[512];
     int  ListPos;
-    struct {
+    struct
+    {
       DWORD PtrFlags;
       int   PtrLength;
       char *PtrData;
@@ -739,6 +784,9 @@ struct FarDialogItemData
 #define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
 #define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
 #define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(long)Str)
+
+#define DlgItem_GetCheck(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_GETCHECK,ID,0)
+#define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.SendDlgMessage(hDlg,DM_SETCHECK,ID,State)
 
 #define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(long)Str)
 
