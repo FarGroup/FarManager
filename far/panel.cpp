@@ -5,10 +5,12 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.33 24.04.2001 $ */
+/* Revision: 1.34 26.04.2001 $ */
 
 /*
 Modify:
+  26.04.2001 VVM
+    ! Отмена патча 547
   24.04.2001 SVS
     + Заполнение флагов PanelInfo.Flags
     - !@AFQ! в корне любого диска делал "E:\\file.txt", т.е. 2 слеша.
@@ -206,10 +208,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
       {
         sprintf(MenuText,"&%c: ",'A'+I);
         sprintf(RootDir,"%c:\\",'A'+I);
-        DriveType = DRIVE_NOT_INIT;
+        DriveType = GetDriveType(RootDir);
         if (Opt.ChangeDriveMode & DRIVE_SHOW_TYPE)
         {
-          DriveType = GetDriveType(RootDir);
           switch(DriveType)
           {
             case DRIVE_REMOVABLE:
@@ -247,18 +248,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
           strcat(MenuText,DiskType);
         }
 
-        int ShowDisk = TRUE;
-        /* $ 22.04.2001 SVS
-           Временная отмена куска патча 547
-        */
-//        if (!((Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE) &&
-//              (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM)))
-        /* SVS $ */
-        // Мы хотим спрятать cd-rom или сменный диск
-        {
-          ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
-                     (DriveType!=DRIVE_CDROM || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM));
-        }
+        int ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Opt.ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
+                       (DriveType!=DRIVE_CDROM || (Opt.ChangeDriveMode & DRIVE_SHOW_CDROM));
         if (Opt.ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
         {
           char VolumeName[NM],FileSystemName[NM];
@@ -473,12 +464,6 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                  Попробуем сделать Eject :-)
               */
               DriveType=(DWORD)(BYTE)DiskLetter[2];
-              if (DriveType == DRIVE_NOT_INIT)
-              {
-                char RootDir[4];
-                sprintf(RootDir, "%c:\\", *DiskLetter);
-                DriveType = GetDriveType(RootDir);
-              }
               if(DriveType == DRIVE_REMOVABLE || DriveType == DRIVE_CDROM)
               {
                 DWORD Flags=0;
