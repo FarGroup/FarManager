@@ -1,5 +1,6 @@
 #include "multiarc.hpp"
 #include "arcread.cpp"
+#include "ArcPut.cpp"
 #include "arcproc.cpp"
 #include "arcmix.cpp"
 #include "arccfg.cpp"
