@@ -5,10 +5,14 @@ Parent class для панелей
 
 */
 
-/* Revision: 1.03 05.09.2000 $ */
+/* Revision: 1.04 06.09.2000 $ */
 
 /*
 Modify:
+  06.09.2000 tran
+    - правя баг, внесли пару новых:
+       1. strncpy не записывает 0 в конец строки
+       2. GetDriveType вызывается постоянно, что грузит комп.
   05.09.2000 SVS
     - Bug#12 -   При удалении сетевого диска по Del и отказе от меню
         фар продолжает показывать удаленный диск. хотя не должен.
@@ -337,6 +341,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
     while (!ChDisk.Done())
     {
+      //SysLog("ExitCode=%i",ChDisk.GetExitCode());
       int SelPos=ChDisk.GetSelectPos();
       int Key;
       {
@@ -420,13 +425,20 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
                Лучше будет, если он не даст выходить из меню если удален
                текущий диск
       */
-      if (ChDisk.GetExitCode()<0)
+      /* $ 06.09.2000 tran
+         правя баг, внесли пару новых:
+         1. strncpy не записывает 0 в конец строки
+         2. GetDriveType вызывается постоянно, что грузит комп.
+      */
+      if (ChDisk.Done() && ChDisk.GetExitCode()<0)
       {
         char RootDir[10];
         strncpy(RootDir,CurDir,3);
-        if (GetDriveType(RootDir)==1)
+        RootDir[3]=0;
+        if (GetDriveType(RootDir)==DRIVE_NO_ROOT_DIR)
           ChDisk.ClearDone();
       }
+      /* tran $ */
       /* SVS $ */
     }
     if (ChDisk.GetExitCode()<0)
