@@ -284,7 +284,7 @@ int PluginClass::SelectFormat(char *ArcFormat,int AddOnly)
     if (ExitCode>=0)
     {
       strcpy(ArcFormat,MenuItems[ExitCode].Text.Text);
-      if(BreakCode==0||BreakCode==1)  // F4 or Enter pressed
+      if(BreakCode >=0 && BreakCode <= 1 || !AddOnly)  // F4 or Enter pressed
         ConfigCommands(ArcFormat,2,TRUE,LOWORD(MenuItems[ExitCode].UserData),HIWORD(MenuItems[ExitCode].UserData));
       else
         break;
